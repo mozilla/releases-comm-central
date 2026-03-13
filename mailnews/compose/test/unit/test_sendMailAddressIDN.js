@@ -168,7 +168,6 @@ async function doSendTest(aRecipient, aRecipientExpected, waitForPrompt) {
       Ci.nsIMsgSend.nsMsgDeliverNow,
       null,
       new MsgSendListener(aRecipientExpected, originalData),
-      null,
       null
     );
 

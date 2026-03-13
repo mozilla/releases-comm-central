@@ -49,7 +49,6 @@ class EmailTransport extends CalItipDefaultEmailTransport {
         deliverMode,
         msgToReplace,
         listener,
-        statusFeedback,
         smtpPassword
       ) {
         sentMsgs.push({
@@ -62,7 +61,6 @@ class EmailTransport extends CalItipDefaultEmailTransport {
           deliverMode,
           msgToReplace,
           listener,
-          statusFeedback,
           smtpPassword,
         });
       },

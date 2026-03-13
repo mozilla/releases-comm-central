@@ -188,8 +188,6 @@ export class MessageSend {
    *   feedback on the current send status. This parameter can also support
    *   the nsIMsgCopyServiceListener interface to receive notifications of copy
    *   finishing e.g. after saving a message to the sent mail folder.
-   * @param {?nsIMsgStatusFeedback} _statusFeedback - A feedback listener for
-   *   slightly different feedback on the message send status.
    * @param {string} smtpPassword - Pass this in to prevent a dialog if the
    *   password is needed for secure transmission.
    */
@@ -203,7 +201,6 @@ export class MessageSend {
     deliverMode,
     msgToReplace,
     listener,
-    _statusFeedback,
     smtpPassword
   ) {
     this._userIdentity = userIdentity;

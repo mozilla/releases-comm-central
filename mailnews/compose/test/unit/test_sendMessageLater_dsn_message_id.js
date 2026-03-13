@@ -89,7 +89,6 @@ async function test_dsn_message_id(filename, messageIdPattern) {
     Ci.nsIMsgSend.nsMsgQueueForLater,
     null,
     copyListener,
-    null,
     null
   );
   await copyListener.promise;

@@ -547,7 +547,7 @@ nsresult nsMsgSendLater::CompleteMailFileSend() {
       false,                        // bool digest_p,
       nsIMsgSend::nsMsgSendUnsent,  // nsMsgDeliverMode mode,
       nullptr,                      // nsIMsgDBHdr *msgToReplace,
-      sendListener, nullptr, nullptr, getter_AddRefs(promise));
+      sendListener, nullptr, getter_AddRefs(promise));
   return rv;
 }
 

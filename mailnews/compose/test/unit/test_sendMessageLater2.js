@@ -174,7 +174,6 @@ async function sendMessageLater(aTestFileIndex) {
     Ci.nsIMsgSend.nsMsgQueueForLater,
     null,
     copyListener,
-    null,
     null
   );
   await onStopCopyPromise.promise;

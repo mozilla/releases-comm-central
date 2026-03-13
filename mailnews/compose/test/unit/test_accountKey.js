@@ -69,7 +69,6 @@ add_task(async function testAccountKey() {
     Ci.nsIMsgSend.nsMsgDeliverNow,
     null,
     copyListener,
-    null,
     null
   );
 

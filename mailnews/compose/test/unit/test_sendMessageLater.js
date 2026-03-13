@@ -238,7 +238,6 @@ add_task(async function run_the_test() {
     Ci.nsIMsgSend.nsMsgQueueForLater,
     null,
     copyListener,
-    null,
     null
   );
 

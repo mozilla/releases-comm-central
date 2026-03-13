@@ -272,7 +272,6 @@ export class CalItipEmailTransport {
           Services.io.offline ? Ci.nsIMsgSend.nsMsgQueueForLater : Ci.nsIMsgSend.nsMsgDeliverNow,
           null, // nsIMsgDBHdr msgToReplace
           null, // nsIMsgSendListener aListener
-          null, // nsIMsgStatusFeedback aStatusFeedback
           ""
         ); // password
         return true;

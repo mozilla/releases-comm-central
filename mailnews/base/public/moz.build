@@ -48,7 +48,6 @@ XPIDL_SOURCES += [
     "nsIMsgProtocolInfo.idl",
     "nsIMsgPurgeService.idl",
     "nsIMsgShutdown.idl",
-    "nsIMsgStatusFeedback.idl",
     "nsIMsgTagService.idl",
     "nsIMsgThread.idl",
     "nsIMsgTxn.idl",

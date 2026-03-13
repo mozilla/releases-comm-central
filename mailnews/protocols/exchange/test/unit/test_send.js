@@ -202,7 +202,6 @@ add_task(async function test_moved_to_fcc_folder() {
     Ci.nsIMsgSend.nsMsgDeliverNow,
     null,
     sendListener,
-    null,
     null
   );
 

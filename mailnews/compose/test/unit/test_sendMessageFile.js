@@ -152,7 +152,6 @@ add_task(async function run_the_test() {
       Ci.nsIMsgSend.nsMsgDeliverNow,
       null,
       messageListener,
-      null,
       null
     );
 

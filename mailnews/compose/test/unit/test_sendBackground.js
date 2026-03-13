@@ -168,7 +168,6 @@ add_task(async function run_the_test() {
       Ci.nsIMsgSend.nsMsgQueueForLater,
       null,
       null,
-      null,
       null
     );
 
@@ -183,7 +182,6 @@ add_task(async function run_the_test() {
       false,
       false,
       Ci.nsIMsgSend.nsMsgDeliverBackground,
-      null,
       null,
       null,
       null
