@@ -142,9 +142,9 @@ checksum = "793db76d6187cd04dff33004d8e6c9cc4e05cd330500379d2394209271b4aeee"
 
 [[package]]
 name = "bytes"
-version = "1.9.0"
+version = "1.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "325918d6fe32f23b19878fe4b34794ae41fc19ddbe53b10571a4874d44ffd39b"
+checksum = "1e748733b7cbc798e1434b6ac524f0c1ff2ab456fe201501e6497c8417a4fc33"
 
 [[package]]
 name = "camino"
@@ -267,9 +267,9 @@ dependencies = [
 
 [[package]]
 name = "fastrand"
-version = "2.0.0"
+version = "2.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6999dc1837253364c2ebb0704ba97994bd874e8f195d665c50b7548f6ea92764"
+checksum = "37909eebbb50d72f9059c3b6d82c0463f2ff062c9e95845c43a6c9c0355411be"
 
 [[package]]
 name = "flate2"
@@ -312,7 +312,7 @@ dependencies = [
 
 [[package]]
 name = "glean"
-version = "67.0.0"
+version = "67.1.0"
 dependencies = [
  "crossbeam-channel",
  "env_logger",
@@ -331,9 +331,9 @@ dependencies = [
 
 [[package]]
 name = "glean-core"
-version = "67.0.0"
+version = "67.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b8146e9829a5fe15343fd3c42d8d41e478b02f68b8359346273cc56d7f7feff8"
+checksum = "0dbb14b253c35609e7b8b5b20d22b8bb6c6553451746a421fb7f1e7b81f5bc33"
 dependencies = [
  "android_logger",
  "bincode",
@@ -538,9 +538,9 @@ checksum = "da2479e8c062e40bf0066ffa0bc823de0a9368974af99c9f6df941d2c231e03f"
 
 [[package]]
 name = "log"
-version = "0.4.25"
+version = "0.4.28"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "04cbf5b083de1c7e0222a7a51dbfdba1cbe1c6ab0b15e29fff3f6c077fd9cd9f"
+checksum = "34080505efa8e45a4b816c349525ebe327ceaa8559756f0356cba97ef3bf7432"
 
 [[package]]
 name = "malloc_size_of_derive"
