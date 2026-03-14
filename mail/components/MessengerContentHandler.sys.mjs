@@ -368,7 +368,7 @@ export class MessengerContentHandler {
           cmdLine.preventDefault = true;
         }
       } catch (e) {
-        dump(e);
+        console.error(e);
       }
     }
 
@@ -471,11 +471,10 @@ export class MessengerContentHandler {
           break;
         }
 
-        dump("Warning: unrecognized command line flag " + curarg + "\n");
+        console.error(`Warning: unrecognized command line flag ${curarg}`);
         // To emulate the pre-nsICommandLine behavior, we ignore the
         // argument after an unrecognized flag.
         i += 2;
-        // xxxbsmedberg: make me use the console service!
       }
 
       if (i < count) {
@@ -508,7 +507,7 @@ export class MessengerContentHandler {
           return;
         }
       } catch (e) {
-        dump(e);
+        console.error(e);
       }
     }
     if (uri) {
