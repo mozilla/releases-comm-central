@@ -194,7 +194,6 @@ constexpr nsLiteralCString kJunkStatusChanged = "JunkStatusChanged"_ns;
 constexpr nsLiteralCString kKeywords = "Keywords"_ns;
 constexpr nsLiteralCString kMRMTimeChanged = "MRMTimeChanged"_ns;
 constexpr nsLiteralCString kMRUTimeChanged = "MRUTimeChanged"_ns;
-constexpr nsLiteralCString kMsgLoaded = "msgLoaded"_ns;
 constexpr nsLiteralCString kName = "Name"_ns;
 constexpr nsLiteralCString kNewMailReceived = "NewMailReceived"_ns;
 constexpr nsLiteralCString kNewMessages = "NewMessages"_ns;

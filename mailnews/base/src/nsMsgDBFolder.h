@@ -44,7 +44,6 @@ extern const nsLiteralCString kJunkStatusChanged;
 extern const nsLiteralCString kKeywords;
 extern const nsLiteralCString kMRMTimeChanged;
 extern const nsLiteralCString kMRUTimeChanged;
-extern const nsLiteralCString kMsgLoaded;
 extern const nsLiteralCString kName;
 extern const nsLiteralCString kNewMailReceived;
 extern const nsLiteralCString kNewMessages;
