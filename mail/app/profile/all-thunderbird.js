@@ -1531,3 +1531,6 @@ pref("signon.management.page.os-auth.locked.enabled", false);
 #ifdef XP_MACOSX
 pref("widget.macos.native-anchored-menus", false);
 #endif
+
+// The color used to style primary buttons and elements.
+pref("mail.appearance.accentColor", "accent-color");

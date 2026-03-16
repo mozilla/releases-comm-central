@@ -11,6 +11,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
 });
 
 Preferences.addAll([
+  { id: "mail.appearance.accentColor", type: "string" },
   { id: "mail.threadpane.listview", type: "int" },
   { id: "mail.threadpane.cardsview.rowcount", type: "int" },
   { id: "mailnews.default_view_flags", type: "int" },
@@ -26,6 +27,8 @@ ChromeUtils.defineLazyGetter(lazy, "notification", () => {
     document.getElementById("appearance-notifications").append(element);
   });
 });
+
+const prefersContrast = window.matchMedia("(prefers-contrast)");
 
 export const appearancePane = {
   init() {
@@ -61,6 +64,9 @@ export const appearancePane = {
       .addEventListener("command", event => {
         this.applyViewToFolder(event, true);
       });
+    prefersContrast.addEventListener("change", () => {
+      document.getElementById("accentColor").disabled = prefersContrast.matches;
+    });
   },
 
   /**

@@ -9,6 +9,37 @@
     <html:h1 data-l10n-id="appearance-category-header"/>
   </hbox>
 
+  <html:fieldset id="colorGroup" data-category="paneAppearance">
+    <html:legend data-l10n-id="accent-color-legend"></html:legend>
+    <hbox align="center" pack="start">
+      <label data-l10n-id="accent-color-label"
+             control="accentColor"/>
+      <hbox flex="1">
+        <menulist id="accentColor" preference="mail.appearance.accentColor">
+          <menupopup native="false">
+            <menuitem value="accent-color" class="accent-color-os"
+                      data-l10n-id="accent-color-os"/>
+            <menuitem value="thunderbird" class="accent-color-thunderbird"
+                      data-l10n-id="accent-color-thunderbird"/>
+            <menuitem value="purple" class="accent-color-purple"
+                      data-l10n-id="accent-color-purple"/>
+            <menuitem value="orange" class="accent-color-orange"
+                      data-l10n-id="accent-color-orange"/>
+            <menuitem value="pink" class="accent-color-pink"
+                      data-l10n-id="accent-color-pink"/>
+            <menuitem value="ink" class="accent-color-ink"
+                      data-l10n-id="accent-color-ink"/>
+            <menuitem value="teal" class="accent-color-teal"
+                      data-l10n-id="accent-color-teal"/>
+          </menupopup>
+        </menulist>
+      </hbox>
+    </hbox>
+    <description id="accentColorDisabledDescription"
+                 data-l10n-id="accent-color-disabled-description"
+                 class="tip-caption"/>
+  </html:fieldset>
+
   <html:fieldset id="layoutGroup" data-category="paneAppearance">
     <html:legend data-l10n-id="window-layout-legend"></html:legend>
     <hbox>
@@ -22,7 +53,7 @@
                   data-l10n-id="auto-hide-tabbar-label"
                   preference="mail.tabs.autoHide"/>
         <description data-l10n-id="auto-hide-tabbar-description"
-                      class="tip-caption indent"/>
+                     class="tip-caption indent"/>
       </vbox>
     </hbox>
   </html:fieldset>
@@ -32,16 +63,16 @@
     <separator class="thin"/>
 
     <label control="appearanceViewStyle"
-            data-l10n-id="appearance-view-style"/>
+           data-l10n-id="appearance-view-style"/>
     <radiogroup id="appearanceViewStyle"
                 class="indent appearance-options"
                 preference="mail.threadpane.listview">
       <radio id="appearanceStyleCards"
-              value="0"
-              data-l10n-id="appearance-radio-cards" />
+             value="0"
+             data-l10n-id="appearance-radio-cards" />
       <radio id="appearanceStyleTable"
-              value="1"
-              data-l10n-id="appearance-radio-table" />
+             value="1"
+             data-l10n-id="appearance-radio-table" />
     </radiogroup>
 
     <separator/>
@@ -55,11 +86,11 @@
                   class="indent"
                   preference="mail.threadpane.cardsview.rowcount">
         <radio id="cardStyle2Rows"
-                value="2"
-                data-l10n-id="appearance-card-style-2" />
+               value="2"
+               data-l10n-id="appearance-card-style-2" />
         <radio id="cardStyle3Rows"
-                value="3"
-                data-l10n-id="appearance-card-style-3" />
+               value="3"
+               data-l10n-id="appearance-card-style-3" />
       </radiogroup>
     </html:div>
 

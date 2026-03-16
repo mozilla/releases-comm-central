@@ -4,6 +4,7 @@
 
 @import url("chrome://messenger/skin/shared/preferences/subdialog.css");
 @import url("chrome://messenger/skin/colors.css");
+@import url("chrome://messenger/skin/variables.css");
 @import url("chrome://messenger/skin/icons.css");
 
 @namespace html url("http://www.w3.org/1999/xhtml");
@@ -1393,6 +1394,97 @@ qr-code-wizard {
 
 /* Appearance Tab */
 
+#accentColor {
+  flex: 1;
+
+  &::part(icon) {
+    block-size: 12px;
+    inline-size: 12px;
+    border-radius: 6px;
+    background-color: AccentColor;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.15);
+  }
+
+  &[value="thunderbird"]::part(icon) {
+    background-color: light-dark(var(--color-blue-60), var(--color-accent-blue-dark));
+  }
+
+  &[value="purple"]::part(icon) {
+    background-color: light-dark(var(--color-purple-80), var(--color-accent-purple-light));
+  }
+
+  &[value="orange"]::part(icon) {
+    background-color: light-dark(var(--color-accent-orange-light), var(--color-accent-orange-dark));
+  }
+
+  &[value="pink"]::part(icon) {
+    background-color: light-dark(var(--color-accent-pink-light), var(--color-accent-pink-dark));
+  }
+
+  &[value="ink"]::part(icon) {
+    background-color: light-dark(var(--color-accent-ink-light), var(--color-accent-ink-dark));
+  }
+
+  &[value="teal"]::part(icon) {
+    background-color: light-dark(var(--color-accent-teal-light), var(--color-accent-teal-dark));
+  }
+
+  @media (prefers-contrast) {
+    &::part(icon) {
+      background-color: SelectedItem !important;
+    }
+  }
+
+  menuitem {
+    &:before {
+      display: inline-block;
+      content: "";
+      inline-size: 12px;
+      block-size: 12px;
+      border-radius: 6px;
+      margin-inline-end: 6px;
+      padding-inline: 0;
+      background-color: AccentColor;
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.15);
+      visibility: visible;
+    }
+
+    &.accent-color-thunderbird:before {
+      background-color: light-dark(var(--color-blue-60), var(--color-accent-blue-dark));
+    }
+
+    &.accent-color-purple:before {
+      background-color: light-dark(var(--color-purple-80), var(--color-accent-purple-light));
+    }
+
+    &.accent-color-orange:before {
+      background-color: light-dark(var(--color-accent-orange-light), var(--color-accent-orange-dark));
+    }
+
+    &.accent-color-pink:before {
+      background-color: light-dark(var(--color-accent-pink-light), var(--color-accent-pink-dark));
+    }
+
+    &.accent-color-ink:before {
+      background-color: light-dark(var(--color-accent-ink-light), var(--color-accent-ink-dark));
+    }
+
+    &.accent-color-teal:before {
+      background-color: light-dark(var(--color-accent-teal-light), var(--color-accent-teal-dark));
+    }
+
+    @media (-moz-platform: macos) {
+      padding-inline-start: 6px;
+    }
+  }
+}
+
+@media not (prefers-contrast) {
+  #accentColorDisabledDescription {
+    display: none;
+  }
+}
+
 .pane-appearance-sorting-options {
   display: grid;
   grid-template-columns: max-content 1fr 1fr;
@@ -1503,12 +1595,12 @@ qr-code-wizard {
     }
 
     &[selected="true"] {
-      border-color: AccentColor;
-      outline: 1px solid AccentColor;
+      border-color: var(--selected-item-color);
+      outline: 1px solid var(--selected-item-color);
 
       .radio-icon {
-        fill: AccentColor;
-        stroke: AccentColor;
+        fill: var(--selected-item-color);
+        stroke: var(--selected-item-color);
       }
     }
   }
@@ -1569,7 +1661,7 @@ qr-code-wizard {
   }
 
   &.selected {
-    border-color: AccentColor;
+    border-color: var(--selected-item-color);
 
     @media not (forced-colors) {
       background-color: var(--section-highlight-background-color);

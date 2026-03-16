@@ -320,3 +320,61 @@
   --hub-address-book-option-padding: 18px 24px;
   --hub-address-book-remote-form-gap: 6px;
 }
+
+/* Custom accent color variations */
+
+@media not (prefers-contrast) {
+  /* stylelint-disable-next-line media-query-no-invalid */
+  @media -moz-pref("mail.appearance.accentColor", "thunderbird") {
+    :host,
+    :root {
+      --selected-item-color: light-dark(var(--color-blue-60), var(--color-accent-blue-dark));
+      --selected-item-text-color: light-dark(var(--color-white), var(--color-text-base-light));
+    }
+  }
+
+  /* stylelint-disable-next-line media-query-no-invalid */
+  @media -moz-pref("mail.appearance.accentColor", "purple") {
+    :host,
+    :root {
+      --selected-item-color: light-dark(var(--color-purple-80), var(--color-accent-purple-light));
+      --selected-item-text-color: light-dark(var(--color-white), var(--color-black));
+    }
+  }
+
+  /* stylelint-disable-next-line media-query-no-invalid */
+  @media -moz-pref("mail.appearance.accentColor", "orange") {
+    :host,
+    :root {
+      --selected-item-color: light-dark(var(--color-accent-orange-light), var(--color-accent-orange-dark));
+      --selected-item-text-color: light-dark(var(--color-white), var(--color-black));
+    }
+  }
+
+  /* stylelint-disable-next-line media-query-no-invalid */
+  @media -moz-pref("mail.appearance.accentColor", "pink") {
+    :host,
+    :root {
+      --selected-item-color: light-dark(var(--color-accent-pink-light), var(--color-accent-pink-dark));
+      --selected-item-text-color: var(--color-black);
+    }
+  }
+
+  /* stylelint-disable-next-line media-query-no-invalid */
+  @media -moz-pref("mail.appearance.accentColor", "ink") {
+    :host,
+    :root {
+      --selected-item-color: light-dark(var(--color-accent-ink-light), var(--color-accent-ink-dark));
+      --selected-item-text-color: light-dark(var(--color-white), var(--color-black));
+    }
+  }
+
+  /* stylelint-disable-next-line media-query-no-invalid */
+  @media -moz-pref("mail.appearance.accentColor", "teal") {
+    :host,
+    :root {
+      --selected-item-color: light-dark(var(--color-accent-teal-light), var(--color-accent-teal-dark));
+      --selected-item-text-color: light-dark(var(--color-white), var(--color-black));
+    }
+  }
+}

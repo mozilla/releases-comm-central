@@ -40,6 +40,7 @@ add_setup(async () => {
 
   registerCleanupFunction(() => {
     MailServices.accounts.removeAccount(account, false);
+    Services.prefs.clearUserPref("mail.appearance.accentColor");
     Services.prefs.clearUserPref("mail.threadpane.listview");
     Services.prefs.clearUserPref("mail.threadpane.cardsview.rowcount");
     Services.prefs.clearUserPref("mail.threadpane.table.horizontal_scroll");
@@ -192,6 +193,11 @@ add_task(async function test_default_preferences_flags() {
   info("Check that the menulist selected values match the preferences values.");
 
   Assert.equal(
+    prefsDocument.getElementById("accentColor").selectedItem.value,
+    Services.prefs.getStringPref("mail.appearance.accentColor"),
+    "The accent color menuitem should match the default pref"
+  );
+  Assert.equal(
     prefsDocument.getElementById("defaultViewFlags").selectedItem.value,
     Services.prefs.getIntPref("mailnews.default_view_flags"),
     "The view flags menuitem should match the default pref"
@@ -205,6 +211,48 @@ add_task(async function test_default_preferences_flags() {
     prefsDocument.getElementById("defaultSortOrder").selectedItem.value,
     Services.prefs.getIntPref("mailnews.default_sort_order"),
     "The sort order menuitem should match the default pref"
+  );
+});
+
+add_task(async function test_edit_accent_color() {
+  info(
+    "Ensure that changing the accent color menulist updates the preference."
+  );
+
+  await changeMenuItem(prefsDocument.getElementById("accentColor"), 2);
+  await new Promise(requestAnimationFrame);
+
+  Assert.equal(
+    Services.prefs.getStringPref("mail.appearance.accentColor"),
+    "purple",
+    "The accent color pref should have been updated"
+  );
+
+  info(
+    "Ensure that the changed accent color matches with an item consuming it."
+  );
+
+  const tabLineStyle = window.getComputedStyle(
+    document.querySelector(`.tab-line[selected="true"]`)
+  );
+  const iconStyle = window.getComputedStyle(
+    prefsDocument
+      .getElementById("accentColor")
+      .shadowRoot.querySelector(`[part="icon"]`)
+  );
+  Assert.equal(
+    tabLineStyle.backgroundColor,
+    iconStyle.backgroundColor,
+    "The tab line background color should match the selected color"
+  );
+
+  await changeMenuItem(prefsDocument.getElementById("accentColor"), 0);
+  await new Promise(requestAnimationFrame);
+
+  Assert.equal(
+    Services.prefs.getStringPref("mail.appearance.accentColor"),
+    "accent-color",
+    "The accent color pref should have been updated"
   );
 });
 
