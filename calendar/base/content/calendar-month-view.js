@@ -431,6 +431,66 @@
    * @abstract
    */
   class CalendarMonthBaseView extends MozElements.CalendarBaseView {
+    /**
+     * When scrolling with a touchpad or dragging on a touch screen,
+     * the delta is accumulated to scroll in discrete month rows.
+     *
+     * @type {number}
+     */
+    #mPixelScrollDelta = 0;
+
+    /**
+     * Maps ongoing touches (represented by their identifier) to their y-coordinate.
+     *
+     * @type {Map<number, number>}
+     */
+    #mOngoingTouches = new Map();
+
+    #handleTouchStart(event) {
+      this.mRowHeight = this.mDateBoxes[0].getBoundingClientRect().height;
+      for (const t of event.changedTouches) {
+        this.#mOngoingTouches.set(t.identifier, t.clientY);
+      }
+    }
+
+    #handleTouchEnd(event) {
+      for (const t of event.changedTouches) {
+        this.#mOngoingTouches.delete(t.identifier);
+      }
+      // if all drags have stopped, the next drag should start at 0 offset again
+      if (!this.#mOngoingTouches) {
+        this.#mPixelScrollDelta = 0;
+      }
+    }
+
+    /**
+     * Handle scrolling with a touch screen.
+     *
+     * @param {TouchEvent} event
+     */
+    #handleTouchMove(event) {
+      event.preventDefault();
+      // Ignore multitouch events, we just want simple drags
+      if (this.#mOngoingTouches.size > 1) {
+        return;
+      }
+
+      const t = event.changedTouches[0];
+      const prevY = this.#mOngoingTouches.get(t.identifier);
+      const newY = t.clientY;
+      const delY = newY - prevY;
+      this.#mOngoingTouches.set(t.identifier, newY);
+
+      this.#mPixelScrollDelta += delY;
+      if (this.#mPixelScrollDelta > this.mRowHeight) {
+        this.moveView(-1);
+        this.#mPixelScrollDelta = 0;
+      } else if (this.#mPixelScrollDelta < -this.mRowHeight) {
+        this.moveView(1);
+        this.#mPixelScrollDelta = 0;
+      }
+    }
+
     ensureInitialized() {
       if (this.isInitialized) {
         return;
@@ -461,13 +521,13 @@
               deltaView = event.deltaY < 0 ? -1 : 1;
             }
           } else if (event.deltaMode == event.DOM_DELTA_PIXEL) {
-            this.mPixelScrollDelta += event.deltaY;
-            if (this.mPixelScrollDelta > pixelThreshold) {
+            this.#mPixelScrollDelta += event.deltaY;
+            if (this.#mPixelScrollDelta > pixelThreshold) {
               deltaView = 1;
-              this.mPixelScrollDelta = 0;
-            } else if (this.mPixelScrollDelta < -pixelThreshold) {
+              this.#mPixelScrollDelta = 0;
+            } else if (this.#mPixelScrollDelta < -pixelThreshold) {
               deltaView = -1;
-              this.mPixelScrollDelta = 0;
+              this.#mPixelScrollDelta = 0;
             }
           }
 
@@ -476,6 +536,11 @@
           }
         }
       });
+
+      this.addEventListener("touchstart", this.#handleTouchStart);
+      this.addEventListener("touchend", this.#handleTouchEnd);
+      this.addEventListener("touchcancel", this.#handleTouchEnd);
+      this.addEventListener("touchmove", this.#handleTouchMove);
 
       this.mDateBoxes = null;
       this.mSelectedDayBox = null;
