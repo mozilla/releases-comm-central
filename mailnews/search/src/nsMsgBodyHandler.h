@@ -16,7 +16,10 @@
 // This is a helper class used by nsMsgSearchTerm::MatchBody() and
 // nsMsgSearchTerm::MatchArbitraryHeader().
 //---------------------------------------------------------------------------
+class nsMsgBodyHandler2;
 class nsMsgBodyHandler {
+  friend class nsMsgBodyHandler2;
+
  public:
   nsMsgBodyHandler(nsIMsgSearchScopeTerm*, nsIMsgDBHdr* msg);
 
@@ -33,8 +36,9 @@ class nsMsgBodyHandler {
 
   // Returns next message line in buf and the applicable charset, if found.
   // The return value is the length of 'buf' or -1 for EOF.
-  int32_t GetNextLine(nsCString& buf, nsCString& charset);
+  int32_t GetNextLine(nsCString& buf, nsCString& charset, bool& needsQPReset);
   bool IsQP() { return m_partIsQP; }
+  void resetQP() { m_partIsQP = false; }
 
   // Transformations
   void SetStripHeaders(bool strip) { m_stripHeaders = strip; }
@@ -66,17 +70,32 @@ class nsMsgBodyHandler {
   bool m_base64part;   // true if the current part is in base64
   bool m_isMultipart;  // true if the message is a multipart/* message
   bool m_partIsText;   // true if the current part is text/*
+  bool m_seenMpPGP;    // true if we've seen the multipart/encrypted;
+                       // protocol="application/pgp-encrypted"; header
+  bool m_partIsPGP;    // true if the current part is the PGP payload in
+                       // application/octet-stream
+  bool m_partIsSMIME;  // true if the current part is an S/MIME part
   bool m_inMessageAttachment;  // true if current part is message/*
 
   nsTArray<nsCString> m_boundaries;  // The boundary strings to look for
   nsCString m_partCharset;           // The charset found in the part
+  // String to hold the decrypted result.
+  nsCString mDecrypted;
 
   // See implementation for comments
   int32_t ApplyTransformations(const nsCString& line, int32_t length,
-                               bool& returnThisLine, nsCString& buf);
+                               bool& returnThisLine, nsCString& buf,
+                               bool& needsQPReset);
   void SniffPossibleMIMEHeader(const nsCString& line);
   static void StripHtml(nsCString& buf);
   static void Base64Decode(nsCString& buf);
+  void DecryptPGP(const nsCString& aEncrypted, nsCString& aDecrypted);
+  void DecryptSMIME(const nsCString& aEncrypted, nsCString& aDecrypted);
+  static int OutputFunctionPGP(const char* buf, int32_t buf_size,
+                               int32_t outputClosureType, void* outputClosure);
+  static void OutputFunctionSMIME(void* arg, const char* buf,
+                                  unsigned long length);
+  void GetRelevantTextParts(const nsCString& aInput, nsCString& aOutput);
 };
 
 #endif  // COMM_MAILNEWS_SEARCH_SRC_NSMSGBODYHANDLER_H_

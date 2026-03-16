@@ -2,9 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/*
+/**
  * This tests various body search criteria.
  */
+
+const { OpenPGPTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/OpenPGPTestUtils.sys.mjs"
+);
+const { SmimeUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/SmimeUtils.sys.mjs"
+);
+
 /* import-globals-from ../../../test/resources/searchTestUtils.js */
 load("../../../resources/searchTestUtils.js");
 
@@ -84,6 +92,15 @@ var Files = [
   // Message using ISO-2022-JP and 7bit, but containing something that looks like quoted-printable.
   // (bug 314637).
   "../../../data/iso-2022-jp-not-qp.eml", // plaintext, has 現況 which contains =67.
+
+  // OpenPGP encrypted message.
+  "../../../../mail/test/browser/openpgp/data/eml/encrypted-and-signed-alice-to-bob-nonascii.eml",
+
+  // S/MIME encrypted message.
+  "../../../../mail/test/browser/smime/data/alice.env.eml",
+
+  // TODO: apparently search opaque does not work
+  //"../../../../mail/test/browser/smime/data/alice.sig.SHA256.opaque.env.eml",
 ];
 var Tests = [
   // Message basic1 has body: "Hello, world!"
@@ -162,6 +179,12 @@ var Tests = [
   { value: "日本", op: Contains, count: 1 },
   { value: "=1B$BF|K", op: Contains, count: 0 },
   { value: "現況", op: Contains, count: 1 },
+
+  // Test for OpenPGP encrypted message.
+  { value: "Detta är krypterat!", Contains, count: 1 },
+
+  // Test for S/MIME encrypted messsage.
+  { value: "This is a test message from Alice to Bob", Contains, count: 1 },
 ];
 
 function fixFile(file) {
@@ -229,7 +252,32 @@ var copyListener = {
   },
 };
 
-function run_test() {
+add_setup(async function () {
+  do_get_profile();
+
+  await OpenPGPTestUtils.initOpenPGP();
+  await OpenPGPTestUtils.importPrivateKey(
+    null,
+    do_get_file(
+      `../../../../mail/test/browser/openpgp/data/keys/alice@openpgp.example-0xf231550c4f47e38e-secret.asc`
+    )
+  );
+
+  SmimeUtils.ensureNSS();
+
+  SmimeUtils.loadPEMCertificate(
+    do_get_file("../../../../mailnews/test/data/smime/TestCA.pem"),
+    Ci.nsIX509Cert.CA_CERT
+  );
+  SmimeUtils.loadCertificateAndKey(
+    do_get_file("../../../../mailnews/test/data/smime/Bob.p12"),
+    "nss"
+  );
+
+  localAccountUtils.loadLocalMailAccount();
+});
+
+add_task(async function run_tests() {
   localAccountUtils.loadLocalMailAccount();
 
   // test that validity table terms are valid
@@ -281,7 +329,7 @@ function run_test() {
 
   do_test_pending();
   copyListener.onStopCopy(null);
-}
+});
 
 // process each test from queue, calls itself upon completion of each search
 function testBodySearch() {

@@ -1,4 +1,9 @@
 [DEFAULT]
+support-files = [
+  "../../../../mail/test/browser/openpgp/data/keys/*",
+  "../../../../mail/test/browser/openpgp/data/eml/*",
+  "../../../../mail/test/browser/smime/data/*"
+]
 head = "head_mailbase.js"
 
 ["test_base64_decoding.js"]
@@ -18,6 +23,10 @@ head = "head_mailbase.js"
 ["test_searchAddressInAb.js"]
 
 ["test_searchBody.js"]
+tags = [
+  "openpgp",
+  "smime",
+]
 
 ["test_searchBoolean.js"]
 

@@ -97,6 +97,7 @@ export function MimeDecryptHandler() {
   this.dataLength = 0;
   this.bytesWritten = 0;
   this.mimePartCount = 0;
+  this.inBodySearch = false;
   this.headerMode = 0;
   this.xferEncoding = ENCODING_DEFAULT;
   this.matchedPgpDelimiter = 0;
@@ -158,6 +159,7 @@ MimeDecryptHandler.prototype = {
     this.dataLength = 0;
     this.decryptedData = "";
     this.mimePartCount = 0;
+    this.inBodySearch = false;
     this.bytesWritten = 0;
     this.matchedPgpDelimiter = 0;
     this.dataIsBase64 = null;
@@ -210,6 +212,12 @@ MimeDecryptHandler.prototype = {
       } else {
         this.cacheData(data);
       }
+      // Check whether this data came in via a body search.
+    } else if (this.inBodySearch) {
+      this.cacheData(data);
+    } else if (data.startsWith("-----BEGIN PGP MESSAGE-----")) {
+      this.cacheData(data);
+      this.inBodySearch = true;
     }
   },
 

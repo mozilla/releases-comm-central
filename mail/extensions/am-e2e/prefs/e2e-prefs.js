@@ -11,6 +11,8 @@
 pref("mail.identity.default.encryptionpolicy", 0);
 pref("mail.identity.default.sign_mail", false);
 
+pref("mail.search_encrypted_bodies", true);
+
 //
 // S/MIME prefs
 //

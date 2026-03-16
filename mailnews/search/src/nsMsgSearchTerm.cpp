@@ -657,7 +657,8 @@ nsresult nsMsgSearchTerm::MatchArbitraryHeader(
 
   while (processingHeaders) {
     nsCString charsetIgnored;
-    if (bodyHandler.GetNextLine(buf, charsetIgnored) < 0 ||
+    bool needsQPResetIgnored;
+    if (bodyHandler.GetNextLine(buf, charsetIgnored, needsQPResetIgnored) < 0 ||
         EMPTY_MESSAGE_LINE(buf))
       processingHeaders =
           false;  // No more lines or empty line terminating headers.
@@ -808,7 +809,8 @@ nsresult nsMsgSearchTerm::MatchBody(nsIMsgSearchScopeTerm* scope,
 
     nsAutoCString buf;
     nsAutoCString charset;
-    int32_t n = bodyHandler.GetNextLine(buf, charset);
+    bool needsQPReset = false;
+    int32_t n = bodyHandler.GetNextLine(buf, charset, needsQPReset);
     if (n < 0) {
       break;  // EOF
     }
@@ -821,6 +823,9 @@ nsresult nsMsgSearchTerm::MatchBody(nsIMsgSearchScopeTerm* scope,
       // If soft line break, chop off the last char as well.
       size_t bufLength = buf.Length();
       if ((bufLength > 0) && softLineBreak) buf.SetLength(bufLength - 1);
+    }
+    if (needsQPReset) {
+      bodyHandler.resetQP();
     }
     compare.Append(buf);
     // If this line ends with a soft line break, loop around
