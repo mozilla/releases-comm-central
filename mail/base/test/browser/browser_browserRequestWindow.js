@@ -60,7 +60,7 @@ add_task(async function test_linkClick() {
   Assert.equal(tabInfo.browser.currentURI.spec, "https://example.com/");
 
   tabmail.closeOtherTabs(0);
-  EventUtils.synthesizeKey("VK_ESCAPE", {}, requestWindow);
+  EventUtils.synthesizeKey("KEY_Escape", {}, requestWindow);
 });
 
 add_task(async function test_urlBar() {
@@ -112,7 +112,7 @@ add_task(async function test_urlBar() {
 add_task(async function test_cancelWithEsc() {
   const { requestWindow, cancelledPromise } = await openBrowserRequestWindow();
 
-  EventUtils.synthesizeKey("VK_ESCAPE", {}, requestWindow);
+  EventUtils.synthesizeKey("KEY_Escape", {}, requestWindow);
   await cancelledPromise;
 });
 

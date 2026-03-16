@@ -221,6 +221,6 @@ async function toggleColumn(columnID) {
   );
 
   // The column picker menupopup doesn't close automatically on purpose.
-  EventUtils.synthesizeKey("VK_ESCAPE", {}, about3Pane);
+  EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
   await BrowserTestUtils.waitForPopupEvent(colPickerPopup, "hidden");
 }

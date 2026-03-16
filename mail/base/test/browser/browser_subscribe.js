@@ -407,7 +407,7 @@ add_task(async function testNNTPSubscribe() {
 
         // Clear the search field.
 
-        EventUtils.synthesizeKey("VK_ESCAPE", {}, win);
+        EventUtils.synthesizeKey("KEY_Escape", {}, win);
 
         await TestUtils.waitForCondition(
           () => view.rowCount == 5,
