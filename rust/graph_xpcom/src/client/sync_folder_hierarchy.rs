@@ -3,7 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use fxhash::FxHashMap;
-use ms_graph_tb::{DeltaResponse, paths};
+use ms_graph_tb::{
+    pagination::{DeltaItem, DeltaResponse},
+    paths,
+};
 use protocol_shared::{
     EXCHANGE_DISTINGUISHED_IDS, EXCHANGE_ROOT_FOLDER,
     authentication::credentials::AuthenticationProvider, client::DoOperation,
@@ -54,41 +57,52 @@ impl<ServerT: AuthenticationProvider + RefCounted>
         loop {
             let folders = response.response();
 
-            for folder in folders {
-                let folder_id = folder.entity().id()?.to_string();
-                let display_name = folder
-                    .display_name()?
-                    .ok_or_else(|| XpComGraphError::Processing {
-                        message: format!("Folder without display name: {folder_id}"),
-                    })?
-                    .to_string();
-                let parent_folder_id = folder
-                    .parent_folder_id()?
-                    .ok_or_else(|| XpComGraphError::Processing {
-                        message: format!("Folder without parent ID: {display_name} {folder_id}"),
-                    })?
-                    .to_string();
+            for folder_delta in folders {
+                match folder_delta {
+                    DeltaItem::Removed(folder) => {
+                        let folder_id = folder.id().to_string();
+                        let reason = folder.reason();
+                        log::debug!(
+                            "Removing folder {folder_id} from delta sync (reason: {reason:?})"
+                        );
+                        self.listener.on_folder_deleted(folder_id)?;
+                    }
+                    DeltaItem::Present(folder) => {
+                        let folder_id = folder.entity().id()?.to_string();
+                        let display_name = folder
+                            .display_name()?
+                            .ok_or_else(|| XpComGraphError::Processing {
+                                message: format!("Folder without display name: {folder_id}"),
+                            })?
+                            .to_string();
+                        let parent_folder_id = folder
+                            .parent_folder_id()?
+                            .ok_or_else(|| XpComGraphError::Processing {
+                                message: format!(
+                                    "Folder without parent ID: {display_name} {folder_id}"
+                                ),
+                            })?
+                            .to_string();
 
-                // FIXME: get @removed objects
-                // https://learn.microsoft.com/en-us/graph/delta-query-overview#resource-representation-in-the-delta-query-response
-
-                // Graph doesn't provide a way to consistently distinguish new
-                // and updated objects, so it's tracked here by attempting to
-                // modify the folders and falling back to creating them.
-                if let Err(err) = self.listener.on_folder_updated(
-                    Some(folder_id.clone()),
-                    Some(parent_folder_id.clone()),
-                    Some(display_name.clone()),
-                ) {
-                    log::debug!(
-                        "Folder update failed ({err}); falling back to create for {folder_id}"
-                    );
-                    self.listener.on_folder_created(
-                        Some(folder_id),
-                        Some(parent_folder_id),
-                        Some(display_name),
-                        &well_known,
-                    )?;
+                        // Graph doesn't provide a way to consistently distinguish new
+                        // and updated objects, so it's tracked here by attempting to
+                        // modify the folders and falling back to creating them.
+                        if let Err(err) = self.listener.on_folder_updated(
+                            Some(folder_id.clone()),
+                            Some(parent_folder_id.clone()),
+                            Some(display_name.clone()),
+                        ) {
+                            log::debug!(
+                                "Folder update failed ({err}); falling back to create for {folder_id}"
+                            );
+                            self.listener.on_folder_created(
+                                Some(folder_id),
+                                Some(parent_folder_id),
+                                Some(display_name),
+                                &well_known,
+                            )?;
+                        }
+                    }
                 }
             }
 

@@ -5,6 +5,7 @@
 // EDITS TO THIS FILE WILL BE OVERWRITTEN
 
 #![doc = "Provides operations to manage the messages property of the microsoft.graph.user entity.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
+use crate::pagination::*;
 use crate::types::message::*;
 use crate::types::message_collection_response::*;
 use crate::*;

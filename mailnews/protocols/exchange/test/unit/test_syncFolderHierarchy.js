@@ -190,6 +190,41 @@ async function runSecondSyncRequiredTest(syncServer, syncClient) {
   syncServer.maxSyncItems = Infinity;
 }
 
+/**
+ * Test initial Graph sync when there is already a removed (restorable) item.
+ */
+add_task(async function testInitialGraphSyncWithRemovedItem() {
+  graphServer.setRemoteFolders(graphServer.getWellKnownFolders());
+  graphServer.appendRemoteFolder(
+    new RemoteFolder("restorable-folder", "root", "Restorable Folder")
+  );
+  graphServer.deleteRemoteFolderById("restorable-folder");
+
+  const listener = new GraphInitialSyncListener();
+  graphClient.syncFolderHierarchy(listener, null);
+  await listener._deferred.promise;
+
+  Assert.deepEqual(
+    [...listener._createdFolderIds],
+    [
+      "inbox",
+      "deleteditems",
+      "drafts",
+      "outbox",
+      "sentitems",
+      "junkemail",
+      "archive",
+    ],
+    "initial sync should still create all live folders"
+  );
+  Assert.deepEqual(
+    listener._deletedFolderIds,
+    ["restorable-folder"],
+    "initial sync should surface removed Graph items as deletes"
+  );
+  Assert.ok(listener._syncStateToken, "sync token should exist");
+});
+
 class EwsFolderCallbackListener {
   QueryInterface = ChromeUtils.generateQI([
     "IEwsFolderListener",
@@ -233,6 +268,17 @@ class EwsFolderCallbackListener {
   }
   onOperationFailure(err) {
     this._deferred.reject(new Error(`syncFolderHierarchy FAILED: ${err}`));
+  }
+}
+
+class GraphInitialSyncListener extends EwsFolderCallbackListener {
+  constructor() {
+    super();
+    this._deletedFolderIds = [];
+  }
+
+  onFolderDeleted(id) {
+    this._deletedFolderIds.push(id);
   }
 }
 

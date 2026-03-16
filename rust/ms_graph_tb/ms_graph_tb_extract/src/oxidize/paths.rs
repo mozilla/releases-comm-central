@@ -82,6 +82,7 @@ impl ToTokens for Path {
             use std::str::FromStr;
 
             #imports
+            use crate::pagination::*;
             use crate::*;
 
             #template_expressions
@@ -91,13 +92,31 @@ impl ToTokens for Path {
 }
 
 fn operation_response(operation: &Operation) -> TokenStream {
-    let mut response = operation.success.to_token_stream();
     if operation.delta {
-        response = quote!(DeltaResponse<#response>);
+        let response = delta_response_value(operation);
+        quote!(DeltaResponse<#response>)
     } else if operation.pageable {
-        response = quote!(Paginated<#response>);
+        let response = operation.success.to_token_stream();
+        quote!(Paginated<#response>)
+    } else {
+        operation.success.to_token_stream()
     }
-    response
+}
+
+fn delta_response_value(operation: &Operation) -> TokenStream {
+    let Success::WithBody(body) = &operation.success else {
+        panic!("delta operations must have a response body: {operation:?}");
+    };
+
+    assert!(
+        body.property.is_collection,
+        "delta operations must have a collection response body: {operation:?}"
+    );
+
+    let mut element = body.property.clone();
+    element.is_collection = false;
+
+    return_type(&element, Reference::Own, Some("'response"))
 }
 
 fn http_get(

@@ -214,40 +214,53 @@ export class GraphServer extends MockServer {
    * @returns {object}
    */
   #mailFoldersDelta(queryString) {
+    const params = new URLSearchParams(queryString);
     const context = `${this.#endpoint}/$metadata#users('me')/mailFolders`;
-    const fakeToken = `${this.#endpoint}/me/mailFolders/delta()?$deltatoken=fake-sync-token`;
-    const folders = this.folders
+    const nextDelta = `${this.#endpoint}/me/mailFolders/delta()?$deltatoken=${this.deletedFolders.length}`;
+    const deletedOffset = Number.parseInt(params.get("$deltatoken") ?? "0", 10);
+    const liveFolders = this.folders
       .filter(folder => folder.distinguishedId != "msgfolderroot")
       .map(folder => ({
         id: folder.id,
         displayName: folder.displayName,
         parentFolderId: folder.parentId,
       }));
-    const skipMatch = queryString.match(/\$skiptoken=(\d+)/);
-    const skipCount = skipMatch ? Number.parseInt(skipMatch[1], 10) : 0;
+    const removedItems = this.deletedFolders
+      .slice(deletedOffset)
+      .map(folder => ({
+        id: folder.id,
+        "@removed": { reason: "changed" },
+      }));
+    const folders = removedItems.concat(liveFolders);
+    const skipCount = Number.parseInt(params.get("$skiptoken") ?? "0", 10);
 
     if (!Number.isFinite(this.maxSyncItems) || this.maxSyncItems <= 0) {
       return {
         "@odata.context": context,
         value: folders,
-        "@odata.deltaLink": fakeToken,
+        "@odata.deltaLink": nextDelta,
       };
     }
 
     const page = folders.slice(skipCount, skipCount + this.maxSyncItems);
     const nextSkipCount = skipCount + this.maxSyncItems;
     if (nextSkipCount < folders.length) {
+      const nextParams = new URLSearchParams();
+      nextParams.set("$skiptoken", `${nextSkipCount}`);
+      if (params.has("$deltatoken")) {
+        nextParams.set("$deltatoken", `${deletedOffset}`);
+      }
       return {
         "@odata.context": context,
         value: page,
-        "@odata.nextLink": `${this.#endpoint}/me/mailFolders/delta()?$skiptoken=${nextSkipCount}`,
+        "@odata.nextLink": `${this.#endpoint}/me/mailFolders/delta()?${nextParams}`,
       };
     }
 
     return {
       "@odata.context": context,
       value: page,
-      "@odata.deltaLink": fakeToken,
+      "@odata.deltaLink": nextDelta,
     };
   }
 
