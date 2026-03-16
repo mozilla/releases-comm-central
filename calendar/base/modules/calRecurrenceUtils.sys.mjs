@@ -167,7 +167,7 @@ export function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay
         style: "long",
         type: "conjunction",
       });
-      const weekdays = listFormatter.format(days.map(day => weekdayNames.get(day)));
+      const weekdays = listFormatter.format(days.map(day => weekdayNames.get(day_of_week(day))));
       ruleString = lazy.l10n.formatValueSync("recurrence-weekly-every-nth-on", {
         interval: rule.interval,
         weekdays,
@@ -195,7 +195,7 @@ export function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay
         const weekdaysStringPosition = [];
         for (let i = 0; i < byday.length; i++) {
           if (day_position(byday[i]) == 0) {
-            weekdaysStringEvery.push(weekdayNames.get(byday[i]));
+            weekdaysStringEvery.push(weekdayNames.get(day_of_week(byday[i])));
           } else {
             if (day_position(byday[i]) < -1 || day_position(byday[i]) > 5) {
               // We support only weekdays with -1 as negative position ('THE LAST ...').
@@ -214,7 +214,7 @@ export function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay
             const ordinal = lazy.l10n.formatValueSync(
               `recurrence-repeat-ordinal-${day_position(byday[i])}`
             );
-            const weekday = weekdayNames.get(byday[i]);
+            const weekday = weekdayNames.get(day_of_week(byday[i]));
             // E.e. 'the first' 'Monday'
             weekdaysStringPosition.push(
               lazy.l10n.formatValueSync("recurrence-ordinal-weekday", { ordinal, weekday })
