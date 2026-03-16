@@ -968,9 +968,7 @@ this.folders = class extends ExtensionAPIPersistent {
             foundFolders = sortFoldersByTime(foundFolders, "MRMTime");
           } else if (queryInfo.sort == "name") {
             foundFolders.sort((a, b) =>
-              a.localizedName.localeCompare(b.localizedName, undefined, {
-                sensitivity: "base",
-              })
+              a.localizedName.localeCompare(b.localizedName)
             );
           }
 

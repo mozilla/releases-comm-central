@@ -8,11 +8,7 @@ import {
 } from "chrome://messenger/content/TreeDataAdapter.mjs";
 
 const lazy = {};
-ChromeUtils.defineLazyGetter(
-  lazy,
-  "collator",
-  () => new Intl.Collator(undefined, { sensitivity: "base" })
-);
+ChromeUtils.defineLazyGetter(lazy, "collator", () => new Intl.Collator());
 ChromeUtils.defineLazyGetter(
   lazy,
   "dateFormatter",

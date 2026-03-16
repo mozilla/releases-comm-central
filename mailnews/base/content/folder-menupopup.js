@@ -633,9 +633,7 @@
             0
           ) == 1
         ) {
-          specialFoldersMap.sort((a, b) =>
-            a.label.localeCompare(b.label, undefined, { sensitivity: "base" })
-          );
+          specialFoldersMap.sort((a, b) => a.label.localeCompare(b.label));
         }
 
         // Create entries for each of the special folders.

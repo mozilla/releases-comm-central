@@ -19,9 +19,7 @@ const ONE_MONTH_IN_MILLISECONDS = 31 * 24 * 60 * 60 * 1000;
  *
  * @type {Intl.Collator}
  */
-const folderNameCollator = new Intl.Collator(undefined, {
-  sensitivity: "base",
-});
+const folderNameCollator = new Intl.Collator();
 
 export var FolderUtils = {
   allAccountsSorted,
