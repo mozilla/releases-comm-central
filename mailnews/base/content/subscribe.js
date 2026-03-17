@@ -152,6 +152,8 @@ function SubscribeOnUnload() {
   }
 
   msgWindow.closeWindow();
+  gStatusFeedback = null;
+  gSubscribableServer = null;
 }
 
 function EnableSearchUI() {
