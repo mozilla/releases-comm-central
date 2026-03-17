@@ -5,7 +5,7 @@
 #include "EwsMessageSync.h"
 #include "EwsFolder.h"
 #include "EwsListeners.h"
-#include "IEwsClient.h"
+#include "IExchangeClient.h"
 #include "IEwsIncomingServer.h"
 #include "IHeaderBlock.h"
 #include "MailHeaderParsing.h"  // For ParseHeaderBlock().
@@ -27,7 +27,7 @@ mozilla::LazyLogModule gEwsLog("ews_xpcom");
  * progresses.
  * It works by asking EwsClient to start a message sync operation.
  * As the operation progresses, EwsClient communicates updates via
- * IEwsMessageSyncListener callbacks. This class implements those callbacks
+ * IExchangeMessageSyncListener callbacks. This class implements those callbacks
  * and responds by applying whatever changes need to be made to the local
  * folder, database, whatever.
  * It exists for the duration of the sync operation.
@@ -54,10 +54,9 @@ mozilla::LazyLogModule gEwsLog("ews_xpcom");
  * code vastly easier to reason with.
  *
  * NOTE: we're using C++ derivation here to implement the
- * IEwsMessageSyncListener callbacks, as opposed to the lambda-based approach
- * used for other EWS operations.
- * Using derivation to implement listener callbacks is often a bad
- * idea:
+ * IExchangeMessageSyncListener callbacks, as opposed to the lambda-based
+ * approach used for other EWS operations. Using derivation to implement
+ * listener callbacks is often a bad idea:
  * - it exposes implementation details which shouldn't be part of the
  *   public class interface.
  * - it often leads to an obfuscated flow of execution (crossing multiple
@@ -86,8 +85,8 @@ mozilla::LazyLogModule gEwsLog("ews_xpcom");
  * written to the local mail store. But we don't want to trust those headers
  * coming from a server - they could be maliciously crafted.
  */
-class EwsMessageSyncHandler : public IEwsMessageSyncListener,
-                              IEwsFallibleOperationListener {
+class EwsMessageSyncHandler : public IExchangeMessageSyncListener,
+                              IExchangeFallibleOperationListener {
  public:
   NS_DECL_ISUPPORTS
 
@@ -115,7 +114,7 @@ class EwsMessageSyncHandler : public IEwsMessageSyncListener,
     MOZ_TRY(mFolder->GetMsgDatabase(getter_AddRefs(mDB)));
 
     // We can get the EwsClient via the EwsFolder:
-    nsCOMPtr<IEwsClient> ewsClient;
+    nsCOMPtr<IExchangeClient> ewsClient;
     {
       nsCOMPtr<nsIMsgIncomingServer> server;
       MOZ_TRY(mFolder->GetServer(getter_AddRefs(server)));
@@ -139,7 +138,7 @@ class EwsMessageSyncHandler : public IEwsMessageSyncListener,
     // TODO:
     // We don't really want to call onStart() until SyncMessagesForFolder()
     // returns OK. But currently we don't know for sure that
-    // IEwsClient.syncMessagesForFolder() won't call a listener callback
+    // IExchangeClient.syncMessagesForFolder() won't call a listener callback
     // _before_ returning, maybe even our onStop() handler!
     // So for now we blindly call onStart() first and do our best to match
     // with onStop() in the event of a failure.
@@ -164,7 +163,7 @@ class EwsMessageSyncHandler : public IEwsMessageSyncListener,
   virtual ~EwsMessageSyncHandler() = default;
 
   //
-  // IEwsMessageSyncListener implementation
+  // IExchangeMessageSyncListener implementation
   //
 
   NS_IMETHOD OnMessageCreated(const nsACString& ewsId,
@@ -341,7 +340,7 @@ class EwsMessageSyncHandler : public IEwsMessageSyncListener,
   }
 
   //
-  // IEwsFallibleOperationListener implementation
+  // IExchangeFallibleOperationListener implementation
   //
 
   // Called if sync operation fails.
@@ -366,8 +365,8 @@ class EwsMessageSyncHandler : public IEwsMessageSyncListener,
       mOnStop;
 };
 
-NS_IMPL_ISUPPORTS(EwsMessageSyncHandler, IEwsMessageSyncListener,
-                  IEwsFallibleOperationListener)
+NS_IMPL_ISUPPORTS(EwsMessageSyncHandler, IExchangeMessageSyncListener,
+                  IExchangeFallibleOperationListener)
 
 nsresult EwsPerformMessageSync(
     EwsFolder* folder, std::function<void()> onStart,

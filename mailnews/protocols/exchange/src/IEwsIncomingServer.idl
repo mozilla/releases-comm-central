@@ -4,8 +4,8 @@
 
 #include "nsISupports.idl"
 
-interface IEwsClient;
-interface IEwsSimpleOperationListener;
+interface IExchangeClient;
+interface IExchangeSimpleOperationListener;
 interface nsIMsgWindow;
 
 /**
@@ -45,7 +45,7 @@ interface IEwsIncomingServer : nsISupports
    * Get the client for interacting with the remote server protocol, creating a
    * new one if one hasn't already been created.
    */
-  IEwsClient getProtocolClient();
+  IExchangeClient getProtocolClient();
 
   /** The URL for the EWS Server */
   attribute AUTF8String ewsUrl;
@@ -94,5 +94,5 @@ interface IEwsIncomingServer : nsISupports
    * completed. The `window` provides the window context (if available) for
    * updates.
    */
-  void syncFolderHierarchy(in IEwsSimpleOperationListener listener, in nsIMsgWindow window);
+  void syncFolderHierarchy(in IExchangeSimpleOperationListener listener, in nsIMsgWindow window);
 };

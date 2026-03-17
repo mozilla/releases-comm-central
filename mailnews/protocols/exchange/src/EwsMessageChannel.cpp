@@ -6,7 +6,7 @@
 
 #include "EwsFetchMsgsToOffline.h"
 #include "EwsListeners.h"
-#include "IEwsClient.h"
+#include "IExchangeClient.h"
 #include "IEwsFolder.h"
 #include "IEwsIncomingServer.h"
 #include "nsIInputStream.h"

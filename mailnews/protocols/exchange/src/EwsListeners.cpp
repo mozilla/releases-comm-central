@@ -6,7 +6,7 @@
 
 // Implementation of EwsSimpleListener
 
-NS_IMPL_ISUPPORTS(EwsSimpleListener, IEwsSimpleOperationListener)
+NS_IMPL_ISUPPORTS(EwsSimpleListener, IExchangeSimpleOperationListener)
 
 NS_IMETHODIMP EwsSimpleListener::OnOperationSuccess(
     const nsTArray<nsCString>& newIds, bool useLegacyFallback) {
@@ -15,7 +15,7 @@ NS_IMETHODIMP EwsSimpleListener::OnOperationSuccess(
 
 // Implementation of EwsSimpleMessageListener
 
-NS_IMPL_ISUPPORTS(EwsSimpleMessageListener, IEwsSimpleOperationListener)
+NS_IMPL_ISUPPORTS(EwsSimpleMessageListener, IExchangeSimpleOperationListener)
 
 NS_IMETHODIMP EwsSimpleMessageListener::OnOperationSuccess(
     const nsTArray<nsCString>& newIds, bool useLegacyFallback) {
@@ -31,19 +31,20 @@ NS_IMETHODIMP EwsFallibleListener::OnOperationFailure(nsresult status) {
 // Implementation of EwsSimpleFallibleListener
 
 NS_IMPL_ISUPPORTS_INHERITED(EwsSimpleFallibleListener, EwsSimpleListener,
-                            EwsFallibleListener, IEwsSimpleOperationListener,
-                            IEwsFallibleOperationListener)
+                            EwsFallibleListener,
+                            IExchangeSimpleOperationListener,
+                            IExchangeFallibleOperationListener)
 
 // Implementation of EwsSimpleFallibleMessageListener
 
 NS_IMPL_ISUPPORTS_INHERITED(EwsSimpleFallibleMessageListener,
                             EwsSimpleMessageListener, EwsFallibleListener,
-                            IEwsSimpleOperationListener,
-                            IEwsFallibleOperationListener)
+                            IExchangeSimpleOperationListener,
+                            IExchangeFallibleOperationListener)
 
 // Implementation of EwsMessageCreateListener
 
-NS_IMPL_ISUPPORTS(EwsMessageCreateListener, IEwsMessageCreateListener)
+NS_IMPL_ISUPPORTS(EwsMessageCreateListener, IExchangeMessageCreateListener)
 
 NS_IMETHODIMP EwsMessageCreateListener::OnHdrPopulated(nsIMsgDBHdr* hdr) {
   return mOnHdrPopulated(hdr);
@@ -65,7 +66,7 @@ NS_IMETHODIMP EwsMessageCreateListener::OnStopCreate(nsresult status) {
 // Implementation of EwsFolderSyncListener
 
 NS_IMPL_ISUPPORTS(EwsFolderSyncListener, EwsFallibleListener,
-                  IEwsFolderListener, IEwsFallibleOperationListener)
+                  IExchangeFolderListener, IExchangeFallibleOperationListener)
 
 NS_IMETHODIMP EwsFolderSyncListener::OnNewRootFolder(const nsACString& id) {
   return mOnNewRootFolder(id);
@@ -97,7 +98,7 @@ NS_IMETHODIMP EwsFolderSyncListener::OnSuccess() { return mOnSuccess(); }
 
 // Implementation of EwsMessageFetchListener
 
-NS_IMPL_ISUPPORTS(EwsMessageFetchListener, IEwsMessageFetchListener)
+NS_IMPL_ISUPPORTS(EwsMessageFetchListener, IExchangeMessageFetchListener)
 
 NS_IMETHODIMP EwsMessageFetchListener::OnFetchStart() {
   return mOnFetchStart();

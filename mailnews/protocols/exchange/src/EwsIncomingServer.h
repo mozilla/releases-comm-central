@@ -93,8 +93,8 @@ class EwsIncomingServer : public nsMsgIncomingServer,
    */
   nsresult UpdateTrashFolder();
 
-  // An `IEwsClient` that will be reused for each request.
-  nsCOMPtr<IEwsClient> mClient;
+  // An `IExchangeClient` that will be reused for each request.
+  nsCOMPtr<IExchangeClient> mClient;
 };
 
 #endif  // COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSINCOMINGSERVER_H_

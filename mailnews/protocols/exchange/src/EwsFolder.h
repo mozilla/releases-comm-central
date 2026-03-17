@@ -5,7 +5,7 @@
 #ifndef COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSFOLDER_H_
 #define COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSFOLDER_H_
 
-#include "IEwsClient.h"
+#include "IExchangeClient.h"
 #include "IEwsFolder.h"
 #include "mozilla/HashTable.h"
 #include "nsMsgDBFolder.h"
@@ -132,7 +132,7 @@ class EwsFolder : public nsMsgDBFolder, public IEwsFolder {
    * Generate or retrieve an EWS API client capable of interacting with the EWS
    * server this folder depends from.
    */
-  nsresult GetProtocolClient(IEwsClient** ewsClient);
+  nsresult GetProtocolClient(IExchangeClient** ewsClient);
 
   /**
    * Look up the trash folder for the current account.

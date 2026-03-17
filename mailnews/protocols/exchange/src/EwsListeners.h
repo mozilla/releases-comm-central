@@ -7,7 +7,7 @@
 
 #include <utility>
 
-#include "IEwsClient.h"
+#include "IExchangeClient.h"
 #include "nsIMsgHdr.h"
 
 /**
@@ -19,10 +19,10 @@
  * identifier(s), as well as a boolean indicating whether a resync of the
  * relevant entity (folder list, message list, etc) is required.
  */
-class EwsSimpleListener : public IEwsSimpleOperationListener {
+class EwsSimpleListener : public IExchangeSimpleOperationListener {
  public:
   NS_DECL_ISUPPORTS
-  NS_DECL_IEWSSIMPLEOPERATIONLISTENER
+  NS_DECL_IEXCHANGESIMPLEOPERATIONLISTENER
 
   explicit EwsSimpleListener(
       std::function<nsresult(const nsTArray<nsCString>&, bool)> onSuccess)
@@ -47,10 +47,10 @@ class EwsSimpleListener : public IEwsSimpleOperationListener {
  * the success callbacks (in the first position) in addition to the other
  * arguments passed to the `EwsSimpleListener` success callback.
  */
-class EwsSimpleMessageListener : public IEwsSimpleOperationListener {
+class EwsSimpleMessageListener : public IExchangeSimpleOperationListener {
  public:
   NS_DECL_ISUPPORTS
-  NS_DECL_IEWSSIMPLEOPERATIONLISTENER
+  NS_DECL_IEXCHANGESIMPLEOPERATIONLISTENER
 
   explicit EwsSimpleMessageListener(
       const nsTArray<RefPtr<nsIMsgDBHdr>>& headers,
@@ -79,9 +79,9 @@ class EwsSimpleMessageListener : public IEwsSimpleOperationListener {
  * Upon failure of the EWS operation, the lambda function passed to this class's
  * constructor is called with an `nsresult` representing the failure.
  */
-class EwsFallibleListener : public IEwsFallibleOperationListener {
+class EwsFallibleListener : public IExchangeFallibleOperationListener {
  public:
-  NS_DECL_IEWSFALLIBLEOPERATIONLISTENER
+  NS_DECL_IEXCHANGEFALLIBLEOPERATIONLISTENER
 
   explicit EwsFallibleListener(std::function<nsresult(nsresult)> onFailure)
       : mOnFailure(std::move(onFailure)) {};
@@ -149,10 +149,10 @@ class EwsSimpleFallibleMessageListener : public EwsSimpleMessageListener,
 /**
  * A listener for EWS message creation operations.
  */
-class EwsMessageCreateListener : public IEwsMessageCreateListener {
+class EwsMessageCreateListener : public IExchangeMessageCreateListener {
  public:
   NS_DECL_ISUPPORTS
-  NS_DECL_IEWSMESSAGECREATELISTENER
+  NS_DECL_IEXCHANGEMESSAGECREATELISTENER
 
   EwsMessageCreateListener(
       std::function<nsresult(nsIMsgDBHdr*)> onHdrPopulated,
@@ -179,11 +179,11 @@ class EwsMessageCreateListener : public IEwsMessageCreateListener {
 /**
  * A listener for EWS folder sync operations.
  */
-class EwsFolderSyncListener : public IEwsFolderListener,
+class EwsFolderSyncListener : public IExchangeFolderListener,
                               public EwsFallibleListener {
  public:
   NS_DECL_ISUPPORTS
-  NS_DECL_IEWSFOLDERLISTENER
+  NS_DECL_IEXCHANGEFOLDERLISTENER
 
   EwsFolderSyncListener(
       std::function<nsresult(const nsACString&)> onNewRootFolder,
@@ -225,15 +225,15 @@ class EwsFolderSyncListener : public IEwsFolderListener,
  * A listener for fetching the content of a single EWS message.
  *
  * The callbacks follow the same shape as defined by
- * `IEwsMessageFetchListener`, except `onFetchedDataAvailable` is expected to
- * report the number of bytes it has read from the input stream (via its last
+ * `IExchangeMessageFetchListener`, except `onFetchedDataAvailable` is expected
+ * to report the number of bytes it has read from the input stream (via its last
  * out parameter), and `onFetchStop` takes an additional parameter representing
  * the total number of bytes read for the whole message.
  */
-class EwsMessageFetchListener : public IEwsMessageFetchListener {
+class EwsMessageFetchListener : public IExchangeMessageFetchListener {
  public:
   NS_DECL_ISUPPORTS
-  NS_DECL_IEWSMESSAGEFETCHLISTENER
+  NS_DECL_IEXCHANGEMESSAGEFETCHLISTENER
 
   EwsMessageFetchListener(
       std::function<nsresult()> onFetchStart,

@@ -8,7 +8,7 @@
 
 #include "EwsListeners.h"
 #include "EwsOAuth2CustomDetails.h"
-#include "IEwsClient.h"
+#include "IExchangeClient.h"
 #include "MsgPasswordAuthModule.h"
 #include "nsIMsgFolderNotificationService.h"
 #include "nsIFeedbackService.h"
@@ -369,7 +369,7 @@ NS_IMETHODIMP EwsIncomingServer::GetPort(int32_t* aPort) {
 }
 
 NS_IMETHODIMP EwsIncomingServer::SyncFolderHierarchy(
-    IEwsSimpleOperationListener* listener, nsIMsgWindow* window) {
+    IExchangeSimpleOperationListener* listener, nsIMsgWindow* window) {
   const auto refListener = RefPtr{listener};
   return SyncFolderList(window, [refListener]() {
     return refListener->OnOperationSuccess({}, false);
@@ -480,7 +480,7 @@ nsresult EwsIncomingServer::SyncFolderList(
       onSyncStateTokenChanged, onSuccess, onError);
 
   // Sync the folder tree for the whole account.
-  RefPtr<IEwsClient> client;
+  RefPtr<IExchangeClient> client;
   MOZ_TRY(GetProtocolClient(getter_AddRefs(client)));
   return client->SyncFolderHierarchy(listener, syncStateToken);
 }
@@ -652,7 +652,7 @@ EwsIncomingServer::VerifyLogon(nsIUrlListener* aUrlListener,
   // the `ConfigVerifier` (which this call very likely originates from) will
   // only be doing `nsIMsgMailNewsUrl`-related operations to it, which doesn't
   // apply to us.
-  RefPtr<IEwsClient> client;
+  RefPtr<IExchangeClient> client;
   MOZ_TRY(GetProtocolClient(getter_AddRefs(client)));
   return client->CheckConnectivity(aUrlListener, _retval);
 }
@@ -661,7 +661,8 @@ EwsIncomingServer::VerifyLogon(nsIUrlListener* aUrlListener,
  * Creates an instance of the EWS client interface, allowing us to perform
  * operations against the relevant EWS instance.
  */
-NS_IMETHODIMP EwsIncomingServer::GetProtocolClient(IEwsClient** ewsClient) {
+NS_IMETHODIMP EwsIncomingServer::GetProtocolClient(
+    IExchangeClient** ewsClient) {
   NS_ENSURE_ARG_POINTER(ewsClient);
 
   // Only create a new client if we don't already have one - otherwise reuse the

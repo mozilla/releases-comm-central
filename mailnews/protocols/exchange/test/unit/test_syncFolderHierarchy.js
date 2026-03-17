@@ -12,14 +12,14 @@ var { RemoteFolder } = ChromeUtils.importESModule(
 /**
  * An EWS client implementation against which we will test.
  *
- * @type {IEwsClient}
+ * @type {IExchangeClient}
  */
 var ewsClient;
 
 /**
  * A Graph client implementation against which we will test.
  *
- * @type {IEwsClient}
+ * @type {IExchangeClient}
  */
 var graphClient;
 
@@ -57,7 +57,7 @@ add_setup(() => {
   [graphServer, incomingGraphServer] = setupBasicGraphTestServer();
 
   ewsClient = Cc["@mozilla.org/messenger/ews-client;1"].createInstance(
-    Ci.IEwsClient
+    Ci.IExchangeClient
   );
   ewsClient.initialize(
     incomingEwsServer.getStringValue("ews_url"),
@@ -71,7 +71,7 @@ add_setup(() => {
   );
 
   graphClient = Cc["@mozilla.org/messenger/graph-client;1"].createInstance(
-    Ci.IEwsClient
+    Ci.IExchangeClient
   );
   graphClient.initialize(
     incomingGraphServer.getStringValue("ews_url"),
@@ -227,8 +227,8 @@ add_task(async function testInitialGraphSyncWithRemovedItem() {
 
 class EwsFolderCallbackListener {
   QueryInterface = ChromeUtils.generateQI([
-    "IEwsFolderListener",
-    "IEwsFallibleOperationListener",
+    "IExchangeFolderListener",
+    "IExchangeFallibleOperationListener",
   ]);
 
   constructor() {

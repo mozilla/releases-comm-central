@@ -4,7 +4,7 @@
 
 #include "EwsService.h"
 
-#include "IEwsClient.h"
+#include "IExchangeClient.h"
 #include "mozilla/Components.h"
 #include "nsIChannel.h"
 #include "nsIMsgDatabase.h"

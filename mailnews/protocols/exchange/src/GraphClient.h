@@ -8,7 +8,7 @@
 #include "nsID.h"
 
 extern "C" {
-// Instantiates a new IEwsClient with a Graph implementation (from Rust).
+// Instantiates a new IExchangeClient with a Graph implementation (from Rust).
 MOZ_EXPORT nsresult NS_CreateGraphClient(REFNSIID aIID, void** aResult);
 }
 

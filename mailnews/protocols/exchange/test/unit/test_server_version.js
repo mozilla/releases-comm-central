@@ -43,7 +43,7 @@ async function send_request_and_wait_for_response() {
 
     // Build an EWS client and send the request.
     const client = Cc["@mozilla.org/messenger/ews-client;1"].createInstance(
-      Ci.IEwsClient
+      Ci.IExchangeClient
     );
     client.initialize(
       incomingServer.getStringValue("ews_url"),

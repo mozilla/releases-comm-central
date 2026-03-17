@@ -5,7 +5,7 @@
 #ifndef COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSMESSAGECOPYHANDLER_H_
 #define COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSMESSAGECOPYHANDLER_H_
 
-#include "IEwsClient.h"
+#include "IExchangeClient.h"
 #include "EwsFolder.h"
 
 #include "nscore.h"
@@ -44,8 +44,8 @@
  *       then signals to the copy handler that it has finished streaming the
  *       message's content (`MessageCopyHandler::EndCopy()`).
  *    5. The copy handler instructs its EWS client to begin creating an item for
- *       the message on the EWS server (`IEwsClient::CreateMessage()`). It is
- *       called with an instance of `MessageCreateCallbacks`, which performs
+ *       the message on the EWS server (`IExchangeClient::CreateMessage()`). It
+ * is called with an instance of `MessageCreateCallbacks`, which performs
  *       database operations and notifies the copy handler about the operation's
  *       progress.
  *    6. Once the item has been created on the EWS server, the EWS client
@@ -85,7 +85,7 @@ class MessageCopyHandler : public nsICopyMessageListener {
   MessageCopyHandler(nsIMsgFolder* srcFolder, EwsFolder* dstFolder,
                      const nsTArray<RefPtr<nsIMsgDBHdr>>& headers, bool isMove,
                      nsIMsgWindow* window, nsCString dstFolderId,
-                     IEwsClient* client,
+                     IExchangeClient* client,
                      nsIMsgCopyServiceListener* copyServiceListener)
       : mDstFolder(dstFolder),
         mHeaders(headers.Clone()),
@@ -105,7 +105,7 @@ class MessageCopyHandler : public nsICopyMessageListener {
    */
   MessageCopyHandler(nsIFile* srcFile, EwsFolder* dstFolder, bool isDraft,
                      nsIMsgWindow* window, nsCString dstFolderId,
-                     IEwsClient* client,
+                     IExchangeClient* client,
                      nsIMsgCopyServiceListener* copyServiceListener)
       : mDstFolder(dstFolder),
         mHeaders({}),
@@ -201,7 +201,7 @@ class MessageCopyHandler : public nsICopyMessageListener {
   // The EWS client and folder ID to use when creating the message item on the
   // remote server.
   nsCString mDstFolderId;
-  RefPtr<IEwsClient> mClient;
+  RefPtr<IExchangeClient> mClient;
 
   // The listener to inform of the status of the copy/move operation.
   RefPtr<nsIMsgCopyServiceListener> mCopyServiceListener;

@@ -5,7 +5,7 @@
 #ifndef COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSFOLDERCOPYHANDLER_H_
 #define COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSFOLDERCOPYHANDLER_H_
 
-#include "IEwsClient.h"
+#include "IExchangeClient.h"
 #include "EwsFolder.h"
 
 #include "nsHashKeys.h"
@@ -36,7 +36,7 @@ class FolderCreateCopyCallbacks;
  *    3. The copy handler instructs its EWS client to begin creating a folder
  *       with the current source folder's name on the server, underneath its
  *       logical parent in the destination folder's hierarchy
- *       (`IEwsClient::CreateFolder()`). It is called with an instance of
+ *       (`IExchangeClient::CreateFolder()`). It is called with an instance of
  *       `FolderCreateCopyCallbacks`.
  *    4. Once the folder has been created on the EWS server, the EWS client
  *       instructs its callbacks instance to create the new folder locally
@@ -64,7 +64,7 @@ class FolderCopyHandler {
   NS_INLINE_DECL_REFCOUNTING(FolderCopyHandler)
 
   FolderCopyHandler(nsIMsgFolder* srcFolder, EwsFolder* dstFolder, bool isMove,
-                    nsIMsgWindow* window, IEwsClient* client,
+                    nsIMsgWindow* window, IExchangeClient* client,
                     nsIMsgCopyServiceListener* copyServiceListener)
       : mDstFolder(dstFolder),
         mIsMove(isMove),
@@ -124,7 +124,7 @@ class FolderCopyHandler {
   nsTHashMap<nsISupportsHashKey, RefPtr<nsIMsgFolder>> mDstParents;
 
   // The EWS client to use when creating the folder on the remote server.
-  nsCOMPtr<IEwsClient> mClient;
+  nsCOMPtr<IExchangeClient> mClient;
 
   // The listener to inform of the status of the copy/move operation.
   RefPtr<nsIMsgCopyServiceListener> mCopyServiceListener;

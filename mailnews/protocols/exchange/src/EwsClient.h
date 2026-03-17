@@ -8,7 +8,7 @@
 #include "nsID.h"
 
 extern "C" {
-// Instantiates a new IEwsClient with a Rust implementation.
+// Instantiates a new IExchangeClient with a Rust implementation.
 MOZ_EXPORT nsresult NS_CreateEwsClient(REFNSIID aIID, void** aResult);
 }
 

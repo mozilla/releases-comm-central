@@ -1111,7 +1111,7 @@ files_changed:
   - comm/mailnews/protocols/exchange/public/nsIEwsServer.idl
   - comm/mailnews/protocols/exchange/src/EwsFolder.cpp
   - comm/mailnews/protocols/exchange/src/EwsIncomingServer.cpp
-  - comm/mailnews/protocols/exchange/src/IEwsClient.idl
+  - comm/mailnews/protocols/exchange/src/IExchangeClient.idl
   - comm/mailnews/protocols/exchange/src/components.conf
   - comm/mailnews/protocols/exchange/src/nsEwsOutgoingServer.h
   - comm/mailnews/protocols/moz.build

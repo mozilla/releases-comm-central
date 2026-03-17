@@ -28,7 +28,7 @@ var { NetUtil } = ChromeUtils.importESModule(
 /**
  * An EWS client implementation against which we will test.
  *
- * @type {IEwsClient}
+ * @type {IExchangeClient}
  */
 var client;
 
@@ -90,7 +90,7 @@ add_setup(async () => {
   await syncFolder(incomingServer, incomingServer.rootFolder);
 
   client = Cc["@mozilla.org/messenger/ews-client;1"].createInstance(
-    Ci.IEwsClient
+    Ci.IExchangeClient
   );
   client.initialize(
     incomingServer.getStringValue("ews_url"),
@@ -306,7 +306,7 @@ add_task(async function testSyncChangesWithClient() {
 });
 
 class EwsMessageCallbackListener {
-  QueryInterface = ChromeUtils.generateQI(["IEwsMessageSyncListener"]);
+  QueryInterface = ChromeUtils.generateQI(["IExchangeMessageSyncListener"]);
 
   constructor() {
     this._created = [];

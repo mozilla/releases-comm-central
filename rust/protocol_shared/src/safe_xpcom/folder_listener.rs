@@ -5,21 +5,21 @@
 use fxhash::FxHashMap;
 use nserror::nsresult;
 use nsstring::nsCString;
-use xpcom::interfaces::{IEwsFolderListener, nsMsgFolderFlagType, nsMsgFolderFlags};
+use xpcom::interfaces::{IExchangeFolderListener, nsMsgFolderFlagType, nsMsgFolderFlags};
 
 use crate::safe_xpcom::{SafeListener, SafeListenerWrapper};
 
 /// See [`SafeListenerWrapper`].
-pub type SafeEwsFolderListener = SafeListenerWrapper<IEwsFolderListener>;
+pub type SafeEwsFolderListener = SafeListenerWrapper<IExchangeFolderListener>;
 
 impl SafeEwsFolderListener {
-    /// Convert types and forward to [`IEwsFolderListener::OnNewRootFolder`]
+    /// Convert types and forward to [`IExchangeFolderListener::OnNewRootFolder`]
     pub fn on_new_root_folder(&self, root_folder_id: String) -> Result<(), nsresult> {
         let folder_id = nsCString::from(root_folder_id);
         unsafe { self.0.OnNewRootFolder(&*folder_id) }.to_result()
     }
 
-    /// Convert types and forward to [`IEwsFolderListener::OnFolderCreated`]
+    /// Convert types and forward to [`IExchangeFolderListener::OnFolderCreated`]
     pub fn on_folder_created(
         &self,
         folder_id: Option<String>,
@@ -53,7 +53,7 @@ impl SafeEwsFolderListener {
         .to_result()
     }
 
-    /// Convert types and forward to [`IEwsFolderListener::OnFolderUpdated`]
+    /// Convert types and forward to [`IExchangeFolderListener::OnFolderUpdated`]
     pub fn on_folder_updated(
         &self,
         folder_id: Option<String>,
@@ -73,7 +73,7 @@ impl SafeEwsFolderListener {
         unsafe { self.0.OnFolderUpdated(&*id, &*parent_id, &*display_name) }.to_result()
     }
 
-    /// Convert types and forward to [`IEwsFolderListener::OnFolderDeleted`]
+    /// Convert types and forward to [`IExchangeFolderListener::OnFolderDeleted`]
     pub fn on_folder_deleted(&self, id: String) -> Result<(), nsresult> {
         let id = nsCString::from(id);
         // SAFETY: We have converted all of the inputs into the appropriate types
@@ -81,7 +81,7 @@ impl SafeEwsFolderListener {
         unsafe { self.0.OnFolderDeleted(&*id) }.to_result()
     }
 
-    /// Convert types and forward to [`IEwsFolderListener::OnSyncStateTokenChanged`]
+    /// Convert types and forward to [`IExchangeFolderListener::OnSyncStateTokenChanged`]
     pub fn on_sync_state_token_changed(&self, sync_state_token: &str) -> Result<(), nsresult> {
         let sync_state = nsCString::from(sync_state_token);
         // SAFETY: We have converted all of the inputs into the appropriate types
@@ -94,7 +94,7 @@ impl SafeListener for SafeEwsFolderListener {
     type OnSuccessArg = ();
     type OnFailureArg = ();
 
-    /// Forward to [`IEwsFolderListener::OnSuccess`].
+    /// Forward to [`IExchangeFolderListener::OnSuccess`].
     fn on_success(&self, _arg: ()) -> Result<(), nsresult> {
         unsafe { self.0.OnSuccess() }.to_result()
     }

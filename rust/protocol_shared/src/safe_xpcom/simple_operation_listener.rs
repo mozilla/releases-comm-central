@@ -5,15 +5,15 @@
 use nserror::nsresult;
 use nsstring::nsCString;
 use thin_vec::ThinVec;
-use xpcom::interfaces::IEwsSimpleOperationListener;
+use xpcom::interfaces::IExchangeSimpleOperationListener;
 
 use crate::safe_xpcom::{SafeListener, SafeListenerWrapper};
 
 /// See [`SafeListenerWrapper`].
-pub type SafeEwsSimpleOperationListener = SafeListenerWrapper<IEwsSimpleOperationListener>;
+pub type SafeEwsSimpleOperationListener = SafeListenerWrapper<IExchangeSimpleOperationListener>;
 
 impl SafeEwsSimpleOperationListener {
-    /// Convert types and forward to [`IEwsSimpleOperationListener::OnOperationSuccess`].
+    /// Convert types and forward to [`IExchangeSimpleOperationListener::OnOperationSuccess`].
     fn on_operation_success(
         &self,
         new_ids: ThinVec<nsCString>,
@@ -29,7 +29,7 @@ impl SafeEwsSimpleOperationListener {
 /// operation.
 ///
 /// This is just a typed version of the `use_legacy_fallback` boolean argument in
-/// [`IEwsSimpleOperationListener::OnOperationSuccess`] to make return types, etc., more legible.
+/// [`IExchangeSimpleOperationListener::OnOperationSuccess`] to make return types, etc., more legible.
 pub enum UseLegacyFallback {
     No,
     Yes,

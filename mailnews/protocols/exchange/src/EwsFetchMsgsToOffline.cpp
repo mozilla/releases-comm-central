@@ -4,7 +4,7 @@
 
 #include "EwsFetchMsgsToOffline.h"
 #include "EwsListeners.h"
-#include "IEwsClient.h"
+#include "IExchangeClient.h"
 #include "IEwsIncomingServer.h"
 #include "MailNewsTypes.h"
 #include "mozilla/RefPtr.h"
@@ -23,8 +23,8 @@
 /*
  * Helper class for EwsFetchMsgsToOffline().
  *
- * It calls IEwsClient.GetMessage() to download each message in turn, passing
- * itself as a listener.
+ * It calls IExchangeClient.GetMessage() to download each message in turn,
+ * passing itself as a listener.
  *
  * As the message data arrives, it is written to the local message store.
  *
@@ -36,7 +36,7 @@
  * If there are no more messages or if an error occurs, the onDone function
  * will be called and the async operation will finish.
  */
-class MsgFetcher : public IEwsMessageFetchListener {
+class MsgFetcher : public IExchangeMessageFetchListener {
  public:
   NS_DECL_ISUPPORTS
 
@@ -71,7 +71,7 @@ class MsgFetcher : public IEwsMessageFetchListener {
     return StartNext();
   }
 
-  // IEwsMessageFetchListener.onFetchStart implementation.
+  // IExchangeMessageFetchListener.onFetchStart implementation.
   // (analogous to nsIStreamListener.onStart)
   NS_IMETHOD OnFetchStart() override {
     nsresult rv;
@@ -84,7 +84,7 @@ class MsgFetcher : public IEwsMessageFetchListener {
     return NS_OK;
   }
 
-  // IEwsMessageFetchListener.onFetchedDataAvailable implementation.
+  // IExchangeMessageFetchListener.onFetchedDataAvailable implementation.
   // (analogous to nsIStreamListener.onDataAvailable)
   NS_IMETHOD OnFetchedDataAvailable(nsIInputStream* inputStream) override {
     uint64_t bytesCopied;
@@ -95,7 +95,7 @@ class MsgFetcher : public IEwsMessageFetchListener {
     return NS_OK;
   }
 
-  // IEwsMessageFetchListener.onFetchStop implementation.
+  // IExchangeMessageFetchListener.onFetchStop implementation.
   // (analogous to nsIStreamListener.onStopRequest)
   NS_IMETHOD OnFetchStop(nsresult status) override {
     // No early-outs from this function.
@@ -190,7 +190,7 @@ class MsgFetcher : public IEwsMessageFetchListener {
     nsCOMPtr<IEwsIncomingServer> ewsServer = do_QueryInterface(server, &rv);
     MOZ_ASSERT(ewsServer);  // Only EWS supported for now!
     NS_ENSURE_SUCCESS(rv, rv);
-    nsCOMPtr<IEwsClient> ewsClient;
+    nsCOMPtr<IExchangeClient> ewsClient;
     rv = ewsServer->GetProtocolClient(getter_AddRefs(ewsClient));
     NS_ENSURE_SUCCESS(rv, rv);
 
@@ -222,7 +222,7 @@ class MsgFetcher : public IEwsMessageFetchListener {
   uint64_t mMsgSize{0};
 };
 
-NS_IMPL_ISUPPORTS(MsgFetcher, IEwsMessageFetchListener)
+NS_IMPL_ISUPPORTS(MsgFetcher, IExchangeMessageFetchListener)
 
 nsresult EwsFetchMsgsToOffline(nsIMsgFolder* folder,
                                nsTArray<nsMsgKey> const& msgKeys,

@@ -9,7 +9,7 @@
 #include "EwsMessageCopyHandler.h"
 #include "EwsMessageSync.h"
 #include "EwsCopyMoveTransaction.h"
-#include "IEwsClient.h"
+#include "IExchangeClient.h"
 #include "IEwsIncomingServer.h"
 #include "IHeaderBlock.h"
 
@@ -233,7 +233,7 @@ NS_IMETHODIMP EwsFolder::CreateSubfolder(const nsACString& aFolderName,
   nsresult rv = GetEwsId(ewsId);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<IEwsClient> client;
+  nsCOMPtr<IExchangeClient> client;
   rv = GetProtocolClient(getter_AddRefs(client));
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -361,7 +361,7 @@ NS_IMETHODIMP EwsFolder::RenameSubFolders(nsIMsgWindow* msgWindow,
 
 NS_IMETHODIMP EwsFolder::MarkMessagesRead(
     const nsTArray<RefPtr<nsIMsgDBHdr>>& messages, bool markRead) {
-  nsCOMPtr<IEwsClient> client;
+  nsCOMPtr<IExchangeClient> client;
   nsresult rv = GetProtocolClient(getter_AddRefs(client));
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -420,7 +420,7 @@ NS_IMETHODIMP EwsFolder::MarkMessagesRead(
 }
 
 NS_IMETHODIMP EwsFolder::MarkAllMessagesRead(nsIMsgWindow* aMsgWindow) {
-  nsCOMPtr<IEwsClient> client;
+  nsCOMPtr<IExchangeClient> client;
   MOZ_TRY(GetProtocolClient(getter_AddRefs(client)));
 
   nsCString folderId;
@@ -519,7 +519,7 @@ NS_IMETHODIMP EwsFolder::Rename(const nsACString& aNewName,
     return NS_ERROR_UNEXPECTED;
   }
 
-  nsCOMPtr<IEwsClient> client;
+  nsCOMPtr<IExchangeClient> client;
   rv = GetProtocolClient(getter_AddRefs(client));
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -560,7 +560,7 @@ NS_IMETHODIMP EwsFolder::CopyFileMessage(
   nsresult rv = GetEwsId(ewsId);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<IEwsClient> client;
+  nsCOMPtr<IExchangeClient> client;
   rv = GetProtocolClient(getter_AddRefs(client));
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -619,7 +619,7 @@ NS_IMETHODIMP EwsFolder::CopyMessages(
     nsresult rv = GetEwsId(ewsId);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    nsCOMPtr<IEwsClient> client;
+    nsCOMPtr<IExchangeClient> client;
     MOZ_TRY(GetProtocolClient(getter_AddRefs(client)));
 
     RefPtr<MessageCopyHandler> handler =
@@ -755,7 +755,7 @@ NS_IMETHODIMP EwsFolder::CopyItemsOnSameServer(
             return HandleMoveError(genericFolder, self, status);
           });
 
-  nsCOMPtr<IEwsClient> client;
+  nsCOMPtr<IExchangeClient> client;
   MOZ_TRY(GetProtocolClient(getter_AddRefs(client)));
 
   if (aIsMove) {
@@ -802,7 +802,7 @@ NS_IMETHODIMP EwsFolder::CopyFolder(nsIMsgFolder* aSrcFolder,
 
   auto notifyFailureOnExit = GuardCopyServiceExit(aSrcFolder, this, rv);
 
-  nsCOMPtr<IEwsClient> client;
+  nsCOMPtr<IExchangeClient> client;
   MOZ_TRY(GetProtocolClient(getter_AddRefs(client)));
 
   bool isSameServer;
@@ -908,7 +908,7 @@ NS_IMETHODIMP EwsFolder::CopyFolderOnSameServer(
         return HandleMoveError(srcFolder, self, status);
       });
 
-  nsCOMPtr<IEwsClient> client;
+  nsCOMPtr<IExchangeClient> client;
   MOZ_TRY(GetProtocolClient(getter_AddRefs(client)));
 
   if (aIsMoveFolder) {
@@ -1046,7 +1046,7 @@ NS_IMETHODIMP EwsFolder::DeleteMessages(
               return NS_OK;
             });
 
-    nsCOMPtr<IEwsClient> client;
+    nsCOMPtr<IExchangeClient> client;
     rv = self->GetProtocolClient(getter_AddRefs(client));
     NS_ENSURE_SUCCESS(rv, rv);
 
@@ -1091,7 +1091,7 @@ NS_IMETHODIMP EwsFolder::DeleteSelf(nsIMsgWindow* aWindow) {
           return self->nsMsgDBFolder::DeleteSelf(window);
         });
 
-    nsCOMPtr<IEwsClient> client;
+    nsCOMPtr<IExchangeClient> client;
     nsresult rv = self->GetProtocolClient(getter_AddRefs(client));
     NS_ENSURE_SUCCESS(rv, rv);
     return client->DeleteFolder(listener, {folderId});
@@ -1196,7 +1196,7 @@ NS_IMETHODIMP EwsFolder::EmptyTrash(nsIUrlListener* aListener) {
         return NS_OK;
       });
 
-  nsCOMPtr<IEwsClient> client;
+  nsCOMPtr<IExchangeClient> client;
   rv = GetProtocolClient(getter_AddRefs(client));
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -1265,7 +1265,7 @@ nsresult EwsFolder::GetEwsId(nsACString& ewsId) {
   return NS_OK;
 }
 
-nsresult EwsFolder::GetProtocolClient(IEwsClient** ewsClient) {
+nsresult EwsFolder::GetProtocolClient(IExchangeClient** ewsClient) {
   nsCOMPtr<nsIMsgIncomingServer> server;
   nsresult rv = GetServer(getter_AddRefs(server));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -1829,7 +1829,7 @@ NS_IMETHODIMP EwsFolder::HandleViewCommand(
               return NS_OK;
             }};
 
-    nsCOMPtr<IEwsClient> client;
+    nsCOMPtr<IExchangeClient> client;
     rv = GetProtocolClient(getter_AddRefs(client));
     NS_ENSURE_SUCCESS(rv, rv);
 
@@ -1933,7 +1933,7 @@ NS_IMETHODIMP EwsFolder::MarkMessagesFlagged(
         return NS_OK;
       });
 
-  nsCOMPtr<IEwsClient> client;
+  nsCOMPtr<IExchangeClient> client;
   rv = GetProtocolClient(getter_AddRefs(client));
   NS_ENSURE_SUCCESS(rv, rv);
 

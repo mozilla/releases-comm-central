@@ -24,7 +24,7 @@ pub mod url_listener;
 
 use nserror::nsresult;
 use std::ops::Deref;
-use xpcom::{RefCounted, RefPtr, XpCom, interfaces::IEwsFallibleOperationListener};
+use xpcom::{RefCounted, RefPtr, XpCom, interfaces::IExchangeFallibleOperationListener};
 
 /// A non-public trait to get the internal listener of a [`SafeListener`].
 trait UnsafeListener {
@@ -52,7 +52,7 @@ pub trait SafeListener: UnsafeListener {
 
     /// Safe wrapper for a callback that indicates failure.
     ///
-    /// The default implementation works by casting to a [`IEwsFallibleOperationListener`].
+    /// The default implementation works by casting to a [`IExchangeFallibleOperationListener`].
     fn on_failure<E>(&self, err: &E, _arg: Self::OnFailureArg) -> Result<(), nsresult>
     where
         for<'a> &'a E: Into<nsresult> + TryInto<&'a moz_http::Error>,
@@ -61,7 +61,9 @@ pub trait SafeListener: UnsafeListener {
         let err = err.into();
         let unsafe_listener = self.unsafe_listener();
 
-        if let Some(listener) = unsafe_listener.query_interface::<IEwsFallibleOperationListener>() {
+        if let Some(listener) =
+            unsafe_listener.query_interface::<IExchangeFallibleOperationListener>()
+        {
             // SAFETY: nsresult is safe to use across the Rust/C++ boundary.
             unsafe { listener.OnOperationFailure(err) }.to_result()?;
         }

@@ -4,22 +4,22 @@
 
 use nserror::nsresult;
 use nsstring::nsCString;
-use xpcom::{RefPtr, getter_addrefs, interfaces::IEwsMessageCreateListener};
+use xpcom::{RefPtr, getter_addrefs, interfaces::IExchangeMessageCreateListener};
 
 use super::{SafeListener, SafeListenerWrapper, StaleMsgDbHeader, UpdatedMsgDbHeader};
 
 /// See [`SafeListenerWrapper`].
-pub type SafeEwsMessageCreateListener = SafeListenerWrapper<IEwsMessageCreateListener>;
+pub type SafeEwsMessageCreateListener = SafeListenerWrapper<IExchangeMessageCreateListener>;
 
 impl SafeEwsMessageCreateListener {
-    /// A safe wrapper for [`IEwsMessageCreateListener::OnStopCreate`]. This is
+    /// A safe wrapper for [`IExchangeMessageCreateListener::OnStopCreate`]. This is
     /// invoked by [`Self::on_success`] and [`Self::on_failure`].
     fn on_stop_create(&self, status: nsresult) -> Result<(), nsresult> {
         // SAFETY: nsresult is safe to cross the Rust/C++ boundary.
         unsafe { self.0.OnStopCreate(status) }.to_result()
     }
 
-    /// Convert types and forward to [`IEwsMessageCreateListener::OnNewMessageKey`].
+    /// Convert types and forward to [`IExchangeMessageCreateListener::OnNewMessageKey`].
     pub fn on_new_message_key(&self, hdr: &UpdatedMsgDbHeader) -> Result<(), nsresult> {
         let key = hdr.get_message_key()?;
         // SAFETY: key was initialized in a way that ensures it is valid, and is
@@ -28,7 +28,7 @@ impl SafeEwsMessageCreateListener {
     }
 
     /// Convert types and forward to
-    /// [`IEwsMessageCreateListener::OnRemoteCreateSuccessful`].
+    /// [`IExchangeMessageCreateListener::OnRemoteCreateSuccessful`].
     pub fn on_remote_create_successful(
         &self,
         message_id: impl AsRef<str>,
@@ -40,7 +40,7 @@ impl SafeEwsMessageCreateListener {
             .map(|hdr| hdr.into())
     }
 
-    /// Convert types and forward to [`IEwsMessageCreateListener::OnHdrPopulated`].
+    /// Convert types and forward to [`IExchangeMessageCreateListener::OnHdrPopulated`].
     pub fn on_hdr_populated(&self, hdr: &UpdatedMsgDbHeader) -> Result<(), nsresult> {
         let hdr: RefPtr<_> = hdr.into();
         // SAFETY: hdr is a safe, populated header object, which is safe to
@@ -53,13 +53,13 @@ impl SafeListener for SafeEwsMessageCreateListener {
     type OnSuccessArg = ();
     type OnFailureArg = ();
 
-    /// Calls [`IEwsMessageCreateListener::OnStopCreate`] with the appropriate
+    /// Calls [`IExchangeMessageCreateListener::OnStopCreate`] with the appropriate
     /// arguments.
     fn on_success(&self, _arg: ()) -> Result<(), nsresult> {
         self.on_stop_create(nserror::NS_OK)
     }
 
-    /// Calls [`IEwsMessageCreateListener::OnStopCreate`] with the appropriate
+    /// Calls [`IExchangeMessageCreateListener::OnStopCreate`] with the appropriate
     /// arguments.
     fn on_failure<E>(&self, err: &E, _arg: ()) -> Result<(), nsresult>
     where
