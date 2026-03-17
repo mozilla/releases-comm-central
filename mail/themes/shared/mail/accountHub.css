@@ -97,6 +97,10 @@ dialog {
     z-index: -1;
   }
 
+  &.account-hub-first-run::backdrop {
+    background: rgba(0, 0, 0, 0.75);
+  }
+
   @media (prefers-color-scheme: dark) {
     &::after {
       background: linear-gradient(to right, rgb(11, 140, 134, 1), rgba(28, 99, 149, 1));
