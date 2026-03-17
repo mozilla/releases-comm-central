@@ -161,7 +161,6 @@ impl_lanesize!(u64, 24, |rc: u64| { rc });
 
 macro_rules! impl_keccak {
     ($pname:ident, $fname:ident, $type:ty) => {
-
         /// Keccak-p sponge function
         pub fn $pname(state: &mut [$type; PLEN], round_count: usize) {
             keccak_p(state, round_count);
@@ -184,14 +183,18 @@ impl_keccak!(p1600, f1600, u64);
 /// Keccak-p[1600, rc] permutation.
 #[cfg(all(target_arch = "aarch64", feature = "asm"))]
 pub fn p1600(state: &mut [u64; PLEN], round_count: usize) {
-    keccak_p(state, round_count);
+    if armv8_sha3_intrinsics::get() {
+        unsafe { armv8::p1600_armv8_sha3_asm(state, round_count) }
+    } else {
+        keccak_p(state, round_count);
+    }
 }
 
 /// Keccak-f[1600] permutation.
 #[cfg(all(target_arch = "aarch64", feature = "asm"))]
 pub fn f1600(state: &mut [u64; PLEN]) {
     if armv8_sha3_intrinsics::get() {
-        unsafe { armv8::f1600_armv8_sha3_asm(state) }
+        unsafe { armv8::p1600_armv8_sha3_asm(state, 24) }
     } else {
         keccak_p(state, u64::KECCAK_F_ROUND_COUNT);
     }
