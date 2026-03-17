@@ -64,7 +64,7 @@ var gCategoriesPane = {
    */
 
   updatePrefs() {
-    cal.l10n.sortArrayByLocaleCollator(gCategoryList);
+    gCategoryList.sort(new Intl.Collator().compare);
     Preferences.get("calendar.categories.names").value = cal.category.arrayToString(gCategoryList);
   },
 

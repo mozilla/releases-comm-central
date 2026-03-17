@@ -110,18 +110,6 @@ export var l10n = {
   getDateFmtString: _getString.bind(undefined, "calendar", "dateFormat"),
 
   /**
-   * Sort an array of strings in place, according to the current locale.
-   *
-   * @param {string[]} aStringArray - The strings to sort
-   * @returns {string[]} The sorted strings, more specifically aStringArray
-   */
-  sortArrayByLocaleCollator(aStringArray) {
-    const collator = new Intl.Collator();
-    aStringArray.sort(collator.compare);
-    return aStringArray;
-  },
-
-  /**
    * Provides locale dependent parameters for displaying calendar views
    *
    * @param {string} aLocale - The locale to get the info for, e.g. "en-US",

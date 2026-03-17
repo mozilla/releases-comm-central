@@ -219,14 +219,9 @@ var taskDetailsView = {
     const categoryPopup = document.getElementById("task-actions-category-popup");
     const item = document.getElementById("calendar-task-tree").currentTask;
 
-    const itemCategories = item.getCategories();
-    const categoryList = cal.category.fromPrefs();
-    for (const cat of itemCategories) {
-      if (!categoryList.includes(cat)) {
-        categoryList.push(cat);
-      }
-    }
-    cal.l10n.sortArrayByLocaleCollator(categoryList);
+    const categoryList = [...new Set([...cal.category.fromPrefs(), ...item.getCategories()])].sort(
+      new Intl.Collator().compare
+    );
 
     const maxCount = item.calendar.getProperty("capabilities.categories.maxCount");
 
@@ -238,7 +233,7 @@ var taskDetailsView = {
       menuitem.setAttribute("class", "menuitem-iconic");
       document.l10n.setAttributes(menuitem, "no-categories");
       menuitem.setAttribute("type", "radio");
-      if (itemCategories.length === 0) {
+      if (item.getCategories().length === 0) {
         menuitem.toggleAttribute("checked", true);
       }
       categoryPopup.appendChild(menuitem);
@@ -249,7 +244,7 @@ var taskDetailsView = {
       menuitem.setAttribute("label", cat);
       menuitem.setAttribute("value", cat);
       menuitem.setAttribute("type", maxCount === null || maxCount > 1 ? "checkbox" : "radio");
-      if (itemCategories.includes(cat)) {
+      if (item.getCategories().includes(cat)) {
         menuitem.toggleAttribute("checked", true);
       }
       const cssSafeId = cal.view.formatStringForCSSRule(cat);
@@ -338,9 +333,7 @@ var taskDetailsView = {
         modified = true;
       }
     } else {
-      const localeCollator = new Intl.Collator();
-      const compare = localeCollator.compare;
-      newIndex = cal.data.binaryInsert(categories, category, compare, true);
+      newIndex = cal.data.binaryInsert(categories, category, new Intl.Collator().compare, true);
 
       const item = document.getElementById("calendar-task-tree").currentTask;
       const maxCount = item.calendar.getProperty("capabilities.categories.maxCount");

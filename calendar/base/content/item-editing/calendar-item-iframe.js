@@ -798,14 +798,9 @@ function changeUndiscloseCheckboxStatus() {
  * @param {calIItemBase} aItem - The item to load into the category panel.
  */
 function loadCategories(aItem) {
-  const itemCategories = aItem.getCategories();
-  const categoryList = cal.category.fromPrefs();
-  for (const cat of itemCategories) {
-    if (!categoryList.includes(cat)) {
-      categoryList.push(cat);
-    }
-  }
-  cal.l10n.sortArrayByLocaleCollator(categoryList);
+  const categoryList = [...new Set([...cal.category.fromPrefs(), ...aItem.getCategories()])].sort(
+    new Intl.Collator().compare
+  );
 
   // Make sure the maximum number of categories is applied to the listbox
   const calendar = getCurrentCalendar();
@@ -817,23 +812,23 @@ function loadCategories(aItem) {
     item.setAttribute("class", "menuitem-iconic");
     document.l10n.setAttributes(item, "calendar-none");
     item.setAttribute("type", "radio");
-    if (itemCategories.length === 0) {
+    if (aItem.getCategories().length === 0) {
       item.toggleAttribute("checked", true);
     }
     categoryPopup.appendChild(item);
   }
   for (const cat of categoryList) {
-    const item = document.createXULElement("menuitem");
-    item.setAttribute("class", "menuitem-iconic calendar-category");
-    item.setAttribute("label", cat);
-    item.setAttribute("value", cat);
-    item.setAttribute("type", maxCount === null || maxCount > 1 ? "checkbox" : "radio");
-    if (itemCategories.includes(cat)) {
-      item.toggleAttribute("checked", true);
+    const menuitem = document.createXULElement("menuitem");
+    menuitem.setAttribute("class", "menuitem-iconic calendar-category");
+    menuitem.setAttribute("label", cat);
+    menuitem.setAttribute("value", cat);
+    menuitem.setAttribute("type", maxCount === null || maxCount > 1 ? "checkbox" : "radio");
+    if (aItem.getCategories().includes(cat)) {
+      menuitem.toggleAttribute("checked", true);
     }
     const cssSafeId = cal.view.formatStringForCSSRule(cat);
-    item.style.setProperty("--item-color", `var(--category-${cssSafeId}-color)`);
-    categoryPopup.appendChild(item);
+    menuitem.style.setProperty("--item-color", `var(--category-${cssSafeId}-color)`);
+    categoryPopup.appendChild(menuitem);
   }
 
   updateCategoryMenulist();
