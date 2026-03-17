@@ -25,6 +25,21 @@ task-defaults:
         using: mach
         comm-checkout: true
 
+clang-format:
+    description: clang-format on the C/C++ code
+    treeherder:
+        symbol: cpp(clang-format)
+    run:
+        mach: commlint -v -l clang-format -f treeherder -f json:/builds/worker/mozlint.json comm/
+    optimization:
+        skip-unless-mozlint: clang-format.yml
+    dependencies:
+        linux64-clang-tidy: toolchain-linux64-clang-tidy
+    fetches:
+        linux64-clang-tidy:
+            - artifact: clang-tidy.tar.zst
+              dest: clang-tools
+
 codespell:
     description: Checks for misspellings in text files
     treeherder:

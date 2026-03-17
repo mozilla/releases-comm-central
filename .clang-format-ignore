@@ -1,7 +1,7 @@
 # Paths we don't want clang-format to touch.
 # NOTE:
 # This is currently just documenting intent. Due to Bug 1575449
-# `mach clang-format` will likely not pick up this file.
+# `mach commlint -l clang-format` will likely not pick up this file.
 
 # Specific modules to exclude.
 mailnews/mapi/include/.*
