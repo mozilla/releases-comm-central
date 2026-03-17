@@ -66,6 +66,7 @@
 #alertTextBox {
   padding: 4px;
   padding-inline-end: 0;
+  contain: content;
 }
 
 #alertTitle {

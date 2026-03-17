@@ -26,7 +26,6 @@
   </head>
   <html:body
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-    role="alert"
   >
     <hbox id="alertContainer" align="start">
       <hbox id="alertImageBox" align="center" pack="center">
@@ -38,12 +37,8 @@
         />
       </hbox>
 
-      <vbox id="alertTextBox">
-        <html:div
-          id="alertTitle"
-          data-l10n-id="new-mail-alert-message"
-          data-l10n-args='{"count": 0, "account": ""}'
-        ></html:div>
+      <vbox id="alertTextBox" role="alert">
+        <html:div id="alertTitle"></html:div>
         <html:hr id="alertSeparator" />
         <folder-summary id="folderSummaryInfo" />
       </vbox>
