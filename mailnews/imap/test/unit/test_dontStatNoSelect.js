@@ -117,6 +117,10 @@ add_task(function endTest() {
   gImapServer.closeCachedConnections();
   gServer.performTest();
   gServer.stop();
+  const thread = Services.tm.currentThread;
+  while (thread.hasPendingEvents()) {
+    thread.processNextEvent(true);
+  }
 });
 
 function addMessageToFolder(mbox) {
