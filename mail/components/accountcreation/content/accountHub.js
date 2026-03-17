@@ -2,13 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* global isFirstRun */
+
 "use strict";
 
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
-);
-const { isFirstRun } = ChromeUtils.importESModule(
-  "resource:///modules/accountcreation/FirstRun.sys.mjs"
 );
 
 /**

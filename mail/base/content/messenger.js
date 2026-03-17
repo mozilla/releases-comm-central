@@ -35,6 +35,9 @@ var { MailServices } = ChromeUtils.importESModule(
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
+var { isFirstRun } = ChromeUtils.importESModule(
+  "resource:///modules/accountcreation/FirstRun.sys.mjs"
+);
 
 ChromeUtils.defineESModuleGetters(this, {
   BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.sys.mjs",
@@ -89,26 +92,6 @@ var gNewAccountToLoad = null;
 
 // The object in charge of managing the mail summary pane
 var gSummaryFrameManager;
-
-/**
- * Called on startup if there are no accounts.
- */
-function verifyOpenAccountHubTab() {
-  const suppressDialogs = Services.prefs.getBoolPref(
-    "mail.provider.suppress_dialog_on_startup",
-    false
-  );
-
-  if (suppressDialogs) {
-    // Looks like we were in the middle of filling out an account form. We
-    // won't display the dialogs in that case.
-    Services.prefs.clearUserPref("mail.provider.suppress_dialog_on_startup");
-    loadPostAccountWizard();
-    return;
-  }
-
-  openAccountSetup(true);
-}
 
 let _resolveDelayedStartup;
 var delayedStartupPromise = new Promise(resolve => {
@@ -366,29 +349,19 @@ var gMailInit = {
  */
 function verifyExistingAccounts() {
   try {
-    let newProfile = true;
-    // If there are no accounts, or all accounts are "invalid" then kick off the
-    // account migration. Or if this is a new (to Mozilla) profile. MCD can set
-    // up accounts without the profile being used yet.
-
-    // Check if MCD is configured. If not, say this is not a new profile so
-    // that we don't accidentally remigrate non MCD profiles.
-    if (!Services.prefs.getCharPref("autoadmin.global_config_url", "")) {
-      newProfile = false;
+    const suppressDialogs = Services.prefs.getBoolPref(
+      "mail.provider.suppress_dialog_on_startup",
+      false
+    );
+    if (suppressDialogs && Cu.isInAutomation) {
+      // If surpress dialogs is true continue to load.
+      loadPostAccountWizard();
+      return false;
     }
-
-    const accounts = MailServices.accounts.accounts;
-    const invalidAccounts = getInvalidAccounts(accounts);
     // Trigger the new account configuration wizard only if we don't have any
     // existing account, not even if we have at least one invalid account.
-    if (
-      (newProfile && !accounts.length) ||
-      accounts.length == invalidAccounts.length ||
-      (invalidAccounts.length > 0 &&
-        invalidAccounts.length == accounts.length &&
-        invalidAccounts[0])
-    ) {
-      verifyOpenAccountHubTab();
+    if (isFirstRun()) {
+      openAccountSetup();
       return false;
     }
 

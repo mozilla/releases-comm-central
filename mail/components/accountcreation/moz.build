@@ -27,6 +27,7 @@ EXTRA_JS_MODULES.accountcreation += [
 
 BROWSER_CHROME_MANIFESTS += [
     "test/browser/browser.toml",
+    "test/browser/browser_first_run.toml",
 ]
 
 XPCSHELL_TESTS_MANIFESTS += [

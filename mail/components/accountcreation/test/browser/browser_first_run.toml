@@ -1,0 +1,17 @@
+[DEFAULT]
+prefs = [
+  "mail.rights.override=true",
+  "mail.setup.loglevel=Debug",
+  "mail.spotlight.firstRunDone=true",
+  "mail.winsearch.firstRunDone=true",
+  "mailnews.oauth.loglevel=Debug",
+  "mailnews.pop3.loglevel=Debug",
+  "mailnews.start_page.override_url=about:blank",
+  "mailnews.start_page.url=about:blank",
+  "mail.accounthub.addressbook.enabled=true",
+  "dom.select.showPicker.enabled=true",
+  "dom.forms.select.customstyling=true"
+]
+subsuite = "thunderbird"
+
+["browser_accountHubFirstRun.js"]

@@ -19,6 +19,16 @@ registerCleanupFunction(function () {
   Services.prefs.setCharPref(PREF_NAME, PREF_VALUE);
 });
 
+add_task(async function account_hub_does_not_exist_with_accounts() {
+  // We wait 1 second to make sure the account hub is not still opening.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  Assert.ok(
+    !document.querySelector("account-hub-container"),
+    "Account hub should not exist"
+  );
+});
+
 add_task(async function test_account_hub_opening() {
   Services.fog.testResetFOG();
   await window.openAccountHub();

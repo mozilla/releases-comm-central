@@ -201,23 +201,12 @@ async function MsgAccountManager(selectPage, server) {
 }
 
 /**
- * Open the Account Hub dialog.
- *
- * @param {boolean} [isInitialSetup] - If this call is for the initial account
- *   setup.
+ * Open the Account Hub to set up a new email account.
  */
-function openAccountSetup(isInitialSetup = false) {
+function openAccountSetup() {
   const mail3Pane = Services.wm.getMostRecentWindow("mail:3pane");
   mail3Pane.focus();
-
-  // TODO: Update logic so account hub opens on initial setup too
-  // (Bug 1968073).
-  if (
-    !isInitialSetup &&
-    Services.prefs.getBoolPref("mail.accounthub.enabled", false)
-  ) {
-    mail3Pane.openAccountHub();
-  }
+  mail3Pane.openAccountHub();
 }
 
 /**
