@@ -17,6 +17,7 @@ const WINDOW_URLS = [
   "about:3pane",
   "about:addressbook",
   "about:message",
+  "chrome://messenger/content/msgAccountCentral.xhtml",
 ];
 
 // The elements we consider to be interactive.
@@ -33,6 +34,7 @@ const UI_TARGET_ELEMENTS = [
   "radio",
   "select",
   "richlistitem",
+  "a",
 ];
 
 // The containers of interactive elements that we care about and their pretty
@@ -116,6 +118,8 @@ const MESSENGER_UI_CONTAINER_IDS = {
   messageHistoryPopup: "toolbox",
   toolbarGetMessagesContext: "toolbox",
   unifiedToolbarCreateBook: "toolbox",
+
+  accountCentral: "account-central",
 };
 
 const KNOWN_ADDONS = [];
@@ -268,7 +272,8 @@ export const MailUsageTelemetry = {
       return "keyboard";
     }
 
-    if (WINDOW_URLS.includes(node.ownerDocument.URL)) {
+    const docURL = node.ownerDocument.URL.replace(/\?.*/, "");
+    if (WINDOW_URLS.includes(docURL)) {
       return this._getBrowserWidgetContainer(node);
     }
     return null;

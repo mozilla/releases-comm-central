@@ -20,7 +20,7 @@ const accountCentralBrowser = about3Pane.accountCentralBrowser;
 
 // Which buttons should be visible for which account types?
 const buttonData = {
-  settingsButton: true,
+  accountSettingsButton: true,
   readButton: ["pop3"],
   nntpSubscriptionButton: ["nntp"],
   rssSubscriptionButton: ["rss"],
@@ -213,7 +213,7 @@ async function subtest(server) {
     MailServices.accounts.findAccountForServer(server).key
   );
   EventUtils.synthesizeMouseAtCenter(
-    doc.getElementById("settingsButton"),
+    doc.getElementById("accountSettingsButton"),
     {},
     win
   );
@@ -268,6 +268,8 @@ async function subtest(server) {
  * the account's inbox, and that might cause checking for mail).
  */
 add_task(async function testMail() {
+  Services.fog.testResetFOG();
+
   await subtest(pop3Server);
   const win = accountCentralBrowser.contentWindow;
   const doc = accountCentralBrowser.contentDocument;
@@ -307,12 +309,28 @@ add_task(async function testMail() {
     tabmail.currentTabInfo.folder.URI,
     pop3Server.serverURI + "/Inbox"
   );
+
+  const events = Glean.mail.uiInteraction.testGetValue();
+  Assert.deepEqual(
+    events.map(e => e.extra.id),
+    [
+      "accountSettingsButton",
+      "searchButton",
+      "filterButton",
+      "composeButton",
+      "e2eButton",
+      "readButton",
+    ],
+    "clicks should be recorded in telemetry"
+  );
 });
 
 /**
  * Test a news account.
  */
 add_task(async function testNews() {
+  Services.fog.testResetFOG();
+
   await subtest(nntpServer);
   const win = accountCentralBrowser.contentWindow;
   const doc = accountCentralBrowser.contentDocument;
@@ -337,12 +355,26 @@ add_task(async function testNews() {
   );
   await subscribePromise;
   await SimpleTest.promiseFocus();
+
+  const events = Glean.mail.uiInteraction.testGetValue();
+  Assert.deepEqual(
+    events.map(e => e.extra.id),
+    [
+      "accountSettingsButton",
+      "searchButton",
+      "filterButton",
+      "nntpSubscriptionButton",
+    ],
+    "clicks should be recorded in telemetry"
+  );
 });
 
 /**
  * Test a feeds account.
  */
 add_task(async function testFeeds() {
+  Services.fog.testResetFOG();
+
   await subtest(rssServer);
   const win = accountCentralBrowser.contentWindow;
   const doc = accountCentralBrowser.contentDocument;
@@ -359,6 +391,18 @@ add_task(async function testFeeds() {
   );
   await subscribePromise;
   await SimpleTest.promiseFocus();
+
+  const events = Glean.mail.uiInteraction.testGetValue();
+  Assert.deepEqual(
+    events.map(e => e.extra.id),
+    [
+      "accountSettingsButton",
+      "searchButton",
+      "filterButton",
+      "rssSubscriptionButton",
+    ],
+    "clicks should be recorded in telemetry"
+  );
 });
 
 /**
@@ -366,6 +410,8 @@ add_task(async function testFeeds() {
  * common to all account types.
  */
 add_task(async function testLocal() {
+  Services.fog.testResetFOG();
+
   await subtest(localServer);
   const win = accountCentralBrowser.contentWindow;
   const doc = accountCentralBrowser.contentDocument;
@@ -460,6 +506,29 @@ add_task(async function testLocal() {
     EventUtils.synthesizeMouseAtCenter(doc.getElementById(id), {}, win);
     MockExternalProtocolService.assertHasLoadedURL(url);
   }
+
+  const events = Glean.mail.uiInteraction.testGetValue();
+  Assert.deepEqual(
+    events.map(e => e.extra.id),
+    [
+      "accountSettingsButton",
+      "searchButton",
+      "filterButton",
+      "setupEmail",
+      "setupAddressBook",
+      "setupCalendar",
+      "setupChat",
+      "setupFilelink",
+      "setupFeeds",
+      "setupNewsgroups",
+      "importButton",
+      "donationLink",
+      "supportLink",
+      "involvedLink",
+      "developerLink",
+    ],
+    "clicks should be recorded in telemetry"
+  );
 });
 
 /**
@@ -467,6 +536,8 @@ add_task(async function testLocal() {
  * shouldn't really ever be shown, but somehow it mysteriously still is.
  */
 add_task(async function testFirstRun() {
+  Services.fog.testResetFOG();
+
   accountCentralBrowser.contentWindow.location =
     "chrome://messenger/content/msgAccountCentral.xhtml?folderURI=";
   await TestUtils.waitForCondition(
@@ -499,4 +570,11 @@ add_task(async function testFirstRun() {
     win
   );
   await aboutPromise;
+
+  const events = Glean.mail.uiInteraction.testGetValue();
+  Assert.deepEqual(
+    events.map(e => e.extra.id),
+    ["releasenotes"],
+    "clicks should be recorded in telemetry"
+  );
 });

@@ -483,11 +483,11 @@ aside.settings-btn-container {
   background-image: var(--icon-tools);
 }
 
-#settingsButton {
+#accountSettingsButton {
   padding-inline: 3px;
 }
 
-#settingsButton::before {
+#accountSettingsButton::before {
   background-image: var(--icon-account-settings);
 }
 
