@@ -1212,6 +1212,7 @@ export class Pop3Client {
         if (e.result == NS_MSG_FOLDER_BUSY) {
           this._actionError("pop3ServerBusy", [this._server.prettyName]);
         } else {
+          this._logger.error(`Download mail FAILED! ${e.message}`, e);
           this._actionError("pop3MessageWriteError");
         }
         return;
@@ -1518,6 +1519,7 @@ export class Pop3Client {
             Ci.nsMsgMessageFlags.Partial
           );
         } catch (e) {
+          this._logger.error(`Incorporate begin FAILED! ${e.message}`, e);
           this._actionError("pop3MessageWriteError");
           this._sink.incorporateAbort();
           return;
@@ -1537,6 +1539,7 @@ export class Pop3Client {
         try {
           this._sink.incorporateWrite(line, line.length);
         } catch (e) {
+          this._logger.error(`Incorporate write FAILED! ${e.message}`, e);
           this._actionError("pop3MessageWriteError");
           this._sink.incorporateAbort();
           throw e; // Stop reading.
@@ -1551,6 +1554,7 @@ export class Pop3Client {
             this._messageSizeMap.get(this._currentMessage.messageNumber)
           );
         } catch (e) {
+          this._logger.error(`Incorporate complete FAILED! ${e.message}`, e);
           this._actionError("pop3MessageWriteError");
           this._sink.incorporateAbort();
           return;
@@ -1603,6 +1607,7 @@ export class Pop3Client {
         // Call incorporateBegin only once for each message.
         this._sink.incorporateBegin(this._currentMessage.uidl, 0);
       } catch (e) {
+        this._logger.error(`Incorporate begin FAILED! ${e.message}`, e);
         this._actionError("pop3MessageWriteError");
         this._sink.incorporateAbort();
         return;
@@ -1615,6 +1620,7 @@ export class Pop3Client {
         try {
           this._sink.incorporateWrite(line, line.length);
         } catch (e) {
+          this._logger.error(`Incorporate write FAILED! ${e.message}`, e);
           this._actionError("pop3MessageWriteError");
           this._sink.incorporateAbort();
           throw e; // Stop reading.
@@ -1630,6 +1636,7 @@ export class Pop3Client {
             0 // Set size only when it's a partial message.
           );
         } catch (e) {
+          this._logger.error(`Incorporate complete FAILED! ${e.message}`, e);
           this._actionError("pop3MessageWriteError");
           this._sink.incorporateAbort();
           return;
@@ -1683,13 +1690,17 @@ export class Pop3Client {
    *
    * @param {string} errorName - An error name corresponds to an entry of
    *   localMsgs.properties.
-   * @param {string[]} errorParams - Params to construct the error message.
-   * @param {string} serverErrorMsg - Error message returned by the server.
+   * @param {?string[]} errorParams - Params to construct the error message.
+   * @param {?string} serverErrorMsg - Error message returned by the server.
    */
   _actionError(errorName, errorParams, serverErrorMsg) {
-    this._logger.error(
-      `Got an error name=${errorName}, the server said: ${serverErrorMsg}`
-    );
+    if (!serverErrorMsg) {
+      this._logger.error(`Got an error; name=${errorName}`);
+    } else {
+      this._logger.error(
+        `Got an error; name=${errorName}. The server said: ${serverErrorMsg}`
+      );
+    }
     if (errorName == "pop3PasswordFailed") {
       return;
     }
