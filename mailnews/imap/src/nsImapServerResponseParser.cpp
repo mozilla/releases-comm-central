@@ -2273,6 +2273,10 @@ void nsImapServerResponseParser::ResetCapabilityFlag() {}
 // the message response has been processed.
 bool nsImapServerResponseParser::msg_fetch_literal(bool chunk, int32_t origin) {
   numberOfCharsInThisChunk = atoi(fNextToken + 1);
+  if (numberOfCharsInThisChunk < 0) {
+    SetSyntaxError(true, "negative literal size");
+    return true;
+  }
   // If we didn't request a specific size, or the server isn't returning exactly
   // as many octets as we requested, this must be the last or only chunk
   bool lastChunk = (!chunk || (numberOfCharsInThisChunk !=

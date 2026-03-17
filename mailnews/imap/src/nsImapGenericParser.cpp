@@ -292,6 +292,11 @@ char* nsImapGenericParser::CreateQuoted(bool /*skipToEnd*/) {
 //                       ; any OCTET except NUL, %x00
 char* nsImapGenericParser::CreateLiteral() {
   int32_t numberOfCharsInMessage = atoi(fNextToken + 1);
+  if (numberOfCharsInMessage < 0) {
+    SetSyntaxError(true, "negative literal size");
+    return nullptr;
+  }
+
   uint32_t numBytes = numberOfCharsInMessage + 1;
   NS_ASSERTION(numBytes, "overflow!");
   if (!numBytes) return nullptr;
