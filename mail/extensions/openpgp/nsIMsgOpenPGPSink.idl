@@ -4,6 +4,8 @@
 
 #include "nsISupports.idl"
 
+interface nsIURI;
+
 /** @see nsIMsgSMIMESink */
 [scriptable, uuid(0952ac9f-000d-456c-ba3a-c8134ad260cb)]
 interface nsIMsgOpenPGPSink : nsISupports {
@@ -26,4 +28,11 @@ interface nsIMsgOpenPGPSink : nsISupports {
                             in AUTF8String uri,
                             in AUTF8String extraDetails,
                             in AUTF8String mimePartNumber);
+
+  Promise processUnobtrusiveSignature(in AUTF8String payload,
+                                      in AUTF8String sigHeaderLine,
+                                      in AUTF8String fromAddr,
+                                      in PRTime messageTime,
+                                      in nsIURI uri,
+                                      in AUTF8String mimePartNumber);
 };

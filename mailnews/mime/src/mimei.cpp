@@ -19,6 +19,7 @@
 #include "mimecont.h"  /*   |--- MimeContainer (abstract) */
 /*                          |     |--- MimeMultipart (abstract) */
 #include "mimemmix.h"  /*   |     |     |--- MimeMultipartMixed */
+#include "mimemoth.h"  /*   |     |     |--- MimeMultipartOther */
 #include "mimemdig.h"  /*   |     |     |--- MimeMultipartDigest */
 #include "mimempar.h"  /*   |     |     |--- MimeMultipartParallel */
 #include "mimemalt.h"  /*   |     |     |--- MimeMultipartAlternative */
@@ -285,6 +286,7 @@ bool mime_is_allowed_class(const MimeObjectClass* clazz,
                HTML parser, but the user has the option to make an explicit
                choice in this case, via html_as. */
             clazz == (MimeObjectClass*)&mimeMultipartMixedClass ||
+            clazz == (MimeObjectClass*)&mimeMultipartOtherClass ||
             clazz == (MimeObjectClass*)&mimeMultipartAlternativeClass ||
             clazz == (MimeObjectClass*)&mimeMultipartDigestClass ||
             clazz == (MimeObjectClass*)&mimeMultipartAppleDoubleClass ||
@@ -562,20 +564,20 @@ MimeObjectClass* mime_find_class(const char* content_type, MimeHeaders* hdrs,
       // i.e., we are reformatting the message to remove attachments,
       // we are in a similar boat. The code for deleting
       // attachments properly in that mode is in mimemult.cpp
-      // functions which are inherited by mimeMultipartMixedClass but
-      // not by mimeMultipartAlternativeClass or
-      // mimeMultipartRelatedClass. Therefore, to ensure that
-      // everything is handled properly, in this context too we parse
-      // those MIME types as multipart/mixed.
+      // functions which are inherited by mimeMultipartMixedClass
+      // and MimeMultipartOtherClass, but not by
+      // mimeMultipartAlternativeClass or mimeMultipartRelatedClass.
+      // Therefore, to ensure that everything is handled properly, in
+      // this context too we parse those MIME types as multipart/mixed.
       bool basic_formatting =
           (html_as == 4) ||
           (opts && opts->format_out == nsMimeOutput::nsMimeMessageAttach);
       if (!PL_strcasecmp(content_type + 10, "alternative"))
         clazz = basic_formatting
-                    ? (MimeObjectClass*)&mimeMultipartMixedClass
+                    ? (MimeObjectClass*)&mimeMultipartOtherClass
                     : (MimeObjectClass*)&mimeMultipartAlternativeClass;
       else if (!PL_strcasecmp(content_type + 10, "related"))
-        clazz = basic_formatting ? (MimeObjectClass*)&mimeMultipartMixedClass
+        clazz = basic_formatting ? (MimeObjectClass*)&mimeMultipartOtherClass
                                  : (MimeObjectClass*)&mimeMultipartRelatedClass;
       else if (!PL_strcasecmp(content_type + 10, "digest"))
         clazz = (MimeObjectClass*)&mimeMultipartDigestClass;
@@ -630,13 +632,16 @@ MimeObjectClass* mime_find_class(const char* content_type, MimeHeaders* hdrs,
 #endif
 
       if (!clazz && !exact_match_p)
-        /* Treat all unknown multipart subtypes as "multipart/mixed" */
-        clazz = (MimeObjectClass*)&mimeMultipartMixedClass;
+        /* Treat all unknown multipart subtypes as "multipart/mixed",
+         * but use the separate type mimeMultipartOtherClass, to
+         * allow other code to distinguish whether we are explicitly
+         * processing multipart/mixed or not. */
+        clazz = (MimeObjectClass*)&mimeMultipartOtherClass;
 
       /* If we are sniffing a message, let's treat alternative parts as mixed */
       if (opts && opts->format_out == nsMimeOutput::nsMimeMessageFilterSniffer)
         if (clazz == (MimeObjectClass*)&mimeMultipartAlternativeClass)
-          clazz = (MimeObjectClass*)&mimeMultipartMixedClass;
+          clazz = (MimeObjectClass*)&mimeMultipartOtherClass;
     }
 
     /* Subtypes of message...

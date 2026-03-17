@@ -66,3 +66,10 @@ MimeMessage* MimeClosure::AsMimeMessage() {
   return (mType == isMimeMessage) ? static_cast<MimeMessage*>(mClosure)
                                   : nullptr;
 }
+
+MimeStringCollector* MimeClosure::AsStringCollector() {
+  PR_ASSERT(mType == isStringCollector);
+  return (mType == isStringCollector)
+             ? static_cast<MimeStringCollector*>(mClosure)
+             : nullptr;
+}

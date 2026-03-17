@@ -202,6 +202,15 @@ async function assertSentMessage(composeWindow, expectMessage, msg) {
 
   await assert_selected_and_displayed(0);
 
+  Assert.ok(
+    OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "ok"),
+    "message has signed icon"
+  );
+  Assert.ok(
+    !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
+    "encrypted icon should NOT be shown"
+  );
+
   // signed unobtrusive wraps the payload message in multipart/mixed,
   // we must fetch the part that's one level below.
 

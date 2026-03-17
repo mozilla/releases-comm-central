@@ -33,6 +33,8 @@
       |     |     |
       |     |     |--- MimeMultipartMixed
       |     |     |
+      |     |     |--- MimeMultipartOther
+      |     |     |
       |     |     |--- MimeMultipartDigest
       |     |     |
       |     |     |--- MimeMultipartParallel

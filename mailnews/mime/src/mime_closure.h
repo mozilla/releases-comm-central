@@ -15,6 +15,7 @@ struct MimeMultipartRelated;
 class nsMsgComposeSecure;
 class mime_image_stream_data;
 struct MimeMessage;
+class MimeStringCollector;
 
 class MimeClosure {
   // MimeClosure is a helper class to make it safer to pass the various mime
@@ -34,6 +35,7 @@ class MimeClosure {
     isMsgComposeSecure,
     isMimeImageStreamData,
     isMimeMessage,
+    isStringCollector,
   };
 
   MimeObject* AsMimeObject();
@@ -46,6 +48,7 @@ class MimeClosure {
   nsMsgComposeSecure* AsMsgComposeSecure();
   mime_image_stream_data* AsMimeImageStreamData();
   MimeMessage* AsMimeMessage();
+  MimeStringCollector* AsStringCollector();
 
   bool IsMimeDraftData() { return mType == isMimeDraftData; }
 
