@@ -117,27 +117,21 @@
         <div class="hub-body manual-form-body">
           <div class="form-row">
             <div id="incomingProtocolFormGroup">
-              <label for="incomingProtocol"
-                    data-l10n-id="account-hub-protocol-label"
-                    data-l10n-attrs="accesskey">
-              </label>
-              <div class="input-control">
-                <account-hub-select id="incomingProtocol"
-                        l10n-label-id="account-hub-protocol-label"
-                        flex="1">
-                    <option id="incomingProtocolIMAP"
-                            value="1">IMAP</option>
-                    <option id="incomingProtocolPOP3"
-                            value="2">POP3</option>
-                    <option id="incomingProtocolExchange"
-                            value="3"
-                            hidden="hidden">Exchange</option>
-                    <option id="incomingProtocolEWS"
-                            value="4">EWS</option>
-                    <option id="incomingProtocolGraph"
-                            value="5" >Graph</option>
-                </account-hub-select>
-              </div>
+              <account-hub-select id="incomingProtocol"
+                    l10n-label-id="account-hub-protocol-label"
+                    flex="1">
+                <option id="incomingProtocolIMAP"
+                        value="1">IMAP</option>
+                <option id="incomingProtocolPOP3"
+                        value="2">POP3</option>
+                <option id="incomingProtocolExchange"
+                        value="3"
+                        hidden="hidden">Exchange</option>
+                <option id="incomingProtocolEWS"
+                        value="4">EWS</option>
+                <option id="incomingProtocolGraph"
+                        value="5" >Graph</option>
+              </account-hub-select>
             </div>
             <div id="incomingHostnameFormGroup" class="expanded">
               <label for="incomingHostname"
@@ -218,71 +212,59 @@
             </div>
 
             <div class="expanded">
-              <label for="incomingConnectionSecurity"
-                    data-l10n-id="account-hub-ssl-label"
-                    class="option-label">
-              </label>
-              <div class="input-control">
-                <account-hub-select id="incomingConnectionSecurity"
-                        l10n-label-id="account-hub-ssl-label"
-                        l10n-error-id="account-hub-select-security-warning"
-                        flex="1">
-                  <option id="incomingConnectionSecurityAutodetect"
-                          data-l10n-id="account-hub-ssl-autodetect-option"
-                          value="-1"></option>
-                  <option id="incomingConnectionSecurityNoEncryption"
-                          selected="true"
-                          data-l10n-id="account-hub-ssl-noencryption-option"
-                          value="0"></option>
-                  <option id="incomingConnectionSecurityStartTtls"
-                          label="STARTTLS"
-                          value="2"></option>
-                  <option id="incomingConnectionSecuritySslTls"
-                          label="SSL/TLS"
-                          value="3"></option>
-                </account-hub-select>
-              </div>
+              <account-hub-select id="incomingConnectionSecurity"
+                      l10n-label-id="account-hub-ssl-label"
+                      l10n-error-id="account-hub-select-security-warning"
+                      flex="1">
+                <option id="incomingConnectionSecurityAutodetect"
+                        data-l10n-id="account-hub-ssl-autodetect-option"
+                        value="-1"></option>
+                <option id="incomingConnectionSecurityNoEncryption"
+                        selected="true"
+                        data-l10n-id="account-hub-ssl-noencryption-option"
+                        value="0"></option>
+                <option id="incomingConnectionSecurityStartTtls"
+                        label="STARTTLS"
+                        value="2"></option>
+                <option id="incomingConnectionSecuritySslTls"
+                        label="SSL/TLS"
+                        value="3"></option>
+              </account-hub-select>
             </div>
           </div>
           <div class="form-row responsive-row">
             <div>
-              <label for="incomingAuthMethod"
-                    data-l10n-id="account-hub-auth-label"
-                    class="option-label">
-              </label>
-              <div class="input-control">
-                <account-hub-select id="incomingAuthMethod"
-                        l10n-label-id="account-hub-auth-label"
-                        required="required"
-                        value="0"
-                        flex="1">
-                  <option id="incomingAuthMethodAutodetect"
-                          data-l10n-id="account-hub-ssl-autodetect-option"
-                          value="0">
-                  </option>
-                  <option id="incomingAuthMethodCleartext"
-                          data-l10n-id="account-hub-ssl-cleartext-password-option"
-                          value="3">
-                  </option>
-                  <option id="incomingAuthMethodEncrypted"
-                          data-l10n-id="account-hub-ssl-encrypted-password-option"
-                          value="4">
-                  </option>
-                  <option id="incomingAuthMethodKerbos"
-                          label="Kerberos / GSSAPI"
-                          value="5">
-                  </option>
-                  <option id="incomingAuthMethodNtlm"
-                          label="NTLM"
-                          value="6">
-                  </option>
-                  <option id="incomingAuthMethodOAuth2"
-                          value="10"
-                          hidden="hidden"
-                          label="OAuth2">
-                  </option>
-                </account-hub-select>
-              </div>
+              <account-hub-select id="incomingAuthMethod"
+                      l10n-label-id="account-hub-auth-label"
+                      required="required"
+                      value="0"
+                      flex="1">
+                <option id="incomingAuthMethodAutodetect"
+                        data-l10n-id="account-hub-ssl-autodetect-option"
+                        value="0">
+                </option>
+                <option id="incomingAuthMethodCleartext"
+                        data-l10n-id="account-hub-ssl-cleartext-password-option"
+                        value="3">
+                </option>
+                <option id="incomingAuthMethodEncrypted"
+                        data-l10n-id="account-hub-ssl-encrypted-password-option"
+                        value="4">
+                </option>
+                <option id="incomingAuthMethodKerbos"
+                        label="Kerberos / GSSAPI"
+                        value="5">
+                </option>
+                <option id="incomingAuthMethodNtlm"
+                        label="NTLM"
+                        value="6">
+                </option>
+                <option id="incomingAuthMethodOAuth2"
+                        value="10"
+                        hidden="hidden"
+                        label="OAuth2">
+                </option>
+              </account-hub-select>
             </div>
 
             <div class="expanded">
