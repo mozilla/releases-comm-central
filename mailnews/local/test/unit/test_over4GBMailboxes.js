@@ -2,26 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/*
+/**
  * Test to ensure that operations around the 4GiB folder size boundary work correctly.
  * This test only works for mbox format mail folders.
  * Some of the tests will be removed when support for over 4GiB folders is enabled by default.
- * The test functions are executed in this order:
- * - run_test
- * -  ParseListener_run_test
- * - downloadUnder4GiB
- * - downloadOver4GiB_fail
- * - downloadOver4GiB_success
- * -  downloadOver4GiB_success_check
- * - copyIntoOver4GiB_fail
- * -  copyIntoOver4GiB_fail_check
- * - copyIntoOver4GiB_success
- * -  copyIntoOver4GiB_success_check1
- * -  copyIntoOver4GiB_success_check2
- * - compactOver4GiB
- * -  CompactListener_compactOver4GiB
- * - compactUnder4GiB
- * -  CompactListener_compactUnder4GiB
  */
 
 // Need to do this before loading POP3Pump.js
@@ -75,7 +59,7 @@ add_setup(async function () {
 
   localAccountUtils.loadLocalMailAccount();
 
-  allow4GBFolders(false);
+  Services.prefs.setBoolPref("mailnews.allowMboxOver4GB", false);
 
   gInbox = localAccountUtils.inboxFolder;
   gInboxFile = gInbox.filePath;
@@ -94,11 +78,10 @@ add_setup(async function () {
   const freeDiskSpace = gInboxFile.diskSpaceAvailable;
   info("Free disk space = " + mailTestUtils.toMiBString(freeDiskSpace));
   if (freeDiskSpace < neededFreeSpace) {
-    throw new Error(
-      "This test needs " +
-        mailTestUtils.toMiBString(neededFreeSpace) +
-        " free space to run. Aborting."
+    info(
+      `Skipping; not enouch disk space! Needed ${mailTestUtils.toMiBString(neededFreeSpace)} but only ${mailTestUtils.toMiBString(freeDiskSpace)} available`
     );
+    return;
   }
 
   MailServices.mailSession.AddFolderListener(
@@ -140,8 +123,16 @@ add_task(async function downloadUnder4GiB() {
 
   // Download a file that still fits into the limit.
   const bigFile = do_get_file("../../../data/mime-torture");
+
   Assert.greaterOrEqual(bigFile.fileSize, 1024 * 1024);
   Assert.lessOrEqual(bigFile.fileSize, 1024 * 1024 * 2);
+
+  if (gInboxFile.diskSpaceAvailable < bigFile.fileSize) {
+    info(
+      `Skipping; not enouch disk space! Needed ${mailTestUtils.toMiBString(bigFile.fileSize)} but only ${mailTestUtils.toMiBString(gInboxFile.diskSpaceAvailabl)} available`
+    );
+    return;
+  }
 
   gPOP3Pump.files = ["../../../data/mime-torture"];
   let pop3Resolve;
@@ -190,6 +181,7 @@ add_task(async function downloadOver4GiB_fail() {
   gPOP3Pump.onDone = pop3Resolve;
   // The download must fail.
   gPOP3Pump.run(Cr.NS_ERROR_FAILURE);
+  info("Download successfully failed!");
   await pop3OnDonePromise;
 });
 
@@ -198,7 +190,7 @@ add_task(async function downloadOver4GiB_fail() {
  * Check we can cross the 4GiB limit when downloading new mail.
  */
 add_task(async function downloadOver4GiB_success_check() {
-  allow4GBFolders(true);
+  Services.prefs.setBoolPref("mailnews.allowMboxOver4GB", true);
   // Grow inbox to size greater than the max limit (+16 MiB).
   gExpectedNewMessages = 16;
   // We are in the .onDone() callback of the previous run of gPOP3Pump
@@ -276,7 +268,7 @@ add_task(async function downloadOver4GiB_success_check() {
  * Check that copy operation does not allow to grow a local folder above 4 GiB.
  */
 add_task(async function copyIntoOver4GiB_fail_check() {
-  allow4GBFolders(false);
+  Services.prefs.setBoolPref("mailnews.allowMboxOver4GB", false);
   // Save initial file size.
   const localInboxSize = gInboxFile.clone().fileSize;
   info("Local inbox size (before copyFileMessage) = " + localInboxSize);
@@ -331,7 +323,7 @@ add_task(async function copyIntoOver4GiB_fail_check() {
  * Check that copy operation does allow to grow a local folder above 4 GiB.
  */
 add_task(async function copyIntoOver4GiB_success_check1() {
-  allow4GBFolders(true);
+  Services.prefs.setBoolPref("mailnews.allowMboxOver4GB", true);
   // Append 2 new 2MB messages to the folder.
   gExpectedNewMessages = 2;
 
@@ -403,6 +395,14 @@ add_task(async function compactOver4GiB() {
   gInboxSize = gInboxFile.clone().fileSize;
   Assert.greater(gInboxSize, kSizeLimit);
   Assert.equal(gInbox.expungedBytes, 0);
+
+  if (gInboxFile.diskSpaceAvailable < gInboxSize) {
+    info(
+      `Skipping; not enouch disk space! Needed ${mailTestUtils.toMiBString(gInboxSize)} but only ${mailTestUtils.toMiBString(gInboxFile.diskSpaceAvailabl)} available`
+    );
+    return;
+  }
+
   // Delete the last small message at folder end.
   const doomed = [...gInbox.messages].slice(-1);
   let sizeToExpunge = 0;
@@ -438,8 +438,16 @@ add_task(async function compactOver4GiB() {
  * Check we can compact a folder to get it under 4 GiB.
  */
 add_task(async function compactUnder4GiB() {
+  gInboxSize = gInboxFile.clone().fileSize;
   // The folder is still above 4GB.
-  Assert.greater(gInboxFile.clone().fileSize, kSizeLimit);
+  Assert.greater(gInboxSize, kSizeLimit);
+  if (gInboxFile.diskSpaceAvailable < gInboxSize) {
+    info(
+      `Skipping; not enouch disk space! Needed ${mailTestUtils.toMiBString(gInboxSize)} but only ${mailTestUtils.toMiBString(gInboxFile.diskSpaceAvailabl)} available`
+    );
+    return;
+  }
+
   const folderSize = gInbox.sizeOnDisk;
   const totalMsgs = gInbox.getTotalMessages(false);
   // Let's close the database and re-open the folder (hopefully dumping memory caches)
@@ -551,13 +559,6 @@ var FListener = {
   onFolderPropertyFlagChanged() {},
   onFolderEvent() {},
 };
-
-/**
- * Allow folders to grow over 4GB.
- */
-function allow4GBFolders(aOn) {
-  Services.prefs.setBoolPref("mailnews.allowMboxOver4GB", aOn);
-}
 
 /**
  * Grow local inbox folder to at least targetSize bytes, by appending

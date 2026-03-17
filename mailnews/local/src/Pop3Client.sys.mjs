@@ -1371,7 +1371,11 @@ export class Pop3Client {
               this._totalDownloadSize
             )
           ) {
-            throw new Error("Not enough disk space");
+            throw new Error(
+              `Too big! ${localFolder.filePath.diskSpaceAvailable / 2 ** 20} MiB of disk space available; ` +
+                `${this._totalDownloadSize / 2 ** 20} MiB requested; ` +
+                `folder size is ${localFolder.filePath.fileSize / 2 ** 20} MiB`
+            );
           }
         } catch (e) {
           this._logger.error(e);
