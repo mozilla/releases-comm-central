@@ -2,8 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from ../../../mail/components/addrbook/content/abCommon.js */
-/* import-globals-from ../../../mail/components/compose/content/addressingWidgetOverlay.js */
+/* globals GetDirectoryFromURI, kAllDirectoryRoot, kPersonalAddressbookURI */ // abCommon.js
 
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
@@ -252,28 +251,14 @@ function OnLoadNewMailList() {
   }
 
   // set popup with address book names
-  var abPopup = document.getElementById("abPopup");
-  abPopup.value = selectedAB;
+  document.getElementById("abPopup").value = selectedAB;
 
-  AppendNewRowAndSetFocus();
+  if (awGetInputElement(top.MAX_RECIPIENTS)?.value) {
+    awAppendNewRow(false);
+  }
   awFitDummyRows(1);
 
-  if (AppConstants.MOZ_APP_NAME == "seamonkey") {
-    /* global awDocumentKeyPress */
-    document.addEventListener("keypress", awDocumentKeyPress, true);
-  }
-
-  // focus on first name
-  var listName = document.getElementById("ListName");
-  if (listName) {
-    setTimeout(
-      function (firstTextBox) {
-        firstTextBox.focus();
-      },
-      0,
-      listName
-    );
-  }
+  awSetFocusTo(document.getElementById("ListName")); // focus on first name
 
   const input = document.getElementById("addressCol1#1");
   input.popup.addEventListener("click", () => {
@@ -359,41 +344,17 @@ function OnLoadEditList() {
     document.addEventListener("dialogaccept", EditListOKButton);
   }
 
-  if (AppConstants.MOZ_APP_NAME == "seamonkey") {
-    document.addEventListener("keypress", awDocumentKeyPress, true);
+  if (awGetInputElement(top.MAX_RECIPIENTS)?.value) {
+    awAppendNewRow(true);
   }
 
-  // workaround for bug 118337 - for mailing lists that have more rows than fits inside
-  // the display, the value of the textbox inside the new row isn't inherited into the input -
-  // the first row then appears to be duplicated at the end although it is actually empty.
-  // see awAppendNewRow which copies first row and clears it
-  setTimeout(AppendLastRow, 0);
+  awFitDummyRows(1);
 
   document.querySelectorAll(`input[is="autocomplete-input"]`).forEach(input => {
     input.popup.addEventListener("click", () => {
       awReturnHit(input);
     });
   });
-}
-
-function AppendLastRow() {
-  AppendNewRowAndSetFocus();
-  awFitDummyRows(1);
-
-  // focus on first name
-  const listName = document.getElementById("ListName");
-  if (listName) {
-    listName.focus();
-  }
-}
-
-function AppendNewRowAndSetFocus() {
-  const lastInput = awGetInputElement(top.MAX_RECIPIENTS);
-  if (lastInput && lastInput.value) {
-    awAppendNewRow(true);
-  } else {
-    awSetFocusTo(lastInput);
-  }
 }
 
 function SetInputValue(inputValue, parentNode, templateNode) {
@@ -939,16 +900,8 @@ function awGetNextDummyRow() {
  *
  * @param {Element} element - The element to receive focus asynchronously.
  */
-function awSetFocusTo(element) {
-  // Remember the (input) element to focus for asynchronous focusing, so that we
-  // play safe if this gets called again and the original element gets removed
-  // before we can focus it.
-  top.awInputToFocus = element;
-  setTimeout(_awSetFocusTo, 0);
-}
-
-function _awSetFocusTo() {
-  top.awInputToFocus.focus();
+async function awSetFocusTo(element) {
+  requestAnimationFrame(() => element.focus());
 }
 
 // returns null if abURI is not a mailing list URI

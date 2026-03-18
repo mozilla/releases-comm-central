@@ -553,7 +553,9 @@ async function promiseLoadSubDialog(url) {
     url,
     { isSubDialog: true }
   );
-  await new Promise(resolve => dialogWindow.setTimeout(resolve));
+  // Sub-dialog return after "DOMFrameContentLoaded". We want to wait for the
+  // load event to also take place.
+  await BrowserTestUtils.waitForEvent(dialogWindow, "load");
   return dialogWindow;
 }
 

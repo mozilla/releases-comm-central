@@ -32,7 +32,7 @@ let global = {};
 /**
  * Set up: create a new address book to hold the mailing list.
  */
-add_task(async () => {
+add_setup(async () => {
   const bookPrefName = MailServices.ab.newAddressBook(
     inputs.abName,
     null,
@@ -53,7 +53,7 @@ add_task(async () => {
 /**
  * Create a new mailing list with some addresses, in the new address book.
  */
-add_task(async () => {
+add_task(async function testNewListWithAddresses() {
   const mailingListWindowPromise = promiseLoadSubDialog(
     "chrome://messenger/content/addressbook/abMailListDialog.xhtml"
   ).then(async function (mlWindow) {
@@ -178,7 +178,7 @@ add_task(async () => {
 /**
  * Open the mailing list dialog and modify the mailing list.
  */
-add_task(async () => {
+add_task(async function testOpenMailingListDialogAndModify() {
   const mailingListWindowPromise = promiseLoadSubDialog(
     "chrome://messenger/content/addressbook/abMailListDialog.xhtml"
   ).then(async function (mlWindow) {
@@ -358,7 +358,7 @@ add_task(async () => {
 /**
  * Open the mailing list dialog and confirm the changes are displayed.
  */
-add_task(async () => {
+add_task(async function testOpenMailingListDialogConfirmChanges() {
   const mailingListWindowPromise = promiseLoadSubDialog(
     "chrome://messenger/content/addressbook/abMailListDialog.xhtml"
   ).then(async function (mailingListWindow) {
@@ -445,7 +445,7 @@ add_task(async () => {
 /**
  * Tear down: delete the address book and close the address book window.
  */
-add_task(async () => {
+add_task(async function testDeleteAddressBookAndClose() {
   const mailingListWindowPromise = BrowserTestUtils.promiseAlertDialog(
     "accept",
     "chrome://global/content/commonDialog.xhtml"
