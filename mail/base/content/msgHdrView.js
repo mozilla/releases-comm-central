@@ -691,7 +691,9 @@ var messageProgressListener = {
 
     if (gFolder) {
       gMessageNotificationBar.setJunkMsg(gMessage);
-      HandleMDNResponse(channel.mimeHeaders);
+      if (channel.mimeHeaders) {
+        HandleMDNResponse(channel.mimeHeaders);
+      }
     }
 
     this.onEndMsgDownload(channel.URI);
