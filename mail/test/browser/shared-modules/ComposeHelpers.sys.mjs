@@ -8,8 +8,6 @@ import {
 } from "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs";
 
 import { gMockCloudfileManager } from "resource://testing-common/mail/CloudfileHelpers.sys.mjs";
-
-import { promise_new_window } from "resource://testing-common/mail/WindowHelpers.sys.mjs";
 import { get_notification } from "resource://testing-common/mail/NotificationBoxHelpers.sys.mjs";
 import * as EventUtils from "resource://testing-common/mail/EventUtils.sys.mjs";
 import { Assert } from "resource://testing-common/Assert.sys.mjs";
@@ -28,9 +26,14 @@ var kTextNodeType = 3;
  * @returns {Window} The loaded window of type "msgcompose".
  */
 export async function open_compose_new_mail(win = mc) {
-  const composePromise = promise_new_window("msgcompose");
+  const composePromise = BrowserTestUtils.domWindowOpenedAndLoaded(
+    null,
+    w =>
+      w.document.documentURI ==
+      "chrome://messenger/content/messengercompose/messengercompose.xhtml"
+  );
   EventUtils.synthesizeKey("n", { shiftKey: false, accelKey: true }, win);
-  return compose_window_ready(composePromise);
+  return _wait_for_compose_window(await composePromise);
 }
 
 /**
@@ -42,9 +45,14 @@ export async function open_compose_new_mail(win = mc) {
  * @returns {Window} The loaded window of type "msgcompose".
  */
 export async function open_compose_with_reply(win = mc) {
-  const composePromise = promise_new_window("msgcompose");
+  const composePromise = BrowserTestUtils.domWindowOpenedAndLoaded(
+    null,
+    w =>
+      w.document.documentURI ==
+      "chrome://messenger/content/messengercompose/messengercompose.xhtml"
+  );
   EventUtils.synthesizeKey("r", { shiftKey: false, accelKey: true }, win);
-  return compose_window_ready(composePromise);
+  return _wait_for_compose_window(await composePromise);
 }
 
 /**
@@ -56,9 +64,14 @@ export async function open_compose_with_reply(win = mc) {
  * @returns {Window} The loaded window of type "msgcompose".
  */
 export async function open_compose_with_reply_to_all(win = mc) {
-  const composePromise = promise_new_window("msgcompose");
+  const composePromise = BrowserTestUtils.domWindowOpenedAndLoaded(
+    null,
+    w =>
+      w.document.documentURI ==
+      "chrome://messenger/content/messengercompose/messengercompose.xhtml"
+  );
   EventUtils.synthesizeKey("R", { shiftKey: true, accelKey: true }, win);
-  return compose_window_ready(composePromise);
+  return _wait_for_compose_window(await composePromise);
 }
 
 /**
@@ -70,9 +83,14 @@ export async function open_compose_with_reply_to_all(win = mc) {
  * @returns {Window} The loaded window of type "msgcompose".
  */
 export async function open_compose_with_reply_to_list(win = mc) {
-  const composePromise = promise_new_window("msgcompose");
+  const composePromise = BrowserTestUtils.domWindowOpenedAndLoaded(
+    null,
+    w =>
+      w.document.documentURI ==
+      "chrome://messenger/content/messengercompose/messengercompose.xhtml"
+  );
   EventUtils.synthesizeKey("l", { shiftKey: true, accelKey: true }, win);
-  return compose_window_ready(composePromise);
+  return _wait_for_compose_window(await composePromise);
 }
 
 /**
@@ -84,9 +102,14 @@ export async function open_compose_with_reply_to_list(win = mc) {
  * @returns {Window} The loaded window of type "msgcompose".
  */
 export async function open_compose_with_forward_as_attachments(win = mc) {
-  const composePromise = promise_new_window("msgcompose");
+  const composePromise = BrowserTestUtils.domWindowOpenedAndLoaded(
+    null,
+    w =>
+      w.document.documentURI ==
+      "chrome://messenger/content/messengercompose/messengercompose.xhtml"
+  );
   win.goDoCommand("cmd_forwardAttachment");
-  return compose_window_ready(composePromise);
+  return _wait_for_compose_window(await composePromise);
 }
 
 /**
@@ -98,9 +121,14 @@ export async function open_compose_with_forward_as_attachments(win = mc) {
  * @returns {Window} The loaded window of type "msgcompose".
  */
 export async function open_compose_with_edit_as_new(win = mc) {
-  const composePromise = promise_new_window("msgcompose");
+  const composePromise = BrowserTestUtils.domWindowOpenedAndLoaded(
+    null,
+    w =>
+      w.document.documentURI ==
+      "chrome://messenger/content/messengercompose/messengercompose.xhtml"
+  );
   win.goDoCommand("cmd_editAsNew");
-  return compose_window_ready(composePromise);
+  return _wait_for_compose_window(await composePromise);
 }
 
 /**
@@ -112,9 +140,14 @@ export async function open_compose_with_edit_as_new(win = mc) {
  * @returns {Window} The loaded window of type "msgcompose".
  */
 export async function open_compose_with_forward(win = mc) {
-  const composePromise = promise_new_window("msgcompose");
+  const composePromise = BrowserTestUtils.domWindowOpenedAndLoaded(
+    null,
+    w =>
+      w.document.documentURI ==
+      "chrome://messenger/content/messengercompose/messengercompose.xhtml"
+  );
   EventUtils.synthesizeKey("l", { shiftKey: false, accelKey: true }, win);
-  return compose_window_ready(composePromise);
+  return _wait_for_compose_window(await composePromise);
 }
 
 /**
@@ -126,14 +159,19 @@ export async function open_compose_with_forward(win = mc) {
  * @returns {Window} The loaded window of type "msgcompose".
  */
 export async function open_compose_from_draft(win = get_about_message()) {
-  const composePromise = promise_new_window("msgcompose");
+  const composePromise = BrowserTestUtils.domWindowOpenedAndLoaded(
+    null,
+    w =>
+      w.document.documentURI ==
+      "chrome://messenger/content/messengercompose/messengercompose.xhtml"
+  );
   const box = get_notification(win, "mail-notification-top", "draftMsgContent");
   EventUtils.synthesizeMouseAtCenter(
     box.buttonContainer.firstElementChild,
     {},
     win
   );
-  return compose_window_ready(composePromise);
+  return _wait_for_compose_window(await composePromise);
 }
 
 /**
@@ -201,18 +239,41 @@ export async function compose_window_ready(composePromise) {
   return _wait_for_compose_window(replyWindow);
 }
 
-async function _wait_for_compose_window(replyWindow) {
-  await TestUtils.waitForCondition(
-    () => Services.focus.activeWindow == replyWindow,
-    "waiting for the compose window to have focus"
-  );
-  await TestUtils.waitForCondition(
-    () => replyWindow.composeEditorReady,
-    "waiting for the compose editor to be ready"
-  );
-  await new Promise(resolve => replyWindow.setTimeout(resolve));
-
-  return replyWindow;
+/**
+ * Wait for the window to be active.
+ *
+ * @param {window} win - The window to wait for.
+ * @returns {Promise<Window>} The loaded window;
+ */
+async function _wait_for_compose_window(win) {
+  if (Services.focus.activeWindow != win) {
+    let focusTimeoutId;
+    const focusTimeout = new Promise(resolve => {
+      focusTimeoutId = win.setTimeout(() => {
+        Assert.report(
+          false,
+          undefined,
+          undefined,
+          `Will force focus to ${win.location}`
+        );
+        win.focus();
+        resolve();
+      }, 5000);
+    });
+    await Promise.race([
+      BrowserTestUtils.waitForEvent(win, "activate"),
+      focusTimeout,
+    ]);
+    win.clearTimeout(focusTimeoutId);
+    Assert.report(
+      false,
+      undefined,
+      undefined,
+      `${Services.focus.activeWindow?.location} now active - ${Services.focus.focusedWindow?.location} has focus`
+    );
+  }
+  await new Promise(resolve => win.setTimeout(resolve));
+  return win;
 }
 
 /**
