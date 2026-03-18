@@ -78,7 +78,7 @@ jxl_decoder = { path = "../../../image/rust/jxl", optional = true }
 kvstore = { path = "../../../toolkit/components/kvstore" }
 l10nregistry = { path = "../../../intl/l10n/rust/l10nregistry-rs" }
 l10nregistry-ffi = { path = "../../../intl/l10n/rust/l10nregistry-ffi" }
-libz-rs-sys = { version = "0.4.1", features = ['custom-prefix'], optional = true }
+libz-rs-sys = { version = "0.6", features = ['custom-prefix'], optional = true }
 locale_service_glue = { path = "../../../intl/locale/rust/locale_service_glue" }
 localization-ffi = { path = "../../../intl/l10n/rust/localization-ffi" }
 log = { version = "0.4", features = ['release_max_level_info'] }
@@ -127,6 +127,7 @@ webrender_bindings = { path = "../../../gfx/webrender_bindings" }
 wgpu_bindings = { path = "../../../gfx/wgpu_bindings" }
 wpf-gpu-raster = { git = "https://github.com/FirefoxGraphics/wpf-gpu-raster", rev = "99979da091fd58fba8477e7fcdf5ec0727102916" }
 xpcom = { path = "../../../xpcom/rust/xpcom" }
+zlib-rs = { version = "0.6", features = ['avx512'], optional = true }
 
 [package.metadata.cargo-udeps.ignore]
 normal = ["mozilla-central-workspace-hack"]

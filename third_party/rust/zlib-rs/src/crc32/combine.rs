@@ -5,12 +5,12 @@ pub const fn crc32_combine(crc1: u32, crc2: u32, len2: u64) -> u32 {
 }
 
 #[inline(always)]
-const fn crc32_combine_gen(len2: u64) -> u32 {
+pub const fn crc32_combine_gen(len2: u64) -> u32 {
     x2nmodp(len2, 3)
 }
 
 #[inline(always)]
-const fn crc32_combine_op(crc1: u32, crc2: u32, op: u32) -> u32 {
+pub const fn crc32_combine_op(crc1: u32, crc2: u32, op: u32) -> u32 {
     multmodp(op, crc1) ^ crc2
 }
 
@@ -64,7 +64,7 @@ const fn x2nmodp(mut n: u64, mut k: u32) -> u32 {
 mod test {
     use super::*;
 
-    use crate::crc32;
+    use crate::crc32::crc32;
 
     #[test]
     fn test_crc32_combine() {

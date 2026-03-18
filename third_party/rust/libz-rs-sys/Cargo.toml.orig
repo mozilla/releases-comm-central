@@ -10,13 +10,24 @@ homepage.workspace = true
 publish.workspace = true
 rust-version.workspace = true
 
+[lints.rust]
+unsafe_op_in_unsafe_fn = "deny"
+
+[package.metadata.docs.rs]
+features = ["gz", "gzprintf"]
+
 [features]
 default = ["std", "rust-allocator"] # when used as a rust crate, use the rust allocator
 c-allocator = ["zlib-rs/c-allocator"] # by default, use malloc/free for memory allocation
 rust-allocator = ["zlib-rs/rust-allocator"] # by default, use the rust global alloctor for memory allocation
 std = ["zlib-rs/std"] # assume `::std` is available
-custom-prefix = [] # use the LIBZ_RS_SYS_PREFIX to prefix all exported symbols
-testing-prefix = [] # prefix all symbols with LIBZ_RS_SYS_TEST_ for testing
+export-symbols = [] # whether the zlib api symbols are publicly exported
+custom-prefix = ["export-symbols"] # use the LIBZ_RS_SYS_PREFIX to prefix all exported symbols
+testing-prefix = ["export-symbols"] # prefix all symbols with LIBZ_RS_SYS_TEST_ for testing
+semver-prefix = ["export-symbols"] # prefix all symbols in a semver-compatible way
+gz = ["dep:libc"] # publicly export the gz* functions
+gzprintf = ["gz"] # experimental, requires nightly for the c_variadic feature
 
 [dependencies]
-zlib-rs = { workspace = true, default-features = false }
+zlib-rs = { workspace = true, default-features = false, features = ["__internal-api"] }
+libc = { version = "0.2.171", optional = true }

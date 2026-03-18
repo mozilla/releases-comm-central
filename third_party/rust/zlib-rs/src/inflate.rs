@@ -7,6 +7,7 @@ use core::mem::MaybeUninit;
 use core::ops::ControlFlow;
 
 mod bitreader;
+mod infback;
 mod inffixed_tbl;
 mod inftrees;
 mod window;
@@ -24,10 +25,11 @@ use crate::{
 
 use crate::crc32::{crc32, Crc32Fold};
 
+pub use self::infback::{back, back_end, back_init};
+pub use self::window::Window;
 use self::{
     bitreader::BitReader,
     inftrees::{inflate_table, CodeType, InflateTable},
-    window::Window,
 };
 
 const INFLATE_STRICT: bool = false;
@@ -50,6 +52,9 @@ pub struct InflateStream<'a> {
     pub(crate) reserved: crate::c_api::uLong,
 }
 
+unsafe impl Sync for InflateStream<'_> {}
+unsafe impl Send for InflateStream<'_> {}
+
 #[cfg(feature = "__internal-test")]
 #[doc(hidden)]
 pub const INFLATE_STATE_SIZE: usize = core::mem::size_of::<crate::inflate::State>();
@@ -59,6 +64,14 @@ pub const INFLATE_STATE_SIZE: usize = core::mem::size_of::<crate::inflate::State
 pub unsafe fn set_mode_dict(strm: &mut z_stream) {
     unsafe {
         (*(strm.state as *mut State)).mode = Mode::Dict;
+    }
+}
+
+#[cfg(feature = "__internal-test")]
+#[doc(hidden)]
+pub unsafe fn set_mode_sync(strm: *mut z_stream) {
+    unsafe {
+        (*((*strm).state as *mut State)).mode = Mode::Sync;
     }
 }
 
@@ -92,7 +105,7 @@ impl<'a> InflateStream<'a> {
         }
 
         // Safety: InflateStream has an equivalent layout as z_stream
-        strm.cast::<InflateStream>().as_ref()
+        unsafe { strm.cast::<InflateStream>().as_ref() }
     }
 
     /// # Safety
@@ -119,19 +132,44 @@ impl<'a> InflateStream<'a> {
         }
 
         // Safety: InflateStream has an equivalent layout as z_stream
-        strm.cast::<InflateStream>().as_mut()
+        unsafe { strm.cast::<InflateStream>().as_mut() }
     }
 
     fn as_z_stream_mut(&mut self) -> &mut z_stream {
         // safety: a valid &mut InflateStream is also a valid &mut z_stream
         unsafe { &mut *(self as *mut _ as *mut z_stream) }
     }
+
+    pub fn new(config: InflateConfig) -> Self {
+        let mut inner = crate::c_api::z_stream::default();
+
+        let ret = crate::inflate::init(&mut inner, config);
+        assert_eq!(ret, ReturnCode::Ok);
+
+        unsafe { core::mem::transmute(inner) }
+    }
 }
 
 const MAX_BITS: u8 = 15; // maximum number of bits in a code
 const MAX_DIST_EXTRA_BITS: u8 = 13; // maximum number of extra distance bits
-                                    //
-pub fn uncompress_slice<'a>(
+
+/// Decompresses `input` into the provided `output` buffer.
+///
+/// Returns a subslice of `output` containing the decompressed bytes and a
+/// [`ReturnCode`] indicating the result of the operation. Returns [`ReturnCode::BufError`] if
+/// there is insufficient output space.
+///
+/// # Example
+///
+/// ```
+/// # use zlib_rs::*;
+/// # fn foo(compressed: &[u8]) {
+/// let mut buffer = [0u8; 1024];
+/// let (decompressed, rc) = decompress_slice(&mut buffer, compressed, InflateConfig::default());
+/// assert_eq!(rc, ReturnCode::Ok);
+/// # }
+/// ```
+pub fn decompress_slice<'a>(
     output: &'a mut [u8],
     input: &[u8],
     config: InflateConfig,
@@ -150,6 +188,15 @@ pub fn uncompress<'a>(
     input: &[u8],
     config: InflateConfig,
 ) -> (&'a mut [u8], ReturnCode) {
+    let (_consumed, output, ret) = uncompress2(output, input, config);
+    (output, ret)
+}
+
+pub fn uncompress2<'a>(
+    output: &'a mut [MaybeUninit<u8>],
+    input: &[u8],
+    config: InflateConfig,
+) -> (u64, &'a mut [u8], ReturnCode) {
     let mut dest_len_ptr = output.len() as z_checksum;
 
     // for detection of incomplete stream when *destLen == 0
@@ -182,14 +229,14 @@ pub fn uncompress<'a>(
 
     let err = init(&mut stream, config);
     if err != ReturnCode::Ok {
-        return (&mut [], err);
+        return (0, &mut [], err);
     }
 
     stream.next_out = dest;
     stream.avail_out = 0;
 
     let Some(stream) = (unsafe { InflateStream::from_stream_mut(&mut stream) }) else {
-        return (&mut [], ReturnCode::StreamError);
+        return (0, &mut [], ReturnCode::StreamError);
     };
 
     let err = loop {
@@ -210,6 +257,7 @@ pub fn uncompress<'a>(
         }
     };
 
+    let consumed = len + u64::from(stream.avail_in);
     if !output.is_empty() {
         dest_len_ptr = stream.total_out;
     } else if stream.total_out != 0 && err == ReturnCode::BufError {
@@ -232,7 +280,7 @@ pub fn uncompress<'a>(
         core::slice::from_raw_parts_mut(output.as_mut_ptr() as *mut u8, dest_len_ptr as usize)
     };
 
-    (output_slice, ret)
+    (consumed, output_slice, ret)
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -407,6 +455,9 @@ pub(crate) struct State<'a> {
     lens: [u16; 320],
     /// work area for code table building
     work: [u16; 288],
+
+    allocation_start: *mut u8,
+    total_allocation_size: usize,
 }
 
 impl<'a> State<'a> {
@@ -462,6 +513,9 @@ impl<'a> State<'a> {
             codes_codes: [Code::default(); crate::ENOUGH_LENS],
             len_codes: [Code::default(); crate::ENOUGH_LENS],
             dist_codes: [Code::default(); crate::ENOUGH_DISTS],
+
+            allocation_start: core::ptr::null_mut(),
+            total_allocation_size: 0,
         }
     }
 
@@ -492,24 +546,6 @@ impl<'a> State<'a> {
     }
 }
 
-macro_rules! pull_byte {
-    ($self:expr) => {
-        match $self.bit_reader.pull_byte() {
-            Err(return_code) => return $self.inflate_leave(return_code),
-            Ok(_) => (),
-        }
-    };
-}
-
-macro_rules! need_bits {
-    ($self:expr, $n:expr) => {
-        match $self.bit_reader.need_bits($n) {
-            Err(return_code) => return $self.inflate_leave(return_code),
-            Ok(v) => v,
-        }
-    };
-}
-
 // swaps endianness
 const fn zswap32(q: u32) -> u32 {
     u32::from_be(q.to_le())
@@ -533,7 +569,8 @@ impl State<'_> {
         let avail_out = self.writer.remaining();
 
         if avail_in >= INFLATE_FAST_MIN_HAVE && avail_out >= INFLATE_FAST_MIN_LEFT {
-            inflate_fast_help(self, 0);
+            // SAFETY: INFLATE_FAST_MIN_HAVE is enough bytes remaining to satisfy the precondition.
+            unsafe { inflate_fast_help(self, 0) };
             match self.mode {
                 Mode::Len => {}
                 _ => return ControlFlow::Continue(()),
@@ -576,46 +613,35 @@ impl State<'_> {
             Codes::Dist => &self.dist_codes,
         };
 
-        'top: loop {
-            match mode {
-                Mode::Len => {
-                    let avail_in = bit_reader.bytes_remaining();
-                    let avail_out = writer.remaining();
+        loop {
+            mode = 'top: {
+                match mode {
+                    Mode::Len => {
+                        let avail_in = bit_reader.bytes_remaining();
+                        let avail_out = writer.remaining();
 
-                    // INFLATE_FAST_MIN_LEFT is important. It makes sure there is at least 32 bytes of free
-                    // space available. This means for many SIMD operations we don't need to process a
-                    // remainder; we just copy blindly, and a later operation will overwrite the extra copied
-                    // bytes
-                    if avail_in >= INFLATE_FAST_MIN_HAVE && avail_out >= INFLATE_FAST_MIN_LEFT {
-                        restore!();
-                        inflate_fast_help(self, 0);
-                        return ControlFlow::Continue(());
-                    }
-
-                    self.back = 0;
-
-                    // get a literal, length, or end-of-block code
-                    let mut here;
-                    loop {
-                        let bits = bit_reader.bits(self.len_table.bits);
-                        here = len_table[bits as usize];
-
-                        if here.bits <= bit_reader.bits_in_buffer() {
-                            break;
+                        // INFLATE_FAST_MIN_LEFT is important. It makes sure there is at least 32 bytes of free
+                        // space available. This means for many SIMD operations we don't need to process a
+                        // remainder; we just copy blindly, and a later operation will overwrite the extra copied
+                        // bytes
+                        if avail_in >= INFLATE_FAST_MIN_HAVE && avail_out >= INFLATE_FAST_MIN_LEFT {
+                            restore!();
+                            // SAFETY: INFLATE_FAST_MIN_HAVE >= 15.
+                            // Note that the restore macro does not do anything that would
+                            // reduce the number of bytes available.
+                            unsafe { inflate_fast_help(self, 0) };
+                            return ControlFlow::Continue(());
                         }
 
-                        if let Err(return_code) = bit_reader.pull_byte() {
-                            restore!();
-                            return ControlFlow::Break(return_code);
-                        };
-                    }
+                        self.back = 0;
 
-                    if here.op != 0 && here.op & 0xf0 == 0 {
-                        let last = here;
+                        // get a literal, length, or end-of-block code
+                        let mut here;
                         loop {
-                            let bits = bit_reader.bits((last.bits + last.op) as usize) as u16;
-                            here = len_table[(last.val + (bits >> last.bits)) as usize];
-                            if last.bits + here.bits <= bit_reader.bits_in_buffer() {
+                            let bits = bit_reader.bits(self.len_table.bits);
+                            here = len_table[bits as usize];
+
+                            if here.bits <= bit_reader.bits_in_buffer() {
                                 break;
                             }
 
@@ -625,906 +651,192 @@ impl State<'_> {
                             };
                         }
 
-                        bit_reader.drop_bits(last.bits);
-                        self.back += last.bits as usize;
-                    }
-
-                    bit_reader.drop_bits(here.bits);
-                    self.back += here.bits as usize;
-                    self.length = here.val as usize;
-
-                    if here.op == 0 {
-                        mode = Mode::Lit;
-                        continue 'top;
-                    } else if here.op & 32 != 0 {
-                        // end of block
-
-                        // eprintln!("inflate:         end of block");
-
-                        self.back = usize::MAX;
-                        mode = Mode::Type;
-
-                        restore!();
-                        return ControlFlow::Continue(());
-                    } else if here.op & 64 != 0 {
-                        mode = Mode::Bad;
-                        {
-                            restore!();
-                            let this = &mut *self;
-                            let msg: &'static str = "invalid literal/length code\0";
-                            #[cfg(all(feature = "std", test))]
-                            dbg!(msg);
-                            this.error_message = Some(msg);
-                            return ControlFlow::Break(ReturnCode::DataError);
-                        }
-                    } else {
-                        // length code
-                        self.extra = (here.op & MAX_BITS) as usize;
-                        mode = Mode::LenExt;
-                        continue 'top;
-                    }
-                }
-                Mode::Lit => {
-                    // NOTE: this branch must be kept in sync with its counterpart in `dispatch`
-                    if writer.is_full() {
-                        restore!();
-                        #[cfg(all(test, feature = "std"))]
-                        eprintln!("Ok: writer is full ({} bytes)", self.writer.capacity());
-                        return ControlFlow::Break(ReturnCode::Ok);
-                    }
-
-                    writer.push(self.length as u8);
-
-                    mode = Mode::Len;
-
-                    continue 'top;
-                }
-                Mode::LenExt => {
-                    // NOTE: this branch must be kept in sync with its counterpart in `dispatch`
-                    let extra = self.extra;
-
-                    // get extra bits, if any
-                    if extra != 0 {
-                        match bit_reader.need_bits(extra) {
-                            Err(return_code) => {
-                                restore!();
-                                return ControlFlow::Break(return_code);
-                            }
-                            Ok(v) => v,
-                        };
-                        self.length += bit_reader.bits(extra) as usize;
-                        bit_reader.drop_bits(extra as u8);
-                        self.back += extra;
-                    }
-
-                    // eprintln!("inflate: length {}", state.length);
-
-                    self.was = self.length;
-                    mode = Mode::Dist;
-
-                    continue 'top;
-                }
-                Mode::Dist => {
-                    // NOTE: this branch must be kept in sync with its counterpart in `dispatch`
-
-                    // get distance code
-                    let mut here;
-                    loop {
-                        let bits = bit_reader.bits(self.dist_table.bits) as usize;
-                        here = dist_table[bits];
-                        if here.bits <= bit_reader.bits_in_buffer() {
-                            break;
-                        }
-
-                        if let Err(return_code) = bit_reader.pull_byte() {
-                            restore!();
-                            return ControlFlow::Break(return_code);
-                        };
-                    }
-
-                    if here.op & 0xf0 == 0 {
-                        let last = here;
-
-                        loop {
-                            let bits = bit_reader.bits((last.bits + last.op) as usize);
-                            here = dist_table[last.val as usize + ((bits as usize) >> last.bits)];
-
-                            if last.bits + here.bits <= bit_reader.bits_in_buffer() {
-                                break;
-                            }
-
-                            if let Err(return_code) = bit_reader.pull_byte() {
-                                restore!();
-                                return ControlFlow::Break(return_code);
-                            };
-                        }
-
-                        bit_reader.drop_bits(last.bits);
-                        self.back += last.bits as usize;
-                    }
-
-                    bit_reader.drop_bits(here.bits);
-
-                    if here.op & 64 != 0 {
-                        restore!();
-                        self.mode = Mode::Bad;
-                        return ControlFlow::Break(self.bad("invalid distance code\0"));
-                    }
-
-                    self.offset = here.val as usize;
-
-                    self.extra = (here.op & MAX_BITS) as usize;
-                    mode = Mode::DistExt;
-
-                    continue 'top;
-                }
-                Mode::DistExt => {
-                    // NOTE: this branch must be kept in sync with its counterpart in `dispatch`
-                    let extra = self.extra;
-
-                    if extra > 0 {
-                        match bit_reader.need_bits(extra) {
-                            Err(return_code) => {
-                                restore!();
-                                return ControlFlow::Break(return_code);
-                            }
-                            Ok(v) => v,
-                        };
-                        self.offset += bit_reader.bits(extra) as usize;
-                        bit_reader.drop_bits(extra as u8);
-                        self.back += extra;
-                    }
-
-                    if INFLATE_STRICT && self.offset > self.dmax {
-                        restore!();
-                        self.mode = Mode::Bad;
-                        return ControlFlow::Break(
-                            self.bad("invalid distance code too far back\0"),
-                        );
-                    }
-
-                    // eprintln!("inflate: distance {}", state.offset);
-
-                    mode = Mode::Match;
-
-                    continue 'top;
-                }
-                Mode::Match => {
-                    // NOTE: this branch must be kept in sync with its counterpart in `dispatch`
-                    if writer.is_full() {
-                        restore!();
-                        #[cfg(all(feature = "std", test))]
-                        eprintln!(
-                            "BufError: writer is full ({} bytes)",
-                            self.writer.capacity()
-                        );
-                        return ControlFlow::Break(ReturnCode::Ok);
-                    }
-
-                    let left = writer.remaining();
-                    let copy = writer.len();
-
-                    let copy = if self.offset > copy {
-                        // copy from window to output
-
-                        let mut copy = self.offset - copy;
-
-                        if copy > self.window.have() {
-                            if self.flags.contains(Flags::SANE) {
-                                restore!();
-                                self.mode = Mode::Bad;
-                                return ControlFlow::Break(
-                                    self.bad("invalid distance too far back\0"),
-                                );
-                            }
-
-                            // TODO INFLATE_ALLOW_INVALID_DISTANCE_TOOFAR_ARRR
-                            panic!("INFLATE_ALLOW_INVALID_DISTANCE_TOOFAR_ARRR")
-                        }
-
-                        let wnext = self.window.next();
-                        let wsize = self.window.size();
-
-                        let from = if copy > wnext {
-                            copy -= wnext;
-                            wsize - copy
-                        } else {
-                            wnext - copy
-                        };
-
-                        copy = Ord::min(copy, self.length);
-                        copy = Ord::min(copy, left);
-
-                        writer.extend_from_window(&self.window, from..from + copy);
-
-                        copy
-                    } else {
-                        let copy = Ord::min(self.length, left);
-                        writer.copy_match(self.offset, copy);
-
-                        copy
-                    };
-
-                    self.length -= copy;
-
-                    if self.length == 0 {
-                        mode = Mode::Len;
-                        continue 'top;
-                    } else {
-                        // otherwise it seems to recurse?
-                        // self.match_()
-                        continue 'top;
-                    }
-                }
-                _ => unsafe { core::hint::unreachable_unchecked() },
-            }
-        }
-    }
-
-    fn dispatch(&mut self) -> ReturnCode {
-        'label: loop {
-            match self.mode {
-                Mode::Head => {
-                    if self.wrap == 0 {
-                        self.mode = Mode::TypeDo;
-
-                        continue 'label;
-                    }
-
-                    need_bits!(self, 16);
-
-                    // Gzip
-                    if (self.wrap & 2) != 0 && self.bit_reader.hold() == 0x8b1f {
-                        if self.wbits == 0 {
-                            self.wbits = 15;
-                        }
-
-                        let b0 = self.bit_reader.bits(8) as u8;
-                        let b1 = (self.bit_reader.hold() >> 8) as u8;
-                        self.checksum = crc32(crate::CRC32_INITIAL_VALUE, &[b0, b1]);
-                        self.bit_reader.init_bits();
-
-                        self.mode = Mode::Flags;
-
-                        continue 'label;
-                    }
-
-                    if let Some(header) = &mut self.head {
-                        header.done = -1;
-                    }
-
-                    // check if zlib header is allowed
-                    if (self.wrap & 1) == 0
-                        || ((self.bit_reader.bits(8) << 8) + (self.bit_reader.hold() >> 8)) % 31
-                            != 0
-                    {
-                        self.mode = Mode::Bad;
-                        break 'label self.bad("incorrect header check\0");
-                    }
-
-                    if self.bit_reader.bits(4) != Z_DEFLATED as u64 {
-                        self.mode = Mode::Bad;
-                        break 'label self.bad("unknown compression method\0");
-                    }
-
-                    self.bit_reader.drop_bits(4);
-                    let len = self.bit_reader.bits(4) as u8 + 8;
-
-                    if self.wbits == 0 {
-                        self.wbits = len;
-                    }
-
-                    if len as i32 > MAX_WBITS || len > self.wbits {
-                        self.mode = Mode::Bad;
-                        break 'label self.bad("invalid window size\0");
-                    }
-
-                    self.dmax = 1 << len;
-                    self.gzip_flags = 0; // indicate zlib header
-                    self.checksum = crate::ADLER32_INITIAL_VALUE as _;
-
-                    if self.bit_reader.hold() & 0x200 != 0 {
-                        self.bit_reader.init_bits();
-
-                        self.mode = Mode::DictId;
-
-                        continue 'label;
-                    } else {
-                        self.bit_reader.init_bits();
-
-                        self.mode = Mode::Type;
-
-                        continue 'label;
-                    }
-                }
-                Mode::Flags => {
-                    need_bits!(self, 16);
-                    self.gzip_flags = self.bit_reader.hold() as i32;
-
-                    // Z_DEFLATED = 8 is the only supported method
-                    if self.gzip_flags & 0xff != Z_DEFLATED {
-                        self.mode = Mode::Bad;
-                        break 'label self.bad("unknown compression method\0");
-                    }
-
-                    if self.gzip_flags & 0xe000 != 0 {
-                        self.mode = Mode::Bad;
-                        break 'label self.bad("unknown header flags set\0");
-                    }
-
-                    if let Some(head) = self.head.as_mut() {
-                        head.text = ((self.bit_reader.hold() >> 8) & 1) as i32;
-                    }
-
-                    if (self.gzip_flags & 0x0200) != 0 && (self.wrap & 4) != 0 {
-                        let b0 = self.bit_reader.bits(8) as u8;
-                        let b1 = (self.bit_reader.hold() >> 8) as u8;
-                        self.checksum = crc32(self.checksum, &[b0, b1]);
-                    }
-
-                    self.bit_reader.init_bits();
-                    self.mode = Mode::Time;
-
-                    continue 'label;
-                }
-                Mode::Time => {
-                    need_bits!(self, 32);
-                    if let Some(head) = self.head.as_mut() {
-                        head.time = self.bit_reader.hold() as z_size;
-                    }
-
-                    if (self.gzip_flags & 0x0200) != 0 && (self.wrap & 4) != 0 {
-                        let bytes = (self.bit_reader.hold() as u32).to_le_bytes();
-                        self.checksum = crc32(self.checksum, &bytes);
-                    }
-
-                    self.bit_reader.init_bits();
-                    self.mode = Mode::Os;
-
-                    continue 'label;
-                }
-                Mode::Os => {
-                    need_bits!(self, 16);
-                    if let Some(head) = self.head.as_mut() {
-                        head.xflags = (self.bit_reader.hold() & 0xff) as i32;
-                        head.os = (self.bit_reader.hold() >> 8) as i32;
-                    }
-
-                    if (self.gzip_flags & 0x0200) != 0 && (self.wrap & 4) != 0 {
-                        let bytes = (self.bit_reader.hold() as u16).to_le_bytes();
-                        self.checksum = crc32(self.checksum, &bytes);
-                    }
-
-                    self.bit_reader.init_bits();
-                    self.mode = Mode::ExLen;
-
-                    continue 'label;
-                }
-                Mode::ExLen => {
-                    if (self.gzip_flags & 0x0400) != 0 {
-                        need_bits!(self, 16);
-
-                        // self.length (and head.extra_len) represent the length of the extra field
-                        self.length = self.bit_reader.hold() as usize;
-                        if let Some(head) = self.head.as_mut() {
-                            head.extra_len = self.length as u32;
-                        }
-
-                        if (self.gzip_flags & 0x0200) != 0 && (self.wrap & 4) != 0 {
-                            let bytes = (self.bit_reader.hold() as u16).to_le_bytes();
-                            self.checksum = crc32(self.checksum, &bytes);
-                        }
-                        self.bit_reader.init_bits();
-                    } else if let Some(head) = self.head.as_mut() {
-                        head.extra = core::ptr::null_mut();
-                    }
-
-                    self.mode = Mode::Extra;
-
-                    continue 'label;
-                }
-                Mode::Extra => {
-                    if (self.gzip_flags & 0x0400) != 0 {
-                        // self.length is the number of remaining `extra` bytes. But they may not all be available
-                        let extra_available =
-                            Ord::min(self.length, self.bit_reader.bytes_remaining());
-
-                        if extra_available > 0 {
-                            if let Some(head) = self.head.as_mut() {
-                                if !head.extra.is_null() {
-                                    // at `head.extra`, the caller has reserved `head.extra_max` bytes.
-                                    // in the deflated byte stream, we've found a gzip header with
-                                    // `head.extra_len` bytes of data. We must be careful because
-                                    // `head.extra_len` may be larger than `head.extra_max`.
-
-                                    // how many bytes we've already written into `head.extra`
-                                    let written_so_far = head.extra_len as usize - self.length;
-
-                                    // min of number of bytes available at dst and at src
-                                    let count = Ord::min(
-                                        (head.extra_max as usize).saturating_sub(written_so_far),
-                                        extra_available,
-                                    );
-
-                                    // SAFETY: location where we'll write: this saturates at the
-                                    // `head.extra.add(head.extra.max)` to prevent UB
-                                    let next_write_offset =
-                                        Ord::min(written_so_far, head.extra_max as usize);
-
-                                    unsafe {
-                                        // SAFETY: count is effectively bounded by head.extra_max
-                                        // and bit_reader.bytes_remaining(), so the count won't
-                                        // go out of bounds.
-                                        core::ptr::copy_nonoverlapping(
-                                            self.bit_reader.as_mut_ptr(),
-                                            head.extra.add(next_write_offset),
-                                            count,
-                                        );
-                                    }
+                        if here.op != 0 && here.op & 0xf0 == 0 {
+                            let last = here;
+                            loop {
+                                let bits = bit_reader.bits((last.bits + last.op) as usize) as u16;
+                                here = len_table[(last.val + (bits >> last.bits)) as usize];
+                                if last.bits + here.bits <= bit_reader.bits_in_buffer() {
+                                    break;
                                 }
-                            }
 
-                            // Checksum
-                            if (self.gzip_flags & 0x0200) != 0 && (self.wrap & 4) != 0 {
-                                let extra_slice = &self.bit_reader.as_slice()[..extra_available];
-                                self.checksum = crc32(self.checksum, extra_slice)
-                            }
-
-                            self.in_available -= extra_available;
-                            self.bit_reader.advance(extra_available);
-                            self.length -= extra_available;
-                        }
-
-                        // Checks for errors occur after returning
-                        if self.length != 0 {
-                            break 'label self.inflate_leave(ReturnCode::Ok);
-                        }
-                    }
-
-                    self.length = 0;
-                    self.mode = Mode::Name;
-
-                    continue 'label;
-                }
-                Mode::Name => {
-                    if (self.gzip_flags & 0x0800) != 0 {
-                        if self.in_available == 0 {
-                            break 'label self.inflate_leave(ReturnCode::Ok);
-                        }
-
-                        // the name string will always be null-terminated, but might be longer than we have
-                        // space for in the header struct. Nonetheless, we read the whole thing.
-                        let slice = self.bit_reader.as_slice();
-                        let null_terminator_index = slice.iter().position(|c| *c == 0);
-
-                        // we include the null terminator if it exists
-                        let name_slice = match null_terminator_index {
-                            Some(i) => &slice[..=i],
-                            None => slice,
-                        };
-
-                        // if the header has space, store as much as possible in there
-                        if let Some(head) = self.head.as_mut() {
-                            if !head.name.is_null() {
-                                let remaining_name_bytes = (head.name_max as usize)
-                                    .checked_sub(self.length)
-                                    .expect("name out of bounds");
-                                let copy = Ord::min(name_slice.len(), remaining_name_bytes);
-
-                                unsafe {
-                                    // SAFETY: copy is effectively bound by the name length and
-                                    // head.name_max, so this won't go out of bounds.
-                                    core::ptr::copy_nonoverlapping(
-                                        name_slice.as_ptr(),
-                                        head.name.add(self.length),
-                                        copy,
-                                    )
+                                if let Err(return_code) = bit_reader.pull_byte() {
+                                    restore!();
+                                    return ControlFlow::Break(return_code);
                                 };
-
-                                self.length += copy;
                             }
+
+                            bit_reader.drop_bits(last.bits);
+                            self.back += last.bits as usize;
                         }
 
-                        if (self.gzip_flags & 0x0200) != 0 && (self.wrap & 4) != 0 {
-                            self.checksum = crc32(self.checksum, name_slice);
-                        }
+                        bit_reader.drop_bits(here.bits);
+                        self.back += here.bits as usize;
+                        self.length = here.val as usize;
 
-                        let reached_end = name_slice.last() == Some(&0);
-                        self.bit_reader.advance(name_slice.len());
+                        if here.op == 0 {
+                            break 'top Mode::Lit;
+                        } else if here.op & 32 != 0 {
+                            // end of block
 
-                        if !reached_end && self.bit_reader.bytes_remaining() == 0 {
-                            break 'label self.inflate_leave(ReturnCode::Ok);
-                        }
-                    } else if let Some(head) = self.head.as_mut() {
-                        head.name = core::ptr::null_mut();
-                    }
+                            // eprintln!("inflate:         end of block");
 
-                    self.length = 0;
-                    self.mode = Mode::Comment;
+                            self.back = usize::MAX;
+                            mode = Mode::Type;
 
-                    continue 'label;
-                }
-                Mode::Comment => {
-                    if (self.gzip_flags & 0x01000) != 0 {
-                        if self.in_available == 0 {
-                            break 'label self.inflate_leave(ReturnCode::Ok);
-                        }
-
-                        // the comment string will always be null-terminated, but might be longer than we have
-                        // space for in the header struct. Nonetheless, we read the whole thing.
-                        let slice = self.bit_reader.as_slice();
-                        let null_terminator_index = slice.iter().position(|c| *c == 0);
-
-                        // we include the null terminator if it exists
-                        let comment_slice = match null_terminator_index {
-                            Some(i) => &slice[..=i],
-                            None => slice,
-                        };
-
-                        // if the header has space, store as much as possible in there
-                        if let Some(head) = self.head.as_mut() {
-                            if !head.comment.is_null() {
-                                let remaining_comm_bytes = (head.comm_max as usize)
-                                    .checked_sub(self.length)
-                                    .expect("comm out of bounds");
-                                let copy = Ord::min(comment_slice.len(), remaining_comm_bytes);
-
-                                unsafe {
-                                    // SAFETY: copy is effectively bound by the comment length and
-                                    // head.comm_max, so this won't go out of bounds.
-                                    core::ptr::copy_nonoverlapping(
-                                        comment_slice.as_ptr(),
-                                        head.comment.add(self.length),
-                                        copy,
-                                    )
-                                };
-
-                                self.length += copy;
+                            restore!();
+                            return ControlFlow::Continue(());
+                        } else if here.op & 64 != 0 {
+                            mode = Mode::Bad;
+                            {
+                                restore!();
+                                let this = &mut *self;
+                                let msg: &'static str = "invalid literal/length code\0";
+                                #[cfg(all(feature = "std", test))]
+                                dbg!(msg);
+                                this.error_message = Some(msg);
+                                return ControlFlow::Break(ReturnCode::DataError);
                             }
-                        }
-
-                        if (self.gzip_flags & 0x0200) != 0 && (self.wrap & 4) != 0 {
-                            self.checksum = crc32(self.checksum, comment_slice);
-                        }
-
-                        let reached_end = comment_slice.last() == Some(&0);
-                        self.bit_reader.advance(comment_slice.len());
-
-                        if !reached_end && self.bit_reader.bytes_remaining() == 0 {
-                            break 'label self.inflate_leave(ReturnCode::Ok);
-                        }
-                    } else if let Some(head) = self.head.as_mut() {
-                        head.comment = core::ptr::null_mut();
-                    }
-
-                    self.mode = Mode::HCrc;
-
-                    continue 'label;
-                }
-                Mode::HCrc => {
-                    if (self.gzip_flags & 0x0200) != 0 {
-                        need_bits!(self, 16);
-
-                        if (self.wrap & 4) != 0
-                            && self.bit_reader.hold() as u32 != (self.checksum & 0xffff)
-                        {
-                            self.mode = Mode::Bad;
-                            break 'label self.bad("header crc mismatch\0");
-                        }
-
-                        self.bit_reader.init_bits();
-                    }
-
-                    if let Some(head) = self.head.as_mut() {
-                        head.hcrc = (self.gzip_flags >> 9) & 1;
-                        head.done = 1;
-                    }
-
-                    // compute crc32 checksum if not in raw mode
-                    if (self.wrap & 4 != 0) && self.gzip_flags != 0 {
-                        self.crc_fold = Crc32Fold::new();
-                        self.checksum = crate::CRC32_INITIAL_VALUE;
-                    }
-
-                    self.mode = Mode::Type;
-
-                    continue 'label;
-                }
-                Mode::Type => {
-                    use InflateFlush::*;
-
-                    match self.flush {
-                        Block | Trees => break 'label ReturnCode::Ok,
-                        NoFlush | SyncFlush | Finish => {
-                            // NOTE: this is slightly different to what zlib-rs does!
-                            self.mode = Mode::TypeDo;
-                            continue 'label;
-                        }
-                    }
-                }
-                Mode::TypeDo => {
-                    if self.flags.contains(Flags::IS_LAST_BLOCK) {
-                        self.bit_reader.next_byte_boundary();
-                        self.mode = Mode::Check;
-
-                        continue 'label;
-                    }
-
-                    need_bits!(self, 3);
-                    // self.last = self.bit_reader.bits(1) != 0;
-                    self.flags
-                        .update(Flags::IS_LAST_BLOCK, self.bit_reader.bits(1) != 0);
-                    self.bit_reader.drop_bits(1);
-
-                    match self.bit_reader.bits(2) {
-                        0b00 => {
-                            // eprintln!("inflate:     stored block (last = {last})");
-
-                            self.bit_reader.drop_bits(2);
-
-                            self.mode = Mode::Stored;
-
-                            continue 'label;
-                        }
-                        0b01 => {
-                            // eprintln!("inflate:     fixed codes block (last = {last})");
-
-                            self.len_table = Table {
-                                codes: Codes::Fixed,
-                                bits: 9,
-                            };
-
-                            self.dist_table = Table {
-                                codes: Codes::Fixed,
-                                bits: 5,
-                            };
-
-                            self.mode = Mode::Len_;
-
-                            self.bit_reader.drop_bits(2);
-
-                            if let InflateFlush::Trees = self.flush {
-                                break 'label self.inflate_leave(ReturnCode::Ok);
-                            } else {
-                                continue 'label;
-                            }
-                        }
-                        0b10 => {
-                            // eprintln!("inflate:     dynamic codes block (last = {last})");
-
-                            self.bit_reader.drop_bits(2);
-
-                            self.mode = Mode::Table;
-
-                            continue 'label;
-                        }
-                        0b11 => {
-                            // eprintln!("inflate:     invalid block type");
-
-                            self.bit_reader.drop_bits(2);
-
-                            self.mode = Mode::Bad;
-                            break 'label self.bad("invalid block type\0");
-                        }
-                        _ => {
-                            // LLVM will optimize this branch away
-                            unreachable!("BitReader::bits(2) only yields a value of two bits, so this match is already exhaustive")
-                        }
-                    }
-                }
-                Mode::Stored => {
-                    self.bit_reader.next_byte_boundary();
-
-                    need_bits!(self, 32);
-
-                    let hold = self.bit_reader.bits(32) as u32;
-
-                    // eprintln!("hold {hold:#x}");
-
-                    if hold as u16 != !((hold >> 16) as u16) {
-                        self.mode = Mode::Bad;
-                        break 'label self.bad("invalid stored block lengths\0");
-                    }
-
-                    self.length = hold as usize & 0xFFFF;
-                    // eprintln!("inflate:     stored length {}", state.length);
-
-                    self.bit_reader.init_bits();
-
-                    if let InflateFlush::Trees = self.flush {
-                        break 'label self.inflate_leave(ReturnCode::Ok);
-                    } else {
-                        self.mode = Mode::CopyBlock;
-
-                        continue 'label;
-                    }
-                }
-                Mode::CopyBlock => {
-                    loop {
-                        let mut copy = self.length;
-
-                        if copy == 0 {
-                            break;
-                        }
-
-                        copy = Ord::min(copy, self.writer.remaining());
-                        copy = Ord::min(copy, self.bit_reader.bytes_remaining());
-
-                        if copy == 0 {
-                            break 'label self.inflate_leave(ReturnCode::Ok);
-                        }
-
-                        self.writer.extend(&self.bit_reader.as_slice()[..copy]);
-                        self.bit_reader.advance(copy);
-
-                        self.length -= copy;
-                    }
-
-                    self.mode = Mode::Type;
-
-                    continue 'label;
-                }
-                Mode::Check => {
-                    if !cfg!(feature = "__internal-fuzz-disable-checksum") && self.wrap != 0 {
-                        need_bits!(self, 32);
-
-                        self.total += self.writer.len();
-
-                        if self.wrap & 4 != 0 {
-                            if self.gzip_flags != 0 {
-                                self.crc_fold.fold(self.writer.filled(), self.checksum);
-                                self.checksum = self.crc_fold.finish();
-                            } else {
-                                self.checksum = adler32(self.checksum, self.writer.filled());
-                            }
-                        }
-
-                        let given_checksum = if self.gzip_flags != 0 {
-                            self.bit_reader.hold() as u32
                         } else {
-                            zswap32(self.bit_reader.hold() as u32)
-                        };
-
-                        self.out_available = self.writer.capacity() - self.writer.len();
-
-                        if self.wrap & 4 != 0 && given_checksum != self.checksum {
-                            self.mode = Mode::Bad;
-                            break 'label self.bad("incorrect data check\0");
+                            // length code
+                            self.extra = (here.op & MAX_BITS) as usize;
+                            break 'top Mode::LenExt;
+                        }
+                    }
+                    Mode::Lit => {
+                        // NOTE: this branch must be kept in sync with its counterpart in `dispatch`
+                        if writer.is_full() {
+                            restore!();
+                            #[cfg(all(test, feature = "std"))]
+                            eprintln!("Ok: writer is full ({} bytes)", self.writer.capacity());
+                            return ControlFlow::Break(ReturnCode::Ok);
                         }
 
-                        self.bit_reader.init_bits();
+                        writer.push(self.length as u8);
+
+                        break 'top Mode::Len;
                     }
-                    self.mode = Mode::Length;
+                    Mode::LenExt => {
+                        // NOTE: this branch must be kept in sync with its counterpart in `dispatch`
+                        let extra = self.extra;
 
-                    continue 'label;
-                }
-                Mode::Len_ => {
-                    self.mode = Mode::Len;
-
-                    continue 'label;
-                }
-                Mode::Len => match self.len_and_friends() {
-                    ControlFlow::Break(return_code) => break 'label return_code,
-                    ControlFlow::Continue(()) => continue 'label,
-                },
-                Mode::LenExt => {
-                    // NOTE: this branch must be kept in sync with its counterpart in `len_and_friends`
-                    let extra = self.extra;
-
-                    // get extra bits, if any
-                    if extra != 0 {
-                        need_bits!(self, extra);
-                        self.length += self.bit_reader.bits(extra) as usize;
-                        self.bit_reader.drop_bits(extra as u8);
-                        self.back += extra;
-                    }
-
-                    // eprintln!("inflate: length {}", state.length);
-
-                    self.was = self.length;
-                    self.mode = Mode::Dist;
-
-                    continue 'label;
-                }
-                Mode::Lit => {
-                    // NOTE: this branch must be kept in sync with its counterpart in `len_and_friends`
-                    if self.writer.is_full() {
-                        #[cfg(all(test, feature = "std"))]
-                        eprintln!("Ok: writer is full ({} bytes)", self.writer.capacity());
-                        break 'label self.inflate_leave(ReturnCode::Ok);
-                    }
-
-                    self.writer.push(self.length as u8);
-
-                    self.mode = Mode::Len;
-
-                    continue 'label;
-                }
-                Mode::Dist => {
-                    // NOTE: this branch must be kept in sync with its counterpart in `len_and_friends`
-
-                    // get distance code
-                    let mut here;
-                    loop {
-                        let bits = self.bit_reader.bits(self.dist_table.bits) as usize;
-                        here = self.dist_table_get(bits);
-                        if here.bits <= self.bit_reader.bits_in_buffer() {
-                            break;
+                        // get extra bits, if any
+                        if extra != 0 {
+                            match bit_reader.need_bits(extra) {
+                                Err(return_code) => {
+                                    restore!();
+                                    return ControlFlow::Break(return_code);
+                                }
+                                Ok(v) => v,
+                            };
+                            self.length += bit_reader.bits(extra) as usize;
+                            bit_reader.drop_bits(extra as u8);
+                            self.back += extra;
                         }
 
-                        pull_byte!(self);
+                        // eprintln!("inflate: length {}", state.length);
+
+                        self.was = self.length;
+
+                        break 'top Mode::Dist;
                     }
+                    Mode::Dist => {
+                        // NOTE: this branch must be kept in sync with its counterpart in `dispatch`
 
-                    if here.op & 0xf0 == 0 {
-                        let last = here;
-
+                        // get distance code
+                        let mut here;
                         loop {
-                            let bits = self.bit_reader.bits((last.bits + last.op) as usize);
-                            here = self
-                                .dist_table_get(last.val as usize + ((bits as usize) >> last.bits));
-
-                            if last.bits + here.bits <= self.bit_reader.bits_in_buffer() {
+                            let bits = bit_reader.bits(self.dist_table.bits) as usize;
+                            here = dist_table[bits];
+                            if here.bits <= bit_reader.bits_in_buffer() {
                                 break;
                             }
 
-                            pull_byte!(self);
+                            if let Err(return_code) = bit_reader.pull_byte() {
+                                restore!();
+                                return ControlFlow::Break(return_code);
+                            };
                         }
 
-                        self.bit_reader.drop_bits(last.bits);
-                        self.back += last.bits as usize;
+                        if here.op & 0xf0 == 0 {
+                            let last = here;
+
+                            loop {
+                                let bits = bit_reader.bits((last.bits + last.op) as usize);
+                                here =
+                                    dist_table[last.val as usize + ((bits as usize) >> last.bits)];
+
+                                if last.bits + here.bits <= bit_reader.bits_in_buffer() {
+                                    break;
+                                }
+
+                                if let Err(return_code) = bit_reader.pull_byte() {
+                                    restore!();
+                                    return ControlFlow::Break(return_code);
+                                };
+                            }
+
+                            bit_reader.drop_bits(last.bits);
+                            self.back += last.bits as usize;
+                        }
+
+                        bit_reader.drop_bits(here.bits);
+
+                        if here.op & 64 != 0 {
+                            restore!();
+                            self.mode = Mode::Bad;
+                            return ControlFlow::Break(self.bad("invalid distance code\0"));
+                        }
+
+                        self.offset = here.val as usize;
+
+                        self.extra = (here.op & MAX_BITS) as usize;
+
+                        break 'top Mode::DistExt;
                     }
+                    Mode::DistExt => {
+                        // NOTE: this branch must be kept in sync with its counterpart in `dispatch`
+                        let extra = self.extra;
 
-                    self.bit_reader.drop_bits(here.bits);
+                        if extra > 0 {
+                            match bit_reader.need_bits(extra) {
+                                Err(return_code) => {
+                                    restore!();
+                                    return ControlFlow::Break(return_code);
+                                }
+                                Ok(v) => v,
+                            };
+                            self.offset += bit_reader.bits(extra) as usize;
+                            bit_reader.drop_bits(extra as u8);
+                            self.back += extra;
+                        }
 
-                    if here.op & 64 != 0 {
-                        self.mode = Mode::Bad;
-                        break 'label self.bad("invalid distance code\0");
+                        if INFLATE_STRICT && self.offset > self.dmax {
+                            restore!();
+                            self.mode = Mode::Bad;
+                            return ControlFlow::Break(
+                                self.bad("invalid distance code too far back\0"),
+                            );
+                        }
+
+                        // eprintln!("inflate: distance {}", state.offset);
+
+                        break 'top Mode::Match;
                     }
-
-                    self.offset = here.val as usize;
-
-                    self.extra = (here.op & MAX_BITS) as usize;
-                    self.mode = Mode::DistExt;
-
-                    continue 'label;
-                }
-                Mode::DistExt => {
-                    // NOTE: this branch must be kept in sync with its counterpart in `len_and_friends`
-                    let extra = self.extra;
-
-                    if extra > 0 {
-                        need_bits!(self, extra);
-                        self.offset += self.bit_reader.bits(extra) as usize;
-                        self.bit_reader.drop_bits(extra as u8);
-                        self.back += extra;
-                    }
-
-                    if INFLATE_STRICT && self.offset > self.dmax {
-                        self.mode = Mode::Bad;
-                        break 'label self.bad("invalid distance code too far back\0");
-                    }
-
-                    // eprintln!("inflate: distance {}", state.offset);
-
-                    self.mode = Mode::Match;
-
-                    continue 'label;
-                }
-                Mode::Match => {
-                    // NOTE: this branch must be kept in sync with its counterpart in `len_and_friends`
-
-                    'match_: loop {
-                        if self.writer.is_full() {
+                    Mode::Match => {
+                        // NOTE: this branch must be kept in sync with its counterpart in `dispatch`
+                        if writer.is_full() {
+                            restore!();
                             #[cfg(all(feature = "std", test))]
                             eprintln!(
                                 "BufError: writer is full ({} bytes)",
                                 self.writer.capacity()
                             );
-                            break 'label self.inflate_leave(ReturnCode::Ok);
+                            return ControlFlow::Break(ReturnCode::Ok);
                         }
 
-                        let left = self.writer.remaining();
-                        let copy = self.writer.len();
+                        let left = writer.remaining();
+                        let copy = writer.len();
 
                         let copy = if self.offset > copy {
                             // copy from window to output
@@ -1533,8 +845,11 @@ impl State<'_> {
 
                             if copy > self.window.have() {
                                 if self.flags.contains(Flags::SANE) {
+                                    restore!();
                                     self.mode = Mode::Bad;
-                                    break 'label self.bad("invalid distance too far back\0");
+                                    return ControlFlow::Break(
+                                        self.bad("invalid distance too far back\0"),
+                                    );
                                 }
 
                                 // TODO INFLATE_ALLOW_INVALID_DISTANCE_TOOFAR_ARRR
@@ -1554,13 +869,12 @@ impl State<'_> {
                             copy = Ord::min(copy, self.length);
                             copy = Ord::min(copy, left);
 
-                            self.writer
-                                .extend_from_window(&self.window, from..from + copy);
+                            writer.extend_from_window(&self.window, from..from + copy);
 
                             copy
                         } else {
                             let copy = Ord::min(self.length, left);
-                            self.writer.copy_match(self.offset, copy);
+                            writer.copy_match(self.offset, copy);
 
                             copy
                         };
@@ -1568,258 +882,965 @@ impl State<'_> {
                         self.length -= copy;
 
                         if self.length == 0 {
-                            self.mode = Mode::Len;
-
-                            continue 'label;
+                            break 'top Mode::Len;
                         } else {
                             // otherwise it seems to recurse?
-                            continue 'match_;
+                            // self.match_()
+                            break 'top Mode::Match;
                         }
                     }
+                    _ => unsafe { core::hint::unreachable_unchecked() },
                 }
-                Mode::Done => todo!(),
-                Mode::Table => {
-                    need_bits!(self, 14);
-                    self.nlen = self.bit_reader.bits(5) as usize + 257;
-                    self.bit_reader.drop_bits(5);
-                    self.ndist = self.bit_reader.bits(5) as usize + 1;
-                    self.bit_reader.drop_bits(5);
-                    self.ncode = self.bit_reader.bits(4) as usize + 4;
-                    self.bit_reader.drop_bits(4);
+            }
+        }
+    }
 
-                    // TODO pkzit_bug_workaround
-                    if self.nlen > 286 || self.ndist > 30 {
-                        self.mode = Mode::Bad;
-                        break 'label self.bad("too many length or distance symbols\0");
+    fn dispatch(&mut self) -> ReturnCode {
+        // Note: All early returns must save mode into self.mode again.
+        let mut mode = self.mode;
+
+        macro_rules! pull_byte {
+            ($self:expr) => {
+                match $self.bit_reader.pull_byte() {
+                    Err(return_code) => {
+                        self.mode = mode;
+                        return $self.inflate_leave(return_code);
                     }
-
-                    self.have = 0;
-                    self.mode = Mode::LenLens;
-
-                    continue 'label;
-                }
-                Mode::LenLens => {
-                    // permutation of code lengths ;
-                    const ORDER: [u16; 19] = [
-                        16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15,
-                    ];
-
-                    while self.have < self.ncode {
-                        need_bits!(self, 3);
-                        self.lens[ORDER[self.have] as usize] = self.bit_reader.bits(3) as u16;
-                        self.have += 1;
-                        self.bit_reader.drop_bits(3);
-                    }
-
-                    while self.have < 19 {
-                        self.lens[ORDER[self.have] as usize] = 0;
-                        self.have += 1;
-                    }
-
-                    self.len_table.bits = 7;
-
-                    let InflateTable::Success(root) = inflate_table(
-                        CodeType::Codes,
-                        &self.lens,
-                        19,
-                        &mut self.codes_codes,
-                        self.len_table.bits,
-                        &mut self.work,
-                    ) else {
-                        self.mode = Mode::Bad;
-                        break 'label self.bad("invalid code lengths set\0");
-                    };
-
-                    self.len_table.codes = Codes::Codes;
-                    self.len_table.bits = root;
-
-                    self.have = 0;
-                    self.mode = Mode::CodeLens;
-
-                    continue 'label;
-                }
-                Mode::CodeLens => {
-                    while self.have < self.nlen + self.ndist {
-                        let here = loop {
-                            let bits = self.bit_reader.bits(self.len_table.bits);
-                            let here = self.len_table_get(bits as usize);
-                            if here.bits <= self.bit_reader.bits_in_buffer() {
-                                break here;
-                            }
-
-                            pull_byte!(self);
-                        };
-
-                        let here_bits = here.bits;
-
-                        match here.val {
-                            0..=15 => {
-                                self.bit_reader.drop_bits(here_bits);
-                                self.lens[self.have] = here.val;
-                                self.have += 1;
-                            }
-                            16 => {
-                                need_bits!(self, here_bits as usize + 2);
-                                self.bit_reader.drop_bits(here_bits);
-                                if self.have == 0 {
-                                    self.mode = Mode::Bad;
-                                    break 'label self.bad("invalid bit length repeat\0");
-                                }
-
-                                let len = self.lens[self.have - 1];
-                                let copy = 3 + self.bit_reader.bits(2) as usize;
-                                self.bit_reader.drop_bits(2);
-
-                                if self.have + copy > self.nlen + self.ndist {
-                                    self.mode = Mode::Bad;
-                                    break 'label self.bad("invalid bit length repeat\0");
-                                }
-
-                                for _ in 0..copy {
-                                    self.lens[self.have] = len;
-                                    self.have += 1;
-                                }
-                            }
-                            17 => {
-                                need_bits!(self, here_bits as usize + 3);
-                                self.bit_reader.drop_bits(here_bits);
-                                let len = 0;
-                                let copy = 3 + self.bit_reader.bits(3) as usize;
-                                self.bit_reader.drop_bits(3);
-
-                                if self.have + copy > self.nlen + self.ndist {
-                                    self.mode = Mode::Bad;
-                                    break 'label self.bad("invalid bit length repeat\0");
-                                }
-
-                                for _ in 0..copy {
-                                    self.lens[self.have] = len as u16;
-                                    self.have += 1;
-                                }
-                            }
-                            18.. => {
-                                need_bits!(self, here_bits as usize + 7);
-                                self.bit_reader.drop_bits(here_bits);
-                                let len = 0;
-                                let copy = 11 + self.bit_reader.bits(7) as usize;
-                                self.bit_reader.drop_bits(7);
-
-                                if self.have + copy > self.nlen + self.ndist {
-                                    self.mode = Mode::Bad;
-                                    break 'label self.bad("invalid bit length repeat\0");
-                                }
-
-                                for _ in 0..copy {
-                                    self.lens[self.have] = len as u16;
-                                    self.have += 1;
-                                }
-                            }
-                        }
-                    }
-
-                    // check for end-of-block code (better have one)
-                    if self.lens[256] == 0 {
-                        self.mode = Mode::Bad;
-                        break 'label self.bad("invalid code -- missing end-of-block\0");
-                    }
-
-                    // build code tables
-
-                    self.len_table.bits = 10;
-
-                    let InflateTable::Success(root) = inflate_table(
-                        CodeType::Lens,
-                        &self.lens,
-                        self.nlen,
-                        &mut self.len_codes,
-                        self.len_table.bits,
-                        &mut self.work,
-                    ) else {
-                        self.mode = Mode::Bad;
-                        break 'label self.bad("invalid literal/lengths set\0");
-                    };
-
-                    self.len_table.codes = Codes::Len;
-                    self.len_table.bits = root;
-
-                    self.dist_table.bits = 9;
-
-                    let InflateTable::Success(root) = inflate_table(
-                        CodeType::Dists,
-                        &self.lens[self.nlen..],
-                        self.ndist,
-                        &mut self.dist_codes,
-                        self.dist_table.bits,
-                        &mut self.work,
-                    ) else {
-                        self.mode = Mode::Bad;
-                        break 'label self.bad("invalid distances set\0");
-                    };
-
-                    self.dist_table.bits = root;
-                    self.dist_table.codes = Codes::Dist;
-
-                    self.mode = Mode::Len_;
-
-                    if matches!(self.flush, InflateFlush::Trees) {
-                        break 'label self.inflate_leave(ReturnCode::Ok);
-                    }
-
-                    continue 'label;
-                }
-                Mode::Dict => {
-                    if !self.flags.contains(Flags::HAVE_DICT) {
-                        break 'label self.inflate_leave(ReturnCode::NeedDict);
-                    }
-
-                    self.checksum = crate::ADLER32_INITIAL_VALUE as _;
-
-                    self.mode = Mode::Type;
-
-                    continue 'label;
-                }
-                Mode::DictId => {
-                    need_bits!(self, 32);
-
-                    self.checksum = zswap32(self.bit_reader.hold() as u32);
-
-                    self.bit_reader.init_bits();
-
-                    self.mode = Mode::Dict;
-
-                    continue 'label;
-                }
-                Mode::Bad => {
-                    let msg = "repeated call with bad state\0";
-                    #[cfg(all(feature = "std", test))]
-                    dbg!(msg);
-                    self.error_message = Some(msg);
-
-                    break 'label ReturnCode::DataError;
-                }
-                Mode::Mem => {
-                    break 'label ReturnCode::MemError;
-                }
-                Mode::Sync => {
-                    break 'label ReturnCode::StreamError;
-                }
-                Mode::Length => {
-                    // for gzip, last bytes contain LENGTH
-                    if self.wrap != 0 && self.gzip_flags != 0 {
-                        need_bits!(self, 32);
-                        if (self.wrap & 4) != 0 && self.bit_reader.hold() != self.total as u64 {
-                            self.mode = Mode::Bad;
-                            break 'label self.bad("incorrect length check\0");
-                        }
-
-                        self.bit_reader.init_bits();
-                    }
-
-                    // inflate stream terminated properly
-                    break 'label ReturnCode::StreamEnd;
+                    Ok(_) => (),
                 }
             };
         }
+
+        macro_rules! need_bits {
+            ($self:expr, $n:expr) => {
+                match $self.bit_reader.need_bits($n) {
+                    Err(return_code) => {
+                        self.mode = mode;
+                        return $self.inflate_leave(return_code);
+                    }
+                    Ok(v) => v,
+                }
+            };
+        }
+
+        let ret = 'label: loop {
+            mode = 'blk: {
+                match mode {
+                    Mode::Head => {
+                        if self.wrap == 0 {
+                            break 'blk Mode::TypeDo;
+                        }
+
+                        need_bits!(self, 16);
+
+                        // Gzip
+                        if (self.wrap & 2) != 0 && self.bit_reader.hold() == 0x8b1f {
+                            if self.wbits == 0 {
+                                self.wbits = 15;
+                            }
+
+                            let b0 = self.bit_reader.bits(8) as u8;
+                            let b1 = (self.bit_reader.hold() >> 8) as u8;
+                            self.checksum = crc32(crate::CRC32_INITIAL_VALUE, &[b0, b1]);
+                            self.bit_reader.init_bits();
+
+                            break 'blk Mode::Flags;
+                        }
+
+                        if let Some(header) = &mut self.head {
+                            header.done = -1;
+                        }
+
+                        // check if zlib header is allowed
+                        if (self.wrap & 1) == 0
+                            || ((self.bit_reader.bits(8) << 8) + (self.bit_reader.hold() >> 8)) % 31
+                                != 0
+                        {
+                            mode = Mode::Bad;
+                            break 'label self.bad("incorrect header check\0");
+                        }
+
+                        if self.bit_reader.bits(4) != Z_DEFLATED as u64 {
+                            mode = Mode::Bad;
+                            break 'label self.bad("unknown compression method\0");
+                        }
+
+                        self.bit_reader.drop_bits(4);
+                        let len = self.bit_reader.bits(4) as u8 + 8;
+
+                        if self.wbits == 0 {
+                            self.wbits = len;
+                        }
+
+                        if len as i32 > MAX_WBITS || len > self.wbits {
+                            mode = Mode::Bad;
+                            break 'label self.bad("invalid window size\0");
+                        }
+
+                        self.dmax = 1 << len;
+                        self.gzip_flags = 0; // indicate zlib header
+                        self.checksum = crate::ADLER32_INITIAL_VALUE as _;
+
+                        if self.bit_reader.hold() & 0x200 != 0 {
+                            self.bit_reader.init_bits();
+
+                            break 'blk Mode::DictId;
+                        } else {
+                            self.bit_reader.init_bits();
+
+                            break 'blk Mode::Type;
+                        }
+                    }
+                    Mode::Flags => {
+                        need_bits!(self, 16);
+                        self.gzip_flags = self.bit_reader.hold() as i32;
+
+                        // Z_DEFLATED = 8 is the only supported method
+                        if self.gzip_flags & 0xff != Z_DEFLATED {
+                            mode = Mode::Bad;
+                            break 'label self.bad("unknown compression method\0");
+                        }
+
+                        if self.gzip_flags & 0xe000 != 0 {
+                            mode = Mode::Bad;
+                            break 'label self.bad("unknown header flags set\0");
+                        }
+
+                        if let Some(head) = self.head.as_mut() {
+                            head.text = ((self.bit_reader.hold() >> 8) & 1) as i32;
+                        }
+
+                        if (self.gzip_flags & 0x0200) != 0 && (self.wrap & 4) != 0 {
+                            let b0 = self.bit_reader.bits(8) as u8;
+                            let b1 = (self.bit_reader.hold() >> 8) as u8;
+                            self.checksum = crc32(self.checksum, &[b0, b1]);
+                        }
+
+                        self.bit_reader.init_bits();
+
+                        break 'blk Mode::Time;
+                    }
+                    Mode::Time => {
+                        need_bits!(self, 32);
+                        if let Some(head) = self.head.as_mut() {
+                            head.time = self.bit_reader.hold() as z_size;
+                        }
+
+                        if (self.gzip_flags & 0x0200) != 0 && (self.wrap & 4) != 0 {
+                            let bytes = (self.bit_reader.hold() as u32).to_le_bytes();
+                            self.checksum = crc32(self.checksum, &bytes);
+                        }
+
+                        self.bit_reader.init_bits();
+
+                        break 'blk Mode::Os;
+                    }
+                    Mode::Os => {
+                        need_bits!(self, 16);
+                        if let Some(head) = self.head.as_mut() {
+                            head.xflags = (self.bit_reader.hold() & 0xff) as i32;
+                            head.os = (self.bit_reader.hold() >> 8) as i32;
+                        }
+
+                        if (self.gzip_flags & 0x0200) != 0 && (self.wrap & 4) != 0 {
+                            let bytes = (self.bit_reader.hold() as u16).to_le_bytes();
+                            self.checksum = crc32(self.checksum, &bytes);
+                        }
+
+                        self.bit_reader.init_bits();
+
+                        break 'blk Mode::ExLen;
+                    }
+                    Mode::ExLen => {
+                        if (self.gzip_flags & 0x0400) != 0 {
+                            need_bits!(self, 16);
+
+                            // self.length (and head.extra_len) represent the length of the extra field
+                            self.length = self.bit_reader.hold() as usize;
+                            if let Some(head) = self.head.as_mut() {
+                                head.extra_len = self.length as u32;
+                            }
+
+                            if (self.gzip_flags & 0x0200) != 0 && (self.wrap & 4) != 0 {
+                                let bytes = (self.bit_reader.hold() as u16).to_le_bytes();
+                                self.checksum = crc32(self.checksum, &bytes);
+                            }
+                            self.bit_reader.init_bits();
+                        } else if let Some(head) = self.head.as_mut() {
+                            head.extra = core::ptr::null_mut();
+                        }
+
+                        break 'blk Mode::Extra;
+                    }
+                    Mode::Extra => {
+                        if (self.gzip_flags & 0x0400) != 0 {
+                            // self.length is the number of remaining `extra` bytes. But they may not all be available
+                            let extra_available =
+                                Ord::min(self.length, self.bit_reader.bytes_remaining());
+
+                            if extra_available > 0 {
+                                if let Some(head) = self.head.as_mut() {
+                                    if !head.extra.is_null() {
+                                        // at `head.extra`, the caller has reserved `head.extra_max` bytes.
+                                        // in the deflated byte stream, we've found a gzip header with
+                                        // `head.extra_len` bytes of data. We must be careful because
+                                        // `head.extra_len` may be larger than `head.extra_max`.
+
+                                        // how many bytes we've already written into `head.extra`
+                                        let written_so_far = head.extra_len as usize - self.length;
+
+                                        // min of number of bytes available at dst and at src
+                                        let count = Ord::min(
+                                            (head.extra_max as usize)
+                                                .saturating_sub(written_so_far),
+                                            extra_available,
+                                        );
+
+                                        // SAFETY: location where we'll write: this saturates at the
+                                        // `head.extra.add(head.extra.max)` to prevent UB
+                                        let next_write_offset =
+                                            Ord::min(written_so_far, head.extra_max as usize);
+
+                                        unsafe {
+                                            // SAFETY: count is effectively bounded by head.extra_max
+                                            // and bit_reader.bytes_remaining(), so the count won't
+                                            // go out of bounds.
+                                            core::ptr::copy_nonoverlapping(
+                                                self.bit_reader.as_mut_ptr(),
+                                                head.extra.add(next_write_offset),
+                                                count,
+                                            );
+                                        }
+                                    }
+                                }
+
+                                // Checksum
+                                if (self.gzip_flags & 0x0200) != 0 && (self.wrap & 4) != 0 {
+                                    let extra_slice =
+                                        &self.bit_reader.as_slice()[..extra_available];
+                                    self.checksum = crc32(self.checksum, extra_slice)
+                                }
+
+                                self.in_available -= extra_available;
+                                self.bit_reader.advance(extra_available);
+                                self.length -= extra_available;
+                            }
+
+                            // Checks for errors occur after returning
+                            if self.length != 0 {
+                                break 'label self.inflate_leave(ReturnCode::Ok);
+                            }
+                        }
+
+                        self.length = 0;
+
+                        break 'blk Mode::Name;
+                    }
+                    Mode::Name => {
+                        if (self.gzip_flags & 0x0800) != 0 {
+                            if self.in_available == 0 {
+                                break 'label self.inflate_leave(ReturnCode::Ok);
+                            }
+
+                            // the name string will always be null-terminated, but might be longer than we have
+                            // space for in the header struct. Nonetheless, we read the whole thing.
+                            let slice = self.bit_reader.as_slice();
+                            let null_terminator_index = slice.iter().position(|c| *c == 0);
+
+                            // we include the null terminator if it exists
+                            let name_slice = match null_terminator_index {
+                                Some(i) => &slice[..=i],
+                                None => slice,
+                            };
+
+                            // if the header has space, store as much as possible in there
+                            if let Some(head) = self.head.as_mut() {
+                                if !head.name.is_null() {
+                                    let remaining_name_bytes = (head.name_max as usize)
+                                        .checked_sub(self.length)
+                                        .expect("name out of bounds");
+                                    let copy = Ord::min(name_slice.len(), remaining_name_bytes);
+
+                                    unsafe {
+                                        // SAFETY: copy is effectively bound by the name length and
+                                        // head.name_max, so this won't go out of bounds.
+                                        core::ptr::copy_nonoverlapping(
+                                            name_slice.as_ptr(),
+                                            head.name.add(self.length),
+                                            copy,
+                                        )
+                                    };
+
+                                    self.length += copy;
+                                }
+                            }
+
+                            if (self.gzip_flags & 0x0200) != 0 && (self.wrap & 4) != 0 {
+                                self.checksum = crc32(self.checksum, name_slice);
+                            }
+
+                            let reached_end = name_slice.last() == Some(&0);
+                            self.bit_reader.advance(name_slice.len());
+
+                            if !reached_end && self.bit_reader.bytes_remaining() == 0 {
+                                break 'label self.inflate_leave(ReturnCode::Ok);
+                            }
+                        } else if let Some(head) = self.head.as_mut() {
+                            head.name = core::ptr::null_mut();
+                        }
+
+                        self.length = 0;
+
+                        break 'blk Mode::Comment;
+                    }
+                    Mode::Comment => {
+                        if (self.gzip_flags & 0x01000) != 0 {
+                            if self.in_available == 0 {
+                                break 'label self.inflate_leave(ReturnCode::Ok);
+                            }
+
+                            // the comment string will always be null-terminated, but might be longer than we have
+                            // space for in the header struct. Nonetheless, we read the whole thing.
+                            let slice = self.bit_reader.as_slice();
+                            let null_terminator_index = slice.iter().position(|c| *c == 0);
+
+                            // we include the null terminator if it exists
+                            let comment_slice = match null_terminator_index {
+                                Some(i) => &slice[..=i],
+                                None => slice,
+                            };
+
+                            // if the header has space, store as much as possible in there
+                            if let Some(head) = self.head.as_mut() {
+                                if !head.comment.is_null() {
+                                    let remaining_comm_bytes = (head.comm_max as usize)
+                                        .checked_sub(self.length)
+                                        .expect("comm out of bounds");
+                                    let copy = Ord::min(comment_slice.len(), remaining_comm_bytes);
+
+                                    unsafe {
+                                        // SAFETY: copy is effectively bound by the comment length and
+                                        // head.comm_max, so this won't go out of bounds.
+                                        core::ptr::copy_nonoverlapping(
+                                            comment_slice.as_ptr(),
+                                            head.comment.add(self.length),
+                                            copy,
+                                        )
+                                    };
+
+                                    self.length += copy;
+                                }
+                            }
+
+                            if (self.gzip_flags & 0x0200) != 0 && (self.wrap & 4) != 0 {
+                                self.checksum = crc32(self.checksum, comment_slice);
+                            }
+
+                            let reached_end = comment_slice.last() == Some(&0);
+                            self.bit_reader.advance(comment_slice.len());
+
+                            if !reached_end && self.bit_reader.bytes_remaining() == 0 {
+                                break 'label self.inflate_leave(ReturnCode::Ok);
+                            }
+                        } else if let Some(head) = self.head.as_mut() {
+                            head.comment = core::ptr::null_mut();
+                        }
+
+                        break 'blk Mode::HCrc;
+                    }
+                    Mode::HCrc => {
+                        if (self.gzip_flags & 0x0200) != 0 {
+                            need_bits!(self, 16);
+
+                            if (self.wrap & 4) != 0
+                                && self.bit_reader.hold() as u32 != (self.checksum & 0xffff)
+                            {
+                                mode = Mode::Bad;
+                                break 'label self.bad("header crc mismatch\0");
+                            }
+
+                            self.bit_reader.init_bits();
+                        }
+
+                        if let Some(head) = self.head.as_mut() {
+                            head.hcrc = (self.gzip_flags >> 9) & 1;
+                            head.done = 1;
+                        }
+
+                        // compute crc32 checksum if not in raw mode
+                        if (self.wrap & 4 != 0) && self.gzip_flags != 0 {
+                            self.crc_fold = Crc32Fold::new();
+                            self.checksum = crate::CRC32_INITIAL_VALUE;
+                        }
+
+                        break 'blk Mode::Type;
+                    }
+                    Mode::Type => {
+                        use InflateFlush::*;
+
+                        match self.flush {
+                            Block | Trees => break 'label ReturnCode::Ok,
+                            NoFlush | SyncFlush | Finish => {
+                                // NOTE: this is slightly different to what zlib-rs does!
+                                break 'blk Mode::TypeDo;
+                            }
+                        }
+                    }
+                    Mode::TypeDo => {
+                        if self.flags.contains(Flags::IS_LAST_BLOCK) {
+                            self.bit_reader.next_byte_boundary();
+                            break 'blk Mode::Check;
+                        }
+
+                        need_bits!(self, 3);
+                        // self.last = self.bit_reader.bits(1) != 0;
+                        self.flags
+                            .update(Flags::IS_LAST_BLOCK, self.bit_reader.bits(1) != 0);
+                        self.bit_reader.drop_bits(1);
+
+                        match self.bit_reader.bits(2) {
+                            0b00 => {
+                                // eprintln!("inflate:     stored block (last = {last})");
+
+                                self.bit_reader.drop_bits(2);
+
+                                break 'blk Mode::Stored;
+                            }
+                            0b01 => {
+                                // eprintln!("inflate:     fixed codes block (last = {last})");
+
+                                self.len_table = Table {
+                                    codes: Codes::Fixed,
+                                    bits: 9,
+                                };
+
+                                self.dist_table = Table {
+                                    codes: Codes::Fixed,
+                                    bits: 5,
+                                };
+
+                                mode = Mode::Len_;
+
+                                self.bit_reader.drop_bits(2);
+
+                                if let InflateFlush::Trees = self.flush {
+                                    break 'label self.inflate_leave(ReturnCode::Ok);
+                                } else {
+                                    break 'blk Mode::Len_;
+                                }
+                            }
+                            0b10 => {
+                                // eprintln!("inflate:     dynamic codes block (last = {last})");
+
+                                self.bit_reader.drop_bits(2);
+
+                                break 'blk Mode::Table;
+                            }
+                            0b11 => {
+                                // eprintln!("inflate:     invalid block type");
+
+                                self.bit_reader.drop_bits(2);
+
+                                mode = Mode::Bad;
+                                break 'label self.bad("invalid block type\0");
+                            }
+                            _ => {
+                                // LLVM will optimize this branch away
+                                unreachable!("BitReader::bits(2) only yields a value of two bits, so this match is already exhaustive")
+                            }
+                        }
+                    }
+                    Mode::Stored => {
+                        self.bit_reader.next_byte_boundary();
+
+                        need_bits!(self, 32);
+
+                        let hold = self.bit_reader.bits(32) as u32;
+
+                        // eprintln!("hold {hold:#x}");
+
+                        if hold as u16 != !((hold >> 16) as u16) {
+                            mode = Mode::Bad;
+                            break 'label self.bad("invalid stored block lengths\0");
+                        }
+
+                        self.length = hold as usize & 0xFFFF;
+                        // eprintln!("inflate:     stored length {}", state.length);
+
+                        self.bit_reader.init_bits();
+
+                        if let InflateFlush::Trees = self.flush {
+                            break 'label self.inflate_leave(ReturnCode::Ok);
+                        } else {
+                            break 'blk Mode::CopyBlock;
+                        }
+                    }
+                    Mode::CopyBlock => {
+                        loop {
+                            let mut copy = self.length;
+
+                            if copy == 0 {
+                                break;
+                            }
+
+                            copy = Ord::min(copy, self.writer.remaining());
+                            copy = Ord::min(copy, self.bit_reader.bytes_remaining());
+
+                            if copy == 0 {
+                                break 'label self.inflate_leave(ReturnCode::Ok);
+                            }
+
+                            self.writer.extend(&self.bit_reader.as_slice()[..copy]);
+                            self.bit_reader.advance(copy);
+
+                            self.length -= copy;
+                        }
+
+                        break 'blk Mode::Type;
+                    }
+                    Mode::Check => {
+                        if !cfg!(feature = "__internal-fuzz-disable-checksum") && self.wrap != 0 {
+                            need_bits!(self, 32);
+
+                            self.total += self.writer.len();
+
+                            if self.wrap & 4 != 0 {
+                                if self.gzip_flags != 0 {
+                                    self.crc_fold.fold(self.writer.filled(), self.checksum);
+                                    self.checksum = self.crc_fold.finish();
+                                } else {
+                                    self.checksum = adler32(self.checksum, self.writer.filled());
+                                }
+                            }
+
+                            let given_checksum = if self.gzip_flags != 0 {
+                                self.bit_reader.hold() as u32
+                            } else {
+                                zswap32(self.bit_reader.hold() as u32)
+                            };
+
+                            self.out_available = self.writer.capacity() - self.writer.len();
+
+                            if self.wrap & 4 != 0 && given_checksum != self.checksum {
+                                mode = Mode::Bad;
+                                break 'label self.bad("incorrect data check\0");
+                            }
+
+                            self.bit_reader.init_bits();
+                        }
+
+                        break 'blk Mode::Length;
+                    }
+                    Mode::Len_ => {
+                        break 'blk Mode::Len;
+                    }
+                    Mode::Len => {
+                        self.mode = mode;
+                        let val = self.len_and_friends();
+                        mode = self.mode;
+                        match val {
+                            ControlFlow::Break(return_code) => break 'label return_code,
+                            ControlFlow::Continue(()) => continue 'label,
+                        }
+                    }
+                    Mode::LenExt => {
+                        // NOTE: this branch must be kept in sync with its counterpart in `len_and_friends`
+                        let extra = self.extra;
+
+                        // get extra bits, if any
+                        if extra != 0 {
+                            need_bits!(self, extra);
+                            self.length += self.bit_reader.bits(extra) as usize;
+                            self.bit_reader.drop_bits(extra as u8);
+                            self.back += extra;
+                        }
+
+                        // eprintln!("inflate: length {}", state.length);
+
+                        self.was = self.length;
+
+                        break 'blk Mode::Dist;
+                    }
+                    Mode::Lit => {
+                        // NOTE: this branch must be kept in sync with its counterpart in `len_and_friends`
+                        if self.writer.is_full() {
+                            #[cfg(all(test, feature = "std"))]
+                            eprintln!("Ok: writer is full ({} bytes)", self.writer.capacity());
+                            break 'label self.inflate_leave(ReturnCode::Ok);
+                        }
+
+                        self.writer.push(self.length as u8);
+
+                        break 'blk Mode::Len;
+                    }
+                    Mode::Dist => {
+                        // NOTE: this branch must be kept in sync with its counterpart in `len_and_friends`
+
+                        // get distance code
+                        let mut here;
+                        loop {
+                            let bits = self.bit_reader.bits(self.dist_table.bits) as usize;
+                            here = self.dist_table_get(bits);
+                            if here.bits <= self.bit_reader.bits_in_buffer() {
+                                break;
+                            }
+
+                            pull_byte!(self);
+                        }
+
+                        if here.op & 0xf0 == 0 {
+                            let last = here;
+
+                            loop {
+                                let bits = self.bit_reader.bits((last.bits + last.op) as usize);
+                                here = self.dist_table_get(
+                                    last.val as usize + ((bits as usize) >> last.bits),
+                                );
+
+                                if last.bits + here.bits <= self.bit_reader.bits_in_buffer() {
+                                    break;
+                                }
+
+                                pull_byte!(self);
+                            }
+
+                            self.bit_reader.drop_bits(last.bits);
+                            self.back += last.bits as usize;
+                        }
+
+                        self.bit_reader.drop_bits(here.bits);
+
+                        if here.op & 64 != 0 {
+                            mode = Mode::Bad;
+                            break 'label self.bad("invalid distance code\0");
+                        }
+
+                        self.offset = here.val as usize;
+
+                        self.extra = (here.op & MAX_BITS) as usize;
+
+                        break 'blk Mode::DistExt;
+                    }
+                    Mode::DistExt => {
+                        // NOTE: this branch must be kept in sync with its counterpart in `len_and_friends`
+                        let extra = self.extra;
+
+                        if extra > 0 {
+                            need_bits!(self, extra);
+                            self.offset += self.bit_reader.bits(extra) as usize;
+                            self.bit_reader.drop_bits(extra as u8);
+                            self.back += extra;
+                        }
+
+                        if INFLATE_STRICT && self.offset > self.dmax {
+                            mode = Mode::Bad;
+                            break 'label self.bad("invalid distance code too far back\0");
+                        }
+
+                        // eprintln!("inflate: distance {}", state.offset);
+
+                        break 'blk Mode::Match;
+                    }
+                    Mode::Match => {
+                        // NOTE: this branch must be kept in sync with its counterpart in `len_and_friends`
+
+                        'match_: loop {
+                            if self.writer.is_full() {
+                                #[cfg(all(feature = "std", test))]
+                                eprintln!(
+                                    "BufError: writer is full ({} bytes)",
+                                    self.writer.capacity()
+                                );
+                                break 'label self.inflate_leave(ReturnCode::Ok);
+                            }
+
+                            let left = self.writer.remaining();
+                            let copy = self.writer.len();
+
+                            let copy = if self.offset > copy {
+                                // copy from window to output
+
+                                let mut copy = self.offset - copy;
+
+                                if copy > self.window.have() {
+                                    if self.flags.contains(Flags::SANE) {
+                                        mode = Mode::Bad;
+                                        break 'label self.bad("invalid distance too far back\0");
+                                    }
+
+                                    // TODO INFLATE_ALLOW_INVALID_DISTANCE_TOOFAR_ARRR
+                                    panic!("INFLATE_ALLOW_INVALID_DISTANCE_TOOFAR_ARRR")
+                                }
+
+                                let wnext = self.window.next();
+                                let wsize = self.window.size();
+
+                                let from = if copy > wnext {
+                                    copy -= wnext;
+                                    wsize - copy
+                                } else {
+                                    wnext - copy
+                                };
+
+                                copy = Ord::min(copy, self.length);
+                                copy = Ord::min(copy, left);
+
+                                self.writer
+                                    .extend_from_window(&self.window, from..from + copy);
+
+                                copy
+                            } else {
+                                let copy = Ord::min(self.length, left);
+                                self.writer.copy_match(self.offset, copy);
+
+                                copy
+                            };
+
+                            self.length -= copy;
+
+                            if self.length == 0 {
+                                break 'blk Mode::Len;
+                            } else {
+                                // otherwise it seems to recurse?
+                                continue 'match_;
+                            }
+                        }
+                    }
+                    Mode::Table => {
+                        need_bits!(self, 14);
+                        self.nlen = self.bit_reader.bits(5) as usize + 257;
+                        self.bit_reader.drop_bits(5);
+                        self.ndist = self.bit_reader.bits(5) as usize + 1;
+                        self.bit_reader.drop_bits(5);
+                        self.ncode = self.bit_reader.bits(4) as usize + 4;
+                        self.bit_reader.drop_bits(4);
+
+                        // TODO pkzit_bug_workaround
+                        if self.nlen > 286 || self.ndist > 30 {
+                            mode = Mode::Bad;
+                            break 'label self.bad("too many length or distance symbols\0");
+                        }
+
+                        self.have = 0;
+
+                        break 'blk Mode::LenLens;
+                    }
+                    Mode::LenLens => {
+                        // permutation of code lengths ;
+                        const ORDER: [u8; 19] = [
+                            16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15,
+                        ];
+
+                        while self.have < self.ncode {
+                            need_bits!(self, 3);
+                            self.lens[usize::from(ORDER[self.have])] =
+                                self.bit_reader.bits(3) as u16;
+                            self.have += 1;
+                            self.bit_reader.drop_bits(3);
+                        }
+
+                        while self.have < 19 {
+                            self.lens[usize::from(ORDER[self.have])] = 0;
+                            self.have += 1;
+                        }
+
+                        let InflateTable::Success { root, used } = inflate_table(
+                            CodeType::Codes,
+                            &self.lens[..19],
+                            &mut self.codes_codes,
+                            7,
+                            &mut self.work,
+                        ) else {
+                            mode = Mode::Bad;
+                            break 'label self.bad("invalid code lengths set\0");
+                        };
+
+                        self.next = used;
+                        self.len_table.codes = Codes::Codes;
+                        self.len_table.bits = root;
+
+                        self.have = 0;
+
+                        break 'blk Mode::CodeLens;
+                    }
+                    Mode::CodeLens => {
+                        while self.have < self.nlen + self.ndist {
+                            let here = loop {
+                                let bits = self.bit_reader.bits(self.len_table.bits);
+                                let here = self.len_table_get(bits as usize);
+                                if here.bits <= self.bit_reader.bits_in_buffer() {
+                                    break here;
+                                }
+
+                                pull_byte!(self);
+                            };
+
+                            let here_bits = here.bits;
+
+                            match here.val {
+                                0..=15 => {
+                                    self.bit_reader.drop_bits(here_bits);
+                                    self.lens[self.have] = here.val;
+                                    self.have += 1;
+                                }
+                                16 => {
+                                    need_bits!(self, usize::from(here_bits) + 2);
+                                    self.bit_reader.drop_bits(here_bits);
+                                    if self.have == 0 {
+                                        mode = Mode::Bad;
+                                        break 'label self.bad("invalid bit length repeat\0");
+                                    }
+
+                                    let len = self.lens[self.have - 1];
+                                    let copy = 3 + self.bit_reader.bits(2) as usize;
+                                    self.bit_reader.drop_bits(2);
+
+                                    if self.have + copy > self.nlen + self.ndist {
+                                        mode = Mode::Bad;
+                                        break 'label self.bad("invalid bit length repeat\0");
+                                    }
+
+                                    self.lens[self.have..][..copy].fill(len);
+                                    self.have += copy;
+                                }
+                                17 => {
+                                    need_bits!(self, usize::from(here_bits) + 3);
+                                    self.bit_reader.drop_bits(here_bits);
+                                    let copy = 3 + self.bit_reader.bits(3) as usize;
+                                    self.bit_reader.drop_bits(3);
+
+                                    if self.have + copy > self.nlen + self.ndist {
+                                        mode = Mode::Bad;
+                                        break 'label self.bad("invalid bit length repeat\0");
+                                    }
+
+                                    self.lens[self.have..][..copy].fill(0);
+                                    self.have += copy;
+                                }
+                                18.. => {
+                                    need_bits!(self, usize::from(here_bits) + 7);
+                                    self.bit_reader.drop_bits(here_bits);
+                                    let copy = 11 + self.bit_reader.bits(7) as usize;
+                                    self.bit_reader.drop_bits(7);
+
+                                    if self.have + copy > self.nlen + self.ndist {
+                                        mode = Mode::Bad;
+                                        break 'label self.bad("invalid bit length repeat\0");
+                                    }
+
+                                    self.lens[self.have..][..copy].fill(0);
+                                    self.have += copy;
+                                }
+                            }
+                        }
+
+                        // check for end-of-block code (better have one)
+                        if self.lens[256] == 0 {
+                            mode = Mode::Bad;
+                            break 'label self.bad("invalid code -- missing end-of-block\0");
+                        }
+
+                        // build code tables
+
+                        let InflateTable::Success { root, used } = inflate_table(
+                            CodeType::Lens,
+                            &self.lens[..self.nlen],
+                            &mut self.len_codes,
+                            10,
+                            &mut self.work,
+                        ) else {
+                            mode = Mode::Bad;
+                            break 'label self.bad("invalid literal/lengths set\0");
+                        };
+
+                        self.len_table.codes = Codes::Len;
+                        self.len_table.bits = root;
+                        self.next = used;
+
+                        let InflateTable::Success { root, used } = inflate_table(
+                            CodeType::Dists,
+                            &self.lens[self.nlen..][..self.ndist],
+                            &mut self.dist_codes,
+                            9,
+                            &mut self.work,
+                        ) else {
+                            mode = Mode::Bad;
+                            break 'label self.bad("invalid distances set\0");
+                        };
+
+                        self.dist_table.bits = root;
+                        self.dist_table.codes = Codes::Dist;
+                        self.next += used;
+
+                        mode = Mode::Len_;
+
+                        if matches!(self.flush, InflateFlush::Trees) {
+                            break 'label self.inflate_leave(ReturnCode::Ok);
+                        }
+
+                        break 'blk Mode::Len_;
+                    }
+                    Mode::Dict => {
+                        if !self.flags.contains(Flags::HAVE_DICT) {
+                            break 'label self.inflate_leave(ReturnCode::NeedDict);
+                        }
+
+                        self.checksum = crate::ADLER32_INITIAL_VALUE as _;
+
+                        break 'blk Mode::Type;
+                    }
+                    Mode::DictId => {
+                        need_bits!(self, 32);
+
+                        self.checksum = zswap32(self.bit_reader.hold() as u32);
+
+                        self.bit_reader.init_bits();
+
+                        break 'blk Mode::Dict;
+                    }
+                    Mode::Done => {
+                        // Inflate stream terminated properly.
+                        break 'label ReturnCode::StreamEnd;
+                    }
+                    Mode::Bad => {
+                        let msg = "repeated call with bad state\0";
+                        #[cfg(all(feature = "std", test))]
+                        dbg!(msg);
+                        self.error_message = Some(msg);
+
+                        break 'label ReturnCode::DataError;
+                    }
+                    Mode::Mem => {
+                        break 'label ReturnCode::MemError;
+                    }
+                    Mode::Sync => {
+                        break 'label ReturnCode::StreamError;
+                    }
+                    Mode::Length => {
+                        // for gzip, last bytes contain LENGTH
+                        if self.wrap != 0 && self.gzip_flags != 0 {
+                            need_bits!(self, 32);
+                            if (self.wrap & 0b100) != 0
+                                && self.bit_reader.hold() as u32 != self.total as u32
+                            {
+                                mode = Mode::Bad;
+                                break 'label self.bad("incorrect length check\0");
+                            }
+
+                            self.bit_reader.init_bits();
+                        }
+
+                        mode = Mode::Done;
+                        // Inflate stream terminated properly.
+                        break 'label ReturnCode::StreamEnd;
+                    }
+                };
+            }
+        };
+
+        self.mode = mode;
+
+        ret
     }
 
     fn bad(&mut self, msg: &'static str) -> ReturnCode {
@@ -1857,30 +1878,52 @@ impl State<'_> {
     }
 }
 
-fn inflate_fast_help(state: &mut State, start: usize) {
+/// # Safety
+///
+/// `state.bit_reader` must have at least 15 bytes available to read, as
+/// indicated by `state.bit_reader.bytes_remaining() >= 15`
+unsafe fn inflate_fast_help(state: &mut State, start: usize) {
     #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
-    if crate::cpu_features::is_enabled_avx2() {
-        // SAFETY: we've verified the target features
+    if crate::cpu_features::is_enabled_avx2_and_bmi2() {
+        // SAFETY: we've verified the target features and the caller ensured enough bytes_remaining
         return unsafe { inflate_fast_help_avx2(state, start) };
     }
 
-    inflate_fast_help_vanilla(state, start);
+    // SAFETY: The caller ensured enough bytes_remaining
+    unsafe { inflate_fast_help_vanilla(state, start) };
 }
 
+/// # Safety
+///
+/// `state.bit_reader` must have at least 15 bytes available to read, as
+/// indicated by `state.bit_reader.bytes_remaining() >= 15`
 #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
 #[target_feature(enable = "avx2")]
+#[target_feature(enable = "bmi2")]
+#[target_feature(enable = "bmi1")]
 unsafe fn inflate_fast_help_avx2(state: &mut State, start: usize) {
-    inflate_fast_help_impl::<{ CpuFeatures::AVX2 }>(state, start);
+    // SAFETY: `bytes_remaining` checked by our caller
+    unsafe { inflate_fast_help_impl::<{ CpuFeatures::AVX2 }>(state, start) };
 }
 
-fn inflate_fast_help_vanilla(state: &mut State, start: usize) {
-    inflate_fast_help_impl::<{ CpuFeatures::NONE }>(state, start);
+/// # Safety
+///
+/// `state.bit_reader` must have at least 15 bytes available to read, as
+/// indicated by `state.bit_reader.bytes_remaining() >= 15`
+unsafe fn inflate_fast_help_vanilla(state: &mut State, start: usize) {
+    // SAFETY: `bytes_remaining` checked by our caller
+    unsafe { inflate_fast_help_impl::<{ CpuFeatures::NONE }>(state, start) };
 }
 
+/// # Safety
+///
+/// `state.bit_reader` must have at least 15 bytes available to read, as
+/// indicated by `state.bit_reader.bytes_remaining() >= 15`
 #[inline(always)]
-fn inflate_fast_help_impl<const FEATURES: usize>(state: &mut State, _start: usize) {
+unsafe fn inflate_fast_help_impl<const FEATURES: usize>(state: &mut State, _start: usize) {
     let mut bit_reader = BitReader::new(&[]);
     core::mem::swap(&mut bit_reader, &mut state.bit_reader);
+    debug_assert!(bit_reader.bytes_remaining() >= 15);
 
     let mut writer = Writer::new(&mut []);
     core::mem::swap(&mut writer, &mut state.writer);
@@ -1900,15 +1943,40 @@ fn inflate_fast_help_impl<const FEATURES: usize>(state: &mut State, _start: usiz
     let mut bad = None;
 
     if bit_reader.bits_in_buffer() < 10 {
-        bit_reader.refill();
+        debug_assert!(bit_reader.bytes_remaining() >= 15);
+        // Safety: Caller ensured that bit_reader has >= 15 bytes available; refill only needs 8.
+        unsafe { bit_reader.refill() };
     }
+    // We had at least 15 bytes in the slice, plus whatever was in the buffer. After filling the
+    // buffer from the slice, we now have at least 8 bytes remaining in the slice, plus a full buffer.
+    debug_assert!(
+        bit_reader.bytes_remaining() >= 8 && bit_reader.bytes_remaining_including_buffer() >= 15
+    );
 
     'outer: loop {
+        // This condition is ensured above for the first iteration of the `outer` loop. For
+        // subsequent iterations, the loop continuation condition is
+        // `bit_reader.bytes_remaining_including_buffer() > 15`. And because the buffer
+        // contributes at most 7 bytes to the result of bit_reader.bytes_remaining_including_buffer(),
+        // that means that the slice contains at least 8 bytes.
+        debug_assert!(
+            bit_reader.bytes_remaining() >= 8
+                && bit_reader.bytes_remaining_including_buffer() >= 15
+        );
+
         let mut here = {
             let bits = bit_reader.bits_in_buffer();
             let hold = bit_reader.hold();
 
-            bit_reader.refill();
+            // Safety: As described in the comments for the debug_assert at the start of
+            // the `outer` loop, it is guaranteed that `bit_reader.bytes_remaining() >= 8` here,
+            // which satisfies the safety precondition for `refill`. And, because the total
+            // number of bytes in `bit_reader`'s buffer plus its slice is at least 15, and
+            // `refill` moves at most 7 bytes from the slice to the buffer, the slice will still
+            // contain at least 8 bytes after this `refill` call.
+            unsafe { bit_reader.refill() };
+            // After the refill, there will be at least 8 bytes left in the bit_reader's slice.
+            debug_assert!(bit_reader.bytes_remaining() >= 8);
 
             // in most cases, the read can be interleaved with the logic
             // based on benchmarks this matters in practice. wild.
@@ -1947,7 +2015,14 @@ fn inflate_fast_help_impl<const FEATURES: usize>(state: &mut State, _start: usiz
                 // we have two fast-path loads: 10+10 + 15+5 = 40,
                 // but we may need to refill here in the worst case
                 if bit_reader.bits_in_buffer() < MAX_BITS + MAX_DIST_EXTRA_BITS {
-                    bit_reader.refill();
+                    debug_assert!(bit_reader.bytes_remaining() >= 8);
+                    // Safety: On the first iteration of the `dolen` loop, we can rely on the
+                    // invariant documented for the previous `refill` call above: after that
+                    // operation, `bit_reader.bytes_remining >= 8`, which satisfies the safety
+                    // precondition for this call. For subsequent iterations, this invariant
+                    // remains true because nothing else within the `dolen` loop consumes data
+                    // from the slice.
+                    unsafe { bit_reader.refill() };
                 }
 
                 'dodist: loop {
@@ -2066,7 +2141,7 @@ fn inflate_fast_help_impl<const FEATURES: usize>(state: &mut State, _start: usiz
             break 'dolen;
         }
 
-        // include the bits in the bit_reader buffer in the count of available bytes
+        // For normal `inflate`, include the bits in the bit_reader buffer in the count of available bytes.
         let remaining = bit_reader.bytes_remaining_including_buffer();
         if remaining >= INFLATE_FAST_MIN_HAVE && writer.remaining() >= INFLATE_FAST_MIN_LEFT {
             continue;
@@ -2101,6 +2176,51 @@ pub fn prime(stream: &mut InflateStream, bits: i32, value: i32) -> ReturnCode {
     ReturnCode::Ok
 }
 
+struct InflateAllocOffsets {
+    total_size: usize,
+    state_pos: usize,
+    window_pos: usize,
+}
+
+impl InflateAllocOffsets {
+    fn new() -> Self {
+        use core::mem::size_of;
+
+        // 64B padding for SIMD operations. This allows unaligned operations (up to 512-bit) to run
+        // off the end of the object without issue.
+        const WINDOW_PAD_SIZE: usize = 64;
+
+        // 64B alignment of individual items in the alloc.
+        // Note that changing this also requires changes in 'init' and 'copy'.
+        const ALIGN_SIZE: usize = 64;
+        let mut curr_size = 0usize;
+
+        /* Define sizes */
+        let state_size = size_of::<State>();
+        let window_size = (1 << MAX_WBITS) + WINDOW_PAD_SIZE;
+
+        /* Calculate relative buffer positions and paddings */
+        let state_pos = curr_size.next_multiple_of(ALIGN_SIZE);
+        curr_size = state_pos + state_size;
+
+        let window_pos = curr_size.next_multiple_of(ALIGN_SIZE);
+        curr_size = window_pos + window_size;
+
+        /* Add ALIGN_SIZE-1 to allow alignment (done in the 'init' and 'copy' functions), and round
+         * size of buffer up to next multiple of ALIGN_SIZE */
+        let total_size = (curr_size + (ALIGN_SIZE - 1)).next_multiple_of(ALIGN_SIZE);
+
+        Self {
+            total_size,
+            state_pos,
+            window_pos,
+        }
+    }
+}
+
+/// Configuration for decompresssion.
+///
+/// Used with [`decompress_slice`].
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub struct InflateConfig {
     pub window_bits: i32,
@@ -2146,31 +2266,38 @@ pub fn init(stream: &mut z_stream, config: InflateConfig) -> ReturnCode {
         opaque: stream.opaque,
         _marker: PhantomData,
     };
+    let allocs = InflateAllocOffsets::new();
 
-    // allocated here to have the same order as zlib
-    let Some(state_allocation) = alloc.allocate_raw::<State>() else {
+    let Some(allocation_start) = alloc.allocate_slice_raw::<u8>(allocs.total_size) else {
         return ReturnCode::MemError;
     };
 
-    // FIXME: write is stable for NonNull since 1.80.0
-    unsafe { state_allocation.as_ptr().write(state) };
-    stream.state = state_allocation.as_ptr() as *mut internal_state;
+    let address = allocation_start.as_ptr() as usize;
+    let align_offset = address.next_multiple_of(64) - address;
+    let buf = unsafe { allocation_start.as_ptr().add(align_offset) };
+
+    let window_allocation = unsafe { buf.add(allocs.window_pos) };
+    let window = unsafe { Window::from_raw_parts(window_allocation, (1 << MAX_WBITS) + 64) };
+    state.window = window;
+
+    let state_allocation = unsafe { buf.add(allocs.state_pos).cast::<State>() };
+    unsafe { state_allocation.write(state) };
+    stream.state = state_allocation.cast::<internal_state>();
 
     // SAFETY: we've correctly initialized the stream to be an InflateStream
-    let ret = if let Some(stream) = unsafe { InflateStream::from_stream_mut(stream) } {
-        reset_with_config(stream, config)
+    if let Some(stream) = unsafe { InflateStream::from_stream_mut(stream) } {
+        stream.state.allocation_start = allocation_start.as_ptr();
+        stream.state.total_allocation_size = allocs.total_size;
+        let ret = reset_with_config(stream, config);
+
+        if ret != ReturnCode::Ok {
+            end(stream);
+        }
+
+        ret
     } else {
         ReturnCode::StreamError
-    };
-
-    if ret != ReturnCode::Ok {
-        let ptr = stream.state;
-        stream.state = core::ptr::null_mut();
-        // SAFETY: we assume deallocation does not cause UB
-        unsafe { alloc.deallocate(ptr, 1) };
     }
-
-    ret
 }
 
 pub fn reset_with_config(stream: &mut InflateStream, config: InflateConfig) -> ReturnCode {
@@ -2197,16 +2324,6 @@ pub fn reset_with_config(stream: &mut InflateStream, config: InflateConfig) -> R
         #[cfg(feature = "std")]
         eprintln!("invalid windowBits");
         return ReturnCode::StreamError;
-    }
-
-    if stream.state.window.size() != 0 && stream.state.wbits as i32 != window_bits {
-        let mut window = Window::empty();
-        core::mem::swap(&mut window, &mut stream.state.window);
-
-        let (ptr, len) = window.into_raw_parts();
-        assert_ne!(len, 0);
-        // SAFETY: window is discarded after this deallocation.
-        unsafe { stream.alloc.deallocate(ptr, len) };
     }
 
     stream.state.wrap = wrap as u8;
@@ -2258,9 +2375,13 @@ pub fn reset_keep(stream: &mut InflateStream) -> ReturnCode {
     ReturnCode::Ok
 }
 
+pub fn codes_used(stream: &InflateStream) -> usize {
+    stream.state.next
+}
+
 pub unsafe fn inflate(stream: &mut InflateStream, flush: InflateFlush) -> ReturnCode {
     if stream.next_out.is_null() || (stream.next_in.is_null() && stream.avail_in != 0) {
-        return ReturnCode::StreamError as _;
+        return ReturnCode::StreamError;
     }
 
     let state = &mut stream.state;
@@ -2277,18 +2398,19 @@ pub unsafe fn inflate(stream: &mut InflateStream, flush: InflateFlush) -> Return
             .bit_reader
             .update_slice(stream.next_in, stream.avail_in as usize)
     };
-    state.writer = Writer::new_uninit(stream.next_out.cast(), stream.avail_out as usize);
+    // Safety: `stream.next_out` is non-null and points to at least `stream.avail_out` bytes.
+    state.writer = unsafe { Writer::new_uninit(stream.next_out.cast(), stream.avail_out as usize) };
 
     state.in_available = stream.avail_in as _;
     state.out_available = stream.avail_out as _;
 
-    let mut err = state.dispatch();
+    let err = state.dispatch();
 
     let in_read = state.bit_reader.as_ptr() as usize - stream.next_in as usize;
     let out_written = state.out_available - (state.writer.capacity() - state.writer.len());
 
     stream.total_in += in_read as z_size;
-    state.total += out_written;
+    state.total = state.total.wrapping_add(out_written);
     stream.total_out = state.total as _;
 
     stream.avail_in = state.bit_reader.bytes_remaining() as u32;
@@ -2315,27 +2437,13 @@ pub unsafe fn inflate(stream: &mut InflateStream, flush: InflateFlush) -> Return
     let update_checksum = state.wrap & 4 != 0;
 
     if must_update_window {
-        'blk: {
-            // initialize the window if needed
-            if state.window.size() == 0 {
-                match Window::new_in(&stream.alloc, state.wbits as usize) {
-                    Some(window) => state.window = window,
-                    None => {
-                        state.mode = Mode::Mem;
-                        err = ReturnCode::MemError;
-                        break 'blk;
-                    }
-                }
-            }
-
-            state.window.extend(
-                &state.writer.filled()[..out_written],
-                state.gzip_flags,
-                update_checksum,
-                &mut state.checksum,
-                &mut state.crc_fold,
-            );
-        }
+        state.window.extend(
+            &state.writer.filled()[..out_written],
+            state.gzip_flags,
+            update_checksum,
+            &mut state.checksum,
+            &mut state.crc_fold,
+        );
     }
 
     if let Some(msg) = state.error_message {
@@ -2345,12 +2453,12 @@ pub unsafe fn inflate(stream: &mut InflateStream, flush: InflateFlush) -> Return
 
     stream.data_type = state.decoding_state();
 
-    if ((in_read == 0 && out_written == 0) || flush == InflateFlush::Finish as _)
-        && err == (ReturnCode::Ok as _)
+    if ((in_read == 0 && out_written == 0) || flush == InflateFlush::Finish)
+        && err == ReturnCode::Ok
     {
-        ReturnCode::BufError as _
+        ReturnCode::BufError
     } else {
-        err as _
+        err
     }
 }
 
@@ -2446,89 +2554,56 @@ pub unsafe fn copy<'a>(
 
     // Safety: source and dest are both mutable references, so guaranteed not to overlap.
     // dest being a reference to maybe uninitialized memory makes a copy of 1 DeflateStream valid.
-    unsafe {
-        core::ptr::copy_nonoverlapping(source, dest.as_mut_ptr(), 1);
-    }
+    unsafe { core::ptr::copy_nonoverlapping(source, dest.as_mut_ptr(), 1) };
 
-    // allocated here to have the same order as zlib
-    let Some(state_allocation) = source.alloc.allocate_raw::<State>() else {
+    // Allocate space.
+    let allocs = InflateAllocOffsets::new();
+    debug_assert_eq!(allocs.total_size, source.state.total_allocation_size);
+
+    let Some(allocation_start) = source.alloc.allocate_slice_raw::<u8>(allocs.total_size) else {
         return ReturnCode::MemError;
     };
 
-    let state = &source.state;
+    let address = allocation_start.as_ptr() as usize;
+    let align_offset = address.next_multiple_of(64) - address;
+    let buf = unsafe { allocation_start.as_ptr().add(align_offset) };
 
-    // SAFETY: an initialized Writer is a valid MaybeUninit<Writer>.
-    let writer: MaybeUninit<Writer> =
-        unsafe { core::ptr::read(&state.writer as *const _ as *const MaybeUninit<Writer>) };
-
-    let mut copy = State {
-        mode: state.mode,
-        flags: state.flags,
-        wrap: state.wrap,
-        len_table: state.len_table,
-        dist_table: state.dist_table,
-        wbits: state.wbits,
-        window: Window::empty(),
-        head: None,
-        ncode: state.ncode,
-        nlen: state.nlen,
-        ndist: state.ndist,
-        have: state.have,
-        next: state.next,
-        bit_reader: state.bit_reader,
-        writer: Writer::new(&mut []),
-        total: state.total,
-        length: state.length,
-        offset: state.offset,
-        extra: state.extra,
-        back: state.back,
-        was: state.was,
-        chunksize: state.chunksize,
-        in_available: state.in_available,
-        out_available: state.out_available,
-        lens: state.lens,
-        work: state.work,
-        error_message: state.error_message,
-        flush: state.flush,
-        checksum: state.checksum,
-        crc_fold: state.crc_fold,
-        dmax: state.dmax,
-        gzip_flags: state.gzip_flags,
-        codes_codes: state.codes_codes,
-        len_codes: state.len_codes,
-        dist_codes: state.dist_codes,
+    let window_allocation = unsafe { buf.add(allocs.window_pos) };
+    let window = unsafe {
+        source
+            .state
+            .window
+            .clone_to(window_allocation, (1 << MAX_WBITS) + 64)
     };
 
-    if !state.window.is_empty() {
-        let Some(window) = state.window.clone_in(&source.alloc) else {
-            // SAFETY: state_allocation is not used again.
-            source.alloc.deallocate(state_allocation.as_ptr(), 1);
-            return ReturnCode::MemError;
-        };
+    let copy = unsafe { buf.add(allocs.state_pos).cast::<State>() };
+    unsafe { core::ptr::copy_nonoverlapping(source.state, copy, 1) };
 
-        copy.window = window;
-    }
+    let field_ptr = unsafe { core::ptr::addr_of_mut!((*copy).window) };
+    unsafe { core::ptr::write(field_ptr, window) };
 
-    // write the cloned state into state_ptr
-    unsafe { state_allocation.as_ptr().write(copy) }; // FIXME: write is stable for NonNull since 1.80.0
+    let field_ptr = unsafe { core::ptr::addr_of_mut!((*copy).allocation_start) };
+    unsafe { core::ptr::write(field_ptr, allocation_start.as_ptr()) };
 
-    // insert the state_ptr into `dest`
     let field_ptr = unsafe { core::ptr::addr_of_mut!((*dest.as_mut_ptr()).state) };
-    unsafe { core::ptr::write(field_ptr as *mut *mut State, state_allocation.as_ptr()) };
-
-    // update the writer; it cannot be cloned so we need to use some shennanigans
-    let field_ptr = unsafe { core::ptr::addr_of_mut!((*dest.as_mut_ptr()).state.writer) };
-    unsafe { core::ptr::copy(writer.as_ptr(), field_ptr, 1) };
-
-    // update the gzhead field (it contains a mutable reference so we need to be careful
-    let field_ptr = unsafe { core::ptr::addr_of_mut!((*dest.as_mut_ptr()).state.head) };
-    unsafe { core::ptr::copy(&source.state.head, field_ptr, 1) };
+    unsafe { core::ptr::write(field_ptr as *mut *mut State, copy) };
 
     ReturnCode::Ok
 }
 
 pub fn undermine(stream: &mut InflateStream, subvert: i32) -> ReturnCode {
     stream.state.flags.update(Flags::SANE, (!subvert) != 0);
+
+    ReturnCode::Ok
+}
+
+/// Configures whether the checksum is calculated and checked.
+pub fn validate(stream: &mut InflateStream, check: bool) -> ReturnCode {
+    if check && stream.state.wrap != 0 {
+        stream.state.wrap |= 0b100;
+    } else {
+        stream.state.wrap &= !0b100;
+    }
 
     ReturnCode::Ok
 }
@@ -2563,54 +2638,31 @@ pub fn set_dictionary(stream: &mut InflateStream, dictionary: &[u8]) -> ReturnCo
         }
     }
 
-    let err = 'blk: {
-        // initialize the window if needed
-        if stream.state.window.size() == 0 {
-            match Window::new_in(&stream.alloc, stream.state.wbits as usize) {
-                None => break 'blk ReturnCode::MemError,
-                Some(window) => stream.state.window = window,
-            }
-        }
-
-        stream.state.window.extend(
-            dictionary,
-            stream.state.gzip_flags,
-            false,
-            &mut stream.state.checksum,
-            &mut stream.state.crc_fold,
-        );
-
-        ReturnCode::Ok
-    };
-
-    if err != ReturnCode::Ok {
-        stream.state.mode = Mode::Mem;
-        return ReturnCode::MemError;
-    }
+    stream.state.window.extend(
+        dictionary,
+        stream.state.gzip_flags,
+        false,
+        &mut stream.state.checksum,
+        &mut stream.state.crc_fold,
+    );
 
     stream.state.flags.update(Flags::HAVE_DICT, true);
 
     ReturnCode::Ok
 }
 
-pub fn end<'a>(stream: &'a mut InflateStream<'a>) -> &'a mut z_stream {
+pub fn end<'a>(stream: &'a mut InflateStream<'_>) -> &'a mut z_stream {
     let alloc = stream.alloc;
+    let allocation_start = stream.state.allocation_start;
+    let total_allocation_size = stream.state.total_allocation_size;
 
     let mut window = Window::empty();
     core::mem::swap(&mut window, &mut stream.state.window);
 
-    // safety: window is not used again
-    if !window.is_empty() {
-        let (ptr, len) = window.into_raw_parts();
-        unsafe { alloc.deallocate(ptr, len) };
-    }
-
     let stream = stream.as_z_stream_mut();
+    let _ = core::mem::replace(&mut stream.state, core::ptr::null_mut());
 
-    let state_ptr = core::mem::replace(&mut stream.state, core::ptr::null_mut());
-
-    // safety: state_ptr is not used again
-    unsafe { alloc.deallocate(state_ptr as *mut State, 1) };
+    unsafe { alloc.deallocate(allocation_start, total_allocation_size) };
 
     stream
 }
@@ -2637,6 +2689,33 @@ pub unsafe fn get_header<'a>(
     });
     ReturnCode::Ok
 }
+
+/// # Safety
+///
+/// The `dictionary` must have enough space for the dictionary.
+pub unsafe fn get_dictionary(stream: &InflateStream<'_>, dictionary: *mut u8) -> usize {
+    let whave = stream.state.window.have();
+    let wnext = stream.state.window.next();
+
+    if !dictionary.is_null() {
+        unsafe {
+            core::ptr::copy_nonoverlapping(
+                stream.state.window.as_ptr().add(wnext),
+                dictionary,
+                whave - wnext,
+            );
+
+            core::ptr::copy_nonoverlapping(
+                stream.state.window.as_ptr(),
+                dictionary.add(whave).sub(wnext).cast(),
+                wnext,
+            );
+        }
+    }
+
+    stream.state.window.have()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -2655,7 +2734,7 @@ mod tests {
 
         let config = InflateConfig { window_bits: 15 };
 
-        let (_decompressed, err) = uncompress_slice(&mut output, &input, config);
+        let (_decompressed, err) = decompress_slice(&mut output, &input, config);
         assert_eq!(err, ReturnCode::DataError);
     }
 }

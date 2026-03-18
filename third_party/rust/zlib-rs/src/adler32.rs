@@ -1,7 +1,13 @@
-#![warn(unsafe_op_in_unsafe_fn)]
+//! The adler32 checksum algorithm.
 
 #[cfg(target_arch = "x86_64")]
 mod avx2;
+#[cfg(feature = "avx512")]
+#[cfg(target_arch = "x86_64")]
+mod avx512;
+#[cfg(feature = "avx512")]
+#[cfg(target_arch = "x86_64")]
+mod avx512_vnni;
 mod generic;
 #[cfg(target_arch = "aarch64")]
 mod neon;
@@ -9,8 +15,14 @@ mod neon;
 mod wasm;
 
 pub fn adler32(start_checksum: u32, data: &[u8]) -> u32 {
+    #[cfg(feature = "avx512")]
     #[cfg(target_arch = "x86_64")]
-    if crate::cpu_features::is_enabled_avx2() {
+    if cfg!(all(target_feature = "avx512f", target_feature = "avx512bw")) {
+        return avx512::adler32_avx512(start_checksum, data);
+    }
+
+    #[cfg(target_arch = "x86_64")]
+    if crate::cpu_features::is_enabled_avx2_and_bmi2() {
         return avx2::adler32_avx2(start_checksum, data);
     }
 
@@ -27,7 +39,7 @@ pub fn adler32(start_checksum: u32, data: &[u8]) -> u32 {
     generic::adler32_rust(start_checksum, data)
 }
 
-pub fn adler32_fold_copy(start_checksum: u32, dst: &mut [u8], src: &[u8]) -> u32 {
+pub(crate) fn adler32_fold_copy(start_checksum: u32, dst: &mut [u8], src: &[u8]) -> u32 {
     debug_assert!(dst.len() >= src.len(), "{} < {}", dst.len(), src.len());
 
     // integrating the memcpy into the adler32 function did not have any benefits, and in fact was

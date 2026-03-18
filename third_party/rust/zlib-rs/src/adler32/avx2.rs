@@ -27,11 +27,12 @@ const DOT3V: __m256i = __m256i_literal([
     1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0,
 ]);
 
-const ZERO: __m256i = __m256i_literal([0; 32]);
+const ZERO: __m256i = __m256i_literal([0u8; 32]);
 
 /// 32 bit horizontal sum, adapted from Agner Fog's vector library.
 #[target_feature(enable = "avx2")]
 unsafe fn hsum256(x: __m256i) -> u32 {
+    #[allow(unused_unsafe)] // because target features 1.1
     unsafe {
         let sum1 = _mm_add_epi32(_mm256_extracti128_si256(x, 1), _mm256_castsi256_si128(x));
         let sum2 = _mm_add_epi32(sum1, _mm_unpackhi_epi64(sum1, sum1));
@@ -53,6 +54,7 @@ unsafe fn partial_hsum256(x: __m256i) -> u32 {
         1, 0, 0, 0, //
     ]);
 
+    #[allow(unused_unsafe)] // because target features 1.1
     unsafe {
         let non_zero = _mm256_permutevar8x32_epi32(x, PERM_VEC);
         let non_zero_sse = _mm256_castsi256_si128(non_zero);
@@ -63,12 +65,14 @@ unsafe fn partial_hsum256(x: __m256i) -> u32 {
 }
 
 pub fn adler32_avx2(adler: u32, src: &[u8]) -> u32 {
-    assert!(crate::cpu_features::is_enabled_avx2());
+    assert!(crate::cpu_features::is_enabled_avx2_and_bmi2());
     // SAFETY: the assertion above ensures this code is not executed unless the CPU has AVX2.
     unsafe { adler32_avx2_help(adler, src) }
 }
 
 #[target_feature(enable = "avx2")]
+#[target_feature(enable = "bmi2")]
+#[target_feature(enable = "bmi1")]
 unsafe fn adler32_avx2_help(adler: u32, src: &[u8]) -> u32 {
     if src.is_empty() {
         return adler;

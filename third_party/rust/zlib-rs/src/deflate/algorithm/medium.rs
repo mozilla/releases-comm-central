@@ -1,10 +1,12 @@
 #![forbid(unsafe_code)]
 
+use super::flush_block;
+use crate::deflate::hash_calc::StandardHashCalc;
 use crate::{
     deflate::{
         fill_window, BlockState, DeflateStream, State, MIN_LOOKAHEAD, STD_MIN_MATCH, WANT_MIN_MATCH,
     },
-    flush_block, DeflateFlush,
+    DeflateFlush,
 };
 
 pub fn deflate_medium(stream: &mut DeflateStream, flush: DeflateFlush) -> BlockState {
@@ -60,7 +62,7 @@ pub fn deflate_medium(stream: &mut DeflateStream, flush: DeflateFlush) -> BlockS
         } else {
             hash_head = 0;
             if state.lookahead >= WANT_MIN_MATCH {
-                hash_head = state.quick_insert_string(state.strstart);
+                hash_head = StandardHashCalc::quick_insert_string(state, state.strstart);
             }
 
             current_match.strstart = state.strstart as u16;
@@ -104,7 +106,7 @@ pub fn deflate_medium(stream: &mut DeflateStream, flush: DeflateFlush) -> BlockS
                 < (state.window_size - MIN_LOOKAHEAD)
         {
             state.strstart = (current_match.strstart + current_match.match_length) as usize;
-            hash_head = state.quick_insert_string(state.strstart);
+            hash_head = StandardHashCalc::quick_insert_string(state, state.strstart);
 
             next_match.strstart = state.strstart as u16;
             next_match.orgstart = next_match.strstart;
@@ -191,7 +193,6 @@ fn emit_match(state: &mut State, m: Match) -> bool {
     if (m.match_length as usize) < WANT_MIN_MATCH {
         for lc in &state.window.filled()[state.strstart..][..m.match_length as usize] {
             bflush |= State::tally_lit_help(&mut state.sym_buf, &mut state.l_desc, *lc);
-            state.lookahead -= 1;
         }
     } else {
         // check_match(s, m.strstart, m.match_start, m.match_length);
@@ -200,9 +201,8 @@ fn emit_match(state: &mut State, m: Match) -> bool {
             (m.strstart - m.match_start) as usize,
             m.match_length as usize - STD_MIN_MATCH,
         );
-
-        state.lookahead -= m.match_length as usize;
     }
+    state.lookahead -= m.match_length as usize;
 
     bflush
 }
@@ -223,14 +223,15 @@ fn insert_match(state: &mut State, mut m: Match) {
             } else {
                 state.insert_string(m.strstart as usize, (m.orgstart - m.strstart + 1) as usize);
             }
-            m.strstart += m.match_length;
-            m.match_length = 0;
         }
         return;
     }
 
-    // Insert new strings in the hash table
-    if state.lookahead >= WANT_MIN_MATCH {
+    // Insert new strings in the hash table only if the match length
+    // is not too large. This saves time but degrades compression.
+    if usize::from(m.match_length) <= 16 * state.max_insert_length()
+        && state.lookahead >= WANT_MIN_MATCH
+    {
         m.match_length -= 1; /* string at strstart already in table */
         m.strstart += 1;
 
@@ -246,14 +247,12 @@ fn insert_match(state: &mut State, mut m: Match) {
                 (m.strstart + m.match_length - m.orgstart) as usize,
             );
         }
-        m.strstart += m.match_length;
-        m.match_length = 0;
     } else {
         m.strstart += m.match_length;
         m.match_length = 0;
 
         if (m.strstart as usize) >= (STD_MIN_MATCH - 2) {
-            state.quick_insert_string(m.strstart as usize + 2 - STD_MIN_MATCH);
+            StandardHashCalc::quick_insert_string(state, m.strstart as usize + 2 - STD_MIN_MATCH);
         }
 
         /* If lookahead < WANT_MIN_MATCH, ins_h is garbage, but it does not

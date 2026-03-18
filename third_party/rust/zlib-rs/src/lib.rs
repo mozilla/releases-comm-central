@@ -4,20 +4,42 @@
 #[cfg(any(feature = "rust-allocator", feature = "c-allocator"))]
 extern crate alloc;
 
-mod adler32;
-pub mod allocate;
-pub mod c_api;
-mod cpu_features;
+pub mod adler32;
 pub mod crc32;
-pub mod deflate;
-pub mod inflate;
-pub mod read_buf;
+
+cfg_select! {
+    feature = "__internal-api" => {
+        pub mod allocate;
+        pub mod c_api;
+        pub mod deflate;
+        pub mod inflate;
+
+        pub const MIN_WBITS: i32 = 8; // 256b LZ77 window
+        pub const MAX_WBITS: i32 = 15; // 32kb LZ77 window
+    }
+    _ => {
+        pub(crate) mod allocate;
+        pub(crate) mod c_api;
+        pub(crate) mod deflate;
+        pub(crate) mod inflate;
+
+        pub(crate) const MIN_WBITS: i32 = 8; // 256b LZ77 window
+        pub(crate) const MAX_WBITS: i32 = 15; // 32kb LZ77 window
+    }
+}
+
+mod cpu_features;
+mod stable;
 mod weak_slice;
 
-pub use adler32::{adler32, adler32_combine};
-pub use crc32::{crc32, crc32_combine};
+pub use stable::{Deflate, DeflateError, Inflate, InflateError, Status};
 
-#[macro_export]
+pub use deflate::{DeflateConfig, Method, Strategy};
+pub use inflate::InflateConfig;
+
+pub use deflate::{compress_bound, compress_slice};
+pub use inflate::decompress_slice;
+
 macro_rules! trace {
     ($($arg:tt)*) => {
         #[cfg(feature = "ZLIB_DEBUG")]
@@ -26,6 +48,28 @@ macro_rules! trace {
         }
     };
 }
+pub(crate) use trace;
+
+macro_rules! cfg_select {
+    ({ $($tt:tt)* }) => {{
+        $crate::cfg_select! { $($tt)* }
+    }};
+    (_ => { $($output:tt)* }) => {
+        $($output)*
+    };
+    (
+        $cfg:meta => $output:tt
+        $($( $rest:tt )+)?
+    ) => {
+        #[cfg($cfg)]
+        $crate::cfg_select! { _ => $output }
+        $(
+            #[cfg(not($cfg))]
+            $crate::cfg_select! { $($rest)+ }
+        )?
+    }
+}
+use cfg_select;
 
 /// Maximum size of the dynamic table.  The maximum number of code structures is
 /// 1924, which is the sum of 1332 for literal/length codes and 592 for distance
@@ -48,11 +92,10 @@ pub(crate) const ADLER32_INITIAL_VALUE: usize = 1;
 /// initial crc-32 hash value
 pub(crate) const CRC32_INITIAL_VALUE: u32 = 0;
 
-pub const MIN_WBITS: i32 = 8; // 256b LZ77 window
-pub const MAX_WBITS: i32 = 15; // 32kb LZ77 window
 pub(crate) const DEF_WBITS: i32 = MAX_WBITS;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[cfg_attr(feature = "__internal-fuzz", derive(arbitrary::Arbitrary))]
 pub enum DeflateFlush {
     #[default]
     /// if flush is set to `NoFlush`, that allows deflate to decide how much data
@@ -188,7 +231,11 @@ impl From<i32> for ReturnCode {
 }
 
 impl ReturnCode {
-    const fn error_message_str(self) -> &'static str {
+    fn error_message_str(self) -> &'static str {
+        self.error_message_str_with_null().trim_end_matches('\0')
+    }
+
+    const fn error_message_str_with_null(self) -> &'static str {
         match self {
             ReturnCode::Ok => "\0",
             ReturnCode::StreamEnd => "stream end\0",
@@ -203,7 +250,7 @@ impl ReturnCode {
     }
 
     pub const fn error_message(self) -> *const core::ffi::c_char {
-        let msg = self.error_message_str();
+        let msg = self.error_message_str_with_null();
         msg.as_ptr().cast::<core::ffi::c_char>()
     }
 

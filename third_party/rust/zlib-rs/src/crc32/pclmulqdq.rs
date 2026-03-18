@@ -1,8 +1,7 @@
-use core::arch::x86_64::__m128i;
 use core::arch::x86_64::{
-    _mm_and_si128, _mm_clmulepi64_si128, _mm_extract_epi32, _mm_load_si128, _mm_loadu_si128,
-    _mm_or_si128, _mm_shuffle_epi8, _mm_slli_si128, _mm_srli_si128, _mm_storeu_si128,
-    _mm_xor_si128,
+    __m128i, _mm_and_si128, _mm_clmulepi64_si128, _mm_extract_epi32, _mm_load_si128,
+    _mm_loadu_si128, _mm_or_si128, _mm_shuffle_epi8, _mm_slli_si128, _mm_srli_si128,
+    _mm_storeu_si128, _mm_xor_si128,
 };
 
 use crate::CRC32_INITIAL_VALUE;
@@ -24,7 +23,7 @@ const fn reg(input: [u32; 4]) -> __m128i {
 #[derive(Debug, Clone, Copy)]
 #[cfg(target_arch = "x86_64")]
 pub(crate) struct Accumulator {
-    fold: [__m128i; 4],
+    pub(super) fold: [__m128i; 4],
 }
 
 #[cfg(target_arch = "x86_64")]
@@ -78,6 +77,7 @@ impl Accumulator {
          */
         let mut crc_fold = RK1_RK2;
 
+        #[allow(unused_unsafe)] // because target features 1.1
         unsafe {
             let x_tmp0 = _mm_clmulepi64_si128(xmm_crc0, crc_fold, 0x10);
             xmm_crc0 = _mm_clmulepi64_si128(xmm_crc0, crc_fold, 0x01);
@@ -248,27 +248,28 @@ impl Accumulator {
         // bytes of input is needed for the aligning load that occurs.  If there's an initial CRC, to
         // carry it forward through the folded CRC there must be 16 - src % 16 + 16 bytes available, which
         // by definition can be up to 15 bytes + one full vector load. */
-        assert!(src.len() >= 31 || init_crc == CRC32_INITIAL_VALUE);
+        let first = init_crc != CRC32_INITIAL_VALUE;
+        assert!(src.len() >= 31 || !first);
 
         if COPY {
             assert_eq!(dst.len(), src.len(), "dst and src must be the same length")
         }
 
         if src.len() < 16 {
-            if COPY {
-                if src.is_empty() {
-                    return;
-                }
+            if src.is_empty() {
+                return;
+            }
 
-                partial_buf.0[..src.len()].copy_from_slice(src);
-                xmm_crc_part =
-                    unsafe { _mm_load_si128(partial_buf.0.as_mut_ptr() as *mut __m128i) };
+            partial_buf.0[..src.len()].copy_from_slice(src);
+            xmm_crc_part = unsafe { _mm_load_si128(partial_buf.0.as_mut_ptr() as *mut __m128i) };
+            if COPY {
                 dst[..src.len()].copy_from_slice(&partial_buf.0[..src.len()]);
             }
         } else {
             // SAFETY: [u8; 16] can safely transmute into _m128i.
             let (before, _, _) = unsafe { src.align_to::<__m128i>() };
 
+            #[allow(unused_unsafe)] // because target features 1.1
             if !before.is_empty() {
                 xmm_crc_part = unsafe { _mm_loadu_si128(src.as_ptr() as *const __m128i) };
                 if COPY {
@@ -300,19 +301,17 @@ impl Accumulator {
                 src = &src[before.len()..];
             }
 
-            // if is_x86_feature_detected!("vpclmulqdq") {
-            //     if src.len() >= 256 {
-            //         if COPY {
-            //             // size_t n = fold_16_vpclmulqdq_copy(&xmm_crc0, &xmm_crc1, &xmm_crc2, &xmm_crc3, dst, src, len);
-            //             // dst += n;
-            //         } else {
-            //             // size_t n = fold_16_vpclmulqdq(&xmm_crc0, &xmm_crc1, &xmm_crc2, &xmm_crc3, src, len, xmm_initial, first);
-            //             // first = false;
-            //         }
-            //         // len -= n;
-            //         // src += n;
-            //     }
-            // }
+            #[cfg(feature = "vpclmulqdq")]
+            #[cfg(all(target_feature = "vpclmulqdq", target_feature = "avx512f"))]
+            if src.len() >= 256 {
+                let n;
+                if COPY {
+                    n = unsafe { self.fold_16_vpclmulqdq_copy(dst, &mut src) };
+                    dst = &mut dst[n..];
+                } else {
+                    unsafe { self.fold_16_vpclmulqdq(dst, &mut src, &mut init_crc) };
+                }
+            }
 
             while src.len() >= 64 {
                 let n = unsafe { self.progress::<4, COPY>(dst, &mut src, &mut init_crc) };

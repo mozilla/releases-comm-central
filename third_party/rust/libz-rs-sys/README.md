@@ -1,4 +1,4 @@
-This crate is a C API for [zlib-rs](https://docs.rs/zlib-rs/latest/zlib_rs/). The API is broadly equivalent to [`zlib-sys`](https://docs.rs/libz-sys/latest/libz_sys/) and [`zlib-ng-sys`](https://docs.rs/libz-ng-sys/latest/libz_ng_sys/), but does not currently provide the `gz*` family of functions.
+This crate is a C API for [zlib-rs](https://docs.rs/zlib-rs/latest/zlib_rs/). The API is broadly equivalent to [`libz-sys`](https://docs.rs/libz-sys/latest/libz_sys/) and [`zlib-ng-sys`](https://docs.rs/libz-ng-sys/latest/libz_ng_sys/).
 
 From a rust perspective, this API is not very ergonomic. Use the [`flate2`](https://crates.io/crates/flate2) crate for a more
 ergonomic rust interface to zlib.
@@ -11,7 +11,7 @@ Add a custom prefix to all exported symbols.
 
 The value of the `LIBZ_RS_SYS_PREFIX` is used as a prefix for all exported symbols. For example:
 
-```ignore
+```text
 > LIBZ_RS_SYS_PREFIX="MY_CUSTOM_PREFIX" cargo build -p libz-rs-sys --features=custom-prefix
    Compiling libz-rs-sys v0.2.1 (/home/folkertdev/rust/zlib-rs/libz-rs-sys)
     Finished `dev` profile [optimized + debuginfo] target(s) in 0.21s
@@ -34,6 +34,10 @@ The `rust-allocator` is the default when this crate is used as a rust dependency
 **`std`**
 
 Assume that `std` is available. When this feature is turned off, this crate is compatible with `#![no_std]`.
+
+**`gz`**
+
+Exports the `gz*` family of functions (`gzread`, `gzwrite`, etc.). This feature is off by default because these functions are rarely used from rust, and defining these functions requires a dependency on `libc`.
 
 ## Example
 
@@ -88,6 +92,32 @@ let inflated = &output[..strm.total_out as usize];
 assert_eq!(inflated, input.as_bytes())
 ```
 
+## Memory Management
+
+Zlib does not assume a global allocator, but instead accepts `zalloc` and `zfree` functions for allocating and deallocating memory.
+
+```rust,ignore
+type alloc_func = unsafe extern "C" fn(*mut c_void, c_uint, c_uint) -> *mut c_void;
+type free_func = unsafe extern "C" fn(*mut c_void, *mut c_void);
+
+struct z_stream {
+    // ...
+    zalloc: Option<alloc_func>,
+    zfree: Option<free_func>,
+    opaque: *mut c_void,
+    // ..
+}
+```
+
+These functions can run arbitrary logic, so long as they satisfy their contract. This mechanism can be used e.g. on embedded systems to use an array in static memory as the working memory for (de)compression. For more information see the [`z_stream`](https://docs.rs/zlib-rs/latest/zlib_rs/c_api/struct.z_stream.html) documentation.
+
+For convenience we provide two default memory allocators:
+
+- `rust` uses the rust global allocator
+- `c` uses `malloc` and `free`
+
+When used as a rust crate, the default is to use the rust global allocator. This behavior can be overridden using [feature flags](#features) to either configure the C allocator as the default, or to configure no default allocator at all. If no default is configured, and no custom allocation and deallocation functions are provided, initialization will return an error.
+
 ## Compression Levels
 
 The zlib library supports compression levels 0 up to and including 9. The level indicates a tradeoff between time spent on the compression versus the compression ratio, the factor by which the input is reduced in size:
@@ -97,7 +127,7 @@ The zlib library supports compression levels 0 up to and including 9. The level 
 - level 6: default (a good tradeoff between speed and compression ratio)
 - level 9: best compression
 
-Beyond this intuition, the exact behavior of the compression levels is not specified. The implementation of `zlib-rs` follows the implementation of [`zlig-ng`](https://github.com/zlib-ng/zlib-ng), and deviates from the one in stock zlib.
+Beyond this intuition, the exact behavior of the compression levels is not specified. The implementation of `zlib-rs` follows the implementation of [`zlib-ng`](https://github.com/zlib-ng/zlib-ng), and deviates from the one in stock zlib.
 
 In particular, our compression level 1 is extremely fast, but also just does not compress that well. On the `silesia-small.tar` input file, we see these output sizes:
 
@@ -123,4 +153,4 @@ In our example, the main options are:
 - level 2: equivalent compression, but significantly faster
 - level 4: better compression, at the same speed
 
-In summary, when you upgrade from stock zlib, we recommend that you benchmark on your data and target platform, and pick the right compression level for your use case. 
+In summary, when you upgrade from stock zlib, we recommend that you benchmark on your data and target platform, and pick the right compression level for your use case.

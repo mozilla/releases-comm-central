@@ -1,4 +1,5 @@
-#![warn(unsafe_op_in_unsafe_fn)]
+//! The crc32 checksum algorithm.
+
 use crate::CRC32_INITIAL_VALUE;
 
 #[cfg(target_arch = "aarch64")]
@@ -7,8 +8,11 @@ mod braid;
 mod combine;
 #[cfg(target_arch = "x86_64")]
 mod pclmulqdq;
+#[cfg(target_arch = "x86_64")]
+#[cfg(feature = "vpclmulqdq")]
+mod vpclmulqdq;
 
-pub use combine::crc32_combine;
+pub use combine::{crc32_combine, crc32_combine_gen, crc32_combine_op};
 
 pub fn crc32(start: u32, buf: &[u8]) -> u32 {
     /* For lens < 64, crc32_braid method is faster. The CRC32 instruction for
@@ -22,12 +26,25 @@ pub fn crc32(start: u32, buf: &[u8]) -> u32 {
     crc_state.finish()
 }
 
-pub fn crc32_braid(start: u32, buf: &[u8]) -> u32 {
+fn crc32_braid(start: u32, buf: &[u8]) -> u32 {
     braid::crc32_braid::<5>(start, buf)
 }
 
+pub fn get_crc_table() -> &'static [u32; 256] {
+    braid::get_crc_table()
+}
+
+#[cfg(feature = "__internal-test")]
 #[derive(Debug, Clone, Copy)]
 pub struct Crc32Fold {
+    #[cfg(target_arch = "x86_64")]
+    fold: pclmulqdq::Accumulator,
+    value: u32,
+}
+
+#[cfg(not(feature = "__internal-test"))]
+#[derive(Debug, Clone, Copy)]
+pub(crate) struct Crc32Fold {
     #[cfg(target_arch = "x86_64")]
     fold: pclmulqdq::Accumulator,
     value: u32,
@@ -90,7 +107,7 @@ impl Crc32Fold {
 
 #[cfg(test)]
 mod test {
-    use test::braid::crc32_braid;
+    use braid::crc32_braid;
 
     use super::*;
 

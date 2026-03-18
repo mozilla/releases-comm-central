@@ -1,12 +1,10 @@
-#![warn(unsafe_op_in_unsafe_fn)]
-use core::{ffi::CStr, marker::PhantomData, mem::MaybeUninit, ops::ControlFlow};
+use core::{ffi::CStr, marker::PhantomData, mem::MaybeUninit, ops::ControlFlow, ptr::NonNull};
 
 use crate::{
     adler32::adler32,
     allocate::Allocator,
     c_api::{gz_header, internal_state, z_checksum, z_stream},
     crc32::{crc32, Crc32Fold},
-    read_buf::ReadBuf,
     trace,
     weak_slice::{WeakArrayMut, WeakSliceMut},
     DeflateFlush, ReturnCode, ADLER32_INITIAL_VALUE, CRC32_INITIAL_VALUE, MAX_WBITS, MIN_WBITS,
@@ -16,6 +14,7 @@ use self::{
     algorithm::CONFIGURATION_TABLE,
     hash_calc::{HashCalcVariant, RollHashCalc, StandardHashCalc},
     pending::Pending,
+    sym_buf::SymBuf,
     trees_tbl::STATIC_LTREE,
     window::Window,
 };
@@ -26,6 +25,7 @@ mod hash_calc;
 mod longest_match;
 mod pending;
 mod slide_hash;
+mod sym_buf;
 mod trees_tbl;
 mod window;
 
@@ -49,6 +49,9 @@ pub struct DeflateStream<'a> {
     pub(crate) adler: crate::c_api::z_checksum,
     pub(crate) reserved: crate::c_api::uLong,
 }
+
+unsafe impl Sync for DeflateStream<'_> {}
+unsafe impl Send for DeflateStream<'_> {}
 
 impl<'a> DeflateStream<'a> {
     // z_stream and DeflateStream must have the same layout. Do our best to check if this is true.
@@ -83,6 +86,33 @@ impl<'a> DeflateStream<'a> {
         unsafe { strm.cast::<DeflateStream>().as_mut() }
     }
 
+    /// # Safety
+    ///
+    /// Behavior is undefined if any of the following conditions are violated:
+    ///
+    /// - `strm` satisfies the conditions of [`pointer::as_ref`]
+    /// - if not `NULL`, `strm` as initialized using [`init`] or similar
+    ///
+    /// [`pointer::as_ref`]: https://doc.rust-lang.org/core/primitive.pointer.html#method.as_ref
+    #[inline(always)]
+    pub unsafe fn from_stream_ref(strm: *const z_stream) -> Option<&'a Self> {
+        {
+            // Safety: ptr points to a valid value of type z_stream (if non-null)
+            let stream = unsafe { strm.as_ref() }?;
+
+            if stream.zalloc.is_none() || stream.zfree.is_none() {
+                return None;
+            }
+
+            if stream.state.is_null() {
+                return None;
+            }
+        }
+
+        // SAFETY: DeflateStream has an equivalent layout as z_stream
+        unsafe { strm.cast::<DeflateStream>().as_ref() }
+    }
+
     fn as_z_stream_mut(&mut self) -> &mut z_stream {
         // SAFETY: a valid &mut DeflateStream is also a valid &mut z_stream
         unsafe { &mut *(self as *mut DeflateStream as *mut z_stream) }
@@ -94,6 +124,15 @@ impl<'a> DeflateStream<'a> {
             self.state.bit_writer.bits_used,
         )
     }
+
+    pub fn new(config: DeflateConfig) -> Self {
+        let mut inner = crate::c_api::z_stream::default();
+
+        let ret = crate::deflate::init(&mut inner, config);
+        assert_eq!(ret, ReturnCode::Ok);
+
+        unsafe { core::mem::transmute(inner) }
+    }
 }
 
 /// number of elements in hash table
@@ -103,7 +142,7 @@ const HASH_BITS: usize = 16;
 
 /// Maximum value for memLevel in deflateInit2
 const MAX_MEM_LEVEL: i32 = 9;
-const DEF_MEM_LEVEL: i32 = if MAX_MEM_LEVEL > 8 { 8 } else { MAX_MEM_LEVEL };
+pub const DEF_MEM_LEVEL: i32 = if MAX_MEM_LEVEL > 8 { 8 } else { MAX_MEM_LEVEL };
 
 #[repr(i32)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
@@ -124,6 +163,17 @@ impl TryFrom<i32> for Method {
     }
 }
 
+/// Configuration for compression.
+///
+/// Used with [`compress_slice`].
+///
+/// In most cases only the compression level is relevant. We provide three profiles:
+///
+/// - [`DeflateConfig::best_speed`] provides the fastest compression (at the cost of compression
+///   quality)
+/// - [`DeflateConfig::default`] tries to find a happy middle
+/// - [`DeflateConfig::best_compression`] provides the best compression (at the cost of longer
+///   runtime)
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "__internal-fuzz", derive(arbitrary::Arbitrary))]
 pub struct DeflateConfig {
@@ -169,6 +219,16 @@ impl DeflateConfig {
             level,
             ..Self::default()
         }
+    }
+
+    /// Configure for the best compression (takes longer).
+    pub fn best_compression() -> Self {
+        Self::new(crate::c_api::Z_BEST_COMPRESSION)
+    }
+
+    /// Configure for the fastest compression (compresses less well).
+    pub fn best_speed() -> Self {
+        Self::new(crate::c_api::Z_BEST_SPEED)
     }
 }
 
@@ -253,70 +313,48 @@ pub fn init(stream: &mut z_stream, config: DeflateConfig) -> ReturnCode {
         _marker: PhantomData,
     };
 
-    // allocated here to have the same order as zlib
-    let Some(state_allocation) = alloc.allocate_raw::<State>() else {
+    let lit_bufsize = 1 << (mem_level + 6); // 16K elements by default
+    let allocs = DeflateAllocOffsets::new(window_bits, lit_bufsize);
+
+    // FIXME: pointer methods on NonNull are stable since 1.80.0
+    let Some(allocation_start) = alloc.allocate_slice_raw::<u8>(allocs.total_size) else {
         return ReturnCode::MemError;
     };
 
     let w_size = 1 << window_bits;
-    let window = Window::new_in(&alloc, window_bits);
+    let align_offset = (allocation_start.as_ptr() as usize).next_multiple_of(64)
+        - (allocation_start.as_ptr() as usize);
+    let buf = unsafe { allocation_start.as_ptr().add(align_offset) };
 
-    let prev = alloc.allocate_slice_raw::<u16>(w_size);
-    let head = alloc.allocate_raw::<[u16; HASH_SIZE]>();
+    let (window, prev, head, pending, sym_buf) = unsafe {
+        let window_ptr: *mut u8 = buf.add(allocs.window_pos);
+        window_ptr.write_bytes(0u8, 2 * w_size);
+        let window = Window::from_raw_parts(window_ptr, window_bits);
 
-    let lit_bufsize = 1 << (mem_level + 6); // 16K elements by default
-    let pending = Pending::new_in(&alloc, 4 * lit_bufsize);
+        // FIXME: write_bytes is stable for NonNull since 1.80.0
+        let prev_ptr = buf.add(allocs.prev_pos).cast::<Pos>();
+        prev_ptr.write_bytes(0, w_size);
+        let prev = WeakSliceMut::from_raw_parts_mut(prev_ptr, w_size);
 
-    // zlib-ng overlays the pending_buf and sym_buf. We cannot really do that safely
-    let sym_buf = ReadBuf::new_in(&alloc, 3 * lit_bufsize);
+        let head_ptr = buf.add(allocs.head_pos).cast::<[Pos; HASH_SIZE]>();
+        // Zero out the full array. `write_bytes` will write `1 * size_of<[Pos; HASH_SIZE]>` bytes.
+        head_ptr.write_bytes(0, 1);
+        let head = WeakArrayMut::<Pos, HASH_SIZE>::from_ptr(head_ptr);
 
-    // if any allocation failed, clean up allocations that did succeed
-    let (window, prev, head, pending, sym_buf) = match (window, prev, head, pending, sym_buf) {
-        (Some(window), Some(prev), Some(head), Some(pending), Some(sym_buf)) => {
-            (window, prev, head, pending, sym_buf)
-        }
-        (window, prev, head, pending, sym_buf) => {
-            // SAFETY: these pointers/structures are discarded after deallocation.
-            unsafe {
-                if let Some(mut sym_buf) = sym_buf {
-                    alloc.deallocate(sym_buf.as_mut_ptr(), sym_buf.capacity())
-                }
-                if let Some(mut pending) = pending {
-                    pending.drop_in(&alloc);
-                }
-                if let Some(head) = head {
-                    alloc.deallocate(head.as_ptr(), 1)
-                }
-                if let Some(prev) = prev {
-                    alloc.deallocate(prev.as_ptr(), w_size)
-                }
-                if let Some(mut window) = window {
-                    window.drop_in(&alloc);
-                }
+        let pending_ptr = buf.add(allocs.pending_pos).cast::<MaybeUninit<u8>>();
+        let pending = Pending::from_raw_parts(pending_ptr, 4 * lit_bufsize);
 
-                alloc.deallocate(state_allocation.as_ptr(), 1);
-            }
+        let sym_buf_ptr = buf.add(allocs.sym_buf_pos);
+        let sym_buf = SymBuf::from_raw_parts(sym_buf_ptr, lit_bufsize);
 
-            return ReturnCode::MemError;
-        }
+        (window, prev, head, pending, sym_buf)
     };
-
-    // zero initialize the memory
-    let prev = prev.as_ptr(); // FIXME: write_bytes is stable for NonNull since 1.80.0
-    unsafe { prev.write_bytes(0, w_size) };
-    let prev = unsafe { WeakSliceMut::from_raw_parts_mut(prev, w_size) };
-
-    // zero out head's first element
-    let head = head.as_ptr(); // FIXME: write_bytes is stable for NonNull since 1.80.0
-    unsafe { head.write_bytes(0, 1) };
-    let head = unsafe { WeakArrayMut::<u16, HASH_SIZE>::from_ptr(head) };
 
     let state = State {
         status: Status::Init,
 
         // window
         w_size,
-        w_mask: w_size - 1,
 
         // allocated values
         window,
@@ -368,18 +406,22 @@ pub fn init(stream: &mut z_stream, config: DeflateConfig) -> ReturnCode {
         match_available: false,
         prev_length: 0,
 
+        allocation_start,
+        total_allocation_size: allocs.total_size,
+
         // just provide a valid default; gets set properly later
         hash_calc_variant: HashCalcVariant::Standard,
         _cache_line_0: (),
         _cache_line_1: (),
         _cache_line_2: (),
         _cache_line_3: (),
-        _padding_0: 0,
+        _padding_0: [0; 16],
     };
 
-    unsafe { state_allocation.as_ptr().write(state) }; // FIXME: write is stable for NonNull since 1.80.0
+    let state_allocation = unsafe { buf.add(allocs.state_pos).cast::<State>() };
+    unsafe { state_allocation.write(state) };
 
-    stream.state = state_allocation.as_ptr() as *mut internal_state;
+    stream.state = state_allocation.cast::<internal_state>();
 
     let Some(stream) = (unsafe { DeflateStream::from_stream_mut(stream) }) else {
         if cfg!(debug_assertions) {
@@ -408,6 +450,9 @@ pub fn params(stream: &mut DeflateStream, level: i32, strategy: Strategy) -> Ret
 
     let state = &mut stream.state;
 
+    // FIXME: use fn_addr_eq when it's available in our MSRV. The comparison returning false here
+    // is not functionally incorrect, but would be inconsistent with zlib-ng.
+    #[allow(unpredictable_function_pointer_comparisons)]
     if (strategy != state.strategy || func != CONFIGURATION_TABLE[level as usize].func)
         && state.last_flush != -2
     {
@@ -558,76 +603,50 @@ pub fn copy<'a>(
     dest: &mut MaybeUninit<DeflateStream<'a>>,
     source: &mut DeflateStream<'a>,
 ) -> ReturnCode {
+    let w_size = source.state.w_size;
+    let window_bits = source.state.w_bits() as usize;
+    let lit_bufsize = source.state.lit_bufsize;
+
     // SAFETY: source and dest are both mutable references, so guaranteed not to overlap.
     // dest being a reference to maybe uninitialized memory makes a copy of 1 DeflateStream valid.
-    unsafe {
-        core::ptr::copy_nonoverlapping(source, dest.as_mut_ptr(), 1);
-    }
+    unsafe { core::ptr::copy_nonoverlapping(source, dest.as_mut_ptr(), 1) };
 
+    let source_state = &source.state;
     let alloc = &source.alloc;
 
-    // allocated here to have the same order as zlib
-    let Some(state_allocation) = alloc.allocate_raw::<State>() else {
+    let allocs = DeflateAllocOffsets::new(window_bits, lit_bufsize);
+
+    let Some(allocation_start) = alloc.allocate_slice_raw::<u8>(allocs.total_size) else {
         return ReturnCode::MemError;
     };
 
-    let source_state = &source.state;
+    let align_offset = (allocation_start.as_ptr() as usize).next_multiple_of(64)
+        - (allocation_start.as_ptr() as usize);
+    let buf = unsafe { allocation_start.as_ptr().add(align_offset) };
 
-    let window = source_state.window.clone_in(alloc);
+    let (window, prev, head, pending, sym_buf) = unsafe {
+        let window_ptr: *mut u8 = buf.add(allocs.window_pos);
+        window_ptr
+            .copy_from_nonoverlapping(source_state.window.as_ptr(), source_state.window.capacity());
+        let window = Window::from_raw_parts(window_ptr, window_bits);
 
-    let prev = alloc.allocate_slice_raw::<u16>(source_state.w_size);
-    let head = alloc.allocate_raw::<[u16; HASH_SIZE]>();
+        // FIXME: write_bytes is stable for NonNull since 1.80.0
+        let prev_ptr = buf.add(allocs.prev_pos).cast::<Pos>();
+        prev_ptr.copy_from_nonoverlapping(source_state.prev.as_ptr(), source_state.prev.len());
+        let prev = WeakSliceMut::from_raw_parts_mut(prev_ptr, w_size);
 
-    let pending = source_state.bit_writer.pending.clone_in(alloc);
-    let sym_buf = source_state.sym_buf.clone_in(alloc);
+        // zero out head's first element
+        let head_ptr = buf.add(allocs.head_pos).cast::<[Pos; HASH_SIZE]>();
+        head_ptr.copy_from_nonoverlapping(source_state.head.as_ptr(), 1);
+        let head = WeakArrayMut::<Pos, HASH_SIZE>::from_ptr(head_ptr);
 
-    // if any allocation failed, clean up allocations that did succeed
-    let (window, prev, head, pending, sym_buf) = match (window, prev, head, pending, sym_buf) {
-        (Some(window), Some(prev), Some(head), Some(pending), Some(sym_buf)) => {
-            (window, prev, head, pending, sym_buf)
-        }
-        (window, prev, head, pending, sym_buf) => {
-            // SAFETY: this access is in-bounds
-            let field_ptr = unsafe { core::ptr::addr_of_mut!((*dest.as_mut_ptr()).state) };
-            unsafe { core::ptr::write(field_ptr as *mut *mut State, core::ptr::null_mut()) };
+        let pending_ptr = buf.add(allocs.pending_pos);
+        let pending = source_state.bit_writer.pending.clone_to(pending_ptr);
 
-            // SAFETY: it is an assumpion on DeflateStream that (de)allocation does not cause UB.
-            unsafe {
-                if let Some(mut sym_buf) = sym_buf {
-                    alloc.deallocate(sym_buf.as_mut_ptr(), sym_buf.capacity())
-                }
-                if let Some(mut pending) = pending {
-                    pending.drop_in(alloc);
-                }
-                if let Some(head) = head {
-                    alloc.deallocate(head.as_ptr(), HASH_SIZE)
-                }
-                if let Some(prev) = prev {
-                    alloc.deallocate(prev.as_ptr(), source_state.w_size)
-                }
-                if let Some(mut window) = window {
-                    window.drop_in(alloc);
-                }
+        let sym_buf_ptr = buf.add(allocs.sym_buf_pos);
+        let sym_buf = source_state.sym_buf.clone_to(sym_buf_ptr);
 
-                alloc.deallocate(state_allocation.as_ptr(), 1);
-            }
-
-            return ReturnCode::MemError;
-        }
-    };
-
-    let prev = unsafe {
-        let prev = prev.as_ptr();
-        prev.copy_from_nonoverlapping(source_state.prev.as_ptr(), source_state.prev.len());
-        WeakSliceMut::from_raw_parts_mut(prev, source_state.prev.len())
-    };
-
-    // FIXME: write_bytes is stable for NonNull since 1.80.0
-    let head = unsafe {
-        let head = head.as_ptr();
-        head.write_bytes(0, 1);
-        head.cast::<u16>().write(source_state.head.as_slice()[0]);
-        WeakArrayMut::from_ptr(head)
+        (window, prev, head, pending, sym_buf)
     };
 
     let mut bit_writer = BitWriter::from_pending(pending);
@@ -664,7 +683,6 @@ pub fn copy<'a>(
         static_len: source_state.static_len,
         insert: source_state.insert,
         w_size: source_state.w_size,
-        w_mask: source_state.w_mask,
         lookahead: source_state.lookahead,
         prev,
         head,
@@ -673,6 +691,8 @@ pub fn copy<'a>(
         crc_fold: source_state.crc_fold,
         gzhead: None,
         gzindex: source_state.gzindex,
+        allocation_start,
+        total_allocation_size: allocs.total_size,
         _cache_line_0: (),
         _cache_line_1: (),
         _cache_line_2: (),
@@ -681,11 +701,12 @@ pub fn copy<'a>(
     };
 
     // write the cloned state into state_ptr
-    unsafe { state_allocation.as_ptr().write(dest_state) }; // FIXME: write is stable for NonNull since 1.80.0
+    let state_allocation = unsafe { buf.add(allocs.state_pos).cast::<State>() };
+    unsafe { state_allocation.write(dest_state) }; // FIXME: write is stable for NonNull since 1.80.0
 
     // insert the state_ptr into `dest`
     let field_ptr = unsafe { core::ptr::addr_of_mut!((*dest.as_mut_ptr()).state) };
-    unsafe { core::ptr::write(field_ptr as *mut *mut State, state_allocation.as_ptr()) };
+    unsafe { core::ptr::write(field_ptr as *mut *mut State, state_allocation) };
 
     // update the gzhead field (it contains a mutable reference so we need to be careful
     let field_ptr = unsafe { core::ptr::addr_of_mut!((*dest.as_mut_ptr()).state.gzhead) };
@@ -700,28 +721,14 @@ pub fn copy<'a>(
 /// - Ok otherwise
 pub fn end<'a>(stream: &'a mut DeflateStream) -> Result<&'a mut z_stream, &'a mut z_stream> {
     let status = stream.state.status;
-
+    let allocation_start = stream.state.allocation_start;
+    let total_allocation_size = stream.state.total_allocation_size;
     let alloc = stream.alloc;
 
-    // deallocate in reverse order of allocations
-    unsafe {
-        // SAFETY: we make sure that these fields are not used (by invalidating the state pointer)
-        stream.state.sym_buf.drop_in(&alloc);
-        stream.state.bit_writer.pending.drop_in(&alloc);
-        alloc.deallocate(stream.state.head.as_mut_ptr(), 1);
-        if !stream.state.prev.is_empty() {
-            alloc.deallocate(stream.state.prev.as_mut_ptr(), stream.state.prev.len());
-        }
-        stream.state.window.drop_in(&alloc);
-    }
-
     let stream = stream.as_z_stream_mut();
-    let state = core::mem::replace(&mut stream.state, core::ptr::null_mut());
+    let _ = core::mem::replace(&mut stream.state, core::ptr::null_mut());
 
-    // SAFETY: `state` is not used later
-    unsafe {
-        alloc.deallocate(state as *mut State, 1);
-    }
+    unsafe { alloc.deallocate(allocation_start.as_ptr(), total_allocation_size) };
 
     match status {
         Status::Busy => Err(stream),
@@ -739,7 +746,7 @@ pub fn reset(stream: &mut DeflateStream) -> ReturnCode {
     ret
 }
 
-fn reset_keep(stream: &mut DeflateStream) -> ReturnCode {
+pub fn reset_keep(stream: &mut DeflateStream) -> ReturnCode {
     stream.total_in = 0;
     stream.total_out = 0;
     stream.msg = core::ptr::null_mut();
@@ -1065,7 +1072,7 @@ impl<'a> BitWriter<'a> {
     }
 
     pub(crate) fn emit_tree(&mut self, block_type: BlockType, is_last_block: bool) {
-        let header_bits = (block_type as u64) << 1 | (is_last_block as u64);
+        let header_bits = ((block_type as u64) << 1) | (is_last_block as u64);
         self.send_bits(header_bits, 3);
         trace!("\n--- Emit Tree: Last: {}\n", is_last_block as u8);
     }
@@ -1138,15 +1145,11 @@ impl<'a> BitWriter<'a> {
         match_bits_len
     }
 
-    fn compress_block_help(&mut self, sym_buf: &[u8], ltree: &[Value], dtree: &[Value]) {
-        for chunk in sym_buf.chunks_exact(3) {
-            let [dist_low, dist_high, lc] = *chunk else {
-                unreachable!("out of bound access on the symbol buffer");
-            };
-
-            match u16::from_le_bytes([dist_low, dist_high]) {
+    fn compress_block_help(&mut self, sym_buf: &SymBuf, ltree: &[Value], dtree: &[Value]) {
+        for (dist, lc) in sym_buf.iter() {
+            match dist {
                 0 => self.emit_lit(ltree, lc) as usize,
-                dist => self.emit_dist(ltree, dtree, lc, dist),
+                _ => self.emit_dist(ltree, dtree, lc, dist),
             };
         }
 
@@ -1244,13 +1247,14 @@ pub(crate) struct State<'a> {
     /// Stop searching when current match exceeds this
     pub(crate) nice_match: u16,
 
-    pub(crate) match_start: Pos,      /* start of matching string */
-    pub(crate) prev_match: Pos,       /* previous match */
-    pub(crate) strstart: usize,       /* start of string to insert */
+    pub(crate) match_start: Pos, /* start of matching string */
+    pub(crate) prev_match: Pos,  /* previous match */
+    pub(crate) strstart: usize,  /* start of string to insert */
 
     pub(crate) window: Window<'a>,
-    pub(crate) w_size: usize,    /* LZ77 window size (32K by default) */
-    pub(crate) w_mask: usize,    /* w_size - 1 */
+    pub(crate) w_size: usize, /* LZ77 window size (32K by default) */
+
+    pub(crate) lookahead: usize, /* number of valid bytes ahead in window */
 
     _cache_line_0: (),
 
@@ -1277,7 +1281,7 @@ pub(crate) struct State<'a> {
     //
     // Insert new strings in the hash table only if the match length is not
     // greater than this length. This saves time but degrades compression.
-    // max_insert_length is used only for compression levels <= 3.
+    // max_insert_length is used only for compression levels <= 6.
     // define max_insert_length  max_lazy_match
     /// Attempt to find a better match only when the current match is strictly smaller
     /// than this value. This mechanism is used only for compression levels >= 4.
@@ -1293,7 +1297,7 @@ pub(crate) struct State<'a> {
     /// negative when the window is moved backwards.
     pub(crate) block_start: isize,
 
-    pub(crate) sym_buf: ReadBuf<'a>,
+    pub(crate) sym_buf: SymBuf<'a>,
 
     _cache_line_1: (),
 
@@ -1331,19 +1335,22 @@ pub(crate) struct State<'a> {
     /// bytes at end of window left to insert
     pub(crate) insert: usize,
 
-    pub(crate) lookahead: usize, /* number of valid bytes ahead in window */
-
     ///  hash index of string to be inserted
     pub(crate) ins_h: u32,
 
     gzhead: Option<&'a mut gz_header>,
     gzindex: usize,
 
-    _padding_0: usize,
+    _padding_0: [u8; 16],
 
     _cache_line_3: (),
 
     crc_fold: crate::crc32::Crc32Fold,
+
+    /// The (unaligned) address of the state allocation that can be passed to zfree.
+    allocation_start: NonNull<u8>,
+    /// Total size of the allocation in bytes.
+    total_allocation_size: usize,
 
     l_desc: TreeDesc<HEAP_SIZE>,             /* literal and length tree */
     d_desc: TreeDesc<{ 2 * D_CODES + 1 }>,   /* distance tree */
@@ -1391,6 +1398,10 @@ impl<'a> State<'a> {
         self.w_size.trailing_zeros()
     }
 
+    pub(crate) fn w_mask(&self) -> usize {
+        self.w_size - 1
+    }
+
     pub(crate) fn max_dist(&self) -> usize {
         self.w_size - MIN_LOOKAHEAD
     }
@@ -1436,26 +1447,39 @@ impl<'a> State<'a> {
         Self::tally_lit_help(&mut self.sym_buf, &mut self.l_desc, unmatched)
     }
 
-    #[inline(always)]
+    // This helper is to work around an ownership issue in algorithm/medium.
     pub(crate) fn tally_lit_help(
-        sym_buf: &mut ReadBuf<'a>,
+        sym_buf: &mut SymBuf,
         l_desc: &mut TreeDesc<HEAP_SIZE>,
         unmatched: u8,
     ) -> bool {
+        const _VERIFY: () = {
+            // Verify during compilation that even the largest possible value
+            // of unmatched will fit within the expected range.
+            assert!(
+                u8::MAX as usize <= STD_MAX_MATCH - STD_MIN_MATCH,
+                "tally_lit: bad literal"
+            );
+        };
+
         sym_buf.push_lit(unmatched);
 
         *l_desc.dyn_tree[unmatched as usize].freq_mut() += 1;
 
-        assert!(
-            unmatched as usize <= STD_MAX_MATCH - STD_MIN_MATCH,
-            "zng_tr_tally: bad literal"
-        );
-
         // signal that the current block should be flushed
-        sym_buf.len() == sym_buf.capacity() - 3
+        sym_buf.should_flush_block()
     }
 
     const fn d_code(dist: usize) -> u8 {
+        const _VERIFY: () = {
+            // Verify during compilation that every DIST_CODE value is < D_CODES.
+            let mut i = 0;
+            while i < trees_tbl::DIST_CODE.len() {
+                assert!(trees_tbl::DIST_CODE[i] < D_CODES as u8);
+                i += 1;
+            }
+        };
+
         let index = if dist < 256 { dist } else { 256 + (dist >> 7) };
         self::trees_tbl::DIST_CODE[index]
     }
@@ -1467,10 +1491,7 @@ impl<'a> State<'a> {
         self.matches = self.matches.saturating_add(1);
         dist -= 1;
 
-        assert!(
-            dist < self.max_dist() && Self::d_code(dist) < D_CODES as u8,
-            "tally_dist: bad match"
-        );
+        assert!(dist < self.max_dist(), "tally_dist: bad match");
 
         let index = self::trees_tbl::LENGTH_CODE[len] as usize + LITERALS + 1;
         *self.l_desc.dyn_tree[index].freq_mut() += 1;
@@ -1478,7 +1499,7 @@ impl<'a> State<'a> {
         *self.d_desc.dyn_tree[Self::d_code(dist) as usize].freq_mut() += 1;
 
         // signal that the current block should be flushed
-        self.sym_buf.len() == self.sym_buf.capacity() - 3
+        self.sym_buf.should_flush_block()
     }
 
     fn detect_data_type(dyn_tree: &[Value]) -> DataType {
@@ -1512,14 +1533,10 @@ impl<'a> State<'a> {
 
     fn compress_block_static_trees(&mut self) {
         let ltree = self::trees_tbl::STATIC_LTREE.as_slice();
-        for chunk in self.sym_buf.filled().chunks_exact(3) {
-            let [dist_low, dist_high, lc] = *chunk else {
-                unreachable!("out of bound access on the symbol buffer");
-            };
-
-            match u16::from_le_bytes([dist_low, dist_high]) {
+        for (dist, lc) in self.sym_buf.iter() {
+            match dist {
                 0 => self.bit_writer.emit_lit(ltree, lc) as usize,
-                dist => self.bit_writer.emit_dist_static(lc, dist),
+                _ => self.bit_writer.emit_dist_static(lc, dist),
             };
         }
 
@@ -1528,7 +1545,7 @@ impl<'a> State<'a> {
 
     fn compress_block_dynamic_trees(&mut self) {
         self.bit_writer.compress_block_help(
-            self.sym_buf.filled(),
+            &self.sym_buf,
             &self.l_desc.dyn_tree,
             &self.d_desc.dyn_tree,
         );
@@ -1546,8 +1563,9 @@ impl<'a> State<'a> {
             _ => PRESET_DICT,
         };
 
-        let h =
-            (Z_DEFLATED + ((self.w_bits() as u16 - 8) << 4)) << 8 | (self.level_flags() << 6) | dict;
+        let h = ((Z_DEFLATED + ((self.w_bits() as u16 - 8) << 4)) << 8)
+            | (self.level_flags() << 6)
+            | dict;
 
         h + 31 - (h % 31)
     }
@@ -1680,8 +1698,10 @@ pub(crate) fn read_buf_window(stream: &mut DeflateStream, offset: usize, size: u
         unsafe { window.copy_and_initialize(offset..offset + len, stream.next_in) };
     }
 
+    // These can overflow, especially on windows where the integer type is u32 and input/output are
+    // larger than 4GB.
     stream.next_in = stream.next_in.wrapping_add(len);
-    stream.total_in += len as crate::c_api::z_size;
+    stream.total_in = stream.total_in.wrapping_add(len as crate::c_api::z_size);
 
     len
 }
@@ -1750,13 +1770,15 @@ pub(crate) fn fill_window(stream: &mut DeflateStream) {
             let (old, new) = state.window.filled_mut()[..2 * wsize].split_at_mut(wsize);
             old.copy_from_slice(new);
 
-            state.match_start = state.match_start.saturating_sub(wsize as u16);
-            if state.match_start == 0 {
+            if state.match_start >= wsize as u16 {
+                state.match_start -= wsize as u16;
+            } else {
+                state.match_start = 0;
                 state.prev_length = 0;
             }
 
             state.strstart -= wsize; /* we now have strstart >= MAX_DIST */
-            state.block_start -= wsize as isize;
+            state.block_start = state.block_start.wrapping_sub_unsigned(wsize);
             state.insert = Ord::min(state.insert, state.strstart);
 
             self::slide_hash::slide_hash(state);
@@ -2339,7 +2361,7 @@ fn zng_tr_flush_block(
             static_lenb,
             state.static_len,
             stored_len,
-            state.sym_buf.len() / 3
+            state.sym_buf.iter().count()
         );
 
         if static_lenb <= opt_lenb || state.strategy == Strategy::Fixed {
@@ -2352,6 +2374,7 @@ fn zng_tr_flush_block(
         static_lenb = stored_len as usize + 5;
     }
 
+    #[allow(clippy::unnecessary_unwrap)]
     if stored_len as usize + 4 <= opt_lenb && window_offset.is_some() {
         /* 4: two words for the lengths
          * The test buf != NULL is only necessary if LIT_BUFSIZE > WSIZE.
@@ -2403,7 +2426,6 @@ pub(crate) fn flush_block_only(stream: &mut DeflateStream, is_last: bool) {
     flush_pending(stream)
 }
 
-#[must_use]
 fn flush_bytes(stream: &mut DeflateStream, mut bytes: &[u8]) -> ControlFlow<ReturnCode> {
     let mut state = &mut stream.state;
 
@@ -2572,7 +2594,7 @@ pub fn deflate(stream: &mut DeflateStream, flush: DeflateFlush) -> ReturnCode {
                     stream.state.bit_writer.pending.extend(&bytes);
                 }
 
-                if gzhead.hcrc > 0 {
+                if gzhead.hcrc != 0 {
                     stream.adler = crc32(
                         stream.adler as u32,
                         stream.state.bit_writer.pending.pending(),
@@ -2784,6 +2806,23 @@ pub(crate) fn flush_pending(stream: &mut DeflateStream) {
     state.bit_writer.pending.advance(len);
 }
 
+/// Compresses `input` into the provided `output` buffer.
+///
+/// Returns a subslice of `output` containing the compressed bytes and a
+/// [`ReturnCode`] indicating the result of the operation. Returns [`ReturnCode::BufError`] if
+/// there is insufficient output space.
+///
+/// Use [`compress_bound`] for an upper bound on how large the output buffer needs to be.
+///
+/// # Example
+///
+/// ```
+/// # use zlib_rs::*;
+/// # fn foo(input: &[u8]) {
+/// let mut buf = vec![0u8; compress_bound(input.len())];
+/// let (compressed, rc) = compress_slice(&mut buf, input, DeflateConfig::default());
+/// # }
+/// ```
 pub fn compress_slice<'a>(
     output: &'a mut [u8],
     input: &[u8],
@@ -2852,7 +2891,7 @@ pub fn compress_with_flush<'a>(
     let mut left = output.len();
     let mut source_len = input.len();
 
-    loop {
+    let return_code = loop {
         if stream.avail_out == 0 {
             stream.avail_out = Ord::min(left, max) as _;
             left -= stream.avail_out as usize;
@@ -2875,10 +2914,12 @@ pub fn compress_with_flush<'a>(
             ReturnCode::StreamError
         };
 
-        if err != ReturnCode::Ok {
-            break;
+        match err {
+            ReturnCode::Ok => continue,
+            ReturnCode::StreamEnd => break ReturnCode::Ok,
+            _ => break err,
         }
-    }
+    };
 
     // SAFETY: we have now initialized these bytes
     let output_slice = unsafe {
@@ -2886,18 +2927,32 @@ pub fn compress_with_flush<'a>(
     };
 
     // may DataError if insufficient output space
-    let return_code = if let Some(stream) = unsafe { DeflateStream::from_stream_mut(&mut stream) } {
-        match end(stream) {
-            Ok(_) => ReturnCode::Ok,
-            Err(_) => ReturnCode::DataError,
-        }
-    } else {
-        ReturnCode::Ok
-    };
+    if let Some(stream) = unsafe { DeflateStream::from_stream_mut(&mut stream) } {
+        let _ = end(stream);
+    }
 
     (output_slice, return_code)
 }
 
+/// Returns the upper bound on the compressed size for an input of `source_len` bytes.
+///
+/// When compression has this much space available, it will never fail because of insufficient
+/// output space.
+///
+/// # Example
+///
+/// ```
+/// # use zlib_rs::*;
+///
+/// assert_eq!(compress_bound(1024), 1161);
+/// assert_eq!(compress_bound(4096), 4617);
+/// assert_eq!(compress_bound(65536), 73737);
+///
+/// # fn foo(input: &[u8]) {
+/// let mut buf = vec![0u8; compress_bound(input.len())];
+/// let (compressed, rc) = compress_slice(&mut buf, input, DeflateConfig::default());
+/// # }
+/// ```
 pub const fn compress_bound(source_len: usize) -> usize {
     compress_bound_help(source_len, ZLIB_WRAPLEN)
 }
@@ -3073,10 +3128,10 @@ pub unsafe fn set_header<'a>(
     head: Option<&'a mut gz_header>,
 ) -> ReturnCode {
     if stream.state.wrap != 2 {
-        ReturnCode::StreamError as _
+        ReturnCode::StreamError
     } else {
         stream.state.gzhead = head;
-        ReturnCode::Ok as _
+        ReturnCode::Ok
     }
 }
 
@@ -3212,10 +3267,96 @@ pub fn bound(stream: Option<&mut DeflateStream>, source_len: usize) -> usize {
     }
 }
 
+/// # Safety
+///
+/// The `dictionary` must have enough space for the dictionary.
+pub unsafe fn get_dictionary(stream: &DeflateStream<'_>, dictionary: *mut u8) -> usize {
+    let s = &stream.state;
+    let len = Ord::min(s.strstart + s.lookahead, s.w_size);
+
+    if !dictionary.is_null() && len > 0 {
+        unsafe {
+            core::ptr::copy_nonoverlapping(
+                s.window.as_ptr().add(s.strstart + s.lookahead - len),
+                dictionary,
+                len,
+            );
+        }
+    }
+
+    len
+}
+
+struct DeflateAllocOffsets {
+    total_size: usize,
+    state_pos: usize,
+    window_pos: usize,
+    pending_pos: usize,
+    sym_buf_pos: usize,
+    prev_pos: usize,
+    head_pos: usize,
+}
+
+impl DeflateAllocOffsets {
+    fn new(window_bits: usize, lit_bufsize: usize) -> Self {
+        use core::mem::size_of;
+
+        // 64B alignment of individual items in the alloc.
+        // Note that changing this also requires changes in 'init' and 'copy'.
+        const ALIGN_SIZE: usize = 64;
+        const LIT_BUFS: usize = 4;
+
+        let mut curr_size = 0usize;
+
+        /* Define sizes */
+        let state_size = size_of::<State>();
+        // Allocate a second window worth of space to avoid the need to shift the data constantly.
+        let window_size = (1 << window_bits) * 2;
+        let prev_size = (1 << window_bits) * size_of::<Pos>();
+        let head_size = HASH_SIZE * size_of::<Pos>();
+        let pending_size = lit_bufsize * LIT_BUFS;
+        let sym_buf_size = lit_bufsize * (LIT_BUFS - 1);
+        // let alloc_size = size_of::<DeflateAlloc>();
+
+        /* Calculate relative buffer positions and paddings */
+        let state_pos = curr_size.next_multiple_of(ALIGN_SIZE);
+        curr_size = state_pos + state_size;
+
+        let window_pos = curr_size.next_multiple_of(ALIGN_SIZE);
+        curr_size = window_pos + window_size;
+
+        let prev_pos = curr_size.next_multiple_of(ALIGN_SIZE);
+        curr_size = prev_pos + prev_size;
+
+        let head_pos = curr_size.next_multiple_of(ALIGN_SIZE);
+        curr_size = head_pos + head_size;
+
+        let pending_pos = curr_size.next_multiple_of(ALIGN_SIZE);
+        curr_size = pending_pos + pending_size;
+
+        let sym_buf_pos = curr_size.next_multiple_of(ALIGN_SIZE);
+        curr_size = sym_buf_pos + sym_buf_size;
+
+        /* Add ALIGN_SIZE-1 to allow alignment (done in the 'init' and 'copy' functions), and round
+         * size of buffer up to next multiple of ALIGN_SIZE */
+        let total_size = (curr_size + (ALIGN_SIZE - 1)).next_multiple_of(ALIGN_SIZE);
+
+        Self {
+            total_size,
+            state_pos,
+            window_pos,
+            pending_pos,
+            sym_buf_pos,
+            prev_pos,
+            head_pos,
+        }
+    }
+}
+
 #[cfg(test)]
 mod test {
     use crate::{
-        inflate::{uncompress_slice, InflateConfig, InflateStream},
+        inflate::{decompress_slice, InflateConfig, InflateStream},
         InflateFlush,
     };
 
@@ -3265,6 +3406,7 @@ mod test {
         }
     }
 
+    #[cfg(feature = "c-allocator")]
     unsafe extern "C" fn fail_nth_allocation<const N: usize>(
         opaque: crate::c_api::voidpf,
         items: crate::c_api::uInt,
@@ -3276,47 +3418,20 @@ mod test {
             // must use the C allocator internally because (de)allocation is based on function
             // pointer values and because we don't use the rust allocator directly, the allocation
             // logic will store the pointer to the start at the start of the allocation.
-            unsafe { (crate::allocate::Allocator::C.zalloc)(opaque, items, size) }
+            unsafe { (crate::allocate::C.zalloc)(opaque, items, size) }
         } else {
             core::ptr::null_mut()
         }
     }
 
     #[test]
+    #[cfg(feature = "c-allocator")]
     fn init_invalid_allocator() {
         {
             let atomic = AtomicUsize::new(0);
             let mut stream = z_stream {
                 zalloc: Some(fail_nth_allocation::<0>),
-                zfree: Some(crate::allocate::Allocator::C.zfree),
-                opaque: &atomic as *const _ as *const core::ffi::c_void as *mut _,
-                ..z_stream::default()
-            };
-            assert_eq!(
-                init(&mut stream, DeflateConfig::default()),
-                ReturnCode::MemError
-            );
-        }
-
-        {
-            let atomic = AtomicUsize::new(0);
-            let mut stream = z_stream {
-                zalloc: Some(fail_nth_allocation::<3>),
-                zfree: Some(crate::allocate::Allocator::C.zfree),
-                opaque: &atomic as *const _ as *const core::ffi::c_void as *mut _,
-                ..z_stream::default()
-            };
-            assert_eq!(
-                init(&mut stream, DeflateConfig::default()),
-                ReturnCode::MemError
-            );
-        }
-
-        {
-            let atomic = AtomicUsize::new(0);
-            let mut stream = z_stream {
-                zalloc: Some(fail_nth_allocation::<5>),
-                zfree: Some(crate::allocate::Allocator::C.zfree),
+                zfree: Some(crate::allocate::C.zfree),
                 opaque: &atomic as *const _ as *const core::ffi::c_void as *mut _,
                 ..z_stream::default()
             };
@@ -3327,77 +3442,28 @@ mod test {
         }
     }
 
-    mod copy_invalid_allocator {
-        use super::*;
+    #[test]
+    #[cfg(feature = "c-allocator")]
+    fn copy_invalid_allocator() {
+        let mut stream = z_stream::default();
 
-        #[test]
-        fn fail_0() {
-            let mut stream = z_stream::default();
+        let atomic = AtomicUsize::new(0);
+        stream.opaque = &atomic as *const _ as *const core::ffi::c_void as *mut _;
+        stream.zalloc = Some(fail_nth_allocation::<1>);
+        stream.zfree = Some(crate::allocate::C.zfree);
 
-            let atomic = AtomicUsize::new(0);
-            stream.opaque = &atomic as *const _ as *const core::ffi::c_void as *mut _;
-            stream.zalloc = Some(fail_nth_allocation::<6>);
-            stream.zfree = Some(crate::allocate::Allocator::C.zfree);
+        // init performs 6 allocations; we don't want those to fail
+        assert_eq!(init(&mut stream, DeflateConfig::default()), ReturnCode::Ok);
 
-            // init performs 6 allocations; we don't want those to fail
-            assert_eq!(init(&mut stream, DeflateConfig::default()), ReturnCode::Ok);
+        let Some(stream) = (unsafe { DeflateStream::from_stream_mut(&mut stream) }) else {
+            unreachable!()
+        };
 
-            let Some(stream) = (unsafe { DeflateStream::from_stream_mut(&mut stream) }) else {
-                unreachable!()
-            };
+        let mut stream_copy = MaybeUninit::<DeflateStream>::zeroed();
 
-            let mut stream_copy = MaybeUninit::<DeflateStream>::zeroed();
+        assert_eq!(copy(&mut stream_copy, stream), ReturnCode::MemError);
 
-            assert_eq!(copy(&mut stream_copy, stream), ReturnCode::MemError);
-
-            assert!(end(stream).is_ok());
-        }
-
-        #[test]
-        fn fail_3() {
-            let mut stream = z_stream::default();
-
-            let atomic = AtomicUsize::new(0);
-            stream.zalloc = Some(fail_nth_allocation::<{ 6 + 3 }>);
-            stream.zfree = Some(crate::allocate::Allocator::C.zfree);
-            stream.opaque = &atomic as *const _ as *const core::ffi::c_void as *mut _;
-
-            // init performs 6 allocations; we don't want those to fail
-            assert_eq!(init(&mut stream, DeflateConfig::default()), ReturnCode::Ok);
-
-            let Some(stream) = (unsafe { DeflateStream::from_stream_mut(&mut stream) }) else {
-                unreachable!()
-            };
-
-            let mut stream_copy = MaybeUninit::<DeflateStream>::zeroed();
-
-            assert_eq!(copy(&mut stream_copy, stream), ReturnCode::MemError);
-
-            assert!(end(stream).is_ok());
-        }
-
-        #[test]
-        fn fail_5() {
-            let mut stream = z_stream::default();
-
-            let atomic = AtomicUsize::new(0);
-            stream.zalloc = Some(fail_nth_allocation::<{ 6 + 5 }>);
-            stream.zfree = Some(crate::allocate::Allocator::C.zfree);
-            stream.opaque = &atomic as *const _ as *const core::ffi::c_void as *mut _;
-
-            // init performs 6 allocations; we don't want those to fail
-            assert_eq!(init(&mut stream, DeflateConfig::default()), ReturnCode::Ok);
-
-            let Some(stream) = (unsafe { DeflateStream::from_stream_mut(&mut stream) }) else {
-                unreachable!()
-            };
-
-            let mut stream_copy = MaybeUninit::<DeflateStream>::zeroed();
-
-            assert_eq!(copy(&mut stream_copy, stream), ReturnCode::MemError);
-
-            assert!(end(stream).is_ok());
-        }
+        assert!(end(stream).is_ok());
     }
 
     mod invalid_deflate_config {
@@ -3947,7 +4013,7 @@ mod test {
     fn insufficient_compress_space() {
         const DATA: &[u8] = include_bytes!("deflate/test-data/inflate_buf_error.dat");
 
-        fn helper(deflate_buf: &mut [u8]) -> ReturnCode {
+        fn helper(deflate_buf: &mut [u8], deflate_err: ReturnCode) -> ReturnCode {
             let config = DeflateConfig {
                 level: 0,
                 method: Method::Deflated,
@@ -3957,14 +4023,14 @@ mod test {
             };
 
             let (output, err) = compress_slice(deflate_buf, DATA, config);
-            assert_eq!(err, ReturnCode::Ok);
+            assert_eq!(err, deflate_err);
 
             let config = InflateConfig {
                 window_bits: config.window_bits,
             };
 
             let mut uncompr = [0; 1 << 17];
-            let (uncompr, err) = uncompress_slice(&mut uncompr, output, config);
+            let (uncompr, err) = decompress_slice(&mut uncompr, output, config);
 
             if err == ReturnCode::Ok {
                 assert_eq!(DATA, uncompr);
@@ -3976,10 +4042,13 @@ mod test {
         let mut output = [0; 1 << 17];
 
         // this is too little space
-        assert_eq!(helper(&mut output[..1 << 16]), ReturnCode::DataError);
+        assert_eq!(
+            helper(&mut output[..1 << 16], ReturnCode::BufError),
+            ReturnCode::DataError
+        );
 
         // this is sufficient space
-        assert_eq!(helper(&mut output), ReturnCode::Ok);
+        assert_eq!(helper(&mut output, ReturnCode::Ok), ReturnCode::Ok);
     }
 
     fn test_flush(flush: DeflateFlush, expected: &[u8]) {
@@ -3996,8 +4065,9 @@ mod test {
         let mut output_rs = vec![0; 128];
 
         // with the flush modes that we test here, the deflate process still has `Status::Busy`,
-        // and the `deflateEnd` function will return `DataError`.
-        let expected_err = ReturnCode::DataError;
+        // and the `deflate` function will return `BufError` because more input is needed before
+        // the flush can occur.
+        let expected_err = ReturnCode::BufError;
 
         let (rs, err) = compress_slice_with_flush(&mut output_rs, input, config, flush);
         assert_eq!(expected_err, err);
@@ -4081,7 +4151,7 @@ mod test {
             config,
             DeflateFlush::SyncFlush,
         );
-        assert_eq!(err, ReturnCode::DataError);
+        assert_eq!(err, ReturnCode::BufError);
 
         let (output2, err) = compress_slice_with_flush(
             &mut output2,
@@ -4113,11 +4183,11 @@ mod test {
         let len2 = u32::from_le_bytes(len2.try_into().unwrap());
         assert_eq!(len2 as usize, input2.len());
 
-        let crc1 = crate::crc32(0, input1.as_bytes());
-        let crc = crate::crc32_combine(crc1, crc2, len2 as u64);
+        let crc1 = crate::crc32::crc32(0, input1.as_bytes());
+        let crc = crate::crc32::crc32_combine(crc1, crc2, len2 as u64);
 
         // combined crc of the parts should be the crc of the whole
-        let crc_cheating = crate::crc32(0, input.as_bytes());
+        let crc_cheating = crate::crc32::crc32(0, input.as_bytes());
         assert_eq!(crc, crc_cheating);
 
         // write the trailer
@@ -4125,7 +4195,7 @@ mod test {
         result.extend((len1 + len2).to_le_bytes());
 
         let mut output = vec![0; 128];
-        let (output, err) = crate::inflate::uncompress_slice(&mut output, &result, inflate_config);
+        let (output, err) = crate::inflate::decompress_slice(&mut output, &result, inflate_config);
         assert_eq!(err, ReturnCode::Ok);
 
         assert_eq!(output, input.as_bytes());
@@ -4174,7 +4244,7 @@ mod test {
 
         let mut dest_vec_rs = vec![0u8; uncompressed.len()];
         let (output_rs, error) =
-            crate::inflate::uncompress_slice(&mut dest_vec_rs, compressed, config);
+            crate::inflate::decompress_slice(&mut dest_vec_rs, compressed, config);
 
         assert_eq!(ReturnCode::Ok, error);
         assert_eq!(output_rs, uncompressed);
@@ -4234,7 +4304,9 @@ mod test {
         const _: () = assert!(offset_of!(State, status) == 0);
         const _: () = assert!(offset_of!(State, _cache_line_0) == 64);
         const _: () = assert!(offset_of!(State, _cache_line_1) == 128);
+        #[cfg(not(feature = "ZLIB_DEBUG"))] // ZLIB_DEBUG adds 16 bytes
         const _: () = assert!(offset_of!(State, _cache_line_2) == 192);
+        #[cfg(not(feature = "ZLIB_DEBUG"))] // ZLIB_DEBUG adds 16 bytes
         const _: () = assert!(offset_of!(State, _cache_line_3) == 256);
     }
 }

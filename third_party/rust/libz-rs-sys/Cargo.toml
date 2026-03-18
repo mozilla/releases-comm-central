@@ -13,7 +13,7 @@
 edition = "2021"
 rust-version = "1.75"
 name = "libz-rs-sys"
-version = "0.4.2"
+version = "0.6.3"
 build = false
 publish = true
 autolib = false
@@ -27,21 +27,39 @@ readme = "README.md"
 license = "Zlib"
 repository = "https://github.com/trifectatechfoundation/zlib-rs"
 
-[lib]
-name = "libz_rs_sys"
-path = "src/lib.rs"
-
-[dependencies.zlib-rs]
-version = "0.4.2"
-default-features = false
+[package.metadata.docs.rs]
+features = [
+    "gz",
+    "gzprintf",
+]
 
 [features]
 c-allocator = ["zlib-rs/c-allocator"]
-custom-prefix = []
+custom-prefix = ["export-symbols"]
 default = [
     "std",
     "rust-allocator",
 ]
+export-symbols = []
+gz = ["dep:libc"]
+gzprintf = ["gz"]
 rust-allocator = ["zlib-rs/rust-allocator"]
+semver-prefix = ["export-symbols"]
 std = ["zlib-rs/std"]
-testing-prefix = []
+testing-prefix = ["export-symbols"]
+
+[lib]
+name = "libz_rs_sys"
+path = "src/lib.rs"
+
+[dependencies.libc]
+version = "0.2.171"
+optional = true
+
+[dependencies.zlib-rs]
+version = "0.6.3"
+features = ["__internal-api"]
+default-features = false
+
+[lints.rust]
+unsafe_op_in_unsafe_fn = "deny"
