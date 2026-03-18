@@ -130,19 +130,12 @@ export class BaseTreeView extends HTMLElement {
   _view = null;
 
   /**
-   * The current selection.
+   * The current selection. This remains null in `BaseTreeView` but it's
+   * defined here to keep things simple.
    *
    * @type {nsITreeSelection}
    */
   _selection = null;
-
-  /**
-   * The function storing the timeout callback for the delayed select feature in
-   * order to clear it when not needed.
-   *
-   * @type {integer}
-   */
-  #selectTimeout = null;
 
   /**
    * A handle to the callback to fill the buffer when we aren't busy painting.
@@ -371,23 +364,14 @@ export class BaseTreeView extends HTMLElement {
   }
 
   set view(view) {
-    this._selection = null;
     if (this._view) {
       this._view.setTree(null);
       this._view.selection = null;
-    }
-    if (this._selection) {
-      this._selection.view = null;
     }
 
     this._view = view;
     if (view) {
       try {
-        this._selection = new TreeSelection();
-        this._selection.tree = this;
-        this._selection.view = view;
-
-        view.selection = this._selection;
         view.setTree(this);
       } catch (ex) {
         // This isn't a XULTreeElement, and we can't make it one, so if the
@@ -436,7 +420,7 @@ export class BaseTreeView extends HTMLElement {
       currentCell.classList.remove("current-cell");
       cell.classList.add("current-cell");
       cell.focus();
-      this.table.body.setAttribute("aria-activedescendant", cell.id);
+      this.table.body.ariaActiveDescendantElement = cell;
       return;
     }
 
@@ -455,7 +439,7 @@ export class BaseTreeView extends HTMLElement {
     }
     cell.classList.add("current-cell");
     cell.focus();
-    this.table.body.setAttribute("aria-activedescendant", cell.id);
+    this.table.body.ariaActiveDescendantElement = cell;
   }
 
   /**
@@ -566,13 +550,15 @@ export class BaseTreeView extends HTMLElement {
         this.#removeRowAtIndex(index);
       } else {
         row.index = index;
-        row.selected = this._selection.isSelected(index);
+        if (this._selection) {
+          row.selected = this._selection.isSelected(index);
+        }
       }
     } else if (
       index >= this.#firstBufferRowIndex &&
       index <= Math.min(rowCount - 1, this.#lastBufferRowIndex)
     ) {
-      this.#addRowAtIndex(index);
+      this._addRowAtIndex(index);
     }
   }
 
@@ -691,7 +677,7 @@ export class BaseTreeView extends HTMLElement {
         deadline.timeRemaining() > MS_TO_LEAVE_PER_FILL;
         i--
       ) {
-        this.#addRowAtIndex(i, this.table.body.firstElementChild);
+        this._addRowAtIndex(i, this.table.body.firstElementChild);
 
         // Update as we go in case we need to wait for the next idle.
         this.#firstBufferRowIndex = i;
@@ -719,7 +705,7 @@ export class BaseTreeView extends HTMLElement {
         deadline.timeRemaining() > MS_TO_LEAVE_PER_FILL;
         i++
       ) {
-        this.#addRowAtIndex(i);
+        this._addRowAtIndex(i);
 
         // Update as we go in case we need to wait for the next idle.
         this.#lastBufferRowIndex = i;
@@ -895,7 +881,7 @@ export class BaseTreeView extends HTMLElement {
       this.table.body.childElementCount == 0 &&
       ranges.visibleRows.first == 0
     ) {
-      this.#addRowAtIndex(0, undefined, fillImmediately);
+      this._addRowAtIndex(0, undefined, fillImmediately);
     }
 
     // Expand the row buffer to include newly-visible rows which weren't already
@@ -910,7 +896,7 @@ export class BaseTreeView extends HTMLElement {
       // the existing buffer lies within the range of visible rows and we begin
       // there, or the entire range of visible rows occurs after the end of the
       // buffer and we fill in from the start.
-      this.#addRowAtIndex(i, undefined, fillImmediately);
+      this._addRowAtIndex(i, undefined, fillImmediately);
     }
 
     const latestMissingStartRowIdx = Math.min(
@@ -923,7 +909,7 @@ export class BaseTreeView extends HTMLElement {
       // buffer lies within the range of visible rows and we begin there, or the
       // entire range of visible rows occurs before the end of the buffer and we
       // fill in from the end.
-      this.#addRowAtIndex(
+      this._addRowAtIndex(
         i,
         this.table.body.firstElementChild,
         fillImmediately
@@ -1043,16 +1029,11 @@ export class BaseTreeView extends HTMLElement {
    *
    * @param {integer} index - The position in the existing list where rows were
    *   added or removed.
-   * @param {integer} delta - The change in number of rows; positive if rows
+   * @param {integer} _delta - The change in number of rows; positive if rows
    *   were added and negative if rows were removed.
    */
-  rowCountChanged(index, delta) {
-    if (!this._selection) {
-      return;
-    }
-
-    this._selection.adjustSelection(index, delta);
-    this._updateCurrentIndexClasses();
+  rowCountChanged(index, _delta) {
+    this.invalidateRange(index, this.view.rowCount - 1);
     this.dispatchEvent(new CustomEvent("rowcountchange"));
   }
 
@@ -1084,8 +1065,9 @@ export class BaseTreeView extends HTMLElement {
    *   inserted before this row.
    * @param {boolean} [fillImmediately=false] - The row will be filled
    *   immediately instead of waiting for an animation frame.
+   * @returns {HTMLTableRowElement}
    */
-  #addRowAtIndex(index, before = null, fillImmediately = false) {
+  _addRowAtIndex(index, before = null, fillImmediately = false) {
     const row = document.createElement("tr", { is: this._rowElementName });
     row.setAttribute("is", this._rowElementName);
     this.table.body.insertBefore(row, before);
@@ -1096,14 +1078,8 @@ export class BaseTreeView extends HTMLElement {
       row.fillRow();
     }
 
-    if (this._selection?.isSelected(index)) {
-      row.selected = true;
-    }
-    if (this.currentIndex === index) {
-      row.classList.add("current");
-      this.table.body.setAttribute("aria-activedescendant", row.id);
-    }
     this._rows.set(index, row);
+    return row;
   }
 
   /**
@@ -1200,16 +1176,18 @@ export class BaseTreeView extends HTMLElement {
       row._twistyAnimating = true;
     }
 
-    // If the selected row is going to be collapsed, move the selection.
-    // Even if the row to be collapsed is already selected, set
-    // selectIndex to ensure currentIndex also points to the correct row.
-    let selectedIndex = this.selectedIndex;
-    while (selectedIndex >= index) {
-      if (selectedIndex == index) {
-        this.selectedIndex = index;
-        break;
+    if (this._selection) {
+      // If the selected row is going to be collapsed, move the selection.
+      // Even if the row to be collapsed is already selected, set
+      // selectIndex to ensure currentIndex also points to the correct row.
+      let selectedIndex = this.selectedIndex;
+      while (selectedIndex >= index) {
+        if (selectedIndex == index) {
+          this.selectedIndex = index;
+          break;
+        }
+        selectedIndex = this._view.getParentIndex(selectedIndex);
       }
-      selectedIndex = this._view.getParentIndex(selectedIndex);
     }
 
     // Check if the view calls rowCountChanged. If it didn't, we'll have to
@@ -1326,220 +1304,6 @@ export class BaseTreeView extends HTMLElement {
   }
 
   /**
-   * In a selection, index of the most-recently-selected row.
-   *
-   * @type {integer}
-   */
-  get currentIndex() {
-    return this._selection ? this._selection.currentIndex : -1;
-  }
-
-  set currentIndex(index) {
-    if (!this._view) {
-      return;
-    }
-
-    this._selection.currentIndex = index;
-    this._updateCurrentIndexClasses();
-    if (index >= 0 && index < this._view.rowCount) {
-      this.scrollToIndex(index);
-    }
-  }
-
-  /**
-   * Set the "current" class on the right row, and remove it from all other rows.
-   */
-  _updateCurrentIndexClasses() {
-    const index = this.currentIndex;
-
-    for (const row of this.querySelectorAll(
-      `tr[is="${this._rowElementName}"].current`
-    )) {
-      row.classList.remove("current");
-    }
-
-    if (!this._view || index < 0 || index > this._view.rowCount - 1) {
-      this.table.body.removeAttribute("aria-activedescendant");
-      return;
-    }
-
-    const row = this.getRowAtIndex(index);
-    if (row) {
-      // We need to clear the attribute in order to let screen readers know that
-      // a new message has been selected even if the ID is identical. For
-      // example when we delete the first message with ID 0, the next message
-      // becomes ID 0 itself. Therefore the attribute wouldn't trigger the screen
-      // reader to announce the new message without being cleared first.
-      this.table.body.removeAttribute("aria-activedescendant");
-      row.classList.add("current");
-      this.table.body.setAttribute("aria-activedescendant", row.id);
-    }
-  }
-
-  /**
-   * Select and focus the given index.
-   *
-   * @protected
-   * @param {integer} index - The index to select.
-   * @param {boolean} [delaySelect=false] - If the selection should be delayed.
-   */
-  _selectSingle(index, delaySelect = false) {
-    const changeSelection =
-      this._selection.count != 1 || !this._selection.isSelected(index);
-    // Update the TreeSelection selection to trigger a tree reset().
-    if (changeSelection) {
-      this._selection.select(index);
-    }
-    this.currentIndex = index;
-    if (changeSelection) {
-      this.onSelectionChanged(delaySelect);
-    }
-  }
-
-  /**
-   * Start or extend a range selection to the given index and focus it.
-   *
-   * @protected
-   * @param {number} start - Start index of selection. -1 for current index.
-   * @param {number} end - End index of selection.
-   * @param {boolean} [extend=false] - If the new selection range should extend
-   *   the current selection.
-   */
-  _selectRange(start, end, extend = false) {
-    this._selection.rangedSelect(start, end, extend);
-    this.currentIndex = start == -1 ? end : start;
-    this.onSelectionChanged();
-  }
-
-  /**
-   * Toggle the selection state at the given index and focus it.
-   *
-   * @protected
-   * @param {integer} index - The index to toggle.
-   */
-  _toggleSelected(index) {
-    this._selection.toggleSelect(index);
-    // We hack the internals of the TreeSelection to clear the
-    // shiftSelectPivot.
-    this._selection._shiftSelectPivot = null;
-    this.currentIndex = index;
-    this.onSelectionChanged();
-  }
-
-  /**
-   * Select all rows.
-   */
-  selectAll() {
-    this._selection.selectAll();
-    this.onSelectionChanged();
-  }
-
-  /**
-   * Toggle between selecting all rows or none, depending on the current
-   * selection state.
-   */
-  toggleSelectAll() {
-    if (!this.selectedIndices.length) {
-      const index = this._view.rowCount - 1;
-      this._selection.selectAll();
-      this.currentIndex = index;
-    } else {
-      this._selection.clearSelection();
-    }
-    // Make sure the body is focused when the selection is changed as
-    // clicking on the "select all" header button steals the focus.
-    this.focus();
-
-    this.onSelectionChanged();
-  }
-
-  /**
-   * In a selection, index of the most-recently-selected row.
-   *
-   * @type {integer}
-   */
-  get selectedIndex() {
-    if (!this._selection?.count) {
-      return -1;
-    }
-
-    const min = {};
-    this._selection.getRangeAt(0, min, {});
-    return min.value;
-  }
-
-  set selectedIndex(index) {
-    this._selectSingle(index);
-  }
-
-  /**
-   * An array of the indices of all selected rows.
-   *
-   * @type {integer[]}
-   */
-  get selectedIndices() {
-    const indices = [];
-    const rangeCount = this._selection?.getRangeCount();
-
-    for (let range = 0; range < rangeCount; range++) {
-      const min = {};
-      const max = {};
-      this._selection.getRangeAt(range, min, max);
-
-      if (min.value == -1) {
-        continue;
-      }
-
-      for (let index = min.value; index <= max.value; index++) {
-        indices.push(index);
-      }
-    }
-
-    return indices;
-  }
-
-  set selectedIndices(indices) {
-    this.setSelectedIndices(indices);
-  }
-
-  /**
-   * An array of the indices of all selected rows.
-   *
-   * @param {integer[]} indices
-   * @param {boolean} suppressEvent - Prevent a "select" event firing.
-   */
-  setSelectedIndices(indices, suppressEvent) {
-    this._selection.clearSelection();
-    for (const index of indices) {
-      this._selection.toggleSelect(index);
-    }
-    this.onSelectionChanged(false, suppressEvent);
-  }
-
-  /**
-   * Changes the selection state of the row at `index`.
-   *
-   * @param {integer} index
-   * @param {boolean?} selected - if set, set the selection state to this
-   *   value, otherwise toggle the current state
-   * @param {boolean?} suppressEvent - prevent a "select" event firing
-   * @returns {boolean} - if the index is now selected
-   */
-  toggleSelectionAtIndex(index, selected, suppressEvent) {
-    const wasSelected = this._selection.isSelected(index);
-    if (selected === undefined) {
-      selected = !wasSelected;
-    }
-
-    if (selected != wasSelected) {
-      this._selection.toggleSelect(index);
-      this.onSelectionChanged(false, suppressEvent);
-    }
-
-    return selected;
-  }
-
-  /**
    * Loop through all available child elements of the placeholder slot and
    * show those that are needed.
    *
@@ -1548,63 +1312,6 @@ export class BaseTreeView extends HTMLElement {
   updatePlaceholders(idsToShow) {
     for (const element of this.placeholder.children) {
       element.hidden = !idsToShow.includes(element.id);
-    }
-  }
-
-  /**
-   * Update the classes on the table element to reflect the current selection
-   * state, and dispatch an event to allow implementations to handle the
-   * change in the selection state.
-   *
-   * @param {boolean} [delaySelect=false] - If the selection should be delayed.
-   * @param {boolean} [suppressEvent=false] - Prevent a "select" event firing.
-   */
-  onSelectionChanged(delaySelect = false, suppressEvent = false) {
-    const selectedCount = this._selection.count;
-    const allSelected = selectedCount == this._view.rowCount;
-
-    this.table.classList.toggle("all-selected", allSelected);
-    this.table.classList.toggle("some-selected", !allSelected && selectedCount);
-    this.table.classList.toggle("multi-selected", selectedCount > 1);
-
-    const selectButton = this.table.querySelector(".tree-view-header-select");
-    // Some implementations might not use a select header.
-    if (selectButton) {
-      // Only mark the `select` button as "checked" if all rows are selected.
-      selectButton.toggleAttribute("aria-checked", allSelected);
-      // The default action for the header button is to deselect all messages
-      // if even one message is currently selected.
-      document.l10n.setAttributes(
-        selectButton,
-        selectedCount
-          ? "threadpane-column-header-deselect-all"
-          : "threadpane-column-header-select-all"
-      );
-    }
-
-    if (suppressEvent) {
-      return;
-    }
-
-    // No need to handle a delayed select if not required.
-    if (!delaySelect) {
-      // Clear the timeout in case something was still running.
-      if (this.#selectTimeout) {
-        window.clearTimeout(this.#selectTimeout);
-      }
-      this.dispatchEvent(new CustomEvent("select", { bubbles: true }));
-      return;
-    }
-
-    const delay = this.dataset.selectDelay || 50;
-    if (delay != -1) {
-      if (this.#selectTimeout) {
-        window.clearTimeout(this.#selectTimeout);
-      }
-      this.#selectTimeout = window.setTimeout(() => {
-        this.dispatchEvent(new CustomEvent("select", { bubbles: true }));
-        this.#selectTimeout = null;
-      }, delay);
     }
   }
 
@@ -1618,6 +1325,14 @@ export class BaseTreeView extends HTMLElement {
 customElements.define("base-tree-view", BaseTreeView);
 
 export class TreeView extends BaseTreeView {
+  /**
+   * The function storing the timeout callback for the delayed select feature in
+   * order to clear it when not needed.
+   *
+   * @type {integer}
+   */
+  #selectTimeout = null;
+
   connectedCallback() {
     super.connectedCallback();
     this.addEventListener("keyup", this);
@@ -1902,6 +1617,364 @@ export class TreeView extends BaseTreeView {
         // "scroll" and "mousedown" events are handled in BaseTreeView.
         super.handleEvent(event);
         break;
+    }
+  }
+
+  /**
+   * The current view for this list.
+   *
+   * @type {nsITreeView|TreeDataAdapter}
+   */
+  get view() {
+    return this._view;
+  }
+
+  set view(view) {
+    if (this._view) {
+      this._view.setTree(null);
+      this._view.selection = null;
+    }
+    if (this._selection) {
+      this._selection.view = null;
+      this._selection = null;
+    }
+
+    this._view = view;
+    if (view) {
+      this._selection = new TreeSelection();
+      this._selection.tree = this;
+      this._selection.view = view;
+
+      view.selection = this._selection;
+      try {
+        view.setTree(this);
+      } catch (ex) {
+        // This isn't a XULTreeElement, and we can't make it one, so if the
+        // `setTree` call crosses XPCOM, an exception will be thrown.
+        if (ex.result != Cr.NS_ERROR_XPC_BAD_CONVERT_JS) {
+          throw ex;
+        }
+      }
+    }
+
+    // Clear the height of the top spacer to avoid confusing
+    // `#ensureVisibleRowsAreDisplayed`.
+    this.table.spacerTop.setHeight(0);
+    this.reset();
+
+    this.dispatchEvent(new CustomEvent("viewchange"));
+  }
+
+  /**
+   * Updates the list to reflect added or removed rows.
+   *
+   * @param {integer} index - The position in the existing list where rows were
+   *   added or removed.
+   * @param {integer} delta - The change in number of rows; positive if rows
+   *   were added and negative if rows were removed.
+   */
+  rowCountChanged(index, delta) {
+    if (!this._selection) {
+      return;
+    }
+
+    this._selection.adjustSelection(index, delta);
+    this._updateCurrentIndexClasses();
+    this.dispatchEvent(new CustomEvent("rowcountchange"));
+  }
+
+  /**
+   * Creates a new row element and adds it to the DOM.
+   *
+   * @param {integer} index
+   * @param {HTMLTableRowElement} [before] - If given, the added row will be
+   *   inserted before this row.
+   * @param {boolean} [fillImmediately=false] - The row will be filled
+   *   immediately instead of waiting for an animation frame.
+   * @returns {HTMLTableRowElement}
+   */
+  _addRowAtIndex(index, before = null, fillImmediately = false) {
+    const row = super._addRowAtIndex(index, before, fillImmediately);
+
+    if (this._selection?.isSelected(index)) {
+      row.selected = true;
+    }
+    if (this.currentIndex === index) {
+      row.classList.add("current");
+      this.table.body.ariaActiveDescendantElement = row;
+    }
+
+    return row;
+  }
+
+  /**
+   * In a selection, index of the most-recently-selected row.
+   *
+   * @type {integer}
+   */
+  get currentIndex() {
+    return this._selection ? this._selection.currentIndex : -1;
+  }
+
+  set currentIndex(index) {
+    if (!this._view) {
+      return;
+    }
+
+    this._selection.currentIndex = index;
+    this._updateCurrentIndexClasses();
+    if (index >= 0 && index < this._view.rowCount) {
+      this.scrollToIndex(index);
+    }
+  }
+
+  /**
+   * Set the "current" class on the right row, and remove it from all other rows.
+   */
+  _updateCurrentIndexClasses() {
+    const index = this.currentIndex;
+
+    for (const row of this.querySelectorAll(
+      `tr[is="${this._rowElementName}"].current`
+    )) {
+      row.classList.remove("current");
+    }
+
+    if (!this._view || index < 0 || index > this._view.rowCount - 1) {
+      this.table.body.ariaActiveDescendantElement = null;
+      return;
+    }
+
+    const row = this.getRowAtIndex(index);
+    if (row) {
+      // We need to clear the attribute in order to let screen readers know that
+      // a new message has been selected even if the ID is identical. For
+      // example when we delete the first message with ID 0, the next message
+      // becomes ID 0 itself. Therefore the attribute wouldn't trigger the screen
+      // reader to announce the new message without being cleared first.
+      this.table.body.ariaActiveDescendantElement = null;
+      row.classList.add("current");
+      this.table.body.ariaActiveDescendantElement = row;
+    }
+  }
+
+  /**
+   * Select and focus the given index.
+   *
+   * @protected
+   * @param {integer} index - The index to select.
+   * @param {boolean} [delaySelect=false] - If the selection should be delayed.
+   */
+  _selectSingle(index, delaySelect = false) {
+    const changeSelection =
+      this._selection.count != 1 || !this._selection.isSelected(index);
+    // Update the TreeSelection selection to trigger a tree reset().
+    if (changeSelection) {
+      this._selection.select(index);
+    }
+    this.currentIndex = index;
+    if (changeSelection) {
+      this.onSelectionChanged(delaySelect);
+    }
+  }
+
+  /**
+   * Start or extend a range selection to the given index and focus it.
+   *
+   * @protected
+   * @param {number} start - Start index of selection. -1 for current index.
+   * @param {number} end - End index of selection.
+   * @param {boolean} [extend=false] - If the new selection range should extend
+   *   the current selection.
+   */
+  _selectRange(start, end, extend = false) {
+    this._selection.rangedSelect(start, end, extend);
+    this.currentIndex = start == -1 ? end : start;
+    this.onSelectionChanged();
+  }
+
+  /**
+   * Toggle the selection state at the given index and focus it.
+   *
+   * @protected
+   * @param {integer} index - The index to toggle.
+   */
+  _toggleSelected(index) {
+    this._selection.toggleSelect(index);
+    // We hack the internals of the TreeSelection to clear the
+    // shiftSelectPivot.
+    this._selection._shiftSelectPivot = null;
+    this.currentIndex = index;
+    this.onSelectionChanged();
+  }
+
+  /**
+   * Select all rows.
+   */
+  selectAll() {
+    this._selection.selectAll();
+    this.onSelectionChanged();
+  }
+
+  /**
+   * Toggle between selecting all rows or none, depending on the current
+   * selection state.
+   */
+  toggleSelectAll() {
+    if (!this.selectedIndices.length) {
+      const index = this._view.rowCount - 1;
+      this._selection.selectAll();
+      this.currentIndex = index;
+    } else {
+      this._selection.clearSelection();
+    }
+    // Make sure the body is focused when the selection is changed as
+    // clicking on the "select all" header button steals the focus.
+    this.focus();
+
+    this.onSelectionChanged();
+  }
+
+  /**
+   * In a selection, index of the most-recently-selected row.
+   *
+   * @type {integer}
+   */
+  get selectedIndex() {
+    if (!this._selection?.count) {
+      return -1;
+    }
+
+    const min = {};
+    this._selection.getRangeAt(0, min, {});
+    return min.value;
+  }
+
+  set selectedIndex(index) {
+    this._selectSingle(index);
+  }
+
+  /**
+   * An array of the indices of all selected rows.
+   *
+   * @type {integer[]}
+   */
+  get selectedIndices() {
+    const indices = [];
+    const rangeCount = this._selection?.getRangeCount();
+
+    for (let range = 0; range < rangeCount; range++) {
+      const min = {};
+      const max = {};
+      this._selection.getRangeAt(range, min, max);
+
+      if (min.value == -1) {
+        continue;
+      }
+
+      for (let index = min.value; index <= max.value; index++) {
+        indices.push(index);
+      }
+    }
+
+    return indices;
+  }
+
+  set selectedIndices(indices) {
+    this.setSelectedIndices(indices);
+  }
+
+  /**
+   * An array of the indices of all selected rows.
+   *
+   * @param {integer[]} indices
+   * @param {boolean} suppressEvent - Prevent a "select" event firing.
+   */
+  setSelectedIndices(indices, suppressEvent) {
+    this._selection.clearSelection();
+    for (const index of indices) {
+      this._selection.toggleSelect(index);
+    }
+    this.onSelectionChanged(false, suppressEvent);
+  }
+
+  /**
+   * Changes the selection state of the row at `index`.
+   *
+   * @param {integer} index
+   * @param {boolean?} selected - if set, set the selection state to this
+   *   value, otherwise toggle the current state
+   * @param {boolean?} suppressEvent - prevent a "select" event firing
+   * @returns {boolean} - if the index is now selected
+   */
+  toggleSelectionAtIndex(index, selected, suppressEvent) {
+    const wasSelected = this._selection.isSelected(index);
+    if (selected === undefined) {
+      selected = !wasSelected;
+    }
+
+    if (selected != wasSelected) {
+      this._selection.toggleSelect(index);
+      this.onSelectionChanged(false, suppressEvent);
+    }
+
+    return selected;
+  }
+
+  /**
+   * Update the classes on the table element to reflect the current selection
+   * state, and dispatch an event to allow implementations to handle the
+   * change in the selection state.
+   *
+   * @param {boolean} [delaySelect=false] - If the selection should be delayed.
+   * @param {boolean} [suppressEvent=false] - Prevent a "select" event firing.
+   */
+  onSelectionChanged(delaySelect = false, suppressEvent = false) {
+    const selectedCount = this._selection.count;
+    const allSelected = selectedCount == this._view.rowCount;
+
+    this.table.classList.toggle("all-selected", allSelected);
+    this.table.classList.toggle("some-selected", !allSelected && selectedCount);
+    this.table.classList.toggle("multi-selected", selectedCount > 1);
+
+    const selectButton = this.table.querySelector(".tree-view-header-select");
+    // Some implementations might not use a select header.
+    if (selectButton) {
+      // Only mark the `select` button as "checked" if all rows are selected.
+      selectButton.toggleAttribute("aria-checked", allSelected);
+      // The default action for the header button is to deselect all messages
+      // if even one message is currently selected.
+      document.l10n.setAttributes(
+        selectButton,
+        selectedCount
+          ? "threadpane-column-header-deselect-all"
+          : "threadpane-column-header-select-all"
+      );
+    }
+
+    if (suppressEvent) {
+      return;
+    }
+
+    // No need to handle a delayed select if not required.
+    if (!delaySelect) {
+      // Clear the timeout in case something was still running.
+      if (this.#selectTimeout) {
+        window.clearTimeout(this.#selectTimeout);
+      }
+      this.dispatchEvent(new CustomEvent("select", { bubbles: true }));
+      return;
+    }
+
+    const delay = this.dataset.selectDelay || 50;
+    if (delay != -1) {
+      if (this.#selectTimeout) {
+        window.clearTimeout(this.#selectTimeout);
+      }
+      this.#selectTimeout = window.setTimeout(() => {
+        this.dispatchEvent(new CustomEvent("select", { bubbles: true }));
+        this.#selectTimeout = null;
+      }, delay);
     }
   }
 }
@@ -2859,7 +2932,6 @@ export class TreeViewTableRow extends HTMLTableRowElement {
     this.tabIndex = -1;
     this.list = this.closest(".tree-view-scrollable-container");
     this.view = this.list.view;
-    this.setAttribute("aria-selected", !!this.selected);
   }
 
   /**
