@@ -1242,6 +1242,9 @@ pref("devtools.webconsole.input.editorOnboarding", true);
 // Enable grouping/repeating similar messages in the console, true by default
 pref("devtools.webconsole.groupSimilarMessages", true);
 
+// Enable codemirror 6 for the JSTerminal in the console
+pref("devtools.webconsole.codemirrorNext", false);
+
 // Enable network monitoring the browser toolbox console/browser console.
 pref("devtools.browserconsole.enableNetworkMonitoring", false);
 
