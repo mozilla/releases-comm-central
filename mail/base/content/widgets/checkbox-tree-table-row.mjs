@@ -54,6 +54,18 @@ class CheckboxTreeTableRow extends TreeViewTableRow {
     super.connectedCallback();
     this.classList.add("table-layout");
     this.append(this.constructor.rowFragment.cloneNode(true));
+
+    this.addEventListener("keydown", event => {
+      if (event.key == "ArrowUp") {
+        // Jump to the previous row, if there is one.
+        this.previousElementSibling?.querySelector("input")?.focus();
+        event.preventDefault();
+      } else if (event.key == "ArrowDown") {
+        // Jump to the next row, if there is one.
+        this.nextElementSibling?.querySelector("input")?.focus();
+        event.preventDefault();
+      }
+    });
   }
 
   fillRow() {
@@ -64,20 +76,14 @@ class CheckboxTreeTableRow extends TreeViewTableRow {
 
     const viewRow = this.view.rowAt(this._index);
     const twistyButton = this.querySelector("button.twisty");
-    const checkbox = this.querySelector(`input[type="checkbox"]`);
+    const container = this.querySelector("div.container");
+    const span = container.querySelector("span");
+    const checkbox = container.querySelector(`input[type="checkbox"]`);
     if (Services.appinfo.accessibilityEnabled || Cu.isInAutomation) {
-      this.ariaLevel =
-        twistyButton.ariaLevel =
-        checkbox.ariaLevel =
-          viewRow.level + 1;
-      this.ariaSetSize =
-        twistyButton.ariaSetSize =
-        checkbox.ariaSetSize =
-          viewRow.setSize;
-      this.ariaPosInSet =
-        twistyButton.ariaPosInSet =
-        checkbox.ariaPosInSet =
-          viewRow.posInSet + 1;
+      twistyButton.ariaRowIndex = checkbox.ariaRowIndex = this._index + 1;
+      twistyButton.ariaLevel = checkbox.ariaLevel = viewRow.level + 1;
+      twistyButton.ariaSetSize = checkbox.ariaSetSize = viewRow.setSize;
+      twistyButton.ariaPosInSet = checkbox.ariaPosInSet = viewRow.posInSet + 1;
     }
     this.id = `${this.list.id}-row${this._index}`;
 
@@ -85,9 +91,7 @@ class CheckboxTreeTableRow extends TreeViewTableRow {
     this.classList.toggle("children", isGroup);
 
     const isGroupOpen = viewRow.open;
-    this.ariaExpanded = twistyButton.ariaExpanded = isGroup
-      ? isGroupOpen
-      : null;
+    twistyButton.ariaExpanded = isGroup ? isGroupOpen : null;
     this.classList.toggle("collapsed", !isGroupOpen);
 
     this.dataset.properties = [...viewRow.properties].join(" ");
@@ -100,17 +104,15 @@ class CheckboxTreeTableRow extends TreeViewTableRow {
     }
     delete this._twistyAnimating;
 
-    this.querySelector("div.container").style.paddingInlineStart =
-      viewRow.level * 16 + 3 + "px";
-    this.querySelector("span").textContent = viewRow.texts.name;
+    container.style.paddingInlineStart = viewRow.level * 16 + 3 + "px";
+    span.textContent = viewRow.texts.name;
 
+    checkbox.hidden = viewRow.hasProperty("uncheckable");
     checkbox.checked = viewRow.hasProperty("checked");
     checkbox.onchange = () => {
       viewRow.toggleProperty("checked", checkbox.checked);
       this.dataset.properties = [...viewRow.properties].join(" ");
     };
-
-    this.querySelector("td").ariaLabel = viewRow.texts.name;
   }
 }
 customElements.define("checkbox-tree-table-row", CheckboxTreeTableRow, {
