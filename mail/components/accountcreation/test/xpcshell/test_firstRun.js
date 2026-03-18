@@ -161,3 +161,28 @@ add_task(function testFirstRunWithInvalidMailAccount() {
 
   MailServices.accounts.removeAccount(account, true);
 });
+
+add_task(
+  { skip_if: () => AppConstants.platform != "macos" },
+  function testFirstRunIgnoresMacOSAddressBook() {
+    let hadAddressBook = false;
+    try {
+      MailServices.ab.newAddressBook(
+        "test",
+        "moz-abosxdirectory:///",
+        Ci.nsIAbManager.MAPI_DIRECTORY_TYPE
+      );
+    } catch {
+      hadAddressBook = true;
+    }
+
+    Assert.ok(
+      isFirstRun(),
+      "Should indicate first run even with native address book"
+    );
+
+    if (!hadAddressBook) {
+      MailServices.ab.deleteAddressBook("moz-abosxdirectory:///");
+    }
+  }
+);

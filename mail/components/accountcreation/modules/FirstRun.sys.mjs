@@ -28,10 +28,15 @@ export function isFirstRun() {
   if (calendarDeactivator.checkCalendarsEnabled()) {
     return false;
   }
-  // If there is an address book with a contact, the profile is set up.
+  // If there is an address book with a contact, the profile is set up. We
+  // ignore the OS X system address books and address books from outlook for
+  // this check, since they are system data sources.
   if (
     MailServices.ab.directories.some(
-      abDirectory => abDirectory.childCardCount > 0
+      abDirectory =>
+        !abDirectory.URI.startsWith("moz-abosxdirectory:") &&
+        !abDirectory.URI.startsWith("moz-aboutlookdirectory:") &&
+        abDirectory.childCardCount > 0
     )
   ) {
     return false;
