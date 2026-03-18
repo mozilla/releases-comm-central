@@ -267,8 +267,8 @@ void nsMsgBodyHandler2::SniffPossibleMIMEHeader(const nsCString& line) {
   // specifically, the headers are all case-insensitive and the values we care
   // about are also case-insensitive, with the sole exception of the boundary
   // string, so we can't just take the input line and make it lower case.
-  nsCString lowerCaseLine(line);
-  ToLowerCase(lowerCaseLine);
+  nsCString lowerCaseLine;
+  ToLowerCase(line, lowerCaseLine);
 
   if (StringBeginsWith(lowerCaseLine, "content-transfer-encoding:"_ns))
     m_partIsQP = lowerCaseLine.Find("quoted-printable") != -1;
