@@ -512,6 +512,14 @@ export class CalendarDialog extends PositionedDialog {
       "hidden",
       !eventLocation
     );
+    this.querySelector("#locationRow").classList.toggle(
+      "divider",
+      eventLocation
+    );
+    this.querySelector("#joinMeetingRow").classList.toggle(
+      "divider",
+      !eventLocation
+    );
 
     if (parsedURL) {
       locationLink.textContent = eventLocation;
