@@ -1482,7 +1482,13 @@
           // so that we skip this identity.
           if (msgFolder && !foldersScanned.includes(msgFolder)) {
             foldersScanned.push(msgFolder);
-            enumerator = msgFolder.msgDatabase.enumerateMessages();
+            try {
+              enumerator = msgFolder.msgDatabase.enumerateMessages();
+            } catch (e) {
+              console.warn(
+                `Failed to get message database for ${msgFolder.URI}: ${e.message}`
+              );
+            }
           }
 
           if (!enumerator) {
