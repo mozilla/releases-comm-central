@@ -272,6 +272,10 @@ async function _wait_for_compose_window(win) {
       `${Services.focus.activeWindow?.location} now active - ${Services.focus.focusedWindow?.location} has focus`
     );
   }
+  await TestUtils.waitForCondition(
+    () => win.composeEditorReady,
+    "waiting for the compose editor to be ready"
+  );
   await new Promise(resolve => win.setTimeout(resolve));
   return win;
 }
