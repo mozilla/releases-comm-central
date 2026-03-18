@@ -340,10 +340,10 @@ static int MimeMultipartMixed_parse_line(const char* line, const int32_t length,
     }
 
     if (mix->headerState == MimeMultipartMixed::expectingSigOrOtherHeader) {
-      bool isSigLine = (PL_strncasecmp(line, "Sig: ", 5) == 0);
+      bool isSigLine = (PL_strncasecmp(line, "Sig:", 4) == 0);
 
       if (isSigLine) {
-        mix->cpp->currentSig = line + 5;
+        mix->cpp->currentSig = line + 4;
         mix->cpp->currentSig.Trim(" \r\n");
         mix->headerState =
             MimeMultipartMixed::expectingSigContinueOrOtherHeader;

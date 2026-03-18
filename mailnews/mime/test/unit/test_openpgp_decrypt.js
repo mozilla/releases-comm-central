@@ -43,12 +43,17 @@ const contents = "Sundays are nothing without callaloo.";
  */
 const openpgpSink = {
   expectResults(maxLen) {
-    this._deferred = Promise.withResolvers();
     this.expectedCount = maxLen;
     this.countReceived = 0;
     this.results = [];
     EnigmailSingletons.messageReader = this;
-    return this._deferred.promise;
+    // If there are zero expected results, we won't get calls to
+    // updateSecurityStatus, and we won't resolve a promise.
+    if (maxLen) {
+      this._deferred = Promise.withResolvers();
+      return this._deferred.promise;
+    }
+    return null;
   },
   isCurrentMessage() {
     return true;
@@ -195,6 +200,16 @@ const tests = [
     flags: ["-GOOD_SIGNATURE", "UNCERTAIN_SIGNATURE", "NO_PUBKEY"],
   },
   {
+    description: "unobtrusive signature message, from sender not in database",
+    filename: "unob-signed-by-0x3099ff1238852b9f-to-0xf231550c4f47e38e.eml",
+    contents,
+    from: "carol@openpgp.example",
+    keyId: OpenPGPTestUtils.CAROL_KEY_ID,
+    sig: true,
+    flags: ["-GOOD_SIGNATURE", "UNCERTAIN_SIGNATURE", "NO_PUBKEY"],
+    unobtrusive: true,
+  },
+  {
     description:
       "unsigned, encrypted message, with key attached, from sender not in database",
     filename:
@@ -223,7 +238,6 @@ const tests = [
     keyId: OpenPGPTestUtils.CAROL_KEY_ID,
     enc: true,
     sig: true,
-    resultCount: 1,
     flags: ["-DECRYPTION_FAILED", "-GOOD_SIGNATURE", "UNCERTAIN_SIGNATURE"],
   },
   {
@@ -235,7 +249,6 @@ const tests = [
     keyId: OpenPGPTestUtils.CAROL_KEY_ID,
     enc: true,
     sig: true,
-    resultCount: 1,
     flags: ["-DECRYPTION_FAILED", "-GOOD_SIGNATURE", "UNCERTAIN_SIGNATURE"],
   },
   // Last two characters of signature swapped.
@@ -298,94 +311,131 @@ add_task(async function testMimeDecryptOpenPGPMessages() {
       continue;
     }
 
-    info(`Running test: ${test.description}`);
-
-    const testPrefix = `${test.filename}:`;
-    const expectedResultCount =
-      test.resultCount || (test.enc && test.sig) ? 2 : 1;
-    const hdr = mailTestUtils.getMsgHdrN(gInbox, hdrIndex);
-    const uri = hdr.folder.getUriForMsg(hdr);
-    const sinkPromise = openpgpSink.expectResults(expectedResultCount);
-
-    // Stub this function so verifyDetached() can get the correct email.
-    EnigmailDecryption.getFromAddr = () => test.from;
-
-    // Trigger the actual mime work.
-    const conversion = apply_mime_conversion(uri, null, openpgpSink);
-
-    const msgBody = await conversion.promise;
-
-    if (!test.sig || test.flags.indexOf("GOOD_SIGNATURE")) {
-      Assert.ok(
-        msgBody.includes(test.contents),
-        `${testPrefix} message contents match`
-      );
+    const subtests = ["without-carol-pubkey"];
+    if ("unobtrusive" in test && test.unobtrusive) {
+      subtests.push("with-carol-pubkey");
     }
 
-    // Check that we're also using the display output.
-    Assert.ok(
-      msgBody.includes("<html>"),
-      `${testPrefix} message displayed as html`
-    );
-    await sinkPromise;
+    for (const subtest of subtests) {
+      info(`Running test: ${test.description} ${subtest}`);
 
-    let idx = 0;
-    const { results } = openpgpSink;
-
-    Assert.equal(
-      results.length,
-      expectedResultCount,
-      `${testPrefix} updateSecurityStatus() called ${expectedResultCount} time(s)`
-    );
-
-    if (test.enc) {
-      Assert.equal(
-        results[idx].type,
-        "encrypted",
-        `${testPrefix} message recognized as encrypted`
-      );
-
-      if (expectedResultCount > 1) {
-        idx++;
+      if (subtest == "with-carol-pubkey") {
+        await OpenPGPTestUtils.importPublicKey(
+          null,
+          do_get_file(`${keyDir}carol@example.com-0x3099ff1238852b9f-pub.asc`)
+        );
+      } else if (subtest == "without-carol-pubkey") {
+        if ("unobtrusive" in test && test.unobtrusive) {
+          // Unobtrusive signature is completely ignored if
+          // signature key is missing, no status shown.
+          test.sig = false;
+          test.flags = null;
+        }
+      } else {
+        throw new Error("unexpected subtest");
       }
-    }
 
-    if (test.sig) {
-      Assert.equal(
-        results[idx].type,
-        "signed",
-        `${testPrefix} message recognized as signed`
+      const testPrefix = `${test.filename}:`;
+      let expectedResultCount = 0;
+      if (test.enc) {
+        expectedResultCount++;
+      }
+      if (test.sig) {
+        expectedResultCount++;
+      }
+
+      const hdr = mailTestUtils.getMsgHdrN(gInbox, hdrIndex);
+      const uri = hdr.folder.getUriForMsg(hdr);
+      const sinkPromise = openpgpSink.expectResults(expectedResultCount);
+
+      // Stub this function so verifyDetached() can get the correct email.
+      EnigmailDecryption.getFromAddr = () => test.from;
+
+      // Trigger the actual mime work.
+      const conversion = apply_mime_conversion(uri, null, openpgpSink);
+
+      const msgBody = await conversion.promise;
+
+      if (!test.sig || test.flags.indexOf("GOOD_SIGNATURE")) {
+        Assert.ok(
+          msgBody.includes(test.contents),
+          `${testPrefix} message contents match`
+        );
+      }
+
+      // Check that we're also using the display output.
+      Assert.ok(
+        msgBody.includes("<html>"),
+        `${testPrefix} message displayed as html`
       );
-    }
+      if (expectedResultCount) {
+        await sinkPromise;
+      }
 
-    if (test.keyId) {
+      let idx = 0;
+      const { results } = openpgpSink;
+
       Assert.equal(
-        results[idx].keyId,
-        test.keyId,
-        `${testPrefix}key ids match`
+        results.length,
+        expectedResultCount,
+        `${testPrefix} updateSecurityStatus() called ${expectedResultCount} time(s)`
       );
-    }
 
-    // Test the expected message flags match the message status.
-    // We combine the signed and encrypted flags via bitwise OR to
-    // test in one place.
-    if (test.flags) {
-      for (let flag of test.flags) {
-        const flags = results.reduce((prev, curr) => prev | curr.status, 0);
-        const negative = flag[0] === "-";
-        flag = negative ? flag.slice(1) : flag;
-
-        if (negative) {
-          Assert.ok(
-            !(flags & EnigmailConstants[flag]),
-            `${testPrefix} status flag "${flag}" not detected`
+      if (expectedResultCount) {
+        if (test.enc) {
+          Assert.equal(
+            results[idx].type,
+            "encrypted",
+            `${testPrefix} message recognized as encrypted`
           );
-        } else {
-          Assert.ok(
-            flags & EnigmailConstants[flag],
-            `${testPrefix} status flag "${flag}" detected`
+
+          if (expectedResultCount > 1) {
+            idx++;
+          }
+        }
+
+        if (test.sig) {
+          Assert.equal(
+            results[idx].type,
+            "signed",
+            `${testPrefix} message recognized as signed`
           );
         }
+
+        if (test.keyId) {
+          Assert.equal(
+            results[idx].keyId,
+            test.keyId,
+            `${testPrefix}key ids match`
+          );
+        }
+
+        // Test the expected message flags match the message status.
+        // We combine the signed and encrypted flags via bitwise OR to
+        // test in one place.
+        if (test.flags) {
+          for (let flag of test.flags) {
+            const flags = results.reduce((prev, curr) => prev | curr.status, 0);
+            const negative = flag[0] === "-";
+            flag = negative ? flag.slice(1) : flag;
+
+            if (negative) {
+              Assert.ok(
+                !(flags & EnigmailConstants[flag]),
+                `${testPrefix} status flag "${flag}" not detected`
+              );
+            } else {
+              Assert.ok(
+                flags & EnigmailConstants[flag],
+                `${testPrefix} status flag "${flag}" detected`
+              );
+            }
+          }
+        }
+      }
+
+      if (subtest == "with-carol-pubkey") {
+        await OpenPGPTestUtils.removeKeyById("0x3099ff1238852b9f");
       }
     }
 
