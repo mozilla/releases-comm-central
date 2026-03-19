@@ -1981,10 +1981,7 @@ window.addEventListener(
       }
 
       currentTabInfo = tabmail.tabInfo.find(info => info.tabNode == tabNode);
-      openInWindowItem.toggleAttribute(
-        "disabled",
-        currentTabInfo.canClose && tabmail.persistTab(currentTabInfo)
-      );
+      openInWindowItem.toggleAttribute("disabled", !currentTabInfo.canClose);
       closeOtherTabsItem.toggleAttribute(
         "disabled",
         tabmail.tabInfo.every(info => info == currentTabInfo || !info.canClose)
