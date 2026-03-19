@@ -10,6 +10,7 @@ kind-dependencies:
     - packages
 
 reference-tasks:
+    - linux64-7zz
     - linux64-aarch64-compiler-rt-20
     - linux64-cargo-vet
     - linux64-cbindgen
@@ -81,6 +82,7 @@ reference-tasks:
     - win32-fix-stacks
     - win32-minidump-stackwalk
     - win32-node
+    - win64-7zz
     - win64-aarch64-compiler-rt-20
     - win64-cbindgen
     - win64-clang-20-profile

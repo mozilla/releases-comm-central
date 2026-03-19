@@ -49,6 +49,7 @@ win32/opt:
         never: null
     fetches:
         toolchain:
+            - linux64-7zz
             - linux64-cbindgen
             - linux64-clang
             - linux64-dump_syms
@@ -104,6 +105,7 @@ win32-shippable/opt:
         never: null
     fetches:
         toolchain:
+            - linux64-7zz
             - linux64-cbindgen
             - linux64-clang
             - linux64-dump_syms
@@ -154,6 +156,7 @@ win32/debug:
         never: null
     fetches:
         toolchain:
+            - linux64-7zz
             - linux64-cbindgen
             - linux64-clang
             - linux64-dump_syms
@@ -204,6 +207,7 @@ win64/opt:
         never: null
     fetches:
         toolchain:
+            - linux64-7zz
             - linux64-cbindgen
             - linux64-clang
             - linux64-dump_syms
@@ -260,6 +264,7 @@ win64-shippable/opt:
         never: null
     fetches:
         toolchain:
+            - linux64-7zz
             - linux64-cbindgen
             - linux64-clang
             - linux64-dump_syms
@@ -311,6 +316,7 @@ win64/debug:
         never: null
     fetches:
         toolchain:
+            - linux64-7zz
             - linux64-cbindgen
             - linux64-clang
             - linux64-dump_syms
@@ -449,6 +455,7 @@ win64-asan/opt:
         skip-unless-backstop: null
     fetches:
         toolchain:
+            - linux64-7zz
             - linux64-cbindgen
             - linux64-clang
             - linux64-dump_syms
@@ -511,6 +518,7 @@ win64-ccov/opt:
         toolchain:
             - sysroot-wasm32-wasi
             - terser
+            - win64-7zz
             - win64-cbindgen
             - win64-clang
             - win64-dump_syms
@@ -557,6 +565,7 @@ win64-aarch64/debug:
     use-sccache: true
     fetches:
         toolchain:
+            - linux64-7zz
             - linux64-cbindgen
             - linux64-clang
             - linux64-dump_syms
@@ -607,6 +616,7 @@ win64-aarch64/opt:
     use-sccache: true
     fetches:
         toolchain:
+            - linux64-7zz
             - linux64-cbindgen
             - linux64-clang
             - linux64-dump_syms
