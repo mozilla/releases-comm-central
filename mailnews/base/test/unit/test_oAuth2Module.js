@@ -719,6 +719,76 @@ add_task(async function testOverrideIssuer() {
   );
 });
 
+add_task(async function testExternalRequest() {
+  await OAuth2TestUtils.startServer();
+  Services.prefs.setBoolPref("mailnews.oauth.useExternalBrowser", true);
+
+  try {
+    const mod = new OAuth2Module();
+    Assert.ok(
+      mod.initFromHostname("external.test", "romeo@foo.invalid", "imap"),
+      "external.test should initialize for OAuth"
+    );
+
+    const externalOAuthURL = OAuth2TestUtils.promiseExternalOAuthURL();
+    const deferred = Promise.withResolvers();
+    mod.connect(true, {
+      onSuccess: deferred.resolve,
+      onFailure: deferred.reject,
+    });
+
+    const url = await externalOAuthURL;
+    await OAuth2TestUtils.submitOAuthURL(url, {
+      expectedHint: "romeo@foo.invalid",
+      expectedScope: "test_scope",
+      username: "user",
+      password: "password",
+    });
+    const saslToken = await deferred.promise;
+
+    Assert.ok(saslToken, "connect should return a SASL token");
+    Assert.equal(
+      mod._oauth.refreshToken,
+      "refresh_token",
+      "refresh token should be set in memory"
+    );
+    Assert.equal(
+      mod._oauth.accessToken,
+      "access_token",
+      "access token should be set in memory"
+    );
+    Assert.equal(mod._oauth.scope, "test_scope", "scope should be preserved");
+
+    const logins = await Services.logins.getAllLogins();
+    Assert.equal(logins.length, 1, "a login should have been added");
+    Assert.equal(
+      logins[0].hostname,
+      "oauth://external.test",
+      "login origin should use the external test issuer"
+    );
+    Assert.equal(
+      logins[0].httpRealm,
+      "test_scope",
+      "login scope should match the granted OAuth scope"
+    );
+    Assert.equal(
+      logins[0].username,
+      "romeo@foo.invalid",
+      "login username should match the authenticated account"
+    );
+    Assert.equal(
+      logins[0].password,
+      "refresh_token",
+      "refresh token should have been saved"
+    );
+  } finally {
+    Services.logins.removeAllLogins();
+    OAuth2TestUtils.forgetObjects();
+    OAuth2TestUtils.stopServer();
+    Services.prefs.clearUserPref("mailnews.oauth.useExternalBrowser");
+  }
+});
+
 async function storeLogins(logins) {
   for (const [origin, scope, username, token] of logins) {
     const loginInfo = Cc[

@@ -11,6 +11,7 @@ import { BrowserTestUtils } from "resource://testing-common/BrowserTestUtils.sys
 import { CommonUtils } from "resource://services-common/utils.sys.mjs";
 import { HttpsProxy } from "resource://testing-common/mailnews/HttpsProxy.sys.mjs";
 import { HttpServer, HTTP_405 } from "resource://testing-common/httpd.sys.mjs";
+import { MockExternalProtocolService } from "resource://testing-common/mailnews/MockExternalProtocolService.sys.mjs";
 import { TestUtils } from "resource://testing-common/TestUtils.sys.mjs";
 
 import { OAuth2Module } from "resource:///modules/OAuth2Module.sys.mjs";
@@ -71,6 +72,105 @@ export const OAuth2TestUtils = {
       await BrowserTestUtils.browserLoaded(oAuthBrowser);
     }
     return oAuthWindow;
+  },
+
+  /**
+   * Wait for an OAuth request to be opened in the external browser.
+   *
+   * @returns {Promise<string>}
+   */
+  async promiseExternalOAuthURL() {
+    MockExternalProtocolService.init();
+    try {
+      return await MockExternalProtocolService.promiseLoad();
+    } finally {
+      MockExternalProtocolService.cleanup();
+    }
+  },
+
+  /**
+   * Check an OAuth request URL, then emulate submitting the server-side login
+   * form and following its redirect back to the localhost callback listener.
+   *
+   * @param {string} url
+   * @param {object} options
+   * @param {string} [options.expectedHint] - If given, the login_hint URL parameter
+   * @param {string} [options.expectedScope] - If given, the scope URL parameter
+   *   will be checked. A space-separated list.
+   * @param {string} options.username - The username to use to log in.
+   * @param {string} options.password - The password to use to log in.
+   * @param {string} [options.grantedScope] - A subset of `expectedScope` to grant
+   *   permission for. If not given, all scopes will be allowed. If an empty string,
+   *   no scopes will be allowed.
+   */
+  async submitOAuthURL(
+    url,
+    {
+      expectedHint,
+      expectedScope = "test_mail test_addressbook test_calendar",
+      username,
+      password,
+      grantedScope,
+    }
+  ) {
+    const authURL = new URL(url);
+    const searchParams = authURL.searchParams;
+    Assert.equal(
+      searchParams.get("response_type"),
+      "code",
+      "request response_type"
+    );
+    Assert.equal(
+      searchParams.get("client_id"),
+      "test_client_id",
+      "request client_id"
+    );
+    const redirectURI = new URL(searchParams.get("redirect_uri"));
+    Assert.equal(
+      `${redirectURI.protocol}//${redirectURI.hostname}`,
+      "http://localhost",
+      "request redirect_uri base"
+    );
+    Assert.equal(searchParams.get("scope"), expectedScope, "request scope");
+    if (expectedHint) {
+      Assert.equal(
+        searchParams.get("login_hint"),
+        expectedHint,
+        "request login_hint"
+      );
+    }
+
+    // Simulate the browser authorization form.
+    const authorizeURL = new URL("/authorize", authURL);
+    const body = new URLSearchParams();
+    body.set("redirect_uri", redirectURI.href);
+    body.set("username", username);
+    body.set("password", password);
+
+    if (grantedScope === undefined) {
+      grantedScope = expectedScope;
+    }
+    if (grantedScope) {
+      for (const scope of grantedScope.split(" ")) {
+        body.append("scope", scope);
+      }
+    }
+
+    // The form data is sent to the OAuth server, which sends a 303 Redirected
+    // response, sending the browser to our callback listener socket.
+    const authorizeResponse = await fetch(authorizeURL, {
+      method: "POST",
+      body,
+    });
+    Assert.equal(authorizeResponse.status, 200, "callback response status");
+    Assert.equal(
+      new URL(authorizeResponse.url).origin,
+      redirectURI.origin,
+      "authorization should redirect to the callback listener"
+    );
+
+    // At this point the browser is displaying a message to close the tab and
+    // return to Thunderbird.
   },
 
   /**

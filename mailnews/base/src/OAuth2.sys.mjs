@@ -8,9 +8,50 @@
  * @see RFC 6749
  */
 import { CryptoUtils } from "moz-src:///services/crypto/modules/utils.sys.mjs";
+import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
+import { openLinkExternally } from "resource:///modules/LinkHelper.sys.mjs";
+
+const lazy = {};
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["messenger/messenger.ftl"], true)
+);
+XPCOMUtils.defineLazyPreferenceGetter(
+  lazy,
+  "useExternalBrowser",
+  "mailnews.oauth.useExternalBrowser"
+);
+
+const log = console.createInstance({
+  prefix: "mailnews.oauth",
+  maxLogLevel: "Warn",
+  maxLogLevelPref: "mailnews.oauth.loglevel",
+});
 
 // Only allow one connecting window per endpoint.
 var gConnecting = {};
+
+/**
+ * @param {string} redirectURI
+ * @returns {boolean}
+ */
+function isLoopbackHttpRedirect(redirectURI) {
+  try {
+    const uri = Services.io.newURI(redirectURI);
+    if (!uri.schemeIs("http")) {
+      return false;
+    }
+
+    const principal = Services.scriptSecurityManager.createContentPrincipal(
+      uri,
+      {}
+    );
+    return principal.isLoopbackHost;
+  } catch (e) {
+    return false;
+  }
+}
 
 /**
  * Constructor for the OAuth2 object.
@@ -44,11 +85,6 @@ export function OAuth2(scope, issuerDetails) {
 
   this.extraAuthParams = [];
 
-  this.log = console.createInstance({
-    prefix: "mailnews.oauth",
-    maxLogLevel: "Warn",
-    maxLogLevelPref: "mailnews.oauth.loglevel",
-  });
   if (issuerDetails.builtIn) {
     this.telemetryData.issuer = issuerDetails.name;
   }
@@ -67,11 +103,12 @@ OAuth2.prototype = {
   accessToken: null,
   refreshToken: null,
   tokenExpires: 0,
+  request: null,
 
-  log: null,
   telemetryData: {},
 
   _isRetrying: false,
+  _requestRedirectURI: null,
 
   /**
    * Obtain an access token for this endpoint. If an access token has already
@@ -80,7 +117,7 @@ OAuth2.prototype = {
    * @param {boolean} aWithUI - If UI can be shown to the user for logging in.
    * @param {boolean} aRefresh - If any existing access token should be
    *   ignored and a new one obtained.
-   * @returns {Promise} - Resolves when authorisation is complete and an
+   * @returns {Promise} - Resolves when authorization is complete and an
    *   access token is available.
    */
   connect(aWithUI, aRefresh) {
@@ -121,10 +158,6 @@ OAuth2.prototype = {
 
     authEndpointURL.searchParams.append("response_type", "code");
     authEndpointURL.searchParams.append("client_id", this.clientId);
-    authEndpointURL.searchParams.append(
-      "redirect_uri",
-      this.redirectionEndpoint
-    );
 
     // The scope is optional.
     if (this.scope) {
@@ -159,121 +192,58 @@ OAuth2.prototype = {
       }
     }
 
-    this.log.info(
+    log.info(
       "Interacting with the resource owner to obtain an authorization grant " +
         "from the authorization endpoint: " +
         authEndpointURL.toString()
     );
 
-    this._browserRequest = {
-      account: this,
-      url: authEndpointURL.toString(),
-      _active: true,
-      iconURI: "",
-      cancelled() {
-        if (!this._active) {
-          return;
-        }
-
-        this.account.finishAuthorizationRequest();
-        this.account.onAuthorizationFailed(
-          Cr.NS_ERROR_ABORT,
-          '{ "error": "cancelled"}',
-          "cancelled"
+    if (
+      lazy.useExternalBrowser &&
+      isLoopbackHttpRedirect(this.redirectionEndpoint)
+    ) {
+      this.request = new ExternalRequest(this);
+      if (!this.request.startLoopbackRedirectListener()) {
+        this.finishAuthorizationRequest();
+        this.onAuthorizationFailed(
+          Cr.NS_ERROR_FAILURE,
+          '{ "error": "invalid_redirect" }',
+          "localhost listener init failed"
         );
-      },
-
-      loaded(aWindow, aWebProgress) {
-        if (!this._active) {
-          return;
-        }
-
-        this._listener = {
-          window: aWindow,
-          webProgress: aWebProgress,
-          _parent: this.account,
-
-          QueryInterface: ChromeUtils.generateQI([
-            "nsIWebProgressListener",
-            "nsISupportsWeakReference",
-          ]),
-
-          _cleanUp() {
-            this.webProgress.removeProgressListener(this);
-            this.window.close();
-            delete this.window;
-          },
-
-          _checkForRedirect(url) {
-            if (!url.startsWith(this._parent.redirectionEndpoint)) {
-              return;
-            }
-
-            this._parent.finishAuthorizationRequest();
-            this._parent.onAuthorizationReceived(url);
-          },
-
-          onStateChange(webProgress, aRequest, aStateFlags) {
-            if (
-              aStateFlags &
-              (Ci.nsIWebProgressListener.STATE_START |
-                Ci.nsIWebProgressListener.STATE_IS_NETWORK)
-            ) {
-              const channel = aRequest.QueryInterface(Ci.nsIChannel);
-              this._checkForRedirect(channel.URI.spec);
-            }
-          },
-          onLocationChange(webProgress, aRequest, aLocation) {
-            this._checkForRedirect(aLocation.spec);
-          },
-          onProgressChange() {},
-          onStatusChange() {},
-          onSecurityChange() {},
-        };
-        aWebProgress.addProgressListener(
-          this._listener,
-          Ci.nsIWebProgress.NOTIFY_ALL
-        );
-        aWindow.document.title = this.account.requestWindowTitle;
-      },
-    };
-
-    const windowPrivacy = Services.prefs.getBoolPref(
-      "mailnews.oauth.usePrivateBrowser",
-      false
-    )
-      ? "private"
-      : "non-private";
-    const windowFeatures = `${this.requestWindowFeatures},${windowPrivacy}`;
-
-    this.wrappedJSObject = this._browserRequest;
-    gConnecting[this.authorizationEndpoint] = true;
-    Services.ww.openWindow(
-      null,
-      this.requestWindowURI,
-      null,
-      windowFeatures,
-      this
+        return;
+      }
+    } else {
+      this.request = new InternalRequest(this);
+    }
+    this._requestRedirectURI = this.request.redirectURI;
+    authEndpointURL.searchParams.append(
+      "redirect_uri",
+      this.request.redirectURI
     );
+
+    if (!this.request.start(authEndpointURL)) {
+      this.finishAuthorizationRequest();
+      // Only the ExternalRequest construction is fallible here.
+      this.onAuthorizationFailed(
+        Cr.NS_ERROR_FAILURE,
+        '{ "error": "external_browser_launch_failed" }',
+        "external browser launch failure"
+      );
+    }
   },
   finishAuthorizationRequest() {
     gConnecting[this.authorizationEndpoint] = false;
-    if (!("_browserRequest" in this)) {
-      return;
+    if (this.request) {
+      this.request.close();
+      this.request = null;
     }
-
-    this._browserRequest._active = false;
-    if ("_listener" in this._browserRequest) {
-      this._browserRequest._listener._cleanUp();
-    }
-    delete this._browserRequest;
   },
 
   /**
    * @param {string} aURL - Redirection URI with additional parameters.
    */
   onAuthorizationReceived(aURL) {
-    this.log.info("OAuth2 authorization response received: url=" + aURL);
+    log.info("OAuth2 authorization response received: url=" + aURL);
     const url = new URL(aURL);
     if (url.searchParams.has("code")) {
       // @see RFC 6749 section 4.1.2: Authorization Response
@@ -291,7 +261,7 @@ OAuth2.prototype = {
         if (url.searchParams.has("error_uri")) {
           errorDescription += ` See ${url.searchParams.get("error_uri")}.`;
         }
-        this.log.error(`Authorization error [${error}]: ${errorDescription}`);
+        log.error(`Authorization error [${error}]: ${errorDescription}`);
       }
       this.onAuthorizationFailed(null, aURL, reason);
     }
@@ -322,18 +292,21 @@ OAuth2.prototype = {
     }
 
     if (aRefresh) {
-      this.log.info(
+      log.info(
         `Making a refresh request to the token endpoint: ${this.tokenEndpoint}`
       );
       data.append("grant_type", "refresh_token");
       data.append("refresh_token", aCode);
     } else {
-      this.log.info(
+      log.info(
         `Making access token request to the token endpoint: ${this.tokenEndpoint}`
       );
       data.append("grant_type", "authorization_code");
       data.append("code", aCode);
-      data.append("redirect_uri", this.redirectionEndpoint);
+      data.append(
+        "redirect_uri",
+        this._requestRedirectURI || this.redirectionEndpoint
+      );
       if (this.usePKCE) {
         data.append("code_verifier", this.codeVerifier);
       }
@@ -356,8 +329,8 @@ OAuth2.prototype = {
           if ("error_uri" in result) {
             err += "; " + result.error_uri;
           }
-          this.log.warn(`Error response from the authorization server: ${err}`);
-          this.log.info(`Error response details: ${resultStr}`);
+          log.warn(`Error response from the authorization server: ${err}`);
+          log.info(`Error response details: ${resultStr}`);
 
           // Typically in production this would be {"error": "invalid_grant"}.
           // That is, the token expired or was revoked (user changed password?).
@@ -382,7 +355,7 @@ OAuth2.prototype = {
         this._isRetrying = false;
 
         // RFC 6749 section 5.1. Successful Response
-        this.log.info(
+        log.info(
           `Successful response from the authorization server: ${resultStr}`
         );
         this.accessToken = result.access_token;
@@ -409,7 +382,7 @@ OAuth2.prototype = {
             .split(" ")
             .some(s => !returnedScopes.includes(s));
           if (deltaScope) {
-            this.log.warn(
+            log.warn(
               `Scope "${this.scope}" was requested, but "${result.scope}" was granted.`
             );
           }
@@ -421,7 +394,7 @@ OAuth2.prototype = {
       })
       .catch(err => {
         this.recordTelemetry("connection failed");
-        this.log.info(`Connection to authorization server failed: ${err}`);
+        log.info(`Connection to authorization server failed: ${err}`);
         this._reject(err);
       });
   },
@@ -441,3 +414,377 @@ OAuth2.prototype = {
     }
   },
 };
+
+class InternalRequest {
+  /**
+   * Constructor for internal requests using Thunderbird's browser.
+   *
+   * @param {OAuth2} oauth
+   */
+  constructor(oauth) {
+    this.oauth = oauth;
+    this.url = "";
+    this.redirectURI = oauth.redirectionEndpoint;
+    this.iconURI = "";
+    this._active = true;
+    this._listener = null;
+  }
+
+  /**
+   * @param {URL} authEndpointURL - Authorization endpoint, with params.
+   * @returns {boolean}
+   */
+  start(authEndpointURL) {
+    this.url = authEndpointURL.href;
+    gConnecting[this.oauth.authorizationEndpoint] = true;
+
+    const windowPrivacy = Services.prefs.getBoolPref(
+      "mailnews.oauth.usePrivateBrowser",
+      false
+    )
+      ? "private"
+      : "non-private";
+    const windowFeatures = `${this.oauth.requestWindowFeatures},${windowPrivacy}`;
+
+    Services.ww.openWindow(
+      null,
+      this.oauth.requestWindowURI,
+      null,
+      windowFeatures,
+      { wrappedJSObject: this }
+    );
+    return true;
+  }
+
+  /**
+   * The request has completed and can be closed.
+   */
+  close() {
+    this._active = false;
+    this._listener?._cleanUp();
+  }
+
+  /**
+   * The request was cancelled, finish and abort.
+   */
+  cancelled() {
+    if (!this._active) {
+      return;
+    }
+
+    this.oauth.finishAuthorizationRequest();
+    this.oauth.onAuthorizationFailed(
+      Cr.NS_ERROR_ABORT,
+      '{ "error": "cancelled" }',
+      "cancelled"
+    );
+  }
+
+  /**
+   * The auth endpoint URL loaded in the window, start listening for redirects.
+   *
+   * @param {Window} aWindow
+   * @param {nsIWebProgress} aWebProgress
+   */
+  loaded(aWindow, aWebProgress) {
+    if (!this._active) {
+      return;
+    }
+
+    this._listener = {
+      window: aWindow,
+      webProgress: aWebProgress,
+      _oauth: this.oauth,
+      redirectURI: this.redirectURI,
+
+      QueryInterface: ChromeUtils.generateQI([
+        "nsIWebProgressListener",
+        "nsISupportsWeakReference",
+      ]),
+
+      _cleanUp() {
+        this.webProgress.removeProgressListener(this);
+        this.window.close();
+        delete this.window;
+      },
+
+      _checkForRedirect(url) {
+        if (!url.startsWith(this.redirectURI)) {
+          return;
+        }
+
+        this._oauth.finishAuthorizationRequest();
+        this._oauth.onAuthorizationReceived(url);
+      },
+
+      onStateChange(webProgress, aRequest, aStateFlags) {
+        if (
+          aStateFlags &
+          (Ci.nsIWebProgressListener.STATE_START |
+            Ci.nsIWebProgressListener.STATE_IS_NETWORK)
+        ) {
+          const channel = aRequest.QueryInterface(Ci.nsIChannel);
+          this._checkForRedirect(channel.URI.spec);
+        }
+      },
+      onLocationChange(webProgress, aRequest, aLocation) {
+        this._checkForRedirect(aLocation.spec);
+      },
+      onProgressChange() {},
+      onStatusChange() {},
+      onSecurityChange() {},
+    };
+    aWebProgress.addProgressListener(
+      this._listener,
+      Ci.nsIWebProgress.NOTIFY_ALL
+    );
+    aWindow.document.title = this.oauth.requestWindowTitle;
+  }
+}
+
+class ExternalRequest {
+  /**
+   * Constructor for external requests using the system web browser. The object
+   * should not be used until `startLoopbackRedirectListener` is called.
+   *
+   * @param {OAuth2} oauth
+   */
+  constructor(oauth) {
+    this.oauth = oauth;
+    this.redirectURI = oauth.redirectionEndpoint;
+    this._loopbackRedirectListener = null;
+    this._active = true;
+  }
+
+  /**
+   * @param {URL} authEndpointURL - Authorization endpoint, with params.
+   * @returns {boolean} - True on success, false if the browser fails to launch.
+   */
+  start(authEndpointURL) {
+    const authURI = Services.io.newURI(authEndpointURL.href);
+    openLinkExternally(authURI, { addToHistory: false });
+
+    // Normally, we'd do the following:
+    // gConnecting[this.oauth.authorizationEndpoint] = true;
+    // But because we can't tell if the tab closes with no interaction, doing
+    // so could lock out any future OAuth requests.
+    return true;
+  }
+
+  /**
+   * The request has completed and can be closed.
+   */
+  close() {
+    this._active = false;
+    this.closeLoopbackRedirectListener();
+  }
+
+  /**
+   * Close and clear the current loopback listener, if any.
+   */
+  closeLoopbackRedirectListener() {
+    if (this._loopbackRedirectListener) {
+      this._loopbackRedirectListener.close();
+      this._loopbackRedirectListener = null;
+    }
+  }
+
+  /**
+   * Start a localhost loopback listener and update this request's redirect URI.
+   *
+   * @returns {boolean} - True on success, false if the URI is bad or a socket
+   *   can't be created.
+   */
+  startLoopbackRedirectListener() {
+    this.closeLoopbackRedirectListener();
+    let baseURI;
+    try {
+      baseURI = new URL(this.oauth.redirectionEndpoint);
+    } catch (e) {
+      return false;
+    }
+
+    let socket;
+    try {
+      socket = Cc["@mozilla.org/network/server-socket;1"].createInstance(
+        Ci.nsIServerSocket
+      );
+      socket.init(-1, true, -1);
+    } catch (e) {
+      return false;
+    }
+
+    baseURI.port = socket.port;
+    const callbackPrefix = baseURI.toString();
+    const listener = {
+      QueryInterface: ChromeUtils.generateQI([
+        "nsIServerSocketListener",
+        "nsIInputStreamCallback",
+      ]),
+      _oauth: this.oauth,
+      _closed: false,
+      _receivedRequest: false,
+      _inputStream: null,
+      _outputStream: null,
+      _transport: null,
+      _buffer: "",
+
+      close() {
+        if (this._closed) {
+          return;
+        }
+        this._closed = true;
+        if (this._inputStream) {
+          this._inputStream.close();
+          this._inputStream = null;
+        }
+        if (socket) {
+          socket.close();
+          socket = null;
+        }
+
+        if (this._receivedRequest) {
+          // The response stream was closed in _respond().
+          this._transport = null;
+          return;
+        }
+
+        if (this._outputStream) {
+          this._outputStream.close();
+          this._outputStream = null;
+        }
+        if (this._transport) {
+          this._transport.close(Cr.NS_OK);
+          this._transport = null;
+        }
+      },
+
+      _respond(statusLine, body) {
+        if (!this._outputStream) {
+          return;
+        }
+        const response =
+          `HTTP/1.1 ${statusLine}\r\n` +
+          "Content-Type: text/html; charset=utf-8\r\n" +
+          "Cache-Control: no-store\r\n" +
+          "Connection: close\r\n\r\n" +
+          body;
+        this._outputStream.write(response, response.length);
+
+        // Cleanly close after the first response to ensure it's fully flushed.
+        this._outputStream.close();
+        this._outputStream = null;
+      },
+
+      _completeWithURL(url) {
+        if (this._receivedRequest) {
+          return;
+        }
+        this._receivedRequest = true;
+        this._respond(
+          "200 OK",
+          `<!doctype html><html><body>${lazy.l10n.formatValueSync(
+            "oauth2-loopback-success"
+          )}</body></html>`
+        );
+        Services.tm.dispatchToMainThread(() => {
+          this._oauth.finishAuthorizationRequest();
+          this._oauth.onAuthorizationReceived(url);
+        });
+      },
+
+      _fail() {
+        if (this._receivedRequest) {
+          return;
+        }
+        this._receivedRequest = true;
+        this._respond(
+          "400 Bad Request",
+          `<!doctype html><html><body>${lazy.l10n.formatValueSync(
+            "oauth2-loopback-failure"
+          )}</body></html>`
+        );
+        Services.tm.dispatchToMainThread(() => {
+          this._oauth.finishAuthorizationRequest();
+          this._oauth.onAuthorizationFailed(
+            Cr.NS_ERROR_FAILURE,
+            '{ "error": "authorization_failed" }',
+            "authorization failed"
+          );
+        });
+      },
+
+      onSocketAccepted(_socket, transport) {
+        if (this._closed || this._transport) {
+          transport.close(Cr.NS_ERROR_ABORT);
+          return;
+        }
+
+        this._transport = transport;
+        this._inputStream = transport
+          .openInputStream(0, 0, 0)
+          .QueryInterface(Ci.nsIAsyncInputStream);
+        this._outputStream = transport.openOutputStream(0, 0, 0);
+        this._inputStream.asyncWait(this, 0, 0, Services.tm.mainThread);
+      },
+
+      onStopListening() {},
+
+      onInputStreamReady(stream) {
+        const MAX_REQUEST_LINE_BYTES = 8192;
+
+        if (this._closed || this._receivedRequest) {
+          return;
+        }
+
+        let available;
+        try {
+          available = stream.available();
+        } catch (e) {
+          this._fail();
+          return;
+        }
+
+        if (available <= 0) {
+          stream.asyncWait(this, 0, 0, Services.tm.mainThread);
+          return;
+        }
+
+        const scriptableStream = Cc[
+          "@mozilla.org/scriptableinputstream;1"
+        ].createInstance(Ci.nsIScriptableInputStream);
+        scriptableStream.init(stream);
+        this._buffer += scriptableStream.read(available);
+
+        const requestLineEnd = this._buffer.indexOf("\r\n");
+        if (requestLineEnd < 0) {
+          if (this._buffer.length > MAX_REQUEST_LINE_BYTES) {
+            this._fail();
+            return;
+          }
+          stream.asyncWait(this, 0, 0, Services.tm.mainThread);
+          return;
+        }
+
+        const requestLine = this._buffer.substring(0, requestLineEnd);
+        const match = /^GET\s+(\S+)(?:\s|$)/.exec(requestLine);
+        if (!match) {
+          this._fail();
+          return;
+        }
+
+        try {
+          const url = new URL(match[1], callbackPrefix).toString();
+          this._completeWithURL(url);
+        } catch (e) {
+          this._fail();
+        }
+      },
+    };
+
+    socket.asyncListen(listener);
+    this._loopbackRedirectListener = listener;
+    this.redirectURI = callbackPrefix;
+    return true;
+  }
+}

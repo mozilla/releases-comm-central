@@ -98,6 +98,7 @@ var kHostnames = new Map([
 
   // For testing purposes.
   ["mochi.test", ["test.test", "test_scope"]],
+  ["external.test", ["external.test", "test_scope"]],
   [
     "test.test",
     [
@@ -216,7 +217,6 @@ var kIssuers = new Map([
       // https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-v2-protocols#endpoints
       authorizationEndpoint: `https://login.microsoftonline.com/${microsoft365TenantId}/oauth2/v2.0/authorize`,
       tokenEndpoint: `https://login.microsoftonline.com/${microsoft365TenantId}/oauth2/v2.0/token`,
-      redirectionEndpoint: "https://localhost",
     },
   ],
 
@@ -284,6 +284,18 @@ var kIssuers = new Map([
       authorizationEndpoint: "https://oauth.test.test/form",
       tokenEndpoint: "https://oauth.test.test/token",
       redirectionEndpoint: "https://localhost",
+    },
+  ],
+  [
+    "external.test",
+    {
+      name: "external.test",
+      builtIn: true,
+      clientId: "test_client_id",
+      clientSecret: "test_secret",
+      authorizationEndpoint: "https://oauth.test.test/form",
+      tokenEndpoint: "https://oauth.test.test/token",
+      redirectionEndpoint: "http://localhost",
     },
   ],
 ]);
