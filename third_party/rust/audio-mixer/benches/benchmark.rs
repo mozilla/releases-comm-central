@@ -17,7 +17,7 @@ fn criterion_benchmark(c: &mut Criterion) {
 
 fn downmix<T>(frames: usize)
 where
-    T: Clone + Default + From<u8> + ?Sized + Any,
+    T: Clone + Default + From<u8> + Any,
 {
     // Downmix from 5.1 to stereo.
     let input_channels = [
@@ -34,7 +34,7 @@ where
 
 fn upmix<T>(frames: usize)
 where
-    T: Clone + Default + From<u8> + ?Sized + Any,
+    T: Clone + Default + From<u8> + Any,
 {
     // upmix from mono to stereo.
     let input_channels = [Channel::FrontCenter];
@@ -44,7 +44,7 @@ where
 
 fn mix<T>(input_channels: &[Channel], output_channels: &[Channel], frames: usize)
 where
-    T: Clone + Default + From<u8> + ?Sized + Any,
+    T: Clone + Default + From<u8> + Any,
 {
     if TypeId::of::<T>() == TypeId::of::<f32>() {
         let (input_buffer, mut output_buffer) = create_buffers::<f32>(

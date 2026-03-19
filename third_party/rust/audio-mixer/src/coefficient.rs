@@ -98,7 +98,16 @@ where
                 break;
             }
         }
-        let coefficient_matrix = if only_stereo_or_discrete && output_channels.len() > 2 {
+        // Don't use diagonal passthrough when input has fewer channels than
+        // non-discrete outputs (e.g. mono to stereo+discrete needs upmix).
+        let non_discrete_output_count = output_channels
+            .iter()
+            .filter(|c| **c != Channel::Discrete)
+            .count();
+        let coefficient_matrix = if only_stereo_or_discrete
+            && output_channels.len() > 2
+            && input_channels.len() >= non_discrete_output_count
+        {
             let mut matrix = Vec::with_capacity(output_channels.len());
             // Create a diagonal line of 1.0 for input channels
             for (output_channel_index, _) in output_channels.iter().enumerate() {
@@ -201,6 +210,7 @@ where
 
         // Return true if mixable channels are symmetric.
         fn is_symmetric(map: ChannelMap) -> bool {
+            #[allow(clippy::manual_is_multiple_of)] // Replace once we can depend on Rust >=1.87
             fn even(map: ChannelMap) -> bool {
                 map.bits().count_ones() % 2 == 0
             }
@@ -826,6 +836,62 @@ mod test {
             }
         }
         assert!(found_non_unity_non_silence);
+    }
+
+    #[test]
+    fn test_mono_to_discrete_multichannel() {
+        test_mono_to_discrete_multichannel_impl::<f32>();
+        test_mono_to_discrete_multichannel_impl::<i16>();
+    }
+
+    fn test_mono_to_discrete_multichannel_impl<T>()
+    where
+        T: MixingCoefficient,
+        T::Coef: Copy + Debug + PartialEq,
+    {
+        // Mono input to a 4-channel device with stereo pair + discrete channels.
+        // Mono must be mixed into both L and R.
+        let input_channels = [Channel::FrontCenter];
+        let output_channels = [
+            Channel::FrontLeft,
+            Channel::FrontRight,
+            Channel::Discrete,
+            Channel::Discrete,
+        ];
+
+        let coefficients = Coefficient::<T>::create(&input_channels, &output_channels);
+
+        // FrontCenter should be mixed into both FrontLeft and FrontRight
+        assert_ne!(coefficients.get(0, 0), T::coefficient_from_f64(0.0));
+        assert_ne!(coefficients.get(0, 1), T::coefficient_from_f64(0.0));
+        // Discrete channels should be silent
+        assert_eq!(coefficients.get(0, 2), T::coefficient_from_f64(0.0));
+        assert_eq!(coefficients.get(0, 3), T::coefficient_from_f64(0.0));
+    }
+
+    #[test]
+    fn test_stereo_to_discrete_multichannel() {
+        test_stereo_to_discrete_multichannel_impl::<f32>();
+        test_stereo_to_discrete_multichannel_impl::<i16>();
+    }
+
+    fn test_stereo_to_discrete_multichannel_impl<T>()
+    where
+        T: MixingCoefficient,
+        T::Coef: Copy + Debug + PartialEq,
+    {
+        // Stereo input to a 4-channel device with stereo pair + discrete.
+        // Stereo should still use diagonal passthrough.
+        let input_channels = [Channel::FrontLeft, Channel::FrontRight];
+        let output_channels = [
+            Channel::FrontLeft,
+            Channel::FrontRight,
+            Channel::Discrete,
+            Channel::Discrete,
+        ];
+
+        let coefficients = Coefficient::<T>::create(&input_channels, &output_channels);
+        assert_is_diagonal::<T>(&coefficients, input_channels.len(), output_channels.len());
     }
 
     #[test]

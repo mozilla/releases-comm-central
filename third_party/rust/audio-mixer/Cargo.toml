@@ -12,8 +12,14 @@
 [package]
 edition = "2018"
 name = "audio-mixer"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["Chun-Min Chang <chun.m.chang@gmail.com>"]
+build = false
+autolib = false
+autobins = false
+autoexamples = false
+autotests = false
+autobenches = false
 description = "Mixing audio by the input and output channel layout"
 readme = "README.md"
 keywords = [
@@ -25,8 +31,20 @@ categories = ["multimedia::audio"]
 license = "MPL-2.0"
 repository = "https://github.com/mozilla/audio-mixer"
 
+[badges.travis-ci]
+repository = "mozilla/audio-mixer"
+
+[lib]
+name = "audio_mixer"
+path = "src/lib.rs"
+
+[[bin]]
+name = "audio-mixer"
+path = "src/main.rs"
+
 [[bench]]
 name = "benchmark"
+path = "benches/benchmark.rs"
 harness = false
 
 [dependencies.bitflags]
@@ -37,6 +55,3 @@ version = "0.3"
 
 [dev-dependencies.float-cmp]
 version = "0.6"
-
-[badges.travis-ci]
-repository = "mozilla/audio-mixer"

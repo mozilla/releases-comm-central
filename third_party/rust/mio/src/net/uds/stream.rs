@@ -1,7 +1,7 @@
 use std::fmt;
 use std::io::{self, IoSlice, IoSliceMut, Read, Write};
 use std::net::Shutdown;
-use std::os::fd::{AsFd, AsRawFd, BorrowedFd, FromRawFd, IntoRawFd, RawFd};
+use std::os::fd::{AsFd, AsRawFd, BorrowedFd, FromRawFd, IntoRawFd, OwnedFd, RawFd};
 use std::os::unix::net::{self, SocketAddr};
 use std::path::Path;
 
@@ -161,7 +161,7 @@ impl Read for UnixStream {
     }
 }
 
-impl<'a> Read for &'a UnixStream {
+impl Read for &'_ UnixStream {
     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
         self.inner.do_io(|mut inner| inner.read(buf))
     }
@@ -185,7 +185,7 @@ impl Write for UnixStream {
     }
 }
 
-impl<'a> Write for &'a UnixStream {
+impl Write for &'_ UnixStream {
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
         self.inner.do_io(|mut inner| inner.write(buf))
     }
@@ -262,8 +262,20 @@ impl From<UnixStream> for net::UnixStream {
     }
 }
 
+impl From<UnixStream> for OwnedFd {
+    fn from(unix_stream: UnixStream) -> Self {
+        unix_stream.inner.into_inner().into()
+    }
+}
+
 impl AsFd for UnixStream {
     fn as_fd(&self) -> BorrowedFd<'_> {
         self.inner.as_fd()
+    }
+}
+
+impl From<OwnedFd> for UnixStream {
+    fn from(fd: OwnedFd) -> Self {
+        UnixStream::from_std(From::from(fd))
     }
 }

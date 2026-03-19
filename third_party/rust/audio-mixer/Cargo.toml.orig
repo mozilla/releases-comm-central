@@ -1,7 +1,7 @@
 [package]
 name = "audio-mixer"
 description = "Mixing audio by the input and output channel layout"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["Chun-Min Chang <chun.m.chang@gmail.com>"]
 license = "MPL-2.0"
 repository = "https://github.com/mozilla/audio-mixer"

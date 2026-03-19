@@ -314,9 +314,9 @@ dependencies = [
 
 [[package]]
 name = "audio-mixer"
-version = "0.2.0"
+version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4f1245ab2f85c284bac1ac1f03565539644566295ef6eb9c4eae42e9a40c51b2"
+checksum = "cf78962ee76f34ed49c735158f1e8b2bad267cb49f79f4eee4ee36e5768bf94f"
 dependencies = [
  "bitflags 1.999.999",
 ]
@@ -3701,9 +3701,9 @@ checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
 
 [[package]]
 name = "libc"
-version = "0.2.176"
+version = "0.2.183"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "58f929b4d672ea937a23a1ab494143d968337a5f47e56d0815df1e0890ddf174"
+checksum = "b5b646652bf6661599e1da8901b3b9522896f01e736bad5f723fe7a3a27f899d"
 
 [[package]]
 name = "libdbus-sys"
@@ -4132,11 +4132,9 @@ dependencies = [
 
 [[package]]
 name = "mio"
-version = "1.0.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4569e456d394deccd22ce1c1913e6ea0e54519f577285001215d33557431afe4"
+version = "1.1.1"
+source = "git+https://github.com/kinetiknz/mio?rev=5e8b202db39facecc343170f50a07916640a607c#5e8b202db39facecc343170f50a07916640a607c"
 dependencies = [
- "hermit-abi 0.3.999",
  "libc",
  "log",
  "wasi 0.11.999",

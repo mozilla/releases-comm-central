@@ -226,6 +226,7 @@ nix = { path = "../../build/rust/nix" }
 autocfg = { path = "../../third_party/rust/autocfg" }
 goblin = { path = "../../build/rust/goblin" }
 getrandom = { path = "../../build/rust/getrandom" }
+mio = { git = "https://github.com/kinetiknz/mio", rev = "5e8b202db39facecc343170f50a07916640a607c" }
 rustc-hash = { path = "../../build/rust/rustc-hash" }
 memoffset = { path = "../../build/rust/memoffset" }
 hashbrown_0_13 = { package = "hashbrown", path = "../../build/rust/hashbrown-0.13" }

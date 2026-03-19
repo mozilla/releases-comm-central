@@ -21,6 +21,7 @@ pub(crate) fn new_raw() -> io::Result<[RawFd; 2]> {
         target_os = "redox",
         target_os = "solaris",
         target_os = "vita",
+        target_os = "cygwin",
     ))]
     unsafe {
         if libc::pipe2(fds.as_mut_ptr(), libc::O_CLOEXEC | libc::O_NONBLOCK) != 0 {
@@ -65,7 +66,7 @@ pub(crate) fn new_raw() -> io::Result<[RawFd; 2]> {
 cfg_os_ext! {
 use std::fs::File;
 use std::io::{IoSlice, IoSliceMut, Read, Write};
-use std::os::fd::{AsFd, AsRawFd, BorrowedFd, FromRawFd, IntoRawFd};
+use std::os::fd::{AsFd, AsRawFd, BorrowedFd, FromRawFd, IntoRawFd, OwnedFd};
 use std::process::{ChildStderr, ChildStdin, ChildStdout};
 
 use crate::io_source::IoSource;
@@ -378,9 +379,23 @@ impl IntoRawFd for Sender {
     }
 }
 
+impl From<Sender> for OwnedFd {
+    fn from(sender: Sender) -> Self {
+        sender.inner.into_inner().into()
+    }
+}
+
 impl AsFd for Sender {
     fn as_fd(&self) -> BorrowedFd<'_> {
         self.inner.as_fd()
+    }
+}
+
+impl From<OwnedFd> for Sender {
+    fn from(fd: OwnedFd) -> Self {
+        Sender {
+            inner: IoSource::new(File::from(fd)),
+        }
     }
 }
 
@@ -551,13 +566,27 @@ impl FromRawFd for Receiver {
     }
 }
 
+impl From<Receiver> for OwnedFd {
+    fn from(receiver: Receiver) -> Self {
+        receiver.inner.into_inner().into()
+    }
+}
+
 impl AsFd for Receiver {
     fn as_fd(&self) -> BorrowedFd<'_> {
         self.inner.as_fd()
     }
 }
 
-#[cfg(not(any(target_os = "illumos", target_os = "solaris", target_os = "vita")))]
+impl From<OwnedFd> for Receiver {
+    fn from(fd: OwnedFd) -> Self {
+        Receiver {
+            inner: IoSource::new(File::from(fd)),
+        }
+    }
+}
+
+#[cfg(not(any(target_os = "aix", target_os = "illumos", target_os = "solaris", target_os = "vita")))]
 fn set_nonblocking(fd: RawFd, nonblocking: bool) -> io::Result<()> {
     let value = nonblocking as libc::c_int;
     if unsafe { libc::ioctl(fd, libc::FIONBIO, &value) } == -1 {
@@ -567,7 +596,7 @@ fn set_nonblocking(fd: RawFd, nonblocking: bool) -> io::Result<()> {
     }
 }
 
-#[cfg(any(target_os = "illumos", target_os = "solaris", target_os = "vita"))]
+#[cfg(any(target_os = "aix", target_os = "illumos", target_os = "solaris", target_os = "vita"))]
 fn set_nonblocking(fd: RawFd, nonblocking: bool) -> io::Result<()> {
     let flags = unsafe { libc::fcntl(fd, libc::F_GETFL) };
     if flags < 0 {
