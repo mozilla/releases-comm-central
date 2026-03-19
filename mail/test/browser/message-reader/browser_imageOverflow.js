@@ -20,9 +20,9 @@ add_setup(async () => {
   msgc = await open_message_from_file(file);
   msgc.windowUtils.suppressAnimation(true);
 
-  if (window.screen.availWidth > msgc.outerWidth && msgc.outerWidth < 500) {
+  if (window.screen.availWidth > msgc.outerWidth && msgc.outerWidth < 700) {
     const resizePromise = BrowserTestUtils.waitForEvent(msgc, "resize");
-    const w = Math.min(window.screen.availWidth, 550);
+    const w = Math.min(window.screen.availWidth, 750);
     const h = msgc.outerHeight;
     info(`Resizing window... to ${w}x${h}...`);
     msgc.resizeTo(w, h);
@@ -172,24 +172,23 @@ add_task(async function test_imageUnderflow() {
 
   const initialWidth = msgc.outerWidth;
 
-  if (initialWidth > 350) {
+  if (initialWidth > 750) {
     const resizePromise = BrowserTestUtils.waitForEvent(msgc, "resize");
-    info(`Initial width too large; resizing to 350x${msgc.outerHeight}...`);
-    msgc.resizeTo(350, msgc.outerHeight);
+    info(`Initial width too large; resizing to 750x${msgc.outerHeight}...`);
+    msgc.resizeTo(750, msgc.outerHeight);
     await resizePromise;
     info("... resized!");
-    //Assert.equal(msgc.outerWidth, 350, "resizeTo should have worked");
     await TestUtils.waitForTick();
   }
 
   await TestUtils.waitForCondition(
-    () => msgDoc.body.clientWidth < 400,
-    `The message display needs to be less than 400px wide: ${msgDoc.body.clientWidth}`
+    () => msgDoc.body.clientWidth < 800,
+    `The message display needs to be less than 800px wide: ${msgDoc.body.clientWidth}`
   );
   Assert.less(
     msgDoc.body.clientWidth,
-    400,
-    "message display width should be less than 400"
+    800,
+    "message display width should be less than 800"
   );
 
   await TestUtils.waitForCondition(
@@ -214,7 +213,9 @@ add_task(async function test_imageUnderflow() {
     image.hasAttribute("shrinktofit"),
     "img#stretched should have attr shrinktofit"
   );
-  info("Zooming image #stretched");
+  info("Zooming image #stretched"); // #stretched is 800x16px
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 100));
   EventUtils.synthesizeMouse(image, 1, 1, {}, image.ownerGlobal);
   await BrowserTestUtils.waitForMutationCondition(
     image,
@@ -225,13 +226,12 @@ add_task(async function test_imageUnderflow() {
   );
   info("... zoomed on the image #stretched");
 
-  // 460px gives an extra 8px of available width on one developer's system.
   // There are probably still cases where this is too little for this test to
   // pass. Optimally, we'd be resizing for the availableWidth calculation in
-  // aboutMessage.js to result in at least 400px guaranteed.
-  info(`Resizing window to 460x${msgc.outerHeight}...`);
+  // aboutMessage.js to result in at least 800px guaranteed.
+  info(`Resizing window to 870x${msgc.outerHeight}...`);
   const resizePromise2 = BrowserTestUtils.waitForEvent(msgc, "resize");
-  msgc.resizeTo(460, msgc.outerHeight);
+  msgc.resizeTo(870, msgc.outerHeight);
   await resizePromise2;
   info("Waiting for stretched image to get marked with shrinktofit...");
   await BrowserTestUtils.waitForMutationCondition(
@@ -255,4 +255,4 @@ add_task(async function test_imageUnderflow() {
     top: 0,
     behavior: "instant",
   });
-}).skip(window.screen.availWidth < 460); // Need space to show the entire element
+}).skip(window.screen.availWidth < 870); // Need space to show the entire element

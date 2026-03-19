@@ -2,31 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* ===== messageWindow.css ==============================================
-  == Styles for the message window.
-  ======================================================================= */
+/*  Styles for the standalone message window. */
 
-@import url("chrome://messenger/skin/messenger.css");
-@import url("chrome://messenger/skin/primaryToolbar.css");
+@import url("chrome://messenger/skin/shared/messageWindow.css");
 
 #messengerWindow {
   background-color: -moz-Dialog;
 }
 
-#messagepanebox {
-  flex: 3 3;
-  text-shadow: none;
-}
-
-#messagepaneboxwrapper {
-  overflow: hidden;
-  min-block-size: 0;
-}
-
 :root[lwtheme] #mail-toolbox {
   text-shadow: none;
-}
-
-#messagepane {
-  flex: 1;
 }

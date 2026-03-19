@@ -1,51 +1,48 @@
-Content-Type: multipart/mixed; boundary="------------UiZbVg1oKjs0D10f7pt76MRm"
+Content-Type: multipart/mixed; boundary="------------m4YKET0r32YWru7MnALvyWK8"
 Message-ID: <54fd483e-e65e-4dbb-9d75-063906300436@example.com>
-Date: Thu, 4 Jul 2024 19:28:23 +0200
+Date: Thu, 5 Mar 2026 16:26:19 +0200
 MIME-Version: 1.0
 User-Agent: Thunderbird Daily
-Content-Language: en-US
-To: test@example.com
 From: Image Test <imagetest@example.com>
 Subject: Image sizing test
+To: test@example.com
+Content-Language: en-US
 
 This is a multi-part message in MIME format.
---------------UiZbVg1oKjs0D10f7pt76MRm
+--------------m4YKET0r32YWru7MnALvyWK8
 Content-Type: multipart/related;
- boundary="------------2wxAK7EB6xhF55w8q3jayJAH"
+ boundary="------------M9MDjtARdyeUzchWZ3ibKVOm"
 
---------------2wxAK7EB6xhF55w8q3jayJAH
+--------------M9MDjtARdyeUzchWZ3ibKVOm
 Content-Type: text/html; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 <!DOCTYPE html>
 <html>
   <head>
-
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <title>Image sizing test</title>
   </head>
   <body>
-    <div style="height: 5000px">
-      Vertical padding to make sure the images are below the fold.
-    </div>
+    <div style="height: 5000px"> Vertical padding to make sure the
+      images are below the fold. </div>
     <p>An inline image:</p>
-    <img src="cid:part1.4u939f0L.9JKhIMXF@example.com" width="5000"
-        height="16" alt="">
+    <img src="cid:part1.INj6BYR5.l0ySybKB@example.com"
+      width="5000" height="16" alt="" class="">
     <p>A stretched image:</p>
-    <img src="cid:part2.vmSs2Orn.F295w1yW@example.com" alt=""
-      width="5000" height="16" id="stretched">
-
+    <img src="cid:part2.Q0INFxKB.y7ODBUl9@example.com"
+      alt="800x16px" width="5000" height="16" id="stretched" class=""
+      moz-do-not-send="false">
     <p>Image inside a link:</p>
-    <a href="https://example.com">
-      <img src="cid:part1.4u939f0L.9JKhIMXF@example.com" width="14"
-        height="14" alt="">
-    </a>
+    <a href="https://example.com" moz-do-not-send="true"> <img
+        src="cid:part1.INj6BYR5.l0ySybKB@example.com" width="14"
+        height="14" alt="" class=""> </a>
   </body>
 </html>
---------------2wxAK7EB6xhF55w8q3jayJAH
+--------------M9MDjtARdyeUzchWZ3ibKVOm
 Content-Type: image/png; name="wideInline.png"
 Content-Disposition: inline; filename="wideInline.png"
-Content-Id: <part1.4u939f0L.9JKhIMXF@example.com>
+Content-Id: <part1.INj6BYR5.l0ySybKB@example.com>
 Content-Transfer-Encoding: base64
 
 iVBORw0KGgoAAAANSUhEUgAAE4gAAAAQCAIAAAB1+QLhAAABfWlDQ1BJQ0MgcHJvZmlsZQAA
@@ -64,19 +61,21 @@ AJAxFQAAAAAAAAAAAAAAAACAjKkAAAAAAAAAAAAAAAAAAJAxFQAAAAAAAAAAAAAAAACAjKkA
 AAAAAAAAAAAAAAAAAGRMBQAAAAAAAAAAAAAAAAAgYyoAAAAAAAAAAAAAAAAAABlTAQAAAAAA
 AAAAAAAAAADImAoAAAAAAAAAAAAAAAAAQMZUAAAAAAAAAAAAAAAAAAB4uWXtAdcN96SqAAAA
 AElFTkSuQmCC
---------------2wxAK7EB6xhF55w8q3jayJAH
-Content-Type: image/png; name="inline.png"
-Content-Disposition: inline; filename="inline.png"
-Content-Id: <part2.vmSs2Orn.F295w1yW@example.com>
+--------------M9MDjtARdyeUzchWZ3ibKVOm
+Content-Type: image/png; name="inline800.png"
+Content-Disposition: inline; filename="inline800.png"
+Content-Id: <part2.Q0INFxKB.y7ODBUl9@example.com>
 Content-Transfer-Encoding: base64
 
-iVBORw0KGgoAAAANSUhEUgAAAZAAAAAQCAYAAAA4eCmgAAAABmJLR0QA/wD/AP+gvaeTAAAA
-CXBIWXMAAC4jAAAuIwF4pT92AAAAB3RJTUUH6AcWEAkgBxvf7QAAAEtJREFUeNrt1TEBAAAE
-AEH0D6QdBSz2uwi/fEbPBAA8lQQAGAgABgKAgQBgIABgIAAYCAAGAoCBAGAgAGAgABgIAAYC
-gIEAYCAAcFnwQgLWPcAPQAAAAABJRU5ErkJggg==
+iVBORw0KGgoAAAANSUhEUgAAAyAAAAAQCAYAAADu4htYAAAAAXNSR0IB2cksfwAAAARnQU1B
+AACxjwv8YQUAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAA
+AAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAAuIwAALiMBeKU/dgAAAAd0SU1FB+oDBQ4YKcFC
+NZkAAABmSURBVHja7dcxAQAABABB9A+kHQmsprsIv31GzwQAAMCDkgAAADAgAACAAQEAADAg
+AACAAQEAADAgAACAAQEAAAwIAACAAQEAAAwIAACAAQEAAAwIAABgQAAAAAwIAABgQAAAAG4L
+vIwC1lWYtwcAAAAASUVORK5CYII=
 
---------------2wxAK7EB6xhF55w8q3jayJAH--
---------------UiZbVg1oKjs0D10f7pt76MRm
+--------------M9MDjtARdyeUzchWZ3ibKVOm--
+--------------m4YKET0r32YWru7MnALvyWK8
 Content-Type: image/png; name="wide.png"
 Content-Disposition: attachment; filename="wide.png"
 Content-Transfer-Encoding: base64
@@ -97,7 +96,7 @@ mAoAAAAAAAAAAAAAAAAAQMZUAAAAAAAAAAAAAAAAAADImAoAAAAAAAAAAAAAAAAAQMZUAAAA
 AAAAAAAAAAAAAAAypgIAAAAAAAAAAAAAAAAAkDEVAAAAAAAAAAAAAAAAAICMqQAAAAAAAAAA
 AAAAAAAAZEwFAAAAAAAAAAAAAAAAACBjKgAAAAAAAAAAAAAAAAAAbB5iXQEfve3cIwAAAABJ
 RU5ErkJggg==
---------------UiZbVg1oKjs0D10f7pt76MRm
+--------------m4YKET0r32YWru7MnALvyWK8
 Content-Type: image/png; name="tiny.png"
 Content-Disposition: attachment; filename="tiny.png"
 Content-Transfer-Encoding: base64
@@ -114,4 +113,4 @@ WXMAAC4jAAAuIwF4pT92AAAAB3RJTUUH6AcEERg7JXXAMgAAABl0RVh0Q29tbWVudABDcmVh
 dGVkIHdpdGggR0lNUFeBDhcAAAAWSURBVCjPY/zPQBpgYhjVMKph2GoAAEAuAR+xkMJNAAAA
 AElFTkSuQmCC
 
---------------UiZbVg1oKjs0D10f7pt76MRm--
+--------------m4YKET0r32YWru7MnALvyWK8--

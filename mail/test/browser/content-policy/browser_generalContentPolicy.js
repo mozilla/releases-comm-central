@@ -357,6 +357,9 @@ async function checkStandaloneMessageWindow(test, loadAllowed) {
   if (loadAllowed && test.neverAllowed) {
     return;
   }
+  Services.xulStore.removeDocument(
+    "chrome://messenger/content/messageWindow.xhtml"
+  );
   info(
     `Checking standalone msg win; test=${test.type}; shouldLoad=${loadAllowed}`
   );
