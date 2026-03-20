@@ -349,20 +349,22 @@ var gMailInit = {
  */
 function verifyExistingAccounts() {
   try {
-    const suppressDialogs = Services.prefs.getBoolPref(
-      "mail.provider.suppress_dialog_on_startup",
-      false
-    );
-    if (suppressDialogs && Cu.isInAutomation) {
-      // If surpress dialogs is true continue to load.
-      loadPostAccountWizard();
-      return false;
-    }
     // Trigger the new account configuration wizard only if we don't have any
     // existing account, not even if we have at least one invalid account.
     if (isFirstRun()) {
       openAccountSetup();
       return false;
+    }
+
+    // If we're in tests that want to bypass account startup logic, oblige their
+    // request.
+    if (
+      Services.prefs.getBoolPref(
+        "mail.provider.suppress_dialog_on_startup",
+        false
+      )
+    ) {
+      return true;
     }
 
     let localFoldersExists;
@@ -380,7 +382,7 @@ function verifyExistingAccounts() {
 
     return true;
   } catch (ex) {
-    dump(`Error verifying accounts: ${ex}`);
+    console.error("Error verifying accounts", ex);
     return false;
   }
 }

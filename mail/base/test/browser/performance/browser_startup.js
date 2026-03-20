@@ -67,6 +67,7 @@ const startupPhases = {
       modules: new Set([
         "chrome://openpgp/content/BondOpenPGP.sys.mjs",
         "chrome://openpgp/content/modules/core.sys.mjs",
+        "resource:///modules/AddrBookManager.sys.mjs",
         "resource:///modules/index_im.sys.mjs",
         "resource:///modules/MsgDBCacheManager.sys.mjs",
         "resource:///modules/PeriodicFilterManager.sys.mjs",
@@ -135,7 +136,6 @@ const startupPhases = {
   "before becoming idle": {
     denylist: {
       modules: new Set([
-        "resource:///modules/AddrBookManager.sys.mjs",
         "resource:///modules/DisplayNameUtils.sys.mjs",
         "resource:///modules/gloda/Facet.sys.mjs",
         "resource:///modules/gloda/GlodaMsgSearcher.sys.mjs",
