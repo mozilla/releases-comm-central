@@ -298,8 +298,6 @@ char* nsImapGenericParser::CreateLiteral() {
   }
 
   uint32_t numBytes = numberOfCharsInMessage + 1;
-  NS_ASSERTION(numBytes, "overflow!");
-  if (!numBytes) return nullptr;
   char* returnString = (char*)PR_Malloc(numBytes);
   if (!returnString) {
     HandleMemoryFailure();
