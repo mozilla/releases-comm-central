@@ -35,7 +35,6 @@ treeherder:
         'BMcs': 'Beetmover checksums,'
         'BMcss': 'Beetmover checksums for source'
         'BMR': 'Beetmover repackages'
-        'BM-apt': 'Beetmover APT (.deb) packages'
         'c-Up': 'Balrog submission of complete updates'
         'cs': 'Checksum signing'
         'css': 'Checksum signing for source'
