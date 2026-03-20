@@ -11,9 +11,9 @@
 
 [package]
 edition = "2021"
-rust-version = "1.71"
+rust-version = "1.80.0"
 name = "quinn-udp"
-version = "0.5.13"
+version = "0.6.0"
 build = "build.rs"
 autolib = false
 autobins = false
@@ -36,11 +36,11 @@ all-features = true
 [features]
 default = [
     "tracing",
-    "log",
+    "tracing-log",
 ]
-direct-log = ["dep:log"]
 fast-apple-datapath = []
-log = ["tracing/log"]
+log = ["dep:log"]
+tracing-log = ["tracing/log"]
 
 [lib]
 name = "quinn_udp"
@@ -57,7 +57,7 @@ path = "benches/throughput.rs"
 harness = false
 
 [dependencies.libc]
-version = "0.2.158"
+version = "0.2.175"
 
 [dependencies.log]
 version = "0.4"
@@ -70,7 +70,7 @@ optional = true
 default-features = false
 
 [dev-dependencies.criterion]
-version = "0.6"
+version = "0.8"
 features = ["async_tokio"]
 default-features = false
 
@@ -87,15 +87,27 @@ features = [
 version = "0.2"
 
 [target.'cfg(not(all(target_family = "wasm", target_os = "unknown")))'.dependencies.socket2]
-version = "0.5"
-
-[target."cfg(windows)".dependencies.once_cell]
-version = "1.19"
+version = ">=0.5, <0.7"
 
 [target."cfg(windows)".dependencies.windows-sys]
-version = ">=0.52, <=0.59"
+version = ">=0.52, <=0.61"
 features = [
     "Win32_Foundation",
     "Win32_System_IO",
     "Win32_Networking_WinSock",
 ]
+
+[lints.clippy]
+manual_let_else = "warn"
+or_fun_call = "warn"
+use_self = "warn"
+
+[lints.rust]
+elided_lifetimes_in_paths = "warn"
+unnameable_types = "warn"
+unreachable_pub = "warn"
+
+[lints.rust.unexpected_cfgs]
+level = "warn"
+priority = 0
+check-cfg = ["cfg(fuzzing)"]

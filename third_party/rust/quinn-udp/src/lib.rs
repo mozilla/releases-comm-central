@@ -56,13 +56,13 @@ mod imp;
 
 #[allow(unused_imports, unused_macros)]
 mod log {
-    #[cfg(all(feature = "direct-log", not(feature = "tracing")))]
+    #[cfg(all(feature = "log", not(feature = "tracing-log")))]
     pub(crate) use log::{debug, error, info, trace, warn};
 
-    #[cfg(feature = "tracing")]
+    #[cfg(feature = "tracing-log")]
     pub(crate) use tracing::{debug, error, info, trace, warn};
 
-    #[cfg(not(any(feature = "direct-log", feature = "tracing")))]
+    #[cfg(not(any(feature = "log", feature = "tracing-log")))]
     mod no_op {
         macro_rules! trace    ( ($($tt:tt)*) => {{}} );
         macro_rules! debug    ( ($($tt:tt)*) => {{}} );
@@ -73,7 +73,7 @@ mod log {
         pub(crate) use {debug, error, info, log_warn as warn, trace};
     }
 
-    #[cfg(not(any(feature = "direct-log", feature = "tracing")))]
+    #[cfg(not(any(feature = "log", feature = "tracing-log")))]
     pub(crate) use no_op::*;
 }
 
@@ -93,6 +93,7 @@ pub const BATCH_SIZE: usize = 1;
 ///
 /// [`stride`]: RecvMeta::stride
 #[derive(Debug, Copy, Clone)]
+#[non_exhaustive]
 pub struct RecvMeta {
     /// The source address of the datagram(s) contained in the buffer
     pub addr: SocketAddr,
@@ -115,6 +116,8 @@ pub struct RecvMeta {
     /// Populated on platforms: Windows, Linux, Android (API level > 25),
     /// FreeBSD, OpenBSD, NetBSD, macOS, and iOS.
     pub dst_ip: Option<IpAddr>,
+    /// The interface index of the interface on which the datagram was received
+    pub interface_index: Option<u32>,
 }
 
 impl Default for RecvMeta {
@@ -126,6 +129,7 @@ impl Default for RecvMeta {
             stride: 0,
             ecn: None,
             dst_ip: None,
+            interface_index: None,
         }
     }
 }
@@ -146,6 +150,26 @@ pub struct Transmit<'a> {
     pub src_ip: Option<IpAddr>,
 }
 
+impl Transmit<'_> {
+    /// Computes the effective segment-size of the packet.
+    ///
+    /// Some (older) network drivers don't like being told to do GSO even if
+    /// there is effectively only a single segment.
+    /// (i.e. `segment_size == contents.len()`)
+    /// Additionally, a `segment_size` that is greater than the content also
+    /// means there is effectively only a single segment.
+    /// This case is actually quite common when splitting up a prepared GSO batch
+    /// again after GSO has been disabled because the last datagram in a GSO
+    /// batch is allowed to be smaller than the segment size.
+    #[cfg_attr(apple_fast, allow(dead_code))] // Used by prepare_msg, which is unused when apple_fast
+    fn effective_segment_size(&self) -> Option<usize> {
+        match self.segment_size? {
+            size if size >= self.contents.len() => None,
+            size => Some(size),
+        }
+    }
+}
+
 /// Log at most 1 IO error per minute
 #[cfg(not(wasm_browser))]
 const IO_ERROR_LOG_INTERVAL: Duration = std::time::Duration::from_secs(60);
@@ -154,11 +178,11 @@ const IO_ERROR_LOG_INTERVAL: Duration = std::time::Duration::from_secs(60);
 ///
 /// Logging will only be performed if at least [`IO_ERROR_LOG_INTERVAL`]
 /// has elapsed since the last error was logged.
-#[cfg(all(not(wasm_browser), any(feature = "tracing", feature = "direct-log")))]
+#[cfg(all(not(wasm_browser), any(feature = "tracing-log", feature = "log")))]
 fn log_sendmsg_error(
     last_send_error: &Mutex<Instant>,
     err: impl core::fmt::Debug,
-    transmit: &Transmit,
+    transmit: &Transmit<'_>,
 ) {
     let now = Instant::now();
     let last_send_error = &mut *last_send_error.lock().expect("poisend lock");
@@ -177,8 +201,8 @@ fn log_sendmsg_error(
 }
 
 // No-op
-#[cfg(not(any(wasm_browser, feature = "tracing", feature = "direct-log")))]
-fn log_sendmsg_error(_: &Mutex<Instant>, _: impl core::fmt::Debug, _: &Transmit) {}
+#[cfg(not(any(wasm_browser, feature = "tracing-log", feature = "log")))]
+fn log_sendmsg_error(_: &Mutex<Instant>, _: impl core::fmt::Debug, _: &Transmit<'_>) {}
 
 /// A borrowed UDP socket
 ///
@@ -232,5 +256,46 @@ impl EcnCodepoint {
                 return None;
             }
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::net::Ipv4Addr;
+
+    use super::*;
+
+    #[test]
+    fn effective_segment_size() {
+        assert_eq!(
+            make_transmit(&[0u8; 10], Some(15)).effective_segment_size(),
+            None,
+            "segment_size > content_len should yield no effective segment_size"
+        );
+        assert_eq!(
+            make_transmit(&[0u8; 10], Some(10)).effective_segment_size(),
+            None,
+            "segment_size == content_len should yield no effective segment_size"
+        );
+        assert_eq!(
+            make_transmit(&[0u8; 10], None).effective_segment_size(),
+            None,
+            "no segment_size should yield no effective segment_size"
+        );
+        assert_eq!(
+            make_transmit(&[0u8; 10], Some(5)).effective_segment_size(),
+            Some(5),
+            "segment_size < content_len should yield effective segment_size"
+        );
+    }
+
+    fn make_transmit(contents: &[u8], segment_size: Option<usize>) -> Transmit<'_> {
+        Transmit {
+            destination: SocketAddr::from((Ipv4Addr::UNSPECIFIED, 1)),
+            ecn: None,
+            contents,
+            segment_size,
+            src_ip: None,
+        }
     }
 }

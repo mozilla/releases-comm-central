@@ -13,7 +13,7 @@
 edition = "2024"
 rust-version = "1.90.0"
 name = "neqo-udp"
-version = "0.23.1"
+version = "0.24.1"
 authors = ["The Neqo Authors <necko@mozilla.com>"]
 build = "build.rs"
 autolib = false
@@ -62,8 +62,8 @@ default-features = false
 path = "./../neqo-common"
 
 [dependencies.quinn-udp]
-version = "0.5.13"
-features = ["direct-log"]
+version = "0.6"
+features = ["log"]
 default-features = false
 
 [build-dependencies]

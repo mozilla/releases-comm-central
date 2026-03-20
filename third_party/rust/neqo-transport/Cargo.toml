@@ -13,7 +13,7 @@
 edition = "2024"
 rust-version = "1.90.0"
 name = "neqo-transport"
-version = "0.23.1"
+version = "0.24.1"
 authors = ["The Neqo Authors <necko@mozilla.com>"]
 build = "build.rs"
 autolib = false
@@ -173,7 +173,7 @@ path = "../neqo-common"
 path = "../neqo-crypto"
 
 [dependencies.qlog]
-version = "0.15.1"
+version = "0.16.0"
 default-features = false
 
 [dependencies.rustc-hash]

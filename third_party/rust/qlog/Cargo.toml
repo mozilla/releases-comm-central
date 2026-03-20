@@ -12,8 +12,8 @@
 [package]
 edition = "2021"
 name = "qlog"
-version = "0.15.2"
-authors = ["Lucas Pardue <lucaspardue.24.7@gmail.com>"]
+version = "0.16.0"
+authors = ["Lucas Pardue <lucas@lucaspardue.com>"]
 build = false
 autolib = false
 autobins = false

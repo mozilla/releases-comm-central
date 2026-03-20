@@ -13,7 +13,7 @@
 edition = "2024"
 rust-version = "1.90.0"
 name = "neqo-common"
-version = "0.23.1"
+version = "0.24.1"
 authors = ["The Neqo Authors <necko@mozilla.com>"]
 build = "build.rs"
 autolib = false
@@ -87,7 +87,7 @@ version = "0.4"
 default-features = false
 
 [dependencies.qlog]
-version = "0.15.1"
+version = "0.16.0"
 default-features = false
 
 [dependencies.sha1]
