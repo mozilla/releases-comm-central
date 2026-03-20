@@ -8,10 +8,10 @@
 # documentation and how to modify this file.
 repo: comm-central
 created_at: '2022-10-20T11:26:42.853013'
-updated_at: '2026-03-02T16:19:00.934905+00:00'
+updated_at: '2026-03-19T12:24:32.216227+00:00'
 hashes:
-  config: c6de89a41b6a5795495f90225a235f75c3af074b
-  export: ec4800ea2af30222634f93f2589db6ca15f5719d
+  config: dc1093062a62778517e3c94504434092bc07f357
+  export: 15684e971a02daa4d1a1cde58291dc6fb55cfef1
 export:
   path: ./docs/mots/index.md
   format: md
@@ -328,6 +328,7 @@ modules:
     owners: [*thunderbirdcouncil]
     peers: [*mkmelin, *darktrojan, *Paenglab, *aleca]
     meta:
+      group: https://thunderbird.topicbox.com/groups/developers
       owners_emeritus:
         - *standard8
         - David Bienvenu
@@ -340,6 +341,7 @@ modules:
         - *aceman
       url: https://developer.thunderbird.net/
       components: [Thunderbird]
+      review_group: thunderbird-reviewers
     submodules:
       - name: Addon Support
         machine_name: addon_support
@@ -373,6 +375,7 @@ modules:
             - *aleth
             - *Fallen
           components: [Thunderbird::Build Config]
+          review_group: thunderbird-build-system-reviewers
 
       - name: Instant Messaging
         machine_name: instant_messaging
@@ -403,6 +406,8 @@ modules:
           components:
             - 'MailNews Core::Security: OpenPGP'
             - 'MailNews Core::Security: S/MIME'
+          group: https://thunderbird.topicbox.com/groups/e2ee
+          review_group: thunderbird-security-reviewers
 
       - name: Theme
         machine_name: theme
@@ -417,6 +422,8 @@ modules:
             - *mconley
           components:
             - Thunderbird::Theme
+          group: https://thunderbird.topicbox.com/groups/ux
+          review_group: thunderbird-front-end-reviewers
 
       - name: UX (User Experience)
         machine_name: user_experience
@@ -431,6 +438,8 @@ modules:
             - *henryx
           components:
             - Thunderbird::General
+          group: https://thunderbird.topicbox.com/groups/ux
+          review_group: thunderbird-front-end-reviewers
 
   - name: Calendar
     machine_name: 02-calendar
@@ -492,6 +501,7 @@ modules:
         - MailNews Core::Search
         - MailNews Core::Security
         - MailNews Core::Simple MAPI
+      review_group: thunderbird-back-end-reviewers
 
     submodules:
       - name: Addressbook
@@ -563,6 +573,7 @@ modules:
         machine_name: importing
         includes:
           - mailnews/import/**
+        owners: [*nobody]
         peers: [*mkmelin]
         meta:
           components:

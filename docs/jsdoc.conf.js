@@ -29,6 +29,7 @@ module.exports = {
     exclude: [
       "../calendar/base/calendar.js",
       "../calendar/base/content/calendar-base-view.js",
+      "../calendar/base/content/calendar-task-tree.js",
       "../calendar/base/content/calendar-task-tree-view.js",
       "../calendar/base/content/dialogs/calendar-event-dialog-attendees.js",
       "../calendar/base/content/dialogs/calendar-event-dialog-recurrence.js",
@@ -167,6 +168,7 @@ module.exports = {
       "../mailnews/news/src/NntpService.sys.mjs",
       "../mailnews/test/fakeserver/Auth.sys.mjs",
       "../mailnews/test/fakeserver/EwsServer.sys.mjs",
+      "../mailnews/test/fakeserver/MockServer.sys.mjs",
       "../mailnews/test/resources/MailTestUtils.sys.mjs",
       "../mailnews/test/resources/MessageGenerator.sys.mjs",
       "../mailnews/test/resources/ServerTestUtils.sys.mjs",
