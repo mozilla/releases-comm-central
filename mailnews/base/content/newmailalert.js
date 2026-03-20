@@ -142,6 +142,16 @@ async function doOnAlertLoad() {
     }, 100);
   });
 
+  // Give the OS accessibility layer a moment to register the alert region
+  // before uncloaking its content. Removing aria-hidden forces screen readers
+  // (JAWS, NVDA, Orca) to announce the fully populated text.
+  setTimeout(() => {
+    if (!alertTextBox.isConnected) {
+      return;
+    }
+    alertTextBox.removeAttribute("aria-hidden");
+  }, 150);
+
   const openTime = Services.prefs.getIntPref("alerts.totalOpenTime");
   var alertContainer = document.getElementById("alertContainer");
   // Don't fade in if the prefers-reduced-motion is true.

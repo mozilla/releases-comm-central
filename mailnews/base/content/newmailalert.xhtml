@@ -26,6 +26,7 @@
   </head>
   <html:body
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+    role="alert"
   >
     <hbox id="alertContainer" align="start">
       <hbox id="alertImageBox" align="center" pack="center">
@@ -37,7 +38,7 @@
         />
       </hbox>
 
-      <vbox id="alertTextBox" role="alert">
+      <vbox id="alertTextBox" aria-hidden="true">
         <html:div id="alertTitle"></html:div>
         <html:hr id="alertSeparator" />
         <folder-summary id="folderSummaryInfo" />

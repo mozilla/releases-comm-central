@@ -46,9 +46,11 @@
     static createFolderSummaryMessage() {
       const vbox = document.createXULElement("vbox");
       vbox.setAttribute("class", "folderSummaryMessage");
+      vbox.setAttribute("role", "presentation");
 
       const hbox = document.createXULElement("hbox");
       hbox.setAttribute("class", "folderSummary-message-row");
+      hbox.setAttribute("role", "presentation");
 
       const subject = document.createXULElement("label");
       subject.setAttribute("class", "folderSummary-subject");
