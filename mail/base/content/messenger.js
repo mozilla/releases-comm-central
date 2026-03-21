@@ -287,10 +287,9 @@ var gMailInit = {
     if (!Services.prefs.getBoolPref("app.use_without_mail_account", false)) {
       // Load the Mail UI only if we already have at least one account configured
       // otherwise the verifyExistingAccounts will trigger the account wizard.
-      if (verifyExistingAccounts()) {
-        switchToMailTab();
-        await loadPostAccountWizard();
-      }
+      verifyExistingAccounts();
+      switchToMailTab();
+      await loadPostAccountWizard();
     } else {
       // Run the tabs restore method here since we're skipping the loading of
       // the Mail UI which would have taken care of this to properly handle
@@ -344,8 +343,6 @@ var gMailInit = {
 /**
  * Called at startup to verify if we have ny existing account, even if invalid,
  * and if not, it will trigger the Account Hub in a tab.
- *
- * @returns {boolean} - True if we have at least one existing account.
  */
 function verifyExistingAccounts() {
   try {
@@ -353,7 +350,7 @@ function verifyExistingAccounts() {
     // existing account, not even if we have at least one invalid account.
     if (isFirstRun()) {
       openAccountSetup();
-      return false;
+      return;
     }
 
     // If we're in tests that want to bypass account startup logic, oblige their
@@ -364,7 +361,7 @@ function verifyExistingAccounts() {
         false
       )
     ) {
-      return true;
+      return;
     }
 
     let localFoldersExists;
@@ -379,11 +376,8 @@ function verifyExistingAccounts() {
     if (!localFoldersExists && requireLocalFoldersAccount()) {
       MailServices.accounts.createLocalMailAccount();
     }
-
-    return true;
   } catch (ex) {
     console.error("Error verifying accounts", ex);
-    return false;
   }
 }
 

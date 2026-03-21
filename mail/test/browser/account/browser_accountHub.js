@@ -532,11 +532,11 @@ add_task(async function test_account_enter_password_imap_account() {
   // remember password checkbox should be checked and enabled.
   Assert.ok(
     !rememberPasswordInput.disabled,
-    "The remember password input should be disabled."
+    "The remember password input should be enabled."
   );
   Assert.ok(
     rememberPasswordInput.checked,
-    "The remember password input should be unchecked."
+    "The remember password input should be checked."
   );
 
   await SpecialPowers.popPrefEnv();
@@ -614,13 +614,11 @@ add_task(async function test_account_enter_password_imap_account() {
     "The email password subview should be hidden."
   );
 
-  let imapAccount;
-
-  await TestUtils.waitForCondition(
+  const imapAccount = await TestUtils.waitForCondition(
     () =>
-      (imapAccount = MailServices.accounts.accounts.find(
+      MailServices.accounts.accounts.find(
         account => account.identities[0]?.email === emailUser.email
-      )),
+      ),
     "The user account should be created."
   );
 

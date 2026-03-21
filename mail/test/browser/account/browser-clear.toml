@@ -20,6 +20,8 @@ subsuite = "thunderbird"
 
 ["browser_accountHubFirstRun.js"]
 
+["browser_accountHubFirstRunCreateAccount.js"]
+
 ["browser_accountSetupTab.js"]
 disabled = "Will be removed in bug 2020400"
 
