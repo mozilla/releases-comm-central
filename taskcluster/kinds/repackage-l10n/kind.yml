@@ -67,6 +67,7 @@ tasks:
                 win64.*: [mar, installer]
         fetches:
             toolchain:
+                - linux64-7zz
                 - linux64-mar-tools
                 - linux64-upx
         treeherder-group: L10n-Rpk

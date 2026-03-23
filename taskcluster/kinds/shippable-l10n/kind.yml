@@ -60,6 +60,7 @@ tasks:
                         - linux64-libdmg
                         - linux64-hfsplus
                     win.*:
+                        - linux64-7zz
                         - linux64-upx
                         - linux64-wine
                         - nsis
