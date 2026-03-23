@@ -10,6 +10,7 @@ prefs = [
 subsuite = "thunderbird"
 
 ["browser_basic_notifications.js"]
+tags = ["notifications"]
 
 ["browser_feedback.js"]
 

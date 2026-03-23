@@ -20,12 +20,17 @@ skip-if = [
 ]
 
 ["browser_getMessages_certError.js"]
+tags = ["notifications"]
 
 ["browser_getMessages_connectionError.js"]
+tags = ["notifications"]
 
 ["browser_getMessages_deferredAccount.js"]
 
 ["browser_getMessages_oAuth2.js"]
-tags = ["oauth"]
+tags = [
+  "notifications",
+  "oauth",
+]
 
 ["browser_getMessages_offline.js"]

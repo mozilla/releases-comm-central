@@ -517,9 +517,8 @@ export const MailNotificationManager = new (class {
     const alertsService = Cc["@mozilla.org/system-alerts-service;1"].getService(
       Ci.nsIAlertsService
     );
-    const cookie = folder.generateMessageURI(msgHdr.messageKey);
     const alert = new AlertNotification({
-      name: cookie,
+      name: folder.generateMessageURI(msgHdr.messageKey),
       // Don't add an icon on macOS, the app icon is already shown.
       imageURL:
         AppConstants.platform == "macosx"
@@ -528,7 +527,6 @@ export const MailNotificationManager = new (class {
       title,
       text: body,
       textClickable: true,
-      cookie,
     });
 
     if (numNewMessages == 1) {

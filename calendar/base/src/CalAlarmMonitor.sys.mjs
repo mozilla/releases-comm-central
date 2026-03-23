@@ -35,9 +35,6 @@ function peekAlarmWindow() {
 export function CalAlarmMonitor() {
   this.wrappedJSObject = this;
   this.mAlarms = [];
-  // A map from itemId to item.
-  this._notifyingItems = new Map();
-
   this.mSound = Cc["@mozilla.org/sound;1"].createInstance(Ci.nsISound);
 
   Services.obs.addObserver(this, "alarm-service-startup");
@@ -70,7 +67,7 @@ CalAlarmMonitor.prototype = {
   /**
    * nsIObserver
    */
-  observe(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic, _aData) {
     const alarmService = Cc["@mozilla.org/calendar/alarm-service;1"].getService(
       Ci.calIAlarmService
     );
@@ -80,19 +77,6 @@ CalAlarmMonitor.prototype = {
         break;
       case "alarm-service-shutdown":
         alarmService.removeObserver(this);
-        break;
-      case "alertclickcallback": {
-        const item = this._notifyingItems.get(aData);
-        if (item) {
-          const calWindow = cal.window.getCalendarWindow();
-          if (calWindow) {
-            calWindow.openEventDialogForViewing(item, true);
-          }
-        }
-        break;
-      }
-      case "alertfinished":
-        this._notifyingItems.delete(aData);
         break;
     }
   },
@@ -193,11 +177,16 @@ CalAlarmMonitor.prototype = {
       title: item.title,
       text: item.getProperty("description"),
       textClickable: true,
-      cookie: item.id,
     });
     const alertsService = Cc["@mozilla.org/alerts-service;1"].getService(Ci.nsIAlertsService);
-    this._notifyingItems.set(item.id, item);
-    alertsService.showAlert(alert, this);
+    alertsService.showAlert(alert, {
+      QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
+      observe: (subject, topic) => {
+        if (topic == "alertclickcallback") {
+          cal.window.getCalendarWindow()?.openEventDialogForViewing(item, true);
+        }
+      },
+    });
   },
 
   window_onLoad() {

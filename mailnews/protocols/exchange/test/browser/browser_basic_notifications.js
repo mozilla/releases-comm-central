@@ -115,10 +115,10 @@ add_task(async function test_basic_notifications() {
  * Waits for a call to the alerts service, and tests it is as expected.
  *
  * @param {string} expectedSender - The name of the expected message's author.
- * @param {string} expectedCookie - Part of the expected message's URI, to
+ * @param {string} expectedName - Part of the expected message's URI, to
  *   check it is the right message.
  */
-async function promiseAlert(expectedSender, expectedCookie, expectedPreview) {
+async function promiseAlert(expectedSender, expectedName, expectedPreview) {
   const alert = await TestUtils.waitForCondition(
     () => MockAlertsService.alert,
     `waiting for a notification about inbox`
@@ -129,9 +129,9 @@ async function promiseAlert(expectedSender, expectedCookie, expectedPreview) {
     `notification should be about a message from ${expectedSender}`
   );
   Assert.stringContains(
-    alert.cookie.toLowerCase(),
-    expectedCookie.toLowerCase(),
-    `notification should be about ${expectedCookie}`
+    alert.name.toLowerCase(),
+    expectedName.toLowerCase(),
+    `notification should be about ${expectedName}`
   );
 
   // The ews server truncates the preview text to the first 256 characters of
@@ -143,6 +143,6 @@ async function promiseAlert(expectedSender, expectedCookie, expectedPreview) {
     "notification should contain a body preview"
   );
 
-  MockAlertsService.listener.observe(null, "alertfinished", alert.cookie);
+  MockAlertsService.listener.observe(null, "alertfinished", "");
   MockAlertsService.reset();
 }

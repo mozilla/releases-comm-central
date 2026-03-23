@@ -52,6 +52,9 @@ run-if = [
 ["browser_import.js"]
 tags = ["import"]
 
+["browser_itemNotification.js"]
+tags = ["notifications"]
+
 ["browser_localICS.js"]
 
 ["browser_tabs.js"]

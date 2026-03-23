@@ -122,7 +122,7 @@ class MockAlertsServiceInstance {
   QueryInterface = ChromeUtils.generateQI(["nsIAlertsService"]);
 
   showAlert(alert, listener) {
-    dump(`showAlert: ${alert.text}\n`);
+    dump(`showAlert: ${alert.text ?? alert.title}\n`);
     Assert.ok(
       !MockAlertsService.alert,
       "showAlert should not be called while an alert is showing"

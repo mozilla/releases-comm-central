@@ -4,6 +4,7 @@ prefs = [
   "calendar.timezone.local=UTC",
   "calendar.timezone.useSystemTimezone=false",
 ]
+tags = ["notifications"]
 
 # These tests are in a separate directory because they're all related.
 # Please don't add unrelated tests.

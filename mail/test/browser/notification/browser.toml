@@ -20,6 +20,7 @@ prefs = [
   "mailnews.start_page.url=about:blank",
 ]
 subsuite = "thunderbird"
+tags = ["notifications"]
 
 ["browser_collection.js"]
 

@@ -11,6 +11,7 @@ support-files = [
 ["test_accountManagerUtils.js"]
 
 ["test_alertHook.js"]
+tags = ["notifications"]
 
 ["test_archive.js"]
 environment = ["MOZ_LOG=IMAP:4"]
