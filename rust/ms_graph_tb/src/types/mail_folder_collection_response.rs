@@ -6,7 +6,7 @@
 
 #![doc = "Types related to MailFolderCollectionResponse. Auto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
 use crate::Error;
-use crate::types::mail_folder::*;
+use crate::types::mail_folder::MailFolder;
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use std::borrow::Cow;
@@ -32,12 +32,12 @@ impl<'a> MailFolderCollectionResponse<'a> {
     pub fn value(&'a self) -> Result<Vec<MailFolder<'a>>, Error> {
         let val = self.properties.get("value").ok_or(Error::NotFound)?;
         val.as_array()
-            .ok_or_else(|| Error::UnexpectedResponse(format!("{:?}", val)))?
+            .ok_or_else(|| Error::UnexpectedResponse(format!("{val:?}")))?
             .iter()
             .map(|v| {
                 Ok::<_, Error>(MailFolder::new(
                     v.as_object()
-                        .ok_or_else(|| Error::UnexpectedResponse(format!("{:?}", v)))?,
+                        .ok_or_else(|| Error::UnexpectedResponse(format!("{v:?}")))?,
                 ))
             })
             .collect::<Result<_, _>>()

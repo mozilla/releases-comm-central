@@ -36,7 +36,9 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError>
         &mut self,
         client: &XpComEwsClient<ServerT>,
     ) -> Result<Self::Okay, XpComEwsError> {
-        self.listener.on_start_running_url(self.uri.clone());
+        self.listener
+            .on_start_running_url(self.uri.clone())
+            .to_result()?;
         // Request the EWS ID of the root folder.
         let get_root_folder = GetFolder {
             folder_shape: FolderShape {

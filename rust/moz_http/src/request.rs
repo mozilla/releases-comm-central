@@ -59,6 +59,7 @@ struct RequestBody<'b> {
 }
 
 /// A builder to create and send HTTP requests.
+#[must_use]
 pub struct RequestBuilder<'rb> {
     url: &'rb Url,
     method: &'rb Method,

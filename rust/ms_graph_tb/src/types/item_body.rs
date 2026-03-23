@@ -35,7 +35,7 @@ impl<'a> ItemBody<'a> {
             return Ok(None);
         }
         Ok(Some(val.as_str().ok_or_else(|| {
-            Error::UnexpectedResponse(format!("{:?}", val))
+            Error::UnexpectedResponse(format!("{val:?}"))
         })?))
     }
 }

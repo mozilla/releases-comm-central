@@ -5,8 +5,8 @@
 // EDITS TO THIS FILE WILL BE OVERWRITTEN
 
 #![doc = "Provides operations to manage the user singleton.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
-use crate::types::user::*;
-use crate::*;
+use crate::types::user::{User, UserSelection};
+use crate::{Error, Operation, OperationBody, Select, Selection};
 use form_urlencoded::Serializer;
 use http::method::Method;
 #[derive(Debug)]
@@ -25,6 +25,7 @@ pub struct Get {
     selection: Selection<UserSelection>,
 }
 impl Get {
+    #[must_use]
     pub fn new(endpoint: String) -> Self {
         Self {
             template_expressions: TemplateExpressions { endpoint },
@@ -54,10 +55,10 @@ impl Operation for Get {
 impl Select for Get {
     type Properties = UserSelection;
     fn select<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
-        self.selection.select(properties)
+        self.selection.select(properties);
     }
     fn extend<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
-        self.selection.extend(properties)
+        self.selection.extend(properties);
     }
 }
 #[doc = "Update user\n\nUpdate the properties of a user object.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/user-update?view=graph-rest-1.0)."]
@@ -67,6 +68,7 @@ pub struct Patch<'body> {
     body: OperationBody<User<'body>>,
 }
 impl<'body> Patch<'body> {
+    #[must_use]
     pub fn new(endpoint: String, body: OperationBody<User<'body>>) -> Self {
         Self {
             template_expressions: TemplateExpressions { endpoint },
@@ -74,7 +76,7 @@ impl<'body> Patch<'body> {
         }
     }
 }
-impl<'body> Operation for Patch<'body> {
+impl Operation for Patch<'_> {
     const METHOD: Method = Method::PATCH;
     type Response<'response> = User<'response>;
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {

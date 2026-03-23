@@ -17,11 +17,13 @@ pub struct StatusCode(pub u32);
 
 impl StatusCode {
     /// Check if status is within 400-499.
+    #[must_use]
     pub fn is_client_error(&self) -> bool {
         500 > self.0 && self.0 >= 400
     }
 
     /// Check if status is within 500-599.
+    #[must_use]
     pub fn is_server_error(&self) -> bool {
         600 > self.0 && self.0 >= 500
     }
@@ -96,6 +98,7 @@ impl Response {
     }
 
     /// Retrieves the body bytes from the response.
+    #[must_use]
     pub fn body(&self) -> &[u8] {
         self.body.as_slice()
     }

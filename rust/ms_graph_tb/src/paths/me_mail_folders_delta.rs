@@ -5,9 +5,9 @@
 // EDITS TO THIS FILE WILL BE OVERWRITTEN
 
 #![doc = "Provides operations to call the delta method.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
-use crate::pagination::*;
-use crate::types::mail_folder::*;
-use crate::*;
+use crate::pagination::DeltaResponse;
+use crate::types::mail_folder::{MailFolder, MailFolderSelection};
+use crate::{Error, Operation, Select, Selection};
 use form_urlencoded::Serializer;
 use http::method::Method;
 use std::str::FromStr;
@@ -27,6 +27,7 @@ pub struct Get {
     selection: Selection<MailFolderSelection>,
 }
 impl Get {
+    #[must_use]
     pub fn new(endpoint: String) -> Self {
         Self {
             template_expressions: TemplateExpressions { endpoint },
@@ -56,10 +57,10 @@ impl Operation for Get {
 impl Select for Get {
     type Properties = MailFolderSelection;
     fn select<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
-        self.selection.select(properties)
+        self.selection.select(properties);
     }
     fn extend<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
-        self.selection.extend(properties)
+        self.selection.extend(properties);
     }
 }
 #[doc = r"Retrieve delta changes using an opaque token from a previous"]

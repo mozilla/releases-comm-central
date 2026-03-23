@@ -5,10 +5,12 @@
 // EDITS TO THIS FILE WILL BE OVERWRITTEN
 
 #![doc = "Provides operations to manage the mailFolders property of the microsoft.graph.user entity.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
-use crate::pagination::*;
-use crate::types::mail_folder::*;
-use crate::types::mail_folder_collection_response::*;
-use crate::*;
+use crate::pagination::Paginated;
+use crate::types::mail_folder::MailFolder;
+use crate::types::mail_folder_collection_response::{
+    MailFolderCollectionResponse, MailFolderCollectionResponseSelection,
+};
+use crate::{Error, Operation, OperationBody, Select, Selection};
 use form_urlencoded::Serializer;
 use http::method::Method;
 #[derive(Debug)]
@@ -27,6 +29,7 @@ pub struct Get {
     selection: Selection<MailFolderCollectionResponseSelection>,
 }
 impl Get {
+    #[must_use]
     pub fn new(endpoint: String) -> Self {
         Self {
             template_expressions: TemplateExpressions { endpoint },
@@ -56,10 +59,10 @@ impl Operation for Get {
 impl Select for Get {
     type Properties = MailFolderCollectionResponseSelection;
     fn select<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
-        self.selection.select(properties)
+        self.selection.select(properties);
     }
     fn extend<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
-        self.selection.extend(properties)
+        self.selection.extend(properties);
     }
 }
 #[doc = "Create MailFolder\n\nUse this API to create a new mail folder in the root folder of the user's mailbox. If you intend a new folder to be hidden, you must set the isHidden property to true on creation.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/user-post-mailfolders?view=graph-rest-1.0)."]
@@ -69,6 +72,7 @@ pub struct Post<'body> {
     body: OperationBody<MailFolder<'body>>,
 }
 impl<'body> Post<'body> {
+    #[must_use]
     pub fn new(endpoint: String, body: OperationBody<MailFolder<'body>>) -> Self {
         Self {
             template_expressions: TemplateExpressions { endpoint },
@@ -76,7 +80,7 @@ impl<'body> Post<'body> {
         }
     }
 }
-impl<'body> Operation for Post<'body> {
+impl Operation for Post<'_> {
     const METHOD: Method = Method::POST;
     type Response<'response> = MailFolder<'response>;
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {

@@ -41,7 +41,7 @@ impl<'a> MailboxSettings<'a> {
             return Ok(None);
         }
         Ok(Some(val.as_str().ok_or_else(|| {
-            Error::UnexpectedResponse(format!("{:?}", val))
+            Error::UnexpectedResponse(format!("{val:?}"))
         })?))
     }
     #[doc = "The date format for the user's mailbox."]
@@ -51,7 +51,7 @@ impl<'a> MailboxSettings<'a> {
             return Ok(None);
         }
         Ok(Some(val.as_str().ok_or_else(|| {
-            Error::UnexpectedResponse(format!("{:?}", val))
+            Error::UnexpectedResponse(format!("{val:?}"))
         })?))
     }
     #[doc = "The time format for the user's mailbox."]
@@ -61,7 +61,7 @@ impl<'a> MailboxSettings<'a> {
             return Ok(None);
         }
         Ok(Some(val.as_str().ok_or_else(|| {
-            Error::UnexpectedResponse(format!("{:?}", val))
+            Error::UnexpectedResponse(format!("{val:?}"))
         })?))
     }
     #[doc = "The default time zone for the user's mailbox."]
@@ -71,7 +71,7 @@ impl<'a> MailboxSettings<'a> {
             return Ok(None);
         }
         Ok(Some(val.as_str().ok_or_else(|| {
-            Error::UnexpectedResponse(format!("{:?}", val))
+            Error::UnexpectedResponse(format!("{val:?}"))
         })?))
     }
 }

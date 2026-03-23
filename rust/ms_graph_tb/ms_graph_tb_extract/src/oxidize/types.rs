@@ -92,6 +92,7 @@ impl ToTokens for GraphType {
 struct FunctionDef {
     fn_name: Ident,
     doc_comment: Option<TokenStream>,
+    must_use: Option<TokenStream>,
     ret_type: TokenStream,
     body: TokenStream,
     lifetime: Option<TokenStream>,
@@ -121,6 +122,7 @@ impl ToTokens for FunctionDef {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let Self {
             doc_comment,
+            must_use,
             fn_name,
             ret_type,
             body,
@@ -128,6 +130,7 @@ impl ToTokens for FunctionDef {
         } = self;
         tokens.append_all(quote! {
             #doc_comment
+            #must_use
             pub fn #fn_name(&#lifetime self) -> #ret_type {
                 #body
             }
@@ -173,11 +176,17 @@ fn function_defs(properties: &[Property]) -> Vec<FunctionDef> {
             } else {
                 None
             };
+            let must_use = if p.is_ref {
+                Some(quote!(#[must_use]))
+            } else {
+                None
+            };
             let body = fn_body(p);
             let lifetime =
                 (p.is_ref || matches!(p.rust_type, RustType::Custom(_))).then_some(quote!('a));
             FunctionDef {
                 doc_comment,
+                must_use,
                 fn_name,
                 ret_type,
                 body,
@@ -254,7 +263,7 @@ fn fn_body(prop: &Property) -> TokenStream {
             let ret_type = format_ident!("{base_str}");
             ret = quote!(#ret_type::new(#ret));
         } else {
-            ret = quote!(#ret.try_into().or_else(|e| Err(Error::UnexpectedResponse(format!("{:?}", e))))?);
+            ret = quote!(#ret.try_into().or_else(|e| Err(Error::UnexpectedResponse(format!("{e:?}"))))?);
         }
     }
 

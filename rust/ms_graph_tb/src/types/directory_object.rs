@@ -6,7 +6,7 @@
 
 #![doc = "Types related to DirectoryObject. Auto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
 use crate::Error;
-use crate::types::entity::*;
+use crate::types::entity::{Entity, EntitySelection};
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use std::borrow::Cow;
@@ -40,10 +40,11 @@ impl<'a> DirectoryObject<'a> {
             return Ok(None);
         }
         Ok(Some(val.as_str().ok_or_else(|| {
-            Error::UnexpectedResponse(format!("{:?}", val))
+            Error::UnexpectedResponse(format!("{val:?}"))
         })?))
     }
     #[doc = "Accessor to inhereted properties from `Entity`."]
+    #[must_use]
     pub fn entity(&'a self) -> Entity<'a> {
         Entity {
             properties: Cow::Borrowed(&*self.properties),

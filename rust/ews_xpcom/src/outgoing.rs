@@ -658,9 +658,8 @@ impl EwsOutgoingServer {
                 &*nsCString::from(host.to_string()),
                 &*server_type,
             )
-        };
-
-        Ok(())
+        }
+        .to_result()
     }
 
     xpcom_method!(send_mail => SendMailMessage(
@@ -843,7 +842,7 @@ impl EwsOutgoingServer {
 
     xpcom_method!(initialize => Initialize(ews_url: *const nsACString));
     fn initialize(&self, ews_url: &nsACString) -> Result<(), nsresult> {
-        debug!("Creating new outgoing server for {}", ews_url.to_string());
+        debug!("Creating new outgoing server for {ews_url}");
         let url = ews_url.to_string();
         let url = Url::parse(url.as_str()).or(Err(nserror::NS_ERROR_FAILURE))?;
 

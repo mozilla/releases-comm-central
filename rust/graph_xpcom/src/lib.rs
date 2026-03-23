@@ -77,10 +77,7 @@ impl XpcomGraphBridge {
         endpoint: &nsACString,
         server: &nsIMsgIncomingServer,
     ) -> Result<(), nsresult> {
-        log::debug!(
-            "Initializing XpcomGraphBridge with endpoint {}",
-            endpoint.to_string()
-        );
+        log::debug!("Initializing XpcomGraphBridge with endpoint {endpoint}");
 
         // The ms_graph_tb crate is built from the Graph 1.0 API specification.
         // Incoming configuration is assumed to exclude the API version, so it

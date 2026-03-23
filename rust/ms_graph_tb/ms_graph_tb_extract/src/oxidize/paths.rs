@@ -234,6 +234,7 @@ struct TemplateExpressionsDef {
 }
 
 impl TemplateExpressionsDef {
+    #[must_use]
     fn new(raw_path: &str, template_expressions: &[String]) -> Self {
         let mut path = format!("{{endpoint}}{raw_path}");
         let mut idents = vec![format_ident!("endpoint")];
@@ -356,6 +357,7 @@ impl ToTokens for ImplDef {
         };
         tokens.append_all(quote! {
             impl #lifetime #method #lifetime {
+                #[must_use]
                 pub fn new(#( #template_expressions: String, )* #arg) -> Self {
                     Self {
                         template_expressions: TemplateExpressions {
@@ -424,8 +426,13 @@ impl ToTokens for OperationDef {
             },
         };
 
+        let lifetime = match lifetime {
+            Some(_) => Some(quote!(<'_>)),
+            None => None,
+        };
+
         tokens.append_all(quote! {
-            impl #lifetime Operation for #method #lifetime {
+            impl Operation for #method #lifetime {
                 const METHOD: Method = Method::#upper_method;
                 type Response<'response> = #response;
 
@@ -456,11 +463,11 @@ impl ToTokens for SelectDef {
                     type Properties = #selection_type;
 
                     fn select<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
-                        self.selection.select(properties)
+                        self.selection.select(properties);
                     }
 
                     fn extend<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
-                        self.selection.extend(properties)
+                        self.selection.extend(properties);
                     }
                 }
             })

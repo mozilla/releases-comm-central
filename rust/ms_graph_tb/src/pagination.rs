@@ -59,13 +59,12 @@ impl<T> DeltaResponse<T> {
     /// delta link.
     pub fn response(&self) -> &Vec<DeltaItem<T>> {
         match self {
-            Self::NextLink { value, .. } => value,
-            Self::DeltaLink { value, .. } => value,
+            Self::NextLink { value, .. } | Self::DeltaLink { value, .. } => value,
         }
     }
 }
 
-/// An item in a [DeltaResponse], and therefore an item that has been added,
+/// An item in a [`DeltaResponse`], and therefore an item that has been added,
 /// updated, or removed.
 ///
 /// Graph delta queries do not distinguish between added and updated items.
@@ -89,11 +88,13 @@ pub struct RemovedDeltaItem {
 
 impl RemovedDeltaItem {
     /// Get the ID of the removed item.
+    #[must_use]
     pub fn id(&self) -> &str {
         &self.id
     }
 
     /// Get the reason the item was removed.
+    #[must_use]
     pub fn reason(&self) -> Option<RemovedReason> {
         match self.removed.reason.as_deref() {
             Some("changed") => Some(RemovedReason::Changed),

@@ -12,6 +12,7 @@ pub struct Client {}
 
 impl Client {
     /// Creates a new HTTP client.
+    #[must_use]
     pub fn new() -> Client {
         Client {}
     }

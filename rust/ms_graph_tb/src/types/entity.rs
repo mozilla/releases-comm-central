@@ -32,6 +32,6 @@ impl<'a> Entity<'a> {
     pub fn id(&self) -> Result<&str, Error> {
         let val = self.properties.get("id").ok_or(Error::NotFound)?;
         val.as_str()
-            .ok_or_else(|| Error::UnexpectedResponse(format!("{:?}", val)))
+            .ok_or_else(|| Error::UnexpectedResponse(format!("{val:?}")))
     }
 }

@@ -6,7 +6,7 @@
 
 #![doc = "Types related to MailFolder. Auto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
 use crate::Error;
-use crate::types::entity::*;
+use crate::types::entity::{Entity, EntitySelection};
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use std::borrow::Cow;
@@ -46,9 +46,9 @@ impl<'a> MailFolder<'a> {
         }
         Ok(Some(
             val.as_i64()
-                .ok_or_else(|| Error::UnexpectedResponse(format!("{:?}", val)))?
+                .ok_or_else(|| Error::UnexpectedResponse(format!("{val:?}")))?
                 .try_into()
-                .map_err(|e| Error::UnexpectedResponse(format!("{:?}", e)))?,
+                .map_err(|e| Error::UnexpectedResponse(format!("{e:?}")))?,
         ))
     }
     #[doc = "The mailFolder's display name."]
@@ -58,10 +58,11 @@ impl<'a> MailFolder<'a> {
             return Ok(None);
         }
         Ok(Some(val.as_str().ok_or_else(|| {
-            Error::UnexpectedResponse(format!("{:?}", val))
+            Error::UnexpectedResponse(format!("{val:?}"))
         })?))
     }
     #[doc = "Accessor to inhereted properties from `Entity`."]
+    #[must_use]
     pub fn entity(&'a self) -> Entity<'a> {
         Entity {
             properties: Cow::Borrowed(&*self.properties),
@@ -74,7 +75,7 @@ impl<'a> MailFolder<'a> {
             return Ok(None);
         }
         Ok(Some(val.as_bool().ok_or_else(|| {
-            Error::UnexpectedResponse(format!("{:?}", val))
+            Error::UnexpectedResponse(format!("{val:?}"))
         })?))
     }
     #[doc = "The unique identifier for the mailFolder's parent mailFolder."]
@@ -87,7 +88,7 @@ impl<'a> MailFolder<'a> {
             return Ok(None);
         }
         Ok(Some(val.as_str().ok_or_else(|| {
-            Error::UnexpectedResponse(format!("{:?}", val))
+            Error::UnexpectedResponse(format!("{val:?}"))
         })?))
     }
     #[doc = "The number of items in the mailFolder."]
@@ -101,9 +102,9 @@ impl<'a> MailFolder<'a> {
         }
         Ok(Some(
             val.as_i64()
-                .ok_or_else(|| Error::UnexpectedResponse(format!("{:?}", val)))?
+                .ok_or_else(|| Error::UnexpectedResponse(format!("{val:?}")))?
                 .try_into()
-                .map_err(|e| Error::UnexpectedResponse(format!("{:?}", e)))?,
+                .map_err(|e| Error::UnexpectedResponse(format!("{e:?}")))?,
         ))
     }
     #[doc = "The number of items in the mailFolder marked as unread."]
@@ -117,9 +118,9 @@ impl<'a> MailFolder<'a> {
         }
         Ok(Some(
             val.as_i64()
-                .ok_or_else(|| Error::UnexpectedResponse(format!("{:?}", val)))?
+                .ok_or_else(|| Error::UnexpectedResponse(format!("{val:?}")))?
                 .try_into()
-                .map_err(|e| Error::UnexpectedResponse(format!("{:?}", e)))?,
+                .map_err(|e| Error::UnexpectedResponse(format!("{e:?}")))?,
         ))
     }
 }
