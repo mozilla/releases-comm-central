@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+use std::ffi::c_char;
+
 use icu_normalizer::ComposingNormalizerBorrowed;
 use nserror::nsresult;
 use nsstring::nsACString;
@@ -41,4 +43,30 @@ pub unsafe extern "C" fn nfc_normalize(src: *const nsACString, dst: *mut nsACStr
     }
 
     nserror::NS_OK
+}
+
+/// Parses a UTF-8 string.
+///
+/// # Safety
+///
+/// Behavior is undefined if the string is not null-terminated.
+pub unsafe fn parse_utf8_lossy(data: *const c_char) -> String {
+    let len = (0..)
+        .take_while(|&i| unsafe { *data.offset(i) } != 0)
+        .count();
+    let slice = unsafe { std::slice::from_raw_parts(data as *const u8, len) };
+    String::from_utf8_lossy(slice).to_string()
+}
+
+/// Parses a UTF-16 string.
+///
+/// # Safety
+///
+/// Behavior is undefined if the string is not null-terminated.
+pub unsafe fn parse_utf16_lossy(data: *const u16) -> String {
+    let len = (0..)
+        .take_while(|&i| unsafe { *data.offset(i) } != 0)
+        .count();
+    let slice = unsafe { std::slice::from_raw_parts(data, len) };
+    String::from_utf16_lossy(slice)
 }

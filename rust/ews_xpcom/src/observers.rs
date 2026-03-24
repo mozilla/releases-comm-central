@@ -8,18 +8,15 @@ use std::{
     sync::Arc,
 };
 
+use mailnews_string_glue::parse_utf16_lossy;
 use nserror::{NS_OK, nsresult};
 use nsstring::nsCString;
 use url::Url;
 use xpcom::{
-    RefPtr, XpCom, components,
-    interfaces::{
-        nsIMsgOutgoingServer, nsIObserver, nsIObserverService, nsIPrefBranch, nsISupports,
-    },
+    RefPtr, XpCom,
+    interfaces::{nsIObserver, nsIPrefBranch, nsISupports},
     xpcom_method,
 };
-
-use crate::client::XpComEwsClient;
 
 /// An observer which can get subscribed to changes to a preference containing
 /// an URL.
@@ -80,75 +77,4 @@ impl UrlPrefObserver {
 
         Ok(())
     }
-}
-
-/// An observer that subscribes to notification of outgoing server removal, and
-/// shuts down the configured client if the removal is for the configured key.
-#[xpcom::xpcom(implement(nsIObserver), atomic)]
-pub(super) struct OutgoingRemovalObserver {
-    client: Arc<XpComEwsClient<nsIMsgOutgoingServer>>,
-    key: String,
-}
-
-impl OutgoingRemovalObserver {
-    /// Creates a new [`OutgoingRemovalObserver`], and converts it into the more generic
-    /// type [`nsIObserver`] before returning.
-    pub fn new_observer(
-        client: Arc<XpComEwsClient<nsIMsgOutgoingServer>>,
-        key: String,
-    ) -> Result<RefPtr<nsIObserver>, nsresult> {
-        let obs = OutgoingRemovalObserver::allocate(InitOutgoingRemovalObserver { client, key });
-
-        obs.query_interface::<nsIObserver>()
-            .ok_or(nserror::NS_ERROR_UNEXPECTED)
-    }
-
-    xpcom_method!(observe => Observe(aSubject: *const nsISupports, aTopic: *const c_char, aData: *const u16));
-    fn observe(
-        &self,
-        _subject: &nsISupports,
-        topic: *const c_char,
-        data: *const u16,
-    ) -> Result<(), nsresult> {
-        // SAFETY: From manual testing, it looks like XPCOM ensures strings are
-        // null-terminated regardless of their origin.
-        let (topic, data) = unsafe { (parse_utf8_lossy(topic), parse_utf16_lossy(data)) };
-
-        if topic == "message-smtpserver-removed" && data == self.key {
-            moz_task::spawn_local("shutdown", self.client.clone().shutdown()).detach();
-
-            // Our job here is done, remove ourselves from the observer service
-            // so we can get dropped and return to nothingness.
-            let observer_service = components::Observer::service::<nsIObserverService>()?;
-            unsafe {
-                observer_service
-                    .RemoveObserver(self.coerce(), c"message-smtpserver-removed".as_ptr())
-            }
-            .to_result()?;
-        }
-
-        Ok(())
-    }
-}
-
-/// Parses a UTF-8 string.
-///
-/// Behavior is undefined if the string is not null-terminated.
-unsafe fn parse_utf8_lossy(data: *const c_char) -> String {
-    let len = (0..)
-        .take_while(|&i| unsafe { *data.offset(i) } != 0)
-        .count();
-    let slice = unsafe { std::slice::from_raw_parts(data as *const u8, len) };
-    String::from_utf8_lossy(slice).to_string()
-}
-
-/// Parses a UTF-16 string.
-///
-/// Behavior is undefined if the string is not null-terminated.
-unsafe fn parse_utf16_lossy(data: *const u16) -> String {
-    let len = (0..)
-        .take_while(|&i| unsafe { *data.offset(i) } != 0)
-        .count();
-    let slice = unsafe { std::slice::from_raw_parts(data, len) };
-    String::from_utf16_lossy(slice)
 }

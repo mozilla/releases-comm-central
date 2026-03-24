@@ -17,6 +17,7 @@ futures = "0.3.28"
 fxhash = "0.2.1"
 log = "0.4.21"
 mail-parser = "0.9.3"
+mailnews_string_glue = { version = "0.1.0", path = "../mailnews_string_glue" }
 mailnews_ui_glue = { version = "0.1.0", path = "../mailnews_ui_glue" }
 moz_http = { version = "0.1.0", path = "../moz_http" }
 moz_task = { version = "0.1.0", path = "../../../xpcom/rust/moz_task" }

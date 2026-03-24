@@ -4,17 +4,15 @@
 
 use std::os::raw::c_char;
 
-use cstr::cstr;
-
 use nserror::nsresult;
 use xpcom::create_instance;
 use xpcom::interfaces::{nsIFile, nsIFileInputStream, nsIInputStream};
 
 /// Open the file provided and read its content into a vector of bytes.
-pub(crate) fn read_file(file: &nsIFile) -> Result<Vec<u8>, nsresult> {
+pub fn read_file(file: &nsIFile) -> Result<Vec<u8>, nsresult> {
     // Open a stream from the file.
     let file_stream =
-        create_instance::<nsIFileInputStream>(cstr!("@mozilla.org/network/file-input-stream;1"))
+        create_instance::<nsIFileInputStream>(c"@mozilla.org/network/file-input-stream;1")
             .ok_or(nserror::NS_ERROR_FAILURE)?;
 
     unsafe { file_stream.Init(file, -1, -1, nsIFileInputStream::CLOSE_ON_EOF) }.to_result()?;
@@ -23,7 +21,7 @@ pub(crate) fn read_file(file: &nsIFile) -> Result<Vec<u8>, nsresult> {
     read_stream(file_stream.coerce())
 }
 
-pub(crate) fn read_stream(stream: &nsIInputStream) -> Result<Vec<u8>, nsresult> {
+pub fn read_stream(stream: &nsIInputStream) -> Result<Vec<u8>, nsresult> {
     let mut bytes_available = 0;
     unsafe { stream.Available(&mut bytes_available) }.to_result()?;
 

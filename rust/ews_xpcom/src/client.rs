@@ -35,6 +35,7 @@ use mail_parser::MessageParser;
 use mailnews_ui_glue::UserInteractiveServer;
 use protocol_shared::{
     authentication::credentials::AuthenticationProvider,
+    client::ProtocolClient,
     safe_xpcom::{SafeEwsMessageCreateListener, StaleMsgDbHeader, UpdatedMsgDbHeader},
 };
 use url::Url;
@@ -208,12 +209,6 @@ impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
         })
     }
 
-    /// Shuts the client down by performing the relevant operations on its
-    /// fields (e.g. stopping the operation queue).
-    pub(crate) async fn shutdown(self: Arc<Self>) {
-        self.queue.stop().await;
-    }
-
     /// Checks whether the client is still running (i.e. at least one of the
     /// operation queue's runners is still active).
     pub(crate) fn running(&self) -> bool {
@@ -383,6 +378,16 @@ impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
         validate_response_message_count(response_messages, expected_response_count)?;
 
         Ok(response)
+    }
+}
+
+impl<ServerT: ServerType + 'static> ProtocolClient for XpComEwsClient<ServerT> {
+    fn protocol_identifier(&self) -> String {
+        String::from("ews")
+    }
+
+    async fn shutdown(self: Arc<XpComEwsClient<ServerT>>) {
+        self.queue.stop().await;
     }
 }
 

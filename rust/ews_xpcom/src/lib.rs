@@ -16,10 +16,12 @@ use nserror::{
 use nsstring::{nsACString, nsCString};
 use protocol_shared::{
     ExchangeConnectionDetails,
+    client::ProtocolClient,
     safe_xpcom::{
         SafeEwsFolderListener, SafeEwsMessageCreateListener, SafeEwsMessageFetchListener,
         SafeEwsMessageSyncListener, SafeEwsSimpleOperationListener, SafeUrlListener, uri::SafeUri,
     },
+    xpcom_io,
 };
 use std::{cell::OnceCell, ffi::c_void, sync::Arc};
 use thin_vec::ThinVec;
@@ -45,7 +47,6 @@ mod operation_queue;
 mod operation_sender;
 mod outgoing;
 mod server_version;
-mod xpcom_io;
 
 /// The base domains for Office365-hosted accounts. At the time of writing, the
 /// only valid domain for Office365 EWS URLs should be `outlook.office365.com`,
@@ -520,7 +521,7 @@ impl XpcomEwsBridge {
         is_read: bool,
         message_stream: &nsIInputStream,
     ) -> Result<(), nsresult> {
-        let content = crate::xpcom_io::read_stream(message_stream)?;
+        let content = xpcom_io::read_stream(message_stream)?;
 
         let client = self.client()?;
 

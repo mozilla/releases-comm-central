@@ -10,6 +10,7 @@ use ews::{
     create_item::CreateItem,
 };
 use protocol_shared::client::DoOperation;
+use protocol_shared::outgoing::{OwnedMailbox, SendCapableClient};
 use protocol_shared::safe_xpcom::{SafeListener, SafeMsgOutgoingListener, uri::SafeUri};
 
 use super::{ServerType, TransportSecFailureBehavior, XpComEwsClient, XpComEwsError};
@@ -19,7 +20,7 @@ struct DoSendMessage<'a> {
     mime_content: String,
     message_id: String,
     should_request_dsn: bool,
-    bcc_recipients: Vec<Recipient>,
+    bcc_recipients: Vec<OwnedMailbox>,
     server_uri: SafeUri,
 }
 
@@ -38,7 +39,18 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError>
         self.listener.on_send_start()?;
 
         let bcc_recipients = if !self.bcc_recipients.is_empty() {
-            Some(ArrayOfRecipients(self.bcc_recipients.clone()))
+            Some(ArrayOfRecipients(
+                self.bcc_recipients
+                    .iter()
+                    .map(|mailbox| Recipient {
+                        mailbox: ews::Mailbox {
+                            name: mailbox.name.clone(),
+                            email_address: mailbox.email_address.clone(),
+                            ..Default::default()
+                        },
+                    })
+                    .collect(),
+            ))
         } else {
             None
         };
@@ -86,19 +98,19 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError>
     }
 }
 
-impl<ServerT: ServerType> XpComEwsClient<ServerT> {
+impl<ServerT: ServerType> SendCapableClient for XpComEwsClient<ServerT> {
     /// Send a message by performing a [`CreateItem` operation] via EWS.
     ///
     /// All headers except for Bcc are expected to be included in the provided
     /// MIME content.
     ///
     /// [`CreateItem` operation]: https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/createitem-operation-email-message
-    pub async fn send_message(
+    async fn send_message(
         self: Arc<XpComEwsClient<ServerT>>,
         mime_content: String,
         message_id: String,
         should_request_dsn: bool,
-        bcc_recipients: Vec<Recipient>,
+        bcc_recipients: Vec<OwnedMailbox>,
         listener: SafeMsgOutgoingListener,
         server_uri: SafeUri,
     ) {
