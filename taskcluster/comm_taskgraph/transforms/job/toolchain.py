@@ -6,16 +6,16 @@ Support for running toolchain-building jobs via dedicated scripts in comm-centra
 """
 
 import os.path
+from typing import Optional, Literal
 
 import taskgraph
 import taskgraph.util.path as util_path
 from taskgraph.util.schema import resolve_keyed_by
-from voluptuous import Any, Optional, Required
 
 from gecko_taskgraph import GECKO
 from gecko_taskgraph.transforms.job import configure_taskdesc_for_run, run_job_using
 from gecko_taskgraph.transforms.job.common import docker_worker_add_artifacts
-from gecko_taskgraph.transforms.job.toolchain import toolchain_defaults, toolchain_run_schema
+from gecko_taskgraph.transforms.job.toolchain import toolchain_defaults, ToolchainRunSchema
 from gecko_taskgraph.util.attributes import RELEASE_PROJECTS
 from gecko_taskgraph.util.hash import hash_paths as hash_paths_gecko_root
 
@@ -26,12 +26,9 @@ CACHE_TYPE = "toolchains.v3"
 TOOLCHAIN_SCRIPT_PATH = "comm/taskcluster/scripts"
 
 
-comm_toolchain_run_schema = toolchain_run_schema.extend(
-    {
-        Required("using"): Any("comm-toolchain-script"),
-        Optional("script"): str,
-    }
-)
+class CommToolchainRunSchema(ToolchainRunSchema):
+    using: Literal["comm-toolchain-script"]
+    script: Optional[str]
 
 
 def hash_paths(*args):
@@ -95,7 +92,7 @@ def get_digest_data(config, run, taskdesc):
 @run_job_using(
     "docker-worker",
     "comm-toolchain-script",
-    schema=comm_toolchain_run_schema,
+    schema=CommToolchainRunSchema,
     defaults=toolchain_defaults,
 )
 def docker_worker_toolchain(config, job, taskdesc):
