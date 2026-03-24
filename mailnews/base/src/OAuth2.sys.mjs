@@ -372,8 +372,9 @@ OAuth2.prototype = {
 
           // If we are dealing with Microsoft, and offline_access is missing, add it to the check
           if (
-            this.tokenEndpoint ==
-              "https://login.microsoftonline.com/common/oauth2/v2.0/token" &&
+            this.tokenEndpoint.startsWith(
+              "https://login.microsoftonline.com/"
+            ) &&
             !returnedScopes.includes("offline_access")
           ) {
             returnedScopes.push("offline_access");
