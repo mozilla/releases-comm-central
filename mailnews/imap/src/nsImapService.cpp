@@ -70,14 +70,14 @@ using mozilla::net::LoadInfo;
 static const char sequenceString[] = "SEQUENCE";
 static const char uidString[] = "UID";
 
-static bool gInitialized = false;
+static bool gImapServiceInitialized = false;
 
 NS_IMPL_ISUPPORTS(nsImapService, nsIImapService, nsIMsgMessageService,
                   nsIProtocolHandler, nsIMsgProtocolInfo,
                   nsIMsgMessageFetchPartService, nsIContentHandler)
 
 nsImapService::nsImapService() {
-  if (!gInitialized) {
+  if (!gImapServiceInitialized) {
     nsresult rv;
 
     nsCOMPtr<nsIIOService> ioServ = do_GetIOService();
@@ -101,7 +101,7 @@ nsImapService::nsImapService() {
     NS_ASSERTION(autoSyncMgr != nullptr,
                  "*** Cannot initialize nsAutoSyncManager service.");
 
-    gInitialized = true;
+    gImapServiceInitialized = true;
   }
 }
 

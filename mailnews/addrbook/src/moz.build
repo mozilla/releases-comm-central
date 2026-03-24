@@ -7,7 +7,7 @@ EXPORTS += [
     "nsAbDirProperty.h",
 ]
 
-SOURCES += [
+UNIFIED_SOURCES += [
     "nsAbBooleanExpression.cpp",
     "nsAbCardProperty.cpp",
     "nsAbDirectoryQuery.cpp",
@@ -19,16 +19,18 @@ SOURCES += [
 ]
 
 if CONFIG["OS_ARCH"] == "WINNT" and CONFIG["MOZ_MAPI_SUPPORT"]:
-    SOURCES += [
+    UNIFIED_SOURCES += [
         "nsAbOutlookDirectory.cpp",
         "nsAbOutlookInterface.cpp",
-        "nsAbWinHelper.cpp",
         "nsMapiAddressBook.cpp",
+    ]
+    SOURCES += [
+        "nsAbWinHelper.cpp",
     ]
     LOCAL_INCLUDES += ["/comm/mailnews/mapi/include"]
 
 if CONFIG["OS_ARCH"] == "Darwin":
-    SOURCES += [
+    UNIFIED_SOURCES += [
         "nsAbOSXCard.mm",
         "nsAbOSXDirectory.mm",
         "nsAbOSXUtils.mm",

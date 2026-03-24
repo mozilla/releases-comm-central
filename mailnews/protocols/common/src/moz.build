@@ -10,7 +10,7 @@ EXPORTS += [
     "SaveAsListener.h",
 ]
 
-SOURCES += [
+UNIFIED_SOURCES += [
     "FolderPopulation.cpp",
     "mailnews_ffi_glue.cpp",
     "OfflineStorage.cpp",

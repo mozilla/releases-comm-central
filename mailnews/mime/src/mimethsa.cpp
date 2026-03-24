@@ -122,3 +122,5 @@ static int MimeInlineTextHTMLSanitized_parse_line(const char* line,
 
   return 0;
 }
+
+#undef MIME_SUPERCLASS

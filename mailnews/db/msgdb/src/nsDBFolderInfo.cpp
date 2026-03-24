@@ -22,7 +22,7 @@ struct mdbOid gDBFolderInfoOID;
 static const char* kNumMessagesColumnName = "numMsgs";
 // have to leave this as numNewMsgs even though it's numUnread Msgs
 static const char* kNumUnreadMessagesColumnName = "numNewMsgs";
-static const char* kFlagsColumnName = "flags";
+static const char* kFolderFlagsColumnName = "flags";
 static const char* kFolderSizeColumnName = "folderSize";
 static const char* kExpungedBytesColumnName = "expungedBytes";
 static const char* kFolderDateColumnName = "folderDate";
@@ -182,7 +182,7 @@ nsresult nsDBFolderInfo::InitMDBInfo() {
                          &m_numMessagesColumnToken);
     store->StringToToken(env, kNumUnreadMessagesColumnName,
                          &m_numUnreadMessagesColumnToken);
-    store->StringToToken(env, kFlagsColumnName, &m_flagsColumnToken);
+    store->StringToToken(env, kFolderFlagsColumnName, &m_flagsColumnToken);
     store->StringToToken(env, kFolderSizeColumnName, &m_folderSizeColumnToken);
     store->StringToToken(env, kExpungedBytesColumnName,
                          &m_expungedBytesColumnToken);

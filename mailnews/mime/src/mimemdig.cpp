@@ -17,3 +17,5 @@ static int MimeMultipartDigestClassInitialize(MimeObjectClass* oclass) {
   mclass->default_part_type = MESSAGE_RFC822;
   return 0;
 }
+
+#undef MIME_SUPERCLASS

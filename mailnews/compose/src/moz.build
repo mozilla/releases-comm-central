@@ -10,7 +10,7 @@ EXPORTS += [
     "nsMsgCompUtils.h",
 ]
 
-SOURCES += [
+UNIFIED_SOURCES += [
     "nsMsgAttachedFile.cpp",
     "nsMsgAttachment.cpp",
     "nsMsgAttachmentData.cpp",

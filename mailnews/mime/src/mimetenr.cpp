@@ -23,3 +23,5 @@ static int MimeInlineTextEnrichedClassInitialize(MimeObjectClass* oclass) {
   rclass->enriched_p = true;
   return 0;
 }
+
+#undef MIME_SUPERCLASS

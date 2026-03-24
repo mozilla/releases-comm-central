@@ -187,3 +187,5 @@ static bool MimeLeaf_displayable_inline_p(MimeObjectClass* clazz,
                                           MimeHeaders* hdrs) {
   return true;
 }
+
+#undef MIME_SUPERCLASS

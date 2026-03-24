@@ -8,7 +8,7 @@ EXPORTS += [
     "nsIMdbFactoryFactory.h",
 ]
 
-SOURCES += [
+UNIFIED_SOURCES += [
     "morkArray.cpp",
     "morkAtom.cpp",
     "morkAtomMap.cpp",
@@ -55,7 +55,7 @@ SOURCES += [
 ]
 
 if CONFIG["OS_ARCH"] == "WINNT":
-    SOURCES += ["morkSearchRowCursor.cpp"]
+    UNIFIED_SOURCES += ["morkSearchRowCursor.cpp"]
 
 Library("mork")
 FINAL_LIBRARY = "mail"

@@ -6,7 +6,7 @@
 with Files("**"):
     BUG_COMPONENT = ("Thunderbird", "Filters")
 
-SOURCES += [
+UNIFIED_SOURCES += [
     "nsBayesianFilter.cpp",
 ]
 

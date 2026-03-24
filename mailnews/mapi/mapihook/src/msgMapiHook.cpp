@@ -888,3 +888,5 @@ nsresult nsMapiHook::ShowComposerWindow(unsigned long aSession,
 
   return rv;
 }
+
+#undef MAPI_STARTUP_ARG

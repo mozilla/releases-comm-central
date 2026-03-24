@@ -522,3 +522,5 @@ static bool MimeUntypedText_binhex_end_line_p(const char* line,
   else
     return false;
 }
+
+#undef MIME_SUPERCLASS

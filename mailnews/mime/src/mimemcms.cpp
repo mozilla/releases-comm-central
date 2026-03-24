@@ -571,3 +571,5 @@ static char* MimeMultCMS_generate(MimeClosure crypto_closure) {
 
   return nullptr;
 }
+
+#undef MIME_SUPERCLASS

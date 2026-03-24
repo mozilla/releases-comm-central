@@ -206,3 +206,5 @@ static int MimeContainer_debug_print(MimeObject* obj, PRFileDesc* stream,
   return 0;
 }
 #endif
+
+#undef MIME_SUPERCLASS

@@ -11,8 +11,6 @@
 #include "nsNetUtil.h"
 #include "mozilla/Components.h"
 
-constexpr auto kEwsIdProperty = "ewsId";
-
 ///////////////////////////////////////////////////////////////////////////////
 // Definition of `MessageCopyListener`, which implements
 // `nsIMsgCopyServiceListener`, and is used to let the copy handler know once

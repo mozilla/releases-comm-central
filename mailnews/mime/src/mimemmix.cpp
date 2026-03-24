@@ -400,3 +400,5 @@ static int MimeMultipartMixed_create_child(MimeObject* obj) {
 static int MimeMultipartMixed_close_child(MimeObject* obj) {
   return (((MimeMultipartClass*)(&MIME_SUPERCLASS))->close_child(obj));
 }
+
+#undef MIME_SUPERCLASS

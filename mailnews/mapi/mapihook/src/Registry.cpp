@@ -247,3 +247,5 @@ LONG UnregisterServer(const CLSID& clsid,           // Class ID
 
   return lResult;
 }
+
+#undef MAPI_STARTUP_ARG

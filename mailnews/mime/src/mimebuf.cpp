@@ -14,6 +14,8 @@
 /*
  * mimebuf.c -  libmsg like buffer handling routines for libmime
  */
+#include "mimebuf.h"
+
 #include "prmem.h"
 #include "plstr.h"
 #include "prlog.h"
@@ -96,18 +98,18 @@ static int convert_and_send_buffer(char* buf, int length,
 
 extern "C" int mime_LineBuffer(const char* net_buffer, int32_t net_buffer_size,
                                char** bufferP, int32_t* buffer_sizeP,
-                               uint32_t* buffer_fpP, bool convert_newlines_p,
+                               int32_t* buffer_fpP, bool convert_newlines_p,
                                int32_t (*per_line_fn)(const char* line,
                                                       int32_t line_length,
                                                       MimeObject* closure),
                                MimeObject* closure) {
   int status = 0;
-  if (*buffer_fpP > 0 && *bufferP && (*buffer_fpP < (uint32_t)*buffer_sizeP) &&
+  if (*buffer_fpP > 0 && *bufferP && (*buffer_fpP < *buffer_sizeP) &&
       (*bufferP)[*buffer_fpP - 1] == '\r' && net_buffer_size > 0 &&
       net_buffer[0] != '\n') {
     /* The last buffer ended with a CR.  The new buffer does not start
        with a LF.  This old buffer should be shipped out and discarded. */
-    if ((uint32_t)*buffer_sizeP <= *buffer_fpP) return -1;
+    if (*buffer_sizeP <= *buffer_fpP) return -1;
     status = convert_and_send_buffer(*bufferP, *buffer_fpP, convert_newlines_p,
                                      per_line_fn, closure);
     if (status < 0) return status;

@@ -3,7 +3,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-SOURCES += [
+UNIFIED_SOURCES += [
     "MorkImport.cpp",
     "nsAddrDatabase.cpp",
     "nsImportABDescriptor.cpp",
@@ -21,27 +21,29 @@ if not CONFIG["MOZ_SUITE"]:
     ]
 
 if CONFIG["MOZ_WIDGET_TOOLKIT"] == "cocoa":
-    SOURCES += [
+    UNIFIED_SOURCES += [
         "nsAppleMailImport.cpp",
         "nsEmlxHelperUtils.mm",
     ]
 
 if CONFIG["OS_ARCH"] == "WINNT":
     if CONFIG["MOZ_MAPI_SUPPORT"]:
-        SOURCES += [
+        UNIFIED_SOURCES += [
             "MapiApi.cpp",
-            "MapiMessage.cpp",
             "MapiMimeTypes.cpp",
             "nsOutlookCompose.cpp",
             "nsOutlookImport.cpp",
             "nsOutlookMail.cpp",
             "nsOutlookSettings.cpp",
             "nsOutlookStringBundle.cpp",
-            "rtfDecoder.cpp",
             "rtfMailDecoder.cpp",
         ]
-
+        SOURCES += [
+            "MapiMessage.cpp",
+            "rtfDecoder.cpp",
+        ]
         SOURCES["rtfDecoder.cpp"].flags += ["-Wno-switch"]
+
         LOCAL_INCLUDES += ["/comm/mailnews/mapi/include"]
 
 EXPORTS += [

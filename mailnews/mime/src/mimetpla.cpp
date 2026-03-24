@@ -399,3 +399,5 @@ static int MimeInlineTextPlain_parse_line(const char* line, int32_t length,
 
   return status;
 }
+
+#undef MIME_SUPERCLASS

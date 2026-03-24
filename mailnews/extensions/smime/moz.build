@@ -22,7 +22,7 @@ XPIDL_SOURCES += [
 
 XPIDL_MODULE = "msgsmime"
 
-SOURCES += [
+UNIFIED_SOURCES += [
     "nsCertGen.cpp",
     "nsCertPicker.cpp",
     "nsCMS.cpp",

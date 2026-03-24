@@ -8,14 +8,7 @@
 #include "mozilla/Logging.h"
 #include "mozilla/DebugOnly.h"
 
-#define PRINT_TO_CONSOLE 0
-#if PRINT_TO_CONSOLE
-#  define PRINTF(args) printf args
-#else
 static mozilla::LazyLogModule gMapiAddressBookLog("MAPIAddressBook");
-#  define PRINTF(args) \
-    MOZ_LOG(gMapiAddressBookLog, mozilla::LogLevel::Debug, args)
-#endif
 
 using namespace mozilla;
 
@@ -82,7 +75,8 @@ BOOL nsMapiAddressBook::LoadMapiLibrary(void) {
   HRESULT retCode = mMAPIInitialize(&mapiInit);
 
   if (HR_FAILED(retCode)) {
-    PRINTF(("Cannot initialize MAPI %08lx.\n", retCode));
+    MOZ_LOG_FMT(gMapiAddressBookLog, mozilla::LogLevel::Debug,
+                "Cannot initialize MAPI {:08x}.\n", retCode);
     return FALSE;
   }
   mInitialized = TRUE;
@@ -91,13 +85,15 @@ BOOL nsMapiAddressBook::LoadMapiLibrary(void) {
       MAPI_NO_MAIL | MAPI_USE_DEFAULT | MAPI_EXTENDED | MAPI_NEW_SESSION,
       &mRootSession);
   if (HR_FAILED(retCode)) {
-    PRINTF(("Cannot logon to MAPI %08lx.\n", retCode));
+    MOZ_LOG_FMT(gMapiAddressBookLog, mozilla::LogLevel::Debug,
+                "Cannot logon to MAPI {:08x}.\n", retCode);
     return FALSE;
   }
   mLogonDone = TRUE;
   retCode = mRootSession->OpenAddressBook(0, NULL, 0, &mRootBook);
   if (HR_FAILED(retCode)) {
-    PRINTF(("Cannot open MAPI address book %08lx.\n", retCode));
+    MOZ_LOG_FMT(gMapiAddressBookLog, mozilla::LogLevel::Debug,
+                "Cannot open MAPI address book {:08x}.\n", retCode);
   }
   return HR_SUCCEEDED(retCode);
 }
@@ -148,7 +144,8 @@ BOOL nsMapiAddressBook::Initialize(void) {
   StaticMutexAutoLock guard(sMutex);
 
   if (!LoadMapiLibrary()) {
-    PRINTF(("Cannot load library.\n"));
+    MOZ_LOG(gMapiAddressBookLog, mozilla::LogLevel::Debug,
+            ("Cannot load library.\n"));
     return FALSE;
   }
   mAddressBook = mRootBook;

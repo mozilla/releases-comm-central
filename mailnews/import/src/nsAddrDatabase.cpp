@@ -34,7 +34,6 @@ static const char kDataRowScope[] = "ns:addrbk:db:row:scope:data:all";
 
 static const char kRecordKeyColumn[] = "RecordKey";
 static const char kLastRecordKeyColumn[] = "LastRecordKey";
-static const char kRowIDProperty[] = "DbRowID";
 
 static const char kLowerListNameColumn[] = "LowercaseListName";
 

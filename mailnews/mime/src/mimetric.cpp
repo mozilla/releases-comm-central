@@ -352,3 +352,5 @@ static int MimeInlineTextRichtext_parse_eof(MimeObject* obj, bool abort_p) {
 
   return 0;
 }
+
+#undef MIME_SUPERCLASS

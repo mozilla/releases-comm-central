@@ -7,7 +7,7 @@ EXPORTS += [
     "nsPgpMimeProxy.h",
 ]
 
-SOURCES += [
+UNIFIED_SOURCES += [
     "nsPgpMimeProxy.cpp",
 ]
 

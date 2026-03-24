@@ -124,3 +124,5 @@ static bool MimeMultipartAppleDouble_output_child_p(MimeObject* obj,
 
   return true;
 }
+
+#undef MIME_SUPERCLASS

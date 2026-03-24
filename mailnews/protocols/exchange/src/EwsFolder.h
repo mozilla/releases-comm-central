@@ -11,6 +11,8 @@
 #include "nsMsgDBFolder.h"
 #include "nscore.h"
 
+constexpr auto kEwsIdProperty = "ewsId";
+
 /**
  * Create a new local folder with the given EWS ID and name under the given
  * parent.

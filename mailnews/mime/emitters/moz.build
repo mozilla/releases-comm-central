@@ -5,7 +5,7 @@
 
 EXPORTS += []
 
-SOURCES += [
+UNIFIED_SOURCES += [
     "nsEmitterUtils.cpp",
     "nsMimeBaseEmitter.cpp",
     "nsMimeHtmlEmitter.cpp",

@@ -11,7 +11,7 @@ JS_PREFERENCE_PP_FILES += [
 
 XPCSHELL_TESTS_MANIFESTS += ["test/unit/xpcshell.toml"]
 
-SOURCES += [
+UNIFIED_SOURCES += [
     "nsMsgMdnGenerator.cpp",
 ]
 

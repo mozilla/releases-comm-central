@@ -55,8 +55,6 @@ using namespace mozilla::StaticPrefs;
 
 extern LazyLogModule FILTERLOGMODULE;  // From nsMsgFilterService.
 
-constexpr auto kEwsIdProperty = "ewsId";
-
 nsresult CreateNewLocalEwsFolder(nsIMsgFolder* parent, const nsACString& ewsId,
                                  const nsACString& folderName,
                                  nsIMsgFolder** createdFolder) {

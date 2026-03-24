@@ -3,29 +3,31 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "mimehdrs.h"
-#include "nsCOMPtr.h"
 #include "mimeebod.h"
-#include "nsMailHeaders.h"
-#include "prmem.h"
-#include "plstr.h"
-#include "prlog.h"
-#include "prio.h"
-#include "msgCore.h"
-#include "nsMimeStringResources.h"
-#include "mimemoz2.h"
-#include "nsComponentManagerUtils.h"
-#include "nsMsgUtils.h"
-#include "nsINetUtil.h"
+
 #include <ctype.h>
+
+#include "mimehdrs.h"
+#include "mimemoz2.h"
+#include "msgCore.h"
+#include "nsComponentManagerUtils.h"
+#include "nsCOMPtr.h"
+#include "nsINetUtil.h"
+#include "nsMailHeaders.h"
+#include "nsMimeStringResources.h"
+#include "nsMsgUtils.h"
+#include "plstr.h"
+#include "prio.h"
+#include "prlog.h"
+#include "prmem.h"
+
+#ifdef XP_MACOSX
+#  include "mimemapl.h"
+#endif
 
 #define MIME_SUPERCLASS mimeObjectClass
 MimeDefClass(MimeExternalBody, MimeExternalBodyClass, mimeExternalBodyClass,
              &MIME_SUPERCLASS);
-
-#ifdef XP_MACOSX
-extern MimeObjectClass mimeMultipartAppleDoubleClass;
-#endif
 
 static int MimeExternalBody_initialize(MimeObject*);
 static void MimeExternalBody_finalize(MimeObject*);
@@ -441,3 +443,5 @@ static bool MimeExternalBody_displayable_inline_p(MimeObjectClass* clazz,
   PR_FREEIF(at);
   return inline_p;
 }
+
+#undef MIME_SUPERCLASS

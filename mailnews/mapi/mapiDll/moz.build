@@ -10,7 +10,7 @@ USE_STATIC_MSVCRT = True
 
 LOCAL_INCLUDES += ["../include"]
 
-SOURCES += [
+UNIFIED_SOURCES += [
     "MapiDll.cpp",
 ]
 

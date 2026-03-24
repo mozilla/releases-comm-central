@@ -228,3 +228,5 @@ void MimeInlineTextHTML_remove_plaintext_tag(MimeObject* obj,
     }
   }
 }
+
+#undef MIME_SUPERCLASS

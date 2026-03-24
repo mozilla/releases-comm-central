@@ -47,8 +47,6 @@ extern void MimeHeaders_do_unix_display_hook_hack(MimeHeaders*);
 static int MimeMessage_debug_print(MimeObject*, PRFileDesc*, int32_t depth);
 #endif
 
-extern MimeObjectClass mimeMultipartClass;
-
 static int MimeMessageClassInitialize(MimeObjectClass* oclass) {
   MimeContainerClass* cclass = (MimeContainerClass*)oclass;
 
@@ -847,3 +845,5 @@ static int MimeMessage_debug_print(MimeObject* obj, PRFileDesc* stream,
   return 0;
 }
 #endif
+
+#undef MIME_SUPERCLASS

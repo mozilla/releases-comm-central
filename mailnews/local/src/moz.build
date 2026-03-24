@@ -7,7 +7,7 @@ EXPORTS += [
     "nsMsgLocalStoreUtils.h",
 ]
 
-SOURCES += [
+UNIFIED_SOURCES += [
     "MboxCompactor.cpp",
     "MboxScanner.cpp",
     "nsLocalMailFolder.cpp",
@@ -20,7 +20,6 @@ SOURCES += [
     "nsMsgBrkMBoxStore.cpp",
     "nsMsgFileHdr.cpp",
     "nsMsgLocalStoreUtils.cpp",
-    "nsMsgMaildirStore.cpp",
     "nsNoIncomingServer.cpp",
     "nsNoneService.cpp",
     "nsParseMailbox.cpp",
@@ -29,6 +28,11 @@ SOURCES += [
     "nsRssIncomingServer.cpp",
     "nsRssService.cpp",
     "StoreIndexer.cpp",
+]
+
+# If this was in UNIFIED_SOURCES, we'd get compile errors on Mac.
+SOURCES += [
+    "nsMsgMaildirStore.cpp",
 ]
 
 FINAL_LIBRARY = "mail"

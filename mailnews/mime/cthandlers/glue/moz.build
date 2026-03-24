@@ -7,7 +7,7 @@ EXPORTS += [
     "nsMimeContentTypeHandler.h",
 ]
 
-SOURCES += [
+UNIFIED_SOURCES += [
     "nsMimeContentTypeHandler.cpp",
 ]
 

@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "EwsFetchMsgsToOffline.h"
+
+#include "EwsFolder.h"
 #include "EwsListeners.h"
 #include "IExchangeClient.h"
 #include "IEwsIncomingServer.h"
@@ -195,7 +197,6 @@ class MsgFetcher : public IExchangeMessageFetchListener {
     NS_ENSURE_SUCCESS(rv, rv);
 
     // Retrieve the EWS ID of the message we want to download.
-    constexpr auto kEwsIdProperty = "ewsId";
     nsCString ewsId;
     rv = msgHdr->GetStringProperty(kEwsIdProperty, ewsId);
     NS_ENSURE_SUCCESS(rv, rv);

@@ -16,7 +16,6 @@
 #include "OfflineStorage.h"  // For LocalDeleteMessages().
 
 #define SYNC_STATE_PROPERTY "ewsSyncStateToken"
-constexpr auto kEwsIdProperty = "ewsId";
 
 mozilla::LazyLogModule gEwsLog("ews_xpcom");
 

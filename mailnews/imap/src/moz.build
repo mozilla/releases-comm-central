@@ -9,14 +9,13 @@ EXPORTS += [
     "nsImapCore.h",
 ]
 
-SOURCES += [
+UNIFIED_SOURCES += [
     "nsAutoSyncManager.cpp",
     "nsAutoSyncState.cpp",
     "nsImapFlagAndUidState.cpp",
     "nsImapGenericParser.cpp",
     "nsImapHostSessionList.cpp",
     "nsImapIncomingServer.cpp",
-    "nsImapMailFolder.cpp",
     "nsImapNamespace.cpp",
     "nsImapOfflineSync.cpp",
     "nsImapProtocol.cpp",
@@ -28,6 +27,11 @@ SOURCES += [
     "nsImapUrl.cpp",
     "nsImapUtils.cpp",
     "nsSyncRunnableHelpers.cpp",
+]
+
+# If this was in UNIFIED_SOURCES, we'd get compile errors on Mac.
+SOURCES += [
+    "nsImapMailFolder.cpp",
 ]
 
 FINAL_LIBRARY = "mail"

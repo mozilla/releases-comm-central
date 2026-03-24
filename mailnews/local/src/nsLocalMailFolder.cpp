@@ -1129,7 +1129,8 @@ nsMsgLocalMailFolder::DeleteMessages(
     nsCOMPtr<nsIMsgDatabase> msgDB;
     rv = GetDatabaseWOReparse(getter_AddRefs(msgDB));
     if (NS_SUCCEEDED(rv)) {
-      if (deleteStorage && isMove && GetDeleteFromServerOnMove())
+      if (deleteStorage && isMove &&
+          Preferences::GetBool("mail.pop3.deleteFromServerOnMove"))
         MarkMsgsOnPop3Server(msgHeaders, POP3_DELETE);
 
       nsCOMPtr<nsISupports> msgSupport;
@@ -1478,7 +1479,7 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder,
           // If we're deleting on all moves, we'll mark this message for
           // deletion when we call DeleteMessages on the source folder. So don't
           // mark it for deletion here, in that case.
-          if (!GetDeleteFromServerOnMove()) {
+          if (!Preferences::GetBool("mail.pop3.deleteFromServerOnMove")) {
             localDstFolder->MarkMsgsOnPop3Server(dstHdrs, POP3_DELETE);
           }
         }
@@ -2467,18 +2468,6 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
   return rv;
 }
 
-static bool gGotGlobalPrefs;
-static bool gDeleteFromServerOnMove;
-
-bool nsMsgLocalMailFolder::GetDeleteFromServerOnMove() {
-  if (!gGotGlobalPrefs) {
-    gDeleteFromServerOnMove =
-        Preferences::GetBool("mail.pop3.deleteFromServerOnMove");
-    gGotGlobalPrefs = true;
-  }
-  return gDeleteFromServerOnMove;
-}
-
 // nsICopyMessageListener.endMove()
 MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHODIMP
 nsMsgLocalMailFolder::EndMove(bool moveSucceeded) {
@@ -2516,7 +2505,7 @@ nsMsgLocalMailFolder::EndMove(bool moveSucceeded) {
         // if we're deleting on all moves, we'll mark this message for deletion
         // when we call DeleteMessages on the source folder. So don't mark it
         // for deletion here, in that case.
-        if (!GetDeleteFromServerOnMove()) {
+        if (!Preferences::GetBool("mail.pop3.deleteFromServerOnMove")) {
           localSrcFolder->MarkMsgsOnPop3Server(mCopyState->m_messages,
                                                POP3_DELETE);
         }

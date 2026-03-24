@@ -16,3 +16,5 @@ static int MimeMultipartParallelClassInitialize(MimeObjectClass* oclass) {
 #endif
   return 0;
 }
+
+#undef MIME_SUPERCLASS

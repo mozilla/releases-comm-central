@@ -3,24 +3,26 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "mimehdrs.h"
-#include "msgCore.h"
 #include "mimemult.h"
-#include "mimemoz2.h"
-#include "mimeeobj.h"
-#include "mimemsig.h"
 
-#include "nsMailHeaders.h"
-#include "prlog.h"
-#include "prmem.h"
-#include "plstr.h"
-#include "prio.h"
-#include "nsMimeStringResources.h"
-#include "nsMimeTypes.h"
 #include <ctype.h>
 
+#include "mimeeobj.h"
+#include "mimehdrs.h"
+#include "mimemoz2.h"
+#include "mimemrel.h"
+#include "mimemsig.h"
+#include "msgCore.h"
+#include "nsMailHeaders.h"
+#include "nsMimeStringResources.h"
+#include "nsMimeTypes.h"
+#include "plstr.h"
+#include "prio.h"
+#include "prlog.h"
+#include "prmem.h"
+
 #ifdef XP_MACOSX
-extern MimeObjectClass mimeMultipartAppleDoubleClass;
+#  include "mimemapl.h"
 #endif
 
 #define MIME_SUPERCLASS mimeContainerClass
@@ -42,8 +44,6 @@ static int MimeMultipart_parse_child_line(MimeObject*, const char*, int32_t,
                                           bool);
 static int MimeMultipart_close_child(MimeObject*);
 
-extern "C" MimeObjectClass mimeMultipartAlternativeClass;
-extern "C" MimeObjectClass mimeMultipartRelatedClass;
 extern "C" MimeMultipartSignedClass mimeMultipartSignedClass;
 extern "C" MimeObjectClass mimeInlineTextVCardClass;
 extern "C" MimeExternalObjectClass mimeExternalObjectClass;
@@ -677,3 +677,5 @@ static int MimeMultipart_debug_print(MimeObject* obj, PRFileDesc* stream,
   return 0;
 }
 #endif
+
+#undef MIME_SUPERCLASS

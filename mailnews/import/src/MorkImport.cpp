@@ -16,8 +16,6 @@
 #include "nsInterfaceHashtable.h"
 #include "nsHashKeys.h"
 
-static const char kRowIDProperty[] = "DbRowID";
-
 nsresult ReadMABToDirectory(nsIFile* oldFile, nsIAbDirectory* newDirectory) {
   nsresult rv;
 

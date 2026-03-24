@@ -1106,3 +1106,5 @@ static int MimeMultipartRelatedClassInitialize(MimeObjectClass* oclass) {
   mclass->parse_child_line = MimeMultipartRelated_parse_child_line;
   return 0;
 }
+
+#undef MIME_SUPERCLASS

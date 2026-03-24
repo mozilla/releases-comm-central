@@ -6,6 +6,7 @@
 
 #include <utility>
 
+#include "EwsFolder.h"
 #include "EwsListeners.h"
 #include "EwsOAuth2CustomDetails.h"
 #include "IExchangeClient.h"
@@ -29,7 +30,6 @@ static constexpr auto kDeleteModelPreferenceName = "delete_model";
 static constexpr auto kTrashFolderPreferenceName = "trash_folder_path";
 
 constexpr auto kSyncStateTokenProperty = "ewsSyncStateToken";
-constexpr auto kEwsIdProperty = "ewsId";
 
 namespace {
 

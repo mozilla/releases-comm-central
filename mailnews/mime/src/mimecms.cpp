@@ -970,3 +970,5 @@ static void MimeCMS_free(MimeClosure crypto_closure) {
 }
 
 static char* MimeCMS_generate(MimeClosure crypto_closure) { return nullptr; }
+
+#undef MIME_SUPERCLASS

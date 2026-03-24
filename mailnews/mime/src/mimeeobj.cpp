@@ -217,3 +217,5 @@ MimeDefClass(MimeSuppressedCrypto, MimeSuppressedCryptoClass,
 static int MimeSuppressedCryptoClassInitialize(MimeObjectClass* oclass) {
   return MimeExternalObjectClassInitialize(oclass);
 }
+
+#undef MIME_SUPERCLASS

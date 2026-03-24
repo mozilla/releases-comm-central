@@ -18,13 +18,7 @@
 
 #include "mozilla/Logging.h"
 
-#define PRINT_TO_CONSOLE 0
-#if PRINT_TO_CONSOLE
-#  define PRINTF(args) printf args
-#else
 static mozilla::LazyLogModule gAbWinHelperLog("AbWinHelper");
-#  define PRINTF(args) MOZ_LOG(gAbWinHelperLog, mozilla::LogLevel::Debug, args)
-#endif
 
 // Small utility to ensure release of all MAPI interfaces
 template <class tInterface>
@@ -121,11 +115,12 @@ void nsMapiEntry::ToString(nsCString& aString) const {
 }
 
 void nsMapiEntry::Dump(void) const {
-  PRINTF(("%lu\n", mByteCount));
+  MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug, "{}\n", mByteCount);
   for (ULONG i = 0; i < mByteCount; ++i) {
-    PRINTF(("%02X", (reinterpret_cast<unsigned char*>(mEntryId))[i]));
+    MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug, "{:02x}",
+                (reinterpret_cast<unsigned char*>(mEntryId))[i]);
   }
-  PRINTF(("\n"));
+  MOZ_LOG(gAbWinHelperLog, mozilla::LogLevel::Debug, ("\n"));
 }
 
 nsMapiEntryArray::nsMapiEntryArray(void) : mEntries(NULL), mNbEntries(0) {
@@ -254,12 +249,14 @@ BOOL nsAbWinHelper::GetFolders(nsMapiEntryArray& aFolders) {
 
   mLastError = mAddressBook->OpenEntry(0, NULL, NULL, 0, &objType, rootFolder);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot open root %08lx.\n", mLastError));
+    MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                "Cannot open root {:08x}.\n", mLastError);
     return FALSE;
   }
   mLastError = rootFolder->GetHierarchyTable(0, folders);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot get hierarchy %08lx.\n", mLastError));
+    MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                "Cannot get hierarchy {:08x}.\n", mLastError);
     return FALSE;
   }
   // We only take into account modifiable containers,
@@ -270,13 +267,15 @@ BOOL nsAbWinHelper::GetFolders(nsMapiEntryArray& aFolders) {
   restriction.res.resBitMask.ulMask = AB_MODIFIABLE;
   mLastError = folders->Restrict(&restriction, 0);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot restrict table %08lx.\n", mLastError));
+    MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                "Cannot restrict table {:08x}.\n", mLastError);
   }
   folderColumns.cValues = 1;
   folderColumns.aulPropTag[0] = PR_ENTRYID;
   mLastError = folders->SetColumns(&folderColumns, 0);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot set columns %08lx.\n", mLastError));
+    MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                "Cannot set columns {:08x}.\n", mLastError);
     return FALSE;
   }
   mLastError = folders->GetRowCount(0, &rowCount);
@@ -300,7 +299,8 @@ BOOL nsAbWinHelper::GetFolders(nsMapiEntryArray& aFolders) {
         }
         MyFreeProws(rowSet);
       } else {
-        PRINTF(("Cannot query rows %08lx.\n", mLastError));
+        MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                    "Cannot query rows {:08x}.\n", mLastError);
       }
     } while (rowCount > 0);
   }
@@ -340,7 +340,8 @@ BOOL nsAbWinHelper::GetPropertyString(const nsMapiEntry& aObject,
   }
 
   if (valueCount != 1 || values == NULL) {
-    PRINTF(("Unexpected return value in nsAbWinHelper::GetPropertyString"));
+    MOZ_LOG(gAbWinHelperLog, mozilla::LogLevel::Debug,
+            ("Unexpected return value in nsAbWinHelper::GetPropertyString"));
     return FALSE;
   }
 
@@ -350,8 +351,10 @@ BOOL nsAbWinHelper::GetPropertyString(const nsMapiEntry& aObject,
   } else if (PROP_TYPE(values->ulPropTag) == PT_UNICODE) {
     aName = NS_LossyConvertUTF16toASCII(values->Value.lpszW);
   } else {
-    PRINTF(("Unexpected return value for property %08lx (x0A is PT_ERROR).\n",
-            values->ulPropTag));
+    MOZ_LOG_FMT(
+        gAbWinHelperLog, mozilla::LogLevel::Debug,
+        "Unexpected return value for property {:08x} (x0A is PT_ERROR).\n",
+        values->ulPropTag);
     success = FALSE;
   }
   FreeBuffer(values);
@@ -370,7 +373,8 @@ BOOL nsAbWinHelper::GetPropertyUString(const nsMapiEntry& aObject,
     return FALSE;
   }
   if (valueCount != 1 || values == NULL) {
-    PRINTF(("Unexpected return value in nsAbWinHelper::GetPropertyUString"));
+    MOZ_LOG(gAbWinHelperLog, mozilla::LogLevel::Debug,
+            ("Unexpected return value in nsAbWinHelper::GetPropertyUString"));
     return FALSE;
   }
 
@@ -380,8 +384,10 @@ BOOL nsAbWinHelper::GetPropertyUString(const nsMapiEntry& aObject,
   } else if (PROP_TYPE(values->ulPropTag) == PT_STRING8) {
     aName.AssignASCII(values->Value.lpszA);
   } else {
-    PRINTF(("Unexpected return value for property %08lx (x0A is PT_ERROR).\n",
-            values->ulPropTag));
+    MOZ_LOG_FMT(
+        gAbWinHelperLog, mozilla::LogLevel::Debug,
+        "Unexpected return value for property {:08x} (x0A is PT_ERROR).\n",
+        values->ulPropTag);
     success = FALSE;
   }
   return success;
@@ -400,7 +406,8 @@ BOOL nsAbWinHelper::GetPropertiesUString(const nsMapiEntry& aDir,
     return FALSE;
 
   if (valueCount != aNbProperties || values == NULL) {
-    PRINTF(("Unexpected return value in nsAbWinHelper::GetPropertiesUString"));
+    MOZ_LOG(gAbWinHelperLog, mozilla::LogLevel::Debug,
+            ("Unexpected return value in nsAbWinHelper::GetPropertiesUString"));
     return FALSE;
   }
   for (ULONG i = 0; i < valueCount; ++i) {
@@ -414,9 +421,10 @@ BOOL nsAbWinHelper::GetPropertiesUString(const nsMapiEntry& aDir,
         aNames[i] = values[i].Value.lpszW;
         aSuccess[i] = true;
       } else {
-        PRINTF(
-            ("Unexpected return value for property %08lx (x0A is PT_ERROR).\n",
-             values[i].ulPropTag));
+        MOZ_LOG_FMT(
+            gAbWinHelperLog, mozilla::LogLevel::Debug,
+            "Unexpected return value for property {:08x} (x0A is PT_ERROR).\n",
+            values[i].ulPropTag);
       }
     }
   }
@@ -439,7 +447,8 @@ BOOL nsAbWinHelper::GetPropertyDate(const nsMapiEntry& aDir,
     return FALSE;
   }
   if (valueCount != 1 || values == NULL) {
-    PRINTF(("Unexpected return value in nsAbWinHelper::GetPropertyDate"));
+    MOZ_LOG(gAbWinHelperLog, mozilla::LogLevel::Debug,
+            ("Unexpected return value in nsAbWinHelper::GetPropertyDate"));
     return FALSE;
   }
 
@@ -452,8 +461,10 @@ BOOL nsAbWinHelper::GetPropertyDate(const nsMapiEntry& aDir,
       aDay = readableTime.wDay;
     }
   } else {
-    PRINTF(("Cannot retrieve PT_SYSTIME property %08lx (x0A is PT_ERROR).\n",
-            values->ulPropTag));
+    MOZ_LOG_FMT(
+        gAbWinHelperLog, mozilla::LogLevel::Debug,
+        "Cannot retrieve PT_SYSTIME property {:08x} (x0A is PT_ERROR).\n",
+        values->ulPropTag);
     success = FALSE;
   }
   FreeBuffer(values);
@@ -472,7 +483,8 @@ BOOL nsAbWinHelper::GetPropertyLong(const nsMapiEntry& aObject,
     return FALSE;
   }
   if (valueCount != 1 || values == NULL) {
-    PRINTF(("Unexpected return value in nsAbWinHelper::GetPropertyLong"));
+    MOZ_LOG(gAbWinHelperLog, mozilla::LogLevel::Debug,
+            ("Unexpected return value in nsAbWinHelper::GetPropertyLong"));
     return FALSE;
   }
 
@@ -480,8 +492,9 @@ BOOL nsAbWinHelper::GetPropertyLong(const nsMapiEntry& aObject,
   if (PROP_TYPE(values->ulPropTag) == PT_LONG) {
     aValue = values->Value.ul;
   } else {
-    PRINTF(("Cannot retrieve PT_LONG property %08lx (x0A is PT_ERROR).\n",
-            values->ulPropTag));
+    MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                "Cannot retrieve PT_LONG property {:08x} (x0A is PT_ERROR).\n",
+                values->ulPropTag);
     success = FALSE;
   }
   FreeBuffer(values);
@@ -500,7 +513,8 @@ BOOL nsAbWinHelper::GetPropertyBin(const nsMapiEntry& aObject,
     return FALSE;
   }
   if (valueCount != 1 || values == NULL) {
-    PRINTF(("Unexpected return value in nsAbWinHelper::GetPropertyBin"));
+    MOZ_LOG(gAbWinHelperLog, mozilla::LogLevel::Debug,
+            ("Unexpected return value in nsAbWinHelper::GetPropertyBin"));
     return FALSE;
   }
 
@@ -509,8 +523,10 @@ BOOL nsAbWinHelper::GetPropertyBin(const nsMapiEntry& aObject,
     aValue.Assign(values->Value.bin.cb,
                   reinterpret_cast<LPENTRYID>(values->Value.bin.lpb));
   } else {
-    PRINTF(("Cannot retrieve PT_BINARY property %08lx (x0A is PT_ERROR).\n",
-            values->ulPropTag));
+    MOZ_LOG_FMT(
+        gAbWinHelperLog, mozilla::LogLevel::Debug,
+        "Cannot retrieve PT_BINARY property {:08x} (x0A is PT_ERROR).\n",
+        values->ulPropTag);
     success = FALSE;
   }
 
@@ -536,7 +552,8 @@ BOOL nsAbWinHelper::GetPropertiesMVBin(
     return FALSE;
   }
   if (valueCount != aNbProperties || values == NULL) {
-    PRINTF(("Unexpected return value in nsAbWinHelper::GetPropertyMVBin"));
+    MOZ_LOG(gAbWinHelperLog, mozilla::LogLevel::Debug,
+            ("Unexpected return value in nsAbWinHelper::GetPropertyMVBin"));
     return FALSE;
   }
 
@@ -544,7 +561,8 @@ BOOL nsAbWinHelper::GetPropertiesMVBin(
   for (ULONG i = 0; i < valueCount; i++) {
     if (PROP_TYPE(values[i].ulPropTag) == PT_MV_BINARY) {
       ULONG count = values[i].Value.MVbin.cValues;
-      PRINTF(("Found %lu members in DL.\n", count));
+      MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                  "Found {} members in DL.\n", count);
       aEntryIDs[i] = new nsMapiEntry[aAllocateMore ? count + 1 : count];
       aNbElements[i] = count;
       SBinary* currentValue = values[i].Value.MVbin.lpbin;
@@ -555,9 +573,10 @@ BOOL nsAbWinHelper::GetPropertiesMVBin(
         currentValue++;
       }
     } else {
-      PRINTF(
-          ("Cannot retrieve PT_MV_BINARY property %08lx (x0A is PT_ERROR).\n",
-           values[i].ulPropTag));
+      MOZ_LOG_FMT(
+          gAbWinHelperLog, mozilla::LogLevel::Debug,
+          "Cannot retrieve PT_MV_BINARY property {:08x} (x0A is PT_ERROR).\n",
+          values[i].ulPropTag);
       success = FALSE;
     }
   }
@@ -615,7 +634,8 @@ BOOL nsAbWinHelper::TestOpenEntry(const nsMapiEntry& aContainer,
       mAddressBook->OpenEntry(aContainer.mByteCount, aContainer.mEntryId,
                               &IID_IMAPIContainer, 0, &objType, container);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot open container %08lx.\n", mLastError));
+    MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                "Cannot open container {:08x}.\n", mLastError);
     return FALSE;
   }
   mLastError = container->OpenEntry(aEntry.mByteCount, aEntry.mEntryId, NULL, 0,
@@ -634,7 +654,8 @@ BOOL nsAbWinHelper::DeleteEntry(const nsMapiEntry& aContainer,
                                        aContainer.mEntryId, &IID_IABContainer,
                                        MAPI_MODIFY, &objType, container);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot open container %08lx.\n", mLastError));
+    MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                "Cannot open container {:08x}.\n", mLastError);
     return FALSE;
   }
   entry.cb = aEntry.mByteCount;
@@ -643,7 +664,8 @@ BOOL nsAbWinHelper::DeleteEntry(const nsMapiEntry& aContainer,
   entryArray.lpbin = &entry;
   mLastError = container->DeleteEntries(&entryArray, 0);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot delete entry %08lx.\n", mLastError));
+    MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                "Cannot delete entry {:08x}.\n", mLastError);
     return FALSE;
   }
   return TRUE;
@@ -668,7 +690,8 @@ BOOL nsAbWinHelper::GetDlMembersTag(IMAPIProp* aMsg, ULONG& aDlMembersTag,
   nameID.Kind.lID = 0x8055;  // PidLidDistributionListMembers
   mLastError = aMsg->GetIDsFromNames(1, lpNameID, 0, &lppPropTags);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot get DL prop tag %08lx.\n", mLastError));
+    MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                "Cannot get DL prop tag {:08x}.\n", mLastError);
     return FALSE;
   }
   aDlMembersTag = lppPropTags[0].aulPropTag[0] | PT_MV_BINARY;
@@ -677,7 +700,8 @@ BOOL nsAbWinHelper::GetDlMembersTag(IMAPIProp* aMsg, ULONG& aDlMembersTag,
   nameID.Kind.lID = 0x8054;  // PidLidDistributionListOneOffMembers
   mLastError = aMsg->GetIDsFromNames(1, lpNameID, 0, &lppPropTags);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot open DL prop tag (one off) %08lx.\n", mLastError));
+    MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                "Cannot open DL prop tag (one off) {:08x}.\n", mLastError);
     return FALSE;
   }
   aDlMembersTagOneOff = lppPropTags[0].aulPropTag[0] | PT_MV_BINARY;
@@ -700,7 +724,8 @@ BOOL nsAbWinHelper::GetDlNameTag(IMAPIProp* aMsg, ULONG& aDlNameTag) {
   nameID.Kind.lID = 0x8053;  // PidLidDistributionListName
   mLastError = aMsg->GetIDsFromNames(1, lpNameID, 0, &lppPropTags);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot get DL prop tag %08lx.\n", mLastError));
+    MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                "Cannot get DL prop tag {:08x}.\n", mLastError);
     return FALSE;
   }
   aDlNameTag = lppPropTags[0].aulPropTag[0] | PT_UNICODE;
@@ -721,7 +746,8 @@ BOOL nsAbWinHelper::DeleteEntryfromDL(const nsMapiEntry& aTopDir,
     nsMapiInterfaceWrapper<LPMAPIPROP> msg;
     mLastError = OpenMAPIObject(aTopDir, aDistList, true, 0, msg);
     if (HR_FAILED(mLastError)) {
-      PRINTF(("Cannot open DL entry %08lx.\n", mLastError));
+      MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                  "Cannot open DL entry {:08x}.\n", mLastError);
       return FALSE;
     }
     if (!GetDlMembersTag(msg.Get(), dlMembersTag, dlMembersTagOnOff))
@@ -737,7 +763,8 @@ BOOL nsAbWinHelper::DeleteEntryfromDL(const nsMapiEntry& aTopDir,
   struct AbEntryId* abEntryId = (struct AbEntryId*)aEntry.mEntryId;
   if (memcmp(abEntryId->provider, CONTAB_PROVIDER_ID,
              CONTAB_PROVIDER_ID_LENGTH) != 0) {
-    PRINTF(("Cannot get to IMessage/IPM.Contact.\n"));
+    MOZ_LOG(gAbWinHelperLog, mozilla::LogLevel::Debug,
+            ("Cannot get to IMessage/IPM.Contact.\n"));
     return FALSE;
   }
   ULONG contactIdLength = abEntryId->length;
@@ -747,7 +774,8 @@ BOOL nsAbWinHelper::DeleteEntryfromDL(const nsMapiEntry& aTopDir,
   nsMapiEntry* values[2];
   ULONG counts[2];
   if (!GetPropertiesMVBin(aTopDir, aDistList, tags, 2, values, counts)) {
-    PRINTF(("Cannot get DL members.\n"));
+    MOZ_LOG(gAbWinHelperLog, mozilla::LogLevel::Debug,
+            ("Cannot get DL members.\n"));
     return FALSE;
   }
   dlMembers.mEntries = values[0];
@@ -757,7 +785,8 @@ BOOL nsAbWinHelper::DeleteEntryfromDL(const nsMapiEntry& aTopDir,
 
   if (dlMembers.mNbEntries == 0) return FALSE;
   if (dlMembers.mNbEntries != dlMembersOneOff.mNbEntries) {
-    PRINTF(("DL members and DL one off members have different length.\n"));
+    MOZ_LOG(gAbWinHelperLog, mozilla::LogLevel::Debug,
+            ("DL members and DL one off members have different length.\n"));
     return FALSE;
   }
 
@@ -772,11 +801,13 @@ BOOL nsAbWinHelper::DeleteEntryfromDL(const nsMapiEntry& aTopDir,
         dlMembers.mEntries[i].mByteCount - sizeof(struct DlEntryId),
         reinterpret_cast<LPENTRYID>(dlEntryId->idBytes), 0, &result);
     if (HR_FAILED(mLastError)) {
-      PRINTF(("CompareEntryIDs failed with %08lx (DeleteEntryfromDL()).\n",
-              mLastError));
+      MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                  "CompareEntryIDs failed with {:08x} (DeleteEntryfromDL()).\n",
+                  mLastError);
     }
     if (result) {
-      PRINTF(("Found card to be deleted at position %lu.\n", i));
+      MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                  "Found card to be deleted at position {}.\n", i);
 
       // Kill/free entry and shuffle remaining cards down.
       dlMembers.mEntries[i].Assign(0, NULL);
@@ -793,7 +824,8 @@ BOOL nsAbWinHelper::DeleteEntryfromDL(const nsMapiEntry& aTopDir,
       counts[1] = dlMembersOneOff.mNbEntries;
       if (counts[0] >= 1) {
         if (!SetPropertiesMVBin(aTopDir, aDistList, tags, 2, values, counts)) {
-          PRINTF(("Cannot set DL members.\n"));
+          MOZ_LOG(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                  ("Cannot set DL members.\n"));
           return FALSE;
         }
       } else {
@@ -801,7 +833,8 @@ BOOL nsAbWinHelper::DeleteEntryfromDL(const nsMapiEntry& aTopDir,
             2, {dlMembersTag, dlMembersTagOnOff}};
         if (!DeleteMAPIProperties(aTopDir, aDistList,
                                   (LPSPropTagArray)&properties, true)) {
-          PRINTF(("Cannot delete DL members.\n"));
+          MOZ_LOG(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                  ("Cannot delete DL members.\n"));
           return FALSE;
         }
       }
@@ -825,7 +858,8 @@ BOOL nsAbWinHelper::AddEntryToDL(const nsMapiEntry& aTopDir,
     nsMapiInterfaceWrapper<LPMAPIPROP> msg;
     mLastError = OpenMAPIObject(aTopDir, aDistList, true, 0, msg);
     if (HR_FAILED(mLastError)) {
-      PRINTF(("Cannot open DL entry %08lx.\n", mLastError));
+      MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                  "Cannot open DL entry {:08x}.\n", mLastError);
       return FALSE;
     }
     if (!GetDlMembersTag(msg.Get(), dlMembersTag, dlMembersTagOnOff))
@@ -841,7 +875,8 @@ BOOL nsAbWinHelper::AddEntryToDL(const nsMapiEntry& aTopDir,
   struct AbEntryId* abEntryId = (struct AbEntryId*)aEntry.mEntryId;
   if (memcmp(abEntryId->provider, CONTAB_PROVIDER_ID,
              CONTAB_PROVIDER_ID_LENGTH) != 0) {
-    PRINTF(("Cannot get to IMessage/IPM.Contact.\n"));
+    MOZ_LOG(gAbWinHelperLog, mozilla::LogLevel::Debug,
+            ("Cannot get to IMessage/IPM.Contact.\n"));
     return FALSE;
   }
   ULONG contactIdLength = abEntryId->length;
@@ -863,7 +898,8 @@ BOOL nsAbWinHelper::AddEntryToDL(const nsMapiEntry& aTopDir,
   dlMembersOneOff.mNbEntries = counts[1];
 
   if (dlMembers.mNbEntries != dlMembersOneOff.mNbEntries) {
-    PRINTF(("DL members and DL one off members have different length.\n"));
+    MOZ_LOG(gAbWinHelperLog, mozilla::LogLevel::Debug,
+            ("DL members and DL one off members have different length.\n"));
     return FALSE;
   }
 
@@ -913,7 +949,8 @@ BOOL nsAbWinHelper::AddEntryToDL(const nsMapiEntry& aTopDir,
   counts[0] = dlMembers.mNbEntries;
   counts[1] = dlMembersOneOff.mNbEntries;
   if (!SetPropertiesMVBin(aTopDir, aDistList, tags, 2, values, counts)) {
-    PRINTF(("Cannot set DL members.\n"));
+    MOZ_LOG(gAbWinHelperLog, mozilla::LogLevel::Debug,
+            ("Cannot set DL members.\n"));
     return FALSE;
   }
   return TRUE;
@@ -933,7 +970,8 @@ BOOL nsAbWinHelper::SetPropertyUString(const nsMapiEntry& aObject,
     alternativeValue = NS_LossyConvertUTF16toASCII(aValue);
     value.Value.lpszA = const_cast<char*>(alternativeValue.get());
   } else {
-    PRINTF(("Property %08lx is not a string.\n", aPropertyTag));
+    MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                "Property {:08x} is not a string.\n", aPropertyTag);
     return FALSE;
   }
   nsMapiEntry nullEntry;
@@ -1016,12 +1054,15 @@ BOOL nsAbWinHelper::CreateEntryInternal(const nsMapiEntry& aParent,
   ULONG objType = 0;
   mLastError = mAddressBook->OpenEntry(0, NULL, NULL, 0, &objType, rootFolder);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot open root %08lx (creating new entry).\n", mLastError));
+    MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                "Cannot open root {:08x} (creating new entry).\n", mLastError);
     return FALSE;
   }
   mLastError = rootFolder->GetHierarchyTable(CONVENIENT_DEPTH, folders);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot get hierarchy %08lx (creating new entry).\n", mLastError));
+    MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                "Cannot get hierarchy {:08x} (creating new entry).\n",
+                mLastError);
     return FALSE;
   }
 
@@ -1031,7 +1072,9 @@ BOOL nsAbWinHelper::CreateEntryInternal(const nsMapiEntry& aParent,
       2, {PR_ENTRYID, PR_CONTAB_FOLDER_ENTRYID}};
   mLastError = folders->SetColumns((LPSPropTagArray)&properties, 0);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot set columns %08lx (creating new entry).\n", mLastError));
+    MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                "Cannot set columns {:08x} (creating new entry).\n",
+                mLastError);
     return FALSE;
   }
 
@@ -1056,8 +1099,10 @@ BOOL nsAbWinHelper::CreateEntryInternal(const nsMapiEntry& aParent,
               aParent.mByteCount, aParent.mEntryId, colValue.Value.bin.cb,
               reinterpret_cast<LPENTRYID>(colValue.Value.bin.lpb), 0, &result);
           if (HR_FAILED(mLastError)) {
-            PRINTF(("CompareEntryIDs failed with %08lx (creating new entry).\n",
-                    mLastError));
+            MOZ_LOG_FMT(
+                gAbWinHelperLog, mozilla::LogLevel::Debug,
+                "CompareEntryIDs failed with {:08x} (creating new entry).\n",
+                mLastError);
           }
           if (result) {
             SPropValue& conTabValue = rowSet->aRow->lpProps[1];
@@ -1070,32 +1115,38 @@ BOOL nsAbWinHelper::CreateEntryInternal(const nsMapiEntry& aParent,
         }
         MyFreeProws(rowSet);
       } else {
-        PRINTF(("Cannot query rows %08lx (creating new entry).\n", mLastError));
+        MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                    "Cannot query rows {:08x} (creating new entry).\n",
+                    mLastError);
       }
     } while (rowCount > 0);
   }
   if (HR_FAILED(mLastError)) return HR_SUCCEEDED(mLastError);
 
   if (!found) {
-    PRINTF(("Cannot find folder for contact in hierarchy table.\n"));
+    MOZ_LOG(gAbWinHelperLog, mozilla::LogLevel::Debug,
+            ("Cannot find folder for contact in hierarchy table.\n"));
     return FALSE;
   }
 
   // Open store and contact folder.
-  PRINTF(("Found contact folder associated with AB container.\n"));
+  MOZ_LOG(gAbWinHelperLog, mozilla::LogLevel::Debug,
+          ("Found contact folder associated with AB container.\n"));
   nsMapiEntry storeEntry;
   // Get the entry ID of the related store. This won't work for the
   // Global Address List (GAL) since it doesn't provide contacts from a
   // local store.
   if (!GetPropertyBin(aParent, PR_STORE_ENTRYID, storeEntry)) {
-    PRINTF(("Cannot get PR_STORE_ENTRYID, likely not a local AB.\n"));
+    MOZ_LOG(gAbWinHelperLog, mozilla::LogLevel::Debug,
+            ("Cannot get PR_STORE_ENTRYID, likely not a local AB.\n"));
     return FALSE;
   }
   nsMapiInterfaceWrapper<LPMDB> store;
   mLastError = mAddressSession->OpenMsgStore(
       0, storeEntry.mByteCount, storeEntry.mEntryId, NULL, 0, store);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot open MAPI message store %08lx.\n", mLastError));
+    MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                "Cannot open MAPI message store {:08x}.\n", mLastError);
     return FALSE;
   }
   nsMapiInterfaceWrapper<LPMAPIFOLDER> contactFolder;
@@ -1103,7 +1154,8 @@ BOOL nsAbWinHelper::CreateEntryInternal(const nsMapiEntry& aParent,
       store->OpenEntry(conTab.mByteCount, conTab.mEntryId, &IID_IMAPIFolder,
                        MAPI_MODIFY, &objType, contactFolder);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot open contact folder %08lx.\n", mLastError));
+    MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                "Cannot open contact folder {:08x}.\n", mLastError);
     return FALSE;
   }
 
@@ -1111,7 +1163,8 @@ BOOL nsAbWinHelper::CreateEntryInternal(const nsMapiEntry& aParent,
   nsMapiInterfaceWrapper<LPMESSAGE> newEntry;
   mLastError = contactFolder->CreateMessage(&IID_IMessage, 0, newEntry);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot create new entry %08lx.\n", mLastError));
+    MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                "Cannot create new entry {:08x}.\n", mLastError);
     return FALSE;
   }
 
@@ -1121,7 +1174,8 @@ BOOL nsAbWinHelper::CreateEntryInternal(const nsMapiEntry& aParent,
   propValue.Value.lpszA = const_cast<char*>(aContactClass);
   mLastError = newEntry->SetProps(1, &propValue, &problems);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot set message class %08lx.\n", mLastError));
+    MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                "Cannot set message class {:08x}.\n", mLastError);
     return FALSE;
   }
 
@@ -1132,14 +1186,16 @@ BOOL nsAbWinHelper::CreateEntryInternal(const nsMapiEntry& aParent,
     propValue.Value.lpszW = const_cast<wchar_t*>(aName);
     mLastError = newEntry->SetProps(1, &propValue, &problems);
     if (HR_FAILED(mLastError)) {
-      PRINTF(("Cannot set DL name %08lx.\n", mLastError));
+      MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                  "Cannot set DL name {:08x}.\n", mLastError);
       return FALSE;
     }
   }
 
   mLastError = newEntry->SaveChanges(KEEP_OPEN_READONLY);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot commit new entry %08lx.\n", mLastError));
+    MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                "Cannot commit new entry {:08x}.\n", mLastError);
     return FALSE;
   }
 
@@ -1151,7 +1207,8 @@ BOOL nsAbWinHelper::CreateEntryInternal(const nsMapiEntry& aParent,
   property.aulPropTag[0] = PR_ENTRYID;
   mLastError = newEntry->GetProps(&property, 0, &valueCount, &value);
   if (HR_FAILED(mLastError) || valueCount != 1) {
-    PRINTF(("Cannot get entry id %08lx.\n", mLastError));
+    MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                "Cannot get entry id {:08x}.\n", mLastError);
     return FALSE;
   }
 
@@ -1180,12 +1237,14 @@ BOOL nsAbWinHelper::CreateEntryInternal(const nsMapiEntry& aParent,
       mAddressBook->OpenEntry(aNewEntry.mByteCount, aNewEntry.mEntryId,
                               &IID_IMAPIProp, MAPI_MODIFY, &objType, object);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot open newly created AB entry %08lx.\n", mLastError));
+    MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                "Cannot open newly created AB entry {:08x}.\n", mLastError);
     return FALSE;
   }
   mLastError = object->SetProps(1, &displayName, &problems);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot set display name %08lx.\n", mLastError));
+    MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                "Cannot set display name {:08x}.\n", mLastError);
     return FALSE;
   }
 
@@ -1231,7 +1290,8 @@ BOOL nsAbWinHelper::GetContents(const nsMapiEntry& aParent,
       mAddressBook->OpenEntry(aParent.mByteCount, aParent.mEntryId,
                               &IID_IMAPIContainer, 0, &objType, parent);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot open parent %08lx.\n", mLastError));
+    MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                "Cannot open parent {:08x}.\n", mLastError);
     return FALSE;
   }
   // Historic comment: May be relevant in the future.
@@ -1240,24 +1300,28 @@ BOOL nsAbWinHelper::GetContents(const nsMapiEntry& aParent,
   // only as long as we don't want to use any flag in GetContentsTable
   mLastError = parent->GetContentsTable(0, contents);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot get contents %08lx.\n", mLastError));
+    MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                "Cannot get contents {:08x}.\n", mLastError);
     return FALSE;
   }
   if (aRestriction != NULL) {
     mLastError = contents->Restrict(aRestriction, 0);
     if (HR_FAILED(mLastError)) {
-      PRINTF(("Cannot set restriction %08lx.\n", mLastError));
+      MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                  "Cannot set restriction {:08x}.\n", mLastError);
       return FALSE;
     }
   }
   mLastError = contents->SetColumns((LPSPropTagArray)&ContentsColumns, 0);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot set columns %08lx.\n", mLastError));
+    MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                "Cannot set columns {:08x}.\n", mLastError);
     return FALSE;
   }
   mLastError = contents->GetRowCount(0, &rowCount);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot get result count %08lx.\n", mLastError));
+    MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                "Cannot get result count {:08x}.\n", mLastError);
     return FALSE;
   }
   if (aList != NULL) {
@@ -1270,7 +1334,8 @@ BOOL nsAbWinHelper::GetContents(const nsMapiEntry& aParent,
     rowCount = 0;
     mLastError = contents->QueryRows(1, 0, &rowSet);
     if (HR_FAILED(mLastError)) {
-      PRINTF(("Cannot query rows %08lx.\n", mLastError));
+      MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                  "Cannot query rows {:08x}.\n", mLastError);
       return FALSE;
     }
     rowCount = rowSet->cRows;
@@ -1287,7 +1352,8 @@ BOOL nsAbWinHelper::GetContents(const nsMapiEntry& aParent,
         // We gloss over it.
         if (currentValue.Value.bin.cb == (ULONG)MAPI_E_NOT_FOUND ||
             currentValue.Value.bin.lpb == NULL) {
-          PRINTF(("Error fetching rows.\n"));
+          MOZ_LOG(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                  ("Error fetching rows.\n"));
           return TRUE;
         }
         current.Assign(currentValue.Value.bin.cb,
@@ -1312,7 +1378,8 @@ HRESULT nsAbWinHelper::OpenMAPIObject(const nsMapiEntry& aDir,
     // Global Address List (GAL) since it doesn't provide contacts from a
     // local store.
     if (!GetPropertyBin(aDir, PR_STORE_ENTRYID, storeEntry)) {
-      PRINTF(("Cannot get PR_STORE_ENTRYID, likely not a local AB.\n"));
+      MOZ_LOG(gAbWinHelperLog, mozilla::LogLevel::Debug,
+              ("Cannot get PR_STORE_ENTRYID, likely not a local AB.\n"));
       aFromContact = false;
     }
     // Check for magic provider GUID.
@@ -1334,7 +1401,8 @@ HRESULT nsAbWinHelper::OpenMAPIObject(const nsMapiEntry& aDir,
     retCode = mAddressSession->OpenMsgStore(
         0, storeEntry.mByteCount, storeEntry.mEntryId, NULL, 0, store);
     if (HR_FAILED(retCode)) {
-      PRINTF(("Cannot open MAPI message store %08lx.\n", retCode));
+      MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                  "Cannot open MAPI message store {:08x}.\n", retCode);
       return retCode;
     }
     // Open the contact object.
@@ -1358,7 +1426,8 @@ BOOL nsAbWinHelper::GetMAPIProperties(const nsMapiEntry& aDir,
 
   mLastError = OpenMAPIObject(aDir, aObject, aFromContact, 0, object);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot open entry %08lx.\n", mLastError));
+    MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                "Cannot open entry {:08x}.\n", mLastError);
     return FALSE;
   }
   AllocateBuffer(CbNewSPropTagArray(aNbProperties),
@@ -1370,7 +1439,8 @@ BOOL nsAbWinHelper::GetMAPIProperties(const nsMapiEntry& aDir,
   mLastError = object->GetProps(properties, 0, &aValueCount, &aValue);
   FreeBuffer(properties);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot get props %08lx.\n", mLastError));
+    MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                "Cannot get props {:08x}.\n", mLastError);
   }
   return HR_SUCCEEDED(mLastError);
 }
@@ -1385,24 +1455,28 @@ BOOL nsAbWinHelper::SetMAPIProperties(const nsMapiEntry& aDir,
 
   mLastError = OpenMAPIObject(aDir, aObject, aFromContact, MAPI_MODIFY, object);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot open entry %08lx.\n", mLastError));
+    MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                "Cannot open entry {:08x}.\n", mLastError);
     return FALSE;
   }
   mLastError = object->SetProps(aNbProperties, aValues, &problems);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot update the object %08lx.\n", mLastError));
+    MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                "Cannot update the object {:08x}.\n", mLastError);
     return FALSE;
   }
   if (problems != NULL) {
     for (ULONG i = 0; i < problems->cProblem; ++i) {
-      PRINTF(("Problem %lu: index %lu code %08lx.\n", i,
-              problems->aProblem[i].ulIndex, problems->aProblem[i].scode));
+      MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                  "Problem {}: index {} code {:08x}.\n", i,
+                  problems->aProblem[i].ulIndex, problems->aProblem[i].scode);
     }
     mAddressFreeBuffer(problems);
   }
   mLastError = object->SaveChanges(0);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot commit changes %08lx.\n", mLastError));
+    MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                "Cannot commit changes {:08x}.\n", mLastError);
   }
   return HR_SUCCEEDED(mLastError);
 }
@@ -1416,24 +1490,28 @@ BOOL nsAbWinHelper::DeleteMAPIProperties(const nsMapiEntry& aDir,
 
   mLastError = OpenMAPIObject(aDir, aObject, aFromContact, MAPI_MODIFY, object);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot open entry %08lx.\n", mLastError));
+    MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                "Cannot open entry {:08x}.\n", mLastError);
     return FALSE;
   }
   mLastError = object->DeleteProps(aProps, &problems);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot update the object (DeleteProps) %08lx.\n", mLastError));
+    MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                "Cannot update the object (DeleteProps) {:08x}.\n", mLastError);
     return FALSE;
   }
   if (problems != NULL) {
     for (ULONG i = 0; i < problems->cProblem; ++i) {
-      PRINTF(("Problem %lu: index %lu code %08lx.\n", i,
-              problems->aProblem[i].ulIndex, problems->aProblem[i].scode));
+      MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                  "Problem {}: index {} code {:08x}.\n", i,
+                  problems->aProblem[i].ulIndex, problems->aProblem[i].scode);
     }
     mAddressFreeBuffer(problems);
   }
   mLastError = object->SaveChanges(0);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot commit changes %08lx.\n", mLastError));
+    MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                "Cannot commit changes {:08x}.\n", mLastError);
   }
   return HR_SUCCEEDED(mLastError);
 }
@@ -1483,8 +1561,9 @@ bool nsAbWinHelper::CompareEntryIDs(nsCString& aEntryID1,
   mLastError = mAddressSession->CompareEntryIDs(
       e1.mByteCount, e1.mEntryId, e2.mByteCount, e2.mEntryId, 0, &result);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("CompareEntryIDs failed with %08lx (CompareEntryIDs()).\n",
-            mLastError));
+    MOZ_LOG_FMT(gAbWinHelperLog, mozilla::LogLevel::Debug,
+                "CompareEntryIDs failed with {:08x} (CompareEntryIDs()).\n",
+                mLastError);
     return false;
   }
   return result ? true : false;

@@ -503,3 +503,5 @@ static int MimeEncrypted_emit_buffered_child(MimeObject* obj) {
 
   return 0;
 }
+
+#undef MIME_SUPERCLASS

@@ -6,7 +6,7 @@ EXPORTS += [
     "EwsFetchMsgsToOffline.h",
 ]
 
-SOURCES += [
+UNIFIED_SOURCES += [
     "EwsCopyMoveTransaction.cpp",
     "EwsFetchMsgsToOffline.cpp",
     "EwsFolder.cpp",

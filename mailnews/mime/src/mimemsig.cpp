@@ -725,3 +725,5 @@ static int MimeMultipartSigned_emit_child(MimeObject* obj) {
 
   return 0;
 }
+
+#undef MIME_SUPERCLASS

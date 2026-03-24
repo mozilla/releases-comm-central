@@ -9,7 +9,7 @@ XPIDL_SOURCES += [
 
 XPIDL_MODULE = "fts3tok"
 
-SOURCES += [
+UNIFIED_SOURCES += [
     "fts3_porter.c",
     "Normalize.c",
     "nsFts3Tokenizer.cpp",

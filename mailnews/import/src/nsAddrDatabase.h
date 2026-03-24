@@ -12,6 +12,8 @@
 #include "nsString.h"
 #include "nsCOMPtr.h"
 
+static const char kRowIDProperty[] = "DbRowID";
+
 class nsAddrDatabase {
   using PathString = mozilla::PathString;
 

@@ -395,3 +395,5 @@ static int MimeInlineText_rotate_convert_and_parse_line(const char* line,
 
   return status;
 }
+
+#undef MIME_SUPERCLASS

@@ -603,3 +603,5 @@ static nsresult Line_convert_whitespace(const nsString& a_line,
   }
   return NS_OK;
 }
+
+#undef MIME_SUPERCLASS

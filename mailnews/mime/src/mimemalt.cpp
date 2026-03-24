@@ -89,6 +89,7 @@
 #include "mimemalt.h"
 
 #include "mimemoz2.h"
+#include "mimemrel.h"
 #include "modmimee.h"
 #include "mozilla/StaticPrefs_mailnews.h"
 #include "nsMailHeaders.h"
@@ -97,8 +98,6 @@
 #include "plstr.h"
 #include "prlog.h"
 #include "prmem.h"
-
-extern "C" MimeObjectClass mimeMultipartRelatedClass;
 
 #define MIME_SUPERCLASS mimeMultipartClass
 MimeDefClass(MimeMultipartAlternative, MimeMultipartAlternativeClass,
@@ -536,3 +535,5 @@ static int MimeMultipartAlternative_display_cached_part(
 
   return 0;
 }
+
+#undef MIME_SUPERCLASS

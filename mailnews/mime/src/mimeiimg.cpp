@@ -233,3 +233,5 @@ static int MimeInlineImage_parse_line(const char* line, int32_t length,
       "buffering).");
   return -1;
 }
+
+#undef MIME_SUPERCLASS

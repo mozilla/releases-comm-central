@@ -30,7 +30,7 @@ EXPORTS.mozilla.mailnews += [
     "MimeHeaderParser.h",
 ]
 
-SOURCES += [
+UNIFIED_SOURCES += [
     "comi18n.cpp",
     "mime_closure.cpp",
     "mimebuf.cpp",

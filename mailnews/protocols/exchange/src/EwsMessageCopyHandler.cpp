@@ -17,8 +17,6 @@
 #include "OfflineStorage.h"
 #include "mozilla/Components.h"
 
-constexpr auto kEwsIdProperty = "ewsId";
-
 ///////////////////////////////////////////////////////////////////////////////
 // Definition of `MessageCopyHandler`, which handles a single copy operation
 // (either from a file or another folder). See `EwsMessageCopyHandler.h` for

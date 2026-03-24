@@ -164,3 +164,5 @@ static int MimeInlineTextHTMLParsed_parse_line(const char* line, int32_t length,
 
   return 0;
 }
+
+#undef MIME_SUPERCLASS

@@ -17,7 +17,7 @@ EXPORTS += [
     "VirtualFolderWrapper.h",
 ]
 
-SOURCES += [
+UNIFIED_SOURCES += [
     "DatabaseCore.cpp",
     "DatabaseUtils.cpp",
     "DetachedMsgHdr.cpp",

@@ -284,9 +284,6 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::HasSpaceAvailable(nsIMsgFolder* aFolder,
   return NS_OK;
 }
 
-static bool gGotGlobalPrefs = false;
-static int32_t gTimeStampLeeway = 60;
-
 NS_IMETHODIMP nsMsgBrkMBoxStore::IsSummaryFileValid(nsIMsgFolder* aFolder,
                                                     nsIMsgDatabase* aDB,
                                                     bool* aResult) {
@@ -325,16 +322,13 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::IsSummaryFileValid(nsIMsgFolder* aFolder,
       *aResult = true;
       return NS_OK;
     }
-    if (!gGotGlobalPrefs) {
-      Preferences::GetInt("mail.db_timestamp_leeway", &gTimeStampLeeway);
-      gGotGlobalPrefs = true;
-    }
     // if those values are ok, check time stamp
-    if (gTimeStampLeeway == 0)
+    int32_t timeStampLeeway = Preferences::GetInt("mail.db_timestamp_leeway");
+    if (timeStampLeeway == 0)
       *aResult = folderDate == actualFolderTimeStamp;
     else
       *aResult = std::abs((int32_t)(actualFolderTimeStamp - folderDate)) <=
-                 gTimeStampLeeway;
+                 timeStampLeeway;
   }
   return NS_OK;
 }

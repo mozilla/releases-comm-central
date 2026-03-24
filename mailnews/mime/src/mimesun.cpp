@@ -312,3 +312,5 @@ static int MimeSunAttachment_parse_child_line(MimeObject* obj, const char* line,
   return kid->clazz->parse_buffer(line, length,
                                   MimeClosure(MimeClosure::isMimeObject, kid));
 }
+
+#undef MIME_SUPERCLASS
