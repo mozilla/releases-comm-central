@@ -2526,6 +2526,7 @@ dependencies = [
  "libz-rs-sys",
  "locale_service_glue",
  "localization-ffi",
+ "lockstore_ffi",
  "log",
  "mailnews_string_glue",
  "mailnews_ui_glue",
@@ -2655,6 +2656,7 @@ dependencies = [
  "l10nregistry-ffi",
  "locale_service_glue",
  "localization-ffi",
+ "lockstore_ffi",
  "log",
  "mapped_hyph",
  "mime-guess-ffi",
@@ -2927,8 +2929,8 @@ dependencies = [
 
 [[package]]
 name = "happy-eyeballs"
-version = "0.2.0"
-source = "git+https://github.com/mozilla/happy-eyeballs?tag=v0.2.0#f4f9c5b7b3002103f4aef4335a80b840ad02624b"
+version = "0.3.0"
+source = "git+https://github.com/mozilla/happy-eyeballs?tag=v0.3.0#9e5bbe0f486f5c85e759241019f6df8984145994"
 dependencies = [
  "log",
  "thiserror 2.0.12",
@@ -3824,6 +3826,34 @@ checksum = "435011366fe56583b16cf956f9df0095b405b82d76425bc8981c0e22e60ec4df"
 dependencies = [
  "autocfg",
  "scopeguard",
+]
+
+[[package]]
+name = "lockstore_ffi"
+version = "0.1.0"
+dependencies = [
+ "lockstore_rs",
+ "log",
+ "nserror",
+ "nsstring",
+ "static_prefs",
+ "thin-vec",
+ "xpcom",
+]
+
+[[package]]
+name = "lockstore_rs"
+version = "0.1.0"
+dependencies = [
+ "base64 0.21.999",
+ "kvstore",
+ "nserror",
+ "nss-gk-api",
+ "nsstring",
+ "serde",
+ "serde_json",
+ "thiserror 1.999.999",
+ "xpcom",
 ]
 
 [[package]]
@@ -7500,8 +7530,10 @@ dependencies = [
  "ash",
  "bincode",
  "firefox-on-glean",
+ "futures-channel",
  "glean",
  "log",
+ "moz_task",
  "nsstring",
  "objc2",
  "objc2-foundation",

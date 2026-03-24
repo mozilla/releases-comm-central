@@ -1,12 +1,10 @@
-/// Tests for network configuration options: IP literal hosts, and alt-svc.
 mod common;
 use common::*;
 
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
 use happy_eyeballs::{
-    AltSvc, ConnectionAttemptHttpVersions, HappyEyeballs, HttpVersion, HttpVersions, Id,
-    IpPreference, NetworkConfig,
+    AltSvc, ConnectionAttemptHttpVersions, HappyEyeballs, HttpVersion, Id, NetworkConfig, Output,
 };
 
 #[test]
@@ -28,13 +26,12 @@ fn not_url_but_ip() {
 fn alt_svc_construction() {
     let now = Instant::now();
     let config = NetworkConfig {
-        http_versions: HttpVersions::default(),
-        ip: IpPreference::DualStackPreferV6,
         alt_svc: vec![AltSvc {
             host: None,
             port: None,
             http_version: HttpVersion::H3,
         }],
+        ..NetworkConfig::default()
     };
     let mut he = HappyEyeballs::new_with_network_config(HOSTNAME, PORT, config).unwrap();
 
@@ -46,13 +43,12 @@ fn alt_svc_construction() {
 fn alt_svc_used_immediately() {
     let now = Instant::now();
     let config = NetworkConfig {
-        http_versions: HttpVersions::default(),
-        ip: IpPreference::DualStackPreferV6,
         alt_svc: vec![AltSvc {
             host: None,
             port: None,
             http_version: HttpVersion::H3,
         }],
+        ..NetworkConfig::default()
     };
     let mut he = HappyEyeballs::new_with_network_config(HOSTNAME, PORT, config).unwrap();
 
@@ -87,13 +83,12 @@ fn alt_svc_used_immediately() {
 fn alt_svc_with_port() {
     let alt_port: u16 = CUSTOM_PORT;
     let config = NetworkConfig {
-        http_versions: HttpVersions::default(),
-        ip: IpPreference::DualStackPreferV6,
         alt_svc: vec![AltSvc {
             host: None,
             port: Some(alt_port),
             http_version: HttpVersion::H3,
         }],
+        ..NetworkConfig::default()
     };
     let (mut now, mut he) = setup_with_config(config);
 
@@ -160,5 +155,51 @@ fn alt_svc_with_port() {
                 ConnectionAttemptHttpVersions::H2OrH1,
             ),
         ],
+    );
+}
+
+/// Custom resolution and connection attempt delays should be respected by
+/// the state machine instead of the default constants.
+#[test]
+fn custom_delays() {
+    let custom_resolution_delay = Duration::from_millis(10);
+    let custom_connection_attempt_delay = Duration::from_millis(50);
+
+    let (mut now, mut he) = setup_with_config(NetworkConfig {
+        resolution_delay: custom_resolution_delay,
+        connection_attempt_delay: custom_connection_attempt_delay,
+        ..NetworkConfig::default()
+    });
+
+    he.expect(
+        vec![
+            (None, Some(out_send_dns_https(Id::from(0)))),
+            (None, Some(out_send_dns_aaaa(Id::from(1)))),
+            (None, Some(out_send_dns_a(Id::from(2)))),
+            (
+                Some(in_dns_a_positive(Id::from(2))),
+                // Should use the custom resolution delay, not the default 50ms.
+                Some(Output::Timer {
+                    duration: custom_resolution_delay,
+                }),
+            ),
+        ],
+        now,
+    );
+
+    now += custom_resolution_delay;
+
+    he.expect(
+        vec![
+            (None, Some(out_attempt_v4_h1_h2(Id::from(3)))),
+            // Should use the custom connection attempt delay, not the default 250ms.
+            (
+                None,
+                Some(Output::Timer {
+                    duration: custom_connection_attempt_delay,
+                }),
+            ),
+        ],
+        now,
     );
 }
