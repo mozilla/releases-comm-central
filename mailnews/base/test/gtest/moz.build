@@ -11,6 +11,7 @@ UNIFIED_SOURCES += [
     "TestHashIfNecessary.cpp",
     "TestHeaderReader.cpp",
     "TestLineReader.cpp",
+    "TestMailStream.cpp",
     "TestMsgMboxRead.cpp",
     "TestMsgMboxWrite.cpp",
     "TestMsgUtils.cpp",
