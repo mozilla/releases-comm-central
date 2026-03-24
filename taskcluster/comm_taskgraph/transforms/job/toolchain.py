@@ -6,7 +6,7 @@ Support for running toolchain-building jobs via dedicated scripts in comm-centra
 """
 
 import os.path
-from typing import Optional, Literal
+from typing import Literal, Optional
 
 import taskgraph
 import taskgraph.util.path as util_path
@@ -15,7 +15,7 @@ from taskgraph.util.schema import resolve_keyed_by
 from gecko_taskgraph import GECKO
 from gecko_taskgraph.transforms.job import configure_taskdesc_for_run, run_job_using
 from gecko_taskgraph.transforms.job.common import docker_worker_add_artifacts
-from gecko_taskgraph.transforms.job.toolchain import toolchain_defaults, ToolchainRunSchema
+from gecko_taskgraph.transforms.job.toolchain import ToolchainRunSchema, toolchain_defaults
 from gecko_taskgraph.util.attributes import RELEASE_PROJECTS
 from gecko_taskgraph.util.hash import hash_paths as hash_paths_gecko_root
 
