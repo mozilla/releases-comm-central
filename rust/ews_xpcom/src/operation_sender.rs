@@ -141,6 +141,8 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
         self.server.lock().await.replace(None);
     }
 
+    /// Returns the currently stored version for the current Exchange server (or
+    /// the default one if none has been stored yet for this server).
     pub fn server_version(&self) -> ExchangeServerVersion {
         self.version_handler.get_version()
     }
@@ -150,7 +152,10 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
         (*self.endpoint).clone().into_inner()
     }
 
-    /// Get a
+    /// Get a reference on the server, if it's available.
+    ///
+    /// Returns [`XpComEwsError::ClientClosed`] if the shutdown signal has been
+    /// received and the reference on the server has already been dropped.
     async fn server(&self) -> Result<RefPtr<ServerT>, XpComEwsError> {
         self.server
             .lock()

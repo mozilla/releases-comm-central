@@ -127,6 +127,16 @@ impl<ServerT: AuthenticationProvider + RefCounted>
 }
 
 impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
+    /// Retrieve changes in the folder list/hierarchy by querying the [folder
+    /// delta] endpoint.
+    ///
+    /// If we have already sync'd in the past, `sync_state_token` holds a token
+    /// that allows us to only retrieve changes since then. Otherwise, the list
+    /// of changes provided in the response should contain enough information to
+    /// allow us to build our folder list/hierarchy.
+    ///
+    /// [folder delta]:
+    ///     https://learn.microsoft.com/en-us/graph/api/mailfolder-delta
     pub async fn sync_folder_hierarchy(
         self,
         listener: SafeEwsFolderListener,

@@ -9,11 +9,13 @@
 
 let smtpServer, smtpIdentity;
 let ewsServer, ewsIdentity;
+let graphServer, graphIdentity;
 
 add_setup(async function () {
-  [smtpServer, ewsServer] = await ServerTestUtils.createServers([
+  [smtpServer, ewsServer, graphServer] = await ServerTestUtils.createServers([
     ServerTestUtils.serverDefs.smtp.plain,
     ServerTestUtils.serverDefs.ews.plain,
+    ServerTestUtils.serverDefs.graph.plain,
   ]);
 
   let smtpAccount, smtpOutgoingServer;
@@ -24,11 +26,16 @@ add_setup(async function () {
   ({ ewsAccount, ewsIdentity } = createEWSAccount());
   await addLoginInfo("ews://test.test", "user", "password");
 
+  let graphAccount;
+  ({ graphAccount, graphIdentity } = createGraphAccount());
+  await addLoginInfo("graph://test.test", "user", "password");
+
   registerCleanupFunction(async function () {
     smtpOutgoingServer.closeCachedConnections();
 
     MailServices.accounts.removeAccount(smtpAccount, false);
     MailServices.accounts.removeAccount(ewsAccount, false);
+    MailServices.accounts.removeAccount(graphAccount, false);
     Services.logins.removeAllLogins();
     Services.prefs.clearUserPref("mail.warn_on_send_accel_key");
   });
@@ -65,6 +72,10 @@ add_task(async function testToolbarButtonEWS() {
   await subtestToolbarButton(ewsIdentity, ewsServer);
 });
 
+add_task(async function testToolbarButtonGraph() {
+  await subtestToolbarButton(graphIdentity, graphServer);
+});
+
 /**
  * Tests the "Send Now" menu item from the File menu.
  *
@@ -98,6 +109,10 @@ add_task(async function testFileMenuSMTP() {
 
 add_task(async function testFileMenuEWS() {
   await subtestFileMenu(ewsIdentity, ewsServer);
+}).skip(AppConstants.platform == "macosx"); // Can't click the menu bar on mac.
+
+add_task(async function testFileMenuGraph() {
+  await subtestFileMenu(graphIdentity, graphServer);
 }).skip(AppConstants.platform == "macosx"); // Can't click the menu bar on mac.
 
 /**
@@ -194,6 +209,10 @@ add_task(async function testKeyboardShortcutSMTP() {
 
 add_task(async function testKeyboardShortcutEWS() {
   await subtestKeyboardShortcut(ewsIdentity, ewsServer);
+});
+
+add_task(async function testKeyboardShortcutGraph() {
+  await subtestKeyboardShortcut(graphIdentity, graphServer);
 });
 
 function handleWarningPrompt(buttonToClick, rememberChoice = false) {

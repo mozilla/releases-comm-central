@@ -54,7 +54,9 @@ impl<ServerT: AuthenticationProvider + RefCounted>
 }
 
 impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
-    /// Perform a connectivity check by querying the user information endpoint.
+    /// Perform a connectivity check by querying the [user information] endpoint.
+    ///
+    /// [user information]: https://learn.microsoft.com/en-us/graph/api/user-get
     pub async fn check_connectivity(self, uri: SafeUri, listener: SafeUrlListener) {
         let operation = DoCheckConnectivity {
             listener: &listener,

@@ -12,4 +12,5 @@ pub mod mail_folder_collection_response;
 pub mod mailbox_settings;
 pub mod message;
 pub mod message_collection_response;
+pub mod outlook_item;
 pub mod user;

@@ -348,15 +348,6 @@ export class EwsServer extends MockServer {
   #lastRequestedVersion;
 
   /**
-   * The content of the last outgoing message sent to this server.
-   *
-   * @type {?string}
-   * @name EwsServer.lastSentMessage
-   * @private
-   */
-  #lastSentMessage;
-
-  /**
    * The username that must be supplied on requests to this server if HTTP
    * basic authentication is used.
    *
@@ -528,15 +519,6 @@ export class EwsServer extends MockServer {
    */
   get lastRequestedVersion() {
     return this.#lastRequestedVersion;
-  }
-
-  /**
-   * The content of the last outgoing message sent to this server.
-   *
-   * @type {?string}
-   */
-  get lastSentMessage() {
-    return this.#lastSentMessage;
   }
 
   /**
@@ -999,7 +981,7 @@ export class EwsServer extends MockServer {
 
     const message =
       reqDoc.getElementsByTagName("t:MimeContent")[0].firstChild.nodeValue;
-    this.#lastSentMessage = atob(message);
+    this.lastSentMessage = atob(message);
 
     // Check if the created item is being saved to a folder.
     const savedItemFolderId = reqDoc.getElementsByTagName("SavedItemFolderId");

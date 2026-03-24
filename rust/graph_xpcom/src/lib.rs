@@ -29,6 +29,7 @@ extern crate xpcom;
 
 mod client;
 mod error;
+mod outgoing;
 
 /// Creates a new instance of the XPCOM/Graph bridge interface [`XpcomGraphBridge`].
 ///

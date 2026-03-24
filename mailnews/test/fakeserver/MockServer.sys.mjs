@@ -163,6 +163,13 @@ export class MockServer {
   itemsCreated = 0;
 
   /**
+   * The content of the last outgoing message sent to this server.
+   *
+   * @type {?string}
+   */
+  lastSentMessage = null;
+
+  /**
    * Return the item information for the specified `itemId`, or
    * null if it can't be found.
    *

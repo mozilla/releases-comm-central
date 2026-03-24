@@ -7,6 +7,7 @@
 #![doc = "Types related to Message. Auto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
 use crate::Error;
 use crate::types::item_body::ItemBody;
+use crate::types::outlook_item::*;
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use std::borrow::Cow;
@@ -24,6 +25,7 @@ pub enum MessageSelection {
     IsDraft,
     IsRead,
     IsReadReceiptRequested,
+    OutlookItem(OutlookItemSelection),
     ParentFolderId,
     ReceivedDateTime,
     SentDateTime,
@@ -158,6 +160,12 @@ impl<'a> Message<'a> {
         Ok(Some(val.as_bool().ok_or_else(|| {
             Error::UnexpectedResponse(format!("{val:?}"))
         })?))
+    }
+    #[doc = "Accessor to inhereted properties from `OutlookItem`."]
+    pub fn outlook_item(&'a self) -> OutlookItem<'a> {
+        OutlookItem {
+            properties: Cow::Borrowed(&*self.properties),
+        }
     }
     #[doc = "The unique identifier for the message's parent mailFolder."]
     pub fn parent_folder_id(&self) -> Result<Option<&str>, Error> {

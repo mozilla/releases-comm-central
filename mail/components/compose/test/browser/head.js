@@ -57,32 +57,67 @@ function createSMTPAccount(incomingType = "pop3") {
  * @returns {object} - The account, identity, and outgoing server.
  */
 function createEWSAccount() {
-  const ewsAccount = MailServices.accounts.createAccount();
-  ewsAccount.incomingServer = MailServices.accounts.createIncomingServer(
-    "user",
-    "test.test",
-    "ews"
-  );
-  ewsAccount.incomingServer.setStringValue(
-    "ews_url",
+  const ret = createExchangeAccount(
+    "ews",
     "http://test.test/EWS/Exchange.asmx"
   );
-  ewsAccount.incomingServer.prettyName = "EWS Account";
 
-  const ewsOutgoingServer = MailServices.outgoingServer.createServer("ews");
-  ewsOutgoingServer.QueryInterface(Ci.nsIEwsServer);
-  ewsOutgoingServer.initialize("http://test.test/EWS/Exchange.asmx");
-  ewsOutgoingServer.authMethod = Ci.nsMsgAuthMethod.passwordCleartext;
-  ewsOutgoingServer.username = "user";
+  return {
+    ewsAccount: ret.account,
+    ewsIdentity: ret.identity,
+    ewsOutgoingServer: ret.outgoingServer,
+  };
+}
 
-  const ewsIdentity = MailServices.accounts.createIdentity();
-  ewsIdentity.fullName = "test";
-  ewsIdentity.email = "test@test.test";
-  ewsIdentity.smtpServerKey = ewsOutgoingServer.key;
-  ewsIdentity.doFcc = false;
+/**
+ * Sets up a Graph account for these tests.
+ *
+ * @returns {object} - The account, identity, and outgoing server.
+ */
+function createGraphAccount() {
+  // As per `ServerTestUtils.sys.mjs`, the port for the Graph server is 8080.
+  const ret = createExchangeAccount("graph", "http://test.test:8080/v1.0");
 
-  ewsAccount.addIdentity(ewsIdentity);
-  return { ewsAccount, ewsIdentity, ewsOutgoingServer };
+  return {
+    graphAccount: ret.account,
+    graphIdentity: ret.identity,
+    graphOutgoingServer: ret.outgoingServer,
+  };
+}
+
+/**
+ * Sets up an Exchange account for these tests. When writing tests, you probably
+ * want to use either `createEWSAccount` or `createGraphAccount` rather than
+ * call this function directly.
+ *
+ * @param {string} protocol The Exchange protocol to get an account for.
+ * @param {string} url The API URL to use by the account's client.
+ * @returns {object} - The account, identity, and outgoing server.
+ */
+function createExchangeAccount(protocol, url) {
+  const account = MailServices.accounts.createAccount();
+  account.incomingServer = MailServices.accounts.createIncomingServer(
+    "user",
+    "test.test",
+    protocol
+  );
+  account.incomingServer.setStringValue("ews_url", url);
+  account.incomingServer.prettyName = `${protocol} Account`;
+
+  const outgoingServer = MailServices.outgoingServer.createServer(protocol);
+  outgoingServer.QueryInterface(Ci.nsIEwsServer);
+  outgoingServer.initialize(url);
+  outgoingServer.authMethod = Ci.nsMsgAuthMethod.passwordCleartext;
+  outgoingServer.username = "user";
+
+  const identity = MailServices.accounts.createIdentity();
+  identity.fullName = "test";
+  identity.email = "test@test.test";
+  identity.smtpServerKey = outgoingServer.key;
+  identity.doFcc = false;
+
+  account.addIdentity(identity);
+  return { account, identity, outgoingServer };
 }
 
 /**

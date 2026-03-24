@@ -8,10 +8,15 @@
 #include "nsID.h"
 
 extern "C" {
-// Instantiates a new nsIMsgOutgoingServer with a Rust implementation, that also
-// implements nsIEwsServer.
+// Instantiates a new nsIMsgOutgoingServer for EWS with a Rust implementation,
+// that also implements nsIEwsServer.
 MOZ_EXPORT nsresult nsEwsOutgoingServerConstructor(REFNSIID aIID,
                                                    void** aResult);
+
+// Instantiates a new nsIMsgOutgoingServer for Microsoft Graph with a Rust
+// implementation, that also implements nsIEwsServer.
+MOZ_EXPORT nsresult nsMsGraphOutgoingServerConstructor(REFNSIID aIID,
+                                                       void** aResult);
 }  // extern "C"
 
 #endif  // COMM_MAILNEWS_PROTOCOLS_EWS_SRC_NSEWSOUTGOINGSERVER_H_

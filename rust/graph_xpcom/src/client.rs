@@ -2,10 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use std::env;
+use std::{env, sync::Arc};
 
 use ms_graph_tb::Operation;
-use protocol_shared::{authentication::credentials::AuthenticationProvider, error::ProtocolError};
+use protocol_shared::{
+    authentication::credentials::AuthenticationProvider, client::ProtocolClient,
+    error::ProtocolError,
+};
 use url::Url;
 use uuid::Uuid;
 use xpcom::{RefCounted, RefPtr};
@@ -13,6 +16,7 @@ use xpcom::{RefCounted, RefPtr};
 use crate::error::XpComGraphError;
 
 mod check_connectivity;
+mod send_message;
 mod sync_folder_hierarchy;
 
 // The environment variable that controls whether to include request/response
@@ -48,7 +52,7 @@ impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
 
         // Generate random id for logging purposes.
         let request_id = Uuid::new_v4();
-        log::info!("Making operation request {request_id}: {resource_url}");
+        log::info!("Making operation request {request_id}: {method} {resource_url}");
 
         let mut request_builder = client.request(method, &resource_url)?;
 
@@ -78,11 +82,11 @@ impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
 
         let response = request_builder.send().await.map_err(ProtocolError::Http)?;
 
-        let response_body = response.body();
+        let mut response_body = response.body();
         let response_status = response.status()?;
 
         log::info!(
-            "Response received for request {request_id} (status {response_status}): {resource_url}"
+            "Response received for request {request_id} (status {response_status}): {method} {resource_url}"
         );
 
         if env::var(LOG_NETWORK_PAYLOADS_ENV_VAR).is_ok() {
@@ -97,9 +101,28 @@ impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
             })
             .into())
         } else {
+            if response_body.is_empty() {
+                // If the endpoint returns an empty (0 bytes) response, we'll
+                // hit a parse error because `serde_json` doesn't know how to
+                // handle empty byte slices. In this case, we give it something
+                // that parses as the unit type (`()`), since that's the only
+                // case in which an empty body would be a valid response.
+                response_body = "null".as_bytes();
+            }
+
             let value: Op::Response<'_> =
                 serde_json::from_slice(response_body).map_err(XpComGraphError::Json)?;
             Ok(value)
         }
+    }
+}
+
+impl<ServerT: AuthenticationProvider + RefCounted> ProtocolClient for XpComGraphClient<ServerT> {
+    fn protocol_identifier(&self) -> String {
+        String::from("graph")
+    }
+
+    async fn shutdown(self: Arc<Self>) {
+        ()
     }
 }

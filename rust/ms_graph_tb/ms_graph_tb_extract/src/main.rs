@@ -22,7 +22,7 @@ use crate::naming::{base_name, simple_name, snakeify};
 use crate::openapi::{LoadedYaml, load_yaml, path::OaPath};
 use crate::oxidize::{ModuleFile, types};
 
-const SUPPORTED_TYPES: [&str; 9] = [
+const SUPPORTED_TYPES: [&str; 10] = [
     "directoryObject",
     "entity",
     "itemBody",
@@ -31,14 +31,16 @@ const SUPPORTED_TYPES: [&str; 9] = [
     "mailboxSettings",
     "messageCollectionResponse",
     "message",
+    "outlookItem",
     "user",
 ];
-const SUPPORTED_PATHS: [&str; 5] = [
+const SUPPORTED_PATHS: [&str; 6] = [
     "/me",
     "/me/mailFolders",
     "/me/mailFolders/{mailFolder-id}",
     "/me/mailFolders/delta()",
     "/me/messages",
+    "/me/messages/{message-id}/send",
 ];
 
 const FILE_LEDE: &str = r#"/* This Source Code Form is subject to the terms of the Mozilla Public

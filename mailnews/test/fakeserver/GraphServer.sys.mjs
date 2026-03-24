@@ -9,6 +9,8 @@ import {
   RemoteFolder,
 } from "resource://testing-common/mailnews/MockServer.sys.mjs";
 
+import { CommonUtils } from "resource://services-common/utils.sys.mjs";
+
 /**
  * A mock server to mimic operations with Graph API.
  */
@@ -59,7 +61,21 @@ export class GraphServer extends MockServer {
    */
   #listenPort;
 
-  constructor(username = "user", password = "password", listenPort = -1) {
+  /**
+   * A map from message IDs to RFC822 message payloads.
+   *
+   * @type {Map<string, string>}
+   * @private
+   */
+  #createdMessagesById = new Map();
+
+  constructor({
+    hostname,
+    port,
+    username = "user",
+    password = "password",
+    listenPort = -1,
+  } = {}) {
     super();
     this.#httpServer = new HttpServer();
     this.#httpServer.registerPrefixHandler("/", (request, response) => {
@@ -70,6 +86,15 @@ export class GraphServer extends MockServer {
         throw e;
       }
     });
+    if (hostname && port) {
+      // Used by ServerTestUtils to make this server appear at hostname:port.
+      // This doesn't mean the HTTP server is listening on that host and port.
+      this.#httpServer.identity.add(
+        port == 443 ? "https" : "http",
+        hostname,
+        port
+      );
+    }
 
     this.#username = username;
     this.#password = password;
@@ -147,14 +172,37 @@ export class GraphServer extends MockServer {
       : request.path;
     const resourceQuery = request.queryString;
 
+    // Try to find a handler that matches the method and path for the request.
     let responseJsonObject = {};
-    if (resourcePath === "/me") {
-      responseJsonObject = this.#me();
-    } else if (resourcePath === "/me/mailFolders/delta()") {
-      responseJsonObject = this.#mailFoldersDelta(resourceQuery);
-    } else if (resourcePath.startsWith("/me/mailFolders/")) {
-      responseJsonObject = this.#mailFolder(resourcePath.substring(16));
-    } else {
+    switch (request.method) {
+      case "GET":
+        if (resourcePath === "/me") {
+          responseJsonObject = this.#me();
+        } else if (resourcePath === "/me/mailFolders/delta()") {
+          responseJsonObject = this.#mailFoldersDelta(resourceQuery);
+        } else if (resourcePath.startsWith("/me/mailFolders/")) {
+          responseJsonObject = this.#mailFolder(resourcePath.substring(16));
+        }
+        break;
+
+      case "POST":
+        if (resourcePath === "/me/messages") {
+          responseJsonObject = this.#createMessage(request);
+        } else if (
+          resourcePath.startsWith("/me/messages") &&
+          resourcePath.endsWith("/send")
+        ) {
+          // `#sendMessage()` takes care of setting the necessary properties on
+          // the response, so we should skip the body serialization part here.
+          this.#sendMessage(resourcePath, response);
+          return;
+        }
+        break;
+    }
+
+    // If we don't have a body to respond with, it likely means we've failed to
+    // find a handler for our request.
+    if (Object.keys(responseJsonObject).length === 0) {
       throw new Error(`Unexpected Graph resource: ${resourcePath}`);
     }
 
@@ -164,7 +212,7 @@ export class GraphServer extends MockServer {
   }
 
   /**
-   * Handle the /me resource.
+   * Handle the GET /me resource.
    *
    * @returns {object}
    */
@@ -185,7 +233,7 @@ export class GraphServer extends MockServer {
   }
 
   /**
-   * Handle /me/mailFolders/{mailFolderId}.
+   * Handle GET /me/mailFolders/{mailFolderId}.
    *
    * @param {string} folderId
    * @returns {object}
@@ -208,7 +256,7 @@ export class GraphServer extends MockServer {
   }
 
   /**
-   * Handle /me/mailFolders/delta().
+   * Handle GET /me/mailFolders/delta().
    *
    * @param {string} queryString
    * @returns {object}
@@ -262,6 +310,60 @@ export class GraphServer extends MockServer {
       value: page,
       "@odata.deltaLink": nextDelta,
     };
+  }
+
+  /**
+   * Handle POST /me/messages
+   *
+   * @param {nsIHttpRequest} request
+   * @returns {object}
+   */
+  #createMessage(request) {
+    // TODO: at some point we'll want to create messages in specific folders, in
+    // which case we'll want to stop hardcoding the drafts folder here. This is
+    // fine for now, since Graph defaults to that folder when none is provided.
+    const draftFolder = this.folders.filter(
+      folder => folder.distinguishedId == "drafts"
+    )[0];
+
+    const newItemId = "created-item-" + this.itemsCreated;
+    this.addNewItemOrMoveItemToFolder(newItemId, draftFolder.id);
+    this.itemsCreated += 1;
+
+    const reqBody = CommonUtils.readBytesFromInputStream(
+      request.bodyInputStream
+    );
+    const message = atob(reqBody);
+
+    this.#createdMessagesById.set(newItemId, message);
+
+    // Note: returning only the ID should be fine for now because that's the
+    // only bit of the message we actually use, but in the future we'll probably
+    // want to expand this response with more fields.
+    return {
+      id: newItemId,
+    };
+  }
+
+  /**
+   * Handle POST /me/messages/{messageId}/send
+   *
+   * Note that, unlike other handlers, this one sets the necessary properties on
+   * the response directly.
+   *
+   * @param {string} requestPath
+   * @param {nsIHttpResponse} response
+   */
+  #sendMessage(requestPath, response) {
+    const messageId = /\/me\/messages\/(.+)\/send/.exec(requestPath)[1];
+
+    const message = this.#createdMessagesById.get(messageId);
+    if (!message) {
+      response.setStatusLine("1.1", 404, "Not Found");
+    } else {
+      response.setStatusLine("1.1", 202, "Accepted");
+      this.lastSentMessage = message;
+    }
   }
 
   get #endpoint() {

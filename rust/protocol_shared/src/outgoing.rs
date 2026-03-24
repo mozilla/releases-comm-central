@@ -868,10 +868,7 @@ impl<ClientT: SendCapableClient> OutgoingServer<ClientT> {
 
     xpcom_method!(initialize => Initialize(endpoint_url: *const nsACString));
     fn initialize(&self, endpoint_url: &nsACString) -> Result<(), nsresult> {
-        debug!(
-            "Creating new outgoing server for {}",
-            endpoint_url.to_string()
-        );
+        debug!("Creating new outgoing server for {endpoint_url}");
         let url = endpoint_url.to_string();
         let url = Url::parse(url.as_str()).or(Err(nserror::NS_ERROR_FAILURE))?;
 

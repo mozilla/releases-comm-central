@@ -6,6 +6,7 @@ use proc_macro2::{Ident, TokenStream};
 use quote::{ToTokens, TokenStreamExt, format_ident, quote};
 
 use crate::GENERATION_DISCLOSURE;
+use crate::extract::path::RequestBody;
 use crate::extract::{
     path::{Method, Operation, Path, Success},
     schema::Property,
@@ -28,7 +29,7 @@ impl ToTokens for Path {
         operations.sort_by(|a, b| a.method.cmp(&b.method));
         let operation_defs = operations
             .iter()
-            .filter_map(|operation| {
+            .map(|operation| {
                 let description = match (&operation.summary, &operation.description) {
                     (Some(summary), Some(desc)) => Some(format!("{summary}\n\n{desc}")),
                     (Some(text), None) | (None, Some(text)) => Some(text.clone()),
@@ -52,16 +53,10 @@ impl ToTokens for Path {
                     }
                 };
 
-                let method = operation.method;
                 let response = operation_response(operation);
-                match method {
-                    Method::Get => Some(http_get(&mut imports, template_expressions.idents.clone(), description, operation, response)),
-                    Method::Patch => Some(http_with_body(Method::Patch, &mut imports, template_expressions.idents.clone(), description, operation, response)),
-                    Method::Post => Some(http_with_body(Method::Post, &mut imports, template_expressions.idents.clone(), description, operation, response)),
-                    _ => {
-                        eprintln!("skipping unsupported method: {method}");
-                        None
-                    }
+                match &operation.body {
+                    Some(body) => request_with_body(body.clone(), &mut imports, template_expressions.idents.clone(), description, operation, response),
+                    None => request_without_body(&mut imports, template_expressions.idents.clone(), description, operation, response),
                 }
             })
             .collect::<Vec<_>>();
@@ -119,14 +114,17 @@ fn delta_response_value(operation: &Operation) -> TokenStream {
     return_type(&element, Reference::Own, Some("'response"))
 }
 
-fn http_get(
+/// Generate the struct and implementation of a request that doesn't take a
+/// body.
+fn request_without_body(
     imports: &mut Vec<Property>,
     template_expressions: Vec<Ident>,
     description: Option<TokenStream>,
     operation: &Operation,
     response: TokenStream,
 ) -> RequestDef {
-    let method = Method::Get;
+    let method = operation.method;
+
     let selectable = selectable(operation);
     let selection_type = if selectable {
         let Success::WithBody(ref selection_body) = operation.success else {
@@ -142,6 +140,7 @@ fn http_get(
         None
     }
     .map(|s| format_ident!("{s}"));
+
     let struct_def = StructDef {
         description,
         method,
@@ -174,24 +173,25 @@ fn http_get(
     }
 }
 
-fn http_with_body(
-    method: Method,
+/// Generate the struct and implementation of a request that takes the given
+/// body.
+fn request_with_body(
+    op_body: RequestBody,
     imports: &mut Vec<Property>,
     template_expressions: Vec<Ident>,
     description: Option<TokenStream>,
     operation: &Operation,
     response: TokenStream,
 ) -> RequestDef {
-    let op_body = operation
-        .body
-        .clone()
-        .expect("Patch operations should have a body");
     imports.push(op_body.property.clone());
+    let method = operation.method;
+
     let mut body = op_body.property.rust_type.base_token(false, Reference::Own);
     let body_lifetime = Some(quote!(<'body>));
     if op_body.property.is_ref {
         body = quote!(#body #body_lifetime);
     }
+
     let struct_def = StructDef {
         description,
         method,
@@ -216,7 +216,10 @@ fn http_with_body(
     let select_def = SelectDef {
         selection_type: None,
     };
-    assert!(!operation.delta, "deltas are not supported for PATCH");
+    assert!(
+        !operation.delta,
+        "deltas are not supported for requests with a body"
+    );
     RequestDef {
         struct_def,
         impl_def,
