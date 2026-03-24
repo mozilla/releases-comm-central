@@ -46,6 +46,7 @@
   display: flex;
   align-items: flex-start;
   flex-direction: column;
+  overflow: hidden;
   padding: calc(var(--calendar-dialog-title-bar-padding-block) + var(--calendar-dialog-top-bar-height)) var(--calendar-dialog-row-padding-inline)
     var(--calendar-dialog-title-bar-padding-block);
   gap: 4px;
