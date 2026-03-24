@@ -199,18 +199,37 @@ function folderCancelButton() {
 function folderPropsOnLoad() {
   UIFontSize.registerWindow(window);
   const styles = getComputedStyle(document.body);
+  // The same order as in FolderUtils.getSpecialFolderString.
   const folderColors = {
-    Inbox: styles.getPropertyValue("--folder-color-inbox"),
-    Sent: styles.getPropertyValue("--folder-color-sent"),
-    Outbox: styles.getPropertyValue("--folder-color-outbox"),
-    Drafts: styles.getPropertyValue("--folder-color-draft"),
-    Trash: styles.getPropertyValue("--folder-color-trash"),
-    Archive: styles.getPropertyValue("--folder-color-archive"),
-    Templates: styles.getPropertyValue("--folder-color-template"),
-    Spam: styles.getPropertyValue("--folder-color-spam"),
-    Virtual: styles.getPropertyValue("--folder-color-folder-filter"),
+    [Ci.nsMsgFolderFlags.Inbox]: styles.getPropertyValue(
+      "--folder-color-inbox"
+    ),
+    [Ci.nsMsgFolderFlags.Trash]: styles.getPropertyValue(
+      "--folder-color-trash"
+    ),
+    [Ci.nsMsgFolderFlags.Queue]: styles.getPropertyValue(
+      "--folder-color-outbox"
+    ),
+    [Ci.nsMsgFolderFlags.SentMail]: styles.getPropertyValue(
+      "--folder-color-sent"
+    ),
+    [Ci.nsMsgFolderFlags.Drafts]: styles.getPropertyValue(
+      "--folder-color-draft"
+    ),
+    [Ci.nsMsgFolderFlags.Templates]: styles.getPropertyValue(
+      "--folder-color-template"
+    ),
+    [Ci.nsMsgFolderFlags.Junk]: styles.getPropertyValue("--folder-color-spam"),
+    [Ci.nsMsgFolderFlags.Archive]: styles.getPropertyValue(
+      "--folder-color-archive"
+    ),
+    [Ci.nsMsgFolderFlags.Virtual]: styles.getPropertyValue(
+      "--folder-color-folder-filter"
+    ),
+    [Ci.nsMsgFolderFlags.Newsgroup]: styles.getPropertyValue(
+      "--folder-color-newsletter"
+    ),
     RSS: styles.getPropertyValue("--folder-color-rss"),
-    Newsgroup: styles.getPropertyValue("--folder-color-newsletter"),
   };
   gDefaultColor = styles.getPropertyValue("--folder-color-folder");
 
@@ -254,22 +273,16 @@ function folderPropsOnLoad() {
 
     // Check the current folder name against known folder names to set the
     // correct default color, if needed.
-    let selectedFolderName = "";
-
-    switch (window.arguments[0].serverType) {
-      case "rss":
-        selectedFolderName = "RSS";
-        break;
-      case "nntp":
-        selectedFolderName = "Newsgroup";
-        break;
-      default:
-        selectedFolderName = window.arguments[0].name;
-        break;
-    }
-
-    if (Object.keys(folderColors).includes(selectedFolderName)) {
-      gDefaultColor = folderColors[selectedFolderName];
+    if (window.arguments[0].serverType == "rss") {
+      gDefaultColor = folderColors.RSS;
+    } else {
+      const flags = gMsgFolder.flags;
+      for (const [key, value] of Object.entries(folderColors)) {
+        if (flags & key) {
+          gDefaultColor = value;
+          break;
+        }
+      }
     }
 
     const colorInput = document.getElementById("color");
