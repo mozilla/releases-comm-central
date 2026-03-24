@@ -328,7 +328,12 @@ nsresult LocalCopyMessages(nsIMsgFolder* sourceFolder,
       NS_ENSURE_SUCCESS(rv, rv);
     }
 
-    rv = LocalCopyHeaders(header, newHeader, {}, false);
+    // This preference exists so that extensions can influence which
+    // properties are preserved in the database when a message is copied.
+    nsCString dontPreserve;
+    Preferences::GetCString("mailnews.database.summary.dontPreserveOnCopy",
+                            dontPreserve);
+    rv = LocalCopyHeaders(header, newHeader, StringFields(dontPreserve));
     NS_ENSURE_SUCCESS(rv, rv);
 
     rv = database->AddNewHdrToDB(newHeader, true);
@@ -419,47 +424,21 @@ nsresult LocalCopyMessage(nsIMsgFolder* destinationFolder,
 
 nsresult LocalCopyHeaders(nsIMsgDBHdr* sourceHeader,
                           nsIMsgDBHdr* destinationHeader,
-                          const nsTArray<nsCString>& excludeProperties,
-                          bool isMove) {
-  // These preferences exist so that extensions can control which properties
-  // are preserved in the database when a message is moved or copied. All
-  // properties are preserved except those listed in these preferences.
-  nsCString dontPreserve;
-  if (isMove) {
-    Preferences::GetCString("mailnews.database.summary.dontPreserveOnMove",
-                            dontPreserve);
-  } else {
-    Preferences::GetCString("mailnews.database.summary.dontPreserveOnCopy",
-                            dontPreserve);
-  }
-
-  // We'll add spaces at beginning and end so we can search for
-  // space-name-space, in order to avoid accidental partial matches.
-  nsCString dontPreserveEx(" "_ns);
-  dontPreserveEx.Append(dontPreserve);
-  dontPreserveEx.Append(' ');
-
-  // Never preserve the store properties, since message stores are per-folder
-  // currently.
-  dontPreserveEx.Append(" storeToken msgOffset ");
-
-  for (auto&& excludeProperty : excludeProperties) {
-    dontPreserveEx.Append(' ');
-    dontPreserveEx.Append(excludeProperty);
-    dontPreserveEx.Append(' ');
-  }
+                          const nsTArray<nsCString>& excludeProperties) {
+  // Skip server-assigned IDs or anything related to offline storage...
+  nsTArray<nsCString> exclusions({"storeToken"_ns, "msgOffset"_ns,
+                                  "offlineMsgSize"_ns, "ewsId"_ns,
+                                  "uidOnServer"_ns});
+  // ...and anything else the caller wants excluded.
+  exclusions.AppendElements(excludeProperties);
 
   nsTArray<nsCString> properties;
   MOZ_TRY(sourceHeader->GetProperties(properties));
 
   for (const auto& property : properties) {
-    nsAutoCString propertyEx(" "_ns);
-    propertyEx.Append(property);
-    propertyEx.Append(' ');
-    if (dontPreserveEx.Find(propertyEx) != kNotFound) {
+    if (exclusions.Contains(property)) {
       continue;
     }
-
     nsCString propertyValue;
     MOZ_TRY(sourceHeader->GetStringProperty(property.get(), propertyValue));
     MOZ_TRY(

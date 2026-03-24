@@ -208,17 +208,15 @@ nsresult LocalCopyMessage(nsIMsgFolder* destinationFolder,
  * A protocol-agnostic helper for copying headers from one message to another.
  *
  * This function copies the header data stored in `sourceHeader` to
- * `destinationHeader`.  The `excludeProperties` parameter is a list of property
- * names to exclude from the copy operation. The `isMove` parameter is used to
- * check preferences for which properties should be maintained on a move versus
- * a copy operation to determine additional properties to exclude.
+ * `destinationHeader`.
+ * Properties related to server-side IDs and local storage are _not_ copied
+ * across, nor are any extra properties passed in via `excludeProperties`.
  *
  * @returns an `nsresult to indicate whether or not the operation succeeded.
  */
 nsresult LocalCopyHeaders(nsIMsgDBHdr* sourceHeader,
                           nsIMsgDBHdr* destinationHeader,
-                          const nsTArray<nsCString>& excludeProperties,
-                          bool isMove);
+                          const nsTArray<nsCString>& excludeProperties);
 
 /**
  * Determine whether or not two folders are on the same server.

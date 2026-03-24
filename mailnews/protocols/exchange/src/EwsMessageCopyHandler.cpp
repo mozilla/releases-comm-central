@@ -296,9 +296,18 @@ nsresult MessageCopyHandler::CreateRemoteMessage() {
       // copy some of its properties onto the new one.
       bool isMove = self->GetIsMove();
       nsCOMPtr<nsIMsgDBHdr> srcHdr = currHdr.value();
-      nsTArray<nsCString> excludedProperties;
-      excludedProperties.AppendElement(kEwsIdProperty);
-      rv = LocalCopyHeaders(srcHdr, hdr, excludedProperties, isMove);
+      // These preferences exist so that extensions can influence which
+      // properties are preserved in the database when a message is moved
+      // or copied.
+      nsCString dontPreserve;
+      if (isMove) {
+        mozilla::Preferences::GetCString(
+            "mailnews.database.summary.dontPreserveOnMove", dontPreserve);
+      } else {
+        mozilla::Preferences::GetCString(
+            "mailnews.database.summary.dontPreserveOnCopy", dontPreserve);
+      }
+      rv = LocalCopyHeaders(srcHdr, hdr, StringFields(dontPreserve));
       NS_ENSURE_SUCCESS(rv, rv);
     }
 

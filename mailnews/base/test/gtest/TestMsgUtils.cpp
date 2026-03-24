@@ -91,3 +91,26 @@ TEST(TestMsgUtils, FilenameEncodingIsNotUnique)
   ASSERT_EQ(DecodeFilename(u"foo/bar"_ns), "foo/bar"_ns);
   ASSERT_EQ(DecodeFilename(u"%66%6f%6f%2fbar"_ns), "foo/bar"_ns);
 }
+
+TEST(TestMsgUtils, StringFields)
+{
+  struct {
+    nsLiteralCString input;
+    nsTArray<nsCString> expected;
+  } testCases[] = {
+      {""_ns, {}},
+      {"   "_ns, {}},
+      {"foo"_ns, {"foo"_ns}},
+      {"foo bar"_ns, {"foo"_ns, "bar"_ns}},
+      {"  foo   bar  "_ns, {"foo"_ns, "bar"_ns}},
+      {"foo\r\nbar\r\n"_ns, {"foo"_ns, "bar"_ns}},
+      {"foo\t\fbar"_ns, {"foo"_ns, "bar"_ns}},
+      {"デコポン 한라봉 SumoCitrus"_ns,
+       {"デコポン"_ns, "한라봉"_ns, "SumoCitrus"_ns}},
+  };
+
+  for (auto const& t : testCases) {
+    auto got = StringFields(t.input);
+    ASSERT_EQ(got, t.expected);
+  }
+}
