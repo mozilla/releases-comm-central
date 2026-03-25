@@ -8,6 +8,7 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
+#![allow(stable_features)]
 #![feature(test)]
 #![feature(hint_assert_unchecked)]
 
@@ -26,7 +27,7 @@ const BENCH_BITS: usize = 1 << 14;
 const U32_BITS: usize = 32;
 
 fn small_rng() -> XorShiftRng {
-    XorShiftRng::from_entropy()
+    XorShiftRng::from_os_rng()
 }
 
 #[bench]
@@ -38,6 +39,18 @@ fn bench_usize_small(b: &mut Bencher) {
             bit_vec |= 1 << ((r.next_u32() as usize) % U32_BITS);
         }
         black_box(&bit_vec);
+    });
+}
+
+#[bench]
+fn bench_to_bytes(b: &mut Bencher) {
+    let mut bit_vec = BitVec::from_elem(BENCH_BITS, false);
+    let mut r = small_rng();
+    for _ in 0..BENCH_BITS / 10 {
+        bit_vec.set((r.next_u32() as usize) % BENCH_BITS, true);
+    }
+    b.iter(|| {
+        black_box(bit_vec.to_bytes());
     });
 }
 
@@ -59,7 +72,7 @@ fn bench_bit_set_big_variable(b: &mut Bencher) {
     let mut bit_vec = BitVec::from_elem(BENCH_BITS, false);
     b.iter(|| {
         for _ in 0..100 {
-            bit_vec.set((r.next_u32() as usize) % BENCH_BITS, r.gen());
+            bit_vec.set((r.next_u32() as usize) % BENCH_BITS, r.random());
         }
         black_box(&bit_vec);
     });
@@ -258,5 +271,25 @@ fn bench_erathostenes_set_all(b: &mut test::Bencher) {
             i += 1;
         }
         black_box(&mut sieve);
+    });
+}
+
+#[bench]
+fn bench_iter_skip(b: &mut test::Bencher) {
+    let start = 3 << 20;
+    let p = 16411;
+    let g = 9749; // 9749 is a primitive root modulo 16411, so we can generate numbers mod p in a seemingly random order
+    let end = start + p;
+    let mut tbl = BitVec::from_elem(end, false);
+    let mut r = g;
+    for i in start..end {
+        tbl.set(i, r & 1 != 0);
+        r = r * g % p;
+    }
+    b.iter(|| {
+        black_box(&mut tbl);
+        // start is large relative to end-start, so before Iterator::nth was implemented for bitvec this would
+        // have been much slower
+        black_box(tbl.iter().skip(start).filter(|&v| v).count());
     });
 }

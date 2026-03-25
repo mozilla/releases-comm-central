@@ -100,7 +100,7 @@ version = "0.7.1"
 default-features = false
 
 [dependencies.bit-set]
-version = "0.8"
+version = "0.9"
 default-features = false
 
 [dependencies.bitflags]
@@ -110,7 +110,7 @@ version = "2.9"
 version = "1"
 
 [dependencies.codespan-reporting]
-version = "0.12"
+version = "0.13"
 default-features = false
 
 [dependencies.half]
@@ -139,7 +139,7 @@ version = "0.2.6"
 default-features = false
 
 [dependencies.log]
-version = "0.4.21"
+version = "0.4.29"
 
 [dependencies.num-traits]
 version = "0.2.16"
@@ -176,9 +176,7 @@ optional = true
 default-features = false
 
 [dependencies.spirv]
-version = "0.3"
-git = "https://github.com/gfx-rs/rspirv"
-rev = "89ce4d0e64c91b0635f617409dc57cb031749a39"
+version = "0.4"
 optional = true
 
 [dependencies.thiserror]
@@ -218,9 +216,7 @@ path = "../naga-test"
 version = "0.12"
 
 [dev-dependencies.rspirv]
-version = "0.12"
-git = "https://github.com/gfx-rs/rspirv"
-rev = "89ce4d0e64c91b0635f617409dc57cb031749a39"
+version = "0.13"
 
 [dev-dependencies.serde]
 version = "1.0.225"
@@ -231,9 +227,7 @@ features = [
 default-features = false
 
 [dev-dependencies.spirv]
-version = "0.3"
-git = "https://github.com/gfx-rs/rspirv"
-rev = "89ce4d0e64c91b0635f617409dc57cb031749a39"
+version = "0.4"
 
 [dev-dependencies.strum]
 version = "0.27.1"

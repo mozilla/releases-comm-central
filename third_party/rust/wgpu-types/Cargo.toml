@@ -76,7 +76,7 @@ features = [
 ]
 
 [dependencies.log]
-version = "0.4.21"
+version = "0.4.29"
 
 [dependencies.raw-window-handle]
 version = "0.6.2"

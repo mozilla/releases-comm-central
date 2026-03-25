@@ -10,11 +10,13 @@
 # See Cargo.toml.orig for the original contents.
 
 [package]
-edition = "2015"
+edition = "2021"
+rust-version = "1.82"
 name = "bit-vec"
-version = "0.8.0"
+version = "0.9.1"
 authors = ["Alexis Beingessner <a.beingessner@gmail.com>"]
 build = false
+autolib = false
 autobins = false
 autoexamples = false
 autotests = false
@@ -41,6 +43,16 @@ features = [
     "nanoserde",
 ]
 
+[features]
+borsh_std = ["borsh/std"]
+default = ["std"]
+serde_no_std = []
+serde_std = [
+    "std",
+    "serde/std",
+]
+std = ["serde?/std"]
+
 [lib]
 name = "bit_vec"
 path = "src/lib.rs"
@@ -50,7 +62,7 @@ name = "bench"
 path = "benches/bench.rs"
 
 [dependencies.borsh]
-version = "1.5"
+version = "1.6.0"
 features = ["derive"]
 optional = true
 default-features = false
@@ -60,30 +72,23 @@ version = "0.1"
 optional = true
 
 [dependencies.nanoserde]
-version = "0.1"
+version = "0.2"
 optional = true
 
 [dependencies.serde]
 version = "1.0"
-features = ["derive"]
+features = [
+    "derive",
+    "alloc",
+]
 optional = true
 default-features = false
 
 [dev-dependencies.rand]
-version = "0.8"
+version = "0.9"
 
 [dev-dependencies.rand_xorshift]
-version = "0.3"
+version = "0.4"
 
 [dev-dependencies.serde_json]
 version = "1.0"
-
-[features]
-borsh_std = ["borsh/std"]
-default = ["std"]
-serde_no_std = ["serde/alloc"]
-serde_std = [
-    "std",
-    "serde/std",
-]
-std = []

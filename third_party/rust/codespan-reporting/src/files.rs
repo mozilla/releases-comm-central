@@ -26,12 +26,6 @@
 use alloc::vec::Vec;
 use core::ops::Range;
 
-#[cfg(feature = "std")]
-use std::error;
-
-#[cfg(not(feature = "std"))]
-use core::error;
-
 /// An enum representing an error that happened while looking up a file or a piece of content in that file.
 #[derive(Debug)]
 #[non_exhaustive]
@@ -42,7 +36,8 @@ pub enum Error {
     IndexTooLarge { given: usize, max: usize },
     /// The file is present, but does not contain the specified line index.
     LineTooLarge { given: usize, max: usize },
-    /// The file is present and contains the specified line index, but the line does not contain the specified column index.
+    /// The file is present and contains the specified line index, but the line does not contain
+    /// the specified column index.
     ColumnTooLarge { given: usize, max: usize },
     /// The given index is contained in the file, but is not a boundary of a UTF-8 code point.
     InvalidCharBoundary { given: usize },
@@ -87,8 +82,14 @@ impl core::fmt::Display for Error {
     }
 }
 
-impl error::Error for Error {
-    fn source(&self) -> Option<&(dyn error::Error + 'static)> {
+#[cfg(feature = "std")]
+use std::error::Error as RustError;
+
+#[cfg(not(feature = "std"))]
+use core::error::Error as RustError;
+
+impl RustError for Error {
+    fn source(&self) -> Option<&(dyn RustError + 'static)> {
         match &self {
             #[cfg(feature = "std")]
             Error::Io(err) => Some(err),
@@ -223,6 +224,7 @@ pub struct Location {
 /// assert_eq!(files::column_index(source, 2..13, 2 + 11), 3);
 /// assert_eq!(files::column_index(source, 2..13, 2 + 12), 3);
 /// ```
+#[must_use]
 pub fn column_index(source: &str, line_range: Range<usize>, byte_index: usize) -> usize {
     let end_index = core::cmp::min(byte_index, core::cmp::min(line_range.end, source.len()));
 
@@ -323,7 +325,7 @@ where
             Ordering::Less => Ok(self
                 .line_starts
                 .get(line_index)
-                .cloned()
+                .copied()
                 .expect("failed despite previous check")),
             Ordering::Equal => Ok(self.source.as_ref().len()),
             Ordering::Greater => Err(Error::LineTooLarge {
@@ -382,6 +384,7 @@ where
     Source: AsRef<str>,
 {
     /// Create a new files database.
+    #[must_use]
     pub fn new() -> SimpleFiles<Name, Source> {
         SimpleFiles { files: Vec::new() }
     }

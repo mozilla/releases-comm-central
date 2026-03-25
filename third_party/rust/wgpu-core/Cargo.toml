@@ -109,11 +109,11 @@ version = "0.7.1"
 default-features = false
 
 [dependencies.bit-set]
-version = "0.8"
+version = "0.9"
 default-features = false
 
 [dependencies.bit-vec]
-version = "0.8"
+version = "0.9"
 default-features = false
 
 [dependencies.bitflags]
@@ -142,7 +142,7 @@ version = "2.11.4"
 default-features = false
 
 [dependencies.log]
-version = "0.4.21"
+version = "0.4.29"
 
 [dependencies.macro_rules_attribute]
 version = "0.2"
@@ -196,6 +196,10 @@ default-features = false
 version = "28.0.0"
 path = "../wgpu-hal"
 
+[dependencies.wgpu-naga-bridge]
+version = "28.0.0"
+path = "../wgpu-naga-bridge"
+
 [dependencies.wgpu-types]
 version = "28.0.0"
 path = "../wgpu-types"
@@ -215,7 +219,7 @@ path = "platform-deps/windows-linux-android"
 optional = true
 
 [target.'cfg(not(target_has_atomic = "64"))'.dependencies.portable-atomic]
-version = "1.8"
+version = "1.10"
 optional = true
 
 [target.'cfg(target_os = "emscripten")'.dependencies.wgpu-core-deps-emscripten]

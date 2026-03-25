@@ -10,7 +10,7 @@ pub const REVISION: u8 = 4u8;
 bitflags! { # [doc = "SPIR-V operand kind: [ImageOperands](https://www.khronos.org/registry/spir-v/specs/unified1/SPIRV.html#_a_id_image_operands_a_image_operands)"] # [derive (Clone , Copy , Debug , PartialEq , Eq , Hash)] # [cfg_attr (feature = "serialize" , derive (serde :: Serialize))] # [cfg_attr (feature = "deserialize" , derive (serde :: Deserialize))] pub struct ImageOperands : u32 { const NONE = 0u32 ; const BIAS = 1u32 ; const LOD = 2u32 ; const GRAD = 4u32 ; const CONST_OFFSET = 8u32 ; const OFFSET = 16u32 ; const CONST_OFFSETS = 32u32 ; const SAMPLE = 64u32 ; const MIN_LOD = 128u32 ; const MAKE_TEXEL_AVAILABLE = 256u32 ; const MAKE_TEXEL_VISIBLE = 512u32 ; const NON_PRIVATE_TEXEL = 1024u32 ; const VOLATILE_TEXEL = 2048u32 ; const SIGN_EXTEND = 4096u32 ; const ZERO_EXTEND = 8192u32 ; const NONTEMPORAL = 16384u32 ; const OFFSETS = 65536u32 ; } }
 bitflags! { # [doc = "SPIR-V operand kind: [FPFastMathMode](https://www.khronos.org/registry/spir-v/specs/unified1/SPIRV.html#_a_id_fp_fast_math_mode_a_fp_fast_math_mode)"] # [derive (Clone , Copy , Debug , PartialEq , Eq , Hash)] # [cfg_attr (feature = "serialize" , derive (serde :: Serialize))] # [cfg_attr (feature = "deserialize" , derive (serde :: Deserialize))] pub struct FPFastMathMode : u32 { const NONE = 0u32 ; const NOT_NAN = 1u32 ; const NOT_INF = 2u32 ; const NSZ = 4u32 ; const ALLOW_RECIP = 8u32 ; const FAST = 16u32 ; const ALLOW_CONTRACT = 65536u32 ; const ALLOW_REASSOC = 131072u32 ; const ALLOW_TRANSFORM = 262144u32 ; } }
 bitflags! { # [doc = "SPIR-V operand kind: [SelectionControl](https://www.khronos.org/registry/spir-v/specs/unified1/SPIRV.html#_a_id_selection_control_a_selection_control)"] # [derive (Clone , Copy , Debug , PartialEq , Eq , Hash)] # [cfg_attr (feature = "serialize" , derive (serde :: Serialize))] # [cfg_attr (feature = "deserialize" , derive (serde :: Deserialize))] pub struct SelectionControl : u32 { const NONE = 0u32 ; const FLATTEN = 1u32 ; const DONT_FLATTEN = 2u32 ; } }
-bitflags! { # [doc = "SPIR-V operand kind: [LoopControl](https://www.khronos.org/registry/spir-v/specs/unified1/SPIRV.html#_a_id_loop_control_a_loop_control)"] # [derive (Clone , Copy , Debug , PartialEq , Eq , Hash)] # [cfg_attr (feature = "serialize" , derive (serde :: Serialize))] # [cfg_attr (feature = "deserialize" , derive (serde :: Deserialize))] pub struct LoopControl : u32 { const NONE = 0u32 ; const UNROLL = 1u32 ; const DONT_UNROLL = 2u32 ; const DEPENDENCY_INFINITE = 4u32 ; const DEPENDENCY_LENGTH = 8u32 ; const MIN_ITERATIONS = 16u32 ; const MAX_ITERATIONS = 32u32 ; const ITERATION_MULTIPLE = 64u32 ; const PEEL_COUNT = 128u32 ; const PARTIAL_COUNT = 256u32 ; const INITIATION_INTERVAL_INTEL = 65536u32 ; const MAX_CONCURRENCY_INTEL = 131072u32 ; const DEPENDENCY_ARRAY_INTEL = 262144u32 ; const PIPELINE_ENABLE_INTEL = 524288u32 ; const LOOP_COALESCE_INTEL = 1048576u32 ; const MAX_INTERLEAVING_INTEL = 2097152u32 ; const SPECULATED_ITERATIONS_INTEL = 4194304u32 ; const NO_FUSION_INTEL = 8388608u32 ; const LOOP_COUNT_INTEL = 16777216u32 ; const MAX_REINVOCATION_DELAY_INTEL = 33554432u32 ; } }
+bitflags! { # [doc = "SPIR-V operand kind: [LoopControl](https://www.khronos.org/registry/spir-v/specs/unified1/SPIRV.html#_a_id_loop_control_a_loop_control)"] # [derive (Clone , Copy , Debug , PartialEq , Eq , Hash)] # [cfg_attr (feature = "serialize" , derive (serde :: Serialize))] # [cfg_attr (feature = "deserialize" , derive (serde :: Deserialize))] pub struct LoopControl : u32 { const NONE = 0u32 ; const UNROLL = 1u32 ; const DONT_UNROLL = 2u32 ; const DEPENDENCY_INFINITE = 4u32 ; const DEPENDENCY_LENGTH = 8u32 ; const MIN_ITERATIONS = 16u32 ; const MAX_ITERATIONS = 32u32 ; const ITERATION_MULTIPLE = 64u32 ; const PEEL_COUNT = 128u32 ; const PARTIAL_COUNT = 256u32 ; const INITIATION_INTERVAL_ALTERA = 65536u32 ; const MAX_CONCURRENCY_ALTERA = 131072u32 ; const DEPENDENCY_ARRAY_ALTERA = 262144u32 ; const PIPELINE_ENABLE_ALTERA = 524288u32 ; const LOOP_COALESCE_ALTERA = 1048576u32 ; const MAX_INTERLEAVING_ALTERA = 2097152u32 ; const SPECULATED_ITERATIONS_ALTERA = 4194304u32 ; const NO_FUSION_ALTERA = 8388608u32 ; const LOOP_COUNT_ALTERA = 16777216u32 ; const MAX_REINVOCATION_DELAY_ALTERA = 33554432u32 ; } }
 bitflags! { # [doc = "SPIR-V operand kind: [FunctionControl](https://www.khronos.org/registry/spir-v/specs/unified1/SPIRV.html#_a_id_function_control_a_function_control)"] # [derive (Clone , Copy , Debug , PartialEq , Eq , Hash)] # [cfg_attr (feature = "serialize" , derive (serde :: Serialize))] # [cfg_attr (feature = "deserialize" , derive (serde :: Deserialize))] pub struct FunctionControl : u32 { const NONE = 0u32 ; const INLINE = 1u32 ; const DONT_INLINE = 2u32 ; const PURE = 4u32 ; const CONST = 8u32 ; const OPT_NONE_EXT = 65536u32 ; } }
 bitflags! { # [doc = "SPIR-V operand kind: [MemorySemantics](https://www.khronos.org/registry/spir-v/specs/unified1/SPIRV.html#_a_id_memory_semantics_a_memory_semantics)"] # [derive (Clone , Copy , Debug , PartialEq , Eq , Hash)] # [cfg_attr (feature = "serialize" , derive (serde :: Serialize))] # [cfg_attr (feature = "deserialize" , derive (serde :: Deserialize))] pub struct MemorySemantics : u32 { const RELAXED = 0u32 ; const ACQUIRE = 2u32 ; const RELEASE = 4u32 ; const ACQUIRE_RELEASE = 8u32 ; const SEQUENTIALLY_CONSISTENT = 16u32 ; const UNIFORM_MEMORY = 64u32 ; const SUBGROUP_MEMORY = 128u32 ; const WORKGROUP_MEMORY = 256u32 ; const CROSS_WORKGROUP_MEMORY = 512u32 ; const ATOMIC_COUNTER_MEMORY = 1024u32 ; const IMAGE_MEMORY = 2048u32 ; const OUTPUT_MEMORY = 4096u32 ; const MAKE_AVAILABLE = 8192u32 ; const MAKE_VISIBLE = 16384u32 ; const VOLATILE = 32768u32 ; } }
 bitflags! { # [doc = "SPIR-V operand kind: [MemoryAccess](https://www.khronos.org/registry/spir-v/specs/unified1/SPIRV.html#_a_id_memory_access_a_memory_access)"] # [derive (Clone , Copy , Debug , PartialEq , Eq , Hash)] # [cfg_attr (feature = "serialize" , derive (serde :: Serialize))] # [cfg_attr (feature = "deserialize" , derive (serde :: Deserialize))] pub struct MemoryAccess : u32 { const NONE = 0u32 ; const VOLATILE = 1u32 ; const ALIGNED = 2u32 ; const NONTEMPORAL = 4u32 ; const MAKE_POINTER_AVAILABLE = 8u32 ; const MAKE_POINTER_VISIBLE = 16u32 ; const NON_PRIVATE_POINTER = 32u32 ; const ALIAS_SCOPE_INTEL_MASK = 65536u32 ; const NO_ALIAS_INTEL_MASK = 131072u32 ; } }
@@ -278,6 +278,8 @@ pub enum ExecutionMode {
     SignedZeroInfNanPreserve = 4461u32,
     RoundingModeRTE = 4462u32,
     RoundingModeRTZ = 4463u32,
+    NonCoherentTileAttachmentReadQCOM = 4489u32,
+    TileShadingRateQCOM = 4490u32,
     EarlyAndLateFragmentTestsAMD = 5017u32,
     StencilRefReplacingEXT = 5027u32,
     CoalescingAMDX = 5069u32,
@@ -306,6 +308,7 @@ pub enum ExecutionMode {
     SampleInterlockUnorderedEXT = 5369u32,
     ShadingRateInterlockOrderedEXT = 5370u32,
     ShadingRateInterlockUnorderedEXT = 5371u32,
+    Shader64BitIndexingEXT = 5427u32,
     SharedLocalMemorySizeINTEL = 5618u32,
     RoundingModeRTPINTEL = 5620u32,
     RoundingModeRTNINTEL = 5621u32,
@@ -335,6 +338,7 @@ impl ExecutionMode {
             4421u32 => unsafe { core::mem::transmute::<u32, ExecutionMode>(4421u32) },
             4446u32 => unsafe { core::mem::transmute::<u32, ExecutionMode>(4446u32) },
             4459u32..=4463u32 => unsafe { core::mem::transmute::<u32, ExecutionMode>(n) },
+            4489u32..=4490u32 => unsafe { core::mem::transmute::<u32, ExecutionMode>(n) },
             5017u32 => unsafe { core::mem::transmute::<u32, ExecutionMode>(5017u32) },
             5027u32 => unsafe { core::mem::transmute::<u32, ExecutionMode>(5027u32) },
             5069u32..=5073u32 => unsafe { core::mem::transmute::<u32, ExecutionMode>(n) },
@@ -346,6 +350,7 @@ impl ExecutionMode {
             5289u32..=5290u32 => unsafe { core::mem::transmute::<u32, ExecutionMode>(n) },
             5298u32 => unsafe { core::mem::transmute::<u32, ExecutionMode>(5298u32) },
             5366u32..=5371u32 => unsafe { core::mem::transmute::<u32, ExecutionMode>(n) },
+            5427u32 => unsafe { core::mem::transmute::<u32, ExecutionMode>(5427u32) },
             5618u32 => unsafe { core::mem::transmute::<u32, ExecutionMode>(5618u32) },
             5620u32..=5623u32 => unsafe { core::mem::transmute::<u32, ExecutionMode>(n) },
             5893u32..=5896u32 => unsafe { core::mem::transmute::<u32, ExecutionMode>(n) },
@@ -420,6 +425,8 @@ impl core::str::FromStr for ExecutionMode {
             "SignedZeroInfNanPreserve" => Self::SignedZeroInfNanPreserve,
             "RoundingModeRTE" => Self::RoundingModeRTE,
             "RoundingModeRTZ" => Self::RoundingModeRTZ,
+            "NonCoherentTileAttachmentReadQCOM" => Self::NonCoherentTileAttachmentReadQCOM,
+            "TileShadingRateQCOM" => Self::TileShadingRateQCOM,
             "EarlyAndLateFragmentTestsAMD" => Self::EarlyAndLateFragmentTestsAMD,
             "StencilRefReplacingEXT" => Self::StencilRefReplacingEXT,
             "CoalescingAMDX" => Self::CoalescingAMDX,
@@ -453,6 +460,7 @@ impl core::str::FromStr for ExecutionMode {
             "SampleInterlockUnorderedEXT" => Self::SampleInterlockUnorderedEXT,
             "ShadingRateInterlockOrderedEXT" => Self::ShadingRateInterlockOrderedEXT,
             "ShadingRateInterlockUnorderedEXT" => Self::ShadingRateInterlockUnorderedEXT,
+            "Shader64BitIndexingEXT" => Self::Shader64BitIndexingEXT,
             "SharedLocalMemorySizeINTEL" => Self::SharedLocalMemorySizeINTEL,
             "RoundingModeRTPINTEL" => Self::RoundingModeRTPINTEL,
             "RoundingModeRTNINTEL" => Self::RoundingModeRTNINTEL,
@@ -496,6 +504,7 @@ pub enum StorageClass {
     Image = 11u32,
     StorageBuffer = 12u32,
     TileImageEXT = 4172u32,
+    TileAttachmentQCOM = 4491u32,
     NodePayloadAMDX = 5068u32,
     CallableDataKHR = 5328u32,
     IncomingCallableDataKHR = 5329u32,
@@ -506,15 +515,17 @@ pub enum StorageClass {
     PhysicalStorageBuffer = 5349u32,
     HitObjectAttributeNV = 5385u32,
     TaskPayloadWorkgroupEXT = 5402u32,
+    HitObjectAttributeEXT = 5411u32,
     CodeSectionINTEL = 5605u32,
-    DeviceOnlyINTEL = 5936u32,
-    HostOnlyINTEL = 5937u32,
+    DeviceOnlyALTERA = 5936u32,
+    HostOnlyALTERA = 5937u32,
 }
 impl StorageClass {
     pub fn from_u32(n: u32) -> Option<Self> {
         Some(match n {
             0u32..=12u32 => unsafe { core::mem::transmute::<u32, StorageClass>(n) },
             4172u32 => unsafe { core::mem::transmute::<u32, StorageClass>(4172u32) },
+            4491u32 => unsafe { core::mem::transmute::<u32, StorageClass>(4491u32) },
             5068u32 => unsafe { core::mem::transmute::<u32, StorageClass>(5068u32) },
             5328u32..=5329u32 => unsafe { core::mem::transmute::<u32, StorageClass>(n) },
             5338u32..=5339u32 => unsafe { core::mem::transmute::<u32, StorageClass>(n) },
@@ -522,6 +533,7 @@ impl StorageClass {
             5349u32 => unsafe { core::mem::transmute::<u32, StorageClass>(5349u32) },
             5385u32 => unsafe { core::mem::transmute::<u32, StorageClass>(5385u32) },
             5402u32 => unsafe { core::mem::transmute::<u32, StorageClass>(5402u32) },
+            5411u32 => unsafe { core::mem::transmute::<u32, StorageClass>(5411u32) },
             5605u32 => unsafe { core::mem::transmute::<u32, StorageClass>(5605u32) },
             5936u32..=5937u32 => unsafe { core::mem::transmute::<u32, StorageClass>(n) },
             _ => return None,
@@ -537,6 +549,8 @@ impl StorageClass {
     pub const IncomingRayPayloadNV: Self = Self::IncomingRayPayloadKHR;
     pub const ShaderRecordBufferNV: Self = Self::ShaderRecordBufferKHR;
     pub const PhysicalStorageBufferEXT: Self = Self::PhysicalStorageBuffer;
+    pub const DeviceOnlyINTEL: Self = Self::DeviceOnlyALTERA;
+    pub const HostOnlyINTEL: Self = Self::HostOnlyALTERA;
 }
 impl core::str::FromStr for StorageClass {
     type Err = ();
@@ -556,6 +570,7 @@ impl core::str::FromStr for StorageClass {
             "Image" => Self::Image,
             "StorageBuffer" => Self::StorageBuffer,
             "TileImageEXT" => Self::TileImageEXT,
+            "TileAttachmentQCOM" => Self::TileAttachmentQCOM,
             "NodePayloadAMDX" => Self::NodePayloadAMDX,
             "CallableDataKHR" => Self::CallableDataKHR,
             "CallableDataNV" => Self::CallableDataKHR,
@@ -573,9 +588,12 @@ impl core::str::FromStr for StorageClass {
             "PhysicalStorageBufferEXT" => Self::PhysicalStorageBuffer,
             "HitObjectAttributeNV" => Self::HitObjectAttributeNV,
             "TaskPayloadWorkgroupEXT" => Self::TaskPayloadWorkgroupEXT,
+            "HitObjectAttributeEXT" => Self::HitObjectAttributeEXT,
             "CodeSectionINTEL" => Self::CodeSectionINTEL,
-            "DeviceOnlyINTEL" => Self::DeviceOnlyINTEL,
-            "HostOnlyINTEL" => Self::HostOnlyINTEL,
+            "DeviceOnlyALTERA" => Self::DeviceOnlyALTERA,
+            "DeviceOnlyINTEL" => Self::DeviceOnlyALTERA,
+            "HostOnlyALTERA" => Self::HostOnlyALTERA,
+            "HostOnlyINTEL" => Self::HostOnlyALTERA,
             _ => return Err(()),
         })
     }
@@ -889,15 +907,21 @@ pub enum ImageChannelDataType {
     Float = 14u32,
     UnormInt24 = 15u32,
     UnormInt101010_2 = 16u32,
+    UnormInt10X6EXT = 17u32,
     UnsignedIntRaw10EXT = 19u32,
     UnsignedIntRaw12EXT = 20u32,
     UnormInt2_101010EXT = 21u32,
+    UnsignedInt10X6EXT = 22u32,
+    UnsignedInt12X4EXT = 23u32,
+    UnsignedInt14X2EXT = 24u32,
+    UnormInt12X4EXT = 25u32,
+    UnormInt14X2EXT = 26u32,
 }
 impl ImageChannelDataType {
     pub fn from_u32(n: u32) -> Option<Self> {
         Some(match n {
-            0u32..=16u32 => unsafe { core::mem::transmute::<u32, ImageChannelDataType>(n) },
-            19u32..=21u32 => unsafe { core::mem::transmute::<u32, ImageChannelDataType>(n) },
+            0u32..=17u32 => unsafe { core::mem::transmute::<u32, ImageChannelDataType>(n) },
+            19u32..=26u32 => unsafe { core::mem::transmute::<u32, ImageChannelDataType>(n) },
             _ => return None,
         })
     }
@@ -925,9 +949,15 @@ impl core::str::FromStr for ImageChannelDataType {
             "Float" => Self::Float,
             "UnormInt24" => Self::UnormInt24,
             "UnormInt101010_2" => Self::UnormInt101010_2,
+            "UnormInt10X6EXT" => Self::UnormInt10X6EXT,
             "UnsignedIntRaw10EXT" => Self::UnsignedIntRaw10EXT,
             "UnsignedIntRaw12EXT" => Self::UnsignedIntRaw12EXT,
             "UnormInt2_101010EXT" => Self::UnormInt2_101010EXT,
+            "UnsignedInt10X6EXT" => Self::UnsignedInt10X6EXT,
+            "UnsignedInt12X4EXT" => Self::UnsignedInt12X4EXT,
+            "UnsignedInt14X2EXT" => Self::UnsignedInt14X2EXT,
+            "UnormInt12X4EXT" => Self::UnormInt12X4EXT,
+            "UnormInt14X2EXT" => Self::UnormInt14X2EXT,
             _ => return Err(()),
         })
     }
@@ -1215,7 +1245,7 @@ pub enum FunctionParameterAttribute {
     NoCapture = 5u32,
     NoWrite = 6u32,
     NoReadWrite = 7u32,
-    RuntimeAlignedINTEL = 5940u32,
+    RuntimeAlignedALTERA = 5940u32,
 }
 impl FunctionParameterAttribute {
     pub fn from_u32(n: u32) -> Option<Self> {
@@ -1227,7 +1257,9 @@ impl FunctionParameterAttribute {
     }
 }
 #[allow(non_upper_case_globals)]
-impl FunctionParameterAttribute {}
+impl FunctionParameterAttribute {
+    pub const RuntimeAlignedINTEL: Self = Self::RuntimeAlignedALTERA;
+}
 impl core::str::FromStr for FunctionParameterAttribute {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -1240,7 +1272,8 @@ impl core::str::FromStr for FunctionParameterAttribute {
             "NoCapture" => Self::NoCapture,
             "NoWrite" => Self::NoWrite,
             "NoReadWrite" => Self::NoReadWrite,
-            "RuntimeAlignedINTEL" => Self::RuntimeAlignedINTEL,
+            "RuntimeAlignedALTERA" => Self::RuntimeAlignedALTERA,
+            "RuntimeAlignedINTEL" => Self::RuntimeAlignedALTERA,
             _ => return Err(()),
         })
     }
@@ -1299,6 +1332,7 @@ pub enum Decoration {
     MaxByteOffset = 45u32,
     AlignmentId = 46u32,
     MaxByteOffsetId = 47u32,
+    SaturatedToLargestFloat8NormalConversionEXT = 4216u32,
     NoSignedWrap = 4469u32,
     NoUnsignedWrap = 4470u32,
     WeightTextureQCOM = 4487u32,
@@ -1313,6 +1347,8 @@ pub enum Decoration {
     PayloadNodeSparseArrayAMDX = 5099u32,
     PayloadNodeArraySizeAMDX = 5100u32,
     PayloadDispatchIndirectAMDX = 5105u32,
+    ArrayStrideIdEXT = 5124u32,
+    OffsetIdEXT = 5125u32,
     OverrideCoverageNV = 5248u32,
     PassthroughNV = 5250u32,
     ViewportRelativeNV = 5252u32,
@@ -1324,7 +1360,10 @@ pub enum Decoration {
     NonUniform = 5300u32,
     RestrictPointer = 5355u32,
     AliasedPointer = 5356u32,
+    MemberOffsetNV = 5358u32,
     HitObjectShaderRecordBufferNV = 5386u32,
+    HitObjectShaderRecordBufferEXT = 5389u32,
+    BankNV = 5397u32,
     BindlessSamplerNV = 5398u32,
     BindlessImageNV = 5399u32,
     BoundSamplerNV = 5400u32,
@@ -1343,55 +1382,56 @@ pub enum Decoration {
     UserTypeGOOGLE = 5636u32,
     FunctionRoundingModeINTEL = 5822u32,
     FunctionDenormModeINTEL = 5823u32,
-    RegisterINTEL = 5825u32,
-    MemoryINTEL = 5826u32,
-    NumbanksINTEL = 5827u32,
-    BankwidthINTEL = 5828u32,
-    MaxPrivateCopiesINTEL = 5829u32,
-    SinglepumpINTEL = 5830u32,
-    DoublepumpINTEL = 5831u32,
-    MaxReplicatesINTEL = 5832u32,
-    SimpleDualPortINTEL = 5833u32,
-    MergeINTEL = 5834u32,
-    BankBitsINTEL = 5835u32,
-    ForcePow2DepthINTEL = 5836u32,
-    StridesizeINTEL = 5883u32,
-    WordsizeINTEL = 5884u32,
-    TrueDualPortINTEL = 5885u32,
-    BurstCoalesceINTEL = 5899u32,
-    CacheSizeINTEL = 5900u32,
-    DontStaticallyCoalesceINTEL = 5901u32,
-    PrefetchINTEL = 5902u32,
-    StallEnableINTEL = 5905u32,
-    FuseLoopsInFunctionINTEL = 5907u32,
-    MathOpDSPModeINTEL = 5909u32,
+    RegisterALTERA = 5825u32,
+    MemoryALTERA = 5826u32,
+    NumbanksALTERA = 5827u32,
+    BankwidthALTERA = 5828u32,
+    MaxPrivateCopiesALTERA = 5829u32,
+    SinglepumpALTERA = 5830u32,
+    DoublepumpALTERA = 5831u32,
+    MaxReplicatesALTERA = 5832u32,
+    SimpleDualPortALTERA = 5833u32,
+    MergeALTERA = 5834u32,
+    BankBitsALTERA = 5835u32,
+    ForcePow2DepthALTERA = 5836u32,
+    StridesizeALTERA = 5883u32,
+    WordsizeALTERA = 5884u32,
+    TrueDualPortALTERA = 5885u32,
+    BurstCoalesceALTERA = 5899u32,
+    CacheSizeALTERA = 5900u32,
+    DontStaticallyCoalesceALTERA = 5901u32,
+    PrefetchALTERA = 5902u32,
+    StallEnableALTERA = 5905u32,
+    FuseLoopsInFunctionALTERA = 5907u32,
+    MathOpDSPModeALTERA = 5909u32,
     AliasScopeINTEL = 5914u32,
     NoAliasINTEL = 5915u32,
-    InitiationIntervalINTEL = 5917u32,
-    MaxConcurrencyINTEL = 5918u32,
-    PipelineEnableINTEL = 5919u32,
-    BufferLocationINTEL = 5921u32,
-    IOPipeStorageINTEL = 5944u32,
+    InitiationIntervalALTERA = 5917u32,
+    MaxConcurrencyALTERA = 5918u32,
+    PipelineEnableALTERA = 5919u32,
+    BufferLocationALTERA = 5921u32,
+    IOPipeStorageALTERA = 5944u32,
     FunctionFloatingPointModeINTEL = 6080u32,
     SingleElementVectorINTEL = 6085u32,
     VectorComputeCallableFunctionINTEL = 6087u32,
     MediaBlockIOINTEL = 6140u32,
-    StallFreeINTEL = 6151u32,
+    StallFreeALTERA = 6151u32,
     FPMaxErrorDecorationINTEL = 6170u32,
-    LatencyControlLabelINTEL = 6172u32,
-    LatencyControlConstraintINTEL = 6173u32,
-    ConduitKernelArgumentINTEL = 6175u32,
-    RegisterMapKernelArgumentINTEL = 6176u32,
-    MMHostInterfaceAddressWidthINTEL = 6177u32,
-    MMHostInterfaceDataWidthINTEL = 6178u32,
-    MMHostInterfaceLatencyINTEL = 6179u32,
-    MMHostInterfaceReadWriteModeINTEL = 6180u32,
-    MMHostInterfaceMaxBurstINTEL = 6181u32,
-    MMHostInterfaceWaitRequestINTEL = 6182u32,
-    StableKernelArgumentINTEL = 6183u32,
+    LatencyControlLabelALTERA = 6172u32,
+    LatencyControlConstraintALTERA = 6173u32,
+    ConduitKernelArgumentALTERA = 6175u32,
+    RegisterMapKernelArgumentALTERA = 6176u32,
+    MMHostInterfaceAddressWidthALTERA = 6177u32,
+    MMHostInterfaceDataWidthALTERA = 6178u32,
+    MMHostInterfaceLatencyALTERA = 6179u32,
+    MMHostInterfaceReadWriteModeALTERA = 6180u32,
+    MMHostInterfaceMaxBurstALTERA = 6181u32,
+    MMHostInterfaceWaitRequestALTERA = 6182u32,
+    StableKernelArgumentALTERA = 6183u32,
     HostAccessINTEL = 6188u32,
-    InitModeINTEL = 6190u32,
-    ImplementInRegisterMapINTEL = 6191u32,
+    InitModeALTERA = 6190u32,
+    ImplementInRegisterMapALTERA = 6191u32,
+    ConditionalINTEL = 6247u32,
     CacheControlLoadINTEL = 6442u32,
     CacheControlStoreINTEL = 6443u32,
 }
@@ -1400,6 +1440,7 @@ impl Decoration {
         Some(match n {
             0u32..=11u32 => unsafe { core::mem::transmute::<u32, Decoration>(n) },
             13u32..=47u32 => unsafe { core::mem::transmute::<u32, Decoration>(n) },
+            4216u32 => unsafe { core::mem::transmute::<u32, Decoration>(4216u32) },
             4469u32..=4470u32 => unsafe { core::mem::transmute::<u32, Decoration>(n) },
             4487u32..=4488u32 => unsafe { core::mem::transmute::<u32, Decoration>(n) },
             4499u32 => unsafe { core::mem::transmute::<u32, Decoration>(4499u32) },
@@ -1409,6 +1450,7 @@ impl Decoration {
             5091u32 => unsafe { core::mem::transmute::<u32, Decoration>(5091u32) },
             5098u32..=5100u32 => unsafe { core::mem::transmute::<u32, Decoration>(n) },
             5105u32 => unsafe { core::mem::transmute::<u32, Decoration>(5105u32) },
+            5124u32..=5125u32 => unsafe { core::mem::transmute::<u32, Decoration>(n) },
             5248u32 => unsafe { core::mem::transmute::<u32, Decoration>(5248u32) },
             5250u32 => unsafe { core::mem::transmute::<u32, Decoration>(5250u32) },
             5252u32 => unsafe { core::mem::transmute::<u32, Decoration>(5252u32) },
@@ -1417,8 +1459,10 @@ impl Decoration {
             5285u32 => unsafe { core::mem::transmute::<u32, Decoration>(5285u32) },
             5300u32 => unsafe { core::mem::transmute::<u32, Decoration>(5300u32) },
             5355u32..=5356u32 => unsafe { core::mem::transmute::<u32, Decoration>(n) },
+            5358u32 => unsafe { core::mem::transmute::<u32, Decoration>(5358u32) },
             5386u32 => unsafe { core::mem::transmute::<u32, Decoration>(5386u32) },
-            5398u32..=5401u32 => unsafe { core::mem::transmute::<u32, Decoration>(n) },
+            5389u32 => unsafe { core::mem::transmute::<u32, Decoration>(5389u32) },
+            5397u32..=5401u32 => unsafe { core::mem::transmute::<u32, Decoration>(n) },
             5599u32 => unsafe { core::mem::transmute::<u32, Decoration>(5599u32) },
             5602u32 => unsafe { core::mem::transmute::<u32, Decoration>(5602u32) },
             5607u32..=5608u32 => unsafe { core::mem::transmute::<u32, Decoration>(n) },
@@ -1445,6 +1489,7 @@ impl Decoration {
             6175u32..=6183u32 => unsafe { core::mem::transmute::<u32, Decoration>(n) },
             6188u32 => unsafe { core::mem::transmute::<u32, Decoration>(6188u32) },
             6190u32..=6191u32 => unsafe { core::mem::transmute::<u32, Decoration>(n) },
+            6247u32 => unsafe { core::mem::transmute::<u32, Decoration>(6247u32) },
             6442u32..=6443u32 => unsafe { core::mem::transmute::<u32, Decoration>(n) },
             _ => return None,
         })
@@ -1459,6 +1504,47 @@ impl Decoration {
     pub const AliasedPointerEXT: Self = Self::AliasedPointer;
     pub const HlslCounterBufferGOOGLE: Self = Self::CounterBuffer;
     pub const HlslSemanticGOOGLE: Self = Self::UserSemantic;
+    pub const RegisterINTEL: Self = Self::RegisterALTERA;
+    pub const MemoryINTEL: Self = Self::MemoryALTERA;
+    pub const NumbanksINTEL: Self = Self::NumbanksALTERA;
+    pub const BankwidthINTEL: Self = Self::BankwidthALTERA;
+    pub const MaxPrivateCopiesINTEL: Self = Self::MaxPrivateCopiesALTERA;
+    pub const SinglepumpINTEL: Self = Self::SinglepumpALTERA;
+    pub const DoublepumpINTEL: Self = Self::DoublepumpALTERA;
+    pub const MaxReplicatesINTEL: Self = Self::MaxReplicatesALTERA;
+    pub const SimpleDualPortINTEL: Self = Self::SimpleDualPortALTERA;
+    pub const MergeINTEL: Self = Self::MergeALTERA;
+    pub const BankBitsINTEL: Self = Self::BankBitsALTERA;
+    pub const ForcePow2DepthINTEL: Self = Self::ForcePow2DepthALTERA;
+    pub const StridesizeINTEL: Self = Self::StridesizeALTERA;
+    pub const WordsizeINTEL: Self = Self::WordsizeALTERA;
+    pub const TrueDualPortINTEL: Self = Self::TrueDualPortALTERA;
+    pub const BurstCoalesceINTEL: Self = Self::BurstCoalesceALTERA;
+    pub const CacheSizeINTEL: Self = Self::CacheSizeALTERA;
+    pub const DontStaticallyCoalesceINTEL: Self = Self::DontStaticallyCoalesceALTERA;
+    pub const PrefetchINTEL: Self = Self::PrefetchALTERA;
+    pub const StallEnableINTEL: Self = Self::StallEnableALTERA;
+    pub const FuseLoopsInFunctionINTEL: Self = Self::FuseLoopsInFunctionALTERA;
+    pub const MathOpDSPModeINTEL: Self = Self::MathOpDSPModeALTERA;
+    pub const InitiationIntervalINTEL: Self = Self::InitiationIntervalALTERA;
+    pub const MaxConcurrencyINTEL: Self = Self::MaxConcurrencyALTERA;
+    pub const PipelineEnableINTEL: Self = Self::PipelineEnableALTERA;
+    pub const BufferLocationINTEL: Self = Self::BufferLocationALTERA;
+    pub const IOPipeStorageINTEL: Self = Self::IOPipeStorageALTERA;
+    pub const StallFreeINTEL: Self = Self::StallFreeALTERA;
+    pub const LatencyControlLabelINTEL: Self = Self::LatencyControlLabelALTERA;
+    pub const LatencyControlConstraintINTEL: Self = Self::LatencyControlConstraintALTERA;
+    pub const ConduitKernelArgumentINTEL: Self = Self::ConduitKernelArgumentALTERA;
+    pub const RegisterMapKernelArgumentINTEL: Self = Self::RegisterMapKernelArgumentALTERA;
+    pub const MMHostInterfaceAddressWidthINTEL: Self = Self::MMHostInterfaceAddressWidthALTERA;
+    pub const MMHostInterfaceDataWidthINTEL: Self = Self::MMHostInterfaceDataWidthALTERA;
+    pub const MMHostInterfaceLatencyINTEL: Self = Self::MMHostInterfaceLatencyALTERA;
+    pub const MMHostInterfaceReadWriteModeINTEL: Self = Self::MMHostInterfaceReadWriteModeALTERA;
+    pub const MMHostInterfaceMaxBurstINTEL: Self = Self::MMHostInterfaceMaxBurstALTERA;
+    pub const MMHostInterfaceWaitRequestINTEL: Self = Self::MMHostInterfaceWaitRequestALTERA;
+    pub const StableKernelArgumentINTEL: Self = Self::StableKernelArgumentALTERA;
+    pub const InitModeINTEL: Self = Self::InitModeALTERA;
+    pub const ImplementInRegisterMapINTEL: Self = Self::ImplementInRegisterMapALTERA;
 }
 impl core::str::FromStr for Decoration {
     type Err = ();
@@ -1511,6 +1597,9 @@ impl core::str::FromStr for Decoration {
             "MaxByteOffset" => Self::MaxByteOffset,
             "AlignmentId" => Self::AlignmentId,
             "MaxByteOffsetId" => Self::MaxByteOffsetId,
+            "SaturatedToLargestFloat8NormalConversionEXT" => {
+                Self::SaturatedToLargestFloat8NormalConversionEXT
+            }
             "NoSignedWrap" => Self::NoSignedWrap,
             "NoUnsignedWrap" => Self::NoUnsignedWrap,
             "WeightTextureQCOM" => Self::WeightTextureQCOM,
@@ -1525,6 +1614,8 @@ impl core::str::FromStr for Decoration {
             "PayloadNodeSparseArrayAMDX" => Self::PayloadNodeSparseArrayAMDX,
             "PayloadNodeArraySizeAMDX" => Self::PayloadNodeArraySizeAMDX,
             "PayloadDispatchIndirectAMDX" => Self::PayloadDispatchIndirectAMDX,
+            "ArrayStrideIdEXT" => Self::ArrayStrideIdEXT,
+            "OffsetIdEXT" => Self::OffsetIdEXT,
             "OverrideCoverageNV" => Self::OverrideCoverageNV,
             "PassthroughNV" => Self::PassthroughNV,
             "ViewportRelativeNV" => Self::ViewportRelativeNV,
@@ -1541,7 +1632,10 @@ impl core::str::FromStr for Decoration {
             "RestrictPointerEXT" => Self::RestrictPointer,
             "AliasedPointer" => Self::AliasedPointer,
             "AliasedPointerEXT" => Self::AliasedPointer,
+            "MemberOffsetNV" => Self::MemberOffsetNV,
             "HitObjectShaderRecordBufferNV" => Self::HitObjectShaderRecordBufferNV,
+            "HitObjectShaderRecordBufferEXT" => Self::HitObjectShaderRecordBufferEXT,
+            "BankNV" => Self::BankNV,
             "BindlessSamplerNV" => Self::BindlessSamplerNV,
             "BindlessImageNV" => Self::BindlessImageNV,
             "BoundSamplerNV" => Self::BoundSamplerNV,
@@ -1562,55 +1656,97 @@ impl core::str::FromStr for Decoration {
             "UserTypeGOOGLE" => Self::UserTypeGOOGLE,
             "FunctionRoundingModeINTEL" => Self::FunctionRoundingModeINTEL,
             "FunctionDenormModeINTEL" => Self::FunctionDenormModeINTEL,
-            "RegisterINTEL" => Self::RegisterINTEL,
-            "MemoryINTEL" => Self::MemoryINTEL,
-            "NumbanksINTEL" => Self::NumbanksINTEL,
-            "BankwidthINTEL" => Self::BankwidthINTEL,
-            "MaxPrivateCopiesINTEL" => Self::MaxPrivateCopiesINTEL,
-            "SinglepumpINTEL" => Self::SinglepumpINTEL,
-            "DoublepumpINTEL" => Self::DoublepumpINTEL,
-            "MaxReplicatesINTEL" => Self::MaxReplicatesINTEL,
-            "SimpleDualPortINTEL" => Self::SimpleDualPortINTEL,
-            "MergeINTEL" => Self::MergeINTEL,
-            "BankBitsINTEL" => Self::BankBitsINTEL,
-            "ForcePow2DepthINTEL" => Self::ForcePow2DepthINTEL,
-            "StridesizeINTEL" => Self::StridesizeINTEL,
-            "WordsizeINTEL" => Self::WordsizeINTEL,
-            "TrueDualPortINTEL" => Self::TrueDualPortINTEL,
-            "BurstCoalesceINTEL" => Self::BurstCoalesceINTEL,
-            "CacheSizeINTEL" => Self::CacheSizeINTEL,
-            "DontStaticallyCoalesceINTEL" => Self::DontStaticallyCoalesceINTEL,
-            "PrefetchINTEL" => Self::PrefetchINTEL,
-            "StallEnableINTEL" => Self::StallEnableINTEL,
-            "FuseLoopsInFunctionINTEL" => Self::FuseLoopsInFunctionINTEL,
-            "MathOpDSPModeINTEL" => Self::MathOpDSPModeINTEL,
+            "RegisterALTERA" => Self::RegisterALTERA,
+            "RegisterINTEL" => Self::RegisterALTERA,
+            "MemoryALTERA" => Self::MemoryALTERA,
+            "MemoryINTEL" => Self::MemoryALTERA,
+            "NumbanksALTERA" => Self::NumbanksALTERA,
+            "NumbanksINTEL" => Self::NumbanksALTERA,
+            "BankwidthALTERA" => Self::BankwidthALTERA,
+            "BankwidthINTEL" => Self::BankwidthALTERA,
+            "MaxPrivateCopiesALTERA" => Self::MaxPrivateCopiesALTERA,
+            "MaxPrivateCopiesINTEL" => Self::MaxPrivateCopiesALTERA,
+            "SinglepumpALTERA" => Self::SinglepumpALTERA,
+            "SinglepumpINTEL" => Self::SinglepumpALTERA,
+            "DoublepumpALTERA" => Self::DoublepumpALTERA,
+            "DoublepumpINTEL" => Self::DoublepumpALTERA,
+            "MaxReplicatesALTERA" => Self::MaxReplicatesALTERA,
+            "MaxReplicatesINTEL" => Self::MaxReplicatesALTERA,
+            "SimpleDualPortALTERA" => Self::SimpleDualPortALTERA,
+            "SimpleDualPortINTEL" => Self::SimpleDualPortALTERA,
+            "MergeALTERA" => Self::MergeALTERA,
+            "MergeINTEL" => Self::MergeALTERA,
+            "BankBitsALTERA" => Self::BankBitsALTERA,
+            "BankBitsINTEL" => Self::BankBitsALTERA,
+            "ForcePow2DepthALTERA" => Self::ForcePow2DepthALTERA,
+            "ForcePow2DepthINTEL" => Self::ForcePow2DepthALTERA,
+            "StridesizeALTERA" => Self::StridesizeALTERA,
+            "StridesizeINTEL" => Self::StridesizeALTERA,
+            "WordsizeALTERA" => Self::WordsizeALTERA,
+            "WordsizeINTEL" => Self::WordsizeALTERA,
+            "TrueDualPortALTERA" => Self::TrueDualPortALTERA,
+            "TrueDualPortINTEL" => Self::TrueDualPortALTERA,
+            "BurstCoalesceALTERA" => Self::BurstCoalesceALTERA,
+            "BurstCoalesceINTEL" => Self::BurstCoalesceALTERA,
+            "CacheSizeALTERA" => Self::CacheSizeALTERA,
+            "CacheSizeINTEL" => Self::CacheSizeALTERA,
+            "DontStaticallyCoalesceALTERA" => Self::DontStaticallyCoalesceALTERA,
+            "DontStaticallyCoalesceINTEL" => Self::DontStaticallyCoalesceALTERA,
+            "PrefetchALTERA" => Self::PrefetchALTERA,
+            "PrefetchINTEL" => Self::PrefetchALTERA,
+            "StallEnableALTERA" => Self::StallEnableALTERA,
+            "StallEnableINTEL" => Self::StallEnableALTERA,
+            "FuseLoopsInFunctionALTERA" => Self::FuseLoopsInFunctionALTERA,
+            "FuseLoopsInFunctionINTEL" => Self::FuseLoopsInFunctionALTERA,
+            "MathOpDSPModeALTERA" => Self::MathOpDSPModeALTERA,
+            "MathOpDSPModeINTEL" => Self::MathOpDSPModeALTERA,
             "AliasScopeINTEL" => Self::AliasScopeINTEL,
             "NoAliasINTEL" => Self::NoAliasINTEL,
-            "InitiationIntervalINTEL" => Self::InitiationIntervalINTEL,
-            "MaxConcurrencyINTEL" => Self::MaxConcurrencyINTEL,
-            "PipelineEnableINTEL" => Self::PipelineEnableINTEL,
-            "BufferLocationINTEL" => Self::BufferLocationINTEL,
-            "IOPipeStorageINTEL" => Self::IOPipeStorageINTEL,
+            "InitiationIntervalALTERA" => Self::InitiationIntervalALTERA,
+            "InitiationIntervalINTEL" => Self::InitiationIntervalALTERA,
+            "MaxConcurrencyALTERA" => Self::MaxConcurrencyALTERA,
+            "MaxConcurrencyINTEL" => Self::MaxConcurrencyALTERA,
+            "PipelineEnableALTERA" => Self::PipelineEnableALTERA,
+            "PipelineEnableINTEL" => Self::PipelineEnableALTERA,
+            "BufferLocationALTERA" => Self::BufferLocationALTERA,
+            "BufferLocationINTEL" => Self::BufferLocationALTERA,
+            "IOPipeStorageALTERA" => Self::IOPipeStorageALTERA,
+            "IOPipeStorageINTEL" => Self::IOPipeStorageALTERA,
             "FunctionFloatingPointModeINTEL" => Self::FunctionFloatingPointModeINTEL,
             "SingleElementVectorINTEL" => Self::SingleElementVectorINTEL,
             "VectorComputeCallableFunctionINTEL" => Self::VectorComputeCallableFunctionINTEL,
             "MediaBlockIOINTEL" => Self::MediaBlockIOINTEL,
-            "StallFreeINTEL" => Self::StallFreeINTEL,
+            "StallFreeALTERA" => Self::StallFreeALTERA,
+            "StallFreeINTEL" => Self::StallFreeALTERA,
             "FPMaxErrorDecorationINTEL" => Self::FPMaxErrorDecorationINTEL,
-            "LatencyControlLabelINTEL" => Self::LatencyControlLabelINTEL,
-            "LatencyControlConstraintINTEL" => Self::LatencyControlConstraintINTEL,
-            "ConduitKernelArgumentINTEL" => Self::ConduitKernelArgumentINTEL,
-            "RegisterMapKernelArgumentINTEL" => Self::RegisterMapKernelArgumentINTEL,
-            "MMHostInterfaceAddressWidthINTEL" => Self::MMHostInterfaceAddressWidthINTEL,
-            "MMHostInterfaceDataWidthINTEL" => Self::MMHostInterfaceDataWidthINTEL,
-            "MMHostInterfaceLatencyINTEL" => Self::MMHostInterfaceLatencyINTEL,
-            "MMHostInterfaceReadWriteModeINTEL" => Self::MMHostInterfaceReadWriteModeINTEL,
-            "MMHostInterfaceMaxBurstINTEL" => Self::MMHostInterfaceMaxBurstINTEL,
-            "MMHostInterfaceWaitRequestINTEL" => Self::MMHostInterfaceWaitRequestINTEL,
-            "StableKernelArgumentINTEL" => Self::StableKernelArgumentINTEL,
+            "LatencyControlLabelALTERA" => Self::LatencyControlLabelALTERA,
+            "LatencyControlLabelINTEL" => Self::LatencyControlLabelALTERA,
+            "LatencyControlConstraintALTERA" => Self::LatencyControlConstraintALTERA,
+            "LatencyControlConstraintINTEL" => Self::LatencyControlConstraintALTERA,
+            "ConduitKernelArgumentALTERA" => Self::ConduitKernelArgumentALTERA,
+            "ConduitKernelArgumentINTEL" => Self::ConduitKernelArgumentALTERA,
+            "RegisterMapKernelArgumentALTERA" => Self::RegisterMapKernelArgumentALTERA,
+            "RegisterMapKernelArgumentINTEL" => Self::RegisterMapKernelArgumentALTERA,
+            "MMHostInterfaceAddressWidthALTERA" => Self::MMHostInterfaceAddressWidthALTERA,
+            "MMHostInterfaceAddressWidthINTEL" => Self::MMHostInterfaceAddressWidthALTERA,
+            "MMHostInterfaceDataWidthALTERA" => Self::MMHostInterfaceDataWidthALTERA,
+            "MMHostInterfaceDataWidthINTEL" => Self::MMHostInterfaceDataWidthALTERA,
+            "MMHostInterfaceLatencyALTERA" => Self::MMHostInterfaceLatencyALTERA,
+            "MMHostInterfaceLatencyINTEL" => Self::MMHostInterfaceLatencyALTERA,
+            "MMHostInterfaceReadWriteModeALTERA" => Self::MMHostInterfaceReadWriteModeALTERA,
+            "MMHostInterfaceReadWriteModeINTEL" => Self::MMHostInterfaceReadWriteModeALTERA,
+            "MMHostInterfaceMaxBurstALTERA" => Self::MMHostInterfaceMaxBurstALTERA,
+            "MMHostInterfaceMaxBurstINTEL" => Self::MMHostInterfaceMaxBurstALTERA,
+            "MMHostInterfaceWaitRequestALTERA" => Self::MMHostInterfaceWaitRequestALTERA,
+            "MMHostInterfaceWaitRequestINTEL" => Self::MMHostInterfaceWaitRequestALTERA,
+            "StableKernelArgumentALTERA" => Self::StableKernelArgumentALTERA,
+            "StableKernelArgumentINTEL" => Self::StableKernelArgumentALTERA,
             "HostAccessINTEL" => Self::HostAccessINTEL,
-            "InitModeINTEL" => Self::InitModeINTEL,
-            "ImplementInRegisterMapINTEL" => Self::ImplementInRegisterMapINTEL,
+            "InitModeALTERA" => Self::InitModeALTERA,
+            "InitModeINTEL" => Self::InitModeALTERA,
+            "ImplementInRegisterMapALTERA" => Self::ImplementInRegisterMapALTERA,
+            "ImplementInRegisterMapINTEL" => Self::ImplementInRegisterMapALTERA,
+            "ConditionalINTEL" => Self::ConditionalINTEL,
             "CacheControlLoadINTEL" => Self::CacheControlLoadINTEL,
             "CacheControlStoreINTEL" => Self::CacheControlStoreINTEL,
             _ => return Err(()),
@@ -1682,6 +1818,9 @@ pub enum BuiltIn {
     DeviceIndex = 4438u32,
     ViewIndex = 4440u32,
     ShadingRateKHR = 4444u32,
+    TileOffsetQCOM = 4492u32,
+    TileDimensionQCOM = 4493u32,
+    TileApronSizeQCOM = 4494u32,
     BaryCoordNoPerspAMD = 4992u32,
     BaryCoordNoPerspCentroidAMD = 4993u32,
     BaryCoordNoPerspSampleAMD = 4994u32,
@@ -1692,6 +1831,8 @@ pub enum BuiltIn {
     FragStencilRefEXT = 5014u32,
     RemainingRecursionLevelsAMDX = 5021u32,
     ShaderIndexAMDX = 5073u32,
+    SamplerHeapEXT = 5122u32,
+    ResourceHeapEXT = 5123u32,
     ViewportMaskNV = 5253u32,
     SecondaryPositionNV = 5257u32,
     SecondaryViewportMaskNV = 5258u32,
@@ -1762,10 +1903,12 @@ impl BuiltIn {
             4438u32 => unsafe { core::mem::transmute::<u32, BuiltIn>(4438u32) },
             4440u32 => unsafe { core::mem::transmute::<u32, BuiltIn>(4440u32) },
             4444u32 => unsafe { core::mem::transmute::<u32, BuiltIn>(4444u32) },
+            4492u32..=4494u32 => unsafe { core::mem::transmute::<u32, BuiltIn>(n) },
             4992u32..=4998u32 => unsafe { core::mem::transmute::<u32, BuiltIn>(n) },
             5014u32 => unsafe { core::mem::transmute::<u32, BuiltIn>(5014u32) },
             5021u32 => unsafe { core::mem::transmute::<u32, BuiltIn>(5021u32) },
             5073u32 => unsafe { core::mem::transmute::<u32, BuiltIn>(5073u32) },
+            5122u32..=5123u32 => unsafe { core::mem::transmute::<u32, BuiltIn>(n) },
             5253u32 => unsafe { core::mem::transmute::<u32, BuiltIn>(5253u32) },
             5257u32..=5258u32 => unsafe { core::mem::transmute::<u32, BuiltIn>(n) },
             5261u32..=5262u32 => unsafe { core::mem::transmute::<u32, BuiltIn>(n) },
@@ -1882,6 +2025,9 @@ impl core::str::FromStr for BuiltIn {
             "DeviceIndex" => Self::DeviceIndex,
             "ViewIndex" => Self::ViewIndex,
             "ShadingRateKHR" => Self::ShadingRateKHR,
+            "TileOffsetQCOM" => Self::TileOffsetQCOM,
+            "TileDimensionQCOM" => Self::TileDimensionQCOM,
+            "TileApronSizeQCOM" => Self::TileApronSizeQCOM,
             "BaryCoordNoPerspAMD" => Self::BaryCoordNoPerspAMD,
             "BaryCoordNoPerspCentroidAMD" => Self::BaryCoordNoPerspCentroidAMD,
             "BaryCoordNoPerspSampleAMD" => Self::BaryCoordNoPerspSampleAMD,
@@ -1892,6 +2038,8 @@ impl core::str::FromStr for BuiltIn {
             "FragStencilRefEXT" => Self::FragStencilRefEXT,
             "RemainingRecursionLevelsAMDX" => Self::RemainingRecursionLevelsAMDX,
             "ShaderIndexAMDX" => Self::ShaderIndexAMDX,
+            "SamplerHeapEXT" => Self::SamplerHeapEXT,
+            "ResourceHeapEXT" => Self::ResourceHeapEXT,
             "ViewportMaskNV" => Self::ViewportMaskNV,
             "SecondaryPositionNV" => Self::SecondaryPositionNV,
             "SecondaryViewportMaskNV" => Self::SecondaryViewportMaskNV,
@@ -2022,9 +2170,9 @@ pub enum GroupOperation {
     InclusiveScan = 1u32,
     ExclusiveScan = 2u32,
     ClusteredReduce = 3u32,
-    PartitionedReduceNV = 6u32,
-    PartitionedInclusiveScanNV = 7u32,
-    PartitionedExclusiveScanNV = 8u32,
+    PartitionedReduceEXT = 6u32,
+    PartitionedInclusiveScanEXT = 7u32,
+    PartitionedExclusiveScanEXT = 8u32,
 }
 impl GroupOperation {
     pub fn from_u32(n: u32) -> Option<Self> {
@@ -2036,7 +2184,11 @@ impl GroupOperation {
     }
 }
 #[allow(non_upper_case_globals)]
-impl GroupOperation {}
+impl GroupOperation {
+    pub const PartitionedReduceNV: Self = Self::PartitionedReduceEXT;
+    pub const PartitionedInclusiveScanNV: Self = Self::PartitionedInclusiveScanEXT;
+    pub const PartitionedExclusiveScanNV: Self = Self::PartitionedExclusiveScanEXT;
+}
 impl core::str::FromStr for GroupOperation {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -2045,9 +2197,12 @@ impl core::str::FromStr for GroupOperation {
             "InclusiveScan" => Self::InclusiveScan,
             "ExclusiveScan" => Self::ExclusiveScan,
             "ClusteredReduce" => Self::ClusteredReduce,
-            "PartitionedReduceNV" => Self::PartitionedReduceNV,
-            "PartitionedInclusiveScanNV" => Self::PartitionedInclusiveScanNV,
-            "PartitionedExclusiveScanNV" => Self::PartitionedExclusiveScanNV,
+            "PartitionedReduceEXT" => Self::PartitionedReduceEXT,
+            "PartitionedReduceNV" => Self::PartitionedReduceEXT,
+            "PartitionedInclusiveScanEXT" => Self::PartitionedInclusiveScanEXT,
+            "PartitionedInclusiveScanNV" => Self::PartitionedInclusiveScanEXT,
+            "PartitionedExclusiveScanEXT" => Self::PartitionedExclusiveScanEXT,
+            "PartitionedExclusiveScanNV" => Self::PartitionedExclusiveScanEXT,
             _ => return Err(()),
         })
     }
@@ -2165,7 +2320,13 @@ pub enum Capability {
     TileImageColorReadAccessEXT = 4166u32,
     TileImageDepthReadAccessEXT = 4167u32,
     TileImageStencilReadAccessEXT = 4168u32,
+    TensorsARM = 4174u32,
+    StorageTensorArrayDynamicIndexingARM = 4175u32,
+    StorageTensorArrayNonUniformIndexingARM = 4176u32,
+    GraphARM = 4191u32,
     CooperativeMatrixLayoutsARM = 4201u32,
+    Float8EXT = 4212u32,
+    Float8CooperativeMatrixEXT = 4213u32,
     FragmentShadingRateKHR = 4422u32,
     SubgroupBallotKHR = 4423u32,
     DrawParameters = 4427u32,
@@ -2199,6 +2360,8 @@ pub enum Capability {
     TextureSampleWeightedQCOM = 4484u32,
     TextureBoxFilterQCOM = 4485u32,
     TextureBlockMatchQCOM = 4486u32,
+    TileShadingQCOM = 4495u32,
+    CooperativeMatrixConversionQCOM = 4496u32,
     TextureBlockMatch2QCOM = 4498u32,
     Float16ImageAMD = 5008u32,
     ImageGatherBiasLodAMD = 5009u32,
@@ -2209,6 +2372,12 @@ pub enum Capability {
     ShaderClockKHR = 5055u32,
     ShaderEnqueueAMDX = 5067u32,
     QuadControlKHR = 5087u32,
+    Int4TypeINTEL = 5112u32,
+    Int4CooperativeMatrixINTEL = 5114u32,
+    BFloat16TypeKHR = 5116u32,
+    BFloat16DotProductKHR = 5117u32,
+    BFloat16CooperativeMatrixKHR = 5118u32,
+    DescriptorHeapEXT = 5128u32,
     SampleMaskOverrideCoverageNV = 5249u32,
     GeometryShaderPassthroughNV = 5251u32,
     ShaderViewportIndexLayerEXT = 5254u32,
@@ -2222,7 +2391,7 @@ pub enum Capability {
     FragmentBarycentricKHR = 5284u32,
     ComputeDerivativeGroupQuadsKHR = 5288u32,
     FragmentDensityEXT = 5291u32,
-    GroupNonUniformPartitionedNV = 5297u32,
+    GroupNonUniformPartitionedEXT = 5297u32,
     ShaderNonUniform = 5301u32,
     RuntimeDescriptorArray = 5302u32,
     InputAttachmentArrayDynamicIndexing = 5303u32,
@@ -2252,6 +2421,7 @@ pub enum Capability {
     DisplacementMicromapNV = 5380u32,
     RayTracingOpacityMicromapEXT = 5381u32,
     ShaderInvocationReorderNV = 5383u32,
+    ShaderInvocationReorderEXT = 5388u32,
     BindlessTextureNV = 5390u32,
     RayQueryPositionFetchKHR = 5391u32,
     CooperativeVectorNV = 5394u32,
@@ -2260,6 +2430,9 @@ pub enum Capability {
     RawAccessChainsNV = 5414u32,
     RayTracingSpheresGeometryNV = 5418u32,
     RayTracingLinearSweptSpheresGeometryNV = 5419u32,
+    PushConstantBanksNV = 5423u32,
+    LongVectorEXT = 5425u32,
+    Shader64BitIndexingEXT = 5426u32,
     CooperativeMatrixReductionsNV = 5430u32,
     CooperativeMatrixConversionsNV = 5431u32,
     CooperativeMatrixPerElementOperationsNV = 5432u32,
@@ -2289,27 +2462,27 @@ pub enum Capability {
     SubgroupAvcMotionEstimationChromaINTEL = 5698u32,
     VariableLengthArrayINTEL = 5817u32,
     FunctionFloatControlINTEL = 5821u32,
-    FPGAMemoryAttributesINTEL = 5824u32,
+    FPGAMemoryAttributesALTERA = 5824u32,
     FPFastMathModeINTEL = 5837u32,
-    ArbitraryPrecisionIntegersINTEL = 5844u32,
-    ArbitraryPrecisionFloatingPointINTEL = 5845u32,
+    ArbitraryPrecisionIntegersALTERA = 5844u32,
+    ArbitraryPrecisionFloatingPointALTERA = 5845u32,
     UnstructuredLoopControlsINTEL = 5886u32,
-    FPGALoopControlsINTEL = 5888u32,
+    FPGALoopControlsALTERA = 5888u32,
     KernelAttributesINTEL = 5892u32,
     FPGAKernelAttributesINTEL = 5897u32,
-    FPGAMemoryAccessesINTEL = 5898u32,
-    FPGAClusterAttributesINTEL = 5904u32,
-    LoopFuseINTEL = 5906u32,
-    FPGADSPControlINTEL = 5908u32,
+    FPGAMemoryAccessesALTERA = 5898u32,
+    FPGAClusterAttributesALTERA = 5904u32,
+    LoopFuseALTERA = 5906u32,
+    FPGADSPControlALTERA = 5908u32,
     MemoryAccessAliasingINTEL = 5910u32,
-    FPGAInvocationPipeliningAttributesINTEL = 5916u32,
-    FPGABufferLocationINTEL = 5920u32,
-    ArbitraryPrecisionFixedPointINTEL = 5922u32,
-    USMStorageClassesINTEL = 5935u32,
-    RuntimeAlignedAttributeINTEL = 5939u32,
-    IOPipesINTEL = 5943u32,
-    BlockingPipesINTEL = 5945u32,
-    FPGARegINTEL = 5948u32,
+    FPGAInvocationPipeliningAttributesALTERA = 5916u32,
+    FPGABufferLocationALTERA = 5920u32,
+    ArbitraryPrecisionFixedPointALTERA = 5922u32,
+    USMStorageClassesALTERA = 5935u32,
+    RuntimeAlignedAttributeALTERA = 5939u32,
+    IOPipesALTERA = 5943u32,
+    BlockingPipesALTERA = 5945u32,
+    FPGARegALTERA = 5948u32,
     DotProductInputAll = 6016u32,
     DotProductInput4x8Bit = 6017u32,
     DotProductInput4x8BitPacked = 6018u32,
@@ -2320,6 +2493,7 @@ pub enum Capability {
     BitInstructions = 6025u32,
     GroupNonUniformRotateKHR = 6026u32,
     FloatControls2 = 6029u32,
+    FMAKHR = 6030u32,
     AtomicFloat32AddEXT = 6033u32,
     AtomicFloat64AddEXT = 6034u32,
     LongCompositesINTEL = 6089u32,
@@ -2329,22 +2503,29 @@ pub enum Capability {
     BFloat16ConversionINTEL = 6115u32,
     SplitBarrierINTEL = 6141u32,
     ArithmeticFenceEXT = 6144u32,
-    FPGAClusterAttributesV2INTEL = 6150u32,
+    FPGAClusterAttributesV2ALTERA = 6150u32,
     FPGAKernelAttributesv2INTEL = 6161u32,
+    TaskSequenceALTERA = 6162u32,
     FPMaxErrorINTEL = 6169u32,
-    FPGALatencyControlINTEL = 6171u32,
-    FPGAArgumentInterfacesINTEL = 6174u32,
+    FPGALatencyControlALTERA = 6171u32,
+    FPGAArgumentInterfacesALTERA = 6174u32,
     GlobalVariableHostAccessINTEL = 6187u32,
-    GlobalVariableFPGADecorationsINTEL = 6189u32,
+    GlobalVariableFPGADecorationsALTERA = 6189u32,
     SubgroupBufferPrefetchINTEL = 6220u32,
     Subgroup2DBlockIOINTEL = 6228u32,
     Subgroup2DBlockTransformINTEL = 6229u32,
     Subgroup2DBlockTransposeINTEL = 6230u32,
     SubgroupMatrixMultiplyAccumulateINTEL = 6236u32,
+    TernaryBitwiseFunctionINTEL = 6241u32,
+    UntypedVariableLengthArrayINTEL = 6243u32,
+    SpecConditionalINTEL = 6245u32,
+    FunctionVariantsINTEL = 6246u32,
     GroupUniformArithmeticKHR = 6400u32,
+    TensorFloat32RoundingINTEL = 6425u32,
     MaskedGatherScatterINTEL = 6427u32,
     CacheControlsINTEL = 6441u32,
     RegisterLimitsINTEL = 6460u32,
+    BindlessImagesINTEL = 6528u32,
 }
 impl Capability {
     pub fn from_u32(n: u32) -> Option<Self> {
@@ -2353,7 +2534,10 @@ impl Capability {
             17u32..=25u32 => unsafe { core::mem::transmute::<u32, Capability>(n) },
             27u32..=71u32 => unsafe { core::mem::transmute::<u32, Capability>(n) },
             4165u32..=4168u32 => unsafe { core::mem::transmute::<u32, Capability>(n) },
+            4174u32..=4176u32 => unsafe { core::mem::transmute::<u32, Capability>(n) },
+            4191u32 => unsafe { core::mem::transmute::<u32, Capability>(4191u32) },
             4201u32 => unsafe { core::mem::transmute::<u32, Capability>(4201u32) },
+            4212u32..=4213u32 => unsafe { core::mem::transmute::<u32, Capability>(n) },
             4422u32..=4423u32 => unsafe { core::mem::transmute::<u32, Capability>(n) },
             4427u32..=4431u32 => unsafe { core::mem::transmute::<u32, Capability>(n) },
             4433u32..=4437u32 => unsafe { core::mem::transmute::<u32, Capability>(n) },
@@ -2365,6 +2549,7 @@ impl Capability {
             4471u32..=4473u32 => unsafe { core::mem::transmute::<u32, Capability>(n) },
             4478u32..=4479u32 => unsafe { core::mem::transmute::<u32, Capability>(n) },
             4484u32..=4486u32 => unsafe { core::mem::transmute::<u32, Capability>(n) },
+            4495u32..=4496u32 => unsafe { core::mem::transmute::<u32, Capability>(n) },
             4498u32 => unsafe { core::mem::transmute::<u32, Capability>(4498u32) },
             5008u32..=5010u32 => unsafe { core::mem::transmute::<u32, Capability>(n) },
             5013u32 => unsafe { core::mem::transmute::<u32, Capability>(5013u32) },
@@ -2372,6 +2557,10 @@ impl Capability {
             5055u32 => unsafe { core::mem::transmute::<u32, Capability>(5055u32) },
             5067u32 => unsafe { core::mem::transmute::<u32, Capability>(5067u32) },
             5087u32 => unsafe { core::mem::transmute::<u32, Capability>(5087u32) },
+            5112u32 => unsafe { core::mem::transmute::<u32, Capability>(5112u32) },
+            5114u32 => unsafe { core::mem::transmute::<u32, Capability>(5114u32) },
+            5116u32..=5118u32 => unsafe { core::mem::transmute::<u32, Capability>(n) },
+            5128u32 => unsafe { core::mem::transmute::<u32, Capability>(5128u32) },
             5249u32 => unsafe { core::mem::transmute::<u32, Capability>(5249u32) },
             5251u32 => unsafe { core::mem::transmute::<u32, Capability>(5251u32) },
             5254u32..=5255u32 => unsafe { core::mem::transmute::<u32, Capability>(n) },
@@ -2392,12 +2581,15 @@ impl Capability {
             5372u32..=5373u32 => unsafe { core::mem::transmute::<u32, Capability>(n) },
             5378u32..=5381u32 => unsafe { core::mem::transmute::<u32, Capability>(n) },
             5383u32 => unsafe { core::mem::transmute::<u32, Capability>(5383u32) },
+            5388u32 => unsafe { core::mem::transmute::<u32, Capability>(5388u32) },
             5390u32..=5391u32 => unsafe { core::mem::transmute::<u32, Capability>(n) },
             5394u32 => unsafe { core::mem::transmute::<u32, Capability>(5394u32) },
             5404u32 => unsafe { core::mem::transmute::<u32, Capability>(5404u32) },
             5409u32 => unsafe { core::mem::transmute::<u32, Capability>(5409u32) },
             5414u32 => unsafe { core::mem::transmute::<u32, Capability>(5414u32) },
             5418u32..=5419u32 => unsafe { core::mem::transmute::<u32, Capability>(n) },
+            5423u32 => unsafe { core::mem::transmute::<u32, Capability>(5423u32) },
+            5425u32..=5426u32 => unsafe { core::mem::transmute::<u32, Capability>(n) },
             5430u32..=5435u32 => unsafe { core::mem::transmute::<u32, Capability>(n) },
             5437u32 => unsafe { core::mem::transmute::<u32, Capability>(5437u32) },
             5439u32 => unsafe { core::mem::transmute::<u32, Capability>(5439u32) },
@@ -2435,7 +2627,7 @@ impl Capability {
             6016u32..=6020u32 => unsafe { core::mem::transmute::<u32, Capability>(n) },
             6022u32 => unsafe { core::mem::transmute::<u32, Capability>(6022u32) },
             6024u32..=6026u32 => unsafe { core::mem::transmute::<u32, Capability>(n) },
-            6029u32 => unsafe { core::mem::transmute::<u32, Capability>(6029u32) },
+            6029u32..=6030u32 => unsafe { core::mem::transmute::<u32, Capability>(n) },
             6033u32..=6034u32 => unsafe { core::mem::transmute::<u32, Capability>(n) },
             6089u32 => unsafe { core::mem::transmute::<u32, Capability>(6089u32) },
             6094u32..=6095u32 => unsafe { core::mem::transmute::<u32, Capability>(n) },
@@ -2443,7 +2635,7 @@ impl Capability {
             6141u32 => unsafe { core::mem::transmute::<u32, Capability>(6141u32) },
             6144u32 => unsafe { core::mem::transmute::<u32, Capability>(6144u32) },
             6150u32 => unsafe { core::mem::transmute::<u32, Capability>(6150u32) },
-            6161u32 => unsafe { core::mem::transmute::<u32, Capability>(6161u32) },
+            6161u32..=6162u32 => unsafe { core::mem::transmute::<u32, Capability>(n) },
             6169u32 => unsafe { core::mem::transmute::<u32, Capability>(6169u32) },
             6171u32 => unsafe { core::mem::transmute::<u32, Capability>(6171u32) },
             6174u32 => unsafe { core::mem::transmute::<u32, Capability>(6174u32) },
@@ -2452,10 +2644,15 @@ impl Capability {
             6220u32 => unsafe { core::mem::transmute::<u32, Capability>(6220u32) },
             6228u32..=6230u32 => unsafe { core::mem::transmute::<u32, Capability>(n) },
             6236u32 => unsafe { core::mem::transmute::<u32, Capability>(6236u32) },
+            6241u32 => unsafe { core::mem::transmute::<u32, Capability>(6241u32) },
+            6243u32 => unsafe { core::mem::transmute::<u32, Capability>(6243u32) },
+            6245u32..=6246u32 => unsafe { core::mem::transmute::<u32, Capability>(n) },
             6400u32 => unsafe { core::mem::transmute::<u32, Capability>(6400u32) },
+            6425u32 => unsafe { core::mem::transmute::<u32, Capability>(6425u32) },
             6427u32 => unsafe { core::mem::transmute::<u32, Capability>(6427u32) },
             6441u32 => unsafe { core::mem::transmute::<u32, Capability>(6441u32) },
             6460u32 => unsafe { core::mem::transmute::<u32, Capability>(6460u32) },
+            6528u32 => unsafe { core::mem::transmute::<u32, Capability>(6528u32) },
             _ => return None,
         })
     }
@@ -2468,6 +2665,7 @@ impl Capability {
     pub const FragmentBarycentricNV: Self = Self::FragmentBarycentricKHR;
     pub const ComputeDerivativeGroupQuadsNV: Self = Self::ComputeDerivativeGroupQuadsKHR;
     pub const ShadingRateNV: Self = Self::FragmentDensityEXT;
+    pub const GroupNonUniformPartitionedNV: Self = Self::GroupNonUniformPartitionedEXT;
     pub const ShaderNonUniformEXT: Self = Self::ShaderNonUniform;
     pub const RuntimeDescriptorArrayEXT: Self = Self::RuntimeDescriptorArray;
     pub const InputAttachmentArrayDynamicIndexingEXT: Self =
@@ -2495,11 +2693,34 @@ impl Capability {
     pub const PhysicalStorageBufferAddressesEXT: Self = Self::PhysicalStorageBufferAddresses;
     pub const ComputeDerivativeGroupLinearNV: Self = Self::ComputeDerivativeGroupLinearKHR;
     pub const DemoteToHelperInvocationEXT: Self = Self::DemoteToHelperInvocation;
+    pub const FPGAMemoryAttributesINTEL: Self = Self::FPGAMemoryAttributesALTERA;
+    pub const ArbitraryPrecisionIntegersINTEL: Self = Self::ArbitraryPrecisionIntegersALTERA;
+    pub const ArbitraryPrecisionFloatingPointINTEL: Self =
+        Self::ArbitraryPrecisionFloatingPointALTERA;
+    pub const FPGALoopControlsINTEL: Self = Self::FPGALoopControlsALTERA;
+    pub const FPGAMemoryAccessesINTEL: Self = Self::FPGAMemoryAccessesALTERA;
+    pub const FPGAClusterAttributesINTEL: Self = Self::FPGAClusterAttributesALTERA;
+    pub const LoopFuseINTEL: Self = Self::LoopFuseALTERA;
+    pub const FPGADSPControlINTEL: Self = Self::FPGADSPControlALTERA;
+    pub const FPGAInvocationPipeliningAttributesINTEL: Self =
+        Self::FPGAInvocationPipeliningAttributesALTERA;
+    pub const FPGABufferLocationINTEL: Self = Self::FPGABufferLocationALTERA;
+    pub const ArbitraryPrecisionFixedPointINTEL: Self = Self::ArbitraryPrecisionFixedPointALTERA;
+    pub const USMStorageClassesINTEL: Self = Self::USMStorageClassesALTERA;
+    pub const RuntimeAlignedAttributeINTEL: Self = Self::RuntimeAlignedAttributeALTERA;
+    pub const IOPipesINTEL: Self = Self::IOPipesALTERA;
+    pub const BlockingPipesINTEL: Self = Self::BlockingPipesALTERA;
+    pub const FPGARegINTEL: Self = Self::FPGARegALTERA;
     pub const DotProductInputAllKHR: Self = Self::DotProductInputAll;
     pub const DotProductInput4x8BitKHR: Self = Self::DotProductInput4x8Bit;
     pub const DotProductInput4x8BitPackedKHR: Self = Self::DotProductInput4x8BitPacked;
     pub const DotProductKHR: Self = Self::DotProduct;
     pub const OptNoneINTEL: Self = Self::OptNoneEXT;
+    pub const FPGAClusterAttributesV2INTEL: Self = Self::FPGAClusterAttributesV2ALTERA;
+    pub const TaskSequenceINTEL: Self = Self::TaskSequenceALTERA;
+    pub const FPGALatencyControlINTEL: Self = Self::FPGALatencyControlALTERA;
+    pub const FPGAArgumentInterfacesINTEL: Self = Self::FPGAArgumentInterfacesALTERA;
+    pub const GlobalVariableFPGADecorationsINTEL: Self = Self::GlobalVariableFPGADecorationsALTERA;
 }
 impl core::str::FromStr for Capability {
     type Err = ();
@@ -2579,7 +2800,15 @@ impl core::str::FromStr for Capability {
             "TileImageColorReadAccessEXT" => Self::TileImageColorReadAccessEXT,
             "TileImageDepthReadAccessEXT" => Self::TileImageDepthReadAccessEXT,
             "TileImageStencilReadAccessEXT" => Self::TileImageStencilReadAccessEXT,
+            "TensorsARM" => Self::TensorsARM,
+            "StorageTensorArrayDynamicIndexingARM" => Self::StorageTensorArrayDynamicIndexingARM,
+            "StorageTensorArrayNonUniformIndexingARM" => {
+                Self::StorageTensorArrayNonUniformIndexingARM
+            }
+            "GraphARM" => Self::GraphARM,
             "CooperativeMatrixLayoutsARM" => Self::CooperativeMatrixLayoutsARM,
+            "Float8EXT" => Self::Float8EXT,
+            "Float8CooperativeMatrixEXT" => Self::Float8CooperativeMatrixEXT,
             "FragmentShadingRateKHR" => Self::FragmentShadingRateKHR,
             "SubgroupBallotKHR" => Self::SubgroupBallotKHR,
             "DrawParameters" => Self::DrawParameters,
@@ -2619,6 +2848,8 @@ impl core::str::FromStr for Capability {
             "TextureSampleWeightedQCOM" => Self::TextureSampleWeightedQCOM,
             "TextureBoxFilterQCOM" => Self::TextureBoxFilterQCOM,
             "TextureBlockMatchQCOM" => Self::TextureBlockMatchQCOM,
+            "TileShadingQCOM" => Self::TileShadingQCOM,
+            "CooperativeMatrixConversionQCOM" => Self::CooperativeMatrixConversionQCOM,
             "TextureBlockMatch2QCOM" => Self::TextureBlockMatch2QCOM,
             "Float16ImageAMD" => Self::Float16ImageAMD,
             "ImageGatherBiasLodAMD" => Self::ImageGatherBiasLodAMD,
@@ -2629,6 +2860,12 @@ impl core::str::FromStr for Capability {
             "ShaderClockKHR" => Self::ShaderClockKHR,
             "ShaderEnqueueAMDX" => Self::ShaderEnqueueAMDX,
             "QuadControlKHR" => Self::QuadControlKHR,
+            "Int4TypeINTEL" => Self::Int4TypeINTEL,
+            "Int4CooperativeMatrixINTEL" => Self::Int4CooperativeMatrixINTEL,
+            "BFloat16TypeKHR" => Self::BFloat16TypeKHR,
+            "BFloat16DotProductKHR" => Self::BFloat16DotProductKHR,
+            "BFloat16CooperativeMatrixKHR" => Self::BFloat16CooperativeMatrixKHR,
+            "DescriptorHeapEXT" => Self::DescriptorHeapEXT,
             "SampleMaskOverrideCoverageNV" => Self::SampleMaskOverrideCoverageNV,
             "GeometryShaderPassthroughNV" => Self::GeometryShaderPassthroughNV,
             "ShaderViewportIndexLayerEXT" => Self::ShaderViewportIndexLayerEXT,
@@ -2646,7 +2883,8 @@ impl core::str::FromStr for Capability {
             "ComputeDerivativeGroupQuadsNV" => Self::ComputeDerivativeGroupQuadsKHR,
             "FragmentDensityEXT" => Self::FragmentDensityEXT,
             "ShadingRateNV" => Self::FragmentDensityEXT,
-            "GroupNonUniformPartitionedNV" => Self::GroupNonUniformPartitionedNV,
+            "GroupNonUniformPartitionedEXT" => Self::GroupNonUniformPartitionedEXT,
+            "GroupNonUniformPartitionedNV" => Self::GroupNonUniformPartitionedEXT,
             "ShaderNonUniform" => Self::ShaderNonUniform,
             "ShaderNonUniformEXT" => Self::ShaderNonUniform,
             "RuntimeDescriptorArray" => Self::RuntimeDescriptorArray,
@@ -2713,6 +2951,7 @@ impl core::str::FromStr for Capability {
             "DisplacementMicromapNV" => Self::DisplacementMicromapNV,
             "RayTracingOpacityMicromapEXT" => Self::RayTracingOpacityMicromapEXT,
             "ShaderInvocationReorderNV" => Self::ShaderInvocationReorderNV,
+            "ShaderInvocationReorderEXT" => Self::ShaderInvocationReorderEXT,
             "BindlessTextureNV" => Self::BindlessTextureNV,
             "RayQueryPositionFetchKHR" => Self::RayQueryPositionFetchKHR,
             "CooperativeVectorNV" => Self::CooperativeVectorNV,
@@ -2723,6 +2962,9 @@ impl core::str::FromStr for Capability {
             "RayTracingLinearSweptSpheresGeometryNV" => {
                 Self::RayTracingLinearSweptSpheresGeometryNV
             }
+            "PushConstantBanksNV" => Self::PushConstantBanksNV,
+            "LongVectorEXT" => Self::LongVectorEXT,
+            "Shader64BitIndexingEXT" => Self::Shader64BitIndexingEXT,
             "CooperativeMatrixReductionsNV" => Self::CooperativeMatrixReductionsNV,
             "CooperativeMatrixConversionsNV" => Self::CooperativeMatrixConversionsNV,
             "CooperativeMatrixPerElementOperationsNV" => {
@@ -2758,29 +3000,47 @@ impl core::str::FromStr for Capability {
             }
             "VariableLengthArrayINTEL" => Self::VariableLengthArrayINTEL,
             "FunctionFloatControlINTEL" => Self::FunctionFloatControlINTEL,
-            "FPGAMemoryAttributesINTEL" => Self::FPGAMemoryAttributesINTEL,
+            "FPGAMemoryAttributesALTERA" => Self::FPGAMemoryAttributesALTERA,
+            "FPGAMemoryAttributesINTEL" => Self::FPGAMemoryAttributesALTERA,
             "FPFastMathModeINTEL" => Self::FPFastMathModeINTEL,
-            "ArbitraryPrecisionIntegersINTEL" => Self::ArbitraryPrecisionIntegersINTEL,
-            "ArbitraryPrecisionFloatingPointINTEL" => Self::ArbitraryPrecisionFloatingPointINTEL,
+            "ArbitraryPrecisionIntegersALTERA" => Self::ArbitraryPrecisionIntegersALTERA,
+            "ArbitraryPrecisionIntegersINTEL" => Self::ArbitraryPrecisionIntegersALTERA,
+            "ArbitraryPrecisionFloatingPointALTERA" => Self::ArbitraryPrecisionFloatingPointALTERA,
+            "ArbitraryPrecisionFloatingPointINTEL" => Self::ArbitraryPrecisionFloatingPointALTERA,
             "UnstructuredLoopControlsINTEL" => Self::UnstructuredLoopControlsINTEL,
-            "FPGALoopControlsINTEL" => Self::FPGALoopControlsINTEL,
+            "FPGALoopControlsALTERA" => Self::FPGALoopControlsALTERA,
+            "FPGALoopControlsINTEL" => Self::FPGALoopControlsALTERA,
             "KernelAttributesINTEL" => Self::KernelAttributesINTEL,
             "FPGAKernelAttributesINTEL" => Self::FPGAKernelAttributesINTEL,
-            "FPGAMemoryAccessesINTEL" => Self::FPGAMemoryAccessesINTEL,
-            "FPGAClusterAttributesINTEL" => Self::FPGAClusterAttributesINTEL,
-            "LoopFuseINTEL" => Self::LoopFuseINTEL,
-            "FPGADSPControlINTEL" => Self::FPGADSPControlINTEL,
+            "FPGAMemoryAccessesALTERA" => Self::FPGAMemoryAccessesALTERA,
+            "FPGAMemoryAccessesINTEL" => Self::FPGAMemoryAccessesALTERA,
+            "FPGAClusterAttributesALTERA" => Self::FPGAClusterAttributesALTERA,
+            "FPGAClusterAttributesINTEL" => Self::FPGAClusterAttributesALTERA,
+            "LoopFuseALTERA" => Self::LoopFuseALTERA,
+            "LoopFuseINTEL" => Self::LoopFuseALTERA,
+            "FPGADSPControlALTERA" => Self::FPGADSPControlALTERA,
+            "FPGADSPControlINTEL" => Self::FPGADSPControlALTERA,
             "MemoryAccessAliasingINTEL" => Self::MemoryAccessAliasingINTEL,
-            "FPGAInvocationPipeliningAttributesINTEL" => {
-                Self::FPGAInvocationPipeliningAttributesINTEL
+            "FPGAInvocationPipeliningAttributesALTERA" => {
+                Self::FPGAInvocationPipeliningAttributesALTERA
             }
-            "FPGABufferLocationINTEL" => Self::FPGABufferLocationINTEL,
-            "ArbitraryPrecisionFixedPointINTEL" => Self::ArbitraryPrecisionFixedPointINTEL,
-            "USMStorageClassesINTEL" => Self::USMStorageClassesINTEL,
-            "RuntimeAlignedAttributeINTEL" => Self::RuntimeAlignedAttributeINTEL,
-            "IOPipesINTEL" => Self::IOPipesINTEL,
-            "BlockingPipesINTEL" => Self::BlockingPipesINTEL,
-            "FPGARegINTEL" => Self::FPGARegINTEL,
+            "FPGAInvocationPipeliningAttributesINTEL" => {
+                Self::FPGAInvocationPipeliningAttributesALTERA
+            }
+            "FPGABufferLocationALTERA" => Self::FPGABufferLocationALTERA,
+            "FPGABufferLocationINTEL" => Self::FPGABufferLocationALTERA,
+            "ArbitraryPrecisionFixedPointALTERA" => Self::ArbitraryPrecisionFixedPointALTERA,
+            "ArbitraryPrecisionFixedPointINTEL" => Self::ArbitraryPrecisionFixedPointALTERA,
+            "USMStorageClassesALTERA" => Self::USMStorageClassesALTERA,
+            "USMStorageClassesINTEL" => Self::USMStorageClassesALTERA,
+            "RuntimeAlignedAttributeALTERA" => Self::RuntimeAlignedAttributeALTERA,
+            "RuntimeAlignedAttributeINTEL" => Self::RuntimeAlignedAttributeALTERA,
+            "IOPipesALTERA" => Self::IOPipesALTERA,
+            "IOPipesINTEL" => Self::IOPipesALTERA,
+            "BlockingPipesALTERA" => Self::BlockingPipesALTERA,
+            "BlockingPipesINTEL" => Self::BlockingPipesALTERA,
+            "FPGARegALTERA" => Self::FPGARegALTERA,
+            "FPGARegINTEL" => Self::FPGARegALTERA,
             "DotProductInputAll" => Self::DotProductInputAll,
             "DotProductInputAllKHR" => Self::DotProductInputAll,
             "DotProductInput4x8Bit" => Self::DotProductInput4x8Bit,
@@ -2795,6 +3055,7 @@ impl core::str::FromStr for Capability {
             "BitInstructions" => Self::BitInstructions,
             "GroupNonUniformRotateKHR" => Self::GroupNonUniformRotateKHR,
             "FloatControls2" => Self::FloatControls2,
+            "FMAKHR" => Self::FMAKHR,
             "AtomicFloat32AddEXT" => Self::AtomicFloat32AddEXT,
             "AtomicFloat64AddEXT" => Self::AtomicFloat64AddEXT,
             "LongCompositesINTEL" => Self::LongCompositesINTEL,
@@ -2805,22 +3066,34 @@ impl core::str::FromStr for Capability {
             "BFloat16ConversionINTEL" => Self::BFloat16ConversionINTEL,
             "SplitBarrierINTEL" => Self::SplitBarrierINTEL,
             "ArithmeticFenceEXT" => Self::ArithmeticFenceEXT,
-            "FPGAClusterAttributesV2INTEL" => Self::FPGAClusterAttributesV2INTEL,
+            "FPGAClusterAttributesV2ALTERA" => Self::FPGAClusterAttributesV2ALTERA,
+            "FPGAClusterAttributesV2INTEL" => Self::FPGAClusterAttributesV2ALTERA,
             "FPGAKernelAttributesv2INTEL" => Self::FPGAKernelAttributesv2INTEL,
+            "TaskSequenceALTERA" => Self::TaskSequenceALTERA,
+            "TaskSequenceINTEL" => Self::TaskSequenceALTERA,
             "FPMaxErrorINTEL" => Self::FPMaxErrorINTEL,
-            "FPGALatencyControlINTEL" => Self::FPGALatencyControlINTEL,
-            "FPGAArgumentInterfacesINTEL" => Self::FPGAArgumentInterfacesINTEL,
+            "FPGALatencyControlALTERA" => Self::FPGALatencyControlALTERA,
+            "FPGALatencyControlINTEL" => Self::FPGALatencyControlALTERA,
+            "FPGAArgumentInterfacesALTERA" => Self::FPGAArgumentInterfacesALTERA,
+            "FPGAArgumentInterfacesINTEL" => Self::FPGAArgumentInterfacesALTERA,
             "GlobalVariableHostAccessINTEL" => Self::GlobalVariableHostAccessINTEL,
-            "GlobalVariableFPGADecorationsINTEL" => Self::GlobalVariableFPGADecorationsINTEL,
+            "GlobalVariableFPGADecorationsALTERA" => Self::GlobalVariableFPGADecorationsALTERA,
+            "GlobalVariableFPGADecorationsINTEL" => Self::GlobalVariableFPGADecorationsALTERA,
             "SubgroupBufferPrefetchINTEL" => Self::SubgroupBufferPrefetchINTEL,
             "Subgroup2DBlockIOINTEL" => Self::Subgroup2DBlockIOINTEL,
             "Subgroup2DBlockTransformINTEL" => Self::Subgroup2DBlockTransformINTEL,
             "Subgroup2DBlockTransposeINTEL" => Self::Subgroup2DBlockTransposeINTEL,
             "SubgroupMatrixMultiplyAccumulateINTEL" => Self::SubgroupMatrixMultiplyAccumulateINTEL,
+            "TernaryBitwiseFunctionINTEL" => Self::TernaryBitwiseFunctionINTEL,
+            "UntypedVariableLengthArrayINTEL" => Self::UntypedVariableLengthArrayINTEL,
+            "SpecConditionalINTEL" => Self::SpecConditionalINTEL,
+            "FunctionVariantsINTEL" => Self::FunctionVariantsINTEL,
             "GroupUniformArithmeticKHR" => Self::GroupUniformArithmeticKHR,
+            "TensorFloat32RoundingINTEL" => Self::TensorFloat32RoundingINTEL,
             "MaskedGatherScatterINTEL" => Self::MaskedGatherScatterINTEL,
             "CacheControlsINTEL" => Self::CacheControlsINTEL,
             "RegisterLimitsINTEL" => Self::RegisterLimitsINTEL,
+            "BindlessImagesINTEL" => Self::BindlessImagesINTEL,
             _ => return Err(()),
         })
     }
@@ -3071,8 +3344,8 @@ bitflags! { # [doc = "SPIR-V operand kind: [TensorAddressingOperands](https://ww
 #[cfg_attr(feature = "deserialize", derive(serde::Deserialize))]
 #[allow(clippy::upper_case_acronyms)]
 pub enum InitializationModeQualifier {
-    InitOnDeviceReprogramINTEL = 0u32,
-    InitOnDeviceResetINTEL = 1u32,
+    InitOnDeviceReprogramALTERA = 0u32,
+    InitOnDeviceResetALTERA = 1u32,
 }
 impl InitializationModeQualifier {
     pub fn from_u32(n: u32) -> Option<Self> {
@@ -3083,13 +3356,18 @@ impl InitializationModeQualifier {
     }
 }
 #[allow(non_upper_case_globals)]
-impl InitializationModeQualifier {}
+impl InitializationModeQualifier {
+    pub const InitOnDeviceReprogramINTEL: Self = Self::InitOnDeviceReprogramALTERA;
+    pub const InitOnDeviceResetINTEL: Self = Self::InitOnDeviceResetALTERA;
+}
 impl core::str::FromStr for InitializationModeQualifier {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(match s {
-            "InitOnDeviceReprogramINTEL" => Self::InitOnDeviceReprogramINTEL,
-            "InitOnDeviceResetINTEL" => Self::InitOnDeviceResetINTEL,
+            "InitOnDeviceReprogramALTERA" => Self::InitOnDeviceReprogramALTERA,
+            "InitOnDeviceReprogramINTEL" => Self::InitOnDeviceReprogramALTERA,
+            "InitOnDeviceResetALTERA" => Self::InitOnDeviceResetALTERA,
+            "InitOnDeviceResetINTEL" => Self::InitOnDeviceResetALTERA,
             _ => return Err(()),
         })
     }
@@ -3200,12 +3478,15 @@ bitflags! { # [doc = "SPIR-V operand kind: [MatrixMultiplyAccumulateOperands](ht
 #[cfg_attr(feature = "deserialize", derive(serde::Deserialize))]
 #[allow(clippy::upper_case_acronyms)]
 pub enum FPEncoding {
-    Max = 0x7fffffff,
+    BFloat16KHR = 0u32,
+    Float8E4M3EXT = 4214u32,
+    Float8E5M2EXT = 4215u32,
 }
 impl FPEncoding {
     pub fn from_u32(n: u32) -> Option<Self> {
         Some(match n {
-            0x7fffffff => Self::Max,
+            0u32 => unsafe { core::mem::transmute::<u32, FPEncoding>(0u32) },
+            4214u32..=4215u32 => unsafe { core::mem::transmute::<u32, FPEncoding>(n) },
             _ => return None,
         })
     }
@@ -3216,7 +3497,9 @@ impl core::str::FromStr for FPEncoding {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(match s {
-            "Max" => Self::Max,
+            "BFloat16KHR" => Self::BFloat16KHR,
+            "Float8E4M3EXT" => Self::Float8E4M3EXT,
+            "Float8E5M2EXT" => Self::Float8E5M2EXT,
             _ => return Err(()),
         })
     }
@@ -3314,6 +3597,7 @@ impl core::str::FromStr for ComponentType {
         })
     }
 }
+bitflags! { # [doc = "SPIR-V operand kind: [TensorOperands](https://www.khronos.org/registry/spir-v/specs/unified1/SPIRV.html#_a_id_tensor_operands_a_tensor_operands)"] # [derive (Clone , Copy , Debug , PartialEq , Eq , Hash)] # [cfg_attr (feature = "serialize" , derive (serde :: Serialize))] # [cfg_attr (feature = "deserialize" , derive (serde :: Deserialize))] pub struct TensorOperands : u32 { const NONE_ARM = 0u32 ; const NONTEMPORAL_ARM = 1u32 ; const OUT_OF_BOUNDS_VALUE_ARM = 2u32 ; const MAKE_ELEMENT_AVAILABLE_ARM = 4u32 ; const MAKE_ELEMENT_VISIBLE_ARM = 8u32 ; const NON_PRIVATE_ELEMENT_ARM = 16u32 ; } }
 #[doc = "SPIR-V [instructions](https://www.khronos.org/registry/spir-v/specs/unified1/SPIRV.html#_a_id_instructions_a_instructions) opcodes"]
 #[repr(u32)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -3668,6 +3952,17 @@ pub enum Op {
     ColorAttachmentReadEXT = 4160u32,
     DepthAttachmentReadEXT = 4161u32,
     StencilAttachmentReadEXT = 4162u32,
+    TypeTensorARM = 4163u32,
+    TensorReadARM = 4164u32,
+    TensorWriteARM = 4165u32,
+    TensorQuerySizeARM = 4166u32,
+    GraphConstantARM = 4181u32,
+    GraphEntryPointARM = 4182u32,
+    GraphARM = 4183u32,
+    GraphInputARM = 4184u32,
+    GraphSetOutputARM = 4185u32,
+    GraphEndARM = 4186u32,
+    TypeGraphARM = 4190u32,
     TerminateInvocation = 4416u32,
     TypeUntypedPointerKHR = 4417u32,
     UntypedVariableKHR = 4418u32,
@@ -3679,12 +3974,14 @@ pub enum Op {
     UntypedInBoundsPtrAccessChainKHR = 4424u32,
     UntypedArrayLengthKHR = 4425u32,
     UntypedPrefetchKHR = 4426u32,
+    FmaKHR = 4427u32,
     SubgroupAllKHR = 4428u32,
     SubgroupAnyKHR = 4429u32,
     SubgroupAllEqualKHR = 4430u32,
     GroupNonUniformRotateKHR = 4431u32,
     SubgroupReadInvocationKHR = 4432u32,
     ExtInstWithForwardRefsKHR = 4433u32,
+    UntypedGroupAsyncCopyKHR = 4434u32,
     TraceRayKHR = 4445u32,
     ExecuteCallableKHR = 4446u32,
     ConvertUToAccelerationStructureKHR = 4447u32,
@@ -3715,10 +4012,14 @@ pub enum Op {
     ImageBoxFilterQCOM = 4481u32,
     ImageBlockMatchSSDQCOM = 4482u32,
     ImageBlockMatchSADQCOM = 4483u32,
+    BitCastArrayQCOM = 4497u32,
     ImageBlockMatchWindowSSDQCOM = 4500u32,
     ImageBlockMatchWindowSADQCOM = 4501u32,
     ImageBlockMatchGatherSSDQCOM = 4502u32,
     ImageBlockMatchGatherSADQCOM = 4503u32,
+    CompositeConstructCoopMatQCOM = 4540u32,
+    CompositeExtractCoopMatQCOM = 4541u32,
+    ExtractSubArrayQCOM = 4542u32,
     GroupIAddNonUniformAMD = 5000u32,
     GroupFAddNonUniformAMD = 5001u32,
     GroupFMinNonUniformAMD = 5002u32,
@@ -3740,6 +4041,11 @@ pub enum Op {
     SpecConstantStringAMDX = 5104u32,
     GroupNonUniformQuadAllKHR = 5110u32,
     GroupNonUniformQuadAnyKHR = 5111u32,
+    TypeBufferEXT = 5115u32,
+    BufferPointerEXT = 5119u32,
+    UntypedImageTexelPointerEXT = 5126u32,
+    MemberDecorateIdEXT = 5127u32,
+    ConstantSizeOfEXT = 5129u32,
     HitObjectRecordHitMotionNV = 5249u32,
     HitObjectRecordHitWithIndexMotionNV = 5250u32,
     HitObjectRecordMissMotionNV = 5251u32,
@@ -3774,7 +4080,7 @@ pub enum Op {
     ReorderThreadWithHintNV = 5280u32,
     TypeHitObjectNV = 5281u32,
     ImageSampleFootprintNV = 5283u32,
-    TypeCooperativeVectorNV = 5288u32,
+    TypeVectorIdEXT = 5288u32,
     CooperativeVectorMatrixMulNV = 5289u32,
     CooperativeVectorOuterProductAccumulateNV = 5290u32,
     CooperativeVectorReduceSumAccumulateNV = 5291u32,
@@ -3782,12 +4088,42 @@ pub enum Op {
     CooperativeMatrixConvertNV = 5293u32,
     EmitMeshTasksEXT = 5294u32,
     SetMeshOutputsEXT = 5295u32,
-    GroupNonUniformPartitionNV = 5296u32,
+    GroupNonUniformPartitionEXT = 5296u32,
     WritePackedPrimitiveIndices4x8NV = 5299u32,
     FetchMicroTriangleVertexPositionNV = 5300u32,
     FetchMicroTriangleVertexBarycentricNV = 5301u32,
     CooperativeVectorLoadNV = 5302u32,
     CooperativeVectorStoreNV = 5303u32,
+    HitObjectRecordFromQueryEXT = 5304u32,
+    HitObjectRecordMissEXT = 5305u32,
+    HitObjectRecordMissMotionEXT = 5306u32,
+    HitObjectGetIntersectionTriangleVertexPositionsEXT = 5307u32,
+    HitObjectGetRayFlagsEXT = 5308u32,
+    HitObjectSetShaderBindingTableRecordIndexEXT = 5309u32,
+    HitObjectReorderExecuteShaderEXT = 5310u32,
+    HitObjectTraceReorderExecuteEXT = 5311u32,
+    HitObjectTraceMotionReorderExecuteEXT = 5312u32,
+    TypeHitObjectEXT = 5313u32,
+    ReorderThreadWithHintEXT = 5314u32,
+    ReorderThreadWithHitObjectEXT = 5315u32,
+    HitObjectTraceRayEXT = 5316u32,
+    HitObjectTraceRayMotionEXT = 5317u32,
+    HitObjectRecordEmptyEXT = 5318u32,
+    HitObjectExecuteShaderEXT = 5319u32,
+    HitObjectGetCurrentTimeEXT = 5320u32,
+    HitObjectGetAttributesEXT = 5321u32,
+    HitObjectGetHitKindEXT = 5322u32,
+    HitObjectGetPrimitiveIndexEXT = 5323u32,
+    HitObjectGetGeometryIndexEXT = 5324u32,
+    HitObjectGetInstanceIdEXT = 5325u32,
+    HitObjectGetInstanceCustomIndexEXT = 5326u32,
+    HitObjectGetObjectRayOriginEXT = 5327u32,
+    HitObjectGetObjectRayDirectionEXT = 5328u32,
+    HitObjectGetWorldRayDirectionEXT = 5329u32,
+    HitObjectGetWorldRayOriginEXT = 5330u32,
+    HitObjectGetObjectToWorldEXT = 5331u32,
+    HitObjectGetWorldToObjectEXT = 5332u32,
+    HitObjectGetRayTMaxEXT = 5333u32,
     ReportIntersectionKHR = 5334u32,
     IgnoreIntersectionNV = 5335u32,
     TerminateRayNV = 5336u32,
@@ -3797,8 +4133,14 @@ pub enum Op {
     RayQueryGetIntersectionTriangleVertexPositionsKHR = 5340u32,
     TypeAccelerationStructureKHR = 5341u32,
     ExecuteCallableNV = 5344u32,
-    RayQueryGetClusterIdNV = 5345u32,
+    RayQueryGetIntersectionClusterIdNV = 5345u32,
     HitObjectGetClusterIdNV = 5346u32,
+    HitObjectGetRayTMinEXT = 5347u32,
+    HitObjectGetShaderBindingTableRecordIndexEXT = 5348u32,
+    HitObjectGetShaderRecordBufferHandleEXT = 5349u32,
+    HitObjectIsEmptyEXT = 5350u32,
+    HitObjectIsHitEXT = 5351u32,
+    HitObjectIsMissEXT = 5352u32,
     TypeCooperativeMatrixNV = 5358u32,
     CooperativeMatrixLoadNV = 5359u32,
     CooperativeMatrixStoreNV = 5360u32,
@@ -4002,24 +4344,24 @@ pub enum Op {
     VariableLengthArrayINTEL = 5818u32,
     SaveMemoryINTEL = 5819u32,
     RestoreMemoryINTEL = 5820u32,
-    ArbitraryFloatSinCosPiINTEL = 5840u32,
-    ArbitraryFloatCastINTEL = 5841u32,
-    ArbitraryFloatCastFromIntINTEL = 5842u32,
-    ArbitraryFloatCastToIntINTEL = 5843u32,
-    ArbitraryFloatAddINTEL = 5846u32,
-    ArbitraryFloatSubINTEL = 5847u32,
-    ArbitraryFloatMulINTEL = 5848u32,
-    ArbitraryFloatDivINTEL = 5849u32,
-    ArbitraryFloatGTINTEL = 5850u32,
-    ArbitraryFloatGEINTEL = 5851u32,
-    ArbitraryFloatLTINTEL = 5852u32,
-    ArbitraryFloatLEINTEL = 5853u32,
-    ArbitraryFloatEQINTEL = 5854u32,
-    ArbitraryFloatRecipINTEL = 5855u32,
-    ArbitraryFloatRSqrtINTEL = 5856u32,
-    ArbitraryFloatCbrtINTEL = 5857u32,
-    ArbitraryFloatHypotINTEL = 5858u32,
-    ArbitraryFloatSqrtINTEL = 5859u32,
+    ArbitraryFloatSinCosPiALTERA = 5840u32,
+    ArbitraryFloatCastALTERA = 5841u32,
+    ArbitraryFloatCastFromIntALTERA = 5842u32,
+    ArbitraryFloatCastToIntALTERA = 5843u32,
+    ArbitraryFloatAddALTERA = 5846u32,
+    ArbitraryFloatSubALTERA = 5847u32,
+    ArbitraryFloatMulALTERA = 5848u32,
+    ArbitraryFloatDivALTERA = 5849u32,
+    ArbitraryFloatGTALTERA = 5850u32,
+    ArbitraryFloatGEALTERA = 5851u32,
+    ArbitraryFloatLTALTERA = 5852u32,
+    ArbitraryFloatLEALTERA = 5853u32,
+    ArbitraryFloatEQALTERA = 5854u32,
+    ArbitraryFloatRecipALTERA = 5855u32,
+    ArbitraryFloatRSqrtALTERA = 5856u32,
+    ArbitraryFloatCbrtALTERA = 5857u32,
+    ArbitraryFloatHypotALTERA = 5858u32,
+    ArbitraryFloatSqrtALTERA = 5859u32,
     ArbitraryFloatLogINTEL = 5860u32,
     ArbitraryFloatLog2INTEL = 5861u32,
     ArbitraryFloatLog10INTEL = 5862u32,
@@ -4047,22 +4389,22 @@ pub enum Op {
     AliasDomainDeclINTEL = 5911u32,
     AliasScopeDeclINTEL = 5912u32,
     AliasScopeListDeclINTEL = 5913u32,
-    FixedSqrtINTEL = 5923u32,
-    FixedRecipINTEL = 5924u32,
-    FixedRsqrtINTEL = 5925u32,
-    FixedSinINTEL = 5926u32,
-    FixedCosINTEL = 5927u32,
-    FixedSinCosINTEL = 5928u32,
-    FixedSinPiINTEL = 5929u32,
-    FixedCosPiINTEL = 5930u32,
-    FixedSinCosPiINTEL = 5931u32,
-    FixedLogINTEL = 5932u32,
-    FixedExpINTEL = 5933u32,
-    PtrCastToCrossWorkgroupINTEL = 5934u32,
-    CrossWorkgroupCastToPtrINTEL = 5938u32,
-    ReadPipeBlockingINTEL = 5946u32,
-    WritePipeBlockingINTEL = 5947u32,
-    FPGARegINTEL = 5949u32,
+    FixedSqrtALTERA = 5923u32,
+    FixedRecipALTERA = 5924u32,
+    FixedRsqrtALTERA = 5925u32,
+    FixedSinALTERA = 5926u32,
+    FixedCosALTERA = 5927u32,
+    FixedSinCosALTERA = 5928u32,
+    FixedSinPiALTERA = 5929u32,
+    FixedCosPiALTERA = 5930u32,
+    FixedSinCosPiALTERA = 5931u32,
+    FixedLogALTERA = 5932u32,
+    FixedExpALTERA = 5933u32,
+    PtrCastToCrossWorkgroupALTERA = 5934u32,
+    CrossWorkgroupCastToPtrALTERA = 5938u32,
+    ReadPipeBlockingALTERA = 5946u32,
+    WritePipeBlockingALTERA = 5947u32,
+    FPGARegALTERA = 5949u32,
     RayQueryGetRayTMinKHR = 6016u32,
     RayQueryGetRayFlagsKHR = 6017u32,
     RayQueryGetIntersectionTKHR = 6018u32,
@@ -4091,6 +4433,11 @@ pub enum Op {
     ControlBarrierArriveINTEL = 6142u32,
     ControlBarrierWaitINTEL = 6143u32,
     ArithmeticFenceEXT = 6145u32,
+    TaskSequenceCreateALTERA = 6163u32,
+    TaskSequenceAsyncALTERA = 6164u32,
+    TaskSequenceGetALTERA = 6165u32,
+    TaskSequenceReleaseALTERA = 6166u32,
+    TypeTaskSequenceALTERA = 6199u32,
     SubgroupBlockPrefetchINTEL = 6221u32,
     Subgroup2DBlockLoadINTEL = 6231u32,
     Subgroup2DBlockLoadTransformINTEL = 6232u32,
@@ -4098,6 +4445,15 @@ pub enum Op {
     Subgroup2DBlockPrefetchINTEL = 6234u32,
     Subgroup2DBlockStoreINTEL = 6235u32,
     SubgroupMatrixMultiplyAccumulateINTEL = 6237u32,
+    BitwiseFunctionINTEL = 6242u32,
+    UntypedVariableLengthArrayINTEL = 6244u32,
+    ConditionalExtensionINTEL = 6248u32,
+    ConditionalEntryPointINTEL = 6249u32,
+    ConditionalCapabilityINTEL = 6250u32,
+    SpecConstantTargetINTEL = 6251u32,
+    SpecConstantArchitectureINTEL = 6252u32,
+    SpecConstantCapabilitiesINTEL = 6253u32,
+    ConditionalCopyObjectINTEL = 6254u32,
     GroupIMulKHR = 6401u32,
     GroupFMulKHR = 6402u32,
     GroupBitwiseAndKHR = 6403u32,
@@ -4106,8 +4462,12 @@ pub enum Op {
     GroupLogicalAndKHR = 6406u32,
     GroupLogicalOrKHR = 6407u32,
     GroupLogicalXorKHR = 6408u32,
+    RoundFToTF32INTEL = 6426u32,
     MaskedGatherINTEL = 6428u32,
     MaskedScatterINTEL = 6429u32,
+    ConvertHandleToImageINTEL = 6529u32,
+    ConvertHandleToSamplerINTEL = 6530u32,
+    ConvertHandleToSampledImageINTEL = 6531u32,
 }
 impl Op {
     pub fn from_u32(n: u32) -> Option<Self> {
@@ -4135,13 +4495,16 @@ impl Op {
             274u32..=288u32 => unsafe { core::mem::transmute::<u32, Op>(n) },
             291u32..=366u32 => unsafe { core::mem::transmute::<u32, Op>(n) },
             400u32..=403u32 => unsafe { core::mem::transmute::<u32, Op>(n) },
-            4160u32..=4162u32 => unsafe { core::mem::transmute::<u32, Op>(n) },
-            4416u32..=4426u32 => unsafe { core::mem::transmute::<u32, Op>(n) },
-            4428u32..=4433u32 => unsafe { core::mem::transmute::<u32, Op>(n) },
+            4160u32..=4166u32 => unsafe { core::mem::transmute::<u32, Op>(n) },
+            4181u32..=4186u32 => unsafe { core::mem::transmute::<u32, Op>(n) },
+            4190u32 => unsafe { core::mem::transmute::<u32, Op>(4190u32) },
+            4416u32..=4434u32 => unsafe { core::mem::transmute::<u32, Op>(n) },
             4445u32..=4463u32 => unsafe { core::mem::transmute::<u32, Op>(n) },
             4472u32..=4477u32 => unsafe { core::mem::transmute::<u32, Op>(n) },
             4479u32..=4483u32 => unsafe { core::mem::transmute::<u32, Op>(n) },
+            4497u32 => unsafe { core::mem::transmute::<u32, Op>(4497u32) },
             4500u32..=4503u32 => unsafe { core::mem::transmute::<u32, Op>(n) },
+            4540u32..=4542u32 => unsafe { core::mem::transmute::<u32, Op>(n) },
             5000u32..=5007u32 => unsafe { core::mem::transmute::<u32, Op>(n) },
             5011u32..=5012u32 => unsafe { core::mem::transmute::<u32, Op>(n) },
             5056u32 => unsafe { core::mem::transmute::<u32, Op>(5056u32) },
@@ -4151,12 +4514,15 @@ impl Op {
             5101u32 => unsafe { core::mem::transmute::<u32, Op>(5101u32) },
             5103u32..=5104u32 => unsafe { core::mem::transmute::<u32, Op>(n) },
             5110u32..=5111u32 => unsafe { core::mem::transmute::<u32, Op>(n) },
+            5115u32 => unsafe { core::mem::transmute::<u32, Op>(5115u32) },
+            5119u32 => unsafe { core::mem::transmute::<u32, Op>(5119u32) },
+            5126u32..=5127u32 => unsafe { core::mem::transmute::<u32, Op>(n) },
+            5129u32 => unsafe { core::mem::transmute::<u32, Op>(5129u32) },
             5249u32..=5281u32 => unsafe { core::mem::transmute::<u32, Op>(n) },
             5283u32 => unsafe { core::mem::transmute::<u32, Op>(5283u32) },
             5288u32..=5296u32 => unsafe { core::mem::transmute::<u32, Op>(n) },
-            5299u32..=5303u32 => unsafe { core::mem::transmute::<u32, Op>(n) },
-            5334u32..=5341u32 => unsafe { core::mem::transmute::<u32, Op>(n) },
-            5344u32..=5346u32 => unsafe { core::mem::transmute::<u32, Op>(n) },
+            5299u32..=5341u32 => unsafe { core::mem::transmute::<u32, Op>(n) },
+            5344u32..=5352u32 => unsafe { core::mem::transmute::<u32, Op>(n) },
             5358u32..=5362u32 => unsafe { core::mem::transmute::<u32, Op>(n) },
             5364u32..=5382u32 => unsafe { core::mem::transmute::<u32, Op>(n) },
             5384u32 => unsafe { core::mem::transmute::<u32, Op>(5384u32) },
@@ -4187,11 +4553,18 @@ impl Op {
             6116u32..=6117u32 => unsafe { core::mem::transmute::<u32, Op>(n) },
             6142u32..=6143u32 => unsafe { core::mem::transmute::<u32, Op>(n) },
             6145u32 => unsafe { core::mem::transmute::<u32, Op>(6145u32) },
+            6163u32..=6166u32 => unsafe { core::mem::transmute::<u32, Op>(n) },
+            6199u32 => unsafe { core::mem::transmute::<u32, Op>(6199u32) },
             6221u32 => unsafe { core::mem::transmute::<u32, Op>(6221u32) },
             6231u32..=6235u32 => unsafe { core::mem::transmute::<u32, Op>(n) },
             6237u32 => unsafe { core::mem::transmute::<u32, Op>(6237u32) },
+            6242u32 => unsafe { core::mem::transmute::<u32, Op>(6242u32) },
+            6244u32 => unsafe { core::mem::transmute::<u32, Op>(6244u32) },
+            6248u32..=6254u32 => unsafe { core::mem::transmute::<u32, Op>(n) },
             6401u32..=6408u32 => unsafe { core::mem::transmute::<u32, Op>(n) },
+            6426u32 => unsafe { core::mem::transmute::<u32, Op>(6426u32) },
             6428u32..=6429u32 => unsafe { core::mem::transmute::<u32, Op>(n) },
+            6529u32..=6531u32 => unsafe { core::mem::transmute::<u32, Op>(n) },
             _ => return None,
         })
     }
@@ -4199,25 +4572,267 @@ impl Op {
 #[allow(clippy::upper_case_acronyms)]
 #[allow(non_upper_case_globals)]
 impl Op {
-    pub const SDotKHR: Op = Op::SDot;
-    pub const UDotKHR: Op = Op::UDot;
-    pub const SUDotKHR: Op = Op::SUDot;
-    pub const SDotAccSatKHR: Op = Op::SDotAccSat;
-    pub const UDotAccSatKHR: Op = Op::UDotAccSat;
-    pub const SUDotAccSatKHR: Op = Op::SUDotAccSat;
-    pub const ReportIntersectionNV: Op = Op::ReportIntersectionKHR;
-    pub const TypeAccelerationStructureNV: Op = Op::TypeAccelerationStructureKHR;
-    pub const DemoteToHelperInvocationEXT: Op = Op::DemoteToHelperInvocation;
-    pub const DecorateStringGOOGLE: Op = Op::DecorateString;
-    pub const MemberDecorateStringGOOGLE: Op = Op::MemberDecorateString;
+    pub const SDotKHR: Self = Self::SDot;
+    pub const UDotKHR: Self = Self::UDot;
+    pub const SUDotKHR: Self = Self::SUDot;
+    pub const SDotAccSatKHR: Self = Self::SDotAccSat;
+    pub const UDotAccSatKHR: Self = Self::UDotAccSat;
+    pub const SUDotAccSatKHR: Self = Self::SUDotAccSat;
+    pub const TypeCooperativeVectorNV: Self = Self::TypeVectorIdEXT;
+    pub const GroupNonUniformPartitionNV: Self = Self::GroupNonUniformPartitionEXT;
+    pub const ReportIntersectionNV: Self = Self::ReportIntersectionKHR;
+    pub const TypeAccelerationStructureNV: Self = Self::TypeAccelerationStructureKHR;
+    pub const RayQueryGetClusterIdNV: Self = Self::RayQueryGetIntersectionClusterIdNV;
+    pub const DemoteToHelperInvocationEXT: Self = Self::DemoteToHelperInvocation;
+    pub const DecorateStringGOOGLE: Self = Self::DecorateString;
+    pub const MemberDecorateStringGOOGLE: Self = Self::MemberDecorateString;
+    pub const ArbitraryFloatSinCosPiINTEL: Self = Self::ArbitraryFloatSinCosPiALTERA;
+    pub const ArbitraryFloatCastINTEL: Self = Self::ArbitraryFloatCastALTERA;
+    pub const ArbitraryFloatCastFromIntINTEL: Self = Self::ArbitraryFloatCastFromIntALTERA;
+    pub const ArbitraryFloatCastToIntINTEL: Self = Self::ArbitraryFloatCastToIntALTERA;
+    pub const ArbitraryFloatAddINTEL: Self = Self::ArbitraryFloatAddALTERA;
+    pub const ArbitraryFloatSubINTEL: Self = Self::ArbitraryFloatSubALTERA;
+    pub const ArbitraryFloatMulINTEL: Self = Self::ArbitraryFloatMulALTERA;
+    pub const ArbitraryFloatDivINTEL: Self = Self::ArbitraryFloatDivALTERA;
+    pub const ArbitraryFloatGTINTEL: Self = Self::ArbitraryFloatGTALTERA;
+    pub const ArbitraryFloatGEINTEL: Self = Self::ArbitraryFloatGEALTERA;
+    pub const ArbitraryFloatLTINTEL: Self = Self::ArbitraryFloatLTALTERA;
+    pub const ArbitraryFloatLEINTEL: Self = Self::ArbitraryFloatLEALTERA;
+    pub const ArbitraryFloatEQINTEL: Self = Self::ArbitraryFloatEQALTERA;
+    pub const ArbitraryFloatRecipINTEL: Self = Self::ArbitraryFloatRecipALTERA;
+    pub const ArbitraryFloatRSqrtINTEL: Self = Self::ArbitraryFloatRSqrtALTERA;
+    pub const ArbitraryFloatCbrtINTEL: Self = Self::ArbitraryFloatCbrtALTERA;
+    pub const ArbitraryFloatHypotINTEL: Self = Self::ArbitraryFloatHypotALTERA;
+    pub const ArbitraryFloatSqrtINTEL: Self = Self::ArbitraryFloatSqrtALTERA;
+    pub const FixedSqrtINTEL: Self = Self::FixedSqrtALTERA;
+    pub const FixedRecipINTEL: Self = Self::FixedRecipALTERA;
+    pub const FixedRsqrtINTEL: Self = Self::FixedRsqrtALTERA;
+    pub const FixedSinINTEL: Self = Self::FixedSinALTERA;
+    pub const FixedCosINTEL: Self = Self::FixedCosALTERA;
+    pub const FixedSinCosINTEL: Self = Self::FixedSinCosALTERA;
+    pub const FixedSinPiINTEL: Self = Self::FixedSinPiALTERA;
+    pub const FixedCosPiINTEL: Self = Self::FixedCosPiALTERA;
+    pub const FixedSinCosPiINTEL: Self = Self::FixedSinCosPiALTERA;
+    pub const FixedLogINTEL: Self = Self::FixedLogALTERA;
+    pub const FixedExpINTEL: Self = Self::FixedExpALTERA;
+    pub const PtrCastToCrossWorkgroupINTEL: Self = Self::PtrCastToCrossWorkgroupALTERA;
+    pub const CrossWorkgroupCastToPtrINTEL: Self = Self::CrossWorkgroupCastToPtrALTERA;
+    pub const ReadPipeBlockingINTEL: Self = Self::ReadPipeBlockingALTERA;
+    pub const WritePipeBlockingINTEL: Self = Self::WritePipeBlockingALTERA;
+    pub const FPGARegINTEL: Self = Self::FPGARegALTERA;
+    pub const TaskSequenceCreateINTEL: Self = Self::TaskSequenceCreateALTERA;
+    pub const TaskSequenceAsyncINTEL: Self = Self::TaskSequenceAsyncALTERA;
+    pub const TaskSequenceGetINTEL: Self = Self::TaskSequenceGetALTERA;
+    pub const TaskSequenceReleaseINTEL: Self = Self::TaskSequenceReleaseALTERA;
+    pub const TypeTaskSequenceINTEL: Self = Self::TypeTaskSequenceALTERA;
+    #[doc = r" Returns [`true`] if the given opcode is a type-declaring instruction."]
+    #[doc = r""]
+    #[doc = r" <https://registry.khronos.org/SPIR-V/specs/unified1/SPIRV.html#_type_declaration_instructions>"]
+    pub fn is_type(self) -> bool {
+        matches!(
+            self,
+            Self::TypeVoid
+                | Self::TypeBool
+                | Self::TypeInt
+                | Self::TypeFloat
+                | Self::TypeVector
+                | Self::TypeMatrix
+                | Self::TypeImage
+                | Self::TypeSampler
+                | Self::TypeSampledImage
+                | Self::TypeArray
+                | Self::TypeRuntimeArray
+                | Self::TypeStruct
+                | Self::TypeOpaque
+                | Self::TypePointer
+                | Self::TypeFunction
+                | Self::TypeEvent
+                | Self::TypeDeviceEvent
+                | Self::TypeReserveId
+                | Self::TypeQueue
+                | Self::TypePipe
+                | Self::TypeForwardPointer
+                | Self::TypePipeStorage
+                | Self::TypeNamedBarrier
+                | Self::TypeTensorARM
+                | Self::TypeGraphARM
+                | Self::TypeUntypedPointerKHR
+                | Self::TypeCooperativeMatrixKHR
+                | Self::TypeRayQueryKHR
+                | Self::TypeNodePayloadArrayAMDX
+                | Self::TypeBufferEXT
+                | Self::TypeHitObjectNV
+                | Self::TypeVectorIdEXT
+                | Self::TypeHitObjectEXT
+                | Self::TypeAccelerationStructureKHR
+                | Self::TypeCooperativeMatrixNV
+                | Self::TypeTensorLayoutNV
+                | Self::TypeTensorViewNV
+                | Self::TypeBufferSurfaceINTEL
+                | Self::TypeStructContinuedINTEL
+        )
+    }
+    #[doc = r" Returns [`true`] if the given opcode is a constant-defining instruction."]
+    #[doc = r""]
+    #[doc = r" <https://registry.khronos.org/SPIR-V/specs/unified1/SPIRV.html#_constant_creation_instructions>"]
+    pub fn is_constant(self) -> bool {
+        matches!(
+            self,
+            Self::ConstantTrue
+                | Self::ConstantFalse
+                | Self::Constant
+                | Self::ConstantComposite
+                | Self::ConstantSampler
+                | Self::ConstantNull
+                | Self::SpecConstantTrue
+                | Self::SpecConstantFalse
+                | Self::SpecConstant
+                | Self::SpecConstantComposite
+                | Self::SpecConstantOp
+                | Self::ConstantCompositeReplicateEXT
+                | Self::SpecConstantCompositeReplicateEXT
+                | Self::ConstantSizeOfEXT
+                | Self::ConstantCompositeContinuedINTEL
+                | Self::SpecConstantCompositeContinuedINTEL
+                | Self::SpecConstantTargetINTEL
+                | Self::SpecConstantArchitectureINTEL
+                | Self::SpecConstantCapabilitiesINTEL
+        )
+    }
+    #[doc = r" Returns [`true`] if the given opcode is an annotation instruction."]
+    #[doc = r""]
+    #[doc = r" <https://registry.khronos.org/SPIR-V/specs/unified1/SPIRV.html#Annotation>"]
+    pub fn is_annotation(self) -> bool {
+        matches!(
+            self,
+            Self::Decorate
+                | Self::MemberDecorate
+                | Self::DecorationGroup
+                | Self::GroupDecorate
+                | Self::GroupMemberDecorate
+                | Self::DecorateId
+                | Self::MemberDecorateIdEXT
+                | Self::DecorateString
+                | Self::MemberDecorateString
+        )
+    }
+    #[doc = r" Returns [`true`] if the given opcode is a debug instruction."]
+    #[doc = r""]
+    #[doc = r" <https://registry.khronos.org/SPIR-V/specs/unified1/SPIRV.html#_debug_instructions>"]
+    pub fn is_debug(self) -> bool {
+        matches!(
+            self,
+            Self::SourceContinued
+                | Self::Source
+                | Self::SourceExtension
+                | Self::Name
+                | Self::MemberName
+                | Self::String
+                | Self::Line
+                | Self::NoLine
+                | Self::ModuleProcessed
+        )
+    }
+    #[doc = r" Returns [`true`] if the given opcode is a control-flow instruction."]
+    #[doc = r""]
+    #[doc = r" <https://registry.khronos.org/SPIR-V/specs/unified1/SPIRV.html#_control_flow_instructions>"]
+    pub fn is_control_flow(self) -> bool {
+        matches!(
+            self,
+            Self::Phi
+                | Self::LoopMerge
+                | Self::SelectionMerge
+                | Self::Label
+                | Self::Branch
+                | Self::BranchConditional
+                | Self::Switch
+                | Self::Kill
+                | Self::Return
+                | Self::ReturnValue
+                | Self::Unreachable
+                | Self::LifetimeStart
+                | Self::LifetimeStop
+                | Self::TerminateInvocation
+                | Self::DemoteToHelperInvocation
+        )
+    }
 }
-#[doc = "[GLSL.std.450](https://www.khronos.org/registry/spir-v/specs/unified1/GLSL.std.450.html) extended instruction opcode"]
+#[doc = "[Arm.MotionEngine.100](https://github.com/KhronosGroup/SPIRV-Headers/blob/main/include/spirv/unified1/extinst.arm.motion-engine.100.grammar.json) extended instruction opcode"]
 #[repr(u32)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[cfg_attr(feature = "serialize", derive(serde::Serialize))]
 #[cfg_attr(feature = "deserialize", derive(serde::Deserialize))]
 #[allow(clippy::upper_case_acronyms)]
-pub enum GLOp {
+pub enum ArmMotionEngine100Op {
+    MIN_SAD = 0u32,
+    MIN_SAD_COST = 1u32,
+    RAW_SAD = 2u32,
+}
+impl ArmMotionEngine100Op {
+    pub fn from_u32(n: u32) -> Option<Self> {
+        Some(match n {
+            0u32..=2u32 => unsafe { core::mem::transmute::<u32, ArmMotionEngine100Op>(n) },
+            _ => return None,
+        })
+    }
+}
+#[doc = "[DebugInfo](https://github.com/KhronosGroup/SPIRV-Headers/blob/main/include/spirv/unified1/extinst.debuginfo.grammar.json) extended instruction opcode"]
+#[repr(u32)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[cfg_attr(feature = "serialize", derive(serde::Serialize))]
+#[cfg_attr(feature = "deserialize", derive(serde::Deserialize))]
+#[allow(clippy::upper_case_acronyms)]
+pub enum DebuginfoOp {
+    DebugInfoNone = 0u32,
+    DebugCompilationUnit = 1u32,
+    DebugTypeBasic = 2u32,
+    DebugTypePointer = 3u32,
+    DebugTypeQualifier = 4u32,
+    DebugTypeArray = 5u32,
+    DebugTypeVector = 6u32,
+    DebugTypedef = 7u32,
+    DebugTypeFunction = 8u32,
+    DebugTypeEnum = 9u32,
+    DebugTypeComposite = 10u32,
+    DebugTypeMember = 11u32,
+    DebugTypeInheritance = 12u32,
+    DebugTypePtrToMember = 13u32,
+    DebugTypeTemplate = 14u32,
+    DebugTypeTemplateParameter = 15u32,
+    DebugTypeTemplateTemplateParameter = 16u32,
+    DebugTypeTemplateParameterPack = 17u32,
+    DebugGlobalVariable = 18u32,
+    DebugFunctionDeclaration = 19u32,
+    DebugFunction = 20u32,
+    DebugLexicalBlock = 21u32,
+    DebugLexicalBlockDiscriminator = 22u32,
+    DebugScope = 23u32,
+    DebugNoScope = 24u32,
+    DebugInlinedAt = 25u32,
+    DebugLocalVariable = 26u32,
+    DebugInlinedVariable = 27u32,
+    DebugDeclare = 28u32,
+    DebugValue = 29u32,
+    DebugOperation = 30u32,
+    DebugExpression = 31u32,
+    DebugMacroDef = 32u32,
+    DebugMacroUndef = 33u32,
+}
+impl DebuginfoOp {
+    pub fn from_u32(n: u32) -> Option<Self> {
+        Some(match n {
+            0u32..=33u32 => unsafe { core::mem::transmute::<u32, DebuginfoOp>(n) },
+            _ => return None,
+        })
+    }
+}
+#[doc = "[GLSL.std.450](https://github.com/KhronosGroup/SPIRV-Headers/blob/main/include/spirv/unified1/extinst.glsl.std.450.grammar.json) extended instruction opcode"]
+#[repr(u32)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[cfg_attr(feature = "serialize", derive(serde::Serialize))]
+#[cfg_attr(feature = "deserialize", derive(serde::Deserialize))]
+#[allow(clippy::upper_case_acronyms)]
+pub enum GlslStd450Op {
     Round = 1u32,
     RoundEven = 2u32,
     Trunc = 3u32,
@@ -4300,21 +4915,255 @@ pub enum GLOp {
     NMax = 80u32,
     NClamp = 81u32,
 }
-impl GLOp {
+impl GlslStd450Op {
     pub fn from_u32(n: u32) -> Option<Self> {
         Some(match n {
-            1u32..=81u32 => unsafe { core::mem::transmute::<u32, GLOp>(n) },
+            1u32..=81u32 => unsafe { core::mem::transmute::<u32, GlslStd450Op>(n) },
             _ => return None,
         })
     }
 }
-#[doc = "[OpenCL.std.100](https://www.khronos.org/registry/spir-v/specs/unified1/OpenCL.ExtendedInstructionSet.100.html) extended instruction opcode"]
+#[doc = "[NonSemantic.ClspvReflection](https://github.com/KhronosGroup/SPIRV-Headers/blob/main/include/spirv/unified1/extinst.nonsemantic.clspvreflection.grammar.json) extended instruction opcode"]
 #[repr(u32)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[cfg_attr(feature = "serialize", derive(serde::Serialize))]
 #[cfg_attr(feature = "deserialize", derive(serde::Deserialize))]
 #[allow(clippy::upper_case_acronyms)]
-pub enum CLOp {
+pub enum NonsemanticClspvreflectionOp {
+    Kernel = 1u32,
+    ArgumentInfo = 2u32,
+    ArgumentStorageBuffer = 3u32,
+    ArgumentUniform = 4u32,
+    ArgumentPodStorageBuffer = 5u32,
+    ArgumentPodUniform = 6u32,
+    ArgumentPodPushConstant = 7u32,
+    ArgumentSampledImage = 8u32,
+    ArgumentStorageImage = 9u32,
+    ArgumentSampler = 10u32,
+    ArgumentWorkgroup = 11u32,
+    SpecConstantWorkgroupSize = 12u32,
+    SpecConstantGlobalOffset = 13u32,
+    SpecConstantWorkDim = 14u32,
+    PushConstantGlobalOffset = 15u32,
+    PushConstantEnqueuedLocalSize = 16u32,
+    PushConstantGlobalSize = 17u32,
+    PushConstantRegionOffset = 18u32,
+    PushConstantNumWorkgroups = 19u32,
+    PushConstantRegionGroupOffset = 20u32,
+    ConstantDataStorageBuffer = 21u32,
+    ConstantDataUniform = 22u32,
+    LiteralSampler = 23u32,
+    PropertyRequiredWorkgroupSize = 24u32,
+    SpecConstantSubgroupMaxSize = 25u32,
+    ArgumentPointerPushConstant = 26u32,
+    ArgumentPointerUniform = 27u32,
+    ProgramScopeVariablesStorageBuffer = 28u32,
+    ProgramScopeVariablePointerRelocation = 29u32,
+    ImageArgumentInfoChannelOrderPushConstant = 30u32,
+    ImageArgumentInfoChannelDataTypePushConstant = 31u32,
+    ImageArgumentInfoChannelOrderUniform = 32u32,
+    ImageArgumentInfoChannelDataTypeUniform = 33u32,
+    ArgumentStorageTexelBuffer = 34u32,
+    ArgumentUniformTexelBuffer = 35u32,
+    ConstantDataPointerPushConstant = 36u32,
+    ProgramScopeVariablePointerPushConstant = 37u32,
+    PrintfInfo = 38u32,
+    PrintfBufferStorageBuffer = 39u32,
+    PrintfBufferPointerPushConstant = 40u32,
+    NormalizedSamplerMaskPushConstant = 41u32,
+    WorkgroupVariableSize = 42u32,
+}
+impl NonsemanticClspvreflectionOp {
+    pub fn from_u32(n: u32) -> Option<Self> {
+        Some(match n {
+            1u32..=42u32 => unsafe { core::mem::transmute::<u32, NonsemanticClspvreflectionOp>(n) },
+            _ => return None,
+        })
+    }
+}
+#[doc = "[NonSemantic.DebugBreak](https://github.com/KhronosGroup/SPIRV-Headers/blob/main/include/spirv/unified1/extinst.nonsemantic.debugbreak.grammar.json) extended instruction opcode"]
+#[repr(u32)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[cfg_attr(feature = "serialize", derive(serde::Serialize))]
+#[cfg_attr(feature = "deserialize", derive(serde::Deserialize))]
+#[allow(clippy::upper_case_acronyms)]
+pub enum NonsemanticDebugbreakOp {
+    DebugBreak = 1u32,
+}
+impl NonsemanticDebugbreakOp {
+    pub fn from_u32(n: u32) -> Option<Self> {
+        Some(match n {
+            1u32 => unsafe { core::mem::transmute::<u32, NonsemanticDebugbreakOp>(1u32) },
+            _ => return None,
+        })
+    }
+}
+#[doc = "[NonSemantic.DebugPrintf](https://github.com/KhronosGroup/SPIRV-Headers/blob/main/include/spirv/unified1/extinst.nonsemantic.debugprintf.grammar.json) extended instruction opcode"]
+#[repr(u32)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[cfg_attr(feature = "serialize", derive(serde::Serialize))]
+#[cfg_attr(feature = "deserialize", derive(serde::Deserialize))]
+#[allow(clippy::upper_case_acronyms)]
+pub enum NonsemanticDebugprintfOp {
+    DebugPrintf = 1u32,
+}
+impl NonsemanticDebugprintfOp {
+    pub fn from_u32(n: u32) -> Option<Self> {
+        Some(match n {
+            1u32 => unsafe { core::mem::transmute::<u32, NonsemanticDebugprintfOp>(1u32) },
+            _ => return None,
+        })
+    }
+}
+#[doc = "[NonSemantic.Shader.DebugInfo.100](https://github.com/KhronosGroup/SPIRV-Headers/blob/main/include/spirv/unified1/extinst.nonsemantic.shader.debuginfo.100.grammar.json) extended instruction opcode"]
+#[repr(u32)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[cfg_attr(feature = "serialize", derive(serde::Serialize))]
+#[cfg_attr(feature = "deserialize", derive(serde::Deserialize))]
+#[allow(clippy::upper_case_acronyms)]
+pub enum NonsemanticShaderDebuginfo100Op {
+    DebugInfoNone = 0u32,
+    DebugCompilationUnit = 1u32,
+    DebugTypeBasic = 2u32,
+    DebugTypePointer = 3u32,
+    DebugTypeQualifier = 4u32,
+    DebugTypeArray = 5u32,
+    DebugTypeVector = 6u32,
+    DebugTypedef = 7u32,
+    DebugTypeFunction = 8u32,
+    DebugTypeEnum = 9u32,
+    DebugTypeComposite = 10u32,
+    DebugTypeMember = 11u32,
+    DebugTypeInheritance = 12u32,
+    DebugTypePtrToMember = 13u32,
+    DebugTypeTemplate = 14u32,
+    DebugTypeTemplateParameter = 15u32,
+    DebugTypeTemplateTemplateParameter = 16u32,
+    DebugTypeTemplateParameterPack = 17u32,
+    DebugGlobalVariable = 18u32,
+    DebugFunctionDeclaration = 19u32,
+    DebugFunction = 20u32,
+    DebugLexicalBlock = 21u32,
+    DebugLexicalBlockDiscriminator = 22u32,
+    DebugScope = 23u32,
+    DebugNoScope = 24u32,
+    DebugInlinedAt = 25u32,
+    DebugLocalVariable = 26u32,
+    DebugInlinedVariable = 27u32,
+    DebugDeclare = 28u32,
+    DebugValue = 29u32,
+    DebugOperation = 30u32,
+    DebugExpression = 31u32,
+    DebugMacroDef = 32u32,
+    DebugMacroUndef = 33u32,
+    DebugImportedEntity = 34u32,
+    DebugSource = 35u32,
+    DebugFunctionDefinition = 101u32,
+    DebugSourceContinued = 102u32,
+    DebugLine = 103u32,
+    DebugNoLine = 104u32,
+    DebugBuildIdentifier = 105u32,
+    DebugStoragePath = 106u32,
+    DebugEntryPoint = 107u32,
+    DebugTypeMatrix = 108u32,
+}
+impl NonsemanticShaderDebuginfo100Op {
+    pub fn from_u32(n: u32) -> Option<Self> {
+        Some(match n {
+            0u32..=35u32 => unsafe {
+                core::mem::transmute::<u32, NonsemanticShaderDebuginfo100Op>(n)
+            },
+            101u32..=108u32 => unsafe {
+                core::mem::transmute::<u32, NonsemanticShaderDebuginfo100Op>(n)
+            },
+            _ => return None,
+        })
+    }
+}
+#[doc = "[NonSemantic.VkspReflection](https://github.com/KhronosGroup/SPIRV-Headers/blob/main/include/spirv/unified1/extinst.nonsemantic.vkspreflection.grammar.json) extended instruction opcode"]
+#[repr(u32)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[cfg_attr(feature = "serialize", derive(serde::Serialize))]
+#[cfg_attr(feature = "deserialize", derive(serde::Deserialize))]
+#[allow(clippy::upper_case_acronyms)]
+pub enum NonsemanticVkspreflectionOp {
+    Configuration = 1u32,
+    StartCounter = 2u32,
+    StopCounter = 3u32,
+    PushConstants = 4u32,
+    SpecializationMapEntry = 5u32,
+    DescriptorSetBuffer = 6u32,
+    DescriptorSetImage = 7u32,
+    DescriptorSetSampler = 8u32,
+}
+impl NonsemanticVkspreflectionOp {
+    pub fn from_u32(n: u32) -> Option<Self> {
+        Some(match n {
+            1u32..=8u32 => unsafe { core::mem::transmute::<u32, NonsemanticVkspreflectionOp>(n) },
+            _ => return None,
+        })
+    }
+}
+#[doc = "[OpenCL.DebugInfo.100](https://github.com/KhronosGroup/SPIRV-Headers/blob/main/include/spirv/unified1/extinst.opencl.debuginfo.100.grammar.json) extended instruction opcode"]
+#[repr(u32)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[cfg_attr(feature = "serialize", derive(serde::Serialize))]
+#[cfg_attr(feature = "deserialize", derive(serde::Deserialize))]
+#[allow(clippy::upper_case_acronyms)]
+pub enum OpenclDebuginfo100Op {
+    DebugInfoNone = 0u32,
+    DebugCompilationUnit = 1u32,
+    DebugTypeBasic = 2u32,
+    DebugTypePointer = 3u32,
+    DebugTypeQualifier = 4u32,
+    DebugTypeArray = 5u32,
+    DebugTypeVector = 6u32,
+    DebugTypedef = 7u32,
+    DebugTypeFunction = 8u32,
+    DebugTypeEnum = 9u32,
+    DebugTypeComposite = 10u32,
+    DebugTypeMember = 11u32,
+    DebugTypeInheritance = 12u32,
+    DebugTypePtrToMember = 13u32,
+    DebugTypeTemplate = 14u32,
+    DebugTypeTemplateParameter = 15u32,
+    DebugTypeTemplateTemplateParameter = 16u32,
+    DebugTypeTemplateParameterPack = 17u32,
+    DebugGlobalVariable = 18u32,
+    DebugFunctionDeclaration = 19u32,
+    DebugFunction = 20u32,
+    DebugLexicalBlock = 21u32,
+    DebugLexicalBlockDiscriminator = 22u32,
+    DebugScope = 23u32,
+    DebugNoScope = 24u32,
+    DebugInlinedAt = 25u32,
+    DebugLocalVariable = 26u32,
+    DebugInlinedVariable = 27u32,
+    DebugDeclare = 28u32,
+    DebugValue = 29u32,
+    DebugOperation = 30u32,
+    DebugExpression = 31u32,
+    DebugMacroDef = 32u32,
+    DebugMacroUndef = 33u32,
+    DebugImportedEntity = 34u32,
+    DebugSource = 35u32,
+    DebugModuleINTEL = 36u32,
+}
+impl OpenclDebuginfo100Op {
+    pub fn from_u32(n: u32) -> Option<Self> {
+        Some(match n {
+            0u32..=36u32 => unsafe { core::mem::transmute::<u32, OpenclDebuginfo100Op>(n) },
+            _ => return None,
+        })
+    }
+}
+#[doc = "[OpenCL.std](https://github.com/KhronosGroup/SPIRV-Headers/blob/main/include/spirv/unified1/extinst.opencl.std.100.grammar.json) extended instruction opcode"]
+#[repr(u32)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[cfg_attr(feature = "serialize", derive(serde::Serialize))]
+#[cfg_attr(feature = "deserialize", derive(serde::Deserialize))]
+#[allow(clippy::upper_case_acronyms)]
+pub enum OpenclStd100Op {
     acos = 0u32,
     acosh = 1u32,
     acospi = 2u32,
@@ -4478,29 +5327,177 @@ pub enum CLOp {
     u_mul_hi = 203u32,
     u_mad_hi = 204u32,
 }
-impl CLOp {
+impl OpenclStd100Op {
     pub fn from_u32(n: u32) -> Option<Self> {
         Some(match n {
-            0u32..=110u32 => unsafe { core::mem::transmute::<u32, CLOp>(n) },
-            141u32..=187u32 => unsafe { core::mem::transmute::<u32, CLOp>(n) },
-            201u32..=204u32 => unsafe { core::mem::transmute::<u32, CLOp>(n) },
+            0u32..=110u32 => unsafe { core::mem::transmute::<u32, OpenclStd100Op>(n) },
+            141u32..=187u32 => unsafe { core::mem::transmute::<u32, OpenclStd100Op>(n) },
+            201u32..=204u32 => unsafe { core::mem::transmute::<u32, OpenclStd100Op>(n) },
             _ => return None,
         })
     }
 }
-#[doc = "[NonSemantic.DebugPrintF](https://github.com/KhronosGroup/Vulkan-ValidationLayers/blob/master/docs/debug_printf.md) extended instruction opcode"]
+#[doc = "[SPV_AMD_gcn_shader](https://github.com/KhronosGroup/SPIRV-Headers/blob/main/include/spirv/unified1/extinst.spv-amd-gcn-shader.grammar.json) extended instruction opcode"]
 #[repr(u32)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[cfg_attr(feature = "serialize", derive(serde::Serialize))]
 #[cfg_attr(feature = "deserialize", derive(serde::Deserialize))]
 #[allow(clippy::upper_case_acronyms)]
-pub enum DebugPrintFOp {
-    DebugPrintf = 1u32,
+pub enum SpvAmdGcnShaderOp {
+    CubeFaceIndexAMD = 1u32,
+    CubeFaceCoordAMD = 2u32,
+    TimeAMD = 3u32,
 }
-impl DebugPrintFOp {
+impl SpvAmdGcnShaderOp {
     pub fn from_u32(n: u32) -> Option<Self> {
         Some(match n {
-            1u32 => unsafe { core::mem::transmute::<u32, DebugPrintFOp>(1u32) },
+            1u32..=3u32 => unsafe { core::mem::transmute::<u32, SpvAmdGcnShaderOp>(n) },
+            _ => return None,
+        })
+    }
+}
+#[doc = "[SPV_AMD_shader_ballot](https://github.com/KhronosGroup/SPIRV-Headers/blob/main/include/spirv/unified1/extinst.spv-amd-shader-ballot.grammar.json) extended instruction opcode"]
+#[repr(u32)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[cfg_attr(feature = "serialize", derive(serde::Serialize))]
+#[cfg_attr(feature = "deserialize", derive(serde::Deserialize))]
+#[allow(clippy::upper_case_acronyms)]
+pub enum SpvAmdShaderBallotOp {
+    SwizzleInvocationsAMD = 1u32,
+    SwizzleInvocationsMaskedAMD = 2u32,
+    WriteInvocationAMD = 3u32,
+    MbcntAMD = 4u32,
+}
+impl SpvAmdShaderBallotOp {
+    pub fn from_u32(n: u32) -> Option<Self> {
+        Some(match n {
+            1u32..=4u32 => unsafe { core::mem::transmute::<u32, SpvAmdShaderBallotOp>(n) },
+            _ => return None,
+        })
+    }
+}
+#[doc = "[SPV_AMD_shader_explicit_vertex_parameter](https://github.com/KhronosGroup/SPIRV-Headers/blob/main/include/spirv/unified1/extinst.spv-amd-shader-explicit-vertex-parameter.grammar.json) extended instruction opcode"]
+#[repr(u32)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[cfg_attr(feature = "serialize", derive(serde::Serialize))]
+#[cfg_attr(feature = "deserialize", derive(serde::Deserialize))]
+#[allow(clippy::upper_case_acronyms)]
+pub enum SpvAmdShaderExplicitVertexParameterOp {
+    InterpolateAtVertexAMD = 1u32,
+}
+impl SpvAmdShaderExplicitVertexParameterOp {
+    pub fn from_u32(n: u32) -> Option<Self> {
+        Some(match n {
+            1u32 => unsafe {
+                core::mem::transmute::<u32, SpvAmdShaderExplicitVertexParameterOp>(1u32)
+            },
+            _ => return None,
+        })
+    }
+}
+#[doc = "[SPV_AMD_shader_trinary_minmax](https://github.com/KhronosGroup/SPIRV-Headers/blob/main/include/spirv/unified1/extinst.spv-amd-shader-trinary-minmax.grammar.json) extended instruction opcode"]
+#[repr(u32)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[cfg_attr(feature = "serialize", derive(serde::Serialize))]
+#[cfg_attr(feature = "deserialize", derive(serde::Deserialize))]
+#[allow(clippy::upper_case_acronyms)]
+pub enum SpvAmdShaderTrinaryMinmaxOp {
+    FMin3AMD = 1u32,
+    UMin3AMD = 2u32,
+    SMin3AMD = 3u32,
+    FMax3AMD = 4u32,
+    UMax3AMD = 5u32,
+    SMax3AMD = 6u32,
+    FMid3AMD = 7u32,
+    UMid3AMD = 8u32,
+    SMid3AMD = 9u32,
+}
+impl SpvAmdShaderTrinaryMinmaxOp {
+    pub fn from_u32(n: u32) -> Option<Self> {
+        Some(match n {
+            1u32..=9u32 => unsafe { core::mem::transmute::<u32, SpvAmdShaderTrinaryMinmaxOp>(n) },
+            _ => return None,
+        })
+    }
+}
+#[doc = "[TOSA.001000.1](https://github.com/KhronosGroup/SPIRV-Headers/blob/main/include/spirv/unified1/extinst.tosa.001000.1.grammar.json) extended instruction opcode"]
+#[repr(u32)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[cfg_attr(feature = "serialize", derive(serde::Serialize))]
+#[cfg_attr(feature = "deserialize", derive(serde::Deserialize))]
+#[allow(clippy::upper_case_acronyms)]
+pub enum Tosa0010001Op {
+    ARGMAX = 0u32,
+    AVG_POOL2D = 1u32,
+    CONV2D = 2u32,
+    CONV3D = 3u32,
+    DEPTHWISE_CONV2D = 4u32,
+    FFT2D = 5u32,
+    MATMUL = 6u32,
+    MAX_POOL2D = 7u32,
+    RFFT2D = 8u32,
+    TRANSPOSE_CONV2D = 9u32,
+    CLAMP = 10u32,
+    ERF = 11u32,
+    SIGMOID = 12u32,
+    TANH = 13u32,
+    ADD = 14u32,
+    ARITHMETIC_RIGHT_SHIFT = 15u32,
+    BITWISE_AND = 16u32,
+    BITWISE_OR = 17u32,
+    BITWISE_XOR = 18u32,
+    INTDIV = 19u32,
+    LOGICAL_AND = 20u32,
+    LOGICAL_LEFT_SHIFT = 21u32,
+    LOGICAL_RIGHT_SHIFT = 22u32,
+    LOGICAL_OR = 23u32,
+    LOGICAL_XOR = 24u32,
+    MAXIMUM = 25u32,
+    MINIMUM = 26u32,
+    MUL = 27u32,
+    POW = 28u32,
+    SUB = 29u32,
+    TABLE = 30u32,
+    ABS = 31u32,
+    BITWISE_NOT = 32u32,
+    CEIL = 33u32,
+    CLZ = 34u32,
+    COS = 35u32,
+    EXP = 36u32,
+    FLOOR = 37u32,
+    LOG = 38u32,
+    LOGICAL_NOT = 39u32,
+    NEGATE = 40u32,
+    RECIPROCAL = 41u32,
+    RSQRT = 42u32,
+    SIN = 43u32,
+    SELECT = 44u32,
+    EQUAL = 45u32,
+    GREATER = 46u32,
+    GREATER_EQUAL = 47u32,
+    REDUCE_ALL = 48u32,
+    REDUCE_ANY = 49u32,
+    REDUCE_MAX = 50u32,
+    REDUCE_MIN = 51u32,
+    REDUCE_PRODUCT = 52u32,
+    REDUCE_SUM = 53u32,
+    CONCAT = 54u32,
+    PAD = 55u32,
+    RESHAPE = 56u32,
+    REVERSE = 57u32,
+    SLICE = 58u32,
+    TILE = 59u32,
+    TRANSPOSE = 60u32,
+    GATHER = 61u32,
+    SCATTER = 62u32,
+    RESIZE = 63u32,
+    CAST = 64u32,
+    RESCALE = 65u32,
+}
+impl Tosa0010001Op {
+    pub fn from_u32(n: u32) -> Option<Self> {
+        Some(match n {
+            0u32..=65u32 => unsafe { core::mem::transmute::<u32, Tosa0010001Op>(n) },
             _ => return None,
         })
     }

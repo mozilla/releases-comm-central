@@ -13,19 +13,23 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
     - name: Build
       run: cargo build --verbose
     - name: Run tests
       run: cargo test --verbose
-    - name: Run tests (gecko-ffi)
-      run: cargo test --tests --verbose
+    - name: Run miniserde tests
+      run: cargo test --features miniserde --verbose
+    - name: Run nanoserde tests
+      run: cargo test --features nanoserde --verbose
+    - name: Run borsh tests
+      run: cargo test --features borsh --verbose
       
   miri:
     name: "Miri"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v5
       - name: Install Miri
         run: |
           rustup toolchain install nightly --component miri
@@ -37,51 +41,55 @@ jobs:
   fmt:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: stable
-          profile: minimal
           components: rustfmt
-          override: true
-      - uses: actions-rs/cargo@v1
+      - run: cargo fmt --all -- --check
+
+  msrv:
+    name: Rust ${{matrix.rust}}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        rust: [1.82.0, 1.83.0]
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@master
         with:
-          command: fmt
-          args: --all -- --check
-          
-          
+          toolchain: ${{matrix.rust}}
+      - run: cargo build
+      - run: cargo test
+      - run: cargo test --features serde
+      - run: cargo test --features nanoserde
+      - run: cargo test --features miniserde
+      - run: cargo test --features borsh
+
   clippy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@master
         with:
             toolchain: stable
-            profile: minimal
             components: clippy
-            override: true
-      - uses: actions-rs/clippy-check@v1
-        env:
-          PWD: ${{ env.GITHUB_WORKSPACE }}
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          args: --workspace --tests --examples
-          
-          
+      - run: cargo clippy --workspace --tests --examples
+      - run: cargo clippy --workspace --tests --examples --features serde
+      - run: cargo clippy --workspace --tests --examples --features miniserde
+      - run: cargo clippy --workspace --tests --examples --features nanoserde
+      - run: cargo clippy --workspace --tests --examples --features borsh
+
   docs:
     runs-on: ubuntu-latest
     env:
       RUSTDOCFLAGS: -Dwarnings
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: stable
-          profile: minimal
-          components: rust-docs
-          override: true
-      - uses: swatinem/rust-cache@v1
-      - uses: actions-rs/cargo@v1
-        with:
-          command: doc
-          args: --workspace --no-deps
+      - uses: swatinem/rust-cache@v2
+      - run: cargo doc --workspace --no-deps
