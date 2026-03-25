@@ -42,6 +42,7 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError> fo
             is_read: Some(self.is_read),
             // TODO: Should we be setting is_draft here too? i.e.
             // is_draft: Some(self.is_draft),
+            // See https://bugzilla.mozilla.org/show_bug.cgi?id=2026218
             ..Default::default()
         };
 
@@ -51,12 +52,16 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError> fo
         //
         // See
         // https://learn.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagmessageflags-canonical-property
-        // TODO: Should we set MSGFLAG_READ only if is_read is true?
+        //
+        // TODO: Should we set MSGFLAG_READ only if is_read is true? See
+        // https://bugzilla.mozilla.org/show_bug.cgi?id=2026218
         let mut mapi_flags = MSGFLAG_READ;
         if self.is_draft {
             mapi_flags |= MSGFLAG_UNSENT;
         } else {
-            // TODO: What behaviour does MSGFLAG_UNMODIFIED actually trigger? Why is it not set for drafts?
+            // TODO: What behaviour does MSGFLAG_UNMODIFIED actually trigger?
+            // Why is it not set for drafts? See
+            // https://bugzilla.mozilla.org/show_bug.cgi?id=2026218
             mapi_flags |= MSGFLAG_UNMODIFIED;
         }
 
@@ -98,7 +103,8 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError> fo
             .id
             .clone();
 
-        // NOTE: we rely on the on_success()/on_failure() call to invoke on_remote_create_finished().
+        // NOTE: we rely on the on_success()/on_failure() call to invoke
+        // on_remote_create_finished().
         Ok(())
     }
 

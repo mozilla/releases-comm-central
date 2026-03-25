@@ -154,9 +154,11 @@ class MessageCreateHandler : public IExchangeMessageCreateListener {
     MOZ_TRY(db->Commit(nsMsgDBCommitType::kLargeCommit));
 
     // Now write the full message to local message store.
-    // TODO: check offline-storage policy here!
     // Ignore failures here - the operation has been successful and the new
     // message is in the DB. Let the standard offline sync code deal with it.
+    //
+    // TODO: check offline-storage policy here! See
+    // https://bugzilla.mozilla.org/show_bug.cgi?id=2026215
     nsresult rv = LocalCopyOfflineMessageContent(mFolder, msgStream, liveHdr);
     if (NS_FAILED(rv)) {
       MOZ_LOG_FMT(
