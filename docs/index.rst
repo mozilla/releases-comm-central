@@ -45,6 +45,7 @@ Thunderbird Source Tree Documentation
    /backend/email_protocols
    /backend/folder_compaction
    /backend/folder_storage
+   /backend/message_database
    /panorama/index
 
 .. toctree::
