@@ -40,9 +40,14 @@ updater.app/Contents/MacOS/org.mozilla.updater
 plugin-container.app/Contents/PkgInfo
 updater.app/Contents/PkgInfo
 media-plugin-helper.app/Contents/PkgInfo
+security-module-helper.app/Contents/PkgInfo
 
 media-plugin-helper.app/Contents/MacOS/@MOZ_APP_DISPLAYNAME@ Media Plugin Helper
 plugin-container.app/Contents/MacOS/plugin-container
+security-module-helper.app/Contents/MacOS/@MOZ_APP_DISPLAYNAME@ Security Module Helper
+
+media-plugin-helper.app/Contents/Resources/English.lproj/InfoPlist.strings
+security-module-helper.app/Contents/Resources/English.lproj/InfoPlist.strings
 
 crashreporter.app/Contents/Resources/English.lproj/MainMenu.nib/classes.nib
 crashreporter.app/Contents/Resources/English.lproj/MainMenuRTL.nib/classes.nib

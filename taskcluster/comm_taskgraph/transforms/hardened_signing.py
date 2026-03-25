@@ -61,6 +61,23 @@ def add_hardened_sign_config(config, jobs):
                 "http"
             ):
                 sign_cfg["entitlements"] = config.params.file_url(sign_cfg["entitlements"])
+            if "only-if-milestone-is-nightly" in sign_cfg and not isinstance(
+                sign_cfg.get("only-if-milestone-is-nightly"), bool
+            ):
+                raise Exception("only-if-milestone-is-nightly must be a bool")
+
+        # Simulate the computation of milestone.is_nightly by init.configure.
+        # We do not account for --as-milestone, which is fine because this
+        # option is only used by nightly-as-release macOS builds, and those
+        # builds do not have enable-build-signing set.
+        milestone_is_nightly = config.params["version"].endswith("a1")
+
+        hardened_sign_config = [
+            sign_cfg
+            for sign_cfg in hardened_sign_config
+            if not sign_cfg.pop("only-if-milestone-is-nightly", False)
+            or milestone_is_nightly
+        ]
 
         job["worker"]["hardened-sign-config"] = hardened_sign_config
         job["worker"]["mac-behavior"] = "mac_sign_and_pkg_hardened"

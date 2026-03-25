@@ -18,6 +18,9 @@ task-defaults:
             - name: public/build/security/plugin-container.xml
               path: checkouts/comm/build/macosx/hardenedruntime/{entitlement_directory}/plugin-container.xml
               type: file
+            - name: public/build/security/security-module-helper.xml
+              path: checkouts/gecko/security/mac/hardenedruntime/{entitlement_directory}/security-module-helper.xml
+              type: file
     run:
         using: mozharness
         comm-checkout: true
