@@ -141,45 +141,13 @@ class MessageCopyHandler : public nsICopyMessageListener {
   virtual ~MessageCopyHandler() = default;
 
   /**
-   * The methods below are expected to be called by a friend class, such as
-   * `MessageCreateCallbacks`.
+   * Helper, called to indicate that the current message has been created in
+   * the destination folder, both locally and on the server, or that
+   * creation failed with the provided status.
    */
-
-  /**
-   * Informs any listener of the message's key, so further processes can be run
-   * on the new message (e.g. filtering) once the operation is complete.
-   */
-  nsresult SetMessageKey(nsMsgKey aKey);
-
-  /**
-   * The message that is currently being copied/moved. If the source for the
-   * operation is a file, this will be `Nothing()` as there is no source header
-   * for the message.
-   */
-  mozilla::Maybe<RefPtr<nsIMsgDBHdr>> GetCurrentMessageHeader();
-
-  /**
-   * Whether the current operation is a move, or simply a copy.
-   */
-  bool GetIsMove();
-
-  /**
-   * Signals to the handler that an item has been created on the EWS server for
-   * the current message, or that it failed with the provided status.
-   */
-  nsresult OnCreateFinished(nsresult status);
-
-  /**
-   * Records the new database entry created for the current message.
-   */
-  void RecordNewHdr(nsIMsgDBHdr* newHdr);
+  nsresult OnCreateFinished(nsresult status, nsIMsgDBHdr* newHdr);
 
  private:
-  /**
-   * Triggers the creation of an item for the current message on the EWS server.
-   */
-  nsresult CreateRemoteMessage();
-
   // Parameters of the copy/move operation.
   RefPtr<EwsFolder> mDstFolder;
   const nsTArray<RefPtr<nsIMsgDBHdr>> mHeaders;

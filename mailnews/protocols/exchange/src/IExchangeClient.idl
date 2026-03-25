@@ -490,52 +490,13 @@ interface IExchangeMessageSyncListener : nsISupports
 interface IExchangeMessageCreateListener : nsISupports
 {
   /**
-   * Inform consumers that the message creation has finished, both on the server
-   * and the relevant local database and message store, with the provided
-   * status.
-   *
-   * This will still be called if `onRemoteCreateSuccessful` is.
-   *
-   * @param status - The status describing the operation's outcome.
+   * Called when the server operation is finished.
+   * If status is successful, ewsId will hold the server-side id of the
+   * newly-created message. Upon failure, ewsId should be considered
+   * undefined.
+   * The return code from this callback will be ignored.
    */
-  void onStopCreate(in nsresult status);
-
-  /**
-   * Inform consumers of the key for the newly-created message in the local
-   * message database.
-   *
-   * @param msgKey - The key for the new message.
-   */
-  void onNewMessageKey(in nsMsgKey msgKey);
-
-  /**
-   * Signal that the message was correctly created on the server.
-   *
-   * This does not signal the end of the message creation operation (as the
-   * client still has some processing to work through at this point), just the
-   * remote part.
-   *
-   * `nsIMsgDBHdr` is a type quite strongly associated with the message database
-   * and storage, and, going forwards, we'll want to decouple these interfaces
-   * from local storage management. We use currently use it because we don't
-   * have a better way to represent structured headers over the XPCOM boundary,
-   * and parsing RFC822 messages is easier in Rust than using the C++ message
-   * parser. We should revisit our use of `nsIMsgDBHdr` in client code when the
-   * situation improves.
-   *
-   * @param id - The ID of the new message.
-   * @returns A new `nsIMsgDBHdr` object to update with the message's metadata
-   *   and to commit to the message database
-   */
-  nsIMsgDBHdr onRemoteCreateSuccessful(in AUTF8String id);
-
-  /**
-   * Inform consumers that the provided `nsIMsgDBHdr` has been fully populated
-   * and is ready to be persisted.
-   *
-   * @param hdr - The `nsIMsgDBHdr` that has been populated.
-   */
-  void onHdrPopulated(in nsIMsgDBHdr hdr);
+  void onRemoteCreateFinished(in nsresult status, in AUTF8String id);
 };
 
 /**

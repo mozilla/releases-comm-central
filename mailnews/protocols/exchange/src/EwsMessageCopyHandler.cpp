@@ -6,6 +6,7 @@
 
 #include "CopyMessageStreamListener.h"
 #include "EwsListeners.h"
+#include "ExchangeMessageCreate.h"
 #include "nsIInputStream.h"
 #include "nsIMsgCopyService.h"
 #include "nsIMsgFolderNotificationService.h"
@@ -72,12 +73,37 @@ NS_IMETHODIMP MessageCopyHandler::EndMessage(nsMsgKey key) {
 }
 
 NS_IMETHODIMP MessageCopyHandler::EndCopy(bool aCopySucceeded) {
+  MOZ_ASSERT(mSrcFolder && !mSrcFile);
   if (!aCopySucceeded) {
     // If we encountered a failure, bail now.
     return OnCopyCompleted(NS_ERROR_FAILURE);
   }
+  nsresult rv;
 
-  return CreateRemoteMessage();
+  // At this point the entire source message is in mBuffer.
+  // Now we want to create it in the dest folder, both locally and remotely.
+  nsCOMPtr<nsIStringInputStream> stream =
+      do_CreateInstance("@mozilla.org/io/string-input-stream;1", &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+  MOZ_TRY(stream->SetByteStringData(mBuffer));
+
+  // Make sure we apply the correct read flag onto the new message.
+  RefPtr<nsIMsgDBHdr> curHeader = mHeaders[mCurIndex];
+
+  nsCString dontPreserve;
+  if (mIsMove) {
+    mozilla::Preferences::GetCString(
+        "mailnews.database.summary.dontPreserveOnMove", dontPreserve);
+  } else {
+    mozilla::Preferences::GetCString(
+        "mailnews.database.summary.dontPreserveOnCopy", dontPreserve);
+  }
+
+  return ExchangePerformMessageCreateFromCopy(
+      mDstFolder, stream, curHeader, StringFields(dontPreserve), mIsDraft,
+      [self = RefPtr(this)](nsresult status, nsIMsgDBHdr* newHdr) {
+        self->OnCreateFinished(status, newHdr);
+      });
 }
 
 NS_IMETHODIMP MessageCopyHandler::EndMove(bool aMoveSucceeded) {
@@ -114,6 +140,8 @@ nsresult MessageCopyHandler::StartCopyingNextMessage() {
     RefPtr<CopyMessageStreamListener> copyListener =
         new CopyMessageStreamListener(this, mIsMove);
 
+    // We'll buffer up the message in mBuffer before we proceed, see
+    // BeginCopy()/CopyData()/EndCopy().
     return messageService->CopyMessage(uri, copyListener, mIsMove, nullptr,
                                        mWindow);
   }
@@ -126,9 +154,23 @@ nsresult MessageCopyHandler::StartCopyingNextMessage() {
     // folder, where the copy may be the only action being performed.
     NS_ENSURE_ARG_POINTER(mCopyServiceListener);
 
-    // We've already got the message's content, so we can directly skip to
-    // creating the message on the server.
-    return CreateRemoteMessage();
+    // We've already got the message's content, so no need to CopyMessage()
+    // from elsewhere.
+    nsCOMPtr<nsIInputStream> srcRaw;
+    nsCOMPtr<nsIFile> file(mSrcFile.value());
+    nsresult rv = NS_NewLocalFileInputStream(getter_AddRefs(srcRaw), file);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    // When creating a message from a file, we're saving to either the Sent
+    // folder (in which case we mark the message as read) or to the Draft folder
+    // (in which case we mark the message as unread).
+    bool isRead = !mIsDraft;
+
+    return ExchangePerformMessageCreate(
+        mDstFolder, srcRaw, isRead, mIsDraft,
+        [self = RefPtr(this)](nsresult status, nsIMsgDBHdr* newHdr) {
+          self->OnCreateFinished(status, newHdr);
+        });
   }
 
   // We're in an undefined state where we're copying from neither a folder nor a
@@ -175,16 +217,31 @@ nsresult MessageCopyHandler::OnCopyCompleted(nsresult status) {
   return copyService->NotifyCompletion(srcSupports, mDstFolder, status);
 }
 
-// Protected methods on `MessageCopyHandler`, intended to be called by its
-// friend class `MessageCreateCallbacks`.
+// Helper method used to wrap things up after a message has been created.
+// For copies, it's just a matter of notifying any listener then going on
+// to the next message to copy, if any.
+// For moves, here's where we kick off deletion of the source message.
+nsresult MessageCopyHandler::OnCreateFinished(nsresult status,
+                                              nsIMsgDBHdr* newHdr) {
+  // NOTE: SetMessageKey() needs to die.
+  // It's required for old-style IMAP where the UID from the server is used
+  // as the messageKey, but that really needs to change (see Bug 1806770).
+  // It shouldn't be needed at all for EWS, but some of the unit tests rely
+  // upon it (e.g. test_item_operations.js).
+  if (NS_SUCCEEDED(status) && mCopyServiceListener) {
+    nsMsgKey key;
+    newHdr->GetMessageKey(&key);
+    mCopyServiceListener->SetMessageKey(key);
+  }
 
-nsresult MessageCopyHandler::OnCreateFinished(nsresult status) {
   // If we encountered a failure, bail now. Additionally, if we're copying from
   // a file, we also want to end the process now, since we're always copying a
   // single message in this case.
   if (NS_FAILED(status) || mSrcFile) {
     return OnCopyCompleted(status);
   }
+
+  mDstHdr.AppendElement(newHdr);
 
   if (!mSrcFolder) {
     // If we don't have a source folder by this point, something has gone wrong,
@@ -196,12 +253,10 @@ nsresult MessageCopyHandler::OnCreateFinished(nsresult status) {
   }
 
   if (mIsMove) {
-    // Safety: `RefPtr`'s `=` operator increments the reference counter itself,
-    // so we don't need to use `NS_ADDREF` here.
     RefPtr<nsIMsgDBHdr> curHdr = mHeaders[mCurIndex];
 
-    // It's a bit weird that we set the `listener` argument (of type
-    // `nsIMsgCopyServiceListener`) to `nullptr` considering we're in the middle
+    // It's a bit weird that we pass `nullptr` as the `listener` argument
+    // (type `nsIMsgCopyServiceListener`), considering we're in the middle
     // of a copy. It looks like this argument is almost never set (and never
     // during a copy), except for `AttachmentDeleter::DeleteOriginalMessage`
     // which doesn't seem to do anything when the listener is called.
@@ -216,156 +271,4 @@ nsresult MessageCopyHandler::OnCreateFinished(nsresult status) {
   }
 
   return StartCopyingNextMessage();
-}
-
-bool MessageCopyHandler::GetIsMove() { return mIsMove; }
-
-mozilla::Maybe<RefPtr<nsIMsgDBHdr>>
-MessageCopyHandler::GetCurrentMessageHeader() {
-  if (mSrcFolder) {
-    return mozilla::Some(mHeaders[mCurIndex]);
-  }
-
-  return mozilla::Nothing();
-}
-
-nsresult MessageCopyHandler::SetMessageKey(nsMsgKey aKey) {
-  if (mCopyServiceListener) {
-    mCopyServiceListener->SetMessageKey(aKey);
-  }
-
-  return NS_OK;
-}
-
-void MessageCopyHandler::RecordNewHdr(nsIMsgDBHdr* newHdr) {
-  mDstHdr.AppendElement(newHdr);
-}
-
-// Additional private methods on `MessageCopyHandler`, intended for internal
-// use.
-
-nsresult MessageCopyHandler::CreateRemoteMessage() {
-  nsresult rv;
-  bool isRead = false;
-  nsCOMPtr<nsIInputStream> inputStream;
-
-  // Get a stream containing the file's content, according to its source.
-  if (mSrcFolder) {
-    // If we're copying from a folder, the message content was streamed from the
-    // relevant message service into `mBuffer`, so we create an input stream
-    // from this buffer.
-    nsCOMPtr<nsIStringInputStream> stream =
-        do_CreateInstance("@mozilla.org/io/string-input-stream;1", &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-    MOZ_TRY(stream->SetByteStringData(mBuffer));
-
-    inputStream = stream;
-
-    // Make sure we apply the correct read flag onto the new message.
-    RefPtr<nsIMsgDBHdr> curHeader = mHeaders[mCurIndex];
-    MOZ_TRY(curHeader->GetIsRead(&isRead));
-  } else if (mSrcFile) {
-    // If we're copying from a file, open an input stream with the file's
-    // content.
-    nsCOMPtr<nsIFile> file = mSrcFile.value();
-    rv = NS_NewLocalFileInputStream(getter_AddRefs(inputStream), file);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    // When creating a message from a file, we're saving to either the Sent
-    // folder (in which case we mark the message as read) or to the Draft folder
-    // (in which case we mark the message as unread).
-    isRead = !mIsDraft;
-  } else {
-    return NS_ERROR_UNEXPECTED;
-  }
-
-  // Both the implementation of `nsIStringInputStream` and the output of
-  // `NS_NewLocalFileInputStream` implement `nsISeekableStream`, so QI'ing
-  // should be fine here.
-  nsCOMPtr<nsISeekableStream> seekable = do_QueryInterface(inputStream, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  RefPtr<EwsFolder> dstFolder = mDstFolder;
-
-  // Define the callbacks the listener needs.
-  auto commitHeader = [self = RefPtr(this), dstFolder](nsIMsgDBHdr* hdr) {
-    nsresult rv = NS_OK;
-    if (auto currHdr = self->GetCurrentMessageHeader()) {
-      // If there's a source message header (which is always the case when
-      // copying from another folder, but never when copying from a file), then
-      // copy some of its properties onto the new one.
-      bool isMove = self->GetIsMove();
-      nsCOMPtr<nsIMsgDBHdr> srcHdr = currHdr.value();
-      // These preferences exist so that extensions can influence which
-      // properties are preserved in the database when a message is moved
-      // or copied.
-      nsCString dontPreserve;
-      if (isMove) {
-        mozilla::Preferences::GetCString(
-            "mailnews.database.summary.dontPreserveOnMove", dontPreserve);
-      } else {
-        mozilla::Preferences::GetCString(
-            "mailnews.database.summary.dontPreserveOnCopy", dontPreserve);
-      }
-      rv = LocalCopyHeaders(srcHdr, hdr, StringFields(dontPreserve));
-      NS_ENSURE_SUCCESS(rv, rv);
-    }
-
-    nsCOMPtr<nsIMsgDatabase> msgDB;
-    rv = dstFolder->GetMsgDatabase(getter_AddRefs(msgDB));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    rv = msgDB->AddNewHdrToDB(hdr, true);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    rv = msgDB->Commit(nsMsgDBCommitType::kLargeCommit);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    self->RecordNewHdr(hdr);
-
-    return NS_OK;
-  };
-
-  auto setMessageKey = [self = RefPtr(this)](nsMsgKey msgKey) {
-    return self->SetMessageKey(msgKey);
-  };
-
-  auto onRemoteCreateSuccessful = [self = RefPtr(this), seekable, dstFolder](
-                                      const nsACString& ewsId,
-                                      nsIMsgDBHdr** newHdr) {
-    nsresult rv;
-    // Rewind the message stream to the start, because at this point the stream
-    // has already been read in its entirety in order to create the message on
-    // the remote server.
-    rv = seekable->Seek(0, nsISeekableStream::NS_SEEK_SET);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    nsCOMPtr<nsIMsgDBHdr> hdr;
-    nsCOMPtr<nsIInputStream> inputStream{do_QueryInterface(seekable, &rv)};
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    rv = LocalCopyMessage(dstFolder, inputStream, getter_AddRefs(hdr));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    rv = hdr->SetStringProperty(kEwsIdProperty, ewsId);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    // Return the newly-created header so that the consumer can update it with
-    // metadata from the message headers before adding it to the message
-    // database.
-    hdr.forget(newHdr);
-
-    return NS_OK;
-  };
-
-  auto onStopCreate = [self = RefPtr(this)](nsresult status) {
-    return self->OnCreateFinished(status);
-  };
-
-  // Instantiate the listener with our callbacks and send the operation.
-  RefPtr<EwsMessageCreateListener> listener = new EwsMessageCreateListener(
-      commitHeader, setMessageKey, onRemoteCreateSuccessful, onStopCreate);
-
-  return mClient->CreateMessage(listener, mDstFolderId, mIsDraft, isRead,
-                                inputStream);
 }

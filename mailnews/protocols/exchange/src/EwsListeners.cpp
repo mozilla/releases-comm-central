@@ -46,21 +46,9 @@ NS_IMPL_ISUPPORTS_INHERITED(EwsSimpleFallibleMessageListener,
 
 NS_IMPL_ISUPPORTS(EwsMessageCreateListener, IExchangeMessageCreateListener)
 
-NS_IMETHODIMP EwsMessageCreateListener::OnHdrPopulated(nsIMsgDBHdr* hdr) {
-  return mOnHdrPopulated(hdr);
-}
-
-NS_IMETHODIMP EwsMessageCreateListener::OnNewMessageKey(nsMsgKey msgKey) {
-  return mOnNewMessageKey(msgKey);
-}
-
-NS_IMETHODIMP EwsMessageCreateListener::OnRemoteCreateSuccessful(
-    const nsACString& ewsId, nsIMsgDBHdr** newHdr) {
-  return mOnRemoteCreateSuccessful(ewsId, newHdr);
-}
-
-NS_IMETHODIMP EwsMessageCreateListener::OnStopCreate(nsresult status) {
-  return mOnStopCreate(status);
+NS_IMETHODIMP EwsMessageCreateListener::OnRemoteCreateFinished(
+    nsresult status, nsACString const& ewsId) {
+  return mOnRemoteCreateFinished(status, ewsId);
 }
 
 // Implementation of EwsFolderSyncListener

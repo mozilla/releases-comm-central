@@ -366,6 +366,8 @@ nsresult LocalCreateHeader(nsIMsgFolder* destinationFolder,
 nsresult LocalCopyOfflineMessageContent(nsIMsgFolder* destinationFolder,
                                         nsIInputStream* msgInputStream,
                                         nsIMsgDBHdr* messageHeader) {
+  MOZ_ASSERT(destinationFolder && msgInputStream && messageHeader);
+
   nsCOMPtr<nsIMsgPluggableStore> store;
   nsresult rv = destinationFolder->GetMsgStore(getter_AddRefs(store));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -391,8 +393,7 @@ nsresult LocalCopyOfflineMessageContent(nsIMsgFolder* destinationFolder,
   rv = messageHeader->SetStoreToken(storeToken);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // Update some of the header's metadata, such as the size, the offline flag
-  // and the EWS ID.
+  // Update some of the header's metadata, such as the size and offline flag.
   rv = messageHeader->SetMessageSize(bytesCopied);
   NS_ENSURE_SUCCESS(rv, rv);
 

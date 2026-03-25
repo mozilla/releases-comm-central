@@ -31,12 +31,9 @@ use ews::{
     update_item::{UpdateItem, UpdateItemResponse},
 };
 use log::info;
-use mail_parser::MessageParser;
 use mailnews_ui_glue::UserInteractiveServer;
 use protocol_shared::{
-    authentication::credentials::AuthenticationProvider,
-    client::ProtocolClient,
-    safe_xpcom::{SafeEwsMessageCreateListener, StaleMsgDbHeader, UpdatedMsgDbHeader},
+    authentication::credentials::AuthenticationProvider, client::ProtocolClient,
 };
 use url::Url;
 use uuid::Uuid;
@@ -62,6 +59,8 @@ use crate::{
 // Message flags are of type `PT_LONG`, which corresponds to i32 (signed 32-bit
 // integers) according to
 // https://learn.microsoft.com/en-us/office/client-developer/outlook/mapi/property-types
+// For meanings, see:
+// https://learn.microsoft.com/en-us/previous-versions/office/developer/office-2007/cc839733(v=office.12)
 const MSGFLAG_READ: i32 = 0x00000001;
 const MSGFLAG_UNMODIFIED: i32 = 0x00000002;
 const MSGFLAG_UNSENT: i32 = 0x00000008;
@@ -435,52 +434,6 @@ fn validate_get_folder_response_message(
             message: String::from("expected folder to be of type Folder"),
         }),
     }
-}
-
-/// Uses the provided `ItemResponseMessage` to create, populate and commit
-/// an `nsIMsgDBHdr` for a newly created message.
-fn create_and_populate_header_from_create_response(
-    response_message: ItemResponseMessage,
-    content: &[u8],
-    listener: &SafeEwsMessageCreateListener,
-) -> Result<UpdatedMsgDbHeader, XpComEwsError> {
-    // If we're saving the message (rather than sending it), we must create a
-    // new database entry for it and associate it with the message's EWS ID.
-    let items = response_message.items.inner;
-    if items.len() != 1 {
-        return Err(XpComEwsError::Processing {
-            message: String::from("expected only one item in CreateItem response"),
-        });
-    }
-
-    let item = &items[0];
-    let message = item.inner_message();
-
-    let ews_id = &message
-        .item_id
-        .as_ref()
-        .ok_or(XpComEwsError::MissingIdInResponse)?
-        .id;
-
-    // Signal that copying the message to the server has succeeded, which will
-    // trigger its content to be streamed to the relevant message store.
-    let hdr: StaleMsgDbHeader = listener.on_remote_create_successful(ews_id)?;
-
-    // Parse the message and use its headers to populate the `nsIMsgDBHdr`
-    // before committing it to the database. We parse the original content
-    // rather than use the `Message` from the `CreateItemResponse` because the
-    // latter only contains the item's ID, and so is missing the required
-    // fields.
-    let message = MessageParser::default()
-        .parse(content)
-        .ok_or(XpComEwsError::Processing {
-            message: String::from("failed to parse message"),
-        })?;
-
-    let hdr = hdr.populate_from_message_headers(message)?;
-    listener.on_hdr_populated(&hdr)?;
-
-    Ok(hdr)
 }
 
 fn validate_response_message_count<T>(

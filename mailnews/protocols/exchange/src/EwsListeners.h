@@ -153,27 +153,17 @@ class EwsMessageCreateListener : public IExchangeMessageCreateListener {
  public:
   NS_DECL_ISUPPORTS
   NS_DECL_IEXCHANGEMESSAGECREATELISTENER
-
-  EwsMessageCreateListener(
-      std::function<nsresult(nsIMsgDBHdr*)> onHdrPopulated,
-      std::function<nsresult(nsMsgKey)> onNewMessageKey,
-      std::function<nsresult(const nsACString&, nsIMsgDBHdr**)>
-          onRemoteCreateSuccessful,
-      std::function<nsresult(nsresult)> onStopCreate)
-      : mOnHdrPopulated(std::move(onHdrPopulated)),
-        mOnNewMessageKey(std::move(onNewMessageKey)),
-        mOnRemoteCreateSuccessful(std::move(onRemoteCreateSuccessful)),
-        mOnStopCreate(std::move(onStopCreate)) {}
+  EwsMessageCreateListener() = delete;
+  explicit EwsMessageCreateListener(
+      std::function<nsresult(nsresult, nsACString const&)>
+          onRemoteCreateFinished)
+      : mOnRemoteCreateFinished(std::move(onRemoteCreateFinished)) {}
 
  protected:
   virtual ~EwsMessageCreateListener() = default;
 
  private:
-  std::function<nsresult(nsIMsgDBHdr*)> mOnHdrPopulated;
-  std::function<nsresult(nsMsgKey)> mOnNewMessageKey;
-  std::function<nsresult(const nsACString&, nsIMsgDBHdr**)>
-      mOnRemoteCreateSuccessful;
-  std::function<nsresult(nsresult)> mOnStopCreate;
+  std::function<nsresult(nsresult, nsACString const&)> mOnRemoteCreateFinished;
 };
 
 /**
