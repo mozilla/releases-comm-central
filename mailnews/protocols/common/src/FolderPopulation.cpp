@@ -30,7 +30,8 @@ nsresult PopulateFolderHierarchy(nsIMsgFolder* parent,
       if (NS_FAILED(rv) && rv != NS_MSG_FOLDER_EXISTS) {
         NS_WARNING(
             nsPrintfCString("Unable to add child folder %s to parent %s.",
-                            childFolderName.Data(), parentName.Data())
+                            PromiseFlatCString(childFolderName).get(),
+                            PromiseFlatCString(parentName).get())
                 .get());
         continue;
       }
@@ -52,7 +53,8 @@ nsresult PopulateFolderHierarchy(nsIMsgFolder* parent,
       if (NS_FAILED(rv)) {
         NS_WARNING(
             nsPrintfCString("Unable to populate child folder %s in parent %s.",
-                            childFolderName.Data(), parentName.Data())
+                            PromiseFlatCString(childFolderName).get(),
+                            PromiseFlatCString(parentName).get())
                 .get());
       }
     }
