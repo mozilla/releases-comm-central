@@ -43,6 +43,7 @@ Thunderbird Source Tree Documentation
 
    /backend/accounts
    /backend/email_protocols
+   /backend/folders
    /backend/folder_compaction
    /backend/folder_storage
    /backend/message_database
