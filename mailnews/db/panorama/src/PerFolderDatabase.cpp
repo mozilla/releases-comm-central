@@ -539,9 +539,6 @@ NS_IMETHODIMP PerFolderDatabase::DeleteHeader(nsIMsgDBHdr* msgHdr,
   return DeleteMessages({key}, instigator);
 }
 
-NS_IMETHODIMP PerFolderDatabase::RemoveHeaderMdbRow(nsIMsgDBHdr* msgHdr) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
 NS_IMETHODIMP PerFolderDatabase::UndoDelete(nsIMsgDBHdr* msgHdr) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }

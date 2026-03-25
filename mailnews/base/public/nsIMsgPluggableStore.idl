@@ -166,21 +166,6 @@ interface nsIMsgPluggableStore : nsISupports {
   void discardNewMessage(in nsIMsgFolder folder, in nsIOutputStream stream);
 
   /**
-   * Called by pop3 message filters when a newly downloaded message is being
-   * moved by an incoming filter. This is called before finishNewMessage, and
-   * it allows the store to optimize that case.
-   *
-   * @param aNewHdr msg hdr of message being moved.
-   * @param aDestFolder folder to move message to, in the same store.
-   *
-   * @return true if successful, false if the store doesn't want to optimize
-   *         this.
-   * @exception If the moved failed. values TBD
-   */
-  boolean moveNewlyDownloadedMessage(in nsIMsgDBHdr aNewHdr,
-                                     in nsIMsgFolder aDestFolder);
-
-  /**
    * Get an input stream that we can read the contents of a message from.
    *
    * NOTE: see also nsIMsgFolder.getMsgInputStream(). That usually passes

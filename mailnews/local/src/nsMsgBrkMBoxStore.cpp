@@ -820,17 +820,6 @@ nsMsgBrkMBoxStore::DiscardNewMessage(nsIMsgFolder* folder,
 }
 
 NS_IMETHODIMP
-nsMsgBrkMBoxStore::MoveNewlyDownloadedMessage(nsIMsgDBHdr* aNewHdr,
-                                              nsIMsgFolder* aDestFolder,
-                                              bool* aResult) {
-  NS_ENSURE_ARG_POINTER(aNewHdr);
-  NS_ENSURE_ARG_POINTER(aDestFolder);
-  NS_ENSURE_ARG_POINTER(aResult);
-  *aResult = false;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
 nsMsgBrkMBoxStore::GetMsgInputStream(nsIMsgFolder* aMsgFolder,
                                      const nsACString& aMsgToken,
                                      uint32_t aMaxAllowedSize,

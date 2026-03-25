@@ -139,9 +139,6 @@ class nsParseNewMailState : public nsParseMailMessageState,
   void GetMsgWindow(nsIMsgWindow** aMsgWindow);
   nsresult EndMsgDownload();
 
-  nsresult AppendMsgFromStream(nsIInputStream* fileStream, nsIMsgDBHdr* aHdr,
-                               nsIMsgFolder* destFolder);
-
   void ApplyFilters(bool* pMoved, nsIMsgWindow* msgWindow);
   nsresult ApplyForwardAndReplyFilter(nsIMsgWindow* msgWindow);
 

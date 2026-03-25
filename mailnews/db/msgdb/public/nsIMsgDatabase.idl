@@ -533,9 +533,6 @@ interface nsIMsgDatabase : nsIDBChangeAnnouncer {
   void deleteHeader(in nsIMsgDBHdr msgHdr, in nsIDBChangeListener instigator,
                           in boolean commit, in boolean notify);
 
-  /// Lower level routine that doesn't remove hdr from thread or adjust counts.
-  void removeHeaderMdbRow(in nsIMsgDBHdr msgHdr);
-
   void undoDelete(in nsIMsgDBHdr msgHdr);
 
   void setStringProperty(in nsMsgKey aKey, in string aProperty, in AUTF8String aValue);

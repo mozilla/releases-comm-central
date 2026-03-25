@@ -23,6 +23,7 @@
 #include "nsIMsgFilterHitNotify.h"
 #include "nsIMsgLocalMailFolder.h"
 #include "nsMsgUtils.h"
+#include "nsIScriptError.h"
 #include "prprf.h"
 #include "prmem.h"
 #include "nsMsgSearchCore.h"
@@ -982,6 +983,112 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
   return rv;
 }
 
+namespace {
+
+/**
+ * Streams a message from an input stream into the destination folder's
+ * physical store, and attaches the resulting storeToken to the message header.
+ */
+nsresult WriteMsgFromStream(nsIInputStream* fileStream, nsIMsgDBHdr* hdr,
+                            nsIMsgFolder* destFolder) {
+  nsCOMPtr<nsIMsgPluggableStore> store;
+  nsCOMPtr<nsIOutputStream> destOutputStream;
+  nsresult rv = destFolder->GetMsgStore(getter_AddRefs(store));
+  NS_ENSURE_SUCCESS(rv, rv);
+  rv = store->GetNewMsgOutputStream(destFolder,
+                                    getter_AddRefs(destOutputStream));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  auto guard = mozilla::MakeScopeExit(
+      [&] { store->DiscardNewMessage(destFolder, destOutputStream); });
+
+  uint64_t bytesCopied;
+  rv = SyncCopyStream(fileStream, destOutputStream, bytesCopied);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsAutoCString storeToken;
+  rv = store->FinishNewMessage(destFolder, destOutputStream, storeToken);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  guard.release();
+
+  rv = hdr->SetStoreToken(storeToken);
+  if (NS_SUCCEEDED(rv)) {
+    rv = hdr->SetMessageSize(static_cast<uint32_t>(bytesCopied));
+  }
+  // If updating the header failed, the file on disk is finalized but orphaned
+  // from the DB. We must explicitly delete the finalized file using its token.
+  if (NS_FAILED(rv)) {
+    (void)store->DeleteStoreMessages(destFolder, {storeToken});
+    return rv;
+  }
+  return NS_OK;
+}
+
+/**
+ * Hard-deletes a message from both the physical store and the database.
+ * This is primarily used to discard messages during the incorporation process
+ * (e.g., due to filter moves or duplicate detection) where the message has
+ * been streamed to the store but its header remains "detached".
+ *
+ * @note This function calls AttachHdr as a precondition for deletion. If the
+ * subsequent physical store deletion (DeleteStoreMessages) fails, this
+ * attachment is intentionally NOT rolled back. This ensures that if the
+ * file cannot be deleted, it remains visible in the database rather than
+ * becoming orphaned, untracked disk bloat. Callers should be aware of
+ * this partial success state.
+ *
+ * Conversely, if DeleteStoreMessages succeeds but DeleteHeader fails, the
+ * header will remain in the database pointing at removed store data (the
+ * message appears in the UI but cannot be opened). A standard folder repair
+ * will clean up this state.
+ */
+nsresult HardDeleteDetachedMessage(nsIMsgFolder* folder, nsIMsgDatabase* db,
+                                   nsIMsgDBHdr* hdr) {
+  MOZ_ASSERT(folder);
+  MOZ_ASSERT(db);
+  MOZ_ASSERT(hdr);
+
+  bool isLive = false;
+  hdr->GetIsLive(&isLive);
+  MOZ_ASSERT(!isLive, "HardDeleteDetachedMessage called with a live header");
+  if (isLive) {
+    return NS_ERROR_UNEXPECTED;
+  }
+
+  nsCOMPtr<nsIMsgDBHdr> liveHdr;
+  // We pass `false` for the notify parameter to prevent the UI or Virtual
+  // Folders from briefly flashing a "New Message" event for data we are about
+  // to destroy. If AttachHdr fails, we safely bail out to leave the physical
+  // store intact.
+  nsresult rv = db->AttachHdr(hdr, false, getter_AddRefs(liveHdr));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIMsgPluggableStore> msgStore;
+  rv = folder->GetMsgStore(getter_AddRefs(msgStore));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsAutoCString token;
+  rv = liveHdr->GetStoreToken(token);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // GetStoreToken returns NS_OK even if no token or legacy offset was found.
+  // We must explicitly guard against passing an empty token to the store.
+  NS_ENSURE_TRUE(!token.IsEmpty(), NS_ERROR_UNEXPECTED);
+
+  rv = msgStore->DeleteStoreMessages(folder, {token});
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Only reached if the physical store successfully deleted the bytes.
+  // We pass commit=false to defer the expensive database flush to the caller.
+  // If an unexpected termination occurs between now and the eventual DB
+  // commit, the header may reappear on restart pointing to missing store data.
+  //  This is acceptable and fixable via folder repair.
+  return db->DeleteHeader(liveHdr, nullptr, false, false);
+}
+
+}  // namespace
+
 nsParseNewMailState::nsParseNewMailState()
     : m_numNotNewMessages(0),
       m_msgMovedByFilter(false),
@@ -1085,17 +1192,11 @@ void nsParseNewMailState::PublishMsgHeader(nsIMsgWindow* msgWindow) {
           // Same for deleting it or moving it to trash.
           switch (duplicateAction) {
             case nsIMsgIncomingServer::deleteDups: {
-              nsCOMPtr<nsIMsgPluggableStore> msgStore;
-              nsresult rv =
-                  m_downloadFolder->GetMsgStore(getter_AddRefs(msgStore));
-              if (NS_SUCCEEDED(rv)) {
-                rv = msgStore->DiscardNewMessage(m_downloadFolder,
-                                                 m_outputStream);
-                if (NS_FAILED(rv))
-                  m_rootFolder->ThrowAlertMsg("dupDeleteFolderTruncateFailed",
-                                              msgWindow);
+              if (NS_FAILED(HardDeleteDetachedMessage(m_downloadFolder,
+                                                      m_mailDB, m_newMsgHdr))) {
+                m_rootFolder->ThrowAlertMsg("dupDeleteFolderTruncateFailed",
+                                            msgWindow);
               }
-              m_mailDB->RemoveHeaderMdbRow(m_newMsgHdr);
             } break;
 
             case nsIMsgIncomingServer::moveDupsToTrash: {
@@ -1103,21 +1204,12 @@ void nsParseNewMailState::PublishMsgHeader(nsIMsgWindow* msgWindow) {
               GetTrashFolder(getter_AddRefs(trash));
               if (trash) {
                 uint32_t newFlags;
-                bool msgMoved;
                 m_newMsgHdr->AndFlags(~nsMsgMessageFlags::New, &newFlags);
-                nsCOMPtr<nsIMsgPluggableStore> msgStore;
-                rv = m_downloadFolder->GetMsgStore(getter_AddRefs(msgStore));
-                if (NS_SUCCEEDED(rv))
-                  rv = msgStore->MoveNewlyDownloadedMessage(m_newMsgHdr, trash,
-                                                            &msgMoved);
-                if (NS_SUCCEEDED(rv) && !msgMoved) {
-                  rv = MoveIncorporatedMessage(m_newMsgHdr, m_mailDB, trash,
-                                               nullptr, msgWindow);
-                  if (NS_SUCCEEDED(rv))
-                    rv = m_mailDB->RemoveHeaderMdbRow(m_newMsgHdr);
-                }
-                if (NS_FAILED(rv))
+                rv = MoveIncorporatedMessage(m_newMsgHdr, m_mailDB, trash,
+                                             nullptr, msgWindow);
+                if (NS_FAILED(rv)) {
                   NS_WARNING("moveDupsToTrash failed for some reason.");
+                }
               }
             } break;
             case nsIMsgIncomingServer::markDupsRead:
@@ -1152,6 +1244,12 @@ void nsParseNewMailState::PublishMsgHeader(nsIMsgWindow* msgWindow) {
         liveHdr->GetMessageKey(&msgKey);
         m_downloadFolder->OrProcessingFlags(
             msgKey, nsMsgProcessingFlags::NotReportedClassified);
+
+        // Ensure the forward/reply pointer is updated to the live header
+        // otherwise the compose service may fail on the detached object.
+        if (m_msgToForwardOrReply == detachedHdr) {
+          m_msgToForwardOrReply = liveHdr;
+        }
       }
     }  // if it was moved by imap filter, m_parseMsgState->m_newMsgHdr ==
        // nullptr
@@ -1315,7 +1413,6 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter* filter,
                       ("(Local) Target Folder for Move action does not exist"));
               break;
             }
-            bool msgMoved = false;
             // If we're moving to an imap folder, or this message has already
             // has a pending copy action, use the imap coalescer so that
             // we won't truncate the inbox before the copy fires.
@@ -1337,14 +1434,8 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter* filter,
               uint32_t old_flags;
               msgHdr->GetFlags(&old_flags);
 
-              nsCOMPtr<nsIMsgPluggableStore> msgStore;
-              rv = m_downloadFolder->GetMsgStore(getter_AddRefs(msgStore));
-              if (NS_SUCCEEDED(rv))
-                rv = msgStore->MoveNewlyDownloadedMessage(msgHdr, destIFolder,
-                                                          &msgMoved);
-              if (NS_SUCCEEDED(rv) && !msgMoved)
-                rv = MoveIncorporatedMessage(msgHdr, m_mailDB, destIFolder,
-                                             filter, msgWindow);
+              rv = MoveIncorporatedMessage(msgHdr, m_mailDB, destIFolder,
+                                           filter, msgWindow);
               m_msgMovedByFilter = NS_SUCCEEDED(rv);
 
               if (m_msgMovedByFilter &&
@@ -1720,33 +1811,6 @@ nsresult nsParseNewMailState::EndMsgDownload() {
   return NS_OK;
 }
 
-nsresult nsParseNewMailState::AppendMsgFromStream(nsIInputStream* fileStream,
-                                                  nsIMsgDBHdr* aHdr,
-                                                  nsIMsgFolder* destFolder) {
-  nsCOMPtr<nsIMsgPluggableStore> store;
-  nsCOMPtr<nsIOutputStream> destOutputStream;
-  nsresult rv = destFolder->GetMsgStore(getter_AddRefs(store));
-  NS_ENSURE_SUCCESS(rv, rv);
-  rv = store->GetNewMsgOutputStream(destFolder,
-                                    getter_AddRefs(destOutputStream));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  auto guard = mozilla::MakeScopeExit(
-      [&] { store->DiscardNewMessage(destFolder, destOutputStream); });
-
-  uint64_t bytesCopied;
-  rv = SyncCopyStream(fileStream, destOutputStream, bytesCopied);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsAutoCString storeToken;
-  rv = store->FinishNewMessage(destFolder, destOutputStream, storeToken);
-  NS_ENSURE_SUCCESS(rv, rv);
-  guard.release();
-  rv = aHdr->SetStoreToken(storeToken);
-  NS_ENSURE_SUCCESS(rv, rv);
-  return NS_OK;
-}
-
 /*
  * Moves message pointed to by mailHdr into folder destIFolder.
  * After successful move mailHdr is no longer usable by the caller.
@@ -1832,10 +1896,16 @@ nsresult nsParseNewMailState::MoveIncorporatedMessage(nsIMsgDBHdr* mailHdr,
   if (NS_FAILED(rv)) {
     destIFolder->ThrowAlertMsg("filterFolderHdrAddFailed", msgWindow);
   } else {
-    rv = AppendMsgFromStream(inputStream, newHdr, destIFolder);
+    rv = WriteMsgFromStream(inputStream, newHdr, destIFolder);
     if (NS_FAILED(rv))
       destIFolder->ThrowAlertMsg("filterFolderWriteFailed", msgWindow);
   }
+
+  // Release the input stream to drop the reference count and force the file
+  // handle to close. If this handle remains open, the
+  // HardDeleteDetachedMessage call below will fail to remove the source file
+  // on Windows (Maildir) due to a sharing violation.
+  inputStream = nullptr;
 
   if (NS_FAILED(rv)) {
     if (destMailDB) destMailDB->Close(true);
@@ -1869,6 +1939,10 @@ nsresult nsParseNewMailState::MoveIncorporatedMessage(nsIMsgDBHdr* mailHdr,
   // mark the header as not yet reported classified
   destIFolder->OrProcessingFlags(msgKey,
                                  nsMsgProcessingFlags::NotReportedClassified);
+  // If this message is also scheduled to be forwarded/replied to by another
+  // filter action, we must update the pointer to this newly moved, live
+  // header. This prevents PublishMsgHeader from trying to auto-forward the
+  // detached Inbox header (which we are about to hard-delete in cleanupSource).
   m_msgToForwardOrReply = newHdr;
 
   if (movedMsgIsNew) destIFolder->SetHasNewMessages(true);
@@ -1880,22 +1954,16 @@ nsresult nsParseNewMailState::MoveIncorporatedMessage(nsIMsgDBHdr* mailHdr,
 
   (void)localFolder->RefreshSizeOnDisk();
 
-  // Notify the message was moved.
-  if (notifier) {
-    nsCOMPtr<nsIMsgFolder> folder;
-    nsresult rv = mailHdr->GetFolder(getter_AddRefs(folder));
-    if (NS_SUCCEEDED(rv)) {
-      notifier->NotifyMsgUnincorporatedMoved(folder, newHdr);
-      nsCOMPtr<nsIMsgPluggableStore> store;
-      m_downloadFolder->GetMsgStore(getter_AddRefs(store));
-      if (store) {
-        store->DiscardNewMessage(folder, m_outputStream);
-      }
-      if (sourceDB) {
-        sourceDB->RemoveHeaderMdbRow(mailHdr);
-      }
-    } else {
-      NS_WARNING("Can't get folder for message that was moved.");
+  // Notify the message was moved and perform cleanup.
+  notifier->NotifyMsgUnincorporatedMoved(m_downloadFolder, newHdr);
+
+  if (sourceDB) {
+    if (NS_FAILED(
+            HardDeleteDetachedMessage(m_downloadFolder, sourceDB, mailHdr))) {
+      MsgLogToConsole4(NS_ConvertUTF8toUTF16(
+                           "Failure removing filter-moved message from Inbox"),
+                       nsCString(__FILE__), __LINE__,
+                       nsIScriptError::errorFlag);
     }
   }
 
