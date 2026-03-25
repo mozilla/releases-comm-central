@@ -129,22 +129,18 @@ pub async fn authenticate(
     // returns a valid `nsIAuthModule` if the function succeeds.
     let ntlm_module = getter_addrefs(|p| unsafe { new_auth_module(c"ntlm".as_ptr(), p) })?;
 
+    // NTLM usernames might come in the form `domain\username`.
+    let (domain, username) = username.split_once("\\").unwrap_or(("", username));
+
+    let domain = nsString::from(domain);
     let username = nsString::from(username);
     let password = nsString::from(password);
 
     // SAFETY: All the references/pointers we pass are valid. This
     // call replicates the way the authentication module gets
     // initialized in `nsMsgProtocol::DoNtlmStep1`.
-    unsafe {
-        ntlm_module.Init(
-            &*nsCString::new(),
-            0,
-            &*nsString::new(),
-            &*username,
-            &*password,
-        )
-    }
-    .to_result()?;
+    unsafe { ntlm_module.Init(&*nsCString::new(), 0, &*domain, &*username, &*password) }
+        .to_result()?;
 
     // Generate the first message for our NTLM negotiation, and submit
     // it to the server.
