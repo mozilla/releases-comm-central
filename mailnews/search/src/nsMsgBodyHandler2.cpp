@@ -5,45 +5,17 @@
 // ///////////////////////////////////////////////////////////////////////////
 // Below is nsMsgBodyHandler2, a copy of nsMsgBodyHandler that we use to parse
 // an entire decrypted message in a string.
-//
-// This .cpp file is included in nsMsgBodyHandler.cpp.
 // ///////////////////////////////////////////////////////////////////////////
 
-class nsMsgBodyHandler2 {
- public:
-  explicit nsMsgBodyHandler2(const nsCString& buf);
-  virtual ~nsMsgBodyHandler2();
-  int32_t GetNextLine(nsCString& buf, nsCString& charset);
-  bool IsQP() { return m_partIsQP; }
-
- protected:
-  void Initialize();  // common initialization code
-  int32_t GetNextLocalLine(nsCString& buf);
-
-  const char* m_currInput;
-  const char* m_currInputEnd;
-
-  // Transformations
-  // With the exception of m_isMultipart, these all apply to the various parts
-  bool m_EOF;
-  bool m_pastPartHeaders;  // true if we've already skipped over the part
-                           // headers
-  bool m_partIsQP;     // true if the Content-Transfer-Encoding header claims
-                       // quoted-printable
-  bool m_partIsHtml;   // true if the Content-type header claims text/html
-  bool m_base64part;   // true if the current part is in base64
-  bool m_isMultipart;  // true if the message is a multipart/* message
-  bool m_partIsText;   // true if the current part is text/*
-  bool m_inMessageAttachment;  // true if current part is message/*
-
-  nsTArray<nsCString> m_boundaries;  // The boundary strings to look for
-  nsCString m_partCharset;           // The charset found in the part
-
-  // See implementation for comments
-  int32_t ApplyTransformations(const nsCString& line, int32_t length,
-                               bool& returnThisLine, nsCString& buf);
-  void SniffPossibleMIMEHeader(const nsCString& line);
-};
+#include "msgCore.h"
+#include "nsMsgSearchCore.h"
+#include "nsMsgUtils.h"
+#include "nsMsgBodyHandler.h"
+#include "plbase64.h"
+#include "nsMimeTypes.h"
+#include "nsMsgI18N.h"
+#include "mozilla/Utf8.h"
+#include "mime_closure.h"
 
 nsMsgBodyHandler2::nsMsgBodyHandler2(const nsCString& buf) {
   m_currInput = buf.BeginReading();

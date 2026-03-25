@@ -16,8 +16,6 @@
 #include "mozilla/Utf8.h"
 #include "mime_closure.h"
 
-#include "nsMsgBodyHandler2.cpp"
-
 nsMsgBodyHandler::nsMsgBodyHandler(nsIMsgSearchScopeTerm* scope,
                                    nsIMsgDBHdr* msg) {
   m_scope = scope;
