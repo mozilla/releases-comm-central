@@ -5,7 +5,7 @@
 // EDITS TO THIS FILE WILL BE OVERWRITTEN
 
 #![doc = "Provides operations to call the send method.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
-use crate::*;
+use crate::{Error, Operation};
 use http::method::Method;
 #[derive(Debug)]
 struct TemplateExpressions {
@@ -26,6 +26,7 @@ pub struct Post {
     template_expressions: TemplateExpressions,
 }
 impl Post {
+    #[must_use]
     pub fn new(endpoint: String, message_id: String) -> Self {
         Self {
             template_expressions: TemplateExpressions {

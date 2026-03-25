@@ -6,7 +6,7 @@
 
 #![doc = "Types related to OutlookItem. Auto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
 use crate::Error;
-use crate::types::entity::*;
+use crate::types::entity::{Entity, EntitySelection};
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use std::borrow::Cow;
@@ -37,11 +37,11 @@ impl<'a> OutlookItem<'a> {
     pub fn categories(&self) -> Result<Vec<&str>, Error> {
         let val = self.properties.get("categories").ok_or(Error::NotFound)?;
         val.as_array()
-            .ok_or_else(|| Error::UnexpectedResponse(format!("{:?}", val)))?
+            .ok_or_else(|| Error::UnexpectedResponse(format!("{val:?}")))?
             .iter()
             .map(|v| {
                 v.as_str()
-                    .ok_or_else(|| Error::UnexpectedResponse(format!("{:?}", v)))
+                    .ok_or_else(|| Error::UnexpectedResponse(format!("{v:?}")))
             })
             .collect::<Result<_, _>>()
     }
@@ -52,7 +52,7 @@ impl<'a> OutlookItem<'a> {
             return Ok(None);
         }
         Ok(Some(val.as_str().ok_or_else(|| {
-            Error::UnexpectedResponse(format!("{:?}", val))
+            Error::UnexpectedResponse(format!("{val:?}"))
         })?))
     }
     #[doc = "The Timestamp type represents date and time information using ISO 8601 format and is always in UTC time.\n\n For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z"]
@@ -65,10 +65,11 @@ impl<'a> OutlookItem<'a> {
             return Ok(None);
         }
         Ok(Some(val.as_str().ok_or_else(|| {
-            Error::UnexpectedResponse(format!("{:?}", val))
+            Error::UnexpectedResponse(format!("{val:?}"))
         })?))
     }
     #[doc = "Accessor to inhereted properties from `Entity`."]
+    #[must_use]
     pub fn entity(&'a self) -> Entity<'a> {
         Entity {
             properties: Cow::Borrowed(&*self.properties),
@@ -84,7 +85,7 @@ impl<'a> OutlookItem<'a> {
             return Ok(None);
         }
         Ok(Some(val.as_str().ok_or_else(|| {
-            Error::UnexpectedResponse(format!("{:?}", val))
+            Error::UnexpectedResponse(format!("{val:?}"))
         })?))
     }
 }

@@ -2,62 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-use nserror::{NS_OK, nsresult};
-use nsstring::{nsACString, nsCString};
-use protocol_shared::headers::Mailbox;
+use protocol_shared::{
+    headerblock_xpcom::{HeaderBlock, rfc5322_header},
+    headers::Mailbox,
+};
 use std::collections::HashMap;
-use xpcom::{RefPtr, xpcom, xpcom_method};
+use xpcom::RefPtr;
 
 use time::format_description::well_known::Rfc2822;
-
-/// A simple IHeaderBlock implementation.
-/// Just holds a list of name->value mail header pairs.
-/// Designed to be read-only once constructed, so no interior mutability
-/// required.
-#[xpcom(implement(IHeaderBlock), atomic)]
-pub(crate) struct HeaderBlock {
-    headers: Vec<(String, String)>,
-}
-
-impl HeaderBlock {
-    pub fn new(hdrs: Vec<(String, String)>) -> RefPtr<Self> {
-        HeaderBlock::allocate(InitHeaderBlock { headers: hdrs })
-    }
-
-    xpcom_method!(num_headers => GetNumHeaders() -> u32);
-    fn num_headers(&self) -> Result<u32, nsresult> {
-        Ok(self.headers.len() as u32)
-    }
-
-    xpcom_method!( value => Value(index: u32) -> nsACString);
-    fn value(&self, index: u32) -> Result<nsCString, nsresult> {
-        match self.headers.get(index as usize) {
-            Some(entry) => Ok(nsCString::from(entry.1.clone())),
-            None => Err(nserror::NS_ERROR_ILLEGAL_VALUE),
-        }
-    }
-
-    xpcom_method!( name => Name(index: u32) -> nsACString);
-    fn name(&self, index: u32) -> Result<nsCString, nsresult> {
-        match self.headers.get(index as usize) {
-            Some(entry) => Ok(nsCString::from(entry.0.clone())),
-            None => Err(nserror::NS_ERROR_ILLEGAL_VALUE),
-        }
-    }
-
-    xpcom_method!( as_raw => AsRaw() -> nsACString);
-    fn as_raw(&self) -> Result<nsCString, nsresult> {
-        let raw: nsCString = (self
-            .headers
-            .iter()
-            .map(|(name, value)| format!("{name}: {value}\r\n"))
-            .collect::<Vec<String>>()
-            .concat()
-            + "\r\n") // Blank line to signify end of header block.
-            .into();
-        Ok(raw)
-    }
-}
 
 fn mailbox_to_string(mailbox: &ews::Mailbox) -> String {
     Mailbox {
@@ -82,41 +34,50 @@ fn extract_core(msg: &ews::Message) -> HashMap<String, String> {
     if let Some(dt) = &msg.date_time_sent
         && let Ok(formatted) = dt.0.format(&Rfc2822)
     {
-        out.insert("Date".to_string(), formatted);
+        out.insert(rfc5322_header::DATE.to_string(), formatted);
     }
 
     if let Some(message_id) = &msg.internet_message_id {
-        out.insert("Message-Id".to_string(), message_id.clone());
+        out.insert(rfc5322_header::MESSAGE_ID.to_string(), message_id.clone());
     }
 
     if let Some(from) = &msg.from {
-        out.insert("From".to_string(), mailbox_to_string(&from.mailbox));
+        out.insert(
+            rfc5322_header::FROM.to_string(),
+            mailbox_to_string(&from.mailbox),
+        );
     }
 
     if let Some(sender) = &msg.sender {
-        out.insert("Sender".to_string(), mailbox_to_string(&sender.mailbox));
+        out.insert(
+            rfc5322_header::SENDER.to_string(),
+            mailbox_to_string(&sender.mailbox),
+        );
     }
 
     if let Some(reply_to) = &msg.reply_to {
-        out.insert("Reply-To".to_string(), flatten_recipients(reply_to));
+        out.insert(
+            rfc5322_header::REPLY_TO.to_string(),
+            flatten_recipients(reply_to),
+        );
     }
 
     if let Some(to) = &msg.to_recipients {
-        out.insert("To".to_string(), flatten_recipients(to));
+        out.insert(rfc5322_header::TO.to_string(), flatten_recipients(to));
     }
     if let Some(cc) = &msg.cc_recipients {
-        out.insert("Cc".to_string(), flatten_recipients(cc));
+        out.insert(rfc5322_header::CC.to_string(), flatten_recipients(cc));
     }
     if let Some(bcc) = &msg.bcc_recipients {
-        out.insert("Bcc".to_string(), flatten_recipients(bcc));
+        out.insert(rfc5322_header::BCC.to_string(), flatten_recipients(bcc));
     }
 
     if let Some(subject) = &msg.subject {
-        out.insert("Subject".to_string(), subject.clone());
+        out.insert(rfc5322_header::SUBJECT.to_string(), subject.clone());
     }
 
     if let Some(references) = &msg.references {
-        out.insert("References".to_string(), references.clone());
+        out.insert(rfc5322_header::REFERENCES.to_string(), references.clone());
     }
 
     // Map importance to "Priority:", an X.400 import - see RFC2156.
@@ -127,7 +88,7 @@ fn extract_core(msg: &ews::Message) -> HashMap<String, String> {
         None => None,
     };
     if let Some(pri) = &opt_pri {
-        out.insert("Priority".to_string(), pri.to_string());
+        out.insert(rfc5322_header::PRIORITY.to_string(), pri.to_string());
     }
     out
 }

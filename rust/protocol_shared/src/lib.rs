@@ -11,6 +11,7 @@ pub mod authentication;
 pub mod cancellable_request;
 pub mod client;
 pub mod error;
+pub mod headerblock_xpcom;
 pub mod headers;
 pub mod outgoing;
 pub mod safe_xpcom;

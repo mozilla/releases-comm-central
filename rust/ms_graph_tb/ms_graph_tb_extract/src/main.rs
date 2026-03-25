@@ -22,23 +22,30 @@ use crate::naming::{base_name, simple_name, snakeify};
 use crate::openapi::{LoadedYaml, load_yaml, path::OaPath};
 use crate::oxidize::{ModuleFile, types};
 
-const SUPPORTED_TYPES: [&str; 10] = [
+const SUPPORTED_TYPES: [&str; 15] = [
     "directoryObject",
+    "emailAddress",
     "entity",
+    "importance",
+    "internetMessageHeader",
     "itemBody",
     "mailFolder",
     "mailFolderCollectionResponse",
     "mailboxSettings",
+    "message",
     "messageCollectionResponse",
     "message",
     "outlookItem",
+    "recipient",
     "user",
 ];
-const SUPPORTED_PATHS: [&str; 6] = [
+const SUPPORTED_PATHS: [&str; 8] = [
     "/me",
     "/me/mailFolders",
     "/me/mailFolders/{mailFolder-id}",
     "/me/mailFolders/delta()",
+    "/me/mailFolders/{mailFolder-id}/messages",
+    "/me/mailFolders/{mailFolder-id}/messages/delta()",
     "/me/messages",
     "/me/messages/{message-id}/send",
 ];

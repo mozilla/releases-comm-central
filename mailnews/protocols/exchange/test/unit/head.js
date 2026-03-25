@@ -58,6 +58,7 @@ function setupBasicEwsTestServer({ version = "Exchange2013" }) {
     "user",
     "password"
   );
+  incomingServer.QueryInterface(Ci.IEwsIncomingServer);
   incomingServer.setStringValue(
     "ews_url",
     `http://127.0.0.1:${ewsServer.port}/EWS/Exchange.asmx`
@@ -97,6 +98,7 @@ function setupBasicGraphTestServer() {
     "user",
     "password"
   );
+  incomingServer.QueryInterface(Ci.IEwsIncomingServer);
   incomingServer.setStringValue(
     "ews_url",
     `http://127.0.0.1:${graphServer.port}/`

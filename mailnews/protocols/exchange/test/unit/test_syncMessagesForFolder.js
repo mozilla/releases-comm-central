@@ -30,19 +30,42 @@ var { NetUtil } = ChromeUtils.importESModule(
  *
  * @type {IExchangeClient}
  */
-var client;
+var ewsClient;
 
 /**
- * A mock Exchange server instance to provide request/response handling.
+ * A Graph client implementation against which we will test.
+ *
+ * @type {IExchangeClient}
+ */
+var graphClient;
+
+/**
+ * A mock Exchange/EWS server instance to provide request/response handling.
  *
  * @type {EwsServer}
  */
 var ewsServer;
 
 /**
+ * A mock Exchange/Graph server instance to provide request/response handling.
+ *
+ * @type {GraphServer}
+ */
+var graphServer;
+
+/**
+ * Incoming server for EWS tests.
+ *
  * @type {nsIMsgIncomingServer}
  */
-var incomingServer;
+var incomingEwsServer;
+
+/**
+ * Incoming server for Graph tests.
+ *
+ * @type {nsIMsgIncomingServer}
+ */
+var incomingGraphServer;
 
 const generator = new MessageGenerator();
 
@@ -70,31 +93,19 @@ function deAngled(rawMessageId) {
 }
 
 add_setup(async () => {
-  do_get_profile();
+  // Create and configure the EWS and Graph incoming servers.
+  [ewsServer, incomingEwsServer] = setupBasicEwsTestServer({});
+  [graphServer, incomingGraphServer] = setupBasicGraphTestServer();
 
-  ewsServer = new EwsServer();
-  ewsServer.start();
+  await syncFolder(incomingEwsServer, incomingEwsServer.rootFolder);
+  await syncFolder(incomingGraphServer, incomingGraphServer.rootFolder);
 
-  // Create and configure the EWS incoming server.
-  incomingServer = localAccountUtils.create_incoming_server(
-    "ews",
-    ewsServer.port,
-    "user",
-    "password"
-  );
-  incomingServer.QueryInterface(Ci.IEwsIncomingServer);
-  incomingServer.setStringValue(
-    "ews_url",
-    `http://127.0.0.1:${ewsServer.port}/EWS/Exchange.asmx`
-  );
-  await syncFolder(incomingServer, incomingServer.rootFolder);
-
-  client = Cc["@mozilla.org/messenger/ews-client;1"].createInstance(
+  ewsClient = Cc["@mozilla.org/messenger/ews-client;1"].createInstance(
     Ci.IExchangeClient
   );
-  client.initialize(
-    incomingServer.getStringValue("ews_url"),
-    incomingServer,
+  ewsClient.initialize(
+    incomingEwsServer.getStringValue("ews_url"),
+    incomingEwsServer,
     false,
     "",
     "",
@@ -103,26 +114,57 @@ add_setup(async () => {
     ""
   );
 
-  registerCleanupFunction(() => {
-    // We need to stop the mock server, but the client has no additional
-    // teardown needed.
-    ewsServer.stop();
-  });
+  graphClient = Cc["@mozilla.org/messenger/graph-client;1"].createInstance(
+    Ci.IExchangeClient
+  );
+  graphClient.initialize(
+    incomingGraphServer.getStringValue("ews_url"),
+    incomingGraphServer,
+    false,
+    "",
+    "",
+    "",
+    "",
+    ""
+  );
 });
+
+add_task(async function testMessageBatchingEws() {
+  await testMessageBatching(ewsServer, ewsClient);
+});
+
+add_task(async function testSyncChangesWithClientEws() {
+  await testSyncChangesWithClient(ewsServer, ewsClient);
+});
+
+add_task(async function testSyncChangesWithRealFolderEws() {
+  await testSyncChangesWithRealFolder(ewsServer, incomingEwsServer);
+});
+
+add_task(async function testSyncRecipientsEws() {
+  await testSyncRecipients(ewsServer, incomingEwsServer);
+});
+
+add_task(async function testMessageBatchingGraph() {
+  await testMessageBatching(graphServer, graphClient);
+});
+
+// TODO (https://bugzilla.mozilla.org/show_bug.cgi?id=2025009) Enable the other
+// three tests for Graph once we support updates on sync.
 
 /**
  * Test sync wherein we sync more changes than the server will send in one
  * response and need to batch message header fetch.
  */
-add_task(async function testMessageBatching() {
-  ewsServer.setRemoteFolders(ewsServer.getWellKnownFolders());
-  ewsServer.clearItems();
-  ewsServer.maxSyncItems = 4;
+async function testMessageBatching(mockServer, client) {
+  mockServer.setRemoteFolders(mockServer.getWellKnownFolders());
+  mockServer.clearItems();
+  mockServer.maxSyncItems = 4;
 
   const messages = generator.makeMessages({});
-  ewsServer.addMessages("inbox", messages);
+  mockServer.addMessages("inbox", messages);
 
-  const listener = new EwsMessageCallbackListener();
+  const listener = new ExchangeMessageCallbackListener();
   client.syncMessagesForFolder(listener, "inbox", null);
   await listener._deferred.promise;
 
@@ -153,22 +195,22 @@ add_task(async function testMessageBatching() {
     "the sync token should have been recorded"
   );
 
-  ewsServer.maxSyncItems = Infinity;
-});
+  mockServer.maxSyncItems = Infinity;
+}
 
 /**
  * Test what happens if an item is moved or deleted.
  */
-add_task(async function testSyncChangesWithClient() {
-  ewsServer.setRemoteFolders(ewsServer.getWellKnownFolders());
-  ewsServer.clearItems();
+async function testSyncChangesWithClient(mockServer, client) {
+  mockServer.setRemoteFolders(mockServer.getWellKnownFolders());
+  mockServer.clearItems();
 
   const messages = generator.makeMessages({ count: 6 });
-  ewsServer.addMessages("inbox", messages);
+  mockServer.addMessages("inbox", messages);
 
   // Initial sync.
 
-  let listener = new EwsMessageCallbackListener();
+  let listener = new ExchangeMessageCallbackListener();
   client.syncMessagesForFolder(listener, "inbox", null);
   await listener._deferred.promise;
 
@@ -210,29 +252,29 @@ add_task(async function testSyncChangesWithClient() {
   const messageIdToUpdate = messages[5].messageId;
   const itemIdToUpdate = btoa(messages[5].messageId);
   messages[5].subject = "Scary Monster Under Your Bed";
-  ewsServer.itemChanges.push(["update", "inbox", itemIdToUpdate]);
+  mockServer.itemChanges.push(["update", "inbox", itemIdToUpdate]);
 
   const itemIdToMove = btoa(messages[4].messageId);
-  ewsServer.addNewItemOrMoveItemToFolder(itemIdToMove, "junkemail");
+  mockServer.addNewItemOrMoveItemToFolder(itemIdToMove, "junkemail");
   const [movedMessage] = messages.splice(4, 1);
 
   const itemIdToDelete = btoa(messages[2].messageId);
-  ewsServer.deleteItem(itemIdToDelete);
+  mockServer.deleteItem(itemIdToDelete);
   messages.splice(2, 1);
 
   const itemIdToMarkRead = btoa(messages[1].messageId);
   messages[1].metaState.read = true;
-  ewsServer.itemChanges.push(["readflag", "inbox", itemIdToMarkRead]);
+  mockServer.itemChanges.push(["readflag", "inbox", itemIdToMarkRead]);
 
   const messageIdToFlag = messages[0].messageId;
   const itemIdToFlag = btoa(messages[0].messageId);
   messages[0].metaState.flagged = true;
-  ewsServer.itemChanges.push(["update", "inbox", itemIdToFlag]);
+  mockServer.itemChanges.push(["update", "inbox", itemIdToFlag]);
 
   // Sync again to pick up the changes.
 
   const syncStateToken = listener._syncStateToken;
-  listener = new EwsMessageCallbackListener();
+  listener = new ExchangeMessageCallbackListener();
   client.syncMessagesForFolder(listener, "inbox", syncStateToken);
   await listener._deferred.promise;
 
@@ -268,7 +310,7 @@ add_task(async function testSyncChangesWithClient() {
 
   // Check that the moved message arrives at its destination.
 
-  listener = new EwsMessageCallbackListener();
+  listener = new ExchangeMessageCallbackListener();
   client.syncMessagesForFolder(listener, "junkemail", null);
   await listener._deferred.promise;
 
@@ -303,9 +345,9 @@ add_task(async function testSyncChangesWithClient() {
     listener._syncStateToken,
     "the sync token should have been recorded"
   );
-});
+}
 
-class EwsMessageCallbackListener {
+class ExchangeMessageCallbackListener {
   QueryInterface = ChromeUtils.generateQI(["IExchangeMessageSyncListener"]);
 
   constructor() {
@@ -358,15 +400,15 @@ class EwsMessageCallbackListener {
  * The same as above, but using folders, to check the changes make it all the
  * way to the database.
  */
-add_task(async function testSyncChangesWithRealFolder() {
-  ewsServer.setRemoteFolders(ewsServer.getWellKnownFolders());
-  ewsServer.clearItems();
+async function testSyncChangesWithRealFolder(mockServer, incomingServer) {
+  mockServer.setRemoteFolders(mockServer.getWellKnownFolders());
+  mockServer.clearItems();
 
   const inbox = incomingServer.rootFolder.getChildNamed("Inbox");
   const junk = incomingServer.rootFolder.getChildNamed("Junk");
 
   const messages = generator.makeMessages({ count: 6 });
-  ewsServer.addMessages("inbox", messages);
+  mockServer.addMessages("inbox", messages);
 
   // Initial sync.
 
@@ -410,24 +452,24 @@ add_task(async function testSyncChangesWithRealFolder() {
   const itemIdToUpdate = btoa(messages[5].messageId);
   messages[5].subject = "Scary Monster Under Your Bed";
   messages[5].bodyPart.body = `Kia ora ${originalGreeting[1]}!`;
-  ewsServer.itemChanges.push(["update", "inbox", itemIdToUpdate]);
+  mockServer.itemChanges.push(["update", "inbox", itemIdToUpdate]);
 
   const itemIdToMove = btoa(messages[4].messageId);
-  ewsServer.addNewItemOrMoveItemToFolder(itemIdToMove, "junkemail");
+  mockServer.addNewItemOrMoveItemToFolder(itemIdToMove, "junkemail");
   const [movedMessage] = messages.splice(4, 1);
 
   const itemIdToDelete = btoa(messages[3].messageId);
-  ewsServer.deleteItem(itemIdToDelete);
+  mockServer.deleteItem(itemIdToDelete);
   messages.splice(3, 1);
 
   const itemIdToMarkRead = btoa(messages[1].messageId);
   messages[1].metaState.read = true;
-  ewsServer.itemChanges.push(["readflag", "inbox", itemIdToMarkRead]);
+  mockServer.itemChanges.push(["readflag", "inbox", itemIdToMarkRead]);
 
   const messageIdToFlag = messages[0].messageId;
   const itemIdToFlag = btoa(messages[0].messageId);
   messages[0].metaState.flagged = true;
-  ewsServer.itemChanges.push(["update", "inbox", itemIdToFlag]);
+  mockServer.itemChanges.push(["update", "inbox", itemIdToFlag]);
 
   // Sync again to pick up the changes.
 
@@ -495,15 +537,15 @@ add_task(async function testSyncChangesWithRealFolder() {
     () => incomingServer.rootFolder.getTotalMessages(true) == 0,
     "waiting for messages to be deleted"
   );
-});
+}
 
 /**
  * Test that the recipients of a new message are correctly persisted.
  */
-add_task(async function testSyncRecipients() {
+async function testSyncRecipients(mockServer, incomingServer) {
   // Create a new folder for our test on the server.
   const folderName = "recipientsSync";
-  ewsServer.appendRemoteFolder(
+  mockServer.appendRemoteFolder(
     new RemoteFolder(folderName, "root", folderName, null)
   );
 
@@ -519,7 +561,7 @@ add_task(async function testSyncRecipients() {
     subject: "Hello world",
   });
 
-  ewsServer.addMessages(folderName, [msg]);
+  mockServer.addMessages(folderName, [msg]);
 
   // Sync and wait for the message to show up.
   const rootFolder = incomingServer.rootFolder;
@@ -549,7 +591,7 @@ add_task(async function testSyncRecipients() {
     '"Bob" <bob@foo.invalid>',
     "the ccList property on the message should match the ones in the message"
   );
-});
+}
 
 /**
  * Fetch the full message from the message service. If necessary, from the server.
