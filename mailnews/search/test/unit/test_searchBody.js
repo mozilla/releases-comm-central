@@ -58,6 +58,7 @@ var Files = [
 
   // Bodies with non-ASCII characters in UTF-8 and other charsets.
   "../../../data/11-plaintext.eml",
+  "../../../data/11-plaintext-greek.eml", // using ISO-8859-7 (Greek)
   "../../../data/12-plaintext+attachment.eml", // using ISO-8859-7 (Greek)
   "../../../data/13-HTML.eml",
   "../../../data/14-HTML+attachment.eml",
@@ -142,8 +143,8 @@ var Tests = [
 
   // Messages 11 and 13 to 20 contain "hühü" once.
   { value: "hühü", op: Contains, count: 9 },
-  // Message 12 contains Καλησπέρα (good evening in Greek).
-  { value: "Καλησπέρα", op: Contains, count: 1 },
+  // Messages 11-plaintext-greek.eml and 12 contain Καλησπέρα (good evening in Greek).
+  { value: "Καλησπέρα", op: Contains, count: 2 },
 
   // Messages 16, 17, 18, 20 contain "hïhï" in the plaintext part.
   { value: "hïhï", op: Contains, count: 4 },

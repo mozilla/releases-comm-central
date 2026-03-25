@@ -563,6 +563,9 @@ void nsMsgBodyHandler::SniffPossibleMIMEHeader(const nsCString& line) {
     if (!m_boundaries.Contains(boundary)) m_boundaries.AppendElement(boundary);
   }
 
+  // For simple text/plain or text/html messages we don't need the charset,
+  // since the caller of `MatchBody()` already provides the overall message
+  // charset.
   if (m_isMultipart && (start = lowerCaseLine.Find("charset=")) != kNotFound) {
     start += 8;  // strlen("charset=")
     bool foundQuote = false;

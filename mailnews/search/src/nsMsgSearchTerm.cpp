@@ -783,7 +783,7 @@ NS_IMETHODIMP nsMsgSearchTerm::MatchUint32HdrProperty(nsIMsgDBHdr* aHdr,
 }
 
 nsresult nsMsgSearchTerm::MatchBody(nsIMsgSearchScopeTerm* scope,
-                                    const char* folderCharset, nsIMsgDBHdr* msg,
+                                    const char* msgCharset, nsIMsgDBHdr* msg,
                                     bool* pResult) {
   NS_ENSURE_ARG_POINTER(pResult);
   nsresult rv = NS_OK;
@@ -836,9 +836,8 @@ nsresult nsMsgSearchTerm::MatchBody(nsIMsgSearchScopeTerm* scope,
     if (!compare.IsEmpty()) {
       char startChar = (char)compare.CharAt(0);
       if (startChar != '\r' && startChar != '\n') {
-        rv = MatchString(compare,
-                         charset.IsEmpty() ? folderCharset : charset.get(),
-                         &result);
+        rv = MatchString(
+            compare, charset.IsEmpty() ? msgCharset : charset.get(), &result);
       }
       compare.Truncate();
     }
