@@ -262,6 +262,54 @@ export class LiveViewDataAdapter extends TreeDataAdapter {
  */
 export class LiveViewThreadedDataAdapter extends LiveViewDataAdapter {
   /**
+   * Put a group of messages in thread order.
+   *
+   * @param {Message[]} messages
+   * @returns {Message[]}
+   */
+  static sortThread(messages) {
+    const idMap = new Map(messages.map(m => [m.id, m]));
+
+    // Link all of the messages together. Each message is a member of a
+    // parent message's children, or a root.
+    const roots = [];
+    for (const message of messages) {
+      if (message.threadParent) {
+        const parentMessage = idMap.get(message.threadParent);
+        if (parentMessage) {
+          parentMessage.childMessages ??= [];
+          parentMessage.childMessages.push(message);
+          continue;
+        }
+      }
+      roots.push(message);
+    }
+
+    // Construct a flat list of the messages in thread order.
+    const sorted = [];
+    function append(unsorted, level) {
+      if (!unsorted) {
+        return;
+      }
+
+      // Siblings are in date, ascending order. We could revisit this.
+      unsorted.sort((a, b) => a.date - b.date);
+      for (const message of unsorted) {
+        message.level = level;
+        sorted.push(message);
+        append(message.childMessages, level + 1);
+        delete message.childMessages;
+      }
+    }
+    // TODO: This will add all roots at level 0, which is accurate but not
+    // very good from a UI standpoint. I'm leaving it like this until we
+    // figure out what to do with threads containing missing messages.
+    append(roots, 0);
+
+    return sorted;
+  }
+
+  /**
    * A map of thread identifiers to `LiveViewThreadDataRow`s.
    *
    * @type {Map<number, LiveViewThreadDataRow>}
@@ -652,13 +700,11 @@ class LiveViewThreadDataRow extends LiveViewDataRow {
     const messages = await this.#liveView.selectMessagesInGroup(
       this.thread.threadId
     );
-    this.#openMessage = messages[0];
+    const sortedMessages = LiveViewThreadedDataAdapter.sortThread(messages);
+    this.#openMessage = sortedMessages[0];
 
     for (let i = 0; i < this.children.length; i++) {
-      const message = messages[i + 1];
-      this.children[i] = new LiveViewDataRow(message);
-      this.children[i].parent = this;
-      this.children[i].level = this.level + 1;
+      this.children[i] = new LiveViewDataRow(sortedMessages[i + 1]);
     }
     if (this.open) {
       this._initFromMessage(this.#openMessage);
@@ -695,24 +741,42 @@ class LiveViewThreadDataRow extends LiveViewDataRow {
 
   /**
    * Add a new LiveViewDataRow to this row's children, updating the tree as
-   * necessary. TODO: correctly order the children.
+   * necessary.
    *
    * @param {TreeDataAdapter} dataAdapter
    * @param {number} rootIndex - The index of this row in the adapter's rows.
    * @param {Message} message
    */
   addChild(dataAdapter, rootIndex, message) {
+    if (!this.open && this.children[0] === undefined) {
+      // This row has never been opened. We know how many children it has, but
+      // we don't have the children. Now there's another child, expand the
+      // array that will hold them.
+      this.children.length++;
+      dataAdapter._tree?.invalidateRow(rootIndex);
+      return;
+    }
+
+    // TODO: This should be done with a faster operation, e.g. a binary search,
+    // but it's good enough for now while we work on correctness.
+    const sortedMessages = LiveViewThreadedDataAdapter.sortThread([
+      this.#openMessage,
+      ...this.children.map(r => r.message),
+      message,
+    ]);
+    this.#openMessage = sortedMessages[0];
+    // TODO: Work out if #closedMessage needs to be changed.
+
+    this.children.length++;
+    for (let i = 0; i < this.children.length; i++) {
+      this.children[i] = new LiveViewDataRow(sortedMessages[i + 1]);
+    }
+
     if (this.open) {
-      this.children.push(new LiveViewDataRow(message));
       dataAdapter._clearFlatRowCache();
       dataAdapter._tree?.rowCountChanged(rootIndex, 1);
       // Adding a row will invalidate all those below it.
     } else {
-      if (this.children[0] === undefined) {
-        this.children.length++;
-      } else {
-        this.children.push(new LiveViewDataRow(message));
-      }
       dataAdapter._tree?.invalidateRow(rootIndex);
     }
   }
@@ -738,6 +802,9 @@ class LiveViewThreadDataRow extends LiveViewDataRow {
     }
 
     if (this.children[0] === undefined) {
+      // This row has never been opened. We know how many children it has, but
+      // we don't have the children. Now a child has been removed, shrink the
+      // array that will hold them.
       this.children.length--;
       if (this.open) {
         dataAdapter._clearFlatRowCache();
