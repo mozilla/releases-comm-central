@@ -555,7 +555,7 @@ add_task(async function testFirstRun() {
 
   Assert.equal(
     doc.getElementById("version").textContent,
-    AppConstants.MOZ_APP_VERSION_DISPLAY,
+    AppConstants.MOZ_APP_VERSION,
     "Thunderbird version number should be correct"
   );
 
