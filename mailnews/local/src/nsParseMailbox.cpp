@@ -43,6 +43,7 @@
 #include "nsIMimeConverter.h"
 #include "mozilla/Components.h"
 #include "mozilla/Preferences.h"
+#include "mozilla/ScopeExit.h"
 
 using namespace mozilla;
 
@@ -1811,9 +1812,24 @@ nsresult nsParseNewMailState::EndMsgDownload() {
   return NS_OK;
 }
 
-/*
- * Moves message pointed to by mailHdr into folder destIFolder.
- * After successful move mailHdr is no longer usable by the caller.
+/**
+ * Moves a newly incorporated POP3 message from the download folder
+ * (typically the Inbox) into the target local destination folder.
+ *
+ * This function utilizes a robust stream-copy and hard-delete pipeline
+ * to bypass OS-level file locking issues (e.g., Windows sharing violations)
+ * and ensures the destination is a valid, writable local mail folder.
+ *
+ * @param mailHdr     The detached header of the message currently in the
+                      download folder.
+ * @param sourceDB    The database of the download folder (used for cleanup).
+ * @param destIFolder The target local folder.
+ * @param filter      (Optional) The filter that triggered this move.
+ * @param msgWindow   (Optional) Window for displaying error alerts.
+ *
+ * @note After a successful move, the physical source file and its database
+ * entry are permanently destroyed. The passed `mailHdr` pointer becomes
+ * invalidated and must no longer be used by the caller.
  */
 nsresult nsParseNewMailState::MoveIncorporatedMessage(nsIMsgDBHdr* mailHdr,
                                                       nsIMsgDatabase* sourceDB,
@@ -1823,9 +1839,6 @@ nsresult nsParseNewMailState::MoveIncorporatedMessage(nsIMsgDBHdr* mailHdr,
   NS_ENSURE_ARG_POINTER(destIFolder);
   nsresult rv = NS_OK;
 
-  // check if the destination is a real folder (by checking for null parent)
-  // and if it can file messages (e.g., servers or news folders can't file
-  // messages). Or read only imap folders...
   bool canFileMessages = true;
   nsCOMPtr<nsIMsgFolder> parentFolder;
   destIFolder->GetParent(getter_AddRefs(parentFolder));
@@ -1840,16 +1853,18 @@ nsresult nsParseNewMailState::MoveIncorporatedMessage(nsIMsgDBHdr* mailHdr,
     return NS_MSG_NOT_A_MAIL_FOLDER;
   }
 
+  nsCOMPtr<nsIMsgLocalMailFolder> localFolder = do_QueryInterface(destIFolder);
+  if (!localFolder) {
+    return NS_MSG_POP_FILTER_TARGET_ERROR;
+  }
+
   uint32_t messageLength;
   mailHdr->GetMessageSize(&messageLength);
-
-  nsCOMPtr<nsIMsgLocalMailFolder> localFolder = do_QueryInterface(destIFolder);
-  if (localFolder) {
-    bool destFolderTooBig = true;
-    rv = localFolder->WarnIfLocalFileTooBig(msgWindow, messageLength,
-                                            &destFolderTooBig);
-    if (NS_FAILED(rv) || destFolderTooBig)
-      return NS_MSG_ERROR_WRITING_MAIL_FOLDER;
+  bool destFolderTooBig = true;
+  rv = localFolder->WarnIfLocalFileTooBig(msgWindow, messageLength,
+                                          &destFolderTooBig);
+  if (NS_FAILED(rv) || destFolderTooBig) {
+    return NS_MSG_ERROR_WRITING_MAIL_FOLDER;
   }
 
   nsCOMPtr<nsISupports> myISupports =
@@ -1862,43 +1877,46 @@ nsresult nsParseNewMailState::MoveIncorporatedMessage(nsIMsgDBHdr* mailHdr,
     destIFolder->ThrowAlertMsg("filterFolderDeniedLocked", msgWindow);
     return rv;
   }
+
+  // Guarantees the semaphore is released no matter how this function exits.
+  auto guardSemaphore = mozilla::MakeScopeExit([&] {
+    destIFolder->ReleaseSemaphore(
+        myISupports, "nsParseNewMailState::MoveIncorporatedMessage"_ns);
+  });
+
   nsCOMPtr<nsIInputStream> inputStream;
   rv =
       m_downloadFolder->GetMsgInputStream(mailHdr, getter_AddRefs(inputStream));
   if (NS_FAILED(rv)) {
     NS_ERROR("couldn't get source msg input stream in move filter");
-    destIFolder->ReleaseSemaphore(
-        myISupports, "nsParseNewMailState::MoveIncorporatedMessage"_ns);
     return NS_MSG_FOLDER_UNREADABLE;  // ### dmb
   }
 
   nsCOMPtr<nsIMsgDatabase> destMailDB;
-
-  if (!localFolder) {
-    destIFolder->ReleaseSemaphore(
-        myISupports, "nsParseNewMailState::MoveIncorporatedMessage"_ns);
-    return NS_MSG_POP_FILTER_TARGET_ERROR;
-  }
-
   // don't force upgrade in place - open the db here before we start writing to
   // the destination file because XP_Stat can return file size including bytes
   // written...
   rv = localFolder->GetDatabaseWOReparse(getter_AddRefs(destMailDB));
-  NS_WARNING_ASSERTION(destMailDB && NS_SUCCEEDED(rv),
-                       "failed to open mail db parsing folder");
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (!destMailDB) {
+    return NS_ERROR_UNEXPECTED;
+  }
+
   nsCOMPtr<nsIMsgDBHdr> newHdr;
 
-  if (destMailDB)
-    rv = destMailDB->CopyHdrFromExistingHdr(m_new_key, mailHdr, true,
-                                            getter_AddRefs(newHdr));
-  if (NS_SUCCEEDED(rv) && !newHdr) rv = NS_ERROR_UNEXPECTED;
+  rv = destMailDB->CopyHdrFromExistingHdr(nsMsgKey_None, mailHdr, false,
+                                          getter_AddRefs(newHdr));
+  if (NS_SUCCEEDED(rv) && !newHdr) {
+    rv = NS_ERROR_UNEXPECTED;
+  }
 
   if (NS_FAILED(rv)) {
     destIFolder->ThrowAlertMsg("filterFolderHdrAddFailed", msgWindow);
   } else {
     rv = WriteMsgFromStream(inputStream, newHdr, destIFolder);
-    if (NS_FAILED(rv))
+    if (NS_FAILED(rv)) {
       destIFolder->ThrowAlertMsg("filterFolderWriteFailed", msgWindow);
+    }
   }
 
   // Release the input stream to drop the reference count and force the file
@@ -1908,31 +1926,54 @@ nsresult nsParseNewMailState::MoveIncorporatedMessage(nsIMsgDBHdr* mailHdr,
   inputStream = nullptr;
 
   if (NS_FAILED(rv)) {
-    if (destMailDB) destMailDB->Close(true);
-
-    destIFolder->ReleaseSemaphore(
-        myISupports, "nsParseNewMailState::MoveIncorporatedMessage"_ns);
-
+    destMailDB->Close(false);
     return NS_MSG_ERROR_WRITING_MAIL_FOLDER;
   }
 
-  bool movedMsgIsNew = false;
-  // if we have made it this far then the message has successfully been written
-  // to the new folder now add the header to the destMailDB.
+  // If we have made it this far then the message has successfully been written
+  // to the new folder. Now add the header to the destMailDB.
 
+  bool movedMsgIsNew = false;
   uint32_t newFlags;
   newHdr->GetFlags(&newFlags);
-  nsMsgKey msgKey;
-  newHdr->GetMessageKey(&msgKey);
   if (!(newFlags & nsMsgMessageFlags::Read)) {
     nsCString junkScoreStr;
     (void)newHdr->GetStringProperty("junkscore", junkScoreStr);
     if (atoi(junkScoreStr.get()) == nsIJunkMailPlugin::IS_HAM_SCORE) {
       newHdr->OrFlags(nsMsgMessageFlags::New, &newFlags);
-      destMailDB->AddToNewList(msgKey);
       movedMsgIsNew = true;
     }
   }
+
+  nsCOMPtr<nsIMsgDBHdr> liveHdr;
+  rv = destMailDB->AttachHdr(newHdr, true, getter_AddRefs(liveHdr));
+  if (NS_SUCCEEDED(rv) && !liveHdr) {
+    rv = NS_ERROR_UNEXPECTED;
+  }
+
+  if (NS_FAILED(rv)) {
+    destIFolder->ThrowAlertMsg("filterFolderHdrAddFailed", msgWindow);
+    // Remove the orphaned message from the destination folder.
+    nsCOMPtr<nsIMsgPluggableStore> destStore;
+    if (NS_SUCCEEDED(destIFolder->GetMsgStore(getter_AddRefs(destStore)))) {
+      nsAutoCString token;
+      if (NS_SUCCEEDED(newHdr->GetStoreToken(token)) && !token.IsEmpty()) {
+        (void)destStore->DeleteStoreMessages(destIFolder, {token});
+      }
+    }
+    destMailDB->Close(false);
+    return NS_MSG_ERROR_WRITING_MAIL_FOLDER;
+  }
+
+  newHdr = liveHdr;
+
+  nsMsgKey msgKey;
+  newHdr->GetMessageKey(&msgKey);
+  if (movedMsgIsNew) {
+    destMailDB->AddToNewList(msgKey);
+    destIFolder->SetHasNewMessages(true);
+  }
+
   nsCOMPtr<nsIMsgFolderNotificationService> notifier =
       mozilla::components::FolderNotification::Service();
   notifier->NotifyMsgAdded(newHdr);
@@ -1945,10 +1986,11 @@ nsresult nsParseNewMailState::MoveIncorporatedMessage(nsIMsgDBHdr* mailHdr,
   // detached Inbox header (which we are about to hard-delete in cleanupSource).
   m_msgToForwardOrReply = newHdr;
 
-  if (movedMsgIsNew) destIFolder->SetHasNewMessages(true);
-  if (!m_filterTargetFolders.Contains(destIFolder))
+  if (!m_filterTargetFolders.Contains(destIFolder)) {
     m_filterTargetFolders.AppendObject(destIFolder);
+  }
 
+  guardSemaphore.release();
   destIFolder->ReleaseSemaphore(
       myISupports, "nsParseNewMailState::MoveIncorporatedMessage"_ns);
 
