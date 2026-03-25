@@ -65,14 +65,7 @@
       };
     }
 
-    connectedCallback() {
-      if (this.delayConnectedCallback() || this.hasChildNodes()) {
-        return;
-      }
-
-      MozXULElement.insertFTLIfNeeded("calendar/calendar-widgets.ftl");
-      MozXULElement.insertFTLIfNeeded("calendar/calendar.ftl");
-
+    static get fragment() {
       const minimonthHeader = `
         <html:div class="minimonth-header minimonth-month-box"
                   xmlns="http://www.w3.org/1999/xhtml">
@@ -129,33 +122,47 @@
         </html:tr>
       `;
 
-      this.appendChild(
+      const frag = document.importNode(
         MozXULElement.parseXULToFragment(
           `
-          ${minimonthHeader}
-          <html:div class="minimonth-readonly-header minimonth-month-box"></html:div>
-          <html:table class="minimonth-calendar minimonth-cal-box">
-            <html:tr class="minimonth-row-head">
-              <html:th class="minimonth-row-header-week" scope="col"></html:th>
-              <html:th class="minimonth-row-header" scope="col"></html:th>
-              <html:th class="minimonth-row-header" scope="col"></html:th>
-              <html:th class="minimonth-row-header" scope="col"></html:th>
-              <html:th class="minimonth-row-header" scope="col"></html:th>
-              <html:th class="minimonth-row-header" scope="col"></html:th>
-              <html:th class="minimonth-row-header" scope="col"></html:th>
-              <html:th class="minimonth-row-header" scope="col"></html:th>
-            </html:tr>
-            ${minimonthWeekRow}
-            ${minimonthWeekRow}
-            ${minimonthWeekRow}
-            ${minimonthWeekRow}
-            ${minimonthWeekRow}
-            ${minimonthWeekRow}
-          </html:table>
-          `,
+        ${minimonthHeader}
+        <html:div class="minimonth-readonly-header minimonth-month-box"></html:div>
+        <html:table class="minimonth-calendar minimonth-cal-box">
+          <html:tr class="minimonth-row-head">
+            <html:th class="minimonth-row-header-week" scope="col"></html:th>
+            <html:th class="minimonth-row-header" scope="col"></html:th>
+            <html:th class="minimonth-row-header" scope="col"></html:th>
+            <html:th class="minimonth-row-header" scope="col"></html:th>
+            <html:th class="minimonth-row-header" scope="col"></html:th>
+            <html:th class="minimonth-row-header" scope="col"></html:th>
+            <html:th class="minimonth-row-header" scope="col"></html:th>
+            <html:th class="minimonth-row-header" scope="col"></html:th>
+          </html:tr>
+          ${minimonthWeekRow}
+          ${minimonthWeekRow}
+          ${minimonthWeekRow}
+          ${minimonthWeekRow}
+          ${minimonthWeekRow}
+          ${minimonthWeekRow}
+        </html:table>
+        `,
           ["chrome://calendar/locale/global.dtd"]
-        )
+        ),
+        true
       );
+      Object.defineProperty(this, "fragment", { value: frag });
+      return frag;
+    }
+
+    connectedCallback() {
+      if (this.delayConnectedCallback() || this.hasChildNodes()) {
+        return;
+      }
+
+      MozXULElement.insertFTLIfNeeded("calendar/calendar-widgets.ftl");
+      MozXULElement.insertFTLIfNeeded("calendar/calendar.ftl");
+
+      this.appendChild(this.constructor.fragment.cloneNode(true));
       this.initializeAttributeInheritance();
       this.setAttribute("orient", "vertical");
 

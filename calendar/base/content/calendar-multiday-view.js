@@ -80,6 +80,30 @@
       };
     }
 
+    static get fragment() {
+      const frag = document.importNode(
+        MozXULElement.parseXULToFragment(`
+          <stack class="multiday-column-box-stack" flex="1">
+            <html:div class="multiday-hour-box-container"></html:div>
+            <html:ol class="multiday-events-list"></html:ol>
+            <box class="timeIndicator" hidden="hidden"/>
+            <box class="fgdragcontainer" flex="1">
+              <box class="fgdragspacer">
+                <spacer flex="1"/>
+                <label class="fgdragbox-label fgdragbox-startlabel"/>
+              </box>
+              <box class="fgdragbox"/>
+              <label class="fgdragbox-label fgdragbox-endlabel"/>
+            </box>
+          </stack>
+          <calendar-event-box hidden="hidden"/>
+        `),
+        true
+      );
+      Object.defineProperty(this, "fragment", { value: frag });
+      return frag;
+    }
+
     /**
      * The background hour box elements this event column owns, ordered and
      * indexed by their starting hour.
@@ -99,24 +123,7 @@
       if (this.delayConnectedCallback() || this.hasChildNodes()) {
         return;
       }
-      this.appendChild(
-        MozXULElement.parseXULToFragment(`
-          <stack class="multiday-column-box-stack" flex="1">
-            <html:div class="multiday-hour-box-container"></html:div>
-            <html:ol class="multiday-events-list"></html:ol>
-            <box class="timeIndicator" hidden="hidden"/>
-            <box class="fgdragcontainer" flex="1">
-              <box class="fgdragspacer">
-                <spacer flex="1"/>
-                <label class="fgdragbox-label fgdragbox-startlabel"/>
-              </box>
-              <box class="fgdragbox"/>
-              <label class="fgdragbox-label fgdragbox-endlabel"/>
-            </box>
-          </stack>
-          <calendar-event-box hidden="hidden"/>
-        `)
-      );
+      this.appendChild(this.constructor.fragment.cloneNode(true));
       this.hourBoxContainer = this.querySelector(".multiday-hour-box-container");
       for (let hour = 0; hour < 24; hour++) {
         const hourBox = document.createElement("div");
@@ -1648,6 +1655,32 @@
         ".alarm-icons-box": "flashing",
       };
     }
+
+    static get fragment() {
+      // The calendar-item-flex div has the same markup as it does in MozCalendarEditableItem.
+      const frag = document.importNode(
+        MozXULElement.parseXULToFragment(`
+          <html:div class="calendar-item-container">
+            <html:div class="calendar-item-flex">
+              <html:img class="item-type-icon" alt="" />
+              <html:div class="event-name-label"></html:div>
+              <html:input class="plain event-name-input"
+                          hidden="hidden"
+                          data-l10n-id="new-event"/>
+              <html:div class="alarm-icons-box"></html:div>
+              <html:img class="item-classification-icon" />
+              <html:img class="item-recurrence-icon" />
+            </html:div>
+            <html:div class="location-desc"></html:div>
+            <html:div class="calendar-category-box"></html:div>
+          </html:div>
+        `),
+        true
+      );
+      Object.defineProperty(this, "fragment", { value: frag });
+      return frag;
+    }
+
     constructor() {
       super();
       this.addEventListener("mousedown", event => {
@@ -1749,25 +1782,7 @@
       }
       MozXULElement.insertFTLIfNeeded("calendar/calendar.ftl");
 
-      this.appendChild(
-        MozXULElement.parseXULToFragment(`
-          <!-- NOTE: The following div is the same markup as EditableItem. -->
-          <html:div class="calendar-item-container">
-            <html:div class="calendar-item-flex">
-              <html:img class="item-type-icon" alt="" />
-              <html:div class="event-name-label"></html:div>
-              <html:input class="plain event-name-input"
-                          hidden="hidden"
-                          data-l10n-id="new-event"/>
-              <html:div class="alarm-icons-box"></html:div>
-              <html:img class="item-classification-icon" />
-              <html:img class="item-recurrence-icon" />
-            </html:div>
-            <html:div class="location-desc"></html:div>
-            <html:div class="calendar-category-box"></html:div>
-          </html:div>
-        `)
-      );
+      this.appendChild(this.constructor.fragment.cloneNode(true));
 
       this.startGripbar = this.createGripbar("start");
       this.endGripbar = this.createGripbar("end");

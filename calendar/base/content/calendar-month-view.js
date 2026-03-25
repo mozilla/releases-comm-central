@@ -297,14 +297,11 @@
         ".alarm-icons-box": "flashing",
       };
     }
-    connectedCallback() {
-      if (this.delayConnectedCallback() || this.hasChildNodes()) {
-        return;
-      }
-      MozXULElement.insertFTLIfNeeded("calendar/calendar.ftl");
+
+    static get fragment() {
       // NOTE: This is the same structure as EditableItem, except this has a
       // time label and we are missing the location-desc.
-      this.appendChild(
+      const frag = document.importNode(
         MozXULElement.parseXULToFragment(`
           <html:img class="item-type-icon" alt="" />
           <html:div class="item-time-label"></html:div>
@@ -316,8 +313,19 @@
           <html:img class="item-classification-icon" />
           <html:img class="item-recurrence-icon" />
           <html:div class="calendar-category-box"></html:div>
-        `)
+        `),
+        true
       );
+      Object.defineProperty(this, "fragment", { value: frag });
+      return frag;
+    }
+
+    connectedCallback() {
+      if (this.delayConnectedCallback() || this.hasChildNodes()) {
+        return;
+      }
+      MozXULElement.insertFTLIfNeeded("calendar/calendar.ftl");
+      this.appendChild(this.constructor.fragment.cloneNode(true));
       this.timeLabel = this.querySelector(".item-time-label");
 
       this.setAttribute("draggable", "true");

@@ -30,6 +30,30 @@
         ".alarm-icons-box": "flashing",
       };
     }
+
+    static get fragment() {
+      // The calendar-item-flex div has the same markup as it does in MozCalendarEventBox.
+      const frag = document.importNode(
+        MozXULElement.parseXULToFragment(`
+          <html:div class="calendar-item-flex">
+            <html:img class="item-type-icon" alt="" />
+            <html:div class="event-name-label"></html:div>
+            <html:input class="plain event-name-input"
+                        hidden="hidden"
+                        data-l10n-id="new-event"/>
+            <html:div class="alarm-icons-box"></html:div>
+            <html:img class="item-classification-icon" />
+            <html:img class="item-recurrence-icon" />
+          </html:div>
+          <html:div class="location-desc"></html:div>
+          <html:div class="calendar-category-box"></html:div>
+        `),
+        true
+      );
+      Object.defineProperty(this, "fragment", { value: frag });
+      return frag;
+    }
+
     constructor() {
       super();
 
@@ -142,22 +166,7 @@
       }
       MozXULElement.insertFTLIfNeeded("calendar/calendar.ftl");
 
-      this.appendChild(
-        MozXULElement.parseXULToFragment(`
-          <html:div class="calendar-item-flex">
-            <html:img class="item-type-icon" alt="" />
-            <html:div class="event-name-label"></html:div>
-            <html:input class="plain event-name-input"
-                        hidden="hidden"
-                        data-l10n-id="new-event"/>
-            <html:div class="alarm-icons-box"></html:div>
-            <html:img class="item-classification-icon" />
-            <html:img class="item-recurrence-icon" />
-          </html:div>
-          <html:div class="location-desc"></html:div>
-          <html:div class="calendar-category-box"></html:div>
-        `)
-      );
+      this.appendChild(this.constructor.fragment.cloneNode(true));
 
       this.classList.add("calendar-color-box", "calendar-item-container");
       this.style.pointerEvents = "auto";
