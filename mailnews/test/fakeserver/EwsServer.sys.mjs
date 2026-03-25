@@ -1646,7 +1646,6 @@ export class EwsServer extends MockServer {
         this.getItemsInFolder(folder.id).forEach(item => {
           item.syntheticMessage.metaState.read = markRead;
           this.itemChanges.push(["readflag", item.parentId, item.id]);
-          console.log(item.id, item.syntheticMessage.metaState.read);
         });
 
         if (!success) {
