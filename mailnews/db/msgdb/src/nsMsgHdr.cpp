@@ -810,6 +810,11 @@ NS_IMETHODIMP nsMsgHdr::GetIsKilled(bool* isKilled) {
 }
 
 NS_IMETHODIMP nsMsgHdr::GetProperties(nsTArray<nsCString>& headers) {
+  headers.Clear();
+  if (!m_mdb || !m_mdbRow) {
+    return NS_OK;
+  }
+
   nsCOMPtr<nsIMdbRowCellCursor> rowCellCursor;
   m_mdbRow->GetRowCellCursor(m_mdb->m_mdbEnv, -1,
                              getter_AddRefs(rowCellCursor));
