@@ -700,7 +700,6 @@ impl PulseContext {
     {
         let stream = s.into();
         while o.get_state() == PA_OPERATION_RUNNING {
-            self.mainloop.wait();
             if let Some(ref context) = self.context {
                 if !context.get_state().is_good() {
                     return false;
@@ -712,6 +711,7 @@ impl PulseContext {
                     return false;
                 }
             }
+            self.mainloop.wait();
         }
 
         true

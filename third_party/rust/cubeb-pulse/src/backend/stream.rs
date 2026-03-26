@@ -465,9 +465,17 @@ impl<'ctx> PulseStream<'ctx> {
                         {
                             stream_flags |= pulse::StreamFlags::DONT_MOVE;
                         }
-                        let _ = s.connect_playback(device_name, &battr, stream_flags, None, None);
-
+                        let connect_result =
+                            s.connect_playback(device_name, &battr, stream_flags, None, None);
+                        // Set output_stream before checking connect_result so
+                        // destroy() can clean up the stream on error.
                         stm.output_stream = Some(s);
+                        if let Err(e) = connect_result {
+                            cubeb_log!("Output stream connect error: {}", e);
+                            stm.context.mainloop.unlock();
+                            stm.destroy();
+                            return Err(Error::Error);
+                        }
                     }
                     Err(e) => {
                         cubeb_log!("Output stream initialization error");
@@ -508,9 +516,16 @@ impl<'ctx> PulseStream<'ctx> {
                         {
                             stream_flags |= pulse::StreamFlags::DONT_MOVE;
                         }
-                        let _ = s.connect_record(device_name, &battr, stream_flags);
-
+                        let connect_result = s.connect_record(device_name, &battr, stream_flags);
+                        // Set input_stream before checking connect_result so
+                        // destroy() can clean up the stream on error.
                         stm.input_stream = Some(s);
+                        if let Err(e) = connect_result {
+                            cubeb_log!("Input stream connect error: {}", e);
+                            stm.context.mainloop.unlock();
+                            stm.destroy();
+                            return Err(Error::Error);
+                        }
                     }
                     Err(e) => {
                         cubeb_log!("Input stream initialization error");
@@ -996,13 +1011,15 @@ impl PulseStream<'_> {
     }
 
     fn wait_until_ready(&self) -> bool {
-        fn wait_until_io_stream_ready(
-            stm: &pulse::Stream,
-            mainloop: &pulse::ThreadedMainloop,
-        ) -> bool {
-            if mainloop.is_null() {
+        fn wait_until_io_stream_ready(stm: &pulse::Stream, ctx: &PulseContext) -> bool {
+            if ctx.mainloop.is_null() {
                 return false;
             }
+
+            let context = match ctx.context {
+                Some(ref c) => c,
+                None => return false,
+            };
 
             loop {
                 let state = stm.get_state();
@@ -1012,20 +1029,23 @@ impl PulseStream<'_> {
                 if state == pulse::StreamState::Ready {
                     break;
                 }
-                mainloop.wait();
+                if !context.get_state().is_good() {
+                    return false;
+                }
+                ctx.mainloop.wait();
             }
 
             true
         }
 
         if let Some(ref stm) = self.output_stream {
-            if !wait_until_io_stream_ready(stm, &self.context.mainloop) {
+            if !wait_until_io_stream_ready(stm, self.context) {
                 return false;
             }
         }
 
         if let Some(ref stm) = self.input_stream {
-            if !wait_until_io_stream_ready(stm, &self.context.mainloop) {
+            if !wait_until_io_stream_ready(stm, self.context) {
                 return false;
             }
         }
