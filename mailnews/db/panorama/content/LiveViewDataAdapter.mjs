@@ -491,6 +491,22 @@ export class LiveViewGroupedDataAdapter extends LiveViewDataAdapter {
     return row;
   }
 
+  /**
+   * Compare two messages for ordering their rows. Unlike the superclass, this
+   * is only used for ordering messages within a group, and the order is
+   * always date, descending unless the adapter's order is date, ascending.
+   *
+   * @param {Message} a - A message object.
+   * @param {Message} b - A message object.
+   * @returns {boolean} - True if message A should be above message B.
+   */
+  _compareMessages(a, b) {
+    if (this.sortColumn == "date" && this.sortDirection == "ascending") {
+      [a, b] = [b, a];
+    }
+    return comparators.date(a, b);
+  }
+
   onMessageAdded(message) {
     let groupField = this.sortColumn;
     let comparator = (a, b) => lazy.collator.compare(a, b) < 0;
@@ -817,24 +833,32 @@ class LiveViewGroupedHeaderRow extends TreeDataRow {
 
   /**
    * Add a new LiveViewDataRow to this row's children, updating the tree as
-   * necessary. TODO: correctly order the children.
+   * necessary.
    *
    * @param {TreeDataAdapter} dataAdapter
    * @param {number} rootIndex - The index of this row in the adapter's rows.
    * @param {Message} message
    */
   addChild(dataAdapter, rootIndex, message) {
+    if (!this.open && this.children[0] === undefined) {
+      // This row has never been opened. We know how many children it has, but
+      // we don't have the children. Now there's another child, expand the
+      // array that will hold them.
+      this.children.length++;
+      dataAdapter._tree?.invalidateRow(rootIndex);
+      return;
+    }
+    // TODO: This should be done with a faster operation, e.g. a binary search,
+    // but it's good enough for now while we work on correctness.
+    this.children.push(new LiveViewDataRow(message));
+    this.children.sort((a, b) =>
+      dataAdapter._compareMessages(a.message, b.message)
+    );
     if (this.open) {
-      this.children.push(new LiveViewDataRow(message));
       dataAdapter._clearFlatRowCache();
       dataAdapter._tree?.rowCountChanged(rootIndex, 1);
       // Adding a row will invalidate all those below it.
     } else {
-      if (this.children[0] === undefined) {
-        this.children.length++;
-      } else {
-        this.children.push(new LiveViewDataRow(message));
-      }
       dataAdapter._tree?.invalidateRow(rootIndex);
     }
   }
@@ -848,6 +872,9 @@ class LiveViewGroupedHeaderRow extends TreeDataRow {
    */
   removeChild(dataAdapter, rootIndex, message) {
     if (this.children[0] === undefined) {
+      // This row has never been opened. We know how many children it has, but
+      // we don't have the children. Now a child has been removed, shrink the
+      // array that will hold them.
       this.children.length--;
       if (this.open) {
         dataAdapter._clearFlatRowCache();

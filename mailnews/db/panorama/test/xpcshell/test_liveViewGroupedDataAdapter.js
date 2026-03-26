@@ -73,12 +73,17 @@ add_task(async function testDateDescending() {
     // A message inside an open group.
 
     const added1 = addMessage({
-      date: "2016-01-15",
+      date: "2016-03-15",
       messageId: "added1@invalid",
     });
     tree.assertRowCountChanged(4, 1);
     Assert.equal(adapter.rowCount, 13);
-    Assert.equal(adapter.getCellText(9, "messageId"), "added1@invalid");
+    Assert.equal(adapter.getCellText(4, "subject"), "2016");
+    Assert.equal(adapter.getCellText(5, "messageId"), "message7@invalid"); // 2016-09-29
+    Assert.equal(adapter.getCellText(6, "messageId"), "message5@invalid"); // 2016-09-14
+    Assert.equal(adapter.getCellText(7, "messageId"), "message11@invalid"); // 2016-05-21
+    Assert.equal(adapter.getCellText(8, "messageId"), "added1@invalid"); // 2016-03-15
+    Assert.equal(adapter.getCellText(9, "messageId"), "message10@invalid"); // 2016-02-19
 
     // A message inside a closed group.
 
@@ -89,11 +94,57 @@ add_task(async function testDateDescending() {
     tree.assertInvalidated(3, 3);
     Assert.equal(adapter.rowCount, 13);
 
-    // A message inside a year group that doesn't yet exist.
+    // Open the group.
+
+    adapter.toggleOpenState(3);
+    tree.assertRowCountChanged(4, 3);
+    tree.assertInvalidated(3, 3);
+    Assert.equal(adapter.rowCount, 16);
+    await tree.promiseInvalidated(3, 6);
+    Assert.equal(adapter.getCellText(3, "subject"), "2017");
+    Assert.equal(adapter.getCellText(4, "messageId"), "message8@invalid"); // 2017-09-15
+    Assert.equal(adapter.getCellText(5, "messageId"), "added2@invalid"); // 2017-06-06
+    Assert.equal(adapter.getCellText(6, "messageId"), "message6@invalid"); // 2017-05-10
+
+    // Close the group.
+
+    adapter.toggleOpenState(3);
+    tree.assertRowCountChanged(4, -3);
+    tree.assertInvalidated(3, 3);
+    Assert.equal(adapter.rowCount, 13);
+
+    // A message inside a previously open group.
 
     const added3 = addMessage({
-      date: "2024-07-27",
+      date: "2017-12-01",
       messageId: "added3@invalid",
+    });
+    tree.assertInvalidated(3, 3);
+    Assert.equal(adapter.rowCount, 13);
+
+    // Open the group, check the messages, close the group.
+
+    adapter.toggleOpenState(3);
+    tree.assertRowCountChanged(4, 4);
+    tree.assertInvalidated(3, 3);
+    Assert.equal(adapter.rowCount, 17);
+
+    Assert.equal(adapter.getCellText(3, "subject"), "2017");
+    Assert.equal(adapter.getCellText(4, "messageId"), "added3@invalid"); // 2017-12-01
+    Assert.equal(adapter.getCellText(5, "messageId"), "message8@invalid"); // 2017-09-15
+    Assert.equal(adapter.getCellText(6, "messageId"), "added2@invalid"); // 2017-06-06
+    Assert.equal(adapter.getCellText(7, "messageId"), "message6@invalid"); // 2017-05-10
+
+    adapter.toggleOpenState(3);
+    tree.assertRowCountChanged(4, -4);
+    tree.assertInvalidated(3, 3);
+    Assert.equal(adapter.rowCount, 13);
+
+    // A message inside a year group that doesn't yet exist.
+
+    const added4 = addMessage({
+      date: "2024-07-27",
+      messageId: "added4@invalid",
     });
     tree.assertRowCountChanged(0, 1);
     Assert.equal(adapter.rowCount, 14);
@@ -102,9 +153,9 @@ add_task(async function testDateDescending() {
     // A message inside the "future" group, that doesn't yet exist.
 
     const now = Date.now();
-    const added4 = addMessage({
+    const added5 = addMessage({
       date: new Date(now + 3600000).toISOString(),
-      messageId: "added4@invalid",
+      messageId: "added5@invalid",
     });
     tree.assertRowCountChanged(0, 1);
     Assert.equal(adapter.rowCount, 15);
@@ -112,9 +163,9 @@ add_task(async function testDateDescending() {
 
     // A message inside the "today" group, that doesn't yet exist.
 
-    const added5 = addMessage({
+    const added6 = addMessage({
       date: new Date().toISOString(),
-      messageId: "added5@invalid",
+      messageId: "added6@invalid",
     });
     tree.assertRowCountChanged(1, 1);
     Assert.equal(adapter.rowCount, 16);
@@ -125,13 +176,13 @@ add_task(async function testDateDescending() {
     tree.assertInvalidated(1, 1);
     await tree.promiseInvalidated(1, 2);
     Assert.equal(adapter.getCellText(1, "subject"), "Today");
-    Assert.equal(adapter.getCellText(2, "messageId"), "added5@invalid");
+    Assert.equal(adapter.getCellText(2, "messageId"), "added6@invalid");
 
     // A message inside the "yesterday" group, that doesn't yet exist.
 
-    const added6 = addMessage({
+    const added7 = addMessage({
       date: new Date(now - 86400000).toISOString(),
-      messageId: "added6@invalid",
+      messageId: "added7@invalid",
     });
     tree.assertRowCountChanged(3, 1);
     Assert.equal(adapter.rowCount, 18);
@@ -139,9 +190,9 @@ add_task(async function testDateDescending() {
 
     // A message inside the "last 7 days" group, that doesn't yet exist.
 
-    const added7 = addMessage({
+    const added8 = addMessage({
       date: new Date(now - 86400000 * 3).toISOString(),
-      messageId: "added7@invalid",
+      messageId: "added8@invalid",
     });
     tree.assertRowCountChanged(4, 1);
     Assert.equal(adapter.rowCount, 19);
@@ -149,9 +200,9 @@ add_task(async function testDateDescending() {
 
     // A message inside the "last 14 days" group, that doesn't yet exist.
 
-    const added8 = addMessage({
+    const added9 = addMessage({
       date: new Date(now - 86400000 * 11).toISOString(),
-      messageId: "added8@invalid",
+      messageId: "added9@invalid",
     });
     tree.assertRowCountChanged(5, 1);
     Assert.equal(adapter.rowCount, 20);
@@ -159,16 +210,16 @@ add_task(async function testDateDescending() {
 
     // A message inside an old year group that doesn't yet exist.
 
-    const added9 = addMessage({
+    const added10 = addMessage({
       date: "1995-01-01",
-      messageId: "added9@invalid",
+      messageId: "added10@invalid",
     });
     tree.assertRowCountChanged(20, 1);
     Assert.equal(adapter.rowCount, 21);
     Assert.equal(adapter.getCellText(20, "subject"), "1995");
 
     messageDB.removeMessage(added1);
-    tree.assertRowCountChanged(16, -1);
+    tree.assertRowCountChanged(15, -1);
     Assert.equal(adapter.rowCount, 20);
 
     messageDB.removeMessage(added2);
@@ -176,30 +227,34 @@ add_task(async function testDateDescending() {
     Assert.equal(adapter.rowCount, 20);
 
     messageDB.removeMessage(added3);
+    tree.assertInvalidated(10, 10);
+    Assert.equal(adapter.rowCount, 20);
+
+    messageDB.removeMessage(added4);
     tree.assertRowCountChanged(6, -1);
     Assert.equal(adapter.rowCount, 19);
 
-    messageDB.removeMessage(added4);
+    messageDB.removeMessage(added5);
     tree.assertRowCountChanged(0, -1);
     Assert.equal(adapter.rowCount, 18);
 
-    messageDB.removeMessage(added5);
+    messageDB.removeMessage(added6);
     tree.assertRowCountChanged(0, -2);
     Assert.equal(adapter.rowCount, 16);
 
-    messageDB.removeMessage(added6);
+    messageDB.removeMessage(added7);
     tree.assertRowCountChanged(0, -1);
     Assert.equal(adapter.rowCount, 15);
 
-    messageDB.removeMessage(added7);
+    messageDB.removeMessage(added8);
     tree.assertRowCountChanged(0, -1);
     Assert.equal(adapter.rowCount, 14);
 
-    messageDB.removeMessage(added8);
+    messageDB.removeMessage(added9);
     tree.assertRowCountChanged(0, -1);
     Assert.equal(adapter.rowCount, 13);
 
-    messageDB.removeMessage(added9);
+    messageDB.removeMessage(added10);
     tree.assertRowCountChanged(12, -1);
     Assert.equal(adapter.rowCount, 12);
     console.log(adapter._flatRowCache.map(r => r.texts.messageId ?? r.group));
@@ -259,12 +314,17 @@ add_task(async function testDateAscending() {
     // A message inside an open group.
 
     const added1 = addMessage({
-      date: "2016-01-15",
+      date: "2016-03-15",
       messageId: "added1@invalid",
     });
     tree.assertRowCountChanged(3, 1);
     Assert.equal(adapter.rowCount, 13);
-    Assert.equal(adapter.getCellText(8, "messageId"), "added1@invalid");
+    Assert.equal(adapter.getCellText(3, "subject"), "2016");
+    Assert.equal(adapter.getCellText(4, "messageId"), "message10@invalid"); // 2016-02-19
+    Assert.equal(adapter.getCellText(5, "messageId"), "added1@invalid"); // 2016-03-15
+    Assert.equal(adapter.getCellText(6, "messageId"), "message11@invalid"); // 2016-05-21
+    Assert.equal(adapter.getCellText(7, "messageId"), "message5@invalid"); // 2016-09-14
+    Assert.equal(adapter.getCellText(8, "messageId"), "message7@invalid"); // 2016-09-29
 
     // A message inside a closed group.
 
@@ -275,11 +335,57 @@ add_task(async function testDateAscending() {
     tree.assertInvalidated(9, 9);
     Assert.equal(adapter.rowCount, 13);
 
-    // A message inside a year group that doesn't yet exist.
+    // Open the group.
+
+    adapter.toggleOpenState(9);
+    tree.assertRowCountChanged(10, 3);
+    tree.assertInvalidated(9, 9);
+    Assert.equal(adapter.rowCount, 16);
+    await tree.promiseInvalidated(9, 12);
+    Assert.equal(adapter.getCellText(9, "subject"), "2017");
+    Assert.equal(adapter.getCellText(10, "messageId"), "message6@invalid"); // 2017-05-10
+    Assert.equal(adapter.getCellText(11, "messageId"), "added2@invalid"); // 2017-06-06
+    Assert.equal(adapter.getCellText(12, "messageId"), "message8@invalid"); // 2017-09-15
+
+    // Close the group.
+
+    adapter.toggleOpenState(9);
+    tree.assertRowCountChanged(10, -3);
+    tree.assertInvalidated(9, 9);
+    Assert.equal(adapter.rowCount, 13);
+
+    // A message inside a previously open group.
 
     const added3 = addMessage({
-      date: "2024-07-27",
+      date: "2017-12-01",
       messageId: "added3@invalid",
+    });
+    tree.assertInvalidated(9, 9);
+    Assert.equal(adapter.rowCount, 13);
+
+    // Open the group, check the messages, close the group.
+
+    adapter.toggleOpenState(9);
+    tree.assertRowCountChanged(10, 4);
+    tree.assertInvalidated(9, 9);
+    Assert.equal(adapter.rowCount, 17);
+
+    Assert.equal(adapter.getCellText(9, "subject"), "2017");
+    Assert.equal(adapter.getCellText(10, "messageId"), "message6@invalid"); // 2017-05-10
+    Assert.equal(adapter.getCellText(11, "messageId"), "added2@invalid"); // 2017-06-06
+    Assert.equal(adapter.getCellText(12, "messageId"), "message8@invalid"); // 2017-09-15
+    Assert.equal(adapter.getCellText(13, "messageId"), "added3@invalid"); // 2017-12-01
+
+    adapter.toggleOpenState(9);
+    tree.assertRowCountChanged(10, -4);
+    tree.assertInvalidated(9, 9);
+    Assert.equal(adapter.rowCount, 13);
+
+    // A message inside a year group that doesn't yet exist.
+
+    const added4 = addMessage({
+      date: "2024-07-27",
+      messageId: "added4@invalid",
     });
     tree.assertRowCountChanged(13, 1);
     Assert.equal(adapter.rowCount, 14);
@@ -288,9 +394,9 @@ add_task(async function testDateAscending() {
     // A message inside the "future" group, that doesn't yet exist.
 
     const now = Date.now();
-    const added4 = addMessage({
+    const added5 = addMessage({
       date: new Date(now + 3600000).toISOString(),
-      messageId: "added4@invalid",
+      messageId: "added5@invalid",
     });
     tree.assertRowCountChanged(14, 1);
     Assert.equal(adapter.rowCount, 15);
@@ -298,9 +404,9 @@ add_task(async function testDateAscending() {
 
     // A message inside the "today" group, that doesn't yet exist.
 
-    const added5 = addMessage({
+    const added6 = addMessage({
       date: new Date().toISOString(),
-      messageId: "added5@invalid",
+      messageId: "added6@invalid",
     });
     tree.assertRowCountChanged(14, 1);
     Assert.equal(adapter.rowCount, 16);
@@ -311,13 +417,13 @@ add_task(async function testDateAscending() {
     tree.assertInvalidated(14, 14);
     await tree.promiseInvalidated(14, 15);
     Assert.equal(adapter.getCellText(14, "subject"), "Today");
-    Assert.equal(adapter.getCellText(15, "messageId"), "added5@invalid");
+    Assert.equal(adapter.getCellText(15, "messageId"), "added6@invalid");
 
     // A message inside the "yesterday" group, that doesn't yet exist.
 
-    const added6 = addMessage({
+    const added7 = addMessage({
       date: new Date(now - 86400000).toISOString(),
-      messageId: "added6@invalid",
+      messageId: "added7@invalid",
     });
     tree.assertRowCountChanged(14, 1);
     Assert.equal(adapter.rowCount, 18);
@@ -325,9 +431,9 @@ add_task(async function testDateAscending() {
 
     // A message inside the "last 7 days" group, that doesn't yet exist.
 
-    const added7 = addMessage({
+    const added8 = addMessage({
       date: new Date(now - 86400000 * 3).toISOString(),
-      messageId: "added7@invalid",
+      messageId: "added8@invalid",
     });
     tree.assertRowCountChanged(14, 1);
     Assert.equal(adapter.rowCount, 19);
@@ -335,9 +441,9 @@ add_task(async function testDateAscending() {
 
     // A message inside the "last 14 days" group, that doesn't yet exist.
 
-    const added8 = addMessage({
+    const added9 = addMessage({
       date: new Date(now - 86400000 * 11).toISOString(),
-      messageId: "added8@invalid",
+      messageId: "added9@invalid",
     });
     tree.assertRowCountChanged(14, 1);
     Assert.equal(adapter.rowCount, 20);
@@ -345,9 +451,9 @@ add_task(async function testDateAscending() {
 
     // A message inside an old year group that doesn't yet exist.
 
-    const added9 = addMessage({
+    const added10 = addMessage({
       date: "1995-01-01",
-      messageId: "added9@invalid",
+      messageId: "added10@invalid",
     });
     tree.assertRowCountChanged(0, 1);
     Assert.equal(adapter.rowCount, 21);
@@ -355,7 +461,7 @@ add_task(async function testDateAscending() {
 
     console.log(adapter._flatRowCache.map(r => r.texts.messageId ?? r.group));
     messageDB.removeMessage(added1);
-    tree.assertRowCountChanged(9, -1);
+    tree.assertRowCountChanged(6, -1);
     Assert.equal(adapter.rowCount, 20);
 
     messageDB.removeMessage(added2);
@@ -363,30 +469,34 @@ add_task(async function testDateAscending() {
     Assert.equal(adapter.rowCount, 20);
 
     messageDB.removeMessage(added3);
+    tree.assertInvalidated(9, 9);
+    Assert.equal(adapter.rowCount, 20);
+
+    messageDB.removeMessage(added4);
     tree.assertRowCountChanged(13, -1);
     Assert.equal(adapter.rowCount, 19);
 
-    messageDB.removeMessage(added4);
+    messageDB.removeMessage(added5);
     tree.assertRowCountChanged(18, -1);
     Assert.equal(adapter.rowCount, 18);
 
-    messageDB.removeMessage(added5);
+    messageDB.removeMessage(added6);
     tree.assertRowCountChanged(16, -2);
     Assert.equal(adapter.rowCount, 16);
 
-    messageDB.removeMessage(added6);
+    messageDB.removeMessage(added7);
     tree.assertRowCountChanged(15, -1);
     Assert.equal(adapter.rowCount, 15);
 
-    messageDB.removeMessage(added7);
+    messageDB.removeMessage(added8);
     tree.assertRowCountChanged(14, -1);
     Assert.equal(adapter.rowCount, 14);
 
-    messageDB.removeMessage(added8);
+    messageDB.removeMessage(added9);
     tree.assertRowCountChanged(13, -1);
     Assert.equal(adapter.rowCount, 13);
 
-    messageDB.removeMessage(added9);
+    messageDB.removeMessage(added10);
     tree.assertRowCountChanged(0, -1);
     Assert.equal(adapter.rowCount, 12);
     console.log(adapter._flatRowCache.map(r => r.texts.messageId ?? r.group));
@@ -433,12 +543,11 @@ add_task(async function testSubjectDescending() {
     await tree.promiseInvalidated(7, 12);
     Assert.equal(adapter.rowCount, 13);
     Assert.equal(subjectAt(7), "Automated uniform internet solution");
-    // FIXME: Order not defined in code. Currently using insertion order.
-    Assert.equal(adapter.getCellText(8, "messageId"), "message5@invalid");
-    Assert.equal(adapter.getCellText(9, "messageId"), "message6@invalid");
-    Assert.equal(adapter.getCellText(10, "messageId"), "message7@invalid");
-    Assert.equal(adapter.getCellText(11, "messageId"), "message8@invalid");
-    Assert.equal(adapter.getCellText(12, "messageId"), "message12@invalid");
+    Assert.equal(adapter.getCellText(8, "messageId"), "message8@invalid"); // 2017-09-15
+    Assert.equal(adapter.getCellText(9, "messageId"), "message6@invalid"); // 2017-05-10
+    Assert.equal(adapter.getCellText(10, "messageId"), "message7@invalid"); // 2016-09-29
+    Assert.equal(adapter.getCellText(11, "messageId"), "message5@invalid"); // 2016-09-14
+    Assert.equal(adapter.getCellText(12, "messageId"), "message12@invalid"); // 2011-10-10
 
     adapter.toggleOpenState(1);
     tree.assertRowCountChanged(2, 2);
@@ -446,8 +555,8 @@ add_task(async function testSubjectDescending() {
     await tree.promiseInvalidated(1, 3);
     Assert.equal(adapter.rowCount, 15);
     Assert.equal(subjectAt(1), "Organized 3rd generation alliance");
-    Assert.equal(adapter.getCellText(2, "messageId"), "message1@invalid");
-    Assert.equal(adapter.getCellText(3, "messageId"), "message13@invalid");
+    Assert.equal(adapter.getCellText(2, "messageId"), "message13@invalid"); // 2023-02-19
+    Assert.equal(adapter.getCellText(3, "messageId"), "message1@invalid"); // 2013-09-15
     Assert.equal(subjectAt(4), "Open-architected radical system engine");
 
     adapter.toggleOpenState(9);
@@ -463,7 +572,10 @@ add_task(async function testSubjectDescending() {
     });
     tree.assertRowCountChanged(1, 1);
     Assert.equal(adapter.rowCount, 11);
-    Assert.equal(adapter.getCellText(4, "messageId"), "added1@invalid");
+    Assert.equal(subjectAt(1), "Organized 3rd generation alliance");
+    Assert.equal(adapter.getCellText(2, "messageId"), "added1@invalid"); // Now
+    Assert.equal(adapter.getCellText(3, "messageId"), "message13@invalid"); // 2023-02-19
+    Assert.equal(adapter.getCellText(4, "messageId"), "message1@invalid"); // 2013-09-15
 
     // A message inside a closed group.
 
@@ -488,7 +600,7 @@ add_task(async function testSubjectDescending() {
     );
 
     messageDB.removeMessage(added1);
-    tree.assertRowCountChanged(4, -1);
+    tree.assertRowCountChanged(2, -1);
     Assert.equal(adapter.rowCount, 11);
 
     messageDB.removeMessage(added2);
@@ -541,12 +653,11 @@ add_task(async function testSubjectAscending() {
     await tree.promiseInvalidated(0, 5);
     Assert.equal(adapter.rowCount, 13);
     Assert.equal(subjectAt(0), "Automated uniform internet solution");
-    // FIXME: Order not defined in code. Currently using insertion order.
-    Assert.equal(adapter.getCellText(1, "messageId"), "message5@invalid");
-    Assert.equal(adapter.getCellText(2, "messageId"), "message6@invalid");
-    Assert.equal(adapter.getCellText(3, "messageId"), "message7@invalid");
-    Assert.equal(adapter.getCellText(4, "messageId"), "message8@invalid");
-    Assert.equal(adapter.getCellText(5, "messageId"), "message12@invalid");
+    Assert.equal(adapter.getCellText(1, "messageId"), "message8@invalid"); // 2017-09-15
+    Assert.equal(adapter.getCellText(2, "messageId"), "message6@invalid"); // 2017-05-10
+    Assert.equal(adapter.getCellText(3, "messageId"), "message7@invalid"); // 2016-09-29
+    Assert.equal(adapter.getCellText(4, "messageId"), "message5@invalid"); // 2016-09-14
+    Assert.equal(adapter.getCellText(5, "messageId"), "message12@invalid"); // 2011-10-10
     Assert.equal(subjectAt(6), "Down-sized disintermediate solution");
 
     adapter.toggleOpenState(11);
@@ -555,8 +666,8 @@ add_task(async function testSubjectAscending() {
     await tree.promiseInvalidated(11, 13);
     Assert.equal(adapter.rowCount, 15);
     Assert.equal(subjectAt(11), "Organized 3rd generation alliance");
-    Assert.equal(adapter.getCellText(12, "messageId"), "message1@invalid");
-    Assert.equal(adapter.getCellText(13, "messageId"), "message13@invalid");
+    Assert.equal(adapter.getCellText(12, "messageId"), "message13@invalid"); // 2023-02-19
+    Assert.equal(adapter.getCellText(13, "messageId"), "message1@invalid"); // 2013-09-15
     Assert.equal(subjectAt(14), "Reduced directional secured line");
 
     adapter.toggleOpenState(0);
@@ -572,7 +683,10 @@ add_task(async function testSubjectAscending() {
     });
     tree.assertRowCountChanged(6, 1);
     Assert.equal(adapter.rowCount, 11);
-    Assert.equal(adapter.getCellText(9, "messageId"), "added1@invalid");
+    Assert.equal(subjectAt(6), "Organized 3rd generation alliance");
+    Assert.equal(adapter.getCellText(7, "messageId"), "added1@invalid"); // Now
+    Assert.equal(adapter.getCellText(8, "messageId"), "message13@invalid"); // 2023-02-19
+    Assert.equal(adapter.getCellText(9, "messageId"), "message1@invalid"); // 2013-09-15
 
     // A message inside a closed group.
 
@@ -597,7 +711,7 @@ add_task(async function testSubjectAscending() {
     );
 
     messageDB.removeMessage(added1);
-    tree.assertRowCountChanged(10, -1);
+    tree.assertRowCountChanged(8, -1);
     Assert.equal(adapter.rowCount, 11);
 
     messageDB.removeMessage(added2);

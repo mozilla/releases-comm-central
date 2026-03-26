@@ -709,7 +709,7 @@ NS_IMETHODIMP LiveView::SelectMessagesInGroup(const nsACString& group,
     sql.Append(GetSQLClause());
     if (mGrouping == nsILiveView::THREADED) {
       sql.Append(" AND threadId = :group ORDER BY date ASC");
-    } else {
+    } else if (mGrouping == nsILiveView::GROUPED_BY_SORT) {
       switch (mSortColumn) {
         case nsILiveView::SortColumn::DATE:
           sql.Append(" AND DATE_GROUP(date) = :group ORDER BY date");
@@ -717,19 +717,24 @@ NS_IMETHODIMP LiveView::SelectMessagesInGroup(const nsACString& group,
           break;
         case nsILiveView::SortColumn::SUBJECT:
           sql.Append(" AND subject = :group COLLATE locale");
-          // TODO: Sort order is undefined.
+          // TODO: Does this ordering make sense?
+          sql.Append(" ORDER BY date DESC");
           break;
         case nsILiveView::SortColumn::SENDER:
           sql.Append(" AND formattedSender = :group COLLATE locale");
-          // TODO: Sort order is undefined.
+          // TODO: Does this ordering make sense?
+          sql.Append(" ORDER BY date DESC");
           break;
         case nsILiveView::SortColumn::RECIPIENTS:
           sql.Append(" AND formattedRecipients = :group COLLATE locale");
-          // TODO: Sort order is undefined.
+          // TODO: Does this ordering make sense?
+          sql.Append(" ORDER BY date DESC");
           break;
         default:
           MOZ_CRASH("Unexpected sort column for GROUPED_BY_SORT");
       }
+    } else {
+      MOZ_CRASH("Unexpected grouping");
     }
     MOZ_LOG(gPanoramaLog, LogLevel::Debug, ("LiveView SQL: %s", sql.get()));
     nsresult rv = DatabaseCore::sConnection->CreateStatement(
