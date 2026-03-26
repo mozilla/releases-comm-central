@@ -40,6 +40,8 @@ def format(config, tasks):
             )
             task["worker"]["env"][k] = env[k].format(**format_params)
 
+        task["attributes"]["flatpak_name"] = task["worker"]["env"]["APP_ID"]
+
         yield task
 
 
