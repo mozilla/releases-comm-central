@@ -63,16 +63,18 @@ nsresult nsMsgI18NConvertToUnicode(const nsACString& aCharset,
 const char* nsMsgI18NParseMetaCharset(nsIFile* file);
 
 /**
- * Shrink the aStr to aMaxLength bytes. Note that this doesn't check whether
- * the aUTF8Str is valid UTF-8 string.
+ * Truncate a UTF-8 string to maxBytes, at most.
+ * Only full UTF-8 characters will be output, so the result may be less than
+ * maxBytes to avoid returning an incomplete multi-byte character.
+ * If an invalid UTF-8 sequence is encountered before the maxBytes limit is
+ * hit, scanning will halt and the valid portion so far will be returned.
  *
- * @param inString   [IN] Input UTF-8 string (it must be valid UTF-8 string)
- * @param aMaxLength [IN] Shrink to this length (it means bytes)
- * @param outString  [OUT] Shrunken UTF-8 string
- * @return           nsresult
+ * @param inString   The UTF-8 string.
+ * @param maxBytes   Truncate to this size (or less).
+ * @return           The truncated string.
  */
-nsresult nsMsgI18NShrinkUTF8Str(const nsACString& inString, uint32_t aMaxLength,
-                                nsACString& outString);
+nsCString nsMsgI18NTruncateUTF8Str(const nsACString& inString,
+                                   uint32_t maxBytes);
 
 /*
  * Convert raw bytes in header to UTF-16

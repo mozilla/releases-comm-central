@@ -12,11 +12,8 @@ UNIFIED_SOURCES += [
     "TestHeaderReader.cpp",
     "TestLineReader.cpp",
     "TestMailStream.cpp",
+    "TestMsgI18N.cpp",
     "TestMsgMboxRead.cpp",
     "TestMsgMboxWrite.cpp",
     "TestMsgUtils.cpp",
 ]
-
-# LOCAL_INCLUDES += [
-#    "../../src",
-# ]
