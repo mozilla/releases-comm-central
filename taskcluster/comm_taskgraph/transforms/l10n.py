@@ -9,13 +9,13 @@ from taskgraph.transforms.base import TransformSequence, ValidateSchema
 from taskgraph.util.schema import resolve_keyed_by
 
 from gecko_taskgraph.transforms.l10n import (
+    L10nDescriptionSchema,
     all_locales_attribute,
     chunk_locales,
     copy_in_useful_magic,
     gather_required_signoffs,
     handle_artifact_prefix,
     handle_keyed_by,
-    L10nDescriptionSchema,
     make_job_description,
     set_extra_config,
     setup_name,
