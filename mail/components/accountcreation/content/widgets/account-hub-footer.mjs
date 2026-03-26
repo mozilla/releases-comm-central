@@ -6,6 +6,11 @@ const { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
 
+const lazy = {};
+ChromeUtils.defineESModuleGetters(lazy, {
+  openLinkExternally: "resource:///modules/LinkHelper.sys.mjs",
+});
+
 /**
  * Account Hub Footer Template
  * Template ID: #accountHubFooterTemplate (from accountHubFooterTemplate.inc.xhtml)
@@ -29,13 +34,7 @@ class AccountHubFooter extends HTMLElement {
       .getElementById("accountHubFooterTemplate")
       .content.cloneNode(true);
     this.appendChild(template);
-    this.querySelector("#back").addEventListener("click", this);
-    this.querySelector("#forward").addEventListener("click", this);
-
-    const customAction = this.querySelector("#custom");
-    if (customAction) {
-      customAction.addEventListener("click", this);
-    }
+    this.addEventListener("click", this);
 
     this.#showReleaseNotes();
   }
@@ -45,7 +44,17 @@ class AccountHubFooter extends HTMLElement {
       this.dispatchEvent(new CustomEvent("custom-footer-action"));
       return;
     }
-    this.dispatchEvent(new CustomEvent(event.target.id));
+
+    if (["back", "forward"].includes(event.target.id)) {
+      this.dispatchEvent(new CustomEvent(event.target.id));
+      return;
+    }
+
+    if (event.target.tagName === "a") {
+      lazy.openLinkExternally(event.target.href);
+      event.preventDefault();
+      event.stopPropagation();
+    }
   }
 
   canBack(value) {
@@ -69,7 +78,6 @@ class AccountHubFooter extends HTMLElement {
     customAction.hidden = !value;
     customAction.disabled = !value || this.disabled;
     if (value) {
-      customAction.addEventListener("click", this);
       document.l10n.setAttributes(customAction, value);
     }
   }

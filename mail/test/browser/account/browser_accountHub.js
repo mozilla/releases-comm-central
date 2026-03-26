@@ -4,6 +4,10 @@
 
 "use strict";
 
+const { MockExternalProtocolService } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MockExternalProtocolService.sys.mjs"
+);
+
 const PREF_NAME = "mailnews.auto_config_url";
 const PREF_VALUE = Services.prefs.getCharPref(PREF_NAME);
 
@@ -12,11 +16,14 @@ add_setup(function () {
   const url =
     "http://mochi.test:8888/browser/comm/mail/test/browser/account/xml/";
   Services.prefs.setCharPref(PREF_NAME, url);
-});
 
-registerCleanupFunction(function () {
-  // Restore the original pref.
-  Services.prefs.setCharPref(PREF_NAME, PREF_VALUE);
+  MockExternalProtocolService.init();
+
+  registerCleanupFunction(function () {
+    MockExternalProtocolService.cleanup();
+    // Restore the original pref.
+    Services.prefs.setCharPref(PREF_NAME, PREF_VALUE);
+  });
 });
 
 add_task(async function account_hub_does_not_exist_with_accounts() {
@@ -645,4 +652,26 @@ add_task(async function test_account_enter_password_imap_account() {
   SMTPServer.close();
 
   await subtest_close_account_hub_dialog(dialog, successStep);
+});
+
+add_task(async function test_footerLinks() {
+  const dialog = await subtest_open_account_hub_dialog();
+  const footer = dialog.querySelector("#emailFooter");
+  const links = footer.querySelectorAll("li:not([hidden]) a");
+
+  for (const link of links) {
+    const loadPromise = MockExternalProtocolService.promiseLoad();
+    EventUtils.synthesizeMouseAtCenter(link, {}, window);
+    Assert.equal(
+      await loadPromise,
+      link.href,
+      `Should externally open link for ${link.textContent}`
+    );
+  }
+
+  await subtest_close_account_hub_dialog(
+    dialog,
+    dialog.querySelector("email-auto-form")
+  );
+  MockExternalProtocolService.reset();
 });

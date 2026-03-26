@@ -386,3 +386,5 @@ account-hub-ssl-noencryption = None
 account-hub-email-skip-button = Skip
 
 account-hub-finding-sync-accounts = Account created. Discovering address books and calendars…
+
+account-hub-privacy-policy = Privacy Policy
