@@ -114,19 +114,33 @@ nsresult CopyUTF16toMUTF7(const nsAString& aSrc, nsACString& aDest) {
   char buffer[IMAP_UTF7_BUF_LENGTH];
   const char16_t* in = aSrc.BeginReading();
   int32_t inLen = aSrc.Length();
-  int32_t outLen;
   aDest.Truncate();
   while (inLen > 0) {
-    outLen = IMAP_UTF7_BUF_LENGTH;
-    int32_t remaining = inLen;
-    converter.ConvertNoBuffNoErr(in, &remaining, buffer, &outLen);
+    int32_t outLen = IMAP_UTF7_BUF_LENGTH;
+    int32_t consumed = inLen;
+    converter.ConvertNoBuffNoErr(in, &consumed, buffer, &outLen);
+    if (outLen < 0 || outLen > IMAP_UTF7_BUF_LENGTH) {
+      return NS_ERROR_FAILURE;
+    }
+
+    if (consumed <= 0) {
+      return NS_ERROR_FAILURE;
+    }
+
     aDest.Append(buffer, outLen);
-    in += remaining;
-    inLen -= remaining;
+
+    in += consumed;
+    inLen -= consumed;
   }
-  outLen = IMAP_UTF7_BUF_LENGTH;
+
+  int32_t outLen = IMAP_UTF7_BUF_LENGTH;
   converter.FinishNoBuff(buffer, &outLen);
-  if (outLen > 0) aDest.Append(buffer, outLen);
+  if (outLen < 0 || outLen > IMAP_UTF7_BUF_LENGTH) {
+    return NS_ERROR_FAILURE;
+  }
+  if (outLen > 0) {
+    aDest.Append(buffer, outLen);
+  }
   return NS_OK;
 }
 
