@@ -16,7 +16,7 @@ TEST(TestMsgI18N, TruncateUTF8Str)
 {
   struct {
     nsLiteralCString input;
-    uint32_t maxBytes;
+    size_t maxBytes;
     nsLiteralCString expected;
   } testStrings[] = {
       // ASCII

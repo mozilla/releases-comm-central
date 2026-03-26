@@ -73,8 +73,7 @@ const char* nsMsgI18NParseMetaCharset(nsIFile* file);
  * @param maxBytes   Truncate to this size (or less).
  * @return           The truncated string.
  */
-nsCString nsMsgI18NTruncateUTF8Str(const nsACString& inString,
-                                   uint32_t maxBytes);
+nsCString nsMsgI18NTruncateUTF8Str(const nsACString& inString, size_t maxBytes);
 
 /*
  * Convert raw bytes in header to UTF-16

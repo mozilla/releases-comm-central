@@ -5,13 +5,11 @@
 
 #include "nsMsgI18N.h"
 
-#include <stdlib.h>
 #include <tuple>
 
 #include "nsICharsetConverterManager.h"
 #include "mozilla/Components.h"
 #include "mozilla/Utf8.h"
-#include "nsIPrefService.h"
 #include "nsIMimeConverter.h"
 #include "nsMsgUtils.h"
 #include "nsILineInputStream.h"
@@ -21,7 +19,6 @@
 #include "nsUTF8Utils.h"
 #include "nsNetUtil.h"
 #include "nsCRTGlue.h"
-#include "nsComponentManagerUtils.h"
 #include "nsIFileStreams.h"
 #include "../../intl/nsUTF7ToUnicode.h"
 #include "../../intl/nsMUTF7ToUnicode.h"
@@ -244,7 +241,7 @@ const char* nsMsgI18NParseMetaCharset(nsIFile* file) {
 }
 
 nsCString nsMsgI18NTruncateUTF8Str(const nsACString& inString,
-                                   uint32_t maxBytes) {
+                                   size_t maxBytes) {
   const char* begin = inString.BeginReading();
   const char* end = inString.EndReading();
   const char* cur = begin;

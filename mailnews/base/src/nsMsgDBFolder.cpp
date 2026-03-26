@@ -5395,7 +5395,7 @@ NS_IMETHODIMP nsMsgDBFolder::GetMsgTextFromStream(
 
   // finally, truncate the string based on aMaxOutputLen
   if (aMsgText.Length() > aMaxOutputLen) {
-    aMsgText = nsMsgI18NTruncateUTF8Str(aMsgText, aMaxOutputLen);
+    aMsgText = nsMsgI18NTruncateUTF8Str(aMsgText, (size_t)aMaxOutputLen);
   }
 
   // Also assign the content type being returned
