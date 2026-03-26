@@ -77,23 +77,21 @@ nsresult nsBasicUTF7Encoder::EncodeDirect(const char16_t* aSrc,
 
     if (ch == mEscChar) {
       // special case for the escape char
-      if (destEnd - dest < 1) {
+      if (destEnd - dest < 2) {
         res = NS_OK_UENC_MOREOUTPUT;
         break;
-      } else {
-        *dest++ = (char)ch;
-        *dest++ = (char)'-';
-        src++;
       }
+      *dest++ = (char)ch;
+      *dest++ = (char)'-';
+      src++;
     } else {
       // classic direct encoding
       if (dest >= destEnd) {
         res = NS_OK_UENC_MOREOUTPUT;
         break;
-      } else {
-        *dest++ = (char)ch;
-        src++;
       }
+      *dest++ = (char)ch;
+      src++;
     }
   }
 
