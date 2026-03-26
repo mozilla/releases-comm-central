@@ -350,23 +350,27 @@ add_task(async function testSortColumn() {
   const liveView = new LiveView();
   const adapter = new LiveViewConversationsDataAdapter(liveView);
 
-  await adapter.sortBy("subject", "descending");
-  Assert.equal(adapter.sortColumn, "date");
-  Assert.equal(adapter.sortDirection, "descending");
+  try {
+    await adapter.sortBy("subject", "descending");
+    Assert.equal(adapter.sortColumn, "date");
+    Assert.equal(adapter.sortDirection, "descending");
 
-  await adapter.sortBy("subject", "ascending");
-  Assert.equal(adapter.sortColumn, "date");
-  Assert.equal(adapter.sortDirection, "ascending");
+    await adapter.sortBy("subject", "ascending");
+    Assert.equal(adapter.sortColumn, "date");
+    Assert.equal(adapter.sortDirection, "ascending");
 
-  await adapter.sortBy("sender", "ascending");
-  Assert.equal(adapter.sortColumn, "date");
-  Assert.equal(adapter.sortDirection, "ascending");
+    await adapter.sortBy("sender", "ascending");
+    Assert.equal(adapter.sortColumn, "date");
+    Assert.equal(adapter.sortDirection, "ascending");
 
-  await adapter.sortBy("flagged", "descending");
-  Assert.equal(adapter.sortColumn, "date");
-  Assert.equal(adapter.sortDirection, "descending");
+    await adapter.sortBy("flagged", "descending");
+    Assert.equal(adapter.sortColumn, "date");
+    Assert.equal(adapter.sortDirection, "descending");
 
-  await adapter.sortBy();
-  Assert.equal(adapter.sortColumn, "date");
-  Assert.equal(adapter.sortDirection, "descending");
+    await adapter.sortBy();
+    Assert.equal(adapter.sortColumn, "date");
+    Assert.equal(adapter.sortDirection, "descending");
+  } finally {
+    adapter.setTree(null);
+  }
 });
