@@ -110,20 +110,9 @@ class CalendarDialogAttendeesRow extends HTMLElement {
     this.#summary.hidden = !showSummary;
 
     if (showSummary) {
-      const counts = Object.groupBy(
-        attendees,
-        attendee => attendee.participationStatus
-      );
-      document.l10n.setAttributes(
-        this.#summary,
-        "calendar-dialog-attendee-summary",
-        {
-          going: counts.ACCEPTED?.length || 0,
-          maybe: counts.TENTATIVE?.length || 0,
-          declined: counts.DECLINED?.length || 0,
-          pending: counts["NEEDS-ACTION"]?.length || 0,
-        }
-      );
+      // Just like setting attributes for l10n is async we call this method
+      // without awaiting to not delay the overall dialog rendering.
+      this.#setSummary(attendees);
     } else {
       this.#list.replaceChildren(
         ...attendees.map(attendee => {
@@ -135,6 +124,40 @@ class CalendarDialogAttendeesRow extends HTMLElement {
         })
       );
     }
+  }
+
+  /**
+   * Translates the summary and updates the dom asynchronously.
+   *
+   * @param {calIAttendee[]} attendees - An array of event attendees.
+   */
+  async #setSummary(attendees) {
+    const counts = Object.groupBy(
+      attendees,
+      attendee => attendee.participationStatus
+    );
+
+    const translations = await document.l10n.formatValues([
+      {
+        id: "calendar-dialog-attendee-summary-going",
+        args: { count: counts.ACCEPTED?.length || 0 },
+      },
+      {
+        id: "calendar-dialog-attendee-summary-maybe",
+        args: { count: counts.TENTATIVE?.length || 0 },
+      },
+      {
+        id: "calendar-dialog-attendee-summary-declined",
+        args: { count: counts.DECLINED?.length || 0 },
+      },
+      {
+        id: "calendar-dialog-attendee-summary-pending",
+        args: { count: counts["NEEDS-ACTION"]?.length || 0 },
+      },
+    ]);
+    this.#summary.textContent = new Intl.ListFormat(undefined, {
+      style: "narrow",
+    }).format(translations);
   }
 }
 
