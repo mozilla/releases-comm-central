@@ -1488,34 +1488,6 @@ CalDavCalendar.prototype = {
   // Helper functions
   //
 
-  oauthConnect(authSuccessCb, authFailureCb, aRefresh = false) {
-    // Use the async prompter to avoid multiple primary password prompts
-    const self = this;
-    const promptlistener = {
-      onPromptStartAsync(callback) {
-        this.onPromptAuthAvailable(callback);
-      },
-      onPromptAuthAvailable(callback) {
-        self.oauth.connect(true, aRefresh).then(
-          () => {
-            authSuccessCb();
-            callback?.onAuthResult(true);
-          },
-          () => {
-            authFailureCb();
-            callback?.onAuthResult(false);
-          }
-        );
-      },
-      onPromptCanceled: authFailureCb,
-      onPromptStart() {},
-    };
-    const asyncprompter = Cc["@mozilla.org/messenger/msgAsyncPrompter;1"].getService(
-      Ci.nsIMsgAsyncPrompter
-    );
-    asyncprompter.queueAsyncAuthPrompt(self.uri.spec, false, promptlistener);
-  },
-
   /**
    * Called when a response has had its URL redirected. Shows a dialog
    * to allow the user to accept or reject the redirect. If they accept,
