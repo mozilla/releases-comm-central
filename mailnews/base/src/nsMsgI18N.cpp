@@ -252,8 +252,9 @@ nsCString nsMsgI18NTruncateUTF8Str(const nsACString& inString,
     const char* prev = cur;
     bool err = false;
     UTF8CharEnumerator::NextChar(&cur, end, &err);
+    size_t len = cur - begin;
     // If invalid UTF-8 or past our limit, just return what we've got so far.
-    if (err || (cur - begin) > maxBytes) {
+    if (err || len > maxBytes) {
       return nsCString(Substring(begin, prev));
     }
   }
