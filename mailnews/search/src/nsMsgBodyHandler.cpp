@@ -108,7 +108,8 @@ int32_t nsMsgBodyHandler::GetNextLine(nsCString& buf, nsCString& charset,
     outLength = buf.Length();
   }
 
-  if (m_partIsSMIME && mozilla::Preferences::GetBool("mail.search_encrypted_bodies")) {
+  if (m_partIsSMIME &&
+      mozilla::Preferences::GetBool("mail.search_encrypted_bodies")) {
     nsCString decrypted;
     DecryptSMIME(buf, decrypted);
     GetRelevantTextParts(decrypted, buf);
@@ -251,7 +252,8 @@ int32_t nsMsgBodyHandler::ApplyTransformations(const nsCString& line,
       StripHtml(buf);
     }
 
-    if (m_partIsPGP  && mozilla::Preferences::GetBool("mail.search_encrypted_bodies")) {
+    if (m_partIsPGP &&
+        mozilla::Preferences::GetBool("mail.search_encrypted_bodies")) {
       nsCString decrypted;
       DecryptPGP(buf, decrypted);
       GetRelevantTextParts(decrypted, buf);
