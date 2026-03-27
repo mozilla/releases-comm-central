@@ -56,7 +56,7 @@ use std::time::{Duration, Instant};
 
 use log::trace;
 use thiserror::Error;
-use url::Host;
+use url::Host as UrlHost;
 
 mod id;
 pub use id::Id;
@@ -80,7 +80,49 @@ pub enum Input {
     DnsResult { id: Id, result: DnsResult },
 
     /// Connection attempt result
-    ConnectionResult { id: Id, result: Result<(), String> },
+    ConnectionResult { id: Id, result: ConnectionResult },
+}
+
+/// An ECH (Encrypted Client Hello) configuration.
+///
+/// Wraps the raw bytes of one or more serialised `ECHConfig` structures
+/// as defined in [RFC 9849 Section 4].
+///
+/// [RFC 9849 Section 4]: https://datatracker.ietf.org/doc/html/rfc9849#section-4
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct EchConfig(Vec<u8>);
+
+impl EchConfig {
+    pub fn new(bytes: Vec<u8>) -> Self {
+        Self(bytes)
+    }
+}
+
+impl AsRef<[u8]> for EchConfig {
+    fn as_ref(&self) -> &[u8] {
+        &self.0
+    }
+}
+
+/// Result of a connection attempt.
+#[derive(Debug, Clone, PartialEq)]
+pub enum ConnectionResult {
+    /// Connection succeeded.
+    Success,
+    /// Connection failed.
+    Failure(String),
+    /// The server rejected ECH but provided `retry_configs` (per [RFC 9849
+    /// Section 6.1.6]). The state machine will schedule a new connection
+    /// attempt to the **same endpoint** (address + HTTP version) using the
+    /// updated ECH config.
+    ///
+    /// A retry to a retry will be ignored. See RFC:
+    ///
+    /// > Clients SHOULD NOT accept "retry_config" in response to a connection
+    /// > initiated in response to a "retry_config".
+    ///
+    /// [RFC 9849 Section 6.1.6]: https://datatracker.ietf.org/doc/html/rfc9849#section-6.1.6
+    EchRetry(EchConfig),
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -91,24 +133,15 @@ pub enum DnsResult {
 }
 
 impl DnsResult {
-    fn record_type(&self) -> DnsRecordType {
+    /// Returns true if this result provides address information, i.e.
+    /// non-empty AAAA/A records or HTTPS records with IP hints.
+    fn has_addrs(&self) -> bool {
         match self {
-            DnsResult::Https(_) => DnsRecordType::Https,
-            DnsResult::Aaaa(_) => DnsRecordType::Aaaa,
-            DnsResult::A(_) => DnsRecordType::A,
-        }
-    }
-
-    /// Returns true if this result contains at least one non-empty record.
-    ///
-    /// > Some positive (non-empty) address answers have been received
-    ///
-    /// <https://www.ietf.org/archive/id/draft-ietf-happy-happyeyeballs-v3-02.html#section-4.2>
-    fn positive(&self) -> bool {
-        match self {
-            DnsResult::Https(Ok(v)) => !v.is_empty(),
             DnsResult::Aaaa(Ok(v)) => !v.is_empty(),
             DnsResult::A(Ok(v)) => !v.is_empty(),
+            DnsResult::Https(Ok(infos)) => infos
+                .iter()
+                .any(|i| !i.ipv4_hints.is_empty() || !i.ipv6_hints.is_empty()),
             _ => false,
         }
     }
@@ -232,7 +265,7 @@ pub struct ServiceInfo {
     pub priority: u16,
     pub target_name: TargetName,
     pub alpn_http_versions: HashSet<HttpVersion>,
-    pub ech_config: Option<Vec<u8>>,
+    pub ech_config: Option<EchConfig>,
     pub ipv4_hints: Vec<Ipv4Addr>,
     pub ipv6_hints: Vec<Ipv6Addr>,
     pub port: Option<u16>,
@@ -272,6 +305,7 @@ impl ServiceInfo {
         ipv4_addrs: &[Ipv4Addr],
         ipv6_addrs: &[Ipv6Addr],
         http_versions: &HashSet<ConnectionAttemptHttpVersions>,
+        ech_enabled: bool,
     ) -> Vec<Endpoint> {
         let port = self.port.unwrap_or(port);
 
@@ -294,7 +328,7 @@ impl ServiceInfo {
         };
 
         let hint_http_versions: HashSet<ConnectionAttemptHttpVersions> =
-            ConnectionAttemptHttpVersions::from_alpn(&self.alpn_http_versions)
+            ConnectionAttemptHttpVersions::from_http_versions(&self.alpn_http_versions)
                 .intersection(http_versions)
                 .cloned()
                 .collect();
@@ -306,7 +340,7 @@ impl ServiceInfo {
             .chain(hint_v4.iter().cloned().map(IpAddr::V4))
             .flat_map(|ip| {
                 // TODO: way around allocation?
-                let ech_config = self.ech_config.clone();
+                let ech_config = ech_enabled.then(|| self.ech_config.clone()).flatten();
                 hint_http_versions
                     .iter()
                     .map(move |&http_version| Endpoint {
@@ -323,7 +357,7 @@ impl ServiceInfo {
             .chain(ipv4_addrs.iter().cloned().map(IpAddr::V4))
             .flat_map(|ip| {
                 // TODO: way around allocation?
-                let ech_config = self.ech_config.clone();
+                let ech_config = ech_enabled.then(|| self.ech_config.clone()).flatten();
                 http_versions.iter().map(move |v| Endpoint {
                     address: SocketAddr::new(ip, port),
                     http_version: *v,
@@ -367,7 +401,9 @@ impl From<HttpVersion> for ConnectionAttemptHttpVersions {
 
 impl ConnectionAttemptHttpVersions {
     /// [`HttpVersion::H2`] and [`HttpVersion::H1`] into [`ConnectionAttemptHttpVersions::H2OrH1`].
-    fn from_alpn(http_versions: &HashSet<HttpVersion>) -> HashSet<ConnectionAttemptHttpVersions> {
+    fn from_http_versions(
+        http_versions: &HashSet<HttpVersion>,
+    ) -> HashSet<ConnectionAttemptHttpVersions> {
         let mut combinations = HashSet::new();
         if http_versions.contains(&HttpVersion::H3) {
             combinations.insert(ConnectionAttemptHttpVersions::H3);
@@ -448,6 +484,26 @@ pub enum IpPreference {
     Ipv4Only,
 }
 
+impl IpPreference {
+    fn address_record_types(&self) -> impl Iterator<Item = DnsRecordType> {
+        let aaaa = matches!(
+            self,
+            IpPreference::DualStackPreferV6
+                | IpPreference::DualStackPreferV4
+                | IpPreference::Ipv6Only
+        )
+        .then_some(DnsRecordType::Aaaa);
+        let a = matches!(
+            self,
+            IpPreference::DualStackPreferV6
+                | IpPreference::DualStackPreferV4
+                | IpPreference::Ipv4Only
+        )
+        .then_some(DnsRecordType::A);
+        aaaa.into_iter().chain(a)
+    }
+}
+
 /// Alternative service information from previous connections.
 ///
 /// See [RFC 7838](https://datatracker.ietf.org/doc/html/rfc7838).
@@ -493,6 +549,14 @@ pub struct NetworkConfig {
     /// Defaults to [`CONNECTION_ATTEMPT_DELAY`] (250 ms) per
     /// <https://www.ietf.org/archive/id/draft-ietf-happy-happyeyeballs-v3-02.html#section-9>.
     pub connection_attempt_delay: Duration,
+    /// Whether Encrypted Client Hello (ECH) is enabled.
+    ///
+    /// When `false`, ECH configs from HTTPS records are ignored: endpoints
+    /// always get `ech_config: None` and the ECH-based filtering (skip
+    /// non-ECH ServiceInfos, skip origin fallback) does not apply.
+    ///
+    /// Defaults to `true`.
+    pub ech: bool,
 }
 
 impl Default for NetworkConfig {
@@ -503,6 +567,7 @@ impl Default for NetworkConfig {
             alt_svc: Vec::new(),
             resolution_delay: RESOLUTION_DELAY,
             connection_attempt_delay: CONNECTION_ATTEMPT_DELAY,
+            ech: true,
         }
     }
 }
@@ -521,6 +586,14 @@ impl NetworkConfig {
             IpPreference::DualStackPreferV4 | IpPreference::Ipv4Only => DnsRecordType::A,
         }
     }
+
+    fn is_http_version_disabled(&self, http_version: HttpVersion) -> bool {
+        match http_version {
+            HttpVersion::H3 => !self.http_versions.h3,
+            HttpVersion::H2 => !self.http_versions.h2,
+            HttpVersion::H1 => !self.http_versions.h1,
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -537,6 +610,10 @@ pub struct ConnectionAttempt {
     pub endpoint: Endpoint,
     pub started: Instant,
     pub state: ConnectionState,
+    /// Whether this attempt was initiated by an ECH retry_config.
+    /// Per RFC 9849 Section 6.1.6, a second EchRetry on such an attempt
+    /// must be treated as a failure.
+    pub is_ech_retry: bool,
 }
 
 impl ConnectionAttempt {
@@ -550,7 +627,7 @@ impl ConnectionAttempt {
 pub struct Endpoint {
     pub address: SocketAddr,
     pub http_version: ConnectionAttemptHttpVersions,
-    pub ech_config: Option<Vec<u8>>,
+    pub ech_config: Option<EchConfig>,
 }
 
 impl Endpoint {
@@ -572,11 +649,39 @@ impl Endpoint {
     }
 }
 
+#[derive(Debug, Clone)]
+enum Host {
+    Ip(IpAddr),
+    Domain(String),
+}
+
+impl From<UrlHost> for Host {
+    fn from(host: UrlHost) -> Self {
+        match host {
+            UrlHost::Ipv4(v4) => Host::Ip(IpAddr::V4(v4)),
+            UrlHost::Ipv6(v6) => Host::Ip(IpAddr::V6(v6)),
+            UrlHost::Domain(d) => Host::Domain(d),
+        }
+    }
+}
+
+impl std::fmt::Display for Host {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Host::Ip(ip) => write!(f, "{ip}"),
+            Host::Domain(d) => write!(f, "{d}"),
+        }
+    }
+}
+
 /// Happy Eyeballs v3 state machine
 pub struct HappyEyeballs {
     id_generator: IdGenerator,
     dns_queries: Vec<DnsQuery>,
     connection_attempts: Vec<ConnectionAttempt>,
+    /// ECH retries received over the lifetime of this state machine.
+    /// Each entry is `(previous_attempt_id, new_ech_config)`.
+    ech_retries: Vec<(Id, EchConfig)>,
     /// Network configuration
     network_config: NetworkConfig,
     host: Host,
@@ -617,6 +722,9 @@ impl std::fmt::Debug for HappyEyeballs {
         if !self.connection_attempts.is_empty() {
             ds.field("connection_attempts", &self.connection_attempts);
         }
+        if !self.ech_retries.is_empty() {
+            ds.field("ech_retries", &self.ech_retries);
+        }
 
         ds.finish()
     }
@@ -636,11 +744,10 @@ impl HappyEyeballs {
     ) -> Result<Self, ConstructorError> {
         // Prefer URL-style host parsing (domains and bracketed IPv6).
         // If that fails, accept raw IP literals (IPv4/IPv6) without brackets.
-        let host = match Host::parse(host) {
-            Ok(h) => h,
+        let host = match UrlHost::parse(host) {
+            Ok(h) => Host::from(h),
             Err(e) => match host.parse::<IpAddr>() {
-                Ok(IpAddr::V4(v4)) => Host::Ipv4(v4),
-                Ok(IpAddr::V6(v6)) => Host::Ipv6(v6),
+                Ok(ip) => Host::Ip(ip),
                 Err(_) => return Err(ConstructorErrorInner::InvalidHost(e).into()),
             },
         };
@@ -649,6 +756,7 @@ impl HappyEyeballs {
             network_config,
             dns_queries: Vec::new(),
             connection_attempts: Vec::new(),
+            ech_retries: Vec::new(),
             host,
             port,
         };
@@ -775,7 +883,7 @@ impl HappyEyeballs {
 
     fn send_dns_request(&mut self) -> Option<Output> {
         let target_name: TargetName = match &self.host {
-            Host::Ipv4(_) | Host::Ipv6(_) => {
+            Host::Ip(_) => {
                 // No DNS queries needed for IP hosts.
                 return None;
             }
@@ -783,18 +891,9 @@ impl HappyEyeballs {
         }
         .into();
 
-        for record_type in [DnsRecordType::Https, DnsRecordType::Aaaa, DnsRecordType::A] {
-            // Skip address family queries that don't match the network configuration.
-            if record_type == DnsRecordType::Aaaa
-                && matches!(self.network_config.ip, IpPreference::Ipv4Only)
-            {
-                continue;
-            }
-            if record_type == DnsRecordType::A
-                && matches!(self.network_config.ip, IpPreference::Ipv6Only)
-            {
-                continue;
-            }
+        let record_types = std::iter::once(DnsRecordType::Https)
+            .chain(self.network_config.ip.address_record_types());
+        for record_type in record_types {
             if !self
                 .dns_queries
                 .iter()
@@ -841,9 +940,14 @@ impl HappyEyeballs {
             .filter(move |i| !any_ech || i.ech_config.is_some())
             .map(|i| &i.target_name);
 
-        // Next AAAA or A query.
+        // Next AAAA or A query, respecting single-stack preferences.
         let (target_name, record_type) = target_names
-            .flat_map(|tn| [(tn, DnsRecordType::Aaaa), (tn, DnsRecordType::A)])
+            .flat_map(|tn| {
+                self.network_config
+                    .ip
+                    .address_record_types()
+                    .map(move |rt| (tn, rt))
+            })
             .find(|(tn, rt)| {
                 !self
                     .dns_queries
@@ -883,13 +987,7 @@ impl HappyEyeballs {
         };
     }
 
-    /// > When one connection attempt succeeds (generally when the TCP handshake
-    /// > completes), all other connections attempts that have not yet succeeded
-    /// > SHOULD be canceled. Any address that was not yet attempted as a
-    /// > connection SHOULD be ignored.
-    ///
-    /// <https://www.ietf.org/archive/id/draft-ietf-happy-happyeyeballs-v3-02.html#section-6>
-    fn on_connection_result(&mut self, id: Id, result: Result<(), String>) {
+    fn on_connection_result(&mut self, id: Id, result: ConnectionResult) {
         let Some(attempt) = self.connection_attempts.iter_mut().find(|a| a.id == id) else {
             debug_assert!(false, "got connection result for unknown id {id:?}");
             return;
@@ -911,17 +1009,34 @@ impl HappyEyeballs {
         }
 
         match result {
-            Ok(()) => {
-                // Mark this connection as succeeded
+            ConnectionResult::Success => {
                 attempt.state = ConnectionState::Succeeded;
                 // Cancellations will be issued by cancel_remaining_attempts()
             }
-            Err(_error) => {
-                // Mark connection as failed
+            ConnectionResult::Failure(_error) => {
                 attempt.state = ConnectionState::Failed;
-
                 // The state machine will naturally attempt the next connection
                 // when process() is called again with None input
+            }
+            ConnectionResult::EchRetry(ech_config) => {
+                attempt.state = ConnectionState::Failed;
+
+                if !self.network_config.ech {
+                    debug_assert!(false, "got EchRetry on attempt {id:?} but ECH is disabled");
+                    return;
+                }
+
+                // > Clients SHOULD NOT accept "retry_config" in response
+                // > to a connection initiated in response to a
+                // > "retry_config".
+                //
+                // https://datatracker.ietf.org/doc/html/rfc9849#section-6.1.6
+                if attempt.is_ech_retry {
+                    log::debug!("ignoring EchRetry on attempt {id:?} that is itself an ECH retry");
+                    return;
+                }
+
+                self.ech_retries.push((id, ech_config));
             }
         }
     }
@@ -963,10 +1078,15 @@ impl HappyEyeballs {
     ///
     /// <https://www.ietf.org/archive/id/draft-ietf-happy-happyeyeballs-v3-02.html#section-4.2>
     fn connection_attempt(&mut self, now: Instant) -> Option<Output> {
+        // ECH retries are emitted immediately, bypassing move-on and delay checks.
+        if let Some(o) = self.ech_retry_attempt(now) {
+            return Some(o);
+        }
+
         let mut move_on = false;
         move_on |= self.move_on_without_timeout();
         move_on |= self.move_on_with_timeout(now);
-        move_on |= matches!(self.host, Host::Ipv4(_) | Host::Ipv6(_));
+        move_on |= matches!(self.host, Host::Ip(_));
         if !move_on {
             return None;
         }
@@ -979,7 +1099,12 @@ impl HappyEyeballs {
         {
             return None;
         }
-        let endpoint = self.next_endpoint_to_attempt()?;
+        let endpoint = self.endpoints_to_attempt().into_iter().find(|endpoint| {
+            !self
+                .connection_attempts
+                .iter()
+                .any(|attempt| attempt.endpoint == *endpoint)
+        })?;
         let id = self.id_generator.next_id();
 
         self.connection_attempts.push(ConnectionAttempt {
@@ -987,32 +1112,61 @@ impl HappyEyeballs {
             endpoint: endpoint.clone(),
             started: now,
             state: ConnectionState::InProgress,
+            is_ech_retry: false,
         });
 
         Some(Output::AttemptConnection { id, endpoint })
     }
 
-    fn next_endpoint_to_attempt(&self) -> Option<Endpoint> {
-        let origin_domain = match &self.host {
-            Host::Ipv4(ipv4_addr) => {
-                let http_versions = self.connection_attempt_http_versions();
-                return Some(Endpoint {
-                    address: SocketAddr::new(IpAddr::V4(*ipv4_addr), self.port),
-                    http_version: *http_versions.iter().next()?,
-                    ech_config: None,
-                });
-            }
-            Host::Ipv6(ipv6_addr) => {
-                let http_versions = self.connection_attempt_http_versions();
-                return Some(Endpoint {
-                    address: SocketAddr::new(IpAddr::V6(*ipv6_addr), self.port),
-                    http_version: *http_versions.iter().next()?,
-                    ech_config: None,
-                });
-            }
-            Host::Domain(domain) => domain,
-        };
+    /// Emit a connection attempt for a pending ECH retry, if any.
+    fn ech_retry_attempt(&mut self, now: Instant) -> Option<Output> {
+        let endpoint = self.ech_retries.iter().find_map(|(prev_id, ech_config)| {
+            let prev = self.connection_attempts.iter().find(|a| a.id == *prev_id)?;
+            let endpoint = Endpoint {
+                ech_config: Some(ech_config.clone()),
+                ..prev.endpoint.clone()
+            };
+            let already_attempted = self
+                .connection_attempts
+                .iter()
+                .any(|a| a.endpoint == endpoint);
+            (!already_attempted).then_some(endpoint)
+        })?;
 
+        let id = self.id_generator.next_id();
+        self.connection_attempts.push(ConnectionAttempt {
+            id,
+            endpoint: endpoint.clone(),
+            started: now,
+            state: ConnectionState::InProgress,
+            is_ech_retry: true,
+        });
+
+        Some(Output::AttemptConnection { id, endpoint })
+    }
+
+    fn endpoints_to_attempt(&self) -> Vec<Endpoint> {
+        match &self.host {
+            Host::Ip(ip) => self.endpoints_to_attempt_ip(*ip),
+            Host::Domain(domain) => self.endpoints_to_attempt_domain(domain),
+        }
+    }
+
+    fn endpoints_to_attempt_ip(&self, ip: IpAddr) -> Vec<Endpoint> {
+        let mut endpoints: Vec<Endpoint> = Vec::new();
+        for (http_version, port) in self.origin_version_port_pairs() {
+            let mut bucket = vec![Endpoint {
+                address: SocketAddr::new(ip, port),
+                http_version,
+                ech_config: None,
+            }];
+            bucket.sort_by(|a, b| a.cmp_with_config(b, &self.network_config));
+            endpoints.extend(bucket);
+        }
+        endpoints
+    }
+
+    fn endpoints_to_attempt_domain(&self, origin_domain: &str) -> Vec<Endpoint> {
         let any_ech = self.any_ech();
 
         // Collect all ServiceInfos sorted by priority.
@@ -1034,7 +1188,7 @@ impl HappyEyeballs {
         service_infos.sort_by_key(|i| i.priority);
 
         // build a sorted endpoints per ServiceInfo.
-        let http_versions = self.connection_attempt_http_versions();
+        let http_versions = self.https_record_http_versions();
         let mut endpoints: Vec<Endpoint> = Vec::new();
         for info in &service_infos {
             let ipv4_addrs: Vec<Ipv4Addr> = self
@@ -1063,8 +1217,13 @@ impl HappyEyeballs {
                 .flatten()
                 .cloned()
                 .collect();
-            let mut bucket =
-                info.flatten_into_endpoints(self.port, &ipv4_addrs, &ipv6_addrs, &http_versions);
+            let mut bucket = info.flatten_into_endpoints(
+                self.port,
+                &ipv4_addrs,
+                &ipv6_addrs,
+                &http_versions,
+                self.network_config.ech,
+            );
             bucket.sort_by(|a, b| a.cmp_with_config(b, &self.network_config));
             endpoints.extend(bucket);
         }
@@ -1072,25 +1231,8 @@ impl HappyEyeballs {
         // Alt-svc and fallback endpoints use the origin domain without ECH.
         // Only include them when ECH is not required.
         if !any_ech {
-            // Alt-svc endpoints with custom port.
-            //
-            // These use the origin domain's resolved addresses at the alt-svc port.
-            // HTTPS record endpoints above take precedence by virtue of ordering.
-            for alt_svc in &self.network_config.alt_svc {
-                if alt_svc.host.is_some() {
-                    // Alt-svc host resolution not yet implemented.
-                    continue;
-                }
-                let Some(alt_port) = alt_svc.port else {
-                    continue;
-                };
-
-                let alt_http_version: ConnectionAttemptHttpVersions = alt_svc.http_version.into();
-                if !http_versions.contains(&alt_http_version) {
-                    continue;
-                }
-                let alt_http_versions = HashSet::from([alt_http_version]);
-
+            for (http_version, port) in self.origin_version_port_pairs() {
+                let http_versions = HashSet::from([http_version]);
                 let mut bucket: Vec<Endpoint> = self
                     .dns_queries
                     .iter()
@@ -1101,35 +1243,14 @@ impl HappyEyeballs {
                         } if q.target_name.as_str() == origin_domain => Some(r),
                         _ => None,
                     })
-                    .flat_map(|r| r.flatten_into_endpoints(alt_port, &alt_http_versions))
+                    .flat_map(|r| r.flatten_into_endpoints(port, &http_versions))
                     .collect();
                 bucket.sort_by(|a, b| a.cmp_with_config(b, &self.network_config));
                 endpoints.extend(bucket);
             }
-
-            // Fallback to AAAA and A of the original hostname only.
-            let mut bucket: Vec<Endpoint> = self
-                .dns_queries
-                .iter()
-                .filter_map(|q| match &q.state {
-                    DnsQueryState::Completed {
-                        response: r @ (DnsResult::Aaaa(_) | DnsResult::A(_)),
-                        ..
-                    } if q.target_name.as_str() == origin_domain => Some(r),
-                    _ => None,
-                })
-                .flat_map(|r| r.flatten_into_endpoints(self.port, &http_versions))
-                .collect();
-            bucket.sort_by(|a, b| a.cmp_with_config(b, &self.network_config));
-            endpoints.extend(bucket);
         }
 
-        endpoints.into_iter().find(|endpoint| {
-            !self
-                .connection_attempts
-                .iter()
-                .any(|attempt| attempt.endpoint == *endpoint)
-        })
+        endpoints
     }
 
     fn has_successful_connection(&self) -> bool {
@@ -1163,6 +1284,9 @@ impl HappyEyeballs {
     }
 
     fn any_ech(&self) -> bool {
+        if !self.network_config.ech {
+            return false;
+        }
         self.dns_queries.iter().any(|q| match &q.state {
             DnsQueryState::Completed {
                 response: DnsResult::Https(Ok(infos)),
@@ -1172,10 +1296,22 @@ impl HappyEyeballs {
         })
     }
 
-    fn connection_attempt_http_versions(&self) -> HashSet<ConnectionAttemptHttpVersions> {
+    /// HTTP versions when the host is an IP address (no DNS involved).
+    ///
+    /// Default H2/H1, filtered by network config.
+    fn ip_host_http_versions(&self) -> HashSet<ConnectionAttemptHttpVersions> {
+        let mut http_versions = HashSet::from([HttpVersion::H2, HttpVersion::H1]);
+        self.filter_disabled_http_versions(&mut http_versions);
+        ConnectionAttemptHttpVersions::from_http_versions(&http_versions)
+    }
+
+    /// HTTP versions for HTTPS record (ServiceInfo) endpoints.
+    ///
+    /// Uses ALPNs from HTTPS records. Falls back to H2/H1 when
+    /// HTTPS records specify no versions. Filtered by network config.
+    fn https_record_http_versions(&self) -> HashSet<ConnectionAttemptHttpVersions> {
         let mut http_versions = HashSet::new();
 
-        // Add HTTP versions from DNS HTTPS records
         http_versions.extend(
             self.dns_queries
                 .iter()
@@ -1193,21 +1329,54 @@ impl HappyEyeballs {
                 .flatten(),
         );
 
-        // If HTTPS DNS records didn't specify any HTTP versions, default to HTTP/2, and HTTP/1.1.
         if http_versions.is_empty() {
             http_versions.insert(HttpVersion::H2);
             http_versions.insert(HttpVersion::H1);
         }
 
-        // Add HTTP versions from alt-svc
+        self.filter_disabled_http_versions(&mut http_versions);
+        ConnectionAttemptHttpVersions::from_http_versions(&http_versions)
+    }
+
+    /// HTTP versions for the origin fallback bucket.
+    ///
+    /// Default H2/H1, filtered by network config.
+    /// HTTPS-record ALPNs are excluded: those apply only to the HTTPS bucket.
+    fn fallback_http_versions(&self) -> HashSet<ConnectionAttemptHttpVersions> {
+        self.ip_host_http_versions()
+    }
+
+    /// (http_version, port) pairs for origin endpoints (alt-svc and defaults).
+    ///
+    /// Combines:
+    /// 1. Alt-svc entries (custom port or origin port)
+    /// 2. Default HTTP versions (H2/H1) at the origin port
+    fn origin_version_port_pairs(&self) -> Vec<(ConnectionAttemptHttpVersions, u16)> {
+        let mut pairs = Vec::new();
+
         for alt_svc in &self.network_config.alt_svc {
             debug_assert!(
                 alt_svc.host.is_none(),
                 "alt-svc with custom host not yet supported"
             );
-            http_versions.insert(alt_svc.http_version);
+            if self
+                .network_config
+                .is_http_version_disabled(alt_svc.http_version)
+            {
+                continue;
+            }
+            let port = alt_svc.port.unwrap_or(self.port);
+            pairs.push((alt_svc.http_version.into(), port));
         }
 
+        for http_version in self.fallback_http_versions() {
+            pairs.push((http_version, self.port));
+        }
+
+        pairs
+    }
+
+    fn filter_disabled_http_versions(&self, http_versions: &mut HashSet<HttpVersion>) {
         if !self.network_config.http_versions.h3 {
             http_versions.remove(&HttpVersion::H3);
         }
@@ -1217,16 +1386,14 @@ impl HappyEyeballs {
         if !self.network_config.http_versions.h1 {
             http_versions.remove(&HttpVersion::H1);
         }
-
-        ConnectionAttemptHttpVersions::from_alpn(&http_versions)
     }
 
     /// Whether to move on to the connection attempt phase based on the received
     /// DNS responses, not based on a timeout.
     fn move_on_without_timeout(&self) -> bool {
-        let hostname = match self.host {
-            Host::Domain(ref d) => d.as_str(),
-            Host::Ipv4(_) | Host::Ipv6(_) => {
+        let hostname = match &self.host {
+            Host::Domain(d) => d.as_str(),
+            Host::Ip(_) => {
                 return false;
             }
         };
@@ -1235,14 +1402,7 @@ impl HappyEyeballs {
         //
         // <https://www.ietf.org/archive/id/draft-ietf-happy-happyeyeballs-v3-02.html#section-4.2>
         if !self.dns_queries.iter().any(|q| match &q.state {
-            DnsQueryState::Completed { response, .. } => match response {
-                DnsResult::Aaaa(Ok(addrs)) => !addrs.is_empty(),
-                DnsResult::A(Ok(addrs)) => !addrs.is_empty(),
-                DnsResult::Https(Ok(infos)) => infos
-                    .iter()
-                    .any(|i| !i.ipv4_hints.is_empty() || !i.ipv6_hints.is_empty()),
-                _ => false,
-            },
+            DnsQueryState::Completed { response, .. } => response.has_addrs(),
             DnsQueryState::InProgress => false,
         }) {
             return false;
@@ -1286,13 +1446,12 @@ impl HappyEyeballs {
         //
         // <https://www.ietf.org/archive/id/draft-ietf-happy-happyeyeballs-v3-02.html#section-4.2>
 
-        let mut positive_responses = self
+        if !self
             .dns_queries
             .iter()
             .filter_map(|q| q.response())
-            .filter(|r| r.positive())
-            .filter(|r| matches!(r.record_type(), DnsRecordType::Aaaa | DnsRecordType::A));
-        if positive_responses.next().is_none() {
+            .any(|r| r.has_addrs())
+        {
             return false;
         }
 

@@ -2,42 +2,71 @@ name: Rust
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
+  merge_group:
 
-env:
-  CARGO_TERM_COLOR: always
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
 
 jobs:
-  build:
-
+  test:
+    name: Test
     runs-on: ubuntu-latest
-
+    env:
+      CARGO_TERM_COLOR: always
     steps:
-    - uses: actions/checkout@v4
-    - name: Build
-      run: cargo build --verbose
-    - name: Run tests
-      run: cargo test --verbose
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: mozilla/actions/rust@b6b1031d2072eb8c2b181887cb5e194ebcc5caab # v1.0.4
+        with:
+          components: llvm-tools
+          tools: cargo-llvm-cov
+          token: ${{ github.token }}
+      - name: Run tests and determine coverage
+        run: cargo llvm-cov test --codecov --output-path codecov.json
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        with:
+          files: codecov.json
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }} # zizmor: ignore[secrets-outside-env]
+          verbose: true
+          flags: linux
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }} # zizmor: ignore[secrets-outside-env]
 
-  fmt:
-
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v4
-    - name: Fmt
-      run: cargo fmt --check
+  rustfmt:
+    uses: mozilla/actions/.github/workflows/rustfmt.yml@b6b1031d2072eb8c2b181887cb5e194ebcc5caab # v1.0.4
 
   clippy:
+    uses: mozilla/actions/.github/workflows/clippy.yml@b6b1031d2072eb8c2b181887cb5e194ebcc5caab # v1.0.4
 
-    runs-on: ubuntu-latest
+  deny:
+    uses: mozilla/actions/.github/workflows/deny.yml@b6b1031d2072eb8c2b181887cb5e194ebcc5caab # v1.0.4
 
-    steps:
-    - uses: actions/checkout@v4
-    - name: Clippy
-      run: cargo clippy -- -D warnings
+  machete:
+    uses: mozilla/actions/.github/workflows/machete.yml@b6b1031d2072eb8c2b181887cb5e194ebcc5caab # v1.0.4
+
+  semver:
+    if: github.event_name == 'pull_request'
+    uses: mozilla/actions/.github/workflows/semver.yml@b6b1031d2072eb8c2b181887cb5e194ebcc5caab # v1.0.4
+
+  mutants-pr:
+    if: github.event_name == 'pull_request'
+    uses: mozilla/actions/.github/workflows/mutants-pr.yml@b6b1031d2072eb8c2b181887cb5e194ebcc5caab # v1.0.4
+
+  dependency-review:
+    if: github.event_name == 'pull_request'
+    uses: mozilla/actions/.github/workflows/dependency-review.yml@b6b1031d2072eb8c2b181887cb5e194ebcc5caab # v1.0.4
+
+  actionlint:
+    uses: mozilla/actions/.github/workflows/actionlint.yml@b6b1031d2072eb8c2b181887cb5e194ebcc5caab # v1.0.4
+    permissions:
+      contents: read
+      security-events: write # Required to upload SARIF results to GitHub

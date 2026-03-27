@@ -1,0 +1,17 @@
+flags:
+  linux:
+    carryforward: true
+
+comment:
+  layout: "header, diff, flags"
+
+coverage:
+  status:
+    project:
+      default:
+        threshold: 0.2%
+        informational: true
+        only_pulls: true
+    patch:
+      default:
+        only_pulls: true

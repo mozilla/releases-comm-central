@@ -4,7 +4,8 @@ use common::*;
 use std::time::{Duration, Instant};
 
 use happy_eyeballs::{
-    AltSvc, ConnectionAttemptHttpVersions, HappyEyeballs, HttpVersion, Id, NetworkConfig, Output,
+    AltSvc, ConnectionAttemptHttpVersions, FailureReason, HappyEyeballs, HttpVersion, Id,
+    NetworkConfig, Output,
 };
 
 #[test]
@@ -78,7 +79,7 @@ fn alt_svc_used_immediately() {
 /// No HTTPS records in this scenario. Alt-svc says H3 on port 8443.
 /// Expected endpoint order:
 ///   alt-svc bucket  (port 8443): V6:H3, V4:H3
-///   fallback bucket (port  443): V6:H3, V4:H3, V6:H2OrH1, V4:H2OrH1
+///   fallback bucket (port  443): V6:H2OrH1, V4:H2OrH1
 #[test]
 fn alt_svc_with_port() {
     let alt_port: u16 = CUSTOM_PORT;
@@ -129,27 +130,81 @@ fn alt_svc_with_port() {
                 alt_port,
                 ConnectionAttemptHttpVersions::H3,
             ),
-            // Fallback bucket (port 443): V6:H3, V4:H3, V6:H2OrH1, V4:H2OrH1
+            // Fallback bucket (port 443): V6:H2OrH1, V4:H2OrH1
             out_attempt(
                 Id::from(5),
-                V6_ADDR.into(),
-                PORT,
-                ConnectionAttemptHttpVersions::H3,
-            ),
-            out_attempt(
-                Id::from(6),
-                V4_ADDR.into(),
-                PORT,
-                ConnectionAttemptHttpVersions::H3,
-            ),
-            out_attempt(
-                Id::from(7),
                 V6_ADDR.into(),
                 PORT,
                 ConnectionAttemptHttpVersions::H2OrH1,
             ),
             out_attempt(
-                Id::from(8),
+                Id::from(6),
+                V4_ADDR.into(),
+                PORT,
+                ConnectionAttemptHttpVersions::H2OrH1,
+            ),
+        ],
+    );
+
+    // All connection attempts fail -> should report Failed(Connection)
+    for id in 3..=5 {
+        he.expect(
+            vec![(Some(in_connection_result_negative(Id::from(id))), None)],
+            now,
+        );
+    }
+    he.expect(
+        vec![(
+            Some(in_connection_result_negative(Id::from(6))),
+            Some(Output::Failed(FailureReason::Connection)),
+        )],
+        now,
+    );
+}
+
+/// When the host is an IP address and alt-svc specifies a custom port,
+/// endpoints should be attempted at both the alt-svc port and the origin port.
+///
+/// Expected endpoint order:
+///   alt-svc bucket  (port 8443): V4_ADDR:H3
+///   fallback bucket (port  443): V4_ADDR:H2OrH1
+#[test]
+fn ip_host_alt_svc_with_port() {
+    let mut now = Instant::now();
+    let config = NetworkConfig {
+        alt_svc: vec![AltSvc {
+            host: None,
+            port: Some(CUSTOM_PORT),
+            http_version: HttpVersion::H3,
+        }],
+        ..NetworkConfig::default()
+    };
+    let mut he =
+        HappyEyeballs::new_with_network_config(&V4_ADDR.to_string(), PORT, config).unwrap();
+
+    he.expect(
+        vec![
+            // Alt-svc bucket (port 8443): H3
+            (
+                None,
+                Some(out_attempt(
+                    Id::from(0),
+                    V4_ADDR.into(),
+                    CUSTOM_PORT,
+                    ConnectionAttemptHttpVersions::H3,
+                )),
+            ),
+            (None, Some(out_connection_attempt_delay())),
+        ],
+        now,
+    );
+
+    he.expect_connection_attempts(
+        &mut now,
+        vec![
+            // Fallback bucket (port 443): H2OrH1
+            out_attempt(
+                Id::from(1),
                 V4_ADDR.into(),
                 PORT,
                 ConnectionAttemptHttpVersions::H2OrH1,

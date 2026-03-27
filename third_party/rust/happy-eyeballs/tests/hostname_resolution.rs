@@ -7,8 +7,8 @@ use common::*;
 use std::{net::SocketAddr, time::Duration};
 
 use happy_eyeballs::{
-    CONNECTION_ATTEMPT_DELAY, ConnectionAttemptHttpVersions, DnsResult, Endpoint, HttpVersions, Id,
-    Input, IpPreference, NetworkConfig, Output, RESOLUTION_DELAY,
+    CONNECTION_ATTEMPT_DELAY, ConnectionAttemptHttpVersions, DnsRecordType, DnsResult, Endpoint,
+    HttpVersions, Id, Input, IpPreference, NetworkConfig, Output, RESOLUTION_DELAY,
 };
 
 #[test]
@@ -321,6 +321,35 @@ fn https_hints() {
     );
 }
 
+/// HTTPS IP hints should count as positive address answers for the
+/// resolution delay timeout path (`move_on_with_timeout`).
+///
+/// Scenario: only HTTPS with v6 hints has arrived, AAAA and A are still
+/// in-progress. After the resolution delay we should move on.
+///
+/// <https://github.com/mozilla/happy-eyeballs/issues/39>
+#[test]
+fn https_hints_move_on_with_timeout() {
+    let (mut now, mut he) = setup();
+
+    he.expect(
+        vec![
+            (None, Some(out_send_dns_https(Id::from(0)))),
+            (None, Some(out_send_dns_aaaa(Id::from(1)))),
+            (None, Some(out_send_dns_a(Id::from(2)))),
+            (
+                Some(in_dns_https_positive_v6_hints(Id::from(0))),
+                Some(out_resolution_delay()),
+            ),
+        ],
+        now,
+    );
+
+    now += RESOLUTION_DELAY;
+
+    he.expect(vec![(None, Some(out_attempt_v6_h3(Id::from(3))))], now);
+}
+
 /// > Note that clients are still required to issue A and AAAA queries
 /// > for those TargetNames if they haven't yet received those records.
 ///
@@ -484,6 +513,60 @@ fn single_stack_skips_disabled_address_family() {
                     Some(out_resolution_delay()),
                 ),
                 (Some(case.dns_response), Some(case.expected_connection)),
+            ],
+            now,
+        );
+    }
+}
+
+/// On a single-stack network, target-name follow-up queries must also skip
+/// the disabled address family.
+///
+/// <https://github.com/mozilla/happy-eyeballs/issues/38>
+#[test]
+fn single_stack_target_name_skips_disabled_address_family() {
+    struct Case {
+        ip: IpPreference,
+        /// The only address-family query sent for the origin domain.
+        origin_dns_query: Output,
+        /// The only address-family query sent for the target name.
+        target_name_dns_query: Output,
+    }
+
+    let cases = vec![
+        Case {
+            ip: IpPreference::Ipv6Only,
+            origin_dns_query: out_send_dns_aaaa(Id::from(1)),
+            target_name_dns_query: out_send_dns_svc1(Id::from(2)),
+        },
+        Case {
+            ip: IpPreference::Ipv4Only,
+            origin_dns_query: out_send_dns_a(Id::from(1)),
+            target_name_dns_query: Output::SendDnsQuery {
+                id: Id::from(2),
+                hostname: SVC1.into(),
+                record_type: DnsRecordType::A,
+            },
+        },
+    ];
+
+    for case in cases {
+        let (now, mut he) = setup_with_config(NetworkConfig {
+            ip: case.ip,
+            ..NetworkConfig::default()
+        });
+
+        he.expect(
+            vec![
+                (None, Some(out_send_dns_https(Id::from(0)))),
+                (None, Some(case.origin_dns_query)),
+                (
+                    Some(in_dns_https_positive_svc1(Id::from(0))),
+                    Some(case.target_name_dns_query),
+                ),
+                // No query for the disabled address family should appear,
+                // only the resolution delay.
+                (None, Some(out_resolution_delay())),
             ],
             now,
         );

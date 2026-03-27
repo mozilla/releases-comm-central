@@ -7,8 +7,9 @@ use std::{
 };
 
 use happy_eyeballs::{
-    CONNECTION_ATTEMPT_DELAY, ConnectionAttemptHttpVersions, DnsRecordType, DnsResult, Endpoint,
-    HappyEyeballs, HttpVersion, Id, Input, NetworkConfig, Output, RESOLUTION_DELAY, ServiceInfo,
+    CONNECTION_ATTEMPT_DELAY, ConnectionAttemptHttpVersions, ConnectionResult, DnsRecordType,
+    DnsResult, EchConfig, Endpoint, HappyEyeballs, HttpVersion, Id, Input, NetworkConfig, Output,
+    RESOLUTION_DELAY, ServiceInfo,
 };
 
 pub const HOSTNAME: &str = "example.com";
@@ -20,7 +21,11 @@ pub const V6_ADDR_2: Ipv6Addr = Ipv6Addr::new(0x2001, 0xdb8, 0, 0, 0, 0, 0, 2);
 pub const V6_ADDR_3: Ipv6Addr = Ipv6Addr::new(0x2001, 0xdb8, 0, 0, 0, 0, 0, 3);
 pub const V4_ADDR: Ipv4Addr = Ipv4Addr::new(192, 0, 2, 1);
 pub const V4_ADDR_2: Ipv4Addr = Ipv4Addr::new(192, 0, 2, 2);
-pub const ECH_CONFIG: &[u8] = &[1, 2, 3, 4, 5];
+pub const ECH_CONFIG_BYTES: &[u8] = &[1, 2, 3, 4, 5];
+
+pub fn ech_config() -> EchConfig {
+    EchConfig::new(ECH_CONFIG_BYTES.to_vec())
+}
 
 pub trait HappyEyeballsExt {
     fn expect(&mut self, input_output: Vec<(Option<Input>, Option<Output>)>, now: Instant);
@@ -150,13 +155,16 @@ pub fn in_dns_a_negative(id: Id) -> Input {
 }
 
 pub fn in_connection_result_positive(id: Id) -> Input {
-    Input::ConnectionResult { id, result: Ok(()) }
+    Input::ConnectionResult {
+        id,
+        result: ConnectionResult::Success,
+    }
 }
 
 pub fn in_connection_result_negative(id: Id) -> Input {
     Input::ConnectionResult {
         id,
-        result: Err("connection refused".to_string()),
+        result: ConnectionResult::Failure("connection refused".to_string()),
     }
 }
 

@@ -11,8 +11,9 @@
 
 [package]
 edition = "2024"
+rust-version = "1.85.0"
 name = "happy-eyeballs"
-version = "0.3.0"
+version = "0.4.0"
 build = false
 autolib = false
 autobins = false

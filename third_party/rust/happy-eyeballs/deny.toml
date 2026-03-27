@@ -1,0 +1,35 @@
+[bans]
+multiple-versions = "allow"
+
+[bans.workspace-dependencies]
+duplicates = "allow"
+unused = "allow"
+
+[licenses]
+unused-allowed-license = "allow"
+allow = [
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "CC0-1.0",
+    "ISC",
+    "MPL-2.0",
+    "MIT",
+    "MIT-0",
+    "Unicode-DFS-2016",
+    "Unicode-3.0",
+    "Zlib",
+]
+
+# See https://github.com/rust-fuzz/libfuzzer/pull/124#issuecomment-2474810798
+# "The libfuzzer code is NCSA, everything else is MIT OR Apache as is standard for Rust."
+[[licenses.exceptions]]
+allow = ["NCSA"]
+name = "libfuzzer-sys"
+version = "0.4"
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+required-git-spec = "rev"
