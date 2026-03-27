@@ -148,6 +148,63 @@ This means an unset pref can be targeted with the following:
 }
 ```
 
+## Targeting Examples [YAML]
+
+These examples can be helpful when authoring targeting logic via YAML, because `include` and `exclude` are both arrays of objects. The objects in each array are ORed together, while the keys inside each object are ANDed together as mentioned above.
+
+### Example: Show this notification to all users on beta who use Flatpak and are not using a specific set of locales
+
+This would be useful if there were translated notifications for a set of top locales, and an English fallback should be shown to everyone else on Flatpak beta.
+
+```yaml
+targeting:
+  include:
+    - { channels: [beta], pref_true: [mail.inappnotifications.isFlatpak] }
+  exclude:
+    - { locales: [de, fr, it, ja, pt-BR, es-AR, es-ES, es-MX, nl, ru] }
+  percent_chance: 100
+```
+
+### Example: Show this notification to all users on esr who use EITHER Flatpak or Snap
+
+Because `include` entries are ORed together, this is expressed as two separate include objects. Including both prefs in one array would be incorrect because that would represent users who had BOTH of the prefs set to true.
+
+```yaml
+targeting:
+  include:
+    - { channels: [esr], pref_true: [mail.inappnotifications.isFlatpak] }
+    - { channels: [esr], pref_true: [mail.inappnotifications.isSnap] }
+  percent_chance: 100
+```
+
+### Example: Show this notification to all users on beta who have previously seen BOTH of two previous notifications
+
+Because `displayed_notifications` is a list property, all listed notification IDs must have been displayed for the profile to match.
+
+```yaml
+targeting:
+  include:
+    - {
+        channels: [beta],
+        displayed_notifications: [PREBAKED-Spring25A, PREBAKED-Spring25B],
+      }
+  percent_chance: 100
+```
+
+### Example: Show this notification to all users on release who have not seen EITHER of two previous notifications
+
+To exclude users who have seen either previous notification, use two separate `exclude` entries. Since `exclude` entries are ORed together, matching either one will prevent the notification from being shown.
+
+```yaml
+targeting:
+  include:
+    - { channels: [release] }
+  exclude:
+    - { displayed_notifications: [PREBAKED-Spring25A] }
+    - { displayed_notifications: [PREBAKED-Spring25B] }
+  percent_chance: 100
+```
+
 ## Preferences
 
 ### `mail.inappnotifications.bypass-filtering`
