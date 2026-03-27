@@ -653,9 +653,7 @@ function readAddonsJSON(json) {
     }
     return Array.isArray(value) ? value : [];
   }
-
-  const xulLocale = Services.locale.requestedLocale;
-  const locale = xulLocale ? xulLocale.substring(0, 5) : "default";
+  const DEFAULT_LOCALE = "en";
   for (const addonJSON of ensureJsonArray(json)) {
     try {
       const addon = {
@@ -670,12 +668,26 @@ function readAddonsJSON(json) {
         new URL(addon.xpiURL).protocol == "https:",
         "XPI download URL needs to be https"
       );
-      addon.name =
-        locale in addonJSON.name ? addonJSON.name[locale] : addonJSON.name[0];
-      addon.description =
-        locale in addonJSON.description
-          ? addonJSON.description[locale]
-          : addonJSON.description[0];
+      const availableNameLocales = Object.keys(addonJSON.name);
+      const [bestNameLocale] = Services.locale.negotiateLanguages(
+        Services.locale.requestedLocales,
+        availableNameLocales,
+        availableNameLocales.includes(DEFAULT_LOCALE)
+          ? DEFAULT_LOCALE
+          : availableNameLocales[0],
+        Services.locale.langNegStrategyLookup
+      );
+      addon.name = addonJSON.name[bestNameLocale];
+      const availableDescriptionLocales = Object.keys(addonJSON.description);
+      const [bestDescriptionLocale] = Services.locale.negotiateLanguages(
+        Services.locale.requestedLocales,
+        availableDescriptionLocales,
+        availableDescriptionLocales.includes(DEFAULT_LOCALE)
+          ? DEFAULT_LOCALE
+          : availableDescriptionLocales[0],
+        Services.locale.langNegStrategyLookup
+      );
+      addon.description = addonJSON.description[bestDescriptionLocale];
       for (const typeJSON of ensureJsonArray(addonJSON.accountTypes)) {
         try {
           addon.supportedTypes.push({

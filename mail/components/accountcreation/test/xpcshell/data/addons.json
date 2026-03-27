@@ -1,0 +1,58 @@
+[
+  {
+    "id": "test@example.com",
+    "name": {
+      "en": "Test (en)",
+      "en-US": "Test (en-US)",
+      "de": "Test (de)"
+    },
+    "description": {
+      "en": "Test extension (en)",
+      "en-US": "Test extension (en-US)",
+      "de": "Testerweiterung (de)"
+    },
+    "minVersion": "0.0.1",
+    "xpiURL": "https://localhost/extension.xpi",
+    "websiteURL": "https://example.com/",
+    "icon32": "https://localhost/favicon.png",
+    "accountTypes": [
+      {
+        "generalType": "exchange",
+        "protocolType": "ews",
+        "addonAccountType": "test-ews"
+      }
+    ]
+  },
+  {
+    "id": "weirdLanguage@example.com",
+    "name": {
+      "censored": "███████████"
+    },
+    "description": {
+      "censored": "███████████"
+    },
+    "minVersion": "0.0.1",
+    "xpiURL": "https://localhost/otherExtension.xpi",
+    "websiteURL": "https://example.com/",
+    "accountTypes": [
+      {
+        "generalType": "exchange",
+        "protocolType": "ews",
+        "addonAccountType": "other-ews"
+      }
+    ]
+  },
+  {
+    "id": "unrelated@example.com",
+    "name": {
+      "fallback": "unrelated"
+    },
+    "description": {
+      "fallback": "unrelated"
+    },
+    "minVersion": "0.0.1",
+    "xpiURL": "https://localhost/unrelatedExtension.xpi",
+    "websiteURL": "https://example.com",
+    "accountTypes": []
+  }
+]
