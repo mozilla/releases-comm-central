@@ -117,7 +117,7 @@ add_task(async function testSidebar() {
   const bccButton = sidebarDocument.getElementById("bccButton");
 
   await TestUtils.waitForCondition(
-    () => cardsList.view.rowCount != 0,
+    () => cardsList.view?.rowCount > 0,
     "waiting for cards list to load"
   );
   checkListNames(
