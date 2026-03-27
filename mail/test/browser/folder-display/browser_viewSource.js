@@ -131,15 +131,15 @@ async function subtest(row, expectedDisplayed, expectedSource) {
     "View source must contain the readable text"
   );
 
+  const theContent = viewSourceWin.document.getElementById("content");
+
+  // Click the new window to make it receive further events properly.
+  EventUtils.synthesizeMouseAtCenter(theContent, {}, theContent.ownerGlobal);
+  await new Promise(resolve => setTimeout(resolve));
+
   // We can't use the menu on macOS.
   if (AppConstants.platform != "macosx") {
-    const theContent = viewSourceWin.document.getElementById("content");
-    // Keep a reference to the originally loaded document.
     const doc = theContent.contentDocument;
-
-    // Click the new window to make it receive further events properly.
-    EventUtils.synthesizeMouseAtCenter(theContent, {}, theContent.ownerGlobal);
-    await new Promise(resolve => setTimeout(resolve));
 
     const menuView = viewSourceWin.document.getElementById("menu_view");
     EventUtils.synthesizeMouseAtCenter(menuView, {}, menuView.ownerGlobal);
@@ -181,14 +181,13 @@ async function subtest(row, expectedDisplayed, expectedSource) {
   }
 
   // Check the context menu while were here.
-  const browser = viewSourceWin.document.getElementById("content");
   const contextMenu = viewSourceWin.document.getElementById(
     "viewSourceContextMenu"
   );
   await BrowserTestUtils.synthesizeMouseAtCenter(
     "body",
     { type: "contextmenu" },
-    browser
+    theContent
   );
   await BrowserTestUtils.waitForPopupEvent(contextMenu, "shown");
 
