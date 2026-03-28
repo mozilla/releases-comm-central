@@ -462,7 +462,6 @@ function switchCalendarView(aType, aShow) {
     const focused = tab.getAttribute("aria-controls") == `${aType}-view`;
     tab.ariaSelected = focused;
     tab.tabIndex = focused ? 0 : -1;
-    document.getElementById(tab.getAttribute("aria-controls")).hidden = !focused;
   }
   switchToView(aType);
 }
