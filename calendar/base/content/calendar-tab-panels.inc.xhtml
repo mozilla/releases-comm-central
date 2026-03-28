@@ -70,7 +70,7 @@
           <html:button id="calendarListHeader"
                        class="calendar-list-header button-flat"
                        onclick="toggleVisibilityCalendarsList(event);">
-            <html:span data-l10n-id="calendar-list-header"></html:span>
+            <html:span id="calendar-list-header-label" data-l10n-id="calendar-list-header"></html:span>
             <html:img id="toggleCalendarIcon"
                       src="chrome://messenger/skin/icons/new/nav-down-sm.svg"
                       alt="" />
@@ -81,7 +81,7 @@
                              refcontrol="calendarListHeader"
                              oncontextmenu="openCalendarListItemContext(event);">
             <html:ol id="calendar-list" is="orderable-tree-listbox"
-                     role="listbox"></html:ol>
+                     role="listbox" aria-labelledby="calendar-list-header-label"></html:ol>
             <template id="calendar-list-item" xmlns="http://www.w3.org/1999/xhtml">
               <li draggable="true" role="option">
                 <div class="calendar-color"></div>
