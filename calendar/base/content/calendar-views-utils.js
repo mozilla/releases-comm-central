@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported switchToView, minimonthPick,
+/* exported minimonthPick,
  *          observeViewDaySelect, toggleOrientation,
  *          toggleWorkdaysOnly, toggleTasksInView, toggleShowCompletedInView,
- *          goToDate, gLastShownCalendarView, deleteSelectedEvents,
+ *          goToDate, deleteSelectedEvents,
  *          editSelectedEvents, selectAllEvents, calendarNavigationBar
  */
 
@@ -212,87 +212,6 @@ var calendarViewController = {
 };
 
 /**
- * This function does the common steps to switch between views. Should be called
- * from app-specific view switching functions
- *
- * @param {string} viewType - The type of view to select.
- */
-function switchToView(viewType) {
-  const viewBox = getViewBox();
-  let selectedDay;
-  let currentSelection = [];
-
-  // Set up the view commands
-  const views = viewBox.children;
-  for (let i = 0; i < views.length; i++) {
-    const view = views[i];
-    const commandId = "calendar_" + view.id + "_command";
-    const command = document.getElementById(commandId);
-    command.toggleAttribute("checked", view.id == viewType + "-view");
-  }
-
-  document.l10n.setAttributes(
-    document.getElementById("previousViewButton"),
-    `calendar-nav-button-prev-tooltip-${viewType}`
-  );
-  document.l10n.setAttributes(
-    document.getElementById("nextViewButton"),
-    `calendar-nav-button-next-tooltip-${viewType}`
-  );
-  document.l10n.setAttributes(
-    document.getElementById("calendar-view-context-menu-previous"),
-    `calendar-context-menu-previous-${viewType}`
-  );
-  document.l10n.setAttributes(
-    document.getElementById("calendar-view-context-menu-next"),
-    `calendar-context-menu-next-${viewType}`
-  );
-
-  // These are hidden until the calendar is loaded.
-  for (const node of document.querySelectorAll(".hide-before-calendar-loaded")) {
-    node.removeAttribute("hidden");
-  }
-
-  // Anyone wanting to plug in a view needs to follow this naming scheme
-  const view = document.getElementById(viewType + "-view");
-  const oldView = currentView();
-  if (oldView?.isActive) {
-    if (oldView == view) {
-      // Not actually changing view, there's nothing else to do.
-      return;
-    }
-
-    selectedDay = oldView.selectedDay;
-    currentSelection = oldView.getSelectedItems();
-    oldView.deactivate();
-  }
-
-  if (!selectedDay) {
-    selectedDay = cal.dtz.now();
-  }
-  for (let i = 0; i < viewBox.children.length; i++) {
-    if (view.id == viewBox.children[i].id) {
-      viewBox.children[i].hidden = false;
-      viewBox.setAttribute("selectedIndex", i);
-    } else {
-      viewBox.children[i].hidden = true;
-    }
-  }
-
-  view.ensureInitialized();
-  if (!view.controller) {
-    view.timezone = cal.dtz.defaultTimezone;
-    view.controller = calendarViewController;
-  }
-
-  view.goToDay(selectedDay);
-  view.setSelectedItems(currentSelection);
-
-  view.onResize(view);
-  view.activate();
-}
-
-/**
  * Returns the calendar view box element.
  *
  * @returns {Element} The view-box element.
@@ -467,48 +386,6 @@ function goToDate(date) {
   getMinimonth().value = cal.dtz.dateTimeToJsDate(date);
   currentView().goToDay(date);
 }
-
-var gLastShownCalendarView = {
-  _lastView: null,
-
-  /**
-   * Returns the calendar view that was selected before restart, or the current
-   * calendar view if it has already been set in this session.
-   *
-   * @returns {string} The last calendar view.
-   */
-  get() {
-    if (!this._lastView) {
-      if (Services.xulStore.hasValue(document.location.href, "view-box", "selectedIndex")) {
-        const viewBox = getViewBox();
-        const selectedIndex = Services.xulStore.getValue(
-          document.location.href,
-          "view-box",
-          "selectedIndex"
-        );
-        for (let i = 0; i < viewBox.children.length; i++) {
-          viewBox.children[i].hidden = selectedIndex != i;
-        }
-        const viewNode = viewBox.children[selectedIndex];
-        this._lastView = viewNode.id.replace(/-view/, "");
-        document
-          .querySelector(`.calview-toggle-item[aria-controls="${viewNode.id}"]`)
-          ?.setAttribute("aria-selected", true);
-      } else {
-        // No deck item was selected beforehand, default to week view.
-        this._lastView = "week";
-        document
-          .querySelector(`.calview-toggle-item[aria-controls="week-view"]`)
-          ?.setAttribute("aria-selected", true);
-      }
-    }
-    return this._lastView;
-  },
-
-  set(view) {
-    this._lastView = view;
-  },
-};
 
 /**
  * Deletes items currently selected in the view and clears selection.

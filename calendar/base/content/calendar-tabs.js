@@ -382,12 +382,71 @@ window.addEventListener("load", () => {
   tabmail.registerTabType(calendarTabType);
   tabmail.registerTabType(calendarItemTabType);
   tabmail.registerTabMonitor(calendarTabMonitor);
+
+  const tabs = [...document.querySelectorAll(".calview-toggle-item")];
+  for (const [tabIndex, tab] of tabs.entries()) {
+    tab.addEventListener("click", e => {
+      switchCalendarView(e.target.value, false);
+    });
+    tab.addEventListener("keydown", e => {
+      if (e.key == "Enter" || e.key == " ") {
+        e.preventDefault();
+        e.stopPropagation();
+        switchCalendarView(e.target.value, false);
+      } else if (e.key == "ArrowLeft") {
+        e.preventDefault();
+        e.stopPropagation();
+        const idx = (tabIndex - (document.dir == "rtl" ? -1 : 1)) % tabs.length;
+        tabs.at(idx).focus();
+      } else if (e.key == "ArrowRight") {
+        e.preventDefault();
+        e.stopPropagation();
+        const idx = (tabIndex + (document.dir == "rtl" ? -1 : 1)) % tabs.length;
+        tabs.at(idx).focus();
+      }
+    });
+  }
 });
+
+var gLastShownCalendarView = {
+  _lastView: null,
+
+  /**
+   * Returns the calendar view that was selected before restart, or the current
+   * calendar view if it has already been set in this session.
+   *
+   * @returns {"day"|"week"|"multiweek"|"month"} the last calendar view.
+   */
+  get() {
+    if (!this._lastView) {
+      if (Services.xulStore.hasValue(document.location.href, "view-box", "selectedIndex")) {
+        const viewBox = document.getElementById("view-box");
+        const selectedIndex = Services.xulStore.getValue(
+          document.location.href,
+          "view-box",
+          "selectedIndex"
+        );
+        this._lastView = viewBox.children[selectedIndex].id.replace("-view", "");
+      } else {
+        this._lastView = "week"; // Default to week view.
+      }
+      switchCalendarView(this._lastView);
+    }
+    return this._lastView;
+  },
+
+  /**
+   * @param {"day"|"week"|"multiweek"|"month"} view - The view to set
+   */
+  set(view) {
+    this._lastView = view;
+  },
+};
 
 /**
  * Switch the calendar view, and optionally switch to calendar mode.
  *
- * @param {string} aType - The type of view to select.
+ * @param {"day"|"week"|"multiweek"|"month"} aType - The type of view to select.
  * @param {boolean} aShow - If true, the mode will be switched to calendar
  *   if notalready there.
  */
@@ -399,13 +458,112 @@ function switchCalendarView(aType, aShow) {
     calSwitchToCalendarMode();
     return;
   }
-  document
-    .querySelector(`.calview-toggle-item[aria-selected="true"]`)
-    ?.setAttribute("aria-selected", false);
-  document
-    .querySelector(`.calview-toggle-item[aria-controls="${aType}-view"]`)
-    ?.setAttribute("aria-selected", true);
+  for (const tab of document.querySelectorAll(".calview-toggle-item")) {
+    const focused = tab.getAttribute("aria-controls") == `${aType}-view`;
+    tab.ariaSelected = focused;
+    tab.tabIndex = focused ? 0 : -1;
+    document.getElementById(tab.getAttribute("aria-controls")).hidden = !focused;
+  }
   switchToView(aType);
+}
+
+/**
+ * This function does the common steps to switch between views. Should be called
+ * from app-specific view switching functions
+ *
+ * @param {"day"|"week"|"multiweek"|"month"} viewType - The type of view to select.
+ */
+function switchToView(viewType) {
+  const viewBox = getViewBox();
+  let selectedDay;
+  let currentSelection = [];
+
+  // Set up the view commands
+  for (const view of viewBox.children) {
+    const commandId = "calendar_" + view.id + "_command";
+    const command = document.getElementById(commandId);
+    command.toggleAttribute("checked", view.id == viewType + "-view");
+  }
+
+  // calendar-nav-button-prev-tooltip-day
+  // calendar-nav-button-prev-tooltip-week
+  // calendar-nav-button-prev-tooltip-multiweek
+  // calendar-nav-button-prev-tooltip-month
+  // calendar-nav-button-prev-tooltip-year
+  document.l10n.setAttributes(
+    document.getElementById("previousViewButton"),
+    `calendar-nav-button-prev-tooltip-${viewType}`
+  );
+  // calendar-nav-button-next-tooltip-day
+  // calendar-nav-button-next-tooltip-week
+  // calendar-nav-button-next-tooltip-multiweek
+  // calendar-nav-button-next-tooltip-month
+  // calendar-nav-button-next-tooltip-year
+  document.l10n.setAttributes(
+    document.getElementById("nextViewButton"),
+    `calendar-nav-button-next-tooltip-${viewType}`
+  );
+  // calendar-context-menu-previous-day
+  // calendar-context-menu-previous-week
+  // calendar-context-menu-previous-multiweek
+  // calendar-context-menu-previous-month
+  // calendar-context-menu-previous-year
+  document.l10n.setAttributes(
+    document.getElementById("calendar-view-context-menu-previous"),
+    `calendar-context-menu-previous-${viewType}`
+  );
+  // calendar-context-menu-next-day
+  // calendar-context-menu-next-week
+  // calendar-context-menu-next-multiweek
+  // calendar-context-menu-next-month
+  // calendar-context-menu-next-year
+  document.l10n.setAttributes(
+    document.getElementById("calendar-view-context-menu-next"),
+    `calendar-context-menu-next-${viewType}`
+  );
+
+  // These are hidden until the calendar is loaded.
+  for (const node of document.querySelectorAll(".hide-before-calendar-loaded")) {
+    node.removeAttribute("hidden");
+  }
+
+  // Anyone wanting to plug in a view needs to follow this naming scheme
+  const view = document.getElementById(viewType + "-view");
+  const oldView = currentView();
+  if (oldView?.isActive) {
+    if (oldView == view) {
+      // Not actually changing view, there's nothing else to do.
+      return;
+    }
+
+    selectedDay = oldView.selectedDay;
+    currentSelection = oldView.getSelectedItems();
+    oldView.deactivate();
+  }
+
+  if (!selectedDay) {
+    selectedDay = cal.dtz.now();
+  }
+  for (let i = 0; i < viewBox.children.length; i++) {
+    if (view.id == viewBox.children[i].id) {
+      viewBox.children[i].hidden = false;
+      viewBox.setAttribute("selectedIndex", i);
+    } else {
+      viewBox.children[i].hidden = true;
+    }
+  }
+
+  view.ensureInitialized();
+  if (!view.controller) {
+    view.timezone = cal.dtz.defaultTimezone;
+    view.controller = calendarViewController;
+  }
+
+  view.goToDay(selectedDay);
+  view.setSelectedItems(currentSelection);
+
+  view.onResize(view);
+  view.activate();
 }
 
 /**

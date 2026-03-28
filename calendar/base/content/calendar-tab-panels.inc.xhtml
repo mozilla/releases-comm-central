@@ -297,29 +297,33 @@
             <div id="viewToggle" role="tablist" class="calview-toggle">
               <button id="calTabDay"
                       class="calview-toggle-item"
-                      onclick="goDoCommand('calendar_day-view_command')"
                       role="tab"
+                      value="day"
+                      tabindex="-1"
                       aria-controls="day-view"
                       aria-selected="false"
                       data-l10n-id="calendar-view-toggle-day"></button>
               <button id="calTabWeek"
                       class="calview-toggle-item"
-                      onclick="goDoCommand('calendar_week-view_command')"
                       role="tab"
+                      value="week"
+                      tabindex="0"
                       aria-controls="week-view"
-                      aria-selected="false"
+                      aria-selected="true"
                       data-l10n-id="calendar-view-toggle-week"></button>
               <button id="calTabMultiweek"
                       class="calview-toggle-item"
-                      onclick="goDoCommand('calendar_multiweek-view_command')"
                       role="tab"
+                      value="multiweek"
+                      tabindex="-1"
                       aria-controls="multiweek-view"
                       aria-selected="false"
                       data-l10n-id="calendar-view-toggle-multiweek"></button>
               <button id="calTabMonth"
                       class="calview-toggle-item"
-                      onclick="goDoCommand('calendar_month-view_command')"
                       role="tab"
+                      value="month"
+                      tabindex="-1"
                       aria-controls="month-view"
                       aria-selected="false"
                       data-l10n-id="calendar-view-toggle-month"></button>
@@ -339,15 +343,22 @@
                notation 'type + "-" + "view"', where "type" should refer to the
                displayed time period as described in base/public/calICalendarView.idl -->
           <calendar-day-view id="day-view"
+                             hidden="hidden"
+                             aria-labelledby="calTabDay"
                              context="calendar-view-context-menu"
                              item-context="calendar-item-context-menu"/>
           <calendar-week-view id="week-view"
+                              aria-labelledby="calTabWeek"
                               context="calendar-view-context-menu"
                               item-context="calendar-item-context-menu"/>
           <calendar-multiweek-view id="multiweek-view" flex="1"
+                                   hidden="hidden"
+                                   aria-labelledby="calTabMultiweek"
                                    context="calendar-view-context-menu"
                                    item-context="calendar-item-context-menu"/>
           <calendar-month-view id="month-view" flex="1"
+                               hidden="hidden"
+                               aria-labelledby="calTabMonth"
                                context="calendar-view-context-menu"
                                item-context="calendar-item-context-menu"/>
         </vbox>
