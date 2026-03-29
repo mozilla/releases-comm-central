@@ -13,7 +13,7 @@
 edition = "2021"
 rust-version = "1.87"
 name = "wgpu-hal"
-version = "28.0.0"
+version = "29.0.0"
 authors = ["gfx-rs developers"]
 build = "build.rs"
 autolib = false
@@ -206,7 +206,7 @@ default-features = false
 version = "0.4.29"
 
 [dependencies.naga]
-version = "28.0.0"
+version = "29.0.0"
 path = "../naga"
 
 [dependencies.ordered-float]
@@ -232,11 +232,11 @@ version = "2.0.12"
 default-features = false
 
 [dependencies.wgpu-naga-bridge]
-version = "28.0.0"
+version = "29.0.0"
 path = "../wgpu-naga-bridge"
 
 [dependencies.wgpu-types]
-version = "28.0.0"
+version = "29.0.0"
 path = "../wgpu-types"
 default-features = false
 
@@ -248,7 +248,7 @@ default-features = false
 version = "0.32.0"
 
 [dev-dependencies.naga]
-version = "28.0.0"
+version = "29.0.0"
 path = "../naga"
 features = [
     "wgsl-in",

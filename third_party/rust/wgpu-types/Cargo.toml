@@ -13,7 +13,7 @@
 edition = "2021"
 rust-version = "1.87"
 name = "wgpu-types"
-version = "28.0.0"
+version = "29.0.0"
 authors = ["gfx-rs developers"]
 build = false
 autolib = false
@@ -44,6 +44,7 @@ targets = [
 [features]
 counters = []
 default = ["std"]
+exhaust = ["dep:exhaust"]
 fragile-send-sync-non-atomic-wasm = []
 serde = [
     "dep:serde",
@@ -75,6 +76,10 @@ features = [
     "derive",
 ]
 
+[dependencies.exhaust]
+version = "0.2"
+optional = true
+
 [dependencies.log]
 version = "0.4.29"
 
@@ -89,6 +94,17 @@ features = [
     "derive",
 ]
 optional = true
+default-features = false
+
+[dev-dependencies.exhaust]
+version = "0.2"
+
+[dev-dependencies.hashbrown]
+version = "0.16"
+features = [
+    "default-hasher",
+    "inline-more",
+]
 default-features = false
 
 [dev-dependencies.serde]

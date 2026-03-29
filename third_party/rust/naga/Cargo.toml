@@ -13,7 +13,7 @@
 edition = "2021"
 rust-version = "1.87"
 name = "naga"
-version = "28.0.0"
+version = "29.0.0"
 authors = ["gfx-rs developers"]
 build = "build.rs"
 exclude = [
@@ -80,10 +80,7 @@ spv-in = [
 spv-out = ["dep:spirv"]
 stderr = ["codespan-reporting/std"]
 termcolor = ["codespan-reporting/termcolor"]
-wgsl-in = [
-    "dep:hexf-parse",
-    "dep:unicode-ident",
-]
+wgsl-in = ["dep:unicode-ident"]
 wgsl-out = []
 
 [lib]
@@ -125,10 +122,6 @@ features = [
     "inline-more",
 ]
 default-features = false
-
-[dependencies.hexf-parse]
-version = "0.2"
-optional = true
 
 [dependencies.indexmap]
 version = "2.11.4"

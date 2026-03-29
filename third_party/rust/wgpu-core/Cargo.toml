@@ -13,7 +13,7 @@
 edition = "2021"
 rust-version = "1.87"
 name = "wgpu-core"
-version = "28.0.0"
+version = "29.0.0"
 authors = ["gfx-rs developers"]
 build = "build.rs"
 autolib = false
@@ -149,7 +149,7 @@ version = "0.2"
 optional = true
 
 [dependencies.naga]
-version = "28.0.0"
+version = "29.0.0"
 path = "../naga"
 
 [dependencies.once_cell]
@@ -193,15 +193,15 @@ version = "2.0.12"
 default-features = false
 
 [dependencies.wgpu-hal]
-version = "28.0.0"
+version = "29.0.0"
 path = "../wgpu-hal"
 
 [dependencies.wgpu-naga-bridge]
-version = "28.0.0"
+version = "29.0.0"
 path = "../wgpu-naga-bridge"
 
 [dependencies.wgpu-types]
-version = "28.0.0"
+version = "29.0.0"
 path = "../wgpu-types"
 default-features = false
 
@@ -209,12 +209,12 @@ default-features = false
 version = "0.2.1"
 
 [target.'cfg(all(target_arch = "wasm32", not(target_os = "emscripten")))'.dependencies.wgpu-core-deps-wasm]
-version = "28.0.0"
+version = "29.0.0"
 path = "platform-deps/wasm"
 optional = true
 
 [target.'cfg(any(windows, target_os = "linux", target_os = "android", target_os = "freebsd"))'.dependencies.wgpu-core-deps-windows-linux-android]
-version = "28.0.0"
+version = "29.0.0"
 path = "platform-deps/windows-linux-android"
 optional = true
 
@@ -223,12 +223,12 @@ version = "1.10"
 optional = true
 
 [target.'cfg(target_os = "emscripten")'.dependencies.wgpu-core-deps-emscripten]
-version = "28.0.0"
+version = "29.0.0"
 path = "platform-deps/emscripten"
 optional = true
 
 [target.'cfg(target_vendor = "apple")'.dependencies.wgpu-core-deps-apple]
-version = "28.0.0"
+version = "29.0.0"
 path = "platform-deps/apple"
 optional = true
 
