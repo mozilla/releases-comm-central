@@ -513,16 +513,21 @@ var FacetContext = {
   },
 
   set fullSet(items) {
-    let scores;
+    let scoredItems;
     if (this.searcher && this.searcher.scores) {
-      scores = this.searcher.scores;
+      const scoreById = new Map();
+      for (const [index, item] of this._collection.items.entries()) {
+        scoreById.set(item.id, this.searcher.scores[index]);
+      }
+      scoredItems = items.map(item => [scoreById.get(item.id) ?? 0, item]);
     } else {
-      scores = Gloda.scoreNounItems(items);
+      const scores = Gloda.scoreNounItems(items);
+      scoredItems = items.map(function (item, index) {
+        return [scores[index], item];
+      });
     }
-    const scoredItems = items.map(function (item, index) {
-      return [scores[index], item];
-    });
-    scoredItems.sort((a, b) => b[0] - a[0]);
+    // When relevance scores tie exactly, sort by date descending.
+    scoredItems.sort((a, b) => b[0] - a[0] || b[1].date - a[1].date);
     this._relevantSortedItems = scoredItems.map(scoredItem => scoredItem[1]);
 
     this._dateSortedItems = this._relevantSortedItems
