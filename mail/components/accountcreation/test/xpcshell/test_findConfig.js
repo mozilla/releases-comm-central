@@ -470,6 +470,99 @@ add_task(async function testFindConfigExchangeFromRedirect() {
   );
 });
 
+add_task(async function test_findConfigForOutlookCom() {
+  Services.prefs.setBoolPref(
+    "mailnews.auto_config.fetchFromExchange.enabled",
+    true
+  );
+  Services.prefs.setCharPref(
+    "mailnews.auto_config_url",
+    "http://autoconfig.imap.test/"
+  );
+  NetworkTestUtils.configureProxy(
+    "autoconfig.imap.test",
+    80,
+    server.identity.primaryPort
+  );
+  server.identity.add("http", "autoconfig.imap.test", 80);
+  server.registerFile(
+    "/exchange.test",
+    do_get_file("data/basic.imap.test.xml")
+  );
+
+  const secureAutodiscover = await HttpsProxy.create(
+    server.identity.primaryPort,
+    "autodiscover.exchange.test",
+    "autodiscover.exchange.test"
+  );
+  const user = "testExchange@exchange.test";
+  server.identity.add("https", "autodiscover.exchange.test", 443);
+  server.registerPathHandler(
+    "/autodiscover/autodiscover.xml",
+    (request, response) => {
+      response.setHeader("Cache-Control", "private");
+      response.setStatusLine(request.httpVersion, 401, "Unauthorized");
+      response.setHeader("WWW-Authenticate", 'Basic Realm=""');
+    }
+  );
+
+  const abortable = new AbortController();
+  const discoveryStream = FindConfig.parallelAutoDiscovery(
+    "exchange.test",
+    user,
+    abortable.signal
+  );
+
+  const { value: config } = await discoveryStream.next();
+
+  Assert.ok(
+    config,
+    "parallelAutoDiscovery should return the imap/pop config even if exchange autodiscover failed"
+  );
+
+  // Clean up.
+  secureAutodiscover.destroy();
+  NetworkTestUtils.unconfigureProxy("autoconfig.imap.test", 80);
+  server.identity.remove("https", "autodiscover.exchange.test", 443);
+  server.identity.remove("http", "autoconfig.imap.test", 80);
+  server.registerFile("/autodiscover/autodiscover.xml", null);
+  server.registerFile("/exchange.test", null);
+  Services.cache2.clear();
+  Services.prefs.clearUserPref(
+    "mailnews.auto_config.fetchFromExchange.enabled"
+  );
+});
+
+add_task(async function test_findConfigAbort() {
+  NetworkTestUtils.configureProxy(
+    "autoconfig.imap.test",
+    80,
+    server.identity.primaryPort
+  );
+  server.identity.add("http", "autoconfig.imap.test", 80);
+  server.registerFile(
+    "/mail/config-v1.1.xml",
+    do_get_file("data/basic.imap.test.xml")
+  );
+
+  const abortable = new AbortController();
+  const discoveryStream = FindConfig.parallelAutoDiscovery(
+    "imap.test",
+    "yamatoo.nadeshiko@imap.test",
+    abortable.signal
+  );
+  abortable.abort();
+  const { value: config } = await discoveryStream.next();
+
+  Assert.equal(config, null, "Should return null if aborted");
+
+  // Clean up.
+  NetworkTestUtils.unconfigureProxy("autoconfig.imap.test", 80);
+  server.identity.remove("http", "autoconfig.imap.test", 80);
+  server.registerFile("/mail/config-v1.1.xml", null);
+  Services.cache2.clear();
+});
+
 add_task(function testEWSifyConfig() {
   Services.prefs.setBoolPref(
     "mailnews.auto_config.fetchFromExchange.enabled",

@@ -37,7 +37,9 @@ const {
  *   exchange autodiscovery lookups with.
  * @yields {object} - May yield object saying redirect is required with host.
  *
- * @returns {?AccountConfig} @see AccountConfig.sys.mjs
+ * @returns {?AccountConfig} @see AccountConfig.sys.mjs. If this returns null,
+ *   no valid config was found but there's also no error the user can take an
+ *   action on to change the outcome.
  */
 async function* parallelAutoDiscovery(
   domain,
@@ -94,16 +96,8 @@ async function* parallelAutoDiscovery(
       return result;
     }
   ).catch(exchangeError => {
-    // Must call error callback in any case to stop the discover mode.
-    if (exchangeError instanceof CancelledException) {
-      // If we've cancelled a redirect, we must resolve so the logic for
-      // having all of the priorty calls completed can run.
-      if (redirectResultResolvers) {
-        return;
-      }
-
-      throw exchangeError;
-    } else if (
+    // Extract authentication errors from the aggregate error.
+    if (
       exchangeError instanceof AggregateError &&
       exchangeError.errors.some(error => error.code == 401)
     ) {
@@ -113,20 +107,13 @@ async function* parallelAutoDiscovery(
           fluentTitleId: "account-setup-credentials-wrong",
         },
       });
-    } else {
-      // This needs to resolve here so the logic for having all of the
-      // priority calls completed can run. Even if the autodiscover fails,
-      // we need to check the status of the priority calls below. The outside
-      // function can throw an error for the other instances of autodiscover
-      // failing (the two instances above).
     }
+    throw exchangeError;
   });
 
-  let autodiscoverConfig;
-  // If there is a 401 error with fetchConfigWithExchange, we need to throw an
-  // error back to the function caller. If there is a 301 error, autodiscovery
-  // will resolve the redirectCallbackResovlers promise, and we will yield here
-  // to make sure the user confirms they want to submit their credentials.
+  // If there is a 301 error, autodiscovery will resolve the
+  // redirectCallbackResolvers promise, and we will yield here to make sure the
+  // user confirms they want to submit their credentials.
   try {
     // Handle the 3rd party redirect callback as a promise.
     await Promise.race([exchangePromise, redirectCallbackResolvers.promise]);
@@ -150,65 +137,75 @@ async function* parallelAutoDiscovery(
         }
       }
     }
-    // If we handled the redirect promise first, we need to make sure we handle
-    // the audodiscovery promise right after in case there were any errors.
-    autodiscoverConfig = await exchangePromise;
   } catch (error) {
-    // "Handle" the rejections from the priority queue, by ignoring them.
-    allFinishedPromise.catch(rejectionError =>
-      gAccountSetupLogger.debug(rejectionError)
-    );
-
     if (error instanceof CancelledException) {
+      // "Handle" the rejections from the priority queue, by ignoring them.
+      exchangePromise.catch(rejectionError =>
+        gAccountSetupLogger.debug(rejectionError)
+      );
+      allFinishedPromise.catch(rejectionError =>
+        gAccountSetupLogger.debug(rejectionError)
+      );
       throw new UserCancelledException();
     }
-
-    let newError;
-    if (!error.cause?.fluentTitleId) {
-      newError = new Error(error.message, {
-        ...error,
-        cause: { error, fluentTitleId: "account-setup-credentials-incomplete" },
-      });
-    }
-
-    abortController.abort(newError || error);
-
-    throw newError || error;
-  }
-
-  let config;
-  try {
-    ({ value: config } = await allFinishedPromise);
-  } catch (error) {
-    gAccountSetupLogger.debug(
-      "All priority-ordered config fetching mechanisms failed.",
-      error
-    );
+    // else let error handling fall through to config handling.
   }
 
   // Wait for both our priority discovery and Autodiscover search to complete
   // before deciding on a configuration to ensure we get an Exchange config if
   // one exists.
-  if (config) {
+  const [autoconfigResult, autodiscoverResult] = await Promise.allSettled([
+    allFinishedPromise,
+    exchangePromise,
+  ]);
+
+  // No point in doing any more work if this was aborted.
+  if (abortSignal.aborted) {
+    return null;
+  }
+
+  if (autoconfigResult.status == "fulfilled") {
+    const config = autoconfigResult.value.value;
+
     // One of the priority-ordered discovery mechanisms has succeeded. If
     // that mechanism did not produce an Exchange configuration and
     // Autodiscover also succeeded, we will add any Exchange configuration
     // it produced as an alternative.
-    if (!getIncomingExchangeConfig(config) && autodiscoverConfig) {
-      const exchangeIncoming = getIncomingExchangeConfig(autodiscoverConfig);
+    if (
+      !getIncomingExchangeConfig(config) &&
+      autodiscoverResult.status == "fulfilled" &&
+      autodiscoverResult.value
+    ) {
+      const autodiscoverConfig = autodiscoverResult.value;
 
+      const exchangeIncoming = getIncomingExchangeConfig(autodiscoverConfig);
       if (exchangeIncoming) {
         config.incomingAlternatives.push(exchangeIncoming);
       }
     }
+    // If we have a valid config, return that and ignore any errors.
     return config;
   }
-  // None of the priority-ordered mechanisms produced a config.
-  if (!autodiscoverConfig) {
+
+  gAccountSetupLogger.debug(
+    "All priority-ordered config fetching mechanisms failed.",
+    autoconfigResult.reason
+  );
+
+  if (autodiscoverResult.status != "fulfilled") {
+    // Only throw the exchange discovery error if it has a user facing string
+    // set. This is usually the 401 unauthorized error.
+    if (autodiscoverResult.reason.cause?.fluentTitleId) {
+      throw autodiscoverResult.reason;
+    }
+    gAccountSetupLogger.debug(
+      "Autodiscover failed with",
+      autodiscoverResult.reason
+    );
     return null;
   }
 
-  return autodiscoverConfig;
+  return autodiscoverResult.value;
 }
 
 /**
