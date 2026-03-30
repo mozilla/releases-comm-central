@@ -9,12 +9,12 @@
 
 extern "C" {
 // Instantiates a new nsIMsgOutgoingServer for EWS with a Rust implementation,
-// that also implements nsIEwsServer.
+// that also implements IExchangeOutgoingServer.
 MOZ_EXPORT nsresult nsEwsOutgoingServerConstructor(REFNSIID aIID,
                                                    void** aResult);
 
 // Instantiates a new nsIMsgOutgoingServer for Microsoft Graph with a Rust
-// implementation, that also implements nsIEwsServer.
+// implementation, that also implements IExchangeOutgoingServer.
 MOZ_EXPORT nsresult nsMsGraphOutgoingServerConstructor(REFNSIID aIID,
                                                        void** aResult);
 }  // extern "C"

@@ -105,7 +105,7 @@ function createExchangeAccount(protocol, url) {
   account.incomingServer.prettyName = `${protocol} Account`;
 
   const outgoingServer = MailServices.outgoingServer.createServer(protocol);
-  outgoingServer.QueryInterface(Ci.nsIEwsServer);
+  outgoingServer.QueryInterface(Ci.IExchangeOutgoingServer);
   outgoingServer.initialize(url);
   outgoingServer.authMethod = Ci.nsMsgAuthMethod.passwordCleartext;
   outgoingServer.username = "user";

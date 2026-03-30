@@ -170,7 +170,7 @@ async function createAccountInBackend(config) {
       config.outgoing.type == "ews" ||
       config.outgoing.type == "graph"
     ) {
-      const ewsServer = outServer.QueryInterface(Ci.nsIEwsServer);
+      const ewsServer = outServer.QueryInterface(Ci.IExchangeOutgoingServer);
       ewsServer.initialize(config.outgoing.exchangeURL);
     } else {
       // Note: createServer should already have thrown if given a type we don't

@@ -39,7 +39,7 @@ add_setup(async function () {
   ewsServer.username = "alice@local-ews.test";
   ewsServer.authMethod = Ci.nsMsgAuthMethod.OAuth2;
 
-  const ewsServer2 = ewsServer.QueryInterface(Ci.nsIEwsServer);
+  const ewsServer2 = ewsServer.QueryInterface(Ci.IExchangeOutgoingServer);
   ewsServer2.initialize("https://local-ews.test/EWS/Exchange.asmx");
 
   registerCleanupFunction(() => {

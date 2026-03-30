@@ -96,7 +96,7 @@ impl From<PrefName> for CString {
     }
 }
 
-#[xpcom::xpcom(implement(nsIMsgOutgoingServer, nsIEwsServer), atomic)]
+#[xpcom::xpcom(implement(nsIMsgOutgoingServer, IExchangeOutgoingServer), atomic)]
 pub struct OutgoingServer<ClientT: SendCapableClient + 'static> {
     key: OnceCell<nsCString>,
     uid: OnceCell<nsCString>,
@@ -862,9 +862,9 @@ impl<ClientT: SendCapableClient> OutgoingServer<ClientT> {
         Err(nserror::NS_ERROR_NOT_IMPLEMENTED)
     }
 
-    /////////////////////////////////
-    // nsIEwsServer implementation //
-    /////////////////////////////////
+    ////////////////////////////////////////////
+    // IExchangeOutgoingServer implementation //
+    ////////////////////////////////////////////
 
     xpcom_method!(initialize => Initialize(endpoint_url: *const nsACString));
     fn initialize(&self, endpoint_url: &nsACString) -> Result<(), nsresult> {

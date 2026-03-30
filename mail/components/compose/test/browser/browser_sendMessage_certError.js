@@ -169,7 +169,7 @@ async function subtest(
     identity = smtpIdentity;
     port = 465;
   } else if (serverDef.type == "ews") {
-    outgoingServer.QueryInterface(Ci.nsIEwsServer);
+    outgoingServer.QueryInterface(Ci.IExchangeOutgoingServer);
     outgoingServer.initialize(`https://${hostname}/EWS/Exchange.asmx`);
     identity = ewsIdentity;
     port = 443;

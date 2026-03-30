@@ -45,7 +45,9 @@ add_setup(async () => {
 
   // Create and initialize an EWS outgoing server.
   outgoingServer = MailServices.outgoingServer.createServer("ews");
-  const ewsOutgoingServer = outgoingServer.QueryInterface(Ci.nsIEwsServer);
+  const ewsOutgoingServer = outgoingServer.QueryInterface(
+    Ci.IExchangeOutgoingServer
+  );
   ewsOutgoingServer.initialize(
     `http://127.0.0.1:${ewsServer.port}/EWS/Exchange.asmx`
   );
