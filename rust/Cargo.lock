@@ -2944,6 +2944,7 @@ dependencies = [
 name = "happy_eyeballs_glue"
 version = "0.1.0"
 dependencies = [
+ "firefox-on-glean",
  "gecko-profiler",
  "happy-eyeballs",
  "libc",
