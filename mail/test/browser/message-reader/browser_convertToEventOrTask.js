@@ -37,10 +37,26 @@ add_setup(async function () {
   // Enable home calendar.
   cal.manager.getCalendars()[0].setProperty("disabled", false);
 
-  registerCleanupFunction(() => {
+  // Hide the today pane so the More button we'll use is sure to be inside
+  // the viewport.
+  EventUtils.synthesizeKey("VK_F11", {}, window);
+  await new Promise(resolve => setTimeout(resolve));
+  Assert.ok(
+    document.getElementById("today-pane-panel").hasAttribute("collapsed"),
+    "today pane should not be shown"
+  );
+
+  registerCleanupFunction(async () => {
     folder.deleteSelf(null);
     cal.manager.getCalendars()[0].setProperty("disabled", true);
     document.documentElement.focus();
+
+    EventUtils.synthesizeKey("VK_F11", {}, window);
+    await new Promise(resolve => setTimeout(resolve));
+    Assert.ok(
+      !document.getElementById("today-pane-panel").hasAttribute("collapsed"),
+      "today pane should beshown"
+    );
   });
 });
 
