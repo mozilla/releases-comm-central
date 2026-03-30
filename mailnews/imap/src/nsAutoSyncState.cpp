@@ -5,7 +5,7 @@
 #include "nsAutoSyncState.h"
 
 #include "EwsFetchMsgsToOffline.h"
-#include "IEwsFolder.h"
+#include "IExchangeFolder.h"
 #include "nsImapMailFolder.h"
 #include "nsIImapService.h"
 #include "nsIMsgMailNewsUrl.h"
@@ -714,7 +714,7 @@ NS_IMETHODIMP nsAutoSyncState::DownloadMessagesForOffline(
                    status, folder->URI().get()));
 
           // Let the folder know these messages are now stored offline.
-          nsCOMPtr<IEwsFolder> ewsFolder{do_QueryInterface(folder)};
+          nsCOMPtr<IExchangeFolder> ewsFolder{do_QueryInterface(folder)};
           if (ewsFolder) {
             ewsFolder->HandleDownloadedMessages();
           }

@@ -6,7 +6,7 @@
 #define COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSFOLDER_H_
 
 #include "IExchangeClient.h"
-#include "IEwsFolder.h"
+#include "IExchangeFolder.h"
 #include "mozilla/HashTable.h"
 #include "nsMsgDBFolder.h"
 #include "nscore.h"
@@ -28,9 +28,9 @@ class IHeaderBlock;
  * The EWS implementation for `nsIMsgFolder` which represents a folder in an EWS
  * account.
  */
-class EwsFolder : public nsMsgDBFolder, public IEwsFolder {
+class EwsFolder : public nsMsgDBFolder, public IExchangeFolder {
  public:
-  NS_DECL_IEWSFOLDER
+  NS_DECL_IEXCHANGEFOLDER
   NS_DECL_ISUPPORTS_INHERITED
 
   EwsFolder();
@@ -163,7 +163,7 @@ class EwsFolder : public nsMsgDBFolder, public IEwsFolder {
    */
   nsresult HandleDeleteOperation(
       bool forceHardDelete, std::function<nsresult()>&& onHardDelete,
-      std::function<nsresult(IEwsFolder* trashFolder)>&& onSoftDelete);
+      std::function<nsresult(IExchangeFolder* trashFolder)>&& onSoftDelete);
 
   /**
    * Get the nsAutoSyncState for this folder, used for interacting with

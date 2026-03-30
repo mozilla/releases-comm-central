@@ -7,7 +7,7 @@
 #include "EwsFetchMsgsToOffline.h"
 #include "EwsListeners.h"
 #include "IExchangeClient.h"
-#include "IEwsFolder.h"
+#include "IExchangeFolder.h"
 #include "IEwsIncomingServer.h"
 #include "nsIInputStream.h"
 #include "nsIInputStreamPump.h"
@@ -297,7 +297,7 @@ NS_IMETHODIMP EwsMessageChannel::AsyncOpen(nsIStreamListener* aListener) {
   nsCOMPtr<nsIMsgFolder> folder;
   rv = mHdr->GetFolder(getter_AddRefs(folder));
   NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr<IEwsFolder> ewsFolder{do_QueryInterface(folder, &rv)};
+  nsCOMPtr<IExchangeFolder> ewsFolder{do_QueryInterface(folder, &rv)};
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsMsgKey msgKey;

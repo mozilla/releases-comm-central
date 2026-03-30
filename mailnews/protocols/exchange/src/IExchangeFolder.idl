@@ -10,13 +10,13 @@ interface nsIMsgDBHdr;
 interface nsIMsgFolder;
 interface nsIMsgWindow;
 
-interface IEwsFolderOperationListener;
+interface IExchangeFolderOperationListener;
 
 /**
- * Specialized interface to folders on an EWS server.
+ * Specialized interface to folders on an Exchange server.
  */
 [scriptable, uuid(56dd52a2-ce37-4999-91d0-ff5dd6487981)]
-interface IEwsFolder : nsISupports {
+interface IExchangeFolder : nsISupports {
 
 /**
  * Copy a collection of items from another folder on the same server to this
@@ -33,14 +33,14 @@ interface IEwsFolder : nsISupports {
  * @param listener A listener to perform any operations on the new headers.
  */
 void copyItemsOnSameServer(
-    in IEwsFolder sourceFolder,
+    in IExchangeFolder sourceFolder,
     in Array<nsIMsgDBHdr> headers,
     in boolean isMove,
     in nsIMsgWindow window,
     in nsIMsgCopyServiceListener copyListener,
     in boolean allowUndo,
     in long undoOperationType,
-    in IEwsFolderOperationListener listener);
+    in IExchangeFolderOperationListener listener);
 
 /**
  * Copy a folder on the same server to this folder.
@@ -61,7 +61,7 @@ void copyFolderOnSameServer(
  * offline use and are now in the local message store.
  *
  * IMAP and NNTP handle downloading messages directly in the folder code,
- * but EWS farms the work out to folder-external code
+ * but Exchange farms the work out to folder-external code
  * (EwsFetchMsgsToOffline()), so this call is needed to tell the folder
  * to perform any actions it might need to do in response (e.g. applying
  * message filters which require the full message).
@@ -77,7 +77,7 @@ void copyFolderOnSameServer(
  * An interface for listeners for intra-EWS server operations.
  */
 [scriptable, uuid(f54907ed-03f1-4c18-b3e9-0688885f261d)]
-interface IEwsFolderOperationListener : nsISupports {
+interface IExchangeFolderOperationListener : nsISupports {
     /**
      * Signal that the operation has completed.
      *

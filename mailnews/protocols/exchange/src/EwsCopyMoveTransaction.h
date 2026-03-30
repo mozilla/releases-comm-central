@@ -4,7 +4,7 @@
 #ifndef COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSCOPYMOVETRANSACTION_H_
 #define COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSCOPYMOVETRANSACTION_H_
 
-#include "IEwsFolder.h"
+#include "IExchangeFolder.h"
 #include "nsMsgTxn.h"
 #include "nsIMsgHdr.h"
 #include "nsIMsgWindow.h"
@@ -26,8 +26,8 @@ class EwsCopyMoveTransaction : public nsMsgTxn {
    * the original copy or move operation).
    */
   static RefPtr<EwsCopyMoveTransaction> ForCopy(
-      nsCOMPtr<IEwsFolder> originalSourceFolder,
-      nsCOMPtr<IEwsFolder> originalDestinationFolder,
+      nsCOMPtr<IExchangeFolder> originalSourceFolder,
+      nsCOMPtr<IExchangeFolder> originalDestinationFolder,
       nsCOMPtr<nsIMsgWindow> window,
       nsTArray<RefPtr<nsIMsgDBHdr>> originalHeaders,
       nsTArray<RefPtr<nsIMsgDBHdr>> newHeaders);
@@ -39,8 +39,8 @@ class EwsCopyMoveTransaction : public nsMsgTxn {
    * parameters.
    */
   static RefPtr<EwsCopyMoveTransaction> ForMove(
-      nsCOMPtr<IEwsFolder> originalSourceFolder,
-      nsCOMPtr<IEwsFolder> originalDestinationFolder,
+      nsCOMPtr<IExchangeFolder> originalSourceFolder,
+      nsCOMPtr<IExchangeFolder> originalDestinationFolder,
       nsCOMPtr<nsIMsgWindow> window, nsTArray<RefPtr<nsIMsgDBHdr>> newHeaders);
 
   NS_IMETHOD UndoTransaction() override;
@@ -62,8 +62,8 @@ class EwsCopyMoveTransaction : public nsMsgTxn {
    * @see `EwsCopyMoveTransaction::ForCopy` for an explanation of the
    * parameters.
    */
-  EwsCopyMoveTransaction(nsCOMPtr<IEwsFolder> originalSourceFolder,
-                         nsCOMPtr<IEwsFolder> originalDestinationFolder,
+  EwsCopyMoveTransaction(nsCOMPtr<IExchangeFolder> originalSourceFolder,
+                         nsCOMPtr<IExchangeFolder> originalDestinationFolder,
                          nsCOMPtr<nsIMsgWindow> window, bool isMove,
                          nsTArray<RefPtr<nsIMsgDBHdr>>&& originalHeaders,
                          nsTArray<RefPtr<nsIMsgDBHdr>>&& newHeaders);
@@ -71,10 +71,10 @@ class EwsCopyMoveTransaction : public nsMsgTxn {
    * Perform the operation, moving the current set of headers from `fromFolder`
    * and to `toFolder`.
    */
-  nsresult PerformOperation(IEwsFolder* fromFolder, IEwsFolder* toFolder);
+  nsresult PerformOperation(IExchangeFolder* fromFolder, IExchangeFolder* toFolder);
 
-  const nsCOMPtr<IEwsFolder> mOriginalSourceFolder;
-  const nsCOMPtr<IEwsFolder> mOriginalDestinationFolder;
+  const nsCOMPtr<IExchangeFolder> mOriginalSourceFolder;
+  const nsCOMPtr<IExchangeFolder> mOriginalDestinationFolder;
   const nsCOMPtr<nsIMsgWindow> mWindow;
   const bool mIsMove;
   const nsTArray<RefPtr<nsIMsgDBHdr>> mOriginalHeaderSet;

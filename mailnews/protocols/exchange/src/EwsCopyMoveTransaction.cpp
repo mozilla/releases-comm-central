@@ -9,9 +9,9 @@
 
 namespace {
 
-class UpdateHeaderSetListener : public IEwsFolderOperationListener {
+class UpdateHeaderSetListener : public IExchangeFolderOperationListener {
  public:
-  NS_DECL_IEWSFOLDEROPERATIONLISTENER
+  NS_DECL_IEXCHANGEFOLDEROPERATIONLISTENER
   NS_DECL_ISUPPORTS
 
   explicit UpdateHeaderSetListener(RefPtr<EwsCopyMoveTransaction> transaction)
@@ -24,7 +24,7 @@ class UpdateHeaderSetListener : public IEwsFolderOperationListener {
   RefPtr<EwsCopyMoveTransaction> mTransaction;
 };
 
-NS_IMPL_ISUPPORTS(UpdateHeaderSetListener, IEwsFolderOperationListener);
+NS_IMPL_ISUPPORTS(UpdateHeaderSetListener, IExchangeFolderOperationListener);
 
 NS_IMETHODIMP UpdateHeaderSetListener::OnComplete(
     const nsTArray<RefPtr<nsIMsgDBHdr>>& headers) {
@@ -35,8 +35,8 @@ NS_IMETHODIMP UpdateHeaderSetListener::OnComplete(
 }  // namespace
 
 RefPtr<EwsCopyMoveTransaction> EwsCopyMoveTransaction::ForCopy(
-    nsCOMPtr<IEwsFolder> originalSourceFolder,
-    nsCOMPtr<IEwsFolder> originalDestinationFolder,
+    nsCOMPtr<IExchangeFolder> originalSourceFolder,
+    nsCOMPtr<IExchangeFolder> originalDestinationFolder,
     nsCOMPtr<nsIMsgWindow> window,
     nsTArray<RefPtr<nsIMsgDBHdr>> originalHeaders,
     nsTArray<RefPtr<nsIMsgDBHdr>> newHeaders) {
@@ -47,8 +47,8 @@ RefPtr<EwsCopyMoveTransaction> EwsCopyMoveTransaction::ForCopy(
 }
 
 RefPtr<EwsCopyMoveTransaction> EwsCopyMoveTransaction::ForMove(
-    nsCOMPtr<IEwsFolder> originalSourceFolder,
-    nsCOMPtr<IEwsFolder> originalDestinationFolder,
+    nsCOMPtr<IExchangeFolder> originalSourceFolder,
+    nsCOMPtr<IExchangeFolder> originalDestinationFolder,
     nsCOMPtr<nsIMsgWindow> window, nsTArray<RefPtr<nsIMsgDBHdr>> newHeaders) {
   // The move case has no need to hold on to a reference for the original
   // headers.
@@ -59,8 +59,8 @@ RefPtr<EwsCopyMoveTransaction> EwsCopyMoveTransaction::ForMove(
 }
 
 EwsCopyMoveTransaction::EwsCopyMoveTransaction(
-    nsCOMPtr<IEwsFolder> originalSourceFolder,
-    nsCOMPtr<IEwsFolder> originalDestinationFolder,
+    nsCOMPtr<IExchangeFolder> originalSourceFolder,
+    nsCOMPtr<IExchangeFolder> originalDestinationFolder,
     nsCOMPtr<nsIMsgWindow> window, bool isMove,
     nsTArray<RefPtr<nsIMsgDBHdr>>&& originalHeaders,
     nsTArray<RefPtr<nsIMsgDBHdr>>&& newHeaders)
@@ -102,8 +102,8 @@ void EwsCopyMoveTransaction::UpdateHeaderSet(
   }
 }
 
-nsresult EwsCopyMoveTransaction::PerformOperation(IEwsFolder* fromFolder,
-                                                  IEwsFolder* toFolder) {
+nsresult EwsCopyMoveTransaction::PerformOperation(IExchangeFolder* fromFolder,
+                                                  IExchangeFolder* toFolder) {
   RefPtr<UpdateHeaderSetListener> listener = new UpdateHeaderSetListener(this);
   const auto& transactionHeaders =
       mIsMove ? mCurrentHeaderSet : mOriginalHeaderSet;

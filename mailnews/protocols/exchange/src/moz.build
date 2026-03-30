@@ -35,10 +35,10 @@ XPCOM_MANIFESTS += [
 XPIDL_MODULE = "msgews"
 
 XPIDL_SOURCES += [
-    "IEwsFolder.idl",
     "IEwsIncomingServer.idl",
     "IEwsLanguageInteropFactory.idl",
     "IExchangeClient.idl",
+    "IExchangeFolder.idl",
 ]
 
 FINAL_LIBRARY = "mail"

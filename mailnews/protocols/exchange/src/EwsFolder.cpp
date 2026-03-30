@@ -159,7 +159,7 @@ static nsresult HandleMoveError(nsIMsgFolder* sourceFolder,
   });
 }
 
-NS_IMPL_ISUPPORTS_INHERITED(EwsFolder, nsMsgDBFolder, IEwsFolder);
+NS_IMPL_ISUPPORTS_INHERITED(EwsFolder, nsMsgDBFolder, IExchangeFolder);
 
 EwsFolder::EwsFolder() : mHasLoadedSubfolders(false), mExchangeProtocol("") {}
 
@@ -603,7 +603,7 @@ NS_IMETHODIMP EwsFolder::CopyMessages(
   if (isSameServer) {
     // Since the folders are on the same (EWS) server, the other folder must
     // also be an EWS Folder.
-    nsCOMPtr<IEwsFolder> ewsSourceFolder{do_QueryInterface(aSrcFolder, &rv)};
+    nsCOMPtr<IExchangeFolder> ewsSourceFolder{do_QueryInterface(aSrcFolder, &rv)};
     NS_ENSURE_SUCCESS(rv, rv);
     const auto undoType =
         aIsMove ? nsIMessenger::eMoveMsg : nsIMessenger::eCopyMsg;
@@ -642,11 +642,11 @@ NS_IMETHODIMP EwsFolder::CopyMessages(
 }
 
 NS_IMETHODIMP EwsFolder::CopyItemsOnSameServer(
-    IEwsFolder* aSrcFolder, nsTArray<RefPtr<nsIMsgDBHdr>> const& aSrcHdrs,
+    IExchangeFolder* aSrcFolder, nsTArray<RefPtr<nsIMsgDBHdr>> const& aSrcHdrs,
     bool aIsMove, nsIMsgWindow* aMsgWindow,
     nsIMsgCopyServiceListener* aCopyListener, bool aAllowUndo,
     int32_t undoOperationType,
-    IEwsFolderOperationListener* aOperationListener) {
+    IExchangeFolderOperationListener* aOperationListener) {
   // Same server copy or move, perform operation remotely.
   nsTArray<nsCString> ewsIds;
   nsresult rv = GetEwsIdsForMessageHeaders(aSrcHdrs, ewsIds);
@@ -657,9 +657,9 @@ NS_IMETHODIMP EwsFolder::CopyItemsOnSameServer(
   NS_ENSURE_SUCCESS(rv, rv);
 
   const nsCOMPtr<nsIMsgWindow> msgWindow = aMsgWindow;
-  const nsCOMPtr<IEwsFolder> srcFolder = aSrcFolder;
+  const nsCOMPtr<IExchangeFolder> srcFolder = aSrcFolder;
   const nsCOMPtr<nsIMsgCopyServiceListener> copyListener = aCopyListener;
-  const nsCOMPtr<IEwsFolderOperationListener> operationListener =
+  const nsCOMPtr<IExchangeFolderOperationListener> operationListener =
       aOperationListener;
 
   const RefPtr<EwsSimpleFallibleMessageListener> listener =
@@ -921,7 +921,7 @@ NS_IMETHODIMP EwsFolder::CopyFolderOnSameServer(
 
 nsresult EwsFolder::HandleDeleteOperation(
     bool forceHardDelete, std::function<nsresult()>&& onHardDelete,
-    std::function<nsresult(IEwsFolder*)>&& onSoftDelete) {
+    std::function<nsresult(IExchangeFolder*)>&& onSoftDelete) {
   using DeleteModel = IEwsIncomingServer::DeleteModel;
 
   nsresult rv;
@@ -952,7 +952,7 @@ nsresult EwsFolder::HandleDeleteOperation(
     return NS_ERROR_UNEXPECTED;
   }
 
-  nsCOMPtr<IEwsFolder> ewsTrashFolder = do_QueryInterface(trashFolder, &rv);
+  nsCOMPtr<IExchangeFolder> ewsTrashFolder = do_QueryInterface(trashFolder, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   return onSoftDelete(ewsTrashFolder);
@@ -1058,7 +1058,7 @@ NS_IMETHODIMP EwsFolder::DeleteMessages(
   // We're moving the messages to trash folder.
   const auto onSoftDelete =
       [self = RefPtr(this), headers, window = RefPtr(aMsgWindow),
-       copyListener = RefPtr(aCopyListener)](IEwsFolder* trashFolder) {
+       copyListener = RefPtr(aCopyListener)](IExchangeFolder* trashFolder) {
         return trashFolder->CopyItemsOnSameServer(
             self, headers, true, window, copyListener, true,
             nsIMessenger::eDeleteMsg, nullptr);
@@ -1096,7 +1096,7 @@ NS_IMETHODIMP EwsFolder::DeleteSelf(nsIMsgWindow* aWindow) {
   };
 
   const auto onSoftDelete =
-      [self = RefPtr(this), window = RefPtr(aWindow)](IEwsFolder* trashFolder) {
+      [self = RefPtr(this), window = RefPtr(aWindow)](IExchangeFolder* trashFolder) {
         return trashFolder->CopyFolderOnSameServer(self, true, window, nullptr);
       };
 
