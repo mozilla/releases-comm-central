@@ -961,10 +961,36 @@ class FlavorDataProvider {
       return;
     }
 
-    // Save the attachment.
     const destFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
     destFile.initWithPath(destDirectory.path);
     destFile.append(attachment.name.replace(/(.{74}).*(.{10})$/u, "$1...$2"));
+
+    // Check to see if we've already saved this attachment to the requested
+    // destination and skip saving if we have.
+    //
+    // On MacOS, a save operation is triggered once for each item selected as part
+    // of a drag operation. However, the `nsITransferable` API groups all items
+    // together into a single transfer request that the attachment save code
+    // invokes for every attachment in the file, thus leading to 2^n files saved
+    // for any request saving n >= 2 attachments. Saving is an async operation, so
+    // to work around this, we avoid saving attachments to the same path multiple
+    // times.
+    //
+    // For relevant related code, see `provideDataForType` in
+    // widget/cocoa/nsCocoaWindow.mm and `nsDragSession::InvokeDragSessionImpl` in
+    // widget/cocoa/nsDragService.mm.
+    if (AppConstants.platform == "macosx") {
+      if (
+        attachment.lastSavedPath &&
+        attachment.lastSavedPath == destFile.path
+      ) {
+        return;
+      }
+
+      attachment.lastSavedPath = destFile.path;
+    }
+
+    // Save the attachment.
     destFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
     data.value = destFile.QueryInterface(Ci.nsISupports);
 
