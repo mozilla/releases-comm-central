@@ -15,3 +15,5 @@ prefs = [
 subsuite = "thunderbird"
 
 ["browser_accountHubFirstRun.js"]
+
+["browser_accountHubHeaderFirstRun.js"]

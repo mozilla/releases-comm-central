@@ -364,6 +364,31 @@ header {
   letter-spacing: 1px;
 }
 
+.account-hub-first-run {
+  &#brandingHeader {
+    & h1 {
+      align-self: center;
+    }
+
+    & > img {
+      align-self: center;
+      inline-size: 65px;
+      block-size: 65px;
+    }
+
+    & .branding-header-title {
+      font-size: 3.7rem;
+      font-weight: 300;
+      line-height: 100%;
+    }
+
+    & .branding-header-name {
+      font-size: 1rem;
+      font-weight: 400;
+    }
+  }
+}
+
 #welcomeHeader h1 {
   font-size: 1.4rem;
   gap: 12px;

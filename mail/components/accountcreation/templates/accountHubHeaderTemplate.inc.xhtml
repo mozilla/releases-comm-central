@@ -6,9 +6,13 @@
   <header id="accountHubHeader" class="hub-header">
     <div id="brandingHeader" class="branding-header" hidden="hidden">
       <img src="chrome://branding/content/logo-gradient.svg" alt="" />
-      <h1>
-        <span class="branding-header-name" data-l10n-id="account-hub-brand"></span>
-        <span class="branding-header-title" data-l10n-id="account-hub-title"></span>
+      <h1 class="account-hub-title">
+        <span class="branding-header-name" aria-hidden="hidden"></span>
+        <span class="branding-header-title" aria-hidden="hidden"></span>
+        <span
+          class="account-hub-welcome-text screen-reader-only"
+          data-l10n-id="account-hub-welcome-text"
+        ></span>
       </h1>
       <div id="headerButtonsContainer">
         <button id="minimizeButton"

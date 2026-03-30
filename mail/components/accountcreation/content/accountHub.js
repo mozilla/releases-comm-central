@@ -235,6 +235,10 @@ class AccountHubControllerClass {
     this.isFirstRun = isFirstRun();
     this.#modal.classList.toggle("account-hub-first-run", this.isFirstRun);
 
+    for (const step of this.#modal.querySelectorAll(".account-hub-step")) {
+      step.setAttribute("is-first-run", this.isFirstRun);
+    }
+
     await this.#views[type].call();
     if (!this.#modal.open) {
       // Disabled keyboard interaction while accounthub is open.

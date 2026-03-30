@@ -6,9 +6,10 @@
 
 const tabmail = document.getElementById("tabmail");
 let header;
+let tab;
 
 add_setup(async function () {
-  const tab = tabmail.openTab("contentTab", {
+  tab = tabmail.openTab("contentTab", {
     url: "chrome://mochitests/content/browser/comm/mail/components/accountcreation/test/browser/files/accountHubHeader.xhtml",
   });
 
@@ -183,5 +184,41 @@ add_task(async function test_showNotification_error_without_cause() {
   Assert.ok(
     BrowserTestUtils.isHidden(notification),
     "Notification should be hidden again after clearNotifications()"
+  );
+});
+
+add_task(async function test_showAccountHubBranding() {
+  Assert.equal(
+    header.shadowRoot
+      .querySelector(".branding-header-name")
+      .getAttribute("data-l10n-id"),
+    "account-hub-brand",
+    "Should show default branding header text"
+  );
+  Assert.equal(
+    header.shadowRoot
+      .querySelector(".branding-header-title")
+      .getAttribute("data-l10n-id"),
+    "account-hub-title",
+    "Should show default branding title text"
+  );
+  Assert.ok(
+    !header.shadowRoot
+      .querySelector(".branding-header-name")
+      .hasAttribute("aria-hidden"),
+    "Should not expose name to screen reader"
+  );
+  Assert.ok(
+    !header.shadowRoot
+      .querySelector(".branding-header-title")
+      .hasAttribute("aria-hidden"),
+    "Should not expose title to screen reader"
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(
+      header.shadowRoot.querySelector(".account-hub-welcome-text")
+    ),
+    "Should show a11y friendly welcome text"
   );
 });

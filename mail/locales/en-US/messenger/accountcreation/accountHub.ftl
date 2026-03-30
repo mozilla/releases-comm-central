@@ -388,3 +388,9 @@ account-hub-email-skip-button = Skip
 account-hub-finding-sync-accounts = Account created. Discovering address books and calendars…
 
 account-hub-privacy-policy = Privacy Policy
+
+account-hub-welcome = Welcome to
+
+account-hub-welcome-brand = { -brand-short-name }
+
+account-hub-welcome-text = Welcome to { -brand-short-name }

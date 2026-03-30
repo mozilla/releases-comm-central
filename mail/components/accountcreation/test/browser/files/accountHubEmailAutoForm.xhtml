@@ -18,15 +18,10 @@
       <header id="accountHubHeader" class="hub-header">
         <div id="brandingHeader" class="branding-header" hidden="hidden">
           <img src="chrome://branding/content/logo-gradient.svg" alt="" />
-          <h1>
-            <span
-              class="branding-header-name"
-              data-l10n-id="account-hub-brand">
-            </span>
-            <span
-              class="branding-header-title"
-              data-l10n-id="account-hub-title">
-            </span>
+          <h1 class="account-hub-title">
+            <span class="branding-header-name" aria-hidden="hidden"></span>
+            <span class="branding-header-title" aria-hidden="hidden"></span>
+            <span class="account-hub-welcome-text screen-reader-only" data-l10n-id="account-hub-welcome-text"></span>
           </h1>
           <div id="headerButtonsContainer">
             <button id="minimizeButton"
@@ -46,31 +41,29 @@
         <!-- Title Text for Email Setup -->
         <h1 id="accountHubHeaderTitle"
             class="sub-view-title">
-          <slot name="title"></slot>
+            <slot name="title"></slot>
         </h1>
+        <h2 id="accountHubHeaderSubheader"
+            class="sub-view-sub-header"
+            hidden="hidden">
+            <slot name="subheader"></slot>
+        </h2>
         <details id="emailFormNotification" class="notification-bar">
           <summary id="emailFormNotificationSummary"
-                  class="notification-title-container">
-            <img
-              class="form-icon icon-warning"
-              src=""
-              alt=""
-            />
-            <img
-              class="form-icon icon-success"
-              src=""
-              alt=""
-             />
-            <img
-              class="form-icon icon-info"
-              src=""
-              alt=""
-             />
-            <img
-              class="form-icon icon-danger"
-              src=""
-              alt=""
-             />
+                   class="notification-title-container"
+                   role="alert">
+            <img class="form-icon icon-warning"
+                 src=""
+                 alt=""/>
+            <img class="form-icon icon-success"
+                 src=""
+                 alt="" />
+            <img class="form-icon icon-info"
+                 src=""
+                 alt="" />
+            <img class="form-icon icon-danger"
+                 src=""
+                 alt="" />
             <p id="emailFormNotificationTitle" class="notification-title">
               <span class="localized-title"></span>
               <span class="raw-title"></span>
@@ -99,6 +92,17 @@
       </div>
     </template>
     <template id="accountHubEmailAutoFormTemplate" xmlns="http://www.w3.org/1999/xhtml">
+      <div class="account-hub-thundermail-header" slot="middle-content" hidden="hidden">
+        <button class="account-hub-thundermail-button">
+          <img class="account-hub-thundermail-icon" src="" alt="" />
+          <span data-l10n-id="account-hub-thundermail-button"></span>
+        </button>
+        <div class="account-hub-thundermail-divider">
+          <span class="account-hub-thundermail-divider-line"></span>
+          <span class="account-hub-thundermail-divider-text" data-l10n-id="account-hub-thundermail-divider-text"></span>
+          <span class="account-hub-thundermail-divider-line"></span>
+        </div>
+      </div>
       <form id="autoConfigEmailForm" class="account-hub-form" slot="content">
         <div class="hub-body email-form-body">
           <div class="input-control">

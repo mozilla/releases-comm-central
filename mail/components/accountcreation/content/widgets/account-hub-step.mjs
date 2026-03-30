@@ -17,6 +17,8 @@ import "chrome://messenger/content/accountcreation/content/widgets/account-hub-h
  *  id will take precedence.
  */
 export class AccountHubStep extends HTMLElement {
+  static observedAttributes = ["is-first-run"];
+
   /** @type {DOMLocalization} */
   l10n;
 
@@ -52,6 +54,10 @@ export class AccountHubStep extends HTMLElement {
     this.l10n.connectRoot(shadowRoot);
     this.#header = this.shadowRoot.querySelector("account-hub-header");
     this.#setHeader();
+  }
+
+  attributeChangedCallback() {
+    this.#header?.refresh();
   }
 
   /**
