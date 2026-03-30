@@ -10,6 +10,10 @@ var { saveAndCloseItemDialog, setData } = ChromeUtils.importESModule(
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
+ChromeUtils.defineESModuleGetters(this, {
+  CalTodo: "resource:///modules/CalTodo.sys.mjs",
+});
+
 const HOUR = 8;
 
 // Unique name needed as deleting a calendar only unsubscribes from it and
@@ -18,6 +22,7 @@ const HOUR = 8;
 var calendarName = String(Date.now());
 var calendarFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
 calendarFile.append(calendarName + ".ics");
+const TASK_TITLE = `${calendarName}-task`;
 
 add_task(async function testLocalICS() {
   await CalendarTestUtils.setCalendarView(window, "day");
@@ -52,6 +57,33 @@ add_task(async function testLocalICS() {
   cstream.close();
 
   Assert.ok(str.value.includes("SUMMARY:" + calendarName));
+
+  const calendar = cal.manager
+    .getCalendars()
+    .find(existingCalendar => existingCalendar.name == calendarName);
+  const task = new CalTodo();
+  task.title = TASK_TITLE;
+  task.entryDate = cal.createDateTime("20260110");
+  task.entryDate.isDate = true;
+  task.dueDate = cal.createDateTime("20260111");
+  task.dueDate.isDate = true;
+  await calendar.addItem(task);
+
+  let taskStr;
+  await TestUtils.waitForCondition(() => {
+    fstream.init(calendarFile, -1, 0, 0);
+    taskStr = NetUtil.readInputStreamToString(fstream, fstream.available());
+    fstream.close();
+    return taskStr.includes("BEGIN:VTODO");
+  }, "Timed out waiting for VTODO to be written to file");
+
+  const todoBlock = taskStr.match(/BEGIN:VTODO[\s\S]*?END:VTODO/)?.[0] || "";
+  Assert.ok(todoBlock, "task is exported as VTODO");
+  Assert.ok(todoBlock.includes("SUMMARY:" + TASK_TITLE), "task summary is exported");
+  Assert.ok(/DTSTART;VALUE=DATE:\d{8}/.test(todoBlock), "task start uses VALUE=DATE");
+  Assert.ok(/DUE;VALUE=DATE:\d{8}/.test(todoBlock), "task due uses VALUE=DATE");
+  Assert.ok(!/DTSTART:\d{8}T/.test(todoBlock), "task start is not exported as datetime");
+  Assert.ok(!/DUE:\d{8}T/.test(todoBlock), "task due is not exported as datetime");
 });
 
 registerCleanupFunction(() => {

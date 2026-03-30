@@ -1156,9 +1156,13 @@ function dateTimeControls2State(aStartDatepicker) {
   }
 
   if (allDay) {
-    gStartTime.isDate = true;
-    gEndTime.isDate = true;
-    gItemDuration = gEndTime.subtractDate(gStartTime);
+    if (gStartTime) {
+      gStartTime.isDate = true;
+    }
+    if (gEndTime) {
+      gEndTime.isDate = true;
+    }
+    gItemDuration = gStartTime && gEndTime ? gEndTime.subtractDate(gStartTime) : null;
   }
 
   // calculate the new duration of start/end-time.
@@ -1286,7 +1290,12 @@ function updateDateCheckboxes(aDatePickerId, aCheckboxId, aDateTime) {
 
   // first of all disable the datetime picker if we don't have a date
   const hasDate = document.getElementById(aCheckboxId).checked;
+  const allDay = document.getElementById("event-all-day").checked;
   datePicker.toggleAttribute("disabled", !hasDate);
+  if (allDay) {
+    // Reapply the all-day state after toggling the date picker disabled state.
+    datePicker.toggleAttribute("timepickerdisabled", true);
+  }
 
   // create a new datetime object if date is now checked for the first time
   if (hasDate && !aDateTime.isValid()) {
@@ -1294,6 +1303,7 @@ function updateDateCheckboxes(aDatePickerId, aCheckboxId, aDateTime) {
       document.getElementById(aDatePickerId).value,
       cal.dtz.defaultTimezone
     );
+    date.isDate = allDay;
     aDateTime.setDateTime(date);
   } else if (!hasDate && aDateTime.isValid()) {
     aDateTime.setDateTime(null);
@@ -1311,7 +1321,6 @@ function updateDateCheckboxes(aDatePickerId, aCheckboxId, aDateTime) {
   }
   document.getElementById("keepduration-button").disabled = !(hasEntryDate && hasDueDate);
   updateDateTime();
-  updateTimezone();
 }
 
 /**
@@ -1643,8 +1652,17 @@ function saveDateTime(item) {
     cal.item.setItemProperty(item, "endDate", endTime);
   }
   if (item.isTodo()) {
-    const startTime = gStartTime && gStartTime.getInTimezone(gStartTimezone);
-    const endTime = gEndTime && gEndTime.getInTimezone(gEndTimezone);
+    const isAllDay = document.getElementById("event-all-day").checked;
+    let startTime = gStartTime && gStartTime.getInTimezone(gStartTimezone);
+    let endTime = gEndTime && gEndTime.getInTimezone(gEndTimezone);
+    if (startTime) {
+      startTime = startTime.clone();
+      startTime.isDate = isAllDay;
+    }
+    if (endTime) {
+      endTime = endTime.clone();
+      endTime.isDate = isAllDay;
+    }
     cal.item.setItemProperty(item, "entryDate", startTime);
     cal.item.setItemProperty(item, "dueDate", endTime);
   }
@@ -1743,9 +1761,9 @@ function updateAccept() {
     startDate = startDate.getInTimezone(kDefaultTimezone);
     endDate = endDate.getInTimezone(kDefaultTimezone);
 
-    // For all-day events we are not interested in times and compare only
+    // For all-day items we are not interested in times and compare only
     // dates.
-    if (isEvent && document.getElementById("event-all-day").checked) {
+    if (document.getElementById("event-all-day").checked) {
       // jsDateToDateTime returns the values in UTC. Depending on the
       // local timezone and the values selected in datetimepicker the date
       // in UTC might be shifted to the previous or next day.
@@ -1792,58 +1810,100 @@ var gOldEndTimezone = null;
  * day" checkbox being clicked.
  */
 function onUpdateAllDay() {
-  if (!window.calendarItem.isEvent()) {
-    return;
-  }
+  const item = window.calendarItem;
   const allDay = document.getElementById("event-all-day").checked;
   const kDefaultTimezone = cal.dtz.defaultTimezone;
 
-  if (allDay) {
-    // Store date-times and related timezones so we can restore
-    // if the user unchecks the "all day" checkbox.
-    gOldStartTime = gStartTime.clone();
-    gOldEndTime = gEndTime.clone();
-    gOldStartTimezone = gStartTimezone;
-    gOldEndTimezone = gEndTimezone;
-    // When events that end at 0:00 become all-day events, we need to
-    // subtract a day from the end date because the real end is midnight.
-    if (gEndTime.hour == 0 && gEndTime.minute == 0) {
-      const tempStartTime = gStartTime.clone();
-      const tempEndTime = gEndTime.clone();
-      tempStartTime.isDate = true;
-      tempEndTime.isDate = true;
-      tempStartTime.day++;
-      if (tempEndTime.compare(tempStartTime) >= 0) {
-        gEndTime.day--;
+  if (item.isEvent()) {
+    if (allDay) {
+      // Store date-times and related timezones so we can restore
+      // if the user unchecks the "all day" checkbox.
+      gOldStartTime = gStartTime.clone();
+      gOldEndTime = gEndTime.clone();
+      gOldStartTimezone = gStartTimezone;
+      gOldEndTimezone = gEndTimezone;
+      // When events that end at 0:00 become all-day events, we need to
+      // subtract a day from the end date because the real end is midnight.
+      if (gEndTime.hour == 0 && gEndTime.minute == 0) {
+        const tempStartTime = gStartTime.clone();
+        const tempEndTime = gEndTime.clone();
+        tempStartTime.isDate = true;
+        tempEndTime.isDate = true;
+        tempStartTime.day++;
+        if (tempEndTime.compare(tempStartTime) >= 0) {
+          gEndTime.day--;
+        }
+      }
+    } else {
+      gStartTime.isDate = false;
+      gEndTime.isDate = false;
+      if (!gOldStartTime && !gOldEndTime) {
+        // The checkbox has been unchecked for the first time, the event
+        // was an "All day" type, so we have to set default values.
+        gStartTime.hour = cal.dtz.getDefaultStartDate(window.initialStartDateValue).hour;
+        gEndTime.hour = gStartTime.hour;
+        gEndTime.minute += Services.prefs.getIntPref("calendar.event.defaultlength", 60);
+        gOldStartTimezone = kDefaultTimezone;
+        gOldEndTimezone = kDefaultTimezone;
+      } else {
+        // Restore date-times previously stored.
+        gStartTime.hour = gOldStartTime.hour;
+        gStartTime.minute = gOldStartTime.minute;
+        gEndTime.hour = gOldEndTime.hour;
+        gEndTime.minute = gOldEndTime.minute;
+        // When we restore 0:00 as end time, we need to add one day to
+        // the end date in order to include the last day until midnight.
+        if (gEndTime.hour == 0 && gEndTime.minute == 0) {
+          gEndTime.day++;
+        }
       }
     }
+  } else if (allDay) {
+    gOldStartTime = gStartTime && gStartTime.clone();
+    gOldEndTime = gEndTime && gEndTime.clone();
+    gOldStartTimezone = gStartTimezone;
+    gOldEndTimezone = gEndTimezone;
   } else {
-    gStartTime.isDate = false;
-    gEndTime.isDate = false;
-    if (!gOldStartTime && !gOldEndTime) {
-      // The checkbox has been unchecked for the first time, the event
-      // was an "All day" type, so we have to set default values.
-      gStartTime.hour = cal.dtz.getDefaultStartDate(window.initialStartDateValue).hour;
-      gEndTime.hour = gStartTime.hour;
-      gEndTime.minute += Services.prefs.getIntPref("calendar.event.defaultlength", 60);
-      gOldStartTimezone = kDefaultTimezone;
-      gOldEndTimezone = kDefaultTimezone;
-    } else {
-      // Restore date-times previously stored.
-      gStartTime.hour = gOldStartTime.hour;
-      gStartTime.minute = gOldStartTime.minute;
-      gEndTime.hour = gOldEndTime.hour;
-      gEndTime.minute = gOldEndTime.minute;
-      // When we restore 0:00 as end time, we need to add one day to
-      // the end date in order to include the last day until midnight.
-      if (gEndTime.hour == 0 && gEndTime.minute == 0) {
-        gEndTime.day++;
+    // We can't share this with the event block: Tasks start/end dates are optional
+    // and per RFC 5545, DTEND is non-inclusive while DUE is understood to be
+    // inclusive, which requires different behaviour when converting from all-day.
+    const defaultStartDate = cal.dtz.getDefaultStartDate(window.initialStartDateValue);
+    if (gStartTime) {
+      gStartTime.isDate = false;
+      if (gOldStartTime) {
+        gStartTime.hour = gOldStartTime.hour;
+        gStartTime.minute = gOldStartTime.minute;
+        gStartTimezone = gOldStartTimezone;
+      } else {
+        gStartTime.hour = defaultStartDate.hour;
+        gStartTime.minute = defaultStartDate.minute;
+        gStartTimezone = kDefaultTimezone;
+      }
+    }
+    if (gEndTime) {
+      gEndTime.isDate = false;
+      if (gOldEndTime) {
+        gEndTime.hour = gOldEndTime.hour;
+        gEndTime.minute = gOldEndTime.minute;
+        gEndTimezone = gOldEndTimezone;
+      } else {
+        gEndTime.hour = defaultStartDate.hour;
+        gEndTime.minute =
+          defaultStartDate.minute + Services.prefs.getIntPref("calendar.event.defaultlength", 60);
+        gEndTimezone = kDefaultTimezone;
       }
     }
   }
-  gStartTimezone = allDay ? cal.dtz.floating : gOldStartTimezone;
-  gEndTimezone = allDay ? cal.dtz.floating : gOldEndTimezone;
-  setShowTimeAs(allDay);
+  if (allDay) {
+    gStartTimezone = cal.dtz.floating;
+    gEndTimezone = cal.dtz.floating;
+  } else if (item.isEvent()) {
+    gStartTimezone = gOldStartTimezone;
+    gEndTimezone = gOldEndTimezone;
+  }
+  if (item.isEvent()) {
+    setShowTimeAs(allDay);
+  }
 
   updateAllDay();
 }
@@ -1852,31 +1912,36 @@ function onUpdateAllDay() {
  * This function sets the enabled/disabled state of the following controls:
  * - 'event-starttime'
  * - 'event-endtime'
+ * - 'todo-entrydate'
+ * - 'todo-duedate'
  * - 'timezone-starttime'
  * - 'timezone-endtime'
- * the state depends on whether or not the event is configured as 'all-day' or not.
+ * the state depends on whether or not the item is configured as 'all-day' or not.
  */
 function updateAllDay() {
   if (gIgnoreUpdate) {
     return;
   }
 
-  if (!window.calendarItem.isEvent()) {
-    return;
-  }
-
+  const item = window.calendarItem;
   const allDay = document.getElementById("event-all-day").checked;
-  if (allDay) {
-    document.getElementById("event-starttime").setAttribute("timepickerdisabled", true);
-    document.getElementById("event-endtime").setAttribute("timepickerdisabled", true);
+  if (item.isEvent()) {
+    for (const id of ["event-starttime", "event-endtime"]) {
+      document.getElementById(id).toggleAttribute("timepickerdisabled", allDay);
+    }
   } else {
-    document.getElementById("event-starttime").removeAttribute("timepickerdisabled");
-    document.getElementById("event-endtime").removeAttribute("timepickerdisabled");
+    for (const id of ["todo-entrydate", "todo-duedate"]) {
+      document.getElementById(id).toggleAttribute("timepickerdisabled", allDay);
+    }
   }
 
-  gStartTime.isDate = allDay;
-  gEndTime.isDate = allDay;
-  gItemDuration = gEndTime.subtractDate(gStartTime);
+  if (gStartTime) {
+    gStartTime.isDate = allDay;
+  }
+  if (gEndTime) {
+    gEndTime.isDate = allDay;
+  }
+  gItemDuration = gStartTime && gEndTime ? gEndTime.subtractDate(gStartTime) : null;
 
   updateDateTime();
   updateUntildateRecRule();
@@ -3415,6 +3480,18 @@ function editTimezone(aElementId, aDateTime, aCallback) {
 }
 
 /**
+ * @param {calIDateTime | null} startTime
+ * @param {calIDateTime | null} endTime
+ */
+function updateTodoAllDayCheckbox(startTime, endTime) {
+  if (startTime || endTime) {
+    document.getElementById("event-all-day").checked = startTime
+      ? startTime.isDate
+      : endTime.isDate;
+  }
+}
+
+/**
  * This function initializes the following controls:
  * - 'event-starttime'
  * - 'event-endtime'
@@ -3471,6 +3548,7 @@ function updateDateTime() {
       let endTime = gEndTime && gEndTime.getInTimezone(gEndTimezone);
       const hasEntryDate = startTime != null;
       const hasDueDate = endTime != null;
+      updateTodoAllDayCheckbox(startTime, endTime);
 
       if (hasEntryDate && hasDueDate) {
         document.getElementById("todo-has-entrydate").checked = hasEntryDate;
@@ -3525,6 +3603,7 @@ function updateDateTime() {
       let endTime = gEndTime && gEndTime.getInTimezone(kDefaultTimezone);
       const hasEntryDate = startTime != null;
       const hasDueDate = endTime != null;
+      updateTodoAllDayCheckbox(startTime, endTime);
 
       if (hasEntryDate && hasDueDate) {
         document.getElementById("todo-has-entrydate").checked = hasEntryDate;

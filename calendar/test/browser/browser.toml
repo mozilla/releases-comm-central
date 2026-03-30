@@ -59,6 +59,8 @@ tags = ["notifications"]
 
 ["browser_tabs.js"]
 
+["browser_taskAllDay.js"]
+
 ["browser_taskDelete.js"]
 
 ["browser_taskDisplay.js"]

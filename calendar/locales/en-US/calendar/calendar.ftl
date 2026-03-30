@@ -28,6 +28,11 @@ ask-save-title-task = Save Task
 ask-save-message-event = Event has not been saved. Do you want to save the event?
 ask-save-message-task = Task has not been saved. Do you want to save the task?
 
+# All day checkbox label, used both for events and tasks
+calendar-item-all-day =
+    .label = All day
+    .accesskey = d
+
 # Event Dialog Warnings
 warning-end-before-start = The end date you entered occurs before the start date
 warning-until-date-before-start = The until date occurs before the start date

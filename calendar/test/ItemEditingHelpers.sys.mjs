@@ -147,7 +147,7 @@ export async function setData(dialogWindow, iframeWindow, data) {
   }
 
   // all-day
-  if (data.allday !== undefined && isEvent) {
+  if (data.allday !== undefined) {
     const checkbox = iframeDocument.getElementById("event-all-day");
     if (checkbox.checked != data.allday) {
       synthesizeMouseAtCenter(checkbox, {}, iframeWindow);

@@ -303,14 +303,13 @@
       </html:tr>
 
       <!-- All-Day -->
-      <html:tr id="event-grid-allday-row" class="event-only">
+      <html:tr id="event-grid-allday-row">
         <html:th> </html:th>
         <html:td>
           <checkbox
             id="event-all-day"
             disable-on-readonly="true"
-            label="&event.alldayevent.label;"
-            accesskey="&event.alldayevent.accesskey;"
+            data-l10n-id="calendar-item-all-day"
             oncommand="onUpdateAllDay()"
           />
         </html:td>

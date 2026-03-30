@@ -198,8 +198,6 @@
 <!ENTITY event.calendar.accesskey                         "C">
 <!ENTITY event.attendees.label                            "Attendees:" >
 <!ENTITY event.attendees.accesskey                        "n">
-<!ENTITY event.alldayevent.label                          "All day Event" >
-<!ENTITY event.alldayevent.accesskey                      "d">
 <!ENTITY event.from.label                                 "Start:" >
 <!ENTITY event.from.accesskey                             "S">
 <!ENTITY task.from.label                                  "Start:" >
