@@ -192,7 +192,7 @@
   position: relative;
 }
 
-.spaces-popup-menuitem.current > .menu-icon:before {
+.spaces-popup-menuitem.current > .menu-icon::before {
   content: "";
   display: block;
   position: absolute;

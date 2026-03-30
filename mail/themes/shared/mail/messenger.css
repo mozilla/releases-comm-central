@@ -772,7 +772,7 @@ html|ul.addon-installed-list {
     margin-inline: 1px;
     padding: 0;
 
-    &:before {
+    &::before {
       display: none;
     }
   }

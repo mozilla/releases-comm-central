@@ -501,7 +501,7 @@ menuitem.panel-subview-footer:not([disabled])[_moz-menuactive]:active,
   margin: var(--panel-separator-margin);
   padding: 0;
 
-  &:before {
+  &::before {
     color: var(--panel-separator-color);
   }
 }

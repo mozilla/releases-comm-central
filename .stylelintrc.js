@@ -263,5 +263,7 @@ module.exports = {
     "max-nesting-depth": 5,
 
     "csstools/use-logical": "always",
+
+    "selector-pseudo-element-colon-notation": "double",
   },
 };

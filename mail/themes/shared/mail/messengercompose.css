@@ -1572,6 +1572,6 @@ dialog .key-info-block {
   margin-inline-start: 28px;
 }
 
-.comma-separated a:not(:last-child):after {
+.comma-separated a:not(:last-child)::after {
   content: ", ";
 }

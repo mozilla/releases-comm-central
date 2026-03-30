@@ -1436,7 +1436,7 @@ qr-code-wizard {
   }
 
   menuitem {
-    &:before {
+    &::before {
       display: inline-block;
       content: "";
       inline-size: 12px;
@@ -1449,27 +1449,27 @@ qr-code-wizard {
       visibility: visible;
     }
 
-    &.accent-color-thunderbird:before {
+    &.accent-color-thunderbird::before {
       background-color: light-dark(var(--color-blue-60), var(--color-accent-blue-dark));
     }
 
-    &.accent-color-purple:before {
+    &.accent-color-purple::before {
       background-color: light-dark(var(--color-purple-80), var(--color-accent-purple-light));
     }
 
-    &.accent-color-orange:before {
+    &.accent-color-orange::before {
       background-color: light-dark(var(--color-accent-orange-light), var(--color-accent-orange-dark));
     }
 
-    &.accent-color-pink:before {
+    &.accent-color-pink::before {
       background-color: light-dark(var(--color-accent-pink-light), var(--color-accent-pink-dark));
     }
 
-    &.accent-color-ink:before {
+    &.accent-color-ink::before {
       background-color: light-dark(var(--color-accent-ink-light), var(--color-accent-ink-dark));
     }
 
-    &.accent-color-teal:before {
+    &.accent-color-teal::before {
       background-color: light-dark(var(--color-accent-teal-light), var(--color-accent-teal-dark));
     }
 

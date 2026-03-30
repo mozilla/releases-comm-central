@@ -21,7 +21,7 @@ menupopup {
   }
 
   & > menuitem:is([type="checkbox"], [type="radio"]) {
-    &:before {
+    &::before {
       display: none;
     }
 
@@ -38,7 +38,7 @@ menupopup {
   &[needsgutter] > :is(menu, menuitem, menucaption) {
     padding-inline-start: 8px;
 
-    &:before {
+    &::before {
       display: none;
     }
 

@@ -87,11 +87,11 @@ calendar-invitation-interval {
   display: inline-block;
 }
 
-.calendar-invitation-panel-partstat-breakdown:before {
+.calendar-invitation-panel-partstat-breakdown::before {
   content: "(";
 }
 
-.calendar-invitation-panel-partstat-breakdown:after {
+.calendar-invitation-panel-partstat-breakdown::after {
   content: ")";
 }
 
