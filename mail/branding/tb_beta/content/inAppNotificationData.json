@@ -12,5 +12,61 @@
     "targeting": {
       "percent_chance": 100
     }
+  },
+  {
+    "id": "PREBAKED-Spring26",
+    "start_at": "2026-04-01T00:00:00.000Z",
+    "end_at": "2026-06-30T23:59:59.000Z",
+    "title": "Prebaked Appeal Spring26",
+    "description": "",
+    "URL": "https://updates.thunderbird.net/%LOCALE%/thunderbird/appeal/?locale=%LOCALE%&version=%VERSION%&channel=%CHANNEL%&os=%OS%&buildid=%APPBUILDID%&ID=PREBAKED-Spring26",
+    "CTA": "",
+    "severity": 3,
+    "type": "donation_tab",
+    "targeting": {
+      "percent_chance": 100
+    }
+  },
+  {
+    "id": "PREBAKED-ESR26",
+    "start_at": "2026-07-01T00:00:00.000Z",
+    "end_at": "2026-11-02T23:59:59.000Z",
+    "title": "Prebaked Appeal ESR26",
+    "description": "",
+    "URL": "https://updates.thunderbird.net/%LOCALE%/thunderbird/appeal/?locale=%LOCALE%&version=%VERSION%&channel=%CHANNEL%&os=%OS%&buildid=%APPBUILDID%&ID=PREBAKED-ESR26",
+    "CTA": "",
+    "severity": 3,
+    "type": "donation_tab",
+    "targeting": {
+      "percent_chance": 100
+    }
+  },
+  {
+    "id": "PREBAKED-EoY26-1",
+    "start_at": "2026-11-03T00:00:00.000Z",
+    "end_at": "2026-11-30T23:59:59.000Z",
+    "title": "Prebaked Appeal EoY26-1",
+    "description": "",
+    "URL": "https://updates.thunderbird.net/%LOCALE%/thunderbird/appeal/?locale=%LOCALE%&version=%VERSION%&channel=%CHANNEL%&os=%OS%&buildid=%APPBUILDID%&ID=PREBAKED-EoY26-1",
+    "CTA": "",
+    "severity": 3,
+    "type": "donation_tab",
+    "targeting": {
+      "percent_chance": 100
+    }
+  },
+  {
+    "id": "PREBAKED-EoY26-2",
+    "start_at": "2026-12-01T00:00:00.000Z",
+    "end_at": "2027-03-31T23:59:59.000Z",
+    "title": "Prebaked Appeal EoY26-2",
+    "description": "",
+    "URL": "https://updates.thunderbird.net/%LOCALE%/thunderbird/appeal/?locale=%LOCALE%&version=%VERSION%&channel=%CHANNEL%&os=%OS%&buildid=%APPBUILDID%&ID=PREBAKED-EoY26-2",
+    "CTA": "",
+    "severity": 3,
+    "type": "donation_tab",
+    "targeting": {
+      "percent_chance": 100
+    }
   }
 ]
