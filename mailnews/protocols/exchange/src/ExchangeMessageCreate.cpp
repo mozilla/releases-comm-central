@@ -199,7 +199,7 @@ nsresult ExchangePerformMessageCreate(
 
   // Creation without copying an existing nsIMsgDBHdr.
   RefPtr<MessageCreateHandler> handler = new MessageCreateHandler(
-      destFolder, srcRaw, nullptr, {}, isRead, isDraft, onComplete);
+      destFolder, srcRaw, nullptr, {}, isRead, isDraft, std::move(onComplete));
   return handler->Go();
 }
 
@@ -216,6 +216,6 @@ nsresult ExchangePerformMessageCreateFromCopy(
 
   RefPtr<MessageCreateHandler> handler =
       new MessageCreateHandler(destFolder, srcRaw, srcHdr, srcExcludeProperties,
-                               isRead, isDraft, onComplete);
+                               isRead, isDraft, std::move(onComplete));
   return handler->Go();
 }
