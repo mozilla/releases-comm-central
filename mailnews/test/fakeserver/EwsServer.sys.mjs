@@ -668,7 +668,7 @@ export class EwsServer extends MockServer {
 
     // Retrieve the desired display name for this folder.
     const folderName =
-      folderEl.getElementsByTagName("t:DisplayName")[0].innerText;
+      folderEl.getElementsByTagName("t:DisplayName")[0].textContent;
 
     // Generate a random ID for the folder.
     const folderId = (Math.random() + 1).toString(36).substring(2);

@@ -39,9 +39,10 @@ const SUPPORTED_TYPES: [&str; 15] = [
     "recipient",
     "user",
 ];
-const SUPPORTED_PATHS: [&str; 8] = [
+const SUPPORTED_PATHS: [&str; 9] = [
     "/me",
     "/me/mailFolders",
+    "/me/mailFolders/{mailFolder-id}/childFolders",
     "/me/mailFolders/{mailFolder-id}",
     "/me/mailFolders/delta()",
     "/me/mailFolders/{mailFolder-id}/messages",

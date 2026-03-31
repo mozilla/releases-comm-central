@@ -5,14 +5,8 @@
 var { TestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/TestUtils.sys.mjs"
 );
-var { localAccountUtils } = ChromeUtils.importESModule(
-  "resource://testing-common/mailnews/LocalAccountUtils.sys.mjs"
-);
 var { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
-);
-var { EwsServer } = ChromeUtils.importESModule(
-  "resource://testing-common/mailnews/EwsServer.sys.mjs"
 );
 var { RemoteFolder } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MockServer.sys.mjs"
@@ -20,12 +14,66 @@ var { RemoteFolder } = ChromeUtils.importESModule(
 
 var incomingServer;
 var ewsServer;
+var incomingGraphServer;
+var graphServer;
 
 const ewsIdPropertyName = "ewsId";
 const generator = new MessageGenerator();
 
 add_setup(async function () {
   [ewsServer, incomingServer] = setupBasicEwsTestServer({});
+  [graphServer, incomingGraphServer] = setupBasicGraphTestServer();
+});
+
+async function runCreateFolderTest(mockServer, testIncomingServer) {
+  // Reset the set of folders on the server to a known state.
+  mockServer.setRemoteFolders(mockServer.getWellKnownFolders());
+
+  // Sync the folder list.
+  const rootFolder = testIncomingServer.rootFolder;
+  await syncFolder(testIncomingServer, rootFolder);
+
+  // Get the parent folder we'll use, and ensure the state is clean.
+  const parentName = "Inbox";
+  const newFolderName = "child";
+  const parentFolder = rootFolder.getChildNamed(parentName);
+  Assert.ok(!!parentFolder, `${parentName} should exist before creation`);
+  Assert.equal(
+    parentFolder.getChildNamed(newFolderName),
+    null,
+    "new folder should not exist on incoming server before creation"
+  );
+  Assert.ok(
+    !mockServer.folders.some(folder => folder.displayName == newFolderName),
+    "new folder should not exist on the mock server before creation"
+  );
+
+  // Create the new folder.
+  parentFolder.createSubfolder(newFolderName, null);
+  await TestUtils.waitForCondition(
+    () => !!parentFolder.getChildNamed(newFolderName),
+    "new folder should eventually be created locally"
+  );
+
+  // Check that the operation behaved as expected.
+  const remoteFolders = mockServer.folders.filter(
+    folder => folder.displayName == newFolderName
+  );
+  Assert.equal(
+    remoteFolders.length,
+    1,
+    "exactly one remote folder should exist"
+  );
+  Assert.equal(
+    remoteFolders[0].parentId,
+    "inbox",
+    "new folder should have the right parent"
+  );
+}
+
+add_task(async function test_create_folder() {
+  await runCreateFolderTest(ewsServer, incomingServer);
+  await runCreateFolderTest(graphServer, incomingGraphServer);
 });
 
 async function runDeleteFolderTest(folderToDeleteName) {

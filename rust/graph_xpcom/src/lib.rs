@@ -10,7 +10,8 @@ use protocol_shared::{
     ExchangeConnectionDetails,
     authentication::credentials::AuthenticationProvider,
     safe_xpcom::{
-        SafeEwsFolderListener, SafeEwsMessageSyncListener, SafeUrlListener, uri::SafeUri,
+        SafeEwsFolderListener, SafeEwsMessageSyncListener, SafeEwsSimpleOperationListener,
+        SafeUrlListener, uri::SafeUri,
     },
 };
 use thin_vec::ThinVec;
@@ -173,11 +174,26 @@ impl XpcomGraphBridge {
     ));
     fn create_folder(
         &self,
-        _listener: &IExchangeSimpleOperationListener,
-        _parent_id: &nsACString,
-        _name: &nsACString,
+        listener: &IExchangeSimpleOperationListener,
+        parent_id: &nsACString,
+        name: &nsACString,
     ) -> Result<(), nsresult> {
-        Err(nserror::NS_ERROR_NOT_IMPLEMENTED)
+        let server = self.details.get().unwrap().server.clone();
+        let endpoint = self.details.get().unwrap().endpoint.clone();
+
+        let client = XpComGraphClient::new(server, endpoint);
+
+        moz_task::spawn_local(
+            "create_folder",
+            client.create_folder(
+                SafeEwsSimpleOperationListener::new(listener),
+                parent_id.to_utf8().into_owned(),
+                name.to_utf8().into_owned(),
+            ),
+        )
+        .detach();
+
+        Ok(())
     }
 
     xpcom_method!(delete_folder => DeleteFolder(

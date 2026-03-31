@@ -9,6 +9,7 @@ pub mod me;
 pub mod me_mail_folders;
 pub mod me_mail_folders_delta;
 pub mod me_mail_folders_mail_folder_id;
+pub mod me_mail_folders_mail_folder_id_child_folders;
 pub mod me_mail_folders_mail_folder_id_messages;
 pub mod me_mail_folders_mail_folder_id_messages_delta;
 pub mod me_messages;

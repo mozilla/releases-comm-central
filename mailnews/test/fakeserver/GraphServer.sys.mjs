@@ -217,6 +217,12 @@ export class GraphServer extends MockServer {
           // the response, so we should skip the body serialization part here.
           this.#sendMessage(resourcePath, response);
           return;
+        } else if (resourcePath.startsWith("/me/mailFolders/")) {
+          responseJsonObject = this.#createFolder(
+            resourcePath.substring(16),
+            request,
+            response
+          );
         }
         break;
     }
@@ -273,6 +279,65 @@ export class GraphServer extends MockServer {
       id: folder.id,
       displayName: folder.displayName,
       parentFolderId: folder.parentId,
+    };
+  }
+
+  /**
+   * Handle POST /me/mailFolders/...
+   *
+   * @param {string} folderPath
+   * @param {nsIHttpRequest} request
+   * @param {nsIHttpResponse} response
+   * @returns {object}
+   */
+  #createFolder(folderPath, request, response) {
+    if (
+      folderPath.endsWith("/childFolders") &&
+      folderPath.split("/").length == 2
+    ) {
+      return this.#createChildFolder(
+        folderPath.substring(0, folderPath.indexOf("/")),
+        request,
+        response
+      );
+    }
+
+    throw new Error(`Unexpected folder create path: ${folderPath}`);
+  }
+
+  /**
+   * Handle POST /me/mailFolders/{mailFolderId}/childFolders.
+   *
+   * @param {string} parentFolderId
+   * @param {nsIHttpRequest} request
+   * @param {nsIHttpResponse} response
+   * @returns {object}
+   */
+  #createChildFolder(parentFolderId, request, response) {
+    const decodedParentId = decodeURIComponent(parentFolderId);
+    const parentFolder =
+      this.getDistinguishedFolder(decodedParentId) ||
+      this.getFolder(decodedParentId);
+    if (!parentFolder) {
+      throw new Error(`Unexpected parent folder id: ${decodedParentId}`);
+    }
+
+    const requestBody = JSON.parse(
+      CommonUtils.readBytesFromInputStream(request.bodyInputStream)
+    );
+    const folderName = requestBody.displayName;
+    const folderId = `created-folder-${this.folders.length}`;
+
+    this.appendRemoteFolder(
+      new RemoteFolder(folderId, parentFolder.id, folderName, null)
+    );
+    response.setStatusLine("1.1", 201, "Created");
+
+    return {
+      "@odata.context": `${this.#endpoint}/$metadata#users('me')/mailFolders/$entity`,
+      id: folderId,
+      displayName: folderName,
+      parentFolderId: parentFolder.id,
     };
   }
 

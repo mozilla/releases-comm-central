@@ -16,6 +16,7 @@ use xpcom::{RefCounted, RefPtr};
 use crate::error::XpComGraphError;
 
 mod check_connectivity;
+mod create_folder;
 mod send_message;
 mod sync_folder_hierarchy;
 mod sync_messages_for_folder;
@@ -123,7 +124,5 @@ impl<ServerT: AuthenticationProvider + RefCounted> ProtocolClient for XpComGraph
         String::from("graph")
     }
 
-    async fn shutdown(self: Arc<Self>) {
-        ()
-    }
+    async fn shutdown(self: Arc<Self>) {}
 }
