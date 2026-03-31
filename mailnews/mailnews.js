@@ -1086,7 +1086,7 @@ pref("mail.export.loglevel", "Warn");
 pref("mail.imap.use_disk_cache2", true);
 
 // Enable users to override OAuth provider details for EWS accounts.
-pref("experimental.mail.ews.overrideOAuth.enabled", false);
+pref("experimental.mail.ews.overrideOAuth.enabled", true);
 
 // Use the Microsoft365 sandbox application and tenant information.
 pref("mail.microsoft.useM365Sandbox", false);
