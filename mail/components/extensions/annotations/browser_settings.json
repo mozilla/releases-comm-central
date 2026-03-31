@@ -36,10 +36,24 @@
           }
         ]
       },
+      "ftpProtocolEnabled": {
+        "annotations": [
+          {
+            "additional_properties": {
+              "readOnly": true
+            }
+          }
+        ]
+      },
       "homepageOverride": {
         "annotations": [
           {
             "version_added": false
+          },
+          {
+            "additional_properties": {
+              "readOnly": true
+            }
           }
         ]
       },
@@ -47,6 +61,11 @@
         "annotations": [
           {
             "version_added": false
+          },
+          {
+            "additional_properties": {
+              "readOnly": true
+            }
           }
         ]
       },

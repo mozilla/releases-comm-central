@@ -29,6 +29,14 @@ the provided annotation should be added to the browser_compat_data [3] repositor
 The annotation files can also provide `enums` objects with `annotations` arrays
 for the supported enum values.
 
+Annotation objects can also be `additional_properties` objects, which provide
+additional structured metadata which may be used for the documentation. The
+following additional properties are supported:
+
+- `readOnly` - a boolean value (`true`) on a `types.Setting` property, indicating
+that this setting is read-only. Read-only settings will only document the `get()`
+method, the `set()` and `clear()` methods will be omitted.
+
 The annotation information is used by the webext-schema-generator [1], which is
 providing a post-processed set of authoritative schema files for the Thunderbird
 project at [2]. These files can be used as the single source of truth for the
