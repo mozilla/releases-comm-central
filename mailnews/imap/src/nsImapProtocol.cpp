@@ -100,7 +100,7 @@ extern LazyLogModule IMAP_DC;  // For imap folder discovery
 #define IMAP_ENV_HEADERS "From To Cc Bcc Subject Date Message-ID "
 #define IMAP_DB_HEADERS                                                 \
   "Priority X-Priority References Newsgroups In-Reply-To Content-Type " \
-  "Reply-To"
+  "Reply-To Received"
 #define IMAP_ENV_AND_DB_HEADERS IMAP_ENV_HEADERS IMAP_DB_HEADERS
 MOZ_RUNINIT static const PRIntervalTime kImapSleepTime =
     PR_MillisecondsToInterval(60000);

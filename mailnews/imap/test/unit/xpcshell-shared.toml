@@ -110,6 +110,8 @@ run-if = [
 
 ["test_mailboxes.js"]
 
+["test_missingDateUsesReceived.js"]
+
 ["test_multipleCopyNonlocal.js"]
 
 ["test_nsIMsgFolderListenerIMAP.js"]
