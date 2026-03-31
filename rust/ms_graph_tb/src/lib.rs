@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use http::method::Method;
-use serde::{Serialize, de::DeserializeOwned};
+use serde::{Deserialize, Serialize, de::DeserializeOwned};
+use std::borrow::Cow;
 use std::fmt::Display;
 use thiserror::Error;
 
@@ -28,6 +29,10 @@ pub enum Error {
     #[error("failed to serialize the request body into JSON: {0}")]
     JSONSerialize(#[from] serde_json::Error),
 }
+
+/// Internal type used for storing properties.
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq, Eq)]
+struct PropertyMap<'a>(Cow<'a, serde_json::Map<String, serde_json::Value>>);
 
 /// The body of a POST/PATCH/PUT/etc. request.
 ///
@@ -177,7 +182,7 @@ mod tests {
 }"#;
 
         let parsed: user::User = serde_json::from_str(json).unwrap();
-        let properties = Cow::Owned(serde_json::Map::from_iter([
+        let properties = super::PropertyMap(Cow::Owned(serde_json::Map::from_iter([
             (
                 "@odata.context".to_string(),
                 "https://graph.microsoft.com/v1.0/$metadata#users/$entity".into(),
@@ -206,7 +211,7 @@ mod tests {
                 "id".to_string(),
                 "3a2bc284-f11c-4676-a9e1-6310eea60f26".into(),
             ),
-        ]));
+        ])));
         let expected = user::User { properties };
         assert_eq!(parsed, expected);
     }

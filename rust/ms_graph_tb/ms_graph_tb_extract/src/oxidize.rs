@@ -352,6 +352,27 @@ impl CustomRustType {
 /// `lifetime_name` defaults to `'a`. Note that any name *must* include the
 /// leading `'`.
 fn return_type(prop: &Property, refers: Reference, lifetime_name: Option<&str>) -> TokenStream {
+    let mut ty = instantiated_type(prop, refers, lifetime_name);
+
+    if !prop.is_ref {
+        ty = quote!(Result<#ty, Error>);
+    }
+
+    ty
+}
+
+/// Given the propeperty and whether it should be a reference, produce a
+/// `TokenStream` that can be used as an argument type representing it.
+fn arg_type(prop: &Property, refers: Reference) -> TokenStream {
+    instantiated_type(prop, refers, Some("'_"))
+}
+
+/// Helper for [`return_type`] and [`arg_type`]
+fn instantiated_type(
+    prop: &Property,
+    refers: Reference,
+    lifetime_name: Option<&str>,
+) -> TokenStream {
     let base = &prop.rust_type.base_token(prop.nullable, refers);
 
     let mut ty: TokenStream = if matches!(prop.rust_type, RustType::Custom(_)) {
@@ -380,10 +401,6 @@ fn return_type(prop: &Property, refers: Reference, lifetime_name: Option<&str>) 
 
     if prop.nullable {
         ty = quote!(Option<#ty>);
-    }
-
-    if !prop.is_ref {
-        ty = quote!(Result<#ty, Error>);
     }
 
     ty

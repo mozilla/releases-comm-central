@@ -5,7 +5,7 @@
 use proc_macro2::{Ident, TokenStream};
 use quote::{ToTokens, TokenStreamExt, format_ident, quote};
 
-use super::{Reference, RustType, return_type};
+use super::{Reference, RustType, arg_type, return_type};
 use crate::extract::schema::Property;
 use crate::naming::{pascalize, snakeify};
 use crate::oxidize::markup_doc_comment;
@@ -45,19 +45,19 @@ impl ToTokens for GraphType {
 
         let selection_ident = format_ident!("{}Selection", name);
 
-        let module_doc = format!("Types related to {name}. {GENERATION_DISCLOSURE}");
+        let module_doc = format!("Types related to {name}.\n\n{GENERATION_DISCLOSURE}");
         let module_doc = quote!(#![doc = #module_doc]);
 
         tokens.append_all(quote!(
             #module_doc
 
             use serde::{Deserialize, Serialize};
-            use serde_json::{Map, Value};
+            use serde_json::Value;
             use std::borrow::Cow;
             use strum::Display;
 
             #imports
-            use crate::Error;
+            use crate::{Error, PropertyMap};
 
             #[derive(Copy, Clone, Debug, Display, PartialEq, Eq)]
             #[strum(serialize_all = "camelCase")]
@@ -69,69 +69,79 @@ impl ToTokens for GraphType {
             #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
             pub struct #name<'a> {
                 #[serde(flatten)]
-                pub(crate) properties: Cow<'a, Map<String, Value>>,
+                pub(crate) properties: PropertyMap<'a>,
+            }
+
+            impl<'a> From<PropertyMap<'a>> for #name<'a> {
+                fn from(properties: PropertyMap<'a>) -> Self {
+                    Self { properties }
+                }
             }
 
             impl<'a> #name<'a> {
-                ///Internal constructor.
-                // Don't make this pub or implement public traits (`Map` is an externally defined
-                // type used internally, and may change).
-                #[allow(dead_code)]
-                pub(super) fn new(properties: &'a Map<String, Value>) -> Self {
-                    #name {
-                        properties: Cow::Borrowed(properties),
-                    }
+                ///Construct a new instance of this type with no properties set.
+                #[must_use]
+                pub fn new() -> Self {
+                    Self::default()
                 }
-
                 #(#function_defs)*
             }
         ))
     }
 }
 
-struct FunctionDef {
+struct MethodDef {
     fn_name: Ident,
     doc_comment: Option<TokenStream>,
     must_use: Option<TokenStream>,
+    mutable: bool,
     ret_type: TokenStream,
+    arg: Option<TokenStream>,
     body: TokenStream,
     lifetime: Option<TokenStream>,
 }
 
-impl PartialEq for FunctionDef {
+impl PartialEq for MethodDef {
     fn eq(&self, other: &Self) -> bool {
         self.fn_name == other.fn_name
     }
 }
 
-impl Eq for FunctionDef {}
+impl Eq for MethodDef {}
 
-impl Ord for FunctionDef {
+impl Ord for MethodDef {
     fn cmp(&self, other: &Self) -> core::cmp::Ordering {
         self.fn_name.cmp(&other.fn_name)
     }
 }
 
-impl PartialOrd for FunctionDef {
+impl PartialOrd for MethodDef {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         Some(self.cmp(other))
     }
 }
 
-impl ToTokens for FunctionDef {
+impl ToTokens for MethodDef {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let Self {
             doc_comment,
             must_use,
             fn_name,
+            mutable,
             ret_type,
+            arg,
             body,
             lifetime,
         } = self;
+        let self_mods = if *mutable {
+            quote!(mut)
+        } else {
+            quote!(&#lifetime)
+        };
         tokens.append_all(quote! {
             #doc_comment
             #must_use
-            pub fn #fn_name(&#lifetime self) -> #ret_type {
+            pub fn #fn_name(#self_mods self, #arg) -> #ret_type {
                 #body
             }
         })
@@ -146,7 +156,7 @@ fn select_variants(properties: &[Property]) -> Vec<TokenStream> {
             let ident = format_ident!("{name}");
             if p.is_ref {
                 if SUPPORTED_TYPES.contains(&p.name.as_str()) {
-                    let inner = format_ident!("{}Selection", name);
+                    let inner = format_ident!("{name}Selection");
                     Some(quote!(#ident(#inner)))
                 } else {
                     None
@@ -160,11 +170,13 @@ fn select_variants(properties: &[Property]) -> Vec<TokenStream> {
     select_variants
 }
 
-fn function_defs(properties: &[Property]) -> Vec<FunctionDef> {
+fn function_defs(properties: &[Property]) -> Vec<MethodDef> {
+    // Collect the generated function defs into [getter def, setter def] pairs
     let mut function_defs = properties
         .iter()
         .map(|p| {
-            let fn_name = format_ident!("{}", snakeify(&p.name));
+            let name = snakeify(&p.name);
+            let fn_name = format_ident!("{name}");
             let ret_type = return_type(p, Reference::Ref, None);
             let doc_comment = if let Some(doc) = &p.description {
                 let doc = markup_doc_comment(doc.clone());
@@ -181,24 +193,50 @@ fn function_defs(properties: &[Property]) -> Vec<FunctionDef> {
             } else {
                 None
             };
-            let body = fn_body(p);
+            let body = getter_body(p);
             let lifetime =
                 (p.is_ref || matches!(p.rust_type, RustType::Custom(_))).then_some(quote!('a));
-            FunctionDef {
+            let getter = MethodDef {
                 doc_comment,
                 must_use,
                 fn_name,
                 ret_type,
+                mutable: false,
+                arg: None,
                 body,
                 lifetime,
-            }
+            };
+
+            let fn_name = format_ident!("set_{name}");
+            let ret_type = quote!(Self);
+            let doc_str = format!("Setter for [`{name}`](Self::{name}).\n\nThis library makes no guarantees that Graph exposes this property as writable.");
+            let doc_comment = Some(quote!(#[doc = #doc_str]));
+            let must_use = Some(quote!(#[must_use]));
+            let arg_type = arg_type(p, Reference::Own);
+            let arg = Some(quote!(mut val: #arg_type));
+            let body = setter_body(p);
+            let lifetime = None;
+            let setter = MethodDef {
+                doc_comment,
+                must_use,
+                fn_name,
+                ret_type,
+                mutable: true,
+                arg,
+                body,
+                lifetime,
+            };
+
+            [getter, setter]
         })
         .collect::<Vec<_>>();
+
+    // Sort by the name of the getter, then flatten the pairs
     function_defs.sort();
-    function_defs
+    function_defs.into_iter().flatten().collect()
 }
 
-fn fn_body(prop: &Property) -> TokenStream {
+fn getter_body(prop: &Property) -> TokenStream {
     if prop.is_ref {
         // refs are actually flattened in responses, but we want them abstracted,
         // so the accessor is actually just a type conversion
@@ -213,7 +251,7 @@ fn fn_body(prop: &Property) -> TokenStream {
 
         return quote! {
             #ident {
-                properties: Cow::Borrowed(&*self.properties),
+                properties: PropertyMap(Cow::Borrowed(&*self.properties.0)),
             }
         };
     }
@@ -260,8 +298,7 @@ fn fn_body(prop: &Property) -> TokenStream {
     // If the type that produced isn't the base return type, it needs an additional conversion.
     if getter != base_str {
         if matches!(prop.rust_type, RustType::Custom(_)) {
-            let ret_type = format_ident!("{base_str}");
-            ret = quote!(#ret_type::new(#ret));
+            ret = quote!(PropertyMap(Cow::Borrowed(#ret)).into());
         } else {
             ret = quote!(#ret.try_into().or_else(|e| Err(Error::UnexpectedResponse(format!("{e:?}"))))?);
         }
@@ -285,8 +322,32 @@ fn fn_body(prop: &Property) -> TokenStream {
     }
 
     quote! {
-        let val = self.properties.get(#name).ok_or(Error::NotFound)?;
+        let val = self.properties.0.get(#name).ok_or(Error::NotFound)?;
         #null_check
         Ok(#ret)
+    }
+}
+
+fn setter_body(prop: &Property) -> TokenStream {
+    let name = &prop.name;
+    let modification = match (&prop.rust_type, prop.is_ref, prop.is_collection) {
+        (RustType::Custom(_), true, false) => quote!(append(val.properties.0.to_mut())),
+        (RustType::Custom(_), false, false) => quote! {
+                insert(#name.to_string(), Value::Object(val.properties.0.into_owned()))
+        },
+        (RustType::Custom(_), false, true) => quote! {
+            insert(
+                #name.to_string(),
+                val.into_iter()
+                    .map(|v| Value::Object(v.properties.0.into_owned()))
+                    .collect(),
+            )
+        },
+        (_, _, _) => quote!(insert(#name.to_string(), val.into())),
+    };
+
+    quote! {
+        self.properties.0.to_mut().#modification;
+        self
     }
 }

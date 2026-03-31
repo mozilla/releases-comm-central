@@ -189,7 +189,7 @@ impl<R: for<'a> Deserialize<'a>> Operation for NextPage<R> {
 #[cfg(test)]
 mod tests {
     use super::{DeltaItem, DeltaResponse, Removed, RemovedDeltaItem};
-    use crate::{Error, Operation, paths, types::mail_folder};
+    use crate::{Error, Operation, PropertyMap, paths, types::mail_folder};
     use std::borrow::Cow;
 
     #[test]
@@ -227,7 +227,7 @@ mod tests {
             serde_json::from_str(json).unwrap();
         let value = vec![
             MailFolder {
-                properties: Cow::Owned(serde_json::Map::from_iter([
+                properties: PropertyMap(Cow::Owned(serde_json::Map::from_iter([
                     ("id".to_string(), "AQMkADYAAAIBXQAAAA==".into()),
                     ("displayName".to_string(), "Archive".into()),
                     ("parentFolderId".to_string(), "AQMkADYAAAIBCAAAAA==".into()),
@@ -236,10 +236,10 @@ mod tests {
                     ("totalItemCount".to_string(), 0.into()),
                     ("sizeInBytes".to_string(), 0.into()),
                     ("isHidden".to_string(), false.into()),
-                ])),
+                ]))),
             },
             MailFolder {
-                properties: Cow::Owned(serde_json::Map::from_iter([
+                properties: PropertyMap(Cow::Owned(serde_json::Map::from_iter([
                     ("id".to_string(), "AQMkADYAAAIBCQAAAA==".into()),
                     ("displayName".to_string(), "Sent Items".into()),
                     ("parentFolderId".to_string(), "AQMkADYAAAIBCAAAAA==".into()),
@@ -248,7 +248,7 @@ mod tests {
                     ("totalItemCount".to_string(), 0.into()),
                     ("sizeInBytes".to_string(), 0.into()),
                     ("isHidden".to_string(), false.into()),
-                ])),
+                ]))),
             },
         ];
 
@@ -304,7 +304,7 @@ mod tests {
             serde_json::from_str(json).unwrap();
         let value = vec![
             MailFolder {
-                properties: Cow::Owned(serde_json::Map::from_iter([
+                properties: PropertyMap(Cow::Owned(serde_json::Map::from_iter([
                     ("id".to_string(), "AQMkADYAAAIBXQAAAA==".into()),
                     ("displayName".to_string(), "Archive".into()),
                     ("parentFolderId".to_string(), "AQMkADYAAAIBCAAAAA==".into()),
@@ -313,10 +313,10 @@ mod tests {
                     ("totalItemCount".to_string(), 0.into()),
                     ("sizeInBytes".to_string(), 0.into()),
                     ("isHidden".to_string(), false.into()),
-                ])),
+                ]))),
             },
             MailFolder {
-                properties: Cow::Owned(serde_json::Map::from_iter([
+                properties: PropertyMap(Cow::Owned(serde_json::Map::from_iter([
                     ("id".to_string(), "AQMkADYAAAIBCQAAAA==".into()),
                     ("displayName".to_string(), "Sent Items".into()),
                     ("parentFolderId".to_string(), "AQMkADYAAAIBCAAAAA==".into()),
@@ -325,7 +325,7 @@ mod tests {
                     ("totalItemCount".to_string(), 0.into()),
                     ("sizeInBytes".to_string(), 0.into()),
                     ("isHidden".to_string(), false.into()),
-                ])),
+                ]))),
             },
         ];
 
@@ -377,7 +377,7 @@ mod tests {
             serde_json::from_str(json).unwrap();
         let value = vec![
             DeltaItem::Present(MailFolder {
-                properties: Cow::Owned(serde_json::Map::from_iter([
+                properties: PropertyMap(Cow::Owned(serde_json::Map::from_iter([
                     ("id".to_string(), "AQMkADYAAAIBXQAAAA==".into()),
                     ("displayName".to_string(), "Archive".into()),
                     ("parentFolderId".to_string(), "AQMkADYAAAIBCAAAAA==".into()),
@@ -386,10 +386,10 @@ mod tests {
                     ("totalItemCount".to_string(), 0.into()),
                     ("sizeInBytes".to_string(), 0.into()),
                     ("isHidden".to_string(), false.into()),
-                ])),
+                ]))),
             }),
             DeltaItem::Present(MailFolder {
-                properties: Cow::Owned(serde_json::Map::from_iter([
+                properties: PropertyMap(Cow::Owned(serde_json::Map::from_iter([
                     ("id".to_string(), "AQMkADYAAAIBCQAAAA==".into()),
                     ("displayName".to_string(), "Sent Items".into()),
                     ("parentFolderId".to_string(), "AQMkADYAAAIBCAAAAA==".into()),
@@ -398,7 +398,7 @@ mod tests {
                     ("totalItemCount".to_string(), 0.into()),
                     ("sizeInBytes".to_string(), 0.into()),
                     ("isHidden".to_string(), false.into()),
-                ])),
+                ]))),
             }),
             DeltaItem::Removed(RemovedDeltaItem {
                 id: "AQMkADYAAAIBDQAAAA==".into(),
@@ -463,7 +463,7 @@ mod tests {
             serde_json::from_str(json).unwrap();
         let value = vec![
             DeltaItem::Present(MailFolder {
-                properties: Cow::Owned(serde_json::Map::from_iter([
+                properties: PropertyMap(Cow::Owned(serde_json::Map::from_iter([
                     ("id".to_string(), "AQMkADYAAAIBXQAAAA==".into()),
                     ("displayName".to_string(), "Archive".into()),
                     ("parentFolderId".to_string(), "AQMkADYAAAIBCAAAAA==".into()),
@@ -472,10 +472,10 @@ mod tests {
                     ("totalItemCount".to_string(), 0.into()),
                     ("sizeInBytes".to_string(), 0.into()),
                     ("isHidden".to_string(), false.into()),
-                ])),
+                ]))),
             }),
             DeltaItem::Present(MailFolder {
-                properties: Cow::Owned(serde_json::Map::from_iter([
+                properties: PropertyMap(Cow::Owned(serde_json::Map::from_iter([
                     ("id".to_string(), "AQMkADYAAAIBCQAAAA==".into()),
                     ("displayName".to_string(), "Sent Items".into()),
                     ("parentFolderId".to_string(), "AQMkADYAAAIBCAAAAA==".into()),
@@ -484,7 +484,7 @@ mod tests {
                     ("totalItemCount".to_string(), 0.into()),
                     ("sizeInBytes".to_string(), 0.into()),
                     ("isHidden".to_string(), false.into()),
-                ])),
+                ]))),
             }),
             DeltaItem::Removed(RemovedDeltaItem {
                 id: "AQMkADYAAAIBDQAAAA==".into(),

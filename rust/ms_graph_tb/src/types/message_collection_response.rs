@@ -4,11 +4,11 @@
 
 // EDITS TO THIS FILE WILL BE OVERWRITTEN
 
-#![doc = "Types related to MessageCollectionResponse. Auto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
-use crate::Error;
+#![doc = "Types related to MessageCollectionResponse.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
 use crate::types::message::Message;
+use crate::{Error, PropertyMap};
 use serde::{Deserialize, Serialize};
-use serde_json::{Map, Value};
+use serde_json::Value;
 use std::borrow::Cow;
 use strum::Display;
 #[derive(Copy, Clone, Debug, Display, PartialEq, Eq)]
@@ -19,27 +19,44 @@ pub enum MessageCollectionResponseSelection {
 #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
 pub struct MessageCollectionResponse<'a> {
     #[serde(flatten)]
-    pub(crate) properties: Cow<'a, Map<String, Value>>,
+    pub(crate) properties: PropertyMap<'a>,
+}
+impl<'a> From<PropertyMap<'a>> for MessageCollectionResponse<'a> {
+    fn from(properties: PropertyMap<'a>) -> Self {
+        Self { properties }
+    }
 }
 impl<'a> MessageCollectionResponse<'a> {
-    #[doc = r"Internal constructor."]
-    #[allow(dead_code)]
-    pub(super) fn new(properties: &'a Map<String, Value>) -> Self {
-        MessageCollectionResponse {
-            properties: Cow::Borrowed(properties),
-        }
+    #[doc = r"Construct a new instance of this type with no properties set."]
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
     }
     pub fn value(&'a self) -> Result<Vec<Message<'a>>, Error> {
-        let val = self.properties.get("value").ok_or(Error::NotFound)?;
+        let val = self.properties.0.get("value").ok_or(Error::NotFound)?;
         val.as_array()
             .ok_or_else(|| Error::UnexpectedResponse(format!("{val:?}")))?
             .iter()
             .map(|v| {
-                Ok::<_, Error>(Message::new(
-                    v.as_object()
-                        .ok_or_else(|| Error::UnexpectedResponse(format!("{v:?}")))?,
-                ))
+                Ok::<_, Error>(
+                    PropertyMap(Cow::Borrowed(
+                        v.as_object()
+                            .ok_or_else(|| Error::UnexpectedResponse(format!("{v:?}")))?,
+                    ))
+                    .into(),
+                )
             })
             .collect::<Result<_, _>>()
+    }
+    #[doc = "Setter for [`value`](Self::value).\n\nThis library makes no guarantees that Graph exposes this property as writable."]
+    #[must_use]
+    pub fn set_value(mut self, val: Vec<Message<'_>>) -> Self {
+        self.properties.0.to_mut().insert(
+            "value".to_string(),
+            val.into_iter()
+                .map(|v| Value::Object(v.properties.0.into_owned()))
+                .collect(),
+        );
+        self
     }
 }
