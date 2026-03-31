@@ -228,7 +228,9 @@
       font-size: 0.8rem;
       cursor: pointer;
       padding: 0;
-      margin: 0;
+      --margin-for-outline: 2px;
+      margin: var(--margin-for-outline) 0;
+      min-block-size: calc(var(--button-min-height) - 2 * var(--margin-for-outline));
     }
   }
 

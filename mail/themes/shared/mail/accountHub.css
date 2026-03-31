@@ -173,6 +173,7 @@ dialog {
   block-size: 100%;
   overflow-y: auto;
   justify-content: center;
+  padding-block-end: 2px;
 }
 
 .account-hub-address-book-form {
