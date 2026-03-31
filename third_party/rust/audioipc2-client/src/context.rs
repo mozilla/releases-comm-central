@@ -45,8 +45,7 @@ pub struct ClientContext {
     callback_thread: ipccore::EventLoopThread,
     backend_id: CString,
     device_collection_rpc: bool,
-    input_device_callback: Arc<Mutex<DeviceCollectionCallback>>,
-    output_device_callback: Arc<Mutex<DeviceCollectionCallback>>,
+    device_collection_callbacks: Arc<Mutex<DeviceCollectionCallbacks>>,
 }
 
 impl ClientContext {
@@ -114,14 +113,15 @@ fn promote_and_register_thread(
 }
 
 #[derive(Default)]
-struct DeviceCollectionCallback {
-    cb: ffi::cubeb_device_collection_changed_callback,
-    user_ptr: usize,
+struct DeviceCollectionCallbacks {
+    input_cb: ffi::cubeb_device_collection_changed_callback,
+    input_user_ptr: usize,
+    output_cb: ffi::cubeb_device_collection_changed_callback,
+    output_user_ptr: usize,
 }
 
 struct DeviceCollectionServer {
-    input_device_callback: Arc<Mutex<DeviceCollectionCallback>>,
-    output_device_callback: Arc<Mutex<DeviceCollectionCallback>>,
+    callbacks: Arc<Mutex<DeviceCollectionCallbacks>>,
 }
 
 impl rpccore::Server for DeviceCollectionServer {
@@ -135,22 +135,20 @@ impl rpccore::Server for DeviceCollectionServer {
 
                 let devtype = cubeb_backend::DeviceType::from_bits_truncate(device_type);
 
-                let (input_cb, input_user_ptr) = {
-                    let dcb = self.input_device_callback.lock().unwrap();
-                    (dcb.cb, dcb.user_ptr)
-                };
-                let (output_cb, output_user_ptr) = {
-                    let dcb = self.output_device_callback.lock().unwrap();
-                    (dcb.cb, dcb.user_ptr)
-                };
+                // Hold the lock across callback invocation to ensure
+                // unregistration cannot complete while a callback is in
+                // progress, preventing use-after-free of user_ptr.
+                let cbs = self.callbacks.lock().unwrap();
 
                 run_in_callback(|| {
                     if devtype.contains(cubeb_backend::DeviceType::INPUT) {
-                        unsafe { input_cb.unwrap()(ptr::null_mut(), input_user_ptr as *mut c_void) }
+                        if let Some(cb) = cbs.input_cb {
+                            unsafe { cb(ptr::null_mut(), cbs.input_user_ptr as *mut c_void) }
+                        }
                     }
                     if devtype.contains(cubeb_backend::DeviceType::OUTPUT) {
-                        unsafe {
-                            output_cb.unwrap()(ptr::null_mut(), output_user_ptr as *mut c_void)
+                        if let Some(cb) = cbs.output_cb {
+                            unsafe { cb(ptr::null_mut(), cbs.output_user_ptr as *mut c_void) }
                         }
                     }
                 });
@@ -209,8 +207,7 @@ impl ContextOps for ClientContext {
             callback_thread,
             backend_id,
             device_collection_rpc: false,
-            input_device_callback: Arc::new(Mutex::new(Default::default())),
-            output_device_callback: Arc::new(Mutex::new(Default::default())),
+            device_collection_callbacks: Arc::new(Mutex::new(Default::default())),
         });
         Ok(ctx)
     }
@@ -327,8 +324,7 @@ impl ContextOps for ClientContext {
             let stream = unsafe { sys::Pipe::from_raw_handle(fd.platform_handle.take_handle()) };
 
             let server = DeviceCollectionServer {
-                input_device_callback: self.input_device_callback.clone(),
-                output_device_callback: self.output_device_callback.clone(),
+                callbacks: self.device_collection_callbacks.clone(),
             };
 
             self.rpc_handle()
@@ -337,15 +333,16 @@ impl ContextOps for ClientContext {
             self.device_collection_rpc = true;
         }
 
-        if devtype.contains(cubeb_backend::DeviceType::INPUT) {
-            let mut cb = self.input_device_callback.lock().unwrap();
-            cb.cb = collection_changed_callback;
-            cb.user_ptr = user_ptr as usize;
-        }
-        if devtype.contains(cubeb_backend::DeviceType::OUTPUT) {
-            let mut cb = self.output_device_callback.lock().unwrap();
-            cb.cb = collection_changed_callback;
-            cb.user_ptr = user_ptr as usize;
+        {
+            let mut cbs = self.device_collection_callbacks.lock().unwrap();
+            if devtype.contains(cubeb_backend::DeviceType::INPUT) {
+                cbs.input_cb = collection_changed_callback;
+                cbs.input_user_ptr = user_ptr as usize;
+            }
+            if devtype.contains(cubeb_backend::DeviceType::OUTPUT) {
+                cbs.output_cb = collection_changed_callback;
+                cbs.output_user_ptr = user_ptr as usize;
+            }
         }
 
         let enable = collection_changed_callback.is_some();

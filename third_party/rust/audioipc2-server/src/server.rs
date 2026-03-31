@@ -251,7 +251,8 @@ impl ServerStreamCallbacks {
             }
         }
 
-        if self.output_frame_size != 0 && output.len() > self.shm.get_size() {
+        if self.output_frame_size != 0 && (output.is_empty() || output.len() > self.shm.get_size())
+        {
             debug!(
                 "bad output size: output={} shm={}",
                 output.len(),
@@ -275,6 +276,15 @@ impl ServerStreamCallbacks {
             Ok(CallbackResp::Data(frames)) => {
                 if frames >= 0 && self.output_frame_size != 0 {
                     let nbytes = frames as usize * self.output_frame_size as usize;
+                    if nbytes > output.len() || nbytes > self.shm.get_size() {
+                        debug!(
+                            "bad callback response: nbytes={} output={} shm={}",
+                            nbytes,
+                            output.len(),
+                            self.shm.get_size()
+                        );
+                        return cubeb::ffi::CUBEB_ERROR.try_into().unwrap();
+                    }
                     unsafe {
                         output[..nbytes].copy_from_slice(self.shm.get_slice(nbytes).unwrap());
                     }

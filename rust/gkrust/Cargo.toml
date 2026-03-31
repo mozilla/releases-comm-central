@@ -30,8 +30,8 @@ abridged_certs = { path = "../../../security/manager/ssl/abridged_certs" }
 adblock = { version = "0.12.1", features = ['full-regex-handling', 'single-thread'], default-features = false }
 app_collator_glue = { path = "../../../intl/app_collator_glue" }
 audio_thread_priority = { version = "0.34" }
-audioipc2-client = { git = "https://github.com/mozilla/audioipc", rev = "0339c4732ceadbc5f54898b77498c33fff0f3f90", optional = true }
-audioipc2-server = { git = "https://github.com/mozilla/audioipc", rev = "0339c4732ceadbc5f54898b77498c33fff0f3f90", optional = true }
+audioipc2-client = { git = "https://github.com/mozilla/audioipc", rev = "c484fc0404e5e010802da6554077c0ca063d2ccf", optional = true }
+audioipc2-server = { git = "https://github.com/mozilla/audioipc", rev = "c484fc0404e5e010802da6554077c0ca063d2ccf", optional = true }
 authrs_bridge = { path = "../../../dom/webauthn/authrs_bridge" }
 binary_http = { path = "../../../netwerk/protocol/http/binary_http" }
 bitsdownload = { path = "../../../toolkit/components/bitsdownload", optional = true }
