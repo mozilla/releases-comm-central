@@ -73,9 +73,6 @@ class AccountHubHeader extends HTMLElement {
     this.#closeButton = this.shadowRoot.querySelector("#closeButton");
     this.#minimizeButton = this.shadowRoot.querySelector("#minimizeButton");
 
-    // TODO: Re-enable / re-think how this will work when first time experience
-    // is enabled.
-    // this.#closeButton.hidden = !MailServices.accounts.accounts.length;
     this.#closeButton.addEventListener("click", () => this.#closeAccountHub());
     this.#minimizeButton.addEventListener("click", () =>
       this.#minimizeAccountHub()
@@ -90,7 +87,11 @@ class AccountHubHeader extends HTMLElement {
    * attributes and the welcome text visibility.
    */
   refresh() {
+    if (!this.shadowRoot) {
+      return;
+    }
     this.#setBrandingTitle();
+    this.#closeButton.hidden = isFirstRun();
     this.clearNotifications();
   }
 

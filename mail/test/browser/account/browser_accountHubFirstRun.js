@@ -63,35 +63,6 @@ add_task(async function test_account_hub_first_run() {
     "Should still have first run true after update before reopening"
   );
 
-  let closeEvent = BrowserTestUtils.waitForEvent(dialog, "close");
-  EventUtils.synthesizeKey("KEY_Escape", {});
-  await closeEvent;
-
-  await subtest_open_account_hub_dialog();
-
-  Assert.ok(
-    !dialog.classList.contains("account-hub-first-run"),
-    "Should not have the first run class"
-  );
-  Assert.ok(
-    !window.AccountHubController.isFirstRun,
-    "Should have first run correctly set after reopen"
-  );
-
-  closeEvent = BrowserTestUtils.waitForEvent(dialog, "close");
-  EventUtils.synthesizeMouseAtCenter(
-    dialog
-      .querySelector("email-auto-form")
-      .shadowRoot.querySelector("account-hub-header")
-      .shadowRoot.querySelector("#closeButton"),
-    {}
-  );
-  await closeEvent;
-  Assert.ok(
-    !dialog.open,
-    "The dialog element should close when clicking on the close button"
-  );
-
   await SpecialPowers.popPrefEnv();
 });
 

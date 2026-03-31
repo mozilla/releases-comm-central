@@ -135,22 +135,20 @@ class AccountHubControllerClass {
       }
     );
 
+    this.#modal.addEventListener("keydown", event => {
+      if (event.key !== "Escape" || !this.isFirstRun) {
+        return;
+      }
+      event.preventDefault();
+      event.stopPropagation();
+    });
+
     this.#modal.addEventListener("close", () => {
       // Re-enable keyboard interaction.
       document.getElementById("tabmail").globalOverlay = false;
     });
 
     this.#modal.addEventListener("cancel", event => {
-      if (
-        !MailServices.accounts.accounts.length &&
-        !Services.prefs.getBoolPref("app.use_without_mail_account", false)
-      ) {
-        // Prevent closing the modal if no account is currently present and the
-        // user didn't request using Thunderbird without an email account.
-        event.preventDefault();
-        return;
-      }
-
       // Don't allow the dialog to be canceled via the ESC key if some
       // operations are in progress and can't be aborted or the UI can't be
       // cleared.

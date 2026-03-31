@@ -28,6 +28,18 @@ add_task(async function test_account_hub_complete_first_run() {
   };
 
   const dialog = await subtest_open_account_hub_dialog();
+
+  EventUtils.synthesizeKey("KEY_Escape", {});
+
+  // Wait to make sure the dialog has not closed.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 1000));
+
+  Assert.ok(
+    dialog.open,
+    "The dialog element should not close when pressing Escape"
+  );
+
   await subtest_fill_initial_config_fields(dialog, emailUser);
   const footer = dialog.querySelector("account-hub-footer");
   const footerForward = footer.querySelector("#forward");
@@ -118,8 +130,9 @@ add_task(async function test_account_hub_complete_first_run() {
   // the success view.
   const successStep = dialog.querySelector("email-added-success");
   await BrowserTestUtils.waitForAttributeRemoval("hidden", successStep);
-  //TODO click finish instead?
-  await subtest_close_account_hub_dialog(dialog, successStep);
+  const closeEvent = BrowserTestUtils.waitForEvent(dialog, "close");
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+  await closeEvent;
 
   Assert.ok(
     window.gSpacesToolbar.isLoaded,

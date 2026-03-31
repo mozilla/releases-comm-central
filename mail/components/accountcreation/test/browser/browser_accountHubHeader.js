@@ -214,11 +214,15 @@ add_task(async function test_showAccountHubBranding() {
       .hasAttribute("aria-hidden"),
     "Should not expose title to screen reader"
   );
+  Assert.ok(
+    BrowserTestUtils.isVisible(header.shadowRoot.querySelector("#closeButton")),
+    "Close button should be visible on subsequent run"
+  );
 
   Assert.ok(
     BrowserTestUtils.isHidden(
       header.shadowRoot.querySelector(".account-hub-welcome-text")
     ),
-    "Should show a11y friendly welcome text"
+    "Should hide a11y friendly welcome text on subsequent run"
   );
 });

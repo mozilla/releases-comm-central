@@ -24,6 +24,10 @@ add_setup(async function () {
 });
 
 add_task(async function test_showWelcomeOnFirstRun() {
+  Assert.ok(
+    BrowserTestUtils.isHidden(header.shadowRoot.querySelector("#closeButton")),
+    "Close button should be hidden on first run"
+  );
   Assert.equal(
     header.shadowRoot
       .querySelector(".branding-header-name")
