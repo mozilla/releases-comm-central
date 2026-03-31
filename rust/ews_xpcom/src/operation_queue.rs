@@ -90,14 +90,13 @@ use std::{
 };
 
 use async_channel::{Receiver, Sender};
-use xpcom::RefCounted;
 
-use crate::{client::ServerType, error::XpComEwsError, operation_sender::OperationSender};
+use crate::error::XpComEwsError;
 
 /// An operation that can be added to an [`OperationQueue`].
-pub(crate) trait QueuedOperation<ServerT: RefCounted + 'static>: Debug {
+pub(crate) trait QueuedOperation: Debug {
     /// Performs the operation using the given [`OperationSender`].
-    async fn perform(&self, op_sender: Arc<OperationSender<ServerT>>);
+    async fn perform(&self);
 }
 
 /// A dyn-compatible version of [`QueuedOperation`]. It is implemented for all
@@ -115,43 +114,34 @@ pub(crate) trait QueuedOperation<ServerT: RefCounted + 'static>: Debug {
 /// `perform`'s return value (`dyn Future<...>`) to remove the need to know the
 /// specific implementation of `Future` at compile time, thus "erasing" the
 /// concrete type that's being returned.
-pub trait ErasedQueuedOperation<ServerT: RefCounted + 'static>: Debug {
-    fn perform<'op>(
-        &'op self,
-        op_sender: Arc<OperationSender<ServerT>>,
-    ) -> Pin<Box<dyn Future<Output = ()> + 'op>>;
+pub trait ErasedQueuedOperation: Debug {
+    fn perform<'op>(&'op self) -> Pin<Box<dyn Future<Output = ()> + 'op>>;
 }
 
-impl<ServerT, T> ErasedQueuedOperation<ServerT> for T
+impl<T> ErasedQueuedOperation for T
 where
-    ServerT: RefCounted + 'static,
-    T: QueuedOperation<ServerT>,
+    T: QueuedOperation,
 {
-    fn perform<'op>(
-        &'op self,
-        op_sender: Arc<OperationSender<ServerT>>,
-    ) -> Pin<Box<dyn Future<Output = ()> + 'op>> {
-        Box::pin(self.perform(op_sender))
+    fn perform<'op>(&'op self) -> Pin<Box<dyn Future<Output = ()> + 'op>> {
+        Box::pin(self.perform())
     }
 }
 
-pub(crate) struct OperationQueue<ServerT: ServerType + 'static> {
-    op_sender: Arc<OperationSender<ServerT>>,
-    channel_sender: Sender<Box<dyn ErasedQueuedOperation<ServerT>>>,
-    channel_receiver: Receiver<Box<dyn ErasedQueuedOperation<ServerT>>>,
-    runners: RefCell<Vec<Arc<Runner<ServerT>>>>,
+pub(crate) struct OperationQueue {
+    channel_sender: Sender<Box<dyn ErasedQueuedOperation>>,
+    channel_receiver: Receiver<Box<dyn ErasedQueuedOperation>>,
+    runners: RefCell<Vec<Arc<Runner>>>,
 }
 
-impl<ServerT: ServerType + 'static> OperationQueue<ServerT> {
+impl OperationQueue {
     /// Creates a new operation queue.
     ///
     /// Since most methods require the queue to be wrapped inside an [`Arc`],
     /// this method also takes care of this.
-    pub fn new(op_sender: Arc<OperationSender<ServerT>>) -> Arc<OperationQueue<ServerT>> {
+    pub fn new() -> Arc<OperationQueue> {
         let (snd, rcv) = async_channel::unbounded();
 
         let queue = OperationQueue {
-            op_sender,
             channel_sender: snd,
             channel_receiver: rcv,
             runners: RefCell::new(Vec::new()),
@@ -167,9 +157,9 @@ impl<ServerT: ServerType + 'static> OperationQueue<ServerT> {
     ///
     /// This method detaches the runners to let them run in the background, and
     /// returns immediately.
-    pub fn start(self: Arc<OperationQueue<ServerT>>, runners: u32) {
+    pub fn start(&self, runners: u32) {
         for i in 0..runners {
-            let runner = Runner::new(i, self.op_sender.clone(), self.channel_receiver.clone());
+            let runner = Runner::new(i, self.channel_receiver.clone());
             moz_task::spawn_local("RequestQueue", runner.clone().run()).detach();
             self.runners.borrow_mut().push(runner);
         }
@@ -178,10 +168,7 @@ impl<ServerT: ServerType + 'static> OperationQueue<ServerT> {
     /// Pushes an operation to the back of the queue.
     ///
     /// An error can be returned if the inner channel is closed.
-    pub async fn enqueue(
-        &self,
-        op: Box<dyn ErasedQueuedOperation<ServerT>>,
-    ) -> Result<(), XpComEwsError> {
+    pub async fn enqueue(&self, op: Box<dyn ErasedQueuedOperation>) -> Result<(), XpComEwsError> {
         self.channel_sender.send(op).await?;
         Ok(())
     }
@@ -200,10 +187,6 @@ impl<ServerT: ServerType + 'static> OperationQueue<ServerT> {
         // Clear the references we have on the runners, so they can be dropped
         // when they finish running.
         self.runners.borrow_mut().clear();
-
-        // Send the shutdown signal to the operation sender so it can start
-        // cleaning up.
-        self.op_sender.shutdown().await;
     }
 
     /// Checks whether one or more runner(s) is currently active.
@@ -260,7 +243,7 @@ impl<ServerT: ServerType + 'static> OperationQueue<ServerT> {
     /// mutably borrowed.
     fn count_matching_runners<PredicateT>(&self, predicate: PredicateT) -> usize
     where
-        PredicateT: FnMut(&&Arc<Runner<ServerT>>) -> bool,
+        PredicateT: FnMut(&&Arc<Runner>) -> bool,
     {
         self.runners.borrow().iter().filter(predicate).count()
     }
@@ -291,9 +274,8 @@ enum RunnerState {
 ///
 /// The current state of the runner can be checked at any time with
 /// [`Runner::state`].
-struct Runner<ServerT: ServerType + 'static> {
-    op_sender: Arc<OperationSender<ServerT>>,
-    receiver: Receiver<Box<dyn ErasedQueuedOperation<ServerT>>>,
+struct Runner {
+    receiver: Receiver<Box<dyn ErasedQueuedOperation>>,
     state: Cell<RunnerState>,
 
     // A numerical identifier attached to the current runner, used for
@@ -301,18 +283,13 @@ struct Runner<ServerT: ServerType + 'static> {
     id: u32,
 }
 
-impl<ServerT: ServerType + 'static> Runner<ServerT> {
+impl Runner {
     /// Creates a new [`Runner`], wrapped into an [`Arc`].
     ///
     /// `id` is a numerical identifier used for debugging.
-    fn new(
-        id: u32,
-        op_sender: Arc<OperationSender<ServerT>>,
-        receiver: Receiver<Box<dyn ErasedQueuedOperation<ServerT>>>,
-    ) -> Arc<Runner<ServerT>> {
+    fn new(id: u32, receiver: Receiver<Box<dyn ErasedQueuedOperation>>) -> Arc<Runner> {
         Arc::new(Runner {
             id,
-            op_sender,
             receiver,
             state: Cell::new(RunnerState::Pending),
         })
@@ -324,7 +301,7 @@ impl<ServerT: ServerType + 'static> Runner<ServerT> {
     /// This method does not explicitly take care of sharing the operation's
     /// response to the consumer; this is expected to be done by
     /// [`QueuedOperation::perform`].
-    async fn run(self: Arc<Runner<ServerT>>) {
+    async fn run(self: Arc<Runner>) {
         loop {
             self.state.replace(RunnerState::Waiting);
 
@@ -346,7 +323,7 @@ impl<ServerT: ServerType + 'static> Runner<ServerT> {
                 self.id
             );
 
-            op.perform(self.op_sender.clone()).await;
+            op.perform().await;
         }
     }
 

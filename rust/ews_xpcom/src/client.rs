@@ -81,14 +81,19 @@ type EwsOperationResult<T> = Result<<T as Operation>::Response, XpComEwsError>;
 
 /// The EWS implementation of the [`QueuedOperation`] trait. It wraps around a
 /// type that implements [`ews::Operation`].
-pub struct QueuedEwsOperation<Op: Operation> {
+pub struct QueuedEwsOperation<Op: Operation, ServerT: ServerType + 'static> {
     operation_id: Uuid,
     inner: Op,
     sender: Cell<Option<oneshot::Sender<EwsOperationResult<Op>>>>,
     options: OperationRequestOptions,
+    op_sender: Arc<OperationSender<ServerT>>,
 }
 
-impl<Op: Operation> QueuedEwsOperation<Op> {
+impl<Op, ServerT> QueuedEwsOperation<Op, ServerT>
+where
+    Op: Operation,
+    ServerT: ServerType + 'static,
+{
     /// Create a new [`QueuedEwsOperation`] and return it, along a channel
     /// [`Receiver`] that will be used to communicate the operation's result to
     /// the consumer.
@@ -97,6 +102,7 @@ impl<Op: Operation> QueuedEwsOperation<Op> {
     pub fn new(
         op: Op,
         options: OperationRequestOptions,
+        op_sender: Arc<OperationSender<ServerT>>,
     ) -> (Self, oneshot::Receiver<EwsOperationResult<Op>>) {
         let (snd, rcv) = oneshot::channel();
 
@@ -106,6 +112,7 @@ impl<Op: Operation> QueuedEwsOperation<Op> {
             inner: op,
             sender: Cell::new(Some(snd)),
             options,
+            op_sender,
         };
 
         (op, rcv)
@@ -135,14 +142,14 @@ impl<Op: Operation> QueuedEwsOperation<Op> {
     }
 }
 
-impl<Op, ServerT> QueuedOperation<ServerT> for QueuedEwsOperation<Op>
+impl<Op, ServerT> QueuedOperation for QueuedEwsOperation<Op, ServerT>
 where
     Op: Operation,
     ServerT: ServerType + 'static,
 {
-    async fn perform(&self, op_sender: Arc<OperationSender<ServerT>>) {
+    async fn perform(&self) {
         let op_name = <Op as Operation>::NAME;
-        let version = op_sender.server_version();
+        let version = self.op_sender.server_version();
         let envelope = soap::Envelope {
             headers: vec![soap::Header::RequestServerVersion { version }],
             body: &self.inner,
@@ -152,7 +159,8 @@ where
             Err(err) => return self.send_result(Err(err.into())),
         };
 
-        let res = op_sender
+        let res = self
+            .op_sender
             .make_and_send_request(&self.operation_id, op_name, &request_body, &self.options)
             .await;
 
@@ -163,7 +171,11 @@ where
 // `Cell` only implements `Debug` if the inner type also implements `Copy`
 // (which isn't the case here), so we need a custom implementation that leaves
 // it out of the debug output.
-impl<Op: Operation> Debug for QueuedEwsOperation<Op> {
+impl<Op, ServerT> Debug for QueuedEwsOperation<Op, ServerT>
+where
+    Op: Operation,
+    ServerT: ServerType + 'static,
+{
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("QueuedEwsOperation")
             .field("operation_id", &self.operation_id)
@@ -175,7 +187,7 @@ impl<Op: Operation> Debug for QueuedEwsOperation<Op> {
 
 pub(crate) struct XpComEwsClient<ServerT: ServerType + 'static> {
     version_handler: Arc<ServerVersionHandler>,
-    queue: Arc<OperationQueue<ServerT>>,
+    queue: Arc<OperationQueue>,
     op_sender: Arc<OperationSender<ServerT>>,
 }
 
@@ -198,7 +210,7 @@ impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
         // than 1). In the future, we could maybe move
         // `maximumConnectionsNumber` from `nsIImapIncomingServer` to
         // `nsIMsgIncomingServer` and use its value here.
-        let queue = OperationQueue::new(op_sender.clone());
+        let queue = OperationQueue::new();
         queue.clone().start(5);
 
         Ok(XpComEwsClient {
@@ -234,7 +246,7 @@ impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
         op: Op,
         options: OperationRequestOptions,
     ) -> Result<Op::Response, XpComEwsError> {
-        let (queued_op, rcv) = QueuedEwsOperation::new(op, options);
+        let (queued_op, rcv) = QueuedEwsOperation::new(op, options, self.op_sender.clone());
 
         let operation_id = *queued_op.id();
 
@@ -386,7 +398,12 @@ impl<ServerT: ServerType + 'static> ProtocolClient for XpComEwsClient<ServerT> {
     }
 
     async fn shutdown(self: Arc<XpComEwsClient<ServerT>>) {
+        // Tell the queue to stop its workers.
         self.queue.stop().await;
+
+        // Send the shutdown signal to the operation sender so it can start
+        // cleaning up.
+        self.op_sender.shutdown().await;
     }
 }
 

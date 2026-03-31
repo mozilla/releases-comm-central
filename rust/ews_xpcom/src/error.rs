@@ -14,7 +14,7 @@ use oneshot::RecvError;
 use protocol_shared::error::ProtocolError;
 use thiserror::Error;
 
-use crate::{client::ServerType, operation_queue::ErasedQueuedOperation};
+use crate::operation_queue::ErasedQueuedOperation;
 
 /// Error types for EWS operations.
 #[derive(Debug, Error)]
@@ -95,11 +95,9 @@ impl<'a> TryFrom<&'a XpComEwsError> for &'a moz_http::Error {
     }
 }
 
-impl<ServerT: ServerType + 'static> From<SendError<Box<dyn ErasedQueuedOperation<ServerT>>>>
-    for XpComEwsError
-{
+impl From<SendError<Box<dyn ErasedQueuedOperation>>> for XpComEwsError {
     // `SendError` is only returned in one case: the channel is closed.
-    fn from(_: SendError<Box<dyn ErasedQueuedOperation<ServerT>>>) -> Self {
+    fn from(_: SendError<Box<dyn ErasedQueuedOperation>>) -> Self {
         XpComEwsError::QueueSender
     }
 }
