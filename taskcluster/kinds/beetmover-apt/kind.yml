@@ -1,0 +1,34 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+---
+loader: taskgraph.loader.transform:loader
+
+transforms:
+    - taskgraph.transforms.from_deps
+    - gecko_taskgraph.transforms.beetmover_apt
+    - gecko_taskgraph.transforms.task
+
+kind-dependencies:
+    - beetmover-repackage
+
+only-for-build-platforms:
+    - linux64-shippable/opt
+
+task-defaults:
+    run-on-repo-type: [hg]
+    from-deps:
+        group-by: product
+        unique-kinds: false
+        copy-attributes: true
+    shipping-phase: ship
+    treeherder:
+        tier: 1
+        kind: other
+        symbol: BM-apt
+    worker-type: beetmover
+    worker:
+        implementation: beetmover-import-from-gcs-to-artifact-registry
+
+tasks:
+    beetmover-apt: {}
