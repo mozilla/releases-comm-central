@@ -899,7 +899,7 @@ toolbarbutton.formatting-button {
 }
 
 #msgIdentity.has-custom-color {
-  --icon-color: var(--primary);
+  --icon-color: var(--selected-item-color);
 
   &[is="menulist-editable"]::part(label-box)::before {
     display: block;
@@ -913,7 +913,7 @@ toolbarbutton.formatting-button {
   }
 
   & #msgIdentityPopup > menuitem:not(:last-child) {
-    --icon-color: var(--primary);
+    --icon-color: var(--selected-item-color);
 
     &::before {
       display: block;

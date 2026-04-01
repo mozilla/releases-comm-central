@@ -10,41 +10,10 @@ html {
 }
 
 :root {
-  --bg-color: light-dark(#fff, #2f2f33);
   --bg-watermark: url("chrome://messenger/skin/images/account-watermark.png");
-  --header-bg-color: light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.05));
-  --accounts-bg-color: light-dark(rgba(0, 0, 0, 0.03), rgba(255, 255, 255, 0.03));
-  --text-color: light-dark(#36385a, #f9f9fa);
-  --title-color: light-dark(#002275, #fefefe);
-  --primary-color: light-dark(#0a84ff, #0a84ff);
-  --primary-color-hover: light-dark(#0060df, #0a84ff);
-  --btn-color: light-dark(#36385a, #fff);
-  --btn-color-hover: #fff;
-  --btn-bg: light-dark(#fff, #38383d);
-  --btn-bg-hover: #0060df;
-  --btn-shadow-hover: light-dark(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3));
-  --popup-bg: light-dark(#ededf0, #474749);
 
   @media (prefers-color-scheme: dark) {
     --bg-watermark: url("chrome://messenger/skin/images/account-watermark-light.png");
-  }
-
-  @media (prefers-contrast) {
-    --bg-color: Window;
-    --text-color: WindowText;
-    --title-color: -moz-DialogText;
-    --primary-color: SelectedItem;
-    --primary-color-hover: SelectedItem;
-    --btn-color: -moz-DialogText;
-    --btn-color-hover: SelectedItemText;
-    --btn-bg: Dialog;
-    --btn-bg-hover: SelectedItem;
-    --btn-shadow-hover: transparent;
-    --popup-bg: Window;
-
-    & .btn-hub {
-      border: 1px solid -moz-DialogText;
-    }
   }
 }
 
@@ -62,18 +31,17 @@ body {
   overflow: auto;
   margin: 0;
   block-size: 100vh;
-  background-color: var(--body-background-color);
+  background-color: var(--layout-background-0);
   text-shadow: none;
 }
 
 #accountCentral {
   display: flex;
   flex-direction: column;
-  background-color: var(--bg-color);
   background-image: var(--bg-watermark);
   background-position: bottom right;
   background-repeat: no-repeat;
-  color: var(--text-color);
+  color: var(--color-text-base);
   block-size: 100%;
 }
 
@@ -87,7 +55,7 @@ body {
 .account-central-header {
   display: flex;
   align-items: center;
-  background-color: var(--header-bg-color);
+  background-color: var(--layout-background-1);
   padding: 20px 30px;
 
   &.summary-header {
@@ -106,7 +74,7 @@ body {
   -moz-context-properties: fill, stroke, stroke-opacity;
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;
-  color: var(--primary-color);
+  color: var(--color-primary-default);
   inline-size: 20px;
   block-size: 20px;
   margin-inline-end: 10px;
@@ -170,7 +138,7 @@ aside.settings-btn-container {
   cursor: pointer;
 
   & img {
-    color: var(--primary-color);
+    color: var(--color-primary-default);
     -moz-context-properties: fill, stroke, stroke-opacity;
     fill: color-mix(in srgb, currentColor 20%, transparent);
     stroke: currentColor;
@@ -180,7 +148,7 @@ aside.settings-btn-container {
     margin-inline-start: 3px;
 
     &:where(:hover, :focus) {
-      color: var(--primary-color-hover);
+      color: var(--color-primary-hover);
     }
   }
 }
@@ -196,7 +164,7 @@ aside.settings-btn-container {
   }
 
   &.zebra {
-    background-color: var(--accounts-bg-color);
+    background-color: var(--layout-background-1);
   }
 }
 
@@ -207,7 +175,7 @@ aside.settings-btn-container {
 .section-title {
   font-size: larger;
   font-weight: 600;
-  color: var(--title-color);
+  color: var(--color-text-base);
   margin-block: 10px 20px;
   /* Prevents UI jumping when dynamically changing the content. */
   min-block-size: 21px;
@@ -244,8 +212,6 @@ aside.settings-btn-container {
   align-items: center;
   justify-content: center;
   font-size: 1.1em;
-  color: var(--btn-color);
-  background-color: var(--btn-bg);
   -moz-context-properties: fill, stroke, stroke-opacity;
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;
@@ -257,14 +223,12 @@ aside.settings-btn-container {
   margin-inline: 10px;
   margin-block-end: 10px;
   cursor: pointer;
-  box-shadow: 0 5px 20px -5px var(--btn-shadow-hover);
+  box-shadow: var(--button-primary-shadow);
 
   &:not([disabled]):hover {
-    color: var(--btn-color-hover) !important;
-    background-color: var(--btn-bg-hover);
-    box-shadow:
-      0 14px 16px -12px var(--btn-shadow-hover),
-      inset 20px 20px 50px -30px rgba(255, 255, 255, 0.35);
+    color: var(--selected-item-text-color) !important;
+    background-color: var(--selected-item-color);
+    box-shadow: var(--button-primary-hover-shadow);
   }
 
   &.btn-inline {
@@ -276,10 +240,6 @@ aside.settings-btn-container {
     min-inline-size: 140px;
   }
 
-  &:focus-visible:not(:hover) {
-    color: var(--primary-color) !important;
-  }
-
   &::before {
     position: relative;
     display: block;
@@ -288,7 +248,7 @@ aside.settings-btn-container {
     margin-inline-end: 0;
     inline-size: 20px;
     block-size: 20px;
-    color: var(--primary-color);
+    color: var(--color-primary-default);
     background-position: center;
     background-repeat: no-repeat;
     background-size: contain;
@@ -303,7 +263,7 @@ aside.settings-btn-container {
   }
 
   &:hover::before {
-    color: var(--btn-color-hover) !important;
+    color: currentColor !important;
   }
 }
 
@@ -389,7 +349,7 @@ aside.settings-btn-container {
 
   & > p {
     display: inline-block;
-    background-color: var(--popup-bg);
+    background-color: var(--layout-background-2);
     padding: 4px 8px;
     border-radius: 4px;
     box-shadow: 0 2px 5px -4px rgba(0, 0, 0, 0.8);
@@ -402,14 +362,14 @@ aside.settings-btn-container {
 
 /* Custom link style */
 .donation-link {
-  color: var(--primary-color);
+  color: var(--color-primary-default);
   font-style: italic;
   font-weight: 600;
   transition: color 0.2s;
   cursor: pointer;
 
   &:hover {
-    color: var(--primary-color-hover);
+    color: var(--color-primary-hover);
   }
 
   &:focus-visible:not(:hover) {
@@ -438,7 +398,7 @@ aside.settings-btn-container {
 }
 
 .resource-link {
-  color: var(--text-color);
+  color: var(--color-primary-default);
   -moz-context-properties: fill, stroke, stroke-opacity;
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;
@@ -465,10 +425,14 @@ aside.settings-btn-container {
   vertical-align: sub;
 }
 
-.btn-link:hover,
+.btn-link:hover {
+  color: inherit;
+  background-color: var(--arrowpanel-dimmed) !important;
+}
+
 .resource-link:hover {
-  color: var(--primary-color-hover) !important;
-  background-color: transparent;
+  color: var(--color-primary-hover) !important;
+  background-color: transparent !important;
 }
 
 #supportLink::before {

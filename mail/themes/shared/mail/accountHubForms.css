@@ -125,7 +125,7 @@ form {
     border: 1px solid var(--color-surface-border);
     border-radius: var(--button-border-radius);
     background-color: var(--hub-input-bg-color);
-    font-weight: 200;
+    font-weight: 300;
     max-inline-size: 100%;
 
     &[type="password"] {
@@ -137,7 +137,7 @@ form {
     }
 
     &::placeholder {
-      font-weight: 200;
+      font-weight: 300;
       color: var(--color-text-secondary);
     }
 
@@ -148,7 +148,7 @@ form {
     }
 
     &:focus {
-      border-color: light-dark(var(--color-primary-hover), var(--color-primary-default));
+      border-color: var(--selected-item-color);
     }
 
     &:focus-visible {

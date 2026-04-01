@@ -19,7 +19,7 @@
   }
 
   #menubar-items > #mail-menubar > menu:not([disabled])[_moz-menuactive="true"] {
-    color: -moz-MenuHoverText;
+    color: -moz-menuhovertext;
   }
 }
 

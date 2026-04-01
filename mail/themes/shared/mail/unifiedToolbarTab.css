@@ -35,7 +35,7 @@ button {
     box-shadow: 0 2px 8px -5px var(--color-black);
 
     &::before {
-      background-color: var(--primary);
+      background-color: var(--selected-item-color);
     }
   }
 
@@ -49,7 +49,7 @@ button {
 
   &:focus-visible {
     outline: 2px solid transparent;
-    border-color: var(--primary);
+    border-color: var(--selected-item-color);
   }
 }
 

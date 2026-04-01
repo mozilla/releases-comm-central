@@ -80,7 +80,8 @@ menulist::part(icon) {
 
 .addressingWidgetItem:hover,
 .autocomplete-richlistitem:hover {
-  background-color: var(--in-content-item-hover, hsla(0, 0%, 50%, 0.3)) !important;
+  color: var(--text-color-list-item-hover);
+  background-color: var(--background-color-list-item-hover);
 }
 
 .textbox-addressingWidget {

@@ -21,7 +21,7 @@ html|label {
 
 #publish-progressmeter::-moz-progress-bar {
   appearance: none;
-  background-color: var(--primary);
+  background-color: var(--selected-item-color);
   border-radius: 2px;
 }
 

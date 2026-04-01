@@ -7,7 +7,7 @@
   border: 1px solid transparent;
   border-radius: 2px;
   padding: 3px 4px;
-  color: var(--text-color);
+  color: var(--color-text-base);
 
   &[status="error"] {
     background-color: #ffe900;

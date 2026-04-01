@@ -91,15 +91,8 @@ menupopup {
   }
 
   :root:not([lwtheme]) menubar > menu & > :is(menu, menuitem):not([disabled])[_moz-menuactive] {
-    color: -moz-MenuHoverText;
-    background-color: -moz-MenuHover;
-
-    @media (-moz-platform: windows) {
-      @media not (prefers-contrast) {
-        color: inherit;
-        background-color: var(--arrowpanel-dimmed-further);
-      }
-    }
+    color: inherit;
+    background-color: var(--arrowpanel-dimmed-further);
   }
 
   & > menu::after {
@@ -175,7 +168,7 @@ menupopup {
 
 @media not (prefers-contrast) {
   menuitem:not([disabled]) > .menu-accel {
-    color: var(--text-color-deemphasized);
+    color: var(--color-text-muted);
   }
 }
 
@@ -284,4 +277,12 @@ menupopup {
 #browserContext-forward:-moz-locale-dir(rtl),
 #browserContext-reload:-moz-locale-dir(rtl) {
   transform: scaleX(-1);
+}
+
+menubar > menu {
+  @media (-moz-platform: linux) {
+    &[open] {
+      border-block-end-color: var(--selected-item-color);
+    }
+  }
 }

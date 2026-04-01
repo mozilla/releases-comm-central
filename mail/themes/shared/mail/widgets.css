@@ -26,8 +26,10 @@
 
   @media (prefers-reduced-motion: no-preference) {
     transition:
-      background-color 0.15s,
-      border-color 0.15s;
+      background-color 0.15s ease,
+      border-color 0.15s ease,
+      color 0.15s ease,
+      box-shadow 0.15s ease;
   }
 
   &:enabled {
@@ -132,23 +134,28 @@
   /* Primary Button Styles */
 
   &.button-primary {
+    font-weight: 600;
     background-color: var(--button-primary-background-color);
     color: var(--button-primary-text-color);
     border-color: var(--button-primary-border-color);
+    box-shadow: var(--button-primary-shadow);
 
     &:enabled {
       &:hover {
         background-color: var(--button-primary-hover-background-color);
         color: var(--button-primary-text-color);
         border-color: var(--button-primary-border-color);
+        box-shadow: var(--button-primary-hover-shadow);
 
         @media (prefers-contrast) {
           border-color: var(--button-primary-hover-border-color);
+          box-shadow: none;
         }
 
         &:active {
           background-color: var(--button-primary-active-background-color);
           border-color: var(--button-primary-border-color);
+          box-shadow: none;
         }
       }
     }
@@ -414,7 +421,7 @@
 
     & > option {
       background-color: var(--background-color-box);
-      color: var(--text-color);
+      color: var(--color-text-base);
     }
   }
 }

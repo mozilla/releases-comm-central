@@ -34,7 +34,7 @@ input {
   &:focus-visible {
     outline-style: solid;
     outline-width: 2px;
-    outline-color: var(--search-focus-outline-color);
+    outline-color: var(--focus-outline-color);
     outline-offset: var(--search-outline-offset);
     background-color: var(--search-bar-focus-background);
   }

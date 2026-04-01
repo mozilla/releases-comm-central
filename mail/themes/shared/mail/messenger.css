@@ -504,8 +504,8 @@ menubar {
 }
 
 #mail-menubar > menu[_moz-menuactive="true"]:not([disabled]) {
-  background-color: light-dark(hsla(0, 0%, 0%, 0.12), hsla(0, 0%, 100%, 0.22));
   color: inherit;
+  background-color: var(--arrowpanel-dimmed);
 }
 
 menulist {
@@ -940,7 +940,7 @@ label.statusbarpanel {
 
   &::-moz-progress-bar {
     appearance: none;
-    background-color: var(--primary);
+    background-color: var(--selected-item-color);
     border-radius: 2px;
   }
 

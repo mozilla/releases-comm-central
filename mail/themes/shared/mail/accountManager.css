@@ -199,23 +199,23 @@ body {
   --panel-border-color: var(--border-color);
   --panel-border-radius: 2px;
   --panel-background: var(--background-color-box);
-  --panel-color: var(--text-color);
+  --panel-color: var(--color-text-base);
   --panel-padding: 3px 0;
 
   & > menuitem {
     appearance: none;
-    color: var(--text-color);
+    color: var(--color-text-base);
     padding-block: 0.2em;
     padding-inline: 10px 30px;
 
     &:not([disabled])[_moz-menuactive="true"] {
-      color: var(--in-content-item-hover-text);
-      background-color: var(--in-content-item-hover);
+      color: inherit;
+      background-color: var(--arrowpanel-dimmed);
     }
 
     &:not([disabled])[selected="true"] {
-      color: var(--text-color-accent-primary-selected);
-      background-color: var(--color-accent-primary-selected);
+      color: var(--selected-item-text-color);
+      background-color: var(--selected-item-color);
     }
 
     &[disabled] {

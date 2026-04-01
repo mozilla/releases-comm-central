@@ -220,7 +220,7 @@ input:user-invalid ~ .form-icon {
 }
 
 .password-toggled {
-  color: var(--button-background-color-primary);
+  color: var(--selected-item-color);
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;
 }
@@ -412,12 +412,12 @@ input:user-invalid ~ .form-icon {
 
   & legend {
     margin-block-start: 0;
-    background-color: var(--button-background-color-primary);
+    background-color: var(--selected-item-color);
     border-radius: var(--button-border-radius);
     padding: 2px 6px;
     font-size: 0.9rem;
     text-transform: uppercase;
-    color: var(--button-text-color-primary);
+    color: var(--selected-item-text-color);
   }
 
   & input[type="number"] {
@@ -501,12 +501,12 @@ input:user-invalid ~ .form-icon {
   font-size: 0.8rem;
   font-weight: bold;
   border-radius: 2px;
-  background-color: var(--button-background-color-primary);
-  color: var(--button-text-color-primary);
+  background-color: var(--selected-item-color);
+  color: var(--selected-item-text-color);
 
   &.insecure {
     background-color: var(--red-70);
-    color: var(--button-text-color-primary);
+    color: var(--color-white);
   }
 }
 

@@ -15,7 +15,7 @@ window,
 .windowDialog {
   appearance: none;
   background-color: var(--background-color-canvas);
-  color: var(--text-color);
+  color: var(--color-text-base);
   margin: 0;
   padding: 0;
 }

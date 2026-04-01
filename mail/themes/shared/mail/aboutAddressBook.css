@@ -136,7 +136,6 @@ body {
 }
 
 #booksPaneCreateContact {
-  font-weight: normal;
   background-image: var(--books-pane-icon-new);
 }
 
@@ -333,7 +332,6 @@ body {
 #displayButton {
   --button-margin: 0;
   background-image: var(--icon-display-options);
-  outline-offset: -1px;
 }
 
 /* Hide list items for sorting in table view. */
@@ -504,11 +502,6 @@ tr[is="ab-card-row"].selected .recipient-avatar.is-mail-list {
       color: CanvasText;
     }
   }
-
-  & :is(menulist, select),
-  & button:not(.primary) {
-    outline-offset: -1px;
-  }
 }
 
 #editContactForm {
@@ -618,7 +611,6 @@ body:not(.is-editing) #editContactForm {
 
   &:focus-visible {
     outline: var(--focus-outline);
-    outline-offset: 2px;
   }
 }
 

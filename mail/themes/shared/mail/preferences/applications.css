@@ -51,7 +51,8 @@
   & tbody > tr {
     &:hover {
       & .typeCell {
-        background-color: var(--in-content-item-hover);
+        color: var(--text-color-list-item-hover);
+        background-color: var(--background-color-list-item-hover);
       }
 
       & .actionCell menulist {
@@ -61,8 +62,8 @@
     }
 
     &:focus-within .typeCell {
-      background-color: var(--color-accent-primary-selected);
-      color: var(--text-color-accent-primary-selected);
+      background-color: var(--selected-item-color);
+      color: var(--selected-item-text-color);
     }
 
     &:not(:hover, :focus-within) .actionsMenu {

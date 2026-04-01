@@ -22,7 +22,7 @@ description {
   font-size: 1.46em;
   font-weight: 300;
   line-height: 1.3em;
-  color: var(--text-color);
+  color: var(--color-text-base);
 }
 
 .wizard-section {

@@ -411,20 +411,15 @@ calendar-item-summary {
       flex-grow: 1;
     }
 
-    &.current button {
-      border: 3px solid var(--primary);
-      background: var(--background-color-box);
-      color: var(--primary);
-    }
-
-    &.completed button {
-      background: var(--primary);
-      color: var(--background-color-box);
+    &:is(.current, .completed) button {
+      border-color: var(--button-primary-border-color);
+      background: var(--button-primary-background-color);
+      color: var(--button-primary-text-color);
     }
 
     &.completed:not(:first-child)::before,
     &.current:not(:first-child)::before {
-      border-block-start: 2px solid var(--primary);
+      border-block-start: 2px solid var(--button-primary-background-color);
     }
   }
 }

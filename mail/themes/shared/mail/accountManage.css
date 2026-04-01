@@ -41,23 +41,23 @@ fieldset {
   --panel-border-color: var(--border-color);
   --panel-border-radius: 2px;
   --panel-background: var(--background-color-box);
-  --panel-color: var(--text-color);
+  --panel-color: var(--color-text-base);
   --panel-padding: 3px 0;
 
   & > menuitem {
     appearance: none;
-    color: var(--text-color);
+    color: var(--color-text-base);
     padding-block: 0.2em;
     padding-inline: 10px 30px;
 
     &[_moz-menuactive="true"] {
-      color: var(--in-content-item-hover-text);
-      background-color: var(--in-content-item-hover);
+      color: inherit;
+      background-color: var(--arrowpanel-dimmed);
     }
 
     &[selected="true"] {
-      color: var(--text-color-accent-primary-selected);
-      background-color: var(--color-accent-primary-selected);
+      color: var(--selected-item-text-color);
+      background-color: var(--selected-item-color);
     }
   }
 
@@ -118,6 +118,7 @@ fieldset {
   --button-background-color-hover: light-dark(var(--color-red-70), var(--color-red-40));
   --button-background-color-active: light-dark(var(--color-red-80), var(--color-red-30));
   color: var(--color-white);
+  border-color: var(--button-background-color);
   list-style-image: var(--icon-trash);
   -moz-context-properties: fill, stroke;
   fill: color-mix(in srgb, currentColor 20%, transparent);
@@ -153,8 +154,8 @@ menulist > menupopup {
       border: 1px solid transparent;
 
       &:not([disabled])[_moz-menuactive="true"] {
-        color: var(--text-color);
-        background-color: var(--in-content-item-hover);
+        color: inherit;
+        background-color: var(--arrowpanel-dimmed);
       }
 
       &[disabled] {
@@ -327,7 +328,7 @@ richlistitem[default="true"],
   font-size: 1.46em;
   font-weight: 300;
   line-height: 1.3em;
-  color: var(--text-color);
+  color: var(--color-text-base);
 
   &::before {
     overflow: hidden;
@@ -420,8 +421,11 @@ richlistitem[default="true"],
   background-color: rgba(215, 215, 219, 0.2);
 
   &.selected {
-    border: 1px solid #45a1ff;
-    background-color: rgba(69, 161, 255, 0.2);
+    border: 1px solid var(--selected-item-color);
+    background-color: light-dark(
+      color-mix(in srgb, var(--selected-item-color) 5%, transparent),
+      color-mix(in srgb, var(--selected-item-color) 10%, transparent)
+    );
   }
 
   &.disabled {

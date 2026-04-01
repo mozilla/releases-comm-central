@@ -37,7 +37,6 @@ dialog {
   --hub-account-secondary-button-border-active: var(--color-surface-border-intense);
   --hub-account-button-outline-focus: var(--color-primary-hover);
   --hub-account-button-hover-active-color: light-dark(var(--color-surface-border), var(--color-surface-lower));
-  --hub-account-footer-link-color: var(--color-primary-default);
   --hub-border-color: light-dark(var(--color-primary-soft), var(--color-primary-default));
   --hub-divider-color: var(--color-surface-base);
   --hub-loader-background: var(--color-surface-base);
@@ -121,7 +120,7 @@ dialog {
   align-items: center;
   gap: 6px;
   padding: 12px 15px;
-  border: 1px solid light-dark(AccentColor, var(--color-primary-default));
+  border: 1px solid var(--selected-item-color);
   border-radius: var(--arrowpanel-border-radius);
   color: var(--layout-color-2);
   background-color: var(--layout-background-1);
@@ -134,7 +133,7 @@ dialog {
 
   &:hover {
     background-color: var(--layout-background-2);
-    color: var(--primary);
+    color: var(--selected-item-color);
 
     &:active {
       background-color: var(--layout-background-3);
@@ -306,7 +305,7 @@ header {
     font-size: 1.7rem;
     font-weight: 400;
     margin-block: var(--hub-header-margin-block-start) 0;
-    color: var(--color-primary-pressed);
+    color: var(--color-text-base);
   }
 
   & .sub-view-sub-header {
@@ -731,39 +730,6 @@ header {
     line-height: var(--hub-floating-button-line-height);
   }
 
-  &.primary-button {
-    background-color: var(--hub-account-primary-button-background);
-    color: var(--hub-account-primary-button-color);
-    border-color: var(--hub-account-primary-button-border);
-    box-shadow: 0 6px 3px -4px rgba(21, 66, 124, 0.3);
-
-    &:hover {
-      background-color: var(--hub-account-primary-button-background-hover);
-      color: var(--hub-account-primary-button-color);
-      border-color: var(--hub-account-primary-button-border-active);
-      box-shadow: 0 4px 2px -3px rgba(21, 66, 124, 0.3);
-
-      &:active {
-        background-color: var(--hub-account-primary-button-background-active);
-        color: var(--hub-account-primary-button-color);
-        border-color: var(--hub-account-primary-button-border-active);
-        box-shadow: none;
-      }
-    }
-
-    &:active {
-      background-color: var(--hub-account-primary-button-background-active);
-      color: var(--hub-account-primary-button-color);
-      border-color: var(--hub-account-primary-button-border-active);
-      box-shadow: none;
-    }
-
-    &:focus-visible {
-      outline: var(--focus-outline);
-      outline-offset: var(--focus-outline-offset);
-    }
-  }
-
   &.secondary-button {
     background-color: var(--hub-account-secondary-button-background);
     color: var(--hub-account-secondary-button-color);
@@ -861,8 +827,8 @@ header {
     font-size: 1.1rem;
     text-decoration: none;
     letter-spacing: 0.2px;
-    font-weight: 200;
-    color: var(--hub-account-footer-link-color);
+    font-weight: 300;
+    color: var(--link-color);
 
     &:hover {
       text-decoration: underline;

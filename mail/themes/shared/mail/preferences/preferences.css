@@ -469,13 +469,13 @@ checkbox {
 }
 
 treechildren::-moz-tree-row(selected) {
-  background-color: var(--color-accent-primary-selected) !important;
+  background-color: var(--selected-item-color) !important;
   border-color: transparent;
   outline-color: transparent;
 }
 
 treechildren::-moz-tree-cell-text(selected) {
-  color: var(--text-color-accent-primary-selected);
+  color: var(--selected-item-text-color);
 }
 
 .align-no-label {
@@ -656,7 +656,7 @@ treechildren::-moz-tree-cell-text(selected) {
 #preferencesContainer richlistbox {
   appearance: none;
   background-color: var(--background-color-box);
-  color: var(--text-color);
+  color: var(--color-text-base);
 
   & richlistitem {
     padding: 0.3em;
@@ -672,7 +672,8 @@ treechildren::-moz-tree-cell-text(selected) {
 #preferencesContainer richlistbox {
   & richlistitem {
     &:hover {
-      background-color: var(--in-content-item-hover);
+      color: var(--text-color-list-item-hover);
+      background-color: var(--background-color-list-item-hover);
     }
 
     &[selected="true"] {
@@ -683,8 +684,8 @@ treechildren::-moz-tree-cell-text(selected) {
 
   &:focus {
     & > richlistitem[selected="true"] {
-      background-color: var(--color-accent-primary-selected);
-      color: var(--text-color-accent-primary-selected) !important;
+      background-color: var(--selected-item-color);
+      color: var(--selected-item-text-color) !important;
     }
   }
 }
@@ -1334,15 +1335,15 @@ calendar-notifications-setting {
   font-size: 0.7rem;
   text-transform: uppercase;
   border-radius: 3px;
-  background: var(--color-primary-default);
-  color: var(--color-surface-base);
+  background: var(--button-primary-background-color);
+  color: var(--button-primary-text-color);
   padding: 4px 9px;
-  border: 1px solid var(--color-primary-hover);
+  border: 1px solid var(--button-primary-border-color);
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
   font-weight: 700;
 
   &:hover {
-    background: var(--color-primary-hover);
+    background: var(--button-primary-hover-background-color);
   }
 }
 

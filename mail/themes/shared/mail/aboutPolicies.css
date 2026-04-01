@@ -52,10 +52,10 @@ body {
 
 tbody {
   & tr {
-    transition: background cubic-bezier(0.07, 0.95, 0, 1) 250ms;
+    transition: background 0.15s ease;
 
     &:hover {
-      background-color: var(--in-content-item-hover);
+      background-color: var(--background-color-list-item-hover);
     }
   }
 }

@@ -24,7 +24,7 @@ xul|window > :is(xul|dialog, xul|hbox, xul|vbox) {
 .dialogBox {
   appearance: none;
   background-color: var(--background-color-canvas);
-  color: var(--text-color);
+  color: var(--color-text-base);
   /* `transparent` will use the dialogText color in high-contrast themes and
      when page colors are disabled */
   border: 1px solid transparent;

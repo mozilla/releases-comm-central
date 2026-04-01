@@ -5,7 +5,7 @@
 @namespace html url("http://www.w3.org/1999/xhtml");
 
 body {
-  color: var(--text-color);
+  color: var(--color-text-base);
   background: var(--background-color-canvas);
   text-shadow: none;
 }

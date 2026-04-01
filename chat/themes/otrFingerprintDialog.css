@@ -62,7 +62,7 @@ dialog {
 .header-icon {
   -moz-context-properties: fill, stroke-opacity;
   fill: currentColor;
-  color: var(--primary-color);
+  color: var(--color-primary-default);
   inline-size: 3.5em;
   margin: 10px;
 }

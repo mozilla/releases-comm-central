@@ -107,7 +107,7 @@
 
       & .line2-label {
         padding-block-start: 2px !important;
-        color: var(--text-color-deemphasized);
+        color: var(--color-text-muted);
       }
     }
   }
