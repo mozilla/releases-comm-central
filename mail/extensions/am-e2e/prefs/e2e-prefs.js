@@ -264,7 +264,7 @@ pref("temp.openpgp.enableExperiments", false);
 // settings
 
 pref("mail.identity.default.sendAutocryptHeaders", true);
-pref("mail.identity.default.attachPgpKey", false);
+pref("mail.identity.default.attachPgpKey", true);
 pref("mail.identity.default.autoEncryptDrafts", true);
 pref("mail.identity.default.protectSubject", true);
 
