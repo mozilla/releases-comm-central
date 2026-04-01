@@ -323,7 +323,6 @@ add_task(async function test_preference_send_format() {
     const composeWindow = await newMessage(preference, false);
 
     await OpenPGPTestUtils.toggleMessageSigning(composeWindow);
-    await OpenPGPTestUtils.toggleMessageKeyAttachment(composeWindow);
 
     await assertSentMessage(
       composeWindow,
@@ -358,7 +357,6 @@ add_task(async function test_preference_send_format() {
     const composeWindow = await newMessage(preference, true);
 
     await OpenPGPTestUtils.toggleMessageSigning(composeWindow);
-    await OpenPGPTestUtils.toggleMessageKeyAttachment(composeWindow);
 
     await assertSentMessage(
       composeWindow,

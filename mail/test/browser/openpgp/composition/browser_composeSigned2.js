@@ -132,7 +132,6 @@ add_task(async function testSignedMessageComposition2() {
   );
 
   await OpenPGPTestUtils.toggleMessageSigning(composeWin);
-  await OpenPGPTestUtils.toggleMessageKeyAttachment(composeWin);
 
   const passPromptPromise = BrowserTestUtils.promiseAlertDialogOpen();
   const sendMessageCompletePromise = sendMessage(composeWin);
@@ -192,7 +191,6 @@ add_task(async function testSignedMessageComposition3() {
   );
 
   await OpenPGPTestUtils.toggleMessageSigning(composeWin);
-  await OpenPGPTestUtils.toggleMessageKeyAttachment(composeWin);
   await sendMessage(composeWin);
 
   await be_in_folder(gOutbox);

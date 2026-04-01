@@ -120,7 +120,6 @@ add_task(async function testSignedMessageComposition() {
   );
 
   await OpenPGPTestUtils.toggleMessageSigning(composeWin);
-  await OpenPGPTestUtils.toggleMessageKeyAttachment(composeWin);
   await sendMessage(composeWin);
 
   await be_in_folder(gOutbox);
@@ -190,6 +189,7 @@ add_task(async function testSignedMessageWithKeyComposition() {
   );
 
   await OpenPGPTestUtils.toggleMessageSigning(composeWin);
+  await OpenPGPTestUtils.toggleMessageKeyAttachment(composeWin);
   await sendMessage(composeWin);
 
   await be_in_folder(gOutbox);
@@ -311,7 +311,6 @@ add_task(async function testSignedEncryptedMessageComposition() {
   await OpenPGPTestUtils.toggleMessageEncryption(composeWin);
   await checkDonePromise;
 
-  await OpenPGPTestUtils.toggleMessageKeyAttachment(composeWin);
   await sendMessage(composeWin);
 
   await be_in_folder(gOutbox);
@@ -404,6 +403,7 @@ add_task(async function testSignedEncryptedMessageWithKeyComposition() {
   // has completed.
   checkDonePromise = waitCheckEncryptionStateDone(composeWin);
   await OpenPGPTestUtils.toggleMessageEncryption(composeWin);
+  await OpenPGPTestUtils.toggleMessageKeyAttachment(composeWin);
   await checkDonePromise;
 
   await sendMessage(composeWin);

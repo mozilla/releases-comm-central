@@ -30,7 +30,7 @@ export var MailMigrator = {
   _migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 58;
+    const UI_VERSION = 59;
     const UI_VERSION_PREF = "mail.ui-rdf.version";
     let currentUIVersion = Services.prefs.getIntPref(UI_VERSION_PREF, 0);
 
@@ -421,6 +421,12 @@ export var MailMigrator = {
         Services.prefs.clearUserPref(
           "mail.inappnotifications.pkceUpgradeForYahooAol"
         );
+      }
+
+      if (currentUIVersion < 59) {
+        for (const identity of MailServices.accounts.allIdentities) {
+          identity.attachPgpKey = false;
+        }
       }
 
       // Migration tasks that may take a long time are not run immediately, but
