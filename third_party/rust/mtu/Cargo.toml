@@ -59,6 +59,10 @@ name = "mtu-lookup"
 path = "src/bin/mtu-lookup.rs"
 bench = false
 
+[[test]]
+name = "netns"
+path = "tests/netns.rs"
+
 [dependencies.libc]
 version = "0.2"
 default-features = false
