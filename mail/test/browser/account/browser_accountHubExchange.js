@@ -233,7 +233,9 @@ add_task(
     );
     await fillPasswordInput(authenticationStep);
     info("Entering username");
-    const usernameInput = authenticationStep.querySelector("#username");
+    const usernameInput = authenticationStep.querySelector(
+      "#authenticationUsername"
+    );
 
     await TestUtils.waitForCondition(
       () => BrowserTestUtils.isVisible(usernameInput),
@@ -550,7 +552,9 @@ add_task(async function test_exchange_credentials_to_imap() {
   await BrowserTestUtils.waitForAttributeRemoval("hidden", authenticationStep);
   await fillPasswordInput(authenticationStep);
   info("Entering username");
-  const usernameInput = authenticationStep.querySelector("#username");
+  const usernameInput = authenticationStep.querySelector(
+    "#authenticationUsername"
+  );
 
   await TestUtils.waitForCondition(
     () => BrowserTestUtils.isVisible(usernameInput),
@@ -634,7 +638,9 @@ add_task(async function test_full_exchange_account_creation() {
   await BrowserTestUtils.waitForAttributeRemoval("hidden", authenticationStep);
   await fillPasswordInput(authenticationStep);
   info("Entering username");
-  const usernameInput = authenticationStep.querySelector("#username");
+  const usernameInput = authenticationStep.querySelector(
+    "#authenticationUsername"
+  );
 
   await TestUtils.waitForCondition(
     () => BrowserTestUtils.isVisible(usernameInput),
@@ -738,7 +744,7 @@ async function fillUserInformation(emailStep, userDetails = emailUser) {
  */
 async function fillPasswordInput(passwordStep) {
   info("Entering password");
-  const passwordInput = passwordStep.querySelector("#password");
+  const passwordInput = passwordStep.querySelector("#authenticationPassword");
 
   await TestUtils.waitForCondition(
     () => BrowserTestUtils.isVisible(passwordInput),

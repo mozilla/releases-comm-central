@@ -18,6 +18,9 @@ import { EmailPasswordForm } from "./email-password-form.mjs";
  */
 class EmailAuthenticationForm extends EmailPasswordForm {
   _templateId = "accountHubEmailAuthenticationFormTemplate";
+  _formSelector = "#authenticationForm";
+  _passwordSelector = "#authenticationPassword";
+  _rememberPasswordSelector = "#rememberAuthenticationPassword";
 
   /**
    * @type {HTMLInputElement}
@@ -30,7 +33,7 @@ class EmailAuthenticationForm extends EmailPasswordForm {
     }
     super.connectedCallback();
 
-    this.#username = this.querySelector("#username");
+    this.#username = this.querySelector("#authenticationUsername");
   }
 
   /**

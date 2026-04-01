@@ -3,15 +3,15 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 <html:template id="accountHubEmailAuthenticationFormTemplate" xmlns="http://www.w3.org/1999/xhtml">
-  <form id="passwordForm" class="account-hub-form" slot="content">
+  <form id="authenticationForm" class="account-hub-form" slot="content">
     <div class="hub-body password-form-body">
       <div class="input-control">
-        <input id="password"
+        <input id="authenticationPassword"
                type="password"
                class="input-field animated"
                placeholder=""
                required="required" />
-        <label for="password"
+        <label for="authenticationPassword"
                class="animated"
                data-l10n-id="account-setup-password-label"
                data-l10n-attrs="accesskey">
@@ -19,7 +19,7 @@
       </div>
       <div class="remember-button-container">
         <label class="toggle-container-with-text">
-          <input id="rememberPassword"
+          <input id="rememberAuthenticationPassword"
                  class="check-button"
                  type="checkbox" />
           <span class="checkbox-label"
@@ -29,11 +29,11 @@
         </label>
       </div>
       <div class="input-control">
-        <input id="username"
+        <input id="authenticationUsername"
               type="text"
               class="input-field animated"
               placeholder="" />
-        <label for="username"
+        <label for="authenticationUsername"
               class="animated"
               data-l10n-id="account-setup-exchange-label"
               data-l10n-attrs="accesskey">

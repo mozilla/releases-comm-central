@@ -40,6 +40,27 @@ export class EmailPasswordForm extends AccountHubStep {
   #password;
 
   _templateId = "accountHubEmailPasswordFormTemplate";
+  /**
+   * The selector to get the form element.
+   *
+   * @type {string}
+   * @protected
+   */
+  _formSelector = "#passwordForm";
+  /**
+   * The selector to get the password input.
+   *
+   * @type {string}
+   * @protected
+   */
+  _passwordSelector = "#password";
+  /**
+   * The selector to get the remember password checkbox.
+   *
+   * @type {string}
+   * @protected
+   */
+  _rememberPasswordSelector = "#rememberPassword";
 
   /**
    * The remember checkbox.
@@ -61,8 +82,8 @@ export class EmailPasswordForm extends AccountHubStep {
       .content.cloneNode(true);
     this.appendChild(template);
 
-    this.#password = this.querySelector("#password");
-    this.#rememberPassword = this.querySelector("#rememberPassword");
+    this.#password = this.querySelector(this._passwordSelector);
+    this.#rememberPassword = this.querySelector(this._rememberPasswordSelector);
 
     this.#password.focus();
 
@@ -91,8 +112,8 @@ export class EmailPasswordForm extends AccountHubStep {
    * Resets the password field.
    */
   setState() {
-    this.querySelector("#passwordForm").reset();
-    this.querySelector("#password").focus();
+    this.querySelector(this._formSelector).reset();
+    this.#password.focus();
   }
 
   /**
@@ -114,7 +135,8 @@ export class EmailPasswordForm extends AccountHubStep {
    * @param {boolean} allowed - If form is allowed to remember password.
    */
   #setRememberPasswordInput(allowed) {
-    this.#rememberPassword.toggleAttribute("checked", allowed);
+    this.#rememberPassword.defaultChecked = allowed;
+    this.#rememberPassword.checked = allowed;
     this.#rememberPassword.disabled = !allowed;
   }
 }
