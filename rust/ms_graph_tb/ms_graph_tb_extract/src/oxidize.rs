@@ -225,7 +225,7 @@ enum Composed {
 }
 
 /// Our representation of a Rust type.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum RustType {
     Bool,
     U8,
@@ -236,7 +236,7 @@ pub enum RustType {
     F32,
     F64,
     String,
-    _Bytes, // FIXME: will be needed once we add byte and binary support
+    Bytes,
     Custom(CustomRustType),
 }
 
@@ -251,7 +251,7 @@ impl RustType {
             | Self::I64
             | Self::F32
             | Self::F64 => Composed::Copy,
-            Self::String | Self::_Bytes => Composed::Slice,
+            Self::String | Self::Bytes => Composed::Slice,
             _ => Composed::Composite,
         }
     }
@@ -274,7 +274,7 @@ impl RustType {
             Self::F32 => "f32",
             Self::F64 => "f64",
             Self::String => string,
-            Self::_Bytes => bytes,
+            Self::Bytes => bytes,
             Self::Custom(s) => s.as_pascal_case(),
         }
     }
@@ -292,8 +292,8 @@ impl RustType {
             Self::F64 => quote!(f64),
             Self::String if !sliced => quote!(String),
             Self::String => quote!(str),
-            Self::_Bytes if !sliced => quote!(Vec<u8>),
-            Self::_Bytes => quote!([u8]),
+            Self::Bytes if !sliced => quote!(Vec<u8>),
+            Self::Bytes => quote!([u8]),
             Self::Custom(name) => {
                 let ident = format_ident!("{}", name.as_pascal_case());
                 quote!(#ident)
@@ -308,7 +308,7 @@ impl RustType {
 /// name. Ideally we'd generate the PascalCase version upon request (e.g. when
 /// `as_pascal_case` is called), but this causes ownership issues further down
 /// the line.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub struct CustomRustType {
     pascal_case: String,
     original_name: String,
@@ -346,7 +346,7 @@ impl CustomRustType {
     }
 }
 
-/// Given the propeperty and whether it should be a reference, produce a
+/// Given the property and whether it should be a reference, produce a
 /// `TokenStream` that can be used as a return type representing it.
 ///
 /// `lifetime_name` defaults to `'a`. Note that any name *must* include the
@@ -354,7 +354,7 @@ impl CustomRustType {
 fn return_type(prop: &Property, refers: Reference, lifetime_name: Option<&str>) -> TokenStream {
     let mut ty = instantiated_type(prop, refers, lifetime_name);
 
-    if !prop.is_ref {
+    if !prop.is_ref && prop.rust_type != RustType::Bytes {
         ty = quote!(Result<#ty, Error>);
     }
 
@@ -477,6 +477,8 @@ pub fn is_rust_keyword(s: &str) -> bool {
 
 #[cfg(test)]
 mod tests {
+    use crate::extract::path::{Method, Operation, Path, RequestBody, Success};
+
     use super::*;
 
     /// Test that lists of escaped values don't escape the word "and" at the end
@@ -496,5 +498,68 @@ mod tests {
         let expected = "A list of other email addresses for the user; for example: `['bob@contoso.com', 'Robert@fabrikam.com']`.\n\n Can store up to 250 values, each with a limit of 250 characters. NOTE: This property can't contain accent characters. Returned only on `$select`. Supports `$filter` (`eq`, `not`, `ge`, `le`, `in`, `startsWith`, `endsWith`, `/$count eq 0`, `/$count ne 0`).";
 
         assert_eq!(markup_doc_comment(input), expected);
+    }
+
+    #[test]
+    fn test_media_resource_codegen() {
+        let path = Path {
+            name: "/pets/{pet-id}/$value".to_string(),
+            template_expressions: vec!["pet-id".to_string()],
+            description: None,
+            operations: vec![
+                Operation {
+                    method: Method::Put,
+                    summary: Some("Change the noise".to_string()),
+                    description: Some("Return the pet's noise.".to_string()),
+                    external_docs: None,
+                    pageable: false,
+                    delta: false,
+                    parameters: None,
+                    body: Some(RequestBody {
+                        _description: None,
+                        property: Property {
+                            name: "string".to_string(),
+                            nullable: false,
+                            is_collection: false,
+                            rust_type: RustType::Bytes,
+                            description: None,
+                            is_ref: false,
+                        },
+                    }),
+                    success: Success::NoBody,
+                },
+                Operation {
+                    method: Method::Get,
+                    summary: None,
+                    description: Some("Return the pet's noise.".to_string()),
+                    external_docs: None,
+                    pageable: false,
+                    delta: false,
+                    parameters: None,
+                    body: None,
+                    success: Success::WithBody(RequestBody {
+                        _description: Some(".wav with the pet's noise.".to_string()),
+                        property: Property {
+                            name: "string".to_string(),
+                            nullable: false,
+                            is_collection: false,
+                            rust_type: RustType::Bytes,
+                            description: None,
+                            is_ref: false,
+                        },
+                    }),
+                },
+            ],
+        };
+
+        let generated = quote!(#path);
+
+        println!("{generated}");
+
+        let generated_code = format!("{generated}");
+
+        // The generated code for PUT operations should not be parameterized
+        // on body lifetime.
+        assert!(!generated_code.contains("Put < 'body >"));
     }
 }

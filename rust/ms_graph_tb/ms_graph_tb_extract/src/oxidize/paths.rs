@@ -187,7 +187,11 @@ fn request_with_body(
     let method = operation.method;
 
     let mut body = op_body.property.rust_type.base_token(false, Reference::Own);
-    let body_lifetime = Some(quote!(<'body>));
+    let body_lifetime = if op_body.property.rust_type == RustType::Bytes {
+        None
+    } else {
+        Some(quote!(<'body>))
+    };
     if op_body.property.is_ref {
         body = quote!(#body #body_lifetime);
     }
@@ -429,10 +433,7 @@ impl ToTokens for OperationDef {
             },
         };
 
-        let lifetime = match lifetime {
-            Some(_) => Some(quote!(<'_>)),
-            None => None,
-        };
+        let lifetime = lifetime.as_ref().map(|_| quote!(<'_>));
 
         tokens.append_all(quote! {
             impl Operation for #method #lifetime {

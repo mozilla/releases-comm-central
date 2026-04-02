@@ -269,7 +269,7 @@ fn custom_simple_from_ref(r#ref: &str) -> Option<String> {
 fn map_string_format_to_rust(fmt: Option<&str>) -> RustType {
     match fmt {
         None => RustType::String,
-        Some("byte") | Some("binary") => todo!("base64 decoding"),
+        Some("byte") | Some("binary") => RustType::Bytes,
         Some(t) => {
             println!("treating {t} as a string");
             RustType::String

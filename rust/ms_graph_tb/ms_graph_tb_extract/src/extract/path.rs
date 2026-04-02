@@ -131,13 +131,6 @@ pub struct RequestBody {
 
 impl From<&OaBody> for RequestBody {
     fn from(value: &OaBody) -> Self {
-        if let OaSchema::Obj { .. } = &value.schema {
-            assert_eq!(
-                value.application_type.as_deref(),
-                Some("application/json"),
-                "non-json body: {value:?}"
-            );
-        }
         let (_, properties) = extract_from_schema(&value.schema);
         assert_eq!(
             properties.len(),
@@ -219,6 +212,8 @@ pub fn extract_from_oa_path(name: String, oa_path: &OaPath) -> Path {
                 .is_some_and(|body| schema_has_delta_base_ref(&body.schema));
             let success = if request.responses.contains_key("204") {
                 Success::NoBody
+            } else if let Some(None) = request.responses.get("2XX") {
+                Success::NoBody
             } else if let Some(Some(two_hundred)) = request.responses.get("2XX") {
                 let mut body: RequestBody = two_hundred.into();
                 body.property.is_ref |= delta;
@@ -245,5 +240,89 @@ pub fn extract_from_oa_path(name: String, oa_path: &OaPath) -> Path {
         template_expressions,
         description,
         operations,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashMap;
+
+    use crate::{
+        extract::path::{Method, Success, extract_from_oa_path},
+        openapi::{
+            path::{OaBody, OaOperation, OaPath},
+            schema::OaSchema,
+        },
+        oxidize::RustType,
+    };
+
+    #[test]
+    fn test_media_resource() {
+        let oa_path = OaPath {
+            description: None,
+            operations: HashMap::from([
+                (
+                    "get".to_string(),
+                    OaOperation {
+                        summary: None,
+                        description: Some("Return the pet's noise.".to_string()),
+                        external_docs: None,
+                        pageable: false,
+                        parameters: None,
+                        body: None,
+                        responses: HashMap::from([(
+                            "2XX".to_string(),
+                            Some(OaBody {
+                                application_type: Some("application/octet-stream".to_string()),
+                                description: Some(".wav with the pet's noise.".to_string()),
+                                schema: OaSchema::Obj {
+                                    typ: Some("string".to_string()),
+                                    format: Some("binary".to_string()),
+                                    nullable: None,
+                                    properties: None,
+                                    items: None,
+                                    all_of: None,
+                                    one_of: None,
+                                    any_of: None,
+                                    description: None,
+                                    navigation_property: false,
+                                },
+                            }),
+                        )]),
+                    },
+                ),
+                (
+                    "put".to_string(),
+                    OaOperation {
+                        summary: None,
+                        description: Some("Return the pet's noise.".to_string()),
+                        external_docs: None,
+                        pageable: false,
+                        parameters: None,
+                        body: None,
+                        responses: HashMap::from([("2XX".to_string(), None)]),
+                    },
+                ),
+            ]),
+        };
+
+        let graph_path = extract_from_oa_path("/pets/{pet-id}/$value".to_string(), &oa_path);
+
+        assert_eq!(graph_path.name, "/pets/{pet-id}/$value");
+        assert_eq!(graph_path.operations.len(), 2);
+
+        let get_op = graph_path
+            .operations
+            .iter()
+            .find(|op| op.method == Method::Get)
+            .unwrap();
+
+        println!("{get_op:?}");
+
+        if let Success::WithBody(body) = get_op.success.clone() {
+            assert_eq!(body.property.rust_type, RustType::Bytes);
+        } else {
+            panic!("Media resource success should have a body.");
+        }
     }
 }

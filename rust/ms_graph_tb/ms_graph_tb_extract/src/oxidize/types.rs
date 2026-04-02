@@ -264,7 +264,7 @@ fn getter_body(prop: &Property) -> TokenStream {
             I8 | I16 | I32 | I64 => "i64",
             F32 | F64 => "f64",
             String => "str",
-            _Bytes => "array",
+            Bytes => "array",
             Custom(_) => "object",
         }
     }
