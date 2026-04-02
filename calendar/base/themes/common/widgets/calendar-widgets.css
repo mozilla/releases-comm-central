@@ -49,23 +49,27 @@
   padding: var(--calendar-list-header-padding);
   font-size: 1.1rem;
   font-weight: 600;
+
+  &:is(:not([disabled])):hover {
+    border-color: transparent;
+    background-color: var(--layout-background-3);
+  }
+
+  &:focus-visible {
+    outline-offset: -2px;
+  }
+
+  &:not([checked]) > img {
+    transform: rotate(-90deg);
+
+    &:-moz-locale-dir(rtl) {
+      transform: rotate(90deg);
+    }
+  }
 }
 
 .calendar-list-header > * {
   pointer-events: none;
-}
-
-.calendar-list-header:hover {
-  border-color: transparent !important;
-  background-color: var(--layout-background-3);
-}
-
-.calendar-list-header:not([checked]) > img {
-  transform: rotate(-90deg);
-
-  &:-moz-locale-dir(rtl) {
-    transform: rotate(90deg);
-  }
 }
 
 .calendar-list-create {
@@ -267,6 +271,10 @@
 #calendar-list > li > .calendar-displayed:is(:hover, :focus),
 #calendar-list > li > .calendar-more-button:is(:hover, :focus) {
   opacity: 0.9 !important;
+}
+
+#calendar-list:focus-within > li.selected > .calendar-more-button:focus-visible {
+  outline-color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
 }
 
 #calendar-list > li:hover > .calendar-displayed:checked,
