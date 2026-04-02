@@ -94,6 +94,13 @@
               }
             ]
           },
+          "header_pane_link": {
+            "annotations": [
+              {
+                "text": "Applies when the user context-clicks a link in the message header pane."
+              }
+            ]
+          },
           "image": {
             "annotations": [
               {
@@ -195,8 +202,87 @@
         }
       },
       {
+        "id": "ItemType",
+        "enums": {
+          "normal": {
+            "annotations": [
+              {
+                "text": "A normal menu item."
+              }
+            ]
+          },
+          "checkbox": {
+            "annotations": [
+              {
+                "text": "A menu item with a checkbox."
+              }
+            ]
+          },
+          "radio": {
+            "annotations": [
+              {
+                "text": "A menu item with a radio button."
+              }
+            ]
+          },
+          "separator": {
+            "annotations": [
+              {
+                "text": "A separator line in the menu."
+              }
+            ]
+          }
+        }
+      },
+      {
         "id": "OnShowData",
         "properties": {
+          "fieldId": {
+            "enums": {
+              "composeSubject": {
+                "annotations": [
+                  {
+                    "text": "The subject field of the message compose window."
+                  }
+                ]
+              },
+              "composeTo": {
+                "annotations": [
+                  {
+                    "text": "The To field of the message compose window."
+                  }
+                ]
+              },
+              "composeCc": {
+                "annotations": [
+                  {
+                    "text": "The Cc field of the message compose window."
+                  }
+                ]
+              },
+              "composeBcc": {
+                "annotations": [
+                  {
+                    "text": "The Bcc field of the message compose window."
+                  }
+                ]
+              },
+              "composeReplyTo": {
+                "annotations": [
+                  {
+                    "text": "The Reply-To field of the message compose window."
+                  }
+                ]
+              },
+              "composeNewsgroupTo": {
+                "annotations": [
+                  {
+                    "text": "The Newsgroup field of the message compose window."
+                  }
+                ]
+              }
+            }
+          },
           "linkText": {
             "annotations": [
               {
@@ -236,6 +322,90 @@
             "annotations": [
               {
                 "note": "Host permission is required."
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "OnClickData",
+        "properties": {
+          "fieldId": {
+            "enums": {
+              "composeSubject": {
+                "annotations": [
+                  {
+                    "text": "The subject field of the message compose window."
+                  }
+                ]
+              },
+              "composeTo": {
+                "annotations": [
+                  {
+                    "text": "The To field of the message compose window."
+                  }
+                ]
+              },
+              "composeCc": {
+                "annotations": [
+                  {
+                    "text": "The Cc field of the message compose window."
+                  }
+                ]
+              },
+              "composeBcc": {
+                "annotations": [
+                  {
+                    "text": "The Bcc field of the message compose window."
+                  }
+                ]
+              },
+              "composeReplyTo": {
+                "annotations": [
+                  {
+                    "text": "The Reply-To field of the message compose window."
+                  }
+                ]
+              },
+              "composeNewsgroupTo": {
+                "annotations": [
+                  {
+                    "text": "The Newsgroup field of the message compose window."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": "MenuActionCommand",
+        "enums": {
+          "_execute_browser_action": {
+            "annotations": [
+              {
+                "text": "Triggers the browser action of the extension."
+              }
+            ]
+          },
+          "_execute_action": {
+            "annotations": [
+              {
+                "text": "Triggers the action of the extension."
+              }
+            ]
+          },
+          "_execute_compose_action": {
+            "annotations": [
+              {
+                "text": "Triggers the compose action of the extension."
+              }
+            ]
+          },
+          "_execute_message_display_action": {
+            "annotations": [
+              {
+                "text": "Triggers the message display action of the extension."
               }
             ]
           }

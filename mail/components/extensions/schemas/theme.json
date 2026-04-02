@@ -362,7 +362,8 @@
                   ]
                 },
                 "maxItems": 15,
-                "optional": true
+                "optional": true,
+                "description": "An array of alignment values, one for each image in <var>additional_backgrounds</var>."
               },
               "additional_backgrounds_tiling": {
                 "type": "array",
@@ -371,7 +372,8 @@
                   "enum": ["no-repeat", "repeat", "repeat-x", "repeat-y"]
                 },
                 "maxItems": 15,
-                "optional": true
+                "optional": true,
+                "description": "An array of tiling values, one for each image in <var>additional_backgrounds</var>."
               },
               "color_scheme": {
                 "description": "If set, overrides the general theme (context menus, toolbars, content area).",

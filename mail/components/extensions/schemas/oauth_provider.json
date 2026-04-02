@@ -6,7 +6,7 @@
         "$extend": "WebExtensionManifest",
         "properties": {
           "oauth_provider": {
-            "description": "Describes an OAuth authentication provider for Thunderbird to use when connecting to mail/address book/calendar services. You will need to have a client ID registered with the provider to use this API.",
+            "description": "Describes an OAuth authentication provider for Thunderbird. You will need to have a client ID registered with the provider to use this API.",
             "type": "object",
             "properties": {
               "issuer": {

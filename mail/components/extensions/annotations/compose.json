@@ -16,6 +16,34 @@
           {
             "note": "The compose format can be set by <var>details.isPlainText</var> or by specifying only one of <var>details.body</var> or <var>details.plainTextBody</var>. Otherwise the default compose format of the selected identity is used. If no identity is specified, this function is using the default identity and not the identity of the referenced message."
           }
+        ],
+        "parameters": [
+          {
+            "name": "replyType",
+            "enums": {
+              "replyToSender": {
+                "annotations": [
+                  {
+                    "text": "Reply to the sender only."
+                  }
+                ]
+              },
+              "replyToList": {
+                "annotations": [
+                  {
+                    "text": "Reply to the mailing list."
+                  }
+                ]
+              },
+              "replyToAll": {
+                "annotations": [
+                  {
+                    "text": "Reply to all recipients."
+                  }
+                ]
+              }
+            }
+          }
         ]
       },
       {
@@ -23,6 +51,27 @@
         "annotations": [
           {
             "note": "The compose format can be set by <var>details.isPlainText</var> or by specifying only one of <var>details.body</var> or <var>details.plainTextBody</var>. Otherwise the default compose format of the selected identity is used. If no identity is specified, this function is using the default identity and not the identity of the referenced message."
+          }
+        ],
+        "parameters": [
+          {
+            "name": "forwardType",
+            "enums": {
+              "forwardInline": {
+                "annotations": [
+                  {
+                    "text": "Forward the message inline."
+                  }
+                ]
+              },
+              "forwardAsAttachment": {
+                "annotations": [
+                  {
+                    "text": "Forward the message as an attachment."
+                  }
+                ]
+              }
+            }
           }
         ]
       },
@@ -40,8 +89,66 @@
         ]
       },
       {
+        "name": "sendMessage",
+        "parameters": [
+          {
+            "name": "options",
+            "properties": {
+              "mode": {
+                "enums": {
+                  "default": {
+                    "annotations": [
+                      {
+                        "text": "Send using the default send mode."
+                      }
+                    ]
+                  },
+                  "sendNow": {
+                    "annotations": [
+                      {
+                        "text": "Send the message immediately."
+                      }
+                    ]
+                  },
+                  "sendLater": {
+                    "annotations": [
+                      {
+                        "text": "Queue the message to be sent later."
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
         "name": "saveMessage",
         "parameters": [
+          {
+            "name": "options",
+            "properties": {
+              "mode": {
+                "enums": {
+                  "draft": {
+                    "annotations": [
+                      {
+                        "text": "Save as a draft."
+                      }
+                    ]
+                  },
+                  "template": {
+                    "annotations": [
+                      {
+                        "text": "Save as a template."
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
           {
             "type": "function",
             "name": "callback",
@@ -66,6 +173,29 @@
     ],
     "types": [
       {
+        "id": "ComposeRecipient",
+        "properties": {
+          "type": {
+            "enums": {
+              "contact": {
+                "annotations": [
+                  {
+                    "text": "The ID references a contact."
+                  }
+                ]
+              },
+              "mailingList": {
+                "annotations": [
+                  {
+                    "text": "The ID references a mailing list."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      {
         "id": "ComposeDetails",
         "properties": {
           "attachVCard": {
@@ -74,6 +204,116 @@
                 "note": "If the value has not been modified, selecting a different identity will load the default value of the new identity."
               }
             ]
+          },
+          "deliveryFormat": {
+            "enums": {
+              "auto": {
+                "annotations": [
+                  {
+                    "text": "Send as plain text if the message does not include any formatting, otherwise send as <var>both</var>."
+                  }
+                ]
+              },
+              "plaintext": {
+                "annotations": [
+                  {
+                    "text": "Send as plain text only."
+                  }
+                ]
+              },
+              "html": {
+                "annotations": [
+                  {
+                    "text": "Send as HTML only."
+                  }
+                ]
+              },
+              "both": {
+                "annotations": [
+                  {
+                    "text": "Send as both plain text and HTML (multipart/alternative)."
+                  }
+                ]
+              }
+            }
+          },
+          "priority": {
+            "enums": {
+              "lowest": {
+                "annotations": [
+                  {
+                    "text": "Lowest priority."
+                  }
+                ]
+              },
+              "low": {
+                "annotations": [
+                  {
+                    "text": "Low priority."
+                  }
+                ]
+              },
+              "normal": {
+                "annotations": [
+                  {
+                    "text": "Normal priority (default)."
+                  }
+                ]
+              },
+              "high": {
+                "annotations": [
+                  {
+                    "text": "High priority."
+                  }
+                ]
+              },
+              "highest": {
+                "annotations": [
+                  {
+                    "text": "Highest priority."
+                  }
+                ]
+              }
+            }
+          },
+          "type": {
+            "enums": {
+              "draft": {
+                "annotations": [
+                  {
+                    "text": "A draft message is being edited."
+                  }
+                ]
+              },
+              "new": {
+                "annotations": [
+                  {
+                    "text": "A new message is being composed."
+                  }
+                ]
+              },
+              "redirect": {
+                "annotations": [
+                  {
+                    "text": "A redirected message is being composed."
+                  }
+                ]
+              },
+              "reply": {
+                "annotations": [
+                  {
+                    "text": "A reply is being composed."
+                  }
+                ]
+              },
+              "forward": {
+                "annotations": [
+                  {
+                    "text": "A forwarded message is being composed."
+                  }
+                ]
+              }
+            }
           }
         }
       },
@@ -105,12 +345,65 @@
     ],
     "events": [
       {
+        "name": "onAfterSend",
+        "parameters": [
+          {
+            "name": "sendInfo",
+            "properties": {
+              "mode": {
+                "enums": {
+                  "sendNow": {
+                    "annotations": [
+                      {
+                        "text": "The message was sent immediately."
+                      }
+                    ]
+                  },
+                  "sendLater": {
+                    "annotations": [
+                      {
+                        "text": "The message was queued to be sent later."
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
         "name": "onAfterSave",
         "parameters": [
           {
             "name": "saveInfo",
             "type": "object",
             "properties": {
+              "mode": {
+                "enums": {
+                  "autoSave": {
+                    "annotations": [
+                      {
+                        "text": "The message was auto-saved."
+                      }
+                    ]
+                  },
+                  "draft": {
+                    "annotations": [
+                      {
+                        "text": "The message was saved as a draft."
+                      }
+                    ]
+                  },
+                  "template": {
+                    "annotations": [
+                      {
+                        "text": "The message was saved as a template."
+                      }
+                    ]
+                  }
+                }
+              },
               "messages": {
                 "annotations": [
                   {

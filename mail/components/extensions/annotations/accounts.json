@@ -1,0 +1,63 @@
+[
+  {
+    "namespace": "accounts",
+    "types": [
+      {
+        "id": "NativeMailAccountType",
+        "enums": {
+          "ews": {
+            "annotations": [
+              {
+                "text": "An Exchange Web Services (EWS) account."
+              }
+            ]
+          },
+          "imap": {
+            "annotations": [
+              {
+                "text": "An IMAP account."
+              }
+            ]
+          },
+          "local": {
+            "annotations": [
+              {
+                "min_manifest_version": 3,
+                "text": "A local account for managing local folders."
+              }
+            ]
+          },
+          "nntp": {
+            "annotations": [
+              {
+                "text": "An NNTP account."
+              }
+            ]
+          },
+          "none": {
+            "annotations": [
+              {
+                "max_manifest_version": 2,
+                "text": "A local account for managing local folders."
+              }
+            ]
+          },
+          "pop3": {
+            "annotations": [
+              {
+                "text": "A POP3 account."
+              }
+            ]
+          },
+          "rss": {
+            "annotations": [
+              {
+                "text": "A Feed account."
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+]

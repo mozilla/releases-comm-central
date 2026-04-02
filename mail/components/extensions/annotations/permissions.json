@@ -4,6 +4,9 @@
     "annotations": [
       {
         "version_added": true
+      },
+      {
+        "text": "The permissions API allows to manage optional permissions at runtime."
       }
     ]
   }

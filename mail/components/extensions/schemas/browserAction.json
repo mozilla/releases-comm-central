@@ -6,6 +6,7 @@
         "$extend": "WebExtensionManifest",
         "properties": {
           "action": {
+            "description": "Defines the appearance and behavior of an action button in the toolbar.",
             "min_manifest_version": 3,
             "type": "object",
             "additionalProperties": {
@@ -101,6 +102,7 @@
         "$extend": "WebExtensionManifest",
         "properties": {
           "browser_action": {
+            "description": "Defines the appearance and behavior of a browserAction button in the toolbar.",
             "max_manifest_version": 2,
             "type": "object",
             "additionalProperties": {

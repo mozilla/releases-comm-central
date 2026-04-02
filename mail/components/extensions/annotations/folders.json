@@ -1,0 +1,135 @@
+[
+  {
+    "namespace": "folders",
+    "types": [
+      {
+        "id": "MailFolderSpecialUse",
+        "enums": {
+          "inbox": {
+            "annotations": [
+              {
+                "text": "The inbox folder."
+              }
+            ]
+          },
+          "drafts": {
+            "annotations": [
+              {
+                "text": "A folder for draft messages."
+              }
+            ]
+          },
+          "sent": {
+            "annotations": [
+              {
+                "text": "A folder for sent messages."
+              }
+            ]
+          },
+          "trash": {
+            "annotations": [
+              {
+                "text": "The trash folder."
+              }
+            ]
+          },
+          "templates": {
+            "annotations": [
+              {
+                "text": "A folder for message templates."
+              }
+            ]
+          },
+          "archives": {
+            "annotations": [
+              {
+                "text": "A folder for archived messages."
+              }
+            ]
+          },
+          "junk": {
+            "annotations": [
+              {
+                "text": "The spam folder."
+              }
+            ]
+          },
+          "outbox": {
+            "annotations": [
+              {
+                "text": "The outbox folder for messages waiting to be sent."
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "MailFolderQuota",
+        "properties": {
+          "type": {
+            "enums": {
+              "STORAGE": {
+                "annotations": [
+                  {
+                    "text": "A storage quota constraining the available storage in bytes."
+                  }
+                ]
+              },
+              "MESSAGE": {
+                "annotations": [
+                  {
+                    "text": "A message quota constraining the number of storable messages."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    ],
+    "functions": [
+      {
+        "name": "query",
+        "parameters": [
+          {
+            "name": "queryInfo",
+            "properties": {
+              "sort": {
+                "enums": {
+                  "lastUsed": {
+                    "annotations": [
+                      {
+                        "text": "Sort by last used time."
+                      }
+                    ]
+                  },
+                  "lastUsedAsDestination": {
+                    "annotations": [
+                      {
+                        "text": "Sort by the time the folder was last used as a message destination (e.g. for copy or move operations)."
+                      }
+                    ]
+                  },
+                  "name": {
+                    "annotations": [
+                      {
+                        "text": "Sort by folder name (case-insensitive)."
+                      }
+                    ]
+                  },
+                  "path": {
+                    "annotations": [
+                      {
+                        "text": "Sort by folder path."
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+]

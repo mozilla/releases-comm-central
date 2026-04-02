@@ -1,5 +1,36 @@
 [
   {
+    "namespace": "addressBooks",
+    "types": [
+      {
+        "id": "NodeType",
+        "enums": {
+          "addressBook": {
+            "annotations": [
+              {
+                "text": "An address book node."
+              }
+            ]
+          },
+          "contact": {
+            "annotations": [
+              {
+                "text": "A contact node."
+              }
+            ]
+          },
+          "mailingList": {
+            "annotations": [
+              {
+                "text": "A mailing list node."
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  {
     "namespace": "addressBooks.provider",
     "annotations": [
       {

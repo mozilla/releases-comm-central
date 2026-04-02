@@ -4,6 +4,9 @@
     "annotations": [
       {
         "version_added": true
+      },
+      {
+        "text": "The contentScripts API allows to register and unregister scripts for content pages."
       }
     ]
   }

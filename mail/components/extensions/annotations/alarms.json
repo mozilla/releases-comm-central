@@ -4,6 +4,9 @@
     "annotations": [
       {
         "version_added": true
+      },
+      {
+        "text": "The alarms API allows to schedule code to run at a specific time or periodically."
       }
     ]
   }

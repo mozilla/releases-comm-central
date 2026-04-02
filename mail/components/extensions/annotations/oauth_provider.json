@@ -1,0 +1,10 @@
+[
+  {
+    "namespace": "oauthProvider",
+    "annotations": [
+      {
+        "text": "The oauthProvider API allows to manage OAuth authentication providers for Thunderbird to use when connecting to mail/address book/calendar services."
+      }
+    ]
+  }
+]

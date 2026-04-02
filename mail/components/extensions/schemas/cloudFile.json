@@ -6,6 +6,7 @@
         "$extend": "WebExtensionManifest",
         "properties": {
           "cloud_file": {
+            "description": "Defines a cloud file provider for uploading large attachments to a remote server.",
             "type": "object",
             "additionalProperties": {
               "$ref": "UnrecognizedProperty"

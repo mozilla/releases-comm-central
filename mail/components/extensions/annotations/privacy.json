@@ -26,6 +26,9 @@
     "annotations": [
       {
         "version_added": true
+      },
+      {
+        "text": "The privacy API allows to control privacy-related settings."
       }
     ]
   },

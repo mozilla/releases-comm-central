@@ -17,11 +17,179 @@
                     ]
                   }
                 }
+              },
+              "default_windows": {
+                "items": {
+                  "enums": {
+                    "normal": {
+                      "annotations": [
+                        {
+                          "text": "The normal Thunderbird application window."
+                        }
+                      ]
+                    },
+                    "messageDisplay": {
+                      "annotations": [
+                        {
+                          "text": "A stand-alone message display window."
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              "allowed_spaces": {
+                "items": {
+                  "enums": {
+                    "mail": {
+                      "annotations": [
+                        {
+                          "text": "The mail space."
+                        }
+                      ]
+                    },
+                    "addressbook": {
+                      "annotations": [
+                        {
+                          "text": "The address book space."
+                        }
+                      ]
+                    },
+                    "calendar": {
+                      "annotations": [
+                        {
+                          "text": "The calendar space."
+                        }
+                      ]
+                    },
+                    "tasks": {
+                      "annotations": [
+                        {
+                          "text": "The tasks space."
+                        }
+                      ]
+                    },
+                    "chat": {
+                      "annotations": [
+                        {
+                          "text": "The chat space."
+                        }
+                      ]
+                    },
+                    "settings": {
+                      "annotations": [
+                        {
+                          "text": "The settings space."
+                        }
+                      ]
+                    },
+                    "default": {
+                      "annotations": [
+                        {
+                          "text": "Tabs that do not belong to any space."
+                        }
+                      ]
+                    }
+                  }
+                }
               }
             }
           },
           "browser_action": {
             "properties": {
+              "default_area": {
+                "enums": {
+                  "maintoolbar": {
+                    "annotations": [
+                      {
+                        "text": "The main toolbar of Thunderbird's application window."
+                      }
+                    ]
+                  },
+                  "tabstoolbar": {
+                    "annotations": [
+                      {
+                        "text": "The tabs toolbar of Thunderbird's application window."
+                      }
+                    ]
+                  }
+                }
+              },
+              "default_windows": {
+                "items": {
+                  "enums": {
+                    "normal": {
+                      "annotations": [
+                        {
+                          "text": "The normal Thunderbird application window."
+                        }
+                      ]
+                    },
+                    "messageDisplay": {
+                      "annotations": [
+                        {
+                          "text": "A stand-alone message display window."
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              "allowed_spaces": {
+                "items": {
+                  "enums": {
+                    "mail": {
+                      "annotations": [
+                        {
+                          "text": "The mail space."
+                        }
+                      ]
+                    },
+                    "addressbook": {
+                      "annotations": [
+                        {
+                          "text": "The address book space."
+                        }
+                      ]
+                    },
+                    "calendar": {
+                      "annotations": [
+                        {
+                          "text": "The calendar space."
+                        }
+                      ]
+                    },
+                    "tasks": {
+                      "annotations": [
+                        {
+                          "text": "The tasks space."
+                        }
+                      ]
+                    },
+                    "chat": {
+                      "annotations": [
+                        {
+                          "text": "The chat space."
+                        }
+                      ]
+                    },
+                    "settings": {
+                      "annotations": [
+                        {
+                          "text": "The settings space."
+                        }
+                      ]
+                    },
+                    "default": {
+                      "annotations": [
+                        {
+                          "text": "Tabs that do not belong to any space."
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
               "type": {
                 "enums": {
                   "menu": {

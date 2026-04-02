@@ -4,6 +4,9 @@
     "annotations": [
       {
         "version_added": true
+      },
+      {
+        "text": "The notifications API allows to display system notifications to the user."
       }
     ]
   }

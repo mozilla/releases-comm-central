@@ -9,6 +9,96 @@
         "warning": "Some functions in this API potentially return a lot of messages. See $(doc:guides/messageLists) for more information."
       }
     ],
+    "types": [
+      {
+        "id": "MessageHeader",
+        "properties": {
+          "priority": {
+            "enums": {
+              "none": {
+                "annotations": [
+                  {
+                    "text": "No priority set."
+                  }
+                ]
+              },
+              "lowest": {
+                "annotations": [
+                  {
+                    "text": "Lowest priority."
+                  }
+                ]
+              },
+              "low": {
+                "annotations": [
+                  {
+                    "text": "Low priority."
+                  }
+                ]
+              },
+              "normal": {
+                "annotations": [
+                  {
+                    "text": "Normal priority."
+                  }
+                ]
+              },
+              "high": {
+                "annotations": [
+                  {
+                    "text": "High priority."
+                  }
+                ]
+              },
+              "highest": {
+                "annotations": [
+                  {
+                    "text": "Highest priority."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": "MessagePart",
+        "properties": {
+          "decryptionStatus": {
+            "enums": {
+              "none": {
+                "annotations": [
+                  {
+                    "text": "The part is not encrypted."
+                  }
+                ]
+              },
+              "skipped": {
+                "annotations": [
+                  {
+                    "text": "Decryption was skipped."
+                  }
+                ]
+              },
+              "success": {
+                "annotations": [
+                  {
+                    "text": "The part was successfully decrypted."
+                  }
+                ]
+              },
+              "fail": {
+                "annotations": [
+                  {
+                    "text": "Decryption failed."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    ],
     "functions": [
       {
         "name": "getAttachmentFile",

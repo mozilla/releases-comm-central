@@ -18,6 +18,7 @@
   },
   {
     "namespace": "composeScripts",
+    "description": "The composeScripts API allows to register and unregister scripts for the message compose window.",
     "permissions": ["compose"],
     "max_manifest_version": 2,
     "types": [
@@ -76,6 +77,7 @@
   },
   {
     "namespace": "messageDisplayScripts",
+    "description": "The messageDisplayScripts API allows to register and unregister scripts for the message display window.",
     "permissions": ["messagesModify"],
     "max_manifest_version": 2,
     "types": [

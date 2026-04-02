@@ -1,0 +1,552 @@
+[
+  {
+    "namespace": "mailTabs",
+    "types": [
+      {
+        "id": "FolderMode",
+        "enums": {
+          "all": {
+            "annotations": [
+              {
+                "text": "Show all folders."
+              }
+            ]
+          },
+          "unified": {
+            "annotations": [
+              {
+                "text": "Show the unified folder view."
+              }
+            ]
+          },
+          "tags": {
+            "annotations": [
+              {
+                "text": "Show virtual tag folders."
+              }
+            ]
+          },
+          "unread": {
+            "annotations": [
+              {
+                "text": "Show only folders with unread messages."
+              }
+            ]
+          },
+          "favorite": {
+            "annotations": [
+              {
+                "text": "Show only favorite folders."
+              }
+            ]
+          },
+          "recent": {
+            "annotations": [
+              {
+                "text": "Show recently used folders."
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "MailTab",
+        "properties": {
+          "groupType": {
+            "enums": {
+              "ungrouped": {
+                "annotations": [
+                  {
+                    "text": "Messages are not grouped."
+                  }
+                ]
+              },
+              "groupedByThread": {
+                "annotations": [
+                  {
+                    "text": "Messages are grouped by threads."
+                  }
+                ]
+              },
+              "groupedBySortType": {
+                "annotations": [
+                  {
+                    "text": "Messages are grouped by the current sort type."
+                  }
+                ]
+              }
+            }
+          },
+          "sortType": {
+            "enums": {
+              "none": {
+                "annotations": [
+                  {
+                    "text": "Not sorted."
+                  }
+                ]
+              },
+              "date": {
+                "annotations": [
+                  {
+                    "text": "Sort by date."
+                  }
+                ]
+              },
+              "subject": {
+                "annotations": [
+                  {
+                    "text": "Sort by subject."
+                  }
+                ]
+              },
+              "author": {
+                "annotations": [
+                  {
+                    "text": "Sort by author."
+                  }
+                ]
+              },
+              "id": {
+                "annotations": [
+                  {
+                    "text": "Sort by the Message-ID header, a unique identifier assigned by the sending server."
+                  }
+                ]
+              },
+              "thread": {
+                "annotations": [
+                  {
+                    "text": "Sort by thread, grouping messages that belong to the same conversation."
+                  }
+                ]
+              },
+              "priority": {
+                "annotations": [
+                  {
+                    "text": "Sort by priority."
+                  }
+                ]
+              },
+              "status": {
+                "annotations": [
+                  {
+                    "text": "Sort by message status."
+                  }
+                ]
+              },
+              "size": {
+                "annotations": [
+                  {
+                    "text": "Sort by message size."
+                  }
+                ]
+              },
+              "flagged": {
+                "annotations": [
+                  {
+                    "text": "Sort by starred status."
+                  }
+                ]
+              },
+              "unread": {
+                "annotations": [
+                  {
+                    "text": "Sort by unread status."
+                  }
+                ]
+              },
+              "recipient": {
+                "annotations": [
+                  {
+                    "text": "Sort by recipient."
+                  }
+                ]
+              },
+              "location": {
+                "annotations": [
+                  {
+                    "text": "Sort by folder location."
+                  }
+                ]
+              },
+              "tags": {
+                "annotations": [
+                  {
+                    "text": "Sort by tags."
+                  }
+                ]
+              },
+              "junkStatus": {
+                "annotations": [
+                  {
+                    "text": "Sort by spam status."
+                  }
+                ]
+              },
+              "attachments": {
+                "annotations": [
+                  {
+                    "text": "Sort by attachment status."
+                  }
+                ]
+              },
+              "account": {
+                "annotations": [
+                  {
+                    "text": "Sort by account, grouping messages belonging to the same account."
+                  }
+                ]
+              },
+              "custom": {
+                "annotations": [
+                  {
+                    "text": "Sort by a custom column."
+                  }
+                ]
+              },
+              "received": {
+                "annotations": [
+                  {
+                    "text": "Sort by received date."
+                  }
+                ]
+              },
+              "correspondent": {
+                "annotations": [
+                  {
+                    "text": "Sort by correspondents."
+                  }
+                ]
+              }
+            }
+          },
+          "sortOrder": {
+            "enums": {
+              "none": {
+                "annotations": [
+                  {
+                    "text": "No sort order."
+                  }
+                ]
+              },
+              "ascending": {
+                "annotations": [
+                  {
+                    "text": "Ascending sort order."
+                  }
+                ]
+              },
+              "descending": {
+                "annotations": [
+                  {
+                    "text": "Descending sort order."
+                  }
+                ]
+              }
+            }
+          },
+          "viewType": {
+            "enums": {
+              "ungrouped": {
+                "annotations": [
+                  {
+                    "text": "Messages are not grouped."
+                  }
+                ]
+              },
+              "groupedByThread": {
+                "annotations": [
+                  {
+                    "text": "Messages are grouped by threads."
+                  }
+                ]
+              },
+              "groupedBySortType": {
+                "annotations": [
+                  {
+                    "text": "Messages are grouped by the current sort type."
+                  }
+                ]
+              }
+            }
+          },
+          "layout": {
+            "enums": {
+              "standard": {
+                "annotations": [
+                  {
+                    "text": "The standard layout with the folder pane on the left, and the message list and message display stacked on the right."
+                  }
+                ]
+              },
+              "wide": {
+                "annotations": [
+                  {
+                    "text": "The wide layout with the folder pane and message list side by side on top, and the message display on the bottom."
+                  }
+                ]
+              },
+              "vertical": {
+                "annotations": [
+                  {
+                    "text": "The vertical layout with the folder pane, message list, and message display side by side in three columns."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": "MailTabProperties",
+        "properties": {
+          "groupType": {
+            "enums": {
+              "ungrouped": {
+                "annotations": [
+                  {
+                    "text": "Messages are not grouped."
+                  }
+                ]
+              },
+              "groupedByThread": {
+                "annotations": [
+                  {
+                    "text": "Messages are grouped by threads."
+                  }
+                ]
+              },
+              "groupedBySortType": {
+                "annotations": [
+                  {
+                    "text": "Messages are grouped by the current sort type."
+                  }
+                ]
+              }
+            }
+          },
+          "sortType": {
+            "enums": {
+              "none": {
+                "annotations": [
+                  {
+                    "text": "Not sorted."
+                  }
+                ]
+              },
+              "date": {
+                "annotations": [
+                  {
+                    "text": "Sort by date."
+                  }
+                ]
+              },
+              "subject": {
+                "annotations": [
+                  {
+                    "text": "Sort by subject."
+                  }
+                ]
+              },
+              "author": {
+                "annotations": [
+                  {
+                    "text": "Sort by author."
+                  }
+                ]
+              },
+              "id": {
+                "annotations": [
+                  {
+                    "text": "Sort by the Message-ID header, a unique identifier assigned by the sending server."
+                  }
+                ]
+              },
+              "thread": {
+                "annotations": [
+                  {
+                    "text": "Sort by thread, grouping messages that belong to the same conversation."
+                  }
+                ]
+              },
+              "priority": {
+                "annotations": [
+                  {
+                    "text": "Sort by priority."
+                  }
+                ]
+              },
+              "status": {
+                "annotations": [
+                  {
+                    "text": "Sort by message status."
+                  }
+                ]
+              },
+              "size": {
+                "annotations": [
+                  {
+                    "text": "Sort by message size."
+                  }
+                ]
+              },
+              "flagged": {
+                "annotations": [
+                  {
+                    "text": "Sort by starred status."
+                  }
+                ]
+              },
+              "unread": {
+                "annotations": [
+                  {
+                    "text": "Sort by unread status."
+                  }
+                ]
+              },
+              "recipient": {
+                "annotations": [
+                  {
+                    "text": "Sort by recipient."
+                  }
+                ]
+              },
+              "location": {
+                "annotations": [
+                  {
+                    "text": "Sort by folder location."
+                  }
+                ]
+              },
+              "tags": {
+                "annotations": [
+                  {
+                    "text": "Sort by tags."
+                  }
+                ]
+              },
+              "junkStatus": {
+                "annotations": [
+                  {
+                    "text": "Sort by spam status."
+                  }
+                ]
+              },
+              "attachments": {
+                "annotations": [
+                  {
+                    "text": "Sort by attachment status."
+                  }
+                ]
+              },
+              "account": {
+                "annotations": [
+                  {
+                    "text": "Sort by account, grouping messages belonging to the same account."
+                  }
+                ]
+              },
+              "custom": {
+                "annotations": [
+                  {
+                    "text": "Sort by a custom column."
+                  }
+                ]
+              },
+              "received": {
+                "annotations": [
+                  {
+                    "text": "Sort by received date."
+                  }
+                ]
+              },
+              "correspondent": {
+                "annotations": [
+                  {
+                    "text": "Sort by correspondents."
+                  }
+                ]
+              }
+            }
+          },
+          "sortOrder": {
+            "enums": {
+              "none": {
+                "annotations": [
+                  {
+                    "text": "No sort order."
+                  }
+                ]
+              },
+              "ascending": {
+                "annotations": [
+                  {
+                    "text": "Ascending sort order."
+                  }
+                ]
+              },
+              "descending": {
+                "annotations": [
+                  {
+                    "text": "Descending sort order."
+                  }
+                ]
+              }
+            }
+          },
+          "viewType": {
+            "enums": {
+              "ungrouped": {
+                "annotations": [
+                  {
+                    "text": "Messages are not grouped."
+                  }
+                ]
+              },
+              "groupedByThread": {
+                "annotations": [
+                  {
+                    "text": "Messages are grouped by threads."
+                  }
+                ]
+              },
+              "groupedBySortType": {
+                "annotations": [
+                  {
+                    "text": "Messages are grouped by the current sort type."
+                  }
+                ]
+              }
+            }
+          },
+          "layout": {
+            "enums": {
+              "standard": {
+                "annotations": [
+                  {
+                    "text": "The standard layout with the folder pane on the left, and the message list and message display stacked on the right."
+                  }
+                ]
+              },
+              "wide": {
+                "annotations": [
+                  {
+                    "text": "The wide layout with the folder pane and message list side by side on top, and the message display on the bottom."
+                  }
+                ]
+              },
+              "vertical": {
+                "annotations": [
+                  {
+                    "text": "The vertical layout with the folder pane, message list, and message display side by side in three columns."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+]

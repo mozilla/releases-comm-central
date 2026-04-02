@@ -6,6 +6,7 @@
         "$extend": "WebExtensionManifest",
         "properties": {
           "compose_action": {
+            "description": "Defines the appearance and behavior of a composeAction button in the message compose window.",
             "type": "object",
             "additionalProperties": {
               "$ref": "UnrecognizedProperty"

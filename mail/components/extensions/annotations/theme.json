@@ -3,6 +3,217 @@
     "namespace": "manifest",
     "types": [
       {
+        "id": "ThemeType",
+        "properties": {
+          "properties": {
+            "properties": {
+              "additional_backgrounds_alignment": {
+                "items": {
+                  "enums": {
+                    "bottom": {
+                      "annotations": [
+                        {
+                          "text": "Align to the bottom."
+                        }
+                      ]
+                    },
+                    "center": {
+                      "annotations": [
+                        {
+                          "text": "Align to the center horizontally."
+                        }
+                      ]
+                    },
+                    "left": {
+                      "annotations": [
+                        {
+                          "text": "Align to the left."
+                        }
+                      ]
+                    },
+                    "right": {
+                      "annotations": [
+                        {
+                          "text": "Align to the right."
+                        }
+                      ]
+                    },
+                    "top": {
+                      "annotations": [
+                        {
+                          "text": "Align to the top."
+                        }
+                      ]
+                    },
+                    "center bottom": {
+                      "annotations": [
+                        {
+                          "text": "Align to the center bottom."
+                        }
+                      ]
+                    },
+                    "center center": {
+                      "annotations": [
+                        {
+                          "text": "Align to the center horizontally and vertically."
+                        }
+                      ]
+                    },
+                    "center top": {
+                      "annotations": [
+                        {
+                          "text": "Align to the center top."
+                        }
+                      ]
+                    },
+                    "left bottom": {
+                      "annotations": [
+                        {
+                          "text": "Align to the left bottom."
+                        }
+                      ]
+                    },
+                    "left center": {
+                      "annotations": [
+                        {
+                          "text": "Align to the left center."
+                        }
+                      ]
+                    },
+                    "left top": {
+                      "annotations": [
+                        {
+                          "text": "Align to the left top."
+                        }
+                      ]
+                    },
+                    "right bottom": {
+                      "annotations": [
+                        {
+                          "text": "Align to the right bottom."
+                        }
+                      ]
+                    },
+                    "right center": {
+                      "annotations": [
+                        {
+                          "text": "Align to the right center."
+                        }
+                      ]
+                    },
+                    "right top": {
+                      "annotations": [
+                        {
+                          "text": "Align to the right top."
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              "additional_backgrounds_tiling": {
+                "items": {
+                  "enums": {
+                    "no-repeat": {
+                      "annotations": [
+                        {
+                          "text": "The background image is not repeated."
+                        }
+                      ]
+                    },
+                    "repeat": {
+                      "annotations": [
+                        {
+                          "text": "The background image is repeated both horizontally and vertically."
+                        }
+                      ]
+                    },
+                    "repeat-x": {
+                      "annotations": [
+                        {
+                          "text": "The background image is repeated horizontally."
+                        }
+                      ]
+                    },
+                    "repeat-y": {
+                      "annotations": [
+                        {
+                          "text": "The background image is repeated vertically."
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              "color_scheme": {
+                "enums": {
+                  "auto": {
+                    "annotations": [
+                      {
+                        "text": "Automatically determine the color scheme."
+                      }
+                    ]
+                  },
+                  "light": {
+                    "annotations": [
+                      {
+                        "text": "Use a light color scheme."
+                      }
+                    ]
+                  },
+                  "dark": {
+                    "annotations": [
+                      {
+                        "text": "Use a dark color scheme."
+                      }
+                    ]
+                  },
+                  "system": {
+                    "annotations": [
+                      {
+                        "text": "Use the system color scheme."
+                      }
+                    ]
+                  }
+                }
+              },
+              "content_color_scheme": {
+                "enums": {
+                  "auto": {
+                    "annotations": [
+                      {
+                        "text": "Automatically determine the color scheme."
+                      }
+                    ]
+                  },
+                  "light": {
+                    "annotations": [
+                      {
+                        "text": "Use a light color scheme."
+                      }
+                    ]
+                  },
+                  "dark": {
+                    "annotations": [
+                      {
+                        "text": "Use a dark color scheme."
+                      }
+                    ]
+                  },
+                  "system": {
+                    "annotations": [
+                      {
+                        "text": "Use the system color scheme."
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
         "id": "ThemeExperiment",
         "properties": {
           "stylesheet": {
@@ -14,7 +225,7 @@
                 "code": "includes/theme/theme_experiment_style.css"
               },
               {
-                "text": "The following <em>manifest.json</em> file maps the </var>--chat-button-color</var> CSS variable to the theme color key <var>exp_chat_button</var> and uses it to set a color for the chat button:"
+                "text": "The following <em>manifest.json</em> file maps the <var>--chat-button-color</var> CSS variable to the theme color key <var>exp_chat_button</var> and uses it to set a color for the chat button:"
               },
               {
                 "code": "includes/theme/theme_experiment_manifest.json"
@@ -24,7 +235,7 @@
           "images": {
             "annotations": [
               {
-                "text": "The following example maps the theme image key <var>theme_toolbar</var> to the CSS variable </var>--toolbar-bgimage</var>:"
+                "text": "The following example maps the theme image key <var>theme_toolbar</var> to the CSS variable <var>--toolbar-bgimage</var>:"
               },
               {
                 "code": "includes/theme/theme_experiment_image.json"
@@ -34,7 +245,7 @@
           "colors": {
             "annotations": [
               {
-                "text": "The following example maps the theme color key <var>popup_affordance</var> to the CSS variable </var>--arrowpanel-dimmed</var>:"
+                "text": "The following example maps the theme color key <var>popup_affordance</var> to the CSS variable <var>--arrowpanel-dimmed</var>:"
               },
               {
                 "code": "includes/theme/theme_experiment_color.json"
@@ -44,7 +255,7 @@
           "properties": {
             "annotations": [
               {
-                "text": "The following example maps the theme property key <var>toolbar_image_alignment</var> to the CSS variable </var>--toolbar-bgalignment</var>:"
+                "text": "The following example maps the theme property key <var>toolbar_image_alignment</var> to the CSS variable <var>--toolbar-bgalignment</var>:"
               },
               {
                 "code": "includes/theme/theme_experiment_property.json"

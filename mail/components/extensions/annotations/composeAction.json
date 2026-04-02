@@ -7,6 +7,24 @@
         "properties": {
           "compose_action": {
             "properties": {
+              "default_area": {
+                "enums": {
+                  "maintoolbar": {
+                    "annotations": [
+                      {
+                        "text": "The main toolbar of the message compose window."
+                      }
+                    ]
+                  },
+                  "formattoolbar": {
+                    "annotations": [
+                      {
+                        "text": "The formatting toolbar of the message compose window."
+                      }
+                    ]
+                  }
+                }
+              },
               "type": {
                 "enums": {
                   "menu": {

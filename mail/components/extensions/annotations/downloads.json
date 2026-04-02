@@ -33,6 +33,9 @@
     "annotations": [
       {
         "version_added": true
+      },
+      {
+        "text": "The downloads API allows to download files and to monitor, manipulate, and search for downloads."
       }
     ]
   }

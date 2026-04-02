@@ -1,0 +1,138 @@
+[
+  {
+    "namespace": "messengerUtilities",
+    "types": [
+      {
+        "id": "MailboxHeaders",
+        "enums": {
+          "bcc": {
+            "annotations": [
+              {
+                "text": "Bcc recipients."
+              }
+            ]
+          },
+          "cc": {
+            "annotations": [
+              {
+                "text": "Cc recipients."
+              }
+            ]
+          },
+          "from": {
+            "annotations": [
+              {
+                "text": "Who the message is from."
+              }
+            ]
+          },
+          "reply-to": {
+            "annotations": [
+              {
+                "text": "The address for replies."
+              }
+            ]
+          },
+          "resent-bcc": {
+            "annotations": [
+              {
+                "text": "Bcc recipients of the resent message."
+              }
+            ]
+          },
+          "resent-cc": {
+            "annotations": [
+              {
+                "text": "Cc recipients of the resent message."
+              }
+            ]
+          },
+          "resent-from": {
+            "annotations": [
+              {
+                "text": "The sender of the resent message."
+              }
+            ]
+          },
+          "resent-reply-to": {
+            "annotations": [
+              {
+                "text": "The reply-to address of the resent message."
+              }
+            ]
+          },
+          "resent-sender": {
+            "annotations": [
+              {
+                "text": "The actual sender of the resent message."
+              }
+            ]
+          },
+          "resent-to": {
+            "annotations": [
+              {
+                "text": "The primary recipients of the resent message."
+              }
+            ]
+          },
+          "sender": {
+            "annotations": [
+              {
+                "text": "The actual sender of the message (may differ from <var>from</var>)."
+              }
+            ]
+          },
+          "to": {
+            "annotations": [
+              {
+                "text": "The primary recipients of the message."
+              }
+            ]
+          },
+          "approved": {
+            "annotations": [
+              {
+                "text": "The moderator approval header, used in mailing lists."
+              }
+            ]
+          },
+          "disposition-notification-to": {
+            "annotations": [
+              {
+                "text": "The address to send return receipts to."
+              }
+            ]
+          },
+          "delivered-to": {
+            "annotations": [
+              {
+                "text": "The address the message was delivered to."
+              }
+            ]
+          },
+          "return-receipt-to": {
+            "annotations": [
+              {
+                "text": "The address to send return receipts to. (Deprecated.)"
+              }
+            ]
+          },
+          "mail-reply-to": {
+            "annotations": [
+              {
+                "text": "The address for direct replies to the author (used in mailing lists)."
+              }
+            ]
+          },
+          "mail-followup-to": {
+            "annotations": [
+              {
+                "text": "The address for follow-up messages (used in mailing lists)."
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+]
