@@ -171,7 +171,7 @@ dialog {
   flex-direction: column;
   block-size: 100%;
   overflow-y: auto;
-  justify-content: center;
+  justify-content: space-around;
   padding-block-end: 2px;
 }
 

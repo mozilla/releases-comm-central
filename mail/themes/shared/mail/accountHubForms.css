@@ -20,6 +20,9 @@ form {
   --hub-menuitem-background-color-selected: var(--color-primary-default);
   --hub-form-input-line-height: 1em;
   --hub-form-label-font-size: 1rem;
+  --hub-form-label-line-height: 1rlh;
+  --hub-form-label-padding: var(--space-step);
+  --hub-form-label-height: calc(var(--hub-form-label-line-height) + 2 * var(--hub-form-label-padding));
   --hub-form-input-block-padding: 12px;
 
   grid-row: header / footer;
@@ -69,6 +72,7 @@ form {
 
   label {
     font-size: var(--hub-form-label-font-size);
+    line-height: var(--hub-form-label-line-height);
     font-weight: 600;
     color: var(--hub-menulist-label-color);
 
@@ -78,7 +82,7 @@ form {
       border-radius: 3px;
       transform-origin: left center;
       color: var(--color-text-secondary);
-      padding: 3px;
+      padding: var(--hub-form-label-padding);
       margin-inline-start: 7px;
       font-weight: 400;
       cursor: text;
@@ -304,7 +308,7 @@ div:has(legend) {
   position: relative;
 
   &:has(label.animated) {
-    padding-block-start: calc(var(--hub-form-label-font-size) - var(--hub-form-input-block-padding));
+    padding-block-start: calc(var(--hub-form-label-height) - var(--hub-form-input-block-padding));
   }
 
   &:has(.security-warning) {
