@@ -1521,7 +1521,7 @@ nsresult MsgDetectCharsetFromFile(nsIFile* aFile, nsACString& aCharset) {
 
   // Use detector.
   mozilla::UniquePtr<mozilla::EncodingDetector> detector =
-      mozilla::EncodingDetector::Create();
+      mozilla::EncodingDetector::Create(true);
   char buffer[1024];
   numRead = 0;
   while (NS_SUCCEEDED(inputStream->Read(buffer, sizeof(buffer), &numRead))) {

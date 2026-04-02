@@ -34,7 +34,7 @@ void MIME_DecodeMimeHeader(const char* header, const char* default_charset,
 nsresult MIME_detect_charset(const char* aBuf, int32_t aLength,
                              nsACString& aCharset) {
   mozilla::UniquePtr<mozilla::EncodingDetector> detector =
-      mozilla::EncodingDetector::Create();
+      mozilla::EncodingDetector::Create(true);
   mozilla::Span<const uint8_t> src =
       mozilla::AsBytes(mozilla::Span(aBuf, aLength));
   (void)detector->Feed(src, true);
