@@ -74,6 +74,7 @@
     "url": "chrome://messenger/content/parent/ext-extensionScripts.js",
     "schema": "chrome://messenger/content/schemas/extensionScripts.json",
     "scopes": ["addon_parent"],
+    "manifest": ["compose_scripts", "message_display_scripts"],
     "paths": [["extensionScripts"]]
   },
   "scripting_tb": {

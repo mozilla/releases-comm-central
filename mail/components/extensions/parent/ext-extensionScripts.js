@@ -76,15 +76,34 @@ ExtensionSupport.registerWindowListener("ext-messageDisplayScripts", {
  *        JSON API schema file).
  */
 class ExtensionScriptParent {
-  constructor(type, context, details) {
+  /**
+   * @param {"compose"|"messageDisplay"} type - Type of script.
+   * @param {object} contextOrExtension - Either a ProxyContextParent (for
+   *   dynamically registered scripts) or an Extension (for manifest scripts).
+   *   When an Extension is passed, the script is not tied to a context
+   *   lifecycle and must be removed from the scripts Set manually.
+   * @param {object} details - Script options (js, css, runAt, etc.)
+   */
+  constructor(type, contextOrExtension, details) {
     this.type = type;
-    this.context = context;
-    this.extension = context.extension;
+    this._parentContext = null;
+    if (contextOrExtension.uri) {
+      // ProxyContextParent: has .extension, .uri, .callOnClose
+      this._parentContext = contextOrExtension;
+      this.context = contextOrExtension;
+      this.extension = contextOrExtension.extension;
+      contextOrExtension.callOnClose(this);
+    } else {
+      // Extension object directly (manifest scripts): create a minimal
+      // context with the properties needed by tab.insertCSS/executeScript.
+      this.context = {
+        uri: contextOrExtension.baseURI,
+        extension: contextOrExtension,
+      };
+      this.extension = contextOrExtension;
+    }
     this.scriptId = getUniqueId();
-
     this.options = this._convertOptions(details);
-    context.callOnClose(this);
-
     scripts.add(this);
   }
 
@@ -100,7 +119,10 @@ class ExtensionScriptParent {
     scripts.delete(this);
 
     this.destroyed = true;
-    this.context.forgetOnClose(this);
+    if (this._parentContext) {
+      this._parentContext.forgetOnClose(this);
+      this._parentContext = null;
+    }
     this.context = null;
     this.options = null;
   }
@@ -157,6 +179,44 @@ class ExtensionScriptParent {
 }
 
 this.extensionScripts = class extends ExtensionAPI {
+  onManifestEntry(entryName) {
+    const scriptType =
+      entryName === "compose_scripts" ? "compose" : "messageDisplay";
+    const entries = this.extension.manifest[entryName];
+    if (!entries) {
+      return;
+    }
+    if (!this._manifestScripts) {
+      this._manifestScripts = [];
+      // Use callOnClose on the extension to ensure scripts are removed from
+      // the scripts Set before the extension policy is destroyed, preventing
+      // injection attempts into a torn-down extension.
+      this.extension.callOnClose({
+        close: () => {
+          for (const script of this._manifestScripts) {
+            scripts.delete(script);
+          }
+          this._manifestScripts = null;
+        },
+      });
+    }
+    for (const entry of entries) {
+      // Manifest entries use ExtensionURL (strings), but _convertOptions
+      // expects { file, code } objects.
+      const details = {
+        js: (entry.js || []).map(file => ({ file })),
+        css: (entry.css || []).map(file => ({ file })),
+        runAt: entry.run_at || "document_idle",
+      };
+      const script = new ExtensionScriptParent(
+        scriptType,
+        this.extension,
+        details
+      );
+      this._manifestScripts.push(script);
+    }
+  }
+
   getAPI(context) {
     // Map of the script registered from the extension context.
     //

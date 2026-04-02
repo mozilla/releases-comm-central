@@ -1,5 +1,18 @@
 [
   {
+    "namespace": "manifest",
+    "types": [
+      {
+        "id": "ComposeScript",
+        "annotations": [
+          {
+            "note": "The <var>run_at</var> option is not supported for compose scripts, because the compose editor does not load content in the same way as a regular web page."
+          }
+        ]
+      }
+    ]
+  },
+  {
     "namespace": "composeScripts",
     "functions": [
       {

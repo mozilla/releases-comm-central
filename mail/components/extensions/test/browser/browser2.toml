@@ -34,7 +34,11 @@ tags = ["webextensions"]
 
 ["browser_ext_composeScripts.js"]
 
+["browser_ext_composeScripts_mv2_manifest.js"]
+
 ["browser_ext_composeScripts_mv3.js"]
+
+["browser_ext_composeScripts_mv3_manifest.js"]
 
 ["browser_ext_compose_attachments.js"]
 

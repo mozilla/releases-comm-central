@@ -13,6 +13,70 @@
             "enum": ["messagesModify", "sensitiveDataUpload"]
           }
         ]
+      },
+      {
+        "id": "ComposeScript",
+        "type": "object",
+        "description": "A script and/or CSS to inject into compose windows via the manifest.",
+        "properties": {
+          "js": {
+            "type": "array",
+            "optional": true,
+            "description": "The list of JavaScript files to inject.",
+            "items": { "$ref": "ExtensionURL" }
+          },
+          "css": {
+            "type": "array",
+            "optional": true,
+            "description": "The list of CSS files to inject.",
+            "items": { "$ref": "ExtensionURL" }
+          }
+        },
+        "additionalProperties": { "$ref": "UnrecognizedProperty" }
+      },
+      {
+        "id": "MessageDisplayScript",
+        "type": "object",
+        "description": "A script and/or CSS to inject into message display pages via the manifest.",
+        "properties": {
+          "js": {
+            "type": "array",
+            "optional": true,
+            "description": "The list of JavaScript files to inject.",
+            "items": { "$ref": "ExtensionURL" }
+          },
+          "css": {
+            "type": "array",
+            "optional": true,
+            "description": "The list of CSS files to inject.",
+            "items": { "$ref": "ExtensionURL" }
+          },
+          "run_at": {
+            "type": "string",
+            "optional": true,
+            "default": "document_idle",
+            "enum": ["document_start", "document_end", "document_idle"],
+            "description": "Determines when the files specified in css and js are injected. The states directly correspond to <code>Document.readyState</code>: <var>loading</var>, <var>interactive</var> and <var>complete</var>."
+          }
+        },
+        "additionalProperties": { "$ref": "UnrecognizedProperty" }
+      },
+      {
+        "$extend": "WebExtensionManifest",
+        "properties": {
+          "compose_scripts": {
+            "type": "array",
+            "optional": true,
+            "description": "Scripts and CSS to inject into compose windows.",
+            "items": { "$ref": "ComposeScript" }
+          },
+          "message_display_scripts": {
+            "type": "array",
+            "optional": true,
+            "description": "Scripts and CSS to inject into message display pages.",
+            "items": { "$ref": "MessageDisplayScript" }
+          }
+        }
       }
     ]
   },

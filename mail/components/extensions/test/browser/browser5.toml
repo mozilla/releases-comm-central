@@ -38,7 +38,11 @@ tags = ["webextensions"]
 
 ["browser_ext_messageDisplayScripts_ews.js"]
 
+["browser_ext_messageDisplayScripts_mv2_manifest.js"]
+
 ["browser_ext_messageDisplayScripts_mv3.js"]
+
+["browser_ext_messageDisplayScripts_mv3_manifest.js"]
 
 ["browser_ext_messageDisplay_address_book_widget.js"]
 
