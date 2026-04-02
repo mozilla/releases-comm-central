@@ -45,25 +45,6 @@ function addCalendarNames(aEvent) {
 }
 
 /**
- * For each child of an element (for example all menuitems in a menu),
- * if it defines a command set an attribute on the command, otherwise set it
- * on the child node itself.
- *
- * @param {string} aAttribute - The attribute to set.
- * @param {boolean|string} aValue - The value to set.
- * @param {Element} aElement - The parent node.
- */
-function setAttributeOnChildrenOrTheirCommands(aAttribute, aValue, aElement) {
-  for (const child of aElement.children) {
-    const commandName = child.getAttribute("command");
-    const command = commandName && document.getElementById(commandName);
-
-    const domObject = command || child;
-    domObject.setAttribute(aAttribute, aValue);
-  }
-}
-
-/**
  * Change the opening context menu for the selected tasks.
  *
  * @param {Event} aEvent - The popupshowing event of the opening menu.
@@ -87,22 +68,22 @@ function changeContextMenuForTask(aEvent) {
   document.getElementById("task-context-menu-separator-filter").hidden = isMainTaskTree;
 
   const items = getSelectedTasks();
-  const tasksSelected = items.length > 0;
-
-  setAttributeOnChildrenOrTheirCommands("disabled", !tasksSelected, aEvent.target);
-
-  if (
-    calendarController.isCommandEnabled("calendar_new_todo_command") &&
-    calendarController.isCommandEnabled("calendar_new_todo_todaypane_command")
-  ) {
-    document.getElementById("calendar_new_todo_command").removeAttribute("disabled");
-    document.getElementById("calendar_new_todo_todaypane_command").removeAttribute("disabled");
-  } else {
-    document.getElementById("calendar_new_todo_command").toggleAttribute("disabled", true);
-    document
-      .getElementById("calendar_new_todo_todaypane_command")
-      .toggleAttribute("disabled", true);
+  for (const command of [...aEvent.target.children]
+    .map(e => e.getAttribute("command"))
+    .filter(Boolean)
+    .map(cId => document.getElementById(cId))) {
+    command.disabled = !items.length; // Disable if no tasks selected.
   }
+
+  document.getElementById("calendar-context-calendar-menu").disabled = !items.length;
+  document.getElementById("task-context-menu-convert").disabled = !items.length;
+
+  const tasksEnabled =
+    calendarController.isCommandEnabled("calendar_new_todo_command") &&
+    calendarController.isCommandEnabled("calendar_new_todo_todaypane_command");
+
+  document.getElementById("calendar_new_todo_command").disabled = !tasksEnabled;
+  document.getElementById("calendar_new_todo_todaypane_command").disabled = !tasksEnabled;
 
   // make sure the "Paste" and "Cut" menu items are enabled
   goUpdateCommand("cmd_paste");
@@ -110,17 +91,18 @@ function changeContextMenuForTask(aEvent) {
 
   // make sure the filter menu is enabled
   document.getElementById("task-context-menu-filter-todaypane").removeAttribute("disabled");
-
-  setAttributeOnChildrenOrTheirCommands(
-    "disabled",
-    false,
-    document.getElementById("task-context-menu-filter-todaypane-popup")
-  );
+  for (const command of [
+    ...document.getElementById("task-context-menu-filter-todaypane-popup").children,
+  ]
+    .map(e => e.getAttribute("command"))
+    .filter(Boolean)
+    .map(cId => document.getElementById(cId))) {
+    command.disabled = false;
+  }
 
   changeMenuForTask();
 
-  const menu = document.getElementById("task-context-menu-attendance-menu");
-  setupAttendanceMenu(menu, items);
+  setupAttendanceMenu(document.getElementById("task-context-menu-attendance-menu"), items);
 }
 
 /**
@@ -141,7 +123,7 @@ function handleTaskContextMenuStateChange(aEvent) {
 }
 
 /**
- * Change the opening menu for the selected tasks.
+ * Update commands for the selected tasks.
  */
 function changeMenuForTask() {
   // Make sure to update the status of some commands.

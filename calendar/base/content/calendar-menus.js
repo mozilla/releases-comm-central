@@ -5,8 +5,7 @@
 /* import-globals-from item-editing/calendar-item-panel.js */
 
 // Importing from calendar-task-tree-utils.js puts ESLint in a fatal loop.
-/* globals getSelectedTasks, MozElements, MozXULElement,
-           setAttributeOnChildrenOrTheirCommands */
+/* globals getSelectedTasks, MozElements, MozXULElement */
 
 "use strict";
 
@@ -34,16 +33,21 @@
    * for example, tasks currently selected in the task list, or a task being edited in the
    * current tab. It operates on commands that are named using the following pattern:
    *
-   *   'calendar_' +  propertyKey + ' + '-' + propertyValue + '_command'
+   *   `calendar_${propertyKey}-${propertyValue}_command`
    *
    * When the propertyValue part of a command's name matches the propertyValue of the tasks,
-   * set the command to 'checked=true', as long as the tasks all have the same propertyValue.
+   * set the command to checked as long as the tasks all have the same propertyValue.
    *
    * @param {Element} parent - Parent element that contains the menu items as direct children.
    * @param {string} propertyKey - The property key, for example "priority" or "percentComplete".
    */
   const updateMenuItemsState = (parent, propertyKey) => {
-    setAttributeOnChildrenOrTheirCommands("checked", false, parent);
+    for (const command of [...parent.children]
+      .map(e => e.getAttribute("command"))
+      .filter(Boolean)
+      .map(cId => document.getElementById(cId))) {
+      command.checked = false;
+    }
 
     const inSingleTaskTab =
       gTabmail && gTabmail.currentTabInfo && gTabmail.currentTabInfo.mode.type == "calendarTask";
@@ -53,8 +57,7 @@
       : getPropertyValue(propertyKey, getSelectedTasks());
 
     if (propertyValue || propertyValue === 0) {
-      const commandName = "calendar_" + propertyKey + "-" + propertyValue + "_command";
-      const command = document.getElementById(commandName);
+      const command = document.getElementById(`calendar_${propertyKey}-${propertyValue}_command`);
       if (command) {
         command.toggleAttribute("checked", true);
       }
