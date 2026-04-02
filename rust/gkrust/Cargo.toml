@@ -39,7 +39,7 @@ bookmark_sync = { path = "../../../toolkit/components/places/bookmark_sync", opt
 buildid_reader_ffi = { path = "../../../toolkit/library/buildid_reader/ffi" }
 cascade_bloom_filter = { path = "../../../toolkit/components/cascade_bloom_filter" }
 cert_storage = { path = "../../../security/manager/ssl/cert_storage" }
-chardetng_c = { version = "0.1.1" }
+chardetng_c = { version = "1.0.0" }
 content_classifier_engine = { path = "../../../toolkit/components/content-classifier/content_classifier_engine" }
 cose-c = { version = "0.1.5" }
 crash_helper_client = { path = "../../../toolkit/crashreporter/crash_helper_client", optional = true }

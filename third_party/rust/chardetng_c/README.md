@@ -18,6 +18,10 @@ online.
 
 ## Release Notes
 
+### 1.0.0
+
+* Update to match chardetng 1.0.0.
+
 ### 0.1.2
 
 * Remove year from copyright notices.

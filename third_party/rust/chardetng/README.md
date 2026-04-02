@@ -122,6 +122,11 @@ In general `chardetng` prefers to do negative matching (rule out possibilities f
 * Thai detection is inaccurate for short inputs.
 * windows-1257 detection is very inaccurate. (This detector currently doesn't use trigrams. ced uses 8 KB of trigram data to solve this.)
 * On non-generic domains, some encodings that are confusable with the legacy encodings native to the TLD are excluded from guesses outright unless the input is invalid according to all the TLD-native encodings.
+* Characters that were reassigned in the latest GB18030 update may interfere with detection.
+
+## MSRV
+
+There is no MSRV guarantee even across increments of the third component of the version number. The current MSRV of this crate is 1.40. The crate builds on 1.40 but doctests error out. You may need to manually choose sufficiently old versions of the dependencies.
 
 ## Associated tools
 
@@ -132,7 +137,7 @@ In general `chardetng` prefers to do negative matching (rule out possibilities f
 
 ## Roadmap
 
-No planned improvements.
+Improvements to detection results are not planned, and isolated examples of misdetection are very unlikely to result in changes.
 
 - [x] Investigate parallelizing the `feed` method using Rayon.
 - [x] Improve windows-874 detection for short inputs.
@@ -150,6 +155,11 @@ No planned improvements.
 ### 1.0.0
 
 * Add method `tld_may_affect_guess`.
+* Make `cargo test` work.
+* Update `arrayvec`. (used only by the `multithreading` feature.)
+* Remove the `guess_assess` API.
+* Add control whether ISO-2022-JP detection is considered or not.
+* Use two-variant enum instead of a boolean for whether UTF-8 detection is allowed.
 
 ### 0.1.17
 

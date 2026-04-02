@@ -11,8 +11,9 @@
 
 [package]
 edition = "2018"
+rust-version = "1.40"
 name = "chardetng_c"
-version = "0.1.2"
+version = "1.0.0"
 authors = ["Henri Sivonen <hsivonen@hsivonen.fi>"]
 build = false
 autolib = false
@@ -39,10 +40,15 @@ categories = [
 license = "Apache-2.0 OR MIT"
 repository = "https://github.com/hsivonen/chardetng_c"
 
+[badges.maintenance]
+status = "passively-maintained"
+
 [lib]
 name = "chardetng_c"
 path = "src/lib.rs"
 
-[dependencies]
-chardetng = "0.1.1"
-encoding_rs = "0.8.17"
+[dependencies.chardetng]
+version = "1.0.0"
+
+[dependencies.encoding_rs]
+version = "0.8.17"

@@ -40,12 +40,26 @@ typedef struct Detector_ EncodingDetector;
 ///
 /// The instantiated detector must be freed after use using
 /// `chardetng_detectordetector_free`.
-CHARDETNG_ENCODING_DETECTOR* chardetng_encoding_detector_new();
+///
+/// Pass `false` as `allow_iso_2022_jp` in Web browsers that run scripts.
+///
+/// Email clients probably want to pass `true` as `allow_iso_2022_jp`.
+CHARDETNG_ENCODING_DETECTOR* chardetng_encoding_detector_new(bool allow_iso_2022_jp);
 
 /// Deallocates a detector obtained from `chardetng_encodingdetector_new`.
 void chardetng_encoding_detector_free(CHARDETNG_ENCODING_DETECTOR* detector);
 
 /// Queries whether the TLD is considered non-generic and could affect the guess.
+///
+/// # Panics
+///
+/// If `tld` is `NULL` but `tld_len` is not zero.
+///
+/// If `tld` contains non-ASCII, period, or upper-case letters. (The panic
+/// condition is intentionally limited to signs of failing to extract the
+/// label correctly, failing to provide it in its Punycode form, and failure
+/// to lower-case it. Full DNS label validation is intentionally not performed
+/// to avoid panics when the reality doesn't match the specs.)
 ///
 /// # Undefined Behavior
 ///
