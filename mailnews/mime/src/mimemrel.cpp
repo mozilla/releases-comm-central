@@ -100,6 +100,7 @@
 #include "mimehdrs.h"
 #include "nsCOMPtr.h"
 #include "mimemrel.h"
+#include "mimepbuf.h"
 #include "mimemapl.h"
 #include "nsMailHeaders.h"
 #include "prmem.h"
@@ -205,6 +206,15 @@ static void MimeMultipartRelated_finalize(MimeObject* obj) {
     relobj->file_buffer->Remove(false);
     relobj->file_buffer = nullptr;
   }
+
+  for (int i = 0; i < relobj->child_bufs_count; i++) {
+    if (relobj->child_bufs[i]) MimePartBufferDestroy(relobj->child_bufs[i]);
+    MimeHeaders_free(relobj->child_hdrs[i]);
+  }
+  PR_FREEIF(relobj->child_bufs);
+  PR_FREEIF(relobj->child_hdrs);
+  PR_FREEIF(relobj->child_objs);
+  relobj->child_bufs_count = 0;
 
   if (relobj->headobj) {
     // In some error conditions when MimeMultipartRelated_parse_eof() isn't run
@@ -584,14 +594,58 @@ static int MimeMultipartRelated_parse_child_line(MimeObject* obj,
         ->parse_child_line(obj, line, length, first_line_p);
   }
 
-  /* Throw it away if this isn't the head object.  (Someday, maybe we'll
-     cache it instead.) */
   PR_ASSERT(cont->nchildren > 0);
   if (cont->nchildren <= 0) return -1;
   kid = cont->children[cont->nchildren - 1];
   PR_ASSERT(kid);
   if (!kid) return -1;
-  if (kid != relobj->headobj) return 0;
+
+  if (kid != relobj->headobj) {
+    // In decompose mode, buffer non-head child content so we can replay it
+    // in parse_eof for parts the reader decides are visible attachments.
+    if (obj->options && obj->options->decompose_file_p) {
+      int idx = cont->nchildren - 1;
+      if (idx >= relobj->child_bufs_count) {
+        int oldcount = relobj->child_bufs_count;
+        int newcount = idx + 1;
+        auto newHdrs =
+            (MimeHeaders**)PR_Malloc(newcount * sizeof(MimeHeaders*));
+        auto newBufs = (MimePartBufferData**)PR_Malloc(
+            newcount * sizeof(MimePartBufferData*));
+        auto newObjs = (MimeObject**)PR_Malloc(newcount * sizeof(MimeObject*));
+        if (!newHdrs || !newBufs || !newObjs) {
+          PR_FREEIF(newHdrs);
+          PR_FREEIF(newBufs);
+          PR_FREEIF(newObjs);
+          return MIME_OUT_OF_MEMORY;
+        }
+        for (int i = 0; i < oldcount; i++) {
+          newHdrs[i] = relobj->child_hdrs[i];
+          newBufs[i] = relobj->child_bufs[i];
+          newObjs[i] = relobj->child_objs[i];
+        }
+        for (int i = oldcount; i < newcount; i++) {
+          newHdrs[i] = nullptr;
+          newBufs[i] = nullptr;
+          newObjs[i] = nullptr;
+        }
+        PR_FREEIF(relobj->child_hdrs);
+        PR_FREEIF(relobj->child_bufs);
+        PR_FREEIF(relobj->child_objs);
+        relobj->child_hdrs = newHdrs;
+        relobj->child_bufs = newBufs;
+        relobj->child_objs = newObjs;
+        relobj->child_bufs_count = newcount;
+      }
+      if (!relobj->child_bufs[idx]) {
+        relobj->child_bufs[idx] = MimePartBufferCreate();
+        relobj->child_hdrs[idx] = MimeHeaders_copy(kid->headers);
+        relobj->child_objs[idx] = kid;
+      }
+      return MimePartBufferWrite(relobj->child_bufs[idx], line, length);
+    }
+    return 0;
+  }
 
   /* Buffer this up (###tw much code duplication from mimemalt.c) */
   /* If we don't yet have a buffer (either memory or file) try and make a
@@ -1080,15 +1134,46 @@ static int MimeMultipartRelated_parse_eof(MimeObject* obj, bool abort_p) {
   status = body->clazz->parse_end(body, false);
   if (status < 0) goto FAIL;
 
-FAIL:
-
+  // Close the head part's decompose stream before replaying children,
+  // because decompose_init_count is a nesting counter and each child
+  // needs its own top-level init/output/close cycle.
   if (obj->options && obj->options->decompose_file_p &&
       obj->options->decompose_file_close_fn &&
       (relobj->file_buffer || relobj->head_buffer)) {
     status =
         obj->options->decompose_file_close_fn(obj->options->stream_closure);
-    if (status < 0) return status;
+    if (status < 0) goto FAIL;
   }
+
+  // After replaying the head, attachment visibility for related children is
+  // finalized. Replay buffered non-head children only for parts that would
+  // still be displayed as attachments in the viewer.
+  if (obj->options && obj->options->decompose_file_p &&
+      obj->options->decompose_file_init_fn &&
+      obj->options->decompose_file_output_fn &&
+      obj->options->decompose_file_close_fn) {
+    for (int i = 0; i < relobj->child_bufs_count; i++) {
+      if (!relobj->child_bufs[i] || !relobj->child_objs[i]) continue;
+      if (relobj->child_objs[i]->dontShowAsAttachment) continue;
+
+      MimePartBufferClose(relobj->child_bufs[i]);
+
+      status = obj->options->decompose_file_init_fn(
+          obj->options->stream_closure, relobj->child_hdrs[i]);
+      if (status < 0) goto FAIL;
+
+      status = MimePartBufferRead(relobj->child_bufs[i],
+                                  obj->options->decompose_file_output_fn,
+                                  obj->options->stream_closure);
+      if (status < 0) goto FAIL;
+
+      status =
+          obj->options->decompose_file_close_fn(obj->options->stream_closure);
+      if (status < 0) goto FAIL;
+    }
+  }
+
+FAIL:
 
   obj->options->output_fn = relobj->real_output_fn;
   obj->options->output_closure = relobj->real_output_closure;

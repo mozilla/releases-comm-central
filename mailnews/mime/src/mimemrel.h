@@ -12,6 +12,8 @@
 #include "nsNetUtil.h"
 #include "modmimee.h"  // for MimeConverterOutputCallback
 
+struct MimePartBufferData;
+
 /* The MimeMultipartRelated class implements the multipart/related MIME
    container, which allows `sibling' sub-parts to refer to each other.
  */
@@ -53,6 +55,13 @@ struct MimeMultipartRelated {
   char* curtag;
   int32_t curtag_max;
   int32_t curtag_length;
+
+  // Per-child buffering for non-head parts during draft decomposition.
+  // Content is replayed in parse_eof for parts the reader marks as attachments.
+  MimeHeaders** child_hdrs;
+  MimePartBufferData** child_bufs;
+  MimeObject** child_objs;
+  int32_t child_bufs_count;
 };
 
 #define MimeMultipartRelatedClassInitializer(ITYPE, CSUPER) \
