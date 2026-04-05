@@ -10,11 +10,11 @@ import { AccountHubStep } from "./account-hub-step.mjs";
  */
 class EmailAddedSuccess extends AccountHubStep {
   /**
-   * The current email config.
+   * The current email account.
    *
-   * @type {AccountConfig}
+   * @type {nsIMsgAccount}
    */
-  #currentConfig;
+  #account;
 
   connectedCallback() {
     if (this.hasConnected) {
@@ -38,12 +38,12 @@ class EmailAddedSuccess extends AccountHubStep {
   }
 
   /**
-   * Sets the state current config.
+   * Sets the email account for this step.
    *
-   * @param {AccountConfig} configData - Applies the config data to this state.
+   * @param {nsIMsgAccount} account - The email account created.
    */
-  setState(configData) {
-    this.#currentConfig = configData;
+  setState(account) {
+    this.#account = account;
   }
 
   handleEvent(event) {
@@ -53,7 +53,7 @@ class EmailAddedSuccess extends AccountHubStep {
           event.target.id === "accountHubEncryptionLink"
             ? "am-e2e.xhtml"
             : null,
-          this.#currentConfig?.incoming
+          this.#account?.incomingServer
         );
         break;
     }

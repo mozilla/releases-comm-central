@@ -125,6 +125,13 @@ class AccountHubEmail extends HTMLElement {
   #currentConfig;
 
   /**
+   * The current Account object that was created in this account setup.
+   *
+   * @type {nsIMsgAccount}
+   */
+  #account = {};
+
+  /**
    * A Config Verifier object that verifies the currentConfig.
    *
    * @type {ConfigVerifier}
@@ -1034,7 +1041,7 @@ class AccountHubEmail extends HTMLElement {
           this.#addSyncAccounts(stateData);
 
           await this.#initUI(this.#states[this.#currentState].nextStep);
-          this.#currentSubview.setState(this.#currentConfig);
+          this.#currentSubview.setState(this.#account);
           this.#currentSubview.showNotification({
             fluentTitleId: "account-hub-email-added-success",
             type: "success",
@@ -1493,7 +1500,7 @@ class AccountHubEmail extends HTMLElement {
         !(syncAccounts.addressBooks.length || syncAccounts.calendars.length)
       ) {
         await this.#initUI("emailAddedSuccessSubview");
-        this.#currentSubview.setState(this.#currentConfig);
+        this.#currentSubview.setState(this.#account);
         this.#currentSubview.showNotification({
           fluentTitleId: "account-hub-email-added-success",
           type: "success",
@@ -1664,6 +1671,8 @@ class AccountHubEmail extends HTMLElement {
       window.msgWindow,
       null
     );
+
+    this.#account = emailAccount;
   }
 
   /**

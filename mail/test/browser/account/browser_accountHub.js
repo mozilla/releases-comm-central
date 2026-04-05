@@ -643,8 +643,32 @@ add_task(async function test_account_enter_password_imap_account() {
   // the success view.
   const successStep = dialog.querySelector("email-added-success");
   await BrowserTestUtils.waitForAttributeRemoval("hidden", successStep);
+  Assert.ok(
+    BrowserTestUtils.isVisible(
+      successStep.querySelector("#accountHubEncryptionLink")
+    ),
+    "E2E Encryption link should be visible."
+  );
+
+  // Clicking the E2E encryption link in the success page should open up the
+  // account manager.
+  const tabmail = document.getElementById("tabmail");
+  const e2eAccountManagerPromise = promiseTab("about:accountsettings", win => {
+    Assert.equal(
+      win.document.querySelector("#accounttree .current").id,
+      `${imapAccount.key}/am-e2e.xhtml`,
+      "Server should be selected in the account tree"
+    );
+  });
+  EventUtils.synthesizeMouseAtCenter(
+    successStep.querySelector("#accountHubEncryptionLink"),
+    {}
+  );
+  await e2eAccountManagerPromise;
 
   await subtest_clear_status_bar();
+  tabmail.closeTab(tabmail.currentTabInfo);
+
   MailServices.accounts.removeAccount(imapAccount);
   Services.logins.removeAllLogins();
 
@@ -675,3 +699,25 @@ add_task(async function test_footerLinks() {
   );
   MockExternalProtocolService.reset();
 });
+
+/**
+ * Wait for a tab to open, run a callback on it.
+ *
+ * @param {string} url - The URL of the expected tab.
+ * @param {Function} [callback] - A callback to run once the tab is open and
+ *   loaded. The callback takes the tab's window object as an argument.
+ */
+async function promiseTab(url, callback) {
+  const {
+    detail: { tabInfo },
+  } = await BrowserTestUtils.waitForEvent(window, "TabOpen");
+  await BrowserTestUtils.browserLoaded(tabInfo.browser);
+  await TestUtils.waitForTick();
+
+  Assert.equal(
+    tabInfo.browser.currentURI.spec,
+    url,
+    "correct page should be loaded in the tab"
+  );
+  await callback?.(tabInfo.browser.contentWindow);
+}
