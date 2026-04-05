@@ -153,34 +153,11 @@ class AccountHubSelect extends HTMLElement {
         element.part.add(element.id);
       }
       this.select.append(element);
-      selected ||= element.selected;
+      selected ||= element.getAttribute("selected");
     }
 
-    /**
-     * This conditions along with setting of selected above handles updates from
-     * the mutation observer when the option list is updated.
-     *
-     * Since the observer replaces all options in the DOM, any existing
-     * selection association is lost. We track user-driven or programmatically
-     * set selections via `cachedValue`, which is only updated in:
-     *   - the change event listener
-     *   - the value setter (custom elements API)
-     *
-     * When options change, we reconcile the previous selection state with the
-     * new option set using the following rules:
-     *
-     * 1. If the new options have a selected value and a previous selection exists:
-     *    → Respect the new options (most recent state).
-     *
-     * 2. If the new options have a selected value and no previous selection exists:
-     *    → Respect the new options (only source of truth).
-     *
-     * 3. If the new options have no selected value and no previous selection exists:
-     *    → Do nothing (no selection to preserve).
-     *
-     * 4. If the new options have no selected value and a previous selection exists:
-     *    → Attempt to restore the previous selection if possible.
-     */
+    // The value association can get lost when updating so we need to restore
+    // any cached set value.
     if (!selected) {
       this.value = this.#cachedValue;
     }
