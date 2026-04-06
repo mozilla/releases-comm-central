@@ -41,7 +41,7 @@ class CalendarDialogDescriptionRow extends HTMLElement {
    */
   #data;
 
-  async connectedCallback() {
+  connectedCallback() {
     if (this.hasConnected) {
       return;
     }
@@ -62,6 +62,20 @@ class CalendarDialogDescriptionRow extends HTMLElement {
 
     if (!this.#isFullDescription) {
       this.hasConnected = true;
+      return;
+    }
+
+    // We don't await this even though its async because there is no need to
+    // wait for this to load as it always loads hidden and has a fixed height.
+    // Additionally setDescription can be called before it's loaded. and we can
+    // cache the data until it's ready. Making connectedCallback async can cause
+    // unexpected behavior by altering the call stack and allowing other code to
+    // run before the element is fully connected in the non full mode case.
+    this.connectBrowser();
+  }
+
+  async connectBrowser() {
+    if (this.#browser) {
       return;
     }
 
@@ -133,6 +147,7 @@ class CalendarDialogDescriptionRow extends HTMLElement {
     );
     this.#browser.contentDocument.addEventListener("click", this);
     this.#browser.contentDocument.body.replaceChildren(docFragment);
+    this.#data = null;
   }
 }
 
