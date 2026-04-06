@@ -380,12 +380,22 @@ var contentTabBaseType = {
           );
         }
       }, 500);
+
+      Services.scriptloader.loadSubScript(
+        "chrome://messenger/content/aboutExtraStylesheet.js",
+        aDocument.defaultView
+      );
     },
 
     // Other about:* pages.
     function (aDocument, aTab) {
       // Provide context menu for about:* pages.
       aTab.browser.setAttribute("context", "aboutPagesContext");
+
+      Services.scriptloader.loadSubScript(
+        "chrome://messenger/content/aboutExtraStylesheet.js",
+        aDocument.defaultView
+      );
     },
   ],
 

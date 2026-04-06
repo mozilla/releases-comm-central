@@ -4,6 +4,7 @@
 
 @import url("chrome://messenger/skin/icons.css");
 @import url("chrome://messenger/skin/colors.css");
+@import url("chrome://messenger/skin/variables.css");
 
 body {
   /* Override the absolute (px) font-size value in common-shared.css. */
