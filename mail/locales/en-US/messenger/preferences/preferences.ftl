@@ -596,6 +596,12 @@ account-hub-checkbox-label =
 
 account-hub-checkbox-description = Experimental new mail account creation flow
 
+account-hub-manual-config-checkbox-label =
+    .label = Use the new manual configuration flow in Account Hub
+    .accesskey = c
+
+account-hub-manual-config-checkbox-description = New account hub manual configuration flow
+
 new-calendar-legend = New Calendar Event Dialog
 
 new-calendar-checkbox-label =

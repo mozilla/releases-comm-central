@@ -1510,8 +1510,11 @@ pref("mail.accounthub.enabled", true);
 // Enable address book setup via account hub
 pref("mail.accounthub.addressbook.enabled", true);
 
-// Enabled Thundermail ui in account hub.
+// Enable Thundermail ui in account hub.
 pref("mail.accounthub.thundermail.enabled", false);
+
+// Enable new manual config ui in account hub.
+pref("mail.accounthub.manualconfig.enabled", false);
 
 // Export to mobile logging level.
 pref("mail.qrexport.loglevel", "Warn");
