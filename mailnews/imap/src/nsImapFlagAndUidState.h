@@ -24,7 +24,7 @@ class nsImapFlagAndUidState : public nsIImapFlagAndUidState {
 
   int32_t NumberOfDeletedMessages();
 
-  imapMessageFlagsType GetMessageFlagsFromUID(uint32_t uid, bool* foundIt,
+  imapMessageFlagsType GetMessageFlagsFromUID(ImapUid uid, bool* foundIt,
                                               int32_t* ndx);
 
   bool IsLastMessageUnseen(void);
@@ -38,7 +38,7 @@ class nsImapFlagAndUidState : public nsIImapFlagAndUidState {
  private:
   virtual ~nsImapFlagAndUidState();
 
-  nsTArray<nsMsgKey> fUids;
+  nsTArray<ImapUid> fUids;
   nsTArray<imapMessageFlagsType> fFlags;
   // Hash table, mapping uids to extra flags
   nsTHashMap<nsUint32HashKey, nsCString> m_customFlagsHash;

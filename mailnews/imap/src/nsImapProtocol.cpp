@@ -228,17 +228,17 @@ NS_IMETHODIMP nsMsgImapLineDownloadCache::ResetCache() {
 bool nsMsgImapLineDownloadCache::CacheEmpty() { return m_bufferPos == 0; }
 
 NS_IMETHODIMP nsMsgImapLineDownloadCache::CacheLine(const char* line,
-                                                    uint32_t uid) {
+                                                    ImapUid uid) {
   fLineInfo->uidOfMessage = uid;
   return AppendString(line);
 }
 
-/* attribute nsMsgKey msgUid; */
-NS_IMETHODIMP nsMsgImapLineDownloadCache::GetMsgUid(nsMsgKey* aMsgUid) {
+/* attribute ImapUid msgUid; */
+NS_IMETHODIMP nsMsgImapLineDownloadCache::GetMsgUid(ImapUid* aMsgUid) {
   *aMsgUid = fLineInfo->uidOfMessage;
   return NS_OK;
 }
-NS_IMETHODIMP nsMsgImapLineDownloadCache::SetMsgUid(nsMsgKey aMsgUid) {
+NS_IMETHODIMP nsMsgImapLineDownloadCache::SetMsgUid(ImapUid aMsgUid) {
   fLineInfo->uidOfMessage = aMsgUid;
   return NS_OK;
 }
@@ -4440,7 +4440,7 @@ void nsImapProtocol::ProcessMailboxUpdate(bool handlePossibleUndo) {
 
   // wait for a list of bodies to fetch.
   if (GetServerStateParser().LastCommandSuccessful()) {
-    nsTArray<nsMsgKey> msgIds;
+    nsTArray<ImapUid> msgIds;
     WaitForPotentialListOfBodysToFetch(msgIds);
     if (msgIds.Length() > 0 && GetServerStateParser().LastCommandSuccessful()) {
       // Tell the url that it should store the msg fetch results offline,
@@ -4486,7 +4486,7 @@ void nsImapProtocol::FolderMsgDump(uint32_t* msgUids, uint32_t msgCount,
 }
 
 void nsImapProtocol::WaitForPotentialListOfBodysToFetch(
-    nsTArray<nsMsgKey>& msgIdList) {
+    nsTArray<ImapUid>& msgIdList) {
   PRIntervalTime sleepTime = kImapSleepTime;
 
   ReentrantMonitorAutoEnter fetchListMon(m_fetchBodyListMonitor);
@@ -4500,15 +4500,15 @@ void nsImapProtocol::WaitForPotentialListOfBodysToFetch(
 // libmsg uses this to notify a running imap url about message bodies it should
 // download. why not just have libmsg explicitly download the message bodies?
 NS_IMETHODIMP nsImapProtocol::NotifyBodysToDownload(
-    const nsTArray<nsMsgKey>& keys) {
+    const nsTArray<ImapUid>& uids) {
   ReentrantMonitorAutoEnter fetchListMon(m_fetchBodyListMonitor);
-  m_fetchBodyIdList = keys.Clone();
+  m_fetchBodyIdList = uids.Clone();
   m_fetchBodyListIsNew = true;
   fetchListMon.Notify();
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImapProtocol::GetFlagsForUID(uint32_t uid, bool* foundIt,
+NS_IMETHODIMP nsImapProtocol::GetFlagsForUID(ImapUid uid, bool* foundIt,
                                              imapMessageFlagsType* resultFlags,
                                              char** customFlags) {
   int32_t i;

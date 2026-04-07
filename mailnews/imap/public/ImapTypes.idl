@@ -1,0 +1,21 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsISupports.idl"
+
+/**
+ * Type for IMAP UIDs.
+ * Also used for sequence numbers, on particularly backward servers.
+ * Ideally this typedef would prevent accidental casting to/from uint32_t and
+ * (especially) nsMsgKey, but there doesn't seem to be a simple way to enforce
+ * that with XPCOM.
+ */
+typedef unsigned long ImapUid;
+
+
+%{C++
+// This should be 0 (unused by IMAP), but we currently need to be
+// interchangable with nsMsgKey.
+constexpr ImapUid ImapUid_None = 0xffffffff;
+%}

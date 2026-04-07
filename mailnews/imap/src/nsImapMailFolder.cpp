@@ -215,7 +215,7 @@ nsImapMailFolder::nsImapMailFolder()
   m_numServerRecentMessages = 0;
   m_numServerUnseenMessages = 0;
   m_numServerTotalMessages = 0;
-  m_nextUID = nsMsgKey_None;
+  m_nextUID = (int32_t)ImapUid_None;
   m_hierarchyDelimiter = kOnlineHierarchySeparatorUnknown;
   m_folderACL = nullptr;
   m_aclFlags = 0;
@@ -2644,9 +2644,11 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
 
   // some servers don't return UIDNEXT on SELECT - don't crunch
   // existing values in that case.
-  int32_t nextUID;
+  ImapUid nextUID;
   aSpec->GetNextUID(&nextUID);
-  if (nextUID != (int32_t)nsMsgKey_None) m_nextUID = nextUID;
+  if (nextUID != ImapUid_None) {
+    m_nextUID = (int32_t)nextUID;
+  }
 
   return rv;
 }
@@ -2665,7 +2667,9 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxStatus(
   aSpec->GetNumMessages(&numTotal);
   aSpec->GetNumRecentMessages(&m_numServerRecentMessages);
   int32_t prevNextUID = m_nextUID;
-  aSpec->GetNextUID(&m_nextUID);
+  ImapUid uidNext;
+  aSpec->GetNextUID(&uidNext);
+  m_nextUID = (int32_t)uidNext;
   bool summaryChanged = false;
 
   // If m_numServerUnseenMessages is 0, it means
@@ -2813,11 +2817,11 @@ nsresult nsImapMailFolder::SetupHeaderParseStream(
 
 // Helper for ParseMsgHdrs().
 nsresult nsImapMailFolder::ParseAdoptedHeaderLine(const char* aMessageLine,
-                                                  nsMsgKey aMsgKey) {
+                                                  ImapUid uid) {
   // we can get blocks that contain more than one line,
   // but they never contain partial lines
   const char* str = aMessageLine;
-  m_curMsgUid = aMsgKey;
+  m_curMsgUid = uid;
   m_msgParser->SetNewKey(m_curMsgUid);
   // m_envelope_pos, for local folders,
   // is the msg key. Setting this will set the msg key for the new header.
@@ -4056,8 +4060,7 @@ NS_IMETHODIMP nsImapMailFolder::GetMsgHdrsToDownload(
 
 void nsImapMailFolder::PrepareToAddHeadersToMailDB(nsIImapProtocol* aProtocol) {
   // now, tell it we don't need any bodies.
-  nsTArray<nsMsgKey> noBodies;
-  aProtocol->NotifyBodysToDownload(noBodies);
+  aProtocol->NotifyBodysToDownload({});
 }
 
 void nsImapMailFolder::TweakHeaderFlags(nsIImapProtocol* aProtocol,
@@ -4307,7 +4310,7 @@ void nsImapMailFolder::EndOfflineDownload() {
 // If any of the filters require the full message body, this function will
 // then apply them. And junk filtering.
 NS_IMETHODIMP
-nsImapMailFolder::NormalEndMsgWriteStream(nsMsgKey uidOfMessage, bool markRead,
+nsImapMailFolder::NormalEndMsgWriteStream(ImapUid uidOfMessage, bool markRead,
                                           nsIImapUrl* imapUrl,
                                           int32_t updatedMessageSize) {
   NS_WARNING_ASSERTION((uidOfMessage == m_curMsgUid), "Interleaved messages?");
@@ -5325,7 +5328,7 @@ nsImapMailFolder::StartMessage(nsIMsgMailNewsUrl* aUrl) {
 }
 
 NS_IMETHODIMP
-nsImapMailFolder::EndMessage(nsIMsgMailNewsUrl* aUrl, nsMsgKey uidOfMessage) {
+nsImapMailFolder::EndMessage(nsIMsgMailNewsUrl* aUrl, ImapUid uidOfMessage) {
   nsCOMPtr<nsIImapUrl> imapUrl(do_QueryInterface(aUrl));
   nsCOMPtr<nsISupports> copyState;
   NS_ENSURE_TRUE(imapUrl, NS_ERROR_FAILURE);
@@ -5382,7 +5385,7 @@ nsImapMailFolder::NotifySearchHit(nsIMsgMailNewsUrl* aUrl,
 }
 
 NS_IMETHODIMP
-nsImapMailFolder::SetAppendMsgUid(nsMsgKey aKey, nsIImapUrl* aUrl) {
+nsImapMailFolder::SetAppendMsgUid(ImapUid aKey, nsIImapUrl* aUrl) {
   nsresult rv;
   nsCOMPtr<nsISupports> copyState;
   if (aUrl) aUrl->GetCopyState(getter_AddRefs(copyState));
@@ -5467,6 +5470,8 @@ nsImapMailFolder::HeaderFetchCompleted(nsIImapProtocol* aProtocol) {
           (m_downloadingFolderForOfflineUse || autoDownloadNewHeaders)) {
         // this is the case when DownloadAllForOffline is called.
         notifiedBodies = true;
+        // TODO: we'll need a key->UID mapping here!
+        // https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
         aProtocol->NotifyBodysToDownload(keysToDownload);
       } else {
         // create auto-sync state object lazily
@@ -5494,8 +5499,7 @@ nsImapMailFolder::HeaderFetchCompleted(nsIImapProtocol* aProtocol) {
       }
     }
     if (!notifiedBodies) {
-      nsTArray<nsMsgKey> noBodies;
-      aProtocol->NotifyBodysToDownload(noBodies);
+      aProtocol->NotifyBodysToDownload({});
     }
 
     nsCOMPtr<nsIURI> runningUri;
@@ -8645,9 +8649,9 @@ NS_IMETHODIMP nsImapMailFolder::GetServerUnseen(int32_t* aServerUnseen) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImapMailFolder::GetServerNextUID(int32_t* aNextUID) {
+NS_IMETHODIMP nsImapMailFolder::GetServerNextUID(ImapUid* aNextUID) {
   NS_ENSURE_ARG_POINTER(aNextUID);
-  *aNextUID = m_nextUID;
+  *aNextUID = (ImapUid)m_nextUID;
   return NS_OK;
 }
 

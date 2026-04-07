@@ -3,6 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "ImapTypes.idl"
 #include "nsISupports.idl"
 #include "MailNewsTypes2.idl"
 #include "nsIImapUrl.idl"
@@ -38,7 +39,7 @@ interface nsIImapMessageSink : nsISupports {
    * @param aUidOfMsg        IMAP UID of the fetched message.
    * @param aImapUrl         IMAP Url used to fetch the message.
    */
-  void parseAdoptedMsgLine(in string aAdoptedMsgLine, in nsMsgKey aUidOfMsg,
+  void parseAdoptedMsgLine(in string aAdoptedMsgLine, in ImapUid aUidOfMsg,
                            in nsIImapUrl aImapUrl);
 
   /**
@@ -51,7 +52,7 @@ interface nsIImapMessageSink : nsISupports {
    *                            should be set to this value to reflect the actual size of
    *                            the downloaded message.
    */
-  void normalEndMsgWriteStream(in nsMsgKey aUidOfMessage,
+  void normalEndMsgWriteStream(in ImapUid aUidOfMessage,
                                in boolean aMarkMsgRead, in nsIImapUrl aImapUrl,
                                in long aUpdatedMessageSize);
 

@@ -448,7 +448,9 @@ NS_IMETHODIMP nsAutoSyncState::OnStopRunningUrl(nsIURI* aUrl,
     imapFolder->GetServerTotal(&serverTotal);
     imapFolder->GetServerUnseen(&serverUnseen);
     imapFolder->GetServerRecent(&serverRecent);
-    imapFolder->GetServerNextUID(&serverNextUID);
+    ImapUid uidNext;
+    imapFolder->GetServerNextUID(&uidNext);
+    serverNextUID = (int32_t)uidNext;
     // Note: UNSEEN often shows a change when nothing else changes. This is
     // because UNSEEN produced by SELECT is not the number of unseen messages.
     // So ignore change to UNSEEN to avoid spurious folder updates. Commented

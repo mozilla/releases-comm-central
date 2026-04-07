@@ -1289,7 +1289,7 @@ NS_IMETHODIMP nsImapService::Expunge(nsIMsgFolder* aImapMailFolder,
 /* old-stle biff that doesn't download headers */
 NS_IMETHODIMP nsImapService::Biff(nsIMsgFolder* aImapMailFolder,
                                   nsIUrlListener* aUrlListener, nsIURI** aURL,
-                                  uint32_t uidHighWater) {
+                                  ImapUid uidHighWater) {
   NS_ENSURE_ARG_POINTER(aImapMailFolder);
 
   // static const char *formatString = "biff>%c%s>%ld";

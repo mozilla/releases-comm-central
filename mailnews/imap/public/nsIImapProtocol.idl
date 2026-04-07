@@ -3,6 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "ImapTypes.idl"
 #include "nsISupports.idl"
 #include "MailNewsTypes2.idl"  // for nsMsgKey
 
@@ -55,10 +56,10 @@ interface nsIImapProtocol : nsISupports {
   [noscript] void Initialize(in nsIImapHostSessionList aHostSessionList,
                              in nsIImapIncomingServer aServer);
 
-  void NotifyBodysToDownload(in Array<nsMsgKey> keys);
+  void NotifyBodysToDownload(in Array<ImapUid> uids);
 
   // methods to get data from the imap parser flag state.
-  void GetFlagsForUID(in unsigned long uid, out boolean foundIt, out unsigned short flags, out string customFlags);
+  void GetFlagsForUID(in ImapUid uid, out boolean foundIt, out unsigned short flags, out string customFlags);
   void GetSupportedUserFlags(out unsigned short flags);
 
   void GetRunningImapURL(out nsIImapUrl aImapUrl);

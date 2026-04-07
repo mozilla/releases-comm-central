@@ -3,6 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "ImapTypes.idl"
 #include "nsISupports.idl"
 
 interface nsIImapFlagAndUidState;
@@ -26,7 +27,7 @@ interface nsIMailboxSpec : nsISupports
   attribute long numRecentMessages;
 
   /// If server supports UIDNEXT, we store the result here.
-  attribute long nextUID;
+  attribute ImapUid nextUID;
 
   attribute unsigned long box_flags;
   attribute unsigned long supportedUserFlags;

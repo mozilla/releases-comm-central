@@ -140,7 +140,7 @@ NS_IMPL_GETSET(nsImapMailboxSpec, NumUnseenMessages, int32_t,
                mNumOfUnseenMessages)
 NS_IMPL_GETSET(nsImapMailboxSpec, NumRecentMessages, int32_t,
                mNumOfRecentMessages)
-NS_IMPL_GETSET(nsImapMailboxSpec, NextUID, int32_t, mNextUID)
+NS_IMPL_GETSET(nsImapMailboxSpec, NextUID, ImapUid, mNextUID)
 NS_IMPL_GETSET(nsImapMailboxSpec, HierarchyDelimiter, char, mHierarchySeparator)
 NS_IMPL_GETSET(nsImapMailboxSpec, FolderSelected, bool, mFolderSelected)
 NS_IMPL_GETSET(nsImapMailboxSpec, DiscoveredFromLsub, bool, mDiscoveredFromLsub)

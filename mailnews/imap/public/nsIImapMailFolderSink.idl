@@ -3,6 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "ImapTypes.idl"
 #include "nsISupports.idl"
 #include "MailNewsTypes2.idl"
 
@@ -80,7 +81,6 @@ interface nsIImapMailFolderSink : nsISupports {
                                in nsIMailboxSpec aSpec);
   /**
    * Used when downloading headers in chunks.
-   * @param aSpec Mailbox spec of folder we're downloading headers for.
    * @returns true if more to download, false otherwise.
    * @returns total count of headers to download (across all chunks)
    * @returns an array of msg keys to download, array size is this chunk's size
@@ -93,7 +93,7 @@ interface nsIImapMailFolderSink : nsISupports {
   void OnlineCopyCompleted(in nsIImapProtocol aProtocol, in ImapOnlineCopyState aCopyState);
   // StartMessage()/EndMessage() only called for message copying.
   void StartMessage(in nsIMsgMailNewsUrl aUrl);
-  void EndMessage(in nsIMsgMailNewsUrl aUrl, in nsMsgKey uidOfMessage);
+  void EndMessage(in nsIMsgMailNewsUrl aUrl, in ImapUid uidOfMessage);
 
   void NotifySearchHit(in nsIMsgMailNewsUrl aUrl, in string hitLine);
 
@@ -116,7 +116,7 @@ interface nsIImapMailFolderSink : nsISupports {
   void clearFolderRights();
   void setCopyResponseUid(in string msgIdString,
                                 in nsIImapUrl aUrl);
-  void setAppendMsgUid(in nsMsgKey newKey,
+  void setAppendMsgUid(in ImapUid newKey,
                              in nsIImapUrl aUrl);
   ACString getMessageId(in nsIImapUrl aUrl);
 };

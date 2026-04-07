@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsISupports.idl"
+#include "ImapTypes.idl"
 
 [scriptable, uuid(360848be-f694-40db-80ef-793a2c43ddcb)]
 interface nsIImapFlagAndUidState : nsISupports
@@ -38,7 +39,7 @@ interface nsIImapFlagAndUidState : nsISupports
    * @param uid - The message UID.
    * @returns True if UID is in the state.
    */
-  boolean hasMessage(in unsigned long uid);
+  boolean hasMessage(in ImapUid uid);
 
   /**
    * OR's the  passed in flags with the previous flags because we want to
@@ -48,21 +49,21 @@ interface nsIImapFlagAndUidState : nsISupports
    */
   void orSupportedUserFlags(in unsigned short aFlags);
 
-  unsigned long getUidOfMessage(in long zeroBasedIndex);
+  ImapUid getUidOfMessage(in long zeroBasedIndex);
   unsigned short getMessageFlags(in long zeroBasedIndex);
   void setMessageFlags(in long zeroBasedIndex, in unsigned short flags);
   void expungeByIndex(in unsigned long zeroBasedIndex);
-  void addUidFlagPair(in unsigned long uid, in unsigned short flags, in unsigned long zeroBasedIndex);
-  void addUidCustomFlagPair(in unsigned long uid, in string customFlag);
+  void addUidFlagPair(in ImapUid uid, in unsigned short flags, in unsigned long zeroBasedIndex);
+  void addUidCustomFlagPair(in ImapUid uid, in string customFlag);
   /**
    * Get the message flags by the message UID.
    * @param uid - The message UID.
    * @returns The message flags.
    */
-  unsigned short getMessageFlagsByUid(in unsigned long uid);
-  string getCustomFlags(in unsigned long uid); // returns space-separated keywords
+  unsigned short getMessageFlagsByUid(in ImapUid uid);
+  string getCustomFlags(in ImapUid uid); // returns space-separated keywords
   void reset();
-  void clearCustomFlags(in unsigned long uid);
+  void clearCustomFlags(in ImapUid uid);
   /**
    * Adds custom attributes to a hash table for the purpose of storing them
    * them.
@@ -70,7 +71,7 @@ interface nsIImapFlagAndUidState : nsISupports
    * @param aCustomAttributeName   Name of the custom attribute value
    * @param aCustomAttributeValue   Value of the attribute,
    */
-  void setCustomAttribute(in unsigned long aUid,
+  void setCustomAttribute(in ImapUid aUid,
                           in ACString aCustomAttributeName,
                           in ACString aCustomAttributeValue);
 
@@ -81,6 +82,6 @@ interface nsIImapFlagAndUidState : nsISupports
    * @param aCustomAttributeName   Name of the custom attribute value
    * @param aCustomAttributeValue   Value of the attribute,
    */
-  ACString getCustomAttribute(in unsigned long aUid,
+  ACString getCustomAttribute(in ImapUid aUid,
                               in ACString aCustomAttributeName);
 };

@@ -3,6 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "ImapTypes.idl"
 #include "nsISupports.idl"
 #include "MailNewsTypes2.idl"
 
@@ -10,9 +11,9 @@
 [scriptable, uuid(38f8f784-b092-11d6-ba4b-00108335942a)]
 interface nsIImapHeaderInfo : nsISupports {
     // The server-assigned UID for the message
-    attribute nsMsgKey  msgUid;
+    attribute ImapUid msgUid;
     // The expected size of the whole message, as supplied by the server.
-    attribute long      msgSize;
+    attribute long msgSize;
     // The raw message header block.
     readonly attribute ACString msgHdrs;
     void cacheLine(in string line, in unsigned long uid);

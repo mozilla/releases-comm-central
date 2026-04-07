@@ -12,6 +12,7 @@
 // should go through the service manager to obtain an instance of it.
 ////////////////////////////////////////////////////////////////////////////////////////
 
+#include "ImapTypes.idl"
 #include "nsISupports.idl"
 #include "nsIImapUrl.idl"
 
@@ -104,7 +105,7 @@ interface nsIImapService : nsISupports
   void biff(in nsIMsgFolder aImapMailFolder,
             in nsIUrlListener aUrlListener,
             out nsIURI aURL,
-            in unsigned long aUidHighWater);
+            in ImapUid aUidHighWater);
 
   void deleteMessages(in nsIMsgFolder aImapMailFolder,
                       in nsIUrlListener aUrlListener,

@@ -54,12 +54,12 @@ class nsImapMailboxSpec : public nsIMailboxSpec {
 
   uint32_t mBoxFlags;
   uint32_t mSupportedUserFlags;
-  int32_t mFolder_UIDVALIDITY;
+  int32_t mFolder_UIDVALIDITY;  // NOTE: should be unsigned.
   uint64_t mHighestModSeq;
   int32_t mNumOfMessages;
   int32_t mNumOfUnseenMessages;
   int32_t mNumOfRecentMessages;
-  int32_t mNextUID;
+  ImapUid mNextUID;
   nsCString mAllocatedPathName;
   nsCString mHostName;
   nsString mUnicharPathName;
