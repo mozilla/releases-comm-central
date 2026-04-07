@@ -16,7 +16,7 @@ use audioipc::{ipccore, rpccore, sys, PlatformHandle};
 use cubeb::InputProcessingParams;
 use cubeb_core as cubeb;
 use cubeb_core::ffi;
-use std::convert::TryInto;
+use std::convert::{TryFrom, TryInto};
 use std::ffi::CStr;
 use std::mem::size_of;
 use std::os::raw::{c_int, c_long, c_void};
@@ -204,9 +204,9 @@ impl rpccore::Client for CallbackClient {
 
 struct ServerStreamCallbacks {
     /// Size of input frame in bytes
-    input_frame_size: u16,
+    input_frame_size: Option<usize>,
     /// Size of output frame in bytes
-    output_frame_size: u16,
+    output_frame_size: Option<usize>,
     /// Shared memory buffer for transporting audio data to/from client
     shm: SharedMem,
     /// RPC interface for data_callback (on OS audio thread) to server callback thread
@@ -234,7 +234,7 @@ impl ServerStreamCallbacks {
             return cubeb::ffi::CUBEB_ERROR.try_into().unwrap();
         }
 
-        if self.input_frame_size != 0 {
+        if self.input_frame_size.is_some() {
             if input.len() > self.shm.get_size() {
                 debug!(
                     "bad input size: input={} shm={}",
@@ -251,7 +251,8 @@ impl ServerStreamCallbacks {
             }
         }
 
-        if self.output_frame_size != 0 && (output.is_empty() || output.len() > self.shm.get_size())
+        if self.output_frame_size.is_some()
+            && (output.is_empty() || output.len() > self.shm.get_size())
         {
             debug!(
                 "bad output size: output={} shm={}",
@@ -266,16 +267,16 @@ impl ServerStreamCallbacks {
             return 0;
         }
 
-        let r = self.data_callback_rpc.call(CallbackReq::Data {
-            nframes,
-            input_frame_size: self.input_frame_size as usize,
-            output_frame_size: self.output_frame_size as usize,
-        });
+        let r = self.data_callback_rpc.call(CallbackReq::Data { nframes });
 
         match r {
             Ok(CallbackResp::Data(frames)) => {
-                if frames >= 0 && self.output_frame_size != 0 {
-                    let nbytes = frames as usize * self.output_frame_size as usize;
+                if let (Ok(frames), Some(output_frame_size)) =
+                    (usize::try_from(frames), self.output_frame_size)
+                {
+                    let Some(nbytes) = frames.checked_mul(output_frame_size) else {
+                        return cubeb::ffi::CUBEB_ERROR.try_into().unwrap();
+                    };
                     if nbytes > output.len() || nbytes > self.shm.get_size() {
                         debug!(
                             "bad callback response: nbytes={} output={} shm={}",
@@ -713,34 +714,24 @@ impl CubebServer {
 
     // Stream create is special, so it's been separated from process_msg.
     fn process_stream_create(&mut self, params: &StreamCreateParams) -> Result<ClientMessage> {
-        fn frame_size_in_bytes(params: Option<&StreamParams>) -> u16 {
-            params
-                .map(|p| {
-                    let format = p.format.into();
-                    let sample_size = match format {
-                        cubeb::SampleFormat::S16LE
-                        | cubeb::SampleFormat::S16BE
-                        | cubeb::SampleFormat::S16NE => 2,
-                        cubeb::SampleFormat::Float32LE
-                        | cubeb::SampleFormat::Float32BE
-                        | cubeb::SampleFormat::Float32NE => 4,
-                    };
-                    let channel_count = p.channels as u16;
-                    sample_size * channel_count
-                })
-                .unwrap_or(0u16)
-        }
-
         // Create the callback handling struct which is attached the cubeb stream.
-        let input_frame_size = frame_size_in_bytes(params.input_stream_params.as_ref());
-        let output_frame_size = frame_size_in_bytes(params.output_stream_params.as_ref());
+        let input_frame_size = params
+            .input_stream_params
+            .as_ref()
+            .map(StreamParams::frame_size_in_bytes);
+        let output_frame_size = params
+            .output_stream_params
+            .as_ref()
+            .map(StreamParams::frame_size_in_bytes);
 
         // Estimate a safe shmem size for this stream configuration.  If the server was configured with a fixed
         // shm_area_size override, use that instead.
         // TODO: Add a new cubeb API to query the precise buffer size required for a given stream config.
         // https://github.com/mozilla/audioipc-2/issues/124
         let shm_area_size = if self.shm_area_size == 0 {
-            let frame_size = output_frame_size.max(input_frame_size) as u32;
+            let in_fs = input_frame_size.unwrap_or(0);
+            let out_fs = output_frame_size.unwrap_or(0);
+            let frame_size = out_fs.max(in_fs) as u32;
             let in_rate = params.input_stream_params.map(|p| p.rate).unwrap_or(0);
             let out_rate = params.output_stream_params.map(|p| p.rate).unwrap_or(0);
             let rate = out_rate.max(in_rate);
@@ -888,13 +879,13 @@ unsafe extern "C" fn data_cb_c(
         let input = if input_buffer.is_null() {
             &[]
         } else {
-            let nbytes = nframes * c_long::from(cbs.input_frame_size);
+            let nbytes = nframes * cbs.input_frame_size.unwrap_or(0) as c_long;
             slice::from_raw_parts(input_buffer as *const u8, nbytes as usize)
         };
         let output: &mut [u8] = if output_buffer.is_null() {
             &mut []
         } else {
-            let nbytes = nframes * c_long::from(cbs.output_frame_size);
+            let nbytes = nframes * cbs.output_frame_size.unwrap_or(0) as c_long;
             slice::from_raw_parts_mut(output_buffer as *mut u8, nbytes as usize)
         };
         cbs.data_callback(input, output, nframes as isize) as c_long
