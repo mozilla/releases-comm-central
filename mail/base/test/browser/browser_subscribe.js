@@ -105,29 +105,16 @@ add_task(async function testIMAPSubscribe() {
         const doc = win.document;
         const serverMenu = doc.getElementById("serverMenu");
         const tabs = doc.getElementById("subscribeTabs");
-        const nameContainer = doc.getElementById("nameContainer");
         const subscribeTree = doc.getElementById("subscribeTree");
-        const view = subscribeTree.view;
         const newGroupsTab = doc.getElementById("newGroupsTab");
         const acceptButton = doc.querySelector("dialog").getButton("accept");
 
         await TestUtils.waitForCondition(
-          () => view.rowCount == 5,
+          () => subscribeTree.view?.rowCount == 5,
           "waiting for tree view to be populated"
         );
 
-        await TestUtils.waitForCondition(
-          () => subscribeTree.clientHeight / subscribeTree.rowHeight > 5,
-          `waiting for tree view to be resized, ` +
-            `subscribeTree.clientHeight=${subscribeTree.clientHeight}, ` +
-            `subscribeTree.rowHeight=${subscribeTree.rowHeight}`
-        );
-
         Assert.equal(serverMenu.value, imapRootFolder.URI);
-        Assert.ok(
-          BrowserTestUtils.isHidden(nameContainer),
-          "search row should be hidden for IMAP"
-        );
         Assert.equal(tabs.selectedIndex, 0);
         Assert.ok(newGroupsTab.collapsed);
 
@@ -229,20 +216,12 @@ add_task(async function testNNTPSubscribe() {
         const serverMenu = doc.getElementById("serverMenu");
         const tabs = doc.getElementById("subscribeTabs");
         const subscribeTree = doc.getElementById("subscribeTree");
-        const view = subscribeTree.view;
         const newGroupsTab = doc.getElementById("newGroupsTab");
         const acceptButton = doc.querySelector("dialog").getButton("accept");
 
         await TestUtils.waitForCondition(
-          () => view.rowCount == 5,
+          () => subscribeTree.view?.rowCount == 5,
           "waiting for tree view to be populated"
-        );
-
-        await TestUtils.waitForCondition(
-          () => subscribeTree.clientHeight / subscribeTree.rowHeight > 3,
-          `waiting for tree view to be resized, ` +
-            `subscribeTree.clientHeight=${subscribeTree.clientHeight}, ` +
-            `subscribeTree.rowHeight=${subscribeTree.rowHeight}`
         );
 
         Assert.equal(serverMenu.value, nntpRootFolder.URI);
@@ -333,29 +312,18 @@ add_task(async function testNNTPSubscribe() {
         const searchField = doc.getElementById("namefield");
         const tabs = doc.getElementById("subscribeTabs");
         const subscribeTree = doc.getElementById("subscribeTree");
-        const view = subscribeTree.view;
-        const searchTree = doc.getElementById("searchTree");
         const newGroupsTab = doc.getElementById("newGroupsTab");
         const acceptButton = doc.querySelector("dialog").getButton("accept");
 
         await TestUtils.waitForCondition(
-          () => view.rowCount == 5,
+          () => subscribeTree.view?.rowCount == 5,
           "waiting for tree view to be populated"
-        );
-
-        await TestUtils.waitForCondition(
-          () => subscribeTree.clientHeight / subscribeTree.rowHeight > 3,
-          `waiting for tree view to be resized, ` +
-            `subscribeTree.clientHeight=${subscribeTree.clientHeight}, ` +
-            `subscribeTree.rowHeight=${subscribeTree.rowHeight}`
         );
 
         Assert.equal(serverMenu.value, nntpRootFolder.URI);
         Assert.equal(tabs.selectedIndex, 0);
         Assert.ok(!newGroupsTab.collapsed);
 
-        Assert.ok(BrowserTestUtils.isVisible(subscribeTree));
-        Assert.ok(BrowserTestUtils.isHidden(searchTree));
         checkTreeRow(subscribeTree, 0, {
           level: 0,
           name: "subscribe",
@@ -393,16 +361,32 @@ add_task(async function testNNTPSubscribe() {
         EventUtils.sendString("foo", win);
 
         await TestUtils.waitForCondition(
-          () => searchTree.view.rowCount == 1,
+          () => subscribeTree.view.rowCount == 1,
           "waiting for tree view to be populated with search"
         );
-        Assert.ok(BrowserTestUtils.isHidden(subscribeTree));
-        Assert.ok(BrowserTestUtils.isVisible(searchTree));
 
-        checkTreeRow(searchTree, 0, {
+        checkTreeRow(subscribeTree, 0, {
           name: "subscribe.foo",
           subscribable: true,
           subscribed: false,
+        });
+
+        // Test the search field correctly filters the available newsgroups.
+        // For multiple search strings separated by whitespace, only items
+        // matching all of the strings should be listed.
+
+        EventUtils.synthesizeKey("KEY_Escape", {}, win);
+        EventUtils.sendString("subscribe subbaz", win);
+
+        await TestUtils.waitForCondition(
+          () => subscribeTree.view.rowCount == 1,
+          "waiting for tree view to be populated with search"
+        );
+
+        checkTreeRow(subscribeTree, 0, {
+          name: "subscribe.baz.subbaz",
+          subscribable: true,
+          subscribed: true,
         });
 
         // Clear the search field.
@@ -410,11 +394,10 @@ add_task(async function testNNTPSubscribe() {
         EventUtils.synthesizeKey("KEY_Escape", {}, win);
 
         await TestUtils.waitForCondition(
-          () => view.rowCount == 5,
+          () => subscribeTree.view?.rowCount == 5,
           "waiting for tree view to be populated without search"
         );
-        Assert.ok(BrowserTestUtils.isVisible(subscribeTree));
-        Assert.ok(BrowserTestUtils.isHidden(searchTree));
+        await new Promise(resolve => win.requestAnimationFrame(resolve));
 
         clickTreeRow(subscribeTree, 1);
 
@@ -494,53 +477,39 @@ async function rightClickAndActivate(folder, idToActivate, activateOptions) {
  * @param {boolean} expected.subscribed
  */
 function checkTreeRow(tree, index, expected) {
-  const nameColumn = tree.columns.getFirstColumn();
-  const nameCellText = tree.view.getCellText(index, nameColumn);
-  const subscribedColumn = tree.columns.getLastColumn();
-  const properties = tree.view
-    .getCellProperties(index, subscribedColumn)
-    .split(" ");
+  const nameCellText = tree.view.getCellText(index, "name");
+  const properties = tree.view.getRowProperties(index).split(" ");
   if (expected.level !== undefined) {
     Assert.equal(tree.view.getLevel(index), expected.level, "Expected levels");
   }
   if (expected.name !== undefined) {
     Assert.equal(
-      tree.view.getCellText(index, nameColumn),
+      tree.view.getCellText(index, "name"),
       expected.name,
       "Expected Name"
     );
   }
   if (expected.subscribable) {
-    // Properties usually has "subscribable-true", but sometimes it doesn't.
     Assert.ok(
-      !properties.includes("subscribable-false"),
-      `should not include subscribable-false for ${nameCellText}`
+      !properties.includes("uncheckable"),
+      `properties should not include uncheckable for ${nameCellText}`
     );
   } else {
     Assert.ok(
-      !properties.includes("subscribable-true"),
-      `should not include subscribable-true for ${nameCellText}`
-    );
-    Assert.ok(
-      properties.includes("subscribable-false"),
-      `should include subscribable-false for ${nameCellText}`
+      properties.includes("uncheckable"),
+      `properties should include uncheckable for ${nameCellText}`
     );
   }
   if (expected.subscribed) {
     Assert.ok(
-      properties.includes("subscribed-true"),
-      `should include subscribed-true for ${nameCellText}`
-    );
-    Assert.ok(
-      !properties.includes("subscribed-false"),
-      `should not include subscribed-false for ${nameCellText}`
+      properties.includes("checked"),
+      `properties should include checked for ${nameCellText}`
     );
   } else {
     Assert.ok(
-      !properties.includes("subscribed-true"),
-      `should not include subscribed-true for ${nameCellText}`
+      !properties.includes("checked"),
+      `properties should not include checked for ${nameCellText}`
     );
-    // Properties usually has "subscribed-false", but sometimes it doesn't.
   }
 }
 
@@ -551,19 +520,10 @@ function checkTreeRow(tree, index, expected) {
  * @param {integer} index
  */
 function clickTreeRow(tree, index) {
-  tree.scrollToRow(index);
+  tree.scrollToIndex(index, true);
 
-  const treeChildren = tree.lastElementChild;
-  const coords = tree.getCoordsForCellItem(
-    index,
-    tree.columns.subscribedColumn,
-    "cell"
-  );
-
-  EventUtils.synthesizeMouse(
-    treeChildren,
-    coords.x + coords.width / 2,
-    coords.y + coords.height / 2,
+  EventUtils.synthesizeMouseAtCenter(
+    tree.getRowAtIndex(index).querySelector('input[type="checkbox"]'),
     {},
     tree.ownerGlobal
   );

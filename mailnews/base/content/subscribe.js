@@ -10,22 +10,20 @@ var { MailServices } = ChromeUtils.importESModule(
 var { MailUtils } = ChromeUtils.importESModule(
   "resource:///modules/MailUtils.sys.mjs"
 );
+var { TreeDataAdapter, TreeDataRow } = ChromeUtils.importESModule(
+  "chrome://messenger/content/TreeDataAdapter.mjs",
+  { global: "current" }
+);
 var { UIFontSize } = ChromeUtils.importESModule(
   "resource:///modules/UIFontSize.sys.mjs"
 );
 
 var gSubscribeTree = null;
-var gSubscribeBody = null;
 var okCallback = null;
-var gChangeTable = {};
 var gServerURI = null;
 var gSubscribableServer = null;
 var gNameField = null;
-var gServerContainer = null;
-var gNameContainer = null;
 var gStatusFeedback;
-var gSearchView = null;
-var gSearchTree = null;
 var gSubscribeBundle;
 
 window.addEventListener("load", SubscribeOnLoad);
@@ -81,13 +79,15 @@ function onServerClick(aFolder) {
 }
 
 var MySubscribeListener = {
-  OnDonePopulating() {
+  async OnDonePopulating() {
     MailServices.feedback.reportStatus("", "stop-meteors");
     document.getElementById("stopButton").disabled = true;
     document.getElementById("refreshButton").disabled = false;
     document.getElementById("currentListTab").disabled = false;
     document.getElementById("newGroupsTab").disabled = false;
     gSubscribableServer.subscribeListener = null;
+    await customElements.whenDefined("checkbox-tree-table-row");
+    gSubscribeTree.view = new SubscribeDataAdapter();
   },
 };
 
@@ -98,21 +98,13 @@ function SetUpTree(forceToServer, getOnlyNew) {
 
   var server = MailUtils.getExistingFolder(gServerURI).server;
   try {
-    CleanUpSearchView();
     gSubscribableServer = server.QueryInterface(Ci.nsISubscribableServer);
-
-    // Enable (or disable) the search related UI.
-    EnableSearchUI();
 
     SetServerTypeSpecificTextValues();
 
     // Clear out the text field when switching server.
     gNameField.value = "";
 
-    // Since there is no text, switch to the Subscription view.
-    toggleSubscriptionView(false);
-
-    gSubscribeTree.view = gSubscribableServer.folderView;
     gSubscribableServer.subscribeListener = MySubscribeListener;
 
     document.getElementById("currentListTab").disabled = true;
@@ -145,19 +137,9 @@ function SetUpTree(forceToServer, getOnlyNew) {
 }
 
 function SubscribeOnUnload() {
-  try {
-    CleanUpSearchView();
-  } catch (ex) {
-    dump("Failed to remove the subscribe tree: " + ex + "\n");
-  }
-
   msgWindow.closeWindow();
   gStatusFeedback = null;
   gSubscribableServer = null;
-}
-
-function EnableSearchUI() {
-  gNameContainer.hidden = !gSubscribableServer?.supportsSubscribeSearch;
 }
 
 function SubscribeOnLoad() {
@@ -165,11 +147,9 @@ function SubscribeOnLoad() {
   gSubscribeBundle = document.getElementById("bundle_subscribe");
 
   gSubscribeTree = document.getElementById("subscribeTree");
-  gSubscribeBody = document.getElementById("subscribeTreeBody");
-  gSearchTree = document.getElementById("searchTree");
+  gSubscribeTree.setAttribute("rows", "checkbox-tree-table-row");
+  gSubscribeTree.headerHidden = true;
   gNameField = document.getElementById("namefield");
-  gServerContainer = document.getElementById("serverContainer");
-  gNameContainer = document.getElementById("nameContainer");
 
   // eslint-disable-next-line no-global-assign
   msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
@@ -194,14 +174,12 @@ function SubscribeOnLoad() {
   if (folder && folder.server instanceof Ci.nsISubscribableServer) {
     serverMenu.menupopup.selectFolder(folder.server.rootMsgFolder);
     try {
-      CleanUpSearchView();
       gSubscribableServer = folder.server.QueryInterface(
         Ci.nsISubscribableServer
       );
       gServerURI = folder.server.serverURI;
     } catch (ex) {
       // dump("not a subscribable server\n");
-      CleanUpSearchView();
       gSubscribableServer = null;
       gServerURI = null;
     }
@@ -228,15 +206,31 @@ function SubscribeOnLoad() {
 
   SetServerTypeSpecificTextValues();
 
-  // Enable (or disable) the search related UI.
-  EnableSearchUI();
-
   gNameField.focus();
 }
 
 function subscribeOK() {
+  const changes = {};
+  function collectChanges(row) {
+    if (row.hasProperty("checked")) {
+      if (!row.hasProperty("wasChecked")) {
+        changes[row.childPath] = true;
+      }
+    } else if (row.hasProperty("wasChecked")) {
+      changes[row.childPath] = false;
+    }
+
+    for (const childRow of row.children) {
+      collectChanges(childRow);
+    }
+  }
+
+  for (const topRow of gSubscribeTree.view._allRowMap) {
+    collectChanges(topRow);
+  }
+
   if (top.okCallback) {
-    top.okCallback(top.gChangeTable);
+    top.okCallback({ [gServerURI]: changes });
   }
   Stop();
   if (gSubscribableServer) {
@@ -249,113 +243,6 @@ function subscribeCancel() {
   if (gSubscribableServer) {
     gSubscribableServer.subscribeCleanup();
   }
-}
-
-function SetState(name, state) {
-  var changed = gSubscribableServer.setState(name, state);
-  if (changed) {
-    StateChanged(name, state);
-  }
-}
-
-function StateChanged(name, state) {
-  if (gServerURI in gChangeTable) {
-    if (name in gChangeTable[gServerURI]) {
-      var oldValue = gChangeTable[gServerURI][name];
-      if (oldValue != state) {
-        delete gChangeTable[gServerURI][name];
-      }
-    } else {
-      gChangeTable[gServerURI][name] = state;
-    }
-  } else {
-    gChangeTable[gServerURI] = {};
-    gChangeTable[gServerURI][name] = state;
-  }
-}
-
-function SearchOnClick(event) {
-  // We only care about button 0 (left click) events.
-  if (event.button != 0 || event.target.localName != "treechildren") {
-    return;
-  }
-
-  const treeCellInfo = gSearchTree.getCellAt(event.clientX, event.clientY);
-  if (treeCellInfo.row == -1 || treeCellInfo.row > gSearchView.rowCount - 1) {
-    return;
-  }
-
-  if (treeCellInfo.col.id == "subscribedColumn2") {
-    if (event.detail != 2) {
-      // Single clicked on the check box
-      // (in the "subscribedColumn2" column) reverse state.
-      // If double click, do nothing.
-      ReverseStateFromRow(treeCellInfo.row);
-    }
-  } else if (event.detail == 2) {
-    // Double clicked on a row, reverse state.
-    ReverseStateFromRow(treeCellInfo.row);
-  }
-
-  // Invalidate the row.
-  gSearchTree.invalidateRow(treeCellInfo.row);
-}
-
-function ReverseStateFromRow(aRow) {
-  // To determine if the row is subscribed or not,
-  // we get the properties for the "subscribedColumn2" cell in the row
-  // and look for the "subscribed" property.
-  // If the "subscribed" string is in the list of properties
-  // we are subscribed.
-  const col = gSearchTree.columns.nameColumn2;
-  const name = gSearchView.getCellValue(aRow, col);
-  const isSubscribed = gSubscribableServer.isSubscribed(name);
-  SetStateFromRow(aRow, !isSubscribed);
-}
-
-function SetStateFromRow(row, state) {
-  var col = gSearchTree.columns.nameColumn2;
-  var name = gSearchView.getCellValue(row, col);
-  SetState(name, state);
-}
-
-function ReverseStateFromNode(row) {
-  const name = gSubscribeTree.view.getCellValue(
-    row,
-    gSubscribeTree.columns.nameColumn
-  );
-  SetState(name, !gSubscribableServer.isSubscribed(name), row);
-}
-
-function SubscribeOnClick(event) {
-  // We only care about button 0 (left click) events.
-  if (event.button != 0 || event.target.localName != "treechildren") {
-    return;
-  }
-
-  const treeCellInfo = gSubscribeTree.getCellAt(event.clientX, event.clientY);
-  if (
-    treeCellInfo.row == -1 ||
-    treeCellInfo.row > gSubscribeTree.view.rowCount - 1
-  ) {
-    return;
-  }
-
-  if (event.detail == 2) {
-    // Only toggle subscribed state when double clicking something
-    // that isn't a container.
-    if (!gSubscribeTree.view.isContainer(treeCellInfo.row)) {
-      ReverseStateFromNode(treeCellInfo.row);
-    }
-  } else if (event.detail == 1) {
-    // If the user single clicks on the subscribe check box, we handle it here.
-    if (treeCellInfo.col.id == "subscribedColumn") {
-      ReverseStateFromNode(treeCellInfo.row);
-    }
-  }
-
-  // Invalidate the row.
-  gSubscribeTree.invalidateRow(treeCellInfo.row);
 }
 
 function Refresh() {
@@ -388,80 +275,101 @@ function ShowNewGroupsList() {
   SetUpTree(true, true);
 }
 
-/**
- * Toggle the tree panel in the dialog between search view and subscribe view.
- *
- * @param {boolean} toggle - If true, show the search view else show the
- *  subscribe view.
- */
-function toggleSubscriptionView(toggle) {
-  document.getElementById("subscribeView").hidden = toggle;
-  document.getElementById("searchView").hidden = !toggle;
-}
-
 function Search() {
-  const searchValue = gNameField.value;
-  if (
-    searchValue &&
-    gSubscribableServer &&
-    gSubscribableServer.supportsSubscribeSearch
-  ) {
-    toggleSubscriptionView(true);
-    gSubscribableServer.setSearchValue(searchValue);
-
-    if (!gSearchView && gSubscribableServer) {
-      gSearchView = gSubscribableServer.QueryInterface(Ci.nsITreeView);
-      gSearchView.selection = null;
-      gSearchTree.view = gSearchView;
-    }
-    return;
-  }
-  toggleSubscriptionView(false);
+  gSubscribeTree.view.filter(gNameField.value);
 }
 
-function CleanUpSearchView() {
-  if (gSearchView) {
-    gSearchView.selection = null;
-    gSearchView = null;
-  }
-}
+class SubscribeDataAdapter extends TreeDataAdapter {
+  /**
+   * Segmenter for splitting filter strings into tokens.
+   *
+   * @type {Intl.Segmenter}
+   */
+  static #segmenter = null;
 
-function onSearchTreeKeyPress(event) {
-  // For now, only do something on space key.
-  if (event.charCode != KeyEvent.DOM_VK_SPACE) {
-    return;
+  constructor() {
+    super();
+    this._rowMap = this.getChildren(null);
+    this._allRowMap = this._rowMap.slice();
   }
 
-  var treeSelection = gSearchView.selection;
-  for (let i = 0; i < treeSelection.getRangeCount(); i++) {
-    var start = {},
-      end = {};
-    treeSelection.getRangeAt(i, start, end);
-    for (let k = start.value; k <= end.value; k++) {
-      ReverseStateFromRow(k);
+  /**
+   * Build the hierarchy by adding the children of `path` recursively.
+   *
+   * @param {string|null} path
+   */
+  getChildren(path) {
+    const rows = [];
+    for (const childPath of gSubscribableServer.getChildURIs(path)) {
+      const row = new TreeDataRow({
+        name: gSubscribableServer.getLeafName(childPath),
+      });
+      row.childPath = childPath;
+      if (gSubscribableServer.type == "nntp") {
+        row.addProperty("folder-type-news");
+      }
+      if (gSubscribableServer.isSubscribable(childPath)) {
+        if (gSubscribableServer.isSubscribed(childPath)) {
+          row.addProperty("checked");
+          row.addProperty("wasChecked");
+        }
+      } else {
+        row.addProperty("noselect");
+        row.addProperty("uncheckable");
+      }
+      if (gSubscribableServer.hasChildren(childPath)) {
+        row.open = true;
+        row.children = this.getChildren(childPath);
+      }
+      rows.push(row);
     }
+    return rows;
   }
 
-  // Force a repaint.
-  gSearchTree.invalidate();
-}
+  /**
+   * Swap the tree hierarchy for a flat list of rows that match `value`.
+   *
+   * @param {string} value - A user-provided string to match against. This is
+   *   treated as a space-separated list of tokens, and rows to display must
+   *   match all of the tokens. If there's no tokens (i.e. the value is empty
+   *   or all white space), displaying all rows is restored.
+   */
+  filter(value) {
+    const oldCount = this.rowCount;
+    this._rowMap.length = 0;
+    this._clearFlatRowCache();
+    this._tree?.rowCountChanged(0, -oldCount);
 
-function onSubscribeTreeKeyPress(event) {
-  // For now, only do something on space key.
-  if (event.charCode != KeyEvent.DOM_VK_SPACE) {
-    return;
-  }
-
-  var treeSelection = gSubscribeTree.view.selection;
-  for (let i = 0; i < treeSelection.getRangeCount(); i++) {
-    var start = {},
-      end = {};
-    treeSelection.getRangeAt(i, start, end);
-    for (let k = start.value; k <= end.value; k++) {
-      ReverseStateFromNode(k);
+    if (!SubscribeDataAdapter.#segmenter) {
+      SubscribeDataAdapter.#segmenter = new Intl.Segmenter(undefined, {
+        granularity: "word",
+      });
     }
+    const tokens = [...SubscribeDataAdapter.#segmenter.segment(value)]
+      .filter(s => s.isWordLike)
+      .map(s => s.segment);
+    if (tokens.length > 0) {
+      const filterRow = row => {
+        const name = row.texts.name.normalize();
+        if (
+          !row.hasProperty("uncheckable") &&
+          tokens.every(token => name.includes(token))
+        ) {
+          this._rowMap.push(
+            new TreeDataRow(row.texts, row.values, row.properties)
+          );
+        }
+        for (const childRow of row.children) {
+          filterRow(childRow);
+        }
+      };
+      for (const topRow of this._allRowMap) {
+        filterRow(topRow);
+      }
+    } else {
+      this._rowMap = this._allRowMap.slice();
+    }
+    this._clearFlatRowCache();
+    this._tree?.rowCountChanged(0, this.rowCount);
   }
-
-  // Force a repaint.
-  gSubscribeTree.invalidate();
 }

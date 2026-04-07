@@ -23,7 +23,6 @@ TESTING_JS_MODULES.mail += [
     "OpenPGPTestUtils.sys.mjs",
     "QuickFilterBarHelpers.sys.mjs",
     "SearchWindowHelpers.sys.mjs",
-    "SubscribeWindowHelpers.sys.mjs",
     "ViewHelpers.sys.mjs",
     "WindowHelpers.sys.mjs",
 ]

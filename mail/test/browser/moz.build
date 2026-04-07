@@ -42,7 +42,6 @@ BROWSER_CHROME_MANIFESTS += [
     "search-window/browser.toml",
     "session-store/browser.toml",
     "smime/browser.toml",
-    "subscribe/browser.toml",
     "tabmail/browser.toml",
     "update/browser.toml",
     "utils/browser.toml",

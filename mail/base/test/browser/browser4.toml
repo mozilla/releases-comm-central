@@ -21,6 +21,7 @@ support-files = [
 # please put it in the manifest with its (alphabetical) neighbours.
 
 ["browser_subscribe.js"]
+tags = ["dataadapter"]
 
 ["browser_tabIcon.js"]
 

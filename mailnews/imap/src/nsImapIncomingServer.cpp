@@ -2578,25 +2578,6 @@ nsImapIncomingServer::GetCanFileMessagesOnServer(
 }
 
 NS_IMETHODIMP
-nsImapIncomingServer::SetSearchValue(const nsAString& searchValue) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-NS_IMETHODIMP
-nsImapIncomingServer::GetSupportsSubscribeSearch(bool* retVal) {
-  NS_ENSURE_ARG_POINTER(retVal);
-  *retVal = false;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsImapIncomingServer::GetFolderView(nsITreeView** aView) {
-  nsresult rv = EnsureInner();
-  NS_ENSURE_SUCCESS(rv, rv);
-  return mInner->GetFolderView(aView);
-}
-
-NS_IMETHODIMP
 nsImapIncomingServer::GetFilterScope(nsMsgSearchScopeValue* filterScope) {
   NS_ENSURE_ARG_POINTER(filterScope);
   // If the inbox is enabled for offline use, then use the offline filter

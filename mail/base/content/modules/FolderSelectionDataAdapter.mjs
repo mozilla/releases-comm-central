@@ -34,6 +34,7 @@ export class FolderSelectionDataAdapter extends TreeDataAdapter {
         if (folder.server.isSecure) {
           properties.add("server-secure");
         }
+        properties.add("uncheckable");
       } else if (folderType != "none") {
         properties.add(`folder-type-${folderType.toLowerCase()}`);
       } else if (folder.server.type == "nntp") {

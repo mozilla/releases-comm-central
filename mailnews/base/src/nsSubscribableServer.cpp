@@ -29,7 +29,6 @@ struct SubscribeTreeNode {
   // the most recently-added child. If names match the search can early-out.
   SubscribeTreeNode* cachedChild;
   bool isSubscribable;
-  bool isOpen;
 };
 
 nsSubscribableServer::nsSubscribableServer(void) {
@@ -42,13 +41,12 @@ nsSubscribableServer::nsSubscribableServer(void) {
 nsresult nsSubscribableServer::Init() { return NS_OK; }
 
 nsSubscribableServer::~nsSubscribableServer(void) {
-  FreeRows();
   if (mTreeRoot) {
     FreeSubtree(mTreeRoot);
   }
 }
 
-NS_IMPL_ISUPPORTS(nsSubscribableServer, nsISubscribableServer, nsITreeView)
+NS_IMPL_ISUPPORTS(nsSubscribableServer, nsISubscribableServer)
 
 NS_IMETHODIMP
 nsSubscribableServer::SetIncomingServer(nsIMsgIncomingServer* aServer) {
@@ -151,13 +149,6 @@ nsSubscribableServer::SetState(const nsACString& aPath, bool aState,
   } else {
     node->isSubscribed = aState;
     *aStateChanged = true;
-
-    // Repaint the tree row to show/clear the check mark.
-    if (mTree) {
-      bool dummy;
-      int32_t index = GetRow(node, &dummy);
-      if (index >= 0) mTree->InvalidateRow(index);
-    }
   }
   return NS_OK;
 }
@@ -195,7 +186,6 @@ nsSubscribableServer::StartPopulating(nsIMsgWindow* aMsgWindow,
                                       bool aGetOnlyNew /*ignored*/) {
   mStopped = false;
 
-  FreeRows();
   if (mTreeRoot) {
     FreeSubtree(mTreeRoot);
     mTreeRoot = nullptr;
@@ -206,29 +196,6 @@ nsSubscribableServer::StartPopulating(nsIMsgWindow* aMsgWindow,
 NS_IMETHODIMP
 nsSubscribableServer::StopPopulating(nsIMsgWindow* aMsgWindow) {
   mStopped = true;
-
-  FreeRows();
-
-  if (mTreeRoot) {
-    SubscribeTreeNode* node = mTreeRoot->lastChild;
-    // Add top level items as closed.
-    while (node) {
-      node->isOpen = false;
-      mRowMap.AppendElement(node);
-      node = node->prevSibling;
-    }
-
-    // Invalidate the whole thing.
-    if (mTree) mTree->RowCountChanged(0, mRowMap.Length());
-
-    // Open all the top level items if they are containers.
-    uint32_t topRows = mRowMap.Length();
-    for (int32_t i = topRows - 1; i >= 0; i--) {
-      bool isContainer = false;
-      IsContainer(i, &isContainer);
-      if (isContainer) ToggleOpenState(i);
-    }
-  }
 
   if (mSubscribeListener) mSubscribeListener->OnDonePopulating();
 
@@ -279,12 +246,6 @@ void nsSubscribableServer::FreeSubtree(SubscribeTreeNode* node) {
   delete node;
 }
 
-void nsSubscribableServer::FreeRows() {
-  int32_t rowCount = mRowMap.Length();
-  mRowMap.Clear();
-  if (mTree) mTree->RowCountChanged(0, -rowCount);
-}
-
 SubscribeTreeNode* nsSubscribableServer::CreateNode(SubscribeTreeNode* parent,
                                                     nsACString const& name,
                                                     nsACString const& path) {
@@ -299,7 +260,6 @@ SubscribeTreeNode* nsSubscribableServer::CreateNode(SubscribeTreeNode* parent,
   node->lastChild = nullptr;
   node->isSubscribed = false;
   node->isSubscribable = false;
-  node->isOpen = true;
   node->cachedChild = nullptr;
   if (parent) {
     parent->cachedChild = node;
@@ -576,324 +536,4 @@ NS_IMETHODIMP
 nsSubscribableServer::CommitSubscribeChanges() {
   NS_ASSERTION(false, "override this.");
   return NS_ERROR_FAILURE;
-}
-
-NS_IMETHODIMP
-nsSubscribableServer::SetSearchValue(const nsAString& aSearchValue) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-NS_IMETHODIMP
-nsSubscribableServer::GetSupportsSubscribeSearch(bool* retVal) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-NS_IMETHODIMP
-nsSubscribableServer::GetFolderView(nsITreeView** aView) {
-  NS_ENSURE_ARG_POINTER(aView);
-  return this->QueryInterface(NS_GET_IID(nsITreeView), (void**)aView);
-}
-
-int32_t nsSubscribableServer::GetRow(SubscribeTreeNode* node, bool* open) {
-  int32_t parentRow = -1;
-  if (node->parent) parentRow = GetRow(node->parent, open);
-
-  // If the parent wasn't opened, we're not in the row map
-  if (open && *open == false) return -1;
-
-  if (open) *open = node->isOpen;
-
-  for (uint32_t row = parentRow + 1; row < mRowMap.Length(); row++) {
-    if (mRowMap[row] == node) return row;
-  }
-
-  // Apparently, we're not in the map
-  return -1;
-}
-
-NS_IMETHODIMP
-nsSubscribableServer::GetSelection(nsITreeSelection** selection) {
-  NS_IF_ADDREF(*selection = mSelection);
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsSubscribableServer::SetSelection(nsITreeSelection* selection) {
-  mSelection = selection;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsSubscribableServer::GetRowCount(int32_t* rowCount) {
-  *rowCount = mRowMap.Length();
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsSubscribableServer::SetTree(mozilla::dom::XULTreeElement* aTree) {
-  mTree = aTree;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsSubscribableServer::IsContainer(int32_t aIndex, bool* retval) {
-  if (aIndex < 0 || aIndex >= (int32_t)mRowMap.Length()) {
-    return NS_ERROR_INVALID_ARG;
-  }
-  *retval = !!mRowMap[aIndex]->firstChild;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsSubscribableServer::IsContainerEmpty(int32_t aIndex, bool* retval) {
-  *retval = false;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsSubscribableServer::IsContainerOpen(int32_t aIndex, bool* retval) {
-  if (aIndex < 0 || aIndex >= (int32_t)mRowMap.Length()) {
-    return NS_ERROR_INVALID_ARG;
-  }
-  *retval = mRowMap[aIndex]->isOpen;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsSubscribableServer::GetParentIndex(int32_t aIndex, int32_t* retval) {
-  if (aIndex < 0 || aIndex >= (int32_t)mRowMap.Length()) {
-    return NS_ERROR_INVALID_ARG;
-  }
-  SubscribeTreeNode* parent = mRowMap[aIndex]->parent;
-  if (!parent) {
-    *retval = -1;
-    return NS_OK;
-  }
-
-  int32_t index;
-  for (index = aIndex - 1; index >= 0; index--) {
-    if (mRowMap[index] == parent) {
-      *retval = index;
-      return NS_OK;
-    }
-  }
-  *retval = -1;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsSubscribableServer::HasNextSibling(int32_t aRowIndex, int32_t aAfterIndex,
-                                     bool* retval) {
-  if (aRowIndex < 0 || aRowIndex >= (int32_t)mRowMap.Length()) {
-    return NS_ERROR_INVALID_ARG;
-  }
-  // This looks odd, but is correct. Using ->nextSibling gives a bad tree.
-  *retval = !!mRowMap[aRowIndex]->prevSibling;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsSubscribableServer::GetLevel(int32_t aIndex, int32_t* retval) {
-  if (aIndex < 0 || aIndex >= (int32_t)mRowMap.Length()) {
-    return NS_ERROR_INVALID_ARG;
-  }
-  // When starting with -2, we increase twice and return 0 for a top level node.
-  int32_t level = -2;
-  SubscribeTreeNode* node = mRowMap[aIndex];
-  while (node) {
-    node = node->parent;
-    level++;
-  }
-
-  *retval = level;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsSubscribableServer::ToggleOpenState(int32_t aIndex) {
-  if (aIndex < 0 || aIndex >= (int32_t)mRowMap.Length()) {
-    return NS_ERROR_INVALID_ARG;
-  }
-  SubscribeTreeNode* node = mRowMap[aIndex];
-  if (node->isOpen) {
-    node->isOpen = false;
-
-    // Remove subtree by deleting elements from array up to next sibling.
-    int32_t count = 0;
-    do {
-      // Find next sibling or the beginning of the next subtree.
-      if (node->prevSibling) {
-        count = mRowMap.IndexOf(node->prevSibling, aIndex) - aIndex - 1;
-      } else {
-        node = node->parent;
-        // When node reaches the root, delete the rest of the array.
-        if (!node->parent) {
-          count = mRowMap.Length() - aIndex - 1;
-        }
-      }
-    } while (!count && node->parent);
-    mRowMap.RemoveElementsAt(aIndex + 1, count);
-    if (mTree) {
-      mTree->RowCountChanged(aIndex + 1, -count);
-      mTree->InvalidateRow(aIndex);
-    }
-  } else {
-    // Recursively add the children nodes (i.e., remember open)
-    node->isOpen = true;
-    int32_t total = 0;
-    node = node->lastChild;
-    while (node) {
-      total += AddSubtree(node, aIndex + 1 + total);
-      node = node->prevSibling;
-    }
-    if (mTree) {
-      mTree->RowCountChanged(aIndex + 1, total);
-      mTree->InvalidateRow(aIndex);
-    }
-  }
-  return NS_OK;
-}
-
-int32_t nsSubscribableServer::AddSubtree(SubscribeTreeNode* node,
-                                         int32_t index) {
-  mRowMap.InsertElementAt(index, node);
-  int32_t total = 1;
-  if (node->isOpen) {
-    node = node->lastChild;
-    while (node) {
-      total += AddSubtree(node, index + total);
-      node = node->prevSibling;
-    }
-  }
-  return total;
-}
-
-NS_IMETHODIMP
-nsSubscribableServer::GetCellText(int32_t aRow, nsTreeColumn* aCol,
-                                  nsAString& retval) {
-  nsString colId;
-  aCol->GetId(colId);
-  if (colId.EqualsLiteral("nameColumn")) {
-    if (aRow < 0 || aRow >= (int32_t)mRowMap.Length()) {
-      return NS_ERROR_INVALID_ARG;
-    }
-    nsCString path(mRowMap[aRow]->path);
-    GetLeafName(path, retval);
-  }
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsSubscribableServer::GetCellValue(int32_t aRow, nsTreeColumn* aCol,
-                                   nsAString& retval) {
-  nsString colId;
-  aCol->GetId(colId);
-  if (colId.EqualsLiteral("nameColumn")) {
-    if (aRow < 0 || aRow >= (int32_t)mRowMap.Length()) {
-      return NS_ERROR_INVALID_ARG;
-    }
-    retval = NS_ConvertUTF8toUTF16(mRowMap[aRow]->path);
-  }
-  if (colId.EqualsLiteral("subscribedColumn")) {
-    retval = mRowMap[aRow]->isSubscribed ? u"true"_ns : u"false"_ns;
-  }
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsSubscribableServer::SetCellText(int32_t aRow, nsTreeColumn* aCol,
-                                  const nsAString& aText) {
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsSubscribableServer::SetCellValue(int32_t aRow, nsTreeColumn* aCol,
-                                   const nsAString& aText) {
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsSubscribableServer::GetCellProperties(int32_t aRow, nsTreeColumn* aCol,
-                                        nsAString& aProps) {
-  if (aRow < 0 || aRow >= (int32_t)mRowMap.Length()) {
-    return NS_ERROR_INVALID_ARG;
-  }
-  SubscribeTreeNode* node = mRowMap[aRow];
-  if (node->isSubscribable)
-    aProps.AssignLiteral("subscribable-true");
-  else
-    aProps.AssignLiteral("subscribable-false");
-
-  nsString colId;
-  aCol->GetId(colId);
-  if (colId.EqualsLiteral("subscribedColumn")) {
-    if (node->isSubscribed)
-      aProps.AppendLiteral(" subscribed-true");
-    else
-      aProps.AppendLiteral(" subscribed-false");
-  } else if (colId.EqualsLiteral("nameColumn")) {
-    aProps.AppendLiteral(" serverType-");
-    aProps.Append(NS_ConvertUTF8toUTF16(mServerType));
-  }
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsSubscribableServer::GetRowProperties(int32_t aRow, nsAString& aProps) {
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsSubscribableServer::GetColumnProperties(nsTreeColumn* aCol,
-                                          nsAString& aProps) {
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsSubscribableServer::IsEditable(int32_t aRow, nsTreeColumn* aCol,
-                                 bool* retval) {
-  *retval = false;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsSubscribableServer::IsSeparator(int32_t aRowIndex, bool* retval) {
-  *retval = false;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsSubscribableServer::IsSorted(bool* retval) {
-  *retval = false;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsSubscribableServer::CanDrop(int32_t aIndex, int32_t aOrientation,
-                              mozilla::dom::DataTransfer* aData, bool* retval) {
-  *retval = false;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsSubscribableServer::Drop(int32_t aRow, int32_t aOrientation,
-                           mozilla::dom::DataTransfer* aData) {
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsSubscribableServer::GetImageSrc(int32_t aRow, nsTreeColumn* aCol,
-                                  nsAString& retval) {
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsSubscribableServer::CycleHeader(nsTreeColumn* aCol) { return NS_OK; }
-
-NS_IMETHODIMP
-nsSubscribableServer::SelectionChangedXPCOM() { return NS_OK; }
-
-NS_IMETHODIMP
-nsSubscribableServer::CycleCell(int32_t aRow, nsTreeColumn* aCol) {
-  return NS_OK;
 }

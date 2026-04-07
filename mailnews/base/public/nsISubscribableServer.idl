@@ -7,7 +7,6 @@
 
 interface nsIMsgWindow;
 interface nsIMsgIncomingServer;
-interface nsITreeView;
 
 /**
  * A listener to receive notification of the subscribable folders of a server.
@@ -65,9 +64,4 @@ interface nsISubscribableServer : nsISupports {
   Array<AUTF8String> getChildURIs(in AUTF8String aPath);
   // if path is null, use the root
   AUTF8String getFirstChildURI(in AUTF8String path);
-
-  // for searching
-  void setSearchValue(in AString searchValue);
-  readonly attribute boolean supportsSubscribeSearch;
-  readonly attribute nsITreeView folderView;
 };

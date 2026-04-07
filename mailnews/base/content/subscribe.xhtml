@@ -20,13 +20,20 @@
       http-equiv="Content-Security-Policy"
       content="default-src chrome:; script-src chrome: 'unsafe-inline' moz-src:; style-src chrome: 'unsafe-inline'"
     />
+    <link rel="localization" href="messenger/treeView.ftl" />
     <link rel="stylesheet" href="chrome://messenger/skin/subscribe.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/searchBox.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/icons.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/folderMenus.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/contextMenu.css" />
+    <link
+      rel="stylesheet"
+      href="chrome://messenger/skin/shared/tree-listbox.css"
+    />
+    <link rel="stylesheet" href="chrome://messenger/skin/folderSelection.css" />
     <script
       defer="defer"
       src="chrome://messenger/content/globalOverlay.js"
@@ -46,6 +53,14 @@
     <script
       defer="defer"
       src="chrome://messenger/content/subscribe.js"
+    ></script>
+    <script
+      type="module"
+      src="chrome://messenger/content/tree-view.mjs"
+    ></script>
+    <script
+      type="module"
+      src="chrome://messenger/content/checkbox-tree-table-row.mjs"
     ></script>
   </head>
   <html:body
@@ -93,7 +108,6 @@
               type="search"
               id="namefield"
               class="themeableSearchBox"
-              timeout="300"
               aria-controls="subscribeTree"
               oninput="Search()"
             />
@@ -123,61 +137,8 @@
             <tabpanels flex="1">
               <tabpanel id="treepanel" flex="1" orient="vertical">
                 <label id="subscribeLabel" />
-                <hbox flex="1">
-                  <hbox id="subscribeView" flex="1">
-                    <tree
-                      id="subscribeTree"
-                      flex="1"
-                      hidecolumnpicker="true"
-                      seltype="multiple"
-                      disableKeyNavigation="true"
-                      onkeypress="onSubscribeTreeKeyPress(event)"
-                      onclick="SubscribeOnClick(event)"
-                    >
-                      <treecols id="theSubscribeColumns">
-                        <treecol
-                          id="nameColumn"
-                          primary="true"
-                          hideheader="true"
-                          crop="center"
-                        />
-                        <splitter class="tree-splitter" />
-                        <treecol
-                          id="subscribedColumn"
-                          type="checkbox"
-                          style="flex: 1 auto"
-                          hideheader="true"
-                        />
-                      </treecols>
-                      <treechildren id="subscribeTreeBody" />
-                    </tree>
-                  </hbox>
-                  <hbox id="searchView" flex="1" hidden="hidden">
-                    <tree
-                      id="searchTree"
-                      flex="1"
-                      disableKeyNavigation="true"
-                      hidecolumnpicker="true"
-                      onkeypress="onSearchTreeKeyPress(event)"
-                      onclick="SearchOnClick(event)"
-                    >
-                      <treecols>
-                        <treecol
-                          id="nameColumn2"
-                          primary="true"
-                          hideheader="true"
-                          sortDirection="ascending"
-                        />
-                        <splitter class="tree-splitter" />
-                        <treecol
-                          id="subscribedColumn2"
-                          style="flex: 1 auto"
-                          hideheader="true"
-                        />
-                      </treecols>
-                      <treechildren id="searchTreeBody" />
-                    </tree>
-                  </hbox>
+                <html:div>
+                  <html:base-tree-view id="subscribeTree"></html:base-tree-view>
                   <vbox>
                     <button
                       id="refreshButton"
@@ -194,7 +155,7 @@
                     />
                     <spacer flex="1" />
                   </vbox>
-                </hbox>
+                </html:div>
               </tabpanel>
             </tabpanels>
           </tabbox>

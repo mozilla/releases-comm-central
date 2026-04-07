@@ -21,7 +21,6 @@ ChromeUtils.defineESModuleGetters(lazy, {
  * @implements {nsIMsgIncomingServer}
  * @implements {nsISupportsWeakReference}
  * @implements {nsISubscribableServer}
- * @implements {nsITreeView}
  * @implements {nsIUrlListener}
  */
 export class NntpIncomingServer extends MsgIncomingServer {
@@ -30,7 +29,6 @@ export class NntpIncomingServer extends MsgIncomingServer {
     "nsIMsgIncomingServer",
     "nsISupportsWeakReference",
     "nsISubscribableServer",
-    "nsITreeView",
     "nsIUrlListener",
   ]);
 
@@ -67,9 +65,6 @@ export class NntpIncomingServer extends MsgIncomingServer {
     Object.defineProperty(this, "canFileMessagesOnServer", {
       get: () => false,
     });
-
-    // nsISubscribableServer attributes.
-    this.supportsSubscribeSearch = true;
 
     // nsINntpIncomingServer attributes.
     this.newsrcHasChanged = false;
@@ -218,23 +213,6 @@ export class NntpIncomingServer extends MsgIncomingServer {
     return this._subscribable.isSubscribable(path);
   }
 
-  setSearchValue(value) {
-    this._tree?.beginUpdateBatch();
-    this._tree?.rowCountChanged(0, -this._searchResult.length);
-
-    const terms = value.toLowerCase().split(" ");
-    this._searchResult = this._groups
-      .filter(name => {
-        name = name.toLowerCase();
-        // The group name should contain all the search terms.
-        return terms.every(term => name.includes(term));
-      })
-      .sort();
-
-    this._tree?.rowCountChanged(0, this._searchResult.length);
-    this._tree?.endUpdateBatch();
-  }
-
   getLeafName(path) {
     return this._subscribable.getLeafName(path);
   }
@@ -245,47 +223,6 @@ export class NntpIncomingServer extends MsgIncomingServer {
 
   getChildURIs(path) {
     return this._subscribable.getChildURIs(path);
-  }
-
-  /** @see nsITreeView */
-  get rowCount() {
-    return this._searchResult.length;
-  }
-
-  isContainer() {
-    return false;
-  }
-
-  getCellProperties(row, col) {
-    if (
-      col.id == "subscribedColumn2" &&
-      this._tmpSubscribed.has(this._searchResult[row])
-    ) {
-      return "subscribed-true";
-    }
-    if (col.id == "nameColumn2") {
-      // Show the news folder icon in the search view.
-      return "serverType-nntp";
-    }
-    return "";
-  }
-
-  getCellValue(row, col) {
-    if (col.id == "nameColumn2") {
-      return this._searchResult[row];
-    }
-    return "";
-  }
-
-  getCellText(row, col) {
-    if (col.id == "nameColumn2") {
-      return this._searchResult[row];
-    }
-    return "";
-  }
-
-  setTree(tree) {
-    this._tree = tree;
   }
 
   /** @see nsIUrlListener */
