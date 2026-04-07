@@ -56,7 +56,7 @@ So the database has taken over from the mbox file as the definitive list of mess
 ### Folder information
 
 Folder properties are persisted in the database (accessed via `nsIDBFolderInfo`).
-This covers things such as the GUI view settings, the name of the IMAP mailbox this folder represents, how much space could be reclaimed by a folder compaction etcera...
+This covers things such as the GUI view settings, the name of the IMAP mailbox this folder represents, how much space could be reclaimed by a folder compaction etc...
 
 ### Other
 
@@ -119,22 +119,22 @@ If the filter triggers and decides to move the incoming message to another folde
 ## XPCOM Interfaces
 
 
-The main interface is [`nsIMsgDatabase`](https://searchfox.org/comm-central/search?q=nsIMsgDatabase).
+The main interface is [`nsIMsgDatabase`](https://searchfox.org/comm-central/search?q=interface+nsIMsgDatabase+).
 
-There are also interfaces which provide extra functionality used by IMAP ([`nsIMsgOfflineOpsDatabase`](https://searchfox.org/comm-central/search?q=nsIMsgOfflineOpsDatabase)) and News ([`nsINewsDatabase`](https://searchfox.org/comm-central/search?q=nsINewsDatabase)).
+There are also interfaces which provide extra functionality used by IMAP ([`nsIMsgOfflineOpsDatabase`](https://searchfox.org/comm-central/search?q=interface+nsIMsgOfflineOpsDatabase+)) and News ([`nsINewsDatabase`](https://searchfox.org/comm-central/search?q=interface+nsINewsDatabase+)).
 But such protocol-specific functionality has tended to smear out over the years, and there's probably a good argument for consolidating it all into a single interface (and implementation).
 
-`nsIMsgDatabase` inherits from [`nsIDBChangeAnnouncer`](https://searchfox.org/comm-central/search?q=nsIDBChangeAnnouncer), which provides methods for listeners to register interest for notifications when changes are made to the database.
+`nsIMsgDatabase` inherits from [`nsIDBChangeAnnouncer`](https://searchfox.org/comm-central/search?q=interface+nsIDBChangeAnnouncer+), which provides methods for listeners to register interest for notifications when changes are made to the database.
 
-There is also a database manager, [`nsIMsgDBService`](https://searchfox.org/comm-central/search?q=nsIMsgDBService) which handles opening databases and creating new ones.
+There is also a database manager, [`nsIMsgDBService`](https://searchfox.org/comm-central/search?q=interface+nsIMsgDBService+) which handles opening databases and creating new ones.
 It also attempts to provide some caching to paper over some of the quirks that result from aggressive closure of databases.
 
-Messages themselves are represented by [`nsIMsgDBHdr`](https://searchfox.org/comm-central/search?q=&path=nsIMsgHdr.idl).
+Messages themselves are represented by [`nsIMsgDBHdr`](https://searchfox.org/comm-central/search?q=interface+nsIMsgDBHdr+).
 It's best to think of these objects as specifying a folder + nsMsgKey combination.
-This identifies row in a database representing an individual message and, indeed, the implementation ([`nsMsgHdr`](https://searchfox.org/comm-central/search?q=nsMsgHdr)) is more or less just a wrapper for a Mork row.
+This identifies row in a database representing an individual message and, indeed, the implementation ([`nsMsgHdr`](https://searchfox.org/comm-central/source/mailnews/db/msgdb/src/nsMsgHdr.h) is more or less just a wrapper for a Mork row.
 So reading `nsIMsgDBHdr` attributes means querying the database, and writing attributes means updating the database.
 
-Folder properties are read and written via the [`nsIDBFolderInfo`](https://searchfox.org/comm-central/search?q=nsIDBFolderInfo) interface.
+Folder properties are read and written via the [`nsIDBFolderInfo`](https://searchfox.org/comm-central/search?q=interface+nsIDBFolderInfo+) interface.
 
 ## See Also
 

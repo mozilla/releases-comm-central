@@ -9,7 +9,7 @@
 interface nsIPropertyBag2;
 
 [scriptable, uuid(a72dab4b-b3bd-471e-9a38-1b242b385459)]
-interface  nsIDBFolderInfo : nsISupports {
+interface nsIDBFolderInfo : nsISupports {
   attribute long flags;
 
   /**
