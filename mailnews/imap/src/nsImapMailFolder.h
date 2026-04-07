@@ -500,7 +500,7 @@ class nsImapMailFolder : public nsMsgDBFolder,
   int32_t m_numServerUnseenMessages;
   int32_t m_numServerTotalMessages;
   // if server supports UIDNEXT, we store it here.
-  int32_t m_nextUID;
+  ImapUid m_nextUID;
 
   int32_t m_nextMessageByteLength;
   nsCOMPtr<nsIUrlListener> m_urlListener;

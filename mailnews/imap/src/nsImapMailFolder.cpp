@@ -215,7 +215,7 @@ nsImapMailFolder::nsImapMailFolder()
   m_numServerRecentMessages = 0;
   m_numServerUnseenMessages = 0;
   m_numServerTotalMessages = 0;
-  m_nextUID = (int32_t)ImapUid_None;
+  m_nextUID = ImapUid_None;
   m_hierarchyDelimiter = kOnlineHierarchySeparatorUnknown;
   m_folderACL = nullptr;
   m_aclFlags = 0;
@@ -1845,7 +1845,7 @@ NS_IMETHODIMP nsImapMailFolder::ReadFromFolderCacheElem(
   element->GetCachedInt32("serverTotal", &m_numServerTotalMessages);
   element->GetCachedInt32("serverUnseen", &m_numServerUnseenMessages);
   element->GetCachedInt32("serverRecent", &m_numServerRecentMessages);
-  element->GetCachedInt32("nextUID", &m_nextUID);
+  element->GetCachedInt32("nextUID", (int32_t*)&m_nextUID);
   int32_t lastSyncTimeInSec;
   if (NS_FAILED(element->GetCachedInt32("lastSyncTimeInSec",
                                         (int32_t*)&lastSyncTimeInSec)))
@@ -1872,8 +1872,8 @@ NS_IMETHODIMP nsImapMailFolder::WriteToFolderCacheElem(
   element->SetCachedInt32("serverTotal", m_numServerTotalMessages);
   element->SetCachedInt32("serverUnseen", m_numServerUnseenMessages);
   element->SetCachedInt32("serverRecent", m_numServerRecentMessages);
-  if (m_nextUID != (int32_t)nsMsgKey_None)
-    element->SetCachedInt32("nextUID", m_nextUID);
+  if (m_nextUID != ImapUid_None)
+    element->SetCachedInt32("nextUID", (int32_t)m_nextUID);
 
   // store folder's last sync time
   if (m_autoSyncStateObj) {
@@ -2647,7 +2647,7 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
   ImapUid nextUID;
   aSpec->GetNextUID(&nextUID);
   if (nextUID != ImapUid_None) {
-    m_nextUID = (int32_t)nextUID;
+    m_nextUID = nextUID;
   }
 
   return rv;
@@ -2666,10 +2666,8 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxStatus(
   aSpec->GetNumUnseenMessages(&numUnread);
   aSpec->GetNumMessages(&numTotal);
   aSpec->GetNumRecentMessages(&m_numServerRecentMessages);
-  int32_t prevNextUID = m_nextUID;
-  ImapUid uidNext;
-  aSpec->GetNextUID(&uidNext);
-  m_nextUID = (int32_t)uidNext;
+  ImapUid prevNextUID = m_nextUID;
+  aSpec->GetNextUID(&m_nextUID);
   bool summaryChanged = false;
 
   // If m_numServerUnseenMessages is 0, it means
@@ -8651,7 +8649,7 @@ NS_IMETHODIMP nsImapMailFolder::GetServerUnseen(int32_t* aServerUnseen) {
 
 NS_IMETHODIMP nsImapMailFolder::GetServerNextUID(ImapUid* aNextUID) {
   NS_ENSURE_ARG_POINTER(aNextUID);
-  *aNextUID = (ImapUid)m_nextUID;
+  *aNextUID = m_nextUID;
   return NS_OK;
 }
 

@@ -5,6 +5,7 @@
 #ifndef COMM_MAILNEWS_IMAP_SRC_NSAUTOSYNCSTATE_H_
 #define COMM_MAILNEWS_IMAP_SRC_NSAUTOSYNCSTATE_H_
 
+#include "ImapTypes.h"
 #include "MailNewsTypes2.h"
 #include "nsIAutoSyncState.h"
 #include "nsIUrlListener.h"
@@ -64,7 +65,7 @@ class nsAutoSyncState final : public nsIAutoSyncState, public nsIUrlListener {
   nsresult ManageStorageSpace();
 
   void SetServerCounts(int32_t total, int32_t recent, int32_t unseen,
-                       int32_t nextUID);
+                       ImapUid nextUID);
 
  private:
   ~nsAutoSyncState();
@@ -89,7 +90,7 @@ class nsAutoSyncState final : public nsIAutoSyncState, public nsIUrlListener {
   int32_t mLastServerTotal;
   int32_t mLastServerRecent;
   int32_t mLastServerUnseen;
-  int32_t mLastNextUID;
+  ImapUid mLastNextUID;
 
   PRTime mLastSyncTime;
   PRTime mLastUpdateTime;
