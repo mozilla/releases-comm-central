@@ -91,6 +91,57 @@ async function subtest(path) {
   await BrowserTestUtils.closeWindow(msgc);
 }
 
+// Specific subtest for HTML emails containing <pre> tags (Bug 2029007)
+async function html_pre_subtest(path) {
+  const file = new FileUtils.File(getTestFilePath(path));
+  const msgc = await open_message_from_file(file);
+
+  const aboutMessage = get_about_message(msgc);
+  const win = aboutMessage.document.getElementById("messagepane").contentWindow;
+  const doc =
+    aboutMessage.document.getElementById("messagepane").contentDocument;
+  const selection = win.getSelection();
+
+  // Use a looser selector because Thunderbird wraps HTML bodies in container
+  // divs.
+  const text = doc.querySelector("pre");
+
+  // Lines 2-3 of the text.
+  // Note: HTML parsers strip the newline immediately following a <pre> tag.
+  // The firstChild text node actually contains: "line 1\nline 2\nline 3\n..."
+  // Index 7 starts exactly at "l" in "line 2"
+  // Index 20 ends exactly after "3" in "line 3"
+  const range = doc.createRange();
+  range.setStart(text.firstChild, 7);
+  range.setEnd(text.firstChild, 20);
+
+  selection.removeAllRanges();
+  selection.addRange(range);
+
+  const cwc = await open_compose_with_reply(msgc);
+  const blockquote = cwc.document
+    .getElementById("messageEditor")
+    .contentDocument.body.querySelector("blockquote");
+
+  const pre = blockquote.querySelector(":scope > pre");
+  Assert.ok(
+    pre,
+    "the selection from HTML <pre> should be wrapped in a <pre> when quoted"
+  );
+  Assert.ok(
+    pre.classList.contains("moz-quote-pre"),
+    "<pre> should have the 'moz-quote-pre' class"
+  );
+  Assert.equal(
+    pre.textContent,
+    "line 2\nline 3",
+    "selected text should be quoted correctly without losing line breaks"
+  );
+
+  await close_compose_window(cwc);
+  await BrowserTestUtils.closeWindow(msgc);
+}
+
 add_task(async function test_non_flowed() {
   await subtest("data/non-flowed-plain.eml");
 });
@@ -101,4 +152,8 @@ add_task(async function test_base64() {
 
 add_task(async function test_quoted_printable() {
   await subtest("data/quoted-printable.eml");
+});
+
+add_task(async function test_html_pre() {
+  await html_pre_subtest("data/html-pre.eml");
 });

@@ -329,16 +329,29 @@ nsMsgComposeService::OpenComposeWindow(
         nsCOMPtr<nsINode> node = selection->GetFocusNode();
         nsAutoCString selHTML;
         if (node && NS_SUCCEEDED(GetHTMLForSelection(selection, selHTML))) {
+          // Traverse the DOM tree upwards to check if the selection is
+          // inside a <pre> tag.
+          bool isInsidePre = false;
+          for (nsCOMPtr<nsINode> parentNode = node; parentNode;
+               parentNode = parentNode->GetParentNode()) {
+            if (parentNode->LocalName().EqualsLiteral("pre")) {
+              isInsidePre = true;
+              break;
+            }
+          }
+          // Wrap in <pre> if it's an actual HTML <pre> block or a plain-text
+          // email.
           IgnoredErrorResult er;
-          if ((node->LocalName().IsEmpty() ||
-               node->LocalName().EqualsLiteral("pre")) &&
-              node->OwnerDoc()->QuerySelector(
-                  "body > div:first-of-type.moz-text-plain"_ns, er)) {
-            // Treat the quote as <pre> for selections in moz-text-plain bodies.
-            // If focusNode.localName isn't empty, we had e.g. body selected
-            // and should not add <pre>.
+          if (isInsidePre ||
+              ((node->LocalName().IsEmpty() ||
+                node->LocalName().EqualsLiteral("pre")) &&
+               node->OwnerDoc()->QuerySelector(
+                   "body > div:first-of-type.moz-text-plain"_ns, er))) {
+            // Treat the quote as <pre> for selections in actual <pre> tags or
+            // moz-text-plain bodies. If focusNode.localName isn't empty, we
+            // had e.g. body selected and should not add <pre>.
             pMsgComposeParams->SetHtmlToQuote(
-                "<pre class=\"moz-quote-pre\" wrap=\"\">"_ns + selHTML +
+                R"(<pre class="moz-quote-pre" wrap="">)"_ns + selHTML +
                 "</pre>"_ns);
           } else {
             pMsgComposeParams->SetHtmlToQuote(selHTML);
