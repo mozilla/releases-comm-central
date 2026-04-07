@@ -227,6 +227,9 @@ add_task(async function test_account_hub_header_branding() {
       MailServices.accounts.localFoldersServer
     )
   );
+  MailServices.outgoingServer.deleteServer(
+    MailServices.outgoingServer.servers[0]
+  );
 
   IMAPServer.close();
   SMTPServer.close();

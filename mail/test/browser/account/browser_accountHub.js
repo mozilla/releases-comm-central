@@ -670,6 +670,9 @@ add_task(async function test_account_enter_password_imap_account() {
   tabmail.closeTab(tabmail.currentTabInfo);
 
   MailServices.accounts.removeAccount(imapAccount);
+  MailServices.outgoingServer.deleteServer(
+    MailServices.outgoingServer.servers.find(s => s.key != "smtp1")
+  );
   Services.logins.removeAllLogins();
 
   IMAPServer.close();

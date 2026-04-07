@@ -75,3 +75,45 @@ export async function clearStatusBar(window) {
   status._statusLastShown = 0;
   status._statusQueue.length = 0;
 }
+
+// Record the servers and accounts that existed before the test ran, if any.
+// These will have been defined in the test manifest.
+const serversAtStart = MailServices.accounts.allServers.map(s => s.key);
+const accountsAtStart = MailServices.accounts.accounts.map(a => a.key);
+const outgoingAtStart = MailServices.outgoingServer.servers.map(s => s.key);
+
+export function removeServersAndAccounts() {
+  for (const server of MailServices.accounts.allServers) {
+    if (!serversAtStart.includes(server.key)) {
+      Assert.report(
+        true,
+        undefined,
+        undefined,
+        `Found server ${server.key} at the end of the test run`
+      );
+      MailServices.accounts.removeIncomingServer(server, false);
+    }
+  }
+  for (const account of MailServices.accounts.accounts) {
+    if (!accountsAtStart.includes(account.key)) {
+      Assert.report(
+        true,
+        undefined,
+        undefined,
+        `Found account ${account.key} at the end of the test run`
+      );
+      MailServices.accounts.removeAccount(account, false);
+    }
+  }
+  for (const server of MailServices.outgoingServer.servers) {
+    if (!outgoingAtStart.includes(server.key)) {
+      Assert.report(
+        true,
+        undefined,
+        undefined,
+        `Found server ${server.key} at the end of the test run`
+      );
+      MailServices.outgoingServer.deleteServer(server);
+    }
+  }
+}

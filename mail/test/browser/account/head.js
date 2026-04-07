@@ -10,6 +10,9 @@ const { nsMailServer } = ChromeUtils.importESModule(
 const { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
+const { removeServersAndAccounts } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/CleanupHelpers.sys.mjs"
+);
 
 const account_hub_start_templates = {
   MAIL: "email-auto-form",
@@ -520,28 +523,7 @@ function removeAccountInternal(tab, account) {
 // cleanup function has had a chance to run. Instead, when it runs register
 // another cleanup function which will run last.
 registerCleanupFunction(function () {
-  registerCleanupFunction(async function () {
-    for (const server of MailServices.accounts.allServers) {
-      if (!["server1", "server2"].includes(server.key)) {
-        Assert.report(
-          true,
-          undefined,
-          undefined,
-          `Found server ${server.key} at the end of the test run`
-        );
-        MailServices.accounts.removeIncomingServer(server, false);
-      }
-    }
-    for (const account of MailServices.accounts.accounts) {
-      if (!["account1", "account2"].includes(account.key)) {
-        Assert.report(
-          true,
-          undefined,
-          undefined,
-          `Found account ${account.key} at the end of the test run`
-        );
-        MailServices.accounts.removeAccount(account, false);
-      }
-    }
+  registerCleanupFunction(function () {
+    removeServersAndAccounts();
   });
 });

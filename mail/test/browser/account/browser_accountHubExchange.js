@@ -693,6 +693,9 @@ add_task(async function test_full_exchange_account_creation() {
   );
 
   MailServices.accounts.removeAccount(ewsAccount);
+  MailServices.outgoingServer.deleteServer(
+    MailServices.outgoingServer.servers.find(s => s.key != "smtp1")
+  );
   Services.logins.removeAllLogins();
 
   ewsServer.stop();
@@ -821,6 +824,9 @@ async function cleanupAdvancedConfigurationTest(tabmail, account) {
   tabmail.closeTab(tabmail.currentTabInfo);
 
   MailServices.accounts.removeAccount(account);
+  MailServices.outgoingServer.deleteServer(
+    MailServices.outgoingServer.servers.find(s => s.key != "smtp1")
+  );
   await subtest_clear_status_bar();
   Services.logins.removeAllLogins();
 }

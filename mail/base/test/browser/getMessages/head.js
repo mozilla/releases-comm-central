@@ -5,7 +5,7 @@
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
-var { clearStatusBar } = ChromeUtils.importESModule(
+var { clearStatusBar, removeServersAndAccounts } = ChromeUtils.importESModule(
   "resource://testing-common/mail/CleanupHelpers.sys.mjs"
 );
 
@@ -117,25 +117,7 @@ registerCleanupFunction(function () {
       tabmail.closeOtherTabs(0);
     }
 
-    for (const server of MailServices.accounts.allServers) {
-      Assert.report(
-        true,
-        undefined,
-        undefined,
-        `Found server ${server.key} at the end of the test run`
-      );
-      MailServices.accounts.removeIncomingServer(server, false);
-    }
-    for (const account of MailServices.accounts.accounts) {
-      Assert.report(
-        true,
-        undefined,
-        undefined,
-        `Found account ${account.key} at the end of the test run`
-      );
-      MailServices.accounts.removeAccount(account, false);
-    }
-
+    removeServersAndAccounts();
     await clearStatusBar(window);
 
     // Some tests that open new windows confuse mochitest, which waits for a
