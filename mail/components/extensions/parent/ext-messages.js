@@ -1536,6 +1536,21 @@ this.messages = class extends ExtensionAPIPersistent {
                 ordinal,
               }));
           },
+          async get(key) {
+            key = key.toLowerCase();
+            const matchingTag = MailServices.tags
+              .getAllTags()
+              .find(t => t.key == key);
+            if (!matchingTag) {
+              throw new ExtensionError(`Specified tag does not exist: ${key}`);
+            }
+            return {
+              key: matchingTag.key,
+              tag: matchingTag.tag,
+              color: matchingTag.color.toUpperCase(),
+              ordinal: matchingTag.ordinal,
+            };
+          },
           async create(key, tag, color) {
             const tags = MailServices.tags.getAllTags();
             if (tags.find(t => t.tag == tag)) {

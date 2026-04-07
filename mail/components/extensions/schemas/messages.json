@@ -1636,6 +1636,30 @@
         ]
       },
       {
+        "name": "get",
+        "type": "function",
+        "description": "Returns a message tag identified by its key.",
+        "async": "callback",
+        "permissions": ["messagesTagsList"],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "key",
+            "description": "The key of the message tag to retrieve."
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "messages.tags.MessageTag"
+              }
+            ]
+          }
+        ]
+      },
+      {
         "name": "create",
         "type": "function",
         "description": "Creates a new message tag and returns the associated key. Tagging a message will store the tag's key in the user's message. Throws if the specified tag key is used already.",
