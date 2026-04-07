@@ -63,9 +63,8 @@ function updateArchiveExample() {
   // necessary items into containers.
   for (let i = 0; i < hierarchy.length; i++) {
     for (let j = 0; j < hierarchy[i].length; j++) {
-      hierarchy[i][j].setAttribute("container", granularity > i);
-      hierarchy[i][j].setAttribute("open", granularity > i);
       hierarchy[i][j].hidden = granularity < i;
+      hierarchy[i][j].classList.toggle("children", granularity > i);
     }
   }
 
@@ -79,17 +78,15 @@ function updateArchiveExample() {
   childFolder.hidden = !kfs.checked;
   if (kfs.checked) {
     const parent = hierarchy[granularity][0];
-    parent.setAttribute("container", true);
-    parent.setAttribute("open", true);
+    parent.classList.toggle("children", true);
     let childFolderParent = parent;
     if (ri.checked) {
       parent.children[1].appendChild(inboxFolder);
       childFolderParent = inboxFolder;
     }
     parent.children[1].appendChild(siblingFolder);
-    inboxFolder.setAttribute("container", ri.checked);
-    inboxFolder.setAttribute("open", ri.checked);
-    childFolderParent.children[0].appendChild(childFolder);
+    inboxFolder.classList.toggle("children", ri.checked);
+    childFolderParent.querySelector("ul").appendChild(childFolder);
   }
 
   // Disable "recreate inbox" if necessary.

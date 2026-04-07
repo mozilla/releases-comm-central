@@ -311,6 +311,56 @@ richlistitem[default="true"],
   }
 }
 
+#archiveOptions {
+  & fieldset {
+    margin-block-end: 4px;
+
+    & legend {
+      margin-block: 4px;
+    }
+
+    & > div {
+      /* A maximum of 10 lines are displayed, and they are 28px high. */
+      block-size: 280px;
+      overflow: auto; /* Just in case they're not. */
+      border: 1px var(--border-color) solid;
+      border-radius: var(--border-radius-medium);
+    }
+
+    & ul {
+      margin-block: 0;
+      padding-inline-start: 16px;
+
+      &#archiveTree {
+        padding-inline-start: 0;
+      }
+
+      & li {
+        list-style: none;
+
+        & .container:hover {
+          border-color: transparent;
+        }
+
+        & .icon {
+          content: var(--icon-folder);
+          -moz-context-properties: fill, stroke;
+          fill: color-mix(in srgb, currentColor 20%, transparent);
+          stroke: currentColor;
+
+          .root > .container > & {
+            content: var(--icon-archive);
+          }
+        }
+
+        & .name {
+          margin-inline: 7px;
+        }
+      }
+    }
+  }
+}
+
 /* ::::: dialog header ::::: */
 
 #am-main-title {

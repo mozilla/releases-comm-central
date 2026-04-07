@@ -22,6 +22,15 @@
     <link rel="stylesheet" href="chrome://messenger/skin/folderPane.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/icons.css" />
     <link
+      rel="stylesheet"
+      href="chrome://messenger/skin/shared/tree-listbox.css"
+    />
+    <link
+      rel="stylesheet"
+      href="chrome://messenger/skin/shared/list-container.css"
+    />
+
+    <link
       rel="localization"
       href="messenger/preferences/am-archiveoptions.ftl"
     />
@@ -50,94 +59,165 @@
           id="archiveRecreateInbox"
           data-l10n-id="recreate-inbox"
         />
-        <html:div>
-          <html:fieldset flex="1" style="margin-block-end: 5px">
-            <html:legend data-l10n-id="archive-example-label"></html:legend>
-            <hbox flex="1">
-              <tree
-                id="archiveTree"
-                hidecolumnpicker="true"
-                disabled=""
-                flex="1"
-                style="min-height: 8em"
-              >
-                <treecols>
-                  <treecol
-                    id="folderNameCol"
-                    primary="true"
-                    hideheader="true"
-                    style="flex: 1 auto"
-                  />
-                </treecols>
-                <treechildren>
-                  <treeitem class="root">
-                    <treerow>
-                      <treecell
-                        properties="specialFolder-Archive"
-                        data-l10n-id="archive-folder-name"
-                      />
-                    </treerow>
-                    <treechildren>
-                      <treeitem id="inboxFolder">
-                        <treerow>
-                          <treecell data-l10n-id="inbox-folder-name" />
-                        </treerow>
-                      </treeitem>
-                      <treeitem id="childFolder">
-                        <treerow>
-                          <treecell data-l10n-id="child-folder-name" />
-                        </treerow>
-                      </treeitem>
-                      <treeitem id="siblingFolder">
-                        <treerow>
-                          <treecell data-l10n-id="sibling-folder-name" />
-                        </treerow>
-                      </treeitem>
-                      <treeitem class="year">
-                        <treerow>
-                          <treecell label="2020" />
-                        </treerow>
-                        <treechildren>
-                          <treeitem class="month">
-                            <treerow>
-                              <treecell label="2020-11" />
-                            </treerow>
-                            <treechildren />
-                          </treeitem>
-                          <treeitem class="month">
-                            <treerow>
-                              <treecell label="2020-12" />
-                            </treerow>
-                            <treechildren />
-                          </treeitem>
-                        </treechildren>
-                      </treeitem>
-                      <treeitem class="year">
-                        <treerow>
-                          <treecell label="2021" />
-                        </treerow>
-                        <treechildren>
-                          <treeitem class="month">
-                            <treerow>
-                              <treecell label="2021-01" />
-                            </treerow>
-                            <treechildren />
-                          </treeitem>
-                          <treeitem class="month">
-                            <treerow>
-                              <treecell label="2021-02" />
-                            </treerow>
-                            <treechildren />
-                          </treeitem>
-                        </treechildren>
-                      </treeitem>
-                    </treechildren>
-                  </treeitem>
-                </treechildren>
-              </tree>
-            </hbox>
-          </html:fieldset>
-        </html:div>
+        <fieldset xmlns="http://www.w3.org/1999/xhtml">
+          <!-- This is a simulation of the folder tree. It's meant to look
+             - like the folder tree, but not behave like it. -->
+          <legend data-l10n-id="archive-example-label"></legend>
+          <div>
+            <ul id="archiveTree" role="tree" flex="1">
+              <li class="root">
+                <div class="container">
+                  <div class="twisty">
+                    <img
+                      class="twisty-icon"
+                      src="chrome://global/skin/icons/arrow-down-12.svg"
+                      alt=""
+                    />
+                  </div>
+                  <img class="icon" />
+                  <span class="name" data-l10n-id="archive-folder-name2"></span>
+                </div>
+                <ul>
+                  <li id="inboxFolder">
+                    <div class="container">
+                      <div class="twisty">
+                        <img
+                          class="twisty-icon"
+                          src="chrome://global/skin/icons/arrow-down-12.svg"
+                          alt=""
+                        />
+                      </div>
+                      <img class="icon" />
+                      <span
+                        class="name"
+                        data-l10n-id="inbox-folder-name2"
+                      ></span>
+                    </div>
+                    <ul></ul>
+                  </li>
+                  <li id="childFolder">
+                    <div class="container">
+                      <div class="twisty">
+                        <img
+                          class="twisty-icon"
+                          src="chrome://global/skin/icons/arrow-down-12.svg"
+                          alt=""
+                        />
+                      </div>
+                      <img class="icon" />
+                      <span
+                        class="name"
+                        data-l10n-id="child-folder-name2"
+                      ></span>
+                    </div>
+                  </li>
+                  <li id="siblingFolder">
+                    <div class="container">
+                      <div class="twisty">
+                        <img
+                          class="twisty-icon"
+                          src="chrome://global/skin/icons/arrow-down-12.svg"
+                          alt=""
+                        />
+                      </div>
+                      <img class="icon" />
+                      <span
+                        class="name"
+                        data-l10n-id="sibling-folder-name2"
+                      ></span>
+                    </div>
+                  </li>
+                  <li class="year">
+                    <div class="container">
+                      <div class="twisty">
+                        <img
+                          class="twisty-icon"
+                          src="chrome://global/skin/icons/arrow-down-12.svg"
+                          alt=""
+                        />
+                      </div>
+                      <img class="icon" />
+                      <span class="name">2020</span>
+                    </div>
+                    <ul>
+                      <li class="month">
+                        <div class="container">
+                          <div class="twisty">
+                            <img
+                              class="twisty-icon"
+                              src="chrome://global/skin/icons/arrow-down-12.svg"
+                              alt=""
+                            />
+                          </div>
+                          <img class="icon" />
+                          <span class="name">2020-11</span>
+                        </div>
+                        <ul></ul>
+                      </li>
+                      <li class="month">
+                        <div class="container">
+                          <div class="twisty">
+                            <img
+                              class="twisty-icon"
+                              src="chrome://global/skin/icons/arrow-down-12.svg"
+                              alt=""
+                            />
+                          </div>
+                          <img class="icon" />
+                          <span class="name">2020-12</span>
+                        </div>
+                        <ul></ul>
+                      </li>
+                    </ul>
+                  </li>
+                  <li class="year">
+                    <div class="container">
+                      <div class="twisty">
+                        <img
+                          class="twisty-icon"
+                          src="chrome://global/skin/icons/arrow-down-12.svg"
+                          alt=""
+                        />
+                      </div>
+                      <img class="icon" />
+                      <span class="name">2021</span>
+                    </div>
+                    <ul>
+                      <li class="month">
+                        <div class="container">
+                          <div class="twisty">
+                            <img
+                              class="twisty-icon"
+                              src="chrome://global/skin/icons/arrow-down-12.svg"
+                              alt=""
+                            />
+                          </div>
+                          <img class="icon" />
+                          <span class="name">2021-01</span>
+                        </div>
+                        <ul></ul>
+                      </li>
+                      <li class="month">
+                        <div class="container">
+                          <div class="twisty">
+                            <img
+                              class="twisty-icon"
+                              src="chrome://global/skin/icons/arrow-down-12.svg"
+                              alt=""
+                            />
+                          </div>
+                          <img class="icon" />
+                          <span class="name">2021-02</span>
+                        </div>
+                        <ul></ul>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </fieldset>
       </vbox>
     </dialog>
   </html:body>
