@@ -234,6 +234,18 @@ folder-pane-header-toggle-full-path =
 folder-pane-header-hide-local-folders =
   .label = Hide Local Folders
 
+folder-pane-mode-header-all = All Folders
+
+folder-pane-mode-header-unread = Unread Folders
+
+folder-pane-mode-header-favorite = Favorite Folders
+
+folder-pane-mode-header-recent = Recent Folders
+
+folder-pane-mode-header-smart = Unified Folders
+
+folder-pane-mode-header-tags = Tags
+
 folder-pane-mode-context-button =
   .title = Folder mode options
 

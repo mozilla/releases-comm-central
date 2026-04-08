@@ -2223,10 +2223,10 @@ var folderPane = {
 
     mode.container = container;
     mode.containerHeader = container.querySelector(".mode-container");
-    mode.containerHeader.querySelector(".mode-name").textContent =
-      messengerBundle.GetStringFromName(
-        modeName == "tags" ? "tag" : `folderPaneModeHeader_${modeName}`
-      );
+    document.l10n.setAttributes(
+      mode.containerHeader.querySelector(".mode-name"),
+      `folder-pane-mode-header-${modeName}`
+    );
     mode.containerList = container.querySelector("ul");
     this._initMode(mode);
     mode.active = true;
