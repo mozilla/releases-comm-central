@@ -18,31 +18,41 @@ ChromeUtils.defineESModuleGetters(this, {
 const TODAY_HEADER = { args: null, id: "calendar-today" };
 const TOMORROW_HEADER = { args: null, id: "calendar-tomorrow" };
 
-const calendar = CalendarTestUtils.createCalendar();
-Services.prefs.setIntPref("calendar.agenda.days", 7);
-registerCleanupFunction(() => {
-  CalendarTestUtils.removeCalendar(calendar);
-  Services.prefs.clearUserPref("calendar.agenda.days");
-});
-
-const today = cal.dtz.now();
-const startHour = today.hour;
-today.hour = today.minute = today.second = 0;
+var calendar;
+var today;
+var startHour;
 
 const todayPanePanel = document.getElementById("today-pane-panel");
 const todayPaneStatusButton = document.getElementById("calendar-status-todaypane-button");
 
-// Go to mail tab.
-selectFolderTab();
+add_setup(async function () {
+  calendar = CalendarTestUtils.createCalendar();
+  Services.prefs.setIntPref("calendar.agenda.days", 7);
+  registerCleanupFunction(() => {
+    CalendarTestUtils.removeCalendar(calendar);
+    TodayPane.setDay(cal.dtz.now()); // eslint-disable-line no-restricted-properties
+    Services.prefs.clearUserPref("calendar.agenda.days");
+  });
 
-// Verify today pane open.
-if (todayPanePanel.hasAttribute("collapsed")) {
-  EventUtils.synthesizeMouseAtCenter(todayPaneStatusButton, {});
-}
-Assert.ok(!todayPanePanel.hasAttribute("collapsed"), "Today Pane is open");
+  today = cal.dtz.now();
+  startHour = today.hour;
+  today.hour = today.minute = today.second = 0;
 
-// Verify today pane's date.
-Assert.equal(document.getElementById("datevalue-label").value, today.day, "Today Pane shows today");
+  // Go to mail tab.
+  await selectFolderTab();
+
+  // Verify today pane open.
+  if (todayPanePanel.hasAttribute("collapsed")) {
+    EventUtils.synthesizeMouseAtCenter(todayPaneStatusButton, {});
+    await new Promise(resolve => setTimeout(resolve));
+  }
+  Assert.ok(!todayPanePanel.hasAttribute("collapsed"), "Today Pane is open");
+
+  // Verify today pane's date.
+  await TestUtils.waitForCondition(() => {
+    return document.getElementById("datevalue-label").value == today.day;
+  }, "waiting for Today Pane to show today");
+});
 
 async function addEvent(title, relativeStart, relativeEnd, isAllDay) {
   const event = new CalEvent();
@@ -778,7 +788,11 @@ add_task(async function testNewEvent() {
     await dialogWindowPromise.then(async function (dialogWindow) {
       const iframe = dialogWindow.document.querySelector("#calendar-item-panel-iframe");
       const iframeDocument = iframe.contentDocument;
+      if (iframeDocument.readyState != "complete") {
+        await new Promise(resolve => iframe.addEventListener("load", resolve, { once: true }));
+      }
 
+      await new Promise(resolve => dialogWindow.requestAnimationFrame(resolve));
       const startDate = iframeDocument.getElementById("event-starttime");
       Assert.equal(
         startDate._datepicker._inputField.value,
