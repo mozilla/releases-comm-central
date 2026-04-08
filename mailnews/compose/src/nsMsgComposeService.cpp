@@ -35,6 +35,7 @@
 #include "nsIMsgDatabase.h"
 #include "nsIDocumentEncoder.h"
 #include "mozilla/dom/Selection.h"
+#include "mozilla/intl/Segmenter.h"
 #include "mozilla/intl/LineBreaker.h"
 #include "mimemoz2.h"
 #include "nsIURIMutator.h"
@@ -48,7 +49,6 @@
 #include "nsICommandLine.h"
 #include "nsMsgUtils.h"
 #include "nsIPrincipal.h"
-#include "nsIMutableArray.h"
 
 using namespace mozilla;
 using namespace mozilla::dom;
@@ -184,20 +184,20 @@ nsMsgComposeService::GetHTMLForSelection(mozilla::dom::Selection* selection,
     if (requireMultipleWords) {
       if (selPlain.IsEmpty()) return NS_ERROR_ABORT;
 
-      const uint32_t length = selPlain.Length();
-      const char16_t* unicodeStr = selPlain.get();
-      int32_t endWordPos =
-          mozilla::intl::LineBreaker::Next(unicodeStr, length, 0);
-
-      // If there's not even one word, then there's not multiple words
-      if (endWordPos == NS_LINEBREAKER_NEED_MORE_TEXT) return NS_ERROR_ABORT;
+      mozilla::intl::LineBreakIteratorUtf16 lineBreakIter(selPlain);
+      Maybe<uint32_t> breakPt = lineBreakIter.Next();
+      if (breakPt.isNothing()) {
+        // Not even one word, let alone multiple.
+        return NS_ERROR_ABORT;
+      }
 
       // If after the first word is only space, then there's not multiple
       // words
-      const char16_t* end;
-      for (end = unicodeStr + endWordPos; mozilla::intl::NS_IsSpace(*end);
-           end++);
-      if (!*end) return NS_ERROR_ABORT;
+      const char16_t* begin = selPlain.BeginReading() + breakPt.value();
+      const char16_t* end = selPlain.EndReading();
+      if (std::all_of(begin, end, mozilla::intl::NS_IsSpace)) {
+        return NS_ERROR_ABORT;
+      }
     }
 
     if (!charsOnlyIf.IsEmpty()) {

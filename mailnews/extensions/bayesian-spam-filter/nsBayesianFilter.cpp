@@ -13,6 +13,7 @@
 #include "mozilla/ArenaAllocatorExtensions.h"  // for ArenaStrdup
 #include "mozilla/Attributes.h"
 #include "mozilla/Components.h"
+#include "mozilla/intl/Segmenter.h"
 #include "mozilla/Logging.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/Services.h"
@@ -760,6 +761,8 @@ nsresult Tokenizer::ScannerNext(const char16_t* text, int32_t length,
     return NS_OK;
   }
 
+  // TODO: Is the bespoke handling here still applicable?
+  // https://bugzilla.mozilla.org/show_bug.cgi?id=2030206
   WordBreakClass char_class = GetWordBreakClass(text[pos]);
 
   // If we are in Chinese mode, return one Han letter at a time.
@@ -771,19 +774,17 @@ nsresult Tokenizer::ScannerNext(const char16_t* text, int32_t length,
     return NS_OK;
   }
 
-  int32_t next;
-  // Find the next "word".
-  next =
-      mozilla::intl::WordBreaker::Next(text, (uint32_t)length, (uint32_t)pos);
-
-  // If we don't have enough text to make decision, return.
-  if (next == NS_WORDBREAKER_NEED_MORE_TEXT) {
+  mozilla::intl::WordBreakIteratorUtf16 breakIter(
+      mozilla::Span<const char16_t>(text + pos, length - pos));
+  Maybe<uint32_t> breakPt = breakIter.Next();
+  if (breakPt.isNothing()) {
+    // If we don't have enough text to make decision, return.
     *begin = pos;
     *end = isLastBuffer ? length : pos;
     *_retval = isLastBuffer;
     return NS_OK;
   }
-
+  int32_t next = (int32_t)breakPt.value();
   // If what we got is space or punct, look at the next break.
   if (char_class == WordBreakClass::kWbClassSpace ||
       char_class == WordBreakClass::kWbClassPunct) {
