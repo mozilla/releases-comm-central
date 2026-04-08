@@ -458,12 +458,13 @@ div:has(legend) {
 }
 
 .input-success {
-  input:invalid ~ & {
-    display: none;
-  }
+  display: none;
 
-  input:user-valid ~ &,
-  input:valid ~ & {
+  /* Optional fields need to have placeholder="" or an actual placeholder so the
+   * validity checkmark doesn't show in their empty state. If we ever get the
+   * :blank pseudo class, we can use that instead. */
+  input:user-valid:not(:optional:placeholder-shown) ~ &,
+  input:valid:not(:placeholder-shown) ~ & {
     display: inline-block;
   }
 }
