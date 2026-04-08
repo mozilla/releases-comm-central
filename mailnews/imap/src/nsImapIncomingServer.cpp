@@ -22,6 +22,7 @@
 #include "plstr.h"
 #include "nsIMsgFolder.h"
 #include "nsIMsgWindow.h"
+#include "nsIWindowMediator.h"
 #include "nsImapMailFolder.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsIImapService.h"
@@ -1605,12 +1606,6 @@ nsImapIncomingServer::PromptLoginFailed(nsIMsgWindow* aMsgWindow,
 
   nsAutoCString accountName;
   GetPrettyName(accountName);
-
-  nsCOMPtr<mozIDOMWindowProxy> domWindow;
-  if (aMsgWindow) {
-    aMsgWindow->GetDomWindow(getter_AddRefs(domWindow));
-  }
-
   nsresult rv;
   nsCOMPtr<nsIPromptService> dlgService(
       do_GetService(NS_PROMPTSERVICE_CONTRACTID, &rv));
@@ -1647,6 +1642,12 @@ nsImapIncomingServer::PromptLoginFailed(nsIMsgWindow* aMsgWindow,
   rv = bundle->GetStringFromName("mailServerLoginFailedEnterNewPasswordButton",
                                  button2);
   NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<mozIDOMWindowProxy> domWindow;
+  nsCOMPtr<nsIWindowMediator> winMed =
+      do_GetService(NS_WINDOWMEDIATOR_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+  winMed->GetMostRecentWindow(nullptr, getter_AddRefs(domWindow));
 
   bool dummyValue = false;
   return dlgService->ConfirmEx(

@@ -219,19 +219,23 @@ add_task(async function test_attachment_reminder_dismissal() {
 
   Assert.equal(get_reminder_keywords(cwc), "test.doc, attachment, attached");
 
+  await new Promise(resolve => setTimeout(resolve));
+
   // We didn't click the "Remind Me Later" - the alert should pop up
   // on send anyway.
   // Click the "Oh, I Did!" button in the attachment reminder dialog.
   const dialogPromise = BrowserTestUtils.promiseAlertDialog("extra1");
   const buttonSend = cwc.document.getElementById("button-send");
+  Assert.ok(!buttonSend.disabled, "#button-send should be enabled");
   EventUtils.synthesizeMouseAtCenter(buttonSend, {}, buttonSend.ownerGlobal);
   await dialogPromise;
   await new Promise(resolve => setTimeout(resolve));
 
   const notification = assert_automatic_reminder_state(cwc, true);
-
   notification.close();
+  info("Closed automatic reminder");
   assert_automatic_reminder_state(cwc, false);
+  await new Promise(resolve => setTimeout(resolve));
 
   await click_send_and_handle_send_error(cwc);
 

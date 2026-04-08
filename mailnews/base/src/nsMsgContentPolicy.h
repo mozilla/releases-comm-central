@@ -72,8 +72,6 @@ class nsMsgContentPolicy : public nsIContentPolicy,
   already_AddRefed<nsIMsgCompose> GetMsgComposeForBrowsingContext(
       mozilla::dom::BrowsingContext* aRequestingContext);
 
-  nsresult GetRootDocShellForContext(nsISupports* aRequestingContext,
-                                     nsIDocShell** aDocShell);
   nsresult GetOriginatingURIForContext(nsISupports* aRequestingContext,
                                        nsIURI** aURI);
   nsresult SetDisableItemsOnMailNewsUrlDocshells(nsIURI* aContentLocation,

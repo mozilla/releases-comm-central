@@ -23,6 +23,7 @@
 #include "nsIStringBundle.h"
 #include "nsDirectoryServiceDefs.h"
 #include "nsMsgUtils.h"
+#include "nsIWindowMediator.h"
 #include "nsNetUtil.h"
 #include "nsIMsgDatabase.h"
 #include "mozilla/Components.h"
@@ -986,7 +987,10 @@ NS_IMETHODIMP nsMsgMdnGenerator::OnSendStop(nsIURI* aServerURI,
   bundle->GetStringFromName("sendMessageErrorTitle", dialogTitle);
 
   nsCOMPtr<mozIDOMWindowProxy> domWindow;
-  m_window->GetDomWindow(getter_AddRefs(domWindow));
+  nsCOMPtr<nsIWindowMediator> winMed =
+      do_GetService(NS_WINDOWMEDIATOR_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+  winMed->GetMostRecentWindow(nullptr, getter_AddRefs(domWindow));
 
   nsCOMPtr<nsIPromptService> dlgService(
       do_GetService(NS_PROMPTSERVICE_CONTRACTID, &rv));

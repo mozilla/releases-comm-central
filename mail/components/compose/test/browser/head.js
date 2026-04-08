@@ -176,6 +176,22 @@ async function addLoginInfo(hostname, username, password, realm = hostname) {
   await Services.logins.addLoginAsync(loginInfo);
 }
 
+/**
+ * Helper to add logins to the login manager.
+ *
+ * @param {string} hostname
+ * @param {string} username
+ * @param {string} password
+ * @param {string} [realm=hostname]
+ */
+async function removeLoginInfo(hostname, username, password, realm = hostname) {
+  const loginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
+    Ci.nsILoginInfo
+  );
+  loginInfo.init(hostname, null, realm, username, password, "", "");
+  await Services.logins.removeLoginAsync(loginInfo);
+}
+
 registerCleanupFunction(async function () {
   await clearStatusBar(window);
 });

@@ -26,6 +26,9 @@
 #include "nsParseMailbox.h"
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgWindow.h"
+#include "nsEmbedCID.h"
+#include "nsIPromptService.h"
+#include "nsIWindowMediator.h"
 #include "nsCOMPtr.h"
 #include "nsMsgUtils.h"
 #include "nsLocalUtils.h"
@@ -782,57 +785,61 @@ nsresult nsMsgLocalMailFolder::ConfirmFolderDeletion(nsIMsgWindow* aMsgWindow,
   NS_ENSURE_ARG(aResult);
   NS_ENSURE_ARG(aMsgWindow);
   NS_ENSURE_ARG(aFolder);
-  nsCOMPtr<nsIDocShell> docShell;
-  aMsgWindow->GetRootDocShell(getter_AddRefs(docShell));
-  if (docShell) {
-    if (Preferences::GetBool("mailnews.confirm.moveFoldersToTrash", true)) {
-      nsCOMPtr<nsIStringBundleService> bundleService =
-          mozilla::components::StringBundle::Service();
-      NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
-      nsCOMPtr<nsIStringBundle> bundle;
-      nsresult rv = bundleService->CreateBundle(
-          "chrome://messenger/locale/localMsgs.properties",
-          getter_AddRefs(bundle));
-      NS_ENSURE_SUCCESS(rv, rv);
+  if (Preferences::GetBool("mailnews.confirm.moveFoldersToTrash", true)) {
+    nsCOMPtr<nsIStringBundleService> bundleService =
+        mozilla::components::StringBundle::Service();
+    NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
+    nsCOMPtr<nsIStringBundle> bundle;
+    nsresult rv = bundleService->CreateBundle(
+        "chrome://messenger/locale/localMsgs.properties",
+        getter_AddRefs(bundle));
+    NS_ENSURE_SUCCESS(rv, rv);
 
-      nsAutoCString folderName;
-      rv = aFolder->GetName(folderName);
-      NS_ENSURE_SUCCESS(rv, rv);
-      AutoTArray<nsString, 1> formatStrings = {
-          NS_ConvertUTF8toUTF16(folderName)};
+    nsAutoCString folderName;
+    rv = aFolder->GetName(folderName);
+    NS_ENSURE_SUCCESS(rv, rv);
+    AutoTArray<nsString, 1> formatStrings = {NS_ConvertUTF8toUTF16(folderName)};
 
-      nsAutoString deleteFolderDialogTitle;
-      rv = bundle->GetStringFromName("pop3DeleteFolderDialogTitle",
-                                     deleteFolderDialogTitle);
-      NS_ENSURE_SUCCESS(rv, rv);
+    nsAutoString deleteFolderDialogTitle;
+    rv = bundle->GetStringFromName("pop3DeleteFolderDialogTitle",
+                                   deleteFolderDialogTitle);
+    NS_ENSURE_SUCCESS(rv, rv);
 
-      nsAutoString deleteFolderButtonLabel;
-      rv = bundle->GetStringFromName("pop3DeleteFolderButtonLabel",
-                                     deleteFolderButtonLabel);
-      NS_ENSURE_SUCCESS(rv, rv);
+    nsAutoString deleteFolderButtonLabel;
+    rv = bundle->GetStringFromName("pop3DeleteFolderButtonLabel",
+                                   deleteFolderButtonLabel);
+    NS_ENSURE_SUCCESS(rv, rv);
 
-      nsAutoString confirmationStr;
-      rv = bundle->FormatStringFromName("pop3MoveFolderToTrash", formatStrings,
-                                        confirmationStr);
-      NS_ENSURE_SUCCESS(rv, rv);
+    nsAutoString confirmationStr;
+    rv = bundle->FormatStringFromName("pop3MoveFolderToTrash", formatStrings,
+                                      confirmationStr);
+    NS_ENSURE_SUCCESS(rv, rv);
 
-      nsCOMPtr<nsIPrompt> dialog(do_GetInterface(docShell));
-      if (dialog) {
-        int32_t buttonPressed = 0;
-        // Default the dialog to "cancel".
-        const uint32_t buttonFlags =
-            (nsIPrompt::BUTTON_TITLE_IS_STRING * nsIPrompt::BUTTON_POS_0) +
-            (nsIPrompt::BUTTON_TITLE_CANCEL * nsIPrompt::BUTTON_POS_1);
-        bool dummyValue = false;
-        rv = dialog->ConfirmEx(deleteFolderDialogTitle.get(),
+    nsCOMPtr<mozIDOMWindowProxy> domWindow;
+    nsCOMPtr<nsIWindowMediator> winMed =
+        do_GetService(NS_WINDOWMEDIATOR_CONTRACTID, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+    winMed->GetMostRecentWindow(nullptr, getter_AddRefs(domWindow));
+
+    nsCOMPtr<nsIPromptService> dlgService(
+        do_GetService(NS_PROMPTSERVICE_CONTRACTID, &rv));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    int32_t buttonPressed = 0;
+    // Default the dialog to "cancel".
+    const uint32_t buttonFlags =
+        (nsIPrompt::BUTTON_TITLE_IS_STRING * nsIPrompt::BUTTON_POS_0) +
+        (nsIPrompt::BUTTON_TITLE_CANCEL * nsIPrompt::BUTTON_POS_1);
+    bool dummyValue = false;
+    rv = dlgService->ConfirmEx(domWindow, deleteFolderDialogTitle.get(),
                                confirmationStr.get(), buttonFlags,
                                deleteFolderButtonLabel.get(), nullptr, nullptr,
                                nullptr, &dummyValue, &buttonPressed);
-        NS_ENSURE_SUCCESS(rv, rv);
-        *aResult = !buttonPressed;  // "ok" is in position 0
-      }
-    } else
-      *aResult = true;
+    NS_ENSURE_SUCCESS(rv, rv);
+    *aResult = !buttonPressed;  // "ok" is in position 0
+
+  } else {
+    *aResult = true;
   }
   return NS_OK;
 }

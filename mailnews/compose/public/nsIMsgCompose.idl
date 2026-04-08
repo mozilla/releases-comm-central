@@ -196,9 +196,6 @@ interface nsIMsgCompose : nsIMsgSendListener {
   attribute nsIEditor editor;
 
   /* ... */
-  readonly attribute mozIDOMWindowProxy domWindow;
-
-  /* ... */
   readonly attribute nsIMsgCompFields compFields;
 
   /* ... */

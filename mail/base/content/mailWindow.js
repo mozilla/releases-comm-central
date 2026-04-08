@@ -267,12 +267,10 @@ function toggleCaretBrowsing() {
 }
 
 function InitMsgWindow() {
-  // Set the domWindow before setting the status feedback object.
-  msgWindow.domWindow = window;
   MailServices.mailSession.AddMsgWindow(msgWindow);
-  msgWindow.rootDocShell.allowAuth = true;
+  window.browsingContext.docShell.allowAuth = true;
   // Ensure we don't load xul error pages into the main window
-  msgWindow.rootDocShell.useErrorPages = false;
+  window.browsingContext.docShell.useErrorPages = false;
 
   document.addEventListener("dragstart", onCopyOrDragStart, true);
 

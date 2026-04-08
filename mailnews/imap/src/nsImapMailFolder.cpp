@@ -41,6 +41,9 @@
 #include "nsIImapMockChannel.h"
 #include "nsIProgressEventSink.h"
 #include "nsIMsgWindow.h"
+#include "nsIWindowMediator.h"
+#include "nsIPromptService.h"
+#include "nsEmbedCID.h"
 #include "nsIMsgFolder.h"  // TO include biffState enum. Change to bool later...
 #include "nsIMsgLocalMailFolder.h"
 #include "nsIMsgOfflineImapOperation.h"
@@ -1501,35 +1504,39 @@ NS_IMETHODIMP nsImapMailFolder::Rename(const nsACString& newName,
   nsresult rv;
   nsAutoCString newNameStr(newName);
   if (newNameStr.FindChar(m_hierarchyDelimiter, 0) != kNotFound) {
-    nsCOMPtr<nsIDocShell> docShell;
-    if (msgWindow) msgWindow->GetRootDocShell(getter_AddRefs(docShell));
-    if (docShell) {
-      nsCOMPtr<nsIStringBundle> bundle;
-      rv = IMAPGetStringBundle(getter_AddRefs(bundle));
-      if (NS_SUCCEEDED(rv) && bundle) {
-        AutoTArray<nsString, 1> formatStrings;
-        formatStrings.AppendElement()->Append(m_hierarchyDelimiter);
-        nsString alertString;
-        rv = bundle->FormatStringFromName("imapSpecialChar2", formatStrings,
-                                          alertString);
-        nsCOMPtr<nsIPrompt> dialog(do_GetInterface(docShell));
-        // setting up the dialog title
-        nsCOMPtr<nsIMsgIncomingServer> server;
-        rv = GetServer(getter_AddRefs(server));
-        NS_ENSURE_SUCCESS(rv, rv);
-        nsString dialogTitle;
-        nsAutoCString accountName;
-        rv = server->GetPrettyName(accountName);
-        NS_ENSURE_SUCCESS(rv, rv);
-        AutoTArray<nsString, 1> titleParams = {
-            NS_ConvertUTF8toUTF16(accountName)};
-        rv = bundle->FormatStringFromName("imapAlertDialogTitle", titleParams,
-                                          dialogTitle);
+    nsCOMPtr<nsIStringBundle> bundle;
+    rv = IMAPGetStringBundle(getter_AddRefs(bundle));
+    NS_ENSURE_SUCCESS(rv, rv);
 
-        if (dialog && !alertString.IsEmpty())
-          dialog->Alert(dialogTitle.get(), alertString.get());
-      }
-    }
+    AutoTArray<nsString, 1> formatStrings;
+    formatStrings.AppendElement()->Append(m_hierarchyDelimiter);
+    nsString alertString;
+    rv = bundle->FormatStringFromName("imapSpecialChar2", formatStrings,
+                                      alertString);
+    NS_ENSURE_SUCCESS(rv, rv);
+    nsCOMPtr<nsIMsgIncomingServer> server;
+    rv = GetServer(getter_AddRefs(server));
+    NS_ENSURE_SUCCESS(rv, rv);
+    nsString dialogTitle;
+    nsAutoCString accountName;
+    rv = server->GetPrettyName(accountName);
+    NS_ENSURE_SUCCESS(rv, rv);
+    AutoTArray<nsString, 1> titleParams = {NS_ConvertUTF8toUTF16(accountName)};
+    rv = bundle->FormatStringFromName("imapAlertDialogTitle", titleParams,
+                                      dialogTitle);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    nsCOMPtr<mozIDOMWindowProxy> domWindow;
+    nsCOMPtr<nsIWindowMediator> winMed =
+        do_GetService(NS_WINDOWMEDIATOR_CONTRACTID, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+    winMed->GetMostRecentWindow(nullptr, getter_AddRefs(domWindow));
+
+    nsCOMPtr<nsIPromptService> dlgService(
+        do_GetService(NS_PROMPTSERVICE_CONTRACTID, &rv));
+    NS_ENSURE_SUCCESS(rv, rv);
+    dlgService->Alert(domWindow, dialogTitle.get(), alertString.get());
+
     return NS_ERROR_FAILURE;
   }
   nsCOMPtr<nsIImapIncomingServer> incomingImapServer;
@@ -2264,26 +2271,30 @@ nsImapMailFolder::DeleteSelf(nsIMsgWindow* msgWindow) {
         (deleteNoTrash) ? "imapDeleteNoTrash" : "imapMoveFolderToTrash",
         formatStrings, confirmationStr);
     NS_ENSURE_SUCCESS(rv, rv);
-    if (!msgWindow) return NS_ERROR_NULL_POINTER;
-    nsCOMPtr<nsIDocShell> docShell;
-    msgWindow->GetRootDocShell(getter_AddRefs(docShell));
-    nsCOMPtr<nsIPrompt> dialog;
-    if (docShell) dialog = do_GetInterface(docShell);
-    if (dialog) {
-      int32_t buttonPressed = 0;
-      // Default the dialog to "cancel".
-      const uint32_t buttonFlags =
-          (nsIPrompt::BUTTON_TITLE_IS_STRING * nsIPrompt::BUTTON_POS_0) +
-          (nsIPrompt::BUTTON_TITLE_CANCEL * nsIPrompt::BUTTON_POS_1);
 
-      bool dummyValue = false;
-      rv = dialog->ConfirmEx(deleteFolderDialogTitle.get(),
-                             confirmationStr.get(), buttonFlags,
-                             deleteFolderButtonLabel.get(), nullptr, nullptr,
-                             nullptr, &dummyValue, &buttonPressed);
-      NS_ENSURE_SUCCESS(rv, rv);
-      confirmed = !buttonPressed;  // "ok" is in position 0
-    }
+    nsCOMPtr<mozIDOMWindowProxy> domWindow;
+    nsCOMPtr<nsIWindowMediator> winMed =
+        do_GetService(NS_WINDOWMEDIATOR_CONTRACTID, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+    winMed->GetMostRecentWindow(nullptr, getter_AddRefs(domWindow));
+
+    nsCOMPtr<nsIPromptService> dlgService(
+        do_GetService(NS_PROMPTSERVICE_CONTRACTID, &rv));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    int32_t buttonPressed = 0;
+    // Default the dialog to "cancel".
+    const uint32_t buttonFlags =
+        (nsIPrompt::BUTTON_TITLE_IS_STRING * nsIPrompt::BUTTON_POS_0) +
+        (nsIPrompt::BUTTON_TITLE_CANCEL * nsIPrompt::BUTTON_POS_1);
+
+    bool dummyValue = false;
+    rv = dlgService->ConfirmEx(domWindow, deleteFolderDialogTitle.get(),
+                               confirmationStr.get(), buttonFlags,
+                               deleteFolderButtonLabel.get(), nullptr, nullptr,
+                               nullptr, &dummyValue, &buttonPressed);
+    NS_ENSURE_SUCCESS(rv, rv);
+    confirmed = !buttonPressed;  // "ok" is in position 0
   } else {
     confirmed = true;
   }

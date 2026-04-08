@@ -1107,7 +1107,7 @@ nsMsgCompose::SendMsgToServer(MSG_DeliverMode deliverMode,
       rv = mMsgSend->CreateAndSendMessage(
           m_composeHTML ? m_editor.get() : nullptr, identity, accountKey,
           m_compFields, false, false, (nsMsgDeliverMode)deliverMode, nullptr,
-          m_composeHTML ? TEXT_HTML : TEXT_PLAIN, bodyString, m_window,
+          m_composeHTML ? TEXT_HTML : TEXT_PLAIN, bodyString, nullptr,
           mProgress, sendListener, mSmtpPassword, mOriginalMsgURI, mType,
           getter_AddRefs(promise));
       promise.forget(aPromise);
@@ -1172,7 +1172,7 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode,
   if (progress) {
     mProgress = progress;
 
-    if (m_window && deliverMode != nsIMsgCompDeliverMode::AutoSaveAsDraft) {
+    if (deliverMode != nsIMsgCompDeliverMode::AutoSaveAsDraft) {
       nsAutoString msgSubject;
       m_compFields->GetSubject(msgSubject);
 
@@ -1184,15 +1184,22 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode,
         params->SetSubject(msgSubject.get());
         params->SetDeliveryMode(deliverMode);
 
-        mProgress->OpenProgressDialog(
-            m_window,
-            "chrome://messenger/content/messengercompose/sendProgress.xhtml",
-            params);
+        nsCOMPtr<nsIWindowMediator> winMed =
+            do_GetService(NS_WINDOWMEDIATOR_CONTRACTID, &rv);
+        NS_ENSURE_SUCCESS(rv, rv);
+        nsCOMPtr<mozIDOMWindowProxy> domWindow;
+        winMed->GetMostRecentWindow(nullptr, getter_AddRefs(domWindow));
+        if (domWindow) {
+          mProgress->OpenProgressDialog(
+              domWindow,
+              "chrome://messenger/content/messengercompose/sendProgress.xhtml",
+              params);
+        }
+
+        mProgress->OnStateChange(nullptr, nullptr,
+                                 nsIWebProgressListener::STATE_START, NS_OK);
       }
     }
-
-    mProgress->OnStateChange(nullptr, nullptr,
-                             nsIWebProgressListener::STATE_START, NS_OK);
   }
 
   bool attachVCard = false;
@@ -1260,7 +1267,7 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode,
     if (self->mMsgSend)
       self->mMsgSend->GetSendReport(getter_AddRefs(sendReport));
     if (sendReport) {
-      sendReport->DisplayReport(self->m_window);
+      sendReport->DisplayReport(nullptr);
     } else {
       // If we come here it's because we got an error before we could initialize
       // a send report! Let's try our best...
@@ -1268,18 +1275,18 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode,
       // filter actions or MAPI. Should those alert? Consider reworking.
       switch (deliverMode) {
         case nsIMsgCompDeliverMode::Later:
-          nsMsgDisplayMessageByName(self->m_window, "unableToSendLater");
+          nsMsgDisplayMessageByName("unableToSendLater");
           break;
         case nsIMsgCompDeliverMode::AutoSaveAsDraft:
         case nsIMsgCompDeliverMode::SaveAsDraft:
-          nsMsgDisplayMessageByName(self->m_window, "unableToSaveDraft");
+          nsMsgDisplayMessageByName("unableToSaveDraft");
           break;
         case nsIMsgCompDeliverMode::SaveAsTemplate:
-          nsMsgDisplayMessageByName(self->m_window, "unableToSaveTemplate");
+          nsMsgDisplayMessageByName("unableToSaveTemplate");
           break;
 
         default:
-          nsMsgDisplayMessageByName(self->m_window, "sendFailed");
+          nsMsgDisplayMessageByName("sendFailed");
           break;
       }
     }
@@ -1319,7 +1326,6 @@ NS_IMETHODIMP nsMsgCompose::CloseWindow(void) {
 
   nsCOMPtr<nsIMsgComposeService> composeService =
       mozilla::components::Compose::Service();
-
   // unregister the compose object with the compose service
   rv = composeService->UnregisterComposeDocShell(mDocShell);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -1329,13 +1335,15 @@ NS_IMETHODIMP nsMsgCompose::CloseWindow(void) {
   // temporary files.
   mMsgSend = nullptr;
   m_editor = nullptr;
-  nsCOMPtr<nsPIDOMWindowOuter> outerWin = nsPIDOMWindowOuter::From(m_window);
-  if (!outerWin) {
-    NS_WARNING("Getting outer win FAILED");
-    return NS_ERROR_FAILURE;
+  if (m_window) {
+    nsCOMPtr<nsPIDOMWindowOuter> outerWin = nsPIDOMWindowOuter::From(m_window);
+    if (!outerWin) {
+      NS_WARNING("Getting outer win FAILED");
+      return NS_ERROR_FAILURE;
+    }
+    outerWin->Close();
+    m_window = nullptr;
   }
-  outerWin->Close();
-  m_window = nullptr;
   return rv;
 }
 
@@ -1421,12 +1429,6 @@ nsMsgCompose::SetBodyModified(bool modified) {
   }
 
   return rv;
-}
-
-NS_IMETHODIMP
-nsMsgCompose::GetDomWindow(mozIDOMWindowProxy** aDomWindow) {
-  NS_IF_ADDREF(*aDomWindow = m_window);
-  return NS_OK;
 }
 
 nsresult nsMsgCompose::GetCompFields(nsIMsgCompFields** aCompFields) {
@@ -2384,10 +2386,7 @@ QuotingOutputStreamListener::OnStopRequest(nsIRequest* request,
       if (!followUpTo.IsEmpty()) {
         // Handle "followup-to: poster" magic keyword here
         if (followUpTo.EqualsLiteral("poster")) {
-          nsCOMPtr<mozIDOMWindowProxy> domWindow;
-          compose->GetDomWindow(getter_AddRefs(domWindow));
-          NS_ENSURE_TRUE(domWindow, NS_ERROR_FAILURE);
-          nsMsgDisplayMessageByName(domWindow, "followupToSenderMessage");
+          nsMsgDisplayMessageByName("followupToSenderMessage");
 
           if (!replyTo.IsEmpty()) {
             compFields->SetTo(replyTo);
@@ -3067,10 +3066,8 @@ nsresult nsMsgComposeSendListener::OnStopSending(const char* aMsgID,
       msgCompose->ProcessReplyFlags();
 
       // See if there is a composer window
-      bool hasDomWindow = true;
-      nsCOMPtr<mozIDOMWindowProxy> domWindow;
-      rv = msgCompose->GetDomWindow(getter_AddRefs(domWindow));
-      if (NS_FAILED(rv) || !domWindow) hasDomWindow = false;
+      nsMsgCompose* _compose = static_cast<nsMsgCompose*>(msgCompose.get());
+      bool hasDomWindow = _compose->m_window;
 
       // Close the window ONLY if we are not going to do a save operation
       nsAutoString fieldsFCC;
@@ -3093,11 +3090,9 @@ nsresult nsMsgComposeSendListener::OnStopSending(const char* aMsgID,
           progress->UnregisterListener(this);
           progress->CloseProgressDialog(false);
         }
-        if (hasDomWindow)
-          msgCompose->CloseWindow();  // if we fail on the simple GetFcc call,
-                                      // close the window to be safe and avoid
-                                      // windows hanging around to prevent the
-                                      // app from exiting.
+        // If we fail on the simple GetFcc call, close the window to be safe
+        //  and avoid windows hanging around.
+        if (hasDomWindow) msgCompose->CloseWindow();
       }
 
       // Remove the current draft msg when sending draft is done.
@@ -4906,7 +4901,7 @@ NS_IMETHODIMP nsMsgCompose::GetDeliverMode(MSG_DeliverMode* aDeliverMode) {
 }
 
 void nsMsgCompose::DeleteTmpAttachments() {
-  if (mTmpAttachmentsDeleted || m_window) {
+  if (mTmpAttachmentsDeleted) {
     // Don't delete tmp attachments if compose window is still open, e.g. saving
     // a draft.
     return;

@@ -578,14 +578,6 @@ NS_IMETHODIMP nsMsgTemplateReplyHelper::OnStopRunningUrl(nsIURI* aUrl,
                                                          nsresult aExitCode) {
   NS_ENSURE_SUCCESS(aExitCode, aExitCode);
   nsresult rv;
-  nsCOMPtr<nsPIDOMWindowOuter> parentWindow;
-  if (mMsgWindow) {
-    nsCOMPtr<nsIDocShell> docShell;
-    rv = mMsgWindow->GetRootDocShell(getter_AddRefs(docShell));
-    NS_ENSURE_SUCCESS(rv, rv);
-    parentWindow = do_GetInterface(docShell);
-    NS_ENSURE_TRUE(parentWindow, NS_ERROR_FAILURE);
-  }
 
   // create the compose params object
   nsCOMPtr<nsIMsgComposeParams> pMsgComposeParams(
@@ -642,7 +634,7 @@ NS_IMETHODIMP nsMsgTemplateReplyHelper::OnStopRunningUrl(nsIURI* aUrl,
   /** initialize nsIMsgCompose, Send the message, wait for send completion
    * response **/
 
-  rv = pMsgCompose->Initialize(pMsgComposeParams, parentWindow, nullptr);
+  rv = pMsgCompose->Initialize(pMsgComposeParams, nullptr, nullptr);
   NS_ENSURE_SUCCESS(rv, rv);
 
   RefPtr<mozilla::dom::Promise> promise;
@@ -869,14 +861,6 @@ nsMsgComposeService::ForwardMessage(const nsAString& forwardTo,
         uriToOpen, nsMimeOutput::nsMimeMessageDraftOrTemplate, identity,
         uriToOpen, aMsgHdr, true, forwardTo, false, aMsgWindow, false);
 
-  nsCOMPtr<mozIDOMWindowProxy> parentWindow;
-  if (aMsgWindow) {
-    nsCOMPtr<nsIDocShell> docShell;
-    rv = aMsgWindow->GetRootDocShell(getter_AddRefs(docShell));
-    NS_ENSURE_SUCCESS(rv, rv);
-    parentWindow = do_GetInterface(docShell);
-    NS_ENSURE_TRUE(parentWindow, NS_ERROR_FAILURE);
-  }
   // create the compose params object
   nsCOMPtr<nsIMsgComposeParams> pMsgComposeParams(
       do_CreateInstance("@mozilla.org/messengercompose/composeparams;1", &rv));
@@ -896,9 +880,8 @@ nsMsgComposeService::ForwardMessage(const nsAString& forwardTo,
       do_CreateInstance("@mozilla.org/messengercompose/compose;1", &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  /** initialize nsIMsgCompose, Send the message, wait for send completion
-   * response **/
-  rv = pMsgCompose->Initialize(pMsgComposeParams, parentWindow, nullptr);
+  // Initialize nsIMsgCompose, Send the message.
+  rv = pMsgCompose->Initialize(pMsgComposeParams, nullptr, nullptr);
   NS_ENSURE_SUCCESS(rv, rv);
 
   RefPtr<Promise> promise;

@@ -15,14 +15,9 @@ class mozIDOMWindowProxy;
 nsresult nsMsgGetMessageByName(const char* aName, nsString& aResult);
 nsresult nsMsgBuildMessageWithFile(nsIFile* aFile, nsString& aResult);
 nsresult nsMsgBuildMessageWithTmpFile(nsIFile* aFile, nsString& aResult);
-nsresult nsMsgDisplayMessageByName(mozIDOMWindowProxy* window,
-                                   const char* aName,
+nsresult nsMsgDisplayMessageByName(const char* aName,
                                    const char16_t* windowTitle = nullptr);
-nsresult nsMsgDisplayMessageByString(mozIDOMWindowProxy* window,
-                                     const char16_t* msg,
+nsresult nsMsgDisplayMessageByString(const char16_t* msg,
                                      const char16_t* windowTitle = nullptr);
-nsresult nsMsgAskBooleanQuestionByString(mozIDOMWindowProxy* window,
-                                         const char16_t* msg, bool* answer,
-                                         const char16_t* windowTitle = nullptr);
 
 #endif  // COMM_MAILNEWS_COMPOSE_SRC_NSMSGPROMPTS_H_

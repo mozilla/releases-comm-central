@@ -23,6 +23,7 @@
 #include "FolderCompactor.h"
 #include "nsIDocShell.h"
 #include "nsIMsgWindow.h"
+#include "nsIWindowMediator.h"
 #include "nsIPrompt.h"
 #include "nsIInterfaceRequestorUtils.h"
 #include "nsIAbCard.h"
@@ -4985,15 +4986,18 @@ nsresult nsMsgDBFolder::GetStringFromBundle(const char* msgName,
 nsresult nsMsgDBFolder::ThrowConfirmationPrompt(nsIMsgWindow* msgWindow,
                                                 const nsAString& confirmString,
                                                 bool* confirmed) {
-  if (msgWindow) {
-    nsCOMPtr<nsIDocShell> docShell;
-    msgWindow->GetRootDocShell(getter_AddRefs(docShell));
-    if (docShell) {
-      nsCOMPtr<nsIPrompt> dialog(do_GetInterface(docShell));
-      if (dialog && !confirmString.IsEmpty())
-        dialog->Confirm(nullptr, nsString(confirmString).get(), confirmed);
-    }
-  }
+  nsresult rv;
+  nsCOMPtr<mozIDOMWindowProxy> domWindow;
+  nsCOMPtr<nsIWindowMediator> winMed =
+      do_GetService(NS_WINDOWMEDIATOR_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+  winMed->GetMostRecentWindow(nullptr, getter_AddRefs(domWindow));
+
+  nsCOMPtr<nsIPromptService> dlgService(
+      do_GetService(NS_PROMPTSERVICE_CONTRACTID, &rv));
+  NS_ENSURE_SUCCESS(rv, rv);
+  dlgService->Confirm(domWindow, nullptr, nsString(confirmString).get(),
+                      confirmed);
   return NS_OK;
 }
 
@@ -5064,8 +5068,10 @@ NS_IMETHODIMP nsMsgDBFolder::ThrowAlertMsg(const char* msgName,
   bundle->FormatStringFromName("folderErrorAlertTitle", {ident}, title);
 
   nsCOMPtr<mozIDOMWindowProxy> domWindow;
-  rv = msgWindow->GetDomWindow(getter_AddRefs(domWindow));
+  nsCOMPtr<nsIWindowMediator> winMed =
+      do_GetService(NS_WINDOWMEDIATOR_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
+  winMed->GetMostRecentWindow(nullptr, getter_AddRefs(domWindow));
 
   nsCOMPtr<nsIPromptService> dlgService(
       do_GetService(NS_PROMPTSERVICE_CONTRACTID, &rv));
@@ -5080,22 +5086,29 @@ NS_IMETHODIMP nsMsgDBFolder::AlertFilterChanged(nsIMsgWindow* msgWindow) {
   nsresult rv = NS_OK;
   bool checkBox = false;
   GetWarnFilterChanged(&checkBox);
-  if (!checkBox) {
-    nsCOMPtr<nsIDocShell> docShell;
-    msgWindow->GetRootDocShell(getter_AddRefs(docShell));
-    nsString alertString;
-    rv = GetStringFromBundle("alertFilterChanged", alertString);
-    nsString alertCheckbox;
-    rv = GetStringFromBundle("alertFilterCheckbox", alertCheckbox);
-    if (!alertString.IsEmpty() && !alertCheckbox.IsEmpty() && docShell) {
-      nsCOMPtr<nsIPrompt> dialog(do_GetInterface(docShell));
-      if (dialog) {
-        dialog->AlertCheck(nullptr, alertString.get(), alertCheckbox.get(),
-                           &checkBox);
-        SetWarnFilterChanged(checkBox);
-      }
-    }
+  if (checkBox) {
+    return NS_OK;
   }
+
+  nsString alertString;
+  rv = GetStringFromBundle("alertFilterChanged", alertString);
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsString alertCheckbox;
+  rv = GetStringFromBundle("alertFilterCheckbox", alertCheckbox);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<mozIDOMWindowProxy> domWindow;
+  nsCOMPtr<nsIWindowMediator> winMed =
+      do_GetService(NS_WINDOWMEDIATOR_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+  winMed->GetMostRecentWindow(nullptr, getter_AddRefs(domWindow));
+
+  nsCOMPtr<nsIPromptService> dlgService(
+      do_GetService(NS_PROMPTSERVICE_CONTRACTID, &rv));
+  NS_ENSURE_SUCCESS(rv, rv);
+  dlgService->AlertCheck(domWindow, nullptr, alertString.get(),
+                         alertCheckbox.get(), &checkBox);
+  SetWarnFilterChanged(checkBox);
   return rv;
 }
 

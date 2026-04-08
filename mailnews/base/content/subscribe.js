@@ -155,9 +155,8 @@ function SubscribeOnLoad() {
   msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
     Ci.nsIMsgWindow
   );
-  msgWindow.domWindow = window;
   gStatusFeedback = new nsMsgStatusFeedback();
-  msgWindow.rootDocShell.allowAuth = true;
+  window.browsingContext.docShell.allowAuth = true;
 
   // look in arguments[0] for parameters
   if (window.arguments && window.arguments[0]) {

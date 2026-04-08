@@ -1078,7 +1078,6 @@ function initializeSearchWindowWidgets() {
   msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
     Ci.nsIMsgWindow
   );
-  msgWindow.domWindow = window;
 
   gStatusText = document.getElementById("statusText");
 

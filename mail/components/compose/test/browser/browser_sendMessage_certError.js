@@ -56,6 +56,11 @@ add_setup(async function () {
   registerCleanupFunction(async function () {
     MailServices.accounts.removeAccount(smtpAccount, false);
     MailServices.accounts.removeAccount(ewsAccount, false);
+
+    await removeLoginInfo("ews://mitm.test.test", "user", "password");
+    await removeLoginInfo("ews://expired.test.test", "user", "password");
+    await removeLoginInfo("ews://notyetvalid.test.test", "user", "password");
+    await removeLoginInfo("ews://selfsigned.test.test", "user", "password");
   });
 });
 
@@ -181,60 +186,69 @@ async function subtest(
 
   const { composeWindow, subject } = await newComposeWindow(identity);
 
-  const dialogPromise = BrowserTestUtils.promiseAlertDialogOpen("accept").then(
-    () =>
-      BrowserTestUtils.promiseAlertDialogOpen(
-        undefined,
-        "chrome://pippki/content/exceptionDialog.xhtml",
-        {
-          async callback(win) {
-            const location =
-              win.document.getElementById("locationTextBox").value;
-            if (port == 443) {
-              Assert.equal(
-                location,
-                hostname,
-                "the exception dialog should show the hostname of the server"
-              );
-            } else {
-              Assert.equal(
-                location,
-                `${hostname}:465`,
-                "the exception dialog should show the hostname and port of the server"
-              );
-            }
-            const text = win.document.getElementById(
-              "statusLongDescription"
-            ).textContent;
-            Assert.stringContains(
-              text,
-              expectedDialogText,
-              "the exception dialog should state the problem"
-            );
-
-            const viewButton = win.document.getElementById("viewCertButton");
-            const tabmail = document.getElementById("tabmail");
-            const tabPromise = BrowserTestUtils.waitForEvent(
-              tabmail.tabContainer,
-              "TabOpen"
-            );
-            viewButton.click();
-            const {
-              detail: { tabInfo },
-            } = await tabPromise;
-            await BrowserTestUtils.browserLoaded(tabInfo.browser, false, url =>
-              url.startsWith("about:certificate?cert=")
-            );
-            tabmail.closeTab(tabInfo);
-
-            EventUtils.synthesizeMouseAtCenter(
-              win.document.querySelector("dialog").getButton("extra1"),
-              {},
-              win
-            );
-          },
+  const commonDialogPromise = BrowserTestUtils.promiseAlertDialog(
+    undefined,
+    "chrome://global/content/commonDialog.xhtml",
+    {
+      async callback(win) {
+        info(`${win.location} now open`);
+        await new Promise(resolve => win.requestAnimationFrame(resolve));
+        await new Promise(win.requestIdleCallback);
+        win.document.querySelector("dialog").acceptDialog();
+      },
+    }
+  );
+  const exceptionDialogPromise = BrowserTestUtils.promiseAlertDialog(
+    undefined,
+    "chrome://pippki/content/exceptionDialog.xhtml",
+    {
+      async callback(win) {
+        info(`${win.location} now open`);
+        const location = win.document.getElementById("locationTextBox").value;
+        if (port == 443) {
+          Assert.equal(
+            location,
+            hostname,
+            "the exception dialog should show the hostname of the server"
+          );
+        } else {
+          Assert.equal(
+            location,
+            `${hostname}:465`,
+            "the exception dialog should show the hostname and port of the server"
+          );
         }
-      )
+        const text = win.document.getElementById(
+          "statusLongDescription"
+        ).textContent;
+        Assert.stringContains(
+          text,
+          expectedDialogText,
+          "the exception dialog should state the problem"
+        );
+
+        const viewButton = win.document.getElementById("viewCertButton");
+        const tabmail = document.getElementById("tabmail");
+        const tabPromise = BrowserTestUtils.waitForEvent(
+          tabmail.tabContainer,
+          "TabOpen"
+        );
+        viewButton.click();
+        const {
+          detail: { tabInfo },
+        } = await tabPromise;
+        await BrowserTestUtils.browserLoaded(tabInfo.browser, false, url =>
+          url.startsWith("about:certificate?cert=")
+        );
+        tabmail.closeTab(tabInfo);
+
+        EventUtils.synthesizeMouseAtCenter(
+          win.document.querySelector("dialog").getButton("extra1"),
+          {},
+          win
+        );
+      },
+    }
   );
 
   composeWindow.document.getElementById("toAddrInput").focus();
@@ -244,7 +258,9 @@ async function subtest(
     composeWindow
   );
 
-  await dialogPromise;
+  await Promise.allSettled([commonDialogPromise, exceptionDialogPromise]);
+  info("The dialogs were shown.");
+
   // Try to solve strange focus issues.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 500));

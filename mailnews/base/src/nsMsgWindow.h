@@ -37,7 +37,6 @@ class nsMsgWindow : public nsIMsgWindow,
   // let's not make this a strong ref - we don't own it.
   nsWeakPtr mRootDocShellWeak;
   nsWeakPtr mMessageWindowDocShellWeak;
-  nsWeakPtr mDomWindow;
 };
 
 #endif  // COMM_MAILNEWS_BASE_SRC_NSMSGWINDOW_H_

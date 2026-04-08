@@ -2289,25 +2289,10 @@ NS_IMETHODIMP nsImapService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
-  nsCOMPtr<nsIMsgWindow> msgWindow;
-  mailnewsUrl->GetMsgWindow(getter_AddRefs(msgWindow));
-  if (msgWindow) {
-    nsCOMPtr<nsIDocShell> msgDocShell;
-    msgWindow->GetRootDocShell(getter_AddRefs(msgDocShell));
-    if (msgDocShell) {
-      nsCOMPtr<nsIProgressEventSink> prevEventSink;
-      channel->GetProgressEventSink(getter_AddRefs(prevEventSink));
-      nsCOMPtr<nsIInterfaceRequestor> docIR(do_QueryInterface(msgDocShell));
-      channel->SetNotificationCallbacks(docIR);
-      // we want to use our existing event sink.
-      if (prevEventSink) channel->SetProgressEventSink(prevEventSink);
-    }
-  } else {
-    // This function ends by checking the final value of rv and deciding whether
-    // to set aRetVal to our channel according to it. Let's just
-    // reset rv to an OK value.
-    rv = NS_OK;
-  }
+  // This function ends by checking the final value of rv and deciding whether
+  // to set aRetVal to our channel according to it. Let's just
+  // reset rv to an OK value.
+  rv = NS_OK;
 
   // the imap url holds a weak reference so we can pass the channel into the
   // imap protocol when we actually run the url.

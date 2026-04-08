@@ -80,7 +80,8 @@ export class MessageSend {
     this._sendProgress = progress;
     this._smtpPassword = smtpPassword;
     this._sendListener = listener;
-    this._parentWindow = parentWindow;
+    this._parentWindow =
+      parentWindow || Services.wm.getMostRecentWindow("msgcompose");
     this._originalMsgURI = originalMsgURI;
     this._compType = compType;
     this._shouldRemoveMessageFile = true;

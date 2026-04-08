@@ -6543,8 +6543,7 @@ async function CompleteGenericSendMessage(msgType) {
         gSendOperationInProgress = true;
       }
     }
-    msgWindow.domWindow = window;
-    msgWindow.rootDocShell.allowAuth = true;
+    window.browsingContext.docShell.allowAuth = true;
     progress.msgWindow = msgWindow;
     await gMsgCompose.sendMsg(
       msgType,

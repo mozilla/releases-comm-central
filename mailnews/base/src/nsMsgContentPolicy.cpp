@@ -152,19 +152,6 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
   *aDecision = nsIContentPolicy::ACCEPT;
 
   NS_ENSURE_ARG_POINTER(aContentLocation);
-
-#ifndef MOZ_THUNDERBIRD
-  // Go find out if we are dealing with mailnews. Anything else
-  // isn't our concern and we accept content.
-  nsCOMPtr<nsIDocShell> rootDocShell;
-  rv = GetRootDocShellForContext(aRequestingContext,
-                                 getter_AddRefs(rootDocShell));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // We only want to deal with mailnews
-  if (rootDocShell->GetAppType() != nsIDocShell::APP_TYPE_MAIL) return NS_OK;
-#endif
-
   switch (aContentType) {
       // Plugins (nsIContentPolicy::TYPE_OBJECT) are blocked on document load.
     case ExtContentPolicy::TYPE_DOCUMENT: {
@@ -822,25 +809,6 @@ nsresult nsMsgContentPolicy::SetDisableItemsOnMailNewsUrlDocshells(
   }
 
   return NS_OK;
-}
-
-/**
- * Gets the root docshell from a requesting context.
- */
-nsresult nsMsgContentPolicy::GetRootDocShellForContext(
-    nsISupports* aRequestingContext, nsIDocShell** aDocShell) {
-  NS_ENSURE_ARG_POINTER(aRequestingContext);
-  nsresult rv;
-
-  nsIDocShell* shell = NS_CP_GetDocShellFromContext(aRequestingContext);
-  NS_ENSURE_TRUE(shell, NS_ERROR_NULL_POINTER);
-  nsCOMPtr<nsIDocShellTreeItem> docshellTreeItem(shell);
-
-  nsCOMPtr<nsIDocShellTreeItem> rootItem;
-  rv = docshellTreeItem->GetInProcessRootTreeItem(getter_AddRefs(rootItem));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  return CallQueryInterface(rootItem, aDocShell);
 }
 
 /**

@@ -100,7 +100,6 @@ function onLoad() {
   gFilterListMsgWindow = Cc[
     "@mozilla.org/messenger/msgwindow;1"
   ].createInstance(Ci.nsIMsgWindow);
-  gFilterListMsgWindow.domWindow = window;
 
   gServerMenu = document.getElementById("serverMenu");
   gFilterListbox = document.getElementById("filterList");

@@ -26,11 +26,6 @@ add_task(async function test_application_init_with_first_run_account_hub() {
     window.gSpacesToolbar.isLoaded,
     "Spaces toolbar should be initialized"
   );
-  Assert.equal(
-    window.msgWindow.domWindow,
-    window,
-    "Should assign domWindow to msgWindow"
-  );
   Assert.ok(
     window.SessionStoreManager._restored,
     "Should have restored the session"

@@ -30,6 +30,9 @@
 #include "nsIMsgFilterCustomAction.h"
 #include "nsMsgMessageFlags.h"
 #include "nsIMsgWindow.h"
+#include "nsEmbedCID.h"
+#include "nsIPromptService.h"
+#include "nsIWindowMediator.h"
 #include "nsIMsgSearchCustomTerm.h"
 #include "nsIMsgSearchTerm.h"
 #include "nsIMsgThread.h"
@@ -257,24 +260,17 @@ nsresult nsMsgFilterService::ThrowFilterAlertMsg(const nsACString& fluentID,
   nsresult rv = LocalizeMessage(l10n, fluentID, {}, alertString);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIMsgWindow> msgWindow = aMsgWindow;
-  if (!msgWindow) {
-    nsCOMPtr<nsIMsgMailSession> mailSession =
-        mozilla::components::MailSession::Service();
-    rv = mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
-  }
+  nsCOMPtr<mozIDOMWindowProxy> domWindow;
+  nsCOMPtr<nsIWindowMediator> winMed =
+      do_GetService(NS_WINDOWMEDIATOR_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+  winMed->GetMostRecentWindow(nullptr, getter_AddRefs(domWindow));
 
-  if (NS_SUCCEEDED(rv) && !alertString.IsEmpty() && msgWindow) {
-    nsCOMPtr<nsIDocShell> docShell;
-    msgWindow->GetRootDocShell(getter_AddRefs(docShell));
-    if (docShell) {
-      nsCOMPtr<nsIPrompt> dialog(do_GetInterface(docShell));
-      if (dialog && !alertString.IsEmpty()) {
-        dialog->Alert(nullptr, NS_ConvertUTF8toUTF16(alertString).get());
-      }
-    }
-  }
-  return rv;
+  nsCOMPtr<nsIPromptService> dlgService(
+      do_GetService(NS_PROMPTSERVICE_CONTRACTID, &rv));
+  NS_ENSURE_SUCCESS(rv, rv);
+  return dlgService->Alert(domWindow, nullptr,
+                           NS_ConvertUTF8toUTF16(alertString).get());
 }
 
 // this class is used to run filters after the fact, i.e., after new mail has
@@ -519,7 +515,7 @@ NS_IMETHODIMP nsMsgFilterAfterTheFact::OnStopRunningUrl(nsIURI* aUrl,
   mFinalResult = aExitCode;
   // If m_msgWindow then we are in a context where the user can deal with
   //  errors. Put up a prompt, and exit if user wants.
-  if (m_msgWindow && !ContinueExecutionPrompt()) return OnEndExecution();
+  if (!ContinueExecutionPrompt()) return OnEndExecution();
 
   // folder parse failed, so stop processing this folder.
   return AdvanceToNextFolder();
@@ -1319,7 +1315,7 @@ NS_IMETHODIMP nsMsgFilterAfterTheFact::OnStopCopy(nsresult aStatus) {
            static_cast<uint32_t>(aStatus)));
 
   mFinalResult = aStatus;
-  if (m_msgWindow && !ContinueExecutionPrompt()) return OnEndExecution();
+  if (!ContinueExecutionPrompt()) return OnEndExecution();
 
   // Copy failed, so run the next filter
   return RunNextFilter();
@@ -1340,18 +1336,18 @@ bool nsMsgFilterAfterTheFact::ContinueExecutionPrompt() {
       {{"filterName"_ns, NS_ConvertUTF16toUTF8(filterName)}}, confirmText);
   if (NS_FAILED(rv)) return false;
 
+  nsCOMPtr<mozIDOMWindowProxy> domWindow;
+  nsCOMPtr<nsIWindowMediator> winMed =
+      do_GetService(NS_WINDOWMEDIATOR_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, false);
+  winMed->GetMostRecentWindow(nullptr, getter_AddRefs(domWindow));
+
+  nsCOMPtr<nsIPromptService> dlgService(
+      do_GetService(NS_PROMPTSERVICE_CONTRACTID, &rv));
+  NS_ENSURE_SUCCESS(rv, false);
   bool returnVal = false;
-  if (m_msgWindow) {
-    nsCOMPtr<nsIDocShell> docShell;
-    m_msgWindow->GetRootDocShell(getter_AddRefs(docShell));
-    if (docShell) {
-      nsCOMPtr<nsIPrompt> dialog(do_GetInterface(docShell));
-      if (dialog && confirmText.Length()) {
-        dialog->Confirm(nullptr, NS_ConvertUTF8toUTF16(confirmText).get(),
-                        &returnVal);
-      }
-    }
-  }
+  dlgService->Confirm(domWindow, nullptr,
+                      NS_ConvertUTF8toUTF16(confirmText).get(), &returnVal);
   if (!returnVal) {
     MOZ_LOG(FILTERLOGMODULE, LogLevel::Warning,
             ("(Post) User aborted further filter execution on prompt"));

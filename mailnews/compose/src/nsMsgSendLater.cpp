@@ -212,21 +212,7 @@ nsMsgSendLater::OnStopRequest(nsIRequest* request, nsresult status) {
         EndSendMessages(rv, nullptr, mTotalSendCount, mTotalSentSuccessfully);
     }
   } else {
-    nsCOMPtr<nsIChannel> channel = do_QueryInterface(request);
-    if (!channel) return NS_ERROR_FAILURE;
-
-    // extract the prompt object to use for the alert from the url....
-    nsCOMPtr<nsIURI> uri;
-    nsCOMPtr<mozIDOMWindowProxy> domWindow;
-    if (channel) {
-      channel->GetURI(getter_AddRefs(uri));
-      nsCOMPtr<nsIMsgMailNewsUrl> msgUrl(do_QueryInterface(uri));
-      nsCOMPtr<nsIMsgWindow> msgWindow;
-      if (msgUrl) msgUrl->GetMsgWindow(getter_AddRefs(msgWindow));
-      if (msgWindow) msgWindow->GetDomWindow(getter_AddRefs(domWindow));
-    }
-
-    nsMsgDisplayMessageByName(domWindow, "errorQueuedDeliveryFailed");
+    nsMsgDisplayMessageByName("errorQueuedDeliveryFailed");
 
     // Getting the data failed, but we will still keep trying to send the
     // rest...

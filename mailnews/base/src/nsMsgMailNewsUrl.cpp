@@ -326,22 +326,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::SetMaxProgress(int64_t aMaxProgress) {
 
 NS_IMETHODIMP nsMsgMailNewsUrl::GetLoadGroup(nsILoadGroup** aLoadGroup) {
   *aLoadGroup = nullptr;
-  // note: it is okay to return a null load group and not return an error
-  // it's possible the url really doesn't have load group
-  nsCOMPtr<nsILoadGroup> loadGroup(do_QueryReferent(m_loadGroupWeak));
-  if (!loadGroup) {
-    nsCOMPtr<nsIMsgWindow> msgWindow(do_QueryReferent(m_msgWindowWeak));
-    if (msgWindow) {
-      // XXXbz This is really weird... why are we getting some
-      // random loadgroup we're not really a part of?
-      nsCOMPtr<nsIDocShell> docShell;
-      msgWindow->GetRootDocShell(getter_AddRefs(docShell));
-      loadGroup = do_GetInterface(docShell);
-      m_loadGroupWeak = do_GetWeakReference(loadGroup);
-    }
-  }
-  loadGroup.forget(aLoadGroup);
-  return *aLoadGroup ? NS_OK : NS_ERROR_NULL_POINTER;
+  return NS_ERROR_NULL_POINTER;
 }
 
 NS_IMETHODIMP nsMsgMailNewsUrl::GetUpdatingFolder(bool* aResult) {

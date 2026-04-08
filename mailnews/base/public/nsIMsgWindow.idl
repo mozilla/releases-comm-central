@@ -7,19 +7,10 @@
 
 interface nsITransactionManager;
 interface nsIDocShell;
-interface mozIDOMWindowProxy;
 
 [scriptable, uuid(a846fe48-4022-4296-a1c4-1dcd7eaecfe5)]
 interface nsIMsgWindow : nsISupports {
   attribute nsITransactionManager transactionManager;
-
-  /**
-   * @note Setting this attribute has various side effects, including
-   * wiring up this object as the parent nsIURIContentListener for the
-   * passed-in docshell as well as setting the message content policy service
-   * to listen for OnLocationChange notifications.
-   */
-  attribute nsIDocShell rootDocShell;
 
   /**
    * @note Small helper function used to optimize our use of a weak reference
@@ -27,8 +18,6 @@ interface nsIMsgWindow : nsISupports {
    * holding on to the docshell returned here outside the scope of your routine.
    */
   readonly attribute nsIDocShell messageWindowDocShell;
-
-  attribute mozIDOMWindowProxy domWindow;
 
   /**
     when the msg window is being unloaded from the content window,

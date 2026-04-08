@@ -89,7 +89,6 @@ NS_IMETHODIMP nsMsgWindow::CloseWindow() {
     nsCOMPtr<nsIURIContentListener> listener(
         do_GetInterface(messagePaneDocShell));
     if (listener) listener->SetParentContentListener(nullptr);
-    SetRootDocShell(nullptr);
     mMessageWindowDocShellWeak = nullptr;
   }
 
@@ -108,64 +107,6 @@ NS_IMETHODIMP nsMsgWindow::GetTransactionManager(
 NS_IMETHODIMP nsMsgWindow::SetTransactionManager(
     nsITransactionManager* aTransactionManager) {
   mTransactionManager = aTransactionManager;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgWindow::GetRootDocShell(nsIDocShell** aDocShell) {
-  if (mRootDocShellWeak)
-    CallQueryReferent(mRootDocShellWeak.get(), aDocShell);
-  else
-    *aDocShell = nullptr;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgWindow::SetRootDocShell(nsIDocShell* aDocShell) {
-  // Query for the doc shell and release it
-  mRootDocShellWeak = nullptr;
-  if (aDocShell) {
-    mRootDocShellWeak = do_GetWeakReference(aDocShell);
-
-    nsCOMPtr<nsIDocShell> messagePaneDocShell;
-    GetMessageWindowDocShell(getter_AddRefs(messagePaneDocShell));
-    nsCOMPtr<nsIURIContentListener> listener(
-        do_GetInterface(messagePaneDocShell));
-    if (listener) listener->SetParentContentListener(this);
-  }
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgWindow::GetDomWindow(mozIDOMWindowProxy** aWindow) {
-  NS_ENSURE_ARG_POINTER(aWindow);
-  if (mDomWindow)
-    CallQueryReferent(mDomWindow.get(), aWindow);
-  else
-    *aWindow = nullptr;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgWindow::SetDomWindow(mozIDOMWindowProxy* aWindow) {
-  NS_ENSURE_ARG_POINTER(aWindow);
-  mDomWindow = do_GetWeakReference(aWindow);
-
-  nsCOMPtr<nsPIDOMWindowOuter> win = nsPIDOMWindowOuter::From(aWindow);
-  nsIDocShell* docShell = nullptr;
-  if (win) docShell = win->GetDocShell();
-
-  nsCOMPtr<nsIDocShellTreeItem> docShellAsItem(docShell);
-
-  if (docShellAsItem) {
-    nsCOMPtr<nsIDocShellTreeItem> rootAsItem;
-    docShellAsItem->GetInProcessSameTypeRootTreeItem(
-        getter_AddRefs(rootAsItem));
-
-    nsCOMPtr<nsIDocShell> rootAsShell(do_QueryInterface(rootAsItem));
-    SetRootDocShell(rootAsShell);
-
-    // force ourselves to figure out the message pane
-    nsCOMPtr<nsIDocShell> messageWindowDocShell;
-    GetMessageWindowDocShell(getter_AddRefs(messageWindowDocShell));
-  }
-
   return NS_OK;
 }
 
