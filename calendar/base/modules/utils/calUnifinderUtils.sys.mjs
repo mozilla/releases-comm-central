@@ -33,6 +33,8 @@ export var unifinder = {
       case "startDate":
       case "dueDate":
       case "endDate":
+      case "creationDate":
+      case "lastModifiedTime":
       case "completedDate":
         if (aItem[aKey] == null) {
           return -62168601600000000; // ns value for (0000/00/00 00:00:00)
@@ -79,6 +81,8 @@ export var unifinder = {
       case "startDate":
       case "endDate":
       case "dueDate":
+      case "creationDate":
+      case "lastModifiedTime":
       case "entryDate":
         return sortCompare.date_filled;
 

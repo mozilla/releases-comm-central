@@ -33,6 +33,14 @@ calendar-event-listing-column-end-date =
   .label = End
   .tooltiptext = Sort by end date
 
+calendar-event-listing-column-creation-date =
+  .label = Created
+  .tooltiptext = Sort by creation date
+
+calendar-event-listing-column-last-modified-time =
+  .label = Modified
+  .tooltiptext = Sort by last modified date
+
 calendar-event-listing-column-location =
   .label = Location
   .tooltiptext = Sort by location

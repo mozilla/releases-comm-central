@@ -306,6 +306,9 @@ class CalendarTaskTreeView {
         return task.recurrenceInfo
           ? cal.l10n.getDateFmtString("Repeating")
           : this._formatDateTime(task[property]);
+      case "creationDate":
+      case "lastModifiedTime":
+        return this._formatDateTime(task[property]);
       case "percentComplete":
         return task.percentComplete > 0 ? task.percentComplete + "%" : "";
       case "categories":
