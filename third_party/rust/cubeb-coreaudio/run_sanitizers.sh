@@ -19,11 +19,25 @@ set -e
 TARGET=$(rustc -vV | grep host | cut -d' ' -f2)
 echo "Target: $TARGET"
 
+# Accept sanitizers as command line arguments.
+# Usage: ./run_sanitizers.sh [address] [thread]
+# Default: Run all sanitizers (address and thread)
+# For public CI: ./run_sanitizers.sh address (ASan only)
+# For maintainer CI: ./run_sanitizers.sh address thread (or no args for all)
 # Ideally, sanitizers should be ("address" "leak" "memory" "thread") but
 # - `memory`: It doesn't works with target x86_64-apple-darwin
 # - `leak`: Get some errors that are out of our control. See:
 #   https://github.com/mozilla/cubeb-coreaudio-rs/issues/45#issuecomment-591642931
-sanitizers=("address" "thread")
+if [ $# -eq 0 ]; then
+    # Default: Run all available sanitizers
+    sanitizers=("address" "thread")
+else
+    # Use provided arguments
+    sanitizers=("$@")
+fi
+
+echo "Running sanitizers: ${sanitizers[*]}"
+
 for san in "${sanitizers[@]}"
 do
     San="$(tr '[:lower:]' '[:upper:]' <<< ${san:0:1})${san:1}"
@@ -42,12 +56,36 @@ do
     # See: https://github.com/rust-lang/rust/issues/146465
     if [[ "${san}" == "thread" ]]; then
         export RUSTFLAGS="${RUSTFLAGS} -Cunsafe-allow-abi-mismatch=sanitizer"
+        # TSan false-positive tests: these trigger races in CoreAudio's
+        # internal synchronization that TSan cannot observe. They are
+        # skipped in pass 1 and re-run with annotations in pass 2.
+        tsan_false_positive_tests=(
+            "test_ops_duplex_voice_stream_set_input_processing_params"
+        )
+        tsan_skip_flags=""
+        for t in "${tsan_false_positive_tests[@]}"; do
+            tsan_skip_flags="${tsan_skip_flags} --skip ${t}"
+        done
+        export TSAN_SKIP_FLAGS="${tsan_skip_flags}"
     fi
     export CARGO_HOST_RUSTFLAGS=""
     # Set SANITIZER_BUILD so run_tests.sh can detect sanitizer mode.
     export SANITIZER_BUILD=1
     cargo_test_flags="-Z build-std --target ${TARGET}"
+    # Pass 1: Run all tests (TSan false-positive tests are skipped via
+    # TSAN_SKIP_FLAGS, picked up by run_tests.sh).
     sh run_tests.sh "${cargo_test_flags}"
+    # Pass 2 (TSan only): Re-run false-positive tests with annotations
+    # enabled so TSan can see CoreAudio's internal synchronization.
+    if [[ "${san}" == "thread" ]]; then
+        echo "\n\nRe-running TSan false-positive tests with annotations\n------------------------------"
+        cargo_test_flags_annotated="${cargo_test_flags} --features tsan-annotations"
+        for t in "${tsan_false_positive_tests[@]}"; do
+            echo "Running ${t} with tsan-annotations..."
+            cargo test --verbose --lib --tests ${cargo_test_flags_annotated} -- ${t}
+        done
+        unset TSAN_SKIP_FLAGS
+    fi
     unset RUSTFLAGS
     unset CARGO_HOST_RUSTFLAGS
     unset SANITIZER_BUILD

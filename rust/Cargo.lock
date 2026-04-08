@@ -1047,7 +1047,7 @@ dependencies = [
 [[package]]
 name = "coreaudio-sys-utils"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/cubeb-coreaudio-rs?rev=5b689a7f90086e07c271ad1cf79325ee06112ab6#5b689a7f90086e07c271ad1cf79325ee06112ab6"
+source = "git+https://github.com/mozilla/cubeb-coreaudio-rs?rev=0bb8a45a040e85d313eb18deb36570e87df3a6af#0bb8a45a040e85d313eb18deb36570e87df3a6af"
 dependencies = [
  "core-foundation-sys",
  "coreaudio-sys",
@@ -1296,7 +1296,7 @@ dependencies = [
 [[package]]
 name = "cubeb-coreaudio"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/cubeb-coreaudio-rs?rev=5b689a7f90086e07c271ad1cf79325ee06112ab6#5b689a7f90086e07c271ad1cf79325ee06112ab6"
+source = "git+https://github.com/mozilla/cubeb-coreaudio-rs?rev=0bb8a45a040e85d313eb18deb36570e87df3a6af#0bb8a45a040e85d313eb18deb36570e87df3a6af"
 dependencies = [
  "atomic",
  "audio-mixer",
@@ -3626,6 +3626,7 @@ dependencies = [
  "rusqlite 0.37.0",
  "serde",
  "serde_json",
+ "skv",
  "storage_variant",
  "tempfile",
  "thin-vec",
@@ -6206,6 +6207,19 @@ name = "siphasher"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "56199f7ddabf13fe5074ce809e7d3f42b42ae711800501b5b16ea82ad029c39d"
+
+[[package]]
+name = "skv"
+version = "0.0.0"
+dependencies = [
+ "chrono",
+ "futures",
+ "hashbrown 0.16.0",
+ "rusqlite 0.37.0",
+ "serde",
+ "serde_json",
+ "thiserror 1.999.999",
+]
 
 [[package]]
 name = "slab"

@@ -267,8 +267,22 @@ fn create_device_info(devid: AudioDeviceID, devtype: DeviceType) -> Option<devic
 }
 
 fn create_stream_description(stream_params: &StreamParams) -> Result<AudioStreamBasicDescription> {
-    assert!(stream_params.rate() > 0);
-    assert!(stream_params.channels() > 0);
+    debug_assert!(stream_params.rate() > 0);
+    debug_assert!(stream_params.channels() > 0);
+    if stream_params.rate() == 0 {
+        cubeb_log!(
+            "create_stream_description: invalid rate 0 (channels={})",
+            stream_params.channels()
+        );
+        return Err(Error::Error);
+    }
+    if stream_params.channels() == 0 {
+        cubeb_log!(
+            "create_stream_description: invalid channel count 0 (rate={})",
+            stream_params.rate()
+        );
+        return Err(Error::Error);
+    }
 
     let mut desc = AudioStreamBasicDescription::default();
 
@@ -686,6 +700,19 @@ extern "C" fn audiounit_input_callback(
         });
     }
 
+    // AudioOutputUnitStop waits for in-flight callbacks, but TSan cannot see
+    // CoreAudio's internal synchronization. Release on the AudioUnit handle to
+    // pair with the acquire in stop_audiounit, modeling the per-unit HALB_Mutex.
+    #[cfg(feature = "tsan-annotations")]
+    {
+        extern "C" {
+            fn __tsan_release(addr: *mut c_void);
+        }
+        unsafe {
+            __tsan_release(stm.core_stream_data.input_unit as *mut c_void);
+        }
+    }
+
     match handle {
         ErrorHandle::Reinit => {
             stm.reinit_async();
@@ -986,6 +1013,17 @@ extern "C" fn audiounit_output_callback(
             output_frames * stm.core_stream_data.output_dev_desc.mChannelsPerFrame,
         );
     }
+
+    #[cfg(feature = "tsan-annotations")]
+    {
+        extern "C" {
+            fn __tsan_release(addr: *mut c_void);
+        }
+        unsafe {
+            __tsan_release(stm.core_stream_data.output_unit as *mut c_void);
+        }
+    }
+
     NO_ERR
 }
 
@@ -1229,6 +1267,18 @@ fn start_audiounit(unit: AudioUnit) -> Result<()> {
 
 fn stop_audiounit(unit: AudioUnit) -> Result<()> {
     let status = audio_output_unit_stop(unit);
+    // AudioOutputUnitStop waits for in-flight callbacks, but TSan cannot see
+    // CoreAudio's internal HALB_Mutex synchronization. Acquire on the AudioUnit
+    // handle to pair with the release at the end of each callback.
+    #[cfg(feature = "tsan-annotations")]
+    {
+        extern "C" {
+            fn __tsan_acquire(addr: *mut c_void);
+        }
+        unsafe {
+            __tsan_acquire(unit as *mut c_void);
+        }
+    }
     if status == NO_ERR {
         Ok(())
     } else {
@@ -3812,6 +3862,16 @@ impl<'ctx> CoreStreamData<'ctx> {
                 self.stm_ptr,
                 input_hw_desc
             );
+            // These have been observed in the wild.
+            if input_hw_desc.mSampleRate <= 0.0 || input_hw_desc.mChannelsPerFrame == 0 {
+                cubeb_log!(
+                    "({:p}) Invalid input hardware description: rate={}, channels={}",
+                    self.stm_ptr,
+                    input_hw_desc.mSampleRate,
+                    input_hw_desc.mChannelsPerFrame
+                );
+                return Err(Error::Error);
+            }
             // Notice: when we are using an aggregate device, input_hw_desc.mChannelsPerFrame is the
             // sum of all input channels of all devices added to the aggregate device.
             // Because we set the input device first on the aggregate device, the input device's
@@ -4020,11 +4080,13 @@ impl<'ctx> CoreStreamData<'ctx> {
                 output_hw_desc
             );
 
-            // This has been observed in the wild.
-            if output_hw_desc.mChannelsPerFrame == 0 {
+            // These have been observed in the wild.
+            if output_hw_desc.mSampleRate <= 0.0 || output_hw_desc.mChannelsPerFrame == 0 {
                 cubeb_log!(
-                    "({:p}) Output hardware description channel count is zero",
-                    self.stm_ptr
+                    "({:p}) Invalid output hardware description: rate={}, channels={}",
+                    self.stm_ptr,
+                    output_hw_desc.mSampleRate,
+                    output_hw_desc.mChannelsPerFrame
                 );
                 return Err(Error::Error);
             }

@@ -44,7 +44,7 @@ content_classifier_engine = { path = "../../../toolkit/components/content-classi
 cose-c = { version = "0.1.5" }
 crash_helper_client = { path = "../../../toolkit/crashreporter/crash_helper_client", optional = true }
 crypto_hash = { path = "../../../security/manager/ssl/crypto_hash" }
-cubeb-coreaudio = { git = "https://github.com/mozilla/cubeb-coreaudio-rs", rev = "5b689a7f90086e07c271ad1cf79325ee06112ab6", optional = true, features = ['vpio-forcelist'] }
+cubeb-coreaudio = { git = "https://github.com/mozilla/cubeb-coreaudio-rs", rev = "0bb8a45a040e85d313eb18deb36570e87df3a6af", optional = true, features = ['vpio-forcelist'] }
 cubeb-pulse = { git = "https://github.com/mozilla/cubeb-pulse-rs", rev = "a1936adf8e0fb0637b48436f92f833c8c48a0fee", optional = true, features = ['pulse-dlopen'] }
 cubeb-sys = { version = "0.32.0", optional = true, features = ['gecko-in-tree'] }
 dap_ffi = { path = "../../../toolkit/components/dap/ffi" }

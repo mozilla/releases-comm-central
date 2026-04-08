@@ -28,6 +28,7 @@ license = "ISC"
 [features]
 audio-dump = []
 gecko-in-tree = ["cubeb-backend/gecko-in-tree"]
+tsan-annotations = []
 vpio-forcelist = []
 
 [lib]

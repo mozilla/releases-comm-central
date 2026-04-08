@@ -50,6 +50,10 @@ jobs:
     - name: Regular Test
       run: sh run_tests.sh
     
-    - name: Sanitizer Test
+    - name: AddressSanitizer Test
       if: ${{ matrix.rust == 'nightly' }}
-      run: sh run_sanitizers.sh
+      run: sh run_sanitizers.sh address
+
+    - name: ThreadSanitizer Test
+      if: ${{ matrix.rust == 'nightly' }}
+      run: sh run_sanitizers.sh thread

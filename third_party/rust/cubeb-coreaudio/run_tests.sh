@@ -48,6 +48,12 @@ if [[ -n "${SANITIZER_ENABLED}" ]]; then
     # queues under sanitizers, allowing these tests to run.
     SKIP_TEST_FLAGS="--skip test_panic_"
     echo "Skipping #[should_panic] tests (incompatible with sanitizers)\n"
+    # TSan false-positive tests are skipped in the main run and re-run
+    # separately with annotations in run_sanitizers.sh.
+    if [[ -n "${TSAN_SKIP_FLAGS}" ]]; then
+        SKIP_TEST_FLAGS="${SKIP_TEST_FLAGS} ${TSAN_SKIP_FLAGS}"
+        echo "Skipping TSan false-positive tests (will re-run with annotations)\n"
+    fi
 fi
 
 # Run tests in the sub crate
