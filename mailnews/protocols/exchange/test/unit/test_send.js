@@ -6,6 +6,10 @@ var { EwsServer } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/EwsServer.sys.mjs"
 );
 
+var { GraphServer } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/GraphServer.sys.mjs"
+);
+
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
@@ -22,11 +26,12 @@ var { TestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/TestUtils.sys.mjs"
 );
 
-// The mock EWS server to direct our traffic to.
-var ewsServer;
+// The mock EWS and Graph servers to direct our traffic to.
+var ewsServer, graphServer;
 
-// The `nsIMsgOutgoingServer` instance used to send messages using EWS.
-var outgoingServer;
+// The `nsIMsgOutgoingServer` instances used to send messages using EWS and
+// Graph.
+var ewsOutgoingServer, graphOutgoingServer;
 
 // The credentials to use for authenticating on the server.
 const username = "alice@local.test";
@@ -36,47 +41,62 @@ add_setup(async () => {
   // Ensure we have an on-disk profile.
   do_get_profile();
 
-  // Create a new mock EWS server, and start it.
+  // Create new mock servers, and start them.
   ewsServer = new EwsServer({
     username,
     password,
   });
   ewsServer.start();
 
-  // Create and initialize an EWS outgoing server.
-  outgoingServer = MailServices.outgoingServer.createServer("ews");
-  const ewsOutgoingServer = outgoingServer.QueryInterface(
+  graphServer = new GraphServer({
+    username,
+    password,
+  });
+  graphServer.start();
+
+  // Create and initialize the outgoing servers.
+  ewsOutgoingServer = MailServices.outgoingServer.createServer("ews");
+  let exchangeOutgoingServer = ewsOutgoingServer.QueryInterface(
     Ci.IExchangeOutgoingServer
   );
-  ewsOutgoingServer.initialize(
+  exchangeOutgoingServer.initialize(
     `http://127.0.0.1:${ewsServer.port}/EWS/Exchange.asmx`
   );
 
-  // Configure the outgoing server to use Basic/password auth (which we map to
-  // `nsMsgAuthMethod.passwordCleartext`).
-  outgoingServer.authMethod = Ci.nsMsgAuthMethod.passwordCleartext;
-  outgoingServer.username = username;
+  graphOutgoingServer = MailServices.outgoingServer.createServer("graph");
+  exchangeOutgoingServer = graphOutgoingServer.QueryInterface(
+    Ci.IExchangeOutgoingServer
+  );
+  exchangeOutgoingServer.initialize(
+    `http://127.0.0.1:${graphServer.port}/v1.0`
+  );
 
-  // Store the password in the login manager. Note that the URI we use does not
+  // Configure the outgoing servers to use Basic/password auth (which we map to
+  // `nsMsgAuthMethod.passwordCleartext`).
+  ewsOutgoingServer.authMethod = Ci.nsMsgAuthMethod.passwordCleartext;
+  ewsOutgoingServer.username = username;
+
+  graphOutgoingServer.authMethod = Ci.nsMsgAuthMethod.passwordCleartext;
+  graphOutgoingServer.username = username;
+
+  // Store the password in the login manager. Note that the URIs we use do not
   // include the port.
-  const passwordURI = "ews://127.0.0.1";
-  const login = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
-    Ci.nsILoginInfo
-  );
-  login.init(
-    passwordURI,
-    null,
-    passwordURI,
-    outgoingServer.username,
-    password,
-    "",
-    ""
-  );
-  await Services.logins.addLoginAsync(login);
+  async function storePassword(uri) {
+    const login = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
+      Ci.nsILoginInfo
+    );
+    login.init(uri, null, uri, ewsOutgoingServer.username, password, "", "");
+    await Services.logins.addLoginAsync(login);
+  }
+
+  await storePassword("ews://127.0.0.1");
+  await storePassword("graph://127.0.0.1");
 
   registerCleanupFunction(() => {
     ewsServer.stop();
-    MailServices.outgoingServer.deleteServer(outgoingServer);
+    graphServer.stop();
+    MailServices.outgoingServer.deleteServer(ewsOutgoingServer);
+    MailServices.outgoingServer.deleteServer(graphOutgoingServer);
     Services.logins.removeAllLogins();
   });
 });
@@ -89,7 +109,7 @@ add_task(async function test_basic_auth() {
   // Send the dummy message, and wait for the request to complete.
   const listener = new PromiseTestUtils.PromiseMsgOutgoingListener();
   const testFile = do_get_file("data/simple_email.eml");
-  outgoingServer.sendMailMessage(
+  ewsOutgoingServer.sendMailMessage(
     testFile,
     [],
     [],
@@ -147,7 +167,7 @@ add_task(async function test_moved_to_fcc_folder() {
   // Associate the outgoing server to the account and retrieve the resulting
   // `nsIMsgIdentity`, since we'll need it for sending the message.
   const account = MailServices.accounts.findAccountForServer(incomingServer);
-  localAccountUtils.associate_servers(account, outgoingServer, true);
+  localAccountUtils.associate_servers(account, ewsOutgoingServer, true);
   const identity = account.defaultIdentity;
 
   // Create a folder that has the correct distinguished folder ID but a name
@@ -214,4 +234,39 @@ add_task(async function test_moved_to_fcc_folder() {
     () => fccFolder.getTotalMessages(false) == 1,
     "waiting for sent message to be moved to the FCC folder"
   );
+});
+
+/**
+ * Tests that the Bcc recipients and DSN flags are correctly set for outgoing
+ * Graph messages.
+ */
+add_task(async function test_graph_bcc_dsn() {
+  const listener = new PromiseTestUtils.PromiseMsgOutgoingListener();
+  const testFile = do_get_file("data/simple_email.eml");
+
+  const bcc_name = "John Doe";
+  const bcc_address = "johndoe@example.com";
+  const bcc_recipients = MailServices.headerParser.parseEncodedHeaderW(
+    `${bcc_name} <${bcc_address}>`
+  );
+
+  graphOutgoingServer.sendMailMessage(
+    testFile,
+    [],
+    bcc_recipients, // Set the Bcc recipients.
+    {},
+    null,
+    null,
+    null,
+    true, // Request DSN.
+    "testmessage@local.test",
+    listener
+  );
+  await listener.promise;
+
+  const message = graphServer.lastSentGraphMessage;
+  Assert.ok(message.dsnRequested);
+  Assert.equal(message.bccRecipients.length, 1);
+  Assert.equal(message.bccRecipients[0].name, bcc_name);
+  Assert.equal(message.bccRecipients[0].address, bcc_address);
 });

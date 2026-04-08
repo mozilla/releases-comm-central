@@ -6,7 +6,6 @@ use std::cell::{OnceCell, RefCell};
 use std::ffi::CString;
 use std::sync::Arc;
 
-use log::debug;
 use thin_vec::ThinVec;
 
 use nserror::{NS_OK, nsresult};
@@ -73,6 +72,7 @@ enum FieldType {
 /// The name of a pref used to store a value that's part of an outgoing server's
 /// configuration. It can be turned into a [`CString`] to be used with methods
 /// from [`nsIPrefBranch`].
+#[derive(Debug, Clone, Copy)]
 enum PrefName {
     Key,
     Uid,
@@ -150,8 +150,10 @@ impl<ClientT: SendCapableClient> OutgoingServer<ClientT> {
     }
 
     /// Retrieves the existing client, or creates it if there isn't one.
-    // See the design consideration section from `operation_queue.rs` regarding
-    // the use of `Arc`.
+    // We use `Arc` here because some methods from `ProtocolClient` require the
+    // client to be wrapped into one. We *could* use `Rc` here since none of our
+    // clients are `Send`, but that's something we hope to address in the
+    // future.
     #[allow(clippy::arc_with_non_send_sync)]
     fn client(&self) -> Result<Arc<ClientT>, nsresult> {
         let client = match self.client.get() {
@@ -252,7 +254,10 @@ impl<ClientT: SendCapableClient> OutgoingServer<ClientT> {
         }
 
         match field_type {
-            FieldType::Required => Err(nserror::NS_ERROR_NOT_INITIALIZED),
+            FieldType::Required => {
+                log::error!("missing required property: {pref_name:?}");
+                Err(nserror::NS_ERROR_NOT_INITIALIZED)
+            }
             FieldType::Optional => Ok(nsCString::new()),
         }
     }
@@ -283,7 +288,10 @@ impl<ClientT: SendCapableClient> OutgoingServer<ClientT> {
         }
 
         match field_type {
-            FieldType::Required => Err(nserror::NS_ERROR_NOT_INITIALIZED),
+            FieldType::Required => {
+                log::error!("missing required property: {pref_name:?}");
+                Err(nserror::NS_ERROR_NOT_INITIALIZED)
+            }
             FieldType::Optional => Ok(0),
         }
     }
@@ -868,7 +876,9 @@ impl<ClientT: SendCapableClient> OutgoingServer<ClientT> {
 
     xpcom_method!(initialize => Initialize(endpoint_url: *const nsACString));
     fn initialize(&self, endpoint_url: &nsACString) -> Result<(), nsresult> {
-        debug!("Creating new outgoing server for {endpoint_url}");
+        let key = self.key()?;
+
+        log::debug!("Creating new outgoing server for {endpoint_url} ({key})");
         let url = endpoint_url.to_string();
         let url = Url::parse(url.as_str()).or(Err(nserror::NS_ERROR_FAILURE))?;
 

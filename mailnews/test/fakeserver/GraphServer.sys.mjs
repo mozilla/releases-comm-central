@@ -12,6 +12,73 @@ import {
 import { CommonUtils } from "resource://services-common/utils.sys.mjs";
 
 /**
+ * A recipient to a `GraphMessage`. Note that the structure of this class does
+ * *not* match the structure of the `recipient` type from the Graph API.
+ */
+export class Recipient {
+  /**
+   * The recipient's name.
+   *
+   * @type {string}
+   */
+  name;
+
+  /**
+   * The recipient's email address.
+   *
+   * @type {string}
+   */
+  address;
+
+  constructor(name, address) {
+    this.name = name;
+    this.address = address;
+  }
+}
+
+/**
+ * A message created on a Graph server. Note that the structure of this class
+ * does *not* match the structure of the `message` type from the Graph API.
+ */
+export class GraphMessage {
+  /**
+   * The unique identifier for this message.
+   *
+   * @type {string}
+   */
+  id;
+
+  /**
+   * The message's Bcc recipients.
+   *
+   * @type {Array<Recipient>}
+   */
+  bccRecipients = [];
+
+  /**
+   * Whether the user has requested DSN (Delivery Status Notification) for this
+   * message.
+   *
+   * @type {bool}
+   */
+  dsnRequested = false;
+
+  /**
+   * The raw RFC822 content for this message.
+   *
+   * @type {string}
+   */
+  content;
+
+  constructor(id, bccRecipients, dsnRequested, content) {
+    this.id = id;
+    this.bccRecipients = bccRecipients;
+    this.dsnRequested = dsnRequested;
+    this.content = content;
+  }
+}
+
+/**
  * A mock server to mimic operations with Graph API.
  */
 export class GraphServer extends MockServer {
@@ -64,10 +131,20 @@ export class GraphServer extends MockServer {
   /**
    * A map from message IDs to RFC822 message payloads.
    *
-   * @type {Map<string, string>}
+   * @type {Map<string, GraphMessage>}
    * @private
    */
   #createdMessagesById = new Map();
+
+  /**
+   * The latest `GraphMessage` sent. Similar to `lastSentMessage` except this
+   * also includes metadata such as Bcc recipients, DSN, etc.
+   *
+   * @type {GraphMessage}
+   * @name GraphServer.lastSentGraphMessage
+   * @private
+   */
+  #lastSentGraphMessage = null;
 
   constructor({
     hostname,
@@ -141,6 +218,10 @@ export class GraphServer extends MockServer {
    */
   get port() {
     return this.#httpServer.identity.primaryPort;
+  }
+
+  get lastSentGraphMessage() {
+    return this.#lastSentGraphMessage;
   }
 
   /**
@@ -225,6 +306,10 @@ export class GraphServer extends MockServer {
           );
         }
         break;
+      case "PATCH":
+        if (resourcePath.startsWith("/me/messages")) {
+          responseJsonObject = this.#updateMessage(request);
+        }
     }
 
     // If we don't have a body to respond with, it likely means we've failed to
@@ -419,7 +504,7 @@ export class GraphServer extends MockServer {
     const reqBody = CommonUtils.readBytesFromInputStream(
       request.bodyInputStream
     );
-    const message = atob(reqBody);
+    const message = new GraphMessage(newItemId, [], false, atob(reqBody));
 
     this.#createdMessagesById.set(newItemId, message);
 
@@ -428,6 +513,50 @@ export class GraphServer extends MockServer {
     // want to expand this response with more fields.
     return {
       id: newItemId,
+    };
+  }
+
+  /**
+   * Handle PATCH /me/messages/{messageId}
+   *
+   * @param {nsIHttpRequest} request
+   */
+  #updateMessage(request) {
+    const pathParts = request.path.split("/");
+    const messageId = pathParts[pathParts.length - 1];
+
+    const reqBody = CommonUtils.readBytesFromInputStream(
+      request.bodyInputStream
+    );
+    const parsedReq = JSON.parse(reqBody);
+
+    // Fetch the corresponding message and update its metadata.
+    const message = this.#createdMessagesById.get(messageId);
+
+    // `GraphMessage.bccRecipients` defaults to an empty array, so we should
+    // only update it if the request contains a non-empty array.
+    if (parsedReq.bccRecipients) {
+      for (const recipient of parsedReq.bccRecipients) {
+        const bccRecipient = new Recipient(
+          recipient.emailAddress.name,
+          recipient.emailAddress.address
+        );
+        message.bccRecipients.push(bccRecipient);
+      }
+    }
+
+    // `GraphMessage.dsnRequested` defaults to `false`, so we should only update
+    // it if the request sets it to `true`.
+    if (parsedReq.isDeliveryReceiptRequested) {
+      message.dsnRequested = parsedReq.isDeliveryReceiptRequested;
+    }
+
+    // Note: returning only the ID should be fine for now because we don't
+    // actually look at the response from this request (beyond basic things like
+    // the HTTP status code), but in the future we'll probably want to expand
+    // this response with more fields.
+    return {
+      id: messageId,
     };
   }
 
@@ -448,7 +577,8 @@ export class GraphServer extends MockServer {
       response.setStatusLine("1.1", 404, "Not Found");
     } else {
       response.setStatusLine("1.1", 202, "Accepted");
-      this.lastSentMessage = message;
+      this.lastSentMessage = message.content;
+      this.#lastSentGraphMessage = message;
     }
   }
 

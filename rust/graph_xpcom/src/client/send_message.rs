@@ -6,7 +6,10 @@ use std::sync::Arc;
 
 use base64::prelude::*;
 
-use ms_graph_tb::{OperationBody, paths};
+use ms_graph_tb::{
+    OperationBody, paths,
+    types::{email_address::EmailAddress, message::Message, recipient::Recipient},
+};
 use protocol_shared::{
     authentication::credentials::AuthenticationProvider,
     client::DoOperation,
@@ -21,8 +24,8 @@ struct DoSendMessage<'a> {
     pub endpoint: &'a url::Url,
     pub listener: &'a SafeMsgOutgoingListener,
     pub mime_content: String,
-    pub _should_request_dsn: bool,
-    pub _bcc_recipients: Vec<OwnedMailbox>,
+    pub should_request_dsn: bool,
+    pub bcc_recipients: Vec<OwnedMailbox>,
     pub server_uri: SafeUri,
 }
 
@@ -61,6 +64,34 @@ impl<ServerT: AuthenticationProvider + RefCounted>
             .entity()
             .id()?
             .to_string();
+
+        // Update the draft message with the Bcc recipients and the DSN
+        // (Delivery Status Notification) flags.
+        let bcc_recipients: Vec<_> = self
+            .bcc_recipients
+            .iter()
+            .map(|recipient| {
+                let address = EmailAddress::new()
+                    .set_name(recipient.name.clone())
+                    .set_address(recipient.email_address.clone());
+
+                Recipient::new().set_email_address(address)
+            })
+            .collect();
+
+        let message_update = Message::new()
+            .set_is_delivery_receipt_requested(Some(self.should_request_dsn))
+            .set_bcc_recipients(bcc_recipients);
+
+        // Send the update request. We don't need to check the response, since
+        // it should just be the original message with the added properties (and
+        // all we need to send is the ID, which we already have).
+        let request = paths::me_messages_message_id::Patch::new(
+            endpoint.to_string(),
+            message_id.clone(),
+            OperationBody::JSON(message_update),
+        );
+        client.send_request(request).await?;
 
         // Now tell the server to send the draft message we just created.
         let request =
@@ -104,8 +135,8 @@ impl<ServerT: AuthenticationProvider + RefCounted> SendCapableClient for XpComGr
             endpoint: &self.endpoint,
             listener: &listener,
             mime_content,
-            _should_request_dsn: should_request_dsn,
-            _bcc_recipients: bcc_recipients,
+            should_request_dsn,
+            bcc_recipients,
             server_uri,
         };
         operation.handle_operation(&self, &listener).await;
