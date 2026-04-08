@@ -122,6 +122,11 @@ add_task(async function testOverLink() {
 });
 
 add_task(async function testManyStatuses() {
+  await TestUtils.waitForCondition(
+    () => !window.MsgStatusFeedback._statusQueue?.length,
+    "waiting for status queue to be empty"
+  );
+
   const statuses = [];
   for (let i = 0; i < 25; i++) {
     const str = `Hey hey hey #${i}`;
