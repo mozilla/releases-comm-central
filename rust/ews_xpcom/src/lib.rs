@@ -41,9 +41,7 @@ use client::XpComEwsClient;
 mod client;
 mod error;
 mod headerblock;
-mod line_token;
 mod observers;
-mod operation_queue;
 mod operation_sender;
 mod outgoing;
 mod server_version;
@@ -151,8 +149,8 @@ impl XpcomEwsBridge {
     xpcom_method!(initialize => Initialize(
         endpoint: *const nsACString,
         server: *const nsIMsgIncomingServer));
-    // See the design consideration section from `operation_queue.rs` regarding
-    // the use of `Arc`.
+    // See the documentation for `OperationSender::new()` regarding the use of
+    // `Arc`.
     #[allow(clippy::arc_with_non_send_sync)]
     fn initialize(
         &self,

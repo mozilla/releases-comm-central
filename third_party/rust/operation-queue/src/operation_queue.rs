@@ -2,84 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-//! This module contains the request queueing logic for EWS operations.
-//!
-//! It exposes two types:
-//!
-//! * [`OperationQueue`], which is a struct that represents the queue of
-//!   requests attached to an EWS client, and
-//! * [`QueuedOperation`], which is a trait representing an operation that can
-//!   be added to the queue.
-//!
-//! Consumers can add any type that implement the [`QueuedOperation`] to the end
-//! of an [`OperationQueue`] via [`OperationQueue::enqueue`].
-//!
-//! # How it works
-//!
-//! The queue is expected to be used while wrapped with an [`Arc`].
-//!
-//! The queue's inner buffer is an unbounded MPMC channel from
-//! [`async_channel`]. When enqueueing a new operation (using
-//! [`OperationQueue::enqueue`]), it is sent through this channel via the
-//! matching [`async_channel::Sender`].
-//!
-//! [`OperationQueue::start`] starts an infinite loop in the background for each
-//! runner. This loop waits for a new operation to be queued (or gets the next
-//! operation in line) by `await`ing the inner channel's
-//! [`async_channel::Receiver`], and performs it.
-//!
-//! Each operation is thus performed in order, the next one waiting for the
-//! previous one to complete. Multiple operations may run in parallel, depending
-//! on the number of items on the queue and the number of runners specified to
-//! [`OperationQueue::start`].
-//!
-//! Performing an operation also includes handling authentication and throttling
-//! errors, which includes retrying the request if necessary. This means that,
-//! if an operation needs to be retried due to this kind of failure, these
-//! retries are performed *before* the next operation. This is because
-//! authentication and throttling errors impact all operations indiscriminately,
-//! so pushing retries at the back of the queue (rather than performing them
-//! immediately) means performing a bunch of requests we know will fail.
-//!
-//! [`OperationQueue::stop`] stops all of the runners by closing the underlying
-//! [`async_channel`] channel. Operations that have already been queued up by
-//! this point are still performed in order, but any subsequent call to
-//! [`OperationQueue::enqueue`] return with an error. Runners ultimately break
-//! out of their loop once the channel is empty.
-//!
-//! # Design considerations
-//!
-//! This queue relies on multiple levels of abstraction to define the type of an
-//! operation, from the queue's point of view. While [`QueuedOperation`] is the
-//! public-facing trait that consumers should implement,
-//! [`ErasedQueuedOperation`] is the type of operations the queue actually sees.
-//! It wraps around [`QueuedOperation`] in such a way that both the queue and
-//! its runners can use it as a trait object. This is necessary because
-//! [`QueuedOperation::perform`] is an async method, which would break [Rust's
-//! rules on dyn compatibility] (since `async fn` is a shorthand for returning
-//! `impl Future<...>`, an opaque type which size cannot be known at compile
-//! time).
-//!
-//! Regarding the design of the queue itself, a previous approach involved using
-//! a [`VecDeque`] as the queue's inner buffer, but relying on [`async_channel`]
-//! allows simplifying the queue's structure, as well as the logic for waiting
-//! for new items to become available.
-//!
-//! Queueing requests in [`moz_http`] was also considered, but this approach was
-//! abandonned as well since it would mean retries due to throttling or
-//! authentication issues would be be added to the back of the queue rather than
-//! performed immediately.
-//!
-//! [`Arc`] is used in a few places to ensure memory is correctly managed. Since
-//! we only dispatch to the local thread, [`Rc`] could be used instead. However,
-//! it would make sense to, in a next step, look into dispatching to the
-//! background tasks thread pool instead. In this context, using `Arc` could
-//! avoid a hefty change in the future (at a negligible performance cost).
-//!
-//! [Rust's rules on dyn compatibility]:
-//!     <https://doc.rust-lang.org/reference/items/traits.html#dyn-compatibility>
-//! [`VecDeque`]: std::collections::VecDeque
-//! [`Rc`]: std::rc::Rc
+//! This module defines the types and data structures for the operation queue.
+//! See the crate's top-level documentation.
 
 use std::{
     cell::{Cell, RefCell},
@@ -91,11 +15,12 @@ use std::{
 
 use async_channel::{Receiver, Sender};
 
-use crate::error::XpComEwsError;
+use crate::error::Error;
 
 /// An operation that can be added to an [`OperationQueue`].
-pub(crate) trait QueuedOperation: Debug {
-    /// Performs the operation using the given [`OperationSender`].
+#[allow(async_fn_in_trait)]
+pub trait QueuedOperation: Debug {
+    /// Performs the operation asynchronously.
     async fn perform(&self);
 }
 
@@ -110,10 +35,9 @@ pub(crate) trait QueuedOperation: Debug {
 /// This return value is further wrapped into a [`Pin`] so that the `Future` can
 /// be `await`ed (since the receiver for [`Future::poll`] is `Pin<&mut Self>`).
 ///
-/// The "erased" word in this type's name refers to how we use a trait object in
-/// `perform`'s return value (`dyn Future<...>`) to remove the need to know the
-/// specific implementation of `Future` at compile time, thus "erasing" the
-/// concrete type that's being returned.
+/// In this context, "erased" refers to how this trait "erases" the
+/// opaque/generic return type of [`QueuedOperation::perform`] by turning it
+/// into a trait object.
 pub trait ErasedQueuedOperation: Debug {
     fn perform<'op>(&'op self) -> Pin<Box<dyn Future<Output = ()> + 'op>>;
 }
@@ -127,27 +51,44 @@ where
     }
 }
 
-pub(crate) struct OperationQueue {
+/// A queue that performs asynchronous operations in order.
+//
+// Design considerations:
+//
+//  * A previous approach involved using a `VecDeque` as the queue's inner
+//    buffer, but relying on `async_channel` allows simplifying the queue's
+//    structure, as well as the logic for waiting for new items to become
+//    available.
+//
+//  * `Arc` is used to keep track of runners in a way that ensures memory is
+//    properly managed. For compatibility with current Thunderbird code, the
+//    queue's item type (`ErasedQueuedOperation`) does not include a bound on
+//    `Send` and/or `Sync`, so `Rc` could be used instead. However, we plan to,
+//    at a later time, address the current thread safety issues within the
+//    Thunderbird code base which currently prevent dispatching runners across
+//    multiple threads. In this context, we believe using `Arc` right away will
+//    avoid a hefty change in the future (at a negligible performance cost).
+pub struct OperationQueue {
     channel_sender: Sender<Box<dyn ErasedQueuedOperation>>,
     channel_receiver: Receiver<Box<dyn ErasedQueuedOperation>>,
     runners: RefCell<Vec<Arc<Runner>>>,
+    spawn_task: fn(fut: Pin<Box<dyn Future<Output = ()>>>),
 }
 
 impl OperationQueue {
     /// Creates a new operation queue.
     ///
-    /// Since most methods require the queue to be wrapped inside an [`Arc`],
-    /// this method also takes care of this.
-    pub fn new() -> Arc<OperationQueue> {
+    /// The function provided as argument is used when spawning new runners,
+    /// e.g. `tokio::task::spawn_local`. It must not be blocking.
+    pub fn new(spawn_task: fn(fut: Pin<Box<dyn Future<Output = ()>>>)) -> OperationQueue {
         let (snd, rcv) = async_channel::unbounded();
 
-        let queue = OperationQueue {
+        OperationQueue {
             channel_sender: snd,
             channel_receiver: rcv,
             runners: RefCell::new(Vec::new()),
-        };
-
-        Arc::new(queue)
+            spawn_task,
+        }
     }
 
     /// Starts the given number of runners that consume new items pushed to the
@@ -155,20 +96,29 @@ impl OperationQueue {
     ///
     /// A runner loops infinitely, performing operations as they get queued.
     ///
-    /// This method detaches the runners to let them run in the background, and
-    /// returns immediately.
-    pub fn start(&self, runners: u32) {
+    /// An error can be returned if the queue has previously been stopped.
+    pub fn start(&self, runners: u32) -> Result<(), Error> {
+        if self.channel_sender.is_closed() {
+            return Err(Error::Stopped);
+        }
+
         for i in 0..runners {
             let runner = Runner::new(i, self.channel_receiver.clone());
-            moz_task::spawn_local("RequestQueue", runner.clone().run()).detach();
+            (self.spawn_task)(Box::pin(runner.clone().run()));
             self.runners.borrow_mut().push(runner);
         }
+
+        Ok(())
     }
 
     /// Pushes an operation to the back of the queue.
     ///
-    /// An error can be returned if the inner channel is closed.
-    pub async fn enqueue(&self, op: Box<dyn ErasedQueuedOperation>) -> Result<(), XpComEwsError> {
+    /// This function can be used with any type that implements
+    /// [`QueuedOperation`], since [`ErasedQueuedOperation`] is automatically
+    /// implemented for all such implementations.
+    ///
+    /// An error can be returned if the queue has been stopped.
+    pub async fn enqueue(&self, op: Box<dyn ErasedQueuedOperation>) -> Result<(), Error> {
         self.channel_sender.send(op).await?;
         Ok(())
     }
@@ -176,8 +126,9 @@ impl OperationQueue {
     /// Stops the queue.
     ///
     /// Operations that have already been queued up will still be performed, but
-    /// any call to [`enqueue`] following a call to `stop` will fail.
+    /// any call to [`start`] or [`enqueue`] following a call to `stop` will fail.
     ///
+    /// [`start`]: OperationQueue::start
     /// [`enqueue`]: OperationQueue::enqueue
     pub async fn stop(&self) {
         if !self.channel_sender.close() {
@@ -287,6 +238,13 @@ impl Runner {
     /// Creates a new [`Runner`], wrapped into an [`Arc`].
     ///
     /// `id` is a numerical identifier used for debugging.
+    ///
+    /// Since [`Runner::run`] requires the queue to be wrapped inside an
+    /// [`Arc`], this is how this method returns the new queue.
+    //
+    // See the design consideration comment for `OperationQueue` regarding the
+    // use of `Arc`.
+    #[allow(clippy::arc_with_non_send_sync)]
     fn new(id: u32, receiver: Receiver<Box<dyn ErasedQueuedOperation>>) -> Arc<Runner> {
         Arc::new(Runner {
             id,
@@ -330,5 +288,129 @@ impl Runner {
     /// Gets the runner's current state.
     fn state(&self) -> RunnerState {
         self.state.get()
+    }
+}
+
+#[cfg(test)]
+// For simplicity, we run our async tests using tokio's local runtime using the
+// unstable "local" value for the `flavor` argument in `tokio::test`. Because it
+// comes from tokio's unstable API, we need to supply the `tokio_unstable` cfg
+// condition, which in turn triggers a warning from within the `tokio::test`
+// macro about an unexpected cfg condition name.
+#[allow(unexpected_cfgs)]
+mod tests {
+    use super::*;
+
+    use async_channel::Sender;
+    use tokio::time::Duration;
+
+    fn new_queue() -> OperationQueue {
+        OperationQueue::new(|fut| {
+            _ = tokio::task::spawn_local(fut);
+        })
+    }
+
+    #[tokio::test(flavor = "local")]
+    async fn start_queue() {
+        let queue = new_queue();
+
+        queue.start(5).unwrap();
+        assert_eq!(queue.runners.borrow().len(), 5);
+
+        // We need to await something to give the runners a chance to start
+        // their loops.
+        tokio::time::sleep(Duration::from_millis(0)).await;
+        assert!(queue.idle());
+    }
+
+    #[tokio::test(flavor = "local")]
+    async fn stop_queue() {
+        let queue = new_queue();
+
+        queue.start(5).unwrap();
+
+        // We need to await something to give the runners a chance to start
+        // their loops.
+        tokio::time::sleep(Duration::from_millis(0)).await;
+        assert!(queue.idle());
+
+        queue.stop().await;
+        assert!(!queue.running());
+        assert!(queue.channel_receiver.is_closed());
+
+        match queue.start(1) {
+            Ok(_) => panic!("we should not be able to start the queue after stopping it"),
+            Err(Error::Stopped) => (),
+            Err(_) => panic!("unexpected error"),
+        }
+
+        // Try to enqueue a dummy operation to make sure it fails.
+        #[derive(Debug)]
+        struct Operation {}
+        impl QueuedOperation for Operation {
+            async fn perform(&self) {}
+        }
+
+        let op = Box::new(Operation {});
+        match queue.enqueue(op).await {
+            Ok(_) => panic!("we should not be able to enqueue operations after stopping the queue"),
+            Err(Error::Sender) => (),
+            Err(_) => panic!("unexpected error"),
+        }
+    }
+
+    #[tokio::test(flavor = "local")]
+    async fn operation_order() {
+        // A simple operation with a numerical ID that sends its own ID through
+        // a channel.
+        #[derive(Debug)]
+        struct Operation {
+            id: u8,
+            sender: Sender<u8>,
+        }
+        impl QueuedOperation for Operation {
+            async fn perform(&self) {
+                self.sender.send(self.id).await.unwrap();
+            }
+        }
+
+        let queue = new_queue();
+
+        // Create a channel the operations can use to send us their ID.
+        let (sender, receiver) = async_channel::unbounded();
+
+        // Enqueue a couple of operations.
+        queue
+            .enqueue(Box::new(Operation {
+                id: 1,
+                sender: sender.clone(),
+            }))
+            .await
+            .unwrap();
+
+        queue
+            .enqueue(Box::new(Operation {
+                id: 2,
+                sender: sender.clone(),
+            }))
+            .await
+            .unwrap();
+
+        // Start exactly one runner so we can check that operations run in
+        // order.
+        queue.start(1).unwrap();
+
+        // We need to await something to give the runner a chance to start and
+        // perform operations.
+        tokio::time::sleep(Duration::from_millis(0)).await;
+
+        // Check that we got both IDs in order.
+        let id = receiver.recv().await.unwrap();
+        assert_eq!(id, 1);
+        let id = receiver.recv().await.unwrap();
+        assert_eq!(id, 2);
+
+        // For bonus points: the queue should be fully idle now.
+        assert!(queue.idle());
     }
 }

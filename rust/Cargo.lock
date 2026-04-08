@@ -1861,13 +1861,11 @@ dependencies = [
 name = "ews_xpcom"
 version = "0.1.0"
 dependencies = [
- "async-channel",
  "async-lock",
  "base64 0.21.999",
  "cstr",
  "ews",
  "firefox-on-glean",
- "futures",
  "fxhash",
  "log",
  "mail-builder",
@@ -1879,6 +1877,7 @@ dependencies = [
  "nserror",
  "nsstring",
  "oneshot",
+ "operation-queue",
  "paste",
  "protocol_shared",
  "quick-xml",
@@ -4986,6 +4985,19 @@ name = "oneshot"
 version = "0.1.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "269bca4c2591a28585d6bf10d9ed0332b7d76900a1b02bec41bdc3a2cdcda107"
+
+[[package]]
+name = "operation-queue"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5658dc84cdcd31f4f47558ef721373418eef8c89dc7f4c0379ab68a4fd358163"
+dependencies = [
+ "async-channel",
+ "futures",
+ "log",
+ "oneshot",
+ "thiserror 1.999.999",
+]
 
 [[package]]
 name = "ordered-float"

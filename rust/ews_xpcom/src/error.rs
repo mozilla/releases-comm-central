@@ -7,14 +7,12 @@
 //! Provides an error type specific to EWS operations that may wrap an
 //! underlying [`protocol_shared::error::ProtocolError`].
 
-use async_channel::SendError;
 use ews::response::ResponseError;
 use nserror::nsresult;
 use oneshot::RecvError;
+use operation_queue::Error as QueueError;
 use protocol_shared::error::ProtocolError;
 use thiserror::Error;
-
-use crate::operation_queue::ErasedQueuedOperation;
 
 /// Error types for EWS operations.
 #[derive(Debug, Error)]
@@ -45,13 +43,11 @@ pub(crate) enum XpComEwsError {
     #[error("async communication error: could not receive the operation response: {0}")]
     OperationReceiver(#[from] RecvError),
 
-    #[error(
-        "async communication error: could not send operation to queue: sending into a closed channel"
-    )]
-    QueueSender,
-
     #[error("client has shut down")]
     ClientClosed,
+
+    #[error("operation queue error: {0}")]
+    Queue(#[from] QueueError),
 }
 
 impl From<&XpComEwsError> for nsresult {
@@ -92,12 +88,5 @@ impl<'a> TryFrom<&'a XpComEwsError> for &'a moz_http::Error {
             XpComEwsError::Protocol(ProtocolError::Http(err)) => Ok(err),
             _ => Err(()),
         }
-    }
-}
-
-impl From<SendError<Box<dyn ErasedQueuedOperation>>> for XpComEwsError {
-    // `SendError` is only returned in one case: the channel is closed.
-    fn from(_: SendError<Box<dyn ErasedQueuedOperation>>) -> Self {
-        XpComEwsError::QueueSender
     }
 }

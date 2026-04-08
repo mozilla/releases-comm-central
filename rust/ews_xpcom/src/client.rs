@@ -39,9 +39,10 @@ use url::Url;
 use uuid::Uuid;
 use xpcom::{RefCounted, RefPtr};
 
+use operation_queue::{OperationQueue, QueuedOperation};
+
 use crate::{
     error::XpComEwsError,
-    operation_queue::{OperationQueue, QueuedOperation},
     operation_sender::{
         OperationRequestOptions, OperationSender, TransportSecFailureBehavior,
         observable_server::ObservableServer,
@@ -187,13 +188,13 @@ where
 
 pub(crate) struct XpComEwsClient<ServerT: ServerType + 'static> {
     version_handler: Arc<ServerVersionHandler>,
-    queue: Arc<OperationQueue>,
+    queue: OperationQueue,
     op_sender: Arc<OperationSender<ServerT>>,
 }
 
 impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
-    // See the design consideration section from `operation_queue.rs` regarding
-    // the use of `Arc`.
+    // See the documentation for `OperationSender::new()` regarding the use of
+    // `Arc`.
     #[allow(clippy::arc_with_non_send_sync)]
     pub(crate) fn new(
         endpoint: Url,
@@ -210,8 +211,9 @@ impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
         // than 1). In the future, we could maybe move
         // `maximumConnectionsNumber` from `nsIImapIncomingServer` to
         // `nsIMsgIncomingServer` and use its value here.
-        let queue = OperationQueue::new();
-        queue.clone().start(5);
+        let queue =
+            OperationQueue::new(|fut| moz_task::spawn_local("ews_operation_queue", fut).detach());
+        queue.start(5)?;
 
         Ok(XpComEwsClient {
             version_handler,
@@ -237,6 +239,9 @@ impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
         self.op_sender.url()
     }
 
+    /// Pushes an operation to the back of the operation queue and waits for it
+    /// to be performed.
+    ///
     /// `Op` needs a static lifetime, because it needs to be dispatch-able to a
     /// runner at *some* point in the future. In practice, this mainly means the
     /// underlying implementation must have ownership of its own data (or only

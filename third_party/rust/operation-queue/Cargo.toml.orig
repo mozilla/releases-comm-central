@@ -1,0 +1,28 @@
+[package]
+name = "operation-queue"
+version = "1.0.0"
+edition = "2024"
+authors = ["The Thunderbird Project Developers"]
+description = "Helpers for synchronizing asynchronous protocol operations."
+categories = ["asynchronous"]
+keywords = ["operation", "queue", "async", "synchronization"]
+readme = "README.md"
+license = "MPL-2.0"
+repository = "https://github.com/thunderbird/operation-queue-rs"
+exclude = [".github", ".vscode"]
+
+[package.metadata.docs.rs]
+all-features = true
+
+[features]
+line_token = []
+
+[dependencies]
+futures = "0.3.28"
+oneshot = "0.1.11"
+async-channel = "2.5.0"
+log = "0.4.21"
+thiserror = "1.0.56"
+
+[dev-dependencies]
+tokio = { version = "1.50.0", features = ["macros", "rt", "time"] }

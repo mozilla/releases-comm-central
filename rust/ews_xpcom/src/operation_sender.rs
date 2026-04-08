@@ -14,6 +14,7 @@ use mailnews_ui_glue::{
     maybe_handle_connection_error, report_connection_success,
 };
 use moz_http::Response;
+use operation_queue::line_token::{AcquireOutcome, Line};
 use protocol_shared::{
     authentication::{
         credentials::{AuthValidationOutcome, Credentials},
@@ -26,10 +27,7 @@ use uuid::Uuid;
 use xpcom::{RefCounted, RefPtr};
 
 use crate::{
-    client::ServerType,
-    error::XpComEwsError,
-    line_token::{AcquireOutcome, Line},
-    observers::UrlPrefObserver,
+    client::ServerType, error::XpComEwsError, observers::UrlPrefObserver,
     server_version::ServerVersionHandler,
 };
 
@@ -103,8 +101,12 @@ pub(crate) struct OperationSender<ServerT: RefCounted + 'static> {
 }
 
 impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
-    // See the design consideration section from `operation_queue.rs` regarding
-    // the use of `Arc`.
+    // We expect the `OperationSender` to be wrapped inside an `Arc` to make
+    // sure it's properly managed from a memory point of view. `OperationSender`
+    // isn't `Sync` or `Send`, so we could use `Rc` instead; however making it
+    // thread-safe is something we want to look into in the future, so using
+    // `Arc` right now avoids having to selectively replace a bunch of `Rc`s in
+    // the future. See https://bugzilla.mozilla.org/show_bug.cgi?id=2030095
     #[allow(clippy::arc_with_non_send_sync)]
     pub fn new(
         endpoint: Url,
