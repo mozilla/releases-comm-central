@@ -390,6 +390,38 @@ OAuth2Module.prototype = {
               this._oauth.refreshToken != oldRefreshToken ||
               this._oauth.scope != this._scope
             ) {
+              // We don't have a username, but we might be able to get it now.
+              if (this._username === null) {
+                if (
+                  this._oauth.accessToken &&
+                  [
+                    "oauth://auth.tb.pro",
+                    "oauth://auth-stage.tb.pro",
+                    "oauth://external.test",
+                  ].includes(this._loginOrigin)
+                ) {
+                  const jwt = JSON.parse(
+                    new TextDecoder().decode(
+                      ChromeUtils.base64URLDecode(
+                        this._oauth.accessToken.split(".")[1],
+                        { padding: "ignore" }
+                      )
+                    )
+                  );
+                  this._oauth.username = this._username =
+                    jwt.preferred_username;
+                  log.debug(
+                    `Found a username for ${this._loginOrigin}: ${this._username}`
+                  );
+                } else {
+                  log.error(
+                    `Couldn't find a username for ${this._loginOrigin}`
+                  );
+                  listener.onFailure(Cr.NS_ERROR_ABORT);
+                  callback?.onAuthResult(false);
+                  return;
+                }
+              }
               // Refresh token and/or scope changed; save them.
               await this.setRefreshToken(this._oauth.refreshToken);
               this._scope = this._oauth.scope;

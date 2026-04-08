@@ -590,14 +590,56 @@ class AccountHubEmail extends HTMLElement {
           });
         }
         break;
-      case "click":
-        if (event.composedTarget.closest(".account-hub-thundermail-button")) {
-          this.#handleForwardAction("autoConfigSubview", {
-            email: "example@thundermail.com",
-            realName: "placeholder",
-          });
+      case "click": {
+        if (!event.composedTarget.closest(".account-hub-thundermail-button")) {
+          return;
         }
+
+        const oauth2Module = new lazy.OAuth2Module();
+        // Override this preference for tests.
+        const hostname = Services.prefs.getStringPref(
+          "mail.accounthub.thundermail.hostname",
+          "thundermail.com"
+        );
+        oauth2Module.initFromHostname(hostname, null, "imap");
+
+        this.#startLoading("account-hub-oauth-pending");
+        this.abortable = new AbortController();
+        this.abortable.signal.onabort = () => {
+          oauth2Module.cancelPrompt();
+          this.#stopLoading();
+          this.abortable = null;
+        };
+
+        try {
+          const deferred = Promise.withResolvers();
+          oauth2Module.getAccessToken({
+            onSuccess: deferred.resolve,
+            onFailure: deferred.reject,
+          });
+          const accessToken = await deferred.promise;
+          // The Thundermail access token has a JWT containing a username and
+          // real name we can use.
+          const jwt = JSON.parse(
+            new TextDecoder().decode(
+              ChromeUtils.base64URLDecode(accessToken.split(".")[1], {
+                padding: "ignore",
+              })
+            )
+          );
+          this.#stopLoading();
+          this.abortable = null;
+          this.#handleForwardAction("autoConfigSubview", {
+            email: jwt.preferred_username,
+            realName: jwt.name || jwt.preferred_username,
+          });
+        } catch (ex) {
+          this.#stopLoading();
+          this.abortable = null;
+        }
+
         break;
+      }
       case "submit":
         event.preventDefault();
         if (!event.target.checkValidity()) {

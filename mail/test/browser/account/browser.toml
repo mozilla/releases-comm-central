@@ -135,6 +135,9 @@ disabled = "Will be removed in bug 2020400"
 
 ["browser_settingsInfrastructure.js"]
 
+["browser_thundermailSetup.js"]
+tags = ["oauth"]
+
 ["browser_tree.js"]
 
 ["browser_values.js"]

@@ -740,7 +740,7 @@ add_task(async function testExternalRequest() {
     const url = await externalOAuthURL;
     await OAuth2TestUtils.submitOAuthURL(url, {
       expectedHint: "romeo@foo.invalid",
-      expectedScope: "test_scope",
+      expectedScope: "test_mail",
       username: "user",
       password: "password",
     });
@@ -757,7 +757,7 @@ add_task(async function testExternalRequest() {
       "access_token",
       "access token should be set in memory"
     );
-    Assert.equal(mod._oauth.scope, "test_scope", "scope should be preserved");
+    Assert.equal(mod._oauth.scope, "test_mail", "scope should be preserved");
 
     const logins = await Services.logins.getAllLogins();
     Assert.equal(logins.length, 1, "a login should have been added");
@@ -768,7 +768,7 @@ add_task(async function testExternalRequest() {
     );
     Assert.equal(
       logins[0].httpRealm,
-      "test_scope",
+      "test_mail",
       "login scope should match the granted OAuth scope"
     );
     Assert.equal(
@@ -780,6 +780,107 @@ add_task(async function testExternalRequest() {
       logins[0].password,
       "refresh_token",
       "refresh token should have been saved"
+    );
+  } finally {
+    Services.logins.removeAllLogins();
+    OAuth2TestUtils.forgetObjects();
+    OAuth2TestUtils.stopServer();
+    Services.prefs.clearUserPref("mailnews.oauth.useExternalBrowser");
+  }
+});
+
+/**
+ * Tests that we can authenticate before knowing the username, and get the
+ * username from the access token. This is used for Thundermail setup.
+ */
+add_task(async function testGetUsernameFromAccessToken() {
+  Services.prefs.setBoolPref("mailnews.oauth.useExternalBrowser", true);
+
+  const username = "mike@external.test";
+  const jwt = {
+    name: "Mike",
+    preferred_username: username,
+    some_other_stuff: "? ->",
+  };
+  const accessToken = `foo.${ChromeUtils.base64URLEncode(
+    new TextEncoder().encode(JSON.stringify(jwt)),
+    { pad: false }
+  )}.baz`;
+  info(`The access token is "${accessToken}".`);
+  Assert.stringContains(
+    accessToken,
+    "_",
+    "test access token should require URL-safe decoding"
+  );
+  Assert.stringContains(
+    accessToken,
+    "-",
+    "test access token should require URL-safe decoding"
+  );
+
+  OAuth2TestUtils.startServer({ username, accessToken });
+  try {
+    const mod = new OAuth2Module();
+    mod.initFromHostname("external.test", null, "imap");
+
+    const externalOAuthURL = OAuth2TestUtils.promiseExternalOAuthURL();
+    const deferred = Promise.withResolvers();
+    mod.getAccessToken({
+      onSuccess: deferred.resolve,
+      onFailure: deferred.reject,
+    });
+
+    const url = await externalOAuthURL;
+    await OAuth2TestUtils.submitOAuthURL(url, {
+      expectedScope: "test_mail",
+      username,
+      password: "password",
+    });
+    await deferred.promise;
+
+    Assert.equal(
+      mod._username,
+      "mike@external.test",
+      "username should now be set"
+    );
+
+    const logins = await Services.logins.getAllLogins();
+    Assert.equal(logins.length, 1, "a login should have been added");
+    Assert.equal(
+      logins[0].hostname,
+      "oauth://external.test",
+      "login origin should use the external test issuer"
+    );
+    Assert.equal(
+      logins[0].username,
+      "mike@external.test",
+      "login username should match the authenticated account"
+    );
+    Assert.equal(
+      logins[0].password,
+      "refresh_token",
+      "refresh token should have been saved"
+    );
+
+    // Now that we've got a username, creating an OAuth2Module *with that
+    // username* should reuse the same inner object...
+
+    const newModWithUsername = new OAuth2Module();
+    newModWithUsername.initFromHostname("external.test", username, "imap");
+    Assert.equal(
+      newModWithUsername._oauth,
+      mod._oauth,
+      "creating another OAuth2Module with the username should reuse the inner OAuth2 object"
+    );
+
+    // ... but creating another one with a null username should not.
+
+    const newModWithNullUsername = new OAuth2Module();
+    newModWithNullUsername.initFromHostname("external.test", null, "imap");
+    Assert.notEqual(
+      newModWithNullUsername._oauth,
+      mod._oauth,
+      "creating another OAuth2Module with no username must not reuse the inner OAuth2 object"
     );
   } finally {
     Services.logins.removeAllLogins();
