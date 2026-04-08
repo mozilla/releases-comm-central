@@ -188,6 +188,8 @@ NS_IMETHODIMP nsParseMailMessageState::Clear() {
   m_toList.Clear();
   m_ccList.Clear();
   m_headers.clear();
+  // Preallocate 16KB to avoid geometric growth overhead.
+  (void)m_headers.reserve(16384);
   m_receivedTime = 0;
   m_receivedValue.Truncate();
   for (auto& headerData : m_customDBHeaderData) {
@@ -228,21 +230,27 @@ NS_IMETHODIMP nsParseMailMessageState::ParseAFolderLine(const char* line,
 
 nsresult nsParseMailMessageState::ParseFolderLine(const char* line,
                                                   uint32_t lineLength) {
-  nsresult rv;
+  // Always advance the byte offset.
+  auto updatePosition =
+      mozilla::MakeScopeExit([&] { m_position += lineLength; });
 
   if (m_state == nsIMsgParseMailMsgState::ParseHeadersState) {
     if (EMPTY_MESSAGE_LINE(line)) {
       /* End of headers.  Now parse them. */
-      rv = ParseHeaders();
+      nsresult rv = ParseHeaders();
       NS_ASSERTION(NS_SUCCEEDED(rv), "error parsing headers parsing mailbox");
-      NS_ENSURE_SUCCESS(rv, rv);
 
-      rv = FinalizeHeaders();
-      NS_ASSERTION(NS_SUCCEEDED(rv),
-                   "error finalizing headers parsing mailbox");
-      NS_ENSURE_SUCCESS(rv, rv);
+      if (NS_SUCCEEDED(rv)) {
+        rv = FinalizeHeaders();
+        NS_ASSERTION(NS_SUCCEEDED(rv),
+                     "error finalizing headers parsing mailbox");
+      }
 
+      // Even if parsing fails, we must move to the body state. This prevents
+      // infinite buffering of the body into m_headers.
       m_state = nsIMsgParseMailMsgState::ParseBodyState;
+
+      NS_ENSURE_SUCCESS(rv, rv);
     } else {
       /* Otherwise, this line belongs to a header.  So append it to the
          header data, and stay in MBOX `MIME_PARSE_HEADERS' state.
@@ -252,8 +260,6 @@ nsresult nsParseMailMessageState::ParseFolderLine(const char* line,
   } else if (m_state == nsIMsgParseMailMsgState::ParseBodyState) {
     m_body_lines++;
   }
-
-  m_position += lineLength;
 
   return NS_OK;
 }
@@ -306,7 +312,9 @@ nsresult nsParseMailMessageState::ParseHeaders() {
   if (!(buf_length > 1 &&
         (buf[buf_length - 1] == '\r' || buf[buf_length - 1] == '\n'))) {
     NS_WARNING("Header text should always end in a newline");
-    return NS_ERROR_UNEXPECTED;
+    MsgLogToConsole4(
+        u"Missing trailing newline in header block. Proceeding message parsing."_ns,
+        "nsParseMailbox.cpp"_ns, __LINE__, nsIScriptError::warningFlag);
   }
   while (buf < buf_end) {
     char* const colon = PL_strnchr(buf, ':', buf_end - buf);
