@@ -115,6 +115,7 @@
   skin/classic/messenger/aboutAddonsExtra.css                 (../shared/mail/aboutAddonsExtra.css)
   skin/classic/messenger/aboutAddressBook.css                 (../shared/mail/aboutAddressBook.css)
   skin/classic/messenger/aboutImport.css                      (../shared/mail/aboutImport.css)
+  skin/classic/messenger/aboutMessage.css                     (../shared/mail/aboutMessage.css)
   skin/classic/messenger/aboutPolicies.css                    (../shared/mail/aboutPolicies.css)
   skin/classic/messenger/aboutSupport.css                     (../shared/mail/aboutSupport.css)
   skin/classic/messenger/abSearchDialog.css                   (../shared/mail/abSearchDialog.css)
