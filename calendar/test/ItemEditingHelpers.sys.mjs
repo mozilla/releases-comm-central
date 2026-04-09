@@ -426,9 +426,9 @@ async function setReminderMenulist(iframeWindow, id) {
   menulist.focus();
 
   synthesizeMouseAtCenter(menulist, {}, iframeWindow);
-  await BrowserTestUtils.waitForPopupEvent(menulist, "shown");
+  await BrowserTestUtils.waitForPopupEvent(menulist.menupopup, "shown");
   synthesizeMouseAtCenter(menuitem, {}, iframeWindow);
-  await BrowserTestUtils.waitForPopupEvent(menulist, "hidden");
+  await BrowserTestUtils.waitForPopupEvent(menulist.menupopup, "hidden");
   await sleep(iframeWindow);
 }
 
@@ -600,29 +600,45 @@ async function setTimezone(dialogWindow, iframeWindow, timezone) {
     undefined,
     "chrome://calendar/content/calendar-event-dialog-timezone.xhtml",
     {
-      async callback(timezoneWindow) {
+      async callback(win) {
         Assert.report(false, undefined, undefined, "Timezone dialog opened");
-        await TestUtils.waitForCondition(
-          () => Services.focus.activeWindow == timezoneWindow,
-          "timezone dialog active"
-        );
+        if (Services.focus.activeWindow != win) {
+          let focusTimeoutId;
+          const focusTimeout = new Promise(resolve => {
+            focusTimeoutId = win.setTimeout(() => {
+              Assert.report(false, undefined, undefined, `Will force focus to ${win.location}`);
+              win.focus();
+              resolve();
+            }, 5000);
+          });
+          await Promise.race([BrowserTestUtils.waitForEvent(win, "activate"), focusTimeout]);
+          win.clearTimeout(focusTimeoutId);
+          Assert.report(
+            false,
+            undefined,
+            undefined,
+            `${Services.focus.activeWindow?.location} now active - ${Services.focus.focusedWindow?.location} has focus`
+          );
+        }
+        await new Promise(resolve => win.setTimeout(resolve));
 
-        const timezoneDocument = timezoneWindow.document;
+        const timezoneDocument = win.document;
         const timezoneMenulist = timezoneDocument.getElementById("timezone-menulist");
-        const timezoneMenuitem = timezoneMenulist.querySelector(`[value="${timezone}"]`);
+        const timezoneMenupopup = timezoneDocument.getElementById("timezone-menupopup");
 
-        synthesizeMouseAtCenter(timezoneMenulist, {}, timezoneWindow);
-        await BrowserTestUtils.waitForPopupEvent(timezoneMenulist, "shown");
+        synthesizeMouseAtCenter(timezoneMenulist, {}, win);
+        await BrowserTestUtils.waitForPopupEvent(timezoneMenupopup, "shown");
 
+        const timezoneMenuitem = timezoneMenupopup.querySelector(`[value="${timezone}"]`);
         timezoneMenuitem.scrollIntoView({ block: "start", behavior: "instant" });
 
-        synthesizeMouseAtCenter(timezoneMenuitem, {}, timezoneWindow);
-        await BrowserTestUtils.waitForPopupEvent(timezoneMenulist, "hidden");
+        synthesizeMouseAtCenter(timezoneMenuitem, {}, win);
+        await BrowserTestUtils.waitForPopupEvent(timezoneMenupopup, "hidden");
 
         synthesizeMouseAtCenter(
           timezoneDocument.querySelector("dialog").getButton("accept"),
           {},
-          timezoneWindow
+          win
         );
       },
     }
