@@ -784,7 +784,7 @@ nsresult Tokenizer::ScannerNext(const char16_t* text, int32_t length,
     *_retval = isLastBuffer;
     return NS_OK;
   }
-  int32_t next = (int32_t)breakPt.value();
+  int32_t next = pos + (int32_t)breakPt.value();
   // If what we got is space or punct, look at the next break.
   if (char_class == WordBreakClass::kWbClassSpace ||
       char_class == WordBreakClass::kWbClassPunct) {
@@ -851,13 +851,21 @@ void Tokenizer::tokenize(const char* aText) {
       NS_ConvertUTF8toUTF16 uword(word);
       ToLowerCase(uword);
       const char16_t* utext = uword.get();
-      int32_t len = uword.Length(), pos = 0, begin, end;
+      uint32_t len = uword.Length();
+      int32_t pos = 0, begin = 0, end = 0;
       bool gotUnit;
-      while (pos < len) {
+      while (pos < (int32_t)len) {
         rv = ScannerNext(utext, len, pos, true, &begin, &end, &gotUnit);
         if (NS_SUCCEEDED(rv) && gotUnit) {
+          if (begin < 0 || end < begin || end > (int32_t)len) {
+            break;  // some invalid value... :-/
+          }
+
           NS_ConvertUTF16toUTF8 utfUnit(utext + begin, end - begin);
           add(utfUnit.get());
+          if (end <= pos) {
+            break;
+          }
           // Advance to end of current unit.
           pos = end;
         } else {
