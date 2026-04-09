@@ -127,7 +127,7 @@
           `
         ${minimonthHeader}
         <html:div class="minimonth-readonly-header minimonth-month-box"></html:div>
-        <html:table class="minimonth-calendar minimonth-cal-box">
+        <html:table class="minimonth-calendar minimonth-cal-box" role="grid">
           <html:tr class="minimonth-row-head">
             <html:th class="minimonth-row-header-week" scope="col"></html:th>
             <html:th class="minimonth-row-header" scope="col"></html:th>
