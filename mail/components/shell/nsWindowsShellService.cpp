@@ -72,6 +72,7 @@ typedef enum {
 #define CLS_NEWSURL "Thunderbird.Url.news"
 #define CLS_FEEDURL "Thunderbird.Url.feed"
 #define CLS_WEBCALURL "Thunderbird.Url.webcal"
+#define CLS_NET_THUNDERBIRDURL "Thunderbird.Url.net.thunderbird"
 #define CLS_ICS "ThunderbirdICS"
 #define SOP "\\shell\\open\\command"
 #define VAL_OPEN "\"%APPPATH%\" \"%1\""
@@ -91,11 +92,15 @@ static SETTING gMailSettings[] = {
     {MAKE_KEY_NAME1(CLS_MAILTOURL, SOP), "", VAL_COMPOSE_OPEN,
      APP_PATH_SUBSTITUTION},
     {MAKE_KEY_NAME1(CLS_MIDURL, SOP), "", VAL_OPEN, APP_PATH_SUBSTITUTION},
+    {MAKE_KEY_NAME1(CLS_NET_THUNDERBIRDURL, SOP), "", VAL_OPEN,
+     APP_PATH_SUBSTITUTION},
 
     // Protocol Handlers
     {MAKE_KEY_NAME1("mailto", SOP), "", VAL_COMPOSE_OPEN,
      APP_PATH_SUBSTITUTION},
     {MAKE_KEY_NAME1("mid", SOP), "", VAL_OPEN, APP_PATH_SUBSTITUTION},
+    {MAKE_KEY_NAME1("net.thunderbird", SOP), "", VAL_OPEN,
+     APP_PATH_SUBSTITUTION},
 };
 
 static SETTING gNewsSettings[] = {

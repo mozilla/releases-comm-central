@@ -22,7 +22,8 @@
 
 using mozilla::Preferences;
 
-static const char* const sMailProtocols[] = {"mailto", "mid"};
+static const char* const sMailProtocols[] = {"mailto", "mid",
+                                             "net.thunderbird"};
 
 static const char* const sNewsProtocols[] = {"news", "snews", "nntp"};
 

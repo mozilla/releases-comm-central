@@ -46,6 +46,7 @@
   <mimetypes>
     <mimetype>message/rfc822</mimetype>
     <mimetype>x-scheme-handler/mailto</mimetype>
+    <mimetype>x-scheme-handler/net.thunderbird</mimetype>
     <mimetype>text/calendar</mimetype>
     <mimetype>text/vcard</mimetype>
     <mimetype>text/x-vcard</mimetype>

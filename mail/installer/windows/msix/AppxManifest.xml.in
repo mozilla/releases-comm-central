@@ -93,6 +93,12 @@
           </uap3:Protocol>
         </uap3:Extension>
         <uap3:Extension Category="windows.protocol">
+          <uap3:Protocol Name="net.thunderbird" Parameters="&quot;%1&quot;">
+            <uap:DisplayName>net.thunderbird</uap:DisplayName>
+            <uap:Logo>Assets\Email44x44.png</uap:Logo>
+          </uap3:Protocol>
+        </uap3:Extension>
+        <uap3:Extension Category="windows.protocol">
           <uap3:Protocol Name="mid" Parameters="&quot;%1&quot;">
             <uap:DisplayName>mid</uap:DisplayName>
             <uap:Logo>Assets\Email44x44.png</uap:Logo>

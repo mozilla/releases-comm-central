@@ -211,6 +211,8 @@
   ${AddHandlerValues} "$0\mailto" "$2" "$8,0" "${AppRegNameMail} URL" "true" ""
   ${AddHandlerValues} "$0\Thunderbird.Url.mid"  "$1" "$8,0" "${AppRegNameMail} URL" "delete" ""
   ${AddHandlerValues} "$0\mid" "$1" "$8,0" "${AppRegNameMail} URL" "true" ""
+  ${AddHandlerValues} "$0\Thunderbird.Url.net.thunderbird"  "$1" "$8,0" "${AppRegNameMail} URL" "delete" ""
+  ${AddHandlerValues} "$0\net.thunderbird" "$1" "$8,0" "${AppRegNameMail} URL" "true" ""
 
   ; Associate the file handlers with ThunderbirdEML
   ReadRegStr $6 SHCTX ".eml" ""
@@ -331,6 +333,7 @@
   StrCpy $2 "$\"$8$\" $\"%1$\""
   ${AddHandlerValues} "$0\Protocols\mailto" "$1" "$8,0" "${AppRegNameMail} URL" "true" ""
   ${AddHandlerValues} "$0\Protocols\mid" "$2" "$8,0" "${AppRegNameMail} URL" "true" ""
+  ${AddHandlerValues} "$0\Protocols\net.thunderbird" "$2" "$8,0" "${AppRegNameMail} URL" "true" ""
 
   ; Capabilities registry keys
   WriteRegStr ${RegKey} "$0\Capabilities" "ApplicationDescription" "$(REG_APP_DESC)"
@@ -341,6 +344,7 @@
   WriteRegStr ${RegKey} "$0\Capabilities\StartMenu" "Mail" "${ClientsRegName}"
   WriteRegStr ${RegKey} "$0\Capabilities\URLAssociations" "mailto" "Thunderbird.Url.mailto"
   WriteRegStr ${RegKey} "$0\Capabilities\URLAssociations" "mid" "Thunderbird.Url.mid"
+  WriteRegStr ${RegKey} "$0\Capabilities\URLAssociations" "net.thunderbird" "Thunderbird.Url.net.thunderbird"
 
   ; Registered Application
   WriteRegStr ${RegKey} "Software\RegisteredApplications" "${AppRegNameMail}" "$0\Capabilities"
@@ -672,6 +676,17 @@
   ${IsHandlerForInstallDir} "mid" $R9
   ${If} "$R9" == "true"
     ${AddHandlerValues} "SOFTWARE\Classes\mid" "$3" "$8,0" "" "" ""
+  ${EndIf}
+
+  ${IsHandlerForInstallDir} "Thunderbird.Url.net.thunderbird" $R9
+  ${If} "$R9" == "true"
+    ${AddHandlerValues} "SOFTWARE\Classes\Thunderbird.Url.net.thunderbird" "$3" "$8,0" \
+                        "${AppRegNameMail} URL" "delete" ""
+  ${EndIf}
+
+  ${IsHandlerForInstallDir} "net.thunderbird" $R9
+  ${If} "$R9" == "true"
+    ${AddHandlerValues} "SOFTWARE\Classes\net.thunderbird" "$3" "$8,0" "" "" ""
   ${EndIf}
 
   ${IsHandlerForInstallDir} "Thunderbird.Url.news" $R9

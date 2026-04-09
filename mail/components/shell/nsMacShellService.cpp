@@ -57,11 +57,15 @@ nsMacShellService::SetDefaultClient(bool aForAllUsers, uint16_t aApps) {
     rv = setAsDefaultHandlerForProtocol(CFSTR("mailto"));
     NS_ENSURE_SUCCESS(rv, rv);
     rv = setAsDefaultHandlerForProtocol(CFSTR("mid"));
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = setAsDefaultHandlerForProtocol(CFSTR("net.thunderbird"));
   }
-  if (NS_SUCCEEDED(rv) && aApps & nsIShellService::NEWS)
+  if (NS_SUCCEEDED(rv) && aApps & nsIShellService::NEWS) {
     rv = setAsDefaultHandlerForProtocol(CFSTR("news"));
-  if (NS_SUCCEEDED(rv) && aApps & nsIShellService::RSS)
+  }
+  if (NS_SUCCEEDED(rv) && aApps & nsIShellService::RSS) {
     rv = setAsDefaultHandlerForProtocol(CFSTR("feed"));
+  }
   if (NS_SUCCEEDED(rv) && aApps & nsIShellService::CALENDAR) {
     rv = setAsDefaultHandlerForProtocol(CFSTR("webcal"));
     NS_ENSURE_SUCCESS(rv, rv);

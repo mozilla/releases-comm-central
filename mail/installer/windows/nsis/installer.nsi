@@ -423,8 +423,8 @@ Section "-Application" APP_IDX
   ${SetUninstallKeys}
 
   ; On install always add the ThunderbirdEML, Thunderbird.Url.mailto,
-  ; Thunderbird.Url.mid, Thunderbird.Url.news, Thunderbird.webcal and
-  ; ThunderbirdICS keys.
+  ; Thunderbird.Url.mid, Thunderbird.Url.news, Thunderbird.webcal,
+  ; ThunderbirdICS, and Thunderbird.Url.net.thunderbird keys.
   ${GetLongPath} "$INSTDIR\${FileMainEXE}" $8
   StrCpy $0 "SOFTWARE\Classes"
   StrCpy $1 "$\"$8$\" $\"%1$\""
@@ -440,6 +440,8 @@ Section "-Application" APP_IDX
   ${AddHandlerValues} "$0\Thunderbird.Url.news" "$3" "$8,0" \
                       "${AppRegNameNews} URL" "delete" ""
   ${AddHandlerValues} "$0\Thunderbird.Url.mid"  "$1" "$8,0" \
+                      "${AppRegNameMail} URL" "delete" ""
+  ${AddHandlerValues} "$0\Thunderbird.Url.net.thunderbird"  "$1" "$8,0" \
                       "${AppRegNameMail} URL" "delete" ""
   ${AddHandlerValues} "$0\Thunderbird.Url.webcal"  "$1" "$8,0" \
                       "${AppRegNameCalendar} URL" "delete" ""

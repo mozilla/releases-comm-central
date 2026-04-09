@@ -511,18 +511,35 @@ export class MessengerContentHandler {
       }
     }
     if (uri) {
-      if (/^file:/i.test(uri)) {
+      const url = URL.parse(uri);
+      if (url?.protocol == "file:") {
         // Turn file URL into a file path so `resolveFile()` will work.
         const fileURL = cmdLine.resolveURI(uri);
         uri = fileURL.QueryInterface(Ci.nsIFileURL).file.path;
       }
+
       // Check for protocols first then look at the file ending.
       // Protocols are able to contain file endings like '.ics'.
-      if (/^https?:/i.test(uri) || /^feed:/i.test(uri)) {
+
+      if (url?.protocol == "net.thunderbird:") {
+        getOrOpen3PaneWindow();
+        try {
+          // Find a handler for this URL based on the host. Handlers can be
+          // registered with the category manager at compile time or run time.
+          const contract = Services.catMan.getCategoryEntry(
+            "net-thunderbird-url",
+            url.host
+          );
+          const service = Cc[contract].getService(Ci.nsIObserver);
+          service.observe(null, "net-thunderbird-url", url.href);
+        } catch (ex) {
+          console.error(ex);
+        }
+      } else if (["http:", "https:", "feed:"].includes(url?.protocol)) {
         getOrOpen3PaneWindow().then(() => {
           lazy.FeedUtils.subscribeToFeed(uri, null);
         });
-      } else if (/^webcals?:\/\//i.test(uri)) {
+      } else if (["webcal:", "webcals:"].includes(url?.protocol)) {
         getOrOpen3PaneWindow().then(win =>
           Services.ww.openWindow(
             win,
@@ -532,31 +549,30 @@ export class MessengerContentHandler {
             Services.io.newURI(uri)
           )
         );
-      } else if (/^mid:/i.test(uri)) {
+      } else if (url?.protocol == "mid:") {
         getOrOpen3PaneWindow().then(() => {
           lazy.MailUtils.openMessageForMessageId(uri.slice(4));
         });
-      } else if (/^(mailbox|imap|news)-message:\/\//.test(uri)) {
+      } else if (
+        ["mailbox-message:", "imap-message:", "news-message:"].includes(
+          url?.protocol
+        )
+      ) {
         getOrOpen3PaneWindow().then(() => {
           const messenger = Cc["@mozilla.org/messenger;1"].createInstance(
             Ci.nsIMessenger
           );
           lazy.MailUtils.displayMessage(messenger.msgHdrFromURI(uri));
         });
-      } else if (/^imap:/i.test(uri)) {
+      } else if (url?.protocol == "imap:") {
         getOrOpen3PaneWindow().then(() => {
           openURI(cmdLine.resolveURI(uri));
         });
-      } else if (/^s?news:/i.test(uri)) {
+      } else if (["news:", "snews:"].includes(url?.protocol)) {
         getOrOpen3PaneWindow().then(win => {
           lazy.MailUtils.handleNewsUri(uri, win);
         });
-      } else if (
-        // While the leading web+ and ext+ identifiers may be case insensitive,
-        // the protocol identifiers must be lowercase.
-        /^(web|ext)\+[a-z]+:/i.test(uri) &&
-        /^[a-z]+:/.test(uri.split("+")[1])
-      ) {
+      } else if (/^(web|ext)\+[a-z]+:/.test(url?.protocol)) {
         getOrOpen3PaneWindow().then(win => {
           win.gTabmail.openTab("contentTab", {
             url: uri,
@@ -899,5 +915,25 @@ export class MessageDisplayContentHandler {
         uri
       )
     );
+  }
+}
+
+/**
+ * A handler for testing net.thunderbird URLs only.
+ */
+export class TestThunderbirdURLReplay {
+  QueryInterface = ChromeUtils.generateQI(["nsIObserver"]);
+
+  data = "NOT SET";
+
+  observe(subject, topic, data) {
+    if (topic == "net-thunderbird-url") {
+      // A net.thunderbird URL was passed to Thunderbird. Record it.
+      this.data = data;
+    } else if (topic == "replay") {
+      // The test is asking for the recorded URL. Modify the passed-in object.
+      subject.QueryInterface(Ci.nsISupportsString);
+      subject.data = this.data;
+    }
   }
 }

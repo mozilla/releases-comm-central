@@ -206,6 +206,31 @@ class TestCommandLine(MarionetteTestCase):
         self.marionette.close_chrome_window()
         self.marionette.instance.app_args = []
 
+    def test_thunderbird_url(self):
+        self.marionette.set_context(self.marionette.CONTEXT_CHROME)
+        self.marionette.quit(in_app=True)
+
+        # Open Thunderbird, passing a net.thunderbird URL.
+        self.marionette.instance.app_args = ["net.thunderbird://replay/hello"]
+        self.marionette.start_session()
+        self.marionette.set_context(self.marionette.CONTEXT_CHROME)
+        self.assertEqual("mail:3pane", self.marionette.get_window_type())
+
+        # Check that the URL reached the handler.
+        echo_url = """
+            const service = Cc["@mozilla.org/test/thunderbird-url-replay;1"].getService(Ci.nsIObserver);
+            const container = Cc["@mozilla.org/supports-string;1"].createInstance(Ci.nsISupportsString);
+            container.data = "REPLACE ME";
+            service.observe(container, "replay", "");
+            return container.data;
+        """
+        replay = self.marionette.execute_script(echo_url)
+        # If the value is "REPLACE ME", the script above failed somehow.
+        # If it is "NOT SET", the URL did not reach the handler.
+        self.assertEqual("net.thunderbird://replay/hello", replay)
+
+        self.marionette.instance.app_args = []
+
     def test_zzz(self):
         """
         Quits and restarts Thunderbird one more time to workaround code

@@ -51,6 +51,7 @@
   <provides>
     <mediatype>message/rfc822</mediatype>
     <mediatype>x-scheme-handler/mailto</mediatype>
+    <mediatype>x-scheme-handler/net.thunderbird</mediatype>
     <mediatype>text/calendar</mediatype>
     <mediatype>text/vcard</mediatype>
     <mediatype>text/x-vcard</mediatype>
