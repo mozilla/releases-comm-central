@@ -5,7 +5,7 @@
 
 :host(calendar-minidate) {
   display: block;
-  border: 1px solid var(--splitter-color);
+  border: 1px solid var(--sidebar-border);
   align-self: center;
 }
 

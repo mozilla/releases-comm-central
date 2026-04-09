@@ -46,52 +46,55 @@
 
   @media not (forced-colors) {
     --tree-focus-outline: transparent;
-    --tree-pane-background: light-dark(var(--color-gray-05), var(--color-black));
+    --tree-pane-background: light-dark(var(--color-gray-05), var(--color-black)); /* REMOVE THIS! */
     --tree-card-background: var(--layout-background-0);
-    --tree-card-border: light-dark(color-mix(in srgb, var(--tree-view-bg) 90%, black), color-mix(in srgb, var(--tree-view-bg) 90%, white));
-    --tree-card-border-hover: color-mix(in srgb, var(--selected-item-color) 60%, transparent);
+    --tree-card-border: var(--layout-border-0);
+    --tree-card-border-hover: color-mix(in srgb, var(--selected-item-color) 70%, transparent);
     --tree-card-border-focus: var(--selected-item-color);
-    --tree-card-hover: var(--selected-item-color);
-    --tree-card-focus: color-mix(in srgb, var(--selected-item-color) 20%, transparent);
     /* Selection Colors */
     --tree-card-background-current: light-dark(
-      color-mix(in srgb, var(--selected-item-color) 5%, var(--tree-view-bg)),
-      color-mix(in srgb, var(--selected-item-color) 10%, var(--tree-view-bg))
+      color-mix(in srgb, var(--selected-item-color) 10%, var(--tree-card-background)),
+      color-mix(in srgb, var(--selected-item-color) 15%, var(--tree-card-background))
     );
     --tree-card-background-selected: light-dark(
-      color-mix(in srgb, var(--selected-item-color) 7%, var(--tree-view-bg)),
-      color-mix(in srgb, var(--selected-item-color) 14%, var(--tree-view-bg))
+      color-mix(in srgb, var(--selected-item-color) 15%, var(--tree-card-background)),
+      color-mix(in srgb, var(--selected-item-color) 20%, var(--tree-card-background))
     );
     --tree-card-background-selected-current: light-dark(
-      color-mix(in srgb, var(--selected-item-color) 15%, var(--tree-view-bg)),
-      color-mix(in srgb, var(--selected-item-color) 30%, var(--tree-view-bg))
+      color-mix(in srgb, var(--selected-item-color) 15%, var(--tree-card-background)),
+      color-mix(in srgb, var(--selected-item-color) 25%, var(--tree-card-background))
     );
     --tree-card-border-selected: color-mix(in srgb, var(--selected-item-color) 30%, transparent);
 
     /* Unfocused Colors */
     --tree-card-background-current-unfocused: light-dark(
-      color-mix(in srgb, var(--layout-background-0) 98%, var(--color-gray-50)),
-      color-mix(in srgb, var(--layout-background-0) 88%, var(--color-gray-50))
+      color-mix(in srgb, var(--layout-background-3) 30%, transparent),
+      color-mix(in srgb, var(--layout-background-3) 55%, transparent)
     );
     --tree-card-background-selected-unfocused: light-dark(
-      color-mix(in srgb, var(--layout-background-0) 95%, var(--color-gray-50)),
-      color-mix(in srgb, var(--layout-background-0) 85%, var(--color-gray-50))
+      color-mix(in srgb, var(--layout-background-3) 30%, transparent),
+      color-mix(in srgb, var(--layout-background-3) 45%, transparent)
     );
-    --tree-card-background-selected-current-unfocused: var(--layout-background-2);
-    --tree-card-border-selected-unfocused: var(--layout-border-1);
+    --tree-card-background-selected-current-unfocused: light-dark(
+      color-mix(in srgb, var(--layout-background-3) 30%, transparent),
+      color-mix(in srgb, var(--layout-background-3) 65%, transparent)
+    );
+    --tree-card-background-selected-current-unfocused-hover: light-dark(
+      color-mix(in srgb, var(--layout-background-3) 10%, transparent),
+      color-mix(in srgb, var(--layout-background-3) 45%, transparent)
+    );
+    --tree-card-border-selected-unfocused: light-dark(var(--layout-border-1), var(--layout-border-2));
 
-    --listbox-color: light-dark(var(--sidebar-text-color, var(--color-gray-80)), var(--sidebar-text-color, var(--color-gray-05)));
     --listbox-selected-bg: light-dark(var(--color-gray-30), var(--color-gray-70));
     --listbox-focused-selected-bg: var(--selected-item-color);
     --listbox-selected-color: var(--selected-item-text-color);
     --listbox-focused-selected-color: var(--selected-item-text-color);
     --listbox-hover: color-mix(in srgb, var(--selected-item-color) 10%, transparent);
     --listbox-border-type: dashed;
-    --tree-view-bg: light-dark(var(--color-white), var(--color-gray-90));
-    --tree-view-color: light-dark(var(--color-ink-90), var(--color-gray-30));
+    --tree-view-bg: light-dark(var(--layout-background-1), var(--color-black));
+    --tree-view-color: var(--layout-color-1);
     --tree-view-header-hover-bg: light-dark(var(--color-gray-20), var(--color-gray-70));
     --tree-view-header-hover-active-bg: light-dark(var(--color-gray-30), var(--color-gray-90));
-    --tree-view-header-border-color: var(--splitter-color);
     --tree-row-delete-button-color: light-dark(var(--color-red-60), var(--color-red-40));
     --unread-color: var(--layout-color-0);
   }
@@ -103,8 +106,6 @@
     --tree-card-background: Canvas;
     --tree-card-border: CanvasText;
     --tree-card-border-hover: SelectedItem;
-    --tree-card-hover: transparent;
-    --tree-card-focus: SelectedItem;
     /* Selection Colors */
     --tree-card-background-current: color-mix(in srgb, Canvas 95%, SelectedItem);
     --tree-card-background-selected: color-mix(in srgb, Canvas 90%, SelectedItem);
@@ -117,8 +118,6 @@
 
     --tree-view-color: CanvasText;
     --tree-view-header-hover-bg: color-mix(in srgb, Field 70%, hsl(0, 0%, 50%));
-    --tree-view-header-border-color: ThreeDShadow;
-    --listbox-color: currentColor;
     --listbox-selected-color: SelectedItemText;
     --listbox-focused-selected-bg: SelectedItem;
     --listbox-hover: color-mix(in srgb, var(--tree-view-bg) 90%, SelectedItem);
@@ -144,6 +143,7 @@
   overscroll-behavior-y: none;
   block-size: 100%;
   background-color: var(--tree-view-bg);
+  color: var(--tree-view-color);
 }
 
 [is="tree-view-table"] img {
@@ -246,7 +246,7 @@
 
     &.current {
       --tree-card-background: var(--tree-card-background-current);
-      --tree-card-border: var(--tree-card-focus);
+      --tree-card-border: var(--tree-card-border-focus);
     }
 
     &.selected {
@@ -343,7 +343,7 @@ thead[is="tree-view-table-header"] {
     inset-inline: 0;
     block-size: 0;
     z-index: 1;
-    border-block-end: 1px solid var(--sidebar-border-color, var(--tree-view-header-border-color));
+    border-block-end: 1px solid var(--sidebar-border);
   }
 }
 
@@ -677,7 +677,7 @@ slot[name="placeholders"] {
     line-height: 1.2;
     font-weight: 600;
     margin-block-end: 12px;
-    text-shadow: 0 1px 0 var(--sidebar-background-color, var(--tree-view-bg));
+    text-shadow: 0 1px 0 var(--sidebar-background);
   }
 
   & div::before {

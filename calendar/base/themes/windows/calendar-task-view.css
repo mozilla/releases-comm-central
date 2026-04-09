@@ -29,7 +29,7 @@
 
 #calendar-task-box #calendar-task-view-splitter {
   border-width: 0;
-  border-block-end: 1px solid var(--splitter-color);
+  border-block-end: 1px solid var(--sidebar-border);
   min-block-size: 0;
   block-size: 5px;
   background-color: transparent;

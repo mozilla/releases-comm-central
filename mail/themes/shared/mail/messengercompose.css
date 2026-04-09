@@ -94,7 +94,7 @@
 
 #attachmentBucket {
   block-size: var(--attachmentSplitter-height);
-  border-block: 1px solid var(--splitter-color); /* The same color as the splitters */
+  border-block: 1px solid var(--sidebar-border); /* The same color as the splitters */
   padding: 1px;
   max-block-size: 30vh;
 }

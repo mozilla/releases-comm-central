@@ -13,7 +13,6 @@
 :root {
   --default-account-icon-fill: light-dark(var(--color-orange-30), var(--color-orange-40));
   --default-account-icon-stroke: light-dark(var(--color-orange-60), var(--color-orange-50));
-  --sidebar-background: var(--in-content-categories-background);
   --account-tree-icon-new: var(--icon-add);
   --account-tree-icon-size: 16px;
 

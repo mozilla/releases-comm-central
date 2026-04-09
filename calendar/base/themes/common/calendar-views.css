@@ -1132,7 +1132,7 @@ calendar-editable-item[status="CANCELLED"],
 }
 
 :root[lwt-tree] #view-box {
-  background-color: var(--sidebar-background-color);
+  background-color: var(--sidebar-background);
 }
 
 /* Calendar control bar: Cal navigation, Date interval, Week# and View toggle*/

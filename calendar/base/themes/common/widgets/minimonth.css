@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 calendar-minimonth {
-  --mmMainColor: var(--sidebar-text-color, FieldText);
   --mmMainBackground: light-dark(var(--color-gray-05), var(--color-gray-70));
   --mmMainBorderColor: light-dark(var(--color-gray-20), var(--color-gray-50));
   --mmMainBorderRadius: 6px;
@@ -38,7 +37,6 @@ calendar-minimonth {
 
   /* This includes the light theme not inherited by the system */
   :root[lwt-tree]:not([lwt-tree-brighttext]) & {
-    --mmMainColor: var(--sidebar-text-color, FieldText);
     --mmMainBackground: transparent;
     --mmHighlightColor: var(--sidebar-highlight-text-color, var(--selected-item-text-color));
     --mmHighlightBackground: var(--sidebar-highlight-background-color, var(--selected-item-color));
@@ -94,7 +92,7 @@ calendar-minimonth {
 calendar-minimonth {
   background-color: var(--mmMainBackground);
   border-width: 0;
-  color: var(--mmMainColor);
+  color: var(--sidebar-color);
   padding: 1px;
   min-inline-size: 175px;
 }
@@ -158,7 +156,7 @@ calendar-minimonth[readonly="true"] .minimonth-readonly-header {
   background: inherit;
   border-color: transparent;
   border-radius: 2px;
-  stroke: var(--mmMainColor);
+  stroke: var(--sidebar-color);
   inline-size: auto;
   min-inline-size: unset;
   block-size: 100%;

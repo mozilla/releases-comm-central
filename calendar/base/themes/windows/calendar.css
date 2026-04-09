@@ -5,7 +5,7 @@
 @import url(chrome://calendar/skin/shared/calendar.css);
 
 #calsidebar_splitter {
-  border-inline-start: 1px solid var(--splitter-color);
+  border-inline-start: 1px solid var(--sidebar-border);
   /* make only the splitter border visible */
   margin-inline-end: -5px;
 }

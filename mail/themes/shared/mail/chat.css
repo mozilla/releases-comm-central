@@ -24,8 +24,8 @@
   font-weight: normal;
 
   :root[lwt-tree-brighttext] & {
-    color: var(--sidebar-text-color);
-    background-color: var(--sidebar-background-color);
+    color: var(--sidebar-color);
+    background-color: var(--sidebar-background);
   }
 }
 
@@ -55,7 +55,7 @@
   margin: 0;
   margin-block-end: 0.5em;
   padding-block-end: 0.4em;
-  border-block-end: 1px solid var(--splitter-color);
+  border-block-end: 1px solid var(--sidebar-border);
 }
 
 .im-placeholder-desc {
@@ -82,17 +82,17 @@
 }
 
 #listPaneBox {
-  border-inline-end: 1px solid var(--splitter-color);
+  border-inline-end: 1px solid var(--sidebar-border);
 
   :root[lwt-tree] & {
     appearance: none;
-    background-color: var(--sidebar-background-color);
-    border-inline-end-color: var(--sidebar-border-color);
-    color: var(--sidebar-text-color);
+    background-color: var(--sidebar-background);
+    border-inline-end-color: var(--sidebar-border);
+    color: var(--sidebar-color);
   }
 
   :root[lwt-tree-brighttext] & {
-    border-inline-end-color: var(--sidebar-border-color);
+    border-inline-end-color: var(--sidebar-border);
   }
 }
 
@@ -185,13 +185,13 @@ richlistitem:is([is="chat-imconv-richlistitem"], [is="chat-contact-richlistitem"
 :root[lwt-tree] richlistitem[is="chat-group-richlistitem"],
 :root[lwt-tree] richlistitem[is="chat-imconv-richlistitem"]:not([selected]),
 :root[lwt-tree] richlistitem[is="chat-contact-richlistitem"]:not([selected]) {
-  color: var(--sidebar-text-color);
+  color: var(--sidebar-color);
 }
 
 richlistitem[is="chat-imconv-richlistitem"][selected="true"],
 richlistitem[is="chat-contact-richlistitem"][selected="true"] {
   background-color: var(--imbox-selected-background-color) !important;
-  border-color: var(--splitter-color) !important;
+  border-color: var(--sidebar-border) !important;
   color: var(--imbox-selected-text-color) !important;
 }
 
@@ -199,7 +199,7 @@ richlistitem[is="chat-contact-richlistitem"][selected="true"] {
 :root[lwt-tree]
   richlistitem:is([is="chat-imconv-richlistitem"], [is="chat-contact-richlistitem"], [is="chat-group-richlistitem"]):not([selected="true"]):hover {
   background-color: var(--sidebar-highlight-background-color, hsla(0, 0%, 80%, 0.3));
-  color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
+  color: var(--sidebar-highlight-text-color, var(--sidebar-color));
 }
 
 :root[lwt-tree-brighttext] richlistitem[is="chat-group-richlistitem"][selected],
@@ -349,7 +349,7 @@ richlistitem[is="chat-group-richlistitem"] > label {
   border-style: none;
   appearance: none;
   -moz-window-dragging: no-drag;
-  border-block-end: 1px solid var(--splitter-color);
+  border-block-end: 1px solid var(--sidebar-border);
 }
 
 .userIcon {
@@ -596,10 +596,10 @@ richlistitem:not([selected]) .protoIconDimmed {
   margin: 0;
 
   :root[lwt-tree-brighttext] & {
-    color: var(--sidebar-text-color);
+    color: var(--sidebar-color);
     background-color: rgba(22, 22, 22, 0.2);
-    border-inline-start: 1px solid var(--splitter-color);
-    border-block-start: 1px solid var(--splitter-color);
+    border-inline-start: 1px solid var(--sidebar-border);
+    border-block-start: 1px solid var(--sidebar-border);
   }
 
   &[value=""] {
@@ -625,7 +625,7 @@ richlistitem:not([selected]) .protoIconDimmed {
   /* because of the negative margin needed to make the splitter visible */
   position: relative;
   z-index: 10;
-  border-block-end: 1px solid var(--splitter-color);
+  border-block-end: 1px solid var(--sidebar-border);
 }
 
 /* Adaptation of #folderpane_splitter */
@@ -651,7 +651,7 @@ richlistitem:not([selected]) .protoIconDimmed {
 }
 
 #contextSplitter {
-  border-inline-end: 1px solid var(--splitter-color);
+  border-inline-end: 1px solid var(--sidebar-border);
   /* make only the splitter border visible */
   margin-inline-start: -5px;
 
@@ -782,9 +782,9 @@ richlistitem:not([selected]) .protoIconDimmed {
 }
 
 :root[lwt-tree] #contextPane {
-  background-color: var(--sidebar-background-color);
-  border-block-end: 1px solid var(--sidebar-border-color);
-  color: var(--sidebar-text-color);
+  background-color: var(--sidebar-background);
+  border-block-end: 1px solid var(--sidebar-border);
+  color: var(--sidebar-color);
 }
 
 #contextPaneFlexibleBox {
@@ -806,15 +806,15 @@ richlistitem:not([selected]) .protoIconDimmed {
 :root[lwt-tree] .conv-nicklist-header,
 :root[lwt-tree] .conv-logs-header-label {
   appearance: none;
-  background-color: var(--sidebar-background-color);
-  border-block-end: 1px solid var(--sidebar-border-color);
-  color: var(--sidebar-text-color);
+  background-color: var(--sidebar-background);
+  border-block-end: 1px solid var(--sidebar-border);
+  color: var(--sidebar-color);
 }
 
 :root[lwt-tree-brighttext] #nicklist,
 :root[lwt-tree-brighttext] .conv-nicklist-header,
 :root[lwt-tree-brighttext] .conv-logs-header-label {
-  border-block-end-color: var(--sidebar-border-color, rgba(249, 249, 250, 0.2));
+  border-block-end-color: var(--sidebar-border);
 }
 
 .conv-header-label {
@@ -826,12 +826,12 @@ richlistitem:not([selected]) .protoIconDimmed {
   inline-size: 0;
 
   :root[lwt-tree] & {
-    color: var(--sidebar-text-color);
+    color: var(--sidebar-color);
   }
 }
 
 :root[lwt-tree] .conv-nicklist > richlistitem {
-  color: var(--sidebar-text-color);
+  color: var(--sidebar-color);
   box-shadow: none;
 }
 
@@ -840,8 +840,8 @@ richlistitem:not([selected]) .protoIconDimmed {
 :root[lwt-tree] .conv-nicklist:focus > richlistitem[selected="true"] {
   background-color: var(--sidebar-highlight-background-color, hsla(0, 0%, 80%, 0.3));
   background-image: none;
-  border-color: var(--sidebar-border-color);
-  color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
+  border-color: var(--sidebar-border);
+  color: var(--sidebar-highlight-text-color, var(--sidebar-color));
 }
 
 :root[lwt-tree-brighttext] .conv-nicklist > richlistitem[selected="true"],
@@ -852,13 +852,13 @@ richlistitem:not([selected]) .protoIconDimmed {
 }
 
 :root[lwt-tree] #nicklist > richlistitem[inactive]:not([selected]) > label {
-  color: var(--sidebar-text-color) !important;
+  color: var(--sidebar-color) !important;
   opacity: 0.55;
 }
 
 :root[lwt-tree] #nicklist > richlistitem[inactive][selected] > label,
 :root[lwt-tree] #nicklist:focus > richlistitem[inactive][selected] > label {
-  color: var(--sidebar-highlight-text-color, var(--sidebar-text-color)) !important;
+  color: var(--sidebar-highlight-text-color, var(--sidebar-color)) !important;
 }
 
 :root[lwt-tree] #logTree {
@@ -922,7 +922,7 @@ toolbar[mode="text"] #button-chat {
 /* encryption status selector */
 
 .encryption-container {
-  border-block-start: 1px solid var(--splitter-color);
+  border-block-start: 1px solid var(--sidebar-border);
   min-block-size: 32px;
   padding: 4px;
 }

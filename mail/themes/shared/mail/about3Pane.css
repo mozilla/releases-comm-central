@@ -14,10 +14,7 @@
   --folder-pane-icon-download: var(--icon-cloud-download);
   --folder-pane-icon-kebab: var(--icon-kebab);
 
-  --sidebar-background: var(--sidebar-background-color, var(--foldertree-background));
-
   @media not (prefers-contrast) {
-    --foldertree-background: var(--layout-background-1);
     --folderpane-unread-count-background: var(--color-gray-50);
     --folderpane-unread-count-text: var(--color-white);
     --folderpane-total-count-background: light-dark(var(--color-gray-20), var(--color-gray-60));
@@ -49,7 +46,6 @@
   }
 
   @media (prefers-contrast) {
-    --foldertree-background: -moz-Dialog;
     --folderpane-unread-count-background: var(--selected-item-color);
     --folderpane-unread-count-text: var(--selected-item-text-color);
     --folderpane-total-count-background: var(--selected-item-color);
@@ -127,7 +123,7 @@ body {
   min-inline-size: 100px;
   overflow: hidden;
   background-color: var(--sidebar-background);
-  color: var(--sidebar-text-color, var(--layout-color-1));
+  color: var(--sidebar-color);
   user-select: none;
   display: flex;
   flex-direction: column;
@@ -190,7 +186,7 @@ body {
 
 #folderPaneHeaderBar {
   flex-direction: row-reverse;
-  background-color: var(--sidebar-background-color, var(--foldertree-background));
+  background-color: var(--sidebar-background);
 }
 
 #folderPaneGetMessages,
@@ -450,7 +446,7 @@ body {
   & > li {
     &:not(:first-of-type) > .mode-container {
       justify-content: space-between;
-      border-block-start: 1px solid var(--sidebar-border-color, var(--splitter-color));
+      border-block-start: 1px solid var(--sidebar-border);
     }
 
     &.unselectable > .mode-container {

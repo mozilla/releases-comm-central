@@ -6,7 +6,7 @@
 
 #calendar-view-box #calendar-view-splitter {
   border: none;
-  border-block-end: 1px solid var(--splitter-color);
+  border-block-end: 1px solid var(--sidebar-border);
   min-block-size: 0;
   block-size: 5px;
   background-color: transparent;

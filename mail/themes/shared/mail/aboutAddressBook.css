@@ -25,8 +25,6 @@
   --books-pane-icon-size: 16px;
   --books-pane-icon-new: var(--icon-add);
 
-  --sidebar-background: var(--sidebar-background-color, var(--layout-background-1));
-
   &[uidensity="compact"] {
     --ab-card-line-height: 1em;
     --ab-card-table-row-height: 18px;
@@ -155,7 +153,7 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  color: var(--listbox-color);
+  color: var(--sidebar-color);
   background-color: var(--sidebar-background);
 }
 
@@ -357,7 +355,7 @@ body:not(.layout-table):not(.all-ab-selected) ~ menupopup#sortContext > menuitem
   fill: currentColor;
 
   &[rows="ab-card-row"] {
-    border-block-start: 1px solid var(--splitter-color);
+    border-block-start: 1px solid var(--sidebar-border);
   }
 }
 
@@ -974,7 +972,7 @@ input[type="number"] {
 #cardCount {
   position: sticky;
   inset-block-end: 0;
-  border-block-start: 1px solid var(--splitter-color);
+  border-block-start: 1px solid var(--sidebar-border);
   color: color-mix(in srgb, currentColor 75%, transparent);
   padding: 9px;
   font-weight: 500;

@@ -23,8 +23,8 @@ timepicker-grids {
 }
 
 :root[lwt-tree] timepicker-grids {
-  --tpMainColor: var(--sidebar-text-color);
-  --tpMainBackground: var(--sidebar-background-color);
+  --tpMainColor: var(--sidebar-color);
+  --tpMainBackground: var(--sidebar-background);
   --tpBorderColor: rgba(0, 0, 0, 0.5);
   --tpSubColor: var(--tpMainColor);
   --tpSubBackground: rgba(0, 0, 0, 0.1);

@@ -169,8 +169,8 @@ treechildren::-moz-tree-twisty(selected, focus) {
 :root[lwt-tree] {
   & tree,
   & #folderPaneHeader {
-    background-color: var(--sidebar-background-color);
-    color: var(--sidebar-text-color);
+    background-color: var(--sidebar-background);
+    color: var(--sidebar-color);
   }
 
   & treechildren::-moz-tree-row(current, focus) {
@@ -185,27 +185,27 @@ treechildren::-moz-tree-twisty(selected, focus) {
   & treechildren::-moz-tree-image,
   & #threadTree treechildren::-moz-tree-cell-text(untagged),
   & tree:not(#threadTree) treechildren::-moz-tree-cell-text {
-    color: var(--sidebar-text-color);
+    color: var(--sidebar-color);
   }
 
   & treechildren::-moz-tree-image(selected),
   & #threadTree treechildren::-moz-tree-cell-text(untagged, selected),
   & tree:not(#threadTree) treechildren::-moz-tree-cell-text(selected) {
-    color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
+    color: var(--sidebar-highlight-text-color, var(--sidebar-color));
   }
 
   & tree:not(:focus) treechildren::-moz-tree-image(selected),
   & #threadTree:not(:focus) treechildren::-moz-tree-cell-text(untagged, selected),
   & tree:not(#threadTree, :focus) treechildren::-moz-tree-cell-text(selected) {
-    color: var(--sidebar-text-color);
+    color: var(--sidebar-color);
   }
 
   & treechildren::-moz-tree-line {
-    border-color: var(--sidebar-text-color);
+    border-color: var(--sidebar-color);
   }
 
   & treechildren::-moz-tree-line(selected, focus) {
-    border-color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
+    border-color: var(--sidebar-highlight-text-color, var(--sidebar-color));
   }
 
   & .statuspanel-label {
@@ -247,12 +247,12 @@ tree > treechildren::-moz-tree-image(primary, dropOn) {
     appearance: none;
     color: inherit;
     background-color: transparent;
-    border-inline-start-color: var(--splitter-color);
-    box-shadow: inset 0 -1px var(--splitter-color);
+    border-inline-start-color: var(--sidebar-border);
+    box-shadow: inset 0 -1px var(--sidebar-border);
   }
 
   & treecolpicker {
-    border-inline-start-color: var(--splitter-color);
+    border-inline-start-color: var(--sidebar-border);
   }
 
   & treecol:hover,
@@ -896,7 +896,7 @@ statuspanel {
 
 .statusbar {
   background-color: var(--layout-background-1);
-  border-block-start: 1px solid var(--splitter-color);
+  border-block-start: 1px solid var(--sidebar-border);
   min-block-size: 22px;
 }
 
@@ -1090,7 +1090,7 @@ findbar {
 #messagepanebox > findbar {
   color: var(--layout-color-1);
   background-color: var(--layout-background-1);
-  border-block-start-color: var(--splitter-color);
+  border-block-start-color: var(--sidebar-border);
 
   & > .findbar-container {
     min-inline-size: 100px;

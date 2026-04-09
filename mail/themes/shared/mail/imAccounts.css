@@ -18,11 +18,11 @@
   color: FieldText;
   background-color: Field;
   overflow: auto;
-  border-block: 1px solid var(--splitter-color);
+  border-block: 1px solid var(--sidebar-border);
 
   :root[lwt-tree] & {
-    color: var(--sidebar-text-color);
-    background-color: var(--sidebar-background-color);
+    color: var(--sidebar-color);
+    background-color: var(--sidebar-background);
   }
 }
 
@@ -50,7 +50,7 @@
   line-height: 1.2;
   margin: 0 0 0.3em;
   padding-block-end: 0.2em;
-  border-block-end: 1px solid var(--splitter-color);
+  border-block-end: 1px solid var(--sidebar-border);
 }
 
 #noAccountDesc {
@@ -61,7 +61,7 @@
 #accountlist {
   margin: 0;
   appearance: none;
-  border-block: 1px solid var(--splitter-color);
+  border-block: 1px solid var(--sidebar-border);
   border-inline-style: none;
   text-shadow: none;
 }

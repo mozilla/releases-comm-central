@@ -71,11 +71,12 @@
   --selected-item-text-color: var(--sidebar-highlight-text-color, AccentColorText);
   --sidebar-header-gap: 9px;
   --sidebar-header-spacing: 9px;
-  --splitter-color: var(--sidebar-border-color, var(--layout-border-0));
-  --sidebar-border-color: var(--layout-border-0);
+  --sidebar-background: var(--sidebar-background-color, var(--layout-background-1));
+  --sidebar-color: var(--sidebar-text-color, var(--layout-color-1));
+  --sidebar-border: var(--sidebar-border-color, var(--layout-border-0));
 
   --tab-min-height: 33px;
-  --lwt-tabs-border-color: var(--sidebar-border-color);
+  --lwt-tabs-border-color: var(--sidebar-border);
   --tabs-tabbar-border-size: 1px;
   --toolbar-button-hover-background-color: color-mix(in srgb, currentColor 10%, transparent);
   --toolbar-button-hover-border-color: color-mix(in srgb, currentColor 30%, transparent);
@@ -161,8 +162,8 @@
   }
 
   &[lwt-tree] {
-    --select-focus-text-color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
-    --new-focused-folder-color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
+    --select-focus-text-color: var(--sidebar-highlight-text-color, var(--sidebar-color));
+    --new-focused-folder-color: var(--sidebar-highlight-text-color, var(--sidebar-color));
     --row-grouped-header-bg-color: hsla(0, 0%, 50%, 0.15);
     --row-grouped-header-bg-color-selected: light-dark(
       var(--sidebar-highlight-background-color, hsla(0, 0%, 80%, 0.6)),

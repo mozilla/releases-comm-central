@@ -31,7 +31,7 @@
 #threadPane > tree-view {
   -moz-context-properties: fill;
   fill: currentColor;
-  background-color: var(--layout-background-1);
+  background-color: var(--tree-view-bg);
   color: var(--tree-view-color);
   overflow-anchor: none;
 }

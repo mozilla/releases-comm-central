@@ -59,7 +59,7 @@
 }
 
 :root[lwtheme] #unifinder-searchBox {
-  border-block-end-color: var(--splitter-color);
+  border-block-end-color: var(--sidebar-border);
 }
 
 #bottom-events-box {

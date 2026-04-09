@@ -720,6 +720,7 @@
   skin/classic/messenger/icons/new/bell-ring.svg              (../shared/mail/icons/new/bell-ring.svg)
   skin/classic/messenger/icons/new/loading.svg                (../shared/mail/icons/new/loading.svg)
   skin/classic/messenger/icons/new/calendar-empty.svg         (../shared/mail/icons/new/calendar-empty.svg)
+  skin/classic/messenger/icons/new/circle-add-sm.svg          (../shared/mail/icons/new/circle-add-sm.svg)
   skin/classic/messenger/icons/new/circle-sm.svg              (../shared/mail/icons/new/circle-sm.svg)
   skin/classic/messenger/icons/new/guest-attending.svg        (../shared/mail/icons/new/guest-attending.svg)
   skin/classic/messenger/icons/new/guest-declined.svg         (../shared/mail/icons/new/guest-declined.svg)

@@ -6,7 +6,7 @@
 :host(calendar-invitation-panel) {
   background-color: Field;
   inline-size: auto;
-  border: 1px solid var(--splitter-color);
+  border: 1px solid var(--sidebar-border);
 }
 
 :host(calendar-invitation-panel) .notificationbox-stack {

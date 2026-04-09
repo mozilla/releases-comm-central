@@ -52,7 +52,7 @@ vcard-edit {
   column-gap: 2em;
   grid-template-rows: masonry;
   row-gap: var(--vcard-edit-row-gap);
-  color: var(--sidebar-text-color);
+  color: var(--sidebar-color);
   --input-border-density: 1px;
 
   & label[for] {
@@ -124,29 +124,9 @@ vcard-n {
   flex-direction: column;
 
   & button {
-    min-inline-size: auto;
-    min-block-size: auto;
-    display: inline-flex;
     margin: 0;
-    padding: 2px 1px 1px;
-    border: none;
-    z-index: 2;
-    margin-block-end: 9px;
-    border-radius: 8px;
-    background-color: var(--button-primary-background-color);
-    color: var(--button-primary-text-color);
-  }
-
-  & button img {
-    -moz-context-properties: stroke;
-    stroke: currentColor;
-    inline-size: 12px;
-    block-size: 12px;
-    margin-inline-start: 1px;
-  }
-
-  & button[hidden] {
-    display: none;
+    margin-block-end: 8px;
+    display: inline-flex;
   }
 }
 
@@ -390,6 +370,23 @@ vcard-adr select {
   border-radius: var(--button-border-radius);
   min-block-size: auto;
   inline-size: fit-content;
+  margin-inline-start: 0;
+
+  &::before {
+    content: "";
+    inline-size: 12px;
+    block-size: 12px;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+
+  &.only-icon {
+    min-inline-size: 0;
+    justify-content: center;
+    inline-size: 16px;
+    block-size: 16px;
+    padding: 0;
+  }
 
   &:enabled {
     &:is(:hover, :active, :hover:active) {
@@ -403,11 +400,8 @@ vcard-adr select {
 }
 
 .add-property-button {
-  &.button {
-    -moz-context-properties: fill;
-    color: var(--color-text-base);
-    fill: var(--button-primary-text-color);
-  }
+  -moz-context-properties: fill, stroke;
+  color: var(--selected-item-color);
 
   &:enabled {
     &:is(:hover, :active, :hover:active) {
@@ -417,24 +411,11 @@ vcard-adr select {
   }
 
   &::before {
-    position: relative;
-    display: block;
-    content: "";
-    border-radius: 8px;
-    background-color: var(--button-primary-background-color);
-    inline-size: 13px;
-    block-size: 13px;
-    background-image: var(--icon-add);
-    background-position: 1px center;
-    background-repeat: no-repeat;
-    background-size: 12px;
-    -moz-context-properties: stroke;
-    stroke: var(--button-primary-text-color);
+    background-image: var(--icon-circle-add-sm);
   }
 }
 
 .remove-property-button {
-  min-inline-size: 0;
   color: var(--vcard-remove-color);
   margin-block-end: 3px;
   -moz-context-properties: fill, stroke;
@@ -442,20 +423,8 @@ vcard-adr select {
   stroke: currentColor;
   align-self: center;
 
-  &.only-icon {
-    justify-content: center;
-    inline-size: 16px;
-    block-size: 16px;
-    padding: 0;
-  }
-
   &::before {
-    content: "";
-    inline-size: 12px;
-    block-size: 12px;
     background-image: var(--icon-subtract-circle-sm);
-    background-repeat: no-repeat;
-    background-position: center;
   }
 
   &:enabled {

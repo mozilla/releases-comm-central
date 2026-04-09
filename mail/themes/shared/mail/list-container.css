@@ -5,31 +5,16 @@
 :root {
   @media not (forced-colors) {
     --list-container-border: transparent;
-    --list-container-background-selected: light-dark(
-      color-mix(in srgb, var(--layout-background-0) 90%, var(--color-gray-50)),
-      color-mix(in srgb, var(--layout-background-0) 82%, var(--color-gray-30))
-    );
+    --list-container-background-selected: color-mix(in srgb, var(--layout-background-3) 20%, transparent);
     --list-container-border-selected: light-dark(var(--color-gray-40), var(--color-gray-60));
-    --list-container-background-selected-current: light-dark(
-      color-mix(in srgb, var(--layout-background-0) 85%, var(--color-gray-50)),
-      color-mix(in srgb, var(--layout-background-0) 80%, var(--color-gray-30))
-    );
-    --list-container-border-selected-current: var(--layout-border-1);
-    --list-container-background-hover: light-dark(
-      color-mix(in srgb, var(--selected-item-color) 5%, var(--sidebar-background)),
-      color-mix(in srgb, var(--selected-item-color) 10%, var(--sidebar-background))
-    );
+    --list-container-background-selected-current: color-mix(in srgb, var(--layout-background-3) 40%, transparent);
+    --list-container-border-selected-current: light-dark(color-mix(in srgb, var(--layout-border-1) 80%, transparent), var(--layout-border-1));
+    --list-container-background-hover: color-mix(in srgb, var(--selected-item-color) 10%, transparent);
     --list-container-border-hover: color-mix(in srgb, var(--selected-item-color) 60%, transparent);
-    --list-container-background-selected-focused: light-dark(
-      color-mix(in srgb, var(--selected-item-color) 7%, var(--sidebar-background)),
-      color-mix(in srgb, var(--selected-item-color) 14%, var(--sidebar-background))
-    );
+    --list-container-background-selected-focused: color-mix(in srgb, var(--selected-item-color) 7%, transparent);
     --list-container-border-selected-focused: color-mix(in srgb, var(--selected-item-color) 30%, transparent);
     --list-container-border-selected-current-focused: var(--selected-item-color);
-    --list-container-background-selected-current-focused: light-dark(
-      color-mix(in srgb, var(--selected-item-color) 15%, var(--sidebar-background)),
-      color-mix(in srgb, var(--selected-item-color) 30%, var(--sidebar-background))
-    );
+    --list-container-background-selected-current-focused: color-mix(in srgb, var(--selected-item-color) 15%, transparent);
   }
 
   @media (forced-colors) {

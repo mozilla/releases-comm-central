@@ -35,7 +35,7 @@
   --layout-color-2: light-dark(var(--color-gray-70), var(--color-gray-30));
   --layout-color-3: var(--color-gray-50);
 
-  --layout-border-0: light-dark(var(--color-gray-30), var(--color-gray-70));
+  --layout-border-0: var(--color-neutral-200);
   --layout-border-1: light-dark(var(--color-gray-40), var(--color-gray-60));
   --layout-border-2: var(--color-gray-50);
 
@@ -51,8 +51,8 @@
     --layout-color-2: currentColor;
     --layout-color-3: currentColor;
 
-    --layout-border-0: currentColor;
-    --layout-border-1: currentColor;
-    --layout-border-2: currentColor;
+    --layout-border-0: ThreeDShadow;
+    --layout-border-1: ThreeDShadow;
+    --layout-border-2: ThreeDShadow;
   }
 }

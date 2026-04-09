@@ -20,14 +20,10 @@
 }
 
 #rssFeedInfoBox {
-  border: 1px solid ThreeDShadow;
+  border: 1px solid var(--sidebar-border);
   margin: 4px;
   padding-block-start: 4px;
   background-color: rgba(0, 0, 0, 0.05);
-
-  :root[lwt-tree] & {
-    border-color: var(--sidebar-border-color);
-  }
 
   :root[lwt-tree-brighttext] & {
     background-color: rgba(255, 255, 255, 0.05);

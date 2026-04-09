@@ -68,7 +68,7 @@
 }
 
 #abResultsTree {
-  border-block: 1px solid var(--sidebar-border-color);
+  border-block: 1px solid var(--sidebar-border);
 
   & .tree-table {
     inline-size: 100%;

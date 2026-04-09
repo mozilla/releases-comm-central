@@ -18,13 +18,9 @@
   list-style-image: var(--icon-tasks);
 }
 
-:root[lwt-tree] #calSidebar {
-  background-color: var(--sidebar-background-color);
-  color: var(--sidebar-text-color);
-}
-
 #calSidebar {
-  background-color: var(--layout-background-2);
+  background-color: var(--sidebar-background);
+  color: var(--sidebar-color);
   overflow: hidden;
   flex-shrink: 0;
   min-inline-size: 175px;
@@ -292,7 +288,7 @@
   }
 
   #today-splitter {
-    border-inline-end: 1px solid var(--splitter-color);
+    border-inline-end: 1px solid var(--sidebar-border);
     margin-inline-start: -5px;
     position: relative;
   }

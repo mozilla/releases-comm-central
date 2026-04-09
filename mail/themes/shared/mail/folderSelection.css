@@ -11,7 +11,7 @@ dialog::part(content-box) {
 }
 
 base-tree-view {
-  border: 1px solid var(--sidebar-border-color, var(--tree-view-header-border-color));
+  border: 1px solid var(--sidebar-border);
 }
 
 tbody[is="tree-view-table-body"] {

@@ -19,7 +19,7 @@
 }
 
 #calsidebar_splitter {
-  border-inline-end: 1px solid var(--splitter-color);
+  border-inline-end: 1px solid var(--sidebar-border);
   /* make only the splitter border visible */
   margin-inline-start: -2px;
 }
@@ -47,7 +47,7 @@
 }
 
 .calendar-splitter[orient="vertical"] {
-  border-block-end: 1px solid var(--splitter-color);
+  border-block-end: 1px solid var(--sidebar-border);
   min-block-size: 0;
   block-size: 5px;
   background-color: transparent;
@@ -63,7 +63,7 @@
 }
 
 #today-splitter {
-  border-inline-start: 1px solid var(--splitter-color);
+  border-inline-start: 1px solid var(--sidebar-border);
   margin-inline-end: -4px;
   position: relative;
 }

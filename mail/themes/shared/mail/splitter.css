@@ -23,7 +23,7 @@ hr[is="pane-splitter"] {
   --splitter-occupy-size: 1px;
   --splitter-margin-size: calc(var(--splitter-occupy-size) - var(--splitter-content-size));
   border-width: var(--splitter-occupy-size);
-  border-color: var(--splitter-color);
+  border-color: var(--sidebar-border);
 
   &:not([resize-direction="horizontal"]) {
     &:not(.splitter-before) {

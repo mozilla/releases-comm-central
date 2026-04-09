@@ -29,28 +29,13 @@
   }
 
   @media not (prefers-contrast) {
-    --tree-card-border: light-dark(color-mix(in srgb, var(--tree-card-background) 90%, black), color-mix(in srgb, var(--tree-card-background) 90%, white));
     --read-status-fill: transparent;
     --read-status-stroke: transparent;
     --new-subject-color: light-dark(var(--color-blue-60), var(--color-blue-40));
     --thread-line-color: light-dark(var(--color-ink-40), var(--color-ink-50));
     --new-color: light-dark(var(--color-blue-60), var(--color-blue-40));
-    /* Selection Colors */
-    --tree-card-background-current: light-dark(
-      color-mix(in srgb, var(--selected-item-color) 5%, var(--tree-card-background)),
-      color-mix(in srgb, var(--selected-item-color) 10%, var(--tree-card-background))
-    );
-    --tree-card-background-selected: light-dark(
-      color-mix(in srgb, var(--selected-item-color) 7%, var(--tree-card-background)),
-      color-mix(in srgb, var(--selected-item-color) 14%, var(--tree-card-background))
-    );
-    --tree-card-background-selected-current: light-dark(
-      color-mix(in srgb, var(--selected-item-color) 15%, var(--tree-card-background)),
-      color-mix(in srgb, var(--selected-item-color) 30%, var(--tree-card-background))
-    );
     /* Spam Colors */
     --tree-card-border-hover-spam: light-dark(var(--color-red-30), var(--color-red-80));
-    --tree-card-hover-spam: light-dark(var(--color-red-40), var(--color-red-70));
     --thread-card-focus-spam: light-dark(var(--color-red-70), var(--color-red-40));
     --tree-card-background-current-spam: light-dark(
       color-mix(in srgb, var(--layout-background-0) 98%, var(--color-red-50)),
@@ -76,7 +61,6 @@
     /* Spam Colors */
     --focus-outline-spam: light-dark(var(--color-red-70), var(--color-red-40));
     --tree-card-border-hover-spam: var(--color-red-50);
-    --tree-card-hover-spam: transparent;
     --thread-card-focus-spam: light-dark(var(--color-red-70), var(--color-red-40));
     --tree-card-background-current-spam: color-mix(in srgb, Canvas 80%, var(--color-red-50));
     --tree-card-background-selected-spam: color-mix(in srgb, Canvas 70%, var(--color-red-50));
@@ -647,7 +631,6 @@
     --tree-focus-outline: var(--focus-outline-spam);
     --tree-card-border-hover: var(--tree-card-border-hover-spam);
     --tree-card-background-current: var(--tree-card-background-current-spam);
-    --tree-card-hover: var(--tree-card-hover-spam);
     --tree-card-background-selected: var(--tree-card-background-selected-spam);
     --tree-card-background-selected-current: var(--tree-card-background-selected-current-spam);
     --tree-card-border-selected: var(--tree-card-border-selected-spam);
@@ -669,6 +652,10 @@
 
     &.selected.current {
       --tree-card-background: var(--tree-card-background-selected-current-unfocused);
+
+      &:hover {
+        --tree-card-background: var(--tree-card-background-selected-current-unfocused-hover);
+      }
     }
   }
 }

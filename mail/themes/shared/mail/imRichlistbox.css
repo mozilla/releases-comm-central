@@ -8,5 +8,5 @@
 richlistitem {
   padding: 6px 4px;
   min-block-size: 25px;
-  border-block-end: 1px solid var(--splitter-color);
+  border-block-end: 1px solid var(--sidebar-border);
 }

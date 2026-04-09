@@ -45,7 +45,7 @@ body {
   padding: var(--heading-wrapper-padding);
   color: var(--layout-color-1);
   background-color: var(--layout-background-1);
-  border-block-end: 1px solid var(--splitter-color);
+  border-block-end: 1px solid var(--sidebar-border);
 
   @media (prefers-color-scheme: dark) {
     --toolbarbutton-hover-background: rgba(179, 179, 179, 0.4);

@@ -66,7 +66,7 @@ function addTagToSheet(aKey, aColor, aSheet) {
       ":root[lwt-tree] treechildren::-moz-tree-cell-text(" +
       selector +
       ", selected, focus) { color: var(--sidebar-highlight-text-color, " +
-      "var(--sidebar-text-color)) !important; }";
+      "var(--sidebar-color)) !important; }";
   } else {
     ruleString1 =
       "treechildren::-moz-tree-row(" +

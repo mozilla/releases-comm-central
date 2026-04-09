@@ -24,7 +24,7 @@
 }
 
 .today-subpane {
-  border-block-end-color: var(--splitter-color);
+  border-block-end-color: var(--sidebar-border);
   border-block-end-style: solid;
   border-block-end-width: 1px;
   padding: 0;
@@ -50,7 +50,7 @@
 #today-pane-panel > .sidebar-header {
   appearance: none;
   background-color: var(--layout-background-0);
-  border-block-end: 1px solid var(--splitter-color);
+  border-block-end: 1px solid var(--sidebar-border);
 }
 
 :root[lwt-tree] #today-pane-panel > .sidebar-header {
@@ -120,7 +120,7 @@
 }
 
 :root[lwt-tree] #agenda-panel > modebox {
-  background-color: var(--sidebar-background-color);
+  background-color: var(--sidebar-background);
 }
 
 #today-minimonth-box {
@@ -128,7 +128,7 @@
 }
 
 :root[lwt-tree] #today-minimonth-box {
-  background-color: var(--sidebar-background-color);
+  background-color: var(--sidebar-background);
 }
 
 #weekdayNameLabel {
@@ -286,7 +286,7 @@
 }
 
 #today-pane-splitter {
-  border-block-end: 1px solid var(--splitter-color);
+  border-block-end: 1px solid var(--sidebar-border);
   /* splitter grip area */
   block-size: 5px;
   /* make only the splitter border visible */
@@ -326,14 +326,14 @@
   padding: 3px 6px;
   list-style: none;
   background-color: var(--layout-background-1);
-  border-block-start: 1px solid var(--splitter-color);
+  border-block-start: 1px solid var(--sidebar-border);
   --selected-background: var(--selected-item-color);
   --selected-foreground: var(--selected-item-text-color);
 }
 
 :root[lwt-tree] #agenda {
   --selected-background: var(--sidebar-highlight-background-color, hsla(0, 0%, 80%, 0.3));
-  --selected-foreground: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
+  --selected-foreground: var(--sidebar-highlight-text-color, var(--sidebar-color));
 }
 
 :root[lwt-tree-brighttext] #agenda {

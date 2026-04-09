@@ -5,15 +5,17 @@
 /* Colors variables */
 
 :root {
-  --spaces-bg-color: light-dark(var(--layout-background-2), var(--layout-background-0));
-  --spaces-bg-image: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.05) 100%);
+  --spaces-bg-color: var(--color-surface-lower);
+  --spaces-bg-image: light-dark(
+    linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.05) 100%),
+    linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.02) 100%)
+  );
   --spaces-button-text-color: currentColor;
   --spaces-button-active-text-color: var(--button-primary-text-color);
   --spaces-button-active-bg-color: var(--button-primary-background-color);
   --spaces-button-badge-text-color: var(--color-white);
   --spaces-button-badge-bg-color: var(--color-red-70);
   --spaces-button-opacity: 1;
-  --spaces-border-color: color-mix(in srgb, var(--spaces-bg-color) 85%, black);
 
   &:-moz-window-inactive {
     --spaces-button-opacity: 0.7;
@@ -22,7 +24,6 @@
 
   @media (prefers-contrast) {
     --spaces-bg-image: none;
-    --spaces-border-color: var(--splitter-color);
   }
 
   /* Density variations */
@@ -83,7 +84,7 @@
   gap: var(--spaces-gap);
   background-color: var(--spaces-bg-color);
   background-image: var(--spaces-bg-image);
-  border-inline-end: 1px solid var(--spaces-border-color);
+  border-inline-end: 1px solid var(--sidebar-border);
   position: fixed;
   inset-inline-start: 0;
   inset-block: 0;

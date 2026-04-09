@@ -45,7 +45,7 @@
 }
 
 #messagepanebox {
-  color: var(--layout-color-1);
+  color: var(--color-text-base);
   background-color: var(--layout-background-1);
   min-inline-size: 0;
 }
@@ -132,7 +132,7 @@
 }
 
 #mail-notification-top {
-  border-block-end: 1px solid var(--splitter-color);
+  border-block-end: 1px solid var(--sidebar-border);
 
   & > .notificationbox-stack[notificationside="top"] {
     background-color: var(--layout-background-1);
@@ -512,7 +512,7 @@ button.email-action-button {
 
 #attachmentView,
 #attachmentList {
-  border-block-start: 1px solid var(--splitter-color); /* The same color as the splitters */
+  border-block-start: 1px solid var(--sidebar-border); /* The same color as the splitters */
 }
 
 :root[lwt-tree] {
@@ -891,8 +891,8 @@ button.email-action-flagged {
   }
 
   &.in-address-book img {
-    fill: color-mix(in srgb, var(--toolbarbutton-icon-fill-attention) 20%, transparent);
-    stroke: var(--toolbarbutton-icon-fill-attention);
+    fill: color-mix(in srgb, var(--selected-item-color) 20%, transparent);
+    stroke: var(--selected-item-color);
   }
 
   .header-recipient:hover &.in-address-book img {
