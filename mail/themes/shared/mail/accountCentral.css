@@ -10,11 +10,7 @@ html {
 }
 
 :root {
-  --bg-watermark: url("chrome://messenger/skin/images/account-watermark.png");
-
-  @media (prefers-color-scheme: dark) {
-    --bg-watermark: url("chrome://messenger/skin/images/account-watermark-light.png");
-  }
+  --bg-watermark: light-dark(url("chrome://messenger/skin/images/account-watermark.png"), url("chrome://messenger/skin/images/account-watermark-light.png"));
 }
 
 [hidden] {

@@ -187,14 +187,10 @@ dialog {
   border: 1px solid var(--hub-border-color);
   /* Background color to better hide loading of the webp (>=100ms) */
   background-color: var(--color-surface-base);
-  background-image: url("chrome://messenger/skin/images/accounthub-bg-light.webp");
+  background-image: light-dark(url("chrome://messenger/skin/images/accounthub-bg-light.webp"), url("chrome://messenger/skin/images/accounthub-bg-dark.webp"));
   background-position: center center;
   background-repeat: no-repeat;
   background-size: cover;
-
-  @media (prefers-color-scheme: dark) {
-    background-image: url("chrome://messenger/skin/images/accounthub-bg-dark.webp");
-  }
 
   &.busy {
     cursor: wait;
