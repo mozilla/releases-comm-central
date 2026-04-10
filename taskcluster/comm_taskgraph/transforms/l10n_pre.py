@@ -5,37 +5,36 @@
 Create a strings build artifact to be consumed by shippable-l10n.
 """
 
-from taskgraph.transforms.base import TransformSequence
-from taskgraph.util.schema import LegacySchema, optionally_keyed_by, resolve_keyed_by
-from voluptuous import Optional, Required
+from typing import Optional
 
-from gecko_taskgraph.transforms.job import job_description_schema
-from gecko_taskgraph.transforms.task import task_description_schema
+from taskgraph.transforms.base import TransformSequence
+from taskgraph.util.schema import Schema, optionally_keyed_by, resolve_keyed_by
+
+from gecko_taskgraph.transforms.job import JobDescriptionSchema
+from gecko_taskgraph.transforms.task import TaskDescriptionSchema
 from gecko_taskgraph.util.attributes import release_level
 
 transforms = TransformSequence()
 
-l10n_pre_schema = LegacySchema(
-    {
-        # l10n-pre specific
-        Required("locale-list"): optionally_keyed_by("release-type", "release-level", str),
-        Required("comm-locales-file"): str,
-        Required("browser-locales-file"): str,
-        # Generic
-        Required("description"): str,
-        Optional("treeherder"): task_description_schema["treeherder"],
-        Optional("shipping-phase"): task_description_schema["shipping-phase"],
-        Optional("shipping-product"): task_description_schema["shipping-product"],
-        Optional("attributes"): task_description_schema["attributes"],
-        Optional("worker"): job_description_schema["worker"],
-        Optional("worker-type"): task_description_schema["worker-type"],
-        Optional("use-system-python"): bool,
-        Optional("run"): job_description_schema["run"],
-        Optional("run-on-projects"): task_description_schema["run-on-projects"],
-        Optional("optimization"): task_description_schema["optimization"],
-        Optional("run-on-repo-type"): task_description_schema["run-on-repo-type"],
-    }
-)
+
+class L10nPreSchema(Schema, kw_only=True):
+    # l10n-pre specific
+    locale_list: optionally_keyed_by("release-type", "release-level", str, use_msgspec=True)  # type: ignore  # noqa: F821
+    comm_locales_file: str
+    browser_locales_file: str
+    # Generic
+    description: str
+    treeherder: TaskDescriptionSchema.__annotations__["treeherder"] = None
+    shipping_phase: TaskDescriptionSchema.__annotations__["shipping_phase"] = None
+    shipping_product: TaskDescriptionSchema.__annotations__["shipping_product"] = None
+    attributes: TaskDescriptionSchema.__annotations__["attributes"] = None
+    worker: JobDescriptionSchema.__annotations__["worker"] = None
+    worker_type: TaskDescriptionSchema.__annotations__["worker_type"] = None
+    use_system_python: Optional[bool] = None
+    run: JobDescriptionSchema.__annotations__["run"] = None
+    run_on_projects: TaskDescriptionSchema.__annotations__["run_on_projects"] = None
+    optimization: TaskDescriptionSchema.__annotations__["optimization"] = None
+    run_on_repo_type: TaskDescriptionSchema.__annotations__["run_on_repo_type"] = None
 
 
 @transforms.add
