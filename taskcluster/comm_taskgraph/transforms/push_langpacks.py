@@ -8,20 +8,20 @@ Transform the release-push-langpacks task into an actual task description.
 import json
 import os
 from contextlib import contextmanager
+from typing import Literal, Optional
 
 from mozilla_version.gecko import ThunderbirdVersion
 from taskgraph.transforms.base import TransformSequence
 from taskgraph.util.dependencies import get_primary_dependency
 from taskgraph.util.schema import (
-    LegacySchema,
+    Schema,
     optionally_keyed_by,
     resolve_keyed_by,
-    taskref_or_string,
+    taskref_or_string_msgspec,
 )
 from taskgraph.util.treeherder import inherit_treeherder_from_dep
-from voluptuous import Any, Optional, Required
 
-from gecko_taskgraph.transforms.task import task_description_schema
+from gecko_taskgraph.transforms.task import TaskDescriptionSchema
 from gecko_taskgraph.util.attributes import copy_attributes_from_dependent_job, release_level
 from mozbuild.action.langpack_manifest import get_version_maybe_buildid
 
@@ -32,23 +32,21 @@ PUSH_LANGPACK_SCOPE = (
     "secrets:get:project/comm/thunderbird/releng/build/level-{level}/atn_langpack"
 )
 
-langpack_push_description_schema = LegacySchema(
-    {
-        Optional("dependencies"): task_description_schema["dependencies"],
-        Optional("task-from"): task_description_schema["task-from"],
-        Required("worker"): {
-            Required("env"): {str: taskref_or_string},
-            Required("channel"): optionally_keyed_by(
-                "project", "platform", Any("listed", "unlisted")
-            ),
-            Required("command"): [taskref_or_string],
-        },
-        Required("run-on-projects"): [],
-        Required("shipping-phase"): task_description_schema["shipping-phase"],
-        Required("shipping-product"): task_description_schema["shipping-product"],
-        Optional("run-on-repo-type"): task_description_schema["run-on-repo-type"],
-    }
-)
+
+class LangpackWorkerSchema(Schema, kw_only=True):
+    env: dict[str, taskref_or_string_msgspec]
+    channel: optionally_keyed_by("project", "platform", Literal["listed", "unlisted"], use_msgspec=True)  # type: ignore  # noqa: F821
+    command: list[taskref_or_string_msgspec]
+
+
+class LangpackPushDescriptionSchema(Schema, kw_only=True):
+    dependencies: TaskDescriptionSchema.__annotations__["dependencies"] = None
+    task_from: TaskDescriptionSchema.__annotations__["task_from"] = None
+    worker: LangpackWorkerSchema  # noqa: F821
+    run_on_projects: list[str]
+    shipping_phase: TaskDescriptionSchema.__annotations__["shipping_phase"]  # noqa: F821
+    shipping_product: TaskDescriptionSchema.__annotations__["shipping_product"]  # noqa: F821
+    run_on_repo_type: TaskDescriptionSchema.__annotations__["run_on_repo_type"] = None
 
 
 @transforms.add
