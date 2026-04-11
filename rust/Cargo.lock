@@ -2563,6 +2563,7 @@ dependencies = [
  "rusqlite 0.37.0",
  "rust_minidump_writer_linux",
  "signature_cache",
+ "ssl_tokens_cache",
  "static_prefs",
  "storage",
  "sys_tray",
@@ -2686,6 +2687,7 @@ dependencies = [
  "rure",
  "rusqlite 0.37.0",
  "signature_cache",
+ "ssl_tokens_cache",
  "static_prefs",
  "storage",
  "trust-anchors",
@@ -6307,6 +6309,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "ssl_tokens_cache"
+version = "0.1.0"
+dependencies = [
+ "bincode",
+ "flate2",
+ "log",
+ "nsstring",
+ "rustc-hash 2.1.1",
+ "serde",
+ "static_assertions",
+]
+
+[[package]]
 name = "stable_deref_trait"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7603,6 +7618,7 @@ name = "widget_windows"
 version = "0.1.0"
 dependencies = [
  "libc",
+ "moz_task",
  "nserror",
  "nsstring",
  "thin-vec",
