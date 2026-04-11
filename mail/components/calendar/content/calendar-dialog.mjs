@@ -298,13 +298,11 @@ export class CalendarDialog extends PositionedDialog {
     const calendarId = this.getAttribute("calendar-id");
     const eventId = this.getAttribute("event-id");
     if (!calendarId || !eventId) {
-      // Need to call clearData explicitly here to reset the dialog
-      // checkReloadAndReturn only clears if reloading.
-      this.#clearData();
       this.#loading = false;
       if (!(await this.#checkReloadAndReturn())) {
-        this.#resolver();
-        this.showPromise = null;
+        // Need to call clearData explicitly here to reset the dialog
+        // checkReloadAndReturn only clears if reloading.
+        this.#clearData();
       }
       return;
     }
