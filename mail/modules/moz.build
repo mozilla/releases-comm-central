@@ -35,6 +35,7 @@ EXTRA_JS_MODULES += [
     "MessageArchiver.sys.mjs",
     "PhishingDetector.sys.mjs",
     "QuickFilterManager.sys.mjs",
+    "QuoteSanitizer.sys.mjs",
     "SearchSpec.sys.mjs",
     "SessionStoreManager.sys.mjs",
     "ShortcutsManager.sys.mjs",

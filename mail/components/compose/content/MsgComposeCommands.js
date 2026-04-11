@@ -92,6 +92,7 @@ const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   ComposeUtils: "resource:///modules/ComposeUtils.sys.mjs",
   MailStringUtils: "resource:///modules/MailStringUtils.sys.mjs",
+  QuoteSanitizer: "resource:///modules/QuoteSanitizer.sys.mjs",
 });
 
 ChromeUtils.defineLazyGetter(lazy, "taskbarProgress", () => {
@@ -659,6 +660,12 @@ var stateListener = {
       editor.resetModificationCount();
     }
     if (gMsgCompose.composeHTML) {
+      const doc = getBrowser().contentDocument;
+      if (
+        doc.querySelector('blockquote[type="cite"], .moz-forward-container')
+      ) {
+        lazy.QuoteSanitizer.sanitize(doc);
+      }
       loadHTMLMsgPrefs();
     }
     AdjustFocus();

@@ -42,6 +42,8 @@ skip-if = [
 
 ["test_qrExport.js"]
 
+["test_quoteSanitizer.js"]
+
 ["test_state_preferenceSlice.js"]
 
 ["test_state_store.js"]
