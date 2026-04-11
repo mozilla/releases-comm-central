@@ -39,7 +39,6 @@ class AccountHubContainer extends HTMLElement {
     this.l10n = new DOMLocalization([
       "branding/brand.ftl",
       "messenger/accountcreation/accountHub.ftl",
-      "messenger/accountcreation/accountSetup.ftl",
     ]);
     this.l10n.connectRoot(shadowRoot);
     shadowRoot.append(style, template);

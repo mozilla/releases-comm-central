@@ -49,7 +49,6 @@ export class AccountHubStep extends HTMLElement {
     this.l10n = new DOMLocalization([
       "branding/brand.ftl",
       "messenger/accountcreation/accountHub.ftl",
-      "messenger/accountcreation/accountSetup.ftl",
     ]);
     this.l10n.connectRoot(shadowRoot);
     this.#header = this.shadowRoot.querySelector("account-hub-header");
