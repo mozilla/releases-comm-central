@@ -18,7 +18,7 @@ add_task(function test_bodyColorAttributesRemoved() {
       'link="blue" vlink="purple" alink="red" class="keep-me">' +
       "</body></html>"
   );
-  QuoteSanitizer.sanitize(doc);
+  QuoteSanitizer.sanitize(doc, false);
 
   for (const attr of [
     "bgcolor",
@@ -45,7 +45,7 @@ add_task(function test_bodyInlineColorStylesRemoved() {
     '<html><body style="background-color: red; background: blue; ' +
       'color: green; font-size: 14px;"></body></html>'
   );
-  QuoteSanitizer.sanitize(doc);
+  QuoteSanitizer.sanitize(doc, false);
 
   Assert.equal(
     doc.body.style.getPropertyValue("background-color"),
@@ -77,7 +77,7 @@ add_task(function test_styleScopedInBlockquote() {
       '<blockquote type="cite"><style>body { color: red; }</style>' +
       "<p>Quoted text</p></blockquote></body></html>"
   );
-  QuoteSanitizer.sanitize(doc);
+  QuoteSanitizer.sanitize(doc, false);
 
   const style = doc.querySelector("style");
   Assert.ok(style, "<style> inside blockquote should be preserved");
@@ -98,7 +98,7 @@ add_task(function test_styleScopedInForwardContainer() {
       "<style>.newsletter { background: pink; }</style>" +
       "<p>Forwarded text</p></div></body></html>"
   );
-  QuoteSanitizer.sanitize(doc);
+  QuoteSanitizer.sanitize(doc, false);
 
   const style = doc.querySelector("style");
   Assert.ok(style, "<style> inside forward container should be preserved");
@@ -113,7 +113,7 @@ add_task(function test_headStyleScopedExplicitly() {
     "<html><head><style>body { background: yellow; }</style></head>" +
       "<body><p>Content</p></body></html>"
   );
-  QuoteSanitizer.sanitize(doc);
+  QuoteSanitizer.sanitize(doc, false);
 
   const style = doc.querySelector("head style");
   Assert.ok(style, "<style> in <head> should be preserved");
@@ -134,7 +134,7 @@ add_task(function test_styleOutsideQuotedContentPreserved() {
       '<blockquote type="cite"><p>Quoted text</p></blockquote>' +
       "</body></html>"
   );
-  QuoteSanitizer.sanitize(doc);
+  QuoteSanitizer.sanitize(doc, false);
 
   const style = doc.querySelector("body > style");
   Assert.ok(style, "<style> outside quoted content should be preserved");
@@ -144,87 +144,99 @@ add_task(function test_styleOutsideQuotedContentPreserved() {
   );
 });
 
-// Phase 3: Wrapper background stripping.
+// Phase 3: Dark mode inline style sanitization.
 
-add_task(function test_topLevelWrapperBackgroundStripped() {
+add_task(function test_darkModeBrightBackgroundStripped() {
   const doc = makeDoc(
     "<html><body>" +
       '<blockquote type="cite">' +
-      '<div style="background-color: #ff0000; padding: 10px;">Content</div>' +
+      '<div style="background-color: white; color: black;">Content</div>' +
       "</blockquote></body></html>"
   );
-  QuoteSanitizer.sanitize(doc);
+  QuoteSanitizer.sanitize(doc, true);
 
   const div = doc.querySelector("blockquote div");
   Assert.equal(
     div.style.getPropertyValue("background-color"),
     "",
-    "background-color on top-level wrapper should be removed"
+    "Bright background should be stripped in dark mode"
   );
   Assert.equal(
-    div.style.getPropertyValue("padding"),
-    "10px",
-    "Non-background styles should be preserved"
+    div.style.getPropertyValue("color"),
+    "",
+    "Dark text color should be stripped when background is removed"
   );
 });
 
-add_task(function test_topLevelWrapperBackgroundShorthandStripped() {
+add_task(function test_darkModeDarkBackgroundPreserved() {
   const doc = makeDoc(
     "<html><body>" +
       '<blockquote type="cite">' +
-      '<table style="background: #ccc url(bg.png) no-repeat;">' +
-      "<tr><td>Cell</td></tr></table>" +
+      '<div style="background-color: #222; color: #eee;">Content</div>' +
       "</blockquote></body></html>"
   );
-  QuoteSanitizer.sanitize(doc);
+  QuoteSanitizer.sanitize(doc, true);
+
+  const div = doc.querySelector("blockquote div");
+  Assert.equal(
+    div.style.getPropertyValue("background-color"),
+    "rgb(34, 34, 34)",
+    "Dark background should be preserved in dark mode"
+  );
+});
+
+add_task(function test_darkModeBgcolorAttributeStripped() {
+  const doc = makeDoc(
+    "<html><body>" +
+      '<blockquote type="cite">' +
+      '<table bgcolor="#ffffff"><tr><td>Cell</td></tr></table>' +
+      "</blockquote></body></html>"
+  );
+  QuoteSanitizer.sanitize(doc, true);
 
   const table = doc.querySelector("blockquote table");
-  Assert.equal(
-    table.style.getPropertyValue("background"),
-    "",
-    "background shorthand on top-level wrapper should be removed"
+  Assert.ok(
+    !table.hasAttribute("bgcolor"),
+    "bgcolor attribute should be stripped in dark mode"
   );
 });
 
-add_task(function test_nestedElementBackgroundPreserved() {
+add_task(function test_darkModeDoesNotAffectOutsideQuote() {
+  const doc = makeDoc(
+    "<html><body>" +
+      '<div style="background-color: white;">User content</div>' +
+      '<blockquote type="cite"><p>Quoted</p></blockquote>' +
+      "</body></html>"
+  );
+  QuoteSanitizer.sanitize(doc, true);
+
+  const div = doc.querySelector("body > div");
+  Assert.equal(
+    div.style.getPropertyValue("background-color"),
+    "white",
+    "Content outside quoted area should not be touched in dark mode"
+  );
+});
+
+add_task(function test_lightModePreservesInlineStyles() {
   const doc = makeDoc(
     "<html><body>" +
       '<blockquote type="cite">' +
-      "<div>" +
-      '<span style="background-color: yellow;">Highlighted</span>' +
-      "</div>" +
+      '<div style="background-color: white; color: black;">Content</div>' +
       "</blockquote></body></html>"
   );
-  QuoteSanitizer.sanitize(doc);
+  QuoteSanitizer.sanitize(doc, false);
 
-  const span = doc.querySelector("blockquote span");
+  const div = doc.querySelector("blockquote div");
   Assert.equal(
-    span.style.getPropertyValue("background-color"),
-    "yellow",
-    "background-color on nested non-wrapper elements should be preserved"
-  );
-});
-
-add_task(function test_forwardContainerWrapperStripped() {
-  const doc = makeDoc(
-    "<html><body>" +
-      '<div class="moz-forward-container">' +
-      '<section style="background-color: #eee; font-size: 16px;">' +
-      "Forwarded</section>" +
-      "</div></body></html>"
-  );
-  QuoteSanitizer.sanitize(doc);
-
-  const section = doc.querySelector(".moz-forward-container section");
-  Assert.equal(
-    section.style.getPropertyValue("background-color"),
-    "",
-    "background-color on forward container wrapper should be removed"
+    div.style.getPropertyValue("background-color"),
+    "white",
+    "Inline styles should be preserved in light mode"
   );
   Assert.equal(
-    section.style.getPropertyValue("font-size"),
-    "16px",
-    "Non-background styles should be preserved"
+    div.style.getPropertyValue("color"),
+    "black",
+    "Inline text color should be preserved in light mode"
   );
 });
 
@@ -236,7 +248,7 @@ add_task(function test_noQuotedContentUnchanged() {
       '<div style="background-color: blue;">User content</div>' +
       "</body></html>"
   );
-  QuoteSanitizer.sanitize(doc);
+  QuoteSanitizer.sanitize(doc, false);
 
   const div = doc.querySelector("div");
   Assert.equal(
@@ -251,14 +263,14 @@ add_task(function test_multipleQuotedBlocks() {
     "<html><body>" +
       '<blockquote type="cite">' +
       "<style>.a { color: red; }</style>" +
-      '<div style="background-color: red;">First</div>' +
+      "<p>First</p>" +
       "</blockquote>" +
       '<blockquote type="cite">' +
       "<style>.b { color: blue; }</style>" +
-      '<div style="background-color: blue;">Second</div>' +
+      "<p>Second</p>" +
       "</blockquote></body></html>"
   );
-  QuoteSanitizer.sanitize(doc);
+  QuoteSanitizer.sanitize(doc, false);
 
   const styles = doc.querySelectorAll("style");
   Assert.equal(styles.length, 2, "Both <style> elements should be preserved");
@@ -268,17 +280,10 @@ add_task(function test_multipleQuotedBlocks() {
       "Each <style> should be wrapped in @scope"
     );
   }
-  for (const div of doc.querySelectorAll("blockquote div")) {
-    Assert.equal(
-      div.style.getPropertyValue("background-color"),
-      "",
-      "background-color should be removed from all quoted wrappers"
-    );
-  }
 });
 
 add_task(function test_emptyDocument() {
   const doc = makeDoc("<html><body></body></html>");
-  QuoteSanitizer.sanitize(doc);
+  QuoteSanitizer.sanitize(doc, false);
   Assert.ok(true, "Empty document should not throw");
 });

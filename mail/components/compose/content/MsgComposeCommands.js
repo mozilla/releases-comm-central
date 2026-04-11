@@ -664,7 +664,10 @@ var stateListener = {
       if (
         doc.querySelector('blockquote[type="cite"], .moz-forward-container')
       ) {
-        lazy.QuoteSanitizer.sanitize(doc);
+        const isDarkMode =
+          window.matchMedia("(prefers-color-scheme: dark)").matches &&
+          Services.prefs.getBoolPref("mail.dark-reader.enabled", false);
+        lazy.QuoteSanitizer.sanitize(doc, isDarkMode);
       }
       loadHTMLMsgPrefs();
     }
