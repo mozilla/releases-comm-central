@@ -400,14 +400,14 @@ function subtest_config_results(template, configType) {
   Assert.equal(
     template.l10n.getAttributes(template.querySelector("#incomingSocketType"))
       .id,
-    "account-setup-result-ssl",
+    "account-hub-result-ssl",
     `${configType}: Incoming socketType should be as expected`
   );
 
   Assert.equal(
     template.l10n.getAttributes(template.querySelector("#outgoingSocketType"))
       .id,
-    "account-setup-result-ssl",
+    "account-hub-result-ssl",
     `${configType}: Outgoing socketType should be as expected`
   );
 

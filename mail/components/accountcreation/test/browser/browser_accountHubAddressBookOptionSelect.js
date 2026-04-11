@@ -59,13 +59,6 @@ add_task(function test_setState() {
     0,
     "Address books count should be 0"
   );
-  Assert.equal(
-    abOptionsSubview.l10n.getAttributes(
-      abOptionsSubview.querySelector("#syncExistingAccountsData")
-    ).args.accounts,
-    0,
-    "Accounts count should be 0"
-  );
 
   // Test setting a state with 1 account with 1 already synced address book.
   state = [
@@ -89,13 +82,6 @@ add_task(function test_setState() {
     ).args.addressBooks,
     0,
     "Address books count should be 0"
-  );
-  Assert.equal(
-    abOptionsSubview.l10n.getAttributes(
-      abOptionsSubview.querySelector("#syncExistingAccountsData")
-    ).args.accounts,
-    1,
-    "Accounts count should be 1"
   );
 
   // Test setting a state with 2 accounts with 1 account with a synced address
@@ -126,13 +112,6 @@ add_task(function test_setState() {
     ).args.addressBooks,
     1,
     "Address books count should be 1"
-  );
-  Assert.equal(
-    abOptionsSubview.l10n.getAttributes(
-      abOptionsSubview.querySelector("#syncExistingAccountsData")
-    ).args.accounts,
-    2,
-    "Accounts count should be 2"
   );
 });
 

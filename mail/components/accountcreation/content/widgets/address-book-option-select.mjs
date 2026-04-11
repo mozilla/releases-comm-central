@@ -70,10 +70,9 @@ class AddressBookOptionSelect extends AccountHubStep {
 
     this.l10n.setAttributes(
       syncAccountsData,
-      "account-hub-address-book-sync-option-data",
+      "account-hub-address-book-sync-books-data",
       {
         addressBooks: addressBookCounts.count - addressBookCounts.existing,
-        accounts: accounts.length,
       }
     );
   }

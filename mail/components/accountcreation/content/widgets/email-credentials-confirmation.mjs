@@ -74,7 +74,7 @@ class EmailCredentialsConfirmation extends AccountHubStep {
 
     this.l10n.setAttributes(
       this.querySelector("#confirmationQuestion"),
-      "exchange-dialog-question",
+      "account-hub-exchange-dialog-question",
       {
         domain: credentials.host,
       }

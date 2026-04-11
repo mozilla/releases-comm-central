@@ -189,7 +189,7 @@ add_task(async function test_exchange_requires_credentials_account_creation() {
     configFoundTemplate.l10n.getAttributes(
       configFoundTemplate.querySelector("#incomingSocketType")
     ).id,
-    "account-setup-result-ssl",
+    "account-hub-result-ssl",
     "Incoming auth should be expected auth"
   );
 
@@ -275,7 +275,7 @@ add_task(
       configFoundTemplate.l10n.getAttributes(
         configFoundTemplate.querySelector("#incomingSocketType")
       ).id,
-      "account-setup-result-ssl",
+      "account-hub-result-ssl",
       "Incoming auth should be expected auth"
     );
 
@@ -584,7 +584,7 @@ add_task(async function test_exchange_credentials_to_imap() {
     "#emailFormNotificationTitle"
   );
   info(
-    "Waiting for account-setup-exchange-config-unverifiable in #emailPasswordSubview..."
+    "Waiting for account-hub-exchange-config-unverifiable in #emailPasswordSubview..."
   );
   await BrowserTestUtils.waitForMutationCondition(
     header.shadowRoot.querySelector("#emailFormNotification"),
@@ -598,7 +598,7 @@ add_task(async function test_exchange_credentials_to_imap() {
   Assert.equal(
     document.l10n.getAttributes(errorTitle.querySelector(".localized-title"))
       .id,
-    "account-setup-exchange-config-unverifiable",
+    "account-hub-exchange-config-unverifiable",
     "Should display error"
   );
 

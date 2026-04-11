@@ -239,7 +239,7 @@ add_task(async function testFindConfigExchangeAuthRequired() {
     ).next(),
     error =>
       error.message === "Exchange auth error" &&
-      error.cause.fluentTitleId === "account-setup-credentials-wrong",
+      error.cause.fluentTitleId === "account-hub-credentials-wrong",
     "Should reject with an exchange credentials specific error"
   );
 
@@ -324,7 +324,7 @@ add_task(async function testFindConfigExchangeWithUsername() {
     ).next(),
     error =>
       error.message === "Exchange auth error" &&
-      error.cause.fluentTitleId === "account-setup-credentials-wrong",
+      error.cause.fluentTitleId === "account-hub-credentials-wrong",
     "Should reject with an exchange credentials specific error"
   );
 

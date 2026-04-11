@@ -89,7 +89,7 @@ add_task(async function test_address_book_option_select_account_with_ab() {
     () =>
       optionSelectTemplate.l10n.getAttributes(
         optionSelectTemplate.querySelector("#syncExistingAccountsData")
-      ).id === "account-hub-address-book-sync-option-data",
+      ).id === "account-hub-address-book-sync-books-data",
     "The option select subview should have applied the address book count"
   );
 
@@ -156,7 +156,7 @@ add_task(async function test_address_book_option_selection() {
     () =>
       optionSelectTemplate.l10n.getAttributes(
         optionSelectTemplate.querySelector("#syncExistingAccountsData")
-      ).id === "account-hub-address-book-sync-option-data",
+      ).id === "account-hub-address-book-sync-books-data",
     "The option select subview should have applied the address book count"
   );
 
@@ -225,7 +225,7 @@ add_task(async function test_address_book_sync_account() {
     () =>
       optionSelectTemplate.l10n.getAttributes(
         optionSelectTemplate.querySelector("#syncExistingAccountsData")
-      ).id === "account-hub-address-book-sync-option-data",
+      ).id === "account-hub-address-book-sync-books-data",
     "The option select subview should have applied the address book count"
   );
 

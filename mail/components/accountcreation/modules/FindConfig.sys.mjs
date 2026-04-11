@@ -104,7 +104,7 @@ async function* parallelAutoDiscovery(
       // Auth failed.
       throw new Error("Exchange auth error", {
         cause: {
-          fluentTitleId: "account-setup-credentials-wrong",
+          fluentTitleId: "account-hub-credentials-wrong",
         },
       });
     }

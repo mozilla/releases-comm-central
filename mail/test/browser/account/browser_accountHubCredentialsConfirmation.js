@@ -298,7 +298,7 @@ add_task(async function test_credentials_confirmation() {
     configFoundTemplate.l10n.getAttributes(
       configFoundTemplate.querySelector("#incomingSocketType")
     ).id,
-    "account-setup-result-ssl",
+    "account-hub-result-ssl",
     "Incoming auth should be expected auth"
   );
 
