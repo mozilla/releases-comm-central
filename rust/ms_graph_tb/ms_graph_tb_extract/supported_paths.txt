@@ -1,0 +1,12 @@
+# One OpenAPI path per line.
+
+/me
+/me/mailFolders
+/me/mailFolders/{mailFolder-id}
+/me/mailFolders/{mailFolder-id}/childFolders
+/me/mailFolders/delta()
+/me/mailFolders/{mailFolder-id}/messages
+/me/mailFolders/{mailFolder-id}/messages/delta()
+/me/messages
+/me/messages/{message-id}
+/me/messages/{message-id}/send

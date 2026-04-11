@@ -13,6 +13,6 @@ then run `cargo run --manifest-path ms_graph_tb_extract/Cargo.toml path/to/opena
 from the directory with this README. The generated code will not have any
 formatting by default, so run `cargo clippy --fix` and `cargo fmt` before
 viewing or committing the new code. Support for extracting more types and paths
-can be added by including their names in the `SUPPORTED_TYPES` and
-`SUPPORTED_PATHS` constants, respectively, near the top of
-`ms_graph_tb_extract/src/main.rs`.
+can be added by including their names in the
+`./ms_graph_tb_extract/supported_types.txt` and
+`./ms_graph_tb_extract/supported_paths.txt` files, respectively.

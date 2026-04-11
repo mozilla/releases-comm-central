@@ -4,6 +4,8 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+env_logger = { version = "0.10.0", default-features = false }
+log = "0.4.29"
 proc-macro2 = "1.0.101"
 quote = "1.0.40"
 strum = { version = "0.27.1", features = ["derive"] }

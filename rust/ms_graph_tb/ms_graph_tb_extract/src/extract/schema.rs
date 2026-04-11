@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+use log::warn;
+
 use crate::openapi::schema::OaSchema;
 use crate::oxidize::{CustomRustType, RustType};
 use crate::{SUPPORTED_TYPES, simple_name};
@@ -113,7 +115,7 @@ fn collect_schema_properties(schema: &OaSchema, out: &mut Vec<Property>) {
                         description,
                     });
                 } else {
-                    println!("Skipping property with unsupported type: {name}");
+                    warn!("skipping property with unsupported type: {name}");
                 }
             }
         }
@@ -133,7 +135,7 @@ fn collect_schema_properties(schema: &OaSchema, out: &mut Vec<Property>) {
                     description,
                 });
             } else {
-                println!("Skipping unsupported type: {s}");
+                warn!("skipping unsupported type: {s}");
             }
         }
         _ => panic!("unknown schema structure: {schema:?}"),
@@ -142,7 +144,7 @@ fn collect_schema_properties(schema: &OaSchema, out: &mut Vec<Property>) {
 
 fn custom_from_ref(reference: &str) -> Option<(&str, RustType)> {
     let simple = ref_simple_name(reference);
-    if SUPPORTED_TYPES.contains(&simple) {
+    if SUPPORTED_TYPES.contains(simple) {
         Some((simple, RustType::Custom(CustomRustType::from(simple))))
     } else {
         None
@@ -165,10 +167,10 @@ fn map_openapi_schema_to_rust(schema: &OaSchema) -> Option<(bool, Option<String>
     match schema {
         OaSchema::Ref { reference } => {
             let simple = ref_simple_name(reference);
-            if SUPPORTED_TYPES.contains(&simple) {
+            if SUPPORTED_TYPES.contains(simple) {
                 Some((false, None, RustType::Custom(CustomRustType::from(simple))))
             } else {
-                println!("skipping unsupported schema: {simple}: {schema:?}");
+                warn!("skipping unsupported schema: {simple}: {schema:?}");
                 None
             }
         }
@@ -259,7 +261,7 @@ fn match_supported_custom_from_schema(schema: &OaSchema) -> Option<String> {
 
 fn custom_simple_from_ref(r#ref: &str) -> Option<String> {
     let simple = ref_simple_name(r#ref).to_string();
-    if SUPPORTED_TYPES.contains(&simple.as_str()) {
+    if SUPPORTED_TYPES.contains(simple.as_str()) {
         Some(simple)
     } else {
         None
@@ -271,7 +273,7 @@ fn map_string_format_to_rust(fmt: Option<&str>) -> RustType {
         None => RustType::String,
         Some("byte") | Some("binary") => RustType::Bytes,
         Some(t) => {
-            println!("treating {t} as a string");
+            warn!("treating {t} as a string");
             RustType::String
         }
     }

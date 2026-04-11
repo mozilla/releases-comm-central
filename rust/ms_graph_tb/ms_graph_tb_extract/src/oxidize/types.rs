@@ -155,7 +155,7 @@ fn select_variants(properties: &[Property]) -> Vec<TokenStream> {
             let name = pascalize(&p.name);
             let ident = format_ident!("{name}");
             if p.is_ref {
-                if SUPPORTED_TYPES.contains(&p.name.as_str()) {
+                if SUPPORTED_TYPES.contains(p.name.as_str()) {
                     let inner = format_ident!("{name}Selection");
                     Some(quote!(#ident(#inner)))
                 } else {

@@ -5,6 +5,7 @@
 //! Modules for simple representations of generic OpenAPI data from the yaml
 //! source, primarily for initial parsing.
 
+use log::info;
 use std::collections::BTreeMap;
 use yaml_rust2::{Yaml, YamlLoader, yaml::Hash as YamlHash};
 
@@ -23,7 +24,7 @@ pub struct LoadedYaml {
 /// Parse the given yaml text as an OpenAPI specification.
 pub fn load_yaml(yaml_str: &str) -> Result<LoadedYaml, Box<dyn std::error::Error>> {
     let docs = YamlLoader::load_from_str(yaml_str)?;
-    println!("yaml loaded");
+    info!("yaml loaded");
     let doc = docs.into_iter().next().ok_or("Empty YAML document")?;
 
     let paths = get_map_key(&doc, "paths").ok_or("Missing 'paths'")?;
@@ -63,7 +64,7 @@ pub fn load_yaml(yaml_str: &str) -> Result<LoadedYaml, Box<dyn std::error::Error
     } else {
         BTreeMap::<String, OaSchema>::new()
     };
-    println!("loaded roots");
+    info!("loaded roots");
 
     let paths = paths
         .as_hash()

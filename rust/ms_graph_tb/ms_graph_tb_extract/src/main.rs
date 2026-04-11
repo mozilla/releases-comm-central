@@ -6,10 +6,13 @@
 //! metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml)
 //! into Rust types.
 
+use env_logger::Env;
+use log::info;
 use quote::quote;
-use std::collections::BTreeMap;
-use std::path::PathBuf;
-use std::{env, fs, io::Write};
+use std::collections::{BTreeMap, HashSet};
+use std::path::{Path, PathBuf};
+use std::sync::LazyLock;
+use std::{env, error::Error, fs, io, io::Write};
 
 mod extract;
 mod naming;
@@ -22,36 +25,6 @@ use crate::naming::{base_name, simple_name, snakeify};
 use crate::openapi::{LoadedYaml, load_yaml, path::OaPath};
 use crate::oxidize::{ModuleFile, types};
 
-const SUPPORTED_TYPES: [&str; 15] = [
-    "directoryObject",
-    "emailAddress",
-    "entity",
-    "importance",
-    "internetMessageHeader",
-    "itemBody",
-    "mailFolder",
-    "mailFolderCollectionResponse",
-    "mailboxSettings",
-    "message",
-    "messageCollectionResponse",
-    "message",
-    "outlookItem",
-    "recipient",
-    "user",
-];
-const SUPPORTED_PATHS: [&str; 10] = [
-    "/me",
-    "/me/mailFolders",
-    "/me/mailFolders/{mailFolder-id}",
-    "/me/mailFolders/{mailFolder-id}/childFolders",
-    "/me/mailFolders/delta()",
-    "/me/mailFolders/{mailFolder-id}/messages",
-    "/me/mailFolders/{mailFolder-id}/messages/delta()",
-    "/me/messages",
-    "/me/messages/{message-id}",
-    "/me/messages/{message-id}/send",
-];
-
 const FILE_LEDE: &str = r#"/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -61,11 +34,22 @@ const FILE_LEDE: &str = r#"/* This Source Code Form is subject to the terms of t
 
 const GENERATION_DISCLOSURE: &str = "Auto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`.";
 
+const SUPPORTED_TYPES_FILE: &str = "supported_types.txt";
+const SUPPORTED_PATHS_FILE: &str = "supported_paths.txt";
+pub(crate) static SUPPORTED_TYPES: LazyLock<HashSet<String>> = LazyLock::new(|| {
+    load_supported_values(SUPPORTED_TYPES_FILE).expect("supported_types.txt must load")
+});
+pub(crate) static SUPPORTED_PATHS: LazyLock<HashSet<String>> = LazyLock::new(|| {
+    load_supported_values(SUPPORTED_PATHS_FILE).expect("supported_paths.txt must load")
+});
+
 fn print_usage(this_program: &str) {
     println!("Usage: {this_program} <openapi.yaml> <graph_tb_path>");
 }
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> Result<(), Box<dyn Error>> {
+    env_logger::Builder::from_env(Env::default().default_filter_or("warn")).init();
+
     let args: Vec<String> = env::args().collect();
     if args.len() != 3 {
         let this_program = args
@@ -82,14 +66,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let types_dir = out_dir.join("src/types/");
 
     let yaml = fs::read_to_string(yaml_path)?;
-    println!("file read");
+    info!("read {}", yaml_path.display());
     let LoadedYaml { paths, schemas } = load_yaml(&yaml)?;
-    println!("loaded paths and schemas");
+    info!("loaded paths and schemas");
 
     let mut modules = vec![];
     for (name, path) in &paths {
-        if SUPPORTED_PATHS.contains(&name.as_str()) {
-            println!("generating Rust type for {name} request");
+        if SUPPORTED_PATHS.contains(name.as_str()) {
+            info!("generating Rust type for {name} request");
             process_path(out_dir, name, path)?;
             modules.push(snakeify(name));
         }
@@ -113,8 +97,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     for (full_name, schema) in &schemas {
         let simple_name = simple_name(full_name);
         let base_name = base_name(full_name);
-        if SUPPORTED_TYPES.contains(&base_name.as_str()) {
-            println!("generating Rust type for {full_name}");
+        if SUPPORTED_TYPES.contains(base_name.as_str()) {
+            info!("generating Rust type for {full_name}");
 
             let (description, props) = extract_from_schema(schema);
             let schema_path = naming::path(full_name);
@@ -141,16 +125,40 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             ensure_module_in_hierarchy(&types_dir, &module_dir)?;
             Ok(())
         })
-        .collect::<Result<Vec<()>, Box<dyn std::error::Error>>>()?;
+        .collect::<Result<Vec<()>, Box<dyn Error>>>()?;
 
     Ok(())
+}
+
+/// Read the file at `filename` and parse it as a hash set of lines of supported
+/// types/paths.
+fn load_supported_values(filename: &str) -> Result<HashSet<String>, Box<dyn Error>> {
+    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join(filename);
+    let contents = fs::read_to_string(&path)?;
+    let values = contents
+        .lines()
+        .map(str::trim)
+        .filter(|line| !line.is_empty() && !line.starts_with('#'))
+        .map(str::to_owned)
+        .collect::<HashSet<_>>();
+
+    if values.is_empty() {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidData,
+            format!("{} did not contain any supported values", path.display()),
+        )
+        .into());
+    }
+
+    info!("loaded {} entries from {}", values.len(), path.display());
+    Ok(values)
 }
 
 fn process_path(
     out_dir: &std::path::Path,
     name: &str,
     path: &OaPath,
-) -> Result<(), Box<dyn std::error::Error>> {
+) -> Result<(), Box<dyn Error>> {
     let path = extract_from_oa_path(name.to_string(), path);
     let generated = quote!(#path);
 
@@ -160,10 +168,7 @@ fn process_path(
     let mut file = fs::File::create(&destination)?;
 
     write!(file, "{FILE_LEDE}\n{generated}")?;
-    println!(
-        "Wrote generated path to {}\n",
-        destination.to_string_lossy()
-    );
+    info!("wrote generated path to {}", destination.display());
     Ok(())
 }
 
@@ -173,7 +178,7 @@ fn process_schema(
     simple_name: &str,
     description: Option<String>,
     properties: Vec<Property>,
-) -> Result<(), Box<dyn std::error::Error>> {
+) -> Result<(), Box<dyn Error>> {
     let graph_type = types::GraphType::new(simple_name, description, properties);
     let generated = quote!(#graph_type);
 
@@ -192,10 +197,7 @@ fn process_schema(
     let mut file = fs::File::create(&destination)?;
 
     write!(file, "{FILE_LEDE}\n{generated}")?;
-    println!(
-        "Wrote generated Rust types to {}\n",
-        destination.to_string_lossy()
-    );
+    info!("wrote generated Rust types to {}", destination.display());
     Ok(())
 }
 
@@ -204,12 +206,12 @@ fn process_schema(
 fn write_module_file(
     out_dir: &std::path::Path,
     modules: &ModuleFile,
-) -> Result<(), Box<dyn std::error::Error>> {
+) -> Result<(), Box<dyn Error>> {
     let generated = quote!(#modules);
     let module_path = out_dir.join("mod.rs");
     let mut module_file = fs::File::create(&module_path)?;
     writeln!(module_file, "{FILE_LEDE}\n{generated}")?;
-    println!("Wrote module out to {}\n", module_path.to_string_lossy());
+    info!("wrote module out to {}", module_path.display());
     Ok(())
 }
 
@@ -225,7 +227,7 @@ fn write_module_file(
 fn ensure_module_in_hierarchy(
     base_out_dir: &std::path::Path,
     module_path: &std::path::Path,
-) -> Result<(), Box<dyn std::error::Error>> {
+) -> Result<(), Box<dyn Error>> {
     if base_out_dir == module_path {
         // We've reached the top level, meaning we should have finished our job
         // for this module.
@@ -268,7 +270,7 @@ fn add_module_to_mod_file(
     mod_file_path: &std::path::Path,
     prefix: &str,
     module_name: &str,
-) -> Result<(), Box<dyn std::error::Error>> {
+) -> Result<(), Box<dyn Error>> {
     let mut file = fs::File::create(mod_file_path)?;
     writeln!(file, "{prefix}")?;
     writeln!(file, "pub mod {module_name};")?;

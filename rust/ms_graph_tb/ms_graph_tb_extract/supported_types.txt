@@ -1,0 +1,16 @@
+# One Graph schema base name per line.
+
+directoryObject
+emailAddress
+entity
+importance
+internetMessageHeader
+itemBody
+mailFolder
+mailFolderCollectionResponse
+mailboxSettings
+message
+messageCollectionResponse
+outlookItem
+recipient
+user

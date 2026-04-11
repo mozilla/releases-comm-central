@@ -5,6 +5,7 @@
 //! Modules for turning our representation of the Graph API into Rust code
 //! (specifically, a [`proc_macro2::TokenStream`]).
 
+use log::warn;
 use proc_macro2::{Ident, TokenStream};
 use quote::{ToTokens, TokenStreamExt, format_ident, quote};
 use std::{collections::HashSet, fmt};
@@ -20,10 +21,10 @@ fn imports(properties: &[crate::extract::schema::Property]) -> TokenStream {
         .filter_map(|p| {
             if let RustType::Custom(custom_rust_type) = &p.rust_type {
                 let original_name = custom_rust_type.original_name();
-                if crate::SUPPORTED_TYPES.contains(&original_name.as_str()) {
+                if crate::SUPPORTED_TYPES.contains(original_name.as_str()) {
                     Some(custom_rust_type.as_snake_case())
                 } else {
-                    println!(
+                    warn!(
                         "not generating imports for property of unsupported custom type {}",
                         original_name
                     );
