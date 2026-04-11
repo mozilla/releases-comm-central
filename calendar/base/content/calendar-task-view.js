@@ -380,10 +380,7 @@ function taskViewUpdate(filter) {
   if (filter != oldFilter) {
     tree.setAttribute("filterValue", filter);
     document
-      .querySelectorAll(
-        `menuitem[command="calendar_task_filter_command"][type="radio"],
-         toolbarbutton[command="calendar_task_filter_command"][type="radio"]`
-      )
+      .querySelectorAll(`#calTasksMenuPopup > menuitem[type="radio"][name="filtergroup"]`)
       .forEach(item => {
         if (item.getAttribute("value") == filter) {
           item.toggleAttribute("checked", true);
@@ -391,14 +388,49 @@ function taskViewUpdate(filter) {
           item.removeAttribute("checked");
         }
       });
-    const radio = document.querySelector(
-      `radio[command="calendar_task_filter_command"][value="${filter}"]`
-    );
+    const radio = document.querySelector(`#task-tree-filtergroup > radio[value="${filter}"]`);
     if (radio) {
       radio.radioGroup.selectedItem = radio;
     }
   }
   tree.updateFilter(filter);
+}
+
+/**
+ * Syncs the menu bar View > Tasks menu state with the current task pane state.
+ */
+function initTasksViewMenu() {
+  const filterPane = document.getElementById("task-filter-pane");
+  document
+    .getElementById("calTasksViewFilterTasks")
+    .toggleAttribute("checked", filterPane.isVisible());
+
+  const tree = document.getElementById("calendar-task-tree");
+  const taskFilterGroup = document.getElementById("task-tree-filtergroup");
+  const filter = tree.getAttribute("filterValue") || taskFilterGroup.value || "all";
+  for (const item of document.querySelectorAll(
+    `#calTasksMenuPopup > menuitem[type="radio"][name="filtergroup"]`
+  )) {
+    item.toggleAttribute("checked", item.getAttribute("value") == filter);
+  }
+}
+
+function taskViewMenuOnCommand(event) {
+  if (event.target.id == "calTasksViewFilterTasks") {
+    const filterPane = document.getElementById("task-filter-pane");
+    filterPane.setVisible(!filterPane.isVisible(), true, true);
+    return;
+  }
+
+  if (event.target.matches(`menuitem[type="radio"][name="filtergroup"]`)) {
+    taskViewUpdate(event.target.getAttribute("value"));
+  }
+}
+
+function taskViewFilterGroupOnCommand(event) {
+  if (event.target.matches("radio")) {
+    taskViewUpdate(event.target.getAttribute("value"));
+  }
 }
 
 /**
@@ -427,6 +459,11 @@ function taskViewOnLoad() {
   if (calendarDisplayBox && tree) {
     tree.textFilterField = "task-text-filter-field";
   }
+  document.getElementById("calTasksMenuPopup").addEventListener("popupshowing", initTasksViewMenu);
+  document.getElementById("calTasksMenuPopup").addEventListener("command", taskViewMenuOnCommand);
+  document
+    .getElementById("task-tree-filtergroup")
+    .addEventListener("command", taskViewFilterGroupOnCommand);
 
   document.l10n.ready.then(() => {
     const textFilter = document.getElementById("task-text-filter-field");

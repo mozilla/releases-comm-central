@@ -68,7 +68,6 @@ var calendarController = {
     "calendar_multiweek-view_command",
     "calendar_month-view_command",
 
-    "calendar_task_filter_command",
     "calendar_reload_remote_calendars",
     "calendar_show_unifinder_command",
     "calendar_toggle_completed_command",
@@ -144,8 +143,6 @@ var calendarController = {
       // this.todo_tasktree_focused;
       case "calendar_edit_calendar_command":
         return this.isCalendarInForeground();
-      case "calendar_task_filter_command":
-        return true;
       case "calendar_delete_todo_command":
         if (!CalendarDeleteCommandEnabled) {
           return false;
