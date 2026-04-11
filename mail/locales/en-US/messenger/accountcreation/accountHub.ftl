@@ -394,3 +394,8 @@ account-hub-welcome = Welcome to
 account-hub-welcome-brand = { -brand-short-name }
 
 account-hub-welcome-text = Welcome to { -brand-short-name }
+
+account-hub-thundermail-button = Sign in with Thundermail
+
+# Used as part of a divider between sign in button and a sign in form.
+account-hub-thundermail-divider-text = or

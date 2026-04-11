@@ -286,6 +286,9 @@ class AccountHubHeader extends HTMLElement {
     this.shadowRoot.querySelector("#emailFormNotificationToggle").hidden = true;
   }
 
+  /**
+   * Show the branding header.
+   */
   showBrandingHeader() {
     this.shadowRoot.querySelector("#brandingHeader").hidden = false;
   }

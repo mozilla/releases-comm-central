@@ -3,6 +3,18 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 <html:template id="accountHubEmailAutoFormTemplate" xmlns="http://www.w3.org/1999/xhtml">
+  <div class="account-hub-thundermail-header" slot="middle-content">
+    <button class="account-hub-thundermail-button" type="button">
+      <img class="account-hub-thundermail-icon" src="" alt="" />
+      <span data-l10n-id="account-hub-thundermail-button"></span>
+    </button>
+    <div class="account-hub-thundermail-divider">
+      <span
+        class="account-hub-thundermail-divider-text"
+        data-l10n-id="account-hub-thundermail-divider-text"
+      ></span>
+    </div>
+  </div>
   <form id="autoConfigEmailForm" class="account-hub-form" slot="content">
     <div class="hub-body email-form-body">
       <div class="input-control">
@@ -12,6 +24,7 @@
                aria-invalid="false"
                aria-errormessage="nameErrorMessage"
                placeholder=""
+               autofocus="autofocus"
                required="required" />
         <label for="realName"
                class="animated"

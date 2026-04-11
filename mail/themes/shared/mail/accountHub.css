@@ -863,6 +863,58 @@ header {
   }
 }
 
+.account-hub-thundermail-header {
+  margin-block-start: 53px;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--space-base) * 2);
+
+  & button {
+    border-radius: 3px;
+    background: transparent;
+    border: 1px solid var(--color-primary-default);
+    display: inline-flex;
+    padding: calc(var(--space-base) + var(--space-step)) calc(var(--space-base) * 2);
+    align-items: center;
+    gap: var(--space-base);
+    color: var(--color-primary-default);
+    font-size: 1.153rem;
+    font-weight: 500;
+
+    & img {
+      block-size: 20px;
+      inline-size: 20px;
+      content: var(--icon-thundermail-lg);
+    }
+  }
+
+  & .account-hub-thundermail-divider {
+    color: var(--color-text-icon-secondary);
+    text-align: center;
+    font-size: 0.923rem;
+    font-weight: 400;
+    line-height: 100%;
+
+    &::before,
+    &::after {
+      content: "";
+      background: var(--color-surface-border);
+      inline-size: 38px;
+      block-size: 1px;
+      display: inline-block;
+      vertical-align: middle;
+    }
+  }
+}
+
+/* stylelint-disable-next-line media-query-no-invalid */
+@media -moz-pref("mail.accounthub.thundermail.enabled") {
+  .account-hub-thundermail-header {
+    display: flex;
+  }
+}
+
 /* Animations */
 
 @media (prefers-reduced-motion: no-preference) {

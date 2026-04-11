@@ -89,6 +89,9 @@ export class AccountHubStep extends HTMLElement {
     }
   }
 
+  /**
+   * Show the branding header
+   */
   showBrandingHeader() {
     this.#header.showBrandingHeader();
   }

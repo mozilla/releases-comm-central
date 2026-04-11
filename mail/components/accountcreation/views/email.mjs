@@ -332,6 +332,7 @@ class AccountHubEmail extends HTMLElement {
     this.#emailFooter.addEventListener("back", this);
     this.#emailFooter.addEventListener("forward", this);
     this.#emailFooter.addEventListener("custom-footer-action", this);
+    this.addEventListener("click", this);
     this.#emailAutoConfigSubview.addEventListener("config-updated", this);
     this.#emailAutoConfigSubview.addEventListener("edit-configuration", this);
     this.#emailIncomingConfigSubview.addEventListener("config-updated", this);
@@ -592,6 +593,14 @@ class AccountHubEmail extends HTMLElement {
             description: error.text,
             error,
             type: "error",
+          });
+        }
+        break;
+      case "click":
+        if (event.composedTarget.closest(".account-hub-thundermail-button")) {
+          this.#handleForwardAction("autoConfigSubview", {
+            email: "example@thundermail.com",
+            realName: "placeholder",
           });
         }
         break;
