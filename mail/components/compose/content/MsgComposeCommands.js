@@ -585,6 +585,8 @@ function updateEditableFields(aDisable) {
 /**
  * Small helper function to check whether the node passed in is a signature.
  * Note that a text node is not a DOM element, hence .localName can't be used.
+ *
+ * @param {Node} aNode - Node to check.
  */
 function isSignature(aNode) {
   return (
