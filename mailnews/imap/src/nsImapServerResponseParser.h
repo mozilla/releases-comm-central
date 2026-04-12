@@ -58,10 +58,9 @@ class nsImapServerResponseParser : public nsImapGenericParser {
   int32_t NumberOfMessages();
   int32_t NumberOfRecentMessages();
   ImapUid FolderUIDValidity();
-  uint32_t CurrentResponseUID();
-  uint32_t HighestRecordedUID();
+  ImapUid CurrentResponseUID();
+  ImapUid HighestRecordedUID();
   void ResetHighestRecordedUID();
-  void SetCurrentResponseUID(uint32_t uid);
   bool IsNumericString(const char* string);
   uint32_t SizeOfMostRecentMessage();
   void SetTotalDownloadSize(int32_t newSize) { fTotalDownloadSize = newSize; }
@@ -216,18 +215,18 @@ class nsImapServerResponseParser : public nsImapGenericParser {
   int32_t fSeqNumOfFirstUnseenMsg;
   int32_t fNumberOfExistingMessages;
   int32_t fNumberOfRecentMessages;
-  uint32_t fCurrentResponseUID;
-  uint32_t fHighestRecordedUID;
+  ImapUid fCurrentResponseUID;
+  ImapUid fHighestRecordedUID;
   // used to handle server that sends msg size after headers
-  uint32_t fReceivedHeaderOrSizeForUID;
+  ImapUid fReceivedHeaderOrSizeForUID;
   int32_t fSizeOfMostRecentMessage;
   int32_t fTotalDownloadSize;
 
   int32_t fStatusUnseenMessages;
   int32_t fStatusRecentMessages;
-  uint32_t fStatusNextUID;
+  ImapUid fStatusNextUID;
   int32_t fStatusExistingMessages;
-  uint32_t fNextUID;
+  ImapUid fNextUID;
 
   int fNumberOfTaggedResponsesExpected;
 
@@ -277,7 +276,6 @@ class nsImapServerResponseParser : public nsImapGenericParser {
   nsImapProtocol& fServerConnection;
 
   RefPtr<nsIImapHostSessionList> fHostSessionList;
-  nsTArray<nsMsgKey> fCopyResponseKeyArray;
 };
 
 #endif  // COMM_MAILNEWS_IMAP_SRC_NSIMAPSERVERRESPONSEPARSER_H_

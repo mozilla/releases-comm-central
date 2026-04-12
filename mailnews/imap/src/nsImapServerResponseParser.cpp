@@ -52,10 +52,10 @@ nsImapServerResponseParser::nsImapServerResponseParser(
   fAuthChallenge = nullptr;
   fStatusUnseenMessages = 0;
   fStatusRecentMessages = 0;
-  fStatusNextUID = nsMsgKey_None;
-  fNextUID = nsMsgKey_None;
+  fStatusNextUID = ImapUid_None;
+  fNextUID = ImapUid_None;
   fStatusExistingMessages = 0;
-  fReceivedHeaderOrSizeForUID = nsMsgKey_None;
+  fReceivedHeaderOrSizeForUID = ImapUid_None;
   fUtf8AcceptEnabled = false;
   fStdJunkNotJunkUseOk = false;
   fUseModSeq = false;
@@ -140,7 +140,7 @@ void nsImapServerResponseParser::IncrementNumberOfTaggedResponsesExpected(
 void nsImapServerResponseParser::InitializeState() {
   fCurrentCommandFailed = false;
   fNumberOfRecentMessages = 0;
-  fReceivedHeaderOrSizeForUID = nsMsgKey_None;
+  fReceivedHeaderOrSizeForUID = ImapUid_None;
   fUntaggedResponse = false;
 }
 
@@ -1072,7 +1072,7 @@ void nsImapServerResponseParser::msg_fetch() {
         fReceivedHeaderOrSizeForUID = CurrentResponseUID();
         if (sendEndMsgDownload) {
           fServerConnection.NormalMessageEndDownload();
-          fReceivedHeaderOrSizeForUID = nsMsgKey_None;
+          fReceivedHeaderOrSizeForUID = ImapUid_None;
         }
 
         if (fSizeOfMostRecentMessage == 0 && CurrentResponseUID()) {
@@ -1201,7 +1201,7 @@ void nsImapServerResponseParser::msg_fetch() {
   }
 
   if (ContinueParse()) {
-    if (CurrentResponseUID() && CurrentResponseUID() != nsMsgKey_None &&
+    if (CurrentResponseUID() && CurrentResponseUID() != ImapUid_None &&
         fCurrentLineContainedFlagInfo && fFlagState) {
       fFlagState->AddUidFlagPair(CurrentResponseUID(), fSavedFlagInfo,
                                  fFetchResponseIndex - 1);
@@ -1372,8 +1372,9 @@ void nsImapServerResponseParser::flags() {
   // clear the custom flags for this message
   // otherwise the old custom flags will stay around
   // see bug #191042
-  if (fFlagState && CurrentResponseUID() != nsMsgKey_None)
+  if (fFlagState && CurrentResponseUID() != ImapUid_None) {
     fFlagState->ClearCustomFlags(CurrentResponseUID());
+  }
 
   // eat the opening '('
   fNextToken++;
@@ -1444,10 +1445,11 @@ void nsImapServerResponseParser::flags() {
       int32_t parenIndex = flag.FindChar(')');
       if (parenIndex > 0) flag.SetLength(parenIndex);
       messageFlags |= kImapMsgCustomKeywordFlag;
-      if (CurrentResponseUID() != nsMsgKey_None && CurrentResponseUID() != 0)
+      if (CurrentResponseUID() != ImapUid_None && CurrentResponseUID() != 0) {
         fFlagState->AddUidCustomFlagPair(CurrentResponseUID(), flag.get());
-      else
+      } else {
         fCustomFlags.AppendElement(flag);
+      }
     }
     if (PL_strcasestr(fNextToken, ")")) {
       // eat token chars until we get the ')'
@@ -1765,7 +1767,7 @@ void nsImapServerResponseParser::msg_fetch_content(bool chunk, int32_t origin,
     if (ContinueParse()) {
       if (fReceivedHeaderOrSizeForUID == CurrentResponseUID()) {
         fServerConnection.NormalMessageEndDownload();
-        fReceivedHeaderOrSizeForUID = nsMsgKey_None;
+        fReceivedHeaderOrSizeForUID = ImapUid_None;
       } else
         fReceivedHeaderOrSizeForUID = CurrentResponseUID();
     } else
@@ -2464,15 +2466,11 @@ ImapUid nsImapServerResponseParser::FolderUIDValidity() {
   return fFolderUIDValidity;
 }
 
-void nsImapServerResponseParser::SetCurrentResponseUID(uint32_t uid) {
-  if (uid > 0) fCurrentResponseUID = uid;
-}
-
-uint32_t nsImapServerResponseParser::CurrentResponseUID() {
+ImapUid nsImapServerResponseParser::CurrentResponseUID() {
   return fCurrentResponseUID;
 }
 
-uint32_t nsImapServerResponseParser::HighestRecordedUID() {
+ImapUid nsImapServerResponseParser::HighestRecordedUID() {
   return fHighestRecordedUID;
 }
 
