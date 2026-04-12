@@ -29,8 +29,8 @@ class nsImapOfflineSync : public nsIUrlListener,
   NS_DECL_NSIDBCHANGELISTENER
   NS_DECL_NSIIMAPOFFLINESYNC
 
-  int32_t GetCurrentUIDValidity();
-  void SetCurrentUIDValidity(int32_t uidvalidity) {
+  ImapUid GetCurrentUIDValidity();
+  void SetCurrentUIDValidity(ImapUid uidvalidity) {
     mCurrentUIDValidity = uidvalidity;
   }
 
@@ -76,7 +76,7 @@ class nsImapOfflineSync : public nsIUrlListener,
   uint32_t m_KeyIndex;
   nsCOMPtr<nsIMsgOfflineOpsDatabase> m_currentDB;
   nsCOMPtr<nsIUrlListener> m_listener;
-  int32_t mCurrentUIDValidity;
+  ImapUid mCurrentUIDValidity;
   int32_t mCurrentPlaybackOpType;  // kFlagsChanged -> kMsgCopy -> kMsgMoved
   bool m_mailboxupdatesStarted;
   bool m_mailboxupdatesFinished;

@@ -2460,7 +2460,9 @@ int32_t nsImapServerResponseParser::NumberOfRecentMessages() {
   return fNumberOfRecentMessages;
 }
 
-int32_t nsImapServerResponseParser::FolderUID() { return fFolderUIDValidity; }
+ImapUid nsImapServerResponseParser::FolderUIDValidity() {
+  return fFolderUIDValidity;
+}
 
 void nsImapServerResponseParser::SetCurrentResponseUID(uint32_t uid) {
   if (uid > 0) fCurrentResponseUID = uid;

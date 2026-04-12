@@ -5,6 +5,7 @@
 
 #include "nsISupports.idl"
 #include "MailNewsTypes2.idl"
+#include "ImapTypes.idl"
 
 interface nsIPropertyBag2;
 
@@ -53,7 +54,7 @@ interface nsIDBFolderInfo : nsISupports {
   attribute long numMessages;
 
   attribute long long expungedBytes;
-  attribute long imapUidValidity;
+  attribute ImapUid imapUidValidity;
   attribute unsigned long version;
   attribute long imapTotalPendingMessages;
   attribute long imapUnreadPendingMessages;

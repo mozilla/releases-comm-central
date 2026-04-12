@@ -132,7 +132,7 @@ nsImapMailboxSpec::nsImapMailboxSpec() {
 
 nsImapMailboxSpec::~nsImapMailboxSpec() {}
 
-NS_IMPL_GETSET(nsImapMailboxSpec, Folder_UIDVALIDITY, int32_t,
+NS_IMPL_GETSET(nsImapMailboxSpec, Folder_UIDVALIDITY, ImapUid,
                mFolder_UIDVALIDITY)
 NS_IMPL_GETSET(nsImapMailboxSpec, HighestModSeq, uint64_t, mHighestModSeq)
 NS_IMPL_GETSET(nsImapMailboxSpec, NumMessages, int32_t, mNumOfMessages)

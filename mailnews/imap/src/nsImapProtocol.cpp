@@ -624,7 +624,7 @@ nsImapProtocol::nsImapProtocol()
   mFolderHighestUID = 0;
   m_notifySearchHit = false;
   m_preferPlainText = false;
-  m_uidValidity = kUidUnknown;
+  m_uidValidity = ImapUid_None;
 }
 
 nsresult nsImapProtocol::Configure(int32_t TooFastTime, int32_t IdealTime,
@@ -806,7 +806,7 @@ nsresult nsImapProtocol::SetupWithUrl(nsIURI* aURL, nsISupports* aConsumer) {
     mFolderLastModSeq = 0;
     mFolderTotalMsgCount = 0;
     mFolderHighestUID = 0;
-    m_uidValidity = kUidUnknown;
+    m_uidValidity = ImapUid_None;
     if (folder) {
       nsCOMPtr<nsIMsgDatabase> folderDB;
       nsCOMPtr<nsIDBFolderInfo> folderInfo;
@@ -2759,8 +2759,9 @@ void nsImapProtocol::ProcessSelectedStateURL() {
       // This is a common case event for attachments that are fetched within a
       // browser context.
       if (!DeathSignalReceived())
-        uidValidityOk = m_uidValidity == kUidUnknown ||
-                        m_uidValidity == GetServerStateParser().FolderUID();
+        uidValidityOk =
+            m_uidValidity == ImapUid_None ||
+            m_uidValidity == GetServerStateParser().FolderUIDValidity();
     }
 
     if (!uidValidityOk)
@@ -2796,7 +2797,7 @@ void nsImapProtocol::ProcessSelectedStateURL() {
           if (GetServerStateParser().LastCommandSuccessful() &&
               m_imapMailFolderSink && !moreHeadersToDownload) {
             m_imapMailFolderSink->SetUidValidity(
-                GetServerStateParser().FolderUID());
+                GetServerStateParser().FolderUIDValidity());
             ProcessMailboxUpdate(false);  // handle uidvalidity change
           }
           break;
@@ -9407,8 +9408,6 @@ nsresult nsImapMockChannel::OpenCacheEntry() {
   MOZ_LOG(IMAPCache, LogLevel::Debug,
           ("%s: Obtained storage obj for |%s| cache2", __func__,
            gUseDiskCache2 ? "disk" : "mem"));
-
-  int32_t uidValidity = -1;
   uint32_t cacheAccess = nsICacheStorage::OPEN_NORMALLY;
 
   nsCOMPtr<nsIImapUrl> imapUrl = do_QueryInterface(m_url, &rv);
@@ -9416,6 +9415,7 @@ nsresult nsImapMockChannel::OpenCacheEntry() {
 
   nsCOMPtr<nsIImapMailFolderSink> folderSink;
   rv = imapUrl->GetImapMailFolderSink(getter_AddRefs(folderSink));
+  ImapUid uidValidity = ImapUid_None;
   if (folderSink) folderSink->GetUidValidity(&uidValidity);
 
   // If we're storing the message in the offline store, don't

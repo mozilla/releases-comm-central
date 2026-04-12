@@ -34,7 +34,7 @@ nsImapOfflineSync::nsImapOfflineSync() {
   m_createdOfflineFolders = false;
   m_pseudoOffline = false;
   m_KeyIndex = 0;
-  mCurrentUIDValidity = nsMsgKey_None;
+  mCurrentUIDValidity = ImapUid_None;
   m_listener = nullptr;
 }
 
@@ -641,7 +641,7 @@ bool nsImapOfflineSync::CreateOfflineFolder(nsIMsgFolder* folder) {
                                     // called again by the OfflineOpExitFunction
 }
 
-int32_t nsImapOfflineSync::GetCurrentUIDValidity() {
+ImapUid nsImapOfflineSync::GetCurrentUIDValidity() {
   if (m_currentFolder) {
     nsCOMPtr<nsIImapMailFolderSink> imapFolderSink =
         do_QueryInterface(m_currentFolder);
@@ -789,7 +789,7 @@ nsImapOfflineSync::ProcessNextOperation() {
     if (folderInfo && (m_KeyIndex < m_CurrentKeys.Length()) &&
         (m_pseudoOffline || (GetCurrentUIDValidity() != 0) ||
          !(folderFlags & nsMsgFolderFlags::ImapBox))) {
-      int32_t curFolderUidValidity;
+      ImapUid curFolderUidValidity;
       folderInfo->GetImapUidValidity(&curFolderUidValidity);
       bool uidvalidityChanged =
           (!m_pseudoOffline && folderFlags & nsMsgFolderFlags::ImapBox) &&

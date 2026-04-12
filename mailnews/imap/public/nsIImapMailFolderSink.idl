@@ -48,7 +48,7 @@ interface nsIImapMailFolderSink : nsISupports {
   attribute boolean folderNeedsSubscribing;
   attribute boolean folderNeedsAdded;
   attribute unsigned long aclFlags;
-  attribute long uidValidity;
+  attribute ImapUid uidValidity;
   /**
    * Whether we have asked the server for this folder's quota information.
    * If the server supports quotas, this occurs when the folder is opened.

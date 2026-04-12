@@ -1018,7 +1018,7 @@ NS_IMETHODIMP nsImapService::IsMsgInMemCache(nsIURI* aUrl,
         do_QueryInterface(aImapMailFolder, &rv));
     NS_ENSURE_SUCCESS(rv, rv);
 
-    int32_t uidValidity = -1;
+    ImapUid uidValidity;
     folderSink->GetUidValidity(&uidValidity);
     // stick the uid validity in front of the url, so that if the uid validity
     // changes, we won't reuse the wrong cache entries.

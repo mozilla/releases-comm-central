@@ -112,7 +112,7 @@ class nsDBFolderInfo : public nsIDBFolderInfo {
   // mail only (for now)
 
   // IMAP only
-  int32_t m_ImapUidValidity;
+  ImapUid m_ImapUidValidity;
   int32_t m_totalPendingMessages;
   int32_t m_unreadPendingMessages;
 

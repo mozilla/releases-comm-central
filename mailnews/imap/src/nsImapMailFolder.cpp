@@ -214,7 +214,7 @@ nsImapMailFolder::nsImapMailFolder()
       m_folderQuotaDataIsValid(false),
       m_totalKeysToFetch(0) {
   m_boxFlags = 0;
-  m_uidValidity = kUidUnknown;
+  m_uidValidity = ImapUid_None;
   m_numServerRecentMessages = 0;
   m_numServerUnseenMessages = 0;
   m_numServerTotalMessages = 0;
@@ -2469,7 +2469,7 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
   nsTArray<nsMsgKey> keysToDelete;
   uint32_t numNewUnread;
   nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;
-  int32_t imapUIDValidity = 0;
+  ImapUid imapUIDValidity = 0;
   if (mDatabase) {
     rv = mDatabase->GetDBFolderInfo(getter_AddRefs(dbFolderInfo));
     if (NS_SUCCEEDED(rv) && dbFolderInfo) {
@@ -2494,7 +2494,7 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
     NS_ENSURE_SUCCESS(rv, rv);
     opsDb->ListAllOfflineDeletes(existingKeys);
   }
-  int32_t folderValidity;
+  ImapUid folderValidity;
   aSpec->GetFolder_UIDVALIDITY(&folderValidity);
   nsCOMPtr<nsIImapFlagAndUidState> flagState;
   aSpec->GetFlagState(getter_AddRefs(flagState));
@@ -5551,24 +5551,25 @@ nsImapMailFolder::SetBiffStateAndUpdate(nsMsgBiffState biffState) {
 }
 
 NS_IMETHODIMP
-nsImapMailFolder::GetUidValidity(int32_t* uidValidity) {
+nsImapMailFolder::GetUidValidity(ImapUid* uidValidity) {
   NS_ENSURE_ARG(uidValidity);
-  if ((int32_t)m_uidValidity == kUidUnknown) {
+  if (m_uidValidity == ImapUid_None) {
     nsCOMPtr<nsIMsgDatabase> db;
     nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;
     (void)GetDBFolderInfoAndDB(getter_AddRefs(dbFolderInfo),
                                getter_AddRefs(db));
     if (db) db->GetDBFolderInfo(getter_AddRefs(dbFolderInfo));
 
-    if (dbFolderInfo)
-      dbFolderInfo->GetImapUidValidity((int32_t*)&m_uidValidity);
+    if (dbFolderInfo) {
+      dbFolderInfo->GetImapUidValidity(&m_uidValidity);
+    }
   }
   *uidValidity = m_uidValidity;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsImapMailFolder::SetUidValidity(int32_t uidValidity) {
+nsImapMailFolder::SetUidValidity(ImapUid uidValidity) {
   m_uidValidity = uidValidity;
   return NS_OK;
 }

@@ -57,7 +57,7 @@ class nsImapServerResponseParser : public nsImapGenericParser {
   bool CurrentFolderReadOnly();
   int32_t NumberOfMessages();
   int32_t NumberOfRecentMessages();
-  int32_t FolderUID();
+  ImapUid FolderUIDValidity();
   uint32_t CurrentResponseUID();
   uint32_t HighestRecordedUID();
   void ResetHighestRecordedUID();
@@ -212,7 +212,7 @@ class nsImapServerResponseParser : public nsImapGenericParser {
   uint16_t fSupportsUserDefinedFlags;
   uint16_t fSettablePermanentFlags;
 
-  int32_t fFolderUIDValidity;
+  ImapUid fFolderUIDValidity;
   int32_t fSeqNumOfFirstUnseenMsg;
   int32_t fNumberOfExistingMessages;
   int32_t fNumberOfRecentMessages;

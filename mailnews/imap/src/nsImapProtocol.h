@@ -726,7 +726,7 @@ class nsImapProtocol : public nsIImapProtocol,
   bool m_preferPlainText;
   bool m_forceSelect;
 
-  int32_t m_uidValidity;  // stored uid validity for the selected folder.
+  ImapUid m_uidValidity;  // stored uid validity for the selected folder.
 
   enum EMailboxHierarchyNameState {
     kNoOperationInProgress,

@@ -869,10 +869,10 @@ NS_IMETHODIMP FolderInfo::GetExpungedBytes(int64_t* aExpungedBytes) {
 NS_IMETHODIMP FolderInfo::SetExpungedBytes(int64_t aExpungedBytes) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
-NS_IMETHODIMP FolderInfo::GetImapUidValidity(int32_t* aImapUidValidity) {
+NS_IMETHODIMP FolderInfo::GetImapUidValidity(ImapUid* aImapUidValidity) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
-NS_IMETHODIMP FolderInfo::SetImapUidValidity(int32_t aImapUidValidity) {
+NS_IMETHODIMP FolderInfo::SetImapUidValidity(ImapUid aImapUidValidity) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP FolderInfo::GetVersion(uint32_t* aVersion) {
