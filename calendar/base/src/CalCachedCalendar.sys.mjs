@@ -97,7 +97,11 @@ calCachedCalendarObserverHelper.prototype = {
 
   onPropertyChanged(aCalendar, aName, aValue, aOldValue) {
     if (!this.isCachedObserver) {
-      this.home.mObservers.notify("onPropertyChanged", [this.home, aName, aValue, aOldValue]);
+      const home = this.home;
+      // Avoid reentrancy.
+      Services.tm.dispatchToMainThread(() => {
+        home.mObservers.notify("onPropertyChanged", [home, aName, aValue, aOldValue]);
+      });
     }
   },
 
