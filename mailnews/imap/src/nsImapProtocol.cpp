@@ -196,7 +196,7 @@ NS_IMPL_ISUPPORTS(nsMsgImapLineDownloadCache, nsIImapHeaderInfo)
 // **** helper class for downloading line ****
 nsMsgImapLineDownloadCache::nsMsgImapLineDownloadCache() {
   fLineInfo = (msg_line_info*)PR_CALLOC(sizeof(msg_line_info));
-  fLineInfo->uidOfMessage = nsMsgKey_None;
+  fLineInfo->uidOfMessage = ImapUid_None;
   m_msgSize = 0;
 }
 
@@ -818,7 +818,7 @@ nsresult nsImapProtocol::SetupWithUrl(nsIURI* aURL, nsISupports* aConsumer) {
         mFolderLastModSeq = ParseUint64Str(modSeqStr.get());
         folderInfo->GetNumMessages(&mFolderTotalMsgCount);
         folderInfo->GetUint32Property(kHighestRecordedUIDPropertyName, 0,
-                                      &mFolderHighestUID);
+                                      (uint32_t*)&mFolderHighestUID);
         folderInfo->GetImapUidValidity(&m_uidValidity);
       }
     }
@@ -2715,7 +2715,7 @@ void nsImapProtocol::ProcessSelectedStateURL() {
         m_imapMailFolderSink->GetMsgHdrsToDownload(
             &more, &m_progressExpectedNumber, msgIdList);
         if (msgIdList.Length() > 0) {
-          FolderHeaderDump(msgIdList.Elements(), msgIdList.Length());
+          FolderHeaderDump(msgIdList);
           m_runningUrl->SetMoreHeadersToDownload(more);
           // We're going to be re-running this url.
           if (more) m_runningUrl->SetRerunningUrl(true);
@@ -3871,7 +3871,7 @@ void nsImapProtocol::FetchTryChunking(const nsCString& messageIds,
 }
 
 void nsImapProtocol::PostLineDownLoadEvent(const char* line,
-                                           uint32_t uidOfMessage) {
+                                           ImapUid uidOfMessage) {
   if (!GetServerStateParser().GetDownloadingHeaders()) {
     uint32_t byteCount = PL_strlen(line);
     bool echoLineToMessageSink = false;
@@ -4379,7 +4379,7 @@ void nsImapProtocol::ProcessMailboxUpdate(bool handlePossibleUndo) {
       // Obtain the highest (highwater mark) UID seen since the last UIDVALIDITY
       // response occurred (associated with the most recent SELECT for the
       // folder).
-      uint32_t highestRecordedUID = GetServerStateParser().HighestRecordedUID();
+      ImapUid highestRecordedUID = GetServerStateParser().HighestRecordedUID();
       // if we're using CONDSTORE, and the parser hasn't seen any UIDs, use
       // the highest UID previously seen and saved for the folder instead.
       if (useCS && !highestRecordedUID) highestRecordedUID = mFolderHighestUID;
@@ -4432,7 +4432,7 @@ void nsImapProtocol::ProcessMailboxUpdate(bool handlePossibleUndo) {
 
   if (GetServerStateParser().LastCommandSuccessful()) {
     if (msgIdList.Length() > 0) {
-      FolderHeaderDump(msgIdList.Elements(), msgIdList.Length());
+      FolderHeaderDump(msgIdList);
     }
     HeaderFetchCompleted();
     // this might be bogus, how are we going to do pane notification and stuff
@@ -4454,7 +4454,7 @@ void nsImapProtocol::ProcessMailboxUpdate(bool handlePossibleUndo) {
                  (m_stringIndex == IMAP_MESSAGES_STRING_INDEX));
       m_progressCurrentNumber[m_stringIndex] = 0;
       m_progressExpectedNumber = msgIds.Length();
-      FolderMsgDump(msgIds.Elements(), msgIds.Length(), kEveryThingRFC822Peek);
+      FolderMsgDump(msgIds, kEveryThingRFC822Peek);
       m_runningUrl->SetStoreResultsOffline(wasStoringOffline);
     }
   }
@@ -4462,11 +4462,11 @@ void nsImapProtocol::ProcessMailboxUpdate(bool handlePossibleUndo) {
     GetServerStateParser().ResetFlagInfo();
 }
 
-void nsImapProtocol::FolderHeaderDump(uint32_t* msgUids, uint32_t msgCount) {
-  FolderMsgDump(msgUids, msgCount, kHeadersRFC822andUid);
+void nsImapProtocol::FolderHeaderDump(mozilla::Span<const ImapUid> msgUids) {
+  FolderMsgDump(msgUids, kHeadersRFC822andUid);
 }
 
-void nsImapProtocol::FolderMsgDump(uint32_t* msgUids, uint32_t msgCount,
+void nsImapProtocol::FolderMsgDump(mozilla::Span<const ImapUid> msgUids,
                                    nsIMAPeFetchFields fields) {
   // lets worry about this progress stuff later.
   switch (fields) {
@@ -4481,7 +4481,7 @@ void nsImapProtocol::FolderMsgDump(uint32_t* msgUids, uint32_t msgCount,
       break;
   }
 
-  FolderMsgDumpLoop(msgUids, msgCount, fields);
+  FolderMsgDumpLoop(msgUids, fields);
 
   SetProgressString(IMAP_EMPTY_STRING_INDEX);
 }
@@ -4537,14 +4537,15 @@ NS_IMETHODIMP nsImapProtocol::GetSupportedUserFlags(uint16_t* supportedFlags) {
   *supportedFlags = m_flagState->GetSupportedUserFlags();
   return NS_OK;
 }
-void nsImapProtocol::FolderMsgDumpLoop(uint32_t* msgUids, uint32_t msgCount,
+void nsImapProtocol::FolderMsgDumpLoop(mozilla::Span<const ImapUid> msgUids,
                                        nsIMAPeFetchFields fields) {
-  int32_t msgCountLeft = msgCount;
+  uint32_t msgCountLeft = (uint32_t)msgUids.Length();
   uint32_t msgsDownloaded = 0;
   do {
     nsCString idString;
     uint32_t msgsToDownload = msgCountLeft;
-    AllocateImapUidString(msgUids + msgsDownloaded, msgsToDownload, m_flagState,
+    AllocateImapUidString(msgUids.Elements() + msgsDownloaded, msgsToDownload,
+                          m_flagState,
                           idString);  // 20 * 200
     FetchMessage(idString, fields);
     msgsDownloaded += msgsToDownload;

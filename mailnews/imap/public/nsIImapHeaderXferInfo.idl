@@ -16,7 +16,7 @@ interface nsIImapHeaderInfo : nsISupports {
     attribute long msgSize;
     // The raw message header block.
     readonly attribute ACString msgHdrs;
-    void cacheLine(in string line, in unsigned long uid);
+    void cacheLine(in string line, in ImapUid uid);
     void resetCache();
 };
 
