@@ -2846,14 +2846,18 @@ void nsImapProtocol::ProcessSelectedStateURL() {
             // Note: No longer doing bodystructure.
             uint32_t messageSize = GetMessageSize(messageIdString);
 
-            // The "wontFit" and cache parameter calculations (customLimit,
+            // See if message fits in a system "cache2" entry. (Still do but N/A
+            // if message fetched into offline store.) Used for debug logging
+            // below and to ensure imap fetch does a peek to avoid possibly
+            // setting \Seen flag when auto setting message as read is disabled.
+            bool wontFit =
+                net::CacheObserver::EntryIsTooBig(messageSize, gUseDiskCache2);
+            // The cache parameter calculations (customLimit,
             // realLimit) are only for debug information logging below.
             if (MOZ_LOG_TEST(IMAPCache, LogLevel::Debug)) {
               nsCOMPtr<nsIMsgMailNewsUrl> mailnewsurl =
                   do_QueryInterface(m_runningUrl);
               if (mailnewsurl) {
-                bool wontFit = net::CacheObserver::EntryIsTooBig(
-                    messageSize, gUseDiskCache2);
                 int64_t customLimit;
                 int64_t realLimit;
                 if (gUseDiskCache2) {
@@ -2879,6 +2883,19 @@ void nsImapProtocol::ProcessSelectedStateURL() {
                          messageSize, wontFit));
               }
             }
+            bool forcePeek = false;
+            if (wontFit && whatToFetch == kEveryThingRFC822) {
+              // Message doesn't fit in cache entry and doing a normal fetch.
+              // If auto marking as read is disabled, force a peek to prevent
+              // server from setting the /Seen flag. If auto marking as read is
+              // enabled and a delay is enabled, also force a peek to avoid
+              // setting /Seen (read) flag immediately and still wait for the
+              // delay to mark the message as read.
+              forcePeek =
+                  !Preferences::GetBool("mailnews.mark_message_read.auto") ||
+                  Preferences::GetBool("mailnews.mark_message_read.delay");
+              if (forcePeek) whatToFetch = kEveryThingRFC822Peek;
+            }
             // Note again: No longer doing bodystructure.
             // Fetch the whole thing, and try to do it in chunks.
             MOZ_LOG(
@@ -2886,10 +2903,11 @@ void nsImapProtocol::ProcessSelectedStateURL() {
                 ("%s: Fetch entire message with FetchTryChunking", __func__));
             FetchTryChunking(messageIdString, whatToFetch, bMessageIdsAreUids,
                              NULL, messageSize, true);
+
             // If fetch was not a peek, ensure that the message displays as
             // read (not bold) in case the server fails to mark the message
             // as SEEN.
-            if (GetServerStateParser().LastCommandSuccessful() &&
+            if (!forcePeek && GetServerStateParser().LastCommandSuccessful() &&
                 m_imapAction != nsIImapUrl::nsImapMsgFetchPeek) {
               uint32_t uid = strtoul(messageIdString.get(), nullptr, 10);
               int32_t index;
