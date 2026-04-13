@@ -29,8 +29,7 @@
 #include "mozilla/dom/XULFrameElement.h"
 #include "nsFrameLoader.h"
 
-NS_IMPL_ISUPPORTS(nsMsgWindow, nsIMsgWindow, nsIURIContentListener,
-                  nsISupportsWeakReference)
+NS_IMPL_ISUPPORTS(nsMsgWindow, nsIMsgWindow, nsISupportsWeakReference)
 
 nsMsgWindow::nsMsgWindow() {}
 
@@ -40,41 +39,6 @@ nsresult nsMsgWindow::Init() {
   // create Undo/Redo Transaction Manager
   mTransactionManager = new mozilla::TransactionManager();
   return mTransactionManager->SetMaxTransactionCount(-1);
-}
-
-NS_IMETHODIMP nsMsgWindow::GetMessageWindowDocShell(nsIDocShell** aDocShell) {
-  *aDocShell = nullptr;
-
-  nsCOMPtr<nsIDocShell> docShell(do_QueryReferent(mMessageWindowDocShellWeak));
-  nsCOMPtr<nsIDocShell> rootShell(do_QueryReferent(mRootDocShellWeak));
-  if (rootShell) {
-    // There seem to be some issues with shutdown (see Bug 1610406).
-    // This workaround should prevent the GetElementById() call dying horribly
-    // but really, we shouldn't even get here in such cases.
-    bool doomed;
-    rootShell->IsBeingDestroyed(&doomed);
-    if (doomed) {
-      return NS_ERROR_ILLEGAL_DURING_SHUTDOWN;
-    }
-
-    RefPtr<mozilla::dom::Element> el =
-        rootShell->GetDocument()->GetElementById(u"messagepane"_ns);
-    RefPtr<mozilla::dom::XULFrameElement> frame =
-        mozilla::dom::XULFrameElement::FromNodeOrNull(el);
-    NS_ENSURE_TRUE(frame, NS_ERROR_FAILURE);
-    RefPtr<mozilla::dom::Document> doc = frame->GetContentDocument();
-    NS_ENSURE_TRUE(doc, NS_ERROR_FAILURE);
-    docShell = doc->GetDocShell();
-    NS_ENSURE_TRUE(docShell, NS_ERROR_FAILURE);
-
-    // we don't own mMessageWindowDocShell so don't try to keep a reference to
-    // it!
-    mMessageWindowDocShellWeak = do_GetWeakReference(docShell);
-  }
-
-  NS_ENSURE_TRUE(docShell, NS_ERROR_FAILURE);
-  docShell.forget(aDocShell);
-  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgWindow::GetTransactionManager(
@@ -87,93 +51,5 @@ NS_IMETHODIMP nsMsgWindow::GetTransactionManager(
 NS_IMETHODIMP nsMsgWindow::SetTransactionManager(
     nsITransactionManager* aTransactionManager) {
   mTransactionManager = aTransactionManager;
-  return NS_OK;
-}
-
-// nsIURIContentListener support
-
-NS_IMETHODIMP nsMsgWindow::DoContent(const nsACString& aContentType,
-                                     bool aIsContentPreferred,
-                                     nsIRequest* request,
-                                     nsIStreamListener** aContentHandler,
-                                     bool* aAbortProcess) {
-  if (!aContentType.IsEmpty()) {
-    // forward the DoContent call to our docshell
-    nsCOMPtr<nsIDocShell> messageWindowDocShell;
-    GetMessageWindowDocShell(getter_AddRefs(messageWindowDocShell));
-    nsCOMPtr<nsIURIContentListener> ctnListener =
-        do_QueryInterface(messageWindowDocShell);
-    if (ctnListener) {
-      nsCOMPtr<nsIChannel> aChannel = do_QueryInterface(request);
-      if (!aChannel) return NS_ERROR_FAILURE;
-
-      // get the url for the channel...let's hope it is a mailnews url so we can
-      // set our msg hdr sink on it.. right now, this is the only way I can
-      // think of to force the msg hdr sink into the mime converter so it can
-      // get too it later...
-      nsCOMPtr<nsIURI> uri;
-      aChannel->GetURI(getter_AddRefs(uri));
-      if (uri) {
-        nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl(do_QueryInterface(uri));
-        if (mailnewsUrl) mailnewsUrl->SetMsgWindow(this);
-      }
-      return ctnListener->DoContent(aContentType, aIsContentPreferred, request,
-                                    aContentHandler, aAbortProcess);
-    }
-  }
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgWindow::IsPreferred(const char* aContentType, char** aDesiredContentType,
-                         bool* aCanHandleContent) {
-  // We don't want to handle opening any attachments inside the
-  // message pane, but want to let nsIExternalHelperAppService take care.
-  *aCanHandleContent = false;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgWindow::CanHandleContent(const char* aContentType,
-                                            bool aIsContentPreferred,
-                                            char** aDesiredContentType,
-                                            bool* aCanHandleContent)
-
-{
-  // the mail window knows nothing about the default content types
-  // its docshell can handle...ask the content area if it can handle
-  // the content type...
-
-  nsCOMPtr<nsIDocShell> messageWindowDocShell;
-  GetMessageWindowDocShell(getter_AddRefs(messageWindowDocShell));
-  nsCOMPtr<nsIURIContentListener> ctnListener(
-      do_GetInterface(messageWindowDocShell));
-  if (ctnListener)
-    return ctnListener->CanHandleContent(aContentType, aIsContentPreferred,
-                                         aDesiredContentType,
-                                         aCanHandleContent);
-  else
-    *aCanHandleContent = false;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgWindow::GetParentContentListener(
-    nsIURIContentListener** aParent) {
-  NS_ENSURE_ARG_POINTER(aParent);
-  *aParent = nullptr;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgWindow::SetParentContentListener(
-    nsIURIContentListener* aParent) {
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgWindow::GetLoadCookie(nsISupports** aLoadCookie) {
-  NS_ENSURE_ARG_POINTER(aLoadCookie);
-  *aLoadCookie = nullptr;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgWindow::SetLoadCookie(nsISupports* aLoadCookie) {
   return NS_OK;
 }
