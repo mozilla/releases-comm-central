@@ -153,7 +153,6 @@ add_task(function endTest() {
   // Cleanup, null out everything, close all cached connections and stop the
   // server
   gMessages = [];
-  gMsgWindow.closeWindow();
   gMsgWindow = null;
   gRootFolder = null;
   teardownIMAPPump();

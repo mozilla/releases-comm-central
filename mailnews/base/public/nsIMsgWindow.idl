@@ -18,13 +18,4 @@ interface nsIMsgWindow : nsISupports {
    * holding on to the docshell returned here outside the scope of your routine.
    */
   readonly attribute nsIDocShell messageWindowDocShell;
-
-  /**
-    when the msg window is being unloaded from the content window,
-    we can use this notification to force a flush on anything the
-    msg window hangs on too. For some reason xpconnect is still hanging
-    onto the msg window even though all of our objects have let go of it
-    this forces a release...
-   */
-  void closeWindow();
 };

@@ -34,7 +34,7 @@ NS_IMPL_ISUPPORTS(nsMsgWindow, nsIMsgWindow, nsIURIContentListener,
 
 nsMsgWindow::nsMsgWindow() {}
 
-nsMsgWindow::~nsMsgWindow() { CloseWindow(); }
+nsMsgWindow::~nsMsgWindow() {}
 
 nsresult nsMsgWindow::Init() {
   // create Undo/Redo Transaction Manager
@@ -74,26 +74,6 @@ NS_IMETHODIMP nsMsgWindow::GetMessageWindowDocShell(nsIDocShell** aDocShell) {
 
   NS_ENSURE_TRUE(docShell, NS_ERROR_FAILURE);
   docShell.forget(aDocShell);
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgWindow::CloseWindow() {
-  nsCOMPtr<nsIWebNavigation> webnav(do_QueryReferent(mRootDocShellWeak));
-  if (webnav) {
-    webnav->Stop(nsIWebNavigation::STOP_NETWORK);
-  }
-
-  nsCOMPtr<nsIDocShell> messagePaneDocShell(
-      do_QueryReferent(mMessageWindowDocShellWeak));
-  if (messagePaneDocShell) {
-    nsCOMPtr<nsIURIContentListener> listener(
-        do_GetInterface(messagePaneDocShell));
-    if (listener) listener->SetParentContentListener(nullptr);
-    mMessageWindowDocShellWeak = nullptr;
-  }
-
-  // in case nsMsgWindow leaks, make sure other stuff doesn't leak.
-  mTransactionManager = nullptr;
   return NS_OK;
 }
 

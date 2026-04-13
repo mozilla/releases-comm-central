@@ -53,8 +53,6 @@ function OnMailWindowUnload() {
 
   window.browserDOMWindow = null;
 
-  msgWindow.closeWindow();
-
   window.MsgStatusFeedback.unload();
   Cc["@mozilla.org/activity-manager;1"]
     .getService(Ci.nsIActivityManager)

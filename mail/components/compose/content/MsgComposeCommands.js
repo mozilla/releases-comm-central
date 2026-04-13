@@ -5866,10 +5866,6 @@ function ComposeUnload() {
   if (gAutoSaveTimeout) {
     clearTimeout(gAutoSaveTimeout);
   }
-  if (msgWindow) {
-    msgWindow.closeWindow();
-  }
-
   ReleaseGlobalVariables();
 
   top.controllers.removeController(SecurityController);

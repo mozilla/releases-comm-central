@@ -137,7 +137,6 @@ function SetUpTree(forceToServer, getOnlyNew) {
 }
 
 function SubscribeOnUnload() {
-  msgWindow.closeWindow();
   gStatusFeedback = null;
   gSubscribableServer = null;
 }

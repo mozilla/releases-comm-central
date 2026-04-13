@@ -73,7 +73,6 @@ add_task(function verifyFolders() {
 add_task(function endTest() {
   // Cleanup, null out everything.
   gMessages = [];
-  gMsgWindow.closeWindow();
   gMsgWindow = null;
   localAccountUtils.inboxFolder = null;
   localAccountUtils.incomingServer = null;

@@ -1049,8 +1049,6 @@ function searchOnLoad() {
 function searchOnUnload() {
   gFolderDisplay.close();
   top.controllers.removeController(nsSearchResultsController);
-
-  msgWindow.closeWindow();
 }
 
 function initializeSearchWindowWidgets() {
