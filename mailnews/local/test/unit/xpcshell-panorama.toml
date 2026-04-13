@@ -1,0 +1,10 @@
+[DEFAULT]
+head = "head.js"
+support-files = ["data/*"]
+prefs = [
+  "mail.panorama.enabled=true"
+]
+dupe-manifest = true
+tags = ["panorama"]
+
+["include:xpcshell-shared.toml"]

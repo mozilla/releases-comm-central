@@ -1,5 +1,5 @@
 [DEFAULT]
-head = "head_mailbase.js"
+head = "head.js"
 dupe-manifest = true
 prefs = [
   "experimental.mail.ews.overrideOAuth.enabled=true",
@@ -10,6 +10,8 @@ support-files = [
   "nodelist_test.xml",
   "data/*",
 ]
+
+["include:xpcshell-shared.toml"]
 
 ["test_MorkParser.js"]
 
@@ -67,14 +69,7 @@ tags = ["compact"]
 
 ["test_folderLookupService.js"]
 
-["test_folderNames.js"]
-tags = ["foldernames"]
-
 ["test_folderNamesExisting.js"]
-tags = ["foldernames"]
-
-["test_folderNames_preffedOff.js"]
-prefs = ["mail.useLocalizedFolderNames=false"]
 tags = ["foldernames"]
 
 ["test_folderStringProperties.js"]

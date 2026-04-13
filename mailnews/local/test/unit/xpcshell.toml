@@ -1,5 +1,5 @@
 [DEFAULT]
-head = "head_maillocal.js"
+head = "head.js"
 support-files = ["data/*"]
 prefs = [
   "mail.biff.play_sound=false",
@@ -7,6 +7,9 @@ prefs = [
   "mail.biff.show_tray_icon=false",
   "mail.biff.animate_dock_icon=false",
 ]
+dupe-manifest = true
+
+["include:xpcshell-shared.toml"]
 
 ["test_Pop3Channel.js"]
 
@@ -22,8 +25,6 @@ tags = ["compact"]
 ["test_folderParse.js"]
 
 ["test_localFolder.js"]
-
-["test_localServerFromPrefs.js"]
 
 ["test_mailStoreCompact.js"]
 tags = ["compact"]
@@ -101,8 +102,6 @@ requesttimeoutfactor = 12
 ["test_pop3Pump.js"]
 
 ["test_pop3ServerDisconnect.js"]
-
-["test_pop3ServerFromPrefs.js"]
 
 ["test_pop3StateDeadlock.js"]
 

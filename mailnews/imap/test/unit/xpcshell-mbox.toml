@@ -7,6 +7,6 @@ tags = [
 dupe-manifest = true
 run-sequentially = true
 
-["include:xpcshell-shared.ini"]
+["include:xpcshell-shared.toml"]
 
 ["test_fetchWhileLocked.js"]

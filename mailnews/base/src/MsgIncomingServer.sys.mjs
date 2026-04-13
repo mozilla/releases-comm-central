@@ -531,10 +531,10 @@ export class MsgIncomingServer {
         const core = Cc["@mozilla.org/mailnews/database-core;1"].getService(
           Ci.nsIDatabaseCore
         );
-        const folders = core.folders;
+        const folders = core.folderDB;
 
         const root =
-          folders.getFolderChildNamed(0, this._key) ??
+          folders.getFolderChildNamed(0, this._key) ||
           folders.insertRoot(this._key);
         this._rootFolder = Cc[
           "@mozilla.org/mail/folder;1?name=mailbox"

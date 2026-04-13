@@ -6,7 +6,7 @@ support-files = [
   "resources/*",
 ]
 
-["include:xpcshell_maildir.ini"]
+["include:xpcshell_maildir.toml"]
 
 ["test_accountManagerUtils.js"]
 

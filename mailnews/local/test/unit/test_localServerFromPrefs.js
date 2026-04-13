@@ -67,14 +67,14 @@ add_task(async function () {
     const database = Cc["@mozilla.org/mailnews/database-core;1"].getService(
       Ci.nsIDatabaseCore
     );
-    Assert.ok(database.folders.getFolderById(1));
-    Assert.ok(database.folders.getFolderByPath("server1"));
-    Assert.deepEqual(
-      database.folders.getFolderByPath("server1").children.map(c => c.name),
-      ["Trash", "Unsent Messages"]
-    );
+    Assert.ok(database.folderDB.getMsgFolderForFolder(1));
+    Assert.equal(database.folderDB.getFolderByPath("server1"), 1);
+    Assert.deepEqual(database.folderDB.getFolderChildren(1), [
+      localFolders[0].id,
+      localFolders[1].id,
+    ]);
 
-    const stmt = database.connection.createStatement(
+    const stmt = database.connectionForTests.createStatement(
       "SELECT name, flags FROM folders ORDER BY name"
     );
     const dbFolders = {};
