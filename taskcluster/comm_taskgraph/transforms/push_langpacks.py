@@ -8,7 +8,7 @@ Transform the release-push-langpacks task into an actual task description.
 import json
 import os
 from contextlib import contextmanager
-from typing import Literal, Optional
+from typing import Literal
 
 from mozilla_version.gecko import ThunderbirdVersion
 from taskgraph.transforms.base import TransformSequence
