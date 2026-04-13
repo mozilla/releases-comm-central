@@ -160,6 +160,10 @@ mochitest-thunderbird:
                 by-test-platform:
                     windows11-64.*: built-projects
                     default: []
+            a11y-checks:
+                by-test-platform:
+                    linux.*64/opt: built-projects
+                    default: []
             default: built-projects
     tier:
         by-test-platform:
