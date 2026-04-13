@@ -246,7 +246,7 @@
    */
   class ActivityProcessItem extends ActivityItemBase {
     static defaultIconSrc =
-      "chrome://messenger/skin/icons/new/activity/deafultProcessIcon.svg";
+      "chrome://messenger/skin/icons/new/activity/defaultProcessIcon.svg";
     static activityInterface = Ci.nsIActivityProcess;
     static textMap = {
       paused: activityStrings.GetStringFromName("paused2"),
