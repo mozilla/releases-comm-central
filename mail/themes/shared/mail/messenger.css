@@ -18,6 +18,10 @@
   &:-moz-locale-dir(rtl) {
     direction: rtl;
   }
+
+  &[lwtheme] body {
+    color-scheme: light-dark;
+  }
 }
 
 :root,
