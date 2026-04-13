@@ -47,20 +47,15 @@ async function checkAuthMethods(select, protocol) {
   };
 
   const popupPromise = BrowserTestUtils.waitForSelectPopupShown(window);
-
   await EventUtils.synthesizeMouseAtCenter(select, {}, browser.contentWindow);
-
   const popup = await popupPromise;
 
-  const items = popup.querySelectorAll("menuitem");
-
-  for (const item of items) {
-    const method = authMap[protocol].includes(item.value)
-      ? "isVisible"
-      : "isHidden";
-    Assert.ok(
-      BrowserTestUtils[method](item),
-      `${authMethods[item.value]} should be ${method} when protocol is ${protocol}`
+  for (const item of popup.querySelectorAll("menuitem")) {
+    const hide = !authMap[protocol].includes(item.value);
+    Assert.equal(
+      hide,
+      item.hidden,
+      `${item.value} option should ${hide ? "NOT " : ""}be hidden when protocol is ${protocol}`
     );
   }
 
