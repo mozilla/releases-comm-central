@@ -69,6 +69,7 @@ Thunderbird Source Tree Documentation
    :maxdepth: 1
 
    /inappnotifications/index
+   /backend/net_thunderbird_urls
    /backend/oauth
    /telemetry/index
 
