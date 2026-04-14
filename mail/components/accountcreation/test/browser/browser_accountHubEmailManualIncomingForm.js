@@ -23,13 +23,16 @@ add_setup(async function () {
   subview = tab.browser.contentWindow.document.querySelector(
     "email-manual-incoming-form"
   );
-  EventUtils.synthesizeMouseAtCenter(subview, {}, browser.contentWindow);
 
   registerCleanupFunction(() => {
     tabmail.closeOtherTabs(tabmail.tabInfo[0]);
   });
 });
 
+/**
+ * @param {HTMLSelectElement} select
+ * @param {"ews"|"ewsWithOauth"|"imap"|"all"} protocol
+ */
 async function checkAuthMethods(select, protocol) {
   const authMethods = {
     0: "autodetect",
@@ -45,6 +48,8 @@ async function checkAuthMethods(select, protocol) {
     imap: ["0", "1", "2", "3", "4"],
     all: Object.keys(authMethods),
   };
+
+  await new Promise(resolve => window.requestAnimationFrame(resolve));
 
   const popupPromise = BrowserTestUtils.waitForSelectPopupShown(window);
   await EventUtils.synthesizeMouseAtCenter(select, {}, browser.contentWindow);
