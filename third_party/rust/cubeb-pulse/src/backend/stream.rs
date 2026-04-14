@@ -664,12 +664,14 @@ impl StreamOps for PulseStream<'_> {
         {
             self.context.mainloop.lock();
             self.shutdown = true;
-            // If draining is taking place wait to finish
-            cubeb_log!("Stream stop: waiting for drain");
-            while !self.drain_timer.load(Ordering::Acquire).is_null() {
-                self.context.mainloop.wait();
+            // Cancel any pending drain timer rather than blocking until it
+            // fires, matching destroy() and other backends' behaviour.
+            let drain_timer = self.drain_timer.load(Ordering::Acquire);
+            if !drain_timer.is_null() {
+                cubeb_log!("Stream stop: cancelling drain timer");
+                self.context.mainloop.get_api().time_free(drain_timer);
+                self.drain_timer.store(ptr::null_mut(), Ordering::Release);
             }
-            cubeb_log!("Stream stop: waited for drain");
             self.context.mainloop.unlock();
         }
         self.cork(CorkState::cork() | CorkState::notify());
