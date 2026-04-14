@@ -58,7 +58,7 @@ impl<ServerT: AuthenticationProvider + RefCounted>
         // Send the request and grab the resulting message ID.
         let request = paths::me_messages::Post::new(endpoint.to_string(), body);
         let message_id = client
-            .send_request(request)
+            .send_request_json_response(request)
             .await?
             .outlook_item()
             .entity()

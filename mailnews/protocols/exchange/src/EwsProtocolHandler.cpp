@@ -7,14 +7,29 @@
 #include "EwsMessageChannel.h"
 #include "nsIMsgIncomingServer.h"
 
+nsresult NS_CreateEwsProtocolHandler(REFNSIID aIID, void** aResult) {
+  NS_ENSURE_ARG_POINTER(aResult);
+  *aResult = nullptr;
+  RefPtr<EwsProtocolHandler> instance(new EwsProtocolHandler("x-moz-ews"_ns));
+  return instance->QueryInterface(aIID, aResult);
+}
+
+nsresult NS_CreateGraphProtocolHandler(REFNSIID aIID, void** aResult) {
+  NS_ENSURE_ARG_POINTER(aResult);
+  *aResult = nullptr;
+  RefPtr<EwsProtocolHandler> instance(new EwsProtocolHandler("x-moz-graph"_ns));
+  return instance->QueryInterface(aIID, aResult);
+}
+
 NS_IMPL_ISUPPORTS(EwsProtocolHandler, nsIProtocolHandler)
 
-EwsProtocolHandler::EwsProtocolHandler() = default;
+EwsProtocolHandler::EwsProtocolHandler(const nsACString& exchangeScheme)
+    : mExchangeScheme(std::move(exchangeScheme)) {}
 
 EwsProtocolHandler::~EwsProtocolHandler() = default;
 
 NS_IMETHODIMP EwsProtocolHandler::GetScheme(nsACString& aScheme) {
-  aScheme.AssignLiteral("x-moz-ews");
+  aScheme.Assign(mExchangeScheme);
 
   return NS_OK;
 }

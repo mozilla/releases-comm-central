@@ -37,7 +37,7 @@ impl<ServerT: AuthenticationProvider + RefCounted>
             OperationBody::JSON(folder_config),
         );
 
-        let folder = client.send_request(request).await?;
+        let folder = client.send_request_json_response(request).await?;
         let folder_id = folder.entity().id()?.to_string();
         Ok(folder_id)
     }

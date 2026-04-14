@@ -22,6 +22,8 @@
 #include "nsNetUtil.h"
 #include "SaveAsListener.h"
 
+extern mozilla::LazyLogModule gEwsLog;
+
 NS_IMPL_ISUPPORTS(EwsService, nsIMsgMessageService,
                   nsIMsgMessageFetchPartService)
 
@@ -95,6 +97,9 @@ NS_IMETHODIMP EwsService::GetUrlForUri(const nsACString& aMessageURI,
   nsCOMPtr<nsIURI> messageURI;
   MOZ_TRY(NS_NewURI(getter_AddRefs(messageURI), aMessageURI));
 
+  nsAutoCString scheme;
+  MOZ_TRY(messageURI->GetScheme(scheme));
+
   // At this point, the path to the message URI is expected to look like
   // /Path/To/Folder#MessageKey. With this format, if the user switches between
   // messages in the same folder, the docshell believes we're still in the same
@@ -115,12 +120,25 @@ NS_IMETHODIMP EwsService::GetUrlForUri(const nsACString& aMessageURI,
   rv = messageURI->GetQuery(query);
   NS_ENSURE_SUCCESS(rv, rv);
 
+  nsAutoCString channelScheme;
+  if (scheme.EqualsLiteral("ews-message")) {
+    channelScheme.Assign("x-moz-ews");
+  } else if (scheme.EqualsLiteral("graph-message")) {
+    channelScheme.Assign("x-moz-graph");
+  }
+
+  if (channelScheme.IsEmpty()) {
+    MOZ_LOG_FMT(gEwsLog, mozilla::LogLevel::Error,
+                "Unknown message URI scheme: %s", scheme);
+    return NS_ERROR_UNEXPECTED;
+  }
+
   // "x-moz-ews" is the scheme we use for URIs that must be used for channels
   // opened via a protocol handler consumer (such as a docshell or the I/O
   // service). These channels are expected to serve the raw content RFC822
   // content of the message referred to by the URI.
   return NS_MutateURI(messageURI)
-      .SetScheme("x-moz-ews"_ns)
+      .SetScheme(channelScheme)
       .SetPathQueryRef(path)
       .SetQuery(query)
       .Finalize(_retval);
@@ -150,7 +168,7 @@ NS_IMETHODIMP EwsService::FetchMimePart(nsIURI* aURI,
   nsCString scheme;
   MOZ_TRY(aURI->GetScheme(scheme));
   MOZ_ASSERT(
-      scheme.EqualsLiteral("x-moz-ews"),
+      scheme.EqualsLiteral("x-moz-ews") || scheme.EqualsLiteral("x-moz-graph"),
       "the URI passed to FetchMimePart does not follow the expected format");
 
   NS_IF_ADDREF(*aURL = aURI);
@@ -278,15 +296,35 @@ nsresult EwsService::MsgHdrFromUri(nsIURI* uri, nsIMsgDBHdr** _retval) {
   nsresult rv = uri->GetScheme(scheme);
   NS_ENSURE_SUCCESS(rv, rv);
 
+  nsAutoCString folderScheme;
   if (scheme.EqualsLiteral("ews-message")) {
     rv = MsgKeyStringFromMessageURI(uri, keyStr);
     NS_ENSURE_SUCCESS(rv, rv);
 
     rv = uri->GetFilePath(folderURIPath);
     NS_ENSURE_SUCCESS(rv, rv);
+    folderScheme.Assign("ews");
   } else if (scheme.EqualsLiteral("x-moz-ews")) {
     rv = MsgKeyStringFromChannelURI(uri, keyStr, folderURIPath);
     NS_ENSURE_SUCCESS(rv, rv);
+    folderScheme.Assign("ews");
+  } else if (scheme.EqualsLiteral("graph-message")) {
+    rv = MsgKeyStringFromMessageURI(uri, keyStr);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    rv = uri->GetFilePath(folderURIPath);
+    NS_ENSURE_SUCCESS(rv, rv);
+    folderScheme.Assign("graph");
+  } else if (scheme.EqualsLiteral("x-moz-graph")) {
+    rv = MsgKeyStringFromChannelURI(uri, keyStr, folderURIPath);
+    NS_ENSURE_SUCCESS(rv, rv);
+    folderScheme.Assign("graph");
+  }
+
+  if (folderScheme.IsEmpty()) {
+    MOZ_LOG_FMT(gEwsLog, mozilla::LogLevel::Error,
+                "Unrecognized header URI scheme: %s", scheme);
+    return NS_ERROR_UNEXPECTED;
   }
 
   nsMsgKey key =
@@ -297,7 +335,7 @@ nsresult EwsService::MsgHdrFromUri(nsIURI* uri, nsIMsgDBHdr** _retval) {
   // scheme, and we need to remove the message key from the ref.
   RefPtr<nsIURI> folderUri;
   rv = NS_MutateURI(uri)
-           .SetScheme("ews"_ns)
+           .SetScheme(folderScheme)
            .SetFilePath(folderURIPath)
            .SetQuery(""_ns)
            .SetRef(""_ns)

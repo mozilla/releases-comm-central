@@ -1062,7 +1062,9 @@ export class AttachmentInfo {
     }
 
     // Don't allow http for other cases.
-    return /^(file|data|mailbox|imap|s?news|x-moz-ews):/i.test(this.url);
+    return /^(file|data|mailbox|imap|s?news|x-moz-ews|x-moz-graph):/i.test(
+      this.url
+    );
   }
 
   /**

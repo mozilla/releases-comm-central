@@ -50,7 +50,7 @@ impl<ServerT: AuthenticationProvider + RefCounted>
                     paths::me_mail_folders_mail_folder_id_messages_delta::GetDelta::try_from(
                         token.as_str(),
                     )?;
-                client.send_request(request).await?
+                client.send_request_json_response(request).await?
             }
             None => {
                 let select_properties = vec![
@@ -77,7 +77,7 @@ impl<ServerT: AuthenticationProvider + RefCounted>
                     endpoint, folder_id,
                 );
                 request.select(select_properties);
-                client.send_request(request).await?
+                client.send_request_json_response(request).await?
             }
         };
 
@@ -120,7 +120,7 @@ impl<ServerT: AuthenticationProvider + RefCounted>
 
             match response {
                 DeltaResponse::NextLink { next_page, .. } => {
-                    response = client.send_request(next_page).await?;
+                    response = client.send_request_json_response(next_page).await?;
                 }
                 DeltaResponse::DeltaLink { delta_link, .. } => {
                     self.listener.on_sync_state_token_changed(&delta_link)?;

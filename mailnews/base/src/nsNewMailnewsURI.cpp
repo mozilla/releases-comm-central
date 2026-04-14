@@ -126,7 +126,8 @@ nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
         .SetSpec(aSpec)
         .Finalize(aURI);
   }
-  if (scheme.EqualsLiteral("ews") || scheme.EqualsLiteral("ews-message")) {
+  if (scheme.EqualsLiteral("ews") || scheme.EqualsLiteral("ews-message") ||
+      scheme.EqualsLiteral("graph") || scheme.EqualsLiteral("graph-message")) {
     return NS_MutateURI(new mozilla::net::nsStandardURL::Mutator())
         .SetSpec(aSpec)
         .Finalize(aURI);

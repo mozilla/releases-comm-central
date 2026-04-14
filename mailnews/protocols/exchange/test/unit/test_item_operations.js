@@ -507,17 +507,11 @@ add_task(async function test_mark_as_read() {
   );
   const messages = [...folder.messages];
 
-  const serverMessage0 = ewsServer.getItem(
-    btoa(syntheticMessages[0].messageId)
-  );
+  const serverMessage0 = ewsServer.getItem(syntheticMessages[0].messageId);
   Assert.ok(!serverMessage0.syntheticMessage.metaState.read);
-  const serverMessage1 = ewsServer.getItem(
-    btoa(syntheticMessages[1].messageId)
-  );
+  const serverMessage1 = ewsServer.getItem(syntheticMessages[1].messageId);
   Assert.ok(!serverMessage1.syntheticMessage.metaState.read);
-  const serverMessage2 = ewsServer.getItem(
-    btoa(syntheticMessages[2].messageId)
-  );
+  const serverMessage2 = ewsServer.getItem(syntheticMessages[2].messageId);
   Assert.ok(!serverMessage2.syntheticMessage.metaState.read);
 
   // Mark some messages as read.

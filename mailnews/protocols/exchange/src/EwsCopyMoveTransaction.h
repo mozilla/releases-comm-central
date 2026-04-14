@@ -71,7 +71,8 @@ class EwsCopyMoveTransaction : public nsMsgTxn {
    * Perform the operation, moving the current set of headers from `fromFolder`
    * and to `toFolder`.
    */
-  nsresult PerformOperation(IExchangeFolder* fromFolder, IExchangeFolder* toFolder);
+  nsresult PerformOperation(IExchangeFolder* fromFolder,
+                            IExchangeFolder* toFolder);
 
   const nsCOMPtr<IExchangeFolder> mOriginalSourceFolder;
   const nsCOMPtr<IExchangeFolder> mOriginalDestinationFolder;

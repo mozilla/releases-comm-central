@@ -250,24 +250,24 @@ async function testSyncChangesWithClient(mockServer, client) {
   // flag a message.
 
   const messageIdToUpdate = messages[5].messageId;
-  const itemIdToUpdate = btoa(messages[5].messageId);
+  const itemIdToUpdate = messages[5].messageId;
   messages[5].subject = "Scary Monster Under Your Bed";
   mockServer.itemChanges.push(["update", "inbox", itemIdToUpdate]);
 
-  const itemIdToMove = btoa(messages[4].messageId);
+  const itemIdToMove = messages[4].messageId;
   mockServer.addNewItemOrMoveItemToFolder(itemIdToMove, "junkemail");
   const [movedMessage] = messages.splice(4, 1);
 
-  const itemIdToDelete = btoa(messages[2].messageId);
+  const itemIdToDelete = messages[2].messageId;
   mockServer.deleteItem(itemIdToDelete);
   messages.splice(2, 1);
 
-  const itemIdToMarkRead = btoa(messages[1].messageId);
+  const itemIdToMarkRead = messages[1].messageId;
   messages[1].metaState.read = true;
   mockServer.itemChanges.push(["readflag", "inbox", itemIdToMarkRead]);
 
   const messageIdToFlag = messages[0].messageId;
-  const itemIdToFlag = btoa(messages[0].messageId);
+  const itemIdToFlag = messages[0].messageId;
   messages[0].metaState.flagged = true;
   mockServer.itemChanges.push(["update", "inbox", itemIdToFlag]);
 
@@ -449,25 +449,25 @@ async function testSyncChangesWithRealFolder(mockServer, incomingServer) {
   // Change a message, move a message, delete a message, mark a message read,
   // flag a message.
 
-  const itemIdToUpdate = btoa(messages[5].messageId);
+  const itemIdToUpdate = messages[5].messageId;
   messages[5].subject = "Scary Monster Under Your Bed";
   messages[5].bodyPart.body = `Kia ora ${originalGreeting[1]}!`;
   mockServer.itemChanges.push(["update", "inbox", itemIdToUpdate]);
 
-  const itemIdToMove = btoa(messages[4].messageId);
+  const itemIdToMove = messages[4].messageId;
   mockServer.addNewItemOrMoveItemToFolder(itemIdToMove, "junkemail");
   const [movedMessage] = messages.splice(4, 1);
 
-  const itemIdToDelete = btoa(messages[3].messageId);
+  const itemIdToDelete = messages[3].messageId;
   mockServer.deleteItem(itemIdToDelete);
   messages.splice(3, 1);
 
-  const itemIdToMarkRead = btoa(messages[1].messageId);
+  const itemIdToMarkRead = messages[1].messageId;
   messages[1].metaState.read = true;
   mockServer.itemChanges.push(["readflag", "inbox", itemIdToMarkRead]);
 
   const messageIdToFlag = messages[0].messageId;
-  const itemIdToFlag = btoa(messages[0].messageId);
+  const itemIdToFlag = messages[0].messageId;
   messages[0].metaState.flagged = true;
   mockServer.itemChanges.push(["update", "inbox", itemIdToFlag]);
 

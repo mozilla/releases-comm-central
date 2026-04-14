@@ -4,6 +4,7 @@
 
 use std::{env, sync::Arc};
 
+use moz_http::Response;
 use ms_graph_tb::Operation;
 use protocol_shared::{
     authentication::credentials::AuthenticationProvider, client::ProtocolClient,
@@ -17,6 +18,7 @@ use crate::error::XpComGraphError;
 
 mod check_connectivity;
 mod create_folder;
+mod get_message;
 mod send_message;
 mod sync_folder_hierarchy;
 mod sync_messages_for_folder;
@@ -36,7 +38,7 @@ impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
         XpComGraphClient { server, endpoint }
     }
 
-    async fn send_request<Op>(&self, operation: Op) -> Result<Op::Response<'_>, XpComGraphError>
+    async fn send_request<Op>(&self, operation: Op) -> Result<Response, XpComGraphError>
     where
         Op: Operation,
     {
@@ -84,7 +86,7 @@ impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
 
         let response = request_builder.send().await.map_err(ProtocolError::Http)?;
 
-        let mut response_body = response.body();
+        let response_body = response.body();
         let response_status = response.status()?;
 
         log::info!(
@@ -103,19 +105,31 @@ impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
             })
             .into())
         } else {
-            if response_body.is_empty() {
-                // If the endpoint returns an empty (0 bytes) response, we'll
-                // hit a parse error because `serde_json` doesn't know how to
-                // handle empty byte slices. In this case, we give it something
-                // that parses as the unit type (`()`), since that's the only
-                // case in which an empty body would be a valid response.
-                response_body = "null".as_bytes();
-            }
-
-            let value: Op::Response<'_> =
-                serde_json::from_slice(response_body).map_err(XpComGraphError::Json)?;
-            Ok(value)
+            Ok(response)
         }
+    }
+
+    async fn send_request_json_response<Op>(
+        &self,
+        operation: Op,
+    ) -> Result<Op::Response<'_>, XpComGraphError>
+    where
+        Op: Operation,
+    {
+        let response = self.send_request(operation).await?;
+        let mut response_body = response.body();
+        if response_body.is_empty() {
+            // If the endpoint returns an empty (0 bytes) response, we'll
+            // hit a parse error because `serde_json` doesn't know how to
+            // handle empty byte slices. In this case, we give it something
+            // that parses as the unit type (`()`), since that's the only
+            // case in which an empty body would be a valid response.
+            response_body = "null".as_bytes();
+        }
+
+        let value: Op::Response<'_> =
+            serde_json::from_slice(response_body).map_err(XpComGraphError::Json)?;
+        Ok(value)
     }
 }
 

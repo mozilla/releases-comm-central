@@ -6,16 +6,24 @@
 #define COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSPROTOCOLHANDLER_H_
 
 #include "nsIProtocolHandler.h"
+#include "nsString.h"
 
 class EwsProtocolHandler : public nsIProtocolHandler {
  public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIPROTOCOLHANDLER
 
-  EwsProtocolHandler();
+  explicit EwsProtocolHandler(const nsACString& exchangeScheme);
 
  protected:
   virtual ~EwsProtocolHandler();
+
+ private:
+  nsAutoCString mExchangeScheme;
 };
+
+MOZ_EXPORT nsresult NS_CreateEwsProtocolHandler(REFNSIID aIID, void** aResult);
+MOZ_EXPORT nsresult NS_CreateGraphProtocolHandler(REFNSIID aIID,
+                                                  void** aResult);
 
 #endif  // COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSPROTOCOLHANDLER_H_

@@ -42,13 +42,13 @@ impl<ServerT: AuthenticationProvider + RefCounted>
         let (mut response, well_known) = match self.sync_state_token {
             Some(ref token) => {
                 let request = paths::me_mail_folders_delta::GetDelta::try_from(token.as_str())?;
-                let response = client.send_request(request).await?;
+                let response = client.send_request_json_response(request).await?;
                 (response, None)
             }
             None => {
                 let endpoint = self.endpoint.as_str().to_string();
                 let request = paths::me_mail_folders_delta::Get::new(endpoint);
-                let response = client.send_request(request).await?;
+                let response = client.send_request_json_response(request).await?;
                 let well_known = Some(get_well_known_folder_map(client, self.listener).await?);
                 (response, well_known)
             }
@@ -108,7 +108,7 @@ impl<ServerT: AuthenticationProvider + RefCounted>
 
             match response {
                 DeltaResponse::NextLink { next_page, .. } => {
-                    response = client.send_request(next_page).await?
+                    response = client.send_request_json_response(next_page).await?
                 }
                 DeltaResponse::DeltaLink { delta_link, .. } => {
                     self.listener.on_sync_state_token_changed(&delta_link)?;
@@ -177,7 +177,7 @@ async fn get_well_known_folder_map<ServerT: AuthenticationProvider + RefCounted>
 
         // FIXME: Figure out what the response looks like when a well-known
         // folder isn't present, and handle accordingly.
-        let folder = client.send_request(request).await?;
+        let folder = client.send_request_json_response(request).await?;
         let folder_id = folder.entity().id()?.to_string();
 
         if *distinguished_id == EXCHANGE_ROOT_FOLDER {

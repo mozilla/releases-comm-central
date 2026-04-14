@@ -39,6 +39,7 @@ pub enum UserSelection {
     FaxNumber,
     GivenName,
     HireDate,
+    IdentityParentId,
     ImAddresses,
     Interests,
     IsManagementRestricted,
@@ -590,6 +591,28 @@ impl<'a> User<'a> {
             .0
             .to_mut()
             .insert("hireDate".to_string(), val.into());
+        self
+    }
+    pub fn identity_parent_id(&self) -> Result<Option<&str>, Error> {
+        let val = self
+            .properties
+            .0
+            .get("identityParentId")
+            .ok_or(Error::NotFound)?;
+        if val.is_null() {
+            return Ok(None);
+        }
+        Ok(Some(val.as_str().ok_or_else(|| {
+            Error::UnexpectedResponse(format!("{val:?}"))
+        })?))
+    }
+    #[doc = "Setter for [`identity_parent_id`](Self::identity_parent_id).\n\nThis library makes no guarantees that Graph exposes this property as writable."]
+    #[must_use]
+    pub fn set_identity_parent_id(mut self, val: Option<String>) -> Self {
+        self.properties
+            .0
+            .to_mut()
+            .insert("identityParentId".to_string(), val.into());
         self
     }
     #[doc = "The instant message voice-over IP (VOIP) session initiation protocol (SIP) addresses for the user.\n\n Read-only. Returned only on `$select`. Supports `$filter` (`eq`, `not`, `ge`, `le`, `startsWith`)."]

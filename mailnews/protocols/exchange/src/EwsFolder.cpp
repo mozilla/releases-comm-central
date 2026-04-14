@@ -46,9 +46,10 @@
 #include "mozilla/StaticPrefs_mail.h"
 #include "UrlListener.h"
 
-#define kEWSMessageRootURI "ews-message:/"
-
 #define SYNC_STATE_PROPERTY "ewsSyncStateToken"
+
+constexpr auto kEWSMessageRootURI = "ews-message:/";
+constexpr auto kGraphMessageRootURI = "graph-message:/";
 
 using namespace mozilla;
 using namespace mozilla::StaticPrefs;
@@ -167,7 +168,8 @@ EwsFolder::~EwsFolder() = default;
 
 nsresult EwsFolder::CreateBaseMessageURI(const nsACString& aURI) {
   nsCOMPtr<nsIURI> folderUri;
-  nsresult rv = NS_NewURI(getter_AddRefs(folderUri), aURI.Data());
+  nsresult rv =
+      NS_NewURI(getter_AddRefs(folderUri), PromiseFlatCString(aURI).Data());
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsAutoCString scheme;
@@ -185,7 +187,14 @@ nsresult EwsFolder::CreateBaseMessageURI(const nsACString& aURI) {
     tailURI.Cut(0, uriRoot.Length());
   }
 
-  mBaseMessageURI = kEWSMessageRootURI;
+  if (scheme.EqualsLiteral("ews")) {
+    mBaseMessageURI = kEWSMessageRootURI;
+  } else if (scheme.EqualsLiteral("graph")) {
+    mBaseMessageURI = kGraphMessageRootURI;
+  } else {
+    return NS_ERROR_UNEXPECTED;
+  }
+
   mBaseMessageURI += tailURI;
 
   return NS_OK;
@@ -603,7 +612,8 @@ NS_IMETHODIMP EwsFolder::CopyMessages(
   if (isSameServer) {
     // Since the folders are on the same (EWS) server, the other folder must
     // also be an EWS Folder.
-    nsCOMPtr<IExchangeFolder> ewsSourceFolder{do_QueryInterface(aSrcFolder, &rv)};
+    nsCOMPtr<IExchangeFolder> ewsSourceFolder{
+        do_QueryInterface(aSrcFolder, &rv)};
     NS_ENSURE_SUCCESS(rv, rv);
     const auto undoType =
         aIsMove ? nsIMessenger::eMoveMsg : nsIMessenger::eCopyMsg;
@@ -952,7 +962,8 @@ nsresult EwsFolder::HandleDeleteOperation(
     return NS_ERROR_UNEXPECTED;
   }
 
-  nsCOMPtr<IExchangeFolder> ewsTrashFolder = do_QueryInterface(trashFolder, &rv);
+  nsCOMPtr<IExchangeFolder> ewsTrashFolder =
+      do_QueryInterface(trashFolder, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   return onSoftDelete(ewsTrashFolder);
@@ -1095,10 +1106,10 @@ NS_IMETHODIMP EwsFolder::DeleteSelf(nsIMsgWindow* aWindow) {
     return client->DeleteFolder(listener, {folderId});
   };
 
-  const auto onSoftDelete =
-      [self = RefPtr(this), window = RefPtr(aWindow)](IExchangeFolder* trashFolder) {
-        return trashFolder->CopyFolderOnSameServer(self, true, window, nullptr);
-      };
+  const auto onSoftDelete = [self = RefPtr(this), window = RefPtr(aWindow)](
+                                IExchangeFolder* trashFolder) {
+    return trashFolder->CopyFolderOnSameServer(self, true, window, nullptr);
+  };
 
   return HandleDeleteOperation(false, std::move(onHardDelete),
                                std::move(onSoftDelete));

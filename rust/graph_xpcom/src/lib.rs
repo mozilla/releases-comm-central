@@ -10,8 +10,8 @@ use protocol_shared::{
     ExchangeConnectionDetails,
     authentication::credentials::AuthenticationProvider,
     safe_xpcom::{
-        SafeEwsFolderListener, SafeEwsMessageSyncListener, SafeEwsSimpleOperationListener,
-        SafeUrlListener, uri::SafeUri,
+        SafeEwsFolderListener, SafeEwsMessageFetchListener, SafeEwsMessageSyncListener,
+        SafeEwsSimpleOperationListener, SafeUrlListener, uri::SafeUri,
     },
 };
 use thin_vec::ThinVec;
@@ -277,10 +277,20 @@ impl XpcomGraphBridge {
     ));
     fn get_message(
         &self,
-        _listener: &IExchangeMessageFetchListener,
-        _id: &nsACString,
+        listener: &IExchangeMessageFetchListener,
+        id: &nsACString,
     ) -> Result<(), nsresult> {
-        Err(nserror::NS_ERROR_NOT_IMPLEMENTED)
+        let server = self.details.get().unwrap().server.clone();
+        let endpoint = self.details.get().unwrap().endpoint.clone();
+
+        let client = XpComGraphClient::new(server, endpoint);
+
+        let listener = SafeEwsMessageFetchListener::new(listener);
+        let id = id.to_utf8().to_string();
+
+        moz_task::spawn_local("get_message", client.get_message(listener, id)).detach();
+
+        Ok(())
     }
 
     xpcom_method!(change_read_status => ChangeReadStatus(

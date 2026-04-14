@@ -284,6 +284,16 @@ export class GraphServer extends MockServer {
           responseJsonObject = this.#mailFoldersDelta(resourceQuery);
         } else if (resourcePath.startsWith("/me/mailFolders/")) {
           responseJsonObject = this.#mailFolder(resourcePath.substring(16));
+        } else if (
+          (pathMatch = /\/me\/messages\/([0-9a-zA-Z_-]+)\/\$value/.exec(
+            resourcePath
+          ))
+        ) {
+          const content = this.#messageMediaResource(pathMatch[1]);
+          // This endpoint does not return a JSON object, so we can write the
+          // response directly to the output stream and return here.
+          response.bodyOutputStream.write(content, content.length);
+          return;
         }
         break;
 
@@ -481,6 +491,26 @@ export class GraphServer extends MockServer {
       value: page,
       "@odata.deltaLink": nextDelta,
     };
+  }
+
+  /**
+   * Handle GET /me/messages/{id}/$value
+   *
+   * @param {string} messageId The ID of the message.
+   * @returns {string?} The message content.
+   */
+  #messageMediaResource(messageId) {
+    const itemInfo = this.getItemInfo(messageId);
+    if (!itemInfo) {
+      return null;
+    }
+
+    const message = itemInfo.syntheticMessage;
+    if (!message) {
+      return null;
+    }
+
+    return message.toMessageString();
   }
 
   /**

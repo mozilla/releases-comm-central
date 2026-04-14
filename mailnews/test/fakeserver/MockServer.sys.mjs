@@ -356,16 +356,29 @@ export class MockServer {
   /**
    * Add messages to a folder. To be used with MessageGenerator.
    *
+   * Exchange identifiers use URL-safe base encoding with the following rules:
+   * 1. Replace '+' with '-'
+   * 2. Replace '/' with '_'
+   * 3. Replace padding '=' with the number of pad characters at the end.
+   *
+   * This function modifies the input messages so the ID is a URL safe exchange
+   * identifier.
+   *
    * @param {string} folderId
    * @param {SyntheticMessage[]} messages
    */
   addMessages(folderId, messages) {
     for (const message of messages) {
-      this.addNewItemOrMoveItemToFolder(
-        btoa(message.messageId),
-        folderId,
-        message
-      );
+      let urlSafeId = btoa(message.messageId)
+        .replace("+", "-")
+        .replace("/", "_");
+      const padStart = urlSafeId.indexOf("=");
+      if (padStart >= 0) {
+        const padLength = urlSafeId.length - padStart;
+        urlSafeId = urlSafeId.substring(0, padStart) + padLength.toString();
+      }
+      message.messageId = urlSafeId;
+      this.addNewItemOrMoveItemToFolder(urlSafeId, folderId, message);
     }
   }
 

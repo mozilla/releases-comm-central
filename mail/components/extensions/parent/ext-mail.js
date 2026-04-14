@@ -45,6 +45,7 @@ const MESSAGE_PROTOCOLS = [
   "nntp",
   "snews",
   "x-moz-ews",
+  "x-moz-graph",
 ];
 
 (function () {

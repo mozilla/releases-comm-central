@@ -281,10 +281,22 @@ NS_IMETHODIMP EwsMessageChannel::Open(nsIInputStream** _retval) {
 NS_IMETHODIMP EwsMessageChannel::AsyncOpen(nsIStreamListener* aListener) {
   mPending = false;
 
+  nsAutoCString scheme;
+  MOZ_TRY(mURI->GetScheme(scheme));
+
+  nsAutoCString serviceId("@mozilla.org/messenger/messageservice;1?type=");
+  if (scheme.EqualsLiteral("x-moz-ews")) {
+    serviceId.AppendLiteral("ews");
+  } else if (scheme.EqualsLiteral("x-moz-graph")) {
+    serviceId.AppendLiteral("graph");
+  } else {
+    return nsresult::NS_ERROR_UNEXPECTED;
+  }
+
   // Get the header and folder matching the URI.
   nsresult rv;
   nsCOMPtr<nsIMsgMessageService> msgService =
-      do_GetService("@mozilla.org/messenger/messageservice;1?type=ews", &rv);
+      do_GetService(serviceId.Data(), &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCString spec;
