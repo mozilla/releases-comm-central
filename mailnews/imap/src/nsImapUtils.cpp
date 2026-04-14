@@ -225,14 +225,13 @@ nsImapMailboxSpec& nsImapMailboxSpec::operator=(
   return *this;
 }
 
-// use the flagState to determine if the gaps in the msgUids correspond to gaps
-// in the mailbox, in which case we can still use ranges. If flagState is null,
-// we won't do this.
-void AllocateImapUidString(const uint32_t* msgUids, uint32_t& msgCount,
+// This function could do with some rethinking.
+// See https://bugzilla.mozilla.org/show_bug.cgi?id=2031552
+void AllocateImapUidString(const ImapUid* msgUids, uint32_t& msgCount,
                            nsImapFlagAndUidState* flagState,
                            nsCString& returnString) {
-  uint32_t startSequence = (msgCount > 0) ? msgUids[0] : 0xFFFFFFFF;
-  uint32_t curSequenceEnd = startSequence;
+  ImapUid startSequence = (msgCount > 0) ? msgUids[0] : 0xFFFFFFFF;
+  ImapUid curSequenceEnd = startSequence;
   uint32_t total = msgCount;
   int32_t curFlagStateIndex = -1;
 
@@ -240,16 +239,16 @@ void AllocateImapUidString(const uint32_t* msgUids, uint32_t& msgCount,
   if (flagState && flagState->GetPartialUIDFetch()) flagState = nullptr;
 
   for (uint32_t keyIndex = 0; keyIndex < total; keyIndex++) {
-    uint32_t curKey = msgUids[keyIndex];
-    uint32_t nextKey =
+    ImapUid curUid = msgUids[keyIndex];
+    ImapUid nextUid =
         (keyIndex + 1 < total) ? msgUids[keyIndex + 1] : 0xFFFFFFFF;
-    bool lastKey = (nextKey == 0xFFFFFFFF);
+    bool lastKey = (nextUid == 0xFFFFFFFF);
 
-    if (lastKey) curSequenceEnd = curKey;
+    if (lastKey) curSequenceEnd = curUid;
 
     if (!lastKey) {
-      if (nextKey == curSequenceEnd + 1) {
-        curSequenceEnd = nextKey;
+      if (nextUid == curSequenceEnd + 1) {
+        curSequenceEnd = nextUid;
         curFlagStateIndex++;
         continue;
       }
@@ -263,16 +262,16 @@ void AllocateImapUidString(const uint32_t* msgUids, uint32_t& msgCount,
             // The start of this sequence is missing from flag state, so move
             // on to the next key.
             curFlagStateIndex = -1;
-            curSequenceEnd = startSequence = nextKey;
+            curSequenceEnd = startSequence = nextUid;
             continue;
           }
         }
         curFlagStateIndex++;
-        uint32_t nextUidInFlagState;
+        ImapUid nextUidInFlagState;
         nsresult rv =
             flagState->GetUidOfMessage(curFlagStateIndex, &nextUidInFlagState);
-        if (NS_SUCCEEDED(rv) && nextUidInFlagState == nextKey) {
-          curSequenceEnd = nextKey;
+        if (NS_SUCCEEDED(rv) && nextUidInFlagState == nextUid) {
+          curSequenceEnd = nextUid;
           continue;
         }
       }
@@ -281,11 +280,11 @@ void AllocateImapUidString(const uint32_t* msgUids, uint32_t& msgCount,
       returnString.AppendInt((int64_t)startSequence);
       returnString += ':';
       returnString.AppendInt((int64_t)curSequenceEnd);
-      startSequence = nextKey;
+      startSequence = nextUid;
       curSequenceEnd = startSequence;
       curFlagStateIndex = -1;
     } else {
-      startSequence = nextKey;
+      startSequence = nextUid;
       curSequenceEnd = startSequence;
       returnString.AppendInt((int64_t)msgUids[keyIndex]);
       curFlagStateIndex = -1;
@@ -303,14 +302,16 @@ void AllocateImapUidString(const uint32_t* msgUids, uint32_t& msgCount,
   }
 }
 
-void ParseUidString(const char* uidString, nsTArray<nsMsgKey>& keys) {
+void ParseUidString(const char* uidString, nsTArray<ImapUid>& uids) {
   // This is in the form <id>,<id>, or <id1>:<id2>
-  if (!uidString) return;
+  if (!uidString) {
+    return;
+  }
 
   char curChar = *uidString;
   bool isRange = false;
-  uint32_t curToken;
-  uint32_t saveStartToken = 0;
+  ImapUid curToken;
+  ImapUid saveStartToken = 0;
 
   for (const char* curCharPtr = uidString; curChar && *curCharPtr;) {
     const char* currentKeyToken = curCharPtr;
@@ -323,15 +324,17 @@ void ParseUidString(const char* uidString, nsTArray<nsMsgKey>& keys) {
     // stops at non-numeric chars.
     curToken = strtoul(currentKeyToken, nullptr, 10);
     if (isRange) {
-      while (saveStartToken < curToken) keys.AppendElement(saveStartToken++);
+      while (saveStartToken < curToken) uids.AppendElement(saveStartToken++);
     }
-    keys.AppendElement(curToken);
+    uids.AppendElement(curToken);
     isRange = (curChar == ':');
-    if (isRange) saveStartToken = curToken + 1;
+    if (isRange) {
+      saveStartToken = curToken + 1;
+    }
   }
 }
 
-void AppendUid(nsCString& msgIds, uint32_t uid) {
+void AppendUid(nsCString& msgIds, ImapUid uid) {
   char buf[20];
   PR_snprintf(buf, sizeof(buf), "%u", uid);
   msgIds.Append(buf);

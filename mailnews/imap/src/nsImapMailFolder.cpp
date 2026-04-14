@@ -2010,6 +2010,8 @@ nsresult nsImapMailFolder::BuildIdsAndKeyArray(
   return AllocateUidStringFromKeys(keyArray, msgIds);
 }
 
+// This function overlaps with AllocateImapUidString().
+// See https://bugzilla.mozilla.org/show_bug.cgi?id=2031552
 /* static */
 nsresult nsImapMailFolder::AllocateUidStringFromKeys(
     const nsTArray<nsMsgKey>& keys, nsCString& msgIds) {

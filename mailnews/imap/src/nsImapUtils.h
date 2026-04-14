@@ -34,11 +34,11 @@ extern nsresult nsBuildImapMessageURI(const char* baseURI, nsMsgKey key,
 extern nsresult nsCreateImapBaseMessageURI(const nsACString& baseURI,
                                            nsCString& baseMessageURI);
 
-void AllocateImapUidString(const uint32_t* msgUids, uint32_t& msgCount,
+void AllocateImapUidString(const ImapUid* msgUids, uint32_t& msgCount,
                            nsImapFlagAndUidState* flagState,
                            nsCString& returnString);
-void ParseUidString(const char* uidString, nsTArray<nsMsgKey>& keys);
-void AppendUid(nsCString& msgIds, uint32_t uid);
+void ParseUidString(const char* uidString, nsTArray<ImapUid>& uids);
+void AppendUid(nsCString& msgIds, ImapUid uid);
 
 class nsImapMailboxSpec : public nsIMailboxSpec {
  public:

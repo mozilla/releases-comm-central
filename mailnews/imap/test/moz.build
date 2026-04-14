@@ -23,3 +23,5 @@ USE_LIBS += [
 ]
 
 OS_LIBS += CONFIG["MOZ_ZLIB_LIBS"]
+
+TEST_DIRS += ["gtest"]
