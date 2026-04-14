@@ -42,32 +42,6 @@ function getInvalidAccounts(accounts) {
   return invalidAccounts;
 }
 
-function showMailIntegrationDialog() {
-  try {
-    var shellService = Cc["@mozilla.org/suite/shell-service;1"].getService(
-      Ci.nsIShellService
-    );
-    var appTypesCheck =
-      shellService.shouldBeDefaultClientFor &
-      (Ci.nsIShellService.MAIL | Ci.nsIShellService.NEWS);
-
-    // show the default client dialog only if we have at least one account,
-    // if we should check for the default client, and we want to check if we are
-    // the default for mail/news and are not the default client for mail/news
-    if (
-      appTypesCheck &&
-      shellService.shouldCheckDefaultClient &&
-      !shellService.isDefaultClient(true, appTypesCheck)
-    ) {
-      window.browsingContext.topChromeWindow.openDialog(
-        "chrome://communicator/content/defaultClientDialog.xhtml",
-        "DefaultClient",
-        "modal,centerscreen,chrome,resizable=no"
-      );
-    }
-  } catch (ex) {}
-}
-
 /**
  * Check that an account exists which requires Local Folders.
  *
