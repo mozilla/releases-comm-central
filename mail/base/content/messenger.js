@@ -313,6 +313,11 @@ var gMailInit = {
     Glean.inappnotifications.preferences["mail.inappnotifications.enabled"].set(
       Services.prefs.getBoolPref("mail.inappnotifications.enabled", false)
     );
+
+    // Run the system integration checks if this is not a first run scenario.
+    if (!isFirstRun()) {
+      window.requestIdleCallback(() => showSystemIntegrationDialog());
+    }
   },
 
   /**
@@ -456,13 +461,8 @@ function showSystemIntegrationDialog() {
     window.openDialog(
       "chrome://messenger/content/systemIntegrationDialog.xhtml",
       "SystemIntegration",
-      "modal,centerscreen,chrome,resizable=no"
+      "dependent,centerscreen,chrome,resizable=no"
     );
-    // On Windows, there seems to be a delay between setting TB as the
-    // default client, and the isDefaultClient check succeeding.
-    if (shellService.isDefaultClient(true, Ci.nsIShellService.MAIL)) {
-      Services.obs.notifyObservers(window, "mail:setAsDefault");
-    }
   }
 }
 

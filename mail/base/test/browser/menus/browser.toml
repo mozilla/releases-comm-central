@@ -12,6 +12,7 @@ prefs = [
   "mailnews.start_page.override_url=about:blank",
   "mailnews.start_page.url=about:blank",
   "mail.rights.override=true",
+  "mail.shell.checkDefaultClient=false"
 ]
 subsuite = "thunderbird"
 support-files = [

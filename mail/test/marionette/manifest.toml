@@ -10,4 +10,6 @@ run-if = [
 
 ["test_sessionstore.py"]
 
+["test_systemintegration.py"]
+
 ["test_toolbar_migration.py"]
