@@ -7,6 +7,8 @@
 const PREF_NAME = "mailnews.auto_config_url";
 const PREF_VALUE = Services.prefs.getCharPref(PREF_NAME);
 
+let expectSystemIntegration = true;
+
 add_setup(async () => {
   // Set the pref to load a local autoconfig file.
   const url =
@@ -14,6 +16,12 @@ add_setup(async () => {
   await SpecialPowers.pushPrefEnv({
     set: [[PREF_NAME, url]],
   });
+  const shellService = Cc["@mozilla.org/mail/shell-service;1"].getService(
+    Ci.nsIShellService
+  );
+  expectSystemIntegration =
+    shellService.shouldCheckDefaultClient &&
+    !shellService.isDefaultClient(false, Ci.nsIShellService.MAIL);
 });
 
 add_task(async function test_account_hub_complete_first_run() {
@@ -130,9 +138,20 @@ add_task(async function test_account_hub_complete_first_run() {
   // the success view.
   const successStep = dialog.querySelector("email-added-success");
   await BrowserTestUtils.waitForAttributeRemoval("hidden", successStep);
+
   const closeEvent = BrowserTestUtils.waitForEvent(dialog, "close");
+  const dialogPromise = BrowserTestUtils.promiseAlertDialog(
+    "cancel",
+    "chrome://messenger/content/systemIntegrationDialog.xhtml"
+  );
+
   EventUtils.synthesizeMouseAtCenter(footerForward, {});
   await closeEvent;
+
+  if (expectSystemIntegration) {
+    info("Waiting for system integration dialog...");
+    await dialogPromise;
+  }
 
   Assert.ok(
     window.gSpacesToolbar.isLoaded,

@@ -93,6 +93,13 @@ class AccountHubControllerClass {
         event.stopPropagation();
         if (!this.#minimized && this.#reset()) {
           this.#modal.close();
+          // Check system integration once account hub is closed without
+          // blocking this event. This also allows account hub to clean up and
+          // avoid false-positives by having a temporary account in the profile.
+          window.requestIdleCallback(
+            () => window.showSystemIntegrationDialog(),
+            { timeout: 100 }
+          );
         }
       },
       {
