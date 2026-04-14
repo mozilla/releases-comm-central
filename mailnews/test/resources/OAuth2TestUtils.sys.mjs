@@ -22,6 +22,8 @@ const tokens = new Map();
 export const OAuth2TestUtils = {
   /**
    * Start an OAuth2 server and add it to the proxy at oauth.test.test:443.
+   *
+   * @param {object} [serverOptions] - See the `OAuth2Server` constructor.
    */
   async startServer(serverOptions) {
     this._oAuth2Server = new OAuth2Server(serverOptions);
@@ -312,6 +314,15 @@ export const OAuth2TestUtils = {
 };
 
 class OAuth2Server {
+  /**
+   * @param {object} options
+   * @param {string} [options.username="user"]
+   * @param {string} [options.password="password"]
+   * @param {string} [options.accessToken="access_token"]
+   * @param {string} [options.refreshToken="refresh_token"]
+   * @param {boolean} [options.rotateTokens=false]
+   * @param {?number} [options.expiry=null]
+   */
   constructor({
     username = "user",
     password = "password",
