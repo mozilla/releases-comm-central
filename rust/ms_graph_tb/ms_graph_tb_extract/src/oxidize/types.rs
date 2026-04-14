@@ -11,23 +11,50 @@ use crate::naming::{pascalize, snakeify};
 use crate::oxidize::markup_doc_comment;
 use crate::{GENERATION_DISCLOSURE, SUPPORTED_TYPES};
 
+/// The kind of Graph type we're generating.
+///
+/// This is used to infer how and where the type will be generated.
+#[derive(Debug, Clone)]
+pub enum TypeKind {
+    /// The type is named in the OpenAPI spec, and will likely be generated in
+    /// its own module.
+    Named,
+
+    /// The type isn't named in the OpenAPI spec (and probably represented by an
+    /// "object" schema), and is likely a request or response body that will be
+    /// generated alongside the request/path it's associated with.
+    Unnamed,
+}
+
 /// A Graph API type, ready for converting to a stream of tokens via [`quote!`].
+#[derive(Debug, Clone)]
 pub struct GraphType {
-    name: Ident,
+    name: String,
     description: Option<TokenStream>,
-    properties: Vec<Property>,
+    pub(crate) properties: Vec<Property>,
+    pub(crate) kind: TypeKind,
 }
 
 impl GraphType {
-    pub fn new(name: &str, description: Option<String>, properties: Vec<Property>) -> Self {
-        let name = format_ident!("{}", pascalize(name));
+    pub fn new(
+        name: &str,
+        description: Option<String>,
+        properties: Vec<Property>,
+        kind: TypeKind,
+    ) -> Self {
+        let name = String::from(name);
         let description = description.map(|doc| quote!(#[doc = #doc]));
 
         Self {
             name,
             description,
             properties,
+            kind,
         }
+    }
+
+    pub fn name(&self) -> &String {
+        &self.name
     }
 }
 
@@ -37,16 +64,49 @@ impl ToTokens for GraphType {
             name,
             description,
             properties,
+            kind,
         } = self;
+
+        let name = format_ident!("{}", pascalize(name));
 
         let imports = super::imports(properties);
         let select_variants = select_variants(properties);
-        let function_defs = function_defs(properties);
 
-        let selection_ident = format_ident!("{}Selection", name);
+        // Generating documentation for methods of unnamed types seems to cause
+        // some weird bug with rustc's diagnostics that means we end up with
+        // leftover unused imports even after running Clippy, see
+        // https://github.com/rust-lang/rust/issues/155098
+        let function_defs = function_defs(properties, matches!(kind, TypeKind::Named));
 
-        let module_doc = format!("Types related to {name}.\n\n{GENERATION_DISCLOSURE}");
-        let module_doc = quote!(#![doc = #module_doc]);
+        // Unnamed types typically represent the body of requests or responses,
+        // where selection is not relevant.
+        let selection = match kind {
+            TypeKind::Named => {
+                let selection_ident = format_ident!("{}Selection", name);
+                let selection = quote! {
+                    #[derive(Copy, Clone, Debug, Display, PartialEq, Eq)]
+                    #[strum(serialize_all = "camelCase")]
+                    pub enum #selection_ident {
+                        #(#select_variants),*
+                    }
+                };
+
+                Some(selection)
+            }
+            TypeKind::Unnamed => None,
+        };
+
+        // Unnamed types are generated in the same file as the request/path they
+        // relate to, so a module documentation does not make sense for them.
+        let module_doc = match kind {
+            TypeKind::Named => {
+                let module_doc = format!("Types related to {name}.\n\n{GENERATION_DISCLOSURE}");
+                let module_doc = quote!(#![doc = #module_doc]);
+
+                Some(module_doc)
+            }
+            TypeKind::Unnamed => None,
+        };
 
         tokens.append_all(quote!(
             #module_doc
@@ -59,11 +119,7 @@ impl ToTokens for GraphType {
             #imports
             use crate::{Error, PropertyMap};
 
-            #[derive(Copy, Clone, Debug, Display, PartialEq, Eq)]
-            #[strum(serialize_all = "camelCase")]
-            pub enum #selection_ident {
-                #(#select_variants),*
-            }
+            #selection
 
             #description
             #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
@@ -170,7 +226,7 @@ fn select_variants(properties: &[Property]) -> Vec<TokenStream> {
     select_variants
 }
 
-fn function_defs(properties: &[Property]) -> Vec<MethodDef> {
+fn function_defs(properties: &[Property], generate_doc: bool) -> Vec<MethodDef> {
     // Collect the generated function defs into [getter def, setter def] pairs
     let mut function_defs = properties
         .iter()
@@ -178,7 +234,10 @@ fn function_defs(properties: &[Property]) -> Vec<MethodDef> {
             let name = snakeify(&p.name);
             let fn_name = format_ident!("{name}");
             let ret_type = return_type(p, Reference::Ref, None);
-            let doc_comment = if let Some(doc) = &p.description {
+
+            let doc_comment = if !generate_doc {
+                None
+            } else if let Some(doc) = &p.description {
                 let doc = markup_doc_comment(doc.clone());
                 Some(quote!(#[doc = #doc]))
             } else if p.is_ref {
@@ -193,9 +252,10 @@ fn function_defs(properties: &[Property]) -> Vec<MethodDef> {
             } else {
                 None
             };
+
             let body = getter_body(p);
             let lifetime =
-                (p.is_ref || matches!(p.rust_type, RustType::Custom(_))).then_some(quote!('a));
+                (p.is_ref || matches!(p.rust_type, RustType::NamedSchema(_))).then_some(quote!('a));
             let getter = MethodDef {
                 doc_comment,
                 must_use,
@@ -209,8 +269,14 @@ fn function_defs(properties: &[Property]) -> Vec<MethodDef> {
 
             let fn_name = format_ident!("set_{name}");
             let ret_type = quote!(Self);
-            let doc_str = format!("Setter for [`{name}`](Self::{name}).\n\nThis library makes no guarantees that Graph exposes this property as writable.");
-            let doc_comment = Some(quote!(#[doc = #doc_str]));
+
+            let doc_comment = if generate_doc {
+                let doc_str = format!("Setter for [`{name}`](Self::{name}).\n\nThis library makes no guarantees that Graph exposes this property as writable.");
+                Some(quote!(#[doc = #doc_str]))
+            } else {
+                None
+            };
+
             let must_use = Some(quote!(#[must_use]));
             let arg_type = arg_type(p, Reference::Own);
             let arg = Some(quote!(mut val: #arg_type));
@@ -241,7 +307,7 @@ fn getter_body(prop: &Property) -> TokenStream {
         // refs are actually flattened in responses, but we want them abstracted,
         // so the accessor is actually just a type conversion
         let Property {
-            rust_type: RustType::Custom(typ),
+            rust_type: RustType::NamedSchema(typ),
             ..
         } = prop
         else {
@@ -265,7 +331,7 @@ fn getter_body(prop: &Property) -> TokenStream {
             F32 | F64 => "f64",
             String => "str",
             Bytes => "array",
-            Custom(_) => "object",
+            NamedSchema(_) | UnnamedSchema(_) => "object",
         }
     }
 
@@ -297,7 +363,7 @@ fn getter_body(prop: &Property) -> TokenStream {
 
     // If the type that produced isn't the base return type, it needs an additional conversion.
     if getter != base_str {
-        if matches!(prop.rust_type, RustType::Custom(_)) {
+        if matches!(prop.rust_type, RustType::NamedSchema(_)) {
             ret = quote!(PropertyMap(Cow::Borrowed(#ret)).into());
         } else {
             ret = quote!(#ret.try_into().or_else(|e| Err(Error::UnexpectedResponse(format!("{e:?}"))))?);
@@ -331,11 +397,11 @@ fn getter_body(prop: &Property) -> TokenStream {
 fn setter_body(prop: &Property) -> TokenStream {
     let name = &prop.name;
     let modification = match (&prop.rust_type, prop.is_ref, prop.is_collection) {
-        (RustType::Custom(_), true, false) => quote!(append(val.properties.0.to_mut())),
-        (RustType::Custom(_), false, false) => quote! {
+        (RustType::NamedSchema(_), true, false) => quote!(append(val.properties.0.to_mut())),
+        (RustType::NamedSchema(_), false, false) => quote! {
                 insert(#name.to_string(), Value::Object(val.properties.0.into_owned()))
         },
-        (RustType::Custom(_), false, true) => quote! {
+        (RustType::NamedSchema(_), false, true) => quote! {
             insert(
                 #name.to_string(),
                 val.into_iter()

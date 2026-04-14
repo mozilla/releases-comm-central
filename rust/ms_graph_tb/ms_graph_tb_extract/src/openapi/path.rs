@@ -79,10 +79,13 @@ pub struct OaParameter {
 
 /// An OpenAPI HTTP request body.
 ///
+/// Can also represent a response body.
+///
 /// For the generic description of this OpenAPI concept, see the [OpenAPI
 /// Specification].
 ///
-/// [OpenAPI Specification]: https://spec.openapis.org/oas/latest.html#request-body-object
+/// [OpenAPI Specification]:
+///     https://spec.openapis.org/oas/latest.html#request-body-object
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct OaBody {
     pub application_type: Option<String>,
@@ -166,7 +169,7 @@ fn get_body(map: &YamlHash) -> Option<OaBody> {
     let application_type = application_type.as_str().map(str::to_string);
     let application = application
         .as_hash()
-        .expect("application should be a compount YAML type");
+        .expect("application should be a compound YAML type");
     let schema = get_node_in(application, "schema").expect("application/json should have schema");
     let schema = parse_schema(schema);
 

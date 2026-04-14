@@ -10,7 +10,7 @@ use proc_macro2::{Ident, TokenStream};
 use quote::{ToTokens, TokenStreamExt, format_ident, quote};
 use std::{collections::HashSet, fmt};
 
-use crate::{extract::schema::Property, naming};
+use crate::{extract::schema::Property, naming, oxidize::types::GraphType};
 
 pub mod paths;
 pub mod types;
@@ -19,7 +19,7 @@ fn imports(properties: &[crate::extract::schema::Property]) -> TokenStream {
     let mut imports = properties
         .iter()
         .filter_map(|p| {
-            if let RustType::Custom(custom_rust_type) = &p.rust_type {
+            if let RustType::NamedSchema(custom_rust_type) = &p.rust_type {
                 let original_name = custom_rust_type.original_name();
                 if crate::SUPPORTED_TYPES.contains(original_name.as_str()) {
                     Some(custom_rust_type.as_snake_case())
@@ -226,7 +226,7 @@ enum Composed {
 }
 
 /// Our representation of a Rust type.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug)]
 pub enum RustType {
     Bool,
     U8,
@@ -238,7 +238,12 @@ pub enum RustType {
     F64,
     String,
     Bytes,
-    Custom(CustomRustType),
+
+    /// A type represented by a named schema in the OpenAPI spec.
+    NamedSchema(SchemaName),
+
+    /// A type represented by an unnamed "object" schema in the OpenAPI spec.
+    UnnamedSchema(GraphType),
 }
 
 impl RustType {
@@ -276,7 +281,8 @@ impl RustType {
             Self::F64 => "f64",
             Self::String => string,
             Self::Bytes => bytes,
-            Self::Custom(s) => s.as_pascal_case(),
+            Self::NamedSchema(s) => s.as_pascal_case(),
+            Self::UnnamedSchema(s) => s.name(),
         }
     }
 
@@ -295,42 +301,46 @@ impl RustType {
             Self::String => quote!(str),
             Self::Bytes if !sliced => quote!(Vec<u8>),
             Self::Bytes => quote!([u8]),
-            Self::Custom(name) => {
+            Self::NamedSchema(name) => {
                 let ident = format_ident!("{}", name.as_pascal_case());
+                quote!(#ident)
+            }
+            Self::UnnamedSchema(unnamed) => {
+                let ident = format_ident!("{}", unnamed.name());
                 quote!(#ident)
             }
         }
     }
 }
 
-/// A custom Rust type that doesn't fit in any of the [`RustType`] variants.
+/// The name of a named type/schema from the OpenAPI spec.
 ///
 /// This struct holds both the PascalCase and original versions of the type's
 /// name. Ideally we'd generate the PascalCase version upon request (e.g. when
-/// `as_pascal_case` is called), but this causes ownership issues further down
-/// the line.
+/// `as_pascal_case` is called), but this would cause ownership issues further
+/// down the line.
 #[derive(Debug, Clone, Eq, PartialEq)]
-pub struct CustomRustType {
+pub struct SchemaName {
     pascal_case: String,
     original_name: String,
 }
 
-impl From<String> for CustomRustType {
+impl From<String> for SchemaName {
     fn from(value: String) -> Self {
         Self::from(value.as_str())
     }
 }
 
-impl From<&str> for CustomRustType {
+impl From<&str> for SchemaName {
     fn from(value: &str) -> Self {
-        CustomRustType {
+        SchemaName {
             pascal_case: crate::naming::pascalize(value),
             original_name: value.to_string(),
         }
     }
 }
 
-impl CustomRustType {
+impl SchemaName {
     /// Returns the type's name in PascalCase.
     pub fn as_pascal_case(&self) -> &String {
         &self.pascal_case
@@ -355,7 +365,7 @@ impl CustomRustType {
 fn return_type(prop: &Property, refers: Reference, lifetime_name: Option<&str>) -> TokenStream {
     let mut ty = instantiated_type(prop, refers, lifetime_name);
 
-    if !prop.is_ref && prop.rust_type != RustType::Bytes {
+    if !prop.is_ref && !matches!(prop.rust_type, RustType::Bytes) {
         ty = quote!(Result<#ty, Error>);
     }
 
@@ -376,7 +386,7 @@ fn instantiated_type(
 ) -> TokenStream {
     let base = &prop.rust_type.base_token(prop.nullable, refers);
 
-    let mut ty: TokenStream = if matches!(prop.rust_type, RustType::Custom(_)) {
+    let mut ty: TokenStream = if matches!(prop.rust_type, RustType::NamedSchema(_)) {
         // The format_ident! macro doesn't like lifetime names, so we do this manually.
         let lifetime_name: TokenStream = lifetime_name
             .unwrap_or("'a")
@@ -391,7 +401,7 @@ fn instantiated_type(
     if refers == Reference::Ref
         && composed != Composed::Copy
         && (!prop.is_collection || composed == Composed::Slice)
-        && !matches!(prop.rust_type, RustType::Custom(_))
+        && !matches!(prop.rust_type, RustType::NamedSchema(_))
     {
         ty = quote!(&#ty);
     }
@@ -478,7 +488,7 @@ pub fn is_rust_keyword(s: &str) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use crate::extract::path::{Method, Operation, Path, RequestBody, Success};
+    use crate::extract::path::{ApiBody, Method, Operation, Path, Success};
 
     use super::*;
 
@@ -514,9 +524,9 @@ mod tests {
                     description: Some("Return the pet's noise.".to_string()),
                     external_docs: None,
                     pageable: false,
-                    delta: false,
+                    is_delta: false,
                     parameters: None,
-                    body: Some(RequestBody {
+                    body: Some(ApiBody {
                         _description: None,
                         property: Property {
                             name: "string".to_string(),
@@ -535,10 +545,10 @@ mod tests {
                     description: Some("Return the pet's noise.".to_string()),
                     external_docs: None,
                     pageable: false,
-                    delta: false,
+                    is_delta: false,
                     parameters: None,
                     body: None,
-                    success: Success::WithBody(RequestBody {
+                    success: Success::WithBody(ApiBody {
                         _description: Some(".wav with the pet's noise.".to_string()),
                         property: Property {
                             name: "string".to_string(),

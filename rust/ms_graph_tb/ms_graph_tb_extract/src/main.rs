@@ -20,7 +20,7 @@ mod openapi;
 mod oxidize;
 
 use crate::extract::path::extract_from_oa_path;
-use crate::extract::schema::{Property, extract_from_schema};
+use crate::extract::schema::{Property, SchemaContext, SchemaKind, extract_from_schema};
 use crate::naming::{base_name, simple_name, snakeify};
 use crate::openapi::{LoadedYaml, load_yaml, path::OaPath};
 use crate::oxidize::{ModuleFile, types};
@@ -100,7 +100,13 @@ fn main() -> Result<(), Box<dyn Error>> {
         if SUPPORTED_TYPES.contains(base_name.as_str()) {
             info!("generating Rust type for {full_name}");
 
-            let (description, props) = extract_from_schema(schema);
+            let (description, props) = extract_from_schema(
+                schema,
+                SchemaContext {
+                    kind: SchemaKind::Other,
+                    is_delta: false,
+                },
+            );
             let schema_path = naming::path(full_name);
 
             process_schema(out_dir, &schema_path, simple_name, description, props)?;
@@ -179,7 +185,8 @@ fn process_schema(
     description: Option<String>,
     properties: Vec<Property>,
 ) -> Result<(), Box<dyn Error>> {
-    let graph_type = types::GraphType::new(simple_name, description, properties);
+    let graph_type =
+        types::GraphType::new(simple_name, description, properties, types::TypeKind::Named);
     let generated = quote!(#graph_type);
 
     let output_dir = schemas_dir

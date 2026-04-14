@@ -6,12 +6,13 @@ use proc_macro2::{Ident, TokenStream};
 use quote::{ToTokens, TokenStreamExt, format_ident, quote};
 
 use crate::GENERATION_DISCLOSURE;
-use crate::extract::path::RequestBody;
+use crate::extract::path::ApiBody;
 use crate::extract::{
     path::{Method, Operation, Path, Success},
     schema::Property,
 };
 use crate::naming::snakeify;
+use crate::oxidize::types::GraphType;
 
 use super::{Reference, RustType, markup_doc_comment, return_type};
 
@@ -87,7 +88,7 @@ impl ToTokens for Path {
 }
 
 fn operation_response(operation: &Operation) -> TokenStream {
-    if operation.delta {
+    if operation.is_delta {
         let response = delta_response_value(operation);
         quote!(DeltaResponse<#response>)
     } else if operation.pageable {
@@ -123,6 +124,10 @@ fn request_without_body(
     operation: &Operation,
     response: TokenStream,
 ) -> RequestDef {
+    if let Success::WithBody(ref body) = operation.success {
+        imports.push(body.property.clone());
+    }
+
     let method = operation.method;
 
     let selectable = selectable(operation);
@@ -130,7 +135,7 @@ fn request_without_body(
         let Success::WithBody(ref selection_body) = operation.success else {
             panic!("selectable request with no response type: {operation:?}");
         };
-        let RustType::Custom(ref selection_type) = selection_body.property.rust_type else {
+        let RustType::NamedSchema(ref selection_type) = selection_body.property.rust_type else {
             panic!("non-custom selectable response type: {operation:?}");
         };
         let selection_type = format_ident!("{}Selection", selection_type.as_pascal_case());
@@ -140,6 +145,13 @@ fn request_without_body(
         None
     }
     .map(|s| format_ident!("{s}"));
+
+    let mut unnamed_body_types = Vec::new();
+    if let Success::WithBody(resp_body) = &operation.success
+        && let RustType::UnnamedSchema(graph_type) = &resp_body.property.rust_type
+    {
+        unnamed_body_types.push(graph_type.clone());
+    }
 
     let struct_def = StructDef {
         description,
@@ -163,8 +175,9 @@ fn request_without_body(
         selectable,
     };
     let select_def = SelectDef { selection_type };
-    let delta_def = operation.delta.then(|| DeltaDef { response });
+    let delta_def = operation.is_delta.then(|| DeltaDef { response });
     RequestDef {
+        unnamed_body_types,
         struct_def,
         impl_def,
         operation_def,
@@ -176,7 +189,7 @@ fn request_without_body(
 /// Generate the struct and implementation of a request that takes the given
 /// body.
 fn request_with_body(
-    op_body: RequestBody,
+    op_body: ApiBody,
     imports: &mut Vec<Property>,
     template_expressions: Vec<Ident>,
     description: Option<TokenStream>,
@@ -184,16 +197,29 @@ fn request_with_body(
     response: TokenStream,
 ) -> RequestDef {
     imports.push(op_body.property.clone());
+
+    if let Success::WithBody(ref body) = operation.success {
+        imports.push(body.property.clone());
+    }
+
     let method = operation.method;
 
     let mut body = op_body.property.rust_type.base_token(false, Reference::Own);
-    let body_lifetime = if op_body.property.rust_type == RustType::Bytes {
-        None
-    } else {
-        Some(quote!(<'body>))
+    let body_lifetime = match op_body.property.rust_type {
+        RustType::NamedSchema(_) | RustType::UnnamedSchema(_) => Some(quote!(<'body>)),
+        _ => None,
     };
-    if op_body.property.is_ref {
+    if op_body.property.is_ref || matches!(op_body.property.rust_type, RustType::UnnamedSchema(_)) {
         body = quote!(#body #body_lifetime);
+    }
+
+    let mut unnamed_body_types = Vec::new();
+    if let RustType::UnnamedSchema(graph_type) = op_body.property.rust_type {
+        unnamed_body_types.push(graph_type);
+    } else if let Success::WithBody(resp_body) = &operation.success
+        && let RustType::UnnamedSchema(graph_type) = &resp_body.property.rust_type
+    {
+        unnamed_body_types.push(graph_type.clone());
     }
 
     let struct_def = StructDef {
@@ -221,10 +247,11 @@ fn request_with_body(
         selection_type: None,
     };
     assert!(
-        !operation.delta,
+        !operation.is_delta,
         "deltas are not supported for requests with a body"
     );
     RequestDef {
+        unnamed_body_types,
         struct_def,
         impl_def,
         operation_def,
@@ -277,6 +304,7 @@ impl ToTokens for TemplateExpressionsDef {
 }
 
 pub struct RequestDef {
+    unnamed_body_types: Vec<GraphType>,
     struct_def: StructDef,
     impl_def: ImplDef,
     operation_def: OperationDef,
@@ -287,12 +315,18 @@ pub struct RequestDef {
 impl ToTokens for RequestDef {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let RequestDef {
+            unnamed_body_types,
             struct_def,
             impl_def,
             operation_def,
             select_def,
             delta_def,
         } = self;
+        tokens.append_all(
+            unnamed_body_types
+                .iter()
+                .map(|graph_type| quote!(#graph_type)),
+        );
         tokens.append_all(quote! {
             #struct_def
             #impl_def

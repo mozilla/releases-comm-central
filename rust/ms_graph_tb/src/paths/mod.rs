@@ -14,4 +14,5 @@ pub mod me_mail_folders_mail_folder_id_messages;
 pub mod me_mail_folders_mail_folder_id_messages_delta;
 pub mod me_messages;
 pub mod me_messages_message_id;
+pub mod me_messages_message_id_move;
 pub mod me_messages_message_id_send;
