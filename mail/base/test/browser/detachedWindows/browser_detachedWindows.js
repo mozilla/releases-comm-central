@@ -137,17 +137,20 @@ add_task(async function testMessageWindow() {
 
 add_task(async function testSecondMessengerWindow() {
   info("Opening a new messenger window");
-  let openPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
+  // We need to wait for the window to load AND for about:3pane to load.
+  // Conveniently, `mail-startup-done` is fired at that point, even though
+  // this isn't the first window.
+  let openPromise = TestUtils.topicObserved("mail-startup-done");
   window.MsgOpenNewWindowForFolder(testFolder.URI, -1);
-  let win = await openPromise;
-  await new Promise(resolve => win.setTimeout(resolve, 500));
+  let [secondWindow] = await openPromise;
+  await new Promise(resolve => secondWindow.setTimeout(resolve, 500));
 
   info("Closing the window");
-  await BrowserTestUtils.closeWindow(win);
+  await BrowserTestUtils.closeWindow(secondWindow);
   // Apparently we need to wait a moment for things to clean up properly.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 500));
-  win = null;
+  secondWindow = null;
   openPromise = null;
 
   await assertNoDetachedWindows();
