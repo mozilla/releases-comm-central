@@ -3,7 +3,7 @@
 Contacts implement `nsIAbCard`. Formerly, contact properties were a simple list of keys and values,
 and some directory types still only support that, but most contacts are now based on the
 [vCard format](https://datatracker.ietf.org/doc/html/rfc6350). In
-[`SQLiteDirectory`](/addrbook/directories.md#sqlitedirectory), data is stored in vCard format with
+[SQLiteDirectory](sqlitedirectory), data is stored in vCard format with
 only the most commonly used properties also stored as keys and values for performance reasons.
 
 ## Useful properties

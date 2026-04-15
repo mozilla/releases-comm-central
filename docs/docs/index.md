@@ -71,6 +71,14 @@ For example to link to this page from anywhere we can use the following markdown
 This code will result in the following output:
 [Documentation documentation](/documentation/index)
 
+When linking to a specific section of a page (likely specifically named with a
+reference anchor like `(targetname)=` before a heading), instead point at the
+reference name:
+```md
+[SQLiteDirectory](sqlitedirectory)
+```
+Which will then produce a resolved deep link: [SQLiteDirectory](sqlitedirectory).
+
 If your reference is not correct, it might be removed (leading to just text
 without link), or you get either a `WARNING: unknown document` or
 `WARNING: 'myst' cross-reference target not found` warning when building the
