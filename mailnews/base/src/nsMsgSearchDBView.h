@@ -44,9 +44,8 @@ class nsMsgSearchDBView : public nsMsgGroupView,
   NS_IMETHOD GetViewType(nsMsgViewTypeValue* aViewType) override;
   NS_IMETHOD Sort(nsMsgViewSortTypeValue sortType,
                   nsMsgViewSortOrderValue sortOrder) override;
-  NS_IMETHOD GetCommandStatus(
-      nsMsgViewCommandTypeValue command, bool* selectable_p,
-      nsMsgViewCommandCheckStateValue* selected_p) override;
+  NS_IMETHOD GetCommandStatus(nsMsgViewCommandTypeValue command,
+                              bool* status) override;
   NS_IMETHOD DoCommand(nsMsgViewCommandTypeValue command) override;
   NS_IMETHOD DoCommandWithFolder(nsMsgViewCommandTypeValue command,
                                  nsIMsgFolder* destFolder) override;

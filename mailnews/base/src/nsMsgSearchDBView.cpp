@@ -755,14 +755,11 @@ NS_IMETHODIMP nsMsgSearchDBView::OnAnnouncerGoingAway(
 nsCOMArray<nsIMsgFolder>* nsMsgSearchDBView::GetFolders() { return &m_folders; }
 
 NS_IMETHODIMP
-nsMsgSearchDBView::GetCommandStatus(
-    nsMsgViewCommandTypeValue command, bool* selectable_p,
-    nsMsgViewCommandCheckStateValue* selected_p) {
+nsMsgSearchDBView::GetCommandStatus(nsMsgViewCommandTypeValue command,
+                                    bool* status) {
   if (command != nsMsgViewCommandType::runJunkControls &&
       command != nsMsgViewCommandType::toggleThreadWatched)
-    return nsMsgDBView::GetCommandStatus(command, selectable_p, selected_p);
-
-  *selectable_p = false;
+    return nsMsgDBView::GetCommandStatus(command, status);
   return NS_OK;
 }
 

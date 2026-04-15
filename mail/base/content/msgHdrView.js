@@ -3661,7 +3661,7 @@ function updateHeaderToolbarButtons() {
   archiveButton.disabled = !MessageArchiver.canArchive([gMessage]);
   const junkScore = gMessage.getStringProperty("junkscore");
   let hideJunk = junkScore == Ci.nsIJunkMailPlugin.IS_SPAM_SCORE;
-  if (!commandController._getViewCommandStatus(Ci.nsMsgViewCommandType.junk)) {
+  if (!gDBView.getCommandStatus(Ci.nsMsgViewCommandType.junk)) {
     hideJunk = true;
   }
   junkButton.disabled = hideJunk;

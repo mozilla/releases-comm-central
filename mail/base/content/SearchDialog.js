@@ -460,22 +460,6 @@ FolderDisplayWidget.prototype = {
   // @{
 
   /**
-   * @returns {boolean} true if there is a db view and the command is enabled on the view.
-   *  This function hides some of the XPCOM-odditities of the getCommandStatus
-   *  call.
-   */
-  getCommandStatus(aCommandType) {
-    // no view means not enabled
-    if (!this.view.dbView) {
-      return false;
-    }
-    const enabledObj = {},
-      checkStatusObj = {};
-    this.view.dbView.getCommandStatus(aCommandType, enabledObj, checkStatusObj);
-    return enabledObj.value;
-  },
-
-  /**
    * Make code cleaner by allowing peoples to call doCommand on us rather than
    *  having to do folderDisplayWidget.view.dbView.doCommand.
    *

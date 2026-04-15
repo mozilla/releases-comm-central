@@ -7444,10 +7444,8 @@ commandController.registerCallback(
     // enabled for junk. The junk type picks up possible dummy message headers,
     // while the runJunkControls will prevent running on XF virtual folders.
     return (
-      commandController._getViewCommandStatus(Ci.nsMsgViewCommandType.junk) &&
-      commandController._getViewCommandStatus(
-        Ci.nsMsgViewCommandType.runJunkControls
-      )
+      gDBView?.getCommandStatus(Ci.nsMsgViewCommandType.junk) &&
+      gDBView?.getCommandStatus(Ci.nsMsgViewCommandType.runJunkControls)
     );
   }
 );

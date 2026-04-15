@@ -2437,9 +2437,7 @@ bool nsMsgDBView::ServerSupportsFilterAfterTheFact() {
 }
 
 NS_IMETHODIMP
-nsMsgDBView::GetCommandStatus(nsMsgViewCommandTypeValue command,
-                              bool* selectable_p,
-                              nsMsgViewCommandCheckStateValue* selected_p) {
+nsMsgDBView::GetCommandStatus(nsMsgViewCommandTypeValue command, bool* status) {
   nsresult rv = NS_OK;
 
   bool haveSelection = false;
@@ -2461,31 +2459,31 @@ nsMsgDBView::GetCommandStatus(nsMsgViewCommandTypeValue command,
       if (m_folder &&
           NS_SUCCEEDED(m_folder->GetCanDeleteMessages(&canDelete)) &&
           !canDelete) {
-        *selectable_p = false;
+        *status = false;
       } else {
-        *selectable_p = haveSelection;
+        *status = haveSelection;
       }
       break;
     }
     case nsMsgViewCommandType::applyFilters:
       // Disable if no messages.
       // XXX todo, check that we have filters, and at least one is enabled.
-      *selectable_p = GetSize();
-      if (*selectable_p) *selectable_p = ServerSupportsFilterAfterTheFact();
+      *status = GetSize();
+      if (*status) *status = ServerSupportsFilterAfterTheFact();
 
       break;
     case nsMsgViewCommandType::runJunkControls:
       // Disable if no messages.
       // XXX todo, check that we have JMC enabled?
-      *selectable_p = GetSize() && JunkControlsEnabled(nsMsgViewIndex_None);
+      *status = GetSize() && JunkControlsEnabled(nsMsgViewIndex_None);
       break;
     case nsMsgViewCommandType::deleteJunk: {
       // Disable if no messages, or if we can't delete (like news and
       // certain imap folders).
       bool canDelete;
-      *selectable_p =
-          GetSize() && m_folder &&
-          NS_SUCCEEDED(m_folder->GetCanDeleteMessages(&canDelete)) && canDelete;
+      *status = GetSize() && m_folder &&
+                NS_SUCCEEDED(m_folder->GetCanDeleteMessages(&canDelete)) &&
+                canDelete;
       break;
     }
     case nsMsgViewCommandType::markMessagesRead:
@@ -2496,20 +2494,20 @@ nsMsgDBView::GetCommandStatus(nsMsgViewCommandTypeValue command,
     case nsMsgViewCommandType::toggleThreadWatched:
     case nsMsgViewCommandType::markThreadRead:
     case nsMsgViewCommandType::downloadSelectedForOffline:
-      *selectable_p = haveSelection;
+      *status = haveSelection;
       break;
     case nsMsgViewCommandType::junk:
     case nsMsgViewCommandType::unjunk:
-      *selectable_p = haveSelection && !selection.IsEmpty() &&
-                      JunkControlsEnabled(selection[0]);
+      *status = haveSelection && !selection.IsEmpty() &&
+                JunkControlsEnabled(selection[0]);
       break;
     case nsMsgViewCommandType::cmdRequiringMsgBody:
-      *selectable_p =
+      *status =
           haveSelection && (!WeAreOffline() || OfflineMsgSelected(selection));
       break;
     case nsMsgViewCommandType::downloadFlaggedForOffline:
     case nsMsgViewCommandType::markAllRead:
-      *selectable_p = true;
+      *status = true;
       break;
     default:
       NS_ASSERTION(false, "invalid command type");

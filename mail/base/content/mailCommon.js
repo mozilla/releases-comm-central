@@ -633,7 +633,7 @@ var commandController = {
         return gDBView?.msgFolder?.getNumUnread(false) > 0;
       case "cmd_markAsJunk":
       case "cmd_markAsNotJunk":
-        return this._getViewCommandStatus(Ci.nsMsgViewCommandType.junk);
+        return gDBView?.getCommandStatus(Ci.nsMsgViewCommandType.junk);
       case "cmd_archive":
         return (
           !isDummyMessage &&
@@ -663,9 +663,7 @@ var commandController = {
       case "cmd_deleteMessage":
         return canMove();
       case "cmd_shiftDeleteMessage":
-        return this._getViewCommandStatus(
-          Ci.nsMsgViewCommandType.deleteNoTrash
-        );
+        return gDBView?.getCommandStatus(Ci.nsMsgViewCommandType.deleteNoTrash);
       case "cmd_createFilterFromMenu":
         return (
           numSelectedMessages == 1 &&
@@ -676,17 +674,12 @@ var commandController = {
         if (gViewWrapper?.showGroupedBySort) {
           return false;
         }
-        const enabledObj = {};
-        const checkStatusObj = {};
-        gViewWrapper.dbView.getCommandStatus(
-          Ci.nsMsgViewCommandType.toggleThreadWatched,
-          enabledObj,
-          checkStatusObj
+        return gDBView?.getCommandStatus(
+          Ci.nsMsgViewCommandType.toggleThreadWatched
         );
-        return enabledObj.value;
       }
       case "cmd_applyFilters": {
-        return this._getViewCommandStatus(Ci.nsMsgViewCommandType.applyFilters);
+        return gDBView?.getCommandStatus(Ci.nsMsgViewCommandType.applyFilters);
       }
     }
 
@@ -728,21 +721,6 @@ var commandController = {
     if (command in this._callbackCommands) {
       this._callbackCommands[command](...args);
     }
-  },
-
-  _getViewCommandStatus(commandType) {
-    if (!gViewWrapper?.dbView) {
-      return false;
-    }
-
-    const enabledObj = {};
-    const checkStatusObj = {};
-    gViewWrapper.dbView.getCommandStatus(
-      commandType,
-      enabledObj,
-      checkStatusObj
-    );
-    return enabledObj.value;
   },
 
   /**

@@ -230,8 +230,8 @@ interface nsIMsgDBView : nsISupports
 
   void doCommand(in nsMsgViewCommandTypeValue command);
   void doCommandWithFolder(in nsMsgViewCommandTypeValue command, in nsIMsgFolder destFolder);
-  void getCommandStatus(in nsMsgViewCommandTypeValue command, out boolean selectable_p,
-                        out nsMsgViewCommandCheckStateValue selected_p);
+  /** Can this command be run at the present time? */
+  boolean getCommandStatus(in nsMsgViewCommandTypeValue command);
   void applyCommandToIndices(in nsMsgViewCommandTypeValue command,
                              in Array<nsMsgViewIndex> selection);
 
