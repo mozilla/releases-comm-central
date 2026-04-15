@@ -6,7 +6,7 @@ loader: taskgraph.loader.transform:loader
 
 transforms:
     - taskgraph.transforms.from_deps
-    - gecko_taskgraph.transforms.mac_notarization
+    - gecko_taskgraph.transforms.filter_notarization
     - gecko_taskgraph.transforms.name_sanity
     - gecko_taskgraph.transforms.signing
     - gecko_taskgraph.transforms.task
