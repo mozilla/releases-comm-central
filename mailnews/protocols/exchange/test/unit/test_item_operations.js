@@ -2,10 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { EwsServer } = ChromeUtils.importESModule(
-  "resource://testing-common/mailnews/EwsServer.sys.mjs"
-);
-var { RemoteFolder } = ChromeUtils.importESModule(
+var { MockServer, RemoteFolder } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MockServer.sys.mjs"
 );
 var { localAccountUtils } = ChromeUtils.importESModule(
@@ -22,18 +19,21 @@ var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
 
-var incomingServer;
+var ewsIncomingServer;
+var graphIncomingServer;
 
 /**
- * @type {EwsServer}
+ * @type {MockServer}
  */
 var ewsServer;
+var graphServer;
 
 const ewsIdPropertyName = "ewsId";
 const generator = new MessageGenerator();
 
 add_setup(async function () {
-  [ewsServer, incomingServer] = setupBasicEwsTestServer({});
+  [ewsServer, ewsIncomingServer] = setupBasicEwsTestServer({});
+  [graphServer, graphIncomingServer] = setupBasicGraphTestServer({});
 });
 
 /**
@@ -51,14 +51,20 @@ add_setup(async function () {
  * @param {string} prefix
  * @returns {[string, string, nsIMsgFolder, nsIMsgFolder]}
  */
-async function setup_item_copymove_structure(prefix) {
+async function setup_item_copymove_structure(
+  prefix,
+  mockServer,
+  incomingServer
+) {
+  const type = incomingServer.type;
+
   // Create two folders for the copy/move tests.
-  const folder1Name = `${prefix}_folder1`;
-  const folder2Name = `${prefix}_folder2`;
-  ewsServer.appendRemoteFolder(
+  const folder1Name = `${type}_${prefix}_folder1`;
+  const folder2Name = `${type}_${prefix}_folder2`;
+  mockServer.appendRemoteFolder(
     new RemoteFolder(folder1Name, "root", folder1Name, folder1Name)
   );
-  ewsServer.appendRemoteFolder(
+  mockServer.appendRemoteFolder(
     new RemoteFolder(folder2Name, "root", folder2Name, folder2Name)
   );
 
@@ -72,8 +78,8 @@ async function setup_item_copymove_structure(prefix) {
 
   const msgs = generator.makeMessages({ count: 2 });
 
-  ewsServer.addItemToFolder(`${prefix}_a`, folder1Name, msgs[0]);
-  ewsServer.addItemToFolder(`${prefix}_b`, folder1Name, msgs[1]);
+  mockServer.addItemToFolder(`${type}_${prefix}_a`, folder1Name, msgs[0]);
+  mockServer.addItemToFolder(`${type}_${prefix}_b`, folder1Name, msgs[1]);
 
   await syncFolder(incomingServer, folder1);
 
@@ -183,8 +189,21 @@ async function copyFolder(sourceFolder, destinationFolder, isMove) {
   return copyListener.promise;
 }
 
-add_task(async function test_move_item() {
-  const [folder1, folder2, msgs] = await setup_item_copymove_structure("move");
+/**
+ * Tests that an account is capable of moving messages from one folder to
+ * another.
+ *
+ * @param {MockServer} mockServer - The `MockServer` child class instance to use
+ *   for creating folders and messages.
+ * @param {nsIMsgIncomingFolder} incomingServer - The incoming message for the
+ *   protocol that's being tested.
+ */
+async function subtestMoveItem(mockServer, incomingServer) {
+  const [folder1, folder2, msgs] = await setup_item_copymove_structure(
+    "move",
+    mockServer,
+    incomingServer
+  );
 
   const headers = [];
   [...folder1.messages].forEach(header => headers.push(header));
@@ -214,10 +233,22 @@ add_task(async function test_move_item() {
       `${folder2.name} should contain a message with the subject \"${subject}\"`
     );
   }
+}
+
+add_task(async function testMoveItemEws() {
+  await subtestMoveItem(ewsServer, ewsIncomingServer);
+});
+
+add_task(async function testMoveItemGraph() {
+  await subtestMoveItem(graphServer, graphIncomingServer);
 });
 
 add_task(async function test_copy_item() {
-  const [folder1, folder2, msgs] = await setup_item_copymove_structure("copy");
+  const [folder1, folder2, msgs] = await setup_item_copymove_structure(
+    "copy",
+    ewsServer,
+    ewsIncomingServer
+  );
 
   const headers = [];
   [...folder1.messages].forEach(header => headers.push(header));
@@ -259,13 +290,13 @@ add_task(async function test_move_copy_messages_from_another_server() {
     new RemoteFolder("copyFromAnotherServer", "root")
   );
 
-  const ewsRootFolder = incomingServer.rootFolder;
-  incomingServer.performExpand(null);
+  const ewsRootFolder = ewsIncomingServer.rootFolder;
+  ewsIncomingServer.performExpand(null);
   const ewsDestFolder = await TestUtils.waitForCondition(
     () => ewsRootFolder.getChildNamed("copyFromAnotherServer"),
     "waiting for test folder to exist"
   );
-  await syncFolder(incomingServer, ewsDestFolder);
+  await syncFolder(ewsIncomingServer, ewsDestFolder);
   Assert.equal(
     ewsDestFolder.getTotalMessages(false),
     0,
@@ -342,13 +373,13 @@ add_task(async function test_move_copy_messages_to_another_server() {
   ewsServer.appendRemoteFolder(new RemoteFolder("copyToAnotherServer", "root"));
   ewsServer.addMessages("copyToAnotherServer", generator.makeMessages({}));
 
-  const ewsRootFolder = incomingServer.rootFolder;
-  incomingServer.performExpand(null);
+  const ewsRootFolder = ewsIncomingServer.rootFolder;
+  ewsIncomingServer.performExpand(null);
   const ewsSourceFolder = await TestUtils.waitForCondition(
     () => ewsRootFolder.getChildNamed("copyToAnotherServer"),
     "waiting for test folder to exist"
   );
-  await syncFolder(incomingServer, ewsSourceFolder);
+  await syncFolder(ewsIncomingServer, ewsSourceFolder);
   Assert.equal(
     ewsSourceFolder.getTotalMessages(false),
     10,
@@ -428,8 +459,8 @@ add_task(async function test_move_copy_messages_to_another_server() {
 add_task(async function test_copy_file_message() {
   ewsServer.appendRemoteFolder(new RemoteFolder("copyFileMessage", "root"));
 
-  const rootFolder = incomingServer.rootFolder;
-  incomingServer.performExpand(null);
+  const rootFolder = ewsIncomingServer.rootFolder;
+  ewsIncomingServer.performExpand(null);
   const folder = await TestUtils.waitForCondition(
     () => rootFolder.getChildNamed("copyFileMessage"),
     "waiting for test folder to exist"
@@ -487,8 +518,8 @@ add_task(async function test_mark_as_read() {
   const syntheticMessages = generator.makeMessages({ count: 3 });
   ewsServer.addMessages(folderName, syntheticMessages);
 
-  const rootFolder = incomingServer.rootFolder;
-  incomingServer.getNewMessages(rootFolder, null, null);
+  const rootFolder = ewsIncomingServer.rootFolder;
+  ewsIncomingServer.getNewMessages(rootFolder, null, null);
 
   const folder = await TestUtils.waitForCondition(
     () => rootFolder.getChildNamed(folderName),
@@ -582,16 +613,16 @@ async function setup_folder_copymove_structure(prefix) {
     new RemoteFolder(childName, parent1Name, childName, childName)
   );
 
-  const rootFolder = incomingServer.rootFolder;
+  const rootFolder = ewsIncomingServer.rootFolder;
 
-  await syncFolder(incomingServer, rootFolder);
+  await syncFolder(ewsIncomingServer, rootFolder);
 
   const parent1 = rootFolder.getChildNamed(parent1Name);
   Assert.ok(!!parent1, `${parent1Name} should exist.`);
   const parent2 = rootFolder.getChildNamed(parent2Name);
   Assert.ok(!!parent2, `${parent2Name} should exist.`);
 
-  await syncFolder(incomingServer, parent1);
+  await syncFolder(ewsIncomingServer, parent1);
 
   const child = parent1.getChildNamed(childName);
   Assert.ok(!!child, `${childName} should exist in ${parent1Name}`);
@@ -632,8 +663,8 @@ add_task(async function test_copy_folder() {
 });
 
 add_task(async function test_mark_as_junk() {
-  const rootFolder = incomingServer.rootFolder;
-  await syncFolder(incomingServer, rootFolder);
+  const rootFolder = ewsIncomingServer.rootFolder;
+  await syncFolder(ewsIncomingServer, rootFolder);
 
   // Add messages to the test folder.
   const junkMessages = generator.makeMessages({ count: 2 });
@@ -645,8 +676,8 @@ add_task(async function test_mark_as_junk() {
   const junkFolder = rootFolder.getChildNamed("Junk");
   Assert.ok(!!junkFolder, "Junk folder should exist");
 
-  await syncFolder(incomingServer, inboxFolder);
-  await syncFolder(incomingServer, junkFolder);
+  await syncFolder(ewsIncomingServer, inboxFolder);
+  await syncFolder(ewsIncomingServer, junkFolder);
 
   Assert.equal(
     inboxFolder.getTotalMessages(false),
@@ -708,7 +739,7 @@ add_task(async function test_mark_as_junk() {
     unjunkListener
   );
   await unjunkListener.promise;
-  await syncFolder(incomingServer, inboxFolder);
+  await syncFolder(ewsIncomingServer, inboxFolder);
 
   Assert.equal(
     [...inboxFolder.messages].length,
@@ -728,8 +759,8 @@ add_task(async function test_change_flag_status() {
     new RemoteFolder(folderName, "root", folderName, folderName)
   );
 
-  const rootFolder = incomingServer.rootFolder;
-  await syncFolder(incomingServer, rootFolder);
+  const rootFolder = ewsIncomingServer.rootFolder;
+  await syncFolder(ewsIncomingServer, rootFolder);
 
   const folder = rootFolder.getChildNamed(folderName);
   Assert.ok(!!folder, `${folderName} folder should exist.`);
@@ -738,7 +769,7 @@ add_task(async function test_change_flag_status() {
   const message = generator.makeMessages({ count: 1 })[0];
   ewsServer.addItemToFolder("message", folderName, message);
 
-  await syncFolder(incomingServer, folder);
+  await syncFolder(ewsIncomingServer, folder);
 
   // Get the message header.
   const messageHeaders = [...folder.messages];
@@ -771,8 +802,8 @@ add_task(async function test_hard_delete_item() {
     new RemoteFolder(folderName, "root", folderName, folderName)
   );
 
-  const rootFolder = incomingServer.rootFolder;
-  await syncFolder(incomingServer, rootFolder);
+  const rootFolder = ewsIncomingServer.rootFolder;
+  await syncFolder(ewsIncomingServer, rootFolder);
 
   const folder = rootFolder.getChildNamed(folderName);
   Assert.ok(!!folder, `${folderName} folder should exist.`);
@@ -780,7 +811,7 @@ add_task(async function test_hard_delete_item() {
   const message = generator.makeMessages({ count: 1 })[0];
   ewsServer.addItemToFolder("message_to_delete", folderName, message);
 
-  await syncFolder(incomingServer, folder);
+  await syncFolder(ewsIncomingServer, folder);
 
   const messageHeaders = [...folder.messages];
   Assert.equal(

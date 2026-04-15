@@ -314,8 +314,14 @@ export class GraphServer extends MockServer {
             request,
             response
           );
+        } else if (
+          resourcePath.startsWith("/me/messages") &&
+          resourcePath.endsWith("/move")
+        ) {
+          responseJsonObject = this.#moveMessages(request);
         }
         break;
+
       case "PATCH":
         if (resourcePath.startsWith("/me/messages")) {
           responseJsonObject = this.#updateMessage(request);
@@ -678,6 +684,37 @@ export class GraphServer extends MockServer {
     }
 
     return result;
+  }
+
+  /**
+   * Handle POST /me/messages/{messageId}/move
+   *
+   * @param {nsIHttpRequest} request
+   */
+  #moveMessages(request) {
+    // Extract the message ID, i.e. the second-to-last section of the path.
+    const pathParts = request.path.split("/");
+    const messageId = pathParts[pathParts.length - 2];
+
+    const reqBody = CommonUtils.readBytesFromInputStream(
+      request.bodyInputStream
+    );
+    const parsedReq = JSON.parse(reqBody);
+
+    const folderId = parsedReq.DestinationId;
+    if (!folderId) {
+      dump(`${reqBody}\n`);
+      throw new Error("missing destination ID for move");
+    }
+
+    const newId = this.moveItemToFolder(messageId, folderId);
+
+    // Note: returning only the ID should be fine for now because that's the
+    // only bit of the message we actually use, but in the future we'll probably
+    // want to expand this response with more fields.
+    return {
+      id: newId,
+    };
   }
 
   get #endpoint() {

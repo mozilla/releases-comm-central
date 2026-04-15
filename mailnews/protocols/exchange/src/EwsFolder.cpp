@@ -124,9 +124,9 @@ static nsresult NotifyMessageCopyServiceComplete(
 static nsresult HandleMoveError(nsIMsgFolder* sourceFolder,
                                 nsIMsgFolder* destinationFolder,
                                 nsresult status) {
-  NS_ERROR(nsPrintfCString("EWS same-server move error: %s",
-                           mozilla::GetStaticErrorName(status))
-               .get());
+  NS_WARNING(nsPrintfCString("Exchange same-server move error: %s",
+                             mozilla::GetStaticErrorName(status))
+                 .get());
   sourceFolder->NotifyFolderEvent(kDeleteOrMoveMsgFailed);
 
   return NotifyMessageCopyServiceComplete(sourceFolder, destinationFolder,

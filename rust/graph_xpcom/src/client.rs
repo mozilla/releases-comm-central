@@ -82,6 +82,11 @@ impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
                     message: "Invalid Content-Type header in request".to_string(),
                 })?;
 
+            if env::var(LOG_NETWORK_PAYLOADS_ENV_VAR).is_ok() {
+                // Also log the request body if requested.
+                log::info!("C: {}", String::from_utf8_lossy(body.as_slice()));
+            }
+
             request_builder = request_builder.body(body.as_slice(), content_type);
         }
 
