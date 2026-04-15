@@ -14,17 +14,7 @@ SimpleTest.requestCompleteLog();
 const ignoreList = [
   // CodeMirror is imported as-is, see bug 1004423.
   { sourceName: /codemirror\.css$/i, isFromDevTools: true },
-  {
-    sourceName: /devtools\/content\/debugger\/src\/components\/([A-z\/]+).css/i,
-    isFromDevTools: true,
-  },
   // UA-only media features.
-  {
-    sourceName: /\b(autocomplete-item)\.css$/,
-    errorMessage: /Expected media feature name but found \u2018-moz.*/i,
-    isFromDevTools: false,
-    platforms: ["windows"],
-  },
   {
     sourceName:
       /\b(contenteditable|EditorOverride|svg|forms|html|mathml|ua|scrollbars|xul)\.css$/i,
@@ -33,10 +23,11 @@ const ignoreList = [
   },
   {
     sourceName:
-      /\b(scrollbars|xul|html|mathml|ua|EditorOverride|contenteditable|forms|svg|manageDialog|autocomplete-item-shared|formautofill)\.css$/i,
+      /\b(scrollbars|xul|html|mathml|ua|EditorOverride|contenteditable|forms|svg|manageDialog|formautofill)\.css$/i,
     errorMessage: /Unknown property.*-moz-/i,
     isFromDevTools: false,
   },
+  // content: -moz-alt-content is UA-only.
   {
     sourceName: /\b(html)\.css$/i,
     errorMessage: /Error in parsing value for ‘content’/i,
@@ -51,7 +42,6 @@ const ignoreList = [
     errorMessage: /Property contained reference to invalid variable.*color/i,
     isFromDevTools: true,
   },
-  // PDF.js uses a property that is currently only supported in chrome.
   {
     sourceName: /web\/viewer\.css$/i,
     errorMessage:
@@ -59,6 +49,30 @@ const ignoreList = [
     isFromDevTools: false,
   },
 ];
+
+if (AppConstants.platform != "macosx") {
+  ignoreList.push({
+    errorMessage: /Unknown property.*-moz-osx-font-smoothing/i,
+    isFromDevTools: false,
+  });
+}
+
+if (!Services.prefs.getBoolPref("dom.select.customizable_select.enabled")) {
+  ignoreList.push({
+    sourceName: /\bforms\.css$/i,
+    errorMessage: /Unknown pseudo-class or pseudo-element ‘picker’./i,
+    isFromDevTools: false,
+  });
+}
+
+if (!Services.prefs.getBoolPref("layout.css.fake-webkit-scrollbar.enabled")) {
+  ignoreList.push({
+    sourceName: /\bwebcompat\/injections\/css\/.*\.css$/i,
+    errorMessage:
+      /Unknown pseudo-class or pseudo-element ‘-webkit-scrollbar’./i,
+    isFromDevTools: false,
+  });
+}
 
 if (!Services.prefs.getBoolPref("layout.css.zoom.enabled")) {
   ignoreList.push({
