@@ -528,7 +528,7 @@ export class GraphServer extends MockServer {
     )[0];
 
     const newItemId = "created-item-" + this.itemsCreated;
-    this.addNewItemOrMoveItemToFolder(newItemId, draftFolder.id);
+    this.addItemToFolder(newItemId, draftFolder.id);
     this.itemsCreated += 1;
 
     const reqBody = CommonUtils.readBytesFromInputStream(
@@ -616,22 +616,23 @@ export class GraphServer extends MockServer {
     const params = new URLSearchParams(queryString);
     let offset;
     if (params.has("$skiptoken")) {
-      offset = params.get("$skiptoken");
+      offset = parseInt(params.get("$skiptoken"));
     } else if (params.has("$deltatoken")) {
-      offset = params.get("$deltatoken");
+      offset = parseInt(params.get("$deltatoken"));
     } else {
       offset = 0;
     }
 
     const context = `${this.#endpoint}/$metadata#Collection(message)`;
 
-    const allChangesForFolder = this.itemChanges
-      .slice(offset)
-      .filter(([, parentId]) => parentId === folderName);
-    const currentChanges = allChangesForFolder.slice(0, this.maxSyncItems);
+    const [changes, truncated] = this.getChangesSince(
+      offset,
+      folderName,
+      this.maxSyncItems
+    );
 
     const page = [];
-    for (const [changeType, parentId, itemId] of currentChanges) {
+    for (const [changeType, parentId, itemId] of changes) {
       if (changeType == "create") {
         const item = this.getItemInfo(itemId);
         const itemData = {
@@ -662,15 +663,15 @@ export class GraphServer extends MockServer {
       value: page,
     };
 
-    if (currentChanges.length < allChangesForFolder.length) {
+    if (truncated) {
       // We have at least one more page of data. Send a nextLink.
-      const newToken = this.itemChanges.indexOf(currentChanges.at(-1)) + 1;
+      const newToken = offset + this.maxSyncItems;
       result["@odata.nextLink"] =
         `${this.#endpoint}/me/mailFolders('${folderName}')/messages/delta?$skiptoken=${newToken}`;
     } else {
       // We are up to date. Send a deltaLink.
-      const newToken = currentChanges
-        ? this.itemChanges.indexOf(currentChanges.at(-1)) + 1
+      const newToken = changes
+        ? this.itemChanges.indexOf(changes.at(-1)) + 1
         : 0;
       result["@odata.deltaLink"] =
         `${this.#endpoint}/me/mailFolders('${folderName}')/messages/delta?$deltatoken=${newToken}`;

@@ -18,7 +18,7 @@ var ewsServer;
  */
 var msgWindow;
 
-var rootFolder, inboxFolder, archiveFolder, trashFolder;
+var rootFolder;
 
 const ewsIdPropertyName = "ewsId";
 
@@ -29,14 +29,6 @@ add_setup(async function () {
   );
   rootFolder = incomingServer.rootFolder;
   await syncFolder(incomingServer, rootFolder);
-
-  inboxFolder = rootFolder.getChildNamed("Inbox");
-  archiveFolder = rootFolder.getChildNamed("Archives");
-  trashFolder = rootFolder.getChildNamed("Deleted Items");
-
-  Assert.ok(!!inboxFolder, "Inbox folder should exist.");
-  Assert.ok(!!archiveFolder, "Archive folder should exist.");
-  Assert.ok(!!trashFolder, "Trash folder should exist.");
 });
 
 function findTestMessages(folder, prefix) {
@@ -46,17 +38,20 @@ function findTestMessages(folder, prefix) {
   );
 }
 
-async function setupCopyMoveTest(prefix, isMove) {
-  const itemId = `${prefix}_item`;
-  ewsServer.addNewItemOrMoveItemToFolder(itemId, "inbox");
-  await syncFolder(incomingServer, inboxFolder);
+async function setupCopyMoveTest(srcFolder, dstFolder, isMove) {
+  ewsServer.addItemToFolder("copy_move_item", srcFolder.name);
+  await syncFolder(incomingServer, srcFolder);
 
-  const headers = findTestMessages(inboxFolder, prefix);
-  Assert.equal(headers.length, 1, "Should have on test message.");
+  const headers = [...srcFolder.messages];
+  Assert.equal(
+    headers.length,
+    1,
+    "Should have one message in the source folder."
+  );
 
   const listener = new PromiseTestUtils.PromiseCopyListener();
-  archiveFolder.copyMessages(
-    inboxFolder,
+  dstFolder.copyMessages(
+    srcFolder,
     headers,
     isMove,
     msgWindow,
@@ -67,23 +62,36 @@ async function setupCopyMoveTest(prefix, isMove) {
   await listener.promise;
 }
 
-function checkFolders(prefix, inboxCount, archiveCount) {
-  Assert.equal(
-    findTestMessages(inboxFolder, prefix).length,
-    inboxCount,
-    `Should have ${inboxCount} messages with id prefix ${prefix} in inbox folder.`
-  );
-  Assert.equal(
-    findTestMessages(archiveFolder, prefix).length,
-    archiveCount,
-    `Should have ${archiveCount} messages with id prefix ${prefix} in archive folder.`
-  );
+function checkFolders(folderCounts) {
+  for (const [folder, count] of folderCounts) {
+    Assert.equal(
+      [...folder.messages].length,
+      count,
+      `Should have ${count} messages in folder ${folder.name}.`
+    );
+  }
 }
 
 add_task(async function test_undo_move() {
-  const testItemPrefix = "undo_move_test";
-  await setupCopyMoveTest(testItemPrefix, true);
-  checkFolders(testItemPrefix, 0, 1);
+  const srcFolderName = "undo_move_src";
+  const dstFolderName = "undo_move_dst";
+  ewsServer.appendRemoteFolder(
+    new RemoteFolder(srcFolderName, "root", srcFolderName, srcFolderName)
+  );
+  ewsServer.appendRemoteFolder(
+    new RemoteFolder(dstFolderName, "root", dstFolderName, dstFolderName)
+  );
+
+  await syncFolder(incomingServer, rootFolder);
+  const srcFolder = rootFolder.getChildNamed(srcFolderName);
+  const dstFolder = rootFolder.getChildNamed(dstFolderName);
+
+  await setupCopyMoveTest(srcFolder, dstFolder, true);
+
+  checkFolders([
+    [srcFolder, 0],
+    [dstFolder, 1],
+  ]);
 
   const currentUndoItem = msgWindow.transactionManager.peekUndoStack();
   Assert.ok(!!currentUndoItem, "Should have a transaction on the undo stack.");
@@ -94,10 +102,13 @@ add_task(async function test_undo_move() {
 
   msgWindow.transactionManager.undoTransaction();
   await TestUtils.waitForCondition(() => {
-    return !!findTestMessages(inboxFolder, testItemPrefix).length;
+    return !![...srcFolder.messages].length;
   }, "Waiting for undo operation to complete.");
 
-  checkFolders(testItemPrefix, 1, 0);
+  checkFolders([
+    [srcFolder, 1],
+    [dstFolder, 0],
+  ]);
 
   const currentRedoItem = msgWindow.transactionManager.peekRedoStack();
   Assert.ok(!!currentRedoItem, "Should have a transaction on the redo stack.");
@@ -108,18 +119,37 @@ add_task(async function test_undo_move() {
 
   msgWindow.transactionManager.redoTransaction();
   await TestUtils.waitForCondition(() => {
-    return !!findTestMessages(archiveFolder, testItemPrefix).length;
+    return !![...dstFolder.messages].length;
   }, "Waiting for redo operation to complete.");
 
-  checkFolders(testItemPrefix, 0, 1);
+  checkFolders([
+    [srcFolder, 0],
+    [dstFolder, 1],
+  ]);
 
   msgWindow.transactionManager.clear();
 });
 
 add_task(async function test_undo_copy() {
-  const testItemPrefix = "undo_copy_test";
-  await setupCopyMoveTest(testItemPrefix, false);
-  checkFolders(testItemPrefix, 1, 1);
+  const srcFolderName = "undo_copy_src";
+  const dstFolderName = "undo_copy_dst";
+  ewsServer.appendRemoteFolder(
+    new RemoteFolder(srcFolderName, "root", srcFolderName, srcFolderName)
+  );
+  ewsServer.appendRemoteFolder(
+    new RemoteFolder(dstFolderName, "root", dstFolderName, dstFolderName)
+  );
+
+  await syncFolder(incomingServer, rootFolder);
+  const srcFolder = rootFolder.getChildNamed(srcFolderName);
+  const dstFolder = rootFolder.getChildNamed(dstFolderName);
+
+  await setupCopyMoveTest(srcFolder, dstFolder, false);
+
+  checkFolders([
+    [srcFolder, 1],
+    [dstFolder, 1],
+  ]);
 
   const currentUndoItem = msgWindow.transactionManager.peekUndoStack();
   Assert.ok(!!currentUndoItem, "Should have a transaction on the undo stack.");
@@ -130,10 +160,13 @@ add_task(async function test_undo_copy() {
 
   msgWindow.transactionManager.undoTransaction();
   await TestUtils.waitForCondition(() => {
-    return !findTestMessages(archiveFolder, testItemPrefix).length;
+    return ![...dstFolder.messages].length;
   }, "Waiting for undo operation to complete.");
 
-  checkFolders(testItemPrefix, 1, 0);
+  checkFolders([
+    [srcFolder, 1],
+    [dstFolder, 0],
+  ]);
 
   const currentRedoItem = msgWindow.transactionManager.peekRedoStack();
   Assert.ok(!!currentRedoItem, "Should have a transaction on the redo stack.");
@@ -144,10 +177,13 @@ add_task(async function test_undo_copy() {
 
   msgWindow.transactionManager.redoTransaction();
   await TestUtils.waitForCondition(() => {
-    return !!findTestMessages(archiveFolder, testItemPrefix).length;
+    return !![...dstFolder.messages].length;
   }, "Waiting for redo operation to complete.");
 
-  checkFolders(testItemPrefix, 1, 1);
+  checkFolders([
+    [srcFolder, 1],
+    [dstFolder, 1],
+  ]);
 
   msgWindow.transactionManager.clear();
 });
@@ -158,19 +194,24 @@ add_task(async function test_undo_copy() {
  * permanently deleted.
  */
 add_task(async function test_undo_delete() {
-  const testItemPrefix = "undo_delete_test";
-  ewsServer.addNewItemOrMoveItemToFolder(testItemPrefix, "inbox");
-  await syncFolder(incomingServer, inboxFolder);
+  const trashFolder = rootFolder.getChildNamed("Deleted Items");
+  Assert.ok(!!trashFolder, "Trash folder should exist.");
 
-  const messagesToDelete = findTestMessages(inboxFolder, "undo_delete_test");
-  Assert.equal(
-    messagesToDelete.length,
-    1,
-    "Should have a delete test message in inbox."
+  const folderName = "undo_delete";
+  ewsServer.appendRemoteFolder(
+    new RemoteFolder(folderName, "root", folderName, folderName)
   );
+  ewsServer.addItemToFolder("undo_delete_test", folderName);
+  await syncFolder(incomingServer, rootFolder);
+
+  const folder = rootFolder.getChildNamed(folderName);
+  await syncFolder(incomingServer, folder);
+
+  const messagesToDelete = [...folder.messages];
+  Assert.equal(messagesToDelete.length, 1, "Should have a message to delete.");
 
   const listener = new PromiseTestUtils.PromiseCopyListener();
-  inboxFolder.deleteMessages(
+  folder.deleteMessages(
     messagesToDelete,
     msgWindow,
     false,
@@ -180,20 +221,10 @@ add_task(async function test_undo_delete() {
   );
   await listener.promise;
 
-  const checkCounts = (inboxCount, trashCount) => {
-    Assert.equal(
-      findTestMessages(inboxFolder, testItemPrefix).length,
-      inboxCount,
-      `Inbox should have ${inboxCount} messages.`
-    );
-    Assert.equal(
-      findTestMessages(trashFolder, testItemPrefix).length,
-      trashCount,
-      `Trash should have ${trashCount} messages.`
-    );
-  };
-
-  checkCounts(0, 1);
+  checkFolders([
+    [folder, 0],
+    [trashFolder, 1],
+  ]);
 
   const undoTransaction = msgWindow.transactionManager.peekUndoStack();
   Assert.ok(!!undoTransaction, "Should have an undo transaction.");
@@ -204,10 +235,13 @@ add_task(async function test_undo_delete() {
 
   msgWindow.transactionManager.undoTransaction();
   await TestUtils.waitForCondition(() => {
-    return !!findTestMessages(inboxFolder, testItemPrefix).length;
-  }, "Waiting for message to reappear in inbox.");
+    return !![...folder.messages].length;
+  }, "Waiting for message to reappear in source folder.");
 
-  checkCounts(1, 0);
+  checkFolders([
+    [folder, 1],
+    [trashFolder, 0],
+  ]);
 
   const redoTransaction = msgWindow.transactionManager.peekRedoStack();
   Assert.ok(!!redoTransaction, "Should have a redo transaction.");
@@ -218,10 +252,13 @@ add_task(async function test_undo_delete() {
 
   msgWindow.transactionManager.redoTransaction();
   await TestUtils.waitForCondition(() => {
-    return !findTestMessages(inboxFolder, testItemPrefix).length;
-  }, "Waiting for message to disappear from inbox.");
+    return ![...folder.messages].length;
+  }, "Waiting for message to disappear from folder.");
 
-  checkCounts(0, 1);
+  checkFolders([
+    [folder, 0],
+    [trashFolder, 1],
+  ]);
 
   msgWindow.transactionManager.clear();
 });

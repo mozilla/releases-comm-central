@@ -42,9 +42,11 @@ add_setup(async function () {
  * The `prefix` argument indicates the prefix to apply to the folders
  * constructed for the test setup. This function will create two folders on the
  * remote server: `<prefix>_folder1` and `<prefix>_folder2`, and will place two
- * items in `<prefix>_folder1` named `<prefix>_a` and `<prefix>_b`. This
- * function returns a tuple with the names of the two folders as the first two
- * elements and the folders themselves as the second two elements.
+ * items in `<prefix>_folder1` named `<prefix>_a` and `<prefix>_b`, each with a
+ * synthetic message.
+ *
+ * This function returns a tuple with the the two folders as the first two
+ * elements and an array containing the synthetic messages in order.
  *
  * @param {string} prefix
  * @returns {[string, string, nsIMsgFolder, nsIMsgFolder]}
@@ -68,8 +70,10 @@ async function setup_item_copymove_structure(prefix) {
   const folder2 = rootFolder.getChildNamed(folder2Name);
   Assert.ok(!!folder2, `${folder2Name} should exist.`);
 
-  ewsServer.addNewItemOrMoveItemToFolder(`${prefix}_a`, folder1Name);
-  ewsServer.addNewItemOrMoveItemToFolder(`${prefix}_b`, folder1Name);
+  const msgs = generator.makeMessages({ count: 2 });
+
+  ewsServer.addItemToFolder(`${prefix}_a`, folder1Name, msgs[0]);
+  ewsServer.addItemToFolder(`${prefix}_b`, folder1Name, msgs[1]);
 
   await syncFolder(incomingServer, folder1);
 
@@ -84,7 +88,7 @@ async function setup_item_copymove_structure(prefix) {
     `${folder2Name} should be empty.`
   );
 
-  return [folder1Name, folder2Name, folder1, folder2];
+  return [folder1, folder2, msgs];
 }
 
 /**
@@ -180,8 +184,7 @@ async function copyFolder(sourceFolder, destinationFolder, isMove) {
 }
 
 add_task(async function test_move_item() {
-  const [folder1Name, folder2Name, folder1, folder2] =
-    await setup_item_copymove_structure("move");
+  const [folder1, folder2, msgs] = await setup_item_copymove_structure("move");
 
   const headers = [];
   [...folder1.messages].forEach(header => headers.push(header));
@@ -191,30 +194,30 @@ add_task(async function test_move_item() {
   await copyItems(folder1, folder2, headers, isMove);
 
   Assert.equal(
-    ewsServer.getContainingFolderId("move_a"),
-    folder2Name,
-    `Item move_a should be in ${folder2Name}`
-  );
-  Assert.equal(
-    ewsServer.getContainingFolderId("move_b"),
-    folder2Name,
-    `Item move_b should be in ${folder2Name}`
-  );
-  Assert.equal(
     folder1.getTotalMessages(false),
     0,
-    `${folder1Name} should be empty`
+    `${folder1.name} should be empty`
   );
   Assert.equal(
     folder2.getTotalMessages(false),
     2,
-    `${folder2Name} should have 2 messages`
+    `${folder2.name} should have 2 messages`
   );
+
+  // Check that the messages in `folder2` are the correct ones.
+  const expectedSubjects = msgs.map(msg => msg.subject);
+  const actualSubjects = [...folder2.messages].map(msg => msg.subject);
+
+  for (const subject of expectedSubjects) {
+    Assert.ok(
+      actualSubjects.includes(subject),
+      `${folder2.name} should contain a message with the subject \"${subject}\"`
+    );
+  }
 });
 
 add_task(async function test_copy_item() {
-  const [folder1Name, folder2Name, folder1, folder2] =
-    await setup_item_copymove_structure("copy");
+  const [folder1, folder2, msgs] = await setup_item_copymove_structure("copy");
 
   const headers = [];
   [...folder1.messages].forEach(header => headers.push(header));
@@ -226,33 +229,29 @@ add_task(async function test_copy_item() {
   Assert.equal(
     folder1.getTotalMessages(false),
     2,
-    `${folder1Name} should contain 2 messages`
+    `${folder1.name} should contain 2 messages`
   );
   Assert.equal(
     folder2.getTotalMessages(false),
     2,
-    `${folder2Name} should contain 2 messages`
+    `${folder2.name} should contain 2 messages`
   );
-  Assert.equal(
-    ewsServer.getContainingFolderId("copy_a"),
-    folder1Name,
-    `Item copy_a should be in ${folder1Name}`
-  );
-  Assert.equal(
-    ewsServer.getContainingFolderId("copy_b"),
-    folder1Name,
-    `Item copy_b should be in ${folder1Name}`
-  );
-  Assert.equal(
-    ewsServer.getContainingFolderId("copy_a_copy"),
-    folder2Name,
-    `Item copy_a_copy should be in ${folder2Name}`
-  );
-  Assert.equal(
-    ewsServer.getContainingFolderId("copy_b_copy"),
-    folder2Name,
-    `Item copy_b_copy should be in ${folder2Name}`
-  );
+
+  // Check that we have a copy of each message in each folder.
+  const expectedSubjects = msgs.map(msg => msg.subject);
+  const folder1Subjects = [...folder1.messages].map(msg => msg.subject);
+  const folder2Subjects = [...folder2.messages].map(msg => msg.subject);
+
+  for (const subject of expectedSubjects) {
+    Assert.ok(
+      folder1Subjects.includes(subject),
+      `${folder1.name} should contain a message with the subject \"${subject}\"`
+    );
+    Assert.ok(
+      folder2Subjects.includes(subject),
+      `${folder2.name} should contain a message with the subject \"${subject}\"`
+    );
+  }
 });
 
 add_task(async function test_move_copy_messages_from_another_server() {
@@ -636,23 +635,15 @@ add_task(async function test_mark_as_junk() {
   const rootFolder = incomingServer.rootFolder;
   await syncFolder(incomingServer, rootFolder);
 
+  // Add messages to the test folder.
+  const junkMessages = generator.makeMessages({ count: 2 });
+  ewsServer.addItemToFolder("junk_message_1", "inbox", junkMessages[0]);
+  ewsServer.addItemToFolder("junk_message_2", "inbox", junkMessages[1]);
+
   const inboxFolder = rootFolder.getChildNamed("Inbox");
-  Assert.ok(!!inboxFolder, "Inbox folder should exist.");
+  Assert.ok(!!inboxFolder, `Inbox folder should exist`);
   const junkFolder = rootFolder.getChildNamed("Junk");
   Assert.ok(!!junkFolder, "Junk folder should exist");
-
-  // Add messages to the inbox.
-  const junkMessages = generator.makeMessages({ count: 2 });
-  ewsServer.addNewItemOrMoveItemToFolder(
-    "junk_message_1",
-    "inbox",
-    junkMessages[0]
-  );
-  ewsServer.addNewItemOrMoveItemToFolder(
-    "junk_message_2",
-    "inbox",
-    junkMessages[1]
-  );
 
   await syncFolder(incomingServer, inboxFolder);
   await syncFolder(incomingServer, junkFolder);
@@ -663,20 +654,27 @@ add_task(async function test_mark_as_junk() {
     "Should start with two messages."
   );
 
-  const findJunkMessages = folder => {
-    const messages = [...folder.messages];
-    return messages.filter(header =>
-      header.getStringProperty("ewsId").startsWith("junk_message_")
+  // As per the EWS documentation, unmarking a message as junk can only move
+  // that message back to the inbox, so we cannot use a dedicated folder to test
+  // this. This means we need to make sure we clean up any leftover messages in
+  // the inbox folder to avoid any side-effect.
+  registerCleanupFunction(async () => {
+    const messages = [...inboxFolder.messages];
+    const eventPromise = PromiseTestUtils.promiseFolderEvent(
+      inboxFolder,
+      "DeleteOrMoveMsgCompleted"
     );
-  };
+    inboxFolder.deleteMessages(messages, null, true, false, null, false);
+    await eventPromise;
+  });
 
-  const junkMessageKeys = findJunkMessages(inboxFolder).map(
+  const junkMessageKeys = [...inboxFolder.messages].map(
     header => header.messageKey
   );
   Assert.equal(
     junkMessageKeys.length,
     2,
-    "Should have found two junk messages."
+    "Should have found two messages to mark as junk in the test folder."
   );
 
   const junkListener = new PromiseTestUtils.PromiseCopyListener();
@@ -689,19 +687,19 @@ add_task(async function test_mark_as_junk() {
   await junkListener.promise;
 
   Assert.equal(
-    findJunkMessages(inboxFolder).length,
+    [...inboxFolder.messages].length,
     0,
-    "Should be no junk messages in the inbox."
+    "Should be no messages in the test folder."
   );
 
   Assert.equal(
-    findJunkMessages(junkFolder).length,
+    [...junkFolder.messages].length,
     2,
-    "Should have two junk messages in the Junk folder."
+    "Should have two messages in the Junk folder."
   );
 
   // Unjunk the first message and make sure it moved back to the inbox.
-  const newMessageKeys = findJunkMessages(junkFolder).map(m => m.messageKey);
+  const newMessageKeys = [...junkFolder.messages].map(m => m.messageKey);
   const unjunkListener = new PromiseTestUtils.PromiseCopyListener();
   junkFolder.handleViewCommand(
     Ci.nsMsgViewCommandType.unjunk,
@@ -710,37 +708,40 @@ add_task(async function test_mark_as_junk() {
     unjunkListener
   );
   await unjunkListener.promise;
+  await syncFolder(incomingServer, inboxFolder);
 
   Assert.equal(
-    findJunkMessages(inboxFolder).length,
+    [...inboxFolder.messages].length,
     1,
-    "Should be one unjunked message in the inbox."
+    "Should be one unjunked message in the test folder."
   );
   Assert.equal(
-    findJunkMessages(junkFolder).length,
+    [...junkFolder.messages].length,
     1,
     "Should still be one junked message in junk folder."
   );
 });
 
 add_task(async function test_change_flag_status() {
+  const folderName = "change_flag_status";
+  ewsServer.appendRemoteFolder(
+    new RemoteFolder(folderName, "root", folderName, folderName)
+  );
+
   const rootFolder = incomingServer.rootFolder;
   await syncFolder(incomingServer, rootFolder);
 
-  const inboxFolder = rootFolder.getChildNamed("Inbox");
-  Assert.ok(!!inboxFolder, "Inbox folder should exist.");
+  const folder = rootFolder.getChildNamed(folderName);
+  Assert.ok(!!folder, `${folderName} folder should exist.`);
 
-  // Add messages to the inbox.
+  // Add messages to the folder.
   const message = generator.makeMessages({ count: 1 })[0];
-  ewsServer.addNewItemOrMoveItemToFolder("message", "inbox", message);
+  ewsServer.addItemToFolder("message", folderName, message);
 
-  await syncFolder(incomingServer, inboxFolder);
+  await syncFolder(incomingServer, folder);
 
   // Get the message header.
-  const messageHeaders = [...inboxFolder.messages].filter(
-    header => header.getStringProperty("ewsId") == "message"
-  );
-
+  const messageHeaders = [...folder.messages];
   Assert.equal(messageHeaders.length, 1, "Should have one message to flag.");
   const messageHeader = messageHeaders[0];
 
@@ -750,14 +751,14 @@ add_task(async function test_change_flag_status() {
   Assert.ok(!!serverMessage, "Synthetic message should exist.");
 
   // Flag the message.
-  inboxFolder.markMessagesFlagged([messageHeader], true);
+  folder.markMessagesFlagged([messageHeader], true);
   TestUtils.waitForCondition(
     () => serverMessage.metaState.flagged,
     "Waiting for message to be flagged."
   );
 
   // Unflag the message.
-  inboxFolder.markMessagesFlagged([messageHeader], false);
+  folder.markMessagesFlagged([messageHeader], false);
   TestUtils.waitForCondition(
     () => !serverMessage.metaState.flagged,
     "Waiting for message to be unflagged."
@@ -765,21 +766,23 @@ add_task(async function test_change_flag_status() {
 });
 
 add_task(async function test_hard_delete_item() {
+  const folderName = "hard_delete";
+  ewsServer.appendRemoteFolder(
+    new RemoteFolder(folderName, "root", folderName, folderName)
+  );
+
   const rootFolder = incomingServer.rootFolder;
   await syncFolder(incomingServer, rootFolder);
 
-  const inboxFolder = rootFolder.getChildNamed("Inbox");
-  Assert.ok(!!inboxFolder, "Inbox folder should exist.");
+  const folder = rootFolder.getChildNamed(folderName);
+  Assert.ok(!!folder, `${folderName} folder should exist.`);
 
   const message = generator.makeMessages({ count: 1 })[0];
-  ewsServer.addNewItemOrMoveItemToFolder("message_to_delete", "inbox", message);
+  ewsServer.addItemToFolder("message_to_delete", folderName, message);
 
-  await syncFolder(incomingServer, inboxFolder);
+  await syncFolder(incomingServer, folder);
 
-  const messageHeaders = [...inboxFolder.messages].filter(
-    header => header.getStringProperty("ewsId") == "message_to_delete"
-  );
-
+  const messageHeaders = [...folder.messages];
   Assert.equal(
     messageHeaders.length,
     1,
@@ -787,22 +790,13 @@ add_task(async function test_hard_delete_item() {
   );
 
   const eventPromise = PromiseTestUtils.promiseFolderEvent(
-    inboxFolder,
+    folder,
     "DeleteOrMoveMsgCompleted"
   );
-  inboxFolder.deleteMessages(
-    [messageHeaders[0]],
-    null,
-    true,
-    false,
-    null,
-    false
-  );
+  folder.deleteMessages([messageHeaders[0]], null, true, false, null, false);
   await eventPromise;
 
   // Message should no longer be in the inbox.
-  const matchingMessages = [...inboxFolder.messages].filter(
-    header => header.getStringProperty("ewsId") == "message_to_delete"
-  );
+  const matchingMessages = [...folder.messages];
   Assert.equal(matchingMessages.length, 0, "Message should have been deleted.");
 });

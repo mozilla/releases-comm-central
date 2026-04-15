@@ -170,6 +170,14 @@ export class MockServer {
   lastSentMessage = null;
 
   /**
+   * The number of times a message has been moved in the server's lifespan.
+   *
+   * @type {number}
+   * @private
+   */
+  #movedItems = 0;
+
+  /**
    * Return the item information for the specified `itemId`, or
    * null if it can't be found.
    *
@@ -328,29 +336,54 @@ export class MockServer {
   }
 
   /**
-   * Add a new item to a folder or move an existing item to a new folder.
-   *
-   * If the given  `itemId` is already on the server, then it is moved
-   * from its current location to the newly specified `folderId`. If the
-   * given `itemId` does not yet exist on the server, it is added to the
-   * specified `folderId`.
+   * Add a new item to a folder.
    *
    * @param {string} itemId
    * @param {string} folderId
-   * @param {SyntheticMessage} [syntheticMessage] - Message data from
-   *   MessageGenerator, if this item is a message.
+   * @param {?SyntheticMessage} syntheticMessage - Message data from
+   *   MessageGenerator.
    */
-  addNewItemOrMoveItemToFolder(itemId, folderId, syntheticMessage) {
+  addItemToFolder(itemId, folderId, syntheticMessage) {
     let itemInfo = this.#itemIdToItemInfo.get(itemId);
     if (itemInfo) {
-      this.itemChanges.push(["delete", itemInfo.parentId, itemId]);
-      itemInfo.parentId = folderId;
-      this.itemChanges.push(["create", folderId, itemId]);
-    } else {
-      itemInfo = new ItemInfo(itemId, folderId, syntheticMessage);
-      this.itemChanges.push(["create", folderId, itemId]);
+      throw Error(`an item already exists with ID ${itemId}`);
     }
+
+    itemInfo = new ItemInfo(itemId, folderId, syntheticMessage);
+    this.itemChanges.push(["create", folderId, itemId]);
+    this.itemsCreated++;
     this.#itemIdToItemInfo.set(itemId, itemInfo);
+  }
+
+  /**
+   * Moves an existing message to a destination folder.
+   *
+   * @param {string} itemId - The unique identifier for the message to move
+   * @param {string} folderId - The unique identifier for the destination folder
+   * @returns {string} - The unique identifier for the message once the move has
+   *   been done, which can change in the process.
+   */
+  moveItemToFolder(itemId, folderId) {
+    const itemInfo = this.#itemIdToItemInfo.get(itemId);
+    if (!itemInfo) {
+      throw Error("cannot find existing message with ID to move");
+    }
+
+    // Register changes that describe the move.
+    const newId = `moved-item-${this.#movedItems}`;
+    itemInfo.id = newId;
+    this.itemChanges.push(["delete", itemInfo.parentId, itemId]);
+    this.itemChanges.push(["create", folderId, newId]);
+
+    // Set the destination folder ID, and move the item's entry in
+    // `#itemIdToItemInfo` from the old item ID to the new one.
+    itemInfo.parentId = folderId;
+    this.#itemIdToItemInfo.delete(itemId);
+    this.#itemIdToItemInfo.set(newId, itemInfo);
+
+    this.#movedItems++;
+
+    return newId;
   }
 
   /**
@@ -378,7 +411,7 @@ export class MockServer {
         urlSafeId = urlSafeId.substring(0, padStart) + padLength.toString();
       }
       message.messageId = urlSafeId;
-      this.addNewItemOrMoveItemToFolder(urlSafeId, folderId, message);
+      this.addItemToFolder(urlSafeId, folderId, message);
     }
   }
 
@@ -428,5 +461,71 @@ export class MockServer {
       }
     }
     return items;
+  }
+
+  /**
+   * Get all the item changes starting from a given position.
+   *
+   * This method also "flattens" creation and deletion: if a message was created
+   * and then deleted in the range covered by the changes returned here, the
+   * creation and deletion are
+   *
+   * @param {number} offset - The position in the change stream to sync from.
+   * @param {string} folderId - The folder for which we want to sync new
+   *   changes.
+   * @param {number} maxItems - An optional maximum number of items to include.
+   *   The resulting list of changes might be smaller than this number, e.g. if
+   *   the end of `this.itemChanges` has been reached, or if changes have been
+   *   "flattened" out.
+   * @returns {Array<Array<string, string, string>, boolean>} - An array with a
+   *   list of changes as the first element, and a boolean indicating whether
+   *   more changes are available as the second. See the documentation for
+   *   `MockServer.itemChanges` for the structure of the first element.
+   */
+  getChangesSince(offset, folderId, maxItems) {
+    let changes = this.itemChanges
+      .slice(offset)
+      .filter(([, parentId]) => parentId === folderId);
+
+    let truncated = false;
+
+    if (Number.isFinite(maxItems)) {
+      changes = changes.slice(0, maxItems);
+
+      if (offset + maxItems < this.itemChanges.length - 1) {
+        truncated = true;
+      }
+    }
+
+    const createdInRange = new Set();
+    const currentStateById = new Map();
+    for (const change of changes) {
+      const changeKind = change[0];
+      const itemId = change[2];
+      if (changeKind == "created") {
+        createdInRange.add(itemId);
+      }
+      currentStateById.set(itemId, changeKind);
+    }
+
+    const flattenedChanges = changes.filter(([kind, _parentId, itemId]) => {
+      switch (kind) {
+        case "create":
+          // If the change is an item creation, remove it if the item was
+          // deleted afterwards.
+          return currentStateById.get(itemId) != "delete";
+        case "delete":
+          // If the change is an item deletion, don't include it if the item was
+          // also created in this range (and is still deleted).
+          return (
+            !createdInRange.has(itemId) &&
+            currentStateById.get(itemId) == "delete"
+          );
+        default:
+          return true;
+      }
+    });
+
+    return [flattenedChanges, truncated];
   }
 }

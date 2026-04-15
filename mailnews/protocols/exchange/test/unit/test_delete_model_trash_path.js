@@ -101,9 +101,9 @@ add_task(async function test_delete_model() {
   );
 
   // Add some items to the inbox.
-  ewsServer.addNewItemOrMoveItemToFolder("item1", "inbox");
-  ewsServer.addNewItemOrMoveItemToFolder("item2", "inbox");
-  ewsServer.addNewItemOrMoveItemToFolder("item3", "inbox");
+  ewsServer.addItemToFolder("item1", "inbox");
+  ewsServer.addItemToFolder("item2", "inbox");
+  ewsServer.addItemToFolder("item3", "inbox");
 
   await syncFolder(incomingServer, inboxFolder);
 

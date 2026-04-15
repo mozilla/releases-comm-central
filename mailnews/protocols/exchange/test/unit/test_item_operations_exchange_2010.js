@@ -56,12 +56,12 @@ add_task(async function test_mark_as_junk() {
 
   // Add messages to the inbox.
   const junkMessages = generator.makeMessages({ count: 2 });
-  ewsServer.addNewItemOrMoveItemToFolder(
+  ewsServer.addItemToFolder(
     "junk_message_1",
     originalFolderName,
     junkMessages[0]
   );
-  ewsServer.addNewItemOrMoveItemToFolder(
+  ewsServer.addItemToFolder(
     "junk_message_2",
     originalFolderName,
     junkMessages[1]
@@ -90,10 +90,12 @@ add_task(async function test_mark_as_junk() {
     "Should start with two messages in the junk folder."
   );
 
+  const junkMessageSubjects = junkMessages.map(msg => msg.subject);
+
   const findJunkMessages = folder => {
     const messages = [...folder.messages];
     return messages.filter(header =>
-      header.getStringProperty("ewsId").startsWith("junk_message_")
+      junkMessageSubjects.includes(header.subject)
     );
   };
 

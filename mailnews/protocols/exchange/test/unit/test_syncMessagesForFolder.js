@@ -255,7 +255,7 @@ async function testSyncChangesWithClient(mockServer, client) {
   mockServer.itemChanges.push(["update", "inbox", itemIdToUpdate]);
 
   const itemIdToMove = messages[4].messageId;
-  mockServer.addNewItemOrMoveItemToFolder(itemIdToMove, "junkemail");
+  const movedItemId = mockServer.moveItemToFolder(itemIdToMove, "junkemail");
   const [movedMessage] = messages.splice(4, 1);
 
   const itemIdToDelete = messages[2].messageId;
@@ -316,7 +316,7 @@ async function testSyncChangesWithClient(mockServer, client) {
 
   Assert.deepEqual(
     listener._created.map(entry => entry.ewsId),
-    [itemIdToMove],
+    [movedItemId],
     "the moved item should have been created"
   );
   Assert.deepEqual(
@@ -455,7 +455,7 @@ async function testSyncChangesWithRealFolder(mockServer, incomingServer) {
   mockServer.itemChanges.push(["update", "inbox", itemIdToUpdate]);
 
   const itemIdToMove = messages[4].messageId;
-  mockServer.addNewItemOrMoveItemToFolder(itemIdToMove, "junkemail");
+  mockServer.moveItemToFolder(itemIdToMove, "junkemail");
   const [movedMessage] = messages.splice(4, 1);
 
   const itemIdToDelete = messages[3].messageId;

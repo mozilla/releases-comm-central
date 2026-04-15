@@ -74,7 +74,7 @@ add_task(async function testEwsAttachmentDetach() {
   await syncFolder(incomingServer, inboxFolder);
 
   // load and update a message in the fake EWS server
-  ewsServer.addNewItemOrMoveItemToFolder("attach_test_msg", "inbox", smsg);
+  ewsServer.addItemToFolder("attach_test_msg", "inbox", smsg);
   await syncFolder(incomingServer, inboxFolder);
 
   Assert.equal(
