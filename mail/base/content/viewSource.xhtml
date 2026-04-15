@@ -44,6 +44,7 @@
   <script defer="defer" src="chrome://messenger/content/viewSource.js"></script>
   <script defer="defer" src="chrome://messenger/content/viewZoomOverlay.js"></script>
   <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script type="module" src="chrome://messenger/content/lazy-findbar.mjs"></script>
 </head>
 <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <stringbundle id="viewSourceBundle" src="chrome://messenger/locale/viewSource.properties"/>
@@ -238,7 +239,7 @@
              tooltip="aHTMLTooltip"
              maychangeremoteness="true"
              messagemanagergroup="browsers"/>
-    <findbar id="FindToolbar" browserid="content"/>
+    <html:lazy-findbar id="FindToolbar" browserid="content"/>
   </vbox>
 
 #include tabDialogs.inc.xhtml

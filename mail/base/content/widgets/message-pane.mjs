@@ -11,6 +11,8 @@ const { XPCOMUtils } = ChromeUtils.importESModule(
 const { MailE10SUtils } = ChromeUtils.importESModule(
   "resource:///modules/MailE10SUtils.sys.mjs"
 );
+// eslint-disable-next-line import/no-unassigned-import
+import "chrome://messenger/content/lazy-findbar.mjs";
 
 /**
  * Message pane.
@@ -54,18 +56,8 @@ class MessagePane extends HTMLElement {
    *
    * @type {?MozFindbar}
    */
-  #webFindbar = null;
   get webFindbar() {
-    if (this.#webFindbar) {
-      return this.#webFindbar;
-    }
-
-    this.#webFindbar = document.createXULElement("findbar");
-    this.#webFindbar.setAttribute("id", "webBrowserFindToolbar");
-    this.#webFindbar.setAttribute("browserid", "webBrowser");
-    this.appendChild(this.#webFindbar);
-
-    return this.#webFindbar;
+    return this.querySelector("#webBrowserFindToolbar");
   }
 
   /**
@@ -129,18 +121,8 @@ class MessagePane extends HTMLElement {
    *
    * @type {?MozFindbar}
    */
-  #multiMessageFindbar = null;
   get multiMessageFindbar() {
-    if (this.#multiMessageFindbar) {
-      return this.#multiMessageFindbar;
-    }
-
-    this.#multiMessageFindbar = document.createXULElement("findbar");
-    this.#multiMessageFindbar.setAttribute("id", "multiMessageViewFindToolbar");
-    this.#multiMessageFindbar.setAttribute("browserid", "multiMessageBrowser");
-    this.appendChild(this.#multiMessageFindbar);
-
-    return this.#multiMessageFindbar;
+    return this.querySelector("#multiMessageViewFindToolbar");
   }
 
   /**
@@ -433,7 +415,7 @@ class MessagePane extends HTMLElement {
       return;
     }
 
-    // Check if can continue the search.
+    // Check if we can continue the search.
     if (this.multiMessageFindbar && !this.multiMessageFindbar.hidden) {
       this.multiMessageFindbar.onFindAgainCommand(false);
     }

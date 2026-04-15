@@ -81,6 +81,7 @@
   <script defer="defer" src="chrome://messenger/content/msgHdrView.js"></script>
   <script defer="defer" src="chrome://messenger/content/aboutMessage.js"></script>
   <script type="module" src="chrome://messenger/content/attachment-list.mjs"></script>
+  <script type="module" src="chrome://messenger/content/lazy-findbar.mjs"></script>
 </head>
 <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
@@ -157,7 +158,7 @@
         <vbox id="attachmentView" collapsed="collapsed">
 #include msgAttachmentView.inc.xhtml
         </vbox>
-        <findbar id="findToolbar" browserid="messagepane"/>
+        <html:lazy-findbar id="findToolbar" browserid="messagepane"/>
       </vbox>
 #include msgSecurityPane.inc.xhtml
     </hbox>

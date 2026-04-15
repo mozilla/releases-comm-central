@@ -1049,9 +1049,17 @@ var messageProgressListener = {
     // the find command. This means the new message will get highlighted and
     // we'll scroll to the first word in the message that matches the find text.
     const findBar = document.getElementById("findToolbar");
-    if (!findBar.hidden) {
-      findBar.onFindAgainCommand(false);
+    if (findBar && !findBar.hidden) {
+      // Yield to the event loop to allow the async Finder teardown from the
+      // previous message to complete before starting a new search.
+      setTimeout(() => {
+        // Double check the user didn't close it during the yield
+        if (!findBar.hidden) {
+          findBar.onFindAgainCommand(false);
+        }
+      });
     }
+
     // Run the phishing detector on the message if it hasn't been marked as not
     // a scam already.
     if (

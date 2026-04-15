@@ -134,6 +134,8 @@ messenger.jar:
     content/messenger/thread-card.mjs               (content/widgets/treeview/thread-card.mjs)
     content/messenger/thread-row.mjs                (content/widgets/treeview/thread-row.mjs)
     content/messenger/conversation-view.mjs         (content/widgets/conversation-view/conversation-view.mjs)
+    content/messenger/lazy-findbar.mjs              (content/widgets/lazy-findbar.mjs)
+
 
 # the following files are mail-specific overrides
 *   content/messenger/license.html                  (/toolkit/content/license.html)

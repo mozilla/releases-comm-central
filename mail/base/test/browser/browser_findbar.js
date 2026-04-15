@@ -112,9 +112,9 @@ add_task(async function testMessagePaneFindToolbars() {
     "The multi message browser should be visible"
   );
 
-  // The web browser find toolbar should not be visible now.
+  const actualWebFindbar = about3Pane.messagePane.webFindbar.firstElementChild;
   Assert.ok(
-    BrowserTestUtils.isHidden(about3Pane.messagePane.webFindbar),
+    !actualWebFindbar || BrowserTestUtils.isHidden(actualWebFindbar),
     "The web browser find toolbar should be hidden"
   );
 
@@ -149,9 +149,11 @@ add_task(async function testMessagePaneFindToolbars() {
     "messageBrowser should be visible"
   );
 
-  // The multi message browser find toolbar should not be visible now.
+  const actualMultiMessageFindbar =
+    about3Pane.messagePane.multiMessageFindbar.firstElementChild;
   Assert.ok(
-    BrowserTestUtils.isHidden(about3Pane.messagePane.multiMessageFindbar),
+    !actualMultiMessageFindbar ||
+      BrowserTestUtils.isHidden(actualMultiMessageFindbar),
     "The multi message browser find toolbar should be hidden"
   );
 

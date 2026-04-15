@@ -13,6 +13,7 @@
                forcemessagemanager="forcemessagemanager"
                messagemanagergroup="single-page"
                maychangeremoteness="true" />
+  <lazy-findbar id="webBrowserFindToolbar" browserid="webBrowser" hidden="true" />
   <xul:browser id="messageBrowser"
                hidden="hidden"
                src="about:message" />
@@ -21,4 +22,5 @@
                hidden="hidden"
                context="aboutPagesContext"
                src="chrome://messenger/content/multimessageview.xhtml" />
+  <lazy-findbar id="multiMessageViewFindToolbar" browserid="multiMessageBrowser" hidden="true" />
 </template>
