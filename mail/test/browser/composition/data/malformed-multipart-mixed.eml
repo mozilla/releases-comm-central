@@ -1,0 +1,33 @@
+Content-Type: multipart/mixed; boundary="------------test-boundary"
+Message-ID: <malformed-multipart-mixed@example.invalid>
+MIME-Version: 1.0
+Subject: Bad multipart/mixed
+
+This is a multi-part message in MIME format.
+--------------test-boundary
+Content-Type: application/pdf; name="test.pdf"
+Content-Disposition: attachment; filename="test.pdf"
+Content-Transfer-Encoding: base64
+
+JVBERi0xLjQKJUR1bW15IFBERgolJUVPRgo=
+--------------test-boundary
+Content-Type: multipart/alternative; boundary="------------alt-boundary"
+
+--------------alt-boundary
+Content-Type: Text/Plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+
+This is malformed multipart/mixed with a nested multipart/alternative body.
+
+--------------alt-boundary
+Content-Type: text/HTML; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+<html>
+  <body>
+    <p>This is malformed multipart/mixed with a nested multipart/alternative body.</p>
+  </body>
+</html>
+
+--------------alt-boundary--
+--------------test-boundary--

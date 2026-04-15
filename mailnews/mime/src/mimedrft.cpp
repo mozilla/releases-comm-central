@@ -91,6 +91,17 @@ mime_draft_data::mime_draft_data()
       overrideComposeFormat(false),
       autodetectCharset(false) {}
 
+static bool mime_type_is_message_body(const nsACString& contentType) {
+  return contentType.LowerCaseFindASCII("text/html") != kNotFound ||
+         contentType.LowerCaseFindASCII("text/plain") != kNotFound ||
+         contentType.LowerCaseEqualsLiteral("text");
+}
+
+static bool mime_type_can_replace_message_body(const nsACString& contentType) {
+  return mime_type_is_message_body(contentType) ||
+         contentType.LowerCaseFindASCII("multipart/alternative") != kNotFound;
+}
+
 typedef enum {
   nsMsg_RETURN_RECEIPT_BOOL_HEADER_MASK = 0,
   nsMsg_ENCRYPTED_BOOL_HEADER_MASK,
@@ -1724,7 +1735,20 @@ int mime_decompose_file_init_fn(MimeClosure stream_closure,
 
   nAttachments = mdd->attachments.Length();
 
-  if (!nAttachments && !mdd->messageBody) {
+  nsCString contentType;
+  contentType.Adopt(MimeHeaders_get(headers, HEADER_CONTENT_TYPE, false, false));
+
+  // Allow a later body part to replace an earlier unusable messageBody candidate.
+  if (mdd->messageBody &&
+      !mime_type_is_message_body(mdd->messageBody->m_type) &&
+      mime_type_can_replace_message_body(contentType)) {
+    mdd->attachments.AppendElement(mdd->messageBody);
+    mdd->messageBody = nullptr;
+    nAttachments = mdd->attachments.Length();
+  }
+
+  if (!mdd->messageBody &&
+      (!nAttachments || mime_type_can_replace_message_body(contentType))) {
     // if we've been told to use an override charset then do so....otherwise use
     // the charset inside the message header...
     if (mdd->options->override_charset) {
@@ -1770,8 +1794,7 @@ int mime_decompose_file_init_fn(MimeClosure stream_closure,
   PR_FREEIF(contLoc);
 
   mdd->curAttachment = newAttachment;
-  newAttachment->m_type.Adopt(
-      MimeHeaders_get(headers, HEADER_CONTENT_TYPE, false, false));
+  newAttachment->m_type = contentType;
 
   //
   // This is to handle the degenerated Apple Double attachment.
