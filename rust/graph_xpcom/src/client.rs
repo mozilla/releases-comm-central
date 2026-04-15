@@ -19,6 +19,7 @@ use crate::error::XpComGraphError;
 mod check_connectivity;
 mod create_folder;
 mod get_message;
+mod move_message;
 mod send_message;
 mod sync_folder_hierarchy;
 mod sync_messages_for_folder;

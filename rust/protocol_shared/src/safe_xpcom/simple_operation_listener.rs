@@ -54,8 +54,8 @@ impl From<bool> for UseLegacyFallback {
 }
 
 pub struct SimpleOperationSuccessArgs {
-    new_ids: ThinVec<nsCString>,
-    use_legacy_fallback: UseLegacyFallback,
+    pub new_ids: ThinVec<nsCString>,
+    pub use_legacy_fallback: UseLegacyFallback,
 }
 
 impl<I, S> From<(I, UseLegacyFallback)> for SimpleOperationSuccessArgs
