@@ -3185,8 +3185,17 @@ function GetArgs(originalData) {
     var argname = pairs[i].substring(0, pos);
     var argvalue = pairs[i].substring(pos + 1);
     if (argvalue.startsWith("'") && argvalue.endsWith("'")) {
+      // Single quotes act as a raw literal escape. We strip the quotes
+      // but do not decode. This is especially important for the 'body'
+      // argument ensuring unaltered content.
       args[argname] = argvalue.substring(1, argvalue.length - 1);
     } else {
+      // Double quotes must be stripped to prevent validation errors (such as
+      // trailing quotes in email addresses), but the contents still need to be
+      // URI decoded to support tools like xdg-email.
+      if (argvalue.startsWith('"') && argvalue.endsWith('"')) {
+        argvalue = argvalue.substring(1, argvalue.length - 1);
+      }
       try {
         args[argname] = decodeURIComponent(argvalue);
       } catch (e) {
