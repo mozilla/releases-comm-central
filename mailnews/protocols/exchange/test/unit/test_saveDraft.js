@@ -6,17 +6,37 @@ var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
 
-let ewsServer, incomingServer, ewsAccount, identity;
+let ewsIncomingServer, ewsIdentity;
+let graphIncomingServer, graphIdentity;
 
 add_setup(async function () {
-  [ewsServer, incomingServer] = setupBasicEwsTestServer({});
-  ewsAccount = MailServices.accounts.createAccount();
-  identity = MailServices.accounts.createIdentity();
-  ewsAccount.addIdentity(identity);
-  ewsAccount.incomingServer = incomingServer;
+  [, ewsIncomingServer] = setupBasicEwsTestServer({});
+  const ewsAccount = MailServices.accounts.createAccount();
+  ewsIdentity = MailServices.accounts.createIdentity();
+  ewsAccount.addIdentity(ewsIdentity);
+  ewsAccount.incomingServer = ewsIncomingServer;
+
+  [, graphIncomingServer] = setupBasicGraphTestServer({});
+  const graphAccount = MailServices.accounts.createAccount();
+  graphIdentity = MailServices.accounts.createIdentity();
+  graphAccount.addIdentity(graphIdentity);
+  graphAccount.incomingServer = graphIncomingServer;
+
+  registerCleanupFunction(() => {
+    MailServices.accounts.removeAccount(ewsAccount, false);
+    MailServices.accounts.removeAccount(graphAccount, false);
+  });
 });
 
-add_task(async function saveDraft() {
+/**
+ * Attempts to save a message as draft for the given server/identity.
+ *
+ * @param {nsIMsgIncomingServer} incomingServer - The incoming server to use for
+ *   syncing folders.
+ * @param {nsIMsgIdentity} identity - The identity to use for saving draft
+ *   messages.
+ */
+async function subtestSaveDraft(incomingServer, identity) {
   const rootFolder = incomingServer.rootFolder;
   await syncFolder(incomingServer, rootFolder);
 
@@ -54,4 +74,12 @@ add_task(async function saveDraft() {
     1,
     "Drafts should have 1 message."
   );
+}
+
+add_task(async function testSaveDraftEWS() {
+  await subtestSaveDraft(ewsIncomingServer, ewsIdentity);
+});
+
+add_task(async function testSaveDraftGraph() {
+  await subtestSaveDraft(graphIncomingServer, graphIdentity);
 });

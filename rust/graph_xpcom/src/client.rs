@@ -18,6 +18,7 @@ use crate::error::XpComGraphError;
 
 mod check_connectivity;
 mod create_folder;
+mod create_message;
 mod get_message;
 mod move_message;
 mod send_message;

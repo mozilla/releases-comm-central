@@ -4,8 +4,6 @@
 
 use std::sync::Arc;
 
-use base64::prelude::*;
-
 use ms_graph_tb::{
     OperationBody, paths,
     types::{email_address::EmailAddress, message::Message, recipient::Recipient},
@@ -48,17 +46,8 @@ impl<ServerT: AuthenticationProvider + RefCounted>
         // but since that endpoint only takes *either* structured JSON or
         // base64-encoded RFC822 text, we wouldn't be able to append further
         // information like the DSN flag or the Bcc recipients.
-        let endpoint = self.endpoint.as_str();
-        let body = BASE64_STANDARD.encode(&self.mime_content);
-        let body = OperationBody::Other {
-            content_type: "text/plain".to_string(),
-            body: body.as_bytes().to_vec(),
-        };
-
-        // Send the request and grab the resulting message ID.
-        let request = paths::me_messages::Post::new(endpoint.to_string(), body);
         let message_id = client
-            .send_request_json_response(request)
+            .send_create_message_request(None, &self.mime_content)
             .await?
             .outlook_item()
             .entity()
@@ -86,6 +75,7 @@ impl<ServerT: AuthenticationProvider + RefCounted>
         // Send the update request. We don't need to check the response, since
         // it should just be the original message with the added properties (and
         // all we need to send is the ID, which we already have).
+        let endpoint = self.endpoint.as_str();
         let request = paths::me_messages_message_id::Patch::new(
             endpoint.to_string(),
             message_id.clone(),
@@ -95,7 +85,7 @@ impl<ServerT: AuthenticationProvider + RefCounted>
 
         // Now tell the server to send the draft message we just created.
         let request =
-            paths::me_messages_message_id_send::Post::new(endpoint.to_string(), message_id);
+            paths::me_messages_message_id_send::Post::new(self.endpoint.to_string(), message_id);
         client.send_request(request).await?;
 
         Ok(())

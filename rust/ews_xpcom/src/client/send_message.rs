@@ -4,7 +4,7 @@
 
 use std::sync::Arc;
 
-use base64::prelude::{BASE64_STANDARD, Engine};
+use base64::prelude::*;
 use ews::{
     ArrayOfRecipients, Message, MessageDisposition, MimeContent, Operation, RealItem, Recipient,
     create_item::CreateItem,

@@ -10,9 +10,10 @@ use protocol_shared::{
     ExchangeConnectionDetails,
     authentication::credentials::AuthenticationProvider,
     safe_xpcom::{
-        SafeEwsFolderListener, SafeEwsMessageFetchListener, SafeEwsMessageSyncListener,
-        SafeEwsSimpleOperationListener, SafeUrlListener, uri::SafeUri,
+        SafeEwsFolderListener, SafeEwsMessageCreateListener, SafeEwsMessageFetchListener,
+        SafeEwsMessageSyncListener, SafeEwsSimpleOperationListener, SafeUrlListener, uri::SafeUri,
     },
+    xpcom_io,
 };
 use thin_vec::ThinVec;
 use url::Url;
@@ -346,13 +347,32 @@ impl XpcomGraphBridge {
     ));
     fn create_message(
         &self,
-        _listener: &IExchangeMessageCreateListener,
-        _folder_id: &nsACString,
-        _is_draft: bool,
-        _is_read: bool,
-        _message_stream: &nsIInputStream,
+        listener: &IExchangeMessageCreateListener,
+        folder_id: &nsACString,
+        is_draft: bool,
+        is_read: bool,
+        message_stream: &nsIInputStream,
     ) -> Result<(), nsresult> {
-        Err(nserror::NS_ERROR_NOT_IMPLEMENTED)
+        let server = self.details.get().unwrap().server.clone();
+        let endpoint = self.details.get().unwrap().endpoint.clone();
+
+        let client = XpComGraphClient::new(server, endpoint);
+
+        let content = xpcom_io::read_stream(message_stream)?;
+
+        moz_task::spawn_local(
+            "sync_folder_hierarchy",
+            client.create_message(
+                folder_id.to_string(),
+                is_draft,
+                is_read,
+                content,
+                SafeEwsMessageCreateListener::new(listener),
+            ),
+        )
+        .detach();
+
+        Ok(())
     }
 
     xpcom_method!(move_items => MoveItems(
