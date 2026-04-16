@@ -10,6 +10,11 @@ const { click_account_tree_row, get_account_tree_row, open_advanced_settings } =
 var account;
 
 add_setup(async function () {
+  document
+    .querySelector("account-hub-container")
+    ?.shadowRoot.querySelector("dialog")
+    .close();
+
   // Some previous tests or infrastructure might have left stray SMTP servers
   // around, and we need to start with a clean slate.
   for (const server of MailServices.outgoingServer.servers) {
@@ -161,14 +166,14 @@ add_task(async function test_accountSettings() {
     info("Opening Outgoing Server menu to select first created server...");
 
     EventUtils.synthesizeMouseAtCenter(menu, {}, menu.ownerGlobal);
-    await BrowserTestUtils.waitForPopupEvent(menu, "shown");
+    await BrowserTestUtils.waitForPopupEvent(menu.menupopup, "shown");
 
     EventUtils.synthesizeMouseAtCenter(
       serverList[1],
       {},
       serverList[1].ownerGlobal
     );
-    await BrowserTestUtils.waitForPopupEvent(menu, "hidden");
+    await BrowserTestUtils.waitForPopupEvent(menu.menupopup, "hidden");
 
     // Check that the item that's currently selected is the correct one (SMTP)
     // and that the edit button is in the correct state.
@@ -185,14 +190,14 @@ add_task(async function test_accountSettings() {
     // Now open the menu again and select the second server we created (EWS).
     info("Opening Outgoing Server menu again to select ews server...");
     EventUtils.synthesizeMouseAtCenter(menu, {}, menu.ownerGlobal);
-    await BrowserTestUtils.waitForPopupEvent(menu, "shown");
+    await BrowserTestUtils.waitForPopupEvent(menu.menupopup, "shown");
 
     EventUtils.synthesizeMouseAtCenter(
       serverList[2],
       {},
       serverList[2].ownerGlobal
     );
-    await BrowserTestUtils.waitForPopupEvent(menu, "hidden");
+    await BrowserTestUtils.waitForPopupEvent(menu.menupopup, "hidden");
 
     // Check that the item that's currently selected is the correct one
     // (non-SMTP/EWS) and that the edit button is in the correct state.
