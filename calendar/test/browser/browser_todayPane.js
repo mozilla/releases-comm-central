@@ -812,36 +812,30 @@ add_task(async function testNewEvent() {
   const newEventButton = document.getElementById("todaypane-new-event-button");
 
   // Check today with the "day" view.
-
   TodayPane.displayMiniSection("miniday");
   EventUtils.synthesizeMouseAtCenter(document.getElementById("today-button"), {}, window);
 
-  const expectedDate = cal.dtz.now();
+  let expectedDate = cal.dtz.now();
   expectedDate.hour++;
   expectedDate.minute = 0;
-
   await checkEventDialogDate();
 
   // Check tomorrow with the "day" view.
-
   EventUtils.synthesizeMouseAtCenter(document.getElementById("next-day-button"), {}, window);
   expectedDate.day++;
-
   await checkEventDialogDate();
+  expectedDate.day--;
 
   // Check today with the "month" view;
-
   TodayPane.displayMiniSection("minimonth");
   const minimonth = document.getElementById("today-minimonth");
   minimonth.value = new Date();
-  expectedDate.day--;
-
   await checkEventDialogDate();
 
   // Check a date in the past with the "month" view;
-
   minimonth.value = new Date(Date.UTC(2018, 8, 1));
+  expectedDate = cal.dtz.now();
+  expectedDate.hour++;
   expectedDate.resetTo(2018, 8, 1, expectedDate.hour, 0, 0, cal.dtz.UTC);
-
   await checkEventDialogDate();
 }).skip(new Date().getUTCHours() == 23);
