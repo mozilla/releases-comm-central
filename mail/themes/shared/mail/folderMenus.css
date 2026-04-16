@@ -98,6 +98,11 @@
     }
   }
 
+  /* Stub for empty menus (e.g., "(No recent destinations)") */
+  &.stub-menuitem {
+    --menuitem-icon: var(--icon-info);
+  }
+
   &::part(icon),
   & > .menu-icon {
     content: var(--menuitem-icon);

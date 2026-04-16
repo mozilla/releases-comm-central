@@ -649,7 +649,21 @@
           );
         }
 
-        menu.toggleAttribute("disabled", specialFoldersMap.length == 0);
+        if (specialFoldersMap.length === 0) {
+          const stubItem = this._buildMenuItem(
+            {
+              "data-l10n-id":
+                specialType === "recent"
+                  ? "menu-move-copy-no-recent"
+                  : "menu-move-copy-no-favorites",
+              disabled: "true",
+              "aria-disabled": "true",
+            },
+            null
+          );
+          stubItem.classList.add("stub-menuitem");
+          submenu.childWrapper.appendChild(stubItem);
+        }
 
         this._initializedSpecials.add(specialType);
       }

@@ -63,9 +63,25 @@ add_task(async function test_move_message() {
   const recentMenu = popups[popups.length - 2].querySelector(
     '[label="Recent Destinations"]'
   );
-  Assert.equal(recentMenu.hasAttribute("disabled"), true);
-  gInitRecentMenuCount = recentMenu.itemCount;
-  Assert.equal(gInitRecentMenuCount, 0);
+  Assert.ok(
+    !recentMenu.hasAttribute("disabled"),
+    "Recent menu parent should be enabled"
+  );
+
+  const initialChildren = popups[popups.length - 1].children;
+  Assert.equal(
+    initialChildren.length,
+    1,
+    "Recent menu should contain the stub"
+  );
+  Assert.equal(
+    initialChildren[0].getAttribute("disabled"),
+    "true",
+    "The stub should be disabled"
+  );
+
+  // Track the number of actual recent folders, which is still 0.
+  gInitRecentMenuCount = 0;
   await close_popup_sequence(popups);
   await BrowserTestUtils.waitForPopupEvent(getMailContext(), "hidden");
   await new Promise(resolve => requestAnimationFrame(resolve));

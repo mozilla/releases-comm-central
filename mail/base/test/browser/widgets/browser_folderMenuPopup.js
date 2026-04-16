@@ -252,8 +252,30 @@ add_task(async function testFilingSpecials() {
 
   EventUtils.synthesizeMouseAtCenter(list, {}, win);
   await handlePopup(popup, [
-    { localName: "menu", label: "Recent Destinations", children: [] },
-    { localName: "menu", label: "Favorites", children: [] },
+    {
+      localName: "menu",
+      label: "Recent Destinations",
+      children: [
+        {
+          localName: "menuitem",
+          label: "(No recent destinations)",
+          disabled: "true",
+          className: "stub-menuitem",
+        },
+      ],
+    },
+    {
+      localName: "menu",
+      label: "Favorites",
+      children: [
+        {
+          localName: "menuitem",
+          label: "(No favorites)",
+          disabled: "true",
+          className: "stub-menuitem",
+        },
+      ],
+    },
     { localName: "menuseparator" },
     gmailMenu,
     feedsMenu,
@@ -396,6 +418,7 @@ async function handlePopup(popup, expectedItems) {
   await BrowserTestUtils.waitForPopupEvent(popup, "shown");
 
   const actualItems = popup.children;
+
   Assert.deepEqual(
     Array.from(actualItems, a => a.localName),
     expectedItems.map(e => e.localName)
@@ -406,9 +429,23 @@ async function handlePopup(popup, expectedItems) {
   );
 
   for (let i = 0; i < expectedItems.length; i++) {
-    if (expectedItems[i].children) {
-      actualItems[i].openMenu(true);
-      await handlePopup(actualItems[i].menupopup, expectedItems[i].children);
+    const expected = expectedItems[i];
+    const actual = actualItems[i];
+
+    // Check sparse, item-specific attributes in this loop.
+    if ("disabled" in expected) {
+      Assert.equal(actual.getAttribute("disabled"), expected.disabled);
+    }
+    if ("className" in expected) {
+      Assert.ok(
+        actual.classList.contains(expected.className),
+        `Missing class ${expected.className}`
+      );
+    }
+
+    if (expected.children) {
+      actual.openMenu(true);
+      await handlePopup(actual.menupopup, expected.children);
     }
   }
 

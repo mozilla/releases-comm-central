@@ -288,6 +288,12 @@ menu-move-copy-favorites =
     .label = Favorites
     .accesskey = F
 
+menu-move-copy-no-recent =
+    .label = (No recent destinations)
+
+menu-move-copy-no-favorites =
+    .label = (No favorites)
+
 ## AppMenu
 
 appmenu-save-as-file =
