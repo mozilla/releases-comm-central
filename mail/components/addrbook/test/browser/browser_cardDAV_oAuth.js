@@ -67,7 +67,7 @@ function setPref(dirPrefId, key, value) {
  * @param {LoginData[]} logins - Zero or more login data objects.
  */
 async function setLogins(logins) {
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
   for (const { origin, scope, username, password } of logins) {
     await Services.logins.addLoginAsync(
       new LoginInfo(origin, null, scope, username, password, "", "")
@@ -148,7 +148,7 @@ async function subtest(dirPrefId, uid, newTokenDetails) {
  *
  * @param {LoginData[]} expectedLogins - Zero or more login data objects.
  */
-function checkAndClearLogins(expectedLogins) {
+async function checkAndClearLogins(expectedLogins) {
   const logins = Services.logins.findLogins("", null, "");
   Assert.equal(logins.length, expectedLogins.length);
   for (let i = 0; i < logins.length; i++) {
@@ -158,7 +158,7 @@ function checkAndClearLogins(expectedLogins) {
     Assert.equal(logins[i].password, expectedLogins[i].password);
   }
 
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
   OAuth2TestUtils.forgetObjects();
   oAuth2Server.grantedScope = null;
 }
@@ -170,7 +170,7 @@ add_task(async function testAddressBookOAuth_uid_none() {
   const dirPrefId = "uid_none";
   const uid = "testAddressBookOAuth_uid_none";
   await subtest(dirPrefId, uid, { username: uid, reason: "no refresh token" });
-  checkAndClearLogins([{ ...defaultLogin, username: uid }]);
+  await checkAndClearLogins([{ ...defaultLogin, username: uid }]);
 });
 
 // Test making a request when there IS a matching token, but the server rejects
@@ -186,7 +186,7 @@ add_task(async function testAddressBookOAuth_uid_expired() {
   await setLogins(logins);
   await subtest(dirPrefId, uid, { username: uid, reason: "invalid grant" });
   logins[0].password = VALID_TOKEN;
-  checkAndClearLogins(logins);
+  await checkAndClearLogins(logins);
 });
 
 // Test making a request with a valid token.
@@ -198,7 +198,7 @@ add_task(async function testAddressBookOAuth_uid_valid() {
   const logins = [{ ...defaultLogin, username: uid }];
   await setLogins(logins);
   await subtest(dirPrefId, uid);
-  checkAndClearLogins(logins);
+  await checkAndClearLogins(logins);
 });
 
 /** Valid token stored with username, exact scope. */
@@ -212,7 +212,7 @@ add_task(async function testAddressBookOAuth_username_validSingle() {
   setPref(dirPrefId, "carddav.username", USERNAME);
   await setLogins(logins);
   await subtest(dirPrefId, uid);
-  checkAndClearLogins(logins);
+  await checkAndClearLogins(logins);
 });
 
 /** Valid token stored with username, many scopes. */
@@ -223,5 +223,5 @@ add_task(async function testAddressBookOAuth_username_validMultiple() {
   setPref(dirPrefId, "carddav.username", USERNAME);
   await setLogins(logins);
   await subtest(dirPrefId, uid);
-  checkAndClearLogins(logins);
+  await checkAndClearLogins(logins);
 });

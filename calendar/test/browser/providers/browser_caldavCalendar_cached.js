@@ -25,7 +25,7 @@ add_setup(async function () {
     // This test has issues cleaning up, and it breaks all the subsequent tests.
     await new Promise(r => setTimeout(r, 1000)); // eslint-disable-line mozilla/no-arbitrary-setTimeout
     await CalDAVServer.close();
-    Services.logins.removeAllLogins();
+    await Services.logins.removeAllLoginsAsync();
     removeCalendar(calendar);
   });
 });

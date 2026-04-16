@@ -234,7 +234,7 @@ add_task(async function testGetRefreshToken() {
   Assert.equal(mod.getRefreshToken(), "oscar-calendar");
 
   OAuth2TestUtils.forgetObjects();
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
 });
 
 /**
@@ -332,7 +332,7 @@ add_task(async function testSetRefreshToken() {
     "token last-update time should have been updated"
   );
 
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
   OAuth2TestUtils.forgetObjects();
   OAuth2TestUtils.stopServer();
 });
@@ -443,7 +443,7 @@ add_task(async function testSetRefreshTokenWithNewScope() {
     "token last-update time should have been updated"
   );
 
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
   OAuth2TestUtils.forgetObjects();
   OAuth2TestUtils.stopServer();
   delete oAuth2Server.grantedScope;
@@ -525,7 +525,7 @@ add_task(async function testSetRefreshTokenPreservesOthers() {
   Assert.equal(logins[2].username, "oscar@bar.invalid");
   Assert.equal(logins[2].password, "refresh_token");
 
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
   OAuth2TestUtils.forgetObjects();
   OAuth2TestUtils.stopServer();
   delete oAuth2Server.grantedScope;
@@ -640,7 +640,7 @@ add_task(async function testSetAndClearTokensExternally() {
     "connect should fail without UI, proving we needed to re-auth"
   );
 
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
   OAuth2TestUtils.forgetObjects();
   OAuth2TestUtils.stopServer();
 });
@@ -782,7 +782,7 @@ add_task(async function testExternalRequest() {
       "refresh token should have been saved"
     );
   } finally {
-    Services.logins.removeAllLogins();
+    await Services.logins.removeAllLoginsAsync();
     OAuth2TestUtils.forgetObjects();
     OAuth2TestUtils.stopServer();
     Services.prefs.clearUserPref("mailnews.oauth.useExternalBrowser");
@@ -883,7 +883,7 @@ add_task(async function testGetUsernameFromAccessToken() {
       "creating another OAuth2Module with no username must not reuse the inner OAuth2 object"
     );
   } finally {
-    Services.logins.removeAllLogins();
+    await Services.logins.removeAllLoginsAsync();
     OAuth2TestUtils.forgetObjects();
     OAuth2TestUtils.stopServer();
     Services.prefs.clearUserPref("mailnews.oauth.useExternalBrowser");

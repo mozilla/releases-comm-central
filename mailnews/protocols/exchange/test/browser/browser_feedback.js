@@ -85,11 +85,11 @@ add_setup(async function () {
   status._statusLastShown = 0;
   status._statusQueue.length = 0;
 
-  registerCleanupFunction(() => {
+  registerCleanupFunction(async () => {
     ewsServer.stop();
     incomingServer.closeCachedConnections();
     MailServices.accounts.removeAccount(ewsAccount, false);
-    Services.logins.removeAllLogins();
+    await Services.logins.removeAllLoginsAsync();
   });
 });
 

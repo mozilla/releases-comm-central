@@ -63,7 +63,7 @@ add_setup(async () => {
 
     const logins = await Services.logins.getAllLogins();
     Assert.equal(logins.length, 0, "no faulty logins were saved");
-    Services.logins.removeAllLogins();
+    await Services.logins.removeAllLoginsAsync();
     RemoteAddressBookUtils.getAddressBooksForExistingAccounts = gABFEA;
   });
 });

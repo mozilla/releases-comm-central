@@ -36,7 +36,7 @@ const DEFAULT_BOOKS = [
 ];
 
 async function wrappedTest(testInitCallback, ...attemptArgs) {
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
 
   CardDAVServer.open("alice", "alice");
   if (testInitCallback) {
@@ -583,7 +583,7 @@ add_task(async function testOAuth() {
   ]);
 
   await promiseDirectoryRemoved(directory.URI);
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
 });
 
 /**
@@ -740,7 +740,7 @@ add_task(async function testEveryThingOKAgain() {
   await promiseDirectoryRemoved(directory.URI);
   await promiseDirectoryRemoved(otherDirectory.URI);
 
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
 });
 
 /**
@@ -850,7 +850,7 @@ add_task(async function testSavePasswordLater() {
 
   await promiseDirectoryRemoved(directory.URI);
 
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
 });
 
 /**
@@ -926,5 +926,5 @@ add_task(async function testNoName() {
 
   await promiseDirectoryRemoved(directory.URI);
 
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
 });

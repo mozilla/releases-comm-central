@@ -74,7 +74,7 @@ async function subtestNoTokens(identity, outgoingServer, server) {
     "server should have received message"
   );
 
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
   OAuth2TestUtils.forgetObjects();
 }
 
@@ -120,7 +120,7 @@ async function subtestNoAccessToken(identity, outgoingServer, server) {
     "server should have received message"
   );
 
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
   OAuth2TestUtils.forgetObjects();
 }
 
@@ -179,7 +179,7 @@ async function subtestExpiredAccessToken(identity, outgoingServer, server) {
     "server should have received message"
   );
 
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
   OAuth2TestUtils.forgetObjects();
 }
 
@@ -246,7 +246,7 @@ async function subtestBadAccessToken(identity, outgoingServer) {
   info("checking results");
   OAuth2TestUtils.checkTelemetry([]);
 
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
   OAuth2TestUtils.forgetObjects();
   oAuth2Server.accessToken = "access_token";
 }
@@ -311,7 +311,7 @@ async function subtestRevokedAccessToken1(identity, outgoingServer, server) {
     "server should have received message"
   );
 
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
   OAuth2TestUtils.forgetObjects();
 }
 
@@ -389,7 +389,7 @@ async function subtestRevokedAccessToken2(identity, outgoingServer, server) {
     "server should have received message"
   );
 
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
   OAuth2TestUtils.forgetObjects();
   oAuth2Server.refreshToken = "refresh_token";
   oAuth2Server.rotateTokens = false;
@@ -451,7 +451,7 @@ async function subtestBadRefreshToken(identity, outgoingServer, server) {
     "server should have received message"
   );
 
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
   OAuth2TestUtils.forgetObjects();
 }
 

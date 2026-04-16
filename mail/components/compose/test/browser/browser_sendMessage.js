@@ -36,7 +36,7 @@ add_setup(async function () {
     MailServices.accounts.removeAccount(smtpAccount, false);
     MailServices.accounts.removeAccount(ewsAccount, false);
     MailServices.accounts.removeAccount(graphAccount, false);
-    Services.logins.removeAllLogins();
+    await Services.logins.removeAllLoginsAsync();
     Services.prefs.clearUserPref("mail.warn_on_send_accel_key");
   });
 });

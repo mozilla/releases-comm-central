@@ -55,8 +55,8 @@ add_setup(async function () {
   ]);
 });
 
-registerCleanupFunction(function () {
-  Services.logins.removeAllLogins();
+registerCleanupFunction(async () => {
+  await Services.logins.removeAllLoginsAsync();
 });
 
 add_task(async function () {

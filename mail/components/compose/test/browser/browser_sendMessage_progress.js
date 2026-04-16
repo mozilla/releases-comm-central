@@ -99,7 +99,7 @@ add_setup(async function () {
     smtpOutgoingServer.closeCachedConnections();
 
     MailServices.accounts.removeAccount(smtpAccount, false);
-    Services.logins.removeAllLogins();
+    await Services.logins.removeAllLoginsAsync();
 
     MockRegistrar.unregister(mockTaskbar);
   });

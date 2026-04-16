@@ -28,7 +28,7 @@ add_setup(async function () {
   registerCleanupFunction(async function () {
     MailServices.accounts.removeAccount(smtpAccount, false);
     MailServices.accounts.removeAccount(ewsAccount, false);
-    Services.logins.removeAllLogins();
+    await Services.logins.removeAllLoginsAsync();
     Services.prefs.clearUserPref("signon.rememberSignons");
   });
 });
@@ -41,7 +41,7 @@ add_setup(async function () {
  * @param {SMTPServer|EWSServer} server
  */
 async function subtestEnterPassword(identity, outgoingServer, server) {
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
 
   const { composeWindow, subject } = await newComposeWindow(identity);
 
@@ -84,7 +84,7 @@ add_task(async function testEnterPasswordEWS() {
  * @param {SMTPServer|EWSServer} server
  */
 async function subtestEnterAndSavePassword(identity, outgoingServer, server) {
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
 
   const { composeWindow, subject } = await newComposeWindow(identity);
 
@@ -107,7 +107,7 @@ async function subtestEnterAndSavePassword(identity, outgoingServer, server) {
   );
   Assert.equal(logins[0].username, "user", "login username");
   Assert.equal(logins[0].password, "password", "login password");
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
   outgoingServer.forgetPassword();
 
   Assert.stringContains(
@@ -162,7 +162,7 @@ async function subtestWrongPassword(identity, outgoingServer, server) {
   );
   Assert.equal(logins[0].username, "user", "login username");
   Assert.equal(logins[0].password, "password", "login password");
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
   outgoingServer.forgetPassword();
 
   Assert.stringContains(
@@ -173,14 +173,14 @@ async function subtestWrongPassword(identity, outgoingServer, server) {
 }
 
 add_task(async function testWrongPasswordSMTP() {
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
   await addLoginInfo("smtp://test.test", "user", "wrong password");
   await subtestWrongPassword(smtpIdentity, smtpOutgoingServer, smtpServer);
   smtpOutgoingServer.closeCachedConnections();
 });
 
 add_task(async function testWrongPasswordEWS() {
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
   await addLoginInfo("ews://test.test", "user", "wrong password");
   await subtestWrongPassword(ewsIdentity, ewsOutgoingServer, ewsServer);
 });

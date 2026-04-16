@@ -121,7 +121,7 @@ add_setup(async () => {
 
   registerCleanupFunction(async () => {
     MailServices.ab.deleteAddressBook(book.URI);
-    Services.logins.removeAllLogins();
+    await Services.logins.removeAllLoginsAsync();
     MailServices.accounts.removeAccount(abAccount, true);
     MailServices.accounts.removeAccount(oauthAccount, true);
     MailServices.accounts.removeAccount(secondAccount, true);

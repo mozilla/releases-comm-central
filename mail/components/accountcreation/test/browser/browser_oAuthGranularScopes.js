@@ -30,7 +30,7 @@ add_setup(async function () {
 });
 
 registerCleanupFunction(async function () {
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
   // Some tests that open new windows confuse mochitest, which waits for a
   // focus event on the main window, and the test times out. If we focus a
   // different window (browser-harness.xhtml should be the only other window
@@ -39,7 +39,7 @@ registerCleanupFunction(async function () {
 });
 
 async function subtest(grantedScope, expectFailure) {
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
   Services.fog.testResetFOG();
 
   const config = new AccountConfig();
@@ -120,7 +120,7 @@ async function subtest(grantedScope, expectFailure) {
 
   MailServices.accounts.removeAccount(account, false);
   MailServices.outgoingServer.deleteServer(outgoingServer);
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
 }
 
 async function expectOAuthDialog(grantedScope) {

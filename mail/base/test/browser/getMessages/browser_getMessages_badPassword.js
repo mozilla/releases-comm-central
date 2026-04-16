@@ -117,7 +117,7 @@ add_setup(async function () {
     MailServices.accounts.removeAccount(ewsAccount, false);
     MailServices.accounts.removeAccount(nntpAccount, false);
 
-    Services.logins.removeAllLogins();
+    await Services.logins.removeAllLoginsAsync();
     Services.prefs.clearUserPref("signon.rememberSignons");
   });
 });
@@ -261,7 +261,7 @@ function checkSavedPassword(inbox) {
  * Tests getting messages when there is no password to use.
  */
 add_task(async function testEnterPassword() {
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
 
   for (const inbox of allInboxes) {
     Assert.equal(
@@ -305,7 +305,7 @@ add_task(async function testEnterPassword() {
  * The entered password should be saved to the password manager.
  */
 add_task(async function testEnterAndSavePassword() {
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
 
   for (const inbox of allInboxes) {
     info(`getting messages for ${inbox.server.type} inbox with no password`);
@@ -332,7 +332,7 @@ add_task(async function testEnterAndSavePassword() {
  * The new password should be saved to the password manager.
  */
 add_task(async function testWrongPassword() {
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
 
   for (const inbox of allInboxes) {
     info(`getting messages for ${inbox.server.type} inbox with bad password`);

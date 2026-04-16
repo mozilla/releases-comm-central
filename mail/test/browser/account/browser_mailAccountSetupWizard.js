@@ -837,7 +837,7 @@ add_task(async function test_full_account_setup() {
 
   IMAPServer.close();
   SMTPServer.close();
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
 });
 
 registerCleanupFunction(function () {

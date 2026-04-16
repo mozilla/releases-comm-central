@@ -93,7 +93,7 @@ add_setup(async function () {
     );
     MailServices.accounts.removeAccount(pop3Account, false);
     MailServices.accounts.removeAccount(ewsAccount, false);
-    Services.logins.removeAllLogins();
+    await Services.logins.removeAllLoginsAsync();
     MockAlertsService.cleanup();
   });
 });

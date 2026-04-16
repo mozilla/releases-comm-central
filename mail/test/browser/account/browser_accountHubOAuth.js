@@ -114,7 +114,7 @@ add_task(async function test_account_oauth_imap_account() {
   oauthImap.close();
   oauthSmtp.close();
   OAuth2TestUtils.forgetObjects();
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
   await subtest_close_account_hub_dialog(dialog, successStep);
 });
 
@@ -189,6 +189,6 @@ add_task(async function test_account_oauth_cancel() {
   oauthImap.close();
   oauthSmtp.close();
   OAuth2TestUtils.forgetObjects();
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
   await subtest_close_account_hub_dialog(dialog, configFoundTemplate);
 });

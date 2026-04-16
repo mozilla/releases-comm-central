@@ -105,7 +105,7 @@ add_task(async function test_address_book_option_select_account_with_ab() {
   events = Glean.mail.accountHubLoaded.testGetValue();
   Assert.equal(events.length, 2, "should still recorded 2 events");
 
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
   MailServices.accounts.removeAccount(abAccount);
   IMAPServer.close();
 });
@@ -196,7 +196,7 @@ add_task(async function test_address_book_option_selection() {
     behavior: "instant",
   });
   await subtest_close_account_hub_dialog(dialog, optionSelectTemplate);
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
   MailServices.accounts.removeAccount(abAccount);
   IMAPServer.close();
 });
@@ -388,7 +388,7 @@ add_task(async function test_address_book_sync_account() {
   // Remove the address book.
   MailServices.ab.deleteAddressBook(addressBookDirectory.URI);
 
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
   MailServices.accounts.removeAccount(abAccount);
   IMAPServer.close();
 });

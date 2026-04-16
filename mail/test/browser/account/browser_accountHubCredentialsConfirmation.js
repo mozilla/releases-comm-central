@@ -136,7 +136,7 @@ add_setup(async () => {
     autodiscoveryServer.identity.remove("https", "dav.test", 443);
     autodiscoveryServer.registerFile("/autodiscover/autodiscover.xml", null);
     autodiscoveryServer.stop();
-    Services.logins.removeAllLogins();
+    await Services.logins.removeAllLoginsAsync();
     await SpecialPowers.popPrefEnv();
   });
 });
@@ -184,7 +184,7 @@ add_task(async function test_credentials_confirmation_manual_configuration() {
     "The username input should have the email that was submitted"
   );
 
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
   await subtest_close_account_hub_dialog(dialog, incomingConfigStep);
 });
 
@@ -229,7 +229,7 @@ add_task(async function test_cancel_credentials_confirmation() {
   const manualIncomingForm = dialog.querySelector("email-manual-incoming-form");
   await BrowserTestUtils.waitForAttributeRemoval("hidden", manualIncomingForm);
 
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
   await subtest_close_account_hub_dialog(dialog, manualIncomingForm);
 });
 
@@ -309,7 +309,7 @@ add_task(async function test_credentials_confirmation() {
   );
 
   redirectAccepted = false;
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
   dialog.querySelector("account-hub-email").resetRedirectAccepted();
   await subtest_close_account_hub_dialog(dialog, configFoundTemplate);
 });

@@ -64,7 +64,7 @@ add_task(async function testAccept() {
   Assert.equal(logins[0].httpRealm, "test_scope");
   Assert.equal(logins[0].username, "victor@foo.invalid");
   Assert.equal(logins[0].password, "refresh_token");
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
 });
 
 /**
@@ -100,7 +100,7 @@ add_task(async function testCancel() {
 
   const logins = await Services.logins.getAllLogins();
   Assert.equal(logins.length, 0, "there should be no token saved");
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
 });
 
 /**
@@ -154,5 +154,5 @@ add_task(async function testSpoofScope() {
 
   const logins = await Services.logins.getAllLogins();
   Assert.equal(logins.length, 0, "there should be no token saved");
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
 });

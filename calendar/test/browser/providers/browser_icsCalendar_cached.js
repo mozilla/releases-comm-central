@@ -30,7 +30,7 @@ add_setup(async function () {
 
   registerCleanupFunction(async () => {
     await ICSServer.close();
-    Services.logins.removeAllLogins();
+    await Services.logins.removeAllLoginsAsync();
     removeCalendar(calendar);
   });
 });

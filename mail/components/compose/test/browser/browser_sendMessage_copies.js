@@ -58,7 +58,7 @@ add_setup(async function () {
 
     MailServices.accounts.removeAccount(imapAccount, false);
     MailServices.accounts.removeAccount(localAccount, false);
-    Services.logins.removeAllLogins();
+    await Services.logins.removeAllLoginsAsync();
   });
 });
 

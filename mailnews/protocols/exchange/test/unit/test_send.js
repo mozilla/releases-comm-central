@@ -92,12 +92,12 @@ add_setup(async () => {
   await storePassword("ews://127.0.0.1");
   await storePassword("graph://127.0.0.1");
 
-  registerCleanupFunction(() => {
+  registerCleanupFunction(async () => {
     ewsServer.stop();
     graphServer.stop();
     MailServices.outgoingServer.deleteServer(ewsOutgoingServer);
     MailServices.outgoingServer.deleteServer(graphOutgoingServer);
-    Services.logins.removeAllLogins();
+    await Services.logins.removeAllLoginsAsync();
   });
 });
 

@@ -54,11 +54,11 @@ add_setup(async function () {
 
   MockAlertsService.init();
 
-  registerCleanupFunction(() => {
+  registerCleanupFunction(async () => {
     ewsServer.stop();
     incomingServer.closeCachedConnections();
     MailServices.accounts.removeAccount(ewsAccount, false);
-    Services.logins.removeAllLogins();
+    await Services.logins.removeAllLoginsAsync();
     MockAlertsService.cleanup();
   });
 });

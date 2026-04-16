@@ -28,7 +28,7 @@ add_setup(async function () {
 add_task(async function test_password_prompt_cancel() {
   // Clear and forget all credentials for the server, so we start with an empty
   // password and we get prompted for a password right away.
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
   incomingServer.forgetPassword();
 
   const promptPromise = BrowserTestUtils.promiseAlertDialog("cancel");

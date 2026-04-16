@@ -66,11 +66,11 @@ add_setup(async function () {
   );
   await Services.logins.addLoginAsync(loginInfo);
 
-  registerCleanupFunction(() => {
+  registerCleanupFunction(async () => {
     ewsServer.stop();
     incomingServer.closeCachedConnections();
     MailServices.accounts.removeAccount(ewsAccount, false);
-    Services.logins.removeAllLogins();
+    await Services.logins.removeAllLoginsAsync();
   });
 
   // Import and accept the public key of Alice

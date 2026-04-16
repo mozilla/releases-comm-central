@@ -112,7 +112,7 @@ add_setup(async function () {
     MailServices.accounts.removeAccount(pop3Account, false);
     MailServices.accounts.removeAccount(ewsAccount, false);
 
-    Services.logins.removeAllLogins();
+    await Services.logins.removeAllLoginsAsync();
     Services.prefs.clearUserPref("mailnews.oauth.loglevel");
     Services.prefs.clearUserPref("signon.rememberSignons");
 
@@ -235,7 +235,7 @@ add_task(async function testNoTokens() {
     await waitForMessages(inbox);
 
     checkSavedPassword(inbox);
-    Services.logins.removeAllLogins();
+    await Services.logins.removeAllLoginsAsync();
 
     await promiseServerIdle(inbox.server);
     inbox.server.closeCachedConnections();
@@ -277,7 +277,7 @@ add_task(async function testNoAccessToken() {
     OAuth2TestUtils.forgetObjects();
   }
 
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
 });
 
 /**
@@ -325,7 +325,7 @@ add_task(async function testExpiredAccessToken() {
     OAuth2TestUtils.forgetObjects();
   }
 
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
 });
 
 /**
@@ -397,7 +397,7 @@ add_task(async function testBadAccessToken() {
     OAuth2TestUtils.forgetObjects();
   }
 
-  Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
   oAuth2Server.accessToken = "access_token";
 });
 
@@ -445,6 +445,6 @@ add_task(async function testBadRefreshToken() {
     inbox.server.closeCachedConnections();
 
     OAuth2TestUtils.forgetObjects();
-    Services.logins.removeAllLogins();
+    await Services.logins.removeAllLoginsAsync();
   }
 });

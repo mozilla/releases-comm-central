@@ -215,7 +215,7 @@ add_task(async function test_account_hub_header_branding() {
   );
 
   MailServices.accounts.removeAccount(imapAccount);
-  await Services.logins.removeAllLogins();
+  await Services.logins.removeAllLoginsAsync();
 
   MailServices.accounts.removeAccount(
     MailServices.accounts.findAccountForServer(

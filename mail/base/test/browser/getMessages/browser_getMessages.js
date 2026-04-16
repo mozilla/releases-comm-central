@@ -144,7 +144,7 @@ add_setup(async function () {
     MailServices.accounts.removeAccount(ewsAccount, false);
     MailServices.accounts.removeAccount(nntpAccount, false);
     storeState({});
-    Services.logins.removeAllLogins();
+    await Services.logins.removeAllLoginsAsync();
   });
 });
 
