@@ -296,7 +296,7 @@ add_task(async function test_getAddressBooksForAccountStorePassword() {
     "Should already have one login at the start of the test"
   );
   for (const login of initialLogins) {
-    Services.logins.removeLogin(login);
+    await Services.logins.removeLoginAsync(login);
   }
 
   let syncPromise = TestUtils.topicObserved("addrbook-directory-synced");
@@ -478,7 +478,7 @@ add_task(
       "Should find results for the account without host in the username"
     );
 
-    Services.logins.removeLogin(imapLogin);
+    await Services.logins.removeLoginAsync(imapLogin);
     abAccount.incomingServer.username = "other@test.invalid";
     abAccount.incomingServer.forgetSessionPassword(false);
     Assert.ok(

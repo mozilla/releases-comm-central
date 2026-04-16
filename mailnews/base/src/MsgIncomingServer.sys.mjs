@@ -915,7 +915,14 @@ export class MsgIncomingServer {
     const logins = Services.logins.findLogins(serverURI, "", serverURI);
     for (const login of logins) {
       if (login.username == this.username) {
-        Services.logins.removeLogin(login);
+        let finished = false;
+        Services.logins
+          .removeLoginAsync(login)
+          .finally(() => (finished = true));
+        Services.tm.spinEventLoopUntilOrQuit(
+          "MsgIncomingServer.forgetPassword",
+          () => finished
+        );
       }
     }
     this.password = "";

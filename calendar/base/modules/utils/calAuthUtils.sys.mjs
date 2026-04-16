@@ -142,6 +142,8 @@ export var auth = {
    * There is one instance of that object per calendar provider.
    */
   Prompt: class {
+    QueryInterface = ChromeUtils.generateQI(["nsIAuthPrompt2"]);
+
     constructor() {
       this.mWindow = lazy.cal.window.getCalendarWindow();
       this.mReturnedLogins = {};
@@ -164,7 +166,7 @@ export var auth = {
      *   filled with the username and password.
      * @returns {boolean} - If a login was found in the login manager.
      */
-    getPasswordInfo(channel, authInfo) {
+    async #getPasswordInfo(channel, authInfo) {
       const prePath = channel.URI.prePath;
       const realm = authInfo.realm;
       let username = lazy.cal.auth.containerMap.getUsernameForUserContextId(
@@ -201,7 +203,7 @@ export var auth = {
           );
 
           delete this.mReturnedLogins[keyStr];
-          auth.passwordManagerRemove(username, prePath, realm);
+          await auth.passwordManagerRemove(username, prePath, realm);
           return { found: false, username };
         }
         this.mReturnedLogins[keyStr] = now;
@@ -219,7 +221,14 @@ export var auth = {
      * @returns {boolean}
      */
     promptAuth(aChannel, aLevel, aAuthInfo) {
-      if (this.getPasswordInfo(aChannel, aAuthInfo)) {
+      let finished = false;
+      let result = false;
+      this.#getPasswordInfo(aChannel, aAuthInfo)
+        .then(ok => (result = ok))
+        .finally(() => (finished = true));
+      Services.tm.spinEventLoopUntilOrQuit("calAuthUtils.sys.mjs:promptAuth", () => finished);
+
+      if (result) {
         return true;
       }
       return this._promptAuthInternal(aChannel, aLevel, aAuthInfo);
@@ -260,7 +269,11 @@ export var auth = {
      * @returns {nsICancelable} - not actually returned, bug 1965959.
      */
     asyncPromptAuth(aChannel, aCallback, aContext, aLevel, aAuthInfo) {
-      if (this.getPasswordInfo(aChannel, aAuthInfo)) {
+      this.#asyncPromptAuthInternal(aChannel, aCallback, aContext, aLevel, aAuthInfo);
+    }
+
+    async #asyncPromptAuthInternal(aChannel, aCallback, aContext, aLevel, aAuthInfo) {
+      if (await this.#getPasswordInfo(aChannel, aAuthInfo)) {
         // This function must return before the callback is called.
         Services.tm.dispatchToMainThread(() => aCallback.onAuthAvailable(aContext, aAuthInfo));
         return;
@@ -509,7 +522,7 @@ export var auth = {
    * @param {string} aRealm - The password realm (unused on branch)
    * @returns {boolean} Could the user be removed?
    */
-  passwordManagerRemove(aUsername, aOrigin, aRealm) {
+  async passwordManagerRemove(aUsername, aOrigin, aRealm) {
     if (!aUsername) {
       throw new Error("username required");
     }
@@ -520,7 +533,7 @@ export var auth = {
       const logins = Services.logins.findLogins(origin, null, aRealm);
       for (const loginInfo of logins) {
         if (loginInfo.username == aUsername) {
-          Services.logins.removeLogin(loginInfo);
+          await Services.logins.removeLoginAsync(loginInfo);
           return true;
         }
       }

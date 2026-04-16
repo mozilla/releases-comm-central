@@ -655,7 +655,7 @@ imAccount.prototype = {
           if (password) {
             await Services.logins.modifyLoginAsync(login, newLogin);
           } else {
-            Services.logins.removeLogin(login);
+            await Services.logins.removeLoginAsync(login);
           }
           saved = true;
           break;
@@ -731,6 +731,11 @@ imAccount.prototype = {
 
   // Delete the account (from the preferences, mozStorage, and call unInit).
   remove() {
+    let finished = false;
+    this._removeInternal().finally(() => (finished = true));
+    Services.tm.spinEventLoopUntilOrQuit("imAccount.remove", () => finished);
+  },
+  async _removeInternal() {
     const login = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
       Ci.nsILoginInfo
     );
@@ -741,7 +746,7 @@ imAccount.prototype = {
     const logins = Services.logins.findLogins(passwordURI, null, passwordURI);
     for (const l of logins) {
       if (login.matches(l, true)) {
-        Services.logins.removeLogin(l);
+        await Services.logins.removeLoginAsync(l);
         break;
       }
     }

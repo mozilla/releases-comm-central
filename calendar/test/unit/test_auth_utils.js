@@ -53,12 +53,12 @@ add_task(async function test_password_manager() {
   await checkLoginCount(1);
 
   // Remove the password
-  found = cal.auth.passwordManagerRemove(USERNAME, ORIGIN, REALM);
+  found = await cal.auth.passwordManagerRemove(USERNAME, ORIGIN, REALM);
   await checkLoginCount(0);
   Assert.ok(found);
 
   // Really gone?
-  found = cal.auth.passwordManagerRemove(USERNAME, ORIGIN, REALM);
+  found = await cal.auth.passwordManagerRemove(USERNAME, ORIGIN, REALM);
   await checkLoginCount(0);
   Assert.ok(!found);
 });
@@ -93,8 +93,8 @@ add_task(async function test_password_manager_origins() {
   await checkLoginCount(3);
 
   // Cleanup
-  cal.auth.passwordManagerRemove(USERNAME, "oauth:xpcshell@example.com", REALM);
-  cal.auth.passwordManagerRemove(USERNAME, "https://example.com", REALM);
-  cal.auth.passwordManagerRemove(USERNAME, "https://example.net", REALM);
+  await cal.auth.passwordManagerRemove(USERNAME, "oauth:xpcshell@example.com", REALM);
+  await cal.auth.passwordManagerRemove(USERNAME, "https://example.com", REALM);
+  await cal.auth.passwordManagerRemove(USERNAME, "https://example.net", REALM);
   await checkLoginCount(0);
 });

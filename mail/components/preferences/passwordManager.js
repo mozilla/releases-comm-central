@@ -505,7 +505,7 @@ async function AskUserShowPasswords() {
 async function FinalizeSignonDeletions(syncNeeded) {
   reloadDisplay = false;
   for (let s = 0; s < deletedSignons.length; s++) {
-    Services.logins.removeLogin(deletedSignons[s]);
+    await Services.logins.removeLoginAsync(deletedSignons[s]);
   }
   reloadDisplay = true;
   // If the deletion has been performed in a filtered view, reflect the deletion in the unfiltered table.

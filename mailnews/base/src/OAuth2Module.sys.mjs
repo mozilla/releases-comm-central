@@ -204,7 +204,7 @@ OAuth2Module.prototype = {
           log.debug(
             `Removing superseded token for ${this._loginOrigin} with scope "${login.httpRealm}"`
           );
-          Services.logins.removeLogin(login);
+          await Services.logins.removeLoginAsync(login);
         }
       }
     }
@@ -233,7 +233,7 @@ OAuth2Module.prototype = {
    * the login manager, so the the next attempt to use this object must
    * re-authenticate.
    */
-  clearTokens() {
+  async clearTokens() {
     this._oauth.refreshToken = null;
     this._oauth.accessToken = null;
 
@@ -253,7 +253,7 @@ OAuth2Module.prototype = {
         log.debug(
           `Removing obsolete token for ${this._loginOrigin} with scope "${login.httpRealm}"`
         );
-        Services.logins.removeLogin(login);
+        await Services.logins.removeLoginAsync(login);
       }
     }
   },

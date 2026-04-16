@@ -612,7 +612,7 @@ add_task(async function testSetAndClearTokensExternally() {
   );
 
   // Test calling `clearTokens` from outside the module.
-  mod.clearTokens();
+  await mod.clearTokens();
   Assert.equal(
     mod._oauth.refreshToken,
     null,

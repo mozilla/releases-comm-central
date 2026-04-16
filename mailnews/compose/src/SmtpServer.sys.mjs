@@ -362,6 +362,15 @@ export class SmtpServer {
   }
 
   forgetPassword() {
+    let finished = false;
+    this.#forgetPasswordInternal().finally(() => (finished = true));
+    Services.tm.spinEventLoopUntilOrQuit(
+      "SmtpServer.forgetPassword",
+      () => finished
+    );
+  }
+
+  async #forgetPasswordInternal() {
     this.password = "";
     if (!this.hostname) {
       // Looks like we're not fully set up yet. There's no point in continuing.
@@ -372,13 +381,13 @@ export class SmtpServer {
     const logins = Services.logins.findLogins(serverURI, "", serverURI);
     for (const login of logins) {
       if (login.username == this.username) {
-        Services.logins.removeLogin(login);
+        await Services.logins.removeLoginAsync(login);
       }
     }
     if (this.authMethod == Ci.nsMsgAuthMethod.OAuth2) {
       const oauth2Module = new OAuth2Module();
       if (oauth2Module.initFromOutgoing(this)) {
-        oauth2Module.clearTokens();
+        await oauth2Module.clearTokens();
       }
     }
   }
