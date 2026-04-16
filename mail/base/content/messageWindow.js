@@ -8,7 +8,6 @@
 
 /* import-globals-from ../../../../toolkit/content/viewZoomOverlay.js */
 /* import-globals-from ../../../mailnews/base/prefs/content/accountUtils.js */
-/* import-globals-from ../../components/customizableui/content/panelUI.js */
 /* import-globals-from mail-offline.js */
 /* import-globals-from mailCommands.js */
 /* import-globals-from mailCore.js */
@@ -86,8 +85,6 @@ function OnLoadMessageWindow() {
   updateTroubleshootMenuItem();
   ToolbarIconColor.init();
   BondOpenPGP.init();
-  PanelUI.init();
-  gExtensionsNotifications.init();
 
   setTimeout(delayedOnLoadMessageWindow, 0); // when debugging, set this to 5000, so you can see what happens after the window comes up.
 
@@ -235,17 +232,7 @@ function HideMenus() {
     message_menuitem.toggleAttribute("hidden", true);
   }
 
-  message_menuitem = document.getElementById("appmenu_showMessage");
-  if (message_menuitem) {
-    message_menuitem.toggleAttribute("hidden", true);
-  }
-
   var folderPane_menuitem = document.getElementById("menu_showFolderPane");
-  if (folderPane_menuitem) {
-    folderPane_menuitem.toggleAttribute("hidden", true);
-  }
-
-  folderPane_menuitem = document.getElementById("appmenu_showFolderPane");
   if (folderPane_menuitem) {
     folderPane_menuitem.toggleAttribute("hidden", true);
   }
@@ -277,34 +264,12 @@ function HideMenus() {
     viewLayoutMenu.toggleAttribute("hidden", true);
   }
 
-  viewLayoutMenu = document.getElementById("appmenu_MessagePaneLayout");
-  if (viewLayoutMenu) {
-    viewLayoutMenu.toggleAttribute("hidden", true);
-  }
-
-  const paneViewSeparator = document.getElementById(
-    "appmenu_paneViewSeparator"
-  );
-  if (paneViewSeparator) {
-    paneViewSeparator.toggleAttribute("hidden", true);
-  }
-
   var viewFolderMenu = document.getElementById("menu_FolderViews");
   if (viewFolderMenu) {
     viewFolderMenu.toggleAttribute("hidden", true);
   }
 
-  viewFolderMenu = document.getElementById("appmenu_FolderViews");
-  if (viewFolderMenu) {
-    viewFolderMenu.toggleAttribute("hidden", true);
-  }
-
   var viewMessagesMenu = document.getElementById("viewMessagesMenu");
-  if (viewMessagesMenu) {
-    viewMessagesMenu.toggleAttribute("hidden", true);
-  }
-
-  viewMessagesMenu = document.getElementById("appmenu_viewMessagesMenu");
   if (viewMessagesMenu) {
     viewMessagesMenu.toggleAttribute("hidden", true);
   }
@@ -326,21 +291,7 @@ function HideMenus() {
     openMessageMenu.toggleAttribute("hidden", true);
   }
 
-  openMessageMenu = document.getElementById(
-    "appmenu_openMessageWindowMenuitem"
-  );
-  if (openMessageMenu) {
-    openMessageMenu.toggleAttribute("hidden", true);
-  }
-
   var viewSortMenuSeparator = document.getElementById("viewSortMenuSeparator");
-  if (viewSortMenuSeparator) {
-    viewSortMenuSeparator.toggleAttribute("hidden", true);
-  }
-
-  viewSortMenuSeparator = document.getElementById(
-    "appmenu_viewAfterThreadsSeparator"
-  );
   if (viewSortMenuSeparator) {
     viewSortMenuSeparator.toggleAttribute("hidden", true);
   }
@@ -355,20 +306,8 @@ function HideMenus() {
     emptryTrashMenu.toggleAttribute("hidden", true);
   }
 
-  emptryTrashMenu = document.getElementById("appmenu_emptyTrash");
-  if (emptryTrashMenu) {
-    emptryTrashMenu.toggleAttribute("hidden", true);
-  }
-
   var menuPropertiesSeparator = document.getElementById(
     "editPropertiesSeparator"
-  );
-  if (menuPropertiesSeparator) {
-    menuPropertiesSeparator.toggleAttribute("hidden", true);
-  }
-
-  menuPropertiesSeparator = document.getElementById(
-    "appmenu_editPropertiesSeparator"
   );
   if (menuPropertiesSeparator) {
     menuPropertiesSeparator.toggleAttribute("hidden", true);
@@ -379,18 +318,7 @@ function HideMenus() {
     menuProperties.toggleAttribute("hidden", true);
   }
 
-  menuProperties = document.getElementById("appmenu_properties");
-  if (menuProperties) {
-    menuProperties.toggleAttribute("hidden", true);
-  }
-
   var favoriteFolder = document.getElementById("menu_favoriteFolder");
-  if (favoriteFolder) {
-    favoriteFolder.toggleAttribute("disabled", true);
-    favoriteFolder.toggleAttribute("hidden", true);
-  }
-
-  favoriteFolder = document.getElementById("appmenu_favoriteFolder");
   if (favoriteFolder) {
     favoriteFolder.toggleAttribute("disabled", true);
     favoriteFolder.toggleAttribute("hidden", true);
@@ -438,11 +366,6 @@ function HideMenus() {
     goStartPage.hidden = true;
   }
 
-  const quickFilterBar = document.getElementById("appmenu_quickFilterBar");
-  if (quickFilterBar) {
-    quickFilterBar.hidden = true;
-  }
-
   var menuFileClose = document.getElementById("menu_close");
   var menuFileQuit = document.getElementById("menu_FileQuitItem");
   if (menuFileClose && menuFileQuit) {
@@ -453,7 +376,6 @@ function HideMenus() {
 function OnUnloadMessageWindow() {
   UnloadCommandUpdateHandlers();
   ToolbarIconColor.uninit();
-  PanelUI.uninit();
   OnMailWindowUnload();
 }
 

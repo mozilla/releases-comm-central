@@ -70,7 +70,6 @@
   <link rel="stylesheet" href="chrome://messenger/skin/folderMenus.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/attachmentList.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/searchBox.css" />
-  <link rel="stylesheet" href="chrome://messenger/skin/panelUI.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/contextMenu.css" />
   <link rel="stylesheet" href="chrome://calendar/skin/calendar.css" />
   <link
@@ -90,7 +89,6 @@
   <link rel="localization" href="toolkit/global/textActions.ftl" />
   <link rel="localization" href="toolkit/printing/printUI.ftl" />
   <link rel="localization" href="messenger/menubar.ftl" />
-  <link rel="localization" href="messenger/appmenu.ftl" />
   <link rel="localization" href="messenger/openpgp/openpgp.ftl" />
   <link rel="localization" href="messenger/openpgp/openpgp-frontend.ftl" />
   <link rel="localization" href="calendar/calendar.ftl"/>
@@ -109,10 +107,6 @@
   <script defer="defer" src="chrome://communicator/content/utilityOverlay.js"></script>
   <script defer="defer" src="chrome://messenger/content/mailCore.js"></script>
   <script defer="defer" src="chrome://messenger/content/accountUtils.js"></script>
-#ifdef MOZ_SERVICES_SYNC
-  <script defer="defer" src="chrome://messenger/content/sync.js"></script>
-#endif
-  <script defer="defer" src="moz-src:///comm/mail/components/customizableui/content/panelUI.js"></script>
   <script defer="defer" src="chrome://messenger/content/chat/toolbarbutton-badge-button.js"></script>
   <script defer="defer" src="chrome://messenger/content/messenger-customization.js"></script>
 #ifdef XP_MACOSX
@@ -155,8 +149,6 @@
   <popupset id="mainPopupSet">
 #include widgets/browserPopups.inc.xhtml
 #include widgets/toolbarContext.inc.xhtml
-<!-- The panelUI is for the appmenu. -->
-#include ../../components/customizableui/content/panelUI.inc.xhtml
   </popupset>
 
   <toolbox id="mail-toolbox"
