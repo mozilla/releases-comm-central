@@ -1837,7 +1837,8 @@ dependencies = [
 [[package]]
 name = "ews"
 version = "0.1.0"
-source = "git+https://github.com/thunderbird/ews-rs.git?rev=3553c0b35b78c4e529cf8f563e0b3220f9edabed#3553c0b35b78c4e529cf8f563e0b3220f9edabed"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f1584e2a4861ebc2a22b685ca79dba0cff6b327d31e6e73be36451d208e398ef"
 dependencies = [
  "ews_proc_macros",
  "quick-xml",
@@ -1851,7 +1852,8 @@ dependencies = [
 [[package]]
 name = "ews_proc_macros"
 version = "0.1.0"
-source = "git+https://github.com/thunderbird/ews-rs.git?rev=3553c0b35b78c4e529cf8f563e0b3220f9edabed#3553c0b35b78c4e529cf8f563e0b3220f9edabed"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e74a07e9809826ddfdd105cc32fbab30ca2a68d56406c7d1ab65e7e5ba666ab7"
 dependencies = [
  "quote",
  "syn",
@@ -7880,8 +7882,9 @@ checksum = "d2d7d3948613f75c98fd9328cfdcc45acc4d360655289d0a7d4ec931392200a3"
 
 [[package]]
 name = "xml_struct"
-version = "0.1.0"
-source = "git+https://github.com/thunderbird/xml-struct-rs.git?rev=9ebff0dfc395f417bef0e7dca9b1fceb25cea2e3#9ebff0dfc395f417bef0e7dca9b1fceb25cea2e3"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "746ddda2602e8f9c27a628a8e7ce12c1b5048de5e2a3f0d1509ad7ae46dd8c4f"
 dependencies = [
  "anyhow",
  "quick-xml",
@@ -7891,8 +7894,9 @@ dependencies = [
 
 [[package]]
 name = "xml_struct_derive"
-version = "0.1.0"
-source = "git+https://github.com/thunderbird/xml-struct-rs.git?rev=9ebff0dfc395f417bef0e7dca9b1fceb25cea2e3#9ebff0dfc395f417bef0e7dca9b1fceb25cea2e3"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "61cd690908caaece5c3593bf67665d653087209a0a758d318fca92f61dc4656d"
 dependencies = [
  "proc-macro2",
  "quote",

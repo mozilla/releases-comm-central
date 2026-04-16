@@ -1,0 +1,23 @@
+[package]
+name = "ews"
+version = "0.1.0"
+edition = "2021"
+description = "Data structures and operations relating to the Exchange Web Services API."
+categories = ["data-structures"]
+keywords = ["exchange", "ews"]
+readme = "../README.md"
+license = "MPL-2.0"
+repository = "https://github.com/thunderbird/ews-rs"
+exclude = [".github", ".vscode"]
+
+[features]
+interop = []
+
+[dependencies]
+ews_proc_macros = "0.1.0"
+quick-xml = { version = "0.31.0", features = ["serde", "serialize"] }
+serde = { version = "1.0.196", features = ["derive"] }
+serde_path_to_error = "0.1.11"
+thiserror = "1.0.57"
+time = { version = "0.3.36", features = ["formatting", "parsing", "serde"] }
+xml_struct = "1.0.0"

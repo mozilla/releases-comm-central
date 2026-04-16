@@ -14,18 +14,33 @@ edition = "2021"
 name = "ews_proc_macros"
 version = "0.1.0"
 build = false
+exclude = [
+    ".github",
+    ".vscode",
+]
 autolib = false
 autobins = false
 autoexamples = false
 autotests = false
 autobenches = false
-readme = false
+description = "Procedural macros for the ews crate."
+readme = "README.md"
+keywords = [
+    "exchange",
+    "ews",
+]
+categories = ["data-structures"]
+license = "MPL-2.0"
+repository = "https://github.com/thunderbird/ews-rs"
 
 [lib]
 name = "ews_proc_macros"
 path = "src/lib.rs"
 proc-macro = true
 
-[dependencies]
-quote = "1.0"
-syn = "2.0"
+[dependencies.quote]
+version = "1.0"
+
+[dependencies.syn]
+version = "2.0"
+features = ["full"]

@@ -1,0 +1,26 @@
+[package]
+name = "xml_struct_derive"
+version = "1.0.0"
+edition = "2021"
+authors = ["The Thunderbird Project Developers"]
+description = "Derive macros for xml_struct's XmlSerialize and XmlSerializeAttr traits."
+categories = ["encoding"]
+keywords = ["xml", "serialization"]
+readme = "../README.md"
+license = "MPL-2.0"
+repository = "https://github.com/thunderbird/xml-struct-rs"
+exclude = [".github", ".vscode"]
+
+[lib]
+proc-macro = true
+
+[dependencies]
+proc-macro2 = "1.0.74"
+quote = "1.0.35"
+syn = { version = "2.0.46", features = [
+    "full",
+    "parsing",
+    "derive",
+    "printing",
+    "proc-macro",
+], default-features = false }

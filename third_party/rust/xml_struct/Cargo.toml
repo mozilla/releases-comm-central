@@ -12,27 +12,42 @@
 [package]
 edition = "2021"
 name = "xml_struct"
-version = "0.1.0"
+version = "1.0.0"
+authors = ["The Thunderbird Project Developers"]
 build = false
+exclude = [
+    ".github",
+    ".vscode",
+]
 autolib = false
 autobins = false
 autoexamples = false
 autotests = false
 autobenches = false
-readme = false
+description = "Simple, low-boilerplate serialization of Rust data structures to XML."
+readme = "README.md"
+keywords = [
+    "xml",
+    "serialization",
+]
+categories = ["encoding"]
+license = "MPL-2.0"
+repository = "https://github.com/thunderbird/xml-struct-rs"
 
 [lib]
 name = "xml_struct"
 path = "src/lib.rs"
 
-[dependencies]
-anyhow = "1.0.69"
-quick-xml = "0.31.0"
-thiserror = "1.0.56"
+[dependencies.anyhow]
+version = "1.0.69"
+
+[dependencies.quick-xml]
+version = "0.31.0"
+
+[dependencies.thiserror]
+version = "1.0.56"
 
 [dependencies.xml_struct_derive]
-version = "0.1.0"
-path = "../xml_struct_derive"
+version = "1.0.0"
 
-[dev-dependencies.xml_struct_tests]
-path = "../xml_struct_tests"
+[dev-dependencies]

@@ -25,11 +25,6 @@
 //! There is also currently no provision for deserialization from XML, as the
 //! support offered by `quick_xml`'s serde implementation has been found to be
 //! sufficient for the time being.
-//!
-//! In recognition of these limitations, this crate should not be published to
-//! crates.io at this time. If a generalized implementation generates interest
-//! or is thought to have merit, these limitations may be addressed at a later
-//! time.
 
 mod impls;
 mod tests;

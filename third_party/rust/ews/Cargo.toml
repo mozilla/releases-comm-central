@@ -14,12 +14,24 @@ edition = "2021"
 name = "ews"
 version = "0.1.0"
 build = false
+exclude = [
+    ".github",
+    ".vscode",
+]
 autolib = false
 autobins = false
 autoexamples = false
 autotests = false
 autobenches = false
-readme = false
+description = "Data structures and operations relating to the Exchange Web Services API."
+readme = "README.md"
+keywords = [
+    "exchange",
+    "ews",
+]
+categories = ["data-structures"]
+license = "MPL-2.0"
+repository = "https://github.com/thunderbird/ews-rs"
 
 [features]
 interop = []
@@ -28,12 +40,8 @@ interop = []
 name = "ews"
 path = "src/lib.rs"
 
-[dependencies]
-serde_path_to_error = "0.1.11"
-thiserror = "1.0.57"
-
 [dependencies.ews_proc_macros]
-path = "../ews_proc_macros"
+version = "0.1.0"
 
 [dependencies.quick-xml]
 version = "0.31.0"
@@ -46,6 +54,12 @@ features = [
 version = "1.0.196"
 features = ["derive"]
 
+[dependencies.serde_path_to_error]
+version = "0.1.11"
+
+[dependencies.thiserror]
+version = "1.0.57"
+
 [dependencies.time]
 version = "0.3.36"
 features = [
@@ -55,6 +69,4 @@ features = [
 ]
 
 [dependencies.xml_struct]
-version = "0.1.0"
-git = "https://github.com/thunderbird/xml-struct-rs.git"
-rev = "9ebff0dfc395f417bef0e7dca9b1fceb25cea2e3"
+version = "1.0.0"
