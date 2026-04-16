@@ -218,9 +218,9 @@ const signonsTreeView = {
 
     return "";
   },
-  setCellText(row, col, value) {
+  async setCellText(row, col, value) {
     const table = GetVisibleLogins();
-    function _editLogin(field) {
+    async function _editLogin(field) {
       if (value == table[row][field]) {
         return;
       }
@@ -228,18 +228,18 @@ const signonsTreeView = {
       table[row][field] = value;
       table[row].timePasswordChanged = Date.now();
       reloadDisplay = false;
-      Services.logins.modifyLogin(existingLogin, table[row]);
+      await Services.logins.modifyLoginAsync(existingLogin, table[row]);
       reloadDisplay = true;
       signonsTree.invalidateRow(row);
     }
 
     if (col.id == "userCol") {
-      _editLogin("username");
+      await _editLogin("username");
     } else if (col.id == "passwordCol") {
       if (!value) {
         return;
       }
-      _editLogin("password");
+      await _editLogin("password");
     }
   },
   getParentIndex() {

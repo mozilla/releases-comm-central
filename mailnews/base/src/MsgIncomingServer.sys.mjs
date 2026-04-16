@@ -14,7 +14,7 @@ import { MailServices } from "resource:///modules/MailServices.sys.mjs";
  * @param {string} newHostname - The hostname after the change.
  * @param {string} newUsername - The username after the change.
  */
-function migratePassword(
+async function migratePassword(
   localStoreType,
   oldHostname,
   oldUsername,
@@ -44,7 +44,7 @@ function migratePassword(
         "",
         ""
       );
-      Services.logins.modifyLogin(login, newLogin);
+      await Services.logins.modifyLoginAsync(login, newLogin);
     }
   }
 }
@@ -161,17 +161,20 @@ export function migrateServerUris(
   newHostname,
   newUsername
 ) {
-  try {
-    migratePassword(
-      localStoreType,
-      oldHostname,
-      oldUsername,
-      newHostname,
-      newUsername
-    );
-  } catch (e) {
-    console.error(e);
-  }
+  let finished = false;
+  migratePassword(
+    localStoreType,
+    oldHostname,
+    oldUsername,
+    newHostname,
+    newUsername
+  )
+    .catch(console.error)
+    .finally(() => (finished = true));
+  Services.tm.spinEventLoopUntilOrQuit(
+    "MsgIncomingServer.sys.mjs:migrateServerUris",
+    () => finished
+  );
 
   const oldAuth = oldUsername ? `${encodeURIComponent(oldUsername)}@` : "";
   const newAuth = newUsername ? `${encodeURIComponent(newUsername)}@` : "";

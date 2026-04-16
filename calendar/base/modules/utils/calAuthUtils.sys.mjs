@@ -450,7 +450,7 @@ export var auth = {
       newLoginInfo.init(origin, null, aRealm, aUsername, aPassword, "", "");
       for (const login of logins) {
         if (aUsername == login.username) {
-          Services.logins.modifyLogin(login, newLoginInfo);
+          await Services.logins.modifyLoginAsync(login, newLoginInfo);
           return;
         }
       }

@@ -653,7 +653,7 @@ imAccount.prototype = {
       for (const login of logins) {
         if (newLogin.matches(login, true)) {
           if (password) {
-            Services.logins.modifyLogin(login, newLogin);
+            await Services.logins.modifyLoginAsync(login, newLogin);
           } else {
             Services.logins.removeLogin(login);
           }

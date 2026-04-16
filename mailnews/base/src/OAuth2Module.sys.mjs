@@ -196,7 +196,7 @@ OAuth2Module.prototype = {
             ].createInstance(Ci.nsIWritablePropertyBag);
             propBag.setProperty("password", token);
             propBag.setProperty("timePasswordChanged", Date.now());
-            Services.logins.modifyLogin(login, propBag);
+            await Services.logins.modifyLoginAsync(login, propBag);
           }
           didChangePassword = true;
         } else {
