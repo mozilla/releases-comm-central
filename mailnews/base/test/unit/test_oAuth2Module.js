@@ -624,7 +624,11 @@ add_task(async function testSetAndClearTokensExternally() {
     "access token should be cleared from memory"
   );
   Assert.equal(
-    await Services.logins.countLogins("oauth://test.test", "", "test_scope"),
+    await Services.logins.countLoginsAsync(
+      "oauth://test.test",
+      "",
+      "test_scope"
+    ),
     0,
     "login should have been removed"
   );

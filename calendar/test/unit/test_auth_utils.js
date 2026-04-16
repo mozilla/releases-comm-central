@@ -12,8 +12,8 @@ function run_test() {
   run_next_test();
 }
 
-function checkLoginCount(total) {
-  Assert.equal(total, Services.logins.countLogins("", "", ""));
+async function checkLoginCount(total) {
+  Assert.equal(total, await Services.logins.countLoginsAsync("", "", ""));
 }
 
 /**
@@ -21,22 +21,22 @@ function checkLoginCount(total) {
  */
 add_task(async function test_password_manager() {
   await Services.logins.initializationPromise;
-  checkLoginCount(0);
+  await checkLoginCount(0);
 
   // Save the password
   await cal.auth.passwordManagerSave(USERNAME, PASSWORD, ORIGIN, REALM);
-  checkLoginCount(1);
+  await checkLoginCount(1);
 
   // Save again, should modify the existing login
   await cal.auth.passwordManagerSave(USERNAME, PASSWORD, ORIGIN, REALM);
-  checkLoginCount(1);
+  await checkLoginCount(1);
 
   // Retrieve the saved password
   let passout = {};
   let found = cal.auth.passwordManagerGet(USERNAME, passout, ORIGIN, REALM);
   Assert.equal(passout.value, PASSWORD);
   Assert.ok(found);
-  checkLoginCount(1);
+  await checkLoginCount(1);
 
   // Retrieving should still happen with signon saving disabled, but saving should not
   Services.prefs.setBoolPref("signon.rememberSignons", false);
@@ -50,16 +50,16 @@ add_task(async function test_password_manager() {
     /NS_ERROR_NOT_AVAILABLE/
   );
   Services.prefs.clearUserPref("signon.rememberSignons");
-  checkLoginCount(1);
+  await checkLoginCount(1);
 
   // Remove the password
   found = cal.auth.passwordManagerRemove(USERNAME, ORIGIN, REALM);
-  checkLoginCount(0);
+  await checkLoginCount(0);
   Assert.ok(found);
 
   // Really gone?
   found = cal.auth.passwordManagerRemove(USERNAME, ORIGIN, REALM);
-  checkLoginCount(0);
+  await checkLoginCount(0);
   Assert.ok(!found);
 });
 
@@ -68,13 +68,13 @@ add_task(async function test_password_manager() {
  */
 add_task(async function test_password_manager_origins() {
   await Services.logins.initializationPromise;
-  checkLoginCount(0);
+  await checkLoginCount(0);
 
   // The scheme of the origin should be normalized to lowercase, this won't add any new passwords
   await cal.auth.passwordManagerSave(USERNAME, PASSWORD, "OAUTH:xpcshell@example.com", REALM);
-  checkLoginCount(1);
+  await checkLoginCount(1);
   await cal.auth.passwordManagerSave(USERNAME, PASSWORD, "oauth:xpcshell@example.com", REALM);
-  checkLoginCount(1);
+  await checkLoginCount(1);
 
   // Make sure that the prePath isn't used for oauth, because that is only the scheme
   let found = cal.auth.passwordManagerGet(USERNAME, {}, "oauth:", REALM);
@@ -84,17 +84,17 @@ add_task(async function test_password_manager_origins() {
   await cal.auth.passwordManagerSave(USERNAME, PASSWORD, "https://example.com/withpath", REALM);
   found = cal.auth.passwordManagerGet(USERNAME, {}, "https://example.com", REALM);
   Assert.ok(found);
-  checkLoginCount(2);
+  await checkLoginCount(2);
 
   // Entering something that is not an URL should assume https
   await cal.auth.passwordManagerSave(USERNAME, PASSWORD, "example.net", REALM);
   found = cal.auth.passwordManagerGet(USERNAME, {}, "https://example.net", REALM);
   Assert.ok(found);
-  checkLoginCount(3);
+  await checkLoginCount(3);
 
   // Cleanup
   cal.auth.passwordManagerRemove(USERNAME, "oauth:xpcshell@example.com", REALM);
   cal.auth.passwordManagerRemove(USERNAME, "https://example.com", REALM);
   cal.auth.passwordManagerRemove(USERNAME, "https://example.net", REALM);
-  checkLoginCount(0);
+  await checkLoginCount(0);
 });
