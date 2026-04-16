@@ -1,6 +1,6 @@
 [package]
 name = "bit-set"
-version = "0.9.1"
+version = "0.10.0"
 authors = ["Alexis Beingessner <a.beingessner@gmail.com>"]
 license = "Apache-2.0 OR MIT"
 description = "A set of bits"

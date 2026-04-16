@@ -104,7 +104,10 @@ use crate::{
         bind::Binder, BasePass, BindGroupStateChange, ColorAttachmentError, DrawError,
         IdReferences, MapPassErr, PassErrorScope, RenderCommand, RenderCommandError, StateChange,
     },
-    device::{AttachmentData, Device, DeviceError, MissingDownlevelFlags, RenderPassContext},
+    device::{
+        AttachmentData, Device, DeviceError, MissingDownlevelFlags, MissingFeatures,
+        RenderPassContext,
+    },
     hub::Hub,
     id,
     init_tracker::{BufferInitTrackerAction, MemoryInitKind, TextureInitTrackerAction},
@@ -116,6 +119,10 @@ use crate::{
     resource_log,
     snatch::SnatchGuard,
     track::RenderBundleScope,
+    validation::{
+        check_color_attachment_count, check_workgroup_sizes,
+        validate_color_attachment_bytes_per_sample,
+    },
     Label, LabelHelpers,
 };
 
@@ -166,55 +173,98 @@ pub struct RenderBundleEncoder {
     current_pipeline: StateChange<id::RenderPipelineId>,
 }
 
-impl RenderBundleEncoder {
-    pub fn new(
-        desc: &RenderBundleEncoderDescriptor,
-        parent_id: id::DeviceId,
-    ) -> Result<Self, CreateRenderBundleError> {
-        let (is_depth_read_only, is_stencil_read_only) = match desc.depth_stencil {
-            Some(ds) => {
-                let aspects = hal::FormatAspects::from(ds.format);
+/// Validate a render bundle descriptor.
+///
+/// The underlying `device` is required to fully validate the descriptor.
+/// If omitted, some validation will be skipped.
+///
+/// Returns a tuple (is_depth_read_only, is_stencil_read_only).
+fn validate_render_bundle_encoder_descriptor(
+    desc: &RenderBundleEncoderDescriptor,
+    device: Option<&Arc<Device>>,
+) -> Result<(bool, bool), CreateRenderBundleError> {
+    let mut have_attachment = false;
+
+    let max_color_attachments = device.map_or(hal::MAX_COLOR_ATTACHMENTS as u32, |device| {
+        assert!(device.limits.max_color_attachments <= hal::MAX_COLOR_ATTACHMENTS as u32);
+        device.limits.max_color_attachments
+    });
+    check_color_attachment_count(desc.color_formats.len(), max_color_attachments)?;
+
+    for &format in desc.color_formats.iter().flatten() {
+        have_attachment = true;
+        if !format.has_color_aspect() {
+            return Err(CreateRenderBundleError::FormatNotColor(format));
+        }
+        if let Some(device) = device {
+            let format_features = device.describe_format_features(format)?;
+            if !format_features
+                .allowed_usages
+                .contains(wgt::TextureUsages::RENDER_ATTACHMENT)
+            {
+                return Err(CreateRenderBundleError::FormatNotRenderable(format));
+            }
+        }
+    }
+
+    if let Some(device) = device {
+        validate_color_attachment_bytes_per_sample(
+            desc.color_formats.iter().flatten().copied(),
+            device.limits.max_color_attachment_bytes_per_sample,
+        )?;
+    }
+
+    let (is_depth_read_only, is_stencil_read_only) = match desc.depth_stencil {
+        Some(ds) => {
+            have_attachment = true;
+            let has_depth = ds.format.has_depth_aspect();
+            let has_stencil = ds.format.has_stencil_aspect();
+            if !has_depth && !has_stencil {
+                return Err(CreateRenderBundleError::FormatNotDepthOrStencil(ds.format));
+            } else {
                 (
-                    !aspects.contains(hal::FormatAspects::DEPTH) || ds.depth_read_only,
-                    !aspects.contains(hal::FormatAspects::STENCIL) || ds.stencil_read_only,
+                    !has_depth || ds.depth_read_only,
+                    !has_stencil || ds.stencil_read_only,
                 )
             }
-            // There's no depth/stencil attachment, so these values just don't
-            // matter.  Choose the most accommodating value, to simplify
-            // validation.
-            None => (true, true),
-        };
+        }
+        // There's no depth/stencil attachment, so these values just don't
+        // matter.  Choose the most accommodating value, to simplify
+        // validation.
+        None => (true, true),
+    };
 
-        // TODO: should be device.limits.max_color_attachments
-        let max_color_attachments = hal::MAX_COLOR_ATTACHMENTS;
+    if !have_attachment {
+        return Err(CreateRenderBundleError::NoAttachment);
+    }
 
-        //TODO: validate that attachment formats are renderable,
-        // have expected aspects, support multisampling.
+    Ok((is_depth_read_only, is_stencil_read_only))
+}
+
+impl RenderBundleEncoder {
+    /// Create a new `RenderBundleEncoder`.
+    ///
+    /// The underlying `device` is required to fully validate the descriptor.
+    /// If the device is not available, some validation will be deferred
+    /// until `finish()`.
+    pub fn new(
+        desc: &RenderBundleEncoderDescriptor,
+        device: Option<&Arc<Device>>,
+        parent_id: id::DeviceId,
+    ) -> Result<Self, CreateRenderBundleError> {
+        let (is_depth_read_only, is_stencil_read_only) =
+            validate_render_bundle_encoder_descriptor(desc, device)?;
+
         Ok(Self {
             base: BasePass::new(&desc.label),
             parent_id,
             context: RenderPassContext {
                 attachments: AttachmentData {
-                    colors: if desc.color_formats.len() > max_color_attachments {
-                        return Err(CreateRenderBundleError::ColorAttachment(
-                            ColorAttachmentError::TooMany {
-                                given: desc.color_formats.len(),
-                                limit: max_color_attachments,
-                            },
-                        ));
-                    } else {
-                        desc.color_formats.iter().cloned().collect()
-                    },
+                    colors: desc.color_formats.iter().cloned().collect(),
                     resolves: ArrayVec::new(),
                     depth_stencil: desc.depth_stencil.map(|ds| ds.format),
                 },
-                sample_count: {
-                    let sc = desc.sample_count;
-                    if sc == 0 || sc > 32 || !sc.is_power_of_two() {
-                        return Err(CreateRenderBundleError::InvalidSampleCount(sc));
-                    }
-                    sc
-                },
+                sample_count: desc.sample_count,
                 multiview_mask: desc.multiview,
             },
 
@@ -270,6 +320,27 @@ impl RenderBundleEncoder {
 
         device.check_is_valid().map_pass_err(scope)?;
 
+        {
+            // Reconstruct and revalidate the encoder descriptor, because
+            // `RenderBundleEncoder` is serializable and could have been tampered.
+            let encoder_desc = RenderBundleEncoderDescriptor {
+                label: self.base.label.as_ref().map(Cow::from),
+                color_formats: Cow::Borrowed(&self.context.attachments.colors),
+                depth_stencil: self.context.attachments.depth_stencil.map(|format| {
+                    wgt::RenderBundleDepthStencil {
+                        format,
+                        depth_read_only: self.is_depth_read_only,
+                        stencil_read_only: self.is_stencil_read_only,
+                    }
+                }),
+                sample_count: self.context.sample_count,
+                multiview: self.context.multiview_mask,
+            };
+
+            validate_render_bundle_encoder_descriptor(&encoder_desc, Some(device))
+                .map_pass_err(scope)?;
+        };
+
         let bind_group_guard = hub.bind_groups.read();
         let pipeline_guard = hub.render_pipelines.read();
         let buffer_guard = hub.buffers.read();
@@ -286,6 +357,7 @@ impl RenderBundleEncoder {
             texture_memory_init_actions: Vec::new(),
             next_dynamic_offset: 0,
             binder: Binder::new(),
+            immediate_slots_set: Default::default(),
         };
 
         let indices = &state.device.tracker_indices;
@@ -596,11 +668,6 @@ fn set_pipeline(
         .commands
         .push(ArcRenderCommand::SetPipeline(pipeline.clone()));
 
-    // If this pipeline uses immediates, zero out their values.
-    if let Some(cmd) = pipeline_state.zero_immediates() {
-        state.commands.push(cmd);
-    }
-
     state.pipeline = Some(pipeline_state);
 
     state
@@ -712,6 +779,7 @@ fn set_immediates(
         size_bytes,
         values_offset,
     });
+    state.immediate_slots_set |= naga::valid::ImmediateSlots::from_range(offset, size_bytes);
     Ok(())
 }
 
@@ -791,21 +859,30 @@ fn draw_mesh_tasks(
 ) -> Result<(), RenderBundleErrorInner> {
     state.is_ready(DrawCommandFamily::DrawMeshTasks)?;
 
-    let groups_size_limit = state.device.limits.max_task_mesh_workgroups_per_dimension;
-    let max_groups = state.device.limits.max_task_mesh_workgroup_total_count;
-    if group_count_x > groups_size_limit
-        || group_count_y > groups_size_limit
-        || group_count_z > groups_size_limit
-        || group_count_x * group_count_y * group_count_z > max_groups
-    {
-        return Err(RenderBundleErrorInner::Draw(DrawError::InvalidGroupSize {
-            current: [group_count_x, group_count_y, group_count_z],
-            limit: groups_size_limit,
-            max_total: max_groups,
-        }));
-    }
+    let limits = &state.device.limits;
+    let (groups_size_limit, max_groups) =
+        if state.pipeline.as_ref().unwrap().pipeline.has_task_shader {
+            (
+                limits.max_task_workgroups_per_dimension,
+                limits.max_task_workgroup_total_count,
+            )
+        } else {
+            (
+                limits.max_mesh_workgroups_per_dimension,
+                limits.max_mesh_workgroup_total_count,
+            )
+        };
 
-    if group_count_x > 0 && group_count_y > 0 && group_count_z > 0 {
+    let total_count = check_workgroup_sizes(
+        &[group_count_x, group_count_y, group_count_z],
+        &[groups_size_limit, groups_size_limit, groups_size_limit],
+        "max_task_mesh_workgroups_per_dimension",
+        max_groups,
+        "max_task_mesh_workgroup_total_count",
+    )
+    .map_err(|err| RenderBundleErrorInner::Draw(err.into()))?;
+
+    if total_count > 0 {
         state.flush_bindings();
         state.commands.push(ArcRenderCommand::DrawMeshTasks {
             group_count_x,
@@ -837,7 +914,11 @@ fn multi_draw_indirect(
 
     let vertex_limits = super::VertexLimits::new(state.vertex_buffer_sizes(), &pipeline.steps);
 
-    let stride = super::get_stride_of_indirect_args(family);
+    let stride = super::get_src_stride_of_indirect_args(family);
+    // TODO(https://github.com/gfx-rs/wgpu/issues/8051): It would be better to report this
+    // as a validation error, but it's pathological, so let's do the simpler thing for now
+    // and do the better thing as part of eliminating pass/bundle duplication.
+    assert!(offset <= wgt::BufferAddress::MAX - stride);
     state
         .buffer_memory_init_actions
         .extend(buffer.initialization_status.read().create_action(
@@ -883,15 +964,30 @@ fn multi_draw_indirect(
 pub enum CreateRenderBundleError {
     #[error(transparent)]
     ColorAttachment(#[from] ColorAttachmentError),
+    #[error("Format {0:?} does not have a color aspect")]
+    FormatNotColor(wgt::TextureFormat),
+    #[error("Color attachment format {0:?} is not renderable")]
+    FormatNotRenderable(wgt::TextureFormat),
+    #[error("Format {0:?} is not a depth/stencil format")]
+    FormatNotDepthOrStencil(wgt::TextureFormat),
+    #[error("Render bundle must have at least one attachment (color or depth/stencil)")]
+    NoAttachment,
     #[error("Invalid number of samples {0}")]
     InvalidSampleCount(u32),
+    #[error(transparent)]
+    MissingFeatures(#[from] MissingFeatures),
 }
 
 impl WebGpuError for CreateRenderBundleError {
     fn webgpu_error_type(&self) -> ErrorType {
         match self {
             Self::ColorAttachment(e) => e.webgpu_error_type(),
-            Self::InvalidSampleCount(_) => ErrorType::Validation,
+            Self::FormatNotColor(_)
+            | Self::FormatNotRenderable(_)
+            | Self::FormatNotDepthOrStencil(_)
+            | Self::NoAttachment
+            | Self::InvalidSampleCount(_) => ErrorType::Validation,
+            Self::MissingFeatures(e) => e.webgpu_error_type(),
         }
     }
 }
@@ -1279,9 +1375,6 @@ struct PipelineState {
     /// How this pipeline's vertex shader traverses each vertex buffer, indexed
     /// by vertex buffer slot number.
     steps: Vec<VertexStep>,
-
-    /// Size of the immediate data ranges this pipeline uses. Copied from the pipeline layout.
-    immediate_size: u32,
 }
 
 impl PipelineState {
@@ -1289,22 +1382,7 @@ impl PipelineState {
         Self {
             pipeline: pipeline.clone(),
             steps: pipeline.vertex_steps.to_vec(),
-            immediate_size: pipeline.layout.immediate_size,
         }
-    }
-
-    /// Return a sequence of commands to zero the immediate data ranges this
-    /// pipeline uses. If no initialization is necessary, return `None`.
-    fn zero_immediates(&self) -> Option<ArcRenderCommand> {
-        if self.immediate_size == 0 {
-            return None;
-        }
-
-        Some(ArcRenderCommand::SetImmediate {
-            offset: 0,
-            size_bytes: self.immediate_size,
-            values_offset: None,
-        })
     }
 }
 
@@ -1346,6 +1424,9 @@ struct State {
     texture_memory_init_actions: Vec<TextureInitTrackerAction>,
     next_dynamic_offset: usize,
     binder: Binder,
+    /// A bitmask, tracking which 4-byte slots have been written via `set_immediates`.
+    /// Checked against the pipeline's required slots before each draw call.
+    immediate_slots_set: naga::valid::ImmediateSlots,
 }
 
 impl State {
@@ -1424,6 +1505,18 @@ impl State {
                 }
             }
 
+            if !self
+                .immediate_slots_set
+                .contains(pipeline.pipeline.immediate_slots_required)
+            {
+                return Err(DrawError::MissingImmediateData {
+                    missing: pipeline
+                        .pipeline
+                        .immediate_slots_required
+                        .difference(self.immediate_slots_set),
+                });
+            }
+
             Ok(())
         } else {
             Err(DrawError::MissingPipeline(pass::MissingPipeline))
@@ -1465,6 +1558,8 @@ impl State {
 #[derive(Clone, Debug, Error)]
 pub enum RenderBundleErrorInner {
     #[error(transparent)]
+    Create(#[from] CreateRenderBundleError),
+    #[error(transparent)]
     Device(#[from] DeviceError),
     #[error(transparent)]
     RenderCommand(RenderCommandError),
@@ -1500,6 +1595,7 @@ impl WebGpuError for RenderBundleError {
     fn webgpu_error_type(&self) -> ErrorType {
         let Self { scope: _, inner } = self;
         match inner {
+            RenderBundleErrorInner::Create(e) => e.webgpu_error_type(),
             RenderBundleErrorInner::Device(e) => e.webgpu_error_type(),
             RenderBundleErrorInner::RenderCommand(e) => e.webgpu_error_type(),
             RenderBundleErrorInner::Draw(e) => e.webgpu_error_type(),

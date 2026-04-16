@@ -7,6 +7,7 @@ mod compose;
 mod expression;
 mod function;
 mod handles;
+pub(crate) mod immediates;
 mod interface;
 mod r#type;
 
@@ -30,13 +31,14 @@ pub use compose::ComposeError;
 pub use expression::{check_literal_value, LiteralError};
 pub use expression::{ConstExpressionError, ExpressionError};
 pub use function::{CallError, FunctionError, LocalVariableError, SubgroupError};
+pub use immediates::ImmediateSlots;
 pub use interface::{EntryPointError, GlobalVariableError, VaryingError};
 pub use r#type::{Disalignment, ImmediateError, TypeError, TypeFlags, WidthError};
 
 use self::handles::InvalidHandleError;
 
 /// Maximum size of a type, in bytes.
-pub const MAX_TYPE_SIZE: u32 = 0x4000_0000; // 1GB
+pub const MAX_TYPE_SIZE: u32 = i32::MAX as u32;
 
 bitflags::bitflags! {
     /// Validation flags.
@@ -235,6 +237,7 @@ impl Capabilities {
             Self::RAY_HIT_VERTEX_POSITION => Some(Ext::WgpuRayQueryVertexReturn),
             Self::COOPERATIVE_MATRIX => Some(Ext::WgpuCooperativeMatrix),
             Self::RAY_TRACING_PIPELINE => Some(Ext::WgpuRayTracingPipeline),
+            Self::PER_VERTEX => Some(Ext::PerVertex),
             _ => None,
         }
     }

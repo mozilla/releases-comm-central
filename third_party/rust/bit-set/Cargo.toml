@@ -13,7 +13,7 @@
 edition = "2021"
 rust-version = "1.82"
 name = "bit-set"
-version = "0.9.1"
+version = "0.10.0"
 authors = ["Alexis Beingessner <a.beingessner@gmail.com>"]
 build = false
 autolib = false

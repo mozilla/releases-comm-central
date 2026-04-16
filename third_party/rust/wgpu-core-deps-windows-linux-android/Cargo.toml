@@ -29,6 +29,7 @@ license = "MIT OR Apache-2.0"
 repository = "https://github.com/gfx-rs/wgpu"
 
 [features]
+drm = ["wgpu-hal/drm"]
 dx12 = ["wgpu-hal/dx12"]
 gles = ["wgpu-hal/gles"]
 renderdoc = ["wgpu-hal/renderdoc"]

@@ -97,7 +97,7 @@ version = "0.7.1"
 default-features = false
 
 [dependencies.bit-set]
-version = "0.9"
+version = "0.10"
 default-features = false
 
 [dependencies.bitflags]

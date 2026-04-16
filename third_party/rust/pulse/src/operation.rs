@@ -22,6 +22,16 @@ impl Operation {
     pub fn get_state(&self) -> ffi::pa_operation_state_t {
         unsafe { ffi::pa_operation_get_state(self.0) }
     }
+
+    /// Release our reference without canceling.  PulseAudio holds its
+    /// own ref on in-flight operations, so the operation will continue
+    /// to run and deliver its callback.
+    pub fn detach(self) {
+        unsafe {
+            ffi::pa_operation_unref(self.0);
+        }
+        std::mem::forget(self);
+    }
 }
 
 impl Clone for Operation {
@@ -32,6 +42,9 @@ impl Clone for Operation {
 
 impl Drop for Operation {
     fn drop(&mut self) {
+        if self.get_state() == ffi::PA_OPERATION_RUNNING {
+            self.cancel();
+        }
         unsafe {
             ffi::pa_operation_unref(self.0);
         }

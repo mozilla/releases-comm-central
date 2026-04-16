@@ -31,9 +31,9 @@ git = "https://github.com/franziskuskiefer/cose-rust"
 rev = "43c22248d136c8b38fe42ea709d08da6355cf04b"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/gfx-rs/wgpu?rev=fd2fa777b259520e090790d9b5ce5296e4ce7bb7"]
+[source."git+https://github.com/gfx-rs/wgpu?rev=f7b650d55c6c4a546db236a0779f18fe4ee7d82f"]
 git = "https://github.com/gfx-rs/wgpu"
-rev = "fd2fa777b259520e090790d9b5ce5296e4ce7bb7"
+rev = "f7b650d55c6c4a546db236a0779f18fe4ee7d82f"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/glandium/allocator-api2?rev=ad5f3d56a5a4519eff52af4ff85293431466ef5c"]
@@ -76,9 +76,9 @@ git = "https://github.com/mozilla/cubeb-coreaudio-rs"
 rev = "0bb8a45a040e85d313eb18deb36570e87df3a6af"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/mozilla/cubeb-pulse-rs?rev=c0b3bce1f1d1cc565a2ccacd9c38e945ef8d033c"]
+[source."git+https://github.com/mozilla/cubeb-pulse-rs?rev=3cf4a1af09a1748d0e184297a17132bdcc608874"]
 git = "https://github.com/mozilla/cubeb-pulse-rs"
-rev = "c0b3bce1f1d1cc565a2ccacd9c38e945ef8d033c"
+rev = "3cf4a1af09a1748d0e184297a17132bdcc608874"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/mozilla/happy-eyeballs?tag=v0.4.0"]

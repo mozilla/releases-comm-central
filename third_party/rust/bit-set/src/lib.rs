@@ -48,7 +48,7 @@
 //! let bv = s.into_bit_vec();
 //! assert!(bv[3]);
 //! ```
-#![doc(html_root_url = "https://docs.rs/bit-set/0.9.0/bit_set/")]
+#![doc(html_root_url = "https://docs.rs/bit-set/0.10.0/bit_set/")]
 #![deny(clippy::shadow_reuse)]
 #![deny(clippy::shadow_same)]
 #![deny(clippy::shadow_unrelated)]
@@ -57,7 +57,9 @@
 #[cfg(any(test, feature = "std"))]
 extern crate std;
 
-use bit_vec::{BitBlock, BitVec, Blocks};
+pub use bit_vec::BitBlock;
+
+use bit_vec::{BitVec, Blocks};
 use core::cmp;
 use core::cmp::Ordering;
 use core::fmt;

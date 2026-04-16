@@ -49,6 +49,7 @@ angle = ["wgpu-core-deps-apple/angle"]
 api_log_info = []
 counters = ["wgpu-types/counters"]
 default = ["std"]
+drm = ["wgpu-core-deps-windows-linux-android/drm"]
 dx12 = ["wgpu-core-deps-windows-linux-android/dx12"]
 fragile-send-sync-non-atomic-wasm = ["wgpu-hal/fragile-send-sync-non-atomic-wasm"]
 gles = [
@@ -109,11 +110,11 @@ version = "0.7.1"
 default-features = false
 
 [dependencies.bit-set]
-version = "0.9"
+version = "0.10"
 default-features = false
 
 [dependencies.bit-vec]
-version = "0.9"
+version = "0.9.1"
 default-features = false
 
 [dependencies.bitflags]
