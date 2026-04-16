@@ -410,6 +410,25 @@ NS_IMETHODIMP nsMsgMaildirStore::CreateFolder(nsIMsgFolder* aParent,
   return rv;
 }
 
+NS_IMETHODIMP nsMsgMaildirStore::EnsureLocalStore(nsIMsgFolder* folder) {
+  NS_ENSURE_ARG(folder);
+
+  nsCOMPtr<nsIFile> path;
+  nsresult rv = folder->GetFilePath(getter_AddRefs(path));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  bool exists = false;
+  rv = path->Exists(&exists);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  if (!exists) {
+    rv = CreateMaildir(path);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
+  return NS_OK;
+}
+
 NS_IMETHODIMP nsMsgMaildirStore::HasSpaceAvailable(nsIMsgFolder* aFolder,
                                                    int64_t aSpaceRequested,
                                                    bool* aResult) {

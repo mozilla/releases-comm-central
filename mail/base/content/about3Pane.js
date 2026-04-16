@@ -3785,6 +3785,12 @@ var folderPane = {
       // In a failure, proceed anyway since we're dealing with problems
       folder.ForceDBClosed();
     }
+    // The local store was deleted above. It won't be recreated until the user
+    // attempts to load a message or the offline sync process creates it.
+    // However, folder discovery relies on the existence of the offline store,
+    // so to avoid an intermediate state that could cause folder discovery to
+    // fail for this folder, we create the local store.
+    folder.msgStore.ensureLocalStore(folder);
     folder.updateFolder(top.msgWindow);
   },
 

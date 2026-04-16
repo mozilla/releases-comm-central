@@ -79,6 +79,11 @@ interface nsIMsgPluggableStore : nsISupports {
   nsIMsgFolder createFolder(in nsIMsgFolder aParent, in AUTF8String aFolderName);
 
   /**
+   * Ensure the local store for a folder exists.
+   */
+  void ensureLocalStore(in nsIMsgFolder folder);
+
+  /**
    * Delete storage for a folder and its subfolders, if any.
    * This is a real delete, not a move to the trash folder.
    *

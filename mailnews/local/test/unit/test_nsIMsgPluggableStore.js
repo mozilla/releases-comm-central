@@ -611,6 +611,42 @@ async function test_changeFlags() {
   }
 }
 
+async function test_ensureLocalStore() {
+  // This test tries to approximate what happens when we repair
+  // an account. See rebuildFolderSummary in about3Pane.js.
+  localAccountUtils.loadLocalMailAccount();
+  const folder = localAccountUtils.inboxFolder;
+  await IOUtils.remove(folder.filePath.path, { recursive: true });
+
+  folder.msgStore.ensureLocalStore(folder);
+
+  Assert.ok(
+    await IOUtils.exists(folder.filePath.path),
+    "Offline store should exist"
+  );
+
+  const info = await IOUtils.stat(folder.filePath.path);
+  const storeType = folder.msgStore.storeType;
+  if (storeType == "maildir") {
+    Assert.equal(info.type, "directory", "maildir store should be a directory");
+
+    const tmpPath = PathUtils.join(folder.filePath.path, "tmp");
+    Assert.ok(
+      await IOUtils.exists(tmpPath),
+      "maildir tmp subdirectory should exist"
+    );
+    const curPath = PathUtils.join(folder.filePath.path, "cur");
+    Assert.ok(
+      await IOUtils.exists(curPath),
+      "maildir cur subdirectory should exist"
+    );
+  } else if (storeType == "mbox") {
+    Assert.equal(info.type, "regular", "mbox store should be a regular file");
+  } else {
+    throw new Error("Unexpected store type.");
+  }
+}
+
 // Return a wrapper which sets the store type before running fn().
 function withStore(store, fn) {
   return async () => {
@@ -630,4 +666,5 @@ for (const store of localAccountUtils.pluggableStores) {
   add_task(withStore(store, test_oneWritePerFolder));
   add_task(withStore(store, test_multiFolderWriting));
   add_task(withStore(store, test_changeFlags));
+  add_task(withStore(store, test_ensureLocalStore));
 }

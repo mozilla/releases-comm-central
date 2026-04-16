@@ -234,6 +234,25 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::CreateFolder(nsIMsgFolder* aParent,
   return rv;
 }
 
+NS_IMETHODIMP nsMsgBrkMBoxStore::EnsureLocalStore(nsIMsgFolder* folder) {
+  NS_ENSURE_ARG(folder);
+
+  nsCOMPtr<nsIFile> path;
+  nsresult rv = folder->GetFilePath(getter_AddRefs(path));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  bool exists = false;
+  rv = path->Exists(&exists);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  if (!exists) {
+    rv = path->Create(nsIFile::NORMAL_FILE_TYPE, 0600);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
+  return NS_OK;
+}
+
 // Get the current attributes of the mbox file, corrected for caching
 void nsMsgBrkMBoxStore::GetMailboxModProperties(nsIMsgFolder* aFolder,
                                                 int64_t* aSize,
