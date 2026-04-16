@@ -167,12 +167,7 @@ add_task(async function test_accountSettings() {
 
     EventUtils.synthesizeMouseAtCenter(menu, {}, menu.ownerGlobal);
     await BrowserTestUtils.waitForPopupEvent(menu.menupopup, "shown");
-
-    EventUtils.synthesizeMouseAtCenter(
-      serverList[1],
-      {},
-      serverList[1].ownerGlobal
-    );
+    menu.menupopup.activateItem(serverList[1]);
     await BrowserTestUtils.waitForPopupEvent(menu.menupopup, "hidden");
 
     // Check that the item that's currently selected is the correct one (SMTP)
@@ -191,12 +186,7 @@ add_task(async function test_accountSettings() {
     info("Opening Outgoing Server menu again to select ews server...");
     EventUtils.synthesizeMouseAtCenter(menu, {}, menu.ownerGlobal);
     await BrowserTestUtils.waitForPopupEvent(menu.menupopup, "shown");
-
-    EventUtils.synthesizeMouseAtCenter(
-      serverList[2],
-      {},
-      serverList[2].ownerGlobal
-    );
+    menu.menupopup.activateItem(serverList[2]);
     await BrowserTestUtils.waitForPopupEvent(menu.menupopup, "hidden");
 
     // Check that the item that's currently selected is the correct one
