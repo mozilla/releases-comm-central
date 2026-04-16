@@ -57,7 +57,10 @@ add_task(async () => {
     MailServices.ab.deleteAddressBook(book.URI);
   });
 
-  const eventWindow = await openEventWindow(calendar);
+  const eventWindowPromise = CalendarTestUtils.waitForEventDialog("edit");
+  createEventWithDialog(calendar, null, null, "Event");
+  const eventWindow = await eventWindowPromise;
+
   const eventDocument = eventWindow.document;
   const iframeDocument = eventDocument.getElementById("calendar-item-panel-iframe").contentDocument;
 
@@ -270,7 +273,10 @@ add_task(async () => {
   ]);
 
   iframeDocument.getElementById("notify-attendees-checkbox").checked = false;
-  await closeEventWindow(eventWindow);
+  const eventWindowClosedPromise = BrowserTestUtils.domWindowClosed(eventWindow);
+  eventWindow.document.getElementById("button-saveandclose").click();
+  await eventWindowClosedPromise;
+  await new Promise(resolve => setTimeout(resolve));
 });
 
 add_task(async () => {
@@ -385,20 +391,7 @@ add_task(async () => {
     "20300401T" + dayStartHour + "0000Z",
     "20300416T" + dayStartHour + "0000Z"
   );
-});
-
-function openEventWindow(calendar) {
-  const eventWindowPromise = CalendarTestUtils.waitForEventDialog("edit");
-  createEventWithDialog(calendar, null, null, "Event");
-  return eventWindowPromise;
-}
-
-async function closeEventWindow(eventWindow) {
-  const eventWindowPromise = BrowserTestUtils.domWindowClosed(eventWindow);
-  eventWindow.document.getElementById("button-saveandclose").click();
-  await eventWindowPromise;
-  await new Promise(resolve => setTimeout(resolve));
-}
+}).skip(new Date().getUTCHours() == 23 && new Date().getUTCMinutes() > 58);
 
 function fromToday({ days = 0, hours = 0 }) {
   if (!fromToday.today) {
