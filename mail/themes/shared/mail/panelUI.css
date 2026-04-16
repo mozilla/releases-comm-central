@@ -16,8 +16,8 @@
     /* stylelint-disable-next-line */
     --menu-panel-button-width: calc(--menu-panel-width / 3 - 1.1px);
     /* Complement the .subviewbutton margin. */
-    --arrowpanel-padding: 8px 0;
-    --arrowpanel-menuitem-border-radius: 3px;
+    --panel-padding: 8px 0;
+    --panel-menuitem-border-radius: 3px;
     --appmenu-button-border-color: light-dark(hsla(210, 4%, 10%, 0.14), rgba(249, 249, 250, 0.2));
     --appmenu-button-margin: 0 8px;
     --appmenu-button-padding: 6px;
@@ -41,7 +41,7 @@
   /* UI Density customization */
 
   :root[uidensity="compact"] & {
-    --arrowpanel-padding: 4px 0;
+    --panel-padding: 4px 0;
     --appmenu-button-margin: 0 4px;
     --appmenu-button-padding: 3px;
     --appmenu-combined-radio-button-padding: 2px 6px;
@@ -73,7 +73,7 @@ panelview:not([visible]) {
 
 panelview {
   flex-direction: column;
-  background: var(--arrowpanel-background);
+  background: var(--panel-background);
   padding: 0;
 }
 
@@ -89,7 +89,7 @@ panelmultiview[transitioning] > .panel-viewcontainer > .panel-viewstack > panelv
   overflow-y: auto;
   overflow-x: hidden;
   flex: 1;
-  padding: var(--arrowpanel-padding);
+  padding: var(--panel-padding);
 }
 
 .panel-view-body-unscrollable {
@@ -101,7 +101,7 @@ panelmultiview[transitioning] > .panel-viewcontainer > .panel-viewstack > panelv
   box-sizing: border-box;
   min-block-size: 41px;
   margin: 0;
-  background-color: var(--arrowpanel-dimmed);
+  background-color: var(--panel-dimmed);
   border-block-start: 1px solid var(--panel-separator-color);
   border-radius: 0;
 
@@ -284,7 +284,7 @@ menu.subviewbutton,
   min-block-size: 24px;
   padding-inline: 8px;
   padding-block: var(--appmenu-button-padding);
-  border-radius: var(--arrowpanel-menuitem-border-radius);
+  border-radius: var(--panel-menuitem-border-radius);
   background-color: transparent;
 }
 
@@ -387,14 +387,14 @@ menu.subviewbutton,
 
     &:first-of-type {
       border-inline-end: none;
-      border-start-start-radius: var(--arrowpanel-menuitem-border-radius);
-      border-end-start-radius: var(--arrowpanel-menuitem-border-radius);
+      border-start-start-radius: var(--panel-menuitem-border-radius);
+      border-end-start-radius: var(--panel-menuitem-border-radius);
     }
 
     &:last-of-type {
       border-inline-start: none;
-      border-start-end-radius: var(--arrowpanel-menuitem-border-radius);
-      border-end-end-radius: var(--arrowpanel-menuitem-border-radius);
+      border-start-end-radius: var(--panel-menuitem-border-radius);
+      border-end-end-radius: var(--panel-menuitem-border-radius);
     }
 
     &[checked] {
@@ -466,7 +466,7 @@ menuitem.subviewbutton:not([disabled], :active)[_moz-menuactive],
 .toolbaritem-combined-buttons:is(:not([cui-areatype="toolbar"]), [overflowedItem="true"])
   > toolbarbutton:not([disabled], [open], :active):is(:hover, :focus-visible) {
   color: inherit;
-  background-color: var(--arrowpanel-dimmed);
+  background-color: var(--panel-dimmed);
 }
 
 panelview .toolbarbutton-1:not([disabled]):is([open], :hover:active),
@@ -476,18 +476,18 @@ menuitem.subviewbutton:not([disabled])[_moz-menuactive]:active,
 .widget-overflow-list .toolbarbutton-1:not([disabled]):is([open], :hover:active),
 .toolbaritem-combined-buttons:is(:not([cui-areatype="toolbar"]), [overflowedItem="true"]) > toolbarbutton:not([disabled]):is([open], :hover:active) {
   color: inherit;
-  background-color: var(--arrowpanel-dimmed-further);
+  background-color: var(--panel-dimmed-further);
   box-shadow: 0 1px 0 hsla(210, 4%, 10%, 0.03) inset;
 }
 
 menuitem.panel-subview-footer:not([disabled], :active)[_moz-menuactive],
 .subviewbutton.panel-subview-footer:not([disabled], [open], :active):is(:hover, :focus-visible) {
-  background-color: var(--arrowpanel-dimmed-further);
+  background-color: var(--panel-dimmed-further);
 }
 
 menuitem.panel-subview-footer:not([disabled])[_moz-menuactive]:active,
 .subviewbutton.panel-subview-footer:not([disabled]):is([open], :hover:active) {
-  background-color: var(--arrowpanel-dimmed-even-further);
+  background-color: var(--panel-dimmed-even-further);
   box-shadow: 0 1px 0 hsla(210, 4%, 10%, 0.05) inset;
 }
 
@@ -584,13 +584,13 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
   border: 1px solid transparent;
 
   &:not([disabled], [open], :active):is(:hover, :focus-visible) {
-    background-color: var(--arrowpanel-dimmed);
+    background-color: var(--panel-dimmed);
     border-color: var(--panel-separator-color);
   }
 
   &:is([selected], [selected]:hover),
   &:not([disabled]):is([open], :hover:active) {
-    background-color: var(--arrowpanel-dimmed-further);
+    background-color: var(--panel-dimmed-further);
     border-color: var(--panel-separator-color);
     box-shadow: 0 1px 0 hsla(210, 4%, 10%, 0.03) inset;
   }
@@ -634,7 +634,7 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
 
   & > .subviewbutton-back {
     -moz-context-properties: stroke;
-    stroke: var(--arrowpanel-color);
+    stroke: var(--panel-color);
     list-style-image: var(--icon-nav-left-sm);
     padding: 10px;
     transform: translateY(1px);
@@ -736,17 +736,17 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
   margin: var(--appmenu-button-margin);
   padding-inline: 8px;
   padding-block: calc(var(--appmenu-button-padding) + 3px);
-  border-radius: var(--arrowpanel-menuitem-border-radius);
+  border-radius: var(--panel-menuitem-border-radius);
   color: var(--button-text-color);
   background-color: color-mix(in srgb, currentColor 7%, transparent);
   margin-block-end: 4px;
   font-weight: 600;
 
   &:not([disabled]):hover {
-    background-color: var(--arrowpanel-dimmed);
+    background-color: var(--panel-dimmed);
 
     &:active {
-      background-color: var(--arrowpanel-dimmed-further);
+      background-color: var(--panel-dimmed-further);
     }
   }
 
@@ -791,7 +791,7 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
   background-color: var(--appmenu-warning-background-color);
   border-block-start: 1px solid var(--appmenu-warning-border-color);
   border-inline: 1px solid var(--appmenu-warning-border-color);
-  border-radius: var(--arrowpanel-menuitem-border-radius);
+  border-radius: var(--panel-menuitem-border-radius);
   transition: background-color;
   -moz-context-properties: fill, stroke;
   fill: color-mix(in srgb, var(--appmenu-warning-color) 20%, transparent);

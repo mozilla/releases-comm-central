@@ -195,11 +195,3 @@
     color: inherit;
   }
 }
-
-/* Global notification popup */
-
-#notification-popup {
-  appearance: none;
-  background: transparent;
-  border: none;
-}

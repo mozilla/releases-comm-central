@@ -532,12 +532,6 @@ tr[is="ab-card-row"].selected .recipient-avatar.is-mail-list {
       stroke: currentColor;
     }
   }
-
-  & menulist > menupopup {
-    --panel-padding: 4px 0;
-    --panel-border-color: var(--arrowpanel-border-color);
-    --panel-border-radius: var(--arrowpanel-border-radius);
-  }
 }
 
 .contact-details-scroll > *,

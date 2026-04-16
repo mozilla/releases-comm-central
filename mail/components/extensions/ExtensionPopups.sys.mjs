@@ -100,8 +100,8 @@ export class BasePopup {
         panel.removeEventListener("popuppositioned", this, { capture: true });
       }
       if (panel && panel.id !== REMOTE_PANEL_ID) {
-        panel.style.removeProperty("--arrowpanel-background");
-        panel.style.removeProperty("--arrowpanel-border-color");
+        panel.style.removeProperty("--panel-background");
+        panel.style.removeProperty("--panel-border-color");
         panel.removeAttribute("remote");
       }
 
@@ -383,12 +383,12 @@ export class BasePopup {
       background = "#fff";
     }
     if (this.panel.id != "widget-overflow") {
-      this.panel.style.setProperty("--arrowpanel-background", background);
+      this.panel.style.setProperty("--panel-background", background);
     }
     if (background == "#fff") {
       // Set a usable default color that work with the default background-color.
       this.panel.style.setProperty(
-        "--arrowpanel-border-color",
+        "--panel-border-color",
         "hsla(210,4%,10%,.15)"
       );
     }

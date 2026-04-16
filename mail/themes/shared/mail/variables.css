@@ -11,9 +11,6 @@
   --account-color: var(--selected-item-color);
   --transition-duration: 200ms;
   --transition-timing: ease;
-  --arrowpanel-background: var(--layout-background-1);
-  --arrowpanel-color: var(--layout-color-1);
-  --arrowpanel-border-color: var(--layout-border-1);
   --lwt-additional-images: none;
   --lwt-background-alignment: right top;
   --lwt-background-tiling: no-repeat;
@@ -138,6 +135,13 @@
 
   --drop-indicator-z-index: 3;
 
+  & :is(menupopup, panel) {
+    --panel-background: var(--color-surface-subtle);
+    --panel-color: var(--color-text-base);
+    --panel-border-color: var(--color-surface-border-intense);
+    --panel-border-radius: 8px;
+  }
+
   /* LW-themes enabled */
 
   &[lwtheme] {
@@ -217,9 +221,6 @@
       --buttons-secondary-hover-bgcolor: rgb(224, 224, 230);
       --buttons-secondary-active-bgcolor: rgb(207, 207, 216);
       --buttons-secondary-color: rgb(21, 20, 26);
-      --arrowpanel-dimmed: color-mix(in srgb, var(--selected-item-color) 12%, transparent);
-      --arrowpanel-dimmed-further: color-mix(in srgb, var(--selected-item-color) 20%, transparent);
-      --arrowpanel-dimmed-even-further: color-mix(in srgb, var(--selected-item-color) 27%, transparent);
       --error-text-color: #c50042;
       --link-color: LinkText;
       --link-color-hover: LinkText;
@@ -228,6 +229,12 @@
       --toolbar-field-color: var(--layout-color-1);
       --toolbar-field-background-color: var(--layout-background-1);
       --toolbar-field-border-color: var(--layout-border-1);
+    }
+
+    & :is(menupopup, panel) {
+      --panel-dimmed: color-mix(in srgb, var(--selected-item-color) 12%, transparent);
+      --panel-dimmed-further: color-mix(in srgb, var(--selected-item-color) 20%, transparent);
+      --panel-dimmed-even-further: color-mix(in srgb, var(--selected-item-color) 27%, transparent);
     }
   }
 }

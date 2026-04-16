@@ -13,7 +13,7 @@
     --menu-item-padding: 3px;
 
     & menupopup {
-      --arrowpanel-padding: 3px 0;
+      --panel-padding: 3px 0;
     }
   }
 
@@ -24,19 +24,16 @@
 
 menupopup {
   /* Complement the :is(menu, menuitem) margin. */
-  --arrowpanel-padding: 4px 0;
-  --panel-border-radius: var(--arrowpanel-border-radius);
-  --panel-padding: var(--arrowpanel-padding);
+  --panel-padding: 4px 0;
   --menuitem-icon-fill: color-mix(in srgb, currentColor 20%, transparent);
   font: menu;
   font-size: inherit;
   text-align: start;
   min-inline-size: 12ch;
 
-  @media not (-moz-windows-mica-popups) {
-    --panel-background: var(--arrowpanel-background);
-    --panel-color: var(--arrowpanel-color);
-    --panel-border-color: var(--arrowpanel-border-color);
+  @media (-moz-windows-mica-popups) {
+    --panel-background: Menu !important;
+    --panel-border-color: transparent !important;
   }
 
   :root:not([lwtheme]) menubar > menu & {
@@ -67,12 +64,12 @@ menupopup {
 
     &:not([disabled], :active)[_moz-menuactive] {
       color: inherit;
-      background-color: var(--arrowpanel-dimmed);
+      background-color: var(--panel-dimmed);
     }
 
     &:not([disabled])[_moz-menuactive]:active {
       color: inherit;
-      background-color: var(--arrowpanel-dimmed-further);
+      background-color: var(--panel-dimmed-further);
       box-shadow: 0 1px 0 hsla(210, 4%, 10%, 0.03) inset;
     }
 
@@ -92,7 +89,7 @@ menupopup {
 
   :root:not([lwtheme]) menubar > menu & > :is(menu, menuitem):not([disabled])[_moz-menuactive] {
     color: inherit;
-    background-color: var(--arrowpanel-dimmed-further);
+    background-color: var(--panel-dimmed-further);
   }
 
   & > menu::after {
@@ -131,9 +128,7 @@ menupopup {
   panel[type="arrow"] {
     appearance: auto;
     -moz-default-appearance: menupopup;
-    /* The blur behind doesn't blur all that much, add a semi-transparent
-     * background to improve contrast */
-    --arrowpanel-background: light-dark(rgba(255, 255, 255, 0.5), rgba(0, 0, 0, 0.5));
+    --panel-background: Menu !important;
     --panel-border-color: transparent;
     --panel-shadow-margin: 0;
   }
@@ -143,7 +138,6 @@ menupopup {
   & > menupopup {
     /* !important to override inline styles */
     --content-select-background-image: none !important;
-    --panel-color: var(--arrowpanel-color) !important;
 
     @media (-moz-windows-mica-popups) {
       margin: 0;
@@ -153,12 +147,12 @@ menupopup {
   & > menupopup[customoptionstyling="true"]::part(arrowscrollbox) {
     /* !important to override inline styles */
     background-image: none !important;
-    background-color: var(--arrowpanel-background) !important;
+    background-color: var(--panel-background) !important;
   }
 
   & .ContentSelectDropdown-item-0:not([_moz-menuactive="true"]) {
-    background-color: var(--arrowpanel-background) !important;
-    color: var(--arrowpanel-color) !important;
+    background-color: var(--panel-background) !important;
+    color: var(--panel-color) !important;
 
     @media (-moz-windows-mica-popups) {
       background-color: transparent !important;
@@ -193,7 +187,7 @@ menupopup {
 
       &:not([disabled]) {
         color: inherit;
-        background-color: var(--arrowpanel-dimmed);
+        background-color: var(--panel-dimmed);
       }
     }
 

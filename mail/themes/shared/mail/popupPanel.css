@@ -70,7 +70,7 @@ html|input.editContactTextbox {
 
 #editContactAddressBookList {
   appearance: none;
-  background-color: var(--arrowpanel-dimmed);
+  background-color: var(--panel-dimmed);
   background-image: none;
   border: 1px solid;
   border-color: var(--panel-separator-color) !important;
@@ -85,12 +85,12 @@ html|input.editContactTextbox {
   }
 
   &:not([disabled], [open="true"]):hover {
-    background-image: linear-gradient(var(--arrowpanel-dimmed), var(--arrowpanel-dimmed));
-    background-color: var(--arrowpanel-dimmed);
+    background-image: linear-gradient(var(--panel-dimmed), var(--panel-dimmed));
+    background-color: var(--panel-dimmed);
   }
 
   &[open="true"] {
-    background-image: linear-gradient(var(--arrowpanel-dimmed-further), var(--arrowpanel-dimmed-further));
+    background-image: linear-gradient(var(--panel-dimmed-further), var(--panel-dimmed-further));
     box-shadow: 0 1px 0 hsla(210, 4%, 10%, 0.05) inset;
   }
 }

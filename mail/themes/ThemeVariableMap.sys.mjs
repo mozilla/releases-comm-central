@@ -108,7 +108,7 @@ export const ThemeVariableMap = [
     },
   ],
   [
-    "--arrowpanel-border-color",
+    "--panel-border-color",
     {
       lwtProperty: "popup_border",
     },

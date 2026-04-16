@@ -28,7 +28,7 @@ xul|window > :is(xul|dialog, xul|hbox, xul|vbox) {
   /* `transparent` will use the dialogText color in high-contrast themes and
      when page colors are disabled */
   border: 1px solid transparent;
-  border-radius: var(--arrowpanel-border-radius);
+  border-radius: var(--panel-border-radius);
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.5);
   display: flex;
   margin: 0;

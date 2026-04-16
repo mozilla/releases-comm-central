@@ -30,8 +30,8 @@
     --item-focus-selected-border-color: SelectedItemText;
     --new-folder-color: Highlight;
     --menuitem-vertical-padding: 3px;
-    --arrowpanel-dimmed: SelectedItem;
-    --arrowpanel-dimmed-further: SelectedItem;
+    --panel-dimmed: SelectedItem;
+    --panel-dimmed-further: SelectedItem;
     --toolbar-field-focus-border-color: SelectedItem;
 
     & .themeable-full,

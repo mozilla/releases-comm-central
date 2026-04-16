@@ -245,7 +245,7 @@
           "colors": {
             "annotations": [
               {
-                "text": "The following example maps the theme color key <var>popup_affordance</var> to the CSS variable <var>--arrowpanel-dimmed</var>:"
+                "text": "The following example maps the theme color key <var>popup_affordance</var> to the CSS variable <var>--panel-dimmed</var>:"
               },
               {
                 "code": "includes/theme/theme_experiment_color.json"

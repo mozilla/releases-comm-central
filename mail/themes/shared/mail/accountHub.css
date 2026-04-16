@@ -121,7 +121,7 @@ dialog {
   gap: 6px;
   padding: 12px 15px;
   border: 1px solid var(--selected-item-color);
-  border-radius: var(--arrowpanel-border-radius);
+  border-radius: var(--button-border-radius);
   color: var(--layout-color-2);
   background-color: var(--layout-background-1);
   box-shadow: 0 2px 4px rgba(58, 57, 68, 0.3);

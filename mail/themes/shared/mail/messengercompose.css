@@ -31,14 +31,6 @@
     color: var(--lwt-text-color);
   }
 
-  & panel[type="autocomplete-richlistbox"] {
-    margin-block-start: -1px;
-    padding: 2px 0;
-    --panel-background: var(--arrowpanel-background);
-    --panel-color: var(--arrowpanel-color);
-    --panel-border-color: var(--arrowpanel-border-color);
-  }
-
   & .autocomplete-richlistbox {
     color: inherit;
     background-color: inherit;
@@ -59,7 +51,7 @@
   border-radius: var(--autocomplete-item-radius);
 
   &:hover {
-    background-color: var(--arrowpanel-dimmed);
+    background-color: var(--panel-dimmed);
   }
 
   &[selected] {

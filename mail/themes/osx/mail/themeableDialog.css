@@ -9,8 +9,6 @@
 @media (prefers-color-scheme: dark) {
   :host,
   :root[lwtheme] {
-    --arrowpanel-color: #f9f9fa;
-    --arrowpanel-background: #282829;
     --richlist-button-background: #1e1e1e;
   }
 }
@@ -74,6 +72,6 @@ menupopup > menu::after {
 }
 
 #commonDialog:not([subdialog]) {
-  color: var(--arrowpanel-color);
-  background-color: var(--arrowpanel-background);
+  color: var(--panel-color);
+  background-color: var(--panel-background);
 }

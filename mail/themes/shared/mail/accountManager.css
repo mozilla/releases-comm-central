@@ -209,7 +209,7 @@ body {
 
     &:not([disabled])[_moz-menuactive="true"] {
       color: inherit;
-      background-color: var(--arrowpanel-dimmed);
+      background-color: var(--panel-dimmed);
     }
 
     &:not([disabled])[selected="true"] {

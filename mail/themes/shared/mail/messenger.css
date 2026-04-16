@@ -509,7 +509,7 @@ menubar {
 
 #mail-menubar > menu[_moz-menuactive="true"]:not([disabled]) {
   color: inherit;
-  background-color: var(--arrowpanel-dimmed);
+  background-color: var(--panel-dimmed);
 }
 
 menulist {
@@ -1123,11 +1123,11 @@ findbar {
   }
 
   &:not([disabled], [open], :active):is(:hover, :focus-visible) {
-    background-color: var(--arrowpanel-dimmed);
+    background-color: var(--panel-dimmed);
   }
 
   &:not([disabled]):is([open], :hover:active) {
-    background-color: var(--arrowpanel-dimmed-further);
+    background-color: var(--panel-dimmed-further);
     box-shadow: 0 1px 0 hsla(210, 4%, 10%, 0.03) inset;
   }
 

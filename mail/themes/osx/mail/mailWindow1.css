@@ -13,15 +13,3 @@
 @import url("chrome://messenger/skin/folderPane.css");
 @import url("chrome://messenger/skin/messageIcons.css");
 @import url("chrome://messenger/skin/shared/mailWindow1.css");
-
-/* Global notification popup */
-
-#notification-popup {
-  appearance: none;
-  background: transparent;
-  margin-block-start: 4px;
-
-  &::part(content) {
-    margin: 1px;
-  }
-}

@@ -107,7 +107,7 @@ body table {
 }
 
 menulist > menupopup {
-  --panel-padding: 3px 0;
+  --panel-padding: 4px 0;
 
   & menuseparator {
     margin: 4px 8px;
@@ -115,16 +115,6 @@ menulist > menupopup {
 }
 
 menupopup {
-  @media not (-moz-windows-mica-popups) {
-    --panel-border-color: var(--border-color);
-    --panel-background: var(--background-color-box);
-    --panel-color: var(--color-text-base);
-  }
-
-  &::part(content) {
-    border-radius: var(--arrowpanel-border-radius);
-  }
-
   & > :is(menu, menuitem) {
     margin: var(--menu-item-margin);
     min-block-size: 24px;
@@ -133,7 +123,7 @@ menupopup {
 
     &:not([disabled])[_moz-menuactive="true"] {
       color: inherit;
-      background-color: var(--arrowpanel-dimmed);
+      background-color: var(--panel-dimmed);
     }
   }
 
@@ -146,7 +136,7 @@ menupopup {
 
 tab[selected] {
   color: inherit;
-  background-color: var(--arrowpanel-dimmed);
+  background-color: var(--panel-dimmed);
   border-block-end-color: var(--selected-item-color);
 }
 

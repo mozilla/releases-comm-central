@@ -16,7 +16,7 @@
   --status-background-color: rgba(248, 232, 28, 0.2);
 
   &:hover {
-    background-color: var(--arrowpanel-dimmed);
+    background-color: var(--panel-dimmed);
   }
 
   &[selected] {
@@ -166,13 +166,13 @@
 
   /* Insecure field warning */
   &[originaltype="insecureWarning"] {
-    background-color: var(--arrowpanel-dimmed);
+    background-color: var(--panel-dimmed);
     color: inherit;
     border-block-end: 1px solid var(--panel-separator-color);
     padding-block: 4px;
 
     &[selected] {
-      background-color: var(--arrowpanel-dimmed-further);
+      background-color: var(--panel-dimmed-further);
       color: inherit;
     }
 
