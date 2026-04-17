@@ -117,8 +117,10 @@ class AccountHubSelect extends HTMLElement {
 
     const nodes = this.#slot.assignedNodes({ flatten: true });
 
-    this.#observer = new MutationObserver(() => {
-      this.#updateOptions();
+    this.#observer = new MutationObserver(mutations => {
+      for (const mutation of mutations) {
+        this.#updateElement(mutation);
+      }
     });
 
     for (const node of nodes) {
@@ -141,10 +143,44 @@ class AccountHubSelect extends HTMLElement {
     this.#observer?.disconnect();
   }
 
+  /**
+   *  Update the options based on
+   * the mutations observed.
+   *
+   * @param {MutationRecord} mutationRecord - The mutation record for the
+   *  observed changes.
+   */
+  #updateElement(mutationRecord) {
+    const target = mutationRecord.target;
+    const element = this.select.querySelector(`#${target.id}`);
+    switch (mutationRecord.type) {
+      case "attributes":
+        element.setAttribute(
+          mutationRecord.attributeName,
+          target.getAttribute(mutationRecord.attributeName)
+        );
+        break;
+      case "characterData":
+        element.textContent = target.textContent;
+        break;
+    }
+  }
+
+  /*
+   * Updates the options in the select based on the slotted options. This is
+   * needed to reflect any changes to the options in the select, as the slotted
+   * options are just a template and not rendered directly in the select.
+   * The options are cloned from the slotted content to the select, so that
+   * they can be rendered and interacted with.
+   *
+   * The method also handles selection state reconciliation when options are
+   * updated, ensuring that user selections are preserved when possible.
+   */
   #updateOptions() {
     const options = this.#slot.assignedElements();
     this.select.innerHTML = "";
     let selected;
+    let selectedValue;
 
     for (const option of options) {
       const element = option.cloneNode(true);
@@ -153,11 +189,35 @@ class AccountHubSelect extends HTMLElement {
         element.part.add(element.id);
       }
       this.select.append(element);
-      selected ||= element.getAttribute("selected");
+      selectedValue ||= element.value;
+      selected ||= element.selected;
     }
 
-    // The value association can get lost when updating so we need to restore
-    // any cached set value.
+    /**
+     * This conditions along with setting of selected above handles updates from
+     * the mutation observer when the option list is updated.
+     *
+     * Since the observer replaces all options in the DOM, any existing
+     * selection association is lost. We track user-driven or programmatically
+     * set selections via `cachedValue`, which is only updated in:
+     *   - the change event listener
+     *   - the value setter (custom elements API)
+     *
+     * When options change, we reconcile the previous selection state with the
+     * new option set using the following rules:
+     *
+     * 1. If the new options have a selected value and a previous selection exists:
+     *    → Respect the new options (most recent state).
+     *
+     * 2. If the new options have a selected value and no previous selection exists:
+     *    → Respect the new options (only source of truth).
+     *
+     * 3. If the new options have no selected value and no previous selection exists:
+     *    → Do nothing (no selection to preserve).
+     *
+     * 4. If the new options have no selected value and a previous selection exists:
+     *    → Attempt to restore the previous selection if possible.
+     */
     if (!selected) {
       this.value = this.#cachedValue;
     }
