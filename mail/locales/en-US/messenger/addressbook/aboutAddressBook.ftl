@@ -24,6 +24,9 @@ books-pane-import-button = Import
 
 ## Books
 
+address-book-list =
+  .aria-label = List of address books
+
 all-address-books-row =
   .title = All Address Books
 all-address-books = All Address Books
