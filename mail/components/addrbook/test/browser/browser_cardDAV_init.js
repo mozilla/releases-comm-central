@@ -565,7 +565,9 @@ add_task(async function testOAuth() {
   );
   Assert.notEqual(davDirectory._syncTimer, null, "sync scheduled");
 
-  const logins = Services.logins.findLogins("oauth://test.test", null, "");
+  const logins = await Services.logins.searchLoginsAsync({
+    origin: "oauth://test.test",
+  });
   Assert.equal(logins.length, 1, "login was saved");
   Assert.equal(logins[0].httpRealm, "test_mail test_addressbook test_calendar");
   Assert.equal(logins[0].username, "dave@test.test");
@@ -647,7 +649,9 @@ add_task(async function testEveryThingOK() {
   );
   Assert.notEqual(davDirectory._syncTimer, null, "sync scheduled");
 
-  const logins = Services.logins.findLogins(CardDAVServer.origin, null, "");
+  const logins = await Services.logins.searchLoginsAsync({
+    origin: CardDAVServer.origin,
+  });
   Assert.equal(logins.length, 1, "login was saved");
   Assert.equal(logins[0].username, "alice");
   Assert.equal(logins[0].password, "alice");
@@ -713,7 +717,9 @@ add_task(async function testEveryThingOKAgain() {
   );
   Assert.notEqual(davDirectory._syncTimer, null, "sync scheduled");
 
-  const logins = Services.logins.findLogins(CardDAVServer.origin, null, "");
+  const logins = await Services.logins.searchLoginsAsync({
+    origin: CardDAVServer.origin,
+  });
   Assert.equal(logins.length, 1, "login was saved");
   Assert.equal(logins[0].username, "alice");
   Assert.equal(logins[0].password, "alice");
@@ -795,7 +801,9 @@ add_task(async function testNoSavePassword() {
   );
   Assert.notEqual(davDirectory._syncTimer, null, "sync scheduled");
 
-  const logins = Services.logins.findLogins(CardDAVServer.origin, null, "");
+  const logins = await Services.logins.searchLoginsAsync({
+    origin: CardDAVServer.origin,
+  });
   Assert.equal(logins.length, 0, "login was NOT saved");
 
   Assert.equal(abWindow.booksList.rowCount, 4);
@@ -841,7 +849,9 @@ add_task(async function testSavePasswordLater() {
     "username was saved"
   );
 
-  const logins = Services.logins.findLogins(CardDAVServer.origin, null, "");
+  const logins = await Services.logins.searchLoginsAsync({
+    origin: CardDAVServer.origin,
+  });
   Assert.equal(logins.length, 1, "login was saved");
   Assert.equal(logins[0].username, "alice");
   Assert.equal(logins[0].password, "alice");
@@ -908,7 +918,9 @@ add_task(async function testNoName() {
   );
   Assert.notEqual(davDirectory._syncTimer, null, "sync scheduled");
 
-  const logins = Services.logins.findLogins(CardDAVServer.origin, null, "");
+  const logins = await Services.logins.searchLoginsAsync({
+    origin: CardDAVServer.origin,
+  });
   Assert.equal(logins.length, 1, "login was saved");
   Assert.equal(logins[0].username, "alice");
   Assert.equal(logins[0].password, "alice");

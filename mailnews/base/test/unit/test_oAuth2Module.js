@@ -59,7 +59,7 @@ add_task(async function testGetRefreshToken() {
   Assert.deepEqual([...mod._requiredScopes], ["test_scope"]);
   Assert.equal(mod._loginOrigin, "oauth://test.test");
   Assert.equal(mod._username, "charlie@foo.invalid");
-  Assert.equal(mod.getRefreshToken(), "charlie");
+  Assert.equal(await mod.getRefreshToken(), "charlie");
 
   OAuth2TestUtils.forgetObjects();
 
@@ -73,7 +73,7 @@ add_task(async function testGetRefreshToken() {
   Assert.deepEqual([...mod._requiredScopes], ["test_scope"]);
   Assert.equal(mod._loginOrigin, "oauth://test.test");
   Assert.equal(mod._username, "charlie@bar.invalid");
-  Assert.equal(mod.getRefreshToken(), "");
+  Assert.equal(await mod.getRefreshToken(), "");
 
   OAuth2TestUtils.forgetObjects();
 
@@ -87,7 +87,7 @@ add_task(async function testGetRefreshToken() {
   Assert.deepEqual([...mod._requiredScopes], ["test_mail"]);
   Assert.equal(mod._loginOrigin, "oauth://test.test");
   Assert.equal(mod._username, "charlie@foo.invalid");
-  Assert.equal(mod.getRefreshToken(), "");
+  Assert.equal(await mod.getRefreshToken(), "");
 
   OAuth2TestUtils.forgetObjects();
 
@@ -101,7 +101,7 @@ add_task(async function testGetRefreshToken() {
   Assert.deepEqual([...mod._requiredScopes], ["test_mail"]);
   Assert.equal(mod._loginOrigin, "oauth://test.test");
   Assert.equal(mod._username, "charlie@bar.invalid");
-  Assert.equal(mod.getRefreshToken(), "");
+  Assert.equal(await mod.getRefreshToken(), "");
 
   OAuth2TestUtils.forgetObjects();
 
@@ -114,7 +114,7 @@ add_task(async function testGetRefreshToken() {
   Assert.deepEqual([...mod._requiredScopes], ["test_mail"]);
   Assert.equal(mod._loginOrigin, "oauth://test.test");
   Assert.equal(mod._username, "juliet@bar.invalid");
-  Assert.equal(mod.getRefreshToken(), "juliet");
+  Assert.equal(await mod.getRefreshToken(), "juliet");
 
   OAuth2TestUtils.forgetObjects();
 
@@ -126,7 +126,7 @@ add_task(async function testGetRefreshToken() {
   Assert.deepEqual([...mod._requiredScopes], ["test_mail"]);
   Assert.equal(mod._loginOrigin, "oauth://test.test");
   Assert.equal(mod._username, "juliet@bar.invalid");
-  Assert.equal(mod.getRefreshToken(), "juliet");
+  Assert.equal(await mod.getRefreshToken(), "juliet");
 
   OAuth2TestUtils.forgetObjects();
 
@@ -137,7 +137,7 @@ add_task(async function testGetRefreshToken() {
   Assert.deepEqual([...mod._requiredScopes], ["test_addressbook"]);
   Assert.equal(mod._loginOrigin, "oauth://test.test");
   Assert.equal(mod._username, "juliet@bar.invalid");
-  Assert.equal(mod.getRefreshToken(), "juliet");
+  Assert.equal(await mod.getRefreshToken(), "juliet");
 
   OAuth2TestUtils.forgetObjects();
 
@@ -148,7 +148,7 @@ add_task(async function testGetRefreshToken() {
   Assert.deepEqual([...mod._requiredScopes], ["test_calendar"]);
   Assert.equal(mod._loginOrigin, "oauth://test.test");
   Assert.equal(mod._username, "juliet@bar.invalid");
-  Assert.equal(mod.getRefreshToken(), "juliet");
+  Assert.equal(await mod.getRefreshToken(), "juliet");
 
   OAuth2TestUtils.forgetObjects();
 
@@ -162,7 +162,7 @@ add_task(async function testGetRefreshToken() {
   Assert.deepEqual([...mod._requiredScopes], ["test_mail"]);
   Assert.equal(mod._loginOrigin, "oauth://test.test");
   Assert.equal(mod._username, "mike@bar.invalid");
-  Assert.equal(mod.getRefreshToken(), "mike");
+  Assert.equal(await mod.getRefreshToken(), "mike");
 
   OAuth2TestUtils.forgetObjects();
 
@@ -174,7 +174,7 @@ add_task(async function testGetRefreshToken() {
   Assert.deepEqual([...mod._requiredScopes], ["test_mail"]);
   Assert.equal(mod._loginOrigin, "oauth://test.test");
   Assert.equal(mod._username, "mike@bar.invalid");
-  Assert.equal(mod.getRefreshToken(), "mike");
+  Assert.equal(await mod.getRefreshToken(), "mike");
 
   OAuth2TestUtils.forgetObjects();
 
@@ -185,7 +185,7 @@ add_task(async function testGetRefreshToken() {
   Assert.deepEqual([...mod._requiredScopes], ["test_addressbook"]);
   Assert.equal(mod._loginOrigin, "oauth://test.test");
   Assert.equal(mod._username, "mike@bar.invalid");
-  Assert.equal(mod.getRefreshToken(), "mike");
+  Assert.equal(await mod.getRefreshToken(), "mike");
 
   OAuth2TestUtils.forgetObjects();
 
@@ -196,7 +196,7 @@ add_task(async function testGetRefreshToken() {
   Assert.deepEqual([...mod._requiredScopes], ["test_calendar"]);
   Assert.equal(mod._loginOrigin, "oauth://test.test");
   Assert.equal(mod._username, "mike@bar.invalid");
-  Assert.equal(mod.getRefreshToken(), "mike");
+  Assert.equal(await mod.getRefreshToken(), "mike");
 
   OAuth2TestUtils.forgetObjects();
 
@@ -209,7 +209,7 @@ add_task(async function testGetRefreshToken() {
   Assert.deepEqual([...mod._requiredScopes], ["test_mail"]);
   Assert.equal(mod._loginOrigin, "oauth://test.test");
   Assert.equal(mod._username, "oscar@bar.invalid");
-  Assert.equal(mod.getRefreshToken(), "oscar-mail");
+  Assert.equal(await mod.getRefreshToken(), "oscar-mail");
 
   OAuth2TestUtils.forgetObjects();
 
@@ -220,7 +220,7 @@ add_task(async function testGetRefreshToken() {
   Assert.deepEqual([...mod._requiredScopes], ["test_addressbook"]);
   Assert.equal(mod._loginOrigin, "oauth://test.test");
   Assert.equal(mod._username, "oscar@bar.invalid");
-  Assert.equal(mod.getRefreshToken(), "oscar-addressbook");
+  Assert.equal(await mod.getRefreshToken(), "oscar-addressbook");
 
   OAuth2TestUtils.forgetObjects();
 
@@ -231,7 +231,7 @@ add_task(async function testGetRefreshToken() {
   Assert.deepEqual([...mod._requiredScopes], ["test_calendar"]);
   Assert.equal(mod._loginOrigin, "oauth://test.test");
   Assert.equal(mod._username, "oscar@bar.invalid");
-  Assert.equal(mod.getRefreshToken(), "oscar-calendar");
+  Assert.equal(await mod.getRefreshToken(), "oscar-calendar");
 
   OAuth2TestUtils.forgetObjects();
   await Services.logins.removeAllLoginsAsync();

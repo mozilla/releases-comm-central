@@ -1760,7 +1760,7 @@ class AccountHubEmail extends HTMLElement {
           this.#currentConfig.incoming.username,
           "carddav"
         ) ||
-        !oAuth2.getRefreshToken()
+        !(await oAuth2.getRefreshToken())
       ) {
         return addressBooks;
       }
@@ -1805,7 +1805,7 @@ class AccountHubEmail extends HTMLElement {
           this.#currentConfig.incoming.username,
           "caldav"
         ) ||
-        !oAuth2.getRefreshToken()
+        !(await oAuth2.getRefreshToken())
       ) {
         return cals;
       }

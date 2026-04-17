@@ -69,11 +69,11 @@ export class LDAPListenerBase {
     ) {
       // Login failed, remove any existing login(s).
       const ldapUrl = this._directory.lDAPURL;
-      const logins = Services.logins.findLogins(
-        ldapUrl.prePath,
-        "",
-        ldapUrl.spec
-      );
+      const logins = await Services.logins.searchLoginsAsync({
+        origin: ldapUrl.prePath,
+        httpRealm: ldapUrl.spec,
+      });
+
       for (const login of logins) {
         await Services.logins.removeLoginAsync(login);
       }

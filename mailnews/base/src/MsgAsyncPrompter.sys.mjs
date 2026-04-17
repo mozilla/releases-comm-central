@@ -283,7 +283,10 @@ export class MsgAuthPrompt {
         );
       }
 
-      for (const login of Services.logins.findLogins(origin, null, realm)) {
+      for (const login of await Services.logins.searchLoginsAsync({
+        origin,
+        httpRealm: realm,
+      })) {
         if (login.username == aUsername.value) {
           checkBox.value = true;
           aUsername.value = login.username;
@@ -388,7 +391,10 @@ export class MsgAuthPrompt {
 
       if (!aPassword.value) {
         // Look for existing logins.
-        for (const login of Services.logins.findLogins(origin, null, realm)) {
+        for (const login of await Services.logins.searchLoginsAsync({
+          origin,
+          httpRealm: realm,
+        })) {
           if (login.username == username) {
             aPassword.value = login.password;
             return true;

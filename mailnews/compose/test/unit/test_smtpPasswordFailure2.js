@@ -151,13 +151,12 @@ add_task(async function () {
     ]);
 
     var logins;
-    await TestUtils.waitForCondition(() => {
+    await TestUtils.waitForCondition(async () => {
       // Now check the new one has been saved.
-      logins = Services.logins.findLogins(
-        "smtp://localhost",
-        null,
-        "smtp://localhost"
-      );
+      logins = await Services.logins.searchLoginsAsync({
+        origin: "smtp://localhost",
+        httpRealm: "smtp://localhost",
+      });
 
       return logins.length == 1 && logins[0].password == kValidPassword;
     }, "waiting for the password to be updated");

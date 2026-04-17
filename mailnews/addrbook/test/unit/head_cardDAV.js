@@ -45,7 +45,11 @@ async function initDirectory() {
     "carddav.sqlite"
   );
 
-  if (!Services.logins.findLogins(CardDAVServer.origin, null, "test").length) {
+  const logins = await Services.logins.searchLoginsAsync({
+    origin: CardDAVServer.origin,
+    httpRealm: "test",
+  });
+  if (!logins.length) {
     // Save a username and password to the login manager.
     const loginInfo = Cc[
       "@mozilla.org/login-manager/loginInfo;1"

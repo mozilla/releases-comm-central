@@ -186,8 +186,10 @@ async function handleOAuthDialog() {
   );
 }
 
-function checkSavedPassword() {
-  const logins = Services.logins.findLogins("oauth://test.test", "", "");
+async function checkSavedPassword() {
+  const logins = await Services.logins.searchLoginsAsync({
+    origin: "oauth://test.test",
+  });
   Assert.equal(
     logins.length,
     1,
@@ -234,7 +236,7 @@ add_task(async function testNoTokens() {
     await fetchMessages(inbox);
     await waitForMessages(inbox);
 
-    checkSavedPassword(inbox);
+    await checkSavedPassword(inbox);
     await Services.logins.removeAllLoginsAsync();
 
     await promiseServerIdle(inbox.server);
@@ -270,7 +272,7 @@ add_task(async function testNoAccessToken() {
     await fetchMessages(inbox);
     await waitForMessages(inbox);
 
-    checkSavedPassword(inbox);
+    await checkSavedPassword(inbox);
     await promiseServerIdle(inbox.server);
     inbox.server.closeCachedConnections();
 
@@ -318,7 +320,7 @@ add_task(async function testExpiredAccessToken() {
     await fetchMessages(inbox);
     await waitForMessages(inbox);
 
-    checkSavedPassword(inbox);
+    await checkSavedPassword(inbox);
     await promiseServerIdle(inbox.server);
     inbox.server.closeCachedConnections();
 
@@ -440,7 +442,7 @@ add_task(async function testBadRefreshToken() {
       },
     ]);
 
-    checkSavedPassword(inbox);
+    await checkSavedPassword(inbox);
     await promiseServerIdle(inbox.server);
     inbox.server.closeCachedConnections();
 

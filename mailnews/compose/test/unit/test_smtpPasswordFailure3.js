@@ -113,23 +113,22 @@ add_task(async function () {
     null,
     false,
     messageId,
-    Listener
+    listener
   );
 
   server.performTest();
 });
 
-var Listener = {
+var listener = {
   onSendStart() {},
-  onSendStop(serverUri, status) {
+  async onSendStop(serverUri, status) {
     // Check for ok status.
     Assert.equal(status, 0);
     // Now check the new password has been saved.
-    const logins = Services.logins.findLogins(
-      "smtp://localhost",
-      null,
-      "smtp://localhost"
-    );
+    const logins = await Services.logins.searchLoginsAsync({
+      origin: "smtp://localhost",
+      httpRealm: "smtp://localhost",
+    });
 
     Assert.equal(logins.length, 1);
     Assert.equal(logins[0].username, kUsername);

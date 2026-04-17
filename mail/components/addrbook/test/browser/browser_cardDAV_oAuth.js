@@ -149,7 +149,7 @@ async function subtest(dirPrefId, uid, newTokenDetails) {
  * @param {LoginData[]} expectedLogins - Zero or more login data objects.
  */
 async function checkAndClearLogins(expectedLogins) {
-  const logins = Services.logins.findLogins("", null, "");
+  const logins = await Services.logins.getAllLogins();
   Assert.equal(logins.length, expectedLogins.length);
   for (let i = 0; i < logins.length; i++) {
     Assert.equal(logins[i].origin, expectedLogins[i].origin);

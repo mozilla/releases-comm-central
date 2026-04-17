@@ -28,7 +28,10 @@ add_task(async function () {
   smtpServer2.username = kUser2;
 
   // Test - Check there are two logins to begin with.
-  let logins = Services.logins.findLogins(kServerUrl, null, kServerUrl);
+  let logins = await Services.logins.searchLoginsAsync({
+    origin: kServerUrl,
+    httpRealm: kServerUrl,
+  });
 
   Assert.equal(logins.length, 2);
 
@@ -43,7 +46,10 @@ add_task(async function () {
   // Test - Remove a login via the incoming server
   smtpServer1.forgetPassword();
 
-  logins = Services.logins.findLogins(kServerUrl, null, kServerUrl);
+  logins = await Services.logins.searchLoginsAsync({
+    origin: kServerUrl,
+    httpRealm: kServerUrl,
+  });
 
   // should be one login left for kUser2
   Assert.equal(logins.length, 1);
@@ -52,7 +58,10 @@ add_task(async function () {
   // Test - Remove the other login via the incoming server
   smtpServer2.forgetPassword();
 
-  logins = Services.logins.findLogins(kServerUrl, null, kServerUrl);
+  logins = await Services.logins.searchLoginsAsync({
+    origin: kServerUrl,
+    httpRealm: kServerUrl,
+  });
 
   // There should be no login left.
   Assert.equal(logins.length, 0);

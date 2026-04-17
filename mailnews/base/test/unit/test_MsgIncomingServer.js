@@ -36,7 +36,11 @@ add_task(async function testMigratePasswordOnChangeUsernameHostname() {
   nntpIncomingServer.username = "nntp";
   let password;
   let serverUri = "news://news.localhost";
-  for (const login of Services.logins.findLogins(serverUri, "", serverUri)) {
+  let logins = await Services.logins.searchLoginsAsync({
+    origin: serverUri,
+    httpRealm: serverUri,
+  });
+  for (const login of logins) {
     if (login.username == "nntp") {
       password = login.password;
     }
@@ -55,7 +59,11 @@ add_task(async function testMigratePasswordOnChangeUsernameHostname() {
   // Change the hostname, check password can be found using the new hostname.
   pop3IncomingServer.hostName = "localhost";
   serverUri = "mailbox://localhost";
-  for (const login of Services.logins.findLogins(serverUri, "", serverUri)) {
+  logins = await Services.logins.searchLoginsAsync({
+    origin: serverUri,
+    httpRealm: serverUri,
+  });
+  for (const login of logins) {
     if (login.username == "user-pop") {
       password = login.password;
     }

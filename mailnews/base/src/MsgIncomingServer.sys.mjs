@@ -27,7 +27,10 @@ async function migratePassword(
   newHostname = newHostname.includes(":") ? `[${newHostname}]` : newHostname;
   const newServerUri = `${localStoreType}://${encodeURIComponent(newHostname)}`;
 
-  const logins = Services.logins.findLogins(oldServerUri, "", oldServerUri);
+  const logins = await Services.logins.searchLoginsAsync({
+    origin: oldServerUri,
+    httpRealm: oldServerUri,
+  });
   for (const login of logins) {
     if (login.username == oldUsername) {
       // If a nsILoginInfo exists for the old hostname/username, update it to
@@ -859,7 +862,19 @@ export class MsgIncomingServer {
    */
   _getPasswordWithoutUI() {
     const serverURI = this._getServerURI();
-    const logins = Services.logins.findLogins(serverURI, "", serverURI);
+    let finished = false;
+    let logins;
+    Services.logins
+      .searchLoginsAsync({
+        origin: serverURI,
+        httpRealm: serverURI,
+      })
+      .then(result => (logins = result))
+      .finally(() => (finished = true));
+    Services.tm.spinEventLoopUntilOrQuit(
+      "MsgIncomingServer._getPasswordWithoutUI",
+      () => finished
+    );
     for (const login of logins) {
       if (login.username == this.username) {
         return login.password;
@@ -911,8 +926,20 @@ export class MsgIncomingServer {
   }
 
   forgetPassword() {
+    let finished = false;
+    this.#forgetPasswordInternal().finally(() => (finished = true));
+    Services.tm.spinEventLoopUntilOrQuit(
+      "MsgIncomingServer.forgetPassword",
+      () => finished
+    );
+  }
+
+  async #forgetPasswordInternal() {
     const serverURI = this._getServerURI();
-    const logins = Services.logins.findLogins(serverURI, "", serverURI);
+    const logins = await Services.logins.searchLoginsAsync({
+      origin: serverURI,
+      httpRealm: serverURI,
+    });
     for (const login of logins) {
       if (login.username == this.username) {
         let finished = false;

@@ -66,7 +66,7 @@ async function subtestNoTokens(identity, outgoingServer, server) {
       result: "succeeded",
     },
   ]);
-  checkSavedToken();
+  await checkSavedToken();
 
   Assert.stringContains(
     server.lastSentMessage,
@@ -112,7 +112,7 @@ async function subtestNoAccessToken(identity, outgoingServer, server) {
   await BrowserTestUtils.domWindowClosed(composeWindow);
 
   info("checking results");
-  checkSavedToken();
+  await checkSavedToken();
 
   Assert.stringContains(
     server.lastSentMessage,
@@ -171,7 +171,7 @@ async function subtestExpiredAccessToken(identity, outgoingServer, server) {
 
   info("checking results");
   OAuth2TestUtils.checkTelemetry([]);
-  checkSavedToken();
+  await checkSavedToken();
 
   Assert.stringContains(
     server.lastSentMessage,
@@ -303,7 +303,7 @@ async function subtestRevokedAccessToken1(identity, outgoingServer, server) {
 
   info("checking results");
   OAuth2TestUtils.checkTelemetry([]);
-  checkSavedToken();
+  await checkSavedToken();
 
   Assert.stringContains(
     server.lastSentMessage,
@@ -381,7 +381,7 @@ async function subtestRevokedAccessToken2(identity, outgoingServer, server) {
       result: "succeeded",
     },
   ]);
-  checkSavedToken("refresh_token_1");
+  await checkSavedToken("refresh_token_1");
 
   Assert.stringContains(
     server.lastSentMessage,
@@ -443,7 +443,7 @@ async function subtestBadRefreshToken(identity, outgoingServer, server) {
       result: "succeeded",
     },
   ]);
-  checkSavedToken();
+  await checkSavedToken();
 
   Assert.stringContains(
     server.lastSentMessage,
@@ -474,8 +474,10 @@ async function handleOAuthDialog() {
   );
 }
 
-function checkSavedToken(expectedToken = "refresh_token") {
-  const logins = Services.logins.findLogins("oauth://test.test", "", "");
+async function checkSavedToken(expectedToken = "refresh_token") {
+  const logins = await Services.logins.searchLoginsAsync({
+    origin: "oauth://test.test",
+  });
   Assert.equal(
     logins.length,
     1,

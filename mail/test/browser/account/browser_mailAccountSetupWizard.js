@@ -785,7 +785,9 @@ add_task(async function test_full_account_setup() {
     "https://example.org/browser/comm/calendar/test/browser/data/calendar.sjs"
   );
 
-  const logins = Services.logins.findLogins("https://example.org", null, "");
+  const logins = await Services.logins.searchLoginsAsync({
+    origin: "https://example.org",
+  });
   Assert.equal(logins.length, 1);
   Assert.equal(
     logins[0].username,

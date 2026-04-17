@@ -324,7 +324,15 @@ export class SmtpServer {
     const authPrompt = Cc["@mozilla.org/messenger/msgAuthPrompt;1"].getService(
       Ci.nsIAuthPrompt
     );
-    const password = this._getPasswordWithoutUI();
+    let finished = false;
+    let password;
+    this._getPasswordWithoutUI()
+      .then(pw => (password = pw))
+      .finally(() => (finished = true));
+    Services.tm.spinEventLoopUntilOrQuit(
+      "SmtpServer.getPasswordWithUI",
+      () => finished
+    );
     if (password) {
       this.password = password;
       return this.password;
@@ -378,7 +386,10 @@ export class SmtpServer {
     }
 
     const serverURI = this._getServerURISpec();
-    const logins = Services.logins.findLogins(serverURI, "", serverURI);
+    const logins = await Services.logins.searchLoginsAsync({
+      origin: serverURI,
+      httpRealm: serverURI,
+    });
     for (const login of logins) {
       if (login.username == this.username) {
         await Services.logins.removeLoginAsync(login);
@@ -419,9 +430,12 @@ export class SmtpServer {
   /**
    * @returns {string}
    */
-  _getPasswordWithoutUI() {
+  async _getPasswordWithoutUI() {
     const serverURI = this._getServerURISpec();
-    const logins = Services.logins.findLogins(serverURI, "", serverURI);
+    const logins = await Services.logins.searchLoginsAsync({
+      origin: serverURI,
+      httpRealm: serverURI,
+    });
     for (const login of logins) {
       if (login.username == this.username) {
         return login.password;

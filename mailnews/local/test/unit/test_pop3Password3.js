@@ -35,7 +35,10 @@ add_task(async function () {
   );
 
   // Test - Check there are two logins to begin with.
-  var logins = Services.logins.findLogins(kServerUrl, null, kServerUrl);
+  var logins = await Services.logins.searchLoginsAsync({
+    origin: kServerUrl,
+    httpRealm: kServerUrl,
+  });
 
   Assert.equal(logins.length, 2);
 
@@ -50,7 +53,10 @@ add_task(async function () {
   // Test - Remove a login via the incoming server
   incomingServer1.forgetPassword();
 
-  logins = Services.logins.findLogins(kServerUrl, null, kServerUrl);
+  logins = await Services.logins.searchLoginsAsync({
+    origin: kServerUrl,
+    httpRealm: kServerUrl,
+  });
 
   // should be one login left for kUser2
   Assert.equal(logins.length, 1);
@@ -59,7 +65,10 @@ add_task(async function () {
   // Bug 561056 - Expand username to also contain domain (i.e. full email).
   incomingServer2.username = kUser2 + "@local.host";
 
-  logins = Services.logins.findLogins(kServerUrl, null, kServerUrl);
+  logins = await Services.logins.searchLoginsAsync({
+    origin: kServerUrl,
+    httpRealm: kServerUrl,
+  });
 
   // There should still be the one login left for kUser2
   Assert.equal(logins.length, 1);
@@ -68,7 +77,10 @@ add_task(async function () {
 
   // Change username to another one.
   incomingServer2.username = "testpop";
-  logins = Services.logins.findLogins(kServerUrl, null, kServerUrl);
+  logins = await Services.logins.searchLoginsAsync({
+    origin: kServerUrl,
+    httpRealm: kServerUrl,
+  });
 
   // LoginInfo should be migrated in MsgIncomingServer.sys.mjs.
   Assert.equal(logins.length, 1);

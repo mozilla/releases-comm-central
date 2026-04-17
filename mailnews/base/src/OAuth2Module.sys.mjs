@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { OAuth2 } from "resource:///modules/OAuth2.sys.mjs";
-
 import { OAuth2Providers } from "resource:///modules/OAuth2Providers.sys.mjs";
 
 const log = console.createInstance({
@@ -114,7 +113,15 @@ OAuth2Module.prototype = {
       // This gets the refresh token from the login manager. It may change
       // `this._scope` if a refresh token was found for the required scopes
       // but not all of the wanted scopes.
-      const refreshToken = this.getRefreshToken();
+      let refreshToken;
+      let finished = false;
+      this.getRefreshToken()
+        .then(ok => (refreshToken = ok))
+        .finally(() => (finished = true));
+      Services.tm.spinEventLoopUntilOrQuit(
+        "OAuth2Module:initFromHostname",
+        () => finished
+      );
 
       // Define the OAuth property and store it.
       this._oauth = new OAuth2(this._scope, issuerDetails);
@@ -142,12 +149,10 @@ OAuth2Module.prototype = {
    *
    * @returns {string} - A refresh token, or an empty string.
    */
-  getRefreshToken() {
-    for (const login of Services.logins.findLogins(
-      this._loginOrigin,
-      null,
-      ""
-    )) {
+  async getRefreshToken() {
+    for (const login of await Services.logins.searchLoginsAsync({
+      origin: this._loginOrigin,
+    })) {
       if (login.username != this._username) {
         continue;
       }
@@ -175,7 +180,9 @@ OAuth2Module.prototype = {
     const grantedScopes = scopeSet(scope);
 
     // Update any existing logins matching this origin, username, and scope.
-    const logins = Services.logins.findLogins(this._loginOrigin, null, "");
+    const logins = await Services.logins.searchLoginsAsync({
+      origin: this._loginOrigin,
+    });
     let didChangePassword = false;
     for (const login of logins) {
       if (login.username != this._username) {
@@ -241,7 +248,9 @@ OAuth2Module.prototype = {
     const grantedScopes = scopeSet(scope);
 
     // Update any existing logins matching this origin, username, and scope.
-    const logins = Services.logins.findLogins(this._loginOrigin, null, "");
+    const logins = await Services.logins.searchLoginsAsync({
+      origin: this._loginOrigin,
+    });
     for (const login of logins) {
       if (login.username != this._username) {
         continue;

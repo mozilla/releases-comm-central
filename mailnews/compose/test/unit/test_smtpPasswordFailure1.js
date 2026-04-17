@@ -122,11 +122,10 @@ add_task(async function () {
     Assert.equal(attempt, 2);
 
     // Check that we haven't forgetton the login even though we've retried and cancelled.
-    const logins = Services.logins.findLogins(
-      "smtp://localhost",
-      null,
-      "smtp://localhost"
-    );
+    const logins = await Services.logins.searchLoginsAsync({
+      origin: "smtp://localhost",
+      httpRealm: "smtp://localhost",
+    });
 
     Assert.equal(logins.length, 1);
     Assert.equal(logins[0].username, kUsername);

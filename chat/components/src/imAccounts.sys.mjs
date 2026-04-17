@@ -589,7 +589,18 @@ imAccount.prototype = {
     const passwordURI = "im://" + this.protocol.id;
     let logins;
     try {
-      logins = Services.logins.findLogins(passwordURI, null, passwordURI);
+      let finished = false;
+      logins = Services.logins
+        .searchLoginsAsync({
+          origin: passwordURI,
+          httpRealm: passwordURI,
+        })
+        .then(result => (logins = result))
+        .finally(() => (finished = true));
+      Services.tm.spinEventLoopUntilOrQuit(
+        "imAccount.password",
+        () => finished
+      );
     } catch (e) {
       this._handlePrimaryPasswordException(e);
       return "";
@@ -648,7 +659,10 @@ imAccount.prototype = {
       ""
     );
     try {
-      const logins = Services.logins.findLogins(passwordURI, null, passwordURI);
+      const logins = await Services.logins.searchLoginsAsync({
+        origin: passwordURI,
+        httpRealm: passwordURI,
+      });
       let saved = false;
       for (const login of logins) {
         if (newLogin.matches(login, true)) {
@@ -743,7 +757,10 @@ imAccount.prototype = {
     // Note: the normalizedName may not be exactly right if the
     // protocol plugin is missing.
     login.init(passwordURI, null, passwordURI, this.normalizedName, "", "", "");
-    const logins = Services.logins.findLogins(passwordURI, null, passwordURI);
+    const logins = await Services.logins.searchLoginsAsync({
+      origin: passwordURI,
+      httpRealm: passwordURI,
+    });
     for (const l of logins) {
       if (login.matches(l, true)) {
         await Services.logins.removeLoginAsync(l);

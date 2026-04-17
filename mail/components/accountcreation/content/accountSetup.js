@@ -2482,7 +2482,7 @@ var gAccountSetup = {
           this._currentConfig.incoming.username,
           "carddav"
         ) ||
-        !mod.getRefreshToken()
+        !(await mod.getRefreshToken())
       ) {
         return;
       }
@@ -2621,7 +2621,7 @@ var gAccountSetup = {
           this._currentConfig.incoming.username,
           "caldav"
         ) ||
-        !mod.getRefreshToken()
+        !(await mod.getRefreshToken())
       ) {
         return;
       }

@@ -115,11 +115,10 @@ add_task(async function () {
   Assert.ok(!rootFolder.containsChildNamed("Subscribed"));
 
   // Check that we haven't forgotten the login even though we've retried and cancelled.
-  let logins = Services.logins.findLogins(
-    "imap://localhost",
-    null,
-    "imap://localhost"
-  );
+  let logins = await Services.logins.searchLoginsAsync({
+    origin: "imap://localhost",
+    httpRealm: "imap://localhost",
+  });
 
   Assert.equal(logins.length, 1);
   Assert.equal(logins[0].username, kUserName);
@@ -137,13 +136,12 @@ add_task(async function () {
   Assert.ok(rootFolder.containsChildNamed("Inbox"));
   Assert.ok(rootFolder.containsChildNamed("Subscribed"));
 
-  await TestUtils.waitForCondition(() => {
+  await TestUtils.waitForCondition(async () => {
     // Now check the new one has been saved.
-    logins = Services.logins.findLogins(
-      "imap://localhost",
-      null,
-      "imap://localhost"
-    );
+    logins = await Services.logins.searchLoginsAsync({
+      origin: "imap://localhost",
+      httpRealm: "imap://localhost",
+    });
 
     return logins.length == 1 && logins[0].password == kValidPassword;
   }, "waiting for the password to be updated");
@@ -154,11 +152,10 @@ add_task(async function () {
 
   // Remove the login via the incoming server.
   incomingServer.forgetPassword();
-  logins = Services.logins.findLogins(
-    "imap://localhost",
-    null,
-    "imap://localhost"
-  );
+  logins = await Services.logins.searchLoginsAsync({
+    origin: "imap://localhost",
+    httpRealm: "imap://localhost",
+  });
 
   Assert.equal(logins.length, 0);
 

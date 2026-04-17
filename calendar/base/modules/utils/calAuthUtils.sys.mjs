@@ -177,7 +177,10 @@ export var auth = {
       let password;
       let found = false;
 
-      const logins = Services.logins.findLogins(prePath, null, realm);
+      const logins = await Services.logins.searchLoginsAsync({
+        origin: prePath,
+        httpRealm: realm,
+      });
       for (const login of logins) {
         if (!username || username == login.username) {
           username = login.username;
@@ -455,7 +458,10 @@ export var auth = {
     }
 
     try {
-      const logins = Services.logins.findLogins(origin, null, aRealm);
+      const logins = await Services.logins.searchLoginsAsync({
+        origin,
+        httpRealm: aRealm,
+      });
 
       const newLoginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
         Ci.nsILoginInfo
@@ -486,7 +492,7 @@ export var auth = {
    * @param {string} aRealm - The password realm (unused on branch)
    * @returns {boolean} True, if an entry exists in the password manager
    */
-  passwordManagerGet(aUsername, aPassword, aOrigin, aRealm) {
+  async passwordManagerGet(aUsername, aPassword, aOrigin, aRealm) {
     if (!aUsername) {
       throw new Error("username required");
     }
@@ -498,7 +504,9 @@ export var auth = {
     const origin = this._ensureOrigin(aOrigin);
 
     try {
-      const logins = Services.logins.findLogins(origin, null, "");
+      const logins = await Services.logins.searchLoginsAsync({
+        origin,
+      });
       for (const loginInfo of logins) {
         if (
           loginInfo.username == aUsername &&
@@ -530,7 +538,10 @@ export var auth = {
     const origin = this._ensureOrigin(aOrigin);
 
     try {
-      const logins = Services.logins.findLogins(origin, null, aRealm);
+      const logins = await Services.logins.searchLoginsAsync({
+        origin,
+        httpRealm: aRealm,
+      });
       for (const loginInfo of logins) {
         if (loginInfo.username == aUsername) {
           await Services.logins.removeLoginAsync(loginInfo);

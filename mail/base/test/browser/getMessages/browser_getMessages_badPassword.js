@@ -242,12 +242,10 @@ function handlePasswordPrompt(button, password, rememberPassword = false) {
   });
 }
 
-function checkSavedPassword(inbox) {
-  const logins = Services.logins.findLogins(
-    `${inbox.server.localStoreType}://test.test`,
-    "",
-    ""
-  );
+async function checkSavedPassword(inbox) {
+  const logins = await Services.logins.searchLoginsAsync({
+    origin: `${inbox.server.localStoreType}://test.test`,
+  });
   Assert.equal(
     logins.length,
     1,
@@ -318,7 +316,7 @@ add_task(async function testEnterAndSavePassword() {
   }
 
   for (const inbox of allInboxes) {
-    checkSavedPassword(inbox);
+    await checkSavedPassword(inbox);
     inbox.server.forgetPassword();
     inbox.server.closeCachedConnections();
   }
@@ -352,7 +350,7 @@ add_task(async function testWrongPassword() {
   }
 
   for (const inbox of allInboxes) {
-    checkSavedPassword(inbox);
+    await checkSavedPassword(inbox);
     inbox.server.forgetPassword();
     inbox.server.closeCachedConnections();
   }

@@ -605,7 +605,16 @@ export class NotificationCallbacks {
         return true;
       }
 
-      const logins = Services.logins.findLogins(channel.URI.prePath, null, "");
+      let finished = false;
+      let logins;
+      Services.logins
+        .searchLoginsAsync({ origin: channel.URI.prePath })
+        .then(result => (logins = result))
+        .finally(() => (finished = true));
+      Services.tm.spinEventLoopUntilOrQuit(
+        "CardDAVUtils.sys.mjs:promptAuth",
+        () => finished
+      );
       for (const l of logins) {
         if (l.username == this.username) {
           authInfo.username = l.username;

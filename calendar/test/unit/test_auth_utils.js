@@ -33,7 +33,7 @@ add_task(async function test_password_manager() {
 
   // Retrieve the saved password
   let passout = {};
-  let found = cal.auth.passwordManagerGet(USERNAME, passout, ORIGIN, REALM);
+  let found = await cal.auth.passwordManagerGet(USERNAME, passout, ORIGIN, REALM);
   Assert.equal(passout.value, PASSWORD);
   Assert.ok(found);
   await checkLoginCount(1);
@@ -41,7 +41,7 @@ add_task(async function test_password_manager() {
   // Retrieving should still happen with signon saving disabled, but saving should not
   Services.prefs.setBoolPref("signon.rememberSignons", false);
   passout = {};
-  found = cal.auth.passwordManagerGet(USERNAME, passout, ORIGIN, REALM);
+  found = await cal.auth.passwordManagerGet(USERNAME, passout, ORIGIN, REALM);
   Assert.equal(passout.value, PASSWORD);
   Assert.ok(found);
 
@@ -77,18 +77,18 @@ add_task(async function test_password_manager_origins() {
   await checkLoginCount(1);
 
   // Make sure that the prePath isn't used for oauth, because that is only the scheme
-  let found = cal.auth.passwordManagerGet(USERNAME, {}, "oauth:", REALM);
+  let found = await cal.auth.passwordManagerGet(USERNAME, {}, "oauth:", REALM);
   Assert.ok(!found);
 
   // Save a https url with a path (only prePath should be used)
   await cal.auth.passwordManagerSave(USERNAME, PASSWORD, "https://example.com/withpath", REALM);
-  found = cal.auth.passwordManagerGet(USERNAME, {}, "https://example.com", REALM);
+  found = await cal.auth.passwordManagerGet(USERNAME, {}, "https://example.com", REALM);
   Assert.ok(found);
   await checkLoginCount(2);
 
   // Entering something that is not an URL should assume https
   await cal.auth.passwordManagerSave(USERNAME, PASSWORD, "example.net", REALM);
-  found = cal.auth.passwordManagerGet(USERNAME, {}, "https://example.net", REALM);
+  found = await cal.auth.passwordManagerGet(USERNAME, {}, "https://example.net", REALM);
   Assert.ok(found);
   await checkLoginCount(3);
 

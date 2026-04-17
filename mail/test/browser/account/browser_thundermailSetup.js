@@ -97,7 +97,9 @@ add_task(async function () {
   EventUtils.synthesizeMouseAtCenter(footerForward, {});
 
   // Okay, we've finished the account set up. Check the login is saved.
-  const logins = Services.logins.findLogins("oauth://external.test", "", "");
+  const logins = await Services.logins.searchLoginsAsync({
+    origin: "oauth://external.test",
+  });
   Assert.equal(
     logins.length,
     1,

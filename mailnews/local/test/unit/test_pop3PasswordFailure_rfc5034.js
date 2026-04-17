@@ -104,11 +104,10 @@ add_task(async function getMail1() {
   Assert.equal(attempt, 2);
 
   // Check that we haven't forgotten the login even though we've retried and cancelled.
-  const logins = Services.logins.findLogins(
-    "mailbox://localhost",
-    null,
-    "mailbox://localhost"
-  );
+  const logins = await Services.logins.searchLoginsAsync({
+    origin: "mailbox://localhost",
+    httpRealm: "mailbox://localhost",
+  });
 
   Assert.equal(logins.length, 1);
   Assert.equal(logins[0].username, kUserName);
@@ -133,13 +132,12 @@ add_task(async function getMail2() {
   Assert.equal(localAccountUtils.inboxFolder.getTotalMessages(false), 1);
 
   var logins;
-  await TestUtils.waitForCondition(() => {
+  await TestUtils.waitForCondition(async () => {
     // Now check the new one has been saved.
-    logins = Services.logins.findLogins(
-      "mailbox://localhost",
-      null,
-      "mailbox://localhost"
-    );
+    logins = await Services.logins.searchLoginsAsync({
+      origin: "mailbox://localhost",
+      httpRealm: "mailbox://localhost",
+    });
 
     return logins.length == 1 && logins[0].password == kValidPassword;
   }, "waiting for the password to be updated");
