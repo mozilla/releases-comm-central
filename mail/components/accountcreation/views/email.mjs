@@ -67,6 +67,13 @@ class AccountHubEmail extends HTMLElement {
   #emailOutgoingConfigSubview;
 
   /**
+   * Email default manual config subview.
+   *
+   * @type {HTMLElement}
+   */
+  #emailManualConfigSubview;
+
+  /**
    * Email config found subview.
    *
    * @type {HTMLElement}
@@ -239,6 +246,15 @@ class AccountHubEmail extends HTMLElement {
       subview: {},
       templateId: "email-sync-accounts-form",
     },
+    manualConfigSubview: {
+      id: "emailManualConfigSubview",
+      nextStep: "emailPasswordSubview",
+      previousStep: "emailConfigFoundSubview",
+      forwardEnabled: true,
+      customActionFluentID: "",
+      subview: {},
+      templateId: "email-manual-config-form",
+    },
     incomingConfigSubview: {
       id: "emailIncomingConfigSubview",
       nextStep: "outgoingConfigSubview",
@@ -294,6 +310,11 @@ class AccountHubEmail extends HTMLElement {
     );
     this.#states.outgoingConfigSubview.subview =
       this.#emailOutgoingConfigSubview;
+
+    this.#emailManualConfigSubview = this.querySelector(
+      "#emailManualConfigSubview"
+    );
+    this.#states.manualConfigSubview.subview = this.#emailManualConfigSubview;
 
     this.#emailConfigFoundSubview = this.querySelector(
       "#emailConfigFoundSubview"

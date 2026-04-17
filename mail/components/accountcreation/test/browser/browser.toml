@@ -36,6 +36,8 @@ support-files = ["files/**"]
 
 ["browser_accountHubEmailCredentialsConfirmation.js"]
 
+["browser_accountHubEmailManualConfigForm.js"]
+
 ["browser_accountHubEmailManualIncomingForm.js"]
 
 ["browser_accountHubEmailPasswordForm.js"]

@@ -20,6 +20,7 @@ messenger.jar:
   content/messenger/accountcreation/content/widgets/address-book-sync.mjs                 (content/widgets/address-book-sync.mjs)
   content/messenger/accountcreation/content/widgets/email-authentication-form.mjs         (content/widgets/email-authentication-form.mjs)
   content/messenger/accountcreation/content/widgets/email-auto-form.mjs                   (content/widgets/email-auto-form.mjs)
+  content/messenger/accountcreation/content/widgets/email-manual-config-form.mjs          (content/widgets/email-manual-config-form.mjs)
   content/messenger/accountcreation/content/widgets/email-manual-incoming-form.mjs        (content/widgets/email-manual-incoming-form.mjs)
   content/messenger/accountcreation/content/widgets/email-manual-outgoing-form.mjs        (content/widgets/email-manual-outgoing-form.mjs)
   content/messenger/accountcreation/content/widgets/email-config-found.mjs                (content/widgets/email-config-found.mjs)

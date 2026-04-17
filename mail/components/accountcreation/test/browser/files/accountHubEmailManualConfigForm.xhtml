@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <head>
+    <meta charset="utf-8" />
+    <title>Account Hub Email Manual Config Form Test</title>
+    <link rel="stylesheet" href="chrome://messenger/skin/icons.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/accountHub.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/accountHubForms.css" />
+    <link rel="localization" href="messenger/accountcreation/accountHub.ftl" />
+    <script type="module" src="chrome://messenger/content/accountcreation/content/widgets/email-manual-config-form.mjs"></script>
+  </head>
+
+  <body>
+    <template id="accountHubHeaderTemplate">
+      <header id="accountHubHeader" class="hub-header">
+        <div id="brandingHeader" class="branding-header" hidden="hidden">
+          <img src="chrome://branding/content/logo-gradient.svg" alt="" />
+          <h1 class="account-hub-title">
+            <span class="branding-header-name" aria-hidden="hidden"></span>
+            <span class="branding-header-title" aria-hidden="hidden"></span>
+            <span class="account-hub-welcome-text screen-reader-only" data-l10n-id="account-hub-welcome-text"></span>
+          </h1>
+          <div id="headerButtonsContainer">
+            <button id="minimizeButton" class="button button-flat button-round icon-button icon-only modal-close-button"
+              data-l10n-id="account-hub-minimize-button" type="button">
+              <img class="icon-minimize" src="" alt="" />
+            </button>
+            <button id="closeButton" class="button button-flat button-round icon-button icon-only modal-close-button"
+              data-l10n-id="account-hub-close-button" type="button">
+              <img class="icon-close-lg" src="" alt="" />
+            </button>
+          </div>
+        </div>
+        <slot name="middle-content"></slot>
+        <h1 id="accountHubHeaderTitle" class="sub-view-title">
+          <slot name="title"></slot>
+        </h1>
+        <h2 id="accountHubHeaderSubheader" class="sub-view-sub-header" hidden="hidden">
+          <slot name="subheader"></slot>
+        </h2>
+        <details id="emailFormNotification" class="notification-bar">
+          <summary id="emailFormNotificationSummary" class="notification-title-container" role="alert">
+            <img class="form-icon icon-warning" src="" alt="" />
+            <img class="form-icon icon-success" src="" alt="" />
+            <img class="form-icon icon-info" src="" alt="" />
+            <img class="form-icon icon-danger" src="" alt="" />
+            <p id="emailFormNotificationTitle" class="notification-title">
+              <span class="localized-title"></span>
+              <span class="raw-title"></span>
+            </p>
+            <div id="emailFormNotificationToggle">
+              <span data-l10n-id="account-hub-notification-show-more"></span>
+              <span data-l10n-id="account-hub-notification-show-less"></span>
+            </div>
+          </summary>
+          <p id="emailFormNotificationText" class="notification-text">
+            <span class="localized-description"></span>
+            <span class="raw-description"></span>
+          </p>
+        </details>
+      </header>
+    </template>
+    <template id="accountHubStepTemplate">
+      <account-hub-header>
+        <span id="title" slot="title">
+        </span>
+        <span id="subheader" slot="subheader">
+        </span>
+      </account-hub-header>
+      <div class="account-hub-grid">
+        <slot name="content"></slot>
+      </div>
+    </template>
+    <template id="accountHubEmailManualConfigFormTemplate" xmlns="http://www.w3.org/1999/xhtml">
+      <form id="manualConfigForm" class="account-hub-form" slot="content">
+      </form>
+    </template>
+    <email-manual-config-form></email-manual-config-form>
+  </body>
+</html>
