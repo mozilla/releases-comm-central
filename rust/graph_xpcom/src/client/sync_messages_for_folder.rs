@@ -5,7 +5,7 @@
 use ms_graph_tb::{
     Error, Select,
     pagination::{DeltaItem, DeltaResponse},
-    paths,
+    paths::me::mail_folders::mail_folder_id::messages,
     types::{
         message::{Message, MessageSelection},
         recipient::Recipient,
@@ -46,10 +46,7 @@ impl<ServerT: AuthenticationProvider + RefCounted>
     ) -> Result<Self::Okay, XpComGraphError> {
         let mut response = match self.sync_state_token {
             Some(ref token) => {
-                let request =
-                    paths::me_mail_folders_mail_folder_id_messages_delta::GetDelta::try_from(
-                        token.as_str(),
-                    )?;
+                let request = messages::delta::GetDelta::try_from(token.as_str())?;
                 client.send_request_json_response(request).await?
             }
             None => {
@@ -73,9 +70,7 @@ impl<ServerT: AuthenticationProvider + RefCounted>
 
                 let endpoint = self.endpoint.as_str().to_string();
                 let folder_id = self.folder_id.clone();
-                let mut request = paths::me_mail_folders_mail_folder_id_messages_delta::Get::new(
-                    endpoint, folder_id,
-                );
+                let mut request = messages::delta::Get::new(endpoint, folder_id);
                 request.select(select_properties);
                 client.send_request_json_response(request).await?
             }

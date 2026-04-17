@@ -9,21 +9,23 @@
 use env_logger::Env;
 use log::info;
 use quote::quote;
-use std::collections::{BTreeMap, HashSet};
-use std::path::{Path, PathBuf};
+use std::collections::{BTreeMap, BTreeSet, HashSet};
+use std::path::Path;
 use std::sync::LazyLock;
 use std::{env, error::Error, fs, io, io::Write};
 
 mod extract;
+mod module_hierarchy;
 mod naming;
 mod openapi;
 mod oxidize;
 
 use crate::extract::path::extract_from_oa_path;
 use crate::extract::schema::{Property, SchemaContext, SchemaKind, extract_from_schema};
-use crate::naming::{base_name, simple_name, snakeify};
+use crate::module_hierarchy::{ModuleHierarchy, ModuleHierarchyElement, ModuleName};
+use crate::naming::{base_name, simple_name};
 use crate::openapi::{LoadedYaml, load_yaml, path::OaPath};
-use crate::oxidize::{ModuleFile, types};
+use crate::oxidize::{ModuleFile, paths::PathModule, types};
 
 const FILE_LEDE: &str = r#"/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -70,68 +72,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     let LoadedYaml { paths, schemas } = load_yaml(&yaml)?;
     info!("loaded paths and schemas");
 
-    let mut modules = vec![];
-    for (name, path) in &paths {
-        if SUPPORTED_PATHS.contains(name.as_str()) {
-            info!("generating Rust type for {name} request");
-            process_path(out_dir, name, path)?;
-            modules.push(snakeify(name));
-        }
-    }
-    modules.sort();
-
-    // Sometimes operations will have `new()` functions that take no arguments
-    // (mainly GET requests with no template expressions), which clippy lints as
-    // needing a `Default` implementation. Having some operations provide
-    // `Default` and others not seems needlessly inconsistent, so just disable
-    // that lint for path modules.
-    let modules = ModuleFile::new(&modules).allow_lints(&["new_without_default"]);
-    write_module_file(&paths_dir, &modules)?;
-
-    // Schemas come with a hierarchy, and different schemas at different levels
-    // might have the same name (e.g. `microsoft.graph.user` vs
-    // `microsoft.graph.security.user`), so we replicate this hierarchy with
-    // modules in the final crate.
-    let mut modules: BTreeMap<PathBuf, Vec<String>> = BTreeMap::new();
-
-    for (full_name, schema) in &schemas {
-        let simple_name = simple_name(full_name);
-        let base_name = base_name(full_name);
-        if SUPPORTED_TYPES.contains(base_name.as_str()) {
-            info!("generating Rust type for {full_name}");
-
-            let (description, props) = extract_from_schema(
-                schema,
-                SchemaContext {
-                    kind: SchemaKind::Other,
-                    is_delta: false,
-                },
-            );
-            let schema_path = naming::path(full_name);
-
-            process_schema(out_dir, &schema_path, simple_name, description, props)?;
-
-            modules
-                .entry(schema_path)
-                .or_default()
-                .push(snakeify(simple_name));
-        }
-    }
-
-    // For each path in the map, create a new `mod.rs` that exports the
-    // corresponding modules, and ensure it's correctly exported throughout the
-    // hierarchy.
-    modules
-        .into_iter()
-        .map(|(path, mut modules)| {
-            modules.sort();
-            let modules = ModuleFile::new(&modules);
-            let module_dir = types_dir.join(path);
-            write_module_file(&module_dir, &modules)?;
-            ensure_module_in_hierarchy(&types_dir, &module_dir)?;
-            Ok(())
-        })
-        .collect::<Result<Vec<()>, Box<dyn Error>>>()?;
+    generate_paths(out_dir, &paths, &paths_dir)?;
+    generate_types(out_dir, &schemas, &types_dir)?;
 
     Ok(())
 }
@@ -160,27 +102,142 @@ fn load_supported_values(filename: &str) -> Result<HashSet<String>, Box<dyn Erro
     Ok(values)
 }
 
+fn generate_paths(
+    out_dir: &Path,
+    paths: &BTreeMap<String, OaPath>,
+    paths_dir: &Path,
+) -> Result<(), Box<dyn Error>> {
+    let supported_path_entries = paths
+        .iter()
+        .filter(|(name, _)| SUPPORTED_PATHS.contains(name.as_str()))
+        .collect::<Vec<_>>();
+    let module_names = supported_path_entries
+        .iter()
+        .map(|(name, _)| ModuleHierarchyElement::from_api_path(name))
+        .collect::<BTreeSet<_>>();
+    let module_hierarchy = ModuleHierarchy::new(module_names.iter().cloned());
+
+    // Sometimes operations will have `new()` functions that take no arguments
+    // (mainly GET requests with no template expressions), which clippy lints as
+    // needing a `Default` implementation. Having some operations provide
+    // `Default` and others not seems needlessly inconsistent, so just disable
+    // that lint for path modules.
+    let root_module =
+        &ModuleFile::new(module_hierarchy.root_modules()).allow_lints(&["new_without_default"]);
+    write_generated_file(&paths_dir.join("mod.rs"), &quote!(#root_module))?;
+
+    for (name, path) in supported_path_entries {
+        info!("generating Rust type for {name} request");
+        let module_path = ModuleHierarchyElement::from_api_path(name);
+        process_path(
+            out_dir,
+            name,
+            path,
+            module_hierarchy.child_modules(&module_path),
+        )?;
+    }
+
+    // create (mostly empty) modules for ancestors we don't support
+    for (module_path, child_modules) in module_hierarchy.intermediate_modules() {
+        let modules = &ModuleFile::new(child_modules);
+        let destination = paths_dir.join(module_path.file_path());
+        write_generated_file(&destination, &quote!(#modules))?;
+        info!(
+            "wrote intermediate path module to {}",
+            destination.display()
+        );
+    }
+
+    Ok(())
+}
+
+fn generate_types(
+    out_dir: &Path,
+    schemas: &BTreeMap<String, openapi::schema::OaSchema>,
+    types_dir: &Path,
+) -> Result<(), Box<dyn Error>> {
+    let mut type_namespaces = BTreeSet::new();
+    let mut direct_type_modules = Vec::new();
+
+    for (full_name, schema) in schemas {
+        let simple_name = simple_name(full_name);
+        let base_name = base_name(full_name);
+        if SUPPORTED_TYPES.contains(base_name) {
+            info!("generating Rust type for {full_name}");
+
+            let (description, props) = extract_from_schema(
+                schema,
+                SchemaContext {
+                    kind: SchemaKind::Other,
+                    is_delta: false,
+                },
+            );
+            let schema_path = ModuleHierarchyElement::from_schema(full_name);
+            let schema_namespace = schema_path.namespace();
+            let module_name = schema_path
+                .leaf()
+                .expect("schema paths should have a leaf")
+                .clone();
+
+            process_schema(out_dir, &schema_path, simple_name, description, props)?;
+
+            direct_type_modules.push((schema_namespace.clone(), module_name));
+            if !schema_namespace.is_root() {
+                type_namespaces.insert(schema_namespace);
+            }
+        }
+    }
+
+    let mut type_module_hierarchy = ModuleHierarchy::new(type_namespaces);
+
+    for (schema_namespace, module_name) in direct_type_modules {
+        type_module_hierarchy.add_direct_module(schema_namespace, module_name);
+    }
+
+    let type_module_paths = type_module_hierarchy.module_paths();
+
+    for module_path in type_module_paths {
+        let exported_modules = type_module_hierarchy.exported_modules_for(&module_path);
+        if exported_modules.is_empty() {
+            continue;
+        }
+
+        let modules = &ModuleFile::new(&exported_modules);
+        let destination = if module_path.is_root() {
+            types_dir.join("mod.rs")
+        } else {
+            types_dir.join(module_path.file_path())
+        };
+        write_generated_file(&destination, &quote!(#modules))?;
+    }
+
+    Ok(())
+}
+
 fn process_path(
     out_dir: &std::path::Path,
     name: &str,
     path: &OaPath,
+    child_modules: &[ModuleName],
 ) -> Result<(), Box<dyn Error>> {
     let path = extract_from_oa_path(name.to_string(), path);
-    let generated = quote!(#path);
+    let path_module = PathModule {
+        path: &path,
+        child_modules,
+    };
+    let generated = quote!(#path_module);
 
-    let out_dir = out_dir.join("src/paths/");
-    let filename = format!("{}.rs", snakeify(name));
-    let destination = out_dir.join(filename);
-    let mut file = fs::File::create(&destination)?;
-
-    write!(file, "{FILE_LEDE}\n{generated}")?;
+    let module_path = ModuleHierarchyElement::from_api_path(name);
+    let mut destination = out_dir.join("src/paths/");
+    destination.push(module_path.file_path());
+    write_generated_file(&destination, &generated)?;
     info!("wrote generated path to {}", destination.display());
     Ok(())
 }
 
 fn process_schema(
     schemas_dir: &std::path::Path,
-    schema_path: &std::path::Path,
+    schema_path: &ModuleHierarchyElement,
     simple_name: &str,
     description: Option<String>,
     properties: Vec<Property>,
@@ -189,97 +246,23 @@ fn process_schema(
         types::GraphType::new(simple_name, description, properties, types::TypeKind::Named);
     let generated = quote!(#graph_type);
 
-    let output_dir = schemas_dir
-        .join("src/types/")
-        // If the type is at the top-level, `schema_path` is empty, and joining
-        // on it will essentially be a no-op.
-        .join(schema_path);
+    let destination = schemas_dir.join("src/types/").join(schema_path.file_path());
 
-    // Ensure the destination folder exists, even if the schema isn't at the top
-    // level of the hierarchy.
-    fs::create_dir_all(&output_dir)?;
-
-    let filename = format!("{}.rs", snakeify(simple_name));
-    let destination = output_dir.join(filename);
-    let mut file = fs::File::create(&destination)?;
-
-    write!(file, "{FILE_LEDE}\n{generated}")?;
+    write_generated_file(&destination, &generated)?;
     info!("wrote generated Rust types to {}", destination.display());
     Ok(())
 }
 
-/// Write a `mod.rs` file at the given path and populate it with the given list
-/// of modules (i.e. write the corresponding `pub mod` lines into the file).
-fn write_module_file(
-    out_dir: &std::path::Path,
-    modules: &ModuleFile,
+/// Write the file lede then generated content to the file path in
+/// `destination`, creating all necessary parent directories.
+fn write_generated_file(
+    destination: &std::path::Path,
+    generated: &impl std::fmt::Display,
 ) -> Result<(), Box<dyn Error>> {
-    let generated = quote!(#modules);
-    let module_path = out_dir.join("mod.rs");
-    let mut module_file = fs::File::create(&module_path)?;
-    writeln!(module_file, "{FILE_LEDE}\n{generated}")?;
-    info!("wrote module out to {}", module_path.display());
-    Ok(())
-}
-
-/// Ensures that a module is correctly included throughout the crate's
-/// hierarchy.
-///
-/// This is particularly helpful for schemas, which come with a non-flat
-/// hierarchy; meaning the `types` module might end up with multiple
-/// sub-modules, which need to be included in the relevant `mod.rs` files.
-///
-/// This function walks backwards (recursively) through the folder hierarchy to ensure each
-/// step has a `mod.rs` file which includes the parent.
-fn ensure_module_in_hierarchy(
-    base_out_dir: &std::path::Path,
-    module_path: &std::path::Path,
-) -> Result<(), Box<dyn Error>> {
-    if base_out_dir == module_path {
-        // We've reached the top level, meaning we should have finished our job
-        // for this module.
-        return Ok(());
+    if let Some(parent) = destination.parent() {
+        fs::create_dir_all(parent)?;
     }
-
-    let module_name = module_path
-        .file_name()
-        .expect("invalid module path: cannot get name")
-        .to_str()
-        .expect("the module name isn't valid unicode");
-
-    let parent = module_path
-        .parent()
-        .expect("invalid module path: cannot get parent");
-
-    // Check if the parent has a `mod.rs` file, so we can preserve its content
-    // before rewriting it.
-    let mod_file_path = parent.join("mod.rs");
-    if mod_file_path.try_exists()? {
-        let mod_file_content = fs::read_to_string(&mod_file_path)?;
-        let mod_pub_line = format!("pub mod {module_name};");
-
-        if !mod_file_content.contains(mod_pub_line.as_str()) {
-            add_module_to_mod_file(&mod_file_path, &mod_file_content, module_name)?;
-        }
-    } else {
-        add_module_to_mod_file(&mod_file_path, FILE_LEDE, module_name)?;
-    };
-
-    // We've ensured the module is included in the current level of the
-    // hierarchy, now go one step higher and do this again.
-    ensure_module_in_hierarchy(base_out_dir, parent)
-}
-
-/// Overwrites the `mod.rs` file referred to by `mod_file_path` (or creates it
-/// if it didn't already exist). `prefix` is first written into the file,
-/// followed by the `pub mod` line for the module.
-fn add_module_to_mod_file(
-    mod_file_path: &std::path::Path,
-    prefix: &str,
-    module_name: &str,
-) -> Result<(), Box<dyn Error>> {
-    let mut file = fs::File::create(mod_file_path)?;
-    writeln!(file, "{prefix}")?;
-    writeln!(file, "pub mod {module_name};")?;
+    let mut file = fs::File::create(destination)?;
+    write!(file, "{FILE_LEDE}\n{generated}")?;
     Ok(())
 }

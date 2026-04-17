@@ -4,37 +4,40 @@
 
 // EDITS TO THIS FILE WILL BE OVERWRITTEN
 
-#![doc = "Provides operations to manage the mailFolders property of the microsoft.graph.user entity.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
-use crate::types::mail_folder::{MailFolder, MailFolderSelection};
+#![doc = "Provides operations to manage the messages property of the microsoft.graph.user entity.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
+pub mod r#move;
+pub mod send;
+pub mod value;
+use crate::types::message::{Message, MessageSelection};
 use crate::{Error, Operation, OperationBody, Select, Selection};
 use form_urlencoded::Serializer;
 use http::method::Method;
 #[derive(Debug)]
 struct TemplateExpressions {
     endpoint: String,
-    mail_folder_id: String,
+    message_id: String,
 }
 fn format_path(template_expressions: &TemplateExpressions) -> String {
     let TemplateExpressions {
         endpoint,
-        mail_folder_id,
+        message_id,
     } = template_expressions;
     let endpoint = endpoint.trim_end_matches('/');
-    format!("{endpoint}/me/mailFolders/{mail_folder_id}")
+    format!("{endpoint}/me/messages/{message_id}")
 }
-#[doc = "Get mailFolder\n\nRetrieve the properties and relationships of a message folder object. The following list shows the two existing scenarios where an app can get another user's mail folder:\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/mailfolder-get?view=graph-rest-1.0)."]
+#[doc = "Get eventMessage\n\nGet the properties and relationships of the eventMessage object. Apply the `$expand` parameter on the event navigation property to get the associated event in an attendee's calendar. Currently, this operation returns event message bodies in only HTML format.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/eventmessage-get?view=graph-rest-1.0)."]
 #[derive(Debug)]
 pub struct Get {
     template_expressions: TemplateExpressions,
-    selection: Selection<MailFolderSelection>,
+    selection: Selection<MessageSelection>,
 }
 impl Get {
     #[must_use]
-    pub fn new(endpoint: String, mail_folder_id: String) -> Self {
+    pub fn new(endpoint: String, message_id: String) -> Self {
         Self {
             template_expressions: TemplateExpressions {
                 endpoint,
-                mail_folder_id,
+                message_id,
             },
             selection: Selection::default(),
         }
@@ -42,7 +45,7 @@ impl Get {
 }
 impl Operation for Get {
     const METHOD: Method = Method::GET;
-    type Response<'response> = MailFolder<'response>;
+    type Response<'response> = Message<'response>;
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
         let mut params = Serializer::new(String::new());
         let (select, selection) = self.selection.pair();
@@ -60,7 +63,7 @@ impl Operation for Get {
     }
 }
 impl Select for Get {
-    type Properties = MailFolderSelection;
+    type Properties = MessageSelection;
     fn select<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
         self.selection.select(properties);
     }
@@ -68,23 +71,19 @@ impl Select for Get {
         self.selection.extend(properties);
     }
 }
-#[doc = "Update mailfolder\n\nUpdate the properties of mailfolder object.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/mailfolder-update?view=graph-rest-1.0)."]
+#[doc = "Update eventMessage\n\nUpdate the properties of an eventMessage object.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/eventmessage-update?view=graph-rest-1.0)."]
 #[derive(Debug)]
 pub struct Patch<'body> {
     template_expressions: TemplateExpressions,
-    body: OperationBody<MailFolder<'body>>,
+    body: OperationBody<Message<'body>>,
 }
 impl<'body> Patch<'body> {
     #[must_use]
-    pub fn new(
-        endpoint: String,
-        mail_folder_id: String,
-        body: OperationBody<MailFolder<'body>>,
-    ) -> Self {
+    pub fn new(endpoint: String, message_id: String, body: OperationBody<Message<'body>>) -> Self {
         Self {
             template_expressions: TemplateExpressions {
                 endpoint,
-                mail_folder_id,
+                message_id,
             },
             body,
         }
@@ -92,7 +91,7 @@ impl<'body> Patch<'body> {
 }
 impl Operation for Patch<'_> {
     const METHOD: Method = Method::PATCH;
-    type Response<'response> = MailFolder<'response>;
+    type Response<'response> = Message<'response>;
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
         let uri = format_path(&self.template_expressions)
             .parse::<http::uri::Uri>()
@@ -111,18 +110,18 @@ impl Operation for Patch<'_> {
         Ok(request)
     }
 }
-#[doc = "Delete mailFolder\n\nDelete the specified mailFolder. The folder can be a mailSearchFolder. You can specify a mail folder by its folder ID, or by its well-known folder name, if one exists.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/mailfolder-delete?view=graph-rest-1.0)."]
+#[doc = "Delete eventMessage\n\nDelete eventMessage.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/eventmessage-delete?view=graph-rest-1.0)."]
 #[derive(Debug)]
 pub struct Delete {
     template_expressions: TemplateExpressions,
 }
 impl Delete {
     #[must_use]
-    pub fn new(endpoint: String, mail_folder_id: String) -> Self {
+    pub fn new(endpoint: String, message_id: String) -> Self {
         Self {
             template_expressions: TemplateExpressions {
                 endpoint,
-                mail_folder_id,
+                message_id,
             },
         }
     }

@@ -5,44 +5,42 @@
 // EDITS TO THIS FILE WILL BE OVERWRITTEN
 
 #![doc = "Provides operations to manage the messages property of the microsoft.graph.user entity.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
-use crate::types::message::{Message, MessageSelection};
+pub mod message_id;
+use crate::pagination::Paginated;
+use crate::types::message::Message;
+use crate::types::message_collection_response::{
+    MessageCollectionResponse, MessageCollectionResponseSelection,
+};
 use crate::{Error, Operation, OperationBody, Select, Selection};
 use form_urlencoded::Serializer;
 use http::method::Method;
 #[derive(Debug)]
 struct TemplateExpressions {
     endpoint: String,
-    message_id: String,
 }
 fn format_path(template_expressions: &TemplateExpressions) -> String {
-    let TemplateExpressions {
-        endpoint,
-        message_id,
-    } = template_expressions;
+    let TemplateExpressions { endpoint } = template_expressions;
     let endpoint = endpoint.trim_end_matches('/');
-    format!("{endpoint}/me/messages/{message_id}")
+    format!("{endpoint}/me/messages")
 }
-#[doc = "Get eventMessage\n\nGet the properties and relationships of the eventMessage object. Apply the `$expand` parameter on the event navigation property to get the associated event in an attendee's calendar. Currently, this operation returns event message bodies in only HTML format.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/eventmessage-get?view=graph-rest-1.0)."]
+#[doc = "Get open extension\n\nGet an open extension (openTypeExtension object) identified by name or fully qualified name. The table in the Permissions section lists the resources that support open extensions. The following table lists the three scenarios where you can get an open extension from a supported resource instance.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/opentypeextension-get?view=graph-rest-1.0)."]
 #[derive(Debug)]
 pub struct Get {
     template_expressions: TemplateExpressions,
-    selection: Selection<MessageSelection>,
+    selection: Selection<MessageCollectionResponseSelection>,
 }
 impl Get {
     #[must_use]
-    pub fn new(endpoint: String, message_id: String) -> Self {
+    pub fn new(endpoint: String) -> Self {
         Self {
-            template_expressions: TemplateExpressions {
-                endpoint,
-                message_id,
-            },
+            template_expressions: TemplateExpressions { endpoint },
             selection: Selection::default(),
         }
     }
 }
 impl Operation for Get {
     const METHOD: Method = Method::GET;
-    type Response<'response> = Message<'response>;
+    type Response<'response> = Paginated<MessageCollectionResponse<'response>>;
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
         let mut params = Serializer::new(String::new());
         let (select, selection) = self.selection.pair();
@@ -60,7 +58,7 @@ impl Operation for Get {
     }
 }
 impl Select for Get {
-    type Properties = MessageSelection;
+    type Properties = MessageCollectionResponseSelection;
     fn select<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
         self.selection.select(properties);
     }
@@ -68,26 +66,23 @@ impl Select for Get {
         self.selection.extend(properties);
     }
 }
-#[doc = "Update eventMessage\n\nUpdate the properties of an eventMessage object.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/eventmessage-update?view=graph-rest-1.0)."]
+#[doc = "Create open extension\n\nCreate an open extension (openTypeExtension object) and add custom properties in a new or existing instance of a resource. You can create an open extension in a resource instance and store custom data to it all in the same operation, except for specific resources. The table in the Permissions section lists the resources that support open extensions.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/opentypeextension-post-opentypeextension?view=graph-rest-1.0)."]
 #[derive(Debug)]
-pub struct Patch<'body> {
+pub struct Post<'body> {
     template_expressions: TemplateExpressions,
     body: OperationBody<Message<'body>>,
 }
-impl<'body> Patch<'body> {
+impl<'body> Post<'body> {
     #[must_use]
-    pub fn new(endpoint: String, message_id: String, body: OperationBody<Message<'body>>) -> Self {
+    pub fn new(endpoint: String, body: OperationBody<Message<'body>>) -> Self {
         Self {
-            template_expressions: TemplateExpressions {
-                endpoint,
-                message_id,
-            },
+            template_expressions: TemplateExpressions { endpoint },
             body,
         }
     }
 }
-impl Operation for Patch<'_> {
-    const METHOD: Method = Method::PATCH;
+impl Operation for Post<'_> {
+    const METHOD: Method = Method::POST;
     type Response<'response> = Message<'response>;
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
         let uri = format_path(&self.template_expressions)
@@ -104,36 +99,6 @@ impl Operation for Patch<'_> {
             .method(Self::METHOD)
             .header("Content-Type", content_type)
             .body(body)?;
-        Ok(request)
-    }
-}
-#[doc = "Delete eventMessage\n\nDelete eventMessage.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/eventmessage-delete?view=graph-rest-1.0)."]
-#[derive(Debug)]
-pub struct Delete {
-    template_expressions: TemplateExpressions,
-}
-impl Delete {
-    #[must_use]
-    pub fn new(endpoint: String, message_id: String) -> Self {
-        Self {
-            template_expressions: TemplateExpressions {
-                endpoint,
-                message_id,
-            },
-        }
-    }
-}
-impl Operation for Delete {
-    const METHOD: Method = Method::DELETE;
-    type Response<'response> = ();
-    fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
-        let uri = format_path(&self.template_expressions)
-            .parse::<http::uri::Uri>()
-            .unwrap();
-        let request = http::Request::builder()
-            .uri(uri)
-            .method(Self::METHOD)
-            .body(vec![])?;
         Ok(request)
     }
 }

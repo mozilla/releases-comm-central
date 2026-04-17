@@ -4,11 +4,13 @@
 
 // EDITS TO THIS FILE WILL BE OVERWRITTEN
 
-#![doc = "Provides operations to manage the messages property of the microsoft.graph.user entity.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
+#![doc = "Provides operations to manage the mailFolders property of the microsoft.graph.user entity.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
+pub mod delta;
+pub mod mail_folder_id;
 use crate::pagination::Paginated;
-use crate::types::message::Message;
-use crate::types::message_collection_response::{
-    MessageCollectionResponse, MessageCollectionResponseSelection,
+use crate::types::mail_folder::MailFolder;
+use crate::types::mail_folder_collection_response::{
+    MailFolderCollectionResponse, MailFolderCollectionResponseSelection,
 };
 use crate::{Error, Operation, OperationBody, Select, Selection};
 use form_urlencoded::Serializer;
@@ -20,13 +22,13 @@ struct TemplateExpressions {
 fn format_path(template_expressions: &TemplateExpressions) -> String {
     let TemplateExpressions { endpoint } = template_expressions;
     let endpoint = endpoint.trim_end_matches('/');
-    format!("{endpoint}/me/messages")
+    format!("{endpoint}/me/mailFolders")
 }
-#[doc = "Get open extension\n\nGet an open extension (openTypeExtension object) identified by name or fully qualified name. The table in the Permissions section lists the resources that support open extensions. The following table lists the three scenarios where you can get an open extension from a supported resource instance.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/opentypeextension-get?view=graph-rest-1.0)."]
+#[doc = "List mailFolders\n\nGet the mail folder collection directly under the root folder of the signed-in user. The returned collection includes any mail search folders directly under the root. By default, this operation does not return hidden folders. Use a query parameter includeHiddenFolders to include them in the response. This operation does not return all mail folders in a mailbox, only the child folders of the root folder. To return all mail folders in a mailbox, each child folder must be traversed separately.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/user-list-mailfolders?view=graph-rest-1.0)."]
 #[derive(Debug)]
 pub struct Get {
     template_expressions: TemplateExpressions,
-    selection: Selection<MessageCollectionResponseSelection>,
+    selection: Selection<MailFolderCollectionResponseSelection>,
 }
 impl Get {
     #[must_use]
@@ -39,7 +41,7 @@ impl Get {
 }
 impl Operation for Get {
     const METHOD: Method = Method::GET;
-    type Response<'response> = Paginated<MessageCollectionResponse<'response>>;
+    type Response<'response> = Paginated<MailFolderCollectionResponse<'response>>;
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
         let mut params = Serializer::new(String::new());
         let (select, selection) = self.selection.pair();
@@ -57,7 +59,7 @@ impl Operation for Get {
     }
 }
 impl Select for Get {
-    type Properties = MessageCollectionResponseSelection;
+    type Properties = MailFolderCollectionResponseSelection;
     fn select<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
         self.selection.select(properties);
     }
@@ -65,15 +67,15 @@ impl Select for Get {
         self.selection.extend(properties);
     }
 }
-#[doc = "Create open extension\n\nCreate an open extension (openTypeExtension object) and add custom properties in a new or existing instance of a resource. You can create an open extension in a resource instance and store custom data to it all in the same operation, except for specific resources. The table in the Permissions section lists the resources that support open extensions.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/opentypeextension-post-opentypeextension?view=graph-rest-1.0)."]
+#[doc = "Create MailFolder\n\nUse this API to create a new mail folder in the root folder of the user's mailbox. If you intend a new folder to be hidden, you must set the isHidden property to true on creation.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/user-post-mailfolders?view=graph-rest-1.0)."]
 #[derive(Debug)]
 pub struct Post<'body> {
     template_expressions: TemplateExpressions,
-    body: OperationBody<Message<'body>>,
+    body: OperationBody<MailFolder<'body>>,
 }
 impl<'body> Post<'body> {
     #[must_use]
-    pub fn new(endpoint: String, body: OperationBody<Message<'body>>) -> Self {
+    pub fn new(endpoint: String, body: OperationBody<MailFolder<'body>>) -> Self {
         Self {
             template_expressions: TemplateExpressions { endpoint },
             body,
@@ -82,7 +84,7 @@ impl<'body> Post<'body> {
 }
 impl Operation for Post<'_> {
     const METHOD: Method = Method::POST;
-    type Response<'response> = Message<'response>;
+    type Response<'response> = MailFolder<'response>;
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
         let uri = format_path(&self.template_expressions)
             .parse::<http::uri::Uri>()

@@ -2,7 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use ms_graph_tb::{OperationBody, paths, types::mail_folder::MailFolder};
+use ms_graph_tb::{
+    OperationBody, paths::me::mail_folders::mail_folder_id::child_folders,
+    types::mail_folder::MailFolder,
+};
 use protocol_shared::{
     authentication::credentials::AuthenticationProvider,
     client::DoOperation,
@@ -31,7 +34,7 @@ impl<ServerT: AuthenticationProvider + RefCounted>
         client: &XpComGraphClient<ServerT>,
     ) -> Result<Self::Okay, XpComGraphError> {
         let folder_config = MailFolder::new().set_display_name(Some(self.name.clone()));
-        let request = paths::me_mail_folders_mail_folder_id_child_folders::Post::new(
+        let request = child_folders::Post::new(
             client.endpoint.as_str().to_string(),
             self.parent_id.clone(),
             OperationBody::JSON(folder_config),

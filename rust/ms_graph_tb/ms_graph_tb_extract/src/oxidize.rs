@@ -10,7 +10,9 @@ use proc_macro2::{Ident, TokenStream};
 use quote::{ToTokens, TokenStreamExt, format_ident, quote};
 use std::{collections::HashSet, fmt};
 
-use crate::{extract::schema::Property, naming, oxidize::types::GraphType};
+use crate::{
+    extract::schema::Property, module_hierarchy::ModuleName, naming, oxidize::types::GraphType,
+};
 
 pub mod paths;
 pub mod types;
@@ -56,11 +58,8 @@ pub struct ModuleFile {
 
 impl ModuleFile {
     /// Construct a new `ModuleFile`. Modules should be sorted before calling.
-    pub fn new(modules: &[impl AsRef<str>]) -> Self {
-        let modules = modules
-            .iter()
-            .map(|id| format_ident!("{}", id.as_ref()))
-            .collect();
+    pub fn new(modules: &[ModuleName]) -> Self {
+        let modules = modules.iter().map(ModuleName::as_rust_ident).collect();
         Self {
             allowed_lints: vec![],
             denied_lints: vec![],
@@ -488,7 +487,10 @@ pub fn is_rust_keyword(s: &str) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use crate::extract::path::{ApiBody, Method, Operation, Path, Success};
+    use crate::{
+        extract::path::{ApiBody, Method, Operation, Path, Success},
+        oxidize::paths::PathModule,
+    };
 
     use super::*;
 
@@ -562,8 +564,12 @@ mod tests {
                 },
             ],
         };
+        let path_module = PathModule {
+            path: &path,
+            child_modules: &[],
+        };
 
-        let generated = quote!(#path);
+        let generated = quote!(#path_module);
 
         println!("{generated}");
 

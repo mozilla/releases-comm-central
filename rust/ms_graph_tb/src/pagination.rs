@@ -189,7 +189,7 @@ impl<R: for<'a> Deserialize<'a>> Operation for NextPage<R> {
 #[cfg(test)]
 mod tests {
     use super::{DeltaItem, DeltaResponse, Removed, RemovedDeltaItem};
-    use crate::{Error, Operation, PropertyMap, paths, types::mail_folder};
+    use crate::{Error, Operation, PropertyMap, paths::me::mail_folders, types::mail_folder};
     use std::borrow::Cow;
 
     #[test]
@@ -223,7 +223,7 @@ mod tests {
     "@odata.nextLink": "https://graph.microsoft.com/v1.0/me/mailFolders?%24skip=10"
 }"#;
 
-        let parsed: <paths::me_mail_folders::Get as Operation>::Response<'_> =
+        let parsed: <mail_folders::Get as Operation>::Response<'_> =
             serde_json::from_str(json).unwrap();
         let value = vec![
             MailFolder {
@@ -300,7 +300,7 @@ mod tests {
     ]
 }"#;
 
-        let parsed: <paths::me_mail_folders::Get as Operation>::Response<'_> =
+        let parsed: <mail_folders::Get as Operation>::Response<'_> =
             serde_json::from_str(json).unwrap();
         let value = vec![
             MailFolder {
@@ -373,7 +373,7 @@ mod tests {
     "@odata.nextLink": "https://graph.microsoft.com/v1.0/me/mailFolders?%24skip=10"
 }"#;
 
-        let parsed: <paths::me_mail_folders_delta::Get as Operation>::Response<'_> =
+        let parsed: <mail_folders::delta::Get as Operation>::Response<'_> =
             serde_json::from_str(json).unwrap();
         let value = vec![
             DeltaItem::Present(MailFolder {
@@ -459,7 +459,7 @@ mod tests {
     "@odata.deltaLink": "https://graph.microsoft.com/v1.0/me/mailFolders/delta?$deltatoken=Aa1_Bb2_cC3"
 }"#;
 
-        let parsed: <paths::me_mail_folders_delta::Get as Operation>::Response<'_> =
+        let parsed: <mail_folders::delta::Get as Operation>::Response<'_> =
             serde_json::from_str(json).unwrap();
         let value = vec![
             DeltaItem::Present(MailFolder {

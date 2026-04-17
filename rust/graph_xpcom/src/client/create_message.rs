@@ -5,7 +5,7 @@
 use base64::prelude::*;
 
 use ms_graph_tb::types::message::Message;
-use ms_graph_tb::{OperationBody, paths};
+use ms_graph_tb::{OperationBody, paths::me::messages};
 use protocol_shared::safe_xpcom::SafeEwsMessageCreateListener;
 use protocol_shared::{authentication::credentials::AuthenticationProvider, client::DoOperation};
 use xpcom::RefCounted;
@@ -49,7 +49,7 @@ impl<ServerT: AuthenticationProvider + RefCounted>
             .set_is_draft(Some(self.is_draft))
             .set_is_read(Some(self.is_read));
 
-        let request = paths::me_messages_message_id::Patch::new(
+        let request = messages::message_id::Patch::new(
             endpoint.to_string(),
             self.new_message_id.clone(),
             OperationBody::JSON(message_update),
@@ -117,7 +117,7 @@ impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
             body: content.as_bytes().to_vec(),
         };
 
-        let request = paths::me_messages::Post::new(self.endpoint.to_string(), body);
+        let request = messages::Post::new(self.endpoint.to_string(), body);
         let message = self.send_request_json_response(request).await?;
 
         if let Some(folder_id) = folder_id {

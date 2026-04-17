@@ -11,23 +11,38 @@ use crate::extract::{
     path::{Method, Operation, Path, Success},
     schema::Property,
 };
+use crate::module_hierarchy::ModuleName;
 use crate::naming::snakeify;
 use crate::oxidize::types::GraphType;
 
 use super::{Reference, RustType, markup_doc_comment, return_type};
 
-impl ToTokens for Path {
+/// Code generation state for one extracted API path.
+///
+/// This wraps [`crate::extract::path::Path`], which is an OpenAPI-style API
+/// path, and emits the corresponding Rust path module.
+pub struct PathModule<'a> {
+    pub path: &'a Path,
+    pub child_modules: &'a [ModuleName],
+}
+
+impl ToTokens for PathModule<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
+        let Self {
+            path,
+            child_modules,
+        } = self;
         let Path {
             name,
             template_expressions,
             description,
             operations,
-        } = self;
+        } = path;
         let mut imports = vec![];
         let template_expressions = TemplateExpressionsDef::new(name, template_expressions);
+        let child_modules = child_modules.iter().map(ModuleName::as_rust_ident);
         let mut operations = operations.clone();
-        operations.sort_by(|a, b| a.method.cmp(&b.method));
+        operations.sort_by_key(|op| op.method);
         let operation_defs = operations
             .iter()
             .map(|operation| {
@@ -73,6 +88,8 @@ impl ToTokens for Path {
         let imports = super::imports(&imports);
 
         tokens.append_all(quote! {
+            #( pub mod #child_modules; )*
+
             use form_urlencoded::Serializer;
             use http::method::Method;
             use std::str::FromStr;

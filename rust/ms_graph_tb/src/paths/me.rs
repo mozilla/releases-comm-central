@@ -5,6 +5,8 @@
 // EDITS TO THIS FILE WILL BE OVERWRITTEN
 
 #![doc = "Provides operations to manage the user singleton.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
+pub mod mail_folders;
+pub mod messages;
 use crate::types::user::{User, UserSelection};
 use crate::{Error, Operation, OperationBody, Select, Selection};
 use form_urlencoded::Serializer;

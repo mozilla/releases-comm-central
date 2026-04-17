@@ -5,7 +5,7 @@
 use fxhash::FxHashMap;
 use ms_graph_tb::{
     pagination::{DeltaItem, DeltaResponse},
-    paths,
+    paths::me::mail_folders,
 };
 use protocol_shared::{
     EXCHANGE_DISTINGUISHED_IDS, EXCHANGE_ROOT_FOLDER,
@@ -41,13 +41,13 @@ impl<ServerT: AuthenticationProvider + RefCounted>
         // them.
         let (mut response, well_known) = match self.sync_state_token {
             Some(ref token) => {
-                let request = paths::me_mail_folders_delta::GetDelta::try_from(token.as_str())?;
+                let request = mail_folders::delta::GetDelta::try_from(token.as_str())?;
                 let response = client.send_request_json_response(request).await?;
                 (response, None)
             }
             None => {
                 let endpoint = self.endpoint.as_str().to_string();
-                let request = paths::me_mail_folders_delta::Get::new(endpoint);
+                let request = mail_folders::delta::Get::new(endpoint);
                 let response = client.send_request_json_response(request).await?;
                 let well_known = Some(get_well_known_folder_map(client, self.listener).await?);
                 (response, well_known)
@@ -170,10 +170,8 @@ async fn get_well_known_folder_map<ServerT: AuthenticationProvider + RefCounted>
 
     let mut ret = FxHashMap::default();
     for distinguished_id in EXCHANGE_DISTINGUISHED_IDS {
-        let request = paths::me_mail_folders_mail_folder_id::Get::new(
-            endpoint.clone(),
-            distinguished_id.to_string(),
-        );
+        let request =
+            mail_folders::mail_folder_id::Get::new(endpoint.clone(), distinguished_id.to_string());
 
         // FIXME: Figure out what the response looks like when a well-known
         // folder isn't present, and handle accordingly.

@@ -5,41 +5,46 @@
 // EDITS TO THIS FILE WILL BE OVERWRITTEN
 
 #![doc = "Provides operations to manage the mailFolders property of the microsoft.graph.user entity.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
-use crate::pagination::Paginated;
-use crate::types::mail_folder::MailFolder;
-use crate::types::mail_folder_collection_response::{
-    MailFolderCollectionResponse, MailFolderCollectionResponseSelection,
-};
+pub mod child_folders;
+pub mod messages;
+use crate::types::mail_folder::{MailFolder, MailFolderSelection};
 use crate::{Error, Operation, OperationBody, Select, Selection};
 use form_urlencoded::Serializer;
 use http::method::Method;
 #[derive(Debug)]
 struct TemplateExpressions {
     endpoint: String,
+    mail_folder_id: String,
 }
 fn format_path(template_expressions: &TemplateExpressions) -> String {
-    let TemplateExpressions { endpoint } = template_expressions;
+    let TemplateExpressions {
+        endpoint,
+        mail_folder_id,
+    } = template_expressions;
     let endpoint = endpoint.trim_end_matches('/');
-    format!("{endpoint}/me/mailFolders")
+    format!("{endpoint}/me/mailFolders/{mail_folder_id}")
 }
-#[doc = "List mailFolders\n\nGet the mail folder collection directly under the root folder of the signed-in user. The returned collection includes any mail search folders directly under the root. By default, this operation does not return hidden folders. Use a query parameter includeHiddenFolders to include them in the response. This operation does not return all mail folders in a mailbox, only the child folders of the root folder. To return all mail folders in a mailbox, each child folder must be traversed separately.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/user-list-mailfolders?view=graph-rest-1.0)."]
+#[doc = "Get mailFolder\n\nRetrieve the properties and relationships of a message folder object. The following list shows the two existing scenarios where an app can get another user's mail folder:\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/mailfolder-get?view=graph-rest-1.0)."]
 #[derive(Debug)]
 pub struct Get {
     template_expressions: TemplateExpressions,
-    selection: Selection<MailFolderCollectionResponseSelection>,
+    selection: Selection<MailFolderSelection>,
 }
 impl Get {
     #[must_use]
-    pub fn new(endpoint: String) -> Self {
+    pub fn new(endpoint: String, mail_folder_id: String) -> Self {
         Self {
-            template_expressions: TemplateExpressions { endpoint },
+            template_expressions: TemplateExpressions {
+                endpoint,
+                mail_folder_id,
+            },
             selection: Selection::default(),
         }
     }
 }
 impl Operation for Get {
     const METHOD: Method = Method::GET;
-    type Response<'response> = Paginated<MailFolderCollectionResponse<'response>>;
+    type Response<'response> = MailFolder<'response>;
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
         let mut params = Serializer::new(String::new());
         let (select, selection) = self.selection.pair();
@@ -57,7 +62,7 @@ impl Operation for Get {
     }
 }
 impl Select for Get {
-    type Properties = MailFolderCollectionResponseSelection;
+    type Properties = MailFolderSelection;
     fn select<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
         self.selection.select(properties);
     }
@@ -65,23 +70,30 @@ impl Select for Get {
         self.selection.extend(properties);
     }
 }
-#[doc = "Create MailFolder\n\nUse this API to create a new mail folder in the root folder of the user's mailbox. If you intend a new folder to be hidden, you must set the isHidden property to true on creation.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/user-post-mailfolders?view=graph-rest-1.0)."]
+#[doc = "Update mailfolder\n\nUpdate the properties of mailfolder object.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/mailfolder-update?view=graph-rest-1.0)."]
 #[derive(Debug)]
-pub struct Post<'body> {
+pub struct Patch<'body> {
     template_expressions: TemplateExpressions,
     body: OperationBody<MailFolder<'body>>,
 }
-impl<'body> Post<'body> {
+impl<'body> Patch<'body> {
     #[must_use]
-    pub fn new(endpoint: String, body: OperationBody<MailFolder<'body>>) -> Self {
+    pub fn new(
+        endpoint: String,
+        mail_folder_id: String,
+        body: OperationBody<MailFolder<'body>>,
+    ) -> Self {
         Self {
-            template_expressions: TemplateExpressions { endpoint },
+            template_expressions: TemplateExpressions {
+                endpoint,
+                mail_folder_id,
+            },
             body,
         }
     }
 }
-impl Operation for Post<'_> {
-    const METHOD: Method = Method::POST;
+impl Operation for Patch<'_> {
+    const METHOD: Method = Method::PATCH;
     type Response<'response> = MailFolder<'response>;
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
         let uri = format_path(&self.template_expressions)
@@ -98,6 +110,36 @@ impl Operation for Post<'_> {
             .method(Self::METHOD)
             .header("Content-Type", content_type)
             .body(body)?;
+        Ok(request)
+    }
+}
+#[doc = "Delete mailFolder\n\nDelete the specified mailFolder. The folder can be a mailSearchFolder. You can specify a mail folder by its folder ID, or by its well-known folder name, if one exists.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/mailfolder-delete?view=graph-rest-1.0)."]
+#[derive(Debug)]
+pub struct Delete {
+    template_expressions: TemplateExpressions,
+}
+impl Delete {
+    #[must_use]
+    pub fn new(endpoint: String, mail_folder_id: String) -> Self {
+        Self {
+            template_expressions: TemplateExpressions {
+                endpoint,
+                mail_folder_id,
+            },
+        }
+    }
+}
+impl Operation for Delete {
+    const METHOD: Method = Method::DELETE;
+    type Response<'response> = ();
+    fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
+        let uri = format_path(&self.template_expressions)
+            .parse::<http::uri::Uri>()
+            .unwrap();
+        let request = http::Request::builder()
+            .uri(uri)
+            .method(Self::METHOD)
+            .body(vec![])?;
         Ok(request)
     }
 }

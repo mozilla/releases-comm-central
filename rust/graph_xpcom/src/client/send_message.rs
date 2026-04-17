@@ -5,7 +5,8 @@
 use std::sync::Arc;
 
 use ms_graph_tb::{
-    OperationBody, paths,
+    OperationBody,
+    paths::me::messages,
     types::{email_address::EmailAddress, message::Message, recipient::Recipient},
 };
 use protocol_shared::{
@@ -76,7 +77,7 @@ impl<ServerT: AuthenticationProvider + RefCounted>
         // it should just be the original message with the added properties (and
         // all we need to send is the ID, which we already have).
         let endpoint = self.endpoint.as_str();
-        let request = paths::me_messages_message_id::Patch::new(
+        let request = messages::message_id::Patch::new(
             endpoint.to_string(),
             message_id.clone(),
             OperationBody::JSON(message_update),
@@ -84,8 +85,7 @@ impl<ServerT: AuthenticationProvider + RefCounted>
         client.send_request(request).await?;
 
         // Now tell the server to send the draft message we just created.
-        let request =
-            paths::me_messages_message_id_send::Post::new(self.endpoint.to_string(), message_id);
+        let request = messages::message_id::send::Post::new(self.endpoint.to_string(), message_id);
         client.send_request(request).await?;
 
         Ok(())

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use ms_graph_tb::{OperationBody, paths, types::message::Message};
+use ms_graph_tb::{OperationBody, paths::me::messages, types::message::Message};
 use nsstring::nsCString;
 use protocol_shared::{
     authentication::credentials::AuthenticationProvider,
@@ -101,10 +101,10 @@ impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
         destination_folder_id: String,
         message_id: String,
     ) -> Result<Message<'m>, XpComGraphError> {
-        let body = paths::me_messages_message_id_move::PostRequestBody::new()
+        let body = messages::message_id::r#move::PostRequestBody::new()
             .set_destination_id(destination_folder_id);
 
-        let request = paths::me_messages_message_id_move::Post::new(
+        let request = messages::message_id::r#move::Post::new(
             self.endpoint.to_string(),
             message_id,
             OperationBody::JSON(body),

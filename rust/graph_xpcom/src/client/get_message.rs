@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use ms_graph_tb::paths;
+use ms_graph_tb::paths::me::messages;
 use protocol_shared::{
     authentication::credentials::AuthenticationProvider, client::DoOperation,
     safe_xpcom::SafeEwsMessageFetchListener,
@@ -30,8 +30,7 @@ impl<ServerT: AuthenticationProvider + RefCounted>
         client: &XpComGraphClient<ServerT>,
     ) -> Result<Self::Okay, XpComGraphError> {
         let endpoint = self.endpoint.to_string();
-        let request =
-            paths::me_messages_message_id_value::Get::new(endpoint, self.message_id.clone());
+        let request = messages::message_id::value::Get::new(endpoint, self.message_id.clone());
 
         self.listener.on_fetch_start()?;
 
