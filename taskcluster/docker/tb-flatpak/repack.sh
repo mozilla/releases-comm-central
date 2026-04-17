@@ -31,7 +31,7 @@ CURL="curl --location --retry 10 --retry-delay 10"
 
 # Get current date
 #
-# This is used to populate the datetime in org.mozilla.thunderbird.appdata.xml
+# This is used to populate the datetime in org.mozilla.thunderbird.metainfo.xml
 DATE=$(date +%Y-%m-%d)
 export DATE
 
@@ -79,7 +79,7 @@ sed -i "s/^Icon=.*/Icon=${APP_ID}/" "${SCRIPT_DIR}/org.mozilla.thunderbird.deskt
 )
 
 # Generate AppData XML from template, add various
-envsubst < "$SCRIPT_DIR/org.mozilla.thunderbird.appdata.xml.in" > "${WORKSPACE}/${APP_ID}.appdata.xml"
+envsubst < "$SCRIPT_DIR/org.mozilla.thunderbird.metainfo.xml.in" > "${WORKSPACE}/${APP_ID}.metainfo.xml"
 sed -e "s/\$APP_ID/$APP_ID/" "${SCRIPT_DIR}/launch_script.in" > "${WORKSPACE}/launch_script.sh"
 cp -v "$SCRIPT_DIR/distribution.ini" "$WORKSPACE"
 cp -v "$SCRIPT_DIR/tb_symbolic.svg" "$WORKSPACE"
@@ -124,7 +124,7 @@ EOF
 appdir=build/files
 install -d "${appdir}/lib/"
 (cd "${appdir}/lib/" && tar Jxf "${WORKSPACE}/thunderbird.tar.xz")
-install -D -m644 -t "${appdir}/share/metainfo" "${APP_ID}.appdata.xml"
+install -D -m644 -t "${appdir}/share/metainfo" "${APP_ID}.metainfo.xml"
 install -D -m644 -t "${appdir}/share/applications" "${APP_ID}.desktop"
 for size in 16 32 48 64 128; do
     install -D -m644 "${appdir}/lib/thunderbird/chrome/icons/default/default${size}.png" "${appdir}/share/icons/hicolor/${size}x${size}/apps/${APP_ID}.png"
@@ -133,12 +133,15 @@ install -D -m644 tb_symbolic.svg "${appdir}/share/icons/hicolor/symbolic/apps/${
 
 # Generate AppStream metadata and add screenshots from Flathub
 appstreamcli compose \
+    --no-partial-urls \
     --prefix=/ \
-    --origin=flatpak \
+    --origin="${APP_ID}" \
     --components="${APP_ID}" \
     --result-root="${appdir}" \
-    --media-dir="build/screenshots/${APP_ID}-${FLATPAK_BRANCH}" \
-    --media-baseurl="https://dl.flathub.org/repo/screenshots/${APP_ID}-${FLATPAK_BRANCH}" \
+    --data-dir="${appdir}/share/app-info/xmls" \
+    --icons-dir="${appdir}/share/app-info/icons/flatpak" \
+    --media-dir="${appdir}/share/app-info/media" \
+    --media-baseurl="https://dl.flathub.org/media/" \
     "${appdir}"
 
 # Install locales, distribution, and launch_script.sh into appdir
@@ -164,39 +167,47 @@ install -D -m755 launch_script.sh "${appdir}/bin/thunderbird"
 # reporter.  The application is still confined in a pid namespace, so
 # that won't let us escape the flatpak sandbox.  See bug 1653852.
 #
+build_args=(
+        --allow=devel
+        --share=ipc
+        --share=network
+        --socket=pulseaudio
+        --socket=wayland
+        --socket=fallback-x11
+        --socket=pcsc
+        --socket=cups
+        --require-version=0.10.3
+        --persist=.thunderbird
+        --env=DICPATH=/usr/share/hunspell
+        --filesystem=xdg-download:rw
+        --filesystem=~/.gnupg
+        --filesystem=xdg-run/gnupg:ro
+        --filesystem=xdg-run/speech-dispatcher:ro
+        --filesystem=/run/.heim_org.h5l.kcm-socket
+        --device=all
+        --talk-name="org.gtk.vfs.*"
+        --talk-name=org.a11y.Bus
+        --system-talk-name=org.freedesktop.NetworkManager
+        --command=thunderbird
+)
+
 # We use own-name to ensure Thunderbird has access to DBus, as app ID
 # (org.mozilla.thunderbird_esr) does not match bus names
 # (org.mozilla.thunderbird), which will be used for all releases
-flatpak build-finish build                                        \
-        --allow=devel                                             \
-        --share=ipc                                               \
-        --share=network                                           \
-        --socket=pulseaudio                                       \
-        --socket=wayland                                          \
-        --socket=fallback-x11                                     \
-        --socket=pcsc                                             \
-        --socket=cups                                             \
-        --require-version=0.10.3                                  \
-        --persist=.thunderbird                                    \
-        --env=DICPATH=/usr/share/hunspell                         \
-        --filesystem=xdg-download:rw                              \
-        --filesystem=~/.gnupg                                     \
-        --filesystem=xdg-run/gnupg:ro                             \
-        --filesystem=xdg-run/speech-dispatcher:ro                 \
-        --filesystem=/run/.heim_org.h5l.kcm-socket                \
-        --device=all                                              \
-        --own-name="org.mozilla.thunderbird.*"                    \
-        --talk-name="org.gtk.vfs.*"                               \
-        --talk-name=org.a11y.Bus                                  \
-        --system-talk-name=org.freedesktop.NetworkManager         \
-        --command=thunderbird
+if [[ "$APP_ID" != "org.mozilla.thunderbird" ]]; then
+    build_args+=(
+        --own-name="org.mozilla.thunderbird.*"
+    )
+fi
+
+flatpak build-finish build "${build_args[@]}"
 
 # Export Flatpak build into repo
 flatpak build-export --disable-sandbox --no-update-summary --exclude='/share/runtime/langpack/*/*' repo build "$FLATPAK_BRANCH"
 flatpak build-export --disable-sandbox --no-update-summary --metadata=metadata.locale --files=files/share/runtime/langpack repo build "$FLATPAK_BRANCH"
 
 # Commit screenshots to repo
-ostree commit --repo=repo --canonical-permissions --branch=screenshots/x86_64 build/screenshots
+ostree commit --repo=repo --canonical-permissions --branch=screenshots/x86_64 ${appdir}/share/app-info/media
 flatpak build-update-repo --generate-static-deltas repo
 
 # Package Flatpak repo as tar
