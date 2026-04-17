@@ -16,6 +16,11 @@ var ewsAccount;
 var imapAccount;
 
 add_setup(() => {
+  document
+    .querySelector("account-hub-container")
+    ?.shadowRoot.querySelector("dialog")
+    .close();
+
   ewsAccount = MailServices.accounts.createAccount();
   const identity = MailServices.accounts.createIdentity();
   ewsAccount.addIdentity(identity);
