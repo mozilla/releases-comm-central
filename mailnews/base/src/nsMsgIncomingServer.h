@@ -7,20 +7,22 @@
 #define COMM_MAILNEWS_BASE_SRC_NSMSGINCOMINGSERVER_H_
 
 #include "nsIMsgIncomingServer.h"
-#include "nsIPrefBranch.h"
-#include "nsIMsgFilterList.h"
+
 #include "msgCore.h"
-#include "nsIMsgFolder.h"
-#include "nsIFile.h"
+#include "msgIPasswordAuthModule.h"
 #include "nsCOMPtr.h"
-#include "nsIPop3IncomingServer.h"
-#include "nsWeakReference.h"
+#include "nsIFile.h"
 #include "nsIMsgDatabase.h"
-#include "nsISpamSettings.h"
+#include "nsIMsgFilterList.h"
 #include "nsIMsgFilterPlugin.h"
-#include "nsTHashMap.h"
+#include "nsIMsgFolder.h"
 #include "nsIMsgPluggableStore.h"
 #include "nsIObserver.h"
+#include "nsIPop3IncomingServer.h"
+#include "nsIPrefBranch.h"
+#include "nsISpamSettings.h"
+#include "nsTHashMap.h"
+#include "nsWeakReference.h"
 
 class nsIMsgFolderCache;
 class nsIMsgProtocolInfo;
@@ -102,7 +104,7 @@ class nsMsgIncomingServer : public nsIMsgIncomingServer,
  protected:
   bool m_canHaveFilters;
   bool mPerformingBiff;
-  RefPtr<MsgPasswordAuthModule> mPasswordModule;
+  nsCOMPtr<msgIPasswordAuthModule> mPasswordModule;
 };
 
 #endif  // COMM_MAILNEWS_BASE_SRC_NSMSGINCOMINGSERVER_H_

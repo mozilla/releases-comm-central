@@ -5,7 +5,6 @@
 
 #include "nsMsgIncomingServer.h"
 
-#include "MsgPasswordAuthModule.h"
 #include "nscore.h"
 #include "plstr.h"
 #include "prmem.h"
@@ -30,7 +29,6 @@
 #include "nsIWindowWatcher.h"
 #include "nsIMsgHdr.h"
 #include "nsILoginInfo.h"
-#include "nsILoginManager.h"
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgMdnGenerator.h"
 #include "nsMsgUtils.h"
@@ -63,8 +61,10 @@ nsMsgIncomingServer::nsMsgIncomingServer()
       m_biffState(nsIMsgFolder::nsMsgBiffState_Unknown),
       m_serverBusy(false),
       m_canHaveFilters(true),
-      mPerformingBiff(false),
-      mPasswordModule(new MsgPasswordAuthModule{}) {}
+      mPerformingBiff(false) {
+  mPasswordModule =
+      do_CreateInstance("@mozilla.org/mail/password-auth-module;1");
+}
 
 nsresult nsMsgIncomingServer::Init() {
   // We need to know when the password manager changes.
@@ -1482,12 +1482,15 @@ nsMsgIncomingServer::GetPasswordPromptRequired(bool* aPasswordIsRequired) {
   if (!*aPasswordIsRequired) return NS_OK;
 
   // If the password is empty, check to see if it is stored and to be retrieved
-  if (mPasswordModule->cachedPassword().IsEmpty()) {
+  nsAutoCString value;
+  MOZ_TRY(mPasswordModule->GetCachedPassword(value));
+  if (value.IsEmpty()) {
     rv = GetPasswordWithoutUI();
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
-  *aPasswordIsRequired = mPasswordModule->cachedPassword().IsEmpty();
+  MOZ_TRY(mPasswordModule->GetCachedPassword(value));
+  *aPasswordIsRequired = value.IsEmpty();
   if (*aPasswordIsRequired) {
     // Set *aPasswordIsRequired false if authMethod is oauth2.
     int32_t authMethod = 0;
