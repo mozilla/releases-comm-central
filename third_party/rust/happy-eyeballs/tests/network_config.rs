@@ -4,8 +4,8 @@ use common::*;
 use std::time::{Duration, Instant};
 
 use happy_eyeballs::{
-    AltSvc, ConnectionAttemptHttpVersions, FailureReason, HappyEyeballs, HttpVersion, Id,
-    NetworkConfig, Output,
+    AltSvc, ConnectionAttemptHttpVersions, FailureReason, HappyEyeballs, HttpVersion, HttpVersions,
+    Id, NetworkConfig, Output,
 };
 
 #[test]
@@ -257,4 +257,68 @@ fn custom_delays() {
         ],
         now,
     );
+}
+
+/// Config with `version` disabled in `http_versions` and present as the sole alt-svc entry.
+fn alt_svc_disabled_config(version: HttpVersion) -> NetworkConfig {
+    let http_versions = match version {
+        HttpVersion::H3 => HttpVersions {
+            h3: false,
+            ..Default::default()
+        },
+        HttpVersion::H2 => HttpVersions {
+            h2: false,
+            ..Default::default()
+        },
+        HttpVersion::H1 => HttpVersions {
+            h1: false,
+            ..Default::default()
+        },
+    };
+    NetworkConfig {
+        http_versions,
+        alt_svc: vec![AltSvc {
+            host: None,
+            port: None,
+            http_version: version,
+        }],
+        ..NetworkConfig::default()
+    }
+}
+
+fn assert_alt_svc_version_disabled(
+    version: HttpVersion,
+    expected_fallback: ConnectionAttemptHttpVersions,
+) {
+    let now = Instant::now();
+    let mut he = HappyEyeballs::new_with_network_config(
+        &V4_ADDR.to_string(),
+        PORT,
+        alt_svc_disabled_config(version),
+    )
+    .unwrap();
+    he.expect(
+        vec![(
+            None,
+            Some(out_attempt(
+                Id::from(0),
+                V4_ADDR.into(),
+                PORT,
+                expected_fallback,
+            )),
+        )],
+        now,
+    );
+}
+
+/// Alt-svc H2 entry is filtered out when H2 is disabled in the network config.
+#[test]
+fn alt_svc_h2_disabled() {
+    assert_alt_svc_version_disabled(HttpVersion::H2, ConnectionAttemptHttpVersions::H1);
+}
+
+/// Alt-svc H1 entry is filtered out when H1 is disabled in the network config.
+#[test]
+fn alt_svc_h1_disabled() {
+    assert_alt_svc_version_disabled(HttpVersion::H1, ConnectionAttemptHttpVersions::H2);
 }

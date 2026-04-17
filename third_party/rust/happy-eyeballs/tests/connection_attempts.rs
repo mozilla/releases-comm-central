@@ -4,10 +4,11 @@
 mod common;
 use common::*;
 
-use std::net::SocketAddr;
+use std::{net::SocketAddr, time::Duration};
 
 use happy_eyeballs::{
-    CONNECTION_ATTEMPT_DELAY, ConnectionAttemptHttpVersions, DnsResult, Endpoint, Id, Input, Output,
+    CONNECTION_ATTEMPT_DELAY, ConnectionAttemptHttpVersions, DnsResult, Endpoint, Id, Input,
+    NetworkConfig, Output,
 };
 
 #[test]
@@ -251,6 +252,46 @@ fn succeeded_keeps_emitting_succeeded() {
             (None, Some(Output::Succeeded)),
         ],
         now,
+    );
+}
+
+/// The connection-attempt-delay timer reflects the time *remaining*, not the full delay.
+/// Calling process_output partway through the delay should return a timer for the remainder.
+#[test]
+fn connection_attempt_delay_partial_elapsed() {
+    let custom_delay = Duration::from_millis(100);
+    let (now, mut he) = setup_with_config(NetworkConfig {
+        connection_attempt_delay: custom_delay,
+        ..NetworkConfig::default()
+    });
+
+    // Drive to first connection attempt at time T=now.
+    he.expect(
+        vec![
+            (None, Some(out_send_dns_https(Id::from(0)))),
+            (None, Some(out_send_dns_aaaa(Id::from(1)))),
+            (None, Some(out_send_dns_a(Id::from(2)))),
+            (
+                Some(in_dns_https_negative(Id::from(0))),
+                Some(out_resolution_delay()),
+            ),
+            (
+                Some(in_dns_aaaa_positive(Id::from(1))),
+                Some(out_attempt_v6_h1_h2(Id::from(3))),
+            ),
+        ],
+        now,
+    );
+
+    let elapsed = Duration::from_millis(40);
+    he.expect(
+        vec![(
+            None,
+            Some(Output::Timer {
+                duration: custom_delay - elapsed,
+            }),
+        )],
+        now + elapsed,
     );
 }
 

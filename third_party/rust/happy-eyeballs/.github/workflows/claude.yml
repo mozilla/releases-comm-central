@@ -1,0 +1,55 @@
+name: Claude Code Review
+
+on:
+  # zizmor: ignore[dangerous-triggers]
+  # pull_request_target is required to access secrets for fork PRs; security is
+  # enforced by splitting trusted/untrusted jobs and gating untrusted PRs on the
+  # claude-review environment, which requires manual approval.
+  pull_request_target:
+    branches: ["main"]
+    types: [opened, synchronize, ready_for_review, reopened]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  claude-review-trusted:
+    name: Claude Code Review
+    if: >-
+      !github.event.pull_request.draft &&
+      github.event.pull_request.user.type != 'Bot' &&
+      contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'),
+               github.event.pull_request.author_association)
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pull-requests: write # post review comments
+      issues: read # read issue context for review
+      actions: read # read workflow run context
+    steps:
+      - uses: mozilla/actions/claude-review@66a0665e8ea4b3ba7a8fd010b791f56625d6a932 # v1.0.11
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }} # zizmor: ignore[secrets-outside-env]
+
+  claude-review-untrusted:
+    name: Claude Code Review
+    if: >-
+      !github.event.pull_request.draft &&
+      github.event.pull_request.user.type != 'Bot' &&
+      !contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'),
+                github.event.pull_request.author_association)
+    environment: claude-review
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pull-requests: write # post review comments
+      issues: read # read issue context for review
+      actions: read # read workflow run context
+    steps:
+      - uses: mozilla/actions/claude-review@66a0665e8ea4b3ba7a8fd010b791f56625d6a932 # v1.0.11
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}

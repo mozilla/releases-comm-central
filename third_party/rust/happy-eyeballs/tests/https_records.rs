@@ -5,32 +5,27 @@ use common::*;
 
 use std::{
     collections::HashSet,
-    net::{IpAddr, Ipv4Addr, SocketAddr},
+    net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
 };
 
 use happy_eyeballs::{
     AltSvc, CONNECTION_ATTEMPT_DELAY, ConnectionAttemptHttpVersions, ConnectionResult,
     DnsRecordType, DnsResult, EchConfig, Endpoint, FailureReason, HttpVersion, Id, Input,
-    NetworkConfig, Output, ServiceInfo,
+    IpPreference, NetworkConfig, Output, RESOLUTION_DELAY, ServiceInfo,
 };
 
 #[test]
 fn ech_config_propagated_to_endpoint() {
-    let (now, mut he) = setup();
+    let (mut now, mut he) = setup();
 
+    // HTTPS arrives with an ECH config and a v6 hint while AAAA and A are
+    // still in-flight. After the resolution delay the hint is used, and the
+    // ECH config must be carried onto the endpoint.
     he.expect(
         vec![
             (None, Some(out_send_dns_https(Id::from(0)))),
             (None, Some(out_send_dns_aaaa(Id::from(1)))),
             (None, Some(out_send_dns_a(Id::from(2)))),
-            (
-                Some(in_dns_aaaa_negative(Id::from(1))),
-                Some(out_resolution_delay()),
-            ),
-            (
-                Some(in_dns_a_negative(Id::from(2))),
-                Some(out_resolution_delay()),
-            ),
             (
                 Some(Input::DnsResult {
                     id: Id::from(0),
@@ -44,18 +39,110 @@ fn ech_config_propagated_to_endpoint() {
                         port: None,
                     }])),
                 }),
-                Some(Output::AttemptConnection {
-                    id: Id::from(3),
-                    endpoint: Endpoint {
-                        address: SocketAddr::new(V6_ADDR.into(), PORT),
-                        http_version: ConnectionAttemptHttpVersions::H3,
-                        ech_config: Some(ech_config()),
-                    },
-                }),
+                Some(out_resolution_delay()),
             ),
         ],
         now,
     );
+
+    now += RESOLUTION_DELAY;
+    he.expect(
+        vec![(
+            None,
+            Some(Output::AttemptConnection {
+                id: Id::from(3),
+                endpoint: Endpoint {
+                    address: SocketAddr::new(V6_ADDR.into(), PORT),
+                    http_version: ConnectionAttemptHttpVersions::H3,
+                    ech_config: Some(ech_config()),
+                },
+            }),
+        )],
+        now,
+    );
+}
+
+/// HTTPS RR address hints must be discarded when the corresponding address
+/// family returns a negative answer. Per the Happy Eyeballs v3 draft, hints
+/// apply only "when A and AAAA records are not available yet"; a negative
+/// answer replaces them.
+///
+/// Tested for both preferences (prefer-V6 with AAAA negative, prefer-V4 with
+/// A negative) to verify symmetry.
+#[test]
+fn hints_discarded_on_negative_answer() {
+    struct Case {
+        config: NetworkConfig,
+        /// Non-preferred family, returns positive — arrives first.
+        first_arrives: Input,
+        /// Preferred family, returns negative — arrives second.
+        second_arrives: Input,
+        ipv6_hints: Vec<Ipv6Addr>,
+        ipv4_hints: Vec<Ipv4Addr>,
+        attempt_1: Output,
+        attempt_2: Output,
+        attempt_3: Output, // origin fallback
+    }
+
+    let cases = vec![
+        // Prefer V6: AAAA negative, A positive — V6 hint must be discarded.
+        Case {
+            config: NetworkConfig::default(),
+            first_arrives: in_dns_a_positive(Id::from(2)),
+            second_arrives: in_dns_aaaa_negative(Id::from(1)),
+            ipv6_hints: vec![V6_ADDR],
+            ipv4_hints: vec![],
+            attempt_1: out_attempt_v4_h3(Id::from(3)),
+            attempt_2: out_attempt_v4_h2(Id::from(4)),
+            attempt_3: out_attempt_v4_h1_h2(Id::from(5)),
+        },
+        // Prefer V4: A negative, AAAA positive — V4 hint must be discarded.
+        Case {
+            config: NetworkConfig {
+                ip: IpPreference::DualStackPreferV4,
+                ..NetworkConfig::default()
+            },
+            first_arrives: in_dns_aaaa_positive(Id::from(1)),
+            second_arrives: in_dns_a_negative(Id::from(2)),
+            ipv6_hints: vec![],
+            ipv4_hints: vec![V4_ADDR],
+            attempt_1: out_attempt_v6_h3(Id::from(3)),
+            attempt_2: out_attempt_v6_h2(Id::from(4)),
+            attempt_3: out_attempt_v6_h1_h2(Id::from(5)),
+        },
+    ];
+
+    for case in cases {
+        let (mut now, mut he) = setup_with_config(case.config);
+
+        he.expect(
+            vec![
+                (None, Some(out_send_dns_https(Id::from(0)))),
+                (None, Some(out_send_dns_aaaa(Id::from(1)))),
+                (None, Some(out_send_dns_a(Id::from(2)))),
+                (Some(case.first_arrives), Some(out_resolution_delay())),
+                (Some(case.second_arrives), Some(out_resolution_delay())),
+                (
+                    Some(Input::DnsResult {
+                        id: Id::from(0),
+                        result: DnsResult::Https(Ok(vec![ServiceInfo {
+                            priority: 1,
+                            target_name: HOSTNAME.into(),
+                            alpn_http_versions: HashSet::from([HttpVersion::H3, HttpVersion::H2]),
+                            ipv6_hints: case.ipv6_hints,
+                            ipv4_hints: case.ipv4_hints,
+                            ech_config: None,
+                            port: None,
+                        }])),
+                    }),
+                    Some(case.attempt_1),
+                ),
+            ],
+            now,
+        );
+
+        he.expect_connection_attempts(&mut now, vec![case.attempt_2, case.attempt_3]);
+    }
 }
 
 /// When ECH is disabled in the network config, ECH configs from HTTPS records
@@ -627,23 +714,16 @@ mod https_port_svcparam_overrides_port_for {
     use super::*;
 
     fn check(ipv4_hints: Vec<Ipv4Addr>) {
-        let (now, mut he) = setup(); // constructed with PORT (443)
+        let (mut now, mut he) = setup(); // constructed with PORT (443)
 
+        // HTTPS arrives with port=8443 while AAAA and A are still in-flight.
+        // After the resolution delay the hint is used; the connection attempt
+        // must use 8443, not the authority port 443. IPv6 is preferred.
         he.expect(
             vec![
                 (None, Some(out_send_dns_https(Id::from(0)))),
                 (None, Some(out_send_dns_aaaa(Id::from(1)))),
                 (None, Some(out_send_dns_a(Id::from(2)))),
-                (
-                    Some(in_dns_aaaa_negative(Id::from(1))),
-                    Some(out_resolution_delay()),
-                ),
-                (
-                    Some(in_dns_a_negative(Id::from(2))),
-                    Some(out_resolution_delay()),
-                ),
-                // HTTPS record carries port=8443; the connection attempt must use
-                // 8443, not the authority port 443. IPv6 is preferred.
                 (
                     Some(Input::DnsResult {
                         id: Id::from(0),
@@ -657,9 +737,15 @@ mod https_port_svcparam_overrides_port_for {
                             port: Some(CUSTOM_PORT),
                         }])),
                     }),
-                    Some(out_attempt_v6_h3_custom_port(Id::from(3))),
+                    Some(out_resolution_delay()),
                 ),
             ],
+            now,
+        );
+
+        now += RESOLUTION_DELAY;
+        he.expect(
+            vec![(None, Some(out_attempt_v6_h3_custom_port(Id::from(3))))],
             now,
         );
     }

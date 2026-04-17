@@ -1,5 +1,5 @@
 use alloc::{string::String, sync::Arc, vec::Vec};
-use core::ptr;
+use core::{ptr, sync::atomic::AtomicU64};
 use std::thread;
 
 use parking_lot::Mutex;
@@ -894,7 +894,9 @@ impl super::Adapter {
                     max_texture_dimension_3d: Direct3D12::D3D12_REQ_TEXTURE3D_U_V_OR_W_DIMENSION,
                     // 2048
                     max_texture_array_layers: Direct3D12::D3D12_REQ_TEXTURE2D_ARRAY_AXIS_DIMENSION,
-                    // No real limit.
+                    // No limit.
+                    max_bind_groups_plus_vertex_buffers: u32::MAX,
+                    // No limit.
                     max_bindings_per_bind_group: u32::MAX,
                     max_sampled_textures_per_shader_stage,
                     max_samplers_per_shader_stage,
@@ -917,8 +919,9 @@ impl super::Adapter {
                     // 16
                     min_storage_buffer_offset_alignment:
                         Direct3D12::D3D12_RAW_UAV_SRV_BYTE_ALIGNMENT,
-                    // 32
-                    max_vertex_attributes: Direct3D12::D3D12_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT,
+                    // 30
+                    max_vertex_attributes: Direct3D12::D3D12_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT
+                        - 2, // -2 for `SV_VertexID` and `SV_InstanceID`
                     // 2048
                     max_vertex_buffer_array_stride: Direct3D12::D3D12_SO_BUFFER_MAX_STRIDE_IN_BYTES,
                     // 31
@@ -1072,11 +1075,21 @@ impl crate::Adapter for super::Adapter {
             self.compiler_container.clone(),
             self.options.clone(),
         )?;
+        let idle_fence: Direct3D12::ID3D12Fence = unsafe {
+            self.device
+                .CreateFence(0, Direct3D12::D3D12_FENCE_FLAG_NONE)
+        }
+        .into_device_result("Queue idle fence creation")?;
+        let idle_event = super::Event::create(false, false)?;
+
         Ok(crate::OpenDevice {
             device,
             queue: super::Queue {
                 raw: queue,
                 temp_lists: Mutex::new(Vec::new()),
+                idle_fence,
+                idle_event,
+                idle_fence_value: AtomicU64::new(0),
             },
         })
     }

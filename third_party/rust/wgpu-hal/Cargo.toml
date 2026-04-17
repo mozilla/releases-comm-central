@@ -278,6 +278,7 @@ features = [
     "HtmlCanvasElement",
     "WebGl2RenderingContext",
     "OffscreenCanvas",
+    "VideoFrame",
 ]
 optional = true
 default-features = false

@@ -13,7 +13,7 @@
 edition = "2024"
 rust-version = "1.85.0"
 name = "happy-eyeballs"
-version = "0.4.0"
+version = "0.5.0"
 build = false
 autolib = false
 autobins = false
@@ -46,6 +46,10 @@ path = "tests/https_records.rs"
 [[test]]
 name = "network_config"
 path = "tests/network_config.rs"
+
+[[test]]
+name = "type_impls"
+path = "tests/type_impls.rs"
 
 [dependencies.log]
 version = "0.4"

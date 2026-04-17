@@ -302,8 +302,12 @@ impl ServiceInfo {
     fn flatten_into_endpoints(
         &self,
         port: u16,
-        ipv4_addrs: &[Ipv4Addr],
-        ipv6_addrs: &[Ipv6Addr],
+        // `None` if no A response has been received yet; `Some(addrs)` once
+        // an answer (positive or negative) has arrived.
+        ipv4_addrs: Option<&[Ipv4Addr]>,
+        // `None` if no AAAA response has been received yet; `Some(addrs)`
+        // once an answer (positive or negative) has arrived.
+        ipv6_addrs: Option<&[Ipv6Addr]>,
         http_versions: &HashSet<ConnectionAttemptHttpVersions>,
         ech_enabled: bool,
     ) -> Vec<Endpoint> {
@@ -316,15 +320,17 @@ impl ServiceInfo {
         // > are not available yet.
         //
         // <https://www.ietf.org/archive/id/draft-ietf-happy-happyeyeballs-v3-02.html#section-4.2.1>
-        let hint_v6 = if ipv6_addrs.is_empty() {
-            self.ipv6_hints.as_slice()
-        } else {
-            &[]
+        //
+        // Once an answer arrives — positive or negative — the records are no
+        // longer "not available yet". A positive answer replaces hints with
+        // actual addresses; a negative answer discards them entirely.
+        let hint_v6 = match ipv6_addrs {
+            None => self.ipv6_hints.as_slice(),
+            Some(_) => &[],
         };
-        let hint_v4 = if ipv4_addrs.is_empty() {
-            self.ipv4_hints.as_slice()
-        } else {
-            &[]
+        let hint_v4 = match ipv4_addrs {
+            None => self.ipv4_hints.as_slice(),
+            Some(_) => &[],
         };
 
         let hint_http_versions: HashSet<ConnectionAttemptHttpVersions> =
@@ -351,10 +357,11 @@ impl ServiceInfo {
             });
 
         let addrs = ipv6_addrs
+            .unwrap_or(&[])
             .iter()
             .cloned()
             .map(IpAddr::V6)
-            .chain(ipv4_addrs.iter().cloned().map(IpAddr::V4))
+            .chain(ipv4_addrs.unwrap_or(&[]).iter().cloned().map(IpAddr::V4))
             .flat_map(|ip| {
                 // TODO: way around allocation?
                 let ech_config = ech_enabled.then(|| self.ech_config.clone()).flatten();
@@ -1026,6 +1033,11 @@ impl HappyEyeballs {
                     return;
                 }
 
+                if attempt.endpoint.ech_config.is_none() {
+                    debug_assert!(false, "got EchRetry on attempt {id:?} but ECH was not sent");
+                    return;
+                }
+
                 // > Clients SHOULD NOT accept "retry_config" in response
                 // > to a connection initiated in response to a
                 // > "retry_config".
@@ -1191,36 +1203,30 @@ impl HappyEyeballs {
         let http_versions = self.https_record_http_versions();
         let mut endpoints: Vec<Endpoint> = Vec::new();
         for info in &service_infos {
-            let ipv4_addrs: Vec<Ipv4Addr> = self
-                .dns_queries
-                .iter()
-                .filter_map(|q| match &q.state {
+            let ipv4_addrs: Option<&[Ipv4Addr]> =
+                self.dns_queries.iter().find_map(|q| match &q.state {
                     DnsQueryState::Completed {
-                        response: DnsResult::A(Ok(addrs)),
+                        response: DnsResult::A(result),
                         ..
-                    } if q.target_name == info.target_name => Some(addrs.as_slice()),
+                    } if q.target_name == info.target_name => {
+                        Some(result.as_deref().unwrap_or_default())
+                    }
                     _ => None,
-                })
-                .flatten()
-                .cloned()
-                .collect();
-            let ipv6_addrs: Vec<Ipv6Addr> = self
-                .dns_queries
-                .iter()
-                .filter_map(|q| match &q.state {
+                });
+            let ipv6_addrs: Option<&[Ipv6Addr]> =
+                self.dns_queries.iter().find_map(|q| match &q.state {
                     DnsQueryState::Completed {
-                        response: DnsResult::Aaaa(Ok(addrs)),
+                        response: DnsResult::Aaaa(result),
                         ..
-                    } if q.target_name == info.target_name => Some(addrs.as_slice()),
+                    } if q.target_name == info.target_name => {
+                        Some(result.as_deref().unwrap_or_default())
+                    }
                     _ => None,
-                })
-                .flatten()
-                .cloned()
-                .collect();
+                });
             let mut bucket = info.flatten_into_endpoints(
                 self.port,
-                &ipv4_addrs,
-                &ipv6_addrs,
+                ipv4_addrs,
+                ipv6_addrs,
                 &http_versions,
                 self.network_config.ech,
             );
@@ -1462,5 +1468,38 @@ impl HappyEyeballs {
                 DnsQueryState::Completed { completed, .. } => Some(completed),
             })
             .any(|completed| now.duration_since(*completed) >= self.network_config.resolution_delay)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::net::{Ipv4Addr, Ipv6Addr};
+
+    use super::*;
+
+    #[test]
+    fn dns_result_has_addrs() {
+        for result in [
+            DnsResult::Aaaa(Ok(vec![])),
+            DnsResult::Aaaa(Err(())),
+            DnsResult::A(Ok(vec![])),
+            DnsResult::A(Err(())),
+            DnsResult::Https(Err(())),
+            DnsResult::Https(Ok(vec![])),
+        ] {
+            assert!(!result.has_addrs());
+        }
+        assert!(DnsResult::Aaaa(Ok(vec![Ipv6Addr::LOCALHOST])).has_addrs());
+        assert!(DnsResult::A(Ok(vec![Ipv4Addr::LOCALHOST])).has_addrs());
+    }
+
+    #[test]
+    fn host_display() {
+        let v4 = Ipv4Addr::LOCALHOST;
+        assert_eq!(Host::Ip(v4.into()).to_string(), v4.to_string());
+        let v6 = Ipv6Addr::LOCALHOST;
+        assert_eq!(Host::Ip(v6.into()).to_string(), v6.to_string());
+        let domain = "example.com";
+        assert_eq!(Host::Domain(domain.into()).to_string(), domain);
     }
 }

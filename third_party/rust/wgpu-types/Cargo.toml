@@ -96,6 +96,9 @@ features = [
 optional = true
 default-features = false
 
+[dependencies.static_assertions]
+version = "1.1"
+
 [dev-dependencies.exhaust]
 version = "0.2"
 
