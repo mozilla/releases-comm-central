@@ -981,14 +981,14 @@ async function keyExternalSuccess(keyId) {
  *
  * NOTE! Please always go through this to change gKeyId!
  *
- * @param {string} keyId - Id of key that the key wizard set up.
+ * @param {?string} keyId - Id of key that the key wizard set up.
  */
 function useOpenPGPKey(keyId) {
   // Rebuild the UI so that any new keys are listed.
-  gKeyId = keyId.toUpperCase();
+  gKeyId = keyId?.toUpperCase() || "";
 
   // Update the identity with the key obtained from the key wizard.
-  gIdentity.setUnicharAttribute("openpgp_key_id", keyId || "");
+  gIdentity.setUnicharAttribute("openpgp_key_id", gKeyId);
 
   // Always update the GnuPG boolean pref to be sure the currently used key is
   // internal or external.
