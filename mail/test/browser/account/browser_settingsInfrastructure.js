@@ -509,8 +509,6 @@ add_task(async function test_ews_offline_pane_hidden_boxes() {
       "nntp.notDownloadRead",
       "nntp.downloadMsg",
       "offline.notDownload",
-      "retentionDescription",
-      "retentionDescriptionPop",
     ];
     for (const id of hiddenIds) {
       const el = iframe.getElementById(id);
@@ -528,9 +526,6 @@ add_task(async function test_ews_offline_pane_hidden_boxes() {
       "selectImapFoldersButton",
       "autosyncNotDownload",
       "diskspace.titlebox",
-      "retention.keepMsg",
-      "retention.applyToFlagged",
-      "retentionDescriptionImap",
     ];
     for (const id of visibleIds) {
       const el = iframe.getElementById(id);

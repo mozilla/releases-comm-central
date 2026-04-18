@@ -24,7 +24,9 @@
     <link rel="stylesheet" href="chrome://messenger/skin/folderProps.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/folderColors.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/retention.css" />
     <link rel="localization" href="messenger/folderprops.ftl" />
+    <link rel="localization" href="messenger/retention.ftl" />
     <script
       defer="defer"
       src="chrome://messenger/content/globalOverlay.js"
@@ -32,10 +34,6 @@
     <script
       defer="defer"
       src="chrome://global/content/editMenuOverlay.js"
-    ></script>
-    <script
-      defer="defer"
-      src="chrome://messenger/content/retention.js"
     ></script>
     <script
       defer="defer"
@@ -53,7 +51,7 @@
       <tabbox id="folderPropTabBox">
         <tabs id="folderPropTabs">
           <tab id="GeneralTab" label="&generalInfo.label;" />
-          <tab id="Retention" label="&retention.label;" />
+          <tab id="Retention" data-l10n-id="retention-tab" />
           <tab
             id="SynchronizationTab"
             hidefor="pop3,rss,none"
@@ -163,100 +161,113 @@
           </vbox>
 
           <vbox id="RetentionPanel" align="start">
-            <description hidefor="imap,pop3" class="desc">
-              &retentionCleanup.label;
+            <description
+              id="retention-description"
+              data-l10n-id="retention-description"
+              hidefor="imap,pop3"
+            >
             </description>
-            <description hidefor="pop3,rss,none,nntp,ews" class="desc">
-              &retentionCleanupImap.label;
+            <description
+              id="retention-description-imap"
+              data-l10n-id="retention-description-imap"
+              hidefor="pop3,rss,none,nntp,ews"
+            >
             </description>
-            <description hidefor="imap,rss,none,nntp,ews" class="desc">
-              &retentionCleanupPop.label;
+            <description
+              id="retention-description-pop"
+              data-l10n-id="retention-description-pop"
+              hidefor="imap,rss,none,nntp,ews"
+            >
             </description>
-
+            <separator class="thin" />
             <hbox align="center" class="indent">
               <checkbox
                 wsm_persist="true"
-                id="retention.useDefault"
-                accesskey="&retentionUseAccount.accesskey;"
-                label="&retentionUseAccount.label;"
+                id="retention-use-default"
+                data-l10n-id="retention-use-default"
                 checked=""
                 oncommand="onUseDefaultRetentionSettings()"
               />
             </hbox>
+            <separator class="thin" />
             <vbox class="indent">
-              <hbox class="indent">
-                <radiogroup
+              <radiogroup
+                wsm_persist="true"
+                id="retention-retain-by"
+                aria-labelledby="retention-use-default"
+                class="indent"
+              >
+                <radio
                   wsm_persist="true"
-                  id="retention.keepMsg"
-                  aria-labelledby="retention.useDefault"
-                >
+                  id="retention-retain-all"
+                  value="1"
+                  data-l10n-id="retention-retain-all"
+                  oncommand="onCheckKeepMsg()"
+                />
+
+                <hbox flex="1" align="center">
                   <radio
                     wsm_persist="true"
-                    value="1"
-                    accesskey="&retentionKeepAll.accesskey;"
-                    label="&retentionKeepAll.label;"
+                    id="retention-retain-by-num-headers"
+                    value="3"
+                    data-l10n-id="retention-retain-by-num-headers"
                     oncommand="onCheckKeepMsg()"
                   />
-                  <hbox flex="1" align="center">
-                    <radio
-                      wsm_persist="true"
-                      id="keepNewMsg"
-                      accesskey="&retentionKeepRecent.accesskey;"
-                      value="3"
-                      label="&retentionKeepRecent.label;"
-                      oncommand="onCheckKeepMsg()"
-                    />
-                    <html:input
-                      id="retention.keepNewMsgMin"
-                      type="number"
-                      class="size4"
-                      min="1"
-                      value="2000"
-                      wsm_persist="true"
-                      aria-labelledby="keepNewMsg retention.keepNewMsgMin retention.keepNewMsgMinLabel"
-                    />
-                    <label
-                      value="&message.label;"
-                      control="retention.keepNewMsgMin"
-                      id="retention.keepNewMsgMinLabel"
-                    />
-                  </hbox>
-                  <hbox flex="1" align="center">
-                    <radio
-                      wsm_persist="true"
-                      id="keepMsg"
-                      accesskey="&retentionDeleteMsg.accesskey;"
-                      value="2"
-                      label="&retentionDeleteMsg.label;"
-                      oncommand="onCheckKeepMsg()"
-                    />
-                    <html:input
-                      id="retention.keepOldMsgMin"
-                      type="number"
-                      class="size4"
-                      min="1"
-                      value="30"
-                      wsm_persist="true"
-                      aria-labelledby="keepMsg retention.keepOldMsgMin retention.keepOldMsgMinLabel"
-                    />
-                    <label
-                      value="&daysOld.label;"
-                      control="retention.keepOldMsgMin"
-                      id="retention.keepOldMsgMinLabel"
-                    />
-                  </hbox>
-                </radiogroup>
-              </hbox>
-              <hbox class="indent">
-                <checkbox
-                  id="retention.applyToFlagged"
-                  wsm_persist="true"
-                  label="&retentionApplyToFlagged.label;"
-                  accesskey="&retentionApplyToFlagged.accesskey;"
-                  observes="retention.keepMsg"
-                  checked=""
-                />
-              </hbox>
+                  <html:input
+                    id="retention-num-headers-to-keep"
+                    type="number"
+                    class="size4 input-inline"
+                    min="1"
+                    value="2000"
+                    wsm_persist="true"
+                    aria-labelledby="retention-retain-by-num-headers retention-num-headers-to-keep retention-messages"
+                  />
+                  <label
+                    id="retention-messages"
+                    class="retention-unit-label"
+                    data-l10n-id="retention-messages"
+                    control="retention-num-headers-to-keep"
+                  />
+                </hbox>
+                <hbox flex="1" align="center">
+                  <radio
+                    wsm_persist="true"
+                    id="retention-retain-by-age"
+                    value="2"
+                    data-l10n-id="retention-retain-by-age"
+                    oncommand="onCheckKeepMsg()"
+                  />
+                  <html:input
+                    id="retention-days-to-keep-headers"
+                    type="number"
+                    class="size4 input-inline"
+                    min="1"
+                    value="30"
+                    wsm_persist="true"
+                    aria-labelledby="retention-retain-by-age retention-days-to-keep-headers retention-days-old"
+                  />
+                  <label
+                    id="retention-days-old"
+                    class="retention-unit-label"
+                    data-l10n-id="retention-days-old"
+                    control="retention-days-to-keep-headers"
+                  />
+                </hbox>
+              </radiogroup>
+              <separator class="thin" />
+              <checkbox
+                id="retention-always-keep-starred"
+                wsm_persist="true"
+                data-l10n-id="retention-always-keep-starred"
+                observes="retention-retain-by"
+                checked=""
+              />
+              <separator class="thin" />
+              <description
+                id="retention-removal-warning"
+                data-l10n-id="retention-removal-warning"
+                class="indent"
+              />
             </vbox>
           </vbox>
 

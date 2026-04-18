@@ -1,0 +1,103 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+<!DOCTYPE html>
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  scrolling="false"
+>
+  <head>
+    <title data-l10n-id="retention-dialog-title"></title>
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src chrome:; script-src chrome: 'unsafe-inline' moz-src:; style-src chrome: 'unsafe-inline'"
+    />
+    <link rel="stylesheet" href="chrome://messenger/skin/accountManage.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/retention.css" />
+    <link rel="localization" href="messenger/retention.ftl" />
+    <script
+      defer="defer"
+      src="chrome://messenger/content/am-offline-retention.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <dialog buttons="accept,cancel" style="width: 100vw; height: 100vh">
+      <vbox flex="1">
+        <vbox align="start">
+          <radiogroup id="retention-retain-by" class="indent">
+            <radio
+              id="retention-retain-all"
+              data-l10n-id="retention-retain-all"
+              value="1"
+              oncommand="gRetentionDialog.onSelectionChanged()"
+            />
+
+            <hbox flex="1" align="center">
+              <radio
+                id="retention-retain-by-num-headers"
+                data-l10n-id="retention-retain-by-num-headers"
+                value="3"
+                oncommand="gRetentionDialog.onSelectionChanged()"
+              />
+              <html:input
+                id="retention-num-headers-to-keep"
+                type="number"
+                class="size4 input-inline"
+                min="1"
+                value="2000"
+                aria-labelledby="retention-retain-by-num-headers retention-num-headers-to-keep retention-messages"
+              />
+              <label
+                id="retention-messages"
+                class="retention-unit-label"
+                data-l10n-id="retention-messages"
+                control="retention-num-headers-to-keep"
+              />
+            </hbox>
+
+            <hbox flex="1" align="center">
+              <radio
+                id="retention-retain-by-age"
+                data-l10n-id="retention-retain-by-age"
+                value="2"
+                oncommand="gRetentionDialog.onSelectionChanged()"
+              />
+              <html:input
+                id="retention-days-to-keep-headers"
+                type="number"
+                class="size4 input-inline"
+                min="1"
+                value="30"
+                aria-labelledby="retention-retain-by-age retention-days-to-keep-headers retention-days-old"
+              />
+              <label
+                id="retention-days-old"
+                class="retention-unit-label"
+                data-l10n-id="retention-days-old"
+                control="retention-days-to-keep-headers"
+              />
+            </hbox>
+          </radiogroup>
+
+          <hbox align="center" class="indent">
+            <checkbox
+              id="retention-always-keep-starred"
+              data-l10n-id="retention-always-keep-starred"
+            />
+          </hbox>
+
+          <description
+            id="retention-removal-warning"
+            data-l10n-id="retention-removal-warning"
+            class="indent"
+          />
+        </vbox>
+      </vbox>
+    </dialog>
+  </html:body>
+</html>

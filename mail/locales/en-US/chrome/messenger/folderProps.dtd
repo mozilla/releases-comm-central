@@ -12,23 +12,6 @@
 <!ENTITY folderIncludeInGlobalSearch.label       "Include messages in this folder in Global Search results">
 <!ENTITY folderIncludeInGlobalSearch.accesskey   "G">
 
-<!ENTITY retention.label "Retention Policy">
-<!ENTITY retentionUseAccount.label  "Use my account settings">
-<!ENTITY retentionUseAccount.accesskey "U">
-<!ENTITY daysOld.label "days old">
-<!ENTITY message.label "messages">
-<!ENTITY retentionCleanup.label "To recover disk space, old messages can be permanently deleted.">
-<!ENTITY retentionCleanupImap.label "To recover disk space, old messages can be permanently deleted, both local copies and originals on the remote server.">
-<!ENTITY retentionCleanupPop.label "To recover disk space, old messages can be permanently deleted, including originals on the remote server.">
-<!ENTITY retentionDeleteMsg.label "Delete messages more than">
-<!ENTITY retentionDeleteMsg.accesskey "m">
-<!ENTITY retentionKeepAll.label "Don't delete any messages">
-<!ENTITY retentionKeepAll.accesskey "A">
-<!ENTITY retentionKeepRecent.label "Delete all but the most recent">
-<!ENTITY retentionKeepRecent.accesskey "l">
-<!ENTITY retentionApplyToFlagged.label "Always keep starred messages">
-<!ENTITY retentionApplyToFlagged.accesskey "e">
-
 <!ENTITY folderSynchronizationTab.label          "Synchronization">
 <!ENTITY folderCheckForNewMessages2.label         "When getting new messages for this account, always check this folder">
 <!ENTITY folderCheckForNewMessages2.accesskey     "c">

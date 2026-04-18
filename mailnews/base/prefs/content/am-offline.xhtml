@@ -15,10 +15,7 @@
       content="default-src chrome:; script-src chrome: 'unsafe-inline' moz-src:; style-src chrome: 'unsafe-inline'"
     />
     <link rel="stylesheet" href="chrome://messenger/skin/accountManage.css" />
-    <script
-      defer="defer"
-      src="chrome://messenger/content/retention.js"
-    ></script>
+    <link rel="localization" href="messenger/retention.ftl" />
     <script
       defer="defer"
       src="chrome://messenger/content/am-offline.js"
@@ -231,97 +228,33 @@
             />
           </hbox>
 
-          <vbox align="start">
+          <vbox id="retention-settings-box" align="start">
             <separator hidefor="none,rss" />
-            <label
-              id="retentionDescription"
+            <description
+              id="retention-description"
+              data-l10n-id="retention-description"
               hidefor="imap,pop3,ews"
-              class="desc"
-              control="retention.keepMsg"
-              >&retentionCleanup.label;</label
             >
-            <label
-              id="retentionDescriptionImap"
+            </description>
+            <description
+              id="retention-description-imap"
+              data-l10n-id="retention-description-imap"
               hidefor="pop3,nntp,none,rss"
-              class="desc"
-              control="retention.keepMsg"
-              >&retentionCleanupImap.label;</label
             >
-            <label
-              id="retentionDescriptionPop"
+            </description>
+            <description
+              id="retention-description-pop"
+              data-l10n-id="retention-description-pop"
               hidefor="imap,nntp,none,rss,ews"
-              class="desc"
-              control="retention.keepMsg"
-              >&retentionCleanupPop.label;</label
             >
-
-            <radiogroup
-              hidefor=""
-              confirmfor="imap,pop3,ews"
-              id="retention.keepMsg"
-              class="indent"
-              oncommand="warnServerRemove(this)"
-            >
-              <radio
-                id="retention.keepAllMsg"
-                value="1"
-                accesskey="&retentionKeepAll.accesskey;"
-                label="&retentionKeepAll.label;"
-                oncommand="onCheckKeepMsg()"
-              />
-              <hbox flex="1" align="center">
-                <radio
-                  id="retention.keepNewMsg"
-                  accesskey="&retentionKeepRecent.accesskey;"
-                  value="3"
-                  label="&retentionKeepRecent.label;"
-                  oncommand="onCheckKeepMsg()"
-                />
-                <html:input
-                  id="retention.keepNewMsgMin"
-                  type="number"
-                  class="size4 input-inline"
-                  min="1"
-                  value="2000"
-                  aria-labelledby="retention.keepNewMsg retention.keepNewMsgMin newMsgLabel"
-                />
-                <label
-                  value="&message.label;"
-                  control="retention.keepNewMsgMin"
-                  id="newMsgLabel"
-                />
-              </hbox>
-              <hbox flex="1" align="center">
-                <radio
-                  id="retention.keepOldMsg"
-                  accesskey="&retentionKeepMsg.accesskey;"
-                  value="2"
-                  label="&retentionKeepMsg.label;"
-                  oncommand="onCheckKeepMsg()"
-                />
-                <html:input
-                  id="retention.keepOldMsgMin"
-                  type="number"
-                  class="size4 input-inline"
-                  min="1"
-                  value="30"
-                  aria-labelledby="retention.keepOldMsg retention.keepOldMsgMin oldMsgLabel"
-                />
-                <label
-                  value="&daysOld.label;"
-                  control="retention.keepOldMsgMin"
-                  id="oldMsgLabel"
-                />
-              </hbox>
-            </radiogroup>
-
-            <hbox align="center" class="indent">
-              <checkbox
-                id="retention.applyToFlagged"
-                label="&retentionApplyToFlagged.label;"
-                hidefor=""
-                accesskey="&retentionApplyToFlagged.accesskey;"
-                checked=""
+            </description>
+            <separator class="thin" />
+            <hbox>
+              <button
+                id="retentionPolicyButton"
+                data-l10n-id="retention-button"
+                class="first-element"
+                oncommand="onClickRetention()"
               />
             </hbox>
           </vbox>

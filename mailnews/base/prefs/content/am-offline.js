@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from am-prefs.js */
-/* import-globals-from ../../content/retention.js */
 
 var gIncomingServer;
 var gServerType;
@@ -18,13 +17,11 @@ function onInit() {
 
   // init values here
   initServerSettings();
-  initRetentionSettings();
   initDownloadSettings();
   initOfflineSettings();
 
   onCheckItem1("offline.notDownloadMin", "offline.notDownload");
   onCheckItem1("nntp.downloadMsgMin", "nntp.downloadMsg");
-  onCheckKeepMsg();
 }
 
 /**
@@ -51,11 +48,6 @@ function initServerSettings() {
 
   document.getElementById("offline.folders").checked =
     gIncomingServer.offlineDownload;
-}
-
-function initRetentionSettings() {
-  const retentionSettings = gIncomingServer.retentionSettings;
-  initCommonRetentionSettings(retentionSettings);
 }
 
 function initDownloadSettings() {
@@ -142,14 +134,7 @@ function onPreInit(account, accountValues) {
     var pop3Server = gIncomingServer.QueryInterface(Ci.nsIPop3IncomingServer);
     // hide retention settings for deferred accounts
     if (pop3Server.deferredToAccount.length) {
-      var retentionRadio = document.getElementById("retention.keepMsg");
-      retentionRadio.toggleAttribute("hidden", true);
-      var retentionLabel = document.getElementById("retentionDescriptionPop");
-      retentionLabel.toggleAttribute("hidden", true);
-      var applyToFlaggedCheckbox = document.getElementById(
-        "retention.applyToFlagged"
-      );
-      applyToFlaggedCheckbox.toggleAttribute("hidden", true);
+      document.getElementById("retention-settings-box").hidden = true;
     }
   }
 }
@@ -159,6 +144,17 @@ function onClickSelect() {
     "chrome://messenger/content/msgSelectOfflineFolders.xhtml",
     undefined,
     [gIncomingServer] // Show only this server.
+  );
+}
+
+/**
+ * Opens the retention policy sub-dialog.
+ */
+function onClickRetention() {
+  parent.gSubDialog.open(
+    "chrome://messenger/content/am-offline-retention.xhtml",
+    undefined,
+    { server: gIncomingServer }
   );
 }
 
@@ -273,10 +269,6 @@ function onSave() {
     "offline.notDownloadMin"
   ).value;
 
-  var retentionSettings = saveCommonRetentionSettings(
-    gIncomingServer.retentionSettings
-  );
-
   downloadSettings.downloadByDate =
     document.getElementById("nntp.downloadMsg").checked;
   downloadSettings.downloadUnreadOnly = document.getElementById(
@@ -286,7 +278,6 @@ function onSave() {
     "nntp.downloadMsgMin"
   ).value;
 
-  gIncomingServer.retentionSettings = retentionSettings;
   gIncomingServer.downloadSettings = downloadSettings;
 
   gIncomingServer.offlineDownload =
@@ -325,10 +316,6 @@ function onLockPreference() {
     { prefstring: "downloadUnreadOnly", id: "nntp.notDownloadRead" },
     { prefstring: "downloadByDate", id: "nntp.downloadMsg" },
     { prefstring: "ageLimit", id: "nntp.downloadMsgMin" },
-    { prefstring: "retainBy", id: "retention.keepMsg" },
-    { prefstring: "daysToKeepHdrs", id: "retention.keepOldMsgMin" },
-    { prefstring: "numHdrsToKeep", id: "retention.keepNewMsgMin" },
-    { prefstring: "applyToFlagged", id: "retention.applyToFlagged" },
     { prefstring: "disable_button.selectFolder", id: "selectNewsgroupsButton" },
     {
       prefstring: "disable_button.selectFolder",
@@ -380,31 +367,6 @@ function restoreOfflineFolders(offlineFolderMap) {
       folder.setFlag(Ci.nsMsgFolderFlags.Offline);
     } else {
       folder.clearFlag(Ci.nsMsgFolderFlags.Offline);
-    }
-  }
-}
-
-/**
- * Checks if the user selected a permanent removal of messages from a server
- * listed in the confirmfor attribute and warns about it.
- *
- * @param {Element} aRadio - The radiogroup element containing the retention options.
- */
-function warnServerRemove(aRadio) {
-  const confirmFor = aRadio.getAttribute("confirmfor");
-
-  if (
-    confirmFor &&
-    confirmFor.split(",").includes(gServerType) &&
-    aRadio.value != 1
-  ) {
-    const prefBundle = document.getElementById("bundle_prefs");
-    const title = prefBundle.getString("removeFromServerTitle");
-    const question = prefBundle.getString("removeFromServer");
-    if (!Services.prompt.confirm(window, title, question)) {
-      // If the user doesn't agree, fall back to not deleting anything.
-      aRadio.value = 1;
-      onCheckKeepMsg();
     }
   }
 }
