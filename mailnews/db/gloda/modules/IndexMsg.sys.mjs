@@ -88,7 +88,7 @@ function* range(begin, end) {
  *  helper class tracks messages that we have indexed but are not yet marked
  *  as such on their header.
  */
-var PendingCommitTracker = {
+export var PendingCommitTracker = {
   /**
    * Maps message URIs to their gloda ids.
    *
@@ -104,6 +104,10 @@ var PendingCommitTracker = {
    *  message header, dirtyState].
    */
   _indexedMessagesPendingCommitByGlodaId: {},
+  /**
+   * Cache for wiped commits during compaction
+   */
+  _limboCommitsByFolderURI: {},
   /**
    * Do we have a post-commit handler registered with this transaction yet?
    */
@@ -133,12 +137,11 @@ var PendingCommitTracker = {
       const [msgHdr, dirtyState] =
         PendingCommitTracker._indexedMessagesPendingCommitByGlodaId[glodaId];
       // Mark this message as indexed.
-      // It's conceivable the database could have gotten blown away, in which
-      //  case the message headers are going to throw exceptions when we try
-      //  and touch them.  So we wrap this in a try block that complains about
-      //  this unforeseen circumstance.  (noteFolderDatabaseGettingBlownAway
-      //  should have been called and avoided this situation in all known
-      //  situations.)
+      // Because this executes asynchronously after the SQLite commit, the C++
+      // message header or folder database might have become unexpectedly invalid
+      // (e.g., due to unpredictable teardowns or race conditions not caught by
+      // noteFolderDatabaseGettingBlownAway). We wrap this in a try/catch to
+      // safely handle dead XPCOM pointers.
       try {
         const curGlodaId = msgHdr.getUint32Property(GLODA_MESSAGE_ID_PROPERTY);
         if (curGlodaId != glodaId) {
@@ -159,9 +162,11 @@ var PendingCommitTracker = {
           foldersByURI[folderURI] = lastFolder;
         }
       } catch (ex) {
-        GlodaMsgIndexer._log.error(
-          "Exception while attempting to mark message with gloda state after" +
-            "db commit",
+        // Just warn since the SQLite record is safely committed, and the
+        // system will self-heal the unlinked .msf header on the next indexing
+        // sweep via deduplication.
+        GlodaMsgIndexer._log.warn(
+          `Failed to link message header to Gloda ID ${glodaId}.`,
           ex
         );
       }
@@ -286,28 +291,44 @@ var PendingCommitTracker = {
   },
 
   /**
-   * Sometimes a folder database gets blown away.  This happens for one of two
-   *  expected reasons right now:
+   * Sometimes a folder database gets blown away. This happens for a few
+   * expected reasons right now:
    * - Folder compaction.
-   * - Explicit reindexing of a folder via the folder properties "rebuild index"
-   *    button.
+   * - Explicit reindexing of a folder via "Repair Folder"
+   *   button.
+   * - Folder deletion.
    *
-   * When this happens, we are basically out of luck and need to discard
-   *  everything about the folder.  The good news is that the folder compaction
-   *  pass is clever enough to re-establish the linkages that are being lost
-   *  when we drop these things on the floor.  Reindexing of a folder is not
-   *  clever enough to deal with this but is an exceptional case of last resort
-   *  (the user should not normally be performing a reindex as part of daily
-   *  operation), so we accept that messages may be redundantly indexed.
+   * When this happens, we need to discard any pending commits in RAM for this
+   * folder to prevent C++ XPCOM crashes on dead databases.
+   *
+   * If the folder is being compacted, we move the pending commits to a limbo
+   * cache, where the compaction pass will heal them once the new database is
+   * safely swapped in. If the folder is being repaired or deleted, we bypass
+   * the cache and drop the commits permanently, as the old message keys are void.
+   *
+   * @param {nsIMsgFolder} aMsgFolder - The folder whose database is being destroyed.
+   * @param {boolean} aIsCompacting - True if the folder is undergoing compaction.
+   *   False if it is being repaired or deleted.
    */
-  noteFolderDatabaseGettingBlownAway(aMsgFolder) {
+  noteFolderDatabaseGettingBlownAway(aMsgFolder, aIsCompacting) {
     const uri = aMsgFolder.URI + "#";
+
+    if (aIsCompacting) {
+      this._limboCommitsByFolderURI[aMsgFolder.URI] = [];
+    }
+
     for (const key of Object.keys(this._indexedMessagesPendingCommitByKey)) {
-      // this is not as efficient as it could be, but compaction is relatively
-      //  rare and the number of pending headers is generally going to be
-      //  small.
       if (key.indexOf(uri) == 0) {
         const glodaId = this._indexedMessagesPendingCommitByKey[key];
+
+        if (aIsCompacting) {
+          const msgKey = parseInt(key.substring(uri.length), 10);
+          this._limboCommitsByFolderURI[aMsgFolder.URI].push({
+            glodaId,
+            msgKey,
+          });
+        }
+
         delete this._indexedMessagesPendingCommitByKey[key];
         delete this._indexedMessagesPendingCommitByGlodaId[glodaId];
       }
@@ -1114,268 +1135,117 @@ export var GlodaMsgIndexer = {
 
   FOLDER_COMPACTION_PASS_BATCH_SIZE: 512,
   /**
-   * Special indexing pass for (local) folders than have been compacted.  The
-   *  compaction can cause message keys to change because message keys in local
-   *  folders are simply offsets into the mbox file.  Accordingly, we need to
-   *  update the gloda records/objects to point them at the new message key.
+   * Special GC and Healing pass for folders that have been compacted.
    *
-   * Our general algorithm is to perform two traversals in parallel.  The first
-   *  is a straightforward enumeration of the message headers in the folder that
-   *  apparently have been already indexed.  These provide us with the message
-   *  key and the "gloda-id" property.
-   * The second is a list of tuples containing a gloda message id, its current
-   *  message key per the gloda database, and the message-id header.  We re-fill
-   *  the list with batches on-demand.  This allows us to both avoid dispatching
-   *  needless UPDATEs as well as deal with messages that were tracked by the
-   *  PendingCommitTracker but were discarded by the compaction notification.
+   * Historically, this attempted complex parallel merges to heal shifting
+   * mbox offsets. Because nsMsgDatabase keys are now stable, this is obsolete.
    *
-   * We end up processing two streams of gloda-id's and some extra info.  In
-   *  the normal case we expect these two streams to line up exactly and all
-   *  we need to do is update the message key if it has changed.
+   * This pass now strictly performs:
    *
-   * There are a few exceptional cases where things do not line up:
-   * 1) The gloda database knows about a message that the enumerator does not
-   *    know about...
-   *   a) This message exists in the folder (identified using its message-id
-   *      header).  This means the message got indexed but PendingCommitTracker
-   *      had to forget about the info when the compaction happened.  We
-   *      re-establish the link and track the message in PendingCommitTracker
-   *      again.
-   *   b) The message does not exist in the folder.  This means the message got
-   *      indexed, PendingCommitTracker had to forget about the info, and
-   *      then the message either got moved or deleted before now.  We mark
-   *      the message as deleted; this allows the gloda message to be reused
-   *      if the move target has not yet been indexed or purged if it already
-   *      has been and the gloda message is a duplicate.  And obviously, if the
-   *      event that happened was actually a delete, then the delete is the
-   *      right thing to do.
-   * 2) The enumerator knows about a message that the gloda database does not
-   *    know about.  This is unexpected and should not happen.  We log a
-   *    warning.  We are able to differentiate this case from case #1a by
-   *    retrieving the message header associated with the next gloda message
-   *    (using the message-id header per 1a again).  If the gloda message's
-   *    message key is after the enumerator's message key then we know this is
-   *    case #2.  (It implies an insertion in the enumerator stream which is how
-   *    we define the unexpected case.)
+   * 1. Garbage Collection: Verifies that messages Gloda believes exist in this
+   * folder haven't been physically expunged during the compaction.
    *
-   * Besides updating the database rows, we also need to make sure that
-   *  in-memory representations are updated.  Immediately after dispatching
-   *  UPDATE changes to the database we use the same set of data to walk the
-   *  live collections and update any affected messages.  We are then able to
-   *  discard the information.  Although this means that we will have to
-   *  potentially walk the live collections multiple times, unless something
-   *  has gone horribly wrong, the number of collections should be reasonable
-   *  and the lookups are cheap.  We bias batch sizes accordingly.
-   *
-   * Because we operate based on chunks we need to make sure that when we
-   *  actually deal with multiple chunks that we don't step on our own feet with
-   *  our database updates.  Since compaction of message key K results in a new
-   *  message key K' such that K' <= K, we can reliably issue database
-   *  updates for all values <= K.  Which means our feet are safe no matter
-   *  when we issue the update command.  For maximum cache benefit, we issue
-   *  our updates prior to our new query since they should still be maximally
-   *  hot at that point.
+   * 2. Healing: Safely restores gloda-ids to messages that lost them from the
+   * PendingCommitTracker during the database swap.
    */
   *_worker_folderCompactionPass(aJob, aCallbackHandle) {
     yield this._indexerEnterFolder(aJob.id);
 
     // It's conceivable that with a folder sweep we might end up trying to
-    //  compact a folder twice.  Bail early in this case.
+    // compact a folder twice. Bail early in this case.
     if (!this._indexingGlodaFolder.compacted) {
       yield GlodaConstants.kWorkDone;
     }
 
-    // this is a forward enumeration (sometimes we reverse enumerate; not here)
-    this._indexerGetEnumerator(this.kEnumIndexedMsgs);
+    // If a second compaction finishes while this generator yields below,
+    // the flag will be set to true again, and the second queued job will run.
+    this._indexingGlodaFolder.compacted = false;
 
-    const HEADER_CHECK_SYNC_BLOCK_SIZE = this.HEADER_CHECK_SYNC_BLOCK_SIZE;
-    const FOLDER_COMPACTION_PASS_BATCH_SIZE =
-      this.FOLDER_COMPACTION_PASS_BATCH_SIZE;
+    const BATCH_SIZE = this.FOLDER_COMPACTION_PASS_BATCH_SIZE;
 
-    // Tuples of [gloda id, message key, message-id header] from
-    //  folderCompactionPassBlockFetch
-    let glodaIdsMsgKeysHeaderIds = [];
-    // Unpack each tuple from glodaIdsMsgKeysHeaderIds into these guys.
-    // (Initialize oldMessageKey because we use it to kickstart our query.)
-    let oldGlodaId,
-      oldMessageKey = -1,
-      oldHeaderMessageId;
-    // parallel lists of gloda ids and message keys to pass to
-    //  GlodaDatastore.updateMessageLocations
-    let updateGlodaIds = [];
-    let updateMessageKeys = [];
-    // list of gloda id's to mark deleted
     let deleteGlodaIds = [];
+    let lastMessageKey = -1; // Used to paginate through Gloda's records
 
-    // for GC reasons we need to track the number of headers seen
-    let numHeadersSeen = 0;
+    // 1. Garbage Collection:
 
-    // We are consuming two lists; our loop structure has to reflect that.
-    let headerIter = this._indexingEnumerator[Symbol.iterator]();
-    let mayHaveMoreGlodaMessages = true;
-    let keepIterHeader = false;
-    let keepGlodaTuple = false;
-    let msgHdr = null;
-    while (headerIter || mayHaveMoreGlodaMessages) {
-      let glodaId;
-      if (headerIter) {
-        if (!keepIterHeader) {
-          const result = headerIter.next();
-          if (result.done) {
-            headerIter = null;
-            msgHdr = null;
-            // do the loop check again
-            continue;
-          }
-          msgHdr = result.value;
-        } else {
-          keepIterHeader = false;
-        }
-      }
-
-      if (msgHdr) {
-        numHeadersSeen++;
-        if (numHeadersSeen % HEADER_CHECK_SYNC_BLOCK_SIZE == 0) {
-          yield GlodaConstants.kWorkSync;
-        }
-
-        // There is no need to check with PendingCommitTracker.  If a message
-        //  somehow got indexed between the time the compaction killed
-        //  everything and the time we run, that is a bug.
-        glodaId = msgHdr.getUint32Property(GLODA_MESSAGE_ID_PROPERTY);
-        // (there is also no need to check for gloda dirty since the enumerator
-        //  filtered that for us.)
-      }
-
-      // get more [gloda id, message key, message-id header] tuples if out
-      if (!glodaIdsMsgKeysHeaderIds.length && mayHaveMoreGlodaMessages) {
-        // Since we operate on blocks, getting a new block implies we should
-        //  flush the last block if applicable.
-        if (updateGlodaIds.length) {
-          GlodaDatastore.updateMessageLocations(
-            updateGlodaIds,
-            updateMessageKeys,
-            aJob.id,
-            true
-          );
-          updateGlodaIds = [];
-          updateMessageKeys = [];
-        }
-
-        if (deleteGlodaIds.length) {
-          GlodaDatastore.markMessagesDeletedByIDs(deleteGlodaIds);
-          deleteGlodaIds = [];
-        }
-
-        GlodaDatastore.folderCompactionPassBlockFetch(
-          aJob.id,
-          oldMessageKey + 1,
-          FOLDER_COMPACTION_PASS_BATCH_SIZE,
-          aCallbackHandle.wrappedCallback
-        );
-        glodaIdsMsgKeysHeaderIds = yield GlodaConstants.kWorkAsync;
-        // Reverse so we can use pop instead of shift and I don't need to be
-        //  paranoid about performance.
-        glodaIdsMsgKeysHeaderIds.reverse();
-
-        if (!glodaIdsMsgKeysHeaderIds.length) {
-          mayHaveMoreGlodaMessages = false;
-
-          // We shouldn't be in the loop anymore if headerIter is dead now.
-          if (!headerIter) {
-            break;
-          }
-        }
-      }
-
-      if (!keepGlodaTuple) {
-        if (mayHaveMoreGlodaMessages) {
-          [oldGlodaId, oldMessageKey, oldHeaderMessageId] =
-            glodaIdsMsgKeysHeaderIds.pop();
-        } else {
-          oldGlodaId = oldMessageKey = oldHeaderMessageId = null;
-        }
-      } else {
-        keepGlodaTuple = false;
-      }
-
-      // -- normal expected case
-      if (glodaId == oldGlodaId) {
-        // only need to do something if the key is not right
-        if (msgHdr.messageKey != oldMessageKey) {
-          updateGlodaIds.push(glodaId);
-          updateMessageKeys.push(msgHdr.messageKey);
-        }
-      } else {
-        // -- exceptional cases
-        // This should always return a value unless something is very wrong.
-        //  We do not want to catch the exception if one happens.
-        const idBasedHeader = oldHeaderMessageId
-          ? this._indexingDatabase.getMsgHdrForMessageID(oldHeaderMessageId)
-          : null;
-        // - Case 1b.
-        // We want to mark the message as deleted.
-        if (idBasedHeader == null) {
-          deleteGlodaIds.push(oldGlodaId);
-        } else if (
-          idBasedHeader &&
-          ((msgHdr && idBasedHeader.messageKey < msgHdr.messageKey) || !msgHdr)
-        ) {
-          // - Case 1a
-          // The expected case is that the message referenced by the gloda
-          //  database precedes the header the enumerator told us about.  This
-          //  is expected because if PendingCommitTracker did not mark the
-          //  message as indexed/clean then the enumerator would not tell us
-          //  about it.
-          // Also, if we ran out of headers from the enumerator, this is a dead
-          //  giveaway that this is the expected case.
-          // tell the pending commit tracker about the gloda database one
-          PendingCommitTracker.track(idBasedHeader, oldGlodaId);
-          // and we might need to update the message key too
-          if (idBasedHeader.messageKey != oldMessageKey) {
-            updateGlodaIds.push(oldGlodaId);
-            updateMessageKeys.push(idBasedHeader.messageKey);
-          }
-          // Take another pass through the loop so that we check the
-          //  enumerator header against the next message in the gloda
-          //  database.
-          keepIterHeader = true;
-        } else if (msgHdr) {
-          // - Case 2
-          // Whereas if the message referenced by gloda has a message key
-          //  greater than the one returned by the enumerator, then we have a
-          //  header claiming to be indexed by gloda that gloda does not
-          //  actually know about.  This is exceptional and gets a warning.
-          this._log.warn(
-            "Observed header that claims to be gloda indexed " +
-              "but that gloda has never heard of during " +
-              "compaction." +
-              " In folder: " +
-              msgHdr.folder.URI +
-              " sketchy key: " +
-              msgHdr.messageKey +
-              " subject: " +
-              msgHdr.mime2DecodedSubject
-          );
-          // Keep this tuple around for the next enumerator provided header
-          keepGlodaTuple = true;
-        }
-      }
-    }
-    // If we don't flush the update, no one will!
-    if (updateGlodaIds.length) {
-      GlodaDatastore.updateMessageLocations(
-        updateGlodaIds,
-        updateMessageKeys,
+    // Loop until we've checked all Gloda records for this folder.
+    while (true) {
+      // Fetch a batch of what Gloda believes is in this folder
+      GlodaDatastore.folderCompactionPassBlockFetch(
         aJob.id,
-        true
+        lastMessageKey + 1,
+        BATCH_SIZE,
+        aCallbackHandle.wrappedCallback
       );
+      const glodaRecords = yield GlodaConstants.kWorkAsync;
+
+      if (!glodaRecords || glodaRecords.length === 0) {
+        // We've reached the end of Gloda's records for this folder.
+        break;
+      }
+
+      for (const [glodaId, messageKey] of glodaRecords) {
+        let msgExistsLocally = false;
+
+        try {
+          msgExistsLocally = this._indexingDatabase.containsKey(messageKey);
+        } catch (ex) {
+          this._log.debug(
+            `Failed to verify existence of ${this._indexingGlodaFolder.uri}#${messageKey}`,
+            ex
+          );
+        }
+
+        if (!msgExistsLocally) {
+          // The message was purged during compaction. Mark it for deletion.
+          deleteGlodaIds.push(glodaId);
+        }
+
+        // Keep track of the highest message key to fetch the next batch.
+        if (messageKey > lastMessageKey) {
+          lastMessageKey = messageKey;
+        }
+      }
+
+      // Flush deletes periodically to keep memory footprint small.
+      if (deleteGlodaIds.length >= BATCH_SIZE) {
+        GlodaDatastore.markMessagesDeletedByIDs(deleteGlodaIds);
+        deleteGlodaIds = [];
+        // Yield to the UI thread so Thunderbird doesn't freeze.
+        yield GlodaConstants.kWorkSync;
+      }
     }
-    if (deleteGlodaIds.length) {
+
+    // Final flush of any remaining deleted IDs
+    if (deleteGlodaIds.length > 0) {
       GlodaDatastore.markMessagesDeletedByIDs(deleteGlodaIds);
     }
 
-    this._indexingGlodaFolder._setCompactedState(false);
+    // 2. Healing:
+
+    const uri = this._indexingGlodaFolder.uri;
+    const limboCommits = PendingCommitTracker._limboCommitsByFolderURI[uri];
+
+    if (limboCommits && limboCommits.length > 0) {
+      for (const { glodaId, msgKey } of limboCommits) {
+        try {
+          if (this._indexingDatabase.containsKey(msgKey)) {
+            const msgHdr = this._indexingDatabase.getMsgHdrForKey(msgKey);
+            PendingCommitTracker.track(msgHdr, glodaId);
+          }
+        } catch (ex) {
+          // Just warn since the SQLite record is safely committed, and the
+          // system will self-heal the unlinked .msf header on the next indexing
+          // sweep via deduplication.
+          this._log.warn(
+            `Failed to link message header ${uri}#${msgKey} to Gloda ID ${glodaId}.`,
+            ex
+          );
+        }
+      }
+    }
+
+    delete PendingCommitTracker._limboCommitsByFolderURI[uri];
 
     this._indexerLeaveFolder();
     yield GlodaConstants.kWorkDone;
@@ -2709,6 +2579,13 @@ export var GlodaMsgIndexer = {
       this.indexer._log.debug("folderDeleted notification");
       try {
         const delFunc = function (folder, indexer) {
+          // The folder database is dying. Remove any pending commits from RAM
+          // so _commitCallback doesn't touch dead C++ XPCOM pointers.
+          PendingCommitTracker.noteFolderDatabaseGettingBlownAway(
+            folder,
+            false
+          );
+
           if (indexer._datastore._folderKnown(folder)) {
             indexer._log.info(
               "Processing deletion of folder " + folder.localizedName + "."
@@ -2717,6 +2594,9 @@ export var GlodaMsgIndexer = {
             indexer._datastore.markMessagesDeletedByFolderID(glodaFolder.id);
             indexer._datastore.deleteFolderByID(glodaFolder.id);
             GlodaDatastore._killGlodaFolderIntoTombstone(glodaFolder);
+            // Remove any pending folder/folderCompact jobs so the worker doesn't
+            // try to process them and throw an "impossible folder ID" warning.
+            GlodaIndexer.purgeJobsUsingFilter(job => job.id === glodaFolder.id);
           } else {
             indexer._log.info(
               "Ignoring deletion of folder " +
@@ -2854,7 +2734,10 @@ export var GlodaMsgIndexer = {
       // Tell the PendingCommitTracker to throw away anything it is tracking
       //  about the folder.  We will pick up the pieces in the compaction
       //  pass.
-      PendingCommitTracker.noteFolderDatabaseGettingBlownAway(folder);
+      PendingCommitTracker.noteFolderDatabaseGettingBlownAway(
+        folder,
+        isCompacting
+      );
 
       // (We do not need to mark the folder dirty because if we were indexing
       //  it, it already must have been marked dirty.)
@@ -2898,7 +2781,7 @@ export var GlodaMsgIndexer = {
 
       const glodaFolder = GlodaDatastore._mapFolder(folder);
       glodaFolder.compacting = false;
-      glodaFolder._setCompactedState(true);
+      glodaFolder.compacted = true;
 
       // Queue compaction unless the folder was filthy (in which case there
       //  are no valid gloda-id's to update.)

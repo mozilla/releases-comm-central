@@ -451,9 +451,9 @@ QueryFromQueryCallback.prototype = {
 };
 
 /**
- * Used by |GlodaDatastore.folderCompactionPassBlockFetch| to accumulate the
- *  results and pass them back in to the compaction process in
- *  |GlodaMsgIndexer._worker_folderCompactionPass|.
+ * Used by `GlodaDatastore.folderCompactionPassBlockFetch` to accumulate the
+ * results and pass them back in to the compaction process in
+ * `GlodaMsgIndexer._worker_folderCompactionPass`.
  */
 function CompactionBlockFetcherHandler(aCallback) {
   this.callback = aCallback;
@@ -467,7 +467,6 @@ CompactionBlockFetcherHandler.prototype = {
       this.idsAndMessageKeys.push([
         row.getInt64(0), // id
         row.getInt64(1), // messageKey
-        row.getString(2), // headerMessageID
       ]);
     }
   },
@@ -3115,8 +3114,11 @@ export var GlodaDatastore = {
   },
 
   get _folderCompactionStatement() {
+    // The `messageKey >= ?2` clause implicitly filters out rows where
+    // messageKey is NULL (like ghost records). This is intended, as we only
+    // want to GC messages that physically exist in the local folder.
     const statement = this._createAsyncStatement(
-      "SELECT id, messageKey, headerMessageID FROM messages \
+      "SELECT id, messageKey FROM messages \
         WHERE folderID = ?1 AND \
           messageKey >= ?2 AND +deleted = 0 ORDER BY messageKey LIMIT ?3"
     );

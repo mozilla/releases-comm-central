@@ -258,6 +258,7 @@ export function GlodaFolder(
   this._indexingPriority = aIndexingPriority;
   this._deleted = false;
   this._compacting = false;
+  this._compacted = false;
 }
 
 GlodaFolder.prototype = {
@@ -276,13 +277,6 @@ GlodaFolder.prototype = {
   kFolderFilthy: 2,
 
   _kFolderDirtyStatusMask: 0x7,
-  /**
-   * The (local) folder has been compacted and all of its message keys are
-   *  potentially incorrect.  This is not a possible state for IMAP folders
-   *  because their message keys are based on UIDs rather than offsets into
-   *  the mbox file.
-   */
-  _kFolderCompactedFlag: 0x8,
 
   /** The folder should never be indexed. */
   kIndexingNeverPriority: -1,
@@ -370,24 +364,13 @@ GlodaFolder.prototype = {
   },
   /**
    * Indicate whether this folder was compacted and has not yet been
-   *  compaction processed.
+   * compaction processed.
    */
   get compacted() {
-    return Boolean(this._dirtyStatus & this._kFolderCompactedFlag);
+    return this._compacted;
   },
-  /**
-   * For use only by GlodaMsgIndexer to set/clear the compaction state of this
-   *  folder.
-   */
-  _setCompactedState(aCompacted) {
-    if (this.compacted != aCompacted) {
-      if (aCompacted) {
-        this._dirtyStatus |= this._kFolderCompactedFlag;
-      } else {
-        this._dirtyStatus &= ~this._kFolderCompactedFlag;
-      }
-      this._datastore.updateFolderDirtyStatus(this);
-    }
+  set compacted(aCompacted) {
+    this._compacted = aCompacted;
   },
 
   get name() {

@@ -8,10 +8,10 @@
  * - Compaction occurs while we are in the process of indexing a folder.  We
  *    want to make sure we stop indexing cleanly
  *
- * - A folder that we have already indexed gets compacted.  We want to make sure
- *    that we update the message keys for all involved.  This means verifying
- *    that both the on-disk representations and in-memory representations are
- *    correct.
+ * - A folder that we have already indexed gets compacted. Since message keys
+ *    are stable, we no longer need to update keys, but we verify the Garbage
+ *    Collection (GC) and Limbo Healing pass correctly identifies expunged
+ *    messages and restores wiped gloda-ids.
  *
  * - Make sure that an indexing sweep performs a compaction pass if we kill the
  *    compaction job automatically scheduled by the conclusion of the
@@ -48,7 +48,7 @@ var { Gloda } = ChromeUtils.importESModule(
 var { GlodaIndexer } = ChromeUtils.importESModule(
   "resource:///modules/gloda/GlodaIndexer.sys.mjs"
 );
-var { GlodaMsgIndexer } = ChromeUtils.importESModule(
+var { GlodaMsgIndexer, PendingCommitTracker } = ChromeUtils.importESModule(
   "resource:///modules/gloda/IndexMsg.sys.mjs"
 );
 var { MessageGenerator } = ChromeUtils.importESModule(
@@ -316,8 +316,8 @@ add_task(async function test_do_not_enter_compacting_folders() {
 });
 
 /**
- * Verify that the message keys match between the message headers and the
- *  (augmented on) gloda messages that correspond to the headers.
+ * Historically verified that compaction updated shifting mbox keys. Since
+ *  message keys are now stable, this serves as a baseline sanity check.
  */
 function verify_message_keys(aSynSet) {
   let iMsg = 0;
@@ -340,8 +340,8 @@ function verify_message_keys(aSynSet) {
 }
 
 /**
- * Compact a folder that we were not indexing.  Make sure gloda's representations
- *  get updated to the new message keys.
+ * Compact a folder that we were not indexing. Make sure gloda's Garbage
+ *  Collection pass runs and Limbo commits are properly healed.
  *
  * This is parameterized because the logic has special cases to deal with
  *  messages that were pending commit that got blown away.
@@ -395,3 +395,53 @@ async function compaction_indexing_pass(aParam) {
   verify_message_keys(sameSet);
   verify_message_keys(shiftSet);
 }
+
+/**
+ * Test the "Limbo Cache" healing mechanism.
+ * Simulates the exact race condition where a message is indexed and tracked by
+ * PendingCommitTracker in RAM, but a compaction wipes the local database before
+ * the gloda-id can be flushed to the physical message header.
+ */
+add_task(async function test_limbo_cache_healing() {
+  // 1. Setup a clean folder and message
+  const [[folder], msgSet] = await messageInjection.makeFoldersWithSets(1, [
+    { count: 1 },
+  ]);
+  await waitForGlodaIndexer();
+
+  const msgFolder = messageInjection.getRealInjectionFolder(folder);
+  const [originalMsgHdr] = msgSet.msgHdrs();
+  const messageId = originalMsgHdr.messageId;
+
+  // 2. THE TRAP: Simulate the indexer picking up a "new" message but not yet
+  // committing it to disk. We assign it a fake gloda-id to track its survival.
+  const FAKE_GLODA_ID = 999999;
+  PendingCommitTracker.track(originalMsgHdr, FAKE_GLODA_ID);
+
+  // 3. THE WIPE: Trigger compaction!
+  // This fires folderCompactStart, which calls noteFolderDatabaseGettingBlownAway,
+  // forcibly moving our FAKE_GLODA_ID into the Limbo Cache to avoid a C++ crash.
+  dump("Triggering compaction to test Limbo Cache amnesia trap...\n");
+  const urlListener = new PromiseTestUtils.PromiseUrlListener();
+  msgFolder.compact(urlListener, null);
+  await urlListener.promise;
+
+  // 4. THE HEALING: Trigger the Gloda indexing sweep to run the GC & Healing pass
+  GlodaMsgIndexer.indexingSweepNeeded = true;
+  await waitForGlodaIndexer();
+
+  // FIX: Wait for the SQLite transaction to commit and stamp the headers!
+  await waitForGlodaDBFlush();
+
+  // 5. THE VERIFICATION: Fetch the fresh header from the newly compacted database
+  const newMsgHdr = msgFolder.msgDatabase.getMsgHdrForMessageID(messageId);
+
+  // Read the property directly from the C++ XPCOM object
+  const healedGlodaId = newMsgHdr.getUint32Property("gloda-id");
+
+  Assert.equal(
+    healedGlodaId,
+    FAKE_GLODA_ID,
+    "The Limbo cache failed to heal the wiped gloda-id after compaction!"
+  );
+});
