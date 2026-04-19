@@ -494,7 +494,7 @@ Enigmail.msg = {
   },
 
   replaceEditorText(text) {
-    this.editorSelectAll();
+    this.editor.selectAll();
     // Overwrite text in clipboard for security
     // (Otherwise plaintext will be available in the clipbaord)
 
@@ -504,7 +504,7 @@ Enigmail.msg = {
       this.editorInsertText(" ");
     }
 
-    this.editorSelectAll();
+    this.editor.selectAll();
     this.editorInsertText(text);
   },
 
@@ -1744,7 +1744,7 @@ Enigmail.msg = {
       }
     }
 
-    this.editorSelectAll();
+    this.editor.selectAll();
 
     if (head) {
       this.editorInsertText(head);
@@ -1992,12 +1992,6 @@ Enigmail.msg = {
         },
       ]
     );
-  },
-
-  editorSelectAll() {
-    if (this.editor) {
-      this.editor.selectAll();
-    }
   },
 
   editorGetContentAs(mimeType, flags) {
