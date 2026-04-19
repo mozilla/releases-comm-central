@@ -248,7 +248,7 @@ nsresult nsMessenger::PromptIfFileExists(nsIFile* file) {
 
   nsCOMPtr<nsPIDOMWindowOuter> win = nsPIDOMWindowOuter::From(mWindow);
   filePicker->Init(win->GetBrowsingContext(), saveAttachmentStr,
-                   nsIFilePicker::modeSave);
+                   nsIFilePicker::modeSave, nullptr);
   filePicker->SetDefaultString(path);
   filePicker->AppendFilters(nsIFilePicker::filterAll);
 
@@ -497,7 +497,7 @@ nsresult nsMessenger::GetSaveAsFile(const nsAString& aMsgFilename,
   GetString(u"SaveMailAs"_ns, saveMailAsStr);
   nsCOMPtr<nsPIDOMWindowOuter> win = nsPIDOMWindowOuter::From(mWindow);
   filePicker->Init(win->GetBrowsingContext(), saveMailAsStr,
-                   nsIFilePicker::modeSave);
+                   nsIFilePicker::modeSave, nullptr);
 
   // if we have a non-null filename use it, otherwise use default save message
   // one
@@ -612,7 +612,7 @@ nsresult nsMessenger::GetSaveToDir(nsIFile** aSaveDir) {
   GetString(u"ChooseFolder"_ns, chooseFolderStr);
   nsCOMPtr<nsPIDOMWindowOuter> win = nsPIDOMWindowOuter::From(mWindow);
   filePicker->Init(win->GetBrowsingContext(), chooseFolderStr,
-                   nsIFilePicker::modeGetFolder);
+                   nsIFilePicker::modeGetFolder, nullptr);
 
   nsCOMPtr<nsIFile> lastSaveDir;
   rv = GetLastSaveDirectory(getter_AddRefs(lastSaveDir));
