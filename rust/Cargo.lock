@@ -7359,6 +7359,7 @@ dependencies = [
  "bincode",
  "bitflags 2.10.0",
  "build-parallel",
+ "bytemuck",
  "byteorder",
  "derive_more",
  "etagere",
