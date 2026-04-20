@@ -212,7 +212,7 @@ nsImapMailFolder::nsImapMailFolder()
       m_filterListRequiresBody(false),
       m_folderQuotaCommandIssued(false),
       m_folderQuotaDataIsValid(false),
-      m_totalKeysToFetch(0) {
+      m_totalUidsToFetch(0) {
   m_boxFlags = 0;
   m_uidValidity = ImapUid_None;
   m_numServerRecentMessages = 0;
@@ -2579,7 +2579,7 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
 
     if (flagState) {
       nsTArray<nsMsgKey> no_existingKeys;
-      FindKeysToAdd(no_existingKeys, m_keysToFetch, numNewUnread, flagState);
+      FindKeysToAdd(no_existingKeys, m_uidsToFetch, numNewUnread, flagState);
     }
     if (NS_FAILED(rv)) pathFile->Remove(false);
 
@@ -2595,9 +2595,9 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
     FindKeysToDelete(existingKeys, keysToDelete, flagState, boxFlags);
     // if this is the result of an expunge then don't grab headers
     if (!(boxFlags & kJustExpunged))
-      FindKeysToAdd(existingKeys, m_keysToFetch, numNewUnread, flagState);
+      FindKeysToAdd(existingKeys, m_uidsToFetch, numNewUnread, flagState);
   }
-  m_totalKeysToFetch = m_keysToFetch.Length();
+  m_totalUidsToFetch = m_uidsToFetch.Length();
   if (!keysToDelete.IsEmpty() && mDatabase) {
     nsTArray<RefPtr<nsIMsgDBHdr>> hdrsToDelete;
     MsgGetHeadersFromKeys(mDatabase, keysToDelete, hdrsToDelete);
@@ -2638,11 +2638,11 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
   }
   SyncFlags(flagState);
   if (mDatabase && numUnreadFromServer > -1 &&
-      (int32_t)(mNumUnreadMessages + m_keysToFetch.Length()) >
+      (int32_t)(mNumUnreadMessages + m_uidsToFetch.Length()) >
           numUnreadFromServer)
     mDatabase->SyncCounts();
 
-  if (!m_keysToFetch.IsEmpty() && aProtocol)
+  if (!m_uidsToFetch.IsEmpty() && aProtocol)
     PrepareToAddHeadersToMailDB(aProtocol);
   else {
     bool gettingNewMessages;
@@ -4047,6 +4047,7 @@ void nsImapMailFolder::FindKeysToAdd(const nsTArray<nsMsgKey>& existingKeys,
   }
 }
 
+// nsIImapMailFolderSink.getMsgHdrsToDownload().
 NS_IMETHODIMP nsImapMailFolder::GetMsgHdrsToDownload(bool* aMoreToDownload,
                                                      int32_t* aTotalCount,
                                                      nsTArray<ImapUid>& aUids) {
@@ -4055,17 +4056,17 @@ NS_IMETHODIMP nsImapMailFolder::GetMsgHdrsToDownload(bool* aMoreToDownload,
   aUids.Clear();
 
   *aMoreToDownload = false;
-  *aTotalCount = m_totalKeysToFetch;
-  if (m_keysToFetch.IsEmpty()) {
+  *aTotalCount = m_totalUidsToFetch;
+  if (m_uidsToFetch.IsEmpty()) {
     return NS_OK;
   }
 
-  const int32_t numKeysToFetch = m_keysToFetch.Length();
+  const int32_t numKeysToFetch = m_uidsToFetch.Length();
   const int32_t startIndex = 0;
-  aUids.AppendElements(&m_keysToFetch[startIndex], numKeysToFetch);
+  aUids.AppendElements(&m_uidsToFetch[startIndex], numKeysToFetch);
   // Remove these for the incremental header download case, so that
   // we know we don't have to download them again.
-  m_keysToFetch.RemoveElementsAt(startIndex, numKeysToFetch);
+  m_uidsToFetch.RemoveElementsAt(startIndex, numKeysToFetch);
 
   return NS_OK;
 }
