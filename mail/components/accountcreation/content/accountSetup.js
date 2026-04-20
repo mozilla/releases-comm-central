@@ -2578,8 +2578,8 @@ var gAccountSetup = {
    * @param {HTMLElement} button - The clicked button in the list.
    * @param {foundBook} book - The address book to configure.
    */
-  _setupAddressBook(button, book) {
-    book.create();
+  async _setupAddressBook(button, book) {
+    await book.create();
 
     // Update the button to reflect the creation of the new address book.
     button.classList.add("existing");
