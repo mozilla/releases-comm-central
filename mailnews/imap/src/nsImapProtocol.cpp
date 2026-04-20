@@ -204,7 +204,7 @@ nsMsgImapLineDownloadCache::~nsMsgImapLineDownloadCache() {
   PR_Free(fLineInfo);
 }
 
-uint32_t nsMsgImapLineDownloadCache::CurrentUID() {
+ImapUid nsMsgImapLineDownloadCache::CurrentUID() {
   return fLineInfo->uidOfMessage;
 }
 
@@ -2710,7 +2710,7 @@ void nsImapProtocol::ProcessSelectedStateURL() {
       } else if (moreHeadersToDownload &&
                  m_imapMailFolderSink)  // we need to fetch older headers
       {
-        nsTArray<nsMsgKey> msgIdList;
+        nsTArray<ImapUid> msgIdList;
         bool more;
         m_imapMailFolderSink->GetMsgHdrsToDownload(
             &more, &m_progressExpectedNumber, msgIdList);
@@ -2909,7 +2909,7 @@ void nsImapProtocol::ProcessSelectedStateURL() {
             // as SEEN.
             if (!forcePeek && GetServerStateParser().LastCommandSuccessful() &&
                 m_imapAction != nsIImapUrl::nsImapMsgFetchPeek) {
-              uint32_t uid = strtoul(messageIdString.get(), nullptr, 10);
+              ImapUid uid = strtoul(messageIdString.get(), nullptr, 10);
               int32_t index;
               bool foundIt;
               imapMessageFlagsType flags =
@@ -3135,12 +3135,12 @@ void nsImapProtocol::ProcessSelectedStateURL() {
                   // the string length when lots of messages are deleted.
 
                   // Get array of UIDs from the COPYUID destination UIDs.
-                  nsTArray<nsMsgKey> msgKeys;
-                  ParseUidString(trashIdString.get(), msgKeys);
+                  nsTArray<ImapUid> msgUids;
+                  ParseUidString(trashIdString.get(), msgUids);
 
                   // Re-create trashIdString as a ascending range or ranges.
                   trashIdString.Truncate();
-                  nsImapMailFolder::AllocateUidStringFromKeys(msgKeys,
+                  nsImapMailFolder::AllocateUidStringFromKeys(msgUids,
                                                               trashIdString);
 
                   // Imap SELECT trash folder and do UID Expunge on messages
@@ -3202,7 +3202,7 @@ void nsImapProtocol::ProcessSelectedStateURL() {
           // expunge_after_delete to trigger full folder Expunge() above.
           if (uidPlusCapable && !GetShowDeletedMessages()) {
             // Determine if we just marked \deleted a draft message.
-            uint32_t uid = strtoul(messageIdString.get(), nullptr, 10);
+            ImapUid uid = strtoul(messageIdString.get(), nullptr, 10);
             int32_t index;
             bool foundIt = false;
             imapMessageFlagsType flags =
@@ -4310,7 +4310,6 @@ void nsImapProtocol::ProcessMailboxUpdate(bool handlePossibleUndo) {
           MOZ_LOG(IMAP_CS, LogLevel::Debug,
                   ("numToCheck=%" PRIu32, numToCheck));
           if (numToCheck && mFolderHighestUID) {
-            uint32_t uid;
             int32_t topIndex;
             m_flagState->GetNumberOfMessages(&topIndex);
             MOZ_LOG(
@@ -4328,8 +4327,9 @@ void nsImapProtocol::ProcessMailboxUpdate(bool handlePossibleUndo) {
                          "fetch"));
                 break;
               }
+              ImapUid uid = 0;
               m_flagState->GetUidOfMessage(topIndex, &uid);
-              if (uid && uid != nsMsgKey_None) {
+              if (uid && uid != ImapUid_None) {
                 if (uid > mFolderHighestUID) {
                   numNewUIDs++;
                   MOZ_LOG(IMAP_CS, LogLevel::Debug,
@@ -4422,7 +4422,7 @@ void nsImapProtocol::ProcessMailboxUpdate(bool handlePossibleUndo) {
       return;
   }
 
-  nsTArray<nsMsgKey> msgIdList;
+  nsTArray<ImapUid> msgIdList;
 
   if (GetServerStateParser().LastCommandSuccessful()) {
     ReentrantMonitorAutoEnter mon(m_waitForBodyIdsMonitor);
@@ -4459,9 +4459,10 @@ void nsImapProtocol::ProcessMailboxUpdate(bool handlePossibleUndo) {
 
   // wait for a list of bodies to fetch.
   if (GetServerStateParser().LastCommandSuccessful()) {
-    nsTArray<ImapUid> msgIds;
-    WaitForPotentialListOfBodysToFetch(msgIds);
-    if (msgIds.Length() > 0 && GetServerStateParser().LastCommandSuccessful()) {
+    nsTArray<ImapUid> msgUids;
+    WaitForPotentialListOfBodysToFetch(msgUids);
+    if (msgUids.Length() > 0 &&
+        GetServerStateParser().LastCommandSuccessful()) {
       // Tell the url that it should store the msg fetch results offline,
       // while we're dumping the messages, and then restore the setting.
       bool wasStoringOffline;
@@ -4471,8 +4472,8 @@ void nsImapProtocol::ProcessMailboxUpdate(bool handlePossibleUndo) {
       MOZ_ASSERT((m_stringIndex == IMAP_EMPTY_STRING_INDEX) ||
                  (m_stringIndex == IMAP_MESSAGES_STRING_INDEX));
       m_progressCurrentNumber[m_stringIndex] = 0;
-      m_progressExpectedNumber = msgIds.Length();
-      FolderMsgDump(msgIds, kEveryThingRFC822Peek);
+      m_progressExpectedNumber = msgUids.Length();
+      FolderMsgDump(msgUids, kEveryThingRFC822Peek);
       m_runningUrl->SetStoreResultsOffline(wasStoringOffline);
     }
   }
@@ -4595,22 +4596,21 @@ void nsImapProtocol::PeriodicBiff() {
     int32_t numMessages = 0;
     m_flagState->GetNumberOfMessages(&numMessages);
     if (GetServerStateParser().NumberOfMessages() != numMessages) {
-      uint32_t id = GetServerStateParser().HighestRecordedUID() + 1;
+      ImapUid highestUid = GetServerStateParser().HighestRecordedUID() + 1;
       nsCString fetchStr;  // only update flags
-      uint32_t added = 0, deleted = 0;
 
-      deleted = m_flagState->NumberOfDeletedMessages();
-      added = numMessages;
+      uint32_t deleted = m_flagState->NumberOfDeletedMessages();
+      uint32_t added = numMessages;
       if (!added || (added == deleted))  // empty keys, get them all
-        id = 1;
+        highestUid = 1;
 
       // sprintf(fetchStr, "%ld:%ld", id, id +
       // GetServerStateParser().NumberOfMessages() -
       // fFlagState->GetNumberOfMessages());
-      AppendUid(fetchStr, id);
+      AppendUid(fetchStr, highestUid);
       fetchStr.AppendLiteral(":*");
       FetchMessage(fetchStr, kFlags);
-      if (((uint32_t)m_flagState->GetHighestNonDeletedUID() >= id) &&
+      if (((uint32_t)m_flagState->GetHighestNonDeletedUID() >= highestUid) &&
           m_flagState->IsLastMessageUnseen())
         m_currentBiffState = nsIMsgFolder::nsMsgBiffState_NewMail;
       else
@@ -5383,17 +5383,17 @@ void nsImapProtocol::Store(const nsCString& messageList,
   // turn messageList back into key array and then back into a message id list,
   // but use the flag state to handle ranges correctly.
   nsCString messageIdList;
-  nsTArray<nsMsgKey> msgKeys;
-  if (idsAreUid) ParseUidString(messageList.get(), msgKeys);
+  nsTArray<ImapUid> msgUids;
+  if (idsAreUid) ParseUidString(messageList.get(), msgUids);
 
-  int32_t msgCountLeft = msgKeys.Length();
+  int32_t msgCountLeft = msgUids.Length();
   uint32_t msgsHandled = 0;
   do {
     nsCString idString;
 
     uint32_t msgsToHandle = msgCountLeft;
     if (idsAreUid)
-      AllocateImapUidString(msgKeys.Elements() + msgsHandled, msgsToHandle,
+      AllocateImapUidString(msgUids.Elements() + msgsHandled, msgsToHandle,
                             m_flagState, idString);  // 20 * 200
     else
       idString.Assign(messageList);
@@ -5487,9 +5487,11 @@ void nsImapProtocol::Expunge() {
     if (GetServerStateParser().LastCommandSuccessful()) {
       nsImapSearchResultIterator* search =
           GetServerStateParser().CreateSearchResultIterator();
-      nsMsgKey key = search->GetNextMessageNumber();
+      ImapUid uid = search->GetNextMatchUid();
       delete search;
-      if (key == 0) return;  // no deleted messages to expunge (bug 235004)
+      if (uid == 0) {
+        return;  // no deleted messages to expunge (bug 235004)
+      }
     }
   }
 
@@ -6340,9 +6342,9 @@ void nsImapProtocol::UploadMessageFromFile(nsIFile* file,
       if (imapAction == nsIImapUrl::nsImapAppendDraftFromFile ||
           imapAction == nsIImapUrl::nsImapAppendMsgFromFile) {
         if (GetServerStateParser().GetCapabilityFlag() & kUidplusCapability) {
-          nsMsgKey newKey = GetServerStateParser().CurrentResponseUID();
+          ImapUid newUid = GetServerStateParser().CurrentResponseUID();
           if (m_imapMailFolderSink)
-            m_imapMailFolderSink->SetAppendMsgUid(newKey, m_runningUrl);
+            m_imapMailFolderSink->SetAppendMsgUid(newUid, m_runningUrl);
 
           // Courier imap server seems to have problems with recently
           // appended messages. Noop seems to clear its confusion.
@@ -6374,13 +6376,12 @@ void nsImapProtocol::UploadMessageFromFile(nsIFile* file,
 
               Search(command.get(), true, false);
               if (GetServerStateParser().LastCommandSuccessful()) {
-                nsMsgKey newkey = nsMsgKey_None;
                 nsImapSearchResultIterator* searchResult =
                     GetServerStateParser().CreateSearchResultIterator();
-                newkey = searchResult->GetNextMessageNumber();
+                ImapUid uid = searchResult->GetNextMatchUid();
                 delete searchResult;
-                if (newkey != nsMsgKey_None)
-                  m_imapMailFolderSink->SetAppendMsgUid(newkey, m_runningUrl);
+                if (uid)
+                  m_imapMailFolderSink->SetAppendMsgUid(uid, m_runningUrl);
               } else
                 urlOk = false;
             } else
@@ -7964,10 +7965,10 @@ void nsImapProtocol::Copy(const char* messageList,
   // turn messageList back into key array and then back into a message id list,
   // but use the flag state to handle ranges correctly.
   nsCString messageIdList;
-  nsTArray<nsMsgKey> msgKeys;
-  if (idsAreUid) ParseUidString(messageList, msgKeys);
+  nsTArray<ImapUid> msgUids;
+  if (idsAreUid) ParseUidString(messageList, msgUids);
 
-  int32_t msgCountLeft = msgKeys.Length();
+  int32_t msgCountLeft = msgUids.Length();
   uint32_t msgsHandled = 0;
 
   do {
@@ -7975,7 +7976,7 @@ void nsImapProtocol::Copy(const char* messageList,
 
     uint32_t msgsToHandle = msgCountLeft;
     if (idsAreUid)
-      AllocateImapUidString(msgKeys.Elements() + msgsHandled, msgsToHandle,
+      AllocateImapUidString(msgUids.Elements() + msgsHandled, msgsToHandle,
                             m_flagState, idString);
     else
       idString.Assign(messageList);
@@ -8274,15 +8275,14 @@ void nsImapProtocol::ProcessStoreFlags(const nsCString& messageIdsString,
     if (m_runningUrl && idsAreUids) {
       nsCString messageIdString;
       m_runningUrl->GetListOfMessageIds(messageIdString);
-      nsTArray<nsMsgKey> msgKeys;
-      ParseUidString(messageIdString.get(), msgKeys);
+      nsTArray<ImapUid> msgUids;
+      ParseUidString(messageIdString.get(), msgUids);
 
-      int32_t msgCount = msgKeys.Length();
-      for (int32_t i = 0; i < msgCount; i++) {
+      for (ImapUid uid : msgUids) {
         bool found;
         imapMessageFlagsType resultFlags;
         // check if the flags were added/removed, and if the uid really exists.
-        nsresult rv = GetFlagsForUID(msgKeys[i], &found, &resultFlags, nullptr);
+        nsresult rv = GetFlagsForUID(uid, &found, &resultFlags, nullptr);
         if (NS_FAILED(rv) || !found ||
             (addFlags && ((flags & resultFlags) != flags)) ||
             (!addFlags && ((flags & resultFlags) != 0))) {
@@ -9701,6 +9701,8 @@ bool nsImapMockChannel::ReadFromLocalCache() {
     return false;
   }
   // we want to create a file channel and read the msg from there.
+  // TODO: UID->nsMsgKey mapping
+  // https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
   nsMsgKey msgKey = strtoul(messageIdString.get(), nullptr, 10);
   nsCOMPtr<nsIMsgDBHdr> hdr;
   rv = folder->GetMessageHeader(msgKey, getter_AddRefs(hdr));

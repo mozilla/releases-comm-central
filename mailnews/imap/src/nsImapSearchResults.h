@@ -7,6 +7,7 @@
 #define COMM_MAILNEWS_IMAP_SRC_NSIMAPSEARCHRESULTS_H_
 
 #include "nsTArray.h"
+#include "ImapTypes.h"
 
 class nsImapSearchResultSequence : public nsTArray<char*> {
  public:
@@ -29,7 +30,7 @@ class nsImapSearchResultIterator {
   virtual ~nsImapSearchResultIterator();
 
   void ResetIterator();
-  int32_t GetNextMessageNumber();  // returns 0 at end of list
+  ImapUid GetNextMatchUid();  // returns 0 at end of list
  private:
   nsImapSearchResultSequence& fSequence;
   int32_t fSequenceIndex;

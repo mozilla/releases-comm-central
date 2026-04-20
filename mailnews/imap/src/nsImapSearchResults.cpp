@@ -49,10 +49,10 @@ void nsImapSearchResultIterator::ResetIterator() {
   fPositionInCurrentLine = fCurrentLine;
 }
 
-int32_t nsImapSearchResultIterator::GetNextMessageNumber() {
-  int32_t returnValue = 0;
+ImapUid nsImapSearchResultIterator::GetNextMatchUid() {
+  ImapUid returnValue = 0;
   if (fPositionInCurrentLine) {
-    returnValue = atoi(fPositionInCurrentLine);
+    returnValue = strtoul(fPositionInCurrentLine, nullptr, 10);
 
     // eat the current number
     while (isdigit(*++fPositionInCurrentLine)) {
