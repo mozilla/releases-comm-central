@@ -51,7 +51,7 @@ description {
   position: fixed;
   flex-direction: column;
   justify-content: start;
-  background-color: var(--background-color-canvas, -moz-dialog);
+  background-color: var(--color-surface-base);
   inset: 0;
   z-index: 1;
 }

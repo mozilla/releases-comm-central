@@ -630,10 +630,10 @@ richlistitem[default="true"],
 
 .openpgp-key-details {
   margin-block-end: 18px;
-  border: 1px solid var(--in-content-box-border-color);
+  border: 1px solid var(--sidebar-border);
   border-radius: 4px;
   overflow: hidden;
-  background-color: var(--background-color-canvas);
+  background-color: var(--color-surface-base);
 
   & tabs {
     border-block-start: none;

@@ -46,7 +46,7 @@ body {
   block-size: 100vh;
   box-sizing: border-box;
   background-color: var(--sidebar-background);
-  border-inline-end: 1px solid var(--in-content-categories-border);
+  border-inline-end: none;
 }
 
 #accountTreeHeaderBar {

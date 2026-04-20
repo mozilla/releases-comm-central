@@ -56,7 +56,7 @@ XPCOMUtils.defineLazyPreferenceGetter(
   // Add our stylesheet.
   const contentStylesheet = document.createElement("link");
   contentStylesheet.rel = "stylesheet";
-  contentStylesheet.href = "chrome://messenger/skin/aboutAddonsExtra.css";
+  contentStylesheet.href = "chrome://messenger/skin/aboutExtra.css";
   document.head.appendChild(contentStylesheet);
 
   // Override logic for detecting unsigned add-ons.

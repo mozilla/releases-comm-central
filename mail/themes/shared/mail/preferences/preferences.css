@@ -58,8 +58,8 @@ html|moz-input-search {
 }
 
 #pref-category-box {
-  background-color: var(--in-content-categories-background);
-  border-inline-end: 1px solid var(--in-content-categories-border);
+  background-color: var(--sidebar-background);
+  border-inline-end: none;
   inline-size: 18em;
 }
 
@@ -226,7 +226,7 @@ menulist::part(dropmarker-icon) {
 
 .sticky-container {
   position: sticky;
-  background-color: var(--background-color-canvas);
+  background-color: var(--layout-background-0);
   inset-block-start: 0;
   z-index: 1;
   /* The sticky-container should have the capability to cover all spotlight area. */
@@ -331,21 +331,8 @@ tabpanel > hbox > description {
 }
 
 @media (max-width: 830px) {
-  #pref-category-box,
   #categories {
     inline-size: auto;
-  }
-
-  #categories > .category {
-    padding-inline: 12px;
-  }
-
-  .sidebar-footer-link {
-    margin-inline: 12px;
-  }
-
-  #preferencesContainer {
-    padding-inline: 15px;
   }
 }
 

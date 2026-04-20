@@ -6,7 +6,7 @@
 
 body {
   color: var(--color-text-base);
-  background: var(--background-color-canvas);
+  background: var(--color-surface-base);
   text-shadow: none;
 }
 

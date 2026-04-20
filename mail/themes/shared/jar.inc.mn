@@ -112,7 +112,7 @@
   skin/classic/messenger/abContactsPanel.css                  (../shared/mail/abContactsPanel.css)
   skin/classic/messenger/abFormFields.css                     (../shared/mail/abFormFields.css)
   skin/classic/messenger/about3Pane.css                       (../shared/mail/about3Pane.css)
-  skin/classic/messenger/aboutAddonsExtra.css                 (../shared/mail/aboutAddonsExtra.css)
+  skin/classic/messenger/aboutExtra.css                       (../shared/mail/aboutExtra.css)
   skin/classic/messenger/aboutAddressBook.css                 (../shared/mail/aboutAddressBook.css)
   skin/classic/messenger/aboutImport.css                      (../shared/mail/aboutImport.css)
   skin/classic/messenger/aboutMessage.css                     (../shared/mail/aboutMessage.css)

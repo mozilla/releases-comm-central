@@ -222,7 +222,7 @@ dd {
   margin: 1rem;
   padding: 1rem;
   display: flex;
-  background: var(--background-color-canvas);
+  background: var(--color-surface-base);
 }
 
 .notificationbox-stack notification-message:last-child {

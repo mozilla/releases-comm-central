@@ -4,17 +4,11 @@
 
 @namespace html url("http://www.w3.org/1999/xhtml");
 
-@media (prefers-color-scheme: dark) {
-  :root > * {
-    --background-color-canvas: #2a2a2e;
-  }
-}
-
 dialog,
 window,
 .windowDialog {
   appearance: none;
-  background-color: var(--background-color-canvas);
+  background-color: var(--color-surface-base);
   color: var(--color-text-base);
   margin: 0;
   padding: 0;

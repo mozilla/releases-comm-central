@@ -37,13 +37,13 @@
     position: sticky;
     inset-block-start: 0;
     /* Background color is needed for sticky headers. */
-    background-color: var(--background-color-canvas);
+    background-color: var(--color-surface-base);
 
     & > th {
-      border-block-end: 1px solid var(--border-color);
+      border-block-end: 1px solid var(--sidebar-border);
 
       &:not(:first-child) {
-        border-inline-start: 1px solid var(--border-color);
+        border-inline-start: 1px solid var(--sidebar-border);
       }
     }
   }
