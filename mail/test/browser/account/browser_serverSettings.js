@@ -456,7 +456,11 @@ add_task(async function test_ews_host_url_settings() {
     );
 
     ewsUrlElementReopened.focus();
-    EventUtils.synthesizeKey("KEY_Delete", {}, ewsUrlElement.ownerGlobal);
+    EventUtils.synthesizeKey(
+      "KEY_Delete",
+      {},
+      ewsUrlElementReopened.ownerGlobal
+    );
     EventUtils.sendString(originalHostUrl, ewsUrlElementReopened.ownerGlobal);
 
     await acceptDialogAndWaitForClose(advancedDialogReopened);
