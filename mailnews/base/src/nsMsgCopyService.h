@@ -12,7 +12,6 @@
 #include "nsIMsgFolder.h"
 #include "nsIMsgHdr.h"
 #include "nsIMsgWindow.h"
-#include "nsITransactionManager.h"
 #include "nsTArray.h"
 
 typedef enum _nsCopyRequestType {
@@ -75,7 +74,6 @@ class nsMsgCopyService : public nsIMsgCopyService {
   NS_DECL_THREADSAFE_ISUPPORTS
 
   NS_DECL_NSIMSGCOPYSERVICE
-
  private:
   virtual ~nsMsgCopyService();
 

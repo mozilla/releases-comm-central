@@ -45,6 +45,7 @@
 #include "nsIMessenger.h"
 #include "nsThreadUtils.h"
 #include "nsITransactionManager.h"
+#include "nsIMsgTransactionService.h"
 #include "nsMsgReadStateTxn.h"
 #include "prmem.h"
 #include "nsIPK11TokenDB.h"
@@ -1261,7 +1262,10 @@ nsresult nsMsgDBFolder::AddMarkAllReadUndoAction(nsIMsgWindow* msgWindow,
   NS_ENSURE_ARG_POINTER(msgWindow);
 
   nsCOMPtr<nsITransactionManager> txnMgr;
-  msgWindow->GetTransactionManager(getter_AddRefs(txnMgr));
+  nsCOMPtr<nsIMsgTransactionService> txns =
+      mozilla::components::Txns::Service();
+  NS_ENSURE_STATE(txns);
+  txns->GetTransactionManager(getter_AddRefs(txnMgr));
   if (!txnMgr) {
     return NS_ERROR_NOT_INITIALIZED;
   }

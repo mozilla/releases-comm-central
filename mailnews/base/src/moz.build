@@ -89,6 +89,7 @@ UNIFIED_SOURCES += [
     "nsMsgSpecialViews.cpp",
     "nsMsgTagService.cpp",
     "nsMsgThreadedDBView.cpp",
+    "nsMsgTransactionService.cpp",
     "nsMsgTxn.cpp",
     "nsMsgUtils.cpp",
     "nsMsgWindow.cpp",

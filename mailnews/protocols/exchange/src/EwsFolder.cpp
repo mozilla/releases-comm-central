@@ -32,6 +32,7 @@
 #include "nsIFeedbackService.h"
 #include "nsISpamSettings.h"
 #include "nsITransactionManager.h"
+#include "nsIMsgTransactionService.h"
 #include "nsIMsgWindow.h"
 #include "nsString.h"
 #include "nsMsgFolderFlags.h"
@@ -727,10 +728,12 @@ NS_IMETHODIMP EwsFolder::CopyItemsOnSameServer(
             }
 
             if (aAllowUndo && msgWindow) {
-              nsCOMPtr<nsITransactionManager> transactionManager;
-              rv = msgWindow->GetTransactionManager(
-                  getter_AddRefs(transactionManager));
-              NS_ENSURE_SUCCESS(rv, rv);
+              nsCOMPtr<nsITransactionManager> txnMgr;
+              nsCOMPtr<nsIMsgTransactionService> txns =
+                  mozilla::components::Txns::Service();
+              NS_ENSURE_STATE(txns);
+              txns->GetTransactionManager(getter_AddRefs(txnMgr));
+              NS_ENSURE_STATE(txnMgr);
 
               RefPtr<EwsCopyMoveTransaction> undoTransaction =
                   aIsMove ? EwsCopyMoveTransaction::ForMove(
@@ -741,7 +744,7 @@ NS_IMETHODIMP EwsFolder::CopyItemsOnSameServer(
                                 srcHdrs.Clone(), newHeaders.Clone());
               undoTransaction->SetTransactionType(
                   static_cast<uint32_t>(undoOperationType));
-              rv = transactionManager->DoTransaction(undoTransaction);
+              rv = txnMgr->DoTransaction(undoTransaction);
               NS_ENSURE_SUCCESS(rv, rv);
             }
 

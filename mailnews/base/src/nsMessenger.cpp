@@ -58,6 +58,7 @@
 // undo
 #include "nsITransaction.h"
 #include "nsMsgTxn.h"
+#include "nsIMsgTransactionService.h"
 
 // Save As
 #include "nsIStringBundle.h"
@@ -148,7 +149,10 @@ NS_IMPL_ISUPPORTS(nsMessenger, nsIMessenger, nsISupportsWeakReference)
 NS_IMETHODIMP nsMessenger::SetWindow(mozIDOMWindowProxy* aWin,
                                      nsIMsgWindow* aMsgWindow) {
   if (aWin) {
-    aMsgWindow->GetTransactionManager(getter_AddRefs(mTxnMgr));
+    nsCOMPtr<nsIMsgTransactionService> txns =
+        mozilla::components::Txns::Service();
+    NS_ENSURE_STATE(txns);
+    txns->GetTransactionManager(getter_AddRefs(mTxnMgr));
     mMsgWindow = aMsgWindow;
     mWindow = aWin;
 

@@ -125,7 +125,7 @@ add_task(async function expunge() {
 });
 
 add_task(async function undoDelete() {
-  gMsgWindow.transactionManager.undoTransaction();
+  MailServices.txns.transactionManager.undoTransaction();
   // after undo, we select the trash and then the inbox, so that we sync
   // up with the server, and clear out the effects of having done the
   // delete offline.

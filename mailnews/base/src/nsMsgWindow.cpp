@@ -35,21 +35,4 @@ nsMsgWindow::nsMsgWindow() {}
 
 nsMsgWindow::~nsMsgWindow() {}
 
-nsresult nsMsgWindow::Init() {
-  // create Undo/Redo Transaction Manager
-  mTransactionManager = new mozilla::TransactionManager();
-  return mTransactionManager->SetMaxTransactionCount(-1);
-}
-
-NS_IMETHODIMP nsMsgWindow::GetTransactionManager(
-    nsITransactionManager** aTransactionManager) {
-  NS_ENSURE_ARG_POINTER(aTransactionManager);
-  NS_IF_ADDREF(*aTransactionManager = mTransactionManager);
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgWindow::SetTransactionManager(
-    nsITransactionManager* aTransactionManager) {
-  mTransactionManager = aTransactionManager;
-  return NS_OK;
-}
+nsresult nsMsgWindow::Init() { return NS_OK; }

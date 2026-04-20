@@ -36,7 +36,8 @@ add_setup(async function () {
     MailServices.accounts.removeAccount(account, false);
     // Clear the undo and redo stacks to avoid side-effects on
     // tests expecting them to start in a cleared state.
-    messenger.transactionManager.clear();
+    MailServices.txns.transactionManager.clear();
+
     Services.prefs.setBoolPref("mailnews.scroll_to_new_message", true);
   });
 

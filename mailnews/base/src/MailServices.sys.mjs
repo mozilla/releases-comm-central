@@ -115,6 +115,13 @@ XPCOMUtils.defineLazyServiceGetter(
 
 XPCOMUtils.defineLazyServiceGetter(
   MailServices,
+  "txns",
+  "@mozilla.org/messenger/messagetransactionservice;1",
+  Ci.nsIMsgTransactionService
+);
+
+XPCOMUtils.defineLazyServiceGetter(
+  MailServices,
   "mfn",
   "@mozilla.org/messenger/msgnotificationservice;1",
   Ci.nsIMsgFolderNotificationService

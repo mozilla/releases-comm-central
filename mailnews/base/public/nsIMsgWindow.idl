@@ -5,9 +5,6 @@
 
 #include "nsISupports.idl"
 
-interface nsITransactionManager;
-
 [scriptable, uuid(a846fe48-4022-4296-a1c4-1dcd7eaecfe5)]
 interface nsIMsgWindow : nsISupports {
-  attribute nsITransactionManager transactionManager;
 };

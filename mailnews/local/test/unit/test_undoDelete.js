@@ -59,7 +59,7 @@ add_task(async function deleteMessage() {
 });
 
 add_task(async function undoDelete() {
-  gMsgWindow.transactionManager.undoTransaction();
+  MailServices.txns.transactionManager.undoTransaction();
   // There's no listener for this, so we'll just have to wait a little.
   await PromiseTestUtils.promiseDelay(1500);
 });

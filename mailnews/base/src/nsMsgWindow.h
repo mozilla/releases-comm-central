@@ -6,12 +6,8 @@
 #ifndef COMM_MAILNEWS_BASE_SRC_NSMSGWINDOW_H_
 #define COMM_MAILNEWS_BASE_SRC_NSMSGWINDOW_H_
 
-#include "nsIAuthPrompt.h"
 #include "nsIMsgWindow.h"
-#include "nsITransactionManager.h"
-#include "nsIMsgFolder.h"
 #include "nsCOMPtr.h"
-#include "nsIURIContentListener.h"
 #include "nsWeakReference.h"
 #include "nsIWeakReferenceUtils.h"
 #include "nsIInterfaceRequestor.h"
@@ -26,7 +22,6 @@ class nsMsgWindow : public nsIMsgWindow, public nsSupportsWeakReference {
 
  protected:
   virtual ~nsMsgWindow();
-  nsCOMPtr<nsITransactionManager> mTransactionManager;
 };
 
 #endif  // COMM_MAILNEWS_BASE_SRC_NSMSGWINDOW_H_

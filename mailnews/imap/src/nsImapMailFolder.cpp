@@ -21,6 +21,7 @@
 #include "nsMsgUtils.h"
 #include "nsIMsgMailSession.h"
 #include "nsITransactionManager.h"
+#include "nsIMsgTransactionService.h"
 #include "../public/nsIImapHostSessionList.h"
 #include "nsIMsgCopyService.h"
 #include "nsImapStringBundle.h"
@@ -2118,13 +2119,13 @@ NS_IMETHODIMP nsImapMailFolder::DeleteMessages(
         return NS_ERROR_OUT_OF_MEMORY;
 
       undoMsgTxn->SetTransactionType(nsIMessenger::eDeleteMsg);
-      // we're adding this undo action before the delete is successful. This is
-      // evil, but 4.5 did it as well.
+      nsCOMPtr<nsIMsgTransactionService> txns =
+          mozilla::components::Txns::Service();
+      NS_ENSURE_STATE(txns);
       nsCOMPtr<nsITransactionManager> txnMgr;
-      if (msgWindow) msgWindow->GetTransactionManager(getter_AddRefs(txnMgr));
+      txns->GetTransactionManager(getter_AddRefs(txnMgr));
       if (txnMgr) txnMgr->DoTransaction(undoMsgTxn);
     }
-
     if (deleteModel == nsMsgImapDeleteModels::IMAPDelete && !deleteStorage) {
       deleteMsgs = false;
       for (nsIMsgDBHdr* msgHdr : msgHeaders) {
@@ -5015,8 +5016,10 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
                     aExitCode))  // we should do this only if move/copy succeeds
             {
               nsCOMPtr<nsITransactionManager> txnMgr;
-              m_copyState->m_msgWindow->GetTransactionManager(
-                  getter_AddRefs(txnMgr));
+              nsCOMPtr<nsIMsgTransactionService> txns =
+                  mozilla::components::Txns::Service();
+              NS_ENSURE_STATE(txns);
+              txns->GetTransactionManager(getter_AddRefs(txnMgr));
               if (txnMgr) {
                 RefPtr<nsImapMoveCopyMsgTxn> txn = m_copyState->m_undoMsgTxn;
                 mozilla::DebugOnly<nsresult> rv2 = txnMgr->DoTransaction(txn);
@@ -5115,8 +5118,10 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
               if (m_copyState->m_curIndex >= m_copyState->m_messages.Length()) {
                 if (m_copyState->m_msgWindow && m_copyState->m_undoMsgTxn) {
                   nsCOMPtr<nsITransactionManager> txnMgr;
-                  m_copyState->m_msgWindow->GetTransactionManager(
-                      getter_AddRefs(txnMgr));
+                  nsCOMPtr<nsIMsgTransactionService> txns =
+                      mozilla::components::Txns::Service();
+                  NS_ENSURE_STATE(txns);
+                  txns->GetTransactionManager(getter_AddRefs(txnMgr));
                   if (txnMgr) {
                     RefPtr<nsImapMoveCopyMsgTxn> txn =
                         m_copyState->m_undoMsgTxn;
@@ -6533,7 +6538,10 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
     // save the future ops in the source DB, if this is not a imap->local
     // copy/move
     nsCOMPtr<nsITransactionManager> txnMgr;
-    if (msgWindow) msgWindow->GetTransactionManager(getter_AddRefs(txnMgr));
+    nsCOMPtr<nsIMsgTransactionService> txns =
+        mozilla::components::Txns::Service();
+    NS_ENSURE_STATE(txns);
+    txns->GetTransactionManager(getter_AddRefs(txnMgr));
     if (txnMgr) txnMgr->BeginBatch(nullptr);
     nsCOMPtr<nsIMsgDatabase> destDB;
     GetMsgDatabase(getter_AddRefs(destDB));

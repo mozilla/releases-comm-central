@@ -197,14 +197,14 @@ add_task(async function testMessagesUndo() {
       );
 
       Assert.equal(
-        window.messenger.transactionManager.numberOfUndoItems,
+        MailServices.txns.transactionManager.numberOfUndoItems,
         expectedUndoCount,
         `Number of undo items should be correct for ${msg}`
       );
 
-      window.messenger.transactionManager.clear();
+      MailServices.txns.transactionManager.clear();
       Assert.equal(
-        window.messenger.transactionManager.numberOfUndoItems,
+        MailServices.txns.transactionManager.numberOfUndoItems,
         0,
         "Number of undo items should be correct after reset"
       );

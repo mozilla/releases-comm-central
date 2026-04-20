@@ -23,6 +23,7 @@
 #include "prmem.h"
 #include "nsIDBFolderInfo.h"
 #include "nsITransactionManager.h"
+#include "nsIMsgTransactionService.h"
 #include "nsParseMailbox.h"
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgWindow.h"
@@ -1171,7 +1172,10 @@ nsMsgLocalMailFolder::DeleteMessages(
   if (msgWindow && !isMove && (deleteStorage || isTrashFolder)) {
     // Clear undo and redo stack.
     nsCOMPtr<nsITransactionManager> txnMgr;
-    msgWindow->GetTransactionManager(getter_AddRefs(txnMgr));
+    nsCOMPtr<nsIMsgTransactionService> txns =
+        mozilla::components::Txns::Service();
+    NS_ENSURE_STATE(txns);
+    txns->GetTransactionManager(getter_AddRefs(txnMgr));
     if (txnMgr) {
       txnMgr->Clear();
     }
@@ -1465,7 +1469,10 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder,
     NS_ASSERTION(undoTxn, "if store does copy, it needs to add undo action");
     if (msgWindow && undoTxn) {
       nsCOMPtr<nsITransactionManager> txnMgr;
-      msgWindow->GetTransactionManager(getter_AddRefs(txnMgr));
+      nsCOMPtr<nsIMsgTransactionService> txns =
+          mozilla::components::Txns::Service();
+      NS_ENSURE_STATE(txns);
+      txns->GetTransactionManager(getter_AddRefs(txnMgr));
       if (txnMgr) txnMgr->DoTransaction(undoTxn);
     }
     if (isMove) {
@@ -2444,8 +2451,10 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
       if (!mCopyState->m_isMove) {
         if (mCopyState->m_msgWindow && mCopyState->m_undoMsgTxn) {
           nsCOMPtr<nsITransactionManager> txnMgr;
-          mCopyState->m_msgWindow->GetTransactionManager(
-              getter_AddRefs(txnMgr));
+          nsCOMPtr<nsIMsgTransactionService> txns =
+              mozilla::components::Txns::Service();
+          NS_ENSURE_STATE(txns);
+          txns->GetTransactionManager(getter_AddRefs(txnMgr));
           if (txnMgr) {
             RefPtr<nsLocalMoveCopyMsgTxn> txn = mCopyState->m_undoMsgTxn;
             txnMgr->DoTransaction(txn);
@@ -2535,7 +2544,10 @@ nsMsgLocalMailFolder::EndMove(bool moveSucceeded) {
     if (NS_SUCCEEDED(rv) && mCopyState->m_msgWindow &&
         mCopyState->m_undoMsgTxn) {
       nsCOMPtr<nsITransactionManager> txnMgr;
-      mCopyState->m_msgWindow->GetTransactionManager(getter_AddRefs(txnMgr));
+      nsCOMPtr<nsIMsgTransactionService> txns =
+          mozilla::components::Txns::Service();
+      NS_ENSURE_STATE(txns);
+      txns->GetTransactionManager(getter_AddRefs(txnMgr));
       if (txnMgr) {
         RefPtr<nsLocalMoveCopyMsgTxn> txn = mCopyState->m_undoMsgTxn;
         txnMgr->DoTransaction(txn);

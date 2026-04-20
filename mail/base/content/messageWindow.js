@@ -551,13 +551,6 @@ function SetupCommandUpdateHandlers() {
     0,
     messageBrowser.contentWindow.commandController
   );
-  // Use the main window's transaction manager.
-  // There may not be a "main" window if an .eml file was double-clicked.
-  const mainWindow = Services.wm.getMostRecentWindow("mail:3pane");
-  if (mainWindow) {
-    window.msgWindow.transactionManager =
-      mainWindow.msgWindow.transactionManager;
-  }
 }
 
 function UnloadCommandUpdateHandlers() {

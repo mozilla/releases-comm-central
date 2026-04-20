@@ -8,6 +8,7 @@
 #include "nspr.h"
 #include "nsIFile.h"
 #include "nsIMsgFolderNotificationService.h"
+#include "nsIMsgTransactionService.h"
 #include "nsServiceManagerUtils.h"
 #include "nsMsgUtils.h"
 #include "mozilla/Components.h"
@@ -69,9 +70,12 @@ nsresult nsCopyRequest::Init(nsCopyRequestType type, nsISupports* aSupport,
   m_newMsgKeywords = newMsgKeywords;
 
   if (listener) m_listener = listener;
-  if (msgWindow) {
-    m_msgWindow = msgWindow;
-    if (m_allowUndo) msgWindow->GetTransactionManager(getter_AddRefs(m_txnMgr));
+  m_msgWindow = msgWindow;
+  if (m_allowUndo) {
+    nsCOMPtr<nsIMsgTransactionService> txns =
+        mozilla::components::Txns::Service();
+    NS_ENSURE_STATE(txns);
+    txns->GetTransactionManager(getter_AddRefs(m_txnMgr));
   }
   if (type == nsCopyFoldersType) {
     // To support multiple copy folder operations to the same destination, we
@@ -101,7 +105,6 @@ nsCopySource* nsCopyRequest::AddNewCopySource(nsIMsgFolder* srcFolder) {
 //
 
 nsMsgCopyService::nsMsgCopyService() {}
-
 nsMsgCopyService::~nsMsgCopyService() {
   int32_t i = m_copyRequests.Length();
 

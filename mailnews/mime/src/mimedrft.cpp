@@ -1736,9 +1736,11 @@ int mime_decompose_file_init_fn(MimeClosure stream_closure,
   nAttachments = mdd->attachments.Length();
 
   nsCString contentType;
-  contentType.Adopt(MimeHeaders_get(headers, HEADER_CONTENT_TYPE, false, false));
+  contentType.Adopt(
+      MimeHeaders_get(headers, HEADER_CONTENT_TYPE, false, false));
 
-  // Allow a later body part to replace an earlier unusable messageBody candidate.
+  // Allow a later body part to replace an earlier unusable messageBody
+  // candidate.
   if (mdd->messageBody &&
       !mime_type_is_message_body(mdd->messageBody->m_type) &&
       mime_type_can_replace_message_body(contentType)) {

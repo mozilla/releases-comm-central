@@ -5,6 +5,9 @@
 var { TestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/TestUtils.sys.mjs"
 );
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
+);
 
 var incomingServer;
 
@@ -93,14 +96,14 @@ add_task(async function test_undo_move() {
     [dstFolder, 1],
   ]);
 
-  const currentUndoItem = msgWindow.transactionManager.peekUndoStack();
+  const currentUndoItem = MailServices.txns.transactionManager.peekUndoStack();
   Assert.ok(!!currentUndoItem, "Should have a transaction on the undo stack.");
   Assert.equal(
     currentUndoItem.QueryInterface(Ci.nsIMsgTxn).txnType,
     Ci.nsIMessenger.eMoveMsg
   );
 
-  msgWindow.transactionManager.undoTransaction();
+  MailServices.txns.transactionManager.undoTransaction();
   await TestUtils.waitForCondition(() => {
     return !![...srcFolder.messages].length;
   }, "Waiting for undo operation to complete.");
@@ -110,14 +113,14 @@ add_task(async function test_undo_move() {
     [dstFolder, 0],
   ]);
 
-  const currentRedoItem = msgWindow.transactionManager.peekRedoStack();
+  const currentRedoItem = MailServices.txns.transactionManager.peekRedoStack();
   Assert.ok(!!currentRedoItem, "Should have a transaction on the redo stack.");
   Assert.equal(
     currentRedoItem.QueryInterface(Ci.nsIMsgTxn).txnType,
     Ci.nsIMessenger.eMoveMsg
   );
 
-  msgWindow.transactionManager.redoTransaction();
+  MailServices.txns.transactionManager.redoTransaction();
   await TestUtils.waitForCondition(() => {
     return !![...dstFolder.messages].length;
   }, "Waiting for redo operation to complete.");
@@ -127,7 +130,7 @@ add_task(async function test_undo_move() {
     [dstFolder, 1],
   ]);
 
-  msgWindow.transactionManager.clear();
+  MailServices.txns.transactionManager.clear();
 });
 
 add_task(async function test_undo_copy() {
@@ -151,14 +154,14 @@ add_task(async function test_undo_copy() {
     [dstFolder, 1],
   ]);
 
-  const currentUndoItem = msgWindow.transactionManager.peekUndoStack();
+  const currentUndoItem = MailServices.txns.transactionManager.peekUndoStack();
   Assert.ok(!!currentUndoItem, "Should have a transaction on the undo stack.");
   Assert.equal(
     currentUndoItem.QueryInterface(Ci.nsIMsgTxn).txnType,
     Ci.nsIMessenger.eCopyMsg
   );
 
-  msgWindow.transactionManager.undoTransaction();
+  MailServices.txns.transactionManager.undoTransaction();
   await TestUtils.waitForCondition(() => {
     return ![...dstFolder.messages].length;
   }, "Waiting for undo operation to complete.");
@@ -168,14 +171,14 @@ add_task(async function test_undo_copy() {
     [dstFolder, 0],
   ]);
 
-  const currentRedoItem = msgWindow.transactionManager.peekRedoStack();
+  const currentRedoItem = MailServices.txns.transactionManager.peekRedoStack();
   Assert.ok(!!currentRedoItem, "Should have a transaction on the redo stack.");
   Assert.equal(
     currentRedoItem.QueryInterface(Ci.nsIMsgTxn).txnType,
     Ci.nsIMessenger.eCopyMsg
   );
 
-  msgWindow.transactionManager.redoTransaction();
+  MailServices.txns.transactionManager.redoTransaction();
   await TestUtils.waitForCondition(() => {
     return !![...dstFolder.messages].length;
   }, "Waiting for redo operation to complete.");
@@ -185,7 +188,7 @@ add_task(async function test_undo_copy() {
     [dstFolder, 1],
   ]);
 
-  msgWindow.transactionManager.clear();
+  MailServices.txns.transactionManager.clear();
 });
 
 /**
@@ -226,14 +229,14 @@ add_task(async function test_undo_delete() {
     [trashFolder, 1],
   ]);
 
-  const undoTransaction = msgWindow.transactionManager.peekUndoStack();
+  const undoTransaction = MailServices.txns.transactionManager.peekUndoStack();
   Assert.ok(!!undoTransaction, "Should have an undo transaction.");
   Assert.equal(
     undoTransaction.QueryInterface(Ci.nsIMsgTxn).txnType,
     Ci.nsIMessenger.eDeleteMsg
   );
 
-  msgWindow.transactionManager.undoTransaction();
+  MailServices.txns.transactionManager.undoTransaction();
   await TestUtils.waitForCondition(() => {
     return !![...folder.messages].length;
   }, "Waiting for message to reappear in source folder.");
@@ -243,14 +246,14 @@ add_task(async function test_undo_delete() {
     [trashFolder, 0],
   ]);
 
-  const redoTransaction = msgWindow.transactionManager.peekRedoStack();
+  const redoTransaction = MailServices.txns.transactionManager.peekRedoStack();
   Assert.ok(!!redoTransaction, "Should have a redo transaction.");
   Assert.equal(
     redoTransaction.QueryInterface(Ci.nsIMsgTxn).txnType,
     Ci.nsIMessenger.eDeleteMsg
   );
 
-  msgWindow.transactionManager.redoTransaction();
+  MailServices.txns.transactionManager.redoTransaction();
   await TestUtils.waitForCondition(() => {
     return ![...folder.messages].length;
   }, "Waiting for message to disappear from folder.");
@@ -260,5 +263,5 @@ add_task(async function test_undo_delete() {
     [trashFolder, 1],
   ]);
 
-  msgWindow.transactionManager.clear();
+  MailServices.txns.transactionManager.clear();
 });
