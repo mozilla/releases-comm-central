@@ -34,13 +34,13 @@ appmenu-sync-sign-out =
   .label = Sign Out…
   .accesskey = O
 
-## New Account
+## Add Account
 
-appmenu-new-account-panel-title =
-  .title = New Account
+appmenu-add-account-panel-title =
+  .title = Add Account
 
-appmenu-new-account-panel =
-  .label = New Account
+appmenu-add-account-panel =
+  .label = Add Account
   .accesskey = N
 
 appmenu-new-email-account =
@@ -65,11 +65,11 @@ appmenu-new-newsgroup =
 
 ## New Account / Address Book
 
-appmenu-newab-panel-title =
-  .title = New Address Book
+appmenu-add-address-book-panel-title =
+  .title = Add Address Book
 
-appmenu-newab-panel =
-  .label = New Address Book
+appmenu-add-address-book =
+  .label = Address Book
   .accesskey = A
 
 appmenu-new-addressbook =

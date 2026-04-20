@@ -26,8 +26,8 @@ calendar-enable-button = Enable
 calendar-list-item-context-button =
   .title = { $calendarName } calendar options
 
-calendar-import-new-calendar = New Calendar…
-  .title = Create or subscribe to a new calendar
+calendar-add-calendar = Add Calendar…
+  .title = Create or subscribe to a calendar
 
 calendar-refresh-calendars =
   .title = Reload all calendars and synchronize changes

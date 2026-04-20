@@ -32,8 +32,8 @@ filelink-label = Filelink
     .aria-label = Set up Filelink
 filelink-description = { -brand-short-name } lets you set up a convenient filelink cloud account to easily send large attachments.
 
-addressbook-label = Address Book
-    .aria-label = Create a new address book
+address-book-add-label = Address Book
+    .aria-label = Add address book
 addressbook-description = { -brand-short-name } lets you organize all your contacts in an address book. You can also connect to a remote address book to keep all your contacts in sync.
 
 feeds-label = Feeds

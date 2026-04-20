@@ -52,7 +52,7 @@
         <toolbarseparator id="syncSeparator" hidden="hidden"/>
 #endif  // MOZ_SERVICES_SYNC
         <toolbarbutton id="appmenu_new"
-                       data-l10n-id="appmenu-new-account-panel"
+                       data-l10n-id="appmenu-add-account-panel"
                        class="subviewbutton subviewbutton-iconic subviewbutton-nav"
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appMenu-newView', this);"/>
@@ -190,7 +190,7 @@
 #endif  // MOZ_SERVICES_SYNC
     <!-- New -->
     <panelview id="appMenu-newView"
-               data-l10n-id="appmenu-new-account-panel-title"
+               data-l10n-id="appmenu-add-account-panel-title"
                class="PanelUI-subView">
       <vbox id="appMenu-newViewItems"
             class="panel-subview-body">
@@ -206,12 +206,12 @@
 #endif
         <toolbarbutton id="appmenu_newAB"
                        class="subviewbutton subviewbutton-iconic subviewbutton-nav"
-                       data-l10n-id="appmenu-newab-panel"
+                       data-l10n-id="appmenu-add-address-book"
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appMenu-newabView', this);"/>
         <toolbarbutton id="appmenu_newAccountHubAB"
                        class="subviewbutton subviewbutton-iconic"
-                       data-l10n-id="appmenu-newab-panel"
+                       data-l10n-id="appmenu-add-address-book"
                        oncommand="openAccountHubABDialog();"
                        hidden="hidden"/>
         <toolbarbutton id="appmenu_newIMAccountMenuItem"
@@ -231,7 +231,7 @@
 
     <!-- New AB -->
     <panelview id="appMenu-newabView"
-               data-l10n-id="appmenu-newab-panel-title"
+               data-l10n-id="appmenu-add-address-book-panel-title"
                class="PanelUI-subView">
       <vbox id="appMenu-newABItems"
             class="panel-subview-body">

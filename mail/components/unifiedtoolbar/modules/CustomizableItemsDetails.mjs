@@ -454,7 +454,7 @@ export default [
   // Address book space
   {
     id: "create-address-book",
-    labelId: "toolbar-create-address-book",
+    labelId: "toolbar-add-address-book",
     spaces: ["addressbook"],
     templateId: "createAddressBookTemplate",
     requiredModules: [

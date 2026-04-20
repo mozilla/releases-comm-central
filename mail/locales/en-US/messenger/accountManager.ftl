@@ -6,7 +6,7 @@ open-preferences-sidebar-button2 = { -brand-short-name } Settings
 
 open-addons-sidebar-button = Add-ons and Themes
 
-account-tree-create-account-button = New Account
+account-tree-add-account-button = Add Account
 
 account-tree-add-mail-account =
     .label = Mail Account…

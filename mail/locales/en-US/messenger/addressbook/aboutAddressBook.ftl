@@ -15,8 +15,8 @@ about-addressbook-toolbar-add-ldap-address-book =
 
 books-pane-create-contact-button = New Contact
   .title = Create a new contact
-books-pane-create-book-button =
-  .title = Create a new address book
+books-pane-add-book-button =
+  .title = Add address book
 books-pane-create-list-button =
   .title = Create a new mailing list
 books-pane-import-button = Import

@@ -243,10 +243,10 @@ toolbar-create-contact-label = New Contact
 toolbar-create-contact =
     .title = Create a new contact
 
-toolbar-create-address-book-label = New Address Book
+toolbar-add-address-book-label = Add Address Book
 
-toolbar-create-address-book =
-    .title = Create a new address book
+toolbar-add-address-book =
+    .title = Add address book
 
 toolbar-create-list-label = New List
 
