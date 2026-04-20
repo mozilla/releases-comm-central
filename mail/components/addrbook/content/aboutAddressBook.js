@@ -417,6 +417,10 @@ function importBook() {
  * of the address book view.
  */
 async function updateAddressBookCount() {
+  if (!cardsPane.cardsList.view) {
+    return;
+  }
+
   const cardCount = document.getElementById("cardCount");
   const { rowCount: count, directory } = cardsPane.cardsList.view;
 

@@ -1,6 +1,9 @@
 [DEFAULT]
 support-files = ["data/*"]
-prefs = ["mail.setup.loglevel=Debug"]
+prefs = [
+  "carddav.setup.loglevel=Debug",
+  "mail.setup.loglevel=Debug"
+]
 
 ["test_accountConfig.js"]
 
@@ -25,6 +28,7 @@ requesttimeoutfactor = 2
 tags = ["oauth"]
 
 ["test_firstRun.js"]
+tags = ["addrbook"]
 
 ["test_guessConfig.js"]
 

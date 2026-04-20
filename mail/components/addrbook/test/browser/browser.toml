@@ -24,16 +24,18 @@ generated-files = ["data/import.sqlite"]
 tags = ["addrbook"]
 
 ["browser_cardDAV_init.js"]
-tags = ["oauth"]
+tags = ["carddav", "oauth"]
 # TODO Remove test file when Account Hub Lands Bug 1991626
 
 ["browser_cardDAV_oAuth.js"]
-tags = ["oauth"]
+tags = ["carddav", "oauth"]
 # TODO Remove test file when Account Hub Lands Bug 1991626
 
 ["browser_cardDAV_properties.js"]
+tags = ["carddav"]
 
 ["browser_cardDAV_sync.js"]
+tags = ["carddav"]
 
 ["browser_contact_sidebar.js"]
 run-if = [

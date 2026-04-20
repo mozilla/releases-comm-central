@@ -510,7 +510,7 @@ export var CardDAVUtils = {
       foundBooks.push({
         url,
         name,
-        async create() {
+        create() {
           const dirPrefId = MailServices.ab.newAddressBook(
             this.name,
             null,
@@ -524,15 +524,17 @@ export var CardDAVUtils = {
             book.setBoolValue("readOnly", true);
           }
 
+          let authPromise;
           if (oAuth) {
             book.setStringValue("carddav.username", username);
+            authPromise = Promise.resolve();
           } else if (callbacks.authInfo?.username) {
             log.log(`Saving login info for ${callbacks.authInfo.username}`);
             book.setStringValue(
               "carddav.username",
               callbacks.authInfo.username
             );
-            await callbacks.saveAuth();
+            authPromise = callbacks.saveAuth().catch(console.error);
           }
 
           const dir = lazy.CardDAVDirectory.forFile(book.fileName);
@@ -540,7 +542,10 @@ export var CardDAVUtils = {
           // for a username/password again in the case that we didn't save it.
           // The user won't be prompted again until Thunderbird is restarted.
           dir._userContextId = userContextId;
-          dir.fetchAllFromServer();
+
+          // Trigger the initial sync with the server. Do not do this async,
+          // as it's not required before returning the directory.
+          authPromise.then(() => dir.fetchAllFromServer());
 
           return dir;
         },
