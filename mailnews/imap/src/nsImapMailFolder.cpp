@@ -4047,11 +4047,12 @@ void nsImapMailFolder::FindKeysToAdd(const nsTArray<nsMsgKey>& existingKeys,
   }
 }
 
-NS_IMETHODIMP nsImapMailFolder::GetMsgHdrsToDownload(
-    bool* aMoreToDownload, int32_t* aTotalCount, nsTArray<nsMsgKey>& aKeys) {
+NS_IMETHODIMP nsImapMailFolder::GetMsgHdrsToDownload(bool* aMoreToDownload,
+                                                     int32_t* aTotalCount,
+                                                     nsTArray<ImapUid>& aUids) {
   NS_ENSURE_ARG_POINTER(aMoreToDownload);
   NS_ENSURE_ARG_POINTER(aTotalCount);
-  aKeys.Clear();
+  aUids.Clear();
 
   *aMoreToDownload = false;
   *aTotalCount = m_totalKeysToFetch;
@@ -4061,7 +4062,7 @@ NS_IMETHODIMP nsImapMailFolder::GetMsgHdrsToDownload(
 
   const int32_t numKeysToFetch = m_keysToFetch.Length();
   const int32_t startIndex = 0;
-  aKeys.AppendElements(&m_keysToFetch[startIndex], numKeysToFetch);
+  aUids.AppendElements(&m_keysToFetch[startIndex], numKeysToFetch);
   // Remove these for the incremental header download case, so that
   // we know we don't have to download them again.
   m_keysToFetch.RemoveElementsAt(startIndex, numKeysToFetch);

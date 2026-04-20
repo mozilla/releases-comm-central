@@ -86,7 +86,7 @@ interface nsIImapMailFolderSink : nsISupports {
    * @returns an array of msg keys to download, array size is this chunk's size
    */
   void getMsgHdrsToDownload(out boolean aMore, out long aTotalCount,
-                            out Array<nsMsgKey> aKeys);
+                            out Array<ImapUid> aUids);
   void parseMsgHdrs(in nsIImapProtocol aProtocol, in nsIImapHeaderXferInfo aHdrXferInfo);
   void AbortHeaderParseStream(in nsIImapProtocol aProtocol) ;
 
