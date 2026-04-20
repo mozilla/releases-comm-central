@@ -13,7 +13,67 @@
   display: flex;
 }
 
+@media not (prefers-contrast) {
+  :root:not([lwtheme]) {
+    background-color: light-dark(var(--color-gray-20), var(--color-gray-90));
+
+    &:-moz-window-inactive {
+      background-color: light-dark(var(--color-gray-10), var(--color-gray-90));
+    }
+  }
+
+  :root[lwtheme] {
+    background-color: var(--lwt-accent-color);
+
+    &:-moz-window-inactive {
+      background-color: var(--lwt-accent-color-inactive, var(--lwt-accent-color));
+    }
+  }
+
+  /* This is needed for Windows 10, see bug 1963783 */
+  :root[customtitlebar][sizemode="normal"] {
+    border-block-start: 0.5px solid rgba(0, 0, 0, 0.7);
+
+    @media (-moz-windows-accent-color-in-titlebar) or (-moz-windows-mica) {
+      border-block-start-color: ActiveBorder;
+
+      &:-moz-window-inactive {
+        border-block-start-color: InactiveBorder;
+      }
+    }
+  }
+
+  /* Only apply mica when accent color in titlebar is disabled */
+  @media (-moz-windows-mica) and (-moz-windows-accent-color-in-titlebar: 0) {
+    :root[customtitlebar]:not([lwtheme]) {
+      background-color: transparent;
+
+      /* stylelint-disable-next-line media-query-no-invalid */
+      @media -moz-pref("widget.windows.mica.toplevel-backdrop", 2) {
+        /* For acrylic, do the same we do for popups to guarantee some contrast */
+        background-color: light-dark(rgba(255, 255, 255, 0.6), rgba(0, 0, 0, 0.6));
+      }
+    }
+  }
+}
+
 @media (prefers-contrast) {
+  :root[customtitlebar]:not([lwtheme]) {
+    padding-block-start: 2px;
+    background-color: ActiveCaption;
+    color: CaptionText;
+
+    &:-moz-window-inactive {
+      background-color: InactiveCaption;
+      color: InactiveCaptionText;
+    }
+
+    & #navigation-toolbox {
+      background-color: -moz-Dialog;
+      color: -moz-DialogText;
+    }
+  }
+
   #menubar-items > #mail-menubar > menu:not([disabled]) {
     color: inherit;
   }
@@ -25,6 +85,106 @@
 
 .titlebar-buttonbox-container {
   align-items: stretch;
+}
+
+.titlebar-buttonbox,
+.titlebar-button {
+  appearance: none !important;
+}
+
+.titlebar-button {
+  border: none;
+  margin: 0 !important;
+  padding: 9px 18px;
+
+  /* Segoe Fluent Icons is the preferred font for Windows 11, and
+   * Segoe MDL2 Assets is there for windows 10. Luckily, the relevant glyphs
+   * are the same, so we can just fall back.
+   * See: https://learn.microsoft.com/en-us/windows/apps/design/style/segoe-fluent-icons-font */
+  font:
+    round(10px, env(hairline)) / 1 "Segoe Fluent Icons",
+    "Segoe MDL2 Assets"; /* stylelint-disable-line font-family-no-missing-generic-family-keyword */
+
+  & > .toolbarbutton-icon {
+    display: none;
+  }
+
+  &::before {
+    display: inline-block;
+    content: inherit;
+
+    &:-moz-locale-dir(rtl) {
+      transform: scaleX(-1);
+    }
+  }
+
+  &:hover {
+    color: inherit;
+    background-color: light-dark(hsla(0, 0%, 0%, 0.12), hsla(0, 0%, 100%, 0.12));
+
+    &:active {
+      background-color: light-dark(hsla(0, 0%, 0%, 0.22), hsla(0, 0%, 100%, 0.22));
+    }
+  }
+
+  &.titlebar-close:hover {
+    color: white;
+    background-color: hsl(355, 86%, 49%);
+
+    &:active {
+      background-color: hsl(355, 82%, 69%);
+    }
+  }
+
+  &:not(:hover):-moz-window-inactive::before {
+    opacity: 0.5;
+  }
+
+  @media (prefers-contrast) {
+    color: ButtonText;
+    background-color: Field;
+
+    &:is(:hover, :active),
+    &.titlebar-close:is(:hover, :active) {
+      color: SelectedItemText;
+      background-color: SelectedItem;
+    }
+  }
+}
+
+.titlebar-min {
+  /* Even though we use appearance: none, -moz-default-appearance is necessary
+   * for Windows 11's "snap layouts" feature, see
+   * DealWithWindowsAppearanceHacks */
+  -moz-default-appearance: -moz-window-button-minimize;
+  content: "\e921"; /* ChromeMinimize */
+  @media (prefers-contrast) {
+    content: "\ef2d"; /* ChromeMinimizeContrast */
+  }
+}
+
+.titlebar-max {
+  -moz-default-appearance: -moz-window-button-maximize;
+  content: "\e922"; /* ChromeMaximize */
+  @media (prefers-contrast) {
+    content: "\ef2e"; /* ChromeMaximizeContrast */
+  }
+}
+
+.titlebar-restore {
+  -moz-default-appearance: -moz-window-button-restore;
+  content: "\e923"; /* ChromeRestore */
+  @media (prefers-contrast) {
+    content: "\ef2f"; /* ChromeRestoreContrast */
+  }
+}
+
+.titlebar-close {
+  -moz-default-appearance: -moz-window-button-close;
+  content: "\e8bb"; /* ChromeClose */
+  @media (prefers-contrast) {
+    content: "\ef2c"; /* ChromeCloseContrast */
+  }
 }
 
 .inline-toolbar {
@@ -148,6 +308,10 @@ treechildren::-moz-tree-cell-text {
     color: WindowText;
   }
 
+  treechildren::-moz-tree-image(selected) {
+    color: inherit;
+  }
+
   #threadTree > treechildren::-moz-tree-twisty(untagged, selected, focus),
   tree:not(#threadTree) > treechildren::-moz-tree-twisty(selected, focus),
   #threadTree > treechildren::-moz-tree-image(untagged, selected, focus),
@@ -191,16 +355,6 @@ button.notification-button[is="toolbarbutton-menu-button"] {
   margin-inline-end: 12px;
 }
 
-@media (prefers-contrast) {
-  #tabmail {
-    background-color: ActiveCaption;
-
-    &:-moz-window-inactive {
-      background-color: InactiveCaption;
-    }
-  }
-}
-
 /* ::::: primary toolbar buttons ::::: */
 
 .toolbarbutton-1 {
@@ -232,6 +386,11 @@ toolbar[mode="text"] .toolbarbutton-text {
   :root[lwtheme] & {
     border-inline-end-color: var(--lwt-tabs-border-color);
   }
+}
+
+#messagepanebox {
+  border-block-start-width: 0;
+  border-inline-start: none;
 }
 
 /* Status panel */

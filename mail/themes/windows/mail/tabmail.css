@@ -3,12 +3,28 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import url("chrome://messenger/skin/shared/tabmail.css");
+
+@media (prefers-contrast) {
+  #tabmail {
+    background-color: ActiveCaption;
+
+    &:-moz-window-inactive {
+      background-color: InactiveCaption;
+    }
+  }
+}
+
 /**
  * Tabmail Tabs
  */
 
-:root[lwtheme] #tabpanelcontainer {
-  color: inherit;
+#tabpanelcontainer {
+  appearance: none;
+  color-scheme: light dark;
+
+  :root[lwtheme] & {
+    color: inherit;
+  }
 }
 
 /**

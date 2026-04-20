@@ -13,8 +13,12 @@
   padding-block-end: 0;
 }
 
-:root[lwtheme] #tabpanelcontainer {
-  color: inherit;
+#tabpanelcontainer {
+  appearance: none;
+
+  :root[lwtheme] & {
+    color: inherit;
+  }
 }
 
 tabpanels {
