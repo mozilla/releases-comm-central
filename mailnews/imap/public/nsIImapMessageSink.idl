@@ -67,12 +67,12 @@ interface nsIImapMessageSink : nsISupports {
    *  For Condstore servers, also update the highestMod Sequence
    *  @param   aFlags         - The new flags for the message
    *  @param   aKeywords        keywords for the message
-   *  @param   aMessageKey    - The UID of the message that changed
+   *  @param   aMessageUid    - The UID of the message that changed
    *  @param   aHighestModSeq - The highest mod seq the parser has seen
    *                            for this folder
   **/
   void notifyMessageFlags(in unsigned long aFlags, in ACString aKeywords,
-                          in nsMsgKey aMessageKey,
+                          in ImapUid aMessageUid,
                           in unsigned long long aHighestModSeq);
 
   /**

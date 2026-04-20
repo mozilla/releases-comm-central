@@ -372,7 +372,7 @@ NS_SYNCRUNNABLEMETHOD4(ImapMailFolderSink, PercentProgress, nsIImapProtocol*,
 NS_SYNCRUNNABLEMETHOD0(ImapMailFolderSink, ClearFolderRights)
 NS_SYNCRUNNABLEMETHOD2(ImapMailFolderSink, SetCopyResponseUid, const char*,
                        nsIImapUrl*)
-NS_SYNCRUNNABLEMETHOD2(ImapMailFolderSink, SetAppendMsgUid, nsMsgKey,
+NS_SYNCRUNNABLEMETHOD2(ImapMailFolderSink, SetAppendMsgUid, ImapUid,
                        nsIImapUrl*)
 NS_SYNCRUNNABLEMETHOD2(ImapMailFolderSink, GetMessageId, nsIImapUrl*,
                        nsACString&)
@@ -384,7 +384,7 @@ NS_SYNCRUNNABLEMETHOD4(ImapMessageSink, NormalEndMsgWriteStream, ImapUid, bool,
                        nsIImapUrl*, int32_t)
 NS_SYNCRUNNABLEMETHOD0(ImapMessageSink, AbortMsgWriteStream)
 NS_SYNCRUNNABLEMETHOD4(ImapMessageSink, NotifyMessageFlags, uint32_t,
-                       const nsACString&, nsMsgKey, uint64_t)
+                       const nsACString&, ImapUid, uint64_t)
 NS_SYNCRUNNABLEMETHOD3(ImapMessageSink, NotifyMessageDeleted, const char*, bool,
                        const char*)
 NS_SYNCRUNNABLEMETHOD2(ImapMessageSink, GetMessageSizeFromDB, const char*,

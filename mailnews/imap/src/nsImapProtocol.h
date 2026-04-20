@@ -7,6 +7,9 @@
 #define COMM_MAILNEWS_IMAP_SRC_NSIMAPPROTOCOL_H_
 
 #include "nsIImapProtocol.h"
+
+#include "ImapTypes.h"
+
 #include "nsIImapUrl.h"
 
 #include "nsMsgProtocol.h"
@@ -283,7 +286,7 @@ class nsImapProtocol : public nsIImapProtocol,
 
   // state set by the imap parser...
   void NotifyMessageFlags(imapMessageFlagsType flags,
-                          const nsACString& keywords, nsMsgKey key,
+                          const nsACString& keywords, ImapUid uid,
                           uint64_t highestModSeq);
   void NotifySearchHit(const char* hitLine);
 

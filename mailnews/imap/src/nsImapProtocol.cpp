@@ -5030,13 +5030,13 @@ void nsImapProtocol::SetConnectionStatus(nsresult status) {
 }
 
 void nsImapProtocol::NotifyMessageFlags(imapMessageFlagsType flags,
-                                        const nsACString& keywords,
-                                        nsMsgKey key, uint64_t highestModSeq) {
+                                        const nsACString& keywords, ImapUid uid,
+                                        uint64_t highestModSeq) {
   if (m_imapMessageSink) {
     // if we're selecting the folder, don't need to report the flags; we've
     // already fetched them.
     if (m_imapAction != nsIImapUrl::nsImapSelectFolder)
-      m_imapMessageSink->NotifyMessageFlags(flags, keywords, key,
+      m_imapMessageSink->NotifyMessageFlags(flags, keywords, uid,
                                             highestModSeq);
   }
 }

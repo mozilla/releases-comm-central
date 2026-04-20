@@ -4651,8 +4651,7 @@ nsresult nsImapMailFolder::NotifyMessageFlagsFromHdr(nsIMsgDBHdr* dbHdr,
 NS_IMETHODIMP
 nsImapMailFolder::NotifyMessageFlags(uint32_t aFlags,
                                      const nsACString& aKeywords,
-                                     nsMsgKey aMsgKey,
-                                     uint64_t aHighestModSeq) {
+                                     ImapUid aMsgUid, uint64_t aHighestModSeq) {
   if (NS_SUCCEEDED(GetDatabase()) && mDatabase) {
     bool msgDeleted = aFlags & kImapMsgDeletedFlag;
     if (aHighestModSeq || msgDeleted) {
@@ -4680,17 +4679,20 @@ nsImapMailFolder::NotifyMessageFlags(uint32_t aFlags,
     }
     nsCOMPtr<nsIMsgDBHdr> dbHdr;
     bool containsKey;
-    nsresult rv = mDatabase->ContainsKey(aMsgKey, &containsKey);
+    // TODO: UID->nsMsgKey mapping
+    // https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
+    nsMsgKey msgKey = aMsgUid;
+    nsresult rv = mDatabase->ContainsKey(msgKey, &containsKey);
     // if we don't have the header, don't diddle the flags.
     // GetMsgHdrForKey will create the header if it doesn't exist.
     if (NS_FAILED(rv) || !containsKey) return rv;
-    rv = mDatabase->GetMsgHdrForKey(aMsgKey, getter_AddRefs(dbHdr));
+    rv = mDatabase->GetMsgHdrForKey(msgKey, getter_AddRefs(dbHdr));
     if (NS_SUCCEEDED(rv) && dbHdr) {
       uint32_t supportedUserFlags;
       GetSupportedUserFlags(&supportedUserFlags);
-      NotifyMessageFlagsFromHdr(dbHdr, aMsgKey, aFlags);
+      NotifyMessageFlagsFromHdr(dbHdr, msgKey, aFlags);
       nsCString keywords(aKeywords);
-      HandleCustomFlags(aMsgKey, dbHdr, supportedUserFlags, keywords);
+      HandleCustomFlags(msgKey, dbHdr, supportedUserFlags, keywords);
     }
   }
   return NS_OK;
