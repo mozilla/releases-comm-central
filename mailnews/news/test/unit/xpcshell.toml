@@ -54,3 +54,4 @@ run-sequentially = true  # Uses fixed NNTP_PORT
 ["test_uriParser.js"]
 
 ["test_xover.js"]
+run-sequentially = true  # Uses fixed NNTP_PORT

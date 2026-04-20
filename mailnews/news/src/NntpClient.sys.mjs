@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
+import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 
 import { CommonUtils } from "resource://services-common/utils.sys.mjs";
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
@@ -41,6 +42,12 @@ ChromeUtils.defineLazyGetter(lazy, "messengerBundle", () =>
   Services.strings.createBundle(
     "chrome://messenger/locale/messenger.properties"
   )
+);
+XPCOMUtils.defineLazyServiceGetter(
+  lazy,
+  "authPromptService",
+  "@mozilla.org/messenger/msgAuthPrompt;1",
+  Ci.nsIAuthPrompt
 );
 
 /**
@@ -923,19 +930,14 @@ export class NntpClient {
    *
    * @param {boolean} [forcePrompt=false] - Whether to force showing an auth prompt.
    */
-  _actionAuthUser(forcePrompt = false) {
+  async _actionAuthUser(forcePrompt = false) {
     if (!this._newsFolder) {
       this._newsFolder = this._server.rootFolder.QueryInterface(
         Ci.nsIMsgNewsFolder
       );
     }
     if (!this._newsFolder.groupUsername) {
-      const gotPassword = this._newsFolder.getAuthenticationCredentials(
-        this._msgWindow,
-        true,
-        forcePrompt
-      );
-      if (!gotPassword) {
+      if (!(await this.#getAuthenticationCredentials(forcePrompt))) {
         this._actionDone(Cr.NS_ERROR_ABORT);
         return;
       }
@@ -943,6 +945,79 @@ export class NntpClient {
     this._sendCommand(`AUTHINFO user ${this._newsFolder.groupUsername}`, true);
     this._nextAction = this._actionAuthResult;
     this._authenticator.username = this._newsFolder.groupUsername;
+  }
+
+  /**
+   * @param {boolean} mustPrompt
+   */
+  async #getAuthenticationCredentials(mustPrompt) {
+    const folder = this._newsFolder;
+
+    let validCredentials;
+    const signonUrl = folder.urlForSignon;
+
+    // If we don't have a username or password, try to load it via the login
+    // manager. Do this even if mustPrompt is true, to prefill the dialog.
+    if (!folder.groupUsername || !folder.groupPassword) {
+      const logins = await Services.logins.searchLoginsAsync({
+        origin: signonUrl,
+        httpRealm: signonUrl,
+      });
+
+      if (logins.length > 0) {
+        folder.groupUsername = logins[0].username;
+        folder.groupPassword = logins[0].password;
+        validCredentials = true;
+      }
+    }
+
+    // Show the prompt if we need to.
+    if (mustPrompt || !folder.groupUsername || !folder.groupPassword) {
+      const serverName = folder.server.prettyName;
+
+      const promptTitle = await lazy.l10n.formatValue(
+        "enter-news-credentials-title",
+        {}
+      );
+      let promptText;
+      if (folder.server.QueryInterface(Ci.nsINntpIncomingServer).singleSignon) {
+        promptText = await lazy.l10n.formatValue(
+          "enter-news-server-credentials",
+          {
+            server: serverName,
+          }
+        );
+      } else {
+        promptText = await lazy.l10n.formatValue(
+          "enter-news-group-credentials",
+          {
+            newsgroup: folder.localizedName,
+            server: serverName,
+          }
+        );
+      }
+
+      // Fill the signon url for the dialog.
+      const signonURL = folder.urlForSignon;
+      const username = { value: folder.groupUsername };
+      const password = { value: folder.groupPassword };
+
+      validCredentials = lazy.authPromptService.promptUsernameAndPassword(
+        promptTitle,
+        promptText,
+        signonURL,
+        Ci.nsIAuthPrompt.SAVE_PASSWORD_PERMANENTLY,
+        username,
+        password
+      );
+
+      // Only use the username/password if the user didn't cancel.
+      folder.groupUsername = validCredentials ? username.value : "";
+      folder.groupPassword = validCredentials ? password.value : "";
+    }
+
+    validCredentials = folder.groupUsername && folder.groupPassword;
+    return validCredentials;
   }
 
   /**
@@ -958,7 +1033,7 @@ export class NntpClient {
    *
    * @param {NntpResponse} res - Auth response received from the server.
    */
-  _actionAuthResult({ status }) {
+  async _actionAuthResult({ status }) {
     switch (status) {
       case AUTH_ACCEPTED:
         this._authenticated = true;
@@ -976,7 +1051,20 @@ export class NntpClient {
         }
         if (action == 2) {
           // 'New password' button pressed.
-          this._newsFolder.forgetAuthenticationCredentials();
+          const signonUrl = this._newsFolder.urlForSignon;
+
+          // There should only be one login stored for this url, however just in case
+          // there isn't.
+          for (const login of await Services.logins.searchLoginsAsync({
+            origin: signonUrl,
+            httpRealm: signonUrl,
+          })) {
+            await Services.logins.removeLoginAsync(login);
+          }
+
+          // Clear out the saved passwords for anyone else who tries to call.
+          this._newsFolder.groupUsername = "";
+          this._newsFolder.groupPassword = "";
         }
         // Retry.
         this._actionAuthUser();

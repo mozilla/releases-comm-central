@@ -115,13 +115,6 @@ class nsMsgNewsFolder : public nsMsgDBFolder, public nsIMsgNewsFolder {
   nsCString mRawName;
 
  private:
-  /**
-   * Constructs a signon url for use in login manager.
-   *
-   * @param ref    The URI ref (should be null unless working with legacy).
-   * @param result The result of the string
-   */
-  nsresult CreateNewsgroupUrlForSignon(const char* ref, nsAString& result);
   nsCOMPtr<nsIMsgFilterList> mFilterList;
 };
 

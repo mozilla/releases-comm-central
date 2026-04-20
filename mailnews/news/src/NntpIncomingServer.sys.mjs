@@ -423,13 +423,43 @@ export class NntpIncomingServer extends MsgIncomingServer {
   forgetPassword() {
     const newsFolder = this.rootFolder.QueryInterface(Ci.nsIMsgNewsFolder);
     // Clear password of root folder.
-    newsFolder.forgetAuthenticationCredentials();
+    let finished = false;
+    this.#forgetPasswordForFolder(newsFolder).finally(() => (finished = true));
+    Services.tm.spinEventLoopUntilOrQuit(
+      "NntpIncomingServer.forgetPassword 1",
+      () => finished
+    );
 
     // Clear password of all sub folders.
     for (const folder of newsFolder.subFolders) {
       folder.QueryInterface(Ci.nsIMsgNewsFolder);
-      folder.forgetAuthenticationCredentials();
+      finished = false;
+      this.#forgetPasswordForFolder(folder).finally(() => (finished = true));
+      Services.tm.spinEventLoopUntilOrQuit(
+        "NntpIncomingServer.forgetPassword 2",
+        () => finished
+      );
     }
+  }
+
+  /**
+   * @param {nsIMsgNewsFolder} folder
+   */
+  async #forgetPasswordForFolder(folder) {
+    const signonUrl = folder.urlForSignon;
+
+    // There should only be one login stored for this url, however just in case
+    // there isn't.
+    for (const login of await Services.logins.searchLoginsAsync({
+      origin: signonUrl,
+      httpRealm: signonUrl,
+    })) {
+      await Services.logins.removeLoginAsync(login);
+    }
+
+    // Clear out the saved passwords for anyone else who tries to call.
+    folder.groupUsername = "";
+    folder.groupPassword = "";
   }
 
   _lineSeparator = AppConstants.platform == "win" ? "\r\n" : "\n";
