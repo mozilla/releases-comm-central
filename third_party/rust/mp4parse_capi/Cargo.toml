@@ -66,6 +66,10 @@ name = "test_chunk_out_of_range"
 path = "tests/test_chunk_out_of_range.rs"
 
 [[test]]
+name = "test_colour_info"
+path = "tests/test_colour_info.rs"
+
+[[test]]
 name = "test_encryption"
 path = "tests/test_encryption.rs"
 

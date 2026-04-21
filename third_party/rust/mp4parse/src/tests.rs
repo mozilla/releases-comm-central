@@ -51,10 +51,8 @@ where
     };
     section = func(section);
     match size {
-        BoxSize::Short(size) => {
-            if size > 0 {
-                assert_eq!(u64::from(size), section.size())
-            }
+        BoxSize::Short(size) if size > 0 => {
+            assert_eq!(u64::from(size), section.size())
         }
         BoxSize::Long(size) => assert_eq!(size, section.size()),
         BoxSize::Auto => {
@@ -1147,7 +1145,8 @@ fn read_stsd_mp4v() {
     let mut iter = super::BoxIter::new(&mut stream);
     let mut stream = iter.next_box().unwrap().unwrap();
 
-    let sample_entry = super::read_video_sample_entry(&mut stream).unwrap();
+    let sample_entry =
+        super::read_video_sample_entry(&mut stream, super::ParseStrictness::Normal).unwrap();
 
     match sample_entry {
         super::SampleEntry::Video(v) => {
@@ -1247,7 +1246,7 @@ fn unknown_video_sample_entry() {
     });
     let mut iter = super::BoxIter::new(&mut stream);
     let mut stream = iter.next_box().unwrap().unwrap();
-    match super::read_video_sample_entry(&mut stream) {
+    match super::read_video_sample_entry(&mut stream, super::ParseStrictness::Normal) {
         Ok(super::SampleEntry::Unknown) => (),
         _ => panic!("expected a different error result"),
     }

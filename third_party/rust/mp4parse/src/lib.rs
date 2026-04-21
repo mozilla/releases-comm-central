@@ -185,6 +185,7 @@ pub enum Status {
     BoxBadWideSize,
     CheckParserStateErr,
     ColrBadQuantity,
+    ColrBadQuantityBMFF,
     ColrBadSize,
     ColrBadType,
     ColrReservedNonzero,
@@ -464,6 +465,10 @@ impl From<Status> for &str {
                 "Each item shall have at most one property association with a
                  ColourInformationBox (colr) for a given value of colour_type \
                  per HEIF (ISO/IEC DIS 23008-12) § 6.5.5.1"
+            }
+            Status::ColrBadQuantityBMFF => {
+                "Each sample entry shall have at most one ColourInformationBox (colr) \
+                 per ISOBMFF (ISO 14496-12:2020) § 12.1.5"
             }
             Status::ColrBadSize => {
                 "Unexpected size for colr box"
@@ -1175,6 +1180,9 @@ pub struct VideoSampleEntry {
     pub codec_specific: VideoCodecSpecific,
     pub protection_info: TryVec<ProtectionSchemeInfoBox>,
     pub pixel_aspect_ratio: Option<f32>,
+    /// Only `ColourInformation::Nclx` is currently surfaced through the C API;
+    /// `ColourInformation::Icc` is stored but not exposed to C consumers.
+    pub colour_info: Option<ColourInformation>,
 }
 
 /// Represent a Video Partition Codec Configuration 'vpcC' box (aka vp9). The meaning of each
@@ -3600,7 +3608,13 @@ fn read_ipco<T: Read>(
         let property = match b.head.name {
             BoxType::AuxiliaryTypeProperty => ItemProperty::AuxiliaryType(read_auxc(&mut b)?),
             BoxType::AV1CodecConfigurationBox => ItemProperty::AV1Config(read_av1c(&mut b)?),
-            BoxType::ColourInformationBox => ItemProperty::Colour(read_colr(&mut b, strictness)?),
+            BoxType::ColourInformationBox => match read_colr(&mut b, strictness)? {
+                ParsedColourInformation::Supported(colr) => ItemProperty::Colour(colr),
+                ParsedColourInformation::Unsupported(colour_type) => {
+                    error!("read_colr colour_type: {colour_type:?}");
+                    return Status::ColrBadType.into();
+                }
+            },
             BoxType::ImageMirror => ItemProperty::Mirroring(read_imir(&mut b)?),
             BoxType::ImageRotation => ItemProperty::Rotation(read_irot(&mut b)?),
             BoxType::ImageSpatialExtentsProperty => {
@@ -3722,10 +3736,10 @@ fn read_pixi<T: Read>(src: &mut BMFFBox<T>) -> Result<PixelInformation> {
 #[repr(C)]
 #[derive(Debug)]
 pub struct NclxColourInformation {
-    colour_primaries: u8,
-    transfer_characteristics: u8,
-    matrix_coefficients: u8,
-    full_range_flag: bool,
+    pub colour_primaries: u8,
+    pub transfer_characteristics: u8,
+    pub matrix_coefficients: u8,
+    pub full_range_flag: bool,
 }
 
 /// The raw bytes of the ICC profile
@@ -3758,12 +3772,17 @@ impl ColourInformation {
     }
 }
 
+enum ParsedColourInformation {
+    Supported(ColourInformation),
+    Unsupported(FourCC),
+}
+
 /// Parse colour information
 /// See ISOBMFF (ISO 14496-12:2020) § 12.1.5
 fn read_colr<T: Read>(
     src: &mut BMFFBox<T>,
     strictness: ParseStrictness,
-) -> Result<ColourInformation> {
+) -> Result<ParsedColourInformation> {
     let colour_type = be_u32(src)?.to_be_bytes();
 
     match &colour_type {
@@ -3790,22 +3809,26 @@ fn read_colr<T: Read>(
                 )?;
             }
 
-            Ok(ColourInformation::Nclx(NclxColourInformation {
-                colour_primaries,
-                transfer_characteristics,
-                matrix_coefficients,
-                full_range_flag,
-            }))
+            Ok(ParsedColourInformation::Supported(ColourInformation::Nclx(
+                NclxColourInformation {
+                    colour_primaries,
+                    transfer_characteristics,
+                    matrix_coefficients,
+                    full_range_flag,
+                },
+            )))
         }
-        b"rICC" | b"prof" => Ok(ColourInformation::Icc(
+        b"rICC" | b"prof" => Ok(ParsedColourInformation::Supported(ColourInformation::Icc(
             IccColourInformation {
                 bytes: src.read_into_try_vec()?,
             },
             FourCC::from(colour_type),
-        )),
+        ))),
         _ => {
-            error!("read_colr colour_type: {colour_type:?}");
-            Status::ColrBadType.into()
+            let four_cc = FourCC::from(colour_type);
+            warn!("read_colr: unsupported colour_type {four_cc:?}, skipping");
+            skip_box_remain(src)?;
+            Ok(ParsedColourInformation::Unsupported(four_cc))
         }
     }
 }
@@ -5533,7 +5556,10 @@ fn read_hdlr<T: Read>(src: &mut BMFFBox<T>, strictness: ParseStrictness) -> Resu
 }
 
 /// Parse an video description inside an stsd box.
-fn read_video_sample_entry<T: Read>(src: &mut BMFFBox<T>) -> Result<SampleEntry> {
+fn read_video_sample_entry<T: Read>(
+    src: &mut BMFFBox<T>,
+    strictness: ParseStrictness,
+) -> Result<SampleEntry> {
     let name = src.get_header().name;
     let codec_type = match name {
         BoxType::AVCSampleEntry | BoxType::AVC3SampleEntry => CodecType::H264,
@@ -5567,6 +5593,7 @@ fn read_video_sample_entry<T: Read>(src: &mut BMFFBox<T>) -> Result<SampleEntry>
     // Skip clap/pasp/etc. for now.
     let mut codec_specific = None;
     let mut pixel_aspect_ratio = None;
+    let mut colour_info = None;
     let mut protection_info = TryVec::new();
     let mut iter = src.box_iter();
     while let Some(mut b) = iter.next_box()? {
@@ -5683,6 +5710,22 @@ fn read_video_sample_entry<T: Read>(src: &mut BMFFBox<T>) -> Result<SampleEntry>
                 }
                 debug!("Parsed pasp box: {pasp:?}, PAR {pixel_aspect_ratio:?}");
             }
+            BoxType::ColourInformationBox => {
+                if colour_info.is_some() {
+                    warn!("Multiple colr boxes in video sample entry, keeping first");
+                    fail_with_status_if(
+                        strictness != ParseStrictness::Permissive,
+                        Status::ColrBadQuantityBMFF,
+                    )?;
+                    skip_box_content(&mut b)?;
+                } else {
+                    if let ParsedColourInformation::Supported(colr) = read_colr(&mut b, strictness)?
+                    {
+                        debug!("Parsed colr box: {colr:?}");
+                        colour_info = Some(colr);
+                    }
+                }
+            }
             _ => {
                 debug!("Unsupported video codec, box {:?} found", b.head.name);
                 skip_box_content(&mut b)?;
@@ -5701,6 +5744,7 @@ fn read_video_sample_entry<T: Read>(src: &mut BMFFBox<T>) -> Result<SampleEntry>
                 codec_specific,
                 protection_info,
                 pixel_aspect_ratio,
+                colour_info,
             })
         }),
     )
@@ -5908,9 +5952,9 @@ fn read_stsd<T: Read>(
     while descriptions.len() < description_count {
         if let Some(mut b) = iter.next_box()? {
             let description = match track.track_type {
-                TrackType::Video => read_video_sample_entry(&mut b),
-                TrackType::Picture => read_video_sample_entry(&mut b),
-                TrackType::AuxiliaryVideo => read_video_sample_entry(&mut b),
+                TrackType::Video => read_video_sample_entry(&mut b, strictness),
+                TrackType::Picture => read_video_sample_entry(&mut b, strictness),
+                TrackType::AuxiliaryVideo => read_video_sample_entry(&mut b, strictness),
                 TrackType::Audio => read_audio_sample_entry(&mut b, strictness),
                 TrackType::Metadata => Err(Error::Unsupported("metadata track")),
                 TrackType::Unknown => Err(Error::Unsupported("unknown track type")),
