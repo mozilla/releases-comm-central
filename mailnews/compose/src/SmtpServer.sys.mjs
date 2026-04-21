@@ -613,6 +613,7 @@ export class SmtpServer {
     listener
   ) {
     const client = await this._getNextClient();
+    const { resolve, promise } = Promise.withResolvers();
     client.onFree = () => {
       // Done for now using this SmtpClient instance. Remove client from the
       // "busy" list and add it back to the "free" list. If a send is awaiting
@@ -685,7 +686,7 @@ export class SmtpServer {
         const canSendMore = client.send(chunk);
         if (!canSendMore) {
           // Socket buffer is full, wait for the ondrain event.
-          await new Promise(resolve => (socketOnDrain = resolve));
+          await new Promise(res => (socketOnDrain = res));
         }
         // In practice, chunks are buffered by TCPSocket, progress reaches 100%
         // almost immediately unless message is larger than chunk size.
@@ -716,11 +717,14 @@ export class SmtpServer {
       }
 
       listener?.onSendStop(this.serverURI, Cr.NS_OK, null, null);
+      resolve();
     };
     client.onerror = (nsError, errorMessage, secInfo) => {
       listener?.onSendStop(this.serverURI, nsError, secInfo, errorMessage);
+      // NOTE: don't reject(). That's handled by the listener.
     };
 
     client.connect();
+    return promise;
   }
 }

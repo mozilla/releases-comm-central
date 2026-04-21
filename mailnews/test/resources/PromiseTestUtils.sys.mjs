@@ -17,23 +17,22 @@ export var PromiseTestUtils = {};
  * @param [aWrapped] The nsIUrlListener to pass all notifications through to.
  *     This gets called prior to the callback (or async resumption).
  */
+PromiseTestUtils.PromiseUrlListener = class {
+  QueryInterface = ChromeUtils.generateQI(["nsIUrlListener"]);
 
-PromiseTestUtils.PromiseUrlListener = function (aWrapped) {
-  this.wrapped = aWrapped;
-  this._promise = new Promise((resolve, reject) => {
-    this._resolve = resolve;
-    this._reject = reject;
-  });
-};
-
-PromiseTestUtils.PromiseUrlListener.prototype = {
-  QueryInterface: ChromeUtils.generateQI(["nsIUrlListener"]),
+  constructor(wrapped) {
+    this.wrapped = wrapped;
+    this._promise = new Promise((resolve, reject) => {
+      this._resolve = resolve;
+      this._reject = reject;
+    });
+  }
 
   OnStartRunningUrl(aUrl) {
     if (this.wrapped && this.wrapped.OnStartRunningUrl) {
       this.wrapped.OnStartRunningUrl(aUrl);
     }
-  },
+  }
   OnStopRunningUrl(aUrl, aExitCode) {
     if (this.wrapped && this.wrapped.OnStopRunningUrl) {
       this.wrapped.OnStopRunningUrl(aUrl, aExitCode);
@@ -41,12 +40,12 @@ PromiseTestUtils.PromiseUrlListener.prototype = {
     if (aExitCode == Cr.NS_OK) {
       this._resolve();
     } else {
-      this._reject(aExitCode);
+      this._reject(new Error(aExitCode));
     }
-  },
+  }
   get promise() {
     return this._promise;
-  },
+  }
 };
 
 /**
@@ -55,36 +54,36 @@ PromiseTestUtils.PromiseUrlListener.prototype = {
  * @param {nsIMsgCopyServiceListener} [aWrapped] - The nsIMsgCopyServiceListener
  *   to pass all notifications through to. This gets called prior to the
  *   callback (or async resumption).
+ * @implements {nsIMsgCopyServiceListener}
  */
-PromiseTestUtils.PromiseCopyListener = function (aWrapped) {
-  this.wrapped = aWrapped;
-  this._promise = new Promise((resolve, reject) => {
-    this._resolve = resolve;
-    this._reject = reject;
-  });
-  this._result = { messageKeys: [], messageIds: [] };
-};
+PromiseTestUtils.PromiseCopyListener = class {
+  QueryInterface = ChromeUtils.generateQI(["nsIMsgCopyServiceListener"]);
 
-/** @implements {nsIMsgCopyServiceListener} */
-PromiseTestUtils.PromiseCopyListener.prototype = {
-  QueryInterface: ChromeUtils.generateQI(["nsIMsgCopyServiceListener"]),
+  constructor(wrapped) {
+    this.wrapped = wrapped;
+    this._promise = new Promise((resolve, reject) => {
+      this._resolve = resolve;
+      this._reject = reject;
+    });
+    this._result = { messageKeys: [], messageIds: [] };
+  }
   onStartCopy() {
     if (this.wrapped && this.wrapped.onStartCopy) {
       this.wrapped.onStartCopy();
     }
-  },
+  }
   onProgress(aProgress, aProgressMax) {
     if (this.wrapped && this.wrapped.onProgress) {
       this.wrapped.onProgress(aProgress, aProgressMax);
     }
-  },
+  }
   setMessageKey(aKey) {
     if (this.wrapped && this.wrapped.setMessageKey) {
       this.wrapped.setMessageKey(aKey);
     }
 
     this._result.messageKeys.push(aKey);
-  },
+  }
   getMessageId() {
     if (this.wrapped && this.wrapped.getMessageId) {
       const mid = this.wrapped.getMessageId();
@@ -92,7 +91,7 @@ PromiseTestUtils.PromiseCopyListener.prototype = {
       return mid;
     }
     return null;
-  },
+  }
   onStopCopy(aStatus) {
     if (this.wrapped && this.wrapped.onStopCopy) {
       this.wrapped.onStopCopy(aStatus);
@@ -101,12 +100,12 @@ PromiseTestUtils.PromiseCopyListener.prototype = {
     if (aStatus == Cr.NS_OK) {
       this._resolve(this._result);
     } else {
-      this._reject(aStatus);
+      this._reject(new Error(aStatus));
     }
-  },
+  }
   get promise() {
     return this._promise;
-  },
+  }
 };
 
 /**
@@ -142,7 +141,7 @@ PromiseTestUtils.PromiseRequestObserver = class {
     if (aStatusCode == Cr.NS_OK) {
       this._resolve(this._resolveValue);
     } else {
-      this._reject(aStatusCode);
+      this._reject(new Error(aStatusCode));
     }
   }
 
@@ -324,7 +323,7 @@ PromiseTestUtils.PromiseSearchNotify.prototype = {
     if (aResult == Cr.NS_OK) {
       this._resolve();
     } else {
-      this._reject(aResult);
+      this._reject(new Error(aResult));
     }
   },
   onNewSearch() {
@@ -388,7 +387,7 @@ PromiseTestUtils.PromiseStoreScanListener.prototype = {
     if (status == Cr.NS_OK) {
       this._resolve();
     } else {
-      this._reject(status);
+      this._reject(new Error(status));
     }
   },
   get promise() {
@@ -421,18 +420,20 @@ PromiseTestUtils.PromiseSendLaterListener = class {
   onMessageSendProgress() {}
 
   onMessageSendError(aCurrentMessage, aMessageHeader, aStatus) {
-    this._reject(aStatus);
+    this._reject(new Error(aStatus));
   }
 
-  onStopSending(aStatus, aMsg, aTotalTried, aSuccessful) {
-    if (aStatus != Cr.NS_OK) {
-      this._reject(aStatus);
+  onStopSending(status, msg, totalTried, successful) {
+    if (status != Cr.NS_OK) {
+      this._reject(new Error(status));
       return;
     }
 
     this._resolve({
-      totalTried: aTotalTried,
-      successful: aSuccessful,
+      status,
+      msg,
+      totalTried,
+      successful,
     });
   }
 
@@ -460,7 +461,7 @@ PromiseTestUtils.PromiseMsgOutgoingListener = class {
     if (exitCode == Cr.NS_OK) {
       this._resolve();
     } else {
-      this._reject(exitCode);
+      this._reject(new Error(exitCode));
     }
   }
 
@@ -495,7 +496,7 @@ PromiseTestUtils.PromiseMsgOperationListener = class {
     if (statusCode == Cr.NS_OK) {
       this._resolve();
     } else {
-      this._reject(statusCode);
+      this._reject(new Error(statusCode));
     }
   }
 
@@ -558,7 +559,7 @@ PromiseTestUtils.SendListener = class {
     if (status == Cr.NS_OK) {
       this._resolve();
     } else {
-      this._reject(status);
+      this._reject(new Error(status));
     }
   }
 
@@ -566,12 +567,65 @@ PromiseTestUtils.SendListener = class {
     if (status == Cr.NS_OK) {
       this._resolve();
     } else {
-      this._reject(status);
+      this._reject(new Error(status));
     }
   }
 
   onTransportSecurityError(_msgId, status, _secInfo, _location) {
-    this._reject(status);
+    this._reject(new Error(status));
+  }
+
+  get promise() {
+    return this._promise;
+  }
+};
+
+/**
+ * A `nsIMsgSendListener + nsIMsgCopyServiceListener` that can be awaited as a promise, and resolves/reject
+ * when sending stops.
+ */
+PromiseTestUtils.PromiseCopySendListener = class extends (
+  PromiseTestUtils.PromiseCopyListener
+) {
+  QueryInterface = ChromeUtils.generateQI([
+    "nsIMsgSendListener",
+    "nsIMsgCopyServiceListener",
+  ]);
+
+  constructor() {
+    super();
+    this._promise = new Promise((resolve, reject) => {
+      this._resolve = resolve;
+      this._reject = reject;
+    });
+    this._result = { messageKeys: [], messageIds: [] };
+  }
+
+  // --- nsIMsgSendListener
+
+  onStartSending(_msgId, _msgSize) {}
+  onSendProgress(_msgId, _progress, _progressMax) {}
+  onStatus(_msgId, _msg) {}
+  onGetDraftFolderURI(_msgId, _folderURI) {}
+
+  onStopSending(_msgId, status, _msg, _file) {
+    if (status == Cr.NS_OK) {
+      this._resolve();
+    } else {
+      this._reject(new Error(status));
+    }
+  }
+
+  onSendNotPerformed(_msgId, status) {
+    if (status == Cr.NS_OK) {
+      this._resolve();
+    } else {
+      this._reject(new Error(status));
+    }
+  }
+
+  onTransportSecurityError(_msgId, status, _secInfo, _location) {
+    this._reject(new Error(status));
   }
 
   get promise() {

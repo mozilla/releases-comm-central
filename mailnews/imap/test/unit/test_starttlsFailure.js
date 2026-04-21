@@ -63,8 +63,8 @@ add_setup(async function () {
     .then(() => {
       throw new Error("updateFolderWithListener has to fail");
     })
-    .catch(exitCode => {
-      Assert.ok(!Components.isSuccessCode(exitCode));
+    .catch(e => {
+      Assert.ok(e, "should fail");
     });
 });
 

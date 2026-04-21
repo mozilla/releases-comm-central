@@ -93,7 +93,7 @@ add_task(async function getMail1() {
   await Assert.rejects(
     urlListener.promise,
     reason => {
-      return reason === Cr.NS_ERROR_FAILURE;
+      return reason.message == Cr.NS_ERROR_FAILURE;
     },
     "Check that wrong password is entered and thrown"
   );

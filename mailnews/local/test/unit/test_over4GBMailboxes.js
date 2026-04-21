@@ -300,7 +300,7 @@ add_task(async function copyIntoOver4GiB_fail_check() {
   await Assert.rejects(
     copyListener.promise,
     reason => {
-      return reason === Cr.NS_ERROR_FAILURE;
+      return reason.message == Cr.NS_ERROR_FAILURE;
     },
     "The local folder is not above 4GiB"
   );

@@ -171,6 +171,18 @@ nsMsgCompose::~nsMsgCompose() {
     // tmp attachments are needed to create the message, so don't delete them.
     DeleteTmpAttachments();
   }
+
+  if (mDocShell) {
+    nsCOMPtr<nsIMsgComposeService> composeService =
+        mozilla::components::Compose::Service();
+    if (composeService) composeService->UnregisterComposeDocShell(mDocShell);
+  }
+  mDocShell = nullptr;
+
+  // ensure that the destructor of nsMsgSend is invoked to remove
+  // temporary files.
+  mMsgSend = nullptr;
+  m_editor = nullptr;
 }
 
 /* the following macro actually implement addref, release and query interface
@@ -1318,40 +1330,6 @@ NS_IMETHODIMP nsMsgCompose::GetDeleteDraft(bool* aDeleteDraft) {
 
 NS_IMETHODIMP nsMsgCompose::SetDeleteDraft(bool aDeleteDraft) {
   mDeleteDraft = aDeleteDraft;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgCompose::CloseWindow(void) {
-  nsresult rv;
-
-  nsCOMPtr<nsIMsgComposeService> composeService =
-      mozilla::components::Compose::Service();
-  // unregister the compose object with the compose service
-  rv = composeService->UnregisterComposeDocShell(mDocShell);
-  NS_ENSURE_SUCCESS(rv, rv);
-  mDocShell = nullptr;
-
-  // ensure that the destructor of nsMsgSend is invoked to remove
-  // temporary files.
-  mMsgSend = nullptr;
-  m_editor = nullptr;
-  if (m_window) {
-    nsCOMPtr<nsPIDOMWindowOuter> outerWin = nsPIDOMWindowOuter::From(m_window);
-    if (!outerWin) {
-      NS_WARNING("Getting outer win FAILED");
-      return NS_ERROR_FAILURE;
-    }
-    outerWin->Close();
-    m_window = nullptr;
-  }
-  return rv;
-}
-
-nsresult nsMsgCompose::Abort() {
-  if (mMsgSend) mMsgSend->Abort();
-
-  if (mProgress) mProgress->CloseProgressDialog(true);
-
   return NS_OK;
 }
 
@@ -3059,47 +3037,21 @@ nsresult nsMsgComposeSendListener::OnStopSending(const char* aMsgID,
     msgCompose->GetProgress(getter_AddRefs(progress));
 
     if (NS_SUCCEEDED(aStatus)) {
-      nsCOMPtr<nsIMsgCompFields> compFields;
-      msgCompose->GetCompFields(getter_AddRefs(compFields));
-
       // only process the reply flags if we successfully sent the message
       msgCompose->ProcessReplyFlags();
-
-      // See if there is a composer window
-      nsMsgCompose* _compose = static_cast<nsMsgCompose*>(msgCompose.get());
-      bool hasDomWindow = _compose->m_window;
-
-      // Close the window ONLY if we are not going to do a save operation
-      nsAutoString fieldsFCC;
-      if (NS_SUCCEEDED(compFields->GetFcc(fieldsFCC))) {
-        if (!fieldsFCC.IsEmpty()) {
-          if (fieldsFCC.LowerCaseEqualsLiteral("nocopy://")) {
-            msgCompose->NotifyStateListeners(
-                nsIMsgComposeNotificationType::ComposeProcessDone, NS_OK);
-            if (progress) {
-              progress->UnregisterListener(this);
-              progress->CloseProgressDialog(false);
-            }
-            if (hasDomWindow) msgCompose->CloseWindow();
-          }
-        }
-      } else {
-        msgCompose->NotifyStateListeners(
-            nsIMsgComposeNotificationType::ComposeProcessDone, NS_OK);
-        if (progress) {
-          progress->UnregisterListener(this);
-          progress->CloseProgressDialog(false);
-        }
-        // If we fail on the simple GetFcc call, close the window to be safe
-        //  and avoid windows hanging around.
-        if (hasDomWindow) msgCompose->CloseWindow();
-      }
 
       // Remove the current draft msg when sending draft is done.
       bool deleteDraft;
       msgCompose->GetDeleteDraft(&deleteDraft);
       if (deleteDraft) RemoveCurrentDraftMessage(msgCompose, false, false);
-    } else {
+    }
+    nsAutoString fieldsFCC;
+    nsCOMPtr<nsIMsgCompFields> compFields;
+    rv = msgCompose->GetCompFields(getter_AddRefs(compFields));
+    NS_ENSURE_SUCCESS(rv, rv);
+    compFields->GetFcc(fieldsFCC);
+    if (fieldsFCC.LowerCaseEqualsLiteral("nocopy://")) {
+      // Done ONLY if we are not going to do a save operation.
       msgCompose->NotifyStateListeners(
           nsIMsgComposeNotificationType::ComposeProcessDone, aStatus);
       if (progress) {
@@ -3178,7 +3130,6 @@ nsresult nsMsgComposeSendListener::OnStopCopy(nsresult aStatus) {
           msgCompose->SetDeleteDraft(true);
           RemoveCurrentDraftMessage(msgCompose, true, false);
         }
-        msgCompose->CloseWindow();
       }
     }
     msgCompose->ClearMessageSend();
@@ -3311,8 +3262,6 @@ nsresult nsMsgComposeSendListener::RemoveCurrentDraftMessage(
   if (NS_SUCCEEDED(rv) && !curDraftIdURL.IsEmpty()) {
     rv = RemoveDraftOrTemplate(compObj, curDraftIdURL, isSaveTemplate);
     if (NS_FAILED(rv)) NS_WARNING("Removing current draft failed");
-  } else {
-    NS_WARNING("RemoveCurrentDraftMessage can't get draft id");
   }
 
   if (isSaveTemplate) {
@@ -4902,8 +4851,6 @@ NS_IMETHODIMP nsMsgCompose::GetDeliverMode(MSG_DeliverMode* aDeliverMode) {
 
 void nsMsgCompose::DeleteTmpAttachments() {
   if (mTmpAttachmentsDeleted) {
-    // Don't delete tmp attachments if compose window is still open, e.g. saving
-    // a draft.
     return;
   }
   mTmpAttachmentsDeleted = true;

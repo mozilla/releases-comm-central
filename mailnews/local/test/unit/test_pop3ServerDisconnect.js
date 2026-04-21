@@ -48,7 +48,7 @@ add_task(async function getMail() {
   await Assert.rejects(
     urlListener.promise,
     reason => {
-      return reason === Cr.NS_ERROR_FAILURE;
+      return reason.message == Cr.NS_ERROR_FAILURE;
     },
     "Check that getting mail failed as expected"
   );

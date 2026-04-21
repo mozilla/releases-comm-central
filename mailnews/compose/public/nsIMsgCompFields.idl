@@ -20,7 +20,9 @@ interface nsIMsgCompFields : msgIWritableStructuredHeaders {
   attribute AString cc;
   attribute AString bcc;
 
+  /// File carbon copy. Where to save a copy of sent. Sent folder URI really.
   attribute AString fcc;
+  /// FCC, but coupled to UI selection.
   attribute AString fcc2;
 
   attribute AString newsgroups;

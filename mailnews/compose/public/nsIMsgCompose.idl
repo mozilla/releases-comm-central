@@ -143,12 +143,6 @@ interface nsIMsgCompose : nsIMsgSendListener {
                           in string accountKey);
 
   /* ... */
-  void CloseWindow();
-
-  /* ... */
-  void abort();
-
-  /* ... */
   void quoteMessage(in AUTF8String msgURI);
 
   /**

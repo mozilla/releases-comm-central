@@ -71,7 +71,7 @@ add_task(async function testNoUidlHeadersOnly() {
   incomingServer.headersOnly = true;
   await Assert.rejects(
     getNewMail(incomingServer),
-    e => e == Cr.NS_ERROR_FAILURE
+    e => e.message == Cr.NS_ERROR_FAILURE
   );
 });
 
@@ -84,6 +84,6 @@ add_task(async function testNoUidlLeaveMessagesOnServer() {
   incomingServer.leaveMessagesOnServer = true;
   await Assert.rejects(
     getNewMail(incomingServer),
-    e => e == Cr.NS_ERROR_FAILURE
+    e => e.message == Cr.NS_ERROR_FAILURE
   );
 });

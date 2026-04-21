@@ -113,8 +113,6 @@ add_task(function verifyImapFolders() {
 
 add_task(async function testImapFolderCopyFailure() {
   IMAPPump.daemon.commandToFail = "APPEND";
-  // we expect NS_MSG_ERROR_IMAP_COMMAND_FAILED;
-  const NS_MSG_ERROR_IMAP_COMMAND_FAILED = 0x80550021;
   const copyListener = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.copyFolder(
     gNotEmptyLocal4,
@@ -123,10 +121,11 @@ add_task(async function testImapFolderCopyFailure() {
     copyListener,
     null
   );
+  const NS_MSG_ERROR_IMAP_COMMAND_FAILED = 0x80550021;
   await Assert.rejects(
     copyListener.promise,
     e => {
-      return e === NS_MSG_ERROR_IMAP_COMMAND_FAILED;
+      return e.message == NS_MSG_ERROR_IMAP_COMMAND_FAILED;
     },
     "NS_MSG_ERROR_IMAP_COMMAND_FAILED should be the cause of the error"
   );

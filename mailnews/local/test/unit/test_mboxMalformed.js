@@ -103,7 +103,7 @@ add_task(async function test_badStoreTokens() {
       await streamListener.promise;
     } catch (e) {
       Assert.equal(
-        e,
+        e.message,
         NS_MSG_ERROR_MBOX_MALFORMED,
         "Bad read causes NS_MSG_ERROR_MBOX_MALFORMED"
       );
@@ -164,7 +164,7 @@ add_task(async function test_badMessageSizes() {
       await streamListener.promise;
     } catch (e) {
       Assert.equal(
-        e,
+        e.message,
         NS_MSG_ERROR_UNEXPECTED_SIZE,
         "Messages that don't end at expected place should cause NS_MSG_ERROR_UNEXPECTED_SIZE"
       );

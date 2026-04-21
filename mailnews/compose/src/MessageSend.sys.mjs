@@ -52,6 +52,7 @@ export class MessageSend {
    * @param {?string} smtpPassword - Optional smtp server password
    * @param {?string} originalMsgURI - URI of original message.
    * @param {nsIMsgCompType} compType - Compose type.
+   * @returns {Promise} promise when the create and send process is done.
    */
   async createAndSendMessage(
     editor,
@@ -405,7 +406,7 @@ export class MessageSend {
     }
   }
 
-  notifyListenerOnStopCopy(status) {
+  async notifyListenerOnStopCopy(status) {
     lazy.MsgUtils.sendLogger.debug(
       `notifyListenerOnStopCopy; status=${status}`
     );
@@ -522,13 +523,13 @@ export class MessageSend {
             this._sendProgress = progress;
             this._isRetry = true;
           }
-          this._mimeDoFcc();
+          await this._mimeDoFcc();
           return;
         } else if (buttonPressed == 2) {
           try {
             // Try to save to Local Folders/<account name>. Pass null to save
             // to local folders and not the configured fcc.
-            this._mimeDoFcc(null, true, Ci.nsIMsgSend.nsMsgDeliverNow);
+            await this._mimeDoFcc(null, true, Ci.nsIMsgSend.nsMsgDeliverNow);
             return;
           } catch (e) {
             Services.prompt.alert(
@@ -552,12 +553,12 @@ export class MessageSend {
       try {
         this._filterSentMessage();
       } catch (e) {
-        this.onStopOperation(e.result);
+        await this.onStopOperation(e.result);
       }
       return;
     }
 
-    this._doFcc2();
+    await this._doFcc2();
   }
 
   notifyListenerOnStopSending(msgId, status, msg, returnFile) {
@@ -589,7 +590,7 @@ export class MessageSend {
   /**
    * Called by nsIMsgFilterService.
    */
-  onStopOperation(status) {
+  async onStopOperation(status) {
     lazy.MsgUtils.sendLogger.debug(`onStopOperation; status=${status}`);
     if (Components.isSuccessCode(status)) {
       this._setStatusMessage(
@@ -606,7 +607,7 @@ export class MessageSend {
       );
     }
 
-    this._doFcc2();
+    await this._doFcc2();
   }
 
   /**
@@ -618,7 +619,7 @@ export class MessageSend {
    * @param {string} errMsg - A localized error message.
    * @param {boolean} isNewsDelivery - The message was delivered to newsgroup.
    */
-  _deliveryExitProcessing(
+  async _deliveryExitProcessing(
     serverURI,
     exitCode,
     secInfo,
@@ -715,10 +716,10 @@ export class MessageSend {
       null
     );
 
-    this._doFcc();
+    await this._doFcc();
   }
 
-  sendDeliveryCallback(
+  async sendDeliveryCallback(
     serverURI,
     exitCode,
     secInfo,
@@ -733,7 +734,7 @@ export class MessageSend {
         exitCode = Cr.NS_ERROR_FAILURE;
         errMsg = this._composeBundle.GetStringFromName("postFailed");
       }
-      return this._deliveryExitProcessing(
+      return await this._deliveryExitProcessing(
         serverURI,
         exitCode,
         secInfo,
@@ -741,7 +742,7 @@ export class MessageSend {
         isNewsDelivery
       );
     }
-    return this._deliveryExitProcessing(
+    return await this._deliveryExitProcessing(
       serverURI,
       exitCode,
       secInfo,
@@ -920,11 +921,11 @@ export class MessageSend {
    */
   async _doFcc() {
     if (!this._fcc || !lazy.MsgUtils.canSaveToFolder(this._fcc)) {
-      this.notifyListenerOnStopCopy(Cr.NS_OK);
+      await this.notifyListenerOnStopCopy(Cr.NS_OK);
       return;
     }
     this.sendReport.currentProcess = Ci.nsIMsgSendReport.process_Copy;
-    this._mimeDoFcc(this._fcc, false, Ci.nsIMsgSend.nsMsgDeliverNow);
+    await this._mimeDoFcc(this._fcc, false, Ci.nsIMsgSend.nsMsgDeliverNow);
   }
 
   /**
@@ -1027,12 +1028,10 @@ export class MessageSend {
     lazy.MsgUtils.sendLogger.debug("fcc file created");
 
     // Notify nsMsgCompose about the saved folder.
-    if (this._sendListener) {
-      this._sendListener.onGetDraftFolderURI(
-        this._compFields.messageId,
-        this._folderUri
-      );
-    }
+    this._sendListener?.onGetDraftFolderURI(
+      this._compFields.messageId,
+      this._folderUri
+    );
     folder = lazy.MailUtils.getOrCreateFolder(this._folderUri);
     const statusMsg = this._composeBundle.formatStringFromName(
       "copyMessageStart",
@@ -1056,14 +1055,14 @@ export class MessageSend {
       if (throwOnError) {
         throw Components.Exception("startCopyOperation failed", e.result);
       }
-      this.notifyListenerOnStopCopy(e.result);
+      await this.notifyListenerOnStopCopy(e.result);
     }
   }
 
   /**
    * Handle the fcc2 field. Then notify OnStopCopy and clean up.
    */
-  _doFcc2() {
+  async _doFcc2() {
     // Handle fcc2 only once.
     if (
       !this._fcc2Handled &&
@@ -1075,7 +1074,7 @@ export class MessageSend {
     ) {
       lazy.MsgUtils.sendLogger.debug("Processing fcc2");
       this._fcc2Handled = true;
-      this._mimeDoFcc(
+      await this._mimeDoFcc(
         this._compFields.fcc2,
         false,
         Ci.nsIMsgSend.nsMsgDeliverNow
@@ -1185,12 +1184,10 @@ export class MessageSend {
       this._userIdentity
     );
     if (!server) {
-      lazy.MsgUtils.sendLogger.warn(
-        `No server found for identity with email ${this._userIdentity.email} and ` +
-          `smtpServerKey ${this._userIdentity.smtpServerKey}`
-      );
-      return;
+      throw new Error(`No outgoing server for ${this._userIdentity.email}`);
     }
+
+    this._smtpRequest = outgoingListener.requestPromise;
 
     // Send the message using the server that was retrieved.
     server.sendMailMessage(
@@ -1205,11 +1202,7 @@ export class MessageSend {
       this._compFields.messageId,
       outgoingListener
     );
-
-    // Wait for the promise to resolve (i.e. for the send to start) before
-    // returning, to ensure the request is set (so it can be cancelled if
-    // necessary).
-    this._smtpRequest = await outgoingListener.requestPromise;
+    await this._smtpRequest;
   }
 
   /**
@@ -1523,6 +1516,18 @@ class PromiseMsgOutgoingListener {
    */
   #resolve;
 
+  /**
+   * The handle to reject `#requestPromise`.
+   *
+   * @type {function(Error): void}
+   */
+  #reject;
+
+  /**
+   * @type {nsIRequest}
+   */
+  #request;
+
   QueryInterface = ChromeUtils.generateQI(["nsIMsgOutgoingListener"]);
 
   /**
@@ -1533,9 +1538,10 @@ class PromiseMsgOutgoingListener {
 
     // Initialize the Promise that will be resolved when the send attempt
     // starts.
-    const { promise, resolve } = Promise.withResolvers();
+    const { promise, resolve, reject } = Promise.withResolvers();
     this.#requestPromise = promise;
     this.#resolve = resolve;
+    this.#reject = reject;
   }
 
   /**
@@ -1545,7 +1551,7 @@ class PromiseMsgOutgoingListener {
    *   attempt.
    */
   onSendStart(request) {
-    this.#resolve(request);
+    this.#request = request;
     this.#msgSend.notifyListenerOnStartSending(null, 0);
   }
 
@@ -1560,8 +1566,22 @@ class PromiseMsgOutgoingListener {
    * @param {?string} errMsg - An optional localized, human-readable error
    *    message.
    */
-  onSendStop(serverURI, exitCode, secInfo, errMsg) {
-    this.#msgSend.sendDeliveryCallback(serverURI, exitCode, secInfo, errMsg);
+  async onSendStop(serverURI, exitCode, secInfo, errMsg) {
+    await this.#msgSend.sendDeliveryCallback(
+      serverURI,
+      exitCode,
+      secInfo,
+      errMsg
+    );
+    if (this.#msgSend._deliverMode == Ci.nsIMsgSend.nsMsgSendUnsent) {
+      // FIXME: sendLater can't really handle promises... see bug 2032686.
+      return;
+    }
+    if (Components.isSuccessCode(exitCode)) {
+      this.#resolve(this.#request);
+    } else {
+      this.#reject(new Error(`Sending FAILED! ${errMsg}`));
+    }
   }
 
   /**

@@ -37,7 +37,7 @@ add_task(async function cancelPasswordDialog() {
   try {
     await listener.promise;
   } catch (e) {
-    equal(e, Cr.NS_ERROR_ABORT);
+    equal(e.message, Cr.NS_ERROR_ABORT);
   }
 
   // Should send nothing after canceling the password dialog.

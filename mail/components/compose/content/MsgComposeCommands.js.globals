@@ -219,7 +219,6 @@
   "moveFocusToNeighbouringArea",
   "moveSelectedAttachments",
   "moveSelectedPillsOnCommand",
-  "MsgComposeCloseWindow",
   "msgComposeContextOnHiding",
   "msgComposeContextOnShowing",
   "msgIdentityOnInput",

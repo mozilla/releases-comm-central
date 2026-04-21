@@ -149,8 +149,7 @@ add_task(async function testSelfSignedEWS() {
  * @param {string} hostname - The hostname to attempt connection to.
  * @param {string} expectedDialogText - This text should appear in the dialog.
  * @param {string} expectedErrorCategory - See nsITransportSecurityInfo.errorCodeString.
- * @param {nsIX509Cert} [expectedCert] - If given, a certificate exception
- *   should be added for this certificate.
+ * @param {"selfsigned"|"expired"|"notyetvalid"|"selfsigned"|"valid"} expectedCert - Expected type of cerficate.
  */
 async function subtest(
   serverDef,
@@ -159,6 +158,7 @@ async function subtest(
   expectedErrorCategory,
   expectedCert
 ) {
+  info(`Performing subtest for type=${serverDef.type}`);
   Services.fog.testResetFOG();
   const smtpServer = await ServerTestUtils.createServer(serverDef);
 
@@ -267,32 +267,31 @@ async function subtest(
   EventUtils.synthesizeKey("KEY_Tab", {}, composeWindow);
   await SimpleTest.promiseFocus(composeWindow);
 
-  if (expectedCert) {
-    // Check the certificate exception was created.
-    const isTemporary = {};
-    Assert.ok(
-      certOverrideService.hasMatchingOverride(
-        hostname,
-        port,
-        {},
-        await getCertificate(expectedCert),
-        isTemporary
-      ),
-      `certificate exception should exist for ${hostname}:${port}`
-    );
-    // The checkbox in the dialog was checked, so this exception is permanent.
-    Assert.ok(!isTemporary.value, "certificate exception should be permanent");
-
-    const telemetryEvents = Glean.mail.certificateExceptionAdded.testGetValue();
-    Assert.equal(telemetryEvents.length, 1);
-    Assert.deepEqual(telemetryEvents[0].extra, {
-      error_category: expectedErrorCategory,
-      protocol: serverDef.type,
+  info("Checking certificate exception gets created");
+  const isTemporary = {};
+  Assert.ok(
+    certOverrideService.hasMatchingOverride(
+      hostname,
       port,
-      ui: "compose-send-listener",
-    });
-  }
+      {},
+      await getCertificate(expectedCert),
+      isTemporary
+    ),
+    `certificate exception should exist for ${hostname}:${port}`
+  );
+  // The checkbox in the dialog was checked, so this exception is permanent.
+  Assert.ok(!isTemporary.value, "certificate exception should be permanent");
 
+  const telemetryEvents = Glean.mail.certificateExceptionAdded.testGetValue();
+  Assert.equal(telemetryEvents.length, 1);
+  Assert.deepEqual(telemetryEvents[0].extra, {
+    error_category: expectedErrorCategory,
+    protocol: serverDef.type,
+    port,
+    ui: "compose-send-listener",
+  });
+
+  info("Will try to send again, now that a certificate exception was added");
   EventUtils.synthesizeMouseAtCenter(
     composeWindow.document.getElementById("button-send"),
     {},

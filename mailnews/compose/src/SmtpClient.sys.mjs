@@ -117,7 +117,7 @@ export class SmtpClient {
     this.ondone = () => {}; // The mail has been sent. Wait for `onidle` next. Indicates if the message was queued by the server.
     this.onFree = () => {}; // Called when done using this SmtpClient instance for now.
 
-    this.logger.debug("New client instance");
+    this.logger.debug(`New ${this.constructor.name} instance created`);
   }
 
   /**

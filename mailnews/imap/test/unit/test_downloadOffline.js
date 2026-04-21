@@ -102,7 +102,7 @@ add_task(
         Assert.ok(false, "Bad storeToken should cause error.");
       } catch (e) {
         Assert.equal(
-          e,
+          e.message,
           NS_MSG_ERROR_MBOX_MALFORMED,
           "Bad storeToken causes NS_MSG_ERROR_MBOX_MALFORMED for mbox"
         );

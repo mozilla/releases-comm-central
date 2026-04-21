@@ -14,6 +14,9 @@ load("../../../resources/alertTestUtils.js");
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
+const { PromiseTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
+);
 
 var originalData;
 var identity = null;
@@ -22,95 +25,18 @@ var testFile = do_get_file("data/429891_testcase.eml");
 var kSender = "from@foo.invalid";
 var kTo = "to@foo.invalid";
 
-var msgSendLater = Cc["@mozilla.org/messengercompose/sendlater;1"].getService(
-  Ci.nsIMsgSendLater
-);
-
 // for alertTestUtils.js
 function alertPS(parent, aDialogTitle, aText) {
   dump("Hiding Alert {\n" + aText + "\n} End Alert\n");
 }
 
-// This listener handles the post-sending of the actual message and checks the
-// sequence and ensures the data is correct.
-function msll() {}
-
-msll.prototype = {
-  _initialTotal: 0,
-  _errorRaised: false,
-
-  // nsIMsgSendLaterListener
-  onStartSending() {
-    this._initialTotal = 1;
-    Assert.equal(msgSendLater.sendingMessages, true);
-  },
-  onMessageStartSending() {},
-  onMessageSendProgress() {},
-  onMessageSendError() {
-    this._errorRaised = true;
-  },
-  onStopSending(aStatus, aMsg, aTotal, aSuccessful) {
-    print("msll onStopSending\n");
-
-    Assert.equal(aStatus, Cr.NS_ERROR_CONNECTION_REFUSED);
-    Assert.equal(aTotal, 1);
-    Assert.equal(aSuccessful, 0);
-    Assert.equal(this._initialTotal, 1);
-    Assert.equal(this._errorRaised, true);
-    Assert.equal(msgSendLater.sendingMessages, false);
-    // Check that the send later service still thinks we have messages to send.
-    Assert.equal(msgSendLater.hasUnsentMessages(identity), true);
-
-    do_test_finished();
-  },
-};
-
-/* exported OnStopCopy */
-// for head_compose.js
-function OnStopCopy(aStatus) {
-  Assert.equal(aStatus, 0);
-
-  // Check this is false before we start sending
-  Assert.equal(msgSendLater.sendingMessages, false);
-
-  const folder = msgSendLater.getUnsentMessagesFolder(identity);
-
-  // Check that the send later service thinks we have messages to send.
-  Assert.equal(msgSendLater.hasUnsentMessages(identity), true);
-
-  // Check we have a message in the unsent message folder
-  Assert.equal(folder.getTotalMessages(false), 1);
-
-  // Now do a comparison of what is in the unsent mail folder
-  let msgData = mailTestUtils.loadMessageToString(
-    folder,
-    mailTestUtils.firstMsgHdr(folder)
-  );
-
-  // Skip the headers etc that mailnews adds
-  var pos = msgData.indexOf("From:");
-  Assert.notEqual(pos, -1);
-
-  msgData = msgData.substr(pos);
-
-  // Check the data is matching.
-  Assert.equal(originalData, msgData);
-
-  do_timeout(0, sendMessageLater);
-}
-
-// This function does the actual send later
-function sendMessageLater() {
-  // No server for this test, just attempt to send unsent and wait.
-  var messageListener = new msll();
-
-  msgSendLater.addListener(messageListener);
-
-  // Send the unsent message
-  msgSendLater.sendUnsentMessages(identity);
-}
-
 add_task(async function run_the_test() {
+  const msgSendLater = Cc[
+    "@mozilla.org/messengercompose/sendlater;1"
+  ].getService(Ci.nsIMsgSendLater);
+  const sendLaterListener = new PromiseTestUtils.PromiseSendLaterListener();
+  msgSendLater.addListener(sendLaterListener);
+
   registerAlertTestUtils();
 
   // Test file - for bug 429891
@@ -154,10 +80,10 @@ add_task(async function run_the_test() {
   compFields.from = identity.email;
   compFields.to = kTo;
 
-  var msgSend = Cc["@mozilla.org/messengercompose/send;1"].createInstance(
+  const msgSend = Cc["@mozilla.org/messengercompose/send;1"].createInstance(
     Ci.nsIMsgSend
   );
-
+  const sendListener = new PromiseTestUtils.PromiseCopySendListener();
   msgSend.sendMessageFile(
     identity,
     "",
@@ -167,10 +93,54 @@ add_task(async function run_the_test() {
     false,
     Ci.nsIMsgSend.nsMsgQueueForLater,
     null,
-    copyListener,
+    sendListener,
     null
   );
 
   // Now we wait till we get copy notification of completion.
-  do_test_pending();
+  await sendListener.promise;
+
+  Assert.equal(msgSendLater.sendingMessages, false);
+  const folder = msgSendLater.getUnsentMessagesFolder(identity);
+  Assert.equal(msgSendLater.hasUnsentMessages(identity), true);
+  Assert.equal(
+    folder.getTotalMessages(false),
+    1,
+    "should have a a message in the outbox"
+  );
+
+  // Now do a comparison of what is in the unsent mail folder
+  let msgData = mailTestUtils.loadMessageToString(
+    folder,
+    mailTestUtils.firstMsgHdr(folder)
+  );
+
+  // Skip the headers etc that mailnews adds
+  const pos = msgData.indexOf("From:");
+  Assert.notEqual(pos, -1);
+
+  msgData = msgData.substr(pos);
+
+  // Check the data is matching.
+  Assert.equal(originalData, msgData);
+
+  // Send the unsent message
+  msgSendLater.sendUnsentMessages(identity);
+  try {
+    await sendLaterListener.promise;
+    Assert.ok(false, "sending should fail");
+  } catch (e) {
+    Assert.ok(true, "sending should fail");
+  }
+
+  Assert.equal(
+    msgSendLater.sendingMessages,
+    false,
+    "the nsIMsgSendLater instance should have stopped sending messages"
+  );
+
+  Assert.ok(
+    msgSendLater.hasUnsentMessages(identity),
+    "should still have messages to send"
+  );
 });
