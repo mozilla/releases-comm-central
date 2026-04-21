@@ -624,6 +624,52 @@ export class GraphServer extends MockServer {
   }
 
   /**
+   * Check if the query string requests the extended property with the given ID.
+   *
+   * @param {string} queryString
+   * @param {string} propId
+   * @returns {bool}
+   */
+  #requestsExtendedProperty(queryString, propId) {
+    const params = new URLSearchParams(queryString);
+    const expand = params.get("expand") ?? params.get("$expand");
+    return (
+      expand?.includes(
+        `singleValueExtendedProperties($filter=id eq '${propId}')`
+      ) ?? false
+    );
+  }
+
+  /**
+   * Adds any expanded single value extended properties from `itemId` requested
+   * in `queryString` to `itemData`.
+   *
+   * Currently only supports size requests ("Integer 0x0E08").
+   *
+   * @param {object} itemData
+   * @param {string} itemId
+   * @param {string} queryString
+   */
+  #appendExpandedSingleValueExtendedProperties(itemData, itemId, queryString) {
+    if (!this.#requestsExtendedProperty(queryString, "Integer 0x0E08")) {
+      return;
+    }
+
+    const item = this.getItemInfo(itemId);
+    let messageSize = null;
+    messageSize = item.syntheticMessage.toMessageString().length;
+
+    if (messageSize !== null) {
+      itemData.singleValueExtendedProperties = [
+        {
+          id: "Integer 0xe08",
+          value: `${messageSize}`,
+        },
+      ];
+    }
+  }
+
+  /**
    * Handles GET /me/mailFolders/{folderId}/delta
    *
    * @param {string} folderName - The name of the folder to sync.
@@ -671,6 +717,11 @@ export class GraphServer extends MockServer {
           toRecipients: syntheticRecipientsToGraph(item.syntheticMessage.to),
           ccRecipients: syntheticRecipientsToGraph(item.syntheticMessage.cc),
         };
+        this.#appendExpandedSingleValueExtendedProperties(
+          itemData,
+          itemId,
+          queryString
+        );
         page.push(itemData);
       } else if (changeType == "delete") {
         const itemData = {
@@ -690,12 +741,25 @@ export class GraphServer extends MockServer {
     if (truncated) {
       // We have at least one more page of data. Send a nextLink.
       const newToken = offset + this.maxSyncItems;
+      const nextParams = new URLSearchParams(params);
+      nextParams.delete("$skiptoken");
+      nextParams.delete("$deltatoken");
+      nextParams.delete("skiptoken");
+      nextParams.delete("deltatoken");
+      nextParams.set("$skiptoken", `${newToken}`);
       result["@odata.nextLink"] =
-        `${this.#endpoint}/me/mailFolders('${folderName}')/messages/delta?$skiptoken=${newToken}`;
+        `${this.#endpoint}/me/mailFolders('${folderName}')/messages/delta?${nextParams}`;
     } else {
       // We are up to date. Send a deltaLink.
+      const newToken = this.itemChanges.length;
+      const nextParams = new URLSearchParams(params);
+      nextParams.delete("$skiptoken");
+      nextParams.delete("$deltatoken");
+      nextParams.delete("skiptoken");
+      nextParams.delete("deltatoken");
+      nextParams.set("$deltatoken", `${newToken}`);
       result["@odata.deltaLink"] =
-        `${this.#endpoint}/me/mailFolders('${folderName}')/messages/delta?$deltatoken=${this.itemChanges.length}`;
+        `${this.#endpoint}/me/mailFolders('${folderName}')/messages/delta?${nextParams}`;
     }
 
     return result;

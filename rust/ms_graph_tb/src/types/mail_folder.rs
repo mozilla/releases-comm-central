@@ -8,6 +8,9 @@
 use crate::odata::ExpandOptions;
 use crate::types::entity::{Entity, EntitySelection};
 use crate::types::message::{Message, MessageSelection};
+use crate::types::single_value_legacy_extended_property::{
+    SingleValueLegacyExtendedProperty, SingleValueLegacyExtendedPropertySelection,
+};
 use crate::{Error, PropertyMap};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -38,12 +41,16 @@ pub enum MailFolderSelection {
 pub enum MailFolderExpand {
     ChildFolders(ExpandOptions<MailFolderSelection>),
     Messages(ExpandOptions<MessageSelection>),
+    SingleValueExtendedProperties(ExpandOptions<SingleValueLegacyExtendedPropertySelection>),
 }
 impl fmt::Display for MailFolderExpand {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             MailFolderExpand::ChildFolders(opt) => opt.full_format(f, ExpandNames::from(self)),
             MailFolderExpand::Messages(opt) => opt.full_format(f, ExpandNames::from(self)),
+            MailFolderExpand::SingleValueExtendedProperties(opt) => {
+                opt.full_format(f, ExpandNames::from(self))
+            }
         }
     }
 }
@@ -227,6 +234,43 @@ impl<'a> MailFolder<'a> {
             .insert("parentFolderId".to_string(), val.into());
         self
     }
+    #[doc = "The collection of single-value extended properties defined for the mailFolder.\n\n Read-only. Nullable."]
+    pub fn single_value_extended_properties(
+        &'a self,
+    ) -> Result<Vec<SingleValueLegacyExtendedProperty<'a>>, Error> {
+        let val = self
+            .properties
+            .0
+            .get("singleValueExtendedProperties")
+            .ok_or(Error::NotFound)?;
+        val.as_array()
+            .ok_or_else(|| Error::UnexpectedResponse(format!("{val:?}")))?
+            .iter()
+            .map(|v| {
+                Ok::<_, Error>(
+                    PropertyMap(Cow::Borrowed(
+                        v.as_object()
+                            .ok_or_else(|| Error::UnexpectedResponse(format!("{v:?}")))?,
+                    ))
+                    .into(),
+                )
+            })
+            .collect::<Result<_, _>>()
+    }
+    #[doc = "Setter for [`single_value_extended_properties`](Self::single_value_extended_properties).\n\nThis library makes no guarantees that Graph exposes this property as writable."]
+    #[must_use]
+    pub fn set_single_value_extended_properties(
+        mut self,
+        val: Vec<SingleValueLegacyExtendedProperty<'_>>,
+    ) -> Self {
+        self.properties.0.to_mut().insert(
+            "singleValueExtendedProperties".to_string(),
+            val.into_iter()
+                .map(|v| Value::Object(v.properties.0.into_owned()))
+                .collect(),
+        );
+        self
+    }
     #[doc = "The number of items in the mailFolder."]
     pub fn total_item_count(&self) -> Result<Option<i32>, Error> {
         let val = self
@@ -278,5 +322,17 @@ impl<'a> MailFolder<'a> {
             .to_mut()
             .insert("unreadItemCount".to_string(), val.into());
         self
+    }
+}
+impl crate::extended_properties::SingleValueExtendedPropertiesExpand for MailFolderExpand {
+    #[doc = r"Construct [`Self::SingleValueExtendedProperties`]."]
+    fn svleps(options: ExpandOptions<SingleValueLegacyExtendedPropertySelection>) -> Self {
+        Self::SingleValueExtendedProperties(options)
+    }
+}
+impl<'a> crate::extended_properties::SingleValueExtendedPropertiesType<'a> for MailFolder<'a> {
+    #[doc = r"Wrapper for [`Self::single_value_extended_properties`]."]
+    fn all_svleps(&'a self) -> Result<Vec<SingleValueLegacyExtendedProperty<'a>>, Error> {
+        self.single_value_extended_properties()
     }
 }

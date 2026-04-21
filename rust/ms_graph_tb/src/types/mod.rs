@@ -17,4 +17,5 @@ pub mod message;
 pub mod message_collection_response;
 pub mod outlook_item;
 pub mod recipient;
+pub mod single_value_legacy_extended_property;
 pub mod user;

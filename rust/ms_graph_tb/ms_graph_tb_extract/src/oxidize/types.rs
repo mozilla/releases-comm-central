@@ -76,6 +76,10 @@ impl ToTokens for GraphType {
         let imports = super::imports(properties, Some(&snakeify(&name.to_string())));
         let expand_ident = format_ident!("{}Expand", name);
         let select_variants = select_variants(properties);
+        let single_value_extended_properties_expand_impl = (*has_expansions)
+            .then(|| single_value_extended_properties_expand_impl(&expand_ident, properties));
+        let single_value_extended_properties_impl = matches!(kind, TypeKind::Named)
+            .then(|| single_value_extended_properties_impl(&name, properties));
 
         // Generating documentation for methods of unnamed types seems to cause
         // some weird bug with rustc's diagnostics that means we end up with
@@ -152,6 +156,8 @@ impl ToTokens for GraphType {
                 }
                 #(#function_defs)*
             }
+            #single_value_extended_properties_expand_impl
+            #single_value_extended_properties_impl
         ))
     }
 }
@@ -391,6 +397,55 @@ fn function_defs(properties: &[Property], generate_doc: bool) -> Vec<MethodDef> 
     // Sort by the name of the getter, then flatten the pairs
     function_defs.sort();
     function_defs.into_iter().flatten().collect()
+}
+
+fn has_single_value_extended_properties(properties: &[Property]) -> bool {
+    properties.iter().any(|prop| {
+        prop.name == "singleValueExtendedProperties"
+            && prop.navigation_property
+            && matches!(prop.rust_type, RustType::NamedSchema(_))
+            && prop.is_collection
+    })
+}
+
+fn single_value_extended_properties_expand_impl(
+    expand_name: &Ident,
+    properties: &[Property],
+) -> Option<TokenStream> {
+    if !has_single_value_extended_properties(properties) {
+        return None;
+    }
+
+    Some(quote! {
+        impl crate::extended_properties::SingleValueExtendedPropertiesExpand for #expand_name {
+            ///Construct [`Self::SingleValueExtendedProperties`].
+            fn svleps(
+                options: ExpandOptions<SingleValueLegacyExtendedPropertySelection>,
+            ) -> Self {
+                Self::SingleValueExtendedProperties(options)
+            }
+        }
+    })
+}
+
+fn single_value_extended_properties_impl(
+    name: &Ident,
+    properties: &[Property],
+) -> Option<TokenStream> {
+    if !has_single_value_extended_properties(properties) {
+        return None;
+    }
+
+    Some(quote! {
+        impl<'a> crate::extended_properties::SingleValueExtendedPropertiesType<'a> for #name<'a> {
+            ///Wrapper for [`Self::single_value_extended_properties`].
+            fn all_svleps(
+                &'a self,
+            ) -> Result<Vec<SingleValueLegacyExtendedProperty<'a>>, Error> {
+                self.single_value_extended_properties()
+            }
+        }
+    })
 }
 
 fn getter_body(prop: &Property) -> TokenStream {

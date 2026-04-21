@@ -13,4 +13,5 @@ message
 messageCollectionResponse
 outlookItem
 recipient
+singleValueLegacyExtendedProperty
 user

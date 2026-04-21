@@ -5,11 +5,15 @@
 // EDITS TO THIS FILE WILL BE OVERWRITTEN
 
 #![doc = "Types related to Message.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
+use crate::odata::ExpandOptions;
 use crate::types::importance::Importance;
 use crate::types::internet_message_header::InternetMessageHeader;
 use crate::types::item_body::ItemBody;
 use crate::types::outlook_item::{OutlookItem, OutlookItemSelection};
 use crate::types::recipient::Recipient;
+use crate::types::single_value_legacy_extended_property::{
+    SingleValueLegacyExtendedProperty, SingleValueLegacyExtendedPropertySelection,
+};
 use crate::{Error, PropertyMap};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -46,16 +50,25 @@ pub enum MessageSelection {
     UniqueBody,
     WebLink,
 }
-#[doc = r"Zero-variant enum that cannot be instantiated."]
+#[doc = r"Types that are syntactically valid to expand for this type."]
 #[doc = r""]
-#[doc = r" None of the types that can be expanded from this type are"]
-#[doc = r" currently supported. This enum is used to indicate that any"]
-#[doc = r" attempts to expand this Graph type will fail to compile."]
-#[derive(Clone, Debug)]
-pub enum MessageExpand {}
+#[doc = r" Being present in this enum does not guarantee Graph can expand"]
+#[doc = r" the property for any particular path."]
+#[derive(Clone, Debug, strum :: EnumDiscriminants)]
+#[strum_discriminants(name(ExpandNames))]
+#[strum_discriminants(vis(pub(self)))]
+#[strum_discriminants(derive(Display))]
+#[strum_discriminants(strum(serialize_all = "camelCase"))]
+pub enum MessageExpand {
+    SingleValueExtendedProperties(ExpandOptions<SingleValueLegacyExtendedPropertySelection>),
+}
 impl fmt::Display for MessageExpand {
-    fn fmt(&self, _: &mut fmt::Formatter<'_>) -> std::fmt::Result {
-        match *self {}
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            MessageExpand::SingleValueExtendedProperties(opt) => {
+                opt.full_format(f, ExpandNames::from(self))
+            }
+        }
     }
 }
 #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
@@ -551,6 +564,43 @@ impl<'a> Message<'a> {
             .insert("sentDateTime".to_string(), val.into());
         self
     }
+    #[doc = "The collection of single-value extended properties defined for the message.\n\n Nullable."]
+    pub fn single_value_extended_properties(
+        &'a self,
+    ) -> Result<Vec<SingleValueLegacyExtendedProperty<'a>>, Error> {
+        let val = self
+            .properties
+            .0
+            .get("singleValueExtendedProperties")
+            .ok_or(Error::NotFound)?;
+        val.as_array()
+            .ok_or_else(|| Error::UnexpectedResponse(format!("{val:?}")))?
+            .iter()
+            .map(|v| {
+                Ok::<_, Error>(
+                    PropertyMap(Cow::Borrowed(
+                        v.as_object()
+                            .ok_or_else(|| Error::UnexpectedResponse(format!("{v:?}")))?,
+                    ))
+                    .into(),
+                )
+            })
+            .collect::<Result<_, _>>()
+    }
+    #[doc = "Setter for [`single_value_extended_properties`](Self::single_value_extended_properties).\n\nThis library makes no guarantees that Graph exposes this property as writable."]
+    #[must_use]
+    pub fn set_single_value_extended_properties(
+        mut self,
+        val: Vec<SingleValueLegacyExtendedProperty<'_>>,
+    ) -> Self {
+        self.properties.0.to_mut().insert(
+            "singleValueExtendedProperties".to_string(),
+            val.into_iter()
+                .map(|v| Value::Object(v.properties.0.into_owned()))
+                .collect(),
+        );
+        self
+    }
     #[doc = "The subject of the message."]
     pub fn subject(&self) -> Result<Option<&str>, Error> {
         let val = self.properties.0.get("subject").ok_or(Error::NotFound)?;
@@ -638,5 +688,17 @@ impl<'a> Message<'a> {
             .to_mut()
             .insert("webLink".to_string(), val.into());
         self
+    }
+}
+impl crate::extended_properties::SingleValueExtendedPropertiesExpand for MessageExpand {
+    #[doc = r"Construct [`Self::SingleValueExtendedProperties`]."]
+    fn svleps(options: ExpandOptions<SingleValueLegacyExtendedPropertySelection>) -> Self {
+        Self::SingleValueExtendedProperties(options)
+    }
+}
+impl<'a> crate::extended_properties::SingleValueExtendedPropertiesType<'a> for Message<'a> {
+    #[doc = r"Wrapper for [`Self::single_value_extended_properties`]."]
+    fn all_svleps(&'a self) -> Result<Vec<SingleValueLegacyExtendedProperty<'a>>, Error> {
+        self.single_value_extended_properties()
     }
 }

@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use ms_graph_tb::{
-    Error, Select,
+    Error, Select, define_svlep,
+    extended_properties::{SingleValueExtendedPropertiesOp, SingleValueExtendedPropertiesType},
     pagination::{DeltaItem, DeltaResponse},
     paths::me::mail_folders::mail_folder_id::messages,
     types::{
@@ -25,6 +26,8 @@ use url::Url;
 use xpcom::{RefCounted, RefPtr, interfaces::IHeaderBlock};
 
 use crate::{client::XpComGraphClient, error::XpComGraphError};
+
+define_svlep!(PID_TAG_MESSAGE_SIZE, Integer, 0x0E08);
 
 struct DoSyncMessagesForFolder<'a> {
     pub listener: &'a SafeEwsMessageSyncListener,
@@ -72,6 +75,7 @@ impl<ServerT: AuthenticationProvider + RefCounted>
                 let folder_id = self.folder_id.clone();
                 let mut request = messages::delta::Get::new(endpoint, folder_id);
                 request.select(select_properties);
+                request.expand_typed_svlep([PID_TAG_MESSAGE_SIZE]);
                 client.send_request_json_response(request).await?
             }
         };
@@ -87,10 +91,10 @@ impl<ServerT: AuthenticationProvider + RefCounted>
                             headers_for_message(message).ok_or(XpComGraphError::Processing {
                                 message: "Failed to get message headers.".to_string(),
                             })?;
-                        // TODO
-                        // (https://bugzilla.mozilla.org/show_bug.cgi?id=2025016)
-                        // Use extended properties to get the message size.
-                        let message_size = 0;
+                        let message_size = message
+                            .typed_svlep(PID_TAG_MESSAGE_SIZE)?
+                            .and_then(|message_size| message_size.try_into().ok())
+                            .unwrap_or(0);
                         let is_read = message.is_read()?.ok_or(XpComGraphError::Processing {
                             message: "isRead not present in response despite being requested"
                                 .into(),

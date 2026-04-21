@@ -199,6 +199,11 @@ async function testMessageBatching(mockServer, client) {
     messages.map(m => m.subject),
     "headers with the correct values should have been created"
   );
+  Assert.deepEqual(
+    listener.created.map(entry => entry.messageSize),
+    messages.map(message => message.toMessageString().length),
+    "the correct message sizes should have been reported"
+  );
   Assert.ok(
     listener.syncStateToken,
     "the sync token should have been recorded"
@@ -259,6 +264,11 @@ async function testSyncChangesWithClient(
     listener.created.map(entry => getHeader(entry.headers, "Subject")),
     messages.map(m => m.subject),
     "headers with the correct values should have been created"
+  );
+  Assert.deepEqual(
+    listener.created.map(entry => entry.messageSize),
+    messages.map(message => message.toMessageString().length),
+    "the correct message sizes should have been reported"
   );
   Assert.ok(
     !!listener.syncStateToken,

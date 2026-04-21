@@ -8,6 +8,7 @@ use std::borrow::Cow;
 use std::fmt::Display;
 use thiserror::Error;
 
+pub mod extended_properties;
 pub mod odata;
 pub mod pagination;
 pub mod paths;
