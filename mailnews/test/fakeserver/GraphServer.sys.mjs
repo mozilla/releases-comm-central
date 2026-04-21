@@ -266,7 +266,7 @@ export class GraphServer extends MockServer {
           ))
         ) {
           const folderName = pathMatch[1];
-          responseJsonObject = this.#mailFolderMessages(
+          responseJsonObject = this.#syncFolderMessages(
             folderName,
             resourceQuery
           );
@@ -276,7 +276,7 @@ export class GraphServer extends MockServer {
           ))
         ) {
           const folderName = pathMatch[1];
-          responseJsonObject = this.#mailFolderMessages(
+          responseJsonObject = this.#syncFolderMessages(
             folderName,
             resourceQuery
           );
@@ -618,7 +618,13 @@ export class GraphServer extends MockServer {
     }
   }
 
-  #mailFolderMessages(folderName, queryString) {
+  /**
+   * Handles GET /me/mailFolders/{folderId}/delta
+   *
+   * @param {string} folderName - The name of the folder to sync.
+   * @param {string} queryString - The query parameters from the request.
+   */
+  #syncFolderMessages(folderName, queryString) {
     const params = new URLSearchParams(queryString);
     let offset;
     if (params.has("$skiptoken")) {
@@ -639,7 +645,13 @@ export class GraphServer extends MockServer {
 
     const page = [];
     for (const [changeType, parentId, itemId] of changes) {
-      if (changeType == "create") {
+      // Graph doesn't differentiate between creation, update and read flag
+      // updates, they all appear the same in delta responses.
+      if (
+        changeType == "create" ||
+        changeType == "update" ||
+        changeType == "readflag"
+      ) {
         const item = this.getItemInfo(itemId);
         const itemData = {
           "@odata.type": "#microsoft.graph.message",
@@ -650,6 +662,9 @@ export class GraphServer extends MockServer {
           bodyPreview: item.syntheticMessage.bodyPart
             .toMessageString()
             .slice(0, 10),
+          isRead: item.syntheticMessage.metaState.read,
+          toRecipients: syntheticRecipientsToGraph(item.syntheticMessage.to),
+          ccRecipients: syntheticRecipientsToGraph(item.syntheticMessage.cc),
         };
         page.push(itemData);
       } else if (changeType == "delete") {
@@ -660,8 +675,6 @@ export class GraphServer extends MockServer {
         };
         page.push(itemData);
       }
-      // TODO (https://bugzilla.mozilla.org/show_bug.cgi?id=2025009) Handle
-      // message updates.
     }
 
     const result = {
@@ -676,11 +689,8 @@ export class GraphServer extends MockServer {
         `${this.#endpoint}/me/mailFolders('${folderName}')/messages/delta?$skiptoken=${newToken}`;
     } else {
       // We are up to date. Send a deltaLink.
-      const newToken = changes
-        ? this.itemChanges.indexOf(changes.at(-1)) + 1
-        : 0;
       result["@odata.deltaLink"] =
-        `${this.#endpoint}/me/mailFolders('${folderName}')/messages/delta?$deltatoken=${newToken}`;
+        `${this.#endpoint}/me/mailFolders('${folderName}')/messages/delta?$deltatoken=${this.itemChanges.length}`;
     }
 
     return result;
@@ -720,4 +730,30 @@ export class GraphServer extends MockServer {
   get #endpoint() {
     return `http://127.0.0.1:${this.port}`;
   }
+}
+
+/**
+ * Maps a list of recipients in a `SyntheticMessage` to an array with the
+ * relevant structure from the Graph API. Each element of the resulting array is
+ * an object, itself containing an `emailAddress` object, which has a `name` and
+ * an `address`.
+ *
+ * @param {?string[][]} recipients - A single recipient (e.g. to or cc) from a
+ *   `SyntheticMessage`, which is an array with the display name as the first
+ *   element and the address as the second.
+ * @returns {object[]} - The recipients formatted as expected in the Graph API.
+ */
+function syntheticRecipientsToGraph(recipients) {
+  if (!recipients) {
+    return [];
+  }
+
+  return recipients.map(recipient => {
+    return {
+      emailAddress: {
+        name: recipient[0],
+        address: recipient[1],
+      },
+    };
+  });
 }

@@ -84,9 +84,19 @@ impl<ServerT: AuthenticationProvider + RefCounted>
                             })?
                             .to_string();
 
+                        log::debug!(
+                            "Found folder in response with ID {folder_id} ({display_name})"
+                        );
+
                         // Graph doesn't provide a way to consistently distinguish new
                         // and updated objects, so it's tracked here by attempting to
                         // modify the folders and falling back to creating them.
+                        //
+                        // TODO: We should use `NS_MSG_ERROR_FOLDER_MISSING`, to
+                        // avoid misidentifying an error that occurred while
+                        // updating an existing folder as the folder not
+                        // existing at all, see
+                        // https://bugzilla.mozilla.org/show_bug.cgi?id=2033401
                         if let Err(err) = self.listener.on_folder_updated(
                             Some(folder_id.clone()),
                             Some(parent_folder_id.clone()),
@@ -95,6 +105,7 @@ impl<ServerT: AuthenticationProvider + RefCounted>
                             log::debug!(
                                 "Folder update failed ({err}); falling back to create for {folder_id}"
                             );
+
                             self.listener.on_folder_created(
                                 Some(folder_id),
                                 Some(parent_folder_id),

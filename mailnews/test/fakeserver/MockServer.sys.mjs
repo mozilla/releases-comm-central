@@ -502,7 +502,7 @@ export class MockServer {
     for (const change of changes) {
       const changeKind = change[0];
       const itemId = change[2];
-      if (changeKind == "created") {
+      if (changeKind == "create") {
         createdInRange.add(itemId);
       }
       currentStateById.set(itemId, changeKind);
@@ -511,6 +511,8 @@ export class MockServer {
     const flattenedChanges = changes.filter(([kind, _parentId, itemId]) => {
       switch (kind) {
         case "create":
+        case "update":
+        case "readflag":
           // If the change is an item creation, remove it if the item was
           // deleted afterwards.
           return currentStateById.get(itemId) != "delete";

@@ -237,9 +237,10 @@ class EwsMessageSyncHandler : public IExchangeMessageSyncListener,
     nsresult rv = mDB->GetMsgHdrForEwsItemID(ewsId, getter_AddRefs(msgHdr));
     NS_ENSURE_SUCCESS(rv, rv);
     if (!msgHdr) {
-      // An `Updated` before a `Created`? Something has gone pear-shaped.
-      // Let the operation know. It _might_ decide to continue, using the
-      // "Created" callback instead, or it might skip it.
+      // We might be in a weird situation where the server told us of an update
+      // before a creation, or it might be that the server does not distinguish
+      // the two cases. Either way, let the consumer know in case it wants to
+      // try creating the message instead.
       return NS_MSG_MESSAGE_NOT_FOUND;
     }
 
@@ -279,7 +280,19 @@ class EwsMessageSyncHandler : public IExchangeMessageSyncListener,
     }
     updated.flags = flags;  // Ignore any X-Mozilla-Status values.
 
+    // We need the old flags to notify listeners.
+    uint32_t oldFlags;
+    MOZ_TRY(msgHdr->GetFlags(&oldFlags));
+
+    // Update the database entry, then notify any listener to let them know
+    // about the changes.
     MOZ_TRY(ApplyRawHdrToDbHdr(updated, msgHdr));
+
+    // Setting `instigator` (the 4th argument to `NotifyHdrChangeAll`) to
+    // nullptr should be fine here, the only listener that actually cares about
+    // it is the `nsMsgDBView` to check whether it instigated the change itself
+    // (which it hasn't in this case).
+    MOZ_TRY(mDB->NotifyHdrChangeAll(msgHdr, oldFlags, flags, nullptr));
 
     if (messageSize) {
       MOZ_TRY(msgHdr->SetMessageSize(messageSize));
@@ -333,6 +346,11 @@ class EwsMessageSyncHandler : public IExchangeMessageSyncListener,
 
   // Called when the operation succeeds.
   NS_IMETHOD OnSyncComplete() override {
+    // We might have processed unread count updates via `OnMessageUpdated`, in
+    // which case we need to make sure the message counts are up to date.
+    MOZ_TRY(mDB->SyncCounts());
+    MOZ_TRY(mFolder->UpdateSummaryTotals(true));
+
     MOZ_ASSERT(mNewMessages.Length() == mNewHeaders.Length());
     mOnStop(NS_OK, mNewMessages, mNewHeaders);
     return NS_OK;
@@ -345,6 +363,13 @@ class EwsMessageSyncHandler : public IExchangeMessageSyncListener,
   // Called if sync operation fails.
   NS_IMETHOD OnOperationFailure(nsresult status) override {
     MOZ_ASSERT(NS_FAILED(status));
+
+    // We might have processed unread count updates via `OnMessageUpdated` (even
+    // if the sync failed), in which case we need to make sure the message
+    // counts are up to date.
+    MOZ_TRY(mDB->SyncCounts());
+    MOZ_TRY(mFolder->UpdateSummaryTotals(true));
+
     // Even if the operation fails some messages may have already been added
     // to the database and the folder should be told about them.
     MOZ_ASSERT(mNewMessages.Length() == mNewHeaders.Length());

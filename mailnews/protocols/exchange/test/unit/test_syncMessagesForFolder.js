@@ -133,24 +133,33 @@ add_task(async function testMessageBatchingEws() {
   await testMessageBatching(ewsServer, ewsClient);
 });
 
+add_task(async function testMessageBatchingGraph() {
+  await testMessageBatching(graphServer, graphClient);
+});
+
 add_task(async function testSyncChangesWithClientEws() {
-  await testSyncChangesWithClient(ewsServer, ewsClient);
+  await testSyncChangesWithClient(ewsServer, ewsClient, true);
+});
+
+add_task(async function testSyncChangesWithClientGraph() {
+  await testSyncChangesWithClient(graphServer, graphClient, false);
 });
 
 add_task(async function testSyncChangesWithRealFolderEws() {
   await testSyncChangesWithRealFolder(ewsServer, incomingEwsServer);
 });
 
+add_task(async function testSyncChangesWithRealFolderGraph() {
+  await testSyncChangesWithRealFolder(graphServer, incomingGraphServer);
+});
+
 add_task(async function testSyncRecipientsEws() {
   await testSyncRecipients(ewsServer, incomingEwsServer);
 });
 
-add_task(async function testMessageBatchingGraph() {
-  await testMessageBatching(graphServer, graphClient);
+add_task(async function testSyncRecipientsGraph() {
+  await testSyncRecipients(graphServer, incomingGraphServer);
 });
-
-// TODO (https://bugzilla.mozilla.org/show_bug.cgi?id=2025009) Enable the other
-// three tests for Graph once we support updates on sync.
 
 /**
  * Test sync wherein we sync more changes than the server will send in one
@@ -166,32 +175,32 @@ async function testMessageBatching(mockServer, client) {
 
   const listener = new ExchangeMessageCallbackListener();
   client.syncMessagesForFolder(listener, "inbox", null);
-  await listener._deferred.promise;
+  await listener.deferred.promise;
 
   Assert.deepEqual(
-    listener._created.length,
+    listener.created.length,
     messages.length,
     "all of the created items should have been synced"
   );
   Assert.deepEqual(
-    listener._deletedItemIds,
+    listener.deletedItemIds,
     [],
     "no items should have been deleted"
   );
   Assert.deepEqual(
-    listener._created.map(entry =>
+    listener.created.map(entry =>
       deAngled(getHeader(entry.headers, "Message-Id"))
     ),
     messages.map(m => deAngled(m.messageId)),
     "headers with the correct values should have been created"
   );
   Assert.deepEqual(
-    listener._created.map(entry => getHeader(entry.headers, "Subject")),
+    listener.created.map(entry => getHeader(entry.headers, "Subject")),
     messages.map(m => m.subject),
     "headers with the correct values should have been created"
   );
   Assert.ok(
-    listener._syncStateToken,
+    listener.syncStateToken,
     "the sync token should have been recorded"
   );
 
@@ -200,8 +209,18 @@ async function testMessageBatching(mockServer, client) {
 
 /**
  * Test what happens if an item is moved or deleted.
+ *
+ * @param {MockServer} mockServer - The `MockServer` instance that implements
+ *   the protocol being tested.
+ * @param {EwsClient|GraphClient} client - The protocol client to test.
+ * @param {boolean} separateReadStatusUpdates - Whether the protocol separates
+ *   read status updates from other message updates.
  */
-async function testSyncChangesWithClient(mockServer, client) {
+async function testSyncChangesWithClient(
+  mockServer,
+  client,
+  separateReadStatusUpdates
+) {
   mockServer.setRemoteFolders(mockServer.getWellKnownFolders());
   mockServer.clearItems();
 
@@ -212,37 +231,37 @@ async function testSyncChangesWithClient(mockServer, client) {
 
   let listener = new ExchangeMessageCallbackListener();
   client.syncMessagesForFolder(listener, "inbox", null);
-  await listener._deferred.promise;
+  await listener.deferred.promise;
 
   Assert.equal(
-    listener._created.length,
+    listener.created.length,
     messages.length,
     "all of the created items should have been synced"
   );
   Assert.equal(
-    listener._deletedItemIds.length,
+    listener.deletedItemIds.length,
     0,
     "no items should have been deleted"
   );
   Assert.deepEqual(
-    listener._readStatusUpdates,
+    listener.readStatusUpdates,
     [],
     "no items should have been marked as read"
   );
   Assert.deepEqual(
-    listener._created.map(entry =>
+    listener.created.map(entry =>
       deAngled(getHeader(entry.headers, "Message-Id"))
     ),
     messages.map(m => deAngled(m.messageId)),
     "headers with the correct values should have been created"
   );
   Assert.deepEqual(
-    listener._created.map(entry => getHeader(entry.headers, "Subject")),
+    listener.created.map(entry => getHeader(entry.headers, "Subject")),
     messages.map(m => m.subject),
     "headers with the correct values should have been created"
   );
   Assert.ok(
-    listener._syncStateToken,
+    !!listener.syncStateToken,
     "the sync token should have been recorded"
   );
 
@@ -253,10 +272,12 @@ async function testSyncChangesWithClient(mockServer, client) {
   const itemIdToUpdate = messages[5].messageId;
   messages[5].subject = "Scary Monster Under Your Bed";
   mockServer.itemChanges.push(["update", "inbox", itemIdToUpdate]);
+  info(`Updating subject of message ${itemIdToUpdate}`);
 
   const itemIdToMove = messages[4].messageId;
   const movedItemId = mockServer.moveItemToFolder(itemIdToMove, "junkemail");
   const [movedMessage] = messages.splice(4, 1);
+  info(`Moving message ${itemIdToMove}`);
 
   const itemIdToDelete = messages[2].messageId;
   mockServer.deleteItem(itemIdToDelete);
@@ -265,45 +286,49 @@ async function testSyncChangesWithClient(mockServer, client) {
   const itemIdToMarkRead = messages[1].messageId;
   messages[1].metaState.read = true;
   mockServer.itemChanges.push(["readflag", "inbox", itemIdToMarkRead]);
+  info(`Marking message ${itemIdToMarkRead} as read`);
 
   const messageIdToFlag = messages[0].messageId;
   const itemIdToFlag = messages[0].messageId;
   messages[0].metaState.flagged = true;
   mockServer.itemChanges.push(["update", "inbox", itemIdToFlag]);
+  info(`Flagging message ${itemIdToFlag}`);
 
   // Sync again to pick up the changes.
 
-  const syncStateToken = listener._syncStateToken;
-  listener = new ExchangeMessageCallbackListener();
+  const syncStateToken = listener.syncStateToken;
+  listener.reset();
   client.syncMessagesForFolder(listener, "inbox", syncStateToken);
-  await listener._deferred.promise;
+  await listener.deferred.promise;
 
   Assert.equal(
-    listener._created.length,
+    listener.created.length,
     0,
     "no more items should have been created"
   );
   Assert.deepEqual(
-    listener._deletedItemIds,
+    listener.deletedItemIds,
     [itemIdToMove, itemIdToDelete],
     "the moved and deleted items should have been deleted"
   );
-  Assert.deepEqual(
-    listener._readStatusUpdates,
-    [{ ewsId: itemIdToMarkRead, readStatus: true }],
-    "the read message should have been updated"
-  );
+  if (separateReadStatusUpdates) {
+    Assert.deepEqual(
+      listener.readStatusUpdates,
+      [{ ewsId: itemIdToMarkRead, readStatus: true }],
+      "the read message should have been updated"
+    );
+  }
   Assert.equal(
-    listener._deletedItemIds.length,
+    listener.deletedItemIds.length,
     [messageIdToUpdate, messageIdToFlag].length,
     "the updated messages should have been deleted from the store"
   );
   Assert.ok(
-    listener._syncStateToken,
+    listener.syncStateToken,
     "the sync token should have been recorded"
   );
   Assert.notEqual(
-    listener._syncStateToken,
+    listener.syncStateToken,
     syncStateToken,
     "the sync token should differ from the previous one"
   );
@@ -312,37 +337,37 @@ async function testSyncChangesWithClient(mockServer, client) {
 
   listener = new ExchangeMessageCallbackListener();
   client.syncMessagesForFolder(listener, "junkemail", null);
-  await listener._deferred.promise;
+  await listener.deferred.promise;
 
   Assert.deepEqual(
-    listener._created.map(entry => entry.ewsId),
+    listener.created.map(entry => entry.ewsId),
     [movedItemId],
     "the moved item should have been created"
   );
   Assert.deepEqual(
-    listener._deletedItemIds,
+    listener.deletedItemIds,
     [],
     "no items should have been removed"
   );
   Assert.deepEqual(
-    listener._readStatusUpdates,
+    listener.readStatusUpdates,
     [],
     "no items should have been marked as read"
   );
   Assert.deepEqual(
-    listener._created.map(entry =>
+    listener.created.map(entry =>
       deAngled(getHeader(entry.headers, "Message-Id"))
     ),
     [deAngled(movedMessage.messageId)],
     "a header with the correct value should have been created"
   );
   Assert.deepEqual(
-    listener._deletedItemIds,
+    listener.deletedItemIds,
     [],
     "no stored message should have been deleted from the store"
   );
   Assert.ok(
-    listener._syncStateToken,
+    listener.syncStateToken,
     "the sync token should have been recorded"
   );
 }
@@ -351,16 +376,35 @@ class ExchangeMessageCallbackListener {
   QueryInterface = ChromeUtils.generateQI(["IExchangeMessageSyncListener"]);
 
   constructor() {
-    this._created = [];
-    this._updated = [];
-    this._deletedItemIds = [];
-    this._readStatusUpdates = [];
-    this._syncStateToken = null;
-    this._deferred = Promise.withResolvers();
+    this.created = [];
+    this.updated = [];
+    this.deletedItemIds = [];
+    this.readStatusUpdates = [];
+    this.syncStateToken = null;
+    this.deferred = Promise.withResolvers();
+    this._existingMessageIds = new Set();
+  }
+
+  /**
+   * Resets the current listener to its state at construction.
+   *
+   * The only member that's not being reset is the set used internally to record
+   * messages that have been created in tests, so that updating an existing
+   * message can be correctly recorded even if that message doesn't appear in
+   * `this.created`.
+   */
+  reset() {
+    this.created = [];
+    this.updated = [];
+    this.deletedItemIds = [];
+    this.readStatusUpdates = [];
+    this.syncStateToken = null;
+    this.deferred = Promise.withResolvers();
   }
 
   onMessageCreated(ewsId, headers, messageSize, isRead, isFlagged, preview) {
-    this._created.push({
+    this._existingMessageIds.add(ewsId);
+    this.created.push({
       ewsId,
       headers,
       messageSize,
@@ -370,7 +414,19 @@ class ExchangeMessageCallbackListener {
     });
   }
   onMessageUpdated(ewsId, headers, messageSize, isRead, isFlagged, preview) {
-    this._updated.push({
+    if (!this._existingMessageIds.has(ewsId)) {
+      // Note: Ideally we'd throw `NS_MSG_MESSAGE_NOT_FOUND` here, however we
+      // can't do that now as Thunderbird errors aren't included in `Cr`, so any
+      // such code we use in a `Components.Exception` will be replaced with
+      // `NS_ERROR_FAILURE`. See
+      // https://bugzilla.mozilla.org/show_bug.cgi?id=2033105
+      throw Components.Exception(
+        `cannot update unknown message: ${ewsId}`,
+        Cr.NS_ERROR_FAILURE
+      );
+    }
+
+    this.updated.push({
       ewsId,
       headers,
       messageSize,
@@ -380,19 +436,20 @@ class ExchangeMessageCallbackListener {
     });
   }
   onReadStatusChanged(ewsId, readStatus) {
-    this._readStatusUpdates.push({ ewsId, readStatus });
+    this.readStatusUpdates.push({ ewsId, readStatus });
   }
   onMessageDeleted(ewsId) {
-    this._deletedItemIds.push(ewsId);
+    this._existingMessageIds.delete(ewsId);
+    this.deletedItemIds.push(ewsId);
   }
   onSyncStateTokenChanged(syncStateToken) {
-    this._syncStateToken = syncStateToken;
+    this.syncStateToken = syncStateToken;
   }
   onSyncComplete() {
-    this._deferred.resolve();
+    this.deferred.resolve();
   }
   onOperationError(_status) {
-    this._deferred.reject();
+    this.deferred.reject();
   }
 }
 
@@ -401,36 +458,55 @@ class ExchangeMessageCallbackListener {
  * way to the database.
  */
 async function testSyncChangesWithRealFolder(mockServer, incomingServer) {
-  mockServer.setRemoteFolders(mockServer.getWellKnownFolders());
   mockServer.clearItems();
 
-  const inbox = incomingServer.rootFolder.getChildNamed("Inbox");
-  const junk = incomingServer.rootFolder.getChildNamed("Junk");
+  const folderName = `${incomingServer.type}_sync_real_folder`;
+  const moveDestinationFolderName = `${incomingServer.type}_sync_real_folder_move`;
+
+  mockServer.appendRemoteFolder(
+    new RemoteFolder(folderName, "root", folderName, folderName)
+  );
+  mockServer.appendRemoteFolder(
+    new RemoteFolder(
+      moveDestinationFolderName,
+      "root",
+      moveDestinationFolderName,
+      moveDestinationFolderName
+    )
+  );
+
+  const rootFolder = incomingServer.rootFolder;
+  await syncFolder(incomingServer, rootFolder);
+
+  const folder = rootFolder.getChildNamed(folderName);
+  const moveDestinationFolder = rootFolder.getChildNamed(
+    moveDestinationFolderName
+  );
 
   const messages = generator.makeMessages({ count: 6 });
-  mockServer.addMessages("inbox", messages);
+  mockServer.addMessages(folderName, messages);
 
   // Initial sync.
 
-  await syncFolder(incomingServer, inbox);
-  const syncStateToken = inbox.getStringProperty("ewsSyncStateToken");
+  await syncFolder(incomingServer, folder);
+  const syncStateToken = folder.getStringProperty("ewsSyncStateToken");
   Assert.ok(
     syncStateToken,
     "the sync token should have been saved in the database"
   );
   Assert.equal(
-    inbox.getTotalMessages(false),
+    folder.getTotalMessages(false),
     6,
-    "there should be 6 messages in the inbox at the start"
+    "there should be 6 messages in the folder at the start"
   );
   Assert.equal(
-    inbox.getNumUnread(false),
+    folder.getNumUnread(false),
     6,
     "6 messages should be unread at the start"
   );
 
   const messageIdToUpdate = messages[5].messageId;
-  const originalMessage = inbox.msgDatabase.getMsgHdrForMessageID(
+  const originalMessage = folder.msgDatabase.getMsgHdrForMessageID(
     messages[5].messageId
   );
   const originalMessageText = await getMessageText(originalMessage);
@@ -440,11 +516,15 @@ async function testSyncChangesWithRealFolder(mockServer, incomingServer) {
   Assert.ok(originalStoreToken, "the message should have been stored");
   const originalMsgSize = originalMessage.messageSize;
 
-  Assert.equal(
-    messages[5].toMessageString().length,
-    originalMsgSize,
-    "the right size should have been stored for the message"
-  );
+  // Storing message sizes from sync isn't supported for Graph yet, see:
+  // https://bugzilla.mozilla.org/show_bug.cgi?id=2025016
+  if (incomingServer.type != "graph") {
+    Assert.equal(
+      messages[5].toMessageString().length,
+      originalMsgSize,
+      "the right size should have been stored for the message"
+    );
+  }
 
   // Change a message, move a message, delete a message, mark a message read,
   // flag a message.
@@ -452,10 +532,10 @@ async function testSyncChangesWithRealFolder(mockServer, incomingServer) {
   const itemIdToUpdate = messages[5].messageId;
   messages[5].subject = "Scary Monster Under Your Bed";
   messages[5].bodyPart.body = `Kia ora ${originalGreeting[1]}!`;
-  mockServer.itemChanges.push(["update", "inbox", itemIdToUpdate]);
+  mockServer.itemChanges.push(["update", folderName, itemIdToUpdate]);
 
   const itemIdToMove = messages[4].messageId;
-  mockServer.moveItemToFolder(itemIdToMove, "junkemail");
+  mockServer.moveItemToFolder(itemIdToMove, moveDestinationFolderName);
   const [movedMessage] = messages.splice(4, 1);
 
   const itemIdToDelete = messages[3].messageId;
@@ -464,30 +544,30 @@ async function testSyncChangesWithRealFolder(mockServer, incomingServer) {
 
   const itemIdToMarkRead = messages[1].messageId;
   messages[1].metaState.read = true;
-  mockServer.itemChanges.push(["readflag", "inbox", itemIdToMarkRead]);
+  mockServer.itemChanges.push(["readflag", folderName, itemIdToMarkRead]);
 
   const messageIdToFlag = messages[0].messageId;
   const itemIdToFlag = messages[0].messageId;
   messages[0].metaState.flagged = true;
-  mockServer.itemChanges.push(["update", "inbox", itemIdToFlag]);
+  mockServer.itemChanges.push(["update", folderName, itemIdToFlag]);
 
   // Sync again to pick up the changes.
 
-  await syncFolder(incomingServer, inbox);
+  await syncFolder(incomingServer, folder);
   Assert.equal(
-    inbox.getTotalMessages(false),
+    folder.getTotalMessages(false),
     4,
-    "there should be 4 messages remaining in the inbox"
+    "there should be 4 messages remaining in the folder"
   );
   Assert.notEqual(
-    inbox.getStringProperty("ewsSyncStateToken"),
+    folder.getStringProperty("ewsSyncStateToken"),
     syncStateToken,
     "the sync token should differ from the previous one"
   );
-  Assert.equal(inbox.getNumUnread(false), 3, "3 messages should be unread");
+  Assert.equal(folder.getNumUnread(false), 3, "3 messages should be unread");
 
   const updatedMessage =
-    inbox.msgDatabase.getMsgHdrForMessageID(messageIdToUpdate);
+    folder.msgDatabase.getMsgHdrForMessageID(messageIdToUpdate);
   Assert.equal(
     updatedMessage.subject,
     "Scary Monster Under Your Bed",
@@ -506,36 +586,35 @@ async function testSyncChangesWithRealFolder(mockServer, incomingServer) {
   );
 
   const flaggedMessage =
-    inbox.msgDatabase.getMsgHdrForMessageID(messageIdToFlag);
-  Assert.ok(flaggedMessage.isFlagged, "Message should be flagged");
+    folder.msgDatabase.getMsgHdrForMessageID(messageIdToFlag);
+
+  // Flagging messages isn't supported for Graph yet, see:
+  // https://bugzilla.mozilla.org/show_bug.cgi?id=2025019
+  if (incomingServer.type != "graph") {
+    Assert.ok(flaggedMessage.isFlagged, "Message should be flagged");
+  }
 
   // Check that the moved message arrives at its destination.
 
-  await syncFolder(incomingServer, junk);
+  await syncFolder(incomingServer, moveDestinationFolder);
   Assert.equal(
-    junk.getTotalMessages(false),
+    moveDestinationFolder.getTotalMessages(false),
     1,
-    "there should be 1 message in the junk folder"
+    "there should be 1 message in the move destination folder"
   );
   Assert.ok(
-    junk.getStringProperty("ewsSyncStateToken"),
+    moveDestinationFolder.getStringProperty("ewsSyncStateToken"),
     "the sync token should have been saved in the database"
   );
-  Assert.equal(junk.getNumUnread(false), 1, "the message should be unread");
   Assert.equal(
-    junk.messages.getNext().messageId,
+    moveDestinationFolder.getNumUnread(false),
+    1,
+    "the message should be unread"
+  );
+  Assert.equal(
+    moveDestinationFolder.messages.getNext().messageId,
     movedMessage.messageId,
     "the message should be the right message"
-  );
-
-  // Remove the messages from these real folders to return to a clean slate.
-
-  incomingServer.deleteModel = Ci.IEwsIncomingServer.DELETE_PERMANENTLY;
-  inbox.deleteMessages([...inbox.messages], null, true, false, null, false);
-  junk.deleteMessages([...junk.messages], null, true, false, null, false);
-  await TestUtils.waitForCondition(
-    () => incomingServer.rootFolder.getTotalMessages(true) == 0,
-    "waiting for messages to be deleted"
   );
 }
 
@@ -578,17 +657,21 @@ async function testSyncRecipients(mockServer, incomingServer) {
 
   // Retrieve the message and check that the recipients that are persisted are
   // correct.
+  //
+  // Depending on the protocol, the display names might not be surrounded by
+  // quotes, so we strip them out if present so we don't fail valid recipient
+  // strings.
   const message = [...folder.messages][0];
 
   Assert.equal(
-    message.recipients,
-    '"Tinderbox" <tinderbox@foo.invalid>, "Alice" <alice@foo.invalid>',
+    message.recipients.replaceAll('"', ""),
+    "Tinderbox <tinderbox@foo.invalid>, Alice <alice@foo.invalid>",
     "the recipients property on the message should match the ones in the message"
   );
 
   Assert.equal(
-    message.ccList,
-    '"Bob" <bob@foo.invalid>',
+    message.ccList.replaceAll('"', ""),
+    "Bob <bob@foo.invalid>",
     "the ccList property on the message should match the ones in the message"
   );
 }

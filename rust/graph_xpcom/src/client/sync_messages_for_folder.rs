@@ -91,23 +91,54 @@ impl<ServerT: AuthenticationProvider + RefCounted>
                         // (https://bugzilla.mozilla.org/show_bug.cgi?id=2025016)
                         // Use extended properties to get the message size.
                         let message_size = 0;
-                        let is_read = message.is_read().unwrap_or(None).unwrap_or(false);
+                        let is_read = message.is_read()?.ok_or(XpComGraphError::Processing {
+                            message: "isRead not present in response despite being requested"
+                                .into(),
+                        })?;
                         // TODO
                         // (https://bugzilla.mozilla.org/show_bug.cgi?id=2025019)
                         // Get message flagged status.
                         let is_flagged = false;
                         let preview_text = message.body_preview().unwrap_or(None).unwrap_or("");
-                        self.listener.on_message_created(
-                            message_id,
-                            header_block,
+
+                        log::debug!("Found message in response with ID {message_id}");
+
+                        // The API response does not indicate whether a message
+                        // is part of a response because it was created or
+                        // because it was updated. So we try updating an
+                        // existing message in the local database, and create it
+                        // if we get told off because it doesn't exist.
+                        //
+                        // TODO: We should use `NS_MSG_MESSAGE_NOT_FOUND`, to
+                        // avoid misidentifying an error that occurred while
+                        // updating an existing message as the message not
+                        // existing at all, see
+                        // https://bugzilla.mozilla.org/show_bug.cgi?id=2033401
+                        if let Err(err) = self.listener.on_message_updated(
+                            message_id.clone(),
+                            header_block.clone(),
                             message_size,
                             is_read,
                             is_flagged,
                             preview_text,
-                        )?;
+                        ) {
+                            log::debug!(
+                                "Message update failed ({err}); falling back to create for {message_id}"
+                            );
+
+                            self.listener.on_message_created(
+                                message_id,
+                                header_block,
+                                message_size,
+                                is_read,
+                                is_flagged,
+                                preview_text,
+                            )?;
+                        }
                     }
                     DeltaItem::Removed(message) => {
                         let message_id = message.id().to_string();
+                        log::debug!("Deleting message with id {message_id}");
                         self.listener.on_message_deleted(message_id)?;
                     }
                 }
