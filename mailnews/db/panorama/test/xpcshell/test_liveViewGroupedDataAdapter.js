@@ -33,6 +33,16 @@ add_task(async function testDateDescending() {
   Assert.equal(liveView.sortColumn, Ci.nsILiveView.DATE);
   Assert.ok(liveView.sortDescending);
 
+  const stmt = database.connectionForTests.createStatement(
+    "SELECT date, DATE_GROUP(date) AS dateGroup FROM messages WHERE id=:id"
+  );
+  function checkDateGroup(key, expectedGroup) {
+    stmt.params.id = key;
+    stmt.executeStep();
+    Assert.equal(stmt.row.dateGroup, expectedGroup);
+    stmt.reset();
+  }
+
   try {
     Assert.equal(adapter.rowCount, 7);
     Assert.equal(adapter.getCellText(0, "subject"), "2023");
@@ -76,6 +86,7 @@ add_task(async function testDateDescending() {
       date: "2016-03-15",
       messageId: "added1@invalid",
     });
+    checkDateGroup(added1, 2016);
     tree.assertRowCountChanged(4, 1);
     Assert.equal(adapter.rowCount, 13);
     Assert.equal(adapter.getCellText(4, "subject"), "2016");
@@ -91,6 +102,7 @@ add_task(async function testDateDescending() {
       date: "2017-06-06",
       messageId: "added2@invalid",
     });
+    checkDateGroup(added2, 2017);
     tree.assertInvalidated(3, 3);
     Assert.equal(adapter.rowCount, 13);
 
@@ -119,6 +131,7 @@ add_task(async function testDateDescending() {
       date: "2017-12-01",
       messageId: "added3@invalid",
     });
+    checkDateGroup(added3, 2017);
     tree.assertInvalidated(3, 3);
     Assert.equal(adapter.rowCount, 13);
 
@@ -146,6 +159,7 @@ add_task(async function testDateDescending() {
       date: "2024-07-27",
       messageId: "added4@invalid",
     });
+    checkDateGroup(added4, 2024);
     tree.assertRowCountChanged(0, 1);
     Assert.equal(adapter.rowCount, 14);
     Assert.equal(adapter.getCellText(0, "subject"), "2024");
@@ -157,6 +171,7 @@ add_task(async function testDateDescending() {
       date: new Date(now + 3600000).toISOString(),
       messageId: "added5@invalid",
     });
+    checkDateGroup(added5, Ci.nsILiveView.DATE_GROUP_FUTURE);
     tree.assertRowCountChanged(0, 1);
     Assert.equal(adapter.rowCount, 15);
     Assert.equal(adapter.getCellText(0, "subject"), "Future");
@@ -164,9 +179,10 @@ add_task(async function testDateDescending() {
     // A message inside the "today" group, that doesn't yet exist.
 
     const added6 = addMessage({
-      date: new Date().toISOString(),
+      date: new Date(now + 600000).toISOString(),
       messageId: "added6@invalid",
     });
+    checkDateGroup(added6, Ci.nsILiveView.DATE_GROUP_TODAY);
     tree.assertRowCountChanged(1, 1);
     Assert.equal(adapter.rowCount, 16);
     Assert.equal(adapter.getCellText(1, "subject"), "Today");
@@ -184,6 +200,7 @@ add_task(async function testDateDescending() {
       date: new Date(now - 86400000).toISOString(),
       messageId: "added7@invalid",
     });
+    checkDateGroup(added7, Ci.nsILiveView.DATE_GROUP_YESTERDAY);
     tree.assertRowCountChanged(3, 1);
     Assert.equal(adapter.rowCount, 18);
     Assert.equal(adapter.getCellText(3, "subject"), "Yesterday");
@@ -194,6 +211,7 @@ add_task(async function testDateDescending() {
       date: new Date(now - 86400000 * 3).toISOString(),
       messageId: "added8@invalid",
     });
+    checkDateGroup(added8, Ci.nsILiveView.DATE_GROUP_LAST_SEVEN_DAYS);
     tree.assertRowCountChanged(4, 1);
     Assert.equal(adapter.rowCount, 19);
     Assert.equal(adapter.getCellText(4, "subject"), "Last 7 Days");
@@ -204,6 +222,7 @@ add_task(async function testDateDescending() {
       date: new Date(now - 86400000 * 11).toISOString(),
       messageId: "added9@invalid",
     });
+    checkDateGroup(added9, Ci.nsILiveView.DATE_GROUP_LAST_FOURTEEN_DAYS);
     tree.assertRowCountChanged(5, 1);
     Assert.equal(adapter.rowCount, 20);
     Assert.equal(adapter.getCellText(5, "subject"), "Last 14 Days");
@@ -214,6 +233,7 @@ add_task(async function testDateDescending() {
       date: "1995-01-01",
       messageId: "added10@invalid",
     });
+    checkDateGroup(added10, 1995);
     tree.assertRowCountChanged(20, 1);
     Assert.equal(adapter.rowCount, 21);
     Assert.equal(adapter.getCellText(20, "subject"), "1995");
@@ -260,6 +280,7 @@ add_task(async function testDateDescending() {
     console.log(adapter._flatRowCache.map(r => r.texts.messageId ?? r.group));
   } finally {
     adapter.setTree(null);
+    stmt.finalize();
   }
 });
 
@@ -405,7 +426,7 @@ add_task(async function testDateAscending() {
     // A message inside the "today" group, that doesn't yet exist.
 
     const added6 = addMessage({
-      date: new Date().toISOString(),
+      date: new Date(now + 600000).toISOString(),
       messageId: "added6@invalid",
     });
     tree.assertRowCountChanged(14, 1);

@@ -151,7 +151,7 @@ add_task(function testDateGroup() {
   );
 
   function check(input, expectedOutput) {
-    stmt.params.date = input;
+    stmt.params.date = typeof input == "string" ? input : input.toISOString();
     stmt.executeStep();
     Assert.equal(
       stmt.row.result,
@@ -171,20 +171,31 @@ add_task(function testDateGroup() {
   const lastWeek = new Date(thisWeek);
   lastWeek.setDate(lastWeek.getDate() - 7);
 
-  check(tomorrow.toISOString(), Ci.nsILiveView.DATE_GROUP_FUTURE);
-  check(today.toISOString(), Ci.nsILiveView.DATE_GROUP_TODAY);
+  // Test all the named groups.
+  check(tomorrow, Ci.nsILiveView.DATE_GROUP_FUTURE);
+  check(today, Ci.nsILiveView.DATE_GROUP_TODAY);
   today.setHours(0);
-  check(today.toISOString(), Ci.nsILiveView.DATE_GROUP_TODAY);
+  check(today, Ci.nsILiveView.DATE_GROUP_TODAY);
   today.setMinutes(0);
-  check(today.toISOString(), Ci.nsILiveView.DATE_GROUP_TODAY);
+  check(today, Ci.nsILiveView.DATE_GROUP_TODAY);
   today.setMinutes(-1);
-  check(today.toISOString(), Ci.nsILiveView.DATE_GROUP_YESTERDAY);
-  check(yesterday.toISOString(), Ci.nsILiveView.DATE_GROUP_YESTERDAY);
-  check(thisWeek.toISOString(), Ci.nsILiveView.DATE_GROUP_LAST_SEVEN_DAYS);
-  check(lastWeek.toISOString(), Ci.nsILiveView.DATE_GROUP_LAST_FOURTEEN_DAYS);
+  check(today, Ci.nsILiveView.DATE_GROUP_YESTERDAY);
+  check(yesterday, Ci.nsILiveView.DATE_GROUP_YESTERDAY);
+  check(thisWeek, Ci.nsILiveView.DATE_GROUP_LAST_SEVEN_DAYS);
+  check(lastWeek, Ci.nsILiveView.DATE_GROUP_LAST_FOURTEEN_DAYS);
+
+  // Test older messages. The group is the year.
   check("2025-05-26T02:00:00Z", 2025);
   check("2024-08-18T19:45:00Z", 2024);
   check("1995-11-15T00:00:00Z", 1995);
+
+  // Test the grace period for messages to be "today" instead of "future".
+  check(new Date(Date.now() + 11 * 60 * 1000), Ci.nsILiveView.DATE_GROUP_TODAY);
+  check(new Date(Date.now() + 22 * 60 * 1000), Ci.nsILiveView.DATE_GROUP_TODAY);
+  check(
+    new Date(Date.now() + 33 * 60 * 1000),
+    Ci.nsILiveView.DATE_GROUP_FUTURE
+  );
 
   stmt.finalize();
 });

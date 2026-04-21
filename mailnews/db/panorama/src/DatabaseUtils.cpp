@@ -320,8 +320,9 @@ NS_IMETHODIMP GroupedByDateFunction::OnFunctionCall(
     explodedNow.tm_usec = 0;
     mToday = PR_ImplodeTime(&explodedNow);
     PR_FormatTime(buf, 24, "%FT%T", &explodedNow);
-    MOZ_LOG(gPanoramaLog, LogLevel::Debug,
-            ("GroupedByDateFunction: today it was %s", buf));
+    MOZ_LOG(
+        gPanoramaLog, LogLevel::Debug,
+        ("GroupedByDateFunction: today it was %s (%" PRIu64 ")", buf, mToday));
 
     // Tomorrow, actually midnight tonight. If the actual time passes this
     // value, all the dates will be recalculated.
@@ -334,7 +335,8 @@ NS_IMETHODIMP GroupedByDateFunction::OnFunctionCall(
     mTomorrow = PR_ImplodeTime(&explodedNow);
     PR_FormatTime(buf, 24, "%FT%T", &explodedNow);
     MOZ_LOG(gPanoramaLog, LogLevel::Debug,
-            ("GroupedByDateFunction: tomorrow it will be %s", buf));
+            ("GroupedByDateFunction: tomorrow it will be %s (%" PRIu64 ")", buf,
+             mTomorrow));
 
     // Midnight yesterday.
     explodedNow.tm_mday -= 2;  // We went forward 1 day, now go back 2.
@@ -345,7 +347,8 @@ NS_IMETHODIMP GroupedByDateFunction::OnFunctionCall(
     mYesterday = PR_ImplodeTime(&explodedNow);
     PR_FormatTime(buf, 24, "%FT%T", &explodedNow);
     MOZ_LOG(gPanoramaLog, LogLevel::Debug,
-            ("GroupedByDateFunction: yesterday it was %s", buf));
+            ("GroupedByDateFunction: yesterday it was %s (%" PRIu64 ")", buf,
+             mYesterday));
 
     // "7 Days Ago", actually 6 days before midnight last night.
     explodedNow.tm_mday -= 5;  // 5 days before yesterday.
@@ -356,7 +359,8 @@ NS_IMETHODIMP GroupedByDateFunction::OnFunctionCall(
     mThisWeek = PR_ImplodeTime(&explodedNow);
     PR_FormatTime(buf, 24, "%FT%T", &explodedNow);
     MOZ_LOG(gPanoramaLog, LogLevel::Debug,
-            ("GroupedByDateFunction: 7 days ago it was %s", buf));
+            ("GroupedByDateFunction: 7 days ago it was %s (%" PRIu64 ")", buf,
+             mThisWeek));
 
     // "14 Days Ago", actually 13 days before midnight last night.
     explodedNow.tm_mday -= 7;  // Another week earlier.
@@ -367,11 +371,12 @@ NS_IMETHODIMP GroupedByDateFunction::OnFunctionCall(
     mLastWeek = PR_ImplodeTime(&explodedNow);
     PR_FormatTime(buf, 24, "%FT%T", &explodedNow);
     MOZ_LOG(gPanoramaLog, LogLevel::Debug,
-            ("GroupedByDateFunction: 14 days ago it was %s", buf));
+            ("GroupedByDateFunction: 14 days ago it was %s (%" PRIu64 ")", buf,
+             mLastWeek));
   }
 
   PRTime date = aArguments->AsInt64(0);
-  if (date > now + 1800) {
+  if (date > now + 1800 * PR_USEC_PER_SEC) {
     // A message from the future! (And a half-hour grace period for weirdness
     // like clock skew.)
     year = nsILiveView::DATE_GROUP_FUTURE;
