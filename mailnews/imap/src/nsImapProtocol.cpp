@@ -4610,7 +4610,7 @@ void nsImapProtocol::PeriodicBiff() {
       AppendUid(fetchStr, highestUid);
       fetchStr.AppendLiteral(":*");
       FetchMessage(fetchStr, kFlags);
-      if (((uint32_t)m_flagState->GetHighestNonDeletedUID() >= highestUid) &&
+      if ((m_flagState->GetHighestNonDeletedUID() >= highestUid) &&
           m_flagState->IsLastMessageUnseen())
         m_currentBiffState = nsIMsgFolder::nsMsgBiffState_NewMail;
       else

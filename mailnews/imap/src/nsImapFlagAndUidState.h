@@ -30,7 +30,7 @@ class nsImapFlagAndUidState : public nsIImapFlagAndUidState {
   bool IsLastMessageUnseen(void);
   bool GetPartialUIDFetch() { return fPartialUIDFetch; }
   void SetPartialUIDFetch(bool isPartial) { fPartialUIDFetch = isPartial; }
-  uint32_t GetHighestNonDeletedUID();
+  ImapUid GetHighestNonDeletedUID();
   uint16_t GetSupportedUserFlags() { return fSupportedUserFlags; }
   void StartCapture() { fStartCapture = true; }
   uint32_t GetNumAdded() { return fNumAdded; }

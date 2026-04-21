@@ -185,7 +185,7 @@ int32_t nsImapFlagAndUidState::NumberOfDeletedMessages() {
 
 // since the uids are sorted, start from the back (rb)
 
-uint32_t nsImapFlagAndUidState::GetHighestNonDeletedUID() {
+ImapUid nsImapFlagAndUidState::GetHighestNonDeletedUID() {
   uint32_t msgIndex = fUids.Length();
   do {
     if (msgIndex <= 0) return (0);
