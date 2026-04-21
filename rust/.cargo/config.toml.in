@@ -51,6 +51,11 @@ git = "https://github.com/hsivonen/any_all_workaround"
 rev = "7fb1b7034c9f172aade21ee1c8554e8d8a48af80"
 replace-with = "vendored-sources"
 
+[source."git+https://github.com/hsivonen/encoding_rs?rev=1236d1bc423e6ba35a06485f74a6304db2d703b5"]
+git = "https://github.com/hsivonen/encoding_rs"
+rev = "1236d1bc423e6ba35a06485f74a6304db2d703b5"
+replace-with = "vendored-sources"
+
 [source."git+https://github.com/hsivonen/rust-harfbuzz?rev=9d58a23a98772a197291d04af93f7041b7093d95"]
 git = "https://github.com/hsivonen/rust-harfbuzz"
 rev = "9d58a23a98772a197291d04af93f7041b7093d95"
