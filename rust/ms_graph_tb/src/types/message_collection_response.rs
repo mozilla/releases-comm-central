@@ -11,6 +11,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::borrow::Cow;
 use strum::Display;
+#[doc = r"Properties that can be selected from this type."]
 #[derive(Copy, Clone, Debug, Display, PartialEq, Eq)]
 #[strum(serialize_all = "camelCase")]
 pub enum MessageCollectionResponseSelection {

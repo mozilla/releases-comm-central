@@ -44,19 +44,37 @@ pub struct Property {
     pub is_collection: bool,
     pub rust_type: RustType,
     pub description: Option<String>,
+    pub navigation_property: bool,
 
     /// Whether this property is an OpenAPI reference (not a Rust reference)
     pub is_ref: bool,
 }
 
+/// Result of extracting a schema into the data needed for code generation.
+#[derive(Debug, Clone)]
+pub struct ExtractedSchema {
+    pub description: Option<String>,
+
+    /// Supported properties in this schema.
+    pub properties: Vec<Property>,
+
+    // This is equivalent to whether the type represented has any navigation
+    // properties, but has to be tracked independently from `properties`, since
+    // there may be no supported properties, and the path generation code has no
+    // way of knowing that.
+    pub has_expansions: bool,
+}
+
 /// For the given schema object, extract its Graph API description and properties.
-pub fn extract_from_schema(
-    schema: &OaSchema,
-    context: SchemaContext,
-) -> (Option<String>, Vec<Property>) {
+pub fn extract_from_schema(schema: &OaSchema, context: SchemaContext) -> ExtractedSchema {
     let mut out = Vec::new();
-    collect_schema_properties(schema, &context, &mut out);
-    (top_level_description(schema), out)
+    let mut has_expansions = false;
+    collect_schema_properties(schema, &context, &mut out, &mut has_expansions);
+    ExtractedSchema {
+        description: top_level_description(schema),
+        properties: out,
+        has_expansions,
+    }
 }
 
 fn top_level_description(schema: &OaSchema) -> Option<String> {
@@ -84,13 +102,18 @@ fn top_level_description(schema: &OaSchema) -> Option<String> {
     }
 }
 
-fn collect_schema_properties(schema: &OaSchema, context: &SchemaContext, out: &mut Vec<Property>) {
+fn collect_schema_properties(
+    schema: &OaSchema,
+    context: &SchemaContext,
+    out: &mut Vec<Property>,
+    has_navigation_properties: &mut bool,
+) {
     match schema {
         OaSchema::Obj {
             navigation_property: true,
             ..
         } => {
-            // navigation properties aren't real properties, they basically just inform about a subpath
+            *has_navigation_properties = true;
         }
         OaSchema::Obj {
             all_of: Some(list),
@@ -108,11 +131,12 @@ fn collect_schema_properties(schema: &OaSchema, context: &SchemaContext, out: &m
                                 is_ref: true,
                                 rust_type: ty,
                                 description: description.clone(),
+                                navigation_property: false,
                             });
                         }
                     }
                     OaSchema::Obj { .. } => {
-                        collect_schema_properties(s, context, out);
+                        collect_schema_properties(s, context, out, has_navigation_properties);
                     }
                 }
             }
@@ -136,6 +160,7 @@ fn collect_schema_properties(schema: &OaSchema, context: &SchemaContext, out: &m
                                 is_ref: true,
                                 rust_type: ty,
                                 description: description.clone(),
+                                navigation_property: false,
                             });
                         }
                     }
@@ -169,15 +194,18 @@ fn collect_schema_properties(schema: &OaSchema, context: &SchemaContext, out: &m
             ..
         } => {
             for (name, prop_schema) in props {
-                if let OaSchema::Obj {
-                    navigation_property: true,
-                    ..
-                } = prop_schema
-                {
-                    continue;
-                }
                 if name.starts_with("@odata.") {
                     continue;
+                }
+                let navigation_property = matches!(
+                    prop_schema,
+                    OaSchema::Obj {
+                        navigation_property: true,
+                        ..
+                    }
+                );
+                if navigation_property {
+                    *has_navigation_properties = true;
                 }
                 if let Some((is_collection, description, rust_type)) =
                     map_openapi_schema_to_rust(prop_schema)
@@ -191,6 +219,7 @@ fn collect_schema_properties(schema: &OaSchema, context: &SchemaContext, out: &m
                         is_ref,
                         rust_type,
                         description,
+                        navigation_property,
                     };
                     out.push(prop);
                 } else {
@@ -205,6 +234,16 @@ fn collect_schema_properties(schema: &OaSchema, context: &SchemaContext, out: &m
             {
                 let nullable = schema.nullable().unwrap_or(false);
                 let is_ref = matches!(schema, OaSchema::Ref { .. });
+                let navigation_property = matches!(
+                    schema,
+                    OaSchema::Obj {
+                        navigation_property: true,
+                        ..
+                    }
+                );
+                if navigation_property {
+                    *has_navigation_properties = true;
+                }
                 out.push(Property {
                     name: ref_simple_name(s).to_string(),
                     nullable,
@@ -212,6 +251,7 @@ fn collect_schema_properties(schema: &OaSchema, context: &SchemaContext, out: &m
                     is_ref,
                     rust_type,
                     description,
+                    navigation_property,
                 });
             } else {
                 warn!("skipping unsupported type: {s}");
@@ -251,6 +291,7 @@ fn unnamed_object_prop(
                 is_ref,
                 rust_type,
                 description,
+                navigation_property: false,
             };
             obj_props.push(prop);
         } else {
@@ -267,7 +308,13 @@ fn unnamed_object_prop(
     };
 
     let name = pascalize(name.as_str());
-    let graph_type = GraphType::new(&name, description.clone(), obj_props, TypeKind::Unnamed);
+    let graph_type = GraphType::new(
+        &name,
+        description.clone(),
+        obj_props,
+        TypeKind::Unnamed,
+        false,
+    );
 
     Property {
         name,
@@ -275,6 +322,7 @@ fn unnamed_object_prop(
         is_collection: false,
         rust_type: RustType::UnnamedSchema(graph_type),
         description: None,
+        navigation_property: false,
         is_ref: false,
     }
 }
@@ -374,7 +422,7 @@ fn map_openapi_schema_to_rust(schema: &OaSchema) -> Option<(bool, Option<String>
     }
 }
 
-// Try to discover a supported custom type by scanning refs inside composition.
+/// Try to discover a supported custom type by scanning refs inside composition.
 fn match_supported_custom_from_schema(schema: &OaSchema) -> Option<String> {
     match schema {
         OaSchema::Ref { reference } => custom_simple_from_ref(reference),
@@ -517,9 +565,16 @@ mod tests {
         };
 
         let mut props = Vec::new();
-        collect_schema_properties(&schema, &context, &mut props);
+        let mut has_navigation_properties = false;
+        collect_schema_properties(
+            &schema,
+            &context,
+            &mut props,
+            &mut has_navigation_properties,
+        );
 
         assert_eq!(props.len(), 1, "we should only have one top-level property");
+        assert!(!has_navigation_properties);
 
         let RustType::UnnamedSchema(graph_type) = &props[0].rust_type else {
             panic!(
@@ -582,7 +637,14 @@ mod tests {
         };
 
         let mut props = Vec::new();
-        collect_schema_properties(&schema, &context, &mut props);
+        let mut has_navigation_properties = false;
+        collect_schema_properties(
+            &schema,
+            &context,
+            &mut props,
+            &mut has_navigation_properties,
+        );
+        assert!(!has_navigation_properties);
 
         for prop in props {
             assert!(
@@ -605,7 +667,14 @@ mod tests {
         };
 
         let mut props = Vec::new();
-        collect_schema_properties(&schema, &context, &mut props);
+        let mut has_navigation_properties = false;
+        collect_schema_properties(
+            &schema,
+            &context,
+            &mut props,
+            &mut has_navigation_properties,
+        );
+        assert!(!has_navigation_properties);
 
         for prop in props {
             assert!(

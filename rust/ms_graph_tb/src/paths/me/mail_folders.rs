@@ -7,13 +7,11 @@
 #![doc = "Provides operations to manage the mailFolders property of the microsoft.graph.user entity.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
 pub mod delta;
 pub mod mail_folder_id;
-use crate::odata::{FilterExpression, FilterQuery, Selection};
+use crate::odata::{ExpansionList, FilterExpression, FilterQuery, Selection};
 use crate::pagination::Paginated;
-use crate::types::mail_folder::MailFolder;
-use crate::types::mail_folder_collection_response::{
-    MailFolderCollectionResponse, MailFolderCollectionResponseSelection,
-};
-use crate::{Error, Filter, Operation, OperationBody, Select};
+use crate::types::mail_folder::{MailFolder, MailFolderExpand, MailFolderSelection};
+use crate::types::mail_folder_collection_response::MailFolderCollectionResponse;
+use crate::{Error, Expand, Filter, Operation, OperationBody, Select};
 use form_urlencoded::Serializer;
 use http::method::Method;
 #[derive(Debug)]
@@ -29,7 +27,8 @@ fn format_path(template_expressions: &TemplateExpressions) -> String {
 #[derive(Debug)]
 pub struct Get {
     template_expressions: TemplateExpressions,
-    selection: Selection<MailFolderCollectionResponseSelection>,
+    selection: Selection<MailFolderSelection>,
+    expansion: ExpansionList<MailFolderExpand>,
     filter: FilterQuery,
 }
 impl Get {
@@ -38,6 +37,7 @@ impl Get {
         Self {
             template_expressions: TemplateExpressions { endpoint },
             selection: Selection::default(),
+            expansion: ExpansionList::default(),
             filter: FilterQuery::default(),
         }
     }
@@ -50,14 +50,21 @@ impl Operation for Get {
         if let Some((select, selection)) = self.selection.pair() {
             params.append_pair(select, &selection);
         }
+        if let Some((expand, expansion)) = self.expansion.pair() {
+            params.append_pair(expand, &expansion);
+        }
         if let Some((filter, expression)) = self.filter.pair() {
             params.append_pair(filter, &expression);
         }
         let params = params.finish();
         let path = format_path(&self.template_expressions);
-        let uri = format!("{path}?{params}")
-            .parse::<http::uri::Uri>()
-            .unwrap();
+        let uri = if params.is_empty() {
+            path.parse::<http::uri::Uri>().unwrap()
+        } else {
+            format!("{path}?{params}")
+                .parse::<http::uri::Uri>()
+                .unwrap()
+        };
         let request = http::Request::builder()
             .uri(uri)
             .method(Self::METHOD)
@@ -66,12 +73,21 @@ impl Operation for Get {
     }
 }
 impl Select for Get {
-    type Properties = MailFolderCollectionResponseSelection;
+    type Properties = MailFolderSelection;
     fn select<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
         self.selection.select(properties);
     }
-    fn extend<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
+    fn extend_selection<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
         self.selection.extend(properties);
+    }
+}
+impl Expand for Get {
+    type Properties = MailFolderExpand;
+    fn expand<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
+        self.expansion.expand(properties);
+    }
+    fn extend_expand<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
+        self.expansion.extend(properties);
     }
 }
 impl Filter for Get {

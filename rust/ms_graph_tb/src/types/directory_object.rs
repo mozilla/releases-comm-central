@@ -10,6 +10,7 @@ use crate::{Error, PropertyMap};
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 use strum::Display;
+#[doc = r"Properties that can be selected from this type."]
 #[derive(Copy, Clone, Debug, Display, PartialEq, Eq)]
 #[strum(serialize_all = "camelCase")]
 pub enum DirectoryObjectSelection {
@@ -55,7 +56,7 @@ impl<'a> DirectoryObject<'a> {
             .insert("deletedDateTime".to_string(), val.into());
         self
     }
-    #[doc = "Accessor to inhereted properties from `Entity`."]
+    #[doc = "Accessor to inherited properties from `Entity`."]
     #[must_use]
     pub fn entity(&'a self) -> Entity<'a> {
         Entity {

@@ -94,7 +94,21 @@ pub trait Select: Operation {
     fn select<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P);
 
     /// Add aditional selected properties.
-    fn extend<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P);
+    fn extend_selection<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P);
+}
+
+/// Indicates the `Operation` accepts
+/// [`$expand`](https://learn.microsoft.com/en-us/graph/query-parameters?tabs=http#expand).
+pub trait Expand: Operation {
+    /// Type (typically an enum) representing the expandable properties valid
+    /// for this operation.
+    type Properties: Display;
+
+    /// Set the expanded properties.
+    fn expand<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P);
+
+    /// Add additional expanded properties.
+    fn extend_expand<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P);
 }
 
 /// Indicates the `Operation` accepts

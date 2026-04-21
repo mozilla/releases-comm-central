@@ -5,13 +5,18 @@
 // EDITS TO THIS FILE WILL BE OVERWRITTEN
 
 #![doc = "Types related to User.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
+use crate::odata::ExpandOptions;
 use crate::types::directory_object::{DirectoryObject, DirectoryObjectSelection};
+use crate::types::mail_folder::{MailFolder, MailFolderSelection};
 use crate::types::mailbox_settings::MailboxSettings;
+use crate::types::message::{Message, MessageSelection};
 use crate::{Error, PropertyMap};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::borrow::Cow;
+use std::fmt;
 use strum::Display;
+#[doc = r"Properties that can be selected from this type."]
 #[derive(Copy, Clone, Debug, Display, PartialEq, Eq)]
 #[strum(serialize_all = "camelCase")]
 pub enum UserSelection {
@@ -81,6 +86,45 @@ pub enum UserSelection {
     UsageLocation,
     UserPrincipalName,
     UserType,
+}
+#[doc = r"Types that are syntactically valid to expand for this type."]
+#[doc = r""]
+#[doc = r" Being present in this enum does not guarantee Graph can expand"]
+#[doc = r" the property for any particular path."]
+#[derive(Clone, Debug, strum :: EnumDiscriminants)]
+#[strum_discriminants(name(ExpandNames))]
+#[strum_discriminants(vis(pub(self)))]
+#[strum_discriminants(derive(Display))]
+#[strum_discriminants(strum(serialize_all = "camelCase"))]
+pub enum UserExpand {
+    CreatedObjects(ExpandOptions<DirectoryObjectSelection>),
+    DirectReports(ExpandOptions<DirectoryObjectSelection>),
+    MailFolders(ExpandOptions<MailFolderSelection>),
+    Manager(ExpandOptions<DirectoryObjectSelection>),
+    MemberOf(ExpandOptions<DirectoryObjectSelection>),
+    Messages(ExpandOptions<MessageSelection>),
+    OwnedDevices(ExpandOptions<DirectoryObjectSelection>),
+    OwnedObjects(ExpandOptions<DirectoryObjectSelection>),
+    RegisteredDevices(ExpandOptions<DirectoryObjectSelection>),
+    Sponsors(ExpandOptions<DirectoryObjectSelection>),
+    TransitiveMemberOf(ExpandOptions<DirectoryObjectSelection>),
+}
+impl fmt::Display for UserExpand {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            UserExpand::CreatedObjects(opt) => opt.full_format(f, ExpandNames::from(self)),
+            UserExpand::DirectReports(opt) => opt.full_format(f, ExpandNames::from(self)),
+            UserExpand::MailFolders(opt) => opt.full_format(f, ExpandNames::from(self)),
+            UserExpand::Manager(opt) => opt.full_format(f, ExpandNames::from(self)),
+            UserExpand::MemberOf(opt) => opt.full_format(f, ExpandNames::from(self)),
+            UserExpand::Messages(opt) => opt.full_format(f, ExpandNames::from(self)),
+            UserExpand::OwnedDevices(opt) => opt.full_format(f, ExpandNames::from(self)),
+            UserExpand::OwnedObjects(opt) => opt.full_format(f, ExpandNames::from(self)),
+            UserExpand::RegisteredDevices(opt) => opt.full_format(f, ExpandNames::from(self)),
+            UserExpand::Sponsors(opt) => opt.full_format(f, ExpandNames::from(self)),
+            UserExpand::TransitiveMemberOf(opt) => opt.full_format(f, ExpandNames::from(self)),
+        }
+    }
 }
 #[doc = "Represents a Microsoft Entra user account."]
 #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
@@ -307,6 +351,38 @@ impl<'a> User<'a> {
             .insert("createdDateTime".to_string(), val.into());
         self
     }
+    #[doc = "Directory objects that the user created.\n\n Read-only. Nullable."]
+    pub fn created_objects(&'a self) -> Result<Vec<DirectoryObject<'a>>, Error> {
+        let val = self
+            .properties
+            .0
+            .get("createdObjects")
+            .ok_or(Error::NotFound)?;
+        val.as_array()
+            .ok_or_else(|| Error::UnexpectedResponse(format!("{val:?}")))?
+            .iter()
+            .map(|v| {
+                Ok::<_, Error>(
+                    PropertyMap(Cow::Borrowed(
+                        v.as_object()
+                            .ok_or_else(|| Error::UnexpectedResponse(format!("{v:?}")))?,
+                    ))
+                    .into(),
+                )
+            })
+            .collect::<Result<_, _>>()
+    }
+    #[doc = "Setter for [`created_objects`](Self::created_objects).\n\nThis library makes no guarantees that Graph exposes this property as writable."]
+    #[must_use]
+    pub fn set_created_objects(mut self, val: Vec<DirectoryObject<'_>>) -> Self {
+        self.properties.0.to_mut().insert(
+            "createdObjects".to_string(),
+            val.into_iter()
+                .map(|v| Value::Object(v.properties.0.into_owned()))
+                .collect(),
+        );
+        self
+    }
     #[doc = "Indicates whether the user account was created through one of the following methods:  As a regular school or work account (null).\n\n As an external account (Invitation). As a local account for an Azure Active Directory B2C tenant (LocalAccount). Through self-service sign-up by an internal user using email verification (EmailVerified). Through self-service sign-up by a guest signing up through a link that is part of a user flow (SelfServiceSignUp). Read-only.Returned only on `$select`. Supports `$filter` (`eq`, `ne`, `not`, `in`)."]
     pub fn creation_type(&self) -> Result<Option<&str>, Error> {
         let val = self
@@ -370,7 +446,39 @@ impl<'a> User<'a> {
             .insert("deviceEnrollmentLimit".to_string(), val.into());
         self
     }
-    #[doc = "Accessor to inhereted properties from `DirectoryObject`."]
+    #[doc = "The users and contacts that report to the user.\n\n (The users and contacts that have their manager property set to this user.) Read-only. Nullable. Supports `$expand`."]
+    pub fn direct_reports(&'a self) -> Result<Vec<DirectoryObject<'a>>, Error> {
+        let val = self
+            .properties
+            .0
+            .get("directReports")
+            .ok_or(Error::NotFound)?;
+        val.as_array()
+            .ok_or_else(|| Error::UnexpectedResponse(format!("{val:?}")))?
+            .iter()
+            .map(|v| {
+                Ok::<_, Error>(
+                    PropertyMap(Cow::Borrowed(
+                        v.as_object()
+                            .ok_or_else(|| Error::UnexpectedResponse(format!("{v:?}")))?,
+                    ))
+                    .into(),
+                )
+            })
+            .collect::<Result<_, _>>()
+    }
+    #[doc = "Setter for [`direct_reports`](Self::direct_reports).\n\nThis library makes no guarantees that Graph exposes this property as writable."]
+    #[must_use]
+    pub fn set_direct_reports(mut self, val: Vec<DirectoryObject<'_>>) -> Self {
+        self.properties.0.to_mut().insert(
+            "directReports".to_string(),
+            val.into_iter()
+                .map(|v| Value::Object(v.properties.0.into_owned()))
+                .collect(),
+        );
+        self
+    }
+    #[doc = "Accessor to inherited properties from `DirectoryObject`."]
     #[must_use]
     pub fn directory_object(&'a self) -> DirectoryObject<'a> {
         DirectoryObject {
@@ -791,6 +899,38 @@ impl<'a> User<'a> {
             .insert("mail".to_string(), val.into());
         self
     }
+    #[doc = "The user's mail folders.\n\n Read-only. Nullable."]
+    pub fn mail_folders(&'a self) -> Result<Vec<MailFolder<'a>>, Error> {
+        let val = self
+            .properties
+            .0
+            .get("mailFolders")
+            .ok_or(Error::NotFound)?;
+        val.as_array()
+            .ok_or_else(|| Error::UnexpectedResponse(format!("{val:?}")))?
+            .iter()
+            .map(|v| {
+                Ok::<_, Error>(
+                    PropertyMap(Cow::Borrowed(
+                        v.as_object()
+                            .ok_or_else(|| Error::UnexpectedResponse(format!("{v:?}")))?,
+                    ))
+                    .into(),
+                )
+            })
+            .collect::<Result<_, _>>()
+    }
+    #[doc = "Setter for [`mail_folders`](Self::mail_folders).\n\nThis library makes no guarantees that Graph exposes this property as writable."]
+    #[must_use]
+    pub fn set_mail_folders(mut self, val: Vec<MailFolder<'_>>) -> Self {
+        self.properties.0.to_mut().insert(
+            "mailFolders".to_string(),
+            val.into_iter()
+                .map(|v| Value::Object(v.properties.0.into_owned()))
+                .collect(),
+        );
+        self
+    }
     #[doc = "The mail alias for the user.\n\n This property must be specified when a user is created. Maximum length is 64 characters. Returned only on `$select`. Supports `$filter` (`eq`, `ne`, `not`, `ge`, `le`, `in`, `startsWith`, and `eq` on null values)."]
     pub fn mail_nickname(&self) -> Result<Option<&str>, Error> {
         let val = self
@@ -833,6 +973,80 @@ impl<'a> User<'a> {
         self.properties.0.to_mut().insert(
             "mailboxSettings".to_string(),
             Value::Object(val.properties.0.into_owned()),
+        );
+        self
+    }
+    #[doc = "The user or contact that is this user's manager.\n\n Read-only. Supports `$expand`."]
+    pub fn manager(&'a self) -> Result<DirectoryObject<'a>, Error> {
+        let val = self.properties.0.get("manager").ok_or(Error::NotFound)?;
+        Ok(PropertyMap(Cow::Borrowed(
+            val.as_object()
+                .ok_or_else(|| Error::UnexpectedResponse(format!("{val:?}")))?,
+        ))
+        .into())
+    }
+    #[doc = "Setter for [`manager`](Self::manager).\n\nThis library makes no guarantees that Graph exposes this property as writable."]
+    #[must_use]
+    pub fn set_manager(mut self, val: DirectoryObject<'_>) -> Self {
+        self.properties.0.to_mut().insert(
+            "manager".to_string(),
+            Value::Object(val.properties.0.into_owned()),
+        );
+        self
+    }
+    #[doc = "The groups and directory roles that the user is a member of.\n\n Read-only. Nullable. Supports `$expand`."]
+    pub fn member_of(&'a self) -> Result<Vec<DirectoryObject<'a>>, Error> {
+        let val = self.properties.0.get("memberOf").ok_or(Error::NotFound)?;
+        val.as_array()
+            .ok_or_else(|| Error::UnexpectedResponse(format!("{val:?}")))?
+            .iter()
+            .map(|v| {
+                Ok::<_, Error>(
+                    PropertyMap(Cow::Borrowed(
+                        v.as_object()
+                            .ok_or_else(|| Error::UnexpectedResponse(format!("{v:?}")))?,
+                    ))
+                    .into(),
+                )
+            })
+            .collect::<Result<_, _>>()
+    }
+    #[doc = "Setter for [`member_of`](Self::member_of).\n\nThis library makes no guarantees that Graph exposes this property as writable."]
+    #[must_use]
+    pub fn set_member_of(mut self, val: Vec<DirectoryObject<'_>>) -> Self {
+        self.properties.0.to_mut().insert(
+            "memberOf".to_string(),
+            val.into_iter()
+                .map(|v| Value::Object(v.properties.0.into_owned()))
+                .collect(),
+        );
+        self
+    }
+    #[doc = "The messages in a mailbox or folder.\n\n Read-only. Nullable."]
+    pub fn messages(&'a self) -> Result<Vec<Message<'a>>, Error> {
+        let val = self.properties.0.get("messages").ok_or(Error::NotFound)?;
+        val.as_array()
+            .ok_or_else(|| Error::UnexpectedResponse(format!("{val:?}")))?
+            .iter()
+            .map(|v| {
+                Ok::<_, Error>(
+                    PropertyMap(Cow::Borrowed(
+                        v.as_object()
+                            .ok_or_else(|| Error::UnexpectedResponse(format!("{v:?}")))?,
+                    ))
+                    .into(),
+                )
+            })
+            .collect::<Result<_, _>>()
+    }
+    #[doc = "Setter for [`messages`](Self::messages).\n\nThis library makes no guarantees that Graph exposes this property as writable."]
+    #[must_use]
+    pub fn set_messages(mut self, val: Vec<Message<'_>>) -> Self {
+        self.properties.0.to_mut().insert(
+            "messages".to_string(),
+            val.into_iter()
+                .map(|v| Value::Object(v.properties.0.into_owned()))
+                .collect(),
         );
         self
     }
@@ -1106,6 +1320,70 @@ impl<'a> User<'a> {
             .insert("otherMails".to_string(), val.into());
         self
     }
+    #[doc = "Devices the user owns.\n\n Read-only. Nullable. Supports `$expand` and `$filter` (`/$count eq 0`, `/$count ne 0`, `/$count eq 1`, `/$count ne 1`)."]
+    pub fn owned_devices(&'a self) -> Result<Vec<DirectoryObject<'a>>, Error> {
+        let val = self
+            .properties
+            .0
+            .get("ownedDevices")
+            .ok_or(Error::NotFound)?;
+        val.as_array()
+            .ok_or_else(|| Error::UnexpectedResponse(format!("{val:?}")))?
+            .iter()
+            .map(|v| {
+                Ok::<_, Error>(
+                    PropertyMap(Cow::Borrowed(
+                        v.as_object()
+                            .ok_or_else(|| Error::UnexpectedResponse(format!("{v:?}")))?,
+                    ))
+                    .into(),
+                )
+            })
+            .collect::<Result<_, _>>()
+    }
+    #[doc = "Setter for [`owned_devices`](Self::owned_devices).\n\nThis library makes no guarantees that Graph exposes this property as writable."]
+    #[must_use]
+    pub fn set_owned_devices(mut self, val: Vec<DirectoryObject<'_>>) -> Self {
+        self.properties.0.to_mut().insert(
+            "ownedDevices".to_string(),
+            val.into_iter()
+                .map(|v| Value::Object(v.properties.0.into_owned()))
+                .collect(),
+        );
+        self
+    }
+    #[doc = "Directory objects the user owns.\n\n Read-only. Nullable. Supports `$expand`, `$select` nested in `$expand`, and `$filter` (`/$count eq 0`, `/$count ne 0`, `/$count eq 1`, `/$count ne 1`)."]
+    pub fn owned_objects(&'a self) -> Result<Vec<DirectoryObject<'a>>, Error> {
+        let val = self
+            .properties
+            .0
+            .get("ownedObjects")
+            .ok_or(Error::NotFound)?;
+        val.as_array()
+            .ok_or_else(|| Error::UnexpectedResponse(format!("{val:?}")))?
+            .iter()
+            .map(|v| {
+                Ok::<_, Error>(
+                    PropertyMap(Cow::Borrowed(
+                        v.as_object()
+                            .ok_or_else(|| Error::UnexpectedResponse(format!("{v:?}")))?,
+                    ))
+                    .into(),
+                )
+            })
+            .collect::<Result<_, _>>()
+    }
+    #[doc = "Setter for [`owned_objects`](Self::owned_objects).\n\nThis library makes no guarantees that Graph exposes this property as writable."]
+    #[must_use]
+    pub fn set_owned_objects(mut self, val: Vec<DirectoryObject<'_>>) -> Self {
+        self.properties.0.to_mut().insert(
+            "ownedObjects".to_string(),
+            val.into_iter()
+                .map(|v| Value::Object(v.properties.0.into_owned()))
+                .collect(),
+        );
+        self
+    }
     #[doc = "Specifies password policies for the user.\n\n This value is an enumeration with one possible value being DisableStrongPassword, which allows weaker passwords than the default policy to be specified. DisablePasswordExpiration can also be specified. The two might be specified together; for example: `DisablePasswordExpiration, DisableStrongPassword`. Returned only on `$select`. For more information on the default password policies, see Microsoft Entra password policies. Supports `$filter` (`ne`, `not`, and `eq` on null values)."]
     pub fn password_policies(&self) -> Result<Option<&str>, Error> {
         let val = self
@@ -1267,6 +1545,38 @@ impl<'a> User<'a> {
             .insert("proxyAddresses".to_string(), val.into());
         self
     }
+    #[doc = "Devices that are registered for the user.\n\n Read-only. Nullable. Supports `$expand` and returns up to 100 objects."]
+    pub fn registered_devices(&'a self) -> Result<Vec<DirectoryObject<'a>>, Error> {
+        let val = self
+            .properties
+            .0
+            .get("registeredDevices")
+            .ok_or(Error::NotFound)?;
+        val.as_array()
+            .ok_or_else(|| Error::UnexpectedResponse(format!("{val:?}")))?
+            .iter()
+            .map(|v| {
+                Ok::<_, Error>(
+                    PropertyMap(Cow::Borrowed(
+                        v.as_object()
+                            .ok_or_else(|| Error::UnexpectedResponse(format!("{v:?}")))?,
+                    ))
+                    .into(),
+                )
+            })
+            .collect::<Result<_, _>>()
+    }
+    #[doc = "Setter for [`registered_devices`](Self::registered_devices).\n\nThis library makes no guarantees that Graph exposes this property as writable."]
+    #[must_use]
+    pub fn set_registered_devices(mut self, val: Vec<DirectoryObject<'_>>) -> Self {
+        self.properties.0.to_mut().insert(
+            "registeredDevices".to_string(),
+            val.into_iter()
+                .map(|v| Value::Object(v.properties.0.into_owned()))
+                .collect(),
+        );
+        self
+    }
     #[doc = "A list for the user to enumerate their responsibilities.\n\n Returned only on `$select`."]
     pub fn responsibilities(&self) -> Result<Vec<&str>, Error> {
         let val = self
@@ -1403,6 +1713,34 @@ impl<'a> User<'a> {
             .insert("skills".to_string(), val.into());
         self
     }
+    #[doc = "The users and groups responsible for this guest's privileges in the tenant and keeping the guest's information and access updated.\n\n (HTTP Methods: GET, POST, DELETE.). Supports `$expand`."]
+    pub fn sponsors(&'a self) -> Result<Vec<DirectoryObject<'a>>, Error> {
+        let val = self.properties.0.get("sponsors").ok_or(Error::NotFound)?;
+        val.as_array()
+            .ok_or_else(|| Error::UnexpectedResponse(format!("{val:?}")))?
+            .iter()
+            .map(|v| {
+                Ok::<_, Error>(
+                    PropertyMap(Cow::Borrowed(
+                        v.as_object()
+                            .ok_or_else(|| Error::UnexpectedResponse(format!("{v:?}")))?,
+                    ))
+                    .into(),
+                )
+            })
+            .collect::<Result<_, _>>()
+    }
+    #[doc = "Setter for [`sponsors`](Self::sponsors).\n\nThis library makes no guarantees that Graph exposes this property as writable."]
+    #[must_use]
+    pub fn set_sponsors(mut self, val: Vec<DirectoryObject<'_>>) -> Self {
+        self.properties.0.to_mut().insert(
+            "sponsors".to_string(),
+            val.into_iter()
+                .map(|v| Value::Object(v.properties.0.into_owned()))
+                .collect(),
+        );
+        self
+    }
     #[doc = "The state or province in the user's address.\n\n Maximum length is 128 characters. Returned only on `$select`. Supports `$filter` (`eq`, `ne`, `not`, `ge`, `le`, `in`, `startsWith`, and `eq` on null values)."]
     pub fn state(&self) -> Result<Option<&str>, Error> {
         let val = self.properties.0.get("state").ok_or(Error::NotFound)?;
@@ -1462,6 +1800,38 @@ impl<'a> User<'a> {
             .0
             .to_mut()
             .insert("surname".to_string(), val.into());
+        self
+    }
+    #[doc = "The groups, including nested groups, and directory roles that a user is a member of.\n\n Nullable."]
+    pub fn transitive_member_of(&'a self) -> Result<Vec<DirectoryObject<'a>>, Error> {
+        let val = self
+            .properties
+            .0
+            .get("transitiveMemberOf")
+            .ok_or(Error::NotFound)?;
+        val.as_array()
+            .ok_or_else(|| Error::UnexpectedResponse(format!("{val:?}")))?
+            .iter()
+            .map(|v| {
+                Ok::<_, Error>(
+                    PropertyMap(Cow::Borrowed(
+                        v.as_object()
+                            .ok_or_else(|| Error::UnexpectedResponse(format!("{v:?}")))?,
+                    ))
+                    .into(),
+                )
+            })
+            .collect::<Result<_, _>>()
+    }
+    #[doc = "Setter for [`transitive_member_of`](Self::transitive_member_of).\n\nThis library makes no guarantees that Graph exposes this property as writable."]
+    #[must_use]
+    pub fn set_transitive_member_of(mut self, val: Vec<DirectoryObject<'_>>) -> Self {
+        self.properties.0.to_mut().insert(
+            "transitiveMemberOf".to_string(),
+            val.into_iter()
+                .map(|v| Value::Object(v.properties.0.into_owned()))
+                .collect(),
+        );
         self
     }
     #[doc = "A two-letter country code (ISO standard 3166).\n\n Required for users that are assigned licenses due to legal requirements to check for availability of services in countries/regions. Examples include: US, JP, and GB. Not nullable. Returned only on `$select`. Supports `$filter` (`eq`, `ne`, `not`, `ge`, `le`, `in`, `startsWith`, and `eq` on null values)."]

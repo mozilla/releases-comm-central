@@ -10,7 +10,7 @@ use std::fmt::{Display, Formatter};
 use thiserror::Error;
 
 /// Common internal representation of the `$select` parameter.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct Selection<P: Clone> {
     // The API seems to deduplicate on the server-side, so we don't need to do that. Because this
     // parameter will likely consist of a few small enum variants, vec operations are a good fit.
@@ -26,10 +26,12 @@ impl<T: Clone> Default for Selection<T> {
 }
 
 impl<P: Display + Clone> Selection<P> {
+    /// Set the selected properties.
     pub fn select<I: IntoIterator<Item = P>>(&mut self, properties: I) {
         self.properties = properties.into_iter().collect();
     }
 
+    /// Add additional properties to the selection.
     pub fn extend<I: IntoIterator<Item = P>>(&mut self, properties: I) {
         self.properties.extend(properties);
     }
@@ -52,8 +54,127 @@ impl<P: Display + Clone> Selection<P> {
     }
 }
 
+/// Common internal representation of the `$expand` parameter.
+#[derive(Clone, Debug)]
+pub(crate) struct ExpansionList<E: Clone> {
+    expansions: Vec<E>,
+}
+
+impl<E: Clone> Default for ExpansionList<E> {
+    fn default() -> Self {
+        Self {
+            expansions: Vec::new(),
+        }
+    }
+}
+
+impl<E: Display + Clone> ExpansionList<E> {
+    /// Set the expanded properties.
+    pub fn expand<I: IntoIterator<Item = E>>(&mut self, expansions: I) {
+        self.expansions = expansions.into_iter().collect();
+    }
+
+    /// Add additional properties to be expanded.
+    pub fn extend<I: IntoIterator<Item = E>>(&mut self, expansions: I) {
+        self.expansions.extend(expansions);
+    }
+
+    /// Get the expansion as a (key, value) pair. Useful for combining with
+    /// `form_urlencoded::Serializer::append_pair` and similar.
+    pub fn pair(&self) -> Option<(&'static str, String)> {
+        if self.expansions.is_empty() {
+            None
+        } else {
+            Some((
+                // There's a bug in Microsoft's code preventing `$expand` from
+                // working with delta() queries, but it can be worked around by
+                // just dropping the `$`. The docs say the `$` is only optional
+                // on some APIs, and should always be included, so it's possible
+                // that this should be done with post-processing on delta()
+                // queries instead.
+                "expand",
+                self.expansions
+                    .iter()
+                    .map(ToString::to_string)
+                    .collect::<Vec<_>>()
+                    .join(","),
+            ))
+        }
+    }
+}
+
+/// OData options that can be applied to an expanded property.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct ExpandOptions<P: Clone> {
+    selection: Selection<P>,
+    filter: FilterQuery,
+}
+
+impl<P: Clone> Default for ExpandOptions<P> {
+    fn default() -> Self {
+        Self {
+            selection: Selection::default(),
+            filter: FilterQuery::default(),
+        }
+    }
+}
+
+impl<P: Display + Clone> ExpandOptions<P> {
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Select properties from the expansion.
+    pub fn select<I: IntoIterator<Item = P>>(&mut self, properties: I) {
+        self.selection.select(properties);
+    }
+
+    /// Add additional properties to select from the expansion.
+    pub fn extend_selection<I: IntoIterator<Item = P>>(&mut self, properties: I) {
+        self.selection.extend(properties);
+    }
+
+    /// Apply the given filter to the expansion.
+    pub fn filter(&mut self, expression: FilterExpression) {
+        self.filter.set(expression);
+    }
+
+    /// Whether the expansion has no options set.
+    #[must_use]
+    pub fn is_empty(&self) -> bool {
+        self.selection.properties.is_empty() && self.filter.expression.is_none()
+    }
+
+    /// Format as `property_name` with any options applied.
+    pub(crate) fn full_format(
+        &self,
+        f: &mut Formatter<'_>,
+        property_name: impl Display,
+    ) -> std::fmt::Result {
+        if self.is_empty() {
+            write!(f, "{property_name}")
+        } else {
+            write!(f, "{property_name}({self})")
+        }
+    }
+}
+
+impl<P: Display + Clone> Display for ExpandOptions<P> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let mut parts = Vec::new();
+        if let Some((select, selection)) = self.selection.pair() {
+            parts.push(format!("{select}={selection}"));
+        }
+        if let Some((filter, expression)) = self.filter.pair() {
+            parts.push(format!("{filter}={expression}"));
+        }
+        write!(f, "{}", parts.join(";"))
+    }
+}
+
 /// Common internal representation of the `$filter` parameter.
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub(crate) struct FilterQuery {
     expression: Option<FilterExpression>,
 }
@@ -259,8 +380,11 @@ impl Display for FilterExpression {
 
 #[cfg(test)]
 mod tests {
-    use super::{FilterExpression, Selection};
-    use crate::{Error, Filter, Operation, Select, paths, types::user};
+    use super::{ExpandOptions, FilterExpression, Selection};
+    use crate::{
+        Error, Expand, Filter, Operation, Select, paths, paths::me::mail_folders,
+        types::mail_folder, types::user,
+    };
     use http::uri;
 
     #[test]
@@ -291,11 +415,24 @@ mod tests {
     }
 
     #[test]
+    fn serialize_expand_options() {
+        let mut options = ExpandOptions::new();
+        options.select([mail_folder::MailFolderSelection::DisplayName]);
+        options.filter(FilterExpression::eq(filter_ident!("displayName"), "foo"));
+        assert_eq!(
+            options.to_string(),
+            "$select=displayName;$filter=displayName eq 'foo'"
+        );
+    }
+
+    #[test]
     fn serialize_get_me() -> Result<(), Error> {
         let mut get_me = paths::me::Get::new("https://graph.microsoft.com/v1.0".to_string());
         get_me.select(vec![user::UserSelection::AboutMe]);
         let req = get_me.build_request()?;
         let uri = req.uri();
+
+        // <https://graph.microsoft.com/v1.0/me?$select=aboutMe>
         let expected =
             uri::Uri::try_from("https://graph.microsoft.com/v1.0/me?%24select=aboutMe").unwrap();
         assert_eq!(*uri, expected);
@@ -315,8 +452,69 @@ mod tests {
         ));
         let req = request.build_request()?;
         let uri = req.uri();
+
+        // <https://graph.microsoft.com/v1.0/me/mailFolders/inbox/messages/delta()?$filter=parentFolderId eq 'inbox'>
         let expected = uri::Uri::try_from(
             "https://graph.microsoft.com/v1.0/me/mailFolders/inbox/messages/delta()?%24filter=parentFolderId+eq+%27inbox%27",
+        )
+        .unwrap();
+        assert_eq!(*uri, expected);
+
+        Ok(())
+    }
+
+    #[test]
+    fn serialize_mail_folders_with_multiple_odata_params() -> Result<(), Error> {
+        let mut request = mail_folders::Get::new("https://graph.microsoft.com/v1.0".to_string());
+        let mut child_folders = ExpandOptions::new();
+        child_folders.select([mail_folder::MailFolderSelection::DisplayName]);
+        request.select([mail_folder::MailFolderSelection::DisplayName]);
+        request.expand([mail_folder::MailFolderExpand::ChildFolders(child_folders)]);
+        let req = request.build_request()?;
+        let uri = req.uri();
+
+        // <https://graph.microsoft.com/v1.0/me/mailFolders?$select=displayName&expand=childFolders($select=displayName)>
+        let expected = uri::Uri::try_from(
+            "https://graph.microsoft.com/v1.0/me/mailFolders?%24select=displayName&expand=childFolders%28%24select%3DdisplayName%29",
+        )
+        .unwrap();
+        assert_eq!(*uri, expected);
+
+        Ok(())
+    }
+
+    #[test]
+    fn serialize_mail_folders_with_expand() -> Result<(), Error> {
+        let mut request = mail_folders::Get::new("https://graph.microsoft.com/v1.0".to_string());
+        let mut child_folders = ExpandOptions::new();
+        child_folders.select([mail_folder::MailFolderSelection::DisplayName]);
+        request.expand([mail_folder::MailFolderExpand::ChildFolders(child_folders)]);
+        let req = request.build_request()?;
+        let uri = req.uri();
+
+        // <https://graph.microsoft.com/v1.0/me/mailFolders?expand=childFolders($select=displayName)>
+        let expected = uri::Uri::try_from(
+            "https://graph.microsoft.com/v1.0/me/mailFolders?expand=childFolders%28%24select%3DdisplayName%29",
+        )
+        .unwrap();
+        assert_eq!(*uri, expected);
+
+        Ok(())
+    }
+
+    #[test]
+    fn serialize_expand_with_multiple_odata_params() -> Result<(), Error> {
+        let mut request = mail_folders::Get::new("https://graph.microsoft.com/v1.0".to_string());
+        let mut child_folders = ExpandOptions::new();
+        child_folders.select([mail_folder::MailFolderSelection::DisplayName]);
+        child_folders.filter(FilterExpression::eq(filter_ident!("displayName"), "inbox"));
+        request.expand([mail_folder::MailFolderExpand::ChildFolders(child_folders)]);
+        let req = request.build_request()?;
+        let uri = req.uri();
+
+        // <https://graph.microsoft.com/v1.0/me/mailFolders?expand=childFolders($select=displayName;$filter=displayName eq 'inbox')>
+        let expected = uri::Uri::try_from(
+            "https://graph.microsoft.com/v1.0/me/mailFolders?expand=childFolders%28%24select%3DdisplayName%3B%24filter%3DdisplayName+eq+%27inbox%27%29",
         )
         .unwrap();
         assert_eq!(*uri, expected);

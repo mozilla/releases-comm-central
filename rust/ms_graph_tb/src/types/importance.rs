@@ -8,6 +8,7 @@
 use crate::{Error, PropertyMap};
 use serde::{Deserialize, Serialize};
 use strum::Display;
+#[doc = r"Properties that can be selected from this type."]
 #[derive(Copy, Clone, Debug, Display, PartialEq, Eq)]
 #[strum(serialize_all = "camelCase")]
 pub enum ImportanceSelection {

@@ -7,9 +7,9 @@
 #![doc = "Provides operations to manage the mailFolders property of the microsoft.graph.user entity.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
 pub mod child_folders;
 pub mod messages;
-use crate::odata::Selection;
-use crate::types::mail_folder::{MailFolder, MailFolderSelection};
-use crate::{Error, Operation, OperationBody, Select};
+use crate::odata::{ExpansionList, Selection};
+use crate::types::mail_folder::{MailFolder, MailFolderExpand, MailFolderSelection};
+use crate::{Error, Expand, Operation, OperationBody, Select};
 use form_urlencoded::Serializer;
 use http::method::Method;
 #[derive(Debug)]
@@ -30,6 +30,7 @@ fn format_path(template_expressions: &TemplateExpressions) -> String {
 pub struct Get {
     template_expressions: TemplateExpressions,
     selection: Selection<MailFolderSelection>,
+    expansion: ExpansionList<MailFolderExpand>,
 }
 impl Get {
     #[must_use]
@@ -40,6 +41,7 @@ impl Get {
                 mail_folder_id,
             },
             selection: Selection::default(),
+            expansion: ExpansionList::default(),
         }
     }
 }
@@ -51,11 +53,18 @@ impl Operation for Get {
         if let Some((select, selection)) = self.selection.pair() {
             params.append_pair(select, &selection);
         }
+        if let Some((expand, expansion)) = self.expansion.pair() {
+            params.append_pair(expand, &expansion);
+        }
         let params = params.finish();
         let path = format_path(&self.template_expressions);
-        let uri = format!("{path}?{params}")
-            .parse::<http::uri::Uri>()
-            .unwrap();
+        let uri = if params.is_empty() {
+            path.parse::<http::uri::Uri>().unwrap()
+        } else {
+            format!("{path}?{params}")
+                .parse::<http::uri::Uri>()
+                .unwrap()
+        };
         let request = http::Request::builder()
             .uri(uri)
             .method(Self::METHOD)
@@ -68,8 +77,17 @@ impl Select for Get {
     fn select<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
         self.selection.select(properties);
     }
-    fn extend<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
+    fn extend_selection<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
         self.selection.extend(properties);
+    }
+}
+impl Expand for Get {
+    type Properties = MailFolderExpand;
+    fn expand<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
+        self.expansion.expand(properties);
+    }
+    fn extend_expand<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
+        self.expansion.extend(properties);
     }
 }
 #[doc = "Update mailfolder\n\nUpdate the properties of mailfolder object.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/mailfolder-update?view=graph-rest-1.0)."]

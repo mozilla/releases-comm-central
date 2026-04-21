@@ -165,7 +165,7 @@ fn generate_types(
         if SUPPORTED_TYPES.contains(base_name) {
             info!("generating Rust type for {full_name}");
 
-            let (description, props) = extract_from_schema(
+            let extracted = extract_from_schema(
                 schema,
                 SchemaContext {
                     kind: SchemaKind::Other,
@@ -179,7 +179,14 @@ fn generate_types(
                 .expect("schema paths should have a leaf")
                 .clone();
 
-            process_schema(out_dir, &schema_path, simple_name, description, props)?;
+            process_schema(
+                out_dir,
+                &schema_path,
+                simple_name,
+                extracted.description,
+                extracted.properties,
+                extracted.has_expansions,
+            )?;
 
             direct_type_modules.push((schema_namespace.clone(), module_name));
             if !schema_namespace.is_root() {
@@ -241,9 +248,15 @@ fn process_schema(
     simple_name: &str,
     description: Option<String>,
     properties: Vec<Property>,
+    has_expansions: bool,
 ) -> Result<(), Box<dyn Error>> {
-    let graph_type =
-        types::GraphType::new(simple_name, description, properties, types::TypeKind::Named);
+    let graph_type = types::GraphType::new(
+        simple_name,
+        description,
+        properties,
+        types::TypeKind::Named,
+        has_expansions,
+    );
     let generated = quote!(#graph_type);
 
     let destination = schemas_dir.join("src/types/").join(schema_path.file_path());

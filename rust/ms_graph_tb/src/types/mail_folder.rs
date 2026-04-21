@@ -5,11 +5,16 @@
 // EDITS TO THIS FILE WILL BE OVERWRITTEN
 
 #![doc = "Types related to MailFolder.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
+use crate::odata::ExpandOptions;
 use crate::types::entity::{Entity, EntitySelection};
+use crate::types::message::{Message, MessageSelection};
 use crate::{Error, PropertyMap};
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use std::borrow::Cow;
+use std::fmt;
 use strum::Display;
+#[doc = r"Properties that can be selected from this type."]
 #[derive(Copy, Clone, Debug, Display, PartialEq, Eq)]
 #[strum(serialize_all = "camelCase")]
 pub enum MailFolderSelection {
@@ -20,6 +25,27 @@ pub enum MailFolderSelection {
     ParentFolderId,
     TotalItemCount,
     UnreadItemCount,
+}
+#[doc = r"Types that are syntactically valid to expand for this type."]
+#[doc = r""]
+#[doc = r" Being present in this enum does not guarantee Graph can expand"]
+#[doc = r" the property for any particular path."]
+#[derive(Clone, Debug, strum :: EnumDiscriminants)]
+#[strum_discriminants(name(ExpandNames))]
+#[strum_discriminants(vis(pub(self)))]
+#[strum_discriminants(derive(Display))]
+#[strum_discriminants(strum(serialize_all = "camelCase"))]
+pub enum MailFolderExpand {
+    ChildFolders(ExpandOptions<MailFolderSelection>),
+    Messages(ExpandOptions<MessageSelection>),
+}
+impl fmt::Display for MailFolderExpand {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            MailFolderExpand::ChildFolders(opt) => opt.full_format(f, ExpandNames::from(self)),
+            MailFolderExpand::Messages(opt) => opt.full_format(f, ExpandNames::from(self)),
+        }
+    }
 }
 #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
 pub struct MailFolder<'a> {
@@ -63,6 +89,38 @@ impl<'a> MailFolder<'a> {
             .insert("childFolderCount".to_string(), val.into());
         self
     }
+    #[doc = "The collection of child folders in the mailFolder."]
+    pub fn child_folders(&'a self) -> Result<Vec<MailFolder<'a>>, Error> {
+        let val = self
+            .properties
+            .0
+            .get("childFolders")
+            .ok_or(Error::NotFound)?;
+        val.as_array()
+            .ok_or_else(|| Error::UnexpectedResponse(format!("{val:?}")))?
+            .iter()
+            .map(|v| {
+                Ok::<_, Error>(
+                    PropertyMap(Cow::Borrowed(
+                        v.as_object()
+                            .ok_or_else(|| Error::UnexpectedResponse(format!("{v:?}")))?,
+                    ))
+                    .into(),
+                )
+            })
+            .collect::<Result<_, _>>()
+    }
+    #[doc = "Setter for [`child_folders`](Self::child_folders).\n\nThis library makes no guarantees that Graph exposes this property as writable."]
+    #[must_use]
+    pub fn set_child_folders(mut self, val: Vec<MailFolder<'_>>) -> Self {
+        self.properties.0.to_mut().insert(
+            "childFolders".to_string(),
+            val.into_iter()
+                .map(|v| Value::Object(v.properties.0.into_owned()))
+                .collect(),
+        );
+        self
+    }
     #[doc = "The mailFolder's display name."]
     pub fn display_name(&self) -> Result<Option<&str>, Error> {
         let val = self
@@ -86,7 +144,7 @@ impl<'a> MailFolder<'a> {
             .insert("displayName".to_string(), val.into());
         self
     }
-    #[doc = "Accessor to inhereted properties from `Entity`."]
+    #[doc = "Accessor to inherited properties from `Entity`."]
     #[must_use]
     pub fn entity(&'a self) -> Entity<'a> {
         Entity {
@@ -116,6 +174,34 @@ impl<'a> MailFolder<'a> {
             .0
             .to_mut()
             .insert("isHidden".to_string(), val.into());
+        self
+    }
+    #[doc = "The collection of messages in the mailFolder."]
+    pub fn messages(&'a self) -> Result<Vec<Message<'a>>, Error> {
+        let val = self.properties.0.get("messages").ok_or(Error::NotFound)?;
+        val.as_array()
+            .ok_or_else(|| Error::UnexpectedResponse(format!("{val:?}")))?
+            .iter()
+            .map(|v| {
+                Ok::<_, Error>(
+                    PropertyMap(Cow::Borrowed(
+                        v.as_object()
+                            .ok_or_else(|| Error::UnexpectedResponse(format!("{v:?}")))?,
+                    ))
+                    .into(),
+                )
+            })
+            .collect::<Result<_, _>>()
+    }
+    #[doc = "Setter for [`messages`](Self::messages).\n\nThis library makes no guarantees that Graph exposes this property as writable."]
+    #[must_use]
+    pub fn set_messages(mut self, val: Vec<Message<'_>>) -> Self {
+        self.properties.0.to_mut().insert(
+            "messages".to_string(),
+            val.into_iter()
+                .map(|v| Value::Object(v.properties.0.into_owned()))
+                .collect(),
+        );
         self
     }
     #[doc = "The unique identifier for the mailFolder's parent mailFolder."]

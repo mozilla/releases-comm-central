@@ -14,7 +14,9 @@ use crate::{Error, PropertyMap};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::borrow::Cow;
+use std::fmt;
 use strum::Display;
+#[doc = r"Properties that can be selected from this type."]
 #[derive(Copy, Clone, Debug, Display, PartialEq, Eq)]
 #[strum(serialize_all = "camelCase")]
 pub enum MessageSelection {
@@ -43,6 +45,18 @@ pub enum MessageSelection {
     ToRecipients,
     UniqueBody,
     WebLink,
+}
+#[doc = r"Zero-variant enum that cannot be instantiated."]
+#[doc = r""]
+#[doc = r" None of the types that can be expanded from this type are"]
+#[doc = r" currently supported. This enum is used to indicate that any"]
+#[doc = r" attempts to expand this Graph type will fail to compile."]
+#[derive(Clone, Debug)]
+pub enum MessageExpand {}
+impl fmt::Display for MessageExpand {
+    fn fmt(&self, _: &mut fmt::Formatter<'_>) -> std::fmt::Result {
+        match *self {}
+    }
 }
 #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Message<'a> {
@@ -409,7 +423,7 @@ impl<'a> Message<'a> {
             .insert("isReadReceiptRequested".to_string(), val.into());
         self
     }
-    #[doc = "Accessor to inhereted properties from `OutlookItem`."]
+    #[doc = "Accessor to inherited properties from `OutlookItem`."]
     #[must_use]
     pub fn outlook_item(&'a self) -> OutlookItem<'a> {
         OutlookItem {

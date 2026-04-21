@@ -103,13 +103,14 @@ impl From<&OaParameter> for Parameter {
                 simple_name(reference).to_string(),
             ))),
             Some(schema) => {
-                let (_, properties) = extract_from_schema(
+                let properties = extract_from_schema(
                     schema,
                     SchemaContext {
                         kind: SchemaKind::Other,
                         is_delta: false,
                     },
-                );
+                )
+                .properties;
                 assert_eq!(
                     properties.len(),
                     1,
@@ -137,7 +138,8 @@ pub struct ApiBody {
 
 impl ApiBody {
     pub fn from_openapi(value: &OaBody, kind: SchemaKind, is_delta: bool) -> Self {
-        let (_, properties) = extract_from_schema(&value.schema, SchemaContext { kind, is_delta });
+        let properties =
+            extract_from_schema(&value.schema, SchemaContext { kind, is_delta }).properties;
         assert_eq!(
             properties.len(),
             1,

@@ -17,14 +17,25 @@ use crate::{
 pub mod paths;
 pub mod types;
 
-fn imports(properties: &[crate::extract::schema::Property]) -> TokenStream {
+/// Generate the token stream representing the given properties.
+/// `exclude_module` is intended to be the name of the module itself to avoid
+/// self-imports in potentially recursive types.
+fn imports(
+    properties: &[crate::extract::schema::Property],
+    exclude_module: Option<&str>,
+) -> TokenStream {
     let mut imports = properties
         .iter()
         .filter_map(|p| {
             if let RustType::NamedSchema(custom_rust_type) = &p.rust_type {
                 let original_name = custom_rust_type.original_name();
                 if crate::SUPPORTED_TYPES.contains(original_name.as_str()) {
-                    Some(custom_rust_type.as_snake_case())
+                    let module_name = custom_rust_type.as_snake_case();
+                    if exclude_module == Some(module_name.as_str()) {
+                        None
+                    } else {
+                        Some(module_name)
+                    }
                 } else {
                     warn!(
                         "not generating imports for property of unsupported custom type {}",
@@ -536,6 +547,7 @@ mod tests {
                             is_collection: false,
                             rust_type: RustType::Bytes,
                             description: None,
+                            navigation_property: false,
                             is_ref: false,
                         },
                     }),
@@ -558,6 +570,7 @@ mod tests {
                             is_collection: false,
                             rust_type: RustType::Bytes,
                             description: None,
+                            navigation_property: false,
                             is_ref: false,
                         },
                     }),
