@@ -4079,7 +4079,11 @@ void nsImapMailFolder::PrepareToAddHeadersToMailDB(nsIImapProtocol* aProtocol) {
 void nsImapMailFolder::TweakHeaderFlags(nsIImapProtocol* aProtocol,
                                         nsIMsgDBHdr* tweakMe) {
   if (mDatabase && aProtocol && tweakMe) {
-    tweakMe->SetMessageKey(m_curMsgUid);
+    // TODO: UID -> nsMsgKey Mapping
+    // https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
+    nsMsgKey msgKey = (nsMsgKey)m_curMsgUid;
+
+    tweakMe->SetMessageKey(msgKey);
     tweakMe->SetMessageSize(m_nextMessageByteLength);
 
     bool foundIt = false;
@@ -4087,7 +4091,7 @@ void nsImapMailFolder::TweakHeaderFlags(nsIImapProtocol* aProtocol,
     nsCOMPtr<nsIImapFlagAndUidState> flagState;
     nsresult rv = aProtocol->GetFlagAndUidState(getter_AddRefs(flagState));
     NS_ENSURE_SUCCESS_VOID(rv);
-    rv = flagState->HasMessage(m_curMsgUid, &foundIt);
+    rv = flagState->HasMessage(msgKey, &foundIt);
 
     if (NS_SUCCEEDED(rv) && foundIt) {
       imapMessageFlagsType imap_flags;
@@ -4144,7 +4148,7 @@ void nsImapMailFolder::TweakHeaderFlags(nsIImapProtocol* aProtocol,
         newFlags |= nsMsgMessageFlags::Forwarded;
       if (newFlags) tweakMe->OrFlags(newFlags, &dbHdrFlags);
       if (!customFlags.IsEmpty())
-        (void)HandleCustomFlags(m_curMsgUid, tweakMe, userFlags, customFlags);
+        (void)HandleCustomFlags(msgKey, tweakMe, userFlags, customFlags);
     }
   }
 }
@@ -4463,7 +4467,7 @@ nsImapMailFolder::ReleaseUrlCacheEntry(nsIMsgMailNewsUrl* aUrl) {
   return aUrl->SetMemCacheEntry(nullptr);
 }
 
-nsresult nsImapMailFolder::HandleCustomFlags(nsMsgKey uidOfMessage,
+nsresult nsImapMailFolder::HandleCustomFlags(nsMsgKey msgKey,
                                              nsIMsgDBHdr* dbHdr,
                                              uint16_t userFlags,
                                              nsCString& keywords) {
@@ -4481,14 +4485,14 @@ nsresult nsImapMailFolder::HandleCustomFlags(nsMsgKey uidOfMessage,
                      nsCaseInsensitiveCStringComparator)) {
     nsAutoCString msgJunkScore;
     msgJunkScore.AppendInt(nsIJunkMailPlugin::IS_HAM_SCORE);
-    mDatabase->SetStringProperty(uidOfMessage, "junkscore", msgJunkScore);
+    mDatabase->SetStringProperty(msgKey, "junkscore", msgJunkScore);
   } else if (FindInReadable("Junk"_ns, keywords,
                             nsCaseInsensitiveCStringComparator)) {
     uint32_t newFlags;
     dbHdr->AndFlags(~nsMsgMessageFlags::New, &newFlags);
     nsAutoCString msgJunkScore;
     msgJunkScore.AppendInt(nsIJunkMailPlugin::IS_SPAM_SCORE);
-    mDatabase->SetStringProperty(uidOfMessage, "junkscore", msgJunkScore);
+    mDatabase->SetStringProperty(msgKey, "junkscore", msgJunkScore);
   } else
     messageClassified = false;
   if (messageClassified) {
@@ -4510,8 +4514,8 @@ nsresult nsImapMailFolder::HandleCustomFlags(nsMsgKey uidOfMessage,
     // prevKeywords: saved keywords from previous call of this function.
     // clang-format off
     MOZ_LOG(IMAP_KW, mozilla::LogLevel::Debug,
-            ("UID=%" PRIu32 ", localKeywords=|%s| keywords=|%s|, prevKeywords=|%s|",
-             uidOfMessage, localKeywords.get(), keywords.get(), prevKeywords.get()));
+            ("msgKey=%" PRIu32 ", localKeywords=|%s| keywords=|%s|, prevKeywords=|%s|",
+             msgKey, localKeywords.get(), keywords.get(), prevKeywords.get()));
     // clang-format on
 
     // Store keywords to detect changes on next call of this function.
@@ -4580,28 +4584,32 @@ nsresult nsImapMailFolder::SyncFlags(nsIImapFlagAndUidState* flagState) {
   flagState->GetSupportedUserFlags(&supportedUserFlags);
 
   for (int32_t flagIndex = 0; flagIndex < messageIndex; flagIndex++) {
-    uint32_t uidOfMessage;
+    ImapUid uidOfMessage;
     flagState->GetUidOfMessage(flagIndex, &uidOfMessage);
     imapMessageFlagsType flags;
     flagState->GetMessageFlags(flagIndex, &flags);
+    // TODO: Proper UID->nsMsgKey mapping
+    // https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
+    nsMsgKey msgKey = (nsMsgKey)uidOfMessage;
     bool containsKey;
-    rv = mDatabase->ContainsKey(uidOfMessage, &containsKey);
+    rv = mDatabase->ContainsKey(msgKey, &containsKey);
     // if we don't have the header, don't diddle the flags.
     // GetMsgHdrForKey will create the header if it doesn't exist.
     if (NS_FAILED(rv) || !containsKey) continue;
 
     nsCOMPtr<nsIMsgDBHdr> dbHdr;
-    rv = mDatabase->GetMsgHdrForKey(uidOfMessage, getter_AddRefs(dbHdr));
+    rv = mDatabase->GetMsgHdrForKey(msgKey, getter_AddRefs(dbHdr));
     if (NS_FAILED(rv)) continue;
     if (NS_SUCCEEDED(dbHdr->GetMessageSize(&messageSize)))
       newFolderSize += messageSize;
 
     nsCString keywords;
     if (NS_SUCCEEDED(
-            flagState->GetCustomFlags(uidOfMessage, getter_Copies(keywords))))
-      HandleCustomFlags(uidOfMessage, dbHdr, supportedUserFlags, keywords);
+            flagState->GetCustomFlags(uidOfMessage, getter_Copies(keywords)))) {
+      HandleCustomFlags(msgKey, dbHdr, supportedUserFlags, keywords);
+    }
 
-    NotifyMessageFlagsFromHdr(dbHdr, uidOfMessage, flags);
+    NotifyMessageFlagsFromHdr(dbHdr, msgKey, flags);
   }
   if (!partialUIDFetch && newFolderSize != mFolderSize) {
     int64_t oldFolderSize = mFolderSize;
@@ -4680,7 +4688,7 @@ nsImapMailFolder::NotifyMessageFlags(uint32_t aFlags,
     }
     nsCOMPtr<nsIMsgDBHdr> dbHdr;
     bool containsKey;
-    // TODO: UID->nsMsgKey mapping
+    // TODO: UID -> nsMsgKey mapping
     // https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
     nsMsgKey msgKey = aMsgUid;
     nsresult rv = mDatabase->ContainsKey(msgKey, &containsKey);
