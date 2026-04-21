@@ -7,8 +7,9 @@
 #![doc = "Provides operations to manage the user singleton.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
 pub mod mail_folders;
 pub mod messages;
+use crate::odata::Selection;
 use crate::types::user::{User, UserSelection};
-use crate::{Error, Operation, OperationBody, Select, Selection};
+use crate::{Error, Operation, OperationBody, Select};
 use form_urlencoded::Serializer;
 use http::method::Method;
 #[derive(Debug)]
@@ -40,8 +41,9 @@ impl Operation for Get {
     type Response<'response> = User<'response>;
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
         let mut params = Serializer::new(String::new());
-        let (select, selection) = self.selection.pair();
-        params.append_pair(select, &selection);
+        if let Some((select, selection)) = self.selection.pair() {
+            params.append_pair(select, &selection);
+        }
         let params = params.finish();
         let path = format_path(&self.template_expressions);
         let uri = format!("{path}?{params}")

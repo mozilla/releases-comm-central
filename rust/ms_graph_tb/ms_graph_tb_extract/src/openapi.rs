@@ -12,7 +12,7 @@ use yaml_rust2::{Yaml, YamlLoader, yaml::Hash as YamlHash};
 pub mod path;
 pub mod schema;
 
-use path::{OaPath, parse_path};
+use path::{OaParameter, OaPath, parse_parameter, parse_path};
 use schema::{OaSchema, parse_request_body, parse_schema};
 
 /// A parsed OpenAPI yaml file, not yet interpreted.
@@ -27,53 +27,51 @@ pub fn load_yaml(yaml_str: &str) -> Result<LoadedYaml, Box<dyn std::error::Error
     info!("yaml loaded");
     let doc = docs.into_iter().next().ok_or("Empty YAML document")?;
 
-    let paths = get_map_key(&doc, "paths").ok_or("Missing 'paths'")?;
-
-    let schemas = if let Some(components) = get_map_key(&doc, "components") {
-        let mut schemas = if let Some(schemas) = get_map_key(components, "schemas") {
-            schemas
-                .as_hash()
-                .expect("schemas should be a compound YAML object")
-                .into_iter()
-                .filter_map(|(k, v)| k.as_str().map(|name| (name.to_string(), parse_schema(v))))
-                .collect::<BTreeMap<String, OaSchema>>()
-        } else {
-            BTreeMap::<String, OaSchema>::new()
-        };
-
-        if let Some(request_bodies) = get_map_key(components, "requestBodies") {
-            let mut request_bodies: BTreeMap<String, OaSchema> = request_bodies
-                .as_hash()
-                .expect("requestBodies should be a compound YAML object")
-                .into_iter()
-                .filter_map(|(k, v)| {
-                    k.as_str()
-                        .map(|name| (name.to_string(), parse_request_body(v)))
-                })
-                .collect();
-
-            // Bundle the schemas from request bodies together with the rest of the
-            // schemas. This *should* not cause any conflict (despite schemas and
-            // request bodies being defined in separate sections of the spec file),
-            // because the name of request bodies all seem to end with "RequestBody"
-            // (e.g. "sendMailRequestBody").
-            schemas.append(&mut request_bodies);
-        }
-
-        schemas
+    let (parameters, schemas) = if let Some(components) = get_map_key(&doc, "components") {
+        get_params_and_schemas(components)
     } else {
-        BTreeMap::<String, OaSchema>::new()
+        <_>::default()
     };
+
+    let paths = get_and_parse(&doc, "paths", |y| parse_path(y, &parameters));
+
     info!("loaded roots");
 
-    let paths = paths
-        .as_hash()
-        .expect("paths should be a compound YAML object")
-        .into_iter()
-        .filter_map(|(k, v)| k.as_str().map(|name| (name.to_string(), parse_path(v))))
-        .collect();
-
     Ok(LoadedYaml { paths, schemas })
+}
+
+fn get_params_and_schemas(
+    components: &Yaml,
+) -> (BTreeMap<String, OaParameter>, BTreeMap<String, OaSchema>) {
+    let parameters = get_and_parse(components, "parameters", parse_parameter);
+    let mut schemas = get_and_parse(components, "schemas", parse_schema);
+    let mut request_bodies = get_and_parse(components, "requestBodies", parse_request_body);
+
+    // Bundle the schemas from request bodies together with the rest of the
+    // schemas. This *should* not cause any conflict (despite schemas and
+    // request bodies being defined in separate sections of the spec file),
+    // because the name of request bodies all seem to end with "RequestBody"
+    // (e.g. "sendMailRequestBody").
+    schemas.append(&mut request_bodies);
+
+    (parameters, schemas)
+}
+
+fn get_and_parse<T, PARSER: Fn(&Yaml) -> T>(
+    y: &Yaml,
+    map_key: &str,
+    parser: PARSER,
+) -> BTreeMap<String, T> {
+    get_map_key(y, map_key)
+        .map(|parameters| {
+            parameters
+                .as_hash()
+                .expect("this should only be used with compound YAML objects")
+                .into_iter()
+                .filter_map(|(k, v)| k.as_str().map(|name| (name.to_string(), parser(v))))
+                .collect::<BTreeMap<_, _>>()
+        })
+        .unwrap_or_default()
 }
 
 fn get_map_key<'a>(y: &'a Yaml, key: &str) -> Option<&'a Yaml> {

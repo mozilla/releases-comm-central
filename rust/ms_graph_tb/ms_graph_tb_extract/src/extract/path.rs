@@ -86,11 +86,11 @@ impl std::fmt::Display for ParseError {
 }
 
 /// A structured GraphAPI HTTP request parameter.
-// FIXME: most fields are ignored because only $select is currently supported
+// FIXME: fewer fields should be ignored as we support more parameter types
 #[derive(Debug, Clone)]
 pub struct Parameter {
     pub name: Option<String>,
-    pub _in: Option<String>,
+    pub r#in: Option<String>,
     pub _description: Option<String>,
     pub _typ: Option<RustType>,
 }
@@ -120,7 +120,7 @@ impl From<&OaParameter> for Parameter {
         };
         Parameter {
             name: value.name.clone(),
-            _in: value.r#in.clone(),
+            r#in: value.r#in.clone(),
             _description: value.description.clone(),
             _typ: typ,
         }

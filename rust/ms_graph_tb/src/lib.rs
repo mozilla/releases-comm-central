@@ -8,6 +8,7 @@ use std::borrow::Cow;
 use std::fmt::Display;
 use thiserror::Error;
 
+pub mod odata;
 pub mod pagination;
 pub mod paths;
 pub mod types;
@@ -96,73 +97,17 @@ pub trait Select: Operation {
     fn extend<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P);
 }
 
-/// Common internal representation of the `$select` parameter (used with
-/// [`Select`]).
-#[derive(Clone, Debug)]
-struct Selection<P: Clone> {
-    // The API seems to deduplicate on the server-side, so we don't need to do that. Because this
-    // parameter will likely consist of a few small enum variants, vec operations are a good fit.
-    properties: Vec<P>,
-}
-
-impl<T: Clone> Default for Selection<T> {
-    fn default() -> Self {
-        Self {
-            properties: Vec::new(),
-        }
-    }
-}
-
-impl<P: Display + Clone> Selection<P> {
-    pub fn select<I: IntoIterator<Item = P>>(&mut self, properties: I) {
-        self.properties = properties.into_iter().collect();
-    }
-
-    pub fn extend<I: IntoIterator<Item = P>>(&mut self, properties: I) {
-        self.properties.extend(properties);
-    }
-
-    /// Get the selection as a (key, value) pair. Useful for combining with
-    /// `form_urlencoded::Serializer::append_pair` and similar.
-    pub fn pair(&self) -> (&'static str, String) {
-        (
-            "$select",
-            self.properties
-                .iter()
-                .map(ToString::to_string)
-                .collect::<Vec<_>>()
-                .join(","),
-        )
-    }
+/// Indicates the `Operation` accepts
+/// [`$filter`](https://learn.microsoft.com/en-us/graph/query-parameters?tabs=http#filter).
+pub trait Filter: Operation {
+    /// Set the filter expression.
+    fn filter(&mut self, expression: odata::FilterExpression);
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::{Error, Operation, Select, Selection, paths, types::user};
-    use http::uri;
+    use crate::types::user;
     use std::borrow::Cow;
-
-    #[test]
-    fn serialize_selection() {
-        let mut selection = Selection::default();
-        selection.extend(vec![user::UserSelection::AboutMe]);
-        let (key, value) = selection.pair();
-        assert_eq!(key, "$select");
-        assert_eq!(value, "aboutMe");
-    }
-
-    #[test]
-    fn serialize_get_me() -> Result<(), Error> {
-        let mut get_me = paths::me::Get::new("https://graph.microsoft.com/v1.0".to_string());
-        get_me.select(vec![user::UserSelection::AboutMe]);
-        let req = get_me.build_request()?;
-        let uri = req.uri();
-        let expected =
-            uri::Uri::try_from("https://graph.microsoft.com/v1.0/me?%24select=aboutMe").unwrap();
-        assert_eq!(*uri, expected);
-
-        Ok(())
-    }
 
     #[test]
     fn deserialize_user() {

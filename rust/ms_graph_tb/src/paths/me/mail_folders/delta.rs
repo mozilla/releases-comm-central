@@ -5,9 +5,10 @@
 // EDITS TO THIS FILE WILL BE OVERWRITTEN
 
 #![doc = "Provides operations to call the delta method.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
+use crate::odata::{FilterExpression, FilterQuery, Selection};
 use crate::pagination::DeltaResponse;
 use crate::types::mail_folder::{MailFolder, MailFolderSelection};
-use crate::{Error, Operation, Select, Selection};
+use crate::{Error, Filter, Operation, Select};
 use form_urlencoded::Serializer;
 use http::method::Method;
 use std::str::FromStr;
@@ -25,6 +26,7 @@ fn format_path(template_expressions: &TemplateExpressions) -> String {
 pub struct Get {
     template_expressions: TemplateExpressions,
     selection: Selection<MailFolderSelection>,
+    filter: FilterQuery,
 }
 impl Get {
     #[must_use]
@@ -32,6 +34,7 @@ impl Get {
         Self {
             template_expressions: TemplateExpressions { endpoint },
             selection: Selection::default(),
+            filter: FilterQuery::default(),
         }
     }
 }
@@ -40,8 +43,12 @@ impl Operation for Get {
     type Response<'response> = DeltaResponse<MailFolder<'response>>;
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
         let mut params = Serializer::new(String::new());
-        let (select, selection) = self.selection.pair();
-        params.append_pair(select, &selection);
+        if let Some((select, selection)) = self.selection.pair() {
+            params.append_pair(select, &selection);
+        }
+        if let Some((filter, expression)) = self.filter.pair() {
+            params.append_pair(filter, &expression);
+        }
         let params = params.finish();
         let path = format_path(&self.template_expressions);
         let uri = format!("{path}?{params}")
@@ -61,6 +68,11 @@ impl Select for Get {
     }
     fn extend<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
         self.selection.extend(properties);
+    }
+}
+impl Filter for Get {
+    fn filter(&mut self, expression: FilterExpression) {
+        self.filter.set(expression);
     }
 }
 #[doc = r"Retrieve delta changes using an opaque token from a previous"]

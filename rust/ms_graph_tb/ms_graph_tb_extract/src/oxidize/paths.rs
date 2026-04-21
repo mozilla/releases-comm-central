@@ -95,6 +95,7 @@ impl ToTokens for PathModule<'_> {
             use std::str::FromStr;
 
             #imports
+            use crate::odata::*;
             use crate::pagination::*;
             use crate::*;
 
@@ -148,6 +149,7 @@ fn request_without_body(
     let method = operation.method;
 
     let selectable = selectable(operation);
+    let filterable = filterable(operation);
     let selection_type = if selectable {
         let Success::WithBody(ref selection_body) = operation.success else {
             panic!("selectable request with no response type: {operation:?}");
@@ -176,6 +178,7 @@ fn request_without_body(
         lifetime: None,
         body_line: None,
         selection_type: selection_type.clone(),
+        filterable,
     };
     let impl_def = ImplDef {
         method,
@@ -183,6 +186,7 @@ fn request_without_body(
         template_expressions,
         arg: None,
         selectable,
+        filterable,
     };
     let operation_def = OperationDef {
         method: method.to_string(),
@@ -190,8 +194,10 @@ fn request_without_body(
         body: None,
         response: response.clone(),
         selectable,
+        filterable,
     };
     let select_def = SelectDef { selection_type };
+    let filter_def = FilterDef { method, filterable };
     let delta_def = operation.is_delta.then(|| DeltaDef { response });
     RequestDef {
         unnamed_body_types,
@@ -199,6 +205,7 @@ fn request_without_body(
         impl_def,
         operation_def,
         select_def,
+        filter_def,
         delta_def,
     }
 }
@@ -220,6 +227,7 @@ fn request_with_body(
     }
 
     let method = operation.method;
+    let filterable = filterable(operation);
 
     let mut body = op_body.property.rust_type.base_token(false, Reference::Own);
     let body_lifetime = match op_body.property.rust_type {
@@ -245,6 +253,7 @@ fn request_with_body(
         lifetime: body_lifetime.clone(),
         body_line: Some(quote!(body: OperationBody<#body>,)),
         selection_type: None,
+        filterable,
     };
     let impl_def = ImplDef {
         method,
@@ -252,6 +261,7 @@ fn request_with_body(
         template_expressions,
         arg: Some(quote!(body: OperationBody<#body>)),
         selectable: false,
+        filterable,
     };
     let operation_def = OperationDef {
         method: method.to_string(),
@@ -259,10 +269,12 @@ fn request_with_body(
         body: Some(body),
         response,
         selectable: false,
+        filterable,
     };
     let select_def = SelectDef {
         selection_type: None,
     };
+    let filter_def = FilterDef { method, filterable };
     assert!(
         !operation.is_delta,
         "deltas are not supported for requests with a body"
@@ -273,6 +285,7 @@ fn request_with_body(
         impl_def,
         operation_def,
         select_def,
+        filter_def,
         delta_def: None,
     }
 }
@@ -326,6 +339,7 @@ pub struct RequestDef {
     impl_def: ImplDef,
     operation_def: OperationDef,
     select_def: SelectDef,
+    filter_def: FilterDef,
     delta_def: Option<DeltaDef>,
 }
 
@@ -337,6 +351,7 @@ impl ToTokens for RequestDef {
             impl_def,
             operation_def,
             select_def,
+            filter_def,
             delta_def,
         } = self;
         tokens.append_all(
@@ -349,6 +364,7 @@ impl ToTokens for RequestDef {
             #impl_def
             #operation_def
             #select_def
+            #filter_def
             #delta_def
         })
     }
@@ -360,6 +376,7 @@ struct StructDef {
     lifetime: Option<TokenStream>,
     body_line: Option<TokenStream>,
     selection_type: Option<Ident>,
+    filterable: bool,
 }
 
 impl ToTokens for StructDef {
@@ -370,10 +387,12 @@ impl ToTokens for StructDef {
             lifetime,
             body_line: body,
             selection_type,
+            filterable,
         } = self;
         let selection_line = selection_type
             .as_ref()
             .map(|selection_type| quote!(selection: Selection<#selection_type>,));
+        let filter_line = filterable.then(|| quote!(filter: FilterQuery,));
         tokens.append_all(quote! {
             #description
             #[derive(Debug)]
@@ -381,6 +400,7 @@ impl ToTokens for StructDef {
                 template_expressions: TemplateExpressions,
                 #body
                 #selection_line
+                #filter_line
             }
         })
     }
@@ -392,6 +412,7 @@ struct ImplDef {
     template_expressions: Vec<Ident>,
     arg: Option<TokenStream>,
     selectable: bool,
+    filterable: bool,
 }
 
 impl ToTokens for ImplDef {
@@ -402,6 +423,7 @@ impl ToTokens for ImplDef {
             template_expressions,
             arg,
             selectable,
+            filterable,
         } = self;
         let body_line = if arg.is_some() {
             Some(quote!(body,))
@@ -410,6 +432,11 @@ impl ToTokens for ImplDef {
         };
         let selection_line = if *selectable {
             Some(quote!(selection: Selection::default(),))
+        } else {
+            None
+        };
+        let filter_line = if *filterable {
+            Some(quote!(filter: FilterQuery::default(),))
         } else {
             None
         };
@@ -423,6 +450,7 @@ impl ToTokens for ImplDef {
                         },
                         #body_line
                         #selection_line
+                        #filter_line
                     }
                 }
             }
@@ -436,6 +464,7 @@ struct OperationDef {
     body: Option<TokenStream>,
     response: TokenStream,
     selectable: bool,
+    filterable: bool,
 }
 
 impl ToTokens for OperationDef {
@@ -446,15 +475,31 @@ impl ToTokens for OperationDef {
             body,
             response,
             selectable,
+            filterable,
         } = self;
         let upper_method = format_ident!("{}", method.to_ascii_uppercase());
         let method = format_ident!("{method}");
 
-        let build_uri = if *selectable {
+        let append_selection = selectable.then(|| {
+            quote! {
+                if let Some((select, selection)) = self.selection.pair() {
+                    params.append_pair(select, &selection);
+                }
+            }
+        });
+        let append_filter = filterable.then(|| {
+            quote! {
+                if let Some((filter, expression)) = self.filter.pair() {
+                    params.append_pair(filter, &expression);
+                }
+            }
+        });
+
+        let build_uri = if *selectable || *filterable {
             quote! {
                 let mut params = Serializer::new(String::new());
-                let (select, selection) = self.selection.pair();
-                params.append_pair(select, &selection);
+                #append_selection
+                #append_filter
                 let params = params.finish();
                 let path = format_path(&self.template_expressions);
                 let uri = format!("{path}?{params}").parse::<http::uri::Uri>().unwrap();
@@ -530,11 +575,41 @@ impl ToTokens for SelectDef {
     }
 }
 
+struct FilterDef {
+    method: Method,
+    filterable: bool,
+}
+
+impl ToTokens for FilterDef {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let Self { method, filterable } = self;
+        if *filterable {
+            tokens.append_all(quote! {
+                impl Filter for #method {
+                    fn filter(&mut self, expression: FilterExpression) {
+                        self.filter.set(expression);
+                    }
+                }
+            })
+        }
+    }
+}
+
 fn selectable(request: &Operation) -> bool {
     if let Some(parameters) = &request.parameters {
         parameters
             .iter()
-            .any(|p| p.name == Some("$select".to_string()))
+            .any(|p| p.name == Some("$select".to_string()) && p.r#in == Some("query".to_string()))
+    } else {
+        false
+    }
+}
+
+fn filterable(request: &Operation) -> bool {
+    if let Some(parameters) = &request.parameters {
+        parameters
+            .iter()
+            .any(|p| p.name == Some("$filter".to_string()) && p.r#in == Some("query".to_string()))
     } else {
         false
     }

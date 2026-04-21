@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 use yaml_rust2::{Yaml, yaml::Hash as YamlHash};
 
 use super::{OaSchema, get_map_in, get_node_in, get_seq_in, get_str_in, parse_schema};
@@ -94,7 +94,7 @@ pub struct OaBody {
 }
 
 /// Parse the given yaml text as an OpenAPI path.
-pub(super) fn parse_path(node: &Yaml) -> OaPath {
+pub(super) fn parse_path(node: &Yaml, parameters: &BTreeMap<String, OaParameter>) -> OaPath {
     let map = node
         .as_hash()
         .expect("all paths should be compound YAML objects");
@@ -117,7 +117,7 @@ pub(super) fn parse_path(node: &Yaml) -> OaPath {
             let pageable = map.contains_key(&Yaml::from_str("x-ms-pageable"));
             let body = get_request_body(map);
             let responses = get_responses(map);
-            let parameters = get_parameters(map);
+            let parameters = get_parameters(map, parameters);
             Some((
                 method,
                 OaOperation {
@@ -195,12 +195,12 @@ fn get_responses(map: &YamlHash) -> HashMap<String, Option<OaBody>> {
             (method.to_string(), body)
         })
         .collect()
-    /*
-
-    }*/
 }
 
-fn get_parameters(map: &YamlHash) -> Option<Vec<OaParameter>> {
+fn get_parameters(
+    map: &YamlHash,
+    shared_parameters: &BTreeMap<String, OaParameter>,
+) -> Option<Vec<OaParameter>> {
     let parameters = get_seq_in(map, "parameters")?;
     Some(
         parameters
@@ -209,15 +209,36 @@ fn get_parameters(map: &YamlHash) -> Option<Vec<OaParameter>> {
                 let map = node
                     .as_hash()
                     .expect("parameters should be compound YAML objects");
-                let schema = get_node_in(map, "schema").map(parse_schema);
-                OaParameter {
-                    name: get_str_in(map, "name"),
-                    r#in: get_str_in(map, "in"),
-                    description: get_str_in(map, "description"),
-                    style: get_str_in(map, "style"),
-                    schema,
+                if let Some(reference) = get_str_in(map, "$ref") {
+                    let key = reference
+                        .rsplit('/')
+                        .next()
+                        .expect("parameter references should have a final component");
+                    return shared_parameters
+                        .get(key)
+                        .cloned()
+                        .unwrap_or_else(|| panic!("unknown parameter reference: {reference}"));
                 }
+                parse_parameter_map(map)
             })
             .collect(),
     )
+}
+
+pub(super) fn parse_parameter(node: &Yaml) -> OaParameter {
+    let map = node
+        .as_hash()
+        .expect("all parameters should be compound YAML objects");
+    parse_parameter_map(map)
+}
+
+fn parse_parameter_map(map: &YamlHash) -> OaParameter {
+    let schema = get_node_in(map, "schema").map(parse_schema);
+    OaParameter {
+        name: get_str_in(map, "name"),
+        r#in: get_str_in(map, "in"),
+        description: get_str_in(map, "description"),
+        style: get_str_in(map, "style"),
+        schema,
+    }
 }
