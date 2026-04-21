@@ -4,6 +4,10 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 XPCSHELL_TESTS_MANIFESTS += [
-    "unit/xpcshell-panorama.toml",
     "unit/xpcshell.toml",
 ]
+
+if CONFIG["MOZ_PANORAMA"]:
+    XPCSHELL_TESTS_MANIFESTS += [
+        "unit/xpcshell-panorama.toml"
+    ]
