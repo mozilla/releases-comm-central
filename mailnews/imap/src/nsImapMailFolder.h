@@ -489,8 +489,8 @@ class nsImapMailFolder : public nsMsgDBFolder,
   nsTArray<nsMsgKey> mSpamKeysToMove;
   /// the junk destination folder
   nsCOMPtr<nsIMsgFolder> mSpamFolder;
-  nsMsgKey m_curMsgUid;
-  nsMsgKey m_previousHighestUid;
+  ImapUid m_curMsgUid;
+  ImapUid m_previousHighestUid;
   ImapUid m_uidValidity;
 
   // These three vars are used to store counts from STATUS or SELECT command

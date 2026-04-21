@@ -2896,7 +2896,7 @@ nsresult nsImapMailFolder::NormalEndHeaderParseStream(
     mFolderSize += messageSize;
   m_msgMovedByFilter = false;
 
-  nsMsgKey highestUid = 0;
+  ImapUid highestUid = 0;
   nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;
   if (mDatabase) mDatabase->GetDBFolderInfo(getter_AddRefs(dbFolderInfo));
   if (dbFolderInfo) {
@@ -2945,7 +2945,7 @@ nsresult nsImapMailFolder::NormalEndHeaderParseStream(
 
     // clang-format off
     bool doFilter = filterOnHighwater
-      // Filter on largest UUID and not deleted.
+      // Filter on largest UID and not deleted.
       ? m_curMsgUid > highestUid && !(msgFlags & nsMsgMessageFlags::IMAPDeleted)
       // Filter on unread and not deleted.
       : !(msgFlags & (nsMsgMessageFlags::Read | nsMsgMessageFlags::IMAPDeleted));
@@ -4248,7 +4248,7 @@ NS_IMETHODIMP nsImapMailFolder::DownloadAllForOffline(nsIUrlListener* listener,
 // for writing to the local store.
 NS_IMETHODIMP
 nsImapMailFolder::ParseAdoptedMsgLine(const char* adoptedMessageLine,
-                                      nsMsgKey uidOfMessage,
+                                      ImapUid uidOfMessage,
                                       nsIImapUrl* aImapUrl) {
   NS_ENSURE_ARG_POINTER(aImapUrl);
   uint32_t count = 0;
