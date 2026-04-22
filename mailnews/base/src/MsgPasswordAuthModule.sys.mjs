@@ -76,7 +76,8 @@ export class MsgPasswordAuthModule {
     return passwordObj.value;
   }
 
-  // This sets cachedPassword if we find a password in the manager.
+  // This sets cachedPassword if we find a password in the manager, and return
+  // it.
   queryPasswordFromManagerAndCache(username, hostname, localStoreType) {
     let finished = false;
     this.#queryPasswordFromManagerAndCacheInternal(
@@ -88,6 +89,8 @@ export class MsgPasswordAuthModule {
       "MsgPasswordAuthModule.queryPasswordFromManagerAndCache",
       () => finished
     );
+
+    return this.cachedPassword;
   }
 
   async #queryPasswordFromManagerAndCacheInternal(

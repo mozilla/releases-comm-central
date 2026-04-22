@@ -17,10 +17,9 @@ use xpcom::interfaces::nsIObserverService;
 use xpcom::{
     RefPtr, get_service, getter_addrefs,
     interfaces::{
-        msgIAddressObject, msgIPasswordAuthModule, nsIFile, nsILoginInfo, nsILoginManager,
-        nsIMsgIdentity, nsIMsgOutgoingListener, nsIMsgProgress, nsIMsgWindow, nsIPrefBranch,
-        nsIPrefService, nsIURI, nsIUrlListener, nsMsgAuthMethodValue, nsMsgSocketType,
-        nsMsgSocketTypeValue,
+        msgIAddressObject, msgIPasswordAuthModule, nsIFile, nsIMsgIdentity, nsIMsgOutgoingListener,
+        nsIMsgProgress, nsIMsgWindow, nsIPrefBranch, nsIPrefService, nsIURI, nsIUrlListener,
+        nsMsgAuthMethodValue, nsMsgSocketType, nsMsgSocketTypeValue,
     },
     xpcom_method,
 };
@@ -539,25 +538,24 @@ impl<ClientT: SendCapableClient> OutgoingServer<ClientT> {
     xpcom_method!(password => GetPassword() -> nsACString);
     fn password(&self) -> Result<nsCString, nsresult> {
         // Check to see if the password auth module has cached the password.
-        let mut cached_password = nsCString::new();
+        let mut password = nsCString::new();
         unsafe {
             self.password_module
                 .borrow()
-                .GetCachedPassword(&mut *cached_password)
-                .to_result()?;
+                .GetCachedPassword(&mut *password)
         }
-        if !cached_password.is_empty() {
-            return Ok(cached_password);
+        .to_result()?;
+        if !password.is_empty() {
+            return Ok(password);
         }
 
-        // Otherwise, look it up in the login manager.
-        let endpoint_url = self.endpoint_url()?;
-
-        // The URI we use to store passwords into the login manager uses the
-        // format "protocol://hostname", so start by building one that matches.
+        // Otherwise, ask it to look it up in the login manager.
+        let username = self.username()?;
         let protocol = self.client()?.protocol_identifier();
-        let login_uri = match endpoint_url.host() {
-            Some(host) => nsString::from(format!("{protocol}://{host}").as_str()),
+
+        let endpoint_url = self.endpoint_url()?;
+        let hostname = match endpoint_url.host() {
+            Some(hostname) => hostname.to_string(),
             None => {
                 log::error!(
                     "cannot get host from invalid endpoint URI: {}",
@@ -567,44 +565,22 @@ impl<ClientT: SendCapableClient> OutgoingServer<ClientT> {
             }
         };
 
-        // Get the login manager so we can look up the password for the account.
-        let login_mgr = get_service::<nsILoginManager>(c"@mozilla.org/login-manager;1")
-            .ok_or(nserror::NS_ERROR_FAILURE)?;
+        unsafe {
+            self.password_module
+                .borrow()
+                .QueryPasswordFromManagerAndCache(
+                    &*username,
+                    &*nsCString::from(hostname),
+                    &*nsCString::from(protocol),
+                    &mut *password,
+                )
+        }
+        .to_result()?;
 
-        // Get every logins for the current server. An array of references is
-        // represented over XPCOM as a `ThinVec<Option<RefPtr<_>>>`, with `None`
-        // representing a null pointer.
-        let mut logins: ThinVec<Option<RefPtr<nsILoginInfo>>> = ThinVec::new();
-        unsafe { login_mgr.FindLogins(&*login_uri, &*nsString::new(), &*login_uri, &mut logins) }
-            .to_result()?;
-
-        // Try to identify logins that match the account's username.
-        let server_username = self.username()?;
-        let logins = logins
-            .into_iter()
-            // Filter out empty options.
-            .flatten()
-            // Filter out logins that don't match the correct username.
-            .filter(|login| {
-                let mut username = nsString::new();
-                let status = unsafe { login.GetUsername(&mut *username) };
-                status.succeeded() && username.to_string() == server_username.to_string()
-            })
-            .collect::<Vec<_>>();
-
-        // If we got at least one match, use the first one.
-        let password = if let Some(login) = logins.first() {
-            let mut password = nsString::new();
-            unsafe { login.GetPassword(&mut *password) }.to_result()?;
-            password
-        } else {
-            // It looks like `nsMsgIncomingServer`'s implementation is to return
-            // an empty string if it cannot find a matching login, so let's
-            // match this behaviour for consistency.
-            nsString::new()
-        };
-
-        let password = nsCString::from(password.to_string());
+        // We don't check if the password is empty or not, because it looks like
+        // `nsMsgIncomingServer`'s implementation is to return an empty string
+        // if it cannot find a matching login; so we match this behaviour for
+        // consistency.
         Ok(password)
     }
 
