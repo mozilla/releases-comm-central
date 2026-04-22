@@ -2,12 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+use std::collections::HashMap;
+
 use ms_graph_tb::{
     Error, Select, define_svlep,
     extended_properties::{SingleValueExtendedPropertiesOp, SingleValueExtendedPropertiesType},
     pagination::{DeltaItem, DeltaResponse},
     paths::me::mail_folders::mail_folder_id::messages,
     types::{
+        internet_message_header::InternetMessageHeader,
         message::{Message, MessageSelection},
         recipient::Recipient,
     },
@@ -59,6 +62,7 @@ impl<ServerT: AuthenticationProvider + RefCounted>
                     MessageSelection::CcRecipients,
                     MessageSelection::From,
                     MessageSelection::Importance,
+                    MessageSelection::InternetMessageHeaders,
                     MessageSelection::InternetMessageId,
                     MessageSelection::IsDraft,
                     MessageSelection::IsRead,
@@ -186,74 +190,93 @@ impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
 }
 
 fn headers_for_message(message: &Message) -> Option<RefPtr<IHeaderBlock>> {
-    let mut header_fields = Vec::new();
+    let mut header_fields = HashMap::new();
 
     // Date
-    if let Ok(Some(date_time)) = message.received_date_time() {
+    if let Ok(Some(date_time)) = message.sent_date_time() {
         let rfc2822_date_time = iso8601_date_time_to_rfc2822(date_time)?;
-        header_fields.push((rfc5322_header::DATE.to_string(), rfc2822_date_time));
+        header_fields.insert(rfc5322_header::DATE.to_string(), rfc2822_date_time);
     }
 
     // Message id
     if let Ok(Some(message_id)) = message.internet_message_id() {
-        header_fields.push((
+        header_fields.insert(
             rfc5322_header::MESSAGE_ID.to_string(),
             message_id.to_string(),
-        ));
+        );
     }
 
     // From
     if let Ok(from_recipient) = message.from() {
         if let Some(value) = recipient_to_rfc5322(&from_recipient) {
-            header_fields.push((rfc5322_header::FROM.to_string(), value));
+            header_fields.insert(rfc5322_header::FROM.to_string(), value);
         }
     }
 
     // Sender
     if let Ok(sender) = message.sender() {
         if let Some(value) = recipient_to_rfc5322(&sender) {
-            header_fields.push((rfc5322_header::SENDER.to_string(), value));
+            header_fields.insert(rfc5322_header::SENDER.to_string(), value);
         }
     }
 
     // Reply to
     if let Ok(reply_tos) = message.reply_to() {
         let value = flatten_recipients(&reply_tos);
-        header_fields.push((rfc5322_header::REPLY_TO.to_string(), value));
+        header_fields.insert(rfc5322_header::REPLY_TO.to_string(), value);
     }
 
     // To
     if let Ok(to_recipients) = message.to_recipients() {
         let value = flatten_recipients(&to_recipients);
-        header_fields.push((rfc5322_header::TO.to_string(), value));
+        header_fields.insert(rfc5322_header::TO.to_string(), value);
     }
 
     // CC
     if let Ok(cc_recipients) = message.cc_recipients() {
         let value = flatten_recipients(&cc_recipients);
-        header_fields.push((rfc5322_header::CC.to_string(), value));
+        header_fields.insert(rfc5322_header::CC.to_string(), value);
     }
 
     // BCC
     if let Ok(bcc_recipients) = message.bcc_recipients() {
         let value = flatten_recipients(&bcc_recipients);
-        header_fields.push((rfc5322_header::BCC.to_string(), value));
+        header_fields.insert(rfc5322_header::BCC.to_string(), value);
     }
 
     // Subject
     if let Ok(Some(subject)) = message.subject() {
-        header_fields.push((rfc5322_header::SUBJECT.to_string(), subject.to_string()))
+        header_fields.insert(rfc5322_header::SUBJECT.to_string(), subject.to_string());
     }
 
     // Priority
     if let Ok(importance) = message.importance() {
-        header_fields.push((
+        header_fields.insert(
             rfc5322_header::PRIORITY.to_string(),
             importance.string().unwrap_or("normal").to_string(),
-        ))
+        );
     }
 
-    HeaderBlock::new(header_fields).query_interface::<IHeaderBlock>()
+    if let Ok(internet_message_headers) = message.internet_message_headers() {
+        overlay_internet_message_headers(&mut header_fields, &internet_message_headers);
+    }
+
+    HeaderBlock::new(header_fields.into_iter().collect()).query_interface::<IHeaderBlock>()
+}
+
+fn overlay_internet_message_headers(
+    headers: &mut HashMap<String, String>,
+    internet_message_headers: &Vec<InternetMessageHeader>,
+) {
+    for header in internet_message_headers {
+        if let Ok(Some(key)) = header.name()
+            && let Ok(Some(value)) = header.value()
+        {
+            if !headers.contains_key(key) {
+                headers.insert(key.to_string(), value.to_string());
+            }
+        }
+    }
 }
 
 fn flatten_recipients(recipients: &Vec<Recipient<'_>>) -> String {
