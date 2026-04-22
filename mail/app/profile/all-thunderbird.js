@@ -1512,9 +1512,6 @@ pref("mail.thread.conversation.enabled", false);
 pref("mail.dark-reader.enabled", true);
 pref("mail.dark-reader.show-toggle", true);
 
-// Enable the new account setup (starting from the second account)
-pref("mail.accounthub.enabled", true);
-
 // Enable address book setup via account hub
 pref("mail.accounthub.addressbook.enabled", true);
 

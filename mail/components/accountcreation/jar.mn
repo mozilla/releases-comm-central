@@ -4,8 +4,6 @@
 
 messenger.jar:
   content/messenger/accountcreation/accountHub.js                                         (content/accountHub.js)
-  content/messenger/accountcreation/accountSetup.js                                       (content/accountSetup.js)
-  content/messenger/accountcreation/accountSetup.xhtml                                    (content/accountSetup.xhtml)
 
 # Custom elements
   content/messenger/accountcreation/views/address-book.mjs                                (views/address-book.mjs)

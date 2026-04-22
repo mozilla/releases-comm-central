@@ -67,7 +67,6 @@ Preferences.addAll([
   { id: "mail.pane_config.dynamic", type: "int" },
   { id: "mailnews.start_page.enabled", type: "bool" },
   { id: "mailnews.start_page.url", type: "string" },
-  { id: "mail.accounthub.enabled", type: "bool" },
   { id: "mail.accounthub.manualconfig.enabled", type: "bool" },
   { id: "mail.biff.show_tray_icon", type: "bool" },
   { id: "mail.biff.play_sound", type: "bool" },

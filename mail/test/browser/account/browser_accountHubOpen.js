@@ -14,11 +14,6 @@ const { MailUtils } = ChromeUtils.importESModule(
   "resource:///modules/MailUtils.sys.mjs"
 );
 
-const ACCOUNT_HUB_ENABLED = Services.prefs.getBoolPref(
-  "mail.accounthub.enabled",
-  false
-);
-
 add_task(async function test_open_account_hub_menubar() {
   const menubar = document.getElementById("toolbar-menubar");
   menubar.removeAttribute("autohide");
@@ -40,7 +35,7 @@ add_task(async function test_open_account_hub_menubar() {
     dialog.querySelector("email-auto-form")
   );
   menubar.toggleAttribute("autohide", true);
-}).skip(!ACCOUNT_HUB_ENABLED || AppConstants.platform === "macosx");
+}).skip(AppConstants.platform === "macosx");
 
 add_task(async function test_open_account_hub_appmenu() {
   Services.prefs.setIntPref("ui.prefersReducedMotion", 1);
@@ -75,7 +70,7 @@ add_task(async function test_open_account_hub_appmenu() {
     dialog.querySelector("email-auto-form")
   );
   Services.prefs.clearUserPref("ui.prefersReducedMotion");
-}).skip(!ACCOUNT_HUB_ENABLED);
+});
 
 add_task(async function test_open_account_hub_account_central() {
   const tabmail = document.getElementById("tabmail");
@@ -101,7 +96,7 @@ add_task(async function test_open_account_hub_account_central() {
     dialog,
     dialog.querySelector("email-auto-form")
   );
-}).skip(!ACCOUNT_HUB_ENABLED);
+});
 
 add_task(async function test_open_account_hub_account_settings() {
   const accountSettings = await openAccountSettings();
@@ -125,7 +120,7 @@ add_task(async function test_open_account_hub_account_settings() {
     dialog.querySelector("email-auto-form")
   );
   document.getElementById("tabmail").closeTab(accountSettings);
-}).skip(!ACCOUNT_HUB_ENABLED);
+});
 
 add_task(async function test_open_account_hub_message_window() {
   const generator = new MessageGenerator();
@@ -190,7 +185,7 @@ add_task(async function test_open_account_hub_message_window() {
   const trash = folder.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
   folder.deleteSelf(null);
   trash.emptyTrash(null);
-}).skip(!ACCOUNT_HUB_ENABLED || AppConstants.platform === "macosx");
+}).skip(AppConstants.platform === "macosx");
 
 add_task(async function test_open_address_book_account_hub_appmenu() {
   Services.prefs.setIntPref("ui.prefersReducedMotion", 1);

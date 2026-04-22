@@ -73,7 +73,6 @@ module.exports = {
       "../mail/base/test/browser/browser_cardsView.js",
       "../mail/branding/tb_beta/pref/thunderbird-branding.js",
       "../mail/branding/thunderbird/pref/thunderbird-branding.js",
-      "../mail/components/accountcreation/content/accountSetup.js",
       "../mail/components/accountcreation/modules/AccountCreationUtils.sys.mjs",
       "../mail/components/accountcreation/modules/ExchangeAutoDiscover.sys.mjs",
       "../mail/components/accountcreation/modules/FetchConfig.sys.mjs",

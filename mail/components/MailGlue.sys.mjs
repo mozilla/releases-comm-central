@@ -1373,7 +1373,6 @@ function reportPreferences() {
     "general.smoothScroll",
     "intl.regional_prefs.use_os_locales",
     "layers.acceleration.disabled",
-    "mail.accounthub.enabled",
     "mail.accounthub.addressbook.enabled",
     "mail.biff.play_sound",
     "mail.close_message_window.on_delete",

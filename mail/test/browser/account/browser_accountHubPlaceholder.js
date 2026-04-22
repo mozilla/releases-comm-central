@@ -7,7 +7,6 @@
 add_setup(async function () {
   await SpecialPowers.pushPrefEnv({
     set: [
-      ["mail.accounthub.enabled", true],
       ["ui.prefersReducedMotion", 1],
       [
         "mailnews.auto_config_url",

@@ -171,9 +171,7 @@ async function guessConfig(
     server.auth =
       thisTry.authMethod || chooseBestAuthMethod(thisTry.authMethods);
     server.authAlternatives = thisTry.authMethods;
-    // TODO
-    // cert is also bad when targetSite is set. (Same below for incoming.)
-    // Fix SSLErrorHandler and security warning dialog in accountSetup.js.
+    // TODO cert is also bad when targetSite is set. (Same below for incoming.)
     server.badCert = thisTry.selfSignedCert;
     server.targetSite = thisTry.targetSite;
     gAccountSetupLogger.info(

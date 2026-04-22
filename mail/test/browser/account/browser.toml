@@ -117,9 +117,6 @@ tags = ["archive"]
 
 ["browser_imAccountSettings.js"]
 
-["browser_mailAccountSetupWizard.js"]
-disabled = "Will be removed in bug 2020400"
-
 ["browser_manageIdentities.js"]
 
 ["browser_offlineSettings.js"]
@@ -129,9 +126,6 @@ tags = ["dataadapter"]
 skip-if = [
   "os == 'win'",
 ]
-
-["browser_retestConfig.js"]
-disabled = "Will be removed in bug 2020400"
 
 ["browser_settingsInfrastructure.js"]
 
