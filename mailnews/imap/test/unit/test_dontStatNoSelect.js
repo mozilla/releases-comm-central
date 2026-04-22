@@ -112,11 +112,11 @@ add_task(async function checkStatNoSelect() {
 add_task(function endTest() {
   Assert.equal(gFolder2.getNumUnread(false), 2);
 
-  // Clean up the server in preparation
-  gServer.resetTest();
   gImapServer.closeCachedConnections();
-  gServer.performTest();
+
+  gServer.resetTest();
   gServer.stop();
+
   const thread = Services.tm.currentThread;
   while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
