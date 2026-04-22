@@ -802,9 +802,9 @@ export class CardDAVDirectory extends SQLiteDirectory {
 
     const data = `<propfind xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>
       <prop>
-         <displayname/>
-         <cs:getctag/>
-         <sync-token/>
+        <displayname/>
+        <cs:getctag/>
+        <sync-token/>
       </prop>
     </propfind>`;
 
