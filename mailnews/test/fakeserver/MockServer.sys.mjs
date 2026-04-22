@@ -315,16 +315,54 @@ export class MockServer {
   /**
    * Change the parent folder of a folder.
    *
+   * This allows selection of whether the resulting ID is stable because we have
+   * observed that Graph and EWS differ in how they handle folder moves: EWS IDs
+   * appear to be stable while Graph IDs appear to change.
+   *
    * @param {string} id - The id of the folder to change the parent of.
    * @param {string} newParentId - The id of the new parent folder.
+   * @param {string} idStable - Whether or not to assign a new ID.
+   *
+   * @returns {string?} The resulting ID.
    */
-  reparentFolderById(id, newParentId) {
+  reparentFolderById(id, newParentId, idStable = true) {
     const childFolder = this.#idToFolder.get(id);
-    if (!!childFolder && this.#idToFolder.has(newParentId)) {
-      childFolder.parentId = newParentId;
-      this.updatedFolderIds.push(id);
-      this.folderChanges.push(["update", id]);
+    const newParentFolder = this.#idToFolder.get(newParentId);
+
+    if (!childFolder) {
+      throw new Error(`Folder ${id} does not exist.`);
     }
+
+    if (!newParentFolder) {
+      throw new Error(`Folder ${newParentId} does not exist.`);
+    }
+
+    childFolder.parentId = newParentId;
+
+    let newId;
+    if (idStable) {
+      newId = id;
+    } else {
+      newId = `moved-folder-${id}`;
+      childFolder.id = newId;
+
+      // Update the child items of the moved folder.
+      for (const item of this.getItemsInFolder(childFolder)) {
+        item.parentId = newId;
+      }
+
+      // Update the child folders of the moved folder.
+      for (const folder of this.folders) {
+        if (folder.parentId == id) {
+          folder.parentId = newId;
+        }
+      }
+    }
+
+    this.updatedFolderIds.push(newId);
+    this.folderChanges.push(["update", newId]);
+
+    return newId;
   }
 
   /**

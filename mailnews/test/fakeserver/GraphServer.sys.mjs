@@ -308,6 +308,11 @@ export class GraphServer extends MockServer {
           // the response, so we should skip the body serialization part here.
           this.#sendMessage(resourcePath, response);
           return;
+        } else if (
+          resourcePath.startsWith("/me/mailFolders") &&
+          resourcePath.endsWith("/move")
+        ) {
+          responseJsonObject = this.#moveFolders(request);
         } else if (resourcePath.startsWith("/me/mailFolders/")) {
           responseJsonObject = this.#createFolder(
             resourcePath.substring(16),
@@ -721,6 +726,43 @@ export class GraphServer extends MockServer {
 
     // Note: returning only the ID should be fine for now because that's the
     // only bit of the message we actually use, but in the future we'll probably
+    // want to expand this response with more fields.
+    return {
+      id: newId,
+    };
+  }
+
+  /**
+   * Handle POST /me/mailFolders/{folderId}/move
+   *
+   * @param {nsIHttpRequest} request
+   */
+  #moveFolders(request) {
+    // Extract the folder ID, i.e. the second-to-last section of the path.
+    const pathParts = request.path.split("/");
+    const folderId = pathParts[pathParts.length - 2];
+
+    const reqBody = CommonUtils.readBytesFromInputStream(
+      request.bodyInputStream
+    );
+    const parsedReq = JSON.parse(reqBody);
+
+    const newParentFolderId = parsedReq.DestinationId;
+    if (!folderId) {
+      dump(`${reqBody}\n`);
+      throw new Error("missing destination ID for move");
+    }
+
+    // Graph IDs are observed to not be stable during a move.
+    const graphIsNotStable = false;
+    const newId = this.reparentFolderById(
+      folderId,
+      newParentFolderId,
+      graphIsNotStable
+    );
+
+    // Note: returning only the ID should be fine for now because that's the
+    // only bit of the folder we actually use, but in the future we'll probably
     // want to expand this response with more fields.
     return {
       id: newId,

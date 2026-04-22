@@ -1087,7 +1087,14 @@ export class EwsServer extends MockServer {
       "t:FolderId"
     );
 
-    folderIds.forEach(id => this.reparentFolderById(id, destinationFolderId));
+    folderIds.filter(id => {
+      try {
+        this.reparentFolderById(id, destinationFolderId);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    });
 
     const resDoc = this.#buildGenericMoveResponse(
       MOVE_FOLDER_RESPONSE_BASE,

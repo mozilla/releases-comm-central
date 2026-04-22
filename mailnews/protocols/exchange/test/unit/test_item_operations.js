@@ -596,33 +596,39 @@ add_task(async function test_mark_as_read() {
  * that order.
  *
  * @param {string} prefix
+ * @param {MockServer} mockServer
+ * @param {nsIIncomingServer} incomingServer
  * @returns {[nsIMsgFolder, nsIMsgFolder, nsIMsgFolder]}
  */
-async function setup_folder_copymove_structure(prefix) {
+async function setup_folder_copymove_structure(
+  prefix,
+  mockServer,
+  incomingServer
+) {
   const parent1Name = `${prefix}_parent1`;
   const parent2Name = `${prefix}_parent2`;
   const childName = `${prefix}_child`;
 
-  ewsServer.appendRemoteFolder(
+  mockServer.appendRemoteFolder(
     new RemoteFolder(parent1Name, "root", parent1Name, parent1Name)
   );
-  ewsServer.appendRemoteFolder(
+  mockServer.appendRemoteFolder(
     new RemoteFolder(parent2Name, "root", parent2Name, parent2Name)
   );
-  ewsServer.appendRemoteFolder(
+  mockServer.appendRemoteFolder(
     new RemoteFolder(childName, parent1Name, childName, childName)
   );
 
-  const rootFolder = ewsIncomingServer.rootFolder;
+  const rootFolder = incomingServer.rootFolder;
 
-  await syncFolder(ewsIncomingServer, rootFolder);
+  await syncFolder(incomingServer, rootFolder);
 
   const parent1 = rootFolder.getChildNamed(parent1Name);
   Assert.ok(!!parent1, `${parent1Name} should exist.`);
   const parent2 = rootFolder.getChildNamed(parent2Name);
   Assert.ok(!!parent2, `${parent2Name} should exist.`);
 
-  await syncFolder(ewsIncomingServer, parent1);
+  await syncFolder(incomingServer, parent1);
 
   const child = parent1.getChildNamed(childName);
   Assert.ok(!!child, `${childName} should exist in ${parent1Name}`);
@@ -630,9 +636,12 @@ async function setup_folder_copymove_structure(prefix) {
   return [parent1, parent2, child];
 }
 
-add_task(async function test_move_folder() {
-  const [parent1, parent2, child] =
-    await setup_folder_copymove_structure("folder_move");
+async function runMoveFolderTest(mockServer, incomingServer) {
+  const [parent1, parent2, child] = await setup_folder_copymove_structure(
+    "folder_move",
+    mockServer,
+    incomingServer
+  );
 
   await copyFolder(child, parent2, true);
 
@@ -644,11 +653,22 @@ add_task(async function test_move_folder() {
     !!parent2.getChildNamed(child.name),
     `${child.name} should exist in ${parent2.name}`
   );
+}
+
+add_task(async function test_move_folder_ews() {
+  runMoveFolderTest(ewsServer, ewsIncomingServer);
 });
 
-add_task(async function test_copy_folder() {
-  const [parent1, parent2, child] =
-    await setup_folder_copymove_structure("folder_copy");
+add_task(async function test_move_folder_graph() {
+  runMoveFolderTest(graphServer, graphIncomingServer);
+});
+
+async function runCopyFolderTest(mockServer, incomingServer) {
+  const [parent1, parent2, child] = await setup_folder_copymove_structure(
+    "folder_copy",
+    mockServer,
+    incomingServer
+  );
 
   await copyFolder(child, parent2, false);
 
@@ -660,6 +680,10 @@ add_task(async function test_copy_folder() {
     !!parent2.getChildNamed(child.name),
     `${child.name} should exist in ${parent2.name}`
   );
+}
+
+add_task(function test_copy_folder_ews() {
+  runCopyFolderTest(ewsServer, ewsIncomingServer);
 });
 
 add_task(async function test_mark_as_junk() {

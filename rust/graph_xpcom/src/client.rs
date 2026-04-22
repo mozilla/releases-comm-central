@@ -20,6 +20,7 @@ mod check_connectivity;
 mod create_folder;
 mod create_message;
 mod get_message;
+mod move_folders;
 mod move_message;
 mod send_message;
 mod sync_folder_hierarchy;
