@@ -1749,8 +1749,6 @@ class AccountHubEmail extends HTMLElement {
    * @returns {Array} - The address books associated with the account.
    */
   async #getAddressBooks(password) {
-    let addressBooks = [];
-
     // Bail out if the CardDAV scope wasn't granted.
     if (this.#currentConfig.incoming.auth == Ci.nsMsgAuthMethod.OAuth2) {
       const oAuth2 = new lazy.OAuth2Module();
@@ -1762,26 +1760,34 @@ class AccountHubEmail extends HTMLElement {
         ) ||
         !(await oAuth2.getRefreshToken())
       ) {
-        return addressBooks;
+        return [];
       }
     }
 
-    const hostname = this.#email.split("@")[1];
-    try {
-      addressBooks =
-        await lazy.RemoteAddressBookUtils.getAddressBooksForAccount(
-          this.#email,
-          password,
-          `https://${hostname}`
+    const hostnames = new Set([
+      this.#email.split("@")[1],
+      this.#currentConfig.incoming.hostname,
+    ]);
+    for (const hostname of hostnames) {
+      try {
+        const addressBooks =
+          await lazy.RemoteAddressBookUtils.getAddressBooksForAccount(
+            this.#email,
+            password,
+            `https://${hostname}`
+          );
+        if (addressBooks.length) {
+          return addressBooks;
+        }
+      } catch (error) {
+        gAccountSetupLogger.debug(
+          `Found no address books for ${this.#email} on ${hostname}.`,
+          error
         );
-    } catch (error) {
-      gAccountSetupLogger.debug(
-        `Found no address books for ${this.#email} on ${hostname}.`,
-        error
-      );
+      }
     }
 
-    return addressBooks;
+    return [];
   }
 
   /**
@@ -1793,9 +1799,6 @@ class AccountHubEmail extends HTMLElement {
    * @returns {Array} - The calendars associated with the account.
    */
   async #getCalendars(password, rememberPassword) {
-    let calendarEntries = null;
-    const cals = [];
-
     // Bail out if the CalDAV scope wasn't granted.
     if (this.#currentConfig.incoming.auth == Ci.nsMsgAuthMethod.OAuth2) {
       const oAuth2 = new lazy.OAuth2Module();
@@ -1807,32 +1810,39 @@ class AccountHubEmail extends HTMLElement {
         ) ||
         !(await oAuth2.getRefreshToken())
       ) {
-        return cals;
+        return [];
       }
     }
 
-    const hostname = this.#email.split("@")[1];
-
-    try {
-      calendarEntries = await lazy.cal.provider.detection.detect(
-        this.#email,
-        password,
-        `https://${hostname}`,
-        rememberPassword,
-        [],
-        {}
-      );
-    } catch (error) {
-      gAccountSetupLogger.debug(
-        `Found no calendars for ${this.#email} on ${hostname}.`,
-        error
-      );
-      return cals;
+    const hostnames = new Set([
+      this.#email.split("@")[1],
+      this.#currentConfig.incoming.hostname,
+    ]);
+    let calendarEntries;
+    for (const hostname of hostnames) {
+      try {
+        calendarEntries = await lazy.cal.provider.detection.detect(
+          this.#email,
+          password,
+          `https://${hostname}`,
+          rememberPassword,
+          [],
+          {}
+        );
+        if (calendarEntries.size) {
+          break;
+        }
+      } catch (error) {
+        gAccountSetupLogger.debug(
+          `Found no calendars for ${this.#email} on ${hostname}.`,
+          error
+        );
+      }
     }
 
     // If no calendars return empty array.
-    if (!calendarEntries.size) {
-      return cals;
+    if (!calendarEntries?.size) {
+      return [];
     }
 
     // Collect existing calendars to compare with the list of recently fetched
@@ -1841,6 +1851,7 @@ class AccountHubEmail extends HTMLElement {
       lazy.cal.manager.getCalendars({}).map(calendar => calendar.uri.spec)
     );
 
+    const cals = [];
     for (const calendars of calendarEntries.values()) {
       for (const calendar of calendars) {
         if (existing.has(calendar.uri.spec)) {
