@@ -56,20 +56,6 @@ class FolderTreeRow extends HTMLLIElement {
   /** @type {HTMLUListElement} */
   childList;
 
-  /** @type {string} */
-  #fullName = "";
-  /** @type {integer} */
-  #unreadCount = 0;
-  /** @type {integer} */
-  #totalCount = 0;
-  /** @type {string} */
-  #folderSize = "";
-
-  /** @type {integer} */
-  #currentAriaUpdate = 0;
-  /** @type {number|null} */
-  #ariaUpdateTimeout = null;
-
   constructor() {
     super();
     this.setAttribute("is", "folder-tree-row");
@@ -114,13 +100,13 @@ class FolderTreeRow extends HTMLLIElement {
    * @type {string}
    */
   get fullName() {
-    return this.#fullName;
+    return this._fullName;
   }
 
   set fullName(value) {
-    if (this.#fullName != value) {
-      this.#fullName = value;
-      this.#scheduleAriaLabelUpdate();
+    if (this.fullName != value) {
+      this._fullName = value;
+      this.#updateAriaLabel();
     }
   }
 
@@ -158,19 +144,20 @@ class FolderTreeRow extends HTMLLIElement {
    * @type {integer}
    */
   get unreadCount() {
-    return this.#unreadCount;
+    return parseInt(this.unreadCountLabel.textContent, 10) || 0;
   }
 
   set unreadCount(value) {
-    if (this.#unreadCount == value) {
-      return;
-    }
-
-    this.#unreadCount = value;
     this.classList.toggle("unread", value > 0);
-    this.#updateTextNode(this.unreadCountLabel, value);
-
-    this.#scheduleAriaLabelUpdate();
+    // Avoid setting `textContent` if possible, each change notifies the
+    // MutationObserver on `folderTree`, and there could be *many* changes.
+    const textNode = this.unreadCountLabel.firstChild;
+    if (textNode) {
+      textNode.nodeValue = value;
+    } else {
+      this.unreadCountLabel.textContent = value;
+    }
+    this.#updateAriaLabel();
   }
 
   /**
@@ -179,47 +166,72 @@ class FolderTreeRow extends HTMLLIElement {
    * @type {integer}
    */
   get totalCount() {
-    return this.#totalCount;
+    return parseInt(this.totalCountLabel.textContent, 10) || 0;
   }
 
   set totalCount(value) {
-    if (this.#totalCount == value) {
-      return;
-    }
-
-    this.#totalCount = value;
     this.classList.toggle("total", value > 0);
-    this.#updateTextNode(this.totalCountLabel, value);
-
+    this.totalCountLabel.textContent = value;
     this.totalCountLabel.hidden = !lazy.XULStoreUtils.isItemVisible(
       "messenger",
       "totalMsgCount"
     );
-    this.#scheduleAriaLabelUpdate();
+    this.#updateAriaLabel();
   }
 
   /**
-   * The folder size as provided by formatFolderSize for this folder.
+   * The folder size for this folder.
    *
-   * @type {string}
+   * @type {integer}
    */
   get folderSize() {
-    return this.#folderSize;
+    return this.folderSizeLabel.textContent;
   }
 
   set folderSize(value) {
-    if (this.#folderSize == value) {
-      return;
-    }
-
-    this.#folderSize = value;
-    this.#updateTextNode(this.folderSizeLabel, value);
-
+    this.folderSizeLabel.textContent = value;
     this.folderSizeLabel.hidden = !lazy.XULStoreUtils.isItemVisible(
       "messenger",
       "folderPaneFolderSize"
     );
-    this.#scheduleAriaLabelUpdate();
+    this.#updateAriaLabel();
+  }
+
+  #updateAriaLabel() {
+    // Collect the various strings and fluent IDs to build the full string for
+    // the folder aria-label.
+    const ariaLabelPromises = [];
+    ariaLabelPromises.push(this.fullName);
+
+    // If unread messages.
+    const count = this.unreadCount;
+    if (count > 0) {
+      ariaLabelPromises.push(
+        document.l10n.formatValue("folder-pane-unread-aria-label", { count })
+      );
+    }
+
+    // If total messages is visible.
+    if (lazy.XULStoreUtils.isItemVisible("messenger", "totalMsgCount")) {
+      ariaLabelPromises.push(
+        document.l10n.formatValue("folder-pane-total-aria-label", {
+          count: this.totalCount,
+        })
+      );
+    }
+
+    if (lazy.XULStoreUtils.isItemVisible("messenger", "folderPaneFolderSize")) {
+      ariaLabelPromises.push(this.folderSize);
+    }
+
+    Promise.allSettled(ariaLabelPromises).then(results => {
+      const folderLabel = results
+        .map(settledPromise => settledPromise.value ?? "")
+        .filter(value => value.trim() != "")
+        .join(", ");
+      this.setAttribute("aria-label", folderLabel);
+      this.title = folderLabel;
+    });
   }
 
   /**
@@ -415,7 +427,7 @@ class FolderTreeRow extends HTMLLIElement {
    */
   toggleTotalCountBadgeVisibility(isHidden) {
     this.totalCountLabel.hidden = isHidden;
-    this.#scheduleAriaLabelUpdate();
+    this.#updateAriaLabel();
   }
 
   /**
@@ -498,84 +510,6 @@ class FolderTreeRow extends HTMLLIElement {
       }
     }
     return this.childList.appendChild(newChild);
-  }
-
-  /**
-   * Safely updates text content without destroying the text node.
-   * This avoids triggering the mutation observer on the whole folder list
-   * waiting for rows to be added or removed (TreeListboxMixin), which would
-   * negatively impact performance.
-   *
-   * @param {HTMLElement} element - The label element to update.
-   * @param {integer|string} value - The new text or numeric value to display.
-   */
-  #updateTextNode(element, value) {
-    const textNode = element.firstChild;
-    // Ensure we are actually modifying a Text Node, not an element.
-    if (textNode && textNode.nodeType == Node.TEXT_NODE) {
-      textNode.nodeValue = value;
-    } else {
-      element.textContent = value;
-    }
-  }
-
-  /**
-   * Executes the asynchronous localization and DOM update of the ARIA label.
-   * * Unlike `#scheduleAriaLabelUpdate()` which merely debounces rapid DOM property
-   * changes, this method performs the actual work of resolving Fluent strings.
-   * Importantly, it tracks a serial number to abort the DOM update if the
-   * folder's properties changed again while the localization promises were pending.
-   */
-  #updateAriaLabel() {
-    this.#currentAriaUpdate++;
-    const thisUpdate = this.#currentAriaUpdate;
-
-    const ariaLabelPromises = [];
-    ariaLabelPromises.push(Promise.resolve(this.#fullName));
-
-    const count = this.#unreadCount;
-    if (count > 0) {
-      ariaLabelPromises.push(
-        document.l10n.formatValue("folder-pane-unread-aria-label", { count })
-      );
-    }
-
-    if (lazy.XULStoreUtils.isItemVisible("messenger", "totalMsgCount")) {
-      ariaLabelPromises.push(
-        document.l10n.formatValue("folder-pane-total-aria-label", {
-          count: this.#totalCount,
-        })
-      );
-    }
-
-    if (lazy.XULStoreUtils.isItemVisible("messenger", "folderPaneFolderSize")) {
-      ariaLabelPromises.push(Promise.resolve(this.#folderSize));
-    }
-
-    Promise.allSettled(ariaLabelPromises).then(results => {
-      // Abort if a newer update took over.
-      if (thisUpdate !== this.#currentAriaUpdate) {
-        return;
-      }
-
-      const folderLabel = results
-        .map(result => (result.status == "fulfilled" ? result.value : ""))
-        .filter(value => value.trim() != "")
-        .join(", ");
-
-      this.setAttribute("aria-label", folderLabel);
-      this.title = folderLabel;
-    });
-  }
-
-  /**
-   * Batches multiple synchronous updates into a single async call.
-   */
-  #scheduleAriaLabelUpdate() {
-    if (this.#ariaUpdateTimeout) {
-      clearTimeout(this.#ariaUpdateTimeout);
-    }
-    this.#ariaUpdateTimeout = setTimeout(() => this.#updateAriaLabel(), 50);
   }
 }
 customElements.define("folder-tree-row", FolderTreeRow, { extends: "li" });
