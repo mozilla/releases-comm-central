@@ -123,8 +123,17 @@ add_task(async function test_drag_and_drop_single_folder() {
   await startDrag(folderB, folderC);
   await endDrag(folderC);
 
-  // folderB should now be a child of folderC.
-  folderB = folderC.getChildNamed("folderB");
+  // The backend folder move is asynchronous. Wait for it to complete
+  // and assign the new folder reference as soon as it succeeds.
+  await BrowserTestUtils.waitForCondition(() => {
+    try {
+      folderB = folderC.getChildNamed("folderB");
+      return !!folderB;
+    } catch (ex) {
+      // getChildNamed throws an XPCOM error if the folder doesn't exist yet.
+      return false;
+    }
+  }, "Wait for folderB to successfully become a child of folderC");
 
   Assert.deepEqual(
     Array.from(
