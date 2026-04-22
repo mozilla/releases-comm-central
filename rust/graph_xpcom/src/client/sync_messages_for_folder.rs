@@ -111,28 +111,21 @@ impl<ServerT: AuthenticationProvider + RefCounted>
 
                         log::debug!("Found message in response with ID {message_id}");
 
-                        // The API response does not indicate whether a message
-                        // is part of a response because it was created or
-                        // because it was updated. So we try updating an
-                        // existing message in the local database, and create it
-                        // if we get told off because it doesn't exist.
-                        //
-                        // TODO: We should use `NS_MSG_MESSAGE_NOT_FOUND`, to
-                        // avoid misidentifying an error that occurred while
-                        // updating an existing message as the message not
-                        // existing at all, see
-                        // https://bugzilla.mozilla.org/show_bug.cgi?id=2033401
-                        if let Err(err) = self.listener.on_message_updated(
+                        // Graph doesn't provide a way to consistently
+                        // distinguish new and updated objects, so it's tracked
+                        // here by attempting to modify the folders and falling
+                        // back to creating them.
+                        let result = self.listener.on_message_updated(
                             message_id.clone(),
                             header_block.clone(),
                             message_size,
                             is_read,
                             is_flagged,
                             preview_text,
-                        ) {
-                            log::debug!(
-                                "Message update failed ({err}); falling back to create for {message_id}"
-                            );
+                        );
+
+                        if let Err(nserror::NS_MSG_MESSAGE_NOT_FOUND) = result {
+                            log::debug!("Creating message {message_id}");
 
                             self.listener.on_message_created(
                                 message_id,
@@ -142,6 +135,9 @@ impl<ServerT: AuthenticationProvider + RefCounted>
                                 is_flagged,
                                 preview_text,
                             )?;
+                        } else {
+                            result?;
+                            log::debug!("Updated message {message_id}");
                         }
                     }
                     DeltaItem::Removed(message) => {

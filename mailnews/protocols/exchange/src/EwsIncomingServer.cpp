@@ -265,7 +265,7 @@ nsresult EwsIncomingServer::FindFolderWithId(const nsACString& id,
                                              nsIMsgFolder** _retval) {
   // Fail by default; only return success if we actually find the folder we're
   // looking for.
-  nsresult failureStatus{NS_ERROR_FAILURE};
+  nsresult failureStatus{NS_MSG_ERROR_FOLDER_MISSING};
 
   // We do a breadth-first search on subfolders of the root.
   RefPtr<nsIMsgFolder> root;

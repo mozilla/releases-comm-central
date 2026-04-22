@@ -392,7 +392,7 @@ class ExchangeMessageCallbackListener {
     this.readStatusUpdates = [];
     this.syncStateToken = null;
     this.deferred = Promise.withResolvers();
-    this._existingMessageIds = new Set();
+    this._createdMessageIds = new Set();
   }
 
   /**
@@ -413,7 +413,7 @@ class ExchangeMessageCallbackListener {
   }
 
   onMessageCreated(ewsId, headers, messageSize, isRead, isFlagged, preview) {
-    this._existingMessageIds.add(ewsId);
+    this._createdMessageIds.add(ewsId);
     this.created.push({
       ewsId,
       headers,
@@ -424,15 +424,13 @@ class ExchangeMessageCallbackListener {
     });
   }
   onMessageUpdated(ewsId, headers, messageSize, isRead, isFlagged, preview) {
-    if (!this._existingMessageIds.has(ewsId)) {
-      // Note: Ideally we'd throw `NS_MSG_MESSAGE_NOT_FOUND` here, however we
-      // can't do that now as Thunderbird errors aren't included in `Cr`, so any
-      // such code we use in a `Components.Exception` will be replaced with
-      // `NS_ERROR_FAILURE`. See
-      // https://bugzilla.mozilla.org/show_bug.cgi?id=2033105
+    if (!this._createdMessageIds.has(ewsId)) {
+      // Graph does not differentiate between created and updated messages in
+      // its sync response, so we use `NS_MSG_MESSAGE_NOT_FOUND` to tell it to
+      // create the message first.
       throw Components.Exception(
         `cannot update unknown message: ${ewsId}`,
-        Cr.NS_ERROR_FAILURE
+        Cr.NS_MSG_MESSAGE_NOT_FOUND
       );
     }
 
@@ -449,7 +447,7 @@ class ExchangeMessageCallbackListener {
     this.readStatusUpdates.push({ ewsId, readStatus });
   }
   onMessageDeleted(ewsId) {
-    this._existingMessageIds.delete(ewsId);
+    this._createdMessageIds.delete(ewsId);
     this.deletedItemIds.push(ewsId);
   }
   onSyncStateTokenChanged(syncStateToken) {

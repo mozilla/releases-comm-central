@@ -352,6 +352,9 @@ interface IExchangeFolderListener : nsISupports
    * This may be called multiple times in a single sync if multiple folders
    * have been created since the last sync.
    *
+   * Implementations are expected to return `NS_MSG_ERROR_FOLDER_MISSING` if the
+   * folder does not exist locally.
+   *
    * @param id - The folder's ID.
    * @param parentId - The ID for the folder's parent folder.
    * @param name - The folder's name.
@@ -419,15 +422,14 @@ interface IExchangeMessageSyncListener : nsISupports
   /**
    * Called when an existing message has been updated on the server.
    *
+   * Implementations are expected to return `NS_MSG_MESSAGE_NOT_FOUND` if the
+   * message does not exist locally.
+   *
    * @param id - The ID for the updated message.
    * @param headerBlock - The RFC5322-style email headers for the message.
    * @param isRead - Is the message "Read" on the server?
    * @param isFlagged - Is the message "Marked" on the server?
-   * @param preview - A short text preview of the message body?
-   *
-   * This callback can return NS_MSG_MESSAGE_NOT_FOUND to indicate that
-   * the message being updated is not known. The protocol *may* choose to
-   * respond to this by calling onMessageCreated() instead.
+   * @param preview - A short text preview of the message body
    */
   void onMessageUpdated(in AUTF8String id,
                         in IHeaderBlock headerblock,

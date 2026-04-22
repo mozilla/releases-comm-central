@@ -247,11 +247,13 @@ class EwsFolderCallbackListener {
     this._createdFolderIds.add(id);
   }
   onFolderUpdated(id, _name) {
-    // Graph tries to update, then creates on failure.
     if (!this._createdFolderIds.has(id)) {
+      // Graph does not differentiate between created and updated messages in
+      // its sync response, so we use `NS_MSG_MESSAGE_NOT_FOUND` to tell it to
+      // create the message first.
       throw Components.Exception(
         `cannot update unknown folder: ${id}`,
-        Cr.NS_ERROR_FAILURE
+        Cr.NS_MSG_ERROR_FOLDER_MISSING
       );
     }
 
