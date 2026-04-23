@@ -343,7 +343,7 @@ impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
                     );
                 }
 
-                items.extend(message.items.inner.into_iter());
+                items.extend(message.items.inner);
             }
         }
 

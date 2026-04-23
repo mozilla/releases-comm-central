@@ -232,13 +232,9 @@ impl<'rb> RequestBuilder<'rb> {
                 // If there isn't an `nsITransportSecurityInfo` attached to the
                 // channel, then the error is probably not security-related but
                 // rather represents a connectivity issue.
-                if sec_info.is_none() {
+                let Some(sec_info) = sec_info else {
                     return Err(err.into());
-                }
-
-                // We'll always return if `sec_info` is `None`, so unwrapping
-                // should be fine here.
-                let sec_info = sec_info.unwrap();
+                };
 
                 let mut err_code: i32 = 0;
                 unsafe { sec_info.GetErrorCode(&mut err_code) }.to_result()?;

@@ -203,17 +203,17 @@ fn headers_for_message(message: &Message) -> Option<RefPtr<IHeaderBlock>> {
     }
 
     // From
-    if let Ok(from_recipient) = message.from() {
-        if let Some(value) = recipient_to_rfc5322(&from_recipient) {
-            header_fields.insert(rfc5322_header::FROM.to_string(), value);
-        }
+    if let Ok(from_recipient) = message.from()
+        && let Some(value) = recipient_to_rfc5322(&from_recipient)
+    {
+        header_fields.insert(rfc5322_header::FROM.to_string(), value);
     }
 
     // Sender
-    if let Ok(sender) = message.sender() {
-        if let Some(value) = recipient_to_rfc5322(&sender) {
-            header_fields.insert(rfc5322_header::SENDER.to_string(), value);
-        }
+    if let Ok(sender) = message.sender()
+        && let Some(value) = recipient_to_rfc5322(&sender)
+    {
+        header_fields.insert(rfc5322_header::SENDER.to_string(), value);
     }
 
     // Reply to

@@ -87,8 +87,8 @@ impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
         let operation = DoCreateMessage {
             endpoint: &self.endpoint,
             folder_id,
-            is_draft: is_draft,
-            is_read: is_read,
+            is_draft,
+            is_read,
             content,
             new_message_id: String::new(),
         };

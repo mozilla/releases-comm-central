@@ -298,10 +298,7 @@ impl AuthenticationProvider for nsIMsgIncomingServer {
         }
         .to_result()?;
 
-        let ret = match oauth2_supported {
-            true => Some(oauth2_module),
-            false => None,
-        };
+        let ret = oauth2_supported.then_some(oauth2_module);
 
         Ok(ret)
     }
