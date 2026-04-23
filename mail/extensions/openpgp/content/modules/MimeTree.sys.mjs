@@ -579,6 +579,7 @@ export class MimeTreeDecrypter {
     );
     m.initialize(data.substr(0, bodyIndex));
     let ct = m.extractHeader("content-type", false) || "";
+    const outerCt = ct;
     const part = mimeTreePart.partNum;
 
     if (part.length > 0 && part.search(/[^01.]/) < 0) {
@@ -614,33 +615,43 @@ export class MimeTreeDecrypter {
       }
     }
 
-    let boundary = getBoundary(mimeTreePart);
-    if (!boundary) {
-      boundary = lazy.EnigmailMime.createBoundary();
-    }
+    if (/^multipart\/signed/i.test(outerCt)) {
+      mimeTreePart.headers.get("content-type").type = "multipart/signed";
+      mimeTreePart.headers._rawHeaders.set("content-type", [outerCt]);
 
-    // append relevant headers
-    mimeTreePart.headers.get("content-type").type = "multipart/mixed";
-    mimeTreePart.headers._rawHeaders.set("content-type", [
-      'multipart/mixed; boundary="' + boundary + '"',
-    ]);
-    mimeTreePart.subParts = [
-      {
-        body: data,
-        decryptedPgpMime: true,
-        partNum: mimeTreePart.partNum + ".1",
-        headers: {
-          _rawHeaders: new Map(),
-          get() {
-            return null;
+      // Use the raw body from data directly, preserving exact bytes
+      // for signature verification.
+      mimeTreePart.body = data.substring(bodyIndex);
+      mimeTreePart.subParts = [];
+    } else {
+      let boundary = getBoundary(mimeTreePart);
+      if (!boundary) {
+        boundary = lazy.EnigmailMime.createBoundary();
+      }
+
+      // append relevant headers
+      mimeTreePart.headers.get("content-type").type = "multipart/mixed";
+      mimeTreePart.headers._rawHeaders.set("content-type", [
+        'multipart/mixed; boundary="' + boundary + '"',
+      ]);
+      mimeTreePart.subParts = [
+        {
+          body: data,
+          decryptedPgpMime: true,
+          partNum: mimeTreePart.partNum + ".1",
+          headers: {
+            _rawHeaders: new Map(),
+            get() {
+              return null;
+            },
+            has() {
+              return false;
+            },
           },
-          has() {
-            return false;
-          },
+          subParts: [],
         },
-        subParts: [],
-      },
-    ];
+      ];
+    }
 
     this.cryptoChanged = true;
   }

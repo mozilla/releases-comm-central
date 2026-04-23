@@ -144,6 +144,10 @@ add_task(async function testPermanentDecrypt() {
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon NOT displayed"
   );
+  Assert.ok(
+    OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "verified"),
+    "signed icon should be shown"
+  );
 });
 
 registerCleanupFunction(function () {
