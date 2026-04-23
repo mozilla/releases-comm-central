@@ -425,7 +425,7 @@ class CalDavSimpleResponse extends CalDavResponseBase {
 
     this.nsirequest = aLoader.request.QueryInterface(Ci.nsIHttpChannel);
 
-    this.#streamStatus = aStatus;
+    this.#streamError = new Components.Exception("Connection error", aStatus);
     if (Components.isSuccessCode(aStatus)) {
       this._onresponded(this);
     } else {
@@ -442,7 +442,7 @@ class CalDavSimpleResponse extends CalDavResponseBase {
     }
   }
 
-  #streamStatus;
+  #streamError;
   #certError = false;
 
   /**
@@ -450,8 +450,8 @@ class CalDavSimpleResponse extends CalDavResponseBase {
    *
    * @type {nsresult}
    */
-  get streamStatus() {
-    return this.#streamStatus;
+  get streamError() {
+    return this.#streamError;
   }
 
   /** If the response had a certificate error. */

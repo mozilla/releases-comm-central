@@ -166,7 +166,7 @@ export var CardDAVUtils = {
             }
 
             if (!isCertError || !finalChannel.securityInfo) {
-              reject(new Components.Exception("Connection failure", status));
+              reject(new Components.Exception("Connection error", status));
               return;
             }
 
@@ -379,14 +379,19 @@ export var CardDAVUtils = {
     let response;
     async function tryURL(urlCandidate) {
       log.log(`Attempting to connect to ${urlCandidate}`);
-      response = await CardDAVUtils.makeRequest(urlCandidate, requestParams);
-      if (response.status == 207 && response.dom) {
-        log.log(`${urlCandidate} ... success`);
-      } else {
-        log.log(
-          `${urlCandidate} ... response was "${response.status} ${response.statusText}"`
-        );
-        response = null;
+      try {
+        response = await CardDAVUtils.makeRequest(urlCandidate, requestParams);
+        if (response.status == 207 && response.dom) {
+          log.log(`${urlCandidate} ... success`);
+        } else {
+          log.log(
+            `${urlCandidate} ... response was "${response.status} ${response.statusText}"`
+          );
+          response = null;
+        }
+      } catch (ex) {
+        log.warn(ex);
+        throw ex;
       }
     }
 

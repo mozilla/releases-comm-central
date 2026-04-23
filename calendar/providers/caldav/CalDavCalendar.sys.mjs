@@ -1694,7 +1694,11 @@ CalDavCalendar.prototype = {
       },
       e => {
         lazy.log.warn(`CalDAV: Error during initial PROPFIND for calendar ${this.name}`);
-        this.completeCheckServerInfo(aChangeLogListener, Ci.calIErrors.DAV_NOT_DAV, e.streamStatus);
+        this.completeCheckServerInfo(
+          aChangeLogListener,
+          Ci.calIErrors.DAV_NOT_DAV,
+          e.streamError?.result
+        );
       }
     );
   },
@@ -1770,7 +1774,11 @@ CalDavCalendar.prototype = {
         lazy.log.debug(
           `CalDAV: Error checking server capabilities for calendar ${this.name}: ${e}`
         );
-        this.completeCheckServerInfo(aChangeLogListener, Cr.NS_ERROR_FAILURE, e.streamStatus);
+        this.completeCheckServerInfo(
+          aChangeLogListener,
+          Cr.NS_ERROR_FAILURE,
+          e.streamError?.result
+        );
       }
     );
   },
@@ -1820,7 +1828,11 @@ CalDavCalendar.prototype = {
         lazy.log.debug(
           `CalDAV: Failed to propstat principal namespace for calendar ${this.name}: ${e}`
         );
-        this.completeCheckServerInfo(aChangeLogListener, Cr.NS_ERROR_FAILURE, e.streamStatus);
+        this.completeCheckServerInfo(
+          aChangeLogListener,
+          Cr.NS_ERROR_FAILURE,
+          e.streamError?.result
+        );
       }
     );
   },

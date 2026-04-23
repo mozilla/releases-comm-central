@@ -69,14 +69,11 @@ export var CalICSProvider = {
         // e may be an Error object or a response object like CalDavSimpleResponse.
         const message = `[CalICSProvider] Could not detect calendar using method ${method}`;
 
-        const errorDetails = err =>
-          ` - ${err.fileName || err.filename}:${err.lineNumber}: ${err} - ${err.stack}`;
-
         const responseDetails = response => ` - HTTP response status ${response.status}`;
 
         // We want to pass on any autodetect errors that will become results.
         if (e instanceof cal.provider.detection.Error) {
-          lazy.log.warn(message + errorDetails(e));
+          lazy.log.warn(message, e);
           throw e;
         }
 
@@ -92,8 +89,10 @@ export var CalICSProvider = {
           throw new cal.provider.detection.CertError();
         }
 
-        if (e instanceof Error) {
-          lazy.log.warn(message + errorDetails(e));
+        if (e.streamError) {
+          lazy.log.warn(message, e.streamError);
+        } else if (e instanceof Error || e instanceof Components.Exception) {
+          lazy.log.warn(message, e);
         } else if (typeof e.status == "number") {
           lazy.log.warn(message + responseDetails(e));
         } else {
