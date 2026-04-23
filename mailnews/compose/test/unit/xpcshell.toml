@@ -31,6 +31,8 @@ skip-if = [
 
 ["test_fccReply.js"]
 
+["test_forwardInlineMalformedAttachment.js"]
+
 ["test_longLines.js"]
 
 ["test_mailTelemetry.js"]
