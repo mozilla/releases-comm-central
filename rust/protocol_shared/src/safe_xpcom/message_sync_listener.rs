@@ -32,12 +32,12 @@ impl SafeEwsMessageSyncListener {
         // types to cross the Rust/C++ boundary.
         unsafe {
             self.0.OnMessageCreated(
-                &*ews_id,
+                &raw const *ews_id,
                 header_block.coerce(),
                 message_size,
                 is_read,
                 is_flagged,
-                &*preview,
+                &raw const *preview,
             )
         }
         .to_result()
@@ -61,12 +61,12 @@ impl SafeEwsMessageSyncListener {
         // types to cross the Rust/C++ boundary.
         unsafe {
             self.0.OnMessageUpdated(
-                &*ews_id,
+                &raw const *ews_id,
                 header_block.coerce(),
                 message_size,
                 is_read,
                 is_flagged,
-                &*preview,
+                &raw const *preview,
             )
         }
         .to_result()
@@ -78,7 +78,7 @@ impl SafeEwsMessageSyncListener {
         let ews_id = nsCString::from(message_id.as_ref());
         // SAFETY: We have converted all of the inputs into the appropriate
         // types to cross the Rust/C++ boundary.
-        unsafe { self.0.OnMessageDeleted(&*ews_id) }.to_result()
+        unsafe { self.0.OnMessageDeleted(&raw const *ews_id) }.to_result()
     }
 
     /// Convert types and forward to
@@ -91,7 +91,7 @@ impl SafeEwsMessageSyncListener {
         let ews_id = nsCString::from(message_id.as_ref());
         // SAFETY: We have converted all of the inputs into the appropriate
         // types to cross the Rust/C++ boundary.
-        unsafe { self.0.OnReadStatusChanged(&*ews_id, is_read) }.to_result()
+        unsafe { self.0.OnReadStatusChanged(&raw const *ews_id, is_read) }.to_result()
     }
 
     /// Convert types and forward to
@@ -100,7 +100,7 @@ impl SafeEwsMessageSyncListener {
         let sync_state = nsCString::from(sync_state_token);
         // SAFETY: We have converted all of the inputs into the appropriate
         // types to cross the Rust/C++ boundary.
-        unsafe { self.0.OnSyncStateTokenChanged(&*sync_state) }.to_result()
+        unsafe { self.0.OnSyncStateTokenChanged(&raw const *sync_state) }.to_result()
     }
 }
 

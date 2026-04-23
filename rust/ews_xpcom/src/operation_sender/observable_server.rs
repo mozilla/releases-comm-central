@@ -47,7 +47,8 @@ pub(crate) trait ObservableServer {
             .ok_or(nserror::NS_ERROR_FAILURE)?;
 
         let pref_name = nsCString::from(name);
-        unsafe { pref_branch.AddObserverImpl(&*pref_name, observer.coerce(), false) }.to_result()
+        unsafe { pref_branch.AddObserverImpl(&raw const *pref_name, observer.coerce(), false) }
+            .to_result()
     }
 }
 
@@ -58,7 +59,7 @@ impl ObservableServer for nsIMsgIncomingServer {
         observer: RefPtr<nsIObserver>,
     ) -> Result<(), nsresult> {
         let mut key = nsCString::new();
-        unsafe { self.GetKey(&mut *key) }.to_result()?;
+        unsafe { self.GetKey(&raw mut *key) }.to_result()?;
 
         let pref_name = format!("mail.server.{key}.{pref_name}");
 
@@ -73,7 +74,7 @@ impl ObservableServer for nsIMsgOutgoingServer {
         observer: RefPtr<nsIObserver>,
     ) -> Result<(), nsresult> {
         let mut key = nsCString::new();
-        unsafe { self.GetKey(&mut *key) }.to_result()?;
+        unsafe { self.GetKey(&raw mut *key) }.to_result()?;
 
         let pref_name = format!("mail.outgoingserver.{key}.{pref_name}");
 

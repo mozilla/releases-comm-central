@@ -43,8 +43,7 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError>
         if server_version < ExchangeServerVersion::Exchange2013 {
             let name = <Self as DoOperation<XpComEwsClient<ServerT>, _>>::NAME;
             log::warn!(
-                "Skipping {} operation with unsupported server version {server_version:?}",
-                name
+                "Skipping {name} operation with unsupported server version {server_version:?}"
             );
             return Ok(UseLegacyFallback::Yes);
         }

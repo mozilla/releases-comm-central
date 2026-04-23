@@ -390,7 +390,7 @@ impl XpcomGraphBridge {
         let endpoint = self.details.get().unwrap().endpoint.clone();
 
         let destination_folder_id = destination_folder_id.to_string();
-        let item_ids = item_ids.iter().map(|id| id.to_string()).collect();
+        let item_ids = item_ids.iter().map(ToString::to_string).collect();
 
         let client = XpComGraphClient::new(server, endpoint);
         let listener = SafeEwsSimpleOperationListener::new(listener);
@@ -433,7 +433,7 @@ impl XpcomGraphBridge {
         let endpoint = self.details.get().unwrap().endpoint.clone();
 
         let destination_folder_id = destination_folder_id.to_string();
-        let folder_ids = folder_ids.iter().map(|id| id.to_string()).collect();
+        let folder_ids = folder_ids.iter().map(ToString::to_string).collect();
 
         let client = XpComGraphClient::new(server, endpoint);
         let listener = SafeEwsSimpleOperationListener::new(listener);

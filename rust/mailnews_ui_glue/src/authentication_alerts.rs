@@ -185,16 +185,16 @@ where
     // constructed above.
     unsafe {
         prompt_service.ConfirmEx(
-            ptr::null(),                  // aParent
-            title.as_ptr(),               // aDialogTitle
-            message.as_ptr(),             // aText
-            button_flags,                 // aButtonFlags
-            retry_button.as_ptr(),        // aButton0Title
-            ptr::null(),                  // aButton1Title
-            new_password_button.as_ptr(), // aButton2Title
-            ptr::null(),                  // aCheckMsg
-            &mut checkbox_check_state,    // aCheckState
-            &mut pressed_button_index,    // retval
+            ptr::null(),                   // aParent
+            title.as_ptr(),                // aDialogTitle
+            message.as_ptr(),              // aText
+            button_flags,                  // aButtonFlags
+            retry_button.as_ptr(),         // aButton0Title
+            ptr::null(),                   // aButton1Title
+            new_password_button.as_ptr(),  // aButton2Title
+            ptr::null(),                   // aCheckMsg
+            &raw mut checkbox_check_state, // aCheckState
+            &raw mut pressed_button_index, // retval
         )
     }
     .to_result()?;

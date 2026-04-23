@@ -96,12 +96,13 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError> fo
         let item = super::single_response_or_error(response_message.items.inner)?;
         let message = item.inner_message();
 
-        self.new_ews_id = message
-            .item_id
-            .as_ref()
-            .ok_or(XpComEwsError::MissingIdInResponse)?
-            .id
-            .clone();
+        self.new_ews_id.clone_from(
+            &message
+                .item_id
+                .as_ref()
+                .ok_or(XpComEwsError::MissingIdInResponse)?
+                .id,
+        );
 
         // NOTE: we rely on the on_success()/on_failure() call to invoke
         // on_remote_create_finished().

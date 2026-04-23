@@ -78,8 +78,8 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError> fo
                 requires_resync,
             } = client
                 .copy_move_item_functional::<MoveItem>(
-                    self.legacy_destination_folder_id.to_string(),
-                    self.ews_ids.iter().map(|s| s.to_string()).collect(),
+                    self.legacy_destination_folder_id.clone(),
+                    self.ews_ids.iter().map(ToString::to_string).collect(),
                 )
                 .await?;
 

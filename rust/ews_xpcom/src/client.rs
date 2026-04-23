@@ -132,7 +132,7 @@ where
         match self.sender.take() {
             Some(sender) => {
                 if let Err(err) = sender.send(res) {
-                    log::error!("error communicating the result of a queued request: {err}")
+                    log::error!("error communicating the result of a queued request: {err}");
                 }
             }
             None => log::error!(
@@ -338,8 +338,7 @@ impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
                 let items_len = message.items.inner.len();
                 if items_len != 1 {
                     log::warn!(
-                        "GetItemResponseMessage contained {} items, only 1 expected",
-                        items_len
+                        "GetItemResponseMessage contained {items_len} items, only 1 expected"
                     );
                 }
 
@@ -426,7 +425,7 @@ fn process_response_message_class<T>(
             Ok(message)
         }
 
-        ResponseClass::Error(err) => Err(err.to_owned().into()),
+        ResponseClass::Error(err) => Err(err.clone().into()),
     }
 }
 

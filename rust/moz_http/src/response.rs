@@ -49,7 +49,9 @@ impl Response {
         let mut retval: u32 = 0;
 
         unsafe {
-            self.channel.GetResponseStatus(&mut retval).to_result()?;
+            self.channel
+                .GetResponseStatus(&raw mut retval)
+                .to_result()?;
         }
 
         Ok(StatusCode(retval))
@@ -80,7 +82,7 @@ impl Response {
 
         unsafe {
             self.channel
-                .GetResponseHeader(&*key, &mut *value)
+                .GetResponseHeader(&raw const *key, &raw mut *value)
                 .to_result()?;
         }
 
@@ -90,8 +92,8 @@ impl Response {
         // them up nicely.
         let value: Vec<String> = value
             .to_utf8()
-            .split("\n")
-            .map(|split| split.to_string())
+            .split('\n')
+            .map(ToString::to_string)
             .collect();
 
         Ok(value)

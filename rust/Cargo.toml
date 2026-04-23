@@ -18,6 +18,23 @@ members = ['ews_xpcom', 'gkrust', 'graph_xpcom', 'gtest', 'mailnews_string_glue'
 [workspace.package]
 rust-version = "1.90.0"
 
+[workspace.lints.clippy]
+# for details and motivations, see
+# https://rust-lang.github.io/rust-clippy/stable/index.html
+borrow_as_ptr = "warn"
+ptr_as_ptr = "warn"
+wildcard_imports = "warn"
+unnecessary_semicolon = "warn"
+semicolon_if_nothing_returned = "warn"
+single_char_pattern = "warn"
+uninlined_format_args = "warn"
+map_unwrap_or = "warn"
+filter_map_next = "warn"
+manual_string_new = "warn"
+assigning_clones = "warn"
+implicit_clone = "warn"
+redundant_closure_for_method_calls = "warn"
+
 [workspace.dependencies]
 uniffi = { version = "0.31" }
 uniffi_bindgen = { version = "0.31" }

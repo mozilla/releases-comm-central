@@ -50,7 +50,7 @@ impl<ServerT: ServerType> XpComEwsClient<ServerT> {
         }
 
         if !message_ids.is_empty() {
-            let message_ids = message_ids.into_iter().map(|s| s.into()).collect();
+            let message_ids = message_ids.into_iter().map(Into::into).collect();
             self.delete_messages(listener, message_ids).await;
         }
     }

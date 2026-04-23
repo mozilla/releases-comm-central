@@ -341,7 +341,7 @@ impl<ClientT: SendCapableClient> OutgoingServer<ClientT> {
         // we don't need to worry about the encoding as long as we got it right
         // when storing the value.
         let mut value = nsCString::new();
-        match unsafe { branch.GetCharPref(pref_name.as_ptr(), &mut *value) }.to_result() {
+        match unsafe { branch.GetCharPref(pref_name.as_ptr(), &raw mut *value) }.to_result() {
             Ok(_) => (),
             Err(rv) => match rv {
                 // `GetCharPref` returns `NS_ERROR_UNEXPECTED` if the pref does
@@ -349,7 +349,7 @@ impl<ClientT: SendCapableClient> OutgoingServer<ClientT> {
                 nserror::NS_ERROR_UNEXPECTED => return Ok(None),
                 _ => return Err(rv),
             },
-        };
+        }
 
         Ok(Some(value))
     }
@@ -362,7 +362,7 @@ impl<ClientT: SendCapableClient> OutgoingServer<ClientT> {
         let pref_name: CString = pref_name.into();
 
         let mut value: i32 = 0;
-        match unsafe { branch.GetIntPref(pref_name.as_ptr(), &mut value) }.to_result() {
+        match unsafe { branch.GetIntPref(pref_name.as_ptr(), &raw mut value) }.to_result() {
             Ok(_) => (),
             Err(rv) => match rv {
                 // `GetIntPref` returns `NS_ERROR_UNEXPECTED` if the pref does
@@ -370,7 +370,7 @@ impl<ClientT: SendCapableClient> OutgoingServer<ClientT> {
                 nserror::NS_ERROR_UNEXPECTED => return Ok(None),
                 _ => return Err(rv),
             },
-        };
+        }
 
         Ok(Some(value))
     }
@@ -542,7 +542,7 @@ impl<ClientT: SendCapableClient> OutgoingServer<ClientT> {
         unsafe {
             self.password_module
                 .borrow()
-                .GetCachedPassword(&mut *password)
+                .GetCachedPassword(&raw mut *password)
         }
         .to_result()?;
         if !password.is_empty() {
@@ -569,10 +569,10 @@ impl<ClientT: SendCapableClient> OutgoingServer<ClientT> {
             self.password_module
                 .borrow()
                 .QueryPasswordFromManagerAndCache(
-                    &*username,
-                    &*nsCString::from(hostname),
-                    &*nsCString::from(protocol),
-                    &mut *password,
+                    &raw const *username,
+                    &raw const *nsCString::from(hostname),
+                    &raw const *nsCString::from(protocol),
+                    &raw mut *password,
                 )
         }
         .to_result()?;
@@ -634,7 +634,7 @@ impl<ClientT: SendCapableClient> OutgoingServer<ClientT> {
     // Server URI
     xpcom_method!(server_uri => GetServerURI() -> *const nsIURI);
     fn server_uri(&self) -> Result<RefPtr<nsIURI>, nsresult> {
-        self.safe_server_uri().map(|uri| uri.into())
+        self.safe_server_uri().map(std::convert::Into::into)
     }
 
     fn safe_server_uri(&self) -> Result<SafeUri, nsresult> {
@@ -666,9 +666,9 @@ impl<ClientT: SendCapableClient> OutgoingServer<ClientT> {
 
         unsafe {
             self.password_module.borrow().ForgetPassword(
-                &*username,
-                &*nsCString::from(host.to_string()),
-                &*server_type,
+                &raw const *username,
+                &raw const *nsCString::from(host.to_string()),
+                &raw const *server_type,
             )
         };
 
@@ -714,8 +714,8 @@ impl<ClientT: SendCapableClient> OutgoingServer<ClientT> {
                 let mut address = nsString::new();
                 let mut name = nsString::new();
 
-                unsafe { addr_obj.GetEmail(&mut *address) }.to_result()?;
-                unsafe { addr_obj.GetName(&mut *name) }.to_result()?;
+                unsafe { addr_obj.GetEmail(&raw mut *address) }.to_result()?;
+                unsafe { addr_obj.GetName(&raw mut *name) }.to_result()?;
 
                 // The name is an optional part of the recipient, in which case,
                 // the string we get across the XPCOM boundary will be empty.
@@ -806,12 +806,12 @@ impl<ClientT: SendCapableClient> OutgoingServer<ClientT> {
             let mut password = nsCString::new();
             let status = unsafe {
                 self.password_module.borrow().QueryPasswordFromUserAndCache(
-                    &*username,
-                    &*nsCString::from(host.to_string()),
-                    &*server_type,
-                    &*prompt_string,
-                    &*prompt_title,
-                    &mut *password,
+                    &raw const *username,
+                    &raw const *nsCString::from(host.to_string()),
+                    &raw const *server_type,
+                    &raw const *prompt_string,
+                    &raw const *prompt_title,
+                    &raw mut *password,
                 )
             };
 

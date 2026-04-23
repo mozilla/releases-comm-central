@@ -19,7 +19,7 @@ impl SafeUrlListener {
         let uri: RefPtr<nsIURI> = uri.into();
 
         // SAFETY: uri points to a valid nsIRUI
-        unsafe { self.0.OnStartRunningUrl(&*uri) }
+        unsafe { self.0.OnStartRunningUrl(&raw const *uri) }
     }
 
     /// Convert types and forward to [`nsIUrlListener::OnStopRunningUrl`]. This
@@ -28,7 +28,7 @@ impl SafeUrlListener {
         let uri: RefPtr<nsIURI> = uri.into();
 
         // SAFETY: uri points to a valid nsIRUI
-        unsafe { self.0.OnStopRunningUrl(&*uri, status) }
+        unsafe { self.0.OnStopRunningUrl(&raw const *uri, status) }
     }
 }
 

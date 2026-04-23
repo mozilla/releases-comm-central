@@ -64,41 +64,43 @@ pub trait UserInteractiveServer {
 impl UserInteractiveServer for nsIMsgIncomingServer {
     fn auth_method(&self) -> Result<nsMsgAuthMethodValue, nsresult> {
         let mut auth_method = nsMsgAuthMethod::none;
-        unsafe { self.GetAuthMethod(&mut auth_method) }.to_result()?;
+        unsafe { self.GetAuthMethod(&raw mut auth_method) }.to_result()?;
         Ok(auth_method)
     }
 
     fn uri(&self) -> Result<RefPtr<nsIURI>, nsresult> {
         let mut uri = nsCString::new();
-        unsafe { self.GetServerURI(&mut *uri) }.to_result()?;
+        unsafe { self.GetServerURI(&raw mut *uri) }.to_result()?;
 
         let io_service = xpcom::get_service::<nsIIOService>(c"@mozilla.org/network/io-service;1")
             .ok_or(nserror::NS_ERROR_FAILURE)?;
 
-        getter_addrefs(|p| unsafe { io_service.NewURI(&*uri, ptr::null(), ptr::null(), p) })
+        getter_addrefs(|p| unsafe {
+            io_service.NewURI(&raw const *uri, ptr::null(), ptr::null(), p)
+        })
     }
 
     fn display_name(&self) -> Result<String, nsresult> {
         let mut display_name = nsCString::new();
-        unsafe { self.GetPrettyName(&mut *display_name) }.to_result()?;
+        unsafe { self.GetPrettyName(&raw mut *display_name) }.to_result()?;
         Ok(display_name.to_string())
     }
 
     fn host_name(&self) -> Result<String, nsresult> {
         let mut host_name = nsCString::new();
-        unsafe { self.GetHostName(&mut *host_name) }.to_result()?;
+        unsafe { self.GetHostName(&raw mut *host_name) }.to_result()?;
         Ok(host_name.to_string())
     }
 
     fn username(&self) -> Result<String, nsresult> {
         let mut username = nsCString::new();
-        unsafe { self.GetUsername(&mut *username) }.to_result()?;
+        unsafe { self.GetUsername(&raw mut *username) }.to_result()?;
         Ok(username.to_string())
     }
 
     fn password(&self) -> Result<String, nsresult> {
         let mut password = nsString::new();
-        unsafe { self.GetPassword(&mut *password) }.to_result()?;
+        unsafe { self.GetPassword(&raw mut *password) }.to_result()?;
         Ok(password.to_string())
     }
 
@@ -119,7 +121,13 @@ impl UserInteractiveServer for nsIMsgIncomingServer {
         // Get the `nsresult` without turning it into a `Result` just yet. We
         // need it to compare it to `NS_MSG_PASSWORD_PROMPT_CANCELLED`, which is
         // a success.
-        let status = unsafe { self.GetPasswordWithUI(&*message, &*title, &mut *old_password) };
+        let status = unsafe {
+            self.GetPasswordWithUI(
+                &raw const *message,
+                &raw const *title,
+                &raw mut *old_password,
+            )
+        };
 
         // Bail now if the status is an error. `nsresult` implements `Copy`, so
         // we don't need to clone despite `to_result()` taking ownership.
@@ -138,7 +146,7 @@ impl UserInteractiveServer for nsIMsgIncomingServer {
 impl UserInteractiveServer for nsIMsgOutgoingServer {
     fn auth_method(&self) -> Result<nsMsgAuthMethodValue, nsresult> {
         let mut auth_method = nsMsgAuthMethod::none;
-        unsafe { self.GetAuthMethod(&mut auth_method) }.to_result()?;
+        unsafe { self.GetAuthMethod(&raw mut auth_method) }.to_result()?;
         Ok(auth_method)
     }
 
@@ -148,26 +156,26 @@ impl UserInteractiveServer for nsIMsgOutgoingServer {
 
     fn display_name(&self) -> Result<String, nsresult> {
         let mut display_name = nsCString::new();
-        unsafe { self.GetDisplayname(&mut *display_name) }.to_result()?;
+        unsafe { self.GetDisplayname(&raw mut *display_name) }.to_result()?;
         Ok(display_name.to_string())
     }
 
     fn host_name(&self) -> Result<String, nsresult> {
         let uri = getter_addrefs(|p| unsafe { self.GetServerURI(p) })?;
         let mut host_name = nsCString::new();
-        unsafe { uri.GetHost(&mut *host_name) }.to_result()?;
+        unsafe { uri.GetHost(&raw mut *host_name) }.to_result()?;
         Ok(host_name.to_string())
     }
 
     fn username(&self) -> Result<String, nsresult> {
         let mut username = nsCString::new();
-        unsafe { self.GetUsername(&mut *username) }.to_result()?;
+        unsafe { self.GetUsername(&raw mut *username) }.to_result()?;
         Ok(username.to_string())
     }
 
     fn password(&self) -> Result<String, nsresult> {
         let mut password = nsCString::new();
-        unsafe { self.GetPassword(&mut *password) }.to_result()?;
+        unsafe { self.GetPassword(&raw mut *password) }.to_result()?;
         Ok(password.to_string())
     }
 
@@ -188,7 +196,13 @@ impl UserInteractiveServer for nsIMsgOutgoingServer {
         // Get the `nsresult` without turning it into a `Result` just yet. We
         // need it to compare it to `NS_MSG_PASSWORD_PROMPT_CANCELLED`, which is
         // a success.
-        let status = unsafe { self.GetPasswordWithUI(&*message, &*title, &mut *old_password) };
+        let status = unsafe {
+            self.GetPasswordWithUI(
+                &raw const *message,
+                &raw const *title,
+                &raw mut *old_password,
+            )
+        };
 
         // Bail now if the status is an error. `nsresult` implements `Copy`, so
         // we don't need to clone despite `to_result()` taking ownership.

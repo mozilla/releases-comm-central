@@ -61,6 +61,9 @@ version = "0.1.0"
 edition = "2024"
 rust-version.workspace = true
 
+[lints]
+workspace = true
+
 [lib]
 path = "src/lib.rs"
 crate-type = ["staticlib"]
@@ -96,6 +99,23 @@ members = {members}
 
 [workspace.package]
 rust-version = "{rust_version}"
+
+[workspace.lints.clippy]
+# for details and motivations, see
+# https://rust-lang.github.io/rust-clippy/stable/index.html
+borrow_as_ptr = "warn"
+ptr_as_ptr = "warn"
+wildcard_imports = "warn"
+unnecessary_semicolon = "warn"
+semicolon_if_nothing_returned = "warn"
+single_char_pattern = "warn"
+uninlined_format_args = "warn"
+map_unwrap_or = "warn"
+filter_map_next = "warn"
+manual_string_new = "warn"
+assigning_clones = "warn"
+implicit_clone = "warn"
+redundant_closure_for_method_calls = "warn"
 
 [workspace.dependencies]
 {dependencies}

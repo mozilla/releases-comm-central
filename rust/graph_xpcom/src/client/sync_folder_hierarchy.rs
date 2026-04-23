@@ -117,7 +117,7 @@ impl<ServerT: AuthenticationProvider + RefCounted>
 
             match response {
                 DeltaResponse::NextLink { next_page, .. } => {
-                    response = client.send_request_json_response(next_page).await?
+                    response = client.send_request_json_response(next_page).await?;
                 }
                 DeltaResponse::DeltaLink { delta_link, .. } => {
                     self.listener.on_sync_state_token_changed(&delta_link)?;
@@ -156,7 +156,7 @@ impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
             sync_state_token,
             endpoint: &self.endpoint,
         };
-        operation.handle_operation(&self, &listener).await
+        operation.handle_operation(&self, &listener).await;
     }
 }
 

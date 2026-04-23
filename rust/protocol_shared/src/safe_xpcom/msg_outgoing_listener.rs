@@ -63,7 +63,15 @@ impl SafeMsgOutgoingListener {
         // SAFETY: server_uri is behind a RefPtr, `nsresult`s are safe to use
         // across the Rust/C++ boundary, sec_info is a null pointer iff there
         // was no security error, err_msg is always a valid nsCString.
-        unsafe { self.0.OnSendStop(&*server_uri, status, sec_info, &*err_msg) }.to_result()
+        unsafe {
+            self.0.OnSendStop(
+                &raw const *server_uri,
+                status,
+                sec_info,
+                &raw const *err_msg,
+            )
+        }
+        .to_result()
     }
 }
 
@@ -79,7 +87,7 @@ where
     fn from((server_uri, err_msg): (SafeUri, Option<S>)) -> Self {
         Self {
             server_uri,
-            err_msg: err_msg.map(|s| s.into()),
+            err_msg: err_msg.map(std::convert::Into::into),
         }
     }
 }

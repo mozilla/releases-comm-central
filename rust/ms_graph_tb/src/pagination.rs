@@ -505,6 +505,6 @@ mod tests {
         };
         let expected_uri =
             "https://graph.microsoft.com/v1.0/me/mailFolders/delta?$deltatoken=Aa1_Bb2_cC3";
-        assert_eq!(delta_link, expected_uri)
+        assert_eq!(delta_link, expected_uri);
     }
 }

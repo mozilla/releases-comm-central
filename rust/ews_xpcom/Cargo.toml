@@ -38,3 +38,6 @@ xpcom_async = { version = "0.1.0", path = "../xpcom_async" }
 [dependencies.mail-builder]
 version = "0.3.2"
 default-features = false
+
+[lints]
+workspace = true

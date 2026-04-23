@@ -181,7 +181,7 @@ impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
             sync_state_token,
             endpoint: &self.endpoint,
         };
-        operation.handle_operation(&self, &listener).await
+        operation.handle_operation(&self, &listener).await;
     }
 }
 
@@ -267,10 +267,9 @@ fn overlay_internet_message_headers(
     for header in internet_message_headers {
         if let Ok(Some(key)) = header.name()
             && let Ok(Some(value)) = header.value()
+            && !headers.contains_key(key)
         {
-            if !headers.contains_key(key) {
-                headers.insert(key.to_string(), value.to_string());
-            }
+            headers.insert(key.to_string(), value.to_string());
         }
     }
 }
@@ -292,7 +291,7 @@ fn recipient_to_rfc5322(from_recipient: &Recipient<'_>) -> Option<String> {
             {
                 Ok(format!("{name} <{address}>"))
             } else {
-                Err(Error::UnexpectedResponse("".to_string()))
+                Err(Error::UnexpectedResponse(String::new()))
             }
         })
         .ok()

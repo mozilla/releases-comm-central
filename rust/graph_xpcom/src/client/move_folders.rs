@@ -57,7 +57,7 @@ impl<ServerT: AuthenticationProvider + RefCounted>
         self,
         ok: Self::Okay,
     ) -> <Self::Listener as protocol_shared::safe_xpcom::SafeListener>::OnSuccessArg {
-        let new_folder_ids = ok.iter().map(|id| nsCString::from(id)).collect();
+        let new_folder_ids = ok.iter().map(nsCString::from).collect();
         SimpleOperationSuccessArgs {
             new_ids: new_folder_ids,
             use_legacy_fallback: UseLegacyFallback::No,

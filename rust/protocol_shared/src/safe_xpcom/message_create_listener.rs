@@ -21,7 +21,7 @@ impl SafeEwsMessageCreateListener {
         let ews_id = nsCString::from(ews_id.as_ref());
         // SAFETY: We have converted all of the inputs into the appropriate
         // types to cross the Rust/C++ boundary.
-        unsafe { self.0.OnRemoteCreateFinished(status, &*ews_id) }.to_result()
+        unsafe { self.0.OnRemoteCreateFinished(status, &raw const *ews_id) }.to_result()
     }
 }
 

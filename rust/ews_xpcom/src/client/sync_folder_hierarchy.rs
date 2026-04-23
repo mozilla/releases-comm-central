@@ -104,7 +104,7 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError>
             // don't try to update anything that was deleted
             let update_ids = update_ids
                 .difference(&delete_ids)
-                .map(|s| s.to_string())
+                .map(ToString::to_string)
                 .collect();
             let delete_ids = delete_ids.into_iter().collect();
 
@@ -279,7 +279,7 @@ async fn batch_get_folders<ServerT: ServerType>(
                     .next()
                     .and_then(|folder| match &folder {
                         Folder::Folder { folder_class, .. } => {
-                            let folder_class = folder_class.as_ref().map(|string| string.as_str());
+                            let folder_class = folder_class.as_ref().map(String::as_str);
 
                             // Filter out non-mail folders. According to EWS
                             // docs, this should be any folder which class

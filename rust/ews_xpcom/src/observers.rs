@@ -61,7 +61,7 @@ impl UrlPrefObserver {
             .ok_or(nserror::NS_ERROR_UNEXPECTED)?;
 
         let mut new_value = nsCString::new();
-        unsafe { pref_branch.GetCharPref(pref_name.as_ptr(), &mut *new_value) }.to_result()?;
+        unsafe { pref_branch.GetCharPref(pref_name.as_ptr(), &raw mut *new_value) }.to_result()?;
 
         // Attempt to parse the new value into a `Url`.
         let new_value = new_value.to_string();

@@ -20,7 +20,10 @@ impl SafeEwsSimpleOperationListener {
         use_legacy_fallback: bool,
     ) -> nsresult {
         // SAFETY: all types here are safe across the Rust/C++ boundary
-        unsafe { self.0.OnOperationSuccess(&new_ids, use_legacy_fallback) }
+        unsafe {
+            self.0
+                .OnOperationSuccess(&raw const new_ids, use_legacy_fallback)
+        }
     }
 }
 

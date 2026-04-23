@@ -95,7 +95,7 @@ impl StaleMsgDbHeader {
                         u32::MAX
                     );
                 }
-            };
+            }
         }
 
         if let Some(preview) = msg.preview() {
@@ -104,7 +104,7 @@ impl StaleMsgDbHeader {
 
         debug!("Checking for flag status change.");
         if let Some(flag) = msg.is_flagged() {
-            debug!("Found message flagged: {:?}", flag);
+            debug!("Found message flagged: {flag:?}");
             self.mark_flagged(flag)?;
         }
 
@@ -116,7 +116,7 @@ impl StaleMsgDbHeader {
         let message_id = nsCString::from(message_id.as_ref());
         // SAFETY: We have converted all of the inputs into the appropriate
         // types to cross the Rust/C++ boundary.
-        unsafe { self.0.SetMessageId(&*message_id) }.to_result()
+        unsafe { self.0.SetMessageId(&raw const *message_id) }.to_result()
     }
 
     /// A safe wrapper for [`nsIMsgDBHdr::MarkHasAttachments`].
@@ -142,7 +142,7 @@ impl StaleMsgDbHeader {
         let author = nsCString::from(author.to_string());
         // SAFETY: We have converted all of the inputs into the appropriate
         // types to cross the Rust/C++ boundary.
-        unsafe { self.0.SetAuthor(&*author) }.to_result()
+        unsafe { self.0.SetAuthor(&raw const *author) }.to_result()
     }
 
     /// A safe wrapper for setting the `replyTo` property, via
@@ -160,7 +160,11 @@ impl StaleMsgDbHeader {
         );
         // SAFETY: We have converted all of the inputs into the appropriate
         // types to cross the Rust/C++ boundary.
-        unsafe { self.0.SetStringProperty(c"replyTo".as_ptr(), &*reply_to) }.to_result()
+        unsafe {
+            self.0
+                .SetStringProperty(c"replyTo".as_ptr(), &raw const *reply_to)
+        }
+        .to_result()
     }
 
     /// Convert types and forward to [`nsIMsgDBHdr::SetRecipients`].
@@ -171,7 +175,7 @@ impl StaleMsgDbHeader {
         let to = nsCString::from(make_header_string_for_mailbox_list(to));
         // SAFETY: We have converted all of the inputs into the appropriate
         // types to cross the Rust/C++ boundary.
-        unsafe { self.0.SetRecipients(&*to) }.to_result()
+        unsafe { self.0.SetRecipients(&raw const *to) }.to_result()
     }
 
     /// Convert types and forward to [`nsIMsgDBHdr::SetCcList`].
@@ -179,7 +183,7 @@ impl StaleMsgDbHeader {
         let cc = nsCString::from(make_header_string_for_mailbox_list(cc));
         // SAFETY: We have converted all of the inputs into the appropriate
         // types to cross the Rust/C++ boundary.
-        unsafe { self.0.SetCcList(&*cc) }.to_result()
+        unsafe { self.0.SetCcList(&raw const *cc) }.to_result()
     }
 
     /// Convert types and forward to [`nsIMsgDBHdr::SetBccList`].
@@ -187,7 +191,7 @@ impl StaleMsgDbHeader {
         let bcc = nsCString::from(make_header_string_for_mailbox_list(bcc));
         // SAFETY: We have converted all of the inputs into the appropriate
         // types to cross the Rust/C++ boundary.
-        unsafe { self.0.SetBccList(&*bcc) }.to_result()
+        unsafe { self.0.SetBccList(&raw const *bcc) }.to_result()
     }
 
     /// Convert types and forward to [`nsIMsgDBHdr::SetSubject`].
@@ -195,7 +199,7 @@ impl StaleMsgDbHeader {
         let subject = nsCString::from(subject.as_ref());
         // SAFETY: We have converted all of the inputs into the appropriate
         // types to cross the Rust/C++ boundary.
-        unsafe { self.0.SetSubject(&*subject) }.to_result()
+        unsafe { self.0.SetSubject(&raw const *subject) }.to_result()
     }
 
     /// A safe wrapper for [`nsIMsgDBHdr::SetPriority`].
@@ -210,7 +214,7 @@ impl StaleMsgDbHeader {
         let references = nsCString::from(references.as_ref());
         // SAFETY: We have converted all of the inputs into the appropriate
         // types to cross the Rust/C++ boundary.
-        unsafe { self.0.SetReferences(&*references) }.to_result()
+        unsafe { self.0.SetReferences(&raw const *references) }.to_result()
     }
 
     /// A safe wrapper for [`nsIMsgDBHdr::SetMessageSize`].
@@ -229,7 +233,7 @@ impl StaleMsgDbHeader {
         // specifically to a C-String that is guaranteed to be null terminated.
         unsafe {
             self.0
-                .SetStringProperty(property_name.as_ptr(), &*preview_text)
+                .SetStringProperty(property_name.as_ptr(), &raw const *preview_text)
         }
         .to_result()
     }
@@ -252,7 +256,7 @@ impl UpdatedMsgDbHeader {
     pub fn get_message_key(&self) -> Result<nsMsgKey, nsresult> {
         let mut key: nsMsgKey = 0;
         // SAFETY: key was initialized and is still live.
-        unsafe { self.0.GetMessageKey(&mut key) }.to_result()?;
+        unsafe { self.0.GetMessageKey(&raw mut key) }.to_result()?;
         Ok(key)
     }
 }

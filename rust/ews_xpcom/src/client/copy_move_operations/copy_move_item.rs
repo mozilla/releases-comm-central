@@ -152,8 +152,7 @@ fn get_new_ews_ids_from_response(response: Vec<ItemResponseMessage>) -> Vec<Stri
                 .items
                 .inner
                 .first()
-                .map(|item| item.inner_message().item_id.as_ref().map(|x| x.id.clone()))
-                .unwrap_or(None)
+                .and_then(|item| item.inner_message().item_id.as_ref().map(|x| x.id.clone()))
         })
         .collect()
 }

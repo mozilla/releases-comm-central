@@ -115,7 +115,7 @@ pub fn extract_headers(msg: &ews::Message) -> RefPtr<HeaderBlock> {
             .internet_message_header
             .iter()
             .filter_map(|x| {
-                let val = x.value.clone().unwrap_or("".to_string());
+                let val = x.value.clone().unwrap_or(String::new());
                 if core.get(&x.header_name) == Some(&val) {
                     None // Discard duplicate
                 } else {

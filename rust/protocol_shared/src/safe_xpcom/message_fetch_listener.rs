@@ -44,7 +44,7 @@ impl SafeEwsMessageFetchListener {
         // safely handle. We use `SetByteStringData()` here instead of one of
         // the alternatives to ensure that the data is copied. Otherwise, the
         // pointer may become invalid before the stream is dropped.
-        unsafe { stream.SetByteStringData(&*data) }.to_result()?;
+        unsafe { stream.SetByteStringData(&raw const *data) }.to_result()?;
 
         let stream: &nsIInputStream = stream.coerce();
         // Safety: nsIInputStream is safe to use across the Rust/C++ boundary.

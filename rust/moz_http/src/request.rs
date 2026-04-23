@@ -142,8 +142,9 @@ impl<'rb> RequestBuilder<'rb> {
             )?;
 
         let url = nsCString::from(self.url.as_str());
-        let uri: RefPtr<nsIURI> =
-            getter_addrefs(|p| unsafe { io_service.NewURI(&*url, ptr::null(), ptr::null(), p) })?;
+        let uri: RefPtr<nsIURI> = getter_addrefs(|p| unsafe {
+            io_service.NewURI(&raw const *url, ptr::null(), ptr::null(), p)
+        })?;
 
         // Instantiate an `nsILoadInfo` that's configured to allow cookies
         // (unless the user settings say otherwise). We need to take this extra
@@ -190,7 +191,7 @@ impl<'rb> RequestBuilder<'rb> {
 
             unsafe {
                 http_channel
-                    .SetRequestHeader(&*key, &*value, false)
+                    .SetRequestHeader(&raw const *key, &raw const *value, false)
                     .to_result()?;
             }
         }
@@ -200,7 +201,11 @@ impl<'rb> RequestBuilder<'rb> {
         // sets the channel's method depending on the content of its arguments,
         // which might not match the method we want to use.
         let method: nsCString = self.method.as_str().into();
-        unsafe { http_channel.SetRequestMethod(&*method).to_result()? }
+        unsafe {
+            http_channel
+                .SetRequestMethod(&raw const *method)
+                .to_result()?;
+        }
 
         // Send the request through the nsIChannel.
         let bytes = match XpComFuture::from(channel.clone()).await {
@@ -237,10 +242,11 @@ impl<'rb> RequestBuilder<'rb> {
                 };
 
                 let mut err_code: i32 = 0;
-                unsafe { sec_info.GetErrorCode(&mut err_code) }.to_result()?;
+                unsafe { sec_info.GetErrorCode(&raw mut err_code) }.to_result()?;
 
                 let mut is_nss_error: bool = false;
-                unsafe { nss_service.IsNSSErrorCode(err_code, &mut is_nss_error) }.to_result()?;
+                unsafe { nss_service.IsNSSErrorCode(err_code, &raw mut is_nss_error) }
+                    .to_result()?;
 
                 // If the NSS service has identified the error as relating to
                 // transport security, include the `nsITransportSecurityInfo`
@@ -323,12 +329,14 @@ impl<'rb> RequestBuilder<'rb> {
             // request, to ensure it stays in scope while the nsIChannel does,
             // and use ShareData() instead.
             let body_content = nsCString::from(body.content.0);
-            body_stream.SetByteStringData(&*body_content).to_result()?;
+            body_stream
+                .SetByteStringData(&raw const *body_content)
+                .to_result()?;
 
             // Set the stream as the channel's upload stream.
             upload_channel
-                .SetUploadStream(body_stream.coerce(), &*content_type, len)
-                .to_result()?
+                .SetUploadStream(body_stream.coerce(), &raw const *content_type, len)
+                .to_result()?;
         }
 
         Ok(())

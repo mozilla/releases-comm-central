@@ -4,7 +4,7 @@
 
 use std::iter::IntoIterator;
 
-use mail_parser::HeaderName;
+use mail_parser::{Address, HeaderName};
 
 use xpcom::interfaces::{nsMsgPriority, nsMsgPriorityValue};
 
@@ -92,12 +92,12 @@ impl MessageHeaders for mail_parser::Message<'_> {
     fn author<'a>(&'a self) -> Option<Mailbox<'a>> {
         self.to()
             .or(self.sender())
-            .and_then(mail_parser::Address::first)
+            .and_then(Address::first)
             .and_then(|addr| addr.try_into().ok())
     }
 
     fn reply_to_recipients<'a>(&'a self) -> Option<impl IntoIterator<Item = Mailbox<'a>>> {
-        self.reply_to().map(|addr| addr.iter()).and_then(|addrs| {
+        self.reply_to().map(Address::iter).and_then(|addrs| {
             addrs
                 .into_iter()
                 .map(|addr| addr.try_into().ok())
@@ -161,9 +161,7 @@ impl MessageHeaders for mail_parser::Message<'_> {
 
 /// Gets an iterator of mailboxes from a `mail_parser` address field, filtering
 /// out any addresses which do not have an associated email address.
-fn address_to_mailboxes<'a>(
-    address: &'a mail_parser::Address,
-) -> impl Iterator<Item = Mailbox<'a>> {
+fn address_to_mailboxes<'a>(address: &'a Address) -> impl Iterator<Item = Mailbox<'a>> {
     address.iter().filter_map(|addr| addr.try_into().ok())
 }
 
@@ -178,7 +176,7 @@ impl<'a> TryFrom<&'a mail_parser::Addr<'_>> for Mailbox<'a> {
 
     fn try_from(value: &'a mail_parser::Addr) -> Result<Self, Self::Error> {
         value.address.as_ref().ok_or(()).map(|address| Mailbox {
-            name: value.name.as_ref().map(|name| name.as_ref()),
+            name: value.name.as_ref().map(AsRef::as_ref),
             email_address: Some(address.as_ref()),
         })
     }

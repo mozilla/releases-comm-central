@@ -558,7 +558,7 @@ impl XpcomEwsBridge {
             client.copy_move_item::<MoveItem>(
                 SafeEwsSimpleOperationListener::new(listener),
                 destination_folder_id.to_string(),
-                item_ids.iter().map(|id| id.to_string()).collect(),
+                item_ids.iter().map(ToString::to_string).collect(),
             ),
         )
         .detach();
@@ -584,7 +584,7 @@ impl XpcomEwsBridge {
             client.copy_move_item::<CopyItem>(
                 SafeEwsSimpleOperationListener::new(listener),
                 destination_folder_id.to_string(),
-                item_ids.iter().map(|id| id.to_string()).collect(),
+                item_ids.iter().map(ToString::to_string).collect(),
             ),
         )
         .detach();
@@ -610,7 +610,7 @@ impl XpcomEwsBridge {
             client.copy_move_folder::<MoveFolder>(
                 SafeEwsSimpleOperationListener::new(listener),
                 destination_folder_id.to_string(),
-                folder_ids.iter().map(|id| id.to_string()).collect(),
+                folder_ids.iter().map(ToString::to_string).collect(),
             ),
         )
         .detach();
@@ -636,7 +636,7 @@ impl XpcomEwsBridge {
             client.copy_move_folder::<CopyFolder>(
                 SafeEwsSimpleOperationListener::new(listener),
                 destination_folder_id.to_string(),
-                folder_ids.iter().map(|id| id.to_string()).collect(),
+                folder_ids.iter().map(ToString::to_string).collect(),
             ),
         )
         .detach();

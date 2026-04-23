@@ -507,13 +507,12 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
                     .headers
                     .into_iter()
                     // Filter out headers we don't care about.
-                    .filter_map(|hdr| match hdr {
+                    .find_map(|hdr| match hdr {
                         soap::Header::ServerVersionInfo(server_version_info) => {
                             Some(server_version_info)
                         }
                         _ => None,
                     })
-                    .next()
                 {
                     self.version_handler.update_server_version(header)?;
                 }

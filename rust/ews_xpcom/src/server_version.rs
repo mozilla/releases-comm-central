@@ -60,8 +60,10 @@ fn parse_server_version_pref() -> Result<Option<HashMap<String, String>>, XpComE
     let pref_branch = get_root_pref_branch()?;
 
     let mut pref_value = nsCString::new();
-    match unsafe { pref_branch.GetCharPref(EWS_SERVER_VERSIONS_PREF.as_ptr(), &mut *pref_value) }
-        .to_result()
+    match unsafe {
+        pref_branch.GetCharPref(EWS_SERVER_VERSIONS_PREF.as_ptr(), &raw mut *pref_value)
+    }
+    .to_result()
     {
         Ok(_) => {}
         Err(err) => {
@@ -72,7 +74,7 @@ fn parse_server_version_pref() -> Result<Option<HashMap<String, String>>, XpComE
                 _ => Err(err.into()),
             };
         }
-    };
+    }
 
     let pref_value = pref_value.to_utf8();
     let de = &mut serde_json::Deserializer::from_str(&pref_value);
@@ -199,8 +201,13 @@ impl ServerVersionHandler {
         let known_versions = nsCString::from(known_versions);
 
         let pref_branch = get_root_pref_branch()?;
-        unsafe { pref_branch.SetCharPref(EWS_SERVER_VERSIONS_PREF.as_ptr(), &*known_versions) }
-            .to_result()?;
+        unsafe {
+            pref_branch.SetCharPref(
+                EWS_SERVER_VERSIONS_PREF.as_ptr(),
+                &raw const *known_versions,
+            )
+        }
+        .to_result()?;
 
         Ok(())
     }

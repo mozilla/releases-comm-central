@@ -43,7 +43,7 @@ fn get_string_bundle(bundle_url: &CStr) -> Result<RefPtr<nsIStringBundle>, nsres
 /// parameterized strings see [`get_formatted_string`].
 fn get_string(bundle: &RefPtr<nsIStringBundle>, string_name: &CStr) -> Result<String, nsresult> {
     let mut message = nsString::new();
-    unsafe { bundle.GetStringFromName(string_name.as_ptr(), &mut *message) }.to_result()?;
+    unsafe { bundle.GetStringFromName(string_name.as_ptr(), &raw mut *message) }.to_result()?;
 
     Ok(message.to_string())
 }
@@ -61,8 +61,10 @@ fn get_formatted_string(
         .collect();
 
     let mut message = nsString::new();
-    unsafe { bundle.FormatStringFromName(string_name.as_ptr(), &params, &mut *message) }
-        .to_result()?;
+    unsafe {
+        bundle.FormatStringFromName(string_name.as_ptr(), &raw const params, &raw mut *message)
+    }
+    .to_result()?;
 
     Ok(message.to_string())
 }
@@ -90,7 +92,7 @@ pub fn register_alert(message: String, uri: RefPtr<nsIURI>) -> Result<(), nsresu
     };
 
     let message = nsString::from(&message);
-    unsafe { mail_session.AlertUser(&*message, &*uri, silent) }.to_result()?;
+    unsafe { mail_session.AlertUser(&raw const *message, &raw const *uri, silent) }.to_result()?;
 
     Ok(())
 }

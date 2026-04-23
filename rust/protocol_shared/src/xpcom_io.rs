@@ -23,7 +23,7 @@ pub fn read_file(file: &nsIFile) -> Result<Vec<u8>, nsresult> {
 
 pub fn read_stream(stream: &nsIInputStream) -> Result<Vec<u8>, nsresult> {
     let mut bytes_available = 0;
-    unsafe { stream.Available(&mut bytes_available) }.to_result()?;
+    unsafe { stream.Available(&raw mut bytes_available) }.to_result()?;
 
     // `nsIInputStream::Available` reads into a u64, but `nsIInputStream::Read`
     // takes a u32.
@@ -43,7 +43,11 @@ pub fn read_stream(stream: &nsIInputStream) -> Result<Vec<u8>, nsresult> {
         let read_ptr = read_sink.as_mut_ptr();
 
         stream
-            .Read(read_ptr as *mut c_char, bytes_available, &mut bytes_read)
+            .Read(
+                read_ptr.cast::<c_char>(),
+                bytes_available,
+                &raw mut bytes_read,
+            )
             .to_result()?;
     };
 

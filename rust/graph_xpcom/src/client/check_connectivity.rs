@@ -63,6 +63,6 @@ impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
             uri,
             endpoint: &self.endpoint,
         };
-        operation.handle_operation(&self, &listener).await
+        operation.handle_operation(&self, &listener).await;
     }
 }

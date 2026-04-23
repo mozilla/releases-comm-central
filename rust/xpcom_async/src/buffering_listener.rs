@@ -73,7 +73,9 @@ impl BufferingStreamListener {
             // The amount of bytes actually read from the stream.
             let mut bytes_read: u32 = 0;
 
-            stream.Read(read_sink, count, &mut bytes_read).to_result()?;
+            stream
+                .Read(read_sink, count, &raw mut bytes_read)
+                .to_result()?;
 
             // Turn the buffer of c_char into a &[u8] that we can use to write
             // into our internal buffer.

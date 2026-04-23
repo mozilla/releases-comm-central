@@ -54,7 +54,7 @@ pub unsafe fn parse_utf8_lossy(data: *const c_char) -> String {
     let len = (0..)
         .take_while(|&i| unsafe { *data.offset(i) } != 0)
         .count();
-    let slice = unsafe { std::slice::from_raw_parts(data as *const u8, len) };
+    let slice = unsafe { std::slice::from_raw_parts(data.cast::<u8>(), len) };
     String::from_utf8_lossy(slice).to_string()
 }
 

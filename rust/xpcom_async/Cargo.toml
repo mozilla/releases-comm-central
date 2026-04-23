@@ -13,3 +13,6 @@ xpcom = { path = "../../../xpcom/rust/xpcom" }
 nserror = { path = "../../../xpcom/rust/nserror" }
 thin-vec = { version = "0.2.12", features = ["gecko-ffi"] }
 cstr = "0.2"
+
+[lints]
+workspace = true

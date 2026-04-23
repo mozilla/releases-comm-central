@@ -60,7 +60,7 @@ fn next_b64_token_from_auth_module(
     // pointer.
     let (input_ptr, input_len) = if let Some(ref input) = input {
         let input_len: u32 = input.len().try_into().or(Err(nserror::NS_ERROR_FAILURE))?;
-        (input.as_ptr() as *const c_void, input_len)
+        (input.as_ptr().cast::<c_void>(), input_len)
     } else {
         (ptr::null(), 0u32)
     };
@@ -76,7 +76,7 @@ fn next_b64_token_from_auth_module(
     // documentation says the consumer is in charge of ensuring `out_buf` gets
     // eventually freed, but Rust's memory management should ensure this happens
     // automatically.
-    unsafe { auth_module.GetNextToken(input_ptr, input_len, &mut out_ptr, &mut out_len) }
+    unsafe { auth_module.GetNextToken(input_ptr, input_len, &raw mut out_ptr, &raw mut out_len) }
         .to_result()?;
 
     // SAFETY: Considering the existing implementations of `GetNextToken`,
@@ -89,7 +89,7 @@ fn next_b64_token_from_auth_module(
     // be fine as the binary data should not be affected, only the integer
     // representation of characters (this is also what `CStr::from_ptr` does).
     let out_len: usize = out_len.try_into().or(Err(nserror::NS_ERROR_FAILURE))?;
-    let out_buf: &[u8] = unsafe { slice::from_raw_parts((out_ptr as *mut c_char).cast(), out_len) };
+    let out_buf: &[u8] = unsafe { slice::from_raw_parts(out_ptr.cast::<c_char>().cast(), out_len) };
     let out_buf = BASE64_STANDARD.encode(out_buf);
 
     Ok(out_buf)
@@ -130,7 +130,7 @@ pub async fn authenticate(
     let ntlm_module = getter_addrefs(|p| unsafe { new_auth_module(c"ntlm".as_ptr(), p) })?;
 
     // NTLM usernames might come in the form `domain\username`.
-    let (domain, username) = username.split_once("\\").unwrap_or(("", username));
+    let (domain, username) = username.split_once('\\').unwrap_or(("", username));
 
     let domain = nsString::from(domain);
     let username = nsString::from(username);
@@ -139,8 +139,16 @@ pub async fn authenticate(
     // SAFETY: All the references/pointers we pass are valid. This
     // call replicates the way the authentication module gets
     // initialized in `nsMsgProtocol::DoNtlmStep1`.
-    unsafe { ntlm_module.Init(&*nsCString::new(), 0, &*domain, &*username, &*password) }
-        .to_result()?;
+    unsafe {
+        ntlm_module.Init(
+            &raw const *nsCString::new(),
+            0,
+            &raw const *domain,
+            &raw const *username,
+            &raw const *password,
+        )
+    }
+    .to_result()?;
 
     // Generate the first message for our NTLM negotiation, and submit
     // it to the server.
@@ -166,7 +174,7 @@ pub async fn authenticate(
         .find(|value| value.to_lowercase().starts_with("ntlm "));
 
     let challenge = if let Some(hdr) = authenticate_header {
-        hdr.split(" ")
+        hdr.split(' ')
             .nth(1)
             .ok_or_else(|| {
                 log::error!("ntlm: missing challenge");

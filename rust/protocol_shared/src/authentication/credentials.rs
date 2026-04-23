@@ -209,7 +209,7 @@ pub trait AuthenticationProvider {
                     nserror::NS_ERROR_FAILURE,
                 ))?;
                 let override_details = getter_addrefs(|p| unsafe {
-                    interop_factory.CreateOAuth2Details(&*oauth_details_identifier, p)
+                    interop_factory.CreateOAuth2Details(&raw const *oauth_details_identifier, p)
                 })?;
 
                 // Ensure the OAuth2 module indicated it can support this provider.
@@ -248,7 +248,7 @@ impl AuthenticationProvider for nsIMsgIncomingServer {
     fn auth_method(&self) -> Result<nsMsgAuthMethodValue, nsresult> {
         let mut auth_method: nsMsgAuthMethodValue = 0;
 
-        unsafe { self.GetAuthMethod(&mut auth_method) }.to_result()?;
+        unsafe { self.GetAuthMethod(&raw mut auth_method) }.to_result()?;
 
         Ok(auth_method)
     }
@@ -256,7 +256,7 @@ impl AuthenticationProvider for nsIMsgIncomingServer {
     fn username(&self) -> Result<nsCString, nsresult> {
         let mut username = nsCString::new();
 
-        unsafe { self.GetUsername(&mut *username) }.to_result()?;
+        unsafe { self.GetUsername(&raw mut *username) }.to_result()?;
 
         Ok(username)
     }
@@ -264,7 +264,7 @@ impl AuthenticationProvider for nsIMsgIncomingServer {
     fn password(&self) -> Result<nsString, nsresult> {
         let mut password = nsString::new();
 
-        unsafe { self.GetPassword(&mut *password) }.to_result()?;
+        unsafe { self.GetPassword(&raw mut *password) }.to_result()?;
 
         Ok(password)
     }
@@ -272,14 +272,14 @@ impl AuthenticationProvider for nsIMsgIncomingServer {
     fn ews_url(&self) -> Result<String, nsresult> {
         let mut ews_url = nsCString::new();
 
-        unsafe { self.GetStringValue(c"ews_url".as_ptr(), &mut *ews_url) }.to_result()?;
+        unsafe { self.GetStringValue(c"ews_url".as_ptr(), &raw mut *ews_url) }.to_result()?;
 
         Ok(ews_url.to_string())
     }
 
     fn oauth_details_identifier(&self) -> Result<nsCString, nsresult> {
         let mut hostname = nsCString::from("");
-        unsafe { self.GetHostName(&mut *hostname) }.to_result()?;
+        unsafe { self.GetHostName(&raw mut *hostname) }.to_result()?;
         Ok(hostname)
     }
 
@@ -294,7 +294,7 @@ impl AuthenticationProvider for nsIMsgIncomingServer {
 
         let mut oauth2_supported = false;
         unsafe {
-            oauth2_module.InitFromMail(self.coerce(), override_details, &mut oauth2_supported)
+            oauth2_module.InitFromMail(self.coerce(), override_details, &raw mut oauth2_supported)
         }
         .to_result()?;
 
@@ -308,7 +308,7 @@ impl AuthenticationProvider for nsIMsgOutgoingServer {
     fn auth_method(&self) -> Result<nsMsgAuthMethodValue, nsresult> {
         let mut auth_method: nsMsgAuthMethodValue = 0;
 
-        unsafe { self.GetAuthMethod(&mut auth_method) }.to_result()?;
+        unsafe { self.GetAuthMethod(&raw mut auth_method) }.to_result()?;
 
         Ok(auth_method)
     }
@@ -316,7 +316,7 @@ impl AuthenticationProvider for nsIMsgOutgoingServer {
     fn username(&self) -> Result<nsCString, nsresult> {
         let mut username = nsCString::new();
 
-        unsafe { self.GetUsername(&mut *username) }.to_result()?;
+        unsafe { self.GetUsername(&raw mut *username) }.to_result()?;
 
         Ok(username)
     }
@@ -324,7 +324,7 @@ impl AuthenticationProvider for nsIMsgOutgoingServer {
     fn password(&self) -> Result<nsString, nsresult> {
         let mut password = nsCString::new();
 
-        unsafe { self.GetPassword(&mut *password) }.to_result()?;
+        unsafe { self.GetPassword(&raw mut *password) }.to_result()?;
 
         let password = password.to_string();
         let password = nsString::from(password.as_str());
@@ -333,7 +333,7 @@ impl AuthenticationProvider for nsIMsgOutgoingServer {
 
     fn ews_url(&self) -> Result<String, nsresult> {
         let mut key = nsCString::new();
-        unsafe { self.GetKey(&mut *key) }.to_result()?;
+        unsafe { self.GetKey(&raw mut *key) }.to_result()?;
 
         // Build the pref root from the key, if set. The root should be
         // in the format `mail.outgoingserver.ewsX.` - note the trailing
@@ -348,7 +348,7 @@ impl AuthenticationProvider for nsIMsgOutgoingServer {
         let pref_branch = getter_addrefs(unsafe { |p| pref_svc.GetBranch(pref_root.as_ptr(), p) })?;
 
         let mut ews_url = nsCString::new();
-        unsafe { pref_branch.GetCharPref(c"ews_url".as_ptr(), &mut *ews_url) }.to_result()?;
+        unsafe { pref_branch.GetCharPref(c"ews_url".as_ptr(), &raw mut *ews_url) }.to_result()?;
 
         Ok(ews_url.to_string())
     }
@@ -356,7 +356,7 @@ impl AuthenticationProvider for nsIMsgOutgoingServer {
     fn oauth_details_identifier(&self) -> Result<nsCString, nsresult> {
         let uri = getter_addrefs(|p| unsafe { self.GetServerURI(p) })?;
         let mut hostname = nsCString::from("");
-        unsafe { uri.GetHost(&mut *hostname) }.to_result()?;
+        unsafe { uri.GetHost(&raw mut *hostname) }.to_result()?;
         Ok(hostname)
     }
 
@@ -371,7 +371,11 @@ impl AuthenticationProvider for nsIMsgOutgoingServer {
 
         let mut oauth2_supported = false;
         unsafe {
-            oauth2_module.InitFromOutgoing(self.coerce(), override_details, &mut oauth2_supported)
+            oauth2_module.InitFromOutgoing(
+                self.coerce(),
+                override_details,
+                &raw mut oauth2_supported,
+            )
         }
         .to_result()?;
 
