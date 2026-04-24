@@ -549,7 +549,7 @@ lower_ubo_reference_visitor::insert_buffer_access(void *mem_ctx,
       }
       break;
    default:
-      unreachable("invalid buffer_access_type in insert_buffer_access");
+      UNREACHABLE("invalid buffer_access_type in insert_buffer_access");
    }
 }
 
@@ -730,7 +730,7 @@ lower_ubo_reference_visitor::calculate_unsized_array_stride(ir_dereference *dere
       break;
    }
    default:
-      unreachable("Unsupported dereference type");
+      UNREACHABLE("Unsupported dereference type");
    }
    return array_stride;
 }

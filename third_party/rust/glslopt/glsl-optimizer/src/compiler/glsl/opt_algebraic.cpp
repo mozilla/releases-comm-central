@@ -995,7 +995,7 @@ ir_algebraic_visitor::handle_expression(ir_expression *ir)
             break;
          default:
             one = NULL;
-            unreachable("unexpected type");
+            UNREACHABLE("unexpected type");
          }
 
          return mul(ir->operands[0], add(one, neg(ir->operands[2])));

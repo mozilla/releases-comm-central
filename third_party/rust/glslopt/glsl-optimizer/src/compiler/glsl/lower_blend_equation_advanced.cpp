@@ -386,7 +386,7 @@ calc_blend_result(ir_factory f,
          break;
       case BLEND_NONE:
       case BLEND_ALL:
-         unreachable("not real cases");
+         UNREACHABLE("not real cases");
       }
 
       if (val)

@@ -5414,7 +5414,7 @@ builtin_builder::_isinf(builtin_available_predicate avail, const glsl_type *type
          infinities.d[i] = INFINITY;
          break;
       default:
-         unreachable("unknown type");
+         UNREACHABLE("unknown type");
       }
    }
 

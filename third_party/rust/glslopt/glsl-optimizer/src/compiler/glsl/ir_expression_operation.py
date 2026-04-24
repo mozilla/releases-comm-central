@@ -106,7 +106,7 @@ constant_template_common = mako.template.Template("""\
             break;
     % endfor
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;""")
@@ -137,7 +137,7 @@ constant_template_vector_scalar = mako.template.Template("""\
             break;
     % endfor
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;""")
@@ -160,7 +160,7 @@ constant_template_mul = mako.template.Template("""\
                break;
     % endfor
             default:
-               unreachable("invalid type");
+               UNREACHABLE("invalid type");
             }
          }
       } else {
@@ -218,7 +218,7 @@ constant_template_horizontal = mako.template.Template("""\
          break;
     % endfor
       default:
-         unreachable("invalid type");
+         UNREACHABLE("invalid type");
       }
       break;""")
 
@@ -235,7 +235,7 @@ constant_template_vector_extract = mako.template.Template("""\
          break;
     % endfor
       default:
-         unreachable("invalid type");
+         UNREACHABLE("invalid type");
       }
       break;
    }""")
@@ -254,7 +254,7 @@ constant_template_vector_insert = mako.template.Template("""\
          break;
     % endfor
       default:
-         unreachable("invalid type");
+         UNREACHABLE("invalid type");
       }
       break;
    }""")
@@ -270,7 +270,7 @@ constant_template_vector = mako.template.Template("""\
             break;
     % endfor
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;""")
@@ -291,7 +291,7 @@ constant_template_lrp = mako.template.Template("""\
             break;
     % endfor
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -310,7 +310,7 @@ constant_template_csel = mako.template.Template("""\
             break;
     % endfor
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;""")

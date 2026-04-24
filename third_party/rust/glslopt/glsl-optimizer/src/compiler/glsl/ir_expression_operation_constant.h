@@ -15,7 +15,7 @@
             data.i64[c] = ~ op[0]->value.i64[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -27,7 +27,7 @@
             data.b[c] = !op[0]->value.b[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -54,7 +54,7 @@
             data.i64[c] = -op[0]->value.i64[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -75,7 +75,7 @@
             data.i64[c] = op[0]->value.i64[c] < 0 ? -op[0]->value.i64[c] : op[0]->value.i64[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -96,7 +96,7 @@
             data.i64[c] = (op[0]->value.i64[c] > 0) - (op[0]->value.i64[c] < 0);
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -111,7 +111,7 @@
             data.d[c] = 1.0 / op[0]->value.d[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -126,7 +126,7 @@
             data.d[c] = 1.0 / sqrt(op[0]->value.d[c]);
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -141,7 +141,7 @@
             data.d[c] = sqrt(op[0]->value.d[c]);
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -153,7 +153,7 @@
             data.f[c] = expf(op[0]->value.f[c]);
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -165,7 +165,7 @@
             data.f[c] = logf(op[0]->value.f[c]);
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -177,7 +177,7 @@
             data.f[c] = exp2f(op[0]->value.f[c]);
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -189,7 +189,7 @@
             data.f[c] = log2f(op[0]->value.f[c]);
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -201,7 +201,7 @@
             data.i[c] = (int) op[0]->value.f[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -213,7 +213,7 @@
             data.u[c] = (unsigned) op[0]->value.f[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -225,7 +225,7 @@
             data.f[c] = (float) op[0]->value.i[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -237,7 +237,7 @@
             data.b[c] = op[0]->value.f[c] != 0.0F ? true : false;
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -249,7 +249,7 @@
             data.f[c] = op[0]->value.b[c] ? 1.0F : 0.0F;
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -261,7 +261,7 @@
             data.f[c] = op[0]->value.b[c] ? 1.0F : 0.0F;
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -276,7 +276,7 @@
             data.b[c] = op[0]->value.i[c] ? true : false;
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -288,7 +288,7 @@
             data.i[c] = op[0]->value.b[c] ? 1 : 0;
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -300,7 +300,7 @@
             data.f[c] = (float) op[0]->value.u[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -312,7 +312,7 @@
             data.u[c] = op[0]->value.i[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -324,7 +324,7 @@
             data.i[c] = op[0]->value.u[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -336,7 +336,7 @@
             data.f[c] = op[0]->value.d[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -348,7 +348,7 @@
             data.d[c] = op[0]->value.f[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -360,7 +360,7 @@
             data.f[c] = op[0]->value.f[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -372,7 +372,7 @@
             data.f[c] = op[0]->value.f[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -384,7 +384,7 @@
             data.f[c] = op[0]->value.f[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -396,7 +396,7 @@
             data.i[c] = op[0]->value.d[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -408,7 +408,7 @@
             data.d[c] = op[0]->value.i[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -420,7 +420,7 @@
             data.u[c] = op[0]->value.d[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -432,7 +432,7 @@
             data.d[c] = op[0]->value.u[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -444,7 +444,7 @@
             data.b[c] = op[0]->value.d[c] != 0.0;
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -456,7 +456,7 @@
             data.b[c] = op[0]->value.f[c] != 0.0;
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -468,7 +468,7 @@
             data.f[c] = bitcast_u2f(op[0]->value.i[c]);
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -480,7 +480,7 @@
             data.i[c] = bitcast_f2u(op[0]->value.f[c]);
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -492,7 +492,7 @@
             data.f[c] = bitcast_u2f(op[0]->value.u[c]);
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -504,7 +504,7 @@
             data.u[c] = bitcast_f2u(op[0]->value.f[c]);
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -516,7 +516,7 @@
             data.d[c] = bitcast_u642d(op[0]->value.u64[c]);
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -528,7 +528,7 @@
             data.d[c] = bitcast_i642d(op[0]->value.i64[c]);
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -540,7 +540,7 @@
             data.u64[c] = bitcast_d2u64(op[0]->value.d[c]);
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -552,7 +552,7 @@
             data.i64[c] = bitcast_d2i64(op[0]->value.d[c]);
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -564,7 +564,7 @@
             data.i[c] = op[0]->value.i64[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -576,7 +576,7 @@
             data.i[c] = op[0]->value.u64[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -588,7 +588,7 @@
             data.u[c] = op[0]->value.i64[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -600,7 +600,7 @@
             data.u[c] = op[0]->value.u64[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -612,7 +612,7 @@
             data.b[c] = op[0]->value.i64[c] != 0;
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -624,7 +624,7 @@
             data.f[c] = op[0]->value.i64[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -636,7 +636,7 @@
             data.f[c] = op[0]->value.u64[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -648,7 +648,7 @@
             data.d[c] = op[0]->value.i64[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -660,7 +660,7 @@
             data.d[c] = op[0]->value.u64[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -672,7 +672,7 @@
             data.i64[c] = op[0]->value.i[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -684,7 +684,7 @@
             data.i64[c] = op[0]->value.u[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -696,7 +696,7 @@
             data.i64[c] = op[0]->value.b[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -708,7 +708,7 @@
             data.i64[c] = op[0]->value.f[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -720,7 +720,7 @@
             data.i64[c] = op[0]->value.d[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -732,7 +732,7 @@
             data.u64[c] = op[0]->value.i[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -744,7 +744,7 @@
             data.u64[c] = op[0]->value.u[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -756,7 +756,7 @@
             data.u64[c] = op[0]->value.f[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -768,7 +768,7 @@
             data.u64[c] = op[0]->value.d[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -780,7 +780,7 @@
             data.i64[c] = op[0]->value.u64[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -792,7 +792,7 @@
             data.u64[c] = op[0]->value.i64[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -807,7 +807,7 @@
             data.d[c] = trunc(op[0]->value.d[c]);
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -822,7 +822,7 @@
             data.d[c] = ceil(op[0]->value.d[c]);
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -837,7 +837,7 @@
             data.d[c] = floor(op[0]->value.d[c]);
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -852,7 +852,7 @@
             data.d[c] = op[0]->value.d[c] - floor(op[0]->value.d[c]);
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -867,7 +867,7 @@
             data.d[c] = _mesa_roundeven(op[0]->value.d[c]);
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -879,7 +879,7 @@
             data.f[c] = sinf(op[0]->value.f[c]);
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -891,7 +891,7 @@
             data.f[c] = cosf(op[0]->value.f[c]);
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -903,7 +903,7 @@
             data.f[c] = atan(op[0]->value.f[c]);
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -915,7 +915,7 @@
             data.f[c] = 0.0f;
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -927,7 +927,7 @@
             data.f[c] = 0.0f;
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -939,7 +939,7 @@
             data.f[c] = 0.0f;
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -951,7 +951,7 @@
             data.f[c] = 0.0f;
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -963,7 +963,7 @@
             data.f[c] = 0.0f;
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -975,7 +975,7 @@
             data.f[c] = 0.0f;
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -986,7 +986,7 @@
          data.u[0] = pack_2x16(pack_snorm_1x16, op[0]->value.f[0], op[0]->value.f[1]);
          break;
       default:
-         unreachable("invalid type");
+         UNREACHABLE("invalid type");
       }
       break;
 
@@ -996,7 +996,7 @@
          data.u[0] = pack_4x8(pack_snorm_1x8, op[0]->value.f[0], op[0]->value.f[1], op[0]->value.f[2], op[0]->value.f[3]);
          break;
       default:
-         unreachable("invalid type");
+         UNREACHABLE("invalid type");
       }
       break;
 
@@ -1006,7 +1006,7 @@
          data.u[0] = pack_2x16(pack_unorm_1x16, op[0]->value.f[0], op[0]->value.f[1]);
          break;
       default:
-         unreachable("invalid type");
+         UNREACHABLE("invalid type");
       }
       break;
 
@@ -1016,7 +1016,7 @@
          data.u[0] = pack_4x8(pack_unorm_1x8, op[0]->value.f[0], op[0]->value.f[1], op[0]->value.f[2], op[0]->value.f[3]);
          break;
       default:
-         unreachable("invalid type");
+         UNREACHABLE("invalid type");
       }
       break;
 
@@ -1026,7 +1026,7 @@
          data.u[0] = pack_2x16(pack_half_1x16, op[0]->value.f[0], op[0]->value.f[1]);
          break;
       default:
-         unreachable("invalid type");
+         UNREACHABLE("invalid type");
       }
       break;
 
@@ -1060,7 +1060,7 @@
             data.i[c] = bitfield_reverse(op[0]->value.i[c]);
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -1075,7 +1075,7 @@
             data.i[c] = util_bitcount(op[0]->value.i[c]);
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -1090,7 +1090,7 @@
             data.i[c] = find_msb_int(op[0]->value.i[c]);
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -1105,7 +1105,7 @@
             data.i[c] = find_msb_uint(op[0]->value.i[c] & -op[0]->value.i[c]);
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -1117,7 +1117,7 @@
             data.u[c] = (unsigned)(31 - find_msb_uint(op[0]->value.u[c]));
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -1129,7 +1129,7 @@
             data.f[c] = CLAMP(op[0]->value.f[c], 0.0f, 1.0f);
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -1200,7 +1200,7 @@
             data.i64[c] = op[0]->value.i64[c0] + op[1]->value.i64[c1];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -1231,7 +1231,7 @@
             data.i64[c] = op[0]->value.i64[c0] - op[1]->value.i64[c1];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -1252,7 +1252,7 @@
             data.i64[c] = iadd64_saturate(op[0]->value.i64[c], op[1]->value.i64[c]);
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -1273,7 +1273,7 @@
             data.i64[c] = isub64_saturate(op[0]->value.i64[c], op[1]->value.i64[c]);
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -1294,7 +1294,7 @@
             data.i64[c] = (op[1]->value.i64[c] > op[0]->value.i64[c]) ? (uint64_t)op[1]->value.i64[c] - (uint64_t)op[0]->value.i64[c] : (uint64_t)op[0]->value.i64[c] - (uint64_t)op[1]->value.i64[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -1315,7 +1315,7 @@
             data.i64[c] = (op[0]->value.i64[c] >> 1) + (op[1]->value.i64[c] >> 1) + ((op[0]->value.i64[c] & op[1]->value.i64[c]) & 1);
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -1336,7 +1336,7 @@
             data.i64[c] = (op[0]->value.i64[c] >> 1) + (op[1]->value.i64[c] >> 1) + ((op[0]->value.i64[c] | op[1]->value.i64[c]) & 1);
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -1369,7 +1369,7 @@
                data.i64[c] = op[0]->value.i64[c0] * op[1]->value.i64[c1];
                break;
             default:
-               unreachable("invalid type");
+               UNREACHABLE("invalid type");
             }
          }
       } else {
@@ -1411,7 +1411,7 @@
             data.i[c] = op[0]->value.i[c] * (int16_t)op[0]->value.i[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -1442,7 +1442,7 @@
             data.i64[c] = op[1]->value.i64[c1] == 0 ? 0 : op[0]->value.i64[c0] / op[1]->value.i64[c1];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -1473,7 +1473,7 @@
             data.i64[c] = op[1]->value.i64[c1] == 0 ? 0 : op[0]->value.i64[c0] % op[1]->value.i64[c1];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -1500,7 +1500,7 @@
             data.b[c] = op[0]->value.i64[c] < op[1]->value.i64[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -1527,7 +1527,7 @@
             data.b[c] = op[0]->value.i64[c] >= op[1]->value.i64[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -1557,7 +1557,7 @@
             data.b[c] = op[0]->value.b[c] == op[1]->value.b[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -1587,7 +1587,7 @@
             data.b[c] = op[0]->value.b[c] != op[1]->value.b[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -1627,7 +1627,7 @@
             data.i64[c] = op[0]->value.i64[c0] << op[1]->value.i64[c1];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -1659,7 +1659,7 @@
             data.i64[c] = op[0]->value.i64[c0] >> op[1]->value.i64[c1];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -1684,7 +1684,7 @@
             data.i64[c] = op[0]->value.i64[c0] & op[1]->value.i64[c1];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -1709,7 +1709,7 @@
             data.i64[c] = op[0]->value.i64[c0] ^ op[1]->value.i64[c1];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -1734,7 +1734,7 @@
             data.i64[c] = op[0]->value.i64[c0] | op[1]->value.i64[c1];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -1746,7 +1746,7 @@
             data.b[c] = op[0]->value.b[c] && op[1]->value.b[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -1758,7 +1758,7 @@
             data.b[c] = op[0]->value.b[c] != op[1]->value.b[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -1770,7 +1770,7 @@
             data.b[c] = op[0]->value.b[c] || op[1]->value.b[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -1784,7 +1784,7 @@
          data.d[0] = dot_d(op[0], op[1]);
          break;
       default:
-         unreachable("invalid type");
+         UNREACHABLE("invalid type");
       }
       break;
 
@@ -1814,7 +1814,7 @@
             data.i64[c] = MIN2(op[0]->value.i64[c0], op[1]->value.i64[c1]);
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -1845,7 +1845,7 @@
             data.i64[c] = MAX2(op[0]->value.i64[c0], op[1]->value.i64[c1]);
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -1857,7 +1857,7 @@
             data.f[c] = powf(op[0]->value.f[c], op[1]->value.f[c]);
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -1872,7 +1872,7 @@
             data.d[c] = ldexp_flush_subnormal(op[0]->value.d[c], op[1]->value.i[c]);
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -1904,7 +1904,7 @@
          data.b[0] = op[0]->value.b[c];
          break;
       default:
-         unreachable("invalid type");
+         UNREACHABLE("invalid type");
       }
       break;
    }
@@ -1916,7 +1916,7 @@
             data.f[c] = atan2(op[0]->value.f[c], op[1]->value.f[c]);
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -1931,7 +1931,7 @@
             data.d[c] = op[0]->value.d[c] * op[1]->value.d[c] + op[2]->value.d[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -1951,7 +1951,7 @@
             data.d[c] = op[0]->value.d[c] * (1.0 - op[2]->value.d[c2]) + (op[1]->value.d[c] * op[2]->value.d[c2]);
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -1982,7 +1982,7 @@
             data.b[c] = op[0]->value.b[c] ? op[1]->value.b[c] : op[2]->value.b[c];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -1997,7 +1997,7 @@
             data.i[c] = bitfield_extract_int(op[0]->value.i[c], op[1]->value.i[c], op[2]->value.i[c]);
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -2030,7 +2030,7 @@
          data.b[idx] = op[1]->value.b[0];
          break;
       default:
-         unreachable("invalid type");
+         UNREACHABLE("invalid type");
       }
       break;
    }
@@ -2045,7 +2045,7 @@
             data.i[c] = bitfield_insert(op[0]->value.i[c], op[1]->value.i[c], op[2]->value.i[c], op[3]->value.i[c]);
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;
@@ -2075,7 +2075,7 @@
             data.b[c] = op[c]->value.b[0];
             break;
          default:
-            unreachable("invalid type");
+            UNREACHABLE("invalid type");
          }
       }
       break;

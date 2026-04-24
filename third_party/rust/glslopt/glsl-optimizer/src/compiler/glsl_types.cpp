@@ -459,7 +459,7 @@ const glsl_type *glsl_type::get_bare_type() const
       return this;
    }
 
-   unreachable("Invalid base type");
+   UNREACHABLE("Invalid base type");
 }
 
 const glsl_type *glsl_type::get_float16_type() const
@@ -899,7 +899,7 @@ glsl_type::get_sampler_instance(enum glsl_sampler_dim dim,
       return error_type;
    }
 
-   unreachable("switch statement above should be complete");
+   UNREACHABLE("switch statement above should be complete");
 }
 
 const glsl_type *
@@ -998,7 +998,7 @@ glsl_type::get_image_instance(enum glsl_sampler_dim dim,
       return error_type;
    }
 
-   unreachable("switch statement above should be complete");
+   UNREACHABLE("switch statement above should be complete");
 }
 
 const glsl_type *
@@ -2015,7 +2015,7 @@ glsl_type::get_explicit_std140_type(bool row_major) const
       delete[] fields;
       return type;
    } else {
-      unreachable("Invalid type for UBO or SSBO");
+      UNREACHABLE("Invalid type for UBO or SSBO");
    }
 }
 
@@ -2373,7 +2373,7 @@ glsl_type::get_explicit_std430_type(bool row_major) const
       delete[] fields;
       return type;
    } else {
-      unreachable("Invalid type for SSBO");
+      UNREACHABLE("Invalid type for SSBO");
    }
 }
 
@@ -2447,7 +2447,7 @@ glsl_type::get_explicit_type_for_size_align(glsl_type_size_align_func type_info,
       return glsl_type::get_instance(this->base_type, this->vector_elements,
                                      this->matrix_columns, stride, false);
    } else {
-      unreachable("Unhandled type.");
+      UNREACHABLE("Unhandled type.");
    }
 }
 
@@ -2583,7 +2583,7 @@ glsl_type::count_dword_slots(bool is_bindless) const
    case GLSL_TYPE_ERROR:
    case GLSL_TYPE_FUNCTION:
    default:
-      unreachable("invalid type in st_glsl_type_dword_size()");
+      UNREACHABLE("invalid type in st_glsl_type_dword_size()");
    }
 
    return 0;
@@ -2947,7 +2947,7 @@ glsl_get_sampler_dim_coordinate_components(enum glsl_sampler_dim dim)
    case GLSL_SAMPLER_DIM_CUBE:
       return 3;
    default:
-      unreachable("Unknown sampler dim");
+      UNREACHABLE("Unknown sampler dim");
    }
 }
 

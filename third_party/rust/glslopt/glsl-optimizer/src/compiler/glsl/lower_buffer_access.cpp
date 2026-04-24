@@ -244,7 +244,7 @@ lower_buffer_access::is_dereferenced_thing_row_major(const ir_rvalue *deref)
             return matrix || deref->type->without_array()->is_struct();
          }
 
-         unreachable("invalid matrix layout");
+         UNREACHABLE("invalid matrix layout");
          break;
       }
 
@@ -256,7 +256,7 @@ lower_buffer_access::is_dereferenced_thing_row_major(const ir_rvalue *deref)
    /* The tree must have ended with a dereference that wasn't an
     * ir_dereference_variable.  That is invalid, and it should be impossible.
     */
-   unreachable("invalid dereference tree");
+   UNREACHABLE("invalid dereference tree");
    return false;
 }
 

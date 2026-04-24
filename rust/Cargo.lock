@@ -438,12 +438,6 @@ name = "autocfg"
 version = "1.1.0"
 
 [[package]]
-name = "base16"
-version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d27c3610c36aee21ce8ac510e6224498de4228ad772a171ed65643a24693a5a8"
-
-[[package]]
 name = "base64"
 version = "0.21.999"
 dependencies = [
@@ -2820,9 +2814,9 @@ dependencies = [
 
 [[package]]
 name = "glslopt"
-version = "0.1.12"
+version = "0.1.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8ba4741358604ca0848c27ecc069d68e62e11cde81e38aac1da3c54b79ab5adf"
+checksum = "8a56905d98a23fb02f9ef9c8925af41f832e137f114f34952a186f810e979582"
 dependencies = [
  "cc",
 ]
@@ -3037,20 +3031,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ea0b22561a9c04a7cb1a302c013e0259cd3b4bb619f145b32f72b8b4bcbed230"
 dependencies = [
  "hashbrown 0.16.0",
-]
-
-[[package]]
-name = "hawk"
-version = "5.0.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ab302457b3e28e621daab18932d67a67328f29240bfaa5f604b7627ece1eacda"
-dependencies = [
- "anyhow",
- "base64 0.22.1",
- "log",
- "once_cell",
- "thiserror 1.999.999",
- "url",
 ]
 
 [[package]]
@@ -4991,11 +4971,12 @@ checksum = "269bca4c2591a28585d6bf10d9ed0332b7d76900a1b02bec41bdc3a2cdcda107"
 
 [[package]]
 name = "operation-queue"
-version = "1.0.0"
+version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5658dc84cdcd31f4f47558ef721373418eef8c89dc7f4c0379ab68a4fd358163"
+checksum = "8656df5fea6ff89e0bcfbe2e34e784f49dc48ddc4bd34ae7e6bb17049b9d9f8d"
 dependencies = [
  "async-channel",
+ "async-lock",
  "futures",
  "log",
  "oneshot",
@@ -5634,7 +5615,6 @@ version = "0.1.0"
 dependencies = [
  "base64 0.21.999",
  "error-support",
- "hawk",
  "hex",
  "nss",
  "thiserror 2.0.12",
@@ -6556,13 +6536,10 @@ name = "sync15"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "base16",
- "base64 0.21.999",
  "error-support",
  "interrupt-support",
  "lazy_static",
  "payload-support",
- "rc_crypto",
  "serde",
  "serde_derive",
  "serde_json",
@@ -6570,8 +6547,6 @@ dependencies = [
  "sync-guid",
  "thiserror 2.0.12",
  "uniffi",
- "url",
- "viaduct",
 ]
 
 [[package]]

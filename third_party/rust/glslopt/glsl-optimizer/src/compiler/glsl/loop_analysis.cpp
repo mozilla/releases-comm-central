@@ -171,7 +171,7 @@ calculate_iterations(ir_rvalue *from, ir_rvalue *to, ir_rvalue *increment,
          iter = new(mem_ctx) ir_constant(double(iter_value + bias[i]));
          break;
       default:
-          unreachable("Unsupported type for loop iterator.");
+          UNREACHABLE("Unsupported type for loop iterator.");
       }
 
       ir_expression *const mul =
@@ -238,7 +238,7 @@ incremented_before_terminator(ir_loop *loop, ir_variable *var,
       }
    }
 
-   unreachable("Unable to find induction variable");
+   UNREACHABLE("Unable to find induction variable");
 }
 
 /**

@@ -196,7 +196,7 @@ ir_builder_print_visitor::print_without_declaration(const ir_rvalue *ir)
       print_without_declaration((ir_expression *) ir);
       break;
    default:
-      unreachable("Invalid IR type.");
+      UNREACHABLE("Invalid IR type.");
    }
 }
 
@@ -222,7 +222,7 @@ ir_builder_print_visitor::visit(ir_variable *ir)
    case ir_var_system_value: mode_str = "ir_var_system_value"; break;
    case ir_var_temporary: mode_str = "ir_var_temporary"; break;
    default:
-      unreachable("Invalid variable mode");
+      UNREACHABLE("Invalid variable mode");
    }
 
    if (ir->data.mode == ir_var_temporary) {
@@ -420,7 +420,7 @@ ir_builder_print_visitor::visit(ir_constant *ir)
                print_with_indent("r%04X_data.u[%u] = 1;\n", my_index, i);
             break;
          default:
-            unreachable("Invalid constant type");
+            UNREACHABLE("Invalid constant type");
          }
       }
 

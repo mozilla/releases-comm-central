@@ -1,6 +1,6 @@
 [package]
 name = "glslopt"
-version = "0.1.12"
+version = "0.1.13"
 authors = ["Jamie Nicol <jnicol@mozilla.com>"]
 edition = "2018"
 license = "MIT"

@@ -187,7 +187,7 @@ glsl_base_type_get_bit_size(const enum glsl_base_type base_type)
       return 64;
 
    default:
-      unreachable("unknown base type");
+      UNREACHABLE("unknown base type");
    }
 
    return 0;

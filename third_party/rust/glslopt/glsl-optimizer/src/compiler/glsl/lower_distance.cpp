@@ -155,7 +155,7 @@ lower_distance_visitor::visit(ir_variable *ir)
       old_var = &old_distance_in_var;
       new_var = &new_distance_in_var;
    } else {
-      unreachable("not reached");
+      UNREACHABLE("not reached");
    }
 
    this->progress = true;

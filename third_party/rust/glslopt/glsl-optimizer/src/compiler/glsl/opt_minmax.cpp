@@ -154,7 +154,7 @@ compare_components(ir_constant *a, ir_constant *b)
             foundequal = true;
          break;
       default:
-         unreachable("not reached");
+         UNREACHABLE("not reached");
       }
    }
 

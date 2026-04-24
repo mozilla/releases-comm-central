@@ -1032,7 +1032,7 @@ characters that appear in any other expressions. */
 #define DONE 3
 #define HASH 4
 #define NEWLINE_CATCHUP 5
-#define UNREACHABLE 6
+#define NOT_REACHABLE 6
 
 #define YY_EXTRA_TYPE glcpp_parser_t *
 
@@ -1953,11 +1953,11 @@ YY_RULE_SETUP
 {
 	glcpp_error(yylloc, yyextra, "Internal compiler error: Unexpected character: %s", yytext);
 
-	/* We don't actually use the UNREACHABLE start condition. We
+	/* We don't actually use the NOT_REACHABLE start condition. We
 	only have this block here so that we can pretend to call some
 	generated functions, (to avoid "defined but not used"
 	warnings. */
-        if (YY_START == UNREACHABLE) {
+        if (YY_START == NOT_REACHABLE) {
 		unput('.');
 		yy_top_state(yyextra);
 	}
@@ -1971,7 +1971,7 @@ YY_FATAL_ERROR( "flex scanner jammed" );
 #line 1971 "src/compiler/glsl/glcpp/glcpp-lex.c"
 case YY_STATE_EOF(DONE):
 case YY_STATE_EOF(NEWLINE_CATCHUP):
-case YY_STATE_EOF(UNREACHABLE):
+case YY_STATE_EOF(NOT_REACHABLE):
 	yyterminate();
 
 	case YY_END_OF_BUFFER:

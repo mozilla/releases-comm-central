@@ -12,8 +12,7 @@
 [package]
 edition = "2024"
 name = "operation-queue"
-version = "1.0.0"
-authors = ["The Thunderbird Project Developers"]
+version = "1.1.0"
 build = false
 exclude = [
     ".github",
@@ -48,6 +47,9 @@ path = "src/lib.rs"
 
 [dependencies.async-channel]
 version = "2.5.0"
+
+[dependencies.async-lock]
+version = "3.4.2"
 
 [dependencies.futures]
 version = "0.3.28"
