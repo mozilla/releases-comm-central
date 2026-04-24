@@ -109,7 +109,6 @@
   --toolbarseparator-color: color-mix(in srgb, currentColor 20%, transparent);
   --toolbar-field-color: var(--layout-color-1);
   --toolbar-field-background-color: var(--layout-background-1);
-  --toolbar-field-border-color: var(--layout-border-1);
   --toolbar-field-focus-border-color: var(--selected-item-color);
   --toolbar-field-highlight: var(--selected-item-color);
   --toolbar-field-highlight-color: var(--selected-item-text-color);
@@ -216,16 +215,12 @@
   }
 
   @media not (prefers-contrast) {
+    --link-color: light-dark(var(--color-blue-60), var(--color-blue-40));
+    --link-color-hover: var(--link-color);
+    --link-color-active: light-dark(var(--color-blue-70), var(--color-blue-50));
+    --link-color-visited: var(--link-color);
+
     &:not([lwtheme]) {
-      --buttons-secondary-bgcolor: rgb(240, 240, 244);
-      --buttons-secondary-hover-bgcolor: rgb(224, 224, 230);
-      --buttons-secondary-active-bgcolor: rgb(207, 207, 216);
-      --buttons-secondary-color: rgb(21, 20, 26);
-      --error-text-color: #c50042;
-      --link-color: LinkText;
-      --link-color-hover: LinkText;
-      --link-color-active: ActiveText;
-      --link-color-visited: var(--link-color);
       --toolbar-field-color: var(--layout-color-1);
       --toolbar-field-background-color: var(--layout-background-1);
       --toolbar-field-border-color: var(--layout-border-1);
