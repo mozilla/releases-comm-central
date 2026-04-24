@@ -631,7 +631,6 @@ NS_IMETHODIMP nsMsgNewsFolder::CancelMessage(nsIMsgDBHdr* msgHdr,
                                              nsIUrlListener* aUrlListener,
                                              nsIMsgWindow* aMsgWindow) {
   NS_ENSURE_ARG_POINTER(msgHdr);
-  NS_ENSURE_ARG_POINTER(aUrlListener);
 
   nsresult rv;
 

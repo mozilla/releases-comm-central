@@ -138,7 +138,7 @@ export class NntpService {
   cancelMessage(cancelUrl, messageUri, consumer, urlListener, msgWindow) {
     if (Services.prefs.getBoolPref("news.cancel.confirm")) {
       const result = Services.prompt.confirmEx(
-        msgWindow?.domWindow,
+        null,
         null,
         lazy.l10n.formatValueSync("cancel-confirm"),
         Ci.nsIPrompt.STD_YES_NO_BUTTONS,
