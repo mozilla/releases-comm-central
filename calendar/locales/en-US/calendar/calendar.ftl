@@ -862,11 +862,11 @@ calendar-context-attendance-menu =
     .label = Attendance
     .accesskey = d
 
-calendar-context-attendance-occurrence =
-    .label = This Occurrence
+calendar-context-attendance-occurrence-label =
+    .value = This Occurrence
 
-calendar-context-attendance-all-series =
-    .label = Complete Series
+calendar-context-attendance-all-series-label =
+    .value = Complete Series
 
 calendar-context-attendance-send =
     .label = Send a notification now
