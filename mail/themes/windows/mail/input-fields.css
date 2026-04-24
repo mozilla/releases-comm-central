@@ -6,9 +6,8 @@
 @namespace html url("http://www.w3.org/1999/xhtml");
 
 html|input {
-  &.input-inline {
-    padding: 1px;
-    padding-inline-start: 4px;
+  &[type="number"] {
+    padding-inline-end: 0;
   }
 
   &.input-filefield {
@@ -17,10 +16,5 @@ html|input {
     &:-moz-locale-dir(rtl) {
       background-position-x: right 2px;
     }
-  }
-
-  &[type="number"]::-moz-number-spin-up,
-  &[type="number"]::-moz-number-spin-down {
-    min-block-size: 0.7em;
   }
 }

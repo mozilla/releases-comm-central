@@ -31,11 +31,6 @@ button > .button-box {
 
 html|input {
   padding: 4px;
-
-  &[type="number"]::-moz-number-spin-up,
-  &[type="number"]::-moz-number-spin-down {
-    min-block-size: 0.7em;
-  }
 }
 
 menulist[is="menulist-editable"][editable="true"] {

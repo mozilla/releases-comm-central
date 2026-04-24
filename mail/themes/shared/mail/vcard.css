@@ -36,7 +36,7 @@ vcard-special-date select:not([size], [multiple]) {
   border: var(--input-border-density) solid var(--toolbar-field-border-color);
   padding-block: 0;
   min-block-size: initial;
-  block-size: calc(var(--button-height) - 2px);
+  block-size: var(--button-height);
   margin-block-end: 3px;
   margin-inline-end: 3px;
   font-weight: normal;
@@ -73,7 +73,7 @@ vcard-edit {
     flex: 1;
   }
 
-  & input[type="number"] {
+  & input[type="number"]:not(select) {
     padding-inline-end: 0;
   }
 

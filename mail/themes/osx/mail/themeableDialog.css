@@ -34,11 +34,6 @@ html|input {
   padding: 4px;
 }
 
-html|input[type="number"]::-moz-number-spin-up,
-html|input[type="number"]::-moz-number-spin-down {
-  min-block-size: 0.7em;
-}
-
 menulist {
   padding-inline-end: 0;
 

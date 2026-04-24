@@ -6,6 +6,10 @@
 @namespace html url("http://www.w3.org/1999/xhtml");
 
 html|input {
+  &[type="number"] {
+    padding-inline-end: 1px;
+  }
+
   &.input-inline {
     padding-inline-start: 4px;
   }

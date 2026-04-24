@@ -6,10 +6,6 @@
 @namespace html url("http://www.w3.org/1999/xhtml");
 
 html|input {
-  &.input-inline {
-    padding-inline-start: 4px;
-  }
-
   &.input-filefield {
     background: center left 2px / 16px no-repeat;
 
@@ -19,6 +15,6 @@ html|input {
   }
 
   &[type="number"] {
-    padding-inline-end: 0;
+    padding-inline-end: 1px;
   }
 }

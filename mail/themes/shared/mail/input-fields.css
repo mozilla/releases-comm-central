@@ -27,6 +27,30 @@ html|input {
     &::-moz-number-spin-box {
       padding-inline-start: 4px;
     }
+
+    &::-moz-number-spin-up,
+    &::-moz-number-spin-down {
+      appearance: none;
+      inline-size: 16px;
+      min-block-size: 0.7em;
+      background-position: center;
+      background-color: var(--button-background-color);
+      background-repeat: no-repeat;
+      border: 1px solid var(--field-border-color);
+      -moz-context-properties: stroke;
+      stroke: currentColor;
+    }
+
+    &::-moz-number-spin-up {
+      background-image: var(--icon-nav-up-sm);
+      border-block-end-style: none;
+      border-radius: 2px 2px 0 0;
+    }
+
+    &::-moz-number-spin-down {
+      background-image: var(--icon-nav-down-sm);
+      border-radius: 0 0 2px 2px;
+    }
   }
 }
 

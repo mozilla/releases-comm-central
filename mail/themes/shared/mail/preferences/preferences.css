@@ -344,7 +344,7 @@ html|input:is([type="email"], [type="tel"], [type="text"], [type="password"], [t
 html|input[type="number"] {
   margin-inline-start: 4px;
   padding: 1px;
-  min-block-size: calc(var(--button-height) - 4px);
+  min-block-size: var(--button-height);
 
   /* sizes: chars + 8px padding + 1px borders + spin buttons 25+2+10px  */
   &.size2 {
@@ -366,35 +366,17 @@ html|input[type="number"] {
 
   &::-moz-number-spin-up,
   &::-moz-number-spin-down {
-    appearance: none;
     min-inline-size: 25px;
+    min-block-size: calc(var(--button-height) * 0.5 - 4px);
     border: 1px solid var(--border-color);
     background-color: var(--button-background-color);
-    background-position: center;
-    background-repeat: no-repeat;
     color: var(--button-text-color);
-    -moz-context-properties: stroke;
-    stroke: currentColor;
   }
 
   &::-moz-number-spin-up:hover,
   &::-moz-number-spin-down:hover {
     background-color: var(--button-background-color-hover);
     color: var(--button-text-color-hover);
-  }
-
-  &::-moz-number-spin-up {
-    min-block-size: calc(var(--button-height) * 0.5 - 3px);
-    border-block-end-width: 1px;
-    border-block-end-style: solid;
-    border-radius: 1px 1px 0 0;
-    background-image: url("chrome://messenger/skin/icons/new/nav-up-sm.svg");
-  }
-
-  &::-moz-number-spin-down {
-    min-block-size: calc(var(--button-height) * 0.5 - 4px);
-    border-radius: 0 0 1px 1px;
-    background-image: url("chrome://messenger/skin/icons/new/nav-down-sm.svg");
   }
 }
 
