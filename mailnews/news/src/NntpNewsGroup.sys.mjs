@@ -89,12 +89,14 @@ export class NntpNewsGroup {
         propBag.setPropertyAsInt32("articleCount", end - start + 1);
         propBag.setPropertyAsAString("groupName", this._folder.name);
         propBag.setPropertyAsACString("serverKey", this._server.key);
-        this._msgWindow.domWindow.openDialog(
-          "chrome://messenger/content/downloadheaders.xhtml",
-          "_blank",
-          "centerscreen,chrome,modal,titlebar",
-          propBag
-        );
+        Services.wm
+          .getMostRecentWindow("mail:3pane")
+          .openDialog(
+            "chrome://messenger/content/downloadheaders.xhtml",
+            "_blank",
+            "centerscreen,chrome,modal,titlebar",
+            propBag
+          );
         if (!propBag.getPropertyAsBool("hitOK")) {
           return [];
         }
