@@ -2084,18 +2084,6 @@ nsMsgDBFolder::CallFilterPlugins(nsIMsgWindow* aMsgWindow, bool* aFiltersRun) {
   nsCString folderName;
   GetLocalizedName(folderName);
 
-  bool isLocked;
-  GetLocked(&isLocked);
-  if (isLocked) {
-    MOZ_LOG(
-        FILTERLOGMODULE, LogLevel::Info,
-        ("Won't run filter plugins on locked folder '%s'", folderName.get()));
-    return NS_ERROR_FAILURE;
-  }
-
-  MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
-          ("Running filter plugins on folder '%s'", folderName.get()));
-
   nsCOMPtr<nsIMsgIncomingServer> server;
   nsCOMPtr<nsISpamSettings> spamSettings;
   int32_t spamLevel = 0;
@@ -2116,6 +2104,22 @@ nsMsgDBFolder::CallFilterPlugins(nsIMsgWindow* aMsgWindow, bool* aFiltersRun) {
   nsCOMPtr<nsIJunkMailPlugin> junkMailPlugin = do_QueryInterface(filterPlugin);
   if (!junkMailPlugin)  // we currently only support the junk mail plugin
     return NS_OK;
+
+  if (serverType.EqualsLiteral("pop3") || serverType.EqualsLiteral("none")) {
+    // For pop, ensure the folder is locked so e.g. folder compact during
+    // delivery would be safe.
+    bool isLocked;
+    GetLocked(&isLocked);
+    if (isLocked) {
+      MOZ_LOG(
+          FILTERLOGMODULE, LogLevel::Info,
+          ("Won't run filter plugins on locked folder '%s'", folderName.get()));
+      return NS_ERROR_FAILURE;
+    }
+  }
+
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
+          ("Running filter plugins on folder '%s'", folderName.get()));
 
   // if it's a news folder, then we really don't support junk in the ui
   // yet the legacy spamLevel seems to think we should analyze it.
