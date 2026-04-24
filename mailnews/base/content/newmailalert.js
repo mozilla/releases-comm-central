@@ -70,9 +70,24 @@ async function doOnAlertLoad() {
   const alertImageBox = document.getElementById("alertImageBox");
   alertImageBox.style.minHeight = alertTextBox.scrollHeight + "px";
 
+  // Cache the target screen metrics immediately. If the window expands
+  // and temporarily bleeds into an adjacent monitor during layout,
+  // this anchors our math to the original monitor, preventing an OS hijack.
+  const targetScreen = {
+    availLeft: screen.availLeft,
+    availTop: screen.availTop,
+    availWidth: screen.availWidth,
+    availHeight: screen.availHeight,
+  };
+
   const snapToCorner = () => {
-    const x = screen.availLeft + screen.availWidth - window.outerWidth - 10;
-    const y = screen.availTop + screen.availHeight - window.outerHeight - 10;
+    const x =
+      targetScreen.availLeft + targetScreen.availWidth - window.outerWidth - 10;
+    const y =
+      targetScreen.availTop +
+      targetScreen.availHeight -
+      window.outerHeight -
+      10;
     window.moveTo(x, y);
   };
 
