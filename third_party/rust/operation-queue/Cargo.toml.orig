@@ -1,7 +1,8 @@
 [package]
 name = "operation-queue"
-version = "1.1.0"
+version = "1.0.0"
 edition = "2024"
+authors = ["The Thunderbird Project Developers"]
 description = "Helpers for synchronizing asynchronous protocol operations."
 categories = ["asynchronous"]
 keywords = ["operation", "queue", "async", "synchronization"]
@@ -20,7 +21,6 @@ line_token = []
 futures = "0.3.28"
 oneshot = "0.1.11"
 async-channel = "2.5.0"
-async-lock = "3.4.2"
 log = "0.4.21"
 thiserror = "1.0.56"
 

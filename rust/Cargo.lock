@@ -4971,12 +4971,11 @@ checksum = "269bca4c2591a28585d6bf10d9ed0332b7d76900a1b02bec41bdc3a2cdcda107"
 
 [[package]]
 name = "operation-queue"
-version = "1.1.0"
+version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8656df5fea6ff89e0bcfbe2e34e784f49dc48ddc4bd34ae7e6bb17049b9d9f8d"
+checksum = "5658dc84cdcd31f4f47558ef721373418eef8c89dc7f4c0379ab68a4fd358163"
 dependencies = [
  "async-channel",
- "async-lock",
  "futures",
  "log",
  "oneshot",

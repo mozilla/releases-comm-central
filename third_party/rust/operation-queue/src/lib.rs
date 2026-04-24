@@ -2,10 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// Turn the nightly `doc_cfg` attribute on for docs.rs, so it mentions which
-// types/modules are gated behind specific features.
-#![cfg_attr(docsrs, feature(doc_cfg))]
-
 //! This crate contains the queueing logic for asynchronous operations.
 //!
 //! It also contains helpers for synchronizing operations such as error handling
@@ -52,11 +48,10 @@
 //!
 //! # Multithreading
 //!
-//! The synchronization helpers in the [`line_token`] module are thread-safe.
-//!
-//! However, in order to maintain compatibility with the current Thunderbird
-//! code-base, the operation queue's runner cannot be sent between threads.
-//! This is something we plan to address in the future.
+//! In order to maintain compatibility with the current Thunderbird code-base,
+//! neither the operation queue's runner, nor the synchronization helpers in the
+//! [`line_token`] module, can be sent between threads. This is something we
+//! plan to address in the future.
 //!
 //! [dyn compatibility]:
 //!     <https://doc.rust-lang.org/reference/items/traits.html#dyn-compatibility>
