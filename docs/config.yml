@@ -9,6 +9,7 @@ doc_trees:
     backend: mailnews/base/docs
     build: docs/build
     calendar: calendar/docs
+    cxx: docs/cxx
     documentation: docs/docs
     frontend: mail/base/docs
     inappnotifications: mail/components/inappnotifications/docs

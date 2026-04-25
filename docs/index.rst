@@ -16,6 +16,7 @@ Thunderbird Source Tree Documentation
    :maxdepth: 1
 
    /build/index
+   /cxx/index
    /l10n/index
    /rust/index
 
