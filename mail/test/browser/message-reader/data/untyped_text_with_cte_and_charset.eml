@@ -1,0 +1,10 @@
+From: sender@example.invalid
+To: recipient@example.invalid
+Date: Tue, 07 Dec 2004 10:00:00 +0100
+Message-ID: <untyped-text-cte-charset@test.invalid>
+Subject: Untyped text part with Quoted-Printable encoding and ISO-8859-1 charset
+MIME-Version: 1.0
+Content-Type: text; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+Liebe Gr=FC=DFe aus =D6sterreich

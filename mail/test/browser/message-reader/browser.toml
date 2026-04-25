@@ -38,3 +38,5 @@ support-files = ["data/**"]
 ["browser_imageOverflow.js"]
 
 ["browser_printing.js"]
+
+["browser_untypedTextCteCharset.js"]

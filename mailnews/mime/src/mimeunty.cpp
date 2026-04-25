@@ -137,8 +137,34 @@ static int MimeUntypedText_parse_line(const char* line, int32_t length,
     if (line[0] == '\n') return 0;
 
     PR_ASSERT(!begin_line_p);
+    /* Pass through the original encoding and charset to the implicitly-typed subpart. */
+    char* ct =
+        MimeHeaders_get(obj->headers, HEADER_CONTENT_TYPE, false, false);
+    char* charset =
+        MimeHeaders_get_parameter(ct, HEADER_PARM_CHARSET, NULL, NULL);
+    char* type = (char*)TEXT_PLAIN;
+    char* type_to_free = NULL;
+    if (charset) {
+      /* Calculate length for combined "text/plain; charset=<charset>" string. */
+      uint32_t type_len =
+          strlen(TEXT_PLAIN) + strlen(charset) + strlen("; " HEADER_PARM_CHARSET R"(="")") + 1;
+      type_to_free = (char*)PR_MALLOC(type_len);
+      if (type_to_free) {
+        PL_strncpyz(type_to_free, TEXT_PLAIN, type_len);
+        PL_strcatn(type_to_free, type_len, "; " HEADER_PARM_CHARSET "=\"");
+        PL_strcatn(type_to_free, type_len, charset);
+        PL_strcatn(type_to_free, type_len, "\"");
+        type = type_to_free;
+      }
+    }
+
     status = MimeUntypedText_open_subpart(obj, MimeUntypedTextSubpartTypeText,
-                                          TEXT_PLAIN, NULL, NULL, NULL);
+                                          type, obj->encoding, NULL, NULL);
+
+    PR_FREEIF(type_to_free);
+    PR_FREEIF(charset);
+    PR_FREEIF(ct);
+
     PR_ASSERT(uty->open_subpart);
     if (!uty->open_subpart) return -1;
     if (status < 0) return status;
