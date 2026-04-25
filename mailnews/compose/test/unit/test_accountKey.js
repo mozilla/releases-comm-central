@@ -4,10 +4,17 @@
 
 const MockNntpService = {
   QueryInterface: ChromeUtils.generateQI(["nsINntpService"]),
-  postMessage(messageFile, groupNames, accountKey) {
+  postMessage(messageFile, groupNames, accountKey, listener) {
     this.messageFile = messageFile;
     this.groupNames = groupNames;
     this.accountKey = accountKey;
+
+    // Simulate an immediate, successful network response to unblock the
+    // Promise.
+    if (listener) {
+      listener.OnStartRunningUrl(null);
+      listener.OnStopRunningUrl(null, Cr.NS_OK);
+    }
   },
 };
 

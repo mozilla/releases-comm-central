@@ -3036,6 +3036,8 @@ nsresult nsMsgComposeSendListener::OnStopSending(const char* aMsgID,
     nsCOMPtr<nsIMsgProgress> progress;
     msgCompose->GetProgress(getter_AddRefs(progress));
 
+    bool shouldCloseProgress = NS_FAILED(aStatus);
+
     if (NS_SUCCEEDED(aStatus)) {
       // only process the reply flags if we successfully sent the message
       msgCompose->ProcessReplyFlags();
@@ -3044,14 +3046,20 @@ nsresult nsMsgComposeSendListener::OnStopSending(const char* aMsgID,
       bool deleteDraft;
       msgCompose->GetDeleteDraft(&deleteDraft);
       if (deleteDraft) RemoveCurrentDraftMessage(msgCompose, false, false);
+
+      nsAutoString fieldsFCC;
+      nsCOMPtr<nsIMsgCompFields> compFields;
+      rv = msgCompose->GetCompFields(getter_AddRefs(compFields));
+      NS_ENSURE_SUCCESS(rv, rv);
+      compFields->GetFcc(fieldsFCC);
+
+      // If we aren't saving a copy, we should also close the progress dialog.
+      if (fieldsFCC.LowerCaseEqualsLiteral("nocopy://")) {
+        shouldCloseProgress = true;
+      }
     }
-    nsAutoString fieldsFCC;
-    nsCOMPtr<nsIMsgCompFields> compFields;
-    rv = msgCompose->GetCompFields(getter_AddRefs(compFields));
-    NS_ENSURE_SUCCESS(rv, rv);
-    compFields->GetFcc(fieldsFCC);
-    if (fieldsFCC.LowerCaseEqualsLiteral("nocopy://")) {
-      // Done ONLY if we are not going to do a save operation.
+
+    if (shouldCloseProgress) {
       msgCompose->NotifyStateListeners(
           nsIMsgComposeNotificationType::ComposeProcessDone, aStatus);
       if (progress) {

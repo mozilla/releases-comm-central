@@ -829,7 +829,7 @@ export class MessageSend {
 
     this._deliveryFile = await this._createDeliveryFile();
     if (this._compFields.newsgroups) {
-      this._deliverAsNews();
+      await this._deliverAsNews();
       return;
     }
     await this._deliverAsMail();
@@ -1208,16 +1208,19 @@ export class MessageSend {
   /**
    * Send this._deliveryFile to nntp service.
    */
-  _deliverAsNews() {
+  async _deliverAsNews() {
     this.sendReport.currentProcess = Ci.nsIMsgSendReport.process_NNTP;
     lazy.MsgUtils.sendLogger.debug("Delivering news message");
+
     const deliveryListener = new NewsDeliveryListener(this);
+
     let msgWindow;
     try {
       msgWindow =
         this._sendProgress?.msgWindow ||
         MailServices.mailSession.topmostMsgWindow;
     } catch (e) {}
+
     MailServices.nntp.postMessage(
       this._deliveryFile,
       this._compFields.newsgroups,
@@ -1226,6 +1229,8 @@ export class MessageSend {
       msgWindow,
       null
     );
+
+    await deliveryListener.requestPromise;
   }
 
   /**
@@ -1459,25 +1464,51 @@ export class MessageSend {
 class NewsDeliveryListener {
   QueryInterface = ChromeUtils.generateQI(["nsIUrlListener"]);
 
+  #resolve;
+  #reject;
+  #requestPromise;
+
   /**
    * @param {nsIMsgSend} msgSend - nsIMsgSend instance to use.
    */
   constructor(msgSend) {
     this._msgSend = msgSend;
+
+    const { promise, resolve, reject } = Promise.withResolvers();
+    this.#requestPromise = promise;
+    this.#resolve = resolve;
+    this.#reject = reject;
   }
 
   OnStartRunningUrl() {
     this._msgSend.notifyListenerOnStartSending(null, 0);
   }
 
-  OnStopRunningUrl(url, exitCode) {
+  async OnStopRunningUrl(url, exitCode) {
     lazy.MsgUtils.sendLogger.debug(`OnStopRunningUrl; exitCode=${exitCode}`);
 
     if (url instanceof Ci.nsIMsgMailNewsUrl) {
       url.UnRegisterListener(this);
     }
 
-    this._msgSend.sendDeliveryCallback(url, exitCode, null, null, true);
+    // Await the callback to ensure state cleanup completes.
+    await this._msgSend.sendDeliveryCallback(url, exitCode, null, null, true);
+
+    if (Components.isSuccessCode(exitCode)) {
+      this.#resolve();
+    } else {
+      this.#reject(
+        new Error(`NNTP delivery failed with exit code: ${exitCode}`)
+      );
+    }
+  }
+
+  /**
+   * A promise which resolves when the NNTP send attempt completes successfully,
+   * or rejects if it fails.
+   */
+  get requestPromise() {
+    return this.#requestPromise;
   }
 }
 
