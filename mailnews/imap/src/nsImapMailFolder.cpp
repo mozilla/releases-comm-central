@@ -4,6 +4,7 @@
 
 #include "nsImapMailFolder.h"
 
+#include "ImapTypes.h"
 #include "msgCore.h"
 #include "CopyMessageStreamListener.h"
 #include "nsIAutoSyncManager.h"
@@ -2591,9 +2592,9 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
   {
     uint32_t boxFlags;
     aSpec->GetBox_flags(&boxFlags);
-    // FindKeysToDelete and FindUidsToAdd require sorted lists
+    // FindUidsToDelete and FindUidsToAdd require sorted lists
     existingKeys.Sort();
-    FindKeysToDelete(existingKeys, keysToDelete, flagState, boxFlags);
+    FindUidsToDelete(existingKeys, keysToDelete, flagState, boxFlags);
     // if this is the result of an expunge then don't grab headers
     if (!(boxFlags & kJustExpunged))
       FindUidsToAdd(existingKeys, m_uidsToFetch, numNewUnread, flagState);
@@ -3916,17 +3917,17 @@ nsresult nsImapMailFolder::MoveIncorporatedMessage(
 }
 
 /**
- * This method assumes that key arrays and flag states are sorted by increasing
- * key.
+ * This method assumes that UID arrays and flag states are sorted by increasing
+ * UID.
  */
-void nsImapMailFolder::FindKeysToDelete(const nsTArray<nsMsgKey>& existingKeys,
-                                        nsTArray<nsMsgKey>& keysToDelete,
+void nsImapMailFolder::FindUidsToDelete(const nsTArray<ImapUid>& existingUids,
+                                        nsTArray<ImapUid>& uidsToDelete,
                                         nsIImapFlagAndUidState* flagState,
                                         uint32_t boxFlags) {
   bool showDeletedMessages = ShowDeletedMessages();
   int32_t numMessageInFlagState;
   bool partialUIDFetch;
-  uint32_t uidOfMessage;
+  ImapUid uidOfMessage;
   imapMessageFlagsType flags;
 
   flagState->GetNumberOfMessages(&numMessageInFlagState);
@@ -3943,7 +3944,7 @@ void nsImapMailFolder::FindKeysToDelete(const nsTArray<nsMsgKey>& existingKeys,
         if (uidOfMessage) {
           flagState->GetMessageFlags(i, &flags);
           if (flags & kImapMsgDeletedFlag)
-            keysToDelete.AppendElement(uidOfMessage);
+            uidsToDelete.AppendElement(uidOfMessage);
         }
       }
     } else if (boxFlags & kJustExpunged) {
@@ -3961,40 +3962,49 @@ void nsImapMailFolder::FindKeysToDelete(const nsTArray<nsMsgKey>& existingKeys,
         uint32_t msgFlags;
         header->GetFlags(&msgFlags);
         if (msgFlags & nsMsgMessageFlags::IMAPDeleted) {
+          // TODO: Fetch UID ihere instead of Key.
+          // See https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
           nsMsgKey msgKey;
           header->GetMessageKey(&msgKey);
-          keysToDelete.AppendElement(msgKey);
+          ImapUid uid = (ImapUid)msgKey;
+          uidsToDelete.AppendElement(uid);
         }
       }
     }
     return;
   }
   // otherwise, we have a complete set of uid's and flags, so we delete
-  // anything that's in existingKeys but not in the flag state, as well
+  // anything that's in existingUids but not in the flag state, as well
   // as messages with the deleted flag set.
-  uint32_t total = existingKeys.Length();
+  uint32_t total = existingUids.Length();
   int onlineIndex = 0;  // current index into flagState
   for (uint32_t keyIndex = 0; keyIndex < total; keyIndex++) {
     while (
         (onlineIndex < numMessageInFlagState) &&
         NS_SUCCEEDED(flagState->GetUidOfMessage(onlineIndex, &uidOfMessage)) &&
-        (existingKeys[keyIndex] > uidOfMessage))
+        (existingUids[keyIndex] > uidOfMessage))
       onlineIndex++;
 
     flagState->GetUidOfMessage(onlineIndex, &uidOfMessage);
     flagState->GetMessageFlags(onlineIndex, &flags);
     // delete this key if it is not there or marked deleted
     if ((onlineIndex >= numMessageInFlagState) ||
-        (existingKeys[keyIndex] != uidOfMessage) ||
+        (existingUids[keyIndex] != uidOfMessage) ||
         ((flags & kImapMsgDeletedFlag) && !showDeletedMessages)) {
-      nsMsgKey doomedKey = existingKeys[keyIndex];
-      if ((int32_t)doomedKey <= 0 && doomedKey != nsMsgKey_None) continue;
+      ImapUid doomedUid = existingUids[keyIndex];
+      // TODO: Shouldn't have special case UIDs (other than 0).
+      // See https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
+      if ((int32_t)doomedUid <= 0 && doomedUid != ImapUid_None) {
+        continue;
+      }
 
-      keysToDelete.AppendElement(existingKeys[keyIndex]);
+      uidsToDelete.AppendElement(existingUids[keyIndex]);
     }
 
     flagState->GetUidOfMessage(onlineIndex, &uidOfMessage);
-    if (existingKeys[keyIndex] == uidOfMessage) onlineIndex++;
+    if (existingUids[keyIndex] == uidOfMessage) {
+      onlineIndex++;
+    }
   }
 }
 

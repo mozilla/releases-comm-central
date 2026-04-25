@@ -373,8 +373,8 @@ class nsImapMailFolder : public nsMsgDBFolder,
   void FindUidsToAdd(const nsTArray<ImapUid>& existingUids,
                      nsTArray<ImapUid>& uidsToFetch, uint32_t& numNewUnread,
                      nsIImapFlagAndUidState* flagState);
-  void FindKeysToDelete(const nsTArray<nsMsgKey>& existingKeys,
-                        nsTArray<nsMsgKey>& keysToFetch,
+  void FindUidsToDelete(const nsTArray<ImapUid>& existingUids,
+                        nsTArray<ImapUid>& uidsToFetch,
                         nsIImapFlagAndUidState* flagState, uint32_t boxFlags);
   void PrepareToAddHeadersToMailDB(nsIImapProtocol* aProtocol);
   void TweakHeaderFlags(nsIImapProtocol* aProtocol, nsIMsgDBHdr* tweakMe);
