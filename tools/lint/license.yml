@@ -53,7 +53,9 @@ license:
         - .xhtml
         - .xml
     support-files:
-        - 'tools/lint/license/**'
+        - 'tools/lint/mozcheck/**'
+        - 'tools/lint/license/valid-licenses.txt'
     type: external
     payload: commlint:lint_wrapper
-    wraps: license:lint
+    wraps: mozcheck:lint
+    check: license

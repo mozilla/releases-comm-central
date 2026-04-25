@@ -24,7 +24,8 @@ file-whitespace:
         - .yml
         - .xhtml
     support-files:
-        - 'tools/lint/file-whitespace/**'
+        - 'tools/lint/mozcheck/**'
     type: external
     payload: commlint:lint_wrapper
-    wraps: file-whitespace:lint
+    wraps: mozcheck:lint
+    check: file-whitespace

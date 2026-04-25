@@ -11,7 +11,8 @@ trojan-source:
         - .py
         - .rs
     support-files:
-        - 'tools/lint/trojan-source/**'
+        - 'tools/lint/mozcheck/**'
     type: external
     payload: commlint:lint_wrapper
-    wraps: trojan-source:lint
+    wraps: mozcheck:lint
+    check: trojan-source
