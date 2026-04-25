@@ -10,6 +10,7 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
+from urllib.request import urlopen
 
 import tomlkit
 from tomlkit.toml_file import TOMLFile
@@ -139,6 +140,11 @@ FEATURES_TO_PRESERVE = [
     "mailnews",
 ]
 
+MS_GRAPH_OPENAPI_URL = (
+    "https://github.com/microsoftgraph/msgraph-metadata/raw/"
+    "bf874d5c4968ff78fe4f78915d648550f271ea73/openapi/v1.0/openapi.yaml"
+)
+MS_GRAPH_OPENAPI_SHA256 = "31f91828701fd0ec1045008dd3b7bfac04475e444de90bd522d50ecb81346142"
 
 def get_cargo(command_context):
     """
@@ -356,6 +362,114 @@ def run_tb_rust_vendor(command_context):
 
     check_unwanted_crates(command_context, workspace)
     cleanup_vendor(command_context)
+
+
+def run_ms_graph_tb_extract(command_context):
+    cargo = get_cargo(command_context)
+    topsrcdir = command_context.topsrcdir
+    workspace = mozpath.join(topsrcdir, "comm", "rust")
+    workspace_toml = mozpath.join(workspace, "Cargo.toml")
+    crate_dir = mozpath.join(workspace, "ms_graph_tb")
+    paths_dir = mozpath.join(crate_dir, "src", "paths")
+    types_dir = mozpath.join(crate_dir, "src", "types")
+    extractor_dir = mozpath.join(crate_dir, "ms_graph_tb_extract")
+    extractor_toml = mozpath.join(extractor_dir, "Cargo.toml")
+    openapi_yaml = mozpath.join(
+        command_context.topobjdir,
+        "comm",
+        "rust",
+        "ms_graph_tb_extract",
+        "openapi.yaml"
+    )
+
+    ensure_ms_graph_openapi_yaml(command_context, openapi_yaml)
+
+    for directory in (paths_dir, types_dir):
+        if os.path.exists(directory):
+            shutil.rmtree(directory)
+        os.makedirs(directory)
+
+    cargo_run = [
+        cargo,
+        "run",
+        "--locked",
+        "--manifest-path",
+        extractor_toml,
+        "--",
+        openapi_yaml,
+        crate_dir,
+    ]
+    cargo_fmt = [
+        cargo,
+        "fmt",
+        "--manifest-path",
+        workspace_toml,
+        "-p",
+        "ms_graph_tb",
+    ]
+    cargo_clippy = [
+        cargo,
+        "clippy",
+        "--locked",
+        "--manifest-path",
+        workspace_toml,
+        "-p",
+        "ms_graph_tb",
+        "--fix",
+        "--allow-dirty",
+        "--allow-staged",
+    ]
+
+    command_context.log(logging.INFO, "ms-graph-tb-extract", {}, "[INFO] Running ms_graph_tb_extract")
+    subprocess.run(cargo_run, cwd=topsrcdir, check=True)
+
+    # formatting before running clippy can help make errors a lot clearer
+    command_context.log(logging.INFO, "ms-graph-tb-extract", {}, "[INFO] Initial formatting of ms_graph_tb")
+    subprocess.run(cargo_fmt, cwd=topsrcdir, check=True)
+
+    command_context.log(logging.INFO, "ms-graph-tb-extract", {}, "[INFO] Applying clippy fixes to ms_graph_tb")
+    subprocess.run(cargo_clippy, cwd=topsrcdir, check=True)
+
+    # clippy fixes can change line lengths etc., so fmt again
+    command_context.log(logging.INFO, "ms-graph-tb-extract", {}, "[INFO] Final formatting of ms_graph_tb")
+    subprocess.run(cargo_fmt, cwd=topsrcdir, check=True)
+
+
+def ensure_ms_graph_openapi_yaml(command_context, openapi_yaml):
+    if os.path.exists(openapi_yaml):
+        with open(openapi_yaml, "rb") as f:
+            checksum = hashlib.sha256(f.read()).hexdigest()
+        if checksum == MS_GRAPH_OPENAPI_SHA256:
+            command_context.log(
+                logging.INFO, "ms-graph-tb-extract", {}, "[INFO] Found OpenAPI spec with matching checksum"
+            )
+            return
+        else:
+            command_context.log(
+                logging.INFO, "ms-graph-tb-extract", {}, "[INFO] Local OpenAPI spec does not match the expected checksum, and will be replaced"
+            )
+
+    command_context.log(
+        logging.INFO,
+        "ms-graph-tb-extract",
+        {},
+        "[INFO] Fetching pinned OpenAPI spec",
+    )
+    os.makedirs(os.path.dirname(openapi_yaml), exist_ok=True)
+
+    with urlopen(MS_GRAPH_OPENAPI_URL) as response:
+        data = response.read()
+    checksum = hashlib.sha256(data).hexdigest()
+
+    if checksum != MS_GRAPH_OPENAPI_SHA256:
+        raise ValueError(
+            "Pinned ms_graph_tb OpenAPI spec checksum mismatch: "
+            f"expected {MS_GRAPH_OPENAPI_SHA256}, got {checksum}"
+        )
+
+    with open(openapi_yaml, "wb") as f:
+        f.write(data)
+    return
 
 
 def check_unwanted_crates(command_context, workspace):

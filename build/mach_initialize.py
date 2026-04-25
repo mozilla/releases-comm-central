@@ -63,6 +63,7 @@ def initialize(topsrcdir, args=()):
     # Additional Thunderbird mach commands
     COMM_MACH_COMMANDS = {
         "commlint": MachCommandReference("comm/tools/lint/mach_commands.py"),
+        "ms-graph-tb-extract": MachCommandReference("comm/rust/mach_commands.py"),
         "tb-add-missing-ftls": MachCommandReference("comm/python/l10n/mach_commands.py"),
         "tb-doc": MachCommandReference("comm/docs/mach_commands.py"),
         "tb-fluent-migration-test": MachCommandReference("comm/python/l10n/mach_commands.py"),

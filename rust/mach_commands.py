@@ -68,3 +68,15 @@ def cleanup_rust_vendor(command_context):
     from rocbuild.rust import cleanup_vendor
 
     cleanup_vendor(command_context)
+
+
+@Command(
+    "ms-graph-tb-extract",
+    category="thunderbird",
+    description="Regenerate the ms_graph_tb crate from the pinned OpenAPI spec.",
+    virtualenv_name="tb_common",
+)
+def extract_ms_graph(command_context):
+    from rocbuild.rust import run_ms_graph_tb_extract
+
+    return run_ms_graph_tb_extract(command_context)
