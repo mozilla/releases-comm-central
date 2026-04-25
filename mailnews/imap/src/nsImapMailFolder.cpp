@@ -2580,7 +2580,7 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
 
     if (flagState) {
       nsTArray<nsMsgKey> no_existingKeys;
-      FindKeysToAdd(no_existingKeys, m_uidsToFetch, numNewUnread, flagState);
+      FindUidsToAdd(no_existingKeys, m_uidsToFetch, numNewUnread, flagState);
     }
     if (NS_FAILED(rv)) pathFile->Remove(false);
 
@@ -2591,12 +2591,12 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
   {
     uint32_t boxFlags;
     aSpec->GetBox_flags(&boxFlags);
-    // FindKeysToDelete and FindKeysToAdd require sorted lists
+    // FindKeysToDelete and FindUidsToAdd require sorted lists
     existingKeys.Sort();
     FindKeysToDelete(existingKeys, keysToDelete, flagState, boxFlags);
     // if this is the result of an expunge then don't grab headers
     if (!(boxFlags & kJustExpunged))
-      FindKeysToAdd(existingKeys, m_uidsToFetch, numNewUnread, flagState);
+      FindUidsToAdd(existingKeys, m_uidsToFetch, numNewUnread, flagState);
   }
   m_totalUidsToFetch = m_uidsToFetch.Length();
   if (!keysToDelete.IsEmpty() && mDatabase) {
@@ -3998,31 +3998,31 @@ void nsImapMailFolder::FindKeysToDelete(const nsTArray<nsMsgKey>& existingKeys,
   }
 }
 
-void nsImapMailFolder::FindKeysToAdd(const nsTArray<nsMsgKey>& existingKeys,
-                                     nsTArray<nsMsgKey>& keysToFetch,
+void nsImapMailFolder::FindUidsToAdd(const nsTArray<ImapUid>& existingUids,
+                                     nsTArray<ImapUid>& uidsToFetch,
                                      uint32_t& numNewUnread,
                                      nsIImapFlagAndUidState* flagState) {
   bool showDeletedMessages = ShowDeletedMessages();
-  int dbIndex = 0;  // current index into existingKeys
-  int32_t existTotal, numberOfKnownKeys;
+  int dbIndex = 0;  // current index into existingUids
+  int32_t existTotal, numberOfKnownUids;
   int32_t messageIndex;
 
   numNewUnread = 0;
-  existTotal = numberOfKnownKeys = existingKeys.Length();
+  existTotal = numberOfKnownUids = existingUids.Length();
   flagState->GetNumberOfMessages(&messageIndex);
   bool partialUIDFetch;
   flagState->GetPartialUIDFetch(&partialUIDFetch);
 
   for (int32_t flagIndex = 0; flagIndex < messageIndex; flagIndex++) {
-    uint32_t uidOfMessage;
+    ImapUid uidOfMessage;
     flagState->GetUidOfMessage(flagIndex, &uidOfMessage);
-    while ((flagIndex < numberOfKnownKeys) && (dbIndex < existTotal) &&
-           existingKeys[dbIndex] < uidOfMessage)
+    while ((flagIndex < numberOfKnownUids) && (dbIndex < existTotal) &&
+           existingUids[dbIndex] < uidOfMessage)
       dbIndex++;
 
-    if ((flagIndex >= numberOfKnownKeys) || (dbIndex >= existTotal) ||
-        (existingKeys[dbIndex] != uidOfMessage)) {
-      numberOfKnownKeys++;
+    if ((flagIndex >= numberOfKnownUids) || (dbIndex >= existTotal) ||
+        (existingUids[dbIndex] != uidOfMessage)) {
+      numberOfKnownUids++;
 
       imapMessageFlagsType flags;
       flagState->GetMessageFlags(flagIndex, &flags);
@@ -4041,7 +4041,7 @@ void nsImapMailFolder::FindKeysToAdd(const nsTArray<nsMsgKey>& existingKeys,
             continue;
           }
         }
-        keysToFetch.AppendElement(uidOfMessage);
+        uidsToFetch.AppendElement(uidOfMessage);
         if (!(flags & kImapMsgSeenFlag)) numNewUnread++;
       }
     }

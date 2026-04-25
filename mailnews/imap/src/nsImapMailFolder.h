@@ -370,8 +370,8 @@ class nsImapMailFolder : public nsMsgDBFolder,
                            nsIFile** dbFile);
   nsresult ExpungeAndCompact(nsIUrlListener* aListener,
                              nsIMsgWindow* aMsgWindow);
-  void FindKeysToAdd(const nsTArray<nsMsgKey>& existingKeys,
-                     nsTArray<nsMsgKey>& keysToFetch, uint32_t& numNewUnread,
+  void FindUidsToAdd(const nsTArray<ImapUid>& existingUids,
+                     nsTArray<ImapUid>& uidsToFetch, uint32_t& numNewUnread,
                      nsIImapFlagAndUidState* flagState);
   void FindKeysToDelete(const nsTArray<nsMsgKey>& existingKeys,
                         nsTArray<nsMsgKey>& keysToFetch,
