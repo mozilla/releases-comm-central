@@ -7,6 +7,7 @@
 #define COMM_MAILNEWS_MIME_SRC_MIMEMSG_H_
 
 #include "mimecont.h"
+#include "modmimee.h"
 
 /* The MimeMessage class implements the message/rfc822 and message/news
    MIME containers, which is to say, mail and news messages.
@@ -30,6 +31,7 @@ struct MimeMessage {
   int32_t bodyLength; /* Used for determining if the body has been truncated */
   int32_t sizeSoFar;  /* The total size of the MIME message, once parsing is
                          finished. */
+  MimeDecoderData* decoder_data; /* CTE decoder for base64/QP-encoded message/rfc822 parts */
 };
 
 #define MimeMessageClassInitializer(ITYPE, CSUPER) \

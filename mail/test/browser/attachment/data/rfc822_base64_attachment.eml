@@ -1,0 +1,19 @@
+Subject: Base64-encoded message/rfc822 attachment
+From: sender@test.invalid
+To: recipient@test.invalid
+Message-ID: <outer.msg.333880@test.invalid>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="=_outer_boundary"
+
+--=_outer_boundary
+Content-Type: text/plain
+
+Outer body.
+
+--=_outer_boundary
+Content-Type: message/rfc822
+Content-Transfer-Encoding: base64
+
+U3ViamVjdDogSGkKRnJvbTogYWxpY2VAbWltZS50ZXN0LmludmFsaWQKVG86IGJvYkBtaW1lLnRlc3QuaW52YWxpZApNZXNzYWdlLUlEOiA8aW5uZXIubXNnLjMzMzg4MEB0ZXN0LmludmFsaWQ+CkNvbnRlbnQtVHlwZTogdGV4dC9wbGFpbjsgY2hhcnNldD11dGYtOAoKSGVsbG8uCg==
+
+--=_outer_boundary--

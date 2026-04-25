@@ -20,6 +20,8 @@ prefs = [
 subsuite = "thunderbird"
 support-files = ["data/**"]
 
+["browser_rfc822Base64Attachment.js"]
+
 ["browser_attachment.js"]
 
 ["browser_attachmentEvents.js"]
