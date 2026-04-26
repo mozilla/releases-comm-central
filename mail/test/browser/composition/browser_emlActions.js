@@ -35,10 +35,6 @@ var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
 
-var { promise_new_window } = ChromeUtils.importESModule(
-  "resource://testing-common/mail/WindowHelpers.sys.mjs"
-);
-
 var gDrafts;
 
 add_setup(async function () {
@@ -231,7 +227,11 @@ add_task(async function test_save_eml_as_file2() {
   const file = new FileUtils.File(getTestFilePath("data/testmsg-nested.eml"));
   const msgc = await open_message_from_file(file);
   const aboutMessage = get_about_message(msgc);
-  const newWindowPromise = promise_new_window("mail:messageWindow");
+  const newWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded(
+    null,
+    w =>
+      w.document.documentURI == "chrome://messenger/content/messageWindow.xhtml"
+  );
   await EventUtils.synthesizeMouseAtCenter(
     aboutMessage.document.getElementById("attachmentName"),
     {},
@@ -243,6 +243,9 @@ add_task(async function test_save_eml_as_file2() {
     "waiting for message to load in new window"
   );
   await SimpleTest.promiseFocus(msgc2);
+  msgc2.document.documentElement.focus();
+  await TestUtils.waitForTick();
+
   const pickerPromise = new Promise(resolve => {
     SpecialPowers.MockFilePicker.init(msgc2.browsingContext);
     SpecialPowers.MockFilePicker.showCallback = picker => {
@@ -250,6 +253,9 @@ add_task(async function test_save_eml_as_file2() {
       return Ci.nsIFilePicker.returnOK;
     };
   });
+  info(
+    "will now save the attached email and check the save dialog uses the name it was attached as"
+  );
   EventUtils.synthesizeKey("s", { accelKey: true }, msgc2);
   Assert.ok(
     /that's why(-(\d)+)?\.eml/.test(await pickerPromise),
@@ -267,7 +273,12 @@ add_task(async function test_mailto_link_in_eml() {
   // Open an .eml file.
   const file = new FileUtils.File(getTestFilePath("data/testmsg-html.eml"));
   const msgc = await open_message_from_file(file);
-  const composePromise = promise_new_window("msgcompose");
+  const composePromise = BrowserTestUtils.domWindowOpenedAndLoaded(
+    null,
+    w =>
+      w.document.documentURI ==
+      "chrome://messenger/content/messengercompose/messengercompose.xhtml"
+  );
   await BrowserTestUtils.synthesizeMouseAtCenter(
     "#mailtolink",
     {},
