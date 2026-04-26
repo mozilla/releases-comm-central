@@ -842,9 +842,13 @@ MimeObject* mime_create(const char* content_type, MimeHeaders* hdrs,
    is ``inline'', then we display the part inline (and let mime_find_class()
    decide how.)
 
-   If there is any other Content-Disposition (either ``attachment'' or some
-   disposition that we don't recognise) then we always display the part as
-   an external link, by using MimeExternalObject to display it.
+   If the Content-Disposition is ``attachment'', we always display the part
+   as an external link, by using MimeExternalObject to display it.
+
+   Unrecognised values are treated as attachment per RFC 2183, except for
+   the first text part in the message, which falls back to inline so the
+   body is not hidden. This matches the observed behaviour of other e-mail
+   clients.
 
    But Content-Disposition is ignored for all containers except `message'.
    (including multipart/mixed, and multipart/digest.)  It's not clear if
@@ -942,7 +946,10 @@ MimeObject* mime_create(const char* content_type, MimeHeaders* hdrs,
                : 0;
   }
 
-  if (!content_disposition || !PL_strcasecmp(content_disposition, "inline"))
+  if (!content_disposition || !PL_strcasecmp(content_disposition, "inline") ||
+      (PL_strcasecmp(content_disposition, "attachment") &&
+       mime_subclass_p(clazz, (MimeObjectClass*)&mimeInlineTextClass) &&
+       opts && opts->state && !opts->state->first_part_written_p))
     ; /* Use the class we've got. */
   else {
     // override messages that have content disposition set to "attachment"

@@ -1,0 +1,11 @@
+Subject: Malformed Content-Disposition
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="body-boundary"
+
+--body-boundary
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: quoted-printable
+
+Body of a message whose only part carries a malformed Content-Disposition header.
+
+--body-boundary--
