@@ -48,10 +48,10 @@ add_task(async function test_rfc822_base64_attachment_decoded() {
   );
   // Size matches the decoded inner message, not the raw base64 blob; proxy for
   // successful CTE decoding.
-  Assert.equal(
-    attachmentElem.attachment.size,
-    160,
-    "attachment size should match decoded inner message byte count"
+  const size = attachmentElem.attachment.size;
+  Assert.ok(
+    size === 160 || size === 166,
+    `attachment size ${size}, expected 160 (LF) or 166 (CRLF)`
   );
   Assert.ok(
     attachmentElem.attachment.hasFile,
