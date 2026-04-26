@@ -237,16 +237,29 @@ nsImapIncomingServer::GetUsingSubscription(bool* bVal) {
 
 NS_IMETHODIMP
 nsImapIncomingServer::SetUsingSubscription(bool bVal) {
+  bool oldVal = bVal;
+  bool hadPref =
+      NS_SUCCEEDED(GetBoolValue("using_subscription", &oldVal));
+
+  nsresult rv = SetBoolValue("using_subscription", bVal);
+  NS_ENSURE_SUCCESS(rv, rv);
+
   nsCString serverKey;
   GetKey(serverKey);
-  if (!serverKey.IsEmpty()) {
-    nsresult rv;
-    nsCOMPtr<nsIImapHostSessionList> hostSession =
-        do_GetService("@mozilla.org/messenger/imaphostsessionlist;1", &rv);
-    if (NS_SUCCEEDED(rv))
-      hostSession->SetHostIsUsingSubscription(serverKey.get(), bVal);
+  nsCOMPtr<nsIImapHostSessionList> hostSession =
+      do_GetService("@mozilla.org/messenger/imaphostsessionlist;1");
+  if (hostSession && !serverKey.IsEmpty()) {
+    hostSession->SetHostIsUsingSubscription(serverKey.get(), bVal);
   }
-  return SetBoolValue("using_subscription", bVal);
+
+  if (hadPref && oldVal != bVal && hostSession && !serverKey.IsEmpty()) {
+    // Applies the flip between "subscribed-only" (LSUB) and "all folders"
+    // (LIST) immediately, so the folder pane updates without a restart.
+    hostSession->SetHaveWeEverDiscoveredFoldersForHost(serverKey.get(),
+                                                       false);
+    PerformExpand(nullptr);
+  }
+  return NS_OK;
 }
 
 NS_IMETHODIMP
