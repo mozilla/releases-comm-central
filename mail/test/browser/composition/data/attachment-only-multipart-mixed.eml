@@ -1,0 +1,13 @@
+Content-Type: multipart/mixed; boundary="------------test-boundary"
+Message-ID: <attachment-only-multipart-mixed@example.invalid>
+MIME-Version: 1.0
+Subject: Attachment-only multipart/mixed
+
+This part should not be displayed.
+--------------test-boundary
+Content-Type: text/plain; name="note.txt"
+Content-Disposition: attachment; filename="note.txt"
+Content-Transfer-Encoding: base64
+
+QXR0YWNoZWQgcGxhaW4gdGV4dCBwYXlsb2FkLgo=
+--------------test-boundary--

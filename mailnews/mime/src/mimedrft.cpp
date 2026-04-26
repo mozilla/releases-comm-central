@@ -102,6 +102,11 @@ static bool mime_type_can_replace_message_body(const nsACString& contentType) {
          contentType.LowerCaseFindASCII("multipart/alternative") != kNotFound;
 }
 
+static bool mime_disposition_is_attachment(const nsACString& disposition) {
+  return StringBeginsWith(disposition, "attachment"_ns,
+                          nsCaseInsensitiveCStringComparator);
+}
+
 typedef enum {
   nsMsg_RETURN_RECEIPT_BOOL_HEADER_MASK = 0,
   nsMsg_ENCRYPTED_BOOL_HEADER_MASK,
@@ -1738,10 +1743,15 @@ int mime_decompose_file_init_fn(MimeClosure stream_closure,
   nsCString contentType;
   contentType.Adopt(
       MimeHeaders_get(headers, HEADER_CONTENT_TYPE, false, false));
+  nsCString contentDisposition;
+  contentDisposition.Adopt(
+      MimeHeaders_get(headers, HEADER_CONTENT_DISPOSITION, false, false));
+  bool isAttachmentDisposition =
+      mime_disposition_is_attachment(contentDisposition);
 
   // Allow a later body part to replace an earlier unusable messageBody
   // candidate.
-  if (mdd->messageBody &&
+  if (mdd->messageBody && !isAttachmentDisposition &&
       !mime_type_is_message_body(mdd->messageBody->m_type) &&
       mime_type_can_replace_message_body(contentType)) {
     mdd->attachments.AppendElement(mdd->messageBody);
@@ -1749,7 +1759,7 @@ int mime_decompose_file_init_fn(MimeClosure stream_closure,
     nAttachments = mdd->attachments.Length();
   }
 
-  if (!mdd->messageBody &&
+  if (!mdd->messageBody && !isAttachmentDisposition &&
       (!nAttachments || mime_type_can_replace_message_body(contentType))) {
     // if we've been told to use an override charset then do so....otherwise use
     // the charset inside the message header...

@@ -67,6 +67,8 @@ run-if = [
   "!headless"
 ] # See bug 1806870.
 
+["browser_attachmentOnlyMultipartMixedForward.js"]
+
 ["browser_attachmentReminder.js"]
 
 ["browser_base64Display.js"]
