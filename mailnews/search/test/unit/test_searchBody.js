@@ -94,6 +94,9 @@ var Files = [
   // (bug 314637).
   "../../../data/iso-2022-jp-not-qp.eml", // plaintext, has 現況 which contains =67.
 
+  // HTML with CSS blocks and various HTML entities.
+  "../../../data/html-entities-and-styles.eml",
+
   // OpenPGP encrypted message.
   "../../../../mail/test/browser/openpgp/data/eml/encrypted-and-signed-alice-to-bob-nonascii.eml",
 
@@ -186,6 +189,35 @@ var Tests = [
 
   // Test for S/MIME encrypted messsage.
   { value: "This is a test message from Alice to Bob", Contains, count: 1 },
+
+  // Tests for HTML entities and style stripping.
+
+  // 1. Test for Bug 999038: CSS style blocks should be skipped.
+  // The test file contains ".header { opacity: 0.8; }" inside a <style> block.
+  { value: "city", op: Contains, count: 0 },
+  { value: "opacity", op: Contains, count: 0 },
+
+  // 2. Test for Bug 521649: Latin-1 Supplement entities should be decoded (Tier 4).
+  // The test file contains "M&uuml;nster".
+  { value: "Münster", op: Contains, count: 1 },
+
+  // 3. Test for The Big Five structural entities (Tier 3).
+  // The test file contains "AT&amp;T" and "A &lt; B".
+  { value: "AT&T", op: Contains, count: 1 },
+  { value: "A < B", op: Contains, count: 1 },
+
+  // 4. Test for Word Splitters (Tier 2).
+  // The test file contains "beauti&shy;ful" and "co&zwnj;worker".
+  // The entities should be deleted entirely, allowing the full words to match.
+  { value: "beautiful", op: Contains, count: 1 },
+  { value: "coworker", op: Contains, count: 1 },
+
+  // 5. Test for Word Mergers (Tier 1).
+  // The test file contains "Sale&nbsp;Today".
+  // The entity should become a space. Searching for the exact phrase should work,
+  // but searching for the merged word should fail.
+  { value: "Sale Today", op: Contains, count: 1 },
+  { value: "SaleToday", op: Contains, count: 0 },
 ];
 
 function fixFile(file) {

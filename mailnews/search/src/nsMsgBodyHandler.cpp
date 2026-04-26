@@ -313,29 +313,290 @@ int32_t nsMsgBodyHandler::ApplyTransformations(const nsCString& line,
   return buf.Length();
 }
 
-void nsMsgBodyHandler::StripHtml(nsCString& pBufInOut) {
-  char* pBuf = (char*)PR_Malloc(pBufInOut.Length() + 1);
-  if (pBuf) {
-    char* pWalk = pBuf;
+namespace {
 
-    char* pWalkInOut = (char*)pBufInOut.get();
-    bool inTag = false;
-    while (*pWalkInOut)  // throw away everything inside < >
-    {
-      if (!inTag) {
-        if (*pWalkInOut == '<')
-          inTag = true;
-        else
-          *pWalk++ = *pWalkInOut;
-      } else {
-        if (*pWalkInOut == '>') inTag = false;
-      }
-      pWalkInOut++;
+// Struct for our tiered mapping
+struct EntityMapping {
+  const char* name;
+  const char* utf8Value;  // "" means delete, " " means space
+};
+
+// MUST be ASCII-sorted for binary search (Uppercase first, then lowercase)
+static const EntityMapping gHtmlEntities[] = {
+    // --- UPPERCASE LATIN-1 SUPPLEMENT ---
+    {"AElig", "\xC3\x86"},   // Æ
+    {"Aacute", "\xC3\x81"},  // Á
+    {"Acirc", "\xC3\x82"},   // Â
+    {"Agrave", "\xC3\x80"},  // À
+    {"Aring", "\xC3\x85"},   // Å
+    {"Atilde", "\xC3\x83"},  // Ã
+    {"Auml", "\xC3\x84"},    // Ä
+    {"Ccedil", "\xC3\x87"},  // Ç
+    {"ETH", "\xC3\x90"},     // Ð
+    {"Eacute", "\xC3\x89"},  // É
+    {"Ecirc", "\xC3\x8A"},   // Ê
+    {"Egrave", "\xC3\x88"},  // È
+    {"Euml", "\xC3\x8B"},    // Ë
+    {"Iacute", "\xC3\x8D"},  // Í
+    {"Icirc", "\xC3\x8E"},   // Î
+    {"Igrave", "\xC3\x8C"},  // Ì
+    {"Iuml", "\xC3\x8F"},    // Ï
+    {"Ntilde", "\xC3\x91"},  // Ñ
+    {"Oacute", "\xC3\x93"},  // Ó
+    {"Ocirc", "\xC3\x94"},   // Ô
+    {"Ograve", "\xC3\x92"},  // Ò
+    {"Oslash", "\xC3\x98"},  // Ø
+    {"Otilde", "\xC3\x95"},  // Õ
+    {"Ouml", "\xC3\x96"},    // Ö
+    {"THORN", "\xC3\x9E"},   // Þ
+    {"Uacute", "\xC3\x9A"},  // Ú
+    {"Ucirc", "\xC3\x9B"},   // Û
+    {"Ugrave", "\xC3\x99"},  // Ù
+    {"Uuml", "\xC3\x9C"},    // Ü
+    {"Yacute", "\xC3\x9D"},  // Ý
+
+    // --- LOWERCASE ENTITIES ---
+    {"aacute", "\xC3\xA1"},  // á
+    {"acirc", "\xC3\xA2"},   // â
+    {"acute", "\xC2\xB4"},   // ´
+    {"aelig", "\xC3\xA6"},   // æ
+    {"agrave", "\xC3\xA0"},  // à
+    {"amp", "&"},            // & (Big Five)
+    {"apos", "'"},           // ' (Big Five)
+    {"aring", "\xC3\xA5"},   // å
+    {"atilde", "\xC3\xA3"},  // ã
+    {"auml", "\xC3\xA4"},    // ä
+
+    {"brvbar", "\xC2\xA6"},  // ¦
+
+    {"ccedil", "\xC3\xA7"},  // ç
+    {"cedil", "\xC2\xB8"},   // ¸
+    {"cent", "\xC2\xA2"},    // ¢
+    {"copy", "\xC2\xA9"},    // ©
+    {"curren", "\xC2\xA4"},  // ¤
+
+    {"deg", "\xC2\xB0"},     // °
+    {"divide", "\xC3\xB7"},  // ÷
+
+    {"eacute", "\xC3\xA9"},  // é
+    {"ecirc", "\xC3\xAA"},   // ê
+    {"egrave", "\xC3\xA8"},  // è
+    {"emsp", " "},           // Word Merger -> Space
+    {"ensp", " "},           // Word Merger -> Space
+    {"eth", "\xC3\xB0"},     // ð
+    {"euml", "\xC3\xAB"},    // ë
+
+    {"frac12", "\xC2\xBD"},  // ½
+    {"frac14", "\xC2\xBC"},  // ¼
+    {"frac34", "\xC2\xBE"},  // ¾
+
+    {"gt", ">"},  // > (Big Five)
+
+    {"iacute", "\xC3\xAD"},  // í
+    {"icirc", "\xC3\xAE"},   // î
+    {"iexcl", "\xC2\xA1"},   // ¡
+    {"igrave", "\xC3\xAC"},  // ì
+    {"iquest", "\xC2\xBF"},  // ¿
+    {"iuml", "\xC3\xAF"},    // ï
+
+    {"laquo", "\xC2\xAB"},  // «
+    {"lt", "<"},            // < (Big Five)
+
+    {"macr", "\xC2\xAF"},    // ¯
+    {"micro", "\xC2\xB5"},   // µ
+    {"middot", "\xC2\xB7"},  // ·
+
+    {"nbsp", " "},           // Word Merger -> Space
+    {"not", "\xC2\xAC"},     // ¬
+    {"ntilde", "\xC3\xB1"},  // ñ
+
+    {"oacute", "\xC3\xB3"},  // ó
+    {"ocirc", "\xC3\xB4"},   // ô
+    {"ograve", "\xC3\xB2"},  // ò
+    {"ordf", "\xC2\xAA"},    // ª
+    {"ordm", "\xC2\xBA"},    // º
+    {"oslash", "\xC3\xB8"},  // ø
+    {"otilde", "\xC3\xB5"},  // õ
+    {"ouml", "\xC3\xB6"},    // ö
+
+    {"para", "\xC2\xB6"},    // ¶
+    {"plusmn", "\xC2\xB1"},  // ±
+    {"pound", "\xC2\xA3"},   // £
+
+    {"quot", "\""},  // " (Big Five)
+
+    {"raquo", "\xC2\xBB"},  // »
+
+    {"sect", "\xC2\xA7"},   // §
+    {"shy", ""},            // Word Splitter -> Delete entirely
+    {"sup1", "\xC2\xB9"},   // ¹
+    {"sup2", "\xC2\xB2"},   // ²
+    {"sup3", "\xC2\xB3"},   // ³
+    {"szlig", "\xC3\x9F"},  // ß
+
+    {"thinsp", " "},        // Word Merger -> Space
+    {"thorn", "\xC3\xBE"},  // þ
+    {"times", "\xC3\x97"},  // ×
+
+    {"uacute", "\xC3\xBA"},  // ú
+    {"ucirc", "\xC3\xBB"},   // û
+    {"ugrave", "\xC3\xB9"},  // ù
+    {"uml", "\xC2\xA8"},     // ¨
+    {"uuml", "\xC3\xBC"},    // ü
+
+    {"yacute", "\xC3\xBD"},  // ý
+    {"yen", "\xC2\xA5"},     // ¥
+    {"yuml", "\xC3\xBF"},    // ÿ
+
+    {"zwnj", ""}  // Word Splitter -> Delete entirely
+};
+
+// Fast binary search helper
+static const char* DecodeEntityLookup(const nsDependentCSubstring& aEntity) {
+  int left = 0;
+  int right = (sizeof(gHtmlEntities) / sizeof(EntityMapping)) - 1;
+
+  while (left <= right) {
+    int mid = left + (right - left) / 2;
+
+    // Wrap the lookup table's C-string in a Mozilla string class
+    // so we can safely compare it against the substring
+    nsDependentCString mappedName(gHtmlEntities[mid].name);
+
+    if (aEntity.Equals(mappedName)) {
+      return gHtmlEntities[mid].utf8Value;
     }
-    *pWalk = 0;  // null terminator
 
-    pBufInOut.Adopt(pBuf);
+    // Use Mozilla's overloaded operators to navigate the binary search
+    if (aEntity < mappedName) {
+      right = mid - 1;
+    } else {
+      left = mid + 1;
+    }
   }
+  return nullptr;  // Not in our supported tiers, fallback to raw string
+}
+
+}  // namespace
+
+void nsMsgBodyHandler::StripHtml(nsCString& pBufInOut) {
+  if (pBufInOut.IsEmpty()) {
+    return;
+  }
+
+  char* buf = pBufInOut.BeginWriting();
+  char* writePtr = buf;
+  const char* readPtr = buf;
+  const char* endPtr = buf + pBufInOut.Length();
+
+  enum SkipMode { None, Style, Script };
+  SkipMode skipMode = None;
+
+  bool inTag = false;
+  bool inQuotes = false;
+  char quoteChar = '\0';
+
+  // We explicitly check readPtr < endPtr to ensure absolute memory safety.
+  while (readPtr < endPtr && *readPtr) {
+    size_t remaining = endPtr - readPtr;
+
+    // 1. SKIP MODE: Ignore CSS and JS
+    if (skipMode != None) {
+      if (skipMode == Style && remaining >= 7 &&
+          nsDependentCSubstring(readPtr, 7).LowerCaseEqualsASCII("</style")) {
+        skipMode = None;
+        readPtr += 7;
+        inTag = true;
+      } else if (skipMode == Script && remaining >= 8 &&
+                 nsDependentCSubstring(readPtr, 8)
+                     .LowerCaseEqualsASCII("</script")) {
+        skipMode = None;
+        readPtr += 8;
+        inTag = true;
+      } else {
+        readPtr++;
+      }
+      continue;
+    }
+
+    char c = *readPtr;
+
+    if (!inTag) {
+      // 2. TAG DETECTION
+      if (c == '<') {
+        if (remaining >= 6 &&
+            nsDependentCSubstring(readPtr, 6).LowerCaseEqualsASCII("<style")) {
+          skipMode = Style;
+          readPtr += 6;
+          continue;
+        }
+
+        if (remaining >= 7 &&
+            nsDependentCSubstring(readPtr, 7).LowerCaseEqualsASCII("<script")) {
+          skipMode = Script;
+          readPtr += 7;
+          continue;
+        }
+
+        char next = (remaining > 1) ? *(readPtr + 1) : '\0';
+        if (next != '\0' && (mozilla::IsAsciiAlpha(next) || next == '/' ||
+                             next == '!' || next == '?')) {
+          inTag = true;
+          inQuotes = false;
+        } else {
+          *writePtr++ = c;
+        }
+      }
+      // 3. TIERED HTML ENTITY DECODING
+      else if (c == '&') {
+        // Safely bound the lookahead to a maximum of 12 bytes using memchr.
+        // This prevents runaway scans if a semicolon is missing.
+        size_t searchLen = std::min(remaining, (size_t)12);
+        const void* match = memchr(readPtr, ';', searchLen);
+        const char* entityEnd = nullptr;
+        const char* decodedValue = nullptr;
+        if (match) {
+          entityEnd = static_cast<const char*>(match);
+          size_t entityLen = entityEnd - readPtr - 1;
+          if (entityLen >= 2 && entityLen <= 10) {
+            decodedValue = DecodeEntityLookup(
+                nsDependentCSubstring(readPtr + 1, entityLen));
+          }
+        }
+        if (decodedValue) {
+          // Write the mapped value. This handles Tier 1 (space), Tier 2
+          // (delete/skip), and Tiers 3/4 (exact UTF-8 bytes).
+          while (*decodedValue) {
+            *writePtr++ = *decodedValue++;
+          }
+          // Fast-forward the read pointer past the ';'
+          readPtr = entityEnd;
+        } else {
+          // Fallback: Treat '&' as literal text.
+          *writePtr++ = c;
+        }
+      }
+      // 4. NORMAL TEXT
+      else {
+        *writePtr++ = c;
+      }
+    } else {
+      // 5. INSIDE A TAG
+      if (inQuotes) {
+        if (c == quoteChar) inQuotes = false;
+      } else {
+        if (c == '"' || c == '\'') {
+          inQuotes = true;
+          quoteChar = c;
+        } else if (c == '>') {
+          inTag = false;
+        }
+      }
+    }
+    readPtr++;
+  }
+
+  pBufInOut.SetLength(writePtr - buf);
 }
 
 /* static */
