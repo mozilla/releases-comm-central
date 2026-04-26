@@ -11470,7 +11470,8 @@ var gComposeNotificationBar = {
       );
     } else {
       document.l10n.setAttributes(
-        gComposeNotification.getNotificationWithValue("blockedContent"),
+        gComposeNotification.getNotificationWithValue("blockedContent")
+          .messageText,
         "blocked-content-message",
         { count: urls.length }
       );
