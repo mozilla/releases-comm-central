@@ -32,19 +32,37 @@ impl<ServerT: AuthenticationProvider + RefCounted>
         &mut self,
         client: &XpComGraphClient<ServerT>,
     ) -> Result<Self::Okay, XpComGraphError> {
-        let mut new_message_ids = ThinVec::new();
-
         // Note: the C++ consumer code expects the order of new messages IDs to
         // match that of the old ones (so that e.g. `new_message_ids[0]` is the
         // new ID for `self.message_ids[0]`).
-        for message_id in &self.message_ids {
-            let message = client
-                .send_move_message_request(self.destination_folder_id.clone(), message_id.clone())
-                .await?;
+        let requests = self
+            .message_ids
+            .iter()
+            .map(|message_id| {
+                let body = messages::message_id::r#move::PostRequestBody::new()
+                    .set_destination_id(self.destination_folder_id.clone());
+                let request = messages::message_id::r#move::Post::new(
+                    client.endpoint.to_string(),
+                    message_id.clone(),
+                    OperationBody::JSON(body),
+                );
+                request
+            })
+            .collect();
 
-            let message_id = message.outlook_item().entity().id()?.to_string();
-            new_message_ids.push(message_id);
-        }
+        let responses = client.send_batch_request_json_response(requests).await?;
+
+        let new_message_ids = responses
+            .iter()
+            .filter_map(|response| {
+                response
+                    .outlook_item()
+                    .entity()
+                    .id()
+                    .ok()
+                    .map(|x| x.to_string())
+            })
+            .collect();
 
         Ok(new_message_ids)
     }
@@ -53,11 +71,20 @@ impl<ServerT: AuthenticationProvider + RefCounted>
         self,
         new_message_ids: Self::Okay,
     ) -> <Self::Listener as SafeListener>::OnSuccessArg {
+        // If we have a length mismatch, that means something went wrong, but
+        // perhaps not the entire request, so we need to tell the client to
+        // requery the server to see what happened to the messages.
+        let fallback = if new_message_ids.len() == self.message_ids.len() {
+            UseLegacyFallback::No
+        } else {
+            UseLegacyFallback::Yes
+        };
+
         let new_message_ids = new_message_ids.iter().map(nsCString::from).collect();
 
         SimpleOperationSuccessArgs {
             new_ids: new_message_ids,
-            use_legacy_fallback: UseLegacyFallback::No,
+            use_legacy_fallback: fallback,
         }
     }
 
@@ -67,13 +94,7 @@ impl<ServerT: AuthenticationProvider + RefCounted>
 impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
     /// Moves messages via Graph.
     ///
-    /// Because we don't currently support [batching requests] (see [bug
-    /// 2031761]), this performs a [message move] request for each message.
-    ///
-    /// [batching requests]:
-    ///     https://learn.microsoft.com/en-us/graph/json-batching
     /// [message move]: https://learn.microsoft.com/en-us/graph/api/message-move
-    /// [bug 2031761]: https://bugzilla.mozilla.org/show_bug.cgi?id=2031761
     pub(crate) async fn move_messages(
         self,
         destination_folder_id: String,

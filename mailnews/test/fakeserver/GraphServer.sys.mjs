@@ -79,6 +79,23 @@ export class GraphMessage {
 }
 
 /**
+ * A simple class to hold the data associated with an HTTP response.
+ */
+class HttpResponseData {
+  constructor(
+    statusCode,
+    statusMessage,
+    bodyContent = "",
+    httpVersion = "1.1"
+  ) {
+    this.httpVersion = httpVersion;
+    this.statusCode = statusCode;
+    this.statusMessage = statusMessage;
+    this.bodyContent = bodyContent;
+  }
+}
+
+/**
  * A mock server to mimic operations with Graph API.
  */
 export class GraphServer extends MockServer {
@@ -251,12 +268,92 @@ export class GraphServer extends MockServer {
     const resourcePath = request.path.startsWith("/v1.0")
       ? request.path.substring(5)
       : request.path;
-    const resourceQuery = request.queryString;
 
+    if (resourcePath === "/$batch") {
+      this.#handleBatchRequest(request, response);
+    } else {
+      this.#handleResourcePath(request, response, resourcePath);
+    }
+  }
+
+  #handleResourcePath(request, response, resourcePath) {
+    const method = request.method;
+    const resourceQuery = request.queryString;
+    const requestBody = CommonUtils.readBytesFromInputStream(
+      request.bodyInputStream
+    );
+    const httpResponseData = this.#dispatchRequest(
+      method,
+      resourcePath,
+      resourceQuery,
+      requestBody
+    );
+    response.setStatusLine(
+      httpResponseData.httpVersion,
+      httpResponseData.statusCode,
+      httpResponseData.statusMessage
+    );
+    response.bodyOutputStream.write(
+      httpResponseData.bodyContent,
+      httpResponseData.bodyContent.length
+    );
+  }
+
+  #handleBatchRequest(request, response) {
+    const batchRequest = JSON.parse(
+      CommonUtils.readBytesFromInputStream(request.bodyInputStream)
+    );
+
+    const responseJsonObject = {
+      responses: [],
+    };
+
+    for (const batchRequestItem of batchRequest.requests) {
+      const id = batchRequestItem.id;
+      const method = batchRequestItem.method;
+      const path = batchRequestItem.url;
+      const body = batchRequestItem.body;
+
+      const itemResponseData = this.#dispatchRequest(
+        method,
+        path,
+        null,
+        JSON.stringify(body)
+      );
+
+      const itemResponseJson = JSON.parse(itemResponseData.bodyContent);
+
+      const batchResponseItem = {
+        id,
+        status: itemResponseData.statusCode,
+        headers: {
+          "content-type": "application/json",
+        },
+        body: itemResponseJson,
+      };
+
+      responseJsonObject.responses.push(batchResponseItem);
+    }
+
+    response.setStatusLine("1.1", 200, "OK");
+    const responseBody = JSON.stringify(responseJsonObject);
+    response.bodyOutputStream.write(responseBody, responseBody.length);
+  }
+
+  /**
+   * Dispatch a request to the appropriate handler.
+   *
+   * @param {string} requestMethod
+   * @param {string} resourcePath
+   * @param {string} resourceQuery
+   * @param {string} requestBody
+   * @returns {HttpResponseData} The response status code and content for the request.
+   */
+  #dispatchRequest(requestMethod, resourcePath, resourceQuery, requestBody) {
     // Try to find a handler that matches the method and path for the request.
     let responseJsonObject = {};
     let pathMatch;
-    switch (request.method) {
+    switch (requestMethod) {
       case "GET":
         if (resourcePath === "/me") {
           responseJsonObject = this.#me();
@@ -290,46 +387,40 @@ export class GraphServer extends MockServer {
           ))
         ) {
           const content = this.#messageMediaResource(pathMatch[1]);
-          // This endpoint does not return a JSON object, so we can write the
-          // response directly to the output stream and return here.
-          response.bodyOutputStream.write(content, content.length);
-          return;
+          // This endpoint does not return a JSON object, so we can return
+          // the content directly here.
+          return content;
         }
         break;
 
       case "POST":
         if (resourcePath === "/me/messages") {
-          responseJsonObject = this.#createMessage(request);
+          responseJsonObject = this.#createMessage(requestBody);
         } else if (
           resourcePath.startsWith("/me/messages") &&
           resourcePath.endsWith("/send")
         ) {
           // `#sendMessage()` takes care of setting the necessary properties on
           // the response, so we should skip the body serialization part here.
-          this.#sendMessage(resourcePath, response);
-          return;
+          return this.#sendMessage(resourcePath);
         } else if (
           resourcePath.startsWith("/me/mailFolders") &&
           resourcePath.endsWith("/move")
         ) {
-          responseJsonObject = this.#moveFolders(request);
+          responseJsonObject = this.#moveFolders(resourcePath, requestBody);
         } else if (resourcePath.startsWith("/me/mailFolders/")) {
-          responseJsonObject = this.#createFolder(
-            resourcePath.substring(16),
-            request,
-            response
-          );
+          return this.#createFolder(resourcePath.substring(16), requestBody);
         } else if (
           resourcePath.startsWith("/me/messages") &&
           resourcePath.endsWith("/move")
         ) {
-          responseJsonObject = this.#moveMessages(request);
+          responseJsonObject = this.#moveMessages(resourcePath, requestBody);
         }
         break;
 
       case "PATCH":
         if (resourcePath.startsWith("/me/messages")) {
-          responseJsonObject = this.#updateMessage(request);
+          responseJsonObject = this.#updateMessage(resourcePath, requestBody);
         }
     }
 
@@ -339,9 +430,7 @@ export class GraphServer extends MockServer {
       throw new Error(`Unexpected Graph resource: ${resourcePath}`);
     }
 
-    // Send the response.
-    const responseBody = JSON.stringify(responseJsonObject);
-    response.bodyOutputStream.write(responseBody, responseBody.length);
+    return new HttpResponseData(200, "OK", JSON.stringify(responseJsonObject));
   }
 
   /**
@@ -392,18 +481,18 @@ export class GraphServer extends MockServer {
    * Handle POST /me/mailFolders/...
    *
    * @param {string} folderPath
-   * @param {nsIHttpRequest} request
+   * @param {string} requestBody
    * @param {nsIHttpResponse} response
    * @returns {object}
    */
-  #createFolder(folderPath, request, response) {
+  #createFolder(folderPath, requestBody, response) {
     if (
       folderPath.endsWith("/childFolders") &&
       folderPath.split("/").length == 2
     ) {
       return this.#createChildFolder(
         folderPath.substring(0, folderPath.indexOf("/")),
-        request,
+        requestBody,
         response
       );
     }
@@ -415,11 +504,11 @@ export class GraphServer extends MockServer {
    * Handle POST /me/mailFolders/{mailFolderId}/childFolders.
    *
    * @param {string} parentFolderId
-   * @param {nsIHttpRequest} request
-   * @param {nsIHttpResponse} response
-   * @returns {object}
+   * @param {string} requestBody
+   *
+   * @returns {HttpResponseData}
    */
-  #createChildFolder(parentFolderId, request, response) {
+  #createChildFolder(parentFolderId, requestBody) {
     const decodedParentId = decodeURIComponent(parentFolderId);
     const parentFolder =
       this.getDistinguishedFolder(decodedParentId) ||
@@ -428,23 +517,24 @@ export class GraphServer extends MockServer {
       throw new Error(`Unexpected parent folder id: ${decodedParentId}`);
     }
 
-    const requestBody = JSON.parse(
-      CommonUtils.readBytesFromInputStream(request.bodyInputStream)
-    );
-    const folderName = requestBody.displayName;
+    const requestJson = JSON.parse(requestBody);
+    const folderName = requestJson.displayName;
     const folderId = `created-folder-${this.folders.length}`;
 
     this.appendRemoteFolder(
       new RemoteFolder(folderId, parentFolder.id, folderName, null)
     );
-    response.setStatusLine("1.1", 201, "Created");
 
-    return {
-      "@odata.context": `${this.#endpoint}/$metadata#users('me')/mailFolders/$entity`,
-      id: folderId,
-      displayName: folderName,
-      parentFolderId: parentFolder.id,
-    };
+    return new HttpResponseData(
+      201,
+      "Created",
+      JSON.stringify({
+        "@odata.context": `${this.#endpoint}/$metadata#users('me')/mailFolders/$entity`,
+        id: folderId,
+        displayName: folderName,
+        parentFolderId: parentFolder.id,
+      })
+    );
   }
 
   /**
@@ -521,16 +611,16 @@ export class GraphServer extends MockServer {
       return null;
     }
 
-    return message.toMessageString();
+    return new HttpResponseData(200, "OK", message.toMessageString());
   }
 
   /**
    * Handle POST /me/messages
    *
-   * @param {nsIHttpRequest} request
+   * @param {string} requestBody
    * @returns {object}
    */
-  #createMessage(request) {
+  #createMessage(requestBody) {
     // TODO: at some point we'll want to create messages in specific folders, in
     // which case we'll want to stop hardcoding the drafts folder here. This is
     // fine for now, since Graph defaults to that folder when none is provided.
@@ -542,10 +632,7 @@ export class GraphServer extends MockServer {
     this.addItemToFolder(newItemId, draftFolder.id);
     this.itemsCreated += 1;
 
-    const reqBody = CommonUtils.readBytesFromInputStream(
-      request.bodyInputStream
-    );
-    const message = new GraphMessage(newItemId, [], false, atob(reqBody));
+    const message = new GraphMessage(newItemId, [], false, atob(requestBody));
 
     this.#createdMessagesById.set(newItemId, message);
 
@@ -560,16 +647,14 @@ export class GraphServer extends MockServer {
   /**
    * Handle PATCH /me/messages/{messageId}
    *
-   * @param {nsIHttpRequest} request
+   * @param {string} resourcePath
+   * @param {string} requestBody
    */
-  #updateMessage(request) {
-    const pathParts = request.path.split("/");
+  #updateMessage(resourcePath, requestBody) {
+    const pathParts = resourcePath.split("/");
     const messageId = pathParts[pathParts.length - 1];
 
-    const reqBody = CommonUtils.readBytesFromInputStream(
-      request.bodyInputStream
-    );
-    const parsedReq = JSON.parse(reqBody);
+    const parsedReq = JSON.parse(requestBody);
 
     // Fetch the corresponding message and update its metadata.
     const message = this.#createdMessagesById.get(messageId);
@@ -608,19 +693,20 @@ export class GraphServer extends MockServer {
    * the response directly.
    *
    * @param {string} requestPath
-   * @param {nsIHttpResponse} response
+   *
+   * @returns {[string, number, string]} The resulting HTTP status [version, statusCode, message].
    */
-  #sendMessage(requestPath, response) {
+  #sendMessage(requestPath) {
     const messageId = /\/me\/messages\/(.+)\/send/.exec(requestPath)[1];
 
     const message = this.#createdMessagesById.get(messageId);
     if (!message) {
-      response.setStatusLine("1.1", 404, "Not Found");
-    } else {
-      response.setStatusLine("1.1", 202, "Accepted");
-      this.lastSentMessage = message.content;
-      this.#lastSentGraphMessage = message;
+      return new HttpResponseData(404, "Not Found");
     }
+
+    this.lastSentMessage = message.content;
+    this.#lastSentGraphMessage = message;
+    return new HttpResponseData(202, "Accepted");
   }
 
   /**
@@ -768,21 +854,19 @@ export class GraphServer extends MockServer {
   /**
    * Handle POST /me/messages/{messageId}/move
    *
-   * @param {nsIHttpRequest} request
+   * @param {string} resourcePath
+   * @param {string} requestBody
    */
-  #moveMessages(request) {
+  #moveMessages(resourcePath, requestBody) {
     // Extract the message ID, i.e. the second-to-last section of the path.
-    const pathParts = request.path.split("/");
+    const pathParts = resourcePath.split("/");
     const messageId = pathParts[pathParts.length - 2];
 
-    const reqBody = CommonUtils.readBytesFromInputStream(
-      request.bodyInputStream
-    );
-    const parsedReq = JSON.parse(reqBody);
+    const parsedReq = JSON.parse(requestBody);
 
     const folderId = parsedReq.DestinationId;
     if (!folderId) {
-      dump(`${reqBody}\n`);
+      dump(`${requestBody}\n`);
       throw new Error("missing destination ID for move");
     }
 
@@ -799,21 +883,19 @@ export class GraphServer extends MockServer {
   /**
    * Handle POST /me/mailFolders/{folderId}/move
    *
-   * @param {nsIHttpRequest} request
+   * @param {string} resourcePath
+   * @param {string} requestBody
    */
-  #moveFolders(request) {
+  #moveFolders(resourcePath, requestBody) {
     // Extract the folder ID, i.e. the second-to-last section of the path.
-    const pathParts = request.path.split("/");
+    const pathParts = resourcePath.split("/");
     const folderId = pathParts[pathParts.length - 2];
 
-    const reqBody = CommonUtils.readBytesFromInputStream(
-      request.bodyInputStream
-    );
-    const parsedReq = JSON.parse(reqBody);
+    const parsedReq = JSON.parse(requestBody);
 
     const newParentFolderId = parsedReq.DestinationId;
     if (!folderId) {
-      dump(`${reqBody}\n`);
+      dump(`${requestBody}\n`);
       throw new Error("missing destination ID for move");
     }
 
