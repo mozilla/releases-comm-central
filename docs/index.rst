@@ -19,6 +19,7 @@ Thunderbird Source Tree Documentation
    /cxx/index
    /l10n/index
    /rust/index
+   /testing/helpers
 
 .. toctree::
    :caption: Front-End Components
