@@ -4618,6 +4618,7 @@ dependencies = [
  "nserror",
  "nsstring",
  "qlog",
+ "rustix",
  "static_assertions",
  "static_prefs",
  "thin-vec",
