@@ -30,6 +30,7 @@ Thunderbird Source Tree Documentation
    /storybook/index
    /frontend/tabmail
    /frontend/trees
+   /frontend/xul
 
 .. toctree::
    :caption: Mail Front End

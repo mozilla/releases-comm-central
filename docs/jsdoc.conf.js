@@ -69,6 +69,7 @@ module.exports = {
       "../mail/base/content/sanitize.js",
       "../mail/base/content/sync.js",
       "../mail/base/content/widgets/customizable-toolbar.js",
+      "../mail/base/content/widgets/folder-tree-row.mjs",
       "../mail/base/content/widgets/tree-view.mjs",
       "../mail/base/test/browser/browser_cardsView.js",
       "../mail/branding/tb_beta/pref/thunderbird-branding.js",

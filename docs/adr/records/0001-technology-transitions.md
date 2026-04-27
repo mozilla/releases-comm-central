@@ -70,6 +70,7 @@ formatted localized strings in code.
 - [mozilla-central localization string share by system tracking](https://www.arewefluentyet.com/)
 - [Bug 1492751 - [meta] Thunderbird Fluent migration](https://bugzilla.mozilla.org/show_bug.cgi?id=1492751)
 
+(xul-to-html-adr)=
 ### Transitioning XUL to (X)HTML
 
 Whenever possible, HTML elements should be preferred over their XUL equivalents.
