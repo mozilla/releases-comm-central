@@ -10,6 +10,8 @@ support-files = [
 
 ["test_alternate_p7m_handling.js"]
 
+["test_attachment_qp_decoding.js"]
+
 ["test_attachment_size.js"]
 
 ["test_badContentType.js"]
