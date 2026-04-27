@@ -238,6 +238,10 @@ mail-tagfield[collapsed] {
   list-style-image: var(--icon-trash);
 }
 
+.hdrTrashButton[data-imap-deleted="true"] {
+  list-style-image: var(--icon-restore);
+}
+
 .hdrMoreButton {
   list-style-image: var(--icon-kebab);
 }
