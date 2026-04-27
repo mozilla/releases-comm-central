@@ -63,6 +63,10 @@ The best reference is thus usually the actual implementation sadly.
 
 An example of old XUL documentation: https://www-archive.mozilla.org/docs/xul/xulnotes/xulnote_cheatsheet
 
+```{toctree}
+xul_commands.md
+```
+
 ## Prefer HTML over XUL
 
 HTML should be preferred over XUL whenever possible. There are some exceptions
