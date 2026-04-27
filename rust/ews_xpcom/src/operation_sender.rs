@@ -5,10 +5,6 @@
 use std::{cell::RefCell, env, ops::ControlFlow, sync::Arc};
 
 use async_lock::Mutex;
-use ews::{
-    OperationResponse, ResponseClass, response::ResponseError,
-    server_version::ExchangeServerVersion, soap,
-};
 use mailnews_ui_glue::{
     AuthErrorOutcome, handle_auth_failure, handle_transport_sec_failure,
     maybe_handle_connection_error, report_connection_success,
@@ -26,12 +22,34 @@ use url::Url;
 use uuid::Uuid;
 use xpcom::{RefCounted, RefPtr};
 
-use crate::{
-    client::ServerType, error::XpComEwsError, observers::UrlPrefObserver,
-    server_version::ServerVersionHandler,
-};
+use crate::{client::ServerType, error::XpComEwsError, observers::UrlPrefObserver};
 
-pub(crate) mod observable_server;
+pub mod observable_server;
+
+/// A [`ResponseProcessor`] processes protocol-specific parts of the response.
+///
+/// It's in charge of propagating errors located in the response to the
+/// [`OperationSender`], as well as letting it know if the request is being
+/// throttled.
+///
+/// A new [`ResponseProcessor`] instance is provided to the [`OperationSender`]
+/// for each request, so it can be correctly parameterized on the response type.
+pub trait ResponseProcessor<T> {
+    /// Checks a raw [`Response`] for errors.
+    ///
+    /// If the response does not contain any error, the implementation is free
+    /// to return the parsed response, the raw [`Response`] itself, or anything
+    /// else the consumer requires.
+    ///
+    /// If the response indicates requests are being throttled/rate-limited, the
+    /// implementation is expected to return [`ControlFlow::Continue`] with the
+    /// number of milliseconds to wait before the request can be retried.
+    async fn check_response_for_error(
+        &self,
+        name: &str,
+        resp: Response,
+    ) -> Result<ControlFlow<T, u32>, XpComEwsError>;
+}
 
 // The environment variable that controls whether to include request/response
 // payloads when logging. We only check for the variable's presence, not any
@@ -76,11 +94,11 @@ pub(crate) enum TransportSecFailureBehavior {
     Silent,
 }
 
-/// The central data structure for performing operations against an EWS server.
-pub(crate) struct OperationSender<ServerT: RefCounted + 'static> {
+/// The central data structure for performing operations against an Exchange
+/// server.
+pub struct OperationSender<ServerT: RefCounted + 'static> {
     endpoint: Arc<RefCell<Url>>,
     client: moz_http::Client,
-    version_handler: Arc<ServerVersionHandler>,
     error_handling_line: Line,
 
     // Our internal reference on the server, which is wrapped into a
@@ -111,7 +129,6 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
     pub fn new(
         endpoint: Url,
         server: RefPtr<ServerT>,
-        version_handler: Arc<ServerVersionHandler>,
     ) -> Result<OperationSender<ServerT>, XpComEwsError> {
         // Note: semantically `endpoint` should be wrapped in a `Cell` (not a
         // `RefCell`) since we never borrow, but `Cell` relies on the inner type
@@ -127,7 +144,6 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
             endpoint,
             server: Mutex::new(RefCell::new(Some(server))),
             client: moz_http::Client::new(),
-            version_handler,
             error_handling_line: Line::new(),
         })
     }
@@ -141,12 +157,6 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
     /// memory).
     pub async fn shutdown(&self) {
         self.server.lock().await.replace(None);
-    }
-
-    /// Returns the currently stored version for the current Exchange server (or
-    /// the default one if none has been stored yet for this server).
-    pub fn server_version(&self) -> ExchangeServerVersion {
-        self.version_handler.get_version()
     }
 
     /// Returns the [`Url`] currently used as the endpoint to send requests to.
@@ -171,12 +181,13 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
     ///
     /// Also handles retries as required (e.g. for authentication failures, or
     /// if we're being throttled) if the request fails.
-    pub async fn make_and_send_request<OpResp: OperationResponse>(
+    pub async fn make_and_send_request<OpResp, ProcT: ResponseProcessor<OpResp>>(
         &self,
         operation_id: &Uuid,
         name: &str,
         content: &[u8],
         options: &OperationRequestOptions,
+        resp_processor: ProcT,
     ) -> Result<OpResp, XpComEwsError> {
         // Check if we can get a `RefPtr` on the server; if not it means we've
         // received the shutdown signal and we shouldn't proceed with the
@@ -235,7 +246,10 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
                 }
             };
 
-            match self.check_envelope_for_error(name, &response).await? {
+            match resp_processor
+                .check_response_for_error(name, response)
+                .await?
+            {
                 ControlFlow::Continue(delay_ms) => {
                     token = match self.error_handling_line.try_acquire_token().or_token(token) {
                         AcquireOutcome::Success(new_token) => {
@@ -253,7 +267,7 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
 
                     continue;
                 }
-                ControlFlow::Break(resp) => return Ok(resp),
+                ControlFlow::Break(response) => return Ok(response),
             };
         }
     }
@@ -477,96 +491,5 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
         }
 
         Ok(ControlFlow::Continue(()))
-    }
-
-    /// Deserialize the body of a response to see if it contains an error.
-    ///
-    /// If deserialization failed, the response body is checked for a SOAP fault
-    /// describing a throttling error (since some servers might represent those
-    /// as such), and the error is propagated if none could be found.
-    ///
-    /// If successful, this returns a [`ControlFlow`] indicating whether the
-    /// request should be retried or if a response can be shared with the
-    /// consumer.
-    ///
-    /// If the request should be retried, the number of milliseconds to wait
-    /// before retrying is returned inside the [`ControlFlow::Continue`].
-    async fn check_envelope_for_error<OpResp: OperationResponse>(
-        &self,
-        op_name: &str,
-        resp: &Response,
-    ) -> Result<ControlFlow<OpResp, u32>, XpComEwsError> {
-        let op_result: Result<soap::Envelope<OpResp>, _> =
-            soap::Envelope::from_xml_document(resp.body());
-
-        match op_result {
-            Ok(envelope) => {
-                // If the server responded with a version identifier, store
-                // it so we can use it later.
-                if let Some(header) = envelope
-                    .headers
-                    .into_iter()
-                    // Filter out headers we don't care about.
-                    .find_map(|hdr| match hdr {
-                        soap::Header::ServerVersionInfo(server_version_info) => {
-                            Some(server_version_info)
-                        }
-                        _ => None,
-                    })
-                {
-                    self.version_handler.update_server_version(header)?;
-                }
-
-                // Check if the first response is a back off message, and
-                // retry if so.
-                if let Some(ResponseClass::Error(ResponseError {
-                    message_xml: Some(ews::MessageXml::ServerBusy(server_busy)),
-                    ..
-                })) = envelope.body.response_messages().first()
-                {
-                    let delay_ms = server_busy.back_off_milliseconds;
-                    log::debug!(
-                        "{op_name} returned busy message, will retry after {delay_ms} milliseconds"
-                    );
-                    return Ok(ControlFlow::Continue(delay_ms));
-                }
-
-                Ok(ControlFlow::Break(envelope.body))
-            }
-            Err(err) => {
-                // Check first to see if the request has been throttled and
-                // needs to be retried.
-                let backoff_delay_ms = maybe_get_backoff_delay_ms(&err);
-                if let Some(backoff_delay_ms) = backoff_delay_ms {
-                    log::debug!(
-                        "{op_name} request throttled, will retry after {backoff_delay_ms} milliseconds"
-                    );
-
-                    return Ok(ControlFlow::Continue(backoff_delay_ms));
-                }
-
-                // If not, propagate the error.
-                Err(err.into())
-            }
-        }
-    }
-}
-
-/// Gets the time to wait before retrying a throttled request, if any.
-///
-/// When an Exchange server throttles a request, the response will specify a
-/// delay which should be observed before the request is retried.
-fn maybe_get_backoff_delay_ms(err: &ews::Error) -> Option<u32> {
-    if let ews::Error::RequestFault(fault) = err {
-        // We successfully sent a request, but it was rejected for some reason.
-        // Whatever the reason, retry if we're provided with a backoff delay.
-        let message_xml = fault.as_ref().detail.as_ref()?.message_xml.as_ref()?;
-
-        match message_xml {
-            ews::MessageXml::ServerBusy(server_busy) => Some(server_busy.back_off_milliseconds),
-            _ => None,
-        }
-    } else {
-        None
     }
 }

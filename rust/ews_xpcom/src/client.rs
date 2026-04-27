@@ -47,6 +47,7 @@ use crate::{
         OperationRequestOptions, OperationSender, TransportSecFailureBehavior,
         observable_server::ObservableServer,
     },
+    response_parser::EwsResponseProcessor,
     server_version::ServerVersionHandler,
 };
 
@@ -88,6 +89,7 @@ pub struct QueuedEwsOperation<Op: Operation, ServerT: ServerType + 'static> {
     sender: Cell<Option<oneshot::Sender<EwsOperationResult<Op>>>>,
     options: OperationRequestOptions,
     op_sender: Arc<OperationSender<ServerT>>,
+    version_handler: Arc<ServerVersionHandler>,
 }
 
 impl<Op, ServerT> QueuedEwsOperation<Op, ServerT>
@@ -104,6 +106,7 @@ where
         op: Op,
         options: OperationRequestOptions,
         op_sender: Arc<OperationSender<ServerT>>,
+        version_handler: Arc<ServerVersionHandler>,
     ) -> (Self, oneshot::Receiver<EwsOperationResult<Op>>) {
         let (snd, rcv) = oneshot::channel();
 
@@ -114,6 +117,7 @@ where
             sender: Cell::new(Some(snd)),
             options,
             op_sender,
+            version_handler,
         };
 
         (op, rcv)
@@ -150,7 +154,7 @@ where
 {
     async fn perform(&self) {
         let op_name = <Op as Operation>::NAME;
-        let version = self.op_sender.server_version();
+        let version = self.version_handler.get_version();
         let envelope = soap::Envelope {
             headers: vec![soap::Header::RequestServerVersion { version }],
             body: &self.inner,
@@ -160,9 +164,17 @@ where
             Err(err) => return self.send_result(Err(err.into())),
         };
 
+        let parser = EwsResponseProcessor::new(self.version_handler.clone());
+
         let res = self
             .op_sender
-            .make_and_send_request(&self.operation_id, op_name, &request_body, &self.options)
+            .make_and_send_request(
+                &self.operation_id,
+                op_name,
+                &request_body,
+                &self.options,
+                parser,
+            )
             .await;
 
         self.send_result(res);
@@ -203,7 +215,7 @@ impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
         let version_handler = ServerVersionHandler::new(endpoint.clone())?;
         let version_handler = Arc::new(version_handler);
 
-        let op_sender = OperationSender::new(endpoint, server, version_handler.clone())?;
+        let op_sender = OperationSender::new(endpoint, server)?;
         let op_sender = Arc::new(op_sender);
 
         // Start the queue with a few runners. We're picking 5 here as an
@@ -251,7 +263,12 @@ impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
         op: Op,
         options: OperationRequestOptions,
     ) -> Result<Op::Response, XpComEwsError> {
-        let (queued_op, rcv) = QueuedEwsOperation::new(op, options, self.op_sender.clone());
+        let (queued_op, rcv) = QueuedEwsOperation::new(
+            op,
+            options,
+            self.op_sender.clone(),
+            self.version_handler.clone(),
+        );
 
         let operation_id = *queued_op.id();
 

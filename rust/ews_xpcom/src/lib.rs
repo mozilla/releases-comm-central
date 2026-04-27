@@ -44,6 +44,7 @@ mod headerblock;
 mod observers;
 mod operation_sender;
 mod outgoing;
+mod response_parser;
 mod server_version;
 
 /// The base domains for Office365-hosted accounts. At the time of writing, the
