@@ -21,6 +21,10 @@ use super::{
     validate_response_message_count,
 };
 
+/// The maximum number of messages that can be deleted at once with EWS. Note that this is not
+/// documented anywhere. Instead, we experienced this size being reported in an error message.
+const EWS_MAXIMUM_DELETE_BATCH: usize = 1000;
+
 struct DoDeleteMessages {
     pub ews_ids: ThinVec<nsCString>,
 }
@@ -43,27 +47,28 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError> fo
             })
             .collect();
 
-        let delete_item = DeleteItem {
-            item_ids,
-            delete_type: DeleteType::HardDelete,
-            send_meeting_cancellations: None,
-            affected_task_occurrences: None,
-            suppress_read_receipts: None,
-        };
+        for block in item_ids.chunks(EWS_MAXIMUM_DELETE_BATCH) {
+            let delete_item = DeleteItem {
+                item_ids: block.to_vec(),
+                delete_type: DeleteType::HardDelete,
+                send_meeting_cancellations: None,
+                affected_task_occurrences: None,
+                suppress_read_receipts: None,
+            };
 
-        let response = client
-            .enqueue_and_send(delete_item, Default::default())
-            .await?;
+            let response = client
+                .enqueue_and_send(delete_item, Default::default())
+                .await?;
 
-        // Make sure we got the amount of response messages matches the amount
-        // of messages we requested to have deleted.
-        let response_messages = response.into_response_messages();
-        validate_response_message_count(&response_messages, self.ews_ids.len())?;
+            // Make sure we got the amount of response messages matches the amount
+            // of messages we requested to have deleted.
+            let response_messages = response.into_response_messages();
+            validate_response_message_count(&response_messages, block.len())?;
 
-        // Check every response message for an error.
-        response_messages
+            // Check every response message for an error.
+            response_messages
             .into_iter()
-            .zip(self.ews_ids.iter())
+            .zip(block.iter())
             .try_for_each(|(response_message, ews_id)| {
                 if let Err(err) = process_response_message_class(
                     DeleteItem::NAME,
@@ -75,7 +80,7 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError> fo
                         // in the database. In this case, we don't want to force
                         // a zombie message in the folder, so we ignore the
                         // error and move on with the local deletion.
-                        log::warn!("found message that was deleted from the EWS server but not the local db: {ews_id}");
+                            log::warn!("found message that was deleted from the EWS server but not the local db: {ews_id:?}");
                         Ok(())
                     } else {
                         // We've already checked that there are as many elements in
@@ -83,7 +88,7 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError> fo
                         // shouldn't be able to get out of bounds here.
                         Err(XpComEwsError::Processing {
                             message: format!(
-                                "error while attempting to delete message {ews_id}: {err:?}"
+                                "error while attempting to delete message {ews_id:?}: {err:?}",
                             ),
                         })
                     }
@@ -91,6 +96,7 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError> fo
                     Ok(())
                 }
             })?;
+        }
 
         Ok(())
     }
