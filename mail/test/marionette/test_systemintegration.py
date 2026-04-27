@@ -2,6 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
+from marionette_driver import Wait
 from marionette_harness import MarionetteTestCase
 
 
@@ -28,7 +29,7 @@ class TestSystemIntegration(MarionetteTestCase):
             "mail.shell.checkDefaultClient": True,
         })
 
-    def test_system_ingration_startup_dialog(self):
+    def test_system_integration_startup_dialog(self):
         """
             Checks that the system integration dialog is shown on startup in a
             profile that has completed first run tasks but somehow isn't the
@@ -38,8 +39,13 @@ class TestSystemIntegration(MarionetteTestCase):
             won't even run this code until it is closed.
         """
         self.marionette.set_context(self.marionette.CONTEXT_CHROME)
+        Wait(self.marionette, timeout=10).until(
+            lambda mn: len(mn.chrome_window_handles) >= 2
+        )
         handles = self.marionette.chrome_window_handles
-        self.assertEqual(2, len(handles), "Should have the main window and an additional window, hopefully the system integration dialog.")
+        self.assertEqual(
+            2, len(handles), "Should have the main window and an additional window, hopefully the system integration dialog.")
+
         self.marionette.switch_to_window(handles[1], True)
         self.assertEqual("chrome://messenger/content/systemIntegrationDialog.xhtml", self.marionette.get_url())
         self.marionette.close_chrome_window()
