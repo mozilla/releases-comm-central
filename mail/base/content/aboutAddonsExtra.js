@@ -2,7 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from ../../../../toolkit/mozapps/extensions/content/aboutaddons.js */
+/* global windowRoot */
+
+const { XPCOMUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/XPCOMUtils.sys.mjs"
+);
+
+const { formatUTMParams } = ChromeUtils.importESModule(
+  "chrome://mozapps/content/extensions/aboutaddons-utils.mjs"
+);
+
+let { getScreenshotUrlForAddon } = ChromeUtils.importESModule(
+  "chrome://mozapps/content/extensions/aboutaddons-utils.mjs"
+);
 
 const THUNDERBIRD_THEME_PREVIEWS = new Map([
   [
@@ -16,6 +28,7 @@ const THUNDERBIRD_THEME_PREVIEWS = new Map([
 ]);
 
 ChromeUtils.defineESModuleGetters(this, {
+  AddonRepository: "resource://gre/modules/addons/AddonRepository.sys.mjs",
   parseManifest: "resource:///modules/ExtensionUtilities.sys.mjs",
   UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
 });
@@ -25,6 +38,10 @@ XPCOMUtils.defineLazyPreferenceGetter(
   "alternativeAddonSearchUrl",
   "extensions.alternativeAddonSearch.url"
 );
+
+function getBrowserElement() {
+  return window.docShell.chromeEventHandler;
+}
 
 (async function () {
   window.MozXULElement.insertFTLIfNeeded("branding/brand.ftl");
@@ -121,6 +138,8 @@ XPCOMUtils.defineLazyPreferenceGetter(
   // Override parts of the addon-card customElement to be able
   // to add a dedicated button for extension preferences.
   await customElements.whenDefined("addon-card");
+  const AddonCard = customElements.get("addon-card");
+
   AddonCard.prototype.addOptionsButton = async function () {
     const { addon, optionsButton } = this;
     if (addon.type != "extension") {
@@ -154,9 +173,11 @@ XPCOMUtils.defineLazyPreferenceGetter(
   // Override parts of the addon-permission-list customElement to be able
   // to show the usage of Experiments in the permission list.
   await customElements.whenDefined("addon-permissions-list");
+  const AddonPermissionsList = customElements.get("addon-permissions-list");
+
   AddonPermissionsList.prototype.renderExperimentOnly = function () {
     this.textContent = "";
-    const frag = importTemplate("addon-permissions-list");
+    const frag = AddonPermissionsList.fragment;
     const section = frag.querySelector(".addon-permissions-required");
     section.hidden = false;
     const list = section.querySelector(".addon-permissions-list");
@@ -184,6 +205,8 @@ XPCOMUtils.defineLazyPreferenceGetter(
   };
 
   await customElements.whenDefined("recommended-addon-card");
+  const RecommendedAddonCard = customElements.get("recommended-addon-card");
+
   RecommendedAddonCard.prototype._setCardContent =
     RecommendedAddonCard.prototype.setCardContent;
   RecommendedAddonCard.prototype.setCardContent = function (card, addon) {
@@ -200,6 +223,8 @@ XPCOMUtils.defineLazyPreferenceGetter(
   };
 
   await customElements.whenDefined("search-addons");
+  const SearchAddons = customElements.get("search-addons");
+
   SearchAddons.prototype.searchAddons = function (query) {
     if (query.length === 0) {
       return;

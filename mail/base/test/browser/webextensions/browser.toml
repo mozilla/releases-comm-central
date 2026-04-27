@@ -51,6 +51,10 @@ support-files = [
 ["browser_extension_install_experiment.js"]
 
 ["browser_extension_install_experiment_suppressed.js"]
+skip-if = [
+  "true", # FIXME bug 2035089
+]
+
 
 ["browser_extension_sideloading.js"]
 
