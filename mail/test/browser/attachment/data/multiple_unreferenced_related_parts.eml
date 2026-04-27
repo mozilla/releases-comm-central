@@ -1,0 +1,32 @@
+Subject: Multiple unreferenced inline parts in multipart/related
+From: sender@example.invalid
+To: recipient@example.invalid
+Date: Sat, 01 Jan 2000 00:00:00 +0545
+Message-ID: <multiple-unreferenced-inline-parts@test.invalid>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="=_mixed_boundary"
+
+--=_mixed_boundary
+
+This message contains two empty ZIP files (dummy1.zip, dummy2.zip) as unreferenced inline parts. Both should appear as 22-byte attachments.
+
+--=_mixed_boundary
+Content-Type: multipart/related; boundary="=_rel_boundary"; type="application/zip"
+
+--=_rel_boundary
+Content-Type: application/zip; name="dummy1.zip"
+Content-Disposition: inline; filename="dummy1.zip"
+Content-Transfer-Encoding: base64
+
+UEsFBgAAAAAAAAAAAAAAAAAAAAAAAA==
+
+--=_rel_boundary
+Content-Type: application/zip; name="dummy2.zip"
+Content-Disposition: inline; filename="dummy2.zip"
+Content-Transfer-Encoding: base64
+
+UEsFBgAAAAAAAAAAAAAAAAAAAAAAAA==
+
+--=_rel_boundary--
+
+--=_mixed_boundary--

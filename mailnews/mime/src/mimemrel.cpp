@@ -425,15 +425,21 @@ static bool MimeMultipartRelated_output_child_p(MimeObject* obj,
       }
     }
 
-    if (location) {
-      char* base_url =
-          MimeHeaders_get(child->headers, HEADER_CONTENT_BASE, false, false);
-      char* absolute =
-          MakeAbsoluteURL(base_url ? base_url : relobj->base_url, location);
+    if (!location) {
+      // Without Content-ID or Content-Location this part is unreachable via
+      // cid: rewriting. Output it as a normal attachment so data is not
+      // silently discarded.
+      return true;
+    }
 
-      PR_FREEIF(base_url);
-      PR_Free(location);
-      if (absolute) {
+    char* base_url =
+        MimeHeaders_get(child->headers, HEADER_CONTENT_BASE, false, false);
+    char* absolute =
+        MakeAbsoluteURL(base_url ? base_url : relobj->base_url, location);
+
+    PR_FREEIF(base_url);
+    PR_Free(location);
+    if (absolute) {
         nsAutoCString partnum;
         nsAutoCString imappartnum;
         partnum.Adopt(mime_part_address(child));
@@ -545,7 +551,6 @@ static bool MimeMultipartRelated_output_child_p(MimeObject* obj,
           }
         }
       }
-    }
   } else {
     /* Ah-hah!  We're the head object.  */
     relobj->head_loaded = true;
@@ -644,6 +649,9 @@ static int MimeMultipartRelated_parse_child_line(MimeObject* obj,
       }
       return MimePartBufferWrite(relobj->child_bufs[idx], line, length);
     }
+    if (kid->output_p)
+      return ((MimeMultipartClass*)&MIME_SUPERCLASS)
+          ->parse_child_line(obj, line, length, first_line_p);
     return 0;
   }
 
