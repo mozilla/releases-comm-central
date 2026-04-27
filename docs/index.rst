@@ -28,6 +28,7 @@ Thunderbird Source Tree Documentation
    /frontend/icons
    /frontend/state_management
    /storybook/index
+   /frontend/support_links
    /frontend/tabmail
    /frontend/trees
    /frontend/xul
