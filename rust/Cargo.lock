@@ -1856,16 +1856,11 @@ dependencies = [
 name = "ews_xpcom"
 version = "0.1.0"
 dependencies = [
- "async-lock",
  "base64 0.21.999",
- "cstr",
  "ews",
  "firefox-on-glean",
  "fxhash",
  "log",
- "mail-builder",
- "mail-parser",
- "mailnews_string_glue",
  "mailnews_ui_glue",
  "moz_http",
  "moz_task",
@@ -1873,10 +1868,7 @@ dependencies = [
  "nsstring",
  "oneshot",
  "operation-queue",
- "paste",
  "protocol_shared",
- "quick-xml",
- "serde",
  "serde_json",
  "serde_path_to_error",
  "thin-vec",
@@ -1885,7 +1877,6 @@ dependencies = [
  "url",
  "uuid",
  "xpcom",
- "xpcom_async",
 ]
 
 [[package]]
@@ -5410,6 +5401,7 @@ dependencies = [
 name = "protocol_shared"
 version = "0.1.0"
 dependencies = [
+ "async-lock",
  "base64 0.21.999",
  "cstr",
  "fxhash",
@@ -5417,10 +5409,13 @@ dependencies = [
  "mail-builder",
  "mail-parser",
  "mailnews_string_glue",
+ "mailnews_ui_glue",
  "moz_http",
  "moz_task",
  "nserror",
  "nsstring",
+ "oneshot",
+ "operation-queue",
  "thin-vec",
  "thiserror 1.999.999",
  "url",

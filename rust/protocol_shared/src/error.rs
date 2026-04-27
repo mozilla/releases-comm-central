@@ -8,6 +8,7 @@
 //! that utilize HTTPS connections to interact with servers.
 
 use nserror::nsresult;
+use oneshot::RecvError;
 use thiserror::Error;
 
 /// Error types for HTTPS-based protocols.
@@ -24,6 +25,12 @@ pub enum ProtocolError {
 
     #[error("an item was too large to process: {0}")]
     Size(usize),
+
+    #[error("client has shut down")]
+    ClientClosed,
+
+    #[error("error while waiting for line to release: {0}")]
+    OperationReceiver(#[from] RecvError),
 }
 
 impl From<&ProtocolError> for nsresult {

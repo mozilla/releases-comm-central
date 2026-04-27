@@ -2,37 +2,46 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use std::{ops::ControlFlow, sync::Arc};
+use std::{marker::PhantomData, ops::ControlFlow, sync::Arc};
 
 use ews::{OperationResponse, ResponseClass, response::ResponseError, soap};
 use moz_http::Response;
+use protocol_shared::operation_sender::ResponseProcessor;
 
-use crate::{
-    error::XpComEwsError, operation_sender::ResponseProcessor, server_version::ServerVersionHandler,
-};
+use crate::{error::XpComEwsError, server_version::ServerVersionHandler};
 
 /// A [`ResponseProcessor`] for an EWS response.
-pub(crate) struct EwsResponseProcessor {
+pub(crate) struct EwsResponseProcessor<RespT: OperationResponse> {
     // We need a handle on the version handler to record the server version
     // that's located in the response.
     version_handler: Arc<ServerVersionHandler>,
+
+    // We need to parameterize `EwsResponseProcessor` on the concrete response
+    // type to set the `ResponseProcessor::ReturnValue` associated type.
+    resp_type: PhantomData<RespT>,
 }
 
-impl EwsResponseProcessor {
-    pub fn new(version_handler: Arc<ServerVersionHandler>) -> EwsResponseProcessor {
-        EwsResponseProcessor { version_handler }
+impl<RespT: OperationResponse> EwsResponseProcessor<RespT> {
+    pub fn new(version_handler: Arc<ServerVersionHandler>) -> EwsResponseProcessor<RespT> {
+        EwsResponseProcessor {
+            version_handler,
+            resp_type: PhantomData,
+        }
     }
 }
 
-impl<RespT> ResponseProcessor<RespT> for EwsResponseProcessor
+impl<RespT> ResponseProcessor for EwsResponseProcessor<RespT>
 where
     RespT: OperationResponse,
 {
+    type ReturnValue = RespT;
+    type Error = XpComEwsError;
+
     async fn check_response_for_error(
         &self,
         name: &str,
         resp: Response,
-    ) -> Result<ControlFlow<RespT, u32>, XpComEwsError> {
+    ) -> Result<ControlFlow<Self::ReturnValue, u32>, Self::Error> {
         let op_result: Result<soap::Envelope<RespT>, _> =
             soap::Envelope::from_xml_document(resp.body());
 

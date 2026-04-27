@@ -11,18 +11,19 @@ use mailnews_ui_glue::{
 };
 use moz_http::Response;
 use operation_queue::line_token::{AcquireOutcome, Line};
-use protocol_shared::{
+use url::Url;
+use uuid::Uuid;
+use xpcom::{RefCounted, RefPtr};
+
+use crate::{
+    ServerType,
     authentication::{
         credentials::{AuthValidationOutcome, Credentials},
         ntlm::{self, NTLMAuthOutcome},
     },
     error::ProtocolError,
+    observers::UrlPrefObserver,
 };
-use url::Url;
-use uuid::Uuid;
-use xpcom::{RefCounted, RefPtr};
-
-use crate::{client::ServerType, error::XpComEwsError, observers::UrlPrefObserver};
 
 pub mod observable_server;
 
@@ -34,21 +35,35 @@ pub mod observable_server;
 ///
 /// A new [`ResponseProcessor`] instance is provided to the [`OperationSender`]
 /// for each request, so it can be correctly parameterized on the response type.
-pub trait ResponseProcessor<T> {
+pub trait ResponseProcessor {
+    /// The success value returned in a [`ControlFlow::Break`] by
+    /// [`check_response_for_error`].
+    ///
+    /// [`check_response_for_error`]:
+    ///     ResponseProcessor::check_response_for_error
+    type ReturnValue;
+
+    /// The error value returned by [`check_response_for_error`].
+    ///
+    /// [`check_response_for_error`]:
+    ///     ResponseProcessor::check_response_for_error
+    type Error: From<ProtocolError>;
+
     /// Checks a raw [`Response`] for errors.
     ///
     /// If the response does not contain any error, the implementation is free
     /// to return the parsed response, the raw [`Response`] itself, or anything
-    /// else the consumer requires.
+    /// else the consumer requires, wrapped in a [`ControlFlow::Break`].
     ///
     /// If the response indicates requests are being throttled/rate-limited, the
     /// implementation is expected to return [`ControlFlow::Continue`] with the
     /// number of milliseconds to wait before the request can be retried.
+    #[allow(async_fn_in_trait)]
     async fn check_response_for_error(
         &self,
         name: &str,
         resp: Response,
-    ) -> Result<ControlFlow<T, u32>, XpComEwsError>;
+    ) -> Result<ControlFlow<Self::ReturnValue, u32>, Self::Error>;
 }
 
 // The environment variable that controls whether to include request/response
@@ -59,7 +74,7 @@ pub(crate) const LOG_NETWORK_PAYLOADS_ENV_VAR: &str = "THUNDERBIRD_LOG_NETWORK_P
 /// Options to to control the behavior of
 /// [`OperationSender::make_and_send_request`].
 #[derive(Debug, Clone, Copy, Default)]
-pub(crate) struct OperationRequestOptions {
+pub struct OperationRequestOptions {
     /// Behavior to follow when an authentication failure arises.
     pub auth_failure_behavior: AuthFailureBehavior,
 
@@ -70,7 +85,7 @@ pub(crate) struct OperationRequestOptions {
 /// The behavior to follow when an operation request results in an
 /// authentication failure.
 #[derive(Debug, Clone, Copy, Default)]
-pub(crate) enum AuthFailureBehavior {
+pub enum AuthFailureBehavior {
     /// Attempt to authenticate again or ask the user for new credentials.
     #[default]
     ReAuth,
@@ -84,7 +99,7 @@ pub(crate) enum AuthFailureBehavior {
 /// security failure (e.g. because of an invalid certificate). This specifically
 /// controls the behaviour of `XpComEwsClient::make_operation_request`.
 #[derive(Debug, Clone, Copy, Default)]
-pub(crate) enum TransportSecFailureBehavior {
+pub enum TransportSecFailureBehavior {
     /// Immediately alert the user about the security failure.
     #[default]
     Alert,
@@ -115,7 +130,7 @@ pub struct OperationSender<ServerT: RefCounted + 'static> {
     // happening when it's already being borrowed. We can clone the inner
     // `RefPtr` immediately upon borrowing, so the loss in parallelism is
     // negligible.
-    server: Mutex<RefCell<Option<RefPtr<ServerT>>>>,
+    server: Mutex<Option<RefPtr<ServerT>>>,
 }
 
 impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
@@ -129,7 +144,7 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
     pub fn new(
         endpoint: Url,
         server: RefPtr<ServerT>,
-    ) -> Result<OperationSender<ServerT>, XpComEwsError> {
+    ) -> Result<OperationSender<ServerT>, ProtocolError> {
         // Note: semantically `endpoint` should be wrapped in a `Cell` (not a
         // `RefCell`) since we never borrow, but `Cell` relies on the inner type
         // implementing `Copy` which `Url` doesn't do.
@@ -142,7 +157,7 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
 
         Ok(OperationSender {
             endpoint,
-            server: Mutex::new(RefCell::new(Some(server))),
+            server: Mutex::new(Some(server)),
             client: moz_http::Client::new(),
             error_handling_line: Line::new(),
         })
@@ -156,7 +171,7 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
     /// necessary so they don't prevent each other from being dropped (and leak
     /// memory).
     pub async fn shutdown(&self) {
-        self.server.lock().await.replace(None);
+        self.server.lock().await.take();
     }
 
     /// Returns the [`Url`] currently used as the endpoint to send requests to.
@@ -166,29 +181,28 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
 
     /// Get a reference on the server, if it's available.
     ///
-    /// Returns [`XpComEwsError::ClientClosed`] if the shutdown signal has been
+    /// Returns [`ProtocolError::ClientClosed`] if the shutdown signal has been
     /// received and the reference on the server has already been dropped.
-    async fn server(&self) -> Result<RefPtr<ServerT>, XpComEwsError> {
+    async fn server(&self) -> Result<RefPtr<ServerT>, ProtocolError> {
         self.server
             .lock()
             .await
-            .borrow()
             .clone()
-            .ok_or(XpComEwsError::ClientClosed)
+            .ok_or(ProtocolError::ClientClosed)
     }
 
     /// Builds and sends an HTTP request for the operation.
     ///
     /// Also handles retries as required (e.g. for authentication failures, or
     /// if we're being throttled) if the request fails.
-    pub async fn make_and_send_request<OpResp, ProcT: ResponseProcessor<OpResp>>(
+    pub async fn make_and_send_request<ProcT: ResponseProcessor>(
         &self,
         operation_id: &Uuid,
         name: &str,
         content: &[u8],
         options: &OperationRequestOptions,
         resp_processor: ProcT,
-    ) -> Result<OpResp, XpComEwsError> {
+    ) -> Result<ProcT::ReturnValue, ProcT::Error> {
         // Check if we can get a `RefPtr` on the server; if not it means we've
         // received the shutdown signal and we shouldn't proceed with the
         // request (since we drop our reference on the server upon shutdown, to
@@ -208,7 +222,7 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
                         }
                         AcquireOutcome::Failure(shared) => {
                             log::debug!("early failure: waiting for another runner to handle");
-                            shared.await?;
+                            shared.await.map_err(ProtocolError::from)?;
                             None
                         }
                     };
@@ -225,7 +239,7 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
             // responses with the relevant response message).
             let response = match response.error_from_status() {
                 Ok(response) => {
-                    report_connection_success(self.server().await?)?;
+                    report_connection_success(self.server().await?).map_err(ProtocolError::from)?;
                     response
                 }
                 Err(moz_http::Error::StatusCode { status, response }) if status.0 == 500 => {
@@ -234,15 +248,19 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
                 }
                 Err(err) => {
                     if let moz_http::Error::StatusCode { ref response, .. } = err {
-                        log::error!("Request FAILED with status {}: {err}", response.status()?);
+                        log::error!(
+                            "Request FAILED with status {}: {err}",
+                            response.status().map_err(ProtocolError::from)?
+                        );
                     } else {
                         log::error!(
                             "moz_http::Response::error_from_status returned an unexpected error: {err:?}"
                         );
                     }
 
-                    maybe_handle_connection_error((&err).into(), self.server().await?)?;
-                    return Err(err.into());
+                    maybe_handle_connection_error((&err).into(), self.server().await?)
+                        .map_err(ProtocolError::from)?;
+                    return Err(ProtocolError::from(err).into());
                 }
             };
 
@@ -253,14 +271,16 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
                 ControlFlow::Continue(delay_ms) => {
                     token = match self.error_handling_line.try_acquire_token().or_token(token) {
                         AcquireOutcome::Success(new_token) => {
-                            xpcom_async::sleep(delay_ms).await?;
+                            xpcom_async::sleep(delay_ms)
+                                .await
+                                .map_err(ProtocolError::from)?;
                             Some(new_token)
                         }
                         AcquireOutcome::Failure(shared) => {
                             log::debug!(
                                 "failure from envelope: waiting for another runner to handle"
                             );
-                            shared.await?;
+                            shared.await.map_err(ProtocolError::from)?;
                             None
                         }
                     };
@@ -283,7 +303,7 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
         operation_id: &Uuid,
         op_name: &str,
         request_body: &[u8],
-    ) -> Result<Response, XpComEwsError> {
+    ) -> Result<Response, ProtocolError> {
         // Get a new `Credentials` for the request.
         //
         // We used to reuse the same instance for each operation, but this does
@@ -341,7 +361,7 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
         // Catch authentication errors quickly so we can react to them
         // appropriately.
         if response_status.0 == 401 {
-            Err(XpComEwsError::Protocol(ProtocolError::Authentication))
+            Err(ProtocolError::Authentication)
         } else {
             Ok(response)
         }
@@ -359,15 +379,15 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
     /// that was passed as input.
     async fn handle_early_failure(
         &self,
-        err: XpComEwsError,
+        err: ProtocolError,
         options: &OperationRequestOptions,
-    ) -> Result<(), XpComEwsError> {
+    ) -> Result<(), ProtocolError> {
         log::warn!("handling early failure: {err}");
 
         match err {
             // If the error is an authentication failure, try to authenticate
             // again (as far as the operation's configuration allows us to).
-            XpComEwsError::Protocol(ProtocolError::Authentication) => {
+            ProtocolError::Authentication => {
                 match self
                     .handle_authentication_failure(&options.auth_failure_behavior)
                     .await?
@@ -388,12 +408,10 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
             // If the error is a transport security failure (e.g. an
             // invalid certificate), handle it here by alerting the
             // user, but only if the consumer asked us to.
-            XpComEwsError::Protocol(ProtocolError::Http(
-                moz_http::Error::TransportSecurityFailure {
-                    status: _,
-                    ref transport_security_info,
-                },
-            )) if matches!(
+            ProtocolError::Http(moz_http::Error::TransportSecurityFailure {
+                status: _,
+                ref transport_security_info,
+            }) if matches!(
                 options.transport_sec_failure_behavior,
                 TransportSecFailureBehavior::Alert
             ) =>
@@ -408,7 +426,7 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
             // If the error is network-related, optionally alert the
             // user (depending on which specific error it is) before
             // propagating it.
-            XpComEwsError::Protocol(ProtocolError::Http(ref http_error)) => {
+            ProtocolError::Http(ref http_error) => {
                 maybe_handle_connection_error(http_error.into(), self.server().await?)?;
                 Err(err)
             }
@@ -426,7 +444,7 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
     async fn handle_authentication_failure(
         &self,
         behavior: &AuthFailureBehavior,
-    ) -> Result<ControlFlow<()>, XpComEwsError> {
+    ) -> Result<ControlFlow<()>, ProtocolError> {
         let credentials = self.server().await?.get_credentials()?;
 
         if let Credentials::Ntlm {

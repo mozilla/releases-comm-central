@@ -41,8 +41,6 @@ use client::XpComEwsClient;
 mod client;
 mod error;
 mod headerblock;
-mod observers;
-mod operation_sender;
 mod outgoing;
 mod response_parser;
 mod server_version;

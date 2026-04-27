@@ -21,33 +21,29 @@ mod update_folder;
 use std::{cell::Cell, collections::VecDeque, fmt::Debug, sync::Arc};
 
 use ews::{
-    BaseFolderId, BaseItemId, BaseShape, Folder, FolderId, FolderShape, ItemResponseMessage,
-    ItemShape, Operation, OperationResponse, PathToElement, RealItem,
+    BaseFolderId, BaseItemId, BaseShape, Folder, FolderId, ItemResponseMessage, ItemShape,
+    Operation, OperationResponse, PathToElement, RealItem,
     create_item::CreateItem,
-    get_folder::{GetFolder, GetFolderResponseMessage},
+    get_folder::GetFolderResponseMessage,
     get_item::GetItem,
     response::{ResponseClass, ResponseError},
     soap,
     update_item::{UpdateItem, UpdateItemResponse},
 };
 use log::info;
-use mailnews_ui_glue::UserInteractiveServer;
 use protocol_shared::{
-    authentication::credentials::AuthenticationProvider, client::ProtocolClient,
+    ServerType,
+    client::ProtocolClient,
+    operation_sender::{OperationRequestOptions, OperationSender, TransportSecFailureBehavior},
 };
 use url::Url;
 use uuid::Uuid;
-use xpcom::{RefCounted, RefPtr};
+use xpcom::RefPtr;
 
 use operation_queue::{OperationQueue, QueuedOperation};
 
 use crate::{
-    error::XpComEwsError,
-    operation_sender::{
-        OperationRequestOptions, OperationSender, TransportSecFailureBehavior,
-        observable_server::ObservableServer,
-    },
-    response_parser::EwsResponseProcessor,
+    error::XpComEwsError, response_parser::EwsResponseProcessor,
     server_version::ServerVersionHandler,
 };
 
@@ -66,16 +62,6 @@ use crate::{
 const MSGFLAG_READ: i32 = 0x00000001;
 const MSGFLAG_UNMODIFIED: i32 = 0x00000002;
 const MSGFLAG_UNSENT: i32 = 0x00000008;
-
-/// Shorthand for the most common server type constraints.
-pub(crate) trait ServerType:
-    AuthenticationProvider + UserInteractiveServer + ObservableServer + RefCounted
-{
-}
-impl<T> ServerType for T where
-    T: AuthenticationProvider + UserInteractiveServer + ObservableServer + RefCounted
-{
-}
 
 /// The result from an EWS operation, containing either the operation's response
 /// or an error.

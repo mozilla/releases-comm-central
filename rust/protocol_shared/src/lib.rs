@@ -2,10 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+use mailnews_ui_glue::UserInteractiveServer;
 use url::Url;
-use xpcom::{RefPtr, interfaces::nsIMsgIncomingServer};
+use xpcom::{RefCounted, RefPtr, interfaces::nsIMsgIncomingServer};
 
-use crate::authentication::credentials::Credentials;
+use crate::{
+    authentication::credentials::{AuthenticationProvider, Credentials},
+    operation_sender::observable_server::ObservableServer,
+};
 
 pub mod authentication;
 pub mod cancellable_request;
@@ -13,11 +17,22 @@ pub mod client;
 pub mod error;
 pub mod headerblock_xpcom;
 pub mod headers;
+pub mod operation_sender;
 pub mod outgoing;
 pub mod safe_xpcom;
 pub mod xpcom_io;
 
 mod observers;
+
+/// Shorthand for the most common server type constraints.
+pub trait ServerType:
+    AuthenticationProvider + UserInteractiveServer + ObservableServer + RefCounted
+{
+}
+impl<T> ServerType for T where
+    T: AuthenticationProvider + UserInteractiveServer + ObservableServer + RefCounted
+{
+}
 
 /// Connection details required for HTTPS-based Exchange protocols.
 #[derive(Clone)]

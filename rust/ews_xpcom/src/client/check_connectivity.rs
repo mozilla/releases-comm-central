@@ -4,20 +4,25 @@
 
 use std::sync::Arc;
 
-use ews::{Operation, OperationResponse};
+use ews::{
+    BaseFolderId, BaseShape, FolderShape, Operation, OperationResponse, get_folder::GetFolder,
+};
 use protocol_shared::{
-    EXCHANGE_ROOT_FOLDER,
+    EXCHANGE_ROOT_FOLDER, ServerType,
     client::DoOperation,
+    operation_sender::OperationRequestOptions,
     safe_xpcom::{SafeUri, SafeUrlListener},
 };
 
-use super::{
-    BaseFolderId, BaseShape, FolderShape, GetFolder, OperationRequestOptions, ServerType,
-    XpComEwsClient, XpComEwsError, process_response_message_class, single_response_or_error,
-    validate_get_folder_response_message,
-};
+use protocol_shared::operation_sender::AuthFailureBehavior;
 
-use crate::operation_sender::AuthFailureBehavior;
+use crate::{
+    client::{
+        XpComEwsClient, process_response_message_class, single_response_or_error,
+        validate_get_folder_response_message,
+    },
+    error::XpComEwsError,
+};
 
 struct DoCheckConnectivity<'a> {
     pub listener: &'a SafeUrlListener,

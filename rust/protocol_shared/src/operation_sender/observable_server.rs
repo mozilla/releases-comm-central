@@ -12,7 +12,7 @@ use xpcom::{
 };
 
 /// A server on which an observer can subscribe to changes.
-pub(crate) trait ObservableServer {
+pub trait ObservableServer {
     /// Registers an `nsIObserver` to be called when a given property of the
     /// server changes.
     fn observe_property(
