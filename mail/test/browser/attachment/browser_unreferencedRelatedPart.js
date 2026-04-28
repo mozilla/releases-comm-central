@@ -55,3 +55,39 @@ add_task(async function test_multiple_unreferenced_related_parts_visible() {
 
   await BrowserTestUtils.closeWindow(msgc);
 });
+
+add_task(async function test_unreferenced_related_inline_image_visible() {
+  const file = new FileUtils.File(
+    getTestFilePath("data/unreferenced_related_inline_image.eml")
+  );
+  const msgc = await open_message_from_file(file);
+  const aboutMessage = get_about_message(msgc);
+
+  EventUtils.synthesizeMouseAtCenter(
+    aboutMessage.document.getElementById("attachmentToggle"),
+    {},
+    aboutMessage
+  );
+
+  const attachmentList = aboutMessage.document.getElementById("attachmentList");
+  Assert.equal(
+    attachmentList.itemCount,
+    1,
+    "unreferenced inline image should surface as an attachment"
+  );
+
+  const attachment = attachmentList.getItemAtIndex(0).attachment;
+  Assert.equal(
+    attachment.name,
+    "sample.png",
+    "attachment should use the provided filename"
+  );
+  Assert.equal(
+    attachment.size,
+    67,
+    "attachment size should match the decoded PNG size"
+  );
+  Assert.ok(!(await attachment.isEmpty()), "attachment should not be empty");
+
+  await BrowserTestUtils.closeWindow(msgc);
+});

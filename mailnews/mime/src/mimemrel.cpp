@@ -102,6 +102,7 @@
 #include "mimemrel.h"
 #include "mimepbuf.h"
 #include "mimemapl.h"
+#include "mimeleaf.h"
 #include "nsMailHeaders.h"
 #include "prmem.h"
 #include "prprf.h"
@@ -616,6 +617,23 @@ static int MimeMultipartRelated_parse_child_line(MimeObject* obj,
   if (!kid) return -1;
 
   if (kid != relobj->headobj) {
+    // Hidden related parts may later surface as attachments; keep decoded sizes.
+    if (!kid->output_p &&
+        mime_subclass_p(kid->clazz, (MimeObjectClass*)&mimeLeafClass)) {
+      int32_t lineLength = length;
+      if (lineLength > 0 && line[lineLength - 1] == '\n') lineLength--;
+      if (lineLength > 0 && line[lineLength - 1] == '\r') lineLength--;
+
+      if (!first_line_p) {
+        char nl[] = MSG_LINEBREAK;
+        int status = MimeLeaf_parse_buffer_for_size(nl, MSG_LINEBREAK_LEN, kid);
+        if (status < 0) return status;
+      }
+
+      int status = MimeLeaf_parse_buffer_for_size(line, lineLength, kid);
+      if (status < 0) return status;
+    }
+
     // In decompose mode, buffer non-head child content so we can replay it
     // in parse_eof for parts the reader decides are visible attachments.
     if (obj->options && obj->options->decompose_file_p) {

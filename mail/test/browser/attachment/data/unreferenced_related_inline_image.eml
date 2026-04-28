@@ -1,0 +1,30 @@
+From: sender@example.invalid
+To: recipient@example.invalid
+Subject: Unreferenced related inline image
+Date: Tue, 01 Oct 1996 10:00:00 -0400
+Message-ID: <unreferenced-related-inline-image@example.invalid>
+Content-Type: multipart/related;
+	boundary="_004_related_boundary_";
+	type="multipart/alternative"
+MIME-Version: 1.0
+
+--_004_related_boundary_
+Content-Type: multipart/alternative;
+	boundary="_000_alternative_boundary_"
+
+--_000_alternative_boundary_
+Content-Type: text/plain; charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
+
+Test body content.
+
+--_004_related_boundary_
+Content-Type: image/png; name="sample.png"
+Content-Description: sample.png
+Content-Disposition: inline; filename="sample.png"
+Content-ID: <unreferenced-image-cid@example.invalid>
+Content-Transfer-Encoding: base64
+
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVR42mMAAQAABQABDQottAAAAABJRU5ErkJggg==
+
+--_004_related_boundary_--

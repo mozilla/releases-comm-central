@@ -42,6 +42,9 @@ struct MimeLeafClass {
 
 extern MimeLeafClass mimeLeafClass;
 
+extern int MimeLeaf_parse_buffer_for_size(const char* buffer, int32_t size,
+                                          MimeObject* obj);
+
 struct MimeLeaf {
   MimeObject object; /* superclass variables */
 

@@ -24,6 +24,15 @@ static int MimeLeaf_close_decoder(MimeObject*);
 static int MimeLeaf_parse_eof(MimeObject*, bool);
 static bool MimeLeaf_displayable_inline_p(MimeObjectClass* clazz,
                                           MimeHeaders* hdrs);
+/* Content-Transfer-Encoding decode helpers, currently supporting base64, quoted-printable, x-uuencode, and x-yencode. */
+// TODO: Content-Transfer-Encoding: binary (bug 19352)
+static int MimeLeaf_discard_decoded(const char* buf, int32_t size,
+                                    MimeClosure closure);
+static int MimeLeaf_create_decoder(MimeObject* obj,
+                                   MimeConverterOutputCallback output_fn);
+static int MimeLeaf_decode_buffer(const char* buffer, int32_t size,
+                                  MimeObject* obj,
+                                  MimeConverterOutputCallback output_fn);
 
 static int MimeLeafClassInitialize(MimeObjectClass* oclass) {
   MimeLeafClass* clazz = (MimeLeafClass*)oclass;
@@ -77,38 +86,9 @@ static void MimeLeaf_finalize(MimeObject* object) {
 }
 
 static int MimeLeaf_parse_begin(MimeObject* obj) {
-  MimeLeaf* leaf = (MimeLeaf*)obj;
-  MimeDecoderData* (*fn)(MimeConverterOutputCallback, MimeClosure) = 0;
-
-  /* Initialize a decoder if necessary.
-   */
-  if (!obj->encoding ||
-      // If we need the object as "raw" for saving or forwarding,
-      // don't decode attachment parts if headers are also written
-      // via the parent, so that the header matches the encoding.
-      (obj->options->format_out == nsMimeOutput::nsMimeMessageRaw &&
-       obj->parent && obj->parent->output_p))
-    /* no-op */;
-  else if (!PL_strcasecmp(obj->encoding, ENCODING_BASE64))
-    fn = &MimeB64DecoderInit;
-  else if (!PL_strcasecmp(obj->encoding, ENCODING_QUOTED_PRINTABLE))
-    leaf->decoder_data =
-        MimeQPDecoderInit(((MimeLeafClass*)obj->clazz)->parse_decoded_buffer,
-                          MimeClosure(MimeClosure::isMimeObject, obj), obj);
-  else if (!PL_strcasecmp(obj->encoding, ENCODING_UUENCODE) ||
-           !PL_strcasecmp(obj->encoding, ENCODING_UUENCODE2) ||
-           !PL_strcasecmp(obj->encoding, ENCODING_UUENCODE3) ||
-           !PL_strcasecmp(obj->encoding, ENCODING_UUENCODE4))
-    fn = &MimeUUDecoderInit;
-  else if (!PL_strcasecmp(obj->encoding, ENCODING_YENCODE))
-    fn = &MimeYDecoderInit;
-
-  if (fn) {
-    leaf->decoder_data = fn(((MimeLeafClass*)obj->clazz)->parse_decoded_buffer,
-                            MimeClosure(MimeClosure::isMimeObject, obj));
-
-    if (!leaf->decoder_data) return MIME_OUT_OF_MEMORY;
-  }
+  int status = MimeLeaf_create_decoder(
+      obj, ((MimeLeafClass*)obj->clazz)->parse_decoded_buffer);
+  if (status < 0) return status;
 
   return ((MimeObjectClass*)&MIME_SUPERCLASS)->parse_begin(obj);
 }
@@ -120,31 +100,93 @@ static int MimeLeaf_parse_buffer(const char* buffer, int32_t size,
     return -1;
   }
 
-  MimeLeaf* leaf = (MimeLeaf*)obj;
-
   NS_ASSERTION(!obj->closed_p, "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
+
   if (obj->closed_p) return -1;
 
-  /* If we're not supposed to write this object, bug out now.
-   */
   if (!obj->output_p || !obj->options || !obj->options->output_fn) return 0;
 
-  int rv;
+  return MimeLeaf_decode_buffer(
+      buffer, size, obj, ((MimeLeafClass*)obj->clazz)->parse_decoded_buffer);
+}
+
+/* No-op sink: decoder runs for size accounting, decoded bytes discarded. */
+static int MimeLeaf_discard_decoded(const char* buf, int32_t size,
+                                    MimeClosure closure) {
+  return 0;
+}
+
+static int MimeLeaf_create_decoder(MimeObject* obj,
+                                   MimeConverterOutputCallback output_fn) {
+  MimeLeaf* leaf = (MimeLeaf*)obj;
+  if (leaf->decoder_data) return 0;
+
+  if (!obj->encoding) return 0;
+
+  /* Raw mode: parent emits CTE headers, so bytes must stay encoded. */
+  if (obj->options &&
+      obj->options->format_out == nsMimeOutput::nsMimeMessageRaw &&
+      obj->parent && obj->parent->output_p)
+    return 0;
+
+  MimeDecoderData* (*fn)(MimeConverterOutputCallback, MimeClosure) = nullptr;
+
+  if (!PL_strcasecmp(obj->encoding, ENCODING_BASE64))
+    fn = &MimeB64DecoderInit;
+  else if (!PL_strcasecmp(obj->encoding, ENCODING_QUOTED_PRINTABLE)) {
+    /* QP init takes the MimeObject for soft-line-break state. */
+    leaf->decoder_data = MimeQPDecoderInit(
+        output_fn, MimeClosure(MimeClosure::isMimeObject, obj), obj);
+    return leaf->decoder_data ? 0 : MIME_OUT_OF_MEMORY;
+  } else if (!PL_strcasecmp(obj->encoding, ENCODING_UUENCODE) ||
+             !PL_strcasecmp(obj->encoding, ENCODING_UUENCODE2) ||
+             !PL_strcasecmp(obj->encoding, ENCODING_UUENCODE3) ||
+             !PL_strcasecmp(obj->encoding, ENCODING_UUENCODE4))
+    fn = &MimeUUDecoderInit;
+  else if (!PL_strcasecmp(obj->encoding, ENCODING_YENCODE))
+    fn = &MimeYDecoderInit;
+
+  if (fn) {
+    leaf->decoder_data =
+        fn(output_fn, MimeClosure(MimeClosure::isMimeObject, obj));
+    if (!leaf->decoder_data) return MIME_OUT_OF_MEMORY;
+  }
+
+  return 0;
+}
+
+static int MimeLeaf_decode_buffer(const char* buffer, int32_t size,
+                                  MimeObject* obj,
+                                  MimeConverterOutputCallback output_fn) {
+  MimeLeaf* leaf = (MimeLeaf*)obj;
   if (leaf->sizeSoFar == -1) leaf->sizeSoFar = 0;
 
+  int status = MimeLeaf_create_decoder(obj, output_fn);
+  if (status < 0) return status;
+
+  /* Decrypt and Attach modes need raw encoded bytes; bypass decoder. */
   if (leaf->decoder_data && obj->options &&
       obj->options->format_out != nsMimeOutput::nsMimeMessageDecrypt &&
       obj->options->format_out != nsMimeOutput::nsMimeMessageAttach) {
     int outSize = 0;
-    rv = MimeDecoderWrite(leaf->decoder_data, buffer, size, &outSize);
+    int rv = MimeDecoderWrite(leaf->decoder_data, buffer, size, &outSize);
     leaf->sizeSoFar += outSize;
-  } else {
-    rv = ((MimeLeafClass*)obj->clazz)
-             ->parse_decoded_buffer(
-                 buffer, size, MimeClosure(MimeClosure::isMimeObject, obj));
-    leaf->sizeSoFar += size;
+    return rv;
   }
+
+  int rv = output_fn(buffer, size, MimeClosure(MimeClosure::isMimeObject, obj));
+  leaf->sizeSoFar += size;
   return rv;
+}
+
+/* Decode to compute size without output, for suppressed related children. */
+int MimeLeaf_parse_buffer_for_size(const char* buffer, int32_t size,
+                                   MimeObject* obj) {
+  if (!obj || !mime_subclass_p(obj->clazz, (MimeObjectClass*)&mimeLeafClass))
+    return 0;
+
+  return MimeLeaf_decode_buffer(buffer, size, obj,
+                                MimeLeaf_discard_decoded);
 }
 
 static int MimeLeaf_parse_line(const char* line, int32_t length,
