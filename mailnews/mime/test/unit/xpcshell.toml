@@ -30,6 +30,8 @@ support-files = [
 
 ["test_mimeStreaming.js"]
 
+["test_multipart_related_start.js"]
+
 ["test_nsIMsgHeaderParser1.js"]
 
 ["test_nsIMsgHeaderParser2.js"]

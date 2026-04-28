@@ -339,6 +339,16 @@ static bool MimeThisIsStartPart(MimeObject* obj, MimeObject* child) {
   PR_FREEIF(ct);
   if (!st) return false;
 
+  // Strip angle brackets from the start parameter value per RFC 2387.
+  char* stStripped = st;
+  if (*stStripped == '<') {
+    stStripped++;
+    int stLen = strlen(stStripped);
+    if (stLen > 0 && stStripped[stLen - 1] == '>') {
+      stStripped[stLen - 1] = '\0';
+    }
+  }
+
   cst = MimeHeaders_get(child->headers, HEADER_CONTENT_ID, false, false);
   if (!cst)
     rval = false;
@@ -353,7 +363,7 @@ static bool MimeThisIsStartPart(MimeObject* obj, MimeObject* child) {
       }
     }
 
-    rval = (!strcmp(st, tmp));
+    rval = (!strcmp(stStripped, tmp));
   }
 
   PR_FREEIF(st);
