@@ -24,10 +24,10 @@ AboutRedirector.prototype = {
       flags: Ci.nsIAboutModule.ALLOW_SCRIPT,
     },
     rights: {
-      url: "chrome://messenger/content/aboutRights.xhtml",
+      url: "https://updates.thunderbird.net/thunderbird/about/rights/",
       flags:
-        Ci.nsIAboutModule.ALLOW_SCRIPT |
-        Ci.nsIAboutModule.URI_SAFE_FOR_UNTRUSTED_CONTENT,
+        Ci.nsIAboutModule.URI_SAFE_FOR_UNTRUSTED_CONTENT |
+        Ci.nsIAboutModule.URI_MUST_LOAD_IN_CHILD,
     },
     support: {
       url: "chrome://messenger/content/about-support/aboutSupport.xhtml",
@@ -96,6 +96,19 @@ AboutRedirector.prototype = {
     }
 
     const newURI = Services.io.newURI(this._redirMap[name].url);
+
+    // For external URLs, treat the page request as coming from the
+    // destination URL, not from Thunderbird itself. Without this, the
+    // security manager blocks the load.
+    if (
+      !Services.io.URIChainHasFlags(
+        newURI,
+        Ci.nsIProtocolHandler.URI_IS_UI_RESOURCE
+      )
+    ) {
+      aLoadInfo.resultPrincipalURI = newURI;
+    }
+
     const channel = Services.io.newChannelFromURIWithLoadInfo(
       newURI,
       aLoadInfo

@@ -54,9 +54,6 @@ CO01:
     messages:
         # comm/mail/branding/thunderbird/locales/en-US/brand.ftl
         - trademarkInfo
-        # comm/mail/locales/en-US/messenger/aboutRights.ftl
-        - rights-intro-point-1
-        - rights-intro-point-2
         # comm/mail/locales/en-US/messenger/accountcreation/accountSetup.ftl
         - account-setup-looking-up-db
         - account-setup-success-settings-db
