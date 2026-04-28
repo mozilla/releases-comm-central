@@ -29,6 +29,7 @@ mod move_message;
 mod send_message;
 mod sync_folder_hierarchy;
 mod sync_messages_for_folder;
+mod update_folder;
 
 // The environment variable that controls whether to include request/response
 // payloads when logging. We only check for the variable's presence, not any

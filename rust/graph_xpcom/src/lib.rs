@@ -232,11 +232,26 @@ impl XpcomGraphBridge {
     ));
     fn update_folder(
         &self,
-        _listener: &IExchangeSimpleOperationListener,
-        _folder_id: &nsACString,
-        _folder_name: &nsACString,
+        listener: &IExchangeSimpleOperationListener,
+        folder_id: &nsACString,
+        folder_name: &nsACString,
     ) -> Result<(), nsresult> {
-        Err(nserror::NS_ERROR_NOT_IMPLEMENTED)
+        let server = self.details.get().unwrap().server.clone();
+        let endpoint = self.details.get().unwrap().endpoint.clone();
+
+        let client = XpComGraphClient::new(server, endpoint);
+
+        moz_task::spawn_local(
+            "update_folder",
+            client.update_folder(
+                folder_id.to_utf8().into_owned(),
+                folder_name.to_utf8().into_owned(),
+                SafeEwsSimpleOperationListener::new(listener),
+            ),
+        )
+        .detach();
+
+        Ok(())
     }
 
     xpcom_method!(sync_messages_for_folder => SyncMessagesForFolder(

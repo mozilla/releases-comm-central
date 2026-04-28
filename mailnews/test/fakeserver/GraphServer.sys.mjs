@@ -421,6 +421,8 @@ export class GraphServer extends MockServer {
       case "PATCH":
         if (resourcePath.startsWith("/me/messages")) {
           responseJsonObject = this.#updateMessage(resourcePath, requestBody);
+        } else if (resourcePath.startsWith("/me/mailFolders")) {
+          responseJsonObject = this.#updateFolder(resourcePath, requestBody);
         }
     }
 
@@ -683,6 +685,28 @@ export class GraphServer extends MockServer {
     // this response with more fields.
     return {
       id: messageId,
+    };
+  }
+
+  /**
+   * Handle PATCH /me/mailFolders/{mailFolderId}
+   *
+   * @param {string} resourcePath
+   * @param {string} requestBody
+   */
+  #updateFolder(resourcePath, requestBody) {
+    const pathParts = resourcePath.split("/");
+    const folderId = pathParts[pathParts.length - 1];
+
+    const parsedReq = JSON.parse(requestBody);
+
+    const newName = parsedReq.displayName;
+
+    this.renameFolderById(folderId, newName);
+
+    return {
+      id: folderId,
+      displayName: newName,
     };
   }
 

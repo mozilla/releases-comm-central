@@ -124,6 +124,24 @@ const CREATE_FOLDER_RESPONSE_BASE = `${EWS_SOAP_HEAD}
     </m:CreateFolderResponse>
 ${EWS_SOAP_FOOT}`;
 
+// The base for a response to a CreateFolder operation request. Before sending,
+// the server will populate `m:Folders` with the server-side IDs of the newly
+// created folders.
+const UPDATE_FOLDER_RESPONSE_BASE = `${EWS_SOAP_HEAD}
+    <m:UpdateFolderResponse xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
+                            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                            xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types">
+      <m:ResponseMessages>
+        <m:UpdateFolderResponseMessage ResponseClass="Success">
+          <m:ResponseCode>NoError</m:ResponseCode>
+          <m:Folders>
+          </m:Folders>
+        </m:UpdateFolderResponseMessage>
+      </m:ResponseMessages>
+    </m:UpdateFolderResponse>
+${EWS_SOAP_FOOT}`;
+
 const MOVE_ITEM_RESPONSE_BASE = `${EWS_SOAP_HEAD}
     <m:MoveItemResponse xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -633,6 +651,8 @@ export class EwsServer extends MockServer {
       resBytes = this.#generateEmptyFolderResponse(reqDoc);
     } else if (reqDoc.getElementsByTagName("MarkAllItemsAsRead").length) {
       resBytes = this.#generateMarkAllItemsAsReadResponse(reqDoc);
+    } else if (reqDoc.getElementsByTagName("UpdateFolder").length) {
+      resBytes = this.#generateUpdateFolderResponse(reqDoc);
     } else {
       throw new Error("Unexpected EWS operation");
     }
@@ -690,6 +710,52 @@ export class EwsServer extends MockServer {
     folderIdEl.setAttribute("Id", folderId);
     newFolderEl.appendChild(folderIdEl);
     foldersEl.appendChild(newFolderEl);
+
+    return this.#serializer.serializeToString(resDoc);
+  }
+
+  /**
+   * Generate a response for an EWS UpdateFolder operation.
+   *
+   * @see {@link https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/updatefolder-operation}
+   *
+   * @param {XMLDocument} reqDoc
+   *
+   * @returns {string} The serialized XML response document.
+   */
+  #generateUpdateFolderResponse(reqDoc) {
+    const folderChanges = reqDoc.getElementsByTagName("FolderChange");
+
+    const resDoc = this.#parser.parseFromString(
+      UPDATE_FOLDER_RESPONSE_BASE,
+      "text/xml"
+    );
+
+    const foldersEl = resDoc.getElementsByTagName("m:Folders");
+
+    for (const folderChange of folderChanges) {
+      const folderIdToChange = folderChange
+        .getElementsByTagName("t:FolderId")
+        .getAttribute("Id");
+      // We currently only support changing a folder's name.
+      const folderField =
+        folderChange.getElementsByTagName("t:SetFolderField")[0];
+      const fieldURI = folderField
+        .getElementsByTagName("t:FieldURI")[0]
+        .getAttribute("FieldURI");
+      if (fieldURI == "folder:DisplayName") {
+        const displayName =
+          folderField.getElementsByTagName("t:DisplayName").textContent;
+
+        this.renameFolderById(folderIdToChange, displayName);
+
+        const folderEl = resDoc.createElement("t:Folder");
+        const folderIdEl = resDoc.createElement("FolderId");
+        folderIdEl.setAttribute("Id", folderIdToChange);
+        folderEl.appendChild(folderIdEl);
+        foldersEl.appendChild(folderEl);
+      }
+    }
 
     return this.#serializer.serializeToString(resDoc);
   }

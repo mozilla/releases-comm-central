@@ -12,7 +12,7 @@ var { RemoteFolder } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MockServer.sys.mjs"
 );
 
-var incomingServer;
+var incomingEwsServer;
 var ewsServer;
 var incomingGraphServer;
 var graphServer;
@@ -21,7 +21,7 @@ const ewsIdPropertyName = "ewsId";
 const generator = new MessageGenerator();
 
 add_setup(async function () {
-  [ewsServer, incomingServer] = setupBasicEwsTestServer({});
+  [ewsServer, incomingEwsServer] = setupBasicEwsTestServer({});
   [graphServer, incomingGraphServer] = setupBasicGraphTestServer();
 });
 
@@ -72,7 +72,7 @@ async function runCreateFolderTest(mockServer, testIncomingServer) {
 }
 
 add_task(async function test_create_folder() {
-  await runCreateFolderTest(ewsServer, incomingServer);
+  await runCreateFolderTest(ewsServer, incomingEwsServer);
   await runCreateFolderTest(graphServer, incomingGraphServer);
 });
 
@@ -92,8 +92,8 @@ async function runDeleteFolderTest(folderToDeleteName) {
   );
 
   // Sync the folder list, updated with the new folder.
-  const rootFolder = incomingServer.rootFolder;
-  await syncFolder(incomingServer, rootFolder);
+  const rootFolder = incomingEwsServer.rootFolder;
+  await syncFolder(incomingEwsServer, rootFolder);
   const child = rootFolder.getChildNamed(folderToDeleteName);
   Assert.ok(!!child, `${folderToDeleteName} should exist.`);
 
@@ -113,7 +113,7 @@ async function runDeleteFolderTest(folderToDeleteName) {
 
 add_task(async function test_hard_delete() {
   // Set the delete model for the server to permanently delete.
-  incomingServer.QueryInterface(Ci.IEwsIncomingServer).deleteModel =
+  incomingEwsServer.QueryInterface(Ci.IEwsIncomingServer).deleteModel =
     Ci.IEwsIncomingServer.PERMANENTLY_DELETE;
   const folderToDeleteName = "folder_to_hard_delete";
   const remoteEwsId = await runDeleteFolderTest(folderToDeleteName);
@@ -134,7 +134,7 @@ add_task(async function test_hard_delete() {
 
 add_task(async function test_soft_delete() {
   // Set the delete model for the server to move to trash.
-  incomingServer.QueryInterface(Ci.IEwsIncomingServer).deleteModel =
+  incomingEwsServer.QueryInterface(Ci.IEwsIncomingServer).deleteModel =
     Ci.IEwsIncomingServer.MOVE_TO_TRASH;
   const folderToDeleteName = "folder_to_soft_delete";
   const remoteEwsId = await runDeleteFolderTest(folderToDeleteName);
@@ -155,7 +155,8 @@ add_task(async function test_soft_delete() {
   );
 
   // Now test trash operations
-  const trashFolder = incomingServer.rootFolder.getChildNamed("Deleted Items");
+  const trashFolder =
+    incomingEwsServer.rootFolder.getChildNamed("Deleted Items");
   Assert.ok(!!trashFolder, "server should have trash folder");
   Assert.ok(trashFolder.hasSubFolders, "Folder should be in trash");
 
@@ -166,7 +167,7 @@ add_task(async function test_soft_delete() {
     "The trash should eventually be emptied."
   );
 
-  await syncFolder(incomingServer, incomingServer.rootFolder);
+  await syncFolder(incomingEwsServer, incomingEwsServer.rootFolder);
   const unfoundFolder = ewsServer.folders.filter(f => f.id === remoteEwsId);
   Assert.equal(
     unfoundFolder.length,
@@ -192,8 +193,8 @@ add_task(async function test_delete_id_mismatch() {
   );
 
   // Sync the folder list, updated with the new folder.
-  const rootFolder = incomingServer.rootFolder;
-  await syncFolder(incomingServer, rootFolder);
+  const rootFolder = incomingEwsServer.rootFolder;
+  await syncFolder(incomingEwsServer, rootFolder);
   const child = rootFolder.getChildNamed(folderToDeleteName);
   Assert.ok(!!child, `${folderToDeleteName} should exist.`);
 
@@ -224,13 +225,13 @@ add_task(async function test_mark_as_read() {
   const syntheticMessages = generator.makeMessages({ count: 3 });
   ewsServer.addMessages(folderName, syntheticMessages);
 
-  const rootFolder = incomingServer.rootFolder;
+  const rootFolder = incomingEwsServer.rootFolder;
 
-  await syncFolder(incomingServer, rootFolder);
+  await syncFolder(incomingEwsServer, rootFolder);
   const folder = rootFolder.getChildNamed(folderName);
   Assert.ok(!!folder, `${folderName} should exist`);
 
-  await syncFolder(incomingServer, folder);
+  await syncFolder(incomingEwsServer, folder);
   Assert.equal(
     folder.getTotalMessages(false),
     3,
@@ -250,10 +251,45 @@ add_task(async function test_mark_as_read() {
     "waiting for all messages to be marked as read locally"
   );
 
-  await syncFolder(incomingServer, folder);
+  await syncFolder(incomingEwsServer, folder);
   Assert.equal(
     folder.getNumUnread(false),
     0,
     "all messages should still be read after sync"
   );
+});
+
+async function runRenameFolderTest(mockServer, incomingServer) {
+  const originalFolderName = "renameFolder-original";
+  const renamedFolderName = "renameFolder-renamed";
+  mockServer.appendRemoteFolder(
+    new RemoteFolder(
+      originalFolderName,
+      "root",
+      originalFolderName,
+      originalFolderName
+    )
+  );
+
+  const rootFolder = incomingServer.rootFolder;
+
+  await syncFolder(incomingServer, rootFolder);
+
+  const testFolder = rootFolder.getChildNamed(originalFolderName);
+  Assert.ok(!!testFolder, "Folder to rename should exist.");
+
+  testFolder.rename(renamedFolderName, null);
+
+  await TestUtils.waitForCondition(
+    () => !!rootFolder.getChildNamed(renamedFolderName),
+    "Folder should be renamed."
+  );
+}
+
+add_task(async function test_renameFolderEws() {
+  await runRenameFolderTest(ewsServer, incomingEwsServer);
+});
+
+add_task(async function test_renameFolderGraph() {
+  await runRenameFolderTest(graphServer, incomingGraphServer);
 });
