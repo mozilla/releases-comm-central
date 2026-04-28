@@ -169,24 +169,25 @@ form {
 
     &.number-input {
       padding-inline-end: 0;
-      border-radius: 4px;
-      border-width: 1px;
 
       &::-moz-number-spin-box {
         block-size: 100%;
+        padding-block: var(--hub-form-input-block-padding);
         inline-size: 22px;
         border-inline-start: 1px solid var(--color-surface-border);
         border-inline-end: 0;
+        border-start-end-radius: var(--hub-input-border-radius);
+        border-end-end-radius: var(--hub-input-border-radius);
         background: var(--color-surface-subtle);
-        align-items: center;
         cursor: pointer;
+        position: relative;
+        z-index: 2;
       }
 
       &::-moz-number-spin-up,
       &::-moz-number-spin-down {
-        block-size: 8px;
         appearance: none;
-        padding: 5px 2px;
+        padding: calc(var(--hub-form-input-block-padding) / 2);
         -moz-context-properties: stroke;
         stroke: currentColor;
         cursor: pointer;
@@ -198,6 +199,7 @@ form {
       }
 
       &::-moz-number-spin-down {
+        border-block-start: 1px solid var(--color-surface-subtle);
         content: var(--icon-nav-down-sm);
       }
     }
