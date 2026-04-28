@@ -1,5 +1,8 @@
 [DEFAULT]
 prefs = [
+  "calendar.loglevel=Debug",
+  "carddav.setup.loglevel=Debug",
+  "chat.otr.enable=false",
   "experimental.mail.ews.overrideOAuth.enabled=true",
   "mail.account.account1.server=",
   "mail.account.account2.identities=",
@@ -7,14 +10,13 @@ prefs = [
   "mail.accountmanager.accounts=",
   "mail.accountmanager.defaultaccount=",
   "mail.accountmanager.localfoldersserver=",
+  "mail.setup.loglevel=All",
   "mail.spotlight.firstRunDone=true",
   "mail.winsearch.firstRunDone=true",
   "mailnews.auto_config.addons_url=about:blank",
   "mailnews.auto_config_url=about:blank",
   "mailnews.start_page.override_url=about:blank",
   "mailnews.start_page.url=about:blank",
-  "datareporting.policy.dataSubmissionPolicyBypassNotification=true",
-  "chat.otr.enable=false",
 ]
 subsuite = "thunderbird"
 

@@ -37,6 +37,7 @@ prefs = [
   "mail.server.server2.type=pop3",
   "mail.server.server2.userName=tinderbox",
   "mail.server.server2.whiteListAbURI=",
+  "mail.setup.loglevel=All",
   "mail.shell.checkDefaultClient=false",
   "mail.smtp.defaultserver=smtp1",
   "mail.smtpserver.smtp1.type=smtp",

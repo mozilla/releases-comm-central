@@ -448,7 +448,7 @@ class CalDavSimpleResponse extends CalDavResponseBase {
   /**
    * The status of the underlying stream, e.g. NS_ERROR_CONNECTION_REFUSED.
    *
-   * @type {nsresult}
+   * @type {Exception}
    */
   get streamError() {
     return this.#streamError;
