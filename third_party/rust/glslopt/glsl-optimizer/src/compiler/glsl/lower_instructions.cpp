@@ -1535,7 +1535,7 @@ lower_instructions_visitor::_imm_fp(void *mem_ctx,
    case GLSL_TYPE_DOUBLE:
       return new(mem_ctx) ir_constant((double) f, vector_elements);
    case GLSL_TYPE_FLOAT16:
-      return new(mem_ctx) ir_constant(float16_t(f), vector_elements);
+      return new(mem_ctx) ir_constant(mesa::float16_t(f), vector_elements);
    default:
       assert(!"unknown float type for immediate");
       return NULL;

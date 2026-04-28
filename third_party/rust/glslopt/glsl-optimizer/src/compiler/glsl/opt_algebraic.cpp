@@ -985,7 +985,7 @@ ir_algebraic_visitor::handle_expression(ir_expression *ir)
 
          switch (ir->type->base_type) {
          case GLSL_TYPE_FLOAT16:
-            one = new(mem_ctx) ir_constant(float16_t::one(), op2_components);
+            one = new(mem_ctx) ir_constant(mesa::float16_t::one(), op2_components);
             break;
          case GLSL_TYPE_FLOAT:
             one = new(mem_ctx) ir_constant(1.0f, op2_components);

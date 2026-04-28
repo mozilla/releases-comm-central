@@ -689,7 +689,7 @@ ir_constant::ir_constant(const struct glsl_type *type,
    memcpy(& this->value, data, sizeof(this->value));
 }
 
-ir_constant::ir_constant(float16_t f16, unsigned vector_elements)
+ir_constant::ir_constant(mesa::float16_t f16, unsigned vector_elements)
    : ir_rvalue(ir_type_constant)
 {
    assert(vector_elements <= 4);

@@ -2224,7 +2224,7 @@ public:
    ir_constant(bool b, unsigned vector_elements=1);
    ir_constant(unsigned int u, unsigned vector_elements=1);
    ir_constant(int i, unsigned vector_elements=1);
-   ir_constant(float16_t f16, unsigned vector_elements=1);
+   ir_constant(mesa::float16_t f16, unsigned vector_elements=1);
    ir_constant(float f, unsigned vector_elements=1);
    ir_constant(double d, unsigned vector_elements=1);
    ir_constant(uint64_t u64, unsigned vector_elements=1);
