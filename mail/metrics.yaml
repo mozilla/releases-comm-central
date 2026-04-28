@@ -214,6 +214,8 @@ mail:
       - mail.enable_autocomplete
       - mail.fixed_width_messages
       - mail.forward_add_extension
+      - mail.inappnotifications.isFlatpak
+      - mail.inappnotifications.isSnap
       - mail.inappnotifications.pkceUpgradeForYahooAol
       - mail.mdn.report.enabled
       - mail.minimizeToTray
@@ -238,6 +240,8 @@ mail:
       - mailnews.mark_message_read.auto
       - mailnews.mark_message_read.delay
       - mailnews.message_display.disable_remote_image
+      - mailnews.oauth.usePrivateBrowser
+      - mailnews.oauth.useExternalBrowser
       - mailnews.scroll_to_new_message
       - mailnews.sendformat.auto_downgrade
       - mailnews.start_page.enabled
@@ -548,6 +552,11 @@ mail:
         type: string
       result:
         description: If the authentication succeeded or was cancelled.
+        type: string
+      where:
+        description: >
+          Where the authentication was shown. Possible values are "internal",
+          for a window inside Thunderbird, or "external" for a browser.
         type: string
 
   import:

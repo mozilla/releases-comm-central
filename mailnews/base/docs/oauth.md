@@ -175,7 +175,8 @@ Authentication requests, successful or otherwise, are recorded in Telemetry. We 
 
 - which authentication provider (requests to add-on defined providers are not recorded),
 - the reason why the user is being asked to authenticate (e.g. missing or expired token),
-- if the request succeeded, or why it failed (e.g. the user cancelled).
+- if the request succeeded, or why it failed (e.g. the user cancelled),
+- where the user was asked to authenticate (in Thunderbird, or in a browser).
 
 We aggregate this telemetry data and use it to determine whether there are issues with a provider
 or our code that we need to respond to.

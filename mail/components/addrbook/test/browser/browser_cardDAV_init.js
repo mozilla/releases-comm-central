@@ -581,6 +581,7 @@ add_task(async function testOAuth() {
       issuer: "test.test",
       reason: "no refresh token",
       result: "succeeded",
+      where: "internal",
     },
   ]);
 

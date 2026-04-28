@@ -64,6 +64,7 @@ async function subtestNoTokens(identity, outgoingServer, server) {
       issuer: "test.test",
       reason: "no refresh token",
       result: "succeeded",
+      where: "internal",
     },
   ]);
   await checkSavedToken();
@@ -379,6 +380,7 @@ async function subtestRevokedAccessToken2(identity, outgoingServer, server) {
       issuer: "test.test",
       reason: "no refresh token",
       result: "succeeded",
+      where: "internal",
     },
   ]);
   await checkSavedToken("refresh_token_1");
@@ -441,6 +443,7 @@ async function subtestBadRefreshToken(identity, outgoingServer, server) {
       issuer: "test.test",
       reason: "invalid grant",
       result: "succeeded",
+      where: "internal",
     },
   ]);
   await checkSavedToken();

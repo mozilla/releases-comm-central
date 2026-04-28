@@ -228,6 +228,7 @@ add_task(async function testNoTokens() {
         issuer: "test.test",
         reason: "no refresh token",
         result: "succeeded",
+        where: "internal",
       },
     ]);
 
@@ -439,6 +440,7 @@ add_task(async function testBadRefreshToken() {
         issuer: "test.test",
         reason: "invalid grant",
         result: "succeeded",
+        where: "internal",
       },
     ]);
 

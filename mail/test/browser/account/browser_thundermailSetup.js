@@ -40,6 +40,7 @@ add_setup(async function () {
       ["mailnews.oauth.useExternalBrowser", true],
     ],
   });
+  Services.fog.testResetFOG();
 
   OAuth2TestUtils.startServer({ username, accessToken });
   await ServerTestUtils.createServers([
@@ -133,6 +134,15 @@ add_task(async function () {
   Assert.equal(smtpServer.port, 587);
   Assert.equal(smtpServer.authMethod, Ci.nsMsgAuthMethod.OAuth2);
   Assert.equal(smtpServer.username, username);
+
+  OAuth2TestUtils.checkTelemetry([
+    {
+      issuer: "external.test",
+      reason: "no refresh token",
+      result: "succeeded",
+      where: "external",
+    },
+  ]);
 
   // Clean up.
   MailServices.accounts.removeAccount(account, false);

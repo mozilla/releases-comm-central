@@ -724,8 +724,9 @@ add_task(async function testOverrideIssuer() {
 });
 
 add_task(async function testExternalRequest() {
-  await OAuth2TestUtils.startServer();
+  Services.fog.testResetFOG();
   Services.prefs.setBoolPref("mailnews.oauth.useExternalBrowser", true);
+  await OAuth2TestUtils.startServer();
 
   try {
     const mod = new OAuth2Module();
@@ -791,6 +792,14 @@ add_task(async function testExternalRequest() {
     OAuth2TestUtils.stopServer();
     Services.prefs.clearUserPref("mailnews.oauth.useExternalBrowser");
   }
+  OAuth2TestUtils.checkTelemetry([
+    {
+      issuer: "external.test",
+      reason: "no refresh token",
+      result: "succeeded",
+      where: "external",
+    },
+  ]);
 });
 
 /**
@@ -798,6 +807,7 @@ add_task(async function testExternalRequest() {
  * username from the access token. This is used for Thundermail setup.
  */
 add_task(async function testGetUsernameFromAccessToken() {
+  Services.fog.testResetFOG();
   Services.prefs.setBoolPref("mailnews.oauth.useExternalBrowser", true);
 
   const username = "mike@external.test";
@@ -892,6 +902,14 @@ add_task(async function testGetUsernameFromAccessToken() {
     OAuth2TestUtils.stopServer();
     Services.prefs.clearUserPref("mailnews.oauth.useExternalBrowser");
   }
+  OAuth2TestUtils.checkTelemetry([
+    {
+      issuer: "external.test",
+      reason: "no refresh token",
+      result: "succeeded",
+      where: "external",
+    },
+  ]);
 });
 
 async function storeLogins(logins) {

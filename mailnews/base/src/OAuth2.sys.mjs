@@ -202,6 +202,7 @@ OAuth2.prototype = {
       lazy.useExternalBrowser &&
       isLoopbackHttpRedirect(this.redirectionEndpoint)
     ) {
+      this.telemetryData.where = "external";
       this.request = new ExternalRequest(this);
       if (!this.request.startLoopbackRedirectListener()) {
         this.finishAuthorizationRequest();
@@ -213,6 +214,7 @@ OAuth2.prototype = {
         return;
       }
     } else {
+      this.telemetryData.where = "internal";
       this.request = new InternalRequest(this);
     }
     this._requestRedirectURI = this.request.redirectURI;

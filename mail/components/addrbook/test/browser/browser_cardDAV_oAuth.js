@@ -136,6 +136,7 @@ async function subtest(dirPrefId, uid, newTokenDetails) {
         issuer: "test.test",
         reason: newTokenDetails.reason,
         result: "succeeded",
+        where: "internal",
       },
     ]);
   } else {

@@ -1391,6 +1391,8 @@ function reportPreferences() {
     "mailnews.database.global.indexer.enabled",
     "mailnews.mark_message_read.auto",
     "mailnews.mark_message_read.delay",
+    "mailnews.oauth.usePrivateBrowser",
+    "mailnews.oauth.useExternalBrowser",
     "mailnews.scroll_to_new_message",
     "mailnews.start_page.enabled",
     "privacy.clearOnShutdown.cache",

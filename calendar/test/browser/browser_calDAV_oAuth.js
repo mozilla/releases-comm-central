@@ -140,6 +140,7 @@ async function subtest(calendarId, newTokenDetails) {
         issuer: "test.test",
         reason: newTokenDetails.reason,
         result: "succeeded",
+        where: "internal",
       },
     ]);
   } else {

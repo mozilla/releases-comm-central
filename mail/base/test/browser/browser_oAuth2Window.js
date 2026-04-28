@@ -54,6 +54,7 @@ add_task(async function testAccept() {
       issuer: "test.test",
       reason: "no refresh token",
       result: "succeeded",
+      where: "internal",
     },
   ]);
   OAuth2TestUtils.forgetObjects();
@@ -94,6 +95,7 @@ add_task(async function testCancel() {
       issuer: "test.test",
       reason: "no refresh token",
       result: "cancelled",
+      where: "internal",
     },
   ]);
   OAuth2TestUtils.forgetObjects();
@@ -148,6 +150,7 @@ add_task(async function testSpoofScope() {
       issuer: "test.test",
       reason: "no refresh token",
       result: "invalid scope",
+      where: "internal",
     },
   ]);
   OAuth2TestUtils.forgetObjects();

@@ -205,6 +205,7 @@ add_task(async function test_remoteAddressBookFormOauth() {
       issuer: "test.test",
       reason: "no refresh token",
       result: "succeeded",
+      where: "internal",
     },
   ]);
   CardDAVServer.password = "hunter2";

@@ -88,6 +88,7 @@ async function subtest(grantedScope, expectFailure) {
       issuer: "test.test",
       reason: "no refresh token",
       result: "succeeded",
+      where: "internal",
     },
   ]);
 
