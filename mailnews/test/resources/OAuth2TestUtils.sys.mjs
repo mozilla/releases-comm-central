@@ -104,6 +104,8 @@ export const OAuth2TestUtils = {
    * @param {string} [options.grantedScope] - A subset of `expectedScope` to grant
    *   permission for. If not given, all scopes will be allowed. If an empty string,
    *   no scopes will be allowed.
+   * @param {string} [options.callbackState] - If given, override the state sent
+   *   to the callback listener. Useful for negative tests.
    */
   async submitOAuthURL(
     url,
@@ -113,6 +115,7 @@ export const OAuth2TestUtils = {
       username,
       password,
       grantedScope,
+      callbackState,
     }
   ) {
     const authURL = new URL(url);
@@ -133,6 +136,7 @@ export const OAuth2TestUtils = {
       "http://localhost",
       "request redirect_uri base"
     );
+    Assert.ok(searchParams.get("state"), "request state");
     Assert.equal(searchParams.get("scope"), expectedScope, "request scope");
     if (expectedHint) {
       Assert.equal(
@@ -146,6 +150,7 @@ export const OAuth2TestUtils = {
     const authorizeURL = new URL("/authorize", authURL);
     const body = new URLSearchParams();
     body.set("redirect_uri", redirectURI.href);
+    body.set("state", callbackState ?? searchParams.get("state"));
     body.set("username", username);
     body.set("password", password);
 
@@ -213,6 +218,7 @@ export const OAuth2TestUtils = {
       "https://localhost",
       "request redirect_uri"
     );
+    Assert.ok(searchParams.get("state"), "request state");
     Assert.equal(searchParams.get("scope"), expectedScope, "request scope");
     if (expectedHint) {
       Assert.equal(
@@ -364,10 +370,14 @@ class OAuth2Server {
     }
     const params = new URLSearchParams(request.queryString);
     this.requestedScope = params.get("scope");
-    this._formHandler(response, params.get("redirect_uri"));
+    this._formHandler(
+      response,
+      params.get("redirect_uri"),
+      params.get("state")
+    );
   }
 
-  _formHandler(response, redirectUri) {
+  _formHandler(response, redirectUri, state = "") {
     response.setHeader("Content-Type", "text/html", false);
     const scopeCheckboxes = this.requestedScope
       .split(" ")
@@ -384,10 +394,15 @@ class OAuth2Server {
       </head>
       <body>
         <form action="/authorize" method="post">
-          <input type="text" name="redirect_uri" readonly="readonly" value="${redirectUri}" />
-          <input type="text" name="username" />
-          <input type="password" name="password" />
-          ${scopeCheckboxes.join("")}
+          <label for="redirect_uri">redirect URI: </label>
+          <input type="text" name="redirect_uri" readonly="readonly" value="${redirectUri}" /><br/>
+          <label for="state">state token: </label>
+          <input type="text" name="state" readonly="readonly" value="${state}" /><br/>
+          <label for="username">username: </label>
+          <input type="text" name="username" /><br/>
+          <label for="password">password: </label>
+          <input type="password" name="password" /><br/>
+          ${scopeCheckboxes.join("")}<br/>
           <input type="submit" />
         </form>
       </body>
@@ -407,7 +422,11 @@ class OAuth2Server {
       params.get("username") != this.username ||
       params.get("password") != this.password
     ) {
-      this._formHandler(response, params.get("redirect_uri"));
+      this._formHandler(
+        response,
+        params.get("redirect_uri"),
+        params.get("state")
+      );
       return;
     }
 
@@ -426,6 +445,9 @@ class OAuth2Server {
       validCodes.add(code);
 
       url.searchParams.set("code", code);
+    }
+    if (params.has("state")) {
+      url.searchParams.set("state", params.get("state"));
     }
 
     response.setStatusLine(request.httpVersion, 303, "Redirected");

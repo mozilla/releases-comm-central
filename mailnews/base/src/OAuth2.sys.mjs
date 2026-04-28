@@ -33,6 +33,24 @@ const log = console.createInstance({
 var gConnecting = {};
 
 /**
+ * @param {string} base64 - Data encoded in base64.
+ * @returns {string} - The same encoded data, but with standard substitutions
+ *   for URL safety.
+ */
+function toBase64URL(base64) {
+  return base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+}
+
+/**
+ * @param {number} byteLength - Length of the token in bytes.
+ * @returns {string} - Returns a URL-valid base64 endcoding of the token.
+ */
+function generateRandomURLToken(byteLength) {
+  const bytes = CryptoUtils.generateRandomBytes(byteLength);
+  return ChromeUtils.base64URLEncode(bytes, { pad: false });
+}
+
+/**
  * @param {string} redirectURI
  * @returns {boolean}
  */
@@ -108,6 +126,7 @@ OAuth2.prototype = {
   telemetryData: {},
 
   _isRetrying: false,
+  _authorizationState: null,
   _requestRedirectURI: null,
 
   /**
@@ -164,25 +183,24 @@ OAuth2.prototype = {
       authEndpointURL.searchParams.append("scope", this.scope);
     }
 
+    this._authorizationState = generateRandomURLToken(32);
+    authEndpointURL.searchParams.append("state", this._authorizationState);
+
     // See rfc7636
     if (this.usePKCE) {
-      // Convert base64 to base64url (rfc4648#section-5)
-      const to_b64url = b =>
-        b.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
-
       authEndpointURL.searchParams.append("code_challenge_method", "S256");
 
       // rfc7636#section-4.1
       //  code_verifier = high-entropy cryptographic random STRING ... with a minimum
       //  length of 43 characters and a maximum length of 128 characters.
-      const code_verifier = to_b64url(
-        btoa(CryptoUtils.generateRandomBytesLegacy(64))
-      );
+      const code_verifier = generateRandomURLToken(64);
       this.codeVerifier = code_verifier;
 
       // rfc7636#section-4.2
       //  code_challenge = BASE64URL-ENCODE(SHA256(ASCII(code_verifier)))
-      const code_challenge = to_b64url(CryptoUtils.sha256Base64(code_verifier));
+      const code_challenge = toBase64URL(
+        CryptoUtils.sha256Base64(code_verifier)
+      );
       authEndpointURL.searchParams.append("code_challenge", code_challenge);
     }
 
@@ -247,6 +265,17 @@ OAuth2.prototype = {
   onAuthorizationReceived(aURL) {
     log.info("OAuth2 authorization response received: url=" + aURL);
     const url = new URL(aURL);
+    // Check the state param matches the value we created earlier.
+    const expectedState = this._authorizationState;
+    this._authorizationState = null;
+    if (expectedState && url.searchParams.get("state") !== expectedState) {
+      this.onAuthorizationFailed(
+        Cr.NS_ERROR_FAILURE,
+        '{ "error": "invalid_state" }',
+        "state mismatch"
+      );
+      return;
+    }
     if (url.searchParams.has("code")) {
       // @see RFC 6749 section 4.1.2: Authorization Response
       this.requestAccessToken(url.searchParams.get("code"), false);

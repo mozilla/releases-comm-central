@@ -802,6 +802,80 @@ add_task(async function testExternalRequest() {
   ]);
 });
 
+add_task(async function testExternalRequestRejectsMismatchedState() {
+  Services.fog.testResetFOG();
+  Services.prefs.setBoolPref("mailnews.oauth.useExternalBrowser", true);
+  await OAuth2TestUtils.startServer();
+
+  try {
+    const mod = new OAuth2Module();
+    Assert.ok(
+      mod.initFromHostname("external.test", "romeo@foo.invalid", "imap"),
+      "external.test should initialize for OAuth"
+    );
+
+    const externalOAuthURL = OAuth2TestUtils.promiseExternalOAuthURL();
+    const deferred = Promise.withResolvers();
+    mod.connect(true, {
+      onSuccess: () => deferred.reject(new Error("connect should fail")),
+      onFailure: deferred.resolve,
+    });
+
+    const url = await externalOAuthURL;
+    Assert.stringMatches(
+      new URL(url).searchParams.get("state"),
+      /^[\w-]{43}$/,
+      "request should include state"
+    );
+    await OAuth2TestUtils.submitOAuthURL(url, {
+      expectedHint: "romeo@foo.invalid",
+      expectedScope: "test_mail",
+      username: "user",
+      password: "password",
+      callbackState: "mismatched-state",
+    });
+    const error = await deferred.promise;
+
+    Assert.equal(
+      error,
+      Cr.NS_ERROR_ABORT,
+      "mismatched state should fail the OAuth flow"
+    );
+    Assert.equal(
+      mod._oauth.refreshToken,
+      "",
+      "refresh token should not be set"
+    );
+    Assert.equal(
+      mod._oauth.accessToken,
+      null,
+      "access token should not be set"
+    );
+    Assert.equal(
+      await Services.logins.countLogins(
+        "oauth://external.test",
+        "",
+        "test_mail"
+      ),
+      0,
+      "login should not be saved"
+    );
+  } finally {
+    await Services.logins.removeAllLoginsAsync();
+    OAuth2TestUtils.forgetObjects();
+    OAuth2TestUtils.stopServer();
+    Services.prefs.clearUserPref("mailnews.oauth.useExternalBrowser");
+  }
+  OAuth2TestUtils.checkTelemetry([
+    {
+      issuer: "external.test",
+      reason: "no refresh token",
+      result: "state mismatch",
+      where: "external",
+    },
+  ]);
+});
+
 /**
  * Tests that we can authenticate before knowing the username, and get the
  * username from the access token. This is used for Thundermail setup.
