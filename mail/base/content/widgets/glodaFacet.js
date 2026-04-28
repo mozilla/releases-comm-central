@@ -167,7 +167,7 @@
       // set the count so CSS selectors can know what the results look like
       this.setAttribute("state", totalCount <= 0 ? "empty" : "some");
 
-      document.l10n.setAttributes(this.countNode, "items-m-of-n", {
+      document.l10n.setAttributes(this.countNode, "item-count-m-of-n", {
         m: displayCount,
         n: totalCount,
       });

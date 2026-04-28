@@ -5,19 +5,7 @@
 # Variables:
 #   $m - the number M in "M of N" items
 #   $n - the number N in "M of N" items
-items-m-of-n =
-    { $m ->
-        [one]
-            { $m ->
-                [one] { $m } of { $n }
-               *[other] { $m } of { $n }
-            }
-       *[other]
-            { $m ->
-                [one] { $m } of { $n }
-               *[other] { $m } of { $n }
-            }
-    }
+item-count-m-of-n = { $m } of { $n }
 
 # Variables:
 #   $count - the number items
