@@ -9,6 +9,7 @@
 #include "mimehdrs.h"
 #include "mimei.h"
 #include "mimeleaf.h"
+#include "mimemalt.h"
 #include "mimemapl.h"
 #include "mimemsg.h"
 #include "mimemsig.h"
@@ -484,11 +485,15 @@ nsresult BuildAttachmentList(MimeObject* anObject,
   nsresult rv;
   int32_t i;
   MimeContainer* cobj = (MimeContainer*)anObject;
-  bool found_output = false;
 
   if ((!anObject) || (!cobj->children) || (!cobj->nchildren) ||
       (mime_typep(anObject, (MimeObjectClass*)&mimeExternalBodyClass)))
     return NS_OK;
+
+  // Under multipart/alternative, body-typed siblings are alternatives, not
+  // attachments.
+  bool isMultipartAlternative = mime_typep(
+      anObject, (MimeObjectClass*)&mimeMultipartAlternativeClass);
 
   for (i = 0; i < cobj->nchildren; i++) {
     MimeObject* child = cobj->children[i];
@@ -497,33 +502,32 @@ nsresult BuildAttachmentList(MimeObject* anObject,
     // We're going to ignore the output_p attribute because we want to output
     // any part with a name to work around bug 674473
 
-    // Skip the first child that's being output if it's in fact a message body.
-    // Start by assuming that it is, until proven otherwise in the code below.
-    bool skip = true;
-    if (found_output)
-      // not first child being output
-      skip = false;
-    else if (!ct)
+    // Decide whether to list this child as an attachment. Start by assuming
+    // it's a message body, unless the checks below say otherwise.
+    bool show_as_attachment = false;
+    if (!ct)
       // no content type so can't be message body
-      skip = false;
+      show_as_attachment = true;
     else if (PL_strcasecmp(ct, TEXT_PLAIN) && PL_strcasecmp(ct, TEXT_HTML) &&
              PL_strcasecmp(ct, TEXT_MDL))
       // not a type we recognize as a message body
-      skip = false;
+      show_as_attachment = true;
+    else if (i >= 1 && !isMultipartAlternative)
+      // not first child being output
+      show_as_attachment = true;
     // we're displaying all body parts
-    if (child->options->html_as_p == 4) skip = false;
-    if (skip && child->headers) {
-      // If it has a filename, we don't skip it regardless of the
-      // content disposition which can be "inline" or "attachment".
-      // Inline parts are not shown when attachments aren't displayed
-      // inline, so the only chance to see the part is as attachment.
+    if (child->options->html_as_p == 4) show_as_attachment = true;
+    if (!show_as_attachment && child->headers) {
+      // If it has a filename, show it regardless of the content disposition
+      // (which can be "inline" or "attachment"). Inline parts are not shown
+      // when attachments aren't displayed inline, so the only chance to see
+      // the part is as attachment.
       char* name = MimeHeaders_get_name(child->headers, nullptr);
-      if (name) skip = false;
+      if (name) show_as_attachment = true;
       PR_FREEIF(name);
     }
 
-    found_output = true;
-    if (skip) continue;
+    if (!show_as_attachment) continue;
 
     // We should generate an attachment for leaf object only but...
     bool isALeafObject =

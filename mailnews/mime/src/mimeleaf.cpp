@@ -104,7 +104,15 @@ static int MimeLeaf_parse_buffer(const char* buffer, int32_t size,
 
   if (obj->closed_p) return -1;
 
-  if (!obj->output_p || !obj->options || !obj->options->output_fn) return 0;
+  /* If we're not supposed to write this object, bug out now.
+   * Still track size so attachment emptiness checks work for hidden parts.
+   */
+  if (!obj->output_p || !obj->options || !obj->options->output_fn) {
+    MimeLeaf* leaf = (MimeLeaf*)obj;
+    if (leaf->sizeSoFar == -1) leaf->sizeSoFar = 0;
+    leaf->sizeSoFar += size;
+    return 0;
+  }
 
   return MimeLeaf_decode_buffer(
       buffer, size, obj, ((MimeLeafClass*)obj->clazz)->parse_decoded_buffer);

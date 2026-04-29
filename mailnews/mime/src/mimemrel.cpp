@@ -161,6 +161,7 @@ static int MimeMultipartRelated_initialize(MimeObject* obj) {
 
   relobj->input_file_stream = nullptr;
   relobj->output_file_stream = nullptr;
+  relobj->is_part_in_hidden_alternative = false;
 
   return ((MimeObjectClass*)&MIME_SUPERCLASS)->initialize(obj);
 }
@@ -923,8 +924,8 @@ static int flush_tag(MimeMultipartRelated* relobj) {
           if (status < 0) return status;
           buf = ptr2; /* skip over the cid: URL we substituted */
 
-          /* don't show that object as attachment */
-          if (value->m_obj) value->m_obj->dontShowAsAttachment = true;
+          if (!relobj->is_part_in_hidden_alternative && value->m_obj)
+            value->m_obj->dontShowAsAttachment = true;
         }
 
         /* Restore the character that we nulled. */
@@ -957,8 +958,8 @@ static int flush_tag(MimeMultipartRelated* relobj) {
           if (status < 0) return status;
           buf = ptr2; /* skip over the cid: URL we substituted */
 
-          /* don't show that object as attachment */
-          if (value->m_obj) value->m_obj->dontShowAsAttachment = true;
+          if (!relobj->is_part_in_hidden_alternative && value->m_obj)
+            value->m_obj->dontShowAsAttachment = true;
         }
       }
       /* rhp - if we get here, we should still check against the hash table! */

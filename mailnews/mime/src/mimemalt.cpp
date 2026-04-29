@@ -417,8 +417,7 @@ static priority_t MimeMultipartAlternative_prioritize_part(
       return PRIORITY_TEXT_PLAIN;
     }
 
-    /* Need to white-list all text/... types that are or could be implemented.
-     */
+    /* Need to allow all text/... types that are or could be implemented. */
     if (!PL_strncasecmp(text_type, "html", 4) ||
         !PL_strncasecmp(text_type, "enriched", 8) ||
         !PL_strncasecmp(text_type, "richtext", 8) ||
@@ -448,11 +447,18 @@ static priority_t MimeMultipartAlternative_prioritize_part(
   return PRIORITY_NORMAL;
 }
 
+// Sink used while parsing a non-displayed alternative.
+static int MimeMultipartAlternative_noopOutputFn(const char* /*buf*/,
+                                                 int32_t /*size*/,
+                                                 MimeClosure /*closure*/) {
+  return 0;
+}
+
 static int MimeMultipartAlternative_display_cached_part(
     MimeObject* obj, MimeHeaders* hdrs, MimePartBufferData* buffer,
     bool do_display) {
   int status;
-  bool old_options_no_output_p;
+  MimeConverterOutputCallback old_output_fn;
 
   char* ct =
       (hdrs ? MimeHeaders_get(hdrs, HEADER_CONTENT_TYPE, true, false) : 0);
@@ -469,6 +475,9 @@ static int MimeMultipartAlternative_display_cached_part(
   PR_FREEIF(ct);
   if (!body) return MIME_OUT_OF_MEMORY;
   body->output_p = do_display;
+  if (!do_display &&
+      mime_typep(body, (MimeObjectClass*)&mimeMultipartRelatedClass))
+    ((MimeMultipartRelated*)body)->is_part_in_hidden_alternative = true;
 
   status = ((MimeContainerClass*)obj->clazz)->add_child(obj, body);
   if (status < 0) {
@@ -479,8 +488,27 @@ static int MimeMultipartAlternative_display_cached_part(
      just a pointer so if we muck with it in the child it'll modify
      the parent as well, which we definitely don't want. Therefore we
      need to make a copy of the old value and restore it later. */
-  old_options_no_output_p = obj->options->no_output_p;
-  if (!do_display) body->options->no_output_p = true;
+  // Preserve shared output state while parsing a non-displayed alternative.
+  // Note: early returns in the body below don't restore the saved state on
+  // failure paths; that may be worth addressing in the future.
+  old_output_fn = obj->options->output_fn;
+  bool saved_separator_queued_p = false;
+  bool saved_separator_suppressed_p = false;
+  bool saved_first_part_written_p = false;
+  bool saved_post_header_html_run_p = false;
+  bool saved_first_data_written_p = false;
+  if (!do_display) {
+    obj->options->output_fn = MimeMultipartAlternative_noopOutputFn;
+    if (obj->options->state) {
+      saved_separator_queued_p = obj->options->state->separator_queued_p;
+      saved_separator_suppressed_p =
+          obj->options->state->separator_suppressed_p;
+      saved_first_part_written_p = obj->options->state->first_part_written_p;
+      saved_post_header_html_run_p =
+          obj->options->state->post_header_html_run_p;
+      saved_first_data_written_p = obj->options->state->first_data_written_p;
+    }
+  }
 
   /* if this object is a child of a multipart/related object, the parent is
      taking care of decomposing the whole part, don't need to do it at this
@@ -531,7 +559,14 @@ static int MimeMultipartAlternative_display_cached_part(
   }
 
   /* Restore options to what parent classes expects. */
-  obj->options->no_output_p = old_options_no_output_p;
+  obj->options->output_fn = old_output_fn;
+  if (!do_display && obj->options->state) {
+    obj->options->state->separator_queued_p = saved_separator_queued_p;
+    obj->options->state->separator_suppressed_p = saved_separator_suppressed_p;
+    obj->options->state->first_part_written_p = saved_first_part_written_p;
+    obj->options->state->post_header_html_run_p = saved_post_header_html_run_p;
+    obj->options->state->first_data_written_p = saved_first_data_written_p;
+  }
 
   return 0;
 }

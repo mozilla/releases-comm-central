@@ -51,6 +51,7 @@ struct MimeMultipartRelated {
 
   MimeConverterOutputCallback real_output_fn;
   MimeClosure real_output_closure;
+  bool is_part_in_hidden_alternative;
 
   char* curtag;
   int32_t curtag_max;
