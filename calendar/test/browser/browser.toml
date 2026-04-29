@@ -15,7 +15,7 @@ prefs = [
   "signon.rememberSignons=true",
 ]
 subsuite = "thunderbird"
-support-files = ["data/**"]
+support-files = ["head_discovery.js", "data/**"]
 
 ["browser_basicFunctionality.js"]
 
@@ -48,6 +48,8 @@ run-if = [
 ["browser_eventDisplay_weekView.js"]
 
 ["browser_eventUndoRedo.js"]
+
+["browser_ics_discovery.js"]
 
 ["browser_import.js"]
 tags = ["import"]
