@@ -1,0 +1,19 @@
+Message-ID: <attachment-in-multipart-alternative@example.invalid>
+Subject: Attachment inside multipart/alternative
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="------alternative"
+
+--------alternative
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+This is the plain text body.
+
+--------alternative
+Content-Type: application/octet-stream; name="attachment.txt"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="attachment.txt"
+
+QXR0YWNobWVudCBpbiBtdWx0aXBhcnQvYWx0ZXJuYXRpdmUu
+
+--------alternative--

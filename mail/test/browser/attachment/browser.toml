@@ -26,6 +26,8 @@ support-files = ["data/**"]
 
 ["browser_attachmentIcon.js"]
 
+["browser_attachmentInAltPart.js"]
+
 ["browser_attachmentInPlainMsg.js"]
 
 ["browser_attachmentMenus.js"]
