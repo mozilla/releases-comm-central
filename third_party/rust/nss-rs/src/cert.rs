@@ -1,0 +1,104 @@
+// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
+// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
+// option. This file may not be copied, modified, or distributed
+// except according to those terms.
+
+use std::{convert::TryFrom as _, ptr::NonNull};
+
+use log::error;
+
+use crate::{
+    SECItem, SECItemArray, ScopedSECItemArray, ScopedSECItemArrayIterator, experimental_api,
+    null_safe_slice,
+    prio::PRFileDesc,
+    ssl::{SSL_PeerSignedCertTimestamps, SSL_PeerStapledOCSPResponses},
+};
+
+experimental_api!(SSL_PeerCertificateChainDER(
+    fd: *mut PRFileDesc,
+    out: *mut *mut SECItemArray,
+));
+
+pub struct CertificateInfo {
+    certs: ScopedSECItemArray,
+    /// `stapled_ocsp_responses` and `signed_cert_timestamp` are properties
+    /// associated with each of the certificates. Right now, NSS only
+    /// reports the value for the end-entity certificate (the first).
+    stapled_ocsp_responses: Option<Vec<Vec<u8>>>,
+    signed_cert_timestamp: Option<Vec<u8>>,
+}
+
+fn peer_certificate_chain(fd: *mut PRFileDesc) -> Option<ScopedSECItemArray> {
+    let mut chain_ptr: *mut SECItemArray = std::ptr::null_mut();
+    let rv = unsafe { SSL_PeerCertificateChainDER(fd, &raw mut chain_ptr) };
+    if rv.is_ok() {
+        ScopedSECItemArray::from_ptr(chain_ptr).ok()
+    } else {
+        None
+    }
+}
+
+// As explained in rfc6961, an OCSPResponseList can have at most
+// 2^24 items. Casting its length is therefore safe even on 32 bits targets.
+fn stapled_ocsp_responses(fd: *mut PRFileDesc) -> Option<Vec<Vec<u8>>> {
+    let ocsp_nss = unsafe { SSL_PeerStapledOCSPResponses(fd) };
+    let ocsp_ptr = NonNull::new(ocsp_nss.cast_mut())?;
+    let Ok(len) = usize::try_from(unsafe { ocsp_ptr.as_ref().len }) else {
+        error!("[{fd:p}] Received illegal OCSP length");
+        return None;
+    };
+    Some(
+        (0..len)
+            .map(|idx| {
+                let itemp: *const SECItem = unsafe { ocsp_ptr.as_ref().items.add(idx).cast() };
+                unsafe { null_safe_slice((*itemp).data, (*itemp).len) }.to_owned()
+            })
+            .collect(),
+    )
+}
+
+fn signed_cert_timestamp(fd: *mut PRFileDesc) -> Option<Vec<u8>> {
+    let sct_nss = unsafe { SSL_PeerSignedCertTimestamps(fd) };
+    NonNull::new(sct_nss.cast_mut()).map(|sct_ptr| {
+        if unsafe { sct_ptr.as_ref().len == 0 || sct_ptr.as_ref().data.is_null() } {
+            Vec::new()
+        } else {
+            let sct_slice = unsafe { null_safe_slice(sct_ptr.as_ref().data, sct_ptr.as_ref().len) };
+            sct_slice.to_owned()
+        }
+    })
+}
+
+impl<'a> IntoIterator for &'a CertificateInfo {
+    type IntoIter = ScopedSECItemArrayIterator<'a>;
+    type Item = &'a [u8];
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter()
+    }
+}
+
+impl CertificateInfo {
+    pub(crate) fn new(fd: *mut PRFileDesc) -> Option<Self> {
+        peer_certificate_chain(fd).map(|certs| Self {
+            certs,
+            stapled_ocsp_responses: stapled_ocsp_responses(fd),
+            signed_cert_timestamp: signed_cert_timestamp(fd),
+        })
+    }
+
+    #[must_use]
+    pub fn iter(&self) -> ScopedSECItemArrayIterator<'_> {
+        self.certs.into_iter()
+    }
+
+    #[must_use]
+    pub const fn stapled_ocsp_responses(&self) -> Option<&Vec<Vec<u8>>> {
+        self.stapled_ocsp_responses.as_ref()
+    }
+
+    #[must_use]
+    pub const fn signed_cert_timestamp(&self) -> Option<&Vec<u8>> {
+        self.signed_cert_timestamp.as_ref()
+    }
+}

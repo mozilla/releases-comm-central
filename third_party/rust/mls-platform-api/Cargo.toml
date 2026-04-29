@@ -12,14 +12,14 @@
 [package]
 edition = "2021"
 name = "mls-platform-api"
-version = "0.1.0"
+version = "0.2.0"
 build = false
 autolib = false
 autobins = false
 autoexamples = false
 autotests = false
 autobenches = false
-readme = "README.md"
+readme = false
 license = "Apache-2.0 OR MIT"
 
 [features]
@@ -79,29 +79,29 @@ path = "tests/send_receive.rs"
 
 [dependencies]
 bincode = "1.3"
-serde_json = "1.0.114"
-sha2 = "^0.10"
-thiserror = "1"
+serde_json = "1.0"
+sha2 = "0.10"
+thiserror = "2"
 
 [dependencies.hex]
 version = "0.4"
 features = ["serde"]
 
 [dependencies.mls-rs]
-git = "https://github.com/beurdouche/mls-rs"
-rev = "c846691feab0f3617c3815c527402bd44d854d74"
+version = "0.54"
 features = [
-    "sqlcipher-bundled",
+    "std",
     "serde",
+    "rfc_compliant",
 ]
+default-features = false
 
 [dependencies.mls-rs-crypto-nss]
-git = "https://github.com/beurdouche/mls-rs"
-rev = "c846691feab0f3617c3815c527402bd44d854d74"
+path = "../mls-rs-crypto-nss"
 
 [dependencies.mls-rs-provider-sqlite]
-git = "https://github.com/beurdouche/mls-rs"
-rev = "c846691feab0f3617c3815c527402bd44d854d74"
+path = "../mls-rs-provider-sqlite"
+features = ["sqlcipher-bundled"]
 
 [dependencies.serde]
 version = "1.0"

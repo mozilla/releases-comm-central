@@ -113,6 +113,7 @@ impl TestGroup {
             ratchet_tree,
             new_client.config.clone(),
             new_client.signer.clone().unwrap(),
+            None,
         )
         .await?;
 
@@ -203,7 +204,7 @@ pub(crate) fn group_extensions() -> ExtensionList {
 }
 
 pub(crate) fn lifetime() -> Lifetime {
-    Lifetime::years(1).unwrap()
+    Lifetime::years(1, None).unwrap()
 }
 
 #[cfg_attr(not(mls_build_async), maybe_async::must_be_sync)]
@@ -253,7 +254,12 @@ pub(crate) async fn test_group_custom(
         .used_protocol_version(protocol_version)
         .signing_identity(signing_identity.clone(), secret_key, cipher_suite)
         .build()
-        .create_group_with_id(TEST_GROUP.to_vec(), group_extensions(), leaf_extensions)
+        .create_group_with_id(
+            TEST_GROUP.to_vec(),
+            group_extensions(),
+            leaf_extensions,
+            None,
+        )
         .await
         .unwrap();
 
@@ -291,7 +297,12 @@ where
     let group = custom(client_builder)
         .signing_identity(signing_identity.clone(), secret_key, cipher_suite)
         .build()
-        .create_group_with_id(TEST_GROUP.to_vec(), group_extensions(), Default::default())
+        .create_group_with_id(
+            TEST_GROUP.to_vec(),
+            group_extensions(),
+            Default::default(),
+            None,
+        )
         .await
         .unwrap();
 
@@ -352,7 +363,12 @@ pub(crate) async fn get_test_groups_with_features(
     }
 
     let group = clients[0]
-        .create_group_with_id(b"TEST GROUP".to_vec(), extensions, leaf_extensions.clone())
+        .create_group_with_id(
+            b"TEST GROUP".to_vec(),
+            extensions,
+            leaf_extensions.clone(),
+            None,
+        )
         .await
         .unwrap();
 
@@ -360,7 +376,7 @@ pub(crate) async fn get_test_groups_with_features(
 
     for client in clients.iter().skip(1) {
         let key_package = client
-            .generate_key_package_message(Default::default(), leaf_extensions.clone())
+            .generate_key_package_message(Default::default(), leaf_extensions.clone(), None)
             .await
             .unwrap();
 
@@ -383,7 +399,7 @@ pub(crate) async fn get_test_groups_with_features(
 
         groups.push(
             client
-                .join_group(None, &commit_output.welcome_messages[0])
+                .join_group(None, &commit_output.welcome_messages[0], None)
                 .await
                 .unwrap()
                 .0,
@@ -395,7 +411,7 @@ pub(crate) async fn get_test_groups_with_features(
 
 pub fn random_bytes(count: usize) -> Vec<u8> {
     let mut buf = vec![0; count];
-    rand::thread_rng().fill_bytes(&mut buf);
+    rand::rng().fill_bytes(&mut buf);
     buf
 }
 
@@ -478,6 +494,18 @@ impl MessageProcessor for GroupWithoutKeySchedule {
         self.inner.removal_proposal(provisional_state)
     }
 
+    #[cfg(all(
+        feature = "by_ref_proposal",
+        feature = "custom_proposal",
+        feature = "self_remove_proposal"
+    ))]
+    fn self_removal_proposal(
+        &self,
+        provisional_state: &ProvisionalState,
+    ) -> Option<ProposalInfo<SelfRemoveProposal>> {
+        self.inner.self_removal_proposal(provisional_state)
+    }
+
     #[cfg(feature = "private_message")]
     #[cfg_attr(coverage_nightly, coverage(off))]
     fn min_epoch_available(&self) -> Option<u64> {
@@ -522,5 +550,15 @@ impl MessageProcessor for GroupWithoutKeySchedule {
         self.provisional_public_state = Some(provisional_public_state);
         self.secrets = secrets;
         Ok(())
+    }
+
+    #[cfg(all(feature = "export_key_generation", feature = "private_message"))]
+    async fn get_unauthenticated_key_generation_from_sender_data(
+        &mut self,
+        cipher_text: &PrivateMessage,
+    ) -> Result<Option<u32>, MlsError> {
+        self.inner
+            .get_unauthenticated_key_generation_from_sender_data(cipher_text)
+            .await
     }
 }

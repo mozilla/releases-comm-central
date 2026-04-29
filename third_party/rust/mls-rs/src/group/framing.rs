@@ -8,8 +8,10 @@ use crate::{client::MlsError, tree_kem::node::LeafIndex, KeyPackage, KeyPackageR
 
 use super::{Commit, FramedContentAuthData, GroupInfo, MembershipTag, Welcome};
 
+use crate::group::proposal::{Proposal, ProposalOrRef};
+
 #[cfg(feature = "by_ref_proposal")]
-use crate::{group::Proposal, mls_rules::ProposalRef};
+use crate::mls_rules::ProposalRef;
 
 use alloc::vec::Vec;
 use core::fmt::{self, Debug};
@@ -24,7 +26,7 @@ use zeroize::ZeroizeOnDrop;
 use alloc::boxed::Box;
 
 #[cfg(feature = "custom_proposal")]
-use crate::group::proposal::{CustomProposal, ProposalOrRef};
+use crate::group::proposal::CustomProposal;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, MlsSize, MlsEncode, MlsDecode)]
 #[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
@@ -49,10 +51,6 @@ impl From<&Content> for ContentType {
     }
 }
 
-// #[cfg_attr(
-//     all(feature = "ffi", not(test)),
-//     safer_ffi_gen::ffi_type(clone, opaque)
-// )]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, MlsSize, MlsEncode, MlsDecode)]
 #[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -342,11 +340,55 @@ impl From<&PrivateMessage> for PrivateContentAAD {
     }
 }
 
+#[derive(Clone, Debug, PartialEq)]
+pub enum MlsMessageDescription<'a> {
+    Welcome {
+        key_package_refs: Vec<&'a KeyPackageRef>,
+        cipher_suite: CipherSuite,
+    },
+    PrivateProtocolMessage {
+        group_id: &'a [u8],
+        epoch_id: u64,
+        content_type: ContentType, // commit, proposal, or application
+    },
+    PublicProtocolMessage {
+        group_id: &'a [u8],
+        epoch_id: u64,
+        content_type: ContentType,
+        sender: Sender,
+        authenticated_data: &'a [u8],
+    },
+    GroupInfo,
+    KeyPackage,
+}
+
+impl MlsMessage {
+    pub fn description(&self) -> MlsMessageDescription<'_> {
+        match &self.payload {
+            MlsMessagePayload::Welcome(w) => MlsMessageDescription::Welcome {
+                key_package_refs: w.secrets.iter().map(|s| &s.new_member).collect(),
+                cipher_suite: w.cipher_suite,
+            },
+            MlsMessagePayload::Plain(p) => MlsMessageDescription::PublicProtocolMessage {
+                group_id: &p.content.group_id,
+                epoch_id: p.content.epoch,
+                content_type: p.content.content_type(),
+                sender: p.content.sender,
+                authenticated_data: &p.content.authenticated_data,
+            },
+            #[cfg(feature = "private_message")]
+            MlsMessagePayload::Cipher(c) => MlsMessageDescription::PrivateProtocolMessage {
+                group_id: &c.group_id,
+                epoch_id: c.epoch,
+                content_type: c.content_type,
+            },
+            MlsMessagePayload::GroupInfo(_) => MlsMessageDescription::GroupInfo,
+            MlsMessagePayload::KeyPackage(_) => MlsMessageDescription::KeyPackage,
+        }
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, MlsSize, MlsEncode, MlsDecode)]
-// #[cfg_attr(
-//     all(feature = "ffi", not(test)),
-//     ::safer_ffi_gen::ffi_type(clone, opaque)
-// )]
 #[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 /// A MLS protocol message for sending data over the wire.
 pub struct MlsMessage {
@@ -354,7 +396,6 @@ pub struct MlsMessage {
     pub(crate) payload: MlsMessagePayload,
 }
 
-// #[cfg_attr(all(feature = "ffi", not(test)), ::safer_ffi_gen::safer_ffi_gen)]
 #[allow(dead_code)]
 impl MlsMessage {
     pub(crate) fn new(version: ProtocolVersion, payload: MlsMessagePayload) -> MlsMessage {
@@ -433,7 +474,6 @@ impl MlsMessage {
     ///
     /// Returns `None` if the message is [`WireFormat::KeyPackage`]
     /// or [`WireFormat::Welcome`]
-    // #[cfg_attr(all(feature = "ffi", not(test)), ::safer_ffi_gen::safer_ffi_gen_ignore)]
     pub fn epoch(&self) -> Option<u64> {
         match &self.payload {
             MlsMessagePayload::Plain(p) => Some(p.content.epoch),
@@ -444,7 +484,6 @@ impl MlsMessage {
         }
     }
 
-    // #[cfg_attr(all(feature = "ffi", not(test)), ::safer_ffi_gen::safer_ffi_gen_ignore)]
     pub fn cipher_suite(&self) -> Option<CipherSuite> {
         match &self.payload {
             MlsMessagePayload::GroupInfo(i) => Some(i.group_context.cipher_suite),
@@ -482,6 +521,20 @@ impl MlsMessage {
         match &self.payload {
             MlsMessagePayload::Plain(plaintext) => match &plaintext.content.content {
                 Content::Commit(commit) => Self::find_custom_proposals(commit),
+                _ => Vec::new(),
+            },
+            _ => Vec::new(),
+        }
+    }
+
+    /// If this is a plaintext commit message, return all proposals committed by value.
+    /// If this is not a plaintext or not a commit, this returns an empty list.
+    /// **Note**: This method is not available in FFI bindings due to Proposal type constraints.
+    #[allow(unreachable_patterns)]
+    pub fn proposals_by_value(&self) -> Vec<&Proposal> {
+        match &self.payload {
+            MlsMessagePayload::Plain(plaintext) => match &plaintext.content.content {
+                Content::Commit(commit) => Self::find_all_proposals(commit),
                 _ => Vec::new(),
             },
             _ => Vec::new(),
@@ -529,8 +582,8 @@ impl MlsMessage {
     }
 }
 
-#[cfg(feature = "custom_proposal")]
 impl MlsMessage {
+    #[cfg(feature = "custom_proposal")]
     fn find_custom_proposals(commit: &Commit) -> Vec<&CustomProposal> {
         commit
             .proposals
@@ -540,6 +593,18 @@ impl MlsMessage {
                     crate::group::Proposal::Custom(p) => Some(p),
                     _ => None,
                 },
+                _ => None,
+            })
+            .collect()
+    }
+
+    #[allow(unreachable_patterns)]
+    fn find_all_proposals(commit: &Commit) -> Vec<&Proposal> {
+        commit
+            .proposals
+            .iter()
+            .filter_map(|p| match p {
+                ProposalOrRef::Proposal(p) => Some(p.as_ref()),
                 _ => None,
             })
             .collect()
@@ -565,7 +630,6 @@ impl From<PublicMessage> for MlsMessagePayload {
     }
 }
 
-// #[cfg_attr(all(feature = "ffi", not(test)), safer_ffi_gen::ffi_type)]
 #[derive(
     Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, MlsSize, MlsEncode, MlsDecode,
 )]
@@ -675,6 +739,7 @@ pub(crate) mod test_utils {
 #[cfg(feature = "private_message")]
 #[cfg(test)]
 mod tests {
+    use alloc::vec;
     use assert_matches::assert_matches;
 
     use crate::{
@@ -682,8 +747,10 @@ mod tests {
         crypto::test_utils::test_cipher_suite_provider,
         group::{
             framing::test_utils::get_test_ciphertext_content,
-            proposal_ref::test_utils::auth_content_from_proposal, RemoveProposal,
+            proposal_ref::test_utils::auth_content_from_proposal, test_utils::test_group,
+            RemoveProposal,
         },
+        key_package::test_utils::test_key_package_message,
     };
 
     use super::*;
@@ -721,7 +788,7 @@ mod tests {
 
         let test_auth = auth_content_from_proposal(
             Proposal::Remove(RemoveProposal {
-                to_remove: LeafIndex(0),
+                to_remove: LeafIndex::unchecked(0),
             }),
             Sender::External(0),
         );
@@ -744,5 +811,49 @@ mod tests {
             .unwrap();
 
         assert_eq!(computed_ref, expected_ref.to_vec());
+    }
+
+    #[maybe_async::test(not(mls_build_async), async(mls_build_async, crate::futures_test))]
+    async fn message_description() {
+        let mut group = test_group(TEST_PROTOCOL_VERSION, TEST_CIPHER_SUITE).await;
+
+        let message = group.commit(vec![]).await.unwrap();
+
+        let expected = MlsMessageDescription::PublicProtocolMessage {
+            group_id: group.group_id(),
+            epoch_id: group.context().epoch,
+            content_type: ContentType::Commit,
+            sender: Sender::Member(0),
+            authenticated_data: &[],
+        };
+
+        assert_eq!(message.commit_message.description(), expected);
+
+        group.apply_pending_commit().await.unwrap();
+
+        let message = group
+            .encrypt_application_message(b"123", vec![])
+            .await
+            .unwrap();
+
+        let expected = MlsMessageDescription::PrivateProtocolMessage {
+            group_id: group.group_id(),
+            epoch_id: group.context().epoch,
+            content_type: ContentType::Application,
+        };
+
+        assert_eq!(message.description(), expected);
+
+        let group_info = group
+            .group_info_message_allowing_ext_commit(true)
+            .await
+            .unwrap();
+
+        assert_eq!(group_info.description(), MlsMessageDescription::GroupInfo);
+
+        let key_package =
+            test_key_package_message(TEST_PROTOCOL_VERSION, TEST_CIPHER_SUITE, "something").await;
+
+        assert_eq!(key_package.description(), MlsMessageDescription::KeyPackage);
     }
 }

@@ -12,7 +12,7 @@
 [package]
 edition = "2021"
 name = "mls-rs-crypto-nss"
-version = "0.1.0"
+version = "0.2.0"
 build = false
 autolib = false
 autobins = false
@@ -31,7 +31,7 @@ repository = "https://github.com/awslabs/mls-rs"
 
 [features]
 default = ["std"]
-gecko = ["nss-gk-api/gecko"]
+gecko = ["nss-rs/gecko"]
 std = [
     "mls-rs-core/std",
     "mls-rs-crypto-hpke/std",
@@ -46,34 +46,31 @@ name = "mls_rs_crypto_nss"
 path = "src/lib.rs"
 
 [dependencies]
-maybe-async = "0.2.10"
+maybe-async = "0.2"
 
 [dependencies.getrandom]
 version = "0.2"
 default-features = false
 
 [dependencies.hex]
-version = "^0.4.3"
+version = "0.4"
 features = ["serde"]
 
 [dependencies.mls-rs-core]
-version = "0.21.0"
-path = "../mls-rs-core"
+version = "0.26"
 default-features = false
 
 [dependencies.mls-rs-crypto-hpke]
-version = "0.14.0"
-path = "../mls-rs-crypto-hpke"
+version = "0.20"
 default-features = false
 
 [dependencies.mls-rs-crypto-traits]
-version = "0.15.0"
-path = "../mls-rs-crypto-traits"
+version = "0.21"
 default-features = false
 
-[dependencies.nss-gk-api]
-git = "https://github.com/beurdouche/nss-gk-api"
-rev = "e48a946811ffd64abc78de3ee284957d8d1c0d63"
+[dependencies.nss-rs]
+git = "https://github.com/mozilla/nss-rs"
+rev = "c54949bbff92795b8b2e837ec84decc9b468081a"
 default-features = false
 
 [dependencies.rand_core]
@@ -86,7 +83,7 @@ version = "1.0"
 features = ["derive"]
 
 [dependencies.thiserror]
-version = "1.0.40"
+version = "2"
 optional = true
 
 [dependencies.zeroize]
@@ -101,13 +98,11 @@ default-features = false
 assert_matches = "1.5.0"
 
 [dev-dependencies.mls-rs-core]
-version = "0.21.0"
-path = "../mls-rs-core"
+version = "0.26"
 features = ["test_suite"]
 
 [dev-dependencies.mls-rs-crypto-hpke]
-version = "0.14.0"
-path = "../mls-rs-crypto-hpke"
+version = "0.20"
 features = ["test_utils"]
 default-features = false
 
@@ -116,7 +111,7 @@ version = "1.0"
 features = ["derive"]
 
 [dev-dependencies.serde_json]
-version = "^1.0"
+version = "1.0"
 
 [lints.rust.unexpected_cfgs]
 level = "warn"

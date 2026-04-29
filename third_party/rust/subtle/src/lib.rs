@@ -11,7 +11,7 @@
 #![no_std]
 #![deny(missing_docs)]
 #![doc(html_logo_url = "https://doc.dalek.rs/assets/dalek-logo-clear.png")]
-#![doc(html_root_url = "https://docs.rs/subtle/2.5.0")]
+#![doc(html_root_url = "https://docs.rs/subtle/2.6.0")]
 
 //! # subtle [![](https://img.shields.io/crates/v/subtle.svg)](https://crates.io/crates/subtle) [![](https://img.shields.io/badge/dynamic/json.svg?label=docs&uri=https%3A%2F%2Fcrates.io%2Fapi%2Fv1%2Fcrates%2Fsubtle%2Fversions&query=%24.versions%5B0%5D.num&colorB=4F74A6)](https://doc.dalek.rs/subtle) [![](https://travis-ci.org/dalek-cryptography/subtle.svg?branch=master)](https://travis-ci.org/dalek-cryptography/subtle)
 //!
@@ -22,7 +22,7 @@
 //! type is a wrapper around a `u8` that holds a `0` or `1`.
 //!
 //! ```toml
-//! subtle = "2.5"
+//! subtle = "2.6"
 //! ```
 //!
 //! This crate represents a “best-effort” attempt, since side-channels
@@ -40,10 +40,6 @@
 //! prevent this refinement, the crate tries to hide the value of a `Choice`'s
 //! inner `u8` by passing it through a volatile read. For more information, see
 //! the _About_ section below.
-//!
-//! Rust versions from 1.66 or higher support a new best-effort optimization
-//! barrier ([`core::hint::black_box`]).  To use the new optimization barrier,
-//! enable the `core_hint_black_box` feature.
 //!
 //! Rust versions from 1.51 or higher have const generics support. You may enable
 //! `const-generics` feautre to have `subtle` traits implemented for arrays `[T; N]`.
@@ -74,11 +70,8 @@
 //! based on Tim Maclean's [work on `rust-timing-shield`][rust-timing-shield],
 //! which attempts to provide a more comprehensive approach for preventing
 //! software side-channels in Rust code.
-//!
 //! From version `2.2`, it was based on Diane Hosfelt and Amber Sprenkels' work on
-//! "Secret Types in Rust". Version `2.5` adds the `core_hint_black_box` feature,
-//! which uses the original method through the [`core::hint::black_box`] function
-//! from the Rust standard library.
+//! "Secret Types in Rust".
 //!
 //! `subtle` is authored by isis agora lovecruft and Henry de Valence.
 //!
@@ -93,7 +86,6 @@
 //! **USE AT YOUR OWN RISK**
 //!
 //! [docs]: https://docs.rs/subtle
-//! [`core::hint::black_box`]: https://doc.rust-lang.org/core/hint/fn.black_box.html
 //! [rust-timing-shield]: https://www.chosenplaintext.ca/open-source/rust-timing-shield/security
 
 #[cfg(feature = "std")]
@@ -103,6 +95,9 @@ extern crate std;
 use core::cmp;
 use core::ops::{BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign, Neg, Not};
 use core::option::Option;
+
+#[cfg(feature = "core_hint_black_box")]
+use core::hint::black_box;
 
 /// The `Choice` struct represents a choice for use in conditional assignment.
 ///
@@ -226,34 +221,25 @@ impl Not for Choice {
 /// is a continually moving target, and this is better than doing nothing.
 #[cfg(not(feature = "core_hint_black_box"))]
 #[inline(never)]
-fn black_box(input: u8) -> u8 {
-    debug_assert!((input == 0u8) | (input == 1u8));
-
+fn black_box<T: Copy>(input: T) -> T {
     unsafe {
         // Optimization barrier
         //
-        // Unsafe is ok, because:
-        //   - &input is not NULL;
-        //   - size of input is not zero;
-        //   - u8 is neither Sync, nor Send;
-        //   - u8 is Copy, so input is always live;
-        //   - u8 type is always properly aligned.
-        core::ptr::read_volatile(&input as *const u8)
+        // SAFETY:
+        //   - &input is not NULL because we own input;
+        //   - input is Copy and always live;
+        //   - input is always properly aligned.
+        core::ptr::read_volatile(&input)
     }
-}
-
-#[cfg(feature = "core_hint_black_box")]
-#[inline(never)]
-fn black_box(input: u8) -> u8 {
-    debug_assert!((input == 0u8) | (input == 1u8));
-    core::hint::black_box(input)
 }
 
 impl From<u8> for Choice {
     #[inline]
     fn from(input: u8) -> Choice {
+        debug_assert!((input == 0u8) | (input == 1u8));
+
         // Our goal is to prevent the compiler from inferring that the value held inside the
-        // resulting `Choice` struct is really an `i1` instead of an `i8`.
+        // resulting `Choice` struct is really a `bool` instead of a `u8`.
         Choice(black_box(input))
     }
 }
@@ -270,6 +256,9 @@ impl From<u8> for Choice {
 /// assert_eq!(x.ct_eq(&y).unwrap_u8(), 0);
 /// assert_eq!(x.ct_eq(&x).unwrap_u8(), 1);
 /// ```
+//
+// #[inline] is specified on these function prototypes to signify that they
+#[allow(unused_attributes)] // should be in the actual implementation
 pub trait ConstantTimeEq {
     /// Determine if two items are equal.
     ///
@@ -280,6 +269,7 @@ pub trait ConstantTimeEq {
     /// * `Choice(1u8)` if `self == other`;
     /// * `Choice(0u8)` if `self != other`.
     #[inline]
+    #[allow(unused_attributes)]
     fn ct_eq(&self, other: &Self) -> Choice;
 
     /// Determine if two items are NOT equal.
@@ -397,6 +387,9 @@ impl ConstantTimeEq for cmp::Ordering {
 ///
 /// This trait also provides generic implementations of conditional
 /// assignment and conditional swaps.
+//
+// #[inline] is specified on these function prototypes to signify that they
+#[allow(unused_attributes)] // should be in the actual implementation
 pub trait ConditionallySelectable: Copy {
     /// Select `a` or `b` according to `choice`.
     ///
@@ -423,6 +416,7 @@ pub trait ConditionallySelectable: Copy {
     /// # }
     /// ```
     #[inline]
+    #[allow(unused_attributes)]
     fn conditional_select(a: &Self, b: &Self, choice: Choice) -> Self;
 
     /// Conditionally assign `other` to `self`, according to `choice`.
@@ -604,12 +598,16 @@ where
 /// A generic implementation of `ConditionallyNegatable` is provided
 /// for types `T` which are `ConditionallySelectable` and have `Neg`
 /// implemented on `&T`.
+//
+// #[inline] is specified on these function prototypes to signify that they
+#[allow(unused_attributes)] // should be in the actual implementation
 pub trait ConditionallyNegatable {
     /// Negate `self` if `choice == Choice(1)`; otherwise, leave it
     /// unchanged.
     ///
     /// This function should execute in constant time.
     #[inline]
+    #[allow(unused_attributes)]
     fn conditional_negate(&mut self, choice: Choice);
 }
 
@@ -801,6 +799,22 @@ impl<T> CtOption<T> {
 
         Self::conditional_select(&self, &f, is_none)
     }
+
+    /// Convert the `CtOption<T>` wrapper into an `Option<T>`, depending on whether
+    /// the underlying `is_some` `Choice` was a `0` or a `1` once unwrapped.
+    ///
+    /// # Note
+    ///
+    /// This function exists to avoid ending up with ugly, verbose and/or bad handled
+    /// conversions from the `CtOption<T>` wraps to an `Option<T>` or `Result<T, E>`.
+    /// This implementation doesn't intend to be constant-time nor try to protect the
+    /// leakage of the `T` since the `Option<T>` will do it anyways.
+    ///
+    /// It's equivalent to the corresponding `From` impl, however this version is
+    /// friendlier for type inference.
+    pub fn into_option(self) -> Option<T> {
+        self.into()
+    }
 }
 
 impl<T: ConditionallySelectable> ConditionallySelectable for CtOption<T> {
@@ -972,5 +986,23 @@ impl ConstantTimeLess for cmp::Ordering {
         let a = (*self as i8) + 1;
         let b = (*other as i8) + 1;
         (a as u8).ct_lt(&(b as u8))
+    }
+}
+
+/// Wrapper type which implements an optimization barrier for all accesses.
+#[derive(Clone, Copy, Debug)]
+pub struct BlackBox<T: Copy>(T);
+
+impl<T: Copy> BlackBox<T> {
+    /// Constructs a new instance of `BlackBox` which will wrap the specified value.
+    ///
+    /// All access to the inner value will be mediated by a `black_box` optimization barrier.
+    pub fn new(value: T) -> Self {
+        Self(value)
+    }
+
+    /// Read the inner value, applying an optimization barrier on access.
+    pub fn get(self) -> T {
+        black_box(self.0)
     }
 }

@@ -11,21 +11,6 @@ git = "https://github.com/FirefoxGraphics/wpf-gpu-raster"
 rev = "99979da091fd58fba8477e7fcdf5ec0727102916"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/beurdouche/mls-platform-api?rev=3acd8e7de512940207d45477a6034a38a9424652"]
-git = "https://github.com/beurdouche/mls-platform-api"
-rev = "3acd8e7de512940207d45477a6034a38a9424652"
-replace-with = "vendored-sources"
-
-[source."git+https://github.com/beurdouche/mls-rs?rev=c846691feab0f3617c3815c527402bd44d854d74"]
-git = "https://github.com/beurdouche/mls-rs"
-rev = "c846691feab0f3617c3815c527402bd44d854d74"
-replace-with = "vendored-sources"
-
-[source."git+https://github.com/beurdouche/nss-gk-api?rev=e48a946811ffd64abc78de3ee284957d8d1c0d63"]
-git = "https://github.com/beurdouche/nss-gk-api"
-rev = "e48a946811ffd64abc78de3ee284957d8d1c0d63"
-replace-with = "vendored-sources"
-
 [source."git+https://github.com/franziskuskiefer/cose-rust?rev=43c22248d136c8b38fe42ea709d08da6355cf04b"]
 git = "https://github.com/franziskuskiefer/cose-rust"
 rev = "43c22248d136c8b38fe42ea709d08da6355cf04b"
@@ -101,6 +86,11 @@ git = "https://github.com/mozilla/midir.git"
 rev = "54759f681f3b523e120d047adec2bb1a97152017"
 replace-with = "vendored-sources"
 
+[source."git+https://github.com/mozilla/mls-platform-api?rev=bbbf9d51d60e5f63ab2b791ffbfd884c4d1a317b"]
+git = "https://github.com/mozilla/mls-platform-api"
+rev = "bbbf9d51d60e5f63ab2b791ffbfd884c4d1a317b"
+replace-with = "vendored-sources"
+
 [source."git+https://github.com/mozilla/mp4parse-rust?rev=fb7ed9effb5eae0f3768c2c5ec0a63c61f35ba60"]
 git = "https://github.com/mozilla/mp4parse-rust"
 rev = "fb7ed9effb5eae0f3768c2c5ec0a63c61f35ba60"
@@ -109,6 +99,11 @@ replace-with = "vendored-sources"
 [source."git+https://github.com/mozilla/neqo?tag=v0.26.1"]
 git = "https://github.com/mozilla/neqo"
 tag = "v0.26.1"
+replace-with = "vendored-sources"
+
+[source."git+https://github.com/mozilla/nss-rs?rev=c54949bbff92795b8b2e837ec84decc9b468081a"]
+git = "https://github.com/mozilla/nss-rs"
+rev = "c54949bbff92795b8b2e837ec84decc9b468081a"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/rust-lang/rust-bindgen?rev=9366e0af8da529c958b4cd4fcbe492d951c86f5c"]

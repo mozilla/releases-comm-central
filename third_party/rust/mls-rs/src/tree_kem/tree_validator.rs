@@ -14,6 +14,7 @@ use crate::client::MlsError;
 use crate::crypto::CipherSuiteProvider;
 use crate::group::GroupContext;
 use crate::iter::wrap_impl_iter;
+use crate::time::MlsTime;
 use crate::tree_kem::math as tree_math;
 use crate::tree_kem::{leaf_node_validator::LeafNodeValidator, TreeKemPublic};
 use mls_rs_core::identity::{IdentityProvider, MemberValidationContext};
@@ -58,14 +59,18 @@ impl<'a, C: IdentityProvider, CSP: CipherSuiteProvider> TreeValidator<'a, C, CSP
     }
 
     #[cfg_attr(not(mls_build_async), maybe_async::must_be_sync)]
-    pub async fn validate(&self, tree: &mut TreeKemPublic) -> Result<(), MlsError> {
+    pub async fn validate(
+        &self,
+        tree: &mut TreeKemPublic,
+        maybe_time: Option<MlsTime>,
+    ) -> Result<(), MlsError> {
         self.validate_tree_hash(tree).await?;
 
         tree.validate_parent_hashes(self.cipher_suite_provider)
             .await?;
 
         self.validate_no_trailing_blanks(tree)?;
-        self.validate_leaves(tree).await?;
+        self.validate_leaves(tree, maybe_time).await?;
         validate_unmerged(tree)
     }
 
@@ -91,7 +96,11 @@ impl<'a, C: IdentityProvider, CSP: CipherSuiteProvider> TreeValidator<'a, C, CSP
     }
 
     #[cfg_attr(not(mls_build_async), maybe_async::must_be_sync)]
-    async fn validate_leaves(&self, tree: &TreeKemPublic) -> Result<(), MlsError> {
+    async fn validate_leaves(
+        &self,
+        tree: &TreeKemPublic,
+        maybe_time: Option<MlsTime>,
+    ) -> Result<(), MlsError> {
         let leaves = wrap_impl_iter(tree.nodes.non_empty_leaves());
 
         #[cfg(mls_build_async)]
@@ -100,7 +109,7 @@ impl<'a, C: IdentityProvider, CSP: CipherSuiteProvider> TreeValidator<'a, C, CSP
         { leaves }
             .try_for_each(|(index, leaf_node)| async move {
                 self.leaf_node_validator
-                    .revalidate(leaf_node, self.group_id, *index)
+                    .revalidate(leaf_node, self.group_id, *index, maybe_time)
                     .await
             })
             .await
@@ -108,17 +117,28 @@ impl<'a, C: IdentityProvider, CSP: CipherSuiteProvider> TreeValidator<'a, C, CSP
 }
 
 fn validate_unmerged(tree: &TreeKemPublic) -> Result<(), MlsError> {
+    // The entries in the unmerged_leaves vector MUST be sorted in increasing order.
+    tree.nodes
+        .iter()
+        .flatten()
+        .all(|n| match n {
+            Node::Leaf(_) => true,
+            Node::Parent(p) => p.unmerged_leaves.is_sorted(),
+        })
+        .then_some(())
+        .ok_or(MlsError::ParentHashMismatch)?;
+
     let unmerged_sets = tree.nodes.iter().map(|n| {
         #[cfg(feature = "std")]
         if let Some(Node::Parent(p)) = n {
-            HashSet::from_iter(p.unmerged_leaves.iter().cloned())
+            HashSet::from_iter(p.unmerged_leaves.iter())
         } else {
             HashSet::new()
         }
 
         #[cfg(not(feature = "std"))]
         if let Some(Node::Parent(p)) = n {
-            p.unmerged_leaves.clone()
+            p.unmerged_leaves.iter().collect()
         } else {
             vec![]
         }
@@ -143,7 +163,7 @@ fn validate_unmerged(tree: &TreeKemPublic) -> Result<(), MlsError> {
             let parent_node = tree.nodes.borrow_as_parent(ps.parent)?;
 
             if parent_node.unmerged_leaves.contains(&index) {
-                unmerged_sets[ps.parent as usize].retain(|i| i != &index);
+                unmerged_sets[ps.parent as usize].retain(|i| **i != index);
 
                 n = ps.parent;
             } else {
@@ -220,7 +240,7 @@ mod tests {
         TreeKem::new(&mut test_tree.public, &mut test_tree.private)
             .encap(
                 &mut get_test_group_context(42, cipher_suite).await,
-                &[LeafIndex(1), LeafIndex(2)],
+                &[LeafIndex::unchecked(1), LeafIndex::unchecked(2)],
                 &test_tree.creator_signing_key,
                 Some(default_properties()),
                 None,
@@ -247,7 +267,7 @@ mod tests {
             let validator =
                 TreeValidator::new(&cipher_suite_provider, &context, &BasicIdentityProvider);
 
-            validator.validate(&mut test_tree).await.unwrap();
+            validator.validate(&mut test_tree, None).await.unwrap();
         }
     }
 
@@ -262,7 +282,7 @@ mod tests {
             let validator =
                 TreeValidator::new(&cipher_suite_provider, &context, &BasicIdentityProvider);
 
-            let res = validator.validate(&mut test_tree).await;
+            let res = validator.validate(&mut test_tree, None).await;
 
             assert_matches!(res, Err(MlsError::TreeHashMismatch));
         }
@@ -283,7 +303,7 @@ mod tests {
             let validator =
                 TreeValidator::new(&cipher_suite_provider, &context, &BasicIdentityProvider);
 
-            let res = validator.validate(&mut test_tree).await;
+            let res = validator.validate(&mut test_tree, None).await;
 
             assert_matches!(res, Err(MlsError::ParentHashMismatch));
         }
@@ -296,7 +316,7 @@ mod tests {
 
             test_tree
                 .nodes
-                .borrow_as_leaf_mut(LeafIndex(0))
+                .borrow_as_leaf_mut(LeafIndex::unchecked(0))
                 .unwrap()
                 .signature = random_bytes(32);
 
@@ -307,7 +327,7 @@ mod tests {
             let validator =
                 TreeValidator::new(&cipher_suite_provider, &context, &BasicIdentityProvider);
 
-            let res = validator.validate(&mut test_tree).await;
+            let res = validator.validate(&mut test_tree, None).await;
 
             assert_matches!(res, Err(MlsError::InvalidSignature));
         }
@@ -350,11 +370,22 @@ mod tests {
         let mut tree = get_test_tree_fig_12(TEST_CIPHER_SUITE).await;
 
         // Add leaf E from the right subtree of the root to unmerged leaves of node 1 on the left
-        tree.nodes.borrow_as_parent_mut(1).unwrap().unmerged_leaves = vec![LeafIndex(4)];
+        tree.nodes.borrow_as_parent_mut(1).unwrap().unmerged_leaves = vec![LeafIndex::unchecked(4)];
 
         assert_matches!(
             validate_unmerged(&tree),
             Err(MlsError::UnmergedLeavesMismatch)
         );
+    }
+
+    #[maybe_async::test(not(mls_build_async), async(mls_build_async, crate::futures_test))]
+    async fn verify_unmerged_leaves_sorted() {
+        let mut tree = get_test_tree_fig_12(TEST_CIPHER_SUITE).await;
+
+        // Set unsorted unmerged leaves
+        tree.nodes.borrow_as_parent_mut(3).unwrap().unmerged_leaves =
+            vec![LeafIndex::unchecked(3), LeafIndex::unchecked(1)];
+
+        assert_matches!(validate_unmerged(&tree), Err(MlsError::ParentHashMismatch));
     }
 }

@@ -12,7 +12,7 @@ use rusqlite::{params, Connection, OptionalExtension};
 use crate::SqLiteDataStorageError;
 
 const INSERT_SQL: &str =
-    "INSERT INTO kvs (key, value) VALUES (?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value";
+    "INSERT INTO kvs (key, value) VALUES (?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value WHERE value != excluded.value";
 
 #[derive(Debug, Clone)]
 /// SQLite key-value storage for application specific data.
@@ -30,32 +30,33 @@ impl SqLiteApplicationStorage {
     /// Insert `value` into storage indexed by `key`.
     ///
     /// If a value already exists for `key` it will be overwritten.
-    pub fn insert(&self, key: &str, value: &[u8]) -> Result<(), SqLiteDataStorageError> {
+    /// Returns the number of rows modified (0 if the key-value pair already exists).
+    pub fn insert(&self, key: &str, value: &[u8]) -> Result<usize, SqLiteDataStorageError> {
         let connection = self.connection.lock().unwrap();
 
-        // Upsert into the database
+        // Use a query that only updates if the value is different
         connection
             .execute(INSERT_SQL, params![key, value])
-            .map(|_| ())
             .map_err(sql_engine_error)
     }
 
     /// Execute multiple [`SqLiteApplicationStorage::insert`] operations in a transaction.
-    pub fn transact_insert(&self, items: &[Item]) -> Result<(), SqLiteDataStorageError> {
+    /// Returns the total number of rows modified.
+    pub fn transact_insert(&self, items: &[Item]) -> Result<usize, SqLiteDataStorageError> {
         let mut connection = self.connection.lock().unwrap();
 
         // Upsert into the database
         let tx = connection.transaction().map_err(sql_engine_error)?;
 
-        items.iter().try_for_each(|item| {
+        let total_modified = items.iter().try_fold(0, |acc, item| {
             tx.execute(INSERT_SQL, params![item.key, item.value])
                 .map_err(sql_engine_error)
-                .map(|_| ())
+                .map(|rows| acc + rows)
         })?;
 
         tx.commit().map_err(sql_engine_error)?;
 
-        Ok(())
+        Ok(total_modified)
     }
 
     /// Get a value from storage based on its `key`.
@@ -71,12 +72,12 @@ impl SqLiteApplicationStorage {
     }
 
     /// Delete a value from storage based on its `key`.
-    pub fn delete(&self, key: &str) -> Result<(), SqLiteDataStorageError> {
+    /// Returns the number of rows modified (0 if the key-value pair didnt exist).
+    pub fn delete(&self, key: &str) -> Result<usize, SqLiteDataStorageError> {
         let connection = self.connection.lock().unwrap();
 
         connection
             .execute("DELETE FROM kvs WHERE key = ?", params![key])
-            .map(|_| ())
             .map_err(sql_engine_error)
     }
 
@@ -99,7 +100,8 @@ impl SqLiteApplicationStorage {
     }
 
     /// Delete all values from storage for which key starts with `key_prefix`.
-    pub fn delete_by_prefix(&self, key_prefix: &str) -> Result<(), SqLiteDataStorageError> {
+    /// Returns the total number of rows modified.
+    pub fn delete_by_prefix(&self, key_prefix: &str) -> Result<usize, SqLiteDataStorageError> {
         let connection = self.connection.lock().unwrap();
         let mut key_prefix = sanitize(key_prefix);
         key_prefix.push('%');
@@ -109,7 +111,6 @@ impl SqLiteApplicationStorage {
                 "DELETE FROM kvs WHERE key LIKE ? ESCAPE '$'",
                 params![key_prefix],
             )
-            .map(|_| ())
             .map_err(sql_engine_error)
     }
 }
@@ -179,7 +180,9 @@ mod tests {
         let (key, value) = test_kv();
         let storage = test_storage();
 
-        storage.insert(&key, &value).unwrap();
+        let modified_rows = storage.insert(&key, &value).unwrap();
+
+        assert_eq!(modified_rows, 1);
 
         let from_storage = storage.get(&key).unwrap().unwrap();
         assert_eq!(from_storage, value);
@@ -200,12 +203,32 @@ mod tests {
     }
 
     #[test]
+    fn test_duplicate_insert() {
+        let (key, value) = test_kv();
+
+        let storage = test_storage();
+
+        let modified_rows_first = storage.insert(&key, &value).unwrap();
+        let modified_rows_second = storage.insert(&key, &value).unwrap();
+
+        assert_eq!(modified_rows_first, 1);
+        assert_eq!(modified_rows_second, 0);
+
+        let from_storage = storage.get(&key).unwrap().unwrap();
+        assert_eq!(from_storage, value);
+    }
+
+    #[test]
     fn test_delete() {
         let (key, value) = test_kv();
         let storage = test_storage();
 
         storage.insert(&key, &value).unwrap();
-        storage.delete(&key).unwrap();
+        let rows_deleted_some = storage.delete(&key).unwrap();
+        let rows_deleted_none = storage.delete(&key).unwrap();
+
+        assert_eq!(rows_deleted_some, 1);
+        assert_eq!(rows_deleted_none, 0);
 
         assert!(storage.get(&key).unwrap().is_none());
     }
@@ -217,7 +240,9 @@ mod tests {
 
         let storage = test_storage();
 
-        keys.iter().for_each(|k| storage.insert(k, &value).unwrap());
+        keys.iter().for_each(|k| {
+            storage.insert(k, &value).unwrap();
+        });
 
         let mut expected = vec![
             Item::new(keys[0].clone(), value.clone()),
@@ -237,7 +262,9 @@ mod tests {
         let result = storage.get_by_prefix("").unwrap();
         assert_eq!(result.len(), keys.len());
 
-        storage.delete_by_prefix("prefix").unwrap();
+        let deleted_items = storage.delete_by_prefix("prefix").unwrap();
+        assert_eq!(deleted_items, 2);
+
         let result = storage.get_by_prefix("").unwrap();
         assert_eq!(result.len(), 2);
         assert!(result.contains(&Item::new("prefiy ".to_string(), value.clone())));
@@ -262,8 +289,14 @@ mod tests {
         let storage = test_storage();
         let items = vec![test_item(), test_item(), test_item()];
 
-        storage.transact_insert(&items).unwrap();
+        let modified_rows = storage.transact_insert(&items).unwrap();
+        assert_eq!(modified_rows, 3); // All 3 items should be inserted
 
+        // Test duplicate inserts
+        let modified_rows_duplicate = storage.transact_insert(&items).unwrap();
+        assert_eq!(modified_rows_duplicate, 0); // No rows should be modified for duplicates
+
+        // Verify all items were stored correctly
         for item in items {
             assert_eq!(storage.get(&item.key).unwrap(), Some(item.value));
         }

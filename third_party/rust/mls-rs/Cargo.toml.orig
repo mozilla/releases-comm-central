@@ -1,0 +1,169 @@
+[package]
+name = "mls-rs"
+version = "0.54.0"
+edition = "2021"
+description = "An implementation of Messaging Layer Security (RFC 9420)"
+homepage = "https://github.com/awslabs/mls-rs"
+repository = "https://github.com/awslabs/mls-rs"
+keywords = ["crypto", "cryptography", "security", "mls", "e2ee"]
+categories = ["no-std", "cryptography"]
+license = "Apache-2.0 OR MIT"
+rust-version = "1.82.0"
+exclude = ["test_data"]
+
+[package.metadata.docs.rs]
+features = ["external_client", "sqlite"]
+rustdoc-args = ["--cfg", "docsrs"]
+
+[features]
+default = ["std", "rayon", "rfc_compliant", "tree_index", "fast_serialize"]
+arbitrary = ["std", "dep:arbitrary", "mls-rs-core/arbitrary"]
+rayon = ["std", "dep:rayon"]
+external_client = ["std"]
+grease = ["std"]
+fast_serialize = ["mls-rs-core/fast_serialize"]
+secret_tree_access = []
+private_message = []
+custom_proposal = []
+tree_index = []
+out_of_order = ["private_message"]
+prior_epoch = []
+by_ref_proposal = []
+psk = []
+non_domain_separated_hpke_encrypt_decrypt = []
+prior_epoch_membership_key = []
+x509 = ["mls-rs-core/x509", "dep:mls-rs-identity-x509"]
+rfc_compliant = ["private_message", "custom_proposal", "out_of_order", "psk", "x509", "prior_epoch", "by_ref_proposal", "mls-rs-core/rfc_compliant"]
+last_resort_key_package_ext = ["mls-rs-core/last_resort_key_package_ext"]
+self_remove_proposal = ["mls-rs-core/self_remove_proposal"]
+export_key_generation = []
+gsma_rcs_e2ee_feature = ["mls-rs-core/gsma_rcs_e2ee_feature"]
+
+std = ["mls-rs-core/std", "mls-rs-codec/std", "mls-rs-identity-x509?/std", "hex/std", "futures/std", "itertools/use_std", "zeroize/std", "dep:debug_tree", "dep:thiserror", "serde?/std", "subtle/std"]
+
+serde = ["mls-rs-core/serde", "zeroize/serde", "dep:serde", "dep:hex"]
+
+# SQLite support
+sqlite = ["std", "mls-rs-provider-sqlite/sqlite"]
+sqlite-bundled = ["sqlite", "mls-rs-provider-sqlite/sqlite-bundled"]
+sqlcipher = ["sqlite", "mls-rs-provider-sqlite/sqlcipher"]
+sqlcipher-bundled = ["sqlite", "mls-rs-provider-sqlite/sqlcipher-bundled"]
+
+test_util = []
+benchmark_util = ["test_util", "default", "dep:mls-rs-crypto-openssl"]
+benchmark_pq_crypto = ["mls-rs-crypto-awslc/post-quantum"]
+fuzz_util = ["test_util", "default", "dep:once_cell", "dep:mls-rs-crypto-openssl"]
+
+[dependencies]
+mls-rs-core = { path = "../mls-rs-core", default-features = false, version = "0.26.0" }
+mls-rs-identity-x509 = { path = "../mls-rs-identity-x509", default-features = false, version = "0.20.0", optional = true }
+zeroize = { version = "1", default-features = false, features = ["alloc", "zeroize_derive"] }
+mls-rs-codec = { version = "0.7", path = "../mls-rs-codec", default-features = false}
+thiserror = { version = "2", optional = true }
+itertools = { version = "0.14.0", default-features = false, features = ["use_alloc"]}
+cfg-if = "1"
+debug_tree = { version = "0.4.0", optional = true }
+spin = { version = "0.10", default-features = false, features = ["mutex", "spin_mutex"] }
+maybe-async = { version = "0.2.10" }
+subtle = { version = "2.6.1", default-features = false, features = ["i128"] }
+
+# Optional dependencies
+mls-rs-provider-sqlite = { path = "../mls-rs-provider-sqlite", version = "0.22.0", default-features = false, optional = true }
+mls-rs-crypto-openssl = { path = "../mls-rs-crypto-openssl", optional = true, version = "0.20.0" }
+
+# TODO: https://github.com/GoogleChromeLabs/wasm-bindgen-rayon
+rayon = { version = "1", optional = true }
+arbitrary = { version = "1", features = ["derive"], optional = true }
+once_cell = { version = "1.18", optional = true }
+serde = { version = "1.0", default-features = false, features = ["alloc", "derive"], optional = true }
+hex = { version = "^0.4.3", default-features = false, features = ["serde", "alloc"], optional = true }
+
+# Only for benchmarks
+mls-rs-crypto-awslc = { path = "../mls-rs-crypto-awslc", optional = true, version = "0.23" }
+
+# Async mode dependencies
+[target.'cfg(mls_build_async)'.dependencies]
+futures = { version = "0.3.25", default-features = false, features = ["alloc"]}
+async-trait = "0.1.74"
+
+[target.'cfg(not(target_has_atomic = "ptr"))'.dependencies]
+portable-atomic = { version = "1.5.1", default-features = false, features = ["critical-section"] }
+portable-atomic-util = { version = "0.2", default-features = false, features = ["alloc"] }
+spin = { version = "0.10", default-features = false, features = ["portable_atomic"] }
+
+[target.'cfg(mls_build_async)'.dev-dependencies]
+futures-test = "0.3.25"
+
+[dev-dependencies]
+assert_matches = "1.5.0"
+criterion = { version = "0.8", features = ["async_futures", "html_reports"], default-features = false }
+serde_json = "^1.0"
+rand = "0.9"
+serde = { version = "1.0", default-features = false, features = ["alloc", "derive"] }
+hex = { version = "^0.4.3", default-features = false, features = ["serde", "alloc"] }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = { version = "0.2" }
+getrandom = { version = "0.2", features = ["js", "custom"], default-features = false }
+rand_core = { version = "0.6", default-features = false, features = ["alloc"] }
+
+[target.'cfg(target_arch = "wasm32")'.dev-dependencies]
+wasm-bindgen-test = { version = "0.3" }
+mls-rs-crypto-webcrypto = { path = "../mls-rs-crypto-webcrypto", version = "0.14.0" }
+criterion = { version = "0.8", default-features = false, features = ["plotters", "cargo_bench_support", "async_futures", "html_reports"] }
+getrandom = { version = "0.3", features = ["wasm_js"] }
+[target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
+mls-rs-crypto-openssl = { path = "../mls-rs-crypto-openssl", version = "0.20.0"}
+criterion = { version = "0.8", features = ["async_futures", "html_reports"] }
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(mls_build_async)', 'cfg(coverage_nightly)'] }
+
+[[example]]
+name = "basic_usage"
+required-features = []
+
+[[example]]
+name = "x509"
+required-features = ["x509"]
+
+[[example]]
+name = "large_group"
+required-features = []
+
+[[example]]
+name = "custom"
+required-features = ["std"]
+
+[[example]]
+name = "basic_server_usage"
+required-features = ["external_client"]
+
+[[bench]]
+name = "group_add"
+harness = false
+required-features = ["benchmark_util"]
+
+[[bench]]
+name = "group_commit"
+harness = false
+required-features = ["benchmark_util"]
+
+[[bench]]
+name = "group_receive_commit"
+harness = false
+required-features = ["benchmark_util"]
+
+[[bench]]
+name = "group_application"
+harness = false
+required-features = ["benchmark_util"]
+
+[[bench]]
+name = "group_serialize"
+harness = false
+required-features = ["benchmark_util"]
+
+[[test]]
+name = "client_tests"
+required-features = ["test_util"]

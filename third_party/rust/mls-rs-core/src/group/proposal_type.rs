@@ -13,7 +13,6 @@ use mls_rs_codec::{MlsDecode, MlsEncode, MlsSize};
     Clone, Copy, Eq, Hash, PartialOrd, Ord, PartialEq, MlsSize, MlsEncode, MlsDecode, Debug,
 )]
 #[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
-// #[cfg_attr(all(feature = "ffi", not(test)), safer_ffi_gen::ffi_type)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[repr(transparent)]
 pub struct ProposalType(u16);
@@ -56,6 +55,12 @@ impl ProposalType {
     pub const RE_INIT: ProposalType = ProposalType(5);
     pub const EXTERNAL_INIT: ProposalType = ProposalType(6);
     pub const GROUP_CONTEXT_EXTENSIONS: ProposalType = ProposalType(7);
+    #[cfg(feature = "self_remove_proposal")]
+    pub const SELF_REMOVE: ProposalType = ProposalType(0xF003);
+    #[cfg(feature = "gsma_rcs_e2ee_feature")]
+    pub const RCS_SIGNATURE: ProposalType = ProposalType::new(0xF002);
+    #[cfg(feature = "gsma_rcs_e2ee_feature")]
+    pub const RCS_SERVER_REMOVE: ProposalType = ProposalType::new(0xF004);
 
     /// Default proposal types defined
     /// in [RFC 9420](https://www.rfc-editor.org/rfc/rfc9420.html#name-leaf-node-contents)
@@ -68,4 +73,10 @@ impl ProposalType {
         ProposalType::EXTERNAL_INIT,
         ProposalType::GROUP_CONTEXT_EXTENSIONS,
     ];
+
+    /// Determines if this proposal type is required to be implemented
+    /// by the MLS RFC.
+    pub fn is_default(&self) -> bool {
+        Self::DEFAULT.contains(self)
+    }
 }

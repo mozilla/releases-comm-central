@@ -1,0 +1,158 @@
+name: Find mutants
+on:
+  schedule:
+    - cron: "0 0 * * 0" # Weekly on Sunday at midnight UTC
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  SHARDS: 64
+  RUST_BACKTRACE: 1
+  MUTANTS_ARGS: --no-shuffle --in-place --profile mutants -- --all-targets -- -Zunstable-options --fail-fast
+
+jobs:
+  baseline:
+    name: Baseline test
+    runs-on: ubuntu-24.04
+    outputs:
+      timeout: ${{ steps.baseline.outputs.timeout }}
+      shards: ${{ steps.baseline.outputs.shards }}
+      max_shard: ${{ steps.baseline.outputs.max_shard }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - id: nss-version
+        run: echo "minimum=$(cat min_version.txt)" >> "$GITHUB_OUTPUT"
+
+      - uses: ./.github/actions/nss
+        with:
+          minimum-version: ${{ steps.nss-version.outputs.minimum }}
+
+      - uses: ./.github/actions/rust
+        with:
+          version: nightly
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run baseline test
+        id: baseline
+        run: |
+          SECONDS=0
+          cargo test --all-targets -- -Zunstable-options --fail-fast
+          {
+            # Minimum timeout is 30s, maximum is 90s, otherwise 3x the baseline test time.
+            echo "timeout=$(( SECONDS * 3 < 30 ? 30 : SECONDS * 3 > 90 ? 90 : SECONDS * 3 ))"
+            echo "shards=$(jq -nc '[$ARGS.positional[] | tonumber]' --args $(seq 0 $((SHARDS - 1))))"
+            echo "max_shard=$((SHARDS - 1))"
+          } >> "$GITHUB_OUTPUT"
+
+  mutants:
+    name: Find mutants (shard ${{ matrix.shard }}/${{ needs.baseline.outputs.max_shard }})
+    needs: baseline
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ${{ fromJSON(needs.baseline.outputs.shards) }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - id: nss-version
+        run: echo "minimum=$(cat min_version.txt)" >> "$GITHUB_OUTPUT"
+
+      - uses: ./.github/actions/nss
+        with:
+          minimum-version: ${{ steps.nss-version.outputs.minimum }}
+
+      - uses: ./.github/actions/rust
+        with:
+          version: nightly
+          tools: cargo-mutants
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Find mutants
+        env:
+          SHARD: ${{ matrix.shard }}/${{ strategy.job-total }}
+          TIMEOUT: ${{ needs.baseline.outputs.timeout }}
+        run: |
+          # shellcheck disable=SC2086
+          # Exit codes: 0=success, 1=build/test failure (fail workflow),
+          # 2=missed, 3=timeout, 4=unviable (suppress, report in summary).
+          (cargo mutants --shard "$SHARD" --sharding round-robin --baseline=skip --timeout "$TIMEOUT" $MUTANTS_ARGS 2>&1 \
+            || { ec=$?; [ $ec -ge 2 ] && [ $ec -le 4 ] && exit 0; exit $ec; }) | tee results.txt
+          # Some sharded runs get killed by GitHub with error code 143.
+          # This seems to be a GitHub-internal protection feature that we can't control:
+          # https://github.com/actions/runner-images/issues/6680
+
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        if: always()
+        with:
+          name: mutants.out-${{ matrix.shard }}
+          path: mutants.out
+          retention-days: 1
+
+  results:
+    name: Results
+    if: ${{ !cancelled() }}
+    needs: mutants
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          pattern: mutants.out-*
+          path: shards
+
+      - name: Merge shard results
+        run: |
+          mkdir -p mutants.out
+          # Move each shard to a subfolder and concatenate result files.
+          for dir in shards/mutants.out-*; do
+            shard="${dir##*-}"
+            mv "$dir" "mutants.out/shard-$shard"
+          done
+          for category in caught missed timeout unviable; do
+            cat mutants.out/shard-*/"$category.txt" 2>/dev/null | sort -u > "mutants.out/$category.txt" || true
+            rm -f mutants.out/shard-*/"$category.txt"
+          done
+
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        id: upload
+        with:
+          name: mutants.out
+          path: mutants.out
+          compression-level: 9
+
+      - name: Post step summary
+        env:
+          ARTIFACT_URL: ${{ steps.upload.outputs.artifact-url }}
+        run: |
+          {
+            echo "## Mutation Testing Results"
+            echo "| Category | Count |"
+            echo "|----------|------:|"
+            for category in caught missed timeout unviable; do
+              count=$(wc -l < "mutants.out/$category.txt" 2>/dev/null | tr -d ' ' || echo 0)
+              echo "| $category | $count |"
+            done
+            echo ""
+            for category in missed timeout; do
+              if [ -s "mutants.out/$category.txt" ]; then
+                echo "### Files with most $category mutants"
+                echo '```'
+                # Group by file, count occurrences, show top 10.
+                cut -d: -f1 "mutants.out/$category.txt" | sort | uniq -c | sort -rn | head -10
+                echo '```'
+              fi
+            done
+            echo ""
+            echo "[Download full results]($ARTIFACT_URL)"
+          } >> "$GITHUB_STEP_SUMMARY"

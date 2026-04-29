@@ -280,9 +280,9 @@ checksum = "7a40729d2133846d9ed0ea60a8b9541bccddab49cd30f0715a1da672fe9a2524"
 
 [[package]]
 name = "async-trait"
-version = "0.1.68"
+version = "0.1.89"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b9ccdd8f2a161be9bd5c023df56f1b2a0bd1d83872ae53b71a84a12c9bf6e842"
+checksum = "9035ad2d096bed7955a320ee7e2230574d28fd3c3a0f186cbea1ff3c7eed5dbb"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2546,7 +2546,7 @@ dependencies = [
  "qwac-trust-anchors",
  "rsdparsa_capi",
  "rure",
- "rusqlite 0.37.0",
+ "rusqlite",
  "rust_minidump_writer_linux",
  "signature_cache",
  "ssl_tokens_cache",
@@ -2671,7 +2671,7 @@ dependencies = [
  "qwac-trust-anchors",
  "rsdparsa_capi",
  "rure",
- "rusqlite 0.37.0",
+ "rusqlite",
  "signature_cache",
  "ssl_tokens_cache",
  "static_prefs",
@@ -3346,7 +3346,7 @@ version = "0.1.0"
 dependencies = [
  "lazy_static",
  "parking_lot",
- "rusqlite 0.37.0",
+ "rusqlite",
  "uniffi",
 ]
 
@@ -3596,7 +3596,7 @@ dependencies = [
  "nserror",
  "nsstring",
  "rkv",
- "rusqlite 0.37.0",
+ "rusqlite",
  "serde",
  "serde_json",
  "skv",
@@ -3613,7 +3613,7 @@ version = "0.1.0"
 dependencies = [
  "kvstore",
  "moz_task",
- "rusqlite 0.37.0",
+ "rusqlite",
  "tempfile",
 ]
 
@@ -3822,7 +3822,7 @@ dependencies = [
  "base64 0.21.999",
  "kvstore",
  "nserror",
- "nss-gk-api",
+ "nss-rs",
  "nsstring",
  "serde",
  "serde_json",
@@ -3849,7 +3849,7 @@ dependencies = [
  "lazy_static",
  "nss",
  "parking_lot",
- "rusqlite 0.37.0",
+ "rusqlite",
  "serde",
  "serde_derive",
  "serde_json",
@@ -4148,8 +4148,8 @@ dependencies = [
 
 [[package]]
 name = "mls-platform-api"
-version = "0.1.0"
-source = "git+https://github.com/beurdouche/mls-platform-api?rev=3acd8e7de512940207d45477a6034a38a9424652#3acd8e7de512940207d45477a6034a38a9424652"
+version = "0.2.0"
+source = "git+https://github.com/mozilla/mls-platform-api?rev=bbbf9d51d60e5f63ab2b791ffbfd884c4d1a317b#bbbf9d51d60e5f63ab2b791ffbfd884c4d1a317b"
 dependencies = [
  "bincode",
  "hex",
@@ -4159,13 +4159,14 @@ dependencies = [
  "serde",
  "serde_json",
  "sha2",
- "thiserror 1.999.999",
+ "thiserror 2.0.12",
 ]
 
 [[package]]
 name = "mls-rs"
-version = "0.45.0"
-source = "git+https://github.com/beurdouche/mls-rs?rev=c846691feab0f3617c3815c527402bd44d854d74#c846691feab0f3617c3815c527402bd44d854d74"
+version = "0.54.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "210707fc5b5109801dc32cff1563f7d56568f04757bf92df9c23b2de8c2caacf"
 dependencies = [
  "async-trait",
  "cfg-if",
@@ -4178,29 +4179,34 @@ dependencies = [
  "mls-rs-codec",
  "mls-rs-core",
  "mls-rs-identity-x509",
- "mls-rs-provider-sqlite",
+ "portable-atomic",
+ "portable-atomic-util",
  "rand_core",
- "rayon",
  "serde",
- "thiserror 1.999.999",
+ "spin",
+ "subtle",
+ "thiserror 2.0.12",
  "wasm-bindgen",
  "zeroize",
 ]
 
 [[package]]
 name = "mls-rs-codec"
-version = "0.6.0"
-source = "git+https://github.com/beurdouche/mls-rs?rev=c846691feab0f3617c3815c527402bd44d854d74#c846691feab0f3617c3815c527402bd44d854d74"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "45bd834f164dc06c1fed805540ae307a460b7ed7c2769a35a376f1de577a0dc1"
 dependencies = [
+ "itertools 0.14.0",
  "mls-rs-codec-derive",
- "thiserror 1.999.999",
+ "thiserror 2.0.12",
  "wasm-bindgen",
 ]
 
 [[package]]
 name = "mls-rs-codec-derive"
 version = "0.2.0"
-source = "git+https://github.com/beurdouche/mls-rs?rev=c846691feab0f3617c3815c527402bd44d854d74#c846691feab0f3617c3815c527402bd44d854d74"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c8b31fb579767147e96686889f1e7459d6bd41a131b11d7cd130776cffadb1c3"
 dependencies = [
  "darling",
  "proc-macro2",
@@ -4210,8 +4216,9 @@ dependencies = [
 
 [[package]]
 name = "mls-rs-core"
-version = "0.21.0"
-source = "git+https://github.com/beurdouche/mls-rs?rev=c846691feab0f3617c3815c527402bd44d854d74#c846691feab0f3617c3815c527402bd44d854d74"
+version = "0.26.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a39fcfdd769f82037ef92052b6cfc3061822f220767227b56bda73208cc59a7e"
 dependencies = [
  "async-trait",
  "hex",
@@ -4219,29 +4226,30 @@ dependencies = [
  "mls-rs-codec",
  "serde",
  "serde_bytes",
- "thiserror 1.999.999",
+ "thiserror 2.0.12",
  "wasm-bindgen",
  "zeroize",
 ]
 
 [[package]]
 name = "mls-rs-crypto-hpke"
-version = "0.14.0"
-source = "git+https://github.com/beurdouche/mls-rs?rev=c846691feab0f3617c3815c527402bd44d854d74#c846691feab0f3617c3815c527402bd44d854d74"
+version = "0.20.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3c1f63b7c46e7f40b6ca6ef3a14362abc5617048d6e9f24ea53c7a4922d7fbcf"
 dependencies = [
  "async-trait",
  "cfg-if",
  "maybe-async",
  "mls-rs-core",
  "mls-rs-crypto-traits",
- "thiserror 1.999.999",
+ "thiserror 2.0.12",
  "zeroize",
 ]
 
 [[package]]
 name = "mls-rs-crypto-nss"
-version = "0.1.0"
-source = "git+https://github.com/beurdouche/mls-rs?rev=c846691feab0f3617c3815c527402bd44d854d74#c846691feab0f3617c3815c527402bd44d854d74"
+version = "0.2.0"
+source = "git+https://github.com/mozilla/mls-platform-api?rev=bbbf9d51d60e5f63ab2b791ffbfd884c4d1a317b#bbbf9d51d60e5f63ab2b791ffbfd884c4d1a317b"
 dependencies = [
  "getrandom 0.2.999",
  "hex",
@@ -4249,47 +4257,49 @@ dependencies = [
  "mls-rs-core",
  "mls-rs-crypto-hpke",
  "mls-rs-crypto-traits",
- "nss-gk-api",
+ "nss-rs",
  "rand_core",
  "serde",
- "thiserror 1.999.999",
+ "thiserror 2.0.12",
  "zeroize",
 ]
 
 [[package]]
 name = "mls-rs-crypto-traits"
-version = "0.15.0"
-source = "git+https://github.com/beurdouche/mls-rs?rev=c846691feab0f3617c3815c527402bd44d854d74#c846691feab0f3617c3815c527402bd44d854d74"
+version = "0.21.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d70626f39505eaeda9b90429665cb8fdc56538a0b3e357a636125662b6cb80ab"
 dependencies = [
  "async-trait",
  "maybe-async",
  "mls-rs-core",
+ "zeroize",
 ]
 
 [[package]]
 name = "mls-rs-identity-x509"
-version = "0.15.0"
-source = "git+https://github.com/beurdouche/mls-rs?rev=c846691feab0f3617c3815c527402bd44d854d74#c846691feab0f3617c3815c527402bd44d854d74"
+version = "0.20.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a6ab2bf0bae192901fc53a87536381c5d26263cfe1bb0907ee88675998469ffc"
 dependencies = [
  "async-trait",
  "maybe-async",
  "mls-rs-core",
- "thiserror 1.999.999",
+ "thiserror 2.0.12",
  "wasm-bindgen",
 ]
 
 [[package]]
 name = "mls-rs-provider-sqlite"
-version = "0.15.0"
-source = "git+https://github.com/beurdouche/mls-rs?rev=c846691feab0f3617c3815c527402bd44d854d74#c846691feab0f3617c3815c527402bd44d854d74"
+version = "0.22.0"
+source = "git+https://github.com/mozilla/mls-platform-api?rev=bbbf9d51d60e5f63ab2b791ffbfd884c4d1a317b#bbbf9d51d60e5f63ab2b791ffbfd884c4d1a317b"
 dependencies = [
  "async-trait",
  "hex",
  "maybe-async",
  "mls-rs-core",
- "rand",
- "rusqlite 0.31.999",
- "thiserror 1.999.999",
+ "rusqlite",
+ "thiserror 2.0.12",
  "zeroize",
 ]
 
@@ -4301,9 +4311,9 @@ dependencies = [
  "log",
  "mls-platform-api",
  "nserror",
- "nss-gk-api",
+ "nss-rs",
  "nsstring",
- "rusqlite 0.37.0",
+ "rusqlite",
  "static_prefs",
  "thin-vec",
  "xpcom",
@@ -4699,16 +4709,36 @@ dependencies = [
 [[package]]
 name = "nss-gk-api"
 version = "0.3.0"
-source = "git+https://github.com/beurdouche/nss-gk-api?rev=e48a946811ffd64abc78de3ee284957d8d1c0d63#e48a946811ffd64abc78de3ee284957d8d1c0d63"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4c17aec6d4e1822c023689899f09311592a36cbf6de8f85dfaf5f01976790d8d"
 dependencies = [
  "bindgen 0.72.0",
- "log",
  "mozbuild",
  "once_cell",
  "pkcs11-bindings",
  "serde",
  "serde_derive",
  "toml 0.5.999",
+]
+
+[[package]]
+name = "nss-rs"
+version = "0.3.0"
+source = "git+https://github.com/mozilla/nss-rs?rev=c54949bbff92795b8b2e837ec84decc9b468081a#c54949bbff92795b8b2e837ec84decc9b468081a"
+dependencies = [
+ "bindgen 0.72.0",
+ "enum-map",
+ "log",
+ "mozbuild",
+ "once_cell",
+ "pkcs11-bindings",
+ "semver",
+ "serde",
+ "serde_derive",
+ "strum",
+ "thiserror 2.0.12",
+ "toml 0.9.8",
+ "windows",
 ]
 
 [[package]]
@@ -5230,6 +5260,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "22686f4785f02a4fcc856d3b3bb19bf6c8160d103f7a99cc258bddd0251dc7f2"
 
 [[package]]
+name = "portable-atomic"
+version = "1.999.0"
+
+[[package]]
+name = "portable-atomic-util"
+version = "0.2.999"
+
+[[package]]
 name = "potential_utf"
 version = "0.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5685,7 +5723,7 @@ dependencies = [
  "rand",
  "rand_distr",
  "remote_settings",
- "rusqlite 0.37.0",
+ "rusqlite",
  "serde",
  "serde_json",
  "serde_path_to_error",
@@ -5706,7 +5744,7 @@ dependencies = [
  "jexl-eval",
  "parking_lot",
  "regex",
- "rusqlite 0.37.0",
+ "rusqlite",
  "serde",
  "serde_json",
  "sha2",
@@ -5819,13 +5857,6 @@ version = "0.2.2"
 dependencies = [
  "libc",
  "regex",
-]
-
-[[package]]
-name = "rusqlite"
-version = "0.31.999"
-dependencies = [
- "rusqlite 0.37.0",
 ]
 
 [[package]]
@@ -6205,7 +6236,7 @@ dependencies = [
  "chrono",
  "futures",
  "hashbrown 0.16.0",
- "rusqlite 0.37.0",
+ "rusqlite",
  "serde",
  "serde_json",
  "thiserror 1.999.999",
@@ -6263,6 +6294,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "spin"
+version = "0.10.999"
+
+[[package]]
 name = "spirv"
 version = "0.4.0+sdk-1.4.341.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6279,7 +6314,7 @@ dependencies = [
  "interrupt-support",
  "lazy_static",
  "parking_lot",
- "rusqlite 0.37.0",
+ "rusqlite",
  "tempfile",
  "thiserror 2.0.12",
 ]
@@ -6460,9 +6495,9 @@ dependencies = [
 
 [[package]]
 name = "subtle"
-version = "2.5.0"
+version = "2.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "81cdd64d312baedb58e21336b31bc043b77e01cc99033ce76ef539f78e965ebc"
+checksum = "13c2bddecc57b384dee18652358fb23172facb8a2c51ccc10d74c157bdea3292"
 
 [[package]]
 name = "suggest"
@@ -6479,7 +6514,7 @@ dependencies = [
  "once_cell",
  "parking_lot",
  "remote_settings",
- "rusqlite 0.37.0",
+ "rusqlite",
  "serde",
  "serde_json",
  "sql-support",
@@ -6522,7 +6557,7 @@ version = "0.1.0"
 dependencies = [
  "base64 0.21.999",
  "rand",
- "rusqlite 0.37.0",
+ "rusqlite",
  "serde",
 ]
 
@@ -6582,7 +6617,7 @@ dependencies = [
  "interrupt-support",
  "lazy_static",
  "payload-support",
- "rusqlite 0.37.0",
+ "rusqlite",
  "serde",
  "serde_derive",
  "serde_json",
@@ -6919,7 +6954,7 @@ checksum = "497961ef93d974e23eb6f433eb5fe1b7930b659f06d12dec6fc44a8f554c0bba"
 name = "types"
 version = "0.1.0"
 dependencies = [
- "rusqlite 0.37.0",
+ "rusqlite",
  "serde",
  "serde_derive",
  "serde_json",
@@ -7309,7 +7344,7 @@ dependencies = [
  "interrupt-support",
  "lazy_static",
  "parking_lot",
- "rusqlite 0.37.0",
+ "rusqlite",
  "serde",
  "serde_derive",
  "serde_json",
@@ -8067,6 +8102,10 @@ version = "2.1.1"
 [[patch.unused]]
 name = "libcrux-traits"
 version = "0.0.3"
+
+[[patch.unused]]
+name = "rusqlite"
+version = "0.31.999"
 
 [[patch.unused]]
 name = "terminal_size"

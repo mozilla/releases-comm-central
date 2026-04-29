@@ -33,10 +33,12 @@ use crate::{
 
 const VERSION: ProtocolVersion = ProtocolVersion::MLS_10;
 
-const ETERNAL_LIFETIME: Lifetime = Lifetime {
-    not_before: 0,
-    not_after: u64::MAX,
-};
+fn eternal_lifetime() -> Lifetime {
+    Lifetime {
+        not_before: MlsTime::from(0),
+        not_after: MlsTime::from(u64::MAX),
+    }
+}
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Default, Clone)]
 pub struct TestCase {
@@ -195,7 +197,7 @@ async fn interop_passive_client() {
             .ratchet_tree
             .map(|t| ExportedTree::from_bytes(&t.0).unwrap());
 
-        let (mut group, _info) = client.join_group(tree, &welcome).await.unwrap();
+        let (mut group, _info) = client.join_group(tree, &welcome, None).await.unwrap();
 
         assert_eq!(
             group.epoch_authenticator().unwrap().to_vec(),
@@ -245,13 +247,13 @@ async fn invite_passive_client<P: CipherSuiteProvider>(
         .crypto_provider(crypto_provider)
         .identity_provider(BasicIdentityProvider::new())
         .key_package_repo(key_package_repo.clone())
-        .key_package_lifetime(ETERNAL_LIFETIME.not_after - ETERNAL_LIFETIME.not_before)
-        .key_package_not_before(ETERNAL_LIFETIME.not_before)
+        .key_package_lifetime(eternal_lifetime().not_after - eternal_lifetime().not_before)
+        .key_package_not_before(eternal_lifetime().not_before)
         .signing_identity(identity.clone(), secret_key.clone(), cs.cipher_suite())
         .build();
 
     let key_pckg = client
-        .generate_key_package_message(Default::default(), Default::default())
+        .generate_key_package_message(Default::default(), Default::default(), None)
         .await
         .unwrap();
 
@@ -488,12 +490,12 @@ async fn create_key_package(cs: CipherSuite) -> MlsMessage {
         None,
         false,
         &TestCryptoProvider::new(),
-        Some(ETERNAL_LIFETIME),
+        Some(eternal_lifetime()),
     )
     .await;
 
     client
-        .generate_key_package_message(Default::default(), Default::default())
+        .generate_key_package_message(Default::default(), Default::default(), None)
         .await
         .unwrap()
 }
@@ -556,12 +558,19 @@ pub async fn generate_passive_client_random_tests() -> Vec<TestCase> {
             continue;
         };
 
-        let creator =
-            generate_basic_client(cs, VERSION, 0, None, false, &crypto, Some(ETERNAL_LIFETIME))
-                .await;
+        let creator = generate_basic_client(
+            cs,
+            VERSION,
+            0,
+            None,
+            false,
+            &crypto,
+            Some(eternal_lifetime()),
+        )
+        .await;
 
         let creator_group = creator
-            .create_group(Default::default(), Default::default())
+            .create_group(Default::default(), Default::default(), None)
             .await
             .unwrap();
 
@@ -578,7 +587,7 @@ pub async fn generate_passive_client_random_tests() -> Vec<TestCase> {
                     None,
                     false,
                     &crypto,
-                    Some(ETERNAL_LIFETIME),
+                    Some(eternal_lifetime()),
                 )
                 .await,
             )
@@ -598,8 +607,8 @@ pub async fn generate_passive_client_random_tests() -> Vec<TestCase> {
         let mut next_free_idx = 11;
         for _ in 0..100 {
             // We keep the passive client and another member to send
-            let num_removed = rng.gen_range(0..groups.len() - 2);
-            let num_added = rng.gen_range(1..30);
+            let num_removed = rng.random_range(0..groups.len() - 2);
+            let num_added = rng.random_range(1..30);
 
             let mut members = (0..groups.len())
                 .filter(|i| groups[*i].current_member_index() != passive_client_index)
@@ -625,7 +634,7 @@ pub async fn generate_passive_client_random_tests() -> Vec<TestCase> {
                         None,
                         false,
                         &crypto,
-                        Some(ETERNAL_LIFETIME),
+                        Some(eternal_lifetime()),
                     )
                     .await,
                 );
@@ -656,7 +665,7 @@ pub async fn add_random_members<C: MlsConfig>(
 
     for client in &clients {
         let key_package = client
-            .generate_key_package_message(Default::default(), Default::default())
+            .generate_key_package_message(Default::default(), Default::default(), None)
             .await
             .unwrap();
         key_packages.push(key_package);
@@ -696,7 +705,7 @@ pub async fn add_random_members<C: MlsConfig>(
         let commit = commit_output.welcome_messages[0].clone();
 
         let group = client
-            .join_group(Some(tree_data.clone()), &commit)
+            .join_group(Some(tree_data.clone()), &commit, None)
             .await
             .unwrap()
             .0;

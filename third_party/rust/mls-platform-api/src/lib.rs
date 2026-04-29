@@ -222,7 +222,7 @@ pub fn mls_generate_key_package(
     let leaf_node_extensions = config.leaf_node_extensions.clone().unwrap_or_default();
 
     let key_package =
-        client.generate_key_package_message(key_package_extensions, leaf_node_extensions)?;
+        client.generate_key_package_message(key_package_extensions, leaf_node_extensions, None)?;
 
     // Result
     Ok(key_package)
@@ -310,10 +310,12 @@ pub fn mls_group_create(
             gid.to_vec(),
             group_context_extensions.unwrap_or_default().clone(),
             config.leaf_node_extensions.clone().unwrap_or_default(),
+            None,
         )?,
         None => client.create_group(
             group_context_extensions.unwrap_or_default().clone(),
             config.leaf_node_extensions.clone().unwrap_or_default(),
+            None,
         )?,
     };
 
@@ -699,7 +701,7 @@ pub fn mls_group_join(
     ratchet_tree: Option<ExportedTree<'static>>,
 ) -> Result<GroupIdEpoch, PlatformError> {
     let client = pstate.client_default(myself)?;
-    let (mut group, _info) = client.join_group(ratchet_tree, welcome)?;
+    let (mut group, _info) = client.join_group(ratchet_tree, welcome, None)?;
     let gid = group.group_id().to_vec();
     let epoch = group.current_epoch();
 

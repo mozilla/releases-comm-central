@@ -129,11 +129,19 @@ impl RemoveProposal {
     }
 }
 
-impl From<u32> for RemoveProposal {
-    fn from(value: u32) -> Self {
-        RemoveProposal {
-            to_remove: LeafIndex(value),
-        }
+impl RemoveProposal {
+    pub fn removing(member_index: u32) -> Result<Self, MlsError> {
+        Ok(Self {
+            to_remove: LeafIndex::try_from(member_index)?,
+        })
+    }
+}
+
+impl TryFrom<u32> for RemoveProposal {
+    type Error = MlsError;
+
+    fn try_from(value: u32) -> Result<Self, Self::Error> {
+        Self::removing(value)
     }
 }
 
@@ -223,22 +231,25 @@ pub struct ExternalInit {
 
 impl Debug for ExternalInit {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("ExternalInit")
-            .field(
-                "kem_output",
-                &mls_rs_core::debug::pretty_bytes(&self.kem_output),
-            )
-            .finish()
+        f.debug_struct("ExternalInit").finish()
     }
 }
+
+#[derive(Clone, PartialEq, Eq, MlsSize, MlsEncode, MlsDecode, Debug)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg(all(
+    feature = "by_ref_proposal",
+    feature = "custom_proposal",
+    feature = "self_remove_proposal"
+))]
+/// A proposal to remove the current [`Member`](mls_rs_core::group::Member) of a
+/// [`Group`](crate::group::Group).
+pub struct SelfRemoveProposal {}
 
 #[cfg(feature = "custom_proposal")]
 #[derive(Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
-// #[cfg_attr(
-//     all(feature = "ffi", not(test)),
-//     safer_ffi_gen::ffi_type(clone, opaque)
-// )]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 /// A user defined custom proposal.
 ///
@@ -260,7 +271,6 @@ impl Debug for CustomProposal {
 }
 
 #[cfg(feature = "custom_proposal")]
-// #[cfg_attr(all(feature = "ffi", not(test)), safer_ffi_gen::safer_ffi_gen)]
 impl CustomProposal {
     /// Create a custom proposal.
     ///
@@ -284,6 +294,76 @@ impl CustomProposal {
     /// The opaque data communicated by this custom proposal.
     pub fn data(&self) -> &[u8] {
         &self.data
+    }
+}
+
+#[cfg(feature = "custom_proposal")]
+/// Encode/Decode for the `data` field of CustomProposal. This allows specialization over
+/// the decoding based on the ProposalType, if users want to use an encoding other than the
+/// default bytes vector (in particular, if users want the CustomProposal wrapper to be hidden
+/// in the encoding, so the underlying custom proposal can be decoded directly).
+pub trait CustomDecoder: Sized {
+    fn encode_from_bytes(
+        data: &Vec<u8>,
+        writer: &mut Vec<u8>,
+        _proposal_type: &ProposalType,
+    ) -> Result<(), mls_rs_codec::Error> {
+        mls_rs_codec::byte_vec::mls_encode(data, writer)
+    }
+    fn decode_from_bytes(
+        reader: &mut &[u8],
+        _proposal_type: &ProposalType,
+    ) -> Result<Vec<u8>, mls_rs_codec::Error> {
+        mls_rs_codec::byte_vec::mls_decode(reader)
+    }
+    fn encoded_byte_len(data: &Vec<u8>, _proposal_type: &ProposalType) -> usize {
+        mls_rs_codec::byte_vec::mls_encoded_len(data)
+    }
+}
+
+#[cfg(all(feature = "custom_proposal", not(feature = "gsma_rcs_e2ee_feature")))]
+impl CustomDecoder for CustomProposal {}
+
+#[cfg(all(feature = "custom_proposal", feature = "gsma_rcs_e2ee_feature"))]
+impl CustomDecoder for CustomProposal {
+    fn encode_from_bytes(
+        data: &Vec<u8>,
+        writer: &mut Vec<u8>,
+        proposal_type: &ProposalType,
+    ) -> Result<(), mls_rs_codec::Error> {
+        match proposal_type {
+            // directly extend with the serialized proposals; don't encode as a byte array
+            // as the length should not be included in the encoding
+            &ProposalType::RCS_SIGNATURE | &ProposalType::RCS_SERVER_REMOVE => {
+                writer.extend(data);
+                Ok(())
+            }
+            _ => mls_rs_codec::byte_vec::mls_encode(data, writer),
+        }
+    }
+    fn decode_from_bytes(
+        reader: &mut &[u8],
+        proposal_type: &ProposalType,
+    ) -> Result<Vec<u8>, mls_rs_codec::Error> {
+        match *proposal_type {
+            // empty struct
+            ProposalType::RCS_SIGNATURE => Ok(Vec::new()),
+            // remove proposal
+            ProposalType::RCS_SERVER_REMOVE => {
+                let decoded = RemoveProposal::mls_decode(reader)?;
+                let mut writer = Vec::new();
+                RemoveProposal::mls_encode(&decoded, &mut writer)?;
+                // return, to be used in the data field of CustomProposal, the encoded proposal
+                Ok(writer)
+            }
+            _ => mls_rs_codec::byte_vec::mls_decode(reader),
+        }
+    }
+    fn encoded_byte_len(data: &Vec<u8>, proposal_type: &ProposalType) -> usize {
+        match proposal_type {
+            &ProposalType::RCS_SIGNATURE | &ProposalType::RCS_SERVER_REMOVE => data.len(),
+            _ => mls_rs_codec::byte_vec::mls_encoded_len(data),
+        }
     }
 }
 
@@ -332,6 +412,12 @@ pub enum Proposal {
     ReInit(ReInitProposal),
     ExternalInit(ExternalInit),
     GroupContextExtensions(ExtensionList),
+    #[cfg(all(
+        feature = "by_ref_proposal",
+        feature = "custom_proposal",
+        feature = "self_remove_proposal"
+    ))]
+    SelfRemove(SelfRemoveProposal),
     #[cfg(feature = "custom_proposal")]
     Custom(CustomProposal),
 }
@@ -348,8 +434,14 @@ impl MlsSize for Proposal {
             Proposal::ReInit(p) => p.mls_encoded_len(),
             Proposal::ExternalInit(p) => p.mls_encoded_len(),
             Proposal::GroupContextExtensions(p) => p.mls_encoded_len(),
+            #[cfg(all(
+                feature = "by_ref_proposal",
+                feature = "custom_proposal",
+                feature = "self_remove_proposal"
+            ))]
+            Proposal::SelfRemove(p) => p.mls_encoded_len(),
             #[cfg(feature = "custom_proposal")]
-            Proposal::Custom(p) => mls_rs_codec::byte_vec::mls_encoded_len(&p.data),
+            Proposal::Custom(p) => CustomProposal::encoded_byte_len(&p.data, &p.proposal_type),
         };
 
         self.proposal_type().mls_encoded_len() + inner_len
@@ -370,6 +462,12 @@ impl MlsEncode for Proposal {
             Proposal::ReInit(p) => p.mls_encode(writer),
             Proposal::ExternalInit(p) => p.mls_encode(writer),
             Proposal::GroupContextExtensions(p) => p.mls_encode(writer),
+            #[cfg(all(
+                feature = "by_ref_proposal",
+                feature = "custom_proposal",
+                feature = "self_remove_proposal"
+            ))]
+            Proposal::SelfRemove(p) => p.mls_encode(writer),
             #[cfg(feature = "custom_proposal")]
             Proposal::Custom(p) => {
                 if p.proposal_type.raw_value() <= 7 {
@@ -381,7 +479,7 @@ impl MlsEncode for Proposal {
                     // #[cfg(not(feature = "std"))]
                     return Err(mls_rs_codec::Error::Custom(2));
                 }
-                mls_rs_codec::byte_vec::mls_encode(&p.data, writer)
+                CustomProposal::encode_from_bytes(&p.data, writer, &p.proposal_type)
             }
         }
     }
@@ -407,10 +505,18 @@ impl MlsDecode for Proposal {
             ProposalType::GROUP_CONTEXT_EXTENSIONS => {
                 Proposal::GroupContextExtensions(ExtensionList::mls_decode(reader)?)
             }
+            #[cfg(all(
+                feature = "by_ref_proposal",
+                feature = "custom_proposal",
+                feature = "self_remove_proposal"
+            ))]
+            ProposalType::SELF_REMOVE => {
+                Proposal::SelfRemove(SelfRemoveProposal::mls_decode(reader)?)
+            }
             #[cfg(feature = "custom_proposal")]
             custom => Proposal::Custom(CustomProposal {
                 proposal_type: custom,
-                data: mls_rs_codec::byte_vec::mls_decode(reader)?,
+                data: CustomProposal::decode_from_bytes(reader, &custom)?,
             }),
             // TODO fix test dependency on openssl loading codec with default features
             #[cfg(not(feature = "custom_proposal"))]
@@ -431,6 +537,12 @@ impl Proposal {
             Proposal::ReInit(_) => ProposalType::RE_INIT,
             Proposal::ExternalInit(_) => ProposalType::EXTERNAL_INIT,
             Proposal::GroupContextExtensions(_) => ProposalType::GROUP_CONTEXT_EXTENSIONS,
+            #[cfg(all(
+                feature = "by_ref_proposal",
+                feature = "custom_proposal",
+                feature = "self_remove_proposal"
+            ))]
+            Proposal::SelfRemove(_) => ProposalType::SELF_REMOVE,
             #[cfg(feature = "custom_proposal")]
             Proposal::Custom(c) => c.proposal_type,
         }
@@ -449,6 +561,12 @@ pub enum BorrowedProposal<'a> {
     ReInit(&'a ReInitProposal),
     ExternalInit(&'a ExternalInit),
     GroupContextExtensions(&'a ExtensionList),
+    #[cfg(all(
+        feature = "by_ref_proposal",
+        feature = "custom_proposal",
+        feature = "self_remove_proposal"
+    ))]
+    SelfRemove(&'a SelfRemoveProposal),
     #[cfg(feature = "custom_proposal")]
     Custom(&'a CustomProposal),
 }
@@ -467,6 +585,12 @@ impl<'a> From<BorrowedProposal<'a>> for Proposal {
             BorrowedProposal::GroupContextExtensions(ext) => {
                 Proposal::GroupContextExtensions(ext.clone())
             }
+            #[cfg(all(
+                feature = "by_ref_proposal",
+                feature = "custom_proposal",
+                feature = "self_remove_proposal"
+            ))]
+            BorrowedProposal::SelfRemove(self_remove) => Proposal::SelfRemove(self_remove.clone()),
             #[cfg(feature = "custom_proposal")]
             BorrowedProposal::Custom(custom) => Proposal::Custom(custom.clone()),
         }
@@ -485,6 +609,12 @@ impl BorrowedProposal<'_> {
             BorrowedProposal::ReInit(_) => ProposalType::RE_INIT,
             BorrowedProposal::ExternalInit(_) => ProposalType::EXTERNAL_INIT,
             BorrowedProposal::GroupContextExtensions(_) => ProposalType::GROUP_CONTEXT_EXTENSIONS,
+            #[cfg(all(
+                feature = "by_ref_proposal",
+                feature = "custom_proposal",
+                feature = "self_remove_proposal"
+            ))]
+            BorrowedProposal::SelfRemove(_) => ProposalType::SELF_REMOVE,
             #[cfg(feature = "custom_proposal")]
             BorrowedProposal::Custom(c) => c.proposal_type,
         }
@@ -503,6 +633,12 @@ impl<'a> From<&'a Proposal> for BorrowedProposal<'a> {
             Proposal::ReInit(p) => BorrowedProposal::ReInit(p),
             Proposal::ExternalInit(p) => BorrowedProposal::ExternalInit(p),
             Proposal::GroupContextExtensions(p) => BorrowedProposal::GroupContextExtensions(p),
+            #[cfg(all(
+                feature = "by_ref_proposal",
+                feature = "custom_proposal",
+                feature = "self_remove_proposal"
+            ))]
+            Proposal::SelfRemove(p) => BorrowedProposal::SelfRemove(p),
             #[cfg(feature = "custom_proposal")]
             Proposal::Custom(p) => BorrowedProposal::Custom(p),
         }
@@ -550,6 +686,17 @@ impl<'a> From<&'a ExternalInit> for BorrowedProposal<'a> {
 impl<'a> From<&'a ExtensionList> for BorrowedProposal<'a> {
     fn from(p: &'a ExtensionList) -> Self {
         Self::GroupContextExtensions(p)
+    }
+}
+
+#[cfg(all(
+    feature = "by_ref_proposal",
+    feature = "custom_proposal",
+    feature = "self_remove_proposal"
+))]
+impl<'a> From<&'a SelfRemoveProposal> for BorrowedProposal<'a> {
+    fn from(p: &'a SelfRemoveProposal) -> Self {
+        Self::SelfRemove(p)
     }
 }
 

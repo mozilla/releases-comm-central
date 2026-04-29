@@ -29,9 +29,15 @@ pub enum KdfError {
     UnsupportedCipherSuite,
 }
 
-impl From<nss_gk_api::hkdf::HkdfError> for KdfError {
-    fn from(_value: nss_gk_api::hkdf::HkdfError) -> Self {
+impl From<nss_rs::hkdf::HkdfError> for KdfError {
+    fn from(_value: nss_rs::hkdf::HkdfError) -> Self {
         KdfError::InvalidInput
+    }
+}
+
+impl From<nss_rs::Error> for KdfError {
+    fn from(_value: nss_rs::Error) -> Self {
+        KdfError::InternalError
     }
 }
 
@@ -65,16 +71,16 @@ impl KdfType for Kdf {
             return Err(KdfError::TooShortKey(prk.len(), self.extract_size()));
         }
 
-        nss_gk_api::init();
+        nss_rs::init()?;
 
         let alg = match self.0 {
-            KdfId::HkdfSha256 => Ok(nss_gk_api::hkdf::HkdfAlgorithm::HKDF_SHA2_256),
-            KdfId::HkdfSha384 => Ok(nss_gk_api::hkdf::HkdfAlgorithm::HKDF_SHA2_384),
-            KdfId::HkdfSha512 => Ok(nss_gk_api::hkdf::HkdfAlgorithm::HKDF_SHA2_512),
+            KdfId::HkdfSha256 => Ok(nss_rs::hkdf::HkdfAlgorithm::HKDF_SHA2_256),
+            KdfId::HkdfSha384 => Ok(nss_rs::hkdf::HkdfAlgorithm::HKDF_SHA2_384),
+            KdfId::HkdfSha512 => Ok(nss_rs::hkdf::HkdfAlgorithm::HKDF_SHA2_512),
             _ => Err(KdfError::UnsupportedCipherSuite),
         }?;
 
-        let hkdf = nss_gk_api::hkdf::Hkdf::new(alg);
+        let hkdf = nss_rs::hkdf::Hkdf::new(alg);
         let prk_symkey = hkdf.import_secret(prk).unwrap();
 
         // Expand
@@ -89,16 +95,16 @@ impl KdfType for Kdf {
             return Err(KdfError::TooShortKey(0, 1));
         }
 
-        nss_gk_api::init();
+        nss_rs::init()?;
 
         let alg = match self.0 {
-            KdfId::HkdfSha256 => Ok(nss_gk_api::hkdf::HkdfAlgorithm::HKDF_SHA2_256),
-            KdfId::HkdfSha384 => Ok(nss_gk_api::hkdf::HkdfAlgorithm::HKDF_SHA2_384),
-            KdfId::HkdfSha512 => Ok(nss_gk_api::hkdf::HkdfAlgorithm::HKDF_SHA2_512),
+            KdfId::HkdfSha256 => Ok(nss_rs::hkdf::HkdfAlgorithm::HKDF_SHA2_256),
+            KdfId::HkdfSha384 => Ok(nss_rs::hkdf::HkdfAlgorithm::HKDF_SHA2_384),
+            KdfId::HkdfSha512 => Ok(nss_rs::hkdf::HkdfAlgorithm::HKDF_SHA2_512),
             _ => Err(KdfError::UnsupportedCipherSuite),
         }?;
 
-        let hkdf = nss_gk_api::hkdf::Hkdf::new(alg);
+        let hkdf = nss_rs::hkdf::Hkdf::new(alg);
         let ikm_symkey = hkdf.import_secret(ikm).unwrap();
 
         // Extract

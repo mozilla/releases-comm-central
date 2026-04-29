@@ -53,11 +53,7 @@ pub(crate) struct SenderDataKey<'a, CP: CipherSuiteProvider> {
 
 impl<CP: CipherSuiteProvider + Debug> Debug for SenderDataKey<'_, CP> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("SenderDataKey")
-            .field("key", &mls_rs_core::debug::pretty_bytes(&self.key))
-            .field("nonce", &mls_rs_core::debug::pretty_bytes(&self.nonce))
-            .field("cipher_suite_provider", self.cipher_suite_provider)
-            .finish()
+        f.debug_struct("SenderDataKey").finish()
     }
 }
 
@@ -237,7 +233,7 @@ mod tests {
             let reuse_guard = ReuseGuard::new(value.reuse_guard);
 
             Self {
-                sender: LeafIndex(value.sender),
+                sender: LeafIndex::unchecked(value.sender),
                 generation: value.generation,
                 reuse_guard,
             }

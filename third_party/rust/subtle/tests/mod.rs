@@ -58,7 +58,7 @@ macro_rules! generate_integer_conditional_select_tests {
         let x: $t = 0;  // all 0 bits
         let y: $t = !0; // all 1 bits
 
-        assert_eq!(<$t>::conditional_select(&x, &y, 0.into()), 0);
+        assert_eq!(<$t>::conditional_select(&x, &y, 0.into()), x);
         assert_eq!(<$t>::conditional_select(&x, &y, 1.into()), y);
 
         let mut z = x;
@@ -422,4 +422,11 @@ fn less_than_u128() {
 fn less_than_ordering() {
     assert_eq!(cmp::Ordering::Greater.ct_lt(&cmp::Ordering::Less).unwrap_u8(), 0);
     assert_eq!(cmp::Ordering::Less.ct_lt(&cmp::Ordering::Greater).unwrap_u8(), 1);
+}
+
+#[test]
+fn black_box_round_trip() {
+    let n = 42u64;
+    let black_box = BlackBox::new(n);
+    assert_eq!(n, black_box.get());
 }

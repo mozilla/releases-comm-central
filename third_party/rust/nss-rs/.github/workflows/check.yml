@@ -1,0 +1,196 @@
+name: CI
+on:
+  pull_request:
+    branches: ["main"]
+  merge_group:
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+  RUST_TEST_TIME_UNIT: 10,30
+  RUST_TEST_TIME_INTEGRATION: 10,30
+  RUST_TEST_TIME_DOCTEST: 10,30
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  toolchains:
+    name: Determine toolchains
+    runs-on: ubuntu-24.04
+    outputs:
+      toolchains: ${{ steps.toolchains.outputs.toolchains }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - id: toolchains
+        uses: ./.github/actions/toolchains
+
+  check:
+    name: Run checks
+    needs: toolchains
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, ubuntu-24.04-arm, macos-15, windows-2025]
+        rust-toolchain: ${{ fromJSON(needs.toolchains.outputs.toolchains) }}
+        type: [debug]
+        # Include some dynamically-linked release builds, to check that that works on all platforms.
+        include:
+          - os: ubuntu-24.04
+            rust-toolchain: stable
+            type: release
+          - os: macos-15
+            rust-toolchain: stable
+            type: release
+          - os: windows-2025
+            rust-toolchain: stable
+            type: release
+          # Also do some debug builds on the oldest OS versions.
+          - os: ubuntu-22.04
+            rust-toolchain: stable
+            type: debug
+          - os: macos-14
+            rust-toolchain: stable
+            type: debug
+          - os: windows-2022
+            rust-toolchain: stable
+            type: debug
+    env:
+      BUILD_TYPE: ${{ matrix.type == 'release' && '--release' || '' }}
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/rust
+        with:
+          version: ${{ matrix.rust-toolchain }}
+          components: ${{ matrix.rust-toolchain == 'stable' && 'llvm-tools' || '' }} ${{ matrix.rust-toolchain == 'nightly' && startsWith(matrix.os, 'ubuntu') && !endsWith(matrix.os, 'arm') && 'rust-src ' || '' }}
+          tools: ${{ matrix.rust-toolchain == 'stable' && 'cargo-llvm-cov' || '' }} ${{ matrix.rust-toolchain == 'nightly' && startsWith(matrix.os, 'ubuntu') && !endsWith(matrix.os, 'arm') && 'cargo-careful ' || '' }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: nss-version
+        run: echo "minimum=$(cat min_version.txt)" >> "$GITHUB_OUTPUT"
+
+      - uses: ./.github/actions/nss
+        with:
+          minimum-version: ${{ steps.nss-version.outputs.minimum }}
+
+      - name: Check
+        run: |
+          # shellcheck disable=SC2086
+          cargo check $BUILD_TYPE --locked --all-targets
+
+      - name: Run tests and determine coverage
+        env:
+          RUST_LOG: trace
+          RUST_BACKTRACE: 1
+          RUST_TEST_TIME_UNIT: 10,30
+          RUST_TEST_TIME_INTEGRATION: 10,30
+          RUST_TEST_TIME_DOCTEST: 10,30
+          TOOLCHAIN: ${{ matrix.rust-toolchain }}
+          # FIXME: cargo-careful at the moment only works on amd64 Ubuntu
+          CAREFUL: ${{ matrix.rust-toolchain == 'nightly' && startsWith(matrix.os, 'ubuntu') && !endsWith(matrix.os, 'arm') && 'careful' || '' }}
+        run: |
+          DUMP_SIMULATION_SEEDS="$(pwd)/simulation-seeds"
+          export DUMP_SIMULATION_SEEDS
+          # shellcheck disable=SC2086
+          if [ "$TOOLCHAIN" == "stable" ]; then
+            cargo llvm-cov test $BUILD_TYPE --locked --include-ffi --codecov --output-path codecov.json
+          else
+            if [ -n "$CAREFUL" ]; then
+              TRIPLE="--target $(rustc --print host-tuple)"
+            fi
+            cargo $CAREFUL test $BUILD_TYPE --locked $TRIPLE
+          fi
+
+      - name: CodeCov Windows workaround
+        if: ${{ startsWith(matrix.os, 'windows') && matrix.type == 'debug' && matrix.rust-toolchain == 'stable' }}
+        run: |
+          # FIXME: Without this, the codecov/codecov-action fails. No idea why it's looking under C:/msys64 now, it shouldn't.
+          mkdir -p C:/msys64/home/runneradmin/
+          touch C:/msys64/home/runneradmin/.gitconfig
+
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        with:
+          files: codecov.json
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true
+          flags: ${{ startsWith(matrix.os, 'ubuntu') && 'linux' || startsWith(matrix.os, 'macos') && 'macos' || 'windows' }}
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        if: matrix.type == 'debug' && matrix.rust-toolchain == 'stable'
+
+      - name: Save simulation seeds artifact
+        if: ${{ always() }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: simulation-seeds-${{ matrix.os }}-${{ matrix.rust-toolchain }}-${{ matrix.type }}
+          path: simulation-seeds
+          compression-level: 9
+
+  check-cargo-lock:
+    name: Ensure `Cargo.lock` contains all required dependencies
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/rust
+        with:
+          version: stable
+          tools: cargo-hack
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - run: |
+          cargo update -w --locked
+          cargo hack update -w --locked
+
+  check-android:
+    name: Check Android
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        target: ['x86_64-linux-android', 'i686-linux-android'] # 'aarch64-linux-android' not currently working
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - id: nss-version
+        run: echo "minimum=$(cat min_version.txt)" >> "$GITHUB_OUTPUT"
+      - uses: ./.github/actions/check-android
+        with:
+          target: ${{ matrix.target }}
+          minimum-nss-version: ${{ steps.nss-version.outputs.minimum }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  check-vm:
+    name: Run checks for VM-only platforms
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ freebsd, openbsd, netbsd ] # NSS package on 'solaris' is too old.
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/check-vm
+        with:
+          platform: ${{ matrix.os }}
+          codecov-token: ${{ secrets.CODECOV_TOKEN }}
+

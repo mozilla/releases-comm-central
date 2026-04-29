@@ -21,7 +21,7 @@ pub enum ValidationContext<'a> {
 }
 
 impl ValidationContext<'_> {
-    fn signing_context(&self) -> LeafNodeSigningContext {
+    fn signing_context(&self) -> LeafNodeSigningContext<'_> {
         match *self {
             ValidationContext::Add(_) => Default::default(),
             ValidationContext::Update((group_id, leaf_index, _)) => (group_id, leaf_index).into(),
@@ -72,9 +72,13 @@ impl<'a, C: IdentityProvider, CP: CipherSuiteProvider> LeafNodeValidator<'a, C, 
             ValidationContext::Add(time) => {
                 // If the context is add, and we specified a time to check for lifetime, verify it
                 if let LeafNodeSource::KeyPackage(lifetime) = &leaf_node.leaf_node_source {
-                    if let Some(current_time) = time {
-                        if !lifetime.within_lifetime(*current_time) {
-                            return Err(MlsError::InvalidLifetime);
+                    if let Some(current_time) = *time {
+                        if !lifetime.within_lifetime(current_time) {
+                            return Err(MlsError::InvalidLifetime {
+                                not_before: lifetime.not_before,
+                                not_after: lifetime.not_after,
+                                timestamp: current_time,
+                            });
                         }
                     }
                 } else {
@@ -105,11 +109,14 @@ impl<'a, C: IdentityProvider, CP: CipherSuiteProvider> LeafNodeValidator<'a, C, 
         leaf_node: &LeafNode,
         group_id: &[u8],
         leaf_index: u32,
+        maybe_time: Option<MlsTime>,
     ) -> Result<(), MlsError> {
         let context = match leaf_node.leaf_node_source {
-            LeafNodeSource::KeyPackage(_) => ValidationContext::Add(None),
-            LeafNodeSource::Update => ValidationContext::Update((group_id, leaf_index, None)),
-            LeafNodeSource::Commit(_) => ValidationContext::Commit((group_id, leaf_index, None)),
+            LeafNodeSource::KeyPackage(_) => ValidationContext::Add(maybe_time),
+            LeafNodeSource::Update => ValidationContext::Update((group_id, leaf_index, maybe_time)),
+            LeafNodeSource::Commit(_) => {
+                ValidationContext::Commit((group_id, leaf_index, maybe_time))
+            }
         };
 
         self.check_if_valid(leaf_node, context).await
@@ -225,8 +232,32 @@ impl<'a, C: IdentityProvider, CP: CipherSuiteProvider> LeafNodeValidator<'a, C, 
                 .map_or(Ok(()), Err)?;
         }
 
+        leaf_node.validate_no_default_values_listed()?;
+
         #[cfg(feature = "by_ref_proposal")]
         self.validate_external_senders_ext_credentials(leaf_node)?;
+
+        Ok(())
+    }
+}
+
+impl LeafNode {
+    pub fn validate_no_default_values_listed(&self) -> Result<(), MlsError> {
+        // The following proposal and extension types are considered "default" and
+        // MUST NOT be listed
+        self.capabilities
+            .extensions
+            .iter()
+            .all(|ext| !ext.is_default())
+            .then_some(())
+            .ok_or(MlsError::DefaultValueListed)?;
+
+        self.capabilities
+            .proposals
+            .iter()
+            .all(|prop| !prop.is_default())
+            .then_some(())
+            .ok_or(MlsError::DefaultValueListed)?;
 
         Ok(())
     }
@@ -653,7 +684,11 @@ mod tests {
             .check_if_valid(&leaf_node, ValidationContext::Add(Some(bad_lifetime)))
             .await;
 
-        assert_matches!(res, Err(MlsError::InvalidLifetime));
+        assert_matches!(
+            res,
+            Err(MlsError::InvalidLifetime { timestamp, .. })
+                if timestamp == bad_lifetime
+        );
     }
 }
 

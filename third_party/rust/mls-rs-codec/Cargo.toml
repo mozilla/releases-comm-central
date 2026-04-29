@@ -12,7 +12,7 @@
 [package]
 edition = "2021"
 name = "mls-rs-codec"
-version = "0.6.0"
+version = "0.7.0"
 build = false
 autolib = false
 autobins = false
@@ -45,19 +45,23 @@ path = "src/lib.rs"
 name = "macro_usage"
 path = "tests/macro_usage.rs"
 
+[dependencies.itertools]
+version = "0.14.0"
+features = ["use_alloc"]
+default-features = false
+
 [dependencies.mls-rs-codec-derive]
 version = "0.2.0"
-path = "../mls-rs-codec-derive"
 
 [dependencies.thiserror]
-version = "1.0.40"
+version = "2"
 optional = true
 
-[dev-dependencies]
-assert_matches = "1.5.0"
+[dev-dependencies.assert_matches]
+version = "1.5.0"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies.wasm-bindgen]
-version = "0.2.79"
+version = "0.2"
 
 [target.'cfg(target_arch = "wasm32")'.dev-dependencies.wasm-bindgen-test]
 version = "0.3"

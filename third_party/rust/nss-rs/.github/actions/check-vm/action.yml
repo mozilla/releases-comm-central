@@ -1,0 +1,158 @@
+name: 'CI VM'
+description: 'Run main CI steps in VMs for VM-only platforms.'
+
+inputs:
+  working-directory:
+    description: 'Working directory.'
+    default: '.'
+  platform:
+    description: 'Platform to run the checks on.'
+    default: ''
+  codecov-token:
+    description: 'Codecov token, if Codecov upload is desired.'
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      id: prep
+      env:
+        WD: ${{ inputs.working-directory }}
+        PLATFORM: ${{ inputs.platform }}
+        WORKSPACE: ${{ inputs.working-directory == '.' && '--workspace' || '' }}
+      run: |
+        cat <<EOF > prepare.sh
+          # This executes as root
+          set -ex
+          pwd
+          case "$PLATFORM" in
+            freebsd)    pkg install -y curl llvm nss pkgconf
+                        ;;
+            openbsd)    # TODO: Is there a way to not pin the version of llvm? -z to pkg_add does not work.
+                        pkg_add rust rust-clippy rust-rustfmt llvm-21.1.2p0 nss # rustup does not support OpenBSD at all
+                        ;;
+            netbsd)     /usr/sbin/pkg_add pkgin && pkgin -y install curl clang nss pkgconf
+                        ;;
+            solaris)    pkg install clang-libs nss pkg-config
+                        ;;
+            *)          echo "Unsupported OS: $PLATFORM"
+                        exit 1
+                        ;;
+          esac
+        EOF
+        {
+          echo 'prepare<<EOF'
+          cat prepare.sh
+          echo EOF
+        } >> "$GITHUB_OUTPUT"
+
+        cat <<EOF > run.sh
+          # This executes as user
+          set -ex
+          cd "$WD"
+          pwd
+          case "$PLATFORM" in
+            freebsd)    sh rustup.sh --default-toolchain stable --profile minimal --component clippy,llvm-tools,rustfmt -y
+                        . "\$HOME/.cargo/env"
+                        ;;
+            openbsd)    export LIBCLANG_PATH=/usr/local/llvm21/lib
+                        export LLVM_COV=/usr/local/llvm21/bin/llvm-cov
+                        export LLVM_PROFDATA=/usr/local/llvm21/bin/llvm-profdata
+                        [ "$WORKSPACE" ] && EXCLUDE="--exclude fuzz" # Fuzzing not supported on OpenBSD
+                        ;;
+            netbsd)     sh rustup.sh --default-toolchain stable --profile minimal --component clippy,llvm-tools,rustfmt -y
+                        . "\$HOME/.cargo/env"
+                        # FIXME: Why do we need to set this on NetBSD?
+                        export LD_LIBRARY_PATH=/usr/pkg/lib/nss:/usr/pkg/lib/nspr
+                        [ "$WORKSPACE" ] && EXCLUDE="--exclude fuzz" # Fuzzing not supported on NetBSD
+                        ;;
+            solaris)    curl --output rust.sh -s https://raw.githubusercontent.com/psumbera/solaris-rust/refs/heads/main/sh.rust-web-install
+                        chmod a+x rust.sh
+                        ls -lt
+                        source ./rust.sh || true # This does not exit with zero on success
+                        export LIBCLANG_PATH="/usr/lib/amd64"
+                        [ "$WORKSPACE" ] && EXCLUDE="--exclude fuzz" # Fuzzing not supported on Solaris
+                        ;;
+          esac
+          cargo version
+          cargo check --locked --all-targets $WORKSPACE \$EXCLUDE
+          case "$PLATFORM" in
+            openbsd)    # clippy fails on OpenBSD, because libfuzzer-sys is not supported.
+                        ;;
+            *)          cargo clippy -- -D warnings
+                        ;;
+          esac
+          cargo fmt --all -- --check
+          case "$PLATFORM" in
+            freebsd)    cargo install cargo-llvm-cov --locked
+                        cargo llvm-cov test --locked --no-fail-fast --codecov --output-path codecov.json
+                        ;;
+            *)          # FIXME: No profiler support on other platforms, error is: cannot find crate for profiler_builtins
+                        cargo test --locked --no-fail-fast # We do this instead for now
+                        ;;
+          esac
+          cargo test --locked --no-fail-fast --release
+          rm -rf target # Do not sync this back to host
+        EOF
+        {
+          echo 'run<<EOF'
+          cat run.sh
+          echo EOF
+        } >> "$GITHUB_OUTPUT"
+
+        curl -o "$WD/rustup.sh" --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs
+        echo "envs=CARGO_TERM_COLOR RUST_BACKTRACE RUST_LOG RUST_TEST_TIME_UNIT RUST_TEST_TIME_INTEGRATION RUST_TEST_TIME_DOCTEST WD" >> "$GITHUB_OUTPUT"
+
+    - if: ${{ inputs.platform == 'freebsd' }}
+      uses: vmactions/freebsd-vm@ba6bedee4a4884da2b782a41a64329a1c8e42ffb # v1.3.8
+      with:
+        usesh: true
+        disable-cache: true
+        envs: ${{ steps.prep.outputs.envs }}
+        prepare: ${{ steps.prep.outputs.prepare }}
+        run: ${{ steps.prep.outputs.run }}
+
+    - if: ${{ inputs.platform == 'openbsd' }}
+      uses: vmactions/openbsd-vm@f5b9bc1261c3d4eed9639fcae0cf5dcc5374ca0c # v1.3.2
+      with:
+        usesh: true
+        disable-cache: true
+        envs: ${{ steps.prep.outputs.envs }}
+        prepare: ${{ steps.prep.outputs.prepare }}
+        run: ${{ steps.prep.outputs.run }}
+
+    - if: ${{ inputs.platform == 'netbsd' }}
+      uses: vmactions/netbsd-vm@37b614756f0b44b02f5dab4fd9ecb27545d1785e # v1.3.2
+      with:
+        usesh: true
+        disable-cache: true
+        envs: ${{ steps.prep.outputs.envs }}
+        prepare: ${{ steps.prep.outputs.prepare }}
+        run: ${{ steps.prep.outputs.run }}
+
+    - if: ${{ inputs.platform == 'solaris' }}
+      uses: vmactions/solaris-vm@37d40b6627e80434541454b42841caa4cc77d0cf # v1.2.7
+      with:
+        release: "11.4-gcc"
+        usesh: true
+        disable-cache: true
+        envs: ${{ steps.prep.outputs.envs }}
+        prepare: ${{ steps.prep.outputs.prepare }}
+        run: ${{ steps.prep.outputs.run }}
+
+    - id: check-coverage
+      shell: bash
+      env:
+        WORKING_DIR: ${{ inputs.working-directory }}
+      run: test -f "$WORKING_DIR/codecov.json" && echo "exists=true" >> "$GITHUB_OUTPUT" || true
+
+    - if: ${{ steps.check-coverage.outputs.exists == 'true' }}
+      uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+      with:
+        files: codecov.json
+        working-directory: ${{ inputs.working-directory }}
+        fail_ci_if_error: false
+        token: ${{ inputs.codecov-token }}
+        verbose: true
+        flags: ${{ inputs.platform }}

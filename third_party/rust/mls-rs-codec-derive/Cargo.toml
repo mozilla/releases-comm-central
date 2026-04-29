@@ -34,13 +34,14 @@ name = "mls_rs_codec_derive"
 path = "src/lib.rs"
 proc-macro = true
 
-[dependencies]
-darling = "^0.20"
-proc-macro2 = "1.0.54"
-quote = "1.0.26"
-syn = "2"
+[dependencies.darling]
+version = "0.20.3"
 
-[lints.rust.unexpected_cfgs]
-level = "warn"
-priority = 0
-check-cfg = ["cfg(mls_build_async)"]
+[dependencies.proc-macro2]
+version = "1.0.54"
+
+[dependencies.quote]
+version = "1.0.26"
+
+[dependencies.syn]
+version = "2"

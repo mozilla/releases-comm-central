@@ -318,7 +318,7 @@ async fn generate_framing_test_vector() -> Vec<FramingTestCase> {
 
         // Generate private and public proposal message
         let proposal = Proposal::Remove(RemoveProposal {
-            to_remove: LeafIndex(2),
+            to_remove: LeafIndex::unchecked(2),
         });
 
         test_case.proposal = proposal.mls_encode_to_vec().unwrap();
@@ -414,7 +414,7 @@ async fn make_group<P: CipherSuiteProvider>(
         .unwrap();
 
     // Convince the group that their index is 1 if they send or 0 if they receive.
-    group.private_tree.self_index = LeafIndex(if for_send { 1 } else { 0 });
+    group.private_tree.self_index = LeafIndex::unchecked(if for_send { 1 } else { 0 });
 
     // Convince the group that their signing key is the one from the test case
     let mut signature_priv = test_case.signature_priv.clone();
@@ -452,7 +452,7 @@ async fn process_message<P: CipherSuiteProvider>(
     // Enabling encryption doesn't matter for processing
     let mut group = make_group(test_case, false, true, cs).await;
     let message = MlsMessage::mls_decode(&mut &*message).unwrap();
-    let evt_or_cont = group.get_event_from_incoming_message(message);
+    let evt_or_cont = group.get_event_from_incoming_message(message, None);
 
     match evt_or_cont.await.unwrap() {
         EventOrContent::Content(content) => content.content.content,

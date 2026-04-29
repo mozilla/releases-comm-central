@@ -1,0 +1,44 @@
+[package]
+name = "mls-rs-crypto-hpke"
+version = "0.20.0"
+edition = "2021"
+description = "HPKE implementation based on mls-rs-crypto-traits used by mls-rs"
+homepage = "https://github.com/awslabs/mls-rs"
+repository = "https://github.com/awslabs/mls-rs"
+keywords = ["mls", "mls-rs", "HPKE"]
+categories = ["no-std", "cryptography"]
+license = "Apache-2.0 OR MIT"
+
+[features]
+default = ["std"]
+std = ["mls-rs-core/std", "mls-rs-crypto-traits/std", "dep:thiserror", "zeroize/std"]
+test_utils = ["mls-rs-core/test_suite"]
+
+[dependencies]
+mls-rs-core = { path = "../mls-rs-core", default-features = false, version = "0.26.0" }
+mls-rs-crypto-traits = { path = "../mls-rs-crypto-traits", default-features = false, version = "0.21.0" }
+thiserror = { version = "2", optional = true }
+zeroize = { version = "1", default-features = false, features = ["alloc", "zeroize_derive"] }
+cfg-if = "^1"
+maybe-async = "0.2.10"
+
+[dev-dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = { version = "^1.0" }
+assert_matches = "1.5.0"
+mockall = "0.14"
+hex = { version = "^0.4.3", features = ["serde"] }
+mls-rs-crypto-traits = { path = "../mls-rs-crypto-traits", features = ["mock"], version = "0.21.0" }
+
+[target.'cfg(target_arch = "wasm32")'.dev-dependencies]
+wasm-bindgen-test = { version = "0.3" }
+getrandom = { version = "0.2", features = ["js"] }
+
+[target.'cfg(mls_build_async)'.dependencies]
+async-trait = "0.1.74"
+
+[target.'cfg(mls_build_async)'.dev-dependencies]
+futures-test = "0.3.25"
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(mls_build_async)'] }

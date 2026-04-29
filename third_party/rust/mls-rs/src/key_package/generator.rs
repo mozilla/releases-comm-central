@@ -50,7 +50,7 @@ impl KeyPackageGeneration {
             self.key_package.mls_encode_to_vec()?,
             self.init_secret_key.clone(),
             self.leaf_node_secret_key.clone(),
-            self.key_package.expiration()?,
+            self.key_package.expiration()?.seconds_since_epoch(),
         );
 
         Ok((id, data))
@@ -172,7 +172,7 @@ mod tests {
     }
 
     fn test_lifetime() -> Lifetime {
-        Lifetime::years(1).unwrap()
+        Lifetime::years(1, None).unwrap()
     }
 
     #[maybe_async::test(not(mls_build_async), async(mls_build_async, crate::futures_test))]
@@ -258,7 +258,7 @@ mod tests {
                 .await
                 .unwrap();
 
-            assert_eq!(opened, test_data);
+            assert_eq!(*opened, test_data);
 
             let validator =
                 LeafNodeValidator::new_for_test(&cipher_suite_provider, &BasicIdentityProvider);

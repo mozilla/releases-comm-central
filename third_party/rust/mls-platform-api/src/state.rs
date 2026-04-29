@@ -5,6 +5,7 @@ use std::{
     collections::HashMap,
     path::Path,
     sync::{Arc, Mutex},
+    time::Duration,
 };
 
 use mls_rs::{
@@ -70,7 +71,7 @@ impl PlatformState {
         state
             .get_sqlite_engine()?
             .application_data_storage()
-            .map_err(|e| (PlatformError::StorageError(e.into_any_error())))?;
+            .map_err(|e| PlatformError::StorageError(e.into_any_error()))?;
 
         Ok(state)
     }
@@ -110,8 +111,10 @@ impl PlatformState {
         let myself_signing_identity =
             SigningIdentity::new(myself_credential, myself_sig_data.public_key.into());
 
-        let mut builder = mls_rs::client_builder::ClientBuilder::new_sqlite(engine)
-            .map_err(|e| PlatformError::StorageError(e.into_any_error()))?
+        let mut builder = mls_rs::client_builder::ClientBuilder::new()
+            .key_package_repo(engine.key_package_storage().map_err(|e| PlatformError::StorageError(e.into_any_error()))?)
+            .psk_store(engine.pre_shared_key_storage().map_err(|e| PlatformError::StorageError(e.into_any_error()))?)
+            .group_state_storage(engine.group_state_storage().map_err(|e| PlatformError::StorageError(e.into_any_error()))?)
             .crypto_provider(crypto_provider)
             .identity_provider(mls_rs::identity::basic::BasicIdentityProvider)
             .signing_identity(
@@ -122,7 +125,7 @@ impl PlatformState {
             .protocol_version(version);
 
         if let Some(key_package_lifetime_s) = config.key_package_lifetime_s {
-            builder = builder.key_package_lifetime(key_package_lifetime_s);
+            builder = builder.key_package_lifetime(Duration::from_secs(key_package_lifetime_s));
         }
 
         let mls_rules = DefaultMlsRules::new().with_commit_options(

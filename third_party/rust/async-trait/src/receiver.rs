@@ -1,5 +1,4 @@
-use proc_macro2::{Group, Span, TokenStream, TokenTree};
-use std::iter::FromIterator;
+use proc_macro2::{Group, TokenStream, TokenTree};
 use syn::visit_mut::{self, VisitMut};
 use syn::{
     Block, ExprPath, Ident, Item, Macro, Pat, PatIdent, Path, Receiver, Signature, Token, TypePath,
@@ -43,8 +42,8 @@ struct HasMutPat(Option<Token![mut]>);
 
 impl VisitMut for HasMutPat {
     fn visit_pat_ident_mut(&mut self, i: &mut PatIdent) {
-        if let Some(m) = i.mutability {
-            self.0 = Some(m);
+        if let Some(m) = &i.mutability {
+            self.0 = Some(Token![mut](m.span));
         } else {
             visit_mut::visit_pat_ident_mut(self, i);
         }
@@ -79,20 +78,17 @@ impl VisitMut for HasSelf {
     }
 }
 
-pub struct ReplaceSelf(pub Span);
+pub struct ReplaceSelf;
+
+fn prepend_underscore_to_self(ident: &mut Ident) -> bool {
+    let modified = ident == "self";
+    if modified {
+        *ident = Ident::new("__self", ident.span());
+    }
+    modified
+}
 
 impl ReplaceSelf {
-    #[cfg_attr(not(self_span_hack), allow(clippy::unused_self))]
-    fn prepend_underscore_to_self(&self, ident: &mut Ident) -> bool {
-        let modified = ident == "self";
-        if modified {
-            *ident = Ident::new("__self", ident.span());
-            #[cfg(self_span_hack)]
-            ident.set_span(self.0);
-        }
-        modified
-    }
-
     fn visit_token_stream(&mut self, tokens: &mut TokenStream) -> bool {
         let mut out = Vec::new();
         let mut modified = false;
@@ -111,7 +107,7 @@ impl ReplaceSelf {
             for tt in tokens {
                 match tt {
                     TokenTree::Ident(mut ident) => {
-                        *modified |= visitor.prepend_underscore_to_self(&mut ident);
+                        *modified |= prepend_underscore_to_self(&mut ident);
                         out.push(TokenTree::Ident(ident));
                     }
                     TokenTree::Group(group) => {
@@ -130,7 +126,7 @@ impl ReplaceSelf {
 
 impl VisitMut for ReplaceSelf {
     fn visit_ident_mut(&mut self, i: &mut Ident) {
-        self.prepend_underscore_to_self(i);
+        prepend_underscore_to_self(i);
     }
 
     fn visit_path_mut(&mut self, p: &mut Path) {

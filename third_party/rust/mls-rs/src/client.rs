@@ -20,6 +20,7 @@ use crate::group::{
 use crate::identity::SigningIdentity;
 use crate::key_package::{KeyPackageGeneration, KeyPackageGenerator};
 use crate::protocol_version::ProtocolVersion;
+use crate::time::MlsTime;
 use crate::tree_kem::node::NodeIndex;
 use alloc::vec::Vec;
 use mls_rs_codec::MlsDecode;
@@ -37,7 +38,6 @@ use alloc::boxed::Box;
 
 #[derive(Debug)]
 #[cfg_attr(feature = "std", derive(thiserror::Error))]
-#[cfg_attr(all(feature = "ffi", not(test)), safer_ffi_gen::enum_to_error_code)]
 #[non_exhaustive]
 pub enum MlsError {
     #[cfg_attr(feature = "std", error(transparent))]
@@ -58,6 +58,8 @@ pub enum MlsError {
     ExtensionError(AnyError),
     #[cfg_attr(feature = "std", error("Cipher suite does not match"))]
     CipherSuiteMismatch,
+    #[cfg_attr(feature = "std", error("Initial epoch must be 1"))]
+    InitialEpochNotOne,
     #[cfg_attr(feature = "std", error("Invalid commit, missing required path"))]
     CommitMissingPath,
     #[cfg_attr(feature = "std", error("plaintext message for incorrect epoch"))]
@@ -191,8 +193,19 @@ pub enum MlsError {
     TimeOverflow,
     #[cfg_attr(feature = "std", error("invalid leaf_node_source"))]
     InvalidLeafNodeSource,
-    #[cfg_attr(feature = "std", error("key package has expired or is not valid yet"))]
-    InvalidLifetime,
+    #[cfg_attr(
+        feature = "std",
+        error("current time ({}) is not within key package lifetime ({} to {})",
+              timestamp.seconds_since_epoch(),
+              not_before.seconds_since_epoch(),
+              not_after.seconds_since_epoch(),
+        )
+    )]
+    InvalidLifetime {
+        not_before: MlsTime,
+        not_after: MlsTime,
+        timestamp: MlsTime,
+    },
     #[cfg_attr(feature = "std", error("required extension not found"))]
     RequiredExtensionNotFound(ExtensionType),
     #[cfg_attr(feature = "std", error("required proposal not found"))]
@@ -340,6 +353,12 @@ pub enum MlsError {
     InvalidWelcomeMessage,
     #[cfg_attr(feature = "std", error("Exporter deleted"))]
     ExporterDeleted,
+    #[cfg_attr(feature = "std", error("Self-remove already proposed"))]
+    SelfRemoveAlreadyProposed,
+    #[cfg_attr(feature = "std", error("Default value listed"))]
+    DefaultValueListed,
+    #[cfg_attr(feature = "std", error("not a subgroup"))]
+    NotASubgroup,
 }
 
 impl IntoAnyError for MlsError {
@@ -371,7 +390,6 @@ impl From<ExtensionError> for MlsError {
 /// and underlying identities used to join groups and generate key packages.
 /// Applications may decide to create one or many clients depending on their
 /// specific needs.
-#[cfg_attr(all(feature = "ffi", not(test)), safer_ffi_gen::ffi_type(opaque))]
 #[derive(Clone, Debug)]
 pub struct Client<C> {
     pub(crate) config: C,
@@ -388,7 +406,6 @@ impl Client<()> {
     }
 }
 
-#[cfg_attr(all(feature = "ffi", not(test)), safer_ffi_gen::safer_ffi_gen)]
 impl<C> Client<C>
 where
     C: ClientConfig + Clone,
@@ -407,13 +424,13 @@ where
         }
     }
 
-    #[cfg_attr(all(feature = "ffi", not(test)), safer_ffi_gen::safer_ffi_gen_ignore)]
-    pub fn to_builder(&self) -> ClientBuilder<MakeConfig<C>> {
+    pub fn to_builder(&self, timestamp: Option<MlsTime>) -> ClientBuilder<MakeConfig<C>> {
         ClientBuilder::from_config(recreate_config(
             self.config.clone(),
             self.signer.clone(),
             self.signing_identity.clone(),
             self.version,
+            timestamp,
         ))
     }
 
@@ -435,9 +452,10 @@ where
         &self,
         key_package_extensions: ExtensionList,
         leaf_node_extensions: ExtensionList,
+        timestamp: Option<MlsTime>,
     ) -> Result<MlsMessage, MlsError> {
         Ok(self
-            .generate_key_package(key_package_extensions, leaf_node_extensions)
+            .generate_key_package(key_package_extensions, leaf_node_extensions, timestamp)
             .await?
             .key_package_message())
     }
@@ -447,6 +465,7 @@ where
         &self,
         key_package_extensions: ExtensionList,
         leaf_node_extensions: ExtensionList,
+        timestamp: Option<MlsTime>,
     ) -> Result<KeyPackageGeneration, MlsError> {
         let (signing_identity, cipher_suite) = self.signing_identity()?;
 
@@ -465,12 +484,17 @@ where
 
         let key_pkg_gen = key_package_generator
             .generate(
-                self.config.lifetime(),
+                self.config.lifetime(timestamp),
                 self.config.capabilities(),
                 key_package_extensions,
                 leaf_node_extensions,
             )
             .await?;
+
+        key_pkg_gen
+            .key_package
+            .leaf_node
+            .validate_no_default_values_listed()?;
 
         let (id, key_package_data) = key_pkg_gen.to_storage()?;
 
@@ -500,6 +524,7 @@ where
         group_id: Vec<u8>,
         group_context_extensions: ExtensionList,
         leaf_node_extensions: ExtensionList,
+        timestamp: Option<MlsTime>,
     ) -> Result<Group<C>, MlsError> {
         let (signing_identity, cipher_suite) = self.signing_identity()?;
 
@@ -512,6 +537,7 @@ where
             group_context_extensions,
             leaf_node_extensions,
             self.signer()?.clone(),
+            timestamp,
         )
         .await
     }
@@ -526,6 +552,7 @@ where
         &self,
         group_context_extensions: ExtensionList,
         leaf_node_extensions: ExtensionList,
+        timestamp: Option<MlsTime>,
     ) -> Result<Group<C>, MlsError> {
         let (signing_identity, cipher_suite) = self.signing_identity()?;
 
@@ -538,6 +565,7 @@ where
             group_context_extensions,
             leaf_node_extensions,
             self.signer()?.clone(),
+            timestamp,
         )
         .await
     }
@@ -556,12 +584,14 @@ where
         &self,
         tree_data: Option<ExportedTree<'_>>,
         welcome_message: &MlsMessage,
+        maybe_time: Option<MlsTime>,
     ) -> Result<(Group<C>, NewMemberInfo), MlsError> {
         Group::join(
             welcome_message,
             tree_data,
             self.config.clone(),
             self.signer()?.clone(),
+            maybe_time,
         )
         .await
     }
@@ -678,7 +708,7 @@ where
             .map_err(|e| MlsError::GroupStorageError(e.into_any_error()))?
             .ok_or(MlsError::GroupNotFound)?;
 
-        let snapshot = Snapshot::mls_decode(&mut &*snapshot)?;
+        let snapshot = Snapshot::mls_decode(&mut &**snapshot)?;
 
         Group::from_snapshot(self.config.clone(), snapshot).await
     }
@@ -702,7 +732,7 @@ where
             .map_err(|e| MlsError::GroupStorageError(e.into_any_error()))?
             .ok_or(MlsError::GroupNotFound)?;
 
-        let mut snapshot = Snapshot::mls_decode(&mut &*snapshot)?;
+        let mut snapshot = Snapshot::mls_decode(&mut &**snapshot)?;
         snapshot.state.public_tree.nodes = tree_data.0.into_owned();
 
         Group::from_snapshot(self.config.clone(), snapshot).await
@@ -722,10 +752,14 @@ where
         authenticated_data: Vec<u8>,
         key_package_extensions: ExtensionList,
         leaf_node_extensions: ExtensionList,
+        timestamp: Option<MlsTime>,
     ) -> Result<MlsMessage, MlsError> {
         let protocol_version = group_info.version;
 
-        if !self.config.version_supported(protocol_version) && protocol_version == self.version {
+        let protocol_version_ok =
+            self.config.version_supported(protocol_version) && protocol_version == self.version;
+
+        if !protocol_version_ok {
             return Err(MlsError::UnsupportedProtocolVersion(protocol_version));
         }
 
@@ -747,11 +781,12 @@ where
             tree_data,
             &self.config.identity_provider(),
             &cipher_suite_provider,
+            timestamp,
         )
         .await?;
 
         let key_package = self
-            .generate_key_package(key_package_extensions, leaf_node_extensions)
+            .generate_key_package(key_package_extensions, leaf_node_extensions, timestamp)
             .await?
             .key_package;
 
@@ -788,7 +823,6 @@ where
         self.signer.as_ref().ok_or(MlsError::SignerNotFound)
     }
 
-    #[cfg_attr(all(feature = "ffi", not(test)), safer_ffi_gen::safer_ffi_gen_ignore)]
     pub fn signing_identity(&self) -> Result<(&SigningIdentity, CipherSuite), MlsError> {
         self.signing_identity
             .as_ref()
@@ -797,26 +831,22 @@ where
     }
 
     /// The [KeyPackageStorage] that this client was configured to use.
-    #[cfg_attr(all(feature = "ffi", not(test)), safer_ffi_gen::safer_ffi_gen_ignore)]
     pub fn key_package_store(&self) -> <C as ClientConfig>::KeyPackageRepository {
         self.config.key_package_repo()
     }
 
     /// The [PreSharedKeyStorage](crate::PreSharedKeyStorage) that
     /// this client was configured to use.
-    #[cfg_attr(all(feature = "ffi", not(test)), safer_ffi_gen::safer_ffi_gen_ignore)]
     pub fn secret_store(&self) -> <C as ClientConfig>::PskStore {
         self.config.secret_store()
     }
 
     /// The [GroupStateStorage] that this client was configured to use.
-    #[cfg_attr(all(feature = "ffi", not(test)), safer_ffi_gen::safer_ffi_gen_ignore)]
     pub fn group_state_storage(&self) -> <C as ClientConfig>::GroupStateStorage {
         self.config.group_state_storage()
     }
 
     /// The [IdentityProvider](crate::IdentityProvider) that this client was configured to use.
-    #[cfg_attr(all(feature = "ffi", not(test)), safer_ffi_gen::safer_ffi_gen_ignore)]
     pub fn identity_provider(&self) -> <C as ClientConfig>::IdentityProvider {
         self.config.identity_provider()
     }
@@ -873,7 +903,7 @@ pub(crate) mod test_utils {
         config(&mut client.config);
 
         let key_package = client
-            .generate_key_package_message(key_package_extensions, leaf_node_extensions)
+            .generate_key_package_message(key_package_extensions, leaf_node_extensions, None)
             .await
             .unwrap();
 
@@ -923,7 +953,7 @@ mod tests {
 
             // TODO: Tests around extensions
             let key_package = client
-                .generate_key_package_message(Default::default(), Default::default())
+                .generate_key_package_message(Default::default(), Default::default(), None)
                 .await
                 .unwrap();
 
@@ -943,7 +973,7 @@ mod tests {
             let capabilities = key_package.leaf_node.ungreased_capabilities();
             assert_eq!(capabilities, client.config.capabilities());
 
-            let client_lifetime = client.config.lifetime();
+            let client_lifetime = client.config.lifetime(None);
             assert_matches!(key_package.leaf_node.leaf_node_source, LeafNodeSource::KeyPackage(lifetime) if (lifetime.not_after - lifetime.not_before) == (client_lifetime.not_after - client_lifetime.not_before));
         }
     }
@@ -966,6 +996,7 @@ mod tests {
                 vec![],
                 Default::default(),
                 Default::default(),
+                None,
             )
             .await
             .unwrap();
@@ -1112,7 +1143,7 @@ mod tests {
             .build();
 
         let msg = alice
-            .generate_key_package_message(Default::default(), Default::default())
+            .generate_key_package_message(Default::default(), Default::default(), None)
             .await
             .unwrap();
         let res = alice.commit_external(msg).await.map(|_| ());
@@ -1157,7 +1188,7 @@ mod tests {
         let alice = TestClientBuilder::new_for_test()
             .extension_type(33.into())
             .build();
-        let bob = alice.to_builder().extension_type(34.into()).build();
+        let bob = alice.to_builder(None).extension_type(34.into()).build();
         assert_eq!(bob.config.supported_extensions(), [33, 34].map(Into::into));
     }
 
@@ -1225,5 +1256,33 @@ mod tests {
 
         let res = bob.validate_group_info(&group_info, &other_signer).await;
         assert_matches!(res, Err(MlsError::InvalidSignature));
+    }
+
+    #[maybe_async::test(not(mls_build_async), async(mls_build_async, crate::futures_test))]
+
+    async fn cannot_list_default_extensions_in_capabilities() {
+        let res = TestClientBuilder::new_for_test()
+            .with_random_signing_identity("client", TEST_CIPHER_SUITE)
+            .await
+            .extension_type(ExtensionType::APPLICATION_ID)
+            .build()
+            .generate_key_package(Default::default(), Default::default(), Default::default())
+            .await;
+
+        assert_matches!(res, Err(MlsError::DefaultValueListed));
+    }
+
+    #[maybe_async::test(not(mls_build_async), async(mls_build_async, crate::futures_test))]
+
+    async fn cannot_list_default_proposals_in_capabilities() {
+        let res = TestClientBuilder::new_for_test()
+            .with_random_signing_identity("client", TEST_CIPHER_SUITE)
+            .await
+            .custom_proposal_type(ProposalType::ADD)
+            .build()
+            .generate_key_package(Default::default(), Default::default(), Default::default())
+            .await;
+
+        assert_matches!(res, Err(MlsError::DefaultValueListed));
     }
 }

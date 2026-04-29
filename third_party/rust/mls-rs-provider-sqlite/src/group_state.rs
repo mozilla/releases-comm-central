@@ -11,6 +11,7 @@ use std::{
     fmt::Debug,
     sync::{Arc, Mutex},
 };
+use zeroize::Zeroizing;
 
 use crate::SqLiteDataStorageError;
 
@@ -18,6 +19,12 @@ pub(crate) const DEFAULT_EPOCH_RETENTION_LIMIT: u64 = 3;
 
 #[derive(Debug, Clone)]
 /// SQLite Storage for MLS group states.
+///
+/// # Limitations
+///
+/// Epoch IDs are stored as SQLite INTEGER (signed 64-bit), limiting the maximum
+/// epoch ID to [`i64::MAX`] (9,223,372,036,854,775,807). Operations with epoch IDs
+/// exceeding this value will return [`SqLiteDataStorageError::EpochIdOverflow`].
 pub struct SqLiteGroupStateStorage {
     connection: Arc<Mutex<Connection>>,
     max_epoch_retention: u64,
@@ -93,8 +100,6 @@ impl SqLiteGroupStateStorage {
         let alternative_gid = self.alternative_group_id(group_id)?;
         let group_id = alternative_gid.as_deref().unwrap_or(group_id);
 
-        // println!("alternative gid get {:?}", group_id);
-
         connection
             .query_row(
                 "SELECT snapshot FROM mls_group where group_id = ?",
@@ -118,7 +123,11 @@ impl SqLiteGroupStateStorage {
         connection
             .query_row(
                 "SELECT epoch_data FROM epoch where group_id = ? AND epoch_id = ?",
-                params![group_id, epoch_id],
+                params![
+                    group_id,
+                    i64::try_from(epoch_id)
+                        .map_err(|_| SqLiteDataStorageError::EpochIdOverflow(epoch_id))?
+                ],
                 |row| row.get::<_, Vec<u8>>(0),
             )
             .optional()
@@ -132,7 +141,15 @@ impl SqLiteGroupStateStorage {
             .query_row(
                 "SELECT MAX(epoch_id) FROM epoch WHERE group_id = ?",
                 params![group_id],
-                |row| row.get::<_, Option<u64>>(0),
+                |row| {
+                    row.get::<_, Option<i64>>(0).and_then(|opt| {
+                        opt.map(|v| {
+                            u64::try_from(v)
+                                .map_err(|_| rusqlite::Error::IntegralValueOutOfRange(0, v))
+                        })
+                        .transpose()
+                    })
+                },
             )
             .map_err(|e| SqLiteDataStorageError::SqlEngineError(e.into()))
     }
@@ -140,18 +157,14 @@ impl SqLiteGroupStateStorage {
     fn update_group_state(
         &self,
         group_id: &[u8],
-        group_snapshot: Vec<u8>,
+        group_snapshot: &[u8],
         inserts: Vec<EpochRecord>,
         updates: Vec<EpochRecord>,
     ) -> Result<(), SqLiteDataStorageError> {
         let mut max_epoch_id = None;
 
-        // println!("gid {:?}", group_id);
-
         let alternative_gid = self.alternative_group_id(group_id)?;
         let group_id = alternative_gid.as_deref().unwrap_or(group_id);
-
-        // println!("alternative gid {:?}", group_id);
 
         let mut connection = self.connection.lock().unwrap();
         let transaction = connection
@@ -171,7 +184,12 @@ impl SqLiteGroupStateStorage {
             transaction
                 .execute(
                     "INSERT INTO epoch (group_id, epoch_id, epoch_data) VALUES (?, ?, ?)",
-                    params![group_id, epoch.id, epoch.data],
+                    params![
+                        group_id,
+                        i64::try_from(epoch.id)
+                            .map_err(|_| SqLiteDataStorageError::EpochIdOverflow(epoch.id))?,
+                        &*epoch.data
+                    ],
                 )
                 .map(|_| ())
                 .map_err(|e| SqLiteDataStorageError::SqlEngineError(e.into()))?;
@@ -182,7 +200,12 @@ impl SqLiteGroupStateStorage {
             transaction
                 .execute(
                     "UPDATE epoch SET epoch_data = ? WHERE group_id = ? AND epoch_id = ?",
-                    params![epoch.data, group_id, epoch.id],
+                    params![
+                        &*epoch.data,
+                        group_id,
+                        i64::try_from(epoch.id)
+                            .map_err(|_| SqLiteDataStorageError::EpochIdOverflow(epoch.id))?
+                    ],
                 )
                 .map(|_| ())
                 .map_err(|e| SqLiteDataStorageError::SqlEngineError(e.into()))
@@ -196,7 +219,12 @@ impl SqLiteGroupStateStorage {
                 transaction
                     .execute(
                         "DELETE FROM epoch WHERE group_id = ? AND epoch_id <= ?",
-                        params![group_id, delete_under],
+                        params![
+                            group_id,
+                            i64::try_from(delete_under).map_err(|_| {
+                                SqLiteDataStorageError::EpochIdOverflow(delete_under)
+                            })?
+                        ],
                     )
                     .map_err(|e| SqLiteDataStorageError::SqlEngineError(e.into()))?;
             }
@@ -234,27 +262,32 @@ impl GroupStateStorage for SqLiteGroupStateStorage {
         inserts: Vec<EpochRecord>,
         updates: Vec<EpochRecord>,
     ) -> Result<(), Self::Error> {
-        let group_id = state.id;
-        let snapshot_data = state.data;
-
-        self.update_group_state(&group_id, snapshot_data, inserts, updates)
+        self.update_group_state(&state.id, &state.data, inserts, updates)
     }
 
-    async fn state(&self, group_id: &[u8]) -> Result<Option<Vec<u8>>, Self::Error> {
-        self.get_snapshot_data(group_id)
+    async fn state(&self, group_id: &[u8]) -> Result<Option<Zeroizing<Vec<u8>>>, Self::Error> {
+        let data = self.get_snapshot_data(group_id)?;
+        Ok(data.map(Into::into))
     }
 
     async fn max_epoch_id(&self, group_id: &[u8]) -> Result<Option<u64>, Self::Error> {
         self.max_epoch_id(group_id)
     }
 
-    async fn epoch(&self, group_id: &[u8], epoch_id: u64) -> Result<Option<Vec<u8>>, Self::Error> {
-        self.get_epoch_data(group_id, epoch_id)
+    async fn epoch(
+        &self,
+        group_id: &[u8],
+        epoch_id: u64,
+    ) -> Result<Option<Zeroizing<Vec<u8>>>, Self::Error> {
+        let data = self.get_epoch_data(group_id, epoch_id)?;
+        Ok(data.map(Into::into))
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use assert_matches::assert_matches;
+
     use crate::{
         SqLiteDataStorageEngine,
         {connection_strategy::MemoryStrategy, test_utils::gen_rand_bytes},
@@ -279,7 +312,7 @@ mod tests {
 
     fn test_epoch(id: u64) -> EpochRecord {
         EpochRecord {
-            data: gen_rand_bytes(256),
+            data: gen_rand_bytes(256).into(),
             id,
         }
     }
@@ -300,7 +333,7 @@ mod tests {
         test_storage
             .update_group_state(
                 &test_group_id,
-                test_snapshot.clone(),
+                &test_snapshot,
                 vec![test_epoch_0.clone()],
                 vec![],
             )
@@ -330,7 +363,7 @@ mod tests {
             .storage
             .get_epoch_data(&test_data.group_id, 0)
             .unwrap();
-        assert_eq!(epoch.unwrap(), test_data.epoch_0.data);
+        assert_eq!(epoch.unwrap(), *test_data.epoch_0.data);
     }
 
     #[test]
@@ -344,7 +377,7 @@ mod tests {
             .storage
             .update_group_state(
                 &test_data.group_id,
-                test_snapshot.clone(),
+                &test_snapshot,
                 vec![],
                 vec![epoch_update.clone()],
             )
@@ -365,7 +398,7 @@ mod tests {
                 .get_epoch_data(&test_data.group_id, 0)
                 .unwrap()
                 .unwrap(),
-            epoch_update.data
+            *epoch_update.data
         );
     }
 
@@ -384,7 +417,7 @@ mod tests {
             .storage
             .update_group_state(
                 &test_data.group_id,
-                test_snapshot(),
+                &test_snapshot(),
                 test_epochs.clone(),
                 vec![],
             )
@@ -401,7 +434,7 @@ mod tests {
             if epoch.id <= n - DEFAULT_EPOCH_RETENTION_LIMIT {
                 assert!(stored.is_none());
             } else {
-                assert_eq!(stored.unwrap(), epoch.data);
+                assert_eq!(stored.unwrap(), *epoch.data);
             }
         }
     }
@@ -414,7 +447,7 @@ mod tests {
             .storage
             .update_group_state(
                 &test_data.group_id,
-                test_snapshot(),
+                &test_snapshot(),
                 vec![test_epoch(1)],
                 vec![],
             )
@@ -427,7 +460,7 @@ mod tests {
             .storage
             .update_group_state(
                 &test_data.group_id,
-                test_snapshot(),
+                &test_snapshot(),
                 test_epochs.clone(),
                 vec![new_epoch_1.clone()],
             )
@@ -455,7 +488,7 @@ mod tests {
         let group_id = b"test";
 
         storage
-            .update_group_state(group_id, vec![0, 1, 2], vec![], vec![])
+            .update_group_state(group_id, &[0, 1, 2], vec![], vec![])
             .unwrap();
 
         let res = storage.max_epoch_id(group_id).unwrap();
@@ -471,7 +504,7 @@ mod tests {
             .storage
             .update_group_state(
                 &test_data.group_id,
-                test_snapshot(),
+                &test_snapshot(),
                 (1..10).map(test_epoch).collect(),
                 vec![],
             )
@@ -498,7 +531,7 @@ mod tests {
             .storage
             .update_group_state(
                 &new_group,
-                test_snapshot(),
+                &test_snapshot(),
                 vec![new_group_epoch.clone()],
                 vec![],
             )
@@ -519,7 +552,7 @@ mod tests {
                 .get_epoch_data(&new_group, 0)
                 .unwrap()
                 .unwrap(),
-            new_group_epoch.data
+            *new_group_epoch.data
         );
     }
 
@@ -530,5 +563,22 @@ mod tests {
         test_data.storage.delete_group(&test_data.group_id).unwrap();
 
         assert!(test_data.storage.group_ids().unwrap().is_empty());
+    }
+
+    #[test]
+    fn epoch_id_overflow() {
+        let storage = get_test_storage();
+        let group_id = test_group_id();
+        let snapshot = test_snapshot();
+        let overflow_epoch = EpochRecord {
+            id: u64::MAX,
+            data: gen_rand_bytes(256).into(),
+        };
+
+        let err = storage
+            .update_group_state(&group_id, &snapshot, vec![overflow_epoch], vec![])
+            .unwrap_err();
+
+        assert_matches!(err, SqLiteDataStorageError::EpochIdOverflow(u64::MAX));
     }
 }

@@ -47,9 +47,7 @@ struct TreeSecret(
 
 impl Debug for TreeSecret {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        mls_rs_core::debug::pretty_bytes(&self.0)
-            .named("TreeSecret")
-            .fmt(f)
+        f.debug_struct("TreeSecret").finish()
     }
 }
 
@@ -155,6 +153,17 @@ impl SecretRatchets {
         match key_type {
             KeyType::Handshake => self.handshake.next_message_key(cipher_suite).await,
             KeyType::Application => self.application.next_message_key(cipher_suite).await,
+        }
+    }
+
+    /// Peeks at the next key generation for `key_type`, but does not increment the
+    /// generation nor derive keys.
+    #[cfg(feature = "export_key_generation")]
+    #[cfg_attr(not(mls_build_async), maybe_async::must_be_sync, allow(dead_code))]
+    async fn peek_next_key_generation(&self, key_type: KeyType) -> u32 {
+        match key_type {
+            KeyType::Handshake => self.handshake.peek_next_key_generation().await,
+            KeyType::Application => self.application.peek_next_key_generation().await,
         }
     }
 }
@@ -269,6 +278,32 @@ impl<T: TreeIndex> SecretTree<T> {
 
         res
     }
+
+    /// Peeks at the next key generation, but does not increment the generation nor
+    /// derive keys.
+    ///
+    /// Takes &mut self since take_leaf_ratchet constructs and stores nodes in the
+    /// SecretTree the first time they are requested.
+    ///
+    /// Called by [`Group::peek_next_key_generation`], which is used by clients to
+    /// authenticate the generation to defend against in-group forgery attacks described
+    /// in https://eprint.iacr.org/2025/554
+    #[cfg(feature = "export_key_generation")]
+    #[cfg_attr(not(mls_build_async), maybe_async::must_be_sync, allow(dead_code))]
+    pub async fn peek_next_key_generation<P: CipherSuiteProvider>(
+        &mut self,
+        cipher_suite: &P,
+        leaf_index: T,
+        key_type: KeyType,
+    ) -> Result<u32, MlsError> {
+        let ratchet = self.take_leaf_ratchet(cipher_suite, &leaf_index).await?;
+        let res = ratchet.peek_next_key_generation(key_type).await;
+
+        self.known_secrets
+            .set_node(leaf_index, SecretTreeNode::Ratchet(ratchet));
+
+        Ok(res)
+    }
 }
 
 #[derive(Clone, Copy)]
@@ -277,10 +312,6 @@ pub enum KeyType {
     Application,
 }
 
-#[cfg_attr(
-    all(feature = "ffi", not(test)),
-    safer_ffi_gen::ffi_type(clone, opaque)
-)]
 #[derive(Clone, PartialEq, Eq, MlsEncode, MlsDecode, MlsSize)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 /// AEAD key derived by the MLS secret tree.
@@ -297,14 +328,11 @@ pub struct MessageKeyData {
 impl Debug for MessageKeyData {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("MessageKeyData")
-            .field("nonce", &mls_rs_core::debug::pretty_bytes(&self.nonce))
-            .field("key", &mls_rs_core::debug::pretty_bytes(&self.key))
             .field("generation", &self.generation)
             .finish()
     }
 }
 
-#[cfg_attr(all(feature = "ffi", not(test)), safer_ffi_gen::safer_ffi_gen)]
 impl MessageKeyData {
     /// AEAD nonce.
     #[cfg_attr(not(feature = "secret_tree_access"), allow(dead_code))]
@@ -484,6 +512,14 @@ impl SecretKeyRatchet {
         self.generation = generation + 1;
 
         Ok(key)
+    }
+
+    /// Peeks at the next key generation, but does not increment the generation nor
+    /// derive keys.
+    #[cfg(feature = "export_key_generation")]
+    #[cfg_attr(not(mls_build_async), maybe_async::must_be_sync, allow(dead_code))]
+    async fn peek_next_key_generation(&self) -> u32 {
+        self.generation
     }
 
     #[cfg_attr(not(mls_build_async), maybe_async::must_be_sync)]
@@ -935,6 +971,46 @@ mod tests {
             let ratchet_data = get_ratchet_data(&mut secret_tree, cs_provider.cipher_suite()).await;
 
             assert_eq!(ratchet_data, case.ratchets);
+        }
+    }
+
+    #[cfg(feature = "export_key_generation")]
+    #[maybe_async::test(not(mls_build_async), async(mls_build_async, crate::futures_test))]
+    async fn peek_next_key_generation() {
+        for cipher_suite in TestCryptoProvider::all_supported_cipher_suites() {
+            let provider = test_cipher_suite_provider(cipher_suite);
+
+            let app_ratchet = SecretKeyRatchet::new(
+                &provider,
+                &vec![0u8; provider.kdf_extract_size()],
+                KeyType::Application,
+            )
+            .await
+            .unwrap();
+
+            let handshake_ratchet = SecretKeyRatchet::new(
+                &provider,
+                &vec![0u8; provider.kdf_extract_size()],
+                KeyType::Handshake,
+            )
+            .await
+            .unwrap();
+
+            for mut ratchet in [app_ratchet, handshake_ratchet] {
+                assert_eq!(ratchet.peek_next_key_generation(), 0);
+                assert_eq!(ratchet.peek_next_key_generation(), 0);
+
+                let key_zero = ratchet.next_message_key(&provider).await.unwrap();
+                assert_eq!(key_zero.generation, 0);
+
+                assert_eq!(ratchet.peek_next_key_generation(), 1);
+                let _key_one = ratchet.next_message_key(&provider).await.unwrap();
+
+                let key_two = ratchet.next_message_key(&provider).await.unwrap();
+                assert_eq!(key_two.generation, 2);
+
+                assert_eq!(ratchet.peek_next_key_generation(), 3);
+            }
         }
     }
 }

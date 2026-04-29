@@ -40,31 +40,13 @@ pub struct KeySchedule {
     external_secret: Zeroizing<Vec<u8>>,
     #[mls_codec(with = "mls_rs_codec::byte_vec")]
     #[cfg_attr(feature = "serde", serde(with = "mls_rs_core::zeroizing_serde"))]
-    membership_key: Zeroizing<Vec<u8>>,
+    pub(crate) membership_key: Zeroizing<Vec<u8>>,
     init_secret: InitSecret,
 }
 
 impl Debug for KeySchedule {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("KeySchedule")
-            .field(
-                "exporter_secret",
-                &mls_rs_core::debug::pretty_bytes(&self.exporter_secret),
-            )
-            .field(
-                "authentication_secret",
-                &mls_rs_core::debug::pretty_bytes(&self.authentication_secret),
-            )
-            .field(
-                "external_secret",
-                &mls_rs_core::debug::pretty_bytes(&self.external_secret),
-            )
-            .field(
-                "membership_key",
-                &mls_rs_core::debug::pretty_bytes(&self.membership_key),
-            )
-            .field("init_secret", &self.init_secret)
-            .finish()
+        f.debug_struct("KeySchedule").finish()
     }
 }
 
@@ -341,9 +323,7 @@ pub(crate) struct JoinerSecret(#[mls_codec(with = "mls_rs_codec::byte_vec")] Zer
 
 impl Debug for JoinerSecret {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        mls_rs_core::debug::pretty_bytes(&self.0)
-            .named("JoinerSecret")
-            .fmt(f)
+        f.debug_struct("JoinerSecret").finish()
     }
 }
 
@@ -399,9 +379,7 @@ pub struct InitSecret(
 
 impl Debug for InitSecret {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        mls_rs_core::debug::pretty_bytes(&self.0)
-            .named("InitSecret")
-            .fmt(f)
+        f.debug_struct("InitSecret").finish()
     }
 }
 
@@ -422,7 +400,7 @@ impl InitSecret {
             .await
             .map_err(|e| MlsError::CryptoProviderError(e.into_any_error()))?;
 
-        Ok((InitSecret(Zeroizing::new(init_secret)), kem_output))
+        Ok((InitSecret(init_secret), kem_output))
     }
 
     #[cfg_attr(not(mls_build_async), maybe_async::must_be_sync)]
@@ -440,7 +418,6 @@ impl InitSecret {
         context
             .export(EXPORTER_CONTEXT, cipher_suite.kdf_extract_size())
             .await
-            .map(Zeroizing::new)
             .map(InitSecret)
             .map_err(|e| MlsError::CryptoProviderError(e.into_any_error()))
     }

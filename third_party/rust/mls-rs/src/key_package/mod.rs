@@ -9,6 +9,7 @@ use crate::hash_reference::HashReference;
 use crate::identity::SigningIdentity;
 use crate::protocol_version::ProtocolVersion;
 use crate::signer::Signable;
+use crate::time::MlsTime;
 use crate::tree_kem::leaf_node::{LeafNode, LeafNodeSource};
 use crate::CipherSuiteProvider;
 use alloc::vec::Vec;
@@ -30,10 +31,6 @@ pub(crate) use generator::*;
 #[non_exhaustive]
 #[derive(Clone, MlsSize, MlsEncode, MlsDecode, PartialEq)]
 #[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
-// #[cfg_attr(
-//     all(feature = "ffi", not(test)),
-//     safer_ffi_gen::ffi_type(clone, opaque)
-// )]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct KeyPackage {
     pub version: ProtocolVersion,
@@ -64,10 +61,6 @@ impl Debug for KeyPackage {
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, MlsSize, MlsEncode, MlsDecode)]
 #[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
-// #[cfg_attr(
-//     all(feature = "ffi", not(test)),
-//     safer_ffi_gen::ffi_type(clone, opaque)
-// )]
 pub struct KeyPackageRef(HashReference);
 
 impl Deref for KeyPackageRef {
@@ -94,14 +87,11 @@ struct KeyPackageData<'a> {
     pub extensions: &'a ExtensionList,
 }
 
-// #[cfg_attr(all(feature = "ffi", not(test)), safer_ffi_gen::safer_ffi_gen)]
 impl KeyPackage {
-    #[cfg(feature = "ffi")]
     pub fn version(&self) -> ProtocolVersion {
         self.version
     }
 
-    #[cfg(feature = "ffi")]
     pub fn cipher_suite(&self) -> CipherSuite {
         self.cipher_suite
     }
@@ -110,7 +100,6 @@ impl KeyPackage {
         &self.leaf_node.signing_identity
     }
 
-    // #[cfg_attr(all(feature = "ffi", not(test)), safer_ffi_gen::safer_ffi_gen_ignore)]
     #[cfg_attr(not(mls_build_async), maybe_async::must_be_sync)]
     pub async fn to_reference<CP: CipherSuiteProvider>(
         &self,
@@ -130,7 +119,8 @@ impl KeyPackage {
         ))
     }
 
-    pub fn expiration(&self) -> Result<u64, MlsError> {
+    /// Time after which the key package is expired.
+    pub fn expiration(&self) -> Result<MlsTime, MlsError> {
         if let LeafNodeSource::KeyPackage(lifetime) = &self.leaf_node.leaf_node_source {
             Ok(lifetime.not_after)
         } else {
@@ -209,7 +199,7 @@ pub(crate) mod test_utils {
 
         let key_package = generator
             .generate(
-                Lifetime::years(1).unwrap(),
+                Lifetime::years(1, None).unwrap(),
                 get_test_capabilities(),
                 ExtensionList::default(),
                 ExtensionList::default(),

@@ -1,0 +1,26 @@
+[package]
+name = "mls-rs-crypto-traits"
+version = "0.21.0"
+edition = "2021"
+description = "Crypto traits required to create a CryptoProvider for mls-rs"
+homepage = "https://github.com/awslabs/mls-rs"
+repository = "https://github.com/awslabs/mls-rs"
+keywords = ["mls", "mls-rs"]
+license = "Apache-2.0 OR MIT"
+
+[features]
+mock = ["std", "dep:mockall"]
+std = ["mls-rs-core/std"]
+default = ["std"]
+
+[dependencies]
+mls-rs-core = { path = "../mls-rs-core", version = "0.26.0", default-features = false }
+mockall = { version = "0.14", optional = true }
+maybe-async = "0.2.10"
+zeroize = { version = "1", default-features = false, features = ["alloc", "zeroize_derive"] }
+
+[target.'cfg(mls_build_async)'.dependencies]
+async-trait = "0.1.74"
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(mls_build_async)'] }

@@ -26,8 +26,15 @@ use crate::crypto::{self, CipherSuiteProvider, HpkeSecretKey};
 #[cfg(feature = "by_ref_proposal")]
 use crate::group::proposal::{AddProposal, UpdateProposal};
 
+#[cfg(all(
+    feature = "by_ref_proposal",
+    feature = "custom_proposal",
+    feature = "self_remove_proposal"
+))]
+use crate::group::proposal::SelfRemoveProposal;
+
 #[cfg(any(test, feature = "by_ref_proposal"))]
-use crate::group::proposal::RemoveProposal;
+use crate::group::{proposal::RemoveProposal, proposal_filter::bundle::Proposable};
 
 use crate::group::proposal_filter::ProposalBundle;
 use crate::tree_kem::tree_hash::TreeHashes;
@@ -86,7 +93,6 @@ impl TreeKemPublic {
         Default::default()
     }
 
-    #[cfg_attr(not(feature = "tree_index"), allow(unused))]
     #[cfg_attr(not(mls_build_async), maybe_async::must_be_sync)]
     pub(crate) async fn import_node_data<IP>(
         nodes: NodeVec,
@@ -96,14 +102,21 @@ impl TreeKemPublic {
     where
         IP: IdentityProvider,
     {
-        let mut tree = TreeKemPublic {
+        let tree = TreeKemPublic {
             nodes,
             ..Default::default()
         };
 
         #[cfg(feature = "tree_index")]
+        let mut tree = tree;
+        #[cfg(feature = "tree_index")]
         tree.initialize_index_if_necessary(identity_provider, extensions)
             .await?;
+
+        #[cfg(not(feature = "tree_index"))]
+        for (leaf_index, leaf) in tree.nodes.non_empty_leaves() {
+            index_insert(&tree.nodes, leaf, leaf_index, identity_provider, extensions).await?;
+        }
 
         Ok(tree)
     }
@@ -173,7 +186,7 @@ impl TreeKemPublic {
             .add_leaf(leaf_node, identity_provider, extensions, None)
             .await?;
 
-        let private_tree = TreeKemPrivate::new_self_leaf(LeafIndex(0), secret_key);
+        let private_tree = TreeKemPrivate::new_self_leaf(LeafIndex::unchecked(0), secret_key);
 
         Ok((public_tree, private_tree))
     }
@@ -222,7 +235,7 @@ impl TreeKemPublic {
         id_provider: &I,
         cipher_suite_provider: &CP,
     ) -> Result<Vec<LeafIndex>, MlsError> {
-        let mut start = LeafIndex(0);
+        let mut start = LeafIndex::unchecked(0);
         let mut added = vec![];
 
         for leaf in leaf_nodes.into_iter() {
@@ -320,11 +333,56 @@ impl TreeKemPublic {
 
     fn update_unmerged(&mut self, index: LeafIndex) -> Result<(), MlsError> {
         // For a given leaf index, find parent nodes and add the leaf to the unmerged leaf
-        self.nodes.direct_copath(index).into_iter().for_each(|i| {
+        for i in self.nodes.direct_copath(index) {
             if let Ok(p) = self.nodes.borrow_as_parent_mut(i.path) {
-                p.unmerged_leaves.push(index)
+                // Unmerged leaves MUST be sorted and some of our mechanisms rely on this.
+                match p.unmerged_leaves.binary_search(&index) {
+                    Ok(_) => return Err(MlsError::ParentHashMismatch),
+                    Err(to_insert) => p.unmerged_leaves.insert(to_insert, index),
+                }
             }
-        });
+        }
+
+        Ok(())
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    #[cfg(feature = "by_ref_proposal")]
+    #[cfg_attr(not(mls_build_async), maybe_async::must_be_sync)]
+    async fn apply_remove<T, I>(
+        &mut self,
+        index: LeafIndex,
+        p_index: usize,
+        is_by_value: bool,
+        proposal_bundle: &mut ProposalBundle,
+        extensions: &ExtensionList,
+        id_provider: &I,
+        filter: bool,
+    ) -> Result<(), MlsError>
+    where
+        I: IdentityProvider,
+        T: Proposable,
+    {
+        let res = self.nodes.blank_leaf_node(index);
+
+        if res.is_ok() {
+            // This shouldn't fail if `blank_leaf_node` succedded.
+            self.nodes.blank_direct_path(index)?;
+        }
+
+        #[cfg(feature = "tree_index")]
+        if let Ok(old_leaf) = &res {
+            // If this fails, it's not because the proposal is bad.
+            let identity = identity(&old_leaf.signing_identity, id_provider, extensions).await?;
+
+            self.index.remove(old_leaf, &identity);
+        }
+
+        if is_by_value || !filter {
+            res?;
+        } else if res.is_err() {
+            proposal_bundle.remove::<T>(p_index);
+        }
 
         Ok(())
     }
@@ -344,29 +402,39 @@ impl TreeKemPublic {
         CP: CipherSuiteProvider,
     {
         // Apply removes (they commute with updates because they don't touch the same leaves)
+        // Self-removes take precedence
+        #[cfg(all(feature = "custom_proposal", feature = "self_remove_proposal"))]
+        let mut self_removed = vec![];
+        #[cfg(all(feature = "custom_proposal", feature = "self_remove_proposal"))]
+        for i in (0..proposal_bundle.self_removes.len()).rev() {
+            let index = match proposal_bundle.self_removes[i].sender {
+                crate::group::Sender::Member(idx) => LeafIndex::try_from(idx)?,
+                _ => continue,
+            };
+            self_removed.push(index);
+            self.apply_remove::<SelfRemoveProposal, I>(
+                index,
+                i,
+                proposal_bundle.self_removes[i].is_by_value(),
+                proposal_bundle,
+                extensions,
+                id_provider,
+                filter,
+            )
+            .await?;
+        }
         for i in (0..proposal_bundle.remove_proposals().len()).rev() {
             let index = proposal_bundle.remove_proposals()[i].proposal.to_remove;
-            let res = self.nodes.blank_leaf_node(index);
-
-            if res.is_ok() {
-                // This shouldn't fail if `blank_leaf_node` succedded.
-                self.nodes.blank_direct_path(index)?;
-            }
-
-            #[cfg(feature = "tree_index")]
-            if let Ok(old_leaf) = &res {
-                // If this fails, it's not because the proposal is bad.
-                let identity =
-                    identity(&old_leaf.signing_identity, id_provider, extensions).await?;
-
-                self.index.remove(old_leaf, &identity);
-            }
-
-            if proposal_bundle.remove_proposals()[i].is_by_value() || !filter {
-                res?;
-            } else if res.is_err() {
-                proposal_bundle.remove::<RemoveProposal>(i);
-            }
+            self.apply_remove::<RemoveProposal, I>(
+                index,
+                i,
+                proposal_bundle.remove_proposals()[i].is_by_value(),
+                proposal_bundle,
+                extensions,
+                id_provider,
+                filter,
+            )
+            .await?;
         }
 
         // Remove from the tree old leaves from updates
@@ -469,7 +537,7 @@ impl TreeKemPublic {
         }
 
         // Apply adds
-        let mut start = LeafIndex(0);
+        let mut start = LeafIndex::unchecked(0);
         let mut added = vec![];
         let mut bad_indexes = vec![];
 
@@ -500,13 +568,17 @@ impl TreeKemPublic {
 
         self.nodes.trim();
 
-        let updated_leaves = proposal_bundle
+        let chained = proposal_bundle
             .remove_proposals()
             .iter()
             .map(|p| p.proposal.to_remove)
             .chain(updated_indices)
-            .chain(added.iter().copied())
-            .collect_vec();
+            .chain(added.iter().copied());
+
+        #[cfg(all(feature = "custom_proposal", feature = "self_remove_proposal"))]
+        let chained = chained.chain(self_removed);
+
+        let updated_leaves = chained.collect_vec();
 
         self.update_hashes(&updated_leaves, cipher_suite_provider)
             .await?;
@@ -549,7 +621,7 @@ impl TreeKemPublic {
         }
 
         // Apply adds
-        let mut start = LeafIndex(0);
+        let mut start = LeafIndex::unchecked(0);
         let mut added = vec![];
 
         for p in &proposal_bundle.additions {
@@ -583,7 +655,9 @@ impl TreeKemPublic {
         extensions: &ExtensionList,
         start: Option<LeafIndex>,
     ) -> Result<LeafIndex, MlsError> {
-        let index = self.nodes.next_empty_leaf(start.unwrap_or(LeafIndex(0)));
+        let index = self
+            .nodes
+            .next_empty_leaf(start.unwrap_or(LeafIndex::unchecked(0)));
 
         #[cfg(feature = "tree_index")]
         index_insert(&mut self.index, &leaf, index, id_provider, extensions).await?;
@@ -636,11 +710,13 @@ impl TreeKemPublic {
         I: IdentityProvider,
         CP: CipherSuiteProvider,
     {
+        let leaf_index = LeafIndex::try_from(leaf_index)?;
+
         let p = Proposal::Update(UpdateProposal { leaf_node });
 
         let mut bundle = ProposalBundle::default();
-        bundle.add(p, Sender::Member(leaf_index), ProposalSource::ByValue);
-        bundle.update_senders = vec![LeafIndex(leaf_index)];
+        bundle.add(p, Sender::Member(*leaf_index), ProposalSource::ByValue);
+        bundle.update_senders = vec![leaf_index];
 
         self.batch_edit(
             &mut bundle,
@@ -721,7 +797,7 @@ pub(crate) mod test_utils {
     use alloc::{format, vec};
     use mls_rs_core::crypto::CipherSuiteProvider;
     use mls_rs_core::group::Capabilities;
-    use mls_rs_core::identity::BasicCredential;
+    use mls_rs_core::identity::{BasicCredential, SigningIdentity};
 
     use crate::identity::test_utils::get_test_signing_identity;
     use crate::{
@@ -820,8 +896,15 @@ pub(crate) mod test_utils {
 
         #[cfg_attr(not(mls_build_async), maybe_async::must_be_sync)]
         pub async fn add_member<P: CipherSuiteProvider>(&mut self, name: &str, cs: &P) {
-            let (leaf, signer) = make_leaf(name, cs).await;
-            let index = self.tree.nodes.next_empty_leaf(LeafIndex(0));
+            let (signing_identity, signer) =
+                get_test_signing_identity(cs.cipher_suite(), name.as_bytes()).await;
+
+            let leaf = make_leaf(cs, signing_identity, &signer).await;
+            self.add_leaf(leaf, signer);
+        }
+
+        pub fn add_leaf(&mut self, leaf: LeafNode, signer: SignatureSecretKey) {
+            let index = self.tree.nodes.next_empty_leaf(LeafIndex::unchecked(0));
             self.tree.nodes.insert_leaf(index, leaf);
             self.tree.update_unmerged(index).unwrap();
             let index = *index as usize;
@@ -838,10 +921,13 @@ pub(crate) mod test_utils {
         pub fn remove_member(&mut self, member: u32) {
             self.tree
                 .nodes
-                .blank_direct_path(LeafIndex(member))
+                .blank_direct_path(LeafIndex::unchecked(member))
                 .unwrap();
 
-            self.tree.nodes.blank_leaf_node(LeafIndex(member)).unwrap();
+            self.tree
+                .nodes
+                .blank_leaf_node(LeafIndex::unchecked(member))
+                .unwrap();
 
             *self
                 .signers
@@ -855,7 +941,7 @@ pub(crate) mod test_utils {
             committer: u32,
             cs: &P,
         ) {
-            let committer = LeafIndex(committer);
+            let committer = LeafIndex::unchecked(committer);
 
             let path = self.tree.nodes.direct_copath(committer);
             let filtered = self.tree.nodes.filtered(committer).unwrap();
@@ -901,12 +987,10 @@ pub(crate) mod test_utils {
 
     #[cfg_attr(not(mls_build_async), maybe_async::must_be_sync)]
     pub async fn make_leaf<P: CipherSuiteProvider>(
-        name: &str,
         cs: &P,
-    ) -> (LeafNode, SignatureSecretKey) {
-        let (signing_identity, signature_key) =
-            get_test_signing_identity(cs.cipher_suite(), name.as_bytes()).await;
-
+        signing_identity: SigningIdentity,
+        signer: &SignatureSecretKey,
+    ) -> LeafNode {
         let capabilities = Capabilities {
             credentials: vec![BasicCredential::credential_type()],
             cipher_suites: TestCryptoProvider::all_supported_cipher_suites(),
@@ -922,13 +1006,13 @@ pub(crate) mod test_utils {
             cs,
             properties,
             signing_identity,
-            &signature_key,
-            Lifetime::years(1).unwrap(),
+            signer,
+            Lifetime::years(1, None).unwrap(),
         )
         .await
         .unwrap();
 
-        (leaf, signature_key)
+        leaf
     }
 }
 
@@ -979,7 +1063,7 @@ mod tests {
                 Some(Node::Leaf(test_tree.creator_leaf.clone()))
             );
 
-            assert_eq!(test_tree.private.self_index, LeafIndex(0));
+            assert_eq!(test_tree.private.self_index, LeafIndex::unchecked(0));
 
             assert_eq!(
                 test_tree.private.secret_keys[0],
@@ -1154,7 +1238,7 @@ mod tests {
 
         assert_eq!(
             tree.nodes[3].as_parent().unwrap().unmerged_leaves,
-            vec![LeafIndex(3)]
+            vec![LeafIndex::unchecked(3)]
         )
     }
 
@@ -1172,14 +1256,17 @@ mod tests {
             .unwrap();
 
         // Add in parent nodes so we can detect them clearing after update
-        tree.nodes.direct_copath(LeafIndex(0)).iter().for_each(|n| {
-            tree.nodes
-                .borrow_or_fill_node_as_parent(n.path, &b"pub_key".to_vec().into())
-                .unwrap();
-        });
+        tree.nodes
+            .direct_copath(LeafIndex::unchecked(0))
+            .iter()
+            .for_each(|n| {
+                tree.nodes
+                    .borrow_or_fill_node_as_parent(n.path, &b"pub_key".to_vec().into())
+                    .unwrap();
+            });
 
         let original_size = tree.occupied_leaf_count();
-        let original_leaf_index = LeafIndex(1);
+        let original_leaf_index = LeafIndex::unchecked(1);
 
         let updated_leaf = get_basic_test_node(TEST_CIPHER_SUITE, "A").await;
 
@@ -1206,9 +1293,12 @@ mod tests {
         );
 
         // Verify that the direct path has been cleared
-        tree.nodes.direct_copath(LeafIndex(0)).iter().for_each(|n| {
-            assert!(tree.nodes[n.path as usize].is_none());
-        });
+        tree.nodes
+            .direct_copath(LeafIndex::unchecked(0))
+            .iter()
+            .for_each(|n| {
+                assert!(tree.nodes[n.path as usize].is_none());
+            });
     }
 
     #[cfg(feature = "by_ref_proposal")]
@@ -1337,7 +1427,7 @@ mod tests {
 
         let original_leaf_count = tree.occupied_leaf_count();
 
-        let to_remove = vec![LeafIndex(2)];
+        let to_remove = vec![LeafIndex::unchecked(2)];
 
         // Remove the leaf from the tree
         tree.remove_leaves(to_remove, &BasicIdentityProvider, &cipher_suite_provider)
@@ -1353,7 +1443,7 @@ mod tests {
         // The location of key_packages[1] should now be blank
         let removed_location = tree
             .nodes
-            .get(NodeIndex::from(LeafIndex(2)) as usize)
+            .get(NodeIndex::from(LeafIndex::unchecked(2)) as usize)
             .unwrap();
 
         assert_eq!(removed_location, &None);
@@ -1368,7 +1458,7 @@ mod tests {
 
         let res = tree
             .remove_leaves(
-                vec![LeafIndex(128)],
+                vec![LeafIndex::unchecked(128)],
                 &BasicIdentityProvider,
                 &cipher_suite_provider,
             )
@@ -1395,7 +1485,7 @@ mod tests {
 
         // Find each node
         for (i, leaf_node) in leaf_nodes.iter().enumerate() {
-            let expected_index = LeafIndex(i as u32 + 1);
+            let expected_index = LeafIndex::unchecked(i as u32 + 1);
             assert_eq!(tree.find_leaf_node(leaf_node), Some(expected_index));
         }
     }
@@ -1429,10 +1519,10 @@ mod tests {
 
         bundle.add(update, Sender::Member(1), ProposalSource::ByReference(pref));
 
-        bundle.update_senders = vec![LeafIndex(1)];
+        bundle.update_senders = vec![LeafIndex::unchecked(1)];
 
         let remove = RemoveProposal {
-            to_remove: LeafIndex(2),
+            to_remove: LeafIndex::unchecked(2),
         };
 
         let remove = Proposal::Remove(remove);

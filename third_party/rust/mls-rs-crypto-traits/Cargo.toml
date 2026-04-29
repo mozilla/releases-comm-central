@@ -12,7 +12,7 @@
 [package]
 edition = "2021"
 name = "mls-rs-crypto-traits"
-version = "0.15.0"
+version = "0.21.0"
 build = false
 autolib = false
 autobins = false
@@ -41,20 +41,27 @@ std = ["mls-rs-core/std"]
 name = "mls_rs_crypto_traits"
 path = "src/lib.rs"
 
-[dependencies]
-maybe-async = "0.2.10"
+[dependencies.maybe-async]
+version = "0.2.10"
 
 [dependencies.mls-rs-core]
-version = "0.21.0"
-path = "../mls-rs-core"
+version = "0.26.0"
 default-features = false
 
 [dependencies.mockall]
-version = "^0.11"
+version = "0.14"
 optional = true
 
-[target."cfg(mls_build_async)".dependencies]
-async-trait = "^0.1"
+[dependencies.zeroize]
+version = "1"
+features = [
+    "alloc",
+    "zeroize_derive",
+]
+default-features = false
+
+[target."cfg(mls_build_async)".dependencies.async-trait]
+version = "0.1.74"
 
 [lints.rust.unexpected_cfgs]
 level = "warn"

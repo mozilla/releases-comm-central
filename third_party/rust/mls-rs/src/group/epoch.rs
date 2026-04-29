@@ -30,6 +30,10 @@ pub(crate) struct PriorEpoch {
     pub(crate) self_index: LeafIndex,
     pub(crate) secrets: EpochSecrets,
     pub(crate) signature_public_keys: Vec<Option<SignaturePublicKey>>,
+    #[cfg(feature = "prior_epoch_membership_key")]
+    #[mls_codec(with = "mls_rs_codec::byte_vec")]
+    #[cfg_attr(feature = "serde", serde(with = "mls_rs_core::zeroizing_serde"))]
+    pub(crate) membership_key: Zeroizing<Vec<u8>>,
 }
 
 #[cfg(feature = "prior_epoch")]
@@ -86,9 +90,7 @@ pub(crate) struct SenderDataSecret(
 
 impl Debug for SenderDataSecret {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        mls_rs_core::debug::pretty_bytes(&self.0)
-            .named("SenderDataSecret")
-            .fmt(f)
+        f.debug_struct("SenderDataSecret").finish()
     }
 }
 
@@ -157,9 +159,11 @@ pub(crate) mod test_utils {
     ) -> PriorEpoch {
         PriorEpoch {
             context: get_test_group_context_with_id(group_id, id, cipher_suite),
-            self_index: LeafIndex(0),
+            self_index: LeafIndex::unchecked(0),
             secrets: get_test_epoch_secrets(cipher_suite),
             signature_public_keys: Default::default(),
+            #[cfg(feature = "prior_epoch_membership_key")]
+            membership_key: Default::default(),
         }
     }
 }

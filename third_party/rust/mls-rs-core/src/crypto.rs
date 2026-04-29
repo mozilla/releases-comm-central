@@ -21,10 +21,6 @@ pub mod test_suite;
 #[derive(Clone, PartialEq, Eq, MlsSize, MlsEncode, MlsDecode)]
 #[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[cfg_attr(
-    all(feature = "ffi", not(test)),
-    safer_ffi_gen::ffi_type(clone, opaque)
-)]
 /// Ciphertext produced by [`CipherSuiteProvider::hpke_seal`]
 pub struct HpkeCiphertext {
     #[mls_codec(with = "mls_rs_codec::byte_vec")]
@@ -37,10 +33,7 @@ pub struct HpkeCiphertext {
 
 impl Debug for HpkeCiphertext {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("HpkeCiphertext")
-            .field("kem_output", &crate::debug::pretty_bytes(&self.kem_output))
-            .field("ciphertext", &crate::debug::pretty_bytes(&self.ciphertext))
-            .finish()
+        f.debug_struct("HpkeCiphertext").finish()
     }
 }
 
@@ -48,10 +41,6 @@ impl Debug for HpkeCiphertext {
 /// the public key should be represented in the uncompressed format.
 #[derive(Clone, PartialEq, Eq, Hash, PartialOrd, Ord, MlsSize, MlsDecode, MlsEncode)]
 #[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
-// #[cfg_attr(
-//     all(feature = "ffi", not(test)),
-//     safer_ffi_gen::ffi_type(clone, opaque)
-// )]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct HpkePublicKey(
     #[mls_codec(with = "mls_rs_codec::byte_vec")]
@@ -96,10 +85,6 @@ impl AsRef<[u8]> for HpkePublicKey {
 /// Byte representation of an HPKE secret key.
 #[derive(Clone, PartialEq, Eq, MlsSize, MlsEncode, MlsDecode, ZeroizeOnDrop)]
 #[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
-// #[cfg_attr(
-//     all(feature = "ffi", not(test)),
-//     safer_ffi_gen::ffi_type(clone, opaque)
-// )]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct HpkeSecretKey(
     #[mls_codec(with = "mls_rs_codec::byte_vec")]
@@ -109,9 +94,7 @@ pub struct HpkeSecretKey(
 
 impl Debug for HpkeSecretKey {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        crate::debug::pretty_bytes(&self.0)
-            .named("HpkeSecretKey")
-            .fmt(f)
+        f.debug_struct("HpkeSecretKey").finish()
     }
 }
 
@@ -153,7 +136,11 @@ pub trait HpkeContextS {
     async fn seal(&mut self, aad: Option<&[u8]>, data: &[u8]) -> Result<Vec<u8>, Self::Error>;
 
     /// Export a secret from the context for the given `exporter_context`.
-    async fn export(&self, exporter_context: &[u8], len: usize) -> Result<Vec<u8>, Self::Error>;
+    async fn export(
+        &self,
+        exporter_context: &[u8],
+        len: usize,
+    ) -> Result<Zeroizing<Vec<u8>>, Self::Error>;
 }
 
 /// The HPKE context for receiver outputted by [hpke_setup_r](CipherSuiteProvider::hpke_setup_r).
@@ -171,18 +158,24 @@ pub trait HpkeContextR {
 
     /// Decrypt `ciphertext` using the cipher key of the context with optional `aad`.
     /// This function should internally increment the sequence number.
-    async fn open(&mut self, aad: Option<&[u8]>, ciphertext: &[u8])
-        -> Result<Vec<u8>, Self::Error>;
+    async fn open(
+        &mut self,
+        aad: Option<&[u8]>,
+        ciphertext: &[u8],
+    ) -> Result<Zeroizing<Vec<u8>>, Self::Error>;
 
     /// Export a secret from the context for the given `exporter_context`.
-    async fn export(&self, exporter_context: &[u8], len: usize) -> Result<Vec<u8>, Self::Error>;
+    async fn export(
+        &self,
+        exporter_context: &[u8],
+        len: usize,
+    ) -> Result<Zeroizing<Vec<u8>>, Self::Error>;
 }
 
 /// Byte representation of a signature public key. For ciphersuites using elliptic curves,
 /// the public key should be represented in the uncompressed format.
 #[derive(Clone, PartialEq, Eq, Hash, Ord, PartialOrd, MlsSize, MlsEncode, MlsDecode)]
 #[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
-// #[cfg_attr(all(feature = "ffi", not(test)), ::safer_ffi_gen::ffi_type(opaque))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SignaturePublicKey(
     #[mls_codec(with = "mls_rs_codec::byte_vec")]
@@ -198,7 +191,6 @@ impl Debug for SignaturePublicKey {
     }
 }
 
-// #[cfg_attr(all(feature = "ffi", not(test)), ::safer_ffi_gen::safer_ffi_gen)]
 impl SignaturePublicKey {
     pub fn new(bytes: Vec<u8>) -> Self {
         bytes.into()
@@ -240,10 +232,6 @@ impl From<SignaturePublicKey> for Vec<u8> {
 }
 
 /// Byte representation of a signature key.
-// #[cfg_attr(
-//     all(feature = "ffi", not(test)),
-//     ::safer_ffi_gen::ffi_type(clone, opaque)
-// )]
 #[derive(Clone, PartialEq, Eq, ZeroizeOnDrop, MlsSize, MlsEncode, MlsDecode)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SignatureSecretKey {
@@ -254,13 +242,10 @@ pub struct SignatureSecretKey {
 
 impl Debug for SignatureSecretKey {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        crate::debug::pretty_bytes(&self.bytes)
-            .named("SignatureSecretKey")
-            .fmt(f)
+        f.debug_struct("SignatureSecretKey").finish()
     }
 }
 
-// #[cfg_attr(all(feature = "ffi", not(test)), ::safer_ffi_gen::safer_ffi_gen)]
 impl SignatureSecretKey {
     pub fn new(bytes: Vec<u8>) -> Self {
         bytes.into()
@@ -416,7 +401,7 @@ pub trait CipherSuiteProvider: Send + Sync {
         local_public: &HpkePublicKey,
         info: &[u8],
         aad: Option<&[u8]>,
-    ) -> Result<Vec<u8>, Self::Error>;
+    ) -> Result<Zeroizing<Vec<u8>>, Self::Error>;
 
     /// Generate a tuple containing the ciphertext `kem_output` that can
     /// be used as the input to [hpke_setup_r](CipherSuiteProvider::hpke_setup_r),

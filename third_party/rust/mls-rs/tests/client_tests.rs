@@ -16,7 +16,7 @@ use mls_rs::ProtocolVersion;
 use mls_rs::{CipherSuite, Group};
 use mls_rs::{Client, CryptoProvider};
 use mls_rs_core::crypto::CipherSuiteProvider;
-use rand::prelude::SliceRandom;
+use rand::prelude::IndexedMutRandom;
 use rand::RngCore;
 
 use mls_rs::test_utils::{all_process_message, get_test_basic_credential};
@@ -52,6 +52,20 @@ async fn generate_client(
 }
 
 #[cfg_attr(not(mls_build_async), maybe_async::must_be_sync)]
+async fn generate_default_client(id: usize) -> Client<impl MlsConfig> {
+    mls_rs::test_utils::generate_basic_client(
+        TestCryptoProvider::all_supported_cipher_suites()[0],
+        ProtocolVersion::MLS_10,
+        id,
+        None,
+        false,
+        &TestCryptoProvider::default(),
+        None,
+    )
+    .await
+}
+
+#[cfg_attr(not(mls_build_async), maybe_async::must_be_sync)]
 pub async fn get_test_groups(
     version: ProtocolVersion,
     cipher_suite: CipherSuite,
@@ -64,6 +78,19 @@ pub async fn get_test_groups(
         num_participants,
         None,
         encrypt_controls,
+        &TestCryptoProvider::default(),
+    )
+    .await
+}
+
+#[cfg_attr(not(mls_build_async), maybe_async::must_be_sync)]
+pub async fn get_default_test_groups(num_participants: usize) -> Vec<Group<impl MlsConfig>> {
+    mls_rs::test_utils::get_test_groups(
+        ProtocolVersion::MLS_10,
+        TestCryptoProvider::all_supported_cipher_suites()[0],
+        num_participants,
+        None,
+        false,
         &TestCryptoProvider::default(),
     )
     .await
@@ -165,13 +192,18 @@ async fn test_create(
     let alice = generate_client(cipher_suite, protocol_version, 0, encrypt_controls).await;
     let bob = generate_client(cipher_suite, protocol_version, 1, encrypt_controls).await;
     let bob_key_pkg = bob
-        .generate_key_package_message(Default::default(), Default::default())
+        .generate_key_package_message(Default::default(), Default::default(), None)
         .await
         .unwrap();
 
     // Alice creates a group and adds bob
     let mut alice_group = alice
-        .create_group_with_id(b"group".to_vec(), Default::default(), Default::default())
+        .create_group_with_id(
+            b"group".to_vec(),
+            Default::default(),
+            Default::default(),
+            None,
+        )
         .await
         .unwrap();
 
@@ -188,7 +220,7 @@ async fn test_create(
     alice_group.apply_pending_commit().await.unwrap();
 
     // Bob receives the welcome message and joins the group
-    let (bob_group, _) = bob.join_group(None, welcome).await.unwrap();
+    let (bob_group, _) = bob.join_group(None, welcome, None).await.unwrap();
 
     assert!(Group::equal_group_state(&alice_group, &bob_group));
 }
@@ -298,7 +330,7 @@ async fn test_remove_proposals(
 
     // Remove people from the group one at a time
     while groups.len() > 1 {
-        let removed_and_committer = (0..groups.len()).choose_multiple(&mut rand::thread_rng(), 2);
+        let removed_and_committer = (0..groups.len()).choose_multiple(&mut rand::rng(), 2);
 
         let to_remove = removed_and_committer[0];
         let committer = removed_and_committer[1];
@@ -364,7 +396,7 @@ async fn test_application_messages(
     // Loop through each participant and send application messages
     for i in 0..groups.len() {
         let mut test_message = vec![0; 1024];
-        rand::thread_rng().fill_bytes(&mut test_message);
+        rand::rng().fill_bytes(&mut test_message);
 
         for _ in 0..message_count {
             // Encrypt the application message
@@ -392,8 +424,7 @@ async fn test_application_messages(
 #[cfg(all(feature = "private_message", feature = "out_of_order"))]
 #[maybe_async::test(not(mls_build_async), async(mls_build_async, futures_test))]
 async fn test_out_of_order_application_messages() {
-    let mut groups =
-        get_test_groups(ProtocolVersion::MLS_10, CipherSuite::P256_AES128, 2, false).await;
+    let mut groups = get_default_test_groups(2).await;
 
     let mut alice_group = groups[0].clone();
     let bob_group = &mut groups[1];
@@ -493,7 +524,12 @@ async fn external_commits_work(
     let creator = generate_client(cipher_suite, protocol_version, 0, false).await;
 
     let creator_group = creator
-        .create_group_with_id(b"group".to_vec(), Default::default(), Default::default())
+        .create_group_with_id(
+            b"group".to_vec(),
+            Default::default(),
+            Default::default(),
+            None,
+        )
         .await
         .unwrap();
 
@@ -508,7 +544,7 @@ async fn external_commits_work(
     let mut groups = vec![creator_group];
 
     for client in &others {
-        let existing_group = groups.choose_mut(&mut rand::thread_rng()).unwrap();
+        let existing_group = groups.choose_mut(&mut rand::rng()).unwrap();
 
         let group_info = existing_group
             .group_info_message_allowing_ext_commit(true)
@@ -566,8 +602,7 @@ async fn test_external_commits() {
 
 #[maybe_async::test(not(mls_build_async), async(mls_build_async, futures_test))]
 async fn test_remove_nonexisting_leaf() {
-    let mut groups =
-        get_test_groups(ProtocolVersion::MLS_10, CipherSuite::P256_AES128, 10, false).await;
+    let mut groups = get_default_test_groups(10).await;
 
     groups[0]
         .commit_builder()
@@ -576,6 +611,7 @@ async fn test_remove_nonexisting_leaf() {
         .build()
         .await
         .unwrap();
+
     groups[0].apply_pending_commit().await.unwrap();
 
     // Leaf index out of bounds
@@ -605,11 +641,11 @@ async fn reinit_works() {
 
     // Create a group with 2 parties
     let mut alice_group = alice1
-        .create_group(Default::default(), Default::default())
+        .create_group(Default::default(), Default::default(), None)
         .await
         .unwrap();
     let kp = bob1
-        .generate_key_package_message(Default::default(), Default::default())
+        .generate_key_package_message(Default::default(), Default::default(), None)
         .await
         .unwrap();
 
@@ -624,7 +660,7 @@ async fn reinit_works() {
 
     alice_group.apply_pending_commit().await.unwrap();
 
-    let (mut bob_group, _) = bob1.join_group(None, welcome).await.unwrap();
+    let (mut bob_group, _) = bob1.join_group(None, welcome, None).await.unwrap();
 
     // Alice proposes reinit
     let reinit_proposal_message = alice_group
@@ -676,7 +712,7 @@ async fn reinit_works() {
         .await
         .unwrap();
 
-    let identity = SigningIdentity::new(get_test_basic_credential(b"bob".to_vec()), public_key);
+    let identity = SigningIdentity::new(get_test_basic_credential(b"2".to_vec()), public_key);
 
     let bob2 = bob_group
         .get_reinit_client(Some(secret_key), Some(identity))
@@ -689,16 +725,19 @@ async fn reinit_works() {
         .await
         .unwrap();
 
-    let identity = SigningIdentity::new(get_test_basic_credential(b"alice".to_vec()), public_key);
+    let identity = SigningIdentity::new(get_test_basic_credential(b"1".to_vec()), public_key);
 
     let alice2 = alice_group
         .get_reinit_client(Some(secret_key), Some(identity))
         .unwrap();
 
     // Bob produces key package, alice commits, bob joins
-    let kp = bob2.generate_key_package().await.unwrap();
-    let (mut alice_group, welcome) = alice2.commit(vec![kp], Default::default()).await.unwrap();
-    let (mut bob_group, _) = bob2.join(&welcome[0], None).await.unwrap();
+    let kp = bob2.generate_key_package(None).await.unwrap();
+    let (mut alice_group, welcome) = alice2
+        .commit(vec![kp], Default::default(), None)
+        .await
+        .unwrap();
+    let (mut bob_group, _) = bob2.join(&welcome[0], None, None).await.unwrap();
 
     assert!(bob_group.cipher_suite() == suite2);
 
@@ -706,7 +745,7 @@ async fn reinit_works() {
     let carol = generate_client(suite2, version, 3, Default::default()).await;
 
     let kp = carol
-        .generate_key_package_message(Default::default(), Default::default())
+        .generate_key_package_message(Default::default(), Default::default(), None)
         .await
         .unwrap();
 
@@ -726,7 +765,7 @@ async fn reinit_works() {
         .unwrap();
 
     carol
-        .join_group(None, &commit_output.welcome_messages[0])
+        .join_group(None, &commit_output.welcome_messages[0], None)
         .await
         .unwrap();
 }
@@ -734,8 +773,7 @@ async fn reinit_works() {
 #[cfg(feature = "by_ref_proposal")]
 #[maybe_async::test(not(mls_build_async), async(mls_build_async, futures_test))]
 async fn external_joiner_can_process_siblings_update() {
-    let mut groups =
-        get_test_groups(ProtocolVersion::MLS_10, CipherSuite::P256_AES128, 3, false).await;
+    let mut groups = get_default_test_groups(3).await;
 
     // Remove leaf 1 s.t. the external joiner joins in its place
     let c = groups[0]
@@ -754,13 +792,7 @@ async fn external_joiner_can_process_siblings_update() {
         .unwrap();
 
     // Create the external joiner and join
-    let new_client = generate_client(
-        CipherSuite::P256_AES128,
-        ProtocolVersion::MLS_10,
-        0xabba,
-        false,
-    )
-    .await;
+    let new_client = generate_default_client(0xabba).await;
 
     let (mut group, commit) = new_client.commit_external(info).await.unwrap();
 
@@ -780,11 +812,8 @@ async fn external_joiner_can_process_siblings_update() {
 
 #[maybe_async::test(not(mls_build_async), async(mls_build_async, futures_test))]
 async fn weird_tree_scenario() {
-    let mut groups =
-        get_test_groups(ProtocolVersion::MLS_10, CipherSuite::P256_AES128, 17, false).await;
-
+    let mut groups = get_default_test_groups(17).await;
     let to_remove = [0u32, 2, 5, 7, 8, 9, 15];
-
     let mut builder = groups[14].commit_builder();
 
     for idx in to_remove.iter() {
@@ -816,9 +845,9 @@ async fn weird_tree_scenario() {
 
 #[cfg_attr(not(mls_build_async), maybe_async::must_be_sync)]
 async fn fake_key_package(id: usize) -> MlsMessage {
-    generate_client(CipherSuite::P256_AES128, ProtocolVersion::MLS_10, id, false)
+    generate_default_client(id)
         .await
-        .generate_key_package_message(Default::default(), Default::default())
+        .generate_key_package_message(Default::default(), Default::default(), None)
         .await
         .unwrap()
 }
@@ -853,8 +882,7 @@ async fn external_info_from_commit_allows_to_join() {
 
 #[maybe_async::test(not(mls_build_async), async(mls_build_async, futures_test))]
 async fn can_process_own_removal_if_pending_commit() {
-    let mut groups =
-        get_test_groups(ProtocolVersion::MLS_10, CipherSuite::P256_AES128, 2, false).await;
+    let mut groups = get_default_test_groups(2).await;
 
     let commit = groups[1]
         .commit_builder()
@@ -870,4 +898,128 @@ async fn can_process_own_removal_if_pending_commit() {
         .process_incoming_message(commit.commit_message)
         .await
         .unwrap();
+}
+
+#[maybe_async::test(not(mls_build_async), async(mls_build_async, futures_test))]
+async fn can_process_external_commit_if_pending_commit() {
+    let alice = generate_default_client(0).await;
+    let bob = generate_default_client(1).await;
+
+    let mut alice_group = alice
+        .create_group(Default::default(), Default::default(), None)
+        .await
+        .unwrap();
+
+    alice_group
+        .commit_builder()
+        .add_member(
+            bob.generate_key_package_message(Default::default(), Default::default(), None)
+                .await
+                .unwrap(),
+        )
+        .unwrap()
+        .build()
+        .await
+        .unwrap();
+
+    let (mut bob_group, external_commit) = bob
+        .commit_external(
+            alice_group
+                .group_info_message_allowing_ext_commit(true)
+                .await
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+
+    alice_group
+        .process_incoming_message(external_commit)
+        .await
+        .unwrap();
+
+    // Confirm that clients are in sync
+    let commit = alice_group.commit(vec![]).await.unwrap();
+    alice_group.apply_pending_commit().await.unwrap();
+
+    bob_group
+        .process_incoming_message(commit.commit_message)
+        .await
+        .unwrap();
+}
+
+#[cfg(feature = "psk")]
+#[maybe_async::test(not(mls_build_async), async(mls_build_async, futures_test))]
+async fn branch_cannot_add_clients() {
+    let alice = get_default_test_groups(2).await.remove(0);
+
+    let kp = generate_default_client(12345)
+        .await
+        .generate_key_package_message(Default::default(), Default::default(), None)
+        .await
+        .unwrap();
+
+    let res = alice
+        .branch(vec![1, 2, 3], vec![kp], None)
+        .await
+        .map(|_| ());
+
+    assert_matches!(res, Err(MlsError::NotASubgroup));
+}
+
+#[cfg(feature = "psk")]
+#[maybe_async::test(not(mls_build_async), async(mls_build_async, futures_test))]
+async fn reinit_cannot_add_clients() {
+    let mut alice = get_default_test_groups(2).await.remove(0);
+    let cs = TestCryptoProvider::all_supported_cipher_suites()[0];
+
+    let kp = generate_default_client(12345)
+        .await
+        .generate_key_package_message(Default::default(), Default::default(), None)
+        .await
+        .unwrap();
+
+    alice
+        .commit_builder()
+        .reinit(None, ProtocolVersion::MLS_10, cs, Default::default())
+        .unwrap()
+        .build()
+        .await
+        .unwrap();
+
+    alice.apply_pending_commit().await.unwrap();
+
+    let res = alice
+        .get_reinit_client(None, None)
+        .unwrap()
+        .commit(vec![kp], Default::default(), None)
+        .await
+        .map(|_| ());
+
+    assert_matches!(res, Err(MlsError::NotASubgroup));
+}
+
+#[cfg(feature = "psk")]
+#[maybe_async::test(not(mls_build_async), async(mls_build_async, futures_test))]
+async fn reinit_cannot_remove_clients() {
+    let mut alice = get_default_test_groups(2).await.remove(0);
+    let cs = TestCryptoProvider::all_supported_cipher_suites()[0];
+
+    alice
+        .commit_builder()
+        .reinit(None, ProtocolVersion::MLS_10, cs, Default::default())
+        .unwrap()
+        .build()
+        .await
+        .unwrap();
+
+    alice.apply_pending_commit().await.unwrap();
+
+    let res = alice
+        .get_reinit_client(None, None)
+        .unwrap()
+        .commit(vec![], Default::default(), None)
+        .await
+        .map(|_| ());
+
+    assert_matches!(res, Err(MlsError::NotASubgroup));
 }

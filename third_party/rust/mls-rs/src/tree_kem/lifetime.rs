@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
 use crate::{client::MlsError, time::MlsTime};
+use core::time::Duration;
 use mls_rs_codec::{MlsDecode, MlsEncode, MlsSize};
 
 #[derive(Clone, Debug, PartialEq, Eq, MlsSize, MlsEncode, MlsDecode, Default)]
@@ -10,45 +11,55 @@ use mls_rs_codec::{MlsDecode, MlsEncode, MlsSize};
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[non_exhaustive]
 pub struct Lifetime {
-    pub not_before: u64,
-    pub not_after: u64,
+    pub not_before: MlsTime,
+    pub not_after: MlsTime,
 }
 
 impl Lifetime {
-    pub fn new(not_before: u64, not_after: u64) -> Lifetime {
+    pub fn new(not_before: MlsTime, not_after: MlsTime) -> Lifetime {
         Lifetime {
             not_before,
             not_after,
         }
     }
 
-    pub fn seconds(s: u64) -> Result<Self, MlsError> {
+    pub fn seconds(s: u64, maybe_not_before: Option<MlsTime>) -> Result<Self, MlsError> {
         #[cfg(feature = "std")]
-        let not_before = MlsTime::now().seconds_since_epoch();
+        let not_before = MlsTime::now();
         #[cfg(not(feature = "std"))]
         // There is no clock on no_std, this is here just so that we can run tests.
-        let not_before = 3600u64;
+        let not_before = MlsTime::from(3600u64);
 
-        let not_after = not_before.checked_add(s).ok_or(MlsError::TimeOverflow)?;
+        let not_before = if let Some(not_before_time) = maybe_not_before {
+            not_before_time
+        } else {
+            not_before
+        };
+
+        let not_after = MlsTime::from(
+            not_before
+                .seconds_since_epoch()
+                .checked_add(s)
+                .ok_or(MlsError::TimeOverflow)?,
+        );
 
         Ok(Lifetime {
             // Subtract 1 hour to address time difference between machines
-            not_before: not_before - 3600,
+            not_before: not_before - Duration::from_secs(3600),
             not_after,
         })
     }
 
-    pub fn days(d: u32) -> Result<Self, MlsError> {
-        Self::seconds((d * 86400) as u64)
+    pub fn days(d: u32, maybe_not_before: Option<MlsTime>) -> Result<Self, MlsError> {
+        Self::seconds((d * 86400) as u64, maybe_not_before)
     }
 
-    pub fn years(y: u8) -> Result<Self, MlsError> {
-        Self::days(365 * y as u32)
+    pub fn years(y: u8, maybe_not_before: Option<MlsTime>) -> Result<Self, MlsError> {
+        Self::days(365 * y as u32, maybe_not_before)
     }
 
     pub(crate) fn within_lifetime(&self, time: MlsTime) -> bool {
-        let since_epoch = time.seconds_since_epoch();
-        since_epoch >= self.not_before && since_epoch <= self.not_after
+        self.not_before <= time && time <= self.not_after
     }
 }
 
@@ -59,46 +70,52 @@ mod tests {
     use super::*;
     use assert_matches::assert_matches;
 
+    const HOUR: Duration = Duration::from_secs(3600);
+    const DAY: Duration = Duration::from_secs(24 * 3600);
+
     #[test]
     fn test_lifetime_overflow() {
-        let res = Lifetime::seconds(u64::MAX);
+        let res = Lifetime::seconds(u64::MAX, None);
         assert_matches!(res, Err(MlsError::TimeOverflow))
     }
 
     #[test]
     fn test_seconds() {
         let seconds = 10;
-        let lifetime = Lifetime::seconds(seconds).unwrap();
-        assert_eq!(lifetime.not_after - lifetime.not_before, 3610);
+        let lifetime = Lifetime::seconds(seconds, None).unwrap();
+        assert_eq!(
+            lifetime.not_after - lifetime.not_before,
+            Duration::from_secs(3610)
+        );
     }
 
     #[test]
     fn test_days() {
         let days = 2;
-        let lifetime = Lifetime::days(days).unwrap();
+        let lifetime = Lifetime::days(days, None).unwrap();
 
         assert_eq!(
             lifetime.not_after - lifetime.not_before,
-            86400u64 * days as u64 + 3600
+            days * DAY + 1 * HOUR
         );
     }
 
     #[test]
     fn test_years() {
         let years = 2;
-        let lifetime = Lifetime::years(years).unwrap();
+        let lifetime = Lifetime::years(years, None).unwrap();
 
         assert_eq!(
             lifetime.not_after - lifetime.not_before,
-            86400 * 365 * years as u64 + 3600
+            365 * DAY * (years as u32) + 1 * HOUR
         );
     }
 
     #[test]
     fn test_bounds() {
         let test_lifetime = Lifetime {
-            not_before: 5,
-            not_after: 10,
+            not_before: MlsTime::from(5),
+            not_after: MlsTime::from(10),
         };
 
         assert!(!test_lifetime

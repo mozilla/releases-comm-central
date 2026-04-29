@@ -182,7 +182,7 @@ pub use mls_rs_core::extension::{Extension, ExtensionList};
 pub use crate::{
     client::Client,
     group::{
-        framing::{MlsMessage, WireFormat},
+        framing::{MlsMessage, MlsMessageDescription, WireFormat},
         mls_rules::MlsRules,
         Group,
     },
@@ -214,6 +214,3 @@ use private::Sealed;
 #[cfg(any(test, feature = "test_util"))]
 #[doc(hidden)]
 pub mod test_utils;
-
-#[cfg(feature = "ffi")]
-pub use safer_ffi_gen;
