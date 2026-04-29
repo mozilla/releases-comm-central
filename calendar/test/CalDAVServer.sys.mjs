@@ -45,6 +45,7 @@ export var CalDAVServer = {
   changeCount: 0,
   server: null,
   isOpen: false,
+  canDoSyncCollection: true,
 
   /**
    * The "current-user-privilege-set" in responses. Set to null to have no privilege set.
@@ -288,6 +289,10 @@ export var CalDAVServer = {
         this.propFind(input, request, response);
         return;
       case "sync-collection":
+        if (!this.canDoSyncCollection) {
+          response.setStatusLine("1.1", 400, "Bad Request");
+          return;
+        }
         Assert.equal(request.method, "REPORT");
         Assert.equal(input.documentElement.namespaceURI, PREFIX_BINDINGS.d);
         this.syncCollection(input, request, response);
@@ -352,8 +357,7 @@ export var CalDAVServer = {
       "d:current-user-principal": `<href>/principals/${request.username}/</href>`,
       "d:current-user-privilege-set": this.privileges,
       "d:supported-report-set":
-        "<d:supported-report><d:report><c:calendar-multiget/></d:report></d:supported-report>" +
-        "<d:supported-report><d:report><sync-collection/></d:report></d:supported-report>",
+        "<d:supported-report><d:report><c:calendar-multiget/></d:report></d:supported-report>",
       "c:supported-calendar-component-set": "",
       "d:getcontenttype": "text/calendar; charset=utf-8",
       "c:calendar-home-set": `<d:href>/calendars/${request.username}/</d:href>`,
@@ -363,6 +367,11 @@ export var CalDAVServer = {
       "cs:getctag": this.changeCount,
       "d:getetag": this.changeCount,
     };
+
+    if (this.canDoSyncCollection) {
+      propValues["d:supported-report-set"] +=
+        "<d:supported-report><d:report><sync-collection/></d:report></d:supported-report>";
+    }
 
     let output = `<multistatus xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>
       <response>
