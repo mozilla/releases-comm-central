@@ -103,13 +103,17 @@ OAuth2Module.prototype = {
         oauth.username == username &&
         scopeSet(oauth.scope).isSupersetOf(this._requiredScopes)
       ) {
-        log.debug(`Found existing OAuth2 object for ${issuer}`);
+        log.debug(
+          `Found existing OAuth2 object for ${this._username} at ${issuer}`
+        );
         this._oauth = oauth;
         break;
       }
     }
     if (!this._oauth) {
-      log.debug(`Creating a new OAuth2 object for ${issuer}`);
+      log.debug(
+        `Creating a new OAuth2 object for ${this._username} at ${issuer}`
+      );
       // This gets the refresh token from the login manager. It may change
       // `this._scope` if a refresh token was found for the required scopes
       // but not all of the wanted scopes.
@@ -190,36 +194,37 @@ OAuth2Module.prototype = {
       }
 
       const loginScopes = scopeSet(login.httpRealm);
-      if (grantedScopes.isSupersetOf(loginScopes)) {
-        if (grantedScopes.size == loginScopes.size && token) {
-          // The scope matches, just update the token...
-          if (login.password != token) {
-            // ... but only if it actually changed.
-            log.debug(
-              `Updating existing token for ${this._loginOrigin} with scope "${scope}"`
-            );
-            const propBag = Cc[
-              "@mozilla.org/hash-property-bag;1"
-            ].createInstance(Ci.nsIWritablePropertyBag);
-            propBag.setProperty("password", token);
-            propBag.setProperty("timePasswordChanged", Date.now());
-            await Services.logins.modifyLoginAsync(login, propBag);
-          }
-          didChangePassword = true;
-        } else {
-          // We've got a new token for this scope, remove the existing one.
-          log.debug(
-            `Removing superseded token for ${this._loginOrigin} with scope "${login.httpRealm}"`
-          );
-          await Services.logins.removeLoginAsync(login);
+      if (grantedScopes.isSupersetOf(loginScopes) && token) {
+        const propBag = Cc["@mozilla.org/hash-property-bag;1"].createInstance(
+          Ci.nsIWritablePropertyBag
+        );
+        let updated = false;
+        if (login.password != token) {
+          // Update the token...
+          propBag.setProperty("password", token);
+          updated = true;
         }
+        if (grantedScopes.size > loginScopes.size) {
+          // ... and the scopes...
+          propBag.setProperty("httpRealm", scope);
+          updated = true;
+        }
+        if (updated) {
+          // ... but only if something actually changed.
+          log.debug(
+            `Updating existing token for ${this._username} at ${this._loginOrigin} with scope "${scope}"`
+          );
+          propBag.setProperty("timePasswordChanged", Date.now());
+          await Services.logins.modifyLoginAsync(login, propBag);
+        }
+        didChangePassword = true;
       }
     }
 
     // Unless the token is null, we need to create and fill in a new login.
     if (!didChangePassword && token) {
       log.debug(
-        `Creating new login for ${this._loginOrigin} with httpRealm "${scope}"`
+        `Creating new login for ${this._username} at ${this._loginOrigin} with scope "${scope}"`
       );
       const login = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
         Ci.nsILoginInfo
@@ -260,7 +265,7 @@ OAuth2Module.prototype = {
       if (grantedScopes.isSupersetOf(loginScopes)) {
         // We've got a new token for this scope, remove the existing one.
         log.debug(
-          `Removing obsolete token for ${this._loginOrigin} with scope "${login.httpRealm}"`
+          `Removing obsolete token for ${this._username} at ${this._loginOrigin} with scope "${login.httpRealm}"`
         );
         await Services.logins.removeLoginAsync(login);
       }
