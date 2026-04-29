@@ -298,3 +298,37 @@ add_task(function testIssuerDetails() {
     "returned details should still exactly match the hard-coded ones in this test"
   );
 });
+
+add_task(function testStringScopesWithoutExchangeSupport() {
+  const TEST_FIXTURES = {
+    "gmail.com": false,
+    "imap.mail.ru": false,
+    "imap.yandex.com": false,
+    "yahoo.com": false,
+    "att.net": false,
+    "aol.com": false,
+    "office365.com": true,
+    "graph.microsoft.com": true,
+    "imap.fastmail.com": false,
+    "imap.comcast.net": false,
+    "thundermail.com": false,
+    "stage-thundermail.com": false,
+    "mochi.test": true,
+    "external.test": true,
+    "test.test": false,
+  };
+  for (const [hostname, hasExchangeProvider] of Object.entries(TEST_FIXTURES)) {
+    const result = OAuth2Providers.getHostnameDetails(hostname, "exchange");
+    if (hasExchangeProvider) {
+      Assert.ok(
+        result,
+        `Should find an OAuth2 provider for exchange with ${hostname}`
+      );
+    } else {
+      Assert.ok(
+        !result,
+        `Should not find an OAuth2 provider for exchange with ${hostname}`
+      );
+    }
+  }
+});

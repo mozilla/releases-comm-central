@@ -116,6 +116,25 @@ var kHostnames = new Map([
 ]);
 
 /**
+ * This list serves as a helper to filter out issuers that don't use an object
+ * to provide type specific scopes but don't support exchange don't offer OAuth
+ * for exchange. If an issuer is registered with an object of scopes it doesn't
+ * need to be declared in this list, because its capabilities are determined by
+ * the keys on the object.
+ *
+ * @type {Set<string>}
+ */
+const kIssuersWithoutExchangeSupport = new Set([
+  "o2.mail.ru",
+  "oauth.yandex.com",
+  "login.yahoo.com",
+  "login.aol.com",
+  "comcast.net",
+  "auth.tb.pro",
+  "auth-stage.tb.pro",
+]);
+
+/**
  * @typedef issuerDetails
  * The information required to perform OAuth authentication with an provider.
  * See RFC6749 for more information.
@@ -360,6 +379,10 @@ export var OAuth2Providers = {
     }
 
     if (typeof scopes == "string") {
+      if (type == "exchange" && kIssuersWithoutExchangeSupport.has(issuer)) {
+        // Exchange is not available for this hostname.
+        return undefined;
+      }
       // Scopes not separated into types.
       return { issuer, allScopes: scopes, requiredScopes: scopes };
     }
