@@ -435,6 +435,70 @@ add_task(async function testNNTPSubscribe() {
     folderPane.getRowForFolder(`${nntpRootFolder.URI}/subscribe.baz.subbaz`)
   );
   Assert.ok(!folderPane.getRowForFolder(`${nntpRootFolder.URI}/subscribe.foo`));
+
+  // Open the subscribe dialog a third time to test saving while filtered.
+  dialogPromise = BrowserTestUtils.promiseAlertDialog(
+    undefined,
+    "chrome://messenger/content/subscribe.xhtml",
+    {
+      async callback(win) {
+        await SimpleTest.promiseFocus(win);
+
+        const doc = win.document;
+        const searchField = doc.getElementById("namefield");
+        const subscribeTree = doc.getElementById("subscribeTree");
+        const acceptButton = doc.querySelector("dialog").getButton("accept");
+
+        await TestUtils.waitForCondition(
+          () => subscribeTree.view?.rowCount == 5,
+          "waiting for tree view to be populated"
+        );
+
+        // Filter the view to a specific item ("bar").
+        EventUtils.synthesizeMouseAtCenter(searchField, {}, win);
+        EventUtils.sendString("bar", win);
+
+        await TestUtils.waitForCondition(
+          () => subscribeTree.view.rowCount == 1,
+          "waiting for tree view to be populated with search"
+        );
+
+        checkTreeRow(subscribeTree, 0, {
+          name: "subscribe.bar",
+          subscribable: true,
+          subscribed: false,
+        });
+
+        // Toggle the subscription state on the filtered list.
+        clickTreeRow(subscribeTree, 0);
+
+        checkTreeRow(subscribeTree, 0, {
+          subscribable: true,
+          subscribed: true,
+        });
+
+        // Accept the dialog without clearing the search. This ensures changes
+        // on the cloned/filtered rows sync back to the master list.
+        acceptButton.click();
+      },
+    }
+  );
+  leftClickOn(nntpRootFolder);
+  await rightClickAndActivate(nntpRootFolder, "folderPaneContext-subscribe");
+  await dialogPromise;
+
+  // Check our subscriptions changed and subscribe.bar is now visible.
+  await TestUtils.waitForCondition(
+    () => nntpRootRow.querySelectorAll("li").length == 3,
+    "waiting for folder tree to update"
+  );
+
+  Assert.ok(folderPane.getRowForFolder(`${nntpRootFolder.URI}/subscribe.bar`));
+  Assert.ok(folderPane.getRowForFolder(`${nntpRootFolder.URI}/subscribe.baz`));
+  Assert.ok(
+    folderPane.getRowForFolder(`${nntpRootFolder.URI}/subscribe.baz.subbaz`)
+  );
+  Assert.ok(!folderPane.getRowForFolder(`${nntpRootFolder.URI}/subscribe.foo`));
 });
 
 /**

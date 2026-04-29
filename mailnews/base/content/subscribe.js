@@ -208,6 +208,17 @@ function SubscribeOnLoad() {
 }
 
 function subscribeOK() {
+  // Sync any active search clones back to the master list before saving.
+  const view = gSubscribeTree.view;
+  if (view?._isFiltered) {
+    for (const clone of view._rowMap) {
+      clone.originalRow?.toggleProperty(
+        "checked",
+        clone.hasProperty("checked")
+      );
+    }
+  }
+
   const changes = {};
   function collectChanges(row) {
     if (row.hasProperty("checked")) {
@@ -285,6 +296,16 @@ class SubscribeDataAdapter extends TreeDataAdapter {
    */
   static #segmenter = null;
 
+  /**
+   * Indicates whether the view is currently displaying a flat, filtered
+   * list of cloned rows instead of the original hierarchical data.
+   * When true, checkbox state changes on the clones must be synchronized
+   * back to their original source rows before saving.
+   *
+   * @type {boolean}
+   */
+  _isFiltered = false;
+
   constructor() {
     super();
     this._rowMap = this.getChildren(null);
@@ -333,6 +354,16 @@ class SubscribeDataAdapter extends TreeDataAdapter {
    *   or all white space), displaying all rows is restored.
    */
   filter(value) {
+    // Sync current clones back to original rows before discarding them
+    if (this._isFiltered) {
+      for (const clone of this._rowMap) {
+        clone.originalRow?.toggleProperty(
+          "checked",
+          clone.hasProperty("checked")
+        );
+      }
+    }
+
     const oldCount = this.rowCount;
     this._rowMap.length = 0;
     this._clearFlatRowCache();
@@ -346,16 +377,20 @@ class SubscribeDataAdapter extends TreeDataAdapter {
     const tokens = [...SubscribeDataAdapter.#segmenter.segment(value)]
       .filter(s => s.isWordLike)
       .map(s => s.segment);
+
     if (tokens.length > 0) {
+      this._isFiltered = true;
       const filterRow = row => {
         const name = row.texts.name.normalize();
         if (
           !row.hasProperty("uncheckable") &&
           tokens.every(token => name.includes(token))
         ) {
-          this._rowMap.push(
-            new TreeDataRow(row.texts, row.values, row.properties)
-          );
+          // Clone the row so it behaves as a flat list.
+          const clone = new TreeDataRow(row.texts, row.values, row.properties);
+          clone.childPath = row.childPath; // Preserve the backend path.
+          clone.originalRow = row; // Preserve a link back to the source.
+          this._rowMap.push(clone);
         }
         for (const childRow of row.children) {
           filterRow(childRow);
@@ -365,6 +400,7 @@ class SubscribeDataAdapter extends TreeDataAdapter {
         filterRow(topRow);
       }
     } else {
+      this._isFiltered = false;
       this._rowMap = this._allRowMap.slice();
     }
     this._clearFlatRowCache();
