@@ -54,7 +54,7 @@
 # Is Microsoft Graph enabled? This is currently experimental.
 - name: mail.graph.enabled
   type: bool
-  value: false
+  value: @IS_NIGHTLY_BUILD@
   mirror: always
 
 # See nsMimeHeaderDisplayTypes.

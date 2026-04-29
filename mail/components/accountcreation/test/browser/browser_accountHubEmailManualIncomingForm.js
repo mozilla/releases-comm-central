@@ -355,39 +355,6 @@ add_task(async function test_settingStateLeavesConfigIntact() {
   subview.resetState();
 });
 
-add_task(async function test_graphIsDisabledByDefault() {
-  const config = new AccountConfig();
-  config.incoming.type = "ews";
-  subview.setState(config);
-
-  const protocolSelector = subview.querySelector("#incomingProtocol");
-
-  const protocolSelectorPromise =
-    BrowserTestUtils.waitForSelectPopupShown(window);
-
-  await EventUtils.synthesizeMouseAtCenter(
-    protocolSelector,
-    {},
-    browser.contentWindow
-  );
-
-  const protocolSelectorPopup = await protocolSelectorPromise;
-
-  const protocolSelectorItems =
-    protocolSelectorPopup.querySelectorAll("menuitem");
-
-  Assert.ok(
-    BrowserTestUtils.isHidden(protocolSelectorItems[3]),
-    "Graph selection should be unavailable by default."
-  );
-
-  protocolSelectorPopup.hidePopup();
-
-  await BrowserTestUtils.waitForPopupEvent(protocolSelectorPopup, "hidden");
-
-  subview.resetState();
-});
-
 add_task(async function test_graphIsEnabledByPref() {
   await SpecialPowers.pushPrefEnv({ set: [["mail.graph.enabled", true]] });
   const config = new AccountConfig();
@@ -411,7 +378,7 @@ add_task(async function test_graphIsEnabledByPref() {
 
   Assert.ok(
     BrowserTestUtils.isVisible(protocolSelectorItems[2]),
-    "Graph selection should be unavailable by default."
+    "Graph selection should be available."
   );
 
   protocolSelectorPopup.hidePopup();

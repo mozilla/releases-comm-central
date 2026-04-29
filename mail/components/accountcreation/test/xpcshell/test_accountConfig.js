@@ -117,6 +117,7 @@ add_task(function test_isIncomingEditedComplete() {
 });
 
 add_task(function test_isExchangeConfig_graphDisabled() {
+  Services.prefs.setBoolPref("mail.graph.enabled", false);
   const ewsConfig = new AccountConfig();
   ewsConfig.incoming.type = "ews";
   Assert.ok(
@@ -128,8 +129,9 @@ add_task(function test_isExchangeConfig_graphDisabled() {
   graphConfig.incoming.type = "graph";
   Assert.ok(
     !graphConfig.isExchangeConfig(),
-    "Config with type `graph` should not be Exchange if Graph is disabled."
+    "Config with type `graph` should not be Exchange with graph disabled."
   );
+  Services.prefs.setBoolPref("mail.graph.enabled", false);
 
   const imapConfig = new AccountConfig();
   imapConfig.incoming.type = "imap";
@@ -155,6 +157,13 @@ add_task(function test_isExchangeConfig_graphEnabled() {
     "Config with type `graph` should be Exchange."
   );
   Services.prefs.setBoolPref("mail.graph.enabled", false);
+
+  const imapConfig = new AccountConfig();
+  imapConfig.incoming.type = "imap";
+  Assert.ok(
+    !imapConfig.isExchangeConfig(),
+    "Config with type `imap` should not be Exchange."
+  );
 });
 
 add_task(function test_getConfiguredHost() {

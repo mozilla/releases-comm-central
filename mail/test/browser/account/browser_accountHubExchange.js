@@ -410,6 +410,7 @@ add_task(async function test_exchange_ews_advanced_configuration() {
   const configFoundTemplate = await checkAvailableConfigs(dialog, [
     "imap",
     "ews",
+    "graph",
     "exchange",
   ]);
   const editConfigurationButton =

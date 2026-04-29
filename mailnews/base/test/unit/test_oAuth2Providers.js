@@ -148,12 +148,12 @@ add_task(function testMicrosoftHostnameDetails() {
   );
 
   // Make sure we don't support Graph API without the experimental pref.
+  Services.prefs.setBoolPref("mail.graph.enabled", false);
   Assert.ok(
     !OAuth2Providers.getHostnameDetails("outlook.office365.com", "graph")
   );
 
   Services.prefs.setBoolPref("mail.graph.enabled", true);
-
   // The `outlook.office365.com` host may need to be changed, especially once
   // autodiscover is implemented in
   // https://bugzilla.mozilla.org/show_bug.cgi?id=1995836.
@@ -167,8 +167,6 @@ add_task(function testMicrosoftHostnameDetails() {
         "https://graph.microsoft.com/User.Read https://graph.microsoft.com/MailboxFolder.ReadWrite",
     }
   );
-
-  Services.prefs.setBoolPref("mail.graph.enabled", false);
 });
 
 add_task(function testRegisterUnregister() {

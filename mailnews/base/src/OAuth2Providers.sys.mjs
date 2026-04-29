@@ -115,25 +115,6 @@ var kHostnames = new Map([
   ],
 ]);
 
-// We have a separate sandbox for prototyping OAuth scopes on Microsoft 365.
-const microsoft365ProductionAppId = "9e5f94bc-e8a4-4e73-b8be-63364c29d753";
-const microsoft365SandboxAppId = "b00dc6cb-0459-4bd4-ac0d-2e23516f906a";
-const microsoft365ProductionTenantId = "common";
-const microsoft365SandboxTenantId = "aead8f37-924c-4d3f-9f20-494295c72956";
-
-const useMicrosoft365Sandbox = Services.prefs.getBoolPref(
-  "mail.microsoft.useM365Sandbox",
-  false
-);
-
-const microsoft365AppId = useMicrosoft365Sandbox
-  ? microsoft365SandboxAppId
-  : microsoft365ProductionAppId;
-
-const microsoft365TenantId = useMicrosoft365Sandbox
-  ? microsoft365SandboxTenantId
-  : microsoft365ProductionTenantId;
-
 /**
  * Map of issuers to clientId, clientSecret, authorizationEndpoint, tokenEndpoint,
  *  and usePKCE (RFC7636).
@@ -213,10 +194,10 @@ var kIssuers = new Map([
     {
       name: "login.microsoftonline.com",
       builtIn: true,
-      clientId: microsoft365AppId, // Application (client) ID
+      clientId: "9e5f94bc-e8a4-4e73-b8be-63364c29d753", // Application (client) ID
       // https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-v2-protocols#endpoints
-      authorizationEndpoint: `https://login.microsoftonline.com/${microsoft365TenantId}/oauth2/v2.0/authorize`,
-      tokenEndpoint: `https://login.microsoftonline.com/${microsoft365TenantId}/oauth2/v2.0/token`,
+      authorizationEndpoint: `https://login.microsoftonline.com/common/oauth2/v2.0/authorize`,
+      tokenEndpoint: `https://login.microsoftonline.com/common/oauth2/v2.0/token`,
     },
   ],
 
@@ -408,6 +389,10 @@ export var OAuth2Providers = {
   /**
    * Map an issuer to OAuth2 account details.
    *
+   * This function will override Microsoft 365 providers to use the Thunderbird
+   * Sandbox Azure application ID if the `mail.microsoft.useM365Sandbox`
+   * preference is set to true.
+   *
    * @param {string} issuer - The organization issuing OAuth2 parameters, e.g.
    *   "accounts.google.com".
    *
@@ -418,7 +403,22 @@ export var OAuth2Providers = {
    *   endpoints to access OAuth2 authentication.
    */
   getIssuerDetails(issuer) {
-    return kIssuers.get(issuer);
+    const details = kIssuers.get(issuer);
+    // We have a separate sandbox for prototyping OAuth scopes on Microsoft 365.
+    if (issuer == "login.microsoftonline.com") {
+      const useMicrosoft365Sandbox = Services.prefs.getBoolPref(
+        "mail.microsoft.useM365Sandbox",
+        false
+      );
+      if (useMicrosoft365Sandbox) {
+        details.clientId = "b00dc6cb-0459-4bd4-ac0d-2e23516f906a";
+        const microsoft365SandboxTenantId =
+          "aead8f37-924c-4d3f-9f20-494295c72956";
+        details.authorizationEndpoint = `https://login.microsoftonline.com/${microsoft365SandboxTenantId}/oauth2/v2.0/authorize`;
+        details.tokenEndpoint = `https://login.microsoftonline.com/${microsoft365SandboxTenantId}/oauth2/v2.0/token`;
+      }
+    }
+    return details;
   },
 
   /**
