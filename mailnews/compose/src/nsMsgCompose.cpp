@@ -5,7 +5,6 @@
 
 #include "nsMsgCompose.h"
 #include "MailNewsTypes.h"
-#include "mozilla/dom/Document.h"
 #include "nsPIDOMWindow.h"
 #include "mozIDOMWindow.h"
 #include "nsIMsgMessageService.h"
@@ -57,11 +56,13 @@
 #include "mozilla/Preferences.h"
 #include "mozilla/ErrorResult.h"
 #include "mozilla/glean/CommMailComponentsComposeMetrics.h"
+#include "mozilla/dom/Document.h"
 #include "mozilla/dom/HTMLAnchorElement.h"
 #include "mozilla/dom/HTMLImageElement.h"
-#include "mozilla/dom/Selection.h"
-#include "mozilla/dom/Promise.h"
+#include "mozilla/dom/NodeList.h"
 #include "mozilla/dom/Promise-inl.h"  // IWYU pragma: keep
+#include "mozilla/dom/Promise.h"
+#include "mozilla/dom/Selection.h"
 #include "mozilla/Utf8.h"
 #include "nsStreamConverter.h"
 #include "nsIObserverService.h"
@@ -199,7 +200,7 @@ nsresult GetChildOffset(nsINode* aChild, nsINode* aParent, int32_t& aOffset) {
 
   if (!aChild || !aParent) return NS_ERROR_NULL_POINTER;
 
-  nsINodeList* childNodes = aParent->ChildNodes();
+  RefPtr<dom::NodeList> childNodes = aParent->ChildNodes();
   for (uint32_t i = 0; i < childNodes->Length(); i++) {
     nsINode* childNode = childNodes->Item(i);
     if (childNode == aChild) {
@@ -4536,7 +4537,7 @@ void nsMsgCompose::TagConvertible(Element* node, int32_t* _retval) {
 
       nsAutoString hrefValue;
       node->GetAttribute(u"href"_ns, hrefValue);
-      nsINodeList* children = node->ChildNodes();
+      RefPtr<dom::NodeList> children = node->ChildNodes();
       if (children->Length() > 0) {
         nsINode* pItem = children->Item(0);
         nsAutoString textValue;
@@ -4565,7 +4566,7 @@ nsMsgCompose::NodeTreeConvertible(Element* node, int32_t* _retval) {
   TagConvertible(node, &result);
 
   // Walk tree recursively to check the children.
-  nsINodeList* children = node->ChildNodes();
+  RefPtr<dom::NodeList> children = node->ChildNodes();
   for (uint32_t i = 0; i < children->Length(); i++) {
     nsINode* pItem = children->Item(i);
     // We assume all nodes that are not elements are convertible,
