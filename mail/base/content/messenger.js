@@ -453,7 +453,10 @@ function showSystemIntegrationDialog() {
     (shellService &&
       defaultAccount &&
       shellService.shouldCheckDefaultClient &&
-      !shellService.isDefaultClient(true, Ci.nsIShellService.MAIL)) ||
+      !shellService.isDefaultClient(
+        true,
+        Ci.nsIShellService.MAIL | Ci.nsIShellService.NET_THUNDERBIRD
+      )) ||
     (SearchIntegration &&
       !SearchIntegration.osComponentsNotRunning &&
       !SearchIntegration.firstRunDone)

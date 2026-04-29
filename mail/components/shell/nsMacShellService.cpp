@@ -41,6 +41,8 @@ nsMacShellService::IsDefaultClient(bool aStartupCheck, uint16_t aApps,
     *aIsDefaultClient &= isDefaultHandlerForProtocol(CFSTR("feed"));
   if (aApps & nsIShellService::CALENDAR)
     *aIsDefaultClient &= isDefaultHandlerForProtocol(CFSTR("webcal"));
+  if (aApps & nsIShellService::NET_THUNDERBIRD)
+    *aIsDefaultClient &= isDefaultHandlerForProtocol(CFSTR("net.thunderbird"));
 
   // if this is the first mail window, maintain internal state that we've
   // checked this session (so that subsequent window opens don't show the
@@ -57,8 +59,6 @@ nsMacShellService::SetDefaultClient(bool aForAllUsers, uint16_t aApps) {
     rv = setAsDefaultHandlerForProtocol(CFSTR("mailto"));
     NS_ENSURE_SUCCESS(rv, rv);
     rv = setAsDefaultHandlerForProtocol(CFSTR("mid"));
-    NS_ENSURE_SUCCESS(rv, rv);
-    rv = setAsDefaultHandlerForProtocol(CFSTR("net.thunderbird"));
   }
   if (NS_SUCCEEDED(rv) && aApps & nsIShellService::NEWS) {
     rv = setAsDefaultHandlerForProtocol(CFSTR("news"));
@@ -70,6 +70,9 @@ nsMacShellService::SetDefaultClient(bool aForAllUsers, uint16_t aApps) {
     rv = setAsDefaultHandlerForProtocol(CFSTR("webcal"));
     NS_ENSURE_SUCCESS(rv, rv);
     rv = setAsDefaultHandlerForProtocol(CFSTR("webcals"));
+  }
+  if (NS_SUCCEEDED(rv) && aApps & nsIShellService::NET_THUNDERBIRD) {
+    rv = setAsDefaultHandlerForProtocol(CFSTR("net.thunderbird"));
   }
 
   return rv;

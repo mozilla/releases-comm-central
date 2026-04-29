@@ -25,6 +25,10 @@ checkbox-feeds-label =
 checkbox-calendar-label =
     .label = Calendar
     .tooltiptext = { unset-default-tooltip }
+# Note: "net.thunderbird://" must not be translated.
+checkbox-net-thunderbird-url-label =
+    .label = Custom Thunderbird links (net.thunderbird://)
+    .tooltiptext = { unset-default-tooltip }
 
 # Note: This is the search engine name for all the different platforms.
 # Platforms that don't support it should be left blank.

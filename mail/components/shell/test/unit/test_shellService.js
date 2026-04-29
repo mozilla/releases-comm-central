@@ -10,7 +10,7 @@ add_task(function test_setDefaultClient() {
     Ci.nsIShellService
   );
 
-  const types = ["MAIL", "NEWS", "RSS", "CALENDAR"];
+  const types = ["MAIL", "NEWS", "RSS", "CALENDAR", "NET_THUNDERBIRD"];
 
   for (const type of types) {
     shellSvc.setDefaultClient(false, shellSvc[type]);

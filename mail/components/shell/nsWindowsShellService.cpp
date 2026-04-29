@@ -99,8 +99,6 @@ static SETTING gMailSettings[] = {
     {MAKE_KEY_NAME1("mailto", SOP), "", VAL_COMPOSE_OPEN,
      APP_PATH_SUBSTITUTION},
     {MAKE_KEY_NAME1("mid", SOP), "", VAL_OPEN, APP_PATH_SUBSTITUTION},
-    {MAKE_KEY_NAME1("net.thunderbird", SOP), "", VAL_OPEN,
-     APP_PATH_SUBSTITUTION},
 };
 
 static SETTING gNewsSettings[] = {
@@ -124,6 +122,11 @@ static SETTING gCalendarSettings[] = {
     {MAKE_KEY_NAME1(CLS_WEBCALURL, SOP), "", VAL_OPEN, APP_PATH_SUBSTITUTION},
     {MAKE_KEY_NAME1("webcal", SOP), "", VAL_OPEN, APP_PATH_SUBSTITUTION},
     {MAKE_KEY_NAME1("webcals", SOP), "", VAL_OPEN, APP_PATH_SUBSTITUTION},
+};
+
+static SETTING gNetThunderbirdSettings[] = {
+    {MAKE_KEY_NAME1("net.thunderbird", SOP), "", VAL_OPEN,
+     APP_PATH_SUBSTITUTION},
 };
 
 nsresult GetHelperPath(nsAutoString& aPath) {
@@ -221,6 +224,11 @@ nsWindowsShellService::IsDefaultClient(bool aStartupCheck, uint16_t aApps,
   // RSS / feed protocol shell integration is not working so return true
   // until it is fixed (bug 445823).
   if (aApps & nsIShellService::RSS) *aIsDefaultClient &= true;
+  if (aApps & nsIShellService::NET_THUNDERBIRD) {
+    *aIsDefaultClient &=
+        TestForDefault(gNetThunderbirdSettings,
+                       sizeof(gNetThunderbirdSettings) / sizeof(SETTING));
+  }
 
   return NS_OK;
 }
@@ -240,6 +248,9 @@ nsWindowsShellService::SetDefaultClient(bool aForAllUsers, uint16_t aApps) {
     if (aApps & nsIShellService::NEWS) params.AppendLiteral(" News");
 
     if (aApps & nsIShellService::CALENDAR) params.AppendLiteral(" Calendar");
+
+    if (aApps & nsIShellService::NET_THUNDERBIRD)
+      params.AppendLiteral(" NetThunderbird");
   }
 
   return LaunchHelper(appHelperPath, params);

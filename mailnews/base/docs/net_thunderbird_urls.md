@@ -4,11 +4,33 @@ In some circumstances you may need a way to talk to Thunderbird from a web brows
 way to do that is with a URL. A URL can be linked on web pages for the user to click on, or an HTTP
 request can redirect to a URL.
 
-Thunderbird provides the custom URL protocol `net.thunderbird:` for this purpose. If correctly
-registered with the operating system (using the same mechanism as `mailto:` is registered),
-Thunderbird will handle URLs of the form `net.thunderbird://component/arguments` where `component`
-is the name of a component registered in the category manager. The URL is passed to the `observe`
-function on the component.
+Thunderbird provides the custom URL protocol `net.thunderbird:` for this purpose. Thunderbird will
+handle URLs of the form `net.thunderbird://component/arguments` where `component` is the name of a
+component registered in the category manager. The URL is passed to the `observe` function on the
+component.
+
+## OS Registration
+
+Thunderbird must be pre-registered with the operating system as the handler of `net.thunderbird`
+URLs. You can check if it is, and make it so, by running this code:
+
+```js
+const shellService = Cc["@mozilla.org/mail/shell-service;1"].getService(Ci.nsIShellService);
+
+// Check if this install of Thunderbird is the handler of net.thunderbird URLs.
+const isDefault = shellService.isDefaultClient(false, Ci.nsIShellService.NET_THUNDERBIRD);
+
+if (!isDefault) {
+  // Set this install of Thunderbird to be the handler of net.thunderbird URLs.
+  // You shouldn't do this without the user's permission.
+  shellService.setDefaultClient(false, Ci.nsIShellService.NET_THUNDERBIRD);
+}
+```
+
+(Even if Thunderbird _is_ the handler, if there are multiple profiles, there's no guarantee which
+profile will be used.)
+
+Alternatively, there is UI for this check in the Settings tab, under "System Integration".
 
 ## Adding a component
 
