@@ -129,6 +129,7 @@ OAuth2Module.prototype = {
 
       // Define the OAuth property and store it.
       this._oauth = new OAuth2(this._scope, issuerDetails);
+      this._oauth.loginOrigin = this._loginOrigin;
       this._oauth.username = username;
       oAuth2Objects.add(new WeakRef(this._oauth));
 
@@ -475,13 +476,61 @@ OAuth2Module.prototype = {
 };
 
 /**
- * Forget any `OAuth2` objects we've stored, which is necessary in some
- * testing scenarios.
+ * Forget any `OAuth2` objects we've stored.
  */
 OAuth2Module._forgetObjects = function () {
-  log.debug("Clearing OAuth2 objects from cache");
+  log.debug("Clearing all OAuth2 objects from cache");
+  for (const weakRef of oAuth2Objects) {
+    const oauth = weakRef.deref();
+    if (oauth) {
+      oauth.refreshToken = null;
+      oauth.accessToken = null;
+    }
+  }
   oAuth2Objects.clear();
 };
+
+/**
+ * Forget any `OAuth2` objects we've stored matching `origin` and `username`.
+ *
+ * @param {string} origin
+ * @param {string} username
+ */
+OAuth2Module._forgetObjectsMatching = function (origin, username) {
+  log.debug(`Clearing OAuth2 objects for ${username} at ${origin} from cache`);
+  for (const weakRef of oAuth2Objects) {
+    const oauth = weakRef.deref();
+    if (oauth?.loginOrigin == origin && oauth.username == username) {
+      oauth.refreshToken = null;
+      oauth.accessToken = null;
+      oAuth2Objects.delete(weakRef);
+    }
+  }
+};
+
+/**
+ * Listens for passwords being removed and forgets `OAuth2` objects associated
+ * with them.
+ */
+const observer = {
+  observe(subject, topic, data) {
+    if (topic == "passwordmgr-storage-changed") {
+      if (data == "removeLogin") {
+        subject.QueryInterface(Ci.nsILoginInfo);
+        if (subject.origin.startsWith("oauth://")) {
+          OAuth2Module._forgetObjectsMatching(subject.origin, subject.username);
+        }
+      } else if (data == "removeAllLogins") {
+        OAuth2Module._forgetObjects();
+      }
+    } else if (topic == "quit-application-granted") {
+      Services.obs.removeObserver(this, "passwordmgr-storage-changed");
+      Services.obs.removeObserver(this, "quit-application-granted");
+    }
+  },
+};
+Services.obs.addObserver(observer, "passwordmgr-storage-changed");
+Services.obs.addObserver(observer, "quit-application-granted");
 
 /**
  * Turns a space-delimited string of scopes into a Set containing the scopes.

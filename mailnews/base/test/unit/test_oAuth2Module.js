@@ -649,6 +649,119 @@ add_task(async function testSetAndClearTokensExternally() {
   OAuth2TestUtils.stopServer();
 });
 
+/**
+ * Tests that `OAuth2` objects are cleared and invalidated if associated
+ * tokens get removed from the logins manager.
+ */
+add_task(async function testForgetRemovedTokens() {
+  Services.fog.testResetFOG();
+
+  await OAuth2TestUtils.startServer();
+  const logins = await storeLogins([
+    ["oauth://test.test", "test_scope", "charlie@foo.invalid", "refresh_token"],
+    ["oauth://test.test", "test_scope", "delta@foo.invalid", "refresh_token"],
+  ]);
+
+  // Create modules for each user.
+
+  const charlie1 = new OAuth2Module();
+  charlie1.initFromHostname("mochi.test", "charlie@foo.invalid", "imap");
+  Assert.equal(await charlie1.getRefreshToken(), "refresh_token");
+  let deferred = Promise.withResolvers();
+  charlie1.connect(false, {
+    onSuccess: deferred.resolve,
+    onFailure: deferred.reject,
+  });
+  Assert.equal(
+    await deferred.promise,
+    btoa("user=charlie@foo.invalid\u0001auth=Bearer access_token\u0001\u0001")
+  );
+
+  const delta1 = new OAuth2Module();
+  delta1.initFromHostname("mochi.test", "delta@foo.invalid", "imap");
+  Assert.equal(await delta1.getRefreshToken(), "refresh_token");
+  deferred = Promise.withResolvers();
+  delta1.connect(false, {
+    onSuccess: deferred.resolve,
+    onFailure: deferred.reject,
+  });
+  Assert.equal(
+    await deferred.promise,
+    btoa("user=delta@foo.invalid\u0001auth=Bearer access_token\u0001\u0001")
+  );
+
+  // Remove one of the logins from the login manager.
+
+  await Services.logins.removeLoginAsync(logins[0]);
+
+  // charlie1 should no longer have access.
+  Assert.equal(await charlie1.getRefreshToken(), "");
+  deferred = Promise.withResolvers();
+  charlie1.connect(false, {
+    onSuccess: deferred.reject,
+    onFailure: deferred.resolve,
+  });
+  Assert.equal(await deferred.promise, Cr.NS_ERROR_ABORT);
+
+  // delta1 should still have access.
+  Assert.equal(await delta1.getRefreshToken(), "refresh_token");
+  deferred = Promise.withResolvers();
+  delta1.connect(false, {
+    onSuccess: deferred.resolve,
+    onFailure: deferred.reject,
+  });
+  Assert.equal(
+    await deferred.promise,
+    btoa("user=delta@foo.invalid\u0001auth=Bearer access_token\u0001\u0001")
+  );
+
+  // A new module for charlie@foo.invalid should not have access.
+  const charlie2 = new OAuth2Module();
+  charlie2.initFromHostname("mochi.test", "charlie@foo.invalid", "imap");
+  Assert.notEqual(charlie2._oauth, charlie1._oauth);
+  Assert.equal(await charlie2.getRefreshToken(), "");
+  deferred = Promise.withResolvers();
+  charlie2.connect(false, {
+    onSuccess: deferred.reject,
+    onFailure: deferred.resolve,
+  });
+  Assert.equal(await deferred.promise, Cr.NS_ERROR_ABORT);
+
+  // A new module for delta@foo.invalid should reuse delta1's inner object.
+  const delta2 = new OAuth2Module();
+  delta2.initFromHostname("mochi.test", "delta@foo.invalid", "imap");
+  Assert.equal(delta2._oauth, delta1._oauth);
+
+  // Remove all logins.
+
+  await Services.logins.removeAllLoginsAsync();
+
+  // delta1 should no longer have access.
+  Assert.equal(await delta1.getRefreshToken(), "");
+  deferred = Promise.withResolvers();
+  delta1.connect(false, {
+    onSuccess: deferred.reject,
+    onFailure: deferred.resolve,
+  });
+  Assert.equal(await deferred.promise, Cr.NS_ERROR_ABORT);
+
+  // A new module for delta@foo.invalid should not have access.
+  const delta3 = new OAuth2Module();
+  delta3.initFromHostname("mochi.test", "delta@foo.invalid", "imap");
+  Assert.notEqual(delta3._oauth, delta1._oauth);
+  Assert.equal(await delta3.getRefreshToken(), "");
+  deferred = Promise.withResolvers();
+  delta3.connect(false, {
+    onSuccess: deferred.reject,
+    onFailure: deferred.resolve,
+  });
+  Assert.equal(await deferred.promise, Cr.NS_ERROR_ABORT);
+
+  OAuth2TestUtils.checkTelemetry([]);
+  OAuth2TestUtils.forgetObjects();
+  OAuth2TestUtils.stopServer();
+});
+
 add_task(async function testOverrideIssuerDetails() {
   const mod = new OAuth2Module();
 
@@ -986,12 +1099,15 @@ add_task(async function testGetUsernameFromAccessToken() {
   ]);
 });
 
-async function storeLogins(logins) {
-  for (const [origin, scope, username, token] of logins) {
+async function storeLogins(loginData) {
+  const logins = [];
+  for (const [origin, scope, username, token] of loginData) {
     const loginInfo = Cc[
       "@mozilla.org/login-manager/loginInfo;1"
     ].createInstance(Ci.nsILoginInfo);
     loginInfo.init(origin, null, scope, username, token, "", "");
     await Services.logins.addLoginAsync(loginInfo);
+    logins.push(loginInfo);
   }
+  return logins;
 }
