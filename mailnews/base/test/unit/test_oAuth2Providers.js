@@ -91,6 +91,17 @@ add_task(function testHostnameDetails() {
     },
     "a sub-domain should return the same results as the domain"
   );
+
+  // Test modifications don't change the original data. Hostname details
+  // objects aren't frozen as they're single-use objects, but let's make sure.
+  const details = OAuth2Providers.getHostnameDetails("test.test", "pop3");
+  details.issuer = "sneaky.test";
+  details.foo = "bar";
+  Assert.deepEqual(OAuth2Providers.getHostnameDetails("test.test", "pop3"), {
+    issuer: "test.test",
+    allScopes: "test_mail test_addressbook test_calendar",
+    requiredScopes: "test_mail",
+  });
 });
 
 /* Microsoft special cases. */
@@ -211,8 +222,9 @@ add_task(function testRegisterUnregister() {
     },
     "hostname details should be registered"
   );
+  const issuerDetails = OAuth2Providers.getIssuerDetails("oauth.test");
   Assert.deepEqual(
-    OAuth2Providers.getIssuerDetails("oauth.test"),
+    issuerDetails,
     {
       name: "oauth.test",
       builtIn: false,
@@ -224,6 +236,10 @@ add_task(function testRegisterUnregister() {
       usePKCE: true,
     },
     "issuer details should be registered"
+  );
+  Assert.ok(
+    Object.isFrozen(issuerDetails),
+    "issuer details object should be frozen"
   );
 
   Assert.throws(
@@ -245,5 +261,40 @@ add_task(function testRegisterUnregister() {
   Assert.ok(
     !OAuth2Providers.getIssuerDetails("oauth.test"),
     "issuer details should no longer be registered"
+  );
+});
+
+add_task(function testIssuerDetails() {
+  const baseline = {
+    name: "test.test",
+    builtIn: true,
+    clientId: "test_client_id",
+    clientSecret: "test_secret",
+    authorizationEndpoint: "https://oauth.test.test/form",
+    tokenEndpoint: "https://oauth.test.test/token",
+    redirectionEndpoint: "https://localhost",
+    usePKCE: true,
+  };
+
+  const details = OAuth2Providers.getIssuerDetails("test.test");
+  Assert.deepEqual(
+    details,
+    baseline,
+    "returned details should exactly match the hard-coded ones in this test"
+  );
+
+  Assert.ok(Object.isFrozen(details), "details object should be frozen");
+  details.foo = "bar";
+  details.builtIn = false;
+  Assert.deepEqual(
+    details,
+    baseline,
+    "modifying the details object should fail"
+  );
+
+  Assert.deepEqual(
+    OAuth2Providers.getIssuerDetails("test.test"),
+    baseline,
+    "returned details should still exactly match the hard-coded ones in this test"
   );
 });

@@ -116,10 +116,24 @@ var kHostnames = new Map([
 ]);
 
 /**
- * Map of issuers to clientId, clientSecret, authorizationEndpoint, tokenEndpoint,
- *  and usePKCE (RFC7636).
- * Issuer is a unique string for the organization that a Thunderbird account
- * was registered at.
+ * @typedef issuerDetails
+ * The information required to perform OAuth authentication with an provider.
+ * See RFC6749 for more information.
+ *
+ * @property {string} name - An internal name Thunderbird uses to identify the
+ *   details object. Usually but not necessarily the hostname of the endpoints.
+ * @property {boolean} builtIn - If the details are in `kIssuers`, below.
+ * @property {string} clientId
+ * @property {string} [clientSecret]
+ * @property {string} authorizationEndpoint
+ * @property {string} [redirectionEndpoint]
+ * @property {string} tokenEndpoint
+ * @property {boolean} [usePKCE] - The issuer uses PKCE (RFC7636)
+ */
+
+/**
+ * Map of issuers to issuerDetails. Issuer is a unique string for the
+ * organization that a Thunderbird account was registered at.
  *
  * For the moment these details are hard-coded, since dynamic client
  * registration is not yet supported. Don't copy these values for your
@@ -265,6 +279,7 @@ var kIssuers = new Map([
       authorizationEndpoint: "https://oauth.test.test/form",
       tokenEndpoint: "https://oauth.test.test/token",
       redirectionEndpoint: "https://localhost",
+      usePKCE: true,
     },
   ],
   [
@@ -277,9 +292,13 @@ var kIssuers = new Map([
       authorizationEndpoint: "https://oauth.test.test/form",
       tokenEndpoint: "https://oauth.test.test/token",
       redirectionEndpoint: "http://localhost",
+      usePKCE: true,
     },
   ],
 ]);
+for (const issuerDetails of kIssuers.values()) {
+  Object.freeze(issuerDetails);
+}
 
 /**
  * OAuth2Providers: Methods to lookup OAuth2 parameters for supported OAuth2
@@ -395,12 +414,7 @@ export var OAuth2Providers = {
    *
    * @param {string} issuer - The organization issuing OAuth2 parameters, e.g.
    *   "accounts.google.com".
-   *
-   * @returns {Array} An array containing [clientId, clientSecret, authorizationEndpoint, tokenEndpoint].
-   *   clientId and clientSecret are strings representing the account registered
-   *   for Thunderbird with the organization.
-   *   authorizationEndpoint and tokenEndpoint are url strings representing
-   *   endpoints to access OAuth2 authentication.
+   * @returns {?IssuerDetails}
    */
   getIssuerDetails(issuer) {
     const details = kIssuers.get(issuer);
@@ -454,7 +468,7 @@ export var OAuth2Providers = {
         throw new Error(`Hostname ${hostname} already registered.`);
       }
     }
-    kIssuers.set(issuer, {
+    const issuerDetails = {
       name: issuer,
       builtIn: false,
       clientId,
@@ -463,7 +477,9 @@ export var OAuth2Providers = {
       tokenEndpoint,
       redirectionEndpoint,
       usePKCE,
-    });
+    };
+    Object.freeze(issuerDetails);
+    kIssuers.set(issuer, issuerDetails);
     for (const hostname of hostnames) {
       kHostnames.set(hostname, [issuer, scopes]);
     }
