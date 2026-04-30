@@ -656,11 +656,11 @@ async function runMoveFolderTest(mockServer, incomingServer) {
 }
 
 add_task(async function test_move_folder_ews() {
-  runMoveFolderTest(ewsServer, ewsIncomingServer);
+  await runMoveFolderTest(ewsServer, ewsIncomingServer);
 });
 
 add_task(async function test_move_folder_graph() {
-  runMoveFolderTest(graphServer, graphIncomingServer);
+  await runMoveFolderTest(graphServer, graphIncomingServer);
 });
 
 async function runCopyFolderTest(mockServer, incomingServer) {
@@ -682,8 +682,12 @@ async function runCopyFolderTest(mockServer, incomingServer) {
   );
 }
 
-add_task(function test_copy_folder_ews() {
-  runCopyFolderTest(ewsServer, ewsIncomingServer);
+add_task(async function test_copy_folder_ews() {
+  await runCopyFolderTest(ewsServer, ewsIncomingServer);
+});
+
+add_task(async function test_copy_folder_graph() {
+  await runCopyFolderTest(graphServer, graphIncomingServer);
 });
 
 add_task(async function test_mark_as_junk() {

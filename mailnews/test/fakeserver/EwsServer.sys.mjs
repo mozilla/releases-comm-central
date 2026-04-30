@@ -11,8 +11,6 @@ import {
 
 import { CommonUtils } from "resource://services-common/utils.sys.mjs";
 
-import { SyntheticMessage } from "resource://testing-common/mailnews/MessageGenerator.sys.mjs";
-
 /**
  * This file provides a mock/fake EWS (Exchange Web Services) server to run our
  * unit tests against.
@@ -1188,36 +1186,9 @@ export class EwsServer extends MockServer {
       "t:FolderId"
     );
 
-    folderIds.forEach(sourceFolderId => {
+    const newFolderIds = folderIds.map(sourceFolderId => {
       const sourceFolder = this.getFolder(sourceFolderId);
-      if (sourceFolder) {
-        const newFolderId = `${sourceFolderId}_copy`;
-        const folderCopy = new RemoteFolder(
-          newFolderId,
-          destinationFolderId,
-          sourceFolder.displayName,
-          newFolderId
-        );
-        this.appendRemoteFolder(folderCopy);
-        // Make copies of the items that belong to the source folder
-        // and place them in the destination folder.
-        for (const [itemId, itemInfo] of this.items()) {
-          if (itemInfo.parentId === sourceFolderId) {
-            const newItemId = `${itemId}_copy`;
-            this.addItemToFolder(
-              newItemId,
-              newFolderId,
-              itemInfo.syntheticMessage
-                ? new SyntheticMessage(
-                    itemInfo.syntheticMessage.headers,
-                    itemInfo.syntheticMessage.bodyPart,
-                    itemInfo.syntheticMessage.metaState
-                  )
-                : null
-            );
-          }
-        }
-      }
+      return this.copyFolderToId(sourceFolder, destinationFolderId);
     });
 
     const resDoc = this.#buildGenericMoveResponse(
@@ -1226,7 +1197,7 @@ export class EwsServer extends MockServer {
       "m:Folders",
       "t:Folder",
       "t:FolderId",
-      folderIds
+      newFolderIds
     );
 
     return this.#serializer.serializeToString(resDoc);

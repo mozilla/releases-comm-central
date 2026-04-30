@@ -3,6 +3,7 @@
 /me
 /me/mailFolders
 /me/mailFolders/{mailFolder-id}
+/me/mailFolders/{mailFolder-id}/copy
 /me/mailFolders/{mailFolder-id}/move
 /me/mailFolders/{mailFolder-id}/childFolders
 /me/mailFolders/delta()

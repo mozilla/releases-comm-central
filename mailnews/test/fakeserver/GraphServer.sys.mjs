@@ -407,7 +407,12 @@ export class GraphServer extends MockServer {
           resourcePath.startsWith("/me/mailFolders") &&
           resourcePath.endsWith("/move")
         ) {
-          responseJsonObject = this.#moveFolders(resourcePath, requestBody);
+          responseJsonObject = this.#moveFolder(resourcePath, requestBody);
+        } else if (
+          resourcePath.startsWith("/me/mailFolders") &&
+          resourcePath.endsWith("/copy")
+        ) {
+          responseJsonObject = this.#copyFolder(resourcePath, requestBody);
         } else if (resourcePath.startsWith("/me/mailFolders/")) {
           return this.#createFolder(resourcePath.substring(16), requestBody);
         } else if (
@@ -910,7 +915,7 @@ export class GraphServer extends MockServer {
    * @param {string} resourcePath
    * @param {string} requestBody
    */
-  #moveFolders(resourcePath, requestBody) {
+  #moveFolder(resourcePath, requestBody) {
     // Extract the folder ID, i.e. the second-to-last section of the path.
     const pathParts = resourcePath.split("/");
     const folderId = pathParts[pathParts.length - 2];
@@ -930,6 +935,35 @@ export class GraphServer extends MockServer {
       newParentFolderId,
       graphIsNotStable
     );
+
+    // Note: returning only the ID should be fine for now because that's the
+    // only bit of the folder we actually use, but in the future we'll probably
+    // want to expand this response with more fields.
+    return {
+      id: newId,
+    };
+  }
+  /**
+   * Handle POST /me/mailFolders/{folderId}/copy
+   *
+   * @param {string} resourcePath
+   * @param {string} requestBody
+   */
+  #copyFolder(resourcePath, requestBody) {
+    // Extract the folder ID, i.e. the second-to-last section of the path.
+    const pathParts = resourcePath.split("/");
+    const folderId = pathParts[pathParts.length - 2];
+
+    const parsedReq = JSON.parse(requestBody);
+
+    const newParentFolderId = parsedReq.DestinationId;
+    if (!folderId) {
+      dump(`${requestBody}\n`);
+      throw new Error("missing destination ID for move");
+    }
+
+    const sourceFolder = this.getFolder(folderId);
+    const newId = this.copyFolderToId(sourceFolder, newParentFolderId);
 
     // Note: returning only the ID should be fine for now because that's the
     // only bit of the folder we actually use, but in the future we'll probably

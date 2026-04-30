@@ -24,10 +24,11 @@ use xpcom::RefPtr;
 use crate::error::XpComGraphError;
 
 mod check_connectivity;
+mod copy_folder;
 mod create_folder;
 mod create_message;
 mod get_message;
-mod move_folders;
+mod move_folder;
 mod move_message;
 mod send_message;
 mod sync_folder_hierarchy;

@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { SyntheticMessage } from "resource://testing-common/mailnews/MessageGenerator.sys.mjs";
+
 /**
  * A remote folder to sync from the server. While initiating a test, an array of
  * folders is given to the server, which will use it to populate the contents of
@@ -363,6 +365,45 @@ export class MockServer {
     this.folderChanges.push(["update", newId]);
 
     return newId;
+  }
+
+  /**
+   * Copy the given source folder into the destination folder with the given id.
+   *
+   * @param {RemoteFolder} sourceFolder
+   * @param {string} destinationFolderId
+   *
+   * @returns {string} The ID of the newly copied folder.
+   */
+  copyFolderToId(sourceFolder, destinationFolderId) {
+    const sourceFolderId = sourceFolder.id;
+    const newFolderId = `${sourceFolderId}_copy`;
+    const folderCopy = new RemoteFolder(
+      newFolderId,
+      destinationFolderId,
+      sourceFolder.displayName,
+      newFolderId
+    );
+    this.appendRemoteFolder(folderCopy);
+    // Make copies of the items that belong to the source folder
+    // and place them in the destination folder.
+    for (const [itemId, itemInfo] of this.items()) {
+      if (itemInfo.parentId === sourceFolderId) {
+        const newItemId = `${itemId}_copy`;
+        this.addItemToFolder(
+          newItemId,
+          newFolderId,
+          itemInfo.syntheticMessage
+            ? new SyntheticMessage(
+                itemInfo.syntheticMessage.headers,
+                itemInfo.syntheticMessage.bodyPart,
+                itemInfo.syntheticMessage.metaState
+              )
+            : null
+        );
+      }
+    }
+    return newFolderId;
   }
 
   /**

@@ -80,7 +80,6 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
     fn into_failure_arg(
         self,
     ) -> <Self::Listener as protocol_shared::safe_xpcom::SafeListener>::OnFailureArg {
-        todo!()
     }
 }
 
