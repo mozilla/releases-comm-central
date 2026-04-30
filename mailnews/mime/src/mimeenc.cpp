@@ -518,8 +518,10 @@ static int mime_decode_yenc_buffer(MimeDecoderData* data,
    Then pull the next line into line_buffer and continue.
    */
   if (!data->line_buffer) {
-    data->line_buffer_size =
-        1000;  // let make sure we have plenty of space for the header line
+    // Lets make sure we have plenty of space for the header line.
+    // 998 from RFC 2822 +  extra chars for line ending and potential escape
+    // char
+    data->line_buffer_size = 1002;
     data->line_buffer = (char*)PR_MALLOC(data->line_buffer_size);
     if (!data->line_buffer) return -1;
     data->line_buffer[0] = 0;
@@ -590,7 +592,6 @@ static int mime_decode_yenc_buffer(MimeDecoderData* data,
     const char* endOfLine = line + strlen(line);
 
     if (data->ds_state == DS_BEGIN) {
-      int new_line_size = 0;
       /* this yenc decoder does not support yenc v2 or multipart yenc.
          Therefore, we are looking first for "=ybegin line="
       */
@@ -598,7 +599,6 @@ static int mime_decode_yenc_buffer(MimeDecoderData* data,
         /* ...then couple digits. */
         for (line += 13; line < endOfLine; line++) {
           if (*line < '0' || *line > '9') break;
-          new_line_size = (new_line_size * 10) + *line - '0';
         }
 
         /* ...next, look for <space>size= */
@@ -613,16 +613,6 @@ static int mime_decode_yenc_buffer(MimeDecoderData* data,
                Now check if we need to grow our buffer line
             */
             data->ds_state = DS_BODY;
-            if (new_line_size > data->line_buffer_size &&
-                new_line_size <= 997) /* don't let bad value hurt us! */
-            {
-              PR_Free(data->line_buffer);
-              data->line_buffer_size =
-                  new_line_size +
-                  4;  // extra chars for line ending and potential escape char
-              data->line_buffer = (char*)PR_MALLOC(data->line_buffer_size);
-              if (!data->line_buffer) return -1;
-            }
           }
         }
       }
