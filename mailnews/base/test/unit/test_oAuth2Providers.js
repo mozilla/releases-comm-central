@@ -332,3 +332,31 @@ add_task(function testStringScopesWithoutExchangeSupport() {
     }
   }
 });
+
+add_task(function testGetIssuerMicrosoft() {
+  const details = OAuth2Providers.getIssuerDetails("login.microsoftonline.com");
+
+  Assert.ok(Object.isFrozen(details), "OAuth details should be frozen.");
+
+  Assert.equal(
+    details.clientId,
+    "9e5f94bc-e8a4-4e73-b8be-63364c29d753",
+    "Should be using the production client ID by default."
+  );
+});
+
+add_task(function testGetIssuerMicrosoftSandboxModification() {
+  Services.prefs.setBoolPref("mail.microsoft.useM365Sandbox", true);
+
+  const details = OAuth2Providers.getIssuerDetails("login.microsoftonline.com");
+
+  Assert.ok(Object.isFrozen(details), "OAuth details should be frozen.");
+
+  Assert.equal(
+    details.clientId,
+    "b00dc6cb-0459-4bd4-ac0d-2e23516f906a",
+    "Should be using the Sandbox client ID when the sandbox preference is set."
+  );
+
+  Services.prefs.setBoolPref("mail.microsoft.useM365Sandbox", false);
+});

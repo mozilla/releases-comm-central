@@ -440,19 +440,21 @@ export var OAuth2Providers = {
    * @returns {?IssuerDetails}
    */
   getIssuerDetails(issuer) {
-    const details = kIssuers.get(issuer);
+    let details = kIssuers.get(issuer);
     // We have a separate sandbox for prototyping OAuth scopes on Microsoft 365.
-    if (issuer == "login.microsoftonline.com") {
-      const useMicrosoft365Sandbox = Services.prefs.getBoolPref(
-        "mail.microsoft.useM365Sandbox",
-        false
-      );
-      if (useMicrosoft365Sandbox) {
+    const useMicrosoft365Sandbox = Services.prefs.getBoolPref(
+      "mail.microsoft.useM365Sandbox",
+      false
+    );
+    if (useMicrosoft365Sandbox) {
+      if (issuer == "login.microsoftonline.com") {
+        details = structuredClone(details);
         details.clientId = "b00dc6cb-0459-4bd4-ac0d-2e23516f906a";
         const microsoft365SandboxTenantId =
           "aead8f37-924c-4d3f-9f20-494295c72956";
         details.authorizationEndpoint = `https://login.microsoftonline.com/${microsoft365SandboxTenantId}/oauth2/v2.0/authorize`;
         details.tokenEndpoint = `https://login.microsoftonline.com/${microsoft365SandboxTenantId}/oauth2/v2.0/token`;
+        Object.freeze(details);
       }
     }
     return details;
