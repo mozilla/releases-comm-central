@@ -82,7 +82,9 @@ void MimePartBufferReset(MimePartBufferData* data) {
   if (!data) return;
 
   PR_FREEIF(data->part_buffer);
+  data->part_buffer = nullptr;
   data->part_buffer_fp = 0;
+  data->part_buffer_size = 0;
 
   if (data->input_file_stream) {
     data->input_file_stream->Close();
@@ -182,6 +184,7 @@ int MimePartBufferWrite(MimePartBufferData* data, const char* buf,
       }
 
       PR_FREEIF(data->part_buffer);
+      data->part_buffer = nullptr;
       data->part_buffer_fp = 0;
       data->part_buffer_size = 0;
     }
