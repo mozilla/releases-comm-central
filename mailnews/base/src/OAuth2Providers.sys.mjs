@@ -171,6 +171,7 @@ var kIssuers = new Map([
       clientSecret: "kSmqreRr0qwBWJgbf5Y-PjSU",
       authorizationEndpoint: "https://accounts.google.com/o/oauth2/auth",
       tokenEndpoint: "https://www.googleapis.com/oauth2/v3/token",
+      usePKCE: true,
     },
   ],
   [
