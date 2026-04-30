@@ -2,28 +2,25 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+use std::sync::Arc;
+
 use ms_graph_tb::{OperationBody, paths};
 use nsstring::nsCString;
 use protocol_shared::{
-    authentication::credentials::AuthenticationProvider,
+    ServerType,
     client::DoOperation,
     safe_xpcom::{SafeEwsSimpleOperationListener, SimpleOperationSuccessArgs, UseLegacyFallback},
 };
 use thin_vec::ThinVec;
-use url::Url;
-use xpcom::RefCounted;
 
 use crate::{client::XpComGraphClient, error::XpComGraphError};
 
 struct DoMoveFolder {
     destination_folder_id: String,
     folder_ids: Vec<String>,
-    endpoint: Url,
 }
 
-impl<ServerT: AuthenticationProvider + RefCounted>
-    DoOperation<XpComGraphClient<ServerT>, XpComGraphError> for DoMoveFolder
-{
+impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError> for DoMoveFolder {
     const NAME: &'static str = "move folders";
 
     type Okay = ThinVec<String>;
@@ -40,20 +37,21 @@ impl<ServerT: AuthenticationProvider + RefCounted>
             .map(|folder_id| {
                 let body = paths::me::mail_folders::mail_folder_id::r#move::PostRequestBody::new()
                     .set_destination_id(self.destination_folder_id.clone());
-                let request = paths::me::mail_folders::mail_folder_id::r#move::Post::new(
-                    self.endpoint.to_string(),
+                paths::me::mail_folders::mail_folder_id::r#move::Post::new(
+                    client.base_url().to_string(),
                     folder_id.clone(),
                     OperationBody::JSON(body),
-                );
-                request
+                )
             })
             .collect();
 
-        let responses = client.send_batch_request_json_response(requests).await?;
+        let responses = client
+            .send_batch_request_json_response(requests, Default::default())
+            .await?;
 
         let new_folder_ids = responses
             .iter()
-            .filter_map(|response| response.entity().id().ok().map(|x| x.to_string()))
+            .filter_map(|response| response.entity().id().ok().map(ToString::to_string))
             .collect();
 
         Ok(new_folder_ids)
@@ -86,13 +84,13 @@ impl<ServerT: AuthenticationProvider + RefCounted>
     }
 }
 
-impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
+impl<ServerT: ServerType> XpComGraphClient<ServerT> {
     /// Perform a [move folders] operation.
     ///
     /// [move folders]:
     ///     https://learn.microsoft.com/en-us/graph/api/mailfolder-move
     pub(crate) async fn move_folders(
-        self,
+        self: Arc<XpComGraphClient<ServerT>>,
         destination_folder_id: String,
         folder_ids: Vec<String>,
         listener: SafeEwsSimpleOperationListener,
@@ -100,7 +98,6 @@ impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
         let operation = DoMoveFolder {
             destination_folder_id,
             folder_ids,
-            endpoint: self.endpoint.clone(),
         };
         operation.handle_operation(&self, &listener).await;
     }

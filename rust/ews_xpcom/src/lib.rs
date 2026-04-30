@@ -9,13 +9,11 @@ use ews::copy_item::CopyItem;
 use ews::move_folder::MoveFolder;
 use ews::move_item::MoveItem;
 use firefox_on_glean::metrics::mailnews_ews as glean_ews;
-use mailnews_ui_glue::UserInteractiveServer;
 use nserror::{
     NS_ERROR_ALREADY_INITIALIZED, NS_ERROR_INVALID_ARG, NS_ERROR_NOT_INITIALIZED, NS_OK, nsresult,
 };
 use nsstring::{nsACString, nsCString};
 use protocol_shared::{
-    ExchangeConnectionDetails,
     client::ProtocolClient,
     safe_xpcom::{
         SafeEwsFolderListener, SafeEwsMessageCreateListener, SafeEwsMessageFetchListener,
@@ -67,8 +65,6 @@ const OFFICE365_BASE_DOMAINS: [&str; 4] = [
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn NS_CreateEwsClient(iid: &nsIID, result: *mut *mut c_void) -> nsresult {
     let instance = XpcomEwsBridge::allocate(InitXpcomEwsBridge {
-        server: OnceCell::default(),
-        details: OnceCell::default(),
         client: OnceCell::default(),
     });
 
@@ -79,8 +75,6 @@ pub unsafe extern "C" fn NS_CreateEwsClient(iid: &nsIID, result: *mut *mut c_voi
 /// between C++ consumers and an async Rust EWS client.
 #[xpcom::xpcom(implement(IExchangeClient), atomic)]
 pub(crate) struct XpcomEwsBridge {
-    server: OnceCell<Box<dyn UserInteractiveServer>>,
-    details: OnceCell<ExchangeConnectionDetails>,
     client: OnceCell<Arc<XpComEwsClient<nsIMsgIncomingServer>>>,
 }
 
@@ -696,9 +690,9 @@ impl XpcomEwsBridge {
         Ok(())
     }
 
-    /// Gets a new EWS client if initialized. The client is wrapped into an
-    /// `Arc`, which is cloned from `self.client` so the consumer does not need
-    /// to clone it again.
+    /// Gets a new reference to the EWS client if initialized. The client is
+    /// wrapped into an `Arc`, which is cloned from `self.client` so the
+    /// consumer does not need to clone it again.
     ///
     /// If the [`XpcomEwsBridge`] hasn't been initialized yet,
     /// [`NS_ERROR_NOT_INITIALIZED`] is returned.

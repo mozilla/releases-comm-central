@@ -2,22 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+use std::sync::Arc;
+
 use ms_graph_tb::paths::me::messages;
-use protocol_shared::{
-    authentication::credentials::AuthenticationProvider, client::DoOperation,
-    safe_xpcom::SafeEwsMessageFetchListener,
-};
-use url::Url;
-use xpcom::RefCounted;
+use protocol_shared::{ServerType, client::DoOperation, safe_xpcom::SafeEwsMessageFetchListener};
 
 struct DoGetMessage<'a> {
     listener: &'a SafeEwsMessageFetchListener,
     message_id: String,
-    endpoint: &'a Url,
 }
 
-impl<ServerT: AuthenticationProvider + RefCounted>
-    DoOperation<XpComGraphClient<ServerT>, XpComGraphError> for DoGetMessage<'_>
+impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError>
+    for DoGetMessage<'_>
 {
     const NAME: &'static str = "get message";
 
@@ -29,12 +25,12 @@ impl<ServerT: AuthenticationProvider + RefCounted>
         &mut self,
         client: &XpComGraphClient<ServerT>,
     ) -> Result<Self::Okay, XpComGraphError> {
-        let endpoint = self.endpoint.to_string();
-        let request = messages::message_id::value::Get::new(endpoint, self.message_id.clone());
+        let base_url = client.base_url().to_string();
+        let request = messages::message_id::value::Get::new(base_url, self.message_id.clone());
 
         self.listener.on_fetch_start()?;
 
-        let response = client.send_request(request).await?;
+        let response = client.send_request(request, Default::default()).await?;
 
         self.listener.on_fetched_data_available(response.body())?;
 
@@ -55,12 +51,15 @@ impl<ServerT: AuthenticationProvider + RefCounted>
 
 use crate::{client::XpComGraphClient, error::XpComGraphError};
 
-impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
-    pub async fn get_message(self, listener: SafeEwsMessageFetchListener, message_id: String) {
+impl<ServerT: ServerType> XpComGraphClient<ServerT> {
+    pub async fn get_message(
+        self: Arc<XpComGraphClient<ServerT>>,
+        listener: SafeEwsMessageFetchListener,
+        message_id: String,
+    ) {
         let operation = DoGetMessage {
             listener: &listener,
             message_id,
-            endpoint: &self.endpoint,
         };
         operation.handle_operation(&self, &listener).await;
     }

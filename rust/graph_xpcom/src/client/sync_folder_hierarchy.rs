@@ -2,17 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+use std::sync::Arc;
+
 use fxhash::FxHashMap;
 use ms_graph_tb::{
     pagination::{DeltaItem, DeltaResponse},
     paths::me::mail_folders,
 };
 use protocol_shared::{
-    EXCHANGE_DISTINGUISHED_IDS, EXCHANGE_ROOT_FOLDER,
-    authentication::credentials::AuthenticationProvider, client::DoOperation,
+    EXCHANGE_DISTINGUISHED_IDS, EXCHANGE_ROOT_FOLDER, ServerType, client::DoOperation,
     safe_xpcom::SafeEwsFolderListener,
 };
-use xpcom::RefCounted;
 
 use crate::error::XpComGraphError;
 
@@ -21,11 +21,10 @@ use super::XpComGraphClient;
 struct DoSyncFolderHierarchy<'a> {
     pub listener: &'a SafeEwsFolderListener,
     pub sync_state_token: Option<String>,
-    pub endpoint: &'a url::Url,
 }
 
-impl<ServerT: AuthenticationProvider + RefCounted>
-    DoOperation<XpComGraphClient<ServerT>, XpComGraphError> for DoSyncFolderHierarchy<'_>
+impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError>
+    for DoSyncFolderHierarchy<'_>
 {
     const NAME: &'static str = "sync folder hierarchy";
     type Okay = ();
@@ -42,13 +41,17 @@ impl<ServerT: AuthenticationProvider + RefCounted>
         let (mut response, well_known) = match self.sync_state_token {
             Some(ref token) => {
                 let request = mail_folders::delta::GetDelta::try_from(token.as_str())?;
-                let response = client.send_request_json_response(request).await?;
+                let response = client
+                    .send_request_json_response(request, Default::default())
+                    .await?;
                 (response, None)
             }
             None => {
-                let endpoint = self.endpoint.as_str().to_string();
-                let request = mail_folders::delta::Get::new(endpoint);
-                let response = client.send_request_json_response(request).await?;
+                let base_url = client.base_url().to_string();
+                let request = mail_folders::delta::Get::new(base_url);
+                let response = client
+                    .send_request_json_response(request, Default::default())
+                    .await?;
                 let well_known = Some(get_well_known_folder_map(client, self.listener).await?);
                 (response, well_known)
             }
@@ -117,7 +120,9 @@ impl<ServerT: AuthenticationProvider + RefCounted>
 
             match response {
                 DeltaResponse::NextLink { next_page, .. } => {
-                    response = client.send_request_json_response(next_page).await?;
+                    response = client
+                        .send_request_json_response(next_page, Default::default())
+                        .await?;
                 }
                 DeltaResponse::DeltaLink { delta_link, .. } => {
                     self.listener.on_sync_state_token_changed(&delta_link)?;
@@ -135,7 +140,7 @@ impl<ServerT: AuthenticationProvider + RefCounted>
     fn into_failure_arg(self) {}
 }
 
-impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
+impl<ServerT: ServerType> XpComGraphClient<ServerT> {
     /// Retrieve changes in the folder list/hierarchy by querying the [folder
     /// delta] endpoint.
     ///
@@ -147,14 +152,13 @@ impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
     /// [folder delta]:
     ///     https://learn.microsoft.com/en-us/graph/api/mailfolder-delta
     pub async fn sync_folder_hierarchy(
-        self,
+        self: Arc<XpComGraphClient<ServerT>>,
         listener: SafeEwsFolderListener,
         sync_state_token: Option<String>,
     ) {
         let operation = DoSyncFolderHierarchy {
             listener: &listener,
             sync_state_token,
-            endpoint: &self.endpoint,
         };
         operation.handle_operation(&self, &listener).await;
     }
@@ -164,7 +168,7 @@ impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
 ///
 /// This allows translating from the folder ID returned by `GetFolder`
 /// calls and well-known IDs associated with special folders.
-async fn get_well_known_folder_map<ServerT: AuthenticationProvider + RefCounted>(
+async fn get_well_known_folder_map<ServerT: ServerType>(
     client: &XpComGraphClient<ServerT>,
     listener: &SafeEwsFolderListener,
 ) -> Result<FxHashMap<String, &'static str>, XpComGraphError> {
@@ -175,16 +179,18 @@ async fn get_well_known_folder_map<ServerT: AuthenticationProvider + RefCounted>
         "expected first fetched folder to be root"
     );
 
-    let endpoint = client.endpoint.as_str().to_string();
+    let base_url = client.base_url().to_string();
 
     let mut ret = FxHashMap::default();
     for distinguished_id in EXCHANGE_DISTINGUISHED_IDS {
         let request =
-            mail_folders::mail_folder_id::Get::new(endpoint.clone(), distinguished_id.to_string());
+            mail_folders::mail_folder_id::Get::new(base_url.clone(), distinguished_id.to_string());
 
         // FIXME: Figure out what the response looks like when a well-known
         // folder isn't present, and handle accordingly.
-        let folder = client.send_request_json_response(request).await?;
+        let folder = client
+            .send_request_json_response(request, Default::default())
+            .await?;
         let folder_id = folder.entity().id()?.to_string();
 
         if *distinguished_id == EXCHANGE_ROOT_FOLDER {

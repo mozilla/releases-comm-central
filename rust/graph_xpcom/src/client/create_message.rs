@@ -2,18 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+use std::sync::Arc;
+
 use base64::prelude::*;
 
 use ms_graph_tb::types::message::Message;
 use ms_graph_tb::{OperationBody, paths::me::messages};
+use protocol_shared::ServerType;
+use protocol_shared::client::DoOperation;
 use protocol_shared::safe_xpcom::SafeEwsMessageCreateListener;
-use protocol_shared::{authentication::credentials::AuthenticationProvider, client::DoOperation};
-use xpcom::RefCounted;
 
 use crate::{client::XpComGraphClient, error::XpComGraphError};
 
-struct DoCreateMessage<'a> {
-    pub endpoint: &'a url::Url,
+struct DoCreateMessage {
     pub folder_id: String,
     pub is_draft: bool,
     pub is_read: bool,
@@ -21,8 +22,8 @@ struct DoCreateMessage<'a> {
     new_message_id: String,
 }
 
-impl<ServerT: AuthenticationProvider + RefCounted>
-    DoOperation<XpComGraphClient<ServerT>, XpComGraphError> for DoCreateMessage<'_>
+impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError>
+    for DoCreateMessage
 {
     const NAME: &'static str = "create message";
     type Okay = ();
@@ -44,18 +45,18 @@ impl<ServerT: AuthenticationProvider + RefCounted>
         // to check the response, since it should just be the original message
         // with the added properties (and all we need to send is the ID, which
         // we already have).
-        let endpoint = self.endpoint.as_str();
+        let base_url = client.base_url().to_string();
         let message_update = Message::new()
             .set_is_draft(Some(self.is_draft))
             .set_is_read(Some(self.is_read));
 
         let request = messages::message_id::Patch::new(
-            endpoint.to_string(),
+            base_url,
             self.new_message_id.clone(),
             OperationBody::JSON(message_update),
         );
 
-        client.send_request(request).await?;
+        client.send_request(request, Default::default()).await?;
 
         // NOTE: we rely on the on_success()/on_failure() call to invoke
         // on_remote_create_finished().
@@ -68,7 +69,7 @@ impl<ServerT: AuthenticationProvider + RefCounted>
     fn into_failure_arg(self) {}
 }
 
-impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
+impl<ServerT: ServerType> XpComGraphClient<ServerT> {
     /// Create a message on the server by performing a [message creation]
     /// request.
     ///
@@ -77,7 +78,7 @@ impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
     /// [message creation]:
     ///     https://learn.microsoft.com/en-us/graph/api/user-post-messages
     pub async fn create_message(
-        self,
+        self: Arc<XpComGraphClient<ServerT>>,
         folder_id: String,
         is_draft: bool,
         is_read: bool,
@@ -85,7 +86,6 @@ impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
         listener: SafeEwsMessageCreateListener,
     ) {
         let operation = DoCreateMessage {
-            endpoint: &self.endpoint,
             folder_id,
             is_draft,
             is_read,
@@ -117,8 +117,10 @@ impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
             body: content.as_bytes().to_vec(),
         };
 
-        let request = messages::Post::new(self.endpoint.to_string(), body);
-        let message = self.send_request_json_response(request).await?;
+        let request = messages::Post::new(self.base_url().to_string(), body);
+        let message = self
+            .send_request_json_response(request, Default::default())
+            .await?;
 
         if let Some(folder_id) = folder_id {
             // Ideally we'd create the message using `POST
@@ -128,7 +130,9 @@ impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
             // create the message the same way in both cases and we move it if a
             // folder was specified.
             let message_id = message.outlook_item().entity().id()?.to_string();
-            self.send_move_message_request(folder_id, message_id).await
+            let request = self.move_message_request(folder_id, message_id);
+            self.send_request_json_response(request, Default::default())
+                .await
         } else {
             Ok(message)
         }

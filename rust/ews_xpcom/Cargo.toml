@@ -9,6 +9,7 @@ base64 = "0.21.3"
 ews = { version = "0.1.0", features = ["interop"] }
 firefox-on-glean = { version = "0.1.0", path = "../../../toolkit/components/glean/api" }
 fxhash = "0.2.1"
+http = "0.2.9"
 log = "0.4.21"
 mailnews_ui_glue = { version = "0.1.0", path = "../mailnews_ui_glue" }
 moz_http = { version = "0.1.0", path = "../moz_http" }

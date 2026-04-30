@@ -2,14 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use std::{cell::RefCell, env, ops::ControlFlow, sync::Arc};
+use std::{cell::RefCell, env, ops::ControlFlow, sync::Arc, time::Duration};
 
 use async_lock::Mutex;
+use http::Request;
 use mailnews_ui_glue::{
     AuthErrorOutcome, handle_auth_failure, handle_transport_sec_failure,
     maybe_handle_connection_error, report_connection_success,
 };
-use moz_http::Response;
+use moz_http::{Response, StatusCode};
 use operation_queue::line_token::{AcquireOutcome, Line};
 use url::Url;
 use uuid::Uuid;
@@ -49,6 +50,19 @@ pub trait ResponseProcessor {
     ///     ResponseProcessor::check_response_for_error
     type Error: From<ProtocolError>;
 
+    /// Whether the [`ResponseProcessor`] should handle responses with the given
+    /// error status code.
+    ///
+    /// Whenever this function returns `false`, the [`OperationSender`] will
+    /// return the error before [`check_response_for_error`] can be called.
+    ///
+    /// Note that successes (i.e. 2XX responses) will always result in
+    /// `check_response_for_error` being called.
+    ///
+    /// [`check_response_for_error`]:
+    ///     ResponseProcessor::check_response_for_error
+    fn handles_error_status(&self, status: StatusCode) -> bool;
+
     /// Checks a raw [`Response`] for errors.
     ///
     /// If the response does not contain any error, the implementation is free
@@ -57,13 +71,13 @@ pub trait ResponseProcessor {
     ///
     /// If the response indicates requests are being throttled/rate-limited, the
     /// implementation is expected to return [`ControlFlow::Continue`] with the
-    /// number of milliseconds to wait before the request can be retried.
+    /// duration to wait before the request can be retried.
     #[allow(async_fn_in_trait)]
     async fn check_response_for_error(
-        &self,
+        &mut self,
         name: &str,
         resp: Response,
-    ) -> Result<ControlFlow<Self::ReturnValue, u32>, Self::Error>;
+    ) -> Result<ControlFlow<Self::ReturnValue, Duration>, Self::Error>;
 }
 
 // The environment variable that controls whether to include request/response
@@ -112,24 +126,18 @@ pub enum TransportSecFailureBehavior {
 /// The central data structure for performing operations against an Exchange
 /// server.
 pub struct OperationSender<ServerT: RefCounted + 'static> {
-    endpoint: Arc<RefCell<Url>>,
+    base_url: Arc<RefCell<Url>>,
     client: moz_http::Client,
     error_handling_line: Line,
 
     // Our internal reference on the server, which is wrapped into a
-    // `RefCell<Option<...>>` so it can be "dropped" when we receive the signal
+    // `Mutex<Option<...>>` so it can be "dropped" when we receive the signal
     // that the client has shut down. See the documentation for the `shutdown()`
     // method for more information.
     //
     // As a result, checking whether the client has shut down (and whether we
     // should be continuing processing requests) can be done by checking whether
     // this field's inner value is `None`.
-    //
-    // We want to make sure replacing the inner `Option` upon shutdown does not
-    // cause a panic, so we need to wrap it in a `Mutex` so we don't risk this
-    // happening when it's already being borrowed. We can clone the inner
-    // `RefPtr` immediately upon borrowing, so the loss in parallelism is
-    // negligible.
     server: Mutex<Option<RefPtr<ServerT>>>,
 }
 
@@ -142,21 +150,21 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
     // the future. See https://bugzilla.mozilla.org/show_bug.cgi?id=2030095
     #[allow(clippy::arc_with_non_send_sync)]
     pub fn new(
-        endpoint: Url,
+        base_url: Url,
         server: RefPtr<ServerT>,
     ) -> Result<OperationSender<ServerT>, ProtocolError> {
         // Note: semantically `endpoint` should be wrapped in a `Cell` (not a
         // `RefCell`) since we never borrow, but `Cell` relies on the inner type
         // implementing `Copy` which `Url` doesn't do.
-        let endpoint = Arc::new(RefCell::new(endpoint));
+        let base_url = Arc::new(RefCell::new(base_url));
 
-        // Subscribe to changes to the EWS URL property on the server, so we get
-        // updated when it changes.
-        let observer = UrlPrefObserver::new_observer(endpoint.clone())?;
+        // Subscribe to changes to the base URL property on the server (named
+        // "ews_url" for historical reasons), so we get updated when it changes.
+        let observer = UrlPrefObserver::new_observer(base_url.clone())?;
         server.observe_property("ews_url", observer.clone())?;
 
         Ok(OperationSender {
-            endpoint,
+            base_url,
             server: Mutex::new(Some(server)),
             client: moz_http::Client::new(),
             error_handling_line: Line::new(),
@@ -174,9 +182,12 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
         self.server.lock().await.take();
     }
 
-    /// Returns the [`Url`] currently used as the endpoint to send requests to.
-    pub fn url(&self) -> Url {
-        (*self.endpoint).clone().into_inner()
+    /// Returns the [`Url`] currently used as the protocol API's base URL.
+    ///
+    /// Consumers should use this value to build the full URL for outgoing
+    /// requests.
+    pub fn base_url(&self) -> Url {
+        (*self.base_url).clone().into_inner()
     }
 
     /// Get a reference on the server, if it's available.
@@ -191,17 +202,23 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
             .ok_or(ProtocolError::ClientClosed)
     }
 
-    /// Builds and sends an HTTP request for the operation.
+    /// Sends the given HTTP [`Request`].
     ///
-    /// Also handles retries as required (e.g. for authentication failures, or
-    /// if we're being throttled) if the request fails.
-    pub async fn make_and_send_request<ProcT: ResponseProcessor>(
+    /// [`OperationSender`] takes care of authenticating outgoing requests. As
+    /// such, any `Authorization` header on the provided `Request` might get
+    /// overwritten.
+    ///
+    /// This function also handles retries as required (e.g. for authentication
+    /// failures, or if we're being throttled) if the request fails.
+    ///
+    /// `operation_id` and `name` are only used for logging purposes.
+    pub async fn send_request<ProcT: ResponseProcessor>(
         &self,
         operation_id: &Uuid,
         name: &str,
-        content: &[u8],
+        request: &Request<Vec<u8>>,
         options: &OperationRequestOptions,
-        resp_processor: ProcT,
+        mut resp_processor: ProcT,
     ) -> Result<ProcT::ReturnValue, ProcT::Error> {
         // Check if we can get a `RefPtr` on the server; if not it means we've
         // received the shutdown signal and we shouldn't proceed with the
@@ -212,7 +229,7 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
         let mut token = None;
 
         loop {
-            let response = match self.send_http_request(operation_id, name, content).await {
+            let response = match self.send_http_request(operation_id, name, request).await {
                 Ok(response) => response,
                 Err(err) => {
                     token = match self.error_handling_line.try_acquire_token().or_token(token) {
@@ -242,19 +259,23 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
                     report_connection_success(self.server().await?).map_err(ProtocolError::from)?;
                     response
                 }
-                Err(moz_http::Error::StatusCode { status, response }) if status.0 == 500 => {
-                    log::error!("Request FAILED with status 500, attempting to parse for backoff");
+                Err(moz_http::Error::StatusCode { status, response })
+                    if resp_processor.handles_error_status(status) =>
+                {
+                    log::error!(
+                        "Request {operation_id} FAILED with status {status}, handing over to response processor"
+                    );
                     response
                 }
                 Err(err) => {
                     if let moz_http::Error::StatusCode { ref response, .. } = err {
                         log::error!(
-                            "Request FAILED with status {}: {err}",
+                            "Request {operation_id} FAILED with status {}: {err}",
                             response.status().map_err(ProtocolError::from)?
                         );
                     } else {
                         log::error!(
-                            "moz_http::Response::error_from_status returned an unexpected error: {err:?}"
+                            "Request {operation_id}: moz_http::Response::error_from_status returned an unexpected error: {err:?}"
                         );
                     }
 
@@ -268,17 +289,22 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
                 .check_response_for_error(name, response)
                 .await?
             {
-                ControlFlow::Continue(delay_ms) => {
+                ControlFlow::Continue(sleep_delay) => {
                     token = match self.error_handling_line.try_acquire_token().or_token(token) {
                         AcquireOutcome::Success(new_token) => {
-                            xpcom_async::sleep(delay_ms)
+                            log::debug!(
+                                "Request {operation_id}: rate-limited: waiting for {}ms before next attempt",
+                                sleep_delay.as_millis()
+                            );
+
+                            xpcom_async::sleep(sleep_delay)
                                 .await
                                 .map_err(ProtocolError::from)?;
                             Some(new_token)
                         }
                         AcquireOutcome::Failure(shared) => {
                             log::debug!(
-                                "failure from envelope: waiting for another runner to handle"
+                                "Request {operation_id}: rate-limited: waiting for another runner to handle"
                             );
                             shared.await.map_err(ProtocolError::from)?;
                             None
@@ -292,17 +318,19 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
         }
     }
 
-    /// Send an EWS HTTP request with the given body.
+    /// Send the given HTTP request.
     ///
     /// If relevant with the chosen authentication method, an `Authorization`
-    /// header is added to the outgoing request.
+    /// header is added to the outgoing request. This means consumers shouldn't
+    /// concern themselves with adding authentication to the [`Request`] they
+    /// provide.
     ///
-    /// The `op_name` parameter is only used for logging.
+    /// The `op_name` and `operation_id` parameters are only used for logging.
     async fn send_http_request(
         &self,
         operation_id: &Uuid,
         op_name: &str,
-        request_body: &[u8],
+        request: &Request<Vec<u8>>,
     ) -> Result<Response, ProtocolError> {
         // Get a new `Credentials` for the request.
         //
@@ -323,29 +351,52 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
         let credentials = self.server().await?.get_credentials()?;
         let auth_header_value = credentials.to_auth_header_value().await?;
 
-        // Generate random id for logging purposes.
+        let method = request.method();
+        let url = Url::parse(&request.uri().to_string())?;
+        let mut request_builder = self.client.request(method, &url)?;
+
         log::info!("Making operation request {operation_id}: {op_name}");
 
-        if env::var(LOG_NETWORK_PAYLOADS_ENV_VAR).is_ok() {
-            // Also log the request body if requested.
-            log::info!("C: {}", String::from_utf8_lossy(request_body));
-        }
+        // Add any header that was set on the original request.
+        let headers = request.headers();
+        for (name, value) in headers {
+            let value = value
+                .to_str()
+                .map_err(|_| ProtocolError::InvalidHeaderValue(value.clone()))?;
 
-        // We want to clone here rather than borrow because we don't want to
-        // panic if the value changes (e.g. if the user changed the URL in their
-        // settings) while we're borrowing.
-        let endpoint = (*self.endpoint).clone().into_inner();
-        let mut request_builder = self.client.post(&endpoint)?;
+            request_builder = request_builder.header(name.as_str(), value);
+        }
 
         if let Some(ref hdr_value) = auth_header_value {
             // Only set an `Authorization` header if necessary.
             request_builder = request_builder.header("Authorization", hdr_value);
         }
 
-        let response = request_builder
-            .body(request_body, "text/xml; charset=utf-8")
-            .send()
-            .await?;
+        // Only add a body if not empty.
+        let body = request.body();
+        if !body.is_empty() {
+            // If we have a body, we expect a valid `Content-Type` header to be
+            // set as well. Searching through a `http::HeaderMap` (as returned
+            // by `request.headers`) is case-insensitive.
+            let content_type = headers
+                .get("content-type")
+                .ok_or(ProtocolError::Processing {
+                    message: "Missing Content-Type header for request with body".to_string(),
+                })?
+                .to_str()
+                .map_err(|_| ProtocolError::Processing {
+                    message: "Invalid Content-Type header in request".to_string(),
+                })?;
+
+            if env::var(LOG_NETWORK_PAYLOADS_ENV_VAR).is_ok() {
+                // Also log the request body if requested.
+                log::info!("C: {}", String::from_utf8_lossy(body.as_slice()));
+            }
+
+            request_builder = request_builder.body(body.as_slice(), content_type);
+        }
+
+        let response = request_builder.send().await?;
 
         let response_body = response.body();
         let response_status = response.status()?;
@@ -445,6 +496,8 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
         &self,
         behavior: &AuthFailureBehavior,
     ) -> Result<ControlFlow<()>, ProtocolError> {
+        log::debug!("handling authentication failure");
+
         let credentials = self.server().await?.get_credentials()?;
 
         if let Credentials::Ntlm {

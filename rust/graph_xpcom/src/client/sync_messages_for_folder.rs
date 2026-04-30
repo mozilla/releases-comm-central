@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Arc};
 
 use ms_graph_tb::{
     Error, Select, define_svlep,
@@ -16,7 +16,7 @@ use ms_graph_tb::{
     },
 };
 use protocol_shared::{
-    authentication::credentials::AuthenticationProvider,
+    ServerType,
     client::DoOperation,
     headerblock_xpcom::{HeaderBlock, rfc5322_header},
     safe_xpcom::SafeEwsMessageSyncListener,
@@ -25,8 +25,7 @@ use time::{
     OffsetDateTime,
     format_description::well_known::{Iso8601, Rfc2822},
 };
-use url::Url;
-use xpcom::{RefCounted, RefPtr, interfaces::IHeaderBlock};
+use xpcom::{RefPtr, interfaces::IHeaderBlock};
 
 use crate::{client::XpComGraphClient, error::XpComGraphError};
 
@@ -36,11 +35,10 @@ struct DoSyncMessagesForFolder<'a> {
     pub listener: &'a SafeEwsMessageSyncListener,
     pub folder_id: String,
     pub sync_state_token: Option<String>,
-    pub endpoint: &'a Url,
 }
 
-impl<ServerT: AuthenticationProvider + RefCounted>
-    DoOperation<XpComGraphClient<ServerT>, XpComGraphError> for DoSyncMessagesForFolder<'_>
+impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError>
+    for DoSyncMessagesForFolder<'_>
 {
     const NAME: &'static str = "sync folder hierarchy";
     type Okay = ();
@@ -53,7 +51,9 @@ impl<ServerT: AuthenticationProvider + RefCounted>
         let mut response = match self.sync_state_token {
             Some(ref token) => {
                 let request = messages::delta::GetDelta::try_from(token.as_str())?;
-                client.send_request_json_response(request).await?
+                client
+                    .send_request_json_response(request, Default::default())
+                    .await?
             }
             None => {
                 let select_properties = vec![
@@ -75,12 +75,14 @@ impl<ServerT: AuthenticationProvider + RefCounted>
                     MessageSelection::ToRecipients,
                 ];
 
-                let endpoint = self.endpoint.as_str().to_string();
+                let base_url = client.base_url().to_string();
                 let folder_id = self.folder_id.clone();
-                let mut request = messages::delta::Get::new(endpoint, folder_id);
+                let mut request = messages::delta::Get::new(base_url, folder_id);
                 request.select(select_properties);
                 request.expand_typed_svlep([PID_TAG_MESSAGE_SIZE]);
-                client.send_request_json_response(request).await?
+                client
+                    .send_request_json_response(request, Default::default())
+                    .await?
             }
         };
 
@@ -150,7 +152,9 @@ impl<ServerT: AuthenticationProvider + RefCounted>
 
             match response {
                 DeltaResponse::NextLink { next_page, .. } => {
-                    response = client.send_request_json_response(next_page).await?;
+                    response = client
+                        .send_request_json_response(next_page, Default::default())
+                        .await?;
                 }
                 DeltaResponse::DeltaLink { delta_link, .. } => {
                     self.listener.on_sync_state_token_changed(&delta_link)?;
@@ -168,9 +172,9 @@ impl<ServerT: AuthenticationProvider + RefCounted>
     fn into_failure_arg(self) {}
 }
 
-impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
+impl<ServerT: ServerType> XpComGraphClient<ServerT> {
     pub async fn sync_messages_for_folder(
-        self,
+        self: Arc<XpComGraphClient<ServerT>>,
         listener: SafeEwsMessageSyncListener,
         folder_id: String,
         sync_state_token: Option<String>,
@@ -179,7 +183,6 @@ impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
             listener: &listener,
             folder_id,
             sync_state_token,
-            endpoint: &self.endpoint,
         };
         operation.handle_operation(&self, &listener).await;
     }

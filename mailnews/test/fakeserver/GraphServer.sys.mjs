@@ -358,7 +358,7 @@ export class GraphServer extends MockServer {
         if (resourcePath === "/me") {
           responseJsonObject = this.#me();
         } else if (
-          (pathMatch = /\/me\/mailFolders\/(\w+)\/messages\/delta/.exec(
+          (pathMatch = /\/me\/mailFolders\/([\w\-]+)\/messages\/delta/.exec(
             resourcePath
           ))
         ) {
@@ -368,7 +368,7 @@ export class GraphServer extends MockServer {
             resourceQuery
           );
         } else if (
-          (pathMatch = /\/me\/mailFolders\('(\w+)'\)\/messages\/delta/.exec(
+          (pathMatch = /\/me\/mailFolders\('([\w\-]+)'\)\/messages\/delta/.exec(
             resourcePath
           ))
         ) {

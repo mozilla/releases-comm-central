@@ -2,17 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use ms_graph_tb::{OperationBody, paths::me::messages, types::message::Message};
+use std::sync::Arc;
+
+use ms_graph_tb::{
+    OperationBody,
+    paths::me::messages::{self, message_id::r#move},
+};
 use nsstring::nsCString;
 use protocol_shared::{
-    authentication::credentials::AuthenticationProvider,
+    ServerType,
     client::DoOperation,
     safe_xpcom::{
         SafeEwsSimpleOperationListener, SafeListener, SimpleOperationSuccessArgs, UseLegacyFallback,
     },
 };
 use thin_vec::ThinVec;
-use xpcom::RefCounted;
 
 use crate::{client::XpComGraphClient, error::XpComGraphError};
 
@@ -21,8 +25,8 @@ struct DoMoveMessage {
     pub message_ids: Vec<String>,
 }
 
-impl<ServerT: AuthenticationProvider + RefCounted>
-    DoOperation<XpComGraphClient<ServerT>, XpComGraphError> for DoMoveMessage
+impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError>
+    for DoMoveMessage
 {
     const NAME: &'static str = "move messages";
     type Okay = ThinVec<String>;
@@ -39,18 +43,13 @@ impl<ServerT: AuthenticationProvider + RefCounted>
             .message_ids
             .iter()
             .map(|message_id| {
-                let body = messages::message_id::r#move::PostRequestBody::new()
-                    .set_destination_id(self.destination_folder_id.clone());
-                let request = messages::message_id::r#move::Post::new(
-                    client.endpoint.to_string(),
-                    message_id.clone(),
-                    OperationBody::JSON(body),
-                );
-                request
+                client.move_message_request(self.destination_folder_id.clone(), message_id.clone())
             })
             .collect();
 
-        let responses = client.send_batch_request_json_response(requests).await?;
+        let responses = client
+            .send_batch_request_json_response(requests, Default::default())
+            .await?;
 
         let new_message_ids = responses
             .iter()
@@ -60,7 +59,7 @@ impl<ServerT: AuthenticationProvider + RefCounted>
                     .entity()
                     .id()
                     .ok()
-                    .map(|x| x.to_string())
+                    .map(ToString::to_string)
             })
             .collect();
 
@@ -91,12 +90,12 @@ impl<ServerT: AuthenticationProvider + RefCounted>
     fn into_failure_arg(self) -> <Self::Listener as SafeListener>::OnFailureArg {}
 }
 
-impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
+impl<ServerT: ServerType> XpComGraphClient<ServerT> {
     /// Moves messages via Graph.
     ///
     /// [message move]: https://learn.microsoft.com/en-us/graph/api/message-move
     pub(crate) async fn move_messages(
-        self,
+        self: Arc<XpComGraphClient<ServerT>>,
         destination_folder_id: String,
         message_ids: Vec<String>,
         listener: SafeEwsSimpleOperationListener,
@@ -108,29 +107,21 @@ impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
         operation.handle_operation(&self, &listener).await;
     }
 
-    /// Performs a [message move] request for the given message.
-    ///
-    /// Returns the [`Message`] object corresponding to the updated message
-    /// after its move. This object should also contain an *updated* ID, since
-    /// the API documentation indicates a move is performed by copying then
-    /// deleting the message on the server side (which seems to be the case in
-    /// practice too).
+    /// Creates a [message move] request for the given message.
     ///
     /// [message move]: https://learn.microsoft.com/en-us/graph/api/message-move
-    pub(crate) async fn send_move_message_request<'m>(
+    pub(crate) fn move_message_request<'m>(
         &'m self,
         destination_folder_id: String,
         message_id: String,
-    ) -> Result<Message<'m>, XpComGraphError> {
+    ) -> r#move::Post<'m> {
         let body = messages::message_id::r#move::PostRequestBody::new()
             .set_destination_id(destination_folder_id);
 
-        let request = messages::message_id::r#move::Post::new(
-            self.endpoint.to_string(),
+        messages::message_id::r#move::Post::new(
+            self.base_url().to_string(),
             message_id,
             OperationBody::JSON(body),
-        );
-
-        self.send_request_json_response(request).await
+        )
     }
 }

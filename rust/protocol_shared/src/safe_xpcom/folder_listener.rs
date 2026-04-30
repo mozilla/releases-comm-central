@@ -111,7 +111,7 @@ impl SafeListener for SafeEwsFolderListener {
     }
 }
 
-/// Gets the Thunderbird flag corresponding to an EWS distinguished ID.
+/// Gets the Thunderbird flag corresponding to an Exchange distinguished ID.
 fn distinguished_id_to_flag(id: &&str) -> nsMsgFolderFlagType {
     // The type signature here is a little weird due to being passed directly to
     // `map()`.

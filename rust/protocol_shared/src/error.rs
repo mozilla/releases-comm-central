@@ -7,9 +7,11 @@
 //! Provides an error type that can be shared among protocol implementations
 //! that utilize HTTPS connections to interact with servers.
 
+use http::HeaderValue;
 use nserror::nsresult;
 use oneshot::RecvError;
 use thiserror::Error;
+use url::ParseError;
 
 /// Error types for HTTPS-based protocols.
 #[derive(Debug, Error)]
@@ -31,6 +33,21 @@ pub enum ProtocolError {
 
     #[error("error while waiting for line to release: {0}")]
     OperationReceiver(#[from] RecvError),
+
+    #[error("URL parse error: {0}")]
+    UrlParse(#[from] ParseError),
+
+    #[error("invalid header name: {0:?}")]
+    InvalidHeaderValue(HeaderValue),
+
+    #[error("operation queue error: {0}")]
+    Queue(#[from] operation_queue::Error),
+
+    #[error("an error occurred building the HTTP request: {0}")]
+    HttpBuilder(#[from] http::Error),
+
+    #[error("error in processing response: {message}")]
+    Processing { message: String },
 }
 
 impl From<&ProtocolError> for nsresult {

@@ -3,11 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use mailnews_ui_glue::UserInteractiveServer;
-use url::Url;
-use xpcom::{RefCounted, RefPtr, interfaces::nsIMsgIncomingServer};
+use xpcom::RefCounted;
 
 use crate::{
-    authentication::credentials::{AuthenticationProvider, Credentials},
+    authentication::credentials::AuthenticationProvider,
     operation_sender::observable_server::ObservableServer,
 };
 
@@ -32,17 +31,6 @@ pub trait ServerType:
 impl<T> ServerType for T where
     T: AuthenticationProvider + UserInteractiveServer + ObservableServer + RefCounted
 {
-}
-
-/// Connection details required for HTTPS-based Exchange protocols.
-#[derive(Clone)]
-pub struct ExchangeConnectionDetails {
-    /// The HTTPS endpoint for the protocol.
-    pub endpoint: Url,
-    /// The incoming server used for protocol interaction.
-    pub server: RefPtr<nsIMsgIncomingServer>,
-    /// The credentials required for interacting with the server.
-    pub credentials: Credentials,
 }
 
 /// String used in various parts of both Exchange protocols to represent the

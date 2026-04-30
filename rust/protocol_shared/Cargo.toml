@@ -25,6 +25,7 @@ xpcom_async = { version = "0.1.0", path = "../xpcom_async" }
 moz_task = { version = "0.1.0", path = "../../../xpcom/rust/moz_task" }
 mailnews_string_glue = { version = "0.1.0", path = "../mailnews_string_glue" }
 mailnews_ui_glue = { version = "0.1.0", path = "../mailnews_ui_glue" }
+http = "0.2.9"
 
 [lints]
 workspace = true

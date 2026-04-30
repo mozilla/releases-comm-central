@@ -16,16 +16,13 @@ pub(crate) enum XpComGraphError {
     #[error(transparent)]
     Protocol(#[from] ProtocolError),
 
-    #[error("an error occurred in the interpretation of a Graph API type")]
-    Type(#[from] ms_graph_tb::Error),
+    #[error("an error occurred in the interpretation of a Graph API type: {0}")]
+    Graph(#[from] ms_graph_tb::Error),
 
-    #[error("an error occurred while (de)serializing JSON")]
+    #[error("an error occurred while (de)serializing JSON: {0}")]
     Json(#[from] serde_json::Error),
 
-    #[error("an error occurred building the Graph resource URI.")]
-    Uri,
-
-    #[error("error in processing response")]
+    #[error("error in processing response: {message}")]
     Processing { message: String },
 }
 

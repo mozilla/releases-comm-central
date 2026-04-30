@@ -2,19 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use std::{cell::OnceCell, ffi::c_void};
+use std::{cell::OnceCell, ffi::c_void, sync::Arc};
 
-use nserror::{NS_ERROR_ALREADY_INITIALIZED, NS_ERROR_INVALID_ARG, NS_OK, nsresult};
+use nserror::{
+    NS_ERROR_ALREADY_INITIALIZED, NS_ERROR_INVALID_ARG, NS_ERROR_NOT_INITIALIZED, NS_OK, nsresult,
+};
 use nsstring::{nsACString, nsCString};
 use protocol_shared::{
-    ExchangeConnectionDetails,
-    authentication::credentials::AuthenticationProvider,
+    client::ProtocolClient,
     safe_xpcom::{
         SafeEwsFolderListener, SafeEwsMessageCreateListener, SafeEwsMessageFetchListener,
         SafeEwsMessageSyncListener, SafeEwsSimpleOperationListener, SafeUrlListener, uri::SafeUri,
     },
     xpcom_io,
 };
+
 use thin_vec::ThinVec;
 use url::Url;
 use xpcom::{
@@ -45,7 +47,7 @@ mod outgoing;
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn NS_CreateGraphClient(iid: &nsIID, result: *mut *mut c_void) -> nsresult {
     let instance = XpcomGraphBridge::allocate(InitXpcomGraphBridge {
-        details: OnceCell::default(),
+        client: OnceCell::default(),
     });
 
     unsafe { instance.QueryInterface(iid, result) }
@@ -55,18 +57,30 @@ pub unsafe extern "C" fn NS_CreateGraphClient(iid: &nsIID, result: *mut *mut c_v
 /// between C++ consumers and an async Rust Graph API client.
 #[xpcom::xpcom(implement(IExchangeClient), atomic)]
 pub struct XpcomGraphBridge {
-    details: OnceCell<ExchangeConnectionDetails>,
+    client: OnceCell<Arc<XpComGraphClient<nsIMsgIncomingServer>>>,
 }
 
 impl XpcomGraphBridge {
     xpcom_method!(running => GetRunning() -> bool);
     fn running(&self) -> Result<bool, nsresult> {
-        Err(nserror::NS_ERROR_NOT_IMPLEMENTED)
+        let client = match self.client() {
+            Ok(client) => client,
+            Err(err) if err == NS_ERROR_NOT_INITIALIZED => return Ok(false),
+            Err(err) => return Err(err),
+        };
+
+        Ok(client.running())
     }
 
     xpcom_method!(idle => GetIdle() -> bool);
     fn idle(&self) -> Result<bool, nsresult> {
-        Err(nserror::NS_ERROR_NOT_IMPLEMENTED)
+        let client = match self.client() {
+            Ok(client) => client,
+            Err(err) if err == NS_ERROR_NOT_INITIALIZED => return Ok(false),
+            Err(err) => return Err(err),
+        };
+
+        Ok(client.idle())
     }
 
     xpcom_method!(record_telemetry => RecordTelemetry(server_url: *const nsACString));
@@ -77,6 +91,9 @@ impl XpcomGraphBridge {
     xpcom_method!(initialize => Initialize(
         endpoint: *const nsACString,
         server: *const nsIMsgIncomingServer));
+    // See the documentation for `OperationSender::new()` regarding the use of
+    // `Arc`.
+    #[allow(clippy::arc_with_non_send_sync)]
     fn initialize(
         &self,
         endpoint: &nsACString,
@@ -94,17 +111,12 @@ impl XpcomGraphBridge {
                 .map_err(|_| nserror::NS_ERROR_MALFORMED_URI)?;
             endpoint_path.push("v1.0");
         }
-        let endpoint = endpoint.clone();
 
-        let credentials = server.get_credentials()?;
         let server = RefPtr::new(server);
 
-        self.details
-            .set(ExchangeConnectionDetails {
-                endpoint,
-                server,
-                credentials,
-            })
+        let client = XpComGraphClient::new(server, endpoint)?;
+        self.client
+            .set(Arc::new(client))
             .map_err(|_| NS_ERROR_ALREADY_INITIALIZED)?;
 
         Ok(())
@@ -112,19 +124,17 @@ impl XpcomGraphBridge {
 
     xpcom_method!(shutdown => Shutdown());
     fn shutdown(&self) -> Result<(), nsresult> {
-        // There's currently no shutdown operation for the Graph client.
+        let client = self.client()?;
+        moz_task::spawn_local("shutdown", client.shutdown()).detach();
         Ok(())
     }
 
     xpcom_method!(check_connectivity => CheckConnectivity(listener: *const nsIUrlListener) -> *const nsIURI);
     fn check_connectivity(&self, listener: &nsIUrlListener) -> Result<RefPtr<nsIURI>, nsresult> {
-        let server = self.details.get().unwrap().server.clone();
-        let endpoint = self.details.get().unwrap().endpoint.clone();
+        let client = self.client()?;
 
-        let uri = endpoint.to_string();
+        let uri = client.base_url().to_string();
         let uri = SafeUri::new(uri)?;
-
-        let client = XpComGraphClient::new(server, endpoint);
 
         let listener = SafeUrlListener::new(listener);
 
@@ -154,10 +164,7 @@ impl XpcomGraphBridge {
             Some(sync_state.to_utf8().into_owned())
         };
 
-        let server = self.details.get().unwrap().server.clone();
-        let endpoint = self.details.get().unwrap().endpoint.clone();
-
-        let client = XpComGraphClient::new(server, endpoint);
+        let client = self.client()?;
 
         moz_task::spawn_local(
             "sync_folder_hierarchy",
@@ -179,10 +186,7 @@ impl XpcomGraphBridge {
         parent_id: &nsACString,
         name: &nsACString,
     ) -> Result<(), nsresult> {
-        let server = self.details.get().unwrap().server.clone();
-        let endpoint = self.details.get().unwrap().endpoint.clone();
-
-        let client = XpComGraphClient::new(server, endpoint);
+        let client = self.client()?;
 
         moz_task::spawn_local(
             "create_folder",
@@ -236,10 +240,7 @@ impl XpcomGraphBridge {
         folder_id: &nsACString,
         folder_name: &nsACString,
     ) -> Result<(), nsresult> {
-        let server = self.details.get().unwrap().server.clone();
-        let endpoint = self.details.get().unwrap().endpoint.clone();
-
-        let client = XpComGraphClient::new(server, endpoint);
+        let client = self.client()?;
 
         moz_task::spawn_local(
             "update_folder",
@@ -265,10 +266,7 @@ impl XpcomGraphBridge {
         folder_id: &nsACString,
         sync_state: &nsACString,
     ) -> Result<(), nsresult> {
-        let server = self.details.get().unwrap().server.clone();
-        let endpoint = self.details.get().unwrap().endpoint.clone();
-
-        let client = XpComGraphClient::new(server, endpoint);
+        let client = self.client()?;
 
         let listener = SafeEwsMessageSyncListener::new(listener);
         let folder_id = folder_id.to_utf8().to_string();
@@ -296,10 +294,7 @@ impl XpcomGraphBridge {
         listener: &IExchangeMessageFetchListener,
         id: &nsACString,
     ) -> Result<(), nsresult> {
-        let server = self.details.get().unwrap().server.clone();
-        let endpoint = self.details.get().unwrap().endpoint.clone();
-
-        let client = XpComGraphClient::new(server, endpoint);
+        let client = self.client()?;
 
         let listener = SafeEwsMessageFetchListener::new(listener);
         let id = id.to_utf8().to_string();
@@ -368,10 +363,7 @@ impl XpcomGraphBridge {
         is_read: bool,
         message_stream: &nsIInputStream,
     ) -> Result<(), nsresult> {
-        let server = self.details.get().unwrap().server.clone();
-        let endpoint = self.details.get().unwrap().endpoint.clone();
-
-        let client = XpComGraphClient::new(server, endpoint);
+        let client = self.client()?;
 
         let content = xpcom_io::read_stream(message_stream)?;
 
@@ -401,13 +393,10 @@ impl XpcomGraphBridge {
         destination_folder_id: &nsACString,
         item_ids: &ThinVec<nsCString>,
     ) -> Result<(), nsresult> {
-        let server = self.details.get().unwrap().server.clone();
-        let endpoint = self.details.get().unwrap().endpoint.clone();
+        let client = self.client()?;
 
         let destination_folder_id = destination_folder_id.to_string();
         let item_ids = item_ids.iter().map(ToString::to_string).collect();
-
-        let client = XpComGraphClient::new(server, endpoint);
         let listener = SafeEwsSimpleOperationListener::new(listener);
 
         moz_task::spawn_local(
@@ -444,13 +433,11 @@ impl XpcomGraphBridge {
         destination_folder_id: &nsACString,
         folder_ids: &ThinVec<nsCString>,
     ) -> Result<(), nsresult> {
-        let server = self.details.get().unwrap().server.clone();
-        let endpoint = self.details.get().unwrap().endpoint.clone();
+        let client = self.client()?;
 
         let destination_folder_id = destination_folder_id.to_string();
         let folder_ids = folder_ids.iter().map(ToString::to_string).collect();
 
-        let client = XpComGraphClient::new(server, endpoint);
         let listener = SafeEwsSimpleOperationListener::new(listener);
 
         moz_task::spawn_local(
@@ -502,5 +489,16 @@ impl XpcomGraphBridge {
         _legacy_destination_folder_id: &nsACString,
     ) -> Result<(), nsresult> {
         Err(nserror::NS_ERROR_NOT_IMPLEMENTED)
+    }
+
+    /// Gets a new reference to the Graph client if initialized. The client is
+    /// wrapped into an `Arc`, which is cloned from `self.client` so the
+    /// consumer does not need to clone it again.
+    ///
+    /// If the [`XpcomGraphBridge`] hasn't been initialized yet,
+    /// [`NS_ERROR_NOT_INITIALIZED`] is returned.
+    fn client(&self) -> Result<Arc<XpComGraphClient<nsIMsgIncomingServer>>, nsresult> {
+        let client = self.client.get().ok_or(NS_ERROR_NOT_INITIALIZED)?.clone();
+        Ok(client)
     }
 }

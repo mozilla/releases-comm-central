@@ -106,6 +106,12 @@ function setupBasicGraphTestServer() {
 
   registerCleanupFunction(async () => {
     incomingServer.shutdown();
+    incomingServer.QueryInterface(Ci.IEwsIncomingServer);
+    await TestUtils.waitForCondition(
+      () => !incomingServer.protocolClientRunning,
+      "waiting for the Graph client to shut down"
+    );
+
     graphServer.stop();
   });
 

@@ -10,17 +10,16 @@ use ms_graph_tb::{
     types::{email_address::EmailAddress, message::Message, recipient::Recipient},
 };
 use protocol_shared::{
-    authentication::credentials::AuthenticationProvider,
+    ServerType,
     client::DoOperation,
+    operation_sender::{OperationRequestOptions, TransportSecFailureBehavior},
     outgoing::{OwnedMailbox, SendCapableClient},
     safe_xpcom::{SafeListener, SafeMsgOutgoingListener, SafeUri},
 };
-use xpcom::RefCounted;
 
 use crate::{client::XpComGraphClient, error::XpComGraphError};
 
 struct DoSendMessage<'a> {
-    pub endpoint: &'a url::Url,
     pub listener: &'a SafeMsgOutgoingListener,
     pub mime_content: String,
     pub should_request_dsn: bool,
@@ -28,8 +27,8 @@ struct DoSendMessage<'a> {
     pub server_uri: SafeUri,
 }
 
-impl<ServerT: AuthenticationProvider + RefCounted>
-    DoOperation<XpComGraphClient<ServerT>, XpComGraphError> for DoSendMessage<'_>
+impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError>
+    for DoSendMessage<'_>
 {
     const NAME: &'static str = "send message";
     type Okay = ();
@@ -76,17 +75,37 @@ impl<ServerT: AuthenticationProvider + RefCounted>
         // Send the update request. We don't need to check the response, since
         // it should just be the original message with the added properties (and
         // all we need to send is the ID, which we already have).
-        let endpoint = self.endpoint.as_str();
+        let base_url = client.base_url();
         let request = messages::message_id::Patch::new(
-            endpoint.to_string(),
+            base_url.to_string(),
             message_id.clone(),
             OperationBody::JSON(message_update),
         );
-        client.send_request(request).await?;
+
+        // We don't propagate transport security failures to users here, because
+        // `SafeMsgOutgoingListener::on_send_stop` takes care of identifying
+        // such errors and bubbling them up to the MessageSend module.
+        client
+            .send_request(
+                request,
+                OperationRequestOptions {
+                    transport_sec_failure_behavior: TransportSecFailureBehavior::Silent,
+                    ..Default::default()
+                },
+            )
+            .await?;
 
         // Now tell the server to send the draft message we just created.
-        let request = messages::message_id::send::Post::new(self.endpoint.to_string(), message_id);
-        client.send_request(request).await?;
+        let request = messages::message_id::send::Post::new(base_url.to_string(), message_id);
+        client
+            .send_request(
+                request,
+                OperationRequestOptions {
+                    transport_sec_failure_behavior: TransportSecFailureBehavior::Silent,
+                    ..Default::default()
+                },
+            )
+            .await?;
 
         Ok(())
     }
@@ -100,7 +119,7 @@ impl<ServerT: AuthenticationProvider + RefCounted>
     }
 }
 
-impl<ServerT: AuthenticationProvider + RefCounted> SendCapableClient for XpComGraphClient<ServerT> {
+impl<ServerT: ServerType> SendCapableClient for XpComGraphClient<ServerT> {
     /// Send a message via Graph.
     ///
     /// This first performs a [message creation] request, then a [message send]
@@ -122,7 +141,6 @@ impl<ServerT: AuthenticationProvider + RefCounted> SendCapableClient for XpComGr
         server_uri: SafeUri,
     ) {
         let operation = DoSendMessage {
-            endpoint: &self.endpoint,
             listener: &listener,
             mime_content,
             should_request_dsn,

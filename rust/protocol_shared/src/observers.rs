@@ -117,7 +117,7 @@ impl UrlPrefObserver {
         // Attempt to parse the new value into a `Url`.
         let new_value = new_value.to_string();
         let url = Url::parse(&new_value).map_err(|err| {
-            log::error!("failed to parse new EWS URL: {err}");
+            log::error!("failed to parse new base URL: {err}");
             nserror::NS_ERROR_UNEXPECTED
         })?;
 

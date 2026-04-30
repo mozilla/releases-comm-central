@@ -2,16 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+use std::sync::Arc;
+
 use ms_graph_tb::{
     OperationBody, paths::me::mail_folders::mail_folder_id::child_folders,
     types::mail_folder::MailFolder,
 };
 use protocol_shared::{
-    authentication::credentials::AuthenticationProvider,
+    ServerType,
     client::DoOperation,
     safe_xpcom::{SafeEwsSimpleOperationListener, SafeListener, UseLegacyFallback},
 };
-use xpcom::RefCounted;
 
 use crate::error::XpComGraphError;
 
@@ -22,8 +23,8 @@ struct DoCreateFolder {
     name: String,
 }
 
-impl<ServerT: AuthenticationProvider + RefCounted>
-    DoOperation<XpComGraphClient<ServerT>, XpComGraphError> for DoCreateFolder
+impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError>
+    for DoCreateFolder
 {
     const NAME: &'static str = "create folder";
     type Okay = String;
@@ -35,12 +36,14 @@ impl<ServerT: AuthenticationProvider + RefCounted>
     ) -> Result<Self::Okay, XpComGraphError> {
         let folder_config = MailFolder::new().set_display_name(Some(self.name.clone()));
         let request = child_folders::Post::new(
-            client.endpoint.as_str().to_string(),
+            client.base_url().to_string(),
             self.parent_id.clone(),
             OperationBody::JSON(folder_config),
         );
 
-        let folder = client.send_request_json_response(request).await?;
+        let folder = client
+            .send_request_json_response(request, Default::default())
+            .await?;
         let folder_id = folder.entity().id()?.to_string();
         Ok(folder_id)
     }
@@ -55,9 +58,9 @@ impl<ServerT: AuthenticationProvider + RefCounted>
     fn into_failure_arg(self) {}
 }
 
-impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
+impl<ServerT: ServerType> XpComGraphClient<ServerT> {
     pub(crate) async fn create_folder(
-        self,
+        self: Arc<XpComGraphClient<ServerT>>,
         listener: SafeEwsSimpleOperationListener,
         parent_id: String,
         name: String,

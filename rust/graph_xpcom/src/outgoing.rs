@@ -22,7 +22,7 @@ pub unsafe extern "C" fn nsMsGraphOutgoingServerConstructor(
             .query_interface::<nsIMsgOutgoingServer>()
             .ok_or(nserror::NS_ERROR_UNEXPECTED)?;
 
-        let client = XpComGraphClient::new(outgoing_server, url);
+        let client = XpComGraphClient::new(outgoing_server, url)?;
 
         Ok(client)
     });

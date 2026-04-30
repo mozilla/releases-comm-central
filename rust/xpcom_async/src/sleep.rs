@@ -6,19 +6,21 @@ use std::{
     cell::Cell,
     future::Future,
     task::{Poll, Waker},
+    time::Duration,
 };
 
 use cstr::cstr;
-use nserror::{NS_ERROR_UNEXPECTED, NS_OK, nsresult};
+use nserror::{NS_ERROR_INVALID_ARG, NS_ERROR_UNEXPECTED, NS_OK, nsresult};
 use xpcom::{RefPtr, interfaces::nsITimer, xpcom_method};
 
 /// Sleeps for the specified duration.
 ///
 /// # Errors
 ///
-/// This call will fail if creating or initializing the underlying timer fails.
-pub async fn sleep(duration_in_ms: u32) -> Result<(), nsresult> {
-    SleepTimerFuture(SleepTimer::with_duration(duration_in_ms)?).await;
+/// This call will fail if creating or initializing the underlying timer fails,
+/// or if `duration`'s representation in milliseconds cannot be cast as `u32`.
+pub async fn sleep(duration: Duration) -> Result<(), nsresult> {
+    SleepTimerFuture(SleepTimer::with_duration(duration)?).await;
 
     Ok(())
 }
@@ -44,7 +46,7 @@ struct SleepTimer {
 
 impl SleepTimer {
     /// Creates a new sleep timer with the specified duration.
-    fn with_duration(duration_in_ms: u32) -> Result<RefPtr<Self>, nsresult> {
+    fn with_duration(duration: Duration) -> Result<RefPtr<Self>, nsresult> {
         let timer = xpcom::create_instance::<nsITimer>(cstr!("@mozilla.org/timer;1"))
             .ok_or(NS_ERROR_UNEXPECTED)?;
 
@@ -54,12 +56,15 @@ impl SleepTimer {
             waker: Default::default(),
         });
 
+        // `timer.InitWithCallback` expects an amount of milliseconds as an
+        // `u32` so we need it to be low enough to fit in one.
+        let duration: u32 = duration
+            .as_millis()
+            .try_into()
+            .map_err(|_| NS_ERROR_INVALID_ARG)?;
+
         unsafe {
-            timer.InitWithCallback(
-                sleeper.coerce(),
-                duration_in_ms,
-                nsITimer::TYPE_ONE_SHOT as u32,
-            )
+            timer.InitWithCallback(sleeper.coerce(), duration, nsITimer::TYPE_ONE_SHOT as u32)
         }
         .to_result()?;
 

@@ -2,13 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+use std::sync::Arc;
+
 use ms_graph_tb::{OperationBody, paths::me, types::mail_folder::MailFolder};
 use protocol_shared::{
-    authentication::credentials::AuthenticationProvider,
+    ServerType,
     client::DoOperation,
     safe_xpcom::{SafeEwsSimpleOperationListener, UseLegacyFallback},
 };
-use xpcom::RefCounted;
 
 use crate::{client::XpComGraphClient, error::XpComGraphError};
 
@@ -17,8 +18,8 @@ struct DoUpdateFolder {
     folder_name: String,
 }
 
-impl<ServerT: AuthenticationProvider + RefCounted>
-    DoOperation<XpComGraphClient<ServerT>, XpComGraphError> for DoUpdateFolder
+impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError>
+    for DoUpdateFolder
 {
     const NAME: &str = "update folder";
 
@@ -32,14 +33,16 @@ impl<ServerT: AuthenticationProvider + RefCounted>
     ) -> Result<Self::Okay, XpComGraphError> {
         let patch_body = MailFolder::new().set_display_name(Some(self.folder_name.clone()));
         let request = me::mail_folders::mail_folder_id::Patch::new(
-            client.endpoint.to_string(),
+            client.base_url().to_string(),
             self.folder_id.clone(),
             OperationBody::JSON(patch_body),
         );
 
         // The folder IDs appear to be stable through a rename, so nothing needs
         // to be done with the response here.
-        let _ = client.send_request_json_response(request).await?;
+        let _ = client
+            .send_request_json_response(request, Default::default())
+            .await?;
 
         Ok(())
     }
@@ -57,7 +60,7 @@ impl<ServerT: AuthenticationProvider + RefCounted>
     }
 }
 
-impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
+impl<ServerT: ServerType> XpComGraphClient<ServerT> {
     /// Perform an operation to update a graph folder.
     ///
     /// Note that the only supported attribute to update is currently
@@ -65,7 +68,7 @@ impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
     ///
     /// See <https://learn.microsoft.com/en-us/graph/api/mailfolder-update>
     pub(crate) async fn update_folder(
-        self,
+        self: Arc<XpComGraphClient<ServerT>>,
         folder_id: String,
         folder_name: String,
         listener: SafeEwsSimpleOperationListener,

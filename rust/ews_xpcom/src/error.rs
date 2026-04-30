@@ -9,8 +9,6 @@
 
 use ews::response::ResponseError;
 use nserror::nsresult;
-use oneshot::RecvError;
-use operation_queue::Error as QueueError;
 use protocol_shared::error::ProtocolError;
 use thiserror::Error;
 
@@ -39,12 +37,6 @@ pub(crate) enum XpComEwsError {
 
     #[error("error in processing response")]
     Processing { message: String },
-
-    #[error("could not receive the operation response: {0}")]
-    OperationReceiver(#[from] RecvError),
-
-    #[error("operation queue error: {0}")]
-    Queue(#[from] QueueError),
 }
 
 impl From<&XpComEwsError> for nsresult {
