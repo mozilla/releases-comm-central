@@ -231,8 +231,12 @@ static int MimeMultipartAlternative_flush_children(MimeObject* obj,
       MimeHeaders* hdrs = malt->buffered_hdrs[i];
       char* ct =
           (hdrs ? MimeHeaders_get(hdrs, HEADER_CONTENT_TYPE, true, false) : 0);
-      bool display_part =
-          (i == 0) || (ct && !PL_strncasecmp(ct, "text/calendar", 13));
+      // Non-body types (not text/* or multipart/*) are misplaced attachments; always display them.
+      bool is_non_body_type = ct && PL_strncasecmp(ct, "text/", 5) &&
+                              PL_strncasecmp(ct, "multipart/", 10);
+      bool display_part = (i == 0) ||
+                          (ct && !PL_strncasecmp(ct, "text/calendar", 13)) ||
+                          is_non_body_type;
       MimeMultipartAlternative_display_cached_part(obj, malt->buffered_hdrs[i],
                                                    malt->part_buffers[i],
                                                    do_display && display_part);
@@ -497,7 +501,9 @@ static int MimeMultipartAlternative_display_cached_part(
   bool saved_first_part_written_p = false;
   bool saved_post_header_html_run_p = false;
   bool saved_first_data_written_p = false;
-  if (!do_display) {
+  // Skip noop when part_to_load is set; noop would discard the requested part's data.
+  bool suppress_output = !do_display && !obj->options->part_to_load;
+  if (suppress_output) {
     obj->options->output_fn = MimeMultipartAlternative_noopOutputFn;
     if (obj->options->state) {
       saved_separator_queued_p = obj->options->state->separator_queued_p;
@@ -560,7 +566,7 @@ static int MimeMultipartAlternative_display_cached_part(
 
   /* Restore options to what parent classes expects. */
   obj->options->output_fn = old_output_fn;
-  if (!do_display && obj->options->state) {
+  if (suppress_output && obj->options->state) {
     obj->options->state->separator_queued_p = saved_separator_queued_p;
     obj->options->state->separator_suppressed_p = saved_separator_suppressed_p;
     obj->options->state->first_part_written_p = saved_first_part_written_p;
