@@ -42,7 +42,7 @@ add_task(async function test_virtual_folder_selection_tree() {
   EventUtils.synthesizeMouseAtCenter(
     document.getElementById("menu_File"),
     {},
-    document.getElementById("menu_File").ownerGlobal
+    document.getElementById("menu_File").documentGlobal
   );
   await click_menus_in_sequence(document.getElementById("menu_FilePopup"), [
     { id: "menu_New" },
@@ -62,7 +62,7 @@ async function subtest_create_virtual_folder(vfc) {
   EventUtils.synthesizeMouseAtCenter(
     vfc.document.getElementById("folderListPicker"),
     {},
-    vfc.document.getElementById("folderListPicker").ownerGlobal
+    vfc.document.getElementById("folderListPicker").documentGlobal
   );
   await dialogPromise;
 
@@ -96,7 +96,7 @@ add_task(async function test_offline_sync_folder_selection_tree() {
   EventUtils.synthesizeMouseAtCenter(
     document.getElementById("menu_File"),
     {},
-    document.getElementById("menu_File").ownerGlobal
+    document.getElementById("menu_File").documentGlobal
   );
   await click_menus_in_sequence(document.getElementById("menu_FilePopup"), [
     { id: "offlineMenuItem" },
@@ -117,7 +117,7 @@ async function subtest_offline_sync(osc) {
   EventUtils.synthesizeMouseAtCenter(
     osc.document.getElementById("select"),
     {},
-    osc.document.getElementById("select").ownerGlobal
+    osc.document.getElementById("select").documentGlobal
   );
   await dialogPromise;
 

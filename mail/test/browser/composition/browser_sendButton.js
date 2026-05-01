@@ -108,7 +108,7 @@ add_task(async function test_send_enabled_manual_address() {
 
   // When the addressee is not in To, Cc, Bcc or Newsgroup, disable Send again.
   clear_recipients(cwc);
-  EventUtils.synthesizeMouseAtCenter(menuButton, {}, menuButton.ownerGlobal);
+  EventUtils.synthesizeMouseAtCenter(menuButton, {}, menuButton.documentGlobal);
   await new Promise(resolve => setTimeout(resolve));
   await BrowserTestUtils.waitForPopupEvent(menu, "shown");
   menu.activateItem(
@@ -133,7 +133,7 @@ add_task(async function test_send_enabled_manual_address() {
   check_send_commands_state(cwc, false);
 
   const ccShow = cwc.document.getElementById("addr_ccShowAddressRowButton");
-  EventUtils.synthesizeMouseAtCenter(ccShow, {}, ccShow.ownerGlobal);
+  EventUtils.synthesizeMouseAtCenter(ccShow, {}, ccShow.documentGlobal);
   await new Promise(resolve => setTimeout(resolve));
   check_send_commands_state(cwc, false);
 
@@ -141,7 +141,7 @@ add_task(async function test_send_enabled_manual_address() {
   EventUtils.synthesizeMouseAtCenter(
     get_first_pill(cwc),
     {},
-    get_first_pill(cwc).ownerGlobal
+    get_first_pill(cwc).documentGlobal
   );
   await new Promise(resolve => setTimeout(resolve));
   // Delete the selected pill.
@@ -188,7 +188,7 @@ add_task(async function test_send_enabled_manual_address() {
   EventUtils.synthesizeMouseAtCenter(
     newsgroupsButton,
     {},
-    newsgroupsButton.ownerGlobal
+    newsgroupsButton.documentGlobal
   );
   await new Promise(resolve => setTimeout(resolve));
 

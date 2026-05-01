@@ -134,7 +134,7 @@ async function subtest(row, expectedDisplayed, expectedSource) {
   const theContent = viewSourceWin.document.getElementById("content");
 
   // Click the new window to make it receive further events properly.
-  EventUtils.synthesizeMouseAtCenter(theContent, {}, theContent.ownerGlobal);
+  EventUtils.synthesizeMouseAtCenter(theContent, {}, theContent.documentGlobal);
   await new Promise(resolve => setTimeout(resolve));
 
   // We can't use the menu on macOS.
@@ -142,7 +142,7 @@ async function subtest(row, expectedDisplayed, expectedSource) {
     const doc = theContent.contentDocument;
 
     const menuView = viewSourceWin.document.getElementById("menu_view");
-    EventUtils.synthesizeMouseAtCenter(menuView, {}, menuView.ownerGlobal);
+    EventUtils.synthesizeMouseAtCenter(menuView, {}, menuView.documentGlobal);
     await BrowserTestUtils.waitForPopupEvent(
       viewSourceWin.document.getElementById("viewmenu-popup"),
       "shown"

@@ -82,7 +82,7 @@ add_task(async function test_resetState() {
 
 add_task(async function test_checkValidEmailForm() {
   subview.setState();
-  EventUtils.synthesizeMouseAtCenter(email, {}, subview.ownerGlobal);
+  EventUtils.synthesizeMouseAtCenter(email, {}, subview.documentGlobal);
   // Windows 64 bit test builds need focus to be called on the input for
   // tests to pass.
   email.focus();
@@ -199,7 +199,7 @@ add_task(async function test_manualConfigEvent() {
   EventUtils.synthesizeMouseAtCenter(
     manualConfigButton,
     {},
-    subview.ownerGlobal
+    subview.documentGlobal
   );
 
   await editConfigurationEvent;

@@ -56,7 +56,7 @@ add_task(async function test_check_vcard_icon() {
   // Click icon on the vcard block.
   const vcard =
     messageWindow.content.document.querySelector(".moz-vcard-badge");
-  EventUtils.synthesizeMouseAtCenter(vcard, {}, vcard.ownerGlobal);
+  EventUtils.synthesizeMouseAtCenter(vcard, {}, vcard.documentGlobal);
   await tabPromise;
   await TestUtils.waitForCondition(
     () => Services.focus.activeWindow == window,

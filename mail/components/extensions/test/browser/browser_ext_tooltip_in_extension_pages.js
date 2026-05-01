@@ -8,7 +8,7 @@ let gAccount, gSubFolders, gMessages;
 
 async function showTooltip(elementSelector, tooltip, browser, description) {
   Assert.ok(!!tooltip, "tooltip element should exist");
-  tooltip.ownerGlobal.windowUtils.disableNonTestMouseEvents(true);
+  tooltip.documentGlobal.windowUtils.disableNonTestMouseEvents(true);
   try {
     while (tooltip.state != "open") {
       // We first have to click on the element, otherwise a mousemove event will not
@@ -39,7 +39,7 @@ async function showTooltip(elementSelector, tooltip, browser, description) {
       }
     }
   } finally {
-    tooltip.ownerGlobal.windowUtils.disableNonTestMouseEvents(false);
+    tooltip.documentGlobal.windowUtils.disableNonTestMouseEvents(false);
   }
 }
 

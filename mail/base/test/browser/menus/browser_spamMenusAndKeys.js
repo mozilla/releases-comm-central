@@ -192,7 +192,7 @@ async function subtestHeaderButton(messages, button, aboutMessageBrowser) {
   }
 
   let changePromise = promiseScoreChanged(messages.at(-1));
-  EventUtils.synthesizeMouseAtCenter(button, {}, button.ownerGlobal);
+  EventUtils.synthesizeMouseAtCenter(button, {}, button.documentGlobal);
   await changePromise;
   if (messages.length == 1) {
     await messageLoadedIn(aboutMessageBrowser);
@@ -261,7 +261,7 @@ async function subtestToolbarButton(messages, button) {
 
   // Mark as spam.
   let changePromise = promiseScoreChanged(messages.at(-1));
-  EventUtils.synthesizeMouseAtCenter(button, {}, button.ownerGlobal);
+  EventUtils.synthesizeMouseAtCenter(button, {}, button.documentGlobal);
   await changePromise;
   for (const message of messages) {
     Assert.equal(message.getStringProperty("junkscore"), "100");
@@ -270,7 +270,7 @@ async function subtestToolbarButton(messages, button) {
 
   // Mark as not spam.
   changePromise = promiseScoreChanged(messages[0]);
-  EventUtils.synthesizeMouseAtCenter(button, {}, button.ownerGlobal);
+  EventUtils.synthesizeMouseAtCenter(button, {}, button.documentGlobal);
   await changePromise;
   for (const message of messages) {
     Assert.equal(message.getStringProperty("junkscore"), "0");
@@ -571,7 +571,7 @@ async function promisePopupClosed(markPopup) {
     parentPopup.hidePopup();
   }
   await BrowserTestUtils.waitForPopupEvent(parentPopup, "hidden");
-  await SimpleTest.promiseFocus(markPopup.ownerGlobal.top);
+  await SimpleTest.promiseFocus(markPopup.documentGlobal.top);
   await TestUtils.waitForTick();
 }
 

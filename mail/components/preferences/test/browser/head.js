@@ -17,7 +17,11 @@ async function openNewPrefsTab(paneID, scrollPaneTo, otherArgs) {
   );
 
   const prefsDocument = prefsTabMode.tabs[0].browser.contentDocument;
-  is(prefsWindow, prefsDocument.ownerGlobal, "prefsWindow should be correct");
+  is(
+    prefsWindow,
+    prefsDocument.documentGlobal,
+    "prefsWindow should be correct"
+  );
   window.resizeTo(screen.availWidth, screen.availHeight);
 
   // If we don't wait here for other scripts to run, they
@@ -57,7 +61,7 @@ async function openExistingPrefsTab(paneID, scrollPaneTo, otherArgs) {
   is(prefsTabMode.tabs.length, 1, "Prefs tab is open");
 
   const prefsDocument = prefsTabMode.tabs[0].browser.contentDocument;
-  const prefsWindow = prefsDocument.ownerGlobal;
+  const prefsWindow = prefsDocument.documentGlobal;
   window.resizeTo(screen.availWidth, screen.availHeight);
 
   if (paneID && prefsWindow.gLastCategory.category != paneID) {
@@ -343,7 +347,7 @@ async function promiseSubDialog(
   EventUtils.synthesizeMouseAtCenter(
     buttonToClick,
     {},
-    buttonToClick.ownerGlobal
+    buttonToClick.documentGlobal
   );
   const dialogWindow = await openPromise;
   const dialogDocument = dialogWindow.document;

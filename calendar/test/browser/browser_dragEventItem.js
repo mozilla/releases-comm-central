@@ -196,8 +196,8 @@ add_task(async function testMonthViewDragEventItem() {
       dayBox,
       undefined,
       ctrlDrag ? "copy" : "move",
-      sourceItem.ownerGlobal,
-      dayBox.ownerGlobal
+      sourceItem.documentGlobal,
+      dayBox.documentGlobal
     );
     EventUtils.synthesizeDropAfterDragOver(result, dataTransfer, dayBox);
     dragService.getCurrentSession().endDragSession(true);
@@ -256,8 +256,8 @@ add_task(async function testMultiWeekViewDragEventItem() {
       dayBox,
       undefined,
       ctrlDrag ? "copy" : "move",
-      sourceItem.ownerGlobal,
-      dayBox.ownerGlobal
+      sourceItem.documentGlobal,
+      dayBox.documentGlobal
     );
     EventUtils.synthesizeDropAfterDragOver(result, dataTransfer, dayBox);
     dragService.getCurrentSession().endDragSession(true);

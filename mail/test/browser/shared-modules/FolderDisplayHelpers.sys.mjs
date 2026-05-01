@@ -636,7 +636,7 @@ export async function select_click_row(aViewIndex) {
   aViewIndex = _normalize_view_index(aViewIndex);
 
   const row = await _get_row_at_index(aViewIndex);
-  EventUtils.synthesizeMouseAtCenter(row, {}, row.ownerGlobal);
+  EventUtils.synthesizeMouseAtCenter(row, {}, row.documentGlobal);
   await TestUtils.waitForTick();
 
   await wait_for_message_display_completion(undefined, true);
@@ -1117,7 +1117,7 @@ export async function delete_via_popup() {
     // context menu items on macos.
     ctxDelete.click();
   } else {
-    EventUtils.synthesizeMouseAtCenter(ctxDelete, {}, ctxDelete.ownerGlobal);
+    EventUtils.synthesizeMouseAtCenter(ctxDelete, {}, ctxDelete.documentGlobal);
   }
 
   // for reasons unknown, the pop-up does not close itself?

@@ -64,7 +64,7 @@ add_setup(async function () {
     gTab.browser.contentWindow.document.getElementById("contentFrame");
 
   tabDocument = iframe.contentDocument;
-  tabWindow = iframe.contentDocument.ownerGlobal;
+  tabWindow = iframe.contentDocument.documentGlobal;
 });
 
 /**
@@ -122,7 +122,7 @@ add_task(async function generate_new_key() {
   EventUtils.synthesizeMouseAtCenter(
     doc.getElementById("keygenDoesNotExpire"),
     {},
-    dialog.ownerGlobal
+    dialog.documentGlobal
   );
 
   const wizardOverlay = doc.getElementById("wizardOverlay");
@@ -144,7 +144,7 @@ add_task(async function generate_new_key() {
 
   // Confirm the generation of the new key.
   const confirmButton = doc.getElementById("openPgpKeygenConfirmButton");
-  EventUtils.synthesizeMouseAtCenter(confirmButton, {}, dialog.ownerGlobal);
+  EventUtils.synthesizeMouseAtCenter(confirmButton, {}, dialog.documentGlobal);
 
   // Wait for the subdialog to close.
   info("Waiting for subdialog unload");
@@ -195,7 +195,7 @@ add_task(async function import_secret_key() {
   EventUtils.synthesizeMouseAtCenter(
     doc.getElementById("importOpenPgp"),
     {},
-    dialog.ownerGlobal
+    dialog.documentGlobal
   );
 
   const importView = doc.getElementById("wizardImportKey");
@@ -225,7 +225,7 @@ add_task(async function import_secret_key() {
   const importButton = doc
     .getElementById("importKeyIntro")
     .querySelector("button");
-  EventUtils.synthesizeMouseAtCenter(importButton, {}, dialog.ownerGlobal);
+  EventUtils.synthesizeMouseAtCenter(importButton, {}, dialog.documentGlobal);
 
   // The container with the listed keys to import should be visible.
   await BrowserTestUtils.waitForCondition(
@@ -315,7 +315,7 @@ add_task(async function add_external_key() {
   EventUtils.synthesizeMouseAtCenter(
     doc.getElementById("externalOpenPgp"),
     {},
-    dialog.ownerGlobal
+    dialog.documentGlobal
   );
 
   const externalView = doc.getElementById("wizardExternalKey");
@@ -354,7 +354,7 @@ add_task(async function add_external_key() {
   const listItemCount = keyListRadio.itemCount + 1;
 
   const importButton = doc.getElementById("importPublicKeyButton");
-  EventUtils.synthesizeMouseAtCenter(importButton, {}, dialog.ownerGlobal);
+  EventUtils.synthesizeMouseAtCenter(importButton, {}, dialog.documentGlobal);
 
   // The container with the listed keys to import should be visible.
   await BrowserTestUtils.waitForCondition(

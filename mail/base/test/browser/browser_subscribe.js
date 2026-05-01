@@ -593,18 +593,18 @@ async function clickTreeRow(tree, index) {
   // Ensure the layout is completely flushed before we calculate the click
   // coordinates.
   await new Promise(r =>
-    tree.ownerGlobal.requestAnimationFrame(() =>
-      tree.ownerGlobal.requestAnimationFrame(r)
+    tree.documentGlobal.requestAnimationFrame(() =>
+      tree.documentGlobal.requestAnimationFrame(r)
     )
   );
 
   EventUtils.synthesizeMouseAtCenter(
     tree.getRowAtIndex(index).querySelector('input[type="checkbox"]'),
     {},
-    tree.ownerGlobal
+    tree.documentGlobal
   );
 
   // Yield to the event loop so the web component can process the click
   // and update the TreeDataRow properties before we run our assertions.
-  await new Promise(r => tree.ownerGlobal.setTimeout(r));
+  await new Promise(r => tree.documentGlobal.setTimeout(r));
 }

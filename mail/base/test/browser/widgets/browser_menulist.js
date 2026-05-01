@@ -13,7 +13,7 @@ add_task(async () => {
     openContentTab(TEST_DOCUMENT_URL);
   });
   Assert.equal(testDocument.URL, TEST_DOCUMENT_URL);
-  const testWindow = testDocument.ownerGlobal;
+  const testWindow = testDocument.documentGlobal;
   await testWindow.customElements.whenDefined("menulist-editable");
   const MENULIST_CLASS = testWindow.customElements.get("menulist");
   const MENULIST_EDITABLE_CLASS =

@@ -169,7 +169,7 @@ add_task(async function test_optionAndAccountSelectFormSubmission() {
   );
   backButton.scrollIntoView({ block: "center" });
   await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-  EventUtils.synthesizeMouseAtCenter(backButton, {}, abView.ownerGlobal);
+  EventUtils.synthesizeMouseAtCenter(backButton, {}, abView.documentGlobal);
 
   // After clicking Back, the account-select subview may be hidden OR removed.
   Assert.report(
@@ -208,7 +208,7 @@ add_task(async function test_optionAndAccountSelectFormSubmission() {
   EventUtils.synthesizeMouseAtCenter(
     optionSelectSubview.querySelector("#syncExistingAccounts"),
     {},
-    abView.ownerGlobal
+    abView.documentGlobal
   );
   await TestUtils.waitForCondition(
     () => accountSelectSubview.querySelector('button[value="test@test.com"]'),
@@ -241,7 +241,7 @@ add_task(async function test_optionAndAccountSelectFormSubmission() {
   );
   backButton.scrollIntoView({ block: "center" });
   await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-  EventUtils.synthesizeMouseAtCenter(backButton, {}, abView.ownerGlobal);
+  EventUtils.synthesizeMouseAtCenter(backButton, {}, abView.documentGlobal);
 
   Assert.report(
     false,
@@ -284,7 +284,7 @@ add_task(async function test_optionAndAccountSelectFormSubmission() {
   );
   accountButton.scrollIntoView({ block: "center" });
   await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-  EventUtils.synthesizeMouseAtCenter(accountButton, {}, abView.ownerGlobal);
+  EventUtils.synthesizeMouseAtCenter(accountButton, {}, abView.documentGlobal);
 
   Assert.report(
     false,
@@ -331,7 +331,7 @@ add_task(async function test_configUpdatedEvent() {
   EventUtils.synthesizeMouseAtCenter(
     abView.querySelector("#addRemoteAddressBook"),
     {},
-    abView.ownerGlobal
+    abView.documentGlobal
   );
   await viewSubmit;
 
@@ -393,14 +393,14 @@ add_task(async function test_syncAllAddressBooks() {
     "Second address book should have called create"
   );
   Assert.equal(
-    abView.ownerGlobal.toAddressBook.callCount,
+    abView.documentGlobal.toAddressBook.callCount,
     1,
     "Should have asked to open address book"
   );
 
   abView.removeTestAccount(testAccount);
   await abView.reset();
-  abView.ownerGlobal.toAddressBook.resetHistory();
+  abView.documentGlobal.toAddressBook.resetHistory();
 });
 
 add_task(async function test_syncOneAddressBook() {
@@ -419,7 +419,7 @@ add_task(async function test_syncOneAddressBook() {
   EventUtils.synthesizeMouseAtCenter(
     syncSubview.querySelector("#addressBookAccountsContainer input"),
     {},
-    abView.ownerGlobal
+    abView.documentGlobal
   );
 
   Assert.ok(!selectAllInput.checked, "Select all input should not be checked");
@@ -447,14 +447,14 @@ add_task(async function test_syncOneAddressBook() {
     "Second address book should have called create"
   );
   Assert.equal(
-    abView.ownerGlobal.toAddressBook.callCount,
+    abView.documentGlobal.toAddressBook.callCount,
     1,
     "Should have asked to open address book"
   );
 
   abView.removeTestAccount(testAccount);
   await abView.reset();
-  abView.ownerGlobal.toAddressBook.resetHistory();
+  abView.documentGlobal.toAddressBook.resetHistory();
 });
 
 add_task(async function test_syncNoAddressBooks() {
@@ -470,7 +470,7 @@ add_task(async function test_syncNoAddressBooks() {
   );
 
   // Uncheck the first address book.
-  EventUtils.synthesizeMouseAtCenter(selectAllInput, {}, abView.ownerGlobal);
+  EventUtils.synthesizeMouseAtCenter(selectAllInput, {}, abView.documentGlobal);
 
   Assert.ok(!selectAllInput.checked, "Select all input should not be checked");
   Assert.ok(
@@ -497,14 +497,14 @@ add_task(async function test_syncNoAddressBooks() {
     "Second address book shouldn't have called create"
   );
   Assert.equal(
-    abView.ownerGlobal.toAddressBook.callCount,
+    abView.documentGlobal.toAddressBook.callCount,
     1,
     "Should have asked to open address book"
   );
 
   abView.removeTestAccount(testAccount);
   await abView.reset();
-  abView.ownerGlobal.toAddressBook.resetHistory();
+  abView.documentGlobal.toAddressBook.resetHistory();
 });
 
 add_task(async function test_localAddressBookForwardEventAndCreation() {
@@ -515,7 +515,7 @@ add_task(async function test_localAddressBookForwardEventAndCreation() {
 
   const button = optionSelect.querySelector("#newLocalAddressBook");
 
-  EventUtils.synthesizeMouseAtCenter(button, {}, abView.ownerGlobal);
+  EventUtils.synthesizeMouseAtCenter(button, {}, abView.documentGlobal);
 
   let localForm;
 
@@ -526,7 +526,7 @@ add_task(async function test_localAddressBookForwardEventAndCreation() {
 
   const input = localForm.querySelector("input");
 
-  EventUtils.synthesizeMouseAtCenter(input, {}, abView.ownerGlobal);
+  EventUtils.synthesizeMouseAtCenter(input, {}, abView.documentGlobal);
 
   EventUtils.sendString("test");
 
@@ -610,7 +610,7 @@ async function subtest_viewSyncAddressBooks(accountSelectSubview) {
     accountSelectSubview,
     "submit"
   );
-  EventUtils.synthesizeMouseAtCenter(accountButton, {}, abView.ownerGlobal);
+  EventUtils.synthesizeMouseAtCenter(accountButton, {}, abView.documentGlobal);
   await formSubmissionPromise;
 
   const syncSubview = abView.querySelector("address-book-sync");
@@ -644,6 +644,6 @@ async function subtest_clickContinue() {
     abView.querySelector("account-hub-footer"),
     "forward"
   );
-  EventUtils.synthesizeMouseAtCenter(forwardButton, {}, abView.ownerGlobal);
+  EventUtils.synthesizeMouseAtCenter(forwardButton, {}, abView.documentGlobal);
   await formSubmissionPromise;
 }

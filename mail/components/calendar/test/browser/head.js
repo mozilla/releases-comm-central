@@ -301,7 +301,7 @@ async function showEvent({
   clearTimeout(timeout);
   eventBox.ownerDocument.removeEventListener("scrollend", resolve, true);
 
-  await new Promise(eventBox.ownerGlobal.requestAnimationFrame);
+  await new Promise(eventBox.documentGlobal.requestAnimationFrame);
 
   return eventBox;
 }

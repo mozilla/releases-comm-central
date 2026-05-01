@@ -115,7 +115,7 @@ add_task(async function test_enter_some_stuff() {
   const plusButton = swc.document.querySelector(
     "#searchRow0 button[label='+']"
   );
-  EventUtils.synthesizeMouseAtCenter(plusButton, {}, plusButton.ownerGlobal);
+  EventUtils.synthesizeMouseAtCenter(plusButton, {}, plusButton.documentGlobal);
 
   // - put "bar" in it
   let searchVal1 = swc.document.getElementById("searchVal1");
@@ -138,7 +138,7 @@ add_task(async function test_go_search() {
   EventUtils.synthesizeMouseAtCenter(
     swc.document.getElementById("search-button"),
     {},
-    swc.document.getElementById("search-button").ownerGlobal
+    swc.document.getElementById("search-button").documentGlobal
   );
   await wait_for_all_messages_to_load(swc);
 
@@ -157,7 +157,7 @@ add_task(async function test_go_search() {
   EventUtils.synthesizeMouseAtCenter(
     swc.document.getElementById("saveAsVFButton"),
     {},
-    swc.document.getElementById("saveAsVFButton").ownerGlobal
+    swc.document.getElementById("saveAsVFButton").documentGlobal
   );
   await dialogPromise;
 });

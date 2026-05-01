@@ -98,7 +98,7 @@ add_task(async function testOverLink() {
   EventUtils.synthesizeMouseAtCenter(
     link,
     { type: "mouseover" },
-    link.ownerGlobal
+    link.documentGlobal
   );
   await hovered;
 
@@ -112,7 +112,7 @@ add_task(async function testOverLink() {
   EventUtils.synthesizeMouseAtCenter(
     threadTree,
     { type: "mouseover" },
-    threadTree.ownerGlobal
+    threadTree.documentGlobal
   );
   await unhovered;
 

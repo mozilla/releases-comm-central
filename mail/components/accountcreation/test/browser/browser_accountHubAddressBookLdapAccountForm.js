@@ -92,7 +92,7 @@ add_task(async function test_formUpdatedFromInput() {
     false,
     () => directoryName.value === "test"
   );
-  EventUtils.sendString("test", subview.ownerGlobal);
+  EventUtils.sendString("test", subview.documentGlobal);
   let invalidUpdateEvent = await updateEvent;
 
   Assert.ok(
@@ -106,14 +106,14 @@ add_task(async function test_formUpdatedFromInput() {
   );
 
   // Move to hostname input.
-  EventUtils.synthesizeKey("KEY_Tab", {}, subview.ownerGlobal);
+  EventUtils.synthesizeKey("KEY_Tab", {}, subview.documentGlobal);
   updateEvent = BrowserTestUtils.waitForEvent(
     subview,
     "config-updated",
     false,
     () => hostname.value === "example.com"
   );
-  EventUtils.sendString("example.com", subview.ownerGlobal);
+  EventUtils.sendString("example.com", subview.documentGlobal);
   invalidUpdateEvent = await updateEvent;
 
   Assert.equal(
@@ -132,14 +132,14 @@ add_task(async function test_formUpdatedFromInput() {
   );
 
   // Move to port input.
-  EventUtils.synthesizeKey("KEY_Tab", {}, subview.ownerGlobal);
+  EventUtils.synthesizeKey("KEY_Tab", {}, subview.documentGlobal);
   updateEvent = BrowserTestUtils.waitForEvent(
     subview,
     "config-updated",
     false,
     () => port.value === "389"
   );
-  EventUtils.sendString("389", subview.ownerGlobal);
+  EventUtils.sendString("389", subview.documentGlobal);
   const validUpdateEvent = await updateEvent;
 
   Assert.equal(port.ariaInvalid, "false", "Port should be valid with a value");
@@ -163,7 +163,7 @@ add_task(async function test_invalidHost() {
   port.valueAsNumber = 389;
 
   // Move to hostname input.
-  EventUtils.synthesizeKey("KEY_Tab", {}, subview.ownerGlobal);
+  EventUtils.synthesizeKey("KEY_Tab", {}, subview.documentGlobal);
   const updated = BrowserTestUtils.waitForEvent(
     subview,
     "config-updated",
@@ -188,7 +188,7 @@ add_task(async function test_invalidPort() {
   hostname.value = "example.com";
 
   // Move to port input.
-  EventUtils.synthesizeMouseAtCenter(port, {}, subview.ownerGlobal);
+  EventUtils.synthesizeMouseAtCenter(port, {}, subview.documentGlobal);
   port.focus();
   const updated = BrowserTestUtils.waitForEvent(
     subview,
@@ -223,7 +223,7 @@ add_task(async function test_showHideAdvancedConfig() {
   EventUtils.synthesizeMouseAtCenter(
     advancedConfigButton,
     {},
-    subview.ownerGlobal
+    subview.documentGlobal
   );
   await BrowserTestUtils.waitForMutationCondition(
     formBody,
@@ -264,7 +264,7 @@ add_task(async function test_showHideAdvancedConfig() {
     EventUtils.synthesizeMouseAtCenter(
       simpleConfigButton,
       {},
-      subview.ownerGlobal
+      subview.documentGlobal
     );
     subview.scrollBy({
       top: 900,
@@ -296,7 +296,7 @@ add_task(async function test_maxResultsValidity() {
   EventUtils.synthesizeMouseAtCenter(
     advancedConfigButton,
     {},
-    subview.ownerGlobal
+    subview.documentGlobal
   );
   await BrowserTestUtils.waitForMutationCondition(
     subview.querySelector("#ldapFormBody"),
@@ -318,7 +318,7 @@ add_task(async function test_maxResultsValidity() {
   const maxResults = subview.querySelector("#maxResults");
 
   // Move to max results input.
-  EventUtils.synthesizeMouseAtCenter(maxResults, {}, subview.ownerGlobal);
+  EventUtils.synthesizeMouseAtCenter(maxResults, {}, subview.documentGlobal);
 
   let updated = BrowserTestUtils.waitForEvent(
     subview,
@@ -365,7 +365,7 @@ add_task(async function test_captureStateSimple() {
     false,
     () => directoryName.value === "test"
   );
-  EventUtils.sendString("test", subview.ownerGlobal);
+  EventUtils.sendString("test", subview.documentGlobal);
   await updateEvent;
 
   const bindDnInput = subview.querySelector("#bindDN");
@@ -401,7 +401,7 @@ add_task(async function test_captureStateSimple() {
     false,
     event => event.target.checked
   );
-  EventUtils.synthesizeMouseAtCenter(sslSwitch, {}, subview.ownerGlobal);
+  EventUtils.synthesizeMouseAtCenter(sslSwitch, {}, subview.documentGlobal);
   await checkEvent;
 
   capturedState = subview.captureState();
@@ -426,7 +426,7 @@ add_task(async function test_captureStateAdvanced() {
   EventUtils.synthesizeMouseAtCenter(
     advancedConfigButton,
     {},
-    subview.ownerGlobal
+    subview.documentGlobal
   );
   await BrowserTestUtils.waitForMutationCondition(
     subview.querySelector("#ldapFormBody"),
@@ -510,14 +510,18 @@ add_task(async function test_captureStateAdvanced() {
   const searchFilterInput = subview.querySelector("#search");
   searchFilterInput.value = "Test Filter";
 
-  EventUtils.synthesizeMouseAtCenter(maxResultsInput, {}, subview.ownerGlobal);
+  EventUtils.synthesizeMouseAtCenter(
+    maxResultsInput,
+    {},
+    subview.documentGlobal
+  );
   const updateEvent = BrowserTestUtils.waitForEvent(
     subview,
     "config-updated",
     false,
     () => maxResultsInput.valueAsNumber === 100
   );
-  EventUtils.sendString("100", subview.ownerGlobal);
+  EventUtils.sendString("100", subview.documentGlobal);
   await updateEvent;
 
   capturedState = subview.captureState();

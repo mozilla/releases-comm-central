@@ -61,7 +61,7 @@ async function clickViewMessagesItem(id) {
   EventUtils.synthesizeMouseAtCenter(
     document.getElementById("menu_View"),
     {},
-    document.getElementById("menu_View").ownerGlobal
+    document.getElementById("menu_View").documentGlobal
   );
   await click_menus_in_sequence(document.getElementById("menu_View_Popup"), [
     { id: "viewMessagesMenu" },

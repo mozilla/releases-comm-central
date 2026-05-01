@@ -135,10 +135,10 @@ async function subtest_account_color(tab, account, skipCompose = false) {
     tab.browser.contentWindow.document.getElementById("contentFrame");
   const inputColor = iframe.contentDocument.getElementById("serverColor");
 
-  SpecialPowers.MockColorPicker.init(inputColor.ownerGlobal);
+  SpecialPowers.MockColorPicker.init(inputColor.documentGlobal);
   SpecialPowers.MockColorPicker.returnColor = customColor;
   const inputPromise = BrowserTestUtils.waitForEvent(inputColor, "input");
-  EventUtils.synthesizeMouseAtCenter(inputColor, {}, inputColor.ownerGlobal);
+  EventUtils.synthesizeMouseAtCenter(inputColor, {}, inputColor.documentGlobal);
   await inputPromise;
   SpecialPowers.MockColorPicker.cleanup();
 
@@ -179,7 +179,7 @@ async function subtest_account_color(tab, account, skipCompose = false) {
   EventUtils.synthesizeMouseAtCenter(
     iframe.contentDocument.getElementById("resetColor"),
     {},
-    inputColor.ownerGlobal
+    inputColor.documentGlobal
   );
 
   Assert.ok(

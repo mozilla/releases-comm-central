@@ -260,7 +260,7 @@ add_task(async function test_rename_attachment() {
   // Now, rename the attachment.
   const bucket = cwc.document.getElementById("attachmentBucket");
   const node = bucket.querySelector("richlistitem.attachmentItem");
-  EventUtils.synthesizeMouseAtCenter(node, {}, node.ownerGlobal);
+  EventUtils.synthesizeMouseAtCenter(node, {}, node.documentGlobal);
   const dialogPromise = BrowserTestUtils.promiseAlertDialog(null, undefined, {
     callback: subtest_rename_attachment,
   });
@@ -300,7 +300,11 @@ add_task(async function test_open_attachment() {
     "chrome://mozapps/content/downloads/unknownContentType.xhtml",
     { callback: subtest_open_attachment }
   );
-  EventUtils.synthesizeMouseAtCenter(node, { clickCount: 2 }, node.ownerGlobal);
+  EventUtils.synthesizeMouseAtCenter(
+    node,
+    { clickCount: 2 },
+    node.documentGlobal
+  );
   await dialogPromise;
 
   await close_compose_window(cwc);
@@ -416,7 +420,7 @@ async function subtest_reordering(
       EventUtils.synthesizeMouseAtCenter(
         aCwc.document.getElementById(action.button),
         {},
-        aCwc.document.getElementById(action.button).ownerGlobal
+        aCwc.document.getElementById(action.button).documentGlobal
       );
     } else if ("key" in action) {
       EventUtils.synthesizeKey(action.key, action.key_modifiers, aCwc);
@@ -483,7 +487,7 @@ add_task(async function test_attachment_reordering() {
   await BrowserTestUtils.waitForPopupEvent(panel, "shown");
 
   // Click on the editor which should close the panel.
-  EventUtils.synthesizeMouseAtCenter(editorEl, {}, editorEl.ownerGlobal);
+  EventUtils.synthesizeMouseAtCenter(editorEl, {}, editorEl.documentGlobal);
   await TestUtils.waitForCondition(
     () => panel.state == "closed",
     "Reordering panel didn't close when editor was clicked."

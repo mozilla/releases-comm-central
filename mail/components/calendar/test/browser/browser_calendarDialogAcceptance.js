@@ -85,7 +85,7 @@ add_task(async function test_clickEvent() {
   );
 
   // Clicking the radio input should fire this event.
-  EventUtils.synthesizeMouseAtCenter(goingInput, {}, row.ownerGlobal);
+  EventUtils.synthesizeMouseAtCenter(goingInput, {}, row.documentGlobal);
   const details = await setEventReponseEvent;
 
   Assert.equal(
