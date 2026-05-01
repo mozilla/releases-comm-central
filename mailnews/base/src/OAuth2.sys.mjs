@@ -343,6 +343,8 @@ OAuth2.prototype = {
       }
     }
 
+    log.debug(`Sending request to the token endpoint with data: ${data}`);
+
     fetch(this.tokenEndpoint, {
       method: "POST",
       cache: "no-cache",

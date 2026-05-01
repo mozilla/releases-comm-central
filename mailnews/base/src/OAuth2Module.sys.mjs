@@ -112,7 +112,7 @@ OAuth2Module.prototype = {
     }
     if (!this._oauth) {
       log.debug(
-        `Creating a new OAuth2 object for ${this._username} at ${issuer}`
+        `Creating a new OAuth2 object for ${this._username} at ${issuer} with scope=${this._scope}`
       );
       // This gets the refresh token from the login manager. It may change
       // `this._scope` if a refresh token was found for the required scopes
@@ -194,6 +194,8 @@ OAuth2Module.prototype = {
         continue;
       }
 
+      log.debug(`Found matching login for ${this._username}`);
+
       const loginScopes = scopeSet(login.httpRealm);
       if (grantedScopes.isSupersetOf(loginScopes) && token) {
         const propBag = Cc["@mozilla.org/hash-property-bag;1"].createInstance(
@@ -232,6 +234,10 @@ OAuth2Module.prototype = {
       );
       login.init(this._loginOrigin, null, scope, this._username, token, "", "");
       await Services.logins.addLoginAsync(login);
+    } else {
+      log.debug(
+        `Not creating new login for ${this._username} at ${this._loginOrigin} with scope "${scope}" (changed=${didChangePassword}; token length=${token.length})`
+      );
     }
   },
   /**

@@ -37,6 +37,11 @@ const EWS_SCOPES = {
   ews: "https://outlook.office.com/EWS.AccessAsUser.All",
   // "exchange" is used in the account setup, then the config is copied to "ews".
   exchange: "https://outlook.office.com/EWS.AccessAsUser.All",
+
+  // The `offline_access` scope instructs the Microsoft backend to provide a
+  // refresh token, which we can then store and avoid needing to trigger a new
+  // interactive flow at each startup. See
+  // https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-auth-code-flow#successful-response-2
   extra: "offline_access",
 };
 
@@ -45,6 +50,12 @@ const GRAPH_SCOPES = {
     "https://graph.microsoft.com/User.Read https://graph.microsoft.com/MailboxFolder.ReadWrite",
   graph:
     "https://graph.microsoft.com/User.Read https://graph.microsoft.com/MailboxFolder.ReadWrite",
+
+  // The `offline_access` scope instructs the Microsoft backend to provide a
+  // refresh token, which we can then store and avoid needing to trigger a new
+  // interactive flow at each startup. See
+  // https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-auth-code-flow#successful-response-2
+  extra: "offline_access",
 };
 
 const TBPRO_SCOPES = "openid profile email offline_access";
