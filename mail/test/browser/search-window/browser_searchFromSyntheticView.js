@@ -69,7 +69,7 @@ add_task(async function testSearchDialogFolderSelectedFromSyntheticView() {
   const searchBar = document.querySelector("global-search-bar");
   searchBar.overrideSearchTerm(term);
   searchBar.focus();
-  EventUtils.synthesizeKey("VK_RETURN", {}, window);
+  EventUtils.synthesizeKey("KEY_Enter", {}, window);
 
   const tab = document.querySelector(
     "tabmail > tabbox > tabpanels > vbox[selected=true]"

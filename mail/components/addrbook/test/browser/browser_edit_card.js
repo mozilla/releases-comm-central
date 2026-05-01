@@ -460,11 +460,11 @@ function setInputValues(changes) {
       if (value) {
         EventUtils.sendString(value);
       } else {
-        EventUtils.synthesizeKey("VK_BACK_SPACE", {}, abWindow);
+        EventUtils.synthesizeKey("KEY_Backspace", {}, abWindow);
       }
     }
   }
-  EventUtils.synthesizeKey("VK_TAB", {}, abWindow);
+  EventUtils.synthesizeKey("KEY_Tab", {}, abWindow);
 }
 
 /**
@@ -586,7 +586,7 @@ async function setVCardInputValues(changes) {
             ) {
               EventUtils.sendString(changeEntry.value[idx]);
             } else {
-              EventUtils.synthesizeKey("VK_BACK_SPACE", {}, abWindow);
+              EventUtils.synthesizeKey("KEY_Backspace", {}, abWindow);
             }
           }
           break;
@@ -610,7 +610,7 @@ async function setVCardInputValues(changes) {
             ) {
               EventUtils.sendString(changeEntry.value[idx]);
             } else {
-              EventUtils.synthesizeKey("VK_BACK_SPACE", {}, abWindow);
+              EventUtils.synthesizeKey("KEY_Backspace", {}, abWindow);
             }
           }
           break;
@@ -627,7 +627,7 @@ async function setVCardInputValues(changes) {
         if (changeEntry && changeEntry.value) {
           EventUtils.sendString(changeEntry.value);
         } else {
-          EventUtils.synthesizeKey("VK_BACK_SPACE", {}, abWindow);
+          EventUtils.synthesizeKey("KEY_Backspace", {}, abWindow);
         }
       }
 
@@ -638,7 +638,7 @@ async function setVCardInputValues(changes) {
       }
     }
   }
-  EventUtils.synthesizeKey("VK_TAB", {}, abWindow);
+  EventUtils.synthesizeKey("KEY_Tab", {}, abWindow);
 }
 
 /**
@@ -862,7 +862,7 @@ add_task(async function test_basic_edit() {
   );
 
   for (let loops = 0; loops < 100; loops++) {
-    EventUtils.synthesizeKey("VK_TAB", {}, abWindow);
+    EventUtils.synthesizeKey("KEY_Tab", {}, abWindow);
     if (
       !abDocument.activeElement.closest("#detailsPane") &&
       (Services.prefs.getBoolPref(
@@ -1043,7 +1043,7 @@ add_task(async function test_basic_edit() {
 
   // Cancel the edit by pressing the Escape key.
 
-  EventUtils.synthesizeKey("VK_ESCAPE", {}, abWindow);
+  EventUtils.synthesizeKey("KEY_Escape", {}, abWindow);
   await notInEditingMode(editButton);
 
   // Click to edit again. This time make some changes.
@@ -1059,7 +1059,7 @@ add_task(async function test_basic_edit() {
   // Cancel the edit by pressing the Escape key and cancel the prompt.
 
   promptPromise = BrowserTestUtils.promiseAlertDialog("cancel");
-  EventUtils.synthesizeKey("VK_ESCAPE", {}, abWindow);
+  EventUtils.synthesizeKey("KEY_Escape", {}, abWindow);
   await promptPromise;
   await new Promise(resolve => abWindow.setTimeout(resolve));
   Assert.ok(
@@ -1070,7 +1070,7 @@ add_task(async function test_basic_edit() {
   // Cancel the edit by pressing the Escape key and accept the prompt.
 
   promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
-  EventUtils.synthesizeKey("VK_ESCAPE", {}, abWindow);
+  EventUtils.synthesizeKey("KEY_Escape", {}, abWindow);
   await promptPromise;
   await notInEditingMode(editButton);
   await new Promise(resolve => abWindow.setTimeout(resolve));
@@ -1094,7 +1094,7 @@ add_task(async function test_basic_edit() {
   // Cancel the edit by pressing the Escape key and discard the changes.
 
   promptPromise = BrowserTestUtils.promiseAlertDialog("extra1");
-  EventUtils.synthesizeKey("VK_ESCAPE", {}, abWindow);
+  EventUtils.synthesizeKey("KEY_Escape", {}, abWindow);
   await promptPromise;
   await notInEditingMode(editButton);
   await new Promise(resolve => abWindow.setTimeout(resolve));
@@ -1120,7 +1120,7 @@ add_task(async function test_basic_edit() {
   });
 
   getInput("SecondEmail").focus();
-  EventUtils.synthesizeKey("VK_RETURN", {}, abWindow);
+  EventUtils.synthesizeKey("KEY_Enter", {}, abWindow);
   await notInEditingMode(editButton);
 
   checkDisplayValues({

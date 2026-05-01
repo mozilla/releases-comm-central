@@ -152,7 +152,7 @@ async function handleReminderDialog(remindersWindow) {
   Assert.equal(listbox.selectedItem.reminder.offset.days, 20);
 
   EventUtils.synthesizeMouseAtCenter(listbox, {}, remindersWindow);
-  EventUtils.synthesizeKey("VK_UP", {}, remindersWindow);
+  EventUtils.synthesizeKey("KEY_ArrowUp", {}, remindersWindow);
   Assert.equal(listbox.selectedIndex, 0);
 
   Assert.equal(listbox.selectedItem.reminder.offset.days, DEFVALUE);

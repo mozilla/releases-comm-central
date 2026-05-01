@@ -651,13 +651,13 @@ add_task(async function test_delete_attachment_key() {
   // Try deleting with the delete key
   let dialogPromise = BrowserTestUtils.promiseAlertDialog("cancel");
   firstAttachment.focus();
-  EventUtils.synthesizeKey("VK_DELETE", {}, aboutMessage);
+  EventUtils.synthesizeKey("KEY_Delete", {}, aboutMessage);
   await dialogPromise;
 
   // Try deleting with the shift-delete key combo.
   dialogPromise = BrowserTestUtils.promiseAlertDialog("cancel");
   firstAttachment.focus();
-  EventUtils.synthesizeKey("VK_DELETE", { shiftKey: true }, aboutMessage);
+  EventUtils.synthesizeKey("KEY_Delete", { shiftKey: true }, aboutMessage);
   await dialogPromise;
 }).skip(); // supernova - bug 1787094
 

@@ -39,7 +39,7 @@ async function isDisabled(element) {
 
   const hiddenPromise = BrowserTestUtils.waitForEvent(targetMenu, "popuphidden");
   const status = element.disabled;
-  EventUtils.synthesizeKey("VK_ESCAPE");
+  EventUtils.synthesizeKey("KEY_Escape");
   await hiddenPromise;
   return status;
 }
@@ -185,7 +185,7 @@ async function testDeleteUndoRedoTask(undoId, redoId) {
   Assert.equal(tree.view.rowCount, 1);
 
   mailTestUtils.treeClick(EventUtils, window, tree, 0, 1, { clickCount: 1 });
-  EventUtils.synthesizeKey("VK_DELETE");
+  EventUtils.synthesizeKey("KEY_Delete");
   await TestUtils.waitForCondition(() => tree.view.rowCount == 0, "task was not removed in time");
 
   Assert.ok(!(await isDisabled(undo)), `#${undoId} is enabled`);

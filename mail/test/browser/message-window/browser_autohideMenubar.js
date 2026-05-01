@@ -80,7 +80,7 @@ async function help_test_autohide(win, menubar) {
   );
 
   menubar.focus();
-  EventUtils.synthesizeKey("VK_ALT", {}, win);
+  EventUtils.synthesizeKey("KEY_Alt", {}, win);
   await TestUtils.waitForCondition(
     hiddenChecker(false),
     "Menubar should be shown after pressing ALT!"

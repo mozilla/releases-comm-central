@@ -195,7 +195,7 @@ async function testEncryptedMessageComposition(
   }
 
   // Delete the message so other tests work.
-  EventUtils.synthesizeKey("VK_DELETE");
+  EventUtils.synthesizeKey("KEY_Delete");
 }
 
 add_task(async function testEncryptedMessageCompositionAutoEncOff() {
@@ -298,7 +298,7 @@ async function testEncryptedMessageWithKeyComposition(
   );
 
   // Delete the message so other tests work.
-  EventUtils.synthesizeKey("VK_DELETE");
+  EventUtils.synthesizeKey("KEY_Delete");
 }
 
 add_task(async function testEncryptedMessageWithKeyCompositionAutoEncOff() {
@@ -446,7 +446,7 @@ add_task(async function testEncryptedRecipientKeyNotAvailabeAutoDisable() {
   );
 
   // Clean up so other tests work.
-  EventUtils.synthesizeKey("VK_DELETE");
+  EventUtils.synthesizeKey("KEY_Delete");
 });
 
 /**
@@ -611,7 +611,7 @@ async function testEncryptedRecipientKeyUnverifiedMessageComposition(
   );
 
   // Clean up so other tests work.
-  EventUtils.synthesizeKey("VK_DELETE");
+  EventUtils.synthesizeKey("KEY_Delete");
   await OpenPGPTestUtils.removeKeyById(OpenPGPTestUtils.CAROL_KEY_ID);
 }
 
@@ -890,7 +890,7 @@ async function testEncryptedOneRecipientKeyUnverifiedMessageComposition(
   );
 
   // Clean up so other tests work.
-  EventUtils.synthesizeKey("VK_DELETE");
+  EventUtils.synthesizeKey("KEY_Delete");
   await OpenPGPTestUtils.removeKeyById(OpenPGPTestUtils.CAROL_KEY_ID);
 }
 

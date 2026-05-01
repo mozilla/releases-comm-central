@@ -56,7 +56,7 @@ add_task(async function test_multiple_messages_selected() {
 
   // Trigger the registered command.
   await BrowserTestUtils.synthesizeKey(
-    "VK_UP",
+    "KEY_ArrowUp",
     {
       accelKey: true,
     },

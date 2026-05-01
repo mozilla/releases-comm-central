@@ -160,12 +160,12 @@ async function setRecurrence(recurrenceWindow) {
   untilInput.focus();
   EventUtils.synthesizeKey("a", { accelKey: true }, recurrenceWindow);
   untilInput.focus();
-  EventUtils.synthesizeKey("VK_DELETE", {}, recurrenceWindow);
+  EventUtils.synthesizeKey("KEY_Delete", {}, recurrenceWindow);
 
   const endDateString = formatDate(ENDDATE);
   EventUtils.sendString(endDateString, recurrenceWindow);
 
   // Move focus to ensure the date is selected.
   untilInput.focus();
-  EventUtils.synthesizeKey("VK_TAB", {}, recurrenceWindow);
+  EventUtils.synthesizeKey("KEY_Tab", {}, recurrenceWindow);
 }

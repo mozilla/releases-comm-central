@@ -48,7 +48,7 @@ async function checkFocusCycling(win, options) {
     await BrowserTestUtils.waitForEvent(win, "activate");
   }
 
-  const key = options.useTab ? "VK_TAB" : "VK_F6";
+  const key = options.useTab ? "KEY_Tab" : "KEY_F6";
   const goForward = () =>
     EventUtils.synthesizeKey(key, { ctrlKey: options.useTab }, win);
   const goBackward = () =>
@@ -64,7 +64,7 @@ async function checkFocusCycling(win, options) {
 
   if (options.contacts) {
     // Open the contacts sidebar.
-    EventUtils.synthesizeKey("VK_F9", {}, win);
+    EventUtils.synthesizeKey("KEY_F9", {}, win);
     contactsInput = await TestUtils.waitForCondition(() => {
       contactDoc = doc.getElementById("contactsBrowser").contentDocument;
       if (contactDoc.readyState != "complete") {
@@ -476,7 +476,7 @@ async function checkFocusCycling(win, options) {
   // Contacts pane is persistent, so we close it again.
   if (options.contacts) {
     // Close the contacts sidebar.
-    EventUtils.synthesizeKey("VK_F9", {}, win);
+    EventUtils.synthesizeKey("KEY_F9", {}, win);
   }
 }
 

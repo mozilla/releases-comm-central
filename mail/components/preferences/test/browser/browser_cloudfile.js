@@ -349,9 +349,9 @@ add_task(async function addRemoveAccounts() {
   ok(accountListItem.querySelector("label").hidden);
   ok(!accountListItem.querySelector("input").hidden);
   is(accountListItem.querySelector("input").value, "Mochitest");
-  EventUtils.synthesizeKey("VK_RIGHT", undefined, prefsWindow);
+  EventUtils.synthesizeKey("KEY_ArrowRight", undefined, prefsWindow);
   EventUtils.synthesizeKey("!", undefined, prefsWindow);
-  EventUtils.synthesizeKey("VK_RETURN", undefined, prefsWindow);
+  EventUtils.synthesizeKey("KEY_Enter", undefined, prefsWindow);
 
   await new Promise(resolve => prefsWindow.requestAnimationFrame(resolve));
 
@@ -384,7 +384,7 @@ add_task(async function addRemoveAccounts() {
   EventUtils.synthesizeKey("o", undefined, prefsWindow);
   EventUtils.synthesizeKey("p", undefined, prefsWindow);
   EventUtils.synthesizeKey("s", undefined, prefsWindow);
-  EventUtils.synthesizeKey("VK_ESCAPE", undefined, prefsWindow);
+  EventUtils.synthesizeKey("KEY_Escape", undefined, prefsWindow);
 
   await new Promise(resolve => prefsWindow.requestAnimationFrame(resolve));
 

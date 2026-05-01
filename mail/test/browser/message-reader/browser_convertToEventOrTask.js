@@ -39,7 +39,7 @@ add_setup(async function () {
 
   // Hide the today pane so the More button we'll use is sure to be inside
   // the viewport.
-  EventUtils.synthesizeKey("VK_F11", {}, window);
+  EventUtils.synthesizeKey("KEY_F11", {}, window);
   await new Promise(resolve => setTimeout(resolve));
   Assert.ok(
     document.getElementById("today-pane-panel").hasAttribute("collapsed"),
@@ -51,7 +51,7 @@ add_setup(async function () {
     cal.manager.getCalendars()[0].setProperty("disabled", true);
     document.documentElement.focus();
 
-    EventUtils.synthesizeKey("VK_F11", {}, window);
+    EventUtils.synthesizeKey("KEY_F11", {}, window);
     await new Promise(resolve => setTimeout(resolve));
     Assert.ok(
       !document.getElementById("today-pane-panel").hasAttribute("collapsed"),

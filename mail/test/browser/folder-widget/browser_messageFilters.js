@@ -506,7 +506,7 @@ add_task(async function test_can_quit_on_filter_changes() {
     "chrome://global/content/commonDialog.xhtml",
     {
       async callback(win) {
-        EventUtils.synthesizeKey("VK_RETURN", {}, win);
+        EventUtils.synthesizeKey("KEY_Enter", {}, win);
       },
     }
   );

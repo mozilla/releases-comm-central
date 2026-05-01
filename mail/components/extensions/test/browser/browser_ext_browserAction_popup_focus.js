@@ -176,7 +176,7 @@ add_task(async function test_popup_open_with_openPopup_in_normal_window() {
   });
 
   extension.onMessage("press arrow down", () => {
-    EventUtils.synthesizeKey("VK_DOWN");
+    EventUtils.synthesizeKey("KEY_ArrowDown");
   });
 
   await extension.startup();

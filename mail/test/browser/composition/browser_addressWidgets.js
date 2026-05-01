@@ -375,7 +375,7 @@ add_task(async function test_pill_creation_in_all_fields() {
     // Write an address in the field.
     input.value = addresses[0];
     // Enter triggers the pill creation.
-    EventUtils.synthesizeKey("VK_RETURN", {}, cwc);
+    EventUtils.synthesizeKey("KEY_Enter", {}, cwc);
     // Assert the pill was created.
     await TestUtils.waitForCondition(
       () =>
@@ -395,7 +395,7 @@ add_task(async function test_pill_creation_in_all_fields() {
     // Write another address in the field.
     input.value = addresses[1];
     // Tab triggers the pill creation.
-    EventUtils.synthesizeKey("VK_TAB", {}, cwc);
+    EventUtils.synthesizeKey("KEY_Tab", {}, cwc);
     // Assert the pill was created.
     await TestUtils.waitForCondition(
       () =>
@@ -415,7 +415,7 @@ add_task(async function test_pill_creation_in_all_fields() {
     // Write an invalid email address in the To field.
     input.value = addresses[2];
     // Enter triggers the pill creation.
-    EventUtils.synthesizeKey("VK_RETURN", {}, cwc);
+    EventUtils.synthesizeKey("KEY_Enter", {}, cwc);
     // Assert that an invalid address pill was created.
     await TestUtils.waitForCondition(
       () =>
@@ -455,7 +455,7 @@ add_task(async function test_pill_creation_in_all_fields() {
     // Write another invalid address in the field.
     input.focus();
     input.value = addresses[4];
-    EventUtils.synthesizeKey("VK_TAB", {}, cwc); // Use Tab to create pill
+    EventUtils.synthesizeKey("KEY_Tab", {}, cwc); // Use Tab to create pill
 
     // Assert the pill was created.
     await TestUtils.waitForCondition(
@@ -700,7 +700,7 @@ function test_deletion_and_focus_on_input(cwc, input, addresses, modifiers) {
   input.value = addresses;
 
   // Enter triggers the pill creation.
-  EventUtils.synthesizeKey("VK_RETURN", {}, cwc);
+  EventUtils.synthesizeKey("KEY_Enter", {}, cwc);
 
   const container = input.closest(".address-container");
   // We should now have 4 pills.

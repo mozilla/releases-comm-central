@@ -192,7 +192,7 @@ async function testDeleteUndoRedo(undoId, redoId) {
   }, "event not created in time");
 
   EventUtils.synthesizeMouseAtCenter(eventItem, {});
-  EventUtils.synthesizeKey("VK_DELETE");
+  EventUtils.synthesizeKey("KEY_Delete");
 
   await TestUtils.waitForCondition(() => {
     eventItem = document.querySelector("calendar-month-day-box-item");

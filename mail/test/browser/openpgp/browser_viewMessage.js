@@ -231,7 +231,7 @@ add_task(async function testOpenForwardedEncrypted() {
     { clickCount: 1 },
     aboutMessage
   );
-  EventUtils.synthesizeKey("VK_DELETE", {}, aboutMessage);
+  EventUtils.synthesizeKey("KEY_Delete", {}, aboutMessage);
   await TestUtils.waitForTick();
 
   const newWindowPromise = promise_new_window("mail:messageWindow");

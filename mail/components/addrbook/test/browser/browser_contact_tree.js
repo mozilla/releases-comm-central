@@ -30,7 +30,7 @@ add_task(async function test_additions_and_removals() {
       {},
       abWindow
     );
-    EventUtils.synthesizeKey("VK_DELETE", {}, abWindow);
+    EventUtils.synthesizeKey("KEY_Delete", {}, abWindow);
     await promptPromise;
     await new Promise(r => abWindow.setTimeout(r));
     await new Promise(r => abWindow.setTimeout(r));

@@ -1028,7 +1028,7 @@ async function checkActionButtons(
 
     eventWindowPromise = BrowserTestUtils.domWindowClosed(eventWindow);
     BrowserTestUtils.promiseAlertDialog("extra1");
-    EventUtils.synthesizeKey("VK_ESCAPE", {}, eventWindow);
+    EventUtils.synthesizeKey("KEY_Escape", {}, eventWindow);
     await eventWindowPromise;
     Assert.report(false, undefined, undefined, "Item dialog closed");
   } else {

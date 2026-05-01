@@ -145,7 +145,7 @@ add_task(async function test_send_enabled_manual_address() {
   );
   await new Promise(resolve => setTimeout(resolve));
   // Delete the selected pill.
-  EventUtils.synthesizeKey("VK_DELETE", {}, cwc);
+  EventUtils.synthesizeKey("KEY_Delete", {}, cwc);
   // Confirm the address row is now empty.
   Assert.ok(!get_first_pill(cwc));
   // Confirm the send button is disabled.
@@ -329,7 +329,7 @@ add_task(async function test_update_pill_before_send() {
 
   // Set the pill which is in edit mode to an invalid email.
   EventUtils.synthesizeKey("KEY_Home", { shiftKey: true }, cwc);
-  EventUtils.synthesizeKey("VK_BACK_SPACE", {}, cwc);
+  EventUtils.synthesizeKey("KEY_Backspace", {}, cwc);
   EventUtils.sendString("invalidEmail", cwc);
 
   // Click send while the pill is in the edit mode and check the dialog title

@@ -331,7 +331,7 @@ async function subtestMouse() {
   );
 
   // Escape should select the last row the user interacted with.
-  EventUtils.synthesizeKey("VK_ESCAPE", {}, content);
+  EventUtils.synthesizeKey("KEY_Escape", {}, content);
   await checkSelected(7, "row-3-1-2");
 
   // Ensure modifier keys don't do anything if multiselection is disabled.
@@ -763,102 +763,102 @@ async function subtestExpandCollapse() {
   // Row 0 has no children or parent, nothing should happen.
 
   list.selectedIndex = 0;
-  await pressKey("row-1", "VK_LEFT");
+  await pressKey("row-1", "KEY_ArrowLeft");
   checkSelected(0, "row-1");
-  await pressKey("row-1", "VK_RIGHT");
+  await pressKey("row-1", "KEY_ArrowRight");
   checkSelected(0, "row-1");
 
   // Collapse row 2.
 
   list.selectedIndex = 1;
-  await pressKey("row-2", "VK_LEFT", "collapsed");
+  await pressKey("row-2", "KEY_ArrowLeft", "collapsed");
   checkRowsAreHidden("row-2-1", "row-2-2");
   checkSelected(1, "row-2");
 
-  await pressKey("row-2", "VK_LEFT");
+  await pressKey("row-2", "KEY_ArrowLeft");
   checkRowsAreHidden("row-2-1", "row-2-2");
   checkSelected(1, "row-2");
 
   // Collapse row 3.
 
   list.selectedIndex = 2;
-  await pressKey("row-3", "VK_LEFT", "collapsed");
+  await pressKey("row-3", "KEY_ArrowLeft", "collapsed");
   checkRowsAreHidden("row-2-1", "row-2-2", "row-3-1", "row-3-1-1", "row-3-1-2");
   checkSelected(2, "row-3");
 
-  await pressKey("row-3", "VK_LEFT");
+  await pressKey("row-3", "KEY_ArrowLeft");
   checkRowsAreHidden("row-2-1", "row-2-2", "row-3-1", "row-3-1-1", "row-3-1-2");
   checkSelected(2, "row-3");
 
   // Expand row 2.
 
   list.selectedIndex = 1;
-  await pressKey("row-2", "VK_RIGHT", "expanded");
+  await pressKey("row-2", "KEY_ArrowRight", "expanded");
   checkRowsAreHidden("row-3-1", "row-3-1-1", "row-3-1-2");
   checkSelected(1, "row-2");
 
   // Expand row 3.
 
   list.selectedIndex = 4;
-  await pressKey("row-3", "VK_RIGHT", "expanded");
+  await pressKey("row-3", "KEY_ArrowRight", "expanded");
   checkRowsAreHidden();
   checkSelected(4, "row-3");
 
   // Go down the tree to row 3-1-1.
 
-  await pressKey("row-3", "VK_RIGHT");
+  await pressKey("row-3", "KEY_ArrowRight");
   checkRowsAreHidden();
   checkSelected(5, "row-3-1");
 
-  await pressKey("row-3", "VK_RIGHT");
+  await pressKey("row-3", "KEY_ArrowRight");
   checkRowsAreHidden();
   checkSelected(6, "row-3-1-1");
 
-  await pressKey("row-3-1-1", "VK_RIGHT");
+  await pressKey("row-3-1-1", "KEY_ArrowRight");
   checkRowsAreHidden();
   checkSelected(6, "row-3-1-1");
 
   // Collapse row 3-1.
 
-  await pressKey("row-3-1-1", "VK_LEFT");
+  await pressKey("row-3-1-1", "KEY_ArrowLeft");
   checkRowsAreHidden();
   checkSelected(5, "row-3-1");
 
-  await pressKey("row-3-1", "VK_LEFT", "collapsed");
+  await pressKey("row-3-1", "KEY_ArrowLeft", "collapsed");
   checkRowsAreHidden("row-3-1-1", "row-3-1-2");
   checkSelected(5, "row-3-1");
 
   // Collapse row 3.
 
-  await pressKey("row-3-1", "VK_LEFT");
+  await pressKey("row-3-1", "KEY_ArrowLeft");
   checkRowsAreHidden("row-3-1-1", "row-3-1-2");
   checkSelected(4, "row-3");
 
-  await pressKey("row-3", "VK_LEFT", "collapsed");
+  await pressKey("row-3", "KEY_ArrowLeft", "collapsed");
   checkRowsAreHidden("row-3-1", "row-3-1-1", "row-3-1-2");
   checkSelected(4, "row-3");
 
   // Expand row 3.
 
-  await pressKey("row-3", "VK_RIGHT", "expanded");
+  await pressKey("row-3", "KEY_ArrowRight", "expanded");
   checkRowsAreHidden("row-3-1-1", "row-3-1-2");
   checkSelected(4, "row-3");
 
-  await pressKey("row-3", "VK_RIGHT");
+  await pressKey("row-3", "KEY_ArrowRight");
   checkRowsAreHidden("row-3-1-1", "row-3-1-2");
   checkSelected(5, "row-3-1");
 
   // Expand row 3-1.
 
-  await pressKey("row-3-1", "VK_RIGHT", "expanded");
+  await pressKey("row-3-1", "KEY_ArrowRight", "expanded");
   checkRowsAreHidden();
   checkSelected(5, "row-3-1");
 
-  await pressKey("row-3-1", "VK_RIGHT");
+  await pressKey("row-3-1", "KEY_ArrowRight");
   checkRowsAreHidden();
   checkSelected(6, "row-3-1-1");
 
-  await pressKey("row-3-1-1", "VK_RIGHT");
+  await pressKey("row-3-1-1", "KEY_ArrowRight");
   checkRowsAreHidden();
   checkSelected(6, "row-3-1-1");
 
@@ -881,102 +881,102 @@ async function subtestExpandCollapse() {
   // Row 0 has no children or parent, nothing should happen.
 
   list.selectedIndex = 0;
-  await pressKey("row-1", "VK_RIGHT");
+  await pressKey("row-1", "KEY_ArrowRight");
   checkSelected(0, "row-1");
-  await pressKey("row-1", "VK_LEFT");
+  await pressKey("row-1", "KEY_ArrowLeft");
   checkSelected(0, "row-1");
 
   // Collapse row 2.
 
   list.selectedIndex = 1;
-  await pressKey("row-2", "VK_RIGHT", "collapsed");
+  await pressKey("row-2", "KEY_ArrowRight", "collapsed");
   checkRowsAreHidden("row-2-1", "row-2-2");
   checkSelected(1, "row-2");
 
-  await pressKey("row-2", "VK_RIGHT");
+  await pressKey("row-2", "KEY_ArrowRight");
   checkRowsAreHidden("row-2-1", "row-2-2");
   checkSelected(1, "row-2");
 
   // Collapse row 3.
 
   list.selectedIndex = 2;
-  await pressKey("row-3", "VK_RIGHT", "collapsed");
+  await pressKey("row-3", "KEY_ArrowRight", "collapsed");
   checkRowsAreHidden("row-2-1", "row-2-2", "row-3-1", "row-3-1-1", "row-3-1-2");
   checkSelected(2, "row-3");
 
-  await pressKey("row-3", "VK_RIGHT");
+  await pressKey("row-3", "KEY_ArrowRight");
   checkRowsAreHidden("row-2-1", "row-2-2", "row-3-1", "row-3-1-1", "row-3-1-2");
   checkSelected(2, "row-3");
 
   // Expand row 2.
 
   list.selectedIndex = 1;
-  await pressKey("row-2", "VK_LEFT", "expanded");
+  await pressKey("row-2", "KEY_ArrowLeft", "expanded");
   checkRowsAreHidden("row-3-1", "row-3-1-1", "row-3-1-2");
   checkSelected(1, "row-2");
 
   // Expand row 3.
 
   list.selectedIndex = 4;
-  await pressKey("row-3", "VK_LEFT", "expanded");
+  await pressKey("row-3", "KEY_ArrowLeft", "expanded");
   checkRowsAreHidden();
   checkSelected(4, "row-3");
 
   // Go down the tree to row 3-1-1.
 
-  await pressKey("row-3", "VK_LEFT");
+  await pressKey("row-3", "KEY_ArrowLeft");
   checkRowsAreHidden();
   checkSelected(5, "row-3-1");
 
-  await pressKey("row-3", "VK_LEFT");
+  await pressKey("row-3", "KEY_ArrowLeft");
   checkRowsAreHidden();
   checkSelected(6, "row-3-1-1");
 
-  await pressKey("row-3-1-1", "VK_LEFT");
+  await pressKey("row-3-1-1", "KEY_ArrowLeft");
   checkRowsAreHidden();
   checkSelected(6, "row-3-1-1");
 
   // Collapse row 3-1.
 
-  await pressKey("row-3-1-1", "VK_RIGHT");
+  await pressKey("row-3-1-1", "KEY_ArrowRight");
   checkRowsAreHidden();
   checkSelected(5, "row-3-1");
 
-  await pressKey("row-3-1", "VK_RIGHT", "collapsed");
+  await pressKey("row-3-1", "KEY_ArrowRight", "collapsed");
   checkRowsAreHidden("row-3-1-1", "row-3-1-2");
   checkSelected(5, "row-3-1");
 
   // Collapse row 3.
 
-  await pressKey("row-3-1", "VK_RIGHT");
+  await pressKey("row-3-1", "KEY_ArrowRight");
   checkRowsAreHidden("row-3-1-1", "row-3-1-2");
   checkSelected(4, "row-3");
 
-  await pressKey("row-3", "VK_RIGHT", "collapsed");
+  await pressKey("row-3", "KEY_ArrowRight", "collapsed");
   checkRowsAreHidden("row-3-1", "row-3-1-1", "row-3-1-2");
   checkSelected(4, "row-3");
 
   // Expand row 3.
 
-  await pressKey("row-3", "VK_LEFT", "expanded");
+  await pressKey("row-3", "KEY_ArrowLeft", "expanded");
   checkRowsAreHidden("row-3-1-1", "row-3-1-2");
   checkSelected(4, "row-3");
 
-  await pressKey("row-3", "VK_LEFT");
+  await pressKey("row-3", "KEY_ArrowLeft");
   checkRowsAreHidden("row-3-1-1", "row-3-1-2");
   checkSelected(5, "row-3-1");
 
   // Expand row 3-1.
 
-  await pressKey("row-3-1", "VK_LEFT", "expanded");
+  await pressKey("row-3-1", "KEY_ArrowLeft", "expanded");
   checkRowsAreHidden();
   checkSelected(5, "row-3-1");
 
-  await pressKey("row-3-1", "VK_LEFT");
+  await pressKey("row-3-1", "KEY_ArrowLeft");
   checkRowsAreHidden();
   checkSelected(6, "row-3-1-1");
 
-  await pressKey("row-3-1-1", "VK_LEFT");
+  await pressKey("row-3-1-1", "KEY_ArrowLeft");
   checkRowsAreHidden();
   checkSelected(6, "row-3-1-1");
 
@@ -1568,10 +1568,10 @@ async function subtestUnselectable() {
   EventUtils.synthesizeKey("KEY_PageDown", {}, content);
   checkSelected(4, "uRow-3-1-2");
 
-  EventUtils.synthesizeKey("VK_LEFT", {}, content); // Move up to 3-1.
+  EventUtils.synthesizeKey("KEY_ArrowLeft", {}, content); // Move up to 3-1.
   checkSelected(2, "uRow-3-1");
-  EventUtils.synthesizeKey("VK_LEFT", {}, content); // Collapse.
+  EventUtils.synthesizeKey("KEY_ArrowLeft", {}, content); // Collapse.
   checkSelected(2, "uRow-3-1");
-  EventUtils.synthesizeKey("VK_LEFT", {}, content); // Try to move to 3.
+  EventUtils.synthesizeKey("KEY_ArrowLeft", {}, content); // Try to move to 3.
   checkSelected(2, "uRow-3-1");
 }

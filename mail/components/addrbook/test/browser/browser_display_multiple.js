@@ -203,7 +203,7 @@ add_task(async function testDeleteMultiple() {
 
   // Delete victor and yankee.
   let deletePromise = BrowserTestUtils.promiseAlertDialog("accept");
-  EventUtils.synthesizeKey("VK_DELETE", {}, window);
+  EventUtils.synthesizeKey("KEY_Delete", {}, window);
   await deletePromise;
   await TestUtils.topicObserved("addrbook-list-member-removed");
   Assert.equal(cardsList.view.rowCount, 3);
@@ -225,7 +225,7 @@ add_task(async function testDeleteMultiple() {
 
   // Delete all contacts.
   deletePromise = BrowserTestUtils.promiseAlertDialog("accept");
-  EventUtils.synthesizeKey("VK_DELETE", {}, window);
+  EventUtils.synthesizeKey("KEY_Delete", {}, window);
   await deletePromise;
   await TestUtils.topicObserved("addrbook-list-member-removed");
   Assert.equal(cardsList.view.rowCount, 0);
@@ -254,7 +254,7 @@ add_task(async function testDeleteMultiple() {
 
   // Delete list 2 and victor.
   deletePromise = BrowserTestUtils.promiseAlertDialog("accept");
-  EventUtils.synthesizeKey("VK_DELETE", {}, window);
+  EventUtils.synthesizeKey("KEY_Delete", {}, window);
   await deletePromise;
   await TestUtils.topicObserved("addrbook-contact-deleted");
   Assert.equal(cardsList.view.rowCount, 7);
@@ -284,7 +284,7 @@ add_task(async function testDeleteMultiple() {
 
   // Delete all contacts.
   deletePromise = BrowserTestUtils.promiseAlertDialog("accept");
-  EventUtils.synthesizeKey("VK_DELETE", {}, window);
+  EventUtils.synthesizeKey("KEY_Delete", {}, window);
   await deletePromise;
   await TestUtils.topicObserved("addrbook-contact-deleted");
   Assert.equal(cardsList.view.rowCount, 0);
@@ -408,7 +408,7 @@ async function checkActionButtons(
 
     eventWindowPromise = BrowserTestUtils.domWindowClosed(eventWindow);
     BrowserTestUtils.promiseAlertDialog("extra1");
-    EventUtils.synthesizeKey("VK_ESCAPE", {}, eventWindow);
+    EventUtils.synthesizeKey("KEY_Escape", {}, eventWindow);
     await eventWindowPromise;
     await new Promise(resolve => abWindow.setTimeout(resolve));
     Assert.report(false, undefined, undefined, "Item dialog closed");
@@ -436,7 +436,7 @@ async function checkActionButtons(
       "list members are correct"
     );
 
-    EventUtils.synthesizeKey("VK_ESCAPE", {}, listWindow);
+    EventUtils.synthesizeKey("KEY_Escape", {}, listWindow);
   } else {
     Assert.ok(
       BrowserTestUtils.isHidden(newListButton),

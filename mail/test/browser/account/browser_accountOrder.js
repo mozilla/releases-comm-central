@@ -68,7 +68,7 @@ async function subtest_check_account_order(tab) {
   );
 
   // Moving the account up to reorder.
-  EventUtils.synthesizeKey("VK_UP", { altKey: true });
+  EventUtils.synthesizeKey("KEY_ArrowUp", { altKey: true });
   await new Promise(resolve => setTimeout(resolve));
   let curAccountList = MailServices.accounts.accounts.map(
     account => account.key
@@ -76,7 +76,7 @@ async function subtest_check_account_order(tab) {
   Assert.notEqual(curAccountList.join(), prevAccountList.join());
 
   // Moving the account down, back to the starting position.
-  EventUtils.synthesizeKey("VK_DOWN", { altKey: true });
+  EventUtils.synthesizeKey("KEY_ArrowDown", { altKey: true });
   await new Promise(resolve => setTimeout(resolve));
   curAccountList = MailServices.accounts.accounts.map(account => account.key);
   Assert.equal(curAccountList.join(), prevAccountList.join());

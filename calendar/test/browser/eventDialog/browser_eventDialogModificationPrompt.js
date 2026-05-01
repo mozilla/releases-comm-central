@@ -69,7 +69,7 @@ add_task(async function testEventDialogModificationPrompt() {
     EventUtils.synthesizeMouseAtCenter(eventbox, {}, window);
   }
   Assert.equal(eventbox.isEditing, false, "event is not being edited");
-  EventUtils.synthesizeKey("VK_DELETE", {}, window);
+  EventUtils.synthesizeKey("KEY_Delete", {}, window);
   await dayView.waitForNoEventBoxAt(window, 1);
 });
 
@@ -97,7 +97,7 @@ add_task(async function testDescriptionWhitespace() {
       EventUtils.synthesizeMouseAtCenter(eventbox, {}, window);
     }
     Assert.equal(eventbox.isEditing, false, "event is not being edited");
-    EventUtils.synthesizeKey("VK_DELETE", {}, window);
+    EventUtils.synthesizeKey("KEY_Delete", {}, window);
     await dayView.waitForNoEventBoxAt(window, 1);
   }
 });

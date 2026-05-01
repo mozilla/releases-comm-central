@@ -61,7 +61,7 @@ function doGlobalSearch(term) {
   const searchInput = window.document.querySelector("#searchInput");
   searchInput.value = term;
   EventUtils.synthesizeMouseAtCenter(searchInput, {}, window);
-  EventUtils.synthesizeKey("VK_RETURN", {}, window);
+  EventUtils.synthesizeKey("KEY_Enter", {}, window);
 }
 
 async function clickShowResultsAsList(tab) {

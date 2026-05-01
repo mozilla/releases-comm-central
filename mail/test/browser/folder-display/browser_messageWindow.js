@@ -179,6 +179,6 @@ add_task(async function test_next_unread() {
  */
 add_task(async function test_close_message_window() {
   const closePromise = BrowserTestUtils.domWindowClosed(msgc);
-  EventUtils.synthesizeKey("VK_ESCAPE", {}, msgc);
+  EventUtils.synthesizeKey("KEY_Escape", {}, msgc);
   await closePromise;
 });

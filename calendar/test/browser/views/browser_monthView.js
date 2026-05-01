@@ -79,7 +79,7 @@ add_task(async function testMonthView() {
   // Delete event.
   EventUtils.synthesizeMouseAtCenter(eventBox, {}, window);
   eventBox.focus();
-  EventUtils.synthesizeKey("VK_DELETE", {}, window);
+  EventUtils.synthesizeKey("KEY_Delete", {}, window);
   await CalendarTestUtils.monthView.waitForNoItemAt(window, 1, 5, 1);
 
   Assert.ok(true, "Test ran to completion");

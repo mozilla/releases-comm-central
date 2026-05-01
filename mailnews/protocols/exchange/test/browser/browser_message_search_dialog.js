@@ -43,6 +43,6 @@ add_task(async function test_account_appears_in_search() {
 
   // Now close the search window
   const closePromise = BrowserTestUtils.domWindowClosed(searchDialog);
-  EventUtils.synthesizeKey("VK_ESCAPE", {}, searchDialog);
+  EventUtils.synthesizeKey("KEY_Escape", {}, searchDialog);
   await closePromise;
 });

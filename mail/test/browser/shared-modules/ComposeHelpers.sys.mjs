@@ -310,7 +310,7 @@ export async function setup_msg_contents(
   EventUtils.sendString(aAddr, aCwc);
   input.focus();
 
-  EventUtils.synthesizeKey("VK_RETURN", {}, aCwc);
+  EventUtils.synthesizeKey("KEY_Enter", {}, aCwc);
   aCwc.document.getElementById("msgSubject").focus();
   EventUtils.sendString(aSubj, aCwc);
   aCwc.document.getElementById("messageEditor").focus();
@@ -714,7 +714,7 @@ export function type_in_composer(aWin, aText) {
     EventUtils.sendString(aLine, aWin);
     if (i < aText.length - 1) {
       frame.focus();
-      EventUtils.synthesizeKey("VK_RETURN", {}, aWin);
+      EventUtils.synthesizeKey("KEY_Enter", {}, aWin);
     }
   }
 }
@@ -1013,7 +1013,7 @@ export class FormatHelper {
    */
   async typeEnterInMessage(shift = false) {
     EventUtils.synthesizeKey(
-      "VK_RETURN",
+      "KEY_Enter",
       { shiftKey: shift },
       this.messageWindow
     );
@@ -1024,7 +1024,7 @@ export class FormatHelper {
    * Delete the current selection in the message window (using backspace).
    */
   async deleteSelection() {
-    EventUtils.synthesizeKey("VK_BACK_SPACE", {}, this.messageWindow);
+    EventUtils.synthesizeKey("KEY_Backspace", {}, this.messageWindow);
     await TestUtils.waitForTick();
   }
 

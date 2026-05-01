@@ -291,7 +291,7 @@ add_task(async function () {
   // Test opening a message with the keyboard.
   tabOpenPromise = BrowserTestUtils.waitForEvent(window, "TabOpen");
   threadTree.focus();
-  EventUtils.synthesizeKey("VK_RETURN", {}, win);
+  EventUtils.synthesizeKey("KEY_Enter", {}, win);
   const {
     detail: { tabInfo: tab3 },
   } = await tabOpenPromise;
@@ -346,7 +346,7 @@ add_task(async function () {
     "DeleteOrMoveMsgCompleted"
   );
   const dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
-  EventUtils.synthesizeKey("VK_DELETE", { shiftKey: true }, win);
+  EventUtils.synthesizeKey("KEY_Delete", { shiftKey: true }, win);
   await dialogPromise;
   await deletePromise;
   await TestUtils.waitForCondition(

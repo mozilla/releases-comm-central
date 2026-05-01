@@ -352,7 +352,11 @@ add_task(async function test_close_selected_tab_methods() {
   // Select tab #2 by clicking tab #3 and using the shortcut to go back.
   EventUtils.synthesizeMouseAtCenter(tabs[3].node, {}, window);
   assert_selected_tab(tabs[3].info);
-  EventUtils.synthesizeKey("VK_TAB", { ctrlKey: true, shiftKey: true }, window);
+  EventUtils.synthesizeKey(
+    "KEY_Tab",
+    { ctrlKey: true, shiftKey: true },
+    window
+  );
   assert_selected_tab(tabs[2].info);
   await assertClose(tabs[2], closeWithKeyboard, tabs[3]);
 
@@ -361,7 +365,7 @@ add_task(async function test_close_selected_tab_methods() {
   // Select tab #1 by using the shortcut to go forward from tab #0.
   EventUtils.synthesizeMouseAtCenter(tabs[0].node, {}, window);
   assert_selected_tab(tabs[0].info);
-  EventUtils.synthesizeKey("VK_TAB", { ctrlKey: true }, window);
+  EventUtils.synthesizeKey("KEY_Tab", { ctrlKey: true }, window);
   assert_selected_tab(tabs[1].info);
   await assertClose(tabs[1], closeWithMiddleClick, tabs[3]);
 

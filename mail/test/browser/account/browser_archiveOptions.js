@@ -158,7 +158,7 @@ async function subtest_save_state(contentDocument, granularity, kfs, ri) {
           granularity;
         ac.document.getElementById("archiveKeepFolderStructure").checked = kfs;
         ac.document.getElementById("archiveRecreateInbox").checked = ri;
-        EventUtils.synthesizeKey("VK_RETURN", {}, ac);
+        EventUtils.synthesizeKey("KEY_Enter", {}, ac);
         ac.document.querySelector("dialog").acceptDialog();
       },
     }

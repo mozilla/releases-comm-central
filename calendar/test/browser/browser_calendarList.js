@@ -311,7 +311,7 @@ add_task(async () => {
   // Start to remove a calendar. Cancel the prompt.
   EventUtils.synthesizeMouseAtCenter(calendarList.rows[1], {});
   await withMockPromptService(1, () => {
-    EventUtils.synthesizeKey("VK_DELETE");
+    EventUtils.synthesizeKey("KEY_Delete");
   });
   Assert.equal(cal.manager.getCalendars().length, 3, "three calendars left in the manager");
   Assert.equal(calendarList.rowCount, 3, "three calendars left in the list");
@@ -319,7 +319,7 @@ add_task(async () => {
 
   // Remove a calendar with the keyboard.
   await withMockPromptService(0, () => {
-    EventUtils.synthesizeKey("VK_DELETE");
+    EventUtils.synthesizeKey("KEY_Delete");
   });
   Assert.equal(cal.manager.getCalendars().length, 2, "two calendars left in the manager");
   Assert.equal(calendarList.rowCount, 2, "two calendars left in the list");

@@ -1271,7 +1271,7 @@ add_task(async function test_show_all_header_mode() {
     );
 
     const panelHidden = BrowserTestUtils.waitForEvent(panel, "popuphidden");
-    EventUtils.synthesizeKey("VK_ESCAPE", {});
+    EventUtils.synthesizeKey("KEY_Escape", {});
     await panelHidden;
   }
 

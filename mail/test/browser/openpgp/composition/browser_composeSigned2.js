@@ -167,7 +167,7 @@ add_task(async function testSignedMessageComposition2() {
   );
 
   // Delete the message so other tests work.
-  EventUtils.synthesizeKey("VK_DELETE");
+  EventUtils.synthesizeKey("KEY_Delete");
 });
 
 /**
@@ -209,5 +209,5 @@ add_task(async function testSignedMessageComposition3() {
   );
 
   // Delete the message so other tests work.
-  EventUtils.synthesizeKey("VK_DELETE");
+  EventUtils.synthesizeKey("KEY_Delete");
 });

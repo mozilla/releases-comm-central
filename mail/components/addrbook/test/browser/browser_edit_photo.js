@@ -203,10 +203,10 @@ function setInputValues(changes) {
     if (value) {
       EventUtils.sendString(value);
     } else {
-      EventUtils.synthesizeKey("VK_BACK_SPACE", {}, abWindow);
+      EventUtils.synthesizeKey("KEY_Backspace", {}, abWindow);
     }
   }
-  EventUtils.synthesizeKey("VK_TAB", {}, abWindow);
+  EventUtils.synthesizeKey("KEY_Tab", {}, abWindow);
 }
 
 add_setup(async function () {
@@ -526,9 +526,9 @@ async function subtest_paste_url() {
   );
 
   Assert.equal(abDocument.activeElement.id, "vcard-n-firstname");
-  EventUtils.synthesizeKey("VK_TAB", { shiftKey: true }, abWindow);
+  EventUtils.synthesizeKey("KEY_Tab", { shiftKey: true }, abWindow);
   // Focus is on name prefix button.
-  EventUtils.synthesizeKey("VK_TAB", { shiftKey: true }, abWindow);
+  EventUtils.synthesizeKey("KEY_Tab", { shiftKey: true }, abWindow);
   Assert.equal(
     abDocument.activeElement,
     photoButton,
@@ -563,7 +563,7 @@ async function subtest_paste_url() {
 
   // Close then reopen the dialog.
 
-  EventUtils.synthesizeKey("VK_ESCAPE", {}, abWindow);
+  EventUtils.synthesizeKey("KEY_Escape", {}, abWindow);
   await waitForDialogOpenState(false);
 
   EventUtils.synthesizeMouseAtCenter(photoButton, {}, abWindow);
@@ -601,7 +601,7 @@ async function subtest_paste_url() {
 
   // Close then reopen the dialog.
 
-  EventUtils.synthesizeKey("VK_ESCAPE", {}, abWindow);
+  EventUtils.synthesizeKey("KEY_Escape", {}, abWindow);
   await waitForDialogOpenState(false);
 
   EventUtils.synthesizeMouseAtCenter(photoButton, {}, abWindow);
@@ -638,7 +638,7 @@ async function subtest_paste_url() {
     saveButtonDisabled: true,
   });
 
-  EventUtils.synthesizeKey("VK_ESCAPE", {}, abWindow);
+  EventUtils.synthesizeKey("KEY_Escape", {}, abWindow);
   await waitForDialogOpenState(false);
 
   EventUtils.synthesizeMouseAtCenter(cancelEditButton, {}, abWindow);

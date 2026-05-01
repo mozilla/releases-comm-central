@@ -47,7 +47,7 @@ add_task(async function testTaskDeletion() {
   Assert.equal(tree.view.rowCount, 2, "2 tasks are displayed");
 
   mailTestUtils.treeClick(EventUtils, window, tree, 0, 1, { clickCount: 1 });
-  EventUtils.synthesizeKey("VK_DELETE");
+  EventUtils.synthesizeKey("KEY_Delete");
 
   // Try and trigger a reflow
   tree.getBoundingClientRect();
@@ -114,7 +114,7 @@ add_task(async function testRecurringTaskDeletion() {
     }
   );
   mailTestUtils.treeClick(EventUtils, window, tree, 1, 1, { clickCount: 1 });
-  EventUtils.synthesizeKey("VK_DELETE");
+  EventUtils.synthesizeKey("KEY_Delete");
   await handleSingleDelete;
 
   // Try and trigger a reflow
@@ -163,7 +163,7 @@ add_task(async function testRecurringTaskDeletion() {
   );
 
   mailTestUtils.treeClick(EventUtils, window, tree, 1, 1, { clickCount: 1 });
-  EventUtils.synthesizeKey("VK_DELETE");
+  EventUtils.synthesizeKey("KEY_Delete");
   await handleAllDelete;
 
   // Try and trigger a reflow

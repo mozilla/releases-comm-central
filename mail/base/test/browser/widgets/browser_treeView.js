@@ -108,7 +108,7 @@ async function subtestKeyboardAndMouse(variant) {
 
   // Verify the tab order of list elements by tabbing both forward and backward
   // through them.
-  EventUtils.synthesizeKey("VK_TAB", {}, content);
+  EventUtils.synthesizeKey("KEY_Tab", {}, content);
   Assert.equal(
     doc.activeElement.id,
     "before",
@@ -118,7 +118,7 @@ async function subtestKeyboardAndMouse(variant) {
   if (variant == "header") {
     // Tab order changes slightly if the table has a header versus if it
     // doesn't, so we need to account for that variation.
-    EventUtils.synthesizeKey("VK_TAB", {}, content);
+    EventUtils.synthesizeKey("KEY_Tab", {}, content);
     Assert.equal(
       doc.activeElement.id,
       "testColButton",
@@ -126,23 +126,23 @@ async function subtestKeyboardAndMouse(variant) {
     );
   }
 
-  EventUtils.synthesizeKey("VK_TAB", {}, content);
+  EventUtils.synthesizeKey("KEY_Tab", {}, content);
   Assert.equal(doc.activeElement.id, "testBody", "the list should have focus");
 
-  EventUtils.synthesizeKey("VK_TAB", {}, content);
+  EventUtils.synthesizeKey("KEY_Tab", {}, content);
   Assert.equal(
     doc.activeElement.id,
     "after",
     "the element after the list should have focus"
   );
 
-  EventUtils.synthesizeKey("VK_TAB", { shiftKey: true }, content);
+  EventUtils.synthesizeKey("KEY_Tab", { shiftKey: true }, content);
   Assert.equal(doc.activeElement.id, "testBody", "the list should have focus");
 
   if (variant == "header") {
     // Tab order changes slightly if the table has a header versus if it
     // doesn't, so we need to account for that variation.
-    EventUtils.synthesizeKey("VK_TAB", { shiftKey: true }, content);
+    EventUtils.synthesizeKey("KEY_Tab", { shiftKey: true }, content);
     Assert.equal(
       doc.activeElement.id,
       "testColButton",
@@ -150,7 +150,7 @@ async function subtestKeyboardAndMouse(variant) {
     );
   }
 
-  EventUtils.synthesizeKey("VK_TAB", { shiftKey: true }, content);
+  EventUtils.synthesizeKey("KEY_Tab", { shiftKey: true }, content);
   Assert.equal(
     doc.activeElement.id,
     "before",
@@ -360,29 +360,29 @@ async function subtestKeyboardAndMouse(variant) {
     }
   }
 
-  await pressKey("VK_UP");
+  await pressKey("KEY_ArrowUp");
   checkCurrent(1);
   checkSelected(1);
 
-  await pressKey("VK_UP", { accelKey: true }, false);
+  await pressKey("KEY_ArrowUp", { accelKey: true }, false);
   checkCurrent(0);
   checkSelected(1);
 
   // Without Ctrl selection moves with focus again.
-  await pressKey("VK_UP");
+  await pressKey("KEY_ArrowUp");
   checkCurrent(0);
   checkSelected(0);
 
   // Does nothing.
-  await pressKey("VK_UP", {}, false);
+  await pressKey("KEY_ArrowUp", {}, false);
   checkCurrent(0);
   checkSelected(0);
 
-  await pressKey("VK_DOWN", { accelKey: true }, false);
+  await pressKey("KEY_ArrowDown", { accelKey: true }, false);
   checkCurrent(1);
   checkSelected(0);
 
-  await pressKey("VK_DOWN", { accelKey: true }, false);
+  await pressKey("KEY_ArrowDown", { accelKey: true }, false);
   checkCurrent(2);
   checkSelected(0);
 
@@ -397,11 +397,11 @@ async function subtestKeyboardAndMouse(variant) {
   checkCurrent(2);
   checkSelected(0, 2);
 
-  await pressKey("VK_DOWN", { accelKey: true }, false);
+  await pressKey("KEY_ArrowDown", { accelKey: true }, false);
   checkCurrent(3);
   checkSelected(0, 2);
 
-  await pressKey("VK_DOWN", { accelKey: true }, false);
+  await pressKey("KEY_ArrowDown", { accelKey: true }, false);
   checkCurrent(4);
   checkSelected(0, 2);
 
@@ -414,7 +414,7 @@ async function subtestKeyboardAndMouse(variant) {
   checkSelected(0, 2, 4);
 
   // Single selection restored with normal navigation.
-  await pressKey("VK_UP");
+  await pressKey("KEY_ArrowUp");
   checkCurrent(3);
   checkSelected(3);
 
@@ -427,18 +427,18 @@ async function subtestKeyboardAndMouse(variant) {
     checkSelected();
   }
 
-  await pressKey("VK_DOWN");
+  await pressKey("KEY_ArrowDown");
   checkCurrent(4);
   checkSelected(4);
 
-  await pressKey("VK_HOME", { accelKey: true }, false);
+  await pressKey("KEY_Home", { accelKey: true }, false);
   checkCurrent(0);
   checkSelected(4);
 
   if (AppConstants.platform == "macosx") {
     // We can't clear the selection with only Space on macOS, simulate a Arrow
     // Up to force clear selection and only select the top most row.
-    await pressKey("VK_UP");
+    await pressKey("KEY_ArrowUp");
   } else {
     // Select only the current item with Space (no modifier).
     await pressKey(" ");
@@ -449,7 +449,7 @@ async function subtestKeyboardAndMouse(variant) {
   // The list is 630px high, so rows 0-12 are fully or partly visible.
 
   await doListActionAndWaitForRowBuffer(async () => {
-    await pressKey("VK_PAGE_DOWN");
+    await pressKey("KEY_PageDown");
   });
   checkCurrent(13);
   checkSelected(13);
@@ -460,7 +460,7 @@ async function subtestKeyboardAndMouse(variant) {
   );
 
   await doListActionAndWaitForRowBuffer(async () => {
-    await pressKey("VK_PAGE_UP", { shiftKey: true });
+    await pressKey("KEY_PageUp", { shiftKey: true });
   });
   checkCurrent(0);
   checkSelected(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13);
@@ -471,15 +471,15 @@ async function subtestKeyboardAndMouse(variant) {
   );
 
   // Shrink shift selection.
-  await pressKey("VK_DOWN", { shiftKey: true });
+  await pressKey("KEY_ArrowDown", { shiftKey: true });
   checkCurrent(1);
   checkSelected(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13);
 
-  await pressKey("VK_DOWN", { accelKey: true }, false);
+  await pressKey("KEY_ArrowDown", { accelKey: true }, false);
   checkCurrent(2);
   checkSelected(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13);
 
-  await pressKey("VK_DOWN", { accelKey: true }, false);
+  await pressKey("KEY_ArrowDown", { accelKey: true }, false);
   checkCurrent(3);
   checkSelected(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13);
 
@@ -495,19 +495,19 @@ async function subtestKeyboardAndMouse(variant) {
   checkCurrent(3);
   checkSelected(1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13);
 
-  await pressKey("VK_DOWN", { shiftKey: true });
+  await pressKey("KEY_ArrowDown", { shiftKey: true });
   checkCurrent(4);
   checkSelected(3, 4);
 
   // Reverse selection direction.
-  await pressKey("VK_HOME", { shiftKey: true });
+  await pressKey("KEY_Home", { shiftKey: true });
   checkCurrent(0);
   checkSelected(0, 1, 2, 3);
 
   // Now rows 138-149 are fully visible.
 
   await doListActionAndWaitForRowBuffer(async () => {
-    await pressKey("VK_END");
+    await pressKey("KEY_End");
   });
   checkCurrent(149);
   checkSelected(149);
@@ -519,7 +519,7 @@ async function subtestKeyboardAndMouse(variant) {
   checkTopSpacerHeight(137);
 
   // Does nothing.
-  await pressKey("VK_DOWN", {}, false);
+  await pressKey("KEY_ArrowDown", {}, false);
   checkCurrent(149);
   checkSelected(149);
   Assert.equal(
@@ -530,7 +530,7 @@ async function subtestKeyboardAndMouse(variant) {
   checkTopSpacerHeight(137);
 
   await doListActionAndWaitForRowBuffer(async () => {
-    await pressKey("VK_PAGE_UP");
+    await pressKey("KEY_PageUp");
   });
   checkCurrent(136);
   checkSelected(136);
@@ -541,7 +541,7 @@ async function subtestKeyboardAndMouse(variant) {
   );
 
   await doListActionAndWaitForRowBuffer(async () => {
-    await pressKey("VK_PAGE_DOWN", { shiftKey: true });
+    await pressKey("KEY_PageDown", { shiftKey: true });
   });
   checkCurrent(149);
   checkSelected(
@@ -568,7 +568,7 @@ async function subtestKeyboardAndMouse(variant) {
   checkTopSpacerHeight(137);
 
   await doListActionAndWaitForRowBuffer(async () => {
-    await pressKey("VK_HOME");
+    await pressKey("KEY_Home");
   });
   checkCurrent(0);
   checkSelected(0);
@@ -611,7 +611,7 @@ async function subtestKeyboardAndMouse(variant) {
   checkTopSpacerHeight(50);
 
   await doListActionAndWaitForRowBuffer(async () => {
-    await pressKey("VK_DOWN");
+    await pressKey("KEY_ArrowDown");
   });
   checkCurrent(1);
   checkSelected(1);
@@ -635,7 +635,7 @@ async function subtestKeyboardAndMouse(variant) {
     "'select' event did not fire as expected"
   );
 
-  await pressKey("VK_UP");
+  await pressKey("KEY_ArrowUp");
   checkCurrent(0);
   checkSelected(0);
   Assert.equal(
@@ -1484,102 +1484,102 @@ async function subtestExpandCollapse() {
   // Row 0 has no children or parent, nothing should happen.
 
   list.selectedIndex = 0;
-  await pressKey("row-1", "VK_LEFT");
+  await pressKey("row-1", "KEY_ArrowLeft");
   checkSelectedAndCurrent(0, "row-1");
-  await pressKey("row-1", "VK_RIGHT");
+  await pressKey("row-1", "KEY_ArrowRight");
   checkSelectedAndCurrent(0, "row-1");
 
   // Collapse row 2.
 
   list.selectedIndex = 1;
-  await pressKey("row-2", "VK_LEFT", "collapsed");
+  await pressKey("row-2", "KEY_ArrowLeft", "collapsed");
   checkRowsAreHidden("row-2-1", "row-2-2");
   checkSelectedAndCurrent(1, "row-2");
 
-  await pressKey("row-2", "VK_LEFT");
+  await pressKey("row-2", "KEY_ArrowLeft");
   checkRowsAreHidden("row-2-1", "row-2-2");
   checkSelectedAndCurrent(1, "row-2");
 
   // Collapse row 3.
 
   list.selectedIndex = 2;
-  await pressKey("row-3", "VK_LEFT", "collapsed");
+  await pressKey("row-3", "KEY_ArrowLeft", "collapsed");
   checkRowsAreHidden("row-2-1", "row-2-2", "row-3-1", "row-3-1-1", "row-3-1-2");
   checkSelectedAndCurrent(2, "row-3");
 
-  await pressKey("row-3", "VK_LEFT");
+  await pressKey("row-3", "KEY_ArrowLeft");
   checkRowsAreHidden("row-2-1", "row-2-2", "row-3-1", "row-3-1-1", "row-3-1-2");
   checkSelectedAndCurrent(2, "row-3");
 
   // Expand row 2.
 
   list.selectedIndex = 1;
-  await pressKey("row-2", "VK_RIGHT", "expanded");
+  await pressKey("row-2", "KEY_ArrowRight", "expanded");
   checkRowsAreHidden("row-3-1", "row-3-1-1", "row-3-1-2");
   checkSelectedAndCurrent(1, "row-2");
 
   // Expand row 3.
 
   list.selectedIndex = 4;
-  await pressKey("row-3", "VK_RIGHT", "expanded");
+  await pressKey("row-3", "KEY_ArrowRight", "expanded");
   checkRowsAreHidden();
   checkSelectedAndCurrent(4, "row-3");
 
   // Go down the tree to row 3-1-1.
 
-  await pressKey("row-3", "VK_RIGHT");
+  await pressKey("row-3", "KEY_ArrowRight");
   checkRowsAreHidden();
   checkSelectedAndCurrent(5, "row-3-1");
 
-  await pressKey("row-3", "VK_RIGHT");
+  await pressKey("row-3", "KEY_ArrowRight");
   checkRowsAreHidden();
   checkSelectedAndCurrent(6, "row-3-1-1");
 
-  await pressKey("row-3-1-1", "VK_RIGHT");
+  await pressKey("row-3-1-1", "KEY_ArrowRight");
   checkRowsAreHidden();
   checkSelectedAndCurrent(6, "row-3-1-1");
 
   // Collapse row 3-1.
 
-  await pressKey("row-3-1-1", "VK_LEFT");
+  await pressKey("row-3-1-1", "KEY_ArrowLeft");
   checkRowsAreHidden();
   checkSelectedAndCurrent(5, "row-3-1");
 
-  await pressKey("row-3-1", "VK_LEFT", "collapsed");
+  await pressKey("row-3-1", "KEY_ArrowLeft", "collapsed");
   checkRowsAreHidden("row-3-1-1", "row-3-1-2");
   checkSelectedAndCurrent(5, "row-3-1");
 
   // Collapse row 3.
 
-  await pressKey("row-3-1", "VK_LEFT");
+  await pressKey("row-3-1", "KEY_ArrowLeft");
   checkRowsAreHidden("row-3-1-1", "row-3-1-2");
   checkSelectedAndCurrent(4, "row-3");
 
-  await pressKey("row-3", "VK_LEFT", "collapsed");
+  await pressKey("row-3", "KEY_ArrowLeft", "collapsed");
   checkRowsAreHidden("row-3-1", "row-3-1-1", "row-3-1-2");
   checkSelectedAndCurrent(4, "row-3");
 
   // Expand row 3.
 
-  await pressKey("row-3", "VK_RIGHT", "expanded");
+  await pressKey("row-3", "KEY_ArrowRight", "expanded");
   checkRowsAreHidden("row-3-1-1", "row-3-1-2");
   checkSelectedAndCurrent(4, "row-3");
 
-  await pressKey("row-3", "VK_RIGHT");
+  await pressKey("row-3", "KEY_ArrowRight");
   checkRowsAreHidden("row-3-1-1", "row-3-1-2");
   checkSelectedAndCurrent(5, "row-3-1");
 
   // Expand row 3-1.
 
-  await pressKey("row-3-1", "VK_RIGHT", "expanded");
+  await pressKey("row-3-1", "KEY_ArrowRight", "expanded");
   checkRowsAreHidden();
   checkSelectedAndCurrent(5, "row-3-1");
 
-  await pressKey("row-3-1", "VK_RIGHT");
+  await pressKey("row-3-1", "KEY_ArrowRight");
   checkRowsAreHidden();
   checkSelectedAndCurrent(6, "row-3-1-1");
 
-  await pressKey("row-3-1-1", "VK_RIGHT");
+  await pressKey("row-3-1-1", "KEY_ArrowRight");
   checkRowsAreHidden();
   checkSelectedAndCurrent(6, "row-3-1-1");
 
@@ -1591,102 +1591,102 @@ async function subtestExpandCollapse() {
   // Row 0 has no children or parent, nothing should happen.
 
   list.selectedIndex = 0;
-  await pressKey("row-1", "VK_RIGHT");
+  await pressKey("row-1", "KEY_ArrowRight");
   checkSelectedAndCurrent(0, "row-1");
-  await pressKey("row-1", "VK_LEFT");
+  await pressKey("row-1", "KEY_ArrowLeft");
   checkSelectedAndCurrent(0, "row-1");
 
   // Collapse row 2.
 
   list.selectedIndex = 1;
-  await pressKey("row-2", "VK_RIGHT", "collapsed");
+  await pressKey("row-2", "KEY_ArrowRight", "collapsed");
   checkRowsAreHidden("row-2-1", "row-2-2");
   checkSelectedAndCurrent(1, "row-2");
 
-  await pressKey("row-2", "VK_RIGHT");
+  await pressKey("row-2", "KEY_ArrowRight");
   checkRowsAreHidden("row-2-1", "row-2-2");
   checkSelectedAndCurrent(1, "row-2");
 
   // Collapse row 3.
 
   list.selectedIndex = 2;
-  await pressKey("row-3", "VK_RIGHT", "collapsed");
+  await pressKey("row-3", "KEY_ArrowRight", "collapsed");
   checkRowsAreHidden("row-2-1", "row-2-2", "row-3-1", "row-3-1-1", "row-3-1-2");
   checkSelectedAndCurrent(2, "row-3");
 
-  await pressKey("row-3", "VK_RIGHT");
+  await pressKey("row-3", "KEY_ArrowRight");
   checkRowsAreHidden("row-2-1", "row-2-2", "row-3-1", "row-3-1-1", "row-3-1-2");
   checkSelectedAndCurrent(2, "row-3");
 
   // Expand row 2.
 
   list.selectedIndex = 1;
-  await pressKey("row-2", "VK_LEFT", "expanded");
+  await pressKey("row-2", "KEY_ArrowLeft", "expanded");
   checkRowsAreHidden("row-3-1", "row-3-1-1", "row-3-1-2");
   checkSelectedAndCurrent(1, "row-2");
 
   // Expand row 3.
 
   list.selectedIndex = 4;
-  await pressKey("row-3", "VK_LEFT", "expanded");
+  await pressKey("row-3", "KEY_ArrowLeft", "expanded");
   checkRowsAreHidden();
   checkSelectedAndCurrent(4, "row-3");
 
   // Go down the tree to row 3-1-1.
 
-  await pressKey("row-3", "VK_LEFT");
+  await pressKey("row-3", "KEY_ArrowLeft");
   checkRowsAreHidden();
   checkSelectedAndCurrent(5, "row-3-1");
 
-  await pressKey("row-3", "VK_LEFT");
+  await pressKey("row-3", "KEY_ArrowLeft");
   checkRowsAreHidden();
   checkSelectedAndCurrent(6, "row-3-1-1");
 
-  await pressKey("row-3-1-1", "VK_LEFT");
+  await pressKey("row-3-1-1", "KEY_ArrowLeft");
   checkRowsAreHidden();
   checkSelectedAndCurrent(6, "row-3-1-1");
 
   // Collapse row 3-1.
 
-  await pressKey("row-3-1-1", "VK_RIGHT");
+  await pressKey("row-3-1-1", "KEY_ArrowRight");
   checkRowsAreHidden();
   checkSelectedAndCurrent(5, "row-3-1");
 
-  await pressKey("row-3-1", "VK_RIGHT", "collapsed");
+  await pressKey("row-3-1", "KEY_ArrowRight", "collapsed");
   checkRowsAreHidden("row-3-1-1", "row-3-1-2");
   checkSelectedAndCurrent(5, "row-3-1");
 
   // Collapse row 3.
 
-  await pressKey("row-3-1", "VK_RIGHT");
+  await pressKey("row-3-1", "KEY_ArrowRight");
   checkRowsAreHidden("row-3-1-1", "row-3-1-2");
   checkSelectedAndCurrent(4, "row-3");
 
-  await pressKey("row-3", "VK_RIGHT", "collapsed");
+  await pressKey("row-3", "KEY_ArrowRight", "collapsed");
   checkRowsAreHidden("row-3-1", "row-3-1-1", "row-3-1-2");
   checkSelectedAndCurrent(4, "row-3");
 
   // Expand row 3.
 
-  await pressKey("row-3", "VK_LEFT", "expanded");
+  await pressKey("row-3", "KEY_ArrowLeft", "expanded");
   checkRowsAreHidden("row-3-1-1", "row-3-1-2");
   checkSelectedAndCurrent(4, "row-3");
 
-  await pressKey("row-3", "VK_LEFT");
+  await pressKey("row-3", "KEY_ArrowLeft");
   checkRowsAreHidden("row-3-1-1", "row-3-1-2");
   checkSelectedAndCurrent(5, "row-3-1");
 
   // Expand row 3-1.
 
-  await pressKey("row-3-1", "VK_LEFT", "expanded");
+  await pressKey("row-3-1", "KEY_ArrowLeft", "expanded");
   checkRowsAreHidden();
   checkSelectedAndCurrent(5, "row-3-1");
 
-  await pressKey("row-3-1", "VK_LEFT");
+  await pressKey("row-3-1", "KEY_ArrowLeft");
   checkRowsAreHidden();
   checkSelectedAndCurrent(6, "row-3-1-1");
 
-  await pressKey("row-3-1-1", "VK_LEFT");
+  await pressKey("row-3-1-1", "KEY_ArrowLeft");
   checkRowsAreHidden();
   checkSelectedAndCurrent(6, "row-3-1-1");
 
@@ -1795,9 +1795,9 @@ async function subtestExpandCollapse() {
   selectHandler.reset();
   list.selectedIndex = 1;
   checkSelectedAndCurrent(1, "row-2");
-  info(`pressing VK_DOWN with shift key twice`);
-  EventUtils.synthesizeKey("VK_DOWN", { shiftKey: true }, content);
-  EventUtils.synthesizeKey("VK_DOWN", { shiftKey: true }, content);
+  info(`pressing KEY_ArrowDown with shift key twice`);
+  EventUtils.synthesizeKey("KEY_ArrowDown", { shiftKey: true }, content);
+  EventUtils.synthesizeKey("KEY_ArrowDown", { shiftKey: true }, content);
   checkMultiSelect("row-2", "row-2-1", "row-2-2");
   checkCurrent(3);
   await clickTwisty("row-2", "collapsed");
@@ -1960,10 +1960,10 @@ async function subtestScrollWhenExpandCollapse() {
   list.selectedIndex = 2;
   await new Promise(resolve => content.requestAnimationFrame(resolve));
 
-  await pressKey("row-3", "VK_RIGHT", "expanded");
+  await pressKey("row-3", "KEY_ArrowRight", "expanded");
   await checkFirstVisibleRow(0);
 
-  await pressKey("row-3", "VK_LEFT", "collapsed");
+  await pressKey("row-3", "KEY_ArrowLeft", "collapsed");
   await checkFirstVisibleRow(0);
 
   // Expanding/collapsing row with many children not all fitting the screen
@@ -1981,16 +1981,16 @@ async function subtestScrollWhenExpandCollapse() {
   list.selectedIndex = 3;
   await new Promise(resolve => content.requestAnimationFrame(resolve));
 
-  await pressKey("row-4", "VK_RIGHT", "expanded");
+  await pressKey("row-4", "KEY_ArrowRight", "expanded");
   await checkFirstVisibleRow(3);
 
-  await pressKey("row-4", "VK_LEFT", "collapsed");
+  await pressKey("row-4", "KEY_ArrowLeft", "collapsed");
   await checkVisibleRow(3);
 
   // Expanding a row near the bottom with few children should scroll just the
   // last child into view.
 
-  await pressKey("row-4", "VK_RIGHT", "expanded");
+  await pressKey("row-4", "KEY_ArrowRight", "expanded");
   list.selectedIndex = 38;
   await new Promise(resolve => content.requestAnimationFrame(resolve));
 
@@ -2005,10 +2005,10 @@ async function subtestScrollWhenExpandCollapse() {
   list.selectedIndex = 38;
   await new Promise(resolve => content.requestAnimationFrame(resolve));
 
-  await pressKey("row-9", "VK_RIGHT", "expanded");
+  await pressKey("row-9", "KEY_ArrowRight", "expanded");
   checkLastVisibleRow(43);
 
-  await pressKey("row-9", "VK_LEFT", "collapsed");
+  await pressKey("row-9", "KEY_ArrowLeft", "collapsed");
   checkVisibleRow(38);
 
   list.removeEventListener("collapsed", listener);

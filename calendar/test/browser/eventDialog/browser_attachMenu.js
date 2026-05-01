@@ -76,7 +76,7 @@ add_task(async function testAttachWebPage() {
     {
       async callback(win) {
         win.document.querySelector("#loginTextbox").value = url;
-        EventUtils.synthesizeKey("VK_RETURN", {}, win);
+        EventUtils.synthesizeKey("KEY_Enter", {}, win);
       },
     }
   );
@@ -114,7 +114,7 @@ add_task(async function testAttachWebPage() {
   // Clean up.
   const eventBox = await getEventBox("calendar-month-day-box-item");
   eventBox.focus();
-  EventUtils.synthesizeKey("VK_DELETE", {});
+  EventUtils.synthesizeKey("KEY_Delete", {});
 });
 
 /**
@@ -264,5 +264,5 @@ add_task(async function testAttachProvider() {
   // Clean up.
   const eventBox = await getEventBox("calendar-month-day-box-item");
   eventBox.focus();
-  EventUtils.synthesizeKey("VK_DELETE", {});
+  EventUtils.synthesizeKey("KEY_Delete", {});
 });

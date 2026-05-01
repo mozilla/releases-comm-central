@@ -240,7 +240,7 @@ async function reply_forward_message(aMsgRow, aReply) {
   // Ctrl+Shift+Return = Send Later
   cwc.document.getElementById("messageEditor").focus();
   EventUtils.synthesizeKey(
-    "VK_RETURN",
+    "KEY_Enter",
     {
       shiftKey: true,
       accelKey: true,

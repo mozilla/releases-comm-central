@@ -30,5 +30,5 @@ export function delete_all_existing(aWin, aElement) {
   aElement.focus();
   EventUtils.synthesizeKey("a", { accelKey: true }, aWin);
   aElement.focus();
-  EventUtils.synthesizeKey("VK_DELETE", {}, aWin);
+  EventUtils.synthesizeKey("KEY_Delete", {}, aWin);
 }

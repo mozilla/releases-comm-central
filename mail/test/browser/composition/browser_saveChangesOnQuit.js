@@ -356,10 +356,10 @@ add_task(async function test_prompt_save_on_pill_editing() {
   // The focus should be on the subject since we didn't write anything,
   // so shift+tab to move the focus on the To field, and pressing Arrow Left
   // should correctly focus the previously generated pill.
-  EventUtils.synthesizeKey("VK_TAB", { shiftKey: true }, cwc);
+  EventUtils.synthesizeKey("KEY_Tab", { shiftKey: true }, cwc);
   EventUtils.synthesizeKey("KEY_ArrowLeft", {}, cwc);
   await focusPromise;
-  EventUtils.synthesizeKey("VK_RETURN", {}, cwc);
+  EventUtils.synthesizeKey("KEY_Enter", {}, cwc);
   await isEditing;
 
   // Try to quit after entering the pill edit mode, a "unsaved changes" dialog

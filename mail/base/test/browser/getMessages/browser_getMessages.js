@@ -461,7 +461,7 @@ add_task(async function testInFolder() {
     }
 
     info("pressing F5");
-    EventUtils.synthesizeKey("VK_F5", {});
+    EventUtils.synthesizeKey("KEY_F5", {});
   });
   about3Pane.displayFolder(localRootFolder);
 });
@@ -582,7 +582,7 @@ add_task(async function testMessageWindow() {
       await addMessagesToServer(thisInbox.server.type);
 
       info("pressing F5");
-      EventUtils.synthesizeKey("VK_F5", {}, messageWindow);
+      EventUtils.synthesizeKey("KEY_F5", {}, messageWindow);
     });
   } finally {
     for (const win of windowsToClose) {

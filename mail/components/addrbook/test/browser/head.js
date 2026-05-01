@@ -436,7 +436,7 @@ async function doSearch(searchString, ...expectedCards) {
     EventUtils.synthesizeKey("a", { accelKey: true }, abWindow);
     EventUtils.sendString(searchString, abWindow);
   } else {
-    EventUtils.synthesizeKey("VK_ESCAPE", {}, abWindow);
+    EventUtils.synthesizeKey("KEY_Escape", {}, abWindow);
   }
 
   await viewChangePromise;

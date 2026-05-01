@@ -433,7 +433,7 @@ add_task(async function testNewRenameDelete() {
         Assert.ok(!acceptButton.disabled);
 
         EventUtils.synthesizeKey("a", { accelKey: true }, win);
-        EventUtils.synthesizeKey("VK_BACK_SPACE", {}, win);
+        EventUtils.synthesizeKey("KEY_Backspace", {}, win);
         Assert.equal(nameInput.value, "");
         Assert.ok(acceptButton.disabled);
 

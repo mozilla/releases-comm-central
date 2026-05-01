@@ -958,7 +958,7 @@ add_task(async function test_total_address_book_count() {
   const deletedPromise = TestUtils.topicObserved("addrbook-contact-deleted");
   const cards = abWindow.cardsPane.cardsList;
   EventUtils.synthesizeMouseAtCenter(cards.getRowAtIndex(0), {}, abWindow);
-  EventUtils.synthesizeKey("VK_DELETE", {}, abWindow);
+  EventUtils.synthesizeKey("KEY_Delete", {}, abWindow);
   await promptPromise;
   await deletedPromise;
   Assert.deepEqual(

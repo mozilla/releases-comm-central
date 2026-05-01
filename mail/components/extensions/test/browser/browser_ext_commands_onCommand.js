@@ -19,7 +19,7 @@ const gTestCommands = [
   {
     name: "toggle-ctrl-up",
     shortcut: "Ctrl+Up",
-    key: "VK_UP",
+    key: "KEY_ArrowUp",
     modifiers: {
       accelKey: true,
     },
@@ -38,7 +38,7 @@ const gTestCommands = [
   {
     name: "toggle-alt-down",
     shortcut: "Alt+Down",
-    key: "VK_DOWN",
+    key: "KEY_ArrowDown",
     modifiers: {
       altKey: true,
     },
@@ -47,7 +47,7 @@ const gTestCommands = [
   {
     name: "toggle-command-shift-page-up",
     shortcutMac: "Command+Shift+PageUp",
-    key: "VK_PAGE_UP",
+    key: "KEY_PageUp",
     modifiers: {
       accelKey: true,
       shiftKey: true,
@@ -57,7 +57,7 @@ const gTestCommands = [
     name: "toggle-mac-control-shift+period",
     shortcut: "Ctrl+Shift+Period",
     shortcutMac: "MacCtrl+Shift+Period",
-    key: "VK_PERIOD",
+    key: ".",
     modifiers: {
       ctrlKey: true,
       shiftKey: true,
@@ -67,7 +67,7 @@ const gTestCommands = [
   {
     name: "toggle-ctrl-shift-left",
     shortcut: "Ctrl+Shift+Left",
-    key: "VK_LEFT",
+    key: "KEY_ArrowLeft",
     modifiers: {
       accelKey: true,
       shiftKey: true,
@@ -109,7 +109,7 @@ const gTestCommands = [
   {
     name: "toggle-alt-shift-right",
     shortcut: "Alt+Shift+Right",
-    key: "VK_RIGHT",
+    key: "KEY_ArrowRight",
     modifiers: {
       altKey: true,
       shiftKey: true,
@@ -119,7 +119,7 @@ const gTestCommands = [
   {
     name: "function-keys-Alt+Shift+F3",
     shortcut: "Alt+Shift+F3",
-    key: "VK_F3",
+    key: "KEY_F3",
     modifiers: {
       altKey: true,
       shiftKey: true,
@@ -128,7 +128,7 @@ const gTestCommands = [
   {
     name: "function-keys-F2",
     shortcut: "F2",
-    key: "VK_F2",
+    key: "KEY_F2",
     modifiers: {
       altKey: false,
       shiftKey: false,
@@ -157,7 +157,7 @@ const gTestCommands = [
   {
     name: "toggle-ctrl-space",
     shortcut: "Ctrl+Space",
-    key: "VK_SPACE",
+    key: " ",
     modifiers: {
       accelKey: true,
     },
@@ -165,7 +165,7 @@ const gTestCommands = [
   {
     name: "toggle-ctrl-comma",
     shortcut: "Ctrl+Comma",
-    key: "VK_COMMA",
+    key: ",",
     modifiers: {
       accelKey: true,
     },
@@ -173,7 +173,7 @@ const gTestCommands = [
   {
     name: "toggle-ctrl-period",
     shortcut: "Ctrl+Period",
-    key: "VK_PERIOD",
+    key: ".",
     modifiers: {
       accelKey: true,
     },

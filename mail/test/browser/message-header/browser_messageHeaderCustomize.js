@@ -277,7 +277,7 @@ add_task(async function test_customize_toolbar_buttons() {
   );
 
   let panelHidden = BrowserTestUtils.waitForEvent(panel, "popuphidden");
-  EventUtils.synthesizeKey("VK_ESCAPE", {}, aboutMessage);
+  EventUtils.synthesizeKey("KEY_Escape", {}, aboutMessage);
   await panelHidden;
 
   await BrowserTestUtils.waitForCondition(
@@ -345,7 +345,7 @@ add_task(async function test_customize_toolbar_buttons() {
   EventUtils.synthesizeMouseAtCenter(hideLabels, {}, aboutMessage);
 
   panelHidden = BrowserTestUtils.waitForEvent(panel, "popuphidden");
-  EventUtils.synthesizeKey("VK_ESCAPE", {}, aboutMessage);
+  EventUtils.synthesizeKey("KEY_Escape", {}, aboutMessage);
   await panelHidden;
 
   await BrowserTestUtils.waitForCondition(

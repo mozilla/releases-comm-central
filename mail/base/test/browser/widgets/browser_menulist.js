@@ -48,37 +48,37 @@ add_task(async () => {
   beforeButton.focus();
   is(testDocument.activeElement, beforeButton);
 
-  EventUtils.synthesizeKey("VK_TAB", { shiftKey: false }, testWindow);
+  EventUtils.synthesizeKey("KEY_Tab", { shiftKey: false }, testWindow);
   is(testDocument.activeElement, menulists[0]);
 
-  EventUtils.synthesizeKey("VK_TAB", { shiftKey: false }, testWindow);
+  EventUtils.synthesizeKey("KEY_Tab", { shiftKey: false }, testWindow);
   is(testDocument.activeElement, menulists[1]);
 
-  EventUtils.synthesizeKey("VK_TAB", { shiftKey: false }, testWindow);
+  EventUtils.synthesizeKey("KEY_Tab", { shiftKey: false }, testWindow);
   is(testDocument.activeElement, menulists[2]);
 
-  EventUtils.synthesizeKey("VK_TAB", { shiftKey: false }, testWindow);
+  EventUtils.synthesizeKey("KEY_Tab", { shiftKey: false }, testWindow);
   is(testDocument.activeElement, menulists[2]);
   is(menulists[2].shadowRoot.activeElement, menulists[2]._inputField);
 
-  EventUtils.synthesizeKey("VK_TAB", { shiftKey: false }, testWindow);
+  EventUtils.synthesizeKey("KEY_Tab", { shiftKey: false }, testWindow);
   is(testDocument.activeElement, testDocument.querySelector("button#after"));
 
   // Now go back again.
-  EventUtils.synthesizeKey("VK_TAB", { shiftKey: true }, testWindow);
+  EventUtils.synthesizeKey("KEY_Tab", { shiftKey: true }, testWindow);
   is(testDocument.activeElement, menulists[2]);
   is(menulists[2].shadowRoot.activeElement, menulists[2]._inputField);
 
-  EventUtils.synthesizeKey("VK_TAB", { shiftKey: true }, testWindow);
+  EventUtils.synthesizeKey("KEY_Tab", { shiftKey: true }, testWindow);
   is(testDocument.activeElement, menulists[2]);
 
-  EventUtils.synthesizeKey("VK_TAB", { shiftKey: true }, testWindow);
+  EventUtils.synthesizeKey("KEY_Tab", { shiftKey: true }, testWindow);
   is(testDocument.activeElement, menulists[1]);
 
-  EventUtils.synthesizeKey("VK_TAB", { shiftKey: true }, testWindow);
+  EventUtils.synthesizeKey("KEY_Tab", { shiftKey: true }, testWindow);
   is(testDocument.activeElement, menulists[0]);
 
-  EventUtils.synthesizeKey("VK_TAB", { shiftKey: true }, testWindow);
+  EventUtils.synthesizeKey("KEY_Tab", { shiftKey: true }, testWindow);
   is(testDocument.activeElement, beforeButton, "focus back to the start");
 
   const popup = menulists[2].menupopup;
@@ -154,7 +154,7 @@ add_task(async () => {
       },
       { once: true }
     );
-    EventUtils.synthesizeKey("VK_TAB", { shiftKey: false }, testWindow);
+    EventUtils.synthesizeKey("KEY_Tab", { shiftKey: false }, testWindow);
   });
   is(menulists[2].value, "quux");
   is(menulists[2].getAttribute("value"), "quux");

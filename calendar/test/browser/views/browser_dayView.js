@@ -74,7 +74,7 @@ add_task(async function testDayView() {
   // Delete event
   EventUtils.synthesizeMouseAtCenter(eventBox, {}, window);
   eventBox.focus();
-  EventUtils.synthesizeKey("VK_DELETE", {}, window);
+  EventUtils.synthesizeKey("KEY_Delete", {}, window);
   await CalendarTestUtils.dayView.waitForNoEventBoxAt(window, 1);
 
   Assert.ok(true, "Test ran to completion");

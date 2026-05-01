@@ -58,7 +58,7 @@ add_task(async function testCategoryColors() {
   );
 
   EventUtils.synthesizeMouse(listBox, 5, 5, {}, prefsWindow);
-  EventUtils.synthesizeKey("VK_HOME", {}, prefsWindow);
+  EventUtils.synthesizeKey("KEY_Home", {}, prefsWindow);
   Assert.equal(listBox.selectedIndex, 0);
   const itemName = listBox.itemChildren[0].firstElementChild.value;
   EventUtils.synthesizeMouseAtCenter(prefsDocument.getElementById("editCButton"), {}, prefsWindow);
@@ -80,7 +80,7 @@ add_task(async function testCategoryColors() {
   // Remove the added category.
 
   EventUtils.synthesizeMouse(listBox, 5, 5, {}, prefsWindow);
-  EventUtils.synthesizeKey("VK_END", {}, prefsWindow);
+  EventUtils.synthesizeKey("KEY_End", {}, prefsWindow);
   Assert.equal(listBox.selectedIndex, listBox.itemCount - 1);
   EventUtils.synthesizeMouseAtCenter(
     prefsDocument.getElementById("deleteCButton"),

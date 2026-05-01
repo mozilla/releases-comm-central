@@ -332,7 +332,7 @@ add_task(async function test_close_search_window() {
   swc.focus();
   // now close the search window
   const closePromise = BrowserTestUtils.domWindowClosed(swc);
-  EventUtils.synthesizeKey("VK_ESCAPE", {}, swc);
+  EventUtils.synthesizeKey("KEY_Escape", {}, swc);
   await closePromise;
   swc = null;
 });

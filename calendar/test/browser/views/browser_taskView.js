@@ -36,7 +36,7 @@ add_task(async function () {
   const taskInput = document.getElementById("view-task-edit-field");
   taskInput.focus();
   EventUtils.sendString(TITLE, window);
-  EventUtils.synthesizeKey("VK_RETURN", {}, window);
+  EventUtils.synthesizeKey("KEY_Enter", {}, window);
 
   // Verify added.
   await TestUtils.waitForCondition(

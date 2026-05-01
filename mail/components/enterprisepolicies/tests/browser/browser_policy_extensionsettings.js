@@ -57,7 +57,7 @@ function dismissNotification(win = window) {
     }
     PopupNotifications.panel.addEventListener("popuphidden", popuphidden);
     executeSoon(function () {
-      EventUtils.synthesizeKey("VK_ESCAPE", {}, win);
+      EventUtils.synthesizeKey("KEY_Escape", {}, win);
     });
   });
 }

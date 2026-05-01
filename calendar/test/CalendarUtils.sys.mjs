@@ -44,7 +44,7 @@ export async function handleDeleteOccurrencePrompt(window, element, selectParent
     }
   );
 
-  EventUtils.synthesizeKey("VK_DELETE", {}, window);
+  EventUtils.synthesizeKey("KEY_Delete", {}, window);
   await dialogPromise;
 }
 

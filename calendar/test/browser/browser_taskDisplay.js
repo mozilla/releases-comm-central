@@ -49,7 +49,7 @@ add_task(async () => {
 
   async function clearFilterText() {
     EventUtils.synthesizeMouseAtCenter(document.getElementById("task-text-filter-field"), {});
-    EventUtils.synthesizeKey("VK_ESCAPE");
+    EventUtils.synthesizeKey("KEY_Escape");
     Assert.equal(
       document.getElementById("task-text-filter-field").value,
       "",

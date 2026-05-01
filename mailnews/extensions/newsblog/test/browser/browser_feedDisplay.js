@@ -83,7 +83,7 @@ async function subscribeToFeed(feedURL) {
         EventUtils.synthesizeMouseAtCenter(locationInput, {}, dialogWindow);
         await TestUtils.waitForCondition(() => !addFeedButton.disabled);
         EventUtils.sendString(feedURL, dialogWindow);
-        EventUtils.synthesizeKey("VK_TAB", {}, dialogWindow);
+        EventUtils.synthesizeKey("KEY_Tab", {}, dialogWindow);
 
         // There's no good way to know if we're ready to continue.
         await new Promise(r => dialogWindow.setTimeout(r, 250));

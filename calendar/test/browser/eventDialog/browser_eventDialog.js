@@ -238,10 +238,10 @@ add_task(async function testOpenExistingEventDialog() {
       .innerText,
     EVENTDESCRIPTION
   );
-  EventUtils.synthesizeKey("VK_ESCAPE", {}, eventWin);
+  EventUtils.synthesizeKey("KEY_Escape", {}, eventWin);
 
   eventBox.focus();
-  EventUtils.synthesizeKey("VK_DELETE", {}, window);
+  EventUtils.synthesizeKey("KEY_Delete", {}, window);
   await dayView.waitForNoEventBoxAt(window, 1);
 });
 
@@ -266,7 +266,7 @@ add_task(async function testEventReminderDisplay() {
   let doc = eventWindow.document;
   let row = doc.querySelector(".reminder-row");
   Assert.ok(row.hidden, "reminder dropdown is not displayed");
-  EventUtils.synthesizeKey("VK_ESCAPE", {}, eventWindow);
+  EventUtils.synthesizeKey("KEY_Escape", {}, eventWindow);
 
   await CalendarTestUtils.goToDate(window, 2020, 2, 1);
   createBox = dayView.getHourBoxAt(window, 8);
@@ -290,7 +290,7 @@ add_task(async function testEventReminderDisplay() {
     row.textContent.includes("7 days before"),
     "the details are shown when a reminder is set"
   );
-  EventUtils.synthesizeKey("VK_ESCAPE", {}, eventWindow);
+  EventUtils.synthesizeKey("KEY_Escape", {}, eventWindow);
 
   // Create an invitation.
   const icalString =
@@ -329,7 +329,7 @@ add_task(async function testEventReminderDisplay() {
 
   Assert.ok(!row.hidden, "reminder row is displayed");
   Assert.notEqual(row.querySelector("menulist"), null, "reminder dropdown is available");
-  EventUtils.synthesizeKey("VK_ESCAPE", {}, eventWindow);
+  EventUtils.synthesizeKey("KEY_Escape", {}, eventWindow);
 
   // Delete directly, as using the UI causes a prompt to appear.
   calendar.deleteItem(calendarEvent);
@@ -351,7 +351,7 @@ add_task(async function testCtrlEnterShortcut() {
     location: EVENTLOCATION,
     description: EVENTDESCRIPTION,
   });
-  EventUtils.synthesizeKey("VK_RETURN", { ctrlKey: true }, dialogWindow);
+  EventUtils.synthesizeKey("KEY_Enter", { ctrlKey: true }, dialogWindow);
 
   await CalendarTestUtils.setCalendarView(window, "month");
 
@@ -367,7 +367,7 @@ add_task(async function testCtrlEnterShortcut() {
   }
 
   events[0].focus();
-  EventUtils.synthesizeKey("VK_DELETE", {}, window);
+  EventUtils.synthesizeKey("KEY_Delete", {}, window);
 });
 
 function checkTooltip(row, col, startTime, endTime) {

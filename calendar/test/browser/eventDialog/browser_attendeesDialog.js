@@ -140,7 +140,7 @@ add_task(async () => {
     input.focus();
     await inputReady;
     EventUtils.sendString("test@example.com", attendeesWindow);
-    EventUtils.synthesizeKey("VK_TAB", {}, attendeesWindow);
+    EventUtils.synthesizeKey("KEY_Tab", {}, attendeesWindow);
 
     await checkAttendeesInAttendeesDialog(attendeesDocument, [
       "mochitest@example.com",
@@ -157,9 +157,9 @@ add_task(async () => {
     Assert.ok(input.popupElement.popupOpen);
     Assert.equal(input.popupElement.richlistbox.childElementCount, 1);
     Assert.equal(input.popupElement._currentIndex, 1);
-    EventUtils.synthesizeKey("VK_DOWN", {}, attendeesWindow);
+    EventUtils.synthesizeKey("KEY_ArrowDown", {}, attendeesWindow);
     Assert.equal(input.popupElement._currentIndex, 1);
-    EventUtils.synthesizeKey("VK_TAB", {}, attendeesWindow);
+    EventUtils.synthesizeKey("KEY_Tab", {}, attendeesWindow);
 
     await checkAttendeesInAttendeesDialog(attendeesDocument, [
       "mochitest@example.com",
@@ -177,9 +177,9 @@ add_task(async () => {
     Assert.ok(input.popupElement.popupOpen, "input popup should be open");
     Assert.equal(input.popupElement.richlistbox.childElementCount, 1);
     Assert.equal(input.popupElement._currentIndex, 1);
-    EventUtils.synthesizeKey("VK_DOWN", {}, attendeesWindow);
+    EventUtils.synthesizeKey("KEY_ArrowDown", {}, attendeesWindow);
     Assert.equal(input.popupElement._currentIndex, 1);
-    EventUtils.synthesizeKey("VK_TAB", {}, attendeesWindow);
+    EventUtils.synthesizeKey("KEY_Tab", {}, attendeesWindow);
 
     await checkAttendeesInAttendeesDialog(attendeesDocument, [
       "mochitest@example.com",

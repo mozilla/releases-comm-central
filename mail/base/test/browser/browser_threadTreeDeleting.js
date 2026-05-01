@@ -323,11 +323,11 @@ add_task(async function testDeletionWhileScrolling() {
   scrollListener.setScrollExpectation(-1);
 
   // Page up a few times then delete some messages.
-  await delayThenPressAndWaitForSelect(0, "VK_PAGE_UP");
-  await delayThenPressAndWaitForSelect(60, "VK_PAGE_UP");
-  await delayThenPressAndWaitForSelect(60, "VK_PAGE_UP");
-  await delayThenPressAndWaitForSelect(400, "VK_DELETE");
-  await delayThenPressAndWaitForSelect(80, "VK_DELETE");
+  await delayThenPressAndWaitForSelect(0, "KEY_PageUp");
+  await delayThenPressAndWaitForSelect(60, "KEY_PageUp");
+  await delayThenPressAndWaitForSelect(60, "KEY_PageUp");
+  await delayThenPressAndWaitForSelect(400, "KEY_Delete");
+  await delayThenPressAndWaitForSelect(80, "KEY_Delete");
 
   await scrollend;
 
@@ -342,14 +342,14 @@ add_task(async function testDeletionWhileScrolling() {
   scrollend = scrollListener.promiseScrollingStopped();
   scrollListener.setScrollExpectation(1);
 
-  await delayThenPressAndWaitForSelect(60, "VK_PAGE_DOWN");
-  await delayThenPressAndWaitForSelect(60, "VK_PAGE_DOWN");
-  await delayThenPressAndWaitForSelect(60, "VK_PAGE_DOWN");
-  await delayThenPressAndWaitForSelect(300, "VK_DELETE");
-  await delayThenPressAndWaitForSelect(80, "VK_DELETE");
-  await delayThenPressAndWaitForSelect(80, "VK_DELETE");
-  await delayThenPressAndWaitForSelect(80, "VK_DELETE");
-  await delayThenPressAndWaitForSelect(80, "VK_DELETE");
+  await delayThenPressAndWaitForSelect(60, "KEY_PageDown");
+  await delayThenPressAndWaitForSelect(60, "KEY_PageDown");
+  await delayThenPressAndWaitForSelect(60, "KEY_PageDown");
+  await delayThenPressAndWaitForSelect(300, "KEY_Delete");
+  await delayThenPressAndWaitForSelect(80, "KEY_Delete");
+  await delayThenPressAndWaitForSelect(80, "KEY_Delete");
+  await delayThenPressAndWaitForSelect(80, "KEY_Delete");
+  await delayThenPressAndWaitForSelect(80, "KEY_Delete");
 
   await scrollend;
 
@@ -370,9 +370,9 @@ add_task(async function testDeletionWhileScrolling() {
   );
   threadTree.selectedIndex = targetIndex;
   await selectEvent;
-  await delayThenPressAndWaitForSelect(80, "VK_DELETE");
-  await delayThenPressAndWaitForSelect(80, "VK_DELETE");
-  await delayThenPressAndWaitForSelect(80, "VK_DELETE");
+  await delayThenPressAndWaitForSelect(80, "KEY_Delete");
+  await delayThenPressAndWaitForSelect(80, "KEY_Delete");
+  await delayThenPressAndWaitForSelect(80, "KEY_Delete");
 
   Assert.less(
     threadTree.getFirstVisibleIndex(),

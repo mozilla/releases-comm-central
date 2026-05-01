@@ -70,7 +70,7 @@ add_task(async function test_open_printpreview() {
     .textContent.trim();
   Assert.equal(body, BODY0, "preview body should be correct");
 
-  EventUtils.synthesizeKey("VK_ESCAPE", {}, window);
+  EventUtils.synthesizeKey("KEY_Escape", {}, window);
 
   // Wait for the preview to go away.
   await TestUtils.waitForCondition(

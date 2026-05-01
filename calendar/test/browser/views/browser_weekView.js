@@ -76,7 +76,7 @@ add_task(async function testWeekView() {
   // Delete event.
   EventUtils.synthesizeMouseAtCenter(eventBox, {}, window);
   eventBox.focus();
-  EventUtils.synthesizeKey("VK_DELETE", {}, window);
+  EventUtils.synthesizeKey("KEY_Delete", {}, window);
   await CalendarTestUtils.weekView.waitForNoEventBoxAt(window, 5, 1);
 
   Assert.ok(true, "Test ran to completion");
