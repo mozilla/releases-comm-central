@@ -569,7 +569,7 @@ MailGlue.prototype = {
         ) {
           Services.scriptloader.loadSubScript(
             "chrome://messenger/content/customElements.js",
-            doc.ownerGlobal
+            doc.documentGlobal
           );
         }
         break;

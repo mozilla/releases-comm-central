@@ -33,7 +33,7 @@ export class BasePopup {
     this.popupURL = popupURL;
     this.viewNode = viewNode;
     this.browserStyle = browserStyle;
-    this.window = viewNode.ownerGlobal;
+    this.window = viewNode.documentGlobal;
     this.destroyed = false;
     this.fixedWidth = fixedWidth;
     this.blockParser = blockParser;
@@ -194,7 +194,7 @@ export class BasePopup {
               // to be fully flushed makes us sure that when the popup panel grabs the focus
               // nsMenuPopupFrame::LayoutPopup has already been colled and set the frame
               // visibility to `nsViewVisibility_kShow`).
-              this.browser.ownerGlobal.promiseDocumentFlushed(() => {
+              this.browser.documentGlobal.promiseDocumentFlushed(() => {
                 if (this.destroyed) {
                   return;
                 }

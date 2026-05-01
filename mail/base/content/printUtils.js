@@ -155,7 +155,7 @@ class TabDialogBox {
     while (browser.ownerDocument != document) {
       // Find an ancestor <browser> in this document so that we can locate the
       // print preview appropriately.
-      browser = browser.ownerGlobal.browsingContext.embedderElement;
+      browser = browser.documentGlobal.browsingContext.embedderElement;
     }
 
     // This differs from Firefox by using a specific ancestor <stack> rather

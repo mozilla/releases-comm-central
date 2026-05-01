@@ -82,7 +82,7 @@ export class MailExtensionShortcuts extends ExtensionShortcuts {
         return;
       }
       if (action) {
-        const win = event.target.ownerGlobal;
+        const win = event.target.documentGlobal;
         action.triggerAction(win);
       }
     });

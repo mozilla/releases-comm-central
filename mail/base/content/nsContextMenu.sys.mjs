@@ -18,7 +18,7 @@ var gSpellChecker;
 
 export class nsContextMenu {
   constructor(aXulMenu, aIsShift) {
-    this.window = aXulMenu.ownerGlobal;
+    this.window = aXulMenu.documentGlobal;
     this.document = aXulMenu.ownerDocument;
 
     this.xulMenu = aXulMenu;
@@ -493,7 +493,7 @@ export class nsContextMenu {
    * @returns {string} the value of the property.
    */
   getComputedStyle(aElem, aProp) {
-    return aElem.ownerGlobal.getComputedStyle(aElem).getPropertyValue(aProp);
+    return aElem.documentGlobal.getComputedStyle(aElem).getPropertyValue(aProp);
   }
 
   /**

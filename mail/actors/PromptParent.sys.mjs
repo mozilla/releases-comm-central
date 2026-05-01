@@ -45,7 +45,7 @@ export class PromptParent extends JSWindowActorParent {
     if (!browsingContext.isContent && browsingContext.window) {
       win = browsingContext.window;
     } else {
-      win = browser?.ownerGlobal;
+      win = browser?.documentGlobal;
       if (!win?.isChromeWindow) {
         win = browsingContext.topChromeWindow;
       }

@@ -58,7 +58,7 @@ function getBrowserElement() {
       if (uri.scheme == "http" || uri.scheme == "https") {
         event.preventDefault();
         event.stopPropagation();
-        windowRoot.ownerGlobal.openTrustedLinkIn(event.target.href, "tab");
+        windowRoot.documentGlobal.openTrustedLinkIn(event.target.href, "tab");
       }
     }
   });
@@ -215,7 +215,7 @@ function getBrowserElement() {
       if (event.target.matches("a[href]") || event.target.matches("button")) {
         return;
       }
-      windowRoot.ownerGlobal.openTrustedLinkIn(
+      windowRoot.documentGlobal.openTrustedLinkIn(
         card.querySelector(".disco-addon-author a").href,
         "tab"
       );
@@ -245,7 +245,7 @@ function getBrowserElement() {
     }
 
     const browser = getBrowserElement();
-    const chromewin = browser.ownerGlobal;
+    const chromewin = browser.documentGlobal;
     chromewin.openLinkIn(url.href, "tab", {
       fromChrome: true,
       triggeringPrincipal: Services.scriptSecurityManager.createNullPrincipal(

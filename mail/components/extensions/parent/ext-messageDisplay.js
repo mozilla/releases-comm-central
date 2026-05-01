@@ -137,7 +137,7 @@ this.messageDisplay = class extends ExtensionAPIPersistent {
           }
           // `event.target` is an about:message window or a MessagePane.
           const nativeTab =
-            event.target.tabOrWindow || event.target.ownerGlobal.tabOrWindow;
+            event.target.tabOrWindow || event.target.documentGlobal.tabOrWindow;
           const tab = tabManager.wrapTab(nativeTab);
           const msgs = getDisplayedMessages(tab);
           if (extension.manifestVersion < 3) {

@@ -38,7 +38,7 @@ function Startup() {
   }
 
   window.opener.addEventListener("unload", onOpenerUnload);
-  prevFocusedElement = window.opener.ownerGlobal.document.activeElement;
+  prevFocusedElement = window.opener.document.activeElement;
   window.opener.document.documentElement.setAttribute("inert", "true");
 
   // Get the spellChecker shell

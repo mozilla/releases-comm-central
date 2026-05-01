@@ -96,7 +96,7 @@ function applyPersistedProperties(aDialog) {
   }
 
   if (doResize) {
-    aDialog.ownerGlobal.resizeTo(width, height);
+    aDialog.documentGlobal.resizeTo(width, height);
   }
 }
 

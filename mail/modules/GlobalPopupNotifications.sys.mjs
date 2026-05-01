@@ -134,7 +134,7 @@ export function PopupNotifications(tabbrowser, panel, iconBox, options = {}) {
   this._shouldSuppress = options.shouldSuppress || (() => false);
   this._suppress = this._shouldSuppress();
 
-  this.window = tabbrowser.ownerGlobal;
+  this.window = tabbrowser.documentGlobal;
   this.panel = panel;
   this.tabbrowser = tabbrowser;
   this.iconBox = iconBox;
@@ -1217,7 +1217,7 @@ PopupNotifications.prototype = {
     // to update our notification map.
 
     let ourNotifications = this._getNotificationsForBrowser(ourBrowser);
-    const other = otherBrowser.ownerGlobal.PopupNotifications;
+    const other = otherBrowser.documentGlobal.PopupNotifications;
     if (!other) {
       if (ourNotifications.length) {
         console.error(
