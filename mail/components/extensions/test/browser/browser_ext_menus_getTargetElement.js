@@ -240,8 +240,8 @@ add_task(async function test_getTargetElement_in_message_pane() {
 
   const menuId = messageBrowser.getAttribute("context") || "mailContext";
   let ownerDocument;
-  if (messageBrowser.documentGlobal.parent.location.href == "about:3pane") {
-    ownerDocument = messageBrowser.documentGlobal.parent.document;
+  if (messageBrowser.ownerGlobal.parent.location.href == "about:3pane") {
+    ownerDocument = messageBrowser.ownerGlobal.parent.document;
   } else {
     ownerDocument = messageBrowser.ownerDocument;
   }
@@ -371,7 +371,7 @@ add_task(async function test_getTargetElement_in_content_tab() {
   await awaitBrowserLoaded(browser, url => url != "about:blank");
 
   const menu =
-    browser.documentGlobal.top.document.getElementById("browserContext");
+    browser.ownerGlobal.top.document.getElementById("browserContext");
   Assert.ok(menu, "browserContext menu should exist");
 
   await synthesizeMouseAtCenterAndRetry("body", {}, browser);

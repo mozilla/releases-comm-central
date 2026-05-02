@@ -101,7 +101,7 @@ add_task(async function () {
 
   // Verify that tooltip shows status, priority and percent complete.
   const toolTipNode = document.getElementById("taskTreeTooltip");
-  toolTipNode.documentGlobal.showToolTip(toolTipNode, taskTreeNode.getTaskAtRow(0));
+  toolTipNode.ownerGlobal.showToolTip(toolTipNode, taskTreeNode.getTaskAtRow(0));
 
   function getTooltipDescription(index) {
     return toolTipNode.querySelector(
@@ -129,7 +129,7 @@ add_task(async function () {
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, MID_SLEEP));
 
-  toolTipNode.documentGlobal.showToolTip(toolTipNode, taskTreeNode.getTaskAtRow(0));
+  toolTipNode.ownerGlobal.showToolTip(toolTipNode, taskTreeNode.getTaskAtRow(0));
   Assert.equal(getTooltipDescription(4), "Completed");
 
   // Delete task and verify.

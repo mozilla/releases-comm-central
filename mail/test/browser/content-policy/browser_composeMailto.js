@@ -93,7 +93,7 @@ add_task(async function test_checkInsertImage() {
 
         const noAlt = mwc.document.getElementById("noAltTextRadio");
         // Don't add alternate text
-        EventUtils.synthesizeMouseAtCenter(noAlt, {}, noAlt.documentGlobal);
+        EventUtils.synthesizeMouseAtCenter(noAlt, {}, noAlt.ownerGlobal);
 
         // Accept the dialog
         mwc.document.querySelector("dialog").acceptDialog();
@@ -103,7 +103,7 @@ add_task(async function test_checkInsertImage() {
 
   const insertMenu = gCwc.document.getElementById("InsertPopupButton");
   const insertMenuPopup = gCwc.document.getElementById("InsertPopup");
-  EventUtils.synthesizeMouseAtCenter(insertMenu, {}, insertMenu.documentGlobal);
+  EventUtils.synthesizeMouseAtCenter(insertMenu, {}, insertMenu.ownerGlobal);
   await click_menus_in_sequence(insertMenuPopup, [{ id: "InsertImageItem" }]);
   await dialogPromise;
 

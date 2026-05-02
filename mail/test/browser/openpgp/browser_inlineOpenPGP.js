@@ -43,7 +43,7 @@ async function openpgpProcessed() {
   const [subject] = await TestUtils.topicObserved(
     "document-element-inserted",
     document => {
-      return document.documentGlobal?.location == "about:message";
+      return document.ownerGlobal?.location == "about:message";
     }
   );
 

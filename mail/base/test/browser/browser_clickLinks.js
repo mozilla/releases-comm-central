@@ -60,7 +60,7 @@ add_task(async function click_elements() {
 
   const click_element = async element => {
     const openedLinkPromise = MockExternalProtocolService.promiseLoad();
-    EventUtils.synthesizeMouseAtCenter(element, {}, element.documentGlobal);
+    EventUtils.synthesizeMouseAtCenter(element, {}, element.ownerGlobal);
     Assert.equal(
       await openedLinkPromise,
       "https://www.example.com/",

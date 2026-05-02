@@ -146,7 +146,7 @@ class MenuTestHelper {
    * Clicks on the menu and waits for it to open.
    */
   async openMenu() {
-    EventUtils.synthesizeMouseAtCenter(this.menu, {}, this.menu.documentGlobal);
+    EventUtils.synthesizeMouseAtCenter(this.menu, {}, this.menu.ownerGlobal);
     await BrowserTestUtils.waitForPopupEvent(this.menu.menupopup, "shown");
   }
 

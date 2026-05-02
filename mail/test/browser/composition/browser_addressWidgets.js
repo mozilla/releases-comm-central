@@ -197,7 +197,7 @@ add_task(async function test_address_types() {
   EventUtils.synthesizeMouseAtCenter(
     cwc.document.getElementById("msgIdentity"),
     {},
-    cwc.document.getElementById("msgIdentity").documentGlobal
+    cwc.document.getElementById("msgIdentity").ownerGlobal
   );
   await click_menus_in_sequence(
     cwc.document.getElementById("msgIdentityPopup"),
@@ -210,7 +210,7 @@ add_task(async function test_address_types() {
   EventUtils.synthesizeMouseAtCenter(
     cwc.document.getElementById("msgIdentity"),
     {},
-    cwc.document.getElementById("msgIdentity").documentGlobal
+    cwc.document.getElementById("msgIdentity").ownerGlobal
   );
   await click_menus_in_sequence(
     cwc.document.getElementById("msgIdentityPopup"),

@@ -126,7 +126,7 @@ async function open_send_via_email(aTab) {
   EventUtils.synthesizeMouseAtCenter(
     button,
     { clickCount: 1 },
-    button.documentGlobal
+    button.ownerGlobal
   );
   const cwc = await compose_window_ready(composePromise);
   return cwc;
@@ -305,7 +305,7 @@ add_task(async function test_private_data() {
   EventUtils.synthesizeMouseAtCenter(
     checkbox,
     { clickCount: 1 },
-    checkbox.documentGlobal
+    checkbox.ownerGlobal
   );
   await promise_content_tab_element_display(tab, privateElem1);
   await promise_content_tab_element_display(tab, privateElem2);
@@ -392,11 +392,7 @@ add_task(async function test_copy_to_clipboard_private() {
   // Display private data.
   const privateElem = find_private_element(tab);
   const show = content_tab_e(tab, "check-show-private-data");
-  EventUtils.synthesizeMouseAtCenter(
-    show,
-    { clickCount: 1 },
-    show.documentGlobal
-  );
+  EventUtils.synthesizeMouseAtCenter(show, { clickCount: 1 }, show.ownerGlobal);
   await promise_content_tab_element_display(tab, privateElem);
 
   // To avoid destroying the current contents of the clipboard, instead of
@@ -516,11 +512,7 @@ add_task(async function test_send_via_email_private() {
   // Display private data.
   const privateElem = find_private_element(tab);
   const show = content_tab_e(tab, "check-show-private-data");
-  EventUtils.synthesizeMouseAtCenter(
-    show,
-    { clickCount: 1 },
-    show.documentGlobal
-  );
+  EventUtils.synthesizeMouseAtCenter(show, { clickCount: 1 }, show.ownerGlobal);
   await promise_content_tab_element_display(tab, privateElem);
 
   const cwc = await open_send_via_email(tab);
@@ -590,11 +582,7 @@ add_task(async function test_open_links_in_about_support() {
     tabmail.tabContainer,
     "TabOpen"
   );
-  EventUtils.synthesizeMouseAtCenter(
-    elem,
-    { clickCount: 1 },
-    elem.documentGlobal
-  );
+  EventUtils.synthesizeMouseAtCenter(elem, { clickCount: 1 }, elem.ownerGlobal);
   const event = await eventPromise;
 
   const browser = event.detail.tabInfo.linkedBrowser;

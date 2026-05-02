@@ -41,7 +41,7 @@ add_task(async function test_quoteMessage() {
   EventUtils.synthesizeMouseAtCenter(
     documentChild,
     { type: "contextmenu", button: 2 },
-    documentChild.documentGlobal
+    documentChild.ownerGlobal
   );
   const aboutMessage = get_about_message(msgc);
   await click_menus_in_sequence(
@@ -68,7 +68,7 @@ add_task(async function test_quoteMessage() {
     EventUtils.synthesizeMouseAtCenter(
       cwc.document.getElementById("optionsMenu"),
       {},
-      cwc.document.getElementById("optionsMenu").documentGlobal
+      cwc.document.getElementById("optionsMenu").ownerGlobal
     );
     await click_menus_in_sequence(
       cwc.document.getElementById("optionsMenuPopup"),

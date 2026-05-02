@@ -596,7 +596,7 @@ async function promisePopupClosed(tagsPopup) {
     }
     await BrowserTestUtils.waitForPopupEvent(parentPopup, "hidden");
   }
-  await SimpleTest.promiseFocus(tagsPopup.documentGlobal.top);
+  await SimpleTest.promiseFocus(tagsPopup.ownerGlobal.top);
   await TestUtils.waitForTick();
 }
 

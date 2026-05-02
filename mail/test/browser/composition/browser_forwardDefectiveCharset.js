@@ -73,7 +73,7 @@ add_task(async function test_forward_from_folder() {
   EventUtils.synthesizeMouseAtCenter(
     documentChild,
     { type: "contextmenu", button: 2 },
-    documentChild.documentGlobal
+    documentChild.ownerGlobal
   );
   await click_menus_in_sequence(
     aboutMessage.document.getElementById("mailContext"),

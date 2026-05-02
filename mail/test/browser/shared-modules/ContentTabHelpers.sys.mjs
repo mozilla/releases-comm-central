@@ -67,7 +67,7 @@ export async function open_content_tab_with_click(
   const preCount =
     mc.document.getElementById("tabmail").tabContainer.allTabs.length;
   if (typeof aElem != "function") {
-    EventUtils.synthesizeMouseAtCenter(aElem, {}, aElem.documentGlobal);
+    EventUtils.synthesizeMouseAtCenter(aElem, {}, aElem.ownerGlobal);
   } else {
     aElem();
   }

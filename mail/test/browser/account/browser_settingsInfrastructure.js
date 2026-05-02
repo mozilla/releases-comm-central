@@ -112,7 +112,7 @@ async function subtest_check_account_dot_IDs(tab) {
   // value properly.
   let loginCheck = iframe.getElementById("server.loginAtStartUp");
   Assert.ok(!loginCheck.checked);
-  EventUtils.synthesizeMouseAtCenter(loginCheck, {}, loginCheck.documentGlobal);
+  EventUtils.synthesizeMouseAtCenter(loginCheck, {}, loginCheck.ownerGlobal);
 
   accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xhtml", tab);
   await click_account_tree_row(tab, accountRow);
@@ -157,8 +157,8 @@ async function subtest_check_account_dot_IDs(tab) {
   // Change the ID so that "server.login.At.StartUp" exists now.
   loginCheck.id = "server.login.At.StartUp";
 
-  EventUtils.synthesizeMouseAtCenter(loginCheck, {}, loginCheck.documentGlobal);
-  EventUtils.synthesizeMouseAtCenter(loginCheck, {}, loginCheck.documentGlobal);
+  EventUtils.synthesizeMouseAtCenter(loginCheck, {}, loginCheck.ownerGlobal);
+  EventUtils.synthesizeMouseAtCenter(loginCheck, {}, loginCheck.ownerGlobal);
 
   // Check for correct value in the accountValues array, that will be saved into prefs.
   rawCheckValue = tab.browser.contentWindow.getAccountValue(
@@ -220,7 +220,7 @@ async function subtest_check_locked_prefs_addressing(tab) {
   EventUtils.synthesizeMouseAtCenter(
     useLDAPdirectory,
     {},
-    useLDAPdirectory.documentGlobal
+    useLDAPdirectory.ownerGlobal
   );
   Assert.ok(!LDAPdirectory.disabled);
   Assert.ok(!LDAPeditButton.disabled);
@@ -308,18 +308,14 @@ async function subtest_check_locked_prefs_server(tab) {
   EventUtils.synthesizeMouseAtCenter(
     leaveOnServer,
     {},
-    leaveOnServer.documentGlobal
+    leaveOnServer.ownerGlobal
   );
   Assert.ok(leaveOnServer.checked);
   Assert.ok(!deleteByAge.disabled);
   Assert.ok(daysToLeave.disabled);
 
   // When deleteByAge is checked, daysToLeave will get enabled.
-  EventUtils.synthesizeMouseAtCenter(
-    deleteByAge,
-    {},
-    deleteByAge.documentGlobal
-  );
+  EventUtils.synthesizeMouseAtCenter(deleteByAge, {}, deleteByAge.ownerGlobal);
   Assert.ok(deleteByAge.checked);
   Assert.ok(!daysToLeave.disabled);
 
@@ -365,7 +361,7 @@ async function subtest_check_locked_prefs_server(tab) {
   EventUtils.synthesizeMouseAtCenter(
     leaveOnServer,
     {},
-    leaveOnServer.documentGlobal
+    leaveOnServer.ownerGlobal
   );
   Assert.ok(!leaveOnServer.disabled);
   Assert.ok(!leaveOnServer.checked);
@@ -461,7 +457,7 @@ async function subtest_check_onchange_handler(tab) {
 
   // Now type in 35 (days).
   const byAge = iframe.getElementById("useAutosync.ByAge");
-  EventUtils.synthesizeMouseAtCenter(byAge, {}, byAge.documentGlobal);
+  EventUtils.synthesizeMouseAtCenter(byAge, {}, byAge.ownerGlobal);
   autoSync.select();
   autoSync.focus();
   EventUtils.sendString("35", window);

@@ -919,7 +919,7 @@ async function subtest_insertImageIntoReplyForward(aReplyType) {
 
         // Don't add alternate text
         const noAlt = mwc.document.getElementById("noAltTextRadio");
-        EventUtils.synthesizeMouseAtCenter(noAlt, {}, noAlt.documentGlobal);
+        EventUtils.synthesizeMouseAtCenter(noAlt, {}, noAlt.ownerGlobal);
         await new Promise(resolve => setTimeout(resolve));
 
         // Accept the dialog
@@ -931,7 +931,7 @@ async function subtest_insertImageIntoReplyForward(aReplyType) {
   const insertMenu = replyWindow.document.getElementById("InsertPopupButton");
   const insertMenuPopup = replyWindow.document.getElementById("InsertPopup");
 
-  EventUtils.synthesizeMouseAtCenter(insertMenu, {}, insertMenu.documentGlobal);
+  EventUtils.synthesizeMouseAtCenter(insertMenu, {}, insertMenu.ownerGlobal);
   await click_menus_in_sequence(insertMenuPopup, [{ id: "InsertImageItem" }]);
 
   await dialogPromise;

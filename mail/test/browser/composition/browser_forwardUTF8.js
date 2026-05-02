@@ -86,7 +86,7 @@ async function forwardViaFolder(aFilePath) {
   EventUtils.synthesizeMouseAtCenter(
     documentChild,
     { type: "contextmenu", button: 2 },
-    documentChild.documentGlobal
+    documentChild.ownerGlobal
   );
   await click_menus_in_sequence(
     aboutMessage.document.getElementById("mailContext"),

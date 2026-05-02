@@ -326,10 +326,10 @@ async function subtest_content(
 
   const menuId = browser.getAttribute("context") || "mailContext";
   let ownerDocument;
-  if (browser.documentGlobal.parent.location.href == "about:3pane") {
-    ownerDocument = browser.documentGlobal.parent.document;
+  if (browser.ownerGlobal.parent.location.href == "about:3pane") {
+    ownerDocument = browser.ownerGlobal.parent.document;
   } else if (menuId == "browserContext") {
-    ownerDocument = browser.documentGlobal.top.document;
+    ownerDocument = browser.ownerGlobal.top.document;
   } else {
     ownerDocument = browser.ownerDocument;
   }
@@ -635,7 +635,7 @@ async function subtest_element(
     EventUtils.synthesizeMouseAtCenter(
       elementToClick,
       { type: "contextmenu" },
-      elementToClick.documentGlobal
+      elementToClick.ownerGlobal
     );
     return shownPromise;
   };
@@ -648,7 +648,7 @@ async function subtest_element(
     } else {
       element.value = "";
     }
-    const event = await rightClick(element.documentGlobal, element);
+    const event = await rightClick(element.ownerGlobal, element);
     const menu = event.target;
     const trigger = menu.triggerNode;
     const menuitem = menu.querySelector("#menus_mochi_test-menuitem-_editable");

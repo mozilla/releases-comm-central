@@ -114,7 +114,7 @@ add_task(async function test_basic_multipart_related() {
   const insertMenu = compWin.document.getElementById("InsertPopupButton");
   const insertMenuPopup = compWin.document.getElementById("InsertPopup");
 
-  EventUtils.synthesizeMouseAtCenter(insertMenu, {}, insertMenu.documentGlobal);
+  EventUtils.synthesizeMouseAtCenter(insertMenu, {}, insertMenu.ownerGlobal);
   await click_menus_in_sequence(insertMenuPopup, [{ id: "InsertImageItem" }]);
 
   await dialogPromise;

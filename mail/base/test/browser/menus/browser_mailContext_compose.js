@@ -302,7 +302,7 @@ async function promiseComposeWindow(
   }
 
   await BrowserTestUtils.closeWindow(composeWindow);
-  await SimpleTest.promiseFocus(mailContext.documentGlobal.top);
+  await SimpleTest.promiseFocus(mailContext.ownerGlobal.top);
 }
 
 async function subtestSingleMessage(callbacks) {

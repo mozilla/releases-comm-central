@@ -115,7 +115,7 @@ async function subtest_initial_state(tab, identity) {
       },
     }
   );
-  EventUtils.synthesizeMouseAtCenter(button, {}, button.documentGlobal);
+  EventUtils.synthesizeMouseAtCenter(button, {}, button.ownerGlobal);
   await dialogPromise;
 }
 
@@ -163,7 +163,7 @@ async function subtest_save_state(contentDocument, granularity, kfs, ri) {
       },
     }
   );
-  EventUtils.synthesizeMouseAtCenter(button, {}, button.documentGlobal);
+  EventUtils.synthesizeMouseAtCenter(button, {}, button.ownerGlobal);
   await dialogPromise;
 }
 
@@ -293,7 +293,7 @@ async function subtest_disable_archive(tab) {
   EventUtils.synthesizeMouseAtCenter(
     checkbox,
     { clickCount: 1 },
-    checkbox.documentGlobal
+    checkbox.ownerGlobal
   );
   await TestUtils.waitForCondition(
     () => !checkbox.checked,

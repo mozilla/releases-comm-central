@@ -44,9 +44,9 @@ const tests = [
       const input = document.querySelector(
         "#unifiedToolbarContent .search-bar"
       );
-      EventUtils.synthesizeMouseAtCenter(input, {}, input.documentGlobal);
-      EventUtils.sendString("us", input.documentGlobal);
-      EventUtils.synthesizeKey("KEY_Enter", {}, input.documentGlobal);
+      EventUtils.synthesizeMouseAtCenter(input, {}, input.ownerGlobal);
+      EventUtils.sendString("us", input.ownerGlobal);
+      EventUtils.synthesizeKey("KEY_Enter", {}, input.ownerGlobal);
 
       await BrowserTestUtils.waitForCondition(
         () =>
@@ -120,9 +120,9 @@ add_task(async function testClickingGlobalSearchResultItemOpensOneTab() {
     }
     input.focus();
 
-    EventUtils.synthesizeKey("u", {}, input.documentGlobal);
-    EventUtils.synthesizeKey("s", {}, input.documentGlobal);
-    EventUtils.synthesizeKey("e", {}, input.documentGlobal);
+    EventUtils.synthesizeKey("u", {}, input.ownerGlobal);
+    EventUtils.synthesizeKey("s", {}, input.ownerGlobal);
+    EventUtils.synthesizeKey("e", {}, input.ownerGlobal);
 
     await BrowserTestUtils.waitForCondition(
       () => input.controller.matchCount > 0,
@@ -133,7 +133,7 @@ add_task(async function testClickingGlobalSearchResultItemOpensOneTab() {
       "#PopupGlodaAutocomplete > richlistbox > richlistitem"
     );
     Assert.ok(target, "target item to click found");
-    EventUtils.synthesizeMouseAtCenter(target, {}, target.documentGlobal);
+    EventUtils.synthesizeMouseAtCenter(target, {}, target.ownerGlobal);
 
     // Give any potentially extra tabs time to appear.
     // eslint-disable-next-line mozilla/no-arbitrary-setTimeout

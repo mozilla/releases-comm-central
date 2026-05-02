@@ -1129,7 +1129,7 @@ export const CalendarTestUtils = {
     // Hover to see if the drag gripbars appear.
     const enterPromise = BrowserTestUtils.waitForEvent(eventBox, "mouseenter");
     // Hover over start.
-    EventUtils.synthesizeMouse(eventBox, 8, 8, { type: "mouseover" }, eventBox.documentGlobal);
+    EventUtils.synthesizeMouse(eventBox, 8, 8, { type: "mouseover" }, eventBox.ownerGlobal);
     await enterPromise;
     Assert.equal(
       BrowserTestUtils.isVisible(eventBox.startGripbar),

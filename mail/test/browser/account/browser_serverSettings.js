@@ -179,7 +179,7 @@ add_task(async function test_ews_trash_settings() {
     EventUtils.synthesizeMouseAtCenter(
       deleteImmediatelyElement,
       {},
-      deleteImmediatelyElement.documentGlobal
+      deleteImmediatelyElement.ownerGlobal
     );
     Assert.equal(
       incomingServer.deleteModel,
@@ -255,7 +255,7 @@ add_task(async function test_imap_trash_settings() {
     EventUtils.synthesizeMouseAtCenter(
       deleteImmediatelyElement,
       {},
-      deleteImmediatelyElement.documentGlobal
+      deleteImmediatelyElement.ownerGlobal
     );
     Assert.equal(
       incomingServer.deleteModel,
@@ -274,7 +274,7 @@ add_task(async function test_imap_trash_settings() {
     EventUtils.synthesizeMouseAtCenter(
       markDeletedElement,
       {},
-      markDeletedElement.documentGlobal
+      markDeletedElement.ownerGlobal
     );
     Assert.equal(
       incomingServer.deleteModel,
@@ -386,7 +386,7 @@ async function openAdvancedDialog(iframe, accountSettingsTab) {
   EventUtils.synthesizeMouseAtCenter(
     advancedSettingsButton,
     {},
-    advancedSettingsButton.documentGlobal
+    advancedSettingsButton.ownerGlobal
   );
 
   return await waitForAdvancedDialog(accountSettingsTab);
@@ -427,8 +427,8 @@ add_task(async function test_ews_host_url_settings() {
 
     // Change to a new value.
     ewsUrlElement.focus();
-    EventUtils.synthesizeKey("KEY_Delete", {}, ewsUrlElement.documentGlobal);
-    EventUtils.sendString("anothervalue", ewsUrlElement.documentGlobal);
+    EventUtils.synthesizeKey("KEY_Delete", {}, ewsUrlElement.ownerGlobal);
+    EventUtils.sendString("anothervalue", ewsUrlElement.ownerGlobal);
 
     await acceptDialogAndWaitForClose(advancedDialog);
 
@@ -464,12 +464,9 @@ add_task(async function test_ews_host_url_settings() {
     EventUtils.synthesizeKey(
       "KEY_Delete",
       {},
-      ewsUrlElementReopened.documentGlobal
+      ewsUrlElementReopened.ownerGlobal
     );
-    EventUtils.sendString(
-      originalHostUrl,
-      ewsUrlElementReopened.documentGlobal
-    );
+    EventUtils.sendString(originalHostUrl, ewsUrlElementReopened.ownerGlobal);
 
     await acceptDialogAndWaitForClose(advancedDialogReopened);
 
@@ -543,7 +540,7 @@ add_task(async function test_override_oauth_settings() {
     EventUtils.synthesizeMouseAtCenter(
       oauthOverrideControl,
       {},
-      oauthOverrideControl.documentGlobal
+      oauthOverrideControl.ownerGlobal
     );
 
     for (const inputElement of inputElements) {
@@ -555,8 +552,8 @@ add_task(async function test_override_oauth_settings() {
 
     for (const inputElement of inputElements) {
       inputElement.focus();
-      EventUtils.synthesizeKey("KEY_Delete", {}, inputElement.documentGlobal);
-      EventUtils.sendString("changed_value", inputElement.documentGlobal);
+      EventUtils.synthesizeKey("KEY_Delete", {}, inputElement.ownerGlobal);
+      EventUtils.sendString("changed_value", inputElement.ownerGlobal);
     }
 
     await acceptDialogAndWaitForClose(advancedDialog);

@@ -75,7 +75,7 @@ add_task(async function test_convertToEvent() {
   EventUtils.synthesizeMouseAtCenter(
     documentChild,
     { type: "contextmenu", button: 2 },
-    documentChild.documentGlobal
+    documentChild.ownerGlobal
   );
   await click_menus_in_sequence(
     aboutMessage.document.getElementById("mailContext"),
@@ -101,7 +101,7 @@ add_task(async function test_convertToEvent() {
   EventUtils.synthesizeMouseAtCenter(
     otherActionsButton,
     {},
-    otherActionsButton.documentGlobal
+    otherActionsButton.ownerGlobal
   );
   await click_menus_in_sequence(
     win.document.getElementById("otherActionsPopup"),

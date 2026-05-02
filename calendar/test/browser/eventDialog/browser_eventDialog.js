@@ -374,7 +374,7 @@ function checkTooltip(row, col, startTime, endTime) {
   const item = monthView.getItemAt(window, row, col, 1);
 
   const toolTipNode = document.getElementById("itemTooltip");
-  toolTipNode.documentGlobal.onMouseOverItem({ currentTarget: item });
+  toolTipNode.ownerGlobal.onMouseOverItem({ currentTarget: item });
 
   function getDescription(index) {
     return toolTipNode.querySelector(

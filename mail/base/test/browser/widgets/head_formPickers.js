@@ -15,7 +15,7 @@ async function checkABrowser(browser) {
     );
   }
 
-  const win = browser.documentGlobal;
+  const win = browser.ownerGlobal;
   const doc = browser.ownerDocument;
 
   // Date picker

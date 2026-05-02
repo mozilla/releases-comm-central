@@ -59,7 +59,7 @@ add_task(async function test_pill_selection() {
   EventUtils.synthesizeMouseAtCenter(
     pill3,
     { type: "contextmenu" },
-    pill3.documentGlobal
+    pill3.ownerGlobal
   );
   await popupPromise;
   // The selection should not have changed.
@@ -92,7 +92,7 @@ add_task(async function test_pill_selection() {
   EventUtils.synthesizeMouseAtCenter(
     pill0,
     { type: "contextmenu" },
-    pill0.documentGlobal
+    pill0.ownerGlobal
   );
   await popupPromise2;
 
@@ -141,7 +141,7 @@ add_task(async function test_pill_selection() {
   EventUtils.synthesizeMouseAtCenter(
     pill2,
     { type: "contextmenu" },
-    pill2.documentGlobal
+    pill2.ownerGlobal
   );
   await popupPromise3;
 
@@ -188,7 +188,7 @@ add_task(async function test_pill_context_menu() {
   EventUtils.synthesizeMouseAtCenter(
     pill,
     { type: "contextmenu" },
-    pill.documentGlobal
+    pill.ownerGlobal
   );
   await popupPromise;
   // The selection should not have changed.
@@ -211,11 +211,7 @@ add_task(async function test_pill_context_menu() {
     // context menu items on macos.
     movePillCc.click();
   } else {
-    EventUtils.synthesizeMouseAtCenter(
-      movePillCc,
-      {},
-      movePillCc.documentGlobal
-    );
+    EventUtils.synthesizeMouseAtCenter(movePillCc, {}, movePillCc.ownerGlobal);
   }
   await pillMoved;
 
@@ -241,7 +237,7 @@ add_task(async function test_pill_context_menu() {
   EventUtils.synthesizeMouseAtCenter(
     ccPill,
     { type: "contextmenu" },
-    ccPill.documentGlobal
+    ccPill.ownerGlobal
   );
   await popupPromise2;
 
@@ -258,7 +254,7 @@ add_task(async function test_pill_context_menu() {
     // context menu items on macos.
     moveAdd.click();
   } else {
-    EventUtils.synthesizeMouseAtCenter(moveAdd, {}, moveAdd.documentGlobal);
+    EventUtils.synthesizeMouseAtCenter(moveAdd, {}, moveAdd.ownerGlobal);
   }
   await pillMoved2;
 

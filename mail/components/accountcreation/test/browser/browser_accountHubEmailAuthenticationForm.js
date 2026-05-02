@@ -55,7 +55,7 @@ add_task(async function test_captureState() {
     false,
     () => password.value === "test"
   );
-  EventUtils.sendString("test", subview.documentGlobal);
+  EventUtils.sendString("test", subview.ownerGlobal);
   const validUpdatedEvent = await validUpdatedInput;
 
   Assert.ok(
@@ -90,7 +90,7 @@ add_task(async function test_captureStateWithRememberPasswordPref() {
     false,
     () => password.value === "test"
   );
-  EventUtils.sendString("test", subview.documentGlobal);
+  EventUtils.sendString("test", subview.ownerGlobal);
   const validUpdatedEvent = await validUpdatedInput;
 
   Assert.ok(
@@ -118,9 +118,9 @@ add_task(async function test_captureStateWithUsername() {
     false,
     () => password.value === "test"
   );
-  EventUtils.sendString("test", subview.documentGlobal);
-  EventUtils.synthesizeKey("KEY_Tab", {}, subview.documentGlobal);
-  EventUtils.sendString("Joshua", subview.documentGlobal);
+  EventUtils.sendString("test", subview.ownerGlobal);
+  EventUtils.synthesizeKey("KEY_Tab", {}, subview.ownerGlobal);
+  EventUtils.sendString("Joshua", subview.ownerGlobal);
   const validUpdatedEvent = await validUpdatedInput;
 
   Assert.ok(

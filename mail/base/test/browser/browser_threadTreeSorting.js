@@ -222,11 +222,7 @@ add_task(async function testColumnHeaderClick() {
 
 async function subtestMenu(menuButton, menuPopup, sortMenu, sortMenuPopup) {
   async function doMenu(itemName, itemValue) {
-    EventUtils.synthesizeMouseAtCenter(
-      menuButton,
-      {},
-      menuButton.documentGlobal
-    );
+    EventUtils.synthesizeMouseAtCenter(menuButton, {}, menuButton.ownerGlobal);
     await BrowserTestUtils.waitForPopupEvent(menuPopup, "shown");
     sortMenu.openMenu(true);
     await BrowserTestUtils.waitForPopupEvent(sortMenuPopup, "shown");
@@ -263,11 +259,7 @@ async function subtestMenu(menuButton, menuPopup, sortMenu, sortMenuPopup) {
     );
     Assert.equal(showGroupedBySort, grouping == "group", "grouping is grouped");
 
-    EventUtils.synthesizeMouseAtCenter(
-      menuButton,
-      {},
-      menuButton.documentGlobal
-    );
+    EventUtils.synthesizeMouseAtCenter(menuButton, {}, menuButton.ownerGlobal);
     await BrowserTestUtils.waitForPopupEvent(menuPopup, "shown");
     sortMenu.openMenu(true);
     await BrowserTestUtils.waitForPopupEvent(sortMenuPopup, "shown");

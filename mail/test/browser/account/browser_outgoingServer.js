@@ -88,7 +88,7 @@ add_task(async function test_outgoingSettings() {
     EventUtils.synthesizeMouseAtCenter(
       serverList[0],
       {},
-      serverList[0].documentGlobal
+      serverList[0].ownerGlobal
     );
     await TestUtils.waitForTick();
 
@@ -107,7 +107,7 @@ add_task(async function test_outgoingSettings() {
     EventUtils.synthesizeMouseAtCenter(
       serverList[1],
       {},
-      serverList[1].documentGlobal
+      serverList[1].ownerGlobal
     );
     await TestUtils.waitForTick();
 
@@ -149,7 +149,7 @@ add_task(async function test_accountSettings() {
       await BrowserTestUtils.waitForEvent(doc, "L10nMutationsFinished");
     }
 
-    await SimpleTest.promiseFocus(doc.documentGlobal);
+    await SimpleTest.promiseFocus(doc.ownerGlobal);
 
     // The button to edit the settings of the selected outgoing server, which
     // state we'll observe throughout the test.
@@ -165,7 +165,7 @@ add_task(async function test_accountSettings() {
     // index 0 is the "Use Default Server" option.
     info("Opening Outgoing Server menu to select first created server...");
 
-    EventUtils.synthesizeMouseAtCenter(menu, {}, menu.documentGlobal);
+    EventUtils.synthesizeMouseAtCenter(menu, {}, menu.ownerGlobal);
     await BrowserTestUtils.waitForPopupEvent(menu.menupopup, "shown");
     menu.menupopup.activateItem(serverList[1]);
     await BrowserTestUtils.waitForPopupEvent(menu.menupopup, "hidden");
@@ -184,7 +184,7 @@ add_task(async function test_accountSettings() {
 
     // Now open the menu again and select the second server we created (EWS).
     info("Opening Outgoing Server menu again to select ews server...");
-    EventUtils.synthesizeMouseAtCenter(menu, {}, menu.documentGlobal);
+    EventUtils.synthesizeMouseAtCenter(menu, {}, menu.ownerGlobal);
     await BrowserTestUtils.waitForPopupEvent(menu.menupopup, "shown");
     menu.menupopup.activateItem(serverList[2]);
     await BrowserTestUtils.waitForPopupEvent(menu.menupopup, "hidden");

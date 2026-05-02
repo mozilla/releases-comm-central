@@ -357,7 +357,7 @@ function cycle(...elements) {
   let activeElement = getActiveElement();
 
   for (let i = 0; i < elements.length; i++) {
-    EventUtils.synthesizeKey("KEY_F6", {}, activeElement.documentGlobal);
+    EventUtils.synthesizeKey("KEY_F6", {}, activeElement.ownerGlobal);
     activeElement = getActiveElement();
     Assert.equal(
       activeElement.id || activeElement.localName,
@@ -370,7 +370,7 @@ function cycle(...elements) {
     EventUtils.synthesizeKey(
       "KEY_F6",
       { shiftKey: true },
-      activeElement.documentGlobal
+      activeElement.ownerGlobal
     );
     activeElement = getActiveElement();
     Assert.equal(

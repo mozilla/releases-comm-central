@@ -157,7 +157,7 @@ add_task(async function test_message_filter_shows_newsgroup_server() {
   // Get the newsgroups to pop up.
   const serverMenu = filterc.document.getElementById("serverMenu");
   let popupshown = BrowserTestUtils.waitForEvent(serverMenu, "popupshown");
-  EventUtils.synthesizeMouseAtCenter(serverMenu, {}, serverMenu.documentGlobal);
+  EventUtils.synthesizeMouseAtCenter(serverMenu, {}, serverMenu.ownerGlobal);
   await popupshown;
 
   const nntp = serverMenu.firstElementChild.children.item(1);
@@ -167,7 +167,7 @@ add_task(async function test_message_filter_shows_newsgroup_server() {
     "should show 'localhost' nntp server item in menu"
   );
   popupshown = BrowserTestUtils.waitForEvent(nntp, "popupshown");
-  EventUtils.synthesizeMouseAtCenter(nntp, {}, nntp.documentGlobal);
+  EventUtils.synthesizeMouseAtCenter(nntp, {}, nntp.ownerGlobal);
   await popupshown;
 
   Assert.equal(nntp.itemCount, 5, "All five items should show");

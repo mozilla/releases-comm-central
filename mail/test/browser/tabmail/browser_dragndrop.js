@@ -357,7 +357,7 @@ async function _synthesizeRecentlyClosedMenu() {
   EventUtils.synthesizeMouseAtCenter(
     tab,
     { type: "contextmenu", button: 2 },
-    tab.documentGlobal
+    tab.ownerGlobal
   );
 
   const tabContextMenu = document.getElementById("tabContextMenu");

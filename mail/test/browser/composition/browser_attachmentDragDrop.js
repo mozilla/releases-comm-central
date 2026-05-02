@@ -449,7 +449,7 @@ function assertSelection(bucket, selectedItems) {
  *   contain at least one item.
  */
 function selectAttachments(bucket, itemSet) {
-  const win = bucket.documentGlobal;
+  const win = bucket.ownerGlobal;
   let first = true;
   for (const item of itemSet) {
     item.scrollIntoView({ block: "start", behavior: "instant" });
@@ -469,8 +469,8 @@ function selectAttachments(bucket, itemSet) {
  *   attachments as well as the expected gained attachments.
  */
 async function moveAttachments(dragSrc, destBucket, expectUrls) {
-  const srcWindow = dragSrc.documentGlobal;
-  const destWindow = destBucket.documentGlobal;
+  const srcWindow = dragSrc.ownerGlobal;
+  const destWindow = destBucket.ownerGlobal;
   const dragOverTarget = getDragOverTarget(destWindow);
   const dropTarget = getDropTarget(destWindow);
 
@@ -534,7 +534,7 @@ async function drag_between_buckets(srcBucket, destBucket) {
     Ci.nsIDragService
   );
   dragSession.startDragSessionForTests(
-    srcBucket.documentGlobal,
+    srcBucket.ownerGlobal,
     Ci.nsIDragService.DRAGDROP_ACTION_MOVE
   );
 

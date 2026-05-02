@@ -219,7 +219,7 @@ function closeWithButton(tab) {
   EventUtils.synthesizeMouseAtCenter(
     tab.querySelector(".tab-close-button"),
     {},
-    tab.documentGlobal
+    tab.ownerGlobal
   );
 }
 
@@ -229,7 +229,7 @@ function closeWithButton(tab) {
  * @param {Element} tab - The tab to close.
  */
 function closeWithMiddleClick(tab) {
-  EventUtils.synthesizeMouseAtCenter(tab, { button: 1 }, tab.documentGlobal);
+  EventUtils.synthesizeMouseAtCenter(tab, { button: 1 }, tab.ownerGlobal);
 }
 
 /**
@@ -239,9 +239,9 @@ function closeWithMiddleClick(tab) {
  */
 function closeWithKeyboard(tab) {
   if (AppConstants.platform == "macosx") {
-    EventUtils.synthesizeKey("w", { accelKey: true }, tab.documentGlobal);
+    EventUtils.synthesizeKey("w", { accelKey: true }, tab.ownerGlobal);
   } else {
-    EventUtils.synthesizeKey("w", { ctrlKey: true }, tab.documentGlobal);
+    EventUtils.synthesizeKey("w", { ctrlKey: true }, tab.ownerGlobal);
   }
 }
 
@@ -251,7 +251,7 @@ function closeWithKeyboard(tab) {
  * @param {Element} tab - The tab to open the context menu of.
  */
 async function openContextMenu(tab) {
-  const win = tab.documentGlobal;
+  const win = tab.ownerGlobal;
   const contextMenu = win.document.getElementById("tabContextMenu");
   EventUtils.synthesizeMouseAtCenter(
     tab,
@@ -267,7 +267,7 @@ async function openContextMenu(tab) {
  * @param {Element} tab - The tab to close the context menu of.
  */
 async function closeContextMenu(tab) {
-  const win = tab.documentGlobal;
+  const win = tab.ownerGlobal;
   const contextMenu = win.document.getElementById("tabContextMenu");
   contextMenu.hidePopup();
   await BrowserTestUtils.waitForPopupEvent(contextMenu, "hidden");

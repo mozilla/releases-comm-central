@@ -114,7 +114,7 @@ add_task(async function test_cid_image_load() {
   EventUtils.synthesizeMouseAtCenter(
     documentChild,
     { type: "contextmenu", button: 2 },
-    documentChild.documentGlobal
+    documentChild.ownerGlobal
   );
   const aboutMessage = get_about_message(msgc);
   await click_menus_in_sequence(

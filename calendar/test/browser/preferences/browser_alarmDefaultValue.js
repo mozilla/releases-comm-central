@@ -90,7 +90,7 @@ async function handlePrefTab(prefsWindow, prefsDocument) {
   async function menuList(id, value) {
     const list = prefsDocument.getElementById(id);
     list.scrollIntoView({ block: "end", behavior: "instant" });
-    EventUtils.synthesizeMouseAtCenter(list, {}, list.documentGlobal);
+    EventUtils.synthesizeMouseAtCenter(list, {}, list.ownerGlobal);
     await BrowserTestUtils.waitForPopupEvent(list.menupopup, "shown");
     list.menupopup.activateItem(list.querySelector(`menuitem[value="${value}"]`));
     await BrowserTestUtils.waitForPopupEvent(list.menupopup, "hidden");

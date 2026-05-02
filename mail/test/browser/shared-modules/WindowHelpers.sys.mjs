@@ -184,7 +184,7 @@ export async function click_menus_in_sequence(aRootPopup, aActions, aKeepOpen) {
     } else {
       curPopup.activateItem(matchingNode);
     }
-    await new Promise(r => matchingNode.documentGlobal.setTimeout(r, 500));
+    await new Promise(r => matchingNode.ownerGlobal.setTimeout(r, 500));
 
     let newPopup = null;
     if ("menupopup" in matchingNode) {
@@ -291,11 +291,7 @@ async function _click_appmenu_in_sequence(navTargets, nonNavTarget, win) {
 
       const foundNode = kids.find(findFunction);
 
-      EventUtils.synthesizeMouseAtCenter(
-        foundNode,
-        {},
-        foundNode.documentGlobal
-      );
+      EventUtils.synthesizeMouseAtCenter(foundNode, {}, foundNode.ownerGlobal);
     }
 
     // We are all done when there are no more navigation targets.
@@ -348,6 +344,6 @@ async function _click_appmenu_in_sequence(navTargets, nonNavTarget, win) {
  */
 export async function click_through_appmenu(navTargets, nonNavTarget, win) {
   const appmenu = win.document.getElementById("button-appmenu");
-  EventUtils.synthesizeMouseAtCenter(appmenu, {}, appmenu.documentGlobal);
+  EventUtils.synthesizeMouseAtCenter(appmenu, {}, appmenu.ownerGlobal);
   return _click_appmenu_in_sequence(navTargets, nonNavTarget, win);
 }

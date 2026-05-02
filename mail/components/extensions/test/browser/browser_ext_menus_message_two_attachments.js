@@ -221,7 +221,7 @@ async function subtest_attachmentItem(
   expectedContext,
   expectedAttachments
 ) {
-  const menu = element.documentGlobal.document.getElementById(
+  const menu = element.ownerGlobal.document.getElementById(
     expectedContext == "message_attachments"
       ? "attachmentItemContext"
       : "attachmentListContext"

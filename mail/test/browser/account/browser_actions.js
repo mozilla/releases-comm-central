@@ -87,7 +87,7 @@ async function subtest_check_account_actions(
   EventUtils.synthesizeMouseAtCenter(
     button,
     { clickCount: 1 },
-    button.documentGlobal
+    button.ownerGlobal
   );
   await BrowserTestUtils.waitForPopupEvent(
     content_tab_e(tab, "accountAddPopup"),

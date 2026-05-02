@@ -73,7 +73,7 @@ add_task(async function () {
 
   // Click the button. Pretend we've gone to our browser and logged in.
   const urlPromise = OAuth2TestUtils.promiseExternalOAuthURL();
-  EventUtils.synthesizeMouseAtCenter(button, {}, button.documentGlobal);
+  EventUtils.synthesizeMouseAtCenter(button, {}, button.ownerGlobal);
   const url = await urlPromise;
   await OAuth2TestUtils.submitOAuthURL(url, {
     expectedScope: "test_mail",

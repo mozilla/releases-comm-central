@@ -226,7 +226,7 @@ async function assert_can_cancel_upload(
   EventUtils.synthesizeMouseAtCenter(
     attachmentItem,
     { type: "contextmenu", button: 2 },
-    attachmentItem.documentGlobal
+    attachmentItem.ownerGlobal
   );
   await popupPromise;
 
@@ -238,11 +238,7 @@ async function assert_can_cancel_upload(
     // context menu items on macos.
     cancelItem.click();
   } else {
-    EventUtils.synthesizeMouseAtCenter(
-      cancelItem,
-      {},
-      cancelItem.documentGlobal
-    );
+    EventUtils.synthesizeMouseAtCenter(cancelItem, {}, cancelItem.ownerGlobal);
     await new Promise(resolve => setTimeout(resolve));
   }
 

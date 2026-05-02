@@ -647,7 +647,7 @@ add_task(async function testReceiptsDialog() {
     block: "center",
   });
   await new Promise(resolve =>
-    prefsDocument.documentGlobal.requestAnimationFrame(resolve)
+    prefsDocument.ownerGlobal.requestAnimationFrame(resolve)
   );
   await promiseSubDialog(
     prefsDocument.getElementById("showReturnReceipts"),

@@ -52,7 +52,7 @@ add_task(async function test_captureState() {
     false,
     () => password.value === "test"
   );
-  EventUtils.sendString("test", subview.documentGlobal);
+  EventUtils.sendString("test", subview.ownerGlobal);
   const validUpdatedEvent = await validUpdatedInput;
 
   Assert.ok(
@@ -88,7 +88,7 @@ add_task(async function test_captureStateWithRememberPasswordPref() {
     false,
     () => password.value === "test"
   );
-  EventUtils.sendString("test", subview.documentGlobal);
+  EventUtils.sendString("test", subview.ownerGlobal);
   const validUpdatedEvent = await validUpdatedInput;
 
   Assert.ok(

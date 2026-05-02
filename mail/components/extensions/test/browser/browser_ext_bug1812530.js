@@ -43,7 +43,7 @@ const subtest_clickOpenInBrowserContextMenu = async (extension, getBrowser) => {
     await awaitBrowserLoaded(browser, url => url != "about:blank");
 
     const menuId = browser.getAttribute("context");
-    const menu = browser.documentGlobal.top.document.getElementById(menuId);
+    const menu = browser.ownerGlobal.top.document.getElementById(menuId);
     await rightClickOnContent(menu, elementSelector, browser);
     Assert.ok(
       menu.querySelector("#browserContext-openInBrowser"),

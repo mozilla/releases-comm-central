@@ -47,7 +47,7 @@ async function openpgpProcessed() {
   const [subject] = await TestUtils.topicObserved(
     "document-element-inserted",
     document => {
-      return document.documentGlobal?.location == "about:message";
+      return document.ownerGlobal?.location == "about:message";
     }
   );
 
@@ -564,7 +564,7 @@ add_task(async function testOuterPgpSigInnerPgpEncryptedInsideMixed() {
   EventUtils.synthesizeMouseAtCenter(
     button,
     { clickCount: 1 },
-    button.documentGlobal
+    button.ownerGlobal
   );
   const win2 = await partsMessageWindowPromise;
   const aboutMessage2 = get_about_message(win2);
@@ -626,7 +626,7 @@ add_task(async function testOpenAndShowAttachedEml() {
   EventUtils.synthesizeMouseAtCenter(
     button,
     { clickCount: 1 },
-    button.documentGlobal
+    button.ownerGlobal
   );
   const win2 = await partsMessageWindowPromise;
   const aboutMessage2 = get_about_message(win2);
@@ -678,7 +678,7 @@ add_task(async function testOpenAndShowAttachedEmlWithFooter() {
   EventUtils.synthesizeMouseAtCenter(
     button,
     { clickCount: 1 },
-    button.documentGlobal
+    button.ownerGlobal
   );
   const win2 = await partsMessageWindowPromise;
   await openpgpprocessed2;

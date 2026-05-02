@@ -662,7 +662,7 @@ async function setTimezone(dialogWindow, iframeWindow, timezone) {
  * @param {string} value
  */
 export async function menulistSelect(menulist, value) {
-  const win = menulist.documentGlobal;
+  const win = menulist.ownerGlobal;
   Assert.report(
     false,
     undefined,

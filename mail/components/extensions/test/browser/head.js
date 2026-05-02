@@ -421,7 +421,7 @@ function awaitBrowserLoaded(browser, wantLoad) {
 
   return TestUtils.waitForCondition(
     () =>
-      browser.documentGlobal.document.readyState === "complete" &&
+      browser.ownerGlobal.document.readyState === "complete" &&
       (browser.webProgress?.isLoadingDocument === false ||
         browser.contentDocument?.readyState === "complete") &&
       browser.currentURI &&
@@ -845,7 +845,7 @@ async function synthesizeMouseAtCenterAndRetry(selector, event, browser) {
     // for the click event and if we do not see it within a certain time, we click again.
 
     const failPromise = new Promise(r =>
-      browser.documentGlobal.setTimeout(r, 500)
+      browser.ownerGlobal.setTimeout(r, 500)
     ).then(() => false);
 
     event.centered = true;
@@ -982,7 +982,7 @@ async function openMenuPopupInBrowser(browser, menu, selector) {
  */
 async function openMenuPopup(menu, element, event = {}) {
   await BrowserTestUtils.waitForPopupEvent(menu, "hidden");
-  EventUtils.synthesizeMouseAtCenter(element, event, element.documentGlobal);
+  EventUtils.synthesizeMouseAtCenter(element, event, element.ownerGlobal);
   await BrowserTestUtils.waitForPopupEvent(menu, "shown");
 }
 
@@ -1885,7 +1885,7 @@ async function testThemeIcons(button, uuid) {
     );
   }
 
-  const win = button.documentGlobal;
+  const win = button.ownerGlobal;
 
   // An add-on dark theme.
   const darkCustomTheme = makeDarkTheme();
