@@ -232,7 +232,12 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
             let response = match self.send_http_request(operation_id, name, request).await {
                 Ok(response) => response,
                 Err(err) => {
-                    token = match self.error_handling_line.try_acquire_token().or_token(token) {
+                    token = match self
+                        .error_handling_line
+                        .try_acquire_token()
+                        .await
+                        .or_token(token)
+                    {
                         AcquireOutcome::Success(new_token) => {
                             self.handle_early_failure(err, options).await?;
                             Some(new_token)
@@ -290,7 +295,12 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
                 .await?
             {
                 ControlFlow::Continue(sleep_delay) => {
-                    token = match self.error_handling_line.try_acquire_token().or_token(token) {
+                    token = match self
+                        .error_handling_line
+                        .try_acquire_token()
+                        .await
+                        .or_token(token)
+                    {
                         AcquireOutcome::Success(new_token) => {
                             log::debug!(
                                 "Request {operation_id}: rate-limited: waiting for {}ms before next attempt",

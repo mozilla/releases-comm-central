@@ -15,7 +15,7 @@ moz_http = { version = "0.1.0", path = "../moz_http" }
 nserror = { version = "0.1.0", path = "../../../xpcom/rust/nserror" }
 nsstring = { version = "0.1.0", path = "../../../xpcom/rust/nsstring" }
 oneshot = "0.1.11"
-operation-queue = { version = "=1.0.0", features = ["line_token"] }
+operation-queue = { version = "1.1.0", features = ["line_token"] }
 thin-vec = { version = "0.2.12", features = ["gecko-ffi"] }
 thiserror = "1.0.56"
 url = "2.5.0"
