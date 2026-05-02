@@ -10,7 +10,7 @@ export class ContextMenuParent extends JSWindowActorParent {
     }
 
     const browser = this.manager.rootFrameLoader.ownerElement;
-    const win = browser.documentGlobal.top;
+    const win = browser.ownerGlobal.top;
 
     // Send events from a message display browser to about:3pane or
     // about:message if possible.

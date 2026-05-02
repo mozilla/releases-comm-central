@@ -453,7 +453,7 @@ var gMenuBuilder = {
           _execute_message_display_action: global.messageDisplayActionFor,
         }[item.command];
         if (actionFor) {
-          const win = event.target.documentGlobal;
+          const win = event.target.ownerGlobal;
           actionFor(item.extension).triggerAction(win.top);
           return;
         }
@@ -495,7 +495,7 @@ var gMenuBuilder = {
   },
 
   setMenuItemIcon(element, extension, contextData, icons) {
-    const parentWindow = contextData.menu.documentGlobal;
+    const parentWindow = contextData.menu.ownerGlobal;
 
     const { icon } = IconDetails.getPreferredIcon(
       icons,
@@ -864,10 +864,7 @@ async function addMenuEventInfo(
     }
 
     info.attachments = contextData.selectedComposeAttachments.map(a =>
-      global.composeAttachmentTracker.convert(
-        a,
-        contextData.menu.documentGlobal
-      )
+      global.composeAttachmentTracker.convert(a, contextData.menu.ownerGlobal)
     );
   }
   if (contextData.onHeaderPaneLink && extension.hasPermission("messagesRead")) {
@@ -1179,7 +1176,7 @@ const menuTracker = {
   handleEvent(event) {
     const menu = event.target;
     const trigger = menu.triggerNode;
-    const win = menu.documentGlobal;
+    const win = menu.ownerGlobal;
     switch (menu.id) {
       case "taskPopup": {
         const info = { menu, inToolsMenu: true };
@@ -1222,22 +1219,22 @@ const menuTracker = {
       }
       case "attachmentListContext": {
         const attachmentList =
-          menu.documentGlobal.document.getElementById("attachmentList");
+          menu.ownerGlobal.document.getElementById("attachmentList");
         const allMessageAttachments = [...attachmentList.children].map(
           item => item.attachment
         );
         gMenuBuilder.build({
           menu,
-          tab: menu.documentGlobal,
+          tab: menu.ownerGlobal,
           allMessageAttachments,
         });
         break;
       }
       case "attachmentItemContext": {
         const attachmentList =
-          menu.documentGlobal.document.getElementById("attachmentList");
+          menu.ownerGlobal.document.getElementById("attachmentList");
         const attachmentInfo =
-          menu.documentGlobal.document.getElementById("attachmentInfo");
+          menu.ownerGlobal.document.getElementById("attachmentInfo");
 
         // If we opened the context menu from the attachment info area (the paperclip,
         // "1 attachment" label, filename, or file size, just grab the first (and
@@ -1258,7 +1255,7 @@ const menuTracker = {
 
         gMenuBuilder.build({
           menu,
-          tab: menu.documentGlobal,
+          tab: menu.ownerGlobal,
           selectedMessageAttachments,
         });
         break;
@@ -1273,7 +1270,7 @@ const menuTracker = {
         }
         gMenuBuilder.build({
           menu,
-          tab: menu.documentGlobal,
+          tab: menu.ownerGlobal,
           selectedComposeAttachments,
         });
         break;

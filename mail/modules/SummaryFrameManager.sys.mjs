@@ -82,7 +82,7 @@ SummaryFrameManager.prototype = {
       ) {
         return;
       }
-      if (event.target.documentGlobal.location.href == "about:blank") {
+      if (event.target.ownerGlobal.location.href == "about:blank") {
         return;
       }
 

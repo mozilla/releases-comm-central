@@ -423,8 +423,7 @@ var gPrivacyPane = {
       "password-os-auth-dialog-caption"
     );
     const win =
-      osReauthCheckbox.documentGlobal.docShell.chromeEventHandler
-        .documentGlobal;
+      osReauthCheckbox.ownerGlobal.docShell.chromeEventHandler.ownerGlobal;
 
     // Calling OSKeyStore.ensureLoggedIn() instead of LoginHelper.verifyOSAuth()
     // since we want to authenticate user each time this setting is changed.

@@ -75,7 +75,7 @@ add_task(async function test_captureStateAndReset() {
     false,
     () => username.value === "test"
   );
-  EventUtils.sendString("test", subview.documentGlobal);
+  EventUtils.sendString("test", subview.ownerGlobal);
   const invalidUpdateEvent = await updatedInvalid;
 
   Assert.ok(
@@ -89,14 +89,14 @@ add_task(async function test_captureStateAndReset() {
   );
   Assert.ok(server.required, "Server should still be required");
 
-  EventUtils.synthesizeKey("KEY_Tab", {}, subview.documentGlobal);
+  EventUtils.synthesizeKey("KEY_Tab", {}, subview.ownerGlobal);
   const updated = BrowserTestUtils.waitForEvent(
     subview,
     "config-updated",
     false,
     () => server.value === "https://example.com"
   );
-  EventUtils.sendString("https://example.com", subview.documentGlobal);
+  EventUtils.sendString("https://example.com", subview.ownerGlobal);
   const updateEvent = await updated;
 
   Assert.ok(updateEvent.detail.completed, "Should have a valid config update");
@@ -129,7 +129,7 @@ add_task(async function test_resetState() {
     false,
     () => username.value === "foo"
   );
-  EventUtils.sendString("foo", subview.documentGlobal);
+  EventUtils.sendString("foo", subview.ownerGlobal);
   await updated;
 
   Assert.notDeepEqual(
@@ -239,9 +239,9 @@ add_task(async function test_captureStateURLFieldPreferred() {
     false,
     server.value === "https://unrelated.invalid"
   );
-  EventUtils.sendString("test@example.com", subview.documentGlobal);
-  EventUtils.synthesizeKey("KEY_Tab", {}, subview.documentGlobal);
-  EventUtils.sendString("https://unrelated.invalid", subview.documentGlobal);
+  EventUtils.sendString("test@example.com", subview.ownerGlobal);
+  EventUtils.synthesizeKey("KEY_Tab", {}, subview.onwerGlobal);
+  EventUtils.sendString("https://unrelated.invalid", subview.ownerGlobal);
   await updated;
 
   Assert.deepEqual(

@@ -640,7 +640,7 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
    * @param {Event} event
    */
   handleEvent(event) {
-    const window = event.target.documentGlobal;
+    const window = event.target.ownerGlobal;
     switch (event.type) {
       case "click":
       case "mousedown":
@@ -756,7 +756,7 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
     if (sync) {
       callback();
     } else {
-      node.documentGlobal.requestAnimationFrame(callback);
+      node.ownerGlobal.requestAnimationFrame(callback);
     }
   }
 

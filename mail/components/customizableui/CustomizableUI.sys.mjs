@@ -23,7 +23,7 @@ var CustomizableUIInternal = {
   addPanelCloseListeners(aPanel) {
     aPanel.addEventListener("click", this, { mozSystemGroup: true });
     aPanel.addEventListener("keypress", this, { mozSystemGroup: true });
-    const win = aPanel.documentGlobal;
+    const win = aPanel.ownerGlobal;
     if (!gPanelsForWindow.has(win)) {
       gPanelsForWindow.set(win, new Set());
     }
@@ -33,7 +33,7 @@ var CustomizableUIInternal = {
   removePanelCloseListeners(aPanel) {
     aPanel.removeEventListener("click", this, { mozSystemGroup: true });
     aPanel.removeEventListener("keypress", this, { mozSystemGroup: true });
-    const win = aPanel.documentGlobal;
+    const win = aPanel.ownerGlobal;
     const panels = gPanelsForWindow.get(win);
     if (panels) {
       panels.delete(this._getPanelForNode(aPanel));

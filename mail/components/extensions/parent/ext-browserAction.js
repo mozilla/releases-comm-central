@@ -260,7 +260,7 @@ this.browserAction = class extends ToolbarButtonAPI {
 
   handleEvent(event) {
     super.handleEvent(event);
-    const window = event.target.documentGlobal;
+    const window = event.target.ownerGlobal;
 
     switch (event.type) {
       case "popupshowing": {

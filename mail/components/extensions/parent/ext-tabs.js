@@ -42,7 +42,7 @@ const tabListener = {
    */
   onLocationChange(browser, webProgress) {
     if (webProgress && webProgress.isTopLevel) {
-      const window = browser.documentGlobal.top;
+      const window = browser.ownerGlobal.top;
       const tabmail = window.document.getElementById("tabmail");
       const nativeTabInfo = tabmail
         ? tabmail.getTabForBrowser(browser)
@@ -217,7 +217,7 @@ this.tabs = class extends ExtensionAPIPersistent {
             await fire.wakeup();
           }
           fire.async(tabTracker.getId(nativeTabInfo), {
-            windowId: windowTracker.getId(nativeTab.documentGlobal),
+            windowId: windowTracker.getId(nativeTab.ownerGlobal),
             fromIndex: event.detail.idx,
             toIndex: tabmail.tabInfo.indexOf(nativeTabInfo),
           });
@@ -339,7 +339,7 @@ this.tabs = class extends ExtensionAPIPersistent {
         if (event.originalTarget.initializingTab) {
           return;
         }
-        if (!extension.canAccessWindow(event.originalTarget.documentGlobal)) {
+        if (!extension.canAccessWindow(event.originalTarget.ownerGlobal)) {
           return;
         }
         */

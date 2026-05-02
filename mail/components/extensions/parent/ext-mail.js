@@ -207,9 +207,8 @@ function getTabBrowser(nativeTabInfo) {
     }
   }
 
-  const win = nativeTabInfo.ownerGlobal ?? nativeTabInfo;
-  if (win?.getBrowser) {
-    return win.getBrowser();
+  if (nativeTabInfo.ownerGlobal && nativeTabInfo.ownerGlobal.getBrowser) {
+    return nativeTabInfo.ownerGlobal.getBrowser();
   }
 
   return null;
@@ -712,7 +711,7 @@ class TabTracker extends TabTrackerBase {
     const browser = getTabBrowser(nativeTabInfo);
     const tabmail = browser.ownerDocument.getElementById("tabmail");
     const tabIndex = tabmail._getTabContextForTabbyThing(nativeTabInfo)[0];
-    const newWindowId = windowTracker.getId(browser.documentGlobal);
+    const newWindowId = windowTracker.getId(browser.ownerGlobal);
 
     this.emit("tab-attached", {
       nativeTabInfo,
@@ -732,7 +731,7 @@ class TabTracker extends TabTrackerBase {
     const browser = getTabBrowser(nativeTabInfo);
     const tabmail = browser.ownerDocument.getElementById("tabmail");
     const tabIndex = tabmail._getTabContextForTabbyThing(nativeTabInfo)[0];
-    const oldWindowId = windowTracker.getId(browser.documentGlobal);
+    const oldWindowId = windowTracker.getId(browser.ownerGlobal);
 
     this.emit("tab-detached", {
       nativeTabInfo,
@@ -775,7 +774,7 @@ class TabTracker extends TabTrackerBase {
    * @returns {{ tabId:Integer, windowId:Integer }} The browsing data for the element
    */
   getBrowserData(browser) {
-    const window = browser.documentGlobal;
+    const window = browser.ownerGlobal;
     if (window?.top.document.documentURI === "about:addons") {
       // When we're loaded into a <browser> inside about:addons, we need to go up
       // one more level.
@@ -790,7 +789,7 @@ class TabTracker extends TabTrackerBase {
       return { tabId: -1, windowId: -1 };
     }
 
-    let windowId = windowTracker.getId(browser.documentGlobal);
+    let windowId = windowTracker.getId(browser.ownerGlobal);
     // Do not return invalid windowIds. windowTracker.getId() just pulls the
     // outerWindowID, while windowTracker.getWindow() does more checks on the
     // validity.
@@ -1223,7 +1222,7 @@ class TabmailTab extends Tab {
 
   /** Returns the native window object of the tab. */
   get window() {
-    return this.tabmail.documentGlobal;
+    return this.tabmail.ownerGlobal;
   }
 }
 

@@ -173,7 +173,7 @@ var ToolbarContextMenu = {
     const id = this._getExtensionId(popup);
 
     // This can be called from a composeAction button, where
-    // popup.documentGlobal.BrowserAddonUI is undefined.
+    // popup.ownerGlobal.BrowserAddonUI is undefined.
     const win = Services.wm.getMostRecentWindow("mail:3pane");
     await win.BrowserAddonUI.removeAddon(id);
   },
@@ -182,7 +182,7 @@ var ToolbarContextMenu = {
     const id = this._getExtensionId(popup);
     if (id) {
       const viewID = "addons://detail/" + encodeURIComponent(id);
-      popup.documentGlobal.openAddonsMgr(viewID);
+      popup.ownerGlobal.openAddonsMgr(viewID);
     }
   },
 };

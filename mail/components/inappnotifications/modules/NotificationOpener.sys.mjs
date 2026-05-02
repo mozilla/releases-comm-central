@@ -44,7 +44,7 @@ export const NotificationOpener = {
         background: false,
         linkHandler: "single-page",
       });
-      tabmail.documentGlobal.focus();
+      tabmail.ownerGlobal.focus();
     }
   },
 };

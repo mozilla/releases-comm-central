@@ -191,7 +191,7 @@ var gSearchResultsPane = {
       const range = document.createRange();
       range.setStart(startNode, startValue);
       range.setEnd(endNode, endValue);
-      this.getFindSelection(startNode.documentGlobal).addRange(range);
+      this.getFindSelection(startNode.ownerGlobal).addRange(range);
     }
 
     return !!indices.length;

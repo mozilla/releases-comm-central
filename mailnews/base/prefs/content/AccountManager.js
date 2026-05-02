@@ -86,7 +86,7 @@ ChromeUtils.defineLazyGetter(this, "gSubDialog", function () {
 
         // Resize the dialog to fit the content with edited font size.
         requestAnimationFrame(() => {
-          const dialogs = frame.documentGlobal.gSubDialog._dialogs;
+          const dialogs = frame.ownerGlobal.gSubDialog._dialogs;
           const dialog = dialogs.find(
             d => d._frame.contentDocument == frame.contentDocument
           );

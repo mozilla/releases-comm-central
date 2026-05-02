@@ -2121,7 +2121,7 @@ function msgComposeContextOnShowing(event) {
     linkText,
     linkUrl,
     selectionText: isTextSelected ? selectionInfo.fullText : undefined,
-    pageUrl: target.documentGlobal.top.location.href,
+    pageUrl: target.ownerGlobal.top.location.href,
     onComposeBody: true,
   };
   subject.context = subject;
@@ -9366,7 +9366,7 @@ function OpenSelectedAttachment() {
           background: false,
           linkHandler: "single-page",
         });
-        tabmail.documentGlobal.focus();
+        tabmail.ownerGlobal.focus();
         return;
       }
       // If no tabmail, open PDF same as other attachments.

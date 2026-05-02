@@ -19,7 +19,7 @@ function launchBrowser(url, event) {
   if (
     !url ||
     (event && event.button != 0) ||
-    (event.target.documentGlobal.browsingContext.isContent && /^(mid|mailto|s?news):/i.test(url))
+    (event.target.ownerGlobal.browsingContext.isContent && /^(mid|mailto|s?news):/i.test(url))
   ) {
     return;
   }

@@ -34,10 +34,10 @@ export var MailE10SUtils = {
    * @param {object} params
    */
   loadURI(browser, uri, params = {}) {
-    const multiProcess = browser.documentGlobal.docShell.QueryInterface(
+    const multiProcess = browser.ownerGlobal.docShell.QueryInterface(
       Ci.nsILoadContext
     ).useRemoteTabs;
-    const remoteSubframes = browser.documentGlobal.docShell.QueryInterface(
+    const remoteSubframes = browser.ownerGlobal.docShell.QueryInterface(
       Ci.nsILoadContext
     ).useRemoteSubframes;
 
