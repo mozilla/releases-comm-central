@@ -19,6 +19,7 @@
 #include ./accountHubEmailConfigFoundTemplate.inc.xhtml
 #include ./accountHubEmailCredentialsConfirmationTemplate.inc.xhtml
 #include ./accountHubEmailExchangeSettingsTemplate.inc.xhtml
+#include ./accountHubEmailExchangeType.inc.xhtml
 #include ./accountHubEmailIncomingFormTemplate.inc.xhtml
 #include ./accountHubEmailOutgoingFormTemplate.inc.xhtml
 #include ./accountHubEmailPasswordFormTemplate.inc.xhtml
@@ -131,6 +132,11 @@
     class="account-hub-step"
     hidden="hidden"
   ></email-exchange-settings>
+  <email-exchange-type
+    id="emailExchangeTypeSubview"
+    class="account-hub-step"
+    hidden="hidden"
+  ></email-exchange-type>
   <email-config-found
     id="emailConfigFoundSubview"
     title-id="account-hub-email-config-found"

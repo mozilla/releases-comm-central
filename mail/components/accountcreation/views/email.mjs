@@ -255,6 +255,15 @@ class AccountHubEmail extends HTMLElement {
       subview: {},
       templateId: "email-exchange-settings",
     },
+    exchangeTypeSubview: {
+      id: "emailExchangeTypeSubview",
+      nextStep: "emailPasswordSubview",
+      previousStep: "exchangeSettingsSubview",
+      forwardEnabled: false,
+      customActionFluentID: "",
+      subview: {},
+      templateId: "email-exchange-type",
+    },
     manualConfigSubview: {
       id: "emailManualConfigSubview",
       nextStep: "emailPasswordSubview",
@@ -351,9 +360,11 @@ class AccountHubEmail extends HTMLElement {
     );
     this.#states.emailCredentialsConfirmationSubview.subview =
       this.#emailCredentialsConfirmationSubview;
-
     this.#states.exchangeSettingsSubview.subview = this.querySelector(
       "#emailExchangeSettingsSubview"
+    );
+    this.#states.exchangeTypeSubview.subview = this.querySelector(
+      "#emailExchangeTypeSubview"
     );
 
     this.#emailFooter = this.querySelector("account-hub-footer");
