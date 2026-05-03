@@ -399,7 +399,7 @@ export class AttachmentInfo {
             background: false,
             linkHandler: "single-page",
           });
-          tabmail.ownerGlobal.focus();
+          tabmail.documentGlobal.focus();
           return;
         }
         // If no tabmail, open PDF same as other attachments.

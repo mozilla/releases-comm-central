@@ -159,7 +159,7 @@ var AssociatedToNode = class {
   }
 
   get window() {
-    return this.node.ownerGlobal;
+    return this.node.documentGlobal;
   }
 
   _getBoundsWithoutFlushing(element) {
@@ -1602,11 +1602,14 @@ export class PanelView extends AssociatedToNode {
         // there is no command event handler and the mousedown event executes the
         // action instead.
         button.doCommand();
-        let dispEvent = new event.target.ownerGlobal.MouseEvent("mousedown", {
-          bubbles: true,
-        });
+        let dispEvent = new event.target.documentGlobal.MouseEvent(
+          "mousedown",
+          {
+            bubbles: true,
+          }
+        );
         button.dispatchEvent(dispEvent);
-        dispEvent = new event.target.ownerGlobal.MouseEvent("click", {
+        dispEvent = new event.target.documentGlobal.MouseEvent("click", {
           bubbles: true,
         });
         button.dispatchEvent(dispEvent);

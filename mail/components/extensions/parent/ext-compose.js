@@ -195,7 +195,7 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
 
     const composeWindowPromise = new Promise(resolve => {
       function listener(event) {
-        const composeWindow = event.target.ownerGlobal;
+        const composeWindow = event.target;
         // Skip if this window has been processed already. This already helps
         // a lot to assign the opened windows in the correct order to the
         // OpenCompomposeWindow calls.
@@ -1515,12 +1515,12 @@ windowTracker.addListener("attachments-removed", event => {
   for (const attachment of event.detail) {
     const attachmentId = composeAttachmentTracker.getId(
       attachment,
-      event.target.ownerGlobal
+      event.target
     );
     composeAttachmentTracker.emit(
       "attachment-removed",
       attachmentId,
-      event.target.ownerGlobal
+      event.target
     );
   }
   for (const attachment of event.detail) {
@@ -1664,9 +1664,9 @@ this.compose = class extends ExtensionAPIPersistent {
         for (let attachment of event.detail) {
           attachment = composeAttachmentTracker.convert(
             attachment,
-            event.target.ownerGlobal
+            event.target
           );
-          fire.async(tabManager.convert(event.target.ownerGlobal), attachment);
+          fire.async(tabManager.convert(event.target), attachment);
         }
       }
       windowTracker.addListener("attachments-added", listener);
@@ -1706,7 +1706,7 @@ this.compose = class extends ExtensionAPIPersistent {
           await fire.wakeup();
         }
         fire.async(
-          tabManager.convert(event.target.ownerGlobal),
+          tabManager.convert(event.target),
           event.target.getCurrentIdentityKey()
         );
       }
@@ -1728,7 +1728,7 @@ this.compose = class extends ExtensionAPIPersistent {
           await fire.wakeup();
         }
         fire.async(
-          tabManager.convert(event.target.ownerGlobal),
+          tabManager.convert(event.target),
           composeStates.convert(event.detail)
         );
       }
@@ -1751,7 +1751,7 @@ this.compose = class extends ExtensionAPIPersistent {
         }
         const activeDictionaries = event.detail.split(",");
         fire.async(
-          tabManager.convert(event.target.ownerGlobal),
+          tabManager.convert(event.target),
           Cc["@mozilla.org/spellchecker/engine;1"]
             .getService(Ci.mozISpellCheckingEngine)
             .getDictionaryList()

@@ -28,7 +28,7 @@ var mailTabType = {
       }
       // Allow 3pane and message tab to set a tab favicon. Mail content should
       // not be allowed to do that.
-      if (event.target.ownerGlobal.frameElement == browser) {
+      if (event.target.documentGlobal.frameElement == browser) {
         tabmail.setTabFavIcon(tab, event.target.href);
       }
     };
@@ -36,11 +36,11 @@ var mailTabType = {
     browser.addEventListener("DOMLinkChanged", linkRelIconHandler);
     if (onDOMContentLoaded) {
       const contentLoadedHandler = event => {
-        if (event.target.ownerGlobal.location.href == "about:blank") {
+        if (event.target.documentGlobal.location.href == "about:blank") {
           return;
         }
         if (!tab.closed) {
-          onDOMContentLoaded(event.target.ownerGlobal);
+          onDOMContentLoaded(event.target.documentGlobal);
         }
         browser.removeEventListener("DOMContentLoaded", contentLoadedHandler, {
           capture: true,
@@ -51,11 +51,11 @@ var mailTabType = {
       });
     }
     const loadHandler = event => {
-      if (event.target.ownerGlobal.location.href == "about:blank") {
+      if (event.target.documentGlobal.location.href == "about:blank") {
         return;
       }
       if (!tab.closed) {
-        onLoad(event.target.ownerGlobal);
+        onLoad(event.target.documentGlobal);
       }
       browser.removeEventListener("load", loadHandler, { capture: true });
     };
@@ -231,7 +231,7 @@ var mailTabType = {
           "DOMContentLoaded",
           event => {
             if (!closed && event.target == chromeBrowser.contentDocument) {
-              const about3Pane = event.target.ownerGlobal;
+              const about3Pane = event.target.documentGlobal;
               about3Pane.openingState = {
                 ...about3Pane.openingState,
                 ...persistedState,

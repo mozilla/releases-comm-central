@@ -85,13 +85,15 @@ function getTopWindow() {
 }
 
 function getTabBrowser(browser) {
-  while (browser.ownerGlobal.docShell.itemType !== Ci.nsIDocShell.typeChrome) {
-    browser = browser.ownerGlobal.docShell.chromeEventHandler;
+  while (
+    browser.documentGlobal.docShell.itemType !== Ci.nsIDocShell.typeChrome
+  ) {
+    browser = browser.documentGlobal.docShell.chromeEventHandler;
   }
   if (browser.getAttribute("webextension-view-type") == "popup") {
-    browser = browser.ownerGlobal.gBrowser.selectedBrowser;
+    browser = browser.documentGlobal.gBrowser.selectedBrowser;
   }
-  return { browser, window: browser.ownerGlobal };
+  return { browser, window: browser.documentGlobal };
 }
 
 // Removes a doorhanger notification if all of the installs it was notifying
@@ -1252,7 +1254,7 @@ export var ExtensionsUI = {
     // not store notifications per tab/browser, we can use the top mail window to
     // store pendingNotifications.
     const browser = target ? getTabBrowser(target).browser : null;
-    const window = browser ? browser.ownerGlobal : getTopWindow();
+    const window = browser ? browser.documentGlobal : getTopWindow();
     const doc = window.document;
 
     // Wait for any pending prompts to complete before showing the next one.

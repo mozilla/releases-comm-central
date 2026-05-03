@@ -126,7 +126,7 @@ var uiListener = new (class extends EventEmitter {
   }
 
   handleEvent(event) {
-    const targetWindow = event.target.ownerGlobal;
+    const targetWindow = event.target.documentGlobal;
     if (targetWindow.location.href != "about:3pane") {
       return;
     }

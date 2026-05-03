@@ -1224,7 +1224,7 @@ export var MessageTextFilter = {
         upsell.hidePopup();
       }
       const tabmail =
-        aDocument.ownerGlobal.top.document.getElementById("tabmail");
+        aDocument.documentGlobal.top.document.getElementById("tabmail");
       tabmail.openTab("glodaFacet", {
         searcher: new lazy.GlodaMsgSearcher(null, aState.text),
       });
@@ -1255,7 +1255,7 @@ export var MessageTextFilter = {
       );
 
       if (panel.state == "closed" && aDocument.activeElement == aNode) {
-        aDocument.ownerGlobal.setTimeout(() => {
+        aDocument.documentGlobal.setTimeout(() => {
           panel.openPopup(
             aDocument.getElementById("quick-filter-bar"),
             "after_end",

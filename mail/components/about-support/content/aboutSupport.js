@@ -1637,7 +1637,7 @@ function setupEventListeners() {
         Services.prompt.BUTTON_POS_1 * Services.prompt.BUTTON_TITLE_CANCEL +
         Services.prompt.BUTTON_POS_0_DEFAULT;
       const result = Services.prompt.confirmEx(
-        window.docShell.chromeEventHandler.ownerGlobal,
+        window.docShell.chromeEventHandler.documentGlobal,
         promptTitle,
         promptBody,
         buttonFlags,

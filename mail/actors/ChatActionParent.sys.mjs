@@ -16,7 +16,7 @@ export class ChatActionParent extends JSWindowActorParent {
       }
 
       // Otherwise, send them to the outer window.
-      const win = browser.ownerGlobal;
+      const win = browser.documentGlobal;
       if (win.gChatContextMenu) {
         win.gChatContextMenu.initActions(message.data.actions);
         return;

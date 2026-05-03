@@ -657,7 +657,7 @@ var messageProgressListener = {
    * message loading has finished.
    */
   onDOMContentLoaded(event) {
-    const { docShell } = event.target.ownerGlobal;
+    const { docShell } = event.target.documentGlobal;
     if (!docShell.isTopLevelContentDocShell) {
       return;
     }
@@ -3137,7 +3137,7 @@ const gMessageHeader = {
     const messageId = element.id;
     const subject = {
       menu: popup,
-      tab: popup.ownerGlobal,
+      tab: popup.documentGlobal,
       onHeaderPaneLink: true,
       linkText: messageId,
       linkUrl: `mid:${messageId.substring(1, messageId.length - 1)}`,
