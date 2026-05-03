@@ -142,6 +142,15 @@
   padding: 0;
 }
 
+/* Hide Chat tile when chat is disabled */
+/* stylelint-disable-next-line media-query-no-invalid */
+@media not -moz-pref("mail.chat.enabled") {
+  [is="customization-target"] [is="customizable-element"][item-id="chat"],
+  [is="customization-palette"] [is="customizable-element"][item-id="chat"] {
+    display: none;
+  }
+}
+
 [is="customization-target"]:focus-within [is="customizable-element"][aria-selected="true"],
 [is="customization-palette"]:focus-within [is="customizable-element"][aria-selected="true"] {
   outline: var(--focus-outline);

@@ -396,6 +396,14 @@
   }
 }
 
+/* Hide Chat tile when chat is disabled */
+/* stylelint-disable-next-line media-query-no-invalid */
+@media not -moz-pref("mail.chat.enabled") {
+  button[is="space-button"][space="chat"] {
+    display: none !important;
+  }
+}
+
 global-search-bar:not([hidden]) {
   display: block;
   color: var(--layout-color-0);

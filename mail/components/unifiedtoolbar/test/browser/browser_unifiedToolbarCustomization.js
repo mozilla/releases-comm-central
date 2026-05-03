@@ -716,6 +716,107 @@ add_task(async function test_palette_contents() {
   EventUtils.synthesizeKey("KEY_Escape");
 });
 
+add_task(async function test_chat_button_hidden_when_chat_disabled() {
+  const spacesWithChat = ["mail", "calendar", "tasks"];
+
+  // Check the visibility of the Chat button in the unified toolbar.
+  async function checkChatButton(visible) {
+    const chatButton = await TestUtils.waitForCondition(
+      () => document.querySelector('button[is="space-button"][space="chat"]'),
+      "Waiting for Chat button to exist"
+    );
+
+    Assert.ok(
+      visible
+        ? BrowserTestUtils.isVisible(chatButton)
+        : BrowserTestUtils.isHidden(chatButton),
+      `Chat button is ${visible ? "visible" : "hidden"}`
+    );
+
+    return chatButton;
+  }
+
+  // Check the visibility of the Chat tile in the customization UI.
+  async function checkChatTile(customization, space, visible) {
+    document
+      .getElementById(`unified-toolbar-customization-tab-${space}`)
+      .select();
+
+    const pane = customization.querySelector(
+      `#unified-toolbar-customization-pane-${space}`
+    );
+
+    const chatTile = await TestUtils.waitForCondition(
+      () =>
+        pane.shadowRoot.querySelector(
+          '[is="customizable-element"][item-id="chat"]'
+        ),
+      `Waiting for Chat customization tile in ${space}`
+    );
+
+    await TestUtils.waitForCondition(
+      () =>
+        visible
+          ? BrowserTestUtils.isVisible(chatTile)
+          : BrowserTestUtils.isHidden(chatTile),
+      `Chat customization tile is ${visible ? "visible" : "hidden"} in ${space}`
+    );
+
+    Assert.ok(
+      visible
+        ? BrowserTestUtils.isVisible(chatTile)
+        : BrowserTestUtils.isHidden(chatTile),
+      `Chat customization tile is ${visible ? "visible" : "hidden"} in ${space}`
+    );
+  }
+
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.chat.enabled", true]],
+  });
+
+  try {
+    // Set initial state with chat in multiple spaces.
+    const state = {};
+    for (const space of spacesWithChat) {
+      state[space] = ["chat"];
+    }
+    await setState(state);
+
+    // Check chat button exists and is visible.
+    await checkChatButton(true);
+
+    // Open customization UI.
+    const customization = await openCustomization();
+
+    // Verify chat tile is visible in each space.
+    for (const space of spacesWithChat) {
+      await checkChatTile(customization, space, true);
+    }
+
+    // Flip pref to disable chat.
+    await SpecialPowers.pushPrefEnv({
+      set: [["mail.chat.enabled", false]],
+    });
+
+    try {
+      // Wait for live toolbar button to be hidden.
+      await checkChatButton(false);
+
+      // Verify customization tiles are hidden in each space.
+      for (const space of spacesWithChat) {
+        await checkChatTile(customization, space, false);
+      }
+
+      EventUtils.synthesizeKey("KEY_Escape");
+    } finally {
+      await SpecialPowers.popPrefEnv();
+    }
+  } finally {
+    await setState({});
+    await SpecialPowers.popPrefEnv();
+  }
+});
+
 /**
  * Update the state of the unified toolbar and wait for the operation to
  * complete.
