@@ -1512,15 +1512,16 @@ var composeAttachmentTracker = new (class extends EventEmitter {
 // Listen for attachments being removed and, after firing events to any
 // listeners, forget about them to avoid leaking.
 windowTracker.addListener("attachments-removed", event => {
+  const composeWindow = getComposeWindowFromEvent(event);
   for (const attachment of event.detail) {
     const attachmentId = composeAttachmentTracker.getId(
       attachment,
-      event.target
+      composeWindow
     );
     composeAttachmentTracker.emit(
       "attachment-removed",
       attachmentId,
-      event.target
+      composeWindow
     );
   }
   for (const attachment of event.detail) {
@@ -1530,6 +1531,10 @@ windowTracker.addListener("attachments-removed", event => {
 windowTracker.addCloseListener(
   composeAttachmentTracker.forgetAttachments.bind(composeAttachmentTracker)
 );
+
+function getComposeWindowFromEvent(event) {
+  return event.target.documentGlobal ?? event.target;
+}
 
 var composeWindowTracker = new Set();
 windowTracker.addCloseListener(window => composeWindowTracker.delete(window));
@@ -1661,12 +1666,13 @@ this.compose = class extends ExtensionAPIPersistent {
         if (fire.wakeup) {
           await fire.wakeup();
         }
+        const composeWindow = getComposeWindowFromEvent(event);
         for (let attachment of event.detail) {
           attachment = composeAttachmentTracker.convert(
             attachment,
-            event.target
+            composeWindow
           );
-          fire.async(tabManager.convert(event.target), attachment);
+          fire.async(tabManager.convert(composeWindow), attachment);
         }
       }
       windowTracker.addListener("attachments-added", listener);
@@ -1705,8 +1711,9 @@ this.compose = class extends ExtensionAPIPersistent {
         if (fire.wakeup) {
           await fire.wakeup();
         }
+        const composeWindow = getComposeWindowFromEvent(event);
         fire.async(
-          tabManager.convert(event.target),
+          tabManager.convert(composeWindow),
           event.target.getCurrentIdentityKey()
         );
       }
@@ -1727,8 +1734,9 @@ this.compose = class extends ExtensionAPIPersistent {
         if (fire.wakeup) {
           await fire.wakeup();
         }
+        const composeWindow = getComposeWindowFromEvent(event);
         fire.async(
-          tabManager.convert(event.target),
+          tabManager.convert(composeWindow),
           composeStates.convert(event.detail)
         );
       }
@@ -1750,8 +1758,9 @@ this.compose = class extends ExtensionAPIPersistent {
           await fire.wakeup();
         }
         const activeDictionaries = event.detail.split(",");
+        const composeWindow = getComposeWindowFromEvent(event);
         fire.async(
-          tabManager.convert(event.target),
+          tabManager.convert(composeWindow),
           Cc["@mozilla.org/spellchecker/engine;1"]
             .getService(Ci.mozISpellCheckingEngine)
             .getDictionaryList()
