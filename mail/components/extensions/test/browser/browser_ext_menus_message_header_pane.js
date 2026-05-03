@@ -190,7 +190,8 @@ async function subtest_headerPaneLink(
   expectedContext,
   expectedInfo
 ) {
-  const menu = element.ownerGlobal.document.getElementById("messageIdContext");
+  const menu =
+    element.documentGlobal.document.getElementById("messageIdContext");
   const expectedShowData = {
     menuIds: [expectedContext],
     contexts: [expectedContext, "all"],

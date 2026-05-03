@@ -163,7 +163,7 @@ async function testComposeFlags(
     EventUtils.synthesizeMouseAtCenter(
       cwc.document.getElementById("msgIdentity"),
       {},
-      cwc.document.getElementById("msgIdentity").ownerGlobal
+      cwc.document.getElementById("msgIdentity").documentGlobal
     );
     await click_menus_in_sequence(
       cwc.document.getElementById("msgIdentityPopup"),
@@ -191,7 +191,7 @@ async function testComposeFlags(
     EventUtils.synthesizeMouseAtCenter(
       cwc.document.getElementById("msgIdentity"),
       {},
-      cwc.document.getElementById("msgIdentity").ownerGlobal
+      cwc.document.getElementById("msgIdentity").documentGlobal
     );
     await click_menus_in_sequence(
       cwc.document.getElementById("msgIdentityPopup"),

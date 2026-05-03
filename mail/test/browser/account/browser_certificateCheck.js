@@ -169,7 +169,11 @@ add_task(async function testSwitchSocketTypes() {
 
   async function changeSocketType(type) {
     const shownPromise = BrowserTestUtils.waitForSelectPopupShown(window);
-    EventUtils.synthesizeMouseAtCenter(socketType, {}, socketType.ownerGlobal);
+    EventUtils.synthesizeMouseAtCenter(
+      socketType,
+      {},
+      socketType.documentGlobal
+    );
     const popup = await shownPromise;
     popup.activateItem(popup.children[options[type]]);
     await BrowserTestUtils.waitForPopupEvent(popup, "hidden");
@@ -253,7 +257,7 @@ add_task(async function testValidCertificate() {
   EventUtils.synthesizeMouseAtCenter(
     certCheck.viewButton,
     {},
-    certCheck.ownerGlobal
+    certCheck.documentGlobal
   );
   const {
     detail: { tabInfo: certificateTab },
@@ -450,7 +454,7 @@ add_task(async function testPOP3() {
   EventUtils.synthesizeMouseAtCenter(
     certCheck.viewButton,
     {},
-    certCheck.ownerGlobal
+    certCheck.documentGlobal
   );
   const {
     detail: { tabInfo: certificateTab },
@@ -700,7 +704,7 @@ async function fetchCert(
   EventUtils.synthesizeMouseAtCenter(
     certCheck.fetchButton,
     {},
-    certCheck.ownerGlobal
+    certCheck.documentGlobal
   );
   await TestUtils.waitForTick();
   Assert.equal(
@@ -734,7 +738,7 @@ async function addException(certCheck, certificate) {
   EventUtils.synthesizeMouseAtCenter(
     certCheck.addExceptionButton,
     {},
-    certCheck.ownerGlobal
+    certCheck.documentGlobal
   );
   await dialogPromise;
 
@@ -771,7 +775,7 @@ async function removeException(certCheck, certificate) {
   EventUtils.synthesizeMouseAtCenter(
     certCheck.removeExceptionButton,
     {},
-    certCheck.ownerGlobal
+    certCheck.documentGlobal
   );
   await TestUtils.waitForTick();
 

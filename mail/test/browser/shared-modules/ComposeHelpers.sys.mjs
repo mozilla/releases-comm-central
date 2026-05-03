@@ -680,7 +680,7 @@ export function delete_attachment(aComposeWindow, aIndex) {
   const bucket = aComposeWindow.document.getElementById("attachmentBucket");
   const node = bucket.querySelectorAll("richlistitem.attachmentItem")[aIndex];
 
-  EventUtils.synthesizeMouseAtCenter(node, {}, node.ownerGlobal);
+  EventUtils.synthesizeMouseAtCenter(node, {}, node.documentGlobal);
   aComposeWindow.RemoveSelectedAttachment();
 }
 

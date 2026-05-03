@@ -58,7 +58,7 @@ async function setupPositioning({ trigger, container, dialog }) {
   dialogElement.style.width = `${dialog.width}px`;
   dialogElement.style.height = `${dialog.height}px`;
 
-  await new Promise(dialogElement.ownerGlobal.requestAnimationFrame);
+  await new Promise(dialogElement.documentGlobal.requestAnimationFrame);
 
   dialogElement.show({ target: triggerElement });
 

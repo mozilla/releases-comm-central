@@ -135,7 +135,7 @@ add_task(async function test_compose_identity_colors() {
   EventUtils.synthesizeMouseAtCenter(
     identityList,
     {},
-    identityList.ownerGlobal
+    identityList.documentGlobal
   );
   await click_menus_in_sequence(
     gComposeCtrl.document.getElementById("msgIdentityPopup"),
@@ -162,7 +162,7 @@ add_task(async function test_compose_identity_colors() {
   EventUtils.synthesizeMouseAtCenter(
     identityList,
     {},
-    identityList.ownerGlobal
+    identityList.documentGlobal
   );
   await click_menus_in_sequence(
     gComposeCtrl.document.getElementById("msgIdentityPopup"),

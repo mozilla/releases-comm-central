@@ -216,7 +216,7 @@ add_task(async function test_imageUnderflow() {
   info("Zooming image #stretched"); // #stretched is 800x16px
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 100));
-  EventUtils.synthesizeMouse(image, 1, 1, {}, image.ownerGlobal);
+  EventUtils.synthesizeMouse(image, 1, 1, {}, image.documentGlobal);
   await BrowserTestUtils.waitForMutationCondition(
     image,
     {

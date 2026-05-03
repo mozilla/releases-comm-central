@@ -492,7 +492,7 @@ add_task(async function test_loading_icon() {
   const eventPromise = BrowserTestUtils.waitForEvent(searchBar, "autocomplete");
 
   searchBar.focus();
-  EventUtils.sendString("foo", searchBar.ownerGlobal);
+  EventUtils.sendString("foo", searchBar.documentGlobal);
   await BrowserTestUtils.waitForMutationCondition(
     about3Pane.document.getElementById("quick-filter-bar"),
     { attributeFilter: ["class"] },

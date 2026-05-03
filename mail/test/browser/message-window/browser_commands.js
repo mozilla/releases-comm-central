@@ -74,7 +74,7 @@ add_task(async function test_copy_eml_message() {
   EventUtils.synthesizeMouseAtCenter(
     documentChild,
     { type: "contextmenu", button: 2 },
-    documentChild.ownerGlobal
+    documentChild.documentGlobal
   );
   await click_menus_in_sequence(
     aboutMessage.document.getElementById("mailContext"),

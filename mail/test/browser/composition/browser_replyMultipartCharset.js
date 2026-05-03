@@ -73,7 +73,7 @@ async function subtest_replyEditAsNewForward_charset(
   EventUtils.synthesizeMouseAtCenter(
     documentChild,
     { type: "contextmenu", button: 2 },
-    documentChild.ownerGlobal
+    documentChild.documentGlobal
   );
   const aboutMessage = get_about_message(msgc);
   await click_menus_in_sequence(

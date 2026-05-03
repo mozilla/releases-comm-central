@@ -153,14 +153,14 @@ export async function remove_account(
     EventUtils.synthesizeMouseAtCenter(
       cdc.document.getElementById("removeAccount"),
       {},
-      cdc.document.getElementById("removeAccount").ownerGlobal
+      cdc.document.getElementById("removeAccount").documentGlobal
     );
   }
   if (removeData) {
     EventUtils.synthesizeMouseAtCenter(
       cdc.document.getElementById("removeData"),
       {},
-      cdc.document.getElementById("removeData").ownerGlobal
+      cdc.document.getElementById("removeData").documentGlobal
     );
   }
 

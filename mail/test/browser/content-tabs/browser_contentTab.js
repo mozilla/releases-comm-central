@@ -118,7 +118,7 @@ add_task(async function test_spellcheck_in_content_tabs() {
     // context menu items on macos.
     addToDict.click();
   } else {
-    EventUtils.synthesizeMouseAtCenter(addToDict, {}, addToDict.ownerGlobal);
+    EventUtils.synthesizeMouseAtCenter(addToDict, {}, addToDict.documentGlobal);
   }
   await close_popup(window, browserContext);
 

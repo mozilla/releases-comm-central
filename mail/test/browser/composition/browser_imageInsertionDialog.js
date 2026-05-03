@@ -41,7 +41,7 @@ add_task(async function test_image_insertion_dialog_persist() {
 
         // Don't add alternate text
         const noAlt = mwc.document.getElementById("noAltTextRadio");
-        EventUtils.synthesizeMouseAtCenter(noAlt, {}, noAlt.ownerGlobal);
+        EventUtils.synthesizeMouseAtCenter(noAlt, {}, noAlt.documentGlobal);
         await new Promise(resolve => setTimeout(resolve));
         mwc.document.documentElement.querySelector("dialog").acceptDialog();
       },
@@ -51,7 +51,7 @@ add_task(async function test_image_insertion_dialog_persist() {
   const insertMenu = cwc.document.getElementById("InsertPopupButton");
   const insertMenuPopup = cwc.document.getElementById("InsertPopup");
 
-  EventUtils.synthesizeMouseAtCenter(insertMenu, {}, insertMenu.ownerGlobal);
+  EventUtils.synthesizeMouseAtCenter(insertMenu, {}, insertMenu.documentGlobal);
   await click_menus_in_sequence(insertMenuPopup, [{ id: "InsertImageItem" }]);
 
   await dialogPromise;
@@ -79,7 +79,7 @@ add_task(async function test_image_insertion_dialog_persist() {
         EventUtils.synthesizeMouseAtCenter(
           altTextRadio,
           {},
-          altTextRadio.ownerGlobal
+          altTextRadio.documentGlobal
         );
         await new Promise(resolve => setTimeout(resolve));
         mwc.document.documentElement.querySelector("dialog").cancelDialog();
@@ -87,7 +87,7 @@ add_task(async function test_image_insertion_dialog_persist() {
     }
   );
 
-  EventUtils.synthesizeMouseAtCenter(insertMenu, {}, insertMenu.ownerGlobal);
+  EventUtils.synthesizeMouseAtCenter(insertMenu, {}, insertMenu.documentGlobal);
   await click_menus_in_sequence(insertMenuPopup, [{ id: "InsertImageItem" }]);
   await dialogPromise;
   await new Promise(resolve => setTimeout(resolve));
@@ -110,7 +110,7 @@ add_task(async function test_image_insertion_dialog_persist() {
     }
   );
 
-  EventUtils.synthesizeMouseAtCenter(insertMenu, {}, insertMenu.ownerGlobal);
+  EventUtils.synthesizeMouseAtCenter(insertMenu, {}, insertMenu.documentGlobal);
   await click_menus_in_sequence(insertMenuPopup, [{ id: "InsertImageItem" }]);
   await dialogPromise;
   await new Promise(resolve => setTimeout(resolve));
@@ -132,7 +132,11 @@ add_task(async function test_image_insertion_dialog_persist() {
       },
     }
   );
-  EventUtils.synthesizeMouseAtCenter(img, { clickCount: 2 }, img.ownerGlobal);
+  EventUtils.synthesizeMouseAtCenter(
+    img,
+    { clickCount: 2 },
+    img.documentGlobal
+  );
   await dialogPromise;
   await new Promise(resolve => setTimeout(resolve));
 
@@ -152,7 +156,7 @@ add_task(async function test_image_insertion_dialog_persist() {
         EventUtils.synthesizeMouseAtCenter(
           altTextRadio,
           {},
-          altTextRadio.ownerGlobal
+          altTextRadio.documentGlobal
         );
 
         const srcloc = mwc.document.getElementById("altTextInput");
@@ -164,7 +168,11 @@ add_task(async function test_image_insertion_dialog_persist() {
       },
     }
   );
-  EventUtils.synthesizeMouseAtCenter(img, { clickCount: 2 }, img.ownerGlobal);
+  EventUtils.synthesizeMouseAtCenter(
+    img,
+    { clickCount: 2 },
+    img.documentGlobal
+  );
   await dialogPromise;
   await new Promise(resolve => setTimeout(resolve));
 
@@ -188,7 +196,11 @@ add_task(async function test_image_insertion_dialog_persist() {
       },
     }
   );
-  EventUtils.synthesizeMouseAtCenter(img, { clickCount: 2 }, img.ownerGlobal);
+  EventUtils.synthesizeMouseAtCenter(
+    img,
+    { clickCount: 2 },
+    img.documentGlobal
+  );
   await dialogPromise;
 
   await close_compose_window(cwc);

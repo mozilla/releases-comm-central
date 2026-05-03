@@ -71,7 +71,9 @@ async function waitForCardsListReady(list) {
   const eventName = "_treerowbufferfillAbListReady";
   list._rowBufferReadyEvent = new CustomEvent(eventName);
   await BrowserTestUtils.waitForEvent(list, eventName);
-  await new Promise(resolve => list.ownerGlobal.requestAnimationFrame(resolve));
+  await new Promise(resolve =>
+    list.documentGlobal.requestAnimationFrame(resolve)
+  );
 }
 
 async function openAddressBookWindow() {

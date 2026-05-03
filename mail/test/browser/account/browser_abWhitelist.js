@@ -62,7 +62,7 @@ async function subtest_check_allowlist_init_and_save(tab) {
     EventUtils.synthesizeMouseAtCenter(
       abNode.firstElementChild,
       { clickCount: 1 },
-      abNode.firstElementChild.ownerGlobal
+      abNode.firstElementChild.documentGlobal
     );
     await TestUtils.waitForTick();
   }
@@ -110,7 +110,7 @@ async function subtest_check_allowlist_load_and_clear(tab) {
     EventUtils.synthesizeMouseAtCenter(
       abNode.firstElementChild,
       { clickCount: 1 },
-      abNode.firstElementChild.ownerGlobal
+      abNode.firstElementChild.documentGlobal
     );
     await TestUtils.waitForTick();
   }

@@ -47,7 +47,7 @@ const subtest_clickOpenInBrowserContextMenu = async (extension, getBrowser) => {
 
   async function testMenuNavItems(description, browser, expected) {
     const menuId = browser.getAttribute("context");
-    const menu = browser.ownerGlobal.top.document.getElementById(menuId);
+    const menu = browser.documentGlobal.top.document.getElementById(menuId);
     await rightClickOnContent(menu, "#description", browser);
     for (const [key, value] of Object.entries(expected)) {
       Assert.ok(

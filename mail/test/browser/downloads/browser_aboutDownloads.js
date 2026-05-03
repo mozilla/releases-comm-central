@@ -252,12 +252,12 @@ add_task(async function test_remove_file() {
   EventUtils.synthesizeMouseAtCenter(
     firstElement,
     { clickCount: 1 },
-    firstElement.ownerGlobal
+    firstElement.documentGlobal
   );
   EventUtils.synthesizeMouseAtCenter(
     firstElement,
     { type: "contextmenu" },
-    firstElement.ownerGlobal
+    firstElement.documentGlobal
   );
 
   const contextMenu = content_tab_e(downloadsTab, "msgDownloadsContextMenu");
@@ -304,13 +304,13 @@ add_task(async function test_remove_multiple_files() {
   EventUtils.synthesizeMouseAtCenter(
     firstElement,
     { clickCount: 1 },
-    firstElement.ownerGlobal
+    firstElement.documentGlobal
   );
   list.selectItemRange(firstElement, secondElement);
   EventUtils.synthesizeMouseAtCenter(
     firstElement,
     { type: "contextmenu" },
-    firstElement.ownerGlobal
+    firstElement.documentGlobal
   );
 
   const contextMenu = content_tab_e(downloadsTab, "msgDownloadsContextMenu");
@@ -348,12 +348,12 @@ add_task(async function test_clear_all_files() {
   EventUtils.synthesizeMouseAtCenter(
     listbox,
     { clickCount: 1 },
-    listbox.ownerGlobal
+    listbox.documentGlobal
   );
   EventUtils.synthesizeMouseAtCenter(
     listbox,
     { type: "contextmenu" },
-    listbox.ownerGlobal
+    listbox.documentGlobal
   );
 
   const contextMenu = content_tab_e(downloadsTab, "msgDownloadsContextMenu");

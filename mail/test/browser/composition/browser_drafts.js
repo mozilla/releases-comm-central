@@ -131,7 +131,7 @@ async function internal_check_delivery_format(editDraft) {
   EventUtils.synthesizeMouseAtCenter(
     cwc.document.getElementById("optionsMenu"),
     {},
-    cwc.document.getElementById("optionsMenu").ownerGlobal
+    cwc.document.getElementById("optionsMenu").documentGlobal
   );
   await click_menus_in_sequence(
     cwc.document.getElementById("optionsMenuPopup"),
@@ -147,7 +147,7 @@ async function internal_check_delivery_format(editDraft) {
     EventUtils.synthesizeMouseAtCenter(
       cwc.document.getElementById("optionsMenu"),
       {},
-      cwc.document.getElementById("optionsMenu").ownerGlobal
+      cwc.document.getElementById("optionsMenu").documentGlobal
     );
     const formatMenu = await click_menus_in_sequence(
       cwc.document.getElementById("optionsMenuPopup"),

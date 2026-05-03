@@ -66,7 +66,7 @@ add_task(async function test_localNameIcons() {
 
   input.select();
 
-  EventUtils.sendKey("back_space", input.ownerGlobal);
+  EventUtils.sendKey("back_space", input.documentGlobal);
 
   input.blur();
 
@@ -100,7 +100,7 @@ add_task(async function test_captureState() {
 
   input.select();
 
-  EventUtils.sendKey("back_space", input.ownerGlobal);
+  EventUtils.sendKey("back_space", input.documentGlobal);
 
   state = subView.captureState();
 

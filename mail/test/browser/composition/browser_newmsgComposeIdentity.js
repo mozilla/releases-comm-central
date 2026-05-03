@@ -169,7 +169,7 @@ add_task(async function test_editing_identity() {
   EventUtils.synthesizeMouseAtCenter(
     compWin.document.getElementById("msgIdentity"),
     {},
-    compWin.document.getElementById("msgIdentity").ownerGlobal
+    compWin.document.getElementById("msgIdentity").documentGlobal
   );
   await click_menus_in_sequence(
     compWin.document.getElementById("msgIdentityPopup"),

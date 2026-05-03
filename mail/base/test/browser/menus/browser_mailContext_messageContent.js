@@ -199,8 +199,8 @@ async function subtest(aboutMessage, mailContext) {
     "should have pre-filled the email address"
   );
   tabmail.closeTab(tabInfo);
-  if (mailContext.ownerGlobal.top != window) {
-    await SimpleTest.promiseFocus(mailContext.ownerGlobal.top);
+  if (mailContext.documentGlobal.top != window) {
+    await SimpleTest.promiseFocus(mailContext.documentGlobal.top);
   }
 
   const composeWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
@@ -220,7 +220,7 @@ async function subtest(aboutMessage, mailContext) {
   );
   Assert.ok(pills[0].closest("#addressRowTo"), "should be a To recipient");
   await BrowserTestUtils.closeWindow(composeWindow);
-  await SimpleTest.promiseFocus(mailContext.ownerGlobal.top);
+  await SimpleTest.promiseFocus(mailContext.documentGlobal.top);
 
   await SimpleTest.promiseClipboardChange("kate@kurtz.invalid", () =>
     openAndActivate(`a[href^="mailto:"]`, "mailContext-copyemail")
