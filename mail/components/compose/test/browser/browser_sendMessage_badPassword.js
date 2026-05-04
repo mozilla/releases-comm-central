@@ -23,7 +23,6 @@ add_setup(async function () {
 
   let ewsAccount;
   ({ ewsAccount, ewsIdentity, ewsOutgoingServer } = createEWSAccount());
-  await addLoginInfo("ews://test.test", "user", "password");
 
   registerCleanupFunction(async function () {
     MailServices.accounts.removeAccount(smtpAccount, false);
@@ -42,6 +41,9 @@ add_setup(async function () {
  */
 async function subtestEnterPassword(identity, outgoingServer, server) {
   await Services.logins.removeAllLoginsAsync();
+  if (outgoingServer.type == "ews") {
+    outgoingServer.password = "";
+  }
 
   const { composeWindow, subject } = await newComposeWindow(identity);
 
@@ -85,6 +87,9 @@ add_task(async function testEnterPasswordEWS() {
  */
 async function subtestEnterAndSavePassword(identity, outgoingServer, server) {
   await Services.logins.removeAllLoginsAsync();
+  if (outgoingServer.type == "ews") {
+    outgoingServer.password = "";
+  }
 
   const { composeWindow, subject } = await newComposeWindow(identity);
 
