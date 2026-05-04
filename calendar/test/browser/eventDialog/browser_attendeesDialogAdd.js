@@ -246,3 +246,63 @@ add_task(async function testAddAttendeeToEventWithoutOrganizerAsAttendee() {
 
   CalendarTestUtils.removeCalendar(calendar);
 });
+
+// Per RFC 5321 the local part is case-sensitive, but in practice everyone treats it as case-insensitive.
+add_task(async function testNoDuplicateAttendeeOnCaseInsensitiveEmail() {
+  const calendar = CalendarTestUtils.createCalendar();
+  calendar.setProperty("organizerId", "mailto:organizer@example.com");
+  calendar.setProperty("organizerCN", "The Organizer");
+
+  const event = await calendar.addItem(
+    new CalEvent(CalendarTestUtils.dedent`
+      BEGIN:VEVENT
+      SUMMARY:Deep dive to inspect piping
+      DTSTART:19860915T000000Z
+      DTEND:19901118T000000Z
+      ORGANIZER;CN="The Organizer":mailto:organizer@example.com
+      ATTENDEE;CN="IT Department";PARTSTAT=DECLINED;ROLE=CHAIR:mailto:IT@example.com
+      END:VEVENT
+    `)
+  );
+
+  const eventId = event.id;
+  const eventModified = event.lastModifiedTime;
+
+  CalendarTestUtils.goToDate(window, 1986, 9, 15);
+  const { dialogWindow: eventWindow } = await CalendarTestUtils.dayView.editEventAt(window, 1);
+  const attendeesWindow = await openAttendeesWindow(eventWindow);
+
+  // Edit the existing row so the existing-attendee code path runs with #attendee.id set.
+  findAndEditMatchingRow(
+    attendeesWindow,
+    "it@example.com",
+    "there should be a row for IT@example.com",
+    value => value.toLowerCase().includes("it@example.com")
+  );
+
+  await closeAttendeesWindow(attendeesWindow);
+  await CalendarTestUtils.items.saveAndCloseItemDialog(eventWindow);
+
+  await TestUtils.waitForCondition(async () => {
+    const item = await calendar.getItem(eventId);
+    return item.lastModifiedTime != eventModified;
+  });
+
+  const attendees = (await calendar.getItem(eventId)).getAttendees();
+  Assert.equal(
+    attendees.length,
+    1,
+    "case variant of existing attendee should not create a duplicate row"
+  );
+
+  const itAttendees = attendees.filter(a => a.id.toLowerCase() == "mailto:it@example.com");
+  Assert.equal(itAttendees.length, 1, "there should be exactly one it@example.com attendee");
+  Assert.equal(
+    itAttendees[0].participationStatus,
+    "DECLINED",
+    "original PARTSTAT should be preserved"
+  );
+  Assert.equal(itAttendees[0].role, "CHAIR", "original role should be preserved");
+
+  CalendarTestUtils.removeCalendar(calendar);
+});

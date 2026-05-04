@@ -672,7 +672,7 @@ window.addEventListener(
     // If there are no existing attendees, we assume that this is the first time
     // others are being invited. By default, the organizer is added as an
     // attendee, letting the organizer remove themselves if that isn't desired.
-    if (attendees.length == 0) {
+    if (!attendees.length) {
       if (organizer) {
         attendees.push(organizer);
       } else {
@@ -723,7 +723,7 @@ window.addEventListener("dialogaccept", () => {
   const organizerId = existingOrganizer?.id ?? calendar.getProperty("organizerId");
   if (organizerId) {
     const nonOrganizerAttendees = attendees.filter(attendee => attendee.id != organizerId);
-    if (nonOrganizerAttendees.length != 0) {
+    if (nonOrganizerAttendees.length) {
       if (existingOrganizer) {
         organizer = existingOrganizer;
       } else {
@@ -1326,7 +1326,7 @@ function updateRange() {
             }
 
             // The address data was a single mailbox; add it to the map.
-            return accumulatorMap.set(address.email, address);
+            return accumulatorMap.set(address.email.toLowerCase(), address);
           }
 
           // Take the addresses in the input and resolve them into individual
@@ -1343,7 +1343,8 @@ function updateRange() {
           // the attendee is still in the list; otherwise, we may throw away
           // what we already know about them (e.g., required vs. optional or
           // RSVP status).
-          const attendeeEmail = this.#attendee.id && cal.email.removeMailTo(this.#attendee.id);
+          const attendeeEmail =
+            this.#attendee.id && cal.email.removeMailTo(this.#attendee.id).toLowerCase();
           if (attendeeEmail && resolvedMailboxes.has(attendeeEmail)) {
             // Update attendee name from mailbox and ensure we don't duplicate
             // the row.
