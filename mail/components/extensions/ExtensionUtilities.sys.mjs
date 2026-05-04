@@ -79,17 +79,17 @@ export async function checkInstalledExtensions() {
     .filter(r => r.status === "fulfilled")
     .map(r => r.value);
 
-  // If false, we can propose to move to Release. Disabled/enabled status is not
-  // checked, because the user might later want to enable an installed Experiment,
-  // which he may no longer use after moving to Release.
   Services.prefs.setBoolPref(
     "extensions.hasExtensionsInstalled",
-    extensionInfo.length > 0
+    extensionInfo.filter(e => e.isActive && !e.isSpecial).length > 0
   );
   // If false, we can propose to move to Release.
   Services.prefs.setBoolPref(
     "extensions.hasExperimentsInstalled",
-    extensionInfo.some(e => e.isExperiment)
+    extensionInfo.filter(
+      e =>
+        e.isActive && !e.isSpecial && e.isExperiment && !e.isAllowedExperiment
+    ).length > 0
   );
 
   await updateBlocklistForSuppressedExperiments(
@@ -107,10 +107,16 @@ export async function checkInstalledExtensions() {
  * @param {AddonWrapper} addon - The add-on to parse.
  * @returns {object} result
  * @returns {AddonWrapper} result.addon - The original add-on.
+ * @returns {boolean} result.isActive - Whether the add-on is active.
  * @returns {boolean} result.isLegacy - Whether the add-on uses the legacy
  *   manifest key.
+ * @returns {boolean} result.isSpecial - Whether the add-on is a system, builtin
+ *   or privileged add-on.
  * @returns {boolean} result.isExperiment - Whether the add-on declares
  *   experiment APIs.
+ * @returns {boolean} result.isAllowedExperiment - Whether the add-on is an
+ *   experiment that is allow-listed (i.e. it declares experiment APIs and is
+ *   included in the `extensions.experiments.allowed` preference).
  * @returns {boolean} result.isSuppressedExperiment - Whether the add-on is
  *   an experiment that should be suppressed (i.e. it is not allow-listed and
  *   not temporarily installed while experiment suppression is enabled).
@@ -126,10 +132,18 @@ export async function parseManifest(addon) {
     lazy.EXPERIMENTS_SUPPRESSED &&
     !lazy.EXPERIMENTS_ALLOWED.includes(addon.id) &&
     !addon.temporarilyInstalled;
+  const isActive = addon.isActive;
+  const isSpecial = addon.isSystem || addon.isBuiltin || addon.isPrivileged;
+  const isAllowedExperiment =
+    isExperiment && lazy.EXPERIMENTS_ALLOWED.includes(addon.id);
+
   return {
     addon,
+    isActive,
     isLegacy,
+    isSpecial,
     isExperiment,
+    isAllowedExperiment,
     isSuppressedExperiment,
   };
 }
