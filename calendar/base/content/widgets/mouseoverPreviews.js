@@ -195,13 +195,13 @@ function getPreviewForTask(toDoItem, aIsTooltip = true) {
     }
 
     if (
-      toDoItem.status != null &&
-      toDoItem.percentComplete != 0 &&
-      toDoItem.percentComplete != 100
+      toDoItem.percentComplete != null &&
+      toDoItem.percentComplete !== 0 &&
+      toDoItem.percentComplete !== 100
     ) {
       boxAppendLabeledText(vbox, "tooltip-percent", String(toDoItem.percentComplete) + "%");
       hasHeader = true;
-    } else if (toDoItem.percentComplete == 100) {
+    } else if (toDoItem.percentComplete === 100) {
       if (toDoItem.completedDate == null) {
         boxAppendLabeledText(vbox, "tooltip-percent", "100%");
       } else {

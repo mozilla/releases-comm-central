@@ -148,3 +148,49 @@ add_task(async function () {
 
   Assert.ok(true, "Test ran to completion");
 });
+
+// RFC 5545 allows PERCENT-COMPLETE without STATUS; tooltip must show it.
+add_task(async function test_tooltipPercentWithoutStatus() {
+  const calendar = CalendarTestUtils.createCalendar();
+  registerCleanupFunction(() => {
+    CalendarTestUtils.removeCalendar(calendar);
+  });
+
+  EventUtils.synthesizeMouseAtCenter(document.getElementById("tasksButton"), {}, window);
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, MID_SLEEP));
+
+  const calList = document.querySelector(`#calendar-list > [calendar-id="${calendar.id}"]`);
+  Assert.ok(calList);
+  EventUtils.synthesizeMouseAtCenter(calList, {}, window);
+
+  const taskTreeNode = document.getElementById("calendar-task-tree");
+
+  const { CalTodo } = ChromeUtils.importESModule("resource:///modules/CalTodo.sys.mjs");
+  const task = new CalTodo();
+  task.title = "Percent without status";
+  task.setProperty("PERCENT-COMPLETE", 42);
+  // Deliberately leave STATUS unset; task.status will be null.
+  await calendar.addItem(task);
+
+  await TestUtils.waitForCondition(
+    () => taskTreeNode.mTaskArray.length == 1,
+    "Task did not appear in tree"
+  );
+
+  const toolTipNode = document.getElementById("taskTreeTooltip");
+  toolTipNode.documentGlobal.showToolTip(toolTipNode, taskTreeNode.getTaskAtRow(0));
+
+  const rows = toolTipNode.querySelectorAll(".tooltipHeaderTable > tr > .tooltipHeaderDescription");
+  const texts = Array.from(rows).map(r => r.textContent);
+  Assert.ok(texts.includes("42%"), `Tooltip should show 42%, got: ${texts.join(", ")}`);
+
+  await calendar.deleteItem(taskTreeNode.getTaskAtRow(0));
+  await TestUtils.waitForCondition(
+    () => taskTreeNode.mTaskArray.length == 0,
+    "Task did not delete"
+  );
+
+  const tabmail = document.getElementById("tabmail");
+  tabmail.closeTab(tabmail.currentTabInfo);
+});
