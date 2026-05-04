@@ -21,14 +21,25 @@ MimeDefClass(MimeInlineTextHTML, MimeInlineTextHTMLClass,
 static int MimeInlineTextHTML_parse_line(const char*, int32_t, MimeObject*);
 static int MimeInlineTextHTML_parse_eof(MimeObject*, bool);
 static int MimeInlineTextHTML_parse_begin(MimeObject* obj);
+static void MimeInlineTextHTML_finalize(MimeObject*);
 
 static int MimeInlineTextHTMLClassInitialize(MimeObjectClass* oclass) {
   PR_ASSERT(!oclass->class_initialized);
   oclass->parse_begin = MimeInlineTextHTML_parse_begin;
   oclass->parse_line = MimeInlineTextHTML_parse_line;
   oclass->parse_eof = MimeInlineTextHTML_parse_eof;
+  oclass->finalize = MimeInlineTextHTML_finalize;
 
   return 0;
+}
+
+static void MimeInlineTextHTML_finalize(MimeObject* obj) {
+  MimeInlineTextHTML* textHTML = (MimeInlineTextHTML*)obj;
+
+  PR_FREEIF(textHTML->charset);
+  textHTML->charset = nullptr;
+
+  ((MimeObjectClass*)&MIME_SUPERCLASS)->finalize(obj);
 }
 
 static int MimeInlineTextHTML_parse_begin(MimeObject* obj) {
@@ -146,10 +157,7 @@ static int MimeInlineTextHTML_parse_line(const char* line, int32_t length,
 
 static int MimeInlineTextHTML_parse_eof(MimeObject* obj, bool abort_p) {
   int status;
-  MimeInlineTextHTML* textHTML = (MimeInlineTextHTML*)obj;
   if (obj->closed_p) return 0;
-
-  PR_FREEIF(textHTML->charset);
 
   /* Run parent method first, to flush out any buffered data. */
   status = ((MimeObjectClass*)&MIME_SUPERCLASS)->parse_eof(obj, abort_p);
