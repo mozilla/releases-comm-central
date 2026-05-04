@@ -404,3 +404,35 @@ add_task(async function testGetItemsFilterFlags() {
     Ci.calICalendar.ITEM_FILTER_TYPE_TODO | Ci.calICalendar.ITEM_FILTER_COMPLETED_ALL;
   filter.getItems(fakeCalendar);
 });
+
+add_task(async function testCancelledTaskFilter() {
+  const calendar = CalendarTestUtils.createCalendar("test");
+
+  const incomplete = new CalTodo();
+  incomplete.id = cal.getUUID();
+  incomplete.title = "incomplete";
+  await calendar.addItem(incomplete);
+
+  const cancelled = new CalTodo();
+  cancelled.id = cal.getUUID();
+  cancelled.title = "cancelled";
+  cancelled.setProperty("STATUS", "CANCELLED");
+  await calendar.addItem(cancelled);
+
+  const filter = new calFilter();
+  filter.selectedDate = cal.dtz.now();
+  filter.applyFilter("open");
+
+  const openItems = await promiseItems(filter, calendar);
+  const openTitles = openItems.map(i => i.title);
+  Assert.ok(openTitles.includes("incomplete"), "incomplete task shown in open filter");
+  Assert.ok(!openTitles.includes("cancelled"), "cancelled task not shown in open filter");
+
+  filter.applyFilter("all");
+  const allItems = await promiseItems(filter, calendar);
+  const allTitles = allItems.map(i => i.title);
+  Assert.ok(allTitles.includes("incomplete"), "incomplete task shown in all filter");
+  Assert.ok(allTitles.includes("cancelled"), "cancelled task shown in all filter");
+
+  CalendarTestUtils.removeCalendar(calendar);
+});

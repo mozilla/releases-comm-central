@@ -110,7 +110,8 @@ calFilterProperties.prototype = {
   FILTER_STATUS_IN_PROGRESS: 2,
   FILTER_STATUS_COMPLETED_TODAY: 4,
   FILTER_STATUS_COMPLETED_BEFORE: 8,
-  FILTER_STATUS_ALL: 15,
+  FILTER_STATUS_CANCELLED: 16,
+  FILTER_STATUS_ALL: 31,
 
   FILTER_DUE_PAST: 1,
   FILTER_DUE_TODAY: 2,
@@ -404,6 +405,7 @@ calFilter.prototype = {
    * @returns {boolean} Returns true if the item matches the filter properties
    *   currently applied, false otherwise.
    */
+  // eslint-disable-next-line complexity
   propertyFilter(aItem) {
     let result;
     const props = this.mFilterProperties;
@@ -444,6 +446,7 @@ calFilter.prototype = {
     // test the status property. Only applies to tasks.
     if (result && props.status != null && aItem.isTodo()) {
       const completed = aItem.isCompleted;
+      const cancelled = aItem.isCancelled;
       const current = !aItem.completedDate || today.compare(aItem.completedDate) <= 0;
       const percent = aItem.percentComplete || 0;
 
@@ -451,7 +454,8 @@ calFilter.prototype = {
         (props.status & props.FILTER_STATUS_INCOMPLETE || !(!completed && percent == 0)) &&
         (props.status & props.FILTER_STATUS_IN_PROGRESS || !(!completed && percent > 0)) &&
         (props.status & props.FILTER_STATUS_COMPLETED_TODAY || !(completed && current)) &&
-        (props.status & props.FILTER_STATUS_COMPLETED_BEFORE || !(completed && !current));
+        (props.status & props.FILTER_STATUS_COMPLETED_BEFORE || !(completed && !current)) &&
+        (props.status & props.FILTER_STATUS_CANCELLED || !cancelled);
     }
 
     // test the due property. Only applies to tasks.
@@ -1004,6 +1008,9 @@ calFilter.prototype = {
  * This mixin handles disabled and/or hidden calendars, so you don't have to.
  *
  * Note: Instances must have an `id` for logging purposes.
+ *
+ * @param {Function} Base - The base class to extend.
+ * @returns {Function} The mixin class.
  */
 let CalendarFilteredViewMixin = Base =>
   class extends Base {

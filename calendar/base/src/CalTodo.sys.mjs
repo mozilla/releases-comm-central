@@ -93,6 +93,10 @@ CalTodo.prototype = {
     return true;
   },
 
+  get isCancelled() {
+    return this.status === "CANCELLED";
+  },
+
   get isCompleted() {
     return this.completedDate != null || this.percentComplete == 100 || this.status == "COMPLETED";
   },

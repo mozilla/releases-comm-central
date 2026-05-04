@@ -62,6 +62,9 @@ interface calITodo : calIItemBase
   // property to control "all complete" vs "not complete in any way".
   attribute boolean isCompleted;
 
+  /** True if the task STATUS is CANCELLED. */
+  readonly attribute boolean isCancelled;
+
   /**
    * The duration of the todo, which is either set or defined as
    * dueDate - entryDate.
