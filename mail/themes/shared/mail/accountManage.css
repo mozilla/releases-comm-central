@@ -205,6 +205,12 @@ richlistitem[default="true"],
   font-weight: bold;
 }
 
+@media (-moz-platform: macos) {
+  description {
+    margin: 4px 4px 8px;
+  }
+}
+
 .label-inline {
   margin-block: auto;
   min-inline-size: 200px;
