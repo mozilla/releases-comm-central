@@ -35,6 +35,14 @@ If discussion on the desired slug for the article is ongoing and blocking
 further engineering work, using a redirect allows code to land and the correct
 slug can then later be set in the redirect.
 
+### Useful redirects
+
+There are some generally useful redirects set up for `support.thunderbird.net`:
+
+- `https://support.thunderbird.net/home` or `https://support.thunderbird.net/` → [The SUMO product page for Thunderbird](https://support.mozilla.org/products/thunderbird)
+- `https://support.thunderbird.net/kb/ask` → [The SUMO new question page for Thunderbird](https://support.mozilla.org/questions/new/thunderbird)
+- `https://support.thunderbird.net/kb/category/20` → [The SUMO How To page for Thunderbird](https://support.mozilla.org/products/thunderbird/how)
+
 ## Requesting a new article
 
 Sometimes articles were accounted for in the design, but none has been created
