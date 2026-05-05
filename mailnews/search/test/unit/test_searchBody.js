@@ -103,6 +103,10 @@ var Files = [
   // S/MIME encrypted message.
   "../../../../mail/test/browser/smime/data/alice.env.eml",
 
+  // Bare "Content-Type: text" and missing Content-Type.
+  "../../../data/bare-text-type.eml",
+  "../../../data/no-content-type.eml",
+
   // TODO: apparently search opaque does not work
   //"../../../../mail/test/browser/smime/data/alice.sig.SHA256.opaque.env.eml",
 ];
@@ -189,6 +193,10 @@ var Tests = [
 
   // Test for S/MIME encrypted messsage.
   { value: "This is a test message from Alice to Bob", Contains, count: 1 },
+
+  // Body search should find text in messages with bare "Content-Type: text"
+  // or no Content-Type header at all.
+  { value: "waldo", op: Contains, count: 2 },
 
   // Tests for HTML entities and style stripping.
 

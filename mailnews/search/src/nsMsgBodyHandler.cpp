@@ -798,9 +798,12 @@ void nsMsgBodyHandler::SniffPossibleMIMEHeader(const nsCString& line) {
       m_partIsPGP = false;
       // S/MIME is one monolithic base64-encoded blob with no boundaries.
       m_partIsSMIME = true;
-    } else if (lowerCaseLine.Find("text/") != kNotFound)
+    } else if (lowerCaseLine.Find("text/") != kNotFound ||
+               lowerCaseLine.Find("content-type: text") != kNotFound)
+      // Mirror handling elsewhere; bare "text" without subtype is invalid
+      // per RFC 2045 but treated as text/plain (mimei.cpp, mimedrft.cpp).
       m_partIsText = true;
-    else if (lowerCaseLine.Find("text/") == kNotFound)
+    else
       m_partIsText = false;  // We have disproven our assumption.
   }
 
