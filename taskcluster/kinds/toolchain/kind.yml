@@ -34,6 +34,7 @@ reference-tasks:
     - linux64-mar-tools
     - linux64-minidump-stackwalk
     - linux64-mkbom
+    - linux64-mozcheck
     - linux64-msix-packaging
     - linux64-nasm
     - linux64-node
@@ -45,6 +46,7 @@ reference-tasks:
     - linux64-rust-macos
     - linux64-rust-macos-toolchain
     - linux64-rust-size
+    - linux64-rust-static
     - linux64-rust-toolchain
     - linux64-rust-windows
     - linux64-rust-windows-toolchain

@@ -45,7 +45,8 @@ maybe-shebang-file-perm:
     description: "File permission check for files that might have `#!` header."
     include:
         - .
-    allow-shebang: true
+    check-config:
+        allow-shebang: true
     extensions:
         - .js
         - .py

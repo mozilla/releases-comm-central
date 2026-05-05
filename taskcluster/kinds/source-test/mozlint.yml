@@ -87,6 +87,9 @@ file-perm:
             commlint -v -l file-perm -f treeherder
             -f json:/builds/worker/mozlint.json
             comm/*
+    fetches:
+        toolchain:
+            - linux64-mozcheck
     optimization:
         skip-unless-mozlint: file-perm.yml
 
@@ -103,6 +106,9 @@ file-whitespace:
             commlint -v -l file-whitespace -f treeherder
             -f json:/builds/worker/mozlint.json
             comm/*
+    fetches:
+        toolchain:
+            - linux64-mozcheck
     optimization:
         skip-unless-mozlint: file-whitespace.yml
 
@@ -127,6 +133,9 @@ license:
             commlint -v -l license -f treeherder
             -f json:/builds/worker/mozlint.json
             comm/*
+    fetches:
+        toolchain:
+            - linux64-mozcheck
     optimization:
         skip-unless-mozlint: license.yml
 
@@ -283,6 +292,9 @@ trojan-source:
               commlint -v -l trojan-source -f treeherder
               -f json:/builds/worker/mozlint.json
               comm/*
+    fetches:
+        toolchain:
+            - linux64-mozcheck
     optimization:
         skip-unless-mozlint: trojan-source.yml
 
