@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { setTimeout } from "resource://gre/modules/Timer.sys.mjs";
+import { setTimeout, clearTimeout } from "resource://gre/modules/Timer.sys.mjs";
 
 import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
 import { CommonUtils } from "resource://services-common/utils.sys.mjs";
@@ -343,6 +343,9 @@ export class Pop3Client {
     // same handling in SmtpClient.sys.mjs.
     await new Promise(resolve => setTimeout(resolve));
 
+    // Cancel the watchdog timer.
+    this._clearCommandTimeout();
+
     let stringPayload = CommonUtils.arrayBufferToByteString(
       new Uint8Array(event.data)
     );
@@ -597,6 +600,9 @@ export class Pop3Client {
 
     this._socket.send(CommonUtils.byteStringToArrayBuffer(str + "\r\n").buffer);
     this._timeOfSend = Date.now();
+
+    // Start the watchdog to protect against a silent server
+    this._startCommandTimeout();
   }
 
   /**
@@ -1791,6 +1797,9 @@ export class Pop3Client {
    * @param {nsresult} status - Indicate if the last action succeeded.
    */
   _cleanUp = status => {
+    // Ensure no phantom timeouts fire after cleanup.
+    this._clearCommandTimeout();
+
     this._cleanedUp = true;
     this.close();
     const runningUrl = {};
@@ -1808,6 +1817,38 @@ export class Pop3Client {
     this._server.wrappedJSObject.runningClient = null;
     this.onFree?.();
   };
+
+  /**
+   * Starts or resets the application-layer watchdog timer.
+   */
+  _startCommandTimeout() {
+    this._clearCommandTimeout();
+
+    // Use the TCP timeout value shifted by 10 seconds in order to prevent any
+    // race conditions between the socket timeout and this watchdog.
+    const timeoutMs =
+      (Services.prefs.getIntPref("mailnews.tcptimeout", 100) + 10) * 1000;
+
+    this._commandTimeout = setTimeout(() => {
+      this._logger.error(
+        `Command watchdog timed out after ${timeoutMs}ms waiting for server.`
+      );
+
+      // We are in a deadlock situation. This will cancel this session and
+      // unlock the POP3 server queue.
+      this._actionDone(Cr.NS_ERROR_NET_TIMEOUT);
+    }, timeoutMs);
+  }
+
+  /**
+   * Clears the application-layer watchdog timer.
+   */
+  _clearCommandTimeout() {
+    if (this._commandTimeout) {
+      clearTimeout(this._commandTimeout);
+      this._commandTimeout = null;
+    }
+  }
 
   /**
    * Show a status message in the status bar.
