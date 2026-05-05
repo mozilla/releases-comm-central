@@ -1,6 +1,6 @@
 [package]
 name = "zeitstempel"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["Jan-Erik Rediger <jrediger@mozilla.com>"]
 edition = "2018"
 description = "A timestamp you can serialize, and it might include suspend time."
@@ -11,7 +11,7 @@ repository = "https://github.com/badboy/zeitstempel"
 cfg-if = "1.0.0"
 once_cell = "1.5.2"
 
-[target.'cfg(any(target_os = "linux", target_os = "android", target_os = "macos", target_os = "ios"))'.dependencies]
+[target.'cfg(any(target_os = "linux", target_os = "android", target_os = "macos", target_os = "ios", target_os = "freebsd"))'.dependencies]
 libc = "0.2"
 
 [target.'cfg(windows)'.dependencies]
@@ -20,3 +20,10 @@ winapi = { version = "0.3", features = ["profileapi", "realtimeapiset"] }
 [features]
 # Use a Windows 10+ API for querying time
 win10plus = []
+
+[package.metadata.docs.rs]
+targets = [
+    "x86_64-unknown-linux-gnu",
+    "aarch64-apple-darwin",
+    "x86_64-pc-windows-msvc",
+]

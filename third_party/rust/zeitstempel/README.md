@@ -64,6 +64,7 @@ We support the following operating systems:
 * Linux
 * Android
 * iOS
+* FreeBSD
 
 For other operating systems there's a fallback to `std::time::Instant`,
 compared against a process-global fixed reference point.
