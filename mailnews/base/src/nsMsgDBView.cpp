@@ -2124,7 +2124,7 @@ nsMsgDBView::Open(nsIMsgFolder* folder, nsMsgViewSortTypeValue sortType,
     else
       CopyUTF8toUTF16(type, mMessageType);
 
-    GetImapDeleteModel(nullptr);
+    mDeleteModel = GetServerDeleteModel(m_folder);
 
     Preferences::GetBool("mailnews.sort_threads_by_root", &mSortThreadsByRoot);
     if (mIsNews)
@@ -6071,52 +6071,82 @@ nsMsgDBView::GetMsgToSelectAfterDelete(nsMsgViewIndex* msgToSelectAfterDelete) {
   NS_ENSURE_ARG_POINTER(msgToSelectAfterDelete);
   *msgToSelectAfterDelete = nsMsgViewIndex_None;
 
-  bool isMultiSelect = false;
-  int32_t startFirstRange = nsMsgViewIndex_None;
-  int32_t endFirstRange = nsMsgViewIndex_None;
-  if (!mTreeSelection) {
-    *msgToSelectAfterDelete = nsMsgViewIndex_None;
-  } else {
-    int32_t selectionCount;
-    int32_t startRange;
-    int32_t endRange;
-    nsresult rv = mTreeSelection->GetRangeCount(&selectionCount);
-    NS_ENSURE_SUCCESS(rv, rv);
-    for (int32_t i = 0; i < selectionCount; i++) {
-      rv = mTreeSelection->GetRangeAt(i, &startRange, &endRange);
-      NS_ENSURE_SUCCESS(rv, rv);
+  int32_t anchorEndRange = nsMsgViewIndex_None;
+  nsMsgViewIndex originalAnchorIndex = nsMsgViewIndex_None;
 
-      // Save off the first range in case we need it later.
+  bool isSingleFolderView = !GetFolders();
+
+  if (isSingleFolderView) {
+    // Need to update the imap-delete model, can change more than once in a
+    // session.
+    mDeleteModel = GetServerDeleteModel(m_folder);
+  }
+
+  if (mTreeSelection) {
+    int32_t currentIndex = -1;
+    mTreeSelection->GetCurrentIndex(&currentIndex);
+
+    int32_t selectionCount = 0;
+    mTreeSelection->GetRangeCount(&selectionCount);
+
+    int32_t deletedRowsAboveAnchor = 0;
+
+    for (int32_t i = 0; i < selectionCount; i++) {
+      int32_t startRange = 0, endRange = 0;
+      mTreeSelection->GetRangeAt(i, &startRange, &endRange);
+      // In case the current index is not part of the selection or invalid,
+      // use the uppermost block.
       if (i == 0) {
-        startFirstRange = startRange;
-        endFirstRange = endRange;
-      } else {
-        // If the tree selection is goofy (eg adjacent or overlapping ranges),
-        // complain about it, but don't try and cope.  Just live with the fact
-        // that one of the deleted messages is going to end up selected.
-        NS_WARNING_ASSERTION(
-            endFirstRange != startRange,
-            "goofy tree selection state: two ranges are adjacent!");
+        *msgToSelectAfterDelete = startRange;
+        anchorEndRange = endRange;
+        originalAnchorIndex = startRange;
+      }
+      // Preferably use the block that contains the current index.
+      if (currentIndex >= startRange && currentIndex <= endRange) {
+        *msgToSelectAfterDelete = startRange - deletedRowsAboveAnchor;
+        anchorEndRange = endRange - deletedRowsAboveAnchor;
+        originalAnchorIndex = startRange;
+        break;
       }
 
-      *msgToSelectAfterDelete =
-          std::min(*msgToSelectAfterDelete, (nsMsgViewIndex)startRange);
-    }
+      if (isSingleFolderView) {
+        if (mDeleteModel != nsMsgImapDeleteModels::IMAPDelete) {
+          deletedRowsAboveAnchor += (endRange - startRange + 1);
+        }
+      } else {
+        // This is a search db or cross-folder view. We use a row-by-row cache
+        // evaluation of the delete model.
+        nsCOMPtr<nsIMsgFolder> lastEvaluatedFolder;
+        bool lastRowWillShift = true;
 
-    // Multiple selection either using Ctrl, Shift, or one of the affordances
-    // to select an entire thread.
-    isMultiSelect = (selectionCount > 1 || (endRange - startRange) > 0);
+        for (int32_t j = startRange; j <= endRange; j++) {
+          nsCOMPtr<nsIMsgFolder> msgFolder;
+          GetFolderForViewIndex(j, getter_AddRefs(msgFolder));
+
+          if (msgFolder != lastEvaluatedFolder) {
+            lastEvaluatedFolder = msgFolder;
+            lastRowWillShift = (GetServerDeleteModel(msgFolder) !=
+                                nsMsgImapDeleteModels::IMAPDelete);
+          }
+
+          if (lastRowWillShift) {
+            deletedRowsAboveAnchor++;
+          }
+        }
+      }
+    }
   }
 
   if (*msgToSelectAfterDelete == nsMsgViewIndex_None) return NS_OK;
 
-  nsCOMPtr<nsIMsgFolder> folder;
-  GetMsgFolder(getter_AddRefs(folder));
-  nsCOMPtr<nsIMsgImapMailFolder> imapFolder = do_QueryInterface(folder);
-  bool thisIsImapFolder = (imapFolder != nullptr);
-  // Need to update the imap-delete model, can change more than once in a
-  // session.
-  if (thisIsImapFolder) GetImapDeleteModel(nullptr);
+  nsMsgImapDeleteModel deleteModel = mDeleteModel;
+  if (!isSingleFolderView) {
+    // Dynamically fetch the real underlying folder for this specific row
+    // so we can evaluate the correct IMAP delete model.
+    nsCOMPtr<nsIMsgFolder> folder;
+    GetFolderForViewIndex(originalAnchorIndex, getter_AddRefs(folder));
+    deleteModel = GetServerDeleteModel(folder);
+  }
 
   // If mail.delete_matches_sort_order is true,
   // for views sorted in descending order (newest at the top), make
@@ -6127,22 +6157,16 @@ nsMsgDBView::GetMsgToSelectAfterDelete(nsMsgViewIndex* msgToSelectAfterDelete) {
     Preferences::GetBool("mail.delete_matches_sort_order", &deleteMatchesSort);
   }
 
-  if (mDeleteModel == nsMsgImapDeleteModels::IMAPDelete) {
-    if (isMultiSelect) {
-      if (deleteMatchesSort)
-        *msgToSelectAfterDelete = startFirstRange - 1;
-      else
-        *msgToSelectAfterDelete = endFirstRange + 1;
-    } else {
-      if (deleteMatchesSort)
-        *msgToSelectAfterDelete -= 1;
-      else
-        *msgToSelectAfterDelete += 1;
-    }
-  } else if (deleteMatchesSort) {
+  if (deleteMatchesSort) {
+    // If we're moving upwards, we always just select the message immediately
+    // preceding the selection block, regardless of the delete model.
     *msgToSelectAfterDelete -= 1;
+  } else if (deleteModel == nsMsgImapDeleteModels::IMAPDelete) {
+    // If we are moving downwards in IMAPDelete (strikethrough) mode, the rows
+    // don't shift up, so we must manually step past the end of the selection
+    // block.
+    *msgToSelectAfterDelete = anchorEndRange + 1;
   }
-
   return NS_OK;
 }
 
@@ -6308,19 +6332,21 @@ nsresult nsMsgDBView::AdjustRowCount(int32_t rowCountBeforeSort,
   return NS_OK;
 }
 
-nsresult nsMsgDBView::GetImapDeleteModel(nsIMsgFolder* folder) {
-  nsresult rv = NS_OK;
+nsMsgImapDeleteModel nsMsgDBView::GetServerDeleteModel(nsIMsgFolder* folder) {
+  nsMsgImapDeleteModel deleteModel = nsMsgImapDeleteModels::MoveToTrash;
+
+  nsCOMPtr<nsIMsgImapMailFolder> imapFolder = do_QueryInterface(folder);
+  if (!imapFolder) {
+    return deleteModel;
+  }
+
   nsCOMPtr<nsIMsgIncomingServer> server;
-  // For the search view.
-  if (folder)
-    folder->GetServer(getter_AddRefs(server));
-  else if (m_folder)
-    m_folder->GetServer(getter_AddRefs(server));
-
-  nsCOMPtr<nsIImapIncomingServer> imapServer = do_QueryInterface(server, &rv);
-  if (NS_SUCCEEDED(rv) && imapServer) imapServer->GetDeleteModel(&mDeleteModel);
-
-  return rv;
+  folder->GetServer(getter_AddRefs(server));
+  nsCOMPtr<nsIImapIncomingServer> imapServer = do_QueryInterface(server);
+  if (imapServer) {
+    imapServer->GetDeleteModel(&deleteModel);
+  }
+  return deleteModel;
 }
 
 //

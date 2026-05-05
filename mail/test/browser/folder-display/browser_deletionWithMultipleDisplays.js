@@ -611,20 +611,33 @@ add_task(
       2
     );
 
-    // We'll select 2-5, 8, 9 and 10. We expect 6 to be the next displayed
-    // message.
+    // We'll select 2-5, 8, 9 and 10. We expect 11 to be the next displayed
+    // message in the folder tab.
     await select_click_row(2);
     await select_shift_click_row(5);
     await select_control_click_row(8);
     await select_control_click_row(9);
     await select_control_click_row(10);
-    const expectedMessage = get_about_3pane().gDBView.getMsgHdrAt(6);
+    const expectedMessageStandalone = get_about_3pane().gDBView.getMsgHdrAt(6);
+    const expectedMessageFolder = get_about_3pane().gDBView.getMsgHdrAt(11);
 
     // Delete the selected messages
     await press_delete();
 
-    // All the displays should now be showing the expectedMessage
-    await _verify_message_is_displayed_in(VERIFY_ALL, expectedMessage);
+    // The standalone displays independently fall back relative to the message
+    // they had open.
+    await _verify_message_is_displayed_in(
+      VERIFY_MESSAGE_TAB |
+        VERIFY_BACKGROUND_MESSAGE_TAB |
+        VERIFY_MESSAGE_WINDOW,
+      expectedMessageStandalone
+    );
+
+    // The folder tab correctly anchors to the user's last focused item.
+    await _verify_message_is_displayed_in(
+      VERIFY_FOLDER_TAB,
+      expectedMessageFolder
+    );
 
     // Clean up, close everything
     await BrowserTestUtils.closeWindow(msgc);
@@ -658,8 +671,8 @@ add_task(
     // Delete the selected messages
     await press_delete();
 
-    // The folder tab should now be showing message 2
-    await assert_selected_and_displayed(2);
+    // The folder tab should now be showing message 4
+    await assert_selected_and_displayed(4);
 
     // The other displays should now be showing the expectedMessage
     await _verify_message_is_displayed_in(
@@ -701,8 +714,8 @@ add_task(
     // Delete the selected messages
     await press_delete();
 
-    // The folder tab should now be showing message 2
-    await assert_selected_and_displayed(2);
+    // The folder tab should now be showing message 4
+    await assert_selected_and_displayed(4);
 
     // The other displays should now be showing the expectedMessage
     await _verify_message_is_displayed_in(
@@ -731,19 +744,33 @@ add_task(
       1
     );
 
-    // We'll select 1-4, 7, 8 and 9. We expect 5 to be the next displayed message.
+    // We'll select 1-4, 7, 8 and 9. We expect 6 to be the next displayed
+    // message in the folder pane.
     await select_click_row(1);
     await select_shift_click_row(4);
     await select_control_click_row(7);
     await select_control_click_row(8);
     await select_control_click_row(9);
-    const expectedMessage = get_about_3pane().gDBView.getMsgHdrAt(5);
+    const expectedMessageStandalone = get_about_3pane().gDBView.getMsgHdrAt(5);
+    const expectedMessageFolder = get_about_3pane().gDBView.getMsgHdrAt(6);
 
     // Delete the selected messages
     await press_delete();
 
-    // All the displays should now be showing the expectedMessage
-    await _verify_message_is_displayed_in(VERIFY_ALL, expectedMessage);
+    // The standalone displays independently fall back relative to the message
+    // they had open.
+    await _verify_message_is_displayed_in(
+      VERIFY_MESSAGE_TAB |
+        VERIFY_BACKGROUND_MESSAGE_TAB |
+        VERIFY_MESSAGE_WINDOW,
+      expectedMessageStandalone
+    );
+
+    // The folder tab correctly anchors to the user's last focused item.
+    await _verify_message_is_displayed_in(
+      VERIFY_FOLDER_TAB,
+      expectedMessageFolder
+    );
 
     // Clean up, close everything
     await BrowserTestUtils.closeWindow(msgc);
@@ -776,8 +803,8 @@ add_task(
     // Delete the selected messages
     await press_delete();
 
-    // The folder tab should now be showing message 1
-    await assert_selected_and_displayed(1);
+    // The folder tab should now be showing message 2
+    await assert_selected_and_displayed(2);
 
     // The other displays should now be showing the expectedMessage
     await _verify_message_is_displayed_in(
@@ -818,8 +845,8 @@ add_task(
     // Delete the selected messages
     await press_delete();
 
-    // The folder tab should now be showing message 1
-    await assert_selected_and_displayed(1);
+    // The folder tab should now be showing message 2
+    await assert_selected_and_displayed(2);
 
     // The other displays should now be showing the expectedMessage
     await _verify_message_is_displayed_in(

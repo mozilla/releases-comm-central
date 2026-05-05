@@ -409,7 +409,7 @@ class nsMsgDBView : public nsIMsgDBView,
   virtual int32_t FindLevelInThread(nsIMsgDBHdr* msgHdr,
                                     nsMsgViewIndex startOfThread,
                                     nsMsgViewIndex viewIndex);
-  nsresult GetImapDeleteModel(nsIMsgFolder* folder);
+  nsMsgImapDeleteModel GetServerDeleteModel(nsIMsgFolder* folder);
   nsresult GetDBForHeader(nsIMsgDBHdr* msgHdr, nsIMsgDatabase** db);
 
   bool AdjustReadFlag(nsIMsgDBHdr* msgHdr, uint32_t* msgFlags);

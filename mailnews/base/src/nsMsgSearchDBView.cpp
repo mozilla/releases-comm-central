@@ -19,7 +19,6 @@
 #include "nsMsgGroupThread.h"
 #include "nsMsgMessageFlags.h"
 #include "nsIMsgSearchSession.h"
-#include "nsServiceManagerUtils.h"
 #include "nsIMsgImapMailFolder.h"
 
 using mozilla::Preferences;
@@ -689,15 +688,6 @@ nsMsgSearchDBView::OnSearchDone(nsresult status) {
   // This batch began in OnNewSearch.
   if (mJSTree) mJSTree->EndUpdateBatch();
 
-  // We want to set imap delete model once the search is over because setting
-  // next message after deletion will happen before deleting the message and
-  // search scope can change with every search.
-
-  // Set to default in case it is non-imap folder.
-  mDeleteModel = nsMsgImapDeleteModels::MoveToTrash;
-  nsIMsgFolder* curFolder = m_folders.SafeObjectAt(0);
-  if (curFolder) GetImapDeleteModel(curFolder);
-
   return NS_OK;
 }
 
@@ -1021,17 +1011,12 @@ nsresult nsMsgSearchDBView::ProcessNextFolder(nsIMsgWindow* window) {
   NS_ASSERTION(curFolder, "curFolder is null");
   nsTArray<RefPtr<nsIMsgDBHdr>> const& msgs = m_hdrsForEachFolder[mCurIndex];
 
-  // Set to default in case it is non-imap folder.
-  mDeleteModel = nsMsgImapDeleteModels::MoveToTrash;
-  nsCOMPtr<nsIMsgImapMailFolder> imapFolder = do_QueryInterface(curFolder);
-  if (imapFolder) {
-    GetImapDeleteModel(curFolder);
-  }
+  nsMsgImapDeleteModel deleteModel = GetServerDeleteModel(curFolder);
 
   const bool mCommandIsDelete = mCommand == nsMsgViewCommandType::deleteMsg ||
                                 mCommand == nsMsgViewCommandType::deleteNoTrash;
   m_deletingRows = !(
-      (mCommandIsDelete && mDeleteModel == nsMsgImapDeleteModels::IMAPDelete) ||
+      (mCommandIsDelete && deleteModel == nsMsgImapDeleteModels::IMAPDelete) ||
       mCommand == nsMsgViewCommandType::copyMessages);
   if (m_deletingRows) {
     m_totalMessagesInView -= msgs.Length();
@@ -1041,7 +1026,7 @@ nsresult nsMsgSearchDBView::ProcessNextFolder(nsIMsgWindow* window) {
   if (mCommandIsDelete) {
     const bool deleteStorage =
         mCommand == nsMsgViewCommandType::deleteNoTrash ||
-        mDeleteModel == nsMsgImapDeleteModels::DeleteNoTrash;
+        deleteModel == nsMsgImapDeleteModels::DeleteNoTrash;
     if (!deleteStorage) {
       curFolder->MarkMessagesRead(msgs, true);
     }
@@ -1077,9 +1062,6 @@ nsresult nsMsgSearchDBView::ProcessNextFolder(nsIMsgWindow* window) {
     m_deletingRows = false;
     SetSuppressChangeNotifications(false);
   }
-
-  // Reset to default.
-  mDeleteModel = nsMsgImapDeleteModels::MoveToTrash;
 
   return rv;
 }

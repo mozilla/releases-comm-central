@@ -123,12 +123,17 @@ add_task(async function testSingleVirtual() {
 
 /** Test a virtual folder with multiple backing folders. */
 add_task(async function testXFVirtual() {
+  // Note: The message counts for folderD and folderE (2 and 13) are carefully
+  // chosen. If a selection spans across the boundary between these two
+  // physical folders, the backend executes the deletion in sequential batches.
+  // This causes the UI to fire multiple "select" events, while _doDelete()
+  // strictly expects only a single one.
   const folderD = rootFolder
     .createLocalSubfolder("threadTreeDeletingD")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   folderD.addMessageBatch(
     generator
-      .makeMessages({ count: 4 })
+      .makeMessages({ count: 2 })
       .map(message => message.toMessageString())
   );
 
@@ -137,7 +142,7 @@ add_task(async function testXFVirtual() {
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   folderE.addMessageBatch(
     generator
-      .makeMessages({ count: 11, msgsPerThread: 3 })
+      .makeMessages({ count: 13, msgsPerThread: 3 })
       .map(message => message.toMessageString())
   );
 
@@ -433,8 +438,8 @@ async function subtest() {
   threadTree.currentIndex = 4;
   // We should select the message below the current index, but we select the
   // message below the first selected one.
-  await doDeleteCommand(9);
-  await verifySelection(7, [2], 2);
+  await doDeleteCommand(11);
+  await verifySelection(7, [3], 3);
   verifySubjects([
     subjects[0],
     subjects[1],

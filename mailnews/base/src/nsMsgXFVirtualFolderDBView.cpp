@@ -296,14 +296,6 @@ nsMsgXFVirtualFolderDBView::OnSearchDone(nsresult status) {
   }
 
   m_doingSearch = false;
-  // We want to set imap delete model once the search is over because setting
-  // next message after deletion will happen before deleting the message and
-  // search scope can change with every search.
-
-  // Set to default in case it is non-imap folder.
-  mDeleteModel = nsMsgImapDeleteModels::MoveToTrash;
-  nsIMsgFolder* curFolder = m_folders.SafeObjectAt(0);
-  if (curFolder) GetImapDeleteModel(curFolder);
 
   nsCOMPtr<nsIMsgDatabase> virtDatabase;
   nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;
