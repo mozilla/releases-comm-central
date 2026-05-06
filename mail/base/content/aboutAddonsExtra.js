@@ -76,11 +76,6 @@ function getBrowserElement() {
   contentStylesheet.href = "chrome://messenger/skin/aboutExtra.css";
   document.head.appendChild(contentStylesheet);
 
-  // Override logic for detecting unsigned add-ons.
-  window.isCorrectlySigned = function () {
-    return true;
-  };
-
   // Load our theme screenshots.
   const _getScreenshotUrlForAddon = getScreenshotUrlForAddon;
   getScreenshotUrlForAddon = function (addon) {

@@ -232,6 +232,10 @@ pref("extensions.startupScanScopes", 4);
 pref("extensions.update.requireBuiltInCerts", false);
 pref("extensions.install.requireBuiltInCerts", false);
 
+// Allow experiments and suppress unsigned warnings.
+pref("extensions.experiments.enabled", true);
+pref("extensions.ui.disableUnsignedWarnings", true);
+
 // Allow Experiments to be suppressed.
 pref("extensions.experiments.suppressed", false);
 // Comma-separated list of add-on IDs exempt from experiment suppression.
