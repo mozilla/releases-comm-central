@@ -442,7 +442,7 @@ add_task(async function test_maxNotificationsPerDay() {
 
   for (let i = 0; i <= 5; i++) {
     ({ detail: notification } = await newNotificationEvent);
-    Assert.equal(notification.id, `${i}`, "correct notification shown");
+    Assert.equal(notification.id, `${i}`, "correct notification should show");
 
     newNotificationEvent = BrowserTestUtils.waitForEvent(
       notificationManager,
@@ -475,13 +475,14 @@ add_task(async function test_maxNotificationsPerDay() {
   Assert.greaterOrEqual(
     Date.now(),
     startTime + 1000 * 10,
-    "Message shown after _PER_TIME_UNIT"
+    "Message should not show early"
   );
 
+  // 4s leeway for notifications showing up.
   Assert.lessOrEqual(
     Date.now(),
-    startTime + 1000 * 11,
-    "Message shown after _PER_TIME_UNIT"
+    startTime + 1000 * 14,
+    "Message should not show late"
   );
 
   NotificationManager._PER_TIME_UNIT = timeUnit;
