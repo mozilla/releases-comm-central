@@ -253,24 +253,28 @@ add_task(async function testNoDuplicateAttendeeOnCaseInsensitiveEmail() {
   calendar.setProperty("organizerId", "mailto:organizer@example.com");
   calendar.setProperty("organizerCN", "The Organizer");
 
-  const event = await calendar.addItem(
-    new CalEvent(CalendarTestUtils.dedent`
-      BEGIN:VEVENT
-      SUMMARY:Deep dive to inspect piping
-      DTSTART:19860915T000000Z
-      DTEND:19901118T000000Z
-      ORGANIZER;CN="The Organizer":mailto:organizer@example.com
-      ATTENDEE;CN="IT Department";PARTSTAT=DECLINED;ROLE=CHAIR:mailto:IT@example.com
-      END:VEVENT
-    `)
-  );
+  const event = new CalEvent(CalendarTestUtils.dedent`
+    BEGIN:VEVENT
+    SUMMARY:An event
+    DTSTART:20230218T100000Z
+    DTEND:20230218T110000Z
+    ORGANIZER;CN="The Organizer":mailto:organizer@example.com
+    ATTENDEE;CN="IT Department";PARTSTAT=DECLINED;ROLE=CHAIR:mailto:IT@example.com
+    END:VEVENT
+  `);
 
-  const eventId = event.id;
-  const eventModified = event.lastModifiedTime;
-
-  CalendarTestUtils.goToDate(window, 1986, 9, 15);
-  const { dialogWindow: eventWindow } = await CalendarTestUtils.dayView.editEventAt(window, 1);
-  const attendeesWindow = await openAttendeesWindow(eventWindow);
+  let savedAttendees;
+  const attendeesWindow = await openAttendeesWindow({
+    startTime: event.startDate,
+    endTime: event.endDate,
+    displayTimezone: false,
+    calendar,
+    organizer: event.organizer,
+    attendees: event.getAttendees(),
+    onOk(attendees) {
+      savedAttendees = attendees;
+    },
+  });
 
   // Edit the existing row so the existing-attendee code path runs with #attendee.id set.
   findAndEditMatchingRow(
@@ -281,21 +285,15 @@ add_task(async function testNoDuplicateAttendeeOnCaseInsensitiveEmail() {
   );
 
   await closeAttendeesWindow(attendeesWindow);
-  await CalendarTestUtils.items.saveAndCloseItemDialog(eventWindow);
 
-  await TestUtils.waitForCondition(async () => {
-    const item = await calendar.getItem(eventId);
-    return item.lastModifiedTime != eventModified;
-  });
-
-  const attendees = (await calendar.getItem(eventId)).getAttendees();
+  Assert.ok(savedAttendees, "attendees should be saved when accepting the dialog");
   Assert.equal(
-    attendees.length,
+    savedAttendees.length,
     1,
     "case variant of existing attendee should not create a duplicate row"
   );
 
-  const itAttendees = attendees.filter(a => a.id.toLowerCase() == "mailto:it@example.com");
+  const itAttendees = savedAttendees.filter(a => a.id.toLowerCase() == "mailto:it@example.com");
   Assert.equal(itAttendees.length, 1, "there should be exactly one it@example.com attendee");
   Assert.equal(
     itAttendees[0].participationStatus,
