@@ -56,6 +56,11 @@ git = "https://github.com/kinetiknz/mio"
 rev = "5e8b202db39facecc343170f50a07916640a607c"
 replace-with = "vendored-sources"
 
+[source."git+https://github.com/libjxl/jxl-rs?rev=c41cbfaf34c2c8ebc3fb6655c885fe427ab9542a"]
+git = "https://github.com/libjxl/jxl-rs"
+rev = "c41cbfaf34c2c8ebc3fb6655c885fe427ab9542a"
+replace-with = "vendored-sources"
+
 [source."git+https://github.com/martinthomson/ohttp"]
 git = "https://github.com/martinthomson/ohttp"
 replace-with = "vendored-sources"

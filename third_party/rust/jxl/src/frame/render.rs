@@ -77,6 +77,7 @@ impl Frame {
         mut pipeline: RenderPipelineBuilder<P>,
         channels: &[usize],
         data_format: JxlDataFormat,
+        clamp_range_for_f16: Option<(f32, f32)>,
     ) -> RenderPipelineBuilder<P> {
         use crate::render::stages::{
             ConvertF32ToF16Stage, ConvertF32ToU8Stage, ConvertF32ToU16Stage,
@@ -97,7 +98,9 @@ impl Frame {
             }
             JxlDataFormat::F16 { .. } => {
                 for &channel in channels {
-                    pipeline = pipeline.add_inout_stage(ConvertF32ToF16Stage::new(channel));
+                    pipeline = pipeline.add_inout_stage(
+                        ConvertF32ToF16Stage::new_with_clamp_range(channel, clamp_range_for_f16),
+                    );
                 }
             }
             // F32 doesn't need conversion - the pipeline already uses f32
@@ -132,6 +135,9 @@ impl Frame {
         Ok(())
     }
 
+    /// Returns `true` if any pixels were written to the output buffers during
+    /// this call, `false` if the call was a no-op for the buffers (e.g. no new
+    /// HF groups, no flush work, or the render pipeline was not yet ready).
     pub fn decode_and_render_hf_groups(
         &mut self,
         api_buffers: &mut Option<&mut [JxlOutputBuffer<'_>]>,
@@ -139,12 +145,12 @@ impl Frame {
         groups: Vec<(usize, Vec<(usize, BitReader)>)>,
         do_flush: bool,
         output_profile: &JxlColorProfile,
-    ) -> Result<()> {
+    ) -> Result<bool> {
         if self.render_pipeline.is_none() || self.lf_global.is_none() {
             assert_eq!(groups.iter().map(|x| x.1.len()).sum::<usize>(), 0);
             // We don't yet have any output ready (as the pipeline would be initialized otherwise),
             // so exit without doing anything.
-            return Ok(());
+            return Ok(false);
         }
 
         let mut buffers: Vec<Option<JxlOutputBuffer>> = Vec::new();
@@ -309,18 +315,19 @@ impl Frame {
         }
 
         let regions = buffer_splitter.into_changed_regions();
+        let rendered = !regions.is_empty() && self.header.frame_type == FrameType::RegularFrame;
 
         self.reference_frame_data = reference_frame_data;
         self.lf_frame_data = lf_frame_data;
 
         if self.header.frame_type == FrameType::LFFrame && self.header.lf_level == 1 {
             if do_flush && let Some(buffers) = api_buffers {
-                self.maybe_preview_lf_frame(
+                return self.maybe_preview_lf_frame(
                     pixel_format,
                     buffers,
                     Some(&regions[..]),
                     output_profile,
-                )?;
+                );
             } else if self.incomplete_groups == 0 {
                 // If we are not requesting another flush at the end of the LF frame, we
                 // probably have a partial render. Ensure we re-render the LF frame when
@@ -329,7 +336,7 @@ impl Frame {
             }
         }
 
-        Ok(())
+        Ok(rendered)
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -548,6 +555,18 @@ impl Frame {
             })
             .unwrap_or_else(|| output_color_info.tf.clone());
 
+        // Clamp transfer-domain values while converting to f16 so we don't
+        // emit wild out-of-range values to downstream consumers.
+        //
+        // PQ has a bounded signal domain [0,1].
+        // HLG may carry modest overshoot/undershoot (e.g. from narrow-range
+        // workflows), so preserve headroom with a looser clamp.
+        let clamp_range_for_f16 = match &output_tf {
+            TransferFunction::Pq { .. } => Some((0.0, 1.0)),
+            TransferFunction::Hlg { .. } => Some((-0.074, 1.1)),
+            _ => None,
+        };
+
         // Find the Black (K) extra channel if present.
         // In JXL, CMYK is stored as 3 color channels (CMY) + K as extra channel.
         // Pipeline index of K = extra_channel_index + 3
@@ -764,7 +783,12 @@ impl Frame {
                     ));
                 }
                 // Add conversion stages for non-float output formats
-                pipeline = Self::add_conversion_stages(pipeline, color_source_channels, *df);
+                pipeline = Self::add_conversion_stages(
+                    pipeline,
+                    color_source_channels,
+                    *df,
+                    clamp_range_for_f16,
+                );
                 pipeline = pipeline.add_save_stage(
                     color_source_channels,
                     metadata.orientation,
@@ -782,7 +806,7 @@ impl Frame {
             for i in 0..frame_header.num_extra_channels as usize {
                 if let Some(df) = &pixel_format.extra_channel_format[i] {
                     // Add conversion stages for non-float output formats
-                    pipeline = Self::add_conversion_stages(pipeline, &[3 + i], *df);
+                    pipeline = Self::add_conversion_stages(pipeline, &[3 + i], *df, None);
                     pipeline = pipeline.add_save_stage(
                         &[3 + i],
                         metadata.orientation,
