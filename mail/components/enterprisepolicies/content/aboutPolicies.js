@@ -276,6 +276,7 @@ function generateDocumentation() {
   const string_mapping = {
     BackgroundAppUpdate: "BackgroundAppUpdate2",
     Certificates: "CertificatesDescription",
+    SecurityDevices: "SecurityDevices2",
   };
 
   for (const policyName in lazy.schema.properties) {

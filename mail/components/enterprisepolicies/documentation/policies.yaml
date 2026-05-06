@@ -2280,6 +2280,56 @@ policies:
           "RequestedLocales": "de,en-US"
         }
       }
+  SecurityDevices:
+    toc: 'Add or delete PKCS #11 modules.'
+    content: |
+      Add or delete PKCS #11 modules.
+    cck2Equivalent:
+    preferencesAffected:
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\SecurityDevices\Add\NAME_OF_DEVICE_TO_ADD'
+        type: 'REG_SZ'
+        value: 'PATH_TO_LIBRARY_FOR_DEVICE'
+      - key: 'Software\Policies\Mozilla\Thunderbird\SecurityDevices\Delete\1'
+        type: 'REG_SZ'
+        value: 'NAME_OF_DEVICE_TO_REMOVE'
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird/SecurityDevices/SecurityDevices_Add'
+        type: 'string'
+        value: |
+          <enabled/>
+          <data id="SecurityDevices" value="NAME_OF_DEVICE_TO_ADD&#xF000;PATH_TO_LIBRARY_FOR_DEVICE" />
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird/SecurityDevices/SecurityDevices_Delete'
+        type: 'string'
+        value: |
+          <enabled/>
+          <data id="SecurityDevices" value="1&#xF000;NAME_OF_DEVICE_TO_REMOVE"/>
+    plist: |
+      <dict>
+        <key>SecurityDevices</key>
+        <dict>
+          <key>Add<key>
+          <dict>
+            <key>NAME_OF_DEVICE_TO_ADD</key>
+            <string>PATH_TO_LIBRARY_FOR_DEVICE</string>
+          </dict>
+          <key>Delete</key>
+          <array>
+            <string>NAME_OF_DEVICE_TO_DELETE</string>
+          </array>
+        </dict>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "SecurityDevices": {
+            "Add": {
+              "NAME_OF_DEVICE_TO_ADD": "PATH_TO_LIBRARY_FOR_DEVICE"
+            },
+            "Delete": ["NAME_OF_DEVICE_TO_DELETE"]
+          }
+        }
+      }
   SSLVersionMax:
     toc: 'Set and lock the maximum version of TLS.'
     content: |

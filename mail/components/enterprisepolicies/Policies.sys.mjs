@@ -1298,6 +1298,70 @@ export var Policies = {
     },
   },
 
+  SecurityDevices: {
+    async _onProfileAfterChangeImpl(manager, param) {
+      const pkcs11db = Cc["@mozilla.org/security/pkcs11moduledb;1"].getService(
+        Ci.nsIPKCS11ModuleDB
+      );
+
+      let securityDevices;
+      if (param.Add || param.Delete) {
+        // We're using the new syntax.
+        securityDevices = param.Add;
+        if (param.Delete) {
+          for (const deviceName of param.Delete) {
+            try {
+              await pkcs11db.deleteModule(deviceName);
+            } catch (e) {
+              // Ignoring errors here since it might stick around in policy
+              // after removing. Alternative would be to listModules and
+              // make sure it's there before removing, but that seems
+              // like unnecessary work.
+            }
+          }
+        }
+      } else {
+        securityDevices = param;
+      }
+
+      if (!securityDevices) {
+        return;
+      }
+
+      for (const deviceName in securityDevices) {
+        let foundModule = false;
+        for (const module of await pkcs11db.listModules()) {
+          if (module && module.libName === securityDevices[deviceName]) {
+            foundModule = true;
+            break;
+          }
+        }
+
+        if (foundModule) {
+          continue;
+        }
+
+        try {
+          await pkcs11db.addModule(
+            deviceName,
+            securityDevices[deviceName],
+            0,
+            0
+          );
+        } catch (ex) {
+          lazy.log.error(`Unable to add security device ${deviceName}`);
+          lazy.log.debug(ex);
+        }
+      }
+    },
+
+    onProfileAfterChange(manager, param) {
+      this._onProfileAfterChangeImpl(manager, param).catch(ex => {
+        lazy.log.error("Unable to apply SecurityDevices policy", ex);
+      });
+    },
+  },
+
   SSLVersionMax: {
     onBeforeAddons(manager, param) {
       let tlsVersion;
