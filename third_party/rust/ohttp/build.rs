@@ -161,6 +161,7 @@ mod nss {
         // NSS optionally builds platform-specific acceleration libraries as
         // separate static libraries.
         let accel_libs = &[
+            // Pre-NSS-3.121 names
             "gcm-aes-x86_c_lib",
             "sha-x86_c_lib",
             "hw-acc-crypto-avx",
@@ -170,6 +171,11 @@ mod nss {
             "gcm-aes-aarch64_c_lib",
             "intel-gcm-s_lib",
             "intel-gcm-wrap_c_lib",
+            // NSS 3.121+ renamed/introduced names
+            "gcm",
+            "ghash-aes-x86_c_lib",
+            "ghash-aes-arm32-neon_c_lib",
+            "ghash-aes-aarch64_c_lib",
         ];
 
         // Build rules are complex, so simply check the lib directory to see if
@@ -391,14 +397,12 @@ mod nss {
         flags
     }
 
-    #[cfg(feature = "gecko")]
+    #[cfg(any(feature = "gecko", feature = "app-svc"))]
     fn setup_for_gecko() -> Vec<String> {
         use mozbuild::{
             config::{BINDGEN_SYSTEM_FLAGS, NSPR_CFLAGS, NSS_CFLAGS},
             TOPOBJDIR,
         };
-
-        let mut flags: Vec<String> = Vec::new();
 
         let fold_libs = mozbuild::config::MOZ_FOLD_LIBS;
         let libs = if fold_libs {
@@ -442,7 +446,7 @@ mod nss {
             );
         }
 
-        flags = BINDGEN_SYSTEM_FLAGS
+        let mut flags: Vec<String> = BINDGEN_SYSTEM_FLAGS
             .iter()
             .chain(&NSPR_CFLAGS)
             .chain(&NSS_CFLAGS)
@@ -462,13 +466,21 @@ mod nss {
         flags
     }
 
-    #[cfg(not(feature = "gecko"))]
+    #[cfg(not(any(feature = "gecko", feature = "app-svc")))]
     fn setup_for_gecko() -> Vec<String> {
         unreachable!()
     }
 
     #[cfg(feature = "app-svc")]
     fn setup_for_app_svc() -> Vec<String> {
+        // The `app-svc` feature is better described as "detect whether
+        // we are in application-services or gecko dynamically".
+        // Like the application-services `rc_crypto` crate, we assume that
+        // `MOZ_TOPOBJDIR` being set means we are in gecko.
+        if env::var_os("MOZ_TOPOBJDIR").is_some() {
+            return setup_for_gecko();
+        }
+
         // Locate the NSS libraries that application_services is using.
         // NOTE: This directory has a slightly different layout than then normal
         //       'dist' directory that NSS builds output.

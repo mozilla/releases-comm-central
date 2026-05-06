@@ -1,0 +1,71 @@
+name: unit-tests
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test-linux:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Crate
+      uses: actions/checkout@v3
+    - name: Set Toolchain
+      # https://github.com/dtolnay/rust-toolchain
+      uses: dtolnay/rust-toolchain@stable
+    - name: Build
+      run: cargo build
+    - name: Test
+      run: |
+        cargo test
+        cargo test --features punycode
+        cargo test --features proxy
+        cargo test --features json-using-serde
+        cargo test --features urlencoding
+        cargo test --features https
+        cargo test --features "punycode proxy json-using-serde urlencoding https-rustls"
+        cargo test --features "punycode proxy json-using-serde urlencoding https-rustls-probe"
+        cargo test --features "punycode proxy json-using-serde urlencoding https-bundled"
+        cargo test --features "punycode proxy json-using-serde urlencoding https-bundled-probe"
+        cargo test --features "punycode proxy json-using-serde urlencoding https-native"
+  test-windows:
+    runs-on: windows-latest
+    steps:
+    - name: Checkout Crate
+      uses: actions/checkout@v3
+    - name: Set Toolchain
+      uses: dtolnay/rust-toolchain@stable
+    - name: Build
+      run: cargo build
+    - name: Test
+      run: |
+        cargo test
+        cargo test --features punycode
+        cargo test --features proxy
+        cargo test --features json-using-serde
+        cargo test --features urlencoding
+        cargo test --features https
+        cargo test --features "punycode proxy json-using-serde urlencoding https"
+  test-macos:
+    runs-on: macos-latest
+    steps:
+    - name: Checkout Crate
+      uses: actions/checkout@v3
+    - name: Set Toolchain
+      uses: dtolnay/rust-toolchain@stable
+    - name: Build
+      run: cargo build
+    - name: Test
+      run: |
+        cargo test
+        cargo test --features punycode
+        cargo test --features proxy
+        cargo test --features json-using-serde
+        cargo test --features urlencoding
+        cargo test --features https
+        cargo test --features "punycode proxy json-using-serde urlencoding https"

@@ -1,0 +1,69 @@
+version: 2.1
+
+commands:
+  test-setup:
+    parameters:
+      rust-version:
+        type: string
+        default: "stable"
+    steps:
+      - checkout
+      - run:
+          name: Rust setup
+          command: |
+            rustup install <<parameters.rust-version>>
+            rustup default <<parameters.rust-version>>
+            rustc --version
+  rust-tests:
+    parameters:
+      rust-version:
+        type: string
+        default: "stable"
+    steps:
+      - test-setup:
+          rust-version: <<parameters.rust-version>>
+      - run:
+          name: Test
+          command: cargo test --all --verbose
+
+jobs:
+  Check Rust formatting:
+    docker:
+      - image: circleci/rust:latest
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
+
+    steps:
+      - checkout
+      - run: rustup component add rustfmt
+      - run: rustfmt --version
+      - run: cargo fmt -- --check
+  Rust tests - stable:
+    docker:
+      - image: circleci/rust:latest
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
+
+    steps:
+      - rust-tests
+  Rust tests - beta:
+    docker:
+      - image: circleci/rust:latest
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
+    steps:
+      - rust-tests:
+          rust-version: "beta"
+
+workflows:
+  version: 2
+  check-formating:
+    jobs:
+      - Check Rust formatting
+  run-tests:
+    jobs:
+      - Rust tests - stable
+      - Rust tests - beta

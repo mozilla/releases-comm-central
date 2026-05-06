@@ -1,0 +1,66 @@
+[package]
+name = "minreq"
+version = "2.14.1"
+authors = ["Jens Pitkanen <jens@neon.moe>"]
+description = "Simple, minimal-dependency HTTP client"
+documentation = "https://docs.rs/minreq"
+homepage = "https://github.com/neonmoe/minreq"
+repository = "https://github.com/neonmoe/minreq"
+readme = "README.md"
+keywords = ["http", "https", "client", "request", "json"]
+categories = ["web-programming::http-client"]
+license = "ISC"
+edition = "2018"
+
+[badges]
+travis-ci = { repository = "neonmoe/minreq" }
+maintenance = { status = "passively-maintained" }
+
+[dependencies]
+# For the urlencoding feature:
+urlencoding = { version = "2.1.0", optional = true }
+# For the punycode feature:
+punycode = { version = "0.4.1", optional = true }
+# For the json-using-serde feature:
+serde = { version = "1.0.101", optional = true }
+serde_json = { version = "1.0.0", optional = true }
+# For the proxy feature:
+base64 = { version = "0.22", optional = true }
+# For the https features:
+rustls = { version = "0.21.1", optional = true }
+rustls-native-certs = { version = "0.6.1", optional = true }
+webpki-roots = { version = "0.25.2", optional = true }
+rustls-webpki = { version = "0.101.0", optional = true }
+openssl = { version = "0.10.29", optional = true }
+log = { version = "0.4.0", optional = true }
+openssl-probe = { version = "0.1", optional = true }
+native-tls = { version = "0.2", optional = true }
+
+[dev-dependencies]
+tiny_http = "0.12"
+chrono = "0.4.0"
+
+[package.metadata.docs.rs]
+features = ["json-using-serde", "proxy", "https", "punycode"]
+
+[features]
+https = ["https-rustls"]
+https-rustls = ["rustls", "webpki-roots", "rustls-webpki"]
+https-rustls-probe = ["rustls", "rustls-native-certs"]
+https-bundled = ["openssl/vendored"]
+https-bundled-probe = ["https-bundled", "openssl-probe"]
+https-native = ["native-tls"]
+json-using-serde = ["serde", "serde_json"]
+proxy = ["base64"]
+
+[[example]]
+name = "hello"
+
+[[example]]
+name = "iterator"
+
+[[example]]
+name = "json"
+required-features = ["json-using-serde"]
+
+# vim: ft=conf

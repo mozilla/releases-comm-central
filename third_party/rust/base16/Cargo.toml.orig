@@ -1,0 +1,33 @@
+[package]
+name = "base16"
+version = "0.2.1"
+authors = ["Thom Chiovoloni <tchiovoloni@mozilla.com>"]
+keywords = ["hex", "base16", "encode", "decode", "no_std"]
+repository = "https://github.com/thomcc/rust-base16"
+description = "base16 (hex) encoding and decoding"
+categories = ["encoding", "no-std"]
+license = "CC0-1.0"
+readme = "README.md"
+edition = "2018"
+
+[badges]
+circle-ci = { repository = "thomcc/rust-base16", branch = "master" }
+codecov = { repository = "thomcc/rust-base16", branch = "master", service = "github" }
+
+[features]
+std = ["alloc"]
+alloc = []
+default = ["std"]
+
+[dependencies]
+
+[dev-dependencies]
+rand = "0.6.5"
+criterion = "0.2.11"
+
+[[bench]]
+name = "bench"
+harness = false
+
+[package.metadata.docs.rs]
+all-features = true

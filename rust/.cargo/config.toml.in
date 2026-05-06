@@ -56,6 +56,10 @@ git = "https://github.com/kinetiknz/mio"
 rev = "5e8b202db39facecc343170f50a07916640a607c"
 replace-with = "vendored-sources"
 
+[source."git+https://github.com/martinthomson/ohttp"]
+git = "https://github.com/martinthomson/ohttp"
+replace-with = "vendored-sources"
+
 [source."git+https://github.com/mozilla/audioipc?rev=b52c33425baf619b6c1278c5b4c7ffa3e92b9b1e"]
 git = "https://github.com/mozilla/audioipc"
 rev = "b52c33425baf619b6c1278c5b4c7ffa3e92b9b1e"

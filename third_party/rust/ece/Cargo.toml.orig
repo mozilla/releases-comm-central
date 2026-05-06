@@ -1,0 +1,30 @@
+[package]
+name = "ece"
+version = "2.3.1"
+authors = ["Firefox Sync Team <sync-team@mozilla.com>", "JR Conlin <src+git@jrconlin.com>"]
+license = "MPL-2.0"
+edition = "2021"
+repository = "https://github.com/mozilla/rust-ece"
+description = "Encrypted Content-Encoding for HTTP Rust implementation."
+keywords = ["http-ece", "web-push"]
+
+[dependencies]
+byteorder = "1.3"
+thiserror = "1.0"
+base64 = "0.21"
+hex = "0.4"
+hkdf = { version = "0.12", optional = true }
+lazy_static = { version = "1.4", optional = true }
+once_cell = "1.4"
+openssl = { version = "0.10", optional = true }
+serde = { version = "1.0", features = ["derive"], optional = true }
+sha2 = { version = "0.10", optional = true }
+
+[features]
+default = ["backend-openssl", "serializable-keys"]
+serializable-keys = ["serde"]
+backend-openssl = ["openssl", "lazy_static", "hkdf", "sha2"]
+backend-test-helper = []
+
+[package.metadata.release]
+no-dev-version = true
