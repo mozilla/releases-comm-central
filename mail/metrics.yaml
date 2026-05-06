@@ -160,6 +160,7 @@ mail:
 
   preferences_boolean:
     type: labeled_boolean
+    lifetime: application
     description: Values of boolean preferences.
     bugs:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1757993
@@ -266,6 +267,7 @@ mail:
 
   preferences_integer:
     type: labeled_string
+    lifetime: application
     description: Values of integer preferences.
     bugs:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1800775
