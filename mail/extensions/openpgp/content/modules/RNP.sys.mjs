@@ -2955,15 +2955,16 @@ export var RNP = {
       throw new Error("Couldn't initialize librnp.");
     }
 
-    for (const block of new Set(keyBlocks)) {
-      if (this.importToFFI(tempFFI, block, true, false)) {
-        throw new Error("Merging public keys failed");
+    try {
+      for (const block of new Set(keyBlocks)) {
+        if (this.importToFFI(tempFFI, block, true, false)) {
+          throw new Error("Merging public keys failed");
+        }
       }
+      return await this.getPublicKey(`0x${fingerprint}`, tempFFI);
+    } finally {
+      RNPLib.rnp_ffi_destroy(tempFFI);
     }
-    const pubKey = await this.getPublicKey(`0x${fingerprint}`, tempFFI);
-
-    RNPLib.rnp_ffi_destroy(tempFFI);
-    return pubKey;
   },
 
   async importRevImpl(data) {
@@ -3119,6 +3120,7 @@ export var RNP = {
     // TODO: check result
     if (this.importToFFI(tempFFI, keyBlockStr, pubkey, seckey)) {
       result.errorMsg = "RNP.importToFFI failed";
+      RNPLib.rnp_ffi_destroy(tempFFI);
       return result;
     }
 
@@ -4455,94 +4457,103 @@ export var RNP = {
       throw new Error("Couldn't initialize librnp.");
     }
 
-    const exportFlags =
-      RNPLib.RNP_KEY_EXPORT_SUBKEYS | RNPLib.RNP_KEY_EXPORT_PUBLIC;
-    const importFlags = RNPLib.RNP_LOAD_SAVE_PUBLIC_KEYS;
+    try {
+      const exportFlags =
+        RNPLib.RNP_KEY_EXPORT_SUBKEYS | RNPLib.RNP_KEY_EXPORT_PUBLIC;
+      const importFlags = RNPLib.RNP_LOAD_SAVE_PUBLIC_KEYS;
 
-    const output_to_memory = new RNPLib.rnp_output_t();
-    if (RNPLib.rnp_output_to_memory(output_to_memory.address(), 0)) {
-      throw new Error("rnp_output_to_memory failed");
-    }
-
-    if (RNPLib.rnp_key_export(expKey, output_to_memory, exportFlags)) {
-      throw new Error("rnp_key_export failed");
-    }
-
-    const result_buf = new lazy.ctypes.uint8_t.ptr();
-    const result_len = new lazy.ctypes.size_t();
-    if (
-      RNPLib.rnp_output_memory_get_buf(
-        output_to_memory,
-        result_buf.address(),
-        result_len.address(),
-        false
-      )
-    ) {
-      throw new Error("rnp_output_memory_get_buf failed");
-    }
-
-    const input_from_memory = new RNPLib.rnp_input_t();
-
-    if (
-      RNPLib.rnp_input_from_memory(
-        input_from_memory.address(),
-        result_buf,
-        result_len,
-        false
-      )
-    ) {
-      throw new Error("rnp_input_from_memory failed");
-    }
-
-    if (RNPLib.rnp_import_keys(tempFFI, input_from_memory, importFlags, null)) {
-      throw new Error("rnp_import_keys failed");
-    }
-
-    const tempKey = this.getKeyHandleByKeyIdOrFingerprint(
-      tempFFI,
-      "0x" + expKeyId
-    );
-
-    // Strip
-
-    if (!keepUserIDs) {
-      const uid_count = new lazy.ctypes.size_t();
-      if (RNPLib.rnp_key_get_uid_count(tempKey, uid_count.address())) {
-        throw new Error("rnp_key_get_uid_count failed");
+      const output_to_memory = new RNPLib.rnp_output_t();
+      if (RNPLib.rnp_output_to_memory(output_to_memory.address(), 0)) {
+        throw new Error("rnp_output_to_memory failed");
       }
-      for (let i = uid_count.value; i > 0; i--) {
-        const uid_handle = new RNPLib.rnp_uid_handle_t();
-        if (
-          RNPLib.rnp_key_get_uid_handle_at(tempKey, i - 1, uid_handle.address())
-        ) {
-          throw new Error("rnp_key_get_uid_handle_at failed");
-        }
-        if (RNPLib.rnp_uid_remove(tempKey, uid_handle)) {
-          throw new Error("rnp_uid_remove failed");
-        }
-        RNPLib.rnp_uid_handle_destroy(uid_handle);
+
+      if (RNPLib.rnp_key_export(expKey, output_to_memory, exportFlags)) {
+        throw new Error("rnp_key_export failed");
       }
-    }
 
-    if (
-      RNPLib.rnp_key_remove_signatures(
-        tempKey,
-        RNPLib.RNP_KEY_SIGNATURE_NON_SELF_SIG,
-        null,
-        null
-      )
-    ) {
-      throw new Error("rnp_key_remove_signatures failed");
-    }
+      const result_buf = new lazy.ctypes.uint8_t.ptr();
+      const result_len = new lazy.ctypes.size_t();
+      if (
+        RNPLib.rnp_output_memory_get_buf(
+          output_to_memory,
+          result_buf.address(),
+          result_len.address(),
+          false
+        )
+      ) {
+        throw new Error("rnp_output_memory_get_buf failed");
+      }
 
-    if (RNPLib.rnp_key_export(tempKey, out_binary, exportFlags)) {
-      throw new Error("rnp_key_export failed");
-    }
-    RNPLib.rnp_key_handle_destroy(tempKey);
+      const input_from_memory = new RNPLib.rnp_input_t();
 
-    RNPLib.rnp_input_destroy(input_from_memory);
-    RNPLib.rnp_output_destroy(output_to_memory);
-    RNPLib.rnp_ffi_destroy(tempFFI);
+      if (
+        RNPLib.rnp_input_from_memory(
+          input_from_memory.address(),
+          result_buf,
+          result_len,
+          false
+        )
+      ) {
+        throw new Error("rnp_input_from_memory failed");
+      }
+
+      if (
+        RNPLib.rnp_import_keys(tempFFI, input_from_memory, importFlags, null)
+      ) {
+        throw new Error("rnp_import_keys failed");
+      }
+
+      const tempKey = this.getKeyHandleByKeyIdOrFingerprint(
+        tempFFI,
+        "0x" + expKeyId
+      );
+
+      // Strip
+
+      if (!keepUserIDs) {
+        const uid_count = new lazy.ctypes.size_t();
+        if (RNPLib.rnp_key_get_uid_count(tempKey, uid_count.address())) {
+          throw new Error("rnp_key_get_uid_count failed");
+        }
+        for (let i = uid_count.value; i > 0; i--) {
+          const uid_handle = new RNPLib.rnp_uid_handle_t();
+          if (
+            RNPLib.rnp_key_get_uid_handle_at(
+              tempKey,
+              i - 1,
+              uid_handle.address()
+            )
+          ) {
+            throw new Error("rnp_key_get_uid_handle_at failed");
+          }
+          if (RNPLib.rnp_uid_remove(tempKey, uid_handle)) {
+            throw new Error("rnp_uid_remove failed");
+          }
+          RNPLib.rnp_uid_handle_destroy(uid_handle);
+        }
+      }
+
+      if (
+        RNPLib.rnp_key_remove_signatures(
+          tempKey,
+          RNPLib.RNP_KEY_SIGNATURE_NON_SELF_SIG,
+          null,
+          null
+        )
+      ) {
+        throw new Error("rnp_key_remove_signatures failed");
+      }
+
+      if (RNPLib.rnp_key_export(tempKey, out_binary, exportFlags)) {
+        throw new Error("rnp_key_export failed");
+      }
+      RNPLib.rnp_key_handle_destroy(tempKey);
+
+      RNPLib.rnp_input_destroy(input_from_memory);
+      RNPLib.rnp_output_destroy(output_to_memory);
+    } finally {
+      RNPLib.rnp_ffi_destroy(tempFFI);
+    }
   },
 
   /**
@@ -4735,151 +4746,154 @@ export var RNP = {
       throw new Error("Couldn't initialize librnp.");
     }
 
-    const exportFlags =
-      RNPLib.RNP_KEY_EXPORT_SUBKEYS | RNPLib.RNP_KEY_EXPORT_SECRET;
-    const importFlags =
-      RNPLib.RNP_LOAD_SAVE_PUBLIC_KEYS | RNPLib.RNP_LOAD_SAVE_SECRET_KEYS;
-
     let unlockFailed = false;
-    const pwCache = {
-      passwords: [],
-    };
+    try {
+      const exportFlags =
+        RNPLib.RNP_KEY_EXPORT_SUBKEYS | RNPLib.RNP_KEY_EXPORT_SECRET;
+      const importFlags =
+        RNPLib.RNP_LOAD_SAVE_PUBLIC_KEYS | RNPLib.RNP_LOAD_SAVE_SECRET_KEYS;
 
-    for (const fpr of fprs) {
-      const fprStr = fpr;
-      let expKey = await this.getKeyHandleByIdentifier(
-        RNPLib.ffi,
-        "0x" + fprStr
-      );
+      const pwCache = {
+        passwords: [],
+      };
 
-      let output_to_memory = new RNPLib.rnp_output_t();
-      if (RNPLib.rnp_output_to_memory(output_to_memory.address(), 0)) {
-        throw new Error("rnp_output_to_memory failed");
-      }
+      for (const fpr of fprs) {
+        const fprStr = fpr;
+        let expKey = await this.getKeyHandleByIdentifier(
+          RNPLib.ffi,
+          "0x" + fprStr
+        );
 
-      if (RNPLib.rnp_key_export(expKey, output_to_memory, exportFlags)) {
-        throw new Error("rnp_key_export failed");
-      }
-      RNPLib.rnp_key_handle_destroy(expKey);
-      expKey = null;
+        let output_to_memory = new RNPLib.rnp_output_t();
+        if (RNPLib.rnp_output_to_memory(output_to_memory.address(), 0)) {
+          throw new Error("rnp_output_to_memory failed");
+        }
 
-      let result_buf = new lazy.ctypes.uint8_t.ptr();
-      const result_len = new lazy.ctypes.size_t();
-      if (
-        RNPLib.rnp_output_memory_get_buf(
-          output_to_memory,
-          result_buf.address(),
-          result_len.address(),
-          false
-        )
-      ) {
-        throw new Error("rnp_output_memory_get_buf failed");
-      }
+        if (RNPLib.rnp_key_export(expKey, output_to_memory, exportFlags)) {
+          throw new Error("rnp_key_export failed");
+        }
+        RNPLib.rnp_key_handle_destroy(expKey);
+        expKey = null;
 
-      let input_from_memory = new RNPLib.rnp_input_t();
-      if (
-        RNPLib.rnp_input_from_memory(
-          input_from_memory.address(),
-          result_buf,
-          result_len,
-          false
-        )
-      ) {
-        throw new Error("rnp_input_from_memory failed");
-      }
-
-      if (
-        RNPLib.rnp_import_keys(tempFFI, input_from_memory, importFlags, null)
-      ) {
-        throw new Error("rnp_import_keys failed");
-      }
-
-      RNPLib.rnp_input_destroy(input_from_memory);
-      RNPLib.rnp_output_destroy(output_to_memory);
-      input_from_memory = null;
-      output_to_memory = null;
-      result_buf = null;
-
-      const tracker = RnpPrivateKeyUnlockTracker.constructFromFingerprint(
-        fprStr,
-        tempFFI
-      );
-      if (!tracker.available()) {
-        tracker.release();
-        continue;
-      }
-
-      tracker.setAllowPromptingUserForPassword(true);
-      tracker.setAllowAutoUnlockWithCachedPasswords(true);
-      tracker.setPasswordCache(pwCache);
-      tracker.setRememberUnlockPassword(true);
-
-      await tracker.unlock();
-      if (!tracker.isUnlocked()) {
-        unlockFailed = true;
-        tracker.release();
-        break;
-      }
-
-      tracker.unprotect();
-      tracker.setPassphrase(backupPassword);
-
-      const sub_count = new lazy.ctypes.size_t();
-      if (
-        RNPLib.rnp_key_get_subkey_count(
-          tracker.getHandle(),
-          sub_count.address()
-        )
-      ) {
-        throw new Error("rnp_key_get_subkey_count failed");
-      }
-      for (let i = 0; i < sub_count.value; i++) {
-        const sub_handle = new RNPLib.rnp_key_handle_t();
+        let result_buf = new lazy.ctypes.uint8_t.ptr();
+        const result_len = new lazy.ctypes.size_t();
         if (
-          RNPLib.rnp_key_get_subkey_at(
-            tracker.getHandle(),
-            i,
-            sub_handle.address()
+          RNPLib.rnp_output_memory_get_buf(
+            output_to_memory,
+            result_buf.address(),
+            result_len.address(),
+            false
           )
         ) {
-          throw new Error("rnp_key_get_subkey_at failed");
+          throw new Error("rnp_output_memory_get_buf failed");
         }
 
-        const subTracker = new RnpPrivateKeyUnlockTracker(sub_handle);
-        if (subTracker.available()) {
-          subTracker.setAllowPromptingUserForPassword(true);
-          subTracker.setAllowAutoUnlockWithCachedPasswords(true);
-          subTracker.setPasswordCache(pwCache);
-          subTracker.setRememberUnlockPassword(true);
+        let input_from_memory = new RNPLib.rnp_input_t();
+        if (
+          RNPLib.rnp_input_from_memory(
+            input_from_memory.address(),
+            result_buf,
+            result_len,
+            false
+          )
+        ) {
+          throw new Error("rnp_input_from_memory failed");
+        }
 
-          await subTracker.unlock();
-          if (!subTracker.isUnlocked()) {
-            unlockFailed = true;
-          } else {
-            subTracker.unprotect();
-            this.ensureECCSubkeyIsGnuPGCompatible(subTracker.getHandle());
-            subTracker.setPassphrase(backupPassword);
+        if (
+          RNPLib.rnp_import_keys(tempFFI, input_from_memory, importFlags, null)
+        ) {
+          throw new Error("rnp_import_keys failed");
+        }
+
+        RNPLib.rnp_input_destroy(input_from_memory);
+        RNPLib.rnp_output_destroy(output_to_memory);
+        input_from_memory = null;
+        output_to_memory = null;
+        result_buf = null;
+
+        const tracker = RnpPrivateKeyUnlockTracker.constructFromFingerprint(
+          fprStr,
+          tempFFI
+        );
+        if (!tracker.available()) {
+          tracker.release();
+          continue;
+        }
+
+        tracker.setAllowPromptingUserForPassword(true);
+        tracker.setAllowAutoUnlockWithCachedPasswords(true);
+        tracker.setPasswordCache(pwCache);
+        tracker.setRememberUnlockPassword(true);
+
+        await tracker.unlock();
+        if (!tracker.isUnlocked()) {
+          unlockFailed = true;
+          tracker.release();
+          break;
+        }
+
+        tracker.unprotect();
+        tracker.setPassphrase(backupPassword);
+
+        const sub_count = new lazy.ctypes.size_t();
+        if (
+          RNPLib.rnp_key_get_subkey_count(
+            tracker.getHandle(),
+            sub_count.address()
+          )
+        ) {
+          throw new Error("rnp_key_get_subkey_count failed");
+        }
+        for (let i = 0; i < sub_count.value; i++) {
+          const sub_handle = new RNPLib.rnp_key_handle_t();
+          if (
+            RNPLib.rnp_key_get_subkey_at(
+              tracker.getHandle(),
+              i,
+              sub_handle.address()
+            )
+          ) {
+            throw new Error("rnp_key_get_subkey_at failed");
+          }
+
+          const subTracker = new RnpPrivateKeyUnlockTracker(sub_handle);
+          if (subTracker.available()) {
+            subTracker.setAllowPromptingUserForPassword(true);
+            subTracker.setAllowAutoUnlockWithCachedPasswords(true);
+            subTracker.setPasswordCache(pwCache);
+            subTracker.setRememberUnlockPassword(true);
+
+            await subTracker.unlock();
+            if (!subTracker.isUnlocked()) {
+              unlockFailed = true;
+            } else {
+              subTracker.unprotect();
+              this.ensureECCSubkeyIsGnuPGCompatible(subTracker.getHandle());
+              subTracker.setPassphrase(backupPassword);
+            }
+          }
+          subTracker.release();
+          if (unlockFailed) {
+            break;
           }
         }
-        subTracker.release();
+
+        if (
+          !unlockFailed &&
+          RNPLib.rnp_key_export(tracker.getHandle(), out_binary, exportFlags)
+        ) {
+          throw new Error("rnp_key_export failed");
+        }
+
+        tracker.release();
         if (unlockFailed) {
           break;
         }
       }
-
-      if (
-        !unlockFailed &&
-        RNPLib.rnp_key_export(tracker.getHandle(), out_binary, exportFlags)
-      ) {
-        throw new Error("rnp_key_export failed");
-      }
-
-      tracker.release();
-      if (unlockFailed) {
-        break;
-      }
+    } finally {
+      RNPLib.rnp_ffi_destroy(tempFFI);
     }
-    RNPLib.rnp_ffi_destroy(tempFFI);
 
     let result = "";
     if (!unlockFailed) {

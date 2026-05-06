@@ -333,6 +333,7 @@ function enableRNPLibJS() {
           this.RNP_SECURITY_INSECURE
         )
       ) {
+        this.rnp_ffi_destroy(ffi);
         return null;
       }
 
@@ -348,6 +349,7 @@ function enableRNPLibJS() {
           this.RNP_SECURITY_DEFAULT
         )
       ) {
+        this.rnp_ffi_destroy(ffi);
         return null;
       }
 
@@ -533,6 +535,7 @@ function enableRNPLibJS() {
         this._sanityCheckSecurityRules();
       } catch (e) {
         // Disable all RNP operation
+        this.rnp_ffi_destroy(this.ffi);
         this.ffi = null;
         throw e;
       }
@@ -559,6 +562,17 @@ function enableRNPLibJS() {
         );
         lazy.setTimeout(RNPLib._fixUnprotectedKeys, 30000);
       }
+      Services.obs.addObserver(
+        {
+          observe() {
+            if (RNPLib.ffi) {
+              RNPLib.rnp_ffi_destroy(RNPLib.ffi);
+              RNPLib.ffi = null;
+            }
+          },
+        },
+        "xpcom-shutdown"
+      );
       return true;
     },
 
