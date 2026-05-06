@@ -2695,13 +2695,17 @@ var detailsPane = {
     });
 
     this.photoInput = document.getElementById("photoInput");
-    // NOTE: We put the paste handler on the button parent because the
-    // html:button will not be targeted by the paste event.
+    // NOTE: Paste is handled on the parent element because the html:button
+    // itself is not a paste target. Since paste may not be dispatched when the
+    // button has focus, also handle Ctrl/Cmd+V explicitly on the button.
     this.photoInput.addEventListener("paste", photoDialog);
     this.photoInput.addEventListener("dragover", photoDialog);
     this.photoInput.addEventListener("drop", photoDialog);
 
     const photoButton = document.getElementById("photoButton");
+    photoButton.addEventListener("keydown", event => {
+      photoDialog._onKeyDown(event);
+    });
     photoButton.addEventListener("click", () => {
       if (this._photoDetails.sourceURL) {
         photoDialog.showWithURL(
@@ -3902,6 +3906,7 @@ var photoDialog = {
     this._dialog.addEventListener("dragover", this);
     this._dialog.addEventListener("drop", this);
     this._dialog.addEventListener("paste", this);
+    this._dialog.addEventListener("keydown", this);
     this._dropTarget.addEventListener("click", event => {
       if (event.button != 0) {
         return;
@@ -4246,6 +4251,9 @@ var photoDialog = {
       case "paste":
         this._onPaste(event);
         break;
+      case "keydown":
+        this._onKeyDown(event);
+        break;
     }
   },
 
@@ -4314,6 +4322,59 @@ var photoDialog = {
       }
     }
     event.preventDefault();
+  },
+
+  // Paste events may not be dispatched when non-editable elements, like the
+  // photo button, have focus.
+  async _onKeyDown(event) {
+    if (
+      event.key.toLowerCase() != "v" ||
+      !(AppConstants.platform == "macosx" ? event.metaKey : event.ctrlKey)
+    ) {
+      return;
+    }
+
+    if (await this._pasteFromClipboard()) {
+      event.preventDefault();
+    }
+  },
+
+  async _pasteFromClipboard() {
+    const transferable = Cc[
+      "@mozilla.org/widget/transferable;1"
+    ].createInstance(Ci.nsITransferable);
+    transferable.init(null);
+    transferable.addDataFlavor("application/x-moz-file");
+    transferable.addDataFlavor("text/plain");
+
+    Services.clipboard.getData(transferable, Ci.nsIClipboard.kGlobalClipboard);
+
+    const data = {};
+
+    try {
+      transferable.getTransferData("application/x-moz-file", data);
+      const file = data.value?.QueryInterface(Ci.nsIFile);
+      if (file) {
+        this.showWithFile(await File.createFromNsIFile(file));
+        return true;
+      }
+    } catch (ex) {
+      // The clipboard does not contain a file.
+    }
+
+    try {
+      transferable.getTransferData("text/plain", data);
+      const value = data.value?.QueryInterface(Ci.nsISupportsString);
+      const url = value?.data;
+      if (url?.startsWith("https://")) {
+        this.showWithURL(url);
+        return true;
+      }
+    } catch (ex) {
+      // The clipboard does not contain text.
+    }
+
+    return false;
   },
 
   /**
