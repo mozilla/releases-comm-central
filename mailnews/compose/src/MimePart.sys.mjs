@@ -190,12 +190,18 @@ export class MimePart {
   }
 
   /**
-   * Use jsmime to convert _headers to string.
+   * Get the headers as a string.
    *
-   * @returns {string}
+   * @param {boolean} [excludeBcc=false] - If true, do not include Bcc.
+   * @returns {string} the headers
    */
-  getHeaderString() {
-    return jsmime.headeremitter.emitStructuredHeaders(this._headers, {
+  getHeaderString(excludeBcc = false) {
+    const headers = new Map(this._headers);
+    if (excludeBcc) {
+      headers.delete("bcc");
+      headers.delete("resent-bcc");
+    }
+    return jsmime.headeremitter.emitStructuredHeaders(headers, {
       useASCII: true,
       sanitizeDate: Services.prefs.getBoolPref(
         "mail.sanitize_date_header",

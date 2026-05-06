@@ -604,15 +604,13 @@ export class MimeMessage {
       }
     }
 
-    const allHdrsStr = curPart.getHeaderString();
-
     // Write out headers, there could be non-ASCII in the headers
     // which we need to encode into UTF-8.
-    this._writeString(allHdrsStr);
+    this._writeString(curPart.getHeaderString());
 
     // Start crypto encapsulation if needed.
     if (depth == 0 && this._composeSecure) {
-      this._startCryptoEncapsulation(allHdrsStr);
+      this._startCryptoEncapsulation(curPart.getHeaderString(true));
     }
 
     // Recursively write out parts.
