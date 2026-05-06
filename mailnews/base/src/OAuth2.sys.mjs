@@ -12,11 +12,11 @@ import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 import { openLinkExternally } from "resource:///modules/LinkHelper.sys.mjs";
 
 const lazy = {};
-ChromeUtils.defineLazyGetter(
-  lazy,
-  "l10n",
-  () => new Localization(["messenger/messenger.ftl"], true)
-);
+ChromeUtils.defineESModuleGetters(lazy, {
+  OAuth2PageGenerator:
+    "moz-src:///comm/mailnews/base/src/OAuth2PageGenerator.sys.mjs",
+  MailStringUtils: "resource:///modules/MailStringUtils.sys.mjs",
+});
 XPCOMUtils.defineLazyPreferenceGetter(
   lazy,
   "useExternalBrowser",
@@ -260,6 +260,23 @@ OAuth2.prototype = {
   },
 
   /**
+   * Check if the redirect URL result should be handled as successful
+   * authorization.
+   *
+   * @param {URL} url - The parsed URL the flow was redirected to.
+   * @returns {boolean} If the URL indicates a successful authorization.
+   */
+  checkResultURL(url) {
+    if (
+      this._authorizationState &&
+      this._authorizationState !== url.searchParams.get("state")
+    ) {
+      return false;
+    }
+    return url.searchParams.has("code");
+  },
+
+  /**
    * @param {string} aURL - Redirection URI with additional parameters.
    */
   onAuthorizationReceived(aURL) {
@@ -276,7 +293,7 @@ OAuth2.prototype = {
       );
       return;
     }
-    if (url.searchParams.has("code")) {
+    if (this.checkResultURL(url)) {
       // @see RFC 6749 section 4.1.2: Authorization Response
       this.requestAccessToken(url.searchParams.get("code"), false);
     } else {
@@ -697,12 +714,14 @@ class ExternalRequest {
         if (!this._outputStream) {
           return;
         }
-        const response =
+        const response = lazy.MailStringUtils.stringToByteString(
           `HTTP/1.1 ${statusLine}\r\n` +
-          "Content-Type: text/html; charset=utf-8\r\n" +
-          "Cache-Control: no-store\r\n" +
-          "Connection: close\r\n\r\n" +
-          body;
+            "Content-Type: text/html; charset=utf-8\r\n" +
+            "Content-Security-Policy: default-src 'none'; img-src data:; style-src 'unsafe-inline'\r\n" +
+            "Cache-Control: no-store\r\n" +
+            "Connection: close\r\n\r\n" +
+            body
+        );
         this._outputStream.write(response, response.length);
 
         // Cleanly close after the first response to ensure it's fully flushed.
@@ -715,12 +734,23 @@ class ExternalRequest {
           return;
         }
         this._receivedRequest = true;
-        this._respond(
-          "200 OK",
-          `<!doctype html><html><body>${lazy.l10n.formatValueSync(
-            "oauth2-loopback-success"
-          )}</body></html>`
-        );
+
+        // If this will be treated as an error by onAuthorizationRecevied, show
+        // the error page instead of the success page.
+        const parsedUrl = new URL(url);
+        if (this._oauth.checkResultURL(parsedUrl)) {
+          lazy.OAuth2PageGenerator.generateSuccessPage()
+            .then(pageSource => {
+              this._respond("200 OK", pageSource);
+            })
+            .catch(error => log.error(error));
+        } else {
+          lazy.OAuth2PageGenerator.generateErrorPage()
+            .then(pageSource => {
+              this._respond("200 OK", pageSource);
+            })
+            .catch(error => log.error(error));
+        }
         Services.tm.dispatchToMainThread(() => {
           this._oauth.finishAuthorizationRequest();
           this._oauth.onAuthorizationReceived(url);
@@ -732,12 +762,11 @@ class ExternalRequest {
           return;
         }
         this._receivedRequest = true;
-        this._respond(
-          "400 Bad Request",
-          `<!doctype html><html><body>${lazy.l10n.formatValueSync(
-            "oauth2-loopback-failure"
-          )}</body></html>`
-        );
+        lazy.OAuth2PageGenerator.generateErrorPage()
+          .then(pageSource => {
+            this._respond("400 Bad Request", pageSource);
+          })
+          .catch(error => log.error(error));
         Services.tm.dispatchToMainThread(() => {
           this._oauth.finishAuthorizationRequest();
           this._oauth.onAuthorizationFailed(

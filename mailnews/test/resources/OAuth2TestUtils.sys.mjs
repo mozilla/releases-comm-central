@@ -16,6 +16,7 @@ import { MockExternalProtocolService } from "resource://testing-common/mailnews/
 import { TestUtils } from "resource://testing-common/TestUtils.sys.mjs";
 
 import { OAuth2Module } from "resource:///modules/OAuth2Module.sys.mjs";
+import { OAuth2PageGenerator } from "moz-src:///comm/mailnews/base/src/OAuth2PageGenerator.sys.mjs";
 
 /**
  * Map, but values are removed as they are retrieved. For items that should
@@ -130,16 +131,19 @@ export const OAuth2TestUtils = {
    *
    * @param {string} url
    * @param {object} options
-   * @param {string} [options.expectedHint] - If given, the login_hint URL parameter
+   * @param {string} [options.expectedHint] - If given, the login_hint URL
+   *   parameter
    * @param {string} [options.expectedScope] - If given, the scope URL parameter
    *   will be checked. A space-separated list.
    * @param {string} options.username - The username to use to log in.
    * @param {string} options.password - The password to use to log in.
-   * @param {string} [options.grantedScope] - A subset of `expectedScope` to grant
-   *   permission for. If not given, all scopes will be allowed. If an empty string,
-   *   no scopes will be allowed.
+   * @param {string} [options.grantedScope] - A subset of `expectedScope` to
+   *   grant permission for. If not given, all scopes will be allowed. If an
+   *   empty string, no scopes will be allowed.
    * @param {string} [options.callbackState] - If given, override the state sent
    *   to the callback listener. Useful for negative tests.
+   * @param {boolean} [options.expectSuccess=true] - Whether the request
+   *   should result in the success page.
    */
   async submitOAuthURL(
     url,
@@ -150,6 +154,7 @@ export const OAuth2TestUtils = {
       password,
       grantedScope,
       callbackState,
+      expectSuccess = true,
     }
   ) {
     const authURL = new URL(url);
@@ -215,6 +220,16 @@ export const OAuth2TestUtils = {
       new URL(authorizeResponse.url).origin,
       redirectURI.origin,
       "authorization should redirect to the callback listener"
+    );
+
+    const source = await authorizeResponse.text();
+    const resultPageSource = await (expectSuccess
+      ? OAuth2PageGenerator.generateSuccessPage()
+      : OAuth2PageGenerator.generateErrorPage());
+    Assert.equal(
+      source,
+      resultPageSource,
+      "Should return the expected result page"
     );
 
     // At this point the browser is displaying a message to close the tab and

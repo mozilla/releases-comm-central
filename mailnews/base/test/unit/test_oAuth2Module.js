@@ -11,6 +11,9 @@ const { OAuth2TestUtils } = ChromeUtils.importESModule(
 const { setTimeout } = ChromeUtils.importESModule(
   "resource://gre/modules/Timer.sys.mjs"
 );
+const { OAuth2PageGenerator } = ChromeUtils.importESModule(
+  "moz-src:///comm/mailnews/base/src/OAuth2PageGenerator.sys.mjs"
+);
 
 /**
  * Tests that refresh tokens are correctly retrieved from the login manager.
@@ -946,6 +949,7 @@ add_task(async function testExternalRequestRejectsMismatchedState() {
       username: "user",
       password: "password",
       callbackState: "mismatched-state",
+      expectSuccess: false,
     });
     const error = await deferred.promise;
 
@@ -984,6 +988,70 @@ add_task(async function testExternalRequestRejectsMismatchedState() {
       issuer: "external.test",
       reason: "no refresh token",
       result: "state mismatch",
+      where: "external",
+    },
+  ]);
+});
+
+add_task(async function testExternalRequestToInvalidEndpoint() {
+  Services.fog.testResetFOG();
+  Services.prefs.setBoolPref("mailnews.oauth.useExternalBrowser", true);
+  await OAuth2TestUtils.startServer();
+
+  try {
+    const mod = new OAuth2Module();
+    Assert.ok(
+      mod.initFromHostname("external.test", "romeo@foo.invalid", "imap"),
+      "external.test should initialize for OAuth"
+    );
+
+    const externalOAuthURL = OAuth2TestUtils.promiseExternalOAuthURL();
+    const deferred = Promise.withResolvers();
+    mod.connect(true, {
+      onSuccess: () => deferred.reject(new Error("connect should fail")),
+      onFailure: deferred.resolve,
+    });
+
+    const url = await externalOAuthURL;
+    const redirectURI = new URL(new URL(url).searchParams.get("redirect_uri"));
+    Assert.equal(
+      redirectURI.hostname,
+      "localhost",
+      "Redirect URI should be a localhost URL"
+    );
+
+    const errorReponse = await fetch(
+      `${redirectURI.protocol}//${redirectURI.hostname}:${redirectURI.port}/testError`,
+      {
+        method: "POST",
+      }
+    );
+    Assert.equal(errorReponse.status, 400, "Should get an error code");
+    const responseContent = await errorReponse.text();
+    Assert.equal(
+      responseContent,
+      await OAuth2PageGenerator.generateErrorPage(),
+      "Should get the error page content"
+    );
+
+    const error = await deferred.promise;
+
+    Assert.equal(
+      error,
+      Cr.NS_ERROR_ABORT,
+      "Should result in authorization failure"
+    );
+  } finally {
+    await Services.logins.removeAllLoginsAsync();
+    OAuth2TestUtils.forgetObjects();
+    OAuth2TestUtils.stopServer();
+    Services.prefs.clearUserPref("mailnews.oauth.useExternalBrowser");
+  }
+  OAuth2TestUtils.checkTelemetry([
+    {
+      issuer: "external.test",
+      reason: "no refresh token",
+      result: "authorization failed",
       where: "external",
     },
   ]);

@@ -85,6 +85,7 @@ messenger.jar:
     content/messenger/junkLog.xhtml                                            (base/content/junkLog.xhtml)
     content/messenger/junkLog.js                                               (base/content/junkLog.js)
     content/messenger/jsTreeView.js                                            (base/content/jsTreeView.js)
+*   content/messenger/oauthResult.html                                         (base/content/oauthResult.html)
     content/messenger/searchTerm.js                                            (search/content/searchTerm.js)
     content/messenger/CustomHeaders.xhtml                                      (search/content/CustomHeaders.xhtml)
     content/messenger/CustomHeaders.js                                         (search/content/CustomHeaders.js)

@@ -153,6 +153,10 @@ EXTRA_JS_MODULES += [
     "WinUnreadBadge.sys.mjs",
 ]
 
+MOZ_SRC_FILES += [
+    "OAuth2PageGenerator.sys.mjs",
+]
+
 USE_LIBS += [
     "jsoncpp",
 ]
