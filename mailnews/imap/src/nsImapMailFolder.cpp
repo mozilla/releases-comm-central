@@ -2684,6 +2684,9 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxStatus(
   ImapUid prevNextUID = m_nextUID;
   aSpec->GetNextUID(&m_nextUID);
   bool summaryChanged = false;
+  // If a noop occurred, we don't know the server's UNSEEN number because NOOP
+  // does not return it. The next STATUS call response will provide numUnread.
+  bool haveServerUnseenCount = numUnread != -1;
 
   // If m_numServerUnseenMessages is 0, it means
   // this is the first time we've done a Status.
@@ -2695,25 +2698,28 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxStatus(
       (m_numServerUnseenMessages)
           ? m_numServerUnseenMessages
           : mNumPendingUnreadMessages + mNumUnreadMessages;
-  if (numUnread == -1) {
-    // A noop occurred so don't know server's UNSEEN number, keep using the
-    // previously known unread count.
+  if (!haveServerUnseenCount) {
+    // Keep using the previously known unread count.
     MOZ_LOG(IMAP, mozilla::LogLevel::Debug,
             ("%s: folder=%s, unread was -1, set numUnread to previousUnread=%d",
              __func__, m_onlineFolderName.get(), previousUnreadMessages));
     numUnread = previousUnreadMessages;
   }
   if (numUnread != previousUnreadMessages || m_nextUID != prevNextUID) {
-    int32_t unreadDelta =
-        numUnread - (mNumPendingUnreadMessages + mNumUnreadMessages);
-    if (numUnread - previousUnreadMessages != unreadDelta)
-      NS_WARNING("unread count should match server count");
-    ChangeNumPendingUnread(unreadDelta);
-    if (unreadDelta > 0 &&
-        !(mFlags & (nsMsgFolderFlags::Trash | nsMsgFolderFlags::Junk))) {
-      SetHasNewMessages(true);
-      SetNumNewMessages(unreadDelta);
-      SetBiffState(nsMsgBiffState_NewMail);
+    // Without a fresh server UNSEEN count, the pending-unread delta is
+    // meaningless.
+    if (haveServerUnseenCount) {
+      int32_t unreadDelta =
+          numUnread - (mNumPendingUnreadMessages + mNumUnreadMessages);
+      if (numUnread - previousUnreadMessages != unreadDelta)
+        NS_WARNING("unread count should match server count");
+      ChangeNumPendingUnread(unreadDelta);
+      if (unreadDelta > 0 &&
+          !(mFlags & (nsMsgFolderFlags::Trash | nsMsgFolderFlags::Junk))) {
+        SetHasNewMessages(true);
+        SetNumNewMessages(unreadDelta);
+        SetBiffState(nsMsgBiffState_NewMail);
+      }
     }
     summaryChanged = true;
   }
