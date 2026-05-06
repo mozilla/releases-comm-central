@@ -12,21 +12,6 @@ const { formatUTMParams } = ChromeUtils.importESModule(
   "chrome://mozapps/content/extensions/aboutaddons-utils.mjs"
 );
 
-let { getScreenshotUrlForAddon } = ChromeUtils.importESModule(
-  "chrome://mozapps/content/extensions/aboutaddons-utils.mjs"
-);
-
-const THUNDERBIRD_THEME_PREVIEWS = new Map([
-  [
-    "thunderbird-compact-light@mozilla.org",
-    "resource://builtin-themes/light/preview.svg",
-  ],
-  [
-    "thunderbird-compact-dark@mozilla.org",
-    "resource://builtin-themes/dark/preview.svg",
-  ],
-]);
-
 ChromeUtils.defineESModuleGetters(this, {
   AddonRepository: "resource://gre/modules/addons/AddonRepository.sys.mjs",
   parseManifest: "resource:///modules/ExtensionUtilities.sys.mjs",
@@ -75,15 +60,6 @@ function getBrowserElement() {
   contentStylesheet.rel = "stylesheet";
   contentStylesheet.href = "chrome://messenger/skin/aboutExtra.css";
   document.head.appendChild(contentStylesheet);
-
-  // Load our theme screenshots.
-  const _getScreenshotUrlForAddon = getScreenshotUrlForAddon;
-  getScreenshotUrlForAddon = function (addon) {
-    if (THUNDERBIRD_THEME_PREVIEWS.has(addon.id)) {
-      return THUNDERBIRD_THEME_PREVIEWS.get(addon.id);
-    }
-    return _getScreenshotUrlForAddon(addon);
-  };
 
   // Add logic to detect add-ons using the unsupported legacy API or suppressed
   // Experiments.
