@@ -3529,17 +3529,13 @@ nsresult nsMsgDBView::GetCollationKey(nsIMsgDBHdr* msgHdr,
   NS_ENSURE_ARG_POINTER(msgHdr);
 
   switch (sortType) {
-    case nsMsgViewSortType::bySubject: {
-      uint32_t flags;
-      msgHdr->GetFlags(&flags);
-      rv = FetchSubject(msgHdr, flags, result);
+    case nsMsgViewSortType::bySubject:
+      rv = msgHdr->GetMime2DecodedSubject(result);
       break;
-    }
     case nsMsgViewSortType::byLocation:
       rv = GetLocationCollationKey(msgHdr, result);
       break;
     case nsMsgViewSortType::byRecipient: {
-      nsString recipients;
       rv = FetchRecipients(msgHdr, result);
       break;
     }
