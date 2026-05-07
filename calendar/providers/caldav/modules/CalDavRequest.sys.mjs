@@ -212,6 +212,11 @@ class CalDavRequestBase {
 
     // If any other header is used, it should be added here. We might want
     // to just copy all headers over to the new channel.
+    if (aOldChannel.URI.prePath == aNewChannel.URI.prePath) {
+      // Don't send the Authorization header to another server. Ask for
+      // authorization again.
+      copyHeader("Authorization");
+    }
     copyHeader("Depth");
     copyHeader("Originator");
     copyHeader("Recipient");
@@ -220,9 +225,7 @@ class CalDavRequestBase {
     copyHeader("Accept");
 
     aNewChannel.requestMethod = aOldChannel.requestMethod;
-    this.session.prepareRedirect(aOldChannel, aNewChannel).then(() => {
-      aCallback.onRedirectVerifyCallback(Cr.NS_OK);
-    });
+    aCallback.onRedirectVerifyCallback(Cr.NS_OK);
   }
 }
 

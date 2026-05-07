@@ -86,28 +86,6 @@ export class CalDavSession {
       aChannel.setRequestHeader("Authorization", `Bearer ${accessToken}`, false);
     }
   }
-
-  /**
-   * Prepare the given new channel for a redirect, e.g. copying headers.
-   *
-   * @param {nsIChannel} aOldChannel - The old channel that is being redirected
-   * @param {nsIChannel} aNewChannel - The new channel to prepare
-   * @returns {Promise} A promise resolved when the preparations are complete
-   */
-  async prepareRedirect(aOldChannel, aNewChannel) {
-    try {
-      const hdrValue = aOldChannel.getRequestHeader("Authorization");
-      if (hdrValue) {
-        aNewChannel.setRequestHeader("Authorization", hdrValue, false);
-      }
-    } catch (e) {
-      if (e.result != Cr.NS_ERROR_NOT_AVAILABLE) {
-        // The header could possibly not be available, ignore that
-        // case but throw otherwise.
-        throw e;
-      }
-    }
-  }
 }
 
 /**

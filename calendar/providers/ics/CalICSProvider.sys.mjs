@@ -212,7 +212,6 @@ class ICSDetectionSession {
 
   /** @see {CalDavSession} */
   async prepareRequest() {}
-  async prepareRedirect() {}
   async completeRequest() {}
 }
 

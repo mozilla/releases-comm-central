@@ -701,7 +701,11 @@ export class NotificationCallbacks {
 
     // If any other header is used, it should be added here. We might want
     // to just copy all headers over to the new channel.
-    copyHeader("Authorization");
+    if (oldChannel.URI.prePath == newChannel.URI.prePath) {
+      // Don't send the Authorization header to another server. Ask for
+      // authorization again.
+      copyHeader("Authorization");
+    }
     copyHeader("Depth");
     copyHeader("Originator");
     copyHeader("Recipient");
