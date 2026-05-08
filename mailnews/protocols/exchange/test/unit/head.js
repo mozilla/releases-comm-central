@@ -58,7 +58,7 @@ function setupBasicEwsTestServer({ version = "Exchange2013" }) {
     "user",
     "password"
   );
-  incomingServer.QueryInterface(Ci.IEwsIncomingServer);
+  incomingServer.QueryInterface(Ci.IExchangeIncomingServer);
   incomingServer.setStringValue(
     "ews_url",
     `http://127.0.0.1:${ewsServer.port}/EWS/Exchange.asmx`
@@ -66,7 +66,7 @@ function setupBasicEwsTestServer({ version = "Exchange2013" }) {
 
   registerCleanupFunction(async () => {
     incomingServer.shutdown();
-    incomingServer.QueryInterface(Ci.IEwsIncomingServer);
+    incomingServer.QueryInterface(Ci.IExchangeIncomingServer);
     await TestUtils.waitForCondition(
       () => !incomingServer.protocolClientRunning,
       "waiting for the EWS client to shut down"
@@ -98,7 +98,7 @@ function setupBasicGraphTestServer() {
     "user",
     "password"
   );
-  incomingServer.QueryInterface(Ci.IEwsIncomingServer);
+  incomingServer.QueryInterface(Ci.IExchangeIncomingServer);
   incomingServer.setStringValue(
     "ews_url",
     `http://127.0.0.1:${graphServer.port}/`
@@ -106,7 +106,7 @@ function setupBasicGraphTestServer() {
 
   registerCleanupFunction(async () => {
     incomingServer.shutdown();
-    incomingServer.QueryInterface(Ci.IEwsIncomingServer);
+    incomingServer.QueryInterface(Ci.IExchangeIncomingServer);
     await TestUtils.waitForCondition(
       () => !incomingServer.protocolClientRunning,
       "waiting for the Graph client to shut down"

@@ -9,10 +9,10 @@ interface IExchangeSimpleOperationListener;
 interface nsIMsgWindow;
 
 /**
- * IEwsIncomingServer is intended as a workaround for limitations in the folder
+ * IExchangeIncomingServer is intended as a workaround for limitations in the folder
  * lookup service.
  *
- * EWS folders require an EWS client object in order to fetch new messages. The
+ * Exchange folders require an Exchange client object in order to fetch new messages. The
  * folder itself, however, does not have access to all of the details needed to
  * create such a client. This information is part of the incoming server.
  *
@@ -21,7 +21,7 @@ interface nsIMsgWindow;
  * we are forced to go through XPCOM.
  */
 [scriptable, uuid(3b22cadc-da49-11ee-99b2-b42e99ed15ca)]
-interface IEwsIncomingServer : nsISupports
+interface IExchangeIncomingServer : nsISupports
 {
   /**
    * Whether the protocol client is currently running.
@@ -47,26 +47,26 @@ interface IEwsIncomingServer : nsISupports
    */
   IExchangeClient getProtocolClient();
 
-  /** The URL for the EWS Server */
-  attribute AUTF8String ewsUrl;
+  /** The URL for the Exchange Server */
+  attribute AUTF8String exchangeUrl;
 
   /** Whether or not to override default OAuth issuer details. */
-  attribute boolean ewsOverrideOAuthDetails;
+  attribute boolean exchangeOverrideOAuthDetails;
 
   /** Override value for the application (client) ID. */
-  attribute AUTF8String ewsApplicationId;
+  attribute AUTF8String exchangeApplicationId;
 
   /** Override value for the tenant ID. */
-  attribute AUTF8String ewsTenantId;
+  attribute AUTF8String exchangeTenantId;
 
   /** Override value for the redirect URI. */
-  attribute AUTF8String ewsRedirectUri;
+  attribute AUTF8String exchangeRedirectUri;
 
   /** Override value for the endpoint host. */
-  attribute AUTF8String ewsEndpointHost;
+  attribute AUTF8String exchangeEndpointHost;
 
   /** Override value for OAuth scopes. */
-  attribute AUTF8String ewsOAuthScopes;
+  attribute AUTF8String exchangeOAuthScopes;
 
   /**
    * An enumeration of what to do when we delete an item.
@@ -83,7 +83,7 @@ interface IEwsIncomingServer : nsISupports
   };
 
   /** The action to be taken upon message delete. */
-  attribute IEwsIncomingServer_DeleteModel deleteModel;
+  attribute IExchangeIncomingServer_DeleteModel deleteModel;
   /** The server path to use as the trash folder. */
   attribute AUTF8String trashFolderPath;
 

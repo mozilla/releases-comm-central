@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "EwsIncomingServer.h"
+#include "ExchangeIncomingServer.h"
 
 #include <utility>
 
 #include "ExchangeFolder.h"
 #include "EwsListeners.h"
-#include "EwsOAuth2CustomDetails.h"
+#include "ExchangeOAuth2CustomDetails.h"
 #include "IExchangeClient.h"
 #include "nsIMsgFolderNotificationService.h"
 #include "nsIFeedbackService.h"
@@ -32,11 +32,11 @@ constexpr auto kSyncStateTokenProperty = "ewsSyncStateToken";
 
 namespace {
 
-class EwsBiffUrlListener : public nsIUrlListener {
+class ExchangeBiffUrlListener : public nsIUrlListener {
  public:
-  static nsresult ForFolders(RefPtr<EwsIncomingServer> server,
+  static nsresult ForFolders(RefPtr<ExchangeIncomingServer> server,
                              nsTArray<RefPtr<nsIMsgFolder>> folders,
-                             EwsBiffUrlListener** newListener) {
+                             ExchangeBiffUrlListener** newListener) {
     NS_ENSURE_ARG_POINTER(newListener);
     nsresult rv = NS_OK;
     nsTArray<nsCString> uris(folders.Length());
@@ -47,8 +47,8 @@ class EwsBiffUrlListener : public nsIUrlListener {
       uris.AppendElement(std::move(folderUri));
     }
 
-    RefPtr<EwsBiffUrlListener> listener =
-        new EwsBiffUrlListener(std::move(server), std::move(uris));
+    RefPtr<ExchangeBiffUrlListener> listener =
+        new ExchangeBiffUrlListener(std::move(server), std::move(uris));
     listener.forget(newListener);
     return NS_OK;
   }
@@ -57,29 +57,29 @@ class EwsBiffUrlListener : public nsIUrlListener {
   NS_DECL_NSIURLLISTENER;
 
  protected:
-  virtual ~EwsBiffUrlListener() = default;
+  virtual ~ExchangeBiffUrlListener() = default;
 
  private:
-  EwsBiffUrlListener(RefPtr<EwsIncomingServer> server,
-                     nsTArray<nsCString> syncFolderUris)
+  ExchangeBiffUrlListener(RefPtr<ExchangeIncomingServer> server,
+                          nsTArray<nsCString> syncFolderUris)
       : mServer(std::move(server)) {
     for (auto&& folderUri : syncFolderUris) {
       mCompletionStates.InsertOrUpdate(folderUri, false);
     }
   }
 
-  RefPtr<EwsIncomingServer> mServer;
+  RefPtr<ExchangeIncomingServer> mServer;
   nsTHashMap<nsCString, bool> mCompletionStates;
 };
 
-NS_IMPL_ISUPPORTS(EwsBiffUrlListener, nsIUrlListener);
+NS_IMPL_ISUPPORTS(ExchangeBiffUrlListener, nsIUrlListener);
 
-NS_IMETHODIMP EwsBiffUrlListener::OnStartRunningUrl(nsIURI* uri) {
+NS_IMETHODIMP ExchangeBiffUrlListener::OnStartRunningUrl(nsIURI* uri) {
   return NS_OK;
 }
 
-NS_IMETHODIMP EwsBiffUrlListener::OnStopRunningUrl(nsIURI* uri,
-                                                   nsresult exitCode) {
+NS_IMETHODIMP ExchangeBiffUrlListener::OnStopRunningUrl(nsIURI* uri,
+                                                        nsresult exitCode) {
   nsAutoCString uriString;
   nsresult rv = uri->GetSpec(uriString);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -105,25 +105,25 @@ NS_IMETHODIMP EwsBiffUrlListener::OnStopRunningUrl(nsIURI* uri,
 
 }  // namespace
 
-NS_IMPL_ADDREF_INHERITED(EwsIncomingServer, nsMsgIncomingServer)
-NS_IMPL_RELEASE_INHERITED(EwsIncomingServer, nsMsgIncomingServer)
-NS_IMPL_QUERY_HEAD(EwsIncomingServer)
-NS_IMPL_QUERY_BODY(IEwsIncomingServer)
+NS_IMPL_ADDREF_INHERITED(ExchangeIncomingServer, nsMsgIncomingServer)
+NS_IMPL_RELEASE_INHERITED(ExchangeIncomingServer, nsMsgIncomingServer)
+NS_IMPL_QUERY_HEAD(ExchangeIncomingServer)
+NS_IMPL_QUERY_BODY(IExchangeIncomingServer)
 NS_IMPL_QUERY_TAIL_INHERITING(nsMsgIncomingServer)
 
-EwsIncomingServer::EwsIncomingServer() = default;
+ExchangeIncomingServer::ExchangeIncomingServer() = default;
 
-EwsIncomingServer::~EwsIncomingServer() {}
+ExchangeIncomingServer::~ExchangeIncomingServer() {}
 
 /**
  * Creates a new folder with the specified parent, name, and flags.
  *
- * If a folder with the specified EWS ID already exists, then succeed without
- * creating the folder, assuming the folder has already been created locally and
- * we are processing the corresponding EWS message. If a folder with the same
- * name, but a different EWS ID exists, then return an error.
+ * If a folder with the specified Exchange ID already exists, then succeed
+ * without creating the folder, assuming the folder has already been created
+ * locally and we are processing the corresponding Exchange message. If a folder
+ * with the same name, but a different Exchange ID exists, then return an error.
  */
-nsresult EwsIncomingServer::MaybeCreateFolderWithDetails(
+nsresult ExchangeIncomingServer::MaybeCreateFolderWithDetails(
     const nsACString& id, const nsACString& parentId, const nsACString& name,
     uint32_t flags) {
   // Check to see if a folder with the same id already exists.
@@ -134,7 +134,7 @@ nsresult EwsIncomingServer::MaybeCreateFolderWithDetails(
     // created locally. This can happen during the normal course of operations,
     // including the most common case in which the user uses thunderbird to
     // create a folder and the next sync includes the record of folder creation
-    // from EWS.
+    // from Exchange.
     return NS_OK;
   }
 
@@ -144,9 +144,9 @@ nsresult EwsIncomingServer::MaybeCreateFolderWithDetails(
 
   // Check that the parent doesn't already contain a folder with the requested
   // name. In the case where we have a folder with a duplicate name, but either
-  // a differing or no EWS ID, we can't sync with the server since the server
-  // believes that a folder with the requested name should map to the requested
-  // EWS ID, so we signal an error.
+  // a differing or no Exchange ID, we can't sync with the server since the
+  // server believes that a folder with the requested name should map to the
+  // requested Exchange ID, so we signal an error.
   bool containsChildWithRequestedName;
   rv = parent->ContainsChildNamed(name, &containsChildWithRequestedName);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -165,8 +165,8 @@ nsresult EwsIncomingServer::MaybeCreateFolderWithDetails(
   rv = msgStore->CreateFolder(parent, name, getter_AddRefs(newFolder));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // Record the EWS ID of the folder so that we can translate between local path
-  // and remote ID when needed.
+  // Record the Exchange ID of the folder so that we can translate between local
+  // path and remote ID when needed.
   rv = newFolder->SetStringProperty(kExchangeIdProperty, id);
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -197,10 +197,9 @@ nsresult EwsIncomingServer::MaybeCreateFolderWithDetails(
   return NS_OK;
 }
 
-nsresult EwsIncomingServer::UpdateFolderWithDetails(const nsACString& id,
-                                                    const nsACString& parentId,
-                                                    const nsACString& name,
-                                                    nsIMsgWindow* msgWindow) {
+nsresult ExchangeIncomingServer::UpdateFolderWithDetails(
+    const nsACString& id, const nsACString& parentId, const nsACString& name,
+    nsIMsgWindow* msgWindow) {
   nsCOMPtr<nsIMsgFolder> folder;
   nsresult rv = FindFolderWithId(id, getter_AddRefs(folder));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -231,9 +230,9 @@ nsresult EwsIncomingServer::UpdateFolderWithDetails(const nsACString& id,
 }
 
 /**
- * Deletes the folder with the given remote EWS id.
+ * Deletes the folder with the given remote Exchange id.
  */
-nsresult EwsIncomingServer::DeleteFolderWithId(const nsACString& id) {
+nsresult ExchangeIncomingServer::DeleteFolderWithId(const nsACString& id) {
   nsCOMPtr<nsIMsgFolder> folder;
   nsresult rv = FindFolderWithId(id, getter_AddRefs(folder));
   // If we found the folder locally, then delete it. Otherwise, assume it's
@@ -256,14 +255,14 @@ nsresult EwsIncomingServer::DeleteFolderWithId(const nsACString& id) {
 }
 
 /**
- * Locates the folder associated with this server which has the remote (EWS)
- * ID specified, if any.
+ * Locates the folder associated with this server which has the remote
+ * (Exchange) ID specified, if any.
  *
  * This function returns `NS_OK` if, and only if, the folder with the specified
  * `id` is found.
  */
-nsresult EwsIncomingServer::FindFolderWithId(const nsACString& id,
-                                             nsIMsgFolder** _retval) {
+nsresult ExchangeIncomingServer::FindFolderWithId(const nsACString& id,
+                                                  nsIMsgFolder** _retval) {
   // Fail by default; only return success if we actually find the folder we're
   // looking for.
   nsresult failureStatus{NS_MSG_ERROR_FOLDER_MISSING};
@@ -280,7 +279,7 @@ nsresult EwsIncomingServer::FindFolderWithId(const nsACString& id,
     nsTArray<RefPtr<nsIMsgFolder>> nextFoldersToScan;
 
     for (auto folder : foldersToScan) {
-      // EWS folder ID is stored as a custom property in the folder store.
+      // Exchange folder ID is stored as a custom property in the folder store.
       nsCString folderId;
       rv = folder->GetStringProperty(kExchangeIdProperty, folderId);
 
@@ -291,9 +290,9 @@ nsresult EwsIncomingServer::FindFolderWithId(const nsACString& id,
       }
 
       if (NS_FAILED(rv)) {
-        // Every EWS folder should have an EWS ID, so we've hit a bug either in
-        // recording the IDs on folder creation or in retrieving them from
-        // storage.
+        // Every Exchange folder should have an Exchange ID, so we've hit a bug
+        // either in recording the IDs on folder creation or in retrieving them
+        // from storage.
 
         // We don't want to fail now in case a properly-constructed subfolder
         // matches the requested ID. Note the failure in case we don't find a
@@ -333,11 +332,11 @@ nsresult EwsIncomingServer::FindFolderWithId(const nsACString& id,
   return failureStatus;
 }
 
-NS_IMETHODIMP EwsIncomingServer::GetPort(int32_t* aPort) {
+NS_IMETHODIMP ExchangeIncomingServer::GetPort(int32_t* aPort) {
   NS_ENSURE_ARG_POINTER(aPort);
 
   nsCString ewsURL;
-  nsresult rv = GetEwsUrl(ewsURL);
+  nsresult rv = GetExchangeUrl(ewsURL);
   NS_ENSURE_SUCCESS(rv, rv);
 
   int32_t port = -1;
@@ -368,7 +367,7 @@ NS_IMETHODIMP EwsIncomingServer::GetPort(int32_t* aPort) {
   return NS_OK;
 }
 
-NS_IMETHODIMP EwsIncomingServer::SyncFolderHierarchy(
+NS_IMETHODIMP ExchangeIncomingServer::SyncFolderHierarchy(
     IExchangeSimpleOperationListener* listener, nsIMsgWindow* window) {
   const auto refListener = RefPtr{listener};
   return SyncFolderList(window, [refListener]() {
@@ -376,9 +375,9 @@ NS_IMETHODIMP EwsIncomingServer::SyncFolderHierarchy(
   });
 }
 
-nsresult EwsIncomingServer::SyncFolderList(
+nsresult ExchangeIncomingServer::SyncFolderList(
     nsIMsgWindow* aMsgWindow, std::function<nsresult()> postSyncCallback) {
-  // EWS provides us an opaque value which specifies the last version of
+  // Exchange provides us an opaque value which specifies the last version of
   // upstream folders we received. Provide that to simplify sync.
   nsCString syncStateToken;
   nsresult rv = GetStringValue(kSyncStateTokenProperty, syncStateToken);
@@ -485,14 +484,14 @@ nsresult EwsIncomingServer::SyncFolderList(
   return client->SyncFolderHierarchy(listener, syncStateToken);
 }
 
-nsresult EwsIncomingServer::SyncFolders(
+nsresult ExchangeIncomingServer::SyncFolders(
     const nsTArray<RefPtr<nsIMsgFolder>>& folders, nsIMsgWindow* aMsgWindow,
     nsIUrlListener* urlListener) {
   // TODO: For now, we sync every folder at once, but obviously that's not an
   // amazing solution. In the future, we should probably try to maintain some
   // kind of queue so we can properly batch and sync folders. In the meantime,
-  // though, the EWS client should handle any kind of rate limiting well enough,
-  // so this improvement can come later.
+  // though, the Exchange client should handle any kind of rate limiting well
+  // enough, so this improvement can come later.
   for (const auto& folder : folders) {
     nsresult rv = folder->GetNewMessages(aMsgWindow, urlListener);
     if (NS_FAILED(rv)) {
@@ -508,8 +507,8 @@ nsresult EwsIncomingServer::SyncFolders(
   return NS_OK;
 }
 
-nsresult EwsIncomingServer::SyncAllFolders(nsIMsgWindow* aMsgWindow,
-                                           nsIUrlListener* urlListener) {
+nsresult ExchangeIncomingServer::SyncAllFolders(nsIMsgWindow* aMsgWindow,
+                                                nsIUrlListener* urlListener) {
   nsCOMPtr<nsIMsgFolder> rootFolder;
   MOZ_TRY(GetRootFolder(getter_AddRefs(rootFolder)));
 
@@ -519,7 +518,7 @@ nsresult EwsIncomingServer::SyncAllFolders(nsIMsgWindow* aMsgWindow,
   return SyncFolders(msgFolders, aMsgWindow, urlListener);
 }
 
-NS_IMETHODIMP EwsIncomingServer::GetPassword(nsAString& password) {
+NS_IMETHODIMP ExchangeIncomingServer::GetPassword(nsAString& password) {
   nsMsgAuthMethodValue authMethod;
   MOZ_TRY(GetAuthMethod(&authMethod));
 
@@ -536,11 +535,11 @@ NS_IMETHODIMP EwsIncomingServer::GetPassword(nsAString& password) {
   return nsMsgIncomingServer::GetPassword(password);
 }
 
-NS_IMETHODIMP EwsIncomingServer::GetLocalStoreType(
+NS_IMETHODIMP ExchangeIncomingServer::GetLocalStoreType(
     nsACString& aLocalStoreType) {
   if (StaticPrefs::mail_graph_enabled()) {
-    // For EWS and graph, the local store type is the same value as the server
-    // type.
+    // For Exchange and graph, the local store type is the same value as the
+    // server type.
     return GetType(aLocalStoreType);
   }
 
@@ -548,30 +547,30 @@ NS_IMETHODIMP EwsIncomingServer::GetLocalStoreType(
   return NS_OK;
 }
 
-NS_IMETHODIMP EwsIncomingServer::GetLocalDatabaseType(
+NS_IMETHODIMP ExchangeIncomingServer::GetLocalDatabaseType(
     nsACString& aLocalDatabaseType) {
   aLocalDatabaseType.AssignLiteral("mailbox");
 
   return NS_OK;
 }
 
-NS_IMETHODIMP EwsIncomingServer::GetCanBeDefaultServer(
+NS_IMETHODIMP ExchangeIncomingServer::GetCanBeDefaultServer(
     bool* canBeDefaultServer) {
   NS_ENSURE_ARG_POINTER(canBeDefaultServer);
   *canBeDefaultServer = true;
   return NS_OK;
 }
 
-NS_IMETHODIMP EwsIncomingServer::GetOfflineSupportLevel(
+NS_IMETHODIMP ExchangeIncomingServer::GetOfflineSupportLevel(
     int32_t* aSupportLevel) {
   NS_ENSURE_ARG_POINTER(aSupportLevel);
   *aSupportLevel = OFFLINE_SUPPORT_LEVEL_NONE;
   return NS_OK;
 }
 
-NS_IMETHODIMP EwsIncomingServer::GetNewMessages(nsIMsgFolder* aFolder,
-                                                nsIMsgWindow* aMsgWindow,
-                                                nsIUrlListener* aUrlListener) {
+NS_IMETHODIMP ExchangeIncomingServer::GetNewMessages(
+    nsIMsgFolder* aFolder, nsIMsgWindow* aMsgWindow,
+    nsIUrlListener* aUrlListener) {
   // Explicitly make the parameters to the lambda `nsCOMPtr`s, otherwise the
   // clang plugin will think we're trying to bypass the ref counting.
   nsCOMPtr<nsIMsgFolder> folder = aFolder;
@@ -596,10 +595,10 @@ NS_IMETHODIMP EwsIncomingServer::GetNewMessages(nsIMsgFolder* aFolder,
 
         // Synchronizing the folder list may have invalidated the folder that
         // sync was selected for by moving the folder to a new location. If that
-        // is the case, then the EWS ID will be invalidated and we can no longer
-        // sync that folder.
-        nsAutoCString originalEwsId;
-        rv = folder->GetStringProperty(kExchangeIdProperty, originalEwsId);
+        // is the case, then the Exchange ID will be invalidated and we can no
+        // longer sync that folder.
+        nsAutoCString originalExchangeId;
+        rv = folder->GetStringProperty(kExchangeIdProperty, originalExchangeId);
         if (NS_FAILED(rv)) {
           // Assume the original folder moved and return success.
           return NS_OK;
@@ -611,7 +610,7 @@ NS_IMETHODIMP EwsIncomingServer::GetNewMessages(nsIMsgFolder* aFolder,
       });
 }
 
-NS_IMETHODIMP EwsIncomingServer::PerformBiff(nsIMsgWindow* aMsgWindow) {
+NS_IMETHODIMP ExchangeIncomingServer::PerformBiff(nsIMsgWindow* aMsgWindow) {
   nsCOMPtr<nsIMsgWindow> window = aMsgWindow;
 
   nsresult rv = SetPerformingBiff(true);
@@ -628,27 +627,28 @@ NS_IMETHODIMP EwsIncomingServer::PerformBiff(nsIMsgWindow* aMsgWindow) {
     rv = rootFolder->GetDescendants(msgFolders);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    RefPtr<EwsBiffUrlListener> listener;
-    rv = EwsBiffUrlListener::ForFolders(self, msgFolders.Clone(),
-                                        getter_AddRefs(listener));
+    RefPtr<ExchangeBiffUrlListener> listener;
+    rv = ExchangeBiffUrlListener::ForFolders(self, msgFolders.Clone(),
+                                             getter_AddRefs(listener));
     NS_ENSURE_SUCCESS(rv, rv);
 
     return self->SyncFolders(msgFolders, window, listener);
   });
 }
 
-NS_IMETHODIMP EwsIncomingServer::PerformExpand(nsIMsgWindow* aMsgWindow) {
+NS_IMETHODIMP ExchangeIncomingServer::PerformExpand(nsIMsgWindow* aMsgWindow) {
   // Sync the folder list; we don't want to do anything after that so we just
   // pass a no-op lambda.
   return SyncFolderList(aMsgWindow, []() { return NS_OK; });
 }
 
 NS_IMETHODIMP
-EwsIncomingServer::VerifyLogon(nsIUrlListener* aUrlListener,
-                               nsIMsgWindow* aMsgWindow, nsIURI** _retval) {
+ExchangeIncomingServer::VerifyLogon(nsIUrlListener* aUrlListener,
+                                    nsIMsgWindow* aMsgWindow,
+                                    nsIURI** _retval) {
   NS_ENSURE_ARG_POINTER(aUrlListener);
 
-  // Perform a connectivity check via an EWS client. Ideally we should set
+  // Perform a connectivity check via an Exchange client. Ideally we should set
   // `_retval` to something non-null. But we don't have a good value for it, and
   // the `ConfigVerifier` (which this call very likely originates from) will
   // only be doing `nsIMsgMailNewsUrl`-related operations to it, which doesn't
@@ -659,10 +659,10 @@ EwsIncomingServer::VerifyLogon(nsIUrlListener* aUrlListener,
 }
 
 /**
- * Creates an instance of the EWS client interface, allowing us to perform
- * operations against the relevant EWS instance.
+ * Creates an instance of the Exchange client interface, allowing us to perform
+ * operations against the relevant Exchange instance.
  */
-NS_IMETHODIMP EwsIncomingServer::GetProtocolClient(
+NS_IMETHODIMP ExchangeIncomingServer::GetProtocolClient(
     IExchangeClient** ewsClient) {
   NS_ENSURE_ARG_POINTER(ewsClient);
 
@@ -688,11 +688,11 @@ NS_IMETHODIMP EwsIncomingServer::GetProtocolClient(
     }
 
     nsAutoCString endpoint;
-    rv = GetEwsUrl(endpoint);
+    rv = GetExchangeUrl(endpoint);
     NS_ENSURE_SUCCESS(rv, rv);
 
     bool overrideOAuth;
-    rv = GetEwsOverrideOAuthDetails(&overrideOAuth);
+    rv = GetExchangeOverrideOAuthDetails(&overrideOAuth);
     NS_ENSURE_SUCCESS(rv, rv);
 
     // Set up the client object with access details.
@@ -705,7 +705,7 @@ NS_IMETHODIMP EwsIncomingServer::GetProtocolClient(
   return NS_OK;
 }
 
-nsresult EwsIncomingServer::GetTrashFolder(nsIMsgFolder** trashFolder) {
+nsresult ExchangeIncomingServer::GetTrashFolder(nsIMsgFolder** trashFolder) {
   NS_ENSURE_ARG_POINTER(trashFolder);
 
   *trashFolder = nullptr;
@@ -732,7 +732,7 @@ nsresult EwsIncomingServer::GetTrashFolder(nsIMsgFolder** trashFolder) {
   return NS_OK;
 }
 
-nsresult EwsIncomingServer::UpdateTrashFolder() {
+nsresult ExchangeIncomingServer::UpdateTrashFolder() {
   nsCOMPtr<nsIMsgFolder> trashFolder;
   nsresult rv = GetTrashFolder(getter_AddRefs(trashFolder));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -744,9 +744,9 @@ nsresult EwsIncomingServer::UpdateTrashFolder() {
   return NS_OK;
 }
 
-NS_IMETHODIMP EwsIncomingServer::SetDeleteModel(
-    IEwsIncomingServer::DeleteModel value) {
-  using DeleteModel = IEwsIncomingServer::DeleteModel;
+NS_IMETHODIMP ExchangeIncomingServer::SetDeleteModel(
+    IExchangeIncomingServer::DeleteModel value) {
+  using DeleteModel = IExchangeIncomingServer::DeleteModel;
 
   if (value != DeleteModel::PERMANENTLY_DELETE &&
       value != DeleteModel::MOVE_TO_TRASH) {
@@ -761,8 +761,8 @@ NS_IMETHODIMP EwsIncomingServer::SetDeleteModel(
   return SetIntValue(kDeleteModelPreferenceName, value);
 }
 
-NS_IMETHODIMP EwsIncomingServer::GetDeleteModel(
-    IEwsIncomingServer::DeleteModel* returnValue) {
+NS_IMETHODIMP ExchangeIncomingServer::GetDeleteModel(
+    IExchangeIncomingServer::DeleteModel* returnValue) {
   NS_ENSURE_ARG(returnValue);
 
   int32_t modelCode;
@@ -773,12 +773,13 @@ NS_IMETHODIMP EwsIncomingServer::GetDeleteModel(
     return NS_ERROR_UNEXPECTED;
   }
 
-  *returnValue = static_cast<IEwsIncomingServer::DeleteModel>(modelCode);
+  *returnValue = static_cast<IExchangeIncomingServer::DeleteModel>(modelCode);
 
   return NS_OK;
 }
 
-NS_IMETHODIMP EwsIncomingServer::SetTrashFolderPath(const nsACString& path) {
+NS_IMETHODIMP ExchangeIncomingServer::SetTrashFolderPath(
+    const nsACString& path) {
   if (path.IsEmpty()) {
     return NS_OK;
   }
@@ -809,25 +810,27 @@ NS_IMETHODIMP EwsIncomingServer::SetTrashFolderPath(const nsACString& path) {
   return UpdateTrashFolder();
 }
 
-NS_IMETHODIMP EwsIncomingServer::GetTrashFolderPath(nsACString& returnValue) {
+NS_IMETHODIMP ExchangeIncomingServer::GetTrashFolderPath(
+    nsACString& returnValue) {
   return GetStringValue(kTrashFolderPreferenceName, returnValue);
 }
 
-NS_IMETHODIMP EwsIncomingServer::GetCanSearchMessages(bool* canSearchMessages) {
+NS_IMETHODIMP ExchangeIncomingServer::GetCanSearchMessages(
+    bool* canSearchMessages) {
   NS_ENSURE_ARG_POINTER(canSearchMessages);
   *canSearchMessages = true;
   return NS_OK;
 }
 
-NS_IMETHODIMP EwsIncomingServer::GetEwsUrl(nsACString& value) {
+NS_IMETHODIMP ExchangeIncomingServer::GetExchangeUrl(nsACString& value) {
   return GetStringValue("ews_url", value);
 }
 
-NS_IMETHODIMP EwsIncomingServer::SetEwsUrl(const nsACString& value) {
+NS_IMETHODIMP ExchangeIncomingServer::SetExchangeUrl(const nsACString& value) {
   return SetStringValue("ews_url", value);
 }
 
-NS_IMETHODIMP EwsIncomingServer::Shutdown() {
+NS_IMETHODIMP ExchangeIncomingServer::Shutdown() {
   if (mClient) {
     // The server is being removed, either because the user has removed the
     // account, or because Thunderbird is shutting down. If we have a client, we
@@ -835,16 +838,16 @@ NS_IMETHODIMP EwsIncomingServer::Shutdown() {
     //
     // We're not doing this in `CloseCachedConnections()` because the
     // expectation (at least from tests) is that the server/client can be reused
-    // afterwards. To illustrate with the case of EWS, this would be closer to
-    // stopping all of the operation queue's runners but not stopping the queue
-    // itself (so more runners can be started afterwards).
+    // afterwards. To illustrate with the case of Exchange, this would be closer
+    // to stopping all of the operation queue's runners but not stopping the
+    // queue itself (so more runners can be started afterwards).
     return mClient->Shutdown();
   }
 
   return nsMsgIncomingServer::Shutdown();
 }
 
-NS_IMETHODIMP EwsIncomingServer::GetProtocolClientRunning(bool* running) {
+NS_IMETHODIMP ExchangeIncomingServer::GetProtocolClientRunning(bool* running) {
   NS_ENSURE_ARG_POINTER(running);
 
   if (!mClient) {
@@ -855,7 +858,7 @@ NS_IMETHODIMP EwsIncomingServer::GetProtocolClientRunning(bool* running) {
   return mClient->GetRunning(running);
 }
 
-NS_IMETHODIMP EwsIncomingServer::GetProtocolClientIdle(bool* idle) {
+NS_IMETHODIMP ExchangeIncomingServer::GetProtocolClientIdle(bool* idle) {
   NS_ENSURE_ARG_POINTER(idle);
 
   if (!mClient) {
@@ -868,16 +871,17 @@ NS_IMETHODIMP EwsIncomingServer::GetProtocolClientIdle(bool* idle) {
 
 namespace {
 
-nsresult GetDetailsForHostname(EwsIncomingServer* server,
-                               EwsOAuth2CustomDetails** details) {
+nsresult GetDetailsForHostname(ExchangeIncomingServer* server,
+                               ExchangeOAuth2CustomDetails** details) {
   NS_ENSURE_ARG_POINTER(details);
 
   nsAutoCString hostname;
   nsresult rv = server->GetHostName(hostname);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  RefPtr<EwsOAuth2CustomDetails> result;
-  rv = EwsOAuth2CustomDetails::ForHostname(hostname, getter_AddRefs(result));
+  RefPtr<ExchangeOAuth2CustomDetails> result;
+  rv = ExchangeOAuth2CustomDetails::ForHostname(hostname,
+                                                getter_AddRefs(result));
   NS_ENSURE_SUCCESS(rv, rv);
 
   result.forget(details);
@@ -886,9 +890,9 @@ nsresult GetDetailsForHostname(EwsIncomingServer* server,
 }
 
 template <typename F>
-nsresult GetOAuthProperty(EwsIncomingServer* server, nsACString& value,
+nsresult GetOAuthProperty(ExchangeIncomingServer* server, nsACString& value,
                           F&& accessor) {
-  RefPtr<EwsOAuth2CustomDetails> details;
+  RefPtr<ExchangeOAuth2CustomDetails> details;
   nsresult rv = GetDetailsForHostname(server, getter_AddRefs(details));
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -903,9 +907,9 @@ nsresult GetOAuthProperty(EwsIncomingServer* server, nsACString& value,
 }
 
 template <typename F>
-nsresult SetOAuthProperty(EwsIncomingServer* server, const nsACString& value,
-                          F&& accessor) {
-  RefPtr<EwsOAuth2CustomDetails> details;
+nsresult SetOAuthProperty(ExchangeIncomingServer* server,
+                          const nsACString& value, F&& accessor) {
+  RefPtr<ExchangeOAuth2CustomDetails> details;
   nsresult rv = GetDetailsForHostname(server, getter_AddRefs(details));
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -914,10 +918,11 @@ nsresult SetOAuthProperty(EwsIncomingServer* server, const nsACString& value,
 
 }  // namespace
 
-NS_IMETHODIMP EwsIncomingServer::GetEwsOverrideOAuthDetails(bool* value) {
+NS_IMETHODIMP ExchangeIncomingServer::GetExchangeOverrideOAuthDetails(
+    bool* value) {
   NS_ENSURE_ARG(value);
 
-  RefPtr<EwsOAuth2CustomDetails> details;
+  RefPtr<ExchangeOAuth2CustomDetails> details;
   nsresult rv = GetDetailsForHostname(this, getter_AddRefs(details));
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -926,10 +931,11 @@ NS_IMETHODIMP EwsIncomingServer::GetEwsOverrideOAuthDetails(bool* value) {
   return NS_OK;
 }
 
-NS_IMETHODIMP EwsIncomingServer::SetEwsOverrideOAuthDetails(bool value) {
+NS_IMETHODIMP ExchangeIncomingServer::SetExchangeOverrideOAuthDetails(
+    bool value) {
   NS_ENSURE_ARG(value);
 
-  RefPtr<EwsOAuth2CustomDetails> details;
+  RefPtr<ExchangeOAuth2CustomDetails> details;
   nsresult rv = GetDetailsForHostname(this, getter_AddRefs(details));
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -939,26 +945,26 @@ NS_IMETHODIMP EwsIncomingServer::SetEwsOverrideOAuthDetails(bool value) {
   return NS_OK;
 }
 
-#define DEFINE_OAUTH_PROPERTY_ACCESSORS(PropertyName, OAuthValueName)     \
-  NS_IMETHODIMP EwsIncomingServer::Get##PropertyName(nsACString& value) { \
-    return GetOAuthProperty(this, value,                                  \
-                            [](const EwsOAuth2CustomDetails& details) {   \
-                              return details.Get##OAuthValueName();       \
-                            });                                           \
-  }                                                                       \
-  NS_IMETHODIMP EwsIncomingServer::Set##PropertyName(                     \
-      const nsACString& value) {                                          \
-    return SetOAuthProperty(                                              \
-        this, value,                                                      \
-        [](EwsOAuth2CustomDetails& details, const nsACString& value) {    \
-          return details.Set##OAuthValueName(value);                      \
-        });                                                               \
+#define DEFINE_OAUTH_PROPERTY_ACCESSORS(PropertyName, OAuthValueName)          \
+  NS_IMETHODIMP ExchangeIncomingServer::Get##PropertyName(nsACString& value) { \
+    return GetOAuthProperty(this, value,                                       \
+                            [](const ExchangeOAuth2CustomDetails& details) {   \
+                              return details.Get##OAuthValueName();            \
+                            });                                                \
+  }                                                                            \
+  NS_IMETHODIMP ExchangeIncomingServer::Set##PropertyName(                     \
+      const nsACString& value) {                                               \
+    return SetOAuthProperty(                                                   \
+        this, value,                                                           \
+        [](ExchangeOAuth2CustomDetails& details, const nsACString& value) {    \
+          return details.Set##OAuthValueName(value);                           \
+        });                                                                    \
   }
 
-DEFINE_OAUTH_PROPERTY_ACCESSORS(EwsApplicationId, ConfiguredApplicationId);
-DEFINE_OAUTH_PROPERTY_ACCESSORS(EwsTenantId, ConfiguredTenant);
-DEFINE_OAUTH_PROPERTY_ACCESSORS(EwsRedirectUri, ConfiguredRedirectUri);
-DEFINE_OAUTH_PROPERTY_ACCESSORS(EwsEndpointHost, ConfiguredEndpointHost);
-DEFINE_OAUTH_PROPERTY_ACCESSORS(EwsOAuthScopes, ConfiguredOAuthScopes);
+DEFINE_OAUTH_PROPERTY_ACCESSORS(ExchangeApplicationId, ConfiguredApplicationId);
+DEFINE_OAUTH_PROPERTY_ACCESSORS(ExchangeTenantId, ConfiguredTenant);
+DEFINE_OAUTH_PROPERTY_ACCESSORS(ExchangeRedirectUri, ConfiguredRedirectUri);
+DEFINE_OAUTH_PROPERTY_ACCESSORS(ExchangeEndpointHost, ConfiguredEndpointHost);
+DEFINE_OAUTH_PROPERTY_ACCESSORS(ExchangeOAuthScopes, ConfiguredOAuthScopes);
 
 #undef DEFINE_OAUTH_PROPERTY_ACCESSORS

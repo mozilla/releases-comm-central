@@ -1110,7 +1110,7 @@ files_changed:
   - comm/mailnews/protocols/exchange/public/moz.build
   - comm/mailnews/protocols/exchange/public/IExchangeOutgoingServer.idl
   - comm/mailnews/protocols/exchange/src/ExchangeFolder.cpp
-  - comm/mailnews/protocols/exchange/src/EwsIncomingServer.cpp
+  - comm/mailnews/protocols/exchange/src/ExchangeIncomingServer.cpp
   - comm/mailnews/protocols/exchange/src/IExchangeClient.idl
   - comm/mailnews/protocols/exchange/src/components.conf
   - comm/mailnews/protocols/exchange/src/nsEwsOutgoingServer.h

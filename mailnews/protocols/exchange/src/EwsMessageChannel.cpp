@@ -8,7 +8,7 @@
 #include "EwsListeners.h"
 #include "IExchangeClient.h"
 #include "IExchangeFolder.h"
-#include "IEwsIncomingServer.h"
+#include "IExchangeIncomingServer.h"
 #include "nsIInputStream.h"
 #include "nsIInputStreamPump.h"
 #include "nsIMailChannel.h"

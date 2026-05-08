@@ -600,27 +600,39 @@
 
           <!-- Advanced EWS settings -->
           <hbox flex="1" hidefor="pop3,nntp,imap" hidden="hidden">
-            <label id="ews.ewsUrl" wsm_persist="true" hidden="hidden" />
+            <label id="ews.exchangeUrl" wsm_persist="true" hidden="hidden" />
             <checkbox
-              id="ews.ewsOverrideOAuthDetails"
+              id="ews.exchangeOverrideOAuthDetails"
               wsm_persist="true"
               prefattribute="value"
               prefstring="mail.server.%serverkey%.ews_override_oauth_details"
               hidden="hidden"
             />
             <label
-              id="ews.ewsApplicationId"
+              id="ews.exchangeApplicationId"
               wsm_persist="true"
               hidden="hidden"
             />
-            <label id="ews.ewsTenantId" wsm_persist="true" hidden="hidden" />
-            <label id="ews.ewsRedirectUri" wsm_persist="true" hidden="hidden" />
             <label
-              id="ews.ewsEndpointHost"
+              id="ews.exchangeTenantId"
               wsm_persist="true"
               hidden="hidden"
             />
-            <label id="ews.ewsOAuthScopes" wsm_persist="true" hidden="hidden" />
+            <label
+              id="ews.exchangeRedirectUri"
+              wsm_persist="true"
+              hidden="hidden"
+            />
+            <label
+              id="ews.exchangeEndpointHost"
+              wsm_persist="true"
+              hidden="hidden"
+            />
+            <label
+              id="ews.exchangeOAuthScopes"
+              wsm_persist="true"
+              hidden="hidden"
+            />
           </hbox>
 
           <!-- NNTP -->

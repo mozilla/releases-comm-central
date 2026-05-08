@@ -6,7 +6,7 @@
 #include "ExchangeFolder.h"
 #include "EwsListeners.h"
 #include "IExchangeClient.h"
-#include "IEwsIncomingServer.h"
+#include "IExchangeIncomingServer.h"
 #include "MailHeaderParsing.h"  // For ParseHeaderBlock().
 #include "MailStream.h"
 #include "mozilla/Buffer.h"
@@ -66,7 +66,7 @@ class MessageCreateHandler : public IExchangeMessageCreateListener {
     {
       nsCOMPtr<nsIMsgIncomingServer> server;
       MOZ_TRY(mFolder->GetServer(getter_AddRefs(server)));
-      nsCOMPtr<IEwsIncomingServer> ewsServer(do_QueryInterface(server));
+      nsCOMPtr<IExchangeIncomingServer> ewsServer(do_QueryInterface(server));
       MOZ_TRY(ewsServer->GetProtocolClient(getter_AddRefs(ewsClient)));
     }
 

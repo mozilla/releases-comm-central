@@ -1017,7 +1017,7 @@ function saveAccount(accountValues, account) {
       } else if (type == "imap") {
         dest = server.QueryInterface(Ci.nsIImapIncomingServer);
       } else if (type == "ews") {
-        dest = server.QueryInterface(Ci.IEwsIncomingServer);
+        dest = server.QueryInterface(Ci.IExchangeIncomingServer);
       } else if (type == "none") {
         dest = server.QueryInterface(Ci.nsINoIncomingServer);
       } else if (type == "nntp") {
@@ -1380,7 +1380,7 @@ function getAccountValue(
       } else if (type == "imap") {
         source = server.QueryInterface(Ci.nsIImapIncomingServer);
       } else if (type == "ews") {
-        source = server.QueryInterface(Ci.IEwsIncomingServer);
+        source = server.QueryInterface(Ci.IExchangeIncomingServer);
       } else if (type == "none") {
         source = server.QueryInterface(Ci.nsINoIncomingServer);
       } else if (type == "nntp") {

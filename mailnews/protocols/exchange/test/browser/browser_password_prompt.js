@@ -44,7 +44,7 @@ add_task(async function test_password_prompt_cancel() {
 
   // Check if the client is idle, which means the operation has been fully
   // aborted.
-  incomingServer.QueryInterface(Ci.IEwsIncomingServer);
+  incomingServer.QueryInterface(Ci.IExchangeIncomingServer);
   await TestUtils.waitForCondition(
     () => incomingServer.protocolClientIdle,
     "the EWS client should eventually become idle"

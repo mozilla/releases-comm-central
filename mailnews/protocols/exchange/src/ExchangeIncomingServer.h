@@ -2,27 +2,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSINCOMINGSERVER_H_
-#define COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSINCOMINGSERVER_H_
+#ifndef COMM_MAILNEWS_PROTOCOLS_EXCHANGE_SRC_EXCHANGEINCOMINGSERVER_H_
+#define COMM_MAILNEWS_PROTOCOLS_EXCHANGE_SRC_EXCHANGEINCOMINGSERVER_H_
 
-#include "IEwsIncomingServer.h"
+#include "IExchangeIncomingServer.h"
 #include "nsMsgIncomingServer.h"
 
 #define EWS_INCOMING_SERVER_IID \
   {0x6eaa0a24, 0x78f6, 0x4ad7, {0xa2, 0x8a, 0x07, 0x7d, 0x24, 0x02, 0x2c, 0xd2}}
 
-class EwsIncomingServer : public nsMsgIncomingServer,
-                          public IEwsIncomingServer {
+class ExchangeIncomingServer : public nsMsgIncomingServer,
+                               public IExchangeIncomingServer {
  public:
   NS_DECL_ISUPPORTS_INHERITED
-  NS_DECL_IEWSINCOMINGSERVER
+  NS_DECL_IEXCHANGEINCOMINGSERVER
 
-  EwsIncomingServer();
+  ExchangeIncomingServer();
 
   NS_INLINE_DECL_STATIC_IID(EWS_INCOMING_SERVER_IID)
 
  protected:
-  virtual ~EwsIncomingServer();
+  virtual ~ExchangeIncomingServer();
 
   /**
    * Locally creates a folder with the given properties. Intended to be called
@@ -59,8 +59,8 @@ class EwsIncomingServer : public nsMsgIncomingServer,
 
  private:
   /**
-   * Retrieve the folder associated with the given EWS ID. If no such folder
-   * could be found, `NS_ERROR_FAILURE` is returned.
+   * Retrieve the folder associated with the given Exchange ID. If no such
+   * folder could be found, `NS_ERROR_FAILURE` is returned.
    */
   nsresult FindFolderWithId(const nsACString& id, nsIMsgFolder** _retval);
 
@@ -97,4 +97,4 @@ class EwsIncomingServer : public nsMsgIncomingServer,
   nsCOMPtr<IExchangeClient> mClient;
 };
 
-#endif  // COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSINCOMINGSERVER_H_
+#endif  // COMM_MAILNEWS_PROTOCOLS_EXCHANGE_SRC_EXCHANGEINCOMINGSERVER_H_

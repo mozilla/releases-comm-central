@@ -123,7 +123,7 @@ add_task(async function test_ews_trash_settings() {
   const incomingServer = ewsAccount.incomingServer;
 
   Assert.ok(
-    incomingServer instanceof Ci.IEwsIncomingServer,
+    incomingServer instanceof Ci.IExchangeIncomingServer,
     "Incoming server should be an EWS incoming server."
   );
 
@@ -162,7 +162,7 @@ add_task(async function test_ews_trash_settings() {
     // Check the default values.
     Assert.equal(
       deleteModelElement.getAttribute("value"),
-      Ci.IEwsIncomingServer.MOVE_TO_TRASH,
+      Ci.IExchangeIncomingServer.MOVE_TO_TRASH,
       "Default delete model should be move to trash (1)"
     );
 
@@ -183,7 +183,7 @@ add_task(async function test_ews_trash_settings() {
     );
     Assert.equal(
       incomingServer.deleteModel,
-      Ci.IEwsIncomingServer.PERMANENTLY_DELETE,
+      Ci.IExchangeIncomingServer.PERMANENTLY_DELETE,
       "Changing the delete model in the UI should update the server state."
     );
 
@@ -403,7 +403,7 @@ add_task(async function test_ews_host_url_settings() {
 
     // This page uses hidden elements to connect the advanced settings dialog to
     // the underlying save infrastructure.
-    const ewsUrlDataElement = iframe.getElementById("ews.ewsUrl");
+    const ewsUrlDataElement = iframe.getElementById("ews.exchangeUrl");
     Assert.ok(!!ewsUrlDataElement, "EWS URL data element should exist.");
 
     // The data elements should all be hidden.
@@ -414,16 +414,16 @@ add_task(async function test_ews_host_url_settings() {
 
     const advancedDialog = await openAdvancedDialog(iframe, accountSettingsTab);
 
-    const ewsUrlElement = advancedDialog.document.getElementById("ewsUrl");
+    const ewsUrlElement = advancedDialog.document.getElementById("exchangeUrl");
     Assert.ok(!!ewsUrlElement, "Should have the Host URL element.");
     Assert.equal(
       ewsUrlElement.value,
-      incomingServer.ewsUrl,
+      incomingServer.exchangeUrl,
       "Host URL value should match incoming server URL."
     );
 
     // Get the original value.
-    const originalHostUrl = incomingServer.ewsUrl;
+    const originalHostUrl = incomingServer.exchangeUrl;
 
     // Change to a new value.
     ewsUrlElement.focus();
@@ -440,7 +440,7 @@ add_task(async function test_ews_host_url_settings() {
     );
 
     Assert.equal(
-      incomingServer.ewsUrl,
+      incomingServer.exchangeUrl,
       "anothervalue",
       "Incoming server Host URL should have changed."
     );
@@ -452,11 +452,11 @@ add_task(async function test_ews_host_url_settings() {
     );
 
     const ewsUrlElementReopened =
-      advancedDialogReopened.document.getElementById("ewsUrl");
+      advancedDialogReopened.document.getElementById("exchangeUrl");
     Assert.ok(!!ewsUrlElement, "Should have the Host URL element.");
     Assert.equal(
       ewsUrlElement.value,
-      incomingServer.ewsUrl,
+      incomingServer.exchangeUrl,
       "Host URL value should match incoming server URL."
     );
 
@@ -474,7 +474,7 @@ add_task(async function test_ews_host_url_settings() {
     await acceptDialogAndWaitForClose(advancedDialogReopened);
 
     Assert.equal(
-      incomingServer.ewsUrl,
+      incomingServer.exchangeUrl,
       originalHostUrl,
       "EWS Host URL should have been reset."
     );
@@ -496,12 +496,12 @@ add_task(async function test_override_oauth_settings() {
     );
 
     const dataElements = [
-      "ews.ewsOverrideOAuthDetails",
-      "ews.ewsApplicationId",
-      "ews.ewsTenantId",
-      "ews.ewsRedirectUri",
-      "ews.ewsEndpointHost",
-      "ews.ewsOAuthScopes",
+      "ews.exchangeOverrideOAuthDetails",
+      "ews.exchangeApplicationId",
+      "ews.exchangeTenantId",
+      "ews.exchangeRedirectUri",
+      "ews.exchangeEndpointHost",
+      "ews.exchangeOAuthScopes",
     ];
     for (const dataElement of dataElements) {
       const element = iframe.getElementById(dataElement);
@@ -515,7 +515,7 @@ add_task(async function test_override_oauth_settings() {
     const advancedDialog = await openAdvancedDialog(iframe, accountSettingsTab);
 
     const oauthOverrideControl = advancedDialog.document.getElementById(
-      "ewsOverrideOAuthDetails"
+      "exchangeOverrideOAuthDetails"
     );
     Assert.ok(!!oauthOverrideControl, "OAuth override checkbox should exist.");
     Assert.ok(
@@ -524,11 +524,11 @@ add_task(async function test_override_oauth_settings() {
     );
 
     const inputElementIds = [
-      "ewsApplicationId",
-      "ewsTenantId",
-      "ewsRedirectUri",
-      "ewsEndpointHost",
-      "ewsOAuthScopes",
+      "exchangeApplicationId",
+      "exchangeTenantId",
+      "exchangeRedirectUri",
+      "exchangeEndpointHost",
+      "exchangeOAuthScopes",
     ];
     const inputElements = inputElementIds.map(id =>
       advancedDialog.document.getElementById(id)
@@ -562,31 +562,31 @@ add_task(async function test_override_oauth_settings() {
     await acceptDialogAndWaitForClose(advancedDialog);
 
     Assert.ok(
-      incomingServer.ewsOverrideOAuthDetails,
+      incomingServer.exchangeOverrideOAuthDetails,
       "Incoming server should have override OAuth details selected."
     );
     Assert.equal(
-      incomingServer.ewsApplicationId,
+      incomingServer.exchangeApplicationId,
       "changed_value",
       "EWS Application ID should have changed."
     );
     Assert.equal(
-      incomingServer.ewsTenantId,
+      incomingServer.exchangeTenantId,
       "changed_value",
       "EWS Tenant ID should have changed."
     );
     Assert.equal(
-      incomingServer.ewsRedirectUri,
+      incomingServer.exchangeRedirectUri,
       "changed_value",
       "EWS Redirect URI should have changed."
     );
     Assert.equal(
-      incomingServer.ewsEndpointHost,
+      incomingServer.exchangeEndpointHost,
       "changed_value",
       "EWS Endpoint Host should have changed."
     );
     Assert.equal(
-      incomingServer.ewsOAuthScopes,
+      incomingServer.exchangeOAuthScopes,
       "changed_value",
       "EWS OAuth Scopes should have changed."
     );

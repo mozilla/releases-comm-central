@@ -4,7 +4,7 @@
 
 #include "EwsProtocolInfo.h"
 
-#include "EwsIncomingServer.h"
+#include "ExchangeIncomingServer.h"
 #include "nsMailDirServiceDefs.h"
 #include "nsMsgUtils.h"
 
@@ -62,7 +62,7 @@ NS_IMETHODIMP EwsProtocolInfo::SetDefaultLocalPath(nsIFile* aDefaultLocalPath) {
 }
 
 NS_IMETHODIMP EwsProtocolInfo::GetServerIID(nsIID& aServerIID) {
-  aServerIID = NS_GET_IID(EwsIncomingServer);
+  aServerIID = NS_GET_IID(ExchangeIncomingServer);
 
   return NS_OK;
 }

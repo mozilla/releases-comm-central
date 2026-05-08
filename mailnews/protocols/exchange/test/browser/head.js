@@ -55,7 +55,7 @@ function setupEwsTestServer(serverConfig = {}) {
 
   registerCleanupFunction(async () => {
     incomingServer.shutdown();
-    incomingServer.QueryInterface(Ci.IEwsIncomingServer);
+    incomingServer.QueryInterface(Ci.IExchangeIncomingServer);
     await TestUtils.waitForCondition(
       () => !incomingServer.protocolClientRunning,
       "waiting for the EWS client to shut down"

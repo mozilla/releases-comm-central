@@ -7,7 +7,7 @@
 #include "ExchangeFolder.h"
 #include "EwsListeners.h"
 #include "IExchangeClient.h"
-#include "IEwsIncomingServer.h"
+#include "IExchangeIncomingServer.h"
 #include "MailNewsTypes.h"
 #include "mozilla/RefPtr.h"
 #include "nsCOMPtr.h"
@@ -189,7 +189,8 @@ class MsgFetcher : public IExchangeMessageFetchListener {
     // This is the only protocol-specific part of the whole operation.
     // There _should_ be a protocol-neutral way to fetch a message from a
     // server but there currently isn't.
-    nsCOMPtr<IEwsIncomingServer> ewsServer = do_QueryInterface(server, &rv);
+    nsCOMPtr<IExchangeIncomingServer> ewsServer =
+        do_QueryInterface(server, &rv);
     MOZ_ASSERT(ewsServer);  // Only EWS supported for now!
     NS_ENSURE_SUCCESS(rv, rv);
     nsCOMPtr<IExchangeClient> ewsClient;

@@ -31,7 +31,7 @@ add_setup(async () => {
     "user",
     "password"
   );
-  incomingServer.QueryInterface(Ci.IEwsIncomingServer);
+  incomingServer.QueryInterface(Ci.IExchangeIncomingServer);
   incomingServer.setStringValue(
     "ews_url",
     `http://127.0.0.1:${ewsServer.port}/EWS/Exchange.asmx`

@@ -10,18 +10,18 @@ UNIFIED_SOURCES += [
     "EwsCopyMoveTransaction.cpp",
     "EwsFetchMsgsToOffline.cpp",
     "EwsFolderCopyHandler.cpp",
-    "EwsIncomingServer.cpp",
     "EwsLanguageInteropFactory.cpp",
     "EwsListeners.cpp",
     "EwsMessageChannel.cpp",
     "EwsMessageCopyHandler.cpp",
     "EwsMessageSync.cpp",
-    "EwsOAuth2CustomDetails.cpp",
     "EwsProtocolHandler.cpp",
     "EwsProtocolInfo.cpp",
     "EwsService.cpp",
     "ExchangeFolder.cpp",
+    "ExchangeIncomingServer.cpp",
     "ExchangeMessageCreate.cpp",
+    "ExchangeOAuth2CustomDetails.cpp",
 ]
 
 XPCOM_MANIFESTS += [
@@ -35,10 +35,10 @@ XPCOM_MANIFESTS += [
 XPIDL_MODULE = "msgews"
 
 XPIDL_SOURCES += [
-    "IEwsIncomingServer.idl",
     "IEwsLanguageInteropFactory.idl",
     "IExchangeClient.idl",
     "IExchangeFolder.idl",
+    "IExchangeIncomingServer.idl",
 ]
 
 FINAL_LIBRARY = "mail"

@@ -10,7 +10,7 @@
 #include "EwsMessageSync.h"
 #include "EwsCopyMoveTransaction.h"
 #include "IExchangeClient.h"
-#include "IEwsIncomingServer.h"
+#include "IExchangeIncomingServer.h"
 #include "IHeaderBlock.h"
 
 #include "ErrorList.h"
@@ -307,8 +307,8 @@ NS_IMETHODIMP ExchangeFolder::GetIncomingServerType(nsACString& aServerType) {
 NS_IMETHODIMP ExchangeFolder::GetNewMessages(nsIMsgWindow* aWindow,
                                              nsIUrlListener* aListener) {
   // Sync the message list. We don't need to sync the folder tree, because the
-  // only likely consumer of this method is `EwsIncomingServer`, which does this
-  // before asking folders to sync their message lists.
+  // only likely consumer of this method is `ExchangeIncomingServer`, which does
+  // this before asking folders to sync their message lists.
   return SyncMessages(aWindow, aListener);
 }
 
@@ -893,7 +893,7 @@ NS_IMETHODIMP ExchangeFolder::CopyFolderOnSameServer(
         rv = self->GetServer(getter_AddRefs(server));
         NS_ENSURE_SUCCESS(rv, rv);
 
-        const nsCOMPtr<IEwsIncomingServer> exchangeServer{
+        const nsCOMPtr<IExchangeIncomingServer> exchangeServer{
             do_QueryInterface(server, &rv)};
         NS_ENSURE_SUCCESS(rv, rv);
 
@@ -944,7 +944,7 @@ NS_IMETHODIMP ExchangeFolder::CopyFolderOnSameServer(
 nsresult ExchangeFolder::HandleDeleteOperation(
     bool forceHardDelete, std::function<nsresult()>&& onHardDelete,
     std::function<nsresult(IExchangeFolder*)>&& onSoftDelete) {
-  using DeleteModel = IEwsIncomingServer::DeleteModel;
+  using DeleteModel = IExchangeIncomingServer::DeleteModel;
 
   nsresult rv;
 
@@ -966,7 +966,8 @@ nsresult ExchangeFolder::HandleDeleteOperation(
   nsCOMPtr<nsIMsgIncomingServer> server;
   rv = GetServer(getter_AddRefs(server));
   NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr<IEwsIncomingServer> exchangeServer{do_QueryInterface(server, &rv)};
+  nsCOMPtr<IExchangeIncomingServer> exchangeServer{
+      do_QueryInterface(server, &rv)};
   NS_ENSURE_SUCCESS(rv, rv);
 
   DeleteModel deleteModel;
@@ -1305,7 +1306,7 @@ nsresult ExchangeFolder::GetProtocolClient(IExchangeClient** exchangeClient) {
   nsresult rv = GetServer(getter_AddRefs(server));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<IEwsIncomingServer> exchangeServer(do_QueryInterface(server));
+  nsCOMPtr<IExchangeIncomingServer> exchangeServer(do_QueryInterface(server));
 
   return exchangeServer->GetProtocolClient(exchangeClient);
 }
@@ -1571,7 +1572,8 @@ NS_IMETHODIMP ExchangeFolder::AddSubfolder(const nsACString& folderName,
   rv = GetServer(getter_AddRefs(server));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<IEwsIncomingServer> exchangeServer{do_QueryInterface(server, &rv)};
+  nsCOMPtr<IExchangeIncomingServer> exchangeServer{
+      do_QueryInterface(server, &rv)};
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsAutoCString trashFolderPath;

@@ -137,8 +137,8 @@ async function runDeleteFolderTest(
 
 async function runHardDeleteTest(mockServer, incomingServer) {
   // Set the delete model for the server to permanently delete.
-  incomingServer.QueryInterface(Ci.IEwsIncomingServer).deleteModel =
-    Ci.IEwsIncomingServer.PERMANENTLY_DELETE;
+  incomingServer.QueryInterface(Ci.IExchangeIncomingServer).deleteModel =
+    Ci.IExchangeIncomingServer.PERMANENTLY_DELETE;
   const folderToDeleteName = "folder_to_hard_delete";
   const remoteEwsId = await runDeleteFolderTest(
     folderToDeleteName,
@@ -170,8 +170,8 @@ add_task(async function test_hard_delete_graph() {
 
 async function runDeleteFromTrashTest(mockServer, incomingServer) {
   // Set the delete model for the server to soft delete.
-  incomingServer.QueryInterface(Ci.IEwsIncomingServer).deleteModel =
-    Ci.IEwsIncomingServer.MOVE_TO_TRASH;
+  incomingServer.QueryInterface(Ci.IExchangeIncomingServer).deleteModel =
+    Ci.IExchangeIncomingServer.MOVE_TO_TRASH;
   const folderToDeleteName = "folder_to_delete_from_trash";
   const trashFolder = incomingServer.rootFolder.getChildNamed("deleted items");
   const remoteEwsId = await runDeleteFolderTest(
@@ -204,8 +204,8 @@ add_task(async function test_delete_from_trash_graph() {
 
 async function runSoftDeleteTest(mockServer, incomingServer) {
   // Set the delete model for the server to move to trash.
-  incomingServer.QueryInterface(Ci.IEwsIncomingServer).deleteModel =
-    Ci.IEwsIncomingServer.MOVE_TO_TRASH;
+  incomingServer.QueryInterface(Ci.IExchangeIncomingServer).deleteModel =
+    Ci.IExchangeIncomingServer.MOVE_TO_TRASH;
   const folderToDeleteName = "folder_to_soft_delete";
   let remoteEwsId = await runDeleteFolderTest(
     folderToDeleteName,

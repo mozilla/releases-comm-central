@@ -4,7 +4,7 @@
 
 #include "EwsLanguageInteropFactory.h"
 
-#include "EwsOAuth2CustomDetails.h"
+#include "ExchangeOAuth2CustomDetails.h"
 
 NS_IMPL_ISUPPORTS(EwsLanguageInteropFactory, IEwsLanguageInteropFactory);
 
@@ -12,9 +12,9 @@ NS_IMETHODIMP EwsLanguageInteropFactory::CreateOAuth2Details(
     const nsACString& identifier, IOAuth2CustomDetails** result) {
   NS_ENSURE_ARG_POINTER(result);
 
-  RefPtr<EwsOAuth2CustomDetails> details;
-  nsresult rv =
-      EwsOAuth2CustomDetails::ForHostname(identifier, getter_AddRefs(details));
+  RefPtr<ExchangeOAuth2CustomDetails> details;
+  nsresult rv = ExchangeOAuth2CustomDetails::ForHostname(
+      identifier, getter_AddRefs(details));
   NS_ENSURE_SUCCESS(rv, rv);
 
   details.forget(result);

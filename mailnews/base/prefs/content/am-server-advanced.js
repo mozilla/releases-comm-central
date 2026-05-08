@@ -81,13 +81,14 @@ function onLoad() {
         false
       )
     ) {
-      document.getElementById("ewsOverrideOAuthDetailsContainer").hidden =
+      document.getElementById("exchangeOverrideOAuthDetailsContainer").hidden =
         false;
       setOAuthOverrideState(
-        gServerSettings.account.incomingServer.ewsOverrideOAuthDetails
+        gServerSettings.account.incomingServer.exchangeOverrideOAuthDetails
       );
     } else {
-      document.getElementById("ewsOverrideOAuthDetailsContainer").hidden = true;
+      document.getElementById("exchangeOverrideOAuthDetailsContainer").hidden =
+        true;
     }
   }
 
@@ -166,11 +167,11 @@ function updateInboxAccount(enablePicker) {
 
 function setOAuthOverrideState(isEnabled) {
   const oauthElementIds = [
-    "ewsApplicationId",
-    "ewsTenantId",
-    "ewsRedirectUri",
-    "ewsEndpointHost",
-    "ewsOAuthScopes",
+    "exchangeApplicationId",
+    "exchangeTenantId",
+    "exchangeRedirectUri",
+    "exchangeEndpointHost",
+    "exchangeOAuthScopes",
   ];
   for (const elementId of oauthElementIds) {
     document.getElementById(elementId).disabled = !isEnabled;

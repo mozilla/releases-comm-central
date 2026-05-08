@@ -47,7 +47,7 @@ add_setup(async function () {
     incomingServer.closeCachedConnections();
   });
 
-  ewsIncomingServer = incomingServer.QueryInterface(Ci.IEwsIncomingServer);
+  ewsIncomingServer = incomingServer.QueryInterface(Ci.IExchangeIncomingServer);
   Assert.ok(!!ewsIncomingServer, "Created server should be an EWS server.");
 });
 
@@ -86,7 +86,7 @@ add_task(async function test_delete_model() {
   // be the distinguished folder we got from the server.
   Assert.equal(
     ewsIncomingServer.deleteModel,
-    Ci.IEwsIncomingServer.MOVE_TO_TRASH,
+    Ci.IExchangeIncomingServer.MOVE_TO_TRASH,
     "Default delete model should be move to trash"
   );
   Assert.equal(
@@ -155,7 +155,7 @@ add_task(async function test_delete_model() {
     "New trash folder should have 1 message."
   );
 
-  ewsIncomingServer.deleteModel = Ci.IEwsIncomingServer.DELETE_PERMANENTLY;
+  ewsIncomingServer.deleteModel = Ci.IExchangeIncomingServer.DELETE_PERMANENTLY;
 
   const headersToDelete3 = [[...inboxFolder.messages][0]];
 

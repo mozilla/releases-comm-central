@@ -1614,7 +1614,7 @@ function reportEwsAccounts() {
   }
 
   // We typically don't reuse EWS clients when using them in e.g. `ExchangeFolder` or
-  // `EwsIncomingServer`, but the implementation of the *telemetry* method if
+  // `ExchangeIncomingServer`, but the implementation of the *telemetry* method if
   // `IExchangeClient` is completely stateless, so client reuse is not an issue here.
   const ewsClient = Cc["@mozilla.org/messenger/ews-client;1"].createInstance(
     Ci.IExchangeClient
