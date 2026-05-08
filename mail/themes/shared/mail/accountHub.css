@@ -890,7 +890,7 @@ header {
   }
 
   & .account-hub-thundermail-divider {
-    color: var(--color-text-icon-secondary);
+    color: var(--color-text-secondary);
     text-align: center;
     font-size: 0.923rem;
     font-weight: 400;
