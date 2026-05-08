@@ -10,15 +10,15 @@
   --autocomplete-popup-url-color: LinkText;
 
   /* Used for Breeze titlebar-button buttons */
-  --toolbox-bgcolor: -moz-headerbar;
-  --toolbox-textcolor: -moz-headerbartext;
-  --toolbox-bgcolor-inactive: -moz-headerbarinactive;
-  --toolbox-textcolor-inactive: -moz-headerbarinactivetext;
+  --toolbox-background-color: -moz-headerbar;
+  --toolbox-text-color: -moz-headerbartext;
+  --toolbox-background-color-inactive: -moz-headerbarinactive;
+  --toolbox-text-color-inactive: -moz-headerbarinactivetext;
 
   &[lwtheme] {
-    --toolbox-bgcolor: var(--lwt-accent-color);
-    --toolbox-bgcolor-inactive: var(--lwt-accent-color-inactive, var(--lwt-accent-color));
-    --toolbox-textcolor: var(--lwt-text-color, currentColor);
-    --toolbox-textcolor-inactive: var(--lwt-text-color, currentColor);
+    --toolbox-background-color: var(--lwt-accent-color);
+    --toolbox-background-color-inactive: var(--lwt-accent-color-inactive, var(--lwt-accent-color));
+    --toolbox-text-color: var(--lwt-text-color, currentColor);
+    --toolbox-text-color-inactive: var(--lwt-text-color, currentColor);
   }
 }

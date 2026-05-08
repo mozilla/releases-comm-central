@@ -184,9 +184,9 @@ html|input[type="color"] {
   min-block-size: 16px;
   padding: 2px !important;
   margin-inline-end: 4px;
-  --toolbarbutton-hover-background: var(--button-hover-background-color);
+  --toolbarbutton-background-color-hover: var(--button-hover-background-color);
   --toolbarbutton-hover-bordercolor: var(--button-border-color);
-  --toolbarbutton-active-background: var(--button-active-background-color);
+  --toolbarbutton-background-color-active: var(--button-active-background-color);
   --toolbarbutton-active-bordercolor: var(--button-border-color);
 
   &:not(:hover) {

@@ -17,7 +17,7 @@
 }
 
 #tabs-toolbar {
-  --toolbarbutton-hover-background: light-dark(
+  --toolbarbutton-background-color-hover: light-dark(
     var(--lwt-toolbarbutton-hover-background, hsla(240, 5%, 5%, 0.1)),
     var(--lwt-toolbarbutton-hover-background, hsla(0, 0%, 70%, 0.4))
   );
@@ -25,7 +25,7 @@
     var(--lwt-toolbarbutton-hover-background, hsla(240, 5%, 5%, 0.1)),
     var(--lwt-toolbarbutton-hover-background, hsla(0, 0%, 70%, 0.4))
   );
-  --toolbarbutton-active-background: light-dark(
+  --toolbarbutton-background-color-active: light-dark(
     var(--lwt-toolbarbutton-active-background, hsla(240, 5%, 5%, 0.15)),
     var(--lwt-toolbarbutton-active-background, hsla(0, 0%, 70%, 0.6))
   );
@@ -196,15 +196,15 @@
 
   @media (-moz-gtk-theme-family: breeze) {
     &:hover > .toolbarbutton-icon {
-      color: var(--toolbox-bgcolor);
-      background-color: var(--toolbox-textcolor);
+      color: var(--toolbox-background-color);
+      background-color: var(--toolbox-text-color);
       &:-moz-window-inactive {
-        color: var(--toolbox-bgcolor-inactive);
-        background-color: var(--toolbox-textcolor-inactive);
+        color: var(--toolbox-background-color-inactive);
+        background-color: var(--toolbox-text-color-inactive);
       }
     }
     &:hover:active > .toolbarbutton-icon {
-      background-color: color-mix(in srgb, var(--toolbox-textcolor) 50%, transparent);
+      background-color: color-mix(in srgb, var(--toolbox-text-color) 50%, transparent);
     }
     &.titlebar-close:hover > .toolbarbutton-icon {
       background-color: #ff98a2;

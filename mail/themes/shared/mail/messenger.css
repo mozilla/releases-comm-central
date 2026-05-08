@@ -91,8 +91,8 @@ hr {
 }
 
 :root[lwtheme]:not([customtitlebar]) #navigation-toolbox {
-  color: var(--toolbar-color, inherit);
-  background-color: var(--toolbar-bgcolor);
+  color: var(--toolbar-text-color, inherit);
+  background-color: var(--toolbar-background-color);
 }
 
 /* When a theme defines both theme_frame and additional_backgrounds, show
@@ -316,7 +316,7 @@ toolbar[customizing="true"][collapsed] {
   &:not([disabled]):is(:hover, [open="true"]) > .toolbarbutton-menubutton-button,
   &:not([disabled]):hover > .toolbarbutton-menubutton-dropmarker,
   &:not([is="toolbarbutton-menu-button"], [disabled], [checked], [open="true"], :active):hover {
-    background-color: var(--toolbarbutton-hover-background);
+    background-color: var(--toolbarbutton-background-color-hover);
     border-color: var(--toolbarbutton-hover-bordercolor);
     box-shadow: var(--toolbarbutton-hover-boxshadow);
   }
@@ -334,7 +334,7 @@ toolbar[customizing="true"][collapsed] {
   &:not([is="toolbarbutton-menu-button"], [disabled])[open="true"],
   & > .toolbarbutton-menubutton-button:not([disabled]):hover:active,
   &[open="true"] > .toolbarbutton-menubutton-dropmarker:not([disabled]) {
-    background-color: var(--toolbarbutton-active-background) !important;
+    background-color: var(--toolbarbutton-background-color-active) !important;
   }
 
   &[is="toolbarbutton-menu-button"] > .toolbarbutton-menubutton-button {
@@ -526,7 +526,7 @@ menulist {
   color: var(--button-text-color);
   border: 1px solid var(--toolbarbutton-hover-bordercolor);
   border-radius: var(--button-border-radius);
-  background-color: var(--toolbarbutton-hover-background);
+  background-color: var(--toolbarbutton-background-color-hover);
   box-shadow: var(--toolbarbutton-hover-boxshadow);
   transition-property: background-color, border-color, box-shadow;
   transition-duration: 150ms;
@@ -538,16 +538,16 @@ menulist {
   /* Override the not existing rule in menu.css */
   &[disabled]:hover,
   &[open="true"]:hover {
-    background-color: var(--toolbarbutton-hover-background);
+    background-color: var(--toolbarbutton-background-color-hover);
   }
 
   &:not([disabled], [open="true"]):hover {
-    background-color: var(--toolbarbutton-active-background);
+    background-color: var(--toolbarbutton-background-color-active);
     border-color: var(--toolbarbutton-active-bordercolor);
   }
 
   &[open="true"] {
-    background-color: var(--toolbarbutton-active-background);
+    background-color: var(--toolbarbutton-background-color-active);
     border-color: var(--toolbarbutton-active-bordercolor);
     box-shadow: var(--toolbarbutton-active-boxshadow);
   }
@@ -1086,13 +1086,13 @@ label.statusbarpanel {
 }
 
 findbar {
-  background-color: var(--toolbar-bgcolor);
-  color: var(--toolbar-color);
+  background-color: var(--toolbar-background-color);
+  color: var(--toolbar-text-color);
   border-block-start-color: var(--chrome-content-separator-color, ThreeDShadow);
 
   :root[lwtheme] & {
     background-color: var(--lwt-accent-color);
-    background-image: linear-gradient(var(--toolbar-bgcolor), var(--toolbar-bgcolor)), var(--lwt-additional-images);
+    background-image: linear-gradient(var(--toolbar-background-color), var(--toolbar-background-color)), var(--lwt-additional-images);
     background-repeat: no-repeat, var(--lwt-background-tiling);
     background-position:
       right bottom,
@@ -1101,7 +1101,7 @@ findbar {
   }
 
   :root[lwtheme-image] & {
-    background-image: linear-gradient(var(--toolbar-bgcolor), var(--toolbar-bgcolor)), var(--lwt-header-image), var(--lwt-additional-images);
+    background-image: linear-gradient(var(--toolbar-background-color), var(--toolbar-background-color)), var(--lwt-header-image), var(--lwt-additional-images);
     background-repeat: no-repeat, no-repeat, var(--lwt-background-tiling);
     background-position:
       center,

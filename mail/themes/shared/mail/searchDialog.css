@@ -134,6 +134,6 @@ treechildren::-moz-tree-cell-text(container, closed, hasUnread, read) {
 }
 
 :root[lwtheme] #gray_horizontal_splitter {
-  background-color: var(--toolbar-bgcolor);
+  background-color: var(--toolbar-background-color);
   border-color: hsla(0, 0%, 50%, 0.3);
 }

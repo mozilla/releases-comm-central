@@ -3,7 +3,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 :root[lwt-tree-brighttext] #today-pane-panel {
-  --toolbarbutton-hover-background: var(
+  --toolbarbutton-background-color-hover: var(
     --lwt-toolbarbutton-hover-background,
     rgba(255, 255, 255, 0.25)
   );
@@ -11,7 +11,7 @@
     --lwt-toolbarbutton-hover-background,
     rgba(255, 255, 255, 0.5)
   );
-  --toolbarbutton-active-background: var(
+  --toolbarbutton-background-color-active: var(
     --lwt-toolbarbutton-active-background,
     rgba(255, 255, 255, 0.4)
   );
@@ -39,8 +39,8 @@
 }
 
 :root[lwtheme] #today-pane-panel {
-  background-color: var(--toolbar-bgcolor);
-  color: var(--toolbar-color);
+  background-color: var(--toolbar-background-color);
+  color: var(--toolbar-text-color);
 }
 
 #today-pane-panel > * {
@@ -191,14 +191,14 @@
   border-radius: var(--button-border-radius);
 
   &:not([disabled]):hover {
-    background-color: var(--toolbarbutton-hover-background);
+    background-color: var(--toolbarbutton-background-color-hover);
     border-color: var(--toolbarbutton-hover-bordercolor);
     box-shadow: var(--toolbarbutton-hover-boxshadow);
     color: inherit;
     outline: none;
 
     &:active {
-      background-color: var(--toolbarbutton-active-background);
+      background-color: var(--toolbarbutton-background-color-active);
       border-color: var(--toolbarbutton-active-bordercolor);
       box-shadow: var(--toolbarbutton-active-boxshadow);
       transition-duration: 10ms;
@@ -261,14 +261,14 @@
   fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 
   &:not([disabled]):hover {
-    background: var(--toolbarbutton-hover-background);
+    background: var(--toolbarbutton-background-color-hover);
     border-color: var(--toolbarbutton-hover-bordercolor);
     box-shadow: var(--toolbarbutton-hover-boxshadow);
     color: inherit;
     outline: none;
 
     &:active {
-      background: var(--toolbarbutton-active-background);
+      background: var(--toolbarbutton-background-color-active);
       border-color: var(--toolbarbutton-active-bordercolor);
       box-shadow: var(--toolbarbutton-active-boxshadow);
       transition-duration: 10ms;

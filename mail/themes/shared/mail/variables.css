@@ -14,8 +14,8 @@
   --lwt-additional-images: none;
   --lwt-background-alignment: right top;
   --lwt-background-tiling: no-repeat;
-  --toolbar-bgcolor: var(--layout-background-1);
-  --toolbar-color: var(--layout-color-1);
+  --toolbar-background-color: var(--layout-background-1);
+  --toolbar-text-color: var(--layout-color-1);
   --panelui-subview-transition-duration: 150ms;
   --autocomplete-popup-highlight-background: var(--selected-item-color);
   --autocomplete-popup-highlight-color: var(--selected-item-text-color);
@@ -81,7 +81,7 @@
   --toolbar-button-active-background-color: color-mix(in srgb, currentColor 20%, transparent);
   --toolbar-button-active-border-color: color-mix(in srgb, currentColor 40%, transparent);
   --toolbarbutton-icon-fill-opacity: 0.85;
-  --toolbarbutton-hover-background: light-dark(
+  --toolbarbutton-background-color-hover: light-dark(
     var(--lwt-toolbarbutton-hover-background, rgba(0, 0, 0, 0.05)),
     var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, 0.25))
   );
@@ -94,7 +94,7 @@
     var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, 0.25))
   );
   --toolbarbutton-hover-boxshadow: none;
-  --toolbarbutton-active-background: light-dark(
+  --toolbarbutton-background-color-active: light-dark(
     var(--lwt-toolbarbutton-active-background, rgba(0, 0, 0, 0.1)),
     var(--lwt-toolbarbutton-active-background, rgba(255, 255, 255, 0.4))
   );
@@ -149,12 +149,12 @@
     --button-background: #d2d2d3;
     --button-background-hover: #c2c2c3;
     --button-background-active: #b2b2b3;
-    --search-bar-color: var(--toolbar-field-focus-color);
+    --search-bar-color: var(--toolbar-field-text-color-focus);
     --search-bar-background: var(--toolbar-field-background-color);
     --search-bar-border-color: var(--toolbar-field-border-color);
-    --search-bar-focus-background: var(--toolbar-field-focus-background-color);
-    --toolbar-color: var(--lwt-text-color, inherit);
-    --toolbar-bgcolor: rgba(255, 255, 255, 0.4);
+    --search-bar-focus-background: var(--toolbar-field-background-color-focus);
+    --toolbar-text-color: var(--lwt-text-color, inherit);
+    --toolbar-background-color: rgba(255, 255, 255, 0.4);
     --toolbar-field-border-color: hsla(240, 5%, 5%, 0.25);
     --toolbarbutton-icon-fill-opacity: 1;
     --tabline-color: var(--lwt-tab-line-color, currentColor);

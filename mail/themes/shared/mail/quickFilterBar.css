@@ -17,7 +17,7 @@
   border-block-end: 1px solid var(--sidebar-border);
 
   :root[lwtheme][lwt-tree] & {
-    background-color: color-mix(in srgb, var(--toolbar-bgcolor) 50%, transparent);
+    background-color: color-mix(in srgb, var(--toolbar-background-color) 50%, transparent);
     color: var(--lwt-text-color);
   }
 }

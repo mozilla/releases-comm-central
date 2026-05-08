@@ -14,7 +14,7 @@ notification {
   }
 
   #summary-toolbar {
-    background-color: var(--toolbar-bgcolor);
+    background-color: var(--toolbar-background-color);
   }
 }
 

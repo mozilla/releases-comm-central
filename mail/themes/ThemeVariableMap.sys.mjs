@@ -48,13 +48,13 @@ export const ThemeVariableMap = [
     },
   ],
   [
-    "--toolbar-bgcolor",
+    "--toolbar-background-color",
     {
       lwtProperty: "toolbarColor",
     },
   ],
   [
-    "--toolbar-color",
+    "--toolbar-text-color",
     {
       lwtProperty: "toolbar_text",
     },

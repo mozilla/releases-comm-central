@@ -3,7 +3,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 :root[lwt-tree-brighttext] #unifinder-searchBox {
-  --toolbarbutton-hover-background: var(
+  --toolbarbutton-background-color-hover: var(
     --lwt-toolbarbutton-hover-background,
     rgba(255, 255, 255, 0.25)
   );
@@ -15,7 +15,7 @@
     --lwt-toolbarbutton-hover-background,
     rgba(255, 255, 255, 0.25)
   );
-  --toolbarbutton-active-background: var(
+  --toolbarbutton-background-color-active: var(
     --lwt-toolbarbutton-active-background,
     rgba(255, 255, 255, 0.4)
   );
@@ -53,9 +53,9 @@
 }
 
 :root[lwt-tree] #unifinder-searchBox {
-  background-color: var(--toolbar-bgcolor);
+  background-color: var(--toolbar-background-color);
   background-image: none;
-  color: var(--toolbar-color);
+  color: var(--toolbar-text-color);
 }
 
 :root[lwtheme] #unifinder-searchBox {

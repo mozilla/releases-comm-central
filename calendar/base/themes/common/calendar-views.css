@@ -1233,7 +1233,7 @@ button.calview-toggle-item[role="tab"][aria-selected="false"]:hover:active {
 }
 
 .today-navigation-button:not([disabled]):hover {
-  background: var(--toolbarbutton-hover-background);
+  background: var(--toolbarbutton-background-color-hover);
   border-color: var(--toolbarbutton-hover-bordercolor);
   box-shadow: var(--toolbarbutton-hover-boxshadow);
   color: inherit;
@@ -1246,7 +1246,7 @@ button.calview-toggle-item[role="tab"][aria-selected="false"]:hover:active {
 }
 
 .today-navigation-button:not([disabled]):hover:active {
-  background: var(--toolbarbutton-active-background);
+  background: var(--toolbarbutton-background-color-active);
   border-color: var(--toolbarbutton-active-bordercolor);
   box-shadow: var(--toolbarbutton-active-boxshadow);
   transition-duration: 10ms;

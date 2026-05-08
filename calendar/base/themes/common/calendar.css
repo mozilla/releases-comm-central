@@ -55,13 +55,13 @@
   -moz-user-focus: normal;
 
   &:hover {
-    background: var(--toolbarbutton-hover-background);
+    background: var(--toolbarbutton-background-color-hover);
     border-color: var(--toolbarbutton-hover-bordercolor);
     box-shadow: var(--toolbarbutton-hover-boxshadow);
   }
 
   &:hover:active {
-    background: var(--toolbarbutton-active-background);
+    background: var(--toolbarbutton-background-color-active);
     border-color: var(--toolbarbutton-active-bordercolor);
     box-shadow: var(--toolbarbutton-active-boxshadow);
     transition-duration: 10ms;
@@ -130,10 +130,16 @@
 #imip-view-toolbar {
   --imip-button-background: linear-gradient(var(--layout-background-1), var(--layout-background-1));
   --imip-button-background-hover:
-    linear-gradient(var(--toolbarbutton-hover-background), var(--toolbarbutton-hover-background)),
+    linear-gradient(
+      var(--toolbarbutton-background-color-hover),
+      var(--toolbarbutton-background-color-hover)
+    ),
     linear-gradient(var(--layout-background-1), var(--layout-background-1));
   --imip-button-background-active:
-    linear-gradient(var(--toolbarbutton-active-background), var(--toolbarbutton-active-background)),
+    linear-gradient(
+      var(--toolbarbutton-background-color-active),
+      var(--toolbarbutton-background-color-active)
+    ),
     linear-gradient(var(--layout-background-1), var(--layout-background-1));
 }
 

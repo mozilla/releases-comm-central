@@ -27,7 +27,7 @@
 
 :root[lwt-tree] {
   & :is(#MsgHeadersToolbar, #FormatToolbox) {
-    background-color: var(--toolbar-bgcolor) !important;
+    background-color: var(--toolbar-background-color) !important;
     color: var(--lwt-text-color);
   }
 
@@ -322,7 +322,7 @@
 #compose-toolbox {
   :root[lwtheme] & {
     position: relative;
-    color: var(--toolbar-color, inherit);
+    color: var(--toolbar-text-color, inherit);
 
     &::after {
       content: "";
@@ -339,7 +339,7 @@
   & > toolbar {
     /* force iconsize="small" on these toolbars */
     counter-reset: smallicons;
-    background-color: var(--toolbar-bgcolor);
+    background-color: var(--toolbar-background-color);
     color: inherit;
   }
 }
@@ -421,8 +421,8 @@
     align-items: baseline;
 
     :root[lwt-tree] & {
-      background-color: var(--toolbar-bgcolor);
-      color: var(--toolbar-color);
+      background-color: var(--toolbar-background-color);
+      color: var(--toolbar-text-color);
     }
 
     &:focus-visible {
@@ -459,7 +459,7 @@
     border-block-end: 1px solid var(--lwt-tabs-border-color);
 
     :root[lwt-tree] & {
-      background-color: var(--toolbar-bgcolor);
+      background-color: var(--toolbar-background-color);
       color: var(--lwt-text-color);
       border-block-end: 1px solid var(--lwt-tabs-border-color);
     }
@@ -620,11 +620,11 @@
     }
 
     &:not([disabled], [open="true"]):hover {
-      background: var(--toolbarbutton-hover-background);
+      background: var(--toolbarbutton-background-color-hover);
     }
 
     &[open="true"] {
-      background: var(--toolbarbutton-active-background);
+      background: var(--toolbarbutton-background-color-active);
       border-color: var(--toolbarbutton-active-bordercolor);
     }
   }
@@ -664,7 +664,7 @@ toolbarbutton.formatting-button {
 
   &:not([disabled]) {
     &:hover {
-      background-color: var(--toolbarbutton-hover-background);
+      background-color: var(--toolbarbutton-background-color-hover);
       border-color: var(--toolbarbutton-hover-bordercolor);
       box-shadow: var(--toolbarbutton-hover-boxshadow);
     }
@@ -676,7 +676,7 @@ toolbarbutton.formatting-button {
     }
 
     &:is([open="true"], :hover:active) {
-      background-color: var(--toolbarbutton-active-background) !important;
+      background-color: var(--toolbarbutton-background-color-active) !important;
     }
   }
 
@@ -776,7 +776,7 @@ toolbarbutton.formatting-button {
 /* :::: attachment notification :::: */
 
 #compose-notification-bottom > .notificationbox-stack {
-  background-color: var(--toolbar-field-focus-background-color);
+  background-color: var(--toolbar-field-background-color-focus);
 }
 
 #attachmentReminderText {
@@ -841,8 +841,8 @@ toolbarbutton.formatting-button {
     outline-offset: 0;
 
     :root[lwt-tree] & {
-      color: var(--toolbar-field-focus-color);
-      background-color: var(--toolbar-field-focus-background-color);
+      color: var(--toolbar-field-text-color-focus);
+      background-color: var(--toolbar-field-background-color-focus);
     }
 
     :root[lwt-tree-brighttext] & {
@@ -968,8 +968,8 @@ toolbarbutton.formatting-button {
     outline-offset: 0;
 
     :root[lwt-tree] & {
-      color: var(--toolbar-field-focus-color);
-      background-color: var(--toolbar-field-focus-background-color);
+      color: var(--toolbar-field-text-color-focus);
+      background-color: var(--toolbar-field-background-color-focus);
     }
 
     :root[lwt-tree-brighttext] & {
@@ -1047,8 +1047,8 @@ toolbarbutton.formatting-button {
     outline-offset: 0;
 
     :root[lwt-tree] & {
-      color: var(--toolbar-field-focus-color);
-      background-color: var(--toolbar-field-focus-background-color);
+      color: var(--toolbar-field-text-color-focus);
+      background-color: var(--toolbar-field-background-color-focus);
     }
 
     :root[lwt-tree-brighttext] & {
@@ -1243,7 +1243,7 @@ toolbarbutton.formatting-button {
 
 button#extraAddressRowsMenuButton[aria-expanded="true"] {
   /* Show as toggled on when the overflow is expanded. */
-  background: var(--toolbarbutton-active-background);
+  background: var(--toolbarbutton-background-color-active);
   box-shadow: var(--toolbarbutton-active-boxshadow);
 }
 

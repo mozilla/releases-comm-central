@@ -86,8 +86,8 @@ input::-moz-search-clear-button {
 :root[lwtheme] .remote-gloda-search[focused="true"],
 :root[lwt-tree] .themeableSearchBox:is(:focus, [focused="true"]),
 :root[lwt-tree] #peopleSearchInput[focused="true"] {
-  color: var(--toolbar-field-focus-color);
-  background-color: var(--toolbar-field-focus-background-color);
+  color: var(--toolbar-field-text-color-focus);
+  background-color: var(--toolbar-field-background-color-focus);
 }
 
 :root[lwtheme] .gloda-search::selection,

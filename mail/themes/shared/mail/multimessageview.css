@@ -48,10 +48,10 @@ body {
   border-block-end: 1px solid var(--sidebar-border);
 
   @media (prefers-color-scheme: dark) {
-    --toolbarbutton-hover-background: rgba(179, 179, 179, 0.4);
+    --toolbarbutton-background-color-hover: rgba(179, 179, 179, 0.4);
     --toolbarbutton-hover-bordercolor: rgba(179, 179, 179, 0.4);
     --toolbarbutton-header-bordercolor: rgba(179, 179, 179, 0.4);
-    --toolbarbutton-active-background: rgba(179, 179, 179, 0.6);
+    --toolbarbutton-background-color-active: rgba(179, 179, 179, 0.6);
     --toolbarbutton-active-bordercolor: rgba(179, 179, 179, 0.6);
     --toolbarbutton-active-boxshadow: none;
   }

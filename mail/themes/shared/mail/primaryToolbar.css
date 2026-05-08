@@ -6,14 +6,14 @@
 
 .mail-toolbox,
 .contentTabToolbox {
-  background-color: var(--toolbar-bgcolor);
+  background-color: var(--toolbar-background-color);
 
   :root[lwtheme] & {
-    color: var(--toolbar-color, inherit);
+    color: var(--toolbar-text-color, inherit);
     background-color: var(--lwt-accent-color);
     background-image:
       linear-gradient(var(--lwt-selected-tab-background-color, transparent), var(--lwt-selected-tab-background-color, transparent)),
-      linear-gradient(var(--toolbar-bgcolor), var(--toolbar-bgcolor)), var(--lwt-header-image, none);
+      linear-gradient(var(--toolbar-background-color), var(--toolbar-background-color)), var(--lwt-header-image, none);
     background-position:
       right top,
       var(--lwt-background-alignment);

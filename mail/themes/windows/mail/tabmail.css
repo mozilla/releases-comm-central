@@ -77,7 +77,7 @@ tabpanels {
 
   &:not([scrolledtostart])::part(scrollbutton-up):hover,
   &:not([scrolledtoend])::part(scrollbutton-down):hover {
-    background: var(--toolbarbutton-active-background);
+    background: var(--toolbarbutton-background-color-active);
   }
 }
 

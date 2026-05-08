@@ -753,7 +753,7 @@ richlistitem:not([selected]) .protoIconDimmed {
     appearance: none;
     padding-inline: 4px;
     color: var(--toolbar-field-color);
-    background-color: var(--toolbar-field-focus-background-color);
+    background-color: var(--toolbar-field-background-color-focus);
     border-color: var(--toolbar-field-focus-border-color);
     outline: 1px solid var(--toolbar-field-focus-border-color);
   }
@@ -957,7 +957,7 @@ toolbar[mode="text"] #button-chat {
   padding: 1px !important;
   border: 1px solid var(--toolbarbutton-hover-bordercolor);
   border-radius: var(--button-border-radius);
-  background: var(--toolbarbutton-hover-background) !important;
+  background: var(--toolbarbutton-background-color-hover) !important;
   box-shadow: var(--toolbarbutton-hover-boxshadow);
   transition-property: background-color, border-color, box-shadow;
   transition-duration: 150ms;
@@ -966,12 +966,12 @@ toolbar[mode="text"] #button-chat {
   stroke: currentColor;
 
   &:not([disabled]):not([open="true"]):hover {
-    background: var(--toolbarbutton-active-background) !important;
+    background: var(--toolbarbutton-background-color-active) !important;
     border-color: var(--toolbarbutton-active-bordercolor);
   }
 
   &[open="true"] {
-    background: var(--toolbarbutton-active-background) !important;
+    background: var(--toolbarbutton-background-color-active) !important;
     border-color: var(--toolbarbutton-active-bordercolor);
     box-shadow: var(--toolbarbutton-active-boxshadow);
   }

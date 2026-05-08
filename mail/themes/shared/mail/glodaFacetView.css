@@ -183,7 +183,7 @@ h3 {
   margin-inline-start: 8px;
 
   &[checked] {
-    background: var(--toolbarbutton-active-background);
+    background: var(--toolbarbutton-background-color-active);
     border-color: var(--toolbarbutton-active-bordercolor);
     box-shadow: var(--toolbarbutton-active-boxshadow);
   }

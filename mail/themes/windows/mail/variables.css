@@ -39,9 +39,9 @@
     & #navigation-toolbox > toolbar,
     & #todaypane-new-event-button,
     & #CardViewBox {
-      --toolbarbutton-hover-background: SelectedItem;
+      --toolbarbutton-background-color-hover: SelectedItem;
       --toolbarbutton-hover-bordercolor: SelectedItemText !important;
-      --toolbarbutton-active-background: SelectedItem;
+      --toolbarbutton-background-color-active: SelectedItem;
       --toolbarbutton-active-bordercolor: SelectedItemText;
       --toolbarbutton-checked-background: SelectedItem;
       --toolbarbutton-icon-fill-attention: SelectedItem;
@@ -61,7 +61,7 @@
     }
 
     & menulist {
-      --toolbarbutton-hover-background: ButtonFace;
+      --toolbarbutton-background-color-hover: ButtonFace;
     }
   }
 }

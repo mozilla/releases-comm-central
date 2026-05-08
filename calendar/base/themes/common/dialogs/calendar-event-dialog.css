@@ -425,7 +425,7 @@ label.label {
 
   &:not([disabled]) {
     &:hover {
-      background-color: var(--toolbarbutton-hover-background);
+      background-color: var(--toolbarbutton-background-color-hover);
       border-color: var(--toolbarbutton-hover-bordercolor);
       box-shadow: var(--toolbarbutton-hover-boxshadow);
     }
@@ -437,7 +437,7 @@ label.label {
     }
 
     &:is([open="true"], :hover:active) {
-      background-color: var(--toolbarbutton-active-background) !important;
+      background-color: var(--toolbarbutton-background-color-active) !important;
     }
   }
 

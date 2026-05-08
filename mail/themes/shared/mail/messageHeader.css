@@ -522,7 +522,7 @@ button.email-action-button {
 :root[lwt-tree] {
   & #singleMessage,
   & #attachmentView {
-    background-color: var(--toolbar-bgcolor) !important;
+    background-color: var(--toolbar-background-color) !important;
     background-image: none !important;
     color: var(--lwt-text-color);
   }

@@ -5,7 +5,7 @@
 @namespace html url("http://www.w3.org/1999/xhtml");
 
 :root[lwt-tree-brighttext] #calendar-task-details-container {
-  --toolbarbutton-hover-background: var(
+  --toolbarbutton-background-color-hover: var(
     --lwt-toolbarbutton-hover-background,
     rgba(255, 255, 255, 0.25)
   );
@@ -17,7 +17,7 @@
     --lwt-toolbarbutton-hover-background,
     rgba(255, 255, 255, 0.25)
   );
-  --toolbarbutton-active-background: var(
+  --toolbarbutton-background-color-active: var(
     --lwt-toolbarbutton-active-background,
     rgba(255, 255, 255, 0.4)
   );
@@ -88,9 +88,9 @@
   border-block-end: 1px solid ThreeDShadow;
 
   :root[lwt-tree] & {
-    background-color: var(--toolbar-bgcolor);
+    background-color: var(--toolbar-background-color);
     background-image: none;
-    color: var(--toolbar-color);
+    color: var(--toolbar-text-color);
   }
 
   :root[lwtheme] & {
@@ -99,9 +99,9 @@
 }
 
 :root[lwt-tree] #calendar-task-details-container {
-  background-color: var(--toolbar-bgcolor);
+  background-color: var(--toolbar-background-color);
   background-image: none;
-  color: var(--toolbar-color);
+  color: var(--toolbar-text-color);
   border-color: var(--sidebar-border);
 }
 
@@ -211,7 +211,7 @@
 }
 
 #calendar-add-task-button:not([disabled]):hover {
-  background: var(--toolbarbutton-hover-background);
+  background: var(--toolbarbutton-background-color-hover);
   border-color: var(--toolbarbutton-hover-bordercolor);
   box-shadow: var(--toolbarbutton-hover-boxshadow);
   color: inherit;
@@ -219,7 +219,7 @@
 }
 
 #calendar-add-task-button:not([disabled]):hover:active {
-  background: var(--toolbarbutton-active-background);
+  background: var(--toolbarbutton-background-color-active);
   border-color: var(--toolbarbutton-active-bordercolor);
   box-shadow: var(--toolbarbutton-active-boxshadow);
   transition-duration: 10ms;
