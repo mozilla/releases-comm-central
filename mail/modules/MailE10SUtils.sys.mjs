@@ -30,16 +30,23 @@ export var MailE10SUtils = {
    * @see `nsIWebNavigation.loadURI`
    *
    * @param {nsIBrowser} browser
-   * @param {string} url
+   * @param {string} uri
    * @param {object} params
    */
-  loadURI(browser, url, params = {}) {
-    const uri = Services.io.newURI(url);
-    const remoteType = ChromeUtils.predictRemoteTypeForURI(uri, {
-      window: browser.documentGlobal,
-    });
+  loadURI(browser, uri, params = {}) {
+    const multiProcess = browser.documentGlobal.docShell.QueryInterface(
+      Ci.nsILoadContext
+    ).useRemoteTabs;
+    const remoteSubframes = browser.documentGlobal.docShell.QueryInterface(
+      Ci.nsILoadContext
+    ).useRemoteSubframes;
 
     const isRemote = browser.hasAttribute("remote");
+    const remoteType = E10SUtils.getRemoteTypeForURI(
+      uri,
+      multiProcess,
+      remoteSubframes
+    );
     const shouldBeRemote = remoteType !== E10SUtils.NOT_REMOTE;
 
     if (shouldBeRemote != isRemote) {
@@ -49,7 +56,7 @@ export var MailE10SUtils = {
     params.triggeringPrincipal =
       params.triggeringPrincipal ||
       Services.scriptSecurityManager.getSystemPrincipal();
-    browser.fixupAndLoadURIString(url, params);
+    browser.fixupAndLoadURIString(uri, params);
   },
 
   /**
