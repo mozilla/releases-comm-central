@@ -123,6 +123,8 @@ skip-if = [
 
 ["browser_tabsSimple.js"]
 
+["browser_undoInThreads.js"]
+
 ["browser_viewSource.js"]
 
 ["browser_virtualFolderCommands.js"]

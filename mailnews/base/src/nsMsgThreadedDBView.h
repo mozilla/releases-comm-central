@@ -44,10 +44,6 @@ class nsMsgThreadedDBView : public nsMsgGroupView {
   virtual void OnHeaderAddedOrDeleted() override;
   void ClearPrevIdArray();
   virtual nsresult RemoveByIndex(nsMsgViewIndex index) override;
-  nsMsgViewIndex GetInsertInfoForNewHdr(nsIMsgDBHdr* newHdr,
-                                        nsMsgViewIndex threadIndex,
-                                        int32_t targetLevel);
-  void MoveThreadAt(nsMsgViewIndex threadIndex);
 
   // these are used to save off the previous view so that bopping back and forth
   // between two views is quick (e.g., threaded and flat sorted by date).
