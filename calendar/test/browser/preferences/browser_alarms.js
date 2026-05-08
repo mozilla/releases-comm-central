@@ -14,6 +14,9 @@ var { CalendarTestUtils } = ChromeUtils.importESModule(
 var { cancelItemDialog } = ChromeUtils.importESModule(
   "resource://testing-common/calendar/ItemEditingHelpers.sys.mjs"
 );
+var { MockFilePicker } = ChromeUtils.importESModule(
+  "resource://testing-common/MockFilePicker.sys.mjs"
+);
 
 const l10n = new Localization(["calendar/calendar.ftl", "calendar/calendar-alarms.ftl"], true);
 const DEFVALUE = 43;
@@ -84,6 +87,8 @@ add_task(async function testDefaultAlarms() {
   promptPromise = BrowserTestUtils.promiseAlertDialog("extra1");
   cancelItemDialog(dialogWindow);
   await promptPromise;
+
+  await closePrefsTab();
 });
 
 async function handlePrefTab(prefsWindow, prefsDocument) {
@@ -176,6 +181,54 @@ async function openTasksTab() {
 
   await new Promise(resolve => setTimeout(resolve));
 }
+
+add_task(async function testSounds() {
+  // To hear the sound in this test, add `--setpref media.volume_scale=1.0` to
+  // your command. You won't hear the system sound as nsISound is mocked out.
+
+  Services.prefs.setBoolPref("calendar.alarms.playsound", true);
+  Services.prefs.setIntPref("calendar.alarms.soundType", 0);
+  Services.prefs.setStringPref("calendar.alarms.soundURL", "");
+
+  const { prefsDocument, prefsWindow } = await openNewPrefsTab(
+    "paneCalendar",
+    "calendarReminderCategory"
+  );
+  const playSoundButton = prefsDocument.getElementById("calendar.prefs.alarm.sound.play");
+  const soundUrlTextbox = prefsDocument.getElementById("alarmSoundFileField");
+  const browseButton = prefsDocument.getElementById("calendar.prefs.alarm.sound.browse");
+
+  const [systemRadio, customRadio] = prefsDocument.querySelectorAll("#alarmSoundType radio");
+  Assert.ok(systemRadio.selected);
+  Assert.ok(!playSoundButton.disabled);
+  let audioPromise = TestUtils.topicObserved("notification-audio-ended");
+  EventUtils.synthesizeMouseAtCenter(playSoundButton, {}, prefsWindow);
+  let [audioElement] = await audioPromise;
+  Assert.equal(audioElement.src, "chrome://calendar/content/sound.wav");
+
+  EventUtils.synthesizeMouseAtCenter(customRadio, {}, prefsWindow);
+  Assert.equal(soundUrlTextbox.value, "");
+
+  const soundFile = new FileUtils.File(getTestFilePath("files/complete.oga"));
+  const soundUrl = Services.io.newFileURI(soundFile).spec;
+  MockFilePicker.init(window);
+  MockFilePicker.setFiles([soundFile]);
+  MockFilePicker.returnValue = MockFilePicker.returnOK;
+  EventUtils.synthesizeMouseAtCenter(browseButton, {}, prefsWindow);
+  await TestUtils.waitForCondition(() => soundUrlTextbox.value, "waiting for sound url to be set");
+  Assert.equal(soundUrlTextbox.value, soundUrl);
+
+  Assert.equal(Services.prefs.getIntPref("calendar.alarms.soundType"), 1);
+  audioPromise = TestUtils.topicObserved("notification-audio-ended");
+  EventUtils.synthesizeMouseAtCenter(playSoundButton, {}, prefsWindow);
+  [audioElement] = await audioPromise;
+  Assert.equal(audioElement.src, soundUrl);
+
+  await closePrefsTab();
+
+  Services.prefs.clearUserPref("calendar.alarms.soundType");
+  Services.prefs.clearUserPref("calendar.alarms.soundURL");
+});
 
 registerCleanupFunction(function () {
   Services.prefs.clearUserPref("calendar.alarms.onforevents");

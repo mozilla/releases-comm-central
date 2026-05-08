@@ -22,6 +22,10 @@ Preferences.addAll([
   { id: "calendar.alarms.defaultsnoozelength", type: "int" },
 ]);
 
+ChromeUtils.defineESModuleGetters(this, {
+  NotificationSounds: "resource:///modules/NotificationSounds.sys.mjs",
+});
+
 /**
  * Global Object to hold methods for the alarms pref pane
  */
@@ -125,19 +129,7 @@ var gAlarmsPane = {
     } else {
       soundUrl = Preferences.get("calendar.alarms.soundURL").value;
     }
-    const soundIfc = Cc["@mozilla.org/sound;1"].createInstance(Ci.nsISound);
-    let url;
-    try {
-      soundIfc.init();
-      if (soundUrl && soundUrl.length && soundUrl.length > 0) {
-        url = Services.io.newURI(soundUrl);
-        soundIfc.play(url);
-      } else {
-        soundIfc.beep();
-      }
-    } catch (ex) {
-      dump("alarms.js previewAlarm Exception caught! " + ex + "\n");
-    }
+    NotificationSounds.playCustomSound(soundUrl);
   },
 
   /**

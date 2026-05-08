@@ -20,6 +20,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
     "resource:///modules/MailNotificationService.sys.mjs",
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
   MessageArchiver: "resource:///modules/MessageArchiver.sys.mjs",
+  NotificationSounds: "resource:///modules/NotificationSounds.sys.mjs",
   WinUnreadBadge: "resource:///modules/WinUnreadBadge.sys.mjs",
 });
 ChromeUtils.defineLazyGetter(
@@ -27,8 +28,6 @@ ChromeUtils.defineLazyGetter(
   "l10n",
   () => new Localization(["messenger/messenger.ftl"], true)
 );
-
-let audioElementWeak;
 
 const availableActions = [
   {
@@ -159,9 +158,7 @@ export const MailNotificationManager = new (class {
     if (["macosx", "win"].includes(AppConstants.platform)) {
       // We don't have indicator for unread count on Linux yet.
       lazy.MailNotificationService.addListener(this);
-
       Services.obs.addObserver(this, "unread-im-count-changed");
-      Services.obs.addObserver(this, "profile-before-change");
     }
 
     if (AppConstants.platform == "macosx") {
@@ -173,6 +170,8 @@ export const MailNotificationManager = new (class {
       Services.prefs.addObserver("mail.biff.show_badge", this);
       Services.prefs.addObserver("mail.biff.show_tray_icon_always", this);
     }
+
+    Services.obs.addObserver(this, "profile-before-change");
   }
 
   observe(subject, topic, data) {
@@ -190,10 +189,6 @@ export const MailNotificationManager = new (class {
       case "windows-refresh-badge-tray":
         this._updateUnreadCount();
         return;
-      case "profile-before-change":
-        this._osIntegration?.onExit();
-        audioElementWeak?.deref()?.pause();
-        return;
       case "newmailalert-closed":
         // newmailalert.xhtml is closed, try to show the next queued folder.
         this._customizedAlertShown = false;
@@ -206,6 +201,29 @@ export const MailNotificationManager = new (class {
         ) {
           this._updateUnreadCount();
         }
+        return;
+      case "profile-before-change":
+        this._osIntegration?.onExit();
+
+        if (["macosx", "win"].includes(AppConstants.platform)) {
+          lazy.MailNotificationService.removeListener(this);
+          Services.obs.removeObserver(this, "unread-im-count-changed");
+        }
+
+        if (AppConstants.platform == "macosx") {
+          Services.obs.removeObserver(this, "new-directed-incoming-message");
+        }
+
+        if (AppConstants.platform == "win") {
+          Services.obs.removeObserver(this, "windows-refresh-badge-tray");
+          Services.prefs.removeObserver("mail.biff.show_badge", this);
+          Services.prefs.removeObserver(
+            "mail.biff.show_tray_icon_always",
+            this
+          );
+        }
+
+        Services.obs.removeObserver(this, "profile-before-change");
     }
   }
 
@@ -324,34 +342,7 @@ export const MailNotificationManager = new (class {
       return;
     }
 
-    let audioElement = audioElementWeak?.deref();
-    if (audioElement && audioElement.src != url) {
-      // A sound, that isn't the one we want, is already playing. Stop it.
-      audioElement.pause();
-      audioElement = null;
-    }
-    if (!audioElement) {
-      // Create a new audio element for playing the sound.
-      const win = Services.wm.getMostRecentWindow("mail:3pane");
-      if (!win) {
-        return;
-      }
-      audioElement = new win.Audio();
-      if (Cu.isInAutomation) {
-        audioElement.onended = function () {
-          Services.obs.notifyObservers(
-            audioElement,
-            "notification-audio-ended"
-          );
-        };
-      }
-      audioElement.src = url;
-      audioElementWeak = new WeakRef(audioElement);
-    }
-
-    // Go to the start and play the sound.
-    audioElement.currentTime = 0;
-    audioElement.play();
+    lazy.NotificationSounds.playCustomSound(url);
   }
 
   async _fillAlertInfo(folder, newMsgKeys, numNewMessages) {

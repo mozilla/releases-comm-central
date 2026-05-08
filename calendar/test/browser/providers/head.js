@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// To hear the sound in these tests, add `--setpref media.volume_scale=1.0` to
+// your command.
+
 SimpleTest.requestCompleteLog();
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
@@ -115,10 +118,18 @@ const alarmObserver = {
   onRemoveAlarmsByItem() {},
   onRemoveAlarmsByCalendar() {},
   onAlarmsLoaded() {},
+
+  _soundCount: 0,
+  observe(audioElement) {
+    this._soundCount++;
+    Assert.equal(audioElement.src, "chrome://calendar/content/sound.wav");
+  },
 };
 alarmService.addObserver(alarmObserver);
+Services.obs.addObserver(alarmObserver, "notification-audio-ended");
 registerCleanupFunction(async () => {
   alarmService.removeObserver(alarmObserver);
+  Services.obs.removeObserver(alarmObserver, "notification-audio-ended");
 });
 
 /**
@@ -142,6 +153,7 @@ async function runTestAlarms() {
   Assert.equal(window.getUnifinderView().rowCount, 0, "there should be no events in the unifinder");
 
   alarmObserver._alarmCount = 0;
+  alarmObserver._soundCount = 0;
 
   const alarmDialogPromise = BrowserTestUtils.promiseAlertDialog(
     undefined,
@@ -189,7 +201,9 @@ async function runTestAlarms() {
     "alarm dialog did not reappear"
   );
   Assert.equal(alarmObserver._alarmCount, 1, "only one alarm");
+  Assert.equal(alarmObserver._soundCount, 1, "only one alarm sound");
   alarmObserver._alarmCount = 0;
+  alarmObserver._soundCount = 0;
 
   let eventBox = await CalendarTestUtils.multiweekView.waitForItemAt(
     window,
@@ -219,7 +233,9 @@ async function runTestAlarms() {
     "alarm dialog should not reappear"
   );
   Assert.equal(alarmObserver._alarmCount, 0, "there should not be any remaining alarms");
+  Assert.equal(alarmObserver._soundCount, 0, "alarm sound should not have played again");
   alarmObserver._alarmCount = 0;
+  alarmObserver._soundCount = 0;
 
   eventBox = await CalendarTestUtils.multiweekView.waitForItemAt(
     window,

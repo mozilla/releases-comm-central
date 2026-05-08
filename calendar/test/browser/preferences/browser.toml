@@ -12,7 +12,8 @@ prefs = [
   "mailnews.start_page.url=about:blank",
 ]
 subsuite = "thunderbird"
+support-files = ["files/**"]
 
-["browser_alarmDefaultValue.js"]
+["browser_alarms.js"]
 
 ["browser_categoryColors.js"]
