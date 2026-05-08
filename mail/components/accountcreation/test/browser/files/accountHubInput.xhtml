@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Account Hub Input Test</title>
+    <link rel="stylesheet" href="chrome://messenger/skin/accountHub.css"/>
+    <link rel="stylesheet" href="chrome://messenger/skin/accountHubForms.css"/>
+    <link rel="localization" href="messenger/accountcreation/accountHub.ftl" />
+    <script type="module" src="chrome://messenger/content/accountcreation/content/widgets/account-hub-input.mjs"></script>
+  </head>
+  <body>
+      <template
+        id="accountHubInputTemplate"
+        xmlns="http://www.w3.org/1999/xhtml"
+      >
+        <label></label>
+        <div class="input-control">
+          <input aria-invalid="false" />
+          <img src="" alt="" class="form-icon icon-danger input-warning" />
+          <img src="" alt="" class="form-icon icon-success input-success" />
+          <span class="input-error-message"></span>
+        </div>
+      </template>
+      <form>
+        <account-hub-input
+          id="incomingHostname"
+          l10n-label-id="account-hub-result-hostname-label"
+          l10n-error-id="account-hub-hostname-error-text"
+          type="text"
+          placeholder="mail.example.com"
+          required="required"
+          classes="input-field manual-input"
+        >
+        </account-hub-input>
+      </form>
+  </body>
+</html>

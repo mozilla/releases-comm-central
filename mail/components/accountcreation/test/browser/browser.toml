@@ -46,6 +46,8 @@ support-files = ["files/**"]
 
 ["browser_accountHubHeader.js"]
 
+["browser_accountHubInput.js"]
+
 ["browser_accountHubSelect.js"]
 
 ["browser_accountHubStep.js"]
