@@ -338,7 +338,7 @@ dependencies = [
 [[package]]
 name = "audioipc2"
 version = "0.6.0"
-source = "git+https://github.com/mozilla/audioipc?rev=b52c33425baf619b6c1278c5b4c7ffa3e92b9b1e#b52c33425baf619b6c1278c5b4c7ffa3e92b9b1e"
+source = "git+https://github.com/mozilla/audioipc?rev=57d82a9e0a389e4ad8a029ec6ba6a7920c67d631#57d82a9e0a389e4ad8a029ec6ba6a7920c67d631"
 dependencies = [
  "arrayvec",
  "ashmem",
@@ -346,7 +346,6 @@ dependencies = [
  "bincode",
  "byteorder",
  "bytes",
- "cc",
  "crossbeam-queue",
  "cubeb",
  "iovec",
@@ -365,7 +364,7 @@ dependencies = [
 [[package]]
 name = "audioipc2-client"
 version = "0.6.0"
-source = "git+https://github.com/mozilla/audioipc?rev=b52c33425baf619b6c1278c5b4c7ffa3e92b9b1e#b52c33425baf619b6c1278c5b4c7ffa3e92b9b1e"
+source = "git+https://github.com/mozilla/audioipc?rev=57d82a9e0a389e4ad8a029ec6ba6a7920c67d631#57d82a9e0a389e4ad8a029ec6ba6a7920c67d631"
 dependencies = [
  "audio_thread_priority",
  "audioipc2",
@@ -376,7 +375,7 @@ dependencies = [
 [[package]]
 name = "audioipc2-server"
 version = "0.6.0"
-source = "git+https://github.com/mozilla/audioipc?rev=b52c33425baf619b6c1278c5b4c7ffa3e92b9b1e#b52c33425baf619b6c1278c5b4c7ffa3e92b9b1e"
+source = "git+https://github.com/mozilla/audioipc?rev=57d82a9e0a389e4ad8a029ec6ba6a7920c67d631#57d82a9e0a389e4ad8a029ec6ba6a7920c67d631"
 dependencies = [
  "audio_thread_priority",
  "audioipc2",
@@ -4722,7 +4721,6 @@ dependencies = [
 [[package]]
 name = "nss-rs"
 version = "0.3.0"
-source = "git+https://github.com/mozilla/nss-rs?rev=c54949bbff92795b8b2e837ec84decc9b468081a#c54949bbff92795b8b2e837ec84decc9b468081a"
 dependencies = [
  "bindgen 0.72.0",
  "enum-map",

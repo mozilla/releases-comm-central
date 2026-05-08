@@ -271,6 +271,13 @@ impl ServerStreamCallbacks {
 
         match r {
             Ok(CallbackResp::Data(frames)) => {
+                if frames < 0 || frames > nframes {
+                    debug!(
+                        "bad callback response: frames={} nframes={}",
+                        frames, nframes
+                    );
+                    return cubeb::ffi::CUBEB_ERROR.try_into().unwrap();
+                }
                 if let (Ok(frames), Some(output_frame_size)) =
                     (usize::try_from(frames), self.output_frame_size)
                 {
@@ -787,6 +794,26 @@ impl CubebServer {
         stm_tok: usize,
         params: &StreamInitParams,
     ) -> Result<ClientMessage> {
+        fn valid_stream_params(p: &StreamParams) -> bool {
+            const MAX_CHANNELS: u32 = 64;
+            const MIN_RATE: u32 = 1_000;
+            const MAX_RATE: u32 = 768_000;
+            p.channels >= 1
+                && p.channels <= MAX_CHANNELS
+                && p.rate >= MIN_RATE
+                && p.rate <= MAX_RATE
+        }
+        for p in params
+            .input_stream_params
+            .iter()
+            .chain(params.output_stream_params.iter())
+        {
+            if !valid_stream_params(p) {
+                self.streams.remove(stm_tok);
+                return Err(cubeb::Error::InvalidParameter.into());
+            }
+        }
+
         // Create cubeb stream from params
         let stream_name = params
             .stream_name
