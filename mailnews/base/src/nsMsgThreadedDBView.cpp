@@ -534,7 +534,10 @@ nsresult nsMsgThreadedDBView::OnNewHeader(nsIMsgDBHdr* newHdr,
   }
 
   bool moveThread = false;
-  if (threadHdr && m_sortType == nsMsgViewSortType::byDate) {
+  if (threadHdr &&
+      (m_sortType == nsMsgViewSortType::byDate ||
+       m_sortType == nsMsgViewSortType::byReceived) &&
+      !mSortThreadsByRoot) {
     uint32_t newestMsgInThread = 0, msgDate = 0;
     threadHdr->GetNewestMsgDate(&newestMsgInThread);
     newHdr->GetDateInSeconds(&msgDate);
