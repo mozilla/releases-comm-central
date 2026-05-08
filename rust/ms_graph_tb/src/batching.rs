@@ -38,7 +38,10 @@ pub struct BatchRequestItem {
     method: String,
     url: String,
     headers: HashMap<String, String>,
-    #[serde(serialize_with = "serialize_as_json")]
+    #[serde(
+        serialize_with = "serialize_as_json",
+        skip_serializing_if = "String::is_empty"
+    )]
     body: String,
 }
 
@@ -46,7 +49,7 @@ pub struct BatchRequestItem {
 ///
 /// See <https://learn.microsoft.com/en-us/graph/json-batching>
 #[derive(Debug, Deserialize, Eq, PartialEq)]
-pub struct BatchResponse<T> {
+pub struct BatchResponse<T: Default> {
     pub responses: Vec<BatchResponseItem<T>>,
 }
 
@@ -64,6 +67,7 @@ pub struct BatchResponseItem<T> {
     #[serde(deserialize_with = "deserialize_status_code_from_integer")]
     pub status: http::StatusCode,
     pub headers: HashMap<String, String>,
+    #[serde(default)]
     pub body: T,
 }
 
@@ -107,7 +111,11 @@ impl BatchRequest {
     }
 }
 
-impl<T: DeserializeOwned> BatchResponse<T> {
+impl<T> BatchResponse<T>
+where
+    T: DeserializeOwned,
+    T: Default,
+{
     /// Create a new Graph API [`BatchResponse`] from JSON data.
     ///
     /// This implementation assumes that the IDs associated with the individual
@@ -188,7 +196,7 @@ mod test {
 
     struct TestOp;
 
-    #[derive(Deserialize, Debug, Eq, PartialEq)]
+    #[derive(Deserialize, Debug, Eq, PartialEq, Default)]
     struct TestResponse {
         a: i32,
     }

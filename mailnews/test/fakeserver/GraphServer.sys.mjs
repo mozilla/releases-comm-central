@@ -321,7 +321,12 @@ export class GraphServer extends MockServer {
         JSON.stringify(body)
       );
 
-      const itemResponseJson = JSON.parse(itemResponseData.bodyContent);
+      let itemResponseJson;
+      if (itemResponseData.bodyContent) {
+        itemResponseJson = JSON.parse(itemResponseData.bodyContent);
+      } else {
+        itemResponseJson = null;
+      }
 
       const batchResponseItem = {
         id,
@@ -329,8 +334,12 @@ export class GraphServer extends MockServer {
         headers: {
           "content-type": "application/json",
         },
-        body: itemResponseJson,
       };
+
+      // Only add the body item if there is a json object to put there.
+      if (itemResponseJson) {
+        batchResponseItem.body = itemResponseJson;
+      }
 
       responseJsonObject.responses.push(batchResponseItem);
     }
@@ -429,6 +438,15 @@ export class GraphServer extends MockServer {
         } else if (resourcePath.startsWith("/me/mailFolders")) {
           responseJsonObject = this.#updateFolder(resourcePath, requestBody);
         }
+        break;
+
+      case "DELETE":
+        if (resourcePath.startsWith("/me/mailFolders")) {
+          this.#deleteFolder(resourcePath);
+          // There is no body, so we return 204 No Content to indicate success.
+          return new HttpResponseData(204, "No Content");
+        }
+        break;
     }
 
     // If we don't have a body to respond with, it likely means we've failed to
@@ -971,6 +989,18 @@ export class GraphServer extends MockServer {
     return {
       id: newId,
     };
+  }
+
+  /**
+   * Handle DELETE /me/mailFolders/{folderId}
+   *
+   * @param {string} resourcePath
+   */
+  #deleteFolder(resourcePath) {
+    const pathParts = resourcePath.split("/");
+    const folderId = pathParts[pathParts.length - 2];
+
+    this.deleteRemoteFolderById(folderId);
   }
 
   get #endpoint() {

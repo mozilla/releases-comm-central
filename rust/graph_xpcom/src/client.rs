@@ -27,6 +27,7 @@ mod check_connectivity;
 mod copy_folder;
 mod create_folder;
 mod create_message;
+mod delete_folder;
 mod get_message;
 mod move_folder;
 mod move_message;
@@ -294,6 +295,7 @@ impl<ServerT: ServerType> XpComGraphClient<ServerT> {
     ) -> Result<Vec<Op::Response<'a>>, XpComGraphError>
     where
         Op: Operation,
+        Op::Response<'a>: Default,
     {
         let mut results: Vec<Op::Response<'a>> = Vec::new();
 

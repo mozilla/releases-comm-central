@@ -76,7 +76,22 @@ add_task(async function test_create_folder() {
   await runCreateFolderTest(graphServer, incomingGraphServer);
 });
 
-async function runDeleteFolderTest(folderToDeleteName, parentFolder) {
+/**
+ * Create and delete a folder.
+ *
+ * @param {string} folderToDeleteName The name of the folder to create and then delete.
+ * @param {nsIMsgFolder} parentFolder The folder in which to create/delete the new folder.
+ * @param {MockServer} mockServer The mock server managing the test data.
+ * @param {nsIMsgIncomingServer} incomingServer The incoming server.
+ *
+ * @returns {string} The ID of the folder *before* it was deleted.
+ */
+async function runDeleteFolderTest(
+  folderToDeleteName,
+  parentFolder,
+  mockServer,
+  incomingServer
+) {
   Assert.ok(
     !!parentFolder,
     `The parent folder for the delete test should exist.`
@@ -84,14 +99,14 @@ async function runDeleteFolderTest(folderToDeleteName, parentFolder) {
 
   const parentId = parentFolder.isServer
     ? "root"
-    : parentFolder.getStringProperty("ewsId");
+    : parentFolder.getStringProperty(ewsIdPropertyName);
 
   // Reset the list of deleted folders on the server to avoid any side-effect
   // from another test
-  ewsServer.deletedFolders = [];
+  mockServer.deletedFolders = [];
 
   // Create a new remote folder for this test.
-  ewsServer.appendRemoteFolder(
+  mockServer.appendRemoteFolder(
     new RemoteFolder(
       folderToDeleteName,
       parentId,
@@ -101,8 +116,8 @@ async function runDeleteFolderTest(folderToDeleteName, parentFolder) {
   );
 
   // Sync the folder list, updated with the new folder.
-  const rootFolder = incomingEwsServer.rootFolder;
-  await syncFolder(incomingEwsServer, rootFolder);
+  const rootFolder = incomingServer.rootFolder;
+  await syncFolder(incomingServer, rootFolder);
   const child = parentFolder.getChildNamed(folderToDeleteName);
   Assert.ok(!!child, `${folderToDeleteName} should exist.`);
 
@@ -120,14 +135,16 @@ async function runDeleteFolderTest(folderToDeleteName, parentFolder) {
   return remoteEwsId;
 }
 
-add_task(async function test_hard_delete() {
+async function runHardDeleteTest(mockServer, incomingServer) {
   // Set the delete model for the server to permanently delete.
-  incomingEwsServer.QueryInterface(Ci.IEwsIncomingServer).deleteModel =
+  incomingServer.QueryInterface(Ci.IEwsIncomingServer).deleteModel =
     Ci.IEwsIncomingServer.PERMANENTLY_DELETE;
   const folderToDeleteName = "folder_to_hard_delete";
   const remoteEwsId = await runDeleteFolderTest(
     folderToDeleteName,
-    incomingEwsServer.rootFolder
+    incomingServer.rootFolder,
+    mockServer,
+    incomingServer
   );
 
   // Ensure the server has recorded a folder deletion and that it's for the
@@ -142,18 +159,26 @@ add_task(async function test_hard_delete() {
     ewsServer.deletedFolders[0].id,
     "the deleted folder should be the one we've just deleted"
   );
+}
+
+add_task(async function test_hard_delete_ews() {
+  await runHardDeleteTest(ewsServer, incomingEwsServer);
+});
+add_task(async function test_hard_delete_graph() {
+  await runHardDeleteTest(graphServer, incomingGraphServer);
 });
 
-add_task(async function test_delete_from_trash() {
+async function runDeleteFromTrashTest(mockServer, incomingServer) {
   // Set the delete model for the server to soft delete.
-  incomingEwsServer.QueryInterface(Ci.IEwsIncomingServer).deleteModel =
+  incomingServer.QueryInterface(Ci.IEwsIncomingServer).deleteModel =
     Ci.IEwsIncomingServer.MOVE_TO_TRASH;
   const folderToDeleteName = "folder_to_delete_from_trash";
-  const trashFolder =
-    incomingEwsServer.rootFolder.getChildNamed("deleted items");
+  const trashFolder = incomingServer.rootFolder.getChildNamed("deleted items");
   const remoteEwsId = await runDeleteFolderTest(
     folderToDeleteName,
-    trashFolder
+    trashFolder,
+    mockServer,
+    incomingServer
   );
 
   // Ensure the server has recorded a folder deletion and that it's for the
@@ -168,26 +193,41 @@ add_task(async function test_delete_from_trash() {
     ewsServer.deletedFolders[0].id,
     "the deleted folder should be the one we've just deleted"
   );
+}
+
+add_task(async function test_delete_from_trash_ews() {
+  await runDeleteFromTrashTest(ewsServer, incomingEwsServer);
+});
+add_task(async function test_delete_from_trash_graph() {
+  await runDeleteFromTrashTest(graphServer, incomingGraphServer);
 });
 
-add_task(async function test_soft_delete() {
+async function runSoftDeleteTest(mockServer, incomingServer) {
   // Set the delete model for the server to move to trash.
-  incomingEwsServer.QueryInterface(Ci.IEwsIncomingServer).deleteModel =
+  incomingServer.QueryInterface(Ci.IEwsIncomingServer).deleteModel =
     Ci.IEwsIncomingServer.MOVE_TO_TRASH;
   const folderToDeleteName = "folder_to_soft_delete";
-  const remoteEwsId = await runDeleteFolderTest(
+  let remoteEwsId = await runDeleteFolderTest(
     folderToDeleteName,
-    incomingEwsServer.rootFolder
+    incomingServer.rootFolder,
+    mockServer,
+    incomingServer
   );
 
   Assert.equal(
     0,
-    ewsServer.deletedFolders.length,
+    mockServer.deletedFolders.length,
     "the server should have not recorded any deletions."
   );
 
   // Make sure it was moved to trash.
-  const foundFolder = ewsServer.folders.filter(f => f.id === remoteEwsId);
+  if (incomingServer.type == "graph") {
+    // This is one area where graph and EWS differ: In EWS, IDs are stable
+    // between reparenting, while in Graph it changes. The mock server prepends
+    // "moved-folder-" in the unstable case.
+    remoteEwsId = `moved-folder-${remoteEwsId}`;
+  }
+  const foundFolder = mockServer.folders.filter(f => f.id === remoteEwsId);
   Assert.equal(foundFolder.length, 1, "Server should have folder in its list.");
   Assert.equal(
     foundFolder[0].parentId,
@@ -196,8 +236,7 @@ add_task(async function test_soft_delete() {
   );
 
   // Now test trash operations
-  const trashFolder =
-    incomingEwsServer.rootFolder.getChildNamed("Deleted Items");
+  const trashFolder = incomingServer.rootFolder.getChildNamed("Deleted Items");
   Assert.ok(!!trashFolder, "server should have trash folder");
   Assert.ok(trashFolder.hasSubFolders, "Folder should be in trash");
 
@@ -208,14 +247,24 @@ add_task(async function test_soft_delete() {
     "The trash should eventually be emptied."
   );
 
-  await syncFolder(incomingEwsServer, incomingEwsServer.rootFolder);
-  const unfoundFolder = ewsServer.folders.filter(f => f.id === remoteEwsId);
+  await syncFolder(incomingServer, incomingServer.rootFolder);
+  const unfoundFolder = mockServer.folders.filter(f => f.id === remoteEwsId);
   Assert.equal(
     unfoundFolder.length,
     0,
     "Server should no longer have folder in its list."
   );
+}
+
+add_task(async function test_soft_delete_ews() {
+  await runSoftDeleteTest(ewsServer, incomingEwsServer);
 });
+
+// TODO: Uncomment this once we implement the empty trash operation for graph.
+// See https://bugzilla.mozilla.org/show_bug.cgi?id=2037684
+// add_task(async function test_soft_delete_graph() {
+//   await runSoftDeleteTest(graphServer, incomingGraphServer);
+// });
 
 add_task(async function test_delete_id_mismatch() {
   // Reset the list of deleted folders on the server to avoid any side-effect

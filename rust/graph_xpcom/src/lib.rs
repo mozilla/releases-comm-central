@@ -207,10 +207,18 @@ impl XpcomGraphBridge {
     ));
     fn delete_folder(
         &self,
-        _listener: &IExchangeSimpleOperationListener,
-        _folder_ids: &ThinVec<nsCString>,
+        listener: &IExchangeSimpleOperationListener,
+        folder_ids: &ThinVec<nsCString>,
     ) -> Result<(), nsresult> {
-        Err(nserror::NS_ERROR_NOT_IMPLEMENTED)
+        let client = self.client()?;
+
+        let folder_ids = folder_ids.iter().map(ToString::to_string).collect();
+        let listener = SafeEwsSimpleOperationListener::new(listener);
+
+        moz_task::spawn_local("delete_folder", client.delete_folders(folder_ids, listener))
+            .detach();
+
+        Ok(())
     }
 
     xpcom_method!(empty_folder => EmptyFolder(

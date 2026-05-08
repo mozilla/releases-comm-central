@@ -592,4 +592,40 @@ mod tests {
         // on body lifetime.
         assert!(!generated_code.contains("Put < 'body >"));
     }
+
+    #[test]
+    fn test_delete_operation_codegen() {
+        let path = Path {
+            name: "/pets/{pet-id}/".to_string(),
+            template_expressions: vec!["pet-id".to_string()],
+            description: None,
+            operations: vec![Operation {
+                method: Method::Delete,
+                summary: Some("Delete a pet".to_string()),
+                description: None,
+                external_docs: None,
+                pageable: false,
+                is_delta: false,
+                parameters: None,
+                body: None,
+                success: Success::NoBody,
+            }],
+        };
+
+        let path_module = PathModule {
+            path: &path,
+            child_modules: &[],
+        };
+
+        let generated = quote!(#path_module);
+
+        println!("{generated}");
+
+        let generated_code = format!("{generated}");
+
+        assert!(
+            generated_code
+                .contains("impl Operation for Delete { const METHOD : Method = Method :: DELETE")
+        );
+    }
 }
