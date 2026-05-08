@@ -58,13 +58,9 @@ xpcshell:
             macosx1470-64/debug: 6
             macosx1470-64.*/opt: 4
             windows.*/debug: 2
-            windows11-64-24h2-asan/opt: 2
-            windows11-64-24h2-ccov/opt: 3
+            windows11-64-25h2-asan/opt: 2
+            windows11-64-25h2-ccov/opt: 3
             default: 1
-    worker-type:
-        by-test-platform:
-            windows11-64-24h2-ccov/opt: win11-64-24h2-ssd
-            default: default
     instance-size: default
     max-run-time:
         by-variant:
@@ -196,10 +192,6 @@ mochitest-thunderbird:
                     - unittests/linux_unittest.py
                     - remove_executables.py
                     - unittests/thunderbird_extra.py
-    worker-type:
-        by-test-platform:
-            windows11-64-24h2-ccov/opt: win11-64-24h2-ssd
-            default: default
     instance-size:
         by-test-platform:
             linux.*64-tsan.*/opt: xlarge-noscratch  # runs out of memory on default/m3.large

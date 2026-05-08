@@ -62,10 +62,10 @@ linux2404-64-ccov/opt:
         - xpcshell-tests
 
 ##
-# Windows platforms (matching /windows.*/) 24H2 (no -qr)
+# Windows platforms (matching /windows.*/) 25H2 (no -qr)
 
-# Windows 11 - 32bit - 24H2
-windows11-32-24h2/debug:
+# Windows 11 - 32bit - 25H2
+windows11-32-25h2/debug:
     build-platform: win32/debug
     build-signing-label: build-signing-win32/debug
     test-sets:
@@ -73,7 +73,7 @@ windows11-32-24h2/debug:
         - mochitest-tests
         - xpcshell-tests
 
-windows11-32-24h2/opt:
+windows11-32-25h2/opt:
     build-platform: win32/opt
     build-signing-label: build-signing-win32/opt
     test-sets:
@@ -81,7 +81,7 @@ windows11-32-24h2/opt:
         - mochitest-tests
         - xpcshell-tests
 
-windows11-32-24h2-shippable/opt:
+windows11-32-25h2-shippable/opt:
     build-platform: win32-shippable/opt
     build-signing-label: build-signing-win32-shippable/opt
     test-sets:
@@ -89,8 +89,8 @@ windows11-32-24h2-shippable/opt:
         - mochitest-tests
         - xpcshell-tests
 
-# Windows 11 - 64bit - 24H2
-windows11-64-24h2/debug:
+# Windows 11 - 64bit - 25H2
+windows11-64-25h2/debug:
     build-platform: win64/debug
     build-signing-label:
         by-variant:
@@ -102,7 +102,7 @@ windows11-64-24h2/debug:
         - mochitest-tests
         - xpcshell-tests
 
-windows11-64-24h2/opt:
+windows11-64-25h2/opt:
     build-platform: win64/opt
     build-signing-label:
         by-variant:
@@ -114,7 +114,7 @@ windows11-64-24h2/opt:
         - mochitest-tests
         - xpcshell-tests
 
-windows11-64-24h2-shippable/opt:
+windows11-64-25h2-shippable/opt:
     build-platform: win64-shippable/opt
     build-signing-label:
         by-variant:
@@ -126,7 +126,7 @@ windows11-64-24h2-shippable/opt:
         - mochitest-tests
         - xpcshell-tests
 
-windows11-64-24h2-ccov/opt:
+windows11-64-25h2-ccov/opt:
     build-platform: win64-ccov/opt
     build-signing-label: build-signing-win64-ccov/opt
     test-sets:
@@ -134,7 +134,7 @@ windows11-64-24h2-ccov/opt:
         - mochitest-tests
         - xpcshell-tests
 
-windows11-64-24h2-asan/opt:
+windows11-64-25h2-asan/opt:
     build-platform: win64-asan/opt
     test-sets:
         - mochitest-tests
