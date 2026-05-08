@@ -939,7 +939,19 @@ nsresult EwsFolder::HandleDeleteOperation(
 
   nsresult rv;
 
-  bool isTrashFolder = mFlags & nsMsgFolderFlags::Trash;
+  // If any ancestor of this folder is the trash folder, then hard delete.
+  bool isInTrashFolder = false;
+  nsCOMPtr<nsIMsgFolder> parent;
+  GetParent(getter_AddRefs(parent));
+  while (parent) {
+    bool isTrashFolder = false;
+    MOZ_TRY(parent->GetFlag(nsMsgFolderFlags::Trash, &isTrashFolder));
+    if (isTrashFolder) {
+      isInTrashFolder = true;
+      break;
+    }
+    parent->GetParent(getter_AddRefs(parent));
+  }
 
   // Check the delete model to see if this should be a permanent delete.
   nsCOMPtr<nsIMsgIncomingServer> server;
@@ -951,7 +963,7 @@ nsresult EwsFolder::HandleDeleteOperation(
   DeleteModel deleteModel;
   rv = ewsServer->GetDeleteModel(&deleteModel);
 
-  if (forceHardDelete || isTrashFolder ||
+  if (forceHardDelete || isInTrashFolder ||
       deleteModel == DeleteModel::PERMANENTLY_DELETE) {
     return onHardDelete();
   }
