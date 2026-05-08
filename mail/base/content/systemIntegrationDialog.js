@@ -91,11 +91,12 @@ var gSystemIntegrationDialog = {
       this._calendarCheckbox.removeAttribute("tooltiptext");
     }
 
+    this._netThunderbirdCheckbox.disabled = this._shellSvc.isDefaultClient(
+      false,
+      this._shellSvc.NET_THUNDERBIRD
+    );
     this._netThunderbirdCheckbox.checked =
-      this._netThunderbirdCheckbox.disabled = this._shellSvc.isDefaultClient(
-        false,
-        this._shellSvc.NET_THUNDERBIRD
-      );
+      !calledFromPrefs || this._netThunderbirdCheckbox.disabled;
     if (!this._netThunderbirdCheckbox.disabled) {
       this._netThunderbirdCheckbox.removeAttribute("tooltiptext");
     }
