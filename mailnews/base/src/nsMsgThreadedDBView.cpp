@@ -661,59 +661,100 @@ nsresult nsMsgThreadedDBView::AddMsgToThreadNotInView(nsIMsgThread* threadHdr,
 // This method just removes the specified line from the view. It does
 // NOT delete it from the database.
 nsresult nsMsgThreadedDBView::RemoveByIndex(nsMsgViewIndex index) {
-  nsresult rv = NS_OK;
-  int32_t flags;
-
-  if (!IsValidIndex(index)) return NS_MSG_INVALID_DBVIEW_INDEX;
+  if (!IsValidIndex(index)) {
+    return NS_MSG_INVALID_DBVIEW_INDEX;
+  }
 
   OnHeaderAddedOrDeleted();
 
-  flags = m_flags[index];
-
-  if (!(m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay))
+  if (!(m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay)) {
     return nsMsgDBView::RemoveByIndex(index);
+  }
 
   nsCOMPtr<nsIMsgThread> threadHdr;
   GetThreadContainingIndex(index, getter_AddRefs(threadHdr));
-  NS_ENSURE_SUCCESS(rv, rv);
+
   uint32_t numThreadChildren = 0;
   // If we can't get a thread, it's already deleted and thus has 0 children.
-  if (threadHdr) threadHdr->GetNumChildren(&numThreadChildren);
+  if (threadHdr) {
+    threadHdr->GetNumChildren(&numThreadChildren);
+  }
+  int32_t flags = m_flags[index];
 
-  // Check if we're the top level msg in the thread, and we're not collapsed.
+  // Check for an expanded thread header.
   if ((flags & MSG_VIEW_FLAG_ISTHREAD) &&
       !(flags & nsMsgMessageFlags::Elided) &&
       (flags & MSG_VIEW_FLAG_HASCHILDREN)) {
-    // Fix flags on thread header - newly promoted message should have
-    // flags set correctly.
-    if (threadHdr) {
-      nsMsgDBView::RemoveByIndex(index);
-      // Above RemoveByIndex may now make index out of bounds.
-      if (IsValidIndex(index) && numThreadChildren > 0) {
-        // unreadOnly
-        nsCOMPtr<nsIMsgDBHdr> msgHdr;
-        rv = threadHdr->GetChildHdrAt(0, getter_AddRefs(msgHdr));
-        if (msgHdr != nullptr) {
-          uint32_t flag = 0;
-          msgHdr->GetFlags(&flag);
-          if (numThreadChildren > 1)
-            flag |= MSG_VIEW_FLAG_ISTHREAD | MSG_VIEW_FLAG_HASCHILDREN;
-
-          m_flags[index] = flag;
-          m_levels[index] = 0;
-          NoteChange(index, 1, nsMsgViewNotificationCode::changed);
-        }
-      }
+    if (numThreadChildren <= 0) {
+      return NS_ERROR_UNEXPECTED;
+    }
+    int32_t selectionCount = 0;
+    int32_t currentIndex = -1;
+    bool hasSelection =
+        mTreeSelection &&
+        ((NS_SUCCEEDED(mTreeSelection->GetCurrentIndex(&currentIndex)) &&
+          currentIndex >= 0 && (uint32_t)currentIndex < GetSize()) ||
+         (NS_SUCCEEDED(mTreeSelection->GetRangeCount(&selectionCount)) &&
+          selectionCount > 0));
+    nsMsgKey preservedKey = nsMsgKey_None;
+    AutoTArray<nsMsgKey, 1> preservedSelection;
+    if (hasSelection) {
+      SaveAndClearSelection(&preservedKey, preservedSelection);
+    }
+    bool changesDisabled = mSuppressChangeNotification;
+    if (!changesDisabled) {
+      SetSuppressChangeNotifications(true);
     }
 
-    return rv;
-  } else if (!(flags & MSG_VIEW_FLAG_ISTHREAD)) {
+    auto cleanupGuard = mozilla::MakeScopeExit([&] {
+      if (hasSelection) {
+        RestoreSelection(preservedKey, preservedSelection);
+      }
+      if (!changesDisabled) {
+        SetSuppressChangeNotifications(false);
+        // Always Invalidate to ensure the screen reflects the final array
+        // state.
+        if (mTree) {
+          mTree->Invalidate();
+        }
+        if (mJSTree) {
+          mJSTree->Invalidate();
+        }
+      }
+    });
+
+    // Scrub stale children natively.
+    CollapseByIndex(index, nullptr);
+    nsresult rv = nsMsgDBView::RemoveByIndex(index);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    // Add newly promoted root and let Mork natively calculate the layout and
+    // indentation.
+    nsCOMPtr<nsIMsgDBHdr> newRootHdr;
+    threadHdr->GetChildHdrAt(0, getter_AddRefs(newRootHdr));
+    if (!newRootHdr) {
+      return NS_ERROR_UNEXPECTED;
+    }
+    nsMsgViewIndex newIndex = nsMsgViewIndex_None;
+    nsMsgDBView::AddHdr(newRootHdr, &newIndex);
+    if (newIndex != nsMsgViewIndex_None) {
+      m_flags[newIndex] |= MSG_VIEW_FLAG_ISTHREAD;
+      if (numThreadChildren > 1) {
+        m_flags[newIndex] |=
+            MSG_VIEW_FLAG_HASCHILDREN | nsMsgMessageFlags::Elided;
+        ExpandByIndex(newIndex, nullptr);
+      }
+    }
+    return NS_OK;
+  }
+
+  // Check non-thread header with thread parent.
+  if (!(flags & MSG_VIEW_FLAG_ISTHREAD)) {
     // We're not deleting the top level msg, but top level msg might be the
     // only msg in thread now.
     if (threadHdr) {
       nsMsgKey msgKey;
-      rv = threadHdr->GetChildKeyAt(0, &msgKey);
-      if (NS_SUCCEEDED(rv)) {
+      if (NS_SUCCEEDED(threadHdr->GetChildKeyAt(0, &msgKey))) {
         nsMsgViewIndex threadIndex = FindViewIndex(msgKey);
         if (IsValidIndex(threadIndex)) {
           if (numThreadChildren == 1) {
@@ -729,7 +770,23 @@ nsresult nsMsgThreadedDBView::RemoveByIndex(nsMsgViewIndex index) {
       }
     }
 
-    return nsMsgDBView::RemoveByIndex(index);
+    // Capture the level of the child we are about to delete
+    int32_t deletedLevel = m_levels[index];
+    nsresult rv = nsMsgDBView::RemoveByIndex(index);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    // If the deleted child had children of its own, the DB reparents them to
+    // the deleted child's parent. Visually shift their indentation left by 1.
+    nsMsgViewIndex i = index;
+    while (i < GetSize() && m_levels[i] > deletedLevel) {
+      m_levels[i]--;
+      i++;
+    }
+    int32_t numChildrenShifted = i - index;
+    if (numChildrenShifted > 0) {
+      NoteChange(index, numChildrenShifted, nsMsgViewNotificationCode::changed);
+    }
+    return NS_OK;
   }
 
   // Deleting collapsed thread header is special case. Child will be promoted,
@@ -740,7 +797,7 @@ nsresult nsMsgThreadedDBView::RemoveByIndex(nsMsgViewIndex index) {
     // If we're not deleting the header, we want the second header,
     // Otherwise, the first one (which just got promoted).
     nsCOMPtr<nsIMsgDBHdr> msgHdr;
-    rv = threadHdr->GetChildHdrAt(0, getter_AddRefs(msgHdr));
+    threadHdr->GetChildHdrAt(0, getter_AddRefs(msgHdr));
     if (msgHdr != nullptr) {
       msgHdr->GetMessageKey(&m_keys[index]);
       uint32_t flag = 0;
@@ -766,16 +823,15 @@ nsresult nsMsgThreadedDBView::RemoveByIndex(nsMsgViewIndex index) {
     }
 
     NoteChange(index, 1, nsMsgViewNotificationCode::changed);
-  } else {
-    // We may have deleted a whole, collapsed thread - if so,
-    // ensure that the current index will be noted as changed.
-    if (!mIndicesToNoteChange.Contains(index))
-      mIndicesToNoteChange.AppendElement(index);
-
-    rv = nsMsgDBView::RemoveByIndex(index);
+    return NS_OK;
   }
 
-  return rv;
+  // We may have deleted a whole, collapsed thread - if so,
+  // ensure that the current index will be noted as changed.
+  if (!mIndicesToNoteChange.Contains(index))
+    mIndicesToNoteChange.AppendElement(index);
+
+  return nsMsgDBView::RemoveByIndex(index);
 }
 
 NS_IMETHODIMP
