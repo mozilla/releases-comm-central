@@ -4,7 +4,7 @@
 
 #include "EwsFetchMsgsToOffline.h"
 
-#include "EwsFolder.h"
+#include "ExchangeFolder.h"
 #include "EwsListeners.h"
 #include "IExchangeClient.h"
 #include "IEwsIncomingServer.h"
@@ -198,7 +198,7 @@ class MsgFetcher : public IExchangeMessageFetchListener {
 
     // Retrieve the EWS ID of the message we want to download.
     nsCString ewsId;
-    rv = msgHdr->GetStringProperty(kEwsIdProperty, ewsId);
+    rv = msgHdr->GetStringProperty(kExchangeIdProperty, ewsId);
     NS_ENSURE_SUCCESS(rv, rv);
 
     // Start fetching the message.

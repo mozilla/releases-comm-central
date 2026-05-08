@@ -3,7 +3,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 #include "EwsMessageSync.h"
-#include "EwsFolder.h"
+#include "ExchangeFolder.h"
 #include "EwsListeners.h"
 #include "IExchangeClient.h"
 #include "IEwsIncomingServer.h"
@@ -20,7 +20,8 @@
 mozilla::LazyLogModule gEwsLog("ews_xpcom");
 
 /**
- * Helper class for orchestrating a message sync operation for an EwsFolder.
+ * Helper class for orchestrating a message sync operation for an
+ * ExchangeFolder.
  *
  * You can think of it as an object which represents the sync operation as it
  * progresses.
@@ -31,7 +32,7 @@ mozilla::LazyLogModule gEwsLog("ews_xpcom");
  * folder, database, whatever.
  * It exists for the duration of the sync operation.
  *
- * This removes most protocol-specific message sync code out of EwsFolder.
+ * This removes most protocol-specific message sync code out of ExchangeFolder.
  *
  * Architectural aside (potential future directions):
  *
@@ -90,7 +91,7 @@ class EwsMessageSyncHandler : public IExchangeMessageSyncListener,
   NS_DECL_ISUPPORTS
 
   EwsMessageSyncHandler(
-      EwsFolder* folder, std::function<void()> onStart,
+      ExchangeFolder* folder, std::function<void()> onStart,
       std::function<void(nsresult, nsTArray<nsMsgKey> const&,
                          nsTArray<RefPtr<IHeaderBlock>> const&)>
           onStop)
@@ -112,7 +113,7 @@ class EwsMessageSyncHandler : public IExchangeMessageSyncListener,
     // Most of the listener callbacks will want to poke the database.
     MOZ_TRY(mFolder->GetMsgDatabase(getter_AddRefs(mDB)));
 
-    // We can get the EwsClient via the EwsFolder:
+    // We can get the EwsClient via the ExchangeFolder:
     nsCOMPtr<IExchangeClient> ewsClient;
     {
       nsCOMPtr<nsIMsgIncomingServer> server;
@@ -123,7 +124,7 @@ class EwsMessageSyncHandler : public IExchangeMessageSyncListener,
 
     // We need to know the EwsID of this folder on the server.
     nsAutoCString ewsFolderId;
-    MOZ_TRY(mFolder->GetEwsId(ewsFolderId));
+    MOZ_TRY(mFolder->GetExchangeId(ewsFolderId));
 
     // EWS provides us an opaque value which specifies the last version of
     // upstream messages we received. Provide that to simplify sync.
@@ -205,7 +206,7 @@ class EwsMessageSyncHandler : public IExchangeMessageSyncListener,
     MOZ_TRY(mDB->AddMsgHdr(&raw, true, getter_AddRefs(newHeader)));
 
     // Link the message to the server EwsId.
-    MOZ_TRY(newHeader->SetStringProperty(kEwsIdProperty, ewsId));
+    MOZ_TRY(newHeader->SetStringProperty(kExchangeIdProperty, ewsId));
 
     // Some non-RFC5322 details to mop up.
     if (messageSize) {
@@ -378,7 +379,7 @@ class EwsMessageSyncHandler : public IExchangeMessageSyncListener,
   }
 
  private:
-  RefPtr<EwsFolder> mFolder;
+  RefPtr<ExchangeFolder> mFolder;
   RefPtr<nsIMsgDatabase> mDB;
 
   nsTArray<nsMsgKey> mNewMessages;
@@ -393,7 +394,7 @@ NS_IMPL_ISUPPORTS(EwsMessageSyncHandler, IExchangeMessageSyncListener,
                   IExchangeFallibleOperationListener)
 
 nsresult EwsPerformMessageSync(
-    EwsFolder* folder, std::function<void()> onStart,
+    ExchangeFolder* folder, std::function<void()> onStart,
     std::function<void(nsresult, nsTArray<nsMsgKey> const&,
                        nsTArray<RefPtr<IHeaderBlock>> const&)>
         onStop) {

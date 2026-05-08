@@ -99,7 +99,7 @@ nsresult FolderCopyHandler::CopyNextFolder() {
   // We expect all destination folders to be valid EWS folders, and so to have
   // an EWS ID set.
   nsCString parentId;
-  MOZ_TRY(parent.value()->GetStringProperty(kEwsIdProperty, parentId));
+  MOZ_TRY(parent.value()->GetStringProperty(kExchangeIdProperty, parentId));
 
   const RefPtr<EwsSimpleFallibleListener> listener =
       new EwsSimpleFallibleListener(
@@ -108,7 +108,7 @@ nsresult FolderCopyHandler::CopyNextFolder() {
             NS_ENSURE_TRUE(ids.Length() == 1, NS_ERROR_UNEXPECTED);
 
             nsCOMPtr<nsIMsgFolder> newFolder;
-            nsresult rv = CreateNewLocalEwsFolder(
+            nsresult rv = CreateNewLocalExchangeFolder(
                 parentFolder, ids[0], folderName, getter_AddRefs(newFolder));
             NS_ENSURE_SUCCESS(rv, rv);
 

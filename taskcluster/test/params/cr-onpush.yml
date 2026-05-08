@@ -1109,7 +1109,7 @@ files_changed:
   - comm/mailnews/nss-extra.symbols
   - comm/mailnews/protocols/exchange/public/moz.build
   - comm/mailnews/protocols/exchange/public/IExchangeOutgoingServer.idl
-  - comm/mailnews/protocols/exchange/src/EwsFolder.cpp
+  - comm/mailnews/protocols/exchange/src/ExchangeFolder.cpp
   - comm/mailnews/protocols/exchange/src/EwsIncomingServer.cpp
   - comm/mailnews/protocols/exchange/src/IExchangeClient.idl
   - comm/mailnews/protocols/exchange/src/components.conf

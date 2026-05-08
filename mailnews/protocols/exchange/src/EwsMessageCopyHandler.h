@@ -6,7 +6,7 @@
 #define COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSMESSAGECOPYHANDLER_H_
 
 #include "IExchangeClient.h"
-#include "EwsFolder.h"
+#include "ExchangeFolder.h"
 
 #include "nscore.h"
 
@@ -34,7 +34,7 @@
  * following (assuming no failures, and excepting signaling start/stop/progress
  * updates to the source folder and the copy listener):
  *    1. A consumer requests an array of messages to be copied to an EWS folder
- *       (`EwsFolder::CopyMessages()`).
+ *       (`ExchangeFolder::CopyMessages()`).
  *    2. The EWS folder class instantiates a copy handler, and instructs it to
  *       start the operation (`MessageCopyHandler::StartCopyingNextMessage()`).
  *    3. The copy handler instructs the message service relevant to the first
@@ -82,7 +82,7 @@ class MessageCopyHandler : public nsICopyMessageListener {
    * Constructs a handler which will copy/move the messages specified in
    * `headers` from the source folder into the destination EWS folder.
    */
-  MessageCopyHandler(nsIMsgFolder* srcFolder, EwsFolder* dstFolder,
+  MessageCopyHandler(nsIMsgFolder* srcFolder, ExchangeFolder* dstFolder,
                      const nsTArray<RefPtr<nsIMsgDBHdr>>& headers, bool isMove,
                      nsIMsgWindow* window, nsCString dstFolderId,
                      IExchangeClient* client,
@@ -103,7 +103,7 @@ class MessageCopyHandler : public nsICopyMessageListener {
    * Constructs a handler which will copy the message contained in `srcFile`
    * into the destination EWS folder.
    */
-  MessageCopyHandler(nsIFile* srcFile, EwsFolder* dstFolder, bool isDraft,
+  MessageCopyHandler(nsIFile* srcFile, ExchangeFolder* dstFolder, bool isDraft,
                      nsIMsgWindow* window, nsCString dstFolderId,
                      IExchangeClient* client,
                      nsIMsgCopyServiceListener* copyServiceListener)
@@ -149,7 +149,7 @@ class MessageCopyHandler : public nsICopyMessageListener {
 
  private:
   // Parameters of the copy/move operation.
-  RefPtr<EwsFolder> mDstFolder;
+  RefPtr<ExchangeFolder> mDstFolder;
   const nsTArray<RefPtr<nsIMsgDBHdr>> mHeaders;
   bool mIsMove;
   bool mIsDraft;

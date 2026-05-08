@@ -3,7 +3,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 #include "ExchangeMessageCreate.h"
-#include "EwsFolder.h"
+#include "ExchangeFolder.h"
 #include "EwsListeners.h"
 #include "IExchangeClient.h"
 #include "IEwsIncomingServer.h"
@@ -37,7 +37,7 @@ class MessageCreateHandler : public IExchangeMessageCreateListener {
   // srcStream is a stream containing the raw RFC822 message.
   // srcHdr is optional. When set, it'll copy the properties of srcHdr to the
   // new nsIDBHdr, excluding any properties listed in srcExcludeProperties.
-  MessageCreateHandler(EwsFolder* destFolder, nsIInputStream* srcStream,
+  MessageCreateHandler(ExchangeFolder* destFolder, nsIInputStream* srcStream,
                        nsIMsgDBHdr* srcHdr,
                        nsTArray<nsCString> const& srcExcludeProperties,
                        bool isRead, bool isDraft,
@@ -61,7 +61,7 @@ class MessageCreateHandler : public IExchangeMessageCreateListener {
   nsresult Go() {
     MOZ_ASSERT(mFolder);
 
-    // We can get the client via the EwsFolder:
+    // We can get the client via the ExchangeFolder:
     nsCOMPtr<IExchangeClient> ewsClient;
     {
       nsCOMPtr<nsIMsgIncomingServer> server;
@@ -72,7 +72,7 @@ class MessageCreateHandler : public IExchangeMessageCreateListener {
 
     // We need to know the EwsID of this folder on the server.
     nsAutoCString ewsFolderId;
-    MOZ_TRY(mFolder->GetEwsId(ewsFolderId));
+    MOZ_TRY(mFolder->GetExchangeId(ewsFolderId));
 
     // Clone the stream.
     // We'll use one to stream the message up to the server, holding the
@@ -141,7 +141,7 @@ class MessageCreateHandler : public IExchangeMessageCreateListener {
     MOZ_TRY(ApplyRawHdrToDbHdr(rawHdrData, tmpHdr));
 
     // link to EwsId
-    MOZ_TRY(tmpHdr->SetStringProperty(kEwsIdProperty, serverId));
+    MOZ_TRY(tmpHdr->SetStringProperty(kExchangeIdProperty, serverId));
 
     // (optional) Copy over fields from srcHdr.
     if (mSrcHdr) {
@@ -171,7 +171,7 @@ class MessageCreateHandler : public IExchangeMessageCreateListener {
   }
 
   // The destination folder the new message will be created in.
-  RefPtr<EwsFolder> mFolder;
+  RefPtr<ExchangeFolder> mFolder;
 
   // The callback to let the caller know we're done.
   std::function<void(nsresult, nsIMsgDBHdr*)> mOnComplete;
@@ -192,8 +192,8 @@ class MessageCreateHandler : public IExchangeMessageCreateListener {
 NS_IMPL_ISUPPORTS(MessageCreateHandler, IExchangeMessageCreateListener)
 
 nsresult ExchangePerformMessageCreate(
-    EwsFolder* destFolder, nsIInputStream* srcRaw, bool isRead, bool isDraft,
-    std::function<void(nsresult, nsIMsgDBHdr*)> onComplete) {
+    ExchangeFolder* destFolder, nsIInputStream* srcRaw, bool isRead,
+    bool isDraft, std::function<void(nsresult, nsIMsgDBHdr*)> onComplete) {
   MOZ_ASSERT(destFolder);
   MOZ_ASSERT(srcRaw);
 
@@ -204,7 +204,7 @@ nsresult ExchangePerformMessageCreate(
 }
 
 nsresult ExchangePerformMessageCreateFromCopy(
-    EwsFolder* destFolder, nsIInputStream* srcRaw, nsIMsgDBHdr* srcHdr,
+    ExchangeFolder* destFolder, nsIInputStream* srcRaw, nsIMsgDBHdr* srcHdr,
     nsTArray<nsCString> const& srcExcludeProperties, bool isDraft,
     std::function<void(nsresult, nsIMsgDBHdr*)> onComplete) {
   MOZ_ASSERT(destFolder);

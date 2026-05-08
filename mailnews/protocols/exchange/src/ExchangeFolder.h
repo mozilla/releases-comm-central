@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSFOLDER_H_
-#define COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSFOLDER_H_
+#ifndef COMM_MAILNEWS_PROTOCOLS_EXCHANGE_SRC_EXCHANGEFOLDER_H_
+#define COMM_MAILNEWS_PROTOCOLS_EXCHANGE_SRC_EXCHANGEFOLDER_H_
 
 #include "IExchangeClient.h"
 #include "IExchangeFolder.h"
@@ -11,37 +11,38 @@
 #include "nsMsgDBFolder.h"
 #include "nscore.h"
 
-constexpr auto kEwsIdProperty = "ewsId";
+constexpr auto kExchangeIdProperty = "ewsId";
 
 /**
- * Create a new local folder with the given EWS ID and name under the given
+ * Create a new local folder with the given Exchange ID and name under the given
  * parent.
  */
-nsresult CreateNewLocalEwsFolder(nsIMsgFolder* parent, const nsACString& ewsId,
-                                 const nsACString& folderName,
-                                 nsIMsgFolder** createdFolder);
+nsresult CreateNewLocalExchangeFolder(nsIMsgFolder* parent,
+                                      const nsACString& exchangeId,
+                                      const nsACString& folderName,
+                                      nsIMsgFolder** createdFolder);
 
 class nsAutoSyncState;
 class IHeaderBlock;
 
 /**
- * The EWS implementation for `nsIMsgFolder` which represents a folder in an EWS
- * account.
+ * The Exchange implementation for `nsIMsgFolder` which represents a folder in
+ * an Exchange account.
  */
-class EwsFolder : public nsMsgDBFolder, public IExchangeFolder {
+class ExchangeFolder : public nsMsgDBFolder, public IExchangeFolder {
  public:
   NS_DECL_IEXCHANGEFOLDER
   NS_DECL_ISUPPORTS_INHERITED
 
-  EwsFolder();
+  ExchangeFolder();
 
   friend class MessageDeletionCallbacks;
   friend class MessageOperationCallbacks;
 
   /**
-   * Locally look up the EWS ID for the current folder.
+   * Locally look up the Exchange ID for the current folder.
    */
-  nsresult GetEwsId(nsACString& ewsId);
+  nsresult GetExchangeId(nsACString& exchangeId);
 
  public:
   // The XPCOM interface(s).
@@ -114,7 +115,7 @@ class EwsFolder : public nsMsgDBFolder, public IExchangeFolder {
                                  bool markFlagged) override;
 
  protected:
-  virtual ~EwsFolder();
+  virtual ~ExchangeFolder();
 
   virtual nsresult CreateBaseMessageURI(const nsACString& aURI) override;
   virtual nsresult GetDatabase() override;
@@ -131,10 +132,10 @@ class EwsFolder : public nsMsgDBFolder, public IExchangeFolder {
   nsTArray<nsMsgKey> mSpamKeysToMove;
 
   /**
-   * Generate or retrieve an EWS API client capable of interacting with the EWS
-   * server this folder depends from.
+   * Generate or retrieve an Exchange API client capable of interacting with the
+   * Exchange server this folder depends from.
    */
-  nsresult GetProtocolClient(IExchangeClient** ewsClient);
+  nsresult GetProtocolClient(IExchangeClient** exchangeClient);
 
   /**
    * Look up the trash folder for the current account.
@@ -147,11 +148,11 @@ class EwsFolder : public nsMsgDBFolder, public IExchangeFolder {
   nsresult SyncMessages(nsIMsgWindow* window, nsIUrlListener* urlListener);
 
   /**
-   * Look up the message database entry matching a given EWS ID.
+   * Look up the message database entry matching a given Exchange ID.
    *
    * `NS_ERROR_NOT_AVAILABLE` is returned if no such database entry was found.
    */
-  nsresult GetHdrForEwsId(const nsACString& ewsId, nsIMsgDBHdr** hdr);
+  nsresult GetHdrForExchangeId(const nsACString& exchangeId, nsIMsgDBHdr** hdr);
 
   /**
    * Handle a generic message or folder delete operation.
@@ -203,4 +204,4 @@ class EwsFolder : public nsMsgDBFolder, public IExchangeFolder {
   nsAutoCString mExchangeProtocol;
 };
 
-#endif  // COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSFOLDER_H_
+#endif  // COMM_MAILNEWS_PROTOCOLS_EXCHANGE_SRC_EXCHANGEFOLDER_H_

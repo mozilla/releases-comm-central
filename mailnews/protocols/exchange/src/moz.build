@@ -9,7 +9,6 @@ EXPORTS += [
 UNIFIED_SOURCES += [
     "EwsCopyMoveTransaction.cpp",
     "EwsFetchMsgsToOffline.cpp",
-    "EwsFolder.cpp",
     "EwsFolderCopyHandler.cpp",
     "EwsIncomingServer.cpp",
     "EwsLanguageInteropFactory.cpp",
@@ -21,6 +20,7 @@ UNIFIED_SOURCES += [
     "EwsProtocolHandler.cpp",
     "EwsProtocolInfo.cpp",
     "EwsService.cpp",
+    "ExchangeFolder.cpp",
     "ExchangeMessageCreate.cpp",
 ]
 

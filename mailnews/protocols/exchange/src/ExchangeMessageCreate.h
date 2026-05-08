@@ -8,7 +8,7 @@
 #include <functional>
 #include "MailNewsTypes.h"
 
-class EwsFolder;
+class ExchangeFolder;
 class IHeaderBlock;
 class nsIInputStream;
 
@@ -32,8 +32,8 @@ class nsIInputStream;
  *                    successfully started.
  */
 nsresult ExchangePerformMessageCreate(
-    EwsFolder* destFolder, nsIInputStream* srcRaw, bool isRead, bool isDraft,
-    std::function<void(nsresult, nsIMsgDBHdr*)> onComplete);
+    ExchangeFolder* destFolder, nsIInputStream* srcRaw, bool isRead,
+    bool isDraft, std::function<void(nsresult, nsIMsgDBHdr*)> onComplete);
 
 /**
  * Create a message in the given folder, on both the remote server
@@ -59,7 +59,7 @@ nsresult ExchangePerformMessageCreate(
  *                    successfully started.
  */
 nsresult ExchangePerformMessageCreateFromCopy(
-    EwsFolder* destFolder, nsIInputStream* srcRaw, nsIMsgDBHdr* srcHdr,
+    ExchangeFolder* destFolder, nsIInputStream* srcRaw, nsIMsgDBHdr* srcHdr,
     nsTArray<nsCString> const& srcExcludeProperties, bool isDraft,
     std::function<void(nsresult, nsIMsgDBHdr*)> onComplete);
 

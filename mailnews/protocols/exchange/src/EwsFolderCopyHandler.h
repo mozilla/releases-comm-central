@@ -6,7 +6,7 @@
 #define COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSFOLDERCOPYHANDLER_H_
 
 #include "IExchangeClient.h"
-#include "EwsFolder.h"
+#include "ExchangeFolder.h"
 
 #include "nsHashKeys.h"
 #include "nscore.h"
@@ -30,7 +30,7 @@ class FolderCreateCopyCallbacks;
  * The current process of copying or moving a folder is the following (assuming
  * no failure):
  *    1. A consumer requests a folder to be copied to an EWS folder
- *       (`EwsFolder::CopyFolder()`).
+ *       (`ExchangeFolder::CopyFolder()`).
  *    2. The EWS folder class instantiates a copy handler, and instructs it to
  *       start the operation (`FolderCopyHandler::CopyNextFolder()`).
  *    3. The copy handler instructs its EWS client to begin creating a folder
@@ -48,7 +48,7 @@ class FolderCreateCopyCallbacks;
  *    7. The copy handler builds a list of all the messages in the source folder
  *       (non-recursively). If there are messages in this list, it instructs the
  *       newly-created folder to start copying them from the source folder
- *       (`EwsFolder::CopyMessages()`). It is called with an instance of
+ *       (`ExchangeFolder::CopyMessages()`). It is called with an instance of
  *       `MessageCopyListener`. If there are no messages to copy, it skips
  *       straight to step 9.
  *    8. The new folder notifies the listener when all the messages have been
@@ -63,8 +63,8 @@ class FolderCopyHandler {
   MOZ_DECLARE_REFCOUNTED_TYPENAME(FolderCopyHandler)
   NS_INLINE_DECL_REFCOUNTING(FolderCopyHandler)
 
-  FolderCopyHandler(nsIMsgFolder* srcFolder, EwsFolder* dstFolder, bool isMove,
-                    nsIMsgWindow* window, IExchangeClient* client,
+  FolderCopyHandler(nsIMsgFolder* srcFolder, ExchangeFolder* dstFolder,
+                    bool isMove, nsIMsgWindow* window, IExchangeClient* client,
                     nsIMsgCopyServiceListener* copyServiceListener)
       : mDstFolder(dstFolder),
         mIsMove(isMove),
@@ -104,7 +104,7 @@ class FolderCopyHandler {
 
  private:
   // Parameters of the copy/move operation.
-  RefPtr<EwsFolder> mDstFolder;
+  RefPtr<ExchangeFolder> mDstFolder;
   bool mIsMove;
   nsCOMPtr<nsIMsgWindow> mWindow;
 

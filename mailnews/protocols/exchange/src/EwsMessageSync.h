@@ -8,7 +8,7 @@
 #include <functional>
 #include "MailNewsTypes.h"
 
-class EwsFolder;
+class ExchangeFolder;
 class IHeaderBlock;
 
 /**
@@ -25,7 +25,7 @@ class IHeaderBlock;
  * and neither `onStart` or `onStop` will be called.
  */
 nsresult EwsPerformMessageSync(
-    EwsFolder* folder, std::function<void()> onStart,
+    ExchangeFolder* folder, std::function<void()> onStart,
     std::function<void(nsresult, nsTArray<nsMsgKey> const&,
                        nsTArray<RefPtr<IHeaderBlock>> const&)>
         onStop);

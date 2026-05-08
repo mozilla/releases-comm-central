@@ -6,7 +6,7 @@
 
 #include <utility>
 
-#include "EwsFolder.h"
+#include "ExchangeFolder.h"
 #include "EwsListeners.h"
 #include "EwsOAuth2CustomDetails.h"
 #include "IExchangeClient.h"
@@ -167,7 +167,7 @@ nsresult EwsIncomingServer::MaybeCreateFolderWithDetails(
 
   // Record the EWS ID of the folder so that we can translate between local path
   // and remote ID when needed.
-  rv = newFolder->SetStringProperty(kEwsIdProperty, id);
+  rv = newFolder->SetStringProperty(kExchangeIdProperty, id);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // The flags we get from the XPCOM code indicate whether this is a well-known
@@ -214,7 +214,8 @@ nsresult EwsIncomingServer::UpdateFolderWithDetails(const nsACString& id,
   nsAutoCString currentName;
   MOZ_TRY(folder->GetName(currentName));
   nsAutoCString currentParentId;
-  MOZ_TRY(parentFolder->GetStringProperty(kEwsIdProperty, currentParentId));
+  MOZ_TRY(
+      parentFolder->GetStringProperty(kExchangeIdProperty, currentParentId));
 
   // If either the parent or the name of the folder changed, then we have to
   // initiate a move of the data for the folder, so we rely on the fact that a
@@ -238,11 +239,11 @@ nsresult EwsIncomingServer::DeleteFolderWithId(const nsACString& id) {
   // If we found the folder locally, then delete it. Otherwise, assume it's
   // already been deleted locally.
   if (NS_SUCCEEDED(rv)) {
-    // We can't use `DeleteSelf` here because the implementation of `EwsFolder`
-    // (which we know is the concrete implementation of `nsIMsgFolder` we are
-    // using in the EWS case) will trigger a remote delete on the server. Sync
-    // is responding to a remote delete, so we have to get the parent and call
-    // `PropagateDelete` directly.
+    // We can't use `DeleteSelf` here because the implementation of
+    // `ExchangeFolder` (which we know is the concrete implementation of
+    // `nsIMsgFolder` we are using in the Exchange case) will trigger a remote
+    // delete on the server. Sync is responding to a remote delete, so we have
+    // to get the parent and call `PropagateDelete` directly.
     nsCOMPtr<nsIMsgFolder> parentFolder;
     rv = folder->GetParent(getter_AddRefs(parentFolder));
     NS_ENSURE_SUCCESS(rv, rv);
@@ -281,7 +282,7 @@ nsresult EwsIncomingServer::FindFolderWithId(const nsACString& id,
     for (auto folder : foldersToScan) {
       // EWS folder ID is stored as a custom property in the folder store.
       nsCString folderId;
-      rv = folder->GetStringProperty(kEwsIdProperty, folderId);
+      rv = folder->GetStringProperty(kExchangeIdProperty, folderId);
 
       if (NS_SUCCEEDED(rv) && folderId.Equals(id)) {
         folder.forget(_retval);
@@ -429,7 +430,7 @@ nsresult EwsIncomingServer::SyncFolderList(
     nsresult rv = self->GetRootFolder(getter_AddRefs(root));
     NS_ENSURE_SUCCESS(rv, rv);
 
-    return root->SetStringProperty(kEwsIdProperty, id);
+    return root->SetStringProperty(kExchangeIdProperty, id);
   };
 
   auto onFolderCreated = [self = RefPtr(this)](
@@ -598,7 +599,7 @@ NS_IMETHODIMP EwsIncomingServer::GetNewMessages(nsIMsgFolder* aFolder,
         // is the case, then the EWS ID will be invalidated and we can no longer
         // sync that folder.
         nsAutoCString originalEwsId;
-        rv = folder->GetStringProperty(kEwsIdProperty, originalEwsId);
+        rv = folder->GetStringProperty(kExchangeIdProperty, originalEwsId);
         if (NS_FAILED(rv)) {
           // Assume the original folder moved and return success.
           return NS_OK;
