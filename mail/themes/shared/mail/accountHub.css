@@ -4,8 +4,6 @@
 
 @import url("chrome://global/skin/menu.css");
 @import url("chrome://global/skin/in-content/common.css");
-@import url("chrome://messenger/skin/variables.css");
-@import url("chrome://messenger/skin/colors.css");
 @import url("chrome://messenger/skin/widgets.css");
 @import url("chrome://messenger/skin/inContentDialog.css");
 @import url("chrome://messenger/skin/accountHubForms.css");

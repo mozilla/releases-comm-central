@@ -3,9 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import url("chrome://messenger/skin/shared/preferences/subdialog.css");
-@import url("chrome://messenger/skin/colors.css");
-@import url("chrome://messenger/skin/variables.css");
-@import url("chrome://messenger/skin/icons.css");
 
 @namespace html url("http://www.w3.org/1999/xhtml");
 
@@ -411,8 +408,11 @@ tab {
 
 #filter {
   flex: 1;
-  margin-inline: 0;
   --input-text-max-width: none;
+
+  #CookiesDialog & {
+    margin-inline-start: 8px;
+  }
 }
 
 /* XXX This style is for bug 740213 and should be removed once that
@@ -677,6 +677,10 @@ treechildren::-moz-tree-cell-text(selected) {
 #primaryMessengerLocale {
   margin-inline: 0 4px;
   min-inline-size: 20em;
+}
+
+#selectedLocales > richlistitem {
+  padding-inline-start: 13px;
 }
 
 #availableLocales {
