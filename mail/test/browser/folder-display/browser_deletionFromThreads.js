@@ -299,8 +299,6 @@ add_task(async function delete_from_collapsed_group() {
     "after 10th delete"
   );
   await assertMessagesCount(2, 3);
-
-  await close_tab(tab2);
 });
 
 add_task(async function test_expanded_root_deletion_indentation() {
@@ -386,4 +384,61 @@ add_task(async function test_non_root_deletion_indentation_shift() {
   );
 
   structFolder.deleteSelf(null);
+});
+
+add_task(async function test_cross_tab_phantom_twisty() {
+  // Setup a folder with exactly 2 messages in a thread.
+  const structFolder = await create_folder("StructFolder_Phantom");
+  await make_message_sets_in_folders(
+    [structFolder],
+    [{ count: 2, msgsPerThread: 2 }]
+  );
+
+  // Tab 2 (Background window representation): Collapsed.
+  await switch_tab(tab2);
+  await be_in_folder(structFolder);
+  await make_display_threaded();
+  await collapse_all_threads();
+  const dbViewTab2 =
+    document.getElementById("tabmail").currentTabInfo.chromeBrowser
+      .contentWindow.gDBView;
+
+  Assert.equal(
+    dbViewTab2.rowCount,
+    1,
+    "Background tab should show 1 collapsed row"
+  );
+  Assert.ok(
+    dbViewTab2.isContainer(0),
+    "Background tab root should have the HASCHILDREN twisty initially"
+  );
+
+  // Tab 1 (Foreground window representation): Expanded.
+  await switch_tab(tab1);
+  await be_in_folder(structFolder);
+  await make_display_threaded();
+  await expand_all_threads();
+
+  // Delete the child (row 1) in the foreground tab.
+  await select_click_row(1);
+  await press_delete();
+
+  // Switch back to Tab 2 to verify the background sync.
+  await switch_tab(tab2);
+  await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
+
+  // The root should still be there, but the twisty must be gone
+  Assert.equal(
+    dbViewTab2.rowCount,
+    1,
+    "Background tab should still show the root message"
+  );
+  Assert.ok(
+    !dbViewTab2.isContainer(0),
+    "Background tab root should lose the HASCHILDREN twisty after child deletion"
+  );
+
+  structFolder.deleteSelf(null);
+
+  await close_tab(tab2);
 });
