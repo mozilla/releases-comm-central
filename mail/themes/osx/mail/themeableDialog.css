@@ -67,6 +67,6 @@ menupopup > menu::after {
 }
 
 #commonDialog:not([subdialog]) {
-  color: var(--panel-color);
-  background-color: var(--panel-background);
+  color: var(--panel-text-color);
+  background-color: var(--panel-background-color);
 }

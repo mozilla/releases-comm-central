@@ -197,8 +197,8 @@ body {
   font-size: 1em;
   --panel-border-color: var(--border-color);
   --panel-border-radius: 2px;
-  --panel-background: var(--background-color-box);
-  --panel-color: var(--color-text-base);
+  --panel-background-color: var(--background-color-box);
+  --panel-text-color: var(--color-text-base);
   --panel-padding: 3px 0;
 
   & > menuitem {
@@ -209,7 +209,7 @@ body {
 
     &:not([disabled])[_moz-menuactive="true"] {
       color: inherit;
-      background-color: var(--panel-dimmed);
+      background-color: var(--panel-background-color-dimmed);
     }
 
     &:not([disabled])[selected="true"] {

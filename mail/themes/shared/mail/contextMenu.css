@@ -32,13 +32,13 @@ menupopup {
   min-inline-size: 12ch;
 
   @media (-moz-windows-mica-popups) {
-    --panel-background: Menu !important;
+    --panel-background-color: Menu !important;
     --panel-border-color: transparent !important;
   }
 
   :root:not([lwtheme]) menubar > menu & {
-    --panel-background: Menu;
-    --panel-color: MenuText;
+    --panel-background-color: Menu;
+    --panel-text-color: MenuText;
   }
 
   & > :is(menu, menuitem) {
@@ -64,12 +64,12 @@ menupopup {
 
     &:not([disabled], :active)[_moz-menuactive] {
       color: inherit;
-      background-color: var(--panel-dimmed);
+      background-color: var(--panel-background-color-dimmed);
     }
 
     &:not([disabled])[_moz-menuactive]:active {
       color: inherit;
-      background-color: var(--panel-dimmed-further);
+      background-color: var(--panel-background-color-dimmed-further);
       box-shadow: 0 1px 0 hsla(210, 4%, 10%, 0.03) inset;
     }
 
@@ -89,7 +89,7 @@ menupopup {
 
   :root:not([lwtheme]) menubar > menu & > :is(menu, menuitem):not([disabled])[_moz-menuactive] {
     color: inherit;
-    background-color: var(--panel-dimmed-further);
+    background-color: var(--panel-background-color-dimmed-further);
   }
 
   & > menu::after {
@@ -128,9 +128,9 @@ menupopup {
   panel[type="arrow"] {
     appearance: auto;
     -moz-default-appearance: menupopup;
-    --panel-background: Menu !important;
+    --panel-background-color: Menu !important;
     --panel-border-color: transparent;
-    --panel-shadow-margin: 0;
+    --panel-box-shadow-margin: 0;
   }
 }
 
@@ -147,12 +147,12 @@ menupopup {
   & > menupopup[customoptionstyling="true"]::part(arrowscrollbox) {
     /* !important to override inline styles */
     background-image: none !important;
-    background-color: var(--panel-background) !important;
+    background-color: var(--panel-background-color) !important;
   }
 
   & .ContentSelectDropdown-item-0:not([_moz-menuactive="true"]) {
-    background-color: var(--panel-background) !important;
-    color: var(--panel-color) !important;
+    background-color: var(--panel-background-color) !important;
+    color: var(--panel-text-color) !important;
 
     @media (-moz-windows-mica-popups) {
       background-color: transparent !important;
@@ -187,7 +187,7 @@ menupopup {
 
       &:not([disabled]) {
         color: inherit;
-        background-color: var(--panel-dimmed);
+        background-color: var(--panel-background-color-dimmed);
       }
     }
 

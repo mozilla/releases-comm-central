@@ -142,7 +142,7 @@ menupopup {
 
     &:not([disabled])[_moz-menuactive="true"] {
       color: inherit;
-      background-color: var(--panel-dimmed);
+      background-color: var(--panel-background-color-dimmed);
     }
   }
 
@@ -155,7 +155,7 @@ menupopup {
 
 tab[selected] {
   color: inherit;
-  background-color: var(--panel-dimmed);
+  background-color: var(--panel-background-color-dimmed);
   border-block-end-color: var(--selected-item-color);
 }
 

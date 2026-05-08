@@ -135,8 +135,8 @@
   --drop-indicator-z-index: 3;
 
   & :is(menupopup, panel) {
-    --panel-background: var(--color-surface-subtle);
-    --panel-color: var(--color-text-base);
+    --panel-background-color: var(--color-surface-subtle);
+    --panel-text-color: var(--color-text-base);
     --panel-border-color: var(--color-surface-border-intense);
     --panel-border-radius: 8px;
   }
@@ -227,9 +227,9 @@
     }
 
     & :is(menupopup, panel) {
-      --panel-dimmed: color-mix(in srgb, var(--selected-item-color) 12%, transparent);
-      --panel-dimmed-further: color-mix(in srgb, var(--selected-item-color) 20%, transparent);
-      --panel-dimmed-even-further: color-mix(in srgb, var(--selected-item-color) 27%, transparent);
+      --panel-background-color-dimmed: color-mix(in srgb, var(--selected-item-color) 12%, transparent);
+      --panel-background-color-dimmed-further: color-mix(in srgb, var(--selected-item-color) 20%, transparent);
+      --panel-background-color-dimmed-even-further: color-mix(in srgb, var(--selected-item-color) 27%, transparent);
     }
   }
 }

@@ -73,7 +73,7 @@ panelview:not([visible]) {
 
 panelview {
   flex-direction: column;
-  background: var(--panel-background);
+  background: var(--panel-background-color);
   padding: 0;
 }
 
@@ -101,7 +101,7 @@ panelmultiview[transitioning] > .panel-viewcontainer > .panel-viewstack > panelv
   box-sizing: border-box;
   min-block-size: 41px;
   margin: 0;
-  background-color: var(--panel-dimmed);
+  background-color: var(--panel-background-color-dimmed);
   border-block-start: 1px solid var(--panel-separator-color);
   border-radius: 0;
 
@@ -466,7 +466,7 @@ menuitem.subviewbutton:not([disabled], :active)[_moz-menuactive],
 .toolbaritem-combined-buttons:is(:not([cui-areatype="toolbar"]), [overflowedItem="true"])
   > toolbarbutton:not([disabled], [open], :active):is(:hover, :focus-visible) {
   color: inherit;
-  background-color: var(--panel-dimmed);
+  background-color: var(--panel-background-color-dimmed);
 }
 
 panelview .toolbarbutton-1:not([disabled]):is([open], :hover:active),
@@ -476,18 +476,18 @@ menuitem.subviewbutton:not([disabled])[_moz-menuactive]:active,
 .widget-overflow-list .toolbarbutton-1:not([disabled]):is([open], :hover:active),
 .toolbaritem-combined-buttons:is(:not([cui-areatype="toolbar"]), [overflowedItem="true"]) > toolbarbutton:not([disabled]):is([open], :hover:active) {
   color: inherit;
-  background-color: var(--panel-dimmed-further);
+  background-color: var(--panel-background-color-dimmed-further);
   box-shadow: 0 1px 0 hsla(210, 4%, 10%, 0.03) inset;
 }
 
 menuitem.panel-subview-footer:not([disabled], :active)[_moz-menuactive],
 .subviewbutton.panel-subview-footer:not([disabled], [open], :active):is(:hover, :focus-visible) {
-  background-color: var(--panel-dimmed-further);
+  background-color: var(--panel-background-color-dimmed-further);
 }
 
 menuitem.panel-subview-footer:not([disabled])[_moz-menuactive]:active,
 .subviewbutton.panel-subview-footer:not([disabled]):is([open], :hover:active) {
-  background-color: var(--panel-dimmed-even-further);
+  background-color: var(--panel-background-color-dimmed-even-further);
   box-shadow: 0 1px 0 hsla(210, 4%, 10%, 0.05) inset;
 }
 
@@ -584,13 +584,13 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
   border: 1px solid transparent;
 
   &:not([disabled], [open], :active):is(:hover, :focus-visible) {
-    background-color: var(--panel-dimmed);
+    background-color: var(--panel-background-color-dimmed);
     border-color: var(--panel-separator-color);
   }
 
   &:is([selected], [selected]:hover),
   &:not([disabled]):is([open], :hover:active) {
-    background-color: var(--panel-dimmed-further);
+    background-color: var(--panel-background-color-dimmed-further);
     border-color: var(--panel-separator-color);
     box-shadow: 0 1px 0 hsla(210, 4%, 10%, 0.03) inset;
   }
@@ -634,7 +634,7 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
 
   & > .subviewbutton-back {
     -moz-context-properties: stroke;
-    stroke: var(--panel-color);
+    stroke: var(--panel-text-color);
     list-style-image: var(--icon-nav-left-sm);
     padding: 10px;
     transform: translateY(1px);
@@ -743,10 +743,10 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
   font-weight: 600;
 
   &:not([disabled]):hover {
-    background-color: var(--panel-dimmed);
+    background-color: var(--panel-background-color-dimmed);
 
     &:active {
-      background-color: var(--panel-dimmed-further);
+      background-color: var(--panel-background-color-dimmed-further);
     }
   }
 

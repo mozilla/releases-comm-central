@@ -12,8 +12,8 @@ dialog {
   padding: 15px;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.5);
 
-  --dialog-text-color: var(--panel-color);
-  --dialog-background-color: var(--panel-background);
+  --dialog-text-color: var(--panel-text-color);
+  --dialog-background-color: var(--panel-background-color);
   --dialog-box-text-color: light-dark(#181920, #f9f9fa);
   --dialog-box-background-color: light-dark(#fff, #353537);
   --dialog-box-border-color: light-dark(rgba(0, 0, 0, 0.3), hsla(0, 0%, 70%, 0.4));

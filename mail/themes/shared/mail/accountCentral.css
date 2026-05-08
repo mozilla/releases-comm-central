@@ -429,7 +429,7 @@ aside.settings-btn-container {
 
 .btn-link:hover {
   color: inherit;
-  background-color: var(--panel-dimmed) !important;
+  background-color: var(--panel-background-color-dimmed) !important;
 }
 
 .resource-link:hover {
