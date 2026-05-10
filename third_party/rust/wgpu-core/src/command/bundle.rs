@@ -697,10 +697,10 @@ fn set_index_buffer(
     buffer.same_device(&state.device)?;
     buffer.check_usage(wgt::BufferUsages::INDEX)?;
 
-    if !offset.is_multiple_of(u64::from(index_format.byte_size())) {
+    if !offset.is_multiple_of(u64::try_from(index_format.byte_size()).unwrap()) {
         return Err(RenderCommandError::UnalignedIndexBuffer {
             offset,
-            alignment: index_format.byte_size() as usize,
+            alignment: index_format.byte_size(),
         }
         .into());
     }

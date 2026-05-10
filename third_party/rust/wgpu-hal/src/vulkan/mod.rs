@@ -27,7 +27,6 @@ Otherwise, we manage a pool of `VkFence` objects behind each `hal::Fence`.
 mod adapter;
 mod command;
 pub mod conv;
-mod descriptor;
 mod device;
 mod drm;
 mod instance;
@@ -38,7 +37,14 @@ mod swapchain;
 pub use adapter::PhysicalDeviceFeatures;
 
 use alloc::{boxed::Box, ffi::CString, sync::Arc, vec::Vec};
-use core::{borrow::Borrow, ffi::CStr, fmt, marker::PhantomData, mem, num::NonZeroU32};
+use core::{
+    borrow::Borrow,
+    ffi::CStr,
+    fmt,
+    marker::PhantomData,
+    mem::{self, ManuallyDrop},
+    num::NonZeroU32,
+};
 
 use arrayvec::ArrayVec;
 use ash::{ext, khr, vk};
@@ -185,8 +191,8 @@ pub struct Instance {
 }
 
 pub struct Surface {
+    inner: ManuallyDrop<Box<dyn swapchain::Surface>>,
     swapchain: RwLock<Option<Box<dyn swapchain::Swapchain>>>,
-    inner: Box<dyn swapchain::Surface>,
 }
 
 impl Surface {
@@ -515,7 +521,8 @@ impl Drop for DeviceShared {
 
 pub struct Device {
     mem_allocator: Mutex<gpu_allocator::vulkan::Allocator>,
-    desc_allocator: Mutex<descriptor::DescriptorAllocator>,
+    desc_allocator:
+        Mutex<gpu_descriptor::DescriptorAllocator<vk::DescriptorPool, vk::DescriptorSet>>,
     valid_ash_memory_types: u32,
     naga_options: naga::back::spv::Options<'static>,
     #[cfg(feature = "renderdoc")]
@@ -527,7 +534,9 @@ pub struct Device {
 }
 
 impl Drop for Device {
-    fn drop(&mut self) {}
+    fn drop(&mut self) {
+        unsafe { self.desc_allocator.lock().cleanup(&*self.shared) };
+    }
 }
 
 /// Semaphores for forcing queue submissions to run in order.
@@ -611,7 +620,6 @@ pub struct Queue {
     family_index: u32,
     relay_semaphores: Mutex<RelaySemaphores>,
     signal_semaphores: Mutex<SemaphoreList>,
-    wait_semaphores: Mutex<SemaphoreList>,
 }
 
 impl Queue {
@@ -654,28 +662,10 @@ impl BufferMemoryBacking {
         }
     }
 }
-/// Describes who owns a [`Buffer`]'s `vk::Buffer` handle and its backing memory,
-/// and therefore what cleanup is required when the buffer is destroyed.
-#[derive(Debug)]
-enum BufferOwnership {
-    /// wgpu-hal owns the `vk::Buffer` and its backing memory. On cleanup the buffer
-    /// handle is destroyed and the memory is released.
-    Managed(Mutex<BufferMemoryBacking>),
-    /// wgpu-hal owns the `vk::Buffer` handle but the backing memory is kept alive
-    /// by the caller. On cleanup only the buffer handle is destroyed.
-    RawHandle,
-    /// Caller owns the `vk::Buffer` and its backing memory. On cleanup the
-    /// [`crate::DropGuard`] runs the caller's cleanup callback and wgpu-hal touches
-    /// neither the handle nor the memory.
-    External(crate::DropGuard),
-}
-
 #[derive(Debug)]
 pub struct Buffer {
     raw: vk::Buffer,
-
-    // This field must be last, because it may contain a `DropGuard` which needs to be dropped after all other fields.
-    ownership: BufferOwnership,
+    allocation: Option<Mutex<BufferMemoryBacking>>,
 }
 impl Buffer {
     /// # Safety
@@ -685,25 +675,9 @@ impl Buffer {
     pub unsafe fn from_raw(vk_buffer: vk::Buffer) -> Self {
         Self {
             raw: vk_buffer,
-            ownership: BufferOwnership::RawHandle,
+            allocation: None,
         }
     }
-
-    /// # Safety
-    /// - `vk_buffer` must outlive the returned `Buffer`.
-    /// - wgpu-hal will NOT call `vkDestroyBuffer`; the caller remains responsible for the buffer handle's destruction.
-    ///   The `drop_callback` runs when the `Buffer` drops and may be used to release caller-side bookkeeping.
-    /// - Externally imported buffers can't be mapped by `wgpu`.
-    pub unsafe fn from_raw_externally_owned(
-        vk_buffer: vk::Buffer,
-        drop_callback: crate::DropCallback,
-    ) -> Self {
-        Self {
-            raw: vk_buffer,
-            ownership: BufferOwnership::External(crate::DropGuard::new(drop_callback)),
-        }
-    }
-
     /// # Safety
     /// - We will use this buffer and the buffer's backing memory range as if we have exclusive ownership over it, until the wgpu resource is dropped and the wgpu-hal object is cleaned up
     /// - Externally imported buffers can't be mapped by `wgpu`
@@ -716,18 +690,12 @@ impl Buffer {
     ) -> Self {
         Self {
             raw: vk_buffer,
-            ownership: BufferOwnership::Managed(Mutex::new(BufferMemoryBacking::VulkanMemory {
+            allocation: Some(Mutex::new(BufferMemoryBacking::VulkanMemory {
                 memory,
                 offset,
                 size,
             })),
         }
-    }
-
-    /// # Safety
-    /// - The buffer handle must not be manually destroyed
-    pub unsafe fn raw_handle(&self) -> vk::Buffer {
-        self.raw
     }
 }
 
@@ -839,7 +807,7 @@ struct BindingInfo {
 #[derive(Debug)]
 pub struct BindGroupLayout {
     raw: vk::DescriptorSetLayout,
-    desc_count: descriptor::DescriptorCounts,
+    desc_count: gpu_descriptor::DescriptorTotalCount,
     /// Sorted list of entries.
     entries: Box<[wgt::BindGroupLayoutEntry]>,
     /// Map of original binding index to remapped binding index and optional
@@ -860,7 +828,7 @@ impl crate::DynPipelineLayout for PipelineLayout {}
 
 #[derive(Debug)]
 pub struct BindGroup {
-    set: descriptor::DescriptorSet,
+    set: gpu_descriptor::DescriptorSet<vk::DescriptorSet>,
 }
 
 impl crate::DynBindGroup for BindGroup {}
@@ -1323,11 +1291,6 @@ impl crate::Queue for Queue {
             signal_semaphores.append(&mut guard);
         }
 
-        let mut wait_guard = self.wait_semaphores.lock();
-        if !wait_guard.is_empty() {
-            wait_semaphores.append(&mut wait_guard);
-        }
-
         // In order for submissions to be strictly ordered, we encode a dependency between each submission
         // using a pair of semaphores. This adds a wait if it is needed, and signals the next semaphore.
         let semaphore_state = self.relay_semaphores.lock().advance(&self.device)?;
@@ -1430,39 +1393,6 @@ impl Queue {
     pub fn remove_signal_semaphore(&self, semaphore: vk::Semaphore) -> bool {
         self.signal_semaphores.lock().remove(semaphore)
     }
-
-    /// Stage a semaphore wait on the next [`crate::Queue::submit`] call.
-    ///
-    /// `semaphore_value` selects the kind of payload the wait targets:
-    ///
-    /// - `Some(value)` - wait until `semaphore` (a timeline semaphore) has been signalled to at least `value`.
-    /// - `None` - wait on a binary semaphore signal.
-    ///
-    /// `stage` is the pipeline stage at which the wait blocks downstream
-    /// work (e.g. `vk::PipelineStageFlags::TOP_OF_PIPE` to gate the
-    /// entire submission, or a more specific stage when only that stage
-    /// reads the synchronised resource).
-    pub fn add_wait_semaphore(
-        &self,
-        semaphore: vk::Semaphore,
-        semaphore_value: Option<u64>,
-        stage: vk::PipelineStageFlags,
-    ) {
-        let mut guard = self.wait_semaphores.lock();
-        if let Some(value) = semaphore_value {
-            guard.push_wait(SemaphoreType::Timeline(semaphore, value), stage);
-        } else {
-            guard.push_wait(SemaphoreType::Binary(semaphore), stage);
-        }
-    }
-
-    /// Remove `semaphore` from the pending wait list if it is still present.
-    ///
-    /// Returns `true` if the semaphore was found and removed. If the submit
-    /// already consumed it, this is a no-op that returns `false`.
-    pub fn remove_wait_semaphore(&self, semaphore: vk::Semaphore) -> bool {
-        self.wait_semaphores.lock().remove(semaphore)
-    }
 }
 
 /// Maps
@@ -1486,18 +1416,6 @@ fn map_host_device_oom_err(err: vk::Result) -> crate::DeviceError {
 fn map_host_device_oom_and_lost_err(err: vk::Result) -> crate::DeviceError {
     match err {
         vk::Result::ERROR_DEVICE_LOST => get_lost_err(),
-        other => map_host_device_oom_err(other),
-    }
-}
-
-/// Maps
-///
-/// - VK_ERROR_OUT_OF_HOST_MEMORY
-/// - VK_ERROR_OUT_OF_DEVICE_MEMORY
-/// - VK_ERROR_FRAGMENTATION
-fn map_host_device_oom_and_fragmentation_err(err: vk::Result) -> crate::DeviceError {
-    match err {
-        vk::Result::ERROR_FRAGMENTATION => get_oom_err(err),
         other => map_host_device_oom_err(other),
     }
 }

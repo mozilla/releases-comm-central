@@ -1060,14 +1060,10 @@ bitflags_array! {
         /// This is a native only feature.
         #[name("wgpu-shader-f64", "shader-f64")]
         const SHADER_F64 = 1 << 33;
-        /// Allows shaders to use `i16` and `u16` 16-bit integer types.
-        ///
-        /// Requires `enable wgpu_int16;` in WGSL shaders.
+        /// Allows shaders to use i16. Not currently supported in `naga`, only available through `spirv-passthrough`.
         ///
         /// Supported platforms:
-        /// - Vulkan (with `shaderInt16` and `VK_KHR_16bit_storage`)
-        /// - Metal (always available)
-        /// - DX12 (with `Native16BitShaderOpsSupported`, SM 6.2+)
+        /// - Vulkan
         ///
         /// This is a native only feature.
         #[name("wgpu-shader-i16", "shader-i16")]

@@ -76,8 +76,7 @@ impl crate::Surface for super::Surface {
             wgt::PresentMode::Immediate => false,
             m => unreachable!("Unsupported present mode: {m:?}"),
         };
-        // CGFloat is f64 on 64-bit, f32 on 32-bit (arm64_32/ILP32)
-        let drawable_size = CGSize::new(config.extent.width as _, config.extent.height as _);
+        let drawable_size = CGSize::new(config.extent.width as f64, config.extent.height as f64);
 
         match config.composite_alpha_mode {
             wgt::CompositeAlphaMode::Opaque => render_layer.setOpaque(true),

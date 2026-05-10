@@ -24,7 +24,7 @@ use crate::{
         CommandAllocator, CommandBuffer, CommandEncoder, CommandEncoderError, CopySide,
         TransferError,
     },
-    device::{DeviceError, FenceReadGuard, FenceWriteGuard, WaitIdleError},
+    device::{DeviceError, WaitIdleError},
     get_lowest_common_denom,
     global::Global,
     hal_label,
@@ -125,9 +125,8 @@ impl Queue {
         &self,
         texture: &Arc<Texture>,
     ) -> Result<(), DeviceError> {
-        let snatch_guard = self.device.snatchable_lock.read();
-        let (mut submission, _index) = self.allocate_submission(snatch_guard);
         let device = &self.device;
+        let snatch_guard = device.snatchable_lock.read();
 
         // If the texture is uninitialized it needs to be cleared before presenting
         let needs_clear = {
@@ -138,6 +137,9 @@ impl Queue {
                 .is_some_and(|mip| mip.check(0..1).is_some())
         };
 
+        // Fence lock must be acquired after the snatch lock and before
+        // pending_writes to match the lock ordering in Queue::submit.
+        let mut fence = device.fence.write();
         let mut pending_writes = self.pending_writes.lock();
 
         if needs_clear {
@@ -153,7 +155,7 @@ impl Queue {
                 &mut trackers.textures,
                 &device.alignments,
                 device.zero_buffer.as_ref(),
-                &submission.snatch_guard,
+                &snatch_guard,
                 device.instance_flags,
             )
             .map_err(|e| match e {
@@ -188,7 +190,7 @@ impl Queue {
         // Emit the transition barriers to PRESENT.
         {
             let raw_texture = texture
-                .try_raw(&submission.snatch_guard)
+                .try_raw(&snatch_guard)
                 .map_err(|_| DeviceError::Lost)?;
             let barriers: Vec<hal::TextureBarrier<'_, dyn hal::DynTexture>> = pending
                 .into_iter()
@@ -209,13 +211,23 @@ impl Queue {
         pending_writes.insert_texture(texture);
 
         // Flush pending writes through the standard submission path.
-        submission
-            .surface_textures
-            .insert(Arc::as_ptr(texture), texture.clone());
+        let mut surface_textures = FastHashMap::default();
+        surface_textures.insert(Arc::as_ptr(texture), texture.clone());
 
-        submission.submit(pending_writes)?;
+        let submit_index = {
+            let mut indices = device.command_indices.write();
+            indices.active_submission_index += 1;
+            indices.active_submission_index
+        };
 
-        Ok(())
+        self.submit_with_pending_writes(
+            &mut pending_writes,
+            Vec::new(),
+            surface_textures,
+            fence.as_mut(),
+            submit_index,
+            &snatch_guard,
+        )
     }
 
     pub(crate) fn maintain(
@@ -348,13 +360,9 @@ pub(crate) struct EncoderInFlight {
 ///
 /// Instead, `Device::pending_writes` owns one of these values, which
 /// has its own hal command encoder and resource lists. The commands
-/// accumulated here are automatically submitted to the queue at the
-/// sooner of:
-///
-/// 1. The user's next wgpu command buffer submission. (Pending writes
-///    are inserted ahead of the user's commands.)
-/// 2. The next `mapAsync` request for a buffer that has pending
-///    writes.
+/// accumulated here are automatically submitted to the queue the next
+/// time the user submits a wgpu command buffer, ahead of the user's
+/// commands.
 ///
 /// Important:
 /// When locking pending_writes be sure that tracker is not locked
@@ -534,6 +542,8 @@ pub enum QueueSubmitError {
     Queue(#[from] DeviceError),
     #[error(transparent)]
     DestroyedResource(#[from] DestroyedResourceError),
+    #[error(transparent)]
+    Unmap(#[from] BufferAccessError),
     #[error("{0} is still mapped")]
     BufferStillMapped(ResourceErrorIdent),
     #[error(transparent)]
@@ -548,46 +558,12 @@ impl WebGpuError for QueueSubmitError {
     fn webgpu_error_type(&self) -> ErrorType {
         match self {
             Self::Queue(e) => e.webgpu_error_type(),
+            Self::Unmap(e) => e.webgpu_error_type(),
             Self::CommandEncoder(e) => e.webgpu_error_type(),
             Self::ValidateAsActionsError(e) => e.webgpu_error_type(),
             Self::InvalidResource(e) => e.webgpu_error_type(),
             Self::DestroyedResource(_) | Self::BufferStillMapped(_) => ErrorType::Validation,
         }
-    }
-}
-
-/// A partially-assembled submission.
-///
-/// Returned from [`Queue::allocate_submission`] and consumed by [`submit`].
-/// These are internal APIs used in `Queue::submit` and other places within
-/// `wgpu-core` that need to submit work.
-///
-/// [`submit`]: `PendingSubmission::submit`
-pub(crate) struct PendingSubmission<'a> {
-    queue: &'a Queue,
-    snatch_guard: SnatchGuard<'a>,
-    fence: FenceWriteGuard<'a>,
-    command_index_guard: RwLockWriteGuard<'a, CommandIndices>,
-    // Command buffers to be executed, along with trackers for the resources they use.
-    pub executions: Vec<EncoderInFlight>,
-    // Surface textures referenced by command buffers in this submission. These need to be
-    // passed to the HAL `submit` call. Deduplicated using a hashmap to avoid vulkan
-    // deadlocking from the same surface texture being submitted multiple times.
-    pub surface_textures: FastHashMap<*const Texture, Arc<Texture>>,
-    pub index: SubmissionIndex,
-}
-
-pub(crate) struct SubmissionResult<'a> {
-    pub fence: FenceReadGuard<'a>,
-    pub snatch_guard: SnatchGuard<'a>,
-}
-
-impl<'a> PendingSubmission<'a> {
-    fn submit(
-        self,
-        pending_writes: MutexGuard<'a, PendingWrites>,
-    ) -> Result<SubmissionResult<'a>, DeviceError> {
-        self.queue.submit_pending_submission(pending_writes, self)
     }
 }
 
@@ -1247,36 +1223,6 @@ impl Queue {
         Ok(())
     }
 
-    /// Flush `PendingWrites` if it contains a write to `buffer`.
-    pub fn flush_writes_for_buffer(
-        &self,
-        buffer: &Arc<Buffer>,
-        snatch_guard: SnatchGuard,
-    ) -> Result<(), BufferAccessError> {
-        let (submission, _index) = self.allocate_submission(snatch_guard);
-
-        let pending_writes = self.pending_writes.lock();
-        if !pending_writes.contains_buffer(buffer) {
-            return Ok(());
-        }
-
-        submission.submit(pending_writes)?;
-
-        Ok(())
-    }
-
-    fn flush_pending_writes(&self) -> Result<Option<SubmissionIndex>, DeviceError> {
-        let snatch_guard = self.device.snatchable_lock.read();
-        let (submission, submit_index) = self.allocate_submission(snatch_guard);
-        let pending_writes = self.pending_writes.lock();
-        if pending_writes.is_recording {
-            submission.submit(pending_writes)?;
-            Ok(Some(submit_index))
-        } else {
-            Ok(None)
-        }
-    }
-
     #[cfg(feature = "trace")]
     fn trace_submission(
         &self,
@@ -1311,15 +1257,29 @@ impl Queue {
         profiling::scope!("Queue::submit");
         api_log!("Queue::submit");
 
-        let snatch_guard = self.device.snatchable_lock.read();
-        let (mut submission, submit_index) = self.allocate_submission(snatch_guard);
+        let submit_index;
 
         let res = 'error: {
+            let snatch_guard = self.device.snatchable_lock.read();
+
+            // Fence lock must be acquired after the snatch lock everywhere to avoid deadlocks.
+            let mut fence = self.device.fence.write();
+
+            let mut command_index_guard = self.device.command_indices.write();
+            command_index_guard.active_submission_index += 1;
+            submit_index = command_index_guard.active_submission_index;
+
             if let Err(e) = self.device.check_is_valid() {
                 break 'error Err(e.into());
             }
 
+            let mut active_executions = Vec::new();
+
             let mut used_surface_textures = track::TextureUsageScope::default();
+
+            // Use a hashmap here to deduplicate the surface textures that are used in the command buffers.
+            // This avoids vulkan deadlocking from the same surface texture being submitted multiple times.
+            let mut submit_surface_textures_owned = FastHashMap::default();
 
             {
                 if !command_buffers.is_empty() {
@@ -1360,10 +1320,10 @@ impl Queue {
                                     command_buffer,
                                     self,
                                     &cmd_buf_data,
-                                    &submission.snatch_guard,
-                                    &mut submission.surface_textures,
+                                    &snatch_guard,
+                                    &mut submit_surface_textures_owned,
                                     &mut used_surface_textures,
-                                    &mut submission.command_index_guard,
+                                    &mut command_index_guard,
                                 );
                                 if let Err(err) = res {
                                     #[cfg(feature = "trace")]
@@ -1381,9 +1341,7 @@ impl Queue {
                                     self.trace_submission(submit_index, commands);
                                 }
 
-                                cmd_buf_data.set_acceleration_structure_dependencies(
-                                    &submission.snatch_guard,
-                                );
+                                cmd_buf_data.set_acceleration_structure_dependencies(&snatch_guard);
                                 cmd_buf_data.into_baked_commands()
                             }
                             Err(err) => {
@@ -1408,15 +1366,14 @@ impl Queue {
 
                         //Note: locking the trackers has to be done after the storages
                         let mut trackers = self.device.trackers.lock();
-                        if let Err(e) =
-                            baked.initialize_buffer_memory(&mut trackers, &submission.snatch_guard)
+                        if let Err(e) = baked.initialize_buffer_memory(&mut trackers, &snatch_guard)
                         {
                             break 'error Err(e.into());
                         }
                         if let Err(e) = baked.initialize_texture_memory(
                             &mut trackers,
                             &self.device,
-                            &submission.snatch_guard,
+                            &snatch_guard,
                         ) {
                             break 'error Err(e.into());
                         }
@@ -1427,7 +1384,7 @@ impl Queue {
                             baked.encoder.raw.as_mut(),
                             &mut trackers,
                             &baked.trackers,
-                            &submission.snatch_guard,
+                            &snatch_guard,
                         );
 
                         if let Err(e) = baked.encoder.close_and_push_front() {
@@ -1448,7 +1405,7 @@ impl Queue {
                                 .textures
                                 .set_from_usage_scope_and_drain_transitions(
                                     &used_surface_textures,
-                                    &submission.snatch_guard,
+                                    &snatch_guard,
                                 )
                                 .collect::<Vec<_>>();
                             unsafe {
@@ -1461,7 +1418,7 @@ impl Queue {
                         }
 
                         // done
-                        submission.executions.push(EncoderInFlight {
+                        active_executions.push(EncoderInFlight {
                             inner: baked.encoder,
                             trackers: baked.trackers,
                             temp_resources: baked.temp_resources,
@@ -1479,24 +1436,31 @@ impl Queue {
                 }
             }
 
-            let pending_writes = self.pending_writes.lock();
+            let mut pending_writes = self.pending_writes.lock();
 
-            let SubmissionResult {
-                fence,
-                snatch_guard,
-            } = match submission.submit(pending_writes) {
-                Ok(result) => result,
-                Err(e) => break 'error Err(e.into()),
-            };
+            if let Err(e) = self.submit_with_pending_writes(
+                &mut pending_writes,
+                active_executions,
+                submit_surface_textures_owned,
+                fence.as_mut(),
+                submit_index,
+                &snatch_guard,
+            ) {
+                break 'error Err(e.into());
+            }
+
+            drop(command_index_guard);
+
+            drop(pending_writes);
 
             profiling::scope!("cleanup");
 
             // This will schedule destruction of all resources that are no longer needed
             // by the user but used in the command stream, among other things.
-            // `device.maintain` consumes and will release the snatch guard.
-            let (closures, result) = self
-                .device
-                .maintain(fence, wgt::PollType::Poll, snatch_guard);
+            let fence_guard = RwLockWriteGuard::downgrade(fence);
+            let (closures, result) =
+                self.device
+                    .maintain(fence_guard, wgt::PollType::Poll, snatch_guard);
             match result {
                 Ok(status) => {
                     debug_assert!(matches!(
@@ -1529,88 +1493,22 @@ impl Queue {
         Ok(submit_index)
     }
 
-    /// Allocate a submission index and prepare for a submission.
+    /// Flush pending writes and any additional command encoders as a HAL submission.
     ///
-    /// This is an internal API used in [`Queue::submit`] and other places within
-    /// `wgpu-core` that need to submit work.
-    ///
-    /// Returns the index and a [`PendingSubmission`].
-    ///
-    /// The caller passes in the already-acquired [`SnatchGuard`]. This function acquires
-    /// the fence lock and the command index lock.
-    ///
-    /// The caller should update the [`PendingSubmission`] members `executions` and
-    /// `surface_textures` with details of the submission.
-    ///
-    /// To finalize and submit the submission, call [`PendingSubmission::submit`] (which is
-    /// a convenience wrapper around [`Queue::submit_pending_submission`]).
-    ///
-    /// After calling this function and before submitting, the caller must acquire the
-    /// pending writes lock, and pass it to `submit`.
-    ///
-    /// It is also acceptable to drop the `PendingSubmission` without submitting. This may
-    /// be necessary when locks are required to access the state that determines whether a
-    /// submission is needed.
-    fn allocate_submission<'a>(
-        &'a self,
-        snatch_guard: SnatchGuard<'a>,
-    ) -> (PendingSubmission<'a>, SubmissionIndex) {
-        // Lock ordering requires that the fence lock be acquired after the snatch lock and
-        // before the command index lock.
-        let fence = self.device.fence.write();
-
-        let mut command_index_guard = self.device.command_indices.write();
-        command_index_guard.active_submission_index += 1;
-        let index = command_index_guard.active_submission_index;
-
-        let submission = PendingSubmission {
-            queue: self,
-            snatch_guard,
-            fence,
-            command_index_guard,
-            executions: Vec::new(),
-            surface_textures: FastHashMap::default(),
-            index,
-        };
-
-        (submission, index)
-    }
-
-    /// Finalize and submit a [`PendingSubmission`] that was returned by
-    /// [`Queue::allocate_submission`].
-    ///
-    /// This is an internal API used in `Queue::submit` and other places within
-    /// `wgpu-core` that need to submit work. See [`Queue::allocate_submission`]
-    /// for more details.
-    ///
-    /// This function:
-    ///
-    /// - Performs a HAL submission of the pending writes command
-    ///   encoder and any other command encoders that were added to the
-    ///   [`PendingSubmission`].
-    /// - Advances `last_successful_submission_index` and registers the
-    ///   submission with the lifetime tracker.
-    /// - Returns a [`SubmissionResult`], which contains the snatch guard
-    ///   and a downgraded [`FenceReadGuard`].
-    fn submit_pending_submission<'a>(
+    /// Advances `last_successful_submission_index` and registers the submission with the lifetime tracker.
+    fn submit_with_pending_writes(
         &self,
-        mut pending_writes: MutexGuard<'_, PendingWrites>,
-        prepared: PendingSubmission<'a>,
-    ) -> Result<SubmissionResult<'a>, DeviceError> {
-        let PendingSubmission {
-            queue: _,
-            snatch_guard,
-            mut fence,
-            command_index_guard,
-            mut executions,
-            mut surface_textures,
-            index: submit_index,
-        } = prepared;
-
+        pending_writes: &mut PendingWrites,
+        mut active_executions: Vec<EncoderInFlight>,
+        mut surface_textures: FastHashMap<*const Texture, Arc<Texture>>,
+        fence: &mut dyn hal::DynFence,
+        submit_index: SubmissionIndex,
+        snatch_guard: &SnatchGuard,
+    ) -> Result<(), DeviceError> {
         let mut used_surface_textures = track::TextureUsageScope::default();
         used_surface_textures.set_size(self.device.tracker_indices.textures.size());
         for texture in pending_writes.dst_textures.values() {
-            match texture.try_inner(&snatch_guard) {
+            match texture.try_inner(snatch_guard) {
                 Ok(TextureInner::Native { .. }) => {}
                 Ok(TextureInner::Surface { .. }) => {
                     // Compare the Arcs by pointer as Textures don't implement Eq
@@ -1635,7 +1533,7 @@ impl Queue {
 
             let texture_barriers = trackers
                 .textures
-                .set_from_usage_scope_and_drain_transitions(&used_surface_textures, &snatch_guard)
+                .set_from_usage_scope_and_drain_transitions(&used_surface_textures, snatch_guard)
                 .collect::<Vec<_>>();
             unsafe {
                 pending_writes
@@ -1646,12 +1544,12 @@ impl Queue {
 
         match pending_writes.pre_submit(&self.device.command_allocator, &self.device, self) {
             Ok(Some(pending_execution)) => {
-                executions.insert(0, pending_execution);
+                active_executions.insert(0, pending_execution);
             }
             Ok(None) => {}
             Err(e) => return Err(e),
         }
-        let hal_command_buffers = executions
+        let hal_command_buffers = active_executions
             .iter()
             .flat_map(|e| e.inner.list.iter().map(|b| b.as_ref()))
             .collect::<Vec<_>>();
@@ -1660,7 +1558,7 @@ impl Queue {
             let mut submit_surface_textures =
                 SmallVec::<[&dyn hal::DynSurfaceTexture; 2]>::with_capacity(surface_textures.len());
             for texture in surface_textures.values() {
-                let raw = match texture.inner.get(&snatch_guard) {
+                let raw = match texture.inner.get(snatch_guard) {
                     Some(TextureInner::Surface { raw, .. }) => raw.as_ref(),
                     _ => unreachable!(),
                 };
@@ -1671,30 +1569,21 @@ impl Queue {
                 self.raw().submit(
                     &hal_command_buffers,
                     &submit_surface_textures,
-                    (fence.as_mut(), submit_index),
+                    (fence, submit_index),
                 )
             }
             .map_err(|e| self.device.handle_hal_error(e))?;
-
-            // Submissions must have strictly increasing indices, so we must hold the
-            // command index guard until we have submitted, to prevent another submission
-            // from claiming the next index and reaching `submit` before we do.
-            drop(pending_writes);
-            drop(command_index_guard);
 
             // Advance the successful submission index.
             self.device
                 .last_successful_submission_index
                 .fetch_max(submit_index, Ordering::SeqCst);
         }
-
         // this will register the new submission to the life time tracker
-        self.lock_life().track_submission(submit_index, executions);
+        self.lock_life()
+            .track_submission(submit_index, active_executions);
 
-        Ok(SubmissionResult {
-            fence: RwLockWriteGuard::downgrade(fence),
-            snatch_guard,
-        })
+        Ok(())
     }
 
     pub fn get_timestamp_period(&self) -> f32 {
@@ -1707,12 +1596,7 @@ impl Queue {
         closure: SubmittedWorkDoneClosure,
     ) -> Option<SubmissionIndex> {
         api_log!("Queue::on_submitted_work_done");
-
-        // A `DeviceError` means we're losing the device anyways, so we can ignore it here
-        // (mostly to avoid a breaking change to the `on_submitted_work_done` signature
-        // for an error case that it is unlikely the caller will be able to handle).
-        let _: Result<_, DeviceError> = self.flush_pending_writes();
-
+        //TODO: flush pending writes
         self.lock_life().add_work_done_closure(closure)
     }
 
@@ -1950,6 +1834,7 @@ impl Global {
     ) -> SubmissionIndex {
         api_log!("Queue::on_submitted_work_done {queue_id:?}");
 
+        //TODO: flush pending writes
         let queue = self.hub.queues.get(queue_id);
         let result = queue.on_submitted_work_done(closure);
         result.unwrap_or(0) // '0' means no wait is necessary
@@ -2010,7 +1895,7 @@ fn validate_command_buffer(
     queue: &Queue,
     cmd_buf_data: &crate::command::CommandBufferMutable,
     snatch_guard: &SnatchGuard,
-    surface_textures: &mut FastHashMap<*const Texture, Arc<Texture>>,
+    submit_surface_textures_owned: &mut FastHashMap<*const Texture, Arc<Texture>>,
     used_surface_textures: &mut track::TextureUsageScope,
     command_index_guard: &mut RwLockWriteGuard<CommandIndices>,
 ) -> Result<(), QueueSubmitError> {
@@ -2037,7 +1922,7 @@ fn validate_command_buffer(
                     TextureInner::Native { .. } => false,
                     TextureInner::Surface { .. } => {
                         // Compare the Arcs by pointer as Textures don't implement Eq.
-                        surface_textures.insert(Arc::as_ptr(texture), texture.clone());
+                        submit_surface_textures_owned.insert(Arc::as_ptr(texture), texture.clone());
 
                         true
                     }

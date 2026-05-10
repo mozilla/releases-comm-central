@@ -138,6 +138,7 @@ vulkan = [
     "dep:arrayvec",
     "dep:ash",
     "dep:bytemuck",
+    "dep:gpu-descriptor",
     "dep:libc",
     "dep:libloading",
     "dep:ordered-float",
@@ -324,6 +325,10 @@ version = "0.28"
 features = ["hashbrown"]
 optional = true
 default-features = false
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies.gpu-descriptor]
+version = "0.3.2"
+optional = true
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies.khronos-egl]
 version = "6"

@@ -480,7 +480,6 @@ impl super::Adapter {
             | wgt::Features::DUAL_SOURCE_BLENDING
             | wgt::Features::TEXTURE_FORMAT_NV12
             | wgt::Features::FLOAT32_FILTERABLE
-            | wgt::Features::FLOAT32_BLENDABLE
             | wgt::Features::TEXTURE_ATOMIC
             | wgt::Features::PASSTHROUGH_SHADERS
             | wgt::Features::EXTERNAL_TEXTURE
@@ -584,10 +583,6 @@ impl super::Adapter {
 
         features.set(
             wgt::Features::SHADER_F16,
-            shader_model >= naga::back::hlsl::ShaderModel::V6_2 && float16_supported,
-        );
-        features.set(
-            wgt::Features::SHADER_I16,
             shader_model >= naga::back::hlsl::ShaderModel::V6_2 && float16_supported,
         );
 
@@ -748,23 +743,23 @@ impl super::Adapter {
         // Source: https://learn.microsoft.com/en-us/windows/win32/direct3d12/root-signature-limits#memory-limits-and-costs
         //
         // Per pipeline layout:
-        // - RootElement::Immediates, 32 root constants
+        // - RootElement::Constant, (immediates) 32 root constants
         //     (bounded by maxImmediateSize) = 32 x 4 bytes = 128 bytes
-        // - RootElement::SamplerHeapDescriptorTable, a descriptor table = 4 bytes
+        // - RootElement::SamplerHeap, a root table = 4 bytes
         // - RootElement::SpecialConstantBuffer, 3 root constants = 3 x 4 bytes = 12 bytes
-        // - RootElement::DynamicStorageBufferOffsets, a root constant per dynamic storage buffer
+        // - RootElement::DynamicOffsetsBuffer, a root constant per dynamic storage buffer
         //     (bounded by maxDynamicStorageBuffersPerPipelineLayout) = 4 x 4 bytes = 16 bytes
         // - RootElement::DynamicUniformBuffer, a root descriptor per dynamic uniform buffer
         //     (bounded by maxDynamicUniformBuffersPerPipelineLayout) = 8 x 8 bytes = 64 bytes
         // Per bind group:
-        // - RootElement::DescriptorTable, a descriptor table
+        // - RootElement::Table, a root table
         //     (bounded by maxBindGroups) = 8 x 4 bytes = 32 bytes
         //
         // Source: logic in `create_pipeline_layout`
         //
         // Total: 128 + 4 + 12 + 16 + 64 + 32 = 256 bytes
         //
-        let max_immediate_size = super::MAX_IMMEDIATE_SIZE;
+        let max_immediate_size = 128;
         let max_bind_groups = 8;
         let max_dynamic_uniform_buffers_per_pipeline_layout = 8;
         let max_dynamic_storage_buffers_per_pipeline_layout = 4;
@@ -1095,8 +1090,6 @@ impl crate::Adapter for super::Adapter {
                 idle_fence,
                 idle_event,
                 idle_fence_value: AtomicU64::new(0),
-                pending_waits: Mutex::new(Vec::new()),
-                pending_signals: Mutex::new(Vec::new()),
             },
         })
     }

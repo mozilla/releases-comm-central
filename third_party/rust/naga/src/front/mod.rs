@@ -2,8 +2,7 @@
 Frontend parsers that consume binary and text shaders and load them into [`Module`](super::Module)s.
 */
 
-#[cfg(any(feature = "spv-in", feature = "wgsl-in"))]
-pub(crate) mod interpolator;
+mod interpolator;
 mod type_gen;
 
 #[cfg(feature = "spv-in")]

@@ -65,6 +65,8 @@ pub enum VaryingError {
         Only numeric scalars and vectors are allowed."
     )]
     NotIOShareableType(Handle<crate::Type>),
+    #[error("Interpolation is not valid")]
+    InvalidInterpolation,
     #[error("Interpolation {0:?} is only valid for stage {1:?}")]
     InvalidInterpolationInStage(crate::Interpolation, crate::ShaderStage),
     #[error("Cannot combine {interpolation:?} interpolation with the {sampling:?} sample type")]
@@ -72,8 +74,6 @@ pub enum VaryingError {
         interpolation: crate::Interpolation,
         sampling: crate::Sampling,
     },
-    #[error("`@interpolate(flat) must be explicitly specified for integer I/O")]
-    InvalidInterpolationForInteger,
     #[error("Interpolation must be specified on vertex shader outputs and fragment shader inputs")]
     MissingInterpolation,
     #[error("Built-in {0:?} is not available at this stage")]
@@ -150,6 +150,8 @@ pub enum EntryPointError {
     Argument(u32, #[source] VaryingError),
     #[error(transparent)]
     Result(#[from] VaryingError),
+    #[error("Location {location} interpolation of an integer has to be flat")]
+    InvalidIntegerInterpolation { location: u32 },
     #[error(transparent)]
     Function(#[from] FunctionError),
     #[error("Capability {0:?} is not supported")]
@@ -796,21 +798,18 @@ impl VaryingContext<'_> {
                 if interpolation != Some(crate::Interpolation::PerVertex) {
                     match ty_inner.scalar_kind() {
                         Some(crate::ScalarKind::Float) => {
-                            // Default interpolation is applied in the front end.
                             if needs_interpolation && interpolation.is_none() {
                                 return Err(VaryingError::MissingInterpolation);
                             }
                         }
-                        Some(crate::ScalarKind::Sint | crate::ScalarKind::Uint) => {
-                            // Integers do not have a default interpolation; `flat` must be
-                            // specified explicitly.
+                        Some(_) => {
                             if needs_interpolation
                                 && interpolation != Some(crate::Interpolation::Flat)
                             {
-                                return Err(VaryingError::InvalidInterpolationForInteger);
+                                return Err(VaryingError::InvalidInterpolation);
                             }
                         }
-                        Some(_) | None => return Err(VaryingError::InvalidType(ty)),
+                        None => return Err(VaryingError::InvalidType(ty)),
                     }
                 }
             }
