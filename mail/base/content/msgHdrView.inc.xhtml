@@ -148,24 +148,22 @@
                     class="menuitem-iconic"
                     data-l10n-id="other-action-redirect-msg"
                     oncommand="MsgRedirectMessage();"/>
-#ifdef MAIN_WINDOW
           <menuseparator id="otherActionsRedirectSeparator"/>
           <menuitem id="otherActionsOpenConversation"
                     class="menuitem-iconic"
                     label="&otherActionsOpenConversation1.label;"
                     accesskey="&otherActionsOpenConversation1.accesskey;"
-                    oncommand="new ConversationOpener(window).openConversationForMessages(gFolderDisplay.selectedMessages);"/>
+                    oncommand="new ConversationOpener(window).openConversationForMessages([gMessage]);"/>
           <menuitem id="otherActionsOpenInNewWindow"
                     class="menuitem-iconic"
                     label="&otherActionsOpenInNewWindow1.label;"
                     accesskey="&otherActionsOpenInNewWindow1.accesskey;"
-                    oncommand="MsgOpenNewWindowForMessage();"/>
+                    oncommand="top.MsgOpenNewWindowForMessage(gMessage, gViewWrapper);"/>
           <menuitem id="otherActionsOpenInNewTab"
                     class="menuitem-iconic"
                     label="&otherActionsOpenInNewTab1.label;"
                     accesskey="&otherActionsOpenInNewTab1.accesskey;"
-                    oncommand="OpenMessageInNewTab(gFolderDisplay.selectedMessage, { event });"/>
-#endif
+                    oncommand="top.OpenMessageInNewTab(gMessage, { event });"/>
           <menuseparator id="otherActionsSeparator"/>
           <menu id="otherActionsTag"
                 class="menu-iconic"
