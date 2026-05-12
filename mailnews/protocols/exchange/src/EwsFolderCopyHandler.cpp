@@ -4,7 +4,7 @@
 
 #include "EwsFolderCopyHandler.h"
 
-#include "EwsListeners.h"
+#include "ExchangeListeners.h"
 #include "nsIMsgCopyService.h"
 #include "nsIMsgMessageService.h"
 #include "nsMsgUtils.h"
@@ -101,8 +101,8 @@ nsresult FolderCopyHandler::CopyNextFolder() {
   nsCString parentId;
   MOZ_TRY(parent.value()->GetStringProperty(kExchangeIdProperty, parentId));
 
-  const RefPtr<EwsSimpleFallibleListener> listener =
-      new EwsSimpleFallibleListener(
+  const RefPtr<ExchangeSimpleFallibleListener> listener =
+      new ExchangeSimpleFallibleListener(
           [self = RefPtr(this), parentFolder, folderName](
               const nsTArray<nsCString>& ids, bool useLegacyFallback) {
             NS_ENSURE_TRUE(ids.Length() == 1, NS_ERROR_UNEXPECTED);

@@ -5,7 +5,7 @@
 #include "ExchangeFolder.h"
 
 #include "EwsFolderCopyHandler.h"
-#include "EwsListeners.h"
+#include "ExchangeListeners.h"
 #include "EwsMessageCopyHandler.h"
 #include "EwsMessageSync.h"
 #include "EwsCopyMoveTransaction.h"
@@ -250,7 +250,7 @@ NS_IMETHODIMP ExchangeFolder::CreateSubfolder(const nsACString& aFolderName,
 
   const auto folderName = nsCString(aFolderName);
 
-  RefPtr<EwsSimpleListener> listener = new EwsSimpleListener(
+  RefPtr<ExchangeSimpleListener> listener = new ExchangeSimpleListener(
       [self = RefPtr(this), folderName](const nsTArray<nsCString>& ids,
                                         bool useLegacyFallback) {
         NS_ENSURE_TRUE(ids.Length() == 1, NS_ERROR_UNEXPECTED);
@@ -390,7 +390,7 @@ NS_IMETHODIMP ExchangeFolder::MarkMessagesRead(
   CopyableTArray<RefPtr<nsIMsgDBHdr>> headersCopy(messages.Length());
   headersCopy.AppendElements(messages);
 
-  RefPtr<EwsSimpleListener> listener = new EwsSimpleListener(
+  RefPtr<ExchangeSimpleListener> listener = new ExchangeSimpleListener(
       [self = RefPtr(this), headersCopy = std::move(headersCopy), requestedIds,
        markRead](const nsTArray<nsCString>& ids,
                  bool useLegacyFallback) mutable {
@@ -440,7 +440,7 @@ NS_IMETHODIMP ExchangeFolder::MarkAllMessagesRead(nsIMsgWindow* aMsgWindow) {
 
   nsTArray<nsCString> folderIds{{folderId}};
 
-  RefPtr<EwsSimpleListener> listener = new EwsSimpleListener(
+  RefPtr<ExchangeSimpleListener> listener = new ExchangeSimpleListener(
       [self = RefPtr(this), window = RefPtr(aMsgWindow)](
           const nsTArray<nsCString>& ids, bool useLegacyFallback) {
         nsresult rv = self->GetDatabase();
@@ -546,7 +546,7 @@ NS_IMETHODIMP ExchangeFolder::Rename(const nsACString& aNewName,
   const nsCOMPtr<nsIMsgWindow> window = msgWindow;
   const auto newName = nsCString(aNewName);
 
-  RefPtr<EwsSimpleListener> listener = new EwsSimpleListener(
+  RefPtr<ExchangeSimpleListener> listener = new ExchangeSimpleListener(
       [self = RefPtr(this), newName, window](const nsTArray<nsCString>& ids,
                                              bool useLegacyFallback) {
         nsCOMPtr<nsIMsgFolder> parentFolder;
@@ -679,8 +679,8 @@ NS_IMETHODIMP ExchangeFolder::CopyItemsOnSameServer(
   const nsCOMPtr<IExchangeFolderOperationListener> operationListener =
       aOperationListener;
 
-  const RefPtr<EwsSimpleFallibleMessageListener> listener =
-      new EwsSimpleFallibleMessageListener(
+  const RefPtr<ExchangeSimpleFallibleMessageListener> listener =
+      new ExchangeSimpleFallibleMessageListener(
           aSrcHdrs,
           [self = RefPtr(this), srcFolder, msgWindow, aIsMove, copyListener,
            aAllowUndo, operationListener, undoOperationType](
@@ -864,67 +864,71 @@ NS_IMETHODIMP ExchangeFolder::CopyFolderOnSameServer(
   const nsCOMPtr<nsIMsgWindow> msgWindow = aWindow;
   const nsCOMPtr<nsIMsgCopyServiceListener> copyListener = aCopyListener;
 
-  RefPtr<EwsSimpleFallibleListener> listener = new EwsSimpleFallibleListener(
-      [self = RefPtr(this), srcFolder, copyListener, msgWindow, aIsMoveFolder](
-          const nsTArray<nsCString>& ids, bool useLegacyFallback) {
-        NS_ENSURE_TRUE(ids.Length() == 1, NS_ERROR_UNEXPECTED);
-        const auto& newExchangeId = ids[0];
+  RefPtr<ExchangeSimpleFallibleListener> listener =
+      new ExchangeSimpleFallibleListener(
+          [self = RefPtr(this), srcFolder, copyListener, msgWindow,
+           aIsMoveFolder](const nsTArray<nsCString>& ids,
+                          bool useLegacyFallback) {
+            NS_ENSURE_TRUE(ids.Length() == 1, NS_ERROR_UNEXPECTED);
+            const auto& newExchangeId = ids[0];
 
-        nsAutoCString name;
-        nsresult rv = srcFolder->GetName(name);
-        NS_ENSURE_SUCCESS(rv, rv);
+            nsAutoCString name;
+            nsresult rv = srcFolder->GetName(name);
+            NS_ENSURE_SUCCESS(rv, rv);
 
-        // For a move, the Exchange IDs of any subfolders or items of the moved
-        // folder or subfolder are stable (no known documentation, so this is
-        // through observation), so we can move in local storage to avoid a
-        // sync. When copying, however, new Exchange IDs must be created for any
-        // subfolders or items of the copied folder or its subfolders, and we
-        // have no way to obtain the new IDs other than performing a sync of
-        // the folder hierarchy.
-        if (aIsMoveFolder) {
-          rv = LocalRenameOrReparentFolder(srcFolder, self, name, msgWindow);
-          NS_ENSURE_SUCCESS(rv, rv);
-          rv = CompleteCopyMoveFolderOperation(srcFolder, self, copyListener,
-                                               name, newExchangeId);
-          return rv;
-        }
-
-        nsCOMPtr<nsIMsgIncomingServer> server;
-        rv = self->GetServer(getter_AddRefs(server));
-        NS_ENSURE_SUCCESS(rv, rv);
-
-        const nsCOMPtr<IExchangeIncomingServer> exchangeServer{
-            do_QueryInterface(server, &rv)};
-        NS_ENSURE_SUCCESS(rv, rv);
-
-        // Limiting granularity of the folder hierarchy update to only the
-        // destination folder is not possible due to our current strategy of
-        // managing the Exchange sync token at the server level for folder
-        // updates, so we have to sync the entire hierarchy. In addition, for
-        // the copied folder messages to appear, an additional message sync will
-        // be required for the newly copied folder. However, to limit the
-        // complexity of this callback chain, we don't perform that step here,
-        // instead relying on external processes (such as folder
-        // expansion/selection) to perform that operation in the future.
-        // See https://bugzilla.mozilla.org/show_bug.cgi?id=1980963
-        // for the enhancement to improve hierarchy update granularity.
-        const RefPtr<EwsSimpleListener> listener = new EwsSimpleListener{
-            [self, srcFolder, msgWindow, copyListener, newExchangeId, name](
-                const auto& ids, bool resyncRequired) {
-              nsresult rv = NS_OK;
+            // For a move, the Exchange IDs of any subfolders or items of the
+            // moved folder or subfolder are stable (no known documentation, so
+            // this is through observation), so we can move in local storage to
+            // avoid a sync. When copying, however, new Exchange IDs must be
+            // created for any subfolders or items of the copied folder or its
+            // subfolders, and we have no way to obtain the new IDs other than
+            // performing a sync of the folder hierarchy.
+            if (aIsMoveFolder) {
+              rv =
+                  LocalRenameOrReparentFolder(srcFolder, self, name, msgWindow);
+              NS_ENSURE_SUCCESS(rv, rv);
               rv = CompleteCopyMoveFolderOperation(
                   srcFolder, self, copyListener, name, newExchangeId);
               return rv;
-            }};
-        return exchangeServer->SyncFolderHierarchy(listener, msgWindow);
-      },
-      [self = RefPtr(this), srcFolder, copyListener](nsresult status) {
-        if (copyListener) {
-          copyListener->OnStopCopy(status);
-        }
+            }
 
-        return HandleMoveError(srcFolder, self, status);
-      });
+            nsCOMPtr<nsIMsgIncomingServer> server;
+            rv = self->GetServer(getter_AddRefs(server));
+            NS_ENSURE_SUCCESS(rv, rv);
+
+            const nsCOMPtr<IExchangeIncomingServer> exchangeServer{
+                do_QueryInterface(server, &rv)};
+            NS_ENSURE_SUCCESS(rv, rv);
+
+            // Limiting granularity of the folder hierarchy update to only the
+            // destination folder is not possible due to our current strategy of
+            // managing the Exchange sync token at the server level for folder
+            // updates, so we have to sync the entire hierarchy. In addition,
+            // for the copied folder messages to appear, an additional message
+            // sync will be required for the newly copied folder. However, to
+            // limit the complexity of this callback chain, we don't perform
+            // that step here, instead relying on external processes (such as
+            // folder expansion/selection) to perform that operation in the
+            // future. See https://bugzilla.mozilla.org/show_bug.cgi?id=1980963
+            // for the enhancement to improve hierarchy update granularity.
+            const RefPtr<ExchangeSimpleListener> listener =
+                new ExchangeSimpleListener{
+                    [self, srcFolder, msgWindow, copyListener, newExchangeId,
+                     name](const auto& ids, bool resyncRequired) {
+                      nsresult rv = NS_OK;
+                      rv = CompleteCopyMoveFolderOperation(
+                          srcFolder, self, copyListener, name, newExchangeId);
+                      return rv;
+                    }};
+            return exchangeServer->SyncFolderHierarchy(listener, msgWindow);
+          },
+          [self = RefPtr(this), srcFolder, copyListener](nsresult status) {
+            if (copyListener) {
+              copyListener->OnStopCopy(status);
+            }
+
+            return HandleMoveError(srcFolder, self, status);
+          });
 
   nsCOMPtr<IExchangeClient> client;
   MOZ_TRY(GetProtocolClient(getter_AddRefs(client)));
@@ -1041,8 +1045,8 @@ NS_IMETHODIMP ExchangeFolder::DeleteMessages(
 
     // Define the listener with a success lambda callback, and start the
     // remote operation.
-    RefPtr<EwsSimpleMessageListener> listener =
-        new EwsSimpleFallibleMessageListener(
+    RefPtr<ExchangeSimpleMessageListener> listener =
+        new ExchangeSimpleFallibleMessageListener(
             headers,
             [self, copyListener](const nsTArray<RefPtr<nsIMsgDBHdr>>& srcHdrs,
                                  const nsTArray<nsCString>& ids,
@@ -1120,7 +1124,7 @@ NS_IMETHODIMP ExchangeFolder::DeleteSelf(nsIMsgWindow* aWindow) {
   nsCOMPtr<nsIMsgWindow> window = aWindow;
 
   const auto onHardDelete = [self = RefPtr(this), window, folderId]() {
-    RefPtr<EwsSimpleListener> listener = new EwsSimpleListener(
+    RefPtr<ExchangeSimpleListener> listener = new ExchangeSimpleListener(
         [self, window](const nsTArray<nsCString>& ids, bool useLegacyFallback) {
           return self->nsMsgDBFolder::DeleteSelf(window);
         });
@@ -1195,7 +1199,7 @@ NS_IMETHODIMP ExchangeFolder::EmptyTrash(nsIUrlListener* aListener) {
   rv = GetExchangeIdsForMessageHeaders(msgHdrs, messageIds);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  RefPtr<EwsSimpleListener> listener = new EwsSimpleFallibleListener(
+  RefPtr<ExchangeSimpleListener> listener = new ExchangeSimpleFallibleListener(
       [self = RefPtr(this), trashFolder, trashUri, msgHdrs,
        aListener = nsCOMPtr(aListener)](const nsTArray<nsCString>& ids,
                                         bool useLegacyFallback) {
@@ -1809,8 +1813,8 @@ NS_IMETHODIMP ExchangeFolder::HandleViewCommand(
       NS_ENSURE_SUCCESS(rv, rv);
     }
 
-    RefPtr<EwsSimpleMessageListener> operationListener =
-        new EwsSimpleMessageListener{
+    RefPtr<ExchangeSimpleMessageListener> operationListener =
+        new ExchangeSimpleMessageListener{
             headers, [self = RefPtr(this), window = RefPtr(window),
                       listener = RefPtr(listener), destinationFolder](
                          const nsTArray<RefPtr<nsIMsgDBHdr>>& headers,
@@ -1960,7 +1964,7 @@ NS_IMETHODIMP ExchangeFolder::MarkMessagesFlagged(
   for (auto&& message : messages) {
     headersToChange.AppendElement(message);
   }
-  RefPtr<EwsSimpleListener> listener = new EwsSimpleListener(
+  RefPtr<ExchangeSimpleListener> listener = new ExchangeSimpleListener(
       [headersToChange = std::move(headersToChange), markFlagged](
           const nsTArray<nsCString>& exchangeIds, bool useLegacyFallback) {
         nsresult rv = NS_OK;

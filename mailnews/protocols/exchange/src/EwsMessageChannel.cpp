@@ -5,7 +5,7 @@
 #include "EwsMessageChannel.h"
 
 #include "EwsFetchMsgsToOffline.h"
-#include "EwsListeners.h"
+#include "ExchangeListeners.h"
 #include "IExchangeClient.h"
 #include "IExchangeFolder.h"
 #include "IExchangeIncomingServer.h"

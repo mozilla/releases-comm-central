@@ -7,7 +7,7 @@
 #include <utility>
 
 #include "ExchangeFolder.h"
-#include "EwsListeners.h"
+#include "ExchangeListeners.h"
 #include "ExchangeOAuth2CustomDetails.h"
 #include "IExchangeClient.h"
 #include "nsIMsgFolderNotificationService.h"
@@ -474,7 +474,7 @@ nsresult ExchangeIncomingServer::SyncFolderList(
     return NS_OK;
   };
 
-  RefPtr<EwsFolderSyncListener> listener = new EwsFolderSyncListener(
+  RefPtr<ExchangeFolderSyncListener> listener = new ExchangeFolderSyncListener(
       onNewRootFolder, onFolderCreated, onFolderUpdated, onFolderDeleted,
       onSyncStateTokenChanged, onSuccess, onError);
 

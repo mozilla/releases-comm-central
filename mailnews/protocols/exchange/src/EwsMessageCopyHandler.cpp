@@ -5,7 +5,7 @@
 #include "EwsMessageCopyHandler.h"
 
 #include "CopyMessageStreamListener.h"
-#include "EwsListeners.h"
+#include "ExchangeListeners.h"
 #include "ExchangeMessageCreate.h"
 #include "nsIInputStream.h"
 #include "nsIMsgCopyService.h"

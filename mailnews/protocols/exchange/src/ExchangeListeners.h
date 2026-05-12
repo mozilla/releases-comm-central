@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSLISTENERS_H_
-#define COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSLISTENERS_H_
+#ifndef COMM_MAILNEWS_PROTOCOLS_EXCHANGE_SRC_EXCHANGELISTENERS_H_
+#define COMM_MAILNEWS_PROTOCOLS_EXCHANGE_SRC_EXCHANGELISTENERS_H_
 
 #include <utility>
 
@@ -11,48 +11,49 @@
 #include "nsIMsgHdr.h"
 
 /**
- * A listener for "simple" EWS operations, i.e. operations that only need to
- * report a success to the consumer.
+ * A listener for "simple" Exchange operations, i.e. operations that only need
+ * to report a success to the consumer.
  *
  * When the operation succeeds, the lambda function passed to this class's
- * constructor is called, with an array containing changed/new EWS
+ * constructor is called, with an array containing changed/new Exchange
  * identifier(s), as well as a boolean indicating whether a resync of the
  * relevant entity (folder list, message list, etc) is required.
  */
-class EwsSimpleListener : public IExchangeSimpleOperationListener {
+class ExchangeSimpleListener : public IExchangeSimpleOperationListener {
  public:
   NS_DECL_ISUPPORTS
   NS_DECL_IEXCHANGESIMPLEOPERATIONLISTENER
 
-  explicit EwsSimpleListener(
+  explicit ExchangeSimpleListener(
       std::function<nsresult(const nsTArray<nsCString>&, bool)> onSuccess)
       : mOnSuccess(std::move(onSuccess)) {};
 
  protected:
-  virtual ~EwsSimpleListener() = default;
+  virtual ~ExchangeSimpleListener() = default;
 
  private:
   std::function<nsresult(const nsTArray<nsCString>&, bool)> mOnSuccess;
 };
 
 /**
- * A listener for simple message-related EWS operations.
+ * A listener for simple message-related Exchange operations.
  *
- * The main reason to pick this listener implementation over `EwsSimpleListener`
- * is if the consumer requires some processing on the source messages (reading a
- * property, deleting or moving them, etc.) in the success callback.
+ * The main reason to pick this listener implementation over
+ * `ExchangeSimpleListener` is if the consumer requires some processing on the
+ * source messages (reading a property, deleting or moving them, etc.) in the
+ * success callback.
  *
- * This listener behaves similarly to `EwsSimpleListener` with the exception
- * that the array of source messages (passed to the constructor) is passed to
- * the success callbacks (in the first position) in addition to the other
- * arguments passed to the `EwsSimpleListener` success callback.
+ * This listener behaves similarly to `ExchangeSimpleListener` with the
+ * exception that the array of source messages (passed to the constructor) is
+ * passed to the success callbacks (in the first position) in addition to the
+ * other arguments passed to the `ExchangeSimpleListener` success callback.
  */
-class EwsSimpleMessageListener : public IExchangeSimpleOperationListener {
+class ExchangeSimpleMessageListener : public IExchangeSimpleOperationListener {
  public:
   NS_DECL_ISUPPORTS
   NS_DECL_IEXCHANGESIMPLEOPERATIONLISTENER
 
-  explicit EwsSimpleMessageListener(
+  explicit ExchangeSimpleMessageListener(
       const nsTArray<RefPtr<nsIMsgDBHdr>>& headers,
       std::function<nsresult(const nsTArray<RefPtr<nsIMsgDBHdr>>&,
                              const nsTArray<nsCString>&, bool)>
@@ -60,7 +61,7 @@ class EwsSimpleMessageListener : public IExchangeSimpleOperationListener {
       : mHeaders(headers.Clone()), mOnSuccess(std::move(onSuccess)) {};
 
  protected:
-  virtual ~EwsSimpleMessageListener() = default;
+  virtual ~ExchangeSimpleMessageListener() = default;
 
  private:
   const nsTArray<RefPtr<nsIMsgDBHdr>> mHeaders;
@@ -70,112 +71,114 @@ class EwsSimpleMessageListener : public IExchangeSimpleOperationListener {
 };
 
 /**
- * A listener for EWS operations which failures we want to capture.
+ * A listener for Exchange operations which failures we want to capture.
  *
  * This class is not intended to be used directly, but rather inherited from by
  * another class that will also handle cases besides failures (like with
- * `EwsSimpleFallibleListener` below).
+ * `ExchangeSimpleFallibleListener` below).
  *
- * Upon failure of the EWS operation, the lambda function passed to this class's
- * constructor is called with an `nsresult` representing the failure.
+ * Upon failure of the Exchange operation, the lambda function passed to this
+ * class's constructor is called with an `nsresult` representing the failure.
  */
-class EwsFallibleListener : public IExchangeFallibleOperationListener {
+class ExchangeFallibleListener : public IExchangeFallibleOperationListener {
  public:
   NS_DECL_IEXCHANGEFALLIBLEOPERATIONLISTENER
 
-  explicit EwsFallibleListener(std::function<nsresult(nsresult)> onFailure)
+  explicit ExchangeFallibleListener(std::function<nsresult(nsresult)> onFailure)
       : mOnFailure(std::move(onFailure)) {};
 
  protected:
-  virtual ~EwsFallibleListener() = default;
+  virtual ~ExchangeFallibleListener() = default;
 
  private:
   std::function<nsresult(nsresult)> mOnFailure;
 };
 
 /**
- * A listener for simple EWS operations which failures we want to capture.
+ * A listener for simple Exchange operations which failures we want to capture.
  *
- * See the documentation for `EwsSimpleListener` and `EwsFallibleListener` for
- * instructions regarding the lambda functions passed to this class's
- * constructor.
+ * See the documentation for `ExchangeSimpleListener` and
+ * `ExchangeFallibleListener` for instructions regarding the lambda functions
+ * passed to this class's constructor.
  */
-class EwsSimpleFallibleListener : public EwsSimpleListener,
-                                  public EwsFallibleListener {
+class ExchangeSimpleFallibleListener : public ExchangeSimpleListener,
+                                       public ExchangeFallibleListener {
  public:
   NS_DECL_ISUPPORTS_INHERITED
 
-  EwsSimpleFallibleListener(
+  ExchangeSimpleFallibleListener(
       std::function<nsresult(const nsTArray<nsCString>&, bool)> onSuccess,
       std::function<nsresult(nsresult)> onFailure)
-      : EwsSimpleListener(std::move(onSuccess)),
-        EwsFallibleListener(std::move(onFailure)) {};
+      : ExchangeSimpleListener(std::move(onSuccess)),
+        ExchangeFallibleListener(std::move(onFailure)) {};
 
  protected:
-  virtual ~EwsSimpleFallibleListener() = default;
+  virtual ~ExchangeSimpleFallibleListener() = default;
 
  private:
   std::function<nsresult(nsresult)> mOnFailure;
 };
 
 /**
- * A listener for simple message-related EWS operations which failures we want
- * to capture.
+ * A listener for simple message-related Exchange operations which failures we
+ * want to capture.
  *
- * See the documentation for `EwsSimpleMessageListener` for instructions
- * regarding when to use this implementation over `EwsSimpleFallibleListener`.
+ * See the documentation for `ExchangeSimpleMessageListener` for instructions
+ * regarding when to use this implementation over
+ * `ExchangeSimpleFallibleListener`.
  */
-class EwsSimpleFallibleMessageListener : public EwsSimpleMessageListener,
-                                         public EwsFallibleListener {
+class ExchangeSimpleFallibleMessageListener
+    : public ExchangeSimpleMessageListener,
+      public ExchangeFallibleListener {
  public:
   NS_DECL_ISUPPORTS_INHERITED
 
-  EwsSimpleFallibleMessageListener(
+  ExchangeSimpleFallibleMessageListener(
       const nsTArray<RefPtr<nsIMsgDBHdr>>& headers,
       std::function<nsresult(const nsTArray<RefPtr<nsIMsgDBHdr>>&,
                              const nsTArray<nsCString>&, bool)>
           onSuccess,
       std::function<nsresult(nsresult)> onFailure)
-      : EwsSimpleMessageListener(headers, std::move(onSuccess)),
-        EwsFallibleListener(std::move(onFailure)) {};
+      : ExchangeSimpleMessageListener(headers, std::move(onSuccess)),
+        ExchangeFallibleListener(std::move(onFailure)) {};
 
  protected:
-  virtual ~EwsSimpleFallibleMessageListener() = default;
+  virtual ~ExchangeSimpleFallibleMessageListener() = default;
 
  private:
   std::function<nsresult(nsresult)> mOnFailure;
 };
 
 /**
- * A listener for EWS message creation operations.
+ * A listener for Exchange message creation operations.
  */
-class EwsMessageCreateListener : public IExchangeMessageCreateListener {
+class ExchangeMessageCreateListener : public IExchangeMessageCreateListener {
  public:
   NS_DECL_ISUPPORTS
   NS_DECL_IEXCHANGEMESSAGECREATELISTENER
-  EwsMessageCreateListener() = delete;
-  explicit EwsMessageCreateListener(
+  ExchangeMessageCreateListener() = delete;
+  explicit ExchangeMessageCreateListener(
       std::function<nsresult(nsresult, nsACString const&)>
           onRemoteCreateFinished)
       : mOnRemoteCreateFinished(std::move(onRemoteCreateFinished)) {}
 
  protected:
-  virtual ~EwsMessageCreateListener() = default;
+  virtual ~ExchangeMessageCreateListener() = default;
 
  private:
   std::function<nsresult(nsresult, nsACString const&)> mOnRemoteCreateFinished;
 };
 
 /**
- * A listener for EWS folder sync operations.
+ * A listener for Exchange folder sync operations.
  */
-class EwsFolderSyncListener : public IExchangeFolderListener,
-                              public EwsFallibleListener {
+class ExchangeFolderSyncListener : public IExchangeFolderListener,
+                                   public ExchangeFallibleListener {
  public:
   NS_DECL_ISUPPORTS
   NS_DECL_IEXCHANGEFOLDERLISTENER
 
-  EwsFolderSyncListener(
+  ExchangeFolderSyncListener(
       std::function<nsresult(const nsACString&)> onNewRootFolder,
       std::function<nsresult(const nsACString&, const nsACString&,
                              const nsACString&, uint32_t)>
@@ -187,7 +190,7 @@ class EwsFolderSyncListener : public IExchangeFolderListener,
       std::function<nsresult(const nsACString&)> onSyncStateTokenChanged,
       std::function<nsresult()> onSuccess,
       std::function<nsresult(nsresult)> onError)
-      : EwsFallibleListener(std::move(onError)),
+      : ExchangeFallibleListener(std::move(onError)),
         mOnNewRootFolder(std::move(onNewRootFolder)),
         mOnFolderCreated(std::move(onFolderCreated)),
         mOnFolderUpdated(std::move(onFolderUpdated)),
@@ -196,7 +199,7 @@ class EwsFolderSyncListener : public IExchangeFolderListener,
         mOnSuccess(std::move(onSuccess)) {}
 
  protected:
-  virtual ~EwsFolderSyncListener() = default;
+  virtual ~ExchangeFolderSyncListener() = default;
 
  private:
   std::function<nsresult(const nsACString&)> mOnNewRootFolder;
@@ -212,7 +215,7 @@ class EwsFolderSyncListener : public IExchangeFolderListener,
 };
 
 /**
- * A listener for fetching the content of a single EWS message.
+ * A listener for fetching the content of a single Exchange message.
  *
  * The callbacks follow the same shape as defined by
  * `IExchangeMessageFetchListener`, except `onFetchedDataAvailable` is expected
@@ -220,12 +223,12 @@ class EwsFolderSyncListener : public IExchangeFolderListener,
  * out parameter), and `onFetchStop` takes an additional parameter representing
  * the total number of bytes read for the whole message.
  */
-class EwsMessageFetchListener : public IExchangeMessageFetchListener {
+class ExchangeMessageFetchListener : public IExchangeMessageFetchListener {
  public:
   NS_DECL_ISUPPORTS
   NS_DECL_IEXCHANGEMESSAGEFETCHLISTENER
 
-  EwsMessageFetchListener(
+  ExchangeMessageFetchListener(
       std::function<nsresult()> onFetchStart,
       std::function<nsresult(nsIInputStream*, uint64_t*)>
           onFetchedDataAvailable,
@@ -235,7 +238,7 @@ class EwsMessageFetchListener : public IExchangeMessageFetchListener {
         mOnFetchStop(std::move(onFetchStop)) {};
 
  protected:
-  virtual ~EwsMessageFetchListener() = default;
+  virtual ~ExchangeMessageFetchListener() = default;
 
  private:
   std::function<nsresult()> mOnFetchStart;
@@ -245,4 +248,4 @@ class EwsMessageFetchListener : public IExchangeMessageFetchListener {
   uint64_t mTotalFetchedBytesCount = 0;
 };
 
-#endif  // COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSLISTENERS_H_
+#endif  // COMM_MAILNEWS_PROTOCOLS_EXCHANGE_SRC_EXCHANGELISTENERS_H_
