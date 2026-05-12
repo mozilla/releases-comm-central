@@ -19,6 +19,7 @@ tasks:
         description: Checks if release notes have been published
         run-on-projects: []  # Exclude from normal CI
         run-on-releases: [beta, release, esr128, esr140]
+        shipping-product: thunderbird
         shipping-phase: push
         index:
             product: thunderbird
