@@ -10,7 +10,7 @@ interface IOAuth2CustomDetails;
  * Interface for constructing XPCOM object parameterized on a value.
  */
 [scriptable, uuid(b783f2c3-f836-4695-a320-1fd8378d57e9)]
-interface IEwsLanguageInteropFactory : nsISupports {
+interface IExchangeLanguageInteropFactory : nsISupports {
 
   /**
    * Return OAuth2 custom details for the given string identifier.

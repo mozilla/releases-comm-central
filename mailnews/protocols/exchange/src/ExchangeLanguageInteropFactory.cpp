@@ -2,13 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "EwsLanguageInteropFactory.h"
+#include "ExchangeLanguageInteropFactory.h"
 
 #include "ExchangeOAuth2CustomDetails.h"
 
-NS_IMPL_ISUPPORTS(EwsLanguageInteropFactory, IEwsLanguageInteropFactory);
+NS_IMPL_ISUPPORTS(ExchangeLanguageInteropFactory,
+                  IExchangeLanguageInteropFactory);
 
-NS_IMETHODIMP EwsLanguageInteropFactory::CreateOAuth2Details(
+NS_IMETHODIMP ExchangeLanguageInteropFactory::CreateOAuth2Details(
     const nsACString& identifier, IOAuth2CustomDetails** result) {
   NS_ENSURE_ARG_POINTER(result);
 
