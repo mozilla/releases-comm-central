@@ -2,22 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSSERVICE_H_
-#define COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSSERVICE_H_
+#ifndef COMM_MAILNEWS_PROTOCOLS_EXCHANGE_SRC_EXCHANGESERVICE_H_
+#define COMM_MAILNEWS_PROTOCOLS_EXCHANGE_SRC_EXCHANGESERVICE_H_
 
 #include "nsIMsgMessageService.h"
 
-class EwsService : public nsIMsgMessageService,
-                   public nsIMsgMessageFetchPartService {
+class ExchangeService : public nsIMsgMessageService,
+                        public nsIMsgMessageFetchPartService {
  public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGMESSAGESERVICE
   NS_DECL_NSIMSGMESSAGEFETCHPARTSERVICE
 
-  EwsService();
+  ExchangeService();
 
  protected:
-  virtual ~EwsService();
+  virtual ~ExchangeService();
 
  private:
   /**
@@ -33,15 +33,17 @@ class EwsService : public nsIMsgMessageService,
 
   /**
    * Extracts the message key as a string from a message URI. Message URIs
-   * are expected in the form:
+   * are expected in one of the forms:
    * ews-message://{user}@{server}/{Path/To/Folder}#{MessageKey}
+   * graph-message://{user}@{server}/{Path/To/Folder}#{MessageKey}
    */
   nsresult MsgKeyStringFromMessageURI(nsIURI* uri, nsACString& msgKey);
 
   /**
-   * Extracts the message key as a string from a URI used by an EWS message
-   * channel. Such URIs are expected in the form:
+   * Extracts the message key as a string from a URI used by an Exchange message
+   * channel. Such URIs are expected in one of the forms:
    * x-moz-ews://{user}@{server}/{Path/To/Folder}/{MessageKey}
+   * x-moz-graph://{user}@{server}/{Path/To/Folder}/{MessageKey}
    *
    * This method also returns the URI path to the folder, i.e. the path from the
    * original URI without the message key.
@@ -51,7 +53,7 @@ class EwsService : public nsIMsgMessageService,
 
   // Retrieves the message header matching the provided URI.
   //
-  // The URI is expected to be either a message URI or one used by an EWS
+  // The URI is expected to be either a message URI or one used by an Exchange
   // message channel, see the documentation for `MsgKeyStringFromMessageURI` and
   // `MsgKeyStringFromChannelURI` respectively for the expected form of each
   // supported URI.
@@ -77,4 +79,4 @@ class EwsService : public nsIMsgMessageService,
                            nsIStreamListener* streamListener);
 };
 
-#endif  // COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSSERVICE_H_
+#endif  // COMM_MAILNEWS_PROTOCOLS_EXCHANGE_SRC_EXCHANGESERVICE_H_

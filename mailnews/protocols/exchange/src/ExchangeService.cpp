@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "EwsService.h"
+#include "ExchangeService.h"
 
 #include "IExchangeClient.h"
 #include "mozilla/Components.h"
 #include "nsIChannel.h"
 #include "nsIMsgDatabase.h"
-#include "nsIMsgHdr.h"
 #include "nsIMsgFolder.h"
+#include "nsIMsgHdr.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsIMsgPluggableStore.h"
 #include "nsIStreamConverterService.h"
@@ -24,18 +24,18 @@
 
 extern mozilla::LazyLogModule gEwsLog;
 
-NS_IMPL_ISUPPORTS(EwsService, nsIMsgMessageService,
+NS_IMPL_ISUPPORTS(ExchangeService, nsIMsgMessageService,
                   nsIMsgMessageFetchPartService)
 
-EwsService::EwsService() = default;
+ExchangeService::ExchangeService() = default;
 
-EwsService::~EwsService() = default;
+ExchangeService::~ExchangeService() = default;
 
-NS_IMETHODIMP EwsService::CopyMessage(const nsACString& aSrcURI,
-                                      nsIStreamListener* aCopyListener,
-                                      bool aMoveMessage,
-                                      nsIUrlListener* aUrlListener,
-                                      nsIMsgWindow* aMsgWindow) {
+NS_IMETHODIMP ExchangeService::CopyMessage(const nsACString& aSrcURI,
+                                           nsIStreamListener* aCopyListener,
+                                           bool aMoveMessage,
+                                           nsIUrlListener* aUrlListener,
+                                           nsIMsgWindow* aMsgWindow) {
   NS_ENSURE_ARG_POINTER(aCopyListener);
 
   nsCOMPtr<nsIURI> channelURI;
@@ -44,7 +44,7 @@ NS_IMETHODIMP EwsService::CopyMessage(const nsACString& aSrcURI,
   return FetchMessage(channelURI, aCopyListener);
 }
 
-NS_IMETHODIMP EwsService::CopyMessages(
+NS_IMETHODIMP ExchangeService::CopyMessages(
     const nsTArray<nsMsgKey>& aKeys, nsIMsgFolder* srcFolder,
     nsIStreamListener* aCopyListener, bool aMoveMessage,
     nsIUrlListener* aUrlListener, nsIMsgWindow* aMsgWindow, nsIURI** _retval) {
@@ -52,11 +52,11 @@ NS_IMETHODIMP EwsService::CopyMessages(
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP EwsService::LoadMessage(const nsACString& aMessageURI,
-                                      nsIDocShell* aDisplayConsumer,
-                                      nsIMsgWindow* aMsgWindow,
-                                      nsIUrlListener* aUrlListener,
-                                      bool aAutodetectCharset) {
+NS_IMETHODIMP ExchangeService::LoadMessage(const nsACString& aMessageURI,
+                                           nsIDocShell* aDisplayConsumer,
+                                           nsIMsgWindow* aMsgWindow,
+                                           nsIUrlListener* aUrlListener,
+                                           bool aAutodetectCharset) {
   NS_ENSURE_ARG_POINTER(aDisplayConsumer);
 
   nsCOMPtr<nsIURI> channelURI;
@@ -70,12 +70,12 @@ NS_IMETHODIMP EwsService::LoadMessage(const nsACString& aMessageURI,
   return aDisplayConsumer->LoadURI(loadState, false);
 }
 
-NS_IMETHODIMP EwsService::SaveMessageToDisk(const nsACString& aMessageURI,
-                                            nsIFile* aFile,
-                                            bool aGenerateDummyEnvelope,
-                                            nsIUrlListener* aUrlListener,
-                                            bool canonicalLineEnding,
-                                            nsIMsgWindow* aMsgWindow) {
+NS_IMETHODIMP ExchangeService::SaveMessageToDisk(const nsACString& aMessageURI,
+                                                 nsIFile* aFile,
+                                                 bool aGenerateDummyEnvelope,
+                                                 nsIUrlListener* aUrlListener,
+                                                 bool canonicalLineEnding,
+                                                 nsIMsgWindow* aMsgWindow) {
   // Build the "channel" URI now so we can pass it over to the `SaveAsListener`,
   // which will use it to signal the start and end of the operation to the
   // consumer (via `aUrlListener`).
@@ -91,9 +91,9 @@ NS_IMETHODIMP EwsService::SaveMessageToDisk(const nsACString& aMessageURI,
   return FetchMessage(channelURI, listener);
 }
 
-NS_IMETHODIMP EwsService::GetUrlForUri(const nsACString& aMessageURI,
-                                       nsIMsgWindow* aMsgWindow,
-                                       nsIURI** _retval) {
+NS_IMETHODIMP ExchangeService::GetUrlForUri(const nsACString& aMessageURI,
+                                            nsIMsgWindow* aMsgWindow,
+                                            nsIURI** _retval) {
   nsCOMPtr<nsIURI> messageURI;
   MOZ_TRY(NS_NewURI(getter_AddRefs(messageURI), aMessageURI));
 
@@ -133,9 +133,9 @@ NS_IMETHODIMP EwsService::GetUrlForUri(const nsACString& aMessageURI,
     return NS_ERROR_UNEXPECTED;
   }
 
-  // "x-moz-ews" is the scheme we use for URIs that must be used for channels
-  // opened via a protocol handler consumer (such as a docshell or the I/O
-  // service). These channels are expected to serve the raw content RFC822
+  // "x-moz-{ews,graph}" is the scheme we use for URIs that must be used for
+  // channels opened via a protocol handler consumer (such as a docshell or the
+  // I/O service). These channels are expected to serve the raw content RFC822
   // content of the message referred to by the URI.
   return NS_MutateURI(messageURI)
       .SetScheme(channelScheme)
@@ -144,27 +144,27 @@ NS_IMETHODIMP EwsService::GetUrlForUri(const nsACString& aMessageURI,
       .Finalize(_retval);
 }
 
-NS_IMETHODIMP EwsService::Search(nsIMsgSearchSession* aSearchSession,
-                                 nsIMsgWindow* aMsgWindow,
-                                 nsIMsgFolder* aMsgFolder,
-                                 const nsACString& aSearchUri) {
+NS_IMETHODIMP ExchangeService::Search(nsIMsgSearchSession* aSearchSession,
+                                      nsIMsgWindow* aMsgWindow,
+                                      nsIMsgFolder* aMsgFolder,
+                                      const nsACString& aSearchUri) {
   NS_WARNING("Search");
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP EwsService::FetchMimePart(nsIURI* aURI,
-                                        const nsACString& aMessageURI,
-                                        nsIStreamListener* aStreamListener,
-                                        nsIMsgWindow* aMsgWindow,
-                                        nsIUrlListener* aUrlListener,
-                                        nsIURI** aURL) {
+NS_IMETHODIMP ExchangeService::FetchMimePart(nsIURI* aURI,
+                                             const nsACString& aMessageURI,
+                                             nsIStreamListener* aStreamListener,
+                                             nsIMsgWindow* aMsgWindow,
+                                             nsIUrlListener* aUrlListener,
+                                             nsIURI** aURL) {
   NS_ENSURE_ARG_POINTER(aURI);
   NS_ENSURE_ARG_POINTER(aStreamListener);
 
   // This method is usually called with the URI of the message as it was known
   // when it was being parsed for display. Because this operation happens in a
-  // channel, this should be an `x-moz-ews` URI, so we don't need further
-  // conversion.
+  // channel, this should be an `x-moz-{ews,graph}` URI, so we don't need
+  // further conversion.
   nsCString scheme;
   MOZ_TRY(aURI->GetScheme(scheme));
   MOZ_ASSERT(
@@ -176,7 +176,7 @@ NS_IMETHODIMP EwsService::FetchMimePart(nsIURI* aURI,
   return FetchMessage(aURI, aStreamListener);
 }
 
-NS_IMETHODIMP EwsService::StreamMessage(
+NS_IMETHODIMP ExchangeService::StreamMessage(
     const nsACString& aMessageURI, nsIStreamListener* aStreamListener,
     nsIMsgWindow* aMsgWindow, nsIUrlListener* aUrlListener, bool aConvertData,
     const nsACString& aAdditionalHeader, bool aLocalOnly, nsIURI** _retval) {
@@ -221,22 +221,24 @@ NS_IMETHODIMP EwsService::StreamMessage(
   return FetchMessage(channelURI, aStreamListener);
 }
 
-NS_IMETHODIMP EwsService::StreamHeaders(const nsACString& aMessageURI,
-                                        nsIStreamListener* aConsumer,
-                                        nsIUrlListener* aUrlListener,
-                                        bool aLocalOnly, nsIURI** _retval) {
+NS_IMETHODIMP ExchangeService::StreamHeaders(const nsACString& aMessageURI,
+                                             nsIStreamListener* aConsumer,
+                                             nsIUrlListener* aUrlListener,
+                                             bool aLocalOnly,
+                                             nsIURI** _retval) {
   NS_WARNING("StreamHeaders");
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP EwsService::IsMsgInMemCache(nsIURI* aUrl, nsIMsgFolder* aFolder,
-                                          bool* _retval) {
+NS_IMETHODIMP ExchangeService::IsMsgInMemCache(nsIURI* aUrl,
+                                               nsIMsgFolder* aFolder,
+                                               bool* _retval) {
   NS_WARNING("IsMsgInMemCache");
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP EwsService::MessageURIToMsgHdr(const nsACString& uri,
-                                             nsIMsgDBHdr** _retval) {
+NS_IMETHODIMP ExchangeService::MessageURIToMsgHdr(const nsACString& uri,
+                                                  nsIMsgDBHdr** _retval) {
   RefPtr<nsIURI> uriObj;
   nsresult rv = NS_NewURI(getter_AddRefs(uriObj), uri);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -244,8 +246,8 @@ NS_IMETHODIMP EwsService::MessageURIToMsgHdr(const nsACString& uri,
   return MsgHdrFromUri(uriObj, _retval);
 }
 
-nsresult EwsService::MsgKeyStringFromMessageURI(nsIURI* uri,
-                                                nsACString& msgKey) {
+nsresult ExchangeService::MsgKeyStringFromMessageURI(nsIURI* uri,
+                                                     nsACString& msgKey) {
   // We expect the provided URI to be of the following form:
   // `ews-message://{username}@{host}/{folder_path}#{msg_key}`.
   // Note that `ews-message` is not a registered scheme and URIs which use it
@@ -261,8 +263,8 @@ nsresult EwsService::MsgKeyStringFromMessageURI(nsIURI* uri,
   return NS_OK;
 }
 
-nsresult EwsService::MsgKeyStringFromChannelURI(nsIURI* uri, nsACString& msgKey,
-                                                nsACString& folderURIPath) {
+nsresult ExchangeService::MsgKeyStringFromChannelURI(
+    nsIURI* uri, nsACString& msgKey, nsACString& folderURIPath) {
   nsresult rv = uri->GetFilePath(folderURIPath);
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -286,7 +288,7 @@ nsresult EwsService::MsgKeyStringFromChannelURI(nsIURI* uri, nsACString& msgKey,
   return NS_OK;
 }
 
-nsresult EwsService::MsgHdrFromUri(nsIURI* uri, nsIMsgDBHdr** _retval) {
+nsresult ExchangeService::MsgHdrFromUri(nsIURI* uri, nsIMsgDBHdr** _retval) {
   nsCString keyStr;
   nsCString folderURIPath;
 
@@ -355,8 +357,8 @@ nsresult EwsService::MsgHdrFromUri(nsIURI* uri, nsIMsgDBHdr** _retval) {
   return folder->GetMessageHeader(key, _retval);
 }
 
-nsresult EwsService::FetchMessage(nsIURI* aURI,
-                                  nsIStreamListener* aStreamListener) {
+nsresult ExchangeService::FetchMessage(nsIURI* aURI,
+                                       nsIStreamListener* aStreamListener) {
   nsCOMPtr<nsIIOService> netService = mozilla::components::IO::Service();
   NS_ENSURE_TRUE(netService, NS_ERROR_UNEXPECTED);
 

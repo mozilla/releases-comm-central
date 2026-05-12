@@ -10,18 +10,18 @@ UNIFIED_SOURCES += [
     "EwsCopyMoveTransaction.cpp",
     "EwsFetchMsgsToOffline.cpp",
     "EwsFolderCopyHandler.cpp",
-    "EwsMessageChannel.cpp",
     "EwsMessageCopyHandler.cpp",
     "EwsMessageSync.cpp",
-    "EwsProtocolHandler.cpp",
-    "EwsService.cpp",
     "ExchangeFolder.cpp",
     "ExchangeIncomingServer.cpp",
     "ExchangeLanguageInteropFactory.cpp",
     "ExchangeListeners.cpp",
+    "ExchangeMessageChannel.cpp",
     "ExchangeMessageCreate.cpp",
     "ExchangeOAuth2CustomDetails.cpp",
+    "ExchangeProtocolHandler.cpp",
     "ExchangeProtocolInfo.cpp",
+    "ExchangeService.cpp",
 ]
 
 XPCOM_MANIFESTS += [

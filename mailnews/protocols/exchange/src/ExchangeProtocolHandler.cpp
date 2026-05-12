@@ -2,41 +2,44 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "EwsProtocolHandler.h"
+#include "ExchangeProtocolHandler.h"
 
-#include "EwsMessageChannel.h"
+#include "ExchangeMessageChannel.h"
 #include "nsIMsgIncomingServer.h"
 
 nsresult NS_CreateEwsProtocolHandler(REFNSIID aIID, void** aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   *aResult = nullptr;
-  RefPtr<EwsProtocolHandler> instance(new EwsProtocolHandler("x-moz-ews"_ns));
+  RefPtr<ExchangeProtocolHandler> instance(
+      new ExchangeProtocolHandler("x-moz-ews"_ns));
   return instance->QueryInterface(aIID, aResult);
 }
 
 nsresult NS_CreateGraphProtocolHandler(REFNSIID aIID, void** aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   *aResult = nullptr;
-  RefPtr<EwsProtocolHandler> instance(new EwsProtocolHandler("x-moz-graph"_ns));
+  RefPtr<ExchangeProtocolHandler> instance(
+      new ExchangeProtocolHandler("x-moz-graph"_ns));
   return instance->QueryInterface(aIID, aResult);
 }
 
-NS_IMPL_ISUPPORTS(EwsProtocolHandler, nsIProtocolHandler)
+NS_IMPL_ISUPPORTS(ExchangeProtocolHandler, nsIProtocolHandler)
 
-EwsProtocolHandler::EwsProtocolHandler(const nsACString& exchangeScheme)
+ExchangeProtocolHandler::ExchangeProtocolHandler(
+    const nsACString& exchangeScheme)
     : mExchangeScheme(std::move(exchangeScheme)) {}
 
-EwsProtocolHandler::~EwsProtocolHandler() = default;
+ExchangeProtocolHandler::~ExchangeProtocolHandler() = default;
 
-NS_IMETHODIMP EwsProtocolHandler::GetScheme(nsACString& aScheme) {
+NS_IMETHODIMP ExchangeProtocolHandler::GetScheme(nsACString& aScheme) {
   aScheme.Assign(mExchangeScheme);
 
   return NS_OK;
 }
 
-NS_IMETHODIMP EwsProtocolHandler::NewChannel(nsIURI* aURI,
-                                             nsILoadInfo* aLoadinfo,
-                                             nsIChannel** _retval) {
+NS_IMETHODIMP ExchangeProtocolHandler::NewChannel(nsIURI* aURI,
+                                                  nsILoadInfo* aLoadinfo,
+                                                  nsIChannel** _retval) {
   nsCString spec;
   MOZ_TRY(aURI->GetSpec(spec));
 
@@ -51,16 +54,17 @@ NS_IMETHODIMP EwsProtocolHandler::NewChannel(nsIURI* aURI,
   // converters (the former by our own, and the latter by PDF.js).
   //
   // Other cases (with `convert=true` in the query) likely originate from using
-  // `EwsService::StreamMessage`. In theory we could run the stream converter
-  // there directly, but we want to centralise calls to the stream converter
-  // service as much as possible for maintainability.
+  // `ExchangeService::StreamMessage`. In theory we could run the stream
+  // converter there directly, but we want to centralise calls to the stream
+  // converter service as much as possible for maintainability.
   bool convert = false;
   if (spec.Find("part=") != kNotFound ||
       spec.Find("convert=true") != kNotFound) {
     convert = true;
   }
 
-  RefPtr<EwsMessageChannel> channel = new EwsMessageChannel(aURI, convert);
+  RefPtr<ExchangeMessageChannel> channel =
+      new ExchangeMessageChannel(aURI, convert);
   MOZ_TRY(channel->SetLoadInfo(aLoadinfo));
 
   // Add the attachment disposition. This forces docShell to open the
@@ -79,8 +83,9 @@ NS_IMETHODIMP EwsProtocolHandler::NewChannel(nsIURI* aURI,
   return NS_OK;
 }
 
-NS_IMETHODIMP EwsProtocolHandler::AllowPort(int32_t port, const char* scheme,
-                                            bool* _retval) {
+NS_IMETHODIMP ExchangeProtocolHandler::AllowPort(int32_t port,
+                                                 const char* scheme,
+                                                 bool* _retval) {
   // Because we control the entire lifetime of message URIs from creation to
   // loading, we should never encounter a port we don't expect.
   MOZ_ASSERT_UNREACHABLE("call to AllowPort on internal protocol");

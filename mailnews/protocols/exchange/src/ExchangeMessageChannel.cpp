@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "EwsMessageChannel.h"
+#include "ExchangeMessageChannel.h"
 
 #include "EwsFetchMsgsToOffline.h"
 #include "ExchangeListeners.h"
@@ -30,13 +30,13 @@
 #include "mozilla/Components.h"
 
 /**
- * nsIChannel/nsIRequest impl for EwsOfflineMessageChannel
+ * nsIChannel/nsIRequest impl for ExchangeMessageChannel
  */
 
-NS_IMPL_ISUPPORTS_INHERITED(EwsMessageChannel, nsHashPropertyBag,
+NS_IMPL_ISUPPORTS_INHERITED(ExchangeMessageChannel, nsHashPropertyBag,
                             nsIMailChannel, nsIChannel, nsIRequest)
 
-EwsMessageChannel::EwsMessageChannel(nsIURI* uri, bool convert)
+ExchangeMessageChannel::ExchangeMessageChannel(nsIURI* uri, bool convert)
     : mConvert(convert),
       mURI(uri),
       mContentDisposition(nsIChannel::DISPOSITION_INLINE),
@@ -47,9 +47,9 @@ EwsMessageChannel::EwsMessageChannel(nsIURI* uri, bool convert)
   mContentType.AssignLiteral(MESSAGE_RFC822);
 }
 
-EwsMessageChannel::~EwsMessageChannel() = default;
+ExchangeMessageChannel::~ExchangeMessageChannel() = default;
 
-NS_IMETHODIMP EwsMessageChannel::GetName(nsACString& aName) {
+NS_IMETHODIMP ExchangeMessageChannel::GetName(nsACString& aName) {
   if (mURI) {
     return mURI->GetSpec(aName);
   }
@@ -57,7 +57,7 @@ NS_IMETHODIMP EwsMessageChannel::GetName(nsACString& aName) {
   return NS_OK;
 }
 
-NS_IMETHODIMP EwsMessageChannel::IsPending(bool* aPending) {
+NS_IMETHODIMP ExchangeMessageChannel::IsPending(bool* aPending) {
   if (mReadRequest) {
     return mReadRequest->IsPending(aPending);
   }
@@ -66,7 +66,7 @@ NS_IMETHODIMP EwsMessageChannel::IsPending(bool* aPending) {
   return NS_OK;
 }
 
-NS_IMETHODIMP EwsMessageChannel::GetStatus(nsresult* aStatus) {
+NS_IMETHODIMP ExchangeMessageChannel::GetStatus(nsresult* aStatus) {
   // If the download has failed, we want to serve the status from the download
   // operation regardless of whether we have a read request. Note that if the
   // download failed we shouldn't have a read request in the first place, so
@@ -79,40 +79,40 @@ NS_IMETHODIMP EwsMessageChannel::GetStatus(nsresult* aStatus) {
   return NS_OK;
 }
 
-NS_IMETHODIMP EwsMessageChannel::Cancel(nsresult aStatus) {
+NS_IMETHODIMP ExchangeMessageChannel::Cancel(nsresult aStatus) {
   if (mReadRequest) {
     return mReadRequest->Cancel(aStatus);
   }
 
   // We don't currently have a way to cancel the underlying necko request for
   // downloading the message.
-  NS_WARNING("Cannot cancel an EWS message channel while downloading");
+  NS_WARNING("Cannot cancel an Exchange message channel while downloading");
   return NS_ERROR_NOT_AVAILABLE;
 }
 
-NS_IMETHODIMP EwsMessageChannel::Suspend(void) {
+NS_IMETHODIMP ExchangeMessageChannel::Suspend(void) {
   if (mReadRequest) {
     return mReadRequest->Suspend();
   }
 
   // We don't currently have a way to suspend the underlying necko request for
   // downloading the message.
-  NS_WARNING("Cannot suspend an EWS message channel while downloading");
+  NS_WARNING("Cannot suspend an Exchange message channel while downloading");
   return NS_ERROR_NOT_AVAILABLE;
 }
 
-NS_IMETHODIMP EwsMessageChannel::Resume(void) {
+NS_IMETHODIMP ExchangeMessageChannel::Resume(void) {
   if (mReadRequest) {
     return mReadRequest->Resume();
   }
 
-  // We don't currently have a way to suspend the underlying necko request for
+  // We don't currently have a way to resume the underlying necko request for
   // downloading the message.
-  NS_WARNING("Cannot resume an EWS message channel while downloading");
+  NS_WARNING("Cannot resume an Exchange message channel while downloading");
   return NS_ERROR_NOT_AVAILABLE;
 }
 
-NS_IMETHODIMP EwsMessageChannel::GetLoadGroup(nsILoadGroup** aLoadGroup) {
+NS_IMETHODIMP ExchangeMessageChannel::GetLoadGroup(nsILoadGroup** aLoadGroup) {
   if (mReadRequest) {
     return mReadRequest->GetLoadGroup(aLoadGroup);
   }
@@ -121,7 +121,7 @@ NS_IMETHODIMP EwsMessageChannel::GetLoadGroup(nsILoadGroup** aLoadGroup) {
   return NS_OK;
 }
 
-NS_IMETHODIMP EwsMessageChannel::SetLoadGroup(nsILoadGroup* aLoadGroup) {
+NS_IMETHODIMP ExchangeMessageChannel::SetLoadGroup(nsILoadGroup* aLoadGroup) {
   if (mReadRequest) {
     return mReadRequest->SetLoadGroup(aLoadGroup);
   }
@@ -130,7 +130,7 @@ NS_IMETHODIMP EwsMessageChannel::SetLoadGroup(nsILoadGroup* aLoadGroup) {
   return NS_OK;
 }
 
-NS_IMETHODIMP EwsMessageChannel::GetLoadFlags(nsLoadFlags* aLoadFlags) {
+NS_IMETHODIMP ExchangeMessageChannel::GetLoadFlags(nsLoadFlags* aLoadFlags) {
   if (mReadRequest) {
     return mReadRequest->GetLoadFlags(aLoadFlags);
   }
@@ -139,7 +139,7 @@ NS_IMETHODIMP EwsMessageChannel::GetLoadFlags(nsLoadFlags* aLoadFlags) {
   return NS_OK;
 }
 
-NS_IMETHODIMP EwsMessageChannel::SetLoadFlags(nsLoadFlags aLoadFlags) {
+NS_IMETHODIMP ExchangeMessageChannel::SetLoadFlags(nsLoadFlags aLoadFlags) {
   if (mReadRequest) {
     return mReadRequest->SetLoadFlags(aLoadFlags);
   }
@@ -148,22 +148,22 @@ NS_IMETHODIMP EwsMessageChannel::SetLoadFlags(nsLoadFlags aLoadFlags) {
   return NS_OK;
 }
 
-NS_IMETHODIMP EwsMessageChannel::GetTRRMode(nsIRequest::TRRMode* mode) {
+NS_IMETHODIMP ExchangeMessageChannel::GetTRRMode(nsIRequest::TRRMode* mode) {
   // `GetTRRModeImpl` only reads a value through calling `GetLoadFlags`, which
   // we already forward to the read request if it exists, so we don't need to
   // forward this call to.
   return GetTRRModeImpl(mode);
 }
 
-NS_IMETHODIMP EwsMessageChannel::SetTRRMode(nsIRequest::TRRMode mode) {
+NS_IMETHODIMP ExchangeMessageChannel::SetTRRMode(nsIRequest::TRRMode mode) {
   // `GetTRRModeImpl` only sets a value through calling `SetLoadFlags`, which
   // we already forward to the read request if it exists, so we don't need to
   // forward this call to.
   return SetTRRModeImpl(mode);
 }
 
-NS_IMETHODIMP EwsMessageChannel::CancelWithReason(nsresult aStatus,
-                                                  const nsACString& aReason) {
+NS_IMETHODIMP ExchangeMessageChannel::CancelWithReason(
+    nsresult aStatus, const nsACString& aReason) {
   // While we could forward this call to the read request if we have it, the
   // only important action we want to perform on it is cancel it, which
   // `CancelWithReasonImpl` does. It also stores the cancellation reason on the
@@ -172,71 +172,71 @@ NS_IMETHODIMP EwsMessageChannel::CancelWithReason(nsresult aStatus,
   return CancelWithReasonImpl(aStatus, aReason);
 }
 
-NS_IMETHODIMP EwsMessageChannel::GetCanceledReason(
+NS_IMETHODIMP ExchangeMessageChannel::GetCanceledReason(
     nsACString& aCanceledReason) {
   // See the documentation to `CancelWithReason` for details on why we don't
   // forward this call to the read request.
   return GetCanceledReasonImpl(aCanceledReason);
 }
 
-NS_IMETHODIMP EwsMessageChannel::SetCanceledReason(
+NS_IMETHODIMP ExchangeMessageChannel::SetCanceledReason(
     const nsACString& aCanceledReason) {
   // See the documentation to `CancelWithReason` for details on why we don't
   // forward this call to the read request.
   return SetCanceledReasonImpl(aCanceledReason);
 }
 
-NS_IMETHODIMP EwsMessageChannel::GetOriginalURI(nsIURI** aOriginalURI) {
+NS_IMETHODIMP ExchangeMessageChannel::GetOriginalURI(nsIURI** aOriginalURI) {
   NS_IF_ADDREF(*aOriginalURI = mURI);
   return NS_OK;
 }
 
-NS_IMETHODIMP EwsMessageChannel::SetOriginalURI(nsIURI* aOriginalURI) {
+NS_IMETHODIMP ExchangeMessageChannel::SetOriginalURI(nsIURI* aOriginalURI) {
   // There's no meaningful "original URI" for these requests.
   return NS_OK;
 }
 
-NS_IMETHODIMP EwsMessageChannel::GetURI(nsIURI** aURI) {
+NS_IMETHODIMP ExchangeMessageChannel::GetURI(nsIURI** aURI) {
   NS_IF_ADDREF(*aURI = mURI);
   return NS_OK;
 }
 
-NS_IMETHODIMP EwsMessageChannel::GetOwner(nsISupports** aOwner) {
+NS_IMETHODIMP ExchangeMessageChannel::GetOwner(nsISupports** aOwner) {
   NS_IF_ADDREF(*aOwner = mOwner);
   return NS_OK;
 }
 
-NS_IMETHODIMP EwsMessageChannel::SetOwner(nsISupports* aOwner) {
+NS_IMETHODIMP ExchangeMessageChannel::SetOwner(nsISupports* aOwner) {
   mOwner = aOwner;
   return NS_OK;
 }
 
-NS_IMETHODIMP EwsMessageChannel::GetNotificationCallbacks(
+NS_IMETHODIMP ExchangeMessageChannel::GetNotificationCallbacks(
     nsIInterfaceRequestor** aNotificationCallbacks) {
   NS_IF_ADDREF(*aNotificationCallbacks = mNotificationCallbacks);
   return NS_OK;
 }
 
-NS_IMETHODIMP EwsMessageChannel::SetNotificationCallbacks(
+NS_IMETHODIMP ExchangeMessageChannel::SetNotificationCallbacks(
     nsIInterfaceRequestor* aNotificationCallbacks) {
   mNotificationCallbacks = aNotificationCallbacks;
   return NS_OK;
 }
 
-NS_IMETHODIMP EwsMessageChannel::GetSecurityInfo(
+NS_IMETHODIMP ExchangeMessageChannel::GetSecurityInfo(
     nsITransportSecurityInfo** aSecurityInfo) {
   // Security info does not make sense here since we're only pulling messages
   // from storage.
   return NS_ERROR_NOT_AVAILABLE;
 }
 
-NS_IMETHODIMP EwsMessageChannel::GetContentType(nsACString& aContentType) {
+NS_IMETHODIMP ExchangeMessageChannel::GetContentType(nsACString& aContentType) {
   aContentType.Assign(mContentType);
 
   return NS_OK;
 }
 
-NS_IMETHODIMP EwsMessageChannel::SetContentType(
+NS_IMETHODIMP ExchangeMessageChannel::SetContentType(
     const nsACString& aContentType) {
   nsresult rv =
       NS_ParseResponseContentType(aContentType, mContentType, mCharset);
@@ -252,33 +252,34 @@ NS_IMETHODIMP EwsMessageChannel::SetContentType(
   return NS_OK;
 }
 
-NS_IMETHODIMP EwsMessageChannel::GetContentCharset(
+NS_IMETHODIMP ExchangeMessageChannel::GetContentCharset(
     nsACString& aContentCharset) {
   aContentCharset.Assign(mCharset);
   return NS_OK;
 }
 
-NS_IMETHODIMP EwsMessageChannel::SetContentCharset(
+NS_IMETHODIMP ExchangeMessageChannel::SetContentCharset(
     const nsACString& aContentCharset) {
   mCharset.Assign(aContentCharset);
   return NS_OK;
 }
 
-NS_IMETHODIMP EwsMessageChannel::GetContentLength(int64_t* aContentLength) {
+NS_IMETHODIMP ExchangeMessageChannel::GetContentLength(
+    int64_t* aContentLength) {
   *aContentLength = mContentLength;
   return NS_OK;
 }
 
-NS_IMETHODIMP EwsMessageChannel::SetContentLength(int64_t aContentLength) {
+NS_IMETHODIMP ExchangeMessageChannel::SetContentLength(int64_t aContentLength) {
   mContentLength = aContentLength;
   return NS_OK;
 }
 
-NS_IMETHODIMP EwsMessageChannel::Open(nsIInputStream** _retval) {
+NS_IMETHODIMP ExchangeMessageChannel::Open(nsIInputStream** _retval) {
   return NS_ImplementChannelOpen(this, _retval);
 }
 
-NS_IMETHODIMP EwsMessageChannel::AsyncOpen(nsIStreamListener* aListener) {
+NS_IMETHODIMP ExchangeMessageChannel::AsyncOpen(nsIStreamListener* aListener) {
   mPending = false;
 
   nsAutoCString scheme;
@@ -352,7 +353,7 @@ NS_IMETHODIMP EwsMessageChannel::AsyncOpen(nsIStreamListener* aListener) {
       });
 }
 
-NS_IMETHODIMP EwsMessageChannel::GetCanceled(bool* aCanceled) {
+NS_IMETHODIMP ExchangeMessageChannel::GetCanceled(bool* aCanceled) {
   nsCString canceledReason;
   nsresult rv = mReadRequest->GetCanceledReason(canceledReason);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -362,48 +363,48 @@ NS_IMETHODIMP EwsMessageChannel::GetCanceled(bool* aCanceled) {
   return NS_OK;
 }
 
-NS_IMETHODIMP EwsMessageChannel::GetContentDisposition(
+NS_IMETHODIMP ExchangeMessageChannel::GetContentDisposition(
     uint32_t* aContentDisposition) {
   *aContentDisposition = mContentDisposition;
   return NS_OK;
 }
 
-NS_IMETHODIMP EwsMessageChannel::SetContentDisposition(
+NS_IMETHODIMP ExchangeMessageChannel::SetContentDisposition(
     uint32_t aContentDisposition) {
   mContentDisposition = aContentDisposition;
   return NS_OK;
 }
 
-NS_IMETHODIMP EwsMessageChannel::GetContentDispositionFilename(
+NS_IMETHODIMP ExchangeMessageChannel::GetContentDispositionFilename(
     nsAString& aContentDispositionFilename) {
   return NS_ERROR_NOT_AVAILABLE;
 }
 
-NS_IMETHODIMP EwsMessageChannel::SetContentDispositionFilename(
+NS_IMETHODIMP ExchangeMessageChannel::SetContentDispositionFilename(
     const nsAString& aContentDispositionFilename) {
   return NS_ERROR_NOT_AVAILABLE;
 }
 
-NS_IMETHODIMP EwsMessageChannel::GetContentDispositionHeader(
+NS_IMETHODIMP ExchangeMessageChannel::GetContentDispositionHeader(
     nsACString& aContentDispositionHeader) {
   return NS_ERROR_NOT_AVAILABLE;
 }
 
-NS_IMETHODIMP EwsMessageChannel::GetLoadInfo(nsILoadInfo** aLoadInfo) {
+NS_IMETHODIMP ExchangeMessageChannel::GetLoadInfo(nsILoadInfo** aLoadInfo) {
   NS_IF_ADDREF(*aLoadInfo = mLoadInfo);
   return NS_OK;
 }
 
-NS_IMETHODIMP EwsMessageChannel::SetLoadInfo(nsILoadInfo* aLoadInfo) {
+NS_IMETHODIMP ExchangeMessageChannel::SetLoadInfo(nsILoadInfo* aLoadInfo) {
   mLoadInfo = aLoadInfo;
   return NS_OK;
 }
 
-NS_IMETHODIMP EwsMessageChannel::GetIsDocument(bool* aIsDocument) {
+NS_IMETHODIMP ExchangeMessageChannel::GetIsDocument(bool* aIsDocument) {
   return NS_GetIsDocumentChannel(this, aIsDocument);
 }
 
-nsresult EwsMessageChannel::StartMessageReadFromStore(
+nsresult ExchangeMessageChannel::StartMessageReadFromStore(
     nsIStreamListener* streamListener) {
   nsresult rv = AsyncReadMessageFromStore(mHdr, streamListener, mConvert, this,
                                           getter_AddRefs(mReadRequest));
