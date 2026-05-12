@@ -17,17 +17,19 @@ const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   AccountConfig: "resource:///modules/accountcreation/AccountConfig.sys.mjs",
   cal: "resource:///modules/calendar/calUtils.sys.mjs",
-  RemoteAddressBookUtils:
-    "resource:///modules/accountcreation/RemoteAddressBookUtils.sys.mjs",
+  ConfigVerifier: "resource:///modules/accountcreation/ConfigVerifier.sys.mjs",
   CreateInBackend:
     "resource:///modules/accountcreation/CreateInBackend.sys.mjs",
-  ConfigVerifier: "resource:///modules/accountcreation/ConfigVerifier.sys.mjs",
+  FetchConfig: "resource:///modules/accountcreation/FetchConfig.sys.mjs",
   FindConfig: "resource:///modules/accountcreation/FindConfig.sys.mjs",
-  GuessConfig: "resource:///modules/accountcreation/GuessConfig.sys.mjs",
-  OAuth2Module: "resource:///modules/OAuth2Module.sys.mjs",
-  Sanitizer: "resource:///modules/accountcreation/Sanitizer.sys.mjs",
   getAddonsList:
     "resource:///modules/accountcreation/ExchangeAutoDiscover.sys.mjs",
+  GuessConfig: "resource:///modules/accountcreation/GuessConfig.sys.mjs",
+  OAuth2Module: "resource:///modules/OAuth2Module.sys.mjs",
+  OAuth2Providers: "resource:///modules/OAuth2Providers.sys.mjs",
+  RemoteAddressBookUtils:
+    "resource:///modules/accountcreation/RemoteAddressBookUtils.sys.mjs",
+  Sanitizer: "resource:///modules/accountcreation/Sanitizer.sys.mjs",
 });
 
 import "chrome://messenger/content/accountcreation/content/widgets/account-hub-step.mjs"; // eslint-disable-line import/no-unassigned-import
@@ -2036,6 +2038,65 @@ class AccountHubEmail extends HTMLElement {
     }
     this.#emailFooter.toggleForwardDisabled(true);
     return true;
+  }
+
+  /**
+   * @param {string} realName
+   * @param {string} email
+   * @param {string} token
+   */
+  async setUpThundermailFromURL(realName, email, token) {
+    // Check if there's an existing token for this username. If there is, stop.
+    // Override this preference for tests.
+    const hostname = Services.prefs.getStringPref(
+      "mail.accounthub.thundermail.hostname",
+      "thundermail.com"
+    );
+    const oauthDetails = lazy.OAuth2Providers.getHostnameDetails(
+      hostname,
+      "imap"
+    );
+    const oauthOrigin = `oauth://${oauthDetails.issuer}`;
+    for (const login of await Services.logins.searchLoginsAsync({
+      origin: oauthOrigin,
+    })) {
+      if (login.username == email) {
+        // TODO These strings are wrong.
+        this.#currentSubview.showNotification({
+          error: new Error("Token already exists", {
+            cause: {
+              fluentTitleId: "account-hub-creation-error-title",
+              fluentDescriptionId: "account-hub-error-server-exists",
+            },
+          }),
+          type: "error",
+        });
+        return;
+      }
+    }
+
+    // Save token to logins store.
+    const login = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
+      Ci.nsILoginInfo
+    );
+    login.init(oauthOrigin, null, oauthDetails.allScopes, email, token);
+    await Services.logins.addLoginAsync(login);
+
+    // Fetch latest autoconfig. We know that the ISP is configured.
+    const abortController = new AbortController();
+    const configPromise = lazy.FetchConfig.fromISP(
+      hostname,
+      email,
+      abortController.signal
+    );
+
+    const config = await configPromise;
+    lazy.AccountConfig.replaceVariables(config, realName, email);
+
+    this.#realName = realName;
+    this.#email = config.incoming.username;
+    this.#currentConfig = config;
+    await this.#initConfigView(config);
   }
 }
 

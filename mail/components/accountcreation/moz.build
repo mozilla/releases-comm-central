@@ -23,6 +23,7 @@ EXTRA_JS_MODULES.accountcreation += [
     "modules/readFromXML.sys.mjs",
     "modules/RemoteAddressBookUtils.sys.mjs",
     "modules/Sanitizer.sys.mjs",
+    "modules/Thundermail.sys.mjs",
 ]
 
 BROWSER_CHROME_MANIFESTS += [

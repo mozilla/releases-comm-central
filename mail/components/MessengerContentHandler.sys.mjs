@@ -522,19 +522,20 @@ export class MessengerContentHandler {
       // Protocols are able to contain file endings like '.ics'.
 
       if (url?.protocol == "net.thunderbird:") {
-        getOrOpen3PaneWindow();
-        try {
-          // Find a handler for this URL based on the host. Handlers can be
-          // registered with the category manager at compile time or run time.
-          const contract = Services.catMan.getCategoryEntry(
-            "net-thunderbird-url",
-            url.host
-          );
-          const service = Cc[contract].getService(Ci.nsIObserver);
-          service.observe(null, "net-thunderbird-url", url.href);
-        } catch (ex) {
-          console.error(ex);
-        }
+        getOrOpen3PaneWindow().then(() => {
+          try {
+            // Find a handler for this URL based on the host. Handlers can be
+            // registered with the category manager at compile time or run time.
+            const contract = Services.catMan.getCategoryEntry(
+              "net-thunderbird-url",
+              url.host
+            );
+            const service = Cc[contract].getService(Ci.nsIObserver);
+            service.observe(null, "net-thunderbird-url", url.href);
+          } catch (ex) {
+            console.error(ex);
+          }
+        });
       } else if (["http:", "https:", "feed:"].includes(url?.protocol)) {
         getOrOpen3PaneWindow().then(() => {
           lazy.FeedUtils.subscribeToFeed(uri, null);

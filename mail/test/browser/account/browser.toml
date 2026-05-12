@@ -49,6 +49,7 @@ prefs = [
   "mailnews.auto_config.addons_url=about:blank",
   "mailnews.auto_config.fetchFromExchange.enabled=false",
   "mailnews.auto_config_url=about:blank",
+  "mailnews.oauth.loglevel=All",
   "mailnews.start_page.override_url=about:blank",
   "mailnews.start_page.url=about:blank",
 ]
@@ -131,6 +132,9 @@ skip-if = [
 ["browser_settingsInfrastructure.js"]
 
 ["browser_thundermailSetup.js"]
+tags = ["oauth"]
+
+["browser_thundermailUrlSetup.js"]
 tags = ["oauth"]
 
 ["browser_tree.js"]
