@@ -697,6 +697,10 @@ pref("gloda.facetview.hidetimeline", true);
 // 3 - default to "date", but remember user preference when it is changed
 pref("gloda.facetview.sortby", 2);
 
+// Whether to automatically open search results as a list (mail3PaneTab) instead of
+// showing the faceted search view. Equivalent to clicking "Show results as list".
+pref("gloda.facetview.show_as_list_by_default", false);
+
 // Enable gloda by default!
 pref("mailnews.database.global.indexer.enabled", true);
 // Limit the number of gloda message results

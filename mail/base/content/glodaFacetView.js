@@ -561,6 +561,13 @@ var FacetContext = {
       this.fullSet = this.fullSet.concat(this.IMCollection.items);
     }
     this.build(this.fullSet);
+
+    if (
+      Services.prefs.getBoolPref("gloda.facetview.show_as_list_by_default", false)
+    ) {
+      this.showActiveSetInTab();
+      this.rootWin.document.getElementById("tabmail").closeTab(this.tab);
+    }
   },
 
   /**

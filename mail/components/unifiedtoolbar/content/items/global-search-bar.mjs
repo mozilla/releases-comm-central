@@ -11,6 +11,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   GlodaConstants: "resource:///modules/gloda/GlodaConstants.sys.mjs",
   GlodaIMSearcher: "resource:///modules/GlodaIMSearcher.sys.mjs",
   GlodaMsgSearcher: "resource:///modules/gloda/GlodaMsgSearcher.sys.mjs",
+  GlodaSyntheticView: "resource:///modules/gloda/GlodaSyntheticView.sys.mjs",
 });
 ChromeUtils.defineLazyGetter(
   lazy,
@@ -161,7 +162,36 @@ class GlobalSearchBar extends SearchBar {
         args.IMSearcher = new lazy.GlodaIMSearcher(null, searchString);
       }
     }
-    tabmail.openTab("glodaFacet", args);
+    if (
+      Services.prefs.getBoolPref(
+        "gloda.facetview.show_as_list_by_default",
+        false
+      )
+    ) {
+      const collection = "query" in args
+        ? args.query.getCollection()
+        : args.searcher.getCollection();
+      const title = event.detail || "";
+      collection.listener = {
+        onItemsAdded() {},
+        onItemsModified() {},
+        onItemsRemoved() {},
+        onQueryCompleted() {
+          tabmail.openTab("mail3PaneTab", {
+            folderPaneVisible: false,
+            syntheticView: new lazy.GlodaSyntheticView({
+              collection: lazy.Gloda.explicitCollection(
+                lazy.GlodaConstants.NOUN_MESSAGE,
+                collection.items
+              ),
+            }),
+            title,
+          });
+        },
+      };
+    } else {
+      tabmail.openTab("glodaFacet", args);
+    }
     this.popup.closePopup();
     this.controller.matchCount = 0;
     this.controller.searchString = "";
