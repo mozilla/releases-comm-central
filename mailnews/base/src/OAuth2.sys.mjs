@@ -29,8 +29,22 @@ const log = console.createInstance({
   maxLogLevelPref: "mailnews.oauth.loglevel",
 });
 
-// Only allow one connecting window per endpoint.
-var gConnecting = {};
+/**
+ * Map to a lock allowing only one connecting internal window per endpoint.
+ *
+ * @type {Map<string, boolean>}
+ */
+var gConnecting = new Map();
+
+// Rate limit external browser requests with a per-endpoint cooldown.
+const COOLDOWN_MS = 3 * 1000;
+/**
+ * Maps endpoints to the cooldown time for that endpoint. Currently set to 3
+ * seconds after the last external browser launch for that endpoint.
+ *
+ * @type {Map<string, number>}
+ */
+var gCooldown = new Map();
 
 /**
  * @param {string} base64 - Data encoded in base64.
@@ -152,9 +166,14 @@ OAuth2.prototype = {
     if (this.refreshToken) {
       this.requestAccessToken(this.refreshToken, true);
     } else if (!aWithUI) {
+      log.warn("Attempted OAuth flow with no UI");
       this._reject('{ "error": "auth_noui" }');
-    } else if (gConnecting[this.authorizationEndpoint]) {
+    } else if (gConnecting.get(this.authorizationEndpoint)) {
+      log.warn("Attempted OAuth flow with a window already active");
       this._reject("Window already open");
+    } else if ((gCooldown.get(this.authorizationEndpoint) ?? 0) > Date.now()) {
+      log.warn("Attempted OAuth flow with a cooldown still active");
+      this._reject("Cooldown still active");
     } else {
       this.telemetryData.reason = aRefresh ? "refresh" : "no refresh token";
       this.requestAuthorization();
@@ -252,7 +271,7 @@ OAuth2.prototype = {
     }
   },
   finishAuthorizationRequest() {
-    gConnecting[this.authorizationEndpoint] = false;
+    gConnecting.set(this.authorizationEndpoint, false);
     if (this.request) {
       this.request.close();
       this.request = null;
@@ -466,6 +485,14 @@ OAuth2.prototype = {
   },
 };
 
+/**
+ * Reset the global cooldown state.
+ */
+OAuth2.clearCooldowns = function () {
+  log.debug("Clearing all OAuth cooldowns");
+  gCooldown.clear();
+};
+
 class InternalRequest {
   /**
    * Constructor for internal requests using Thunderbird's browser.
@@ -487,7 +514,7 @@ class InternalRequest {
    */
   start(authEndpointURL) {
     this.url = authEndpointURL.href;
-    gConnecting[this.oauth.authorizationEndpoint] = true;
+    gConnecting.set(this.oauth.authorizationEndpoint, true);
 
     const windowPrivacy = Services.prefs.getBoolPref(
       "mailnews.oauth.usePrivateBrowser",
@@ -616,9 +643,12 @@ class ExternalRequest {
     openLinkExternally(authURI, { addToHistory: false });
 
     // Normally, we'd do the following:
-    // gConnecting[this.oauth.authorizationEndpoint] = true;
+    // gConnecting.set(this.oauth.authorizationEndpoint, true);
     // But because we can't tell if the tab closes with no interaction, doing
     // so could lock out any future OAuth requests.
+    const endpoint = this.oauth.authorizationEndpoint;
+    gCooldown.set(endpoint, Date.now() + COOLDOWN_MS);
+
     return true;
   }
 
