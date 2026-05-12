@@ -16,12 +16,12 @@ UNIFIED_SOURCES += [
     "EwsMessageCopyHandler.cpp",
     "EwsMessageSync.cpp",
     "EwsProtocolHandler.cpp",
-    "EwsProtocolInfo.cpp",
     "EwsService.cpp",
     "ExchangeFolder.cpp",
     "ExchangeIncomingServer.cpp",
     "ExchangeMessageCreate.cpp",
     "ExchangeOAuth2CustomDetails.cpp",
+    "ExchangeProtocolInfo.cpp",
 ]
 
 XPCOM_MANIFESTS += [
