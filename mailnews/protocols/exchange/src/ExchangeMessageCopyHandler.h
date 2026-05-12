@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSMESSAGECOPYHANDLER_H_
-#define COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSMESSAGECOPYHANDLER_H_
+#ifndef COMM_MAILNEWS_PROTOCOLS_EXCHANGE_SRC_EXCHANGE_MESSAGECOPYHANDLER_H_
+#define COMM_MAILNEWS_PROTOCOLS_EXCHANGE_SRC_EXCHANGE_MESSAGECOPYHANDLER_H_
 
 #include "IExchangeClient.h"
 #include "ExchangeFolder.h"
@@ -33,60 +33,60 @@
  * The current process of copying or moving a message from a folder is the
  * following (assuming no failures, and excepting signaling start/stop/progress
  * updates to the source folder and the copy listener):
- *    1. A consumer requests an array of messages to be copied to an EWS folder
- *       (`ExchangeFolder::CopyMessages()`).
- *    2. The EWS folder class instantiates a copy handler, and instructs it to
- *       start the operation (`MessageCopyHandler::StartCopyingNextMessage()`).
- *    3. The copy handler instructs the message service relevant to the first
- *       message in line to stream said message's content to the handler
- *       (`nsIMsgMessageService::CopyMessage()`).
- *    4. Once the full message content has been streamed, the message service
- *       then signals to the copy handler that it has finished streaming the
- *       message's content (`MessageCopyHandler::EndCopy()`).
- *    5. The copy handler instructs its EWS client to begin creating an item for
- *       the message on the EWS server (`IExchangeClient::CreateMessage()`). It
- * is called with an instance of `MessageCreateCallbacks`, which performs
- *       database operations and notifies the copy handler about the operation's
- *       progress.
- *    6. Once the item has been created on the EWS server, the EWS client
- *       instructs its callbacks instance to save the message's content to the
- *       relevant local database and message store
- *       (`MessageCreateCallbacks::OnRemoteCreateSuccessful()`).
- *    7. The EWS client then notifies the copy handler (through its callbacks)
- *       that the new message has been successfully created, both on the EWS
- *       server and locally (`MessageCopyHandler::OnCreateFinished()`).
- *    8. If the operation is a move, the copy handler deletes the source message
- *       on the source folder.
- *    9. The copy handler repeats this process from steps 3 onwards until every
- *       message in the original array has been copied or moved.
- *    10. Once the operation has completed, or if there has been a failure
- *        during the operation, the copy handler notifies the source folder and
- *        the global copy service about the end and final status of the
- *        operation (`MessageCopyHandler::OnCopyCompleted()`).
+ * 1. A consumer requests an array of messages to be copied to an Exchange
+ * folder (`ExchangeFolder::CopyMessages()`).
+ * 2. The Exchange folder class instantiates a copy handler, and instructs it to
+ * start the operation (`MessageCopyHandler::StartCopyingNextMessage()`).
+ * 3. The copy handler instructs the message service relevant to the first
+ * message in line to stream said message's content to the handler
+ * (`nsIMsgMessageService::CopyMessage()`).
+ * 4. Once the full message content has been streamed, the message service then
+ * signals to the copy handler that it has finished streaming the message's
+ * content (`MessageCopyHandler::EndCopy()`).
+ * 5. The copy handler instructs its Exchange client to begin creating an item
+ * for the message on the Exchange server (`IExchangeClient::CreateMessage()`).
+ * It is called with an instance of `MessageCreateCallbacks`, which performs
+ * database operations and notifies the copy handler about the operation's
+ * progress.
+ * 6. Once the item has been created on the Exchange server, the Exchange client
+ * instructs its callbacks instance to save the message's content to the
+ * relevant local database and message store
+ * (`MessageCreateCallbacks::OnRemoteCreateSuccessful()`).
+ * 7. The Exchange client then notifies the copy handler (through its callbacks)
+ * that the new message has been successfully created, both on the Exchange
+ * server and locally (`MessageCopyHandler::OnCreateFinished()`).
+ * 8. If the operation is a move, the copy handler deletes the source message on
+ * the source folder.
+ * 9. The copy handler repeats this process from steps 3 onwards until every
+ * message in the original array has been copied or moved.
+ * 10. Once the operation has completed, or if there has been a failure during
+ * the operation, the copy handler notifies the source folder and the global
+ * copy service about the end and final status of the operation
+ * (`MessageCopyHandler::OnCopyCompleted()`).
  *
  * When copying from a file, the same process is followed, apart from a few
  * changes:
- *    * Step 3 is skipped, as the copy handler already holds a copy of the
- *      message's content (in the file).
- *    * Step 8 is skipped, as we're always dealing with a copy operation when
- *      the source is a file.
- *    * Step 9 is skipped, as we're always dealing with a single message when
- *      the source is a file.
+ * * Step 3 is skipped, as the copy handler already holds a copy of the
+ * message's content (in the file).
+ * * Step 8 is skipped, as we're always dealing with a copy operation when the
+ * source is a file.
+ * * Step 9 is skipped, as we're always dealing with a single message when the
+ * source is a file.
  */
-class MessageCopyHandler : public nsICopyMessageListener {
+class ExchangeMessageCopyHandler : public nsICopyMessageListener {
  public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSICOPYMESSAGELISTENER
 
   /**
    * Constructs a handler which will copy/move the messages specified in
-   * `headers` from the source folder into the destination EWS folder.
+   * `headers` from the source folder into the destination Exchange folder.
    */
-  MessageCopyHandler(nsIMsgFolder* srcFolder, ExchangeFolder* dstFolder,
-                     const nsTArray<RefPtr<nsIMsgDBHdr>>& headers, bool isMove,
-                     nsIMsgWindow* window, nsCString dstFolderId,
-                     IExchangeClient* client,
-                     nsIMsgCopyServiceListener* copyServiceListener)
+  ExchangeMessageCopyHandler(nsIMsgFolder* srcFolder, ExchangeFolder* dstFolder,
+                             const nsTArray<RefPtr<nsIMsgDBHdr>>& headers,
+                             bool isMove, nsIMsgWindow* window,
+                             nsCString dstFolderId, IExchangeClient* client,
+                             nsIMsgCopyServiceListener* copyServiceListener)
       : mDstFolder(dstFolder),
         mHeaders(headers.Clone()),
         mIsMove(isMove),
@@ -101,12 +101,12 @@ class MessageCopyHandler : public nsICopyMessageListener {
 
   /**
    * Constructs a handler which will copy the message contained in `srcFile`
-   * into the destination EWS folder.
+   * into the destination Exchange folder.
    */
-  MessageCopyHandler(nsIFile* srcFile, ExchangeFolder* dstFolder, bool isDraft,
-                     nsIMsgWindow* window, nsCString dstFolderId,
-                     IExchangeClient* client,
-                     nsIMsgCopyServiceListener* copyServiceListener)
+  ExchangeMessageCopyHandler(nsIFile* srcFile, ExchangeFolder* dstFolder,
+                             bool isDraft, nsIMsgWindow* window,
+                             nsCString dstFolderId, IExchangeClient* client,
+                             nsIMsgCopyServiceListener* copyServiceListener)
       : mDstFolder(dstFolder),
         mHeaders({}),
         mIsMove(false),
@@ -138,7 +138,7 @@ class MessageCopyHandler : public nsICopyMessageListener {
   nsresult StartCopyingNextMessage();
 
  protected:
-  virtual ~MessageCopyHandler() = default;
+  virtual ~ExchangeMessageCopyHandler() = default;
 
   /**
    * Helper, called to indicate that the current message has been created in
@@ -166,8 +166,8 @@ class MessageCopyHandler : public nsICopyMessageListener {
   mozilla::Maybe<RefPtr<nsIMsgFolder>> mSrcFolder;
   mozilla::Maybe<RefPtr<nsIFile>> mSrcFile;
 
-  // The EWS client and folder ID to use when creating the message item on the
-  // remote server.
+  // The Exchange client and folder ID to use when creating the message item on
+  // the remote server.
   nsCString mDstFolderId;
   RefPtr<IExchangeClient> mClient;
 
@@ -180,10 +180,10 @@ class MessageCopyHandler : public nsICopyMessageListener {
   // A buffer containing the full message content.
   //
   // This isn't great; ideally we'd stream the message to the client as it's
-  // provided to `CopyData()`, but the current architecture of the EWS code does
-  // not allow this because we require the whole message to be available before
-  // we can serialize it.
+  // provided to `CopyData()`, but the current architecture of the Exchange code
+  // does not allow this because we require the whole message to be available
+  // before we can serialize it.
   nsCString mBuffer;
 };
 
-#endif  // COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSMESSAGECOPYHANDLER_H_
+#endif  // COMM_MAILNEWS_PROTOCOLS_EXCHANGE_SRC_EXCHANGE_MESSAGECOPYHANDLER_H_

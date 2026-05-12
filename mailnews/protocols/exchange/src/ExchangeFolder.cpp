@@ -4,9 +4,10 @@
 
 #include "ExchangeFolder.h"
 
-#include "EwsFolderCopyHandler.h"
 #include "ExchangeListeners.h"
-#include "EwsMessageCopyHandler.h"
+#include "ExchangeFolderCopyHandler.h"
+#include "ExchangeMessageCopyHandler.h"
+#include "ExchangeMessageCopyHandler.h"
 #include "EwsMessageSync.h"
 #include "EwsCopyMoveTransaction.h"
 #include "IExchangeClient.h"
@@ -567,7 +568,7 @@ NS_IMETHODIMP ExchangeFolder::CopyFileMessage(
   NS_ENSURE_ARG_POINTER(aFile);
   NS_ENSURE_ARG_POINTER(copyListener);
 
-  //  Instantiate a `MessageCopyHandler` for this operation.
+  //  Instantiate a `ExchangeMessageCopyHandler` for this operation.
   nsCString exchangeId;
   nsresult rv = GetExchangeId(exchangeId);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -576,12 +577,13 @@ NS_IMETHODIMP ExchangeFolder::CopyFileMessage(
   rv = GetProtocolClient(getter_AddRefs(client));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  RefPtr<MessageCopyHandler> handler =
-      new MessageCopyHandler(aFile, this, isDraftOrTemplate, msgWindow,
-                             exchangeId, client, copyListener);
+  RefPtr<ExchangeMessageCopyHandler> handler =
+      new ExchangeMessageCopyHandler(aFile, this, isDraftOrTemplate, msgWindow,
+                                     exchangeId, client, copyListener);
 
-  // Start copying the message. Once it has finished, `MessageCopyHandler` will
-  // take care of sending the relevant notifications.
+  // Start copying the message. Once it has finished,
+  // `ExchangeMessageCopyHandler` will take care of sending the relevant
+  // notifications.
   rv = handler->StartCopyingNextMessage();
   if (NS_FAILED(rv)) {
     // If setting up the operation has failed, send the relevant notifications
@@ -628,8 +630,8 @@ NS_IMETHODIMP ExchangeFolder::CopyMessages(
                                nullptr);
     NS_ENSURE_SUCCESS(rv, rv);
   } else {
-    // Cross-server copy or move. Instantiate a `MessageCopyHandler` for this
-    // operation.
+    // Cross-server copy or move. Instantiate a `ExchangeMessageCopyHandler` for
+    // this operation.
     nsCString exchangeId;
     nsresult rv = GetExchangeId(exchangeId);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -637,14 +639,14 @@ NS_IMETHODIMP ExchangeFolder::CopyMessages(
     nsCOMPtr<IExchangeClient> client;
     MOZ_TRY(GetProtocolClient(getter_AddRefs(client)));
 
-    RefPtr<MessageCopyHandler> handler =
-        new MessageCopyHandler(aSrcFolder, this, aSrcHdrs, aIsMove, aMsgWindow,
-                               exchangeId, client, aCopyListener);
+    RefPtr<ExchangeMessageCopyHandler> handler = new ExchangeMessageCopyHandler(
+        aSrcFolder, this, aSrcHdrs, aIsMove, aMsgWindow, exchangeId, client,
+        aCopyListener);
 
     // Start the copy for the first message. Once this copy has finished, the
-    // `MessageCopyHandler` will automatically start the copy for the next
-    // message in line, and so on until every message in `srcHdrs` have been
-    // copied.
+    // `ExchangeMessageCopyHandler` will automatically start the copy for the
+    // next message in line, and so on until every message in `srcHdrs` have
+    // been copied.
     rv = handler->StartCopyingNextMessage();
     if (NS_FAILED(rv)) {
       // If setting up the operation has failed, send the relevant notifications
@@ -831,9 +833,9 @@ NS_IMETHODIMP ExchangeFolder::CopyFolder(
                                 aCopyListener);
     NS_ENSURE_SUCCESS(rv, rv);
   } else {
-    // Cross-server folder move (or copy). Instantiate a `FolderCopyHandler` for
-    // this operation.
-    RefPtr<FolderCopyHandler> handler = new FolderCopyHandler(
+    // Cross-server folder move (or copy). Instantiate a
+    // `ExchangeFolderCopyHandler` for this operation.
+    RefPtr<ExchangeFolderCopyHandler> handler = new ExchangeFolderCopyHandler(
         aSrcFolder, this, aIsMoveFolder, aMsgWindow, client, aCopyListener);
 
     rv = handler->CopyNextFolder();

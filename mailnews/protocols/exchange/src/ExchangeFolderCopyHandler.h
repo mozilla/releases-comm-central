@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSFOLDERCOPYHANDLER_H_
-#define COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSFOLDERCOPYHANDLER_H_
+#ifndef COMM_MAILNEWS_PROTOCOLS_EXCHANGE_SRC_EXCHANGE_FOLDERCOPYHANDLER_H_
+#define COMM_MAILNEWS_PROTOCOLS_EXCHANGE_SRC_EXCHANGE_FOLDERCOPYHANDLER_H_
 
 #include "IExchangeClient.h"
 #include "ExchangeFolder.h"
@@ -23,49 +23,49 @@ class FolderCreateCopyCallbacks;
 /**
  * A handler for a single folder copy/move operation.
  *
- * An instance of `FolderCopyHandler` is created for each copy/move operation. A
- * single operation always targets a single folder, but includes its subfolders,
- * meaning we might end up copying or moving multiple folders.
+ * An instance of `ExchangeFolderCopyHandler` is created for each copy/move
+ * operation. A single operation always targets a single folder, but includes
+ * its subfolders, meaning we might end up copying or moving multiple folders.
  *
  * The current process of copying or moving a folder is the following (assuming
  * no failure):
- *    1. A consumer requests a folder to be copied to an EWS folder
- *       (`ExchangeFolder::CopyFolder()`).
- *    2. The EWS folder class instantiates a copy handler, and instructs it to
- *       start the operation (`FolderCopyHandler::CopyNextFolder()`).
- *    3. The copy handler instructs its EWS client to begin creating a folder
- *       with the current source folder's name on the server, underneath its
- *       logical parent in the destination folder's hierarchy
- *       (`IExchangeClient::CreateFolder()`). It is called with an instance of
- *       `FolderCreateCopyCallbacks`.
- *    4. Once the folder has been created on the EWS server, the EWS client
- *       instructs its callbacks instance to create the new folder locally
- *       (`FolderCreateCopyCallbacks::OnSuccess()`).
- *    5. The callbacks instance notifies the copy handler of the operation's
- *       success (`FolderCopyHandler::OnFolderCreateFinished()`).
- *    6. The copy handler iterates over all the subfolders in the source
- *       folders, and adds them to the end of the list of folders to copy.
- *    7. The copy handler builds a list of all the messages in the source folder
- *       (non-recursively). If there are messages in this list, it instructs the
- *       newly-created folder to start copying them from the source folder
- *       (`ExchangeFolder::CopyMessages()`). It is called with an instance of
- *       `MessageCopyListener`. If there are no messages to copy, it skips
- *       straight to step 9.
- *    8. The new folder notifies the listener when all the messages have been
- *       copied (`MessageCopyListener::OnStopCopy()`).
- *    9. `FolderCopyHandler::CopyNextFolder()` is called. If there are more
- *       folders to copy, the copy handler moves to the next folder in the list
- *       and starts the process again from step 3. Otherwise the operation stops
- *       there.
+ * 1. A consumer requests a folder to be copied to an Exchange folder
+ * (`ExchangeFolder::CopyFolder()`).
+ * 2. The Exchange folder class instantiates a copy handler, and instructs it to
+ * start the operation (`ExchangeFolderCopyHandler::CopyNextFolder()`).
+ * 3. The copy handler instructs its Exchange client to begin creating a folder
+ * with the current source folder's name on the server, underneath its logical
+ * parent in the destination folder's hierarchy
+ * (`IExchangeClient::CreateFolder()`). It is called with an instance of
+ * `FolderCreateCopyCallbacks`.
+ * 4. Once the folder has been created on the Exchange server, the Exchange
+ * client instructs its callbacks instance to create the new folder locally
+ * (`FolderCreateCopyCallbacks::OnSuccess()`).
+ * 5. The callbacks instance notifies the copy handler of the operation's
+ * success (`ExchangeFolderCopyHandler::OnFolderCreateFinished()`).
+ * 6. The copy handler iterates over all the subfolders in the source folders,
+ * and adds them to the end of the list of folders to copy.
+ * 7. The copy handler builds a list of all the messages in the source folder
+ * (non-recursively). If there are messages in this list, it instructs the
+ * newly-created folder to start copying them from the source folder
+ * (`ExchangeFolder::CopyMessages()`). It is called with an instance of
+ * `MessageCopyListener`. If there are no messages to copy, it skips straight to
+ * step 9.
+ * 8. The new folder notifies the listener when all the messages have been
+ * copied (`MessageCopyListener::OnStopCopy()`).
+ * 9. `ExchangeFolderCopyHandler::CopyNextFolder()` is called. If there are more
+ * folders to copy, the copy handler moves to the next folder in the list and
+ * starts the process again from step 3. Otherwise the operation stops there.
  */
-class FolderCopyHandler {
+class ExchangeFolderCopyHandler {
  public:
-  MOZ_DECLARE_REFCOUNTED_TYPENAME(FolderCopyHandler)
-  NS_INLINE_DECL_REFCOUNTING(FolderCopyHandler)
+  MOZ_DECLARE_REFCOUNTED_TYPENAME(ExchangeFolderCopyHandler)
+  NS_INLINE_DECL_REFCOUNTING(ExchangeFolderCopyHandler)
 
-  FolderCopyHandler(nsIMsgFolder* srcFolder, ExchangeFolder* dstFolder,
-                    bool isMove, nsIMsgWindow* window, IExchangeClient* client,
-                    nsIMsgCopyServiceListener* copyServiceListener)
+  ExchangeFolderCopyHandler(nsIMsgFolder* srcFolder, ExchangeFolder* dstFolder,
+                            bool isMove, nsIMsgWindow* window,
+                            IExchangeClient* client,
+                            nsIMsgCopyServiceListener* copyServiceListener)
       : mDstFolder(dstFolder),
         mIsMove(isMove),
         mWindow(window),
@@ -88,7 +88,7 @@ class FolderCopyHandler {
   friend class FolderCreateCopyCallbacks;
 
  protected:
-  virtual ~FolderCopyHandler() = default;
+  virtual ~ExchangeFolderCopyHandler() = default;
 
   /**
    * The method below is expected to be called by a friend class, such as
@@ -123,7 +123,7 @@ class FolderCopyHandler {
   // (`mDstFolder`), but not B's since A hasn't been copied over yet.
   nsTHashMap<nsISupportsHashKey, RefPtr<nsIMsgFolder>> mDstParents;
 
-  // The EWS client to use when creating the folder on the remote server.
+  // The Exchange client to use when creating the folder on the remote server.
   nsCOMPtr<IExchangeClient> mClient;
 
   // The listener to inform of the status of the copy/move operation.
@@ -133,4 +133,4 @@ class FolderCopyHandler {
   size_t mCurIndex{};
 };
 
-#endif  // COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSFOLDERCOPYHANDLER_H_
+#endif  // COMM_MAILNEWS_PROTOCOLS_EXCHANGE_SRC_EXCHANGE_FOLDERCOPYHANDLER_H_

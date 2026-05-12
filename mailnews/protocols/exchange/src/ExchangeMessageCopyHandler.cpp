@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "EwsMessageCopyHandler.h"
+#include "ExchangeMessageCopyHandler.h"
 
 #include "CopyMessageStreamListener.h"
 #include "ExchangeListeners.h"
@@ -19,34 +19,34 @@
 #include "mozilla/Components.h"
 
 ///////////////////////////////////////////////////////////////////////////////
-// Definition of `MessageCopyHandler`, which handles a single copy operation
-// (either from a file or another folder). See `EwsMessageCopyHandler.h` for
-// more documentation.
+// Definition of `ExchangeMessageCopyHandler`, which handles a single copy
+// operation (either from a file or another folder). See
+// `ExchangeMessageCopyHandler.h` for more documentation.
 ///////////////////////////////////////////////////////////////////////////////
 
-NS_IMPL_ISUPPORTS(MessageCopyHandler, nsICopyMessageListener)
+NS_IMPL_ISUPPORTS(ExchangeMessageCopyHandler, nsICopyMessageListener)
 
 // `nsICopyMessageListener` methods, which are only called when copying from a
 // folder. These methods are called by a message service (proxied through
 // `CopyMessageStreamListener`) as part of streaming a message's content.
 
-NS_IMETHODIMP MessageCopyHandler::BeginCopy() {
+NS_IMETHODIMP ExchangeMessageCopyHandler::BeginCopy() {
   // Ensure the buffer is empty.
   mBuffer.Truncate();
   return NS_OK;
 }
 
-NS_IMETHODIMP MessageCopyHandler::StartMessage() {
+NS_IMETHODIMP ExchangeMessageCopyHandler::StartMessage() {
   // `StartMessage` and `EndMessage` are only called by protocol-specific code
   // to send notifications from the relevant `nsMsgProtocol` child class to the
-  // relevant folder class. We don't use this pattern for EWS, so we don't need
-  // to implement these methods.
-  NS_ERROR("Unexpected call to MessageCopyHandler::StartMessage");
+  // relevant folder class. We don't use this pattern for Exchange, so we don't
+  // need to implement these methods.
+  NS_ERROR("Unexpected call to ExchangeMessageCopyHandler::StartMessage");
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP MessageCopyHandler::CopyData(nsIInputStream* aIStream,
-                                           int32_t aLength) {
+NS_IMETHODIMP ExchangeMessageCopyHandler::CopyData(nsIInputStream* aIStream,
+                                                   int32_t aLength) {
   char buffer[aLength];
   uint32_t bytesRead;
   MOZ_TRY(aIStream->Read(buffer, aLength, &bytesRead));
@@ -63,16 +63,16 @@ NS_IMETHODIMP MessageCopyHandler::CopyData(nsIInputStream* aIStream,
   return NS_OK;
 }
 
-NS_IMETHODIMP MessageCopyHandler::EndMessage(nsMsgKey key) {
+NS_IMETHODIMP ExchangeMessageCopyHandler::EndMessage(nsMsgKey key) {
   // `StartMessage` and `EndMessage` are only called by protocol-specific code
   // to send notifications from the relevant `nsMsgProtocol` child class to the
-  // relevant folder class. We don't use this pattern for EWS, so we don't need
-  // to implement these methods.
-  NS_ERROR("Unexpected call to MessageCopyHandler::EndMessage");
+  // relevant folder class. We don't use this pattern for Exchange, so we don't
+  // need to implement these methods.
+  NS_ERROR("Unexpected call to ExchangeMessageCopyHandler::EndMessage");
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP MessageCopyHandler::EndCopy(bool aCopySucceeded) {
+NS_IMETHODIMP ExchangeMessageCopyHandler::EndCopy(bool aCopySucceeded) {
   MOZ_ASSERT(mSrcFolder && !mSrcFile);
   if (!aCopySucceeded) {
     // If we encountered a failure, bail now.
@@ -106,7 +106,7 @@ NS_IMETHODIMP MessageCopyHandler::EndCopy(bool aCopySucceeded) {
       });
 }
 
-NS_IMETHODIMP MessageCopyHandler::EndMove(bool aMoveSucceeded) {
+NS_IMETHODIMP ExchangeMessageCopyHandler::EndMove(bool aMoveSucceeded) {
   // We handle move success/failure in `OnCreateFinished` so that we don't
   // delete the message until we know the message has been created in the
   // destination folder. The only caller of `EndMove` seems to be
@@ -116,9 +116,9 @@ NS_IMETHODIMP MessageCopyHandler::EndMove(bool aMoveSucceeded) {
   return NS_OK;
 }
 
-// Additional public methods on `MessageCopyHandler`.
+// Additional public methods on `ExchangeMessageCopyHandler`.
 
-nsresult MessageCopyHandler::StartCopyingNextMessage() {
+nsresult ExchangeMessageCopyHandler::StartCopyingNextMessage() {
   if (mCopyServiceListener && mHeaders.Length() > 1) {
     // This is one of multiple messages, so inform the listener which message
     // we're currently on.
@@ -179,9 +179,9 @@ nsresult MessageCopyHandler::StartCopyingNextMessage() {
   return NS_ERROR_UNEXPECTED;
 }
 
-nsresult MessageCopyHandler::OnCopyCompleted(nsresult status) {
-  // TODO: Refresh size on disk once we start keeping track of the size of EWS
-  // folders on disk (via `mFolderSize` and `GetSizeOnDisk()`).
+nsresult ExchangeMessageCopyHandler::OnCopyCompleted(nsresult status) {
+  // TODO: Refresh size on disk once we start keeping track of the size of
+  // Exchange folders on disk (via `mFolderSize` and `GetSizeOnDisk()`).
 
   // If we're moving a message from a folder, notify the source folder about the
   // outcome.
@@ -221,12 +221,12 @@ nsresult MessageCopyHandler::OnCopyCompleted(nsresult status) {
 // For copies, it's just a matter of notifying any listener then going on
 // to the next message to copy, if any.
 // For moves, here's where we kick off deletion of the source message.
-nsresult MessageCopyHandler::OnCreateFinished(nsresult status,
-                                              nsIMsgDBHdr* newHdr) {
+nsresult ExchangeMessageCopyHandler::OnCreateFinished(nsresult status,
+                                                      nsIMsgDBHdr* newHdr) {
   // NOTE: SetMessageKey() needs to die.
   // It's required for old-style IMAP where the UID from the server is used
   // as the messageKey, but that really needs to change (see Bug 1806770).
-  // It shouldn't be needed at all for EWS, but some of the unit tests rely
+  // It shouldn't be needed at all for Exchange, but some of the unit tests rely
   // upon it (e.g. test_item_operations.js).
   if (NS_SUCCEEDED(status) && mCopyServiceListener) {
     nsMsgKey key;

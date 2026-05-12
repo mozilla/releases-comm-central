@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "EwsFolderCopyHandler.h"
+#include "ExchangeFolderCopyHandler.h"
 
 #include "ExchangeListeners.h"
 #include "nsIMsgCopyService.h"
@@ -24,7 +24,8 @@ class MessageCopyListener : public nsIMsgCopyServiceListener {
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGCOPYSERVICELISTENER
 
-  MessageCopyListener(nsIMsgFolder* srcFolder, FolderCopyHandler* handler,
+  MessageCopyListener(nsIMsgFolder* srcFolder,
+                      ExchangeFolderCopyHandler* handler,
                       nsIMsgWindow* msgWindow)
       : mSrcFolder(srcFolder), mHandler(handler), mWindow(msgWindow) {};
 
@@ -33,7 +34,7 @@ class MessageCopyListener : public nsIMsgCopyServiceListener {
 
  private:
   nsCOMPtr<nsIMsgFolder> mSrcFolder;
-  RefPtr<FolderCopyHandler> mHandler;
+  RefPtr<ExchangeFolderCopyHandler> mHandler;
   nsCOMPtr<nsIMsgWindow> mWindow;
 };
 
@@ -56,12 +57,12 @@ NS_IMETHODIMP MessageCopyListener::OnStopCopy(nsresult aStatus) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Definition of `FolderCopyHandler`, which handles a single folder copy
-// operation (including subfolders, if any). See `EwsFolderCopyHandler.h` for
-// more documentation.
+// Definition of `ExchangeFolderCopyHandler`, which handles a single folder copy
+// operation (including subfolders, if any). See `ExchangeFolderCopyHandler.h`
+// for more documentation.
 ///////////////////////////////////////////////////////////////////////////////
 
-nsresult FolderCopyHandler::CopyNextFolder() {
+nsresult ExchangeFolderCopyHandler::CopyNextFolder() {
   mCurIndex++;
 
   if (mCurIndex >= mFoldersToCopy.Length()) {
@@ -121,11 +122,11 @@ nsresult FolderCopyHandler::CopyNextFolder() {
   return mClient->CreateFolder(listener, parentId, folderName);
 }
 
-// Protected method on `FolderCopyHandler`, intended to be called by its
+// Protected method on `ExchangeFolderCopyHandler`, intended to be called by its
 // friend class `FolderCreateCopyCallbacks`.
 
-nsresult FolderCopyHandler::OnFolderCreateFinished(nsresult status,
-                                                   nsIMsgFolder* newFolder) {
+nsresult ExchangeFolderCopyHandler::OnFolderCreateFinished(
+    nsresult status, nsIMsgFolder* newFolder) {
   NS_ENSURE_SUCCESS(status, status);
 
   NS_ENSURE_ARG_POINTER(newFolder);
