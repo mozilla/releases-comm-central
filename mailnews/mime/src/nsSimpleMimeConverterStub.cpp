@@ -135,6 +135,8 @@ static void Finalize(MimeObject* obj) {
   MimeSimpleStub* ssobj = (MimeSimpleStub*)obj;
   ssobj->innerScriptable = nullptr;
   delete ssobj->buffer;
+  ssobj->buffer = nullptr;
+  ((MimeObjectClass*)MIME_GetmimeInlineTextClass())->finalize(obj);
 }
 
 static int MimeSimpleStubClassInitialize(MimeObjectClass* oclass) {
