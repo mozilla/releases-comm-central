@@ -27,6 +27,15 @@ ChromeUtils.defineESModuleGetters(this, {
   UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
 });
 
+ChromeUtils.defineESModuleGetters(
+  this,
+  {
+    setupShortcuts:
+      "moz-src:///comm/mail/base/content/modules/ShortcutsOverlay.mjs",
+  },
+  { global: "current" }
+);
+
 var messageBrowser;
 
 function getBrowser() {
@@ -85,6 +94,7 @@ function OnLoadMessageWindow() {
   updateTroubleshootMenuItem();
   ToolbarIconColor.init();
   BondOpenPGP.init();
+  setupShortcuts();
 
   setTimeout(delayedOnLoadMessageWindow, 0); // when debugging, set this to 5000, so you can see what happens after the window comes up.
 

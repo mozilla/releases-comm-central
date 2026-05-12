@@ -38,6 +38,10 @@ var { AppConstants } = ChromeUtils.importESModule(
 var { isFirstRun } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/FirstRun.sys.mjs"
 );
+var { setupShortcuts } = ChromeUtils.importESModule(
+  "moz-src:///comm/mail/base/content/modules/ShortcutsOverlay.mjs",
+  { global: "current" }
+);
 
 ChromeUtils.defineESModuleGetters(this, {
   BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.sys.mjs",
@@ -158,6 +162,7 @@ var gMailInit = {
       tabmail.registerTabType(glodaFacetTabType);
       tabmail.registerTabMonitor(GlodaSearchBoxTabMonitor);
       tabmail.openFirstTab();
+      setupShortcuts();
     }
 
     // This also registers the contentTabType ("contentTab")

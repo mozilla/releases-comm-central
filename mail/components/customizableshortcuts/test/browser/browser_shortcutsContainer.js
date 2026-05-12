@@ -6,10 +6,15 @@
 
 // Test that the shortcuts container opens up properly and closes as it should.
 
+const { openCustomizableShortcuts } = ChromeUtils.importESModule(
+  "moz-src:///comm/mail/base/content/modules/ShortcutsOverlay.mjs",
+  { global: "current" }
+);
+
 add_task(async function test_customizable_shortcuts_opening() {
   // TODO: Use an actual button once it's implemented in the UI.
   // Open the dialog.
-  await window.openCustomizableShortcuts();
+  await openCustomizableShortcuts();
 
   const container = document.querySelector("shortcuts-container");
   await BrowserTestUtils.waitForMutationCondition(
@@ -27,7 +32,7 @@ add_task(async function test_customizable_shortcuts_opening() {
   Assert.ok(!dialog.open, "The dialog element was closed");
 
   // Open the dialog again.
-  await window.openCustomizableShortcuts();
+  await openCustomizableShortcuts();
   Assert.ok(dialog.open, "The dialog element was opened");
 
   EventUtils.synthesizeMouseAtCenter(
