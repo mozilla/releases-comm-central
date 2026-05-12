@@ -546,11 +546,6 @@ nsresult nsMailtoUrl::SetQueryWithEncoding(const nsACString& aQuery,
       .Finalize(m_baseURL);
 }
 
-NS_IMETHODIMP_(void)
-nsMailtoUrl::Serialize(mozilla::ipc::URIParams& aParams) {
-  m_baseURL->Serialize(aParams);
-}
-
 NS_IMPL_ISUPPORTS(nsMailtoUrl::Mutator, nsIURISetters, nsIURIMutator)
 
 NS_IMETHODIMP
@@ -579,11 +574,6 @@ nsresult nsMailtoUrl::NewMailtoURI(const nsACString& aSpec, nsIURI* aBaseURI,
   mailtoUrl.forget(_retval);
   return NS_OK;
 }
-
-size_t nsMailtoUrl::SizeOfIncludingThis(mozilla::MallocSizeOf aMallocSizeOf) {
-  // We don't need to calcaulte this unless something requires it.
-  return 0;
-};
 
 /////////////////////////////////////////////////////////////////////////////////////
 // smtp url definition

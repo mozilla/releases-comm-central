@@ -92,19 +92,6 @@ NS_INTERFACE_MAP_BEGIN(nsMsgMailNewsUrl)
                                      m_hasNormalizedOrigin)
 NS_INTERFACE_MAP_END
 
-//--------------------------
-// Support for serialization
-//--------------------------
-// nsMsgMailNewsUrl is only partly serialized by serializing the "base URL"
-// which is an nsStandardURL, or by only serializing the Spec. This may
-// cause problems in the future. See bug 1512356 and bug 1515337 for details,
-// follow-up in bug 1512698.
-
-NS_IMETHODIMP_(void)
-nsMsgMailNewsUrl::Serialize(mozilla::ipc::URIParams& aParams) {
-  m_baseURL->Serialize(aParams);
-}
-
 //----------------------------
 // Support for nsISerializable
 //----------------------------
@@ -886,9 +873,3 @@ nsMsgMailNewsUrl::Mutate(nsIURIMutator** aMutator) {
   mutator.forget(aMutator);
   return NS_OK;
 }
-
-size_t nsMsgMailNewsUrl::SizeOfIncludingThis(
-    mozilla::MallocSizeOf aMallocSizeOf) {
-  // We don't need to calcaulte this unless something requires it.
-  return 0;
-};

@@ -579,11 +579,6 @@ nsresult nsLDAPURL::SetQueryWithEncoding(const nsACString& aQuery,
       .Finalize(mBaseURL);
 }
 
-NS_IMETHODIMP_(void)
-nsLDAPURL::Serialize(mozilla::ipc::URIParams& aParams) {
-  mBaseURL->Serialize(aParams);
-}
-
 NS_IMPL_ISUPPORTS(nsLDAPURL::Mutator, nsIURISetters, nsIURIMutator)
 
 NS_IMETHODIMP
@@ -596,8 +591,3 @@ nsLDAPURL::Mutate(nsIURIMutator** aMutator) {
   mutator.forget(aMutator);
   return NS_OK;
 }
-
-size_t nsLDAPURL::SizeOfIncludingThis(mozilla::MallocSizeOf aMallocSizeOf) {
-  // We don't need to calcaulte this unless something requires it.
-  return 0;
-};
