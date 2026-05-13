@@ -18,7 +18,8 @@
 constexpr auto LDAP_SCHEME = "ldap"_ns;
 constexpr auto LDAP_SSL_SCHEME = "ldaps"_ns;
 
-NS_IMPL_ISUPPORTS(nsLDAPURL, nsILDAPURL, nsIURI)
+NS_IMPL_ISUPPORTS(nsLDAPURL, nsILDAPURL, nsIURI, nsIIPCSerializableURI,
+                  nsIURIWithSizeOf)
 
 nsLDAPURL::nsLDAPURL() : mScope(SCOPE_BASE), mOptions(0) {}
 
@@ -579,9 +580,9 @@ nsresult nsLDAPURL::SetQueryWithEncoding(const nsACString& aQuery,
       .Finalize(mBaseURL);
 }
 
-NS_IMETHODIMP_(void)
-nsLDAPURL::Serialize(mozilla::ipc::URIParams& aParams) {
-  mBaseURL->Serialize(aParams);
+void nsLDAPURL::Serialize(mozilla::ipc::URIParams& aParams) {
+  nsCOMPtr<nsIIPCSerializableURI> serializable = do_QueryInterface(mBaseURL);
+  serializable->Serialize(aParams);
 }
 
 NS_IMPL_ISUPPORTS(nsLDAPURL::Mutator, nsIURISetters, nsIURIMutator)

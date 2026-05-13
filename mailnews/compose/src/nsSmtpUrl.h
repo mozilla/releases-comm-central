@@ -6,22 +6,29 @@
 #ifndef COMM_MAILNEWS_COMPOSE_SRC_NSSMTPURL_H_
 #define COMM_MAILNEWS_COMPOSE_SRC_NSSMTPURL_H_
 
+#include "nsCOMPtr.h"
+#include "nsIAuthPrompt.h"
+#include "nsIInterfaceRequestor.h"
+#include "nsIIPCSerializableURI.h"
+#include "nsIMsgIdentity.h"
+#include "nsIMsgOutgoingServer.h"
+#include "nsIPrompt.h"
 #include "nsISmtpUrl.h"
 #include "nsIURI.h"
-#include "nsMsgMailNewsUrl.h"
-#include "nsIMsgIdentity.h"
-#include "nsCOMPtr.h"
-#include "nsIPrompt.h"
-#include "nsIAuthPrompt.h"
-#include "nsIMsgOutgoingServer.h"
-#include "nsIInterfaceRequestor.h"
 #include "nsIURIMutator.h"
+#include "nsIURIWithSizeOf.h"
+#include "nsMsgMailNewsUrl.h"
 
-class nsMailtoUrl : public nsIMailtoUrl, public nsIURI {
+class nsMailtoUrl : public nsIMailtoUrl,
+                    public nsIURI,
+                    public nsIIPCSerializableURI,
+                    public nsIURIWithSizeOf {
  public:
   NS_DECL_ISUPPORTS
-  NS_DECL_NSIURI
   NS_DECL_NSIMAILTOURL
+  NS_DECL_NSIURI
+  NS_DECL_NSIIPCSERIALIZABLEURI
+  NS_DECL_NSIURIWITHSIZEOF
 
   nsMailtoUrl();
   static nsresult NewMailtoURI(const nsACString& aSpec, nsIURI* aBaseURI,
