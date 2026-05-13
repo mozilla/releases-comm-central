@@ -14,6 +14,7 @@ async function checkABrowser(browser) {
       url => url != "about:blank"
     );
   }
+  await SimpleTest.promiseFocus(browser);
 
   const win = browser.documentGlobal;
   const doc = browser.ownerDocument;

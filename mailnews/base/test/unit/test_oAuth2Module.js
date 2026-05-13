@@ -918,6 +918,77 @@ add_task(async function testExternalRequest() {
   ]);
 });
 
+/**
+ * Tests that launching two external browser flows to the same endpoint fails
+ * when done in quick succession, but succeeds after waiting for the cooldown to
+ * expire.
+ */
+add_task(async function testCooldown() {
+  Services.fog.testResetFOG();
+  Services.prefs.setBoolPref("mailnews.oauth.useExternalBrowser", true);
+  await OAuth2TestUtils.startServer();
+
+  try {
+    const mod = new OAuth2Module();
+    Assert.ok(
+      mod.initFromHostname("external.test", "romeo@foo.invalid", "imap"),
+      "external.test should initialize for OAuth"
+    );
+
+    // Initial request.
+    const externalOAuthURL1 = OAuth2TestUtils.promiseExternalOAuthURL();
+    const deferred1 = Promise.withResolvers();
+    mod.connect(true, {
+      onSuccess: deferred1.resolve,
+      onFailure: deferred1.reject,
+    });
+    const url1 = await externalOAuthURL1;
+    await OAuth2TestUtils.submitOAuthURL(url1, {
+      expectedHint: "romeo@foo.invalid",
+      expectedScope: "test_mail",
+      username: "user",
+      password: "password",
+    });
+    await deferred1.promise;
+
+    // Second request (should fail).
+    mod._oauth.accessToken = null;
+    mod._oauth.refreshToken = null;
+    const externalOAuthURL2 = OAuth2TestUtils.promiseExternalOAuthURL();
+    const deferred2 = Promise.withResolvers();
+    mod.connect(true, {
+      onSuccess: token =>
+        deferred2.reject(new Error(`Unexpected success: ${token}`)),
+      onFailure: deferred2.resolve,
+    });
+    Assert.equal(await deferred2.promise, Cr.NS_ERROR_ABORT);
+
+    // Wait for cooldown (COOLDOWN_MS in OAuth2.sys.mjs + 500).
+    info("Waiting for 3.5 seconds...");
+    await new Promise(resolve => do_timeout(3500, resolve));
+
+    // Third request (should succeed).
+    const deferred3 = Promise.withResolvers();
+    mod.connect(true, {
+      onSuccess: deferred3.resolve,
+      onFailure: deferred3.reject,
+    });
+    const url3 = await externalOAuthURL2;
+    await OAuth2TestUtils.submitOAuthURL(url3, {
+      expectedHint: "romeo@foo.invalid",
+      expectedScope: "test_mail",
+      username: "user",
+      password: "password",
+    });
+    await deferred3.promise;
+  } finally {
+    await Services.logins.removeAllLoginsAsync();
+    OAuth2TestUtils.forgetObjects();
+    OAuth2TestUtils.stopServer();
+    Services.prefs.clearUserPref("mailnews.oauth.useExternalBrowser");
+  }
+});
+
 add_task(async function testExternalRequestRejectsMismatchedState() {
   Services.fog.testResetFOG();
   Services.prefs.setBoolPref("mailnews.oauth.useExternalBrowser", true);

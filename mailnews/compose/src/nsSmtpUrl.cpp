@@ -21,7 +21,8 @@ nsMailtoUrl::nsMailtoUrl() { mFormat = nsIMsgCompFormat::Default; }
 
 nsMailtoUrl::~nsMailtoUrl() {}
 
-NS_IMPL_ISUPPORTS(nsMailtoUrl, nsIMailtoUrl, nsIURI)
+NS_IMPL_ISUPPORTS(nsMailtoUrl, nsIMailtoUrl, nsIURI, nsIIPCSerializableURI,
+                  nsIURIWithSizeOf)
 
 static void UnescapeAndConvert(nsIMimeConverter* mimeConverter,
                                const nsACString& escaped, nsACString& out) {
@@ -546,9 +547,9 @@ nsresult nsMailtoUrl::SetQueryWithEncoding(const nsACString& aQuery,
       .Finalize(m_baseURL);
 }
 
-NS_IMETHODIMP_(void)
-nsMailtoUrl::Serialize(mozilla::ipc::URIParams& aParams) {
-  m_baseURL->Serialize(aParams);
+void nsMailtoUrl::Serialize(mozilla::ipc::URIParams& aParams) {
+  nsCOMPtr<nsIIPCSerializableURI> serializable = do_QueryInterface(m_baseURL);
+  serializable->Serialize(aParams);
 }
 
 NS_IMPL_ISUPPORTS(nsMailtoUrl::Mutator, nsIURISetters, nsIURIMutator)

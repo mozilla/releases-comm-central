@@ -7,23 +7,25 @@
 #define COMM_MAILNEWS_BASE_SRC_NSMSGMAILNEWSURL_H_
 
 #include "msgCore.h"
-#include "nscore.h"
-#include "nsISupports.h"
-#include "nsIUrlListener.h"
-#include "nsTObserverArray.h"
 #include "nsCOMPtr.h"
+#include "nscore.h"
+#include "nsICacheEntry.h"
+#include "nsIClassInfo.h"
+#include "nsIIPCSerializableURI.h"
 #include "nsIMimeHeaders.h"
 #include "nsIMsgMailNewsUrl.h"
-#include "nsIURL.h"
-#include "nsIURIWithSpecialOrigin.h"
 #include "nsIMsgSearchSession.h"
-#include "nsICacheEntry.h"
+#include "nsISerializable.h"
+#include "nsISupports.h"
+#include "nsITransportSecurityInfo.h"
+#include "nsIURIMutator.h"
+#include "nsIURIWithSizeOf.h"
+#include "nsIURIWithSpecialOrigin.h"
+#include "nsIURL.h"
+#include "nsIUrlListener.h"
 #include "nsIWeakReferenceUtils.h"
 #include "nsString.h"
-#include "nsIURIMutator.h"
-#include "nsISerializable.h"
-#include "nsIClassInfo.h"
-#include "nsITransportSecurityInfo.h"
+#include "nsTObserverArray.h"
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Okay, I found that all of the mail and news url interfaces needed to support
@@ -36,6 +38,8 @@
 class nsMsgMailNewsUrl : public nsIMsgMailNewsUrl,
                          public nsIURIWithSpecialOrigin,
                          public nsISerializable,
+                         public nsIIPCSerializableURI,
+                         public nsIURIWithSizeOf,
                          public nsIClassInfo {
  public:
   nsMsgMailNewsUrl();
@@ -46,6 +50,8 @@ class nsMsgMailNewsUrl : public nsIMsgMailNewsUrl,
   NS_DECL_NSIURL
   NS_DECL_NSIURIWITHSPECIALORIGIN
   NS_DECL_NSISERIALIZABLE
+  NS_DECL_NSIIPCSERIALIZABLEURI
+  NS_DECL_NSIURIWITHSIZEOF
   NS_DECL_NSICLASSINFO
 
  protected:

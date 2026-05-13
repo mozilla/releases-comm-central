@@ -14,8 +14,9 @@ use url::Url;
 use xpcom::{
     RefPtr, create_instance, get_service, getter_addrefs,
     interfaces::{
-        IEwsLanguageInteropFactory, IOAuth2CustomDetails, msgIOAuth2Module, nsIMsgIncomingServer,
-        nsIMsgOutgoingServer, nsIPrefService, nsMsgAuthMethod, nsMsgAuthMethodValue,
+        IExchangeLanguageInteropFactory, IOAuth2CustomDetails, msgIOAuth2Module,
+        nsIMsgIncomingServer, nsIMsgOutgoingServer, nsIPrefService, nsMsgAuthMethod,
+        nsMsgAuthMethodValue,
     },
 };
 
@@ -202,10 +203,10 @@ pub trait AuthenticationProvider {
             nsMsgAuthMethod::OAuth2 => {
                 // Get the OAuth details.
                 let oauth_details_identifier = self.oauth_details_identifier()?;
-                let interop_factory = create_instance::<IEwsLanguageInteropFactory>(cstr!(
-                    "@mozilla.org/messenger/ews-interop;1"
+                let interop_factory = create_instance::<IExchangeLanguageInteropFactory>(cstr!(
+                    "@mozilla.org/messenger/exchange-interop;1"
                 ))
-                .ok_or(Err::<RefPtr<IEwsLanguageInteropFactory>, _>(
+                .ok_or(Err::<RefPtr<IExchangeLanguageInteropFactory>, _>(
                     nserror::NS_ERROR_FAILURE,
                 ))?;
                 let override_details = getter_addrefs(|p| unsafe {

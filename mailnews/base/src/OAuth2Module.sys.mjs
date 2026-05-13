@@ -494,6 +494,7 @@ OAuth2Module._forgetObjects = function () {
     }
   }
   oAuth2Objects.clear();
+  OAuth2.clearCooldowns();
 };
 
 /**

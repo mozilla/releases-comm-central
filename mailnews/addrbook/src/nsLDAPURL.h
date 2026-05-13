@@ -7,10 +7,12 @@
 #ifndef COMM_MAILNEWS_ADDRBOOK_SRC_NSLDAPURL_H_
 #define COMM_MAILNEWS_ADDRBOOK_SRC_NSLDAPURL_H_
 
-#include "nsString.h"
-#include "nsILDAPURL.h"
 #include "nsCOMPtr.h"
+#include "nsIIPCSerializableURI.h"
+#include "nsILDAPURL.h"
 #include "nsIURIMutator.h"
+#include "nsIURIWithSizeOf.h"
+#include "nsString.h"
 
 /**
  * nsLDAPURL
@@ -27,11 +29,15 @@
  * consistent.
  */
 
-class nsLDAPURL : public nsILDAPURL {
+class nsLDAPURL : public nsILDAPURL,
+                  public nsIIPCSerializableURI,
+                  public nsIURIWithSizeOf {
  public:
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIURI
   NS_DECL_NSILDAPURL
+  NS_DECL_NSIIPCSERIALIZABLEURI
+  NS_DECL_NSIURIWITHSIZEOF
 
   nsLDAPURL();
 
