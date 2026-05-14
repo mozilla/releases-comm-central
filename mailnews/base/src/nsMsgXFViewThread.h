@@ -48,7 +48,7 @@ class nsMsgXFViewThread : public nsIMsgThread {
   nsMsgKey m_threadId;
   nsTArray<nsMsgKey> m_keys;
   nsCOMArray<nsIMsgFolder> m_folders;
-  nsTArray<uint8_t> m_levels;
+  nsTArray<uint32_t> m_levels;
 };
 
 #endif  // COMM_MAILNEWS_BASE_SRC_NSMSGXFVIEWTHREAD_H_

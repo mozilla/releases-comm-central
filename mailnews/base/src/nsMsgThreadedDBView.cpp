@@ -774,7 +774,7 @@ nsresult nsMsgThreadedDBView::RemoveByIndex(nsMsgViewIndex index) {
     }
 
     // Capture the level of the child we are about to delete
-    int32_t deletedLevel = m_levels[index];
+    uint32_t deletedLevel = m_levels[index];
     nsresult rv = nsMsgDBView::RemoveByIndex(index);
     NS_ENSURE_SUCCESS(rv, rv);
 

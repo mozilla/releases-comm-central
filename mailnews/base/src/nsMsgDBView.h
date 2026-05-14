@@ -421,7 +421,7 @@ class nsMsgDBView : public nsIMsgDBView,
   // Flags for each row, combining nsMsgMessageFlags and MSG_VIEW_FLAGS.
   nsTArray<uint32_t> m_flags;
   // Threading level of each row (1=top)
-  nsTArray<uint8_t> m_levels;
+  nsTArray<uint32_t> m_levels;
 
   nsMsgImapDeleteModel mDeleteModel;
 

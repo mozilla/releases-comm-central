@@ -50,7 +50,7 @@ class nsMsgThreadedDBView : public nsMsgGroupView {
   bool m_havePrevView;
   nsTArray<nsMsgKey> m_prevKeys;  // this is used for caching non-threaded view.
   nsTArray<uint32_t> m_prevFlags;
-  nsTArray<uint8_t> m_prevLevels;
+  nsTArray<uint32_t> m_prevLevels;
 };
 
 #endif  // COMM_MAILNEWS_BASE_SRC_NSMSGTHREADEDDBVIEW_H_

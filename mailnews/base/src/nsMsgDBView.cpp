@@ -3043,7 +3043,7 @@ nsresult nsMsgDBView::PerformActionsOnJunkMsgs(bool msgsAreJunk) {
 void nsMsgDBView::ReverseThreads() {
   nsTArray<uint32_t> newFlagArray;
   nsTArray<nsMsgKey> newKeyArray;
-  nsTArray<uint8_t> newLevelArray;
+  nsTArray<uint32_t> newLevelArray;
 
   uint32_t viewSize = GetSize();
   uint32_t startThread = viewSize;

@@ -479,7 +479,7 @@ nsresult nsMsgSearchDBView::AddHdrFromFolder(nsIMsgDBHdr* msgHdr,
           // Since we know posInThread, we just want to insert the new hdr
           // at threadIndex + posInThread, and then rebuild the view until we
           // get to a sibling of the new hdr.
-          uint8_t newMsgLevel = viewThread->ChildLevelAt(posInThread);
+          uint32_t newMsgLevel = viewThread->ChildLevelAt(posInThread);
           InsertMsgHdrAt(threadIndex + posInThread, msgHdr, msgKey, msgFlags,
                          newMsgLevel);
 
@@ -574,7 +574,7 @@ void nsMsgSearchDBView::MoveThreadAt(nsMsgViewIndex threadIndex) {
 
   nsTArray<nsMsgKey> threadKeys;
   nsTArray<uint32_t> threadFlags;
-  nsTArray<uint8_t> threadLevels;
+  nsTArray<uint32_t> threadLevels;
   nsCOMArray<nsIMsgFolder> threadFolders;
 
   if (threadIsExpanded) {
@@ -833,11 +833,11 @@ nsresult nsMsgSearchDBView::RemoveByIndex(nsMsgViewIndex index) {
 
       // Bump up the level of all the descendants of the message
       // that was removed, if the thread was expanded.
-      uint8_t removedLevel = m_levels[index];
+      uint32_t removedLevel = m_levels[index];
       nsMsgViewIndex i = index + 1;
       if (i < m_levels.Length() && m_levels[i] > removedLevel) {
         // Promote the child of the removed message.
-        uint8_t promotedLevel = m_levels[i];
+        uint32_t promotedLevel = m_levels[i];
         m_levels[i] = promotedLevel - 1;
         i++;
         // Now promote all the children of the promoted message.
@@ -1350,7 +1350,7 @@ nsresult nsMsgSearchDBView::ListIdsInThread(
       uint32_t msgFlags;
       msgHdr->GetMessageKey(&msgKey);
       msgHdr->GetFlags(&msgFlags);
-      uint8_t level = (threadedView) ? viewThread->ChildLevelAt(i) : 1;
+      uint32_t level = (threadedView) ? viewThread->ChildLevelAt(i) : 1;
       SetMsgHdrAt(msgHdr, viewIndex, msgKey, msgFlags & ~MSG_VIEW_FLAGS, level);
       (*pNumListed)++;
       viewIndex++;
