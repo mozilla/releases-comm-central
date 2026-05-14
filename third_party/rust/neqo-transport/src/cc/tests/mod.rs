@@ -10,20 +10,22 @@ use std::{
 };
 
 use crate::{
-    Pmtud,
+    MIN_INITIAL_PACKET_SIZE, Pmtud,
     cc::{
-        ClassicSlowStart, classic_cc::ClassicCongestionController, cubic::Cubic, hystart::HyStart,
-        new_reno::NewReno,
+        CWND_INITIAL_PKTS, ClassicSlowStart, classic_cc::ClassicCongestionController, cubic::Cubic,
+        hystart::HyStart, new_reno::NewReno,
     },
 };
 
 mod cubic;
 mod hystart;
 mod new_reno;
+mod search;
 
 pub const IP_ADDR: IpAddr = IpAddr::V4(Ipv4Addr::UNSPECIFIED);
 pub const MTU: Option<usize> = Some(1_500);
 pub const RTT: Duration = Duration::from_millis(100);
+pub const INITIAL_CWND: usize = CWND_INITIAL_PKTS * MIN_INITIAL_PACKET_SIZE;
 
 /// Helper to create `ClassicCongestionController` with New Reno for tests.
 pub fn make_cc_newreno() -> ClassicCongestionController<ClassicSlowStart, NewReno> {
@@ -31,6 +33,7 @@ pub fn make_cc_newreno() -> ClassicCongestionController<ClassicSlowStart, NewRen
         ClassicSlowStart::default(),
         NewReno::default(),
         Pmtud::new(IP_ADDR, MTU),
+        true,
     )
 }
 
@@ -40,6 +43,7 @@ pub fn make_cc_cubic() -> ClassicCongestionController<ClassicSlowStart, Cubic> {
         ClassicSlowStart::default(),
         Cubic::default(),
         Pmtud::new(IP_ADDR, MTU),
+        true,
     )
 }
 
@@ -49,5 +53,6 @@ pub fn make_cc_hystart(paced: bool) -> ClassicCongestionController<HyStart, Cubi
         HyStart::new(paced, crate::cc::HyStartCssBaseline::default()),
         Cubic::default(),
         Pmtud::new(IP_ADDR, MTU),
+        true,
     )
 }

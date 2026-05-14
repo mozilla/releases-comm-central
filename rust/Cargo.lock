@@ -3334,7 +3334,7 @@ dependencies = [
 name = "init_rust_components"
 version = "0.1.0"
 dependencies = [
- "nss",
+ "nss-as",
  "uniffi",
 ]
 
@@ -3841,7 +3841,7 @@ dependencies = [
  "interrupt-support",
  "jwcrypto",
  "lazy_static",
- "nss",
+ "nss-as",
  "parking_lot",
  "rusqlite",
  "serde",
@@ -4456,13 +4456,11 @@ dependencies = [
 
 [[package]]
 name = "mtu"
-version = "0.3.0"
-source = "git+https://github.com/mozilla/neqo?tag=v0.26.1#0eb6238fd899d2bf9e73c4847e14adc9565a4c81"
+version = "0.4.1"
+source = "git+https://github.com/mozilla/neqo?tag=v0.28.0#cca436bc84a8f6606cb66cf68add1a5a15a440ad"
 dependencies = [
- "bindgen 0.72.0",
  "cfg_aliases",
  "libc",
- "mozbuild",
  "static_assertions",
  "windows",
 ]
@@ -4500,8 +4498,8 @@ dependencies = [
 
 [[package]]
 name = "neqo-common"
-version = "0.26.1"
-source = "git+https://github.com/mozilla/neqo?tag=v0.26.1#0eb6238fd899d2bf9e73c4847e14adc9565a4c81"
+version = "0.28.0"
+source = "git+https://github.com/mozilla/neqo?tag=v0.28.0#cca436bc84a8f6606cb66cf68add1a5a15a440ad"
 dependencies = [
  "enum-map",
  "env_logger",
@@ -4513,36 +4511,17 @@ dependencies = [
 ]
 
 [[package]]
-name = "neqo-crypto"
-version = "0.26.1"
-source = "git+https://github.com/mozilla/neqo?tag=v0.26.1#0eb6238fd899d2bf9e73c4847e14adc9565a4c81"
-dependencies = [
- "bindgen 0.72.0",
- "enum-map",
- "log",
- "mozbuild",
- "neqo-common",
- "semver",
- "serde",
- "serde_derive",
- "strum",
- "thiserror 2.0.12",
- "toml 0.9.8",
- "windows",
-]
-
-[[package]]
 name = "neqo-http3"
-version = "0.26.1"
-source = "git+https://github.com/mozilla/neqo?tag=v0.26.1#0eb6238fd899d2bf9e73c4847e14adc9565a4c81"
+version = "0.28.0"
+source = "git+https://github.com/mozilla/neqo?tag=v0.28.0#cca436bc84a8f6606cb66cf68add1a5a15a440ad"
 dependencies = [
  "enumset",
  "http",
  "log",
  "neqo-common",
- "neqo-crypto",
  "neqo-qpack",
  "neqo-transport",
+ "nss-rs",
  "qlog",
  "rustc-hash 2.1.1",
  "sfv",
@@ -4552,8 +4531,8 @@ dependencies = [
 
 [[package]]
 name = "neqo-qpack"
-version = "0.26.1"
-source = "git+https://github.com/mozilla/neqo?tag=v0.26.1#0eb6238fd899d2bf9e73c4847e14adc9565a4c81"
+version = "0.28.0"
+source = "git+https://github.com/mozilla/neqo?tag=v0.28.0#cca436bc84a8f6606cb66cf68add1a5a15a440ad"
 dependencies = [
  "log",
  "neqo-common",
@@ -4566,8 +4545,8 @@ dependencies = [
 
 [[package]]
 name = "neqo-transport"
-version = "0.26.1"
-source = "git+https://github.com/mozilla/neqo?tag=v0.26.1#0eb6238fd899d2bf9e73c4847e14adc9565a4c81"
+version = "0.28.0"
+source = "git+https://github.com/mozilla/neqo?tag=v0.28.0#cca436bc84a8f6606cb66cf68add1a5a15a440ad"
 dependencies = [
  "enum-map",
  "enumset",
@@ -4575,7 +4554,7 @@ dependencies = [
  "log",
  "mtu",
  "neqo-common",
- "neqo-crypto",
+ "nss-rs",
  "qlog",
  "rustc-hash 2.1.1",
  "smallvec",
@@ -4586,8 +4565,8 @@ dependencies = [
 
 [[package]]
 name = "neqo-udp"
-version = "0.26.1"
-source = "git+https://github.com/mozilla/neqo?tag=v0.26.1#0eb6238fd899d2bf9e73c4847e14adc9565a4c81"
+version = "0.28.0"
+source = "git+https://github.com/mozilla/neqo?tag=v0.28.0#cca436bc84a8f6606cb66cf68add1a5a15a440ad"
 dependencies = [
  "cfg_aliases",
  "libc",
@@ -4605,12 +4584,12 @@ dependencies = [
  "libc",
  "log",
  "neqo-common",
- "neqo-crypto",
  "neqo-http3",
  "neqo-qpack",
  "neqo-transport",
  "neqo-udp",
  "nserror",
+ "nss-rs",
  "nsstring",
  "qlog",
  "rustix",
@@ -4688,7 +4667,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "nss"
+name = "nss-as"
 version = "0.1.0"
 dependencies = [
  "base64 0.21.999",
@@ -4717,7 +4696,7 @@ dependencies = [
 
 [[package]]
 name = "nss-rs"
-version = "0.3.0"
+version = "0.9.0"
 dependencies = [
  "bindgen 0.72.0",
  "enum-map",
@@ -5643,7 +5622,7 @@ dependencies = [
  "base64 0.21.999",
  "error-support",
  "hex",
- "nss",
+ "nss-as",
  "thiserror 2.0.12",
 ]
 

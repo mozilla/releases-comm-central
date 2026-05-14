@@ -6,15 +6,16 @@
 
 // Collecting a list of events relevant to whoever is using the Connection.
 
-use std::{cell::RefCell, collections::VecDeque, rc::Rc};
+use std::{cell::RefCell, collections::VecDeque, net::SocketAddr, num::NonZeroU64, rc::Rc};
 
 use neqo_common::event::Provider as EventProvider;
-use neqo_crypto::ResumptionToken;
+use nss::ResumptionToken;
 
 use crate::{
     AppError, Stats,
     connection::State,
     quic_datagrams::DatagramTracking,
+    scone::Bitrate,
     stream_id::{StreamId, StreamType},
 };
 
@@ -78,6 +79,14 @@ pub enum ConnectionEvent {
         outcome: OutgoingDatagramOutcome,
     },
     IncomingDatagramDropped,
+    /// An update was received to SCONE throughput advice.
+    /// The value is the approximate rate in bits per second; None = unknown.
+    SconeUpdated(Option<NonZeroU64>),
+    /// A path migration completed; the connection is now sending on this path.
+    PathMigrated {
+        local: SocketAddr,
+        remote: SocketAddr,
+    },
 }
 
 #[derive(Debug, Default, Clone)]
@@ -166,6 +175,11 @@ impl ConnectionEvents {
         self.remove(|evt| matches!(evt, ConnectionEvent::RecvStreamReadable { stream_id: x } if *x == stream_id.as_u64()));
     }
 
+    pub fn scone_updated(&self, scone: Bitrate) {
+        self.remove(|evt| matches!(evt, ConnectionEvent::SconeUpdated(_)));
+        self.insert(ConnectionEvent::SconeUpdated(Option::from(scone)));
+    }
+
     // The number of datagrams in the events queue is limited to max_queued_datagrams.
     // This function ensure this and deletes the oldest datagrams (head-drop) if needed.
     fn check_datagram_queued(&self, max_queued_datagrams: usize, stats: &mut Stats) {
@@ -205,6 +219,10 @@ impl ConnectionEvents {
                 .borrow_mut()
                 .push_back(ConnectionEvent::OutgoingDatagramOutcome { id: *id, outcome });
         }
+    }
+
+    pub fn path_migrated(&self, local: SocketAddr, remote: SocketAddr) {
+        self.insert(ConnectionEvent::PathMigrated { local, remote });
     }
 
     fn insert(&self, event: ConnectionEvent) {

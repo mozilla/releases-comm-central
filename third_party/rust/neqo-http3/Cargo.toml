@@ -13,7 +13,7 @@
 edition = "2024"
 rust-version = "1.90.0"
 name = "neqo-http3"
-version = "0.26.1"
+version = "0.28.0"
 authors = ["The Neqo Authors <necko@mozilla.com>"]
 build = false
 autolib = false
@@ -62,21 +62,21 @@ memory = false
 [features]
 bench = [
     "neqo-common/bench",
-    "neqo-crypto/bench",
     "neqo-qpack/bench",
     "neqo-transport/bench",
+    "test-fixture/bench",
     "log/release_max_level_info",
 ]
 build-fuzzing-corpus = [
     "neqo-common/build-fuzzing-corpus",
     "neqo-transport/disable-encryption",
-    "neqo-crypto/disable-encryption",
-    "neqo-crypto/disable-random",
+    "nss/disable-encryption",
+    "nss/disable-random",
     "test-fixture/disable-random",
 ]
 disable-encryption = [
     "neqo-transport/disable-encryption",
-    "neqo-crypto/disable-encryption",
+    "nss/disable-encryption",
 ]
 draft-29 = ["neqo-transport/draft-29"]
 
@@ -140,14 +140,16 @@ default-features = false
 [dependencies.neqo-common]
 path = "./../neqo-common"
 
-[dependencies.neqo-crypto]
-path = "./../neqo-crypto"
-
 [dependencies.neqo-qpack]
 path = "./../neqo-qpack"
 
 [dependencies.neqo-transport]
 path = "./../neqo-transport"
+
+[dependencies.nss]
+git = "https://github.com/mozilla/nss-rs"
+rev = "0.9.0"
+package = "nss-rs"
 
 [dependencies.qlog]
 version = "0.16.0"
