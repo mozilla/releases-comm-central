@@ -247,13 +247,11 @@ tasks:
                             then: >
                                 cd /builds/worker/checkouts/gecko &&
                                 ln -s /builds/worker/artifacts artifacts &&
-                                PYTHONPATH=comm/taskcluster:$PYTHONPATH
                                 ./mach --log-no-times taskgraph action-callback
                                 --root=comm/taskcluster
                             else: >
                                 cd /builds/worker/checkouts/gecko &&
                                 ln -s /builds/worker/artifacts artifacts &&
-                                PYTHONPATH=comm/taskcluster:$PYTHONPATH
                                 ./mach --log-no-times taskgraph decision
                                 --root=comm/taskcluster
                                 --pushlog-id='${push.pushlog_id}'
