@@ -11,6 +11,7 @@ with Files("**"):
     BUG_COMPONENT = ("Thunderbird", "General")
 
 MOZ_SRC_FILES += [
+    "content/modules/ShortcutsOverlay.mjs",
     "content/state/preferenceSlice.mjs",
     "content/state/store.mjs",
     "content/state/xulStoreSlice.mjs",

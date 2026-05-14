@@ -3805,6 +3805,7 @@ dependencies = [
  "static_prefs",
  "thin-vec",
  "xpcom",
+ "zeroize",
 ]
 
 [[package]]
@@ -3820,6 +3821,7 @@ dependencies = [
  "serde_json",
  "thiserror 1.999.999",
  "xpcom",
+ "zeroize",
 ]
 
 [[package]]
