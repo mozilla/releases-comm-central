@@ -74,7 +74,6 @@ class Binary {
               "abcdefghijklmnopqrstuvwxyz0123456789+/=";
     let o1, o2, o3, h1, h2, h3, h4, bits, i = 0,
       ac = 0,
-      enc = "",
       tmp_arr = [];
 
     if (!data) {
@@ -97,7 +96,7 @@ class Binary {
       tmp_arr[ac++] = b64.charAt(h1) + b64.charAt(h2) + b64.charAt(h3) + b64.charAt(h4);
     } while (i < data.length);
 
-    enc = tmp_arr.join('');
+    let enc = tmp_arr.join('');
 
     let r = data.length % 3;
 
@@ -127,7 +126,6 @@ class Binary {
               "abcdefghijklmnopqrstuvwxyz0123456789+/=";
     let o1, o2, o3, h1, h2, h3, h4, bits, i = 0,
       ac = 0,
-      dec = "",
       tmp_arr = [];
 
     if (!data) {
@@ -157,9 +155,7 @@ class Binary {
       }
     } while (i < data.length);
 
-    dec = tmp_arr.join('');
-
-    return dec;
+    return tmp_arr.join('');
   }
 
   /**
@@ -215,7 +211,7 @@ class Duration {
    * @return {Duration}         The created duration instance
    */
   static fromString(aStr) {
-    let pos = 0;
+    let pos;
     let dict = Object.create(null);
     let chunks = 0;
 
@@ -1788,13 +1784,11 @@ class Time {
       week1 = Time.weekOneStarts(isoyear + 1, aWeekStart);
       if (dt.compare(week1) < 0) {
         week1 = Time.weekOneStarts(isoyear, aWeekStart);
-      } else {
-        isoyear++;
       }
     } else {
       week1 = Time.weekOneStarts(isoyear, aWeekStart);
       if (dt.compare(week1) < 0) {
-        week1 = Time.weekOneStarts(--isoyear, aWeekStart);
+        week1 = Time.weekOneStarts(isoyear - 1, aWeekStart);
       }
     }
 
@@ -1891,13 +1885,13 @@ class Time {
   compareDateOnlyTz(other, tz) {
     let a = this.convertToZone(tz);
     let b = other.convertToZone(tz);
-    let rc = 0;
+    let rc;
 
     if ((rc = Time._cmp_attr(a, b, "year")) != 0) return rc;
     if ((rc = Time._cmp_attr(a, b, "month")) != 0) return rc;
     if ((rc = Time._cmp_attr(a, b, "day")) != 0) return rc;
 
-    return rc;
+    return 0;
   }
 
   /**
@@ -2377,7 +2371,7 @@ parse._handleContentLine = function(line, state) {
       throw new ParserError("Missing parameter value in '" + line + "'");
     }
   } else if (valuePos !== -1) {
-    // without parameters (BEGIN:VCAENDAR, CLASS:PUBLIC)
+    // without parmeters (BEGIN:VCAENDAR, CLASS:PUBLIC)
     name = line.slice(0, Math.max(0, valuePos)).toLowerCase();
     value = line.slice(Math.max(0, valuePos + 1));
 
@@ -2517,7 +2511,7 @@ parse._parseValue = function(value, type, designSet, structuredValue) {
  * @param {String} line               A single unfolded line
  * @param {Number} start              Position to start looking for properties
  * @param {Object} designSet          The design data to use for this property
- * @return {Array}                    Array containing key/value pairs of parsed parameters, the
+ * @return {Array}                    Array containing key/valye pairs of parsed parameters, the
  *                                      parsed value, and the position of the last parameter found
  */
 parse._parseParameters = function(line, start, designSet) {
@@ -2580,7 +2574,7 @@ parse._parseParameters = function(line, start, designSet) {
       value = line.slice(valuePos, pos);
       lastParam = line.indexOf(PARAM_DELIMITER, pos);
       let propValuePos = line.indexOf(VALUE_DELIMITER, pos);
-      // if either no next parameter or delimiter in property value, let's stop here
+      // if either no next parameter or delimeter in property value, let's stop here
       if (lastParam === -1 || (propValuePos !== -1 && lastParam > propValuePos)) {
         pos = false;
       }
@@ -2666,7 +2660,7 @@ parse._rfc6868Escape = function(val) {
  * @return {?|Array.<?>}            Either an array of results, or the first result
  */
 parse._parseMultiValue = function(buffer, delim, type, result, innerMulti, designSet, structuredValue) {
-  let pos = 0;
+  let pos;
   let lastPos = 0;
   let value;
   if (delim.length === 0) {
@@ -2709,7 +2703,7 @@ parse._parseMultiValue = function(buffer, delim, type, result, innerMulti, desig
 parse._eachLine = function(buffer, callback) {
   let len = buffer.length;
   let lastPos = buffer.search(CHAR);
-  let pos = lastPos;
+  let pos;
   let line;
   let firstChar;
 
@@ -3637,15 +3631,15 @@ function foldline(aLine) {
     else if (cp < 2048) line_length += 2;//needs 2 UTF-8 bytes
     else if (cp < 65536) line_length += 3;
     else line_length += 4; //cp is less than 1114112
-    if (line_length < ICALmodule.foldLength + 1)
+    if (line_length < module$1.foldLength + 1)
       pos += cp > 65535 ? 2 : 1;
     else {
-      result += ICALmodule.newLineChar + " " + line.slice(0, Math.max(0, pos));
+      result += module$1.newLineChar + " " + line.slice(0, Math.max(0, pos));
       line = line.slice(Math.max(0, pos));
       pos = line_length = 0;
     }
   }
-  return result.slice(ICALmodule.newLineChar.length + 1);
+  return result.slice(module$1.newLineChar.length + 1);
 }
 
 /**
@@ -3872,7 +3866,7 @@ class UtcOffset {
   }
 
   _normalize() {
-    // Range: 97200 seconds (with 1 hour in between)
+    // Range: 97200 seconds (with 1 hour inbetween)
     let secs = this.toSeconds();
     let factor = this.factor;
     while (secs < -43200) { // = UTC-12:00
@@ -3987,7 +3981,7 @@ class VCardTime extends Time {
    */
   constructor(data, zone, icaltype) {
     super(data, zone);
-    this.icaltype = icaltype || "date-and-or-time";
+    this._icaltype = icaltype || "date-and-or-time";
   }
 
   /**
@@ -4003,7 +3997,9 @@ class VCardTime extends Time {
    * @type {String}
    * @default "date-and-or-time"
    */
-  icaltype = "date-and-or-time";
+  get icaltype() {
+    return this._icaltype;
+  }
 
   /**
    * Returns a clone of the vcard date/time object.
@@ -4102,7 +4098,7 @@ class VCardTime extends Time {
  */
 
 /**
- * An iterator for a single recurrence rule. This class usually doesn't have to be instantiated
+ * An iterator for a single recurrence rule. This class usually doesn't have to be instanciated
  * directly, the convenience method {@link ICAL.Recur#iterator} can be used.
  *
  * @memberof ICAL
@@ -6940,8 +6936,20 @@ let vcardProperties = extend(commonProperties, {
 
 let vcard3Values = extend(commonValues, {
   binary: icalValues.binary,
-  date: vcardValues.date,
-  "date-time": vcardValues["date-time"],
+  date: {
+    // As in vCard, but serialised differently ('-' are included).
+    ...vcardValues.date,
+    toICAL: function(aValue) {
+      return aValue;
+    }
+  },
+  "date-time": {
+    // As in vCard, but serialised differently ('-' and ':' are included).
+    ...vcardValues['date-time'],
+    toICAL: function(aValue) {
+      return aValue;
+    }
+  },
   "phone-number": vcardValues["phone-number"],
   uri: icalValues.uri,
   text: vcardValues.text,
@@ -9688,7 +9696,7 @@ class ComponentParser {
  * @property {ICAL.design} design
  * @property {ICAL.helpers} helpers
  */
-var ICALmodule = {
+var module$1 = {
   /**
    * The number of characters before iCalendar line folding should occur
    * @type {Number}
@@ -9729,4 +9737,4 @@ var ICALmodule = {
   helpers
 };
 
-export { ICALmodule as default };
+export { module$1 as default };
