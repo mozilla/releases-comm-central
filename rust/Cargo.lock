@@ -1145,7 +1145,6 @@ dependencies = [
  "nix 0.30.1",
  "num-derive",
  "num-traits",
- "process_reader",
  "thiserror 2.0.12",
  "windows-sys",
 ]
