@@ -46,6 +46,7 @@ Thunderbird Source Tree Documentation
    :maxdepth: 1
 
    /backend/accounts
+   /backend/copy_move
    /backend/email_protocols
    /backend/folders
    /backend/folder_compaction
