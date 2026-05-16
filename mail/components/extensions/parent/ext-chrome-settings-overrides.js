@@ -360,7 +360,7 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
   async addSearchEngine() {
     const { extension } = this;
     try {
-      await SearchService.addEnginesFromExtension(extension);
+      await SearchService.addEngineFromExtension(extension);
     } catch (e) {
       console.error(e);
       return false;
