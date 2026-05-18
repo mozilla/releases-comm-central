@@ -748,10 +748,6 @@ async function loadStartFolder(initialUri) {
 }
 
 function OpenMessageInNewTab(msgHdr, tabParams = {}) {
-  if (!msgHdr) {
-    return null;
-  }
-
   if (tabParams.background === undefined) {
     tabParams.background = Services.prefs.getBoolPref(
       "mail.tabs.loadInBackground"

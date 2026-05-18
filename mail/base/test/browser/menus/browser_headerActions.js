@@ -82,6 +82,7 @@ add_task(async function () {
   checkHeaderPopup(mainPopup, true, true, true);
 
   // Open in new window. Test the menu in the new window.
+  info("Will open in new window.");
 
   const winPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
   mainPopup.activateItem(
@@ -100,12 +101,14 @@ add_task(async function () {
   await BrowserTestUtils.closeWindow(win);
 
   // Open in new tab. Test the menu in the new tab.
+  info("Will open in new tab.");
 
   mainPopup = await openHeaderPopup(aboutMessage);
   let tabPromise = BrowserTestUtils.waitForEvent(window, "aboutMessageLoaded");
   mainPopup.activateItem(mainPopup.querySelector("#otherActionsOpenInNewTab"));
   const { target: aboutMessage3 } = await tabPromise;
   Assert.equal(tabmail.currentTabInfo.mode.name, "mailMessageTab");
+  await messageLoadedInBrowser(aboutMessage3.getMessagePaneBrowser());
 
   await SimpleTest.promiseFocus(aboutMessage3);
   await new Promise(resolve => aboutMessage3.requestAnimationFrame(resolve));
@@ -123,12 +126,33 @@ add_task(async function () {
   mainPopup.activateItem(
     mainPopup.querySelector("#otherActionsOpenConversation")
   );
-  await tabPromise;
+  const { target: aboutMessage4 } = await tabPromise;
   Assert.equal(tabmail.currentTabInfo.mode.name, "mail3PaneTab");
+  await messageLoadedInBrowser(aboutMessage4.getMessagePaneBrowser());
 
   tabmail.closeOtherTabs(0);
 });
 
+/**
+ * Wait for a message to be fully loaded in the given about:message.
+ * See messageLoadedIn() - but the conditions from that are not fulfilled here.
+ *
+ * @param {browser} aboutMessageBrowser - The browser for the about:message
+ *   window displaying the message.
+ */
+async function messageLoadedInBrowser(aboutMessageBrowser) {
+  await TestUtils.waitForCondition(
+    () => aboutMessageBrowser.contentDocument.readyState == "complete"
+  );
+  // We need to be sure the ContextMenu actors are ready before trying to open a
+  // context menu from the message. I can't find a way to be sure, so let's wait.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 500));
+}
+
+/**
+ * @param {Window} aboutMessage
+ */
 async function openHeaderPopup(aboutMessage) {
   const button = aboutMessage.document.getElementById("otherActionsButton");
   const popup = aboutMessage.document.getElementById("otherActionsPopup");
@@ -144,7 +168,10 @@ function checkHeaderPopup(popup, expectConversation, expectWindow, expectTab) {
   const openInNewTab = popup.querySelector("#otherActionsOpenInNewTab");
   Assert.equal(
     BrowserTestUtils.isVisible(openConversation),
+    expectConversation,
     expectConversation
+      ? `${openConversation.id} should be visible`
+      : `${openConversation.id} should NOT be visible`
   );
   Assert.equal(BrowserTestUtils.isVisible(openInNewWindow), expectWindow);
   Assert.equal(BrowserTestUtils.isVisible(openInNewTab), expectTab);
