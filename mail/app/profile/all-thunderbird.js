@@ -1080,6 +1080,8 @@ pref("devtools.eyedropper.zoom", 6);
 pref("devtools.markup.collapseAttributes", true);
 // Length to collapse attributes
 pref("devtools.markup.collapseAttributeLength", 120);
+// Enable the display of comment nodes in the markup view.
+pref("devtools.markup.showComments", true);
 // Whether to auto-beautify the HTML on copy.
 pref("devtools.markup.beautifyOnCopy", false);
 
