@@ -173,9 +173,10 @@ export var OpenPGPMasterpass = {
         // reaches this code path.
 
         // Is a primary password set?
-        const token = Cc[
-          "@mozilla.org/security/internalkeytoken;1"
-        ].createInstance(Ci.nsIPKCS11Token);
+        const tokenDB = Cc["@mozilla.org/security/pk11tokendb;1"].getService(
+          Ci.nsIPK11TokenDB
+        );
+        const token = tokenDB.getInternalKeyToken();
         if (token.hasPassword && !token.isLoggedIn()) {
           // Yes, primary password is set, but user is not logged in.
           // Let's throw now, a future action will result in trying again.

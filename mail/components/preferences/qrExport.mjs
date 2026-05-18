@@ -327,9 +327,10 @@ export const qrExportPane = {
    */
   async requestAuthorizationToIncludePasswords() {
     // This doesn't harm if passwords are not encrypted
-    const token = Cc["@mozilla.org/security/internalkeytoken;1"].createInstance(
-      Ci.nsIPKCS11Token
+    const tokendb = Cc["@mozilla.org/security/pk11tokendb;1"].createInstance(
+      Ci.nsIPK11TokenDB
     );
+    const token = tokendb.getInternalKeyToken();
 
     const isOSAuthEnabled = lazy.LoginHelper.getOSAuthEnabled();
 

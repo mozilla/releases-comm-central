@@ -4,9 +4,9 @@
 "use strict";
 
 const MASTER_PASSWORD = "omgsecret!";
-const mpToken = Cc["@mozilla.org/security/internalkeytoken;1"].createInstance(
-  Ci.nsIPKCS11Token
-);
+const mpToken = Cc["@mozilla.org/security/pk11tokendb;1"]
+  .getService(Ci.nsIPK11TokenDB)
+  .getInternalKeyToken();
 
 async function checkDeviceManager({ buttonIsDisabled }) {
   const deviceManagerWindow = window.openDialog(

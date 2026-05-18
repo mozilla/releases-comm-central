@@ -771,9 +771,10 @@ add_task(async function testPasswordManager() {
  * password set.
  */
 add_task(async function testPrimaryPassword() {
-  const token = Cc["@mozilla.org/security/internalkeytoken;1"].createInstance(
-    Ci.nsIPKCS11Token
+  const tokendb = Cc["@mozilla.org/security/pk11tokendb;1"].getService(
+    Ci.nsIPK11TokenDB
   );
+  const token = tokendb.getInternalKeyToken();
   Assert.ok(!token.hasPassword, "there should be no primary password");
 
   const { prefsDocument, prefsWindow } = await openNewPrefsTab(
