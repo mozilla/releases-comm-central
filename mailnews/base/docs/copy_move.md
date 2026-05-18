@@ -1,6 +1,6 @@
 # Copying and moving messages and folders
 
-This page aims to document the current archictecture of copy/move operations in
+This page aims to document the current architecture of copy/move operations in
 Thunderbird's backend. As copy and move operations share a significant amount of
 code, any documentation for copy operations is also true for move operations,
 unless stated otherwise.
@@ -8,7 +8,7 @@ unless stated otherwise.
 <div class="note"><div class="admonition-title">Note</div>
 
 This page exists purely to document the current architecture. It does not try to
-pass judgement onto it, nor is it an attempt at defining what this archictecture
+pass judgement onto it, nor is it an attempt at defining what this architecture
 might look like in the future.
 
 This page also documents only generic, protocol-agnostic copy/move behaviors. If
