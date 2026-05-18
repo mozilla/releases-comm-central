@@ -48,8 +48,7 @@
 #include "nsIMsgTransactionService.h"
 #include "nsMsgReadStateTxn.h"
 #include "prmem.h"
-#include "nsIPK11TokenDB.h"
-#include "nsIPK11Token.h"
+#include "nsIPKCS11Token.h"
 #include "nsMsgUtils.h"
 #include "nsIMsgFilterService.h"
 #include "nsDirectoryServiceUtils.h"
@@ -2456,13 +2455,13 @@ bool nsMsgDBFolder::PromptForMasterPasswordIfNecessary() {
   if (!userNeedsToAuthenticate) return true;
 
   // Do we have a master password?
-  nsCOMPtr<nsIPK11TokenDB> tokenDB =
-      do_GetService("@mozilla.org/security/pk11tokendb;1", &rv);
-  NS_ENSURE_SUCCESS(rv, false);
+  nsCOMPtr<nsIPKCS11Token> token(
+      do_CreateInstance("@mozilla.org/security/internalkeytoken;1"));
+  if (!token) {
+    return true;
+  }
 
-  nsCOMPtr<nsIPK11Token> token;
-  rv = tokenDB->GetInternalKeyToken(getter_AddRefs(token));
-  NS_ENSURE_SUCCESS(rv, false);
+  (void)token->Login(false);
 
   bool result;
   rv = token->CheckPassword(EmptyCString(), &result);
@@ -2477,9 +2476,10 @@ bool nsMsgDBFolder::PromptForMasterPasswordIfNecessary() {
 
   // We have a master password, so try and login to the slot.
   rv = token->Login(false);
-  if (NS_FAILED(rv))
+  if (NS_FAILED(rv)) {
     // Login failed, so we didn't get a password (e.g. prompt cancelled).
     return false;
+  }
 
   // Double-check that we are now logged in
   rv = token->IsLoggedIn(&result);

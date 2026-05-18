@@ -35,11 +35,11 @@ export const SmimeUtils = {
     // Set up the internal key token so that subsequent code doesn't fail. If
     // this isn't done, we'll fail to work if the NSS databases didn't already
     // exist.
-    const keydb = Cc["@mozilla.org/security/pk11tokendb;1"].getService(
-      Ci.nsIPK11TokenDB
+    const token = Cc["@mozilla.org/security/internalkeytoken;1"].createInstance(
+      Ci.nsIPKCS11Token
     );
     try {
-      keydb.getInternalKeyToken().initPassword("");
+      token.initPassword("");
     } catch (e) {
       // In this scenario, the key token already had its password initialized.
       // Therefore, we don't need to do anything (assuming its password is

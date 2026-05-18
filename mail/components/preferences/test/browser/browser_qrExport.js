@@ -70,10 +70,9 @@ add_setup(async function () {
   ({ prefsWindow, prefsDocument } = await openNewPrefsTab("paneQrExport"));
   tabmail = document.getElementById("tabmail");
 
-  const tokendb = Cc["@mozilla.org/security/pk11tokendb;1"].getService(
-    Ci.nsIPK11TokenDB
+  token = Cc["@mozilla.org/security/internalkeytoken;1"].createInstance(
+    Ci.nsIPKCS11Token
   );
-  token = tokendb.getInternalKeyToken();
 
   registerCleanupFunction(() => {
     for (const imapAccount of imapAccounts) {
