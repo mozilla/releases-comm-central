@@ -76,7 +76,7 @@ class nsImapMailCopyState : public nsISupports {
   nsCString m_newMsgKeywords;  // ditto
   // If the server supports UIDPLUS, this is the UID for the append,
   // if we're doing an append.
-  nsMsgKey m_appendUID;
+  ImapUid m_appendUID;
 
  private:
   virtual ~nsImapMailCopyState();
