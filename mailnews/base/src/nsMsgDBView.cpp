@@ -2276,12 +2276,15 @@ nsMsgDBView::GetURIsForSelection(nsTArray<nsCString>& uris) {
 
 NS_IMETHODIMP
 nsMsgDBView::GetURIForViewIndex(nsMsgViewIndex index, nsACString& result) {
-  nsCOMPtr<nsIMsgFolder> folder = GetFolderForViewIndex(index);
-  NS_ENSURE_TRUE(folder, NS_ERROR_NULL_POINTER);
+  result = nullptr;
 
   if (index == nsMsgViewIndex_None || index >= m_flags.Length() ||
       m_flags[index] & MSG_VIEW_FLAG_DUMMY) {
-    result = nullptr;
+    return NS_OK;
+  }
+
+  nsCOMPtr<nsIMsgFolder> folder = GetFolderForViewIndex(index);
+  if (!folder) {
     return NS_OK;
   }
 
@@ -6170,8 +6173,7 @@ NS_IMETHODIMP
 nsMsgDBView::GetHdrForFirstSelectedMessage(nsIMsgDBHdr** hdr) {
   NS_ENSURE_ARG_POINTER(hdr);
   nsMsgViewIndex index;
-  nsresult rv = GetViewIndexForFirstSelectedMsg(&index);
-  NS_ENSURE_SUCCESS(rv, rv);
+  GetViewIndexForFirstSelectedMsg(&index);
   if (index == nsMsgViewIndex_None) {
     *hdr = nullptr;
     return NS_OK;
@@ -6190,8 +6192,7 @@ nsMsgDBView::GetHdrForFirstSelectedMessage(nsIMsgDBHdr** hdr) {
 NS_IMETHODIMP
 nsMsgDBView::GetURIForFirstSelectedMessage(nsACString& uri) {
   nsMsgViewIndex viewIndex;
-  nsresult rv = GetViewIndexForFirstSelectedMsg(&viewIndex);
-  NS_ENSURE_SUCCESS(rv, rv);
+  GetViewIndexForFirstSelectedMsg(&viewIndex);
   if (viewIndex == nsMsgViewIndex_None) {
     uri = nullptr;
     return NS_OK;
