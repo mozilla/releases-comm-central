@@ -51,11 +51,6 @@ git = "https://github.com/jfkthame/mapped_hyph.git"
 rev = "eff105f6ad7ec9b79816cfc1985a28e5340ad14b"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/kinetiknz/mio?rev=5e8b202db39facecc343170f50a07916640a607c"]
-git = "https://github.com/kinetiknz/mio"
-rev = "5e8b202db39facecc343170f50a07916640a607c"
-replace-with = "vendored-sources"
-
 [source."git+https://github.com/libjxl/jxl-rs?rev=c41cbfaf34c2c8ebc3fb6655c885fe427ab9542a"]
 git = "https://github.com/libjxl/jxl-rs"
 rev = "c41cbfaf34c2c8ebc3fb6655c885fe427ab9542a"
@@ -65,9 +60,9 @@ replace-with = "vendored-sources"
 git = "https://github.com/martinthomson/ohttp"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/mozilla/audioipc?rev=57a79753da9de4cf4b1c54e0c6775d3d2aba26f6"]
+[source."git+https://github.com/mozilla/audioipc?rev=042d48dc5932ced772c2bf20a2aef2845fd6ec85"]
 git = "https://github.com/mozilla/audioipc"
-rev = "57a79753da9de4cf4b1c54e0c6775d3d2aba26f6"
+rev = "042d48dc5932ced772c2bf20a2aef2845fd6ec85"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/mozilla/cubeb-coreaudio-rs?rev=0bb8a45a040e85d313eb18deb36570e87df3a6af"]
@@ -105,9 +100,9 @@ git = "https://github.com/mozilla/mp4parse-rust"
 rev = "fb7ed9effb5eae0f3768c2c5ec0a63c61f35ba60"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/mozilla/neqo?tag=v0.28.0"]
+[source."git+https://github.com/mozilla/neqo?tag=v0.28.1"]
 git = "https://github.com/mozilla/neqo"
-tag = "v0.28.0"
+tag = "v0.28.1"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/rust-lang/rust-bindgen?rev=9366e0af8da529c958b4cd4fcbe492d951c86f5c"]

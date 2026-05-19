@@ -11,10 +11,15 @@
 
 [package]
 edition = "2021"
-rust-version = "1.56"
+rust-version = "1.71"
 name = "windows-sys"
-version = "0.52.0"
-authors = ["Microsoft"]
+version = "0.61.2"
+build = false
+autolib = false
+autobins = false
+autoexamples = false
+autotests = false
+autobenches = false
 description = "Rust for Windows"
 readme = "readme.md"
 categories = ["os::windows-apis"]
@@ -22,44 +27,53 @@ license = "MIT OR Apache-2.0"
 repository = "https://github.com/microsoft/windows-rs"
 
 [package.metadata.docs.rs]
-all-features = true
 default-target = "x86_64-pc-windows-msvc"
 targets = []
-
-[dependencies.windows-targets]
-version = "0.52.0"
+all-features = true
 
 [features]
-Wdk = []
+Wdk = ["Win32_Foundation"]
+Wdk_Devices = ["Wdk"]
+Wdk_Devices_Bluetooth = ["Wdk_Devices"]
+Wdk_Devices_HumanInterfaceDevice = ["Wdk_Devices"]
 Wdk_Foundation = ["Wdk"]
 Wdk_Graphics = ["Wdk"]
 Wdk_Graphics_Direct3D = ["Wdk_Graphics"]
+Wdk_NetworkManagement = ["Wdk"]
+Wdk_NetworkManagement_Ndis = ["Wdk_NetworkManagement"]
+Wdk_NetworkManagement_WindowsFilteringPlatform = ["Wdk_NetworkManagement"]
 Wdk_Storage = ["Wdk"]
 Wdk_Storage_FileSystem = ["Wdk_Storage"]
 Wdk_Storage_FileSystem_Minifilters = ["Wdk_Storage_FileSystem"]
 Wdk_System = ["Wdk"]
 Wdk_System_IO = ["Wdk_System"]
+Wdk_System_Memory = ["Wdk_System"]
 Wdk_System_OfflineRegistry = ["Wdk_System"]
 Wdk_System_Registry = ["Wdk_System"]
 Wdk_System_SystemInformation = ["Wdk_System"]
 Wdk_System_SystemServices = ["Wdk_System"]
 Wdk_System_Threading = ["Wdk_System"]
-Win32 = []
+Win32 = ["Win32_Foundation"]
 Win32_Data = ["Win32"]
 Win32_Data_HtmlHelp = ["Win32_Data"]
 Win32_Data_RightsManagement = ["Win32_Data"]
 Win32_Devices = ["Win32"]
 Win32_Devices_AllJoyn = ["Win32_Devices"]
+Win32_Devices_Beep = ["Win32_Devices"]
 Win32_Devices_BiometricFramework = ["Win32_Devices"]
 Win32_Devices_Bluetooth = ["Win32_Devices"]
+Win32_Devices_Cdrom = ["Win32_Devices"]
 Win32_Devices_Communication = ["Win32_Devices"]
 Win32_Devices_DeviceAndDriverInstallation = ["Win32_Devices"]
 Win32_Devices_DeviceQuery = ["Win32_Devices"]
 Win32_Devices_Display = ["Win32_Devices"]
+Win32_Devices_Dvd = ["Win32_Devices"]
 Win32_Devices_Enumeration = ["Win32_Devices"]
 Win32_Devices_Enumeration_Pnp = ["Win32_Devices_Enumeration"]
 Win32_Devices_Fax = ["Win32_Devices"]
 Win32_Devices_HumanInterfaceDevice = ["Win32_Devices"]
+Win32_Devices_Nfc = ["Win32_Devices"]
+Win32_Devices_Nfp = ["Win32_Devices"]
 Win32_Devices_PortableDevices = ["Win32_Devices"]
 Win32_Devices_Properties = ["Win32_Devices"]
 Win32_Devices_Pwm = ["Win32_Devices"]
@@ -184,6 +198,7 @@ Win32_System_Diagnostics_Debug_Extensions = ["Win32_System_Diagnostics_Debug"]
 Win32_System_Diagnostics_Etw = ["Win32_System_Diagnostics"]
 Win32_System_Diagnostics_ProcessSnapshotting = ["Win32_System_Diagnostics"]
 Win32_System_Diagnostics_ToolHelp = ["Win32_System_Diagnostics"]
+Win32_System_Diagnostics_TraceLogging = ["Win32_System_Diagnostics"]
 Win32_System_DistributedTransactionCoordinator = ["Win32_System"]
 Win32_System_Environment = ["Win32_System"]
 Win32_System_ErrorReporting = ["Win32_System"]
@@ -255,6 +270,7 @@ Win32_UI_Input_XboxController = ["Win32_UI_Input"]
 Win32_UI_InteractionContext = ["Win32_UI"]
 Win32_UI_Magnification = ["Win32_UI"]
 Win32_UI_Shell = ["Win32_UI"]
+Win32_UI_Shell_Common = ["Win32_UI_Shell"]
 Win32_UI_Shell_PropertiesSystem = ["Win32_UI_Shell"]
 Win32_UI_TabletPC = ["Win32_UI"]
 Win32_UI_TextServices = ["Win32_UI"]
@@ -263,3 +279,21 @@ Win32_Web = ["Win32"]
 Win32_Web_InternetExplorer = ["Win32_Web"]
 default = []
 docs = []
+
+[lib]
+name = "windows_sys"
+path = "src/lib.rs"
+test = false
+doctest = false
+
+[dependencies.windows-link]
+version = "0.2.1"
+default-features = false
+
+[lints.rust]
+missing_unsafe_on_extern = "warn"
+
+[lints.rust.unexpected_cfgs]
+level = "warn"
+priority = 0
+check-cfg = ["cfg(windows_raw_dylib, windows_slim_errors)"]

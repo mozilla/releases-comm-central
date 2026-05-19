@@ -1,3 +1,49 @@
+# 1.4.0 (November 24, 2025)
+
+- Add `StatusCode::EARLY_HINTS` constant for 103 Early Hints.
+- Make `StatusCode::from_u16` now a `const fn`.
+- Make `Authority::from_static` now a `const fn`.
+- Make `PathAndQuery::from_static` now a `const fn`.
+- MSRV increased to 1.57 (allows legible const fn panic messages).
+
+# 1.3.1 (March 11, 2025)
+
+* Fix validation that all characters are UTF-8 in URI path and query.
+
+# 1.3.0 (March 11, 2025)
+
+* Allow most UTF-8 characters in URI path and query.
+* Fix `HeaderMap::reserve()` to allocate sufficient capacity.
+
+# 1.2.0 (December 3, 2024)
+
+* Add `StatusCode::TOO_EARLY` constant for 425 status.
+* Loosen `TryFrom<HashMap>` for `HeaderMap` to work with any state generic.
+* Change `Builder` methods to use `TryInto` instead of `TryFrom` arguments.
+* Make `StatusCode::as_u16` a `const` function.
+* Fix `Method` parsing to allow `#$%&'` characters.
+* Fix `HeaderName` parsing to reject `"` characters.
+* Fix off by 1 error in `Method::from_bytes` that could cause extra allocations.
+
+# 1.1.0 (March 4, 2024)
+
+* Add methods to allow trying to allocate in the `HeaderMap`, returning an error if oversize instead of panicking.
+* Add `Extensions::get_or_insert()` method.
+* Implement `From<Uri>` for `uri::Builder`.
+* Fix `HeaderName::from_lowercase` that could allow NUL bytes in some cases.
+
+# 1.0.0 (November 15, 2023)
+
+- Implement `Clone` for `Request`, `Response`, and `Extensions`. This breaking change requires
+  that all extensions now implement `Clone`.
+- Add a default-on `std` feature. Disabling it currently is not supported.
+- Fix MIRI warnings in `HeaderMap::iter()`.
+
+# 0.2.10 (November 10, 2023)
+
+* Fix parsing of `Authority` to handle square brackets in incorrect order.
+* Fix `HeaderMap::with_capacity()` to handle arithmetic overflow.
+
 # 0.2.9 (February 17, 2023)
 
 * Add `HeaderName` constants for `cache-status` and `cdn-cache-control`.

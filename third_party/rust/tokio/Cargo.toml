@@ -11,9 +11,9 @@
 
 [package]
 edition = "2021"
-rust-version = "1.70"
+rust-version = "1.71"
 name = "tokio"
-version = "1.45.1"
+version = "1.52.3"
 authors = ["Tokio Contributors <team@tokio.rs>"]
 build = false
 autolib = false
@@ -40,34 +40,30 @@ categories = [
 license = "MIT"
 repository = "https://github.com/tokio-rs/tokio"
 
-[package.metadata.cargo_check_external_types]
-allowed_external_types = [
-    "bytes::buf::buf_impl::Buf",
-    "bytes::buf::buf_mut::BufMut",
-    "tokio_macros::*",
-]
-
 [package.metadata.docs.rs]
 all-features = true
-rustc-args = [
-    "--cfg",
-    "tokio_unstable",
-    "--cfg",
-    "tokio_taskdump",
-]
 rustdoc-args = [
     "--cfg",
     "docsrs",
     "--cfg",
     "tokio_unstable",
+]
+rustc-args = [
     "--cfg",
-    "tokio_taskdump",
+    "tokio_unstable",
 ]
 
 [package.metadata.playground]
 features = [
     "full",
     "test-util",
+]
+
+[package.metadata.cargo_check_external_types]
+allowed_external_types = [
+    "bytes::buf::buf_impl::Buf",
+    "bytes::buf::buf_mut::BufMut",
+    "tokio_macros::*",
 ]
 
 [features]
@@ -88,6 +84,13 @@ full = [
     "time",
 ]
 io-std = []
+io-uring = [
+    "dep:io-uring",
+    "libc",
+    "mio/os-poll",
+    "mio/os-ext",
+    "dep:slab",
+]
 io-util = ["bytes"]
 macros = ["tokio-macros"]
 net = [
@@ -125,6 +128,7 @@ signal = [
     "windows-sys/Win32_System_Console",
 ]
 sync = []
+taskdump = ["dep:backtrace"]
 test-util = [
     "rt",
     "sync",
@@ -217,8 +221,40 @@ name = "fs_try_exists"
 path = "tests/fs_try_exists.rs"
 
 [[test]]
+name = "fs_uring"
+path = "tests/fs_uring.rs"
+
+[[test]]
+name = "fs_uring_cancel_open"
+path = "tests/fs_uring_cancel_open.rs"
+
+[[test]]
+name = "fs_uring_completed_then_dropped_before_repoll"
+path = "tests/fs_uring_completed_then_dropped_before_repoll.rs"
+
+[[test]]
+name = "fs_uring_file_read"
+path = "tests/fs_uring_file_read.rs"
+
+[[test]]
+name = "fs_uring_read"
+path = "tests/fs_uring_read.rs"
+
+[[test]]
+name = "fs_uring_runtime_shutdown"
+path = "tests/fs_uring_runtime_shutdown.rs"
+
+[[test]]
+name = "fs_write"
+path = "tests/fs_write.rs"
+
+[[test]]
 name = "io_async_fd"
 path = "tests/io_async_fd.rs"
+
+[[test]]
+name = "io_async_fd_memory_leak"
+path = "tests/io_async_fd_memory_leak.rs"
 
 [[test]]
 name = "io_async_read"
@@ -389,6 +425,10 @@ name = "net_panic"
 path = "tests/net_panic.rs"
 
 [[test]]
+name = "net_quickack"
+path = "tests/net_quickack.rs"
+
+[[test]]
 name = "net_unix_pipe"
 path = "tests/net_unix_pipe.rs"
 
@@ -411,6 +451,10 @@ path = "tests/process_issue_2174.rs"
 [[test]]
 name = "process_issue_42"
 path = "tests/process_issue_42.rs"
+
+[[test]]
+name = "process_issue_7144"
+path = "tests/process_issue_7144.rs"
 
 [[test]]
 name = "process_kill_after_wait"
@@ -437,6 +481,10 @@ name = "rt_common"
 path = "tests/rt_common.rs"
 
 [[test]]
+name = "rt_common_before_park"
+path = "tests/rt_common_before_park.rs"
+
+[[test]]
 name = "rt_handle"
 path = "tests/rt_handle.rs"
 
@@ -461,6 +509,14 @@ name = "rt_poll_callbacks"
 path = "tests/rt_poll_callbacks.rs"
 
 [[test]]
+name = "rt_shutdown_err"
+path = "tests/rt_shutdown_err.rs"
+
+[[test]]
+name = "rt_spawn_blocking"
+path = "tests/rt_spawn_blocking.rs"
+
+[[test]]
 name = "rt_threaded"
 path = "tests/rt_threaded.rs"
 
@@ -469,8 +525,16 @@ name = "rt_time_start_paused"
 path = "tests/rt_time_start_paused.rs"
 
 [[test]]
+name = "rt_unstable_eager_driver_handoff"
+path = "tests/rt_unstable_eager_driver_handoff.rs"
+
+[[test]]
 name = "rt_unstable_metrics"
 path = "tests/rt_unstable_metrics.rs"
+
+[[test]]
+name = "rt_worker_index"
+path = "tests/rt_worker_index.rs"
 
 [[test]]
 name = "signal_ctrl_c"
@@ -557,6 +621,10 @@ name = "sync_notify"
 path = "tests/sync_notify.rs"
 
 [[test]]
+name = "sync_notify_owned"
+path = "tests/sync_notify_owned.rs"
+
+[[test]]
 name = "sync_once_cell"
 path = "tests/sync_once_cell.rs"
 
@@ -579,6 +647,10 @@ path = "tests/sync_semaphore.rs"
 [[test]]
 name = "sync_semaphore_owned"
 path = "tests/sync_semaphore_owned.rs"
+
+[[test]]
+name = "sync_set_once"
+path = "tests/sync_set_once.rs"
 
 [[test]]
 name = "sync_watch"
@@ -673,6 +745,10 @@ name = "test_clock"
 path = "tests/test_clock.rs"
 
 [[test]]
+name = "time_alt"
+path = "tests/time_alt.rs"
+
+[[test]]
 name = "time_interval"
 path = "tests/time_interval.rs"
 
@@ -695,6 +771,10 @@ path = "tests/time_sleep.rs"
 [[test]]
 name = "time_timeout"
 path = "tests/time_timeout.rs"
+
+[[test]]
+name = "time_wasm"
+path = "tests/time_wasm.rs"
 
 [[test]]
 name = "tracing_sync"
@@ -741,7 +821,7 @@ version = "1.2.1"
 optional = true
 
 [dependencies.mio]
-version = "1.0.1"
+version = "1.2.0"
 optional = true
 default-features = false
 
@@ -753,7 +833,7 @@ optional = true
 version = "0.2.11"
 
 [dependencies.tokio-macros]
-version = "~2.5.0"
+version = "~2.7.0"
 optional = true
 
 [dev-dependencies.async-stream]
@@ -766,6 +846,9 @@ features = ["async-await"]
 [dev-dependencies.futures-concurrency]
 version = "7.6.3"
 
+[dev-dependencies.futures-test]
+version = "0.3.31"
+
 [dev-dependencies.mockall]
 version = "0.13.0"
 
@@ -775,11 +858,49 @@ version = "0.1"
 [dev-dependencies.tokio-test]
 version = "0.4.0"
 
+[dev-dependencies.tokio-util]
+version = "0.7"
+features = ["rt"]
+
 [target.'cfg(all(target_family = "wasm", not(target_os = "wasi")))'.dev-dependencies.wasm-bindgen-test]
 version = "0.3.0"
 
 [target.'cfg(all(tokio_unstable, target_has_atomic = "64"))'.dev-dependencies.tracing-mock]
 version = "= 0.1.0-beta.1"
+
+[target.'cfg(all(tokio_unstable, target_os = "linux"))'.dependencies.backtrace]
+version = "0.3.58"
+optional = true
+
+[target.'cfg(all(tokio_unstable, target_os = "linux"))'.dependencies.io-uring]
+version = "0.7.11"
+optional = true
+default-features = false
+
+[target.'cfg(all(tokio_unstable, target_os = "linux"))'.dependencies.libc]
+version = "0.2.168"
+optional = true
+
+[target.'cfg(all(tokio_unstable, target_os = "linux"))'.dependencies.mio]
+version = "1.2.0"
+features = [
+    "os-poll",
+    "os-ext",
+]
+optional = true
+default-features = false
+
+[target.'cfg(all(tokio_unstable, target_os = "linux"))'.dependencies.slab]
+version = "0.4.9"
+optional = true
+
+[target.'cfg(all(tokio_unstable, target_os = "linux"))'.dev-dependencies.backtrace]
+version = "0.3.58"
+
+[target.'cfg(any(not(target_family = "wasm"), all(target_os = "wasi", not(target_env = "p1"))))'.dependencies.socket2]
+version = "0.6.3"
+features = ["all"]
+optional = true
 
 [target."cfg(loom)".dev-dependencies.loom]
 version = "0.7"
@@ -789,28 +910,24 @@ features = [
 ]
 
 [target.'cfg(not(all(target_family = "wasm", target_os = "unknown")))'.dev-dependencies.rand]
-version = "0.8.0"
-
-[target.'cfg(not(target_family = "wasm"))'.dependencies.socket2]
-version = "0.5.5"
-features = ["all"]
-optional = true
+version = "0.9"
 
 [target.'cfg(not(target_family = "wasm"))'.dev-dependencies.proptest]
 version = "1"
 
 [target.'cfg(not(target_family = "wasm"))'.dev-dependencies.socket2]
-version = "0.5.5"
+version = "0.6.0"
 
 [target.'cfg(not(target_family = "wasm"))'.dev-dependencies.tempfile]
 version = "3.1.0"
 
 [target.'cfg(target_os = "freebsd")'.dev-dependencies.mio-aio]
-version = "1"
+version = "2"
 features = ["tokio"]
 
-[target."cfg(tokio_taskdump)".dependencies.backtrace]
-version = "0.3.58"
+[target.'cfg(target_os = "wasi")'.dependencies.libc]
+version = "0.2.168"
+optional = true
 
 [target."cfg(tokio_unstable)".dependencies.tracing]
 version = "0.1.29"
@@ -830,7 +947,7 @@ optional = true
 version = "0.2.168"
 
 [target."cfg(unix)".dev-dependencies.nix]
-version = "0.29.0"
+version = "0.31.0"
 features = [
     "aio",
     "fs",
@@ -839,11 +956,11 @@ features = [
 default-features = false
 
 [target."cfg(windows)".dependencies.windows-sys]
-version = "0.52"
+version = "0.61"
 optional = true
 
 [target."cfg(windows)".dev-dependencies.windows-sys]
-version = "0.52"
+version = "0.61"
 features = [
     "Win32_Foundation",
     "Win32_Security_Authorization",
@@ -860,6 +977,6 @@ check-cfg = [
     "cfg(tokio_internal_mt_counters)",
     "cfg(tokio_no_parking_lot)",
     "cfg(tokio_no_tuning_tests)",
-    "cfg(tokio_taskdump)",
     "cfg(tokio_unstable)",
+    'cfg(target_os, values("cygwin"))',
 ]

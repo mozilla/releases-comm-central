@@ -1,8 +1,9 @@
-use util::FlatCsv;
-use HeaderValue;
+use http::HeaderValue;
+
+use crate::util::FlatCsv;
 
 /// `Transfer-Encoding` header, defined in
-/// [RFC7230](http://tools.ietf.org/html/rfc7230#section-3.3.1)
+/// [RFC7230](https://datatracker.ietf.org/doc/html/rfc7230#section-3.3.1)
 ///
 /// The `Transfer-Encoding` header field lists the transfer coding names
 /// corresponding to the sequence of transfer codings that have been (or
@@ -11,7 +12,7 @@ use HeaderValue;
 ///
 /// Note that setting this header will *remove* any previously set
 /// `Content-Length` header, in accordance with
-/// [RFC7230](http://tools.ietf.org/html/rfc7230#section-3.3.2):
+/// [RFC7230](https://datatracker.ietf.org/doc/html/rfc7230#section-3.3.2):
 ///
 /// > A sender MUST NOT send a Content-Length header field in any message
 /// > that contains a Transfer-Encoding header field.
@@ -30,7 +31,6 @@ use HeaderValue;
 /// # Example
 ///
 /// ```
-/// # extern crate headers;
 /// use headers::TransferEncoding;
 ///
 /// let transfer = TransferEncoding::chunked();

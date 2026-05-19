@@ -53,7 +53,7 @@
 //! ```
 
 use std::any::Any;
-use std::convert::{TryFrom};
+use std::convert::TryInto;
 use std::fmt;
 
 use crate::header::{HeaderMap, HeaderName, HeaderValue};
@@ -118,9 +118,6 @@ use crate::{Extensions, Result, Uri};
 /// Deserialize a request of bytes via json:
 ///
 /// ```
-/// # extern crate serde;
-/// # extern crate serde_json;
-/// # extern crate http;
 /// use http::Request;
 /// use serde::de;
 ///
@@ -138,9 +135,6 @@ use crate::{Extensions, Result, Uri};
 /// Or alternatively, serialize the body of a request to json
 ///
 /// ```
-/// # extern crate serde;
-/// # extern crate serde_json;
-/// # extern crate http;
 /// use http::Request;
 /// use serde::ser;
 ///
@@ -154,6 +148,7 @@ use crate::{Extensions, Result, Uri};
 /// #
 /// # fn main() {}
 /// ```
+#[derive(Clone)]
 pub struct Request<T> {
     head: Parts,
     body: T,
@@ -163,6 +158,7 @@ pub struct Request<T> {
 ///
 /// The HTTP request head consists of a method, uri, version, and a set of
 /// header fields.
+#[derive(Clone)]
 pub struct Parts {
     /// The request's method
     pub method: Method,
@@ -229,9 +225,8 @@ impl Request<()> {
     /// ```
     pub fn get<T>(uri: T) -> Builder
     where
-        Uri: TryFrom<T>,
-        <Uri as TryFrom<T>>::Error: Into<crate::Error>,
-
+        T: TryInto<Uri>,
+        <T as TryInto<Uri>>::Error: Into<crate::Error>,
     {
         Builder::new().method(Method::GET).uri(uri)
     }
@@ -252,9 +247,8 @@ impl Request<()> {
     /// ```
     pub fn put<T>(uri: T) -> Builder
     where
-        Uri: TryFrom<T>,
-        <Uri as TryFrom<T>>::Error: Into<crate::Error>,
-
+        T: TryInto<Uri>,
+        <T as TryInto<Uri>>::Error: Into<crate::Error>,
     {
         Builder::new().method(Method::PUT).uri(uri)
     }
@@ -275,9 +269,8 @@ impl Request<()> {
     /// ```
     pub fn post<T>(uri: T) -> Builder
     where
-        Uri: TryFrom<T>,
-        <Uri as TryFrom<T>>::Error: Into<crate::Error>,
-
+        T: TryInto<Uri>,
+        <T as TryInto<Uri>>::Error: Into<crate::Error>,
     {
         Builder::new().method(Method::POST).uri(uri)
     }
@@ -298,9 +291,8 @@ impl Request<()> {
     /// ```
     pub fn delete<T>(uri: T) -> Builder
     where
-        Uri: TryFrom<T>,
-        <Uri as TryFrom<T>>::Error: Into<crate::Error>,
-
+        T: TryInto<Uri>,
+        <T as TryInto<Uri>>::Error: Into<crate::Error>,
     {
         Builder::new().method(Method::DELETE).uri(uri)
     }
@@ -322,9 +314,8 @@ impl Request<()> {
     /// ```
     pub fn options<T>(uri: T) -> Builder
     where
-        Uri: TryFrom<T>,
-        <Uri as TryFrom<T>>::Error: Into<crate::Error>,
-
+        T: TryInto<Uri>,
+        <T as TryInto<Uri>>::Error: Into<crate::Error>,
     {
         Builder::new().method(Method::OPTIONS).uri(uri)
     }
@@ -345,9 +336,8 @@ impl Request<()> {
     /// ```
     pub fn head<T>(uri: T) -> Builder
     where
-        Uri: TryFrom<T>,
-        <Uri as TryFrom<T>>::Error: Into<crate::Error>,
-
+        T: TryInto<Uri>,
+        <T as TryInto<Uri>>::Error: Into<crate::Error>,
     {
         Builder::new().method(Method::HEAD).uri(uri)
     }
@@ -368,9 +358,8 @@ impl Request<()> {
     /// ```
     pub fn connect<T>(uri: T) -> Builder
     where
-        Uri: TryFrom<T>,
-        <Uri as TryFrom<T>>::Error: Into<crate::Error>,
-
+        T: TryInto<Uri>,
+        <T as TryInto<Uri>>::Error: Into<crate::Error>,
     {
         Builder::new().method(Method::CONNECT).uri(uri)
     }
@@ -391,8 +380,8 @@ impl Request<()> {
     /// ```
     pub fn patch<T>(uri: T) -> Builder
     where
-        Uri: TryFrom<T>,
-        <Uri as TryFrom<T>>::Error: Into<crate::Error>,
+        T: TryInto<Uri>,
+        <T as TryInto<Uri>>::Error: Into<crate::Error>,
     {
         Builder::new().method(Method::PATCH).uri(uri)
     }
@@ -413,8 +402,8 @@ impl Request<()> {
     /// ```
     pub fn trace<T>(uri: T) -> Builder
     where
-        Uri: TryFrom<T>,
-        <Uri as TryFrom<T>>::Error: Into<crate::Error>,
+        T: TryInto<Uri>,
+        <T as TryInto<Uri>>::Error: Into<crate::Error>,
     {
         Builder::new().method(Method::TRACE).uri(uri)
     }
@@ -439,7 +428,7 @@ impl<T> Request<T> {
     pub fn new(body: T) -> Request<T> {
         Request {
             head: Parts::new(),
-            body: body,
+            body,
         }
     }
 
@@ -457,10 +446,7 @@ impl<T> Request<T> {
     /// ```
     #[inline]
     pub fn from_parts(parts: Parts, body: T) -> Request<T> {
-        Request {
-            head: parts,
-            body: body,
-        }
+        Request { head: parts, body }
     }
 
     /// Returns a reference to the associated HTTP method.
@@ -761,9 +747,6 @@ impl Builder {
 
     /// Set the HTTP method for this request.
     ///
-    /// This function will configure the HTTP method of the `Request` that will
-    /// be returned from `Builder::build`.
-    ///
     /// By default this is `GET`.
     ///
     /// # Examples
@@ -778,11 +761,11 @@ impl Builder {
     /// ```
     pub fn method<T>(self, method: T) -> Builder
     where
-        Method: TryFrom<T>,
-        <Method as TryFrom<T>>::Error: Into<crate::Error>,
+        T: TryInto<Method>,
+        <T as TryInto<Method>>::Error: Into<crate::Error>,
     {
         self.and_then(move |mut head| {
-            let method = TryFrom::try_from(method).map_err(Into::into)?;
+            let method = method.try_into().map_err(Into::into)?;
             head.method = method;
             Ok(head)
         })
@@ -809,9 +792,6 @@ impl Builder {
 
     /// Set the URI for this request.
     ///
-    /// This function will configure the URI of the `Request` that will
-    /// be returned from `Builder::build`.
-    ///
     /// By default this is `/`.
     ///
     /// # Examples
@@ -826,11 +806,11 @@ impl Builder {
     /// ```
     pub fn uri<T>(self, uri: T) -> Builder
     where
-        Uri: TryFrom<T>,
-        <Uri as TryFrom<T>>::Error: Into<crate::Error>,
+        T: TryInto<Uri>,
+        <T as TryInto<Uri>>::Error: Into<crate::Error>,
     {
         self.and_then(move |mut head| {
-            head.uri = TryFrom::try_from(uri).map_err(Into::into)?;
+            head.uri = uri.try_into().map_err(Into::into)?;
             Ok(head)
         })
     }
@@ -855,9 +835,6 @@ impl Builder {
     }
 
     /// Set the HTTP version for this request.
-    ///
-    /// This function will configure the HTTP version of the `Request` that
-    /// will be returned from `Builder::build`.
     ///
     /// By default this is HTTP/1.1
     ///
@@ -917,15 +894,15 @@ impl Builder {
     /// ```
     pub fn header<K, V>(self, key: K, value: V) -> Builder
     where
-        HeaderName: TryFrom<K>,
-        <HeaderName as TryFrom<K>>::Error: Into<crate::Error>,
-        HeaderValue: TryFrom<V>,
-        <HeaderValue as TryFrom<V>>::Error: Into<crate::Error>,
+        K: TryInto<HeaderName>,
+        <K as TryInto<HeaderName>>::Error: Into<crate::Error>,
+        V: TryInto<HeaderValue>,
+        <V as TryInto<HeaderValue>>::Error: Into<crate::Error>,
     {
         self.and_then(move |mut head| {
-            let name = <HeaderName as TryFrom<K>>::try_from(key).map_err(Into::into)?;
-            let value = <HeaderValue as TryFrom<V>>::try_from(value).map_err(Into::into)?;
-            head.headers.append(name, value);
+            let name = key.try_into().map_err(Into::into)?;
+            let value = value.try_into().map_err(Into::into)?;
+            head.headers.try_append(name, value)?;
             Ok(head)
         })
     }
@@ -987,7 +964,7 @@ impl Builder {
     /// ```
     pub fn extension<T>(self, extension: T) -> Builder
     where
-        T: Any + Send + Sync + 'static,
+        T: Clone + Any + Send + Sync + 'static,
     {
         self.and_then(move |mut head| {
             head.extensions.insert(extension);
@@ -1051,19 +1028,14 @@ impl Builder {
     ///     .unwrap();
     /// ```
     pub fn body<T>(self, body: T) -> Result<Request<T>> {
-        self.inner.map(move |head| {
-            Request {
-                head,
-                body,
-            }
-        })
+        self.inner.map(move |head| Request { head, body })
     }
 
     // private
 
     fn and_then<F>(self, func: F) -> Self
     where
-        F: FnOnce(Parts) -> Result<Parts>
+        F: FnOnce(Parts) -> Result<Parts>,
     {
         Builder {
             inner: self.inner.and_then(func),

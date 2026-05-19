@@ -1,7 +1,8 @@
 use std::iter::FromIterator;
 
-use util::FlatCsv;
-use {HeaderName, HeaderValue};
+use http::{HeaderName, HeaderValue};
+
+use crate::util::FlatCsv;
 
 /// `Access-Control-Expose-Headers` header, part of
 /// [CORS](http://www.w3.org/TR/cors/#access-control-expose-headers-response-header)
@@ -21,7 +22,6 @@ use {HeaderName, HeaderValue};
 /// # Examples
 ///
 /// ```
-/// # extern crate headers;
 /// extern crate http;
 /// # fn main() {
 /// use http::header::{CONTENT_LENGTH, ETAG};
@@ -42,7 +42,7 @@ derive_header! {
 
 impl AccessControlExposeHeaders {
     /// Returns an iterator over `HeaderName`s contained within.
-    pub fn iter<'a>(&'a self) -> impl Iterator<Item = HeaderName> + 'a {
+    pub fn iter(&self) -> impl Iterator<Item = HeaderName> + '_ {
         self.0.iter().filter_map(|s| s.parse().ok())
     }
 }

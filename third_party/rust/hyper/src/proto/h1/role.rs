@@ -1,15 +1,17 @@
-use std::fmt::{self, Write};
 use std::mem::MaybeUninit;
+
+#[cfg(feature = "client")]
+use std::fmt::{self, Write as _};
 
 use bytes::Bytes;
 use bytes::BytesMut;
+#[cfg(feature = "client")]
+use http::header::Entry;
 #[cfg(feature = "server")]
 use http::header::ValueIter;
-use http::header::{self, Entry, HeaderName, HeaderValue};
-use http::{HeaderMap, Method, StatusCode, Version};
-#[cfg(all(feature = "server", feature = "runtime"))]
-use tokio::time::Instant;
-use tracing::{debug, error, trace, trace_span, warn};
+use http::header::{self, HeaderMap, HeaderName, HeaderValue};
+use http::{Method, StatusCode, Version};
+use smallvec::{smallvec, smallvec_inline, SmallVec};
 
 use crate::body::DecodedLength;
 #[cfg(feature = "server")]
@@ -22,9 +24,11 @@ use crate::headers;
 use crate::proto::h1::{
     Encode, Encoder, Http1Transaction, ParseContext, ParseResult, ParsedMessage,
 };
-use crate::proto::{BodyLength, MessageHead, RequestHead, RequestLine};
+#[cfg(feature = "client")]
+use crate::proto::RequestHead;
+use crate::proto::{BodyLength, MessageHead, RequestLine};
 
-const MAX_HEADERS: usize = 100;
+pub(crate) const DEFAULT_MAX_HEADERS: usize = 100;
 const AVERAGE_HEADER_SIZE: usize = 30; // totally scientific
 #[cfg(feature = "server")]
 const MAX_URI_LEN: usize = (u16::MAX - 1) as usize;
@@ -68,35 +72,12 @@ pub(super) fn parse_headers<T>(
 where
     T: Http1Transaction,
 {
-    #[cfg(all(feature = "server", feature = "runtime"))]
-    if !*ctx.h1_header_read_timeout_running {
-        if let Some(h1_header_read_timeout) = ctx.h1_header_read_timeout {
-            let span = trace_span!("parse_headers");
-            let _s = span.enter();
-
-            let deadline = Instant::now() + h1_header_read_timeout;
-            *ctx.h1_header_read_timeout_running = true;
-            match ctx.h1_header_read_timeout_fut {
-                Some(h1_header_read_timeout_fut) => {
-                    debug!("resetting h1 header read timeout timer");
-                    h1_header_read_timeout_fut.as_mut().reset(deadline);
-                }
-                None => {
-                    debug!("setting h1 header read timeout timer");
-                    *ctx.h1_header_read_timeout_fut =
-                        Some(Box::pin(tokio::time::sleep_until(deadline)));
-                }
-            }
-        }
-    }
-
     // If the buffer is empty, don't bother entering the span, it's just noise.
     if bytes.is_empty() {
         return Ok(None);
     }
 
-    let span = trace_span!("parse_headers");
-    let _s = span.enter();
+    let _entered = trace_span!("parse_headers");
 
     if let Some(prev_len) = prev_len {
         if !is_complete_fast(bytes, prev_len) {
@@ -111,7 +92,7 @@ where
 /// Used when there was a partial read, to skip full parsing on a
 /// a slow connection.
 fn is_complete_fast(bytes: &[u8], prev_len: usize) -> bool {
-    let start = if prev_len < 3 { 0 } else { prev_len - 3 };
+    let start = prev_len.saturating_sub(3);
     let bytes = &bytes[start..];
 
     for (i, b) in bytes.iter().copied().enumerate() {
@@ -119,10 +100,8 @@ fn is_complete_fast(bytes: &[u8], prev_len: usize) -> bool {
             if bytes[i + 1..].chunks(3).next() == Some(&b"\n\r\n"[..]) {
                 return true;
             }
-        } else if b == b'\n' {
-            if bytes.get(i + 1) == Some(&b'\n') {
-                return true;
-            }
+        } else if b == b'\n' && bytes.get(i + 1) == Some(&b'\n') {
+            return true;
         }
     }
 
@@ -136,8 +115,7 @@ pub(super) fn encode_headers<T>(
 where
     T: Http1Transaction,
 {
-    let span = trace_span!("encode_headers");
-    let _s = span.enter();
+    let _entered = trace_span!("encode_headers");
     T::encode(enc, dst)
 }
 
@@ -153,6 +131,7 @@ pub(crate) enum Server {}
 impl Http1Transaction for Server {
     type Incoming = RequestLine;
     type Outgoing = StatusCode;
+    #[cfg(feature = "tracing")]
     const LOG: &'static str = "{role=server}";
 
     fn parse(buf: &mut BytesMut, ctx: ParseContext<'_>) -> ParseResult<RequestLine> {
@@ -164,23 +143,32 @@ impl Http1Transaction for Server {
         let version;
         let len;
         let headers_len;
+        let method;
+        let path_range;
 
-        // Unsafe: both headers_indices and headers are using uninitialized memory,
+        // Both headers_indices and headers are using uninitialized memory,
         // but we *never* read any of it until after httparse has assigned
         // values into it. By not zeroing out the stack memory, this saves
         // a good ~5% on pipeline benchmarks.
-        let mut headers_indices: [MaybeUninit<HeaderIndices>; MAX_HEADERS] = unsafe {
-            // SAFETY: We can go safely from MaybeUninit array to array of MaybeUninit
-            MaybeUninit::uninit().assume_init()
-        };
+        let mut headers_indices: SmallVec<[MaybeUninit<HeaderIndices>; DEFAULT_MAX_HEADERS]> =
+            match ctx.h1_max_headers {
+                Some(cap) => smallvec![MaybeUninit::uninit(); cap],
+                None => smallvec_inline![MaybeUninit::uninit(); DEFAULT_MAX_HEADERS],
+            };
         {
-            /* SAFETY: it is safe to go from MaybeUninit array to array of MaybeUninit */
-            let mut headers: [MaybeUninit<httparse::Header<'_>>; MAX_HEADERS] =
-                unsafe { MaybeUninit::uninit().assume_init() };
+            let mut headers: SmallVec<[MaybeUninit<httparse::Header<'_>>; DEFAULT_MAX_HEADERS]> =
+                match ctx.h1_max_headers {
+                    Some(cap) => smallvec![MaybeUninit::uninit(); cap],
+                    None => smallvec_inline![MaybeUninit::uninit(); DEFAULT_MAX_HEADERS],
+                };
             trace!(bytes = buf.len(), "Request.parse");
             let mut req = httparse::Request::new(&mut []);
             let bytes = buf.as_ref();
-            match req.parse_with_uninit_headers(bytes, &mut headers) {
+            match ctx.h1_parser_config.parse_request_with_uninit_headers(
+                &mut req,
+                bytes,
+                &mut headers,
+            ) {
                 Ok(httparse::Status::Complete(parsed_len)) => {
                     trace!("Request.parse Complete({})", parsed_len);
                     len = parsed_len;
@@ -188,10 +176,8 @@ impl Http1Transaction for Server {
                     if uri.len() > MAX_URI_LEN {
                         return Err(Parse::UriTooLong);
                     }
-                    subject = RequestLine(
-                        Method::from_bytes(req.method.unwrap().as_bytes())?,
-                        uri.parse()?,
-                    );
+                    method = Method::from_bytes(req.method.unwrap().as_bytes())?;
+                    path_range = Server::record_path_range(bytes, uri);
                     version = if req.version.unwrap() == 1 {
                         keep_alive = true;
                         is_http_11 = true;
@@ -202,28 +188,32 @@ impl Http1Transaction for Server {
                         Version::HTTP_10
                     };
 
-                    record_header_indices(bytes, &req.headers, &mut headers_indices)?;
+                    record_header_indices(bytes, req.headers, &mut headers_indices)?;
                     headers_len = req.headers.len();
                 }
                 Ok(httparse::Status::Partial) => return Ok(None),
-                Err(err) => {
-                    return Err(match err {
-                        // if invalid Token, try to determine if for method or path
-                        httparse::Error::Token => {
-                            if req.method.is_none() {
-                                Parse::Method
-                            } else {
-                                debug_assert!(req.path.is_none());
-                                Parse::Uri
-                            }
+                // if invalid Token, try to determine if for method or path
+                Err(httparse::Error::Token) => {
+                    return Err({
+                        if req.method.is_none() {
+                            Parse::Method
+                        } else {
+                            debug_assert!(req.path.is_none());
+                            Parse::Uri
                         }
-                        other => other.into(),
-                    });
+                    })
                 }
+                Err(err) => return Err(err.into()),
             }
         };
 
         let slice = buf.split_to(len).freeze();
+        let uri = {
+            let uri_bytes = slice.slice_ref(&slice[path_range]);
+            // TODO(lucab): switch to `Uri::from_shared()` once public.
+            http::Uri::from_maybe_shared(uri_bytes)?
+        };
+        subject = RequestLine(method, uri);
 
         // According to https://tools.ietf.org/html/rfc7230#section-3.3.3
         // 1. (irrelevant to Request)
@@ -254,13 +244,13 @@ impl Http1Transaction for Server {
             None
         };
 
-        let mut headers = ctx.cached_headers.take().unwrap_or_else(HeaderMap::new);
+        let mut headers = ctx.cached_headers.take().unwrap_or_default();
 
         headers.reserve(headers_len);
 
         for header in &headers_indices[..headers_len] {
             // SAFETY: array is valid up to `headers_len`
-            let header = unsafe { &*header.as_ptr() };
+            let header = unsafe { header.assume_init_ref() };
             let name = header_name!(&slice[header.name.0..header.name.1]);
             let value = header_value!(slice.slice(header.value.0..header.value.1));
 
@@ -485,8 +475,10 @@ impl Http1Transaction for Server {
         };
 
         debug!("sending automatic response ({}) for parse error", status);
-        let mut msg = MessageHead::default();
-        msg.subject = status;
+        let msg = MessageHead {
+            subject: status,
+            ..Default::default()
+        };
         Some(msg)
     }
 
@@ -506,16 +498,13 @@ impl Server {
     }
 
     fn can_chunked(method: &Option<Method>, status: StatusCode) -> bool {
-        if method == &Some(Method::HEAD) || method == &Some(Method::CONNECT) && status.is_success()
+        if method == &Some(Method::HEAD)
+            || method == &Some(Method::CONNECT) && status.is_success()
+            || status.is_informational()
         {
             false
-        } else if status.is_informational() {
-            false
         } else {
-            match status {
-                StatusCode::NO_CONTENT | StatusCode::NOT_MODIFIED => false,
-                _ => true,
-            }
+            !matches!(status, StatusCode::NO_CONTENT | StatusCode::NOT_MODIFIED)
         }
     }
 
@@ -523,10 +512,7 @@ impl Server {
         if status.is_informational() || method == &Some(Method::CONNECT) && status.is_success() {
             false
         } else {
-            match status {
-                StatusCode::NO_CONTENT | StatusCode::NOT_MODIFIED => false,
-                _ => true,
-            }
+            !matches!(status, StatusCode::NO_CONTENT | StatusCode::NOT_MODIFIED)
         }
     }
 
@@ -664,6 +650,7 @@ impl Server {
         };
 
         let mut encoder = Encoder::length(0);
+        let mut allowed_trailer_fields: Option<Vec<HeaderName>> = None;
         let mut wrote_date = false;
         let mut cur_name = None;
         let mut is_name_written = false;
@@ -705,7 +692,7 @@ impl Server {
                     }
                     match msg.body {
                         Some(BodyLength::Known(known_len)) => {
-                            // The HttpBody claims to know a length, and
+                            // The Body claims to know a length, and
                             // the headers are already set. For performance
                             // reasons, we are just going to trust that
                             // the values match.
@@ -715,12 +702,14 @@ impl Server {
                             #[cfg(debug_assertions)]
                             {
                                 if let Some(len) = headers::content_length_parse(&value) {
-                                    assert!(
+                                    if msg.req_method != &Some(Method::HEAD) || known_len != 0 {
+                                        assert!(
                                         len == known_len,
                                         "payload claims content-length of {}, custom content-length header claims {}",
                                         known_len,
                                         len,
                                     );
+                                    }
                                 }
                             }
 
@@ -738,7 +727,7 @@ impl Server {
                             continue 'headers;
                         }
                         Some(BodyLength::Unknown) => {
-                            // The HttpBody impl didn't know how long the
+                            // The Body impl didn't know how long the
                             // body is, but a length header was included.
                             // We have to parse the value to return our
                             // Encoder...
@@ -850,6 +839,48 @@ impl Server {
                 header::DATE => {
                     wrote_date = true;
                 }
+                header::TRAILER => {
+                    // check that we actually can send a chunked body...
+                    if msg.head.version == Version::HTTP_10
+                        || !Server::can_chunked(msg.req_method, msg.head.subject)
+                    {
+                        continue;
+                    }
+
+                    if !is_name_written {
+                        is_name_written = true;
+                        header_name_writer.write_header_name_with_colon(
+                            dst,
+                            "trailer: ",
+                            header::TRAILER,
+                        );
+                        extend(dst, value.as_bytes());
+                    } else {
+                        extend(dst, b", ");
+                        extend(dst, value.as_bytes());
+                    }
+
+                    // Parse the Trailer header value into HeaderNames.
+                    // The value may contain comma-separated names.
+                    // HeaderName normalizes to lowercase for case-insensitive matching.
+                    if let Ok(value_str) = value.to_str() {
+                        let names: Vec<HeaderName> = value_str
+                            .split(',')
+                            .filter_map(|s| HeaderName::from_bytes(s.trim().as_bytes()).ok())
+                            .collect();
+
+                        match allowed_trailer_fields {
+                            Some(ref mut fields) => {
+                                fields.extend(names);
+                            }
+                            None => {
+                                allowed_trailer_fields = Some(names);
+                            }
+                        }
+                    }
+
+                    continue 'headers;
+                }
                 _ => (),
             }
             //TODO: this should perhaps instead combine them into
@@ -925,7 +956,8 @@ impl Server {
         }
 
         // cached date is much faster than formatting every request
-        if !wrote_date {
+        // don't force the write if disabled
+        if !wrote_date && msg.date_header {
             dst.reserve(date::DATE_VALUE_LENGTH + 8);
             header_name_writer.write_header_name_with_colon(dst, "date: ", header::DATE);
             date::extend(dst);
@@ -934,7 +966,22 @@ impl Server {
             extend(dst, b"\r\n");
         }
 
+        if encoder.is_chunked() {
+            if let Some(allowed_trailer_fields) = allowed_trailer_fields {
+                encoder = encoder.into_chunked_with_trailing_fields(allowed_trailer_fields);
+            }
+        }
+
         Ok(encoder.set_last(is_last))
+    }
+
+    /// Helper for zero-copy parsing of request path URI.
+    #[inline]
+    fn record_path_range(bytes: &[u8], req_path: &str) -> std::ops::Range<usize> {
+        let bytes_ptr = bytes.as_ptr() as usize;
+        let start = req_path.as_ptr() as usize - bytes_ptr;
+        let end = start + req_path.len();
+        std::ops::Range { start, end }
     }
 }
 
@@ -959,6 +1006,7 @@ trait HeaderNameWriter {
 impl Http1Transaction for Client {
     type Incoming = StatusCode;
     type Outgoing = RequestLine;
+    #[cfg(feature = "tracing")]
     const LOG: &'static str = "{role=client}";
 
     fn parse(buf: &mut BytesMut, ctx: ParseContext<'_>) -> ParseResult<StatusCode> {
@@ -966,15 +1014,18 @@ impl Http1Transaction for Client {
 
         // Loop to skip information status code headers (100 Continue, etc).
         loop {
-            // Unsafe: see comment in Server Http1Transaction, above.
-            let mut headers_indices: [MaybeUninit<HeaderIndices>; MAX_HEADERS] = unsafe {
-                // SAFETY: We can go safely from MaybeUninit array to array of MaybeUninit
-                MaybeUninit::uninit().assume_init()
-            };
+            let mut headers_indices: SmallVec<[MaybeUninit<HeaderIndices>; DEFAULT_MAX_HEADERS]> =
+                match ctx.h1_max_headers {
+                    Some(cap) => smallvec![MaybeUninit::uninit(); cap],
+                    None => smallvec_inline![MaybeUninit::uninit(); DEFAULT_MAX_HEADERS],
+                };
             let (len, status, reason, version, headers_len) = {
-                // SAFETY: We can go safely from MaybeUninit array to array of MaybeUninit
-                let mut headers: [MaybeUninit<httparse::Header<'_>>; MAX_HEADERS] =
-                    unsafe { MaybeUninit::uninit().assume_init() };
+                let mut headers: SmallVec<
+                    [MaybeUninit<httparse::Header<'_>>; DEFAULT_MAX_HEADERS],
+                > = match ctx.h1_max_headers {
+                    Some(cap) => smallvec![MaybeUninit::uninit(); cap],
+                    None => smallvec_inline![MaybeUninit::uninit(); DEFAULT_MAX_HEADERS],
+                };
                 trace!(bytes = buf.len(), "Response.parse");
                 let mut res = httparse::Response::new(&mut []);
                 let bytes = buf.as_ref();
@@ -1002,7 +1053,7 @@ impl Http1Transaction for Client {
                         } else {
                             Version::HTTP_10
                         };
-                        record_header_indices(bytes, &res.headers, &mut headers_indices)?;
+                        record_header_indices(bytes, res.headers, &mut headers_indices)?;
                         let headers_len = res.headers.len();
                         (len, status, reason, version, headers_len)
                     }
@@ -1022,20 +1073,16 @@ impl Http1Transaction for Client {
                 .h1_parser_config
                 .obsolete_multiline_headers_in_responses_are_allowed()
             {
-                for header in &headers_indices[..headers_len] {
+                for header in &mut headers_indices[..headers_len] {
                     // SAFETY: array is valid up to `headers_len`
-                    let header = unsafe { &*header.as_ptr() };
-                    for b in &mut slice[header.value.0..header.value.1] {
-                        if *b == b'\r' || *b == b'\n' {
-                            *b = b' ';
-                        }
-                    }
+                    let header = unsafe { header.assume_init_mut() };
+                    Client::obs_fold_line(&mut slice, header);
                 }
             }
 
             let slice = slice.freeze();
 
-            let mut headers = ctx.cached_headers.take().unwrap_or_else(HeaderMap::new);
+            let mut headers = ctx.cached_headers.take().unwrap_or_default();
 
             let mut keep_alive = version == Version::HTTP_11;
 
@@ -1055,7 +1102,7 @@ impl Http1Transaction for Client {
             headers.reserve(headers_len);
             for header in &headers_indices[..headers_len] {
                 // SAFETY: array is valid up to `headers_len`
-                let header = unsafe { &*header.as_ptr() };
+                let header = unsafe { header.assume_init_ref() };
                 let name = header_name!(&slice[header.name.0..header.name.1]);
                 let value = header_value!(slice.slice(header.value.0..header.value.1));
 
@@ -1096,13 +1143,8 @@ impl Http1Transaction for Client {
             if let Some(reason) = reason {
                 // Safety: httparse ensures that only valid reason phrase bytes are present in this
                 // field.
-                let reason = unsafe { crate::ext::ReasonPhrase::from_bytes_unchecked(reason) };
+                let reason = crate::ext::ReasonPhrase::from_bytes_unchecked(reason);
                 extensions.insert(reason);
-            }
-
-            #[cfg(feature = "ffi")]
-            if ctx.raw_headers {
-                extensions.insert(crate::ffi::RawHeaders(crate::ffi::hyper_buf(slice)));
             }
 
             let head = MessageHead {
@@ -1123,10 +1165,9 @@ impl Http1Transaction for Client {
                 }));
             }
 
-            #[cfg(feature = "ffi")]
             if head.subject.is_informational() {
                 if let Some(callback) = ctx.on_informational {
-                    callback.call(head.into_response(crate::Body::empty()));
+                    callback.call(head.into_response(()));
                 }
             }
 
@@ -1278,7 +1319,7 @@ impl Client {
         let headers = &mut head.headers;
 
         // If the user already set specific headers, we should respect them, regardless
-        // of what the HttpBody knows about itself. They set them for a reason.
+        // of what the Body knows about itself. They set them for a reason.
 
         // Because of the borrow checker, we can't check the for an existing
         // Content-Length header while holding an `Entry` for the Transfer-Encoding
@@ -1356,6 +1397,27 @@ impl Client {
             }
         };
 
+        let encoder = encoder.map(|enc| {
+            if enc.is_chunked() {
+                // Parse Trailer header values into HeaderNames.
+                // Each Trailer header value may contain comma-separated names.
+                // HeaderName normalizes to lowercase, enabling case-insensitive matching.
+                let allowed_trailer_fields: Vec<HeaderName> = headers
+                    .get_all(header::TRAILER)
+                    .iter()
+                    .filter_map(|hv| hv.to_str().ok())
+                    .flat_map(|s| s.split(','))
+                    .filter_map(|s| HeaderName::from_bytes(s.trim().as_bytes()).ok())
+                    .collect();
+
+                if !allowed_trailer_fields.is_empty() {
+                    return enc.into_chunked_with_trailing_fields(allowed_trailer_fields);
+                }
+            }
+
+            enc
+        });
+
         // This is because we need a second mutable borrow to remove
         // content-length header.
         if let Some(encoder) = encoder {
@@ -1376,8 +1438,68 @@ impl Client {
 
         set_content_length(headers, len)
     }
+
+    fn obs_fold_line(all: &mut [u8], idx: &mut HeaderIndices) {
+        // If the value has obs-folded text, then in-place shift the bytes out
+        // of here.
+        //
+        // https://httpwg.org/specs/rfc9112.html#line.folding
+        //
+        // > A user agent that receives an obs-fold MUST replace each received
+        // > obs-fold with one or more SP octets prior to interpreting the
+        // > field value.
+        //
+        // This means strings like "\r\n\t foo" must replace the "\r\n\t " with
+        // a single space.
+
+        let buf = &mut all[idx.value.0..idx.value.1];
+
+        // look for a newline, otherwise bail out
+        let first_nl = match buf.iter().position(|b| *b == b'\n') {
+            Some(i) => i,
+            None => return,
+        };
+
+        // not on standard slices because whatever, sigh
+        fn trim_start(mut s: &[u8]) -> &[u8] {
+            while let [first, rest @ ..] = s {
+                if first.is_ascii_whitespace() {
+                    s = rest;
+                } else {
+                    break;
+                }
+            }
+            s
+        }
+
+        fn trim_end(mut s: &[u8]) -> &[u8] {
+            while let [rest @ .., last] = s {
+                if last.is_ascii_whitespace() {
+                    s = rest;
+                } else {
+                    break;
+                }
+            }
+            s
+        }
+
+        fn trim(s: &[u8]) -> &[u8] {
+            trim_start(trim_end(s))
+        }
+
+        // TODO(perf): we could do the moves in-place, but this is so uncommon
+        // that it shouldn't matter.
+        let mut unfolded = trim_end(&buf[..first_nl]).to_vec();
+        for line in buf[first_nl + 1..].split(|b| *b == b'\n') {
+            unfolded.push(b' ');
+            unfolded.extend_from_slice(trim(line));
+        }
+        buf[..unfolded.len()].copy_from_slice(&unfolded);
+        idx.value.1 = idx.value.0 + unfolded.len();
+    }
 }
 
+#[cfg(feature = "client")]
 fn set_content_length(headers: &mut HeaderMap, len: u64) -> Encoder {
     // At this point, there should not be a valid Content-Length
     // header. However, since we'll be indexing in anyways, we can
@@ -1434,16 +1556,10 @@ fn record_header_indices(
         let value_start = header.value.as_ptr() as usize - bytes_ptr;
         let value_end = value_start + header.value.len();
 
-        // FIXME(maybe_uninit_extra)
-        // FIXME(addr_of)
-        // Currently we don't have `ptr::addr_of_mut` in stable rust or
-        // MaybeUninit::write, so this is some way of assigning into a MaybeUninit
-        // safely
-        let new_header_indices = HeaderIndices {
+        indices.write(HeaderIndices {
             name: (name_start, name_end),
             value: (value_start, value_end),
-        };
-        *indices = MaybeUninit::new(new_header_indices);
+        });
     }
 
     Ok(())
@@ -1464,7 +1580,7 @@ fn title_case(dst: &mut Vec<u8>, name: &[u8]) {
     }
 }
 
-fn write_headers_title_case(headers: &HeaderMap, dst: &mut Vec<u8>) {
+pub(crate) fn write_headers_title_case(headers: &HeaderMap, dst: &mut Vec<u8>) {
     for (name, value) in headers {
         title_case(dst, name.as_str().as_bytes());
         extend(dst, b": ");
@@ -1473,7 +1589,7 @@ fn write_headers_title_case(headers: &HeaderMap, dst: &mut Vec<u8>) {
     }
 }
 
-fn write_headers(headers: &HeaderMap, dst: &mut Vec<u8>) {
+pub(crate) fn write_headers(headers: &HeaderMap, dst: &mut Vec<u8>) {
     for (name, value) in headers {
         extend(dst, name.as_str().as_bytes());
         extend(dst, b": ");
@@ -1483,6 +1599,7 @@ fn write_headers(headers: &HeaderMap, dst: &mut Vec<u8>) {
 }
 
 #[cold]
+#[cfg(feature = "client")]
 fn write_headers_original_case(
     headers: &HeaderMap,
     orig_case: &HeaderCaseMap,
@@ -1518,9 +1635,11 @@ fn write_headers_original_case(
     }
 }
 
+#[cfg(feature = "client")]
 struct FastWrite<'a>(&'a mut Vec<u8>);
 
-impl<'a> fmt::Write for FastWrite<'a> {
+#[cfg(feature = "client")]
+impl fmt::Write for FastWrite<'_> {
     #[inline]
     fn write_str(&mut self, s: &str) -> fmt::Result {
         extend(self.0, s.as_bytes());
@@ -1544,6 +1663,7 @@ mod tests {
 
     use super::*;
 
+    #[cfg(feature = "server")]
     #[test]
     fn test_parse_request() {
         let _ = pretty_env_logger::try_init();
@@ -1555,20 +1675,13 @@ mod tests {
                 cached_headers: &mut None,
                 req_method: &mut method,
                 h1_parser_config: Default::default(),
-                #[cfg(feature = "runtime")]
-                h1_header_read_timeout: None,
-                #[cfg(feature = "runtime")]
-                h1_header_read_timeout_fut: &mut None,
-                #[cfg(feature = "runtime")]
-                h1_header_read_timeout_running: &mut false,
+                h1_max_headers: None,
                 preserve_header_case: false,
                 #[cfg(feature = "ffi")]
                 preserve_header_order: false,
                 h09_responses: false,
-                #[cfg(feature = "ffi")]
+                #[cfg(feature = "client")]
                 on_informational: &mut None,
-                #[cfg(feature = "ffi")]
-                raw_headers: false,
             },
         )
         .unwrap()
@@ -1590,20 +1703,13 @@ mod tests {
             cached_headers: &mut None,
             req_method: &mut Some(crate::Method::GET),
             h1_parser_config: Default::default(),
-            #[cfg(feature = "runtime")]
-            h1_header_read_timeout: None,
-            #[cfg(feature = "runtime")]
-            h1_header_read_timeout_fut: &mut None,
-            #[cfg(feature = "runtime")]
-            h1_header_read_timeout_running: &mut false,
+            h1_max_headers: None,
             preserve_header_case: false,
             #[cfg(feature = "ffi")]
             preserve_header_order: false,
             h09_responses: false,
-            #[cfg(feature = "ffi")]
+            #[cfg(feature = "client")]
             on_informational: &mut None,
-            #[cfg(feature = "ffi")]
-            raw_headers: false,
         };
         let msg = Client::parse(&mut raw, ctx).unwrap().unwrap();
         assert_eq!(raw.len(), 0);
@@ -1613,6 +1719,7 @@ mod tests {
         assert_eq!(msg.head.headers["Content-Length"], "0");
     }
 
+    #[cfg(feature = "server")]
     #[test]
     fn test_parse_request_errors() {
         let mut raw = BytesMut::from("GET htt:p// HTTP/1.1\r\nHost: hyper.rs\r\n\r\n");
@@ -1620,25 +1727,18 @@ mod tests {
             cached_headers: &mut None,
             req_method: &mut None,
             h1_parser_config: Default::default(),
-            #[cfg(feature = "runtime")]
-            h1_header_read_timeout: None,
-            #[cfg(feature = "runtime")]
-            h1_header_read_timeout_fut: &mut None,
-            #[cfg(feature = "runtime")]
-            h1_header_read_timeout_running: &mut false,
+            h1_max_headers: None,
             preserve_header_case: false,
             #[cfg(feature = "ffi")]
             preserve_header_order: false,
             h09_responses: false,
-            #[cfg(feature = "ffi")]
+            #[cfg(feature = "client")]
             on_informational: &mut None,
-            #[cfg(feature = "ffi")]
-            raw_headers: false,
         };
         Server::parse(&mut raw, ctx).unwrap_err();
     }
 
-    const H09_RESPONSE: &'static str = "Baguettes are super delicious, don't you agree?";
+    const H09_RESPONSE: &str = "Baguettes are super delicious, don't you agree?";
 
     #[test]
     fn test_parse_response_h09_allowed() {
@@ -1648,20 +1748,13 @@ mod tests {
             cached_headers: &mut None,
             req_method: &mut Some(crate::Method::GET),
             h1_parser_config: Default::default(),
-            #[cfg(feature = "runtime")]
-            h1_header_read_timeout: None,
-            #[cfg(feature = "runtime")]
-            h1_header_read_timeout_fut: &mut None,
-            #[cfg(feature = "runtime")]
-            h1_header_read_timeout_running: &mut false,
+            h1_max_headers: None,
             preserve_header_case: false,
             #[cfg(feature = "ffi")]
             preserve_header_order: false,
             h09_responses: true,
-            #[cfg(feature = "ffi")]
+            #[cfg(feature = "client")]
             on_informational: &mut None,
-            #[cfg(feature = "ffi")]
-            raw_headers: false,
         };
         let msg = Client::parse(&mut raw, ctx).unwrap().unwrap();
         assert_eq!(raw, H09_RESPONSE);
@@ -1678,26 +1771,19 @@ mod tests {
             cached_headers: &mut None,
             req_method: &mut Some(crate::Method::GET),
             h1_parser_config: Default::default(),
-            #[cfg(feature = "runtime")]
-            h1_header_read_timeout: None,
-            #[cfg(feature = "runtime")]
-            h1_header_read_timeout_fut: &mut None,
-            #[cfg(feature = "runtime")]
-            h1_header_read_timeout_running: &mut false,
+            h1_max_headers: None,
             preserve_header_case: false,
             #[cfg(feature = "ffi")]
             preserve_header_order: false,
             h09_responses: false,
-            #[cfg(feature = "ffi")]
+            #[cfg(feature = "client")]
             on_informational: &mut None,
-            #[cfg(feature = "ffi")]
-            raw_headers: false,
         };
         Client::parse(&mut raw, ctx).unwrap_err();
         assert_eq!(raw, H09_RESPONSE);
     }
 
-    const RESPONSE_WITH_WHITESPACE_BETWEEN_HEADER_NAME_AND_COLON: &'static str =
+    const RESPONSE_WITH_WHITESPACE_BETWEEN_HEADER_NAME_AND_COLON: &str =
         "HTTP/1.1 200 OK\r\nAccess-Control-Allow-Credentials : true\r\n\r\n";
 
     #[test]
@@ -1712,20 +1798,13 @@ mod tests {
             cached_headers: &mut None,
             req_method: &mut Some(crate::Method::GET),
             h1_parser_config,
-            #[cfg(feature = "runtime")]
-            h1_header_read_timeout: None,
-            #[cfg(feature = "runtime")]
-            h1_header_read_timeout_fut: &mut None,
-            #[cfg(feature = "runtime")]
-            h1_header_read_timeout_running: &mut false,
+            h1_max_headers: None,
             preserve_header_case: false,
             #[cfg(feature = "ffi")]
             preserve_header_order: false,
             h09_responses: false,
-            #[cfg(feature = "ffi")]
+            #[cfg(feature = "client")]
             on_informational: &mut None,
-            #[cfg(feature = "ffi")]
-            raw_headers: false,
         };
         let msg = Client::parse(&mut raw, ctx).unwrap().unwrap();
         assert_eq!(raw.len(), 0);
@@ -1743,24 +1822,73 @@ mod tests {
             cached_headers: &mut None,
             req_method: &mut Some(crate::Method::GET),
             h1_parser_config: Default::default(),
-            #[cfg(feature = "runtime")]
-            h1_header_read_timeout: None,
-            #[cfg(feature = "runtime")]
-            h1_header_read_timeout_fut: &mut None,
-            #[cfg(feature = "runtime")]
-            h1_header_read_timeout_running: &mut false,
+            h1_max_headers: None,
             preserve_header_case: false,
             #[cfg(feature = "ffi")]
             preserve_header_order: false,
             h09_responses: false,
-            #[cfg(feature = "ffi")]
+            #[cfg(feature = "client")]
             on_informational: &mut None,
-            #[cfg(feature = "ffi")]
-            raw_headers: false,
         };
         Client::parse(&mut raw, ctx).unwrap_err();
     }
 
+    const REQUEST_WITH_MULTIPLE_SPACES_IN_REQUEST_LINE: &str =
+        "GET  /echo  HTTP/1.1\r\nHost: hyper.rs\r\n\r\n";
+
+    #[cfg(feature = "server")]
+    #[test]
+    fn test_parse_allow_request_with_multiple_spaces_in_request_line() {
+        use httparse::ParserConfig;
+
+        let _ = pretty_env_logger::try_init();
+        let mut raw = BytesMut::from(REQUEST_WITH_MULTIPLE_SPACES_IN_REQUEST_LINE);
+        let mut h1_parser_config = ParserConfig::default();
+        h1_parser_config.allow_multiple_spaces_in_request_line_delimiters(true);
+        let mut method = None;
+        let ctx = ParseContext {
+            cached_headers: &mut None,
+            req_method: &mut method,
+            h1_parser_config,
+            h1_max_headers: None,
+            preserve_header_case: false,
+            #[cfg(feature = "ffi")]
+            preserve_header_order: false,
+            h09_responses: false,
+            #[cfg(feature = "client")]
+            on_informational: &mut None,
+        };
+        let msg = Server::parse(&mut raw, ctx).unwrap().unwrap();
+        assert_eq!(raw.len(), 0);
+        assert_eq!(msg.head.subject.0, crate::Method::GET);
+        assert_eq!(msg.head.subject.1, "/echo");
+        assert_eq!(msg.head.version, crate::Version::HTTP_11);
+        assert_eq!(msg.head.headers.len(), 1);
+        assert_eq!(msg.head.headers["Host"], "hyper.rs");
+        assert_eq!(method, Some(crate::Method::GET));
+    }
+
+    #[cfg(feature = "server")]
+    #[test]
+    fn test_parse_reject_request_with_multiple_spaces_in_request_line() {
+        let _ = pretty_env_logger::try_init();
+        let mut raw = BytesMut::from(REQUEST_WITH_MULTIPLE_SPACES_IN_REQUEST_LINE);
+        let ctx = ParseContext {
+            cached_headers: &mut None,
+            req_method: &mut None,
+            h1_parser_config: Default::default(),
+            h1_max_headers: None,
+            preserve_header_case: false,
+            #[cfg(feature = "ffi")]
+            preserve_header_order: false,
+            h09_responses: false,
+            #[cfg(feature = "client")]
+            on_informational: &mut None,
+        };
+        Server::parse(&mut raw, ctx).unwrap_err();
+    }
+
+    #[cfg(feature = "server")]
     #[test]
     fn test_parse_preserve_header_case_in_request() {
         let mut raw =
@@ -1769,20 +1897,13 @@ mod tests {
             cached_headers: &mut None,
             req_method: &mut None,
             h1_parser_config: Default::default(),
-            #[cfg(feature = "runtime")]
-            h1_header_read_timeout: None,
-            #[cfg(feature = "runtime")]
-            h1_header_read_timeout_fut: &mut None,
-            #[cfg(feature = "runtime")]
-            h1_header_read_timeout_running: &mut false,
+            h1_max_headers: None,
             preserve_header_case: true,
             #[cfg(feature = "ffi")]
             preserve_header_order: false,
             h09_responses: false,
-            #[cfg(feature = "ffi")]
+            #[cfg(feature = "client")]
             on_informational: &mut None,
-            #[cfg(feature = "ffi")]
-            raw_headers: false,
         };
         let parsed_message = Server::parse(&mut raw, ctx).unwrap().unwrap();
         let orig_headers = parsed_message
@@ -1793,19 +1914,18 @@ mod tests {
         assert_eq!(
             orig_headers
                 .get_all_internal(&HeaderName::from_static("host"))
-                .into_iter()
                 .collect::<Vec<_>>(),
             vec![&Bytes::from("Host")]
         );
         assert_eq!(
             orig_headers
                 .get_all_internal(&HeaderName::from_static("x-bread"))
-                .into_iter()
                 .collect::<Vec<_>>(),
             vec![&Bytes::from("X-BREAD")]
         );
     }
 
+    #[cfg(feature = "server")]
     #[test]
     fn test_decoder_request() {
         fn parse(s: &str) -> ParsedMessage<RequestLine> {
@@ -1816,20 +1936,13 @@ mod tests {
                     cached_headers: &mut None,
                     req_method: &mut None,
                     h1_parser_config: Default::default(),
-                    #[cfg(feature = "runtime")]
-                    h1_header_read_timeout: None,
-                    #[cfg(feature = "runtime")]
-                    h1_header_read_timeout_fut: &mut None,
-                    #[cfg(feature = "runtime")]
-                    h1_header_read_timeout_running: &mut false,
+                    h1_max_headers: None,
                     preserve_header_case: false,
                     #[cfg(feature = "ffi")]
                     preserve_header_order: false,
                     h09_responses: false,
-                    #[cfg(feature = "ffi")]
+                    #[cfg(feature = "client")]
                     on_informational: &mut None,
-                    #[cfg(feature = "ffi")]
-                    raw_headers: false,
                 },
             )
             .expect("parse ok")
@@ -1844,20 +1957,13 @@ mod tests {
                     cached_headers: &mut None,
                     req_method: &mut None,
                     h1_parser_config: Default::default(),
-                    #[cfg(feature = "runtime")]
-                    h1_header_read_timeout: None,
-                    #[cfg(feature = "runtime")]
-                    h1_header_read_timeout_fut: &mut None,
-                    #[cfg(feature = "runtime")]
-                    h1_header_read_timeout_running: &mut false,
+                    h1_max_headers: None,
                     preserve_header_case: false,
                     #[cfg(feature = "ffi")]
                     preserve_header_order: false,
                     h09_responses: false,
-                    #[cfg(feature = "ffi")]
+                    #[cfg(feature = "client")]
                     on_informational: &mut None,
-                    #[cfg(feature = "ffi")]
-                    raw_headers: false,
                 },
             )
             .expect_err(comment)
@@ -2081,20 +2187,13 @@ mod tests {
                     cached_headers: &mut None,
                     req_method: &mut Some(Method::GET),
                     h1_parser_config: Default::default(),
-                    #[cfg(feature = "runtime")]
-                    h1_header_read_timeout: None,
-                    #[cfg(feature = "runtime")]
-                    h1_header_read_timeout_fut: &mut None,
-                    #[cfg(feature = "runtime")]
-                    h1_header_read_timeout_running: &mut false,
+                    h1_max_headers: None,
                     preserve_header_case: false,
                     #[cfg(feature = "ffi")]
                     preserve_header_order: false,
                     h09_responses: false,
-                    #[cfg(feature = "ffi")]
+                    #[cfg(feature = "client")]
                     on_informational: &mut None,
-                    #[cfg(feature = "ffi")]
-                    raw_headers: false,
                 }
             )
             .expect("parse ok")
@@ -2109,20 +2208,13 @@ mod tests {
                     cached_headers: &mut None,
                     req_method: &mut Some(m),
                     h1_parser_config: Default::default(),
-                    #[cfg(feature = "runtime")]
-                    h1_header_read_timeout: None,
-                    #[cfg(feature = "runtime")]
-                    h1_header_read_timeout_fut: &mut None,
-                    #[cfg(feature = "runtime")]
-                    h1_header_read_timeout_running: &mut false,
+                    h1_max_headers: None,
                     preserve_header_case: false,
                     #[cfg(feature = "ffi")]
                     preserve_header_order: false,
                     h09_responses: false,
-                    #[cfg(feature = "ffi")]
+                    #[cfg(feature = "client")]
                     on_informational: &mut None,
-                    #[cfg(feature = "ffi")]
-                    raw_headers: false,
                 },
             )
             .expect("parse ok")
@@ -2137,20 +2229,13 @@ mod tests {
                     cached_headers: &mut None,
                     req_method: &mut Some(Method::GET),
                     h1_parser_config: Default::default(),
-                    #[cfg(feature = "runtime")]
-                    h1_header_read_timeout: None,
-                    #[cfg(feature = "runtime")]
-                    h1_header_read_timeout_fut: &mut None,
-                    #[cfg(feature = "runtime")]
-                    h1_header_read_timeout_running: &mut false,
+                    h1_max_headers: None,
                     preserve_header_case: false,
                     #[cfg(feature = "ffi")]
                     preserve_header_order: false,
                     h09_responses: false,
-                    #[cfg(feature = "ffi")]
+                    #[cfg(feature = "client")]
                     on_informational: &mut None,
-                    #[cfg(feature = "ffi")]
-                    raw_headers: false,
                 },
             )
             .expect_err("parse should err")
@@ -2416,6 +2501,24 @@ mod tests {
         );
     }
 
+    #[cfg(feature = "client")]
+    #[test]
+    fn test_client_obs_fold_line() {
+        fn unfold(src: &str) -> String {
+            let mut buf = src.as_bytes().to_vec();
+            let mut idx = HeaderIndices {
+                name: (0, 0),
+                value: (0, buf.len()),
+            };
+            Client::obs_fold_line(&mut buf, &mut idx);
+            String::from_utf8(buf[idx.value.0..idx.value.1].to_vec()).unwrap()
+        }
+
+        assert_eq!(unfold("a normal line"), "a normal line",);
+
+        assert_eq!(unfold("obs\r\n fold\r\n\t line"), "obs fold line",);
+    }
+
     #[test]
     fn test_client_request_encode_title_case() {
         use crate::proto::BodyLength;
@@ -2433,9 +2536,12 @@ mod tests {
             Encode {
                 head: &mut head,
                 body: Some(BodyLength::Known(10)),
+                #[cfg(feature = "server")]
                 keep_alive: true,
                 req_method: &mut None,
                 title_case_headers: true,
+                #[cfg(feature = "server")]
+                date_header: true,
             },
             &mut vec,
         )
@@ -2464,9 +2570,12 @@ mod tests {
             Encode {
                 head: &mut head,
                 body: Some(BodyLength::Known(10)),
+                #[cfg(feature = "server")]
                 keep_alive: true,
                 req_method: &mut None,
                 title_case_headers: false,
+                #[cfg(feature = "server")]
+                date_header: true,
             },
             &mut vec,
         )
@@ -2498,9 +2607,12 @@ mod tests {
             Encode {
                 head: &mut head,
                 body: Some(BodyLength::Known(10)),
+                #[cfg(feature = "server")]
                 keep_alive: true,
                 req_method: &mut None,
                 title_case_headers: true,
+                #[cfg(feature = "server")]
+                date_header: true,
             },
             &mut vec,
         )
@@ -2513,6 +2625,7 @@ mod tests {
         );
     }
 
+    #[cfg(feature = "server")]
     #[test]
     fn test_server_encode_connect_method() {
         let mut head = MessageHead::default();
@@ -2525,6 +2638,7 @@ mod tests {
                 keep_alive: true,
                 req_method: &mut Some(Method::CONNECT),
                 title_case_headers: false,
+                date_header: true,
             },
             &mut vec,
         )
@@ -2533,6 +2647,7 @@ mod tests {
         assert!(encoder.is_last());
     }
 
+    #[cfg(feature = "server")]
     #[test]
     fn test_server_response_encode_title_case() {
         use crate::proto::BodyLength;
@@ -2554,6 +2669,7 @@ mod tests {
                 keep_alive: true,
                 req_method: &mut None,
                 title_case_headers: true,
+                date_header: true,
             },
             &mut vec,
         )
@@ -2565,6 +2681,7 @@ mod tests {
         assert_eq!(&vec[..expected_response.len()], &expected_response[..]);
     }
 
+    #[cfg(feature = "server")]
     #[test]
     fn test_server_response_encode_orig_case() {
         use crate::proto::BodyLength;
@@ -2588,6 +2705,7 @@ mod tests {
                 keep_alive: true,
                 req_method: &mut None,
                 title_case_headers: false,
+                date_header: true,
             },
             &mut vec,
         )
@@ -2599,6 +2717,7 @@ mod tests {
         assert_eq!(&vec[..expected_response.len()], &expected_response[..]);
     }
 
+    #[cfg(feature = "server")]
     #[test]
     fn test_server_response_encode_orig_and_title_case() {
         use crate::proto::BodyLength;
@@ -2622,15 +2741,53 @@ mod tests {
                 keep_alive: true,
                 req_method: &mut None,
                 title_case_headers: true,
+                date_header: true,
+            },
+            &mut vec,
+        )
+        .unwrap();
+
+        // this will also test that the date does exist
+        let expected_response =
+            b"HTTP/1.1 200 OK\r\nCONTENT-LENGTH: 10\r\nContent-Type: application/json\r\nDate: ";
+
+        assert_eq!(&vec[..expected_response.len()], &expected_response[..]);
+    }
+
+    #[cfg(feature = "server")]
+    #[test]
+    fn test_disabled_date_header() {
+        use crate::proto::BodyLength;
+        use http::header::{HeaderValue, CONTENT_LENGTH};
+
+        let mut head = MessageHead::default();
+        head.headers
+            .insert("content-length", HeaderValue::from_static("10"));
+        head.headers
+            .insert("content-type", HeaderValue::from_static("application/json"));
+
+        let mut orig_headers = HeaderCaseMap::default();
+        orig_headers.insert(CONTENT_LENGTH, "CONTENT-LENGTH".into());
+        head.extensions.insert(orig_headers);
+
+        let mut vec = Vec::new();
+        Server::encode(
+            Encode {
+                head: &mut head,
+                body: Some(BodyLength::Known(10)),
+                keep_alive: true,
+                req_method: &mut None,
+                title_case_headers: true,
+                date_header: false,
             },
             &mut vec,
         )
         .unwrap();
 
         let expected_response =
-            b"HTTP/1.1 200 OK\r\nCONTENT-LENGTH: 10\r\nContent-Type: application/json\r\nDate: ";
+            b"HTTP/1.1 200 OK\r\nCONTENT-LENGTH: 10\r\nContent-Type: application/json\r\n\r\n";
 
-        assert_eq!(&vec[..expected_response.len()], &expected_response[..]);
+        assert_eq!(&vec, &expected_response);
     }
 
     #[test]
@@ -2642,26 +2799,149 @@ mod tests {
                 cached_headers: &mut None,
                 req_method: &mut Some(Method::GET),
                 h1_parser_config: Default::default(),
-                #[cfg(feature = "runtime")]
-                h1_header_read_timeout: None,
-                #[cfg(feature = "runtime")]
-                h1_header_read_timeout_fut: &mut None,
-                #[cfg(feature = "runtime")]
-                h1_header_read_timeout_running: &mut false,
+                h1_max_headers: None,
                 preserve_header_case: false,
                 #[cfg(feature = "ffi")]
                 preserve_header_order: false,
                 h09_responses: false,
-                #[cfg(feature = "ffi")]
+                #[cfg(feature = "client")]
                 on_informational: &mut None,
-                #[cfg(feature = "ffi")]
-                raw_headers: false,
             },
         )
         .expect("parse ok")
         .expect("parse complete");
 
         assert_eq!(parsed.head.headers["server"], "hello\tworld");
+    }
+
+    #[cfg(feature = "server")]
+    #[test]
+    fn parse_too_large_headers() {
+        fn gen_req_with_headers(num: usize) -> String {
+            let mut req = String::from("GET / HTTP/1.1\r\n");
+            for i in 0..num {
+                req.push_str(&format!("key{i}: val{i}\r\n"));
+            }
+            req.push_str("\r\n");
+            req
+        }
+        fn gen_resp_with_headers(num: usize) -> String {
+            let mut req = String::from("HTTP/1.1 200 OK\r\n");
+            for i in 0..num {
+                req.push_str(&format!("key{i}: val{i}\r\n"));
+            }
+            req.push_str("\r\n");
+            req
+        }
+        fn parse(max_headers: Option<usize>, gen_size: usize, should_success: bool) {
+            {
+                // server side
+                let mut bytes = BytesMut::from(gen_req_with_headers(gen_size).as_str());
+                let result = Server::parse(
+                    &mut bytes,
+                    ParseContext {
+                        cached_headers: &mut None,
+                        req_method: &mut None,
+                        h1_parser_config: Default::default(),
+                        h1_max_headers: max_headers,
+                        preserve_header_case: false,
+                        #[cfg(feature = "ffi")]
+                        preserve_header_order: false,
+                        h09_responses: false,
+                        #[cfg(feature = "client")]
+                        on_informational: &mut None,
+                    },
+                );
+                if should_success {
+                    result.expect("parse ok").expect("parse complete");
+                } else {
+                    result.expect_err("parse should err");
+                }
+            }
+            {
+                // client side
+                let mut bytes = BytesMut::from(gen_resp_with_headers(gen_size).as_str());
+                let result = Client::parse(
+                    &mut bytes,
+                    ParseContext {
+                        cached_headers: &mut None,
+                        req_method: &mut None,
+                        h1_parser_config: Default::default(),
+                        h1_max_headers: max_headers,
+                        preserve_header_case: false,
+                        #[cfg(feature = "ffi")]
+                        preserve_header_order: false,
+                        h09_responses: false,
+                        #[cfg(feature = "client")]
+                        on_informational: &mut None,
+                    },
+                );
+                if should_success {
+                    result.expect("parse ok").expect("parse complete");
+                } else {
+                    result.expect_err("parse should err");
+                }
+            }
+        }
+
+        // check generator
+        assert_eq!(
+            gen_req_with_headers(0),
+            String::from("GET / HTTP/1.1\r\n\r\n")
+        );
+        assert_eq!(
+            gen_req_with_headers(1),
+            String::from("GET / HTTP/1.1\r\nkey0: val0\r\n\r\n")
+        );
+        assert_eq!(
+            gen_req_with_headers(2),
+            String::from("GET / HTTP/1.1\r\nkey0: val0\r\nkey1: val1\r\n\r\n")
+        );
+        assert_eq!(
+            gen_req_with_headers(3),
+            String::from("GET / HTTP/1.1\r\nkey0: val0\r\nkey1: val1\r\nkey2: val2\r\n\r\n")
+        );
+
+        // default max_headers is 100, so
+        //
+        // - less than or equal to 100, accepted
+        //
+        parse(None, 0, true);
+        parse(None, 1, true);
+        parse(None, 50, true);
+        parse(None, 99, true);
+        parse(None, 100, true);
+        //
+        // - more than 100, rejected
+        //
+        parse(None, 101, false);
+        parse(None, 102, false);
+        parse(None, 200, false);
+
+        // max_headers is 0, parser will reject any headers
+        //
+        // - without header, accepted
+        //
+        parse(Some(0), 0, true);
+        //
+        // - with header(s), rejected
+        //
+        parse(Some(0), 1, false);
+        parse(Some(0), 100, false);
+
+        // max_headers is 200
+        //
+        // - less than or equal to 200, accepted
+        //
+        parse(Some(200), 0, true);
+        parse(Some(200), 1, true);
+        parse(Some(200), 100, true);
+        parse(Some(200), 200, true);
+        //
+        // - more than 200, rejected
+        //
+        parse(Some(200), 201, false);
+        parse(Some(200), 210, false);
     }
 
     #[test]
@@ -2756,27 +3036,24 @@ mod tests {
                     cached_headers: &mut headers,
                     req_method: &mut None,
                     h1_parser_config: Default::default(),
-                    #[cfg(feature = "runtime")]
-                    h1_header_read_timeout: None,
-                    #[cfg(feature = "runtime")]
-                    h1_header_read_timeout_fut: &mut None,
-                    #[cfg(feature = "runtime")]
-                    h1_header_read_timeout_running: &mut false,
+                    h1_max_headers: None,
                     preserve_header_case: false,
                     #[cfg(feature = "ffi")]
                     preserve_header_order: false,
                     h09_responses: false,
-                    #[cfg(feature = "ffi")]
+                    #[cfg(feature = "client")]
                     on_informational: &mut None,
-                    #[cfg(feature = "ffi")]
-                    raw_headers: false,
                 },
             )
             .unwrap()
             .unwrap();
             ::test::black_box(&msg);
+
+            // Remove all references pointing into BytesMut.
             msg.head.headers.clear();
             headers = Some(msg.head.headers);
+            std::mem::take(&mut msg.head.subject);
+
             restart(&mut raw, len);
         });
 
@@ -2804,20 +3081,13 @@ mod tests {
                     cached_headers: &mut headers,
                     req_method: &mut None,
                     h1_parser_config: Default::default(),
-                    #[cfg(feature = "runtime")]
-                    h1_header_read_timeout: None,
-                    #[cfg(feature = "runtime")]
-                    h1_header_read_timeout_fut: &mut None,
-                    #[cfg(feature = "runtime")]
-                    h1_header_read_timeout_running: &mut false,
+                    h1_max_headers: None,
                     preserve_header_case: false,
                     #[cfg(feature = "ffi")]
                     preserve_header_order: false,
                     h09_responses: false,
-                    #[cfg(feature = "ffi")]
+                    #[cfg(feature = "client")]
                     on_informational: &mut None,
-                    #[cfg(feature = "ffi")]
-                    raw_headers: false,
                 },
             )
             .unwrap()
@@ -2860,6 +3130,7 @@ mod tests {
                     keep_alive: true,
                     req_method: &mut Some(Method::GET),
                     title_case_headers: false,
+                    date_header: true,
                 },
                 &mut vec,
             )
@@ -2888,6 +3159,7 @@ mod tests {
                     keep_alive: true,
                     req_method: &mut Some(Method::GET),
                     title_case_headers: false,
+                    date_header: true,
                 },
                 &mut vec,
             )

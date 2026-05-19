@@ -1,3 +1,9 @@
+// TODO: Remove the unsafe blocks. libc 0.2.171 removed `unsafe` from several
+// of these functions. Eventually we should depend on that version and remove
+// the `unsafe` blocks in the code, but for now, disable that warning so that
+// we're compatible with older libc versions.
+#![allow(unused_unsafe)]
+
 #[cfg(not(all(target_os = "android", target_pointer_width = "32")))]
 use crate::backend::c;
 use crate::fs::Dev;
@@ -64,7 +70,7 @@ pub(crate) fn makedev(maj: u32, min: u32) -> Dev {
     freebsdlike,
     target_os = "android",
     target_os = "emscripten",
-    target_os = "netbsd"
+    target_os = "netbsd",
 )))]
 #[inline]
 pub(crate) fn major(dev: Dev) -> u32 {
@@ -103,7 +109,7 @@ pub(crate) fn major(dev: Dev) -> u32 {
     freebsdlike,
     target_os = "android",
     target_os = "emscripten",
-    target_os = "netbsd"
+    target_os = "netbsd",
 )))]
 #[inline]
 pub(crate) fn minor(dev: Dev) -> u32 {

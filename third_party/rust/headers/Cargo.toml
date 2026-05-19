@@ -10,10 +10,17 @@
 # See Cargo.toml.orig for the original contents.
 
 [package]
+edition = "2018"
 rust-version = "1.56"
 name = "headers"
-version = "0.3.9"
+version = "0.4.1"
 authors = ["Sean McArthur <sean@seanmonstar.com>"]
+build = false
+autolib = false
+autobins = false
+autoexamples = false
+autotests = false
+autobenches = false
 description = "typed HTTP headers"
 homepage = "https://hyper.rs"
 readme = "README.md"
@@ -27,17 +34,24 @@ categories = ["web-programming"]
 license = "MIT"
 repository = "https://github.com/hyperium/headers"
 
+[features]
+nightly = []
+
+[lib]
+name = "headers"
+path = "src/lib.rs"
+
 [dependencies.base64]
-version = "0.21.3"
+version = "0.22"
 
 [dependencies.bytes]
 version = "1"
 
 [dependencies.headers-core]
-version = "0.2"
+version = "0.3"
 
 [dependencies.http]
-version = "0.2.0"
+version = "1.0.0"
 
 [dependencies.httpdate]
 version = "1"
@@ -47,6 +61,3 @@ version = "0.3.14"
 
 [dependencies.sha1]
 version = "0.10"
-
-[features]
-nightly = []

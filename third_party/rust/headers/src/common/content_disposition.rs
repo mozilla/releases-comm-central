@@ -6,6 +6,10 @@
 // Browser conformance tests at: http://greenbytes.de/tech/tc2231/
 // IANA assignment: http://www.iana.org/assignments/cont-disp/cont-disp.xhtml
 
+use http::{HeaderName, HeaderValue};
+
+use crate::{Error, Header};
+
 /// A `Content-Disposition` header, (re)defined in [RFC6266](https://tools.ietf.org/html/rfc6266).
 ///
 /// The Content-Disposition response header field is used to convey
@@ -14,7 +18,7 @@
 /// to use when saving the response payload locally.
 ///
 /// # ABNF
-
+///
 /// ```text
 /// content-disposition = "Content-Disposition" ":"
 ///                       disposition-type *( ";" disposition-parm )
@@ -38,18 +42,17 @@
 /// # Example
 ///
 /// ```
-/// # extern crate headers;
 /// use headers::ContentDisposition;
 ///
 /// let cd = ContentDisposition::inline();
 /// ```
 #[derive(Clone, Debug)]
-pub struct ContentDisposition(::HeaderValue);
+pub struct ContentDisposition(HeaderValue);
 
 impl ContentDisposition {
     /// Construct a `Content-Disposition: inline` header.
     pub fn inline() -> ContentDisposition {
-        ContentDisposition(::HeaderValue::from_static("inline"))
+        ContentDisposition(HeaderValue::from_static("inline"))
     }
 
     /*
@@ -89,21 +92,21 @@ impl ContentDisposition {
     }
 }
 
-impl ::Header for ContentDisposition {
-    fn name() -> &'static ::HeaderName {
+impl Header for ContentDisposition {
+    fn name() -> &'static HeaderName {
         &::http::header::CONTENT_DISPOSITION
     }
 
-    fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
+    fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Result<Self, Error> {
         //TODO: parse harder
         values
             .next()
             .cloned()
             .map(ContentDisposition)
-            .ok_or_else(::Error::invalid)
+            .ok_or_else(Error::invalid)
     }
 
-    fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
+    fn encode<E: Extend<HeaderValue>>(&self, values: &mut E) {
         values.extend(::std::iter::once(self.0.clone()));
     }
 }

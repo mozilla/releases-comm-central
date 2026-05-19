@@ -1,10 +1,10 @@
 use std::fmt;
 use std::str::FromStr;
 
-use util::HeaderValueString;
+use crate::util::HeaderValueString;
 
 /// `User-Agent` header, defined in
-/// [RFC7231](http://tools.ietf.org/html/rfc7231#section-5.5.3)
+/// [RFC7231](https://datatracker.ietf.org/doc/html/rfc7231#section-5.5.3)
 ///
 /// The `User-Agent` header field contains information about the user
 /// agent originating the request, which is often used by servers to help
@@ -34,7 +34,6 @@ use util::HeaderValueString;
 /// # Example
 ///
 /// ```
-/// # extern crate headers;
 /// use headers::UserAgent;
 ///
 /// let ua = UserAgent::from_static("hyper/0.12.2");
@@ -53,7 +52,7 @@ impl UserAgent {
     /// # Panic
     ///
     /// Panics if the static string is not a legal header value.
-    pub fn from_static(src: &'static str) -> UserAgent {
+    pub const fn from_static(src: &'static str) -> UserAgent {
         UserAgent(HeaderValueString::from_static(src))
     }
 

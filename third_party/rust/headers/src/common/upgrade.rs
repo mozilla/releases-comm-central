@@ -1,6 +1,6 @@
-use HeaderValue;
+use http::HeaderValue;
 
-/// `Upgrade` header, defined in [RFC7230](http://tools.ietf.org/html/rfc7230#section-6.7)
+/// `Upgrade` header, defined in [RFC7230](https://datatracker.ietf.org/doc/html/rfc7230#section-6.7)
 ///
 /// The `Upgrade` header field is intended to provide a simple mechanism
 /// for transitioning from HTTP/1.1 to some other protocol on the same
@@ -34,7 +34,6 @@ use HeaderValue;
 /// # Examples
 ///
 /// ```
-/// # extern crate headers;
 /// use headers::Upgrade;
 ///
 /// let ws = Upgrade::websocket();

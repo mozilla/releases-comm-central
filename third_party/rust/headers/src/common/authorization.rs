@@ -3,9 +3,10 @@
 use base64::engine::general_purpose::STANDARD as ENGINE;
 use base64::Engine;
 use bytes::Bytes;
+use http::{HeaderName, HeaderValue};
 
-use util::HeaderValueString;
-use HeaderValue;
+use crate::util::HeaderValueString;
+use crate::{Error, Header};
 
 /// `Authorization` header, defined in [RFC7235](https://tools.ietf.org/html/rfc7235#section-4.2)
 ///
@@ -28,7 +29,6 @@ use HeaderValue;
 /// # Examples
 ///
 /// ```
-/// # extern crate headers;
 /// use headers::Authorization;
 ///
 /// let basic = Authorization::basic("Aladdin", "open sesame");
@@ -63,7 +63,7 @@ impl Authorization<Bearer> {
     pub fn bearer(token: &str) -> Result<Self, InvalidBearerToken> {
         HeaderValueString::from_string(format!("Bearer {}", token))
             .map(|val| Authorization(Bearer(val)))
-            .ok_or_else(|| InvalidBearerToken { _inner: () })
+            .ok_or(InvalidBearerToken { _inner: () })
     }
 
     /// View the token part as a `&str`.
@@ -72,29 +72,29 @@ impl Authorization<Bearer> {
     }
 }
 
-impl<C: Credentials> ::Header for Authorization<C> {
-    fn name() -> &'static ::HeaderName {
+impl<C: Credentials> Header for Authorization<C> {
+    fn name() -> &'static HeaderName {
         &::http::header::AUTHORIZATION
     }
 
-    fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
+    fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Result<Self, Error> {
         values
             .next()
             .and_then(|val| {
                 let slice = val.as_bytes();
-                if slice.starts_with(C::SCHEME.as_bytes())
-                    && slice.len() > C::SCHEME.len()
+                if slice.len() > C::SCHEME.len()
                     && slice[C::SCHEME.len()] == b' '
+                    && slice[..C::SCHEME.len()].eq_ignore_ascii_case(C::SCHEME.as_bytes())
                 {
                     C::decode(val).map(Authorization)
                 } else {
                     None
                 }
             })
-            .ok_or_else(::Error::invalid)
+            .ok_or_else(Error::invalid)
     }
 
-    fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
+    fn encode<E: Extend<HeaderValue>>(&self, values: &mut E) {
         let mut value = self.0.encode();
         value.set_sensitive(true);
         debug_assert!(
@@ -151,7 +151,7 @@ impl Credentials for Basic {
 
     fn decode(value: &HeaderValue) -> Option<Self> {
         debug_assert!(
-            value.as_bytes().starts_with(b"Basic "),
+            value.as_bytes()[..Self::SCHEME.len()].eq_ignore_ascii_case(Self::SCHEME.as_bytes()),
             "HeaderValue to decode should start with \"Basic ..\", received = {:?}",
             value,
         );
@@ -186,7 +186,7 @@ pub struct Bearer(HeaderValueString);
 impl Bearer {
     /// View the token part as a `&str`.
     pub fn token(&self) -> &str {
-        &self.0.as_str()["Bearer ".len()..]
+        self.0.as_str()["Bearer ".len()..].trim_start()
     }
 }
 
@@ -195,7 +195,7 @@ impl Credentials for Bearer {
 
     fn decode(value: &HeaderValue) -> Option<Self> {
         debug_assert!(
-            value.as_bytes().starts_with(b"Bearer "),
+            value.as_bytes()[..Self::SCHEME.len()].eq_ignore_ascii_case(Self::SCHEME.as_bytes()),
             "HeaderValue to decode should start with \"Bearer ..\", received = {:?}",
             value,
         );
@@ -212,10 +212,11 @@ error_type!(InvalidBearerToken);
 
 #[cfg(test)]
 mod tests {
+    use http::header::HeaderMap;
+
     use super::super::{test_decode, test_encode};
     use super::{Authorization, Basic, Bearer};
-    use http::header::HeaderMap;
-    use HeaderMapExt;
+    use crate::HeaderMapExt;
 
     #[test]
     fn basic_encode() {
@@ -253,6 +254,22 @@ mod tests {
     }
 
     #[test]
+    fn basic_decode_case_insensitive() {
+        let auth: Authorization<Basic> =
+            test_decode(&["basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=="]).unwrap();
+        assert_eq!(auth.0.username(), "Aladdin");
+        assert_eq!(auth.0.password(), "open sesame");
+    }
+
+    #[test]
+    fn basic_decode_extra_whitespaces() {
+        let auth: Authorization<Basic> =
+            test_decode(&["Basic  QWxhZGRpbjpvcGVuIHNlc2FtZQ=="]).unwrap();
+        assert_eq!(auth.0.username(), "Aladdin");
+        assert_eq!(auth.0.password(), "open sesame");
+    }
+
+    #[test]
     fn basic_decode_no_password() {
         let auth: Authorization<Basic> = test_decode(&["Basic QWxhZGRpbjo="]).unwrap();
         assert_eq!(auth.0.username(), "Aladdin");
@@ -271,6 +288,18 @@ mod tests {
     #[test]
     fn bearer_decode() {
         let auth: Authorization<Bearer> = test_decode(&["Bearer fpKL54jvWmEGVoRdCNjG"]).unwrap();
+        assert_eq!(auth.0.token().as_bytes(), b"fpKL54jvWmEGVoRdCNjG");
+    }
+
+    #[test]
+    fn bearer_decode_case_insensitive() {
+        let auth: Authorization<Bearer> = test_decode(&["bearer fpKL54jvWmEGVoRdCNjG"]).unwrap();
+        assert_eq!(auth.0.token().as_bytes(), b"fpKL54jvWmEGVoRdCNjG");
+    }
+
+    #[test]
+    fn bearer_decode_extra_whitespaces() {
+        let auth: Authorization<Bearer> = test_decode(&["Bearer   fpKL54jvWmEGVoRdCNjG"]).unwrap();
         assert_eq!(auth.0.token().as_bytes(), b"fpKL54jvWmEGVoRdCNjG");
     }
 }

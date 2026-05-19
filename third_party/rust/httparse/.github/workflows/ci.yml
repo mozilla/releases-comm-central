@@ -15,8 +15,12 @@ jobs:
     needs:
       - test
       - simd
-      - msrv
+      - check_x86
+      - aarch64
+      - msrv_x64
+      - msrv_aarch64
       - miri
+      - clippy_check
     steps:
       - run: exit 0
 
@@ -109,8 +113,38 @@ jobs:
           RUSTFLAGS: -C target_feature=${{ matrix.target_feature }}
           CARGO_CFG_HTTPARSE_DISABLE_SIMD_COMPILETIME: ${{ matrix.disable_compiletime }}
 
-  msrv:
-    name: msrv
+  check_x86:
+    name: check x86
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+          target: i686-unknown-linux-musl
+
+      - name: Test without SIMD
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --target i686-unknown-linux-musl
+        env:
+          CARGO_CFG_HTTPARSE_DISABLE_SIMD_COMPILETIME: 1
+
+      - name: Test
+
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --target i686-unknown-linux-musl
+
+  msrv_x64:
+    name: msrv (x64)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -120,14 +154,49 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: 1.36.0
+          toolchain: 1.47.0
           override: true
 
-      # Only build, dev-dependencies don't compile on 1.10
+      # Only build, dev-dependencies don't compile on 1.47.0
       - name: Build
         uses: actions-rs/cargo@v1
         with:
           command: build
+
+  # This tests that aarch64 gracefully fallbacks to SWAR if neon_intrinsics aren't available (<1.59)
+  msrv_aarch64:
+    name: msrv (aarch64)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Install cross-compiling dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu
+
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: 1.47.0
+          override: true
+          target: aarch64-unknown-linux-gnu
+
+      # Only build, dev-dependencies don't compile on 1.47.0
+      - name: Build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --target aarch64-unknown-linux-gnu
+
+  clippy_check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run clippy
+        run: cargo clippy --all-targets --all-features
 
   miri:
     name: Test with Miri
@@ -146,4 +215,67 @@ jobs:
           override: true
 
       - name: Test
-        run: MIRIFLAGS="-Zmiri-tag-raw-pointers -Zmiri-check-number-validity" cargo miri test
+        run: cargo miri test
+  #
+  # mirai:
+  #   name: MIRAI static analysis
+  #   runs-on: ubuntu-latest
+  #
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v1
+  #
+  #     - name: Install Rust
+  #       uses: actions-rs/toolchain@v1
+  #       with:
+  #         profile: minimal
+  #         toolchain: nightly-2023-05-09
+  #         components: clippy, rustfmt, rustc-dev, rust-src, rust-std, llvm-tools-preview
+  #         override: true
+  #
+  #     - name: install mirai
+  #       run: cargo install --locked --git https://github.com/facebookexperimental/MIRAI/ mirai
+  #       env:
+  #         # MIRAI_FLAGS: --diag=(default|verify|library|paranoid)
+  #         MIRAI_FLAGS: --diag=default
+  #
+  #     - name: cargo mirai
+  #       run: cargo mirai --lib
+
+  aarch64:
+    name: Test aarch64 (neon)
+    runs-on: ubuntu-latest
+    env:
+      CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-gcc
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+          target: aarch64-unknown-linux-gnu
+
+      - name: Install QEMU and dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user gcc-aarch64-linux-gnu
+
+      - name: Build tests
+        run: cargo build --tests --target aarch64-unknown-linux-gnu
+
+      - name: Run tests with QEMU
+        run: |
+          test_binaries=$(find target/aarch64-unknown-linux-gnu/debug/deps/ -type f -executable -name 'httparse-*')
+          if [ -n "$test_binaries" ]; then
+            for test_binary in $test_binaries
+            do
+              echo "Running tests in ${test_binary}"
+              /usr/bin/qemu-aarch64 -L /usr/aarch64-linux-gnu/ "${test_binary}"
+            done
+          else
+            echo "No test binaries found."
+          fi

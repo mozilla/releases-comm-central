@@ -186,13 +186,7 @@ impl Prioritize {
 
             // `try_assign_capacity` will queue the stream to `pending_capacity` if the capcaity
             // cannot be assigned at the time it is called.
-            //
-            // Streams over the max concurrent count will still call `send_data` so we should be
-            // careful not to put it into `pending_capacity` as it will starve the connection
-            // capacity for other streams
-            if !stream.is_pending_open {
-                self.try_assign_capacity(stream);
-            }
+            self.try_assign_capacity(stream);
         }
 
         if frame.is_end_stream() {
@@ -347,13 +341,18 @@ impl Prioritize {
     /// Reclaim just reserved capacity, not buffered capacity, and re-assign
     /// it to the connection
     pub fn reclaim_reserved_capacity(&mut self, stream: &mut store::Ptr, counts: &mut Counts) {
-        // only reclaim requested capacity that isn't already buffered
-        if stream.requested_send_capacity as usize > stream.buffered_send_data {
-            let reserved = stream.requested_send_capacity - stream.buffered_send_data as WindowSize;
+        // only reclaim reserved capacity that isn't already buffered
+        if stream.send_flow.available().as_size() as usize > stream.buffered_send_data {
+            let reserved =
+                stream.send_flow.available().as_size() - stream.buffered_send_data as WindowSize;
 
-            // TODO: proper error handling
-            let _res = stream.send_flow.claim_capacity(reserved);
-            debug_assert!(_res.is_ok());
+            // Panic safety: due to how `reserved` is computed it can't be greater
+            // than what's available.
+            stream
+                .send_flow
+                .claim_capacity(reserved)
+                .expect("window size should be greater than reserved");
+
             self.assign_connection_capacity(reserved, stream, counts);
         }
     }
@@ -409,6 +408,12 @@ impl Prioritize {
 
     /// Request capacity to send data
     fn try_assign_capacity(&mut self, stream: &mut store::Ptr) {
+        // Streams over the max concurrent count should not have capacity assign to avoid starving the connection
+        // capacity for open streams
+        if stream.is_pending_open {
+            return;
+        }
+
         let total_requested = stream.requested_send_capacity;
 
         // Total requested should never go below actual assigned
@@ -680,8 +685,11 @@ impl Prioritize {
     }
 
     pub fn clear_pending_send(&mut self, store: &mut Store, counts: &mut Counts) {
-        while let Some(stream) = self.pending_send.pop(store) {
+        while let Some(mut stream) = self.pending_send.pop(store) {
             let is_pending_reset = stream.is_pending_reset_expiration();
+            if let Some(reason) = stream.state.get_scheduled_reset() {
+                stream.set_reset(reason, Initiator::Library);
+            }
             counts.transition_after(stream, is_pending_reset);
         }
     }
@@ -839,10 +847,7 @@ impl Prioritize {
                         }),
                         None => {
                             if let Some(reason) = stream.state.get_scheduled_reset() {
-                                let stream_id = stream.id;
-                                stream
-                                    .state
-                                    .set_reset(stream_id, reason, Initiator::Library);
+                                stream.set_reset(reason, Initiator::Library);
 
                                 let frame = frame::Reset::new(stream.id, reason);
                                 Frame::Reset(frame)

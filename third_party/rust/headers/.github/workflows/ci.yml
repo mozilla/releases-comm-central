@@ -2,10 +2,16 @@ name: CI
 
 on: [push, pull_request]
 
-env:
-  minrust: 1.56.0
-
 jobs:
+  style:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - run: cargo fmt --all --check
+
   test:
     name: Test
     runs-on: ubuntu-latest
@@ -15,7 +21,7 @@ jobs:
         rust: [stable, beta, nightly]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.rust }}
@@ -23,21 +29,21 @@ jobs:
       - run: cargo test --workspace
       - if: matrix.rust == 'nightly'
         run: cargo test --benches
-      - name: Check minimal versions
-        if: matrix.rust == 'nightly'
-        run: |
-          cargo clean
-          cargo update -Z minimal-versions
-          cargo check
-      - run: cargo fmt --all --check
+
+  minimal-versions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: taiki-e/install-action@cargo-hack
+      - uses: taiki-e/install-action@cargo-minimal-versions
+      - run: cargo minimal-versions check --workspace
 
   MSRV:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
-      - name: Install rust ${{ env.minrust }}
-        uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: ${{ env.minrust }}
-      - run: cargo build
+      - uses: actions/checkout@v4
+      - uses: taiki-e/install-action@cargo-hack
+      - run: cargo hack --rust-version --no-dev-deps check --workspace

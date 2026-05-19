@@ -2,7 +2,6 @@
 #![deny(missing_debug_implementations)]
 #![cfg_attr(test, deny(warnings))]
 #![cfg_attr(all(test, feature = "nightly"), feature(test))]
-#![doc(html_root_url = "https://docs.rs/headers/0.3.9")]
 
 //! # Typed HTTP Headers
 //!
@@ -72,17 +71,12 @@
 //! }
 //! ```
 
-extern crate base64;
-extern crate bytes;
-extern crate headers_core;
-extern crate http;
-extern crate httpdate;
-extern crate mime;
-extern crate sha1;
 #[cfg(all(test, feature = "nightly"))]
 extern crate test;
 
 pub use headers_core::{Error, Header};
+
+pub use mime::Mime;
 
 #[doc(hidden)]
 pub use http::HeaderMap;

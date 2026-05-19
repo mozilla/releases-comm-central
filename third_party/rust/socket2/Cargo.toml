@@ -11,13 +11,14 @@
 
 [package]
 edition = "2021"
-rust-version = "1.63"
+rust-version = "1.70"
 name = "socket2"
-version = "0.5.7"
+version = "0.6.3"
 authors = [
     "Alex Crichton <alex@alexcrichton.com>",
     "Thomas de Zeeuw <thomasdezeeuw@gmail.com>",
 ]
+build = false
 include = [
     "Cargo.toml",
     "LICENSE-APACHE",
@@ -25,6 +26,11 @@ include = [
     "README.md",
     "src/**/*.rs",
 ]
+autolib = false
+autobins = false
+autoexamples = false
+autotests = false
+autobenches = false
 description = """
 Utilities for handling networking sockets with a maximal amount of configuration
 possible intended.
@@ -46,38 +52,49 @@ repository = "https://github.com/rust-lang/socket2"
 
 [package.metadata.docs.rs]
 all-features = true
-rustdoc-args = [
-    "--cfg",
-    "docsrs",
-]
+default-target = "x86_64-unknown-linux-gnu"
 targets = [
     "aarch64-apple-ios",
     "aarch64-linux-android",
+    "armv7-linux-androideabi",
+    "i686-linux-android",
     "x86_64-apple-darwin",
-    "x86_64-unknown-fuchsia",
-    "x86_64-pc-windows-msvc",
     "x86_64-pc-solaris",
+    "x86_64-pc-windows-msvc",
     "x86_64-unknown-freebsd",
+    "x86_64-unknown-fuchsia",
     "x86_64-unknown-illumos",
     "x86_64-unknown-linux-gnu",
     "x86_64-unknown-linux-musl",
     "x86_64-unknown-netbsd",
     "x86_64-unknown-redox",
-    "armv7-linux-androideabi",
-    "i686-linux-android",
 ]
 
 [package.metadata.playground]
 features = ["all"]
 
+[package.metadata.cargo_check_external_types]
+allowed_external_types = [
+    "libc::socklen_t",
+    "libc::*::socklen_t",
+    "libc::sa_family_t",
+    "libc::*::sa_family_t",
+    "windows_sys::Win32::Networking::WinSock::socklen_t",
+    "windows_sys::Win32::Networking::WinSock::ADDRESS_FAMILY",
+]
+
 [features]
 all = []
 
-[target."cfg(unix)".dependencies.libc]
-version = "0.2.150"
+[lib]
+name = "socket2"
+path = "src/lib.rs"
+
+[target.'cfg(any(unix, target_os = "wasi"))'.dependencies.libc]
+version = "0.2.172"
 
 [target."cfg(windows)".dependencies.windows-sys]
-version = "0.52"
+version = ">=0.60, <0.62"
 features = [
     "Win32_Foundation",
     "Win32_Networking_WinSock",
