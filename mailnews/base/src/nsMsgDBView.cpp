@@ -1475,10 +1475,8 @@ void nsMsgDBView::SetMsgHdrAt(nsIMsgDBHdr* hdr, nsMsgViewIndex index,
   m_levels[index] = level;
 }
 
-nsresult nsMsgDBView::GetFolderForViewIndex(nsMsgViewIndex index,
-                                            nsIMsgFolder** aFolder) {
-  NS_IF_ADDREF(*aFolder = m_folder);
-  return NS_OK;
+nsIMsgFolder* nsMsgDBView::GetFolderForViewIndex(nsMsgViewIndex index) {
+  return m_folder;
 }
 
 nsresult nsMsgDBView::GetDBForViewIndex(nsMsgViewIndex index,
@@ -1877,9 +1875,8 @@ nsMsgDBView::CellTextForColumn(int32_t aRow, const nsAString& aColumnName,
     }
     case 'l': {
       if (aColumnName.EqualsLiteral("locationCol")) {
-        nsCOMPtr<nsIMsgFolder> folder;
-        nsresult rv = GetFolderForViewIndex(aRow, getter_AddRefs(folder));
-        NS_ENSURE_SUCCESS(rv, rv);
+        nsCOMPtr<nsIMsgFolder> folder = GetFolderForViewIndex(aRow);
+        NS_ENSURE_TRUE(folder, NS_ERROR_NULL_POINTER);
         nsAutoCString prettyPath;
         folder->GetPrettyPath(prettyPath);
         CopyUTF8toUTF16(prettyPath, aValue);
@@ -2279,12 +2276,8 @@ nsMsgDBView::GetURIsForSelection(nsTArray<nsCString>& uris) {
 
 NS_IMETHODIMP
 nsMsgDBView::GetURIForViewIndex(nsMsgViewIndex index, nsACString& result) {
-  nsresult rv;
-  nsCOMPtr<nsIMsgFolder> folder = m_folder;
-  if (!folder) {
-    rv = GetFolderForViewIndex(index, getter_AddRefs(folder));
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
+  nsCOMPtr<nsIMsgFolder> folder = GetFolderForViewIndex(index);
+  NS_ENSURE_TRUE(folder, NS_ERROR_NULL_POINTER);
 
   if (index == nsMsgViewIndex_None || index >= m_flags.Length() ||
       m_flags[index] & MSG_VIEW_FLAG_DUMMY) {
@@ -2669,15 +2662,18 @@ nsMsgDBView::ApplyCommandToIndices(nsMsgViewCommandTypeValue command,
     return NS_OK;
   }
 
-  nsCOMPtr<nsIMsgFolder> folder;
-  nsresult rv = GetFolderForViewIndex(selection[0], getter_AddRefs(folder));
+  nsCOMPtr<nsIMsgFolder> folder = GetFolderForViewIndex(selection[0]);
+  NS_ENSURE_STATE(folder);
+
   nsCOMPtr<nsIMsgWindow> msgWindow(do_QueryReferent(mMsgWindowWeak));
-  if (command == nsMsgViewCommandType::deleteMsg)
+  if (command == nsMsgViewCommandType::deleteMsg) {
     return DeleteMessages(msgWindow, selection, false);
-
-  if (command == nsMsgViewCommandType::deleteNoTrash)
+  }
+  if (command == nsMsgViewCommandType::deleteNoTrash) {
     return DeleteMessages(msgWindow, selection, true);
+  }
 
+  nsresult rv = NS_OK;
   nsCOMPtr<nsIJunkMailPlugin> junkPlugin;
 
   // If this is a junk command, get the junk plugin.
@@ -4466,8 +4462,7 @@ nsMsgViewIndex nsMsgDBView::GetIndexForThread(nsIMsgDBHdr* msgHdr) {
     }
 
     EntryInfo2.id = m_keys[tryIndex];
-    GetFolderForViewIndex(tryIndex, &EntryInfo2.folder);
-    EntryInfo2.folder->Release();
+    EntryInfo2.folder = GetFolderForViewIndex(tryIndex);
 
     nsCOMPtr<nsIMsgDBHdr> tryHdr;
     nsCOMPtr<nsIMsgDatabase> db;
@@ -4985,8 +4980,7 @@ nsMsgViewIndex nsMsgDBView::GetThreadRootIndex(nsIMsgDBHdr* msgHdr) {
     }
 
     EntryInfo2.id = m_keys[tryIndex];
-    GetFolderForViewIndex(tryIndex, &EntryInfo2.folder);
-    EntryInfo2.folder->Release();
+    EntryInfo2.folder = GetFolderForViewIndex(tryIndex);
 
     nsCOMPtr<nsIMsgDBHdr> tryHdr;
     nsCOMPtr<nsIMsgDatabase> db;
@@ -5270,18 +5264,20 @@ nsMsgDBView::GetSuppressChangeNotifications(
   return NS_OK;
 }
 
-NS_IMETHODIMP
-nsMsgDBView::NoteChange(nsMsgViewIndex firstLineChanged, int32_t numChanged,
-                        nsMsgViewNotificationCodeValue changeType) {
+void nsMsgDBView::NoteChange(nsMsgViewIndex firstLineChanged,
+                             int32_t numChanged,
+                             nsMsgViewNotificationCodeValue changeType) {
   if ((mTree || mJSTree) && !mSuppressChangeNotification) {
     switch (changeType) {
       case nsMsgViewNotificationCode::changed:
-        if (mTree)
+        if (mTree) {
           mTree->InvalidateRange(firstLineChanged,
                                  firstLineChanged + numChanged - 1);
-        if (mJSTree)
+        }
+        if (mJSTree) {
           mJSTree->InvalidateRange(firstLineChanged,
                                    firstLineChanged + numChanged - 1);
+        }
         break;
       case nsMsgViewNotificationCode::insertOrDelete:
         if (numChanged < 0) mRemovingRow = true;
@@ -5297,8 +5293,6 @@ nsMsgDBView::NoteChange(nsMsgViewIndex firstLineChanged, int32_t numChanged,
         break;
     }
   }
-
-  return NS_OK;
 }
 
 NS_IMETHODIMP
@@ -6125,9 +6119,7 @@ nsMsgDBView::GetMsgToSelectAfterDelete(nsMsgViewIndex* msgToSelectAfterDelete) {
         bool lastRowWillShift = true;
 
         for (int32_t j = startRange; j <= endRange; j++) {
-          nsCOMPtr<nsIMsgFolder> msgFolder;
-          GetFolderForViewIndex(j, getter_AddRefs(msgFolder));
-
+          nsCOMPtr<nsIMsgFolder> msgFolder = GetFolderForViewIndex(j);
           if (msgFolder != lastEvaluatedFolder) {
             lastEvaluatedFolder = msgFolder;
             lastRowWillShift = (GetServerDeleteModel(msgFolder) !=
@@ -6148,8 +6140,7 @@ nsMsgDBView::GetMsgToSelectAfterDelete(nsMsgViewIndex* msgToSelectAfterDelete) {
   if (!isSingleFolderView) {
     // Dynamically fetch the real underlying folder for this specific row
     // so we can evaluate the correct IMAP delete model.
-    nsCOMPtr<nsIMsgFolder> folder;
-    GetFolderForViewIndex(originalAnchorIndex, getter_AddRefs(folder));
+    nsCOMPtr<nsIMsgFolder> folder = GetFolderForViewIndex(originalAnchorIndex);
     deleteModel = GetServerDeleteModel(folder);
   }
 
@@ -6259,8 +6250,7 @@ bool nsMsgDBView::OfflineMsgSelected(
     // For cross-folder saved searches, we need to check if any message
     // is in a local folder.
     if (!m_folder) {
-      nsCOMPtr<nsIMsgFolder> folder;
-      GetFolderForViewIndex(viewIndex, getter_AddRefs(folder));
+      nsCOMPtr<nsIMsgFolder> folder = GetFolderForViewIndex(viewIndex);
       nsCOMPtr<nsIMsgLocalMailFolder> localFolder = do_QueryInterface(folder);
       if (localFolder) {
         return true;
@@ -6618,9 +6608,9 @@ bool nsMsgDBView::JunkControlsEnabled(nsMsgViewIndex aViewIndex) {
 
   // We need to check per message or folder.
   nsCOMPtr<nsIMsgFolder> folder = m_folder;
-  if (!folder && IsValidIndex(aViewIndex))
-    GetFolderForViewIndex(aViewIndex, getter_AddRefs(folder));
-
+  if (!folder && IsValidIndex(aViewIndex)) {
+    folder = GetFolderForViewIndex(aViewIndex);
+  }
   if (folder) {
     // Check if this is a mail message in search folders.
     if (mIsXFVirtual) {

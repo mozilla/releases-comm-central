@@ -288,7 +288,6 @@ interface nsIMsgDBView : nsISupports
    */
   nsIMsgDBHdr getMsgHdrAt(in nsMsgViewIndex aIndex);
 
-  nsIMsgFolder getFolderForViewIndex(in nsMsgViewIndex index); // mainly for search
   AUTF8String getURIForViewIndex(in nsMsgViewIndex index);
   nsIMsgDBView cloneDBView(in nsIMessenger aMessengerInstance, in nsIMsgWindow aMsgWindow, in nsIMsgDBViewCommandUpdater aCommandUpdater);
 
@@ -396,16 +395,6 @@ interface nsIMsgDBView : nsISupports
    * @return         the thread object at the requested view index
    */
   nsIMsgThread getThreadContainingIndex(in nsMsgViewIndex aIndex);
-
-  /**
-   * Notify tree that rows have changed.
-   *
-   * @param aFirstLineChanged   first view index for changed rows.
-   * @param aNumRows            number of rows changed; < 0 means removed.
-   * @param aChangeType         changeType.
-   */
-  void NoteChange(in nsMsgViewIndex aFirstLineChanged, in long aNumRows,
-                  in nsMsgViewNotificationCodeValue aChangeType);
 
   /**
    * Return the view thread corresponding to aMsgHdr. If we're a cross-folder

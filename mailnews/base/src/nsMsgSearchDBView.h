@@ -67,8 +67,7 @@ class nsMsgSearchDBView : public nsMsgGroupView,
                                          nsIMsgDBHdr** msgHdr) override;
   virtual nsresult OnNewHeader(nsIMsgDBHdr* newHdr, nsMsgKey parentKey,
                                bool ensureListed) override;
-  NS_IMETHOD GetFolderForViewIndex(nsMsgViewIndex index,
-                                   nsIMsgFolder** folder) override;
+  nsIMsgFolder* GetFolderForViewIndex(nsMsgViewIndex index) override;
 
   NS_IMETHOD OnAnnouncerGoingAway(nsIDBChangeAnnouncer* instigator) override;
 

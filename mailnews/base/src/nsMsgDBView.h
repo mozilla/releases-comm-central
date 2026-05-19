@@ -289,6 +289,7 @@ class nsMsgDBView : public nsIMsgDBView,
   virtual nsMsgViewIndex FindKey(nsMsgKey key, bool expand);
   virtual nsresult GetDBForViewIndex(nsMsgViewIndex index, nsIMsgDatabase** db);
   virtual nsCOMArray<nsIMsgFolder>* GetFolders();
+  virtual nsIMsgFolder* GetFolderForViewIndex(nsMsgViewIndex index);
 
   virtual nsresult ListIdsInThread(nsIMsgThread* threadHdr,
                                    nsMsgViewIndex viewIndex,
@@ -476,6 +477,16 @@ class nsMsgDBView : public nsIMsgDBView,
   // batch/series of batches of messages manually marked
   // as junk.
   nsTArray<RefPtr<nsIMsgDBHdr>> mJunkHdrs;
+
+  /**
+   * Notify tree that rows have changed.
+   *
+   * @param aFirstLineChanged   first view index for changed rows.
+   * @param aNumRows            number of rows changed; < 0 means removed.
+   * @param aChangeType         changeType.
+   */
+  void NoteChange(nsMsgViewIndex aFirstLineChanged, int32_t aNumRows,
+                  nsMsgViewNotificationCodeValue aChangeType);
 
   nsTArray<uint32_t> mIndicesToNoteChange;
 

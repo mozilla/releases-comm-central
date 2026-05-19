@@ -180,9 +180,8 @@ nsresult nsMsgSearchDBView::HashHdr(nsIMsgDBHdr* msgHdr, nsString& aHashKey) {
 
 nsresult nsMsgSearchDBView::FetchLocation(int32_t aRow,
                                           nsAString& aLocationString) {
-  nsCOMPtr<nsIMsgFolder> folder;
-  nsresult rv = GetFolderForViewIndex(aRow, getter_AddRefs(folder));
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIMsgFolder> folder = GetFolderForViewIndex(aRow);
+  NS_ENSURE_TRUE(folder, NS_ERROR_NULL_POINTER);
   nsAutoCString prettyPath;
   folder->GetPrettyPath(prettyPath);
   aLocationString.Assign(NS_ConvertUTF8toUTF16(prettyPath));
@@ -377,24 +376,19 @@ nsresult nsMsgSearchDBView::GetMsgHdrForViewIndex(nsMsgViewIndex index,
   return NS_ERROR_FAILURE;
 }
 
-NS_IMETHODIMP
-nsMsgSearchDBView::GetFolderForViewIndex(nsMsgViewIndex index,
-                                         nsIMsgFolder** aFolder) {
-  NS_ENSURE_ARG_POINTER(aFolder);
+nsIMsgFolder* nsMsgSearchDBView::GetFolderForViewIndex(nsMsgViewIndex aIndex) {
+  if (aIndex == nsMsgViewIndex_None || aIndex >= (uint32_t)m_folders.Count()) {
+    return nullptr;
+  }
 
-  if (index == nsMsgViewIndex_None || index >= (uint32_t)m_folders.Count())
-    return NS_MSG_INVALID_DBVIEW_INDEX;
-
-  NS_IF_ADDREF(*aFolder = m_folders[index]);
-  return *aFolder ? NS_OK : NS_ERROR_NULL_POINTER;
+  return m_folders[aIndex];
 }
 
 nsresult nsMsgSearchDBView::GetDBForViewIndex(nsMsgViewIndex index,
                                               nsIMsgDatabase** db) {
-  nsCOMPtr<nsIMsgFolder> aFolder;
-  nsresult rv = GetFolderForViewIndex(index, getter_AddRefs(aFolder));
-  NS_ENSURE_SUCCESS(rv, rv);
-  return aFolder->GetMsgDatabase(db);
+  nsCOMPtr<nsIMsgFolder> folder = GetFolderForViewIndex(index);
+  NS_ENSURE_TRUE(folder, NS_ERROR_NULL_POINTER);
+  return folder->GetMsgDatabase(db);
 }
 
 nsresult nsMsgSearchDBView::AddHdrFromFolder(nsIMsgDBHdr* msgHdr,
