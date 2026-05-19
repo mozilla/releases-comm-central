@@ -346,10 +346,6 @@ interface nsIMsgDBView : nsISupports
   //to notify tree that rows are going away
   void onDeleteCompleted(in boolean succeeded);
 
-  readonly attribute nsIMsgDatabase db;
-
-  readonly attribute boolean supportsThreading;
-
   attribute nsIMsgSearchSession searchSession;
 
   /**
@@ -406,9 +402,6 @@ interface nsIMsgDBView : nsISupports
    * @return        view thread object for msg hdr.
    */
   nsIMsgThread getThreadContainingMsgHdr(in nsIMsgDBHdr aMsgHdr);
-
-  // use lines or kB for size?
-  readonly attribute boolean usingLines;
 
   // Custom Column Implementation note: see nsIMsgCustomColumnHandler
 

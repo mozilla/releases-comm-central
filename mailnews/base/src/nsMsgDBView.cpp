@@ -2207,12 +2207,6 @@ nsMsgDBView::Init(nsIMessenger* aMessengerInstance, nsIMsgWindow* aMsgWindow,
   return NS_OK;
 }
 
-NS_IMETHODIMP
-nsMsgDBView::GetUsingLines(bool* aUsingLines) {
-  *aUsingLines = mShowSizeInLines;
-  return NS_OK;
-}
-
 // Array<nsMsgViewIndex> getIndicesForSelection();
 NS_IMETHODIMP
 nsMsgDBView::GetIndicesForSelection(nsTArray<nsMsgViewIndex>& indices) {
@@ -6233,13 +6227,6 @@ nsMsgDBView::OnDeleteCompleted(bool aSucceeded) {
   return NS_OK;
 }
 
-NS_IMETHODIMP
-nsMsgDBView::GetDb(nsIMsgDatabase** aDB) {
-  NS_ENSURE_ARG_POINTER(aDB);
-  NS_IF_ADDREF(*aDB = m_db);
-  return NS_OK;
-}
-
 bool nsMsgDBView::OfflineMsgSelected(
     nsTArray<nsMsgViewIndex> const& selection) {
   nsCOMPtr<nsIMsgLocalMailFolder> localFolder = do_QueryInterface(m_folder);
@@ -6443,13 +6430,6 @@ NS_IMETHODIMP
 nsMsgDBView::SetSearchSession(nsIMsgSearchSession* aSession) {
   NS_ASSERTION(false, "should be overridden by child class");
   return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-NS_IMETHODIMP
-nsMsgDBView::GetSupportsThreading(bool* aResult) {
-  NS_ENSURE_ARG_POINTER(aResult);
-  *aResult = true;
-  return NS_OK;
 }
 
 NS_IMETHODIMP
