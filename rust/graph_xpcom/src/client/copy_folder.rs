@@ -37,12 +37,11 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
             .map(|folder_id| {
                 let body = paths::me::mail_folders::mail_folder_id::copy::PostRequestBody::new()
                     .set_destination_id(self.destination_folder_id.clone());
-                let request = paths::me::mail_folders::mail_folder_id::copy::Post::new(
+                paths::me::mail_folders::mail_folder_id::copy::Post::new(
                     client.base_url().to_string(),
                     folder_id.clone(),
                     OperationBody::JSON(body),
-                );
-                request
+                )
             })
             .collect();
 
@@ -52,7 +51,7 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
 
         let new_folder_ids = responses
             .iter()
-            .filter_map(|response| response.entity().id().ok().map(|x| x.to_string()))
+            .filter_map(|response| response.entity().id().ok().map(ToString::to_string))
             .collect();
 
         Ok(new_folder_ids)

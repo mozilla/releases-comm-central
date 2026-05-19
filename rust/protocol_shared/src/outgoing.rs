@@ -670,9 +670,8 @@ impl<ClientT: SendCapableClient> OutgoingServer<ClientT> {
                 &raw const *nsCString::from(host.to_string()),
                 &raw const *server_type,
             )
-        };
-
-        Ok(())
+        }
+        .to_result()
     }
 
     xpcom_method!(send_mail => SendMailMessage(
