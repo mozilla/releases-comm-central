@@ -63,3 +63,39 @@ add_task(
     }
   }
 );
+
+add_task(async function test_ctrlS_in_pdf_content_tab_triggers_download() {
+  const tabmail = document.getElementById("tabmail");
+  tabmail.openTab("contentTab", { url: PDF_URL, background: false });
+  const contentTab = tabmail.currentTabInfo;
+  const browser = contentTab.browser;
+
+  await BrowserTestUtils.waitForContentEvent(
+    browser,
+    "textlayerrendered",
+    false,
+    null,
+    true
+  );
+
+  try {
+    // Intercept sendAsyncMessage on the Pdfjs actor to detect
+    // the PDFJS:Save message without triggering an actual download.
+    const actor = browser.browsingContext.currentWindowGlobal.getActor("Pdfjs");
+    const { promise, resolve } = Promise.withResolvers();
+    actor.sendAsyncMessage = (name, data) => {
+      delete actor.sendAsyncMessage; // restore the prototype method
+      if (name === "PDFJS:Save") {
+        resolve();
+        return;
+      }
+      actor.sendAsyncMessage(name, data);
+    };
+
+    EventUtils.synthesizeKey("s", { ctrlKey: true }, window);
+    await promise;
+    Assert.ok(true, "Ctrl+S in PDF content tab sent PDFJS:Save to the viewer");
+  } finally {
+    tabmail.closeTab(contentTab);
+  }
+});

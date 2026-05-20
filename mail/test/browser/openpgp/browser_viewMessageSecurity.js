@@ -292,16 +292,16 @@ add_task(async function testMessageSecurityShortcut() {
     "should indicate S/MIME encrypted"
   );
 
-  const modifiers =
-    AppConstants.platform == "macosx"
-      ? { accelKey: true, ctrlKey: true }
-      : { accelKey: true, altKey: true };
-
   const popupshown = BrowserTestUtils.waitForEvent(
     aboutMessage.document.getElementById("messageSecurityPanel"),
     "popupshown"
   );
 
+  // Hit Ctrl+Alt+S / Cmd+Control+S to open the Security Info panel.
+  const modifiers =
+    AppConstants.platform == "macosx"
+      ? { accelKey: true, ctrlKey: true }
+      : { accelKey: true, altKey: true };
   EventUtils.synthesizeKey("s", modifiers, aboutMessage);
 
   // The Message Security popup panel should show up.

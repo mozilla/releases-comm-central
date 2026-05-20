@@ -272,43 +272,67 @@ function InitMsgWindow() {
 
   document.addEventListener("dragstart", onCopyOrDragStart, true);
 
-  const keypressListener = {
-    handleEvent: event => {
-      if (event.defaultPrevented) {
-        return;
-      }
-
-      switch (event.code) {
-        case "F7": {
-          // shift + F7 is the default DevTools shortcut for the Style Editor.
-          if (!event.shiftKey) {
-            toggleCaretBrowsing();
-          }
-          break;
+  document.addEventListener(
+    "keypress",
+    {
+      handleEvent: event => {
+        if (event.defaultPrevented) {
+          return;
         }
-        case "Space": {
-          const tabmail = document.getElementById("tabmail");
-          if (tabmail) {
-            const currentTabMode = tabmail.currentTabInfo?.mode?.name;
-            // Only intercept space for mail tabs. For other tabs (e.g. pdf.js
-            // in a contentTab) let the browser handle the key natively.
-            if (
-              currentTabMode != "mail3PaneTab" &&
-              currentTabMode != "mailMessageTab"
-            ) {
+
+        switch (event.code) {
+          case "F7": {
+            // shift + F7 is the default DevTools shortcut for the Style Editor.
+            if (!event.shiftKey) {
+              toggleCaretBrowsing();
+            }
+            break;
+          }
+          case "Space": {
+            const tabmail = document.getElementById("tabmail");
+            if (tabmail) {
+              const currentTabMode = tabmail.currentTabInfo?.mode?.name;
+              // Only intercept space for mail tabs. For other tabs (e.g. pdf.js
+              // in a contentTab) let the browser handle the key natively.
+              if (
+                currentTabMode != "mail3PaneTab" &&
+                currentTabMode != "mailMessageTab"
+              ) {
+                return;
+              }
+            }
+            event.preventDefault();
+            goDoCommand("cmd_space");
+            break;
+          }
+          case "KeyS": {
+            // Ctrl+S / Cmd+S should trigger save.
+            if (event.altKey || event.ctrlKey == event.metaKey) {
+              // Ctrl+Alt+S / Cmd+Control+S - don't hijack this.
+              break;
+            }
+            const tabmail = document.getElementById("tabmail");
+            if (tabmail?.currentTabInfo?.mode?.name == "contentTab") {
+              // In a pdf.js content tab, trigger the page's own save action.
+              event.preventDefault();
+              try {
+                tabmail.currentTabInfo.browser.browsingContext.currentWindowGlobal
+                  ?.getActor("Pdfjs")
+                  ?.sendAsyncMessage("PDFJS:Save", {});
+              } catch (ex) {}
               return;
             }
+            event.preventDefault();
+            goDoCommand("cmd_saveAsFile");
+            break;
           }
-          event.preventDefault();
-          goDoCommand("cmd_space");
-          break;
         }
-      }
+      },
     },
-  };
-  document.addEventListener("keypress", keypressListener, {
-    mozSystemGroup: true,
-  });
+    {
+      mozSystemGroup: true,
+    }
+  );
 }
 
 // We're going to implement our status feedback for the mail window in JS now.
