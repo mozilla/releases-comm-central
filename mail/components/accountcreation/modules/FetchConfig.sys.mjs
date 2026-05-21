@@ -7,8 +7,8 @@ import { AccountCreationUtils } from "resource:///modules/accountcreation/Accoun
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   fetchHTTP: "resource:///modules/accountcreation/FetchHTTP.sys.mjs",
+  InputSanitizer: "resource:///modules/accountcreation/InputSanitizer.sys.mjs",
   readFromXML: "resource:///modules/accountcreation/readFromXML.sys.mjs",
-  Sanitizer: "resource:///modules/accountcreation/Sanitizer.sys.mjs",
 });
 
 import { DNS } from "resource:///modules/DNS.sys.mjs";
@@ -30,7 +30,7 @@ async function fetchConfigFromDisk(domain, abortSignal) {
   // <TB installdir>/isp/example.com.xml
   var configLocation = Services.dirsvc.get("CurProcD", Ci.nsIFile);
   configLocation.append("isp");
-  configLocation.append(lazy.Sanitizer.hostname(domain) + ".xml");
+  configLocation.append(lazy.InputSanitizer.hostname(domain) + ".xml");
 
   if (
     !(await IOUtils.exists(configLocation.path)) ||
@@ -99,7 +99,7 @@ async function _fetchConfigFromIsp(
     throw new Error("ISP fetch disabled per user preference");
   }
 
-  const sanitizedDomain = lazy.Sanitizer.hostname(domain);
+  const sanitizedDomain = lazy.InputSanitizer.hostname(domain);
   const conf1 = `autoconfig.${sanitizedDomain}/mail/config-v1.1.xml`;
 
   // .well-known/ <http://tools.ietf.org/html/draft-nottingham-site-meta-04>
@@ -158,7 +158,7 @@ async function fetchConfigFromDB(domain, abortSignal) {
   if (!url) {
     throw new Error("no URL for ISP DB configured");
   }
-  domain = lazy.Sanitizer.hostname(domain);
+  domain = lazy.InputSanitizer.hostname(domain);
 
   // If we don't specify a place to put the domain, put it at the end.
   if (!url.includes("{{domain}}")) {
@@ -206,7 +206,7 @@ async function fetchConfigFromDB(domain, abortSignal) {
  * @throws {Error} If no config is found.
  */
 async function fetchConfigForMX(domain, emailAddress, abortSignal) {
-  const sanitizedDomain = lazy.Sanitizer.hostname(domain);
+  const sanitizedDomain = lazy.InputSanitizer.hostname(domain);
   const time = Date.now();
 
   const mxHostname = await getMX(sanitizedDomain, abortSignal);

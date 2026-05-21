@@ -8,7 +8,7 @@ import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   AccountConfig: "resource:///modules/accountcreation/AccountConfig.sys.mjs",
-  Sanitizer: "resource:///modules/accountcreation/Sanitizer.sys.mjs",
+  InputSanitizer: "resource:///modules/accountcreation/InputSanitizer.sys.mjs",
 });
 XPCOMUtils.defineLazyServiceGetter(
   lazy,
@@ -403,7 +403,7 @@ class HostDetector {
     if (!hostIsPrecise) {
       hostIsPrecise = false;
     }
-    const protocol = lazy.Sanitizer.translate(
+    const protocol = lazy.InputSanitizer.translate(
       type,
       { imap: IMAP, pop3: POP, smtp: SMTP },
       UNKNOWN

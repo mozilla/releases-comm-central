@@ -18,7 +18,7 @@ import { AccountCreationUtils } from "resource:///modules/accountcreation/Accoun
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
-  Sanitizer: "resource:///modules/accountcreation/Sanitizer.sys.mjs",
+  InputSanitizer: "resource:///modules/accountcreation/InputSanitizer.sys.mjs",
   JXON: "resource:///modules/JXON.sys.mjs",
   MailStringUtils: "resource:///modules/MailStringUtils.sys.mjs",
 });
@@ -76,7 +76,7 @@ const { gAccountSetupLogger, abortSignalTimeout } = AccountCreationUtils;
  *   example if the abort signal is aborted before the request is even set up.
  */
 export async function fetchHTTP(url, args = {}, isRetry = false) {
-  const urlObject = new URL(lazy.Sanitizer.string(url));
+  const urlObject = new URL(lazy.InputSanitizer.string(url));
   args.urlArgs ??= {};
   args.headers ??= {};
 
@@ -113,7 +113,7 @@ export async function fetchHTTP(url, args = {}, isRetry = false) {
     fetchArgs.headers.Authorization = `Basic ${authorization}`;
   }
 
-  args.timeout = lazy.Sanitizer.integer(args.timeout || 5000); // default 5 seconds
+  args.timeout = lazy.InputSanitizer.integer(args.timeout || 5000); // default 5 seconds
 
   const timeoutAbort = abortSignalTimeout(args.timeout);
   const signals = [timeoutAbort];

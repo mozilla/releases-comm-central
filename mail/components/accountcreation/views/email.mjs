@@ -25,11 +25,11 @@ ChromeUtils.defineESModuleGetters(lazy, {
   getAddonsList:
     "resource:///modules/accountcreation/ExchangeAutoDiscover.sys.mjs",
   GuessConfig: "resource:///modules/accountcreation/GuessConfig.sys.mjs",
+  InputSanitizer: "resource:///modules/accountcreation/InputSanitizer.sys.mjs",
   OAuth2Module: "resource:///modules/OAuth2Module.sys.mjs",
   OAuth2Providers: "resource:///modules/OAuth2Providers.sys.mjs",
   RemoteAddressBookUtils:
     "resource:///modules/accountcreation/RemoteAddressBookUtils.sys.mjs",
-  Sanitizer: "resource:///modules/accountcreation/Sanitizer.sys.mjs",
 });
 
 import "chrome://messenger/content/accountcreation/content/widgets/account-hub-step.mjs"; // eslint-disable-line import/no-unassigned-import
@@ -1361,7 +1361,7 @@ class AccountHubEmail extends HTMLElement {
     if (!config) {
       try {
         const initialConfig = new lazy.AccountConfig();
-        const emailLocal = lazy.Sanitizer.nonemptystring(emailSplit[0]);
+        const emailLocal = lazy.InputSanitizer.nonemptystring(emailSplit[0]);
         initialConfig.incoming.username = emailLocal;
         initialConfig.outgoing.username = emailLocal;
 

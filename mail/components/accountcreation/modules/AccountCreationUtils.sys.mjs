@@ -9,7 +9,7 @@ const lazy = {};
 
 ChromeUtils.defineESModuleGetters(lazy, {
   AddonManager: "resource://gre/modules/AddonManager.sys.mjs",
-  Sanitizer: "resource:///modules/accountcreation/Sanitizer.sys.mjs",
+  InputSanitizer: "resource:///modules/accountcreation/InputSanitizer.sys.mjs",
 });
 
 import { setTimeout, clearTimeout } from "resource://gre/modules/Timer.sys.mjs";
@@ -90,10 +90,10 @@ class AddonInstaller {
    *   should be aborted (if possible).
    */
   constructor(args, signal) {
-    this._name = lazy.Sanitizer.label(args.name);
-    this._id = lazy.Sanitizer.string(args.id);
-    this._minVersion = lazy.Sanitizer.string(args.minVersion);
-    this._url = lazy.Sanitizer.url(args.xpiURL);
+    this._name = lazy.InputSanitizer.label(args.name);
+    this._id = lazy.InputSanitizer.string(args.id);
+    this._minVersion = lazy.InputSanitizer.string(args.minVersion);
+    this._url = lazy.InputSanitizer.url(args.xpiURL);
     this.#signal = signal;
   }
 

@@ -9,8 +9,8 @@ const { AccountConfig } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/AccountConfig.sys.mjs"
 );
 
-const { Sanitizer } = ChromeUtils.importESModule(
-  "resource:///modules/accountcreation/Sanitizer.sys.mjs"
+const { InputSanitizer } = ChromeUtils.importESModule(
+  "resource:///modules/accountcreation/InputSanitizer.sys.mjs"
 );
 
 const { OAuth2Providers } = ChromeUtils.importESModule(
@@ -292,7 +292,7 @@ class EmailOutgoingForm extends AccountHubStep {
 
     try {
       const input = this.#outgoingHostname.value;
-      config.outgoing.hostname = Sanitizer.hostname(input);
+      config.outgoing.hostname = InputSanitizer.hostname(input);
       this.#outgoingHostname.value = config.outgoing.hostname;
       this.#outgoingHostname.setCustomValidity("");
       this.#outgoingHostname.setAttribute("aria-invalid", false);
@@ -308,7 +308,7 @@ class EmailOutgoingForm extends AccountHubStep {
     }
 
     try {
-      config.outgoing.port = Sanitizer.integerRange(
+      config.outgoing.port = InputSanitizer.integerRange(
         this.#outgoingPort.valueAsNumber,
         1,
         65535
@@ -327,10 +327,10 @@ class EmailOutgoingForm extends AccountHubStep {
       );
     }
 
-    config.outgoing.socketType = Sanitizer.integer(
+    config.outgoing.socketType = InputSanitizer.integer(
       this.#outgoingConnectionSecurity.value
     );
-    config.outgoing.auth = Sanitizer.integer(
+    config.outgoing.auth = InputSanitizer.integer(
       this.#outgoingAuthenticationMethod.value
     );
 
@@ -363,12 +363,12 @@ class EmailOutgoingForm extends AccountHubStep {
     this.#outgoingHostname.value = config.outgoing.hostname;
     this.#outgoingUsername.value = config.outgoing.username;
 
-    this.#outgoingConnectionSecurity.value = Sanitizer.enum(
+    this.#outgoingConnectionSecurity.value = InputSanitizer.enum(
       config.outgoing.socketType,
       [-1, 0, 1, 2, 3],
       0
     );
-    this.#outgoingAuthenticationMethod.value = Sanitizer.enum(
+    this.#outgoingAuthenticationMethod.value = InputSanitizer.enum(
       config.outgoing.auth,
       [0, 1, 3, 4, 5, 6, 10],
       0

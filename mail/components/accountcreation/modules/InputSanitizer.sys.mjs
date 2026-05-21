@@ -32,7 +32,7 @@ ChromeUtils.defineLazyGetter(
 // To debug, set mail.setup.loglevel="All" and kDebug = true.
 var kDebug = Cu.isInAutomation;
 
-export const Sanitizer = {
+export const InputSanitizer = {
   integer(unchecked) {
     if (Number.isInteger(unchecked)) {
       return unchecked;
