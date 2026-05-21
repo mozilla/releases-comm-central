@@ -13,6 +13,8 @@ prefs = ["mail.graph.enabled=true"]
 
 ["test_ewsFolder.js"]
 
+["test_exchange_service.js"]
+
 ["test_folderNamesEws.js"]
 tags = ["foldernames"]
 

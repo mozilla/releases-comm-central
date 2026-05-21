@@ -489,9 +489,11 @@ NS_IMETHODIMP nsStreamConverter::Init(nsIURI* aURI,
     if (!contractID.IsEmpty()) categoryName = contractID;
 
     mEmitter = do_CreateInstance(categoryName.get(), &rv);
-
-    if ((NS_FAILED(rv)) || (!mEmitter)) {
-      return NS_ERROR_OUT_OF_MEMORY;
+    if (!mEmitter) {
+      return NS_SUCCEEDED(rv) ? NS_ERROR_OUT_OF_MEMORY : rv;
+    }
+    if (NS_FAILED(rv)) {
+      return rv;
     }
   }
 
