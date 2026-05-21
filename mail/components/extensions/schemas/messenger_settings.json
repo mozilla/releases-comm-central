@@ -18,6 +18,10 @@
     "description": "The messengerSettings API allows to access global messenger settings.",
     "permissions": ["messengerSettings"],
     "properties": {
+      "composeInlineSpellCheckEnabled": {
+        "$ref": "types.Setting",
+        "description": "Whether the inline (real-time) spell checker is enabled in the message compose window."
+      },
       "messageLineLengthLimit": {
         "$ref": "types.Setting",
         "description": "The line length limit for outgoing messages, to comply with requirements from RFC 2822. See description of $(ref:messengerSettings.messagePlainTextFlowedOutputEnabled). This property is read-only."
