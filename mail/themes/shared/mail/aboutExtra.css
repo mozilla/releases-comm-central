@@ -177,8 +177,8 @@ panel-list {
 panel-item::part(button) {
   border-radius: 3px;
   background-position-x: 3px;
-  --button-background-color-hover: var(--background-color-list-item-hover);
-  --button-background-color-active: var(--background-color-list-item-hover);
+  --button-background-color-hover: var(--button-hover-background-color);
+  --button-background-color-active: var(--button-active-background-color);
 }
 
 panel-item[action="remove"]::part(button) {
