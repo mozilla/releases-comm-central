@@ -144,6 +144,8 @@ widths: 30 70
 * - Peer(s)
   -
     * [Corey Bryant (coreycb)](https://people.mozilla.org/s?query=coreycb)
+    * [Evandro Baginski (ebaginski)](https://people.mozilla.org/s?query=ebaginski)
+    * [Stephen King (sking)](https://people.mozilla.org/s?query=sking)
 * - Owner(s) Emeritus
   - Rob Lemley
 * - Peer(s) Emeritus

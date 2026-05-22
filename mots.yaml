@@ -8,10 +8,10 @@
 # documentation and how to modify this file.
 repo: comm-central
 created_at: '2022-10-20T11:26:42.853013'
-updated_at: '2026-03-19T12:24:32.216227+00:00'
+updated_at: '2026-05-22T17:41:27.515498+00:00'
 hashes:
-  config: dc1093062a62778517e3c94504434092bc07f357
-  export: 15684e971a02daa4d1a1cde58291dc6fb55cfef1
+  config: 4f283e4629ca9a3b1d84f39d72297ab4261621ee
+  export: fc25be45570516a5d9eb56682ec3c7417168e2d6
 export:
   path: ./docs/mots/index.md
   format: md
@@ -120,6 +120,10 @@ people:
     bmo_id: 1537
     name: Dan Mosendale
     nick: dmose
+  - &ebaginski
+    bmo_id: 789340
+    name: Evandro Baginski
+    nick: ebaginski
   - &edicharry
     bmo_id: 771441
     name: Eleanor Dicharry
@@ -263,6 +267,10 @@ people:
     bmo_id: 69136
     name: Simon Paquet
     nick: sipaq
+  - &sking
+    bmo_id: 775283
+    name: Stephen King
+    nick: sking
   - &squib
     bmo_id: 352169
     name: Jim Porter
@@ -363,7 +371,7 @@ modules:
           - mail/config/**
           - taskcluster/**
         owners: [*dandarnell]
-        peers: [*coreycb]
+        peers: [*coreycb, *ebaginski, *sking]
         meta:
           owners_emeritus: [*rjl]
           peers_emeritus:
