@@ -66,6 +66,17 @@ task-defaults:
                 by-project:
                     comm-esr.*: org.mozilla.thunderbird_esr
                     default: org.mozilla.thunderbird
+            APP_NAME:
+                by-project:
+                    comm-esr.*: Thunderbird ESR
+                    default: Thunderbird
+            CHANNEL_DESCRIPTION:
+                by-project:
+                    comm-esr.*: |
+                        <p>
+                        The official Extended Support Release channel is intended for users who want all available new features on an annual basis and stability/security fixes on a monthly basis.
+                        </p>
+                    default: ''
             VERSION_FLAG:
                 by-project:
                     comm-esr.*: "--esr"

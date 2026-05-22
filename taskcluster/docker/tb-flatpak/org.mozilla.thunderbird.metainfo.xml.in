@@ -3,7 +3,7 @@
   <id>${APP_ID}</id>
   <launchable type="desktop-id">${APP_ID}.desktop</launchable>
   <metadata_license>CC0-1.0</metadata_license>
-  <name>Thunderbird</name>
+  <name>${APP_NAME}</name>
   <summary>Thunderbird is a free and open source email, newsfeed, chat, and calendaring client</summary>
 
   <description>
@@ -20,11 +20,12 @@
       Thunderbird is an open source project, which means anyone can contribute
       ideas, designs, code, and time helping fellow users.
     </p>
+    ${CHANNEL_DESCRIPTION}
   </description>
 
   <releases>
     <release version="$VERSION" date="$DATE">
-      <url>$RELEASE_NOTES_URL</url>
+      <url type="details">$RELEASE_NOTES_URL</url>
     </release>
   </releases>
 
