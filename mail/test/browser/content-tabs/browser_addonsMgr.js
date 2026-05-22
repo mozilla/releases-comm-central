@@ -18,9 +18,9 @@ add_task(async function test_open_addons_with_url() {
   const tab = document.getElementById("tabmail").currentTabInfo;
   await promise_content_tab_load(tab, "about:addons", 10000);
   const categoriesBox =
-    tab.browser.contentDocument.getElementById("categories");
+    tab.browser.contentDocument.querySelector("categories-box");
   Assert.equal(
-    categoriesBox.selectedChild.getAttribute("viewid"),
+    categoriesBox.currentViewId,
     "addons://list/theme",
     "Themes category should be selected!"
   );
