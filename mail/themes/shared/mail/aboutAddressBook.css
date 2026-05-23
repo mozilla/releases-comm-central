@@ -837,7 +837,7 @@ input[type="number"] {
 
   &::-moz-number-spin-up:hover,
   &::-moz-number-spin-down:hover {
-    background-color: var(--button-background-color-hover);
+    background-color: var(--button-hover-background-color);
   }
 
   &::-moz-number-spin-up {

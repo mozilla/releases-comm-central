@@ -180,9 +180,8 @@ nsresult nsMsgSearchDBView::HashHdr(nsIMsgDBHdr* msgHdr, nsString& aHashKey) {
 
 nsresult nsMsgSearchDBView::FetchLocation(int32_t aRow,
                                           nsAString& aLocationString) {
-  nsCOMPtr<nsIMsgFolder> folder;
-  nsresult rv = GetFolderForViewIndex(aRow, getter_AddRefs(folder));
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIMsgFolder> folder = GetFolderForViewIndex(aRow);
+  NS_ENSURE_TRUE(folder, NS_ERROR_NULL_POINTER);
   nsAutoCString prettyPath;
   folder->GetPrettyPath(prettyPath);
   aLocationString.Assign(NS_ConvertUTF8toUTF16(prettyPath));
@@ -377,24 +376,19 @@ nsresult nsMsgSearchDBView::GetMsgHdrForViewIndex(nsMsgViewIndex index,
   return NS_ERROR_FAILURE;
 }
 
-NS_IMETHODIMP
-nsMsgSearchDBView::GetFolderForViewIndex(nsMsgViewIndex index,
-                                         nsIMsgFolder** aFolder) {
-  NS_ENSURE_ARG_POINTER(aFolder);
+nsIMsgFolder* nsMsgSearchDBView::GetFolderForViewIndex(nsMsgViewIndex aIndex) {
+  if (aIndex == nsMsgViewIndex_None || aIndex >= (uint32_t)m_folders.Count()) {
+    return nullptr;
+  }
 
-  if (index == nsMsgViewIndex_None || index >= (uint32_t)m_folders.Count())
-    return NS_MSG_INVALID_DBVIEW_INDEX;
-
-  NS_IF_ADDREF(*aFolder = m_folders[index]);
-  return *aFolder ? NS_OK : NS_ERROR_NULL_POINTER;
+  return m_folders[aIndex];
 }
 
 nsresult nsMsgSearchDBView::GetDBForViewIndex(nsMsgViewIndex index,
                                               nsIMsgDatabase** db) {
-  nsCOMPtr<nsIMsgFolder> aFolder;
-  nsresult rv = GetFolderForViewIndex(index, getter_AddRefs(aFolder));
-  NS_ENSURE_SUCCESS(rv, rv);
-  return aFolder->GetMsgDatabase(db);
+  nsCOMPtr<nsIMsgFolder> folder = GetFolderForViewIndex(index);
+  NS_ENSURE_TRUE(folder, NS_ERROR_NULL_POINTER);
+  return folder->GetMsgDatabase(db);
 }
 
 nsresult nsMsgSearchDBView::AddHdrFromFolder(nsIMsgDBHdr* msgHdr,
@@ -479,7 +473,7 @@ nsresult nsMsgSearchDBView::AddHdrFromFolder(nsIMsgDBHdr* msgHdr,
           // Since we know posInThread, we just want to insert the new hdr
           // at threadIndex + posInThread, and then rebuild the view until we
           // get to a sibling of the new hdr.
-          uint8_t newMsgLevel = viewThread->ChildLevelAt(posInThread);
+          uint32_t newMsgLevel = viewThread->ChildLevelAt(posInThread);
           InsertMsgHdrAt(threadIndex + posInThread, msgHdr, msgKey, msgFlags,
                          newMsgLevel);
 
@@ -574,7 +568,7 @@ void nsMsgSearchDBView::MoveThreadAt(nsMsgViewIndex threadIndex) {
 
   nsTArray<nsMsgKey> threadKeys;
   nsTArray<uint32_t> threadFlags;
-  nsTArray<uint8_t> threadLevels;
+  nsTArray<uint32_t> threadLevels;
   nsCOMArray<nsIMsgFolder> threadFolders;
 
   if (threadIsExpanded) {
@@ -833,11 +827,11 @@ nsresult nsMsgSearchDBView::RemoveByIndex(nsMsgViewIndex index) {
 
       // Bump up the level of all the descendants of the message
       // that was removed, if the thread was expanded.
-      uint8_t removedLevel = m_levels[index];
+      uint32_t removedLevel = m_levels[index];
       nsMsgViewIndex i = index + 1;
       if (i < m_levels.Length() && m_levels[i] > removedLevel) {
         // Promote the child of the removed message.
-        uint8_t promotedLevel = m_levels[i];
+        uint32_t promotedLevel = m_levels[i];
         m_levels[i] = promotedLevel - 1;
         i++;
         // Now promote all the children of the promoted message.
@@ -1350,7 +1344,7 @@ nsresult nsMsgSearchDBView::ListIdsInThread(
       uint32_t msgFlags;
       msgHdr->GetMessageKey(&msgKey);
       msgHdr->GetFlags(&msgFlags);
-      uint8_t level = (threadedView) ? viewThread->ChildLevelAt(i) : 1;
+      uint32_t level = (threadedView) ? viewThread->ChildLevelAt(i) : 1;
       SetMsgHdrAt(msgHdr, viewIndex, msgKey, msgFlags & ~MSG_VIEW_FLAGS, level);
       (*pNumListed)++;
       viewIndex++;

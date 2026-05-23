@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use util::Seconds;
+use crate::util::Seconds;
 
 /// `Age` header, defined in [RFC7234](https://tools.ietf.org/html/rfc7234#section-5.1)
 ///
@@ -31,7 +31,6 @@ use util::Seconds;
 /// # Example
 ///
 /// ```
-/// # extern crate headers;
 /// use headers::Age;
 ///
 /// let len = Age::from_secs(60);

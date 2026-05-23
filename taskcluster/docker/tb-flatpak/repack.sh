@@ -9,6 +9,7 @@ test "$VERSION"
 test "$BUILD_NUMBER"
 test "$CANDIDATES_DIR"
 test "$FLATPAK_BRANCH"
+test "$MANIFEST_URL"
 test "$RELEASE_NOTES_URL"
 test "$PKG_LOCALES"
 test "$DESKTOP_LOCALES"
@@ -17,6 +18,8 @@ test "$DESKTOP_LOCALES"
 : WORKSPACE                     "${WORKSPACE:=/home/worker/workspace}"
 : ARTIFACTS_DIR                 "${ARTIFACTS_DIR:=/home/worker/artifacts}"
 : APP_ID                        "${APP_ID:=org.mozilla.thunderbird}"
+: APP_NAME                      "${APP_NAME:=Thunderbird}"
+: CHANNEL_DESCRIPTION           "${CHANNEL_DESCRIPTION:=}"
 
 # Populate remaining environment variables
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -134,6 +137,7 @@ install -D -m644 tb_symbolic.svg "${appdir}/share/icons/hicolor/symbolic/apps/${
 # Generate AppStream metadata and add screenshots from Flathub
 appstreamcli compose \
     --no-partial-urls \
+    --allow-custom=flathub::manifest \
     --prefix=/ \
     --origin="${APP_ID}" \
     --components="${APP_ID}" \

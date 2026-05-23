@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-@import url("chrome://messenger/skin/colors.css");
-
 /* This file defines the colors used for the main layout of the application.
  * Colors that define a containers for content or their text color should go
  *  here. Colors that define widgets or content should not */

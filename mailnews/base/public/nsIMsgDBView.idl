@@ -288,7 +288,6 @@ interface nsIMsgDBView : nsISupports
    */
   nsIMsgDBHdr getMsgHdrAt(in nsMsgViewIndex aIndex);
 
-  nsIMsgFolder getFolderForViewIndex(in nsMsgViewIndex index); // mainly for search
   AUTF8String getURIForViewIndex(in nsMsgViewIndex index);
   nsIMsgDBView cloneDBView(in nsIMessenger aMessengerInstance, in nsIMsgWindow aMsgWindow, in nsIMsgDBViewCommandUpdater aCommandUpdater);
 
@@ -347,10 +346,6 @@ interface nsIMsgDBView : nsISupports
   //to notify tree that rows are going away
   void onDeleteCompleted(in boolean succeeded);
 
-  readonly attribute nsIMsgDatabase db;
-
-  readonly attribute boolean supportsThreading;
-
   attribute nsIMsgSearchSession searchSession;
 
   /**
@@ -398,16 +393,6 @@ interface nsIMsgDBView : nsISupports
   nsIMsgThread getThreadContainingIndex(in nsMsgViewIndex aIndex);
 
   /**
-   * Notify tree that rows have changed.
-   *
-   * @param aFirstLineChanged   first view index for changed rows.
-   * @param aNumRows            number of rows changed; < 0 means removed.
-   * @param aChangeType         changeType.
-   */
-  void NoteChange(in nsMsgViewIndex aFirstLineChanged, in long aNumRows,
-                  in nsMsgViewNotificationCodeValue aChangeType);
-
-  /**
    * Return the view thread corresponding to aMsgHdr. If we're a cross-folder
    * view, then it would be the cross folder view thread, otherwise, the
    * db thread object.
@@ -417,9 +402,6 @@ interface nsIMsgDBView : nsISupports
    * @return        view thread object for msg hdr.
    */
   nsIMsgThread getThreadContainingMsgHdr(in nsIMsgDBHdr aMsgHdr);
-
-  // use lines or kB for size?
-  readonly attribute boolean usingLines;
 
   // Custom Column Implementation note: see nsIMsgCustomColumnHandler
 

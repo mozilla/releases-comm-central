@@ -116,7 +116,6 @@ interface nsIImapMailFolderSink : nsISupports {
   void clearFolderRights();
   void setCopyResponseUid(in string msgIdString,
                                 in nsIImapUrl aUrl);
-  void setAppendMsgUid(in ImapUid newKey,
-                             in nsIImapUrl aUrl);
+  void setAppendMsgUid(in ImapUid uid, in nsIImapUrl url);
   ACString getMessageId(in nsIImapUrl aUrl);
 };

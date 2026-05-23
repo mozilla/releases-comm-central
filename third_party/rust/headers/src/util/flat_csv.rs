@@ -3,8 +3,10 @@ use std::iter::FromIterator;
 use std::marker::PhantomData;
 
 use bytes::BytesMut;
-use util::TryFromValues;
-use HeaderValue;
+use http::HeaderValue;
+
+use crate::util::TryFromValues;
+use crate::Error;
 
 // A single `HeaderValue` that can flatten multiple values with commas.
 #[derive(Clone, PartialEq, Eq, Hash)]
@@ -40,6 +42,7 @@ impl<Sep: Separator> FlatCsv<Sep> {
             let mut in_quotes = false;
             value_str
                 .split(move |c| {
+                    #[allow(clippy::collapsible_else_if)]
                     if in_quotes {
                         if c == '"' {
                             in_quotes = false;
@@ -62,7 +65,7 @@ impl<Sep: Separator> FlatCsv<Sep> {
 }
 
 impl<Sep: Separator> TryFromValues for FlatCsv<Sep> {
-    fn try_from_values<'i, I>(values: &mut I) -> Result<Self, ::Error>
+    fn try_from_values<'i, I>(values: &mut I) -> Result<Self, Error>
     where
         I: Iterator<Item = &'i HeaderValue>,
     {
@@ -113,7 +116,7 @@ impl<'a, Sep: Separator> FromIterator<&'a HeaderValue> for FlatCsv<Sep> {
             .next()
             .cloned()
             .map(|val| BytesMut::from(val.as_bytes()))
-            .unwrap_or_else(|| BytesMut::new());
+            .unwrap_or_default();
 
         for val in values {
             buf.extend_from_slice(&[Sep::BYTE, b' ']);
@@ -144,7 +147,7 @@ impl<Sep: Separator> FromIterator<HeaderValue> for FlatCsv<Sep> {
         let mut buf = values
             .next()
             .map(|val| BytesMut::from(val.as_bytes()))
-            .unwrap_or_else(|| BytesMut::new());
+            .unwrap_or_default();
 
         for val in values {
             buf.extend_from_slice(&[Sep::BYTE, b' ']);

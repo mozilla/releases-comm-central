@@ -13,7 +13,7 @@
 edition = "2024"
 rust-version = "1.90.0"
 name = "neqo-bin"
-version = "0.26.1"
+version = "0.28.1"
 authors = ["The Neqo Authors <necko@mozilla.com>"]
 build = "build.rs"
 autolib = false
@@ -113,7 +113,8 @@ features = ["std"]
 default-features = false
 
 [dependencies.http]
-version = "0.2.9"
+version = "1"
+features = ["std"]
 default-features = false
 
 [dependencies.libc]
@@ -127,9 +128,6 @@ default-features = false
 [dependencies.neqo-common]
 path = "./../neqo-common"
 
-[dependencies.neqo-crypto]
-path = "./../neqo-crypto"
-
 [dependencies.neqo-http3]
 path = "./../neqo-http3"
 
@@ -138,6 +136,11 @@ path = "./../neqo-transport"
 
 [dependencies.neqo-udp]
 path = "./../neqo-udp"
+
+[dependencies.nss]
+git = "https://github.com/mozilla/nss-rs"
+rev = "0.9.0"
+package = "nss-rs"
 
 [dependencies.qlog]
 version = "0.16.0"

@@ -121,9 +121,11 @@ NS_IMETHODIMP ExchangeService::GetUrlForUri(const nsACString& aMessageURI,
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsAutoCString channelScheme;
-  if (scheme.EqualsLiteral("ews-message")) {
+  if (scheme.EqualsLiteral("ews-message") ||
+      scheme.EqualsLiteral("x-moz-ews")) {
     channelScheme.Assign("x-moz-ews");
-  } else if (scheme.EqualsLiteral("graph-message")) {
+  } else if (scheme.EqualsLiteral("graph-message") ||
+             scheme.EqualsLiteral("x-moz-graph")) {
     channelScheme.Assign("x-moz-graph");
   }
 

@@ -1,6 +1,7 @@
 use base64::engine::general_purpose::STANDARD as ENGINE;
 use base64::Engine;
 use bytes::Bytes;
+use http::HeaderValue;
 use sha1::{Digest, Sha1};
 
 use super::SecWebsocketKey;
@@ -14,7 +15,6 @@ use super::SecWebsocketKey;
 /// # Example
 ///
 /// ```no_run
-/// # extern crate headers;
 /// use headers::{SecWebsocketAccept, SecWebsocketKey};
 ///
 /// let sec_key: SecWebsocketKey = /* from request headers */
@@ -23,7 +23,7 @@ use super::SecWebsocketKey;
 /// let sec_accept = SecWebsocketAccept::from(sec_key);
 /// ```
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-pub struct SecWebsocketAccept(::HeaderValue);
+pub struct SecWebsocketAccept(HeaderValue);
 
 derive_header! {
     SecWebsocketAccept(_),
@@ -40,9 +40,9 @@ fn sign(key: &[u8]) -> SecWebsocketAccept {
     let mut sha1 = Sha1::default();
     sha1.update(key);
     sha1.update(&b"258EAFA5-E914-47DA-95CA-C5AB0DC85B11"[..]);
-    let b64 = Bytes::from(ENGINE.encode(&sha1.finalize()));
+    let b64 = Bytes::from(ENGINE.encode(sha1.finalize()));
 
-    let val = ::HeaderValue::from_maybe_shared(b64).expect("base64 is a valid value");
+    let val = HeaderValue::from_maybe_shared(b64).expect("base64 is a valid value");
 
     SecWebsocketAccept(val)
 }

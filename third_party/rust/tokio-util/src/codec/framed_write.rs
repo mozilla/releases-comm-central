@@ -12,20 +12,30 @@ use std::io;
 use std::pin::Pin;
 use std::task::{Context, Poll};
 
+use super::FramedParts;
+
 pin_project! {
     /// A [`Sink`] of frames encoded to an `AsyncWrite`.
     ///
+    /// For examples of how to use `FramedWrite` with a codec, see the
+    /// examples on the [`codec`] module.
+    ///
+    /// # Cancellation safety
+    ///
+    /// * [`futures_util::sink::SinkExt::send`]: if send is used as the event in a
+    /// `tokio::select!` statement and some other branch completes first, then it is
+    /// guaranteed that the message was not sent, but the message itself is lost.
+    ///
     /// [`Sink`]: futures_sink::Sink
+    /// [`codec`]: crate::codec
+    /// [`futures_util::sink::SinkExt::send`]: futures_util::sink::SinkExt::send
     pub struct FramedWrite<T, E> {
         #[pin]
         inner: FramedImpl<T, E, WriteFrame>,
     }
 }
 
-impl<T, E> FramedWrite<T, E>
-where
-    T: AsyncWrite,
-{
+impl<T, E> FramedWrite<T, E> {
     /// Creates a new `FramedWrite` with the given `encoder`.
     pub fn new(inner: T, encoder: E) -> FramedWrite<T, E> {
         FramedWrite {
@@ -36,9 +46,22 @@ where
             },
         }
     }
-}
 
-impl<T, E> FramedWrite<T, E> {
+    /// Creates a new `FramedWrite` with the given `encoder` and a buffer of `capacity`
+    /// initial size.
+    pub fn with_capacity(inner: T, encoder: E, capacity: usize) -> FramedWrite<T, E> {
+        FramedWrite {
+            inner: FramedImpl {
+                inner,
+                codec: encoder,
+                state: WriteFrame {
+                    buffer: BytesMut::with_capacity(capacity),
+                    backpressure_boundary: capacity,
+                },
+            },
+        }
+    }
+
     /// Returns a reference to the underlying I/O stream wrapped by
     /// `FramedWrite`.
     ///
@@ -122,6 +145,28 @@ impl<T, E> FramedWrite<T, E> {
     /// Returns a mutable reference to the write buffer.
     pub fn write_buffer_mut(&mut self) -> &mut BytesMut {
         &mut self.inner.state.buffer
+    }
+
+    /// Returns backpressure boundary
+    pub fn backpressure_boundary(&self) -> usize {
+        self.inner.state.backpressure_boundary
+    }
+
+    /// Updates backpressure boundary
+    pub fn set_backpressure_boundary(&mut self, boundary: usize) {
+        self.inner.state.backpressure_boundary = boundary;
+    }
+
+    /// Consumes the `FramedWrite`, returning its underlying I/O stream, the buffer
+    /// with unprocessed data, and the codec.
+    pub fn into_parts(self) -> FramedParts<T, E> {
+        FramedParts {
+            io: self.inner.inner,
+            codec: self.inner.codec,
+            read_buf: BytesMut::new(),
+            write_buf: self.inner.state.buffer,
+            _priv: (),
+        }
     }
 }
 

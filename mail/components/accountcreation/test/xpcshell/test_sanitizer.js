@@ -4,8 +4,8 @@
 
 "use strict";
 
-const { Sanitizer } = ChromeUtils.importESModule(
-  "resource:///modules/accountcreation/Sanitizer.sys.mjs"
+const { InputSanitizer } = ChromeUtils.importESModule(
+  "resource:///modules/accountcreation/InputSanitizer.sys.mjs"
 );
 
 const { AccountCreationUtils } = ChromeUtils.importESModule(
@@ -266,28 +266,28 @@ const CASES = [
     label: String([]),
   },
   {
-    value: Sanitizer,
+    value: InputSanitizer,
     integer: { throws: "no-number-error" },
     boolean: { throws: "boolean-error" },
-    string: String(Sanitizer),
-    nonemptystring: String(Sanitizer),
+    string: String(InputSanitizer),
+    nonemptystring: String(InputSanitizer),
     alphanumdash: { throws: "alphanumdash-error" },
     hostname: { throws: "hostname-syntax-error" },
     emailAddress: { throws: "emailaddress-syntax-error" },
     url: { throws: "url-scheme-error" },
-    label: String(Sanitizer),
+    label: String(InputSanitizer),
   },
   {
-    value: Sanitizer.integer,
+    value: InputSanitizer.integer,
     integer: { throws: "no-number-error" },
     boolean: { throws: "boolean-error" },
-    string: String(Sanitizer.integer),
-    nonemptystring: String(Sanitizer.integer),
+    string: String(InputSanitizer.integer),
+    nonemptystring: String(InputSanitizer.integer),
     alphanumdash: { throws: "alphanumdash-error" },
     hostname: { throws: "hostname-syntax-error" },
     emailAddress: { throws: "emailaddress-syntax-error" },
     url: { throws: "url-scheme-error" },
-    label: String(Sanitizer.integer),
+    label: String(InputSanitizer.integer),
   },
   {
     value: AccountCreationUtils.NotReached,
@@ -671,9 +671,9 @@ async function subtestThrowsMalformedException(
 ) {
   const message = await ERROR_STRINGS.formatValue(errorMessage);
   Assert.throws(
-    () => Sanitizer[sanitizerMethod](...args),
+    () => InputSanitizer[sanitizerMethod](...args),
     error => Error.isError(error) && error.message.startsWith(message),
-    `Sanitizer.${sanitizerMethod} should throw ${errorMessage} with ${JSON.stringify(args)}`
+    `InputSanitizer.${sanitizerMethod} should throw ${errorMessage} with ${JSON.stringify(args)}`
   );
 }
 
@@ -683,7 +683,7 @@ async function subtestThrowsMalformedException(
  *
  * @param {string} sanitizerMethod - The name of the sanitizer method to test.
  */
-async function subtestSanitizer(sanitizerMethod) {
+async function subtestInputSanitizer(sanitizerMethod) {
   for (const scenario of CASES) {
     Assert.ok(
       scenario.hasOwnProperty(sanitizerMethod),
@@ -698,16 +698,16 @@ async function subtestSanitizer(sanitizerMethod) {
       );
     } else {
       Assert.strictEqual(
-        Sanitizer[sanitizerMethod](scenario.value),
+        InputSanitizer[sanitizerMethod](scenario.value),
         expected,
-        `Sanitizer.${sanitizerMethod} should sanitize the value "${scenario.value}"`
+        `InputSanitizer.${sanitizerMethod} should sanitize the value "${scenario.value}"`
       );
     }
   }
 }
 
 add_task(async function test_integer() {
-  await subtestSanitizer("integer");
+  await subtestInputSanitizer("integer");
 });
 
 add_task(async function test_integerRange() {
@@ -743,65 +743,65 @@ add_task(async function test_integerRange() {
   );
 
   Assert.strictEqual(
-    Sanitizer.integerRange(10, 0, 100),
+    InputSanitizer.integerRange(10, 0, 100),
     10,
     "Should get sanitized value back"
   );
   Assert.strictEqual(
-    Sanitizer.integerRange(1.5, 0, 100),
+    InputSanitizer.integerRange(1.5, 0, 100),
     1,
     "Should get truncated value back"
   );
 });
 
 add_task(async function test_boolean() {
-  await subtestSanitizer("boolean");
+  await subtestInputSanitizer("boolean");
 });
 
 add_task(async function test_string() {
-  await subtestSanitizer("string");
+  await subtestInputSanitizer("string");
 });
 
 add_task(async function test_nonemptystring() {
-  await subtestSanitizer("nonemptystring");
+  await subtestInputSanitizer("nonemptystring");
 });
 
 add_task(async function test_alphanumdash() {
-  await subtestSanitizer("alphanumdash");
+  await subtestInputSanitizer("alphanumdash");
 });
 
 add_task(async function test_hostname() {
-  await subtestSanitizer("hostname");
+  await subtestInputSanitizer("hostname");
 });
 
 add_task(async function test_emailAddress() {
-  await subtestSanitizer("emailAddress");
+  await subtestInputSanitizer("emailAddress");
 });
 
 add_task(async function test_url() {
-  await subtestSanitizer("url");
+  await subtestInputSanitizer("url");
 });
 
 add_task(async function test_label() {
-  await subtestSanitizer("label");
+  await subtestInputSanitizer("label");
 });
 
 add_task(async function test_enum() {
   const values = [0, 1, 2, 42, 67];
   for (const value of values) {
     Assert.strictEqual(
-      Sanitizer.enum(value, values),
+      InputSanitizer.enum(value, values),
       value,
       `Should validate ${value} for given enum`
     );
     Assert.strictEqual(
-      Sanitizer.enum(value.toString(), values),
+      InputSanitizer.enum(value.toString(), values),
       value,
       `Should validate ${value} as string for given enum`
     );
   }
   Assert.strictEqual(
-    Sanitizer.enum(-1, values, 0),
+    InputSanitizer.enum(-1, values, 0),
     0,
     "Should get default value with unknown value"
   );
@@ -834,19 +834,19 @@ add_task(async function test_translate() {
   };
   for (const [input, output] of Object.entries(mapping)) {
     Assert.strictEqual(
-      Sanitizer.translate(input, mapping),
+      InputSanitizer.translate(input, mapping),
       output,
       `Should validate ${input} for given map`
     );
     Assert.strictEqual(
-      Sanitizer.translate(input.toString(), mapping),
+      InputSanitizer.translate(input.toString(), mapping),
       output,
       `Should validate ${input} as string for given map`
     );
   }
 
   Assert.strictEqual(
-    Sanitizer.translate(-1, mapping, "default"),
+    InputSanitizer.translate(-1, mapping, "default"),
     "default",
     "Should get default value with unknown value"
   );

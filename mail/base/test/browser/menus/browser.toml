@@ -63,6 +63,8 @@ run-if = [
   "os != 'mac'",
 ]
 
+["browser_headerActions.js"]
+
 ["browser_mailContext.js"]
 run-if = [
   "os != 'mac'",

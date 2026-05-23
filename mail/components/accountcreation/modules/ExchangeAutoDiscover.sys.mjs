@@ -12,7 +12,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   AccountConfig: "resource:///modules/accountcreation/AccountConfig.sys.mjs",
   fetchHTTP: "resource:///modules/accountcreation/FetchHTTP.sys.mjs",
   GuessConfig: "resource:///modules/accountcreation/GuessConfig.sys.mjs",
-  Sanitizer: "resource:///modules/accountcreation/Sanitizer.sys.mjs",
+  InputSanitizer: "resource:///modules/accountcreation/InputSanitizer.sys.mjs",
   OAuth2Providers: "resource:///modules/OAuth2Providers.sys.mjs",
 });
 
@@ -230,15 +230,15 @@ export async function fetchConfigFromExchange(
   // <https://docs.microsoft.com/en-us/previous-versions/office/developer/exchange-server-interoperability-guidance/hh352638(v%3Dexchg.140)>, search for "The Autodiscover service uses one of these four methods"
   const url1 =
     "https://autodiscover." +
-    lazy.Sanitizer.hostname(domain) +
+    lazy.InputSanitizer.hostname(domain) +
     "/autodiscover/autodiscover.xml";
   const url2 =
     "https://" +
-    lazy.Sanitizer.hostname(domain) +
+    lazy.InputSanitizer.hostname(domain) +
     "/autodiscover/autodiscover.xml";
   const url3 =
     "http://autodiscover." +
-    lazy.Sanitizer.hostname(domain) +
+    lazy.InputSanitizer.hostname(domain) +
     "/autodiscover/autodiscover.xml";
   const body = `<?xml version="1.0" encoding="utf-8"?>
     <Autodiscover xmlns="http://schemas.microsoft.com/exchange/autodiscover/outlook/requestschema/2006">
@@ -310,7 +310,7 @@ export async function fetchConfigFromExchange(
 
         // Build the full URL for autodiscover using the hostname with the highest
         // priority.
-        const autodiscoverURL = `https://${lazy.Sanitizer.hostname(hostname)}/autodiscover/autodiscover.xml`;
+        const autodiscoverURL = `https://${lazy.InputSanitizer.hostname(hostname)}/autodiscover/autodiscover.xml`;
 
         return fetchFromPotentiallyUnsafeAddress(
           autodiscoverURL,
@@ -364,7 +364,7 @@ async function readAutoDiscoverResponse(
   // redirect to other email address
   if (autoDiscoverXML?.Autodiscover?.Response?.Account?.RedirectAddr) {
     // <https://docs.microsoft.com/en-us/openspecs/exchange_server_protocols/ms-oxdscli/49083e77-8dc2-4010-85c6-f40e090f3b17>
-    const redirectEmailAddress = lazy.Sanitizer.emailAddress(
+    const redirectEmailAddress = lazy.InputSanitizer.emailAddress(
       autoDiscoverXML.Autodiscover.Response.Account.RedirectAddr
     );
     const domain = redirectEmailAddress.split("@").pop();
@@ -434,7 +434,7 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
 
   for (const protocolX of array_or_undef(xml.$Protocol)) {
     try {
-      const type = lazy.Sanitizer.enum(
+      const type = lazy.InputSanitizer.enum(
         protocolX.Type,
         ["WEB", "EXHTTP", "EXCH", "EXPR", "POP3", "IMAP", "SMTP"],
         "unknown"
@@ -447,35 +447,39 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
           urlsX = protocolX.Internal;
         }
         if (urlsX) {
-          config.incoming.owaURL = lazy.Sanitizer.url(urlsX.OWAUrl.value);
+          config.incoming.owaURL = lazy.InputSanitizer.url(urlsX.OWAUrl.value);
           if (
             !config.incoming.exchangeURL &&
             "Protocol" in urlsX &&
             "ASUrl" in urlsX.Protocol
           ) {
-            config.incoming.exchangeURL = lazy.Sanitizer.url(
+            config.incoming.exchangeURL = lazy.InputSanitizer.url(
               urlsX.Protocol.ASUrl
             );
           }
           config.incoming.type = "exchange";
           const parsedURL = new URL(config.incoming.owaURL);
-          config.incoming.hostname = lazy.Sanitizer.hostname(
+          config.incoming.hostname = lazy.InputSanitizer.hostname(
             parsedURL.hostname
           );
           if (parsedURL.port) {
-            config.incoming.port = lazy.Sanitizer.integer(parsedURL.port);
+            config.incoming.port = lazy.InputSanitizer.integer(parsedURL.port);
           }
         }
       } else if (type == "EXHTTP" || type == "EXCH") {
-        config.incoming.exchangeURL = lazy.Sanitizer.url(protocolX.EwsUrl);
+        config.incoming.exchangeURL = lazy.InputSanitizer.url(protocolX.EwsUrl);
         if (!config.incoming.exchangeURL) {
-          config.incoming.exchangeURL = lazy.Sanitizer.url(protocolX.ASUrl);
+          config.incoming.exchangeURL = lazy.InputSanitizer.url(
+            protocolX.ASUrl
+          );
         }
         config.incoming.type = "exchange";
         const parsedURL = new URL(config.incoming.exchangeURL);
-        config.incoming.hostname = lazy.Sanitizer.hostname(parsedURL.hostname);
+        config.incoming.hostname = lazy.InputSanitizer.hostname(
+          parsedURL.hostname
+        );
         if (parsedURL.port) {
-          config.incoming.port = lazy.Sanitizer.integer(parsedURL.port);
+          config.incoming.port = lazy.InputSanitizer.integer(parsedURL.port);
         }
       } else if (type == "POP3" || type == "IMAP" || type == "SMTP") {
         let server;
@@ -485,13 +489,13 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
           server = config.createNewIncoming();
         }
 
-        server.type = lazy.Sanitizer.translate(type, {
+        server.type = lazy.InputSanitizer.translate(type, {
           POP3: "pop3",
           IMAP: "imap",
           SMTP: "smtp",
         });
-        server.hostname = lazy.Sanitizer.hostname(protocolX.Server);
-        server.port = lazy.Sanitizer.integer(protocolX.Port);
+        server.hostname = lazy.InputSanitizer.hostname(protocolX.Server);
+        server.port = lazy.InputSanitizer.integer(protocolX.Port);
 
         // SSL: https://msdn.microsoft.com/en-us/library/ee160260(v=exchg.80).aspx
         // Encryption: https://msdn.microsoft.com/en-us/library/ee625072(v=exchg.80).aspx
@@ -529,7 +533,9 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
           server.auth = Ci.nsMsgAuthMethod.secure;
         }
         if ("LoginName" in protocolX) {
-          server.username = lazy.Sanitizer.nonemptystring(protocolX.LoginName);
+          server.username = lazy.InputSanitizer.nonemptystring(
+            protocolX.LoginName
+          );
         } else {
           server.username = username || "%EMAILADDRESS%";
         }
@@ -659,9 +665,11 @@ function readAddonsJSON(json) {
       const addon = {
         id: addonJSON.id,
         minVersion: addonJSON.minVersion,
-        xpiURL: lazy.Sanitizer.url(addonJSON.xpiURL),
-        websiteURL: lazy.Sanitizer.url(addonJSON.websiteURL),
-        icon32: addonJSON.icon32 ? lazy.Sanitizer.url(addonJSON.icon32) : null,
+        xpiURL: lazy.InputSanitizer.url(addonJSON.xpiURL),
+        websiteURL: lazy.InputSanitizer.url(addonJSON.websiteURL),
+        icon32: addonJSON.icon32
+          ? lazy.InputSanitizer.url(addonJSON.icon32)
+          : null,
         supportedTypes: [],
       };
       assert(
@@ -691,9 +699,11 @@ function readAddonsJSON(json) {
       for (const typeJSON of ensureJsonArray(addonJSON.accountTypes)) {
         try {
           addon.supportedTypes.push({
-            generalType: lazy.Sanitizer.alphanumdash(typeJSON.generalType),
-            protocolType: lazy.Sanitizer.alphanumdash(typeJSON.protocolType),
-            addonAccountType: lazy.Sanitizer.alphanumdash(
+            generalType: lazy.InputSanitizer.alphanumdash(typeJSON.generalType),
+            protocolType: lazy.InputSanitizer.alphanumdash(
+              typeJSON.protocolType
+            ),
+            addonAccountType: lazy.InputSanitizer.alphanumdash(
               typeJSON.addonAccountType
             ),
           });

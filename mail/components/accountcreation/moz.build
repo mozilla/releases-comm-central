@@ -19,10 +19,10 @@ EXTRA_JS_MODULES.accountcreation += [
     "modules/FindConfig.sys.mjs",
     "modules/FirstRun.sys.mjs",
     "modules/GuessConfig.sys.mjs",
+    "modules/InputSanitizer.sys.mjs",
     "modules/LDAPDirectoryUtils.sys.mjs",
     "modules/readFromXML.sys.mjs",
     "modules/RemoteAddressBookUtils.sys.mjs",
-    "modules/Sanitizer.sys.mjs",
     "modules/Thundermail.sys.mjs",
 ]
 

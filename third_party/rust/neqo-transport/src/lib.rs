@@ -7,7 +7,7 @@
 #![cfg_attr(coverage_nightly, feature(coverage_attribute))]
 
 use neqo_common::qwarn;
-use neqo_crypto::Error as CryptoError;
+use nss::Error as CryptoError;
 use thiserror::Error;
 
 mod ackrate;
@@ -42,6 +42,7 @@ mod recovery;
 pub mod recv_stream;
 mod rtt;
 mod saved;
+mod scone;
 pub mod send_stream;
 mod sender;
 pub mod server;
@@ -309,7 +310,7 @@ mod tests {
     #[test]
     fn error_from_impls() {
         assert_eq!(
-            Error::from(neqo_crypto::Error::EchRetry(vec![1, 2])),
+            Error::from(nss::Error::EchRetry(vec![1, 2])),
             Error::EchRetry(vec![1, 2])
         );
         assert!(matches!(

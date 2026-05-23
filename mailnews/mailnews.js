@@ -1069,11 +1069,7 @@ pref("mailnews.oauth.loglevel", "Warn");
 // accounts.
 pref("mailnews.oauth.usePrivateBrowser", false);
 
-#ifdef NIGHTLY_BUILD
 pref("mailnews.oauth.useExternalBrowser", true);
-#else
-pref("mailnews.oauth.useExternalBrowser", false);
-#endif
 
 pref("test.loghelper.loglevel", "Warn");
 

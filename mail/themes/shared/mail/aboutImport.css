@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-@import url("chrome://messenger/skin/colors.css");
-
 :root {
   --main-title-size: 1.8rem;
   --title-icon-margin: 8px;
@@ -13,7 +11,16 @@
   display: none !important;
 }
 
+:root,
 body {
+  block-size: 100%;
+  inline-size: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
   text-shadow: none;
   background-color: rgba(0, 0, 0, 0.03);
 }
@@ -52,6 +59,10 @@ progress {
   inline-size: 100%;
 }
 
+.description {
+  line-height: 1.45em;
+}
+
 dl {
   display: grid;
   grid-template-columns: [label] max-content [value] minmax(min-content, auto);
@@ -73,6 +84,11 @@ dt {
 dd {
   grid-area: value;
   margin: 0;
+}
+
+.result-indent {
+  grid-column: 2 / 4;
+  margin-block: 0;
 }
 
 #csvFieldMap {
@@ -405,7 +421,7 @@ calendar-item-summary {
 
     &:not(:first-child)::before {
       content: "";
-      border-block-start: 2px dashed var(--button-background-color);
+      border-block-start: 2px dashed var(--button-border-color);
       display: block;
       margin-block-start: 1px;
       flex-grow: 1;

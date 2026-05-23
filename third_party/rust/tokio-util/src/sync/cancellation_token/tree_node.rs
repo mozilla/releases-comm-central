@@ -1,16 +1,16 @@
-//! This mod provides the logic for the inner tree structure of the CancellationToken.
+//! This mod provides the logic for the inner tree structure of the `CancellationToken`.
 //!
-//! CancellationTokens are only light handles with references to TreeNode.
-//! All the logic is actually implemented in the TreeNode.
+//! `CancellationTokens` are only light handles with references to [`TreeNode`].
+//! All the logic is actually implemented in the [`TreeNode`].
 //!
-//! A TreeNode is part of the cancellation tree and may have one parent and an arbitrary number of
+//! A [`TreeNode`] is part of the cancellation tree and may have one parent and an arbitrary number of
 //! children.
 //!
-//! A TreeNode can receive the request to perform a cancellation through a CancellationToken.
+//! A [`TreeNode`] can receive the request to perform a cancellation through a `CancellationToken`.
 //! This cancellation request will cancel the node and all of its descendants.
 //!
 //! As soon as a node cannot get cancelled any more (because it was already cancelled or it has no
-//! more CancellationTokens pointing to it any more), it gets removed from the tree, to keep the
+//! more `CancellationTokens` pointing to it any more), it gets removed from the tree, to keep the
 //! tree as small as possible.
 //!
 //! # Invariants
@@ -18,16 +18,16 @@
 //! Those invariants shall be true at any time.
 //!
 //! 1. A node that has no parents and no handles can no longer be cancelled.
-//!     This is important during both cancellation and refcounting.
+//!    This is important during both cancellation and refcounting.
 //!
 //! 2. If node B *is* or *was* a child of node A, then node B was created *after* node A.
-//!     This is important for deadlock safety, as it is used for lock order.
-//!     Node B can only become the child of node A in two ways:
-//!         - being created with `child_node()`, in which case it is trivially true that
-//!           node A already existed when node B was created
-//!         - being moved A->C->B to A->B because node C was removed in `decrease_handle_refcount()`
-//!           or `cancel()`. In this case the invariant still holds, as B was younger than C, and C
-//!           was younger than A, therefore B is also younger than A.
+//!    This is important for deadlock safety, as it is used for lock order.
+//!    Node B can only become the child of node A in two ways:
+//!    - being created with `child_node()`, in which case it is trivially true that
+//!      node A already existed when node B was created
+//!    - being moved A->C->B to A->B because node C was removed in `decrease_handle_refcount()`
+//!      or `cancel()`. In this case the invariant still holds, as B was younger than C, and C
+//!      was younger than A, therefore B is also younger than A.
 //!
 //! 3. If two nodes are both unlocked and node A is the parent of node B, then node B is a child of
 //!    node A. It is important to always restore that invariant before dropping the lock of a node.
@@ -66,7 +66,7 @@ impl TreeNode {
     }
 }
 
-/// The data contained inside a TreeNode.
+/// The data contained inside a `TreeNode`.
 ///
 /// This struct exists so that the data of the node can be wrapped
 /// in a Mutex.
@@ -151,47 +151,45 @@ fn with_locked_node_and_parent<F, Ret>(node: &Arc<TreeNode>, func: F) -> Ret
 where
     F: FnOnce(MutexGuard<'_, Inner>, Option<MutexGuard<'_, Inner>>) -> Ret,
 {
-    let mut potential_parent = {
-        let locked_node = node.inner.lock().unwrap();
-        match locked_node.parent.clone() {
-            Some(parent) => parent,
-            // If we locked the node and its parent is `None`, we are in a valid state
-            // and can return.
-            None => return func(locked_node, None),
-        }
-    };
+    use std::sync::TryLockError;
 
+    let mut locked_node = node.inner.lock().unwrap();
+
+    // Every time this fails, the number of ancestors of the node decreases,
+    // so the loop must succeed after a finite number of iterations.
     loop {
-        // Deadlock safety:
-        //
-        // Due to invariant #2, we know that we have to lock the parent first, and then the child.
-        // This is true even if the potential_parent is no longer the current parent or even its
-        // sibling, as the invariant still holds.
-        let locked_parent = potential_parent.inner.lock().unwrap();
-        let locked_node = node.inner.lock().unwrap();
-
-        let actual_parent = match locked_node.parent.clone() {
-            Some(parent) => parent,
-            // If we locked the node and its parent is `None`, we are in a valid state
-            // and can return.
-            None => {
-                // Was the wrong parent, so unlock it before calling `func`
-                drop(locked_parent);
-                return func(locked_node, None);
-            }
+        // Look up the parent of the currently locked node.
+        let potential_parent = match locked_node.parent.as_ref() {
+            Some(potential_parent) => potential_parent.clone(),
+            None => return func(locked_node, None),
         };
 
-        // Loop until we managed to lock both the node and its parent
-        if Arc::ptr_eq(&actual_parent, &potential_parent) {
-            return func(locked_node, Some(locked_parent));
+        // Lock the parent. This may require unlocking the child first.
+        let locked_parent = match potential_parent.inner.try_lock() {
+            Ok(locked_parent) => locked_parent,
+            Err(TryLockError::WouldBlock) => {
+                drop(locked_node);
+                // Deadlock safety:
+                //
+                // Due to invariant #2, the potential parent must come before
+                // the child in the creation order. Therefore, we can safely
+                // lock the child while holding the parent lock.
+                let locked_parent = potential_parent.inner.lock().unwrap();
+                locked_node = node.inner.lock().unwrap();
+                locked_parent
+            }
+            // https://github.com/tokio-rs/tokio/pull/6273#discussion_r1443752911
+            #[allow(clippy::unnecessary_literal_unwrap)]
+            Err(TryLockError::Poisoned(err)) => Err(err).unwrap(),
+        };
+
+        // If we unlocked the child, then the parent may have changed. Check
+        // that we still have the right parent.
+        if let Some(actual_parent) = locked_node.parent.as_ref() {
+            if Arc::ptr_eq(actual_parent, &potential_parent) {
+                return func(locked_node, Some(locked_parent));
+            }
         }
-
-        // Drop locked_parent before reassigning to potential_parent,
-        // as potential_parent is borrowed in it
-        drop(locked_node);
-        drop(locked_parent);
-
-        potential_parent = actual_parent;
     }
 }
 
@@ -200,7 +198,7 @@ where
 /// `parent` MUST have been a parent of the node when they both got locked,
 /// otherwise there is a potential for a deadlock as invariant #2 would be violated.
 ///
-/// To aquire the locks for node and parent, use [with_locked_node_and_parent].
+/// To acquire the locks for node and parent, use [`with_locked_node_and_parent`].
 fn move_children_to_parent(node: &mut Inner, parent: &mut Inner) {
     // Pre-allocate in the parent, for performance
     parent.children.reserve(node.children.len());
@@ -208,7 +206,7 @@ fn move_children_to_parent(node: &mut Inner, parent: &mut Inner) {
     for child in std::mem::take(&mut node.children) {
         {
             let mut child_locked = child.inner.lock().unwrap();
-            child_locked.parent = node.parent.clone();
+            child_locked.parent.clone_from(&node.parent);
             child_locked.parent_idx = parent.children.len();
         }
         parent.children.push(child);
@@ -218,7 +216,7 @@ fn move_children_to_parent(node: &mut Inner, parent: &mut Inner) {
 /// Removes a child from the parent.
 ///
 /// `parent` MUST be the parent of `node`.
-/// To aquire the locks for node and parent, use [with_locked_node_and_parent].
+/// To acquire the locks for node and parent, use [`with_locked_node_and_parent`].
 fn remove_child(parent: &mut Inner, mut node: MutexGuard<'_, Inner>) {
     // Query the position from where to remove a node
     let pos = node.parent_idx;
@@ -243,11 +241,7 @@ fn remove_child(parent: &mut Inner, mut node: MutexGuard<'_, Inner>) {
 
     let len = parent.children.len();
     if 4 * len <= parent.children.capacity() {
-        // equal to:
-        //    parent.children.shrink_to(2 * len);
-        // but shrink_to was not yet stabilized in our minimal compatible version
-        let old_children = std::mem::replace(&mut parent.children, Vec::with_capacity(2 * len));
-        parent.children.extend(old_children);
+        parent.children.shrink_to(2 * len);
     }
 }
 

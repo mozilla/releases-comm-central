@@ -39,86 +39,10 @@ const LEVEL_MULT: usize = 64;
 
 impl<T: Stack> Level<T> {
     pub(crate) fn new(level: usize) -> Level<T> {
-        // Rust's derived implementations for arrays require that the value
-        // contained by the array be `Copy`. So, here we have to manually
-        // initialize every single slot.
-        macro_rules! s {
-            () => {
-                T::default()
-            };
-        }
-
         Level {
             level,
             occupied: 0,
-            slot: [
-                // It does not look like the necessary traits are
-                // derived for [T; 64].
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-                s!(),
-            ],
+            slot: std::array::from_fn(|_| T::default()),
         }
     }
 
@@ -127,10 +51,7 @@ impl<T: Stack> Level<T> {
     pub(crate) fn next_expiration(&self, now: u64) -> Option<Expiration> {
         // Use the `occupied` bit field to get the index of the next slot that
         // needs to be processed.
-        let slot = match self.next_occupied_slot(now) {
-            Some(slot) => slot,
-            None => return None,
-        };
+        let slot = self.next_occupied_slot(now)?;
 
         // From the slot index, calculate the `Instant` at which it needs to be
         // processed. This value *must* be in the future with respect to `now`.
@@ -140,11 +61,31 @@ impl<T: Stack> Level<T> {
 
         // TODO: This can probably be simplified w/ power of 2 math
         let level_start = now - (now % level_range);
-        let deadline = level_start + slot as u64 * slot_range;
+        let mut deadline = level_start + slot as u64 * slot_range;
+        if deadline < now {
+            // A timer is in a slot "prior" to the current time. This can occur
+            // because we do not have an infinite hierarchy of timer levels, and
+            // eventually a timer scheduled for a very distant time might end up
+            // being placed in a slot that is beyond the end of all of the
+            // arrays.
+            //
+            // To deal with this, we first limit timers to being scheduled no
+            // more than MAX_DURATION ticks in the future; that is, they're at
+            // most one rotation of the top level away. Then, we force timers
+            // that logically would go into the top+1 level, to instead go into
+            // the top level's slots.
+            //
+            // What this means is that the top level's slots act as a
+            // pseudo-ring buffer, and we rotate around them indefinitely. If we
+            // compute a deadline before now, and it's the top level, it
+            // therefore means we're actually looking at a slot in the future.
+            debug_assert_eq!(self.level, super::NUM_LEVELS - 1);
 
+            deadline += level_range;
+        }
         debug_assert!(
             deadline >= now,
-            "deadline={}; now={}; level={}; slot={}; occupied={:b}",
+            "deadline={:016X}; now={:016X}; level={}; slot={}; occupied={:b}",
             deadline,
             now,
             self.level,
@@ -206,6 +147,10 @@ impl<T: Stack> Level<T> {
 
         ret
     }
+
+    pub(crate) fn peek_entry_slot(&self, slot: usize) -> Option<T::Owned> {
+        self.slot[slot].peek()
+    }
 }
 
 impl<T> fmt::Debug for Level<T> {
@@ -246,7 +191,7 @@ mod test {
         for level in 1..5 {
             for pos in level..64 {
                 let a = pos * 64_usize.pow(level as u32);
-                assert_eq!(pos as usize, slot_for(a as u64, level));
+                assert_eq!(pos, slot_for(a as u64, level));
             }
         }
     }

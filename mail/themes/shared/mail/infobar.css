@@ -191,12 +191,12 @@ moz-button::part(button) {
 
   moz-button::part(button):hover {
     color: var(--button-text-color-hover);
-    --button-background-color-ghost-hover: var(--button-background-color-hover);
+    --button-background-color-ghost-hover: var(--button-hover-background-color);
   }
 
   moz-button::part(button):hover:active {
     color: var(--button-text-color-hover);
-    --button-background-color-ghost-active: var(--button-background-color-hover);
+    --button-background-color-ghost-active: var(--button-hover-background-color);
     --button-border-color-ghost-active: var(--button-text-color-hover);
   }
 }

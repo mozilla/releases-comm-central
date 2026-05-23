@@ -5,8 +5,8 @@
 import { AccountHubStep } from "./account-hub-step.mjs";
 import "./account-hub-select.mjs"; // eslint-disable-line import/no-unassigned-import
 
-const { Sanitizer } = ChromeUtils.importESModule(
-  "resource:///modules/accountcreation/Sanitizer.sys.mjs"
+const { InputSanitizer } = ChromeUtils.importESModule(
+  "resource:///modules/accountcreation/InputSanitizer.sys.mjs"
 );
 
 const lazy = {};
@@ -242,7 +242,7 @@ class AddressBookLdapAccountForm extends AccountHubStep {
     }
 
     try {
-      this.#stateData.hostname = Sanitizer.hostname(this.#hostname.value);
+      this.#stateData.hostname = InputSanitizer.hostname(this.#hostname.value);
       this.#hostname.ariaInvalid = false;
       this.#hostname.removeAttribute("aria-describedby");
       this.#hostname.setCustomValidity("");
@@ -254,7 +254,7 @@ class AddressBookLdapAccountForm extends AccountHubStep {
     }
 
     try {
-      this.#stateData.port = Sanitizer.integerRange(
+      this.#stateData.port = InputSanitizer.integerRange(
         this.#port.valueAsNumber,
         1,
         65535
@@ -274,7 +274,7 @@ class AddressBookLdapAccountForm extends AccountHubStep {
     // longer advanced, capture state resets the credentials value.
     if (this.#isAdvanced && this.#maxResults.value) {
       try {
-        this.#advancedStateData.maxResults = Sanitizer.integerRange(
+        this.#advancedStateData.maxResults = InputSanitizer.integerRange(
           this.#maxResults.valueAsNumber,
           1,
           2147483647

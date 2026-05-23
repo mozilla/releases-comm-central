@@ -1,7 +1,8 @@
-#![allow(clippy::blacklisted_name)]
+#![allow(clippy::disallowed_names)]
 #![warn(rust_2018_idioms)]
 #![cfg(feature = "full")]
 
+use futures::StreamExt;
 use tokio::time::{self, sleep, sleep_until, Duration, Instant};
 use tokio_test::{assert_pending, assert_ready, task};
 use tokio_util::time::DelayQueue;
@@ -91,6 +92,7 @@ async fn single_short_delay() {
 }
 
 #[tokio::test]
+#[cfg_attr(miri, ignore)] // Too slow on miri.
 async fn multi_delay_at_start() {
     time::pause();
 
@@ -109,7 +111,7 @@ async fn multi_delay_at_start() {
 
     let start = Instant::now();
     for elapsed in 0..1200 {
-        println!("elapsed: {:?}", elapsed);
+        println!("elapsed: {elapsed:?}");
         let elapsed = elapsed + 1;
         tokio::time::sleep_until(start + ms(elapsed)).await;
 
@@ -257,6 +259,10 @@ async fn reset_twice() {
 #[tokio::test]
 async fn repeatedly_reset_entry_inserted_as_expired() {
     time::pause();
+
+    // Instants before the start of the test seem to break in wasm.
+    time::sleep(ms(1000)).await;
+
     let mut queue = task::spawn(DelayQueue::new());
     let now = Instant::now();
 
@@ -322,7 +328,7 @@ async fn remove_at_timer_wheel_threshold() {
             let entry = queue.remove(&key1).into_inner();
             assert_eq!(entry, "foo");
         }
-        other => panic!("other: {:?}", other),
+        other => panic!("other: {other:?}"),
     }
 }
 
@@ -556,6 +562,10 @@ async fn reset_later_after_slot_starts() {
 #[tokio::test]
 async fn reset_inserted_expired() {
     time::pause();
+
+    // Instants before the start of the test seem to break in wasm.
+    time::sleep(ms(1000)).await;
+
     let mut queue = task::spawn(DelayQueue::new());
     let now = Instant::now();
 
@@ -779,6 +789,24 @@ async fn compact_change_deadline() {
 }
 
 #[tokio::test(start_paused = true)]
+async fn item_expiry_greater_than_wheel() {
+    // This function tests that a delay queue that has existed for at least 2^36 milliseconds won't panic when a new item is inserted.
+    let mut queue = DelayQueue::new();
+    for _ in 0..2 {
+        tokio::time::advance(Duration::from_millis(1 << 35)).await;
+        queue.insert(0, Duration::from_millis(0));
+        queue.next().await;
+    }
+    // This should not panic
+    let no_panic = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        queue.insert(1, Duration::from_millis(1));
+    }));
+    assert!(no_panic.is_ok());
+}
+
+#[cfg_attr(target_os = "wasi", ignore = "FIXME: Does not seem to work with WASI")]
+#[tokio::test(start_paused = true)]
+#[cfg(panic = "unwind")]
 async fn remove_after_compact() {
     let now = Instant::now();
     let mut queue = DelayQueue::new();
@@ -794,7 +822,9 @@ async fn remove_after_compact() {
     assert!(panic.is_err());
 }
 
+#[cfg_attr(target_os = "wasi", ignore = "FIXME: Does not seem to work with WASI")]
 #[tokio::test(start_paused = true)]
+#[cfg(panic = "unwind")]
 async fn remove_after_compact_poll() {
     let now = Instant::now();
     let mut queue = task::spawn(DelayQueue::new());
@@ -811,6 +841,57 @@ async fn remove_after_compact_poll() {
         queue.remove(&foo_key);
     }));
     assert!(panic.is_err());
+}
+
+#[tokio::test(start_paused = true)]
+async fn peek() {
+    let mut queue = task::spawn(DelayQueue::new());
+
+    let now = Instant::now();
+
+    let key = queue.insert_at("foo", now + ms(5));
+    let key2 = queue.insert_at("bar", now);
+    let key3 = queue.insert_at("baz", now + ms(10));
+
+    assert_eq!(queue.peek(), Some(key2));
+
+    sleep(ms(6)).await;
+
+    assert_eq!(queue.peek(), Some(key2));
+
+    let entry = assert_ready_some!(poll!(queue));
+    assert_eq!(entry.get_ref(), &"bar");
+
+    assert_eq!(queue.peek(), Some(key));
+
+    let entry = assert_ready_some!(poll!(queue));
+    assert_eq!(entry.get_ref(), &"foo");
+
+    assert_eq!(queue.peek(), Some(key3));
+
+    assert_pending!(poll!(queue));
+
+    sleep(ms(5)).await;
+
+    assert_eq!(queue.peek(), Some(key3));
+
+    let entry = assert_ready_some!(poll!(queue));
+    assert_eq!(entry.get_ref(), &"baz");
+
+    assert!(queue.peek().is_none());
+}
+
+#[tokio::test(start_paused = true)]
+async fn wake_after_remove_last() {
+    let mut queue = task::spawn(DelayQueue::new());
+    let key = queue.insert("foo", ms(1000));
+
+    assert_pending!(poll!(queue));
+
+    queue.remove(&key);
+
+    assert!(queue.is_woken());
+    assert!(assert_ready!(poll!(queue)).is_none());
 }
 
 fn ms(n: u64) -> Duration {

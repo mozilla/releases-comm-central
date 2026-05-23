@@ -1,11 +1,9 @@
 [package]
 name = "h2"
 # When releasing to crates.io:
-# - Update doc URL.
-#   - html_root_url.
 # - Update CHANGELOG.md.
 # - Create git tag
-version = "0.3.26"
+version = "0.4.13"
 license = "MIT"
 authors = [
   "Carl Lerche <me@carllerche.com>",
@@ -18,7 +16,7 @@ readme = "README.md"
 keywords = ["http", "async", "non-blocking"]
 categories = ["asynchronous", "web-programming", "network-programming"]
 exclude = ["fixtures/**", "ci/**"]
-edition = "2018"
+edition = "2021"
 rust-version = "1.63"
 
 [features]
@@ -41,13 +39,13 @@ members = [
 ]
 
 [dependencies]
+atomic-waker = "1.0.0"
 futures-core = { version = "0.3", default-features = false }
 futures-sink = { version = "0.3", default-features = false }
-futures-util = { version = "0.3", default-features = false }
 tokio-util = { version = "0.7.1", features = ["codec", "io"] }
 tokio = { version = "1", features = ["io-util"] }
 bytes = "1"
-http = "0.2"
+http = "1"
 tracing = { version = "0.1.35", default-features = false, features = ["std"] }
 fnv = "1.0.5"
 slab = "0.4.2"
@@ -68,8 +66,15 @@ serde_json = "1.0.0"
 # Examples
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "sync", "net"] }
 env_logger = { version = "0.10", default-features = false }
-tokio-rustls = "0.24"
-webpki-roots = "0.25"
+tokio-rustls = "0.26"
+webpki-roots = "1"
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(fuzzing)"] }
 
 [package.metadata.docs.rs]
 features = ["stream"]
+
+[[bench]]
+name = "main"
+harness = false

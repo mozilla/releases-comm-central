@@ -18,4 +18,7 @@ prefs = [
 ]
 subsuite = "thunderbird"
 
+["browser_pdfSpace.js"]
+support-files = ["support-files/test.pdf"]
+
 ["browser_spacehit.js"]

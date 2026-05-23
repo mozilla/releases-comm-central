@@ -11,7 +11,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! h2 = "0.3"
+//! h2 = "0.4"
 //! ```
 //!
 //! # Layout
@@ -41,7 +41,7 @@
 //! library will start the handshake process, which consists of:
 //!
 //! * The client sends the connection preface (a predefined sequence of 24
-//! octets).
+//!   octets).
 //! * Both the client and the server sending a SETTINGS frame.
 //!
 //! See the [Starting HTTP/2] in the specification for more details.
@@ -138,3 +138,25 @@ pub use crate::share::{FlowControl, Ping, PingPong, Pong, RecvStream, SendStream
 
 #[cfg(feature = "unstable")]
 pub use codec::{Codec, SendError, UserError};
+
+use std::future::Future;
+use std::pin::Pin;
+use std::task::{Context, Poll};
+
+/// Creates a future from a function that returns `Poll`.
+fn poll_fn<T, F: FnMut(&mut Context<'_>) -> T>(f: F) -> PollFn<F> {
+    PollFn(f)
+}
+
+/// The future created by `poll_fn`.
+struct PollFn<F>(F);
+
+impl<F> Unpin for PollFn<F> {}
+
+impl<T, F: FnMut(&mut Context<'_>) -> Poll<T>> Future for PollFn<F> {
+    type Output = T;
+
+    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+        (self.0)(cx)
+    }
+}

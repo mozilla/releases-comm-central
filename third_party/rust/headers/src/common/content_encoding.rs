@@ -1,9 +1,10 @@
+use http::HeaderValue;
+
 use self::sealed::AsCoding;
-use util::FlatCsv;
-use HeaderValue;
+use crate::util::FlatCsv;
 
 /// `Content-Encoding` header, defined in
-/// [RFC7231](http://tools.ietf.org/html/rfc7231#section-3.1.2.2)
+/// [RFC7231](https://datatracker.ietf.org/doc/html/rfc7231#section-3.1.2.2)
 ///
 /// The `Content-Encoding` header field indicates what content codings
 /// have been applied to the representation, beyond those inherent in the
@@ -22,11 +23,12 @@ use HeaderValue;
 /// # Example values
 ///
 /// * `gzip`
+/// * `br`
+/// * `zstd`
 ///
 /// # Examples
 ///
 /// ```
-/// # extern crate headers;
 /// use headers::ContentEncoding;
 ///
 /// let content_enc = ContentEncoding::gzip();
@@ -46,6 +48,18 @@ impl ContentEncoding {
         ContentEncoding(HeaderValue::from_static("gzip").into())
     }
 
+    /// A constructor to easily create a `Content-Encoding: br` header.
+    #[inline]
+    pub fn brotli() -> ContentEncoding {
+        ContentEncoding(HeaderValue::from_static("br").into())
+    }
+
+    /// A constructor to easily create a `Content-Encoding: zstd` header.
+    #[inline]
+    pub fn zstd() -> ContentEncoding {
+        ContentEncoding(HeaderValue::from_static("zstd").into())
+    }
+
     /// Check if this header contains a given "coding".
     ///
     /// This can be used with these argument types:
@@ -55,7 +69,6 @@ impl ContentEncoding {
     /// # Example
     ///
     /// ```
-    /// # extern crate headers;
     /// use headers::ContentEncoding;
     ///
     /// let content_enc = ContentEncoding::gzip();
@@ -65,7 +78,7 @@ impl ContentEncoding {
     /// ```
     pub fn contains(&self, coding: impl AsCoding) -> bool {
         let s = coding.as_coding();
-        self.0.iter().find(|&opt| opt == s).is_some()
+        self.0.iter().any(|opt| opt == s)
     }
 }
 
@@ -76,11 +89,11 @@ mod sealed {
         fn as_coding(&self) -> &str;
     }
 
-    impl<'a> AsCoding for &'a str {}
+    impl AsCoding for &str {}
 
-    impl<'a> Sealed for &'a str {
+    impl Sealed for &str {
         fn as_coding(&self) -> &str {
-            *self
+            self
         }
     }
 }

@@ -6,7 +6,6 @@
 
 use crate::time::wheel::{self, Wheel};
 
-use futures_core::ready;
 use tokio::time::{sleep_until, Duration, Instant, Sleep};
 
 use core::ops::{Index, IndexMut};
@@ -19,7 +18,7 @@ use std::fmt::Debug;
 use std::future::Future;
 use std::marker::PhantomData;
 use std::pin::Pin;
-use std::task::{self, Poll, Waker};
+use std::task::{self, ready, Poll, Waker};
 
 /// A queue of delayed elements.
 ///
@@ -41,7 +40,7 @@ use std::task::{self, Poll, Waker};
 /// # `Stream` implementation
 ///
 /// Items are retrieved from the queue via [`DelayQueue::poll_expired`]. If no delays have
-/// expired, no items are returned. In this case, `Poll::Pending` is returned and the
+/// expired, no items are returned. In this case, [`Poll::Pending`] is returned and the
 /// current task is registered to be notified once the next item's delay has
 /// expired.
 ///
@@ -62,21 +61,24 @@ use std::task::{self, Poll, Waker};
 /// performance and scalability benefits.
 ///
 /// State associated with each entry is stored in a [`slab`]. This amortizes the cost of allocation,
-/// and allows reuse of the memory allocated for expired entires.
+/// and allows reuse of the memory allocated for expired entries.
 ///
 /// Capacity can be checked using [`capacity`] and allocated preemptively by using
 /// the [`reserve`] method.
 ///
+/// # Cancellation safety
+///
+/// [`DelayQueue`]'s implementation of [`StreamExt::next`] is cancellation safe.
+///
 /// # Usage
 ///
-/// Using `DelayQueue` to manage cache entries.
+/// Using [`DelayQueue`] to manage cache entries.
 ///
 /// ```rust,no_run
 /// use tokio_util::time::{DelayQueue, delay_queue};
 ///
-/// use futures::ready;
 /// use std::collections::HashMap;
-/// use std::task::{Context, Poll};
+/// use std::task::{ready, Context, Poll};
 /// use std::time::Duration;
 /// # type CacheKey = String;
 /// # type Value = String;
@@ -120,7 +122,8 @@ use std::task::{self, Poll, Waker};
 /// [`insert`]: method@Self::insert
 /// [`insert_at`]: method@Self::insert_at
 /// [`Key`]: struct@Key
-/// [`Stream`]: https://docs.rs/futures/0.1/futures/stream/trait.Stream.html
+/// [`Stream`]: https://docs.rs/futures/0.3.31/futures/stream/trait.Stream.html
+/// [`StreamExt::next`]: https://docs.rs/tokio-stream/0.1.17/tokio_stream/trait.StreamExt.html#method.next
 /// [`poll_expired`]: method@Self::poll_expired
 /// [`Stream::poll_expired`]: method@Self::poll_expired
 /// [`DelayQueue`]: struct@DelayQueue
@@ -190,7 +193,7 @@ impl<T> SlabStorage<T> {
         let key_contained = self.key_map.contains_key(&key.into());
 
         if key_contained {
-            // It's possible that a `compact` call creates capacitiy in `self.inner` in
+            // It's possible that a `compact` call creates capacity in `self.inner` in
             // such a way that a `self.inner.insert` call creates a `key` which was
             // previously given out during an `insert` call prior to the `compact` call.
             // If `key` is contained in `self.key_map`, we have encountered this exact situation,
@@ -275,7 +278,7 @@ impl<T> SlabStorage<T> {
     fn remap_key(&self, key: &Key) -> Option<KeyInternal> {
         let key_map = &self.key_map;
         if self.compact_called {
-            key_map.get(&*key).copied()
+            key_map.get(key).copied()
         } else {
             Some((*key).into())
         }
@@ -458,7 +461,7 @@ impl<T> DelayQueue<T> {
     /// # use tokio_util::time::DelayQueue;
     /// # use std::time::Duration;
     ///
-    /// # #[tokio::main]
+    /// # #[tokio::main(flavor = "current_thread")]
     /// # async fn main() {
     /// let mut delay_queue = DelayQueue::with_capacity(10);
     ///
@@ -514,7 +517,7 @@ impl<T> DelayQueue<T> {
     /// use tokio::time::{Duration, Instant};
     /// use tokio_util::time::DelayQueue;
     ///
-    /// # #[tokio::main]
+    /// # #[tokio::main(flavor = "current_thread")]
     /// # async fn main() {
     /// let mut delay_queue = DelayQueue::new();
     /// let key = delay_queue.insert_at(
@@ -531,6 +534,7 @@ impl<T> DelayQueue<T> {
     /// [`reset`]: method@Self::reset
     /// [`Key`]: struct@Key
     /// [type]: #
+    #[track_caller]
     pub fn insert_at(&mut self, value: T, when: Instant) -> Key {
         assert!(self.slab.len() < MAX_ENTRIES, "max entries exceeded");
 
@@ -633,7 +637,7 @@ impl<T> DelayQueue<T> {
     /// use tokio_util::time::DelayQueue;
     /// use std::time::Duration;
     ///
-    /// # #[tokio::main]
+    /// # #[tokio::main(flavor = "current_thread")]
     /// # async fn main() {
     /// let mut delay_queue = DelayQueue::new();
     /// let key = delay_queue.insert("foo", Duration::from_secs(5));
@@ -649,10 +653,12 @@ impl<T> DelayQueue<T> {
     /// [`reset`]: method@Self::reset
     /// [`Key`]: struct@Key
     /// [type]: #
+    #[track_caller]
     pub fn insert(&mut self, value: T, timeout: Duration) -> Key {
         self.insert_at(value, Instant::now() + timeout)
     }
 
+    #[track_caller]
     fn insert_idx(&mut self, when: u64, key: Key) {
         use self::wheel::{InsertError, Stack};
 
@@ -664,8 +670,41 @@ impl<T> DelayQueue<T> {
                 // The delay is already expired, store it in the expired queue
                 self.expired.push(key, &mut self.slab);
             }
-            Err((_, err)) => panic!("invalid deadline; err={:?}", err),
+            Err((_, err)) => panic!("invalid deadline; err={err:?}"),
         }
+    }
+
+    /// Returns the deadline of the item associated with `key`.
+    ///
+    /// Since the queue operates at millisecond granularity, the returned
+    /// deadline may not exactly match the value that was given when initially
+    /// inserting the item into the queue.
+    ///
+    /// # Panics
+    ///
+    /// This function panics if `key` is not contained by the queue.
+    ///
+    /// # Examples
+    ///
+    /// Basic usage
+    ///
+    /// ```rust
+    /// use tokio_util::time::DelayQueue;
+    /// use std::time::Duration;
+    ///
+    /// # #[tokio::main(flavor = "current_thread")]
+    /// # async fn main() {
+    /// let mut delay_queue = DelayQueue::new();
+    ///
+    /// let key1 = delay_queue.insert("foo", Duration::from_secs(5));
+    /// let key2 = delay_queue.insert("bar", Duration::from_secs(10));
+    ///
+    /// assert!(delay_queue.deadline(&key1) < delay_queue.deadline(&key2));
+    /// # }
+    /// ```
+    #[track_caller]
+    pub fn deadline(&self, key: &Key) -> Instant {
+        self.start + Duration::from_millis(self.slab[*key].when)
     }
 
     /// Removes the key from the expired queue or the timer wheel
@@ -674,6 +713,7 @@ impl<T> DelayQueue<T> {
     /// # Panics
     ///
     /// Panics if the key is not contained in the expired queue or the wheel.
+    #[track_caller]
     fn remove_key(&mut self, key: &Key) {
         use crate::time::wheel::Stack;
 
@@ -703,7 +743,7 @@ impl<T> DelayQueue<T> {
     /// use tokio_util::time::DelayQueue;
     /// use std::time::Duration;
     ///
-    /// # #[tokio::main]
+    /// # #[tokio::main(flavor = "current_thread")]
     /// # async fn main() {
     /// let mut delay_queue = DelayQueue::new();
     /// let key = delay_queue.insert("foo", Duration::from_secs(5));
@@ -713,6 +753,7 @@ impl<T> DelayQueue<T> {
     /// assert_eq!(*item.get_ref(), "foo");
     /// # }
     /// ```
+    #[track_caller]
     pub fn remove(&mut self, key: &Key) -> Expired<T> {
         let prev_deadline = self.next_deadline();
 
@@ -728,10 +769,53 @@ impl<T> DelayQueue<T> {
             }
         }
 
+        if self.slab.is_empty() {
+            if let Some(waker) = self.waker.take() {
+                waker.wake();
+            }
+        }
+
         Expired {
             key: Key::new(key.index),
             data: data.inner,
             deadline: self.start + Duration::from_millis(data.when),
+        }
+    }
+
+    /// Attempts to remove the item associated with `key` from the queue.
+    ///
+    /// Removes the item associated with `key`, and returns it along with the
+    /// `Instant` at which it would have expired, if it exists.
+    ///
+    /// Returns `None` if `key` is not in the queue.
+    ///
+    /// # Examples
+    ///
+    /// Basic usage
+    ///
+    /// ```rust
+    /// use tokio_util::time::DelayQueue;
+    /// use std::time::Duration;
+    ///
+    /// # #[tokio::main(flavor = "current_thread")]
+    /// # async fn main() {
+    /// let mut delay_queue = DelayQueue::new();
+    /// let key = delay_queue.insert("foo", Duration::from_secs(5));
+    ///
+    /// // The item is in the queue, `try_remove` returns `Some(Expired("foo"))`.
+    /// let item = delay_queue.try_remove(&key);
+    /// assert_eq!(item.unwrap().into_inner(), "foo");
+    ///
+    /// // The item is not in the queue anymore, `try_remove` returns `None`.
+    /// let item = delay_queue.try_remove(&key);
+    /// assert!(item.is_none());
+    /// # }
+    /// ```
+    pub fn try_remove(&mut self, key: &Key) -> Option<Expired<T>> {
+        if self.slab.contains(key) {
+            Some(self.remove(key))
+        } else {
+            None
         }
     }
 
@@ -757,7 +841,7 @@ impl<T> DelayQueue<T> {
     /// use tokio::time::{Duration, Instant};
     /// use tokio_util::time::DelayQueue;
     ///
-    /// # #[tokio::main]
+    /// # #[tokio::main(flavor = "current_thread")]
     /// # async fn main() {
     /// let mut delay_queue = DelayQueue::new();
     /// let key = delay_queue.insert("foo", Duration::from_secs(5));
@@ -769,6 +853,7 @@ impl<T> DelayQueue<T> {
     /// // "foo" is now scheduled to be returned in 10 seconds
     /// # }
     /// ```
+    #[track_caller]
     pub fn reset_at(&mut self, key: &Key, when: Instant) {
         self.remove_key(key);
 
@@ -813,7 +898,7 @@ impl<T> DelayQueue<T> {
     /// use tokio_util::time::DelayQueue;
     /// use std::time::Duration;
     ///
-    /// # #[tokio::main]
+    /// # #[tokio::main(flavor = "current_thread")]
     /// # async fn main() {
     /// let mut delay_queue = DelayQueue::with_capacity(10);
     ///
@@ -831,8 +916,45 @@ impl<T> DelayQueue<T> {
         self.slab.compact();
     }
 
-    /// Returns the next time to poll as determined by the wheel
-    fn next_deadline(&mut self) -> Option<Instant> {
+    /// Gets the [`Key`] that [`poll_expired`] will pull out of the queue next, without
+    /// pulling it out or waiting for the deadline to expire.
+    ///
+    /// Entries that have already expired may be returned in any order, but it is
+    /// guaranteed that this method returns them in the same order as when items
+    /// are popped from the `DelayQueue`.
+    ///
+    /// # Examples
+    ///
+    /// Basic usage
+    ///
+    /// ```rust
+    /// use tokio_util::time::DelayQueue;
+    /// use std::time::Duration;
+    ///
+    /// # #[tokio::main(flavor = "current_thread")]
+    /// # async fn main() {
+    /// let mut delay_queue = DelayQueue::new();
+    ///
+    /// let key1 = delay_queue.insert("foo", Duration::from_secs(10));
+    /// let key2 = delay_queue.insert("bar", Duration::from_secs(5));
+    /// let key3 = delay_queue.insert("baz", Duration::from_secs(15));
+    ///
+    /// assert_eq!(delay_queue.peek().unwrap(), key2);
+    /// # }
+    /// ```
+    ///
+    /// [`Key`]: struct@Key
+    /// [`poll_expired`]: method@Self::poll_expired
+    pub fn peek(&self) -> Option<Key> {
+        use self::wheel::Stack;
+
+        self.expired.peek().or_else(|| self.wheel.peek())
+    }
+
+    /// Returns the next time to poll as determined by the wheel.
+    ///
+    /// Note that this does not include deadlines in the `expired` queue.
+    fn next_deadline(&self) -> Option<Instant> {
         self.wheel
             .poll_at()
             .map(|poll_at| self.start + Duration::from_millis(poll_at))
@@ -861,7 +983,7 @@ impl<T> DelayQueue<T> {
     /// use tokio_util::time::DelayQueue;
     /// use std::time::Duration;
     ///
-    /// # #[tokio::main]
+    /// # #[tokio::main(flavor = "current_thread")]
     /// # async fn main() {
     /// let mut delay_queue = DelayQueue::new();
     /// let key = delay_queue.insert("foo", Duration::from_secs(5));
@@ -873,6 +995,7 @@ impl<T> DelayQueue<T> {
     /// // "foo"is now scheduled to be returned in 10 seconds
     /// # }
     /// ```
+    #[track_caller]
     pub fn reset(&mut self, key: &Key, timeout: Duration) {
         self.reset_at(key, Instant::now() + timeout);
     }
@@ -891,7 +1014,7 @@ impl<T> DelayQueue<T> {
     /// use tokio_util::time::DelayQueue;
     /// use std::time::Duration;
     ///
-    /// # #[tokio::main]
+    /// # #[tokio::main(flavor = "current_thread")]
     /// # async fn main() {
     /// let mut delay_queue = DelayQueue::new();
     ///
@@ -933,7 +1056,7 @@ impl<T> DelayQueue<T> {
     /// use tokio_util::time::DelayQueue;
     /// use std::time::Duration;
     ///
-    /// # #[tokio::main]
+    /// # #[tokio::main(flavor = "current_thread")]
     /// # async fn main() {
     /// let mut delay_queue: DelayQueue<i32> = DelayQueue::with_capacity(10);
     /// assert_eq!(delay_queue.len(), 0);
@@ -968,7 +1091,7 @@ impl<T> DelayQueue<T> {
     /// use tokio_util::time::DelayQueue;
     /// use std::time::Duration;
     ///
-    /// # #[tokio::main]
+    /// # #[tokio::main(flavor = "current_thread")]
     /// # async fn main() {
     /// let mut delay_queue = DelayQueue::new();
     ///
@@ -978,7 +1101,12 @@ impl<T> DelayQueue<T> {
     /// assert!(delay_queue.capacity() >= 11);
     /// # }
     /// ```
+    #[track_caller]
     pub fn reserve(&mut self, additional: usize) {
+        assert!(
+            self.slab.capacity() + additional <= MAX_ENTRIES,
+            "max queue capacity exceeded"
+        );
         self.slab.reserve(additional);
     }
 
@@ -993,7 +1121,7 @@ impl<T> DelayQueue<T> {
     /// use tokio_util::time::DelayQueue;
     /// use std::time::Duration;
     ///
-    /// # #[tokio::main]
+    /// # #[tokio::main(flavor = "current_thread")]
     /// # async fn main() {
     /// let mut delay_queue = DelayQueue::new();
     /// assert!(delay_queue.is_empty());
@@ -1117,6 +1245,11 @@ impl<T> wheel::Stack for Stack<T> {
         }
     }
 
+    fn peek(&self) -> Option<Self::Owned> {
+        self.head
+    }
+
+    #[track_caller]
     fn remove(&mut self, item: &Self::Borrowed, store: &mut Self::Store) {
         let key = *item;
         assert!(store.contains(item));

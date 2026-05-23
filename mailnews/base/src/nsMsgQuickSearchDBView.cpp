@@ -396,7 +396,7 @@ nsresult nsMsgQuickSearchDBView::GetFirstMessageHdrToDisplayInThread(
     nsIMsgThread* threadHdr, nsIMsgDBHdr** result) {
   uint32_t numChildren;
   nsresult rv = NS_OK;
-  uint8_t minLevel = 0xff;
+  uint32_t minLevel = std::numeric_limits<uint32_t>::max();
   threadHdr->GetNumChildren(&numChildren);
   nsMsgKey threadRootKey;
   nsCOMPtr<nsIMsgDBHdr> rootParent;
@@ -424,7 +424,7 @@ nsresult nsMsgQuickSearchDBView::GetFirstMessageHdrToDisplayInThread(
           retHdr = child;
           break;
         }
-        uint8_t level = 0;
+        uint32_t level = 0;
         nsMsgKey parentId;
         child->GetThreadParent(&parentId);
         nsCOMPtr<nsIMsgDBHdr> parent;

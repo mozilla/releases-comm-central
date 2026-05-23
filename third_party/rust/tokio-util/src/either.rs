@@ -46,18 +46,18 @@ use tokio::io::{AsyncBufRead, AsyncRead, AsyncSeek, AsyncWrite, ReadBuf, Result}
 /// # async fn some_async_function() -> u32 { 10 }
 /// # async fn other_async_function() -> u32 { 20 }
 ///
-/// #[tokio::main]
-/// async fn main() {
-///     let result = if some_condition() {
-///         Either::Left(some_async_function())
-///     } else {
-///         Either::Right(other_async_function())
-///     };
+/// # #[tokio::main(flavor = "current_thread")]
+/// # async fn main() {
+/// let result = if some_condition() {
+///     Either::Left(some_async_function())
+/// } else {
+///     Either::Right(other_async_function())
+/// };
 ///
-///     let value = result.await;
-///     println!("Result is {}", value);
-///     # assert_eq!(value, 10);
-/// }
+/// let value = result.await;
+/// println!("Result is {}", value);
+/// # assert_eq!(value, 10);
+/// # }
 /// ```
 #[allow(missing_docs)] // Doc-comments for variants in this particular case don't make much sense.
 #[derive(Debug, Clone)]
@@ -116,7 +116,7 @@ where
     }
 
     fn consume(self: Pin<&mut Self>, amt: usize) {
-        delegate_call!(self.consume(amt))
+        delegate_call!(self.consume(amt));
     }
 }
 
@@ -150,6 +150,21 @@ where
     fn poll_shutdown(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<tokio::io::Result<()>> {
         delegate_call!(self.poll_shutdown(cx))
     }
+
+    fn poll_write_vectored(
+        self: Pin<&mut Self>,
+        cx: &mut Context<'_>,
+        bufs: &[std::io::IoSlice<'_>],
+    ) -> Poll<std::result::Result<usize, std::io::Error>> {
+        delegate_call!(self.poll_write_vectored(cx, bufs))
+    }
+
+    fn is_write_vectored(&self) -> bool {
+        match self {
+            Self::Left(l) => l.is_write_vectored(),
+            Self::Right(r) => r.is_write_vectored(),
+        }
+    }
 }
 
 impl<L, R> futures_core::stream::Stream for Either<L, R>
@@ -164,7 +179,40 @@ where
     }
 }
 
-#[cfg(test)]
+impl<L, R, Item, Error> futures_sink::Sink<Item> for Either<L, R>
+where
+    L: futures_sink::Sink<Item, Error = Error>,
+    R: futures_sink::Sink<Item, Error = Error>,
+{
+    type Error = Error;
+
+    fn poll_ready(
+        self: Pin<&mut Self>,
+        cx: &mut Context<'_>,
+    ) -> Poll<std::result::Result<(), Self::Error>> {
+        delegate_call!(self.poll_ready(cx))
+    }
+
+    fn start_send(self: Pin<&mut Self>, item: Item) -> std::result::Result<(), Self::Error> {
+        delegate_call!(self.start_send(item))
+    }
+
+    fn poll_flush(
+        self: Pin<&mut Self>,
+        cx: &mut Context<'_>,
+    ) -> Poll<std::result::Result<(), Self::Error>> {
+        delegate_call!(self.poll_flush(cx))
+    }
+
+    fn poll_close(
+        self: Pin<&mut Self>,
+        cx: &mut Context<'_>,
+    ) -> Poll<std::result::Result<(), Self::Error>> {
+        delegate_call!(self.poll_close(cx))
+    }
+}
+
+#[cfg(all(test, not(loom)))]
 mod tests {
     use super::*;
     use tokio::io::{repeat, AsyncReadExt, Repeat};

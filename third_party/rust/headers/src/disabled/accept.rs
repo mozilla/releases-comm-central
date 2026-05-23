@@ -3,7 +3,7 @@ use mime::{self, Mime};
 use {QualityItem, qitem};
 
 header! {
-    /// `Accept` header, defined in [RFC7231](http://tools.ietf.org/html/rfc7231#section-5.3.2)
+    /// `Accept` header, defined in [RFC7231](https://datatracker.ietf.org/doc/html/rfc7231#section-5.3.2)
     ///
     /// The `Accept` header field can be used by user agents to specify
     /// response media types that are acceptable.  Accept header fields can
@@ -30,7 +30,6 @@ header! {
     ///
     /// # Examples
     /// ```
-    /// # extern crate headers;
     /// extern crate mime;
     /// use headers::{Headers, Accept, qitem};
     ///
@@ -44,7 +43,6 @@ header! {
     /// ```
     ///
     /// ```
-    /// # extern crate headers;
     /// extern crate mime;
     /// use headers::{Headers, Accept, qitem};
     ///
@@ -56,7 +54,6 @@ header! {
     /// );
     /// ```
     /// ```
-    /// # extern crate headers;
     /// extern crate mime;
     /// use headers::{Headers, Accept, QualityItem, q, qitem};
     ///

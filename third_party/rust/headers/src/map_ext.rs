@@ -1,5 +1,4 @@
 use super::{Error, Header, HeaderValue};
-use http;
 
 /// An extension trait adding "typed" methods to `http::HeaderMap`.
 pub trait HeaderMapExt: self::sealed::Sealed {
@@ -62,7 +61,7 @@ enum State<'a> {
     Tmp,
 }
 
-impl<'a> Extend<HeaderValue> for ToValues<'a> {
+impl Extend<HeaderValue> for ToValues<'_> {
     fn extend<T: IntoIterator<Item = HeaderValue>>(&mut self, iter: T) {
         for value in iter {
             let entry = match ::std::mem::replace(&mut self.state, State::Tmp) {

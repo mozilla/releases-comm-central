@@ -1,5 +1,9 @@
 use std::ops::{Bound, RangeBounds};
 
+use http::{HeaderName, HeaderValue};
+
+use crate::{Error, Header};
+
 /// `Range` header, defined in [RFC7233](https://tools.ietf.org/html/rfc7233#section-3.1)
 ///
 /// The "Range" header field on a GET request modifies the method
@@ -10,7 +14,7 @@ use std::ops::{Bound, RangeBounds};
 /// # ABNF
 ///
 /// ```text
-/// Range =	byte-ranges-specifier / other-ranges-specifier
+/// Range = byte-ranges-specifier / other-ranges-specifier
 /// other-ranges-specifier = other-range-unit "=" other-range-set
 /// other-range-set = 1*VCHAR
 ///
@@ -33,14 +37,13 @@ use std::ops::{Bound, RangeBounds};
 /// # Examples
 ///
 /// ```
-/// # extern crate headers;
 /// use headers::Range;
 ///
 ///
 /// let range = Range::bytes(0..1234).unwrap();
 /// ```
 #[derive(Clone, Debug, PartialEq)]
-pub struct Range(::HeaderValue);
+pub struct Range(HeaderValue);
 
 error_type!(InvalidRange);
 
@@ -48,29 +51,52 @@ impl Range {
     /// Creates a `Range` header from bounds.
     pub fn bytes(bounds: impl RangeBounds<u64>) -> Result<Self, InvalidRange> {
         let v = match (bounds.start_bound(), bounds.end_bound()) {
-            (Bound::Unbounded, Bound::Included(end)) => format!("bytes=-{}", end),
-            (Bound::Unbounded, Bound::Excluded(&end)) => format!("bytes=-{}", end - 1),
             (Bound::Included(start), Bound::Included(end)) => format!("bytes={}-{}", start, end),
             (Bound::Included(start), Bound::Excluded(&end)) => {
                 format!("bytes={}-{}", start, end - 1)
             }
             (Bound::Included(start), Bound::Unbounded) => format!("bytes={}-", start),
+            // These do not directly translate.
+            //(Bound::Unbounded, Bound::Included(end)) => format!("bytes=-{}", end),
+            //(Bound::Unbounded, Bound::Excluded(&end)) => format!("bytes=-{}", end - 1),
             _ => return Err(InvalidRange { _inner: () }),
         };
 
-        Ok(Range(::HeaderValue::from_str(&v).unwrap()))
+        Ok(Range(HeaderValue::from_str(&v).unwrap()))
     }
 
-    /// Iterate the range sets as a tuple of bounds.
-    pub fn iter<'a>(&'a self) -> impl Iterator<Item = (Bound<u64>, Bound<u64>)> + 'a {
+    /// Iterate the range sets as a tuple of bounds, if valid with length.
+    ///
+    /// The length of the content is passed as an argument, and all ranges
+    /// that can be satisfied will be iterated.
+    pub fn satisfiable_ranges(
+        &self,
+        len: u64,
+    ) -> impl Iterator<Item = (Bound<u64>, Bound<u64>)> + '_ {
         let s = self
             .0
             .to_str()
             .expect("valid string checked in Header::decode()");
 
-        s["bytes=".len()..].split(',').filter_map(|spec| {
+        s["bytes=".len()..].split(',').filter_map(move |spec| {
             let mut iter = spec.trim().splitn(2, '-');
-            Some((parse_bound(iter.next()?)?, parse_bound(iter.next()?)?))
+            let start = parse_bound(iter.next()?)?;
+            let end = parse_bound(iter.next()?)?;
+
+            // Unbounded ranges in HTTP are actually a suffix
+            // For example, `-100` means the last 100 bytes.
+            if let Bound::Unbounded = start {
+                if let Bound::Included(end) = end {
+                    if len < end {
+                        // Last N bytes is larger than available!
+                        return None;
+                    }
+                    return Some((Bound::Included(len - end), Bound::Unbounded));
+                }
+                // else fall through
+            }
+
+            Some((start, end))
         })
     }
 }
@@ -83,12 +109,12 @@ fn parse_bound(s: &str) -> Option<Bound<u64>> {
     s.parse().ok().map(Bound::Included)
 }
 
-impl ::Header for Range {
-    fn name() -> &'static ::HeaderName {
+impl Header for Range {
+    fn name() -> &'static HeaderName {
         &::http::header::RANGE
     }
 
-    fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
+    fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Result<Self, Error> {
         values
             .next()
             .and_then(|val| {
@@ -98,10 +124,10 @@ impl ::Header for Range {
                     None
                 }
             })
-            .ok_or_else(::Error::invalid)
+            .ok_or_else(Error::invalid)
     }
 
-    fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
+    fn encode<E: Extend<HeaderValue>>(&self, values: &mut E) {
         values.extend(::std::iter::once(self.0.clone()));
     }
 }
@@ -416,3 +442,17 @@ fn test_byte_range_spec_to_satisfiable_range() {
 bench_header!(bytes_multi, Range, { vec![b"bytes=1-1001,2001-3001,10001-".to_vec()]});
 bench_header!(custom_unit, Range, { vec![b"other=0-100000".to_vec()]});
 */
+
+#[test]
+fn test_to_satisfiable_range_suffix() {
+    let range = super::test_decode::<Range>(&["bytes=-100"]).unwrap();
+    let bounds = range.satisfiable_ranges(350).next().unwrap();
+    assert_eq!(bounds, (Bound::Included(250), Bound::Unbounded));
+}
+
+#[test]
+fn test_to_unsatisfiable_range_suffix() {
+    let range = super::test_decode::<Range>(&["bytes=-350"]).unwrap();
+    let bounds = range.satisfiable_ranges(100).next();
+    assert_eq!(bounds, None);
+}

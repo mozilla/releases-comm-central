@@ -1,6 +1,7 @@
 #![warn(rust_2018_idioms)]
 
 use tokio::pin;
+use tokio::sync::oneshot;
 use tokio_util::sync::{CancellationToken, WaitForCancellationFuture};
 
 use core::future::Future;
@@ -37,6 +38,56 @@ fn cancel_token() {
         Poll::Ready(()),
         wait_fut_2.as_mut().poll(&mut Context::from_waker(&waker))
     );
+}
+
+#[test]
+fn cancel_token_owned() {
+    let (waker, wake_counter) = new_count_waker();
+    let token = CancellationToken::new();
+    assert!(!token.is_cancelled());
+
+    let wait_fut = token.clone().cancelled_owned();
+    pin!(wait_fut);
+
+    assert_eq!(
+        Poll::Pending,
+        wait_fut.as_mut().poll(&mut Context::from_waker(&waker))
+    );
+    assert_eq!(wake_counter, 0);
+
+    let wait_fut_2 = token.clone().cancelled_owned();
+    pin!(wait_fut_2);
+
+    token.cancel();
+    assert_eq!(wake_counter, 1);
+    assert!(token.is_cancelled());
+
+    assert_eq!(
+        Poll::Ready(()),
+        wait_fut.as_mut().poll(&mut Context::from_waker(&waker))
+    );
+    assert_eq!(
+        Poll::Ready(()),
+        wait_fut_2.as_mut().poll(&mut Context::from_waker(&waker))
+    );
+}
+
+#[test]
+fn cancel_token_owned_drop_test() {
+    let (waker, wake_counter) = new_count_waker();
+    let token = CancellationToken::new();
+
+    let future = token.cancelled_owned();
+    pin!(future);
+
+    assert_eq!(
+        Poll::Pending,
+        future.as_mut().poll(&mut Context::from_waker(&waker))
+    );
+    assert_eq!(wake_counter, 0);
+
+    // let future be dropped while pinned and under pending state to
+    // find potential memory related bugs.
 }
 
 #[test]
@@ -206,9 +257,6 @@ fn create_child_token_after_parent_was_cancelled() {
                 parent_fut.as_mut().poll(&mut Context::from_waker(&waker))
             );
             assert_eq!(wake_counter, 0);
-
-            drop(child_fut);
-            drop(parent_fut);
         }
 
         if drop_child_first {
@@ -258,7 +306,7 @@ fn cancel_only_all_descendants() {
     let child2_token = token.child_token();
     let grandchild_token = child1_token.child_token();
     let grandchild2_token = child1_token.child_token();
-    let grandgrandchild_token = grandchild_token.child_token();
+    let great_grandchild_token = grandchild_token.child_token();
 
     assert!(!parent_token.is_cancelled());
     assert!(!token.is_cancelled());
@@ -267,7 +315,7 @@ fn cancel_only_all_descendants() {
     assert!(!child2_token.is_cancelled());
     assert!(!grandchild_token.is_cancelled());
     assert!(!grandchild2_token.is_cancelled());
-    assert!(!grandgrandchild_token.is_cancelled());
+    assert!(!great_grandchild_token.is_cancelled());
 
     let parent_fut = parent_token.cancelled();
     let fut = token.cancelled();
@@ -276,7 +324,7 @@ fn cancel_only_all_descendants() {
     let child2_fut = child2_token.cancelled();
     let grandchild_fut = grandchild_token.cancelled();
     let grandchild2_fut = grandchild2_token.cancelled();
-    let grandgrandchild_fut = grandgrandchild_token.cancelled();
+    let great_grandchild_fut = great_grandchild_token.cancelled();
 
     pin!(parent_fut);
     pin!(fut);
@@ -285,7 +333,7 @@ fn cancel_only_all_descendants() {
     pin!(child2_fut);
     pin!(grandchild_fut);
     pin!(grandchild2_fut);
-    pin!(grandgrandchild_fut);
+    pin!(great_grandchild_fut);
 
     assert_eq!(
         Poll::Pending,
@@ -321,7 +369,7 @@ fn cancel_only_all_descendants() {
     );
     assert_eq!(
         Poll::Pending,
-        grandgrandchild_fut
+        great_grandchild_fut
             .as_mut()
             .poll(&mut Context::from_waker(&waker))
     );
@@ -339,7 +387,7 @@ fn cancel_only_all_descendants() {
     assert!(child2_token.is_cancelled());
     assert!(grandchild_token.is_cancelled());
     assert!(grandchild2_token.is_cancelled());
-    assert!(grandgrandchild_token.is_cancelled());
+    assert!(great_grandchild_token.is_cancelled());
 
     assert_eq!(
         Poll::Ready(()),
@@ -367,7 +415,7 @@ fn cancel_only_all_descendants() {
     );
     assert_eq!(
         Poll::Ready(()),
-        grandgrandchild_fut
+        great_grandchild_fut
             .as_mut()
             .poll(&mut Context::from_waker(&waker))
     );
@@ -397,4 +445,121 @@ fn derives_send_sync() {
 
     assert_send::<WaitForCancellationFuture<'static>>();
     assert_sync::<WaitForCancellationFuture<'static>>();
+}
+
+#[test]
+fn run_until_cancelled_test() {
+    let (waker, _) = new_count_waker();
+
+    {
+        let token = CancellationToken::new();
+
+        let fut = token.run_until_cancelled(std::future::pending::<()>());
+        pin!(fut);
+
+        assert_eq!(
+            Poll::Pending,
+            fut.as_mut().poll(&mut Context::from_waker(&waker))
+        );
+
+        token.cancel();
+
+        assert_eq!(
+            Poll::Ready(None),
+            fut.as_mut().poll(&mut Context::from_waker(&waker))
+        );
+    }
+
+    {
+        let (tx, rx) = oneshot::channel::<()>();
+
+        let token = CancellationToken::new();
+        let fut = token.run_until_cancelled(async move {
+            rx.await.unwrap();
+            42
+        });
+        pin!(fut);
+
+        assert_eq!(
+            Poll::Pending,
+            fut.as_mut().poll(&mut Context::from_waker(&waker))
+        );
+
+        tx.send(()).unwrap();
+
+        assert_eq!(
+            Poll::Ready(Some(42)),
+            fut.as_mut().poll(&mut Context::from_waker(&waker))
+        );
+    }
+
+    // Do not poll the future when token is already cancelled.
+    {
+        let token = CancellationToken::new();
+
+        let fut = token.run_until_cancelled(async { panic!("fut polled after cancellation") });
+        pin!(fut);
+
+        token.cancel();
+
+        assert_eq!(
+            Poll::Ready(None),
+            fut.as_mut().poll(&mut Context::from_waker(&waker))
+        );
+    }
+}
+
+#[test]
+fn run_until_cancelled_owned_test() {
+    let (waker, _) = new_count_waker();
+
+    {
+        let token = CancellationToken::new();
+        let to_cancel = token.clone();
+
+        let takes_ownership = move |token: CancellationToken| {
+            token.run_until_cancelled_owned(std::future::pending::<()>())
+        };
+
+        let fut = takes_ownership(token);
+        pin!(fut);
+
+        assert_eq!(
+            Poll::Pending,
+            fut.as_mut().poll(&mut Context::from_waker(&waker))
+        );
+
+        to_cancel.cancel();
+
+        assert_eq!(
+            Poll::Ready(None),
+            fut.as_mut().poll(&mut Context::from_waker(&waker))
+        );
+    }
+
+    {
+        let (tx, rx) = oneshot::channel::<()>();
+
+        let token = CancellationToken::new();
+        let takes_ownership = move |token: CancellationToken, rx: oneshot::Receiver<()>| {
+            token.run_until_cancelled_owned(async move {
+                rx.await.unwrap();
+                42
+            })
+        };
+        let fut = takes_ownership(token, rx);
+        pin!(fut);
+
+        assert_eq!(
+            Poll::Pending,
+            fut.as_mut().poll(&mut Context::from_waker(&waker))
+        );
+
+        tx.send(()).unwrap();
+
+        assert_eq!(
+            Poll::Ready(Some(42)),
+            fut.as_mut().poll(&mut Context::from_waker(&waker))
+        );
+    }
 }

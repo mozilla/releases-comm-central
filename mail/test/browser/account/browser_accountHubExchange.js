@@ -396,6 +396,9 @@ add_task(async function test_exchange_manual_configuration() {
 
 add_task(async function test_exchange_ews_advanced_configuration() {
   needsAuthentication = false;
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.graph.enabled", true]],
+  });
   const dialog = await subtest_open_account_hub_dialog();
   const emailTemplate = dialog.querySelector("email-auto-form");
   const footerForward = dialog.querySelector("#emailFooter #forward");
@@ -429,6 +432,7 @@ add_task(async function test_exchange_ews_advanced_configuration() {
   const ewsAccount = await waitForAccount(emailUser.email);
   await cleanupAdvancedConfigurationTest(tabmail, ewsAccount);
   needsAuthentication = true;
+  await SpecialPowers.popPrefEnv();
 });
 
 add_task(async function test_exchange_graph_advanced_configuration() {

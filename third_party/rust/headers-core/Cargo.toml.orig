@@ -1,6 +1,6 @@
 [package]
 name = "headers-core"
-version = "0.2.0" # don't forget to update html_root_url
+version = "0.3.0" # don't forget to update html_root_url
 description = "typed HTTP headers core trait"
 license = "MIT"
 readme = "README.md"
@@ -10,4 +10,4 @@ authors = ["Sean McArthur <sean@seanmonstar.com>"]
 keywords = ["http", "headers", "hyper", "hyperium"]
 
 [dependencies]
-http = "0.2.0"
+http = "1.0.0"

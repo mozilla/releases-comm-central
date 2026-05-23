@@ -594,7 +594,6 @@ files_changed:
   - comm/mail/themes/shared/mail/accountHub.css
   - comm/mail/themes/shared/mail/accountManage.css
   - comm/mail/themes/shared/mail/accountManager.css
-  - comm/mail/themes/shared/mail/accountSetup.css
   - comm/mail/themes/shared/mail/attachmentList.css
   - comm/mail/themes/shared/mail/avatars.css
   - comm/mail/themes/shared/mail/common.css

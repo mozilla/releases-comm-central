@@ -243,13 +243,11 @@ async function processFolderForJunk(aAll) {
   let tmpMsgURI;
   for (let i = 0; i < totalMessages; i++) {
     const index = aAll ? i : indices[i];
-    try {
-      tmpMsgURI = gDBView.getURIForViewIndex(index);
+    tmpMsgURI = gDBView.getURIForViewIndex(index);
+    if (tmpMsgURI) {
       break;
-    } catch (e) {
-      // dummy headers will fail, so look for another
-      continue;
     }
+    // dummy headers will fail, so look for another
   }
   if (!tmpMsgURI) {
     return;
@@ -266,6 +264,9 @@ async function processFolderForJunk(aAll) {
     const index = aAll ? i : indices[i];
     try {
       const msgURI = gDBView.getURIForViewIndex(index);
+      if (!msgURI) {
+        continue;
+      }
       const msgHdr =
         MailServices.messageServiceFromURI(msgURI).messageURIToMsgHdr(msgURI);
       msgClassifier.analyzeMessage(msgHdr, spamSettings);

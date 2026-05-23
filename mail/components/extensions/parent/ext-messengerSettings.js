@@ -37,6 +37,17 @@ ExtensionPreferencesManager.addSetting("readerDisplayAttachmentsInline", {
   },
 });
 
+ExtensionPreferencesManager.addSetting("composeInlineSpellCheckEnabled", {
+  permission: "messengerSettings",
+  prefNames: ["mail.spellcheck.inline"],
+  setCallback(value) {
+    return { "mail.spellcheck.inline": !!value };
+  },
+  getCallback() {
+    return Services.prefs.getBoolPref("mail.spellcheck.inline");
+  },
+});
+
 this.messengerSettings = class extends ExtensionAPI {
   getAPI(context) {
     function makeSettingsAPI(options) {
@@ -54,6 +65,9 @@ this.messengerSettings = class extends ExtensionAPI {
 
     return {
       messengerSettings: {
+        composeInlineSpellCheckEnabled: makeSettingsAPI({
+          name: "composeInlineSpellCheckEnabled",
+        }),
         messageLineLengthLimit: makeSettingsAPI({
           name: "messageLineLengthLimit",
           readOnly: true,

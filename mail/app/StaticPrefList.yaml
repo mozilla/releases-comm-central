@@ -57,6 +57,15 @@
   value: @IS_NIGHTLY_BUILD@
   mirror: always
 
+# Has the user ever set up a Microsoft365 account, specifically with EWS?
+# This will be used to assist users with Graph migration once EWS is
+# shut off on Microsoft365.
+- name: mail.exchange.hasMicrosoft365EwsAccount
+  type: bool
+  value: false
+  mirror: always
+  rust: true
+
 # See nsMimeHeaderDisplayTypes.
 # - 0: MicroHeaders
 # - 1: NormalHeaders

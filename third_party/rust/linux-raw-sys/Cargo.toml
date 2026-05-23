@@ -13,12 +13,18 @@
 edition = "2021"
 rust-version = "1.63"
 name = "linux-raw-sys"
-version = "0.4.14"
+version = "0.12.1"
 authors = ["Dan Gohman <dev@sunfishcode.online>"]
+build = false
 exclude = [
     "/gen",
     "/.*",
 ]
+autolib = false
+autobins = false
+autoexamples = false
+autotests = false
+autobenches = false
 description = "Generated bindings for Linux's userspace API"
 documentation = "https://docs.rs/linux-raw-sys"
 readme = "README.md"
@@ -35,13 +41,18 @@ repository = "https://github.com/sunfishcode/linux-raw-sys"
 features = [
     "default",
     "bootparam",
+    "btrfs",
+    "elf_uapi",
+    "image",
     "ioctl",
+    "landlock",
     "netlink",
     "io_uring",
     "if_arp",
     "if_ether",
     "if_packet",
     "net",
+    "ptrace",
     "prctl",
     "elf",
     "xdp",
@@ -54,9 +65,46 @@ targets = [
     "i686-unknown-linux-gnu",
 ]
 
-[dependencies.compiler_builtins]
-version = "0.1.49"
-optional = true
+[features]
+auxvec = []
+bootparam = []
+btrfs = []
+default = [
+    "std",
+    "general",
+    "errno",
+]
+elf = []
+elf_uapi = []
+errno = []
+general = []
+if_arp = []
+if_ether = []
+if_packet = []
+if_tun = []
+image = []
+io_uring = []
+ioctl = []
+landlock = []
+loop_device = []
+mempolicy = []
+net = []
+netlink = []
+no_std = []
+prctl = []
+ptrace = []
+rustc-dep-of-std = [
+    "core",
+    "no_std",
+]
+std = []
+system = []
+vm_sockets = []
+xdp = []
+
+[lib]
+name = "linux_raw_sys"
+path = "src/lib.rs"
 
 [dependencies.core]
 version = "1.0.0"
@@ -69,32 +117,7 @@ version = "0.2.100"
 [dev-dependencies.static_assertions]
 version = "1.1.0"
 
-[features]
-bootparam = []
-default = [
-    "std",
-    "general",
-    "errno",
-]
-elf = []
-errno = []
-general = []
-if_arp = []
-if_ether = []
-if_packet = []
-io_uring = []
-ioctl = []
-loop_device = []
-mempolicy = []
-net = []
-netlink = []
-no_std = []
-prctl = []
-rustc-dep-of-std = [
-    "core",
-    "compiler_builtins",
-    "no_std",
-]
-std = []
-system = []
-xdp = []
+[lints.rust.unexpected_cfgs]
+level = "warn"
+priority = 0
+check-cfg = ['cfg(target_arch, values("xtensa"))']

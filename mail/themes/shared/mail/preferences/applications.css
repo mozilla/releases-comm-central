@@ -57,7 +57,7 @@
 
       & .actionCell menulist {
         /* Get hover effect if anywhere in the row is hovered. */
-        background-color: var(--button-background-color-hover);
+        background-color: var(--button-hover-background-color);
       }
     }
 
@@ -68,7 +68,7 @@
 
     &:not(:hover, :focus-within) .actionsMenu {
       background-color: transparent;
-      --button-border: var(--border-width) solid transparent;
+      border-color: transparent;
 
       &::part(dropmarker) {
         display: none;

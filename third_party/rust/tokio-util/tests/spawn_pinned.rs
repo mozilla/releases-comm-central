@@ -1,7 +1,9 @@
 #![warn(rust_2018_idioms)]
+#![cfg(not(target_os = "wasi"))] // Wasi doesn't support threads
 
 use std::rc::Rc;
 use std::sync::Arc;
+use tokio::sync::Barrier;
 use tokio_util::task;
 
 /// Simple test of running a !Send future via spawn_pinned
@@ -29,7 +31,7 @@ fn can_drop_future_and_still_get_output() {
     let pool = task::LocalPoolHandle::new(1);
     let (sender, receiver) = std::sync::mpsc::channel();
 
-    let _ = pool.spawn_pinned(move || {
+    pool.spawn_pinned(move || {
         // Rc is !Send + !Sync
         let local_data = Rc::new("test");
 
@@ -69,6 +71,7 @@ async fn can_spawn_multiple_futures() {
 /// A panic in the spawned task causes the join handle to return an error.
 /// But, you can continue to spawn tasks.
 #[tokio::test]
+#[cfg(panic = "unwind")]
 async fn task_panic_propagates() {
     let pool = task::LocalPoolHandle::new(1);
 
@@ -80,8 +83,8 @@ async fn task_panic_propagates() {
     assert!(result.is_err());
     let error = result.unwrap_err();
     assert!(error.is_panic());
-    let panic_str: &str = *error.into_panic().downcast().unwrap();
-    assert_eq!(panic_str, "Test panic");
+    let panic_str = error.into_panic().downcast::<&'static str>().unwrap();
+    assert_eq!(*panic_str, "Test panic");
 
     // Trying again with a "safe" task still works
     let join_handle = pool.spawn_pinned(|| async { "test" });
@@ -93,6 +96,7 @@ async fn task_panic_propagates() {
 /// A panic during task creation causes the join handle to return an error.
 /// But, you can continue to spawn tasks.
 #[tokio::test]
+#[cfg(panic = "unwind")]
 async fn callback_panic_does_not_kill_worker() {
     let pool = task::LocalPoolHandle::new(1);
 
@@ -106,8 +110,8 @@ async fn callback_panic_does_not_kill_worker() {
     assert!(result.is_err());
     let error = result.unwrap_err();
     assert!(error.is_panic());
-    let panic_str: &str = *error.into_panic().downcast().unwrap();
-    assert_eq!(panic_str, "Test panic");
+    let panic_str = error.into_panic().downcast::<&'static str>().unwrap();
+    assert_eq!(*panic_str, "Test panic");
 
     // Trying again with a "safe" callback works
     let join_handle = pool.spawn_pinned(|| async { "test" });
@@ -189,5 +193,47 @@ async fn tasks_are_balanced() {
 
     // Since the first task was active when the second task spawned, they should
     // be on separate workers/threads.
+    assert_ne!(thread_id1, thread_id2);
+}
+
+#[tokio::test]
+async fn spawn_by_idx() {
+    let pool = task::LocalPoolHandle::new(3);
+    let barrier = Arc::new(Barrier::new(4));
+    let barrier1 = barrier.clone();
+    let barrier2 = barrier.clone();
+    let barrier3 = barrier.clone();
+
+    let handle1 = pool.spawn_pinned_by_idx(
+        || async move {
+            barrier1.wait().await;
+            std::thread::current().id()
+        },
+        0,
+    );
+    pool.spawn_pinned_by_idx(
+        || async move {
+            barrier2.wait().await;
+            std::thread::current().id()
+        },
+        0,
+    );
+    let handle2 = pool.spawn_pinned_by_idx(
+        || async move {
+            barrier3.wait().await;
+            std::thread::current().id()
+        },
+        1,
+    );
+
+    let loads = pool.get_task_loads_for_each_worker();
+    barrier.wait().await;
+    assert_eq!(loads[0], 2);
+    assert_eq!(loads[1], 1);
+    assert_eq!(loads[2], 0);
+
+    let thread_id1 = handle1.await.unwrap();
+    let thread_id2 = handle2.await.unwrap();
+
     assert_ne!(thread_id1, thread_id2);
 }

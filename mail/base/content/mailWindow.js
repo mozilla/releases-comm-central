@@ -279,12 +279,30 @@ function InitMsgWindow() {
       }
 
       switch (event.code) {
-        case "F7":
+        case "F7": {
           // shift + F7 is the default DevTools shortcut for the Style Editor.
           if (!event.shiftKey) {
             toggleCaretBrowsing();
           }
           break;
+        }
+        case "Space": {
+          const tabmail = document.getElementById("tabmail");
+          if (tabmail) {
+            const currentTabMode = tabmail.currentTabInfo?.mode?.name;
+            // Only intercept space for mail tabs. For other tabs (e.g. pdf.js
+            // in a contentTab) let the browser handle the key natively.
+            if (
+              currentTabMode != "mail3PaneTab" &&
+              currentTabMode != "mailMessageTab"
+            ) {
+              return;
+            }
+          }
+          event.preventDefault();
+          goDoCommand("cmd_space");
+          break;
+        }
       }
     },
   };

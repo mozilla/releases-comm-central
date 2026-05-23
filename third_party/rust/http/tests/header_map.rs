@@ -64,6 +64,30 @@ fn reserve_overflow() {
 }
 
 #[test]
+fn reserve() {
+    let mut headers = HeaderMap::<usize>::default();
+    assert_eq!(headers.capacity(), 0);
+
+    let requested_cap = 8;
+    headers.reserve(requested_cap);
+
+    let reserved_cap = headers.capacity();
+    assert!(
+        reserved_cap >= requested_cap,
+        "requested {} capacity, but it reserved only {} entries",
+        requested_cap,
+        reserved_cap,
+    );
+
+    for i in 0..requested_cap {
+        let name = format!("h{i}").parse::<HeaderName>().unwrap();
+        headers.insert(name, i);
+    }
+
+    assert_eq!(headers.capacity(), reserved_cap, "unexpected reallocation");
+}
+
+#[test]
 fn drain() {
     let mut headers = HeaderMap::new();
 
@@ -190,7 +214,7 @@ fn drain_entry() {
         assert_eq!(vals[1], "world2");
     }
 
-    assert_eq!(5-2+1, headers.len());
+    assert_eq!(5 - 2 + 1, headers.len());
 }
 
 #[test]
@@ -427,7 +451,6 @@ fn value_htab() {
     HeaderValue::from_str("hello\tworld").unwrap();
 }
 
-
 #[test]
 fn remove_multiple_a() {
     let mut headers = HeaderMap::new();
@@ -570,7 +593,8 @@ fn remove_entry_multi_3_others() {
 }
 
 fn remove_all_values<K>(headers: &mut HeaderMap, key: K) -> Vec<HeaderValue>
-    where K: IntoHeaderName
+where
+    K: IntoHeaderName,
 {
     match headers.entry(key) {
         Entry::Occupied(e) => e.remove_entry_mult().1.collect(),
@@ -629,10 +653,22 @@ fn remove_entry_3_others_b() {
 }
 
 fn remove_values<K>(headers: &mut HeaderMap, key: K) -> Option<HeaderValue>
-    where K: IntoHeaderName
+where
+    K: IntoHeaderName,
 {
     match headers.entry(key) {
         Entry::Occupied(e) => Some(e.remove_entry().1),
         Entry::Vacant(_) => None,
     }
+}
+
+#[test]
+fn ensure_miri_sharedreadonly_not_violated() {
+    let mut headers = HeaderMap::new();
+    headers.insert(
+        HeaderName::from_static("chunky-trailer"),
+        HeaderValue::from_static("header data"),
+    );
+
+    let _foo = &headers.iter().next();
 }

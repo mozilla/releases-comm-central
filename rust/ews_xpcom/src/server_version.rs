@@ -33,7 +33,7 @@ const EWS_SERVER_VERSIONS_PREF: &CStr = c"mail.ews.server_versions";
 /// Retrieve the "root" pref branch, i.e. the one from which all prefs are
 /// defined (as opposed to one retrieved from `nsIPrefService::GetBranch()` with
 /// a prefix).
-fn get_root_pref_branch() -> Result<RefPtr<nsIPrefBranch>, nsresult> {
+pub(crate) fn get_root_pref_branch() -> Result<RefPtr<nsIPrefBranch>, nsresult> {
     let pref_svc = get_service::<nsIPrefService>(c"@mozilla.org/preferences-service;1")
         .ok_or(nserror::NS_ERROR_FAILURE)?;
 

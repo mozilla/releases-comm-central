@@ -167,6 +167,38 @@ impl Send {
         Ok(())
     }
 
+    /// Send interim informational headers (1xx responses) without changing stream state.
+    /// This allows multiple interim informational responses to be sent before the final response.
+    pub fn send_interim_informational_headers<B>(
+        &mut self,
+        frame: frame::Headers,
+        buffer: &mut Buffer<Frame<B>>,
+        stream: &mut store::Ptr,
+        _counts: &mut Counts,
+        task: &mut Option<Waker>,
+    ) -> Result<(), UserError> {
+        tracing::trace!(
+            "send_interim_informational_headers; frame={:?}; stream_id={:?}",
+            frame,
+            frame.stream_id()
+        );
+
+        // Validate headers
+        Self::check_headers(frame.fields())?;
+
+        debug_assert!(frame.is_informational(),
+            "Frame must be informational (1xx status code) at this point. Validation should happen at the public API boundary.");
+        debug_assert!(!frame.is_end_stream(),
+            "Informational frames must not have end_stream flag set. Validation should happen at the internal send informational header streams.");
+
+        // Queue the frame for sending WITHOUT changing stream state
+        // This is the key difference from send_headers - we don't call stream.state.send_open()
+        self.prioritize
+            .queue_frame(frame.into(), buffer, stream, task);
+
+        Ok(())
+    }
+
     /// Send an explicit RST_STREAM frame
     pub fn send_reset<B>(
         &mut self,
@@ -206,7 +238,7 @@ impl Send {
         }
 
         // Transition the state to reset no matter what.
-        stream.state.set_reset(stream_id, reason, initiator);
+        stream.set_reset(reason, initiator);
 
         // If closed AND the send queue is flushed, then the stream cannot be
         // reset explicitly, either. Implicit resets can still be queued.
@@ -465,6 +497,16 @@ impl Send {
                     let mut total_reclaimed = 0;
                     store.try_for_each(|mut stream| {
                         let stream = &mut *stream;
+
+                        if stream.state.is_send_closed() && stream.buffered_send_data == 0 {
+                            tracing::trace!(
+                                "skipping send-closed stream; id={:?}; flow={:?}",
+                                stream.id,
+                                stream.send_flow
+                            );
+
+                            return Ok(());
+                        }
 
                         tracing::trace!(
                             "decrementing stream window; id={:?}; decr={}; flow={:?}",

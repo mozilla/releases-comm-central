@@ -21,11 +21,11 @@ use std::{
 
 use http::Uri as Url;
 use neqo_common::{Datagram, event::Provider, qdebug, qinfo, qwarn};
-use neqo_crypto::{AuthenticationStatus, ResumptionToken};
 use neqo_transport::{
     CloseReason, Connection, ConnectionEvent, ConnectionIdGenerator, EmptyConnectionIdGenerator,
     Error, OutputBatch, RandomConnectionIdGenerator, State, StreamId, StreamType,
 };
+use nss::{AuthenticationStatus, ResumptionToken};
 use rustc_hash::FxHashMap as HashMap;
 
 use super::{Args, CloseState, Res, get_output_file, qlog_new};
@@ -268,6 +268,9 @@ impl<'b> Handler<'b> {
         match client.stream_create(StreamType::BiDi) {
             Ok(client_stream_id) => {
                 qinfo!("Created stream {client_stream_id} for {url}");
+                client
+                    .stream_keep_alive(client_stream_id, true)
+                    .expect("keep-alive on new stream");
                 let req = format!("GET {}\r\n", url.path());
                 if client
                     .stream_send(client_stream_id, req.as_bytes())

@@ -19,7 +19,6 @@ Thunderbird Source Tree Documentation
    /cxx/index
    /l10n/index
    /rust/index
-   /testing/helpers
 
 .. toctree::
    :caption: Front-End Components
@@ -46,6 +45,7 @@ Thunderbird Source Tree Documentation
    :maxdepth: 1
 
    /backend/accounts
+   /backend/copy_move
    /backend/email_protocols
    /backend/folders
    /backend/folder_compaction
@@ -76,6 +76,13 @@ Thunderbird Source Tree Documentation
    /backend/net_thunderbird_urls
    /backend/oauth
    /telemetry/index
+
+.. toctree::
+   :caption: Testing
+   :maxdepth: 1
+
+   /testing/helpers
+   /testing/memory_leaks
 
 Indices and tables
 ==================

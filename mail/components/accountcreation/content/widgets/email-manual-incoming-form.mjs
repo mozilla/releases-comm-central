@@ -9,8 +9,8 @@ const { AccountConfig } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/AccountConfig.sys.mjs"
 );
 
-const { Sanitizer } = ChromeUtils.importESModule(
-  "resource:///modules/accountcreation/Sanitizer.sys.mjs"
+const { InputSanitizer } = ChromeUtils.importESModule(
+  "resource:///modules/accountcreation/InputSanitizer.sys.mjs"
 );
 
 const { OAuth2Providers } = ChromeUtils.importESModule(
@@ -386,14 +386,17 @@ class EmailIncomingForm extends AccountHubStep {
     config.source = AccountConfig.kSourceUser;
 
     // Update the type based on the current selection.
-    config.incoming.type = Sanitizer.translate(this.#incomingProtocol.value, {
-      1: "imap",
-      2: "pop3",
-      3: "exchange",
-      4: "ews",
-      5: "graph",
-      0: null,
-    });
+    config.incoming.type = InputSanitizer.translate(
+      this.#incomingProtocol.value,
+      {
+        1: "imap",
+        2: "pop3",
+        3: "exchange",
+        4: "ews",
+        5: "graph",
+        0: null,
+      }
+    );
 
     // An EWS configuration won't have any of the default fields available to
     // edit.
@@ -403,7 +406,7 @@ class EmailIncomingForm extends AccountHubStep {
       config = this.#getDefaultConfigValues(config);
     }
 
-    config.incoming.auth = Sanitizer.integer(
+    config.incoming.auth = InputSanitizer.integer(
       this.#incomingAuthenticationMethod.value
     );
     config.incoming.username = this.#incomingUsername.value;
@@ -431,13 +434,13 @@ class EmailIncomingForm extends AccountHubStep {
     assert(config instanceof AccountConfig);
     this.#updateConfigInputsVisibility(config.isExchangeConfig());
 
-    this.#incomingProtocol.value = Sanitizer.translate(
+    this.#incomingProtocol.value = InputSanitizer.translate(
       config.incoming.type,
       { imap: 1, pop3: 2, exchange: 3, ews: 4, graph: 5 },
       1
     );
     this.#incomingHostname.value = config.incoming.hostname;
-    this.#incomingConnectionSecurity.value = Sanitizer.enum(
+    this.#incomingConnectionSecurity.value = InputSanitizer.enum(
       config.incoming.socketType,
       [-1, 0, 1, 2, 3],
       0
@@ -457,7 +460,7 @@ class EmailIncomingForm extends AccountHubStep {
         `https://${config.incoming.hostname}`) ||
       "";
 
-    this.#incomingAuthenticationMethod.value = Sanitizer.enum(
+    this.#incomingAuthenticationMethod.value = InputSanitizer.enum(
       config.incoming.auth,
       [0, 3, 4, 5, 6, 10],
       0
@@ -477,7 +480,7 @@ class EmailIncomingForm extends AccountHubStep {
   #getDefaultConfigValues(config) {
     try {
       const inHostnameValue = this.#incomingHostname.value;
-      config.incoming.hostname = Sanitizer.hostname(inHostnameValue);
+      config.incoming.hostname = InputSanitizer.hostname(inHostnameValue);
       this.#incomingHostname.value = config.incoming.hostname;
       this.#incomingHostname.setCustomValidity("");
       this.#incomingHostname.setAttribute("aria-invalid", false);
@@ -493,7 +496,7 @@ class EmailIncomingForm extends AccountHubStep {
     }
 
     try {
-      config.incoming.port = Sanitizer.integerRange(
+      config.incoming.port = InputSanitizer.integerRange(
         this.#incomingPort.valueAsNumber,
         1,
         65535
@@ -512,7 +515,7 @@ class EmailIncomingForm extends AccountHubStep {
       );
     }
 
-    config.incoming.socketType = Sanitizer.integer(
+    config.incoming.socketType = InputSanitizer.integer(
       this.#incomingConnectionSecurity.value
     );
 
@@ -529,7 +532,7 @@ class EmailIncomingForm extends AccountHubStep {
   #getExchangeConfigValues(config) {
     try {
       const inExchangeUrl = this.#incomingExchangeUrl.value;
-      config.incoming.exchangeURL = Sanitizer.url(inExchangeUrl);
+      config.incoming.exchangeURL = InputSanitizer.url(inExchangeUrl);
       this.#incomingExchangeUrl.value = config.incoming.exchangeURL;
       this.#incomingExchangeUrl.setCustomValidity("");
       this.#incomingExchangeUrl.setAttribute("aria-invalid", false);

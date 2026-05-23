@@ -9,8 +9,8 @@ const {
 } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/AccountCreationUtils.sys.mjs"
 );
-const { Sanitizer } = ChromeUtils.importESModule(
-  "resource:///modules/accountcreation/Sanitizer.sys.mjs"
+const { InputSanitizer } = ChromeUtils.importESModule(
+  "resource:///modules/accountcreation/InputSanitizer.sys.mjs"
 );
 const { openLinkExternally } = ChromeUtils.importESModule(
   "resource:///modules/LinkHelper.sys.mjs"
@@ -190,7 +190,7 @@ class EmailConfigFound extends AccountHubStep {
     this.querySelector("#incomingUsername").title = incoming.username;
     this.querySelector("#owlExchangeDescription").hidden = true;
     this.querySelector("#editConfiguration").hidden = false;
-    const incomingSocketType = Sanitizer.translate(incoming.socketType, {
+    const incomingSocketType = InputSanitizer.translate(incoming.socketType, {
       0: "no-encryption", // account-hub-result-no-encryption
       2: "starttls", // account-hub-result-starttls
       3: "ssl", // account-hub-result-ssl
@@ -257,7 +257,7 @@ class EmailConfigFound extends AccountHubStep {
     this.querySelector("#outgoingType").title = outgoing.type;
     this.querySelector("#outgoingHost").title = outgoing.hostname;
     this.querySelector("#outgoingUsername").title = outgoing.username;
-    const outgoingSocketType = Sanitizer.translate(outgoing.socketType, {
+    const outgoingSocketType = InputSanitizer.translate(outgoing.socketType, {
       0: "no-encryption", // account-hub-result-no-encryption
       2: "starttls", // account-hub-result-starttls
       3: "ssl", // account-hub-result-ssl

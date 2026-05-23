@@ -1,4 +1,4 @@
-use HeaderValue;
+use http::HeaderValue;
 
 /// The `Pragma` header defined by HTTP/1.0.
 ///
@@ -18,7 +18,6 @@ use HeaderValue;
 /// # Examples
 ///
 /// ```
-/// # extern crate headers;
 /// use headers::Pragma;
 ///
 /// let pragma = Pragma::no_cache();

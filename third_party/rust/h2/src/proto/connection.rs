@@ -106,10 +106,6 @@ where
     pub fn new(codec: Codec<T, Prioritized<B>>, config: Config) -> Connection<T, P, B> {
         fn streams_config(config: &Config) -> streams::Config {
             streams::Config {
-                local_init_window_sz: config
-                    .settings
-                    .initial_window_size()
-                    .unwrap_or(DEFAULT_INITIAL_WINDOW_SIZE),
                 initial_max_send_streams: config.initial_max_send_streams,
                 local_max_buffer_size: config.max_send_buffer_size,
                 local_next_stream_id: config.next_stream_id,
@@ -130,6 +126,8 @@ where
             }
         }
         let streams = Streams::new(streams_config(&config));
+        let span = tracing::debug_span!(parent: None, "Connection", peer = %P::NAME);
+        span.follows_from(tracing::Span::current());
         Connection {
             codec,
             inner: ConnectionInner {
@@ -139,7 +137,7 @@ where
                 ping_pong: PingPong::new(),
                 settings: Settings::new(config.settings),
                 streams,
-                span: tracing::debug_span!("Connection", peer = %P::NAME),
+                span,
                 _phantom: PhantomData,
             },
         }
@@ -244,6 +242,18 @@ where
         if !self.inner.streams.has_streams_or_other_references() {
             self.inner.as_dyn().go_away_now(Reason::NO_ERROR);
         }
+    }
+
+    /// Checks if there are any streams
+    pub fn has_streams(&self) -> bool {
+        self.inner.streams.has_streams()
+    }
+
+    /// Checks if there are any streams or references left
+    pub fn has_streams_or_other_references(&self) -> bool {
+        // If we poll() and realize that there are no streams or references
+        // then we can close the connection by transitioning to GOAWAY
+        self.inner.streams.has_streams_or_other_references()
     }
 
     pub(crate) fn take_user_pings(&mut self) -> Option<UserPings> {
@@ -428,24 +438,7 @@ where
             // error. This is handled by setting a GOAWAY frame followed by
             // terminating the connection.
             Err(Error::GoAway(debug_data, reason, initiator)) => {
-                let e = Error::GoAway(debug_data.clone(), reason, initiator);
-                tracing::debug!(error = ?e, "Connection::poll; connection error");
-
-                // We may have already sent a GOAWAY for this error,
-                // if so, don't send another, just flush and close up.
-                if self
-                    .go_away
-                    .going_away()
-                    .map_or(false, |frame| frame.reason() == reason)
-                {
-                    tracing::trace!("    -> already going away");
-                    *self.state = State::Closing(reason, initiator);
-                    return Ok(());
-                }
-
-                // Reset all active streams
-                self.streams.handle_error(e);
-                self.go_away_now_data(reason, debug_data);
+                self.handle_go_away(reason, debug_data, initiator);
                 Ok(())
             }
             // Attempting to read a frame resulted in a stream level error.
@@ -454,24 +447,66 @@ where
             Err(Error::Reset(id, reason, initiator)) => {
                 debug_assert_eq!(initiator, Initiator::Library);
                 tracing::trace!(?id, ?reason, "stream error");
-                self.streams.send_reset(id, reason);
+                match self.streams.send_reset(id, reason) {
+                    Ok(()) => (),
+                    Err(crate::proto::error::GoAway { debug_data, reason }) => {
+                        self.handle_go_away(reason, debug_data, Initiator::Library);
+                    }
+                }
                 Ok(())
             }
             // Attempting to read a frame resulted in an I/O error. All
             // active streams must be reset.
             //
             // TODO: Are I/O errors recoverable?
-            Err(Error::Io(e, inner)) => {
-                tracing::debug!(error = ?e, "Connection::poll; IO error");
-                let e = Error::Io(e, inner);
+            Err(Error::Io(kind, inner)) => {
+                tracing::debug!(error = ?kind, "Connection::poll; IO error");
+                let e = Error::Io(kind, inner);
 
                 // Reset all active streams
                 self.streams.handle_error(e.clone());
+
+                // Some client implementations drop the connections without notifying its peer
+                // Attempting to read after the client dropped the connection results in UnexpectedEof
+                // If as a server, we don't have anything more to send, just close the connection
+                // without error
+                //
+                // See https://github.com/hyperium/hyper/issues/3427
+                if self.streams.is_buffer_empty()
+                    && matches!(kind, io::ErrorKind::UnexpectedEof)
+                    && (self.streams.is_server()
+                        || self.error.as_ref().map(|f| f.reason() == Reason::NO_ERROR)
+                            == Some(true))
+                {
+                    *self.state = State::Closed(Reason::NO_ERROR, Initiator::Library);
+                    return Ok(());
+                }
 
                 // Return the error
                 Err(e)
             }
         }
+    }
+
+    fn handle_go_away(&mut self, reason: Reason, debug_data: Bytes, initiator: Initiator) {
+        let e = Error::GoAway(debug_data.clone(), reason, initiator);
+        tracing::debug!(error = ?e, "Connection::poll; connection error");
+
+        // We may have already sent a GOAWAY for this error,
+        // if so, don't send another, just flush and close up.
+        if self
+            .go_away
+            .going_away()
+            .map_or(false, |frame| frame.reason() == reason)
+        {
+            tracing::trace!("    -> already going away");
+            *self.state = State::Closing(reason, initiator);
+            return;
+        }
+
+        // Reset all active streams
+        self.streams.handle_error(e);
+        self.go_away_now_data(reason, debug_data);
     }
 
     fn recv_frame(&mut self, frame: Option<Frame>) -> Result<ReceivedFrame, Error> {

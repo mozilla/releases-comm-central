@@ -10,13 +10,20 @@ var { ExtensionTestUtils } = ChromeUtils.importESModule(
 var { ExtensionsUI } = ChromeUtils.importESModule(
   "resource:///modules/ExtensionsUI.sys.mjs"
 );
+var { AddonTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/AddonTestUtils.sys.mjs"
+);
 
 function clearUserPrefs() {
   Services.prefs.clearUserPref("mailnews.wraplength");
   Services.prefs.clearUserPref("mailnews.send_plaintext_flowed");
+  Services.prefs.clearUserPref("mail.spellcheck.inline");
 }
 
 add_setup(async () => {
+  ExtensionTestUtils.mockAppInfo();
+  AddonTestUtils.init(this);
+
   // Start with defaults.
   clearUserPrefs();
   // Return to defaults at end of test.
@@ -24,6 +31,10 @@ add_setup(async () => {
 });
 
 add_task(async function test_message_settings() {
+  // Writable settings go through ExtensionSettingsStore, which needs the
+  // AddonManager to be running so that it can resolve the calling extension.
+  await AddonTestUtils.promiseStartupManager();
+
   const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
@@ -85,12 +96,41 @@ add_task(async function test_message_settings() {
               levelOfControl: "not_controllable",
             },
           },
+          {
+            name: "composeInlineSpellCheckEnabled",
+            expected: {
+              value: true,
+              levelOfControl: "controllable_by_this_extension",
+            },
+          },
+          {
+            name: "composeInlineSpellCheckEnabled",
+            set: { value: false },
+            expected: {
+              value: false,
+              levelOfControl: "controlled_by_this_extension",
+            },
+          },
+          {
+            name: "composeInlineSpellCheckEnabled",
+            clear: true,
+            expected: {
+              value: true,
+              levelOfControl: "controllable_by_this_extension",
+            },
+          },
         ];
 
         for (let idx = 0; idx < tests.length; idx++) {
-          const { pref, name, expected } = tests[idx];
+          const { pref, set, clear, name, expected } = tests[idx];
           if (pref) {
             await window.sendMessage(pref.setFunc, pref.name, pref.value);
+          }
+          if (set) {
+            await browser.messengerSettings[name].set(set);
+          }
+          if (clear) {
+            await browser.messengerSettings[name].clear({});
           }
           window.assertDeepEqual(
             expected,
@@ -109,6 +149,7 @@ add_task(async function test_message_settings() {
       background: { scripts: ["utils.js", "background.js"] },
       permissions: ["messengerSettings"],
     },
+    useAddonManager: "temporary",
   });
 
   extension.onMessage("setBoolPref", (name, value) => {

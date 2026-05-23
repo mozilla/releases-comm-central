@@ -12,7 +12,8 @@ use std::marker::PhantomData;
 use std::mem::{self, size_of, MaybeUninit};
 use std::net::{self, Ipv4Addr, Ipv6Addr, Shutdown};
 use std::os::windows::io::{
-    AsRawSocket, AsSocket, BorrowedSocket, FromRawSocket, IntoRawSocket, OwnedSocket, RawSocket,
+    AsRawSocket, AsSocket, BorrowedSocket, FromRawSocket, IntoRawSocket, OwnedSocket,
+    RawSocket as StdRawSocket,
 };
 use std::path::Path;
 use std::sync::Once;
@@ -20,20 +21,28 @@ use std::time::{Duration, Instant};
 use std::{process, ptr, slice};
 
 use windows_sys::Win32::Foundation::{SetHandleInformation, HANDLE, HANDLE_FLAG_INHERIT};
-#[cfg(feature = "all")]
-use windows_sys::Win32::Networking::WinSock::SO_PROTOCOL_INFOW;
 use windows_sys::Win32::Networking::WinSock::{
     self, tcp_keepalive, FIONBIO, IN6_ADDR, IN6_ADDR_0, INVALID_SOCKET, IN_ADDR, IN_ADDR_0,
     POLLERR, POLLHUP, POLLRDNORM, POLLWRNORM, SD_BOTH, SD_RECEIVE, SD_SEND, SIO_KEEPALIVE_VALS,
     SOCKET_ERROR, WSABUF, WSAEMSGSIZE, WSAESHUTDOWN, WSAPOLLFD, WSAPROTOCOL_INFOW,
-    WSA_FLAG_NO_HANDLE_INHERIT, WSA_FLAG_OVERLAPPED,
+    WSA_FLAG_NO_HANDLE_INHERIT, WSA_FLAG_OVERLAPPED, WSA_FLAG_REGISTERED_IO,
+};
+
+#[cfg(feature = "all")]
+use windows_sys::Win32::Networking::WinSock::{
+    SIO_TCP_SET_ACK_FREQUENCY, TCP_ACK_FREQUENCY_PARAMETERS,
+};
+
+#[cfg(feature = "all")]
+use windows_sys::Win32::Networking::WinSock::{
+    IP6T_SO_ORIGINAL_DST, SOL_IP, SO_ORIGINAL_DST, SO_PROTOCOL_INFOW,
 };
 use windows_sys::Win32::System::Threading::INFINITE;
 
-use crate::{MsgHdr, RecvFlags, SockAddr, TcpKeepalive, Type};
+use crate::{MsgHdr, RecvFlags, SockAddr, SockAddrStorage, TcpKeepalive, Type};
 
 #[allow(non_camel_case_types)]
-pub(crate) type c_int = std::os::raw::c_int;
+pub(crate) type c_int = std::ffi::c_int;
 
 /// Fake MSG_TRUNC flag for the [`RecvFlags`] struct.
 ///
@@ -57,6 +66,9 @@ pub(crate) const SOCK_SEQPACKET: c_int =
 pub(crate) use windows_sys::Win32::Networking::WinSock::{
     IPPROTO_ICMP, IPPROTO_ICMPV6, IPPROTO_TCP, IPPROTO_UDP,
 };
+
+#[cfg(feature = "all")]
+pub(crate) use windows_sys::Win32::Networking::WinSock::TCP_KEEPCNT;
 // Used in `SockAddr`.
 pub(crate) use windows_sys::Win32::Networking::WinSock::{
     SOCKADDR as sockaddr, SOCKADDR_IN as sockaddr_in, SOCKADDR_IN6 as sockaddr_in6,
@@ -87,9 +99,8 @@ pub(crate) const SOL_SOCKET: c_int = windows_sys::Win32::Networking::WinSock::SO
 /// NOTE: <https://docs.microsoft.com/en-us/windows/win32/api/winsock2/nf-winsock2-getsockopt>
 /// documents that options such as `TCP_NODELAY` and `SO_KEEPALIVE` expect a
 /// `BOOL` (alias for `c_int`, 4 bytes), however in practice this turns out to
-/// be false (or misleading) as a `BOOLEAN` (`c_uchar`, 1 byte) is returned by
-/// `getsockopt`.
-pub(crate) type Bool = windows_sys::Win32::Foundation::BOOLEAN;
+/// be false (or misleading) as a `bool` (1 byte) is returned by `getsockopt`.
+pub(crate) type Bool = bool;
 
 /// Maximum size of a buffer passed to system call like `recv` and `send`.
 const MAX_BUF_LEN: usize = c_int::MAX as usize;
@@ -120,12 +131,19 @@ impl Type {
     /// Our custom flag to set `WSA_FLAG_NO_HANDLE_INHERIT` on socket creation.
     /// Trying to mimic `Type::cloexec` on windows.
     const NO_INHERIT: c_int = 1 << ((size_of::<c_int>() * 8) - 1); // Last bit.
+    /// Our custom flag to set `WSA_FLAG_REGISTERED_IO` on socket creation.
+    const REGISTERED_IO: c_int = 1 << ((size_of::<c_int>() * 8) - 2); // Second last bit.
 
     /// Set `WSA_FLAG_NO_HANDLE_INHERIT` on the socket.
     #[cfg(feature = "all")]
-    #[cfg_attr(docsrs, doc(cfg(all(windows, feature = "all"))))]
     pub const fn no_inherit(self) -> Type {
         self._no_inherit()
+    }
+
+    /// Set `WSA_FLAG_REGISTERED_IO` on the socket.
+    #[cfg(feature = "all")]
+    pub const fn registered_io(self) -> Type {
+        Type(self.0 | Type::REGISTERED_IO)
     }
 
     pub(crate) const fn _no_inherit(self) -> Type {
@@ -230,29 +248,36 @@ fn init() {
     });
 }
 
-pub(crate) type Socket = windows_sys::Win32::Networking::WinSock::SOCKET;
+pub(crate) type Socket = std::os::windows::io::OwnedSocket;
+pub(crate) type RawSocket = windows_sys::Win32::Networking::WinSock::SOCKET;
 
-pub(crate) unsafe fn socket_from_raw(socket: Socket) -> crate::socket::Inner {
-    crate::socket::Inner::from_raw_socket(socket as RawSocket)
+pub(crate) unsafe fn socket_from_raw(socket: RawSocket) -> Socket {
+    Socket::from_raw_socket(socket as StdRawSocket)
 }
 
-pub(crate) fn socket_as_raw(socket: &crate::socket::Inner) -> Socket {
-    socket.as_raw_socket() as Socket
+pub(crate) fn socket_as_raw(socket: &Socket) -> RawSocket {
+    socket.as_raw_socket() as RawSocket
 }
 
-pub(crate) fn socket_into_raw(socket: crate::socket::Inner) -> Socket {
-    socket.into_raw_socket() as Socket
+pub(crate) fn socket_into_raw(socket: Socket) -> RawSocket {
+    socket.into_raw_socket() as RawSocket
 }
 
-pub(crate) fn socket(family: c_int, mut ty: c_int, protocol: c_int) -> io::Result<Socket> {
+pub(crate) fn socket(family: c_int, mut ty: c_int, protocol: c_int) -> io::Result<RawSocket> {
     init();
 
-    // Check if we set our custom flag.
+    // Check if we set our custom flags.
     let flags = if ty & Type::NO_INHERIT != 0 {
         ty = ty & !Type::NO_INHERIT;
         WSA_FLAG_NO_HANDLE_INHERIT
     } else {
         0
+    };
+    let flags = if ty & Type::REGISTERED_IO != 0 {
+        ty = ty & !Type::REGISTERED_IO;
+        flags | WSA_FLAG_REGISTERED_IO
+    } else {
+        flags
     };
 
     syscall!(
@@ -269,12 +294,22 @@ pub(crate) fn socket(family: c_int, mut ty: c_int, protocol: c_int) -> io::Resul
     )
 }
 
-pub(crate) fn bind(socket: Socket, addr: &SockAddr) -> io::Result<()> {
-    syscall!(bind(socket, addr.as_ptr(), addr.len()), PartialEq::ne, 0).map(|_| ())
+pub(crate) fn bind(socket: RawSocket, addr: &SockAddr) -> io::Result<()> {
+    syscall!(
+        bind(socket, addr.as_ptr().cast::<sockaddr>(), addr.len()),
+        PartialEq::ne,
+        0
+    )
+    .map(|_| ())
 }
 
-pub(crate) fn connect(socket: Socket, addr: &SockAddr) -> io::Result<()> {
-    syscall!(connect(socket, addr.as_ptr(), addr.len()), PartialEq::ne, 0).map(|_| ())
+pub(crate) fn connect(socket: RawSocket, addr: &SockAddr) -> io::Result<()> {
+    syscall!(
+        connect(socket, addr.as_ptr().cast::<sockaddr>(), addr.len()),
+        PartialEq::ne,
+        0
+    )
+    .map(|_| ())
 }
 
 pub(crate) fn poll_connect(socket: &crate::Socket, timeout: Duration) -> io::Result<()> {
@@ -340,11 +375,11 @@ where
     }
 }
 
-pub(crate) fn listen(socket: Socket, backlog: c_int) -> io::Result<()> {
+pub(crate) fn listen(socket: RawSocket, backlog: c_int) -> io::Result<()> {
     syscall!(listen(socket, backlog), PartialEq::ne, 0).map(|_| ())
 }
 
-pub(crate) fn accept(socket: Socket) -> io::Result<(Socket, SockAddr)> {
+pub(crate) fn accept(socket: RawSocket) -> io::Result<(RawSocket, SockAddr)> {
     // Safety: `accept` initialises the `SockAddr` for us.
     unsafe {
         SockAddr::try_init(|storage, len| {
@@ -357,7 +392,7 @@ pub(crate) fn accept(socket: Socket) -> io::Result<(Socket, SockAddr)> {
     }
 }
 
-pub(crate) fn getsockname(socket: Socket) -> io::Result<SockAddr> {
+pub(crate) fn getsockname(socket: RawSocket) -> io::Result<SockAddr> {
     // Safety: `getsockname` initialises the `SockAddr` for us.
     unsafe {
         SockAddr::try_init(|storage, len| {
@@ -371,7 +406,7 @@ pub(crate) fn getsockname(socket: Socket) -> io::Result<SockAddr> {
     .map(|(_, addr)| addr)
 }
 
-pub(crate) fn getpeername(socket: Socket) -> io::Result<SockAddr> {
+pub(crate) fn getpeername(socket: RawSocket) -> io::Result<SockAddr> {
     // Safety: `getpeername` initialises the `SockAddr` for us.
     unsafe {
         SockAddr::try_init(|storage, len| {
@@ -385,7 +420,7 @@ pub(crate) fn getpeername(socket: Socket) -> io::Result<SockAddr> {
     .map(|(_, addr)| addr)
 }
 
-pub(crate) fn try_clone(socket: Socket) -> io::Result<Socket> {
+pub(crate) fn try_clone(socket: RawSocket) -> io::Result<RawSocket> {
     let mut info: MaybeUninit<WSAPROTOCOL_INFOW> = MaybeUninit::uninit();
     syscall!(
         // NOTE: `process.id` is the same as `GetCurrentProcessId`.
@@ -410,12 +445,12 @@ pub(crate) fn try_clone(socket: Socket) -> io::Result<Socket> {
     )
 }
 
-pub(crate) fn set_nonblocking(socket: Socket, nonblocking: bool) -> io::Result<()> {
+pub(crate) fn set_nonblocking(socket: RawSocket, nonblocking: bool) -> io::Result<()> {
     let mut nonblocking = if nonblocking { 1 } else { 0 };
     ioctlsocket(socket, FIONBIO, &mut nonblocking)
 }
 
-pub(crate) fn shutdown(socket: Socket, how: Shutdown) -> io::Result<()> {
+pub(crate) fn shutdown(socket: RawSocket, how: Shutdown) -> io::Result<()> {
     let how = match how {
         Shutdown::Write => SD_SEND,
         Shutdown::Read => SD_RECEIVE,
@@ -424,7 +459,11 @@ pub(crate) fn shutdown(socket: Socket, how: Shutdown) -> io::Result<()> {
     syscall!(shutdown(socket, how), PartialEq::eq, SOCKET_ERROR).map(|_| ())
 }
 
-pub(crate) fn recv(socket: Socket, buf: &mut [MaybeUninit<u8>], flags: c_int) -> io::Result<usize> {
+pub(crate) fn recv(
+    socket: RawSocket,
+    buf: &mut [MaybeUninit<u8>],
+    flags: c_int,
+) -> io::Result<usize> {
     let res = syscall!(
         recv(
             socket,
@@ -443,7 +482,7 @@ pub(crate) fn recv(socket: Socket, buf: &mut [MaybeUninit<u8>], flags: c_int) ->
 }
 
 pub(crate) fn recv_vectored(
-    socket: Socket,
+    socket: RawSocket,
     bufs: &mut [crate::MaybeUninitSlice<'_>],
     flags: c_int,
 ) -> io::Result<(usize, RecvFlags)> {
@@ -473,7 +512,7 @@ pub(crate) fn recv_vectored(
 }
 
 pub(crate) fn recv_from(
-    socket: Socket,
+    socket: RawSocket,
     buf: &mut [MaybeUninit<u8>],
     flags: c_int,
 ) -> io::Result<(usize, SockAddr)> {
@@ -501,7 +540,7 @@ pub(crate) fn recv_from(
     }
 }
 
-pub(crate) fn peek_sender(socket: Socket) -> io::Result<SockAddr> {
+pub(crate) fn peek_sender(socket: RawSocket) -> io::Result<SockAddr> {
     // Safety: `recvfrom` initialises the `SockAddr` for us.
     let ((), sender) = unsafe {
         SockAddr::try_init(|storage, addrlen| {
@@ -534,7 +573,7 @@ pub(crate) fn peek_sender(socket: Socket) -> io::Result<SockAddr> {
 }
 
 pub(crate) fn recv_from_vectored(
-    socket: Socket,
+    socket: RawSocket,
     bufs: &mut [crate::MaybeUninitSlice<'_>],
     flags: c_int,
 ) -> io::Result<(usize, RecvFlags, SockAddr)> {
@@ -573,7 +612,7 @@ pub(crate) fn recv_from_vectored(
     .map(|((n, recv_flags), addr)| (n, recv_flags, addr))
 }
 
-pub(crate) fn send(socket: Socket, buf: &[u8], flags: c_int) -> io::Result<usize> {
+pub(crate) fn send(socket: RawSocket, buf: &[u8], flags: c_int) -> io::Result<usize> {
     syscall!(
         send(
             socket,
@@ -588,7 +627,7 @@ pub(crate) fn send(socket: Socket, buf: &[u8], flags: c_int) -> io::Result<usize
 }
 
 pub(crate) fn send_vectored(
-    socket: Socket,
+    socket: RawSocket,
     bufs: &[IoSlice<'_>],
     flags: c_int,
 ) -> io::Result<usize> {
@@ -623,7 +662,7 @@ pub(crate) fn send_vectored(
 }
 
 pub(crate) fn send_to(
-    socket: Socket,
+    socket: RawSocket,
     buf: &[u8],
     addr: &SockAddr,
     flags: c_int,
@@ -634,7 +673,7 @@ pub(crate) fn send_to(
             buf.as_ptr().cast(),
             min(buf.len(), MAX_BUF_LEN) as c_int,
             flags,
-            addr.as_ptr(),
+            addr.as_ptr().cast::<sockaddr>(),
             addr.len(),
         ),
         PartialEq::eq,
@@ -644,7 +683,7 @@ pub(crate) fn send_to(
 }
 
 pub(crate) fn send_to_vectored(
-    socket: Socket,
+    socket: RawSocket,
     bufs: &[IoSlice<'_>],
     addr: &SockAddr,
     flags: c_int,
@@ -658,7 +697,7 @@ pub(crate) fn send_to_vectored(
             bufs.len().min(u32::MAX as usize) as u32,
             &mut nsent,
             flags as u32,
-            addr.as_ptr(),
+            addr.as_ptr().cast::<sockaddr>(),
             addr.len(),
             ptr::null_mut(),
             None,
@@ -669,7 +708,11 @@ pub(crate) fn send_to_vectored(
     .map(|_| nsent as usize)
 }
 
-pub(crate) fn sendmsg(socket: Socket, msg: &MsgHdr<'_, '_, '_>, flags: c_int) -> io::Result<usize> {
+pub(crate) fn sendmsg(
+    socket: RawSocket,
+    msg: &MsgHdr<'_, '_, '_>,
+    flags: c_int,
+) -> io::Result<usize> {
     let mut nsent = 0;
     syscall!(
         WSASendMsg(
@@ -687,7 +730,7 @@ pub(crate) fn sendmsg(socket: Socket, msg: &MsgHdr<'_, '_, '_>, flags: c_int) ->
 }
 
 /// Wrapper around `getsockopt` to deal with platform specific timeouts.
-pub(crate) fn timeout_opt(fd: Socket, lvl: c_int, name: i32) -> io::Result<Option<Duration>> {
+pub(crate) fn timeout_opt(fd: RawSocket, lvl: c_int, name: i32) -> io::Result<Option<Duration>> {
     unsafe { getsockopt(fd, lvl, name).map(from_ms) }
 }
 
@@ -703,7 +746,7 @@ fn from_ms(duration: u32) -> Option<Duration> {
 
 /// Wrapper around `setsockopt` to deal with platform specific timeouts.
 pub(crate) fn set_timeout_opt(
-    socket: Socket,
+    socket: RawSocket,
     level: c_int,
     optname: i32,
     duration: Option<Duration>,
@@ -725,19 +768,55 @@ fn into_ms(duration: Option<Duration>) -> u32 {
     })
 }
 
-pub(crate) fn set_tcp_keepalive(socket: Socket, keepalive: &TcpKeepalive) -> io::Result<()> {
-    let mut keepalive = tcp_keepalive {
+pub(crate) fn set_tcp_keepalive(socket: RawSocket, keepalive: &TcpKeepalive) -> io::Result<()> {
+    let mut tcp_keepalive = tcp_keepalive {
         onoff: 1,
         keepalivetime: into_ms(keepalive.time),
         keepaliveinterval: into_ms(keepalive.interval),
     };
+
     let mut out = 0;
     syscall!(
         WSAIoctl(
             socket,
             SIO_KEEPALIVE_VALS,
-            &mut keepalive as *mut _ as *mut _,
+            &mut tcp_keepalive as *mut _ as *mut _,
             size_of::<tcp_keepalive>() as _,
+            ptr::null_mut(),
+            0,
+            &mut out,
+            ptr::null_mut(),
+            None,
+        ),
+        PartialEq::eq,
+        SOCKET_ERROR
+    )?;
+    if let Some(retries) = keepalive.retries {
+        unsafe {
+            setsockopt(
+                socket,
+                WinSock::IPPROTO_TCP,
+                WinSock::TCP_KEEPCNT,
+                retries as c_int,
+            )?
+        }
+    }
+    Ok(())
+}
+
+#[cfg(feature = "all")]
+pub(crate) fn set_tcp_ack_frequency(socket: RawSocket, frequency: u8) -> io::Result<()> {
+    let mut freq_params = TCP_ACK_FREQUENCY_PARAMETERS {
+        TcpDelayedAckFrequency: frequency,
+    };
+
+    let mut out = 0;
+    syscall!(
+        WSAIoctl(
+            socket,
+            SIO_TCP_SET_ACK_FREQUENCY,
+            &mut freq_params as *mut _ as *mut _,
+            size_of::<TCP_ACK_FREQUENCY_PARAMETERS>() as _,
             ptr::null_mut(),
             0,
             &mut out,
@@ -752,7 +831,7 @@ pub(crate) fn set_tcp_keepalive(socket: Socket, keepalive: &TcpKeepalive) -> io:
 
 /// Caller must ensure `T` is the correct type for `level` and `optname`.
 // NOTE: `optname` is actually `i32`, but all constants are `u32`.
-pub(crate) unsafe fn getsockopt<T>(socket: Socket, level: c_int, optname: i32) -> io::Result<T> {
+pub(crate) unsafe fn getsockopt<T>(socket: RawSocket, level: c_int, optname: i32) -> io::Result<T> {
     let mut optval: MaybeUninit<T> = MaybeUninit::uninit();
     let mut optlen = mem::size_of::<T>() as c_int;
     syscall!(
@@ -776,7 +855,7 @@ pub(crate) unsafe fn getsockopt<T>(socket: Socket, level: c_int, optname: i32) -
 /// Caller must ensure `T` is the correct type for `level` and `optname`.
 // NOTE: `optname` is actually `i32`, but all constants are `u32`.
 pub(crate) unsafe fn setsockopt<T>(
-    socket: Socket,
+    socket: RawSocket,
     level: c_int,
     optname: i32,
     optval: T,
@@ -795,7 +874,7 @@ pub(crate) unsafe fn setsockopt<T>(
     .map(|_| ())
 }
 
-fn ioctlsocket(socket: Socket, cmd: i32, payload: &mut u32) -> io::Result<()> {
+fn ioctlsocket(socket: RawSocket, cmd: i32, payload: &mut u32) -> io::Result<()> {
     syscall!(
         ioctlsocket(socket, cmd, payload),
         PartialEq::eq,
@@ -857,13 +936,52 @@ pub(crate) fn to_mreqn(
     }
 }
 
+#[cfg(feature = "all")]
+pub(crate) fn original_dst_v4(socket: RawSocket) -> io::Result<SockAddr> {
+    unsafe {
+        SockAddr::try_init(|storage, len| {
+            syscall!(
+                getsockopt(
+                    socket,
+                    SOL_IP as i32,
+                    SO_ORIGINAL_DST as i32,
+                    storage.cast(),
+                    len,
+                ),
+                PartialEq::eq,
+                SOCKET_ERROR
+            )
+        })
+    }
+    .map(|(_, addr)| addr)
+}
+
+#[cfg(feature = "all")]
+pub(crate) fn original_dst_v6(socket: RawSocket) -> io::Result<SockAddr> {
+    unsafe {
+        SockAddr::try_init(|storage, len| {
+            syscall!(
+                getsockopt(
+                    socket,
+                    SOL_IP as i32,
+                    IP6T_SO_ORIGINAL_DST as i32,
+                    storage.cast(),
+                    len,
+                ),
+                PartialEq::eq,
+                SOCKET_ERROR
+            )
+        })
+    }
+    .map(|(_, addr)| addr)
+}
+
 #[allow(unsafe_op_in_unsafe_fn)]
 pub(crate) fn unix_sockaddr(path: &Path) -> io::Result<SockAddr> {
-    // SAFETY: a `sockaddr_storage` of all zeros is valid.
-    let mut storage = unsafe { mem::zeroed::<sockaddr_storage>() };
+    let mut storage = SockAddrStorage::zeroed();
     let len = {
-        let storage: &mut windows_sys::Win32::Networking::WinSock::SOCKADDR_UN =
-            unsafe { &mut *(&mut storage as *mut sockaddr_storage).cast() };
+        let storage =
+            unsafe { storage.view_as::<windows_sys::Win32::Networking::WinSock::SOCKADDR_UN>() };
 
         // Windows expects a UTF-8 path here even though Windows paths are
         // usually UCS-2 encoded. If Rust exposed OsStr's Wtf8 encoded
@@ -888,9 +1006,11 @@ pub(crate) fn unix_sockaddr(path: &Path) -> io::Result<SockAddr> {
         }
 
         storage.sun_family = crate::sys::AF_UNIX as sa_family_t;
+        // SAFETY: casting `[u8]` to `[i8]` is safe.
+        let b = unsafe { &*(bytes as *const [u8] as *const [i8]) };
         // `storage` was initialized to zero above, so the path is
         // already null terminated.
-        storage.sun_path[..bytes.len()].copy_from_slice(bytes);
+        storage.sun_path[..bytes.len()].copy_from_slice(b);
 
         let base = storage as *const _ as usize;
         let path = &storage.sun_path as *const _ as usize;
@@ -904,7 +1024,6 @@ pub(crate) fn unix_sockaddr(path: &Path) -> io::Result<SockAddr> {
 impl crate::Socket {
     /// Sets `HANDLE_FLAG_INHERIT` using `SetHandleInformation`.
     #[cfg(feature = "all")]
-    #[cfg_attr(docsrs, doc(cfg(all(windows, feature = "all"))))]
     pub fn set_no_inherit(&self, no_inherit: bool) -> io::Result<()> {
         self._set_no_inherit(no_inherit)
     }
@@ -943,37 +1062,32 @@ impl crate::Socket {
     }
 }
 
-#[cfg_attr(docsrs, doc(cfg(windows)))]
 impl AsSocket for crate::Socket {
     fn as_socket(&self) -> BorrowedSocket<'_> {
         // SAFETY: lifetime is bound by self.
-        unsafe { BorrowedSocket::borrow_raw(self.as_raw() as RawSocket) }
+        unsafe { BorrowedSocket::borrow_raw(self.as_raw() as StdRawSocket) }
     }
 }
 
-#[cfg_attr(docsrs, doc(cfg(windows)))]
 impl AsRawSocket for crate::Socket {
-    fn as_raw_socket(&self) -> RawSocket {
-        self.as_raw() as RawSocket
+    fn as_raw_socket(&self) -> StdRawSocket {
+        self.as_raw() as StdRawSocket
     }
 }
 
-#[cfg_attr(docsrs, doc(cfg(windows)))]
 impl From<crate::Socket> for OwnedSocket {
     fn from(sock: crate::Socket) -> OwnedSocket {
         // SAFETY: sock.into_raw() always returns a valid fd.
-        unsafe { OwnedSocket::from_raw_socket(sock.into_raw() as RawSocket) }
+        unsafe { OwnedSocket::from_raw_socket(sock.into_raw() as StdRawSocket) }
     }
 }
 
-#[cfg_attr(docsrs, doc(cfg(windows)))]
 impl IntoRawSocket for crate::Socket {
-    fn into_raw_socket(self) -> RawSocket {
-        self.into_raw() as RawSocket
+    fn into_raw_socket(self) -> StdRawSocket {
+        self.into_raw() as StdRawSocket
     }
 }
 
-#[cfg_attr(docsrs, doc(cfg(windows)))]
 impl From<OwnedSocket> for crate::Socket {
     fn from(fd: OwnedSocket) -> crate::Socket {
         // SAFETY: `OwnedFd` ensures the fd is valid.
@@ -981,10 +1095,9 @@ impl From<OwnedSocket> for crate::Socket {
     }
 }
 
-#[cfg_attr(docsrs, doc(cfg(windows)))]
 impl FromRawSocket for crate::Socket {
-    unsafe fn from_raw_socket(socket: RawSocket) -> crate::Socket {
-        crate::Socket::from_raw(socket as Socket)
+    unsafe fn from_raw_socket(socket: StdRawSocket) -> crate::Socket {
+        crate::Socket::from_raw(socket as RawSocket)
     }
 }
 

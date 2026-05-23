@@ -706,8 +706,8 @@ var addressBookCache = new (class extends EventEmitter {
           const parentNode = this._addressBooks.get(parentUID);
           if (parentNode.contacts) {
             parentNode.contacts.set(newNode.id, newNode);
-            this._contacts.set(newNode.id, newNode);
           }
+          this._contacts.set(newNode.id, newNode);
           if (parentNode.mailingLists) {
             for (const mailingList of parentNode.mailingLists.values()) {
               if (

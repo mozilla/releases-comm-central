@@ -10,7 +10,6 @@
   --button-height: 2.2em;
   --border-color: color-mix(in srgb, currentColor 46%, transparent);
   --button-border-radius: 3px;
-  --button-border-color: color-mix(in srgb, currentColor 9%, transparent);
   --button-border-color-hover: color-mix(in srgb, currentColor 17%, transparent);
   --in-content-deemphasized-text: color-mix(in srgb, currentColor 60%, transparent);
   --size-sidebar: auto;
@@ -19,9 +18,6 @@
   @media not (forced-colors) {
     --background-color-box-info: light-dark(var(--layout-background-1), var(--layout-background-2));
     --in-content-box-info-border: light-dark(var(--layout-border-0), transparent);
-    --button-background-color: light-dark(var(--grey-90-a10), rgba(249, 249, 250, 0.1));
-    --button-background-color-hover: light-dark(var(--grey-90-a20), rgba(249, 249, 250, 0.15));
-    --button-background-color-active: light-dark(var(--grey-90-a30), rgba(249, 249, 250, 0.2));
     --color-accent-primary-selected-unfocused: light-dark(var(--color-gray-20), rgba(249, 249, 250, 0.05));
     --color-accent-primary-selected: var(--selected-item-color);
     --text-color-accent-primary-selected: var(--selected-item-text-color);
@@ -101,6 +97,7 @@ body table {
 
 .sidebar-footer-label {
   margin: 0;
+  font-size: 1rem;
 }
 
 @media (max-width: 830px) {

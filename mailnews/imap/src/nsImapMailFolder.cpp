@@ -5429,25 +5429,29 @@ nsImapMailFolder::NotifySearchHit(nsIMsgMailNewsUrl* aUrl,
 }
 
 NS_IMETHODIMP
-nsImapMailFolder::SetAppendMsgUid(ImapUid aKey, nsIImapUrl* aUrl) {
+nsImapMailFolder::SetAppendMsgUid(ImapUid uid, nsIImapUrl* url) {
   nsresult rv;
   nsCOMPtr<nsISupports> copyState;
-  if (aUrl) aUrl->GetCopyState(getter_AddRefs(copyState));
+  if (url) url->GetCopyState(getter_AddRefs(copyState));
   if (copyState) {
     nsCOMPtr<nsImapMailCopyState> mailCopyState =
         do_QueryInterface(copyState, &rv);
     if (NS_FAILED(rv)) return rv;
 
+    // TODO: UID->msgKey mapping?
+    // Until Bug 1806770 is done, UID and nsMsgKey continue to be
+    // interchangeable. https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
+    nsMsgKey msgKey = (nsMsgKey)uid;
     if (mailCopyState->m_undoMsgTxn)  // CopyMessages()
     {
       RefPtr<nsImapMoveCopyMsgTxn> msgTxn;
       msgTxn = mailCopyState->m_undoMsgTxn;
-      msgTxn->AddDstKey(aKey);
+      msgTxn->AddDstKey(msgKey);
     } else if (mailCopyState->m_listener)  // CopyFileMessage();
                                            // Draft/Template goes here
     {
-      mailCopyState->m_appendUID = aKey;
-      mailCopyState->m_listener->SetMessageKey(aKey);
+      mailCopyState->m_appendUID = uid;
+      mailCopyState->m_listener->SetMessageKey(msgKey);
     }
   }
   return NS_OK;
@@ -7564,7 +7568,7 @@ nsImapMailCopyState::nsImapMailCopyState()
       m_allowUndo(false),
       m_eatLF(false),
       m_newMsgFlags(0),
-      m_appendUID(nsMsgKey_None) {}
+      m_appendUID(ImapUid_None) {}
 
 nsImapMailCopyState::~nsImapMailCopyState() {
   PR_Free(m_dataBuffer);
@@ -7755,8 +7759,13 @@ nsresult nsImapMailFolder::OnCopyCompleted(nsISupports* srcSupport,
   // store, and add a kMoveResult offline op.
   if (NS_SUCCEEDED(rv) && m_copyState) {
     nsCOMPtr<nsIFile> srcFile(do_QueryInterface(srcSupport));
-    if (srcFile)
-      (void)CopyFileToOfflineStore(srcFile, m_copyState->m_appendUID);
+    if (srcFile) {
+      // TODO: UID->msgKey mapping.
+      // Until Bug 1806770 is done, UID and nsMsgKey continue to be
+      // interchangeable. https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
+      nsMsgKey msgKey = (nsMsgKey)m_copyState->m_appendUID;
+      (void)CopyFileToOfflineStore(srcFile, msgKey);
+    }
   }
   m_copyState = nullptr;
   nsCOMPtr<nsIMsgCopyService> copyService =

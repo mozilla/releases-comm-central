@@ -26,6 +26,7 @@
   --button-border-color: light-dark(var(--layout-border-1), var(--layout-border-2));
   --button-border-radius: 3px;
   --button-border-size: 1px;
+  --button-border: var(--button-border-size) solid var(--button-border-color);
   --button-text-color: var(--layout-color-1);
   --button-margin: 6px;
   --button-padding: 6px;

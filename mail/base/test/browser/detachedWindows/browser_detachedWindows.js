@@ -28,6 +28,15 @@ const manager = Cc["@mozilla.org/memory-reporter-manager;1"].getService(
   Ci.nsIMemoryReporterManager
 );
 
+if (
+  AppConstants.DEBUG ||
+  AppConstants.MOZ_CODE_COVERAGE ||
+  AppConstants.ASAN ||
+  AppConstants.TSAN
+) {
+  requestLongerTimeout(2);
+}
+
 const tabmail = document.getElementById("tabmail");
 let testFolder;
 let testMessages;
