@@ -6,10 +6,11 @@
 
 const lazy = {};
 
-// eslint-disable-next-line mozilla/reject-import-preferences-module
+/* eslint-disable mozilla/reject-import-preferences-module */
 const { Preferences } = ChromeUtils.importESModule(
   "resource://gre/modules/Preferences.sys.mjs"
 );
+/* eslint-enable mozilla/reject-import-preferences-module */
 const { updateAppInfo, getAppInfo } = ChromeUtils.importESModule(
   "resource://testing-common/AppInfo.sys.mjs"
 );
