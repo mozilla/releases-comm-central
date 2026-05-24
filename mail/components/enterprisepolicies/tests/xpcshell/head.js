@@ -6,6 +6,7 @@
 
 const lazy = {};
 
+// eslint-disable-next-line mozilla/reject-import-preferences-module
 const { Preferences } = ChromeUtils.importESModule(
   "resource://gre/modules/Preferences.sys.mjs"
 );
