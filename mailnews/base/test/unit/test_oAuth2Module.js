@@ -839,16 +839,21 @@ add_task(async function testOverrideIssuer() {
   );
 });
 
-add_task(async function testExternalRequest() {
+async function subtestExternalRequest(useNetThunderbird) {
   Services.fog.testResetFOG();
   Services.prefs.setBoolPref("mailnews.oauth.useExternalBrowser", true);
+  Services.prefs.setBoolPref(
+    "mailnews.oauth.useNetThunderbirdRedirect",
+    useNetThunderbird
+  );
   await OAuth2TestUtils.startServer();
 
+  const hostname = useNetThunderbird ? "net.thunderbird.test" : "external.test";
   try {
     const mod = new OAuth2Module();
     Assert.ok(
-      mod.initFromHostname("external.test", "romeo@foo.invalid", "imap"),
-      "external.test should initialize for OAuth"
+      mod.initFromHostname(hostname, "romeo@foo.invalid", "imap"),
+      `${hostname} should initialize for OAuth`
     );
 
     const externalOAuthURL = OAuth2TestUtils.promiseExternalOAuthURL();
@@ -884,7 +889,7 @@ add_task(async function testExternalRequest() {
     Assert.equal(logins.length, 1, "a login should have been added");
     Assert.equal(
       logins[0].hostname,
-      "oauth://external.test",
+      `oauth://${hostname}`,
       "login origin should use the external test issuer"
     );
     Assert.equal(
@@ -907,15 +912,26 @@ add_task(async function testExternalRequest() {
     OAuth2TestUtils.forgetObjects();
     OAuth2TestUtils.stopServer();
     Services.prefs.clearUserPref("mailnews.oauth.useExternalBrowser");
+    Services.prefs.clearUserPref("mailnews.oauth.useNetThunderbirdRedirect");
   }
   OAuth2TestUtils.checkTelemetry([
     {
-      issuer: "external.test",
+      issuer: hostname,
       reason: "no refresh token",
       result: "succeeded",
-      where: "external",
+      where: useNetThunderbird
+        ? "external-net-thunderbird"
+        : "external-localhost",
     },
   ]);
+}
+
+add_task(async function testExternalRequest() {
+  await subtestExternalRequest(false);
+});
+
+add_task(async function testNetThunderbirdRequest() {
+  await subtestExternalRequest(true);
 });
 
 /**
@@ -1059,7 +1075,7 @@ add_task(async function testExternalRequestRejectsMismatchedState() {
       issuer: "external.test",
       reason: "no refresh token",
       result: "state mismatch",
-      where: "external",
+      where: "external-localhost",
     },
   ]);
 });
@@ -1123,7 +1139,7 @@ add_task(async function testExternalRequestToInvalidEndpoint() {
       issuer: "external.test",
       reason: "no refresh token",
       result: "authorization failed",
-      where: "external",
+      where: "external-localhost",
     },
   ]);
 });
@@ -1233,7 +1249,7 @@ add_task(async function testGetUsernameFromAccessToken() {
       issuer: "external.test",
       reason: "no refresh token",
       result: "succeeded",
-      where: "external",
+      where: "external-localhost",
     },
   ]);
 });

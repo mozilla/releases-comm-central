@@ -157,6 +157,17 @@ export const OAuth2TestUtils = {
       expectSuccess = true,
     }
   ) {
+    // e.g.:
+    // https://oauth.test.test/form?
+    //   response_type=code&
+    //   client_id=test_client_id&
+    //   scope=test_mail&
+    //   state=DZ2G3YecvD5DKp2Xk-afXruKn6gHRzzNgdAKlaH7mUA&
+    //   code_challenge_method=S256&
+    //   code_challenge=nLDXlD8TosVgBMchtfh1krc9oRjFnbO6IYcNRYKVjas&
+    //   login_hint=romeo%40foo.invalid&
+    //   redirect_uri=net.thunderbird%3A%2F%2Foauth2%2Fcallback
+
     const authURL = new URL(url);
     const searchParams = authURL.searchParams;
     Assert.equal(
@@ -169,12 +180,26 @@ export const OAuth2TestUtils = {
       "test_client_id",
       "request client_id"
     );
+
     const redirectURI = new URL(searchParams.get("redirect_uri"));
-    Assert.equal(
-      `${redirectURI.protocol}//${redirectURI.hostname}`,
-      "http://localhost",
-      "request redirect_uri base"
-    );
+    if (redirectURI.protocol == "http:") {
+      Assert.equal(
+        redirectURI.hostname,
+        "localhost",
+        "request redirect_uri hostname"
+      );
+    } else if (redirectURI.protocol == "net.thunderbird:") {
+      Assert.equal(
+        redirectURI.hostname,
+        "oauth2",
+        "request redirect_uri hostname"
+      );
+    } else {
+      Assert.ok(
+        false,
+        "redirect_uri should be an http: or net.net-thunderbird: URL"
+      );
+    }
     Assert.equal(searchParams.get("scope"), expectedScope, "request scope");
     if (expectedHint) {
       Assert.equal(
@@ -193,7 +218,6 @@ export const OAuth2TestUtils = {
     codeChallenges.set(state, codeChallenge);
 
     // Simulate the browser authorization form.
-    const authorizeURL = new URL("/authorize", authURL);
     const body = new URLSearchParams();
     body.set("redirect_uri", redirectURI.href);
     body.set("state", callbackState ?? searchParams.get("state"));
@@ -209,8 +233,19 @@ export const OAuth2TestUtils = {
       }
     }
 
+    if (redirectURI.protocol == "net.thunderbird:") {
+      // We can't do HTTP redirect to the callback URL, but we can call the
+      // code that generates it and pretend the redirect happened.
+      const redirectedURL = this._oAuth2Server.getRedirectURL(body.toString());
+      Cc["@mozilla.org/mail/oauth2-url-handler;1"]
+        .getService(Ci.nsIObserver)
+        .observe(null, "net-thunderbird-url", redirectedURL);
+      return;
+    }
+
     // The form data is sent to the OAuth server, which sends a 303 Redirected
     // response, sending the browser to our callback listener socket.
+    const authorizeURL = new URL("/authorize", authURL);
     const authorizeResponse = await fetch(authorizeURL, {
       method: "POST",
       body,
@@ -420,6 +455,10 @@ class OAuth2Server {
     tokens.clear();
   }
 
+  /**
+   * @param {nsIHttpRequest} request
+   * @param {nsIHttpResponse} response
+   */
   formHandler(request, response) {
     if (request.method != "GET") {
       throw HTTP_405;
@@ -434,17 +473,9 @@ class OAuth2Server {
     Assert.equal(params.get("code_challenge_method"), "S256");
     codeChallenges.set(state, codeChallenge);
 
-    this._formHandler(
-      response,
-      params.get("redirect_uri"),
-      params.get("scope"),
-      state
-    );
-  }
-
-  _formHandler(response, redirectUri, requestedScope, state) {
     response.setHeader("Content-Type", "text/html", false);
-    const scopeCheckboxes = requestedScope
+    const scopeCheckboxes = params
+      .get("scope")
       .split(" ")
       .map(
         scope =>
@@ -460,7 +491,7 @@ class OAuth2Server {
       <body>
         <form action="/authorize" method="post">
           <label for="redirect_uri">redirect URI: </label>
-          <input type="text" name="redirect_uri" readonly="readonly" value="${redirectUri}" /><br/>
+          <input type="text" name="redirect_uri" readonly="readonly" value="${params.get("redirect_uri")}" /><br/>
           <label for="state">state token: </label>
           <input type="text" name="state" readonly="readonly" value="${state}" /><br/>
           <label for="username">username: </label>
@@ -475,28 +506,31 @@ class OAuth2Server {
     `);
   }
 
+  /**
+   * @param {nsIHttpRequest} request
+   * @param {nsIHttpResponse} response
+   */
   authorizeHandler(request, response) {
     if (request.method != "POST") {
       throw HTTP_405;
     }
 
     const input = CommonUtils.readBytesFromInputStream(request.bodyInputStream);
+    const url = this.getRedirectURL(input);
+    response.setStatusLine(request.httpVersion, 303, "Redirected");
+    response.setHeader("Location", url.href);
+  }
+
+  /**
+   * Get the complete redirect URL for a given authorization.
+   *
+   * @param {string} input - URL-encoded parameters.
+   * @returns {URL}
+   */
+  getRedirectURL(input) {
     const params = new URLSearchParams(input);
     const state = params.get("state");
     Assert.ok(state, "request state");
-
-    if (
-      params.get("username") != this.username ||
-      params.get("password") != this.password
-    ) {
-      this._formHandler(
-        response,
-        params.get("redirect_uri"),
-        params.get("scope"),
-        state
-      );
-      return;
-    }
 
     const url = new URL(params.get("redirect_uri"));
     if (params.getAll("scope").includes("bad_scope")) {
@@ -512,11 +546,13 @@ class OAuth2Server {
       url.searchParams.set("code", code);
     }
     url.searchParams.set("state", state);
-
-    response.setStatusLine(request.httpVersion, 303, "Redirected");
-    response.setHeader("Location", url.href);
+    return url;
   }
 
+  /**
+   * @param {nsIHttpRequest} request
+   * @param {nsIHttpResponse} response
+   */
   tokenHandler(request, response) {
     if (request.method != "POST") {
       throw HTTP_405;
