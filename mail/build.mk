@@ -17,14 +17,8 @@ stage-package:
 install::
 	@$(MAKE) -C comm/mail/installer install
 
-source-package::
-	@$(MAKE) -C comm/mail/installer source-package
-
 upload::
 	@$(MAKE) -C comm/mail/installer upload
-
-source-upload::
-	@$(MAKE) -C comm/mail/installer source-upload
 
 hg-bundle::
 	@$(MAKE) -C comm/mail/installer hg-bundle
