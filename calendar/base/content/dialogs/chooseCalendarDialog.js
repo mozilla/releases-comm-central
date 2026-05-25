@@ -10,7 +10,6 @@ window.addEventListener("load", () => {
   loadCalendars();
 });
 function loadCalendars() {
-  const calendarManager = Cc["@mozilla.org/calendar/manager;1"].getService(Ci.calICalendarManager);
   const listbox = document.getElementById("calendar-list");
   const composite = cal.view.getCompositeCalendar(window.opener);
   let selectedIndex = 0;
@@ -18,7 +17,7 @@ function loadCalendars() {
   if (window.arguments[0].calendars) {
     calendars = window.arguments[0].calendars;
   } else {
-    calendars = calendarManager.getCalendars();
+    calendars = cal.manager.getCalendars();
   }
   calendars = sortCalendarArray(calendars);
 

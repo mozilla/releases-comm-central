@@ -508,7 +508,9 @@ function openEventDialog(
       // item. Don't show the dialog.
       return;
     }
-    // Pick the first calendar that supports the item and is writable
+    // Sort the remaining calendars into the order displayed in the UI.
+    calendars = sortCalendarArray(calendars);
+    // Pick the first calendar that supports the item and is writable.
     calendar = calendars[0];
     if (calendarItem) {
       // XXX The dialog currently uses the items calendar as a first
