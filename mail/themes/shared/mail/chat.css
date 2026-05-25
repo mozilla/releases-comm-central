@@ -563,6 +563,7 @@ richlistitem:not([selected]) .protoIconDimmed {
   /* margin-inline-end so the borders show up on all sides. */
   margin-inline-end: 1px;
   padding: 2px;
+  resize: none;
   box-sizing: content-box;
   border: 2px solid transparent;
 
