@@ -7,7 +7,7 @@
 /* exported promptDeleteCalendar, loadCalendarManager, unloadCalendarManager,
  *   calendarListTooltipShowing, calendarListSetupContextMenu,
  *   ensureCalendarVisible, toggleCalendarVisible, showAllCalendars,
- *   showOnlyCalendar, calendarOfflineManager, openLocalCalendar,
+ *   showOnlyCalendar, openLocalCalendar,
  */
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
@@ -682,46 +682,3 @@ function openLocalCalendar() {
     }
   });
 }
-
-/**
- * Calendar Offline Manager
- */
-var calendarOfflineManager = {
-  QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
-
-  init() {
-    if (this.initialized) {
-      throw Components.Exception("", Cr.NS_ERROR_ALREADY_INITIALIZED);
-    }
-    Services.obs.addObserver(this, "network:offline-status-changed");
-
-    this.updateOfflineUI(!this.isOnline());
-    this.initialized = true;
-  },
-
-  uninit() {
-    if (!this.initialized) {
-      throw Components.Exception("", Cr.NS_ERROR_NOT_INITIALIZED);
-    }
-    Services.obs.removeObserver(this, "network:offline-status-changed");
-    this.initialized = false;
-  },
-
-  isOnline() {
-    return !Services.io.offline;
-  },
-
-  updateOfflineUI() {
-    // Refresh the current view
-    currentView().goToDay(currentView().selectedDay);
-
-    // Set up disabled locks for offline
-    document.commandDispatcher.updateCommands("calendar_commands");
-  },
-
-  observe(aSubject, aTopic, aState) {
-    if (aTopic == "network:offline-status-changed") {
-      this.updateOfflineUI(aState == "offline");
-    }
-  },
-};
