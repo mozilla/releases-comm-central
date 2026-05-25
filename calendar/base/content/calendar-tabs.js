@@ -521,6 +521,12 @@ function switchToView(viewType) {
     `calendar-context-menu-next-${viewType}`
   );
 
+  for (const id of ["calendar-go-menu-next", "calendar-go-menu-previous"]) {
+    const node = document.getElementById(id);
+    node.accessKey = node.getAttribute(`accesskey-${viewType}`);
+    node.label = node.getAttribute(`label-${viewType}`);
+  }
+
   // These are hidden until the calendar is loaded.
   for (const node of document.querySelectorAll(".hide-before-calendar-loaded")) {
     node.removeAttribute("hidden");

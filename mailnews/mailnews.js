@@ -728,7 +728,7 @@ pref("mail.forward_add_extension", true);
 // Prefix of for mail forwards. E.g. "Fwd" -> subject will be Fwd: <subject>
 pref("mail.forward_subject_prefix", "Fwd");
 
-// RFC 2646=======
+// RFC 2646
 pref("mailnews.send_plaintext_flowed", true);
 // prompt user when crossing folders
 pref("mailnews.nav_crosses_folders", 1);
@@ -1068,8 +1068,10 @@ pref("mailnews.oauth.loglevel", "Warn");
 // existing session information to cause interference when signing into multiple
 // accounts.
 pref("mailnews.oauth.usePrivateBrowser", false);
-
+// Use the system browser for OAuth instead of a Thunderbird window.
 pref("mailnews.oauth.useExternalBrowser", true);
+// Use a net.thunderbird: URL instead of localhost for redirection.
+pref("mailnews.oauth.useNetThunderbirdRedirect", false);
 
 pref("test.loghelper.loglevel", "Warn");
 

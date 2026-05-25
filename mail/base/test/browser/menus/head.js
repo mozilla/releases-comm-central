@@ -225,6 +225,7 @@ class MenuTestHelper {
     }
 
     popup.hidePopup();
+    await BrowserTestUtils.waitForPopupEvent(popup, "hidden");
     await new Promise(resolve => setTimeout(resolve));
   }
 

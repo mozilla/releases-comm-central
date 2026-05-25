@@ -22,6 +22,11 @@ XPCOMUtils.defineLazyPreferenceGetter(
   "useExternalBrowser",
   "mailnews.oauth.useExternalBrowser"
 );
+XPCOMUtils.defineLazyPreferenceGetter(
+  lazy,
+  "useNetThunderbirdRedirect",
+  "mailnews.oauth.useNetThunderbirdRedirect"
+);
 
 const log = console.createInstance({
   prefix: "mailnews.oauth",
@@ -83,6 +88,15 @@ function isLoopbackHttpRedirect(redirectURI) {
   } catch (e) {
     return false;
   }
+}
+
+/**
+ * @param {string} redirectURI
+ * @returns {boolean}
+ */
+function isNetThunderbirdRedirect(redirectURI) {
+  const url = URL.parse(redirectURI);
+  return url && url.protocol == "net.thunderbird:";
 }
 
 /**
@@ -239,7 +253,7 @@ OAuth2.prototype = {
       lazy.useExternalBrowser &&
       isLoopbackHttpRedirect(this.redirectionEndpoint)
     ) {
-      this.telemetryData.where = "external";
+      this.telemetryData.where = "external-localhost";
       this.request = new ExternalRequest(this);
       if (!this.request.startLoopbackRedirectListener()) {
         this.finishAuthorizationRequest();
@@ -250,6 +264,13 @@ OAuth2.prototype = {
         );
         return;
       }
+    } else if (
+      lazy.useNetThunderbirdRedirect &&
+      isNetThunderbirdRedirect(this.redirectionEndpoint)
+    ) {
+      // TODO: Check that we are the default handler.
+      this.telemetryData.where = "external-net-thunderbird";
+      this.request = new URLCallbackRequest(this);
     } else {
       this.telemetryData.where = "internal";
       this.request = new InternalRequest(this);
@@ -620,6 +641,54 @@ class InternalRequest {
   }
 }
 
+class URLCallbackRequest {
+  /**
+   * All active URLCallbackRequest objects, keyed by the value of the state
+   * request parameter.
+   *
+   * @type {Map<string, URLCallbackRequest>}
+   */
+  static instances = new Map();
+
+  /**
+   * Constructor for internal requests using Thunderbird's browser.
+   *
+   * @param {OAuth2} oauth
+   */
+  constructor(oauth) {
+    this.oauth = oauth;
+    this.redirectURI = oauth.redirectionEndpoint;
+    URLCallbackRequest.instances.set(this.oauth._authorizationState, this);
+  }
+
+  /**
+   * @param {URL} authEndpointURL - Authorization endpoint, with params.
+   * @returns {boolean}
+   */
+  start(authEndpointURL) {
+    const authURI = Services.io.newURI(authEndpointURL.href);
+    openLinkExternally(authURI, { addToHistory: false });
+    return true;
+  }
+
+  /**
+   * The request has completed and can be closed.
+   */
+  close() {}
+
+  /**
+   * The user was redirected to a net.thunderbird:// URL after authentication
+   * and the state matches this object's state.
+   *
+   * @param {string} url
+   */
+  urlReceived(url) {
+    URLCallbackRequest.instances.delete(this.oauth._authorizationState);
+    this.oauth.finishAuthorizationRequest();
+    this.oauth.onAuthorizationReceived(url);
+  }
+}
+
 class ExternalRequest {
   /**
    * Constructor for external requests using the system web browser. The object
@@ -879,5 +948,22 @@ class ExternalRequest {
     this._loopbackRedirectListener = listener;
     this.redirectURI = callbackPrefix;
     return true;
+  }
+}
+
+export class OAuth2URLHandler {
+  QueryInterface = ChromeUtils.generateQI(["nsIObserver"]);
+
+  observe(subject, topic, data) {
+    if (topic != "net-thunderbird-url") {
+      return;
+    }
+
+    const url = URL.parse(data);
+    if (url.pathname != "/callback") {
+      return;
+    }
+    const state = url.searchParams.get("state");
+    URLCallbackRequest.instances.get(state)?.urlReceived(data);
   }
 }

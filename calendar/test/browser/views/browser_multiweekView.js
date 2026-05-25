@@ -12,12 +12,15 @@ const TITLE1 = "Multiweek View Event";
 const TITLE2 = "Multiweek View Event Changed";
 const DESC = "Multiweek View Event Description";
 
-add_task(async function () {
+add_setup(function () {
+  document.getElementById("toolbar-menubar").removeAttribute("autohide");
   const calendar = CalendarTestUtils.createCalendar();
   registerCleanupFunction(() => {
     CalendarTestUtils.removeCalendar(calendar);
   });
+});
 
+add_task(async function () {
   await CalendarTestUtils.setCalendarView(window, "multiweek");
   await CalendarTestUtils.goToDate(window, 2009, 1, 1);
 
@@ -162,3 +165,128 @@ add_task(async function testStartOfWeek() {
     "week day column labels should have been updated"
   );
 });
+
+function checkDisplayedDate(expectedFirst) {
+  const displayedDate = CalendarTestUtils.multiweekView.getDayBox(window, 1, 1).date;
+
+  Assert.equal(displayedDate.year, expectedFirst.getUTCFullYear(), "year of first date");
+  Assert.equal(displayedDate.month, expectedFirst.getUTCMonth(), "month of first date");
+  Assert.equal(displayedDate.day, expectedFirst.getUTCDate(), "day of first date");
+}
+
+add_task(async function testMultiweekViewNavigationButtons() {
+  await CalendarTestUtils.setCalendarView(window, "multiweek");
+
+  const previousButton = document.getElementById("previousViewButton");
+  const todayButton = CalendarTestUtils.getNavBarTodayButton(window);
+  const nextButton = document.getElementById("nextViewButton");
+
+  const thisWeek = new Date();
+  thisWeek.setUTCDate(thisWeek.getUTCDate() - [3, 4, 5, 6, 0, 1, 2][thisWeek.getUTCDay()]);
+  const lastWeek = new Date(thisWeek);
+  lastWeek.setUTCDate(lastWeek.getUTCDate() - 7);
+  const nextWeek = new Date(thisWeek);
+  nextWeek.setUTCDate(nextWeek.getUTCDate() + 7);
+
+  info("today button");
+  EventUtils.synthesizeMouseAtCenter(todayButton, {}, window);
+  await CalendarTestUtils.ensureViewLoaded(window);
+  checkDisplayedDate(thisWeek);
+
+  info("forward button");
+  EventUtils.synthesizeMouseAtCenter(nextButton, {}, window);
+  await CalendarTestUtils.ensureViewLoaded(window);
+  checkDisplayedDate(nextWeek);
+
+  info("back button");
+  EventUtils.synthesizeMouseAtCenter(previousButton, {}, window);
+  await CalendarTestUtils.ensureViewLoaded(window);
+  checkDisplayedDate(thisWeek);
+
+  info("back button");
+  EventUtils.synthesizeMouseAtCenter(previousButton, {}, window);
+  await CalendarTestUtils.ensureViewLoaded(window);
+  checkDisplayedDate(lastWeek);
+
+  info("forward button");
+  EventUtils.synthesizeMouseAtCenter(nextButton, {}, window);
+  await CalendarTestUtils.ensureViewLoaded(window);
+  checkDisplayedDate(thisWeek);
+});
+
+add_task(async function testMultiweekViewNavigationMenuItems() {
+  await CalendarTestUtils.setCalendarView(window, "multiweek");
+
+  async function openMenus(...menus) {
+    const menu = menus.shift();
+    menu.openMenu(true);
+    await BrowserTestUtils.waitForPopupEvent(menu.menupopup, "shown");
+    if (menus.length) {
+      await openMenus(...menus);
+    }
+  }
+
+  async function closeMenus(...menus) {
+    for (const menu of menus) {
+      await BrowserTestUtils.waitForPopupEvent(menu.menupopup, "hidden");
+    }
+  }
+
+  const goMenu = document.getElementById("menu_Go");
+  const todayMenuItem = document.getElementById("calendar-go-to-today-menuitem");
+  const nextMenu = document.getElementById("goNextMenu");
+  const nextMenuItem = document.getElementById("calendar-go-menu-next");
+  const previousMenu = document.getElementById("goPreviousMenu");
+  const previousMenuItem = document.getElementById("calendar-go-menu-previous");
+
+  const thisWeek = new Date();
+  thisWeek.setUTCDate(thisWeek.getUTCDate() - [3, 4, 5, 6, 0, 1, 2][thisWeek.getUTCDay()]);
+  const lastWeek = new Date(thisWeek);
+  lastWeek.setUTCDate(lastWeek.getUTCDate() - 7);
+  const nextWeek = new Date(thisWeek);
+  nextWeek.setUTCDate(nextWeek.getUTCDate() + 7);
+
+  info("today menu item");
+  await openMenus(goMenu);
+  goMenu.menupopup.activateItem(todayMenuItem);
+  await closeMenus(goMenu);
+
+  await CalendarTestUtils.ensureViewLoaded(window);
+  checkDisplayedDate(thisWeek);
+
+  info("forward menu item");
+  await openMenus(goMenu, nextMenu);
+  Assert.equal(nextMenuItem.label, "Week");
+  Assert.equal(nextMenuItem.accessKey, "W");
+  nextMenu.menupopup.activateItem(nextMenuItem);
+  await closeMenus(nextMenu, goMenu);
+
+  await CalendarTestUtils.ensureViewLoaded(window);
+  checkDisplayedDate(nextWeek);
+
+  info("back menu item");
+  await openMenus(goMenu, previousMenu);
+  Assert.equal(previousMenuItem.label, "Week");
+  Assert.equal(previousMenuItem.accessKey, "W");
+  previousMenu.menupopup.activateItem(previousMenuItem);
+  await closeMenus(previousMenu, goMenu);
+
+  await CalendarTestUtils.ensureViewLoaded(window);
+  checkDisplayedDate(thisWeek);
+
+  info("back menu item");
+  await openMenus(goMenu, previousMenu);
+  EventUtils.synthesizeMouseAtCenter(previousMenuItem, {}, window);
+  await closeMenus(previousMenu, goMenu);
+
+  await CalendarTestUtils.ensureViewLoaded(window);
+  checkDisplayedDate(lastWeek);
+
+  info("forward menu item");
+  await openMenus(goMenu, nextMenu);
+  EventUtils.synthesizeMouseAtCenter(nextMenuItem, {}, window);
+  await closeMenus(nextMenu, goMenu);
+
+  await CalendarTestUtils.ensureViewLoaded(window);
+  checkDisplayedDate(thisWeek);
+}).skip(AppConstants.platform == "macosx");

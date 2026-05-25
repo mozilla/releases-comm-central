@@ -14,7 +14,7 @@
 }
 
 @media not (prefers-contrast) {
-  :root:not([lwtheme]) {
+  #messengerWindow:not([lwtheme]) {
     background-color: light-dark(var(--color-gray-20), var(--color-gray-90));
 
     &:-moz-window-inactive {
@@ -22,7 +22,7 @@
     }
   }
 
-  :root[lwtheme] {
+  #messengerWindow[lwtheme] {
     background-color: var(--lwt-accent-color);
 
     &:-moz-window-inactive {
@@ -31,7 +31,7 @@
   }
 
   /* This is needed for Windows 10, see bug 1963783 */
-  :root[customtitlebar][sizemode="normal"] {
+  #messengerWindow[customtitlebar][sizemode="normal"] {
     border-block-start: 0.5px solid rgba(0, 0, 0, 0.7);
 
     @media (-moz-windows-accent-color-in-titlebar) or (-moz-windows-mica) {
@@ -45,7 +45,7 @@
 
   /* Only apply mica when accent color in titlebar is disabled */
   @media (-moz-windows-mica) and (-moz-windows-accent-color-in-titlebar: 0) {
-    :root[customtitlebar]:not([lwtheme]) {
+    #messengerWindow[customtitlebar]:not([lwtheme]) {
       background-color: transparent;
 
       /* stylelint-disable-next-line media-query-no-invalid */
@@ -58,7 +58,7 @@
 }
 
 @media (prefers-contrast) {
-  :root[customtitlebar]:not([lwtheme]) {
+  #messengerWindow[customtitlebar]:not([lwtheme]) {
     padding-block-start: 2px;
     background-color: ActiveCaption;
     color: CaptionText;

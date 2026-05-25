@@ -110,6 +110,7 @@ var kHostnames = new Map([
   // For testing purposes.
   ["mochi.test", ["test.test", "test_scope"]],
   ["external.test", ["external.test", "test_mail"]],
+  ["net.thunderbird.test", ["net.thunderbird.test", "test_mail"]],
   [
     "test.test",
     [
@@ -323,6 +324,19 @@ var kIssuers = new Map([
       authorizationEndpoint: "https://oauth.test.test/form",
       tokenEndpoint: "https://oauth.test.test/token",
       redirectionEndpoint: "http://localhost",
+      usePKCE: true,
+    },
+  ],
+  [
+    "net.thunderbird.test",
+    {
+      name: "net.thunderbird.test",
+      builtIn: true,
+      clientId: "test_client_id",
+      clientSecret: "test_secret",
+      authorizationEndpoint: "https://oauth.test.test/form",
+      tokenEndpoint: "https://oauth.test.test/token",
+      redirectionEndpoint: "net.thunderbird://oauth2/callback",
       usePKCE: true,
     },
   ],

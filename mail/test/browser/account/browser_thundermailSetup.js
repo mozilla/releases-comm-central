@@ -166,7 +166,7 @@ add_task(async function () {
       issuer: "external.test",
       reason: "no refresh token",
       result: "succeeded",
-      where: "external",
+      where: "external-localhost",
     },
   ]);
 
