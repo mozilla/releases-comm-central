@@ -150,6 +150,20 @@ function updateCheckedStateForIgnoreAndWatchThreadCmds() {
 
 function file_init() {
   document.commandDispatcher.updateCommands("create-menu-file");
+
+  // These items are only relevant when editing a calendar event in a tab.
+  const editingCalendarItem = ["calendarEvent", "calendarTask"].includes(
+    document.getElementById("tabmail")?.currentTabInfo.mode.name
+  );
+  for (const id of [
+    "calendar-save-menuitem",
+    "calendar-save-and-close-menuitem",
+  ]) {
+    const item = document.getElementById(id);
+    if (item) {
+      item.hidden = !editingCalendarItem;
+    }
+  }
 }
 
 const deleteMenuItemCommandHandler = event =>
