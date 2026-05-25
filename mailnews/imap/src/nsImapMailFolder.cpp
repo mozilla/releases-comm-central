@@ -2459,6 +2459,9 @@ NS_IMETHODIMP nsImapMailFolder::OnNewIdleMessages() {
 
 NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
     nsIImapProtocol* aProtocol, nsIMailboxSpec* aSpec) {
+  NS_ENSURE_ARG_POINTER(aProtocol);
+  NS_ENSURE_ARG_POINTER(aSpec);
+
   nsresult rv;
   ChangeNumPendingTotalMessages(-mNumPendingTotalMessages);
   ChangeNumPendingUnread(-mNumPendingUnreadMessages);
