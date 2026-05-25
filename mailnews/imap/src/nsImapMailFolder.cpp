@@ -4474,6 +4474,7 @@ nsImapMailFolder::OnlineCopyCompleted(nsIImapProtocol* aProtocol,
 
 NS_IMETHODIMP
 nsImapMailFolder::CloseMockChannel(nsIImapMockChannel* aChannel) {
+  NS_ENSURE_ARG_POINTER(aChannel);
   aChannel->Close();
   return NS_OK;
 }
