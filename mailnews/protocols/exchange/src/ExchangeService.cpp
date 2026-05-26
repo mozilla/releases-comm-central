@@ -22,7 +22,7 @@
 #include "nsNetUtil.h"
 #include "SaveAsListener.h"
 
-extern mozilla::LazyLogModule gEwsLog;
+extern mozilla::LazyLogModule gExchangeLog;
 
 NS_IMPL_ISUPPORTS(ExchangeService, nsIMsgMessageService,
                   nsIMsgMessageFetchPartService)
@@ -130,7 +130,7 @@ NS_IMETHODIMP ExchangeService::GetUrlForUri(const nsACString& aMessageURI,
   }
 
   if (channelScheme.IsEmpty()) {
-    MOZ_LOG_FMT(gEwsLog, mozilla::LogLevel::Error,
+    MOZ_LOG_FMT(gExchangeLog, mozilla::LogLevel::Error,
                 "Unknown message URI scheme: %s", scheme);
     return NS_ERROR_UNEXPECTED;
   }
@@ -326,7 +326,7 @@ nsresult ExchangeService::MsgHdrFromUri(nsIURI* uri, nsIMsgDBHdr** _retval) {
   }
 
   if (folderScheme.IsEmpty()) {
-    MOZ_LOG_FMT(gEwsLog, mozilla::LogLevel::Error,
+    MOZ_LOG_FMT(gExchangeLog, mozilla::LogLevel::Error,
                 "Unrecognized header URI scheme: %s", scheme);
     return NS_ERROR_UNEXPECTED;
   }

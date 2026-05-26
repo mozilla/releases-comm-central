@@ -3,13 +3,12 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXPORTS += [
-    "EwsFetchMsgsToOffline.h",
+    "ExchangeFetchMsgsToOffline.h",
 ]
 
 UNIFIED_SOURCES += [
-    "EwsCopyMoveTransaction.cpp",
-    "EwsFetchMsgsToOffline.cpp",
-    "EwsMessageSync.cpp",
+    "ExchangeCopyMoveTransaction.cpp",
+    "ExchangeFetchMsgsToOffline.cpp",
     "ExchangeFolder.cpp",
     "ExchangeFolderCopyHandler.cpp",
     "ExchangeIncomingServer.cpp",
@@ -18,6 +17,7 @@ UNIFIED_SOURCES += [
     "ExchangeMessageChannel.cpp",
     "ExchangeMessageCopyHandler.cpp",
     "ExchangeMessageCreate.cpp",
+    "ExchangeMessageSync.cpp",
     "ExchangeOAuth2CustomDetails.cpp",
     "ExchangeProtocolHandler.cpp",
     "ExchangeProtocolInfo.cpp",

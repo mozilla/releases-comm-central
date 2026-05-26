@@ -4,7 +4,7 @@
 
 #include "ExchangeMessageChannel.h"
 
-#include "EwsFetchMsgsToOffline.h"
+#include "ExchangeFetchMsgsToOffline.h"
 #include "ExchangeListeners.h"
 #include "IExchangeClient.h"
 #include "IExchangeFolder.h"
@@ -330,7 +330,7 @@ NS_IMETHODIMP ExchangeMessageChannel::AsyncOpen(nsIStreamListener* aListener) {
   // TODO: Should use nsIStreamListenerTee to combine this into one operation.
   // TODO: There should be a policy check - do we actually _want_ to keep a
   //       local copy of this message?
-  return EwsFetchMsgsToOffline(
+  return ExchangeFetchMsgsToOffline(
       folder, {msgKey},
       [self = RefPtr(this), ewsFolder,
        listener = nsCOMPtr(aListener)](nsresult status) {

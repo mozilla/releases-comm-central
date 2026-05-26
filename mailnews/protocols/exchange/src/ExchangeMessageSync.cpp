@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-#include "EwsMessageSync.h"
+#include "ExchangeMessageSync.h"
 #include "ExchangeFolder.h"
 #include "ExchangeListeners.h"
 #include "IExchangeClient.h"
@@ -15,9 +15,9 @@
 #include "nsIMsgFolderNotificationService.h"
 #include "OfflineStorage.h"  // For LocalDeleteMessages().
 
-#define SYNC_STATE_PROPERTY "ewsSyncStateToken"
+constexpr auto kSyncStateProperty = "ewsSyncStateToken";
 
-mozilla::LazyLogModule gEwsLog("ews_xpcom");
+mozilla::LazyLogModule gExchangeLog("ews_xpcom");
 
 /**
  * Helper class for orchestrating a message sync operation for an
@@ -55,7 +55,7 @@ mozilla::LazyLogModule gEwsLog("ews_xpcom");
  *
  * NOTE: we're using C++ derivation here to implement the
  * IExchangeMessageSyncListener callbacks, as opposed to the lambda-based
- * approach used for other EWS operations. Using derivation to implement
+ * approach used for other Exchange operations. Using derivation to implement
  * listener callbacks is often a bad idea:
  * - it exposes implementation details which shouldn't be part of the
  *   public class interface.
@@ -85,12 +85,12 @@ mozilla::LazyLogModule gEwsLog("ews_xpcom");
  * written to the local mail store. But we don't want to trust those headers
  * coming from a server - they could be maliciously crafted.
  */
-class EwsMessageSyncHandler : public IExchangeMessageSyncListener,
-                              IExchangeFallibleOperationListener {
+class ExchangeMessageSyncHandler : public IExchangeMessageSyncListener,
+                                   IExchangeFallibleOperationListener {
  public:
   NS_DECL_ISUPPORTS
 
-  EwsMessageSyncHandler(
+  ExchangeMessageSyncHandler(
       ExchangeFolder* folder, std::function<void()> onStart,
       std::function<void(nsresult, nsTArray<nsMsgKey> const&,
                          nsTArray<RefPtr<IHeaderBlock>> const&)>
@@ -99,7 +99,7 @@ class EwsMessageSyncHandler : public IExchangeMessageSyncListener,
         mOnStart(std::move(onStart)),
         mOnStop(std::move(onStop)) {}
 
-  EwsMessageSyncHandler() = delete;
+  ExchangeMessageSyncHandler() = delete;
 
   /**
    * Go() sets the operation running.
@@ -130,7 +130,7 @@ class EwsMessageSyncHandler : public IExchangeMessageSyncListener,
     // upstream messages we received. Provide that to simplify sync.
     nsCString syncStateToken;
     nsresult rv =
-        mFolder->GetStringProperty(SYNC_STATE_PROPERTY, syncStateToken);
+        mFolder->GetStringProperty(kSyncStateProperty, syncStateToken);
     if (NS_FAILED(rv)) {
       syncStateToken = EmptyCString();
     }
@@ -160,7 +160,7 @@ class EwsMessageSyncHandler : public IExchangeMessageSyncListener,
   }
 
  protected:
-  virtual ~EwsMessageSyncHandler() = default;
+  virtual ~ExchangeMessageSyncHandler() = default;
 
   //
   // IExchangeMessageSyncListener implementation
@@ -179,10 +179,11 @@ class EwsMessageSyncHandler : public IExchangeMessageSyncListener,
     if (existingHdr) {
       // Not clear if this is something that we would have to deal with on a
       // real server. But to be safe we'll log and ignore.
-      MOZ_LOG_FMT(gEwsLog, mozilla::LogLevel::Warning,
-                  "EwsMessageSync onMessageCreated() - message already exists "
-                  "(ewsId={})",
-                  ewsId);
+      MOZ_LOG_FMT(
+          gExchangeLog, mozilla::LogLevel::Warning,
+          "ExchangeMessageSync onMessageCreated() - message already exists "
+          "(ewsId={})",
+          ewsId);
       return NS_OK;  // Keep running.
     }
 
@@ -342,7 +343,7 @@ class EwsMessageSyncHandler : public IExchangeMessageSyncListener,
 
   NS_IMETHOD OnSyncStateTokenChanged(
       const nsACString& syncStateToken) override {
-    return mFolder->SetStringProperty(SYNC_STATE_PROPERTY, syncStateToken);
+    return mFolder->SetStringProperty(kSyncStateProperty, syncStateToken);
   };
 
   // Called when the operation succeeds.
@@ -390,15 +391,15 @@ class EwsMessageSyncHandler : public IExchangeMessageSyncListener,
       mOnStop;
 };
 
-NS_IMPL_ISUPPORTS(EwsMessageSyncHandler, IExchangeMessageSyncListener,
+NS_IMPL_ISUPPORTS(ExchangeMessageSyncHandler, IExchangeMessageSyncListener,
                   IExchangeFallibleOperationListener)
 
-nsresult EwsPerformMessageSync(
+nsresult ExchangePerformMessageSync(
     ExchangeFolder* folder, std::function<void()> onStart,
     std::function<void(nsresult, nsTArray<nsMsgKey> const&,
                        nsTArray<RefPtr<IHeaderBlock>> const&)>
         onStop) {
-  RefPtr<EwsMessageSyncHandler> syncer =
-      new EwsMessageSyncHandler(folder, onStart, onStop);
+  RefPtr<ExchangeMessageSyncHandler> syncer =
+      new ExchangeMessageSyncHandler(folder, onStart, onStop);
   return syncer->Go();
 }

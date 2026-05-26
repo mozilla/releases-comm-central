@@ -8,8 +8,8 @@
 #include "ExchangeFolderCopyHandler.h"
 #include "ExchangeMessageCopyHandler.h"
 #include "ExchangeMessageCopyHandler.h"
-#include "EwsMessageSync.h"
-#include "EwsCopyMoveTransaction.h"
+#include "ExchangeMessageSync.h"
+#include "ExchangeCopyMoveTransaction.h"
 #include "IExchangeClient.h"
 #include "IExchangeIncomingServer.h"
 #include "IHeaderBlock.h"
@@ -743,11 +743,11 @@ NS_IMETHODIMP ExchangeFolder::CopyItemsOnSameServer(
               txns->GetTransactionManager(getter_AddRefs(txnMgr));
               NS_ENSURE_STATE(txnMgr);
 
-              RefPtr<EwsCopyMoveTransaction> undoTransaction =
-                  aIsMove ? EwsCopyMoveTransaction::ForMove(
+              RefPtr<ExchangeCopyMoveTransaction> undoTransaction =
+                  aIsMove ? ExchangeCopyMoveTransaction::ForMove(
                                 srcFolder, self.get(), msgWindow,
                                 newHeaders.Clone())
-                          : EwsCopyMoveTransaction::ForCopy(
+                          : ExchangeCopyMoveTransaction::ForCopy(
                                 srcFolder, self.get(), msgWindow,
                                 srcHdrs.Clone(), newHeaders.Clone());
               undoTransaction->SetTransactionType(
@@ -1436,7 +1436,7 @@ nsresult ExchangeFolder::SyncMessages(nsIMsgWindow* window,
     }
   };
 
-  return EwsPerformMessageSync(this, onSyncStart, onSyncStop);
+  return ExchangePerformMessageSync(this, onSyncStart, onSyncStop);
 }
 
 nsAutoSyncState* ExchangeFolder::AutoSyncState() {
