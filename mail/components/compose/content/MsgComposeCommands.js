@@ -6612,7 +6612,8 @@ async function CompleteGenericSendMessage(msgType) {
 
   if (
     msgType == Ci.nsIMsgCompDeliverMode.Now ||
-    msgType == Ci.nsIMsgCompDeliverMode.Later
+    msgType == Ci.nsIMsgCompDeliverMode.Later ||
+    msgType == Ci.nsIMsgCompDeliverMode.Background
   ) {
     window.close();
   }
