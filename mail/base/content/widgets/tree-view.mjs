@@ -2416,6 +2416,7 @@ class TreeViewTableHeader extends HTMLTableSectionElement {
     }
 
     event.preventDefault();
+    event.stopPropagation();
     this.dispatchEvent(
       new CustomEvent("shift-column", {
         bubbles: true,
