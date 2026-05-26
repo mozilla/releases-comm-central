@@ -166,6 +166,12 @@ add_task(async function test_add_identity() {
   EventUtils.synthesizeMouseAtCenter(addButton, {}, gIdentitiesWin);
   const identityWin = await identityEditDialogLoaded;
 
+  Assert.equal(
+    identityWin.document.getElementById("identityCatchAllBox").hidden,
+    false,
+    "catch-all should be shown"
+  );
+
   // Fill in some values, and close. The new identity should now be listed.
   identityWin.document.getElementById("identity.fullName").focus();
   EventUtils.sendString("bob", identityWin);
