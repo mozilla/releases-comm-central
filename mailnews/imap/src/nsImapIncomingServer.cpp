@@ -238,8 +238,7 @@ nsImapIncomingServer::GetUsingSubscription(bool* bVal) {
 NS_IMETHODIMP
 nsImapIncomingServer::SetUsingSubscription(bool bVal) {
   bool oldVal = bVal;
-  bool hadPref =
-      NS_SUCCEEDED(GetBoolValue("using_subscription", &oldVal));
+  bool hadPref = NS_SUCCEEDED(GetBoolValue("using_subscription", &oldVal));
 
   nsresult rv = SetBoolValue("using_subscription", bVal);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -255,8 +254,7 @@ nsImapIncomingServer::SetUsingSubscription(bool bVal) {
   if (hadPref && oldVal != bVal && hostSession && !serverKey.IsEmpty()) {
     // Applies the flip between "subscribed-only" (LSUB) and "all folders"
     // (LIST) immediately, so the folder pane updates without a restart.
-    hostSession->SetHaveWeEverDiscoveredFoldersForHost(serverKey.get(),
-                                                       false);
+    hostSession->SetHaveWeEverDiscoveredFoldersForHost(serverKey.get(), false);
     PerformExpand(nullptr);
   }
   return NS_OK;
@@ -1845,20 +1843,19 @@ nsresult nsImapIncomingServer::GetStringBundle() {
 }
 
 NS_IMETHODIMP
-nsImapIncomingServer::GetImapStringByName(const char* msgName,
+nsImapIncomingServer::GetImapStringByName(const nsACString& msgName,
                                           nsAString& aString) {
-  nsresult rv = NS_OK;
-  GetStringBundle();
+  nsresult rv = GetStringBundle();
+  NS_ENSURE_SUCCESS(rv, rv);
   if (m_stringBundle) {
     nsString res_str;
-    rv = m_stringBundle->GetStringFromName(msgName, res_str);
+    rv = m_stringBundle->GetStringFromName(PromiseFlatCString(msgName).get(),
+                                           res_str);
+    NS_ENSURE_SUCCESS(rv, rv);
     aString.Assign(res_str);
-    if (NS_SUCCEEDED(rv)) return rv;
+    return rv;
   }
-  aString.AssignLiteral("String Name ");
-  // mscott: FIX ME
-  aString.AppendASCII(msgName);
-  return NS_OK;
+  return NS_ERROR_FAILURE;
 }
 
 nsresult nsImapIncomingServer::ResetFoldersToUnverified(

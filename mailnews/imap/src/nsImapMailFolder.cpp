@@ -2653,7 +2653,7 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
     bool gettingNewMessages;
     GetGettingNewMessages(&gettingNewMessages);
     if (gettingNewMessages)
-      ProgressStatusString(aProtocol, "imapNoNewMessages", EmptyCString());
+      ProgressStatusString(aProtocol, "imapNoNewMessages"_ns, ""_ns);
     SetPerformingBiff(false);
   }
   aSpec->GetNumMessages(&m_numServerTotalMessages);
@@ -6216,7 +6216,7 @@ nsresult nsImapMailFolder::DisplayStatusMsg(nsIImapUrl* aImapUrl,
 
 NS_IMETHODIMP
 nsImapMailFolder::ProgressStatusString(nsIImapProtocol* aProtocol,
-                                       const char* aMsgName,
+                                       const nsACString& aMsgName,
                                        const nsACString& mailboxName) {
   nsCOMPtr<nsIMsgIncomingServer> server;
   nsresult rv = GetServer(getter_AddRefs(server));
@@ -6226,7 +6226,8 @@ nsImapMailFolder::ProgressStatusString(nsIImapProtocol* aProtocol,
   nsString progressMsg;
   if (serverSink) serverSink->GetImapStringByName(aMsgName, progressMsg);
   if (progressMsg.IsEmpty())
-    IMAPGetStringByName(aMsgName, getter_Copies(progressMsg));
+    IMAPGetStringByName(PromiseFlatCString(aMsgName).get(),
+                        getter_Copies(progressMsg));
 
   if (aProtocol && !progressMsg.IsEmpty()) {
     nsCOMPtr<nsIImapUrl> imapUrl;
@@ -6387,7 +6388,7 @@ nsImapMailFolder::SetUrlState(nsIImapProtocol* aProtocol,
   // no point in doing anything...
   if (!mPath) return NS_OK;
   if (!isRunning) {
-    ProgressStatusString(aProtocol, "imapDone", EmptyCString());
+    ProgressStatusString(aProtocol, "imapDone"_ns, ""_ns);
     m_urlRunning = false;
     // if no protocol, then we're reading from the mem or disk cache
     // and we don't want to end the offline download just yet.

@@ -76,7 +76,7 @@ interface nsIImapServerSink : nsISupports {
    * mock channel.
    */
   void abortQueuedUrls();
-  AString getImapStringByName(in string msgName);
+  AString getImapStringByName(in ACString msgName);
   /**
    * Alerts the user that the login to the IMAP server failed. Asks whether the
    * connection should: retry, cancel, or request a new password.
