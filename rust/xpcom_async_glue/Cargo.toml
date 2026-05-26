@@ -1,11 +1,11 @@
 [package]
-name = "xpcom_async"
+name = "xpcom_async_glue"
 version = "0.1.0"
 edition = "2024"
 rust-version.workspace = true
 
 [lib]
-name = "xpcom_async"
+name = "xpcom_async_glue"
 
 [dependencies]
 mozilla-central-workspace-hack = { version = "0.1", features = [], optional = true }

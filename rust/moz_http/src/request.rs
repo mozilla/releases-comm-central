@@ -18,7 +18,7 @@ use xpcom::interfaces::{
     nsITransportSecurityInfo, nsIURI, nsIUploadChannel, nsSecurityFlags,
 };
 use xpcom::{RefPtr, getter_addrefs};
-use xpcom_async::AsyncChannelOpener;
+use xpcom_async_glue::AsyncChannelOpener;
 
 use crate::error::{Error, TransportSecurityInfo};
 use crate::response::Response;

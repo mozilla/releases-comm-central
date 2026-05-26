@@ -12,7 +12,7 @@ mozilla-central-workspace-hack = { version = "0.1", features = [], optional = tr
 xpcom = { path = "../../../xpcom/rust/xpcom" }
 nsstring = { path = "../../../xpcom/rust/nsstring" }
 nserror = { path = "../../../xpcom/rust/nserror" }
-xpcom_async = { path = "../xpcom_async" }
+xpcom_async_glue = { path = "../xpcom_async_glue" }
 
 cstr = "0.2"
 url = "2.5"

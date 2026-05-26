@@ -2884,7 +2884,6 @@ dependencies = [
  "url",
  "uuid",
  "xpcom",
- "xpcom_async",
 ]
 
 [[package]]
@@ -4348,7 +4347,7 @@ dependencies = [
  "thiserror 1.999.999",
  "url",
  "xpcom",
- "xpcom_async",
+ "xpcom_async_glue",
 ]
 
 [[package]]
@@ -5442,7 +5441,7 @@ dependencies = [
  "url",
  "uuid",
  "xpcom",
- "xpcom_async",
+ "xpcom_async_glue",
 ]
 
 [[package]]
@@ -7925,7 +7924,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "xpcom_async"
+name = "xpcom_async_glue"
 version = "0.1.0"
 dependencies = [
  "cstr",
