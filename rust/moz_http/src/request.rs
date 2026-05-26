@@ -18,7 +18,7 @@ use xpcom::interfaces::{
     nsITransportSecurityInfo, nsIURI, nsIUploadChannel, nsSecurityFlags,
 };
 use xpcom::{RefPtr, getter_addrefs};
-use xpcom_async::XpComFuture;
+use xpcom_async::AsyncChannelOpener;
 
 use crate::error::{Error, TransportSecurityInfo};
 use crate::response::Response;
@@ -208,7 +208,7 @@ impl<'rb> RequestBuilder<'rb> {
         }
 
         // Send the request through the nsIChannel.
-        let bytes = match XpComFuture::from(channel.clone()).await {
+        let bytes = match AsyncChannelOpener::from(channel.clone()).await {
             Ok((_channel, bytes)) => bytes,
             Err(err) => {
                 // If we got an error back from Necko, ask the NSS errors
