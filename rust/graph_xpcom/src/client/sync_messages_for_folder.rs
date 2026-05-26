@@ -5,7 +5,7 @@
 use std::{collections::HashMap, sync::Arc};
 
 use ms_graph_tb::{
-    Error, Select, define_svlep,
+    Select, define_svlep,
     extended_properties::{SingleValueExtendedPropertiesOp, SingleValueExtendedPropertiesType},
     pagination::{DeltaItem, DeltaResponse},
     paths::me::mail_folders::mail_folder_id::messages,
@@ -19,6 +19,7 @@ use protocol_shared::{
     ServerType,
     client::DoOperation,
     headerblock_xpcom::{HeaderBlock, rfc5322_header},
+    headers::Mailbox,
     safe_xpcom::SafeEwsMessageSyncListener,
 };
 use time::{
@@ -207,14 +208,14 @@ fn headers_for_message(message: &Message) -> Option<RefPtr<IHeaderBlock>> {
 
     // From
     if let Ok(from_recipient) = message.from()
-        && let Some(value) = recipient_to_rfc5322(&from_recipient)
+        && let Some(value) = recipient_to_string(&from_recipient)
     {
         header_fields.insert(rfc5322_header::FROM.to_string(), value);
     }
 
     // Sender
     if let Ok(sender) = message.sender()
-        && let Some(value) = recipient_to_rfc5322(&sender)
+        && let Some(value) = recipient_to_string(&sender)
     {
         header_fields.insert(rfc5322_header::SENDER.to_string(), value);
     }
@@ -280,27 +281,25 @@ fn overlay_internet_message_headers(
 fn flatten_recipients(recipients: &Vec<Recipient<'_>>) -> String {
     recipients
         .iter()
-        .filter_map(|recipient| recipient_to_rfc5322(recipient))
+        .filter_map(|recipient| recipient_to_string(recipient))
         .collect::<Vec<String>>()
         .join(", ")
-}
-
-fn recipient_to_rfc5322(from_recipient: &Recipient<'_>) -> Option<String> {
-    from_recipient
-        .email_address()
-        .and_then(|email_address| {
-            if let Ok(Some(name)) = email_address.name()
-                && let Ok(Some(address)) = email_address.address()
-            {
-                Ok(format!("{name} <{address}>"))
-            } else {
-                Err(Error::UnexpectedResponse(String::new()))
-            }
-        })
-        .ok()
 }
 
 fn iso8601_date_time_to_rfc2822(iso8601_date_time: &str) -> Option<String> {
     let parsed = OffsetDateTime::parse(iso8601_date_time, &Iso8601::DEFAULT).ok()?;
     parsed.format(&Rfc2822).ok()
+}
+
+fn recipient_to_string<'a>(recipient: &'a Recipient<'a>) -> Option<String> {
+    let email_address_info = recipient.email_address().ok()?;
+    let name = email_address_info.name().ok()?;
+    let email_address = email_address_info.address().ok()?;
+
+    let mailbox = Mailbox {
+        name,
+        email_address,
+    };
+
+    Some(mailbox.to_string())
 }
