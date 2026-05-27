@@ -530,7 +530,7 @@ add_task(
           "#3456CD"
         );
         browser.test.assertEq(
-          "auto_tag",
+          "auto=20tag",
           autoKey,
           "Auto-generated key should be correct"
         );
@@ -542,7 +542,7 @@ add_task(
         });
         window.assertDeepEqual(
           [
-            "auto_tag",
+            "auto=20tag",
             { tag: "Something very different" },
             { tag: "Auto Tag" },
           ],
@@ -567,7 +567,7 @@ add_task(
           "#1234AB"
         );
         browser.test.assertEq(
-          "auto_taga",
+          "auto=20tag_1",
           autoKeyNr2,
           "Auto-generated key should be correct the second time as well"
         );

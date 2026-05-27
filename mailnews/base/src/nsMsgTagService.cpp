@@ -193,32 +193,74 @@ NS_IMETHODIMP nsMsgTagService::AddTagForKey(const nsACString& key,
   return RefreshKeyCache();
 }
 
-/* void addTag (in wstring tag, in long color); */
 NS_IMETHODIMP nsMsgTagService::AddTag(const nsAString& tag,
                                       const nsACString& color,
                                       const nsACString& ordinal) {
-  // figure out key from tag. Apply transformation stripping out
-  // illegal characters like <SP> and then convert to imap mod utf7.
-  // Then, check if we have a tag with that key yet, and if so,
-  // make it unique by appending A, AA, etc.
-  // Should we use an iterator?
-  nsAutoString transformedTag(tag);
-  transformedTag.ReplaceChar(u" ()/{%*<>\\\"", u'_');
   nsAutoCString key;
-  CopyUTF16toMUTF7(transformedTag, key);
-  // We have an imap server that converts keys to upper case so we're going
-  // to normalize all keys to lower case (upper case looks ugly in prefs.js)
+
+  // Convert the UTF-16 tag string to UTF-8.
+  // This allows us to hex-encode multi-byte international characters safely.
+  NS_ConvertUTF16toUTF8 utf8Tag(tag);
+  const char* cur = utf8Tag.BeginReading();
+  const char* end = utf8Tag.EndReading();
+
+  for (; cur < end; ++cur) {
+    // Cast to unsigned char so hex conversion (0x80 - 0xFF) doesn't sign-extend
+    unsigned char c = static_cast<unsigned char>(*cur);
+
+    // Fast-pass: Safe ASCII alphanumeric characters are kept as-is.
+    if (mozilla::IsAsciiAlphanumeric(c)) {
+      key.Append(c);
+      continue;
+    }
+
+    // Standard safe ASCII symbols, explicitly excluding our custom escape
+    // character '=' and characters not allowed for IMAP keywords, see
+    // storeCustomKeywords in nsIImapService.idl.
+    if (c > 0x20 && c < 0x7F && !strchr("=()[]{}%*\"\\<>;&", c)) {
+      key.Append(c);
+      continue;
+    }
+
+    // For special characters we use our Modified Quoted-Printable encoding.
+    // e.g., Space becomes "=20", '=' becomes "=3d", etc.
+    key.AppendPrintf("=%02x", c);
+  }
+
+  // If the tag was completely empty, ensure a base string.
+  if (key.IsEmpty()) {
+    key.AssignLiteral("tag");
+  }
+
+  // Lowercase the entire key to comply with Thunderbird's internal
+  // architecture. Because hex encoding (e.g., =D0) is case-insensitive,
+  // lowercasing it to (=d0) is mathematically harmless and 100% lossless for
+  // reverse-decoding.
   ToLowerCase(key);
+
   nsAutoCString prefName(key);
+  uint32_t suffixCount = 1;
+
   while (true) {
     nsAutoString tagValue;
     nsresult rv = GetTagForKey(prefName, tagValue);
-    if (NS_FAILED(rv) || tagValue.IsEmpty() || tagValue.Equals(tag))
+
+    // If we couldn't find an existing tag for this key, or the existing key
+    // happens to map to the exact same display string, we use it.
+    if (NS_FAILED(rv) || tagValue.IsEmpty() || tagValue.Equals(tag)) {
       return AddTagForKey(prefName, tag, color, ordinal);
-    prefName.Append('A');
+    }
+
+    // Collision detected. Reset prefName back to the base key and append an
+    // incrementing number. (e.g., my_tag_1)
+    prefName = key;
+    prefName.AppendLiteral("_");
+    prefName.AppendInt(suffixCount);
+    suffixCount++;
   }
+
   NS_ASSERTION(false, "can't get here");
-  return NS_ERROR_FAILURE;
+  return NS_ERROR_UNEXPECTED;
 }
 
 /* long getColorForKey (in string key); */
