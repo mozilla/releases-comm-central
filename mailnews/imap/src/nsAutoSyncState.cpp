@@ -4,7 +4,7 @@
 
 #include "nsAutoSyncState.h"
 
-#include "EwsFetchMsgsToOffline.h"
+#include "ExchangeFetchMsgsToOffline.h"
 #include "IExchangeFolder.h"
 #include "nsImapMailFolder.h"
 #include "nsIImapService.h"
@@ -703,7 +703,7 @@ NS_IMETHODIMP nsAutoSyncState::DownloadMessagesForOffline(
     MOZ_LOG(gAutoSyncLog, LogLevel::Info,
             ("Downloading %d messages for offline, for folder %s",
              (int)keys.Length(), folder->URI().get()));
-    rv = EwsFetchMsgsToOffline(
+    rv = ExchangeFetchMsgsToOffline(
         folder, keys, [folder, self = RefPtr(this)](nsresult status) {
           // For IMAP, this is handled in OnStopRunningUrl().
           folder->ReleaseSemaphore(

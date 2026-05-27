@@ -13,7 +13,7 @@ gkrust = []
 gkrust-gtest = ["gkrust"]
 
 [workspace]
-members = ['ews_xpcom', 'gkrust', 'graph_xpcom', 'gtest', 'mailnews_string_glue', 'mailnews_ui_glue', 'moz_http', 'ms_graph_tb', 'protocol_shared', 'sys_tray', 'xpcom_async']
+members = ['ews_xpcom', 'gkrust', 'graph_xpcom', 'gtest', 'mailnews_string_glue', 'mailnews_ui_glue', 'moz_http', 'ms_graph_tb', 'protocol_shared', 'sys_tray', 'xpcom_async_glue']
 
 [workspace.package]
 rust-version = "1.90.0"
@@ -264,6 +264,7 @@ half = { path = "../../build/rust/half" }
 rusqlite = { path = "../../build/rust/rusqlite" }
 moz_asserts = { path = "../../mozglue/static/rust/moz_asserts" }
 rure = { path = "../../third_party/rust/rure" }
+zlib-rs = { path = "../../third_party/rust/zlib-rs" }
 unicode-bidi = { git = "https://github.com/servo/unicode-bidi", rev = "ca612daf1c08c53abe07327cb3e6ef6e0a760f0c" }
 any_all_workaround = { git = "https://github.com/hsivonen/any_all_workaround", rev = "7fb1b7034c9f172aade21ee1c8554e8d8a48af80" }
 cose = { git = "https://github.com/franziskuskiefer/cose-rust", rev = "43c22248d136c8b38fe42ea709d08da6355cf04b" }

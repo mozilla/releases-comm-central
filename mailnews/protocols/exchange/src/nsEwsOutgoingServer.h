@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef COMM_MAILNEWS_PROTOCOLS_EWS_SRC_NSEWSOUTGOINGSERVER_H_
-#define COMM_MAILNEWS_PROTOCOLS_EWS_SRC_NSEWSOUTGOINGSERVER_H_
+#ifndef COMM_MAILNEWS_PROTOCOLS_EXCHANGE_SRC_NSEWSOUTGOINGSERVER_H_
+#define COMM_MAILNEWS_PROTOCOLS_EXCHANGE_SRC_NSEWSOUTGOINGSERVER_H_
 
 #include "nsID.h"
 
@@ -19,4 +19,4 @@ MOZ_EXPORT nsresult nsMsGraphOutgoingServerConstructor(REFNSIID aIID,
                                                        void** aResult);
 }  // extern "C"
 
-#endif  // COMM_MAILNEWS_PROTOCOLS_EWS_SRC_NSEWSOUTGOINGSERVER_H_
+#endif  // COMM_MAILNEWS_PROTOCOLS_EXCHANGE_SRC_NSEWSOUTGOINGSERVER_H_

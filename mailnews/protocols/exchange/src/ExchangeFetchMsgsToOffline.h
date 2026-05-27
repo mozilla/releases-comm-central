@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSFETCHMSGSTOOFFLINE_H_
-#define COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSFETCHMSGSTOOFFLINE_H_
+#ifndef COMM_MAILNEWS_PROTOCOLS_EXCHANGE_SRC_EXCHANGEFETCHMSGSTOOFFLINE_H_
+#define COMM_MAILNEWS_PROTOCOLS_EXCHANGE_SRC_EXCHANGEFETCHMSGSTOOFFLINE_H_
 
 #include <functional>
 #include "MailNewsTypes.h"
@@ -21,11 +21,11 @@ class nsIMsgFolder;
  *  - onDone() will be invoked with the failure code.
  *  - no more messages will be downloaded.
  *
- * If the call to EwsFetchMsgsToOffline() returns an error code,
+ * If the call to ExchangeFetchMsgsToOffline() returns an error code,
  * no async operation will be started and onDone() will _not_
  * be invoked.
  *
- * If the call to EwsFetchMsgsToOffline() succeeds, it will return
+ * If the call to ExchangeFetchMsgsToOffline() succeeds, it will return
  * NS_OK and the async operation will be started.
  * If the async operation is started, onDone() will _always_ be
  * invoked when it completes, with the resultant status.
@@ -39,8 +39,8 @@ class nsIMsgFolder;
  * NS_BASE_STREAM_CLOSED.
  *
  */
-nsresult EwsFetchMsgsToOffline(nsIMsgFolder* folder,
-                               nsTArray<nsMsgKey> const& msgKeys,
-                               std::function<void(nsresult)> onDone);
+nsresult ExchangeFetchMsgsToOffline(nsIMsgFolder* folder,
+                                    nsTArray<nsMsgKey> const& msgKeys,
+                                    std::function<void(nsresult)> onDone);
 
-#endif  // COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSFETCHMSGSTOOFFLINE_H_
+#endif  // COMM_MAILNEWS_PROTOCOLS_EXCHANGE_SRC_EXCHANGEFETCHMSGSTOOFFLINE_H_

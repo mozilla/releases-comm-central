@@ -83,11 +83,11 @@ class GroupedByDateFunction final : public mozIStorageFunction {
  private:
   ~GroupedByDateFunction() = default;
 
-  PRTime mTomorrow;
-  PRTime mToday;
-  PRTime mYesterday;
-  PRTime mThisWeek;
-  PRTime mLastWeek;
+  PRTime mTomorrow = 0;
+  PRTime mToday = 0;
+  PRTime mYesterday = 0;
+  PRTime mThisWeek = 0;
+  PRTime mLastWeek = 0;
 };
 
 }  // namespace mozilla::mailnews

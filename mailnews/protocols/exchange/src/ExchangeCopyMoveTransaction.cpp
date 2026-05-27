@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "EwsCopyMoveTransaction.h"
+#include "ExchangeCopyMoveTransaction.h"
 
 #include "nsIMessenger.h"
 #include "nsIMsgFolder.h"
@@ -14,14 +14,15 @@ class UpdateHeaderSetListener : public IExchangeFolderOperationListener {
   NS_DECL_IEXCHANGEFOLDEROPERATIONLISTENER
   NS_DECL_ISUPPORTS
 
-  explicit UpdateHeaderSetListener(RefPtr<EwsCopyMoveTransaction> transaction)
+  explicit UpdateHeaderSetListener(
+      RefPtr<ExchangeCopyMoveTransaction> transaction)
       : mTransaction(std::move(transaction)) {}
 
  protected:
   virtual ~UpdateHeaderSetListener() = default;
 
  private:
-  RefPtr<EwsCopyMoveTransaction> mTransaction;
+  RefPtr<ExchangeCopyMoveTransaction> mTransaction;
 };
 
 NS_IMPL_ISUPPORTS(UpdateHeaderSetListener, IExchangeFolderOperationListener);
@@ -34,31 +35,31 @@ NS_IMETHODIMP UpdateHeaderSetListener::OnComplete(
 
 }  // namespace
 
-RefPtr<EwsCopyMoveTransaction> EwsCopyMoveTransaction::ForCopy(
+RefPtr<ExchangeCopyMoveTransaction> ExchangeCopyMoveTransaction::ForCopy(
     nsCOMPtr<IExchangeFolder> originalSourceFolder,
     nsCOMPtr<IExchangeFolder> originalDestinationFolder,
     nsCOMPtr<nsIMsgWindow> window,
     nsTArray<RefPtr<nsIMsgDBHdr>> originalHeaders,
     nsTArray<RefPtr<nsIMsgDBHdr>> newHeaders) {
-  return new EwsCopyMoveTransaction(
+  return new ExchangeCopyMoveTransaction(
       std::move(originalSourceFolder), std::move(originalDestinationFolder),
       std::move(window), false, std::move(originalHeaders),
       std::move(newHeaders));
 }
 
-RefPtr<EwsCopyMoveTransaction> EwsCopyMoveTransaction::ForMove(
+RefPtr<ExchangeCopyMoveTransaction> ExchangeCopyMoveTransaction::ForMove(
     nsCOMPtr<IExchangeFolder> originalSourceFolder,
     nsCOMPtr<IExchangeFolder> originalDestinationFolder,
     nsCOMPtr<nsIMsgWindow> window, nsTArray<RefPtr<nsIMsgDBHdr>> newHeaders) {
   // The move case has no need to hold on to a reference for the original
   // headers.
-  return new EwsCopyMoveTransaction(
+  return new ExchangeCopyMoveTransaction(
       std::move(originalSourceFolder), std::move(originalDestinationFolder),
       std::move(window), true, nsTArray<RefPtr<nsIMsgDBHdr>>(),
       std::move(newHeaders));
 }
 
-EwsCopyMoveTransaction::EwsCopyMoveTransaction(
+ExchangeCopyMoveTransaction::ExchangeCopyMoveTransaction(
     nsCOMPtr<IExchangeFolder> originalSourceFolder,
     nsCOMPtr<IExchangeFolder> originalDestinationFolder,
     nsCOMPtr<nsIMsgWindow> window, bool isMove,
@@ -71,9 +72,9 @@ EwsCopyMoveTransaction::EwsCopyMoveTransaction(
       mOriginalHeaderSet(std::move(originalHeaders)),
       mCurrentHeaderSet(std::move(newHeaders)) {}
 
-EwsCopyMoveTransaction::~EwsCopyMoveTransaction() = default;
+ExchangeCopyMoveTransaction::~ExchangeCopyMoveTransaction() = default;
 
-NS_IMETHODIMP EwsCopyMoveTransaction::UndoTransaction() {
+NS_IMETHODIMP ExchangeCopyMoveTransaction::UndoTransaction() {
   if (mIsMove) {
     return PerformOperation(mOriginalDestinationFolder, mOriginalSourceFolder);
   }
@@ -90,11 +91,11 @@ NS_IMETHODIMP EwsCopyMoveTransaction::UndoTransaction() {
   return NS_OK;
 }
 
-NS_IMETHODIMP EwsCopyMoveTransaction::RedoTransaction() {
+NS_IMETHODIMP ExchangeCopyMoveTransaction::RedoTransaction() {
   return PerformOperation(mOriginalSourceFolder, mOriginalDestinationFolder);
 }
 
-void EwsCopyMoveTransaction::UpdateHeaderSet(
+void ExchangeCopyMoveTransaction::UpdateHeaderSet(
     const nsTArray<RefPtr<nsIMsgDBHdr>>& headers) {
   mCurrentHeaderSet.ClearAndRetainStorage();
   for (auto&& header : headers) {
@@ -102,8 +103,8 @@ void EwsCopyMoveTransaction::UpdateHeaderSet(
   }
 }
 
-nsresult EwsCopyMoveTransaction::PerformOperation(IExchangeFolder* fromFolder,
-                                                  IExchangeFolder* toFolder) {
+nsresult ExchangeCopyMoveTransaction::PerformOperation(
+    IExchangeFolder* fromFolder, IExchangeFolder* toFolder) {
   RefPtr<UpdateHeaderSetListener> listener = new UpdateHeaderSetListener(this);
   const auto& transactionHeaders =
       mIsMove ? mCurrentHeaderSet : mOriginalHeaderSet;

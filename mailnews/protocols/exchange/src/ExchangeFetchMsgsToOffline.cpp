@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "EwsFetchMsgsToOffline.h"
+#include "ExchangeFetchMsgsToOffline.h"
 
 #include "ExchangeFolder.h"
 #include "ExchangeListeners.h"
@@ -23,7 +23,7 @@
 #include "nsThreadUtils.h"
 
 /*
- * Helper class for EwsFetchMsgsToOffline().
+ * Helper class for ExchangeFetchMsgsToOffline().
  *
  * It calls IExchangeClient.GetMessage() to download each message in turn,
  * passing itself as a listener.
@@ -185,25 +185,25 @@ class MsgFetcher : public IExchangeMessageFetchListener {
     rv = mFolder->GetServer(getter_AddRefs(server));
     NS_ENSURE_SUCCESS(rv, rv);
 
-    // Begin EWS-specific fetch.
+    // Begin Exchange-specific fetch.
     // This is the only protocol-specific part of the whole operation.
     // There _should_ be a protocol-neutral way to fetch a message from a
     // server but there currently isn't.
-    nsCOMPtr<IExchangeIncomingServer> ewsServer =
+    nsCOMPtr<IExchangeIncomingServer> exchangeServer =
         do_QueryInterface(server, &rv);
-    MOZ_ASSERT(ewsServer);  // Only EWS supported for now!
+    MOZ_ASSERT(exchangeServer);  // Only Exchange supported for now!
     NS_ENSURE_SUCCESS(rv, rv);
-    nsCOMPtr<IExchangeClient> ewsClient;
-    rv = ewsServer->GetProtocolClient(getter_AddRefs(ewsClient));
+    nsCOMPtr<IExchangeClient> exchangeClient;
+    rv = exchangeServer->GetProtocolClient(getter_AddRefs(exchangeClient));
     NS_ENSURE_SUCCESS(rv, rv);
 
-    // Retrieve the EWS ID of the message we want to download.
-    nsCString ewsId;
-    rv = msgHdr->GetStringProperty(kExchangeIdProperty, ewsId);
+    // Retrieve the Exchange ID of the message we want to download.
+    nsCString exchangeId;
+    rv = msgHdr->GetStringProperty(kExchangeIdProperty, exchangeId);
     NS_ENSURE_SUCCESS(rv, rv);
 
     // Start fetching the message.
-    return ewsClient->GetMessage(this, ewsId);
+    return exchangeClient->GetMessage(this, exchangeId);
   }
 
   // The folder containing the messages we're downloading.
@@ -226,9 +226,9 @@ class MsgFetcher : public IExchangeMessageFetchListener {
 
 NS_IMPL_ISUPPORTS(MsgFetcher, IExchangeMessageFetchListener)
 
-nsresult EwsFetchMsgsToOffline(nsIMsgFolder* folder,
-                               nsTArray<nsMsgKey> const& msgKeys,
-                               std::function<void(nsresult)> onDone) {
+nsresult ExchangeFetchMsgsToOffline(nsIMsgFolder* folder,
+                                    nsTArray<nsMsgKey> const& msgKeys,
+                                    std::function<void(nsresult)> onDone) {
   RefPtr<MsgFetcher> fetcher = new MsgFetcher(folder, msgKeys, onDone);
   return fetcher->Go();
 }

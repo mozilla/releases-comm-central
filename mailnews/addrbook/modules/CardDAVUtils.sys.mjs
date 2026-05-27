@@ -86,6 +86,7 @@ export var CardDAVUtils = {
    * @param {integer} [details.userContextId] - See _contextForUsername.
    *
    * @returns {Promise<object>} - Resolves to an object with getters for:
+   *    - url, the final URL after following redirects
    *    - status, the HTTP response code
    *    - statusText, the HTTP response message
    *    - text, the returned data as a String
@@ -231,6 +232,9 @@ export var CardDAVUtils = {
             return;
           }
           resolve({
+            get url() {
+              return new URL(finalChannel.URI.spec);
+            },
             get status() {
               return finalChannel.responseStatus;
             },
@@ -383,6 +387,8 @@ export var CardDAVUtils = {
         response = await CardDAVUtils.makeRequest(urlCandidate, requestParams);
         if (response.status == 207 && response.dom) {
           log.log(`${urlCandidate} ... success`);
+          // Use the final (redirected) URL for resolving relative paths.
+          url = response.url;
         } else {
           log.log(
             `${urlCandidate} ... response was "${response.status} ${response.statusText}"`

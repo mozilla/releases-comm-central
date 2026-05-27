@@ -32,7 +32,7 @@ function onLoadIdentityProperties() {
 
   loadSMTPServerList();
 
-  initIdentityValues(gIdentity);
+  initIdentityValues(gAccount, gIdentity);
   initCopiesAndFolder(gIdentity);
   initCompositionAndAddressing(gIdentity);
   initE2EEncryption(gIdentity);
@@ -41,16 +41,13 @@ function onLoadIdentityProperties() {
   document.getElementById("identityE2ETab").hidden = !gIdentity?.email;
 }
 
-// based on the values of gIdentity, initialize the identity fields we expose to the user
-function initIdentityValues(identity) {
-  function initSmtpServer(aServerKey) {
-    // Select a server in the SMTP server menulist by its key.
-    // The value of the identity.smtpServerKey is null when the
-    // "use default server" option is used so, if we get that passed in, select
-    // the useDefaultItem representing this option by using the value of "".
-    document.getElementById("identity.smtpServerKey").value = aServerKey || "";
-  }
-
+/**
+ * Initialize the identity fields we expose to the user.
+ *
+ * @param {nsIMsgAccount} account - Account.
+ * @param {?nsIMsgIdentity} identity - Existing identity, if not a new identity.
+ */
+function initIdentityValues(account, identity) {
   if (identity) {
     document.getElementById("identity.fullName").value = identity.fullName;
     document.getElementById("identity.email").value = identity.email;
@@ -78,13 +75,10 @@ function initIdentityValues(identity) {
     document.getElementById("identity.catchAllHint").value =
       identity.catchAllHint;
 
-    initSmtpServer(identity.smtpServerKey);
-
     // In am-main.xhtml this field has no ID, because it's hidden by other means.
     const catchAllBox = document.getElementById("identityCatchAllBox");
     if (catchAllBox) {
-      const servers = MailServices.accounts.getServersForIdentity(identity);
-      catchAllBox.hidden = servers.length > 0 && servers[0].type == "nntp";
+      catchAllBox.hidden = account.incomingServer.type == "nntp";
     }
 
     // This field does not exist for the default identity shown in the am-main.xhtml pane.
@@ -93,12 +87,17 @@ function initIdentityValues(identity) {
       idLabel.value = identity.label;
     }
   } else {
-    // We're adding an identity, use the best default we have.
-    initSmtpServer(gAccount.defaultIdentity.smtpServerKey);
-
-    // Hide catchAll until we know what this identitity is associated with.
-    document.getElementById("identityCatchAllBox").hidden = true;
+    document.getElementById("identityCatchAllBox").hidden =
+      account.incomingServer.type == "nntp";
   }
+
+  const smtpServerKey =
+    identity?.smtpServerKey || account.defaultIdentity.smtpServerKey;
+  // Select a server in the SMTP server menulist by its key.
+  // The value of the identity.smtpServerKey is null when the
+  // "use default server" option is used so, if we get that passed in, select
+  // the useDefaultItem representing this option by using the value of "".
+  document.getElementById("identity.smtpServerKey").value = smtpServerKey || "";
 
   setupSignatureItems();
 }

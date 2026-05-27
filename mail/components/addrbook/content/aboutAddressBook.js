@@ -2277,6 +2277,7 @@ var cardsPane = {
     if (event.target.closest("button") == this.displayButton) {
       this.sortContext.openPopup(this.displayButton, { triggerEvent: event });
       event.preventDefault();
+      event.stopPropagation();
     }
   },
 
@@ -2285,6 +2286,10 @@ var cardsPane = {
   },
 
   _onKeyDown(event) {
+    if (event.target.closest("thead")) {
+      // Column header key handling handled by tree-view-table-header, only.
+      return;
+    }
     if (event.altKey || event.shiftKey) {
       return;
     }
@@ -2304,20 +2309,23 @@ var cardsPane = {
           this.cardsList.view.selection.selectAll();
           this.cardsList.dispatchEvent(new CustomEvent("select"));
           event.preventDefault();
+          event.stopPropagation();
         }
         break;
       case "Delete":
         if (!modifier) {
           this.deleteSelected();
           event.preventDefault();
+          event.stopPropagation();
         }
         break;
       case "Enter":
         if (!modifier) {
           if (this.cardsList.currentIndex >= 0) {
             this._activateRow(this.cardsList.currentIndex);
+            event.preventDefault();
+            event.stopPropagation();
           }
-          event.preventDefault();
         }
         break;
     }

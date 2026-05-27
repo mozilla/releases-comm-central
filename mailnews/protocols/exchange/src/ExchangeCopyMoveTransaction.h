@@ -1,8 +1,8 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-#ifndef COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSCOPYMOVETRANSACTION_H_
-#define COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSCOPYMOVETRANSACTION_H_
+#ifndef COMM_MAILNEWS_PROTOCOLS_EXCHANGE_SRC_EXCHANGECOPYMOVETRANSACTION_H_
+#define COMM_MAILNEWS_PROTOCOLS_EXCHANGE_SRC_EXCHANGECOPYMOVETRANSACTION_H_
 
 #include "IExchangeFolder.h"
 #include "nsMsgTxn.h"
@@ -10,9 +10,9 @@
 #include "nsIMsgWindow.h"
 
 /**
- * A transaction representing an intra-server EWS copy or move operation.
+ * A transaction representing an intra-server Exchange copy or move operation.
  */
-class EwsCopyMoveTransaction : public nsMsgTxn {
+class ExchangeCopyMoveTransaction : public nsMsgTxn {
  public:
   /**
    * Return a transaction for a copy operation.
@@ -25,7 +25,7 @@ class EwsCopyMoveTransaction : public nsMsgTxn {
    * that resulted from the original operation (i.e. The resulting headers from
    * the original copy or move operation).
    */
-  static RefPtr<EwsCopyMoveTransaction> ForCopy(
+  static RefPtr<ExchangeCopyMoveTransaction> ForCopy(
       nsCOMPtr<IExchangeFolder> originalSourceFolder,
       nsCOMPtr<IExchangeFolder> originalDestinationFolder,
       nsCOMPtr<nsIMsgWindow> window,
@@ -35,10 +35,10 @@ class EwsCopyMoveTransaction : public nsMsgTxn {
   /**
    * Return a transaction for a move operation.
    *
-   * @see `EwsCopyMoveTransaction::ForCopy` for an explanation of the
+   * @see `ExchangeCopyMoveTransaction::ForCopy` for an explanation of the
    * parameters.
    */
-  static RefPtr<EwsCopyMoveTransaction> ForMove(
+  static RefPtr<ExchangeCopyMoveTransaction> ForMove(
       nsCOMPtr<IExchangeFolder> originalSourceFolder,
       nsCOMPtr<IExchangeFolder> originalDestinationFolder,
       nsCOMPtr<nsIMsgWindow> window, nsTArray<RefPtr<nsIMsgDBHdr>> newHeaders);
@@ -53,20 +53,21 @@ class EwsCopyMoveTransaction : public nsMsgTxn {
   void UpdateHeaderSet(const nsTArray<RefPtr<nsIMsgDBHdr>>& headers);
 
  protected:
-  virtual ~EwsCopyMoveTransaction();
+  virtual ~ExchangeCopyMoveTransaction();
 
  private:
   /**
    * Construct an Undo/Redo transaction for a copy or move operation.
    *
-   * @see `EwsCopyMoveTransaction::ForCopy` for an explanation of the
+   * @see `ExchangeCopyMoveTransaction::ForCopy` for an explanation of the
    * parameters.
    */
-  EwsCopyMoveTransaction(nsCOMPtr<IExchangeFolder> originalSourceFolder,
-                         nsCOMPtr<IExchangeFolder> originalDestinationFolder,
-                         nsCOMPtr<nsIMsgWindow> window, bool isMove,
-                         nsTArray<RefPtr<nsIMsgDBHdr>>&& originalHeaders,
-                         nsTArray<RefPtr<nsIMsgDBHdr>>&& newHeaders);
+  ExchangeCopyMoveTransaction(
+      nsCOMPtr<IExchangeFolder> originalSourceFolder,
+      nsCOMPtr<IExchangeFolder> originalDestinationFolder,
+      nsCOMPtr<nsIMsgWindow> window, bool isMove,
+      nsTArray<RefPtr<nsIMsgDBHdr>>&& originalHeaders,
+      nsTArray<RefPtr<nsIMsgDBHdr>>&& newHeaders);
   /**
    * Perform the operation, moving the current set of headers from `fromFolder`
    * and to `toFolder`.
@@ -82,4 +83,4 @@ class EwsCopyMoveTransaction : public nsMsgTxn {
   nsTArray<RefPtr<nsIMsgDBHdr>> mCurrentHeaderSet;
 };
 
-#endif  // COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSCOPYMOVETRANSACTION_H_
+#endif  // COMM_MAILNEWS_PROTOCOLS_EXCHANGE_SRC_EXCHANGECOPYMOVETRANSACTION_H_

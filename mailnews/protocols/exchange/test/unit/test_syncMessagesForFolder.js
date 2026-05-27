@@ -672,14 +672,14 @@ async function testSyncRecipients(mockServer, incomingServer) {
   const message = [...folder.messages][0];
 
   Assert.equal(
-    message.recipients.replaceAll('"', ""),
-    "Tinderbox <tinderbox@foo.invalid>, Alice <alice@foo.invalid>",
+    message.recipients,
+    '"Tinderbox" <tinderbox@foo.invalid>, "Alice" <alice@foo.invalid>',
     "the recipients property on the message should match the ones in the message"
   );
 
   Assert.equal(
-    message.ccList.replaceAll('"', ""),
-    "Bob <bob@foo.invalid>",
+    message.ccList,
+    '"Bob" <bob@foo.invalid>',
     "the ccList property on the message should match the ones in the message"
   );
 }

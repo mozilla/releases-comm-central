@@ -7,136 +7,168 @@
 }
 
 .timezone-highlight {
+  display: none;
   object-fit: none;
   inline-size: 460px;
   block-size: 287px;
 }
-.timezone-highlight[tzid="none"] {
-  display: none;
-}
-.timezone-highlight[tzid="+0000"] {
+.timezone-highlight[tzid="+000000"] {
+  display: unset;
   object-position: top 0 left -6900px;
 }
-.timezone-highlight[tzid="+0100"] {
+.timezone-highlight[tzid="+010000"] {
+  display: unset;
   object-position: top 0 left -7360px;
 }
-.timezone-highlight[tzid="+0200"] {
+.timezone-highlight[tzid="+020000"] {
+  display: unset;
   object-position: top 0 left -7820px;
 }
-.timezone-highlight[tzid="+0300"] {
+.timezone-highlight[tzid="+030000"] {
+  display: unset;
   object-position: top 0 left -8280px;
 }
-.timezone-highlight[tzid="+0330"] {
+.timezone-highlight[tzid="+033000"] {
+  display: unset;
   object-position: top 0 left -8740px;
 }
-.timezone-highlight[tzid="+0400"] {
+.timezone-highlight[tzid="+040000"] {
+  display: unset;
   object-position: top 0 left -9200px;
 }
-.timezone-highlight[tzid="+0430"] {
+.timezone-highlight[tzid="+043000"] {
+  display: unset;
   object-position: top 0 left -9660px;
 }
-.timezone-highlight[tzid="+0500"] {
+.timezone-highlight[tzid="+050000"] {
+  display: unset;
   object-position: top 0 left -10120px;
 }
-.timezone-highlight[tzid="+0530"] {
+.timezone-highlight[tzid="+053000"] {
+  display: unset;
   object-position: top 0 left -10580px;
 }
-.timezone-highlight[tzid="+0545"] {
+.timezone-highlight[tzid="+054500"] {
+  display: unset;
   object-position: top 0 left -11040px;
 }
-.timezone-highlight[tzid="+0600"] {
+.timezone-highlight[tzid="+060000"] {
+  display: unset;
   object-position: top 0 left -11500px;
 }
-.timezone-highlight[tzid="+0630"] {
+.timezone-highlight[tzid="+063000"] {
+  display: unset;
   object-position: top 0 left -11960px;
 }
-.timezone-highlight[tzid="+0700"] {
+.timezone-highlight[tzid="+070000"] {
+  display: unset;
   object-position: top 0 left -12420px;
 }
-.timezone-highlight[tzid="+0800"] {
+.timezone-highlight[tzid="+080000"] {
+  display: unset;
   object-position: top 0 left -12880px;
 }
-.timezone-highlight[tzid="+0845"] {
-  display: none;
-}
-.timezone-highlight[tzid="+0900"] {
+.timezone-highlight[tzid="+090000"] {
+  display: unset;
   object-position: top 0 left -13340px;
 }
-.timezone-highlight[tzid="+0930"] {
+.timezone-highlight[tzid="+093000"] {
+  display: unset;
   object-position: top 0 left -13800px;
 }
-.timezone-highlight[tzid="+1000"] {
+.timezone-highlight[tzid="+100000"] {
+  display: unset;
   object-position: top 0 left -14260px;
 }
-.timezone-highlight[tzid="+1030"] {
+.timezone-highlight[tzid="+103000"] {
+  display: unset;
   object-position: top 0 left -14720px;
 }
-.timezone-highlight[tzid="+1100"] {
+.timezone-highlight[tzid="+110000"] {
+  display: unset;
   object-position: top 0 left -15180px;
 }
-.timezone-highlight[tzid="+1130"] {
+.timezone-highlight[tzid="+113000"] {
+  display: unset;
   object-position: top 0 left -15180px;
 }
-.timezone-highlight[tzid="+1200"] {
+.timezone-highlight[tzid="+120000"] {
+  display: unset;
   object-position: top 0 left -16100px;
 }
-.timezone-highlight[tzid="+1245"] {
+.timezone-highlight[tzid="+124500"] {
+  display: unset;
   object-position: top 0 left -16560px;
 }
-.timezone-highlight[tzid="+1300"] {
+.timezone-highlight[tzid="+130000"] {
+  display: unset;
   object-position: top 0 left -17020px;
 }
-.timezone-highlight[tzid="+1400"] {
+.timezone-highlight[tzid="+140000"] {
+  display: unset;
   object-position: top 0 left -17480px;
 }
-.timezone-highlight[tzid="-0100"] {
+.timezone-highlight[tzid="-010000"] {
+  display: unset;
   object-position: top 0 left -6440px;
 }
-.timezone-highlight[tzid="-0200"] {
+.timezone-highlight[tzid="-020000"] {
+  display: unset;
   object-position: top 0 left -5980px;
 }
-.timezone-highlight[tzid="-0300"] {
+.timezone-highlight[tzid="-030000"] {
+  display: unset;
   object-position: top 0 left -5520px;
 }
-.timezone-highlight[tzid="-0330"] {
+.timezone-highlight[tzid="-033000"] {
+  display: unset;
   object-position: top 0 left -5060px;
 }
-.timezone-highlight[tzid="-0400"] {
+.timezone-highlight[tzid="-040000"] {
+  display: unset;
   object-position: top 0 left -4600px;
 }
-.timezone-highlight[tzid="-0430"] {
-  display: none;
-}
-.timezone-highlight[tzid="-0500"] {
+.timezone-highlight[tzid="-050000"] {
+  display: unset;
   object-position: top 0 left -4140px;
 }
-.timezone-highlight[tzid="-0600"] {
+.timezone-highlight[tzid="-060000"] {
+  display: unset;
   object-position: top 0 left -3680px;
 }
-.timezone-highlight[tzid="-0700"] {
+.timezone-highlight[tzid="-070000"] {
+  display: unset;
   object-position: top 0 left -3220px;
 }
-.timezone-highlight[tzid="-0800"] {
+.timezone-highlight[tzid="-080000"] {
+  display: unset;
   object-position: top 0 left -17940px;
 }
-.timezone-highlight[tzid="-0830"] {
+.timezone-highlight[tzid="-083000"] {
+  display: unset;
   object-position: top 0 left -2760px;
 }
-.timezone-highlight[tzid="-0900"] {
+.timezone-highlight[tzid="-090000"] {
+  display: unset;
   object-position: top 0 left -2300px;
 }
-.timezone-highlight[tzid="-0930"] {
+.timezone-highlight[tzid="-093000"] {
+  display: unset;
   object-position: top 0 left -1840px;
 }
-.timezone-highlight[tzid="-1000"] {
+.timezone-highlight[tzid="-100000"] {
+  display: unset;
   object-position: top 0 left -1380px;
 }
-.timezone-highlight[tzid="-1100"] {
+.timezone-highlight[tzid="-110000"] {
+  display: unset;
   object-position: top 0 left -920px;
 }
-.timezone-highlight[tzid="-1245"] {
+.timezone-highlight[tzid="-124500"] {
+  display: unset;
   object-position: top 0 left -460px;
 }
-.timezone-highlight[tzid="-1200"] {
+.timezone-highlight[tzid="-120000"] {
+  display: unset;
   object-position: top 0 left 0;
 }

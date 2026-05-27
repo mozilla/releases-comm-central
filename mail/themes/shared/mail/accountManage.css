@@ -626,6 +626,11 @@ richlistitem[default="true"],
   margin-inline-start: 8px;
   font-size: 0.9em;
   min-block-size: 28px;
+  /* These buttons are HTML <button>s placed next to a wrapping <description>
+   * inside a XUL <hbox>. When the pane is narrow the over-constrained XUL box
+   * shrinks the button below its label, clipping the text. Pin the minimum
+   * inline size to the content so the box cannot shrink it past the label. */
+  min-inline-size: max-content;
   margin-block: 0;
 }
 

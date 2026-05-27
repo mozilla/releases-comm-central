@@ -307,7 +307,7 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
                                 sleep_delay.as_millis()
                             );
 
-                            xpcom_async::sleep(sleep_delay)
+                            xpcom_async_glue::sleep(sleep_delay)
                                 .await
                                 .map_err(ProtocolError::from)?;
                             Some(new_token)
