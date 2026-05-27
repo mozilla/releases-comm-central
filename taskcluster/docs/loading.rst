@@ -33,8 +33,8 @@ style pattern matching via `pathspec`.
     - linux64-cargo-vet
     - linux64-cbindgen
     - linux64-cctools-port
-    - linux64-clang-20-profile
-    - linux64-clang-20-raw
+    - linux64-clang-21-profile
+    - linux64-clang-21-raw
 
 **or use wildcards**
 
