@@ -463,12 +463,47 @@ ActiveNonSingularConstraint.prototype = {
 
 var FacetContext = {
   facetDriver: new FacetDriver(Gloda.lookupNounDef("message"), window),
+  _sortContactsBy: "frequency",
 
-  /**
-   * The root collection which our active set is a subset of.  We hold onto this
-   *  for garbage collection reasons, although the tab that owns us should also
-   *  be holding on.
-   */
+  updateSortMode(mode) {
+    FacetContext._sortContactsBy = mode;
+    console.log("Sort mode selected:", mode);
+
+    const involvesFacet = FacetContext.faceters.find(
+      f => f.attrDef.attributeName === "involves"
+    );
+    if (!involvesFacet || !involvesFacet.xblNode) {
+      console.error("People facet or its binding (xblNode) not found.");
+      return;
+    }
+
+    const groups = involvesFacet.xblNode.orderedGroups;
+
+    const getName = g =>
+      g.value?._contact?._name || g.value?._name || g.label || "";
+    const getCount = g =>
+      typeof g.groupCount === "number" ? g.groupCount : 0;
+
+    console.log("Before sort:", groups.map(g => ({
+      name: getName(g),
+      count: getCount(g),
+    })));
+
+    if (mode === "alphabetical") {
+      groups.sort((a, b) => getName(a).localeCompare(getName(b)));
+    } else {
+      groups.sort((a, b) => getCount(b) - getCount(a));
+    }
+
+    console.log("After sort:", groups.map(g => ({
+      name: getName(g),
+      count: getCount(g),
+    })));
+
+    involvesFacet.xblNode.orderedGroups = groups;
+    involvesFacet.xblNode.build(false);
+  },
+
   _collection: null,
   set collection(aCollection) {
     this._collection = aCollection;
