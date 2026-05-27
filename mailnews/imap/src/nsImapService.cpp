@@ -59,6 +59,7 @@
 #include "mozilla/Components.h"
 #include "mozilla/LoadInfo.h"
 #include "mozilla/Preferences.h"
+#include "nsWhitespaceTokenizer.h"
 
 using mozilla::Preferences;
 using mozilla::net::LoadInfo;
@@ -2765,11 +2766,67 @@ NS_IMETHODIMP nsImapService::FetchCustomMsgAttribute(
   return rv;
 }
 
+namespace {
+
+/**
+ * Strips keywords that contain characters invalid for an IMAP atom (RFC 3501)
+ * or characters that break Thunderbird's internal URL parser (e.g., '>').
+ */
+static void SanitizeKeywords(const nsACString& aKeywords,
+                             nsACString& aSafeKeywords) {
+  aSafeKeywords.Truncate();
+
+  // Parse space-separated keywords
+  bool first = true;
+
+  nsCWhitespaceTokenizer tokenizer(aKeywords);
+  while (tokenizer.hasMoreTokens()) {
+    const nsACString& token = tokenizer.nextToken();
+    if (token.IsEmpty()) {
+      continue;
+    }
+
+    bool isValid = true;
+
+    // Check for specific invalid symbols as defined in RFC 3501 atom-specials,
+    // and also for symbols that break Thunderbird's internal URL parser.
+    // We also exclude the ampersand since it is used in MUTF-7 encoding and
+    // seems to confuse some IMAP servers when used in keywords.
+    for (uint32_t i = 0; i < token.Length(); i++) {
+      unsigned char c = token.CharAt(i);
+      if (mozilla::IsAsciiAlphanumeric(c)) {
+        continue;
+      }
+      if (c <= 0x20 || c >= 0x7F || strchr("()[]{}%*\"\\<>;&", c)) {
+        isValid = false;
+        break;
+      }
+    }
+
+    if (isValid) {
+      if (!first) {
+        aSafeKeywords.Append(' ');
+      }
+      aSafeKeywords.Append(token);
+      first = false;
+    }
+  }
+}
+
+}  // namespace
+
 NS_IMETHODIMP nsImapService::StoreCustomKeywords(
     nsIMsgFolder* anImapFolder, nsIMsgWindow* aMsgWindow,
     const nsACString& flagsToAdd, const nsACString& flagsToSubtract,
     const nsACString& uids, nsIURI** aURL) {
   NS_ENSURE_ARG_POINTER(anImapFolder);
+
+  // Ensure bad tags from RSS feeds or legacy databases cannot crash the IMAP
+  // socket or break the internal '>' URL parser.
+  nsAutoCString safeFlagsToAdd;
+  nsAutoCString safeFlagsToSubtract;
+  SanitizeKeywords(flagsToAdd, safeFlagsToAdd);
+  SanitizeKeywords(flagsToSubtract, safeFlagsToSubtract);
 
   nsCOMPtr<nsIImapUrl> imapUrl;
   nsAutoCString urlSpec;
@@ -2796,12 +2853,13 @@ NS_IMETHODIMP nsImapService::StoreCustomKeywords(
       urlSpec.Append('>');
       urlSpec.Append(uids);
       urlSpec.Append('>');
-      urlSpec.Append(flagsToAdd);
+      urlSpec.Append(safeFlagsToAdd);
       urlSpec.Append('>');
-      urlSpec.Append(flagsToSubtract);
+      urlSpec.Append(safeFlagsToSubtract);
       rv = mailNewsUrl->SetSpecInternal(urlSpec);
-      if (NS_SUCCEEDED(rv))
+      if (NS_SUCCEEDED(rv)) {
         rv = GetImapConnectionAndLoadUrl(imapUrl, nullptr, aURL);
+      }
     }
   }  // if we have a url to run....
 
