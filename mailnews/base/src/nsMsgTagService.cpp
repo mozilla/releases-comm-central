@@ -275,40 +275,27 @@ NS_IMETHODIMP nsMsgTagService::GetColorForKey(const nsACString& key,
   return NS_OK;
 }
 
-/* long getSelectorForKey (in ACString key, out AString selector); */
 NS_IMETHODIMP nsMsgTagService::GetSelectorForKey(const nsACString& key,
                                                  nsAString& _retval) {
-  // Our keys are the result of MUTF-7 encoding. For CSS selectors we need
+  // Our keys are strictly IMAP safe atoms. For CSS selectors we need
   // to reduce this to 0-9A-Za-z_ with a leading alpha character.
   // We encode non-alphanumeric characters using _ as an escape character
   // and start with a leading T in all cases. This way users defining tags
   // "selected" or "focus" don't collide with inbuilt "selected" or "focus".
 
-  // Calculate length of selector string.
-  const char* in = key.BeginReading();
-  size_t outLen = 1;
-  while (*in) {
-    if (('0' <= *in && *in <= '9') || ('A' <= *in && *in <= 'Z') ||
-        ('a' <= *in && *in <= 'z')) {
-      outLen++;
-    } else {
-      outLen += 3;
-    }
-    in++;
-  }
+  _retval.AssignLiteral(u"T");
 
-  // Now fill selector string.
-  _retval.SetCapacity(outLen);
-  _retval.Assign('T');
-  in = key.BeginReading();
-  while (*in) {
-    if (('0' <= *in && *in <= '9') || ('A' <= *in && *in <= 'Z') ||
-        ('a' <= *in && *in <= 'z')) {
-      _retval.Append(*in);
+  const char* cur = key.BeginReading();
+  const char* end = key.EndReading();
+
+  for (; cur < end; ++cur) {
+    char c = *cur;
+
+    if (mozilla::IsAsciiAlphanumeric(c)) {
+      _retval.Append(static_cast<char16_t>(c));
     } else {
-      _retval.AppendPrintf("_%02x", *in);
+      _retval.AppendPrintf("_%02x", static_cast<unsigned char>(c));
     }
-    in++;
   }
 
   return NS_OK;
