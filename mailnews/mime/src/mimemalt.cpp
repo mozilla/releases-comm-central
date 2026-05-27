@@ -475,7 +475,7 @@ static int MimeMultipartAlternative_display_cached_part(
   const char* uct = (ct && *ct) ? ct : (dct ? dct : TEXT_PLAIN);
 
   // We always want to display the cached part inline.
-  body = mime_create(uct, hdrs, obj->options, true);
+  body = mime_create(uct, hdrs, obj->options, true, mime_child_part_depth(obj));
   PR_FREEIF(ct);
   if (!body) return MIME_OUT_OF_MEMORY;
   body->output_p = do_display;

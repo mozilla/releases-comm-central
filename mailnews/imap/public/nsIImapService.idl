@@ -223,6 +223,38 @@ interface nsIImapService : nsISupports
                                  in ACString aAttribute,
                                  in ACString aMessageIdentifierList);
 
+  /**
+   * Stores custom keywords (tags) for a list of messages on the IMAP server.
+   *
+   * @note Keyword Sanitization & Restrictions
+   * To prevent server parse errors and local state desynchronization, the
+   * keywords provided in flagsToAdd and flagsToSubtract are strictly sanitized.
+   * Any keyword containing invalid characters is silently dropped from the
+   * network request.
+   *
+   * A keyword is deemed invalid if it contains any of the following:
+   * 1. Non-ASCII characters (>= 0x7F) or control characters / spaces (<= 0x20).
+   * 2. RFC 3501 wildcards and quoted-specials: % * " \
+   * 3. Symmetrical Enclosures: ( ) [ ] { }
+   * Note: While '[' and '}' are technically valid atom-chars under RFC 3501,
+   * they are strictly filtered here to prevent UX confusion and to defend
+   * against poorly written IMAP server parsers that trip on unescaped brackets.
+   * 4. Internal URI Delimiters: < > ;
+   * Restricted because Thunderbird uses nsIURI to route IMAP commands internally.
+   * '<' and '>' are Unsafe URI characters (RFC 3986), and '>' specifically
+   * breaks Thunderbird's hardcoded IMAP URL parser. The ';' is restricted as it
+   * is the reserved delimiter for internal URL parameters (e.g., ;SECTION=TEXT).
+   * 5. The '&' character: Restricted because its role as the MUTF-7 shift
+   * character causes parsing crashes on certain strict IMAP servers.
+   *
+   * @param aMailFolder            The IMAP folder containing the messages.
+   * @param aMsgWindow             The message window for status/error reporting.
+   * @param flagsToAdd             Space-separated string of keywords to add.
+   * @param flagsToSubtract        Space-separated string of keywords to remove.
+   * @param aMessageIdentifierList Comma-separated list of message UIDs.
+   *
+   * @return nsIURI                The internal IMAP URL generated for this command.
+   */
   nsIURI storeCustomKeywords(in nsIMsgFolder aMailFolder,
                              in nsIMsgWindow aMsgWindow,
                              in ACString flagsToAdd,

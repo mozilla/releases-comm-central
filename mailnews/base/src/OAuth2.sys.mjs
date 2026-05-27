@@ -281,6 +281,7 @@ OAuth2.prototype = {
       this.request.redirectURI
     );
 
+    Services.obs.addObserver(this, "quit-application-granted");
     if (!this.request.start(authEndpointURL)) {
       this.finishAuthorizationRequest();
       // Only the ExternalRequest construction is fallible here.
@@ -293,6 +294,7 @@ OAuth2.prototype = {
   },
   finishAuthorizationRequest() {
     gConnecting.set(this.authorizationEndpoint, false);
+    Services.obs.removeObserver(this, "quit-application-granted");
     if (this.request) {
       this.request.close();
       this.request = null;
@@ -503,6 +505,18 @@ OAuth2.prototype = {
       Glean.mail.oauth2Authentication.record({ ...this.telemetryData, result });
       delete this.telemetryData.reason;
     }
+  },
+
+  /**
+   * Fired on quit-application-granted to tidy up open requests.
+   */
+  observe() {
+    this.finishAuthorizationRequest();
+    this.onAuthorizationFailed(
+      Cr.NS_ERROR_ABORT,
+      '{ "error": "application_closed" }',
+      "application closed"
+    );
   },
 };
 

@@ -308,7 +308,8 @@ static int MimeUntypedText_open_subpart(MimeObject* obj,
                           obj->options->state->first_part_written_p);
     if (horrid_kludge) obj->options->state->first_part_written_p = false;
 
-    uty->open_subpart = mime_create(type, uty->open_hdrs, obj->options);
+    uty->open_subpart = mime_create(type, uty->open_hdrs, obj->options, false,
+                                    mime_child_part_depth(obj));
 
     if (horrid_kludge) obj->options->state->first_part_written_p = true;
 

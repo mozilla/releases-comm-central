@@ -1058,7 +1058,8 @@ static int MimeMultipartRelated_parse_eof(MimeObject* obj, bool abort_p) {
       MimeClosure(MimeClosure::isMimeMultipartRelated, relobj);
 
   body = mime_create(((ct && *ct) ? ct : (dct ? dct : TEXT_HTML)),
-                     relobj->buffered_hdrs, obj->options);
+                     relobj->buffered_hdrs, obj->options, false,
+                     mime_child_part_depth(obj));
 
   PR_FREEIF(ct);
   if (!body) {

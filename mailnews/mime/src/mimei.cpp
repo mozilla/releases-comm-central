@@ -355,7 +355,7 @@ void getMsgHdrForCurrentURL(MimeDisplayOptions* opts, nsIMsgDBHdr** aMsgHdr) {
 
 MimeObjectClass* mime_find_class(const char* content_type, MimeHeaders* hdrs,
                                  MimeDisplayOptions* opts, bool exact_match_p,
-                                 MimeObject* parentObj) {
+                                 MimeObject* smimeParentObj) {
   MimeObjectClass* clazz = 0;
   MimeObjectClass* tempClass = 0;
   contentTypeHandlerInitStruct ctHandlerInfo;
@@ -697,14 +697,14 @@ MimeObjectClass* mime_find_class(const char* content_type, MimeHeaders* hdrs,
                          : nullptr;
 
       bool thisPartIsAllowed = false;
-      if (!parentObj && !opts->is_child) {
+      if (!smimeParentObj && !opts->is_child) {
         // We are part "1"
         thisPartIsAllowed = true;
-      } else if (parentObj) {
+      } else if (smimeParentObj) {
         nsAutoCString parentAddress;
-        parentAddress.Adopt(mime_part_address(parentObj));
-        bool parentIsEnveloped = MimeCMS_encrypted_p(parentObj);
-        bool parentIsSigned = MimeCMS_signed_p(parentObj);
+        parentAddress.Adopt(mime_part_address(smimeParentObj));
+        bool parentIsEnveloped = MimeCMS_encrypted_p(smimeParentObj);
+        bool parentIsSigned = MimeCMS_signed_p(smimeParentObj);
 
         // Parent types other than signed/encrypted are forbidden
         if (parentAddress.Length() && (parentIsEnveloped || parentIsSigned) &&
@@ -731,7 +731,7 @@ MimeObjectClass* mime_find_class(const char* content_type, MimeHeaders* hdrs,
                 thisPartIsAllowed = true;
               }
             }  // else: skip other smime-type nested parts
-          } else if (parentObj->parent) {
+          } else if (smimeParentObj->parent) {
             // Parent is 1.1, this is 1.1.1,
             if (!thisST) {
               // We don't know whether the part is allowed.
@@ -740,8 +740,8 @@ MimeObjectClass* mime_find_class(const char* content_type, MimeHeaders* hdrs,
               thisPartIsAllowed = true;
             } else if (!PL_strcasecmp(thisST, "signed-data")) {
               if (parentIsEnveloped) {
-                // parentObj->parent is grandparent
-                if (MimeCMS_signed_p(parentObj->parent)) {
+                // smimeParentObj->parent is grandparent
+                if (MimeCMS_signed_p(smimeParentObj->parent)) {
                   thisPartIsAllowed = true;
                 }
               }
@@ -837,7 +837,9 @@ MimeObjectClass* mime_find_class(const char* content_type, MimeHeaders* hdrs,
 
 MimeObject* mime_create(const char* content_type, MimeHeaders* hdrs,
                         MimeDisplayOptions* opts,
-                        bool forceInline /* = false */, MimeObject* parentObj) {
+                        bool forceInline /* = false */,
+                        int32_t partDepth /* = 0 */,
+                        MimeObject* smimeParentObj) {
   /* If there is no Content-Disposition header, or if the Content-Disposition
    is ``inline'', then we display the part inline (and let mime_find_class()
    decide how.)
@@ -859,6 +861,7 @@ MimeObject* mime_create(const char* content_type, MimeHeaders* hdrs,
   char* content_disposition = 0;
   MimeObject* obj = 0;
   char* override_content_type = 0;
+  constexpr int32_t kMaxAcceptedMimePartDepth = 64;
 
   /* We've had issues where the incoming content_type is invalid, of a format:
      content_type="=?windows-1252?q?application/pdf" (bug 659355)
@@ -868,6 +871,14 @@ MimeObject* mime_create(const char* content_type, MimeHeaders* hdrs,
     const char* lastQuestion = strrchr(content_type, '?');
     if (lastQuestion)
       content_type = lastQuestion + 1;  // the substring after the last '?'
+  }
+
+  if (partDepth > kMaxAcceptedMimePartDepth) {
+    // Over-depth parts must still drain parser input, but must not create more
+    // MIME containers or recursively decode nested content.
+    NS_WARNING("MIME part depth exceeds the maximum allowed depth");
+    clazz = (MimeObjectClass*)&mimeExternalObjectClass;
+    goto CREATE;
   }
 
   /* There are some clients send out all attachments with a content-type
@@ -915,7 +926,7 @@ MimeObject* mime_create(const char* content_type, MimeHeaders* hdrs,
     }
   }
 
-  clazz = mime_find_class(content_type, hdrs, opts, false, parentObj);
+  clazz = mime_find_class(content_type, hdrs, opts, false, smimeParentObj);
 
   NS_ASSERTION(clazz, "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
   if (!clazz) goto FAIL;
@@ -1021,8 +1032,12 @@ MimeObject* mime_create(const char* content_type, MimeHeaders* hdrs,
     }
   }
 
+CREATE:
   PR_FREEIF(content_disposition);
   obj = mime_new(clazz, hdrs, content_type);
+  if (obj) {
+    obj->partDepth = partDepth;
+  }
 
 FAIL:
 
@@ -1086,6 +1101,10 @@ bool mime_subclass_p(MimeObjectClass* child, MimeObjectClass* parent) {
 
 bool mime_typep(MimeObject* obj, MimeObjectClass* clazz) {
   return mime_subclass_p(obj->clazz, clazz);
+}
+
+int32_t mime_child_part_depth(MimeObject* parent) {
+  return parent ? parent->partDepth + 1 : 0;
 }
 
 /* URL munging

@@ -740,14 +740,11 @@ var commandController = {
       return;
     }
 
+    // Determine if the tag needs to be added or removed based on the first
+    // message.
     const key = tagArray[keyNumber - 1].key;
     const curKeys = msgHdr.getStringProperty("keywords").split(" ");
-    if (msgHdr.label) {
-      curKeys.push("$label" + msgHdr.label);
-    }
-    const addKey = !curKeys.includes(key);
-
-    this._toggleMessageTag(key, addKey);
+    this._toggleMessageTag(key, !curKeys.includes(key));
   },
 
   _removeAllMessageTags() {
@@ -756,32 +753,47 @@ var commandController = {
       return;
     }
 
-    let messages = [];
-    const allKeys = MailServices.tags
-      .getAllTags()
-      .map(t => t.key)
-      .join(" ");
-    let prevHdrFolder = null;
+    // Get all known valid tags so we don't delete internal keywords (like
+    // $Junk).
+    const allKnownKeys = new Set(
+      MailServices.tags.getAllTags().map(t => t.key)
+    );
 
-    // This crudely handles cross-folder virtual folders with selected
-    // messages that spans folders, by coalescing consecutive messages in the
-    // selection that happen to be in the same folder. nsMsgSearchDBView does
-    // this better, but nsIMsgDBView doesn't handle commands with arguments,
-    // and untag takes a key argument. Furthermore, we only delete known tags,
-    // keeping other keywords like (non)junk intact.
-    for (let i = 0; i < selectedMessages.length; ++i) {
-      const msgHdr = selectedMessages[i];
-      if (prevHdrFolder != msgHdr.folder) {
-        if (prevHdrFolder) {
-          prevHdrFolder.removeKeywordsFromMessages(messages, allKeys);
-        }
-        messages = [];
-        prevHdrFolder = msgHdr.folder;
+    // Group selected messages by folder, and collect only the tags actually
+    // present.
+    const folderMap = new Map();
+
+    for (const msgHdr of selectedMessages) {
+      const folder = msgHdr.folder;
+
+      if (!folderMap.has(folder)) {
+        folderMap.set(folder, { messages: [], keysToRemove: new Set() });
       }
-      messages.push(msgHdr);
+
+      const folderData = folderMap.get(folder);
+      folderData.messages.push(msgHdr);
+
+      // Look at the tags actually applied to this specific message.
+      const curKeys = msgHdr
+        .getStringProperty("keywords")
+        .split(" ")
+        .filter(Boolean);
+
+      // Add it to our removal list only if it's currently on the message and
+      // is a known tag.
+      for (const key of curKeys) {
+        if (allKnownKeys.has(key)) {
+          folderData.keysToRemove.add(key);
+        }
+      }
     }
-    if (prevHdrFolder) {
-      prevHdrFolder.removeKeywordsFromMessages(messages, allKeys);
+
+    // Dispatch the removal command per folder.
+    for (const [folder, data] of folderMap) {
+      if (data.keysToRemove.size > 0) {
+        const keysStr = Array.from(data.keysToRemove).join(" ");
+        folder.removeKeywordsFromMessages(data.messages, keysStr);
+      }
     }
   },
 
@@ -790,30 +802,30 @@ var commandController = {
    * @param {boolean} addKey - true to add, false to remove
    */
   _toggleMessageTag(key, addKey) {
-    let messages = [];
     const selectedMessages = gDBView.getSelectedMsgHdrs();
-    const toggler = addKey
-      ? "addKeywordsToMessages"
-      : "removeKeywordsFromMessages";
-    let prevHdrFolder = null;
-    // this crudely handles cross-folder virtual folders with selected messages
-    // that spans folders, by coalescing consecutive msgs in the selection
-    // that happen to be in the same folder. nsMsgSearchDBView does this
-    // better, but nsIMsgDBView doesn't handle commands with arguments,
-    // and (un)tag takes a key argument.
-    for (let i = 0; i < selectedMessages.length; ++i) {
-      const msgHdr = selectedMessages[i];
-      if (prevHdrFolder != msgHdr.folder) {
-        if (prevHdrFolder) {
-          prevHdrFolder[toggler](messages, key);
-        }
-        messages = [];
-        prevHdrFolder = msgHdr.folder;
-      }
-      messages.push(msgHdr);
+    if (!selectedMessages.length) {
+      return;
     }
-    if (prevHdrFolder) {
-      prevHdrFolder[toggler](messages, key);
+
+    // Group selected messages by folder to properly handle cross-folder
+    // virtual folders and saved searches.
+    const folderMap = new Map();
+
+    for (const msgHdr of selectedMessages) {
+      const folder = msgHdr.folder;
+
+      if (!folderMap.has(folder)) {
+        folderMap.set(folder, []);
+      }
+      folderMap.get(folder).push(msgHdr);
+    }
+
+    for (const [folder, messages] of folderMap) {
+      if (addKey) {
+        folder.addKeywordsToMessages(messages, key);
+      } else {
+        folder.removeKeywordsFromMessages(messages, key);
+      }
     }
   },
 

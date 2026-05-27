@@ -430,7 +430,10 @@ static int MimeEncrypted_emit_buffered_child(MimeObject* obj) {
   }
 
   body =
-      mime_create((ct ? ct : TEXT_PLAIN), enc->hdrs, obj->options, false, obj);
+      mime_create((ct ? ct : TEXT_PLAIN), enc->hdrs, obj->options, false,
+                  mime_child_part_depth(obj), obj);
+  PR_FREEIF(ct);
+  if (!body) return MIME_OUT_OF_MEMORY;
 
   if (obj->options->decompose_file_p) {
     if (mime_typep(body, (MimeObjectClass*)&mimeMultipartClass))
@@ -439,10 +442,6 @@ static int MimeEncrypted_emit_buffered_child(MimeObject* obj) {
       obj->options->decompose_file_init_fn(obj->options->stream_closure,
                                            enc->hdrs);
   }
-
-  PR_FREEIF(ct);
-
-  if (!body) return MIME_OUT_OF_MEMORY;
   status = ((MimeContainerClass*)obj->clazz)->add_child(obj, body);
   if (status < 0) {
     mime_free(body);
