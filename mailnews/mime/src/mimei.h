@@ -239,18 +239,22 @@ extern MimeObjectClass* mime_find_class(const char* content_type,
                                         MimeHeaders* hdrs,
                                         MimeDisplayOptions* opts,
                                         bool exact_match_p,
-                                        MimeObject* parentObj = nullptr);
+                                        MimeObject* smimeParentObj = nullptr);
 
 /** Given a content-type string, creates and returns an appropriate subclass
  * of MimeObject.  The headers (from which the content-type was presumably
  * extracted) are copied. forceInline is set to true when the caller wants
  * the function to ignore opts->show_attachment_inline_p and force inline
  * display, e.g., mimemalt wants the body part to be shown inline.
+ * smimeParentObj is only for CMS part policy decisions, not depth tracking.
  */
 extern MimeObject* mime_create(const char* content_type, MimeHeaders* hdrs,
                                MimeDisplayOptions* opts,
                                bool forceInline = false,
-                               MimeObject* parentObj = nullptr);
+                               int32_t partDepth = 0,
+                               MimeObject* smimeParentObj = nullptr);
+
+extern int32_t mime_child_part_depth(MimeObject* parent);
 
 /* Querying the type hierarchy */
 extern bool mime_subclass_p(MimeObjectClass* child, MimeObjectClass* parent);

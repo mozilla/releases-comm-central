@@ -150,6 +150,7 @@ struct MimeObject {
                        */
 
   MimeObject* parent; /* Backpointer to a MimeContainer object. */
+  int32_t partDepth;  /* Nesting depth from the root MIME object. */
 
   MimeDisplayOptions* options; /* Display preferences set by caller. */
 

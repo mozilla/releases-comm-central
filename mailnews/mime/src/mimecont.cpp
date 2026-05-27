@@ -159,6 +159,11 @@ static int MimeContainer_add_child(MimeObject* parent, MimeObject* child) {
   cont->nchildren++;
 
   child->parent = parent;
+  if (!child->partDepth) {
+    child->partDepth = mime_child_part_depth(parent);
+  }
+  NS_ASSERTION(child->partDepth == mime_child_part_depth(parent),
+               "unexpected MIME part depth");
 
   /* Copy this object's options into the child. */
   child->options = parent->options;

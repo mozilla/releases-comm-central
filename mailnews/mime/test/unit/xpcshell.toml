@@ -28,6 +28,8 @@ support-files = [
 
 ["test_mimeContentType.js"]
 
+["test_mime_recursion.js"]
+
 ["test_mimeStreaming.js"]
 
 ["test_multipart_related_start.js"]

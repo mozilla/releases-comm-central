@@ -444,7 +444,8 @@ static int MimeMessage_close_headers(MimeObject* obj) {
       obj->options && obj->options->decompose_file_p && ct)
     obj->options->is_multipart_msg = PL_strcasestr(ct, "multipart/") != NULL;
 
-  body = mime_create(ct, msg->hdrs, obj->options);
+  body = mime_create(ct, msg->hdrs, obj->options, false,
+                     mime_child_part_depth(obj));
 
   PR_FREEIF(ct);
   if (!body) return MIME_OUT_OF_MEMORY;

@@ -255,7 +255,8 @@ static int MimeSunAttachment_create_child(MimeObject* obj) {
   /* Now that we know its type and encoding, create a MimeObject to represent
    this part.
    */
-  child = mime_create(mime_ct, mult->hdrs, obj->options);
+  child = mime_create(mime_ct, mult->hdrs, obj->options, false,
+                      mime_child_part_depth(obj));
   if (!child) {
     status = MIME_OUT_OF_MEMORY;
     goto FAIL;
