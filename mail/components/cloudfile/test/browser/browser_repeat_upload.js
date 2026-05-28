@@ -165,7 +165,7 @@ add_task(async () => {
   is(menuitems[1].localName, "menuitem");
   is(
     menuitems[1].getAttribute("style"),
-    "list-style-image: image-set('moz-icon://green_eggs.txt?size=16&scale=1' 1x, 'moz-icon://green_eggs.txt?size=16&scale=2' 2x, 'moz-icon://green_eggs.txt?size=16&scale=3' 3x)"
+    'list-style-image: image-set("moz-icon://green_eggs.txt?size=16&scale=1" 1x, "moz-icon://green_eggs.txt?size=16&scale=2" 2x, "moz-icon://green_eggs.txt?size=16&scale=3" 3x)'
   );
   // TODO: Enable this when we handle files that no longer exist on the filesystem.
   // is(menuitems[2].localName, "menuitem");

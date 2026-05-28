@@ -26,6 +26,7 @@ ChromeUtils.defineESModuleGetters(this, {
   BrowserToolboxLauncher:
     "resource://devtools/client/framework/browser-toolbox/Launcher.sys.mjs",
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
+  makeMozIconSrcSet: "resource:///modules/MozIconUtils.mjs",
   MimeParser: "resource:///modules/mimeParser.sys.mjs",
   UIDensity: "resource:///modules/UIDensity.sys.mjs",
   UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
@@ -2014,7 +2015,9 @@ function addAttachmentToPopup(
 function getIconForAttachment(attachment) {
   return attachment.isDeleted
     ? "url(chrome://messenger/skin/icons/attachment-deleted.svg)"
-    : `moz-icon://${attachment.name}?size=16&contentType=${attachment.contentType}&scale=1 1x, moz-icon://${attachment.name}?size=16&contentType=${attachment.contentType}&scale=2 2x, moz-icon://${attachment.name}?size=16&contentType=${attachment.contentType}&scale=3 3x`;
+    : makeMozIconSrcSet(attachment.name, 16, {
+        contentType: attachment.contentType,
+      });
 }
 
 /**

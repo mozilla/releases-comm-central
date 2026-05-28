@@ -57,6 +57,18 @@ var messages = [
     ],
   },
   {
+    name: "text_attachment_with_space",
+    attachments: [
+      {
+        body: textAttachment,
+        filename: "ubik final.txt",
+        format: "",
+        icon: "moz-icon://ubik%20final.txt?size=16&contentType=text/plain&scale=1 1x, moz-icon://ubik%20final.txt?size=16&contentType=text/plain&scale=2 2x, moz-icon://ubik%20final.txt?size=16&contentType=text/plain&scale=3 3x",
+        checkIconLoaded: true,
+      },
+    ],
+  },
+  {
     name: "binary_attachment",
     attachments: [
       {
@@ -196,18 +208,44 @@ add_setup(async function () {
 function check_attachment_icon(index, expectedIcon, isSrc = false) {
   const win = get_about_message();
   const list = win.document.getElementById("attachmentList");
-  const node = list.querySelectorAll("richlistitem.attachmentItem")[index];
+  const item = list.querySelectorAll("richlistitem.attachmentItem")[index];
+  const icon = item.querySelector("img.attachmentcell-icon");
 
   Assert.equal(
-    node.querySelector("img.attachmentcell-icon")[isSrc ? "src" : "srcset"],
+    icon[isSrc ? "src" : "srcset"],
     expectedIcon,
     `Icon should be correct for attachment #${index}`
   );
   Assert.ok(
-    !node
-      .querySelector("img.attachmentcell-icon")
-      .hasAttribute(isSrc ? "srcset" : "src"),
+    !icon.hasAttribute(isSrc ? "srcset" : "src"),
     `Icon should not have opposite image source attribute for attachment #${index}`
+  );
+}
+
+/**
+ * Ensure the attachment icon image loaded.
+ *
+ * @param {integer} index - The attachment's index, starting at 0.
+ */
+async function check_attachment_icon_loaded(index) {
+  const win = get_about_message();
+  const list = win.document.getElementById("attachmentList");
+  const item = list.querySelectorAll("richlistitem.attachmentItem")[index];
+  const icon = item.querySelector("img.attachmentcell-icon");
+
+  await TestUtils.waitForCondition(
+    () => icon.complete,
+    `Icon should finish loading for attachment #${index}`
+  );
+
+  Assert.greater(
+    icon.naturalWidth,
+    0,
+    `Icon should have a natural width for attachment #${index}`
+  );
+  Assert.ok(
+    !icon.matches(":-moz-broken"),
+    `Icon should not be broken for attachment #${index}`
   );
 }
 
@@ -233,6 +271,9 @@ async function help_test_attachment_icon(index) {
 
   for (let i = 0; i < attachments.length; i++) {
     check_attachment_icon(i, attachments[i].icon, attachments[i].isSrc);
+    if (attachments[i].checkIconLoaded) {
+      await check_attachment_icon_loaded(i);
+    }
   }
 }
 

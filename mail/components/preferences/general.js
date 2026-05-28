@@ -37,6 +37,9 @@ var { UpdateUtils } = ChromeUtils.importESModule(
 var { TagUtils } = ChromeUtils.importESModule(
   "resource:///modules/TagUtils.sys.mjs"
 );
+var { makeMozIconImageSet, makeMozIconSrcSet } = ChromeUtils.importESModule(
+  "resource:///modules/MozIconUtils.mjs"
+);
 
 XPCOMUtils.defineLazyServiceGetters(this, {
   gHandlerService: [
@@ -124,7 +127,7 @@ if (AppConstants.platform == "win") {
 var ICON_URL_APP = "";
 
 if (AppConstants.MOZ_WIDGET_GTK) {
-  ICON_URL_APP = `moz-icon://dummy.exe?size=16&scale=1 1x, moz-icon://dummy.exe?size=16&scale=2 2x, moz-icon://dummy.exe?size=16&scale=3 3x`;
+  ICON_URL_APP = makeMozIconSrcSet("dummy.exe", 16);
 } else {
   ICON_URL_APP = "chrome://messenger/skin/preferences/application.png";
 }
@@ -562,7 +565,10 @@ var gGeneralPane = {
       soundUrlLocation.label = this.convertURLToLocalFile(
         soundUrlLocation.value
       ).leafName;
-      soundUrlLocation.style.backgroundImage = `image-set("moz-icon://${soundUrlLocation.label}?size=16&scale=1" 1x, "moz-icon://${soundUrlLocation.label}?size=16&scale=2" 2x, "moz-icon://${soundUrlLocation.label}?size=16&scale=3" 3x)`;
+      soundUrlLocation.style.backgroundImage = makeMozIconImageSet(
+        soundUrlLocation.label,
+        16
+      );
     }
   },
 
@@ -2155,7 +2161,7 @@ var gGeneralPane = {
       .QueryInterface(Ci.nsIFileProtocolHandler)
       .getURLSpecFromActualFile(aFile);
 
-    return `moz-icon://${urlSpec}?size=16&scale=1 1x, moz-icon://${urlSpec}?size=16&scale=2 2x, moz-icon://${urlSpec}?size=16&scale=3 3x`;
+    return makeMozIconSrcSet(urlSpec, 16);
   },
 
   _getIconURLForWebApp(aWebAppURITemplate) {

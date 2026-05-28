@@ -12,6 +12,7 @@
 // Wrap in a block to prevent leaking to window scope.
 {
   var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
+  var { makeMozIconSrcSet } = ChromeUtils.importESModule("resource:///modules/MozIconUtils.mjs");
   var { recurrenceStringFromItem } = ChromeUtils.importESModule(
     "resource:///modules/calendar/calRecurrenceUtils.sys.mjs"
   );
@@ -742,16 +743,7 @@
               }
             }
           }
-          icon.setAttribute(
-            "srcset",
-            "moz-icon://" +
-              iconSrc +
-              "?size=16&scale=1 1x, moz-icon://" +
-              iconSrc +
-              "?size=16&scale=2 2x, moz-icon://" +
-              iconSrc +
-              "?size=16&scale=3 3x"
-          );
+          icon.setAttribute("srcset", makeMozIconSrcSet(iconSrc, 16));
 
           this.querySelector(".item-attachment-cell").appendChild(attachment);
           attCounter++;

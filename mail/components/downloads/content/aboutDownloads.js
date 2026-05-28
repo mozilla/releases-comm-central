@@ -11,6 +11,7 @@
 ChromeUtils.defineESModuleGetters(this, {
   Downloads: "resource://gre/modules/Downloads.sys.mjs",
   DownloadUtils: "resource://gre/modules/DownloadUtils.sys.mjs",
+  makeMozIconSrcSet: "resource:///modules/MozIconUtils.mjs",
 });
 
 window.addEventListener("load", () => {
@@ -183,14 +184,7 @@ function DownloadItem(aDownload) {
     this._sender = "";
   }
   this._fileName = this._htmlEscape(PathUtils.filename(aDownload.target.path));
-  this._iconUrl =
-    "moz-icon://" +
-    this._fileName +
-    "?size=32&scale=1 1x, moz-icon://" +
-    this._fileName +
-    "?size=32&scale=2 2x, moz-icon://" +
-    this._fileName +
-    "?size=32&scale=3 3x";
+  this._iconUrl = makeMozIconSrcSet(this._fileName, 32);
   this._startDate = this._htmlEscape(
     DownloadUtils.getReadableDates(aDownload.startTime)[0]
   );

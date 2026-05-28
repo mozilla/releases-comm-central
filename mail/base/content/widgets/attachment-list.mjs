@@ -5,6 +5,10 @@
 /* global MozElements */
 /* global goDoCommand */
 
+var { makeMozIconSrcSet } = ChromeUtils.importESModule(
+  "resource:///modules/MozIconUtils.mjs"
+);
+
 /**
  * The MozAttachmentlist widget lists attachments for a mail. This is typically used to show
  * attachments while writing a new mail as well as when reading mails.
@@ -282,7 +286,7 @@ class MozAttachmentlist extends MozElements.RichListBox {
           iconName = url.fileName;
         }
       }
-      src = `moz-icon://${iconName}?size=16&contentType=${type}&scale=1 1x, moz-icon://${iconName}?size=16&contentType=${type}&scale=2 2x, moz-icon://${iconName}?size=16&contentType=${type}&scale=3 3x`;
+      src = makeMozIconSrcSet(iconName, 16, { contentType: type });
       srcset = true;
     }
 
@@ -383,7 +387,7 @@ class MozAttachmentlist extends MozElements.RichListBox {
   }
 
   /**
-   * Find the attachmentitem node for the specified nsIMsgAttachment.
+   * Get the attachment item node for the specified nsIMsgAttachment.
    */
   findItemForAttachment(aAttachment) {
     for (let i = 0; i < this.itemCount; i++) {

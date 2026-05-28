@@ -23,6 +23,7 @@ Preferences.addAll([
 ]);
 
 ChromeUtils.defineESModuleGetters(this, {
+  makeMozIconImageSet: "resource:///modules/MozIconUtils.mjs",
   NotificationSounds: "resource:///modules/NotificationSounds.sys.mjs",
 });
 
@@ -75,7 +76,7 @@ var gAlarmsPane = {
     } else {
       soundUrl.label = soundUrl.value;
     }
-    soundUrl.style.backgroundImage = `image-set("moz-icon://${soundUrl.label}?size=16&scale=1" 1x, "moz-icon://${soundUrl.label}?size=16&scale=2" 2x, "moz-icon://${soundUrl.label}?size=16&scale=3" 3x)`;
+    soundUrl.style.backgroundImage = makeMozIconImageSet(soundUrl.label, 16);
     return undefined;
   },
 

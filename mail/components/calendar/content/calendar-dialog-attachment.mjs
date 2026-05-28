@@ -4,6 +4,7 @@
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
+  makeMozIconSrcSet: "resource:///modules/MozIconUtils.mjs",
   openLinkExternally: "resource:///modules/LinkHelper.sys.mjs",
 });
 
@@ -66,7 +67,7 @@ export default class CalendarDialogAttachment extends HTMLLIElement {
           icon.srcset = "";
         } else if (newValue.startsWith("moz-icon://")) {
           icon.src = "";
-          icon.srcset = `${newValue}?size=16&scale=1 1x, ${newValue}?size=16&scale=2 2x, ${newValue}?size=16&scale=3 3x`;
+          icon.srcset = lazy.makeMozIconSrcSet(newValue, 16);
         } else {
           icon.src = newValue;
           icon.srcset = "";

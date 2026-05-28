@@ -24,6 +24,7 @@
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 var { openLinkExternally } = ChromeUtils.importESModule("resource:///modules/LinkHelper.sys.mjs");
+var { makeMozIconSrcSet } = ChromeUtils.importESModule("resource:///modules/MozIconUtils.mjs");
 var {
   recurrenceRule2String,
   splitRecurrenceRules,
@@ -2376,16 +2377,7 @@ function addAttachment(attachment, cloudFileAccount) {
         }
       }
     } else if (attachment.uri.schemeIs("file")) {
-      image.setAttribute(
-        "srcset",
-        "moz-icon://" +
-          attachment.uri.spec +
-          "?size=16&scale=1 1x, moz-icon://" +
-          attachment.uri.spec +
-          "?size=16&scale=2 2x, moz-icon://" +
-          attachment.uri.spec +
-          "?size=16&scale=3 3x"
-      );
+      image.setAttribute("srcset", makeMozIconSrcSet(attachment.uri.spec, 16));
     } else {
       const leafName = attachment.getParameter("FILENAME");
       const cloudFileIconURL = attachment.getParameter("X-SERVICE-ICONURL");
@@ -2408,16 +2400,7 @@ function addAttachment(attachment, cloudFileAccount) {
             iconSrc = parts[parts.length - 1];
           }
         }
-        image.setAttribute(
-          "srcset",
-          "moz-icon://" +
-            iconSrc +
-            "?size=32&scale=1 1x, moz-icon://" +
-            iconSrc +
-            "?size=32&scale=2 2x, moz-icon://" +
-            iconSrc +
-            "?size=32&scale=3 3x"
-        );
+        image.setAttribute("srcset", makeMozIconSrcSet(iconSrc, 32));
       }
     }
 

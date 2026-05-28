@@ -147,6 +147,33 @@ function check_no_attachment_size(win, index) {
 }
 
 /**
+ * Ensure the attachment icon image loaded.
+ *
+ * @param {Window} win - The compose window.
+ * @param {integer} index - The attachment to examine, as an index into the listbox.
+ */
+async function check_attachment_icon_loaded(win, index) {
+  const bucket = win.document.getElementById("attachmentBucket");
+  const item = bucket.querySelectorAll("richlistitem.attachmentItem")[index];
+  const icon = item.querySelector("img.attachmentcell-icon");
+
+  await TestUtils.waitForCondition(
+    () => icon.complete,
+    `Icon should finish loading for attachment #${index}`
+  );
+
+  Assert.greater(
+    icon.naturalWidth,
+    0,
+    `Icon should have a natural width for attachment #${index}`
+  );
+  Assert.ok(
+    !icon.matches(":-moz-broken"),
+    `Icon should not be broken for attachment #${index}`
+  );
+}
+
+/**
  * Make sure that the total size of all attachments is what we expect.
  *
  * @param {Window} win - The compose window.
@@ -196,6 +223,30 @@ add_task(async function test_file_attachment() {
   check_total_attachment_size(cwc, 1);
 
   await close_compose_window(cwc);
+});
+
+add_task(async function test_file_attachment_icon_with_space() {
+  const cwc = await open_compose_new_mail();
+  const path = PathUtils.join(PathUtils.tempDir, "ubik final.txt");
+
+  await IOUtils.writeUTF8(path, rawAttachment);
+  const file = new FileUtils.File(path);
+  const url = Services.io.newFileURI(file).spec;
+
+  await add_attachments(cwc, url, file.fileSize);
+
+  const bucket = cwc.document.getElementById("attachmentBucket");
+  Assert.equal(bucket.itemCount, 1, "Should add one attachment.");
+  Assert.equal(
+    bucket.getItemAtIndex(0).attachment.name,
+    "ubik final.txt",
+    "Should keep the attachment filename."
+  );
+
+  await check_attachment_icon_loaded(cwc, 0);
+
+  await close_compose_window(cwc);
+  await IOUtils.remove(path);
 });
 
 add_task(async function test_webpage_attachment() {

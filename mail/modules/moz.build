@@ -33,6 +33,7 @@ EXTRA_JS_MODULES += [
     "MailUtils.sys.mjs",
     "MailViewManager.sys.mjs",
     "MessageArchiver.sys.mjs",
+    "MozIconUtils.mjs",
     "NotificationSounds.sys.mjs",
     "PhishingDetector.sys.mjs",
     "QuickFilterManager.sys.mjs",
