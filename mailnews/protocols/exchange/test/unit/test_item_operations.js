@@ -243,11 +243,11 @@ add_task(async function testMoveItemGraph() {
   await subtestMoveItem(graphServer, graphIncomingServer);
 });
 
-add_task(async function test_copy_item() {
+async function subtestCopyItem(mockServer, incomingServer) {
   const [folder1, folder2, msgs] = await setup_item_copymove_structure(
     "copy",
-    ewsServer,
-    ewsIncomingServer
+    mockServer,
+    incomingServer
   );
 
   const headers = [];
@@ -283,6 +283,14 @@ add_task(async function test_copy_item() {
       `${folder2.name} should contain a message with the subject \"${subject}\"`
     );
   }
+}
+
+add_task(async function testCopyItemEws() {
+  subtestCopyItem(ewsServer, ewsIncomingServer);
+});
+
+add_task(async function testCopyItemGraph() {
+  subtestCopyItem(graphServer, graphIncomingServer);
 });
 
 add_task(async function test_move_copy_messages_from_another_server() {

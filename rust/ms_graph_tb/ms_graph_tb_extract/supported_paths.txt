@@ -11,6 +11,7 @@
 /me/mailFolders/{mailFolder-id}/messages/delta()
 /me/messages
 /me/messages/{message-id}
+/me/messages/{message-id}/copy
 /me/messages/{message-id}/move
 /me/messages/{message-id}/$value
 /me/messages/{message-id}/send

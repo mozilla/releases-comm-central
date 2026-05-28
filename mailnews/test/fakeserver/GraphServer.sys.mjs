@@ -429,6 +429,11 @@ export class GraphServer extends MockServer {
           resourcePath.endsWith("/move")
         ) {
           responseJsonObject = this.#moveMessages(resourcePath, requestBody);
+        } else if (
+          resourcePath.startsWith("/me/messages") &&
+          resourcePath.endsWith("/copy")
+        ) {
+          responseJsonObject = this.#copyMessages(resourcePath, requestBody);
         }
         break;
 
@@ -918,6 +923,37 @@ export class GraphServer extends MockServer {
     }
 
     const newId = this.moveItemToFolder(messageId, folderId);
+
+    // Note: returning only the ID should be fine for now because that's the
+    // only bit of the message we actually use, but in the future we'll probably
+    // want to expand this response with more fields.
+    return {
+      id: newId,
+    };
+  }
+
+  /**
+   * Handle POST /me/messages/{messageId}/copy
+   *
+   * @param {string} resourcePath
+   * @param {string} requestBody
+   */
+  #copyMessages(resourcePath, requestBody) {
+    // Extract the message ID, i.e. the second-to-last section of the path.
+    const pathParts = resourcePath.split("/");
+    const messageId = pathParts[pathParts.length - 2];
+
+    const parsedReq = JSON.parse(requestBody);
+
+    const folderId = parsedReq.DestinationId;
+    if (!folderId) {
+      dump(`${requestBody}\n`);
+      throw new Error("missing destination ID for move");
+    }
+
+    const newId = messageId + "_copy";
+    const newMessage = this.getItemInfo(messageId).syntheticMessage.clone();
+    this.addItemToFolder(newId, folderId, newMessage);
 
     // Note: returning only the ID should be fine for now because that's the
     // only bit of the message we actually use, but in the future we'll probably

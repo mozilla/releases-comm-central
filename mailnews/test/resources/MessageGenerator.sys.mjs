@@ -501,6 +501,23 @@ SyntheticMessage.prototype = {
   _format: null,
   _encoding: null,
 
+  /**
+   * Copy this message's data to create a new message.
+   *
+   * As implemented, this will return a new message with independent headers and
+   * metastate, but the body object will still be shared between original and
+   * new objects.
+   *
+   * @returns {SyntheticMessage}
+   */
+  clone() {
+    return new SyntheticMessage(
+      structuredClone(this.headers),
+      this.bodyPart,
+      structuredClone(this.metaState)
+    );
+  },
+
   /** @returns {string} The Message-Id header value. */
   get messageId() {
     return this._messageId;

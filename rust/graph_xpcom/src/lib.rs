@@ -423,11 +423,23 @@ impl XpcomGraphBridge {
     ));
     fn copy_items(
         &self,
-        _listener: &IExchangeSimpleOperationListener,
-        _destination_folder_id: &nsACString,
-        _item_ids: &ThinVec<nsCString>,
+        listener: &IExchangeSimpleOperationListener,
+        destination_folder_id: &nsACString,
+        item_ids: &ThinVec<nsCString>,
     ) -> Result<(), nsresult> {
-        Err(nserror::NS_ERROR_NOT_IMPLEMENTED)
+        let client = self.client()?;
+
+        let destination_folder_id = destination_folder_id.to_string();
+        let item_ids = item_ids.iter().map(ToString::to_string).collect();
+        let listener = SafeEwsSimpleOperationListener::new(listener);
+
+        moz_task::spawn_local(
+            "copy_messages",
+            client.copy_messages(destination_folder_id, item_ids, listener),
+        )
+        .detach();
+
+        Ok(())
     }
 
     xpcom_method!(move_folders => MoveFolders(
