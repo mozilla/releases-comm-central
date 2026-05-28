@@ -170,22 +170,33 @@ class CalDavRequestBase {
   /** Implement nsIChannelEventSink */
   asyncOnChannelRedirect(aOldChannel, aNewChannel, aFlags, aCallback) {
     /**
-     * Copy the given header from the old channel to the new one, ignoring missing headers
+     * Get the named header from the old channel, or null if there was no such header.
      *
-     * @param {string} aHdr - The header to copy
+     * @param {string} aHdr - The header to get.
+     * @returns {?string}
      */
-    function copyHeader(aHdr) {
+    function getHeader(aHdr) {
       try {
-        const hdrValue = aOldChannel.getRequestHeader(aHdr);
-        if (hdrValue) {
-          aNewChannel.setRequestHeader(aHdr, hdrValue, false);
-        }
+        return aOldChannel.getRequestHeader(aHdr);
       } catch (e) {
         if (e.result != Cr.NS_ERROR_NOT_AVAILABLE) {
           // The header could possibly not be available, ignore that
           // case but throw otherwise
           throw e;
         }
+      }
+      return null;
+    }
+
+    /**
+     * Copy the given header from the old channel to the new one, ignoring missing headers
+     *
+     * @param {string} aHdr - The header to copy
+     */
+    function copyHeader(aHdr) {
+      const hdrValue = getHeader(aHdr);
+      if (hdrValue) {
+        aNewChannel.setRequestHeader(aHdr, hdrValue, false);
       }
     }
 
@@ -213,9 +224,11 @@ class CalDavRequestBase {
     // If any other header is used, it should be added here. We might want
     // to just copy all headers over to the new channel.
     if (aOldChannel.URI.prePath == aNewChannel.URI.prePath) {
-      // Don't send the Authorization header to another server. Ask for
-      // authorization again.
       copyHeader("Authorization");
+    } else if (getHeader("Authorization")) {
+      // Don't send the Authorization header to another server. Abandon the request.
+      aCallback.onRedirectVerifyCallback(Cr.NS_ERROR_ABORT);
+      return;
     }
     copyHeader("Depth");
     copyHeader("Originator");
