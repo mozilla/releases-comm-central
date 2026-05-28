@@ -4,6 +4,8 @@
 
 #include "nsSyncRunnableHelpers.h"
 #include "nsComponentManagerUtils.h"
+#include "nsIImapMockChannel.h"
+#include "nsIImapProtocol.h"
 #include "nsImapCore.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsIMsgIncomingServer.h"
@@ -50,6 +52,23 @@ struct RefType<const nsACString&> {
 template <>
 struct RefType<const nsIID&> {
   typedef const nsIID& type;
+};
+
+// For ref-counted pointers, hold a smartptr instead of a bare reference, to
+// prevent the the main thread releasing the object before the Runnable gets
+// run.
+// TODO: if this works, go through all the IMAP sink classes and do the same
+// for all the other XPCOM types that get passed through SyncRunnableHelpers!
+// https://bugzilla.mozilla.org/show_bug.cgi?id=2042290
+
+template <>
+struct RefType<nsIImapMockChannel*> {
+  typedef nsCOMPtr<nsIImapMockChannel> type;
+};
+
+template <>
+struct RefType<nsIImapProtocol*> {
+  typedef nsCOMPtr<nsIImapProtocol> type;
 };
 
 class SyncRunnableBase : public mozilla::Runnable {
