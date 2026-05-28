@@ -1,0 +1,37 @@
+[DEFAULT]
+head = "head.js"
+prefs = [
+  "calendar.loglevel=All",
+  "calendar.item.promptDelete=false",
+  "calendar.timezone.local=UTC",
+  "calendar.timezone.useSystemTimezone=false",
+  "calendar.week.start=0",
+  "mail.provider.suppress_dialog_on_startup=true",
+  "mail.spotlight.firstRunDone=true",
+  "mail.winsearch.firstRunDone=true",
+  "mailnews.start_page.override_url=about:blank",
+  "mailnews.start_page.url=about:blank",
+
+  "calendar.registry.ab3004ed-411d-4bc6-b03c-e758ae3c3a50.calendar-main-default=true",
+  "calendar.registry.ab3004ed-411d-4bc6-b03c-e758ae3c3a50.calendar-main-in-composite=true",
+  "calendar.registry.ab3004ed-411d-4bc6-b03c-e758ae3c3a50.name=Second",
+  "calendar.registry.ab3004ed-411d-4bc6-b03c-e758ae3c3a50.type=storage",
+  "calendar.registry.ab3004ed-411d-4bc6-b03c-e758ae3c3a50.uri=moz-storage-calendar://",
+
+  "calendar.registry.ba548f76-a457-44d3-b020-1c4cc7c853fd.calendar-main-in-composite=false",
+  "calendar.registry.ba548f76-a457-44d3-b020-1c4cc7c853fd.color=#ff33cc",
+  "calendar.registry.ba548f76-a457-44d3-b020-1c4cc7c853fd.name=Third",
+  "calendar.registry.ba548f76-a457-44d3-b020-1c4cc7c853fd.type=storage",
+  "calendar.registry.ba548f76-a457-44d3-b020-1c4cc7c853fd.uri=moz-storage-calendar://",
+
+  "calendar.registry.d583cb96-7228-4d81-8d5b-26d64abc140f.calendar-main-in-composite=true",
+  "calendar.registry.d583cb96-7228-4d81-8d5b-26d64abc140f.color=#ff6600",
+  "calendar.registry.d583cb96-7228-4d81-8d5b-26d64abc140f.name=First",
+  "calendar.registry.d583cb96-7228-4d81-8d5b-26d64abc140f.type=storage",
+  "calendar.registry.d583cb96-7228-4d81-8d5b-26d64abc140f.uri=moz-storage-calendar://",
+
+  "calendar.list.sortOrder=d583cb96-7228-4d81-8d5b-26d64abc140f ab3004ed-411d-4bc6-b03c-e758ae3c3a50",
+]
+subsuite = "thunderbird"
+
+["browser_calendarListFromPrefs.js"]

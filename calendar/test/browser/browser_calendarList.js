@@ -41,6 +41,7 @@ async function withMockPromptService(response, callback) {
 
 add_task(async () => {
   function checkProperties(index, expected) {
+    info(`checking the properties of the row at index ${index}`);
     const calendarList = document.getElementById("calendar-list");
     const item = calendarList.rows[index];
     const colorImage = item.querySelector(".calendar-color");
@@ -51,6 +52,7 @@ add_task(async () => {
           break;
         case "disabled":
           Assert.equal(item.querySelector(".calendar-displayed").hidden, expectedValue);
+          Assert.equal(item.querySelector(".calendar-enable-button").hidden, !expectedValue);
           break;
         case "displayed":
           Assert.equal(item.querySelector(".calendar-displayed").checked, expectedValue);

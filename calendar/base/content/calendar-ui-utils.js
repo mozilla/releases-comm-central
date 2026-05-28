@@ -89,8 +89,8 @@ function sortCalendarArray(calendars) {
     sortOrder[sortOrderPref[i]] = i;
   }
   function sortFunc(cal1, cal2) {
-    const orderIdx1 = sortOrder[cal1.id] || -1;
-    const orderIdx2 = sortOrder[cal2.id] || -1;
+    const orderIdx1 = sortOrder[cal1.id] ?? Infinity;
+    const orderIdx2 = sortOrder[cal2.id] ?? Infinity;
     if (orderIdx1 < orderIdx2) {
       return -1;
     }
