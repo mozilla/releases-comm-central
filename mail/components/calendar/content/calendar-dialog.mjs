@@ -443,12 +443,10 @@ export class CalendarDialog extends PositionedDialog {
 
     const acceptanceWidget = this.querySelector("calendar-dialog-acceptance");
     const hasAttendees = event.getAttendees().length > 0;
-    acceptanceWidget.hidden = !hasAttendees;
-    if (hasAttendees) {
-      acceptanceWidget.setAttribute(
-        "status",
-        cal.itip.getInvitedAttendee(event, calendar).participationStatus
-      );
+    const attendee = cal.itip.getInvitedAttendee(event, calendar);
+    acceptanceWidget.hidden = !hasAttendees || !attendee;
+    if (hasAttendees && attendee) {
+      acceptanceWidget.setAttribute("status", attendee.participationStatus);
     }
 
     this.querySelector("#expandingDescription").setDescription(
