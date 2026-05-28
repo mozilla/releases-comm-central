@@ -405,7 +405,7 @@ calFilter.prototype = {
    * @returns {boolean} Returns true if the item matches the filter properties
    *   currently applied, false otherwise.
    */
-  // eslint-disable-next-line complexity
+
   propertyFilter(aItem) {
     let result;
     const props = this.mFilterProperties;
