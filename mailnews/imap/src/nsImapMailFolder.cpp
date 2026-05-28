@@ -959,10 +959,19 @@ NS_IMETHODIMP nsImapMailFolder::CreateClientSubfolderInfo(
       rv = CopyFolderNameToUTF16(folderName, unicodeName);
       if (NS_SUCCEEDED(rv)) child->SetName(NS_ConvertUTF16toUTF8(unicodeName));
 
-      // store the online name as the mailbox name in the db folder info
-      // I don't think anyone uses the mailbox name, so we'll use it
-      // to restore the online name when blowing away an imap db.
-      if (folderInfo) folderInfo->SetMailboxName(onlineName);
+      if (folderInfo) {
+        // store the online name as the mailbox name in the db folder info
+        // I don't think anyone uses the mailbox name, so we'll use it
+        // to restore the online name when blowing away an imap db.
+        folderInfo->SetMailboxName(onlineName);
+        // Optimistically assume the server supports user flags, forwarded
+        // status, and MDN sent status until a future SELECT proves otherwise.
+        uint32_t imapFlags = 0;
+        folderInfo->GetUint32Property("imapFlags", 0, &imapFlags);
+        imapFlags |= kImapMsgSupportUserFlag | kImapMsgSupportForwardedFlag |
+                     kImapMsgSupportMDNSentFlag;
+        folderInfo->SetUint32Property("imapFlags", imapFlags);
+      }
     }
 
     unusedDB->SetSummaryValid(true);
