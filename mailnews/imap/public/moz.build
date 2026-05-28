@@ -15,7 +15,6 @@ XPIDL_SOURCES += [
     "nsIImapMailFolderSink.idl",
     "nsIImapMessageSink.idl",
     "nsIImapMockChannel.idl",
-    "nsIImapOfflineSync.idl",
     "nsIImapProtocol.idl",
     "nsIImapProtocolSink.idl",
     "nsIImapServerSink.idl",

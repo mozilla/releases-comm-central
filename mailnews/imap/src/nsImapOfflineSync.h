@@ -6,7 +6,6 @@
 #ifndef COMM_MAILNEWS_IMAP_SRC_NSIMAPOFFLINESYNC_H_
 #define COMM_MAILNEWS_IMAP_SRC_NSIMAPOFFLINESYNC_H_
 
-#include "nsIMsgDatabase.h"
 #include "nsIUrlListener.h"
 #include "nsIMsgOfflineImapOperation.h"
 #include "nsIMsgWindow.h"
@@ -14,12 +13,13 @@
 #include "nsCOMArray.h"
 #include "nsCOMPtr.h"
 #include "nsIDBChangeListener.h"
-#include "nsIImapOfflineSync.h"
+#include "ImapTypes.h"
+
+class nsIMsgOfflineOpsDatabase;
 
 class nsImapOfflineSync : public nsIUrlListener,
                           public nsIMsgCopyServiceListener,
-                          public nsIDBChangeListener,
-                          public nsIImapOfflineSync {
+                          public nsIDBChangeListener {
  public:  // set to one folder to playback one folder only
   nsImapOfflineSync();
 
@@ -27,7 +27,15 @@ class nsImapOfflineSync : public nsIUrlListener,
   NS_DECL_NSIURLLISTENER
   NS_DECL_NSIMSGCOPYSERVICELISTENER
   NS_DECL_NSIDBCHANGELISTENER
-  NS_DECL_NSIIMAPOFFLINESYNC
+
+  // isPseudoOffline is used only when performing message copies between IMAP
+  // folders on the same server. An "offline" copy is performed first to
+  // instantly copy the messages, then nsImapOfflineSync is used to perform the
+  // corresponding IMAP operations.
+  nsresult Init(nsIMsgWindow* window, nsIUrlListener* listener,
+                nsIMsgFolder* folder, bool isPseudoOffline);
+
+  virtual nsresult ProcessNextOperation();
 
   ImapUid GetCurrentUIDValidity();
   void SetCurrentUIDValidity(ImapUid uidvalidity) {
@@ -88,7 +96,7 @@ class nsImapOfflineDownloader : public nsImapOfflineSync {
  public:
   nsImapOfflineDownloader(nsIMsgWindow* window, nsIUrlListener* listener);
   virtual ~nsImapOfflineDownloader();
-  NS_IMETHOD ProcessNextOperation() override;  // this kicks off download
+  virtual nsresult ProcessNextOperation() override;  // this kicks off download
 };
 
 #endif  // COMM_MAILNEWS_IMAP_SRC_NSIMAPOFFLINESYNC_H_

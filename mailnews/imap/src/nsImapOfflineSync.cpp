@@ -9,6 +9,7 @@
 #include "nsIAppStartup.h"
 #include "nsImapOfflineSync.h"
 #include "nsImapMailFolder.h"
+#include "nsIMsgDatabase.h"
 #include "nsMsgFolderFlags.h"
 #include "nsMsgMessageFlags.h"
 #include "nsIDBFolderInfo.h"
@@ -23,7 +24,7 @@
 #include "mozilla/Components.h"
 
 NS_IMPL_ISUPPORTS(nsImapOfflineSync, nsIUrlListener, nsIMsgCopyServiceListener,
-                  nsIDBChangeListener, nsIImapOfflineSync)
+                  nsIDBChangeListener)
 
 nsImapOfflineSync::nsImapOfflineSync() {
   m_singleFolderToUpdate = nullptr;
@@ -38,9 +39,9 @@ nsImapOfflineSync::nsImapOfflineSync() {
   m_listener = nullptr;
 }
 
-NS_IMETHODIMP
-nsImapOfflineSync::Init(nsIMsgWindow* window, nsIUrlListener* listener,
-                        nsIMsgFolder* singleFolderOnly, bool isPseudoOffline) {
+nsresult nsImapOfflineSync::Init(nsIMsgWindow* window, nsIUrlListener* listener,
+                                 nsIMsgFolder* singleFolderOnly,
+                                 bool isPseudoOffline) {
   m_window = window;
   m_listener = listener;
   m_singleFolderToUpdate = singleFolderOnly;
@@ -656,8 +657,7 @@ ImapUid nsImapOfflineSync::GetCurrentUIDValidity() {
  * The first state is creating online any folders created offline (we do this
  * first, so we can play back any operations in them in the next pass)
  */
-NS_IMETHODIMP
-nsImapOfflineSync::ProcessNextOperation() {
+nsresult nsImapOfflineSync::ProcessNextOperation() {
   nsresult rv = NS_OK;
 
   // if we haven't created offline folders, and we're updating all folders,
@@ -972,8 +972,7 @@ nsImapOfflineDownloader::nsImapOfflineDownloader(nsIMsgWindow* aMsgWindow,
 
 nsImapOfflineDownloader::~nsImapOfflineDownloader() {}
 
-NS_IMETHODIMP
-nsImapOfflineDownloader::ProcessNextOperation() {
+nsresult nsImapOfflineDownloader::ProcessNextOperation() {
   nsresult rv = NS_OK;
   m_mailboxupdatesStarted = true;
 
