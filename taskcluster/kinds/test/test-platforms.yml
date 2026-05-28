@@ -189,3 +189,19 @@ macosx1470-64-shippable/opt:
         - marionette-tests
         - mochitest-tests
         - xpcshell-tests
+
+macosx1500-aarch64/debug:
+    build-platform: macosx64-aarch64/debug
+    build-signing-label: repackage-macosx64-aarch64/debug
+    test-sets:
+        - marionette-tests
+        - mochitest-tests
+        - xpcshell-tests
+
+macosx1500-aarch64/opt:
+    build-platform: macosx64-aarch64/opt
+    build-signing-label: repackage-macosx64-aarch64/opt
+    test-sets:
+        - marionette-tests
+        - mochitest-tests
+        - xpcshell-tests

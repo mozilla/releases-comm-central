@@ -131,6 +131,69 @@ macosx64-x64-shippable/opt:
             - macosx64-sdk
             - terser
 
+macosx64-aarch64/debug:
+    description: "MacOS X Aarch64 Cross-compile"
+    index:
+        job-name: macosx64-aarch64-debug
+    attributes:
+        enable-build-signing: true
+        enable-full-crashsymbols: true
+    treeherder:
+        platform: osx-cross-aarch64/debug
+        symbol: B
+        tier: 1
+    worker:
+        max-run-time: 5400
+        env:
+            MOZ_AUTOMATION_PACKAGE_TESTS: "1"
+            PERFHERDER_EXTRA_OPTIONS: aarch64
+    run:
+        config:
+            - builds/taskcluster_base_thunderbird.py
+            - builds/releng_base_mac_64_cross_builds.py
+        custom-build-variant-cfg: cross-debug
+        mozconfig-variant: debug
+        extra-config:
+            extra_mozconfig_content:
+                - ac_add_options --target=aarch64-apple-darwin
+    use-sccache: true
+    fetches:
+        toolchain:
+            - linux64-sccache
+            - macosx64-x64-libotr
+            - macosx64-sdk
+
+macosx64-aarch64/opt:
+    description: "MacOS X Aarch64 Cross-compile"
+    index:
+        job-name: macosx64-aarch64-opt
+    attributes:
+        enable-build-signing: true
+        enable-full-crashsymbols: true
+    treeherder:
+        platform: osx-cross-aarch64/opt
+        symbol: B
+        tier: 1
+    worker:
+        max-run-time: 7200
+        env:
+            MOZ_AUTOMATION_PACKAGE_TESTS: "1"
+            PERFHERDER_EXTRA_OPTIONS: aarch64
+    run:
+        config:
+            - builds/taskcluster_base_thunderbird.py
+            - builds/releng_base_mac_64_cross_builds.py
+        extra-config:
+            extra_mozconfig_content:
+                - ac_add_options --target=aarch64-apple-darwin
+    use-sccache: true
+    fetches:
+        toolchain:
+            - linux64-sccache
+            - macosx64-x64-libotr
+            - macosx64-sdk
+            - terser
+
 macosx64-aarch64-shippable/opt:
     description: "MacOS X aarch64 Cross-compile"
     attributes:
