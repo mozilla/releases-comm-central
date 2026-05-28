@@ -46,10 +46,7 @@
   --button-destructive-border-color: light-dark(var(--color-red-80), var(--color-red-50));
   --button-link-text-color: light-dark(var(--color-blue-60), var(--color-blue-40));
   --button-link-active-text-color: light-dark(var(--color-blue-70), var(--color-blue-50));
-  --button-pressed-shadow: light-dark(
-    inset 0 1px 3px color-mix(in srgb, var(--color-gray-90) 30%, transparent),
-    inset 0 1px 3px color-mix(in srgb, var(--color-black) 50%, transparent)
-  );
+  --button-pressed-shadow: inset 0 3px 5px -3px light-dark(color-mix(in srgb, var(--color-gray-90) 30%, transparent), var(--color-black));
   --button-pressed-indicator-shadow: light-dark(0 1px 0 rgba(255, 255, 255, 0.5), 0 1px 0 rgba(0, 0, 0, 0.25));
   --button-pressed-indicator-padding: 6px;
   --chrome-content-separator-color: light-dark(var(--color-gray-30), var(--color-gray-90));

@@ -52,6 +52,7 @@
 
   &[aria-pressed="true"] {
     box-shadow: var(--button-pressed-shadow);
+    background-color: var(--button-active-background-color);
   }
 
   &:disabled {
@@ -289,6 +290,10 @@
       background-color: var(--button-primary-background-color);
       border-color: var(--button-primary-border-color);
       box-shadow: var(--button-pressed-indicator-shadow);
+    }
+
+    &:hover {
+      background-color: var(--toolbar-button-hover-checked-color);
     }
   }
 
