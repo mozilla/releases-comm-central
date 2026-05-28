@@ -331,6 +331,19 @@ function subtest_open_attachment(cwc) {
 }
 
 add_task(async function test_open_attachment() {
+  // Force the "what do you want to do?" dialog to always appear for text/plain,
+  // regardless of whether we have any system or profile handler registered for
+  // .txt files.
+  const handlerSvc = Cc["@mozilla.org/uriloader/handler-service;1"].getService(
+    Ci.nsIHandlerService
+  );
+  const mimeSvc = Cc["@mozilla.org/mime;1"].getService(Ci.nsIMIMEService);
+  const txtHandlerInfo = mimeSvc.getFromTypeAndExtension("text/plain", "txt");
+  txtHandlerInfo.preferredAction = Ci.nsIHandlerInfo.alwaysAsk;
+  txtHandlerInfo.alwaysAskBeforeHandling = true;
+  handlerSvc.store(txtHandlerInfo);
+  registerCleanupFunction(() => handlerSvc.remove(txtHandlerInfo));
+
   const cwc = await open_compose_new_mail();
 
   // set up our external file for attaching
