@@ -114,11 +114,12 @@ async function subtest(
   expectedErrorCategory,
   expectedCert
 ) {
-  const [imapServer, pop3Server, ewsServer] =
+  const [imapServer, pop3Server, ewsServer, nntpServer] =
     await ServerTestUtils.createServers([
       ServerTestUtils.serverDefs.imap[serverDef],
       ServerTestUtils.serverDefs.pop3[serverDef],
       ServerTestUtils.serverDefs.ews[serverDef],
+      ServerTestUtils.serverDefs.nntp[serverDef],
     ]);
 
   const imapAccount = MailServices.accounts.createAccount();
@@ -182,10 +183,21 @@ async function subtest(
   );
   const ewsInbox = ewsRootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
 
-  // TODO: Add NNTP to this test. The certificate exception dialog for NNTP is
-  // completely broken – bug 1192098.
+  nntpServer.addGroup("test.nntpcerterror");
+  const nntpAccount = MailServices.accounts.createAccount();
+  nntpAccount.incomingServer = MailServices.accounts.createIncomingServer(
+    `${nntpAccount.key}user`,
+    hostname,
+    "nntp"
+  );
+  nntpAccount.incomingServer.prettyName = "NNTP Account";
+  nntpAccount.incomingServer.socketType = Ci.nsMsgSocketType.SSL;
+  nntpAccount.incomingServer.port = 563;
+  const nntpRootFolder = nntpAccount.incomingServer.rootFolder;
+  nntpRootFolder.createSubfolder("test.nntpcerterror", null);
+  const nntpFolder = nntpRootFolder.getChildNamed("test.nntpcerterror");
 
-  for (const inbox of [imapInbox, pop3Inbox, ewsInbox]) {
+  for (const inbox of [imapInbox, pop3Inbox, ewsInbox, nntpFolder]) {
     Assert.equal(
       inbox.getNumUnread(false),
       0,
@@ -196,8 +208,13 @@ async function subtest(
   await imapServer.addMessages(imapInbox, generator.makeMessages({}), false);
   pop3Server.addMessages(generator.makeMessages({}));
   ewsServer.addMessages("inbox", generator.makeMessages({}));
+  nntpServer.addMessages(
+    "test.nntpcerterror",
+    generator.makeMessages({}),
+    false
+  );
 
-  for (const inbox of [imapInbox, pop3Inbox, ewsInbox]) {
+  for (const inbox of [imapInbox, pop3Inbox, ewsInbox, nntpFolder]) {
     await subsubtest(
       inbox,
       async function () {
@@ -241,6 +258,7 @@ async function subtest(
   MailServices.accounts.removeAccount(imapAccount, false);
   MailServices.accounts.removeAccount(pop3Account, false);
   MailServices.accounts.removeAccount(ewsAccount, false);
+  MailServices.accounts.removeAccount(nntpAccount, false);
 }
 
 async function subsubtest(

@@ -28,6 +28,8 @@ ChromeUtils.defineESModuleGetters(this, {
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
   makeMozIconSrcSet: "resource:///modules/MozIconUtils.mjs",
   MimeParser: "resource:///modules/mimeParser.sys.mjs",
+  TransportErrorUrlListener:
+    "resource:///modules/TransportErrorUrlListener.sys.mjs",
   UIDensity: "resource:///modules/UIDensity.sys.mjs",
   UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
   XULStoreUtils: "resource:///modules/XULStoreUtils.sys.mjs",
@@ -1070,13 +1072,13 @@ function MsgGetMessagesForAllAuthenticatedAccounts() {
 }
 
 /**
- * Get messages for the account selected from Menu dropdowns.
- * if offline, prompt for getting messages.
+ * Get messages for the account selected from menu dropdowns.
+ * If offline, prompt for getting messages.
  *
- * @param {nsIMsgFolder} [aFolder] - A folder in the account for which messages
- *   should be retrieved. If null, all accounts will be used.
+ * @param {?nsIMsgFolder} [aFolder=null] - A folder in the account for which
+ *   messages should be retrieved. If null, all accounts will be used.
  */
-function MsgGetMessagesForAccount(aFolder) {
+function MsgGetMessagesForAccount(aFolder = null) {
   if (!aFolder) {
     goDoCommand("cmd_getNewMessages");
     return;
@@ -1485,9 +1487,11 @@ function GetFolderMessages(selectedFolders = GetSelectedMsgFolders()) {
   for (var i = 0; i < folders.length; i++) {
     var serverType = folders[i].server.type;
     if (folders[i].isServer && serverType == "nntp") {
-      // If we're doing "get msgs" on a news server.
-      // Update unread counts on this server.
-      folders[i].server.performExpand(msgWindow);
+      // If we're doing "get msgs" on a news server, get new messages for all
+      // subscribed groups.
+      for (const group of folders[i].server.rootFolder.subFolders) {
+        group.getNewMessages(msgWindow, null);
+      }
     } else if (folders[i].isServer && serverType == "imap") {
       GetMessagesForInboxOnServer(folders[i].server);
     } else if (serverType == "none") {
@@ -1525,38 +1529,6 @@ function GetNewMsgs(server, folder) {
   folder.biffState = Ci.nsIMsgFolder.nsMsgBiffState_NoMail;
   folder.clearNewMessages();
   server.getNewMessages(folder, msgWindow, new TransportErrorUrlListener());
-}
-
-/**
- * A listener to be passed to the url object of the server request being issued
- * to detect the bad server certificates.
- *
- * @implements {nsIUrlListener}
- */
-class TransportErrorUrlListener {
-  OnStartRunningUrl() {}
-
-  OnStopRunningUrl(url, exitCode) {
-    if (Components.isSuccessCode(exitCode)) {
-      return;
-    }
-    const nssErrorsService = Cc["@mozilla.org/nss_errors_service;1"].getService(
-      Ci.nsINSSErrorsService
-    );
-    try {
-      const errorClass = nssErrorsService.getErrorClass(exitCode);
-      if (errorClass == Ci.nsINSSErrorsService.ERROR_CLASS_BAD_CERT) {
-        const mailNewsUrl = url.QueryInterface(Ci.nsIMsgMailNewsUrl);
-        const secInfo = mailNewsUrl.failedSecInfo;
-        MailServices.mailSession.alertCertError(secInfo, mailNewsUrl);
-      }
-    } catch (e) {
-      // It's not an NSS error.
-    }
-  }
-
-  // nsISupports
-  QueryInterface = ChromeUtils.generateQI(["nsIUrlListener"]);
 }
 
 function SendUnsentMessages() {

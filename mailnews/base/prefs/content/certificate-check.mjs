@@ -47,6 +47,12 @@ const pop3StartTLSCommands = ["CAPA\r\n", "STLS\r\n"];
 const smtpCommands = ["EHLO we-guess.mozilla.org\r\n", "QUIT\r\n"];
 const smtpStartTLSCommands = ["EHLO we-guess.mozilla.org\r\n", "STARTTLS\r\n"];
 
+/**
+ * Commands to send to an NNTP server when connecting to it.
+ */
+const nntpCommands = ["QUIT\r\n"];
+const nntpStartTLSCommands = ["STARTTLS\r\n"];
+
 class CertificateCheck extends HTMLElement {
   /** @type {HTMLSpanElement} */
   statusLabel;
@@ -63,7 +69,7 @@ class CertificateCheck extends HTMLElement {
   hostname;
   /** @type {number} */
   port;
-  /** @type {"imap"|"pop3"|"smtp"} */
+  /** @type {"imap"|"pop3"|"smtp"|"nntp"} */
   type;
   /** @type {boolean} */
   isStartTLS;
@@ -123,7 +129,7 @@ class CertificateCheck extends HTMLElement {
    *
    * @param {string} hostname
    * @param {number} port
-   * @param {"imap"|"pop3"|"smtp"} type
+   * @param {"imap"|"pop3"|"smtp"|"nntp"} type
    */
   init(hostname, port, type, isStartTLS) {
     this.hostname = hostname;
@@ -191,6 +197,14 @@ class CertificateCheck extends HTMLElement {
           postUpgradeCommands = smtpCommands.slice();
         } else {
           commands = smtpCommands.slice();
+        }
+        break;
+      case "nntp":
+        if (this.isStartTLS) {
+          commands = nntpStartTLSCommands.slice();
+          postUpgradeCommands = nntpCommands.slice();
+        } else {
+          commands = nntpCommands.slice();
         }
         break;
       case "ews": {

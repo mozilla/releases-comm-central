@@ -482,7 +482,7 @@ function secureSelect(aLoading) {
   );
 
   const certCheck = document.getElementById("certCheck");
-  if (gServer.type == "nntp" || socketType == Ci.nsMsgSocketType.plain) {
+  if (socketType == Ci.nsMsgSocketType.plain) {
     certCheck.hidden = true;
   } else {
     certCheck.init(

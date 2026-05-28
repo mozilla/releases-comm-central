@@ -517,9 +517,6 @@ nsSubscribableServer::GetChildURIs(const nsACString& aPath,
   // So pull them out in reverse to get the right order
   // in the subscribe dialog.
   SubscribeTreeNode* current = node->lastChild;
-  // return failure if there are no children.
-  if (!current) return NS_ERROR_FAILURE;
-
   while (current) {
     NS_ASSERTION(!current->name.IsEmpty(), "no name");
     if (current->name.IsEmpty()) {

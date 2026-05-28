@@ -95,7 +95,8 @@ function testAction(handler, daemon, localserver) {
   // Get the folder and force filters to run
   var folder = localserver.rootFolder.getChildNamed("test.filter");
   folder.getNewMessages(null, {
-    OnStopRunningUrl() {
+    OnStartRunningUrl(_url) {},
+    OnStopRunningUrl(_url, _status) {
       localserver.closeCachedConnections();
     },
   });

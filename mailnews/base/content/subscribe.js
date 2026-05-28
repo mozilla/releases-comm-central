@@ -138,6 +138,9 @@ function SetUpTree(forceToServer, getOnlyNew) {
 
 function SubscribeOnUnload() {
   gStatusFeedback = null;
+  if (gSubscribableServer) {
+    gSubscribableServer.subscribeListener = null;
+  }
   gSubscribableServer = null;
 }
 

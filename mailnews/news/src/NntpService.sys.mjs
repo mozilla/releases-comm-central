@@ -68,6 +68,13 @@ export class NntpService {
     });
   }
 
+  /**
+   * @param {nsINntpIncomingServer} server
+   * @param {string} uri
+   * @param {boolean} getOld
+   * @param {nsIUrlListener} urlListener
+   * @param {nsIMsgWindow} msgWindow
+   */
   getNewNews(server, uri, getOld, urlListener, msgWindow) {
     if (Services.io.offline) {
       const NS_MSG_ERROR_OFFLINE = 0x80550014;
@@ -83,7 +90,11 @@ export class NntpService {
 
     const runningUri = Services.io
       .newURI(uri)
+      .mutate()
+      .setPort(server.port)
+      .finalize()
       .QueryInterface(Ci.nsIMsgMailNewsUrl);
+
     server.wrappedJSObject.withClient(client => {
       client.startRunningUrl(urlListener, msgWindow, runningUri);
       client.onOpen = () => {
@@ -94,13 +105,17 @@ export class NntpService {
     return runningUri;
   }
 
+  /**
+   * @param {nsINntpIncomingServer} server
+   * @param {nsIMsgWindow} msgWindow
+   * @param {boolean} getOnlyNew
+   */
   getListOfGroupsOnServer(server, msgWindow, getOnlyNew) {
     server.wrappedJSObject.withClient(client => {
-      client.startRunningUrl(null, msgWindow);
+      client.startRunningUrl(server.wrappedJSObject, msgWindow);
       client.onOpen = () => {
         client.getListOfGroups(getOnlyNew);
       };
-
       client.onData = data => {
         server.addNewsgroupToList(data.split(" ")[0]);
       };

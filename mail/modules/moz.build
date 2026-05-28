@@ -46,6 +46,7 @@ EXTRA_JS_MODULES += [
     "TagUtils.sys.mjs",
     "TaskbarProgress.sys.mjs",
     "TBDistCustomizer.sys.mjs",
+    "TransportErrorUrlListener.sys.mjs",
     "UIDensity.sys.mjs",
     "UIFontSize.sys.mjs",
     "XULStoreUtils.sys.mjs",
