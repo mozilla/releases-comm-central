@@ -521,11 +521,12 @@ OAuth2.prototype = {
 };
 
 /**
- * Reset the global cooldown state.
+ * Reset the global state variables.
  */
-OAuth2.clearCooldowns = function () {
-  log.debug("Clearing all OAuth cooldowns");
+OAuth2.clearState = function () {
+  log.debug("Clearing state");
   gCooldown.clear();
+  gConnecting.clear();
 };
 
 class InternalRequest {
