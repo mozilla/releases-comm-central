@@ -20,6 +20,7 @@
   --autocomplete-popup-highlight-background: var(--selected-item-color);
   --autocomplete-popup-highlight-color: var(--selected-item-text-color);
   --button-background-color: var(--layout-background-3);
+  --button-background-color-hover: var(--layout-background-4);
   --button-hover-text-color: inherit;
   --button-hover-background-color: light-dark(var(--layout-background-2), var(--layout-background-4));
   --button-active-background-color: light-dark(var(--layout-background-4), var(--layout-background-2));
@@ -183,6 +184,7 @@
   @media (prefers-contrast) {
     --button-text-color: ButtonText;
     --button-background-color: ButtonFace;
+    --button-background-color-hover: ButtonFace;
     --button-border-color: ButtonText;
     --button-hover-text-color: SelectedItemText;
     --button-hover-background-color: SelectedItem;

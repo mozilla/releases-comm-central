@@ -1,0 +1,53 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+:host {
+  position: sticky;
+  inset-block-start: 0;
+  block-size: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+nav {
+  display: flex;
+  flex-direction: column;
+  block-size: 100vh;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  margin-block: 70px 24px;
+  gap: 20px;
+}
+
+.page-nav-heading-wrapper {
+  display: none;
+}
+
+.primary-nav-group,
+#secondary-nav-group {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-auto-rows: min-content;
+}
+
+.primary-nav-group {
+  --page-nav-button-height: 48px;
+  --page-nav-button-gap: 6px;
+  --page-nav-button-font-size: 1.1rem;
+  --page-nav-button-icon-size: 24px;
+}
+
+#secondary-nav-group {
+  --page-nav-button-height: 44px;
+  --page-nav-button-gap: 9px;
+  --page-nav-button-font-size: 1rem;
+  --page-nav-button-icon-size: 16px;
+
+  margin-block-start: auto;
+}
+
+hr {
+  display: none;
+}

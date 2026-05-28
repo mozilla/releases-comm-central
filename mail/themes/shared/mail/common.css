@@ -69,13 +69,6 @@ body table {
       background-color: var(--button-background-color) !important;
       color: unset;
     }
-
-    &[keyboard-navigation="true"]:focus-visible > .category[current],
-    & > .category:focus-visible {
-      background-color: var(--selected-item-color) !important;
-      color: var(--selected-item-text-color);
-      outline: none;
-    }
   }
 }
 

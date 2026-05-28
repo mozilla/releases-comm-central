@@ -1,0 +1,134 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+:host {
+  --page-nav-button-border-radius: var(--button-border-radius);
+  --page-nav-button-text-color: inherit;
+  --page-nav-button-text-color-hover: var(--button-text-color-hover);
+  --page-nav-button-background-color: transparent;
+  --page-nav-button-background-color-hover: var(--button-background-color-hover);
+  --page-nav-button-background-color-selected: var(--button-background-color);
+  --page-nav-button-padding: 0 var(--space-small);
+
+  border-radius: var(--button-border-radius);
+}
+
+:host(:not([hidden])) {
+  display: flex;
+  flex-direction: column;
+}
+
+a[href],
+button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--page-nav-button-gap);
+  min-block-size: var(--page-nav-button-height);
+  margin-inline: 6px;
+  padding: var(--page-nav-button-padding);
+  font-family: inherit;
+  font-size: var(--page-nav-button-font-size);
+  font-weight: normal;
+  color: var(--page-nav-button-text-color);
+  background-color: var(--page-nav-button-background-color);
+  border: unset;
+  border-radius: var(--page-nav-button-border-radius);
+  transition: background-color 150ms;
+  -moz-context-properties: fill, fill-opacity, stroke;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
+
+  @media (forced-colors) {
+    transition: none;
+  }
+
+  @media (prefers-contrast) {
+    border: 1px solid CanvasText;
+  }
+}
+
+a[href] {
+  text-decoration: none;
+  box-sizing: border-box;
+  padding-inline-start: 12px;
+
+  &[is="moz-support-link"] {
+    fill: currentColor;
+  }
+}
+
+a[href]:hover,
+button:hover:not([selected]) {
+  color: var(--page-nav-button-text-color-hover);
+  background-color: var(--page-nav-button-background-color-hover);
+  border-color: var(--page-nav-button-border-color-hover);
+}
+
+button {
+  &:hover {
+    cursor: pointer;
+  }
+
+  &[selected] {
+    color: var(--page-nav-button-text-color-hover);
+    background-color: var(--page-nav-button-background-color-selected);
+    font-weight: 500;
+
+    @media (prefers-contrast) {
+      border-color: CanvasText;
+    }
+  }
+}
+
+a[href]:focus-visible,
+button:focus-visible,
+button[selected]:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-outline-inset);
+  border-radius: var(--border-radius-small);
+}
+
+.page-nav-icon {
+  inline-size: var(--page-nav-button-icon-size);
+  block-size: var(--page-nav-button-icon-size);
+
+  &[src="chrome://global/skin/icons/trophy.svg"] {
+    content: var(--addons-manager-recommendations);
+  }
+
+  &[src="chrome://mozapps/skin/extensions/category-extensions.svg"] {
+    content: var(--addons-manager-extensions);
+  }
+
+  &[src="chrome://mozapps/skin/extensions/category-themes.svg"] {
+    content: var(--addons-manager-themes);
+  }
+
+  &[src="chrome://mozapps/skin/extensions/category-dictionaries.svg"] {
+    content: var(--addons-manager-dictionaries);
+  }
+
+  &[src="chrome://mozapps/skin/extensions/category-languages.svg"] {
+    content: var(--addons-manager-languages);
+  }
+
+  &[src="chrome://mozapps/skin/extensions/category-sitepermission.svg"] {
+    content: var(--addons-manager-site-permissions);
+  }
+
+  &[src="chrome://mozapps/skin/extensions/category-available.svg"] {
+    content: var(--addons-manager-available-updates);
+  }
+
+  &[src="chrome://mozapps/skin/extensions/category-recent.svg"] {
+    content: var(--addons-manager-recent-updates);
+  }
+}
+
+slot {
+  margin: 0;
+  padding-inline-start: 0;
+  user-select: none;
+}
