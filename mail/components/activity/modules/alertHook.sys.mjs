@@ -139,12 +139,22 @@ export var alertHook = {
     deferred.promise.then(() => activeAlerts.delete(cookie));
     setTimeout(() => deferred.resolve(), 5000);
 
-    let errorString;
+    // Log the error code to the console for help with debugging.
+    console.warn(
+      `An error occurred connecting to ${uri.host}: ${securityInfo.errorCodeString}`
+    );
+
+    let errorString, canMakeException;
     const errorArgs = { hostname: uri.host };
 
     switch (securityInfo.overridableErrorCategory) {
+      case Ci.nsITransportSecurityInfo.ERROR_TRUST:
+        errorString = "cert-error-untrusted-default";
+        canMakeException = true;
+        break;
       case Ci.nsITransportSecurityInfo.ERROR_DOMAIN:
         errorString = "cert-error-domain-mismatch";
+        canMakeException = true;
         break;
       case Ci.nsITransportSecurityInfo.ERROR_TIME: {
         const cert = securityInfo.serverCert;
@@ -159,10 +169,12 @@ export var alertHook = {
           errorString = "cert-error-expired";
           errorArgs["not-after"] = formatter.format(new Date(notAfter));
         }
+        canMakeException = true;
         break;
       }
       default:
-        errorString = "cert-error-untrusted-default";
+        errorString = "cert-error-ssl-connection-error";
+        canMakeException = false;
         break;
     }
 
@@ -226,7 +238,7 @@ export var alertHook = {
             : "chrome://branding/content/icon48.png",
         title: this.brandShortName,
         text: formattedString,
-        textClickable: true,
+        textClickable: canMakeException,
         cookie,
         requireInteraction: true,
       });
@@ -244,7 +256,9 @@ export var alertHook = {
       // `showAlert` can throw an error if there's no system notification back
       // end, so fall-back to the old method of modal dialogs.
       Services.prompt.alert(null, null, formattedString);
-      showExceptionDialog();
+      if (canMakeException) {
+        showExceptionDialog();
+      }
     }
   },
 

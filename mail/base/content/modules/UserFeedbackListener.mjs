@@ -39,6 +39,9 @@ export const UserFeedbackListener = {
     const errorArgs = { hostname: uri.host };
 
     switch (securityInfo?.overridableErrorCategory) {
+      case Ci.nsITransportSecurityInfo.ERROR_TRUST:
+        errorString = "cert-error-inline-untrusted-default";
+        break;
       case Ci.nsITransportSecurityInfo.ERROR_DOMAIN:
         errorString = "cert-error-inline-domain-mismatch";
         break;
@@ -58,7 +61,7 @@ export const UserFeedbackListener = {
         break;
       }
       default:
-        errorString = "cert-error-inline-untrusted-default";
+        errorString = "cert-error-inline-ssl-connection-error";
         break;
     }
 

@@ -361,7 +361,7 @@ add_task(async function testConnectionError() {
     certCheck,
     "failure",
     {
-      id: "certificate-test-failure",
+      id: "cert-error-ssl-connection-error",
       args: { hostname: "wrong.test:993" },
     },
     []

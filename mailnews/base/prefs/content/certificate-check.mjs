@@ -5,9 +5,6 @@
 const certOverrideService = Cc[
   "@mozilla.org/security/certoverride;1"
 ].getService(Ci.nsICertOverrideService);
-const nssErrorsService = Cc["@mozilla.org/nss_errors_service;1"].getService(
-  Ci.nsINSSErrorsService
-);
 const proxyService = Cc[
   "@mozilla.org/network/protocol-proxy-service;1"
 ].getService(Ci.nsIProtocolProxyService);
@@ -299,12 +296,12 @@ class CertificateCheck extends HTMLElement {
   #handleSecurityInfo(reqStatus, securityInfo) {
     this.#securityInfo = securityInfo;
     this.#certificate = securityInfo.serverCert;
-    this.viewButton.hidden = false;
     const l10nArgs = {
       hostname: `${this.hostname}:${this.port}`,
     };
 
     if (Components.isSuccessCode(reqStatus)) {
+      this.viewButton.hidden = false;
       if (this.#hasException) {
         document.l10n.setAttributes(
           this.statusLabel,
@@ -323,33 +320,24 @@ class CertificateCheck extends HTMLElement {
       return;
     }
 
-    let isCertError = false;
-    try {
-      if (
-        nssErrorsService.getErrorClass(reqStatus) ==
-        Ci.nsINSSErrorsService.ERROR_CLASS_BAD_CERT
-      ) {
-        isCertError = true;
-      }
-    } catch (ex) {
-      // nsINSSErrorsService.getErrorClass throws if given a non-TLS,
-      // non-cert error, so ignore this.
-    }
-    if (!isCertError) {
-      document.l10n.setAttributes(
-        this.statusLabel,
-        "certificate-test-failure",
-        l10nArgs
-      );
-      this.setAttribute("status", "failure");
-      this.viewButton.hidden = true;
-      return;
-    }
+    // Log the error code to the console for help with debugging.
+    const errorCodeString =
+      securityInfo.errorCodeString || ChromeUtils.getXPCOMErrorName(reqStatus);
+    console.warn(
+      `An error occurred connecting to ${l10nArgs.hostname}: ${errorCodeString}`
+    );
 
     let errorString;
     switch (securityInfo.overridableErrorCategory) {
+      case Ci.nsITransportSecurityInfo.ERROR_TRUST:
+        errorString = "cert-error-untrusted-default";
+        this.setAttribute("status", "cert-error");
+        this.viewButton.hidden = this.addExceptionButton.hidden = false;
+        break;
       case Ci.nsITransportSecurityInfo.ERROR_DOMAIN:
         errorString = "cert-error-domain-mismatch";
+        this.setAttribute("status", "cert-error");
+        this.viewButton.hidden = this.addExceptionButton.hidden = false;
         break;
       case Ci.nsITransportSecurityInfo.ERROR_TIME: {
         const cert = securityInfo.serverCert;
@@ -364,15 +352,17 @@ class CertificateCheck extends HTMLElement {
           errorString = "cert-error-expired";
           l10nArgs["not-after"] = formatter.format(new Date(notAfter));
         }
+        this.setAttribute("status", "cert-error");
+        this.viewButton.hidden = this.addExceptionButton.hidden = false;
         break;
       }
       default:
-        errorString = "cert-error-untrusted-default";
+        errorString = "cert-error-ssl-connection-error";
+        this.setAttribute("status", "failure");
+        this.viewButton.hidden = this.addExceptionButton.hidden = true;
         break;
     }
     document.l10n.setAttributes(this.statusLabel, errorString, l10nArgs);
-    this.addExceptionButton.hidden = false;
-    this.setAttribute("status", "cert-error");
   }
 
   /**
