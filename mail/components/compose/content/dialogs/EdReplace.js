@@ -18,7 +18,20 @@ document.addEventListener("dialogaccept", event => {
   event.preventDefault();
 });
 
-function initDialogObject() {
+function onLoad() {
+  // Get the xul <editor> element:
+  const editorElement = window.arguments[0];
+
+  gEditor = editorElement.getEditor(editorElement.contentWindow);
+
+  // Get the nsIWebBrowserFind service:
+  gFindInst = editorElement.webBrowserFind;
+
+  // get the find service, which stores global find state
+  gFindService = Cc["@mozilla.org/find/find_service;1"].getService(
+    Ci.nsIFindService
+  );
+
   // Create gReplaceDialog object and initialize.
   gReplaceDialog = {};
   gReplaceDialog.findInput = document.getElementById("dialog.findInput");
@@ -34,9 +47,8 @@ function initDialogObject() {
   gReplaceDialog.replace = document.getElementById("replace");
   gReplaceDialog.replaceAndFind = document.getElementById("replaceAndFind");
   gReplaceDialog.replaceAll = document.getElementById("replaceAll");
-}
 
-function loadDialog() {
+  // Fill dialog.
   // Set initial dialog field contents.
   // Set initial dialog field contents. Use the gFindInst attributes first,
   // this is necessary for window.find()
@@ -55,36 +67,6 @@ function loadDialog() {
     : gFindService.findBackwards;
 
   doEnabling();
-}
-
-function onLoad() {
-  // Get the xul <editor> element:
-  var editorElement = window.arguments[0];
-
-  // If we don't get the editor, then we won't allow replacing.
-  gEditor = editorElement.getEditor(editorElement.contentWindow);
-  if (!gEditor) {
-    window.close();
-    return;
-  }
-
-  // Get the nsIWebBrowserFind service:
-  gFindInst = editorElement.webBrowserFind;
-
-  try {
-    // get the find service, which stores global find state
-    gFindService = Cc["@mozilla.org/find/find_service;1"].getService(
-      Ci.nsIFindService
-    );
-  } catch (e) {
-    dump("No find service!\n");
-  }
-
-  // Init gReplaceDialog.
-  initDialogObject();
-
-  // Fill dialog.
-  loadDialog();
 
   if (gReplaceDialog.findInput.value) {
     gReplaceDialog.findInput.select();
@@ -133,10 +115,6 @@ async function onFindNext() {
 }
 
 function onReplace() {
-  if (!gEditor) {
-    return false;
-  }
-
   // Does the current selection match the find string?
   var selection = gEditor.selection;
 
@@ -215,17 +193,13 @@ function onReplace() {
 }
 
 function onReplaceAll() {
-  if (!gEditor) {
-    return;
-  }
-
-  var findStr = gReplaceDialog.findInput.value;
-  var repStr = gReplaceDialog.replaceInput.value;
+  const findStr = gReplaceDialog.findInput.value;
+  const repStr = gReplaceDialog.replaceInput.value;
 
   // Transfer dialog contents to the find service.
   saveFindData();
 
-  var finder = Cc["@mozilla.org/embedcomp/rangefind;1"]
+  const finder = Cc["@mozilla.org/embedcomp/rangefind;1"]
     .createInstance()
     .QueryInterface(Ci.nsIFind);
 
@@ -238,34 +212,29 @@ function onReplaceAll() {
 
   // and to make sure we close the transaction, guard against exceptions:
   try {
-    // Make a range containing the current selection,
-    // so we don't go past it when we wrap.
-    var selection = gEditor.selection;
-    var selecRange;
-    if (selection.rangeCount > 0) {
-      selecRange = selection.getRangeAt(0);
-    }
-    var origRange = selecRange.cloneRange();
-
     // We'll need a range for the whole document:
-    var wholeDocRange = gEditor.document.createRange();
-    var rootNode = gEditor.rootElement;
+    const wholeDocRange = gEditor.document.createRange();
+    const rootNode = gEditor.rootElement;
     wholeDocRange.selectNodeContents(rootNode);
 
-    // And start and end points:
-    var endPt = gEditor.document.createRange();
+    // selecRange (aStartPoint) must always be <= endPt (aEndPoint) in document
+    // order. For forward search, selecRange starts at doc start and advances
+    // after each replacement; endPt stays at doc end. For backward search,
+    // selecRange stays at doc start (the stop boundary) and endPt retreats to
+    // the start of each found match so the next scan covers the remaining range.
+    let selecRange = gEditor.document.createRange();
+    selecRange.setStart(
+      wholeDocRange.startContainer,
+      wholeDocRange.startOffset
+    );
+    selecRange.setEnd(wholeDocRange.startContainer, wholeDocRange.startOffset);
 
-    if (gReplaceDialog.searchBackwards.checked) {
-      endPt.setStart(wholeDocRange.startContainer, wholeDocRange.startOffset);
-      endPt.setEnd(wholeDocRange.startContainer, wholeDocRange.startOffset);
-    } else {
-      endPt.setStart(wholeDocRange.endContainer, wholeDocRange.endOffset);
-      endPt.setEnd(wholeDocRange.endContainer, wholeDocRange.endOffset);
-    }
+    let endPt = gEditor.document.createRange();
+    endPt.setStart(wholeDocRange.endContainer, wholeDocRange.endOffset);
+    endPt.setEnd(wholeDocRange.endContainer, wholeDocRange.endOffset);
 
-    // Find and replace from here to end (start) of document:
-    var foundRange;
-    var searchRange = wholeDocRange.cloneRange();
+    let foundRange;
+    const searchRange = wholeDocRange.cloneRange();
     while (
       (foundRange = finder.Find(findStr, searchRange, selecRange, endPt)) !=
       null
@@ -273,12 +242,9 @@ function onReplaceAll() {
       gEditor.selection.removeAllRanges();
       gEditor.selection.addRange(foundRange);
 
-      // The editor will leave the caret at the end of the replaced text.
-      // For reverse finds, we need it at the beginning,
-      // so save the next position now.
       if (gReplaceDialog.searchBackwards.checked) {
-        selecRange = foundRange.cloneRange();
-        selecRange.setEnd(selecRange.startContainer, selecRange.startOffset);
+        endPt = foundRange.cloneRange();
+        endPt.setEnd(endPt.startContainer, endPt.startOffset);
       }
 
       // nsPlaintextEditor::InsertText fails if the string is empty,
@@ -289,82 +255,17 @@ function onReplaceAll() {
         gEditor.insertText(repStr);
       }
 
-      // If we're going forward, we didn't save selecRange before, so do it now:
       if (!gReplaceDialog.searchBackwards.checked) {
-        selection = gEditor.selection;
+        const selection = gEditor.selection;
         if (selection.rangeCount <= 0) {
-          gEditor.endTransaction();
           return;
         }
         selecRange = selection.getRangeAt(0).cloneRange();
       }
     }
-
-    // If no wrapping, then we're done
-    if (!gReplaceDialog.wrap.checked) {
-      gEditor.endTransaction();
-      return;
-    }
-
-    // If wrapping, find from start/end of document back to start point.
-    if (gReplaceDialog.searchBackwards.checked) {
-      // Collapse origRange to end
-      origRange.setStart(origRange.endContainer, origRange.endOffset);
-      // Set current position to document end
-      selecRange.setEnd(wholeDocRange.endContainer, wholeDocRange.endOffset);
-      selecRange.setStart(wholeDocRange.endContainer, wholeDocRange.endOffset);
-    } else {
-      // Collapse origRange to start
-      origRange.setEnd(origRange.startContainer, origRange.startOffset);
-      // Set current position to document start
-      selecRange.setStart(
-        wholeDocRange.startContainer,
-        wholeDocRange.startOffset
-      );
-      selecRange.setEnd(
-        wholeDocRange.startContainer,
-        wholeDocRange.startOffset
-      );
-    }
-
-    while (
-      (foundRange = finder.Find(
-        findStr,
-        wholeDocRange,
-        selecRange,
-        origRange
-      )) != null
-    ) {
-      gEditor.selection.removeAllRanges();
-      gEditor.selection.addRange(foundRange);
-
-      // Save insert point for backward case
-      if (gReplaceDialog.searchBackwards.checked) {
-        selecRange = foundRange.cloneRange();
-        selecRange.setEnd(selecRange.startContainer, selecRange.startOffset);
-      }
-
-      // nsPlaintextEditor::InsertText fails if the string is empty,
-      // so make that a special case:
-      if (repStr == "") {
-        gEditor.deleteSelection(gEditor.eNone, gEditor.eStrip);
-      } else {
-        gEditor.insertText(repStr);
-      }
-
-      // Get insert point for forward case
-      if (!gReplaceDialog.searchBackwards.checked) {
-        selection = gEditor.selection;
-        if (selection.rangeCount <= 0) {
-          gEditor.endTransaction();
-          return;
-        }
-        selecRange = selection.getRangeAt(0);
-      }
-    }
-  } catch (e) {}
-
-  gEditor.endTransaction();
+  } finally {
+    gEditor.endTransaction();
+  }
 }
 
 function doEnabling() {

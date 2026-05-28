@@ -71,6 +71,12 @@ tags = ["openpgp"]
 
 ["browser_expandLists.js"]
 
+["browser_findReplace.js"]
+run-if = [
+  "os != 'mac'"
+]
+reason = "key_findReplace not available on mac (conflicts with system Hide Applications)"
+
 ["browser_focus.js"]
 
 ["browser_font_color.js"]
