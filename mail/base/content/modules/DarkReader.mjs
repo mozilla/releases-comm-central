@@ -75,9 +75,24 @@ export const isTransparent = color => {
  * @param {CSSStyleDeclaration} style - The style to sanitize.
  */
 function sanitizeStyle(style) {
-  if (!style.color && !style.background && !style.backgroundColor) {
+  if (
+    !style.color &&
+    !style.background &&
+    !style.backgroundColor &&
+    !style.backgroundImage
+  ) {
     // Ignore this node if there's no manipulation of colors.
     return;
+  }
+
+  // Strip background images that assume a light context since we cannot
+  // inspect their luminance.
+  if (
+    style.backgroundImage &&
+    style.backgroundImage !== "none" &&
+    !style.backgroundImage.includes("gradient")
+  ) {
+    style.removeProperty("background-image");
   }
 
   // Clear text color.
@@ -105,6 +120,7 @@ function sanitizeStyle(style) {
         contrast(style.color, style.backgroundColor) < CONTRAST_THRESHOLD)
     ) {
       style.removeProperty("background-color");
+      style.removeProperty("background");
 
       // Check for color luminance after we removed the background.
       if (style.color && luminance(style.color) <= LUMINANCE_THRESHOLD) {
@@ -133,8 +149,12 @@ function sanitizeStyle(style) {
 
   // Let's not take any chance that a gradient background could impact
   // readability.
-  if (style.background.includes("gradient")) {
+  if (
+    style.background.includes("gradient") ||
+    style.backgroundImage.includes("gradient")
+  ) {
     style.removeProperty("background");
+    style.removeProperty("background-image");
   }
 }
 

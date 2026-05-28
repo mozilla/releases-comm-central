@@ -1,0 +1,23 @@
+Message-ID: <dark-mode-backgrounds@example.com>
+Date: Tue, 2 Aug 2016 10:00:00 -0700
+To: test@example.com
+From: Dark Mode <darkmodetest@example.com>
+Subject: Dark mode backgrounds test
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>Dark mode backgrounds test</title>
+  </head>
+  <body bgcolor="#FFFF00">
+    <div id="backgroundImage" style="background: #FFFF00 url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR42mP4/58BAAT/Af9jgNErAAAAAElFTkSuQmCC') repeat; color: black; padding: 10px;">
+      Background image.
+    </div>
+    <div id="gradient" style="background: #FFFF00 linear-gradient(#FFFF00, #ffffff); color: black; padding: 10px;">
+      Gradient background.
+    </div>
+  </body>
+</html>

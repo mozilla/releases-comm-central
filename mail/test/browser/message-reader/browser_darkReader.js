@@ -285,6 +285,64 @@ add_task(async function test_darkReaderToggleVisibility() {
   await SpecialPowers.popPrefEnv();
 });
 
+add_task(async function test_background_image_and_gradient_removed() {
+  const file = new FileUtils.File(
+    getTestFilePath("data/dark_mode_backgrounds.eml")
+  );
+  const backgroundMsgc = await open_message_from_file(file);
+  const previousAboutMessage = aboutMessage;
+  aboutMessage = get_about_message(backgroundMsgc);
+
+  try {
+    if (!darkTheme.isActive) {
+      await toggle_theme(darkTheme, true);
+    }
+    if (Services.prefs.getBoolPref("mail.dark-reader.enabled", false)) {
+      await toggle_dark_reader(false);
+    }
+    await toggle_dark_reader(true);
+
+    const msgDoc =
+      aboutMessage.document.getElementById("messagepane").contentDocument;
+
+    Assert.ok(
+      !msgDoc.body.hasAttribute("bgcolor"),
+      "The body shouldn't have a background attribute"
+    );
+
+    const imageBlock = msgDoc.querySelector("#backgroundImage").style;
+    Assert.ok(
+      !imageBlock.getPropertyValue("background-image"),
+      "The background image should be removed"
+    );
+    Assert.ok(
+      !imageBlock.getPropertyValue("background-color"),
+      "The background image fallback color should be removed"
+    );
+    Assert.ok(
+      !imageBlock.getPropertyValue("background"),
+      "The background shorthand should be removed"
+    );
+
+    const gradientBlock = msgDoc.querySelector("#gradient").style;
+    Assert.ok(
+      !gradientBlock.getPropertyValue("background-image"),
+      "The gradient background image should be removed"
+    );
+    Assert.ok(
+      !gradientBlock.getPropertyValue("background-color"),
+      "The gradient fallback color should be removed"
+    );
+    Assert.ok(
+      !gradientBlock.getPropertyValue("background"),
+      "The gradient background shorthand should be removed"
+    );
+  } finally {
+    aboutMessage = previousAboutMessage;
+    await BrowserTestUtils.closeWindow(backgroundMsgc);
+  }
+});
+
 async function assert_light_style() {
   await new Promise(resolve => aboutMessage.requestAnimationFrame(resolve));
   if (AppConstants.DEBUG || AppConstants.ASAN || AppConstants.TSAN) {
