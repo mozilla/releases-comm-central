@@ -588,12 +588,7 @@ function resizeWindow() {
     return;
   }
 
-  // Add an arbitrary 100px height to account for the dialog buttons in the
-  // shadow DOM.
-  window.resizeTo(
-    window.outerWidth,
-    document.querySelector(`.wizard-section:not([hidden])`).clientHeight + 100
-  );
+  window.sizeToContent();
 }
 
 /**
