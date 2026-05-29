@@ -845,13 +845,13 @@ input[type="number"] {
     border-block-end-width: 1px;
     border-block-end-style: solid;
     border-start-end-radius: var(--button-border-radius);
-    background-image: url("chrome://global/skin/icons/arrow-up-12.svg");
+    background-image: var(--icon-nav-up-sm);
   }
 
   &::-moz-number-spin-down {
     min-block-size: calc(var(--button-height) * 0.5 - 3px);
     border-end-end-radius: var(--button-border-radius);
-    background-image: url("chrome://global/skin/icons/arrow-down-12.svg");
+    background-image: var(--icon-nav-down-sm);
   }
 }
 

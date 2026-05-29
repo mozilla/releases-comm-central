@@ -7,6 +7,7 @@
   ======================================================================= */
 
 @import url("chrome://global/skin/global.css");
+@import url("chrome://messenger/skin/icons.css");
 @import url("chrome://global/skin/in-content/common.css");
 @import url("chrome://messenger/skin/preferences/preferences.css");
 @import url("chrome://messenger/skin/widgets.css");
@@ -502,7 +503,7 @@ richlistitem[default="true"],
     }
 
     &:not(.selected) .content-blocking-warning {
-      background-color: var(--grey-90-a10);
+      background-color: var(--button-background-color);
     }
   }
 
@@ -527,7 +528,7 @@ richlistitem[default="true"],
   min-inline-size: 20px;
   max-block-size: 20px;
   max-inline-size: 20px;
-  list-style-image: url("chrome://messenger/skin/icons/new/nav-down-sm.svg");
+  list-style-image: var(--icon-nav-down-sm);
   background-color: transparent;
   padding: 3px;
   -moz-context-properties: stroke;
@@ -535,15 +536,15 @@ richlistitem[default="true"],
 
   &:not([disabled]):hover {
     cursor: pointer;
-    background-color: var(--grey-90-a10);
+    background-color: var(--button-hover-background-color);
 
     &:active {
-      background-color: var(--grey-90-a20);
+      background-color: var(--button-active-background-color);
     }
   }
 
   &.up {
-    list-style-image: url("chrome://messenger/skin/icons/new/nav-up-sm.svg");
+    list-style-image: var(--icon-nav-up-sm);
   }
 }
 
@@ -671,9 +672,11 @@ richlistitem[default="true"],
 }
 
 .openpgp-more-btn .button-menu-dropmarker {
-  content: url("chrome://global/skin/icons/arrow-down-12.svg");
+  content: var(--icon-nav-down-sm);
   -moz-context-properties: stroke;
   stroke: currentColor;
+  appearance: none;
+  display: initial;
 }
 
 .intro-paragraph {

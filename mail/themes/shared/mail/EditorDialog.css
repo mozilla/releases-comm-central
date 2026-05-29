@@ -155,11 +155,11 @@ tree.list {
 }
 
 #PreviousButton[type="row"] {
-  list-style-image: url("chrome://global/skin/icons/arrow-up-12.svg");
+  list-style-image: var(--icon-nav-up-sm);
 }
 
 #NextButton[type="row"] {
-  list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
+  list-style-image: var(--icon-nav-down-sm);
 }
 
 #NextButton:not([type="row"]) > .button-box > .button-icon {

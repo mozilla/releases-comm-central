@@ -36,7 +36,7 @@ select {
   -moz-context-properties: fill;
   appearance: none;
   background-color: var(--hub-menulist-background-color);
-  background-image: url("chrome://global/skin/icons/arrow-down-12.svg");
+  background-image: var(--icon-nav-down-sm);
   background-position: right 11px center;
   background-repeat: no-repeat;
   background-size: auto var(--background-image-width);

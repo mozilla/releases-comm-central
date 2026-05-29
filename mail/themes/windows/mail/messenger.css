@@ -239,11 +239,11 @@ menulist.folderMenuItem menu:not(.folderMenuItem) {
   padding-block: 3px;
 
   treecol[sortDirection="ascending"]:not([hideheader="true"]) > & {
-    list-style-image: url("chrome://global/skin/icons/arrow-up-12.svg");
+    list-style-image: var(--icon-nav-up-sm);
   }
 
   treecol[sortDirection="descending"]:not([hideheader="true"]) > & {
-    list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
+    list-style-image: var(--icon-nav-down-sm);
   }
 }
 
@@ -255,11 +255,11 @@ menulist.folderMenuItem menu:not(.folderMenuItem) {
 
 .treecol-sortdirection {
   treecol[sortDirection="ascending"]:not([hideheader="true"]) > & {
-    list-style-image: url("chrome://global/skin/icons/arrow-up-12.svg");
+    list-style-image: var(--icon-nav-up-sm);
   }
 
   treecol[sortDirection="descending"]:not([hideheader="true"]) > & {
-    list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
+    list-style-image: var(--icon-nav-down-sm);
   }
 }
 

@@ -450,7 +450,7 @@ facet-boolean[disabled] {
   border: 1px solid var(--button-border-color);
   border-radius: var(--button-border-radius);
   background-color: var(--button-background-color);
-  background-image: url("chrome://global/skin/icons/arrow-down-12.svg");
+  background-image: var(--icon-nav-down-sm);
   background-position: right 4px center;
   background-repeat: no-repeat;
   background-size: auto 12px;

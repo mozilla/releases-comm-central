@@ -1675,7 +1675,7 @@ qr-code-wizard {
   min-inline-size: 20px;
   max-block-size: 20px;
   max-inline-size: 20px;
-  list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
+  list-style-image: var(--icon-nav-down-sm);
   background-color: transparent;
   padding: 3px;
 }
@@ -1685,7 +1685,7 @@ qr-code-wizard {
 }
 
 .arrowhead.up {
-  list-style-image: url("chrome://global/skin/icons/arrow-up-12.svg");
+  list-style-image: var(--icon-nav-up-sm);
 }
 
 .doh-label {

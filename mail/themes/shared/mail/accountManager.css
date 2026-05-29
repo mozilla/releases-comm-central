@@ -184,7 +184,7 @@ body {
   & > .button-box > .button-menu-dropmarker {
     appearance: none;
     display: flex;
-    content: url("chrome://global/skin/icons/arrow-down-12.svg");
+    content: var(--icon-nav-down-sm);
     -moz-context-properties: fill;
     fill: currentColor;
     inline-size: 12px;
