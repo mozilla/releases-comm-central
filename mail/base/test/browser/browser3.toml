@@ -25,6 +25,9 @@ support-files = [
 ["browser_oAuth2ExternalBrowser.js"]
 tags = ["oauth"]
 
+["browser_oAuth2ResultPage.js"]
+tags = ["oauth"]
+
 ["browser_oAuth2Window.js"]
 tags = ["oauth"]
 
