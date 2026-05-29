@@ -55,6 +55,8 @@ def storybook_launch(command_context, no_temp_profile=False):
         set_prefs = set_prefs + [
             "svg.context-properties.content.enabled=true",
             "layout.css.light-dark.enabled=true",
+            "mail.provider.suppress_dialog_on_startup=true",
+            "mail.shell.checkDefaultClient=false"
         ]
 
     # Work around the runprefs SettingsProvider not getting registered.
