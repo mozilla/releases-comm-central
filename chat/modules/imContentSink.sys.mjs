@@ -350,8 +350,12 @@ function cleanupNode(aNode, aRules, aTextModifiers) {
     const node = aNode.childNodes[i];
     if (
       node.nodeType == node.ELEMENT_NODE &&
-      node.namespaceURI == "http://www.w3.org/1999/xhtml"
+      node.namespaceURI != "http://www.w3.org/1999/xhtml"
     ) {
+      aNode.removeChild(node);
+      --i;
+      continue;
+    } else if (node.nodeType == node.ELEMENT_NODE) {
       // If the node is an element, check if the node is an allowed tag.
       const nodeName = node.localName;
       if (!(nodeName in aRules.tags)) {

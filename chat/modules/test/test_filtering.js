@@ -123,10 +123,31 @@ function test_table() {
   Assert.equal(table, cleanupImMarkup(table));
 }
 
+function test_stripNonHtmlElements() {
+  // Non-HTML elements (SVG, MathML) should be completely removed, including children.
+  Assert.equal("", cleanupImMarkup("<svg><circle/></svg>"));
+  Assert.equal(
+    "foobar",
+    cleanupImMarkup('foo<svg><script>alert("x")</script></svg>bar')
+  );
+  Assert.equal(
+    "<p>foobaz</p>",
+    cleanupImMarkup("<p>foo<svg><text>bar</text></svg>baz</p>")
+  );
+  Assert.equal("", cleanupImMarkup("<math><mi>x</mi></math>"));
+  Assert.equal(
+    "",
+    cleanupImMarkup(
+      `<svg xmlns="...svg"><style>#Chat > div { opacity: 0.1; }</style></svg>`
+    )
+  );
+}
+
 function test_allModes() {
   test_plainText();
   test_paragraphs();
   test_stripScripts();
+  test_stripNonHtmlElements();
   test_links();
   // Remove random classes.
   Assert.equal("<p>foo</p>", cleanupImMarkup('<p class="foobar">foo</p>'));
