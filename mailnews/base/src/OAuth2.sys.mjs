@@ -740,6 +740,13 @@ class URLCallbackRequest {
 
 class ExternalRequest {
   /**
+   * Reference to the window that initialized this request.
+   *
+   * @type {WeakRef<Window>}
+   */
+  #sourceWindow;
+
+  /**
    * Constructor for external requests using the system web browser. The object
    * should not be used until `startLoopbackRedirectListener` is called.
    *
@@ -757,6 +764,13 @@ class ExternalRequest {
    * @returns {boolean} - True on success, false if the browser fails to launch.
    */
   start(authEndpointURL) {
+    // Get the current window of the application, so we can return to it when
+    // the flow finishes.
+    const recentWindow = Services.wm.getMostRecentWindow(null);
+    if (recentWindow) {
+      // Avoid holding a hard reference to the window.
+      this.#sourceWindow = new WeakRef(recentWindow);
+    }
     const authURI = Services.io.newURI(authEndpointURL.href);
     openLinkExternally(authURI, { addToHistory: false });
 
@@ -776,6 +790,7 @@ class ExternalRequest {
   close() {
     this._active = false;
     this.closeLoopbackRedirectListener();
+    this.#sourceWindow = null;
   }
 
   /**
@@ -900,6 +915,9 @@ class ExternalRequest {
             .catch(error => log.error(error));
         }
         Services.tm.dispatchToMainThread(() => {
+          // Focus return needs to happen first, before the window reference is
+          // cleaned up.
+          this._returnFocus();
           this._oauth.finishAuthorizationRequest();
           this._oauth.onAuthorizationReceived(url);
         });
@@ -916,6 +934,7 @@ class ExternalRequest {
           })
           .catch(error => log.error(error));
         Services.tm.dispatchToMainThread(() => {
+          this._returnFocus();
           this._oauth.finishAuthorizationRequest();
           this._oauth.onAuthorizationFailed(
             Cr.NS_ERROR_FAILURE,
@@ -991,12 +1010,34 @@ class ExternalRequest {
           this._fail();
         }
       },
+      _returnFocus: () => this.#returnFocus(),
     };
 
     socket.asyncListen(listener);
     this._loopbackRedirectListener = listener;
     this.redirectURI = callbackPrefix;
     return true;
+  }
+
+  /**
+   * Return focus to the window that initialized the external browser OAuth
+   * flow.
+   * Does nothing if the application already has focus again.
+   */
+  #returnFocus() {
+    // Request focus for the application only if it isn't active already.
+    if (Services.focus.activeWindow) {
+      return;
+    }
+    const window =
+      this.#sourceWindow?.deref() ?? Services.wm.getMostRecentWindow(null);
+    this.#sourceWindow = null;
+    if (!window) {
+      return;
+    }
+    // Restore the window, in case it was minimized.
+    window.restore();
+    window.focus();
   }
 }
 

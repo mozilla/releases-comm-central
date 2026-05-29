@@ -169,3 +169,130 @@ add_task(async function test_promptBeforeReauthRejected() {
   oAuth2Server.rotateTokens = false;
   oAuth2Server.expiry = 0;
 });
+
+add_task(async function test_restoresWindowAndReturnsFocus() {
+  const module = new OAuth2Module();
+  Assert.ok(
+    module.initFromHostname("external.test", "julia@foo.invalid", "imap")
+  );
+
+  const externalOAuthURL = OAuth2TestUtils.promiseExternalOAuthURL();
+  const deferred = Promise.withResolvers();
+  Assert.equal(
+    Services.focus.activeWindow,
+    window,
+    "OAuth request should come from our window"
+  );
+  module.getAccessToken({
+    onSuccess: deferred.resolve,
+    onFailure: deferred.reject,
+  });
+
+  const url = await externalOAuthURL;
+  Assert.notEqual(window.windowState, window.STATE_MINIMIZED);
+  const windowMinimized = BrowserTestUtils.waitForEvent(window, "blur");
+  window.minimize();
+  info("Waiting for blur...");
+  await windowMinimized;
+  await TestUtils.waitForCondition(
+    () => window.document.hidden,
+    "window is minimized"
+  );
+
+  const otherWindows = new Set();
+  while (Services.focus.activeWindow) {
+    info("Cleaning up focus on another window...");
+    const otherWindow = Services.focus.activeWindow;
+    otherWindows.add(otherWindow);
+    const windowBlurred = BrowserTestUtils.waitForEvent(otherWindow, "blur");
+    otherWindow.minimize();
+    info("Waiting for blur...");
+    await windowBlurred;
+    await TestUtils.waitForCondition(
+      () => otherWindow.document.hidden,
+      "window is hidden"
+    );
+  }
+
+  Assert.notEqual(Services.focus.activeWindow, window, "Should lose focus");
+  await OAuth2TestUtils.submitOAuthURL(url, {
+    expectedScope: "test_mail",
+    username: "user",
+    password: "password",
+  });
+
+  const result = await deferred.promise;
+  info("Waiting for focus... " + window.windowState);
+  await TestUtils.waitForCondition(
+    () => !window.document.hidden,
+    "Wait for window to be visible"
+  );
+
+  Assert.ok(result, "Should get a token");
+  Assert.equal(
+    Services.focus.activeWindow,
+    window,
+    "Should return focus to our window"
+  );
+  Assert.notEqual(
+    window.windowState,
+    window.STATE_MINIMIZED,
+    "Window should no longer be minimized"
+  );
+
+  OAuth2TestUtils.forgetObjects();
+  await Services.logins.removeAllLoginsAsync();
+
+  // Restore all the windows
+  for (const otherWindow of otherWindows) {
+    const focusReturned = BrowserTestUtils.waitForEvent(otherWindow, "focus");
+    otherWindow.restore();
+    await focusReturned;
+  }
+  await SimpleTest.promiseFocus(window);
+});
+
+add_task(async function test_handlesFocusRetained() {
+  const module = new OAuth2Module();
+  Assert.ok(
+    module.initFromHostname("external.test", "julia@foo.invalid", "imap")
+  );
+
+  const externalOAuthURL = OAuth2TestUtils.promiseExternalOAuthURL();
+  const deferred = Promise.withResolvers();
+  Assert.equal(
+    Services.focus.activeWindow,
+    window,
+    "OAuth request should come from our window"
+  );
+  module.getAccessToken({
+    onSuccess: deferred.resolve,
+    onFailure: deferred.reject,
+  });
+
+  const url = await externalOAuthURL;
+  Assert.notEqual(window.windowState, window.STATE_MINIMIZED);
+  Assert.equal(Services.focus.activeWindow, window, "Should still have focus");
+  await OAuth2TestUtils.submitOAuthURL(url, {
+    expectedScope: "test_mail",
+    username: "user",
+    password: "password",
+  });
+
+  const result = await deferred.promise;
+
+  Assert.ok(result, "Should get a token");
+  Assert.equal(
+    Services.focus.activeWindow,
+    window,
+    "Should retain focus to our window"
+  );
+  Assert.notEqual(
+    window.windowState,
+    window.STATE_MINIMIZED,
+    "Window should not be minimized"
+  );
+
+  OAuth2TestUtils.forgetObjects();
+  await Services.logins.removeAllLoginsAsync();
+});
