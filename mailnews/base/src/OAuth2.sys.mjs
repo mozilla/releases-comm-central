@@ -865,7 +865,7 @@ class ExternalRequest {
         const response = lazy.MailStringUtils.stringToByteString(
           `HTTP/1.1 ${statusLine}\r\n` +
             "Content-Type: text/html; charset=utf-8\r\n" +
-            "Content-Security-Policy: default-src 'none'; img-src data:; style-src 'unsafe-inline'\r\n" +
+            "Content-Security-Policy: default-src 'none'; img-src data:; style-src 'unsafe-inline'; script-src 'sha256-IREggE8e7pWHduQVJzPyqoCVQ62B/ZgkFu3129qNUkM='\r\n" +
             "Cache-Control: no-store\r\n" +
             "Connection: close\r\n\r\n" +
             body

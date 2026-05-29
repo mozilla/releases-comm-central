@@ -7,8 +7,12 @@
     <meta charset="utf-8" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'none'; img-src data:; style-src 'unsafe-inline'"
+      content="default-src 'none'; img-src data:; style-src 'unsafe-inline'; script-src 'sha256-IREggE8e7pWHduQVJzPyqoCVQ62B/ZgkFu3129qNUkM='"
     />
+    <!-- The hash of this script is used to allow it to run. -->
+    <script>
+      window.close();
+    </script>
     <!-- prettier-ignore -->
     <style>
 # Including this style sheet so we have our color variables available. The style
