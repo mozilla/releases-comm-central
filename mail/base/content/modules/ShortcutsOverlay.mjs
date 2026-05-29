@@ -92,14 +92,15 @@ async function setupShortcutStrings() {
  * Sets up the keydown event to intercept shortcuts.
  */
 function setupEventListener() {
-  const tabmail = document.getElementById("tabmail");
-
   window.addEventListener("keydown", event => {
+    const topWindow = Services.wm.getMostRecentWindow("mail:3pane");
+    const tabmail = topWindow?.document.getElementById("tabmail");
+
     const shortcut = ShortcutsManager.matches(event);
     // FIXME: Temporarily ignore numbers coming from the Numpad to prevent
     // hijacking Alt characters typing in Windows. This can be removed once
     // we implement customizable shortcuts.
-    if (!shortcut || event.location == 3 || tabmail.globalOverlay) {
+    if (!shortcut || event.location == 3 || tabmail?.globalOverlay) {
       return;
     }
     event.preventDefault();
@@ -107,17 +108,19 @@ function setupEventListener() {
 
     switch (shortcut.id) {
       case "space-toggle":
-        window.gSpacesToolbar.toggleToolbar(!window.gSpacesToolbar.isHidden);
+        topWindow?.gSpacesToolbar.toggleToolbar(
+          !topWindow.gSpacesToolbar.isHidden
+        );
         break;
       case "space-mail":
       case "space-addressbook":
       case "space-calendar":
       case "space-tasks":
       case "space-chat": {
-        const space = window.gSpacesToolbar.spaces.find(
+        const space = topWindow?.gSpacesToolbar.spaces.find(
           s => s.name == shortcut.id.replace("space-", "")
         );
-        window.gSpacesToolbar.openSpace(tabmail, space);
+        topWindow?.gSpacesToolbar.openSpace(tabmail, space);
         break;
       }
       case "search-messages":

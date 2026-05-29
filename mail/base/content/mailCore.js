@@ -431,12 +431,16 @@ async function toMessengerWindow() {
   return messengerWindow.tabmail?.globalOverlay ? null : messengerWindow;
 }
 
-function focusOnMail(tabNo, event) {
+/**
+ * @param {integer} tabNo - Tab index.
+ * @param {?KeyBoardEvent} event - Event that triggered focus, if any.
+ */
+function focusOnMail(tabNo, event = null) {
   // this is invoked by accel-<number>
-  var topWindow = Services.wm.getMostRecentWindow("mail:3pane");
+  const topWindow = Services.wm.getMostRecentWindow("mail:3pane");
   if (topWindow) {
     topWindow.focus();
-    const tabmail = document.getElementById("tabmail");
+    const tabmail = topWindow.document.getElementById("tabmail");
     if (tabmail.globalOverlay) {
       return;
     }
