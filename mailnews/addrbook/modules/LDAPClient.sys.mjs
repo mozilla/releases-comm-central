@@ -13,6 +13,11 @@ import {
   LDAPResponse,
 } from "resource:///modules/LDAPMessage.sys.mjs";
 
+// Cap on the partial-message reassembly buffer. Legitimate LDAP messages
+// are well under 1 MiB; 16 MiB is generous. Anything larger is treated
+// as a fatal protocol violation.
+const MAX_BUFFER_BYTES = 16 * 1024 * 1024;
+
 export class LDAPClient {
   /**
    * @param {string} host - The LDAP server host.
@@ -186,6 +191,27 @@ export class LDAPClient {
       arr.set(new Uint8Array(data), this._buffer.byteLength);
       data = arr.buffer;
       this._buffer = null;
+    }
+    if (data.byteLength > MAX_BUFFER_BYTES) {
+      this._logger.error(
+        `LDAP receive buffer exceeded ${MAX_BUFFER_BYTES} bytes ` +
+          `(got ${data.byteLength}); closing connection`
+      );
+      // Fail every outstanding callback before tearing the socket down so
+      // higher layers (autocomplete, directory query, replication) do not
+      // hang indefinitely.
+      for (const cb of this._callbackMap.values()) {
+        try {
+          cb({
+            result: { resultCode: -1, diagnosticMessage: "buffer overflow" },
+          });
+        } catch (_) {}
+      }
+      this._callbackMap.clear();
+      this._dataEventsQueue.length = 0;
+      this._processingData = false;
+      this._socket.close();
+      return;
     }
     let i = 0;
     // The payload can contain multiple messages, parse it to the end.
