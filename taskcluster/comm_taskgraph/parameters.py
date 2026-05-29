@@ -3,32 +3,28 @@
 #  file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import logging
+from typing import Optional
 
 from taskgraph.parameters import extend_parameters_schema
 from taskgraph.util.path import join
-from voluptuous import Any, Required
 
 from gecko_taskgraph.files_changed import get_locally_changed_files
-from gecko_taskgraph.parameters import gecko_parameters_schema as comm_parameters_schema
-from gecko_taskgraph.parameters import get_app_version, get_version
+from gecko_taskgraph.parameters import GeckoParametersSchema, get_app_version, get_version
 
 from comm_taskgraph.files_changed import prefix_paths
 
 logger = logging.getLogger(__name__)
 
-# Called at import time when comm_taskgraph:register is called
-comm_parameters_schema.update(
-    {
-        Required("comm_base_repository"): str,
-        Required("comm_base_ref"): Any(None, str),
-        Required("comm_base_rev"): str,
-        Required("comm_head_ref"): str,
-        Required("comm_head_repository"): str,
-        Required("comm_head_rev"): str,
-        Required("comm_src_path"): str,
-        Required("try_options"): Any(None, dict),
-    }
-)
+
+class CommParametersSchema(GeckoParametersSchema, kw_only=True, rename=None):
+    comm_base_repository: str
+    comm_base_ref: Optional[str]
+    comm_base_rev: str
+    comm_head_ref: str
+    comm_head_repository: str
+    comm_head_rev: str
+    comm_src_path: str
+    try_options: Optional[dict]
 
 
 def get_defaults(repo_root=None):
@@ -51,4 +47,4 @@ def register_parameters():
     """Register the additional comm_* parameters with taskgraph. Note that
     defaults_fn is registered, but it does not actually run by design in the
     decision task due to 'strict' being True in that case."""
-    extend_parameters_schema(comm_parameters_schema, defaults_fn=get_defaults)
+    extend_parameters_schema(CommParametersSchema, defaults_fn=get_defaults)
