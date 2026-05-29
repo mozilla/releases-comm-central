@@ -2,15 +2,9 @@
 #  License, v. 2.0. If a copy of the MPL was not distributed with this
 #  file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-import os
 import sys
 
 import buildconfig
-
-sourcestamp_tmpl = """{buildid}
-{comm_repo}/rev/{comm_rev}
-{gecko_repo}/rev/{gecko_rev}
-"""
 
 
 def mk_hg_url(repo, revision):
@@ -37,18 +31,6 @@ def gen_platformini(output, platform_ini):
         fp.writelines(data)
 
     output.write("platform.ini updated.\n")
-
-
-def gen_sourcestamp(output):
-    data = dict(
-        buildid=os.environ.get("MOZ_BUILD_DATE", "unknown"),
-        gecko_repo=buildconfig.substs.get("MOZ_GECKO_SOURCE_REPO", None),
-        gecko_rev=buildconfig.substs.get("MOZ_GECKO_SOURCE_CHANGESET", None),
-        comm_repo=buildconfig.substs.get("MOZ_COMM_SOURCE_REPO", None),
-        comm_rev=buildconfig.substs.get("MOZ_COMM_SOURCE_CHANGESET", None),
-    )
-
-    output.write(sourcestamp_tmpl.format(**data))
 
 
 def source_repo_header(output):

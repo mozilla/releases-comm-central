@@ -47,8 +47,8 @@ def read_sourcestamp(repository):
         if exists(sourcestamp_file):
             try:
                 lines = open(sourcestamp_file).readlines()
-            except:
-                pass
+            except OSError:
+                lines = []
 
             if len(lines) != 3:
                 log.warning("sourcestamp.txt is corrupt!")
