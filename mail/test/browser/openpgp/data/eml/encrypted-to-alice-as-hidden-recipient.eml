@@ -1,0 +1,36 @@
+X-Mozilla-Status: 0001
+X-Mozilla-Status2: 00800000
+X-Mozilla-Keys:                                                                                 
+To: alice@openpgp.example
+From: Bob Babbage <bob@openpgp.example>
+Message-ID: <073d2456-7027-4acf-86c7-f8ea83591a4b@openpgp.example>
+Date: Wed, 28 May 2026 17:00:19 +0200
+MIME-Version: 1.0
+Subject: Test message to hidden recipient
+Content-Type: multipart/encrypted;
+ protocol="application/pgp-encrypted";
+ boundary="2W16lTBQJ4ZzVzryxZDTtDj0yHOSWfd6l"
+
+This is an OpenPGP/MIME encrypted message (RFC 4880 and 3156)
+--2W16lTBQJ4ZzVzryxZDTtDj0yHOSWfd6l
+Content-Type: application/pgp-encrypted
+Content-Description: PGP/MIME version identification
+
+Version: 1
+
+--2W16lTBQJ4ZzVzryxZDTtDj0yHOSWfd6l
+Content-Type: application/octet-stream; name="encrypted.asc"
+Content-Description: OpenPGP encrypted message
+Content-Disposition: inline; filename="encrypted.asc"
+
+-----BEGIN PGP MESSAGE-----
+
+hF4DAAAAAAAAAAASAQdAKcF7Yfp7r/H/Un37ivGnLlGIs1kpK8+x12wza+ZRITYw
+eFaxPZ9ByNgTZX5Gfj63x5cGBRNqB8DGYzg/xlkdPqxAdmrRYfKHP95Fvx0c3iqF
+0nAB47NDhlatxpTA4f15b361c5sS4lCk6AmMRi9Dk9CacIbeoqjSQAnuu3gm4oKS
+Hti6tTUsAsbpUt8XLvBg//aHfPGsKIg5glfqa80xHf+rfNMJ1qWiOJLdi7nKCb/P
+ThQIoUIcsoLqTamY+eklm42d
+=zS9i
+-----END PGP MESSAGE-----
+
+--2W16lTBQJ4ZzVzryxZDTtDj0yHOSWfd6l--

@@ -1602,6 +1602,14 @@ function enableRNPLibJS() {
       rnp_output_t
     ),
 
+    rnp_op_verify_set_flags: librnp.declare(
+      "rnp_op_verify_set_flags",
+      abi,
+      rnp_result_t,
+      rnp_op_verify_t,
+      ctypes.uint32_t
+    ),
+
     rnp_op_verify_detached_create: librnp.declare(
       "rnp_op_verify_detached_create",
       abi,
@@ -2119,6 +2127,8 @@ function enableRNPLibJS() {
     RNP_SECURITY_DEFAULT: 2,
 
     RNP_ENCRYPT_NOWRAP: 1,
+
+    RNP_VERIFY_ALLOW_HIDDEN_RECIPIENT: 4,
 
     PGP_KEY_FEATURE_MDC: 1,
     PGP_KEY_FEATURE_AEAD: 2,

@@ -1900,14 +1900,15 @@ export var RNP = {
       max_decrypted_message_size
     );
 
-    let collected_fingerprint = null;
-    let remembered_password = null;
+    const collected_fingerprints = [];
+    const remembered_passwords = new Map();
 
     function collect_key_info_password_cb(ffi, app_ctx, key) {
       const fingerprint = new lazy.ctypes.char.ptr();
       if (!RNPLib.rnp_key_get_fprint(key, fingerprint.address())) {
-        collected_fingerprint = fingerprint.readString();
+        collected_fingerprints.push(fingerprint.readString());
       }
+
       RNPLib.rnp_buffer_destroy(fingerprint);
       return false;
     }
@@ -1920,7 +1921,15 @@ export var RNP = {
       buf,
       buf_len
     ) {
-      const passCTypes = lazy.ctypes.char.array()(remembered_password); // UTF-8
+      const fingerprint = new lazy.ctypes.char.ptr();
+      if (RNPLib.rnp_key_get_fprint(key, fingerprint.address())) {
+        return false;
+      }
+      const fpr = fingerprint.readString();
+      RNPLib.rnp_buffer_destroy(fingerprint);
+
+      const pw = remembered_passwords.get(fpr);
+      const passCTypes = lazy.ctypes.char.array()(pw); // UTF-8
 
       if (buf_len < passCTypes.length) {
         return false;
@@ -2005,6 +2014,15 @@ export var RNP = {
         false // callback return value if exception is thrown
       );
 
+      // If a message is encrypted to a hidden recipients, RNP will call
+      // the callback with each available secret key that has a matching
+      // type and might potentially work for decrypting. We collect the
+      // list of fingerprints, and must unlock all of them.
+      RNPLib.rnp_op_verify_set_flags(
+        verify_op,
+        RNPLib.RNP_VERIFY_ALLOW_HIDDEN_RECIPIENT
+      );
+
       RNPLib.rnp_ffi_set_pass_provider(RNPLib.ffi, callbackKeepAlive, null);
       result.exitCode = RNPLib.rnp_op_verify_execute(verify_op);
 
@@ -2014,41 +2032,44 @@ export var RNP = {
       RNPLib.setDefaultPasswordCB();
       callbackKeepAlive = null;
 
-      if (isFirstTry && result.exitCode != 0 && collected_fingerprint) {
-        const key_handle = this.getKeyHandleByKeyIdOrFingerprint(
-          RNPLib.ffi,
-          "0x" + collected_fingerprint
-        );
-        if (
-          !key_handle.isNull() &&
-          RNPLib.getSecretAvailableFromHandle(key_handle) &&
-          RNPLib.isSecretKeyMaterialAvailable(key_handle)
-        ) {
-          const decryptKey = new RnpPrivateKeyUnlockTracker(key_handle);
-          if (decryptKey.available()) {
-            decryptKey.setAllowPromptingUserForPassword(true);
-            decryptKey.setRememberUnlockPassword(true);
-            await decryptKey.unlock();
+      if (isFirstTry && result.exitCode != 0 && collected_fingerprints.length) {
+        for (const fp of collected_fingerprints) {
+          const key_handle = this.getKeyHandleByKeyIdOrFingerprint(
+            RNPLib.ffi,
+            "0x" + fp
+          );
+          if (
+            !key_handle.isNull() &&
+            RNPLib.getSecretAvailableFromHandle(key_handle) &&
+            RNPLib.isSecretKeyMaterialAvailable(key_handle)
+          ) {
+            const decryptKey = new RnpPrivateKeyUnlockTracker(key_handle);
+            if (decryptKey.available()) {
+              decryptKey.setAllowPromptingUserForPassword(true);
+              decryptKey.setRememberUnlockPassword(true);
+              await decryptKey.unlock();
+            }
+
+            if (decryptKey.isUnlocked()) {
+              tryAgain = true;
+              const pw = decryptKey.getUnlockPassword();
+              remembered_passwords.set(fp, pw);
+
+              RNPLib.rnp_input_destroy(input_from_memory);
+              input_from_memory = null;
+              RNPLib.rnp_output_destroy(output_to_memory);
+              output_to_memory = null;
+              RNPLib.rnp_op_verify_destroy(verify_op);
+              verify_op = null;
+            }
+
+            // We don't create the tracker in all scenarios,
+            // so we'll release key_handle manually.
+            decryptKey.lockIfUnlocked();
+            decryptKey.forget();
           }
-
-          if (decryptKey.isUnlocked()) {
-            tryAgain = true;
-            remembered_password = decryptKey.getUnlockPassword();
-
-            RNPLib.rnp_input_destroy(input_from_memory);
-            input_from_memory = null;
-            RNPLib.rnp_output_destroy(output_to_memory);
-            output_to_memory = null;
-            RNPLib.rnp_op_verify_destroy(verify_op);
-            verify_op = null;
-          }
-
-          // We don't create the tracker in all scenarios,
-          // so we'll release key_handle manually.
-          decryptKey.lockIfUnlocked();
-          decryptKey.forget();
+          RNPLib.rnp_key_handle_destroy(key_handle);
         }
-        RNPLib.rnp_key_handle_destroy(key_handle);
       }
 
       isFirstTry = false;

@@ -199,6 +199,34 @@ add_task(async function testOpenVerifiedUnsignedEncrypted() {
 });
 
 /**
+ * Test that we can decrypt a message to a hidden recipient
+ * (recipient key ID is zero in PKESK).
+ */
+add_task(async function testEncryptedToHiddenRecpient() {
+  const msgc = await open_message_from_file(
+    new FileUtils.File(
+      getTestFilePath("data/eml/encrypted-to-alice-as-hidden-recipient.eml")
+    )
+  );
+  const aboutMessage = get_about_message(msgc);
+
+  Assert.ok(
+    getMsgBodyTxt(msgc).includes("hidden recipient encryption"),
+    "expected message text should be in body"
+  );
+  Assert.ok(
+    OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
+    "signed icon should NOT be shown"
+  );
+  Assert.ok(
+    OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
+    "encrypted icon should be shown"
+  );
+
+  await BrowserTestUtils.closeWindow(msgc);
+});
+
+/**
  * Test that opening an attached encrypted message has no effect
  * on security status icons of the parent message window.
  */
