@@ -27,6 +27,11 @@ XPCOMUtils.defineLazyPreferenceGetter(
   "useNetThunderbirdRedirect",
   "mailnews.oauth.useNetThunderbirdRedirect"
 );
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["messenger/oauth.ftl"], true)
+);
 
 const log = console.createInstance({
   prefix: "mailnews.oauth",
@@ -205,7 +210,15 @@ OAuth2.prototype = {
     return this.tokenExpires - OAUTH_GRACE_TIME_MS < Date.now();
   },
 
-  requestAuthorization() {
+  /**
+   * Do the OAuth2 authorization flow. Will use PKCE when available and tries
+   * to use an external browser for the flow when allowed.
+   *
+   * @param {boolean} [isReauthentication=false] - If this isn't the initial
+   *  authorization for this provider, this should be true. Will trigger a
+   *  prompt before opening the external browser when true.
+   */
+  requestAuthorization(isReauthentication = false) {
     const authEndpointURL = new URL(this.authorizationEndpoint);
 
     authEndpointURL.searchParams.append("response_type", "code");
@@ -253,6 +266,27 @@ OAuth2.prototype = {
       lazy.useExternalBrowser &&
       isLoopbackHttpRedirect(this.redirectionEndpoint)
     ) {
+      if (isReauthentication) {
+        const [title, description] = lazy.l10n.formatValuesSync([
+          { id: "oauth-reauthorize-title" },
+          {
+            id: "oauth-reauthorize-description",
+            args: {
+              hostname: authEndpointURL.hostname,
+              username: authEndpointURL.searchParams.get("login_hint"),
+            },
+          },
+        ]);
+        if (!Services.prompt.confirm(null, title, description)) {
+          this.finishAuthorizationRequest();
+          this.onAuthorizationFailed(
+            Cr.NS_ERROR_ABORT,
+            '{ "error": "user_cancel" }',
+            "User canceled reauthentication"
+          );
+          return;
+        }
+      }
       this.telemetryData.where = "external-localhost";
       this.request = new ExternalRequest(this);
       if (!this.request.startLoopbackRedirectListener()) {
@@ -433,7 +467,7 @@ OAuth2.prototype = {
             // typically (but not always) means the refresh token was bad.
             this.telemetryData.reason = "invalid grant";
             this._isRetrying = true;
-            this.requestAuthorization();
+            this.requestAuthorization(true);
           } else {
             this.recordTelemetry(
               this._isRetrying ? "failed after retrying" : "failed"

@@ -22,6 +22,9 @@ support-files = [
 
 ["browser_navigation.js"]
 
+["browser_oAuth2ExternalBrowser.js"]
+tags = ["oauth"]
+
 ["browser_oAuth2Window.js"]
 tags = ["oauth"]
 

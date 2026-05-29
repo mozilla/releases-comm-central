@@ -261,11 +261,19 @@ export const OAuth2TestUtils = {
     const resultPageSource = await (expectSuccess
       ? OAuth2PageGenerator.generateSuccessPage()
       : OAuth2PageGenerator.generateErrorPage());
-    Assert.equal(
-      source,
-      resultPageSource,
-      "Should return the expected result page"
-    );
+    if (source == resultPageSource) {
+      Assert.equal(
+        "<result page source>",
+        "<result page source>",
+        "Should return the expected result page (truncated for log size)"
+      );
+    } else {
+      Assert.equal(
+        source,
+        resultPageSource,
+        "Should return the expected result page"
+      );
+    }
 
     // At this point the browser is displaying a message to close the tab and
     // return to Thunderbird.
