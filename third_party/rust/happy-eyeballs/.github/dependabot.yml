@@ -13,3 +13,5 @@ updates:
       interval: "weekly"
     cooldown:
       default-days: 10
+      exclude:
+        - "mozilla/actions*"

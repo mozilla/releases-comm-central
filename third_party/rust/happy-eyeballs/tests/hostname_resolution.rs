@@ -553,6 +553,7 @@ fn multiple_ips_per_record() {
                     http_version: ConnectionAttemptHttpVersions::H2OrH1,
                     ech_config: None,
                 },
+                is_ech_retry: false,
             }),
         )],
         now,

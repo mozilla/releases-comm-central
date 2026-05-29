@@ -29,7 +29,7 @@ while let Some(output) = he.process_output(now) {
         Output::SendDnsQuery { id, hostname, record_type } => {
             // Send DNS query.
         }
-        Output::AttemptConnection { id, endpoint } => {
+        Output::AttemptConnection { id, endpoint, is_ech_retry } => {
             // Attempt connection.
         }
         _ => {}

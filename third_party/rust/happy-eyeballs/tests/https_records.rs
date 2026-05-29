@@ -56,6 +56,7 @@ fn ech_config_propagated_to_endpoint() {
                     http_version: ConnectionAttemptHttpVersions::H3,
                     ech_config: Some(ech_config()),
                 },
+                is_ech_retry: false,
             }),
         )],
         now,
@@ -197,6 +198,7 @@ fn ech_disabled() {
                         http_version: ConnectionAttemptHttpVersions::H3,
                         ech_config: None,
                     },
+                    is_ech_retry: false,
                 }),
             ),
         ],
@@ -213,6 +215,7 @@ fn ech_disabled() {
                 http_version: ConnectionAttemptHttpVersions::H2OrH1,
                 ech_config: None,
             },
+            is_ech_retry: false,
         }],
     );
 }
@@ -250,6 +253,7 @@ fn ech_config_from_https_applies_to_aaaa() {
                         http_version: ConnectionAttemptHttpVersions::H3,
                         ech_config: Some(ech_config()),
                     },
+                    is_ech_retry: false,
                 }),
             ),
         ],
@@ -282,6 +286,7 @@ fn multiple_target_names() {
                         http_version: ConnectionAttemptHttpVersions::H3,
                         ech_config: None,
                     },
+                    is_ech_retry: false,
                 }),
             ),
         ],
@@ -387,6 +392,7 @@ fn partial_ech_two_service_infos() {
                         http_version: ConnectionAttemptHttpVersions::H3,
                         ech_config: Some(ech_config()),
                     },
+                    is_ech_retry: false,
                 }),
             ),
         ],
@@ -404,6 +410,7 @@ fn partial_ech_two_service_infos() {
                     http_version: ConnectionAttemptHttpVersions::H2,
                     ech_config: Some(ech_config()),
                 },
+                is_ech_retry: false,
             }),
         )],
         now,
@@ -523,6 +530,7 @@ fn both_service_infos_have_ech_no_origin_fallback() {
                         http_version: ConnectionAttemptHttpVersions::H3,
                         ech_config: Some(ech_config()),
                     },
+                    is_ech_retry: false,
                 }),
             ),
             (None, Some(out_connection_attempt_delay())),
@@ -556,6 +564,7 @@ fn both_service_infos_have_ech_no_origin_fallback() {
                     http_version: ConnectionAttemptHttpVersions::H2,
                     ech_config: Some(ech_config()),
                 },
+                is_ech_retry: false,
             },
             // priority=2 (SVC2, port 10443, ech)
             Output::AttemptConnection {
@@ -565,6 +574,7 @@ fn both_service_infos_have_ech_no_origin_fallback() {
                     http_version: ConnectionAttemptHttpVersions::H3,
                     ech_config: Some(ech_config()),
                 },
+                is_ech_retry: false,
             },
             Output::AttemptConnection {
                 id: Id::from(10),
@@ -573,6 +583,7 @@ fn both_service_infos_have_ech_no_origin_fallback() {
                     http_version: ConnectionAttemptHttpVersions::H2,
                     ech_config: Some(ech_config()),
                 },
+                is_ech_retry: false,
             },
         ],
     );
@@ -683,6 +694,7 @@ fn partial_ech_with_alt_svc() {
                         http_version: ConnectionAttemptHttpVersions::H3,
                         ech_config: Some(ech_config()),
                     },
+                    is_ech_retry: false,
                 }),
             ),
         ],
@@ -701,6 +713,7 @@ fn partial_ech_with_alt_svc() {
                     http_version: ConnectionAttemptHttpVersions::H2,
                     ech_config: Some(ech_config()),
                 },
+                is_ech_retry: false,
             }),
         )],
         now,
@@ -842,6 +855,7 @@ fn https_port_svcparam_applies_but_fallbacks_follow() {
                         http_version: ConnectionAttemptHttpVersions::H3,
                         ech_config: None,
                     },
+                    is_ech_retry: false,
                 }),
             ),
             (
@@ -894,6 +908,7 @@ fn https_two_service_infos_with_different_ports() {
                     http_version,
                     ech_config: None,
                 },
+                is_ech_retry: false,
             }
         };
 
@@ -1108,6 +1123,7 @@ fn https_svc1_addresses_trigger_additional_attempts() {
                 http_version,
                 ech_config: None,
             },
+            is_ech_retry: false,
         }
     };
 
@@ -1314,6 +1330,7 @@ fn target_name_redirect_addresses_used_in_connection_attempts() {
                         http_version: ConnectionAttemptHttpVersions::H3,
                         ech_config: None,
                     },
+                    is_ech_retry: false,
                 }),
             ),
             (None, Some(out_connection_attempt_delay())),
@@ -1350,6 +1367,7 @@ fn target_name_redirect_addresses_used_in_connection_attempts() {
                     http_version: ConnectionAttemptHttpVersions::H3,
                     ech_config: None,
                 },
+                is_ech_retry: false,
             },
             // fallback bucket (origin)
             out_attempt_v6_h1_h2(Id::from(7)),
@@ -1458,6 +1476,7 @@ fn ech_retry_same_endpoint() {
                         http_version: ConnectionAttemptHttpVersions::H2,
                         ech_config: Some(ech_config()),
                     },
+                    is_ech_retry: false,
                 }),
             ),
             (None, Some(out_connection_attempt_delay())),
@@ -1477,6 +1496,70 @@ fn ech_retry_same_endpoint() {
                         http_version: ConnectionAttemptHttpVersions::H2,
                         ech_config: Some(new_ech_config.clone()),
                     },
+                    is_ech_retry: true,
+                }),
+            ),
+        ],
+        now,
+    );
+}
+
+/// `EchRetry` with an empty `EchConfig` models the SSL_ERROR_ECH_RETRY_WITHOUT_ECH
+/// path on the consumer side (server told us to retry *without* ECH). The state
+/// machine forwards the bytes verbatim, but the retry attempt must still be
+/// flagged `is_ech_retry: true` so consumers can label it.
+#[test]
+fn ech_retry_without_ech_sets_flag() {
+    let (now, mut he) = setup();
+
+    let empty_ech_config = EchConfig::new(vec![]);
+
+    he.expect(
+        vec![
+            (None, Some(out_send_dns_https(Id::from(0)))),
+            (None, Some(out_send_dns_aaaa(Id::from(1)))),
+            (None, Some(out_send_dns_a(Id::from(2)))),
+            (
+                Some(Input::DnsResult {
+                    id: Id::from(0),
+                    result: DnsResult::Https(Ok(vec![ServiceInfo {
+                        priority: 1,
+                        target_name: HOSTNAME.into(),
+                        alpn_http_versions: HashSet::from([HttpVersion::H2]),
+                        ipv6_hints: vec![],
+                        ipv4_hints: vec![],
+                        ech_config: Some(ech_config()),
+                        port: None,
+                    }])),
+                }),
+                Some(out_resolution_delay()),
+            ),
+            (
+                Some(in_dns_aaaa_positive(Id::from(1))),
+                Some(Output::AttemptConnection {
+                    id: Id::from(3),
+                    endpoint: Endpoint {
+                        address: SocketAddr::new(V6_ADDR.into(), PORT),
+                        http_version: ConnectionAttemptHttpVersions::H2,
+                        ech_config: Some(ech_config()),
+                    },
+                    is_ech_retry: false,
+                }),
+            ),
+            (None, Some(out_connection_attempt_delay())),
+            (
+                Some(Input::ConnectionResult {
+                    id: Id::from(3),
+                    result: ConnectionResult::EchRetry(empty_ech_config.clone()),
+                }),
+                Some(Output::AttemptConnection {
+                    id: Id::from(4),
+                    endpoint: Endpoint {
+                        address: SocketAddr::new(V6_ADDR.into(), PORT),
+                        http_version: ConnectionAttemptHttpVersions::H2,
+                        ech_config: Some(empty_ech_config.clone()),
+                    },
+                    is_ech_retry: true,
                 }),
             ),
         ],
@@ -1527,6 +1610,7 @@ fn ech_retry_no_infinite_loop() {
                         http_version: ConnectionAttemptHttpVersions::H2,
                         ech_config: Some(ech_config()),
                     },
+                    is_ech_retry: false,
                 }),
             ),
             (None, Some(out_connection_attempt_delay())),
@@ -1543,6 +1627,7 @@ fn ech_retry_no_infinite_loop() {
                         http_version: ConnectionAttemptHttpVersions::H2,
                         ech_config: Some(retry_ech_config.clone()),
                     },
+                    is_ech_retry: true,
                 }),
             ),
             (None, Some(out_connection_attempt_delay())),
@@ -1566,6 +1651,7 @@ fn ech_retry_no_infinite_loop() {
                         http_version: ConnectionAttemptHttpVersions::H2,
                         ech_config: Some(ech_config()),
                     },
+                    is_ech_retry: false,
                 }),
             ),
         ],

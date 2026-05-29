@@ -33,7 +33,7 @@
 //!             // Send DNS query.
 //! #           dns_id = Some(id);
 //!         }
-//!         Output::AttemptConnection { id, endpoint } => {
+//!         Output::AttemptConnection { id, endpoint, is_ech_retry } => {
 //!             // Attempt connection.
 //!         }
 //!         _ => {}
@@ -219,8 +219,16 @@ pub enum Output {
     /// Start a timer
     Timer { duration: Duration },
 
-    /// Attempt to connect to an address
-    AttemptConnection { id: Id, endpoint: Endpoint },
+    /// Attempt to connect to an address.
+    ///
+    /// `is_ech_retry` is `true` iff this attempt was scheduled in response to
+    /// a [`ConnectionResult::EchRetry`] on a prior attempt (i.e. an in-band
+    /// ECH configuration update).
+    AttemptConnection {
+        id: Id,
+        endpoint: Endpoint,
+        is_ech_retry: bool,
+    },
 
     /// Cancel a connection attempt
     CancelConnection { id: Id },
@@ -1127,7 +1135,11 @@ impl HappyEyeballs {
             is_ech_retry: false,
         });
 
-        Some(Output::AttemptConnection { id, endpoint })
+        Some(Output::AttemptConnection {
+            id,
+            endpoint,
+            is_ech_retry: false,
+        })
     }
 
     /// Emit a connection attempt for a pending ECH retry, if any.
@@ -1154,7 +1166,11 @@ impl HappyEyeballs {
             is_ech_retry: true,
         });
 
-        Some(Output::AttemptConnection { id, endpoint })
+        Some(Output::AttemptConnection {
+            id,
+            endpoint,
+            is_ech_retry: true,
+        })
     }
 
     fn endpoints_to_attempt(&self) -> Vec<Endpoint> {

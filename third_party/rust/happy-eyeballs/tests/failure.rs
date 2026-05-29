@@ -119,6 +119,7 @@ fn ip_host_connection_failure() {
                         http_version: ConnectionAttemptHttpVersions::H2OrH1,
                         ech_config: None,
                     },
+                    is_ech_retry: false,
                 }),
             ),
             (

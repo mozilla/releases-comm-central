@@ -242,6 +242,7 @@ pub fn out_attempt_v6_h1_h2(id: Id) -> Output {
             http_version: ConnectionAttemptHttpVersions::H2OrH1,
             ech_config: None,
         },
+        is_ech_retry: false,
     }
 }
 
@@ -253,6 +254,7 @@ pub fn out_attempt_v6_h2(id: Id) -> Output {
             http_version: ConnectionAttemptHttpVersions::H2,
             ech_config: None,
         },
+        is_ech_retry: false,
     }
 }
 
@@ -264,6 +266,7 @@ pub fn out_attempt_v6_h3(id: Id) -> Output {
             http_version: ConnectionAttemptHttpVersions::H3,
             ech_config: None,
         },
+        is_ech_retry: false,
     }
 }
 
@@ -275,6 +278,7 @@ pub fn out_attempt_v6_h3_custom_port(id: Id) -> Output {
             http_version: ConnectionAttemptHttpVersions::H3,
             ech_config: None,
         },
+        is_ech_retry: false,
     }
 }
 
@@ -286,6 +290,7 @@ pub fn out_attempt_v4_h1_h2(id: Id) -> Output {
             http_version: ConnectionAttemptHttpVersions::H2OrH1,
             ech_config: None,
         },
+        is_ech_retry: false,
     }
 }
 
@@ -297,6 +302,7 @@ pub fn out_attempt_v4_h2(id: Id) -> Output {
             http_version: ConnectionAttemptHttpVersions::H2,
             ech_config: None,
         },
+        is_ech_retry: false,
     }
 }
 
@@ -308,6 +314,7 @@ pub fn out_attempt_v4_h3(id: Id) -> Output {
             http_version: ConnectionAttemptHttpVersions::H3,
             ech_config: None,
         },
+        is_ech_retry: false,
     }
 }
 
@@ -319,6 +326,7 @@ pub fn out_attempt_v4_h3_custom_port(id: Id) -> Output {
             http_version: ConnectionAttemptHttpVersions::H3,
             ech_config: None,
         },
+        is_ech_retry: false,
     }
 }
 
@@ -330,6 +338,7 @@ pub fn out_attempt_v6_h2_custom_port(id: Id) -> Output {
             http_version: ConnectionAttemptHttpVersions::H2,
             ech_config: None,
         },
+        is_ech_retry: false,
     }
 }
 
@@ -341,6 +350,7 @@ pub fn out_attempt_v4_h2_custom_port(id: Id) -> Output {
             http_version: ConnectionAttemptHttpVersions::H2,
             ech_config: None,
         },
+        is_ech_retry: false,
     }
 }
 
@@ -357,6 +367,7 @@ pub fn out_attempt(
             http_version,
             ech_config: None,
         },
+        is_ech_retry: false,
     }
 }
 

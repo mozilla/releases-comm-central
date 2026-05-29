@@ -75,9 +75,9 @@ git = "https://github.com/mozilla/cubeb-pulse-rs"
 rev = "3cf4a1af09a1748d0e184297a17132bdcc608874"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/mozilla/happy-eyeballs?tag=v0.5.0"]
+[source."git+https://github.com/mozilla/happy-eyeballs?tag=v0.6.0"]
 git = "https://github.com/mozilla/happy-eyeballs"
-tag = "v0.5.0"
+tag = "v0.6.0"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/mozilla/memtest?rev=ad681ba425beb0aeba95f03e671432b4be932174"]
