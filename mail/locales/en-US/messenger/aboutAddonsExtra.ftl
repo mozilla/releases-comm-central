@@ -16,5 +16,5 @@ atn-addons-heading-search-button =
     .title = Search addons.thunderbird.net
     .aria-label = Search addons.thunderbird.net
 
-details-notification-suppressed-esr =
-    .message = The add-on was disabled because it uses Experiment APIs. These APIs are limited to { -brand-product-name } ESR and are not supported in this version of { -brand-product-name }.
+details-notification-suppressed-esr-2 =
+    .message = The add-on was disabled because it uses legacy APIs. Add-ons with legacy APIs can modify every part of { -brand-product-name } and need to be updated, reviewed and approved whenever { -brand-product-name } itself changes. Such add-ons are therefore not supported by this version of { -brand-product-name }, but only by { -brand-product-name } ESR, which receives fewer code changes and stays stable throughout the 1-year ESR cycle.

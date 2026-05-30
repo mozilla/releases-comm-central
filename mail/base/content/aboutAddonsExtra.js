@@ -78,7 +78,7 @@ function getBrowserElement() {
           linkUrl: `${alternativeAddonSearchUrl}?id=${encodeURIComponent(
             addon.id
           )}&q=${encodeURIComponent(name)}&isSuppressed=true`,
-          messageId: "details-notification-suppressed-esr",
+          messageId: "details-notification-suppressed-esr-2",
           messageArgs: { name },
           type: "warning",
         };

@@ -813,7 +813,7 @@ var gXPInstallObserver = {
         // name.
         options.name = install.addon.name;
         const messageString = lazy.l10n.formatValueSync(
-          "webext-install-suppressed-message"
+          "webext-install-suppressed-message-2"
         );
 
         PopupNotifications.show(
