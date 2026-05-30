@@ -135,7 +135,6 @@ mochitest-thunderbird:
             default: null
     treeherder-symbol: M(bct)
     built-projects-only: true
-    test-manifest-loader: null  # don't load tests in the taskgraph
     loopback-video: true
     max-run-time:
         by-variant:
@@ -180,6 +179,7 @@ mochitest-thunderbird:
     mozharness:
         script: desktop_unittest.py
         mochitest-flavor: browser
+        chunked: true
         config:
             by-test-platform:
                 windows.*:
