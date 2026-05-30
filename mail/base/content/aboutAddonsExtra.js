@@ -8,7 +8,7 @@ const { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 
-const { formatUTMParams } = ChromeUtils.importESModule(
+const { formatUTMParams, getAddonMessageInfo } = ChromeUtils.importESModule(
   "chrome://mozapps/content/extensions/aboutaddons-utils.mjs"
 );
 
@@ -61,56 +61,56 @@ function getBrowserElement() {
   contentStylesheet.href = "chrome://messenger/skin/aboutExtra.css";
   document.head.appendChild(contentStylesheet);
 
-  // Add logic to detect add-ons using the unsupported legacy API or suppressed
-  // Experiments.
-  const getMozillaAddonMessageInfo = window.getAddonMessageInfo;
-  window.getAddonMessageInfo = async function (
-    addon,
-    { isCardExpanded, isInDisabledSection }
-  ) {
-    const { name } = addon;
-    const data = await parseManifest(addon);
-    if (data.isSuppressedExperiment) {
-      return {
-        linkId: "add-on-learn-more-and-search-alternative-button-label",
-        linkUrl: `${alternativeAddonSearchUrl}?id=${encodeURIComponent(
-          addon.id
-        )}&q=${encodeURIComponent(name)}&isSuppressed=true`,
-        messageId: "details-notification-suppressed-esr",
-        messageArgs: { name },
-        type: "warning",
-      };
-    }
-
-    if (
-      addon.type == "extension" &&
-      (data.isLegacy ||
-        (!addon.isCompatible &&
-          (AddonManager.checkCompatibility ||
-            addon.blocklistState !== Ci.nsIBlocklistService.STATE_SOFTBLOCKED)))
-    ) {
-      return {
-        linkId: "add-on-search-alternative-button-label",
-        linkUrl: `${alternativeAddonSearchUrl}?id=${encodeURIComponent(
-          addon.id
-        )}&q=${encodeURIComponent(name)}`,
-        messageId: "details-notification-incompatible2",
-        messageArgs: { name, version: Services.appinfo.version },
-        type: "warning",
-      };
-    }
-    return getMozillaAddonMessageInfo(addon, {
-      isCardExpanded,
-      isInDisabledSection,
-    });
-  };
-  document.querySelectorAll("addon-card").forEach(card => card.updateMessage());
-
-  // Override parts of the addon-card customElement to be able
-  // to add a dedicated button for extension preferences.
   await customElements.whenDefined("addon-card");
   const AddonCard = customElements.get("addon-card");
 
+  // Register the getAddonMessageInfo hook on the addon-card custom element so
+  // suppressed Experiments and add-ons using the unsupported legacy API get a
+  // Thunderbird-specific warning banner. The hook delegates to the upstream
+  // getAddonMessageInfo for everything else.
+  AddonCard.setEmbedderHooks({
+    async getAddonMessageInfo(addon, { isCardExpanded, isInDisabledSection }) {
+      const { name } = addon;
+      const data = await parseManifest(addon);
+      if (data.isSuppressedExperiment) {
+        return {
+          linkId: "add-on-learn-more-and-search-alternative-button-label",
+          linkUrl: `${alternativeAddonSearchUrl}?id=${encodeURIComponent(
+            addon.id
+          )}&q=${encodeURIComponent(name)}&isSuppressed=true`,
+          messageId: "details-notification-suppressed-esr",
+          messageArgs: { name },
+          type: "warning",
+        };
+      }
+
+      if (
+        addon.type == "extension" &&
+        (data.isLegacy ||
+          (!addon.isCompatible &&
+            (AddonManager.checkCompatibility ||
+              addon.blocklistState !==
+                Ci.nsIBlocklistService.STATE_SOFTBLOCKED)))
+      ) {
+        return {
+          linkId: "add-on-search-alternative-button-label",
+          linkUrl: `${alternativeAddonSearchUrl}?id=${encodeURIComponent(
+            addon.id
+          )}&q=${encodeURIComponent(name)}`,
+          messageId: "details-notification-incompatible2",
+          messageArgs: { name, version: Services.appinfo.version },
+          type: "warning",
+        };
+      }
+      return getAddonMessageInfo(addon, {
+        isCardExpanded,
+        isInDisabledSection,
+      });
+    },
+  });
+
+  // Override the update() method of the addon-card customElement to be able to
+  // add a dedicated button for extension preferences.
   AddonCard.prototype.addOptionsButton = async function () {
     const { addon, optionsButton } = this;
     if (addon.type != "extension") {
@@ -140,6 +140,9 @@ function getBrowserElement() {
     this._update();
     this.addOptionsButton();
   };
+  // Refresh all addon-cards so existing cards pick up the changes due to the
+  // addOptionsButton override and the registered getAddonMessageInfo hook.
+  document.querySelectorAll("addon-card").forEach(card => card.update());
 
   // Override parts of the addon-permission-list customElement to be able
   // to show the usage of Experiments in the permission list.
