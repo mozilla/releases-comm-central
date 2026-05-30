@@ -5,7 +5,9 @@
 const { OAuth2PageGenerator } = ChromeUtils.importESModule(
   "moz-src:///comm/mailnews/base/src/OAuth2PageGenerator.sys.mjs"
 );
-const { HttpServer } = ChromeUtils.importESModule("resource://testing-common/httpd.sys.mjs");
+const { HttpServer } = ChromeUtils.importESModule(
+  "resource://testing-common/httpd.sys.mjs"
+);
 
 let serverUrl;
 const tabmail = document.getElementById("tabmail");
@@ -39,11 +41,19 @@ add_task(async function test_successPageClosesTab() {
     tabmail.tabContainer,
     "TabClose"
   );
-  const tab = tabmail.openTab("contentTab", { url: serverUrl + "success" });
+  tabmail.openTab("contentTab", { url: serverUrl + "success" });
   info("Tab open, waiting for it to close...");
   await tabClosePromise;
-  Assert.deepEqual(loadedPages, ["success"], "Should have loaded the success page once");
-  Assert.equal(tabmail.tabContainer.allTabs.length, 1, "Should only have one tab left");
+  Assert.deepEqual(
+    loadedPages,
+    ["success"],
+    "Should have loaded the success page once"
+  );
+  Assert.equal(
+    tabmail.tabContainer.allTabs.length,
+    1,
+    "Should only have one tab left"
+  );
   loadedPages.length = 0;
 });
 
@@ -52,10 +62,18 @@ add_task(async function test_errorPageClosesTab() {
     tabmail.tabContainer,
     "TabClose"
   );
-  const tab = tabmail.openTab("contentTab", { url: serverUrl + "fail" });
+  tabmail.openTab("contentTab", { url: serverUrl + "fail" });
   info("Tab open, waiting for it to close...");
   await tabClosePromise;
-  Assert.deepEqual(loadedPages, ["fail"], "Should have loaded the error page once");
-  Assert.equal(tabmail.tabContainer.allTabs.length, 1, "Should only have one tab left");
+  Assert.deepEqual(
+    loadedPages,
+    ["fail"],
+    "Should have loaded the error page once"
+  );
+  Assert.equal(
+    tabmail.tabContainer.allTabs.length,
+    1,
+    "Should only have one tab left"
+  );
   loadedPages.length = 0;
 });
