@@ -498,14 +498,25 @@ impl XpcomGraphBridge {
 
     xpcom_method!(delete_messages => DeleteMessages(
         listener: *const IExchangeSimpleOperationListener,
-        ews_ids: *const ThinVec<nsCString>
+        message_ids: *const ThinVec<nsCString>
     ));
     fn delete_messages(
         &self,
-        _listener: &IExchangeSimpleOperationListener,
-        _ews_ids: &ThinVec<nsCString>,
+        listener: &IExchangeSimpleOperationListener,
+        message_ids: &ThinVec<nsCString>,
     ) -> Result<(), nsresult> {
-        Err(nserror::NS_ERROR_NOT_IMPLEMENTED)
+        let client = self.client()?;
+
+        let message_ids = message_ids.iter().map(ToString::to_string).collect();
+        let listener = SafeEwsSimpleOperationListener::new(listener);
+
+        moz_task::spawn_local(
+            "delete_messages",
+            client.delete_messages(message_ids, listener),
+        )
+        .detach();
+
+        Ok(())
     }
 
     xpcom_method!(mark_items_as_junk => MarkItemsAsJunk(

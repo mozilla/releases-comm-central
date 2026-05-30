@@ -450,6 +450,10 @@ export class GraphServer extends MockServer {
           this.#deleteFolder(resourcePath);
           // There is no body, so we return 204 No Content to indicate success.
           return new HttpResponseData(204, "No Content");
+        } else if (resourcePath.startsWith("/me/messages")) {
+          this.#deleteMessage(resourcePath);
+          // There is no body, so we return 204 No Content to indicate success.
+          return new HttpResponseData(204, "No Content");
         }
         break;
     }
@@ -681,8 +685,7 @@ export class GraphServer extends MockServer {
    * @param {string} requestBody
    */
   #updateMessage(resourcePath, requestBody) {
-    const pathParts = resourcePath.split("/");
-    const messageId = pathParts[pathParts.length - 1];
+    const messageId = resourcePath.split("/").at(-1);
 
     const parsedReq = JSON.parse(requestBody);
 
@@ -723,8 +726,7 @@ export class GraphServer extends MockServer {
    * @param {string} requestBody
    */
   #updateFolder(resourcePath, requestBody) {
-    const pathParts = resourcePath.split("/");
-    const folderId = pathParts[pathParts.length - 1];
+    const folderId = resourcePath.split("/").at(-1);
 
     const parsedReq = JSON.parse(requestBody);
 
@@ -911,8 +913,7 @@ export class GraphServer extends MockServer {
    */
   #moveMessages(resourcePath, requestBody) {
     // Extract the message ID, i.e. the second-to-last section of the path.
-    const pathParts = resourcePath.split("/");
-    const messageId = pathParts[pathParts.length - 2];
+    const messageId = resourcePath.split("/").at(-2);
 
     const parsedReq = JSON.parse(requestBody);
 
@@ -940,8 +941,7 @@ export class GraphServer extends MockServer {
    */
   #copyMessages(resourcePath, requestBody) {
     // Extract the message ID, i.e. the second-to-last section of the path.
-    const pathParts = resourcePath.split("/");
-    const messageId = pathParts[pathParts.length - 2];
+    const messageId = resourcePath.split("/").at(-2);
 
     const parsedReq = JSON.parse(requestBody);
 
@@ -971,8 +971,7 @@ export class GraphServer extends MockServer {
    */
   #moveFolder(resourcePath, requestBody) {
     // Extract the folder ID, i.e. the second-to-last section of the path.
-    const pathParts = resourcePath.split("/");
-    const folderId = pathParts[pathParts.length - 2];
+    const folderId = resourcePath.split("/").at(-2);
 
     const parsedReq = JSON.parse(requestBody);
 
@@ -1005,8 +1004,7 @@ export class GraphServer extends MockServer {
    */
   #copyFolder(resourcePath, requestBody) {
     // Extract the folder ID, i.e. the second-to-last section of the path.
-    const pathParts = resourcePath.split("/");
-    const folderId = pathParts[pathParts.length - 2];
+    const folderId = resourcePath.split("/").at(-2);
 
     const parsedReq = JSON.parse(requestBody);
 
@@ -1033,10 +1031,18 @@ export class GraphServer extends MockServer {
    * @param {string} resourcePath
    */
   #deleteFolder(resourcePath) {
-    const pathParts = resourcePath.split("/");
-    const folderId = pathParts[pathParts.length - 2];
-
+    const folderId = resourcePath.split("/").at(-1);
     this.deleteRemoteFolderById(folderId);
+  }
+
+  /**
+   * Handle DELETE /me/messages/{messageId}
+   *
+   * @param {string} resourcePath
+   */
+  #deleteMessage(resourcePath) {
+    const messageId = resourcePath.split("/").at(-1);
+    this.deleteItem(messageId);
   }
 
   get #endpoint() {

@@ -832,22 +832,22 @@ add_task(async function test_change_flag_status() {
   );
 });
 
-add_task(async function test_hard_delete_item() {
-  const folderName = "hard_delete";
-  ewsServer.appendRemoteFolder(
+async function runHardDeleteTest(mockServer, incomingServer) {
+  const folderName = `hard_delete_${incomingServer.type}`;
+  mockServer.appendRemoteFolder(
     new RemoteFolder(folderName, "root", folderName, folderName)
   );
 
-  const rootFolder = ewsIncomingServer.rootFolder;
-  await syncFolder(ewsIncomingServer, rootFolder);
+  const rootFolder = incomingServer.rootFolder;
+  await syncFolder(incomingServer, rootFolder);
 
   const folder = rootFolder.getChildNamed(folderName);
   Assert.ok(!!folder, `${folderName} folder should exist.`);
 
   const message = generator.makeMessages({ count: 1 })[0];
-  ewsServer.addItemToFolder("message_to_delete", folderName, message);
+  mockServer.addItemToFolder("message_to_delete", folderName, message);
 
-  await syncFolder(ewsIncomingServer, folder);
+  await syncFolder(incomingServer, folder);
 
   const messageHeaders = [...folder.messages];
   Assert.equal(
@@ -866,4 +866,12 @@ add_task(async function test_hard_delete_item() {
   // Message should no longer be in the inbox.
   const matchingMessages = [...folder.messages];
   Assert.equal(matchingMessages.length, 0, "Message should have been deleted.");
+}
+
+add_task(async function test_hard_delete_item_ews() {
+  await runHardDeleteTest(ewsServer, ewsIncomingServer);
+});
+
+add_task(async function test_hard_delete_item_graph() {
+  await runHardDeleteTest(graphServer, graphIncomingServer);
 });

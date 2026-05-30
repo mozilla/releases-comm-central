@@ -29,6 +29,7 @@ mod copy_message;
 mod create_folder;
 mod create_message;
 mod delete_folder;
+mod delete_message;
 mod get_message;
 mod move_folder;
 mod move_message;
