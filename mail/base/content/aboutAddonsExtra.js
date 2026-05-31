@@ -9,7 +9,8 @@ const { XPCOMUtils } = ChromeUtils.importESModule(
 );
 
 const { formatUTMParams, getAddonMessageInfo } = ChromeUtils.importESModule(
-  "chrome://mozapps/content/extensions/aboutaddons-utils.mjs"
+  "chrome://mozapps/content/extensions/aboutaddons-utils.mjs",
+  { global: "current" }
 );
 
 ChromeUtils.defineESModuleGetters(this, {
