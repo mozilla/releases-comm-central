@@ -639,8 +639,10 @@ async function checkMonthViewToday(which, expected, isDifferentMonth = false) {
   Assert.equal(dayLabels.indexOf(todayLabels[0]), expected.weekday);
 
   const todayBoxes = views[which].querySelectorAll(`calendar-month-day-box[relation="today"]`);
-  if (which == "month" && isDifferentMonth && today.weekday <= 1) {
-    Assert.equal(todayBoxes.length, 0);
+  if (which == "month" && isDifferentMonth && today.weekday == 0) {
+    // If today is in a different month and today is Sunday (weekday 0)
+    // then expect today to NOT be visible, in the Sun->Sat week layout we have.
+    Assert.equal(todayBoxes.length, 0, "today should not be visible");
     return;
   }
   Assert.equal(todayBoxes.length, 1);
@@ -652,10 +654,18 @@ async function checkMonthViewToday(which, expected, isDifferentMonth = false) {
   Assert.equal(dayBoxes.indexOf(todayBoxes[0]), expected.weekday);
 
   if (expected.weekday > 0) {
-    Assert.equal(dayBoxes[0].getAttribute("relation"), "past");
+    Assert.equal(
+      dayBoxes[0].getAttribute("relation"),
+      "past",
+      `${expected.weekday} should be in the past`
+    );
   }
   if (expected.weekday < 6) {
-    Assert.equal(dayBoxes[6].getAttribute("relation"), "future");
+    Assert.equal(
+      dayBoxes[6].getAttribute("relation"),
+      "future",
+      `${expected.weekday} should be in the future`
+    );
   }
 }
 
