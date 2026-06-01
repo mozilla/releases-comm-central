@@ -26,7 +26,9 @@ const views = {
 
 // Dates that we need.
 const now = cal.dtz.jsDateToDateTime(new Date()).getInTimezone(cal.dtz.UTC);
-const closeToRealMidnight = now.hour == 23 && now.minute > 55;
+// For the first 60s after midninght, CalMetronome may not yet have updated minimonth.
+const closeToRealMidnight =
+  (now.hour == 23 && now.minute > 55) || (now.hour == 0 && now.minute == 0);
 now.isDate = true;
 const today = {
   year: now.year,
