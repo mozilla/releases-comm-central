@@ -7995,7 +7995,7 @@ function ComposeCanClose() {
       window,
       getComposeBundle().getString("saveDlogTitle"),
       getComposeBundle().getFormattedString("saveDlogMessages3", [
-        draftsFolder.name,
+        draftsFolder.localizedName,
       ]),
       Services.prompt.BUTTON_TITLE_SAVE * Services.prompt.BUTTON_POS_0 +
         Services.prompt.BUTTON_TITLE_CANCEL * Services.prompt.BUTTON_POS_1 +
@@ -10563,7 +10563,7 @@ function DisplaySaveFolderDlg(folderURI) {
     const bundle = getComposeBundle();
     const SaveDlgTitle = bundle.getString("SaveDialogTitle");
     const dlgMsg = bundle.getFormattedString("SaveDialogMsg", [
-      msgfolder.name,
+      msgfolder.localizedName,
       msgfolder.server.prettyName,
     ]);
 

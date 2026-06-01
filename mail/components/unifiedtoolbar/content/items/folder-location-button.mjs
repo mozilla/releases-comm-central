@@ -68,7 +68,7 @@ class FolderLocationButton extends MailTabButton {
       return;
     }
     this.disabled = false;
-    this.label.textContent = gFolder.name;
+    this.label.textContent = gFolder.localizedName;
     this.#icon.style = `content: url(${lazy.FolderUtils.getFolderIcon(
       gFolder
     )});`;
