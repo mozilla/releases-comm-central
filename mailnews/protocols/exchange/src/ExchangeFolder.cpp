@@ -17,7 +17,6 @@
 #include "ErrorList.h"
 #include "FolderCompactor.h"
 #include "FolderPopulation.h"
-#include "MailNewsTypes.h"
 #include "MsgOperationListener.h"
 #include "nsAutoSyncState.h"
 #include "nsIInputStream.h"
@@ -1134,7 +1133,7 @@ NS_IMETHODIMP ExchangeFolder::DeleteSelf(nsIMsgWindow* aWindow) {
     nsCOMPtr<IExchangeClient> client;
     nsresult rv = self->GetProtocolClient(getter_AddRefs(client));
     NS_ENSURE_SUCCESS(rv, rv);
-    return client->DeleteFolder(listener, {folderId});
+    return client->DeleteFolder(listener, folderId);
   };
 
   const auto onSoftDelete = [self = RefPtr(this), window = RefPtr(aWindow)](
@@ -1240,8 +1239,7 @@ NS_IMETHODIMP ExchangeFolder::EmptyTrash(nsIUrlListener* aListener) {
   rv = GetProtocolClient(getter_AddRefs(client));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = client->EmptyFolder(listener, {trashExchangeId}, subFolderIds,
-                           messageIds);
+  rv = client->EmptyFolder(listener, trashExchangeId, subFolderIds, messageIds);
   if (NS_SUCCEEDED(rv) && aListener) {
     rv = aListener->OnStartRunningUrl(trashUri);
     NS_ENSURE_SUCCESS(rv, rv);

@@ -8,13 +8,14 @@ use ms_graph_tb::paths;
 use protocol_shared::{
     ServerType,
     client::DoOperation,
-    safe_xpcom::{SafeEwsSimpleOperationListener, UseLegacyFallback},
+    safe_xpcom::{SafeEwsSimpleOperationListener, SimpleOperationSuccessArgs, UseLegacyFallback},
 };
+use thin_vec::ThinVec;
 
 use crate::{client::XpComGraphClient, error::XpComGraphError};
 
 struct DoDeleteFolder {
-    folder_ids: Vec<String>,
+    folder_id: String,
 }
 
 impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError>
@@ -22,7 +23,7 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
 {
     const NAME: &'static str = "delete folders";
 
-    type Okay = UseLegacyFallback;
+    type Okay = ();
 
     type Listener = SafeEwsSimpleOperationListener;
 
@@ -30,35 +31,26 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
         &mut self,
         client: &XpComGraphClient<ServerT>,
     ) -> Result<Self::Okay, XpComGraphError> {
-        let requests = self
-            .folder_ids
-            .iter()
-            .map(|folder_id| {
-                paths::me::mail_folders::mail_folder_id::Delete::new(
-                    client.base_url().to_string(),
-                    folder_id.clone(),
-                )
-            })
-            .collect();
+        let request = paths::me::mail_folders::mail_folder_id::Delete::new(
+            client.base_url().to_string(),
+            self.folder_id.clone(),
+        );
 
-        let responses = client
-            .send_batch_request_json_response(requests, Default::default())
+        client
+            .send_request_json_response(request, Default::default())
             .await?;
 
-        let result = if responses.len() == self.folder_ids.len() {
-            UseLegacyFallback::No
-        } else {
-            UseLegacyFallback::Yes
-        };
-
-        Ok(result)
+        Ok(())
     }
 
     fn into_success_arg(
         self,
-        requery: Self::Okay,
+        _ok: Self::Okay,
     ) -> <Self::Listener as protocol_shared::safe_xpcom::SafeListener>::OnSuccessArg {
-        (std::iter::empty::<String>(), requery).into()
+        SimpleOperationSuccessArgs {
+            new_ids: ThinVec::new(),
+            use_legacy_fallback: UseLegacyFallback::No,
+        }
     }
 
     fn into_failure_arg(
@@ -74,10 +66,10 @@ impl<ServerT: ServerType> XpComGraphClient<ServerT> {
     ///     https://learn.microsoft.com/en-us/graph/api/mailfolder-delete
     pub(crate) async fn delete_folders(
         self: Arc<XpComGraphClient<ServerT>>,
-        folder_ids: Vec<String>,
+        folder_id: String,
         listener: SafeEwsSimpleOperationListener,
     ) {
-        let operation = DoDeleteFolder { folder_ids };
+        let operation = DoDeleteFolder { folder_id };
         operation.handle_operation(&self, &listener).await;
     }
 }

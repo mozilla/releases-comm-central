@@ -203,34 +203,36 @@ impl XpcomGraphBridge {
 
     xpcom_method!(delete_folder => DeleteFolder(
         listener: *const IExchangeSimpleOperationListener,
-        folder_ids: *const ThinVec<nsCString>
+        folder_id: *const nsACString
     ));
     fn delete_folder(
         &self,
         listener: &IExchangeSimpleOperationListener,
-        folder_ids: &ThinVec<nsCString>,
+        folder_id: &nsACString,
     ) -> Result<(), nsresult> {
         let client = self.client()?;
 
-        let folder_ids = folder_ids.iter().map(ToString::to_string).collect();
         let listener = SafeEwsSimpleOperationListener::new(listener);
 
-        moz_task::spawn_local("delete_folder", client.delete_folders(folder_ids, listener))
-            .detach();
+        moz_task::spawn_local(
+            "delete_folder",
+            client.delete_folders(folder_id.to_string(), listener),
+        )
+        .detach();
 
         Ok(())
     }
 
     xpcom_method!(empty_folder => EmptyFolder(
         listener: *const IExchangeSimpleOperationListener,
-        folder_ids: *const ThinVec<nsCString>,
+        folder_id: *const nsACString,
         subfolder_ids: *const ThinVec<nsCString>,
         message_ids: *const ThinVec<nsCString>
     ));
     fn empty_folder(
         &self,
         _listener: &IExchangeSimpleOperationListener,
-        _folder_ids: &ThinVec<nsCString>,
+        _folder_id: &nsACString,
         _subfolder_ids: &ThinVec<nsCString>,
         _message_ids: &ThinVec<nsCString>,
     ) -> Result<(), nsresult> {

@@ -15,10 +15,10 @@ impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     pub async fn delete_folder(
         self: Arc<XpComEwsClient<ServerT>>,
         listener: SafeEwsSimpleOperationListener,
-        folder_ids: Vec<String>,
+        folder_id: String,
     ) {
         let operation = DoEraseFolder::<DeleteFolder> {
-            folder_ids,
+            folder_ids: vec![folder_id],
             _op_type: PhantomData,
         };
         operation.handle_operation(&self, &listener).await;
