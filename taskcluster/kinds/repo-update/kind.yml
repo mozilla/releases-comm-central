@@ -19,6 +19,7 @@ tasks:
         name: Thunderbird vendored Rust sync
         description: Check third_party/rust in comm-central matches mozilla-central
         run-on-projects: []  # Only run via cron
+        priority: high
         index:
             product: thunderbird
             job-name: tb-rust-vendor
