@@ -68,6 +68,7 @@ vendoring:
 
   patches:
     - ../patches/rnp/pr2389.patch
+    - ../patches/rnp/pr2385.patch
 
   update-actions:
     - action: replace-in-file-regex

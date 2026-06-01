@@ -1,0 +1,127 @@
+From adcdc64fa0e97194d763d040f94653badea9121c Mon Sep 17 00:00:00 2001
+From: Kai Engert <kaie@kuix.de>
+Date: Tue, 24 Mar 2026 13:35:55 +0100
+Subject: [PATCH] Skip experimental packets (tags 60-63) in permissive key
+ import mode
+
+Fixes: https://github.com/rnpgp/rnp/issues/2379
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+---
+ src/librepgp/stream-key.cpp                   | 10 +++++
+ .../pubkey-with-experimental-pkt.asc          | 44 +++++++++++++++++++
+ src/tests/ffi-key.cpp                         | 29 ++++++++++++
+ 3 files changed, 83 insertions(+)
+ create mode 100644 src/tests/data/test_stream_key_load/pubkey-with-experimental-pkt.asc
+
+diff --git a/src/librepgp/stream-key.cpp b/src/librepgp/stream-key.cpp
+index 7a79c4cc8f..6c4978887c 100644
+--- a/src/librepgp/stream-key.cpp
++++ b/src/librepgp/stream-key.cpp
+@@ -183,6 +183,16 @@ process_pgp_key_auto(pgp_source_t &          src,
+         return ret;
+     }
+ 
++    /* In permissive mode, skip private/experimental packets (tags 60-63, RFC 4880 §4.3)
++     * instead of aborting the import. */
++    if (skiperrors && (ptag >= 60) && (ptag <= 63)) {
++        RNP_LOG("skipping experimental packet tag %d at pos %" PRIu64, ptag, src.readb);
++        if (stream_skip_packet(&src)) {
++            return RNP_ERROR_READ;
++        }
++        return RNP_ERROR_BAD_FORMAT;
++    }
++
+     rnp_result_t ret = RNP_ERROR_BAD_FORMAT;
+     if (!is_primary_key_pkt(ptag)) {
+         RNP_LOG("wrong key tag: %d at pos %" PRIu64, ptag, src.readb);
+diff --git a/src/tests/data/test_stream_key_load/pubkey-with-experimental-pkt.asc b/src/tests/data/test_stream_key_load/pubkey-with-experimental-pkt.asc
+new file mode 100644
+index 0000000000..3f5182905f
+--- /dev/null
++++ b/src/tests/data/test_stream_key_load/pubkey-with-experimental-pkt.asc
+@@ -0,0 +1,44 @@
++-----BEGIN PGP PUBLIC KEY BLOCK-----
++
++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
++v5BhpoOOm+jM/ATerb7v
++=F91b
++-----END PGP PUBLIC KEY BLOCK-----
+diff --git a/src/tests/ffi-key.cpp b/src/tests/ffi-key.cpp
+index 9010999cdc..6c9c18d15b 100644
+--- a/src/tests/ffi-key.cpp
++++ b/src/tests/ffi-key.cpp
+@@ -3184,6 +3184,35 @@ TEST_F(rnp_tests, test_ffi_malformed_keys_import)
+     rnp_ffi_destroy(ffi);
+ }
+ 
++TEST_F(rnp_tests, test_ffi_experimental_packet_import)
++{
++    /* Regression test for https://github.com/rnpgp/rnp/issues/2379:
++     * A key with a trailing experimental packet (tag 60-63, RFC 4880 §4.3) must be
++     * importable when RNP_LOAD_SAVE_PERMISSIVE is set, and fail without it. */
++    rnp_ffi_t   ffi = NULL;
++    rnp_input_t input = NULL;
++
++    assert_rnp_success(rnp_ffi_create(&ffi, "GPG", "GPG"));
++    /* without permissive flag the import must fail */
++    assert_rnp_success(
++      rnp_input_from_path(&input, "data/test_stream_key_load/pubkey-with-experimental-pkt.asc"));
++    assert_rnp_failure(
++      rnp_import_keys(ffi, input, RNP_LOAD_SAVE_PUBLIC_KEYS, NULL));
++    rnp_input_destroy(input);
++    size_t keycount = 255;
++    assert_rnp_success(rnp_get_public_key_count(ffi, &keycount));
++    assert_int_equal(keycount, 0);
++    /* with permissive flag the experimental packet is skipped and key is imported */
++    assert_rnp_success(
++      rnp_input_from_path(&input, "data/test_stream_key_load/pubkey-with-experimental-pkt.asc"));
++    assert_rnp_success(
++      rnp_import_keys(ffi, input, RNP_LOAD_SAVE_PUBLIC_KEYS | RNP_LOAD_SAVE_PERMISSIVE, NULL));
++    rnp_input_destroy(input);
++    assert_rnp_success(rnp_get_public_key_count(ffi, &keycount));
++    assert_int_equal(keycount, 2);
++    rnp_ffi_destroy(ffi);
++}
++
+ #if defined(ENABLE_CRYPTO_REFRESH)
+ TEST_F(rnp_tests, test_ffi_v6_sig_subpackets)
+ {
