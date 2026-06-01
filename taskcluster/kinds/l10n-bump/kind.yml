@@ -19,18 +19,20 @@ task-defaults:
         ignore-closed-tree: false
         push:
             by-project:
-                comm-(central|beta): true
+                comm-(central|beta|release|esr140): true
                 default: false
         source-repo:
             by-release-type:
                 beta: https://hg.mozilla.org/releases/comm-beta
+                release: https://hg.mozilla.org/releases/comm-release
+                esr140: https://hg.mozilla.org/releases/comm-esr140
                 nightly: https://hg.mozilla.org/comm-central
                 default: https://hg.mozilla.org/comm-central
         l10n-bump-info:
             by-release-type:
-                # Whenever the `beta` config changes, make sure to make
+                # Whenever the the non-default config changes, make sure to make
                 #     the corresponding change in merge-automation/kind.yml
-                beta:
+                (beta|release|esr140):
                     - name: Thunderbird l10n changesets
                       path: mail/locales/l10n-changesets.json
                       version-path: mail/config/version.txt
