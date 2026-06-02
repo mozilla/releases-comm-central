@@ -1015,7 +1015,9 @@ class ExternalRequest {
 
     socket.asyncListen(listener);
     this._loopbackRedirectListener = listener;
-    this.redirectURI = callbackPrefix;
+    // URL serialisation adds "/" for an empty path, but OAuth redirect URI
+    // matching may be exact.
+    this.redirectURI = callbackPrefix.replace(/\/$/, "");
     return true;
   }
 
