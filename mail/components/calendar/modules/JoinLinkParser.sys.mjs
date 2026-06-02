@@ -4,7 +4,7 @@
 
 const JOIN_LINK_PATTERNS = [
   // Zoom.
-  /https?:\/\/(?:[\w.-]+\.)?zoom\.us\/j\/\d+/i,
+  /https?:\/\/(?:[\w.-]+\.)?zoom\.us\/j\/\d+[^\s<>]*/i,
   /https?:\/\/(?:[\w.-]+\.)?zoom\.us\/wc\/join\/\d+/i,
   /https?:\/\/events\.zoom\.us\/ejl\/[^\s<>]+/i,
 

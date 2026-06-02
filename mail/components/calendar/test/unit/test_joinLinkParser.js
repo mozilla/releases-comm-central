@@ -49,6 +49,28 @@ const providers = {
         Join<https://test.zoom.us/j/12345>
       `,
     },
+    {
+      joinLink: "https://test.zoom.us/j/12345?pwd=aBc67.8",
+      description: `
+        View event<https://test.zoom.us/j/12345?pwd=aBc67.8>
+        [https://file-paa.zoom.us/anlksdc6]
+        •       Oct 5, 2024 8:45 AM - Oct 5, 2024 3:30 PM EDT
+        •       Organized by me
+        •       1 Ticket
+        Join<https://test.zoom.us/j/12345?pwd=aBc67.8>
+      `,
+    },
+    {
+      joinLink: "https://test.zoom.us/j/12345?pwd=aBc67.8&jst=2",
+      description: `
+        View event<https://test.zoom.us/j/12345?pwd=aBc67.8&jst=2>
+        [https://file-paa.zoom.us/anlksdc6]
+        •       Oct 5, 2024 8:45 AM - Oct 5, 2024 3:30 PM EDT
+        •       Organized by me
+        •       1 Ticket
+        Join<https://test.zoom.us/j/12345?pwd=aBc67.8&jst=2>
+      `,
+    },
   ],
   teams: [
     {
