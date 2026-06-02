@@ -80,6 +80,7 @@ ChromeUtils.defineLazyGetter(this, "gSubDialog", function () {
       styleSheets: [
         "chrome://messenger/skin/preferences/dialog.css",
         "chrome://messenger/skin/preferences/preferences.css",
+        "chrome://messenger/skin/variables.css",
       ],
       resizeCallback: ({ frame }) => {
         UIFontSize.registerWindow(frame.contentWindow);

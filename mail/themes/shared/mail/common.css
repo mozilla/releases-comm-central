@@ -14,6 +14,7 @@
   --in-content-deemphasized-text: color-mix(in srgb, currentColor 60%, transparent);
   --size-sidebar: auto;
   --menu-item-margin: 0 3px;
+  --panel-border-radius: 9px;
 
   @media not (forced-colors) {
     --background-color-box-info: light-dark(var(--layout-background-1), var(--layout-background-2));
@@ -124,10 +125,12 @@ menulist > menupopup {
 }
 
 menupopup {
+  --panel-padding: 4px 0;
+
   & > :is(menu, menuitem) {
     margin: var(--menu-item-margin);
     min-block-size: 24px;
-    padding-block: var(--menu-item-padding);
+    padding: 3px 6px;
     border-radius: 3px;
 
     &:not([disabled])[_moz-menuactive="true"] {

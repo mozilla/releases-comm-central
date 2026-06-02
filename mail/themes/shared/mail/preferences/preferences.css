@@ -622,24 +622,19 @@ treechildren::-moz-tree-cell-text(selected) {
  * toolkit element overrides
  */
 
-#preferencesContainer richlistbox {
+richlistbox:not(#categories) {
   appearance: none;
   background-color: var(--background-color-box);
   color: var(--color-text-base);
 
   & richlistitem {
     padding: 0.3em;
+    padding-inline-start: 12px;
     margin: 0;
     border: none;
     border-radius: 0;
     background-image: none;
-  }
-}
 
-#containerBox richlistbox,
-#identitiesList richlistbox,
-#preferencesContainer richlistbox {
-  & richlistitem {
     &:hover {
       color: var(--text-color-list-item-hover);
       background-color: var(--background-color-list-item-hover);
@@ -677,10 +672,6 @@ treechildren::-moz-tree-cell-text(selected) {
 #primaryMessengerLocale {
   margin-inline: 0 4px;
   min-inline-size: 20em;
-}
-
-#selectedLocales > richlistitem {
-  padding-inline-start: 13px;
 }
 
 #availableLocales {
