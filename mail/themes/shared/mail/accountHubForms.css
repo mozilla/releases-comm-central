@@ -24,6 +24,9 @@ form {
   --hub-form-label-padding: var(--space-step);
   --hub-form-label-height: calc(var(--hub-form-label-line-height) + 2 * var(--hub-form-label-padding));
   --hub-form-input-block-padding: 12px;
+  --hub-config-confirm-space-small: calc(var(--space-step) * 2);
+  --hub-config-confirm-space-medium: calc(var(--space-step) * 3);
+  --hub-config-confirm-space-large: calc(var(--space-step) * 4);
 
   grid-row: header / footer;
 
@@ -583,9 +586,9 @@ div:has(legend) {
   inset-block-start: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--hub-config-confirm-space-large);
   background-color: var(--color-surface-base);
-  padding: 6px;
+  padding: var(--hub-config-confirm-space-medium);
   border: 1px solid var(--color-primary-default);
   border-radius: 10px;
 
@@ -595,20 +598,26 @@ div:has(legend) {
     margin-inline: auto;
   }
 
+  &.config-selection {
+    gap: 0;
+    &.single {
+      gap: var(--hub-config-confirm-space-medium);
+    }
+  }
+
   & .selection-grid {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     grid-template-rows: auto;
-    gap: 12px;
-    padding-inline: 12px;
+    gap: var(--hub-config-confirm-space-medium);
 
     & .config-column {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: var(--hub-config-confirm-space-medium);
 
       .credentials-confirmation & {
-        gap: 12px;
+        gap: var(--hub-config-confirm-space-large);
         padding-block: 15px;
       }
     }
@@ -622,16 +631,30 @@ div:has(legend) {
     }
   }
 
-  & .config-item-icon {
-    block-size: 18px;
-    inline-size: 18px;
-    -moz-context-properties: fill, stroke, stroke-opacity;
-    fill: light-dark(color-mix(in srgb, #bdbdbd 20%, transparent), color-mix(in srgb, #3d4d67 20%, transparent));
-    stroke: light-dark(#bdbdbd, #3d4d67);
-
-    &.lighter {
-      fill: light-dark(color-mix(in srgb, #bdbdbd 5%, transparent), color-mix(in srgb, #3d4d67 5%, transparent));
+  & .config-common {
+    display: flex;
+    flex-direction: column;
+    gap: var(--hub-config-confirm-space-medium);
+    & .config-header {
+      margin-block-start: calc(var(--space-step) * 7);
     }
+  }
+
+  & .config-row {
+    display: flex;
+    flex-direction: row;
+    gap: var(--hub-config-confirm-space-large);
+  }
+
+  & .config-item-icon {
+    block-size: 16px;
+    inline-size: 16px;
+    -moz-context-properties: fill, stroke, stroke-opacity;
+    fill: light-dark(
+      color-mix(in srgb, var(--color-text-secondary-light) 20%, transparent),
+      color-mix(in srgb, var(--color-surface-deep-dark) 20%, transparent)
+    );
+    stroke: var(--color-text-secondary);
 
     .config-protocols & {
       block-size: 30px;
@@ -639,30 +662,37 @@ div:has(legend) {
     }
   }
 
-  & .config-protocols {
-    background-color: var(--color-primary-soft);
-    padding-block: 10px;
-    border-radius: 6px;
-
-    & .protocol-title {
-      color: light-dark(#2176d6, #feffff);
-      font-weight: 500;
-      font-size: 1.3rem;
-      display: inline-block;
-      text-transform: uppercase;
-    }
-
-    & .protocol-data {
-      font-size: 1rem;
-      color: var(--color-text-secondary);
-    }
-  }
-
+  & .config-header,
   & .config-detail {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 9px;
+  }
+
+  & .config-header {
+    background-color: var(--color-primary-soft);
+    padding: var(--space-step) var(--hub-config-confirm-space-small);
+    gap: var(--hub-config-confirm-space-small);
+    border-radius: var(--button-border-radius);
+
+    & .header-title {
+      color: var(--color-text-base);
+      font-weight: 500;
+      font-size: 1.2rem;
+      display: inline-block;
+      margin: 0;
+    }
+
+    & .header-data {
+      font-size: 1rem;
+      color: var(--color-text-secondary);
+      text-transform: uppercase;
+      margin: 0;
+    }
+  }
+
+  & .config-detail {
+    gap: var(--hub-config-confirm-space-medium);
 
     .config-protocols & {
       padding-block: 0;
@@ -672,6 +702,7 @@ div:has(legend) {
       overflow: hidden;
       display: flex;
       flex-direction: column;
+      align-items: baseline;
       gap: 2px;
 
       & p {
@@ -699,6 +730,29 @@ div:has(legend) {
       & .info-badge {
         font-size: 0.8rem;
         line-height: 1;
+      }
+    }
+
+    .config-selection & {
+      gap: var(--hub-config-confirm-space-small);
+      padding-inline-start: var(--hub-config-confirm-space-large);
+
+      & .config-item-data {
+        flex-wrap: nowrap;
+        flex-direction: row;
+        gap: var(--hub-config-confirm-space-small);
+        inline-size: 100%;
+        justify-content: flex-start;
+
+        .config-row & {
+          flex-wrap: wrap;
+        }
+
+        & .title {
+          /* Ensure labels don't get truncated */
+          overflow: visible;
+          font-size: 0.9rem;
+        }
       }
     }
   }
@@ -831,6 +885,17 @@ div:has(legend) {
 .custom-action-container {
   grid-column: 1 / -1;
   text-align: end;
+  margin-block-start: calc(var(--space-step) * 6);
+  padding-block-end: var(--hub-config-confirm-space-medium);
+
+  .credentials-confirmation & {
+    padding-block-end: var(--hub-config-confirm-space-small);
+  }
+
+  & .button.link-button {
+    min-block-size: 0;
+    font-size: 0.9rem;
+  }
 }
 
 .email-input-container {

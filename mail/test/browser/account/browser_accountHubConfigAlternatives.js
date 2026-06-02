@@ -48,6 +48,28 @@ add_task(async function test_account_oauth_imap_account() {
     "Should show replaced host on incoming config."
   );
 
+  Assert.equal(
+    configFoundTemplate.querySelector("#incomingPort").textContent,
+    "143",
+    "Should show expected port on IMAP config."
+  );
+
+  Assert.equal(
+    configFoundTemplate.l10n.getAttributes(
+      configFoundTemplate.querySelector("#incomingSocketType")
+    ).id,
+    "account-hub-result-no-encryption",
+    "Should show expected socket type on IMAP config."
+  );
+
+  Assert.equal(
+    configFoundTemplate.l10n.getAttributes(
+      configFoundTemplate.querySelector("#authenticationType")
+    ).id,
+    "account-hub-result-auth-oauth2",
+    "Should show expected authentication type on IMAP config."
+  );
+
   EventUtils.synthesizeMouseAtCenter(
     configFoundTemplate.querySelector("#pop3 input"),
     {}
@@ -63,6 +85,28 @@ add_task(async function test_account_oauth_imap_account() {
     configFoundTemplate.querySelector("#incomingHost").textContent,
     "atest.test",
     "Should show replaced host on incoming config."
+  );
+
+  Assert.equal(
+    configFoundTemplate.querySelector("#incomingPort").textContent,
+    "143",
+    "Should show expected port on POP3 config."
+  );
+
+  Assert.equal(
+    configFoundTemplate.l10n.getAttributes(
+      configFoundTemplate.querySelector("#incomingSocketType")
+    ).id,
+    "account-hub-result-starttls",
+    "Should show expected socket type on POP3 config."
+  );
+
+  Assert.equal(
+    configFoundTemplate.l10n.getAttributes(
+      configFoundTemplate.querySelector("#authenticationType")
+    ).id,
+    "account-hub-result-auth-password",
+    "Should show expected authentication type on POP3 config."
   );
 
   await subtest_clear_status_bar();

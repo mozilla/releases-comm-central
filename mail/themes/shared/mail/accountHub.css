@@ -420,7 +420,7 @@ header {
   }
 
   &.auto-config-body {
-    max-inline-size: 650px;
+    max-inline-size: 750px;
   }
 
   &.manual-form-body {

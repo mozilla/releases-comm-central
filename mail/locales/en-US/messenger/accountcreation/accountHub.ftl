@@ -69,11 +69,13 @@ account-hub-email-continue-button = Continue
 
 account-hub-email-confirm-button = Confirm
 
-account-hub-result-incoming-server-legend = Incoming server
-    .title = Incoming server
+account-hub-result-incoming-legend = Incoming
+    .title = Incoming
 
-account-hub-result-outgoing-server-legend = Outgoing server
-    .title = Outgoing server
+account-hub-result-outgoing-legend = Outgoing
+    .title = Outgoing
+
+account-hub-all-servers-legend = All servers
 
 account-hub-protocol-label = Protocol
 
@@ -81,6 +83,32 @@ account-hub-result-hostname-label = Hostname
     .title = Hostname
 
 account-hub-result-socket-type-label = Connection security
+
+account-hub-servers-username-label = Username:
+    .title = Username
+
+account-hub-result-server-label = Server:
+    .title = Server
+
+account-hub-result-port-label = Port:
+
+account-hub-result-security-label = Security:
+
+account-hub-result-authentication-type-label = Authentication:
+
+account-hub-result-auth-none = None
+
+account-hub-result-auth-password = Normal Password
+
+account-hub-result-auth-encrypted-password = Encrypted Password
+
+account-hub-result-auth-gssapi = Kerberos
+
+account-hub-result-auth-ntlm = NTLM
+
+account-hub-result-auth-external = External
+
+account-hub-result-auth-oauth2 = OAuth2
 
 account-hub-on-port-label = Port
 
@@ -162,6 +190,12 @@ account-hub-result-graph-description = Use Microsoft Graph API to sync your fold
 account-hub-result-exchange-description = Sync folders & emails with Exchange or Office 365
 
 account-hub-result-ews-text = Server
+
+# Expanded text used in Account Confirmation page heading
+
+account-hub-result-ews-expanded-text = Exchange Web Services
+
+account-hub-result-graph-expanded-text = Graph API
 
 account-hub-result-recommended-label = Recommended
 

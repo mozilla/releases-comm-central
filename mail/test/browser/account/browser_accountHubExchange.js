@@ -174,9 +174,19 @@ add_task(async function test_exchange_requires_credentials_account_creation() {
   ]);
 
   Assert.equal(
-    configFoundTemplate.querySelector("#incomingType").textContent,
-    "ews",
+    configFoundTemplate.l10n.getAttributes(
+      configFoundTemplate.querySelector("#incomingType")
+    ).id,
+    "account-hub-result-ews-expanded-text",
     "Incoming type should be expected type"
+  );
+
+  Assert.equal(
+    configFoundTemplate.l10n.getAttributes(
+      configFoundTemplate.querySelector("#incomingTypeText")
+    ).id,
+    "account-hub-result-ews-text",
+    "Incoming heading should be expected for EWS config"
   );
 
   Assert.equal(
@@ -190,13 +200,42 @@ add_task(async function test_exchange_requires_credentials_account_creation() {
       configFoundTemplate.querySelector("#incomingSocketType")
     ).id,
     "account-hub-result-ssl",
-    "Incoming auth should be expected auth"
+    "Incoming socket type should be expected type"
+  );
+
+  Assert.equal(
+    configFoundTemplate.l10n.getAttributes(
+      configFoundTemplate.querySelector("#authenticationType")
+    ).id,
+    "account-hub-result-auth-password",
+    "Authentication type should be expected type"
   );
 
   Assert.equal(
     configFoundTemplate.querySelector("#incomingUsername").textContent,
     USER,
     "Incoming username should be expected username"
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(
+      configFoundTemplate.querySelector("#incomingPortConfig")
+    ),
+    "Incoming port should be hidden for EWS"
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(
+      configFoundTemplate.querySelector("#outgoingConfig")
+    ),
+    "Outgoing config should be hidden for EWS"
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(
+      configFoundTemplate.querySelector("#allServersHeading")
+    ),
+    "All servers heading should be hidden for EWS"
   );
 
   await Services.logins.removeAllLoginsAsync();
@@ -260,9 +299,19 @@ add_task(
     ]);
 
     Assert.equal(
-      configFoundTemplate.querySelector("#incomingType").textContent,
-      "ews",
-      "Incoming type should be expected type"
+      configFoundTemplate.l10n.getAttributes(
+        configFoundTemplate.querySelector("#incomingType")
+      ).id,
+      "account-hub-result-ews-expanded-text",
+      "Incoming server type should be expected type"
+    );
+
+    Assert.equal(
+      configFoundTemplate.l10n.getAttributes(
+        configFoundTemplate.querySelector("#incomingTypeText")
+      ).id,
+      "account-hub-result-ews-text",
+      "Incoming heading should be expected for EWS config"
     );
 
     Assert.equal(
@@ -276,13 +325,42 @@ add_task(
         configFoundTemplate.querySelector("#incomingSocketType")
       ).id,
       "account-hub-result-ssl",
-      "Incoming auth should be expected auth"
+      "Incoming socket type should be expected type"
+    );
+
+    Assert.equal(
+      configFoundTemplate.l10n.getAttributes(
+        configFoundTemplate.querySelector("#authenticationType")
+      ).id,
+      "account-hub-result-auth-password",
+      "Authentication type should be expected type"
     );
 
     Assert.equal(
       configFoundTemplate.querySelector("#incomingUsername").textContent,
       "testExchange@exchange.test",
       "Incoming username should be expected username"
+    );
+
+    Assert.ok(
+      BrowserTestUtils.isHidden(
+        configFoundTemplate.querySelector("#incomingPortConfig")
+      ),
+      "Incoming port should be hidden for EWS"
+    );
+
+    Assert.ok(
+      BrowserTestUtils.isHidden(
+        configFoundTemplate.querySelector("#outgoingConfig")
+      ),
+      "Outgoing config should be hidden for EWS"
+    );
+
+    Assert.ok(
+      BrowserTestUtils.isHidden(
+        configFoundTemplate.querySelector("#allServersHeading")
+      ),
+      "All servers heading should be hidden for EWS"
     );
 
     const footerBack = dialog.querySelector("#emailFooter #back");
@@ -661,9 +739,62 @@ add_task(async function test_full_exchange_account_creation() {
   ]);
 
   Assert.equal(
-    configFoundTemplate.querySelector("#incomingType").textContent,
-    "ews",
+    configFoundTemplate.l10n.getAttributes(
+      configFoundTemplate.querySelector("#incomingType")
+    ).id,
+    "account-hub-result-ews-expanded-text",
     "Incoming type should be expected type"
+  );
+
+  Assert.equal(
+    configFoundTemplate.l10n.getAttributes(
+      configFoundTemplate.querySelector("#incomingTypeText")
+    ).id,
+    "account-hub-result-ews-text",
+    "Incoming heading should be expected for EWS config"
+  );
+
+  Assert.equal(
+    configFoundTemplate.l10n.getAttributes(
+      configFoundTemplate.querySelector("#incomingSocketType")
+    ).id,
+    "account-hub-result-ssl",
+    "Incoming socket type should be expected type"
+  );
+
+  Assert.equal(
+    configFoundTemplate.l10n.getAttributes(
+      configFoundTemplate.querySelector("#authenticationType")
+    ).id,
+    "account-hub-result-auth-password",
+    "Authentication type should be expected type"
+  );
+
+  Assert.equal(
+    configFoundTemplate.querySelector("#incomingUsername").textContent,
+    "testExchange@exchange.test",
+    "Incoming username should be expected username"
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(
+      configFoundTemplate.querySelector("#incomingPortConfig")
+    ),
+    "Incoming port should be hidden for EWS"
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(
+      configFoundTemplate.querySelector("#outgoingConfig")
+    ),
+    "Outgoing config should be hidden for EWS"
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(
+      configFoundTemplate.querySelector("#allServersHeading")
+    ),
+    "All servers heading should be hidden for EWS"
   );
 
   EventUtils.synthesizeMouseAtCenter(footerForward, {});

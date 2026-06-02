@@ -398,6 +398,18 @@ function subtest_config_results(template, configType) {
   );
 
   Assert.equal(
+    template.querySelector("#incomingPort").textContent,
+    configType === "pop" ? "995" : "993",
+    `${configType}: Incoming port should be as expected`
+  );
+
+  Assert.equal(
+    template.querySelector("#outgoingPort").textContent,
+    "465",
+    `${configType}: Outgoing port should be as expected`
+  );
+
+  Assert.equal(
     template.l10n.getAttributes(template.querySelector("#incomingSocketType"))
       .id,
     "account-hub-result-ssl",
@@ -405,22 +417,16 @@ function subtest_config_results(template, configType) {
   );
 
   Assert.equal(
-    template.l10n.getAttributes(template.querySelector("#outgoingSocketType"))
+    template.l10n.getAttributes(template.querySelector("#authenticationType"))
       .id,
-    "account-hub-result-ssl",
-    `${configType}: Outgoing socketType should be as expected`
+    "account-hub-result-auth-password",
+    `${configType}: Authentication type should be expected`
   );
 
   Assert.equal(
     template.querySelector("#incomingUsername").textContent,
     "john.doe",
     `${configType}: Incoming username should be expected username`
-  );
-
-  Assert.equal(
-    template.querySelector("#outgoingUsername").textContent,
-    "john.doe",
-    `${configType}: Outgoing username should be expected username`
   );
 }
 

@@ -53,87 +53,106 @@
               <div class="config-text" data-l10n-id="account-hub-result-exchange-description"></div>
             </label>
           </fieldset>
-          <div id="configSelection" class="form-selection">
-            <div class="config-protocols selection-grid">
-              <div class="config-detail" id="incomingConfigType">
-                <img src="chrome://messenger/skin/icons/new/normal/incoming.svg" alt="" />
-                <div class="config-item-data">
-                  <p class="protocol-title" id="incomingType"></p>
-                  <p class="protocol-data" id="incomingTypeText" data-l10n-id="account-hub-result-incoming-server-legend"></p>
-                </div>
-              </div>
-              <div class="config-detail" id="outgoingConfigType" hidden="hidden">
-                <img src="chrome://messenger/skin/icons/new/normal/outgoing.svg" alt="" />
-                <div class="config-item-data">
-                  <p class="protocol-title" id="outgoingType"></p>
-                  <p class="protocol-data" data-l10n-id="account-hub-result-outgoing-server-legend"></p>
-                </div>
-              </div>
-            </div>
+          <div id="configSelection" class="form-selection config-selection">
             <div class="selection-grid">
-              <div class="config-column" id="incomingConfig">
-                <!-- Host -->
-                <div class="config-detail">
-                  <img class="config-item-icon lighter" src="chrome://messenger/skin/icons/new/compact/globe.svg" />
+              <div id="incomingConfig" class="config-column">
+                <div id="incomingConfigType" class="config-header">
+                  <img src="chrome://messenger/skin/icons/new/normal/incoming.svg" alt="" />
                   <div class="config-item-data">
-                    <p class="title" data-l10n-id="account-hub-result-hostname-label"></p>
-                    <p id="incomingHost" class="data"></p>
+                    <h3 id="incomingTypeText" class="header-title" data-l10n-id="account-hub-result-incoming-legend"></h3>
+                    <p id="incomingType" class="header-data"></p>
                   </div>
                 </div>
 
-                <!-- Connection security -->
-                <div class="config-detail">
-                  <img class="config-item-icon" src="chrome://messenger/skin/icons/new/compact/key.svg" />
-                  <div class="config-item-data">
-                    <p class="title" data-l10n-id="account-hub-result-socket-type-label"></p>
-                    <p id="incomingSocketType" class="data"></p>
-                  </div>
-                </div>
-
-                <!-- Username -->
-                <div class="config-detail">
-                  <img class="config-item-icon" src="chrome://messenger/skin/icons/new/compact/account-settings.svg" />
-                  <div class="config-item-data">
-                    <p class="title" data-l10n-id="account-hub-result-username-label"></p>
-                    <p id="incomingUsername" class="data"></p>
-                  </div>
-                </div>
-              </div>
-              <div class="config-column" id="outgoingConfig" hidden="hidden">
                 <!-- Host -->
                 <div class="config-detail">
                   <img class="config-item-icon" src="chrome://messenger/skin/icons/new/compact/globe.svg" />
                   <div class="config-item-data">
-                    <p class="title" data-l10n-id="account-hub-result-hostname-label"></p>
+                    <p class="title" data-l10n-id="account-hub-result-server-label"></p>
+                    <p id="incomingHost" class="data"></p>
+                  </div>
+                </div>
+
+                <!-- Port -->
+                <div id="incomingPortConfig" class="config-detail">
+                  <img class="config-item-icon" src="chrome://messenger/skin/icons/new/compact/conversation.svg" />
+                  <div class="config-item-data">
+                    <p class="title" data-l10n-id="account-hub-result-port-label"></p>
+                    <p id="incomingPort" class="data"></p>
+                  </div>
+                </div>
+              </div>
+
+              <div id="outgoingConfig" class="config-column" hidden="hidden">
+                <div id="outgoingConfigType" class="config-header" hidden="hidden">
+                  <img src="chrome://messenger/skin/icons/new/normal/outgoing.svg" alt="" />
+                  <div class="config-item-data">
+                    <h3 class="header-title" data-l10n-id="account-hub-result-outgoing-legend"></h3>
+                    <p id="outgoingType" class="header-data"></p>
+                  </div>
+                </div>
+
+                <!-- Host -->
+                <div class="config-detail">
+                  <img class="config-item-icon" src="chrome://messenger/skin/icons/new/compact/globe.svg" />
+                  <div class="config-item-data">
+                    <p class="title" data-l10n-id="account-hub-result-server-label"></p>
                     <p id="outgoingHost" class="data"></p>
                   </div>
                 </div>
 
+                <!-- Port -->
+                <div class="config-detail">
+                  <img class="config-item-icon" src="chrome://messenger/skin/icons/new/compact/conversation.svg" />
+                  <div class="config-item-data">
+                    <p class="title" data-l10n-id="account-hub-result-port-label"></p>
+                    <p id="outgoingPort" class="data"></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="config-common">
+              <div id="allServersHeading" class="config-header">
+                <h3 class="header-title" data-l10n-id="account-hub-all-servers-legend"></h3>
+              </div>
+
+              <!-- Username -->
+              <div class="config-detail">
+                <img class="config-item-icon" src="chrome://messenger/skin/icons/new/compact/account-settings.svg" />
+                <div class="config-item-data">
+                  <p class="title" data-l10n-id="account-hub-servers-username-label"></p>
+                  <p id="incomingUsername" class="data"></p>
+                </div>
+              </div>
+
+              <div class="config-row">
                 <!-- Connection security -->
                 <div class="config-detail">
-                  <img class="config-item-icon" src="chrome://messenger/skin/icons/new/compact/key.svg" />
+                  <img class="config-item-icon" src="chrome://messenger/skin/icons/new/compact/shield.svg" />
                   <div class="config-item-data">
-                    <p class="title" data-l10n-id="account-hub-result-socket-type-label"></p>
-                    <p id="outgoingSocketType" class="data"></p>
+                    <p class="title" data-l10n-id="account-hub-result-security-label"></p>
+                    <p id="incomingSocketType" class="data"></p>
                   </div>
                 </div>
 
-                <!-- Username -->
+                <!-- Authentication type -->
                 <div class="config-detail">
-                  <img class="config-item-icon" src="chrome://messenger/skin/icons/new/compact/account-settings.svg" />
+                  <img class="config-item-icon" src="chrome://messenger/skin/icons/new/compact/key.svg" />
                   <div class="config-item-data">
-                    <p class="title" data-l10n-id="account-hub-result-username-label"></p>
-                    <p id="outgoingUsername" class="data"></p>
+                    <p class="title" data-l10n-id="account-hub-result-authentication-type-label"></p>
+                    <p id="authenticationType" class="data"></p>
                   </div>
                 </div>
               </div>
-              <div class="custom-action-container">
-                <button id="editConfiguration"
-                        class="button link-button link-button-sm"
-                        type="button"
-                        data-l10n-id="account-hub-edit-configuration">
-                </button>
-              </div>
+            </div>
+
+            <div class="custom-action-container">
+              <button id="editConfiguration"
+                      class="button link-button link-button-sm"
+                      type="button"
+                      data-l10n-id="account-hub-edit-configuration">
+              </button>
             </div>
 
             <!-- Install Add-on Text -->

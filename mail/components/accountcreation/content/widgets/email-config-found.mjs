@@ -182,12 +182,23 @@ class EmailConfigFound extends AccountHubStep {
 
     const outgoing = this.#currentConfig.outgoing;
 
-    this.querySelector("#incomingType").textContent = incoming.type;
+    if (incoming.type === "ews" || incoming.type === "graph") {
+      document.l10n.setAttributes(
+        this.querySelector("#incomingType"),
+        `account-hub-result-${incoming.type}-expanded-text`
+      );
+    } else {
+      this.querySelector("#incomingType").removeAttribute("data-l10n-id");
+      this.querySelector("#incomingType").textContent = incoming.type;
+    }
+
     this.querySelector("#incomingHost").textContent = incoming.hostname;
     this.querySelector("#incomingUsername").textContent = incoming.username;
+    this.querySelector("#incomingPort").textContent = incoming.port;
     this.querySelector("#incomingType").title = incoming.type;
     this.querySelector("#incomingHost").title = incoming.hostname;
     this.querySelector("#incomingUsername").title = incoming.username;
+    this.querySelector("#incomingPort").title = incoming.port;
     this.querySelector("#owlExchangeDescription").hidden = true;
     this.querySelector("#editConfiguration").hidden = false;
     const incomingSocketType = InputSanitizer.translate(incoming.socketType, {
@@ -198,6 +209,25 @@ class EmailConfigFound extends AccountHubStep {
     document.l10n.setAttributes(
       this.querySelector("#incomingSocketType"),
       `account-hub-result-${incomingSocketType}`
+    );
+
+    const incomingAuthType = InputSanitizer.translate(
+      incoming.auth,
+      {
+        [Ci.nsMsgAuthMethod.none]: "none",
+        [Ci.nsMsgAuthMethod.passwordCleartext]: "password",
+        [Ci.nsMsgAuthMethod.passwordEncrypted]: "encrypted-password",
+        [Ci.nsMsgAuthMethod.GSSAPI]: "gssapi",
+        [Ci.nsMsgAuthMethod.NTLM]: "ntlm",
+        [Ci.nsMsgAuthMethod.External]: "external",
+        [Ci.nsMsgAuthMethod.secure]: "encrypted-password",
+        [Ci.nsMsgAuthMethod.OAuth2]: "oauth2",
+      },
+      "none"
+    );
+    document.l10n.setAttributes(
+      this.querySelector("#authenticationType"),
+      `account-hub-result-auth-${incomingAuthType}`
     );
 
     this.#selectedConfig = this.#currentConfig.copy();
@@ -218,6 +248,14 @@ class EmailConfigFound extends AccountHubStep {
         this.querySelector("#incomingTypeText"),
         "account-hub-result-ews-text"
       );
+
+      // Single-server configs (EWS/Graph/Exchange) don't present port details
+      // in this UI.
+      this.querySelector("#incomingPortConfig").hidden = true;
+
+      // Single-server configs don't need the shared "All servers" section
+      // heading.
+      this.querySelector("#allServersHeading").hidden = true;
 
       // Show OWL add-on installation option if incoming type is exchange
       // (not ews) and the add-on is not already installed.
@@ -244,28 +282,22 @@ class EmailConfigFound extends AccountHubStep {
     }
 
     this.querySelector("#configSelection").classList.remove("single");
-    document.l10n.setAttributes(
-      this.querySelector("#incomingTypeText"),
-      "account-hub-result-incoming-server-legend"
-    );
+    this.querySelector("#incomingPortConfig").hidden = false;
     this.querySelector("#outgoingConfigType").hidden = false;
     this.querySelector("#outgoingConfig").hidden = false;
 
     this.querySelector("#outgoingType").textContent = outgoing.type;
     this.querySelector("#outgoingHost").textContent = outgoing.hostname;
-    this.querySelector("#outgoingUsername").textContent = outgoing.username;
+    this.querySelector("#outgoingPort").textContent = outgoing.port;
     this.querySelector("#outgoingType").title = outgoing.type;
     this.querySelector("#outgoingHost").title = outgoing.hostname;
-    this.querySelector("#outgoingUsername").title = outgoing.username;
-    const outgoingSocketType = InputSanitizer.translate(outgoing.socketType, {
-      0: "no-encryption", // account-hub-result-no-encryption
-      2: "starttls", // account-hub-result-starttls
-      3: "ssl", // account-hub-result-ssl
-    });
+    this.querySelector("#outgoingPort").title = outgoing.port;
     document.l10n.setAttributes(
-      this.querySelector("#outgoingSocketType"),
-      `account-hub-result-${outgoingSocketType}`
+      this.querySelector("#incomingTypeText"),
+      "account-hub-result-incoming-legend"
     );
+
+    this.querySelector("#allServersHeading").hidden = false;
   }
 
   /**
