@@ -44,7 +44,7 @@ pub(crate) fn app_locales() -> Result<Vec<LanguageIdentifier>, nsresult> {
 /// Load our fluent resource
 pub(crate) fn fl_resource() -> Result<FluentResource, nsresult> {
     let ftl_template = MENUBAR_FILE.to_owned() + BRANDING_FILE;
-    let resource = FluentResource::try_new(ftl_template).map_err(|_| nserror::NS_ERROR_FAILURE)?;
+    let resource = FluentResource::try_new(ftl_template).or(Err(nserror::NS_ERROR_FAILURE))?;
 
     Ok(resource)
 }

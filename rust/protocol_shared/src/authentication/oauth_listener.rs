@@ -35,7 +35,7 @@ impl OAuthListener {
         let bearer = String::from(bearer.to_utf8());
         self.result
             .set(Ok(bearer))
-            .map_err(|_| nserror::NS_ERROR_UNEXPECTED)?;
+            .or(Err(nserror::NS_ERROR_UNEXPECTED))?;
 
         if let Some(waker) = self.waker.take() {
             waker.wake();
@@ -48,7 +48,7 @@ impl OAuthListener {
     fn on_failure(&self, err: nsresult) -> Result<(), nsresult> {
         self.result
             .set(Err(err))
-            .map_err(|_| nserror::NS_ERROR_UNEXPECTED)?;
+            .or(Err(nserror::NS_ERROR_UNEXPECTED))?;
 
         if let Some(waker) = self.waker.take() {
             waker.wake();

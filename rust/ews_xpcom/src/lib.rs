@@ -152,13 +152,13 @@ impl XpcomEwsBridge {
         endpoint: &nsACString,
         server: &nsIMsgIncomingServer,
     ) -> Result<(), nsresult> {
-        let endpoint_url = Url::parse(&endpoint.to_utf8()).map_err(|_| NS_ERROR_INVALID_ARG)?;
+        let endpoint_url = Url::parse(&endpoint.to_utf8()).or(Err(NS_ERROR_INVALID_ARG))?;
         let server = RefPtr::new(server);
 
         let client = XpComEwsClient::new(endpoint_url, server)?;
         self.client
             .set(Arc::new(client))
-            .map_err(|_| NS_ERROR_ALREADY_INITIALIZED)?;
+            .or(Err(NS_ERROR_ALREADY_INITIALIZED))?;
 
         // If the client successfully initialized and the user is connecting to an Office365
         // account, set the pref value to indicate that they've set up an Office365+EWS account.
@@ -706,12 +706,10 @@ impl XpcomEwsBridge {
 /// * `endpoint` - The EWS endpoint URL string
 fn maybe_set_ews_o365_pref(endpoint: &nsACString) -> Result<(), nsresult> {
     // Parse the endpoint URL. If parsing fails, we can't determine the server type.
-    let server_url = Url::parse(&endpoint.to_utf8()).map_err(|_| NS_ERROR_INVALID_ARG)?;
+    let server_url = Url::parse(&endpoint.to_utf8()).or(Err(NS_ERROR_INVALID_ARG))?;
 
     // Extract the host (domain) from the URL. This matches the behavior in `record_telemetry`.
-    let domain = server_url
-        .host_str()
-        .ok_or_else(|| nserror::NS_ERROR_INVALID_ARG)?;
+    let domain = server_url.host_str().ok_or(nserror::NS_ERROR_INVALID_ARG)?;
 
     // Check if the domain ends with any of the known Office365 base domains.
     if OFFICE365_BASE_DOMAINS
@@ -719,7 +717,7 @@ fn maybe_set_ews_o365_pref(endpoint: &nsACString) -> Result<(), nsresult> {
         .any(|o365_base_domain| domain.ends_with(o365_base_domain))
     {
         // Set the preference to indicate this is an Office365+EWS account.
-        let root_pref_branch = get_root_pref_branch().map_err(|_| nserror::NS_ERROR_FAILURE)?;
+        let root_pref_branch = get_root_pref_branch().or(Err(nserror::NS_ERROR_FAILURE))?;
         // SAFETY: get_root_pref_branch will only return Ok with a non-null pointer.
         unsafe {
             root_pref_branch.SetBoolPref(c"mail.exchange.hasMicrosoft365EwsAccount".as_ptr(), true);

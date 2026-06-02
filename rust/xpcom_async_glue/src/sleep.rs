@@ -61,7 +61,7 @@ impl SleepTimer {
         let duration: u32 = duration
             .as_millis()
             .try_into()
-            .map_err(|_| NS_ERROR_INVALID_ARG)?;
+            .or(Err(NS_ERROR_INVALID_ARG))?;
 
         unsafe {
             timer.InitWithCallback(sleeper.coerce(), duration, nsITimer::TYPE_ONE_SHOT as u32)

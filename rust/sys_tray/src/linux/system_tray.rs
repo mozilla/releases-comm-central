@@ -28,7 +28,7 @@ pub struct SystemTray {
 
 /// Locate an icon resource on disk
 pub(crate) fn locate_icon_on_system(path: &'static str) -> Result<String, nsresult> {
-    let our_binary = env::current_exe().map_err(|_| nserror::NS_ERROR_FILE_NOT_FOUND)?;
+    let our_binary = env::current_exe().or(Err(nserror::NS_ERROR_FILE_NOT_FOUND))?;
     let binary_dir = our_binary
         .parent()
         .ok_or(nserror::NS_ERROR_FILE_NOT_FOUND)?;
@@ -38,7 +38,7 @@ pub(crate) fn locate_icon_on_system(path: &'static str) -> Result<String, nsresu
         .join("icons")
         .join("default")
         .join(path);
-    let result = fs::canonicalize(path).map_err(|_| nserror::NS_ERROR_FILE_NOT_FOUND)?;
+    let result = fs::canonicalize(path).or(Err(nserror::NS_ERROR_FILE_NOT_FOUND))?;
 
     Ok(result.to_string_lossy().to_string())
 }

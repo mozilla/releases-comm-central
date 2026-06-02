@@ -87,7 +87,7 @@ impl BufferingStreamListener {
         let mut inner = self.buf.borrow_mut();
         inner
             .write_all(read_sink)
-            .map_err(|_| nserror::NS_ERROR_FAILURE)?;
+            .or(Err(nserror::NS_ERROR_FAILURE))?;
 
         // We don't want to wake the future just yet because the request hasn't
         // finished yet.
@@ -132,7 +132,7 @@ impl BufferingStreamListener {
     pub fn read(&self, dest: &mut [u8]) -> Result<usize, nsresult> {
         let mut buf = self.buf.borrow_mut();
 
-        let read = buf.read(dest).map_err(|_| nserror::NS_ERROR_FAILURE)?;
+        let read = buf.read(dest).or(Err(nserror::NS_ERROR_FAILURE))?;
 
         Ok(read)
     }
