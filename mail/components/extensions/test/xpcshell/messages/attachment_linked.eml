@@ -1,0 +1,37 @@
+Message-ID: <attachment_linked_cloudFile@mime.sample>
+Date: Wed, 29 May 2024 15:26:47 +0200
+MIME-Version: 1.0
+From: John <john@invalid.com>
+To: user@invalid
+Subject: attachment_linked_cloudFile
+Content-Language: en-US
+Content-Type: multipart/mixed; boundary="----NextPart_1234"
+
+This is a multi-part message in MIME format.
+
+------NextPart_1234
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+This is the text body.
+
+------NextPart_1234
+Content-Type: image/jpeg; name="123456.jpg"; size=12555
+Content-Disposition: attachment; filename="123456.jpg"
+X-Mozilla-External-Attachment-URL: https://example.com/img/123456.jpg
+
+This MIME attachment is stored separately from the message:
+https://example.com/img/123456.jpg
+
+------NextPart_1234
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="[important.pdf] cloudFile.txt"
+X-Mozilla-Cloud-Part: cloudFile;
+ url=https://example.com/download/important.pdf;
+ name*=UTF-8''%69%6D%70%6F%72%74%61%6E%74%20%E2%9C%93%2E%70%64%66;
+
+This MIME attachment is stored separately from the message:
+https://example.com/download/important.pdf
+
+------NextPart_1234--

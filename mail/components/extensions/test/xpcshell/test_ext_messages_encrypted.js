@@ -254,6 +254,7 @@ add_task(async function test_openpgp_enc_nested_messages() {
           [
             {
               contentDisposition: "attachment",
+              type: "normal",
               contentType: "message/rfc822",
               headers: {
                 "content-type": [
@@ -288,6 +289,7 @@ add_task(async function test_openpgp_enc_nested_messages() {
             },
             {
               contentDisposition: "attachment",
+              type: "normal",
               contentType: "image/png",
               headers: {
                 "content-type": ["image/png;"],
@@ -452,6 +454,7 @@ add_task(async function test_openpgp_enc_nested_messages() {
           [
             {
               contentDisposition: "attachment",
+              type: "normal",
               contentType: "image/png",
               headers: {
                 "content-type": ['image/png;\tname="whitePixel.png"'],
@@ -466,6 +469,7 @@ add_task(async function test_openpgp_enc_nested_messages() {
             },
             {
               contentDisposition: "attachment",
+              type: "normal",
               contentType: "image/png",
               headers: {
                 "content-type": ['image/png;\tname="greenPixel.png"'],
@@ -478,6 +482,7 @@ add_task(async function test_openpgp_enc_nested_messages() {
             },
             {
               contentDisposition: "attachment",
+              type: "normal",
               contentType: "image/png",
               headers: {
                 "content-type": ["image/png"],
@@ -490,6 +495,7 @@ add_task(async function test_openpgp_enc_nested_messages() {
             },
             {
               contentDisposition: "attachment",
+              type: "normal",
               contentType: "message/rfc822",
               headers: {
                 "content-type": [
@@ -668,6 +674,7 @@ add_task(async function test_openpgp_enc_nested_messages() {
           [
             {
               contentDisposition: "attachment",
+              type: "normal",
               contentType: "image/png",
               headers: {
                 "content-type": ['image/png;  name="whitePixel.png"'],
@@ -1045,6 +1052,7 @@ add_task(async function test_openpgp_enc_msg_attachment() {
           [
             {
               contentDisposition: "attachment",
+              type: "normal",
               contentType: "text/plain",
               headers: {
                 "content-type": [

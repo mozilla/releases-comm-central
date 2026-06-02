@@ -245,6 +245,89 @@ function convertMessagePart(
 }
 
 /**
+ * @typedef AttachmentTypeEntries
+ *
+ * @property {"normal"|"detached"|"deleted"|"linked"|"cloudFile"} type
+ * @property {?string} linkUrl - the remote url of a linked attachment
+ * @property {?string} cloudFileUrl - the remote url of a cloudFile attachment
+ * @property {?string} name - for a cloudFile attachment, its real name (taken
+ *   from the X-Mozilla-Cloud-Part header), which overrides the in-message name
+ * @see mail/components/extensions/schemas/messages.json
+ */
+
+/**
+ * Takes a MimeTreePart of an attachment and returns the type entries needed for
+ * the WebExtension MessageAttachment: where the attachment's content is stored,
+ * and the remote url (and real name) for linked or cloudFile attachments.
+ *
+ * @param {MimeTreePart} mimeTreePart
+ * @returns {AttachmentTypeEntries}
+ */
+function getAttachmentTypeEntries(mimeTreePart) {
+  const getValue = entry => (Array.isArray(entry) ? entry[0] : entry);
+
+  if (mimeTreePart.headers.has("x-mozilla-altered")) {
+    const altered = getValue(mimeTreePart.headers.get("x-mozilla-altered"));
+    if (altered == "AttachmentDeleted") {
+      return { type: "deleted" };
+    }
+    if (altered == "AttachmentDetached") {
+      return { type: "detached" };
+    }
+  }
+
+  if (mimeTreePart.headers.has("x-mozilla-external-attachment-url")) {
+    const url = getValue(
+      mimeTreePart.headers.get("x-mozilla-external-attachment-url")
+    );
+    try {
+      // Skip invalid file:// urls.
+      if (new URL(url).protocol != "file:") {
+        return { type: "linked", linkUrl: url };
+      }
+    } catch (ex) {
+      console.error(
+        `Failed to retrieve external attachment info from x-mozilla-external-attachment-url header: ${url}`
+      );
+    }
+  }
+
+  if (mimeTreePart.headers.has("x-mozilla-cloud-part")) {
+    const header = getValue(mimeTreePart.headers.get("x-mozilla-cloud-part"));
+    try {
+      const parsedHeader = MimeParser.parseHeaderField(
+        header,
+        MimeParser.HEADER_PARAMETER | MimeParser.HEADER_OPTION_DECODE_2231
+      );
+      // Skip invalid file:// urls.
+      if (
+        parsedHeader.preSemi == "cloudFile" &&
+        new URL(parsedHeader.get("url")).protocol != "file:"
+      ) {
+        const entries = {
+          type: "cloudFile",
+          cloudFileUrl: parsedHeader.get("url"),
+        };
+        // The real name of a cloudFile attachment differs from the placeholder
+        // name in the message. Surface it as the attachment's name when the
+        // header provides one, otherwise keep the in-message name.
+        const name = parsedHeader.get("name");
+        if (name) {
+          entries.name = name;
+        }
+        return entries;
+      }
+    } catch (ex) {
+      console.error(
+        `Failed to retrieve cloudFile attachment info from x-mozilla-cloud-part header: ${header}`
+      );
+    }
+  }
+
+  return { type: "normal" };
+}
+
+/**
  * Takes a MimeTreePart of an attachment and returns a WebExtension MessageAttachment.
  *
  * @param {nsIMsgDBHdr} msgHdr - the msgHdr of the attachment's message
@@ -269,6 +352,9 @@ async function convertAttachment(msgHdr, mimeTreePart, extension) {
     name: mimeTreePart.name || "",
     partName: mimeTreePart.partNum,
     size: mimeTreePart.size,
+    // Spread after `name` so a cloudFile attachment's real name overrides the
+    // in-message placeholder name.
+    ...getAttachmentTypeEntries(mimeTreePart),
   };
 
   // If it is an attached message, create a dummy msgHdr for it.

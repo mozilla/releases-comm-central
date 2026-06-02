@@ -272,6 +272,12 @@
         }
       },
       {
+        "id": "AttachmentType",
+        "type": "string",
+        "enum": ["normal", "detached", "deleted", "linked", "cloudFile"],
+        "description": "The type of an attachment in a message."
+      },
+      {
         "id": "MessageAttachment",
         "type": "object",
         "description": "Represents an attachment in a message.",
@@ -284,13 +290,17 @@
             "type": "string",
             "description": "The content type of the attachment. A value of <var>text/x-moz-deleted</var> indicates that the original attachment was permanently deleted and replaced by a placeholder text attachment with some meta information about the original attachment."
           },
+          "type": {
+            "$ref": "messages.AttachmentType",
+            "description": "The type of this attachment."
+          },
           "headers": {
             "$ref": "messages.HeadersDictionary",
             "description": "A <em>dictionary object</em> of RFC 2047 decoded attachment headers as <em>key-value</em> pairs, with the header name as <em>key</em>, and an array of headers as <em>value</em>."
           },
           "name": {
             "type": "string",
-            "description": "The name, as displayed to the user, of this attachment. This is usually but not always the filename of the attached file."
+            "description": "The name, as displayed to the user, of this attachment. This is usually but not always the filename of the attached file. For a <var>cloudFile</var> attachment, this is the real name of the linked file, when the message provides one."
           },
           "partName": {
             "type": "string",
@@ -299,6 +309,16 @@
           "size": {
             "type": "integer",
             "description": "The size in bytes of this attachment."
+          },
+          "linkUrl": {
+            "type": "string",
+            "optional": true,
+            "description": "The remote location the attachment's content is linked to. Present for <var>linked</var> attachments (see $(ref:messages.AttachmentType)), whose content is not part of the message and can be fetched from this url."
+          },
+          "cloudFileUrl": {
+            "type": "string",
+            "optional": true,
+            "description": "The remote location a <var>cloudFile</var> attachment's content is stored at. Present for <var>cloudFile</var> attachments (see $(ref:messages.AttachmentType)), whose content is not part of the message."
           },
           "contentId": {
             "type": "string",

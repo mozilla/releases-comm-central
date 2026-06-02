@@ -334,7 +334,10 @@ export var MsgUtils = {
   getXMozillaCloudPart(deliverMode, attachment) {
     let value = "";
     if (attachment.sendViaCloud && attachment.contentLocation) {
-      value += `cloudFile; url=${attachment.contentLocation}`;
+      value += `cloudFile; url=${attachment.contentLocation}; ${this.rfc2231ParamFolding(
+        "name",
+        attachment.name
+      )}`;
 
       if (
         (deliverMode == Ci.nsIMsgSend.nsMsgSaveAsDraft ||

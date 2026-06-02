@@ -583,6 +583,7 @@ async function testContentHeaders() {
     "X-Mozilla-Cloud-Part":
       "cloudFile; " +
       "url=http://localhost.invalid/; " +
+      'name="attachment.html"; ' +
       "provider=akey; " +
       'data="0123456789ABCDE"',
   };
@@ -605,6 +606,7 @@ async function testContentHeaders() {
     "X-Mozilla-Cloud-Part":
       "cloudFile; " +
       "url=http://localhost.invalid/; " +
+      "name*=UTF-8''%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB%2E%74%78%74; " +
       "provider=akey; " +
       'data="0123456789ABCDE"',
   };
@@ -773,7 +775,8 @@ async function testSentMessage() {
       daemon.post,
       {
         "Content-Type": "text/html; charset=utf-8",
-        "X-Mozilla-Cloud-Part": "cloudFile; url=http://localhost.invalid/",
+        "X-Mozilla-Cloud-Part":
+          'cloudFile; url=http://localhost.invalid/; name="attachment.html"',
       },
       "2"
     );

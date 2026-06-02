@@ -87,6 +87,11 @@ add_setup(
       _testFolder1,
       do_get_file("messages/nestedMessageNoContentDispositionHeader.eml").path
     );
+    // A message with linked attachments.
+    await createMessageFromFile(
+      _testFolder1,
+      do_get_file("messages/attachment_linked.eml").path
+    );
 
     // A binary attachment marked as inline.
     await createMessageFromFile(
@@ -144,8 +149,10 @@ add_task(
         "background.js": async () => {
           const [account] = await browser.accounts.list();
           const testFolder = account.folders.find(f => f.name == "test1");
-          const { messages } = await browser.messages.list(testFolder.id);
-          browser.test.assertEq(9, messages.length);
+          const messages = (
+            await browser.messages.list(testFolder.id)
+          ).messages.sort((a, b) => a.id - b.id);
+          browser.test.assertEq(10, messages.length);
 
           let attachments, attachment, file;
 
@@ -233,6 +240,7 @@ add_task(
             [
               {
                 contentDisposition: "attachment",
+                type: "normal",
                 contentType: "application/octet-stream",
                 headers: {
                   "content-type": [
@@ -247,6 +255,7 @@ add_task(
               },
               {
                 contentDisposition: "attachment",
+                type: "normal",
                 contentType: "text/plain",
                 headers: {
                   "content-type": [
@@ -342,6 +351,7 @@ add_task(
             [
               {
                 contentDisposition: "inline",
+                type: "normal",
                 contentType: "image/png",
                 name: "blue_pixel_1x1.png",
                 size: 179,
@@ -397,8 +407,10 @@ add_task(
         "background.js": async () => {
           const [account] = await browser.accounts.list();
           const testFolder = account.folders.find(f => f.name == "test1");
-          const { messages } = await browser.messages.list(testFolder.id);
-          browser.test.assertEq(9, messages.length);
+          const messages = (
+            await browser.messages.list(testFolder.id)
+          ).messages.sort((a, b) => a.id - b.id);
+          browser.test.assertEq(10, messages.length);
           const message = messages[4];
 
           function validateMessage(msg, expectedValues) {
@@ -705,8 +717,10 @@ add_task(
         "background.js": async () => {
           const [account] = await browser.accounts.list();
           const testFolder = account.folders.find(f => f.name == "test1");
-          const { messages } = await browser.messages.list(testFolder.id);
-          browser.test.assertEq(9, messages.length);
+          const messages = (
+            await browser.messages.list(testFolder.id)
+          ).messages.sort((a, b) => a.id - b.id);
+          browser.test.assertEq(10, messages.length);
           const message = messages[6];
 
           function validateMessage(msg, expectedValues) {
@@ -846,8 +860,10 @@ add_task(
         "background.js": async () => {
           const [account] = await browser.accounts.list();
           const testFolder = account.folders.find(f => f.name == "test1");
-          const { messages } = await browser.messages.list(testFolder.id);
-          browser.test.assertEq(9, messages.length);
+          const messages = (
+            await browser.messages.list(testFolder.id)
+          ).messages.sort((a, b) => a.id - b.id);
+          browser.test.assertEq(10, messages.length);
           const message = messages[8];
 
           function validateMessage(msg, expectedValues) {
@@ -987,8 +1003,10 @@ add_task(
         "background.js": async () => {
           const [account] = await browser.accounts.list();
           const testFolder = account.folders.find(f => f.name == "test1");
-          const { messages } = await browser.messages.list(testFolder.id);
-          browser.test.assertEq(9, messages.length);
+          const messages = (
+            await browser.messages.list(testFolder.id)
+          ).messages.sort((a, b) => a.id - b.id);
+          browser.test.assertEq(10, messages.length);
 
           async function checkAttachments(id, expected) {
             const attachments = await browser.messages.listAttachments(id);
@@ -1229,6 +1247,82 @@ add_task(
             1,
             textParts.length,
             "Should find the correct number of inline text parts"
+          );
+
+          browser.test.notifyPass("finished");
+        },
+        "utils.js": await getUtilsJS(),
+      },
+      manifest: {
+        background: { scripts: ["utils.js", "background.js"] },
+        permissions: ["accountsRead", "messagesRead"],
+      },
+    });
+
+    await extension.startup();
+    await extension.awaitFinish("finished");
+    await extension.unload();
+  }
+);
+
+add_task(
+  {
+    skip_if: () => IS_IMAP,
+  },
+  async function test_linked_attachments() {
+    const extension = ExtensionTestUtils.loadExtension({
+      files: {
+        "background.js": async () => {
+          const [testFolder] = await browser.folders.query({ name: "test1" });
+          const messages = (
+            await browser.messages.list(testFolder.id)
+          ).messages.sort((a, b) => a.id - b.id);
+          browser.test.assertEq(10, messages.length);
+
+          const attachments = await browser.messages.listAttachments(
+            messages[9].id
+          );
+          window.assertDeepEqual(
+            [
+              {
+                contentDisposition: "attachment",
+                contentType: "image/jpeg",
+                type: "linked",
+                linkUrl: "https://example.com/img/123456.jpg",
+                headers: {
+                  "content-type": ['image/jpeg; name="123456.jpg"; size=12555'],
+                  "content-disposition": ['attachment; filename="123456.jpg"'],
+                  "x-mozilla-external-attachment-url": [
+                    "https://example.com/img/123456.jpg",
+                  ],
+                },
+                name: "123456.jpg",
+                partName: "1.2",
+                size: 97,
+              },
+              {
+                contentDisposition: "attachment",
+                contentType: "text/plain",
+                type: "cloudFile",
+                cloudFileUrl: "https://example.com/download/important.pdf",
+                headers: {
+                  "content-type": ["text/plain; charset=utf-8"],
+                  "content-transfer-encoding": ["7bit"],
+                  "content-disposition": [
+                    'attachment; filename="[important.pdf] cloudFile.txt"',
+                  ],
+                  "x-mozilla-cloud-part": [
+                    "cloudFile; url=https://example.com/download/important.pdf; name*=UTF-8''%69%6D%70%6F%72%74%61%6E%74%20%E2%9C%93%2E%70%64%66;",
+                  ],
+                },
+                name: "important ✓.pdf",
+                partName: "1.3",
+                size: 105,
+              },
+            ],
+            attachments,
+            "Should find the correct attachments for the linked-attachments message",
+            { strict: true }
           );
 
           browser.test.notifyPass("finished");

@@ -11,6 +11,46 @@
     ],
     "types": [
       {
+        "id": "AttachmentType",
+        "enums": {
+          "normal": {
+            "annotations": [
+              {
+                "text": "A normal attachment."
+              }
+            ]
+          },
+          "detached": {
+            "annotations": [
+              {
+                "text": "The attachment's content is stored in a detached local file."
+              }
+            ]
+          },
+          "deleted": {
+            "annotations": [
+              {
+                "text": "The attachment's content was permanently removed and only a placeholder remains."
+              }
+            ]
+          },
+          "linked": {
+            "annotations": [
+              {
+                "text": "The attachment's content is not part of the message but referenced by a link."
+              }
+            ]
+          },
+          "cloudFile": {
+            "annotations": [
+              {
+                "text": "The attachment's content is not part of the message but stored by a cloud provider."
+              }
+            ]
+          }
+        }
+      },
+      {
         "id": "MessageHeader",
         "properties": {
           "priority": {
