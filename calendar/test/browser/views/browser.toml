@@ -1,4 +1,9 @@
 [DEFAULT]
+environment = [
+  # Set en-US. This doesn't work on all platforms but is only here to help
+  # developers match the CI environment.
+  "LC_ALL=en_US.UTF-8",
+]
 head = "head.js"
 prefs = [
   "calendar.item.promptDelete=false",

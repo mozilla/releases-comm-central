@@ -85,7 +85,7 @@ add_task(async function testWeekView() {
   Assert.ok(true, "Test ran to completion");
 });
 
-add_task(async function testStartOfWeek() {
+add_task(async function testWeekViewStartOfWeek() {
   await CalendarTestUtils.setCalendarView(window, "week");
 
   // Check the first day of the week is Thursday, set by the test manifest.
@@ -153,6 +153,91 @@ add_task(async function testStartOfWeek() {
   );
 });
 
+add_task(async function testWeekViewDateLabel() {
+  await CalendarTestUtils.setCalendarView(window, "week");
+  await CalendarTestUtils.goToDate(window, 2022, 4, 13);
+
+  const heading = CalendarTestUtils.weekView.getColumnHeading(window, 7);
+  const labelSpan = heading.querySelector("span:not([hidden])");
+
+  await document.l10n.translateRoots();
+  Assert.equal(
+    labelSpan.textContent,
+    "Wed Apr 13",
+    "the date label should contain the displayed date in a human-readable string"
+  );
+});
+
+add_task(async function testWeekViewCurrentDayHighlight() {
+  // When displaying days which are not the current week, there should be no
+  // highlight.
+  await CalendarTestUtils.setCalendarView(window, "week");
+  await CalendarTestUtils.goToDate(window, 2022, 4, 13);
+
+  for (let i = 1; i <= 7; i++) {
+    const container = CalendarTestUtils.weekView.getColumnContainer(window, i);
+    Assert.ok(
+      !container.classList.contains("day-column-today"),
+      "the displayed date should not be highlighted as the current day"
+    );
+  }
+
+  // When displaying the current week, it should be highlighted.
+  await CalendarTestUtils.goToToday(window);
+
+  const today = new Date();
+  for (let i = 1; i <= 7; i++) {
+    const container = CalendarTestUtils.weekView.getColumnContainer(window, i);
+    Assert.equal(
+      container.classList.contains("day-column-today"),
+      [4, 5, 6, 7, 1, 2, 3][today.getUTCDate()] == i,
+      "the displayed date should be highlighted as the current day"
+    );
+  }
+});
+
+add_task(async function testWeekViewWorkDayHighlight() {
+  // The test configuration sets Wednesday and Saturday as days off, so they
+  // should have the weekend background.
+  await CalendarTestUtils.setCalendarView(window, "week");
+  await CalendarTestUtils.goToDate(window, 2022, 4, 10);
+
+  for (let c = 1; c <= 7; c++) {
+    const isDayOff = [3, 7].includes(c);
+    const container = CalendarTestUtils.weekView.getColumnContainer(window, c);
+    Assert.equal(
+      container.classList.contains("day-column-weekend"),
+      isDayOff,
+      `the day at column ${c} ${isDayOff ? "should" : "should not"} be highlighted as day off`
+    );
+  }
+});
+
+add_task(async function testWeekViewNavbar() {
+  await CalendarTestUtils.setCalendarView(window, "week");
+  await CalendarTestUtils.goToDate(window, 2022, 4, 13);
+
+  const intervalDescription = CalendarTestUtils.getNavBarIntervalDescription(window);
+  Assert.ok(
+    ["Thursday, April 7 – Wednesday, April 13, 2022", "April 7 – 13, 2022"].includes(
+      intervalDescription.textContent
+    ),
+    "interval description should contain a description of the displayed week"
+  );
+
+  await document.l10n.translateRoots();
+
+  // Note that the value 14 here tests calculation of the calendar week based on
+  // the starting day of the week; if the calculation built in an assumption of
+  // Sunday or Monday as the starting day of the week, we would get 15 here.
+  const calendarWeek = CalendarTestUtils.getNavBarCalendarWeekBox(window);
+  Assert.equal(
+    calendarWeek.textContent,
+    "CW: 14",
+    "calendar week label should contain the displayed week"
+  );
+});
+
 function checkDisplayedDate(expectedFirst) {
   const displayedDate = CalendarTestUtils.weekView.getEventColumn(window, 1).date;
 
@@ -167,6 +252,17 @@ add_task(async function testWeekViewNavigationButtons() {
   const previousButton = document.getElementById("previousViewButton");
   const todayButton = CalendarTestUtils.getNavBarTodayButton(window);
   const nextButton = document.getElementById("nextViewButton");
+
+  Assert.deepEqual(
+    document.l10n.getAttributes(previousButton),
+    { id: "calendar-nav-button-prev-tooltip-week", args: null },
+    "previous button label should have the right tooltip"
+  );
+  Assert.deepEqual(
+    document.l10n.getAttributes(nextButton),
+    { id: "calendar-nav-button-next-tooltip-week", args: null },
+    "next button label should have the right tooltip"
+  );
 
   const thisWeek = new Date();
   thisWeek.setUTCDate(thisWeek.getUTCDate() - [3, 4, 5, 6, 0, 1, 2][thisWeek.getUTCDay()]);
@@ -201,7 +297,7 @@ add_task(async function testWeekViewNavigationButtons() {
   checkDisplayedDate(thisWeek);
 });
 
-add_task(async function testDayViewNavigationMenuItems() {
+add_task(async function testWeekViewNavigationMenuItems() {
   await CalendarTestUtils.setCalendarView(window, "week");
 
   async function openMenus(...menus) {

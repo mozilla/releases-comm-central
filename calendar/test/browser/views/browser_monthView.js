@@ -88,7 +88,7 @@ add_task(async function testMonthView() {
   Assert.ok(true, "Test ran to completion");
 });
 
-add_task(async function testStartOfWeek() {
+add_task(async function testMonthViewStartOfWeek() {
   await CalendarTestUtils.setCalendarView(window, "month");
 
   // Check the first day of the week is Thursday, set by the test manifest.
@@ -156,6 +156,84 @@ add_task(async function testStartOfWeek() {
     ["Thu", "Fri", "Sat", "Sun", "Mon", "Tue", "Wed"],
     "week day column labels should have been updated"
   );
+
+  const expectedTodayColumn = [3, 4, 5, 6, 0, 1, 2][new Date().getUTCDay()];
+  for (let i = 0; i < 7; i++) {
+    if (i == expectedTodayColumn) {
+      Assert.equal(
+        labels[i].getAttribute("relation"),
+        "today",
+        `column ${i} should have the "today" relation`
+      );
+      Assert.equal(
+        labels[i].firstElementChild.getAttribute("relation"),
+        "today",
+        `column ${i} should have the "today" relation`
+      );
+      Assert.equal(
+        labels[i].lastElementChild.getAttribute("relation"),
+        "today",
+        `column ${i} should have the "today" relation`
+      );
+    } else {
+      Assert.ok(
+        !labels[i].hasAttribute("relation"),
+        `column ${i} should not have the "today" relation`
+      );
+      Assert.ok(
+        !labels[i].firstElementChild.hasAttribute("relation"),
+        `column ${i} should not have the "today" relation`
+      );
+      Assert.ok(
+        !labels[i].lastElementChild.hasAttribute("relation"),
+        `column ${i} should not have the "today" relation`
+      );
+    }
+  }
+});
+
+add_task(async function testMonthViewWorkDayHighlight() {
+  // The test configuration sets Wednesday and Saturday as days off, so they
+  // should have the weekend background.
+  await CalendarTestUtils.setCalendarView(window, "month");
+  await CalendarTestUtils.goToDate(window, 2022, 4, 10);
+
+  for (let r = 1; r <= 4; r++) {
+    for (let c = 1; c <= 7; c++) {
+      const isDayOff = [3, 7].includes(c);
+      const container = CalendarTestUtils.monthView.getDayBox(window, r, c);
+      Assert.equal(
+        container.classList.contains("calendar-month-day-box-day-off"),
+        isDayOff,
+        `the day at row ${r}, column ${c} ${isDayOff ? "should" : "should not"} be highlighted as day off`
+      );
+    }
+  }
+});
+
+add_task(async function testMonthViewNavbar() {
+  await CalendarTestUtils.setCalendarView(window, "month");
+  await CalendarTestUtils.goToDate(window, 2022, 4, 13);
+
+  const intervalDescription = CalendarTestUtils.getNavBarIntervalDescription(window);
+  Assert.equal(
+    intervalDescription.textContent,
+    "April 2022",
+    "interval description should contain a description of the displayed month"
+  );
+
+  await document.l10n.translateRoots();
+
+  // Note that the value here tests calculation of the calendar week based on
+  // the starting day of the week; if the calculation built in an assumption of
+  // Sunday or Monday as the starting day of the week, we would get a different
+  // value here.
+  const calendarWeek = CalendarTestUtils.getNavBarCalendarWeekBox(window);
+  Assert.equal(
+    calendarWeek.textContent,
+    "CWs: 13-17",
+    "calendar week label should contain the displayed weeks"
+  );
 });
 
 function checkDisplayedDate(expectedFirst) {
@@ -172,6 +250,17 @@ add_task(async function testMonthViewNavigationButtons() {
   const previousButton = document.getElementById("previousViewButton");
   const todayButton = CalendarTestUtils.getNavBarTodayButton(window);
   const nextButton = document.getElementById("nextViewButton");
+
+  Assert.deepEqual(
+    document.l10n.getAttributes(previousButton),
+    { id: "calendar-nav-button-prev-tooltip-month", args: null },
+    "previous button label should have the right tooltip"
+  );
+  Assert.deepEqual(
+    document.l10n.getAttributes(nextButton),
+    { id: "calendar-nav-button-next-tooltip-month", args: null },
+    "next button label should have the right tooltip"
+  );
 
   const thisWeek = new Date();
   thisWeek.setUTCDate(1);

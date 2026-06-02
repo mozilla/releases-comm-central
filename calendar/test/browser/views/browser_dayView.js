@@ -109,7 +109,7 @@ add_task(async function testDayViewCurrentDayHighlight() {
   let container = CalendarTestUtils.dayView.getColumnContainer(window);
   Assert.ok(
     !container.classList.contains("day-column-today"),
-    "the displayed date should not be highlighted if it is not the current day"
+    "the displayed date should not be highlighted as the current day"
   );
 
   // When displaying the current day, it should be highlighted.
@@ -118,7 +118,7 @@ add_task(async function testDayViewCurrentDayHighlight() {
   container = CalendarTestUtils.dayView.getColumnContainer(window);
   Assert.ok(
     container.classList.contains("day-column-today"),
-    "the displayed date should be highlighted if it is the current day"
+    "the displayed date should be highlighted as the current day"
   );
 });
 
@@ -131,7 +131,7 @@ add_task(async function testDayViewWorkDayHighlight() {
   let container = CalendarTestUtils.dayView.getColumnContainer(window);
   Assert.ok(
     !container.classList.contains("day-column-weekend"),
-    "the displayed date should not be highlighted if it is a work day"
+    "the displayed date should be not be highlighted as a day off"
   );
 
   await CalendarTestUtils.goToDate(window, 2022, 4, 13);
@@ -139,7 +139,7 @@ add_task(async function testDayViewWorkDayHighlight() {
   container = CalendarTestUtils.dayView.getColumnContainer(window);
   Assert.ok(
     container.classList.contains("day-column-weekend"),
-    "the displayed date should be highlighted if it is not a work day"
+    "the displayed date should be highlighted as a day off"
   );
 });
 
@@ -193,6 +193,17 @@ add_task(async function testDayViewNavigationButtons() {
   const previousButton = document.getElementById("previousViewButton");
   const todayButton = CalendarTestUtils.getNavBarTodayButton(window);
   const nextButton = document.getElementById("nextViewButton");
+
+  Assert.deepEqual(
+    document.l10n.getAttributes(previousButton),
+    { id: "calendar-nav-button-prev-tooltip-day", args: null },
+    "previous button label should have the right tooltip"
+  );
+  Assert.deepEqual(
+    document.l10n.getAttributes(nextButton),
+    { id: "calendar-nav-button-next-tooltip-day", args: null },
+    "next button label should have the right tooltip"
+  );
 
   const yesterday = new Date();
   yesterday.setUTCHours(-2);
