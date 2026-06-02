@@ -857,14 +857,14 @@ export class MessageSend {
         content[index + 3] == 10
     );
     const header = new TextDecoder("UTF-8").decode(content.slice(0, bodyIndex));
-    let lastLinePruned = false;
+    let inBcc = false;
     let headerToWrite = "";
     for (const line of header.split("\r\n")) {
-      if (line.startsWith("Bcc") || (line.startsWith(" ") && lastLinePruned)) {
-        lastLinePruned = true;
+      if (line.startsWith("Bcc:") || (line.startsWith(" ") && inBcc)) {
+        inBcc = true;
         continue;
       }
-      lastLinePruned = false;
+      inBcc = false;
       headerToWrite += `${line}\r\n`;
     }
     const encodedHeader = new TextEncoder().encode(headerToWrite);
