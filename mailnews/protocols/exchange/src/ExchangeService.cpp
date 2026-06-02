@@ -100,6 +100,12 @@ NS_IMETHODIMP ExchangeService::GetUrlForUri(const nsACString& aMessageURI,
   nsAutoCString scheme;
   MOZ_TRY(messageURI->GetScheme(scheme));
 
+  // If the URI is already an "x-moz-{ews,graph}" URI, forward it as-is.
+  if (scheme.Equals("x-moz-ews") || scheme.Equals("x-moz-graph")) {
+    messageURI.forget(_retval);
+    return NS_OK;
+  }
+
   // At this point, the path to the message URI is expected to look like
   // /Path/To/Folder#MessageKey. With this format, if the user switches between
   // messages in the same folder, the docshell believes we're still in the same
@@ -121,11 +127,9 @@ NS_IMETHODIMP ExchangeService::GetUrlForUri(const nsACString& aMessageURI,
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsAutoCString channelScheme;
-  if (scheme.EqualsLiteral("ews-message") ||
-      scheme.EqualsLiteral("x-moz-ews")) {
+  if (scheme.EqualsLiteral("ews-message")) {
     channelScheme.Assign("x-moz-ews");
-  } else if (scheme.EqualsLiteral("graph-message") ||
-             scheme.EqualsLiteral("x-moz-graph")) {
+  } else if (scheme.EqualsLiteral("graph-message")) {
     channelScheme.Assign("x-moz-graph");
   }
 

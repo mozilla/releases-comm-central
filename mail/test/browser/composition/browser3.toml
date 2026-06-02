@@ -54,6 +54,8 @@ support-files = [
 # Tests in this folder are split across multiple manifests. When adding a test,
 # please put it in the manifest with its (alphabetical) neighbours.
 
+["browser_forwardContentExchange.js"]
+
 ["browser_forwardDefectiveCharset.js"]
 
 ["browser_forwardHeaders.js"]
