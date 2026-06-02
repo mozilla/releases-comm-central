@@ -144,8 +144,7 @@ class AccountHubSelect extends HTMLElement {
   }
 
   /**
-   *  Update the options based on
-   * the mutations observed.
+   * Update the options based on the mutations observed.
    *
    * @param {MutationRecord} mutationRecord - The mutation record for the
    *  observed changes.
@@ -155,10 +154,14 @@ class AccountHubSelect extends HTMLElement {
     const element = this.select.querySelector(`#${target.id}`);
     switch (mutationRecord.type) {
       case "attributes":
-        element.setAttribute(
-          mutationRecord.attributeName,
-          target.getAttribute(mutationRecord.attributeName)
-        );
+        if (!target.hasAttribute(mutationRecord.attributeName)) {
+          element.removeAttribute(mutationRecord.attributeName);
+        } else {
+          element.setAttribute(
+            mutationRecord.attributeName,
+            target.getAttribute(mutationRecord.attributeName)
+          );
+        }
         break;
       case "characterData":
         element.textContent = target.textContent;

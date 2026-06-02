@@ -5,7 +5,7 @@
 "use strict";
 
 const tabmail = document.getElementById("tabmail");
-let select;
+let select, browser;
 
 add_setup(async function () {
   const tab = tabmail.openTab("contentTab", {
@@ -14,6 +14,7 @@ add_setup(async function () {
 
   await BrowserTestUtils.browserLoaded(tab.browser);
   tab.browser.focus();
+  browser = tab.browser;
   select =
     tab.browser.contentWindow.document.querySelector("account-hub-select");
 
@@ -106,4 +107,38 @@ add_task(async function test_reflectsDisabled() {
   select.disabled = true;
 
   Assert.ok(select.disabled, "Select should be disabled");
+});
+
+add_task(async function test_mutatingOptionAttribute() {
+  let popupPromise = BrowserTestUtils.waitForSelectPopupShown(window);
+  await EventUtils.synthesizeMouseAtCenter(select, {}, browser.contentWindow);
+  let popup = await popupPromise;
+
+  const hiddenOption = select.shadowRoot.querySelector("#hiddenOption");
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(hiddenOption),
+    "Option with hidden attribute should be hidden"
+  );
+
+  popup.hidePopup();
+  await BrowserTestUtils.waitForPopupEvent(popup, "hidden");
+  await SimpleTest.promiseFocus(browser.contentWindow);
+
+  // Update option to be visible, which should make the option in the
+  // custom select element visible.
+  select.querySelector("#hiddenOption").hidden = false;
+  await BrowserTestUtils.waitForAttributeRemoval("hidden", hiddenOption);
+
+  popupPromise = BrowserTestUtils.waitForSelectPopupShown(window);
+  await EventUtils.synthesizeMouseAtCenter(select, {}, browser.contentWindow);
+  popup = await popupPromise;
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(hiddenOption),
+    "Option that had hidden attribute removed should be visible"
+  );
+
+  popup.hidePopup();
+  await BrowserTestUtils.waitForPopupEvent(popup, "hidden");
 });

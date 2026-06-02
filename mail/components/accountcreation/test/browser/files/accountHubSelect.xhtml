@@ -5,6 +5,8 @@
     <title>Account hub header element test</title>
     <link rel="stylesheet" href="chrome://messenger/skin/accountHub.css"/>
     <link rel="stylesheet" href="chrome://messenger/skin/accountHubForms.css"/>
+    <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/icons.css" />
     <link rel="localization" href="messenger/accountcreation/accountHub.ftl" />
     <script type="module" src="chrome://messenger/content/accountcreation/content/widgets/account-hub-select.mjs"></script>
   </head>
@@ -15,10 +17,9 @@
       </label>
       <div class="input-control">
         <select
-                class="menulist"
-                flex="1">
+          class="menulist"
+          flex="1">
         </select>
-
         <p id="securityWarning" class="input-error-message">
           <span data-l10n-name="error-text"></span>
           <a class="more-info-link" data-l10n-name="error-link"></a>
@@ -31,6 +32,7 @@
                         l10n-error-id="account-hub-select-security-warning">
       <option value="1">One</option>
       <option value="2" selected="selected">Two</option>
+      <option id="hiddenOption" value="3" hidden="hidden">Three</option>
     </account-hub-select>
   </body>
   </html>
