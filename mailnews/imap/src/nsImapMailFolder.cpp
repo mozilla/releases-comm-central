@@ -261,16 +261,6 @@ nsresult nsImapMailFolder::AddDirectorySeparator(nsIFile* path) {
   return NS_OK;
 }
 
-static bool nsShouldIgnoreFile(nsString& name) {
-  if (StringEndsWith(name, NS_LITERAL_STRING_FROM_CSTRING(SUMMARY_SUFFIX),
-                     nsCaseInsensitiveStringComparator)) {
-    name.SetLength(name.Length() -
-                   SUMMARY_SUFFIX_LENGTH);  // truncate the string
-    return false;
-  }
-  return true;
-}
-
 NS_IMETHODIMP nsImapMailFolder::AddSubfolder(const nsACString& aName,
                                              nsIMsgFolder** aChild) {
   NS_ENSURE_ARG_POINTER(aChild);
@@ -427,33 +417,37 @@ nsresult nsImapMailFolder::CreateSubFolders(nsIFile* path) {
   bool hasMore = false;
   while (NS_SUCCEEDED(directoryEnumerator->HasMoreElements(&hasMore)) &&
          hasMore) {
-    nsCOMPtr<nsIFile> currentFolderPath;
-    rv = directoryEnumerator->GetNextFile(getter_AddRefs(currentFolderPath));
-    if (NS_FAILED(rv) || !currentFolderPath) continue;
+    nsCOMPtr<nsIFile> currentFile;
+    rv = directoryEnumerator->GetNextFile(getter_AddRefs(currentFile));
+    if (NS_FAILED(rv) || !currentFile) {
+      continue;
+    }
 
-    nsAutoString currentFolderNameStr;    // online name
-    nsAutoString currentFolderDBNameStr;  // possibly munged name
-    currentFolderPath->GetLeafName(currentFolderNameStr);
+    nsAutoString currentFolderNameStr;
+    currentFile->GetLeafName(currentFolderNameStr);
+
     // Skip if not an .msf file.
-    // (NOTE: nsShouldIgnoreFile() strips the trailing ".msf" here)
-    if (nsShouldIgnoreFile(currentFolderNameStr)) continue;
+    if (!StringEndsWith(currentFolderNameStr,
+                        NS_LITERAL_STRING_FROM_CSTRING(SUMMARY_SUFFIX),
+                        nsCaseInsensitiveStringComparator)) {
+      continue;
+    }
+
+    // Explicitly strip the trailing ".msf" to get the base local folder name.
+    currentFolderNameStr.SetLength(currentFolderNameStr.Length() -
+                                   SUMMARY_SUFFIX_LENGTH);
+
+    // Save the on-disk local name before currentFolderNameStr gets modified.
+    nsAutoString currentFolderLocalNameStr = currentFolderNameStr;
 
     // OK, here we need to get the online name from the folder cache if we can.
-    // If we can, use that to create the sub-folder
-    nsCOMPtr<nsIFile> curFolder = new nsLocalFile();
-    rv = curFolder->InitWithFile(currentFolderPath);
-    NS_ENSURE_SUCCESS(rv, rv);
-    nsCOMPtr<nsIFile> dbFile = new nsLocalFile();
-    rv = dbFile->InitWithFile(currentFolderPath);
-    NS_ENSURE_SUCCESS(rv, rv);
-    // don't strip off the .msf in currentFolderPath.
-    currentFolderPath->SetLeafName(currentFolderNameStr);
-    currentFolderDBNameStr = currentFolderNameStr;
+    // If we can, use that to create the sub-folder.
     nsAutoString utfLeafName = currentFolderNameStr;
 
     if (!mail_panorama_enabled_AtStartup()) {
       nsCOMPtr<nsIMsgFolderCacheElement> cacheElement;
-      rv = GetFolderCacheElemFromFile(dbFile, getter_AddRefs(cacheElement));
+      rv =
+          GetFolderCacheElemFromFile(currentFile, getter_AddRefs(cacheElement));
       if (NS_SUCCEEDED(rv) && cacheElement) {
         nsCString onlineFullUtfName;
 
@@ -466,7 +460,7 @@ nsresult nsImapMailFolder::CreateSubFolders(nsIFile* path) {
         rv = cacheElement->GetCachedInt32("hierDelim", &hierarchyDelimiter);
         if (NS_SUCCEEDED(rv) &&
             hierarchyDelimiter == kOnlineHierarchySeparatorUnknown) {
-          currentFolderPath->Remove(false);
+          currentFile->Remove(false);
           continue;  // blow away .msf files for folders with unknown delimiter.
         }
         rv = cacheElement->GetCachedString("onlineName", onlineFullUtfName);
@@ -486,16 +480,21 @@ nsresult nsImapMailFolder::CreateSubFolders(nsIFile* path) {
     }
 
     // make the imap folder remember the file spec it was created with.
-    nsCOMPtr<nsIFile> msfFilePath = new nsLocalFile();
-    rv = msfFilePath->InitWithFile(currentFolderPath);
-    if (NS_SUCCEEDED(rv) && msfFilePath) {
-      // leaf name is the db name w/o .msf (nsShouldIgnoreFile strips it off)
-      // so this trims the .msf off the file spec.
-      msfFilePath->SetLeafName(currentFolderDBNameStr);
+    nsCOMPtr<nsIFile> folderPath = new nsLocalFile();
+    rv = folderPath->InitWithFile(currentFile);
+
+    // If we can't initialize the path, bail out and move to the next file.
+    if (NS_FAILED(rv) || !folderPath) {
+      continue;
     }
+
+    // leaf name is the local name w/o .msf,
+    // so this trims the .msf off the file spec.
+    folderPath->SetLeafName(currentFolderLocalNameStr);
+
     // Use the name as the uri for the folder.
     nsCOMPtr<nsIMsgFolder> child;
-    AddSubfolderWithPath(NS_ConvertUTF16toUTF8(utfLeafName), msfFilePath,
+    AddSubfolderWithPath(NS_ConvertUTF16toUTF8(utfLeafName), folderPath,
                          getter_AddRefs(child));
     if (child) {
       // use the unicode name as the "pretty" name. Set it so it won't be
