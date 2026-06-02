@@ -244,6 +244,7 @@ var kIssuers = new Map([
       // https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-v2-protocols#endpoints
       authorizationEndpoint: `https://login.microsoftonline.com/common/oauth2/v2.0/authorize`,
       tokenEndpoint: `https://login.microsoftonline.com/common/oauth2/v2.0/token`,
+      redirectionEndpoint: "https://localhost",
     },
   ],
 
