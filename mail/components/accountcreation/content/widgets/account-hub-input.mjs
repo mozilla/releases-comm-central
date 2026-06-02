@@ -46,30 +46,26 @@ class AccountHubInput extends HTMLElement {
   #error;
 
   /**
-   * Returns the value of the input element.
+   * The value of the input element.
    *
-   * @returns {string}
+   * @type {string}
    */
   get value() {
     return this.#input.value;
   }
 
-  /**
-   * Returns the number value of the input element.
-   *
-   * @returns {number}
-   */
-  get valueAsNumber() {
-    return this.#input.valueAsNumber;
+  set value(newValue) {
+    this.#input.value = newValue;
   }
 
   /**
-   * Sets the value of the input element.
+   * The number value of the input element.
    *
-   * @param {string} newValue - Attribute value to be applied to the input.
+   * @type {number}
+   * @readonly
    */
-  set value(newValue) {
-    this.#input.value = newValue;
+  get valueAsNumber() {
+    return this.#input.valueAsNumber;
   }
 
   connectedCallback() {
