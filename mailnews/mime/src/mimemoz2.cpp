@@ -1,4 +1,3 @@
-/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -492,8 +491,8 @@ nsresult BuildAttachmentList(MimeObject* anObject,
 
   // Under multipart/alternative, body-typed siblings are alternatives, not
   // attachments.
-  bool isMultipartAlternative = mime_typep(
-      anObject, (MimeObjectClass*)&mimeMultipartAlternativeClass);
+  bool isMultipartAlternative =
+      mime_typep(anObject, (MimeObjectClass*)&mimeMultipartAlternativeClass);
 
   for (i = 0; i < cobj->nchildren; i++) {
     MimeObject* child = cobj->children[i];

@@ -1,6 +1,4 @@
-/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*-
- *
- * This Source Code Form is subject to the terms of the Mozilla Public
+/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * This Original Code has been modified by IBM Corporation. Modifications made
@@ -452,117 +450,115 @@ static bool MimeMultipartRelated_output_child_p(MimeObject* obj,
     PR_FREEIF(base_url);
     PR_Free(location);
     if (absolute) {
-        nsAutoCString partnum;
-        nsAutoCString imappartnum;
-        partnum.Adopt(mime_part_address(child));
-        if (!partnum.IsEmpty()) {
-          if (obj->options->missing_parts) {
-            char* imappart = mime_imap_part_address(child);
-            if (imappart) imappartnum.Adopt(imappart);
-          }
+      nsAutoCString partnum;
+      nsAutoCString imappartnum;
+      partnum.Adopt(mime_part_address(child));
+      if (!partnum.IsEmpty()) {
+        if (obj->options->missing_parts) {
+          char* imappart = mime_imap_part_address(child);
+          if (imappart) imappartnum.Adopt(imappart);
+        }
 
-          /*
-            AppleDouble part need special care: we need to output only the data
-            fork part of it. The problem at this point is that we haven't yet
-            decoded the children of the AppleDouble part therefore we will have
-            to hope the datafork is the second one!
-          */
-          if (mime_typep(child,
-                         (MimeObjectClass*)&mimeMultipartAppleDoubleClass))
-            partnum.AppendLiteral(".2");
+        /*
+          AppleDouble part need special care: we need to output only the data
+          fork part of it. The problem at this point is that we haven't yet
+          decoded the children of the AppleDouble part therefore we will have
+          to hope the datafork is the second one!
+        */
+        if (mime_typep(child, (MimeObjectClass*)&mimeMultipartAppleDoubleClass))
+          partnum.AppendLiteral(".2");
 
-          char* part;
-          if (!imappartnum.IsEmpty())
-            part = mime_set_url_imap_part(obj->options->url, imappartnum.get(),
-                                          partnum.get());
-          else {
-            char* no_part_url = nullptr;
-            if (obj->options->part_to_load &&
-                obj->options->format_out ==
-                    nsMimeOutput::nsMimeMessageBodyDisplay)
-              no_part_url = mime_get_base_url(obj->options->url);
-            if (no_part_url) {
-              part = mime_set_url_part(no_part_url, partnum.get(), false);
-              PR_Free(no_part_url);
-            } else
-              part = mime_set_url_part(obj->options->url, partnum.get(), false);
-          }
-          if (part) {
-            char* name = MimeHeaders_get_name(child->headers, child->options);
-            // let's stick the filename in the part so save as will work.
-            if (!name) {
-              // Mozilla platform code will correct the file extension
-              // when copying the embedded image. That doesn't work
-              // since our MailNews URLs don't allow setting the file
-              // extension. So provide a filename and valid extension.
-              char* ct = MimeHeaders_get(child->headers, HEADER_CONTENT_TYPE,
-                                         false, false);
-              if (ct) {
-                name = ct;
-                char* slash = strchr(name, '/');
-                if (slash) *slash = '.';
-                char* semi = strchr(name, ';');
-                if (semi) *semi = 0;
-              }
+        char* part;
+        if (!imappartnum.IsEmpty())
+          part = mime_set_url_imap_part(obj->options->url, imappartnum.get(),
+                                        partnum.get());
+        else {
+          char* no_part_url = nullptr;
+          if (obj->options->part_to_load &&
+              obj->options->format_out ==
+                  nsMimeOutput::nsMimeMessageBodyDisplay)
+            no_part_url = mime_get_base_url(obj->options->url);
+          if (no_part_url) {
+            part = mime_set_url_part(no_part_url, partnum.get(), false);
+            PR_Free(no_part_url);
+          } else
+            part = mime_set_url_part(obj->options->url, partnum.get(), false);
+        }
+        if (part) {
+          char* name = MimeHeaders_get_name(child->headers, child->options);
+          // let's stick the filename in the part so save as will work.
+          if (!name) {
+            // Mozilla platform code will correct the file extension
+            // when copying the embedded image. That doesn't work
+            // since our MailNews URLs don't allow setting the file
+            // extension. So provide a filename and valid extension.
+            char* ct = MimeHeaders_get(child->headers, HEADER_CONTENT_TYPE,
+                                       false, false);
+            if (ct) {
+              name = ct;
+              char* slash = strchr(name, '/');
+              if (slash) *slash = '.';
+              char* semi = strchr(name, ';');
+              if (semi) *semi = 0;
             }
-            if (name) {
-              char* savePart = part;
-              part = PR_smprintf("%s&filename=%s", savePart, name);
-              PR_Free(savePart);
-              PR_Free(name);
-            }
-            char* temp = part;
-            /* If there's a space in the url, escape the url.
-               (This happens primarily on Windows and Unix.) */
-            if (PL_strchr(part, ' ') || PL_strchr(part, '>') ||
-                PL_strchr(part, '%'))
-              temp = escape_for_mrel_subst(part);
-            MimeHashValue* value = new MimeHashValue(child, temp);
-            PL_HashTableAdd(relobj->hash, absolute, value);
+          }
+          if (name) {
+            char* savePart = part;
+            part = PR_smprintf("%s&filename=%s", savePart, name);
+            PR_Free(savePart);
+            PR_Free(name);
+          }
+          char* temp = part;
+          /* If there's a space in the url, escape the url.
+             (This happens primarily on Windows and Unix.) */
+          if (PL_strchr(part, ' ') || PL_strchr(part, '>') ||
+              PL_strchr(part, '%'))
+            temp = escape_for_mrel_subst(part);
+          MimeHashValue* value = new MimeHashValue(child, temp);
+          PL_HashTableAdd(relobj->hash, absolute, value);
 
-            /* rhp - If this part ALSO has a Content-ID we need to put that into
-                     the hash table and this is what this code does
-             */
-            {
-              char* tloc;
-              char* tmp = MimeHeaders_get(child->headers, HEADER_CONTENT_ID,
-                                          false, false);
-              if (tmp) {
-                char* tmp2 = tmp;
-                if (*tmp2 == '<') {
-                  int length;
-                  tmp2++;
-                  length = strlen(tmp2);
-                  if (length > 0 && tmp2[length - 1] == '>') {
-                    tmp2[length - 1] = '\0';
-                  }
-                }
-
-                tloc = PR_smprintf("cid:%s", tmp2);
-                PR_Free(tmp);
-                if (tloc) {
-                  MimeHashValue* value;
-                  value =
-                      (MimeHashValue*)PL_HashTableLookup(relobj->hash, tloc);
-
-                  if (!value) {
-                    value = new MimeHashValue(child, temp);
-                    PL_HashTableAdd(relobj->hash, tloc, value);
-                  } else
-                    PR_smprintf_free(tloc);
+          /* rhp - If this part ALSO has a Content-ID we need to put that into
+                   the hash table and this is what this code does
+           */
+          {
+            char* tloc;
+            char* tmp = MimeHeaders_get(child->headers, HEADER_CONTENT_ID,
+                                        false, false);
+            if (tmp) {
+              char* tmp2 = tmp;
+              if (*tmp2 == '<') {
+                int length;
+                tmp2++;
+                length = strlen(tmp2);
+                if (length > 0 && tmp2[length - 1] == '>') {
+                  tmp2[length - 1] = '\0';
                 }
               }
-            }
-            /*  rhp - End of putting more stuff into the hash table */
 
-            /* it's possible that temp pointer is the same than the part
-               pointer, therefore be careful to not freeing twice the same
-               pointer */
-            if (temp && temp != part) PR_Free(temp);
-            PR_Free(part);
+              tloc = PR_smprintf("cid:%s", tmp2);
+              PR_Free(tmp);
+              if (tloc) {
+                MimeHashValue* value;
+                value = (MimeHashValue*)PL_HashTableLookup(relobj->hash, tloc);
+
+                if (!value) {
+                  value = new MimeHashValue(child, temp);
+                  PL_HashTableAdd(relobj->hash, tloc, value);
+                } else
+                  PR_smprintf_free(tloc);
+              }
+            }
           }
+          /*  rhp - End of putting more stuff into the hash table */
+
+          /* it's possible that temp pointer is the same than the part
+             pointer, therefore be careful to not freeing twice the same
+             pointer */
+          if (temp && temp != part) PR_Free(temp);
+          PR_Free(part);
         }
       }
+    }
   } else {
     /* Ah-hah!  We're the head object.  */
     relobj->head_loaded = true;
@@ -618,7 +614,8 @@ static int MimeMultipartRelated_parse_child_line(MimeObject* obj,
   if (!kid) return -1;
 
   if (kid != relobj->headobj) {
-    // Hidden related parts may later surface as attachments; keep decoded sizes.
+    // Hidden related parts may later surface as attachments; keep decoded
+    // sizes.
     if (!kid->output_p &&
         mime_subclass_p(kid->clazz, (MimeObjectClass*)&mimeLeafClass)) {
       int32_t lineLength = length;

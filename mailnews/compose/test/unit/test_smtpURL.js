@@ -1,4 +1,3 @@
-/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /*
  * Test suite for checking SMTP URLs are working as expected.
  * XXX this test needs extending as we fix up nsSmtpUrl.

@@ -1,4 +1,3 @@
-/* -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* Tests that an empty cache entry doesn't return an empty message for news. */
 
 // The basic daemon to use for testing Nntpd.sys.mjs implementations

@@ -1,4 +1,3 @@
-/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -231,7 +230,8 @@ static int MimeMultipartAlternative_flush_children(MimeObject* obj,
       MimeHeaders* hdrs = malt->buffered_hdrs[i];
       char* ct =
           (hdrs ? MimeHeaders_get(hdrs, HEADER_CONTENT_TYPE, true, false) : 0);
-      // Non-body types (not text/* or multipart/*) are misplaced attachments; always display them.
+      // Non-body types (not text/* or multipart/*) are misplaced attachments;
+      // always display them.
       bool is_non_body_type = ct && PL_strncasecmp(ct, "text/", 5) &&
                               PL_strncasecmp(ct, "multipart/", 10);
       bool display_part = (i == 0) ||
@@ -501,7 +501,8 @@ static int MimeMultipartAlternative_display_cached_part(
   bool saved_first_part_written_p = false;
   bool saved_post_header_html_run_p = false;
   bool saved_first_data_written_p = false;
-  // Skip noop when part_to_load is set; noop would discard the requested part's data.
+  // Skip noop when part_to_load is set; noop would discard the requested part's
+  // data.
   bool suppress_output = !do_display && !obj->options->part_to_load;
   if (suppress_output) {
     obj->options->output_fn = MimeMultipartAlternative_noopOutputFn;

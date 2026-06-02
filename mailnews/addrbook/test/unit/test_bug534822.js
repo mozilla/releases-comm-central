@@ -1,4 +1,3 @@
-/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /*
  * Tests for bug 534822 - non-built-in address books specified in preferences
  * don't appear in address book lists.

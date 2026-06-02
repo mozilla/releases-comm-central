@@ -1,4 +1,3 @@
-/* -*- Mode: C; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -31,7 +30,8 @@ struct MimeMessage {
   int32_t bodyLength; /* Used for determining if the body has been truncated */
   int32_t sizeSoFar;  /* The total size of the MIME message, once parsing is
                          finished. */
-  MimeDecoderData* decoder_data; /* CTE decoder for base64/QP-encoded message/rfc822 parts */
+  MimeDecoderData*
+      decoder_data; /* CTE decoder for base64/QP-encoded message/rfc822 parts */
 };
 
 #define MimeMessageClassInitializer(ITYPE, CSUPER) \

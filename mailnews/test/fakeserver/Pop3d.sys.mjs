@@ -1,4 +1,3 @@
-/* -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /*
  * Contributors:
  *   Ben Bucksch <ben.bucksch beonex.com> <http://business.beonex.com> (RFC 5034 Authentication)

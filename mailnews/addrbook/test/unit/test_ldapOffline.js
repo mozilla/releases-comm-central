@@ -1,4 +1,3 @@
-/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /*
  * Test suite to check that we correctly get child cards for LDAP directories
  * when offline and that we don't crash.

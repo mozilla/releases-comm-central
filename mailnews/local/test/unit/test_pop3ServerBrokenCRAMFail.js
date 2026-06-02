@@ -1,4 +1,3 @@
-/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /**
  * Server which advertises CRAM-MD5, but fails when it's tried.
  * This reportedly happens for some misconfigured servers.

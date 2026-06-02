@@ -1,4 +1,3 @@
-/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /**
  * Server which advertises CRAM-MD5, but is impolite enough to just
  * disconnect (close the TCP connection) when we try it.

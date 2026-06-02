@@ -1,4 +1,3 @@
-/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /*
  * First test suite for nsAbAutoCompleteSearch - tests searching in address
  * books for autocomplete matches, and checks sort order is correct (without

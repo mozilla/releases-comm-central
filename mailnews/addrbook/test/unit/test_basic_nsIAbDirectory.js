@@ -1,4 +1,3 @@
-/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /*
  * Test suite for basic address book functions - tests obtaining the (default)
  * personal address book and getting its details from the nsIAbDirectory.

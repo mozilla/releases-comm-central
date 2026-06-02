@@ -1,6 +1,4 @@
-/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*-
- *
- * This Source Code Form is subject to the terms of the Mozilla Public
+/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * This Original Code has been modified by IBM Corporation. Modifications made
@@ -959,8 +957,8 @@ MimeObject* mime_create(const char* content_type, MimeHeaders* hdrs,
 
   if (!content_disposition || !PL_strcasecmp(content_disposition, "inline") ||
       (PL_strcasecmp(content_disposition, "attachment") &&
-       mime_subclass_p(clazz, (MimeObjectClass*)&mimeInlineTextClass) &&
-       opts && opts->state && !opts->state->first_part_written_p))
+       mime_subclass_p(clazz, (MimeObjectClass*)&mimeInlineTextClass) && opts &&
+       opts->state && !opts->state->first_part_written_p))
     ; /* Use the class we've got. */
   else {
     // override messages that have content disposition set to "attachment"

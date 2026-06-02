@@ -1,4 +1,3 @@
-/* -*- mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /*
  * Test suite for nsIMsgContentPolicy to check we could add/remove customized protocol to
  * nsMsgContentPolicy.

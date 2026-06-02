@@ -25,8 +25,8 @@ subsuite = "thunderbird"
 
 ["browser_rightClickToOpenSearchWindow.js"]
 
-["browser_searchFromSyntheticView.js"]
-
 ["browser_searchFromMessageWindow.js"]
+
+["browser_searchFromSyntheticView.js"]
 
 ["browser_searchWindow.js"]

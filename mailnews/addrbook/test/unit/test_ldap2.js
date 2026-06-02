@@ -1,4 +1,3 @@
-/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /*
  * Test suite for bug 532170. LDAP address book named with cyrillic/chinese
  * letters doesn't work.

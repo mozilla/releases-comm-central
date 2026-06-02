@@ -1,4 +1,3 @@
-/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -24,7 +23,8 @@ static int MimeLeaf_close_decoder(MimeObject*);
 static int MimeLeaf_parse_eof(MimeObject*, bool);
 static bool MimeLeaf_displayable_inline_p(MimeObjectClass* clazz,
                                           MimeHeaders* hdrs);
-/* Content-Transfer-Encoding decode helpers, currently supporting base64, quoted-printable, x-uuencode, and x-yencode. */
+/* Content-Transfer-Encoding decode helpers, currently supporting base64,
+ * quoted-printable, x-uuencode, and x-yencode. */
 // TODO: Content-Transfer-Encoding: binary (bug 19352)
 static int MimeLeaf_discard_decoded(const char* buf, int32_t size,
                                     MimeClosure closure);
@@ -193,8 +193,7 @@ int MimeLeaf_parse_buffer_for_size(const char* buffer, int32_t size,
   if (!obj || !mime_subclass_p(obj->clazz, (MimeObjectClass*)&mimeLeafClass))
     return 0;
 
-  return MimeLeaf_decode_buffer(buffer, size, obj,
-                                MimeLeaf_discard_decoded);
+  return MimeLeaf_decode_buffer(buffer, size, obj, MimeLeaf_discard_decoded);
 }
 
 static int MimeLeaf_parse_line(const char* line, int32_t length,
