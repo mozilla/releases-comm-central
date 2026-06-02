@@ -260,6 +260,7 @@ export class NntpChannel extends MailChannel {
         try {
           this.loadGroup?.removeRequest(this, null, Cr.NS_OK);
         } catch (e) {}
+        this._listener = null;
         this._pending = false;
       },
       onDataAvailable: (request, stream, offset, count) => {
@@ -337,6 +338,7 @@ export class NntpChannel extends MailChannel {
         this._newsFolder?.msgDatabase.commit(
           Ci.nsMsgDBCommitType.kSessionCommit
         );
+        this._listener = null;
         this._pending = false;
       };
     });
@@ -371,6 +373,7 @@ export class NntpChannel extends MailChannel {
       client.onDone = status => {
         newsFolder.removeMessages([...allKeys]);
         this._listener.onStopRequest(this, status);
+        this._listener = null;
         this._pending = false;
       };
     });
