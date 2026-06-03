@@ -7,6 +7,13 @@ import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 import { BaseProfileImporter } from "resource:///modules/BaseProfileImporter.sys.mjs";
 import { AddrBookFileImporter } from "resource:///modules/AddrBookFileImporter.sys.mjs";
 
+const lazy = {};
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["messenger/messenger.ftl"], true)
+);
+
 /**
  * A pref is represented as [type, name, value].
  *
@@ -860,10 +867,6 @@ export class ThunderbirdProfileImporter extends BaseProfileImporter {
       }
     }
 
-    // Import tags, but do not overwrite existing customized tags.
-    const bundle = Services.strings.createBundle(
-      "chrome://messenger/locale/messenger.properties"
-    );
     for (const [key, { color, tag }] of Object.entries(tags)) {
       if (!color || !tag) {
         continue;
@@ -887,9 +890,9 @@ export class ThunderbirdProfileImporter extends BaseProfileImporter {
         const defaultColor = Services.prefs.getCharPref(
           `mailnews.labels.color.${seq}`
         );
-        const defaultTag = bundle.GetStringFromName(
-          `mailnews.labels.description.${seq}`
-        );
+
+        const defaultTag = lazy.l10n.formatValueSync(`tags-label-${seq}`);
+
         if (currentTagColor == defaultColor && currentTagTag == defaultTag) {
           // The existing tag is in default state, safe to write.
           Services.prefs.setCharPref(`mailnews.tags.${key}.color`, color);

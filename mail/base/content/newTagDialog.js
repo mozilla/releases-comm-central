@@ -43,9 +43,10 @@ function onLoad() {
 function initializeForEditing(aTagKey) {
   dialog.editTagKey = aTagKey;
 
-  // Change the title of the dialog
-  var messengerBundle = document.getElementById("bundle_messenger");
-  document.title = messengerBundle.getString("editTagTitle");
+  document.l10n.setAttributes(
+    document.querySelector("title"),
+    "tag-edit-dialog-title"
+  );
 
   // extract the color and name for the current tag
   document.getElementById("tagColorPicker").value =
@@ -64,8 +65,8 @@ function onOKEditTag(event) {
   if (existingTagName != dialog.nameField.value) {
     // don't let the user edit a tag to the name of another existing tag
     if (MailServices.tags.getKeyForTag(dialog.nameField.value)) {
-      alertForExistingTag();
       event.preventDefault();
+      alertForExistingTag().catch(console.error);
       return;
     }
 
@@ -86,10 +87,11 @@ function onOKNewTag(event) {
   var name = dialog.nameField.value;
 
   if (MailServices.tags.getKeyForTag(name)) {
-    alertForExistingTag();
     event.preventDefault();
+    alertForExistingTag().catch(console.error);
     return;
   }
+
   if (
     !dialog.okCallback(name, document.getElementById("tagColorPicker").value)
   ) {
@@ -101,9 +103,9 @@ function onOKNewTag(event) {
  * Alerts the user that they are trying to create a tag with a name that
  * already exists.
  */
-function alertForExistingTag() {
-  var messengerBundle = document.getElementById("bundle_messenger");
-  var alertText = messengerBundle.getString("tagExists");
+async function alertForExistingTag() {
+  const alertText = await document.l10n.formatValue("tag-already-exists");
+
   Services.prompt.alert(window, document.title, alertText);
 }
 

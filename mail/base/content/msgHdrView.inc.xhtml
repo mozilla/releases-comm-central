@@ -172,15 +172,14 @@
             <menupopup id="hdrTagDropdown" class="gutter-popup"
                        onpopupshowing="window.top.InitMessageTags(this);">
               <menuitem id="hdrTagDropdown-addNewTag"
-                        label="&addNewTag.label;"
-                        accesskey="&addNewTag.accesskey;"
+                        data-l10n-id="tags-add-new"
                         oncommand="goDoCommand('cmd_addTag');"/>
               <menuitem id="manageTags"
-                        label="&manageTags.label;"
-                        accesskey="&manageTags.accesskey;"
+                        data-l10n-id="tags-manage"
                         oncommand="goDoCommand('cmd_manageTags');"/>
               <menuseparator id="hdrTagDropdown-sep-afterAddNewTag"/>
               <menuitem id="hdrTagDropdown-tagRemoveAll"
+                        data-l10n-id="tags-remove-all"
                         oncommand="goDoCommand('cmd_removeTags');"/>
               <menuseparator id="hdrTagDropdown-sep-afterTagRemoveAll"/>
             </menupopup>

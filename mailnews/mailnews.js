@@ -857,22 +857,16 @@ pref("mail.server.default.retainBy", 1);
 
 pref("mailnews.ui.junk.manualMarkAsJunkMarksRead", true);
 
-// default description and color prefs for tags
-// (we keep the .labels. names for backwards compatibility)
-pref("mailnews.labels.description.1", "chrome://messenger/locale/messenger.properties");
-pref("mailnews.labels.description.2", "chrome://messenger/locale/messenger.properties");
-pref("mailnews.labels.description.3", "chrome://messenger/locale/messenger.properties");
-pref("mailnews.labels.description.4", "chrome://messenger/locale/messenger.properties");
-pref("mailnews.labels.description.5", "chrome://messenger/locale/messenger.properties");
-// default: red
+// Color prefs for the five default tags (derived from the legacy labels).
+// Important: red
 pref("mailnews.labels.color.1", "#FF0000");
-// default: orange
+// Work: orange
 pref("mailnews.labels.color.2", "#FF9900");
-// default: green
+// Personal: green
 pref("mailnews.labels.color.3", "#009900");
-// default: blue
+// To Do: blue
 pref("mailnews.labels.color.4", "#3333FF");
-// default: purple
+// Later: purple
 pref("mailnews.labels.color.5", "#993399");
 
 //default null headers

@@ -5,10 +5,8 @@
 #include "nsMsgTagService.h"
 
 #include "mozilla/Preferences.h"
-#include "nsMsgI18N.h"
-#include "nsIPrefLocalizedString.h"
 #include "nsMsgUtils.h"
-#include "nsServiceManagerUtils.h"
+#include "mozilla/intl/Localization.h"
 
 using mozilla::Preferences;
 
@@ -18,8 +16,6 @@ using mozilla::Preferences;
 #define TAG_PREF_SUFFIX_TAG ".tag"
 #define TAG_PREF_SUFFIX_COLOR ".color"
 #define TAG_PREF_SUFFIX_ORDINAL ".ordinal"
-
-static bool gMigratingKeys = false;
 
 // Comparator to set sort order in GetAllTags().
 struct CompareMsgTags {
@@ -102,7 +98,7 @@ nsMsgTagService::~nsMsgTagService() {} /* destructor code */
 NS_IMETHODIMP nsMsgTagService::GetTagForKey(const nsACString& key,
                                             nsAString& _retval) {
   nsAutoCString prefName(key);
-  if (!gMigratingKeys) ToLowerCase(prefName);
+  ToLowerCase(prefName);
   prefName.AppendLiteral(TAG_PREF_SUFFIX_TAG);
   return GetUnicharPref(prefName.get(), _retval);
 }
@@ -266,7 +262,7 @@ NS_IMETHODIMP nsMsgTagService::AddTag(const nsAString& tag,
 NS_IMETHODIMP nsMsgTagService::GetColorForKey(const nsACString& key,
                                               nsACString& _retval) {
   nsAutoCString prefName(key);
-  if (!gMigratingKeys) ToLowerCase(prefName);
+  ToLowerCase(prefName);
   prefName.AppendLiteral(TAG_PREF_SUFFIX_COLOR);
   nsCString color;
   nsresult rv = m_tagPrefBranch->GetCharPref(prefName.get(), color);
@@ -317,7 +313,7 @@ NS_IMETHODIMP nsMsgTagService::SetColorForKey(const nsACString& key,
 NS_IMETHODIMP nsMsgTagService::GetOrdinalForKey(const nsACString& key,
                                                 nsACString& _retval) {
   nsAutoCString prefName(key);
-  if (!gMigratingKeys) ToLowerCase(prefName);
+  ToLowerCase(prefName);
   prefName.AppendLiteral(TAG_PREF_SUFFIX_ORDINAL);
   nsCString ordinal;
   nsresult rv = m_tagPrefBranch->GetCharPref(prefName.get(), ordinal);
@@ -342,7 +338,7 @@ NS_IMETHODIMP nsMsgTagService::SetOrdinalForKey(const nsACString& key,
 NS_IMETHODIMP nsMsgTagService::DeleteKey(const nsACString& key) {
   // clear the associated prefs
   nsAutoCString prefName(key);
-  if (!gMigratingKeys) ToLowerCase(prefName);
+  ToLowerCase(prefName);
   prefName.Append('.');
 
   nsTArray<nsCString> prefNames;
@@ -429,26 +425,29 @@ nsresult nsMsgTagService::SetupLabelTags() {
   if (NS_SUCCEEDED(rv) && prefVersion > 1) {
     return rv;
   }
-  nsCOMPtr<nsIPrefLocalizedString> pls;
-  nsString ucsval;
+
   nsAutoCString labelKey("$label1");
+  nsAutoCString fluentId("tags-label-");  // Base Fluent ID
+  RefPtr<mozilla::intl::Localization> l10n =
+      mozilla::intl::Localization::Create({"messenger/messenger.ftl"_ns}, true);
   for (int32_t i = 0; i < 5;) {
-    prefString.AssignLiteral("mailnews.labels.description.");
-    prefString.AppendInt(i + 1);
-    rv = Preferences::GetComplex(prefString.get(),
-                                 NS_GET_IID(nsIPrefLocalizedString),
-                                 getter_AddRefs(pls));
+    fluentId.Truncate(11);  // reset to "tags-label-"
+    fluentId.AppendInt(i + 1);
+
+    nsAutoCString description;
+    rv = LocalizeMessage(l10n, fluentId, {}, description);
     NS_ENSURE_SUCCESS(rv, rv);
-    pls->ToString(getter_Copies(ucsval));
 
     prefString.AssignLiteral("mailnews.labels.color.");
     prefString.AppendInt(i + 1);
-    nsCString csval;
-    rv = Preferences::GetCString(prefString.get(), csval);
+    nsAutoCString color;
+    rv = Preferences::GetCString(prefString.get(), color);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    rv = AddTagForKey(labelKey, ucsval, csval, EmptyCString());
+    rv = AddTagForKey(labelKey, NS_ConvertUTF8toUTF16(description), color,
+                      EmptyCString());
     NS_ENSURE_SUCCESS(rv, rv);
+
     labelKey.SetCharAt(++i + '1', 6);
   }
   m_tagPrefBranch->SetIntPref(TAG_PREF_VERSION, 2);

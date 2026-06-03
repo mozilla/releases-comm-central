@@ -4,6 +4,8 @@
 
 tag-dialog-title = New Tag
 
+tag-edit-dialog-title = Edit Tag
+
 tag-name-label =
     .value = Tag Name:
     .accesskey = T
@@ -11,3 +13,5 @@ tag-name-label =
 tag-color-label =
     .value = Color:
     .accesskey = C
+
+tag-already-exists = A tag with that name already exists.

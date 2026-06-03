@@ -883,18 +883,22 @@ function SetMenuItemLabel(menuItemId, customLabel) {
  */
 function InitMessageTags(parent, elementName = "menuitem", classes) {
   function SetMessageTagLabel(menuitem, index, name) {
-    // if a <key> is defined for this tag, use its key as the accesskey
-    // (the key for the tag at index n needs to have the id key_tag<n>)
-    const shortcutkey = document.getElementById("key_tag" + index);
-    const accesskey = shortcutkey ? shortcutkey.getAttribute("key") : "  ";
-    if (accesskey != "  " && accesskey !== null) {
-      menuitem.setAttribute("accesskey", accesskey);
+    // The first 9 tags are implicitly assigned numeric access keys 1-9.
+    const accesskey = index < 10 ? String(index) : "";
+
+    if (accesskey) {
+      // Main menus still display the shortcut hint on the right side.
       menuitem.setAttribute("acceltext", accesskey);
+
+      document.l10n.setAttributes(menuitem, "tags-format-with-accesskey", {
+        accesskey,
+        name,
+      });
+    } else {
+      document.l10n.setAttributes(menuitem, "tags-format-without-accesskey", {
+        name,
+      });
     }
-    const label = document
-      .getElementById("bundle_messenger")
-      .getFormattedString("mailnews.tags.format", [accesskey, name]);
-    menuitem.setAttribute("label", label);
   }
 
   let message;
@@ -917,16 +921,6 @@ function InitMessageTags(parent, elementName = "menuitem", classes) {
   ) {
     parent.lastChild.remove();
   }
-
-  // Create label and accesskey for the static "remove all tags" item.
-  const tagRemoveLabel = document
-    .getElementById("bundle_messenger")
-    .getString("mailnews.tags.remove");
-  SetMessageTagLabel(
-    parent.lastElementChild.previousElementSibling,
-    0,
-    tagRemoveLabel
-  );
 
   // Rebuild the list.
   const curKeys = message.getStringProperty("keywords");

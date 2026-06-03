@@ -8,7 +8,6 @@
 #include "nsIMsgTagService.h"
 #include "nsIPrefBranch.h"
 #include "nsCOMPtr.h"
-#include "nsString.h"
 #include "nsTArray.h"
 
 class nsMsgTag final : public nsIMsgTag {
