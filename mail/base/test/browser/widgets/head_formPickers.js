@@ -38,7 +38,7 @@ async function checkABrowser(browser) {
       input.showPicker();
     } else {
       EventUtils.synthesizeMouseAtCenter(
-        input.openOrClosedShadowRoot.getElementById("calendar-button"),
+        input.openOrClosedShadowRoot.getElementById("picker-button"),
         {},
         content
       );
