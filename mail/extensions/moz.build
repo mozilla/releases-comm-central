@@ -7,7 +7,9 @@ JAR_MANIFESTS += ["jar.mn"]
 DIRS += [
     "mailviews",
     "smime",
+]
+
+DIRS += [
     "am-e2e",
     "openpgp",
-    "builtin-addons",
 ]
