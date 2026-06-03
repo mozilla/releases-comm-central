@@ -234,6 +234,12 @@ nsresult ExchangeMessageCopyHandler::OnCreateFinished(nsresult status,
     mCopyServiceListener->SetMessageKey(key);
   }
 
+  // If the message is a file message that is not a draft, then it's a sent
+  // message and needs to be marked read.
+  if (mSrcFile && !mIsDraft) {
+    MOZ_TRY(newHdr->MarkRead(true));
+  }
+
   // If we encountered a failure, bail now. Additionally, if we're copying from
   // a file, we also want to end the process now, since we're always copying a
   // single message in this case.
@@ -254,7 +260,6 @@ nsresult ExchangeMessageCopyHandler::OnCreateFinished(nsresult status,
 
   if (mIsMove) {
     RefPtr<nsIMsgDBHdr> curHdr = mHeaders[mCurIndex];
-
     // It's a bit weird that we pass `nullptr` as the `listener` argument
     // (type `nsIMsgCopyServiceListener`), considering we're in the middle
     // of a copy. It looks like this argument is almost never set (and never

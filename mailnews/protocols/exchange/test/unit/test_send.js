@@ -234,6 +234,10 @@ add_task(async function test_moved_to_fcc_folder() {
     () => fccFolder.getTotalMessages(false) == 1,
     "waiting for sent message to be moved to the FCC folder"
   );
+
+  // The message should be marked as read in the sent messages folder.
+  const message = fccFolder.msgDatabase.enumerateMessages().getNext();
+  Assert.ok(message.isRead, "Sent message should be marked as read.");
 });
 
 /**
