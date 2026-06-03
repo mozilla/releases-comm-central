@@ -329,7 +329,7 @@ mod test {
 
     // This function isn't declared in libc nor mach2. And is also undocumented
     // by apple, I know, SHOCKING
-    extern "C" {
+    unsafe extern "C" {
         fn getsegmentdata(
             header: *const libc::mach_header,
             segname: *const u8,

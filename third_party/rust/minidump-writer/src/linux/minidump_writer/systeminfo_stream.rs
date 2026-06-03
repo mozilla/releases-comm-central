@@ -1,5 +1,5 @@
 use {
-    super::{super::dumper_cpu_info as dci, *},
+    super::{super::dumper_cpu_info as dci, ProcessInspector, *},
     error_graph::WriteErrorList,
 };
 
@@ -14,6 +14,7 @@ pub enum SectionSystemInfoError {
 }
 
 pub fn write(
+    process_inspector: &ProcessInspector,
     buffer: &mut DumpBuf,
     mut soft_errors: impl WriteErrorList<SectionSystemInfoError>,
 ) -> Result<MDRawDirectory, SectionSystemInfoError> {
@@ -31,7 +32,7 @@ pub fn write(
     info.platform_id = platform_id as u32;
     info.csd_version_rva = os_version_loc.rva;
 
-    if let Err(e) = dci::write_cpu_information(&mut info) {
+    if let Err(e) = dci::write_cpu_information(process_inspector, &mut info) {
         soft_errors.push(SectionSystemInfoError::WriteCpuInformationFailed(e));
     }
 

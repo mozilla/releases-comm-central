@@ -242,10 +242,10 @@ utf8_iter = { path = "../../third_party/rust/utf8_iter" }
 utf16_iter = { path = "../../third_party/rust/utf16_iter" }
 icu_properties = { path = "../../third_party/rust/icu_properties" }
 icu_properties_data = { path = "../../third_party/rust/icu_properties_data" }
-nix = { path = "../../build/rust/nix" }
 autocfg = { path = "../../third_party/rust/autocfg" }
 goblin = { path = "../../build/rust/goblin" }
 getrandom = { path = "../../build/rust/getrandom" }
+procfs-core = { path = "../../build/rust/procfs-core" }
 rustc-hash = { path = "../../build/rust/rustc-hash" }
 memoffset = { path = "../../build/rust/memoffset" }
 hashbrown_0_13 = { package = "hashbrown", path = "../../build/rust/hashbrown-0.13" }

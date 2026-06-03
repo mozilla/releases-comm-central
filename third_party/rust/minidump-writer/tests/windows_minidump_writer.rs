@@ -14,7 +14,7 @@ mod common;
 const EXCEPTION_ILLEGAL_INSTRUCTION: i32 = -1073741795;
 const STATUS_INVALID_PARAMETER: i32 = -1073741811;
 #[link(name = "kernel32")]
-extern "system" {
+unsafe extern "system" {
     fn GetCurrentThreadId() -> u32;
 }
 

@@ -1,21 +1,8 @@
 use {
-    super::{CommonThreadInfo, NT_Elf, Pid, ThreadInfoError},
-    crate::minidump_cpu::{RawContextCPU, FP_REG_COUNT, GP_REG_COUNT},
-    nix::sys::ptrace,
+    super::{Pid, ProcessInspector, ThreadInfoError, regs::*},
+    crate::minidump_cpu::{FP_REG_COUNT, GP_REG_COUNT, RawContextCPU},
 };
 
-/// https://github.com/rust-lang/libc/pull/2719
-#[derive(Debug)]
-#[allow(non_camel_case_types)]
-pub struct user_fpsimd_struct {
-    pub vregs: [u128; 32],
-    pub fpsr: u32,
-    pub fpcr: u32,
-}
-
-type Result<T> = std::result::Result<T, ThreadInfoError>;
-
-#[cfg(target_arch = "aarch64")]
 #[derive(Debug)]
 pub struct ThreadInfoAarch64 {
     pub stack_pointer: usize,
@@ -25,47 +12,9 @@ pub struct ThreadInfoAarch64 {
     pub fpregs: user_fpsimd_struct,
 }
 
-impl CommonThreadInfo for ThreadInfoAarch64 {}
-
 impl ThreadInfoAarch64 {
     pub fn get_instruction_pointer(&self) -> usize {
         self.regs.pc as usize
-    }
-
-    // nix currently doesn't support PTRACE_GETREGSET, so we have to do it ourselves
-    fn getregset(pid: Pid) -> Result<libc::user_regs_struct> {
-        Self::ptrace_get_data_via_io(
-            0x4204 as ptrace::RequestType, // PTRACE_GETREGSET
-            Some(NT_Elf::NT_PRSTATUS),
-            nix::unistd::Pid::from_raw(pid),
-        )
-    }
-
-    fn getregs(pid: Pid) -> Result<libc::user_regs_struct> {
-        // TODO: nix restricts PTRACE_GETREGS to arm android for some reason
-        Self::ptrace_get_data(
-            12 as ptrace::RequestType, // PTRACE_GETREGS
-            None,
-            nix::unistd::Pid::from_raw(pid),
-        )
-    }
-
-    // nix currently doesn't support PTRACE_GETREGSET, so we have to do it ourselves
-    fn getfpregset(pid: Pid) -> Result<user_fpsimd_struct> {
-        Self::ptrace_get_data_via_io(
-            0x4204 as ptrace::RequestType, // PTRACE_GETREGSET
-            Some(NT_Elf::NT_PRFPREGSET),
-            nix::unistd::Pid::from_raw(pid),
-        )
-    }
-
-    // nix currently doesn't support PTRACE_GETFPREGS, so we have to do it ourselves
-    fn getfpregs(pid: Pid) -> Result<user_fpsimd_struct> {
-        Self::ptrace_get_data(
-            14 as ptrace::RequestType, // PTRACE_GETFPREGS
-            None,
-            nix::unistd::Pid::from_raw(pid),
-        )
     }
 
     pub fn fill_cpu_context(&self, out: &mut RawContextCPU) {
@@ -85,10 +34,14 @@ impl ThreadInfoAarch64 {
         out.float_regs[..FP_REG_COUNT].copy_from_slice(&self.fpregs.vregs[..FP_REG_COUNT]);
     }
 
-    pub fn create_impl(_pid: Pid, tid: Pid) -> Result<Self> {
-        let (ppid, tgid) = Self::get_ppid_and_tgid(tid)?;
-        let regs = Self::getregset(tid).or_else(|_| Self::getregs(tid))?;
-        let fpregs = Self::getfpregset(tid).or_else(|_| Self::getfpregs(tid))?;
+    pub fn create(process_inspector: &ProcessInspector, tid: Pid) -> Result<Self, ThreadInfoError> {
+        let (ppid, tgid) = super::get_ppid_and_tgid(process_inspector, tid)?;
+        let regs = process_inspector
+            .get_gen_regs(tid)
+            .map_err(ThreadInfoError::PtraceError)?;
+        let fpregs = process_inspector
+            .get_fp_regs(tid)
+            .map_err(ThreadInfoError::PtraceError)?;
 
         let stack_pointer = regs.sp as usize;
 

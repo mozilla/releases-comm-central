@@ -1,7 +1,7 @@
 use {
     super::CrashContext,
     crate::{
-        minidump_cpu::{RawContextCPU, FP_REG_COUNT, GP_REG_COUNT},
+        minidump_cpu::{FP_REG_COUNT, GP_REG_COUNT, RawContextCPU},
         minidump_format::format,
     },
 };

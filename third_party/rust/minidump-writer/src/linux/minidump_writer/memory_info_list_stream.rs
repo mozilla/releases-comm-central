@@ -1,13 +1,19 @@
 use {
     super::*,
     minidump_common::format::{MemoryProtection, MemoryState, MemoryType},
-    procfs_core::{process::MMPermissions, FromRead},
+    procfs_core::{FromRead, process::MMPermissions},
 };
 
 #[derive(Debug, Error, serde::Serialize)]
 pub enum SectionMemInfoListError {
     #[error("Failed to write to memory")]
     MemoryWriterError(#[from] MemoryWriterError),
+    #[error("failed to open /proc/<pid>/maps file")]
+    ReadFileFailed(
+        #[source]
+        #[serde(serialize_with = "serialize_io_error")]
+        std::io::Error,
+    ),
     #[error("Failed to read from procfs")]
     ProcfsError(
         #[from]
@@ -22,10 +28,12 @@ impl MinidumpWriter {
         &mut self,
         buffer: &mut DumpBuf,
     ) -> Result<MDRawDirectory, SectionMemInfoListError> {
-        let maps = procfs_core::process::MemoryMaps::from_file(std::path::PathBuf::from(format!(
-            "/proc/{}/maps",
-            self.blamed_thread
-        )))?;
+        let path = format!("/proc/{}/maps", self.blamed_thread);
+        let reader = self
+            .process_inspector
+            .read_file(&path)
+            .map_err(SectionMemInfoListError::ReadFileFailed)?;
+        let maps = procfs_core::process::MemoryMaps::from_read(reader)?;
 
         let list_header = MemoryWriter::alloc_with_val(
             buffer,

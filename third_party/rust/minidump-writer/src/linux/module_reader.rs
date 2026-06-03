@@ -1,22 +1,21 @@
 use {
-    super::{mem_reader::MemReader, serializers::*},
+    super::{process_inspection::ProcessInspector, serializers::*},
+    crate::module_reader::{ModuleMemoryReadError, ProcessModuleMemoryReader},
     crate::{minidump_format::GUID, serializers::*},
     goblin::{
         container::{Container, Ctx, Endian},
         elf,
     },
-    std::{borrow::Cow, ffi::CStr},
+    std::{
+        borrow::Cow,
+        ffi::{CStr, OsString},
+        path::Path,
+    },
 };
 
-type Buf<'buf> = Cow<'buf, [u8]>;
 type Error = ModuleReaderError;
 
 const NOTE_SECTION_NAME: &[u8] = b".note.gnu.build-id\0";
-
-pub struct ProcessReader {
-    inner: MemReader,
-    start_address: u64,
-}
 
 #[derive(Debug, thiserror::Error, serde::Serialize)]
 pub enum ModuleReaderError {
@@ -27,15 +26,8 @@ pub enum ModuleReaderError {
         #[serde(serialize_with = "serialize_io_error")]
         error: std::io::Error,
     },
-    #[error("failed to read module memory: {length} bytes at {offset}{}: {error}", .start_address.map(|addr| format!(" (start address: {addr})")).unwrap_or_default())]
-    ReadModuleMemory {
-        offset: u64,
-        length: u64,
-        start_address: Option<u64>,
-        #[source]
-        #[serde(serialize_with = "serialize_nix_error")]
-        error: nix::Error,
-    },
+    #[error(transparent)]
+    ReadModuleMemory(#[from] ModuleMemoryReadError),
     #[error("failed to parse ELF memory: {0}")]
     Parsing(
         #[from]
@@ -82,83 +74,28 @@ pub enum ModuleReaderError {
         program_headers: Box<Self>,
         section: Box<Self>,
     },
-}
-
-impl ProcessReader {
-    pub fn new(pid: i32, start_address: usize) -> Self {
-        Self {
-            inner: MemReader::new(pid),
-            start_address: start_address as u64,
-        }
-    }
-}
-
-pub enum ProcessMemory<'buf> {
-    Slice(&'buf [u8]),
-    Process(ProcessReader),
-}
-
-impl<'buf> From<&'buf [u8]> for ProcessMemory<'buf> {
-    fn from(value: &'buf [u8]) -> Self {
-        Self::Slice(value)
-    }
-}
-
-impl From<ProcessReader> for ProcessMemory<'_> {
-    fn from(value: ProcessReader) -> Self {
-        Self::Process(value)
-    }
-}
-
-impl<'buf> ProcessMemory<'buf> {
-    #[inline]
-    fn read(&mut self, offset: u64, length: u64) -> Result<Buf<'buf>, Error> {
-        let error = move |start_address, error| Error::ReadModuleMemory {
-            start_address,
-            offset,
-            length,
-            error,
-        };
-
-        match self {
-            Self::Process(pr) => {
-                let error = |e| error(Some(pr.start_address), e);
-                let len = std::num::NonZeroUsize::new(length as usize)
-                    .ok_or_else(|| error(nix::Error::EINVAL))?;
-                let proc_offset = pr
-                    .start_address
-                    .checked_add(offset)
-                    .ok_or_else(|| error(nix::Error::EOVERFLOW))?;
-                pr.inner
-                    .read_to_vec(proc_offset as _, len)
-                    .map(Cow::Owned)
-                    .map_err(|err| error(err.source))
-            }
-            Self::Slice(s) => {
-                let error = |e| error(None, e);
-                let end = offset
-                    .checked_add(length)
-                    .ok_or_else(|| error(nix::Error::EOVERFLOW))?;
-                s.get(offset as usize..end as usize)
-                    .map(Cow::Borrowed)
-                    .ok_or_else(|| error(nix::Error::EACCES))
-            }
-        }
-    }
-
-    /// Calculates the absolute address of the specified relative address
-    #[inline]
-    fn absolute(&self, addr: u64) -> u64 {
-        let Self::Process(pr) = self else {
-            return addr;
-        };
-        addr.checked_sub(pr.start_address).unwrap_or(addr)
-    }
-
-    #[inline]
-    fn is_process_memory(&self) -> bool {
-        matches!(self, Self::Process(_))
-    }
+    #[error("Not safe to open mapping {}", .0.to_string_lossy())]
+    NotSafeToOpenMapping(OsString),
+    #[error("Mmapped file empty or not an ELF file")]
+    MmapSanityCheckFailed,
+    #[error("Linux gate location doesn't fit in the required integer type")]
+    LinuxGateNotConvertable(
+        #[source]
+        #[serde(skip)]
+        std::num::TryFromIntError,
+    ),
+    #[error("IO Error")]
+    FileError(
+        #[source]
+        #[serde(serialize_with = "serialize_io_error")]
+        std::io::Error,
+    ),
+    #[error("failed to map file")]
+    MapError(
+        #[source]
+        #[serde(serialize_with = "serialize_io_error")]
+        std::io::Error,
+    ),
 }
 
 #[inline]
@@ -188,11 +125,11 @@ fn build_id_from_bytes(data: &[u8]) -> Vec<u8> {
 }
 
 // `name` should be null-terminated
-fn section_header_with_name<'sc>(
+fn section_header_with_name<'sc, MM: ReadModuleMemory>(
     section_headers: &'sc elf::SectionHeaders,
     strtab_index: usize,
     name: &[u8],
-    module_memory: &mut ProcessMemory<'_>,
+    module_memory: &MM,
 ) -> Result<Option<&'sc elf::SectionHeader>, Error> {
     let strtab_section_header = section_headers
         .get(strtab_index)
@@ -217,46 +154,73 @@ fn section_header_with_name<'sc>(
     Ok(None)
 }
 
-/// Types which can be read from ProcessMemory.
-pub trait ReadFromModule: Sized {
-    fn read_from_module(module_memory: ProcessMemory<'_>) -> Result<Self, Error>;
-
-    fn read_from_file(path: &std::path::Path) -> Result<Self, Error> {
-        let map = std::fs::File::open(path)
-            // Safety: the file is an executable binary (very likely read-only), and won't be changed.
-            .and_then(|file| unsafe { memmap2::Mmap::map(&file) })
-            .map_err(|error| Error::MapFile {
-                path: path.to_owned(),
-                error,
-            })?;
-        Self::read_from_module(ProcessMemory::Slice(&map))
-    }
+pub fn read_build_id_from_file(
+    process_inspector: &ProcessInspector,
+    path: &Path,
+) -> Result<Vec<u8>, Error> {
+    let module_memory_reader = process_inspector.read_memory_mapped_module(path, 0)?;
+    read_build_id_from_module(module_memory_reader)
 }
 
-/// The module build id.
-pub struct BuildId(pub Vec<u8>);
+pub fn read_build_id_from_module(module_memory: impl ReadModuleMemory) -> Result<Vec<u8>, Error> {
+    let reader = ModuleReader::new(module_memory)?;
+    let program_headers = match reader.build_id_from_program_headers() {
+        Ok(v) => return Ok(v),
+        Err(e) => Box::new(e),
+    };
+    let section = match reader.build_id_from_section() {
+        Ok(v) => return Ok(v),
+        Err(e) => Box::new(e),
+    };
+    let generated = match reader.build_id_generate_from_text() {
+        Ok(v) => return Ok(v),
+        Err(e) => Box::new(e),
+    };
+    Err(Error::NoBuildId {
+        program_headers,
+        section,
+        generated,
+    })
+}
 
-impl ReadFromModule for BuildId {
-    fn read_from_module(module_memory: ProcessMemory<'_>) -> Result<Self, Error> {
-        let mut reader = ModuleReader::new(module_memory)?;
-        let program_headers = match reader.build_id_from_program_headers() {
-            Ok(v) => return Ok(BuildId(v)),
-            Err(e) => Box::new(e),
-        };
-        let section = match reader.build_id_from_section() {
-            Ok(v) => return Ok(BuildId(v)),
-            Err(e) => Box::new(e),
-        };
-        let generated = match reader.build_id_generate_from_text() {
-            Ok(v) => return Ok(BuildId(v)),
-            Err(e) => Box::new(e),
-        };
-        Err(Error::NoBuildId {
-            program_headers,
-            section,
-            generated,
-        })
+pub fn read_soname_from_file(
+    process_inspector: &ProcessInspector,
+    path: &Path,
+    offset: usize,
+) -> Result<String, Error> {
+    let offset = u64::try_from(offset).map_err(Error::LinuxGateNotConvertable)?;
+
+    // It is unsafe to attempt to open a mapped file that lives under /dev,
+    // because the semantics of the open may be driver-specific so we'd risk
+    // hanging the crash dumper. And a file in /dev/ almost certainly has no
+    // ELF file identifier anyways.
+    if path.starts_with("/dev/") {
+        return Err(Error::NotSafeToOpenMapping(path.as_os_str().to_os_string()));
     }
+
+    let module_memory_reader = process_inspector.read_memory_mapped_module(path, offset)?;
+
+    if module_memory_reader.is_empty() || module_memory_reader.len() < elf::header::SELFMAG {
+        return Err(Error::MmapSanityCheckFailed);
+    }
+
+    read_soname_from_module(module_memory_reader)
+}
+
+pub fn read_soname_from_module(module_memory: impl ReadModuleMemory) -> Result<String, Error> {
+    let reader = ModuleReader::new(module_memory)?;
+    let program_headers = match reader.soname_from_program_headers() {
+        Ok(v) => return Ok(v),
+        Err(e) => Box::new(e),
+    };
+    let section = match reader.soname_from_sections() {
+        Ok(v) => return Ok(v),
+        Err(e) => Box::new(e),
+    };
+    Err(Error::NoSoName {
+        program_headers,
+        section,
+    })
 }
 
 struct DynIter<'a> {
@@ -292,36 +256,14 @@ impl Iterator for DynIter<'_> {
     }
 }
 
-/// The module SONAME.
-#[derive(Default, Clone, Debug)]
-pub struct SoName(pub String);
-
-impl ReadFromModule for SoName {
-    fn read_from_module(module_memory: ProcessMemory<'_>) -> Result<Self, Error> {
-        let mut reader = ModuleReader::new(module_memory)?;
-        let program_headers = match reader.soname_from_program_headers() {
-            Ok(v) => return Ok(SoName(v)),
-            Err(e) => Box::new(e),
-        };
-        let section = match reader.soname_from_sections() {
-            Ok(v) => return Ok(SoName(v)),
-            Err(e) => Box::new(e),
-        };
-        Err(Error::NoSoName {
-            program_headers,
-            section,
-        })
-    }
-}
-
-pub struct ModuleReader<'buf> {
-    module_memory: ProcessMemory<'buf>,
+pub struct ModuleReader<MM> {
+    module_memory: MM,
     header: elf::Header,
     context: Ctx,
 }
 
-impl<'buf> ModuleReader<'buf> {
-    pub fn new(mut module_memory: ProcessMemory<'buf>) -> Result<Self, Error> {
+impl<MM: ReadModuleMemory> ModuleReader<MM> {
+    pub fn new(module_memory: MM) -> Result<ModuleReader<MM>, Error> {
         // We could use `Ctx::default()` (which defaults to the native system), however to be extra
         // permissive we'll just use a 64-bit ("Big") context which would result in the largest
         // possible header size.
@@ -337,8 +279,38 @@ impl<'buf> ModuleReader<'buf> {
         })
     }
 
+    /// Find a note referenced by the program headers.
+    pub fn find_program_note(
+        &self,
+        note_type: u32,
+        note_size: usize,
+        note_name: &str,
+    ) -> Result<Option<Vec<u8>>, Error> {
+        let program_headers = self.read_program_headers()?;
+        for header in program_headers {
+            if header.p_type != elf::program_header::PT_NOTE
+                || (header.p_flags & elf::program_header::PF_R) == 0
+                || (header.p_memsz as usize) < note_size
+            {
+                continue;
+            }
+
+            if let Some(data) = self.find_note(
+                header.p_offset,
+                header.p_filesz,
+                header.p_align,
+                note_type,
+                note_size,
+                note_name,
+            )? {
+                return Ok(Some(data));
+            }
+        }
+        Ok(None)
+    }
+
     /// Read the SONAME using program headers to locate dynamic library information.
-    pub fn soname_from_program_headers(&mut self) -> Result<String, Error> {
+    pub fn soname_from_program_headers(&self) -> Result<String, Error> {
         let program_headers = self.read_program_headers()?;
 
         let dynamic_segment_header = program_headers
@@ -367,7 +339,13 @@ impl<'buf> ModuleReader<'buf> {
             (Some(addr), Some(size), Some(offset)) => {
                 // If loaded in memory, the address will be altered to be absolute.
                 if offset < size {
-                    self.read_name_from_strtab(self.module_memory.absolute(addr), size, offset)
+                    self.read_name_from_strtab(
+                        self.module_memory
+                            .absolute_to_relative(addr)
+                            .unwrap_or(addr),
+                        size,
+                        offset,
+                    )
                 } else {
                     log::warn!("soname strtab offset ({offset}) exceeds strtab size ({size})");
                     Err(Error::NoSoNameEntry)
@@ -377,7 +355,7 @@ impl<'buf> ModuleReader<'buf> {
     }
 
     /// Read the SONAME using section headers to locate dynamic library information.
-    pub fn soname_from_sections(&mut self) -> Result<String, Error> {
+    pub fn soname_from_sections(&self) -> Result<String, Error> {
         let section_headers = self.read_section_headers()?;
 
         let dynamic_section_header = section_headers
@@ -392,7 +370,7 @@ impl<'buf> ModuleReader<'buf> {
                     &section_headers,
                     self.header.e_shstrndx as usize,
                     b".dynstr\0",
-                    &mut self.module_memory,
+                    &self.module_memory,
                 )?
                 .ok_or(Error::NoDynStrSection)?,
             };
@@ -425,7 +403,7 @@ impl<'buf> ModuleReader<'buf> {
     }
 
     /// Read the build id from a program header note.
-    pub fn build_id_from_program_headers(&mut self) -> Result<Vec<u8>, Error> {
+    pub fn build_id_from_program_headers(&self) -> Result<Vec<u8>, Error> {
         let program_headers = self.read_program_headers()?;
         for header in program_headers {
             if header.p_type != elf::program_header::PT_NOTE {
@@ -441,14 +419,14 @@ impl<'buf> ModuleReader<'buf> {
     }
 
     /// Read the build id from a notes section.
-    pub fn build_id_from_section(&mut self) -> Result<Vec<u8>, Error> {
+    pub fn build_id_from_section(&self) -> Result<Vec<u8>, Error> {
         let section_headers = self.read_section_headers()?;
 
         let header = section_header_with_name(
             &section_headers,
             self.header.e_shstrndx as usize,
             NOTE_SECTION_NAME,
-            &mut self.module_memory,
+            &self.module_memory,
         )?
         .ok_or(Error::NoSectionNote)?;
 
@@ -460,7 +438,7 @@ impl<'buf> ModuleReader<'buf> {
     }
 
     /// Generate a build id by hashing the first page of the text section.
-    pub fn build_id_generate_from_text(&mut self) -> Result<Vec<u8>, Error> {
+    pub fn build_id_generate_from_text(&self) -> Result<Vec<u8>, Error> {
         let Some(text_header) = self
             .read_section_headers()?
             .into_iter()
@@ -475,18 +453,18 @@ impl<'buf> ModuleReader<'buf> {
         Ok(build_id_from_bytes(&text_data))
     }
 
-    fn read_segment(&mut self, header: &elf::ProgramHeader) -> Result<Buf<'buf>, Error> {
+    fn read_segment<'a>(&'a self, header: &elf::ProgramHeader) -> Result<Cow<'a, [u8]>, Error> {
         let (offset, size) = if self.module_memory.is_process_memory() {
             (header.p_vaddr, header.p_memsz)
         } else {
             (header.p_offset, header.p_filesz)
         };
 
-        self.module_memory.read(offset, size)
+        self.module_memory.read(offset, size).map_err(|e| e.into())
     }
 
     fn read_name_from_strtab(
-        &mut self,
+        &self,
         strtab_offset: u64,
         strtab_size: u64,
         name_offset: u64,
@@ -508,7 +486,7 @@ impl<'buf> ModuleReader<'buf> {
         }
     }
 
-    fn read_program_headers(&mut self) -> Result<elf::ProgramHeaders, Error> {
+    fn read_program_headers(&self) -> Result<elf::ProgramHeaders, Error> {
         if self.header.e_phoff == 0 {
             return Err(Error::NoProgramHeaders);
         }
@@ -525,7 +503,7 @@ impl<'buf> ModuleReader<'buf> {
         Ok(program_headers)
     }
 
-    fn read_section_headers(&mut self) -> Result<elf::SectionHeaders, Error> {
+    fn read_section_headers(&self) -> Result<elf::SectionHeaders, Error> {
         if self.header.e_shoff == 0 {
             return Err(Error::NoSections);
         }
@@ -545,10 +523,29 @@ impl<'buf> ModuleReader<'buf> {
     }
 
     fn find_build_id_note(
-        &mut self,
+        &self,
         offset: u64,
         size: u64,
         alignment: u64,
+    ) -> Result<Option<Vec<u8>>, Error> {
+        self.find_note(
+            offset,
+            size,
+            alignment,
+            elf::note::NT_GNU_BUILD_ID,
+            0,
+            "GNU",
+        )
+    }
+
+    fn find_note(
+        &self,
+        offset: u64,
+        size: u64,
+        alignment: u64,
+        note_type: u32,
+        note_min_size: usize,
+        note_name: &str,
     ) -> Result<Option<Vec<u8>>, Error> {
         let notes = self.module_memory.read(offset, size)?;
         for note in (elf::note::NoteDataIterator {
@@ -560,11 +557,39 @@ impl<'buf> ModuleReader<'buf> {
             ctx: (alignment as usize, self.context),
         }) {
             let Ok(note) = note else { break };
-            if note.name == "GNU" && note.n_type == elf::note::NT_GNU_BUILD_ID {
+            if note.name == note_name
+                && note.n_type == note_type
+                && note.desc.len() >= note_min_size
+            {
                 return Ok(Some(note.desc.to_owned()));
             }
         }
         Ok(None)
+    }
+}
+
+pub trait ReadModuleMemory {
+    fn read<'a>(&'a self, offset: u64, length: u64)
+    -> Result<Cow<'a, [u8]>, ModuleMemoryReadError>;
+    fn absolute_to_relative(&self, addr: u64) -> Option<u64>;
+    /// Calculates the absolute address of the specified relative address
+    fn relative_to_absolute(&self, addr: u64) -> Option<u64>;
+    fn is_process_memory(&self) -> bool;
+}
+
+impl<'a> ReadModuleMemory for ProcessModuleMemoryReader<'a> {
+    fn read(&self, offset: u64, length: u64) -> Result<Cow<'a, [u8]>, ModuleMemoryReadError> {
+        self.read(offset, length)
+    }
+    fn absolute_to_relative(&self, addr: u64) -> Option<u64> {
+        addr.checked_sub(self.start_address)
+    }
+    /// Calculates the absolute address of the specified relative address
+    fn relative_to_absolute(&self, addr: u64) -> Option<u64> {
+        self.start_address.checked_add(addr)
+    }
+    fn is_process_memory(&self) -> bool {
+        true
     }
 }
 
@@ -646,7 +671,7 @@ mod test {
 
     #[test]
     fn build_id_program_headers() {
-        let mut reader = ModuleReader::new(TINY_ELF.into()).unwrap();
+        let reader = ModuleReader::new(SliceModuleMemoryReader(TINY_ELF)).unwrap();
         let id = reader.build_id_from_program_headers().unwrap();
         assert_eq!(
             id,
@@ -656,7 +681,7 @@ mod test {
 
     #[test]
     fn build_id_section() {
-        let mut reader = ModuleReader::new(TINY_ELF.into()).unwrap();
+        let reader = ModuleReader::new(SliceModuleMemoryReader(TINY_ELF)).unwrap();
         let id = reader.build_id_from_section().unwrap();
         assert_eq!(
             id,
@@ -666,25 +691,65 @@ mod test {
 
     #[test]
     fn build_id_text_hash() {
-        let mut reader = ModuleReader::new(TINY_ELF.into()).unwrap();
+        let reader = ModuleReader::new(SliceModuleMemoryReader(TINY_ELF)).unwrap();
         let id = reader.build_id_generate_from_text().unwrap();
         assert_eq!(
             id,
-            vec![0x6a, 0x3c, 0x58, 0x31, 0xff, 0x0f, 0x05, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            vec![
+                0x6a, 0x3c, 0x58, 0x31, 0xff, 0x0f, 0x05, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            ]
         );
     }
 
     #[test]
     fn soname_program_headers() {
-        let mut reader = ModuleReader::new(TINY_ELF.into()).unwrap();
+        let reader = ModuleReader::new(SliceModuleMemoryReader(TINY_ELF)).unwrap();
         let soname = reader.soname_from_program_headers().unwrap();
         assert_eq!(soname, "libfoo.so.1");
     }
 
     #[test]
     fn soname_section() {
-        let mut reader = ModuleReader::new(TINY_ELF.into()).unwrap();
+        let reader = ModuleReader::new(SliceModuleMemoryReader(TINY_ELF)).unwrap();
         let soname = reader.soname_from_sections().unwrap();
         assert_eq!(soname, "libfoo.so.1");
+    }
+
+    pub struct SliceModuleMemoryReader<'a>(pub &'a [u8]);
+
+    impl<'a> ReadModuleMemory for SliceModuleMemoryReader<'a> {
+        fn read<'b>(
+            &'b self,
+            offset: u64,
+            length: u64,
+        ) -> Result<Cow<'b, [u8]>, ModuleMemoryReadError> {
+            let inner = || {
+                use crate::module_reader::ReadError as E;
+                let offset = usize::try_from(offset).map_err(|_| E::Overflow)?;
+                let length = usize::try_from(length).map_err(|_| E::Overflow)?;
+                let end = offset.checked_add(length).ok_or(E::Overflow)?;
+                self.0
+                    .get(offset..end)
+                    .map(Cow::Borrowed)
+                    .ok_or(E::OutOfBounds)
+            };
+
+            inner().map_err(|error| ModuleMemoryReadError {
+                start_address: None,
+                offset,
+                length,
+                error,
+            })
+        }
+        fn absolute_to_relative(&self, addr: u64) -> Option<u64> {
+            Some(addr)
+        }
+        /// Calculates the absolute address of the specified relative address
+        fn relative_to_absolute(&self, addr: u64) -> Option<u64> {
+            Some(addr)
+        }
+        fn is_process_memory(&self) -> bool {
+            false
+        }
     }
 }

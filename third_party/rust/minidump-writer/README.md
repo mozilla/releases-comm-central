@@ -125,7 +125,3 @@ fn write_minidump(crash_context: crash_context::CrashContext) {
 `i686`      | ✅                | ✅                 | ❌            | ⭕️              | ❌           | ❌        |
 `arm`       | ⚠️                | ⚠️                 | ⚠️            | ⭕️              | ❌           | ❌        |
 `aarch64`   | ⚠️                | ⚠️                 | ⚠️            | ⭕️              | ✅           | ⭕️        |
-`mips`      | ⭕️                | ⭕️                 | ❌            | ❌              | ❌           | ❌        |
-`mips64`    | ⭕️                | ⭕️                 | ❌            | ❌              | ❌           | ❌        |
-`powerpc`   | ⭕️                | ⭕️                 | ❌            | ❌              | ❌           | ❌        |
-`powerpc64` | ⭕️                | ⭕️                 | ❌            | ❌              | ❌           | ❌        |

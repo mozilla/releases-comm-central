@@ -3,7 +3,7 @@
 
 // Just exports all of the mach functions we use into a flat list
 pub use mach2::{
-    kern_return::{kern_return_t, KERN_SUCCESS},
+    kern_return::{KERN_SUCCESS, kern_return_t},
     port::mach_port_name_t,
     task::{self, task_threads},
     task_info,
@@ -22,9 +22,13 @@ pub enum KernelError {
     InvalidAddress = 1,
     #[error("specified memory is valid, but does not permit the required forms of access")]
     ProtectionFailure = 2,
-    #[error("the address range specified is already in use, or no address range of the size specified could be found")]
+    #[error(
+        "the address range specified is already in use, or no address range of the size specified could be found"
+    )]
     NoSpace = 3,
-    #[error("the function requested was not applicable to this type of argument, or an argument is invalid")]
+    #[error(
+        "the function requested was not applicable to this type of argument, or an argument is invalid"
+    )]
     InvalidArgument = 4,
     #[error("the function could not be performed")]
     Failure = 5,
@@ -38,9 +42,7 @@ pub enum KernelError {
         "during a page fault, the target address refers to a memory object that has been destroyed"
     )]
     MemoryFailure = 9,
-    #[error(
-        "during a page fault, the memory object indicated that the data could not be returned"
-    )]
+    #[error("during a page fault, the memory object indicated that the data could not be returned")]
     MemoryError = 10,
     #[error("the receive right is already a member of the portset")]
     AlreadyInSet = 11,
@@ -66,12 +68,16 @@ pub enum KernelError {
     RightExists = 21,
     #[error("target host isn't actually a host")]
     InvalidHost = 22,
-    #[error("an attempt was made to supply 'precious' data for memory that is already present in a memory object")]
+    #[error(
+        "an attempt was made to supply 'precious' data for memory that is already present in a memory object"
+    )]
     MemoryPresent = 23,
     // These 2 are errors which should only ever be seen by the kernel itself
     //MemoryDataMoved = 24,
     //MemoryRestartCopy = 25,
-    #[error("an argument applied to assert processor set privilege was not a processor set control port")]
+    #[error(
+        "an argument applied to assert processor set privilege was not a processor set control port"
+    )]
     InvalidProcessorSet = 26,
     #[error("the specified scheduling attributes exceed the thread's limits")]
     PolicyLimit = 27,
@@ -85,7 +91,9 @@ pub enum KernelError {
     AlreadyWaiting = 30,
     #[error("an attempt was made to destroy the default processor set")]
     DefaultSet = 31,
-    #[error("an attempt was made to fetch an exception port that is protected, or to abort a thread while processing a protected exception")]
+    #[error(
+        "an attempt was made to fetch an exception port that is protected, or to abort a thread while processing a protected exception"
+    )]
     ExceptionProtected = 32,
     #[error("a ledger was required but not supplied")]
     InvalidLedger = 33,
@@ -107,7 +115,9 @@ pub enum KernelError {
     LockOwnedSelf = 41,
     #[error("semaphore has been destroyed and is no longer available")]
     SemaphoreDestroyed = 42,
-    #[error("return from RPC indicating the target server was terminated before it successfully replied")]
+    #[error(
+        "return from RPC indicating the target server was terminated before it successfully replied"
+    )]
     RpcServerTerminated = 43,
     #[error("terminate an orphaned activation")]
     RpcTerminateOrphan = 44,
@@ -121,7 +131,9 @@ pub enum KernelError {
     NotWaiting = 48,
     #[error("some thread-oriented operation (semaphore_wait) timed out")]
     OperationTimedOut = 49,
-    #[error("during a page fault, indicates that the page was rejected as a result of a signature check")]
+    #[error(
+        "during a page fault, indicates that the page was rejected as a result of a signature check"
+    )]
     CodesignError = 50,
     #[error("the requested property cannot be changed at this time")]
     PoicyStatic = 51,
@@ -648,7 +660,7 @@ pub fn sysctl_string(name: &[u8]) -> String {
     String::from_utf8(string_buf).unwrap_or_default()
 }
 
-extern "C" {
+unsafe extern "C" {
     /// From <usr/include/mach/mach_traps.h>, this retrieves the normal PID for
     /// the specified task as the syscalls from BSD use PIDs, not mach ports.
     ///

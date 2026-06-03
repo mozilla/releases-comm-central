@@ -8,6 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
+## [0.12.0] - 2026-05-07
+### Changed
+- [PR#169](https://github.com/rust-minidump/minidump-writer/pull/169) updated the crate to edition 2024 and an MSRV of 1.85.0.
+- [PR#172](https://github.com/rust-minidump/minidump-writer/pull/172) updated dependencies, resolving several audit failures. The MSRV was changed to 1.88.0 due to the `time` crate.
+- [PR#173](https://github.com/rust-minidump/minidump-writer/pull/173) replaced the `windows-sys` dependency introduced in [PR#168](https://github.com/rust-minidump/minidump-writer/pull/168) with inline bindings.
+
+### Fixed
+- [PR#164](https://github.com/rust-minidump/minidump-writer/pull/164) resolved [#163](https://github.com/rust-minidump/minidump-writer/issues/163) by avoiding reading Linux distro information on Android.
+
+### Added
+- [PR#168](https://github.com/rust-minidump/minidump-writer/pull/168) resolved [MOZ#1831094](https://bugzilla.mozilla.org/show_bug.cgi?id=1831094) by adding functionality for reading process and module reading for each platform minidump-writer targets.
+
 ## [0.11.0] - 2025-09-15
 ### Changed
 - [PR#146](https://github.com/rust-minidump/minidump-writer/pull/146) changed `windows::MinidumpWriter::dump_crash_context` to take crash_context by reference.
@@ -174,7 +186,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial release, including basic support for `x86_64-unknown-linux-gnu/musl` and `x86_64-pc-windows-msvc`
 
 <!-- next-url -->
-[Unreleased]: https://github.com/rust-minidump/minidump-writer/compare/0.11.0...HEAD
+[Unreleased]: https://github.com/rust-minidump/minidump-writer/compare/0.12.0...HEAD
+[0.12.0]: https://github.com/rust-minidump/minidump-writer/compare/0.11.0...0.12.0
 [0.11.0]: https://github.com/rust-minidump/minidump-writer/compare/0.10.2...0.11.0
 [0.10.2]: https://github.com/rust-minidump/minidump-writer/compare/0.10.1...0.10.2
 [0.10.1]: https://github.com/rust-minidump/minidump-writer/compare/0.10.0...0.10.1

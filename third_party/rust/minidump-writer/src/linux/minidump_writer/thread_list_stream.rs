@@ -96,8 +96,9 @@ impl MinidumpWriter {
             // we used the actual state of the thread we would find it running in the
             // signal handler with the alternative stack, which would be deeply
             // unhelpful.
-            if self.crash_context.is_some() && thread.thread_id == self.blamed_thread as u32 {
-                let crash_context = self.crash_context.as_ref().unwrap();
+            if let Some(crash_context) = &self.crash_context
+                && thread.thread_id == self.blamed_thread as u32
+            {
                 let instruction_ptr = crash_context.get_instruction_pointer();
                 let stack_pointer = crash_context.get_stack_pointer();
                 self.fill_thread_stack(
@@ -136,6 +137,7 @@ impl MinidumpWriter {
                         (end_of_range - ip_memory_d.start_of_memory_range) as u32;
 
                     let memory_copy = MinidumpWriter::copy_from_process(
+                        &self.process_inspector,
                         thread.thread_id as i32,
                         ip_memory_d.start_of_memory_range as _,
                         ip_memory_d.memory.data_size as usize,
@@ -210,6 +212,7 @@ impl MinidumpWriter {
             };
 
             let mut stack_bytes = MinidumpWriter::copy_from_process(
+                &self.process_inspector,
                 thread.thread_id.try_into()?,
                 valid_stack_ptr,
                 stack_len,

@@ -1,5 +1,6 @@
 use {
     super::super::{
+        Pid,
         auxv::AuxvError,
         dso_debug::SectionDsoDebugError,
         maps_reader::MapsReaderError,
@@ -12,8 +13,8 @@ use {
             thread_names_stream::SectionThreadNamesError,
         },
         module_reader::ModuleReaderError,
+        process_inspection,
         serializers::*,
-        Pid,
     },
     crate::{dir_section::FileWriterError, mem_writer::MemoryWriterError, serializers::*},
     error_graph::ErrorList,
@@ -150,15 +151,18 @@ pub enum WriterError {
         #[serde(skip)]
         std::num::TryFromIntError,
     ),
+    #[error("failed to suspend thread")]
+    SuspendThreadFailed(#[source] process_inspection::SuspendResumeThreadError),
+    #[error("failed to resume thread")]
+    ResumeThreadFailed(#[source] process_inspection::SuspendResumeThreadError),
 }
 
 #[derive(Debug, Error, serde::Serialize)]
 pub enum InitError {
     #[error("failed to read auxv")]
     ReadAuxvFailed(#[source] super::super::auxv::AuxvError),
-    #[error("IO error for file {0}")]
-    IOError(
-        String,
+    #[error("IO error reading /proc/<pid>/task")]
+    ReadProcTaskFailed(
         #[source]
         #[serde(serialize_with = "serialize_io_error")]
         std::io::Error,
@@ -200,12 +204,6 @@ pub enum InitError {
     EnumerateThreadsErrors(#[source] ErrorList<InitError>),
     #[error("Failed to enumerate threads")]
     EnumerateThreadsFailed(#[source] Box<InitError>),
-    #[error("Failed to read process map file")]
-    ReadProcessMapFileFailed(
-        #[source]
-        #[serde(serialize_with = "serialize_proc_error")]
-        ProcError,
-    ),
     #[error("Failed to aggregate process mappings")]
     AggregateMappingsFailed(#[source] MapsReaderError),
     #[error("Failed to enumerate process mappings")]
@@ -226,6 +224,12 @@ pub enum StopProcessError {
         #[serde(serialize_with = "serialize_nix_error")]
         nix::Error,
     ),
+    #[error("failed to open process file")]
+    ReadFileFailed(
+        #[source]
+        #[serde(serialize_with = "serialize_io_error")]
+        std::io::Error,
+    ),
     #[error("Failed to get the process state")]
     State(
         #[from]
@@ -237,7 +241,5 @@ pub enum StopProcessError {
 }
 
 #[derive(Debug, thiserror::Error)]
-pub enum ContinueProcessError {
-    #[error("Failed to continue the process")]
-    Continue(#[from] Errno),
-}
+#[error("Failed to continue the process")]
+pub struct ContinueProcessError(#[source] pub Errno);

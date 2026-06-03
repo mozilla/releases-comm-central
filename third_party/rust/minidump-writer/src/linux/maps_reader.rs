@@ -1,16 +1,19 @@
 use {
-    super::{auxv::AuxvType, module_reader::ModuleReaderError, serializers::*},
+    super::{
+        auxv::AuxvType, module_reader::ModuleReaderError, process_inspection::ProcessInspector,
+        serializers::*,
+    },
     crate::serializers::*,
     byteorder::{NativeEndian, ReadBytesExt},
-    goblin::elf,
-    memmap2::{Mmap, MmapOptions},
-    procfs_core::process::{MMPermissions, MMapPath, MemoryMaps},
+    procfs_core::{
+        FromRead,
+        process::{MMPermissions, MMapPath, MemoryMaps},
+    },
     std::{
         ffi::{OsStr, OsString},
-        fs::File,
         mem::size_of,
         os::unix::ffi::{OsStrExt, OsStringExt},
-        path::PathBuf,
+        path::{Path, PathBuf},
     },
 };
 
@@ -64,6 +67,10 @@ pub enum MapsReaderError {
         #[serde(serialize_with = "serialize_goblin_error")]
         goblin::error::Error,
     ),
+    #[error("error reading soname from file")]
+    ReadSoNameFromFileFailed(#[source] ModuleReaderError),
+    #[error("failed to memory map file")]
+    MemoryMapFileFailed(#[source] ModuleReaderError),
     #[error("No soname found (filename: {})", .0.to_string_lossy())]
     NoSoName(OsString, #[source] ModuleReaderError),
 
@@ -96,6 +103,14 @@ pub enum MapsReaderError {
     MmapSanityCheckFailed,
     #[error("Symlink does not match ({0} vs. {1})")]
     SymlinkError(std::path::PathBuf, std::path::PathBuf),
+    #[error("Mappings file missing for pid {pid} (is the process still alive?)")]
+    MappingFileMissing { pid: i32 },
+    #[error("Failed to parse memory maps file")]
+    ParsingError(
+        #[from]
+        #[serde(serialize_with = "serialize_proc_error")]
+        procfs_core::ProcError,
+    ),
 }
 
 fn is_mapping_a_path(pathname: Option<&OsStr>) -> bool {
@@ -117,6 +132,24 @@ fn sanitize_path(pathname: OsString) -> OsString {
 }
 
 impl MappingInfo {
+    /// Get the mappings for the given process.
+    pub fn for_pid(
+        process_inspector: &ProcessInspector,
+        pid: i32,
+        linux_gate_loc: Option<AuxvType>,
+    ) -> Result<Vec<Self>> {
+        let maps_path = format!("/proc/{}/maps", pid);
+        let maps_file = process_inspector.read_file(&maps_path).map_err(|e| {
+            if e.kind() == std::io::ErrorKind::NotFound {
+                MapsReaderError::MappingFileMissing { pid }
+            } else {
+                e.into()
+            }
+        })?;
+        let maps = MemoryMaps::from_read(maps_file)?;
+        Self::aggregate(maps, linux_gate_loc)
+    }
+
     /// Return whether the `name` field is a path (contains a `/`).
     pub fn name_is_path(&self) -> bool {
         is_mapping_a_path(self.name.as_deref())
@@ -157,11 +190,11 @@ impl MappingInfo {
 
             let is_path = is_mapping_a_path(pathname.as_deref());
 
-            if let Some(linux_gate_loc) = linux_gate_loc.map(|u| usize::try_from(u).unwrap()) {
-                if !is_path && start_address == linux_gate_loc {
-                    pathname = Some(LINUX_GATE_LIBRARY_NAME.into());
-                    offset = 0;
-                }
+            if let Some(linux_gate_loc) = linux_gate_loc.map(|u| usize::try_from(u).unwrap())
+                && (!is_path && (start_address == linux_gate_loc))
+            {
+                pathname = Some(LINUX_GATE_LIBRARY_NAME.into());
+                offset = 0;
             }
 
             if let Some(prev_module) = infos.last_mut() {
@@ -232,28 +265,6 @@ impl MappingInfo {
         Ok(infos)
     }
 
-    pub fn get_mmap(name: &Option<OsString>, offset: usize) -> Result<Mmap> {
-        if !MappingInfo::is_mapped_file_safe_to_open(name) {
-            return Err(MapsReaderError::NotSafeToOpenMapping(
-                name.clone().unwrap_or_default(),
-            ));
-        }
-
-        // Not doing this as root_prefix is always "" at the moment
-        //   if (!dumper.GetMappingAbsolutePath(mapping, filename))
-        let filename = name.clone().unwrap_or_default();
-        let mapped_file = unsafe {
-            MmapOptions::new()
-                .offset(offset.try_into()?) // try_into() to work for both 32 and 64 bit
-                .map(&File::open(filename)?)?
-        };
-
-        if mapped_file.is_empty() || mapped_file.len() < elf::header::SELFMAG {
-            return Err(MapsReaderError::MmapSanityCheckFailed);
-        }
-        Ok(mapped_file)
-    }
-
     pub fn stack_has_pointer_to_mapping(&self, stack_copy: &[u8], sp_offset: usize) -> bool {
         // Loop over all stack words that would have been on the stack in
         // the target process (i.e. are word aligned, and at addresses >=
@@ -287,29 +298,12 @@ impl MappingInfo {
         false
     }
 
-    pub fn is_mapped_file_safe_to_open(name: &Option<OsString>) -> bool {
-        // It is unsafe to attempt to open a mapped file that lives under /dev,
-        // because the semantics of the open may be driver-specific so we'd risk
-        // hanging the crash dumper. And a file in /dev/ almost certainly has no
-        // ELF file identifier anyways.
-        if let Some(name) = name {
-            if name.as_bytes().starts_with(b"/dev/") {
-                return false;
-            }
-        }
-        true
-    }
-
     /// Find the shared object name (SONAME) by examining the ELF information
     /// for the mapping.
-    fn so_name(&self) -> Result<String> {
-        use super::module_reader::{ReadFromModule, SoName};
-
-        let mapped_file = MappingInfo::get_mmap(&self.name, self.offset)?;
-        Ok(SoName::read_from_module((&*mapped_file).into())
-            .map_err(|e| MapsReaderError::NoSoName(self.name.clone().unwrap_or_default(), e))?
-            .0
-            .to_string())
+    fn so_name(&self, process_inspector: &ProcessInspector) -> Result<String> {
+        let path = Path::new(self.name.as_deref().unwrap_or_default());
+        super::module_reader::read_soname_from_file(process_inspector, path, self.offset)
+            .map_err(MapsReaderError::ReadSoNameFromFileFailed)
     }
 
     #[inline]
@@ -319,6 +313,7 @@ impl MappingInfo {
 
     pub fn get_mapping_effective_path_name_and_version(
         &self,
+        process_inspector: &ProcessInspector,
         soname: Option<String>,
     ) -> Result<(PathBuf, String, Option<SoVersion>)> {
         let mut file_path = PathBuf::from(self.name.clone().unwrap_or_default());
@@ -329,7 +324,7 @@ impl MappingInfo {
         // filesystem name of the module.
 
         // Just use the filesystem name if no SONAME is present.
-        let Some(file_name) = soname.or_else(|| self.so_name().ok()) else {
+        let Some(file_name) = soname.or_else(|| self.so_name(process_inspector).ok()) else {
             //   file_path := /path/to/libname.so
             //   file_name := libname.so
             let file_name = file_path
@@ -466,11 +461,11 @@ impl SoVersion {
                     if i >= comps.len() - 1 {
                         break;
                     }
-                    if let Some(pre) = comp.rfind(|c: char| !c.is_ascii_digit()) {
-                        if let Ok(pre) = comp[pre + 1..].parse() {
-                            *comps[i + 1] = pre;
-                            break;
-                        }
+                    if let Some(pre) = comp.rfind(|c: char| !c.is_ascii_digit())
+                        && let Ok(pre) = comp[pre + 1..].parse()
+                    {
+                        *comps[i + 1] = pre;
+                        break;
                     }
                 } else {
                     *comps[i] = comp.parse().unwrap_or_default();
@@ -735,11 +730,18 @@ a4840000-a4873000 rw-p 09021000 08:12 393449     /data/app/org.mozilla.firefox-1
         );
         assert_eq!(mappings.len(), 1);
 
+        let process_inspector = ProcessInspector::local(0);
+
         let (file_path, file_name, _version) = mappings[0]
-            .get_mapping_effective_path_name_and_version(None)
+            .get_mapping_effective_path_name_and_version(&process_inspector, None)
             .expect("Couldn't get effective name for mapping");
         assert_eq!(file_name, "libmozgtk.so");
-        assert_eq!(file_path, PathBuf::from("/home/martin/Documents/mozilla/devel/mozilla-central/obj/widget/gtk/mozgtk/gtk3/libmozgtk.so"));
+        assert_eq!(
+            file_path,
+            PathBuf::from(
+                "/home/martin/Documents/mozilla/devel/mozilla-central/obj/widget/gtk/mozgtk/gtk3/libmozgtk.so"
+            )
+        );
     }
 
     #[test]

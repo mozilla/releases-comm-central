@@ -18,8 +18,6 @@ cfg_if::cfg_if! {
         pub(crate) const FP_REG_COUNT: usize = 32;
 
         pub type RawContextCPU = minidump_common::format::CONTEXT_ARM64_OLD;
-    } else if #[cfg(target_arch = "mips")] {
-        compile_error!("flesh me out");
     } else {
         compile_error!("unsupported target architecture");
     }

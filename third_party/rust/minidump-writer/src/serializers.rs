@@ -2,6 +2,17 @@
 //! [Serialize] for)
 
 use serde::Serializer;
+
+/// Good for types where the value of the thing doesn't have any programmatic use and
+/// it mostly just matters than a human can read it
+pub fn serialize_debug_string<S: Serializer, D: std::fmt::Debug>(
+    d: &D,
+    serializer: S,
+) -> Result<S::Ok, S::Error> {
+    let dbg = format!("{d:#?}");
+    serializer.serialize_str(&dbg)
+}
+
 /// Useful for types that implement [Error][std::error::Error] and don't need any special
 /// treatment.
 pub fn serialize_generic_error<S: Serializer, E: std::error::Error>(
@@ -11,8 +22,7 @@ pub fn serialize_generic_error<S: Serializer, E: std::error::Error>(
     // I guess we'll have to see if it's more useful to store the debug representation of a
     // foreign error type or something else (like maybe iterating its error chain into a
     // list?)
-    let dbg = format!("{error:#?}");
-    serializer.serialize_str(&dbg)
+    serialize_debug_string(error, serializer)
 }
 /// Serialize [std::io::Error]
 pub fn serialize_io_error<S: Serializer>(

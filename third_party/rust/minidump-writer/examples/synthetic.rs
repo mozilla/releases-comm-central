@@ -4,7 +4,7 @@ use {
     minidump_writer::{
         dir_section::DirSection,
         mem_writer::{Buffer, MemoryWriter},
-        minidump_format::{MDRawHeader, MD_HEADER_SIGNATURE, MD_HEADER_VERSION},
+        minidump_format::{MD_HEADER_SIGNATURE, MD_HEADER_VERSION, MDRawHeader},
     },
     std::fs::File,
 };

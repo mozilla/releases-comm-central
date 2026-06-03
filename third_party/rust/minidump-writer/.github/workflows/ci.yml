@@ -14,7 +14,7 @@ concurrency:
 jobs:
   lint:
     name: Lint
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - name: Install Rust
@@ -32,11 +32,11 @@ jobs:
     strategy:
       matrix:
         job:
-          - { os: ubuntu-22.04, target: x86_64-unknown-linux-gnu, release: true }
-          - { os: ubuntu-22.04,  target: x86_64-unknown-linux-musl }
-          - { os: windows-2022,  target: x86_64-pc-windows-msvc }
-          - { os: macos-13,      target: x86_64-apple-darwin }
-          - { os: macos-14,      target: aarch64-apple-darwin }
+          - { os: ubuntu-24.04,   target: x86_64-unknown-linux-gnu, release: true }
+          - { os: ubuntu-24.04,   target: x86_64-unknown-linux-musl }
+          - { os: windows-2025,   target: x86_64-pc-windows-msvc }
+          - { os: macos-15-intel, target: x86_64-apple-darwin }
+          - { os: macos-15,       target: aarch64-apple-darwin }
     steps:
       - uses: actions/checkout@v4
       - name: Install Rust
@@ -56,7 +56,7 @@ jobs:
           cargo test --target ${{ matrix.job.target }} --release
 
   install-cross:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: XAMPPRocky/get-github-release@v1
         id: cross
@@ -73,7 +73,7 @@ jobs:
   # This job builds and tests non-tier1 targets
   build_lower_tier:
     name: Build sources
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: install-cross
     strategy:
       matrix:
@@ -107,7 +107,7 @@ jobs:
   # interacts with this job.
   test-android:
     name: Test android
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       ANDROID_HOME: /usr/local/lib/android/sdk
     steps:
@@ -139,7 +139,7 @@ jobs:
             cargo test --target x86_64-linux-android
 
   deny-check:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - name: deny check

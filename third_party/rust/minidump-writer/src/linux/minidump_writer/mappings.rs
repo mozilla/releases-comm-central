@@ -1,10 +1,4 @@
-use super::{
-    super::{
-        maps_reader::MappingInfo,
-        module_reader::{BuildId, ReadFromModule, SoName},
-    },
-    *,
-};
+use super::{super::maps_reader::MappingInfo, *};
 
 #[derive(Debug, Error, serde::Serialize)]
 pub enum SectionMappingsError {
@@ -37,30 +31,24 @@ impl MinidumpWriter {
                 continue;
             }
             log::debug!("retrieving build id for {:?}", &self.mappings[map_idx]);
-            let BuildId(identifier) = self
-            .from_process_memory_for_index(map_idx)
+            let identifier = self
+            .build_id_from_process_memory_for_index(map_idx)
             .or_else(|e| {
                 // If the mapping has an associated name that is a file, try to read the build id
                 // from the file. If there is no note segment with the build id in
                 // the program headers, we can't get to the note section if the section header
                 // table isn't loaded.
-                if let Some(path) = &self.mappings[map_idx].name {
-                    let path = std::path::Path::new(&path);
-                    if path.exists() {
-                        log::debug!("failed to get build id from process memory ({e}), attempting to retrieve from {}", path.display());
-                        return BuildId::read_from_file(path)
-                            .map_err(errors::WriterError::ModuleReaderError);
-                    }
-                    log::debug!(
-                        "not attempting to get build id from {}: path does not exist",
-                        path.display()
-                    );
-                }
-                Err(e)
+                let Some(path) = &self.mappings[map_idx].name else {
+                    return Err(e);
+                };
+
+                log::debug!("failed to get build id from process memory ({e}), attempting to retrieve from {}", path.display());
+
+                module_reader::read_build_id_from_file(&self.process_inspector, path.as_ref()).map_err(errors::WriterError::ModuleReaderError)
             })
             .unwrap_or_else(|e| {
                 log::warn!("failed to get build id for mapping: {e}");
-                BuildId(Vec::new())
+                Vec::new()
             });
 
             // If the identifier is all 0, its an uninteresting mapping (bmc#1676109)
@@ -70,19 +58,28 @@ impl MinidumpWriter {
 
             // SONAME should always be accessible through program headers alone, so we don't really
             // need to fall back to trying to read from the mapping file.
-            let soname = self
-                .from_process_memory_for_index(map_idx)
-                .ok()
-                .map(|SoName(n)| n);
+            let soname = self.soname_from_process_memory_for_index(map_idx).ok();
 
-            let module = fill_raw_module(buffer, &self.mappings[map_idx], &identifier, soname)?;
+            let module = fill_raw_module(
+                &self.process_inspector,
+                buffer,
+                &self.mappings[map_idx],
+                &identifier,
+                soname,
+            )?;
             modules.push(module);
         }
 
         // Next write all the mappings provided by the caller
         for user in &self.user_mapping_list {
             // GUID was provided by caller.
-            let module = fill_raw_module(buffer, &user.mapping, &user.identifier, None)?;
+            let module = fill_raw_module(
+                &self.process_inspector,
+                buffer,
+                &user.mapping,
+                &user.identifier,
+                None,
+            )?;
             modules.push(module);
         }
 
@@ -102,6 +99,7 @@ impl MinidumpWriter {
     }
 }
 fn fill_raw_module(
+    process_inspector: &ProcessInspector,
     buffer: &mut DumpBuf,
     mapping: &MappingInfo,
     identifier: &[u8],
@@ -127,7 +125,7 @@ fn fill_raw_module(
     };
 
     let (file_path, _, so_version) = mapping
-        .get_mapping_effective_path_name_and_version(soname)
+        .get_mapping_effective_path_name_and_version(process_inspector, soname)
         .map_err(|e| SectionMappingsError::GetEffectivePathError(mapping.clone(), e))?;
     let name_header = write_string_to_location(buffer, file_path.to_string_lossy().as_ref())?;
 

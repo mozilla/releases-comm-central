@@ -135,10 +135,61 @@ pub fn assert_soft_errors_in_minidump<'a, 'b, T, I>(
 
     // Ensure that every error we expect is in the actual list somewhere
     for expected_error in expected_errors {
-        assert!(actual_errors
-            .iter()
-            .any(|actual_error| actual_error == expected_error),
+        assert!(
+            actual_errors
+                .iter()
+                .any(|actual_error| actual_error == expected_error),
             "soft error list missing expected error `{expected_error:#?}`\nError_list: {actual_errors:#?}"
         );
+    }
+}
+
+#[cfg(any(target_os = "linux", target_os = "android"))]
+#[allow(unused)]
+pub use linux::*;
+
+#[cfg(any(target_os = "linux", target_os = "android"))]
+#[allow(unused)]
+mod linux {
+    use {
+        minidump_writer::module_reader::{self, ModuleMemoryReadError, ReadModuleMemory},
+        std::borrow::Cow,
+    };
+    pub struct SliceModuleMemoryReader<'a>(pub &'a [u8]);
+
+    impl<'a> ReadModuleMemory for SliceModuleMemoryReader<'a> {
+        fn read<'b>(
+            &'b self,
+            offset: u64,
+            length: u64,
+        ) -> Result<Cow<'b, [u8]>, ModuleMemoryReadError> {
+            let inner = || {
+                use module_reader::ReadError as E;
+                let offset = usize::try_from(offset).map_err(|_| E::Overflow)?;
+                let length = usize::try_from(length).map_err(|_| E::Overflow)?;
+                let end = offset.checked_add(length).ok_or(E::Overflow)?;
+                self.0
+                    .get(offset..end)
+                    .map(Cow::Borrowed)
+                    .ok_or(E::OutOfBounds)
+            };
+
+            inner().map_err(|error| ModuleMemoryReadError {
+                start_address: None,
+                offset,
+                length,
+                error,
+            })
+        }
+        fn absolute_to_relative(&self, addr: u64) -> Option<u64> {
+            Some(addr)
+        }
+        /// Calculates the absolute address of the specified relative address
+        fn relative_to_absolute(&self, addr: u64) -> Option<u64> {
+            Some(addr)
+        }
+        fn is_process_memory(&self) -> bool {
+            false
+        }
     }
 }

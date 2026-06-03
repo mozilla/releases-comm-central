@@ -1132,7 +1132,7 @@ dependencies = [
  "crash_helper_common",
  "mach2",
  "minidump-writer",
- "nix 0.30.1",
+ "nix",
  "num-derive",
  "num-traits",
  "rust_minidump_writer_linux",
@@ -1150,7 +1150,7 @@ dependencies = [
  "mach2",
  "minidump-writer",
  "mozannotation_server",
- "nix 0.30.1",
+ "nix",
  "num-derive",
  "num-traits",
  "thiserror 2.0.12",
@@ -4111,9 +4111,8 @@ dependencies = [
 
 [[package]]
 name = "minidump-writer"
-version = "0.11.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0e1fc14d6ded915b8e850801465e7096f77ed60bf87e4e85878d463720d9dc4d"
+version = "0.12.0"
+source = "git+https://github.com/rust-minidump/minidump-writer.git?rev=107e531a7a06f8e886ffcee13eb07e9ded43473b#107e531a7a06f8e886ffcee13eb07e9ded43473b"
 dependencies = [
  "bitflags 2.10.0",
  "byteorder",
@@ -4126,14 +4125,12 @@ dependencies = [
  "log",
  "mach2",
  "memmap2",
- "memoffset 0.9.0",
  "minidump-common",
- "nix 0.29.0",
+ "nix",
  "procfs-core",
  "scroll",
  "serde",
  "serde_json",
- "tempfile",
  "thiserror 2.0.12",
 ]
 
@@ -4642,13 +4639,6 @@ name = "new_debug_unreachable"
 version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e4a24736216ec316047a1fc4252e27dabb04218aa4a3f37c6e7ddbf1f9782b54"
-
-[[package]]
-name = "nix"
-version = "0.29.0"
-dependencies = [
- "nix 0.30.1",
-]
 
 [[package]]
 name = "nix"
@@ -5376,9 +5366,9 @@ dependencies = [
 
 [[package]]
 name = "procfs-core"
-version = "0.17.0"
+version = "0.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "239df02d8349b06fc07398a3a1697b06418223b1c7725085e801e7c0fc6a12ec"
+checksum = "e6401bf7b6af22f78b563665d15a22e9aef27775b79b149a66ca022468a4e405"
 dependencies = [
  "bitflags 2.10.0",
  "hex",
@@ -8112,6 +8102,10 @@ version = "2.1.1"
 [[patch.unused]]
 name = "libcrux-traits"
 version = "0.0.3"
+
+[[patch.unused]]
+name = "procfs-core"
+version = "0.17.999"
 
 [[patch.unused]]
 name = "rusqlite"

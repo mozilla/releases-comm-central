@@ -8,22 +8,19 @@
 use {
     super::{AuxvError, AuxvPair, AuxvType},
     byteorder::{NativeEndian, ReadBytesExt},
-    std::{
-        fs::File,
-        io::{BufReader, Read},
-    },
+    std::io::Read,
 };
 
 /// An iterator across auxv pairs from procfs.
-pub struct ProcfsAuxvIter {
+pub struct ProcfsAuxvIter<R> {
     pair_size: usize,
     buf: Vec<u8>,
-    input: BufReader<File>,
+    input: R,
     keep_going: bool,
 }
 
-impl ProcfsAuxvIter {
-    pub fn new(input: BufReader<File>) -> Self {
+impl<R> ProcfsAuxvIter<R> {
+    pub fn new(input: R) -> Self {
         let pair_size = 2 * std::mem::size_of::<AuxvType>();
         let buf: Vec<u8> = Vec::with_capacity(pair_size);
 
@@ -36,7 +33,7 @@ impl ProcfsAuxvIter {
     }
 }
 
-impl Iterator for ProcfsAuxvIter {
+impl<R: Read> Iterator for ProcfsAuxvIter<R> {
     type Item = Result<AuxvPair, AuxvError>;
     fn next(&mut self) -> Option<Self::Item> {
         if !self.keep_going {
@@ -95,7 +92,7 @@ impl Iterator for ProcfsAuxvIter {
     }
 }
 
-fn read_long(reader: &mut dyn Read) -> std::io::Result<AuxvType> {
+fn read_long<R: Read>(mut reader: R) -> std::io::Result<AuxvType> {
     match std::mem::size_of::<AuxvType>() {
         4 => reader.read_u32::<NativeEndian>().map(|u| u as AuxvType),
         8 => reader.read_u64::<NativeEndian>().map(|u| u as AuxvType),

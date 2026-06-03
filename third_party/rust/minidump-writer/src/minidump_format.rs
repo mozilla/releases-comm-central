@@ -1,6 +1,5 @@
 pub use minidump_common::format::{
-    self, ArmElfHwCaps as MDCPUInformationARMElfHwCaps, PlatformId,
-    ProcessorArchitecture as MDCPUArchitecture, GUID, MINIDUMP_DIRECTORY as MDRawDirectory,
+    self, ArmElfHwCaps as MDCPUInformationARMElfHwCaps, GUID, MINIDUMP_DIRECTORY as MDRawDirectory,
     MINIDUMP_EXCEPTION as MDException, MINIDUMP_EXCEPTION_STREAM as MDRawExceptionStream,
     MINIDUMP_HANDLE_DATA_STREAM as MDRawHandleDataStream,
     MINIDUMP_HANDLE_DESCRIPTOR as MDRawHandleDescriptor, MINIDUMP_HEADER as MDRawHeader,
@@ -9,8 +8,8 @@ pub use minidump_common::format::{
     MINIDUMP_MEMORY_INFO_LIST as MDMemoryInfoList, MINIDUMP_MODULE as MDRawModule,
     MINIDUMP_SIGNATURE as MD_HEADER_SIGNATURE, MINIDUMP_STREAM_TYPE as MDStreamType,
     MINIDUMP_SYSTEM_INFO as MDRawSystemInfo, MINIDUMP_THREAD as MDRawThread,
-    MINIDUMP_THREAD_NAME as MDRawThreadName, MINIDUMP_VERSION as MD_HEADER_VERSION,
-    VS_FIXEDFILEINFO as MDVSFixedFileInfo,
+    MINIDUMP_THREAD_NAME as MDRawThreadName, MINIDUMP_VERSION as MD_HEADER_VERSION, PlatformId,
+    ProcessorArchitecture as MDCPUArchitecture, VS_FIXEDFILEINFO as MDVSFixedFileInfo,
 };
 
 /* An MDRVA is an offset into the minidump file.  The beginning of the
@@ -24,11 +23,6 @@ cfg_if::cfg_if! {
         pub use format::X86CpuInfo as MDCPUInformation;
     } else if #[cfg(any(target_arch = "arm", target_arch = "aarch64"))] {
         pub use format::ARMCpuInfo as MDCPUInformation;
-    } else if #[cfg(target_arch = "mips")] {
-        pub struct MDCPUInformation {
-            pub cpuid: [u64; 2],
-            _padding: [u32; 2],
-        }
     }
 }
 

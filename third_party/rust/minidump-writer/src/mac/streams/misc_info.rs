@@ -1,6 +1,6 @@
 use {
     super::*,
-    format::{MiscInfoFlags, MINIDUMP_MISC_INFO_2 as MDRawMiscInfo},
+    format::{MINIDUMP_MISC_INFO_2 as MDRawMiscInfo, MiscInfoFlags},
     std::time::Duration,
 };
 

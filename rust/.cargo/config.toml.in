@@ -110,6 +110,11 @@ git = "https://github.com/rust-lang/rust-bindgen"
 rev = "9366e0af8da529c958b4cd4fcbe492d951c86f5c"
 replace-with = "vendored-sources"
 
+[source."git+https://github.com/rust-minidump/minidump-writer.git?rev=107e531a7a06f8e886ffcee13eb07e9ded43473b"]
+git = "https://github.com/rust-minidump/minidump-writer.git"
+rev = "107e531a7a06f8e886ffcee13eb07e9ded43473b"
+replace-with = "vendored-sources"
+
 [source."git+https://github.com/servo/unicode-bidi?rev=ca612daf1c08c53abe07327cb3e6ef6e0a760f0c"]
 git = "https://github.com/servo/unicode-bidi"
 rev = "ca612daf1c08c53abe07327cb3e6ef6e0a760f0c"

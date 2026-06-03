@@ -10,11 +10,11 @@ mod linux {
         super::*,
         error_graph::ErrorList,
         minidump_writer::{
+            LINUX_GATE_LIBRARY_NAME,
             minidump_writer::{MinidumpWriter, MinidumpWriterConfig},
-            module_reader, LINUX_GATE_LIBRARY_NAME,
         },
         nix::{
-            sys::mman::{mmap_anonymous, MapFlags, ProtFlags},
+            sys::mman::{MapFlags, ProtFlags, mmap_anonymous},
             unistd::getppid,
         },
     };
@@ -76,10 +76,10 @@ mod linux {
     }
 
     fn test_copy_from_process(stack_var: usize, heap_var: usize) -> Result<()> {
-        use minidump_writer::mem_reader::MemReader;
+        use minidump_writer::process_reader::ProcessReader;
 
         let ppid = getppid().as_raw();
-        let dumper = fail_on_soft_error!(
+        let mut dumper = fail_on_soft_error!(
             soft_errors,
             MinidumpWriterConfig::new(ppid, ppid).build_for_testing(&mut soft_errors)?
         );
@@ -90,7 +90,7 @@ mod linux {
         let expected_stack = 0x11223344usize.to_ne_bytes();
         let expected_heap = 0x55667788usize.to_ne_bytes();
 
-        let validate = |reader: &mut MemReader| -> Result<()> {
+        let validate = |reader: &ProcessReader| -> Result<()> {
             let mut val = [0u8; std::mem::size_of::<usize>()];
             let read = reader.read(stack_var, &mut val)?;
             assert_eq!(read, val.len());
@@ -105,33 +105,45 @@ mod linux {
 
         // virtual mem
         {
-            let mut mr = MemReader::for_virtual_mem(ppid);
-            validate(&mut mr)
-                .map_err(|err| format!("failed to validate memory for {mr:?}: {err}"))?;
+            dumper.process_inspector.force_pr_virtual_mem();
+            validate(dumper.process_inspector.process_reader())
+                .map_err(|err| format!("failed to validate memory: {err}"))?;
         }
 
         // file
         {
-            let mut mr = MemReader::for_file(ppid)
+            dumper
+                .process_inspector
+                .force_pr_file()
                 .map_err(|err| format!("failed to open `/proc/{ppid}/mem`: {err}"))?;
-            validate(&mut mr)
-                .map_err(|err| format!("failed to validate memory for {mr:?}: {err}"))?;
+            validate(dumper.process_inspector.process_reader())
+                .map_err(|err| format!("failed to validate memory: {err}"))?;
         }
 
         // ptrace
         {
-            let mut mr = MemReader::for_ptrace(ppid);
-            validate(&mut mr)
-                .map_err(|err| format!("failed to validate memory for {mr:?}: {err}"))?;
+            dumper.process_inspector.force_pr_ptrace();
+            validate(dumper.process_inspector.process_reader())
+                .map_err(|err| format!("failed to validate memory: {err}"))?;
         }
 
-        let stack_res =
-            MinidumpWriter::copy_from_process(ppid, stack_var, std::mem::size_of::<usize>())?;
+        dumper.process_inspector.force_pr_reset();
+
+        let stack_res = MinidumpWriter::copy_from_process(
+            &dumper.process_inspector,
+            ppid,
+            stack_var,
+            std::mem::size_of::<usize>(),
+        )?;
 
         test!(stack_res == expected_stack, "stack var not correct");
 
-        let heap_res =
-            MinidumpWriter::copy_from_process(ppid, heap_var, std::mem::size_of::<usize>())?;
+        let heap_res = MinidumpWriter::copy_from_process(
+            &dumper.process_inspector,
+            ppid,
+            heap_var,
+            std::mem::size_of::<usize>(),
+        )?;
 
         test!(heap_res == expected_heap, "heap var not correct");
 
@@ -178,7 +190,7 @@ mod linux {
             }
         }
         let idx = found_exe.unwrap();
-        let module_reader::BuildId(id) = dumper.from_process_memory_for_index(idx)?;
+        let id = dumper.build_id_from_process_memory_for_index(idx)?;
 
         drop(dumper);
 
@@ -215,17 +227,17 @@ mod linux {
 
     fn test_linux_gate_mapping_id() -> Result<()> {
         let ppid = getppid().as_raw();
-        let dumper = fail_on_soft_error!(
+        let mut dumper = fail_on_soft_error!(
             soft_errors,
             MinidumpWriterConfig::new(ppid, ppid).build_for_testing(&mut soft_errors)?
         );
         let mut found_linux_gate = false;
-        for mapping in dumper.mappings.clone() {
-            if mapping.name == Some(LINUX_GATE_LIBRARY_NAME.into()) {
+        for idx in 0..dumper.mappings.len() {
+            if dumper.mappings[idx].name == Some(LINUX_GATE_LIBRARY_NAME.into()) {
                 found_linux_gate = true;
 
-                let module_reader::BuildId(id) =
-                    MinidumpWriter::from_process_memory_for_mapping(&mapping, ppid)?;
+                let id = dumper.build_id_from_process_memory_for_index(idx)?;
+
                 test!(!id.is_empty(), "id-vec is empty");
                 test!(id.iter().any(|&x| x > 0), "all id elements are 0");
                 drop(dumper);
@@ -339,14 +351,37 @@ mod linux {
     }
 
     fn create_files_wait(num: usize) -> Result<()> {
-        let mut file_array = Vec::<tempfile::NamedTempFile>::with_capacity(num);
+        use std::{fmt::Write, io::Read};
+
+        let mut file_array = Vec::<std::fs::File>::with_capacity(num);
+
+        let mut rand = std::fs::File::open("/dev/urandom").expect("failed to open /dev/urandom");
+        const CHARS: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+        let mut root = std::env::temp_dir();
+        root.push("minidump-writer");
+
+        if !root.exists() {
+            std::fs::create_dir_all(&root).expect("failed to create $TMP/minidump-writer dir")
+        }
+
+        let mut rand_indices = [0u8; 6];
+
         for id in 0..num {
-            let file = tempfile::Builder::new()
-                .prefix("test_file")
-                .suffix::<str>(id.to_string().as_ref())
-                .tempfile()
-                .unwrap();
-            file_array.push(file);
+            let mut name = String::new();
+            name.push_str("test_file");
+
+            rand.read_exact(&mut rand_indices)
+                .expect("failed to read /dev/urandom");
+
+            for index in rand_indices {
+                name.push(CHARS[index as usize % CHARS.len()] as char);
+            }
+
+            write!(&mut name, "{id}").unwrap();
+
+            let path = root.join(name);
+            file_array.push(std::fs::File::create(&path).expect("failed to create path"));
             println!("1");
         }
         println!("1");
@@ -420,7 +455,7 @@ mod windows {
     use std::mem;
 
     #[link(name = "kernel32")]
-    extern "system" {
+    unsafe extern "system" {
         pub fn GetCurrentProcessId() -> u32;
         pub fn GetCurrentThreadId() -> u32;
         pub fn GetCurrentThread() -> isize;
@@ -443,13 +478,12 @@ mod windows {
             GetThreadContext(GetCurrentThread(), exception_context.as_mut_ptr());
 
             let mut exception_context = exception_context.assume_init();
+            exception_record.ExceptionCode = exception_code as _;
 
             let exception_ptrs = crash_context::EXCEPTION_POINTERS {
                 ExceptionRecord: &mut exception_record,
                 ContextRecord: &mut exception_context,
             };
-
-            exception_record.ExceptionCode = exception_code as _;
 
             let exc_ptr_addr = &exception_ptrs as *const _ as usize;
 

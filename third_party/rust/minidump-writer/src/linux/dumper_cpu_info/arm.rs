@@ -1,18 +1,16 @@
 use {
-    super::CpuInfoError,
+    super::{CpuInfoError, ProcessInspector},
     crate::minidump_format::*,
     scroll::Pwrite,
     std::{
         collections::HashSet,
-        fs::File,
         io::{BufRead, BufReader, Read},
-        path,
     },
 };
 
 type Result<T> = std::result::Result<T, CpuInfoError>;
 
-pub fn parse_cpus_from_sysfile(file: &mut File) -> Result<HashSet<u32>> {
+fn parse_cpus_from_sysfile<R: Read>(mut file: R) -> Result<HashSet<u32>> {
     let mut res = HashSet::new();
     let mut content = String::new();
     file.read_to_string(&mut content)?;
@@ -135,7 +133,10 @@ fn parse_features(_val: &str) -> u32 {
     0
 }
 
-pub fn write_cpu_information(sys_info: &mut MDRawSystemInfo) -> Result<()> {
+pub fn write_cpu_information(
+    process_inspector: &ProcessInspector,
+    sys_info: &mut MDRawSystemInfo,
+) -> Result<()> {
     // The CPUID value is broken up in several entries in /proc/cpuinfo.
     // This table is used to rebuild it from the entries.
     let cpu_id_entries = [
@@ -168,11 +169,13 @@ pub fn write_cpu_information(sys_info: &mut MDRawSystemInfo) -> Result<()> {
     // because the content of /proc/cpuinfo will only mirror the number
     // of 'online' cores, and thus will vary with time.
     // See http://www.kernel.org/doc/Documentation/cputopology.txt
-    if let Ok(mut present_file) = File::open("/sys/devices/system/cpu/present") {
+    if let Ok(mut present_file) = process_inspector.read_file("/sys/devices/system/cpu/present") {
         // Ignore unparsable content
         let cpus_present = parse_cpus_from_sysfile(&mut present_file).unwrap_or_default();
 
-        if let Ok(mut possible_file) = File::open("/sys/devices/system/cpu/possible") {
+        if let Ok(mut possible_file) =
+            process_inspector.read_file("/sys/devices/system/cpu/possible")
+        {
             // Ignore unparsable content
             let cpus_possible = parse_cpus_from_sysfile(&mut possible_file).unwrap_or_default();
             let intersection = cpus_present.intersection(&cpus_possible).count();
@@ -187,7 +190,7 @@ pub fn write_cpu_information(sys_info: &mut MDRawSystemInfo) -> Result<()> {
     // readable from regular Android applications on later versions
     // (>= 4.1) of the Android platform.
 
-    let cpuinfo_file = match File::open(path::PathBuf::from("/proc/cpuinfo")) {
+    let cpuinfo_file = match process_inspector.read_file("/proc/cpuinfo") {
         Ok(x) => x,
         Err(_) => {
             // Do not return Error here to allow the minidump generation
@@ -307,7 +310,7 @@ mod tests {
     extern crate std;
     use std::io::Write;
 
-    fn new_file(content: &str) -> File {
+    fn new_file(content: &str) -> std::fs::File {
         let mut file = tempfile::Builder::new()
             .prefix("cpu_sets")
             .tempfile()

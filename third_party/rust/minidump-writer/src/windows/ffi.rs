@@ -14,11 +14,15 @@
     clippy::upper_case_acronyms
 )]
 
-pub use crash_context::{capture_context, CONTEXT, EXCEPTION_POINTERS, EXCEPTION_RECORD};
+pub use crash_context::{CONTEXT, EXCEPTION_POINTERS, EXCEPTION_RECORD, capture_context};
+
+use core::ffi::c_void;
 
 pub type HANDLE = isize;
+pub type HMODULE = isize;
 pub type BOOL = i32;
 pub const FALSE: BOOL = 0;
+pub const MAX_PATH: u32 = 260;
 
 pub type Hresult = i32;
 pub const STATUS_NONCONTINUABLE_EXCEPTION: i32 = -1073741787;
@@ -144,7 +148,7 @@ pub type VS_FIXEDFILEINFO_FILE_FLAGS = u32;
 pub struct MINIDUMP_USER_STREAM {
     pub Type: u32,
     pub BufferSize: u32,
-    pub Buffer: *mut std::ffi::c_void,
+    pub Buffer: *mut c_void,
 }
 #[repr(C, packed(4))]
 pub struct MINIDUMP_USER_STREAM_INFORMATION {
@@ -187,9 +191,9 @@ pub struct MINIDUMP_MODULE_CALLBACK {
     pub CheckSum: u32,
     pub TimeDateStamp: u32,
     pub VersionInfo: VS_FIXEDFILEINFO,
-    pub CvRecord: *mut std::ffi::c_void,
+    pub CvRecord: *mut c_void,
     pub SizeOfCvRecord: u32,
-    pub MiscRecord: *mut std::ffi::c_void,
+    pub MiscRecord: *mut c_void,
     pub SizeOfMiscRecord: u32,
 }
 
@@ -207,7 +211,7 @@ pub struct MINIDUMP_INCLUDE_MODULE_CALLBACK {
 pub struct MINIDUMP_IO_CALLBACK {
     pub Handle: HANDLE,
     pub Offset: u64,
-    pub Buffer: *mut std::ffi::c_void,
+    pub Buffer: *mut c_void,
     pub BufferBytes: u32,
 }
 
@@ -226,14 +230,14 @@ pub struct MINIDUMP_VM_QUERY_CALLBACK {
 #[repr(C, packed(4))]
 pub struct MINIDUMP_VM_PRE_READ_CALLBACK {
     pub Offset: u64,
-    pub Buffer: *mut std::ffi::c_void,
+    pub Buffer: *mut c_void,
     pub Size: u32,
 }
 
 #[repr(C, packed(4))]
 pub struct MINIDUMP_VM_POST_READ_CALLBACK {
     pub Offset: u64,
-    pub Buffer: *mut std::ffi::c_void,
+    pub Buffer: *mut c_void,
     pub Size: u32,
     pub Completed: u32,
     pub Status: Hresult,
@@ -296,20 +300,22 @@ cfg_if::cfg_if! {
     }
 }
 
+use std::mem::ManuallyDrop;
+
 #[repr(C)]
 pub union MINIDUMP_CALLBACK_INPUT_0 {
     pub Status: Hresult,
-    pub Thread: std::mem::ManuallyDrop<MINIDUMP_THREAD_CALLBACK>,
-    pub ThreadEx: std::mem::ManuallyDrop<MINIDUMP_THREAD_EX_CALLBACK>,
-    pub Module: std::mem::ManuallyDrop<MINIDUMP_MODULE_CALLBACK>,
-    pub IncludeThread: std::mem::ManuallyDrop<MINIDUMP_INCLUDE_THREAD_CALLBACK>,
-    pub IncludeModule: std::mem::ManuallyDrop<MINIDUMP_INCLUDE_MODULE_CALLBACK>,
-    pub Io: std::mem::ManuallyDrop<MINIDUMP_IO_CALLBACK>,
-    pub ReadMemoryFailure: std::mem::ManuallyDrop<MINIDUMP_READ_MEMORY_FAILURE_CALLBACK>,
+    pub Thread: ManuallyDrop<MINIDUMP_THREAD_CALLBACK>,
+    pub ThreadEx: ManuallyDrop<MINIDUMP_THREAD_EX_CALLBACK>,
+    pub Module: ManuallyDrop<MINIDUMP_MODULE_CALLBACK>,
+    pub IncludeThread: ManuallyDrop<MINIDUMP_INCLUDE_THREAD_CALLBACK>,
+    pub IncludeModule: ManuallyDrop<MINIDUMP_INCLUDE_MODULE_CALLBACK>,
+    pub Io: ManuallyDrop<MINIDUMP_IO_CALLBACK>,
+    pub ReadMemoryFailure: ManuallyDrop<MINIDUMP_READ_MEMORY_FAILURE_CALLBACK>,
     pub SecondaryFlags: u32,
-    pub VmQuery: std::mem::ManuallyDrop<MINIDUMP_VM_QUERY_CALLBACK>,
-    pub VmPreRead: std::mem::ManuallyDrop<MINIDUMP_VM_PRE_READ_CALLBACK>,
-    pub VmPostRead: std::mem::ManuallyDrop<MINIDUMP_VM_POST_READ_CALLBACK>,
+    pub VmQuery: ManuallyDrop<MINIDUMP_VM_QUERY_CALLBACK>,
+    pub VmPreRead: ManuallyDrop<MINIDUMP_VM_PRE_READ_CALLBACK>,
+    pub VmPostRead: ManuallyDrop<MINIDUMP_VM_POST_READ_CALLBACK>,
 }
 
 #[repr(C, packed(4))]
@@ -387,12 +393,12 @@ pub union MINIDUMP_CALLBACK_OUTPUT_0 {
     pub ModuleWriteFlags: ModuleWriteFlags,
     pub ThreadWriteFlags: u32,
     pub SecondaryFlags: u32,
-    pub Anonymous1: std::mem::ManuallyDrop<MINIDUMP_CALLBACK_OUTPUT_0_0>,
-    pub Anonymous2: std::mem::ManuallyDrop<MINIDUMP_CALLBACK_OUTPUT_0_1>,
+    pub Anonymous1: ManuallyDrop<MINIDUMP_CALLBACK_OUTPUT_0_0>,
+    pub Anonymous2: ManuallyDrop<MINIDUMP_CALLBACK_OUTPUT_0_1>,
     pub Handle: HANDLE,
-    pub Anonymous3: std::mem::ManuallyDrop<MINIDUMP_CALLBACK_OUTPUT_0_2>,
-    pub Anonymous4: std::mem::ManuallyDrop<MINIDUMP_CALLBACK_OUTPUT_0_3>,
-    pub Anonymous5: std::mem::ManuallyDrop<MINIDUMP_CALLBACK_OUTPUT_0_4>,
+    pub Anonymous3: ManuallyDrop<MINIDUMP_CALLBACK_OUTPUT_0_2>,
+    pub Anonymous4: ManuallyDrop<MINIDUMP_CALLBACK_OUTPUT_0_3>,
+    pub Anonymous5: ManuallyDrop<MINIDUMP_CALLBACK_OUTPUT_0_4>,
     pub Status: Hresult,
 }
 
@@ -403,7 +409,7 @@ pub struct MINIDUMP_CALLBACK_OUTPUT {
 
 pub type MINIDUMP_CALLBACK_ROUTINE = Option<
     unsafe extern "system" fn(
-        CallbackParam: *mut std::ffi::c_void,
+        CallbackParam: *mut c_void,
         CallbackInput: *const MINIDUMP_CALLBACK_INPUT,
         CallbackOutput: *mut MINIDUMP_CALLBACK_OUTPUT,
     ) -> BOOL,
@@ -412,11 +418,18 @@ pub type MINIDUMP_CALLBACK_ROUTINE = Option<
 #[repr(C, packed(4))]
 pub struct MINIDUMP_CALLBACK_INFORMATION {
     pub CallbackRoutine: MINIDUMP_CALLBACK_ROUTINE,
-    pub CallbackParam: *mut std::ffi::c_void,
+    pub CallbackParam: *mut c_void,
+}
+
+#[repr(C)]
+pub struct MODULEINFO {
+    pub base_of_dll: *mut c_void,
+    pub size_of_image: u32,
+    pub entry_point: *mut c_void,
 }
 
 #[link(name = "kernel32")]
-extern "system" {
+unsafe extern "system" {
     pub fn CloseHandle(handle: HANDLE) -> BOOL;
     pub fn GetCurrentProcess() -> HANDLE;
     pub fn GetCurrentThreadId() -> u32;
@@ -432,11 +445,36 @@ extern "system" {
     ) -> HANDLE;
     pub fn ResumeThread(thread: HANDLE) -> u32;
     pub fn SuspendThread(thread: HANDLE) -> u32;
+    pub fn ReadProcessMemory(
+        process: HANDLE,
+        base_addr: *const c_void,
+        buffer: *mut c_void,
+        size: usize,
+        bytes_read: *mut usize,
+    ) -> BOOL;
     pub fn GetThreadContext(thread: HANDLE, context: *mut CONTEXT) -> BOOL;
+    pub fn K32EnumProcessModules(
+        process: HANDLE,
+        module: *mut HMODULE,
+        size: u32,
+        needed: *mut u32,
+    ) -> BOOL;
+    pub fn K32GetModuleBaseNameW(
+        process: HANDLE,
+        module: HMODULE,
+        base_name: *mut u16,
+        size: u32,
+    ) -> u32;
+    pub fn K32GetModuleInformation(
+        process: HANDLE,
+        module: HMODULE,
+        mod_info: *mut MODULEINFO,
+        cb: u32,
+    ) -> BOOL;
 }
 
 #[link(name = "dbghelp")]
-extern "system" {
+unsafe extern "system" {
     pub fn MiniDumpWriteDump(
         process: HANDLE,
         process_id: u32,

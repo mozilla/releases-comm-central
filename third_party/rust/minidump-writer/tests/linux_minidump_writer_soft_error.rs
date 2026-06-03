@@ -3,7 +3,7 @@
 use {
     common::*,
     minidump::Minidump,
-    minidump_writer::{minidump_writer::MinidumpWriterConfig, FailSpotName},
+    minidump_writer::{FailSpotName, minidump_writer::MinidumpWriterConfig},
     serde_json::json,
 };
 
