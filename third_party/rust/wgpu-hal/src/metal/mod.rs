@@ -392,8 +392,8 @@ struct AdapterShared {
     presentation_timer: time::PresentationTimer,
 }
 
-unsafe impl Send for AdapterShared {}
-unsafe impl Sync for AdapterShared {}
+#[cfg(send_sync)]
+static_assertions::assert_impl_all!(AdapterShared: Send, Sync);
 
 impl AdapterShared {
     fn new(
@@ -446,13 +446,16 @@ pub struct Adapter {
     shared: Arc<AdapterShared>,
 }
 
+#[cfg(send_sync)]
+static_assertions::assert_impl_all!(Adapter: Send, Sync);
+
 pub struct Queue {
     shared: Arc<QueueShared>,
     timestamp_period: f32,
 }
 
-unsafe impl Send for Queue {}
-unsafe impl Sync for Queue {}
+#[cfg(send_sync)]
+static_assertions::assert_impl_all!(Queue: Send, Sync);
 
 impl Queue {
     pub unsafe fn queue_from_raw(
@@ -535,7 +538,7 @@ impl crate::Queue for Queue {
         &self,
         command_buffers: &[&CommandBuffer],
         _surface_textures: &[&SurfaceTexture],
-        (signal_fence, signal_value): (&mut Fence, crate::FenceValue),
+        (signal_fence, signal_value): (&Fence, crate::FenceValue),
     ) -> Result<(), crate::DeviceError> {
         autoreleasepool(|_| {
             let extra_command_buffer = {
@@ -561,6 +564,7 @@ impl crate::Queue for Queue {
                 signal_fence.maintain();
                 signal_fence
                     .pending_command_buffers
+                    .write()
                     .push((signal_value, raw.clone()));
 
                 if let Some(shared_event) = &signal_fence.shared_event {
@@ -703,8 +707,8 @@ pub struct Sampler {
 
 impl crate::DynSampler for Sampler {}
 
-unsafe impl Send for Sampler {}
-unsafe impl Sync for Sampler {}
+#[cfg(send_sync)]
+static_assertions::assert_impl_all!(Sampler: Send, Sync);
 
 impl Sampler {
     fn as_raw(&self) -> NonNull<ProtocolObject<dyn MTLSamplerState>> {
@@ -887,8 +891,8 @@ pub struct PassthroughShader {
     pub num_workgroups: HashMap<String, (u32, u32, u32)>,
 }
 
-unsafe impl Send for PassthroughShader {}
-unsafe impl Sync for PassthroughShader {}
+#[cfg(send_sync)]
+static_assertions::assert_impl_all!(PassthroughShader: Send, Sync);
 
 #[derive(Debug)]
 pub struct ShaderModule {
@@ -993,8 +997,8 @@ pub struct RenderPipeline {
     )>,
 }
 
-unsafe impl Send for RenderPipeline {}
-unsafe impl Sync for RenderPipeline {}
+#[cfg(send_sync)]
+static_assertions::assert_impl_all!(RenderPipeline: Send, Sync);
 
 impl crate::DynRenderPipeline for RenderPipeline {}
 
@@ -1004,8 +1008,8 @@ pub struct ComputePipeline {
     cs_info: PipelineStageInfo,
 }
 
-unsafe impl Send for ComputePipeline {}
-unsafe impl Sync for ComputePipeline {}
+#[cfg(send_sync)]
+static_assertions::assert_impl_all!(ComputePipeline: Send, Sync);
 
 impl crate::DynComputePipeline for ComputePipeline {}
 
@@ -1026,12 +1030,14 @@ unsafe impl Sync for QuerySet {}
 pub struct Fence {
     completed_value: Arc<atomic::AtomicU64>,
     /// The pending fence values have to be ascending.
-    pending_command_buffers: Vec<(
-        crate::FenceValue,
-        Retained<ProtocolObject<dyn MTLCommandBuffer>>,
-    )>,
+    pending_command_buffers: RwLock<Vec<PendingCommandBuffer>>,
     shared_event: Option<Retained<ProtocolObject<dyn MTLSharedEvent>>>,
 }
+
+type PendingCommandBuffer = (
+    crate::FenceValue,
+    Retained<ProtocolObject<dyn MTLCommandBuffer>>,
+);
 
 impl crate::DynFence for Fence {}
 
@@ -1041,7 +1047,8 @@ unsafe impl Sync for Fence {}
 impl Fence {
     fn get_latest(&self) -> crate::FenceValue {
         let mut max_value = self.completed_value.load(atomic::Ordering::Acquire);
-        for &(value, ref cmd_buf) in self.pending_command_buffers.iter() {
+        let pending_command_buffers = self.pending_command_buffers.read();
+        for &(value, ref cmd_buf) in pending_command_buffers.iter() {
             if cmd_buf.status() == MTLCommandBufferStatus::Completed {
                 max_value = value;
             }
@@ -1049,9 +1056,10 @@ impl Fence {
         max_value
     }
 
-    fn maintain(&mut self) {
+    fn maintain(&self) {
         let latest = self.get_latest();
         self.pending_command_buffers
+            .write()
             .retain(|&(value, _)| value > latest);
     }
 
