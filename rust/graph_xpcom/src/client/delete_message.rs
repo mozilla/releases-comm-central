@@ -14,8 +14,8 @@ use thin_vec::ThinVec;
 
 use crate::{client::XpComGraphClient, error::XpComGraphError};
 
-struct DoDeleteMessages {
-    message_ids: Vec<String>,
+pub(super) struct DoDeleteMessages {
+    pub message_ids: Vec<String>,
 }
 
 impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError>

@@ -231,12 +231,26 @@ impl XpcomGraphBridge {
     ));
     fn empty_folder(
         &self,
-        _listener: &IExchangeSimpleOperationListener,
-        _folder_id: &nsACString,
-        _subfolder_ids: &ThinVec<nsCString>,
-        _message_ids: &ThinVec<nsCString>,
+        listener: &IExchangeSimpleOperationListener,
+        folder_id: &nsACString,
+        subfolder_ids: &ThinVec<nsCString>,
+        message_ids: &ThinVec<nsCString>,
     ) -> Result<(), nsresult> {
-        Err(nserror::NS_ERROR_NOT_IMPLEMENTED)
+        let client = self.client()?;
+
+        let folder_id = folder_id.to_string();
+        let subfolder_ids = subfolder_ids.iter().map(ToString::to_string).collect();
+        let message_ids = message_ids.iter().map(ToString::to_string).collect();
+
+        let listener = SafeEwsSimpleOperationListener::new(listener);
+
+        moz_task::spawn_local(
+            "empty_folder",
+            client.empty_folder(folder_id, subfolder_ids, message_ids, listener),
+        )
+        .detach();
+
+        Ok(())
     }
 
     xpcom_method!(update_folder => UpdateFolder(

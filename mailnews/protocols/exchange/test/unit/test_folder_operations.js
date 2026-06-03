@@ -260,11 +260,9 @@ add_task(async function test_soft_delete_ews() {
   await runSoftDeleteTest(ewsServer, incomingEwsServer);
 });
 
-// TODO: Uncomment this once we implement the empty trash operation for graph.
-// See https://bugzilla.mozilla.org/show_bug.cgi?id=2037684
-// add_task(async function test_soft_delete_graph() {
-//   await runSoftDeleteTest(graphServer, incomingGraphServer);
-// });
+add_task(async function test_soft_delete_graph() {
+  await runSoftDeleteTest(graphServer, incomingGraphServer);
+});
 
 add_task(async function test_delete_id_mismatch() {
   // Reset the list of deleted folders on the server to avoid any side-effect
