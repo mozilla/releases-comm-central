@@ -24,6 +24,7 @@ class CommParametersSchema(GeckoParametersSchema, kw_only=True, rename=None):
     comm_head_repository: str
     comm_head_rev: str
     comm_src_path: str
+    message: str
     try_options: Optional[dict]
 
 
