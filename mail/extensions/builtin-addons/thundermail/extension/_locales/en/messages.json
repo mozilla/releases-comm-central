@@ -1,0 +1,32 @@
+{
+  "extensionDescription": {
+    "message": "Thunderbird Pro gives you an email address, appointment scheduling, and the ability to send large files with end-to-end encryption."
+  },
+  "thunderbirdPro": {
+    "message": "Thunderbird Pro"
+  },
+  "thunderbirdSend": {
+    "message": "Thunderbird Send"
+  },
+  "menuSignInTo": {
+    "message": "Sign in to"
+  },
+  "menuSignout": {
+    "message": "Sign out"
+  },
+  "menuSignedInTooltip": {
+    "message": "Signed in to Thunderbird Pro"
+  },
+  "menuManageDashboard": {
+    "message": "Account Dashboard"
+  },
+  "menuManageSend": {
+    "message": "Manage Send Files"
+  },
+  "menuCopyAppointmentLink": {
+    "message": "Copy Appointment Link"
+  },
+  "menuOpenAppointment": {
+    "message": "Open Appointment"
+  }
+}

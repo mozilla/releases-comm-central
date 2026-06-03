@@ -1,0 +1,33 @@
+[
+    {
+        "namespace": "AccountHub",
+        "events": [
+            {
+                "name": "onAccountAdded",
+                "type": "function",
+                "description": "Fires when a new Thundermail account is added via the Accounts Hub and an OIDC/OAuth2 token is available. Use this to log the add-on in automatically.",
+                "parameters": [
+                    {
+                        "name": "detail",
+                        "type": "object",
+                        "description": "Details about the newly added account.",
+                        "properties": {
+                            "token": {
+                                "type": "string",
+                                "description": "The OAuth2 refresh token (OIDC token) for the account."
+                            },
+                            "email": {
+                                "type": "string",
+                                "description": "The email address of the newly added account."
+                            },
+                            "name": {
+                                "type": "string",
+                                "description": "The display name (full name) associated with the account."
+                            }
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+]

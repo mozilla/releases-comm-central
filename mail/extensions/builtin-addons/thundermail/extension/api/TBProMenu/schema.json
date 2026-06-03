@@ -1,0 +1,81 @@
+[
+  {
+    "namespace": "TBProMenu",
+    "functions": [
+      {
+        "name": "create",
+        "type": "function",
+        "parameters": [
+          {
+            "name": "id",
+            "choices": [{ "type": "string" }, { "type": "null" }]
+          },
+          {
+            "name": "createProperties",
+            "type": "object",
+            "properties": {
+              "title": { "type": "string", "optional": true },
+              "secondaryTitle": { "type": "string", "optional": true },
+              "parentId": { "type": "string", "optional": true },
+              "tooltip": { "type": "string", "optional": true }
+            }
+          }
+        ]
+      },
+      {
+        "name": "update",
+        "type": "function",
+        "parameters": [
+          {
+            "name": "id",
+            "type": "string"
+          },
+          {
+            "name": "createProperties",
+            "type": "object",
+            "properties": {
+              "title": { "type": "string", "optional": true },
+              "secondaryTitle": { "type": "string", "optional": true },
+              "parentId": { "type": "string", "optional": true },
+              "tooltip": { "type": "string", "optional": true }
+            }
+          }
+        ]
+      },
+      {
+        "name": "remove",
+        "type": "function",
+        "parameters": [
+          {
+            "name": "id",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "name": "clear",
+        "type": "function",
+        "parameters": [
+          {
+            "name": "id",
+            "type": "string"
+          }
+        ]
+      }
+    ],
+    "events": [
+      {
+        "name": "onClicked",
+        "type": "function",
+        "description": "Fires when the user clicks on the menu entry.",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "action",
+            "description": "The action associated with the clicked menu item."
+          }
+        ]
+      }
+    ]
+  }
+]
