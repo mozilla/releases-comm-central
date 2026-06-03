@@ -2083,6 +2083,13 @@ function updateSaveAllAttachmentsButton() {
  * Update the attachments display info after a particular attachment's
  * existence has been verified.
  *
+ * Note: this function must not modify `currentAttachments[index]`. The `index`
+ * returned by `attachmentList.getIndexOfItem()` is an index into the DOM
+ * attachment list, not into the `currentAttachments` array. The two are rebuilt
+ * asynchronously and may transiently be out of sync, so indexing
+ * `currentAttachments` by it is unsafe (it can point past the end and throw).
+ * Instead, operate on `attachmentInfo` only.
+ *
  * @param {AttachmentInfo} attachmentInfo
  * @param {boolean} isFetching
  */
@@ -2119,7 +2126,6 @@ function updateAttachmentsDisplay(attachmentInfo, isFetching) {
       return;
     }
 
-    currentAttachments[index].size = attachmentInfo.size;
     const tooltiptextExternalNotFound = attachmentName.getAttribute(
       "tooltiptextexternalnotfound"
     );
