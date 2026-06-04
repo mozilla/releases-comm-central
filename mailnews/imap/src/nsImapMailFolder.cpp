@@ -3851,13 +3851,6 @@ NS_IMETHODIMP nsImapMailFolder::SetAdminUrl(const nsACString& adminUrl) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImapMailFolder::GetHdrParser(
-    nsIMsgParseMailMsgState** aHdrParser) {
-  NS_ENSURE_ARG_POINTER(aHdrParser);
-  NS_IF_ADDREF(*aHdrParser = m_msgParser);
-  return NS_OK;
-}
-
 // this is used to issue an arbitrary imap command on the passed in msgs.
 // It assumes the command needs to be run in the selected state.
 NS_IMETHODIMP nsImapMailFolder::IssueCommandOnMsgs(const nsACString& command,

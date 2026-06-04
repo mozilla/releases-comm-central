@@ -189,7 +189,6 @@ interface nsIMsgImapMailFolder : nsISupports {
   attribute AUTF8String adminUrl;
   readonly attribute boolean hasAdminUrl;
   attribute boolean performingBiff;
-  readonly attribute nsIMsgParseMailMsgState hdrParser;
   readonly attribute nsIImapIncomingServer imapIncomingServer;
   readonly attribute boolean shouldUseUtf8FolderName;
   /**
