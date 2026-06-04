@@ -1,0 +1,63 @@
+/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsISupports.idl"
+
+/**
+ * Provides a thin XPCOM wrapper around the macOS QuickLook (QLPreviewPanel)
+ * API, allowing JavaScript callers in Thunderbird to display the system
+ * preview panel for one or more local files (typically message attachments
+ * that have been written to a temporary location).
+ *
+ * The implementation drives the shared QLPreviewPanel, so at most one
+ * preview session is active at any time. This interface is only available
+ * on macOS.
+ */
+[scriptable, uuid(a3d22a1e-63f7-4b5c-9b4a-1d8e5f2c9b3a)]
+interface nsIMacQuickLook : nsISupports
+{
+  /**
+   * Opens the QuickLook preview panel for the supplied set of files and
+   * makes it the key window.
+   *
+   * The two arrays must have the same length: the entry at position i in
+   * aTitles is used as the display title for the file at position i in
+   * aFilePaths. Passing an empty aFilePaths array, or arrays of differing
+   * lengths, results in NS_ERROR_INVALID_ARG.
+   *
+   * @param aFilePaths Absolute paths to the local files to preview.
+   * @param aTitles    Display titles to show in the preview panel,
+   *                   one per file in aFilePaths.
+   * @param aIndex     Zero-based index of the item that should be shown
+   *                   initially. Values outside the range of aFilePaths
+   *                   are ignored and the panel's current index is left
+   *                   unchanged.
+   */
+  void show(in Array<AString> aFilePaths, in Array<AString> aTitles,
+            in unsigned long aIndex);
+
+  /**
+   * Closes the QuickLook preview panel if it is currently visible.
+   * Has no effect when the panel is already hidden.
+   */
+  void close();
+
+  /**
+   * True while the shared QuickLook preview panel is visible on screen,
+   * false otherwise. Useful for toggling preview state from callers.
+   */
+  readonly attribute boolean isOpen;
+
+  /**
+   * Switches the currently visible QuickLook preview panel to the item
+   * at the given zero-based index. Has no effect if the panel is not
+   * currently visible.
+   *
+   * @param aIndex Zero-based index of the item to display. The caller is
+   *               responsible for ensuring the index is valid for the
+   *               item set most recently passed to show().
+   */
+  void navigateToIndex(in unsigned long aIndex);
+};

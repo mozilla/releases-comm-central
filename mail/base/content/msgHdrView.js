@@ -40,6 +40,17 @@ ChromeUtils.defineESModuleGetters(this, {
     "resource:///modules/calendar/calCalendarDeactivator.sys.mjs",
 });
 
+ChromeUtils.defineLazyGetter(this, "gQuickLookManager", () => {
+  try {
+    const { QuickLookManager } = ChromeUtils.importESModule(
+      "resource:///modules/QuickLookManager.sys.mjs"
+    );
+    return QuickLookManager;
+  } catch (e) {
+    return null;
+  }
+});
+
 XPCOMUtils.defineLazyServiceGetter(
   this,
   "gDbService",
@@ -1519,6 +1530,10 @@ function ClearCurrentHeaders() {
   currentAttachments = [];
   currentCharacterSet = "";
 
+  if (gQuickLookManager?.isAvailable) {
+    gQuickLookManager.close();
+  }
+
   // Get rid of earlier event handlers on #attachmentName.
   const attachmentName = document.getElementById("attachmentName");
   attachmentName.replaceWith(attachmentName.cloneNode(true));
@@ -1917,6 +1932,12 @@ async function displayAttachmentsForExpandedView() {
 
     var attachmentList = document.getElementById("attachmentList");
     attachmentList.controllers.appendController(AttachmentListController);
+
+    if (gQuickLookManager?.isAvailable) {
+      attachmentList.addEventListener("quicklook", event => {
+        gQuickLookManager.toggle(currentAttachments, event.detail.index);
+      });
+    }
 
     toggleAttachmentList(false);
 
