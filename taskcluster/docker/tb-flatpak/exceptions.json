@@ -1,7 +1,5 @@
 {
-  "org.mozilla.thunderbird": [
-    "finish-args-gnupg-filesystem-access"
-  ],
+  "org.mozilla.thunderbird": ["finish-args-gnupg-filesystem-access"],
   "org.mozilla.thunderbird_esr": [
     "finish-args-gnupg-filesystem-access",
     "finish-args-own-name-wildcard-org.mozilla.thunderbird"
