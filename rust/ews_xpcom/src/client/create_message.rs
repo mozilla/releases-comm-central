@@ -10,7 +10,7 @@ use ews::{
     Operation, RealItem, create_item::CreateItem,
 };
 use protocol_shared::client::DoOperation;
-use protocol_shared::safe_xpcom::SafeEwsMessageCreateListener;
+use protocol_shared::safe_xpcom::SafeExchangeMessageCreateListener;
 
 use super::{
     MSGFLAG_READ, MSGFLAG_UNMODIFIED, MSGFLAG_UNSENT, ServerType, XpComEwsClient, XpComEwsError,
@@ -27,7 +27,7 @@ struct DoCreateMessage {
 impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError> for DoCreateMessage {
     const NAME: &'static str = CreateItem::NAME;
     type Okay = ();
-    type Listener = SafeEwsMessageCreateListener;
+    type Listener = SafeExchangeMessageCreateListener;
 
     async fn do_operation(
         &mut self,
@@ -128,7 +128,7 @@ impl<ServerT: ServerType> XpComEwsClient<ServerT> {
         is_draft: bool,
         is_read: bool,
         content: Vec<u8>,
-        listener: SafeEwsMessageCreateListener,
+        listener: SafeExchangeMessageCreateListener,
     ) {
         let operation = DoCreateMessage {
             folder_id,

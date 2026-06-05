@@ -7,7 +7,7 @@ use ews::{
     copy_folder::CopyFolder, move_folder::MoveFolder,
 };
 use protocol_shared::client::DoOperation;
-use protocol_shared::safe_xpcom::{SafeEwsSimpleOperationListener, SafeListener};
+use protocol_shared::safe_xpcom::{SafeExchangeSimpleOperationListener, SafeListener};
 use std::{marker::PhantomData, sync::Arc};
 
 use crate::client::copy_move_operations::move_generic::{CopyMoveOperation, RequiresResync};
@@ -29,7 +29,7 @@ where
 {
     const NAME: &'static str = <RequestT as Operation>::NAME;
     type Okay = CopyMoveSuccess;
-    type Listener = SafeEwsSimpleOperationListener;
+    type Listener = SafeExchangeSimpleOperationListener;
 
     async fn do_operation(
         &mut self,
@@ -64,7 +64,7 @@ impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     /// contains the callbacks to execute upon success or failure.
     pub(crate) async fn copy_move_folder<RequestT>(
         self: Arc<XpComEwsClient<ServerT>>,
-        listener: SafeEwsSimpleOperationListener,
+        listener: SafeExchangeSimpleOperationListener,
         destination_folder_id: String,
         folder_ids: Vec<String>,
     ) where

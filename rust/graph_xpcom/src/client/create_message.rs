@@ -10,7 +10,7 @@ use ms_graph_tb::types::message::Message;
 use ms_graph_tb::{OperationBody, paths::me::messages};
 use protocol_shared::ServerType;
 use protocol_shared::client::DoOperation;
-use protocol_shared::safe_xpcom::SafeEwsMessageCreateListener;
+use protocol_shared::safe_xpcom::SafeExchangeMessageCreateListener;
 
 use crate::{client::XpComGraphClient, error::XpComGraphError};
 
@@ -27,7 +27,7 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
 {
     const NAME: &'static str = "create message";
     type Okay = ();
-    type Listener = SafeEwsMessageCreateListener;
+    type Listener = SafeExchangeMessageCreateListener;
 
     async fn do_operation(
         &mut self,
@@ -83,7 +83,7 @@ impl<ServerT: ServerType> XpComGraphClient<ServerT> {
         is_draft: bool,
         is_read: bool,
         content: Vec<u8>,
-        listener: SafeEwsMessageCreateListener,
+        listener: SafeExchangeMessageCreateListener,
     ) {
         let operation = DoCreateMessage {
             folder_id,

@@ -10,7 +10,7 @@ use ews::{
 };
 use nsstring::nsCString;
 use protocol_shared::client::DoOperation;
-use protocol_shared::safe_xpcom::{SafeEwsSimpleOperationListener, SafeListener};
+use protocol_shared::safe_xpcom::{SafeExchangeSimpleOperationListener, SafeListener};
 use thin_vec::ThinVec;
 
 use crate::client::{
@@ -28,7 +28,7 @@ struct DoMarkAsJunk {
 impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError> for DoMarkAsJunk {
     const NAME: &'static str = MarkAsJunk::NAME;
     type Okay = Option<ThinVec<nsCString>>;
-    type Listener = SafeEwsSimpleOperationListener;
+    type Listener = SafeExchangeSimpleOperationListener;
 
     async fn do_operation(
         &mut self,
@@ -104,7 +104,7 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError> fo
 impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     pub async fn mark_as_junk(
         self: Arc<XpComEwsClient<ServerT>>,
-        listener: SafeEwsSimpleOperationListener,
+        listener: SafeExchangeSimpleOperationListener,
         ews_ids: ThinVec<nsCString>,
         is_junk: bool,
         legacy_destination_folder_id: String,

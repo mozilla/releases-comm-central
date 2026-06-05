@@ -20,7 +20,7 @@ use protocol_shared::{
     client::DoOperation,
     headerblock_xpcom::{HeaderBlock, rfc5322_header},
     headers::Mailbox,
-    safe_xpcom::SafeEwsMessageSyncListener,
+    safe_xpcom::SafeExchangeMessageSyncListener,
 };
 use time::{
     OffsetDateTime,
@@ -33,7 +33,7 @@ use crate::{client::XpComGraphClient, error::XpComGraphError};
 define_svlep!(PID_TAG_MESSAGE_SIZE, Integer, 0x0E08);
 
 struct DoSyncMessagesForFolder<'a> {
-    pub listener: &'a SafeEwsMessageSyncListener,
+    pub listener: &'a SafeExchangeMessageSyncListener,
     pub folder_id: String,
     pub sync_state_token: Option<String>,
 }
@@ -43,7 +43,7 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
 {
     const NAME: &'static str = "sync folder hierarchy";
     type Okay = ();
-    type Listener = SafeEwsMessageSyncListener;
+    type Listener = SafeExchangeMessageSyncListener;
 
     async fn do_operation(
         &mut self,
@@ -176,7 +176,7 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
 impl<ServerT: ServerType> XpComGraphClient<ServerT> {
     pub async fn sync_messages_for_folder(
         self: Arc<XpComGraphClient<ServerT>>,
-        listener: SafeEwsMessageSyncListener,
+        listener: SafeExchangeMessageSyncListener,
         folder_id: String,
         sync_state_token: Option<String>,
     ) {

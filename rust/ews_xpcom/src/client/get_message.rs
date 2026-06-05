@@ -7,19 +7,19 @@ use std::sync::Arc;
 use base64::prelude::*;
 use ews::{Operation, get_item::GetItem};
 use protocol_shared::client::DoOperation;
-use protocol_shared::safe_xpcom::SafeEwsMessageFetchListener;
+use protocol_shared::safe_xpcom::SafeExchangeMessageFetchListener;
 
 use super::{ServerType, XpComEwsClient, XpComEwsError};
 
 struct DoGetMessage<'a> {
-    pub listener: &'a SafeEwsMessageFetchListener,
+    pub listener: &'a SafeExchangeMessageFetchListener,
     pub id: String,
 }
 
 impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError> for DoGetMessage<'_> {
     const NAME: &'static str = GetItem::NAME;
     type Okay = ();
-    type Listener = SafeEwsMessageFetchListener;
+    type Listener = SafeExchangeMessageFetchListener;
 
     async fn do_operation(
         &mut self,
@@ -70,7 +70,7 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError> fo
 impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     pub(crate) async fn get_message(
         self: Arc<XpComEwsClient<ServerT>>,
-        listener: SafeEwsMessageFetchListener,
+        listener: SafeExchangeMessageFetchListener,
         id: String,
     ) {
         let operation = DoGetMessage {
