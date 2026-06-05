@@ -40,6 +40,7 @@ registerCleanupFunction(async function () {
 
 async function subtest(grantedScope, expectFailure) {
   await Services.logins.removeAllLoginsAsync();
+  OAuth2TestUtils.forgetObjects();
   Services.fog.testResetFOG();
 
   const config = new AccountConfig();
