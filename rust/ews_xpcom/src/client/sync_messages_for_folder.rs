@@ -8,7 +8,7 @@ use ews::{
     sync_folder_items::{self, SyncFolderItems},
 };
 use protocol_shared::client::DoOperation;
-use protocol_shared::safe_xpcom::SafeEwsMessageSyncListener;
+use protocol_shared::safe_xpcom::SafeExchangeMessageSyncListener;
 use std::sync::Arc;
 
 use crate::headerblock;
@@ -20,7 +20,7 @@ use super::{
 };
 
 struct DoSyncMessagesForFolder<'a> {
-    pub listener: &'a SafeEwsMessageSyncListener,
+    pub listener: &'a SafeExchangeMessageSyncListener,
     pub folder_id: String,
     pub sync_state_token: Option<String>,
 }
@@ -30,7 +30,7 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError>
 {
     const NAME: &'static str = SyncFolderItems::NAME;
     type Okay = ();
-    type Listener = SafeEwsMessageSyncListener;
+    type Listener = SafeExchangeMessageSyncListener;
 
     async fn do_operation(
         &mut self,
@@ -255,7 +255,7 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError>
 impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     pub(crate) async fn sync_messages_for_folder(
         self: Arc<XpComEwsClient<ServerT>>,
-        listener: SafeEwsMessageSyncListener,
+        listener: SafeExchangeMessageSyncListener,
         folder_id: String,
         sync_state_token: Option<String>,
     ) {

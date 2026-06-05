@@ -11,7 +11,7 @@ use ms_graph_tb::{
 };
 use protocol_shared::{
     EXCHANGE_DISTINGUISHED_IDS, EXCHANGE_ROOT_FOLDER, ServerType, client::DoOperation,
-    safe_xpcom::SafeEwsFolderListener,
+    safe_xpcom::SafeExchangeFolderListener,
 };
 
 use crate::error::XpComGraphError;
@@ -19,7 +19,7 @@ use crate::error::XpComGraphError;
 use super::XpComGraphClient;
 
 struct DoSyncFolderHierarchy<'a> {
-    pub listener: &'a SafeEwsFolderListener,
+    pub listener: &'a SafeExchangeFolderListener,
     pub sync_state_token: Option<String>,
 }
 
@@ -28,7 +28,7 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
 {
     const NAME: &'static str = "sync folder hierarchy";
     type Okay = ();
-    type Listener = SafeEwsFolderListener;
+    type Listener = SafeExchangeFolderListener;
 
     async fn do_operation(
         &mut self,
@@ -153,7 +153,7 @@ impl<ServerT: ServerType> XpComGraphClient<ServerT> {
     ///     https://learn.microsoft.com/en-us/graph/api/mailfolder-delta
     pub async fn sync_folder_hierarchy(
         self: Arc<XpComGraphClient<ServerT>>,
-        listener: SafeEwsFolderListener,
+        listener: SafeExchangeFolderListener,
         sync_state_token: Option<String>,
     ) {
         let operation = DoSyncFolderHierarchy {
@@ -170,7 +170,7 @@ impl<ServerT: ServerType> XpComGraphClient<ServerT> {
 /// calls and well-known IDs associated with special folders.
 async fn get_well_known_folder_map<ServerT: ServerType>(
     client: &XpComGraphClient<ServerT>,
-    listener: &SafeEwsFolderListener,
+    listener: &SafeExchangeFolderListener,
 ) -> Result<FxHashMap<String, &'static str>, XpComGraphError> {
     // We should always request the root folder first to simplify processing
     // the response below.

@@ -9,7 +9,8 @@ use protocol_shared::{
     ServerType,
     client::DoOperation,
     safe_xpcom::{
-        SafeEwsSimpleOperationListener, SafeListener, SimpleOperationSuccessArgs, UseLegacyFallback,
+        SafeExchangeSimpleOperationListener, SafeListener, SimpleOperationSuccessArgs,
+        UseLegacyFallback,
     },
 };
 use thin_vec::ThinVec;
@@ -32,7 +33,7 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
 
     type Okay = ();
 
-    type Listener = SafeEwsSimpleOperationListener;
+    type Listener = SafeExchangeSimpleOperationListener;
 
     async fn do_operation(
         &mut self,
@@ -98,7 +99,7 @@ impl<ServerT: ServerType> XpComGraphClient<ServerT> {
         folder_id: String,
         subfolder_ids: Vec<String>,
         message_ids: Vec<String>,
-        listener: SafeEwsSimpleOperationListener,
+        listener: SafeExchangeSimpleOperationListener,
     ) {
         let operation = DoEmptyFolder {
             folder_id,

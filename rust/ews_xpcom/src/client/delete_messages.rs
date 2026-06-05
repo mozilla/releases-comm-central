@@ -12,7 +12,7 @@ use ews::{
 use nsstring::nsCString;
 use protocol_shared::client::DoOperation;
 use protocol_shared::safe_xpcom::{
-    SafeEwsSimpleOperationListener, SafeListener, UseLegacyFallback,
+    SafeExchangeSimpleOperationListener, SafeListener, UseLegacyFallback,
 };
 use thin_vec::ThinVec;
 
@@ -32,7 +32,7 @@ struct DoDeleteMessages {
 impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError> for DoDeleteMessages {
     const NAME: &'static str = DeleteItem::NAME;
     type Okay = ();
-    type Listener = SafeEwsSimpleOperationListener;
+    type Listener = SafeExchangeSimpleOperationListener;
 
     async fn do_operation(
         &mut self,
@@ -111,7 +111,7 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError> fo
 impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     pub async fn delete_messages(
         self: Arc<XpComEwsClient<ServerT>>,
-        listener: SafeEwsSimpleOperationListener,
+        listener: SafeExchangeSimpleOperationListener,
         ews_ids: ThinVec<nsCString>,
     ) {
         let operation = DoDeleteMessages { ews_ids };

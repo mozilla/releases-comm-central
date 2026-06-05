@@ -10,9 +10,10 @@ use xpcom::interfaces::IExchangeSimpleOperationListener;
 use crate::safe_xpcom::{SafeListener, SafeListenerWrapper};
 
 /// See [`SafeListenerWrapper`].
-pub type SafeEwsSimpleOperationListener = SafeListenerWrapper<IExchangeSimpleOperationListener>;
+pub type SafeExchangeSimpleOperationListener =
+    SafeListenerWrapper<IExchangeSimpleOperationListener>;
 
-impl SafeEwsSimpleOperationListener {
+impl SafeExchangeSimpleOperationListener {
     /// Convert types and forward to [`IExchangeSimpleOperationListener::OnOperationSuccess`].
     fn on_operation_success(
         &self,
@@ -74,7 +75,7 @@ where
     }
 }
 
-impl SafeListener for SafeEwsSimpleOperationListener {
+impl SafeListener for SafeExchangeSimpleOperationListener {
     type OnSuccessArg = SimpleOperationSuccessArgs;
     type OnFailureArg = ();
 

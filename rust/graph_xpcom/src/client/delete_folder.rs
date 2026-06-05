@@ -8,7 +8,9 @@ use ms_graph_tb::paths;
 use protocol_shared::{
     ServerType,
     client::DoOperation,
-    safe_xpcom::{SafeEwsSimpleOperationListener, SimpleOperationSuccessArgs, UseLegacyFallback},
+    safe_xpcom::{
+        SafeExchangeSimpleOperationListener, SimpleOperationSuccessArgs, UseLegacyFallback,
+    },
 };
 use thin_vec::ThinVec;
 
@@ -25,7 +27,7 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
 
     type Okay = ();
 
-    type Listener = SafeEwsSimpleOperationListener;
+    type Listener = SafeExchangeSimpleOperationListener;
 
     async fn do_operation(
         &mut self,
@@ -67,7 +69,7 @@ impl<ServerT: ServerType> XpComGraphClient<ServerT> {
     pub(crate) async fn delete_folders(
         self: Arc<XpComGraphClient<ServerT>>,
         folder_id: String,
-        listener: SafeEwsSimpleOperationListener,
+        listener: SafeExchangeSimpleOperationListener,
     ) {
         let operation = DoDeleteFolder { folder_id };
         operation.handle_operation(&self, &listener).await;

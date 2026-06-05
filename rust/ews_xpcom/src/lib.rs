@@ -16,8 +16,9 @@ use nsstring::{nsACString, nsCString};
 use protocol_shared::{
     client::ProtocolClient,
     safe_xpcom::{
-        SafeEwsFolderListener, SafeEwsMessageCreateListener, SafeEwsMessageFetchListener,
-        SafeEwsMessageSyncListener, SafeEwsSimpleOperationListener, SafeUrlListener, uri::SafeUri,
+        SafeExchangeFolderListener, SafeExchangeMessageCreateListener,
+        SafeExchangeMessageFetchListener, SafeExchangeMessageSyncListener,
+        SafeExchangeSimpleOperationListener, SafeUrlListener, uri::SafeUri,
     },
     xpcom_io,
 };
@@ -217,7 +218,7 @@ impl XpcomEwsBridge {
         // this scope, so spawn it as a detached `moz_task`.
         moz_task::spawn_local(
             "sync_folder_hierarchy",
-            client.sync_folder_hierarchy(SafeEwsFolderListener::new(listener), sync_state),
+            client.sync_folder_hierarchy(SafeExchangeFolderListener::new(listener), sync_state),
         )
         .detach();
 
@@ -246,7 +247,7 @@ impl XpcomEwsBridge {
         moz_task::spawn_local(
             "create_folder",
             client.create_folder(
-                SafeEwsSimpleOperationListener::new(listener),
+                SafeExchangeSimpleOperationListener::new(listener),
                 parent_id.to_utf8().into(),
                 name.to_utf8().into(),
             ),
@@ -272,7 +273,7 @@ impl XpcomEwsBridge {
         moz_task::spawn_local(
             "delete_folder",
             client.delete_folder(
-                SafeEwsSimpleOperationListener::new(listener),
+                SafeExchangeSimpleOperationListener::new(listener),
                 folder_id.to_string(),
             ),
         )
@@ -304,7 +305,7 @@ impl XpcomEwsBridge {
         moz_task::spawn_local(
             "empty_folder",
             client.empty_folder(
-                SafeEwsSimpleOperationListener::new(listener),
+                SafeExchangeSimpleOperationListener::new(listener),
                 folder_id.to_string(),
                 subfolder_ids,
                 message_ids,
@@ -333,7 +334,7 @@ impl XpcomEwsBridge {
         moz_task::spawn_local(
             "update_folder",
             client.update_folder(
-                SafeEwsSimpleOperationListener::new(listener),
+                SafeExchangeSimpleOperationListener::new(listener),
                 folder_id.to_utf8().into_owned(),
                 folder_name.to_utf8().into_owned(),
             ),
@@ -369,7 +370,7 @@ impl XpcomEwsBridge {
         moz_task::spawn_local(
             "sync_messages_for_folder",
             client.sync_messages_for_folder(
-                SafeEwsMessageSyncListener::new(listener),
+                SafeExchangeMessageSyncListener::new(listener),
                 folder_id.to_utf8().into_owned(),
                 sync_state,
             ),
@@ -395,7 +396,7 @@ impl XpcomEwsBridge {
         moz_task::spawn_local(
             "get_message",
             client.get_message(
-                SafeEwsMessageFetchListener::new(listener),
+                SafeExchangeMessageFetchListener::new(listener),
                 id.to_utf8().into(),
             ),
         )
@@ -422,7 +423,7 @@ impl XpcomEwsBridge {
         moz_task::spawn_local(
             "change_read_status",
             client.change_read_status(
-                SafeEwsSimpleOperationListener::new(listener),
+                SafeExchangeSimpleOperationListener::new(listener),
                 message_ids.clone(),
                 is_read,
             ),
@@ -450,7 +451,7 @@ impl XpcomEwsBridge {
         moz_task::spawn_local(
             "change_flag_status",
             client.change_flag_status(
-                SafeEwsSimpleOperationListener::new(listener),
+                SafeExchangeSimpleOperationListener::new(listener),
                 message_ids.clone(),
                 is_flagged,
             ),
@@ -480,7 +481,7 @@ impl XpcomEwsBridge {
         moz_task::spawn_local(
             "change_read_status_all",
             client.change_read_status_all(
-                SafeEwsSimpleOperationListener::new(listener),
+                SafeExchangeSimpleOperationListener::new(listener),
                 folder_ids.clone(),
                 is_read,
                 suppress_read_receipts,
@@ -519,7 +520,7 @@ impl XpcomEwsBridge {
                 is_draft,
                 is_read,
                 content,
-                SafeEwsMessageCreateListener::new(listener),
+                SafeExchangeMessageCreateListener::new(listener),
             ),
         )
         .detach();
@@ -543,7 +544,7 @@ impl XpcomEwsBridge {
         moz_task::spawn_local(
             "move_items",
             client.copy_move_item::<MoveItem>(
-                SafeEwsSimpleOperationListener::new(listener),
+                SafeExchangeSimpleOperationListener::new(listener),
                 destination_folder_id.to_string(),
                 item_ids.iter().map(ToString::to_string).collect(),
             ),
@@ -569,7 +570,7 @@ impl XpcomEwsBridge {
         moz_task::spawn_local(
             "copy_items",
             client.copy_move_item::<CopyItem>(
-                SafeEwsSimpleOperationListener::new(listener),
+                SafeExchangeSimpleOperationListener::new(listener),
                 destination_folder_id.to_string(),
                 item_ids.iter().map(ToString::to_string).collect(),
             ),
@@ -595,7 +596,7 @@ impl XpcomEwsBridge {
         moz_task::spawn_local(
             "move_folders",
             client.copy_move_folder::<MoveFolder>(
-                SafeEwsSimpleOperationListener::new(listener),
+                SafeExchangeSimpleOperationListener::new(listener),
                 destination_folder_id.to_string(),
                 folder_ids.iter().map(ToString::to_string).collect(),
             ),
@@ -621,7 +622,7 @@ impl XpcomEwsBridge {
         moz_task::spawn_local(
             "copy_folders",
             client.copy_move_folder::<CopyFolder>(
-                SafeEwsSimpleOperationListener::new(listener),
+                SafeExchangeSimpleOperationListener::new(listener),
                 destination_folder_id.to_string(),
                 folder_ids.iter().map(ToString::to_string).collect(),
             ),
@@ -647,7 +648,7 @@ impl XpcomEwsBridge {
         moz_task::spawn_local(
             "delete_messages",
             client.delete_messages(
-                SafeEwsSimpleOperationListener::new(listener),
+                SafeExchangeSimpleOperationListener::new(listener),
                 ews_ids.clone(),
             ),
         )
@@ -674,7 +675,7 @@ impl XpcomEwsBridge {
         moz_task::spawn_local(
             "mark_items_as_junk",
             client.mark_as_junk(
-                SafeEwsSimpleOperationListener::new(listener),
+                SafeExchangeSimpleOperationListener::new(listener),
                 ews_ids.clone(),
                 is_junk,
                 legacy_destination_folder_id.to_string(),

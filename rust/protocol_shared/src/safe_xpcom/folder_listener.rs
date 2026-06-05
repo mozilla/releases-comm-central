@@ -10,9 +10,9 @@ use xpcom::interfaces::{IExchangeFolderListener, nsMsgFolderFlagType, nsMsgFolde
 use crate::safe_xpcom::{SafeListener, SafeListenerWrapper};
 
 /// See [`SafeListenerWrapper`].
-pub type SafeEwsFolderListener = SafeListenerWrapper<IExchangeFolderListener>;
+pub type SafeExchangeFolderListener = SafeListenerWrapper<IExchangeFolderListener>;
 
-impl SafeEwsFolderListener {
+impl SafeExchangeFolderListener {
     /// Convert types and forward to [`IExchangeFolderListener::OnNewRootFolder`]
     pub fn on_new_root_folder(&self, root_folder_id: String) -> Result<(), nsresult> {
         let folder_id = nsCString::from(root_folder_id);
@@ -101,7 +101,7 @@ impl SafeEwsFolderListener {
     }
 }
 
-impl SafeListener for SafeEwsFolderListener {
+impl SafeListener for SafeExchangeFolderListener {
     type OnSuccessArg = ();
     type OnFailureArg = ();
 

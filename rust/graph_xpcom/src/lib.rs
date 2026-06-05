@@ -11,8 +11,9 @@ use nsstring::{nsACString, nsCString};
 use protocol_shared::{
     client::ProtocolClient,
     safe_xpcom::{
-        SafeEwsFolderListener, SafeEwsMessageCreateListener, SafeEwsMessageFetchListener,
-        SafeEwsMessageSyncListener, SafeEwsSimpleOperationListener, SafeUrlListener, uri::SafeUri,
+        SafeExchangeFolderListener, SafeExchangeMessageCreateListener,
+        SafeExchangeMessageFetchListener, SafeExchangeMessageSyncListener,
+        SafeExchangeSimpleOperationListener, SafeUrlListener, uri::SafeUri,
     },
     xpcom_io,
 };
@@ -168,7 +169,7 @@ impl XpcomGraphBridge {
 
         moz_task::spawn_local(
             "sync_folder_hierarchy",
-            client.sync_folder_hierarchy(SafeEwsFolderListener::new(listener), sync_state),
+            client.sync_folder_hierarchy(SafeExchangeFolderListener::new(listener), sync_state),
         )
         .detach();
 
@@ -191,7 +192,7 @@ impl XpcomGraphBridge {
         moz_task::spawn_local(
             "create_folder",
             client.create_folder(
-                SafeEwsSimpleOperationListener::new(listener),
+                SafeExchangeSimpleOperationListener::new(listener),
                 parent_id.to_utf8().into_owned(),
                 name.to_utf8().into_owned(),
             ),
@@ -212,7 +213,7 @@ impl XpcomGraphBridge {
     ) -> Result<(), nsresult> {
         let client = self.client()?;
 
-        let listener = SafeEwsSimpleOperationListener::new(listener);
+        let listener = SafeExchangeSimpleOperationListener::new(listener);
 
         moz_task::spawn_local(
             "delete_folder",
@@ -242,7 +243,7 @@ impl XpcomGraphBridge {
         let subfolder_ids = subfolder_ids.iter().map(ToString::to_string).collect();
         let message_ids = message_ids.iter().map(ToString::to_string).collect();
 
-        let listener = SafeEwsSimpleOperationListener::new(listener);
+        let listener = SafeExchangeSimpleOperationListener::new(listener);
 
         moz_task::spawn_local(
             "empty_folder",
@@ -271,7 +272,7 @@ impl XpcomGraphBridge {
             client.update_folder(
                 folder_id.to_utf8().into_owned(),
                 folder_name.to_utf8().into_owned(),
-                SafeEwsSimpleOperationListener::new(listener),
+                SafeExchangeSimpleOperationListener::new(listener),
             ),
         )
         .detach();
@@ -292,7 +293,7 @@ impl XpcomGraphBridge {
     ) -> Result<(), nsresult> {
         let client = self.client()?;
 
-        let listener = SafeEwsMessageSyncListener::new(listener);
+        let listener = SafeExchangeMessageSyncListener::new(listener);
         let folder_id = folder_id.to_utf8().to_string();
         let sync_state = if sync_state.is_empty() {
             None
@@ -320,7 +321,7 @@ impl XpcomGraphBridge {
     ) -> Result<(), nsresult> {
         let client = self.client()?;
 
-        let listener = SafeEwsMessageFetchListener::new(listener);
+        let listener = SafeExchangeMessageFetchListener::new(listener);
         let id = id.to_utf8().to_string();
 
         moz_task::spawn_local("get_message", client.get_message(listener, id)).detach();
@@ -398,7 +399,7 @@ impl XpcomGraphBridge {
                 is_draft,
                 is_read,
                 content,
-                SafeEwsMessageCreateListener::new(listener),
+                SafeExchangeMessageCreateListener::new(listener),
             ),
         )
         .detach();
@@ -421,7 +422,7 @@ impl XpcomGraphBridge {
 
         let destination_folder_id = destination_folder_id.to_string();
         let item_ids = item_ids.iter().map(ToString::to_string).collect();
-        let listener = SafeEwsSimpleOperationListener::new(listener);
+        let listener = SafeExchangeSimpleOperationListener::new(listener);
 
         moz_task::spawn_local(
             "move_messages",
@@ -447,7 +448,7 @@ impl XpcomGraphBridge {
 
         let destination_folder_id = destination_folder_id.to_string();
         let item_ids = item_ids.iter().map(ToString::to_string).collect();
-        let listener = SafeEwsSimpleOperationListener::new(listener);
+        let listener = SafeExchangeSimpleOperationListener::new(listener);
 
         moz_task::spawn_local(
             "copy_messages",
@@ -474,7 +475,7 @@ impl XpcomGraphBridge {
         let destination_folder_id = destination_folder_id.to_string();
         let folder_ids = folder_ids.iter().map(ToString::to_string).collect();
 
-        let listener = SafeEwsSimpleOperationListener::new(listener);
+        let listener = SafeExchangeSimpleOperationListener::new(listener);
 
         moz_task::spawn_local(
             "move_folders",
@@ -501,7 +502,7 @@ impl XpcomGraphBridge {
         let destination_folder_id = destination_folder_id.to_string();
         let folder_ids = folder_ids.iter().map(ToString::to_string).collect();
 
-        let listener = SafeEwsSimpleOperationListener::new(listener);
+        let listener = SafeExchangeSimpleOperationListener::new(listener);
 
         moz_task::spawn_local(
             "copy_folders",
@@ -524,7 +525,7 @@ impl XpcomGraphBridge {
         let client = self.client()?;
 
         let message_ids = message_ids.iter().map(ToString::to_string).collect();
-        let listener = SafeEwsSimpleOperationListener::new(listener);
+        let listener = SafeExchangeSimpleOperationListener::new(listener);
 
         moz_task::spawn_local(
             "delete_messages",

@@ -10,7 +10,7 @@ use ews::{
 };
 use protocol_shared::client::DoOperation;
 use protocol_shared::safe_xpcom::{
-    SafeEwsSimpleOperationListener, SafeListener, UseLegacyFallback,
+    SafeExchangeSimpleOperationListener, SafeListener, UseLegacyFallback,
 };
 
 use super::{
@@ -26,7 +26,7 @@ struct DoUpdateFolder {
 impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError> for DoUpdateFolder {
     const NAME: &'static str = UpdateFolder::NAME;
     type Okay = ();
-    type Listener = SafeEwsSimpleOperationListener;
+    type Listener = SafeExchangeSimpleOperationListener;
 
     async fn do_operation(
         &mut self,
@@ -80,7 +80,7 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError> fo
 impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     pub async fn update_folder(
         self: Arc<XpComEwsClient<ServerT>>,
-        listener: SafeEwsSimpleOperationListener,
+        listener: SafeExchangeSimpleOperationListener,
         folder_id: String,
         folder_name: String,
     ) {

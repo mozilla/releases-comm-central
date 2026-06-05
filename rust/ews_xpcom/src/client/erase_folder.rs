@@ -13,7 +13,7 @@ use ews::{
 };
 use protocol_shared::client::DoOperation;
 use protocol_shared::safe_xpcom::{
-    SafeEwsSimpleOperationListener, SafeListener, UseLegacyFallback,
+    SafeExchangeSimpleOperationListener, SafeListener, UseLegacyFallback,
 };
 use std::marker::PhantomData;
 
@@ -36,7 +36,7 @@ impl<ServerT: ServerType, Op: EraseFolder + 'static>
 {
     const NAME: &'static str = <Op as Operation>::NAME;
     type Okay = UseLegacyFallback;
-    type Listener = SafeEwsSimpleOperationListener;
+    type Listener = SafeExchangeSimpleOperationListener;
 
     async fn do_operation(
         &mut self,
