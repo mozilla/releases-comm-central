@@ -214,6 +214,11 @@ flatpak build-export --disable-sandbox --no-update-summary --metadata=metadata.l
 ostree commit --repo=repo --canonical-permissions --branch=screenshots/x86_64 ${appdir}/share/app-info/media
 flatpak build-update-repo --generate-static-deltas repo
 
+# Lint the Flatpak repo against Flathub requirements
+# Capture exit code to avoid set -e aborting on failure
+flatpak-builder-lint --exceptions --user-exceptions "${SCRIPT_DIR}/exceptions.json" repo repo || LINT_EXIT_CODE=$?
+LINT_EXIT_CODE=${LINT_EXIT_CODE:-0}
+
 # Package Flatpak repo as tar
 tar cvfJ flatpak.tar.xz repo
 mv -- flatpak.tar.xz "$TARGET_TAR_XZ_FULL_PATH"
@@ -223,3 +228,5 @@ flatpak build-bundle "$WORKSPACE"/repo "${APP_ID}.flatpak" "${APP_ID}" "$FLATPAK
 
 # Move bundle to artifacts
 mv "${APP_ID}.flatpak" "$ARTIFACTS_DIR/"
+
+exit "$LINT_EXIT_CODE"

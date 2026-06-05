@@ -7,7 +7,7 @@ WORKDIR /scripts/
 
 # Copy everything in the docker/tb-flatpak folder but the Dockerfile
 # Use globs to avoid accidentally copying the injected run-task/ directory.
-COPY *.sh *.c *.ini *.in *.svg /scripts/
+COPY *.sh *.c *.ini *.in *.svg *.json /scripts/
 
 # Copy required recipes
 # %include comm/taskcluster/docker/recipes
@@ -26,6 +26,9 @@ RUN /scripts/make_venv.sh /scripts/fluent_requirements.txt
 # Manually add close_range syscall to image
 RUN ["gcc", "-Wall", "-shared", "-o", "/scripts/close_range.so", "/scripts/close_range.c"]
 ENV LD_PRELOAD /scripts/close_range.so
+
+# Install flatpak-builder-lint
+RUN pip3 install git+https://github.com/flathub-infra/flatpak-builder-lint.git
 
 # Set a default command useful for debugging
 CMD ["/bin/bash", "--login"]
