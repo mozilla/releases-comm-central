@@ -2861,7 +2861,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "51255ea7cfaadb6c5f1528d43e92a82acb2b96c43365989a28b2d44ee38f8795"
 dependencies = [
  "ash",
- "hashbrown 0.16.1",
+ "hashbrown 0.16.999",
  "log",
  "presser",
  "thiserror 2.0.12",
@@ -2998,14 +2998,21 @@ dependencies = [
 name = "hashbrown"
 version = "0.15.999"
 dependencies = [
- "hashbrown 0.16.1",
+ "hashbrown 0.16.999",
 ]
 
 [[package]]
 name = "hashbrown"
-version = "0.16.1"
+version = "0.16.999"
+dependencies = [
+ "hashbrown 0.17.1",
+]
+
+[[package]]
+name = "hashbrown"
+version = "0.17.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "841d1cc9bed7f9236f321df977030373f4a4163ae1a7dbfe1a51a2c1a51d9100"
+checksum = "ed5909b6e89a2db4456e54cd5f673791d7eca6732202bbf2a9cc504fe2f9b84a"
 dependencies = [
  "allocator-api2",
  "equivalent",
@@ -3027,7 +3034,7 @@ version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ea0b22561a9c04a7cb1a302c013e0259cd3b4bb619f145b32f72b8b4bcbed230"
 dependencies = [
- "hashbrown 0.16.1",
+ "hashbrown 0.16.999",
 ]
 
 [[package]]
@@ -3332,7 +3339,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4b0f83760fb341a774ed326568e19f5a863af4a952def8c39f9ab92fd95b88e5"
 dependencies = [
  "equivalent",
- "hashbrown 0.16.1",
+ "hashbrown 0.16.999",
  "serde",
  "serde_core",
 ]
@@ -4505,7 +4512,7 @@ dependencies = [
  "cfg_aliases",
  "codespan-reporting",
  "half 2.5.0",
- "hashbrown 0.16.1",
+ "hashbrown 0.16.999",
  "indexmap",
  "libm",
  "log",
@@ -6227,7 +6234,7 @@ version = "0.0.0"
 dependencies = [
  "chrono",
  "futures",
- "hashbrown 0.16.1",
+ "hashbrown 0.16.999",
  "rusqlite",
  "serde",
  "serde_json",
@@ -7475,7 +7482,7 @@ dependencies = [
  "bytemuck",
  "cfg_aliases",
  "document-features",
- "hashbrown 0.16.1",
+ "hashbrown 0.16.999",
  "indexmap",
  "log",
  "macro_rules_attribute",
@@ -7527,7 +7534,7 @@ dependencies = [
  "cfg-if",
  "cfg_aliases",
  "gpu-allocator",
- "hashbrown 0.16.1",
+ "hashbrown 0.16.999",
  "libc",
  "libloading",
  "log",
