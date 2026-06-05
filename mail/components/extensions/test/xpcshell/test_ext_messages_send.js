@@ -461,12 +461,34 @@ add_task(async function test_send_save_Message() {
 
       async function verifyMessage(messageHeader, details, expected) {
         const raw = await browser.messages.getRaw(messageHeader.id);
-        // Verify message format.
-        browser.test.assertEq(
-          expected.deliveryFormat.includes("both"),
-          raw.includes("multipart/alternative"),
-          "Message format should be correct"
-        );
+        // Verify message format. multipart/alternative is only produced when
+        // sending in "both" format. Saved drafts and templates instead store the
+        // body directly and record the format in X-Mozilla-Draft-Info, so they
+        // reopen in the format the user authored.
+        const isSendMode = ["sendNow", "sendLater"].includes(expected.mode);
+        if (isSendMode) {
+          browser.test.assertEq(
+            expected.deliveryFormat.includes("both"),
+            raw.includes("multipart/alternative"),
+            "Message format should be correct"
+          );
+        } else {
+          browser.test.assertFalse(
+            raw.includes("multipart/alternative"),
+            "A saved draft or template should not be multipart/alternative"
+          );
+          const deliveryFormatValues = {
+            auto: 0,
+            plaintext: 1,
+            html: 2,
+            both: 3,
+          };
+          const expectedFormat = deliveryFormatValues[expected.deliveryFormat];
+          browser.test.assertTrue(
+            raw.includes(`deliveryformat=${expectedFormat}`),
+            `Saved message should record deliveryformat=${expectedFormat}`
+          );
+        }
 
         // Verify subject.
         browser.test.assertEq(
@@ -719,9 +741,9 @@ add_task(async function test_send_save_Message() {
         },
       });
 
-      // Specify body, which is plaintext and request delivery format "both",
-      // should create multipart/alternative, because plaintext was not
-      // specifically requested.
+      // Request delivery format "both" for an HTML body saved as a draft. The
+      // draft stores the HTML body and records deliveryformat=3 (Both); it is
+      // not converted to multipart/alternative, which only happens on send.
       await runTest({
         testFunc: "saveMessage",
         details: {
@@ -889,7 +911,9 @@ add_task(async function test_send_save_Message() {
         expected: {
           mode: "template",
           messageCopies: ["template"],
-          deliveryFormat: "both",
+          // No deliveryFormat was requested, so it defaults to Auto (0). As a
+          // saved template the HTML body is stored as-is.
+          deliveryFormat: "auto",
           attachments: ["file.txt"],
         },
       });
@@ -929,6 +953,78 @@ add_task(async function test_send_save_Message() {
     },
   });
 
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+});
+
+/**
+ * Verify save operations keep their format intent: an HTML draft is stored as
+ * HTML (not downgraded to plain text) so it reopens in HTML mode, and the
+ * X-Mozilla-Draft-Info header records the delivery format (0 = Auto by default,
+ * 1 = PlainText for a pure plain text draft).
+ */
+add_task(async function test_save_keeps_format_intent() {
+  gServer.resetTest();
+  clearTestFolders();
+
+  const extension = ExtensionTestUtils.loadExtension({
+    background: async () => {
+      // Default (auto) HTML draft.
+      const htmlSave = await browser.messages.saveMessage(
+        {
+          to: "to@example.invalid",
+          subject: "HTML draft",
+          body: "<p>Some <b>HTML</b> content.</p>",
+        },
+        { mode: "draft" }
+      );
+      browser.test.assertEq(1, htmlSave.messages.length, "One draft saved");
+      let raw = await browser.messages.getRaw(htmlSave.messages[0].id);
+      browser.test.assertTrue(
+        /Content-Type:\s*text\/html/i.test(raw),
+        `HTML draft should be stored as text/html, not downgraded:\n${raw}`
+      );
+      browser.test.assertTrue(
+        raw.includes("<b>HTML</b>"),
+        "HTML body should be preserved in the draft"
+      );
+      browser.test.assertTrue(
+        raw.includes("deliveryformat=0"),
+        `Default delivery format should be 0 (Auto):\n${raw}`
+      );
+
+      // Pure plain text draft.
+      const textSave = await browser.messages.saveMessage(
+        {
+          to: "to@example.invalid",
+          subject: "Plain draft",
+          isPlainText: true,
+          plainTextBody: "Just plain text.",
+        },
+        { mode: "draft" }
+      );
+      raw = await browser.messages.getRaw(textSave.messages[0].id);
+      browser.test.assertTrue(
+        /Content-Type:\s*text\/plain/i.test(raw),
+        `Plain text draft should be stored as text/plain:\n${raw}`
+      );
+      browser.test.assertTrue(
+        raw.includes("deliveryformat=1"),
+        `Plain text delivery format should be 1 (PlainText):\n${raw}`
+      );
+
+      browser.test.notifyPass("finished");
+    },
+    manifest: {
+      permissions: [
+        "messagesRead",
+        "accountsRead",
+        "messagesDelete",
+        "messages.save",
+      ],
+    },
+  });
   await extension.startup();
   await extension.awaitFinish("finished");
   await extension.unload();

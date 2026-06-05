@@ -173,55 +173,72 @@ class MsgOperationWrapper {
       .replace(/\s{74,}/g, "    ")
       .trimRight();
 
-    // We use isPlainText as a main identifier. If not specified, we set it to
-    // false if a body is specified. Delivery mode will switch it back to
-    // plaintext if possible.
+    const isSend = ["sendNow", "sendLater"].includes(sendMode);
+
+    // We use isPlainText as the main identifier. If not specified, default to
+    // false when a body is specified.
     let isPlainText;
     if (details.isPlainText != null) {
       isPlainText = details.isPlainText;
     } else {
       isPlainText = !details.body;
     }
-    // Determine body and delivery format.
-    let deliveryFormat;
+
+    // compFields.deliveryFormat is the persistent format intent. It is written
+    // to the X-Mozilla-Draft-Info header and restores the editor mode when a
+    // saved draft or template is reopened. It is independent of the
+    // forcePlainText/useMultipartAlternative flags below, which only shape the
+    // MIME structure produced when sending.
+    let sendFormat;
     if (isPlainText) {
       msgCompose.compFields.body = details.plainTextBody || details.body;
       // details.deliveryFormat is ignored in pure plaintext messages.
-      deliveryFormat = "plaintext";
+      sendFormat = Ci.nsIMsgCompSendFormat.PlainText;
     } else {
       msgCompose.compFields.body = details.body;
-      deliveryFormat = details.deliveryFormat || "auto";
-      if (deliveryFormat == "auto") {
-        // Auto downgrade if safe to do so.
+      sendFormat =
+        {
+          plaintext: Ci.nsIMsgCompSendFormat.PlainText,
+          html: Ci.nsIMsgCompSendFormat.HTML,
+          both: Ci.nsIMsgCompSendFormat.Both,
+        }[details.deliveryFormat] ?? Ci.nsIMsgCompSendFormat.Auto;
+    }
+    msgCompose.compFields.deliveryFormat = sendFormat;
+
+    // forcePlainText/useMultipartAlternative shape the MIME produced when
+    // sending. They are deliberately NOT applied to save operations, so a draft
+    // or template keeps its HTML body and reopens in the same editor mode the
+    // user expects.
+    if (isPlainText) {
+      msgCompose.compFields.forcePlainText = true;
+      msgCompose.compFields.useMultipartAlternative = false;
+    } else if (isSend) {
+      // Resolve Auto the same way determineSendFormat() does, but without an
+      // editor: nodeTreeConvertible() runs the identical convertibility check on
+      // the parsed body that bodyConvertible() runs on the editor's document.
+      let resolved = sendFormat;
+      if (resolved == Ci.nsIMsgCompSendFormat.Auto) {
         try {
           const doc = new DOMParser().parseFromString(
             msgCompose.compFields.body,
             "text/html"
           );
-          deliveryFormat =
+          resolved =
             msgCompose.nodeTreeConvertible(doc.documentElement) ==
             Ci.nsIMsgCompConvertible.Plain
-              ? "plaintext"
-              : "both";
+              ? Ci.nsIMsgCompSendFormat.PlainText
+              : Ci.nsIMsgCompSendFormat.Both;
         } catch (ex) {
-          deliveryFormat = "both";
+          resolved = Ci.nsIMsgCompSendFormat.Both;
         }
       }
+      msgCompose.compFields.forcePlainText =
+        resolved == Ci.nsIMsgCompSendFormat.PlainText;
+      msgCompose.compFields.useMultipartAlternative =
+        resolved == Ci.nsIMsgCompSendFormat.Both;
     }
-    switch (deliveryFormat) {
-      case "plaintext":
-        msgCompose.compFields.forcePlainText = true;
-        msgCompose.compFields.useMultipartAlternative = false;
-        break;
-      case "html":
-        msgCompose.compFields.forcePlainText = false;
-        msgCompose.compFields.useMultipartAlternative = false;
-        break;
-      case "both":
-        msgCompose.compFields.forcePlainText = false;
-        msgCompose.compFields.useMultipartAlternative = true;
-        break;
-    }
+    // Otherwise (HTML save): leave forcePlainText/useMultipartAlternative at
+    // their defaults (false) so the draft/template is stored as HTML.
 
     // Priorities. The enum in the schema defines all allowed values, no need
     // to validate here.
@@ -257,7 +274,6 @@ class MsgOperationWrapper {
     // templates do not reach a recipient. Since the additionalFccFolder field
     // is ignored for save operations, it is resolved and validated only for
     // send modes.
-    const isSend = ["sendNow", "sendLater"].includes(sendMode);
 
     // If overrideDefaultFccFolder is "" AND additionalFccFolder is set, promote
     // the additional folder to the primary fcc target. The additional fcc2 copy
