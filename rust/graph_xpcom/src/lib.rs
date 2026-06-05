@@ -336,11 +336,21 @@ impl XpcomGraphBridge {
     ));
     fn change_read_status(
         &self,
-        _listener: &IExchangeSimpleOperationListener,
-        _message_ids: &ThinVec<nsCString>,
-        _is_read: bool,
+        listener: &IExchangeSimpleOperationListener,
+        message_ids: &ThinVec<nsCString>,
+        is_read: bool,
     ) -> Result<(), nsresult> {
-        Err(nserror::NS_ERROR_NOT_IMPLEMENTED)
+        let client = self.client()?;
+        let message_ids = message_ids.into_iter().map(ToString::to_string).collect();
+        let listener = SafeEwsSimpleOperationListener::new(listener);
+
+        moz_task::spawn_local(
+            "change_read_status",
+            client.change_read_status(message_ids, is_read, listener),
+        )
+        .detach();
+
+        Ok(())
     }
 
     xpcom_method!(change_flag_status => ChangeFlagStatus(
@@ -365,12 +375,22 @@ impl XpcomGraphBridge {
     ));
     fn change_read_status_all(
         &self,
-        _listener: &IExchangeSimpleOperationListener,
-        _folder_ids: &ThinVec<nsCString>,
-        _is_read: bool,
-        _suppress_read_receipts: bool,
+        listener: &IExchangeSimpleOperationListener,
+        folder_ids: &ThinVec<nsCString>,
+        is_read: bool,
+        suppress_read_receipts: bool,
     ) -> Result<(), nsresult> {
-        Err(nserror::NS_ERROR_NOT_IMPLEMENTED)
+        let client = self.client()?;
+        let folder_ids = folder_ids.into_iter().map(ToString::to_string).collect();
+        let listener = SafeEwsSimpleOperationListener::new(listener);
+
+        moz_task::spawn_local(
+            "change_read_status_all",
+            client.change_read_status_all(folder_ids, is_read, suppress_read_receipts, listener),
+        )
+        .detach();
+
+        Ok(())
     }
 
     xpcom_method!(create_message => CreateMessage(

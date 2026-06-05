@@ -710,6 +710,13 @@ export class GraphServer extends MockServer {
       message.dsnRequested = parsedReq.isDeliveryReceiptRequested;
     }
 
+    // Set the read status if necessary, for which we need to get the relevant
+    // `ItemInfo` (so we can access its `SyntheticMessage`).
+    if (parsedReq.hasOwnProperty("isRead")) {
+      const item = this.getItemInfo(messageId);
+      item.syntheticMessage.metaState.read = parsedReq.isRead;
+    }
+
     // Note: returning only the ID should be fine for now because we don't
     // actually look at the response from this request (beyond basic things like
     // the HTTP status code), but in the future we'll probably want to expand
