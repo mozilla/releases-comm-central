@@ -28,17 +28,402 @@ var {
   MsgHdrProcessor,
 } = ChromeUtils.importESModule("resource:///modules/ExtensionMessages.sys.mjs");
 
-var { getFolder } = ChromeUtils.importESModule(
-  "resource:///modules/ExtensionAccounts.sys.mjs"
-);
+var { findAccountForIdentity, findIdentity, folderPathToURI, getFolder } =
+  ChromeUtils.importESModule("resource:///modules/ExtensionAccounts.sys.mjs");
 
 var { MailStringUtils } = ChromeUtils.importESModule(
   "resource:///modules/MailStringUtils.sys.mjs"
 );
 
-XPCOMUtils.defineLazyGlobalGetters(this, ["File"]);
+var { enforceSendGap, recordSend: recordSendActivity } =
+  ChromeUtils.importESModule("resource:///modules/MessagesSendTracker.sys.mjs");
+
+XPCOMUtils.defineLazyGlobalGetters(this, ["File", "DOMParser"]);
 
 var { DefaultMap } = ExtensionUtils;
+
+class MsgOperationWrapper {
+  QueryInterface = ChromeUtils.generateQI([
+    "nsIMsgSendListener",
+    "nsIMsgFolderListener",
+  ]);
+
+  constructor(extension) {
+    this.extension = extension;
+    this.savedMessages = [];
+    this.headerMessageId = null;
+    this.classifiedMessages = new Map();
+  }
+
+  // Implementation for nsIMsgSendListener.
+  onStartSending(_msgID, _msgSize) {}
+  onProgress(_msgID, _progress, _progressMax) {}
+  onStatus(_msgID, _msg) {}
+  onStopSending(msgID, status, _msg, _returnFile) {
+    if (!Components.isSuccessCode(status)) {
+      // The send failed. sendMsg's returned Promise will reject with the same
+      // status. Nothing to do here.
+      return;
+    }
+    // Only fires for sendNow on success, with the outgoing message's id. For
+    // draft/template/sendLater, completion is signalled only by the resolution
+    // of sendMsg's returned Promise. The msgID starts with < and ends with >
+    // which is not used by the API.
+    this.headerMessageId = msgID.replace(/^<|>$/g, "");
+  }
+  onGetDraftFolderURI(msgID, folderURI) {
+    // Only called for save operations and sendLater. Collect messageIds and
+    // folders of saved messages.
+    const headerMessageId = msgID.replace(/^<|>$/g, "");
+    this.savedMessages.push(JSON.stringify({ headerMessageId, folderURI }));
+  }
+  onSendNotPerformed(_msgID, _status) {}
+  onTransportSecurityError(_msgID, _status, _secInfo, _location) {}
+
+  // Implementation for nsIMsgFolderListener::msgsClassified.
+  msgsClassified(msgs, _junkProcessed, _traitProcessed) {
+    // Collect all msgHdrs added to folders during the current message
+    // operation.
+    for (const msgHdr of msgs) {
+      const cachedMsgHdr = new CachedMsgHeader(messageTracker, msgHdr);
+      const key = JSON.stringify({
+        headerMessageId: cachedMsgHdr.messageId,
+        folderURI: cachedMsgHdr.folder.URI,
+      });
+      if (!this.classifiedMessages.has(key)) {
+        this.classifiedMessages.set(key, cachedMsgHdr);
+      }
+    }
+  }
+
+  async doMsgOperation(details, sendMode) {
+    const msgCompose = Cc[
+      "@mozilla.org/messengercompose/compose;1"
+    ].createInstance(Ci.nsIMsgCompose);
+    const composeParams = Cc[
+      "@mozilla.org/messengercompose/composeparams;1"
+    ].createInstance(Ci.nsIMsgComposeParams);
+    const composeFields = Cc[
+      "@mozilla.org/messengercompose/composefields;1"
+    ].createInstance(Ci.nsIMsgCompFields);
+
+    const SEND_MODES = new Map([
+      ["draft", Ci.nsIMsgCompDeliverMode.SaveAsDraft],
+      ["template", Ci.nsIMsgCompDeliverMode.SaveAsTemplate],
+      ["sendNow", Ci.nsIMsgCompDeliverMode.Now],
+      ["sendLater", Ci.nsIMsgCompDeliverMode.Later],
+    ]);
+
+    // Import compose API, to be able to re-use its helper methods.
+    if (!("parseComposeRecipientList" in global)) {
+      await extensions.asyncLoadModule("compose");
+    }
+
+    // Account & identity.
+    let account = MailServices.accounts.defaultAccount;
+    let identity = account?.defaultIdentity;
+    if (details.identityId != null) {
+      if (!this.extension.hasPermission("accountsRead")) {
+        throw new ExtensionError(
+          'Using identities requires the "accountsRead" permission'
+        );
+      }
+
+      identity = findIdentity(details.identityId);
+      account = findAccountForIdentity(identity);
+    } else if (!identity) {
+      throw new ExtensionError(`Default identity not found`);
+    }
+    const identityMailFrom = identity.fullName.length
+      ? identity.fullName + " <" + identity.email + ">"
+      : identity.email;
+
+    // Prepare composeParams and msgCompose for the new message.
+    composeParams.type = Ci.nsIMsgCompType.New;
+    composeParams.identity = identity;
+    composeParams.composeFields = composeFields;
+    msgCompose.initialize(composeParams);
+    msgCompose.compFields.forceMsgEncoding = true;
+
+    // Recipients.
+    msgCompose.compFields.from = await global.parseComposeRecipientList(
+      details.from || identityMailFrom,
+      true
+    );
+    for (const field of ["to", "cc", "bcc", "replyTo", "followupTo"]) {
+      if (details.hasOwnProperty(field)) {
+        msgCompose.compFields[`${field}`] =
+          await global.parseComposeRecipientList(details[`${field}`]);
+      }
+    }
+
+    // Newsgroups.
+    if (details.newsgroups) {
+      const newsgroups = Array.isArray(details.newsgroups)
+        ? details.newsgroups
+        : [details.newsgroups];
+      if (newsgroups.length > 0) {
+        composeFields.newsgroups = newsgroups.map(e => e.trim()).join(",");
+      }
+    }
+
+    // Subject. Strip trailing spaces and long whitespace runs to prevent a
+    // folded continuation line from containing only whitespace characters.
+    msgCompose.compFields.subject = details.subject
+      .replace(/\s{74,}/g, "    ")
+      .trimRight();
+
+    // We use isPlainText as a main identifier. If not specified, we set it to
+    // false if a body is specified. Delivery mode will switch it back to
+    // plaintext if possible.
+    let isPlainText;
+    if (details.isPlainText != null) {
+      isPlainText = details.isPlainText;
+    } else {
+      isPlainText = !details.body;
+    }
+    // Determine body and delivery format.
+    let deliveryFormat;
+    if (isPlainText) {
+      msgCompose.compFields.body = details.plainTextBody || details.body;
+      // details.deliveryFormat is ignored in pure plaintext messages.
+      deliveryFormat = "plaintext";
+    } else {
+      msgCompose.compFields.body = details.body;
+      deliveryFormat = details.deliveryFormat || "auto";
+      if (deliveryFormat == "auto") {
+        // Auto downgrade if safe to do so.
+        try {
+          const doc = new DOMParser().parseFromString(
+            msgCompose.compFields.body,
+            "text/html"
+          );
+          deliveryFormat =
+            msgCompose.nodeTreeConvertible(doc.documentElement) ==
+            Ci.nsIMsgCompConvertible.Plain
+              ? "plaintext"
+              : "both";
+        } catch (ex) {
+          deliveryFormat = "both";
+        }
+      }
+    }
+    switch (deliveryFormat) {
+      case "plaintext":
+        msgCompose.compFields.forcePlainText = true;
+        msgCompose.compFields.useMultipartAlternative = false;
+        break;
+      case "html":
+        msgCompose.compFields.forcePlainText = false;
+        msgCompose.compFields.useMultipartAlternative = false;
+        break;
+      case "both":
+        msgCompose.compFields.forcePlainText = false;
+        msgCompose.compFields.useMultipartAlternative = true;
+        break;
+    }
+
+    // Priorities. The enum in the schema defines all allowed values, no need
+    // to validate here.
+    if (details.priority && details.priority != "normal") {
+      msgCompose.compFields.priority =
+        details.priority[0].toUpperCase() + details.priority.slice(1);
+    }
+
+    // Custom headers.
+    if (details.customHeaders != null) {
+      details.customHeaders
+        .map(e => ({ name: e.name.toUpperCase(), value: e.value }))
+        .filter(e => e.name.startsWith("X-"))
+        .forEach(e => msgCompose.compFields.setHeader(e.name, e.value));
+    }
+
+    // Receipt notifications.
+    if (details.returnReceipt != null) {
+      msgCompose.compFields.returnReceipt = details.returnReceipt;
+    }
+
+    // Delivery status notification.
+    if (details.deliveryStatusNotification != null) {
+      msgCompose.compFields.DSN = details.deliveryStatusNotification;
+    }
+
+    // Attach vCard of sender identity.
+    if (details.attachVCard != null) {
+      msgCompose.compFields.attachVCard = details.attachVCard;
+    }
+
+    // Audit log and burst throttle apply to send modes only. Saved drafts and
+    // templates do not reach a recipient. Since the additionalFccFolder field
+    // is ignored for save operations, it is resolved and validated only for
+    // send modes.
+    const isSend = ["sendNow", "sendLater"].includes(sendMode);
+
+    // If overrideDefaultFccFolder is "" AND additionalFccFolder is set, promote
+    // the additional folder to the primary fcc target. The additional fcc2 copy
+    // step relies on the primary fcc having produced a source message in
+    // classifiedMessages. With the primary fcc suppressed it would not have
+    // anything to copy, and we would silently drop the message entirely.
+    // Promoting fcc2 to the primary fcc keeps the caller's intent of saving to
+    // that destination.
+    let primaryFccUri = null;
+    let suppressPrimary = false;
+    if (details.overrideDefaultFccFolder != null) {
+      if (details.overrideDefaultFccFolder) {
+        const uri = folderPathToURI(
+          details.overrideDefaultFccFolder.accountId,
+          details.overrideDefaultFccFolder.path
+        );
+        if (!MailUtils.getExistingFolder(uri)) {
+          throw new ExtensionError(
+            `Invalid MailFolder: {accountId:${details.overrideDefaultFccFolder.accountId}, path:${details.overrideDefaultFccFolder.path}}`
+          );
+        }
+        primaryFccUri = uri;
+      } else {
+        suppressPrimary = true;
+      }
+    }
+
+    let additionalFccFolder = null;
+    if (isSend && details.additionalFccFolder) {
+      const uri = folderPathToURI(
+        details.additionalFccFolder.accountId,
+        details.additionalFccFolder.path
+      );
+      const folder = MailUtils.getExistingFolder(uri);
+      if (!folder) {
+        throw new ExtensionError(
+          `Invalid MailFolder: {accountId:${details.additionalFccFolder.accountId}, path:${details.additionalFccFolder.path}}`
+        );
+      }
+      if (suppressPrimary) {
+        // Promote the additional folder to be the primary destination.
+        primaryFccUri = uri;
+        suppressPrimary = false;
+      } else {
+        additionalFccFolder = folder;
+      }
+    }
+
+    if (primaryFccUri) {
+      msgCompose.compFields.fcc = primaryFccUri;
+    } else if (suppressPrimary) {
+      msgCompose.compFields.fcc = "nocopy://";
+    }
+
+    if (details.attachments != null) {
+      for (const data of details.attachments) {
+        const { attachment } = await global.createAttachment(data);
+        msgCompose.compFields.addAttachment(attachment);
+      }
+    }
+
+    if (isSend) {
+      await enforceSendGap(this.extension);
+    }
+
+    // No catch here. Errors propagate to the caller (sendMessage / saveMessage)
+    // and they can attach their own API-named prefix. The finally clause does
+    // guarantee the listener cleanup.
+    try {
+      msgCompose.addMsgSendListener(this);
+      MailServices.mfn.addListener(this, MailServices.mfn.msgsClassified);
+
+      // Passing null for progress skips the progress dialog (sendProgress.xhtml)
+      // which is required for true background sending. The returned Promise
+      // resolves after the send and after FCC has been completed.
+      await msgCompose.sendMsg(
+        SEND_MODES.get(sendMode),
+        identity,
+        account.key,
+        null
+      );
+      if (isSend) {
+        recordSendActivity(this.extension);
+      }
+
+      // Manually deliver the additionalFccFolder copy (FCC2). Done here rather
+      // than via compFields.fcc2 because that path is dispatched asynchronously
+      // after sendMsg has already resolved and is not observable from a
+      // window-less caller. Skip the additional copy when it would target the
+      // FCC folder again.
+      // Note: In save modes the additionalFccFolder is ignored.
+      const [primaryCached] = this.classifiedMessages.values();
+      if (
+        additionalFccFolder &&
+        primaryCached &&
+        primaryCached.folder.URI != additionalFccFolder.URI
+      ) {
+        const primaryHdr = primaryCached.folder.GetMessageHeader(
+          primaryCached.messageKey
+        );
+        await new Promise((resolve, reject) => {
+          MailServices.copy.copyMessages(
+            primaryCached.folder,
+            [primaryHdr],
+            additionalFccFolder,
+            false,
+            {
+              QueryInterface: ChromeUtils.generateQI([
+                "nsIMsgCopyServiceListener",
+              ]),
+              onStartCopy() {},
+              onProgress() {},
+              setMessageKey() {},
+              getMessageId() {
+                return null;
+              },
+              onStopCopy(status) {
+                if (Components.isSuccessCode(status)) {
+                  resolve();
+                } else {
+                  reject(
+                    new ExtensionError(
+                      `Failed to copy to additionalFccFolder: 0x${status.toString(16)}`
+                    )
+                  );
+                }
+              },
+            },
+            null,
+            false
+          );
+        });
+        // FCC2 is delivered via copyMessages(), which does not return a handle
+        // for the created message, so it is looked up here directly via its
+        // Message-ID.
+        const newHdr = additionalFccFolder.msgDatabase.getMsgHdrForMessageID(
+          primaryCached.messageId
+        );
+        if (newHdr) {
+          const newCached = new CachedMsgHeader(messageTracker, newHdr);
+          const key = JSON.stringify({
+            headerMessageId: newCached.messageId,
+            folderURI: newCached.folder.URI,
+          });
+          this.classifiedMessages.set(key, newCached);
+          this.savedMessages.push(key);
+        }
+      }
+
+      return {
+        mode: sendMode,
+        messages: this.savedMessages
+          .map(m => this.classifiedMessages.get(m))
+          .filter(Boolean)
+          .flatMap(cachedMsgHdr => {
+            const msg = this.extension.messageManager?.convert(cachedMsgHdr);
+            return msg ? [msg] : [];
+          }),
+        headerMessageId: this.headerMessageId,
+      };
+    } finally {
+      msgCompose.removeMsgSendListener(this);
+      MailServices.mfn.removeListener(this);
+    }
+  }
+}
 
 /**
  * Takes a MimeTreePart and returns the raw headers, to be used in the
@@ -1591,6 +1976,53 @@ this.messages = class extends ExtensionAPIPersistent {
           } catch (ex) {
             console.error(ex);
             throw new ExtensionError(`Error archiving message: ${ex.message}`);
+          }
+        },
+
+        async sendMessage(details, options) {
+          if (
+            !(details.newsgroups || details.to || details.cc || details.bcc)
+          ) {
+            throw new ExtensionError(
+              `One of details.newsgroups, details.to, details.cc or details.bcc is required.`
+            );
+          }
+
+          let sendMode = options?.mode;
+          if (!["sendLater", "sendNow"].includes(sendMode)) {
+            sendMode = Services.io.offline ? "sendLater" : "sendNow";
+          }
+
+          const msgOperationWrapper = new MsgOperationWrapper(
+            context.extension
+          );
+          try {
+            return await msgOperationWrapper.doMsgOperation(details, sendMode);
+          } catch (ex) {
+            throw new ExtensionError(
+              `messages.sendMessage failed: ${ex.message}`
+            );
+          }
+        },
+        async saveMessage(details, options) {
+          let sendMode = options?.mode;
+          if (!["draft", "template"].includes(sendMode)) {
+            sendMode = "draft";
+          }
+
+          const msgOperationWrapper = new MsgOperationWrapper(
+            context.extension
+          );
+          try {
+            const { mode, messages } = await msgOperationWrapper.doMsgOperation(
+              details,
+              sendMode
+            );
+            return { mode, messages };
+          } catch (ex) {
+            throw new ExtensionError(
+              `messages.saveMessage failed: ${ex.message}`
+            );
           }
         },
 

@@ -256,6 +256,47 @@ export function convertMailIdentity(account, identity) {
 }
 
 /**
+ * Look up an existing identity by its key.
+ *
+ * We deliberately do not use MailServices.accounts.getIdentity(), which creates
+ * a new identity if no match is found. This instead throws if the requested key
+ * does not exist.
+ *
+ * @param {string} identityId
+ * @returns {nsIMsgIdentity}
+ * @throws ExtensionError if no identity with this key exists.
+ */
+export function findIdentity(identityId) {
+  const identity = MailServices.accounts.allIdentities.find(
+    i => i.key == identityId
+  );
+  if (!identity) {
+    throw new ExtensionError(`Identity not found: ${identityId}`);
+  }
+  return identity;
+}
+
+/**
+ * Find the account that owns the given identity.
+ *
+ * Uses MailServices.accounts.getServersForIdentity() to find the identity's
+ * server, then maps that to its account. If the identity is attached to more
+ * than one server, the first one wins.
+ *
+ * @param {nsIMsgIdentity} identity
+ * @returns {nsIMsgAccount}
+ * @throws ExtensionError if no account owns this identity.
+ */
+export function findAccountForIdentity(identity) {
+  const [server] = MailServices.accounts.getServersForIdentity(identity);
+  const account = server && MailServices.accounts.findAccountForServer(server);
+  if (!account) {
+    throw new ExtensionError(`Account not found for identity: ${identity.key}`);
+  }
+  return account;
+}
+
+/**
  * The following functions turn nsIMsgFolder references into more human-friendly forms.
  * A folder can be referenced with the account key, and the path to the folder in that account.
  */

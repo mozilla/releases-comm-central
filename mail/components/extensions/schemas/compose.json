@@ -83,7 +83,7 @@
           "additionalFccFolderId": {
             "min_manifest_version": 3,
             "$ref": "folders.MailFolderId",
-            "description": "An additional fcc folder which can be selected while composing the message. Cleared when set to <var>null</var>. The permission <permission>accountsRead</permission> is required to use this property.",
+            "description": "An additional fcc folder which can be selected while composing the message. Cleared when set to <var>null</var>. Has no effect when the message is saved as a draft or template; the additional copy is only created when the message is actually sent or queued for sending. The permission <permission>accountsRead</permission> is required to use this property.",
             "optional": "omit-key-if-missing"
           },
           "additionalFccFolder": {
@@ -100,7 +100,7 @@
                 "$ref": "folders.MailFolderId"
               }
             ],
-            "description": "An additional fcc folder which can be selected while composing the message, an empty string if not used. The permission <permission>accountsRead</permission> is required to use this property.",
+            "description": "An additional fcc folder which can be selected while composing the message, an empty string if not used. Has no effect when the message is saved as a draft or template; the additional copy is only created when the message is actually sent or queued for sending. The permission <permission>accountsRead</permission> is required to use this property.",
             "optional": true
           },
           "attachPublicPGPKey": {

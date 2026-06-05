@@ -10,14 +10,24 @@
             "enum": [
               "messagesDelete",
               "messagesImport",
+              "messagesModifyPermanent",
               "messagesMove",
               "messagesRead",
+              "messages.save",
               "messagesTags",
               "messagesTagsList",
               "messagesUpdate",
-              "messagesModifyPermanent",
               "sensitiveDataUpload"
             ]
+          }
+        ]
+      },
+      {
+        "$extend": "OptionalOnlyPermission",
+        "choices": [
+          {
+            "type": "string",
+            "enum": ["messages.send"]
           }
         ]
       }
@@ -357,6 +367,153 @@
             "type": "integer",
             "optional": true,
             "description": "The maximum value required to match the query."
+          }
+        }
+      },
+      {
+        "id": "NewMessageDetails",
+        "type": "object",
+        "description": "Details of a message to be sent.",
+        "additionalProperties": true,
+        "properties": {
+          "identityId": {
+            "type": "string",
+            "description": "The ID of an identity from the :doc:`accounts` API. Defaults to the default identity. The permission <permission>accountsRead</permission> is required to include the ``identityId``.",
+            "optional": true
+          },
+          "from": {
+            "$ref": "compose.ComposeRecipient",
+            "description": "*Caution*: Setting a value for ``from`` does not change the used identity, it overrides the FROM header. Many email servers do not accept emails where the FROM header does not match the sender identity. Must be set to exactly one valid email address.",
+            "optional": true
+          },
+          "to": {
+            "$ref": "compose.ComposeRecipientList",
+            "optional": true
+          },
+          "cc": {
+            "$ref": "compose.ComposeRecipientList",
+            "optional": true
+          },
+          "bcc": {
+            "$ref": "compose.ComposeRecipientList",
+            "optional": true
+          },
+          "overrideDefaultFccFolder": {
+            "choices": [
+              {
+                "$ref": "folders.MailFolder"
+              },
+              {
+                "type": "string",
+                "enum": [""]
+              }
+            ],
+            "optional": true,
+            "description": " This value overrides the default fcc setting (defined by the used identity) for this message. Either a :ref:`folders.MailFolder` specifying the folder for the copy of the sent message, or an empty string to not save a copy at all."
+          },
+          "additionalFccFolder": {
+            "choices": [
+              {
+                "$ref": "folders.MailFolder"
+              },
+              {
+                "type": "string",
+                "enum": [""]
+              }
+            ],
+            "description": "An additional fcc folder. Only effective for send operations ($(ref:messages.sendMessage)), has no effect for save operations ($(ref:messages.saveMessage)), which only ever store the message in the primary draft or template folder. For compatibility with :ref:`compose.ComposeDetails`, setting an empty string is supported as well, but has no effect.",
+            "optional": true
+          },
+          "replyTo": {
+            "$ref": "compose.ComposeRecipientList",
+            "optional": true
+          },
+          "followupTo": {
+            "$ref": "compose.ComposeRecipientList",
+            "optional": true
+          },
+          "newsgroups": {
+            "description": "A single newsgroup name or an array of newsgroup names.",
+            "choices": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ],
+            "optional": true
+          },
+          "subject": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string",
+            "description": "The HTML content for the message.",
+            "optional": true
+          },
+          "plainTextBody": {
+            "type": "string",
+            "description": "The content for a plain text message. A specified <value>body</value> will be preferred, except when <value>isPlainText</value> is specified as well.",
+            "optional": true
+          },
+          "isPlainText": {
+            "type": "boolean",
+            "description": "Whether the message should be sent as plain text or as HTML. Prefers a specified <value>plainTextBody</value> over a specified <value>body</value>.",
+            "optional": true
+          },
+          "deliveryFormat": {
+            "type": "string",
+            "enum": ["auto", "plaintext", "html", "both"],
+            "description": "Defines the mime format of the sent message. Defaults to <value>auto</value>, which prefers to send plain text messages, if the specified body does not include any formatting.\n**Note**: If a plain text body and an HTML body is included in the message, the plain text body is always derived from the included HTML body. It is not possible to specify two independent values via <value>body</value> and <value>plainTextBody</value>.",
+            "optional": true
+          },
+          "customHeaders": {
+            "type": "array",
+            "items": {
+              "$ref": "compose.CustomHeader"
+            },
+            "description": "Array of custom headers.",
+            "optional": true
+          },
+          "priority": {
+            "type": "string",
+            "enum": ["lowest", "low", "normal", "high", "highest"],
+            "description": "The priority of the message.",
+            "optional": true
+          },
+          "returnReceipt": {
+            "type": "boolean",
+            "optional": true,
+            "description": "Add the <em>Disposition-Notification-To</em> header to the message to requests the recipients email client to send a reply once the message has been received. Recipient server may strip the header and the recipient might ignore the request."
+          },
+          "deliveryStatusNotification": {
+            "type": "boolean",
+            "optional": true,
+            "description": "Let the sender know when the recipient's server received the message. Not supported by all servers."
+          },
+          "attachVCard": {
+            "type": "boolean",
+            "optional": true,
+            "description": "Wether or not the vCard of the used identity will be attached to the message during send."
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "choices": [
+                {
+                  "$ref": "compose.FileAttachment"
+                },
+                {
+                  "$ref": "compose.ComposeAttachment"
+                }
+              ]
+            },
+            "description": "Attachments to add to the message. **Note:** :ref:`compose.ComposeAttachments` are included as real file attachments, not as cloudFile links.",
+            "optional": true
           }
         }
       }
@@ -1386,6 +1543,109 @@
             "parameters": [
               {
                 "$ref": "messages.MessageHeader"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "sendMessage",
+        "permissions": ["messages.send"],
+        "type": "function",
+        "description": "Sends a message programmatically in the background without user interaction. If the send mode is not specified or set to <value>default</value>, the message will be sent directly if the user is online and placed in the user's outbox otherwise. The returned Promise fulfills once the message has been successfully sent or placed in the user's outbox. Throws when there has been an error while sending the message to the outgoing mail server.\n**Note:** If no <value>deliveryFormat</value> is specified, the message is sent as plain text when the body contains no HTML formatting.\n**Note:** It is possible to pass in a :ref:`compose.ComposeDetails` object as the <value>details</value> parameter, and it will be interpreted as a :ref:`messages.NewMessageDetails` object.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "details",
+            "$ref": "messages.NewMessageDetails"
+          },
+          {
+            "name": "options",
+            "type": "object",
+            "optional": true,
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": ["default", "sendNow", "sendLater"]
+              }
+            }
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "name": "return",
+                "type": "object",
+                "properties": {
+                  "mode": {
+                    "type": "string",
+                    "description": "The used send mode.",
+                    "enum": ["sendNow", "sendLater"]
+                  },
+                  "headerMessageId": {
+                    "type": "string",
+                    "description": "The header messageId of the outgoing message. Only included for actually sent messages.",
+                    "optional": true
+                  },
+                  "messages": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "messages.MessageHeader"
+                    },
+                    "description": "Copies of the sent message. The number of created copies depends on the applied file carbon copy configuration (fcc)."
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "saveMessage",
+        "permissions": ["messages.save"],
+        "type": "function",
+        "description": "Saves a message programmatically as a draft or as a template in the background without user interaction. The save mode defaults to <value>draft</value>. The returned Promise fulfills once the message has been successfully saved. Throws when there has been an error while saving the message.\n**Note:** If no <value>deliveryFormat</value> is specified, the message is saved as plain text when the body contains no HTML formatting.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "details",
+            "$ref": "NewMessageDetails"
+          },
+          {
+            "name": "options",
+            "type": "object",
+            "optional": true,
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": ["draft", "template"]
+              }
+            }
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "name": "return",
+                "type": "object",
+                "properties": {
+                  "mode": {
+                    "type": "string",
+                    "description": "The used save mode.",
+                    "enum": ["draft", "template"]
+                  },
+                  "messages": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "messages.MessageHeader"
+                    },
+                    "description": "The saved message(s). The number of saved messages depends on the applied file carbon copy configuration (fcc)."
+                  }
+                }
               }
             ]
           }

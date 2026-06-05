@@ -18,7 +18,7 @@ var parserUtils = Cc["@mozilla.org/parserutils;1"].getService(
   Ci.nsIParserUtils
 );
 
-var { getFolder } = ChromeUtils.importESModule(
+var { findIdentity, getFolder } = ChromeUtils.importESModule(
   "resource:///modules/ExtensionAccounts.sys.mjs"
 );
 
@@ -150,12 +150,7 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
         );
       }
 
-      identity = MailServices.accounts.allIdentities.find(
-        i => i.key == details.identityId
-      );
-      if (!identity) {
-        throw new ExtensionError(`Identity not found: ${details.identityId}`);
-      }
+      identity = findIdentity(details.identityId);
     }
   }
 
@@ -642,17 +637,13 @@ async function setComposeDetails(composeWindow, details, extension) {
       );
     }
 
-    const identity = MailServices.accounts.allIdentities.find(
-      i => i.key == details.identityId
-    );
-    if (!identity) {
-      throw new ExtensionError(`Identity not found: ${details.identityId}`);
-    }
+    // findIdentity throws if no identity has this key.
+    const identity = findIdentity(details.identityId);
     const identityElement =
       composeWindow.document.getElementById("msgIdentity");
     identityElement.selectedItem = [
       ...identityElement.childNodes[0].childNodes,
-    ].find(e => e.getAttribute("identitykey") === details.identityId);
+    ].find(e => e.getAttribute("identitykey") === identity.key);
     composeWindow.LoadIdentity(false);
   }
   for (const field of ["to", "cc", "bcc", "replyTo", "followupTo"]) {
