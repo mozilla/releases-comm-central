@@ -49,8 +49,6 @@ release_partners: []
 release_product:
 release_type: ''
 repository_type: hg
-required_signoffs: []
-signoff_urls: {}
 target_tasks_method: try_cc_tasks
 tasks_for: hg-push
 test_manifest_loader: default

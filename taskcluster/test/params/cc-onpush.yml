@@ -57,8 +57,6 @@ release_partners: []
 release_product: null
 release_type: nightly
 repository_type: hg
-required_signoffs: []
-signoff_urls: {}
 target_tasks_method: comm_central_tasks
 tasks_for: hg-push
 test_manifest_loader: default

@@ -4978,8 +4978,6 @@ release_partners: []
 release_product: null
 release_type: nightly
 repository_type: hg
-required_signoffs: []
-signoff_urls: {}
 target_tasks_method: nightly_desktop
 tasks_for: cron
 test_manifest_loader: default

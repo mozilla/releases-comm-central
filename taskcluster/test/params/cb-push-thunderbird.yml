@@ -2841,8 +2841,6 @@ release_partners: null
 release_product: thunderbird
 release_type: beta
 repository_type: hg
-required_signoffs: []
-signoff_urls: {}
 target_tasks_method: push_desktop
 tasks_for: hg-push
 test_manifest_loader: default

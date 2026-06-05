@@ -262,33 +262,6 @@ def verify_dependency_tiers(task, taskgraph, scratch_pad, graph_config, paramete
 
 
 @verifications.add("full_task_graph")
-def verify_required_signoffs(task, taskgraph, scratch_pad, graph_config, parameters):
-    """
-    Task with required signoffs can't be dependencies of tasks with less
-    required signoffs.
-    """
-    all_required_signoffs = scratch_pad
-    if task is not None:
-        all_required_signoffs[task.label] = set(task.attributes.get("required_signoffs", []))
-    else:
-
-        def printable_signoff(signoffs):
-            if len(signoffs) == 1:
-                return "required signoff {}".format(*signoffs)
-            if signoffs:
-                return "required signoffs {}".format(", ".join(signoffs))
-            return "no required signoffs"
-
-        for task in taskgraph.tasks.values():
-            required_signoffs = all_required_signoffs[task.label]
-            for d in task.dependencies.values():
-                if required_signoffs < all_required_signoffs[d]:
-                    raise Exception(
-                        f"{task.label} ({printable_signoff(required_signoffs)}) cannot depend on {d} ({printable_signoff(all_required_signoffs[d])})"
-                    )
-
-
-@verifications.add("full_task_graph")
 def verify_aliases(task, taskgraph, scratch_pad, graph_config, parameters):
     """
     This function verifies that aliases are not reused.
