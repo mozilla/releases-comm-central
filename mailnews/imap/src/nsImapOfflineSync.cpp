@@ -230,11 +230,13 @@ void nsImapOfflineSync::ProcessFlagOperation(nsIMsgOfflineImapOperation* op) {
 
   if (!matchingFlagKeys.IsEmpty()) {
     nsAutoCString uids;
+    // TODO: map msgKey->UIDs
+    // https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
     nsImapMailFolder::AllocateUidStringFromKeys(matchingFlagKeys, uids);
     uint32_t curFolderFlags;
     m_currentFolder->GetFlags(&curFolderFlags);
 
-    if (uids.get() && (curFolderFlags & nsMsgFolderFlags::ImapBox)) {
+    if (!uids.IsEmpty() && (curFolderFlags & nsMsgFolderFlags::ImapBox)) {
       nsresult rv = NS_OK;
       nsCOMPtr<nsIMsgImapMailFolder> imapFolder =
           do_QueryInterface(m_currentFolder);
@@ -564,7 +566,6 @@ void nsImapOfflineSync::ProcessCopyOperation(
     }
   } while (currentOp);
 
-  nsAutoCString uids;
   nsCOMPtr<nsIMsgFolder> destFolder;
   FindFolder(copyDestination, getter_AddRefs(destFolder));
   // if the dest folder doesn't really exist, these operations are

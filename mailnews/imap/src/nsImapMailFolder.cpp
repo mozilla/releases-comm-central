@@ -2017,6 +2017,8 @@ nsresult nsImapMailFolder::BuildIdsAndKeyArray(
     nsresult rv = msgDBHdr->GetMessageKey(&key);
     if (NS_SUCCEEDED(rv)) keyArray.AppendElement(key);
   }
+  // TODO: msgKey->UID- mapping.
+  // https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
   return AllocateUidStringFromKeys(keyArray, msgIds);
 }
 
@@ -6682,8 +6684,9 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
 
           // Generate a fake key which is very unlikely to clash with any
           // UIDs that appear once this operation has been played out on the
-          // IMAP server (Because IMAP uses server-side UIDs as msgKeys -
-          // Bug 1806770).
+          // IMAP server (Because IMAP uses server-side UIDs as msgKeys).
+          // TODO: Figure out a better approach as part of Bug 1806770.
+          // https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
           nsMsgKey fakeKey;
           destDB->GetNextFakeOfflineMsgKey(&fakeKey);
 
@@ -8568,6 +8571,8 @@ NS_IMETHODIMP nsImapMailFolder::FetchMsgPreviewText(
   if (!keysToFetchFromServer.IsEmpty()) {
     uint32_t msgCount = keysToFetchFromServer.Length();
     nsAutoCString messageIds;
+    // TODO: map msgKeys->UIDs
+    // See https://bugzilla.mozilla.org/show_bug.cgi?id=2031552
     AllocateImapUidString(keysToFetchFromServer.Elements(), msgCount, nullptr,
                           messageIds);
     nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
