@@ -29,6 +29,7 @@ class TestCommParameters(unittest.TestCase):
         "comm_head_rev": "comm_head_rev",
         "comm_src_path": "comm/",
         "do_not_optimize": [],
+        "dontbuild": False,
         "enable_always_target": False,
         "existing_tasks": {},
         "files_changed": [],

@@ -52,7 +52,8 @@ for f in "${files[@]}"; do
             while :; do
                 params=$(curl -f -L "${TASKCLUSTER_ROOT_URL}/api/${service}/v1/task/${task}/artifacts/public%2Fparameters.yml")
                 method=$(echo "$params" | yq -r .target_tasks_method)
-                if [ "$method" != "nothing" ]; then
+                dontbuild=$(echo "$params" | yq -r .dontbuild)
+                if [ "$method" != "nothing" ] && [ "$dontbuild" != "true" ]; then
                     break
                 fi
                 pushlog_id=$(echo "$params" | yq -r .pushlog_id)
