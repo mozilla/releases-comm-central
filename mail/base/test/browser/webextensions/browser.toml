@@ -48,6 +48,8 @@ support-files = [
   "head.js",
 ]
 
+["browser_extension_detail_links.js"]
+
 ["browser_extension_install_experiment.js"]
 
 ["browser_extension_install_experiment_suppressed.js"]

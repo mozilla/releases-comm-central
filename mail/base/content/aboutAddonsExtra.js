@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global windowRoot */
-
 const { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
@@ -44,7 +42,10 @@ function getBrowserElement() {
       if (uri.scheme == "http" || uri.scheme == "https") {
         event.preventDefault();
         event.stopPropagation();
-        windowRoot.documentGlobal.openTrustedLinkIn(event.target.href, "tab");
+        window.browsingContext.topChromeWindow.openTrustedLinkIn(
+          event.target.href,
+          "tab"
+        );
       }
     }
   });
@@ -190,7 +191,7 @@ function getBrowserElement() {
       if (event.target.matches("a[href]") || event.target.matches("button")) {
         return;
       }
-      windowRoot.documentGlobal.openTrustedLinkIn(
+      window.browsingContext.topChromeWindow.openTrustedLinkIn(
         card.querySelector(".disco-addon-author a").href,
         "tab"
       );
