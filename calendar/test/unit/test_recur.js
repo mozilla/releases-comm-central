@@ -1077,7 +1077,8 @@ function test_startdate_change() {
   ritem.QueryInterface(Ci.calIRecurrenceRule);
   equal(ritem.untilDate.icalString, "20020406T124500Z");
 
-  // Event with an exception item
+  // Event with an exception item; direct startDate change (bug 1890975):
+  // exception recurrenceId moves but startDate stays put.
   item = makeRecEvent("RRULE:FREQ=DAILY\r\n");
   let occ = item.recurrenceInfo
     .getOccurrenceFor(cal.createDateTime("20020406T114500Z"))
@@ -1089,6 +1090,20 @@ function test_startdate_change() {
   occ = item.recurrenceInfo.getExceptionFor(cal.createDateTime("20020406T144500Z"));
   occ.QueryInterface(Ci.calIEvent);
   equal(occ.startDate.icalString, "20020406T124500Z"); // Exception should stay put.
+
+  // Event with an exception item; paste/DnD:
+  // both the series start and the exception startDate move together.
+  item = makeRecEvent("RRULE:FREQ=DAILY\r\n");
+  occ = item.recurrenceInfo
+    .getOccurrenceFor(cal.createDateTime("20020406T114500Z"))
+    .QueryInterface(Ci.calIEvent);
+  occ.startDate = cal.createDateTime("20020406T124500Z");
+  item.recurrenceInfo.modifyException(occ, true);
+  cal.item.shiftOffset(item, cal.createDuration("PT3H"));
+  equal(item.startDate.icalString, "20020402T144500Z");
+  occ = item.recurrenceInfo.getExceptionFor(cal.createDateTime("20020406T144500Z"));
+  occ.QueryInterface(Ci.calIEvent);
+  equal(occ.startDate.icalString, "20020406T154500Z"); // Exception should move with the series.
 }
 
 function test_idchange() {

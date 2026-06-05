@@ -369,6 +369,23 @@ export var item = {
         calendarItem.dueDate = date;
       }
     }
+    // onStartDateChange (triggered above via the startDate setter) shifts
+    // exception recurrenceIds but intentionally leaves exception start/end
+    // dates alone (bug 1890975).
+    // When shiftOffset is called e.g. for paste or drag-and-drop we want to
+    // move the whole item together, so shift each exception's actual dates here
+    // as well.
+    const rec = calendarItem.recurrenceInfo;
+    if (rec) {
+      for (const exid of rec.getExceptionIds()) {
+        const ex = rec.getExceptionFor(exid);
+        if (ex) {
+          const shifted = ex.clone();
+          item.shiftOffset(shifted, offset);
+          rec.modifyException(shifted, true);
+        }
+      }
+    }
   },
 
   /**
