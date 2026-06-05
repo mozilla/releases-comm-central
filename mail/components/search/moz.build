@@ -29,8 +29,6 @@ if CONFIG["OS_ARCH"] == "WINNT":
         "WinSearchIntegration.sys.mjs",
     ]
 
-JAR_MANIFESTS += ["jar.mn"]
-
 XPCOM_MANIFESTS += [
     "components.conf",
 ]
