@@ -5,8 +5,25 @@
 /* large parts copied from the addon manager */
 
 #accountManager {
+  block-size: 100%;
+  min-inline-size: 27em;
+  min-block-size: 14em;
   padding: 0;
   margin: 0;
+}
+
+#accountManager > body {
+  display: flex;
+  flex-direction: column;
+}
+
+#imAccountsMain {
+  min-block-size: 0;
+  overflow: hidden;
+}
+
+#accountlist {
+  overflow-y: auto;
 }
 
 #accountsNotificationBox {
