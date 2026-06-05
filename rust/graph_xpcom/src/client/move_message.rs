@@ -92,7 +92,7 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
 }
 
 impl<ServerT: ServerType> XpComGraphClient<ServerT> {
-    /// Moves messages via Graph.
+    /// Moves messages via a [message move] Graph request.
     ///
     /// [message move]: https://learn.microsoft.com/en-us/graph/api/message-move
     pub(crate) async fn move_messages(

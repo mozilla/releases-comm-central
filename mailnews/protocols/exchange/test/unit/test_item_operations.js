@@ -519,15 +519,15 @@ add_task(async function test_copy_file_message() {
   Assert.equal(serverMessage.parentId, "copyFileMessage");
 });
 
-add_task(async function test_mark_as_read() {
-  const folderName = "markRead";
-  ewsServer.appendRemoteFolder(new RemoteFolder(folderName, "root"));
+async function runMarkAsReadTest(mockServer, incomingServer) {
+  const folderName = `mark_read_${incomingServer.type}`;
+  mockServer.appendRemoteFolder(new RemoteFolder(folderName, "root"));
 
   const syntheticMessages = generator.makeMessages({ count: 3 });
-  ewsServer.addMessages(folderName, syntheticMessages);
+  mockServer.addMessages(folderName, syntheticMessages);
 
-  const rootFolder = ewsIncomingServer.rootFolder;
-  ewsIncomingServer.getNewMessages(rootFolder, null, null);
+  const rootFolder = incomingServer.rootFolder;
+  incomingServer.getNewMessages(rootFolder, null, null);
 
   const folder = await TestUtils.waitForCondition(
     () => rootFolder.getChildNamed(folderName),
@@ -545,11 +545,11 @@ add_task(async function test_mark_as_read() {
   );
   const messages = [...folder.messages];
 
-  const serverMessage0 = ewsServer.getItem(syntheticMessages[0].messageId);
+  const serverMessage0 = mockServer.getItem(syntheticMessages[0].messageId);
   Assert.ok(!serverMessage0.syntheticMessage.metaState.read);
-  const serverMessage1 = ewsServer.getItem(syntheticMessages[1].messageId);
+  const serverMessage1 = mockServer.getItem(syntheticMessages[1].messageId);
   Assert.ok(!serverMessage1.syntheticMessage.metaState.read);
-  const serverMessage2 = ewsServer.getItem(syntheticMessages[2].messageId);
+  const serverMessage2 = mockServer.getItem(syntheticMessages[2].messageId);
   Assert.ok(!serverMessage2.syntheticMessage.metaState.read);
 
   // Mark some messages as read.
@@ -593,6 +593,14 @@ add_task(async function test_mark_as_read() {
     serverMessage0.syntheticMessage.metaState.read,
     "message 0 should still be marked as read on the server"
   );
+}
+
+add_task(async function test_mark_as_read_ews() {
+  await runMarkAsReadTest(ewsServer, ewsIncomingServer);
+});
+
+add_task(async function test_mark_as_read_graph() {
+  await runMarkAsReadTest(graphServer, graphIncomingServer);
 });
 
 /**

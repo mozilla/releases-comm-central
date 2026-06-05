@@ -11,6 +11,8 @@ import {
 
 import { CommonUtils } from "resource://services-common/utils.sys.mjs";
 
+import { SyntheticMessage } from "resource://testing-common/mailnews/MessageGenerator.sys.mjs";
+
 /**
  * A recipient to a `GraphMessage`. Note that the structure of this class does
  * *not* match the structure of the `recipient` type from the Graph API.
@@ -662,8 +664,13 @@ export class GraphServer extends MockServer {
       folder => folder.distinguishedId == "drafts"
     )[0];
 
+    // Create a new item, with an empty `SyntheticMessage`. The
+    // `SyntheticMessage` is currently mostly used to hold metadata such as the
+    // message's read status; it's fine to leave it empty since we're unlikely
+    // to have any test that needs to retrieve a message created here via the
+    // API (since it would have already been created locally at the same time).
     const newItemId = "created-item-" + this.itemsCreated;
-    this.addItemToFolder(newItemId, draftFolder.id);
+    this.addItemToFolder(newItemId, draftFolder.id, new SyntheticMessage());
     this.itemsCreated += 1;
 
     const message = new GraphMessage(newItemId, [], false, atob(requestBody));
@@ -708,6 +715,13 @@ export class GraphServer extends MockServer {
     // it if the request sets it to `true`.
     if (parsedReq.isDeliveryReceiptRequested) {
       message.dsnRequested = parsedReq.isDeliveryReceiptRequested;
+    }
+
+    // Set the read status if necessary, for which we need to get the relevant
+    // `ItemInfo` (so we can access its `SyntheticMessage`).
+    if (parsedReq.hasOwnProperty("isRead")) {
+      const item = this.getItemInfo(messageId);
+      item.syntheticMessage.metaState.read = parsedReq.isRead;
     }
 
     // Note: returning only the ID should be fine for now because we don't
