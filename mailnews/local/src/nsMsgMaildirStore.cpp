@@ -8,7 +8,6 @@
 
 #include "FolderPopulation.h"
 #include "MailNewsTypes.h"
-#include "nsMsgMessageFlags.h"
 #include "prprf.h"
 #include "msgCore.h"
 #include "nsMsgMaildirStore.h"
@@ -18,7 +17,6 @@
 #include "nsIInputStream.h"
 #include "nsIInputStreamPump.h"
 #include "nsIRandomAccessStream.h"
-#include "nsCOMArray.h"
 #include "nsIFile.h"
 #include "nsLocalFile.h"
 #include "nsNetUtil.h"
@@ -112,39 +110,62 @@ nsresult MaildirScanner::BeginScan(nsIFile* maildirPath,
 // invoked.
 void MaildirScanner::NextFile() {
   nsCOMPtr<nsIFile> f;
-  if (NS_SUCCEEDED(mStatus)) {
+  bool gotValidStream = false;
+
+  // Loop until we successfully start an async read, or run out of files.
+  while (!gotValidStream && NS_SUCCEEDED(mStatus)) {
     mStatus = mDirEnumerator->GetNextFile(getter_AddRefs(f));
-  }
-  if (NS_SUCCEEDED(mStatus) && f) {
-    // Try and provide the listener a sensible(ish) envDate.
-    PRTime mtime;
-    nsresult rv = f->GetLastModifiedTime(&mtime);
+
+    // If enumeration failed or we reached the end of the directory, break out.
+    if (NS_FAILED(mStatus) || !f) {
+      break;
+    }
+
+    // Shouldn't have any subdirs in here, but if we do, skip 'em.
+    bool isDir = false;
+    if (NS_SUCCEEDED(f->IsDirectory(&isDir)) && isDir) {
+      continue;
+    }
+
+    // Try to open the file before notifying the listener
+    nsCOMPtr<nsIInputStream> stream;
+    nsresult rv = NS_NewLocalFileInputStream(getter_AddRefs(stream), f);
     if (NS_FAILED(rv)) {
+      MOZ_LOG_FMT(MailDirLog, mozilla::LogLevel::Error,
+                  "Folder scan failed opening file '{}' ({}). Skipping.",
+                  f->HumanReadablePath(), rv);
+      continue;
+    }
+    // We now have a guaranteed valid stream. Proceed with parsing.
+
+    PRTime mtime;
+    if (NS_FAILED(f->GetLastModifiedTime(&mtime))) {
       mtime = 0;
     }
 
-    // Start streaming the next message.
     nsAutoString storeToken;
     f->GetLeafName(storeToken);
+
+    // Notify the listener that a valid message is starting.
     mStatus = mScanListener->OnStartMessage(NS_ConvertUTF16toUTF8(storeToken),
                                             ""_ns, mtime);
 
-    nsCOMPtr<nsIInputStream> stream;
-    if (NS_SUCCEEDED(mStatus)) {
-      mStatus = NS_NewLocalFileInputStream(getter_AddRefs(stream), f);
-    }
     nsCOMPtr<nsIInputStreamPump> pump;
     if (NS_SUCCEEDED(mStatus)) {
       mStatus = NS_NewInputStreamPump(getter_AddRefs(pump), stream.forget());
     }
+
     if (NS_SUCCEEDED(mStatus)) {
       mPump = pump;  // Keep the pump in existence until we're done.
       mStatus = mPump->AsyncRead(this);
+      gotValidStream =
+          true;  // Break the loop and wait for the async callbacks.
     }
   }
 
-  if (!f || NS_FAILED(mStatus)) {
-    // We've finished (or failed).
+  // If we exit the loop without a valid stream, we are either finished
+  // or a fatal error occurred. Clean up and stop the scan.
+  if (!gotValidStream || NS_FAILED(mStatus)) {
     mScanListener->OnStopScan(mStatus);
     mPump = nullptr;
     mKungFuDeathGrip = nullptr;
