@@ -182,12 +182,10 @@ interface IExchangeClient : nsISupports
 
   /**
    * Changes the read/unread status of all messages in the listed folders on the
-   * Exchange server, if the server provides a dedicated operation to do this.
+   * Exchange server, if the server supports it (Exchange 2013 on).
    *
-   * If the server does not provide such an operation, the listener will use the
-   * success callback with the use_legacy_fallback flag set, but the items will
-   * not be marked read, and the consumer is then expected to use
-   * `changeReadStatus` on the individual messages instead.
+   * If the server is too old, the listener will use the success callback with
+   * the use_legacy_fallback flag set, but the items will not be marked read.
    *
    * @param folderIds - The IDs of the folders which read/unread status to
    *   change.
