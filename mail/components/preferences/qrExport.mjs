@@ -334,7 +334,7 @@ export const qrExportPane = {
     const isOSAuthEnabled = lazy.LoginHelper.getOSAuthEnabled();
 
     // If there is no primary password, still give the user a chance to opt-out of displaying passwords
-    if (token.checkPassword("")) {
+    if (!token.hasPassword) {
       if (!isOSAuthEnabled) {
         return true;
       }
@@ -364,16 +364,16 @@ export const qrExportPane = {
       return loggedIn.authenticated;
     }
 
-    // So there's a primary password. But since checkPassword didn't succeed, we're logged out (per nsIPK11Token.idl).
+    // So there's a primary password. Make the user enter it to proceed.
     try {
       // Relogin and ask for the primary password.
-      token.login(true); // 'true' means always prompt for token password. User will be prompted until
-      // clicking 'Cancel' or entering the correct password.
+      token.logout();
+      token.login();
     } catch (e) {
       // An exception will be thrown if the user cancels the login prompt dialog.
       // User is also logged out of Software Security Device.
     }
 
-    return token.isLoggedIn();
+    return token.isLoggedIn;
   },
 };

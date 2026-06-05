@@ -813,10 +813,6 @@ add_task(async function testPrimaryPassword() {
     await SimpleTest.promiseFocus(prefsWindow);
     Assert.ok(token.hasPassword, "there should be a primary password");
     Assert.ok(
-      token.checkPassword(newPassword),
-      `the primary password should be "${newPassword}"`
-    );
-    Assert.ok(
       passwordCheckbox.checked,
       "the primary password checkbox should be checked"
     );

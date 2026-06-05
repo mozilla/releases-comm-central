@@ -773,27 +773,11 @@ async function setPrimaryPassword(oldPassword = "", newPassword = "") {
     token.hasPassword,
     "Should provide old password if there is already a password"
   );
-  if (oldPassword) {
-    Assert.ok(
-      token.checkPassword(oldPassword),
-      "Old password should be correct"
-    );
-  }
-  if (!oldPassword) {
-    token.initPassword(newPassword);
-  } else {
-    token.changePassword(oldPassword, newPassword);
-  }
+  token.changePassword(oldPassword, newPassword);
 
   Assert.equal(
     token.hasPassword,
     Boolean(newPassword),
     "Should set password if one was provided"
   );
-  if (newPassword) {
-    Assert.ok(
-      token.checkPassword(newPassword),
-      "Password should be set to new password"
-    );
-  }
 }

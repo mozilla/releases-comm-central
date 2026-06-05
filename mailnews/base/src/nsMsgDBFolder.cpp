@@ -2460,11 +2460,11 @@ bool nsMsgDBFolder::PromptForMasterPasswordIfNecessary() {
     return false;
   }
 
-  bool result;
-  rv = token->CheckPassword(EmptyCString(), &result);
+  bool hasPassword;
+  rv = token->GetHasPassword(&hasPassword);
   NS_ENSURE_SUCCESS(rv, false);
 
-  if (result) {
+  if (!hasPassword) {
     // We don't have a master password, so this function isn't supported,
     // therefore just tell account manager we've authenticated and return true.
     accountManager->SetUserNeedsToAuthenticate(false);
@@ -2472,18 +2472,19 @@ bool nsMsgDBFolder::PromptForMasterPasswordIfNecessary() {
   }
 
   // We have a master password, so try and login to the slot.
-  rv = token->Login(false);
+  rv = token->Login();
   if (NS_FAILED(rv)) {
     // Login failed, so we didn't get a password (e.g. prompt cancelled).
     return false;
   }
 
   // Double-check that we are now logged in
-  rv = token->IsLoggedIn(&result);
+  bool isLoggedIn;
+  rv = token->GetIsLoggedIn(&isLoggedIn);
   NS_ENSURE_SUCCESS(rv, false);
 
-  accountManager->SetUserNeedsToAuthenticate(!result);
-  return result;
+  accountManager->SetUserNeedsToAuthenticate(!isLoggedIn);
+  return isLoggedIn;
 }
 
 // this gets called after the last junk mail classification has run.

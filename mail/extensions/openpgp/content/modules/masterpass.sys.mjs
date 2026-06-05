@@ -176,7 +176,7 @@ export var OpenPGPMasterpass = {
         const token = Cc[
           "@mozilla.org/security/internalkeytoken;1"
         ].createInstance(Ci.nsIPKCS11Token);
-        if (token.hasPassword && !token.isLoggedIn()) {
+        if (token.hasPassword && !token.isLoggedIn) {
           // Yes, primary password is set, but user is not logged in.
           // Let's throw now, a future action will result in trying again.
           throw e;
