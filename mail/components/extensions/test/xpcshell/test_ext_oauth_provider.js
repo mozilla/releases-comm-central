@@ -15,7 +15,7 @@ add_task(async function () {
         clientSecret: "my_secret",
         authorizationEndpoint: "https://oauth.invalid/auth",
         tokenEndpoint: "https://oauth.invalid/token",
-        redirectionEndpoint: "https://localhost",
+        redirectionEndpoint: "http://localhost",
         usePKCE: false,
         hostnames: ["mail.invalid"],
         scopes: "my_scope",
@@ -52,7 +52,7 @@ add_task(async function () {
       clientSecret: "my_secret",
       authorizationEndpoint: "https://oauth.invalid/auth",
       tokenEndpoint: "https://oauth.invalid/token",
-      redirectionEndpoint: "https://localhost/",
+      redirectionEndpoint: "http://localhost",
       usePKCE: false,
     },
     "issuer details should be registered while the extension is running"

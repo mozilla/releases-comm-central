@@ -34,8 +34,7 @@
               },
               "redirectionEndpoint": {
                 "description": "OAuth redirection endpoint.",
-                "type": "string",
-                "format": "url"
+                "type": "string"
               },
               "usePKCE": {
                 "description": "If the authorization uses PKCE.",
