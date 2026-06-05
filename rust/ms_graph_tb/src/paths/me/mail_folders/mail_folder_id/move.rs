@@ -5,8 +5,10 @@
 // EDITS TO THIS FILE WILL BE OVERWRITTEN
 
 #![doc = "Provides operations to call the move method.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
-use crate::types::mail_folder::MailFolder;
-use crate::{Operation, OperationBody};
+use crate::odata::Selection;
+use crate::types::mail_folder::{MailFolder, MailFolderSelection};
+use crate::{Operation, OperationBody, Select};
+use form_urlencoded::Serializer;
 use http::method::Method;
 #[derive(Debug)]
 struct TemplateExpressions {
@@ -62,6 +64,7 @@ impl<'a> PostRequestBody<'a> {
 pub struct Post<'body> {
     template_expressions: TemplateExpressions,
     body: OperationBody<PostRequestBody<'body>>,
+    selection: Selection<MailFolderSelection>,
 }
 impl<'body> Post<'body> {
     #[must_use]
@@ -76,6 +79,7 @@ impl<'body> Post<'body> {
                 mail_folder_id,
             },
             body,
+            selection: Selection::default(),
         }
     }
 }
@@ -83,9 +87,19 @@ impl Operation for Post<'_> {
     const METHOD: Method = Method::POST;
     type Response<'response> = MailFolder<'response>;
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
-        let uri = format_path(&self.template_expressions)
-            .parse::<http::uri::Uri>()
-            .unwrap();
+        let mut params = Serializer::new(String::new());
+        if let Some((select, selection)) = self.selection.pair() {
+            params.append_pair(select, &selection);
+        }
+        let params = params.finish();
+        let path = format_path(&self.template_expressions);
+        let uri = if params.is_empty() {
+            path.parse::<http::uri::Uri>().unwrap()
+        } else {
+            format!("{path}?{params}")
+                .parse::<http::uri::Uri>()
+                .unwrap()
+        };
         let (body, content_type) = match self.body {
             OperationBody::JSON(body) => {
                 (serde_json::to_vec(&body)?, String::from("application/json"))
@@ -98,5 +112,14 @@ impl Operation for Post<'_> {
             .header("Content-Type", content_type)
             .body(body)?;
         Ok(request)
+    }
+}
+impl<'body> Select for Post<'body> {
+    type Properties = MailFolderSelection;
+    fn select<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
+        self.selection.select(properties);
+    }
+    fn extend_selection<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
+        self.selection.extend(properties);
     }
 }

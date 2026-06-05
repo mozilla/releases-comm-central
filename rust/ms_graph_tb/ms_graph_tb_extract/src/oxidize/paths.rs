@@ -215,13 +215,12 @@ fn request_without_body(
 
     let method = operation.method;
 
-    let selectable = selectable(operation);
     let expandable = expandable(operation);
     let filterable = filterable(operation);
-    let selection_type = selectable
-        .then(|| odata_target_ident(operation, "Selection"))
-        .flatten();
+
+    let selection_type = odata_target_ident(operation, "Selection");
     let selectable = selection_type.is_some();
+
     let expand_type = expandable
         .then(|| odata_target_ident(operation, "Expand"))
         .flatten();
@@ -267,7 +266,11 @@ fn request_without_body(
         expandable,
         filterable,
     };
-    let select_def = SelectDef { selection_type };
+    let select_def = SelectDef {
+        selection_type,
+        method,
+        lifetime: None,
+    };
     let expand_def = ExpandDef {
         expand_type,
         method,
@@ -305,6 +308,16 @@ fn request_with_body(
     let method = operation.method;
     let filterable = filterable(operation);
 
+    let selection_type = odata_target_ident(operation, "Selection");
+    let selectable = selection_type.is_some();
+
+    if selectable {
+        let Some(query_target) = odata_target_property(operation) else {
+            panic!("queryable request with no response type: {operation:?}");
+        };
+        imports.push(query_target);
+    }
+
     let mut body = op_body.property.rust_type.base_token(false, Reference::Own);
     let body_lifetime = match op_body.property.rust_type {
         RustType::NamedSchema(_) | RustType::UnnamedSchema(_) => Some(quote!(<'body>)),
@@ -328,7 +341,7 @@ fn request_with_body(
         method,
         lifetime: body_lifetime.clone(),
         body_line: Some(quote!(body: OperationBody<#body>,)),
-        selection_type: None,
+        selection_type: selection_type.clone(),
         expand_type: None,
         filterable,
     };
@@ -337,21 +350,23 @@ fn request_with_body(
         lifetime: body_lifetime.clone(),
         template_expressions,
         arg: Some(quote!(body: OperationBody<#body>)),
-        selectable: false,
+        selectable,
         expandable: false,
         filterable,
     };
     let operation_def = OperationDef {
         method: method.to_string(),
-        lifetime: body_lifetime,
+        lifetime: body_lifetime.clone(),
         body: Some(body),
         response,
-        selectable: false,
+        selectable,
         expandable: false,
         filterable,
     };
     let select_def = SelectDef {
-        selection_type: None,
+        selection_type,
+        method,
+        lifetime: body_lifetime,
     };
     let expand_def = ExpandDef {
         expand_type: None,
@@ -665,16 +680,20 @@ impl ToTokens for OperationDef {
 
 struct SelectDef {
     selection_type: Option<Ident>,
+    method: Method,
+    lifetime: Option<TokenStream>,
 }
 
 impl ToTokens for SelectDef {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         if let Self {
             selection_type: Some(selection_type),
+            method,
+            lifetime,
         } = self
         {
             tokens.append_all(quote! {
-                impl Select for Get {
+                impl #lifetime Select for #method #lifetime {
                     type Properties = #selection_type;
 
                     fn select<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
@@ -750,10 +769,6 @@ fn queryable(request: &Operation, query: &'static str) -> bool {
     } else {
         false
     }
-}
-
-fn selectable(request: &Operation) -> bool {
-    queryable(request, "$select")
 }
 
 fn filterable(request: &Operation) -> bool {

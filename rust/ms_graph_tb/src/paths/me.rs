@@ -88,6 +88,7 @@ impl Expand for Get {
 pub struct Patch<'body> {
     template_expressions: TemplateExpressions,
     body: OperationBody<User<'body>>,
+    selection: Selection<UserSelection>,
 }
 impl<'body> Patch<'body> {
     #[must_use]
@@ -95,6 +96,7 @@ impl<'body> Patch<'body> {
         Self {
             template_expressions: TemplateExpressions { endpoint },
             body,
+            selection: Selection::default(),
         }
     }
 }
@@ -102,9 +104,19 @@ impl Operation for Patch<'_> {
     const METHOD: Method = Method::PATCH;
     type Response<'response> = User<'response>;
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
-        let uri = format_path(&self.template_expressions)
-            .parse::<http::uri::Uri>()
-            .unwrap();
+        let mut params = Serializer::new(String::new());
+        if let Some((select, selection)) = self.selection.pair() {
+            params.append_pair(select, &selection);
+        }
+        let params = params.finish();
+        let path = format_path(&self.template_expressions);
+        let uri = if params.is_empty() {
+            path.parse::<http::uri::Uri>().unwrap()
+        } else {
+            format!("{path}?{params}")
+                .parse::<http::uri::Uri>()
+                .unwrap()
+        };
         let (body, content_type) = match self.body {
             OperationBody::JSON(body) => {
                 (serde_json::to_vec(&body)?, String::from("application/json"))
@@ -117,5 +129,14 @@ impl Operation for Patch<'_> {
             .header("Content-Type", content_type)
             .body(body)?;
         Ok(request)
+    }
+}
+impl<'body> Select for Patch<'body> {
+    type Properties = UserSelection;
+    fn select<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
+        self.selection.select(properties);
+    }
+    fn extend_selection<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
+        self.selection.extend(properties);
     }
 }

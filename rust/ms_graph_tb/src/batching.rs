@@ -88,7 +88,13 @@ impl BatchRequest {
                 let method = <Op as Operation>::METHOD.to_string();
 
                 let request = operation.build_request().ok()?;
-                let url = request.uri().path().replace("/v1.0", "");
+                let url = request
+                    .uri()
+                    .path_and_query()
+                    // `Uri::path()` returns an empty string if a path isn't
+                    // set, so let's do the same here.
+                    .map_or(String::new(), ToString::to_string)
+                    .replace("/v1.0", "");
 
                 let headers = request
                     .headers()

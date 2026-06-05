@@ -97,6 +97,7 @@ impl Expand for Get {
 pub struct Patch<'body> {
     template_expressions: TemplateExpressions,
     body: OperationBody<MailFolder<'body>>,
+    selection: Selection<MailFolderSelection>,
 }
 impl<'body> Patch<'body> {
     #[must_use]
@@ -111,6 +112,7 @@ impl<'body> Patch<'body> {
                 mail_folder_id,
             },
             body,
+            selection: Selection::default(),
         }
     }
 }
@@ -118,9 +120,19 @@ impl Operation for Patch<'_> {
     const METHOD: Method = Method::PATCH;
     type Response<'response> = MailFolder<'response>;
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
-        let uri = format_path(&self.template_expressions)
-            .parse::<http::uri::Uri>()
-            .unwrap();
+        let mut params = Serializer::new(String::new());
+        if let Some((select, selection)) = self.selection.pair() {
+            params.append_pair(select, &selection);
+        }
+        let params = params.finish();
+        let path = format_path(&self.template_expressions);
+        let uri = if params.is_empty() {
+            path.parse::<http::uri::Uri>().unwrap()
+        } else {
+            format!("{path}?{params}")
+                .parse::<http::uri::Uri>()
+                .unwrap()
+        };
         let (body, content_type) = match self.body {
             OperationBody::JSON(body) => {
                 (serde_json::to_vec(&body)?, String::from("application/json"))
@@ -133,6 +145,15 @@ impl Operation for Patch<'_> {
             .header("Content-Type", content_type)
             .body(body)?;
         Ok(request)
+    }
+}
+impl<'body> Select for Patch<'body> {
+    type Properties = MailFolderSelection;
+    fn select<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
+        self.selection.select(properties);
+    }
+    fn extend_selection<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
+        self.selection.extend(properties);
     }
 }
 #[doc = "Delete mailFolder\n\nDelete the specified mailFolder. The folder can be a mailSearchFolder. You can specify a mail folder by its folder ID, or by its well-known folder name, if one exists.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/mailfolder-delete?view=graph-rest-1.0)."]
