@@ -1009,6 +1009,7 @@ pref("devtools.command-button-rulers.enabled", false);
 pref("devtools.command-button-measure.enabled", false);
 pref("devtools.command-button-noautohide.enabled", false);
 pref("devtools.command-button-errorcount.enabled", true);
+pref("devtools.command-button-jstracer.enabled", false);
 #ifndef MOZILLA_OFFICIAL
   pref("devtools.command-button-experimental-prefs.enabled", true);
 #endif
@@ -1053,6 +1054,8 @@ pref("devtools.inspector.simple-highlighters-reduced-motion", false);
 // Whether or not Enter on inplace editor in the Rules view moves focus and activates
 // next inplace editor.
 pref("devtools.inspector.rule-view.focusNextOnEnter", true);
+// Enable Rules view CSS explainers
+pref("devtools.inspector.css-explainers", false);
 
 // Whether or not the box model panel is opened in the layout view
 pref("devtools.layout.boxmodel.opened", true);
@@ -1121,6 +1124,13 @@ pref("devtools.netmonitor.features.webtransport", true);
 
 // Enable the Application panel
 pref("devtools.application.enabled", true);
+pref("devtools.application.selectedSidebar", "service-workers");
+
+// The internal Anti tracking debugging panel
+pref("devtools.anti-tracking.enabled", false);
+
+// Session History panel
+pref("devtools.application.sessionHistory.enabled", false);
 
 // Enable the custom formatters feature
 // This preference represents the user's choice to enable the custom formatters feature.
@@ -1146,6 +1156,8 @@ pref("devtools.netmonitor.msg.visibleColumns",
 pref("devtools.netmonitor.msg.displayed-messages.limit", 500);
 
 pref("devtools.netmonitor.response.ui.limit", 10240);
+
+pref("devtools.netmonitor.ui.default-raw-response", false);
 
 // Save request/response bodies yes/no.
 pref("devtools.netmonitor.saveRequestAndResponseBodies", true);
@@ -1305,6 +1317,10 @@ pref("devtools.responsive.touchSimulation.enabled", false);
 pref("devtools.responsive.userAgent", "");
 // Show the custom user agent input by default
 pref("devtools.responsive.showUserAgentInput", true);
+// Whether to show the RDM dynamic toolbar
+pref("devtools.responsive.dynamicToolbar.enabled", false);
+// Whether the RDM dynamic toolbar is on the top (false = on bottom)
+pref("devtools.responsive.dynamicToolbar.onTop", false);
 
 // Show tab debug targets for This Firefox (on by default for local builds).
 #ifdef MOZILLA_OFFICIAL
@@ -1333,12 +1349,18 @@ pref("devtools.aboutdebugging.collapsibilities.temporaryExtension", false);
   pref("devtools.aboutdebugging.showHiddenAddons", true);
 #endif
 
+// Add some extra logging to the console, for debugging
+pref("devtools.aboutdebugging.showReduxActionsInConsole", false);
+
 // Map top-level await expressions in the console
 pref("devtools.debugger.features.map-await-expression", true);
 
 // This relies on javascript.options.asyncstack as well or it has no effect.
 pref("devtools.debugger.features.async-captured-stacks", true);
 pref("devtools.debugger.features.async-live-stacks", false);
+
+// This supports showing stylesheet sources in the debugger
+pref("devtools.debugger.features.stylesheets-in-debugger", false);
 
 // When debugging a website, this pref controls if extension content scripts applied
 // to the currently debugged page should be shown in the Debugger Source Tree
