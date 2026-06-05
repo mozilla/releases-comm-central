@@ -13,8 +13,7 @@ use protocol_shared::{
     ServerType,
     client::DoOperation,
     safe_xpcom::{
-        SafeExchangeSimpleOperationListener, SafeListener, SimpleOperationSuccessArgs,
-        UseLegacyFallback,
+        SafeEwsSimpleOperationListener, SafeListener, SimpleOperationSuccessArgs, UseLegacyFallback,
     },
 };
 use thin_vec::ThinVec;
@@ -31,7 +30,7 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
 {
     const NAME: &'static str = "move messages";
     type Okay = ThinVec<String>;
-    type Listener = SafeExchangeSimpleOperationListener;
+    type Listener = SafeEwsSimpleOperationListener;
 
     async fn do_operation(
         &mut self,
@@ -99,7 +98,7 @@ impl<ServerT: ServerType> XpComGraphClient<ServerT> {
         self: Arc<XpComGraphClient<ServerT>>,
         destination_folder_id: String,
         message_ids: Vec<String>,
-        listener: SafeExchangeSimpleOperationListener,
+        listener: SafeEwsSimpleOperationListener,
     ) {
         let operation = DoMoveMessage {
             destination_folder_id,

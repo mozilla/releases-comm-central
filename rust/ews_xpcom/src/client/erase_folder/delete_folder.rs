@@ -4,7 +4,7 @@
 
 use ews::delete_folder::DeleteFolder;
 use protocol_shared::client::DoOperation;
-use protocol_shared::safe_xpcom::SafeExchangeSimpleOperationListener;
+use protocol_shared::safe_xpcom::SafeEwsSimpleOperationListener;
 use std::{marker::PhantomData, sync::Arc};
 
 use super::{DoEraseFolder, XpComEwsClient};
@@ -14,7 +14,7 @@ use crate::client::ServerType;
 impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     pub async fn delete_folder(
         self: Arc<XpComEwsClient<ServerT>>,
-        listener: SafeExchangeSimpleOperationListener,
+        listener: SafeEwsSimpleOperationListener,
         folder_id: String,
     ) {
         let operation = DoEraseFolder::<DeleteFolder> {

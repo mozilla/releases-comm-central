@@ -14,7 +14,7 @@ use nsstring::nsCString;
 use protocol_shared::{
     client::DoOperation,
     safe_xpcom::{
-        SafeExchangeSimpleOperationListener, SafeListener, SimpleOperationSuccessArgs,
+        SafeEwsSimpleOperationListener, SafeListener, SimpleOperationSuccessArgs,
         UseLegacyFallback, handle_error,
     },
 };
@@ -23,7 +23,7 @@ use thin_vec::ThinVec;
 use crate::client::{ServerType, XpComEwsClient, XpComEwsError, process_response_message_class};
 
 struct DoChangeReadStatus<'a> {
-    listener: &'a SafeExchangeSimpleOperationListener,
+    listener: &'a SafeEwsSimpleOperationListener,
     message_ids: ThinVec<nsCString>,
     is_read: bool,
 }
@@ -33,7 +33,7 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError>
 {
     const NAME: &'static str = "change read status";
     type Okay = ();
-    type Listener = SafeExchangeSimpleOperationListener;
+    type Listener = SafeEwsSimpleOperationListener;
 
     async fn do_operation(
         &mut self,
@@ -158,7 +158,7 @@ impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     /// [`UpdateItem` operation]: https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/updateitem-operation
     pub async fn change_read_status(
         self: Arc<XpComEwsClient<ServerT>>,
-        listener: SafeExchangeSimpleOperationListener,
+        listener: SafeEwsSimpleOperationListener,
         message_ids: ThinVec<nsCString>,
         is_read: bool,
     ) {

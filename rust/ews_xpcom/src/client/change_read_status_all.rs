@@ -11,7 +11,7 @@ use ews::{
 use nsstring::nsCString;
 use protocol_shared::client::DoOperation;
 use protocol_shared::safe_xpcom::{
-    SafeExchangeSimpleOperationListener, SimpleOperationSuccessArgs, UseLegacyFallback,
+    SafeEwsSimpleOperationListener, SimpleOperationSuccessArgs, UseLegacyFallback,
 };
 use thin_vec::ThinVec;
 
@@ -31,7 +31,7 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError>
 {
     const NAME: &'static str = MarkAllItemsAsRead::NAME;
     type Okay = UseLegacyFallback;
-    type Listener = SafeExchangeSimpleOperationListener;
+    type Listener = SafeEwsSimpleOperationListener;
 
     async fn do_operation(
         &mut self,
@@ -89,7 +89,7 @@ impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     /// [`MarkAllItemsAsRead` operation]: https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/markallitemsasread-operation
     pub async fn change_read_status_all(
         self: Arc<XpComEwsClient<ServerT>>,
-        listener: SafeExchangeSimpleOperationListener,
+        listener: SafeEwsSimpleOperationListener,
         folder_ids: ThinVec<nsCString>,
         is_read: bool,
         suppress_read_receipts: bool,

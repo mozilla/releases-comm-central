@@ -9,9 +9,9 @@ use xpcom::interfaces::IExchangeMessageCreateListener;
 use super::{SafeListener, SafeListenerWrapper};
 
 /// See [`SafeListenerWrapper`].
-pub type SafeExchangeMessageCreateListener = SafeListenerWrapper<IExchangeMessageCreateListener>;
+pub type SafeEwsMessageCreateListener = SafeListenerWrapper<IExchangeMessageCreateListener>;
 
-impl SafeExchangeMessageCreateListener {
+impl SafeEwsMessageCreateListener {
     /// Convert types and forward to [`IExchangeMessageCreateListener::OnRemoteCreateFinished`].
     pub fn on_remote_create_finished(
         &self,
@@ -27,7 +27,7 @@ impl SafeExchangeMessageCreateListener {
 
 // NOTE: This SafeListener stuff feels a bit jarring here.
 // See Bug 2023010
-impl SafeListener for SafeExchangeMessageCreateListener {
+impl SafeListener for SafeEwsMessageCreateListener {
     type OnSuccessArg = String;
     type OnFailureArg = ();
 

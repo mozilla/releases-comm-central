@@ -12,9 +12,9 @@ use xpcom::{
 use super::{SafeListener, SafeListenerWrapper};
 
 /// See [`SafeListenerWrapper`].
-pub type SafeExchangeMessageSyncListener = SafeListenerWrapper<IExchangeMessageSyncListener>;
+pub type SafeEwsMessageSyncListener = SafeListenerWrapper<IExchangeMessageSyncListener>;
 
-impl SafeExchangeMessageSyncListener {
+impl SafeEwsMessageSyncListener {
     /// Convert types and forward to
     /// [`IExchangeMessageSyncListener::OnMessageCreated`].
     pub fn on_message_created<S: AsRef<str>>(
@@ -104,7 +104,7 @@ impl SafeExchangeMessageSyncListener {
     }
 }
 
-impl SafeListener for SafeExchangeMessageSyncListener {
+impl SafeListener for SafeEwsMessageSyncListener {
     type OnSuccessArg = ();
     type OnFailureArg = ();
 

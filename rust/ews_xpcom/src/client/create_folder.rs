@@ -7,7 +7,7 @@ use std::sync::Arc;
 use ews::{BaseFolderId, Folder, Operation, OperationResponse, create_folder::CreateFolder};
 use protocol_shared::client::DoOperation;
 use protocol_shared::safe_xpcom::{
-    SafeExchangeSimpleOperationListener, SafeListener, UseLegacyFallback,
+    SafeEwsSimpleOperationListener, SafeListener, UseLegacyFallback,
 };
 
 use super::{
@@ -23,7 +23,7 @@ struct DoCreateFolder {
 impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError> for DoCreateFolder {
     const NAME: &'static str = CreateFolder::NAME;
     type Okay = String;
-    type Listener = SafeExchangeSimpleOperationListener;
+    type Listener = SafeEwsSimpleOperationListener;
 
     async fn do_operation(
         &mut self,
@@ -93,7 +93,7 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError> fo
 impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     pub(crate) async fn create_folder(
         self: Arc<XpComEwsClient<ServerT>>,
-        listener: SafeExchangeSimpleOperationListener,
+        listener: SafeEwsSimpleOperationListener,
         parent_id: String,
         name: String,
     ) {

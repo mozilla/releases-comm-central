@@ -11,7 +11,7 @@ use ews::{
 use fxhash::FxHashMap;
 use protocol_shared::{
     EXCHANGE_DISTINGUISHED_IDS, EXCHANGE_ROOT_FOLDER, client::DoOperation,
-    safe_xpcom::SafeExchangeFolderListener,
+    safe_xpcom::SafeEwsFolderListener,
 };
 use std::{collections::HashSet, sync::Arc};
 
@@ -21,7 +21,7 @@ use super::{
 };
 
 struct DoSyncFolderHierarchy<'a> {
-    pub listener: &'a SafeExchangeFolderListener,
+    pub listener: &'a SafeEwsFolderListener,
     pub sync_state_token: Option<String>,
 }
 
@@ -30,7 +30,7 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError>
 {
     const NAME: &'static str = SyncFolderHierarchy::NAME;
     type Okay = ();
-    type Listener = SafeExchangeFolderListener;
+    type Listener = SafeEwsFolderListener;
 
     async fn do_operation(
         &mut self,
@@ -146,7 +146,7 @@ impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     /// [`SyncFolderHierarchy` operation]: https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/syncfolderhierarchy-operation
     pub(crate) async fn sync_folder_hierarchy(
         self: Arc<XpComEwsClient<ServerT>>,
-        listener: SafeExchangeFolderListener,
+        listener: SafeEwsFolderListener,
         sync_state_token: Option<String>,
     ) {
         let operation = DoSyncFolderHierarchy {
@@ -159,7 +159,7 @@ impl<ServerT: ServerType> XpComEwsClient<ServerT> {
 
 async fn push_sync_state_to_ui<ServerT: ServerType>(
     client: &XpComEwsClient<ServerT>,
-    listener: &SafeExchangeFolderListener,
+    listener: &SafeEwsFolderListener,
     create_ids: Vec<String>,
     update_ids: Vec<String>,
     delete_ids: Vec<String>,
@@ -333,7 +333,7 @@ async fn batch_get_folders<ServerT: ServerType>(
 /// calls and well-known IDs associated with special folders.
 async fn get_well_known_folder_map<ServerT: ServerType>(
     client: &XpComEwsClient<ServerT>,
-    listener: &SafeExchangeFolderListener,
+    listener: &SafeEwsFolderListener,
 ) -> Result<FxHashMap<String, &'static str>, XpComEwsError> {
     // We should always request the root folder first to simplify processing
     // the response below.

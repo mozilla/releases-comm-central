@@ -10,9 +10,9 @@ use super::{SafeListener, SafeListenerWrapper};
 use crate::error::ProtocolError;
 
 /// See [`SafeListenerWrapper`].
-pub type SafeExchangeMessageFetchListener = SafeListenerWrapper<IExchangeMessageFetchListener>;
+pub type SafeEwsMessageFetchListener = SafeListenerWrapper<IExchangeMessageFetchListener>;
 
-impl SafeExchangeMessageFetchListener {
+impl SafeEwsMessageFetchListener {
     /// A safe wrapper for [`IExchangeMessageFetchListener::OnFetchStart`].
     pub fn on_fetch_start(&self) -> Result<(), nsresult> {
         // SAFETY: OnFetchStart has no safety preconditions.
@@ -54,7 +54,7 @@ impl SafeExchangeMessageFetchListener {
     }
 }
 
-impl SafeListener for SafeExchangeMessageFetchListener {
+impl SafeListener for SafeEwsMessageFetchListener {
     type OnSuccessArg = ();
     type OnFailureArg = ();
 

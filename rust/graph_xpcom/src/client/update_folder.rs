@@ -8,7 +8,7 @@ use ms_graph_tb::{OperationBody, paths::me, types::mail_folder::MailFolder};
 use protocol_shared::{
     ServerType,
     client::DoOperation,
-    safe_xpcom::{SafeExchangeSimpleOperationListener, UseLegacyFallback},
+    safe_xpcom::{SafeEwsSimpleOperationListener, UseLegacyFallback},
 };
 
 use crate::{client::XpComGraphClient, error::XpComGraphError};
@@ -25,7 +25,7 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
 
     type Okay = ();
 
-    type Listener = SafeExchangeSimpleOperationListener;
+    type Listener = SafeEwsSimpleOperationListener;
 
     async fn do_operation(
         &mut self,
@@ -71,7 +71,7 @@ impl<ServerT: ServerType> XpComGraphClient<ServerT> {
         self: Arc<XpComGraphClient<ServerT>>,
         folder_id: String,
         folder_name: String,
-        listener: SafeExchangeSimpleOperationListener,
+        listener: SafeEwsSimpleOperationListener,
     ) {
         let operation = DoUpdateFolder {
             folder_id,

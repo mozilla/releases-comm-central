@@ -9,9 +9,7 @@ use nsstring::nsCString;
 use protocol_shared::{
     ServerType,
     client::DoOperation,
-    safe_xpcom::{
-        SafeExchangeSimpleOperationListener, SimpleOperationSuccessArgs, UseLegacyFallback,
-    },
+    safe_xpcom::{SafeEwsSimpleOperationListener, SimpleOperationSuccessArgs, UseLegacyFallback},
 };
 use thin_vec::ThinVec;
 
@@ -27,7 +25,7 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
 
     type Okay = ThinVec<String>;
 
-    type Listener = SafeExchangeSimpleOperationListener;
+    type Listener = SafeEwsSimpleOperationListener;
 
     async fn do_operation(
         &mut self,
@@ -94,7 +92,7 @@ impl<ServerT: ServerType> XpComGraphClient<ServerT> {
         self: Arc<XpComGraphClient<ServerT>>,
         destination_folder_id: String,
         folder_ids: Vec<String>,
-        listener: SafeExchangeSimpleOperationListener,
+        listener: SafeEwsSimpleOperationListener,
     ) {
         let operation = DoCopyFolder {
             destination_folder_id,

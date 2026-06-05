@@ -5,12 +5,10 @@
 use std::sync::Arc;
 
 use ms_graph_tb::paths::me::messages;
-use protocol_shared::{
-    ServerType, client::DoOperation, safe_xpcom::SafeExchangeMessageFetchListener,
-};
+use protocol_shared::{ServerType, client::DoOperation, safe_xpcom::SafeEwsMessageFetchListener};
 
 struct DoGetMessage<'a> {
-    listener: &'a SafeExchangeMessageFetchListener,
+    listener: &'a SafeEwsMessageFetchListener,
     message_id: String,
 }
 
@@ -21,7 +19,7 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
 
     type Okay = ();
 
-    type Listener = SafeExchangeMessageFetchListener;
+    type Listener = SafeEwsMessageFetchListener;
 
     async fn do_operation(
         &mut self,
@@ -56,7 +54,7 @@ use crate::{client::XpComGraphClient, error::XpComGraphError};
 impl<ServerT: ServerType> XpComGraphClient<ServerT> {
     pub async fn get_message(
         self: Arc<XpComGraphClient<ServerT>>,
-        listener: SafeExchangeMessageFetchListener,
+        listener: SafeEwsMessageFetchListener,
         message_id: String,
     ) {
         let operation = DoGetMessage {
