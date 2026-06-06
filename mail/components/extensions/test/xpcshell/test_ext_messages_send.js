@@ -115,6 +115,9 @@ add_setup(async () => {
     "identity@foo.invalid",
     getBasicSmtpServer(gServer.port)
   );
+  // The API never sets the organization. It is copied from the identity by the
+  // compose backend (nsMsgCompose::SendMsg), so configure one to verify that.
+  identity.organization = "Test Organization";
   gPopAccount.addIdentity(identity);
   gPopAccount.defaultIdentity = identity;
 
@@ -502,6 +505,15 @@ add_task(async function test_send_save_Message() {
           raw.includes(`From: ${details.from || identityMailFrom}`),
           `From should be included and be correct ${raw}`
         );
+
+        // Verify that the organization is copied from the sending identity by
+        // the backed.
+        if (defaultIdentity.organization) {
+          browser.test.assertTrue(
+            raw.includes(`Organization: ${defaultIdentity.organization}`),
+            "The identity's organization should be included"
+          );
+        }
 
         // Verify recipients.
         const RECIPIENTS = {
