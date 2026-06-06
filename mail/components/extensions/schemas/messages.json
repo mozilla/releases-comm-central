@@ -471,6 +471,14 @@
             "description": "Defines the mime format of the sent message. Defaults to <value>auto</value>, which prefers to send plain text messages, if the specified body does not include any formatting.\n**Note**: If a plain text body and an HTML body is included in the message, the plain text body is always derived from the included HTML body. It is not possible to specify two independent values via <value>body</value> and <value>plainTextBody</value>.",
             "optional": true
           },
+          "contentLanguage": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The languages of the message content, used for the <em>Content-Language</em> header. Each entry is a free-form language tag (for example <var>en-US</var>). If omitted, no <em>Content-Language</em> header is added. The i18n API's <var>detectLanguage()</var> can be used to derive a value from the message body, which should be converted to plain text first (for example via $(ref:messengerUtilities.convertToPlainText)), so that markup does not influence the detection.",
+            "optional": true
+          },
           "customHeaders": {
             "type": "array",
             "items": {

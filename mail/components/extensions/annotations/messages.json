@@ -137,6 +137,18 @@
             }
           }
         }
+      },
+      {
+        "id": "NewMessageDetails",
+        "properties": {
+          "contentLanguage": {
+            "annotations": [
+              {
+                "note": "No <var>Content-Language</var> header is added if the user has enabled the <var>mail.suppress_content_language</var> preference."
+              }
+            ]
+          }
+        }
       }
     ],
     "functions": [

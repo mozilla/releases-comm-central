@@ -240,6 +240,19 @@ class MsgOperationWrapper {
     // Otherwise (HTML save): leave forcePlainText/useMultipartAlternative at
     // their defaults (false) so the draft/template is stored as HTML.
 
+    // Content language (the Content-Language header). The values are free-form
+    // language tags and are used as-is. If none are given, the header is not
+    // set. The header is never set when the user has enabled the
+    // mail.suppress_content_language preference.
+    if (
+      details.contentLanguage?.length &&
+      !Services.prefs.getBoolPref("mail.suppress_content_language", false)
+    ) {
+      msgCompose.compFields.contentLanguage = details.contentLanguage
+        .map(e => e.trim())
+        .join(", ");
+    }
+
     // Priorities. The enum in the schema defines all allowed values, no need
     // to validate here.
     if (details.priority && details.priority != "normal") {

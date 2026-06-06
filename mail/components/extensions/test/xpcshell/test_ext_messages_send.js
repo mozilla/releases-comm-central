@@ -1041,3 +1041,106 @@ add_task(async function test_save_keeps_format_intent() {
   await extension.awaitFinish("finished");
   await extension.unload();
 });
+
+/**
+ * Verify the Content-Language header: an explicit contentLanguage is written
+ * verbatim, and no header is added when it is omitted.
+ */
+add_task(async function test_content_language() {
+  gServer.resetTest();
+  clearTestFolders();
+
+  const extension = ExtensionTestUtils.loadExtension({
+    background: async () => {
+      // Explicit contentLanguage is joined into the Content-Language header.
+      const explicit = await browser.messages.saveMessage(
+        {
+          to: "to@example.invalid",
+          subject: "Explicit language",
+          body: "<p>Some content.</p>",
+          contentLanguage: ["de-DE", "en-US"],
+        },
+        { mode: "draft" }
+      );
+      let raw = await browser.messages.getRaw(explicit.messages[0].id);
+      browser.test.assertTrue(
+        raw.includes("Content-Language: de-DE, en-US"),
+        `Explicit content language should be written verbatim:\n${raw}`
+      );
+
+      // Without contentLanguage, no Content-Language header is added.
+      const omitted = await browser.messages.saveMessage(
+        {
+          to: "to@example.invalid",
+          subject: "No language",
+          body: "<p>Some content.</p>",
+        },
+        { mode: "draft" }
+      );
+      raw = await browser.messages.getRaw(omitted.messages[0].id);
+      browser.test.assertFalse(
+        raw.includes("Content-Language:"),
+        `No Content-Language header should be set when omitted:\n${raw}`
+      );
+
+      browser.test.notifyPass("finished");
+    },
+    manifest: {
+      permissions: [
+        "messagesRead",
+        "accountsRead",
+        "messagesDelete",
+        "messages.save",
+      ],
+    },
+  });
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+});
+
+/**
+ * Verify the mail.suppress_content_language preference: when enabled, no
+ * Content-Language header is set even if an explicit contentLanguage is given.
+ */
+add_task(async function test_content_language_suppressed() {
+  gServer.resetTest();
+  clearTestFolders();
+  Services.prefs.setBoolPref("mail.suppress_content_language", true);
+  registerCleanupFunction(() =>
+    Services.prefs.clearUserPref("mail.suppress_content_language")
+  );
+
+  const extension = ExtensionTestUtils.loadExtension({
+    background: async () => {
+      const { messages } = await browser.messages.saveMessage(
+        {
+          to: "to@example.invalid",
+          subject: "Suppressed language",
+          body: "<p>Some content.</p>",
+          contentLanguage: ["de-DE"],
+        },
+        { mode: "draft" }
+      );
+      const raw = await browser.messages.getRaw(messages[0].id);
+      browser.test.assertFalse(
+        raw.includes("Content-Language:"),
+        `No Content-Language header should be set when suppressed:\n${raw}`
+      );
+      browser.test.notifyPass("finished");
+    },
+    manifest: {
+      permissions: [
+        "messagesRead",
+        "accountsRead",
+        "messagesDelete",
+        "messages.save",
+      ],
+    },
+  });
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+
+  Services.prefs.clearUserPref("mail.suppress_content_language");
+});
