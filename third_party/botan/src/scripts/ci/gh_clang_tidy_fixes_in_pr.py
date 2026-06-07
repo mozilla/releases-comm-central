@@ -37,9 +37,9 @@ class Diagnostic:
 
     def __map_file_path(self, file_path, base_path): # pylint: disable=unused-argument
         if file_path.endswith(".h"):
-            raise RuntimeError(f"Header file {file_path} cannot be handled")
-        # TODO: try to map include files (residing in build/include) onto their
-        #       origin path in src/lib etc.
+            # This only works for symlink builds, which is sufficient for CI reporting
+            return os.path.realpath(file_path)
+
         return file_path
 
 
@@ -48,11 +48,11 @@ class Diagnostic:
         with open(self.file, encoding="utf-8") as srcfile:
             readoffset = 0
             lineoffset = 0
-            for l in srcfile.readlines():
-                readoffset += len(l)
+            for line in srcfile.readlines():
+                readoffset += len(line)
                 lineoffset += 1
                 if readoffset >= offset:
-                    coloffset = offset - readoffset + len(l)
+                    coloffset = offset - readoffset + len(line)
                     return (lineoffset, coloffset)
         raise RuntimeError(f"FileOffset {offset} out of range for {self.file}")
 

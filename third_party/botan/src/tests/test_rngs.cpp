@@ -6,15 +6,44 @@
 
 #include "test_rng.h"
 
+#include <botan/hex.h>
+#include <array>
+
 #if defined(BOTAN_HAS_AES)
+   #include <botan/block_cipher.h>
    #include <botan/internal/loadstor.h>
 #endif
 
-#include <array>
-
 namespace Botan_Tests {
 
+uint8_t Fixed_Output_RNG::random() {
+   if(m_buf_pos >= m_buf.size()) {
+      if(m_fallback.has_value()) {
+         return m_fallback.value()->next_byte();
+      } else {
+         throw Test_Error("Fixed output RNG ran out of bytes, test bug?");
+      }
+   }
+
+   const uint8_t out = m_buf[m_buf_pos];
+   m_buf_pos += 1;
+   return out;
+}
+
+Fixed_Output_RNG::Fixed_Output_RNG(const std::string& in_str) {
+   std::vector<uint8_t> in = Botan::hex_decode(in_str);
+   m_buf.insert(m_buf.end(), in.begin(), in.end());
+}
+
+Fixed_Output_RNG::Fixed_Output_RNG(RandomNumberGenerator& rng, size_t len) {
+   std::vector<uint8_t> output;
+   rng.random_vec(output, len);
+   m_buf.insert(m_buf.end(), output.begin(), output.end());
+}
+
 #if defined(BOTAN_HAS_AES)
+
+CTR_DRBG_AES256::~CTR_DRBG_AES256() = default;
 
 void CTR_DRBG_AES256::clear() {
    const uint8_t zeros[32] = {0};
@@ -54,8 +83,8 @@ void CTR_DRBG_AES256::fill_bytes_with_input(std::span<uint8_t> output, std::span
    }
 }
 
-CTR_DRBG_AES256::CTR_DRBG_AES256(std::span<const uint8_t> seed) {
-   m_cipher = Botan::BlockCipher::create_or_throw("AES-256");
+CTR_DRBG_AES256::CTR_DRBG_AES256(std::span<const uint8_t> seed) :
+      m_cipher(Botan::BlockCipher::create_or_throw("AES-256")) {
    add_entropy(seed);
 }
 
@@ -73,7 +102,7 @@ void CTR_DRBG_AES256::incr_V_into(std::span<uint8_t> output) {
 void CTR_DRBG_AES256::update(std::span<const uint8_t> provided_data) {
    std::array<uint8_t, 3 * 16> temp = {0};
 
-   std::span<uint8_t> t(temp);
+   const std::span<uint8_t> t(temp);
    for(size_t i = 0; i != 3; ++i) {
       incr_V_into(t.subspan(16 * i, 16));
    }
@@ -87,7 +116,7 @@ void CTR_DRBG_AES256::update(std::span<const uint8_t> provided_data) {
       }
    }
 
-   m_cipher->set_key(temp.data(), 32);  // TODO: adapt after GH #3297
+   m_cipher->set_key(std::span(temp).first(32));
 
    m_V0 = Botan::load_be<uint64_t>(temp.data() + 32, 0);
    m_V1 = Botan::load_be<uint64_t>(temp.data() + 32, 1);

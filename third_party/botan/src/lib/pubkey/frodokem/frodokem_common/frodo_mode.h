@@ -19,7 +19,7 @@ namespace Botan {
 
 class BOTAN_PUBLIC_API(3, 3) FrodoKEMMode {
    public:
-      enum Mode {
+      enum Mode : uint8_t /* NOLINT(*-use-enum-class) */ {
          FrodoKEM640_SHAKE,
          FrodoKEM976_SHAKE,
          FrodoKEM1344_SHAKE,
@@ -34,7 +34,9 @@ class BOTAN_PUBLIC_API(3, 3) FrodoKEMMode {
          eFrodoKEM1344_AES
       };
 
+      // NOLINTNEXTLINE(*-explicit-conversions)
       FrodoKEMMode(Mode mode);
+
       explicit FrodoKEMMode(const OID& oid);
       explicit FrodoKEMMode(std::string_view str);
 
@@ -63,18 +65,7 @@ class BOTAN_PUBLIC_API(3, 3) FrodoKEMMode {
                 m_mode == FrodoKEM640_AES || m_mode == FrodoKEM976_AES || m_mode == FrodoKEM1344_AES;
       }
 
-      bool is_available() const {
-         return
-#if defined(BOTAN_HAS_FRODOKEM_AES)
-            is_aes() ||
-#endif
-
-#if defined(BOTAN_HAS_FRODOKEM_SHAKE)
-            is_shake() ||
-#endif
-
-            false;
-      }
+      bool is_available() const;
 
       bool operator==(const FrodoKEMMode& other) const { return m_mode == other.m_mode; }
 

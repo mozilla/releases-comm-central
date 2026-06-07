@@ -7,13 +7,14 @@
 #include <botan/internal/ec_inner_bn.h>
 
 #include <botan/mem_ops.h>
+#include <botan/internal/buffer_stuffer.h>
 #include <botan/internal/mod_inv.h>
 
 namespace Botan {
 
 const EC_Scalar_Data_BN& EC_Scalar_Data_BN::checked_ref(const EC_Scalar_Data& data) {
    const auto* p = dynamic_cast<const EC_Scalar_Data_BN*>(&data);
-   if(!p) {
+   if(p == nullptr) {
       throw Invalid_State("Failed conversion to EC_Scalar_Data_BN");
    }
    return *p;
@@ -41,6 +42,13 @@ bool EC_Scalar_Data_BN::is_eq(const EC_Scalar_Data& other) const {
 
 void EC_Scalar_Data_BN::assign(const EC_Scalar_Data& other) {
    m_v = checked_ref(other).value();
+}
+
+void EC_Scalar_Data_BN::zeroize() {
+   // BigInt stores its value in a secure_vector, after swapping the existing
+   // value will go out of scope (inside `zero`) and be wiped properly.
+   BigInt zero;
+   std::swap(m_v, zero);
 }
 
 void EC_Scalar_Data_BN::square_self() {
@@ -99,7 +107,7 @@ std::unique_ptr<EC_AffinePoint_Data> EC_AffinePoint_Data_BN::mul(const EC_Scalar
    const auto& bn = EC_Scalar_Data_BN::checked_ref(scalar);
 
    std::vector<BigInt> ws;
-   EC_Point_Var_Point_Precompute mul(m_pt, rng, ws);
+   const EC_Point_Var_Point_Precompute mul(m_pt, rng, ws);
 
    // We pass order*cofactor here to "correctly" handle the case where the
    // point is on the curve but not in the prime order subgroup. This only
@@ -117,7 +125,7 @@ secure_vector<uint8_t> EC_AffinePoint_Data_BN::mul_x_only(const EC_Scalar_Data& 
    const auto& bn = EC_Scalar_Data_BN::checked_ref(scalar);
 
    std::vector<BigInt> ws;
-   EC_Point_Var_Point_Precompute mul(m_pt, rng, ws);
+   const EC_Point_Var_Point_Precompute mul(m_pt, rng, ws);
 
    // We pass order*cofactor here to "correctly" handle the case where the
    // point is on the curve but not in the prime order subgroup. This only

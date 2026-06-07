@@ -18,9 +18,9 @@ if(NOT Botan_FOUND)
   message(FATAL_ERROR "Test #1 failed: Failed to find Botan with any version")
 endif()
 
-if(TARGET Botan::Botan)
+if(TARGET botan::botan)
   add_executable(botan_version_test main.cpp)
-  target_link_libraries(botan_version_test Botan::Botan)
+  target_link_libraries(botan_version_test botan::botan)
 
   if(WIN32)
     add_custom_command(TARGET botan_version_test POST_BUILD
@@ -37,9 +37,9 @@ unset(Botan_FOUND)
 
 # test #2: link statically
 find_package(Botan REQUIRED)
-if(TARGET Botan::Botan-static)
+if(TARGET botan::botan-static)
   add_executable(botan_version_test_static main.cpp)
-  target_link_libraries(botan_version_test_static Botan::Botan-static)
+  target_link_libraries(botan_version_test_static botan::botan-static)
 
   add_test(NAME "Using static library"
            COMMAND botan_version_test_static
@@ -130,5 +130,16 @@ endif()
 
 unset(Botan_FOUND)
 unset(botan_FOUND)
+
+# test #11: use backward-compatibility ALIAS targets
+#           (Assuming that we use at least CMake 3.18, otherwise that might fail)
+find_package(Botan REQUIRED)
+if(Botan_FOUND)
+  if(NOT TARGET Botan::Botan AND NOT TARGET Botan::Botan-static)
+    message(FATAL_ERROR "Test #11 didn't find the expected backward-compatibility ALIAS target")
+  endif()
+endif()
+
+unset(Botan_FOUND)
 
 enable_testing()

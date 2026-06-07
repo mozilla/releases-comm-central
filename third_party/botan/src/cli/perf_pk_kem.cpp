@@ -6,12 +6,17 @@
 
 #include "perf.h"
 
+#include <ostream>
+
 #if defined(BOTAN_HAS_PUBLIC_KEY_CRYPTO)
    #include <botan/pk_algs.h>
    #include <botan/pubkey.h>
+   #include <botan/rng.h>
 #endif
 
 namespace Botan_CLI {
+
+namespace {
 
 #if defined(BOTAN_HAS_PUBLIC_KEY_CRYPTO)
 
@@ -32,11 +37,11 @@ class PerfTest_PK_KEM : public PerfTest {
          }
       }
 
-      void bench_pk_kem(const PerfConfig& config,
-                        const std::string& nm,
-                        const std::string& algo,
-                        const std::string& params,
-                        const std::string& provider = "") {
+      static void bench_pk_kem(const PerfConfig& config,
+                               const std::string& nm,
+                               const std::string& algo,
+                               const std::string& params,
+                               const std::string& provider = "") {
          const auto msec = config.runtime();
          auto& rng = config.rng();
 
@@ -67,7 +72,7 @@ class PerfTest_PK_KEM : public PerfTest {
                kem_enc_timer->stop();
 
                kem_dec_timer->start();
-               Botan::secure_vector<uint8_t> dec_shared_key =
+               const Botan::secure_vector<uint8_t> dec_shared_key =
                   dec.decrypt(kem_result.encapsulated_shared_key(), 64, salt);
                kem_dec_timer->stop();
 
@@ -161,22 +166,22 @@ class PerfTest_Classic_McEliece final : public PerfTest_PK_KEM {
 
       std::vector<std::string> keygen_params(const PerfConfig& /*config*/) const override {
          return {
-            "mceliece348864",
-            "mceliece348864f",
-            "mceliece460896",
-            "mceliece460896f",
-            "mceliece6688128",
-            "mceliece6688128f",
-            "mceliece6688128pc",
-            "mceliece6688128pcf",
-            "mceliece6960119",
-            "mceliece6960119f",
-            "mceliece6960119pc",
-            "mceliece6960119pcf",
-            "mceliece8192128",
-            "mceliece8192128f",
-            "mceliece8192128pc",
-            "mceliece8192128pcf",
+            "348864",
+            "348864f",
+            "460896",
+            "460896f",
+            "6688128",
+            "6688128f",
+            "6688128pc",
+            "6688128pcf",
+            "6960119",
+            "6960119f",
+            "6960119pc",
+            "6960119pcf",
+            "8192128",
+            "8192128f",
+            "8192128pc",
+            "8192128pcf",
          };
       }
 };
@@ -184,5 +189,7 @@ class PerfTest_Classic_McEliece final : public PerfTest_PK_KEM {
 BOTAN_REGISTER_PERF_TEST("ClassicMcEliece", PerfTest_Classic_McEliece);
 
 #endif
+
+}  // namespace
 
 }  // namespace Botan_CLI

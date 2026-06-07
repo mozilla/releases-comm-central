@@ -17,7 +17,7 @@ namespace Botan {
 
 class BOTAN_TEST_API CPUFeature {
    public:
-      enum Bit : uint32_t {
+      enum Bit : uint32_t /* NOLINT(*-use-enum-class) */ {
          SSE2 = (1U << 0),
          SSSE3 = (1U << 1),
          AVX2 = (1U << 2),
@@ -43,11 +43,12 @@ class BOTAN_TEST_API CPUFeature {
          SM4 = (1U << 27),
 
          SIMD_4X32 = SSSE3,
+         SIMD_2X64 = SSSE3,
          HW_AES = AESNI,
          HW_CLMUL = CLMUL,
       };
 
-      CPUFeature(Bit b) : m_bit(b) {}
+      CPUFeature(Bit b) : m_bit(b) {}  // NOLINT(*-explicit-conversions)
 
       uint32_t as_u32() const { return static_cast<uint32_t>(m_bit); }
 

@@ -9,9 +9,11 @@
 #ifndef BOTAN_CERT_STORE_SYSTEM_MACOS_H_
 #define BOTAN_CERT_STORE_SYSTEM_MACOS_H_
 
+#include <botan/certstor.h>
 #include <memory>
 
-#include <botan/certstor.h>
+// Use Certificate_Store_System instead
+BOTAN_FUTURE_INTERNAL_HEADER(certstor_macos.h)
 
 namespace Botan {
 
@@ -58,10 +60,14 @@ class BOTAN_PUBLIC_API(2, 10) Certificate_Store_MacOS final : public Certificate
       std::optional<X509_Certificate> find_cert_by_pubkey_sha1(const std::vector<uint8_t>& key_hash) const override;
 
       /**
-       * @throws Not_Implemented
+       * @throws Not_Implemented as this functionality is not available in the
+       * macOS certificate interface
        */
       std::optional<X509_Certificate> find_cert_by_raw_subject_dn_sha256(
          const std::vector<uint8_t>& subject_hash) const override;
+
+      std::optional<X509_Certificate> find_cert_by_issuer_dn_and_serial_number(
+         const X509_DN& issuer_dn, std::span<const uint8_t> serial_number) const override;
 
       /**
        * Fetching CRLs is not supported by the keychain on macOS. This will

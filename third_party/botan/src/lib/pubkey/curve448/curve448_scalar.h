@@ -34,10 +34,10 @@ constexpr size_t words_for_bits(size_t x) {
 class BOTAN_TEST_API Scalar448 final {
    public:
       constexpr static size_t WORDS = words_for_bits(446);
-      constexpr static size_t BYTES = ceil_tobytes(446);
+      constexpr static size_t BYTES = ceil_tobytes<size_t>(446);
 
       /// @brief Construct a new scalar from (max. 114) bytes. Little endian.
-      Scalar448(std::span<const uint8_t> x);
+      explicit Scalar448(std::span<const uint8_t> x);
 
       /// @brief Convert the scalar to bytes in little endian.
       template <size_t S = BYTES>
@@ -52,6 +52,10 @@ class BOTAN_TEST_API Scalar448 final {
       /// @brief Access the i-th bit of the scalar. From 0 (lsb) to 445 (msb).
       bool get_bit(size_t i) const;
 
+      /// @brief Extract a window of @p width bits starting at bit position @p starting_pos.
+      /// Bits beyond position 445 are treated as zero.
+      uint32_t get_window(size_t starting_pos, size_t width) const;
+
       /// @brief scalar = (scalar + other) mod L
       Scalar448 operator+(const Scalar448& other) const;
 
@@ -62,7 +66,8 @@ class BOTAN_TEST_API Scalar448 final {
       static bool bytes_are_reduced(std::span<const uint8_t> x);
 
    private:
-      Scalar448(std::span<const word, WORDS> scalar_words) { copy_mem(m_scalar_words, scalar_words); }
+      // NOLINTNEXTLINE(*-member-init)
+      explicit Scalar448(std::span<const word, WORDS> scalar_words) { copy_mem(m_scalar_words, scalar_words); }
 
       std::array<word, WORDS> m_scalar_words;
 };

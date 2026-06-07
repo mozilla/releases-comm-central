@@ -8,10 +8,9 @@
 
 #include <botan/internal/kdf2.h>
 
-#include <botan/exceptn.h>
 #include <botan/internal/bit_ops.h>
+#include <botan/internal/buffer_stuffer.h>
 #include <botan/internal/fmt.h>
-#include <botan/internal/stl_util.h>
 
 namespace Botan {
 
@@ -37,7 +36,7 @@ void KDF2::perform_kdf(std::span<uint8_t> key,
    // This KDF uses a 32-bit counter for the hash blocks, initialized at 1.
    // It will wrap around after 2^32 - 1 iterations limiting the theoretically
    // possible output to 2^32 - 1 blocks.
-   BOTAN_ARG_CHECK(blocks_required <= 0xFFFFFFFE, "KDF2 maximum output length exceeeded");
+   BOTAN_ARG_CHECK(blocks_required <= 0xFFFFFFFE, "KDF2 maximum output length exceeded");
 
    BufferStuffer k(key);
    for(uint32_t counter = 1; !k.full(); ++counter) {

@@ -89,6 +89,10 @@ const char* to_string(Certificate_Status_Code code) {
          return "Certificate does not match provided name";
       case Certificate_Status_Code::NAME_CONSTRAINT_ERROR:
          return "Certificate does not pass name constraint";
+      case Certificate_Status_Code::IPADDR_BLOCKS_ERROR:
+         return "IP Address Blocks extension invalid";
+      case Certificate_Status_Code::AS_BLOCKS_ERROR:
+         return "AS Number Blocks extension invalid";
       case Certificate_Status_Code::UNKNOWN_CRITICAL_EXTENSION:
          return "Unknown critical extension encountered";
       case Certificate_Status_Code::DUPLICATE_CERT_EXTENSION:
@@ -100,7 +104,7 @@ const char* to_string(Certificate_Status_Code code) {
       case Certificate_Status_Code::OCSP_SIGNATURE_ERROR:
          return "OCSP signature error";
       case Certificate_Status_Code::OCSP_ISSUER_NOT_FOUND:
-         return "Unable to find certificate issusing OCSP response";
+         return "Unable to find certificate issuing OCSP response";
       case Certificate_Status_Code::OCSP_RESPONSE_MISSING_KEYUSAGE:
          return "OCSP issuer's keyusage prohibits OCSP";
       case Certificate_Status_Code::OCSP_RESPONSE_INVALID:

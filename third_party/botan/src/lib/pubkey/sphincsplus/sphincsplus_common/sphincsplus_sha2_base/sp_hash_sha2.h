@@ -11,11 +11,11 @@
 
 #include <botan/internal/sp_hash.h>
 
+#include <botan/internal/concat_util.h>
 #include <botan/internal/hmac.h>
 #include <botan/internal/mgf1.h>
 #include <botan/internal/sha2_32.h>
 #include <botan/internal/sha2_64.h>
-#include <botan/internal/stl_util.h>
 #include <botan/internal/trunc_hash.h>
 
 namespace Botan {
@@ -55,7 +55,7 @@ class Sphincs_Hash_Functions_Sha2 : public Sphincs_Hash_Functions {
          std::vector<uint8_t> mgf1_input = concat<std::vector<uint8_t>>(r, m_pub_seed, r_pk_buffer);
 
          std::vector<uint8_t> digest(m_sphincs_params.h_msg_digest_bytes());
-         mgf1_mask(*m_sha_x_full, mgf1_input.data(), mgf1_input.size(), digest.data(), digest.size());
+         mgf1_mask(*m_sha_x_full, mgf1_input, digest);
 
          return digest;
       }

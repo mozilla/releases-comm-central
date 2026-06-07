@@ -10,6 +10,7 @@
 #include <botan/exceptn.h>
 #include <botan/mem_ops.h>
 #include <botan/internal/fmt.h>
+#include <botan/internal/int_utils.h>
 #include <sqlite3.h>
 
 namespace Botan {
@@ -19,9 +20,9 @@ Sqlite3_Database::Sqlite3_Database(std::string_view db_filename, std::optional<i
    // concurrently from multiple threads.
    const int open_flags =
       sqlite_open_flags.value_or(SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_FULLMUTEX);
-   int rc = ::sqlite3_open_v2(std::string(db_filename).c_str(), &m_db, open_flags, nullptr);
+   const int rc = ::sqlite3_open_v2(std::string(db_filename).c_str(), &m_db, open_flags, nullptr);
 
-   if(rc) [[unlikely]] {
+   if(rc != 0) [[unlikely]] {
       const std::string err_msg = ::sqlite3_errmsg(m_db);
       ::sqlite3_close(m_db);
       m_db = nullptr;
@@ -30,7 +31,7 @@ Sqlite3_Database::Sqlite3_Database(std::string_view db_filename, std::optional<i
 }
 
 Sqlite3_Database::~Sqlite3_Database() {
-   if(m_db) [[likely]] {
+   if(m_db != nullptr) [[likely]] {
       ::sqlite3_close(m_db);
    }
    m_db = nullptr;
@@ -52,7 +53,7 @@ size_t Sqlite3_Database::row_count(std::string_view table_name) {
 
 void Sqlite3_Database::create_table(std::string_view table_schema) {
    char* errmsg = nullptr;
-   int rc = ::sqlite3_exec(m_db, std::string(table_schema).c_str(), nullptr, nullptr, &errmsg);
+   const int rc = ::sqlite3_exec(m_db, std::string(table_schema).c_str(), nullptr, nullptr, &errmsg);
 
    if(rc != SQLITE_OK) {
       const std::string err_msg = errmsg;
@@ -87,8 +88,8 @@ bool Sqlite3_Database::is_threadsafe() const {
    return flag >= 1;
 }
 
-Sqlite3_Database::Sqlite3_Statement::Sqlite3_Statement(sqlite3* db, std::string_view base_sql) {
-   int rc = ::sqlite3_prepare_v2(db, base_sql.data(), static_cast<int>(base_sql.size()), &m_stmt, nullptr);
+Sqlite3_Database::Sqlite3_Statement::Sqlite3_Statement(sqlite3* db, std::string_view base_sql) : m_stmt{} {
+   const int rc = ::sqlite3_prepare_v2(db, base_sql.data(), static_cast<int>(base_sql.size()), &m_stmt, nullptr);
 
    if(rc != SQLITE_OK) {
       throw SQL_DB_Error(fmt("sqlite3_prepare failed on '{}' with err {}", base_sql, rc), rc);
@@ -96,14 +97,14 @@ Sqlite3_Database::Sqlite3_Statement::Sqlite3_Statement(sqlite3* db, std::string_
 }
 
 void Sqlite3_Database::Sqlite3_Statement::bind(int column, std::string_view val) {
-   int rc = ::sqlite3_bind_text64(m_stmt, column, val.data(), val.size(), SQLITE_TRANSIENT, SQLITE_UTF8);
+   const int rc = ::sqlite3_bind_text64(m_stmt, column, val.data(), val.size(), SQLITE_TRANSIENT, SQLITE_UTF8);
    if(rc != SQLITE_OK) {
       throw SQL_DB_Error("sqlite3_bind_text failed", rc);
    }
 }
 
 void Sqlite3_Database::Sqlite3_Statement::bind(int column, size_t val) {
-   int rc = ::sqlite3_bind_int64(m_stmt, column, val);
+   const int rc = ::sqlite3_bind_int64(m_stmt, column, val);
    if(rc != SQLITE_OK) {
       throw SQL_DB_Error("sqlite3_bind_int failed", rc);
    }
@@ -115,14 +116,14 @@ void Sqlite3_Database::Sqlite3_Statement::bind(int column, std::chrono::system_c
 }
 
 void Sqlite3_Database::Sqlite3_Statement::bind(int column, const std::vector<uint8_t>& val) {
-   int rc = ::sqlite3_bind_blob64(m_stmt, column, val.data(), val.size(), SQLITE_TRANSIENT);
+   const int rc = ::sqlite3_bind_blob64(m_stmt, column, val.data(), val.size(), SQLITE_TRANSIENT);
    if(rc != SQLITE_OK) {
       throw SQL_DB_Error("sqlite3_bind_text failed", rc);
    }
 }
 
 void Sqlite3_Database::Sqlite3_Statement::bind(int column, const uint8_t* p, size_t len) {
-   int rc = ::sqlite3_bind_blob64(m_stmt, column, p, len, SQLITE_TRANSIENT);
+   const int rc = ::sqlite3_bind_blob64(m_stmt, column, p, len, SQLITE_TRANSIENT);
    if(rc != SQLITE_OK) {
       throw SQL_DB_Error("sqlite3_bind_text failed", rc);
    }
@@ -155,9 +156,7 @@ std::string Sqlite3_Database::Sqlite3_Statement::get_str(int column) {
 size_t Sqlite3_Database::Sqlite3_Statement::get_size_t(int column) {
    BOTAN_ASSERT(::sqlite3_column_type(m_stmt, column) == SQLITE_INTEGER, "Return count is an integer");
 
-   const size_t sessions_int = ::sqlite3_column_int64(m_stmt, column);
-
-   return sessions_int;
+   return checked_cast_to<size_t>(::sqlite3_column_int64(m_stmt, column));
 }
 
 size_t Sqlite3_Database::Sqlite3_Statement::spin() {

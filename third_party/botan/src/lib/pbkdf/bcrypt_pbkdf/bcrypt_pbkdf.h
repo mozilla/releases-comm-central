@@ -19,10 +19,7 @@ namespace Botan {
 */
 class BOTAN_PUBLIC_API(2, 11) Bcrypt_PBKDF final : public PasswordHash {
    public:
-      Bcrypt_PBKDF(size_t iterations);
-
-      Bcrypt_PBKDF(const Bcrypt_PBKDF& other) = default;
-      Bcrypt_PBKDF& operator=(const Bcrypt_PBKDF&) = default;
+      BOTAN_FUTURE_EXPLICIT Bcrypt_PBKDF(size_t iterations);
 
       /**
       * Derive a new key under the current Bcrypt-PBKDF parameter set
@@ -54,16 +51,16 @@ class BOTAN_PUBLIC_API(2, 11) Bcrypt_PBKDF_Family final : public PasswordHashFam
 
       std::string name() const override;
 
-      std::unique_ptr<PasswordHash> tune(size_t output_length,
-                                         std::chrono::milliseconds msec,
-                                         size_t max_memory,
-                                         std::chrono::milliseconds tune_msec) const override;
+      std::unique_ptr<PasswordHash> tune_params(size_t output_len,
+                                                uint64_t desired_runtime_msec,
+                                                std::optional<size_t> max_memory,
+                                                uint64_t tune_msec) const override;
 
       std::unique_ptr<PasswordHash> default_params() const override;
 
-      std::unique_ptr<PasswordHash> from_iterations(size_t iter) const override;
+      std::unique_ptr<PasswordHash> from_iterations(size_t iterations) const override;
 
-      std::unique_ptr<PasswordHash> from_params(size_t i, size_t, size_t) const override;
+      std::unique_ptr<PasswordHash> from_params(size_t iterations, size_t /*unused*/, size_t /*unused*/) const override;
 };
 
 /**

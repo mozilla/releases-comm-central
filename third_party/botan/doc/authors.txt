@@ -5,6 +5,7 @@ Alf-André Walla
 Allan L. Bazinet
 Alon Bar-Lev
 Amos Treiber (Rohde & Schwarz Cybersecurity)
+André Schomburg (Volkswagen AG)
 Andrew Moon
 Antonio Coratelli
 Atanas Filyanov
@@ -22,6 +23,7 @@ Dan Brown
 Daniel Neus (Rohde & Schwarz Cybersecurity)
 Daniel Seither (Kullo GmbH)
 Daniel Wyatt
+Dirk Dobkowitz (Volkswagen AG)
 Elektrobit Automotive GmbH
 Eric Cornelius
 Erwan Chaussy
@@ -35,6 +37,7 @@ FlexSecure GmbH
 Florent Le Coz
 Francis Dupont
 Frank Schoenmann
+Frederik Dornemann (CARIAD SE)
 Google Inc
 Gustavo Serra Scalet
 guywithcrookedface
@@ -51,10 +54,12 @@ joerg
 Jose Luis Pereira (Fyde Inc.)
 Juraj Somorovsky (Hackmanit GmbH)
 Justin Karneges
+Kagan Can Sit
 Kai Michaelis (Rohde & Schwarz Cybersecurity)
 Kirill A. Korinsky
 Konstantinos Kolelis
 Krzysztof Kwiatkowski
+Lars Dürkop (CARIAD SE)
 Lauri Nurmi
 Luca Piccarreta
 Manuel Glaser (Rohde & Schwarz Cybersecurity)
@@ -86,6 +91,7 @@ Ribose Inc
 Robert Dailey
 Ryuhei Mori
 schregger
+Sebastian Ahrens (Volkswagen AG)
 Sergii Cherkavskyi
 seu
 Shlomi Fish
@@ -106,3 +112,4 @@ Yuri
 Yves Jerschow
 Zoltan Gyarmati
 0xdefaced
+polarnis

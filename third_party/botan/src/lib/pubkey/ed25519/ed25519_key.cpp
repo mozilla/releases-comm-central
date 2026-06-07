@@ -47,19 +47,8 @@ bool Ed25519_PublicKey::check_key(RandomNumberGenerator& /*rng*/, bool /*strong*
 
    copy_mem(pkcopy, m_public.data(), 32);
    pkcopy[31] ^= (1 << 7);  // flip sign
-   ge_p3 point;
-   if(ge_frombytes_negate_vartime(&point, pkcopy) != 0) {
-      return false;
-   }
 
-   uint8_t result[32];
-   ge_double_scalarmult_vartime(result, modm_m, &point, zero);
-
-   if(!CT::is_equal(result, identity_element, 32).as_bool()) {
-      return false;
-   }
-
-   return true;
+   return signature_check(pkcopy, modm_m, identity_element, zero);
 }
 
 Ed25519_PublicKey::Ed25519_PublicKey(const uint8_t pub_key[], size_t pub_len) {
@@ -138,7 +127,7 @@ std::unique_ptr<Public_Key> Ed25519_PrivateKey::public_key() const {
 }
 
 secure_vector<uint8_t> Ed25519_PrivateKey::private_key_bits() const {
-   secure_vector<uint8_t> bits(&m_private[0], &m_private[32]);
+   const secure_vector<uint8_t> bits(m_private.data(), &m_private[32]);
    return DER_Encoder().encode(bits, ASN1_Type::OctetString).get_contents();
 }
 
@@ -159,6 +148,7 @@ class Ed25519_Pure_Verify_Operation final : public PK_Ops::Verification {
 
       bool is_valid_signature(std::span<const uint8_t> sig) override {
          if(sig.size() != 64) {
+            m_msg.clear();
             return false;
          }
 
@@ -178,12 +168,10 @@ class Ed25519_Pure_Verify_Operation final : public PK_Ops::Verification {
 /**
 * Ed25519 verifying operation with pre-hash
 */
-class Ed25519_Hashed_Verify_Operation final : public PK_Ops::Verification {
+class Ed25519_Hashed_Verify_Operation final : public PK_Ops::Verification_with_Hash {
    public:
       Ed25519_Hashed_Verify_Operation(const Ed25519_PublicKey& key, std::string_view hash, bool rfc8032) :
-            m_key(key.get_public_key()) {
-         m_hash = HashFunction::create_or_throw(hash);
-
+            PK_Ops::Verification_with_Hash(hash), m_key(key.get_public_key()) {
          if(rfc8032) {
             m_domain_sep = {0x53, 0x69, 0x67, 0x45, 0x64, 0x32, 0x35, 0x35, 0x31, 0x39, 0x20, 0x6E,
                             0x6F, 0x20, 0x45, 0x64, 0x32, 0x35, 0x35, 0x31, 0x39, 0x20, 0x63, 0x6F,
@@ -191,24 +179,17 @@ class Ed25519_Hashed_Verify_Operation final : public PK_Ops::Verification {
          }
       }
 
-      void update(std::span<const uint8_t> msg) override { m_hash->update(msg); }
-
-      bool is_valid_signature(std::span<const uint8_t> sig) override {
+      bool verify(std::span<const uint8_t> ph, std::span<const uint8_t> sig) override {
          if(sig.size() != 64) {
             return false;
          }
-         std::vector<uint8_t> msg_hash(m_hash->output_length());
-         m_hash->final(msg_hash.data());
 
          BOTAN_ASSERT_EQUAL(m_key.size(), 32, "Expected size");
          return ed25519_verify(
-            msg_hash.data(), msg_hash.size(), sig.data(), m_key.data(), m_domain_sep.data(), m_domain_sep.size());
+            ph.data(), ph.size(), sig.data(), m_key.data(), m_domain_sep.data(), m_domain_sep.size());
       }
 
-      std::string hash_function() const override { return m_hash->name(); }
-
    private:
-      std::unique_ptr<HashFunction> m_hash;
       std::vector<uint8_t> m_key;
       std::vector<uint8_t> m_domain_sep;
 };
@@ -247,12 +228,10 @@ AlgorithmIdentifier Ed25519_Pure_Sign_Operation::algorithm_identifier() const {
 /**
 * Ed25519 signing operation with pre-hash
 */
-class Ed25519_Hashed_Sign_Operation final : public PK_Ops::Signature {
+class Ed25519_Hashed_Sign_Operation final : public PK_Ops::Signature_with_Hash {
    public:
       Ed25519_Hashed_Sign_Operation(const Ed25519_PrivateKey& key, std::string_view hash, bool rfc8032) :
-            m_key(key.raw_private_key_bits()) {
-         m_hash = HashFunction::create_or_throw(hash);
-
+            PK_Ops::Signature_with_Hash(hash), m_key(key.raw_private_key_bits()) {
          if(rfc8032) {
             m_domain_sep = std::vector<uint8_t>{0x53, 0x69, 0x67, 0x45, 0x64, 0x32, 0x35, 0x35, 0x31, 0x39, 0x20, 0x6E,
                                                 0x6F, 0x20, 0x45, 0x64, 0x32, 0x35, 0x35, 0x31, 0x39, 0x20, 0x63, 0x6F,
@@ -262,21 +241,13 @@ class Ed25519_Hashed_Sign_Operation final : public PK_Ops::Signature {
 
       size_t signature_length() const override { return 64; }
 
-      void update(std::span<const uint8_t> msg) override { m_hash->update(msg); }
-
-      std::vector<uint8_t> sign(RandomNumberGenerator& /*rng*/) override {
+      std::vector<uint8_t> raw_sign(std::span<const uint8_t> ph, RandomNumberGenerator& /*rng*/) override {
          std::vector<uint8_t> sig(64);
-         std::vector<uint8_t> msg_hash(m_hash->output_length());
-         m_hash->final(msg_hash.data());
-         ed25519_sign(
-            sig.data(), msg_hash.data(), msg_hash.size(), m_key.data(), m_domain_sep.data(), m_domain_sep.size());
+         ed25519_sign(sig.data(), ph.data(), ph.size(), m_key.data(), m_domain_sep.data(), m_domain_sep.size());
          return sig;
       }
 
-      std::string hash_function() const override { return m_hash->name(); }
-
    private:
-      std::unique_ptr<HashFunction> m_hash;
       secure_vector<uint8_t> m_key;
       std::vector<uint8_t> m_domain_sep;
 };

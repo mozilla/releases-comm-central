@@ -8,10 +8,11 @@
 
 #include <botan/x509path.h>
 
+#include <botan/assert.h>
 #include <botan/ocsp.h>
 #include <botan/pk_keys.h>
 #include <botan/x509_ext.h>
-#include <botan/internal/stl_util.h>
+#include <botan/internal/concat_util.h>
 #include <algorithm>
 #include <chrono>
 #include <set>
@@ -22,10 +23,6 @@
 #if defined(BOTAN_HAS_ONLINE_REVOCATION_CHECKS)
    #include <botan/internal/http_util.h>
    #include <future>
-#endif
-
-#if defined(BOTAN_HAS_ECC_KEY)
-   #include <botan/ecc_key.h>
 #endif
 
 namespace Botan {
@@ -42,9 +39,9 @@ CertificatePathStatusCodes PKIX::check_chain(const std::vector<X509_Certificate>
       throw Invalid_Argument("PKIX::check_chain cert_path empty");
    }
 
-   const bool self_signed_ee_cert = (cert_path.size() == 1);
+   const bool is_end_entity_trust_anchor = (cert_path.size() == 1);
 
-   X509_Time validation_time(ref_time);
+   const X509_Time validation_time(ref_time);
 
    CertificatePathStatusCodes cert_status(cert_path.size());
 
@@ -52,10 +49,18 @@ CertificatePathStatusCodes PKIX::check_chain(const std::vector<X509_Certificate>
    for(size_t i = 0; i != cert_path.size(); ++i) {
       std::set<Certificate_Status_Code>& status = cert_status.at(i);
 
-      const bool at_self_signed_root = (i == cert_path.size() - 1);
+      const bool at_trust_anchor = (i == cert_path.size() - 1);
 
       const X509_Certificate& subject = cert_path[i];
-      const X509_Certificate& issuer = cert_path[at_self_signed_root ? (i) : (i + 1)];
+
+      // If using intermediate CAs as trust anchors, the signature of the trust
+      // anchor cannot be verified since the issuer is not part of the
+      // certificate chain
+      if(!restrictions.require_self_signed_trust_anchors() && at_trust_anchor && !subject.is_self_signed()) {
+         continue;
+      }
+
+      const X509_Certificate& issuer = cert_path[at_trust_anchor ? (i) : (i + 1)];
 
       // Check the signature algorithm is known
       if(!subject.signature_algorithm().oid().registered_oid()) {
@@ -84,7 +89,7 @@ CertificatePathStatusCodes PKIX::check_chain(const std::vector<X509_Certificate>
                const auto& trusted_hashes = restrictions.trusted_hashes();
 
                // Ignore untrusted hashes on self-signed roots
-               if(!trusted_hashes.empty() && !at_self_signed_root) {
+               if(!trusted_hashes.empty() && !at_trust_anchor) {
                   if(!trusted_hashes.contains(hash_used_for_signature)) {
                      status.insert(Certificate_Status_Code::UNTRUSTED_HASH);
                   }
@@ -136,17 +141,25 @@ CertificatePathStatusCodes PKIX::check_chain(const std::vector<X509_Certificate>
    for(size_t i = 0; i != cert_path.size(); ++i) {
       std::set<Certificate_Status_Code>& status = cert_status.at(i);
 
-      const bool at_self_signed_root = (i == cert_path.size() - 1);
+      const bool at_trust_anchor = (i == cert_path.size() - 1);
 
       const X509_Certificate& subject = cert_path[i];
-      const X509_Certificate& issuer = cert_path[at_self_signed_root ? (i) : (i + 1)];
+      const auto issuer = [&]() -> std::optional<X509_Certificate> {
+         if(!at_trust_anchor) {
+            return cert_path[i + 1];
+         } else if(subject.is_self_signed()) {
+            return cert_path[i];
+         } else {
+            return {};  // Non self-signed trust anchors have no checkable issuers.
+         }
+      }();
 
-      if(at_self_signed_root && (issuer.is_self_signed() == false)) {
+      if(restrictions.require_self_signed_trust_anchors() && !issuer.has_value()) {
          status.insert(Certificate_Status_Code::CHAIN_LACKS_TRUST_ROOT);
       }
 
       // This should never happen; it indicates a bug in path building
-      if(subject.issuer_dn() != issuer.subject_dn()) {
+      if(issuer.has_value() && subject.issuer_dn() != issuer->subject_dn()) {
          status.insert(Certificate_Status_Code::CHAIN_NAME_MISMATCH);
       }
 
@@ -165,28 +178,28 @@ CertificatePathStatusCodes PKIX::check_chain(const std::vector<X509_Certificate>
          }
       }
 
-      // Only warn, if trusted root is not in time range if configured this way
-      const bool is_trusted_root_and_time_ignored =
-         restrictions.ignore_trusted_root_time_range() && at_self_signed_root;
+      // If so configured, allow trust anchors outside the validity period with
+      // a warning rather than a hard error
+      const bool enforce_validity_period = !at_trust_anchor || !restrictions.ignore_trusted_root_time_range();
       // Check all certs for valid time range
       if(validation_time < subject.not_before()) {
-         if(is_trusted_root_and_time_ignored) {
-            status.insert(Certificate_Status_Code::TRUSTED_CERT_NOT_YET_VALID);  // only warn
-         } else {
+         if(enforce_validity_period) {
             status.insert(Certificate_Status_Code::CERT_NOT_YET_VALID);
+         } else {
+            status.insert(Certificate_Status_Code::TRUSTED_CERT_NOT_YET_VALID);  // only warn
          }
       }
 
       if(validation_time > subject.not_after()) {
-         if(is_trusted_root_and_time_ignored) {
-            status.insert(Certificate_Status_Code::TRUSTED_CERT_HAS_EXPIRED);  // only warn
-         } else {
+         if(enforce_validity_period) {
             status.insert(Certificate_Status_Code::CERT_HAS_EXPIRED);
+         } else {
+            status.insert(Certificate_Status_Code::TRUSTED_CERT_HAS_EXPIRED);  // only warn
          }
       }
 
       // Check issuer constraints
-      if(!issuer.is_CA_cert() && !self_signed_ee_cert) {
+      if(issuer.has_value() && !issuer->is_CA_cert() && !is_end_entity_trust_anchor) {
          status.insert(Certificate_Status_Code::CA_CERT_NOT_FOR_CERT_ISSUER);
       }
 
@@ -203,9 +216,11 @@ CertificatePathStatusCodes PKIX::check_chain(const std::vector<X509_Certificate>
       if(subject.x509_version() < 3 && !extensions_vec.empty()) {
          status.insert(Certificate_Status_Code::EXT_IN_V1_V2_CERT);
       }
-      for(auto& extension : extensions_vec) {
+
+      for(const auto& extension : extensions_vec) {
          extension.first->validate(subject, issuer, cert_path, cert_status, i);
       }
+
       if(extensions_vec.size() != extensions.get_extension_oids().size()) {
          status.insert(Certificate_Status_Code::DUPLICATE_CERT_EXTENSION);
       }
@@ -223,7 +238,7 @@ CertificatePathStatusCodes PKIX::check_chain(const std::vector<X509_Certificate>
       */
       if(subject.subject_dn() != subject.issuer_dn()) {
          if(max_path_length > 0) {
-            --max_path_length;
+            max_path_length -= 1;
          } else {
             status.insert(Certificate_Status_Code::CERT_CHAIN_TOO_LONG);
          }
@@ -233,8 +248,8 @@ CertificatePathStatusCodes PKIX::check_chain(const std::vector<X509_Certificate>
       * If pathLenConstraint is present in the certificate and is less than max_path_length,
       * set max_path_length to the value of pathLenConstraint.
       */
-      if(subject.path_limit() != Cert_Extension::NO_CERT_PATH_LIMIT && subject.path_limit() < max_path_length) {
-         max_path_length = subject.path_limit();
+      if(auto path_len_constraint = subject.path_length_constraint()) {
+         max_path_length = std::min(max_path_length, *path_len_constraint);
       }
    }
 
@@ -302,6 +317,41 @@ Certificate_Status_Code verify_ocsp_signing_cert(const X509_Certificate& signing
    return validation_result.result();
 }
 
+std::set<Certificate_Status_Code> evaluate_ocsp_response(const OCSP::Response& ocsp_response,
+                                                         const X509_Certificate& subject,
+                                                         const X509_Certificate& ca,
+                                                         const std::vector<X509_Certificate>& cert_path,
+                                                         const std::vector<Certificate_Store*>& certstores,
+                                                         std::chrono::system_clock::time_point ref_time,
+                                                         const Path_Validation_Restrictions& restrictions) {
+   // Handle softfail conditions (eg. OCSP unavailable)
+   if(auto dummy_status = ocsp_response.dummy_status()) {
+      return {dummy_status.value()};
+   }
+
+   // Find the certificate that signed this OCSP response
+   auto signing_cert = ocsp_response.find_signing_certificate(ca, restrictions.trusted_ocsp_responders());
+   if(!signing_cert) {
+      return {Certificate_Status_Code::OCSP_ISSUER_NOT_FOUND};
+   }
+
+   // Verify the signing certificate is trusted
+   auto cert_status = verify_ocsp_signing_cert(
+      signing_cert.value(), ca, concat(ocsp_response.certificates(), cert_path), certstores, ref_time, restrictions);
+   if(cert_status > Certificate_Status_Code::FIRST_ERROR_STATUS) {
+      return {cert_status, Certificate_Status_Code::OCSP_ISSUER_NOT_TRUSTED};
+   }
+
+   // Verify the cryptographic signature on the OCSP response
+   auto sig_status = ocsp_response.verify_signature(signing_cert.value());
+   if(sig_status != Certificate_Status_Code::OCSP_SIGNATURE_OK) {
+      return {sig_status};
+   }
+
+   // All checks passed, return the certificate's revocation status
+   return {ocsp_response.status_for(ca, subject, ref_time, restrictions.max_ocsp_age())};
+}
+
 }  // namespace
 
 CertificatePathStatusCodes PKIX::check_ocsp(const std::vector<X509_Certificate>& cert_path,
@@ -316,38 +366,16 @@ CertificatePathStatusCodes PKIX::check_ocsp(const std::vector<X509_Certificate>&
    CertificatePathStatusCodes cert_status(cert_path.size() - 1);
 
    for(size_t i = 0; i != cert_path.size() - 1; ++i) {
-      std::set<Certificate_Status_Code>& status = cert_status.at(i);
-
       const X509_Certificate& subject = cert_path.at(i);
       const X509_Certificate& ca = cert_path.at(i + 1);
 
-      if(i < ocsp_responses.size() && (ocsp_responses.at(i) != std::nullopt) &&
-         (ocsp_responses.at(i)->status() == OCSP::Response_Status_Code::Successful)) {
+      if(i < ocsp_responses.size() && ocsp_responses.at(i).has_value() &&
+         ocsp_responses.at(i)->status() == OCSP::Response_Status_Code::Successful) {
          try {
-            const auto& ocsp_response = ocsp_responses.at(i);
-
-            if(auto dummy_status = ocsp_response->dummy_status()) {
-               // handle softfail conditions
-               status.insert(dummy_status.value());
-            } else if(auto signing_cert =
-                         ocsp_response->find_signing_certificate(ca, restrictions.trusted_ocsp_responders());
-                      !signing_cert) {
-               status.insert(Certificate_Status_Code::OCSP_ISSUER_NOT_FOUND);
-            } else if(auto ocsp_signing_cert_status =
-                         verify_ocsp_signing_cert(signing_cert.value(),
-                                                  ca,
-                                                  concat(ocsp_response->certificates(), cert_path),
-                                                  certstores,
-                                                  ref_time,
-                                                  restrictions);
-                      ocsp_signing_cert_status > Certificate_Status_Code::FIRST_ERROR_STATUS) {
-               status.insert(ocsp_signing_cert_status);
-               status.insert(Certificate_Status_Code::OCSP_ISSUER_NOT_TRUSTED);
-            } else {
-               status.insert(ocsp_response->status_for(ca, subject, ref_time, restrictions.max_ocsp_age()));
-            }
+            cert_status.at(i) = evaluate_ocsp_response(
+               ocsp_responses.at(i).value(), subject, ca, cert_path, certstores, ref_time, restrictions);
          } catch(Exception&) {
-            status.insert(Certificate_Status_Code::OCSP_RESPONSE_INVALID);
+            cert_status.at(i).insert(Certificate_Status_Code::OCSP_RESPONSE_INVALID);
          }
       }
    }
@@ -409,7 +437,7 @@ CertificatePathStatusCodes PKIX::check_crl(const std::vector<X509_Certificate>& 
          }
 
          for(const auto& extension : crls[i]->extensions().extensions()) {
-            // XXX this is wrong - the OID might be defined but the extention not full parsed
+            // XXX this is wrong - the OID might be defined but the extension not full parsed
             // for example see #1652
 
             // is the extension critical and unknown?
@@ -444,7 +472,7 @@ CertificatePathStatusCodes PKIX::check_crl(const std::vector<X509_Certificate>& 
    std::vector<std::optional<X509_CRL>> crls(cert_path.size());
 
    for(size_t i = 0; i != cert_path.size(); ++i) {
-      for(auto certstore : certstores) {
+      for(auto* certstore : certstores) {
          crls[i] = certstore->find_crl_for(cert_path[i]);
          if(crls[i]) {
             break;
@@ -487,7 +515,7 @@ CertificatePathStatusCodes PKIX::check_ocsp_online(const std::vector<X509_Certif
          }));
       } else {
          ocsp_response_futures.emplace_back(std::async(std::launch::async, [&]() -> std::optional<OCSP::Response> {
-            OCSP::Request req(issuer, BigInt::from_bytes(subject.serial_number()));
+            const OCSP::Request req(issuer, BigInt::from_bytes(subject.serial_number()));
 
             HTTP::Response http;
             try {
@@ -536,7 +564,7 @@ CertificatePathStatusCodes PKIX::check_crl_online(const std::vector<X509_Certifi
 
    for(size_t i = 0; i != cert_path.size(); ++i) {
       const std::optional<X509_Certificate>& cert = cert_path.at(i);
-      for(auto certstore : certstores) {
+      for(auto* certstore : certstores) {
          crls[i] = certstore->find_crl_for(*cert);
          if(crls[i].has_value()) {
             break;
@@ -583,7 +611,7 @@ CertificatePathStatusCodes PKIX::check_crl_online(const std::vector<X509_Certifi
 
    auto crl_status = PKIX::check_crl(cert_path, crls, ref_time);
 
-   if(crl_store) {
+   if(crl_store != nullptr) {
       for(size_t i = 0; i != crl_status.size(); ++i) {
          if(crl_status[i].contains(Certificate_Status_Code::VALID_CRL_CHECKED)) {
             // better be non-null, we supposedly validated it
@@ -602,70 +630,26 @@ Certificate_Status_Code PKIX::build_certificate_path(std::vector<X509_Certificat
                                                      const std::vector<Certificate_Store*>& trusted_certstores,
                                                      const X509_Certificate& end_entity,
                                                      const std::vector<X509_Certificate>& end_entity_extra) {
-   if(end_entity.is_self_signed()) {
-      return Certificate_Status_Code::CANNOT_ESTABLISH_TRUST;
+   std::vector<std::vector<X509_Certificate>> all_cert_paths;
+   const auto build_all_paths_res =
+      build_all_certificate_paths(all_cert_paths, trusted_certstores, end_entity, end_entity_extra);
+
+   if(build_all_paths_res != Certificate_Status_Code::OK) {
+      return build_all_paths_res;
    }
+   BOTAN_ASSERT_NOMSG(!all_cert_paths.empty());
 
-   /*
-   * This is an inelegant but functional way of preventing path loops
-   * (where C1 -> C2 -> C3 -> C1). We store a set of all the certificate
-   * fingerprints in the path. If there is a duplicate, we error out.
-   * TODO: save fingerprints in result struct? Maybe useful for blacklists, etc.
-   */
-   std::set<std::string> certs_seen;
-
-   cert_path.push_back(end_entity);
-   certs_seen.insert(end_entity.fingerprint("SHA-256"));
-
-   Certificate_Store_In_Memory ee_extras;
-   for(const auto& cert : end_entity_extra) {
-      ee_extras.add_certificate(cert);
+   // Paths ending in self-signed certificates are preferred.
+   const auto first_with_self_signed_anchor = std::ranges::find_if(all_cert_paths, [&](const auto& left_path) {
+      BOTAN_ASSERT_NOMSG(!left_path.empty());
+      return left_path.back().is_self_signed();
+   });
+   if(first_with_self_signed_anchor != all_cert_paths.end()) {
+      cert_path.insert(cert_path.end(), first_with_self_signed_anchor->begin(), first_with_self_signed_anchor->end());
+   } else {
+      cert_path.insert(cert_path.end(), all_cert_paths.front().begin(), all_cert_paths.front().end());
    }
-
-   // iterate until we reach a root or cannot find the issuer
-   for(;;) {
-      const X509_Certificate& last = cert_path.back();
-      const X509_DN issuer_dn = last.issuer_dn();
-      const std::vector<uint8_t> auth_key_id = last.authority_key_id();
-
-      std::optional<X509_Certificate> issuer;
-      bool trusted_issuer = false;
-
-      for(Certificate_Store* store : trusted_certstores) {
-         issuer = store->find_cert(issuer_dn, auth_key_id);
-         if(issuer) {
-            trusted_issuer = true;
-            break;
-         }
-      }
-
-      if(!issuer) {
-         // fall back to searching supplemental certs
-         issuer = ee_extras.find_cert(issuer_dn, auth_key_id);
-      }
-
-      if(!issuer) {
-         return Certificate_Status_Code::CERT_ISSUER_NOT_FOUND;
-      }
-
-      const std::string fprint = issuer->fingerprint("SHA-256");
-
-      if(certs_seen.contains(fprint)) {
-         // we already saw this certificate -> loop
-         return Certificate_Status_Code::CERT_CHAIN_LOOP;
-      }
-
-      certs_seen.insert(fprint);
-      cert_path.push_back(*issuer);
-
-      if(issuer->is_self_signed()) {
-         if(trusted_issuer) {
-            return Certificate_Status_Code::OK;
-         } else {
-            return Certificate_Status_Code::CANNOT_ESTABLISH_TRUST;
-         }
-      }
-   }
+   return Certificate_Status_Code::OK;
 }
 
 /**
@@ -695,15 +679,19 @@ using cert_maybe_trusted = std::pair<std::optional<X509_Certificate>, bool>;
  */
 Certificate_Status_Code PKIX::build_all_certificate_paths(std::vector<std::vector<X509_Certificate>>& cert_paths_out,
                                                           const std::vector<Certificate_Store*>& trusted_certstores,
-                                                          const std::optional<X509_Certificate>& end_entity,
+                                                          const X509_Certificate& end_entity,
                                                           const std::vector<X509_Certificate>& end_entity_extra) {
    if(!cert_paths_out.empty()) {
       throw Invalid_Argument("PKIX::build_all_certificate_paths: cert_paths_out must be empty");
    }
-
-   if(end_entity->is_self_signed()) {
-      return Certificate_Status_Code::CANNOT_ESTABLISH_TRUST;
+   if(std::ranges::any_of(trusted_certstores, [](auto* ptr) { return ptr == nullptr; })) {
+      throw Invalid_Argument("certificate store list must not contain nullptr");
    }
+
+   auto cert_in_any_trusted_store = [&](const X509_Certificate& cert) {
+      return std::ranges::any_of(trusted_certstores,
+                                 [&](const Certificate_Store* store) { return store->certificate_known(cert); });
+   };
 
    /*
     * Pile up error messages
@@ -712,7 +700,9 @@ Certificate_Status_Code PKIX::build_all_certificate_paths(std::vector<std::vecto
 
    Certificate_Store_In_Memory ee_extras;
    for(const auto& cert : end_entity_extra) {
-      ee_extras.add_certificate(cert);
+      if(!cert_in_any_trusted_store(cert)) {
+         ee_extras.add_certificate(cert);
+      }
    }
 
    /*
@@ -727,15 +717,14 @@ Certificate_Status_Code PKIX::build_all_certificate_paths(std::vector<std::vecto
    // it is copied into cert_paths_out when we encounter a trusted root
    std::vector<X509_Certificate> path_so_far;
 
-   // todo can we assume that the end certificate is not trusted?
-   std::vector<cert_maybe_trusted> stack = {{end_entity, false}};
+   std::vector<cert_maybe_trusted> stack = {{end_entity, cert_in_any_trusted_store(end_entity)}};
 
    while(!stack.empty()) {
       std::optional<X509_Certificate> last = stack.back().first;
-      // found a deletion marker that guides the DFS, backtracing
+      // found a deletion marker that guides the DFS, backtracking
       if(last == std::nullopt) {
          stack.pop_back();
-         std::string fprint = path_so_far.back().fingerprint("SHA-256");
+         const std::string fprint = path_so_far.back().fingerprint("SHA-256");
          certs_seen.erase(fprint);
          path_so_far.pop_back();
       }
@@ -752,20 +741,16 @@ Certificate_Status_Code PKIX::build_all_certificate_paths(std::vector<std::vecto
             continue;
          }
 
-         // the current path ends here
-         if(last->is_self_signed()) {
-            // found a trust anchor
-            if(trusted) {
-               cert_paths_out.push_back(path_so_far);
-               cert_paths_out.back().push_back(*last);
-
-               continue;
-            }
-            // found an untrustworthy root
-            else {
-               stats.push_back(Certificate_Status_Code::CANNOT_ESTABLISH_TRUST);
-               continue;
-            }
+         // A valid path has been discovered. It includes endpoints that may end
+         // with either a self-signed or a non-self-signed certificate. For
+         // certificates that are not self-signed, additional paths could
+         // potentially extend from the current one.
+         if(trusted) {
+            cert_paths_out.push_back(path_so_far);
+            cert_paths_out.back().push_back(*last);
+         } else if(last->is_self_signed()) {
+            stats.push_back(Certificate_Status_Code::CANNOT_ESTABLISH_TRUST);
+            continue;
          }
 
          const X509_DN issuer_dn = last->issuer_dn();
@@ -773,13 +758,13 @@ Certificate_Status_Code PKIX::build_all_certificate_paths(std::vector<std::vecto
 
          // search for trusted issuers
          std::vector<X509_Certificate> trusted_issuers;
-         for(Certificate_Store* store : trusted_certstores) {
+         for(const Certificate_Store* store : trusted_certstores) {
             auto new_issuers = store->find_all_certs(issuer_dn, auth_key_id);
             trusted_issuers.insert(trusted_issuers.end(), new_issuers.begin(), new_issuers.end());
          }
 
          // search the supplemental certs
-         std::vector<X509_Certificate> misc_issuers = ee_extras.find_all_certs(issuer_dn, auth_key_id);
+         const std::vector<X509_Certificate> misc_issuers = ee_extras.find_all_certs(issuer_dn, auth_key_id);
 
          // if we could not find any issuers, the current path ends here
          if(trusted_issuers.empty() && misc_issuers.empty()) {
@@ -791,7 +776,7 @@ Certificate_Status_Code PKIX::build_all_certificate_paths(std::vector<std::vecto
          path_so_far.push_back(*last);
          certs_seen.emplace(fprint);
 
-         // push a deletion marker on the stack for backtracing later
+         // push a deletion marker on the stack for backtracking later
          stack.push_back({std::optional<X509_Certificate>(), false});
 
          for(const auto& trusted_cert : trusted_issuers) {
@@ -818,18 +803,19 @@ Certificate_Status_Code PKIX::build_all_certificate_paths(std::vector<std::vecto
 }
 
 void PKIX::merge_revocation_status(CertificatePathStatusCodes& chain_status,
-                                   const CertificatePathStatusCodes& crl,
-                                   const CertificatePathStatusCodes& ocsp,
+                                   const CertificatePathStatusCodes& crl_status,
+                                   const CertificatePathStatusCodes& ocsp_status,
                                    const Path_Validation_Restrictions& restrictions) {
    if(chain_status.empty()) {
       throw Invalid_Argument("PKIX::merge_revocation_status chain_status was empty");
    }
 
    for(size_t i = 0; i != chain_status.size() - 1; ++i) {
-      bool had_crl = false, had_ocsp = false;
+      bool had_crl = false;
+      bool had_ocsp = false;
 
-      if(i < crl.size() && !crl[i].empty()) {
-         for(auto&& code : crl[i]) {
+      if(i < crl_status.size() && !crl_status[i].empty()) {
+         for(auto&& code : crl_status[i]) {
             if(code == Certificate_Status_Code::VALID_CRL_CHECKED) {
                had_crl = true;
             }
@@ -837,8 +823,8 @@ void PKIX::merge_revocation_status(CertificatePathStatusCodes& chain_status,
          }
       }
 
-      if(i < ocsp.size() && !ocsp[i].empty()) {
-         for(auto&& code : ocsp[i]) {
+      if(i < ocsp_status.size() && !ocsp_status[i].empty()) {
+         for(auto&& code : ocsp_status[i]) {
             // NO_REVOCATION_URL and OCSP_SERVER_NOT_AVAILABLE are softfail
             if(code == Certificate_Status_Code::OCSP_RESPONSE_GOOD ||
                code == Certificate_Status_Code::OCSP_NO_REVOCATION_URL ||
@@ -891,14 +877,14 @@ Path_Validation_Result x509_path_validate(const std::vector<X509_Certificate>& e
       throw Invalid_Argument("x509_path_validate called with no subjects");
    }
 
-   X509_Certificate end_entity = end_certs[0];
+   const X509_Certificate& end_entity = end_certs[0];
    std::vector<X509_Certificate> end_entity_extra;
    for(size_t i = 1; i < end_certs.size(); ++i) {
       end_entity_extra.push_back(end_certs[i]);
    }
 
    std::vector<std::vector<X509_Certificate>> cert_paths;
-   Certificate_Status_Code path_building_result =
+   const Certificate_Status_Code path_building_result =
       PKIX::build_all_certificate_paths(cert_paths, trusted_roots, end_entity, end_entity_extra);
 
    // If we cannot successfully build a chain to a trusted self-signed root, stop now
@@ -906,12 +892,24 @@ Path_Validation_Result x509_path_validate(const std::vector<X509_Certificate>& e
       return Path_Validation_Result(path_building_result);
    }
 
+   // If we require trust anchors to be self-signed we need to filter all paths
+   // not ending in a self-signed certificate.
+   if(restrictions.require_self_signed_trust_anchors()) {
+      auto has_non_self_signed_trust_anchor = [](const auto& cert_path) {
+         return cert_path.empty() || !cert_path.back().is_self_signed();
+      };
+      std::erase_if(cert_paths, has_non_self_signed_trust_anchor);
+   }
+   if(cert_paths.empty()) {
+      return Path_Validation_Result(Certificate_Status_Code::CANNOT_ESTABLISH_TRUST);
+   }
+
    std::vector<Path_Validation_Result> error_results;
    // Try validating all the potentially valid paths and return the first one to validate properly
    for(auto cert_path : cert_paths) {
       CertificatePathStatusCodes status = PKIX::check_chain(cert_path, ref_time, hostname, usage, restrictions);
 
-      CertificatePathStatusCodes crl_status = PKIX::check_crl(cert_path, trusted_roots, ref_time);
+      const CertificatePathStatusCodes crl_status = PKIX::check_crl(cert_path, trusted_roots, ref_time);
 
       CertificatePathStatusCodes ocsp_status;
 
@@ -989,13 +987,15 @@ Path_Validation_Restrictions::Path_Validation_Restrictions(bool require_rev,
                                                            bool ocsp_intermediates,
                                                            std::chrono::seconds max_ocsp_age,
                                                            std::unique_ptr<Certificate_Store> trusted_ocsp_responders,
-                                                           bool ignore_trusted_root_time_range) :
+                                                           bool ignore_trusted_root_time_range,
+                                                           bool require_self_signed_trust_anchors) :
       m_require_revocation_information(require_rev),
       m_ocsp_all_intermediates(ocsp_intermediates),
       m_minimum_key_strength(key_strength),
       m_max_ocsp_age(max_ocsp_age),
       m_trusted_ocsp_responders(std::move(trusted_ocsp_responders)),
-      m_ignore_trusted_root_time_range(ignore_trusted_root_time_range) {
+      m_ignore_trusted_root_time_range(ignore_trusted_root_time_range),
+      m_require_self_signed_trust_anchors(require_self_signed_trust_anchors) {
    if(key_strength <= 80) {
       m_trusted_hashes.insert("SHA-1");
    }

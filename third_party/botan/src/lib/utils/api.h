@@ -9,6 +9,8 @@
 
 #include <botan/build.h>
 
+// NOLINTBEGIN(*-macro-usage)
+
 /**
 * Used to annotate API exports which are public and supported.
 * These APIs will not be broken/removed unless strictly required for
@@ -37,6 +39,18 @@
 * may be removed or changed without notice.
 */
 #define BOTAN_TEST_API BOTAN_DLL
+
+/**
+* This is used to mark constructors which are currently not `explicit`
+* but which in a future major release be modified as such.
+*
+* TODO(Botan4) remove this macro and replace with `explicit`
+*/
+#if defined(__clang_analyzer__) || defined(BOTAN_DISABLE_DEPRECATED_FEATURES)
+   #define BOTAN_FUTURE_EXPLICIT explicit
+#else
+   #define BOTAN_FUTURE_EXPLICIT
+#endif
 
 /**
 * Used to annotate API exports which are exported but only for the
@@ -107,5 +121,7 @@
    #define BOTAN_DIAGNOSTIC_IGNORE_INHERITED_VIA_DOMINANCE
    #define BOTAN_DIAGNOSTIC_POP
 #endif
+
+// NOLINTEND(*-macro-usage)
 
 #endif

@@ -9,7 +9,8 @@
 
 #if defined(BOTAN_HAS_AEAD_MODES)
    #include <botan/aead.h>
-   #include <botan/mem_ops.h>
+   #include <botan/exceptn.h>
+   #include <botan/rng.h>
 #endif
 
 namespace Botan_Tests {
@@ -35,42 +36,57 @@ class AEAD_Tests final : public Text_Based_Test {
 
          auto enc = Botan::AEAD_Mode::create(algo, Botan::Cipher_Dir::Encryption);
 
-         result.test_eq("AEAD encrypt output_length is correct", enc->output_length(input.size()), expected.size());
+         result.test_sz_eq("AEAD encrypt output_length is correct", enc->output_length(input.size()), expected.size());
 
-         result.confirm("AEAD name is not empty", !enc->name().empty());
-         result.confirm("AEAD default nonce size is accepted", enc->valid_nonce_length(enc->default_nonce_length()));
+         result.test_is_true("AEAD name is not empty", !enc->name().empty());
+         result.test_is_true("AEAD default nonce size is accepted",
+                             enc->valid_nonce_length(enc->default_nonce_length()));
 
-         Botan::secure_vector<uint8_t> garbage = rng.random_vec(enc->update_granularity());
+         auto get_garbage = [&] { return rng.random_vec(enc->update_granularity()); };
 
-         if(is_siv == false) {
-            result.test_throws("Unkeyed object throws for encrypt", [&]() { enc->update(garbage); });
+         if(!is_siv) {
+            result.test_throws<Botan::Invalid_State>("Unkeyed object throws for encrypt", [&]() {
+               auto garbage = get_garbage();
+               enc->update(garbage);
+            });
          }
 
-         result.test_throws("Unkeyed object throws for encrypt", [&]() { enc->finish(garbage); });
+         result.test_throws<Botan::Invalid_State>("Unkeyed object throws for encrypt", [&]() {
+            auto garbage = get_garbage();
+            enc->finish(garbage);
+         });
 
          if(enc->associated_data_requires_key()) {
-            result.test_throws("Unkeyed object throws for set AD",
-                               [&]() { enc->set_associated_data(ad.data(), ad.size()); });
+            result.test_throws<Botan::Invalid_State>("Unkeyed object throws for set AD",
+                                                     [&]() { enc->set_associated_data(ad.data(), ad.size()); });
          }
 
-         result.test_eq("key is not set", enc->has_keying_material(), false);
+         result.test_is_false("key is not set", enc->has_keying_material());
 
          // Ensure that test resets AD and message state
-         result.test_eq("key is not set", enc->has_keying_material(), false);
+         result.test_is_false("key is not set", enc->has_keying_material());
          enc->set_key(key);
-         result.test_eq("key is set", enc->has_keying_material(), true);
+         result.test_is_true("key is set", enc->has_keying_material());
 
-         if(is_siv == false) {
-            result.test_throws("Cannot process data until nonce is set (enc)", [&]() { enc->update(garbage); });
-            result.test_throws("Cannot process data until nonce is set (enc)", [&]() { enc->finish(garbage); });
+         if(!is_siv) {
+            result.test_throws<Botan::Invalid_State>("Cannot process data until nonce is set (enc)", [&]() {
+               auto garbage = get_garbage();
+               enc->update(garbage);
+            });
+            result.test_throws<Botan::Invalid_State>("Cannot process data until nonce is set (enc)", [&]() {
+               auto garbage = get_garbage();
+               enc->finish(garbage);
+            });
          }
 
          enc->set_associated_data(mutate_vec(ad, rng));
          enc->start(mutate_vec(nonce, rng));
+
+         auto garbage = get_garbage();
          enc->update(garbage);
 
          // reset message specific state
-         enc->reset();
+         enc->reset();  // NOLINT(*-ambiguous-smartptr-reset-call)
 
          /*
          Now try to set the AD *after* setting the nonce
@@ -82,7 +98,7 @@ class AEAD_Tests final : public Text_Based_Test {
             enc->set_associated_data(ad);
          } catch(Botan::Invalid_State&) {
             // ad after setting nonce rejected, in this case we need to reset
-            enc->reset();
+            enc->reset();  // NOLINT(*-ambiguous-smartptr-reset-call)
             enc->set_associated_data(ad);
             enc->start(nonce);
          }
@@ -92,17 +108,17 @@ class AEAD_Tests final : public Text_Based_Test {
          // have to check here first if input is empty if not we can test update() and eventually process()
          if(buf.empty()) {
             enc->finish(buf);
-            result.test_eq("encrypt with empty input", buf, expected);
+            result.test_bin_eq("encrypt with empty input", buf, expected);
          } else {
             // test finish() with full input
             enc->finish(buf);
-            result.test_eq("encrypt full", buf, expected);
+            result.test_bin_eq("encrypt full", buf, expected);
 
             // additionally test update() if possible
             const size_t update_granularity = enc->update_granularity();
             if(input.size() > update_granularity) {
                // reset state first
-               enc->reset();
+               enc->reset();  // NOLINT(*-ambiguous-smartptr-reset-call)
 
                enc->set_associated_data(ad);
                enc->start(nonce);
@@ -128,14 +144,14 @@ class AEAD_Tests final : public Text_Based_Test {
                enc->finish(block);
                ciphertext.insert(ciphertext.end(), block.begin(), block.end());
 
-               result.test_eq("encrypt update", ciphertext, expected);
+               result.test_bin_eq("encrypt update", ciphertext, expected);
             }
 
             // additionally test process() if possible
-            size_t min_final_bytes = enc->minimum_final_size();
+            const size_t min_final_bytes = enc->minimum_final_size();
             if(input.size() > (update_granularity + min_final_bytes)) {
                // again reset state first
-               enc->reset();
+               enc->reset();  // NOLINT(*-ambiguous-smartptr-reset-call)
 
                enc->set_associated_data(ad);
                enc->start(nonce);
@@ -148,33 +164,36 @@ class AEAD_Tests final : public Text_Based_Test {
 
                const size_t bytes_written = enc->process(buf.data(), bytes_to_process);
 
-               result.confirm("Process returns data unless requires_entire_message",
-                              enc->requires_entire_message(),
-                              bytes_written == 0);
+               if(enc->requires_entire_message()) {
+                  result.test_sz_eq("If requires_entire_message then no output is produced", bytes_written, 0);
+               } else {
+                  result.test_sz_gt("If !requires_entire_message then some output is produced", bytes_written, 0);
+               }
 
                if(bytes_written == 0) {
                   // SIV case
                   buf.erase(buf.begin(), buf.begin() + bytes_to_process);
                   enc->finish(buf);
                } else {
-                  result.test_eq("correct number of bytes processed", bytes_written, bytes_to_process);
+                  result.test_sz_eq("correct number of bytes processed", bytes_written, bytes_to_process);
                   enc->finish(buf, bytes_written);
                }
 
-               result.test_eq("encrypt process", buf, expected);
+               result.test_bin_eq("encrypt process", buf, expected);
             }
          }
 
          // Make sure we can set the AD after processing a message
          enc->set_associated_data(ad);
          enc->clear();
-         result.test_eq("key is not set", enc->has_keying_material(), false);
+         result.test_is_false("key is not set", enc->has_keying_material());
 
-         result.test_throws("Unkeyed object throws for encrypt after clear", [&]() { enc->finish(buf); });
+         result.test_throws<Botan::Invalid_State>("Unkeyed object throws for encrypt after clear",
+                                                  [&]() { enc->finish(buf); });
 
          if(enc->associated_data_requires_key()) {
-            result.test_throws("Unkeyed object throws for set AD after clear",
-                               [&]() { enc->set_associated_data(ad.data(), ad.size()); });
+            result.test_throws<Botan::Invalid_State>("Unkeyed object throws for set AD after clear",
+                                                     [&]() { enc->set_associated_data(ad.data(), ad.size()); });
          }
 
          return result;
@@ -193,39 +212,52 @@ class AEAD_Tests final : public Text_Based_Test {
 
          auto dec = Botan::AEAD_Mode::create(algo, Botan::Cipher_Dir::Decryption);
 
-         result.test_eq("AEAD decrypt output_length is correct", dec->output_length(input.size()), expected.size());
+         result.test_sz_eq("AEAD decrypt output_length is correct", dec->output_length(input.size()), expected.size());
 
-         Botan::secure_vector<uint8_t> garbage = rng.random_vec(dec->update_granularity());
+         auto get_garbage = [&] { return rng.random_vec(dec->update_granularity()); };
+         auto get_ultimate_garbage = [&] { return rng.random_vec(dec->minimum_final_size()); };
 
-         if(is_siv == false) {
-            result.test_throws("Unkeyed object throws for decrypt", [&]() { dec->update(garbage); });
+         if(!is_siv) {
+            result.test_throws<Botan::Invalid_State>("Unkeyed object throws for decrypt", [&]() {
+               auto garbage = get_garbage();
+               dec->update(garbage);
+            });
          }
 
-         result.test_throws("Unkeyed object throws for decrypt", [&]() { dec->finish(garbage); });
+         result.test_throws<Botan::Invalid_State>("Unkeyed object throws for decrypt", [&]() {
+            auto garbage = get_ultimate_garbage();
+            dec->finish(garbage);
+         });
 
          if(dec->associated_data_requires_key()) {
-            result.test_throws("Unkeyed object throws for set AD",
-                               [&]() { dec->set_associated_data(ad.data(), ad.size()); });
+            result.test_throws<Botan::Invalid_State>("Unkeyed object throws for set AD",
+                                                     [&]() { dec->set_associated_data(ad.data(), ad.size()); });
          }
 
          // First some tests for reset() to make sure it resets what we need it to
          // set garbage values
-         result.test_eq("key is not set", dec->has_keying_material(), false);
+         result.test_is_false("key is not set", dec->has_keying_material());
          dec->set_key(key);
-         result.test_eq("key is set", dec->has_keying_material(), true);
+         result.test_is_true("key is set", dec->has_keying_material());
          dec->set_associated_data(mutate_vec(ad, rng));
 
-         if(is_siv == false) {
-            result.test_throws("Cannot process data until nonce is set (dec)", [&]() { dec->update(garbage); });
-            result.test_throws("Cannot process data until nonce is set (dec)", [&]() { dec->finish(garbage); });
+         if(!is_siv) {
+            result.test_throws<Botan::Invalid_State>("Cannot process data until nonce is set (dec)", [&]() {
+               auto garbage = get_garbage();
+               dec->update(garbage);
+            });
+            result.test_throws<Botan::Invalid_State>("Cannot process data until nonce is set (dec)", [&]() {
+               auto garbage = get_ultimate_garbage();
+               dec->finish(garbage);
+            });
          }
 
          dec->start(mutate_vec(nonce, rng));
-
+         auto garbage = get_garbage();
          dec->update(garbage);
 
          // reset message specific state
-         dec->reset();
+         dec->reset();  // NOLINT(*-ambiguous-smartptr-reset-call)
 
          Botan::secure_vector<uint8_t> buf(input.begin(), input.end());
          try {
@@ -236,20 +268,20 @@ class AEAD_Tests final : public Text_Based_Test {
                dec->set_associated_data(ad);
             } catch(Botan::Invalid_State&) {
                // ad after setting nonce rejected, in this case we need to reset
-               dec->reset();
+               dec->reset();  // NOLINT(*-ambiguous-smartptr-reset-call)
                dec->set_associated_data(ad);
                dec->start(nonce);
             }
 
             // test finish() with full input
             dec->finish(buf);
-            result.test_eq("decrypt full", buf, expected);
+            result.test_bin_eq("decrypt full", buf, expected);
 
             // additionally test update() if possible
             const size_t update_granularity = dec->update_granularity();
             if(input.size() > update_granularity) {
                // reset state first
-               dec->reset();
+               dec->reset();  // NOLINT(*-ambiguous-smartptr-reset-call)
 
                dec->set_associated_data(ad);
                dec->start(nonce);
@@ -274,14 +306,14 @@ class AEAD_Tests final : public Text_Based_Test {
                dec->finish(block);
                plaintext.insert(plaintext.end(), block.begin(), block.end());
 
-               result.test_eq("decrypt update", plaintext, expected);
+               result.test_bin_eq("decrypt update", plaintext, expected);
             }
 
             // additionally test process() if possible
             const size_t min_final_size = dec->minimum_final_size();
             if(input.size() > (update_granularity + min_final_size)) {
                // again reset state first
-               dec->reset();
+               dec->reset();  // NOLINT(*-ambiguous-smartptr-reset-call)
 
                dec->set_associated_data(ad);
                dec->start(nonce);
@@ -294,20 +326,22 @@ class AEAD_Tests final : public Text_Based_Test {
 
                const size_t bytes_written = dec->process(buf.data(), bytes_to_process);
 
-               result.confirm("Process returns data unless requires_entire_message",
-                              dec->requires_entire_message(),
-                              bytes_written == 0);
+               if(dec->requires_entire_message()) {
+                  result.test_sz_eq("If requires_entire_message then no output is produced", bytes_written, 0);
+               } else {
+                  result.test_sz_gt("If !requires_entire_message then some output is produced", bytes_written, 0);
+               }
 
                if(bytes_written == 0) {
                   // SIV case
                   buf.erase(buf.begin(), buf.begin() + bytes_to_process);
                   dec->finish(buf);
                } else {
-                  result.test_eq("correct number of bytes processed", bytes_written, bytes_to_process);
+                  result.test_sz_eq("correct number of bytes processed", bytes_written, bytes_to_process);
                   dec->finish(buf, bytes_to_process);
                }
 
-               result.test_eq("decrypt process", buf, expected);
+               result.test_bin_eq("decrypt process", buf, expected);
             }
 
          } catch(Botan::Exception& e) {
@@ -318,7 +352,7 @@ class AEAD_Tests final : public Text_Based_Test {
          const std::vector<uint8_t> mutated_input = mutate_vec(input, rng, true);
          buf.assign(mutated_input.begin(), mutated_input.end());
 
-         dec->reset();
+         dec->reset();  // NOLINT(*-ambiguous-smartptr-reset-call)
 
          dec->set_associated_data(ad);
          dec->start(nonce);
@@ -337,7 +371,7 @@ class AEAD_Tests final : public Text_Based_Test {
             buf.assign(input.begin(), input.end());
             std::vector<uint8_t> bad_nonce = mutate_vec(nonce, rng);
 
-            dec->reset();
+            dec->reset();  // NOLINT(*-ambiguous-smartptr-reset-call)
             dec->set_associated_data(ad);
             dec->start(bad_nonce);
 
@@ -354,7 +388,7 @@ class AEAD_Tests final : public Text_Based_Test {
          // test decryption with modified associated_data
          const std::vector<uint8_t> bad_ad = mutate_vec(ad, rng, true);
 
-         dec->reset();
+         dec->reset();  // NOLINT(*-ambiguous-smartptr-reset-call)
          dec->set_associated_data(bad_ad);
 
          dec->start(nonce);
@@ -372,13 +406,13 @@ class AEAD_Tests final : public Text_Based_Test {
          // Make sure we can set the AD after processing a message
          dec->set_associated_data(ad);
          dec->clear();
-         result.test_eq("key is not set", dec->has_keying_material(), false);
+         result.test_is_false("key is not set", dec->has_keying_material());
 
-         result.test_throws("Unkeyed object throws for decrypt", [&]() { dec->finish(buf); });
+         result.test_throws<Botan::Invalid_State>("Unkeyed object throws for decrypt", [&]() { dec->finish(buf); });
 
          if(dec->associated_data_requires_key()) {
-            result.test_throws("Unkeyed object throws for set AD",
-                               [&]() { dec->set_associated_data(ad.data(), ad.size()); });
+            result.test_throws<Botan::Invalid_State>("Unkeyed object throws for set AD",
+                                                     [&]() { dec->set_associated_data(ad.data(), ad.size()); });
          }
 
          return result;
@@ -402,35 +436,36 @@ class AEAD_Tests final : public Text_Based_Test {
          }
 
          // must be authenticated
-         result.test_eq("Encryption algo is an authenticated mode", enc->authenticated(), true);
-         result.test_eq("Decryption algo is an authenticated mode", dec->authenticated(), true);
+         result.test_is_true("Encryption algo is an authenticated mode", enc->authenticated());
+         result.test_is_true("Decryption algo is an authenticated mode", dec->authenticated());
 
          const std::string enc_provider = enc->provider();
-         result.test_is_nonempty("enc provider", enc_provider);
+         result.test_str_not_empty("enc provider", enc_provider);
          const std::string dec_provider = enc->provider();
-         result.test_is_nonempty("dec provider", dec_provider);
+         result.test_str_not_empty("dec provider", dec_provider);
 
-         result.test_eq("same provider", enc_provider, dec_provider);
+         result.test_str_eq("same provider", enc_provider, dec_provider);
 
          // FFI currently requires this, so assure it is true for all modes
-         result.test_gt("enc buffer sizes ok", enc->ideal_granularity(), enc->minimum_final_size());
-         result.test_gt("dec buffer sizes ok", dec->ideal_granularity(), dec->minimum_final_size());
+         result.test_sz_gt("enc buffer sizes ok", enc->ideal_granularity(), enc->minimum_final_size());
+         result.test_sz_gt("dec buffer sizes ok", dec->ideal_granularity(), dec->minimum_final_size());
 
-         result.test_gt("update granularity is non-zero", enc->update_granularity(), 0);
+         result.test_sz_gt("update granularity is non-zero", enc->update_granularity(), 0);
 
-         result.test_eq(
+         result.test_sz_eq(
             "enc and dec ideal granularity is the same", enc->ideal_granularity(), dec->ideal_granularity());
 
-         result.test_gt(
+         result.test_sz_gt(
             "ideal granularity is at least update granularity", enc->ideal_granularity(), enc->update_granularity());
 
-         result.confirm("ideal granularity is a multiple of update granularity",
-                        enc->ideal_granularity() % enc->update_granularity() == 0);
+         result.test_is_true("ideal granularity is a multiple of update granularity",
+                             enc->ideal_granularity() % enc->update_granularity() == 0);
 
          // test enc
          result.merge(test_enc(key, nonce, input, expected, ad, algo, this->rng()));
 
          // test dec
+         // NOLINTNEXTLINE(*-suspicious-call-argument) Yes we are swapping ptext and ctext arguments here
          result.merge(test_dec(key, nonce, expected, input, ad, algo, this->rng()));
 
          return result;

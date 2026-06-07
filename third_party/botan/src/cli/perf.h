@@ -7,16 +7,20 @@
 #ifndef BOTAN_CLI_PERF_H_
 #define BOTAN_CLI_PERF_H_
 
-#include <botan/rng.h>
-#include <botan/internal/fmt.h>
-#include <chrono>
 #include <functional>
 #include <iosfwd>
 #include <map>
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "timer.h"
+
+namespace Botan {
+
+class RandomNumberGenerator;
+
+}
 
 namespace Botan_CLI {
 
@@ -25,7 +29,7 @@ class PerfConfig final {
       PerfConfig(std::function<void(const Timer&)> record_result,
                  size_t clock_speed,
                  double clock_cycle_ratio,
-                 std::chrono::milliseconds runtime,
+                 uint64_t runtime,
                  const std::vector<std::string>& ecc_groups,
                  const std::vector<size_t>& buffer_sizes,
                  std::ostream& error_output,
@@ -43,7 +47,7 @@ class PerfConfig final {
 
       const std::vector<std::string>& ecc_groups() const { return m_ecc_groups; }
 
-      std::chrono::milliseconds runtime() const { return m_runtime; }
+      uint64_t runtime() const { return m_runtime; }
 
       std::ostream& error_output() const { return m_error_output; }
 
@@ -63,14 +67,14 @@ class PerfConfig final {
       std::function<void(const Timer&)> m_record_result;
       size_t m_clock_speed = 0;
       double m_clock_cycle_ratio = 0.0;
-      std::chrono::milliseconds m_runtime;
+      uint64_t m_runtime;
       std::vector<std::string> m_ecc_groups;
       std::vector<size_t> m_buffer_sizes;
       std::ostream& m_error_output;
       Botan::RandomNumberGenerator& m_rng;
 };
 
-class PerfTest {
+class PerfTest /* NOLINT(*-special-member-functions) */ {
    public:
       virtual ~PerfTest() = default;
 
@@ -94,8 +98,10 @@ class PerfTest {
       static std::map<std::string, pt_maker_fn>& global_registry();
 };
 
-#define BOTAN_REGISTER_PERF_TEST(name, Perf_Class)                \
-   const Botan_CLI::PerfTest::Registration reg_perf_##Perf_Class( \
+// NOLINTNEXTLINE(*-macro-usage)
+#define BOTAN_REGISTER_PERF_TEST(name, Perf_Class)                              \
+   /* NOLINTNEXTLINE(cert-err58-cpp,bugprone-throwing-static-initialization) */ \
+   const Botan_CLI::PerfTest::Registration reg_perf_##Perf_Class(               \
       name, []() -> std::unique_ptr<Botan_CLI::PerfTest> { return std::make_unique<Perf_Class>(); })
 
 }  // namespace Botan_CLI

@@ -6,13 +6,13 @@
 
 #include <botan/asn1_print.h>
 
+#include <botan/asn1_time.h>
 #include <botan/ber_dec.h>
 #include <botan/bigint.h>
 #include <botan/der_enc.h>
 #include <botan/hex.h>
-#include <botan/mem_ops.h>
 #include <botan/internal/fmt.h>
-#include <cctype>
+#include <botan/internal/mem_utils.h>
 #include <iomanip>
 #include <sstream>
 
@@ -20,14 +20,30 @@ namespace Botan {
 
 namespace {
 
+// Printable here means fits into an ASN.1 "PRINTABLE STRING" type
+bool is_printable_char(char c) {
+   if(c >= 'a' && c <= 'z') {
+      return true;
+   }
+
+   if(c >= 'A' && c <= 'Z') {
+      return true;
+   }
+
+   if(c >= '0' && c <= '9') {
+      return true;
+   }
+
+   if(c == '.' || c == ':' || c == '/' || c == '-') {
+      return true;
+   }
+
+   return false;
+}
+
 bool all_printable_chars(const uint8_t bits[], size_t bits_len) {
    for(size_t i = 0; i != bits_len; ++i) {
-      int c = bits[i];
-      if(c > 127) {
-         return false;
-      }
-
-      if((std::isalnum(c) || c == '.' || c == ':' || c == '/' || c == '-') == false) {
+      if(!is_printable_char(bits[i])) {
          return false;
       }
    }
@@ -50,7 +66,7 @@ bool possibly_a_general_name(const uint8_t bits[], size_t bits_len) {
       return false;
    }
 
-   if(all_printable_chars(bits + 2, bits_len - 2) == false) {
+   if(!all_printable_chars(bits + 2, bits_len - 2)) {
       return false;
    }
 
@@ -102,8 +118,7 @@ void ASN1_Formatter::decode(std::ostream& output, BER_Decoder& decoder, size_t l
          if(m_print_context_specific) {
             try {
                if(possibly_a_general_name(bits.data(), bits.size())) {
-                  output << format(
-                     type_tag, class_tag, level, level, std::string(cast_uint8_ptr_to_char(&bits[2]), bits.size() - 2));
+                  output << format(type_tag, class_tag, level, level, bytes_to_string(std::span{bits}.subspan(2)));
                   success_parsing_cs = true;
                } else if(recurse_deeper) {
                   std::vector<uint8_t> inner_bits;
@@ -118,7 +133,7 @@ void ASN1_Formatter::decode(std::ostream& output, BER_Decoder& decoder, size_t l
             } catch(...) {}
          }
 
-         if(success_parsing_cs == false) {
+         if(!success_parsing_cs) {
             output << format(type_tag, class_tag, level, length, format_bin(type_tag, class_tag, bits));
          }
       } else if(type_tag == ASN1_Type::ObjectId) {
@@ -144,7 +159,7 @@ void ASN1_Formatter::decode(std::ostream& output, BER_Decoder& decoder, size_t l
 
          output << format(type_tag, class_tag, level, length, format_bn(number));
       } else if(type_tag == ASN1_Type::Boolean) {
-         bool boolean;
+         bool boolean = false;
          data.decode(boolean);
          output << format(type_tag, class_tag, level, length, (boolean ? "true" : "false"));
       } else if(type_tag == ASN1_Type::Null) {
@@ -254,7 +269,7 @@ std::string ASN1_Pretty_Printer::format_bin(ASN1_Type /*type_tag*/,
                                             ASN1_Class /*class_tag*/,
                                             const std::vector<uint8_t>& vec) const {
    if(all_printable_chars(vec.data(), vec.size())) {
-      return std::string(cast_uint8_ptr_to_char(vec.data()), vec.size());
+      return bytes_to_string(vec);
    } else {
       return hex_encode(vec);
    }

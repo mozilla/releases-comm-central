@@ -4,6 +4,7 @@
 *     2016 Jack Lloyd
 *     2017 Harry Reimann, Rohde & Schwarz Cybersecurity
 *     2022 René Meusel, Rohde & Schwarz Cybersecurity
+*     2025 Frederik Dornemann, CARIAD SE
 *
 * Botan is released under the Simplified BSD License (see license.txt)
 */
@@ -11,18 +12,28 @@
 #ifndef BOTAN_TLS_CALLBACKS_H_
 #define BOTAN_TLS_CALLBACKS_H_
 
-#include <botan/dl_group.h>
-#include <botan/ocsp.h>
+#include <botan/ec_point_format.h>
+#include <botan/kdf.h>
 #include <botan/pubkey.h>
 #include <botan/tls_alert.h>
-#include <botan/tls_session.h>
+#include <botan/tls_algos.h>
+#include <botan/tls_magic.h>
 #include <chrono>
+#include <memory>
 #include <optional>
+#include <variant>
 
 namespace Botan {
 
+enum class Signature_Format : uint8_t;
+enum class Usage_Type : uint8_t;
+class DL_Group;
+class PK_Key_Agreement_Key;
 class Certificate_Store;
 class X509_Certificate;
+class Public_Key;
+class Private_Key;
+class RandomNumberGenerator;
 
 namespace OCSP {
 
@@ -36,12 +47,14 @@ class Handshake_Message;
 class Policy;
 class Extensions;
 class Certificate_Status_Request;
+class Session_Summary;
+class Session;
 
 /**
 * Encapsulates the callbacks that a TLS channel will make which are due to
 * channel specific operations.
 */
-class BOTAN_PUBLIC_API(2, 0) Callbacks {
+class BOTAN_PUBLIC_API(2, 0) Callbacks /* NOLINT(*-special-member-functions) */ {
    public:
       virtual ~Callbacks() = default;
 
@@ -256,6 +269,8 @@ class BOTAN_PUBLIC_API(2, 0) Callbacks {
        *
        * This function should not be "const" since the implementation might need
        * to perform some side effecting operation to compute the result.
+       *
+       * TODO(Botan4) change return type to uint64_t
        */
       virtual std::chrono::milliseconds tls_verify_cert_chain_ocsp_timeout() const {
          return std::chrono::milliseconds(0);
@@ -341,7 +356,7 @@ class BOTAN_PUBLIC_API(2, 0) Callbacks {
        *
        * If deserialization fails, the default implementation throws a
        * Botan::Decoding_Error exception that will be translated into a
-       * TLS_Exception with an Alert::IllegalParamter.
+       * TLS_Exception with an Alert::IllegalParameter.
        *
        * @param group the group identifier or (in case of TLS 1.2) an explicit
        *              discrete-log group of the public key
@@ -402,6 +417,10 @@ class BOTAN_PUBLIC_API(2, 0) Callbacks {
        *
        * @returns the shared secret both in plaintext and encapsulated with
        *          @p encoded_public_key.
+       *
+       * TODO(Botan4) change this return type to something else so the pubkey.h
+       * dependency is removed
+       * TODO(Botan4) change encoded_public_key to a span
        */
       virtual KEM_Encapsulation tls_kem_encapsulate(TLS::Group_Params group,
                                                     const std::vector<uint8_t>& encoded_public_key,
@@ -432,6 +451,8 @@ class BOTAN_PUBLIC_API(2, 0) Callbacks {
        *
        * @returns the plaintext shared secret from @p encapsulated_bytes after
        *          decapsulation with @p private_key.
+       *
+       * TODO(Botan4) change encapsulated_bytes to a std::span
        */
       virtual secure_vector<uint8_t> tls_kem_decapsulate(TLS::Group_Params group,
                                                          const Private_Key& private_key,
@@ -464,6 +485,36 @@ class BOTAN_PUBLIC_API(2, 0) Callbacks {
          const std::variant<TLS::Group_Params, DL_Group>& group, RandomNumberGenerator& rng);
 
       /**
+       * Generate an ECDH key pair for the TLS 1.2 handshake.
+       *
+       * Note that this callback is called exclusively by TLS 1.2 to handle the
+       * ECDH public key serialization format explicitly. TLS 1.3 fixes this
+       * format to 'uncompressed' and does not allow negotiating anything else.
+       * X25519 and X448 feature a defined and fixed public key encoding and are
+       * therefore not explicitly handled by this callback either.
+       *
+       * Users may override this if they want to provide a custom keypair type
+       * to offload TLS 1.2's ECDH handling to custom hardware, for instance. It
+       * is worth noting that support for compressed points in Botan is
+       * deprecated and this callback will disappear when it is removed in a
+       * future release.
+       *
+       * Typical use cases of the library don't need to do that and serious
+       * security risks are associated with customizing TLS's key exchange
+       * mechanism.
+       *
+       * @throws TLS_Exception(Alert::DecodeError) if the @p group is not known.
+       *
+       * @param group ECDH group identifier to generate an ephemeral keypair for
+       * @param rng a random number generator
+       * @param tls12_ecc_pubkey_encoding_format the key's serialization format
+       *
+       * @return an ECDH private key of an algorithm usable for key agreement
+       */
+      virtual std::unique_ptr<PK_Key_Agreement_Key> tls12_generate_ephemeral_ecdh_key(
+         TLS::Group_Params group, RandomNumberGenerator& rng, EC_Point_Format tls12_ecc_pubkey_encoding_format);
+
+      /**
        * Agree on a shared secret with the peer's ephemeral public key for
        * the TLS handshake.
        *
@@ -486,6 +537,8 @@ class BOTAN_PUBLIC_API(2, 0) Callbacks {
        * @param policy        a TLS policy object
        *
        * @return the shared secret derived from public_value and private_key
+       *
+       * TODO(Botan4) change public_value to a std::span
        */
       virtual secure_vector<uint8_t> tls_ephemeral_key_agreement(const std::variant<TLS::Group_Params, DL_Group>& group,
                                                                  const PK_Key_Agreement_Key& private_key,
@@ -579,6 +632,8 @@ class BOTAN_PUBLIC_API(2, 0) Callbacks {
        *
        * @param raw_response raw OCSP response buffer
        * @returns the parsed OCSP response or std::nullopt on error
+       *
+       * TODO(Botan4) change raw_response to a std::span
        */
       virtual std::optional<OCSP::Response> tls_parse_ocsp_response(const std::vector<uint8_t>& raw_response);
 
@@ -602,18 +657,24 @@ class BOTAN_PUBLIC_API(2, 0) Callbacks {
        *
        * Note that typical usages will not need to override this callback but it
        * is useful for testing purposes to allow for deterministic test outcomes.
+       *
+       * TODO(Botan4) change return type to uint64_t
        */
       virtual std::chrono::system_clock::time_point tls_current_timestamp();
 
       /**
        * Optional callback: error logging. (not currently called)
        * @param err An error message related to this connection.
+       *
+       * TODO(Botan4) remove this
        */
       virtual void tls_log_error(const char* err);
 
       /**
        * Optional callback: debug logging. (not currently called)
        * @param what Some hopefully informative string
+       *
+       * TODO(Botan4) remove this
        */
       virtual void tls_log_debug(const char* what);
 
@@ -622,6 +683,8 @@ class BOTAN_PUBLIC_API(2, 0) Callbacks {
        * @param descr What this buffer is
        * @param val the bytes
        * @param val_len length of val
+       *
+       * TODO(Botan4) remove this
        */
       virtual void tls_log_debug_bin(const char* descr, const uint8_t val[], size_t val_len);
 
@@ -644,6 +707,20 @@ class BOTAN_PUBLIC_API(2, 0) Callbacks {
       virtual void tls_ssl_key_log_data(std::string_view label,
                                         std::span<const uint8_t> client_random,
                                         std::span<const uint8_t> secret) const;
+
+      /**
+       * Returns the key derivation function to be used for TLS 1.2
+       *
+       * The default implementation can be overridden to provide a user-defined
+       * key derivation function, for example to delegate key derivation to a
+       * hardware-protected environment when a pre-shared key must remain
+       * inaccessible to the non-secure world.
+       *
+       * @param prf_algo  name of the hash function (e.g. "SHA-256")
+       *
+       * @return  TLS 1.2 KDF implementation
+       */
+      virtual std::unique_ptr<KDF> tls12_protocol_specific_kdf(std::string_view prf_algo) const;
 };
 
 }  // namespace TLS

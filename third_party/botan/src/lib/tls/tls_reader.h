@@ -8,10 +8,10 @@
 #ifndef BOTAN_TLS_READER_H_
 #define BOTAN_TLS_READER_H_
 
-#include <botan/exceptn.h>
+#include <botan/assert.h>
 #include <botan/secmem.h>
-#include <botan/internal/fmt.h>
 #include <botan/internal/loadstor.h>
+#include <botan/internal/mem_utils.h>
 #include <span>
 #include <string>
 #include <vector>
@@ -21,7 +21,7 @@ namespace Botan::TLS {
 /**
 * Helper class for decoding TLS protocol messages
 */
-class TLS_Data_Reader final {
+class BOTAN_TEST_API TLS_Data_Reader final {
    public:
       TLS_Data_Reader(const char* type, std::span<const uint8_t> buf_in) :
             m_typename(type), m_buf(buf_in), m_offset(0) {}
@@ -38,10 +38,14 @@ class TLS_Data_Reader final {
 
       bool has_remaining() const { return (remaining_bytes() > 0); }
 
-      std::vector<uint8_t> get_remaining() { return std::vector<uint8_t>(m_buf.begin() + m_offset, m_buf.end()); }
+      std::vector<uint8_t> get_remaining() {
+         const std::span rest = m_buf.subspan(m_offset);
+         return std::vector<uint8_t>(rest.begin(), rest.end());
+      }
 
       std::vector<uint8_t> get_data_read_so_far() {
-         return std::vector<uint8_t>(m_buf.begin(), m_buf.begin() + m_offset);
+         const std::span first = m_buf.first(m_offset);
+         return std::vector<uint8_t>(first.begin(), first.end());
       }
 
       void discard_next(size_t bytes) {
@@ -51,21 +55,22 @@ class TLS_Data_Reader final {
 
       uint32_t get_uint32_t() {
          assert_at_least(4);
-         uint32_t result = make_uint32(m_buf[m_offset], m_buf[m_offset + 1], m_buf[m_offset + 2], m_buf[m_offset + 3]);
+         const uint32_t result =
+            make_uint32(m_buf[m_offset], m_buf[m_offset + 1], m_buf[m_offset + 2], m_buf[m_offset + 3]);
          m_offset += 4;
          return result;
       }
 
       uint32_t get_uint24_t() {
          assert_at_least(3);
-         uint32_t result = make_uint32(0, m_buf[m_offset], m_buf[m_offset + 1], m_buf[m_offset + 2]);
+         const uint32_t result = make_uint32(0, m_buf[m_offset], m_buf[m_offset + 1], m_buf[m_offset + 2]);
          m_offset += 3;
          return result;
       }
 
       uint16_t get_uint16_t() {
          assert_at_least(2);
-         uint16_t result = make_uint16(m_buf[m_offset], m_buf[m_offset + 1]);
+         const uint16_t result = make_uint16(m_buf[m_offset], m_buf[m_offset + 1]);
          m_offset += 2;
          return result;
       }
@@ -77,7 +82,7 @@ class TLS_Data_Reader final {
 
       uint8_t get_byte() {
          assert_at_least(1);
-         uint8_t result = m_buf[m_offset];
+         const uint8_t result = m_buf[m_offset];
          m_offset += 1;
          return result;
       }
@@ -117,8 +122,7 @@ class TLS_Data_Reader final {
 
       std::string get_string(size_t len_bytes, size_t min_bytes, size_t max_bytes) {
          std::vector<uint8_t> v = get_range_vector<uint8_t>(len_bytes, min_bytes, max_bytes);
-
-         return std::string(cast_uint8_ptr_to_char(v.data()), v.size());
+         return bytes_to_string(v);
       }
 
       template <typename T>
@@ -157,16 +161,9 @@ class TLS_Data_Reader final {
          return num_elems;
       }
 
-      void assert_at_least(size_t n) const {
-         if(m_buf.size() - m_offset < n) {
-            throw_decode_error("Expected " + std::to_string(n) + " bytes remaining, only " +
-                               std::to_string(m_buf.size() - m_offset) + " left");
-         }
-      }
+      void assert_at_least(size_t n) const;
 
-      [[noreturn]] void throw_decode_error(std::string_view why) const {
-         throw Decoding_Error(fmt("Invalid {}: {}", m_typename, why));
-      }
+      [[noreturn]] void throw_decode_error(std::string_view why) const;
 
       const char* m_typename;
       std::span<const uint8_t> m_buf;
@@ -177,18 +174,18 @@ class TLS_Data_Reader final {
 * Helper function for encoding length-tagged vectors
 */
 template <typename T, typename Alloc>
-void append_tls_length_value(std::vector<uint8_t, Alloc>& buf, const T* vals, size_t vals_size, size_t tag_size) {
+inline void append_tls_length_value(std::vector<uint8_t, Alloc>& buf,
+                                    const T* vals,
+                                    size_t vals_size,
+                                    size_t tag_size) {
    const size_t T_size = sizeof(T);
    const size_t val_bytes = T_size * vals_size;
 
-   if(tag_size != 1 && tag_size != 2 && tag_size != 3) {
-      throw Invalid_Argument("append_tls_length_value: invalid tag size");
-   }
+   BOTAN_ARG_CHECK(tag_size == 1 || tag_size == 2 || tag_size == 3, "Invalid TLS tag size");
 
-   if((tag_size == 1 && val_bytes > 255) || (tag_size == 2 && val_bytes > 65535) ||
-      (tag_size == 3 && val_bytes > 16777215)) {
-      throw Invalid_Argument("append_tls_length_value: value too large");
-   }
+   const size_t max_possible_size = (1 << (8 * tag_size)) - 1;
+
+   BOTAN_ARG_CHECK(val_bytes <= max_possible_size, "Value too large to encode");
 
    for(size_t i = 0; i != tag_size; ++i) {
       buf.push_back(get_byte_var(sizeof(val_bytes) - tag_size + i, val_bytes));
@@ -201,14 +198,21 @@ void append_tls_length_value(std::vector<uint8_t, Alloc>& buf, const T* vals, si
    }
 }
 
-template <typename T, typename Alloc, typename Alloc2>
-void append_tls_length_value(std::vector<uint8_t, Alloc>& buf, const std::vector<T, Alloc2>& vals, size_t tag_size) {
+template <typename T, typename Alloc>
+inline void append_tls_length_value(std::vector<uint8_t, Alloc>& buf, std::span<const T> vals, size_t tag_size) {
    append_tls_length_value(buf, vals.data(), vals.size(), tag_size);
 }
 
+template <typename T, typename Alloc, typename Alloc2>
+inline void append_tls_length_value(std::vector<uint8_t, Alloc>& buf,
+                                    const std::vector<T, Alloc2>& vals,
+                                    size_t tag_size) {
+   append_tls_length_value(buf, std::span{vals}, tag_size);
+}
+
 template <typename Alloc>
-void append_tls_length_value(std::vector<uint8_t, Alloc>& buf, std::string_view str, size_t tag_size) {
-   append_tls_length_value(buf, cast_char_ptr_to_uint8(str.data()), str.size(), tag_size);
+inline void append_tls_length_value(std::vector<uint8_t, Alloc>& buf, std::string_view str, size_t tag_size) {
+   append_tls_length_value(buf, as_span_of_bytes(str), tag_size);
 }
 
 }  // namespace Botan::TLS

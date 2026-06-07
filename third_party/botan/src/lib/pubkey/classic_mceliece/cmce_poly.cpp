@@ -10,8 +10,11 @@
  **/
 
 #include <botan/internal/cmce_poly.h>
+
+#include <botan/internal/buffer_stuffer.h>
+#include <botan/internal/concat_util.h>
 #include <botan/internal/ct_utils.h>
-#include <botan/internal/stl_util.h>
+#include <algorithm>
 
 namespace Botan {
 
@@ -19,6 +22,8 @@ Classic_McEliece_GF Classic_McEliece_Polynomial::operator()(Classic_McEliece_GF 
    BOTAN_DEBUG_ASSERT(a.modulus() == coef_at(0).modulus());
 
    Classic_McEliece_GF r(CmceGfElem(0), a.modulus());
+   // TODO(Botan4) use std::ranges::reverse_view here once available (need newer Clang)
+   // NOLINTNEXTLINE(modernize-loop-convert)
    for(auto it = m_coef.rbegin(); it != m_coef.rend(); ++it) {
       r *= a;
       r += *it;
@@ -38,7 +43,7 @@ Classic_McEliece_Polynomial Classic_McEliece_Polynomial_Ring::multiply(const Cla
    }
 
    for(size_t i = (m_t - 1) * 2; i >= m_t; --i) {
-      for(auto& [idx, coef] : m_position_map) {
+      for(const auto& [idx, coef] : m_position_map) {
          prod.at(i - m_t + idx) += coef * prod.at(i);
       }
    }
@@ -126,12 +131,12 @@ std::optional<Classic_McEliece_Minimal_Polynomial> Classic_McEliece_Polynomial_R
 
 secure_vector<uint8_t> Classic_McEliece_Minimal_Polynomial::serialize() const {
    BOTAN_ASSERT_NOMSG(!coef().empty());
-   auto& all_coeffs = coef();
+   const auto& all_coeffs = coef();
    // Store all except coef for monomial x^t since polynomial is monic (ISO Spec Section 9.2.9)
    auto coeffs_to_store = std::span(all_coeffs).first(all_coeffs.size() - 1);
    secure_vector<uint8_t> bytes(sizeof(uint16_t) * coeffs_to_store.size());
    BufferStuffer bytes_stuf(bytes);
-   for(auto& coef : coeffs_to_store) {
+   for(const auto& coef : coeffs_to_store) {
       store_le(bytes_stuf.next<sizeof(CmceGfElem)>(), coef.elem().get());
    }
    BOTAN_ASSERT_NOMSG(bytes_stuf.full());

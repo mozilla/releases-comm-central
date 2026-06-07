@@ -8,11 +8,11 @@
 
 #include <botan/tls_session_manager_stateless.h>
 
+#include <botan/assert.h>
 #include <botan/credentials_manager.h>
 #include <botan/exceptn.h>
 #include <botan/rng.h>
-
-#include <botan/internal/stl_util.h>
+#include <botan/tls_session.h>
 
 namespace Botan::TLS {
 
@@ -22,8 +22,13 @@ Session_Manager_Stateless::Session_Manager_Stateless(const std::shared_ptr<Crede
    BOTAN_ASSERT_NONNULL(m_credentials_manager);
 }
 
+std::vector<Session_with_Handle> Session_Manager_Stateless::find_some(const Server_Information& /*info*/,
+                                                                      size_t /*max_sessions_hint*/) {
+   return {};
+}
+
 std::optional<Session_Handle> Session_Manager_Stateless::establish(const Session& session,
-                                                                   const std::optional<Session_ID>&,
+                                                                   const std::optional<Session_ID>& /*session_id*/,
                                                                    bool tls12_no_ticket) {
    BOTAN_ASSERT(session.side() == Connection_Side::Server, "Client tried to establish a session");
    if(tls12_no_ticket) {
@@ -35,10 +40,10 @@ std::optional<Session_Handle> Session_Manager_Stateless::establish(const Session
       return std::nullopt;
    }
 
-   return Session_Ticket{session.encrypt(key.value(), *m_rng)};
+   return Session_Handle(Session_Ticket{session.encrypt(key.value(), *m_rng)});
 }
 
-void Session_Manager_Stateless::store(const Session&, const Session_Handle&) {
+void Session_Manager_Stateless::store(const Session& /*session*/, const Session_Handle& /*handle*/) {
    throw Invalid_Argument("A stateless Session Manager cannot store Sessions with their handle");
 }
 

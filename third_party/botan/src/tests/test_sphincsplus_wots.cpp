@@ -9,10 +9,8 @@
 
 #if defined(BOTAN_HAS_SPHINCS_PLUS_COMMON)
 
-   #include <botan/hash.h>
-   #include <botan/hex.h>
-
    #include <botan/assert.h>
+   #include <botan/hash.h>
    #include <botan/sp_parameters.h>
    #include <botan/internal/loadstor.h>
    #include <botan/internal/sp_address.h>
@@ -21,13 +19,15 @@
 
 namespace Botan_Tests {
 
+namespace {
+
 class SPHINCS_Plus_WOTS_Test final : public Text_Based_Test {
    private:
       static std::pair<Botan::Sphincs_Address, Botan::TreeNodeIndex> read_address_and_leaf_idx(
          std::span<const uint8_t> address_buffer) {
          BOTAN_ASSERT_NOMSG(address_buffer.size() == 32);
 
-         std::array<uint32_t, 8> adrs;
+         std::array<uint32_t, 8> adrs{};
          for(size_t i = 0; i < 8; ++i) {
             adrs[i] = Botan::load_be<uint32_t>(address_buffer.data(), i);
          }
@@ -40,12 +40,12 @@ class SPHINCS_Plus_WOTS_Test final : public Text_Based_Test {
             Text_Based_Test("pubkey/sphincsplus_wots.vec",
                             "SphincsParameterSet,Address,SecretSeed,PublicSeed,HashedWotsPk,Msg,HashedWotsSig") {}
 
-      bool skip_this_test(const std::string&, const VarMap& vars) override {
+      bool skip_this_test(const std::string& /*header*/, const VarMap& vars) override {
          [[maybe_unused]] auto params = Botan::Sphincs_Parameters::create(vars.get_req_str("SphincsParameterSet"));
          return !params.is_available();
       }
 
-      Test::Result run_one_test(const std::string&, const VarMap& vars) final {
+      Test::Result run_one_test(const std::string& /*header*/, const VarMap& vars) final {
          Test::Result result("SLH-DSA's WOTS+");
 
          auto params = Botan::Sphincs_Parameters::create(vars.get_req_str("SphincsParameterSet"));
@@ -103,23 +103,25 @@ class SPHINCS_Plus_WOTS_Test final : public Text_Based_Test {
                              params,
                              *hashes);
 
-         result.test_is_eq("WOTS+ signature generation", hash->process(sig_out), hashed_wots_sig_ref.get());
-         result.test_is_eq("WOTS+ public key generation", hashed_pk_out, hashed_pk_ref);
+         result.test_bin_eq("WOTS+ signature generation", hash->process(sig_out), hashed_wots_sig_ref.get());
+         result.test_bin_eq("WOTS+ public key generation", hashed_pk_out, hashed_pk_ref);
 
          // Test: Create PK from signature (Verification)
-         Botan::WotsPublicKey wots_pk_from_sig =
+         const Botan::WotsPublicKey wots_pk_from_sig =
             Botan::wots_public_key_from_signature(root_to_sign, sig_out, address, params, *hashes);
 
          // The WOTS+ PK is hashed like for creating a leaf.
-         result.test_is_eq("WOTS+ public key from signature",
-                           hashes->T<Botan::SphincsTreeNode>(pk_addr_pk_from_sig, wots_pk_from_sig),
-                           hashed_pk_ref);
+         result.test_bin_eq("WOTS+ public key from signature",
+                            hashes->T<Botan::SphincsTreeNode>(pk_addr_pk_from_sig, wots_pk_from_sig),
+                            hashed_pk_ref);
 
          return result;
       }
 };
 
 BOTAN_REGISTER_TEST("pubkey", "sphincsplus_wots", SPHINCS_Plus_WOTS_Test);
+
+}  // namespace
 
 }  // namespace Botan_Tests
 

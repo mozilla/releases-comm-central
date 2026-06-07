@@ -7,14 +7,17 @@
 
 #include "tests.h"
 
-#include "test_rng.h"
-
 #if defined(BOTAN_HAS_ECDSA)
    #include "test_pubkey.h"
+   #include "test_rng.h"
+   #include <botan/ec_group.h>
    #include <botan/ecdsa.h>
    #include <botan/hash.h>
    #include <botan/pk_algs.h>
    #include <botan/pkcs8.h>
+   #include <botan/pubkey.h>
+   #include <botan/rng.h>
+   #include <botan/internal/buffer_stuffer.h>
 #endif
 
 namespace Botan_Tests {
@@ -30,7 +33,7 @@ class ECDSA_Verification_Tests final : public PK_Signature_Verification_Test {
 
       bool clear_between_callbacks() const override { return false; }
 
-      bool skip_this_test(const std::string&, const VarMap& vars) override {
+      bool skip_this_test(const std::string& /*header*/, const VarMap& vars) override {
          return !Botan::EC_Group::supports_named_group(vars.get_req_str("Group"));
       }
 
@@ -60,7 +63,7 @@ class ECDSA_Wycheproof_Verification_Tests final : public PK_Signature_Verificati
 
       bool test_random_invalid_sigs() const override { return false; }
 
-      bool skip_this_test(const std::string&, const VarMap& vars) override {
+      bool skip_this_test(const std::string& /*header*/, const VarMap& vars) override {
          return !Botan::EC_Group::supports_named_group(vars.get_req_str("Group"));
       }
 
@@ -94,7 +97,7 @@ class ECDSA_Signature_KAT_Tests final : public PK_Signature_Generation_Test {
 
       bool clear_between_callbacks() const override { return false; }
 
-      bool skip_this_test(const std::string&, const VarMap& vars) override {
+      bool skip_this_test(const std::string& /*header*/, const VarMap& vars) override {
          return !Botan::EC_Group::supports_named_group(vars.get_req_str("Group"));
       }
 
@@ -133,7 +136,7 @@ class ECDSA_KAT_Verification_Tests final : public PK_Signature_Verification_Test
 
       bool clear_between_callbacks() const override { return false; }
 
-      bool skip_this_test(const std::string&, const VarMap& vars) override {
+      bool skip_this_test(const std::string& /*header*/, const VarMap& vars) override {
          return !Botan::EC_Group::supports_named_group(vars.get_req_str("Group"));
       }
 
@@ -142,7 +145,7 @@ class ECDSA_KAT_Verification_Tests final : public PK_Signature_Verification_Test
          const BigInt x = vars.get_req_bn("X");
          const auto group = Botan::EC_Group::from_name(group_id);
 
-         Botan::ECDSA_PrivateKey priv_key(this->rng(), group, x);
+         const Botan::ECDSA_PrivateKey priv_key(this->rng(), group, x);
 
          return priv_key.public_key();
       }
@@ -162,7 +165,7 @@ class ECDSA_Sign_Verify_DER_Test final : public PK_Sign_Verify_DER_Test {
 class ECDSA_Keygen_Tests final : public PK_Key_Generation_Test {
    public:
       std::vector<std::string> keygen_params() const override {
-         auto grp = Botan::EC_Group::known_named_groups();
+         const auto& grp = Botan::EC_Group::known_named_groups();
          return std::vector<std::string>(grp.begin(), grp.end());
       }
 
@@ -188,7 +191,7 @@ class ECDSA_Key_Recovery_Tests final : public Text_Based_Test {
    public:
       ECDSA_Key_Recovery_Tests() : Text_Based_Test("pubkey/ecdsa_key_recovery.vec", "Group,Msg,R,S,V,Pubkey") {}
 
-      bool skip_this_test(const std::string&, const VarMap& vars) override {
+      bool skip_this_test(const std::string& /*header*/, const VarMap& vars) override {
          return !Botan::EC_Group::supports_named_group(vars.get_req_str("Group"));
       }
 
@@ -205,17 +208,21 @@ class ECDSA_Key_Recovery_Tests final : public Text_Based_Test {
          const auto expected_pubkey = vars.get_req_bin("Pubkey");
 
          try {
-            Botan::ECDSA_PublicKey pubkey(group, msg, R, S, V);
-            result.test_eq("Pubkey X coordinate", pubkey.public_key_bits(), expected_pubkey);
+            const Botan::ECDSA_PublicKey pubkey(group, msg, R, S, V);
+            result.test_bin_eq("Pubkey X coordinate", pubkey.public_key_bits(), expected_pubkey);
 
             const uint8_t computed_V = pubkey.recovery_param(msg, R, S);
-            result.test_eq("Recovery param is correct", static_cast<size_t>(computed_V), static_cast<size_t>(V));
+            result.test_u8_eq("Recovery param is correct", computed_V, V);
 
             Botan::PK_Verifier verifier(pubkey, "Raw");
 
-            auto sig = Botan::BigInt::encode_fixed_length_int_pair(R, S, group.get_order_bytes());
+            const size_t n_bytes = group.get_order_bytes();
+            std::vector<uint8_t> sig(2 * n_bytes);
+            Botan::BufferStuffer stuffer(sig);
+            R.serialize_to(stuffer.next(n_bytes));
+            S.serialize_to(stuffer.next(n_bytes));
 
-            result.confirm("Signature verifies", verifier.verify_message(msg, sig));
+            result.test_is_true("Signature verifies", verifier.verify_message(msg, sig));
          } catch(Botan::Exception& e) {
             result.test_failure("Failed to recover ECDSA public key", e.what());
          }
@@ -234,7 +241,7 @@ class ECDSA_Invalid_Key_Tests final : public Text_Based_Test {
 
       bool clear_between_callbacks() const override { return false; }
 
-      bool skip_this_test(const std::string&, const VarMap& vars) override {
+      bool skip_this_test(const std::string& /*header*/, const VarMap& vars) override {
          return !Botan::EC_Group::supports_named_group(vars.get_req_str("Group"));
       }
 
@@ -284,17 +291,18 @@ class ECDSA_AllGroups_Test : public Test {
                   Botan::PK_Verifier verifier(*pub, hash);
 
                   for(size_t i = 0; i != 16; ++i) {
-                     auto message = rng().random_vec(rng().next_byte());
+                     auto message = Botan::unlock(rng().random_vec(rng().next_byte()));
                      auto sig = signer.sign_message(message, rng());
-                     result.test_eq("Expected signature size", sig.size(), 2 * group.get_order_bytes());
+                     result.test_sz_eq("Expected signature size", sig.size(), 2 * group.get_order_bytes());
 
-                     result.confirm("Signature accepted", verifier.verify_message(message, sig));
+                     result.test_is_true("Signature accepted", verifier.verify_message(message, sig));
 
                      const auto corrupted_message = mutate_vec(message, rng(), true);
-                     result.confirm("Modified message rejected", !verifier.verify_message(corrupted_message, sig));
+                     result.test_is_true("Modified message rejected", !verifier.verify_message(corrupted_message, sig));
 
                      const auto corrupted_sig = mutate_vec(sig, rng(), true);
-                     result.confirm("Modified signature rejected", !verifier.verify_message(message, corrupted_sig));
+                     result.test_is_true("Modified signature rejected",
+                                         !verifier.verify_message(message, corrupted_sig));
                   }
                } catch(std::exception& e) {
                   result.test_failure("Exception", e.what());
@@ -315,7 +323,7 @@ class ECDSA_ExplicitCurveKey_Test : public Text_Based_Test {
 
       bool clear_between_callbacks() const override { return false; }
 
-      bool skip_this_test(const std::string& group, const VarMap&) override {
+      bool skip_this_test(const std::string& group, const VarMap& /*vars*/) override {
          return !Botan::EC_Group::supports_named_group(group);
       }
 
@@ -328,18 +336,16 @@ class ECDSA_ExplicitCurveKey_Test : public Text_Based_Test {
             const auto expected_oid = Botan::OID::from_name(group_name).value();
 
             auto key = Botan::PKCS8::load_key(key_bytes);
-            auto ecdsa = dynamic_cast<const Botan::ECDSA_PrivateKey*>(key.get());
-            if(ecdsa) {
+            const auto* ecdsa = dynamic_cast<const Botan::ECDSA_PrivateKey*>(key.get());
+            if(ecdsa != nullptr) {
                result.test_success("Returned key was ECDSA");
+
+               const auto& group = ecdsa->domain();
+               result.test_is_true("Key is marked as explicit encoding", group.used_explicit_encoding());
+               result.test_is_true("Group has expected OID", group.get_curve_oid() == expected_oid);
             } else {
                result.test_failure("Returned key was some other type");
             }
-
-            const auto& group = ecdsa->domain();
-            result.test_eq("Key is marked as explicit encoding", group.used_explicit_encoding(), true);
-
-            result.confirm("Group has expected OID", group.get_curve_oid() == expected_oid);
-
          } catch(Botan::Exception& e) {
             result.test_failure("Failed to parse key", e.what());
          }

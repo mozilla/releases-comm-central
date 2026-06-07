@@ -8,7 +8,6 @@
 #include "cli.h"
 
 #include <botan/version.h>
-#include <botan/internal/stl_util.h>
 #include <botan/internal/target_info.h>
 #include <iomanip>
 #include <sstream>
@@ -30,6 +29,8 @@
 #endif
 
 namespace Botan_CLI {
+
+namespace {
 
 class Print_Help final : public Command {
    public:
@@ -130,7 +131,7 @@ class Has_Command final : public Command {
             output() << "Command '" << cmd << "' is " << (exists ? "" : "not ") << "available\n";
          }
 
-         if(exists == false) {
+         if(!exists) {
             this->set_return_code(1);
          }
       }
@@ -162,7 +163,7 @@ class Config_Info final : public Command {
          } else if(arg == "cflags") {
             output() << "-I" << BOTAN_INSTALL_PREFIX << "/" << BOTAN_INSTALL_HEADER_DIR << "\n";
          } else if(arg == "ldflags") {
-            if(*BOTAN_LINK_FLAGS) {
+            if(*BOTAN_LINK_FLAGS != 0) {
                output() << BOTAN_LINK_FLAGS << ' ';
             }
             output() << "-L" << BOTAN_INSTALL_LIB_DIR << "\n";
@@ -288,7 +289,7 @@ class Print_UUID final : public Command {
       std::string description() const override { return "Print a random UUID"; }
 
       void go() override {
-         Botan::UUID uuid(rng());
+         const Botan::UUID uuid(rng());
          output() << uuid.to_string() << "\n";
       }
 };
@@ -319,5 +320,7 @@ class HTTP_Get final : public Command {
 BOTAN_REGISTER_COMMAND("http_get", HTTP_Get);
 
 #endif  // http_util
+
+}  // namespace
 
 }  // namespace Botan_CLI

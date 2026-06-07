@@ -111,7 +111,7 @@ generators are available.
 Common Build Targets
 --------------------
 
-Build everthing that is configured::
+Build everything that is configured::
 
  $ make all
 
@@ -197,19 +197,48 @@ that the Botan libraries were installed into.
 On macOS
 --------------
 
-A build on macOS works much like that on any other Unix-like system.
+A standard build on macOS works much like that on any other Unix-like system.
 
-To build a universal binary for macOS, for older macOs releases,
-you need to set some additional build flags.
-Do this with the `configure.py` flag `--cc-abi-flags`::
+One notable difference with macOS is the common usage of "universal binaries",
+which is effectively a multiarch binary. This was used first for the PowerPC to
+x86 transition, and more recently for the x86 to Aarch64 transition.
 
-  --cc-abi-flags="-force_cpusubtype_ALL -mmacosx-version-min=10.4 -arch i386 -arch ppc"
+Building a universal binary is a bit trickier for Botan compared with a standard
+application, as the library makes use of many architecture specific extensions,
+for example AES-NI and AVX2 on x86, and NEON and the ARMv8 crypto extensions on
+Aarch64. Botan's build system also assumes that it is knowable at setup time
+which files are to be compiled.
 
+Typically (for software with no architecture dependent code) a universal binary
+is built by adding additional compilation flags that look something like
+``-force_cpusubtype_ALL -arch x86_64 -arch arm64``. This effectively causes XCode
+to compile each file twice, once for x86_64 and again for Aarch64. For most source
+files this works fine, but for architecture-specific files it will result in errors
+when code specific to one architecture is encountered when compiling for a different
+architecture, resulting in errors like::
 
-for mac M1 on arm64, you can build the x86_64 arch version via Rosetta separately.
-Do this with with `arch -x86_64 configure.py --library-suffix=-x86_64`
-Then using lipo to create a fat binary.
-`lipo -create libbotan-arm64.dylib libbotan-x86_64.dylib -o libbotan.dylib`
+  $ make
+  ...
+  error: unknown target CPU 'armv8.2-a+sha3'
+  note: valid target CPU values are: ...
+
+There are currently two ways of proceeding.
+
+The first is to use ``--cpu=generic``. This disables all architecture specific
+code, which has performance implications, especially for algorithms with
+dedicated hardware support like AES. This can be alleviated somewhat by making
+sure the CommonCrypto provider (module ``commoncrypto``) is built, since then
+Botan offloads many of these specific operations to CommonCrypto, which will be
+able to use the CPU instructions.
+
+The second, and recommended, approach is to build twice and use ``lipo`` to
+combine the two binaries. This looks something like::
+
+$ ./configure.py --with-build-dir=botan_x86_64 --disable-cc-tests --build-targets=shared  --cpu=x86_64 --extra-cxxflags='-arch x86_64' --ldflags='-arch x86_64' --library-suffix=-x86_64
+$ make -j8 -f botan_x86_64/Makefile
+$ ./configure.py --with-build-dir=botan_aarch64 --disable-cc-tests --build-targets=shared  --cpu=aarch64 --extra-cxxflags='-arch arm64' --ldflags='-arch arm64' --library-suffix=-aarch64
+$ make -j8 -f botan_aarch64/Makefile
+$ lipo -create botan_aarch64/libbotan-3-aarch64.dylib botan_x86_64/libbotan-3-x86_64.dylib -o libbotan-3.dylib
 
 On Windows
 --------------
@@ -227,7 +256,7 @@ shell), and run::
    $ nmake check
    $ nmake install
 
-Micosoft's ``nmake`` does not support building multiple jobs in parallel, which
+Microsoft's ``nmake`` does not support building multiple jobs in parallel, which
 is unfortunate when building on modern multicore machines. It is possible to use
 the (somewhat unmaintained) `Jom <https://wiki.qt.io/Jom>`_ build tool, which is
 a ``nmake`` compatible build system that supports parallel builds. Alternately,
@@ -333,6 +362,10 @@ This will produce HTML files ``botan-test.html`` and ``botan.html``
 along with a static archive ``libbotan-3.a`` which can be linked with
 other modules.
 
+To use the Wasm SIMD128 extension for improved performance of certain
+algorithms (see ``hardware_acceleration.rst``), ensure that you pass the
+``-msimd128`` compilation flag.
+
 Supporting Older Distros
 --------------------------
 
@@ -373,6 +406,13 @@ is quite convenient if you plan to embed the library into another application.
 To generate the amalgamation, run ``configure.py`` with whatever options you
 would ordinarily use, along with the option ``--amalgamation``. This will create
 two (rather large) files, ``botan_all.h`` and ``botan_all.cpp``.
+
+.. warning::
+
+   Compiling a single 120K+ line C++ file containing a variety of
+   carefully optimized SIMD and inline asm has a way of triggering
+   compiler bugs. When using an amalgamation build, be sure to build
+   and run the test suite!
 
 .. note::
 
@@ -497,7 +537,7 @@ compile-time feature checks.
 
 Each of these macros has the form ``BOTAN_HAS_FOO``, for example
 ``BOTAN_HAS_RSA`` or ``BOTAN_HAS_TLS_13``. Each of these macros also has a
-value, which cooresponds to a YYYYMMDD date code integer. If a user-visible
+value, which corresponds to a YYYYMMDD date code integer. If a user-visible
 change is made to a module (for example adding a particular feature) the date
 code is set to a new value. This can be useful for applications if they need to
 check that both a feature is enabled in general and that it supports some
@@ -577,10 +617,13 @@ Minimized Builds
 --------------------
 
 Many developers wish to configure a minimized build which contains only the
-specific features their application will use. In general this is straighforward:
+specific features their application will use. In general this is straightforward:
 use ``--minimized-build`` plus ``--enable-modules=`` to enable the specific modules
-you wish to use. Any such configurations should build and pass the tests; if you
-encounter a case where it doesn't please file an issue.
+you wish to use. It is possible to use an asterisk (``*``) as a wildcard for
+related modules. For instance to enable all available AES implementations, use
+``--enable-modules='aes*'`` which will enable ``aes_ni``, ``aes_power8``, etc.
+Any such configurations should build and pass the tests; if you encounter a case
+where it doesn't please file an issue.
 
 The only trick is knowing which features you want to enable. The most common
 difficulty comes with entropy sources. By default, none are enabled, which means
@@ -736,75 +779,16 @@ removal in future releases. This is the default.
 Disable all deprecated modules and features. Note that individual deprecated
 modules can be explicitly disabled using ``--disable-modules=MODS``.
 
-``--disable-sse2``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Disable use of SSE2 intrinsics
-
-``--disable-ssse3``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Disable use of SSSE3 intrinsics
-
-``--disable-sse4.1``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Disable use of SSE4.1 intrinsics
-
-``--disable-sse4.2``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Disable use of SSE4.2 intrinsics
-
-``--disable-avx2``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Disable use of AVX2 intrinsics
-
-``--disable-bmi2``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Disable use of BMI2 intrinsics
-
-``--disable-rdrand``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Disable use of RDRAND intrinsics
-
-``--disable-rdseed``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Disable use of RDSEED intrinsics
-
-``--disable-aes-ni``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Disable use of AES-NI intrinsics
-
-``--disable-sha-ni``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Disable use of SHA-NI intrinsics
-
-``--disable-altivec``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Disable use of AltiVec intrinsics
-
 ``--disable-neon``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Disable use of NEON intrinsics
-
-``--disable-armv8crypto``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Disable use of ARMv8 Crypto intrinsics
-
-``--disable-powercrypto``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Disable use of POWER Crypto intrinsics
+Disable use of ARM NEON intrinsics at compile time. This is needed to support
+certain distributions which still support obsolete ARMv7 cores that don't
+support NEON and which, for whatever reason, completely disable support for NEON
+in their toolchains. For ordinary usage this is not necessary; the NEON using
+code will be compiled and simply not used if at runtime NEON support cannot be
+detected. This option is supported only for 32-bit ARM processors; Aarch64
+requires NEON and for such targets this option is ignored.
 
 ``--system-cert-bundle=PATH``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -832,6 +816,13 @@ Enable specific sanitizers. See ``src/build-data/cc`` for more information.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Disable stack smashing protections. **not recommended**
+
+``--enable-stack-scrubbing``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Enable scrubbing of stack frames that were used for cryptographic calculations
+on potentially sensitive data. At the moment, this is supported exclusively on
+GCC 14 and newer.
 
 ``--with-coverage-info``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1029,7 +1020,7 @@ Disable some specific modules
 ``--minimized-build``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Start with the bare minimum. This is mostly useful in conjuction with
+Start with the bare minimum. This is mostly useful in conjunction with
 ``--enable-modules`` to get a build that has just the features a
 particular application requires.
 
@@ -1113,6 +1104,12 @@ Set the man page installation dir.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Set the include file installation dir.
+
+``--cmakeconfigdir=DIR``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Set the CMake config (botan-config.cmake, botan-config-version.cmake) installation dir.
+Defaults to ``<libdir>/cmake/Botan-<version>``.
 
 ``--list-modules``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

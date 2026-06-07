@@ -8,6 +8,7 @@
 
 #if defined(BOTAN_HAS_THRESHOLD_SECRET_SHARING)
    #include "test_rng.h"
+   #include <botan/exceptn.h>
    #include <botan/tss.h>
 #endif
 
@@ -38,7 +39,7 @@ class TSS_Recovery_Tests final : public Text_Based_Test {
             }
 
             auto reconstructed_secret_all = Botan::RTSS_Share::reconstruct(shares);
-            result.test_eq("Reconstructed secret correctly from all shares", reconstructed_secret_all, input);
+            result.test_bin_eq("Reconstructed secret correctly from all shares", reconstructed_secret_all, input);
 
             if(header == "Invalid") {
                result.test_failure("Invalid shares should not result in recovery");
@@ -46,11 +47,12 @@ class TSS_Recovery_Tests final : public Text_Based_Test {
 
             if(N != M) {
                while(shares.size() > M) {
-                  size_t to_remove = this->rng().next_byte() % shares.size();
+                  const size_t to_remove = this->rng().next_byte() % shares.size();
                   shares.erase(shares.begin() + to_remove);
                   try {
                      auto reconstructed_secret = Botan::RTSS_Share::reconstruct(shares);
-                     result.test_eq("Reconstructed secret correctly from reduced shares", reconstructed_secret, input);
+                     result.test_bin_eq(
+                        "Reconstructed secret correctly from reduced shares", reconstructed_secret, input);
                   } catch(Botan::Decoding_Error&) {
                      result.test_failure("Reconstruction failed with share count " + std::to_string(shares.size()));
                   }
@@ -111,23 +113,23 @@ class TSS_Generation_Tests final : public Text_Based_Test {
          std::vector<Botan::RTSS_Share> shares =
             Botan::RTSS_Share::split(M, N, input.data(), static_cast<uint16_t>(input.size()), id, hash, fixed_rng);
 
-         result.test_eq("Expected number of shares", shares.size(), N);
+         result.test_sz_eq("Expected number of shares", shares.size(), N);
 
          for(size_t i = 0; i != N; ++i) {
-            result.test_eq("Expected share", shares[i].data(), expected_shares[i]);
+            result.test_bin_eq("Expected share", shares[i].data(), expected_shares[i]);
          }
 
          auto reconstructed_secret_all = Botan::RTSS_Share::reconstruct(shares);
-         result.test_eq("Reconstructed secret correctly from all shares", reconstructed_secret_all, input);
+         result.test_bin_eq("Reconstructed secret correctly from all shares", reconstructed_secret_all, input);
 
          if(N != M) {
             while(shares.size() > M) {
-               size_t to_remove = this->rng().next_byte() % shares.size();
+               const size_t to_remove = this->rng().next_byte() % shares.size();
                shares.erase(shares.begin() + to_remove);
 
                try {
                   auto reconstructed_secret = Botan::RTSS_Share::reconstruct(shares);
-                  result.test_eq("Reconstructed secret correctly from reduced shares", reconstructed_secret, input);
+                  result.test_bin_eq("Reconstructed secret correctly from reduced shares", reconstructed_secret, input);
                } catch(Botan::Decoding_Error&) {
                   result.test_failure("Reconstruction failed with share count " + std::to_string(shares.size()));
                }

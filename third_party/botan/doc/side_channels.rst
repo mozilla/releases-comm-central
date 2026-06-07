@@ -1,3 +1,6 @@
+
+.. _side_channels:
+
 Side Channels
 =========================
 
@@ -169,7 +172,7 @@ ECC scalar multiplication
 --------------------------
 
 Several elliptic curve scalar multiplication algorithms are implemented to
-accomodate different use cases. The implementations can be found in
+accommodate different use cases. The implementations can be found in
 pcurves_impl.h as PrecomputedBaseMulTable, WindowedMulTable, and
 WindowedMul2Table.
 
@@ -271,7 +274,7 @@ is based on code by Mike Hamburg [VectorAes], see aes_vperm.cpp.
 
 On all other processors, a constant time bitsliced implementation is used. This
 is typically slower than the vector permute implementation, and additionally for
-best performance multiple blocks must be processed in parellel.  So modes such
+best performance multiple blocks must be processed in parallel.  So modes such
 as CTR, GCM or XTS are relatively fast, but others such as CBC encryption
 suffer.
 
@@ -314,7 +317,8 @@ Twofish
 
 This algorithm uses table lookups with secret sboxes. No cache-based side
 channel attack on Twofish has ever been published, but it is possible nobody
-sufficiently skilled has ever tried.
+sufficiently skilled has ever tried. There is also an AVX-512 implementation
+which avoids table lookups completely.
 
 ChaCha20, Serpent, Threefish, ...
 -----------------------------------
@@ -359,6 +363,17 @@ volatile function pointer is used. This approach is not guaranteed to work on
 all platforms, and currently there is no systematic check of the resulting
 binary function that it is compiled as expected. But, it is the best approach
 currently known and has been verified to work as expected on common platforms.
+
+Stack Scrubbing
+----------------------
+
+GCC 14 and newer can emit code that scrubs the stack frames of functions that
+handle sensitive information [GCCstrub] after they returned to the caller. This
+can reduce the time window for sniffing sensitive information from a process.
+
+Botan can apply this to certain core routines of fundamental algorithms. For now
+this feature is an opt-in. Configure with `--enable-stack-scrubbing` to benefit
+from this feature if you are using a compatible version of GCC.
 
 Memory allocation
 ----------------------
@@ -432,7 +447,10 @@ References
 
 [CoronDpa] Coron,
 "Resistance against Differential Power Analysis for Elliptic Curve Cryptosystems"
-(https://citeseer.ist.psu.edu/viewdoc/summary?doi=10.1.1.1.5695)
+(https://citeseerx.ist.psu.edu/document?doi=4d5d6dfdb582c0d695953e92c408f2377a6c9039)
+
+[GCCstrub] GCC Stack Scrubbing
+(https://gcc.gnu.org/onlinedocs/gcc-14.2.0/gcc/Common-Type-Attributes.html#index-strub-type-attribute)
 
 [GcdFree] Joye, Paillier "GCD-Free Algorithms for Computing Modular Inverses"
 (https://marcjoye.github.io/papers/JP03gcdfree.pdf)
@@ -449,11 +467,11 @@ Attacks on TLS-ECDH
 elliptic-curve cryptography. (https://safecurves.cr.yp.to)
 
 [Lucky13] AlFardan, Paterson "Lucky Thirteen: Breaking the TLS and DTLS Record Protocols"
-(http://www.isg.rhul.ac.uk/tls/TLStiming.pdf)
+(https://www.isg.rhul.ac.uk/tls/Lucky13.html)
 
 [MillionMsg] Bleichenbacher "Chosen Ciphertext Attacks Against Protocols Based
 on the RSA Encryption Standard PKCS1"
-(https://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.19.8543)
+(https://archiv.infsec.ethz.ch/education/fs08/secsem/bleichenbacher98.pdf)
 
 [MillionMsgTiming] Meyer, Somorovsky, Weiss, Schwenk, Schinzel, Tews: Revisiting
 SSL/TLS Implementations: New Bleichenbacher Side Channels and Attacks
@@ -465,7 +483,7 @@ Encryption Padding (OAEP) as Standardized in PKCS #1 v2.0"
 
 [RsaFault] Boneh, Demillo, Lipton
 "On the importance of checking cryptographic protocols for faults"
-(https://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.48.9764)
+(https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=7622200b9459a8c0e25e74ce7316c2402862e919)
 
 [RandomMonty] Le, Tan, Tunstall "Randomizing the Montgomery Powering Ladder"
 (https://eprint.iacr.org/2015/657)

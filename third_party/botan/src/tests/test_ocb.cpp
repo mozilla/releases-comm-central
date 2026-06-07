@@ -44,7 +44,7 @@ class OCB_Wide_Test_Block_Cipher final : public Botan::BlockCipher {
       Botan::Key_Length_Specification key_spec() const override { return Botan::Key_Length_Specification(m_bs); }
 
       void encrypt_n(const uint8_t in[], uint8_t out[], size_t blocks) const override {
-         while(blocks) {
+         while(blocks > 0) {
             Botan::copy_mem(out, in, m_bs);
             Botan::poly_double_n(out, m_bs);
 
@@ -59,14 +59,14 @@ class OCB_Wide_Test_Block_Cipher final : public Botan::BlockCipher {
       }
 
       void decrypt_n(const uint8_t in[], uint8_t out[], size_t blocks) const override {
-         while(blocks) {
+         while(blocks > 0) {
             for(size_t i = 0; i != m_bs; ++i) {
                out[i] = in[i] ^ m_key[i];
             }
 
             uint8_t carry = in[m_bs - 1] & 0x01;
 
-            if(carry) {
+            if(carry != 0) {
                if(m_bs == 16 || m_bs == 24) {
                   out[m_bs - 1] ^= 0x87;
                } else if(m_bs == 32) {
@@ -121,14 +121,14 @@ class OCB_Wide_KAT_Tests final : public Text_Based_Test {
          enc.set_associated_data(ad);
          enc.start(nonce);
          enc.finish(buf);
-         result.test_eq("Ciphertext matches", buf, expected);
+         result.test_bin_eq("Ciphertext matches", buf, expected);
 
          Botan::OCB_Decryption dec(std::make_unique<OCB_Wide_Test_Block_Cipher>(bs), std::min<size_t>(bs, 32));
          dec.set_key(key);
          dec.set_associated_data(ad);
          dec.start(nonce);
          dec.finish(buf);
-         result.test_eq("Decryption correct", buf, input);
+         result.test_bin_eq("Decryption correct", buf, input);
 
          return result;
       }
@@ -209,20 +209,20 @@ class OCB_Wide_Long_KAT_Tests final : public Text_Based_Test {
                S[j] = static_cast<uint8_t>(0x50 + j);
             }
 
-            Botan::store_be(static_cast<uint16_t>(3 * i + 1), &N[0]);
+            Botan::store_be(static_cast<uint16_t>(3 * i + 1), N.data());
 
             ocb_encrypt(result, C, enc, N, S, S);
-            Botan::store_be(static_cast<uint16_t>(3 * i + 2), &N[0]);
+            Botan::store_be(static_cast<uint16_t>(3 * i + 2), N.data());
             ocb_encrypt(result, C, enc, N, S, empty);
-            Botan::store_be(static_cast<uint16_t>(3 * i + 3), &N[0]);
+            Botan::store_be(static_cast<uint16_t>(3 * i + 3), N.data());
             ocb_encrypt(result, C, enc, N, empty, S);
          }
 
-         Botan::store_be(static_cast<uint16_t>(385), &N[0]);
+         Botan::store_be(static_cast<uint16_t>(385), N.data());
          std::vector<uint8_t> final_result;
          ocb_encrypt(result, final_result, enc, N, empty, C);
 
-         result.test_eq("correct value", final_result, expected);
+         result.test_bin_eq("correct value", final_result, expected);
 
          return result;
       }
@@ -292,7 +292,7 @@ class OCB_Long_KAT_Tests final : public Text_Based_Test {
          std::vector<uint8_t> final_result;
          ocb_encrypt(result, final_result, enc, dec, N, empty, C);
 
-         result.test_eq("correct value", final_result, expected);
+         result.test_bin_eq("correct value", final_result, expected);
 
          return result;
       }
@@ -320,7 +320,7 @@ class OCB_Long_KAT_Tests final : public Text_Based_Test {
 
             dec.finish(buf, 0);
 
-            result.test_eq("OCB round tripped", buf, pt);
+            result.test_bin_eq("OCB round tripped", buf, pt);
          } catch(std::exception& e) {
             result.test_failure("OCB round trip error", e.what());
          }
@@ -352,7 +352,7 @@ class OCB_Null_Cipher final : public Botan::BlockCipher {
 
       bool has_keying_material() const override { return m_has_key; }
 
-      void key_schedule(std::span<const uint8_t>) override { m_has_key = true; }
+      void key_schedule(std::span<const uint8_t> /*key*/) override { m_has_key = true; }
 
       Botan::Key_Length_Specification key_spec() const override { return Botan::Key_Length_Specification(m_bs); }
 

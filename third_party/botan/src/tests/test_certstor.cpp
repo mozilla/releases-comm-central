@@ -15,6 +15,7 @@
 
    #if defined(BOTAN_HAS_CERTSTOR_SQLITE3)
       #include <botan/certstor_sqlite.h>
+      #include <botan/rng.h>
       #include <botan/sqlite3.h>
    #endif
 #endif
@@ -83,10 +84,10 @@ Test::Result test_certstor_sqlite3_insert_find_remove_test(const std::vector<Cer
             return result;
          }
 
-         result.test_eq("Got wrong certificate", cert.fingerprint(), w_keyid->fingerprint());
+         result.test_str_eq("Got wrong certificate", cert.fingerprint(), w_keyid->fingerprint());
 
          if(priv) {
-            result.test_eq("Got wrong private key", key.private_key_bits(), priv->private_key_bits());
+            result.test_bin_eq("Got wrong private key", key.private_key_bits(), priv->private_key_bits());
 
             const auto rev_certs = store.find_certs_for_key(*priv);
 
@@ -98,22 +99,22 @@ Test::Result test_certstor_sqlite3_insert_find_remove_test(const std::vector<Cer
                      return c.fingerprint() == cert.fingerprint();
                   });
 
-               result.test_eq("Got wrong/no certificate", found, true);
+               result.test_is_true("Got wrong/no certificate", found);
             }
          }
 
          if(certsandkeys[4] != certandkey && certsandkeys[5] != certandkey) {
-            result.test_eq("Got wrong certificate", cert.fingerprint(), wo_keyid->fingerprint());
+            result.test_str_eq("Got wrong certificate", cert.fingerprint(), wo_keyid->fingerprint());
          }
 
-         result.test_eq("Can't remove certificate", store.remove_cert(cert), true);
-         result.test_eq("Can't remove certificate", !store.find_cert(cert.subject_dn(), cert.subject_key_id()), true);
+         result.test_is_true("Can't remove certificate", store.remove_cert(cert));
+         result.test_is_true("Can't remove certificate", !store.find_cert(cert.subject_dn(), cert.subject_key_id()));
 
          if(priv) {
             store.remove_key(key);
          }
 
-         result.test_eq("Can't remove key", !store.find_key(cert), true);
+         result.test_is_true("Can't remove key", !store.find_key(cert));
       }
 
       return result;
@@ -142,15 +143,13 @@ Test::Result test_certstor_sqlite3_crl_test(const std::vector<CertificateAndKey>
       {
          const auto crls = store.generate_crls();
 
-         result.test_eq("Can't revoke certificate", crls.size(), 2);
-         result.test_eq(
+         result.test_sz_eq("Can't revoke certificate", crls.size(), 2);
+         result.test_is_true(
             "Can't revoke certificate",
-            crls[0].is_revoked(certsandkeys[0].certificate()) ^ crls[1].is_revoked(certsandkeys[0].certificate()),
-            true);
-         result.test_eq(
+            crls[0].is_revoked(certsandkeys[0].certificate()) ^ crls[1].is_revoked(certsandkeys[0].certificate()));
+         result.test_is_true(
             "Can't revoke certificate",
-            crls[0].is_revoked(certsandkeys[3].certificate()) ^ crls[1].is_revoked(certsandkeys[3].certificate()),
-            true);
+            crls[0].is_revoked(certsandkeys[3].certificate()) ^ crls[1].is_revoked(certsandkeys[3].certificate()));
       }
 
       store.affirm_cert(certsandkeys[3].certificate());
@@ -158,21 +157,21 @@ Test::Result test_certstor_sqlite3_crl_test(const std::vector<CertificateAndKey>
       {
          const auto crls = store.generate_crls();
 
-         result.test_eq("Can't revoke certificate, wrong crl size", crls.size(), 1);
-         result.test_eq(
-            "Can't revoke certificate, cert 0 not revoked", crls[0].is_revoked(certsandkeys[0].certificate()), true);
+         result.test_sz_eq("Can't revoke certificate, wrong crl size", crls.size(), 1);
+         result.test_is_true("Can't revoke certificate, cert 0 not revoked",
+                             crls[0].is_revoked(certsandkeys[0].certificate()));
       }
 
       const auto cert0_crl = store.find_crl_for(certsandkeys[0].certificate());
 
-      result.test_eq("Can't revoke certificate, crl for cert 0", !cert0_crl, false);
-      result.test_eq("Can't revoke certificate, crl for cert 0 size check", cert0_crl->get_revoked().size(), 1);
-      result.test_eq(
-         "Can't revoke certificate, no crl for cert 0", cert0_crl->is_revoked(certsandkeys[0].certificate()), true);
+      result.test_is_false("Can't revoke certificate, crl for cert 0", !cert0_crl);
+      result.test_sz_eq("Can't revoke certificate, crl for cert 0 size check", cert0_crl->get_revoked().size(), 1);
+      result.test_is_true("Can't revoke certificate, no crl for cert 0",
+                          cert0_crl->is_revoked(certsandkeys[0].certificate()));
 
       const auto cert3_crl = store.find_crl_for(certsandkeys[3].certificate());
 
-      result.test_eq("Can't revoke certificate, crl for cert 3", !cert3_crl, true);
+      result.test_is_true("Can't revoke certificate, crl for cert 3", !cert3_crl);
 
       return result;
    } catch(std::exception& e) {
@@ -195,16 +194,15 @@ Test::Result test_certstor_sqlite3_all_subjects_test(const std::vector<Certifica
 
       const auto subjects = store.all_subjects();
 
-      result.test_eq("Check subject list length", subjects.size(), 6);
+      result.test_sz_eq("Check subject list length", subjects.size(), 6);
 
       for(const auto& sub : subjects) {
          const std::string ss = sub.to_string();
 
-         result.test_eq("Check subject " + ss,
-                        certsandkeys[0].subject_dn() == sub || certsandkeys[1].subject_dn() == sub ||
-                           certsandkeys[2].subject_dn() == sub || certsandkeys[3].subject_dn() == sub ||
-                           certsandkeys[4].subject_dn() == sub || certsandkeys[5].subject_dn() == sub,
-                        true);
+         result.test_is_true("Check subject " + ss,
+                             certsandkeys[0].subject_dn() == sub || certsandkeys[1].subject_dn() == sub ||
+                                certsandkeys[2].subject_dn() == sub || certsandkeys[3].subject_dn() == sub ||
+                                certsandkeys[4].subject_dn() == sub || certsandkeys[5].subject_dn() == sub);
       }
       return result;
    } catch(std::exception& e) {
@@ -233,13 +231,13 @@ Test::Result test_certstor_sqlite3_find_all_certs_test(const std::vector<Certifi
          } else {
             const std::string a_str = a.subject_dn().to_string();
             const std::string res_str = res_vec.at(0).subject_dn().to_string();
-            result.test_eq("Check subject " + a_str, a_str, res_str);
+            result.test_str_eq("Check subject " + a_str, a_str, res_str);
          }
       }
 
-      Botan::X509_Certificate same_dn_1 =
+      const Botan::X509_Certificate same_dn_1 =
          Botan::X509_Certificate(Test::data_file("x509/bsi/common_14/common_14_sub_ca.ca.pem.crt"));
-      Botan::X509_Certificate same_dn_2 =
+      const Botan::X509_Certificate same_dn_2 =
          Botan::X509_Certificate(Test::data_file("x509/bsi/common_14/common_14_wrong_sub_ca.ca.pem.crt"));
 
       store.insert_cert(same_dn_1);
@@ -253,10 +251,10 @@ Test::Result test_certstor_sqlite3_find_all_certs_test(const std::vector<Certifi
          const std::string cert_dn = same_dn_1.subject_dn().to_string();
          const std::string res0_dn = res_vec.at(0).subject_dn().to_string();
 
-         result.test_eq("Check subject " + cert_dn, cert_dn, res0_dn);
+         result.test_str_eq("Check subject " + cert_dn, cert_dn, res0_dn);
 
          const std::string res1_dn = res_vec.at(1).subject_dn().to_string();
-         result.test_eq("Check subject " + cert_dn, cert_dn, res1_dn);
+         result.test_str_eq("Check subject " + cert_dn, cert_dn, res1_dn);
       }
    } catch(const std::exception& e) {
       result.test_failure(e.what());
@@ -267,8 +265,8 @@ Test::Result test_certstor_sqlite3_find_all_certs_test(const std::vector<Certifi
 
    #endif
 
-Test::Result test_certstor_find_hash_subject(const std::vector<CertificateAndKey>& certsandkeys) {
-   Test::Result result("Certificate Store - Find by subject hash");
+Test::Result test_certstor_all_finders(const std::vector<CertificateAndKey>& certsandkeys) {
+   Test::Result result("Certificate Store - Test all finders");
 
    try {
       Botan::Certificate_Store_In_Memory store;
@@ -279,15 +277,33 @@ Test::Result test_certstor_find_hash_subject(const std::vector<CertificateAndKey
 
       for(const auto& certandkey : certsandkeys) {
          const auto& cert = certandkey.certificate();
-         const auto hash = cert.raw_subject_dn_sha256();
 
-         const auto found = store.find_cert_by_raw_subject_dn_sha256(hash);
-         if(!found) {
-            result.test_failure("Can't retrieve certificate " + cert.fingerprint("SHA-1"));
-            return result;
+         // find by subject hash
+         {
+            const auto hash = cert.raw_subject_dn_sha256();
+
+            const auto found = store.find_cert_by_raw_subject_dn_sha256(hash);
+            if(!found) {
+               result.test_failure("Can't retrieve certificate " + cert.fingerprint("SHA-1"));
+               return result;
+            }
+
+            result.test_bin_eq("Got wrong certificate", hash, found->raw_subject_dn_sha256());
          }
 
-         result.test_eq("Got wrong certificate", hash, found->raw_subject_dn_sha256());
+         // find by issuer dn and serial number
+         {
+            const auto& issuer_dn = cert.issuer_dn();
+            const auto& serial_number = cert.serial_number();
+
+            const auto found = store.find_cert_by_issuer_dn_and_serial_number(issuer_dn, serial_number);
+            if(!found) {
+               result.test_failure("Can't retrieve certificate " + cert.fingerprint("SHA-1"));
+               return result;
+            }
+
+            result.test_bin_eq("Got wrong certificate", serial_number, found->serial_number());
+         }
       }
 
       const auto found = store.find_cert_by_raw_subject_dn_sha256(std::vector<uint8_t>(32, 0));
@@ -312,14 +328,14 @@ Test::Result test_certstor_load_allcert() {
    try {
       result.test_note("load certs from dir: " + test_dir_bundled);
       // Certificate_Store_In_Memory constructor loads every cert of every files of the dir.
-      Botan::Certificate_Store_In_Memory store(test_dir_bundled);
+      const Botan::Certificate_Store_In_Memory store(test_dir_bundled);
 
       // X509_Certificate constructor loads only the first certificate found in the file.
-      Botan::X509_Certificate root_cert(Test::data_file("x509/x509test/root.pem"));
-      Botan::X509_Certificate valid_cert(Test::data_file("x509/x509test/ValidCert.pem"));
-      std::vector<uint8_t> key_id;
-      result.confirm("Root cert found", store.find_cert(root_cert.subject_dn(), key_id) != std::nullopt);
-      result.confirm("ValidCert found", store.find_cert(valid_cert.subject_dn(), key_id) != std::nullopt);
+      const Botan::X509_Certificate root_cert(Test::data_file("x509/x509test/root.pem"));
+      const Botan::X509_Certificate valid_cert(Test::data_file("x509/x509test/ValidCert.pem"));
+      const std::vector<uint8_t> key_id;
+      result.test_is_true("Root cert found", store.find_cert(root_cert.subject_dn(), key_id) != std::nullopt);
+      result.test_is_true("ValidCert found", store.find_cert(valid_cert.subject_dn(), key_id) != std::nullopt);
       return result;
    } catch(std::exception& e) {
       result.test_failure(e.what());
@@ -350,7 +366,7 @@ class Certstor_Tests final : public Test {
 
             const auto test_key = Test::data_file("x509/certstor/" + keypath);
             Botan::DataSource_Stream key_stream(test_key);
-            std::shared_ptr<Botan::Private_Key> private_key = Botan::PKCS8::load_key(key_stream);
+            const std::shared_ptr<Botan::Private_Key> private_key = Botan::PKCS8::load_key(key_stream);
 
             if(!private_key) {
                Test::Result result("Certificate Store");
@@ -363,7 +379,7 @@ class Certstor_Tests final : public Test {
 
          std::vector<Test::Result> results;
 
-         results.push_back(test_certstor_find_hash_subject(certsandkeys));
+         results.push_back(test_certstor_all_finders(certsandkeys));
          results.push_back(test_certstor_load_allcert());
    #if defined(BOTAN_HAS_CERTSTOR_SQLITE3)
          results.push_back(test_certstor_sqlite3_insert_find_remove_test(certsandkeys));

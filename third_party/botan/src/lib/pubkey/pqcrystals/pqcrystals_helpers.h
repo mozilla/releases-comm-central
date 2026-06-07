@@ -40,7 +40,7 @@ using next_longer_int_t =
 // clang-format on
 
 template <std::integral T>
-   requires(size_t(sizeof(T)) <= 4)
+   requires(sizeof(T) <= 4)
 consteval T montgomery_R(T q) {
    using T_unsigned = std::make_unsigned_t<T>;
    using T2 = next_longer_uint_t<T_unsigned>;
@@ -48,7 +48,7 @@ consteval T montgomery_R(T q) {
 }
 
 template <std::integral T>
-   requires(size_t(sizeof(T)) <= 4)
+   requires(sizeof(T) <= 4)
 consteval T montgomery_R2(T q) {
    using T2 = next_longer_int_t<T>;
    return (static_cast<T2>(montgomery_R(q)) * static_cast<T2>(montgomery_R(q))) % q;
@@ -71,7 +71,10 @@ consteval eea_result<T> extended_euclidean_algorithm(T a, T b) {
       std::swap(a, b);
    }
 
-   T u1 = 0, v1 = 1, u2 = 1, v2 = 0;
+   T u1 = 0;
+   T v1 = 1;
+   T u2 = 1;
+   T v2 = 0;
 
    if(a != b) {
       while(a != 0) {
@@ -158,7 +161,7 @@ class Bounded_XOF final {
       }
 
       template <size_t bytes, typename T>
-      constexpr static bool default_predicate(T) {
+      constexpr static bool default_predicate(T /*v*/) {
          return true;
       }
 
@@ -188,8 +191,8 @@ class Bounded_XOF final {
                 typename PredicateFnT = decltype(default_predicate<bytes, MappedValueT<bytes, MapFnT>>)>
          requires std::invocable<MapFnT, std::array<uint8_t, bytes>> &&
                   std::invocable<PredicateFnT, MappedValueT<bytes, MapFnT>>
-      constexpr auto next(MapFnT&& transformer = default_transformer<bytes>,
-                          PredicateFnT&& predicate = default_predicate<bytes, MappedValueT<bytes, MapFnT>>) {
+      constexpr auto next(const MapFnT& transformer = default_transformer<bytes>,
+                          const PredicateFnT& predicate = default_predicate<bytes, MappedValueT<bytes, MapFnT>>) {
          while(true) {
             auto output = transformer(take<bytes>());
             if(predicate(output)) {

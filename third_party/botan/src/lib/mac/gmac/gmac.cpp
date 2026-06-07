@@ -10,6 +10,7 @@
 
 #include <botan/block_cipher.h>
 #include <botan/exceptn.h>
+#include <botan/mem_ops.h>
 #include <botan/internal/fmt.h>
 #include <botan/internal/ghash.h>
 
@@ -33,6 +34,10 @@ Key_Length_Specification GMAC::key_spec() const {
 
 std::string GMAC::name() const {
    return fmt("GMAC({})", m_cipher->name());
+}
+
+std::string GMAC::provider() const {
+   return m_ghash->provider();
 }
 
 size_t GMAC::output_length() const {
@@ -74,12 +79,12 @@ void GMAC::final_result(std::span<uint8_t> mac) {
    // This ensures the GMAC computation has been initialized with a fresh
    // nonce. The aim of this check is to prevent developers from re-using
    // nonces (and potential nonce-reuse attacks).
-   if(m_initialized == false) {
+   if(!m_initialized) {
       throw Invalid_State("GMAC was not used with a fresh nonce");
    }
 
    m_ghash->final(mac.first(output_length()));
-   m_ghash->set_key(m_H);
+   m_ghash->reset_associated_data();
 }
 
 std::unique_ptr<MessageAuthenticationCode> GMAC::new_object() const {

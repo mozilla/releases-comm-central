@@ -48,6 +48,7 @@ class BOTAN_PUBLIC_API(2, 0) Entropy_Source {
       Entropy_Source(const Entropy_Source& other) = delete;
       Entropy_Source(Entropy_Source&& other) = delete;
       Entropy_Source& operator=(const Entropy_Source& other) = delete;
+      Entropy_Source& operator=(Entropy_Source&& other) = delete;
 
       virtual ~Entropy_Source() = default;
 };
@@ -70,8 +71,20 @@ class BOTAN_PUBLIC_API(2, 0) Entropy_Sources final {
       * source blocks forever, this invocation will potentially also block.
       *
       * @returns the number of bits collected from the entropy sources
+      *
+      * TODO(Botan4) remove this variant, and the <chrono> include above
       */
+      BOTAN_DEPRECATED("Use version without a timeout argument")
       size_t poll(RandomNumberGenerator& rng, size_t bits, std::chrono::milliseconds timeout);
+
+      /**
+      * Poll all sources to collect @p bits of entropy. Entropy collection is
+      * aborted as soon as the requested number of bits are obtained or the
+      * timeout runs out.
+      *
+      * @returns the number of bits collected from the entropy sources
+      */
+      size_t poll(RandomNumberGenerator& rng, size_t bits);
 
       /**
       * Poll just a single named source. Ordinally only used for testing
@@ -84,6 +97,8 @@ class BOTAN_PUBLIC_API(2, 0) Entropy_Sources final {
       Entropy_Sources(const Entropy_Sources& other) = delete;
       Entropy_Sources(Entropy_Sources&& other) = delete;
       Entropy_Sources& operator=(const Entropy_Sources& other) = delete;
+      Entropy_Sources& operator=(Entropy_Sources&& other) = delete;
+      ~Entropy_Sources() = default;
 
    private:
       std::vector<std::unique_ptr<Entropy_Source>> m_srcs;

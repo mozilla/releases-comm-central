@@ -5,35 +5,33 @@
 * Botan is released under the Simplified BSD License (see license.txt)
 */
 
-#include "test_rng.h"
 #include "tests.h"
 
 #if defined(BOTAN_HAS_SPHINCS_PLUS_COMMON) && defined(BOTAN_HAS_AES)
 
    #include <botan/assert.h>
    #include <botan/hash.h>
-   #include <botan/pk_algs.h>
    #include <botan/pubkey.h>
    #include <botan/secmem.h>
    #include <botan/sp_parameters.h>
    #include <botan/sphincsplus.h>
-   #include <botan/internal/loadstor.h>
-   #include <botan/internal/sp_hash.h>
-   #include <algorithm>
 
    #include "test_pubkey.h"
+   #include "test_rng.h"
 
 namespace Botan_Tests {
+
+namespace {
 
 /**
  * Test all implemented SLH-DSA instances using the data of the KAT files.
  */
 class SPHINCS_Plus_Test_Base : public Text_Based_Test {
    public:
-      SPHINCS_Plus_Test_Base(std::string_view kat_path) :
+      explicit SPHINCS_Plus_Test_Base(std::string_view kat_path) :
             Text_Based_Test(std::string(kat_path), "SphincsParameterSet,seed,pk,sk,msg,HashSigRand", "HashSigDet") {}
 
-      bool skip_this_test(const std::string&, const VarMap& vars) override {
+      bool skip_this_test(const std::string& /*header*/, const VarMap& vars) override {
          auto params = Botan::Sphincs_Parameters::create(vars.get_req_str("SphincsParameterSet"));
 
          if(!params.is_available()) {
@@ -67,7 +65,7 @@ class SPHINCS_Plus_Test_Base : public Text_Based_Test {
          BOTAN_ASSERT_UNREACHABLE();
       }
 
-      Test::Result run_one_test(const std::string&, const VarMap& vars) final {
+      Test::Result run_one_test(const std::string& /*header*/, const VarMap& vars) final {
          auto params = Botan::Sphincs_Parameters::create(vars.get_req_str("SphincsParameterSet"));
          Test::Result result(params.is_slh_dsa() ? "SLH-DSA" : "SPHINCS+");
 
@@ -111,26 +109,26 @@ class SPHINCS_Plus_Test_Base : public Text_Based_Test {
          // push the entropy used for signing twice, as we want to perform two
          // signing operations
          const auto entropy_for_signing = kat_rng.random_vec<std::vector<uint8_t>>(1 * params.n());
-         // Depending on the configuation, upto 2 signatures with 'Randomized' are created
+         // Depending on the configuration, up to 2 signatures with 'Randomized' are created
          fixed_rng.add_entropy(entropy_for_signing);
          fixed_rng.add_entropy(entropy_for_signing);
 
          // Generate Keypair
-         Botan::SphincsPlus_PrivateKey priv_key(fixed_rng, params);
+         const Botan::SphincsPlus_PrivateKey priv_key(fixed_rng, params);
 
-         result.test_is_eq("public key bits", priv_key.public_key_bits(), pk_ref);
-         result.test_is_eq("private key bits", unlock(priv_key.private_key_bits()), sk_ref);
+         result.test_bin_eq("public key bits", priv_key.public_key_bits(), pk_ref);
+         result.test_bin_eq("private key bits", priv_key.private_key_bits(), sk_ref);
 
          // Signature roundtrip (Randomized mode)
          auto signer_rand = Botan::PK_Signer(priv_key, fixed_rng, "Randomized");
          auto signature_rand = signer_rand.sign_message(msg_ref.data(), msg_ref.size(), fixed_rng);
 
-         result.test_is_eq("signature creation randomized", unlock(hash->process(signature_rand)), sig_rand_hash);
+         result.test_bin_eq("signature creation randomized", hash->process(signature_rand), sig_rand_hash);
 
          Botan::PK_Verifier verifier(*priv_key.public_key(), params.algorithm_identifier());
-         bool verify_success =
+         const bool verify_success =
             verifier.verify_message(msg_ref.data(), msg_ref.size(), signature_rand.data(), signature_rand.size());
-         result.confirm("verification of valid randomized signature", verify_success);
+         result.test_is_true("verification of valid randomized signature", verify_success);
 
          // Signature roundtrip (Deterministic mode) - not available for all parameter sets
          // For testing time reasons we only test this for some tests if not --run-long-tests
@@ -139,11 +137,11 @@ class SPHINCS_Plus_Test_Base : public Text_Based_Test {
             auto signer_det = Botan::PK_Signer(priv_key, fixed_rng, "Deterministic");
             auto signature_det = signer_det.sign_message(msg_ref.data(), msg_ref.size(), fixed_rng);
 
-            result.test_is_eq("signature creation deterministic", unlock(hash->process(signature_det)), *sig_det_hash);
+            result.test_bin_eq("signature creation deterministic", hash->process(signature_det), *sig_det_hash);
 
             auto verify_success_det =
                verifier.verify_message(msg_ref.data(), msg_ref.size(), signature_det.data(), signature_det.size());
-            result.confirm("verification of valid deterministic signature", verify_success_det);
+            result.test_is_true("verification of valid deterministic signature", verify_success_det);
          }
 
          // Verification with generated Keypair
@@ -154,36 +152,36 @@ class SPHINCS_Plus_Test_Base : public Text_Based_Test {
          if(params.parameter_set() == Botan::Sphincs_Parameter_Set::Sphincs128Fast ||
             params.parameter_set() == Botan::Sphincs_Parameter_Set::SLHDSA128Fast) {
             // Deserialization of Keypair from test vector
-            Botan::SphincsPlus_PrivateKey deserialized_priv_key(sk_ref, params);
-            Botan::SphincsPlus_PublicKey deserialized_pub_key(pk_ref, params);
+            const Botan::SphincsPlus_PrivateKey deserialized_priv_key(sk_ref, params);
+            const Botan::SphincsPlus_PublicKey deserialized_pub_key(pk_ref, params);
 
             // Signature with deserialized Keypair
             auto deserialized_signer = Botan::PK_Signer(deserialized_priv_key, fixed_rng, "Randomized");
             auto deserialized_signature = deserialized_signer.sign_message(msg_ref.data(), msg_ref.size(), fixed_rng);
 
-            result.test_is_eq("signature creation after deserialization",
-                              unlock(hash->process(deserialized_signature)),
-                              sig_rand_hash);
+            result.test_bin_eq(
+               "signature creation after deserialization", hash->process(deserialized_signature), sig_rand_hash);
 
             // Verification with deserialized Keypair
             Botan::PK_Verifier deserialized_verifier(deserialized_pub_key, params.algorithm_identifier());
-            bool verify_success_deserialized = deserialized_verifier.verify_message(
+            const bool verify_success_deserialized = deserialized_verifier.verify_message(
                msg_ref.data(), msg_ref.size(), signature_rand.data(), signature_rand.size());
-            result.confirm("verification of valid signature after deserialization", verify_success_deserialized);
+            result.test_is_true("verification of valid signature after deserialization", verify_success_deserialized);
 
             // Verification of invalid signature
             auto broken_sig = Test::mutate_vec(deserialized_signature, this->rng());
-            bool verify_fail = deserialized_verifier.verify_message(
+            const bool verify_fail = deserialized_verifier.verify_message(
                msg_ref.data(), msg_ref.size(), broken_sig.data(), broken_sig.size());
-            result.confirm("verification of invalid signature", !verify_fail);
+            result.test_is_true("verification of invalid signature", !verify_fail);
 
-            bool verify_success_after_fail = deserialized_verifier.verify_message(
+            const bool verify_success_after_fail = deserialized_verifier.verify_message(
                msg_ref.data(), msg_ref.size(), signature_rand.data(), signature_rand.size());
-            result.confirm("verification of valid signature after broken signature", verify_success_after_fail);
+            result.test_is_true("verification of valid signature after broken signature", verify_success_after_fail);
          }
 
          // Misc
-         result.confirm("parameter serialization works", params.to_string() == vars.get_req_str("SphincsParameterSet"));
+         result.test_is_true("parameter serialization works",
+                             params.to_string() == vars.get_req_str("SphincsParameterSet"));
 
          return result;
       }
@@ -220,10 +218,11 @@ class SPHINCS_Plus_Keygen_Tests final : public PK_Key_Generation_Test {
          };
          const auto& tested_params = Test::run_long_tests() ? all_params : short_test_params;
          std::vector<std::string> available_params;
-         std::copy_if(tested_params.begin(),
-                      tested_params.end(),
-                      std::back_inserter(available_params),
-                      [](const std::string& param) { return Botan::Sphincs_Parameters::create(param).is_available(); });
+         for(const auto& param : tested_params) {
+            if(Botan::Sphincs_Parameters::create(param).is_available()) {
+               available_params.push_back(param);
+            }
+         }
          return available_params;
       }
 
@@ -263,7 +262,7 @@ class Generic_SlhDsa_Signature_Tests final : public PK_Signature_Generation_Test
          return vars.has_key("Nonce") ? "Randomized" : "Deterministic";
       }
 
-      bool skip_this_test(const std::string&, const VarMap& vars) override {
+      bool skip_this_test(const std::string& /*header*/, const VarMap& vars) override {
          return !Botan::Sphincs_Parameters::create(vars.get_req_str("Instance")).is_available();
       }
 };
@@ -283,9 +282,9 @@ class Generic_SlhDsa_Verification_Tests final : public PK_Signature_Verification
          return std::make_unique<Botan::SphincsPlus_PublicKey>(pubkey, Botan::Sphincs_Parameters::create(instance));
       }
 
-      std::string default_padding(const VarMap&) const override { return ""; }
+      std::string default_padding(const VarMap& /*vars*/) const override { return ""; }
 
-      bool skip_this_test(const std::string&, const VarMap& vars) override {
+      bool skip_this_test(const std::string& /*header*/, const VarMap& vars) override {
          return !Botan::Sphincs_Parameters::create(vars.get_req_str("Instance")).is_available();
       }
 };
@@ -295,6 +294,8 @@ BOTAN_REGISTER_TEST("pubkey", "slh_dsa", SLH_DSA_Test);
 BOTAN_REGISTER_TEST("pubkey", "slh_dsa_keygen", SPHINCS_Plus_Keygen_Tests);
 BOTAN_REGISTER_TEST("pubkey", "slh_dsa_sign_generic", Generic_SlhDsa_Signature_Tests);
 BOTAN_REGISTER_TEST("pubkey", "slh_dsa_verify_generic", Generic_SlhDsa_Verification_Tests);
+
+}  // namespace
 
 }  // namespace Botan_Tests
 

@@ -17,7 +17,7 @@
 namespace Botan {
 
 /**
- * Descibes a signature method for XMSS Winternitz One Time Signatures,
+ * Describes a signature method for XMSS Winternitz One Time Signatures,
  * as defined in:
  * [1] XMSS: Extended Hash-Based Signatures,
  *     Request for Comments: 8391
@@ -30,7 +30,7 @@ namespace Botan {
  **/
 class BOTAN_PUBLIC_API(2, 0) XMSS_WOTS_Parameters final {
    public:
-      enum ots_algorithm_t {
+      enum ots_algorithm_t : uint32_t /* NOLINT(*-enum-size,*-use-enum-class) */ {
          // from RFC 8391
          WOTSP_SHA2_256 = 0x00000001,
 
@@ -47,7 +47,8 @@ class BOTAN_PUBLIC_API(2, 0) XMSS_WOTS_Parameters final {
       };
 
       explicit XMSS_WOTS_Parameters(std::string_view algo_name);
-      XMSS_WOTS_Parameters(ots_algorithm_t ots_spec);
+
+      BOTAN_FUTURE_EXPLICIT XMSS_WOTS_Parameters(ots_algorithm_t ots_spec);
 
       static ots_algorithm_t xmss_wots_id_from_string(std::string_view param_set);
 
@@ -116,7 +117,7 @@ class BOTAN_PUBLIC_API(2, 0) XMSS_WOTS_Parameters final {
 };
 
 /**
- * Descibes a signature method for XMSS, as defined in:
+ * Describes a signature method for XMSS, as defined in:
  * [1] XMSS: Extended Hash-Based Signatures,
  *     Request for Comments: 8391
  *     Release: May 2018.
@@ -128,7 +129,7 @@ class BOTAN_PUBLIC_API(2, 0) XMSS_WOTS_Parameters final {
  **/
 class BOTAN_PUBLIC_API(2, 0) XMSS_Parameters {
    public:
-      enum xmss_algorithm_t {
+      enum xmss_algorithm_t : uint32_t /* NOLINT(*-enum-size,*-use-enum-class) */ {
          // from RFC 8391
          XMSS_SHA2_10_256 = 0x00000001,
          XMSS_SHA2_16_256 = 0x00000002,
@@ -197,7 +198,7 @@ class BOTAN_PUBLIC_API(2, 0) XMSS_Parameters {
       /**
        * @returns total number of signatures allowed for this XMSS instance
        */
-      size_t total_number_of_signatures() const { return size_t(1) << tree_height(); }
+      size_t total_number_of_signatures() const { return static_cast<size_t>(1) << tree_height(); }
 
       /**
        * The Winternitz parameter.

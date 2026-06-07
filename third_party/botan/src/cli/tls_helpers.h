@@ -9,10 +9,12 @@
 #define BOTAN_CLI_TLS_HELPERS_H_
 
 #include <botan/assert.h>
+#include <botan/certstor.h>
 #include <botan/credentials_manager.h>
 #include <botan/data_src.h>
 #include <botan/hex.h>
 #include <botan/pkcs8.h>
+#include <botan/tls_external_psk.h>
 #include <botan/tls_policy.h>
 #include <botan/x509_key.h>
 #include <botan/x509self.h>
@@ -27,8 +29,8 @@
 #endif
 
 inline bool value_exists(const std::vector<std::string>& vec, const std::string& val) {
-   for(size_t i = 0; i != vec.size(); ++i) {
-      if(vec[i] == val) {
+   for(const auto& v : vec) {
+      if(v == val) {
          return true;
       }
    }
@@ -37,9 +39,13 @@ inline bool value_exists(const std::vector<std::string>& vec, const std::string&
 
 inline std::string maybe_hex_encode(std::string_view v) {
    auto is_printable_char = [](uint8_t c) { return c >= 32 && c < 127; };
-   if(!std::all_of(v.begin(), v.end(), is_printable_char)) {
-      return Botan::hex_encode(std::span<const uint8_t>(reinterpret_cast<const uint8_t*>(v.data()), v.size()));
+
+   for(const char c : v) {
+      if(!is_printable_char(c)) {
+         return Botan::hex_encode(std::span<const uint8_t>(reinterpret_cast<const uint8_t*>(v.data()), v.size()));
+      }
    }
+
    return std::string(v);
 }
 
@@ -90,7 +96,7 @@ class Basic_Credentials_Manager : public Botan::Credentials_Manager {
             //    the Hash algorithm MUST be set when the PSK is established or
             //    default to SHA-256 if no such algorithm is defined.
             m_psk_prf(psk_prf.value_or("SHA-256")) {
-         if(ca_path.empty() == false) {
+         if(!ca_path.empty()) {
             m_certstores.push_back(std::make_shared<Botan::Certificate_Store_In_Memory>(ca_path));
          }
 
@@ -271,7 +277,8 @@ class TLS_All_Policy final : public Botan::TLS::Policy {
                                          "Camellia-256",
                                          "Camellia-128",
                                          "SEED",
-                                         "3DES"};
+                                         "3DES",
+                                         "NULL"};
       }
 
       std::vector<std::string> allowed_key_exchange_methods() const override {
@@ -297,7 +304,7 @@ inline std::shared_ptr<Botan::TLS::Policy> load_tls_policy(const std::string& po
    } else if(policy_type == "bsi") {
       return std::make_shared<Botan::TLS::BSI_TR_02102_2>();
    } else if(policy_type == "datagram") {
-      return std::make_shared<Botan::TLS::Strict_Policy>();
+      return std::make_shared<Botan::TLS::Datagram_Policy>();
    } else if(policy_type == "all" || policy_type == "everything") {
       return std::make_shared<TLS_All_Policy>();
    }

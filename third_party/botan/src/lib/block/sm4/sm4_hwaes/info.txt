@@ -1,0 +1,12 @@
+<internal_defines>
+SM4_HWAES -> 20260322
+</internal_defines>
+
+<module_info>
+name -> "SM4 using hardware AES instructions"
+</module_info>
+
+<requires>
+cpuid
+simd_hwaes
+</requires>

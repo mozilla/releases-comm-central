@@ -9,18 +9,24 @@
 #ifndef BOTAN_TLS_RECORDS_H_
 #define BOTAN_TLS_RECORDS_H_
 
-#include <botan/aead.h>
+#include <botan/assert.h>
+#include <botan/secmem.h>
 #include <botan/tls_algos.h>
 #include <botan/tls_magic.h>
 #include <botan/tls_version.h>
-#include <botan/internal/tls_channel_impl.h>
-#include <chrono>
 #include <functional>
+#include <memory>
 #include <vector>
+
+namespace Botan {
+
+class AEAD_Mode;
+class RandomNumberGenerator;
+
+}  // namespace Botan
 
 namespace Botan::TLS {
 
-class Callbacks;
 class Ciphersuite;
 class Session_Keys;
 
@@ -40,6 +46,14 @@ class Connection_Cipher_State final {
                               const Ciphersuite& suite,
                               const Session_Keys& keys,
                               bool uses_encrypt_then_mac);
+
+      ~Connection_Cipher_State();
+
+      Connection_Cipher_State(const Connection_Cipher_State& other) = delete;
+      Connection_Cipher_State(Connection_Cipher_State&& other) = delete;
+
+      Connection_Cipher_State& operator=(const Connection_Cipher_State& other) = delete;
+      Connection_Cipher_State& operator=(Connection_Cipher_State&& other) = delete;
 
       AEAD_Mode& aead() {
          BOTAN_ASSERT_NONNULL(m_aead.get());
@@ -72,8 +86,7 @@ class Record_Header final {
       Record_Header(uint64_t sequence, Protocol_Version version, Record_Type type) :
             m_needed(0), m_sequence(sequence), m_version(version), m_type(type) {}
 
-      Record_Header(size_t needed) :
-            m_needed(needed), m_sequence(0), m_version(Protocol_Version()), m_type(Record_Type::Invalid) {}
+      explicit Record_Header(size_t needed) : m_needed(needed), m_sequence(0), m_type(Record_Type::Invalid) {}
 
       size_t needed() const { return m_needed; }
 

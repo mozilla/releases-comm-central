@@ -8,7 +8,7 @@ Botan is released under the Simplified BSD License (see license.txt)
 
 import sys
 
-def gha_linux_packages(target):
+def gha_linux_packages(target, compiler):
     packages = [
         'ccache',
         'libbz2-dev',
@@ -16,10 +16,13 @@ def gha_linux_packages(target):
         'libsqlite3-dev',
     ]
 
+    if compiler in ['gcc-14']:
+        packages.append('gcc-14')
+
     if target.startswith('valgrind'):
         packages.append('valgrind')
 
-    if target in ['shared', 'coverage', 'amalgamation', 'sanitizer', 'tlsanvil', 'examples', 'clang-tidy']:
+    if target in ['shared', 'coverage', 'amalgamation', 'sanitizer', 'tlsanvil', 'examples', 'clang-tidy', 'no_tls12', 'no_tls13']:
         packages.append('libboost-dev')
 
     if target in ['clang']:
@@ -112,10 +115,15 @@ def gha_linux_packages(target):
         packages.append('lcov')
         packages.append('python3-coverage')
 
+    if target in ['strubbing']:
+        packages.append('gdb')
+
     if target in ['coverage', 'sanitizer', 'clang-tidy']:
-        packages.append('softhsm2')
         packages.append('libtspi-dev')     # TPM 1 development library [TODO(Botan4) remove this]
         packages.append('libtss2-dev')     # TPM 2 development library
+
+    if target in ['coverage', 'sanitizer']:
+        packages.append('softhsm2')
 
         # Following are only available on Ubuntu 24.04
         # If we wanted to test building of TPM2 on 22.04 we'd need to restrict these
@@ -138,13 +146,14 @@ def main(args = None):
     if args is None:
         args = sys.argv
 
-    if len(args) != 2:
-        print("Unexpected usage: %s <target>" % (args[0]))
+    if len(args) != 3:
+        print("Unexpected usage: %s <target> <compiler>" % (args[0]))
         return 1
 
     target = args[1]
+    compiler = args[2]
 
-    print(" ".join(gha_linux_packages(target)))
+    print(" ".join(gha_linux_packages(target, compiler)))
 
     return 0
 

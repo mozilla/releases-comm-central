@@ -44,7 +44,8 @@ secure_vector<uint8_t> PKCS8_decode(DataSource& source,
                                     AlgorithmIdentifier& pk_alg_id,
                                     bool is_encrypted) {
    AlgorithmIdentifier pbe_alg_id;
-   secure_vector<uint8_t> key_data, key;
+   secure_vector<uint8_t> key_data;
+   secure_vector<uint8_t> key;
 
    try {
       if(ASN1::maybe_BER(source) && !PEM_Code::matches(source)) {
@@ -52,12 +53,8 @@ secure_vector<uint8_t> PKCS8_decode(DataSource& source,
             key_data = PKCS8_extract(source, pbe_alg_id);
          } else {
             // todo read more efficiently
-            while(!source.end_of_data()) {
-               uint8_t b;
-               size_t read = source.read_byte(b);
-               if(read) {
-                  key_data.push_back(b);
-               }
+            while(auto b = source.read_byte()) {
+               key_data.push_back(*b);
             }
          }
       } else {
@@ -145,7 +142,7 @@ std::pair<std::string, std::string> choose_pbe_params(std::string_view pbe_algo,
       return std::make_pair("AES-256/CBC", "SHA-256");
    }
 
-   SCAN_Name request(pbe_algo);
+   const SCAN_Name request(pbe_algo);
 
    if(request.arg_count() != 2 || (request.algo_name() != "PBE-PKCS5v20" && request.algo_name() != "PBES2")) {
       throw Invalid_Argument(fmt("Unsupported PBE '{}'", pbe_algo));

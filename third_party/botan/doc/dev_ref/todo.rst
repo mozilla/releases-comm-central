@@ -16,32 +16,26 @@ New Ciphers/Hashes/MACs
 * Threefish-1024
 * Skein-MAC
 * FFX format preserving encryption (NIST 800-38G)
-* Adiantum (https://eprint.iacr.org/2018/720)
 * HPKE (RFC 9180)
 * Blake3
 
 Hardware Specific Optimizations
 ----------------------------------------
-* Stiched AES/GCM mode for CPUs supporting both AES and CLMUL
-* GFNI implementations for: Camellia, SEED, ARIA
+* AVX512 IFMA optimized field arithmetic for P-256 and/or P-384
+* Stitched AES/GCM implementation
+* GFNI implementations of ZFEC, others?
 * NEON/VMX/LSX support for the SIMD based GHASH
-* Poly1305 using AVX2
-* SM3 using x86 SM3-NI
-* SM3 using AVX2/BMI2
-* SHA-1 using AVX2/BMI2
-* Constant time bitsliced DES
 * SIMD evaluation of SHA-2 and SHA-3 compression functions
-* Improved Salsa implementations (SIMD_4x32 and/or AVX2)
+* Improved Salsa implementations (SIMD_4x32, AVX2, AVX512, ...)
 * Add CLMUL/PMULL implementations for CRC24
-* Add support for ARMv8.4-A SHA-3, SM3 and RNG instructions
-* POWER8 SHA-2 extensions (GH #1486 + #1487)
-* Add support for RISC-V crypto extensions
+* Add support for ARMv8.4-A SHA-3 instructions
+* Support POWER8 SHA-2 extensions (GH #1486 + #1487)
+* Add support for RISC-V vector and crypto extensions
 * Add support for using Loongarch64 LASX (256-bit SIMD)
 
 Public Key Crypto, Math
 ----------------------------------------
 
-* Short vector optimization for BigInt
 * BLS12-381 pairing, BLS signatures
 * Identity based encryption
 * Paillier homomorphic cryptosystem
@@ -51,7 +45,6 @@ Public Key Crypto, Math
 Utility Functions
 ------------------
 
-* Constant time base32/base64/hex are optimized using SWAR; apply this to base58
 * Make Memory_Pool more concurrent (currently uses a global lock)
 * Guarded integer type to prevent overflow bugs
 
@@ -65,7 +58,6 @@ TLS
 ----------------------------------------
 
 * Make DTLS support optional at build time
-* Make TLS 1.2 support optional at build time
 * Improve/optimize DTLS defragmentation and retransmission
 * Make RSA optional at build time
 * Make finite field DH optional at build time
@@ -86,9 +78,6 @@ New Protocols / Formats
 * Noise protocol
 * ACME protocol (needs a story for JSON)
 * Cryptographic Message Syntax (RFC 5652)
-* Fernet symmetric encryption (https://cryptography.io/en/latest/fernet/)
-* RNCryptor format (https://github.com/RNCryptor/RNCryptor)
-* Age format (https://age-encryption.org/v1)
 * Useful OpenPGP subset 1: symmetrically encrypted files.
   Not aiming to process arbitrary OpenPGP, but rather produce
   something that happens to be readable by `gpg` and is relatively
@@ -102,12 +91,11 @@ Cleanups
 * Unicode path support on Windows (GH #1615)
 * The X.509 path validation tests have much duplicated logic
 
-New C APIs
+FFI APIs
 ----------------------------------------
 
 * PKCS10 requests
 * Certificate signing
-* CRLs
 * Expose TLS
 * Expose secret sharing
 * Expose deterministic PRNG
@@ -123,7 +111,6 @@ Build/Test
   so it can run as a standalone item (copied to a device, etc)
 * Run iOS binary under simulator in CI
 * Run Android binary under simulator in CI
-* Add support for vxWorks
 
 CLI
 ----------------------------------------

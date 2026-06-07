@@ -8,6 +8,7 @@
 
 #include <botan/ecgdsa.h>
 
+#include <botan/ec_group.h>
 #include <botan/internal/keypair.h>
 #include <botan/internal/pk_ops_impl.h>
 
@@ -36,8 +37,8 @@ namespace {
 */
 class ECGDSA_Signature_Operation final : public PK_Ops::Signature_with_Hash {
    public:
-      ECGDSA_Signature_Operation(const ECGDSA_PrivateKey& ecgdsa, std::string_view emsa) :
-            PK_Ops::Signature_with_Hash(emsa), m_group(ecgdsa.domain()), m_x(ecgdsa._private_key()) {}
+      ECGDSA_Signature_Operation(const ECGDSA_PrivateKey& ecgdsa, std::string_view hash_fn) :
+            PK_Ops::Signature_with_Hash(hash_fn), m_group(ecgdsa.domain()), m_x(ecgdsa._private_key()) {}
 
       std::vector<uint8_t> raw_sign(std::span<const uint8_t> msg, RandomNumberGenerator& rng) override;
 
@@ -111,6 +112,10 @@ bool ECGDSA_Verification_Operation::verify(std::span<const uint8_t> msg, std::sp
 }
 
 }  // namespace
+
+std::optional<size_t> ECGDSA_PublicKey::_signature_element_size_for_DER_encoding() const {
+   return domain().get_order_bytes();
+}
 
 std::unique_ptr<Private_Key> ECGDSA_PublicKey::generate_another(RandomNumberGenerator& rng) const {
    return std::make_unique<ECGDSA_PrivateKey>(rng, domain());

@@ -70,7 +70,7 @@ PKCS10_Request PKCS10_Request::create(const Private_Key& key,
       .raw_bytes(key.subject_public_key())
       .start_explicit(0);
 
-   if(challenge.empty() == false) {
+   if(!challenge.empty()) {
       std::vector<uint8_t> value;
       DER_Encoder(value).encode(ASN1_String(challenge));
       tbs_req.encode(Attribute("PKCS9.ChallengePassword", value));
@@ -83,7 +83,7 @@ PKCS10_Request PKCS10_Request::create(const Private_Key& key,
    // end the start_explicit above
    tbs_req.end_explicit().end_cons();
 
-   const std::vector<uint8_t> req = X509_Object::make_signed(*signer, rng, sig_algo, tbs_req.get_contents());
+   const std::vector<uint8_t> req = X509_Object::make_signed(*signer, rng, sig_algo, tbs_req.get_contents_unlocked());
 
    return PKCS10_Request(req);
 }
@@ -98,7 +98,7 @@ std::unique_ptr<PKCS10_Data> decode_pkcs10(const std::vector<uint8_t>& body) {
 
    BER_Decoder cert_req_info(body);
 
-   size_t version;
+   size_t version = 0;
    cert_req_info.decode(version);
    if(version != 0) {
       throw Decoding_Error("Unknown version code in PKCS #10 request: " + std::to_string(version));
@@ -106,14 +106,14 @@ std::unique_ptr<PKCS10_Data> decode_pkcs10(const std::vector<uint8_t>& body) {
 
    cert_req_info.decode(data->m_subject_dn);
 
-   BER_Object public_key = cert_req_info.get_next_object();
-   if(public_key.is_a(ASN1_Type::Sequence, ASN1_Class::Constructed) == false) {
+   const BER_Object public_key = cert_req_info.get_next_object();
+   if(!public_key.is_a(ASN1_Type::Sequence, ASN1_Class::Constructed)) {
       throw BER_Bad_Tag("PKCS10_Request: Unexpected tag for public key", public_key.tagging());
    }
 
    data->m_public_key_bits = ASN1::put_in_sequence(public_key.bits(), public_key.length());
 
-   BER_Object attr_bits = cert_req_info.get_next_object();
+   const BER_Object attr_bits = cert_req_info.get_next_object();
 
    std::set<std::string> pkcs9_email;
 
@@ -145,7 +145,7 @@ std::unique_ptr<PKCS10_Data> decode_pkcs10(const std::vector<uint8_t>& body) {
 
    cert_req_info.verify_end();
 
-   if(auto ext = data->m_extensions.get_extension_object_as<Cert_Extension::Subject_Alternative_Name>()) {
+   if(const auto* ext = data->m_extensions.get_extension_object_as<Cert_Extension::Subject_Alternative_Name>()) {
       data->m_alt_name = ext->get_alt_name();
    }
 
@@ -245,25 +245,24 @@ std::vector<OID> PKCS10_Request::ex_constraints() const {
 * Return is a CA certificate is requested
 */
 bool PKCS10_Request::is_CA() const {
-   if(auto ext = extensions().get(OID::from_string("X509v3.BasicConstraints"))) {
-      return dynamic_cast<Cert_Extension::Basic_Constraints&>(*ext).get_is_ca();
+   if(const auto* ext = extensions().get_extension_object_as<Cert_Extension::Basic_Constraints>()) {
+      return ext->is_ca();
+   } else {
+      return false;
    }
-
-   return false;
 }
 
 /*
-* Return the desired path limit (if any)
+* Return the requested path limit
 */
-size_t PKCS10_Request::path_limit() const {
-   if(auto ext = extensions().get(OID::from_string("X509v3.BasicConstraints"))) {
-      Cert_Extension::Basic_Constraints& basic_constraints = dynamic_cast<Cert_Extension::Basic_Constraints&>(*ext);
-      if(basic_constraints.get_is_ca()) {
-         return basic_constraints.get_path_limit();
+std::optional<size_t> PKCS10_Request::path_length_constraint() const {
+   if(const auto* ext = extensions().get_extension_object_as<Cert_Extension::Basic_Constraints>()) {
+      if(ext->is_ca()) {
+         return ext->path_length_constraint();
       }
    }
 
-   return 0;
+   return std::nullopt;
 }
 
 }  // namespace Botan

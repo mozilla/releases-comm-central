@@ -305,7 +305,7 @@ void AES_INV_SBOX(uint32_t V[8]) {
    const uint32_t d3 = tinv12 ^ tinv13;
    const uint32_t sd1 = d1 ^ d3;
    const uint32_t sd0 = d0 ^ d2;
-   const uint32_t dl = d0 ^ d1;
+   const uint32_t dl = d0 ^ d1;  // NOLINT(misc-confusable-identifiers)
    const uint32_t dh = d2 ^ d3;
    const uint32_t dd = sd0 ^ sd1;
    const uint32_t abcd3 = dh & bh;
@@ -699,8 +699,9 @@ void aes_key_schedule(const uint8_t key[],
 
    CT::poison(key, length);
 
-   EK.resize(length + 28);
-   DK.resize(length + 28);
+   const size_t KS_len = length + 28;
+   EK.resize(KS_len);
+   DK.resize(KS_len);
 
    for(size_t i = 0; i != X; ++i) {
       EK[i] = load_be<uint32_t>(key, i);
@@ -733,10 +734,8 @@ void aes_key_schedule(const uint8_t key[],
 
    if(bswap_keys) {
       // HW AES on little endian needs the subkeys to be byte reversed
-      for(size_t i = 0; i != EK.size(); ++i) {
+      for(size_t i = 0; i != KS_len; ++i) {
          EK[i] = reverse_bytes(EK[i]);
-      }
-      for(size_t i = 0; i != DK.size(); ++i) {
          DK[i] = reverse_bytes(DK[i]);
       }
    }

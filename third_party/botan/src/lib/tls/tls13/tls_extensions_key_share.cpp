@@ -8,30 +8,17 @@
 * Botan is released under the Simplified BSD License (see license.txt)
 */
 
-#include <botan/tls_extensions.h>
+#include <botan/tls_extensions_13.h>
 
-#include <botan/rng.h>
+#include <botan/ecdh.h>
 #include <botan/tls_callbacks.h>
 #include <botan/tls_exceptn.h>
 #include <botan/tls_policy.h>
-#include <botan/internal/ct_utils.h>
+#include <botan/internal/scoped_cleanup.h>
 #include <botan/internal/stl_util.h>
 #include <botan/internal/tls_reader.h>
-
 #include <algorithm>
 #include <utility>
-
-#if defined(BOTAN_HAS_X25519)
-   #include <botan/x25519.h>
-#endif
-
-#if defined(BOTAN_HAS_X448)
-   #include <botan/x448.h>
-#endif
-
-#include <botan/dh.h>
-#include <botan/dl_group.h>
-#include <botan/ecdh.h>
 
 namespace Botan::TLS {
 
@@ -39,7 +26,7 @@ namespace {
 
 class Key_Share_Entry {
    public:
-      Key_Share_Entry(TLS_Data_Reader& reader) {
+      explicit Key_Share_Entry(TLS_Data_Reader& reader) {
          // TODO check that the group actually exists before casting...
          m_group = static_cast<Named_Group>(reader.get_uint16_t());
          m_key_exchange = reader.get_tls_length_value(2);
@@ -47,7 +34,7 @@ class Key_Share_Entry {
 
       // Create an empty Key_Share_Entry with the selected group
       // but don't pre-generate a keypair, yet.
-      Key_Share_Entry(const TLS::Group_Params group) : m_group(group) {}
+      explicit Key_Share_Entry(const TLS::Group_Params group) : m_group(group) {}
 
       Key_Share_Entry(const TLS::Group_Params group, Callbacks& cb, RandomNumberGenerator& rng) :
             m_group(group), m_private_key(cb.tls_kem_generate_key(group, rng)) {
@@ -58,8 +45,8 @@ class Key_Share_Entry {
          if(group.is_kem()) {
             m_key_exchange = m_private_key->public_key_bits();
          } else if(group.is_ecdh_named_curve()) {
-            auto pkey = dynamic_cast<ECDH_PublicKey*>(m_private_key.get());
-            if(!pkey) {
+            auto* pkey = dynamic_cast<ECDH_PublicKey*>(m_private_key.get());
+            if(pkey == nullptr) {
                throw TLS_Exception(Alert::InternalError, "Application did not provide a ECDH_PublicKey");
             }
 
@@ -73,8 +60,8 @@ class Key_Share_Entry {
             // ClientHello::prefers_compressed_ec_points() into account here.
             m_key_exchange = pkey->public_value(EC_Point_Format::Uncompressed);
          } else {
-            auto pkey = dynamic_cast<PK_Key_Agreement_Key*>(m_private_key.get());
-            if(!pkey) {
+            auto* pkey = dynamic_cast<PK_Key_Agreement_Key*>(m_private_key.get());
+            if(pkey == nullptr) {
                throw TLS_Exception(Alert::InternalError, "Application did not provide a key-agreement key");
             }
 
@@ -134,7 +121,7 @@ class Key_Share_ClientHello;
 
 class Key_Share_ServerHello {
    public:
-      Key_Share_ServerHello(TLS_Data_Reader& reader, uint16_t) : m_server_share(reader) {}
+      Key_Share_ServerHello(TLS_Data_Reader& reader, uint16_t /*len*/) : m_server_share(reader) {}
 
       Key_Share_ServerHello(Named_Group group,
                             const Key_Share_ClientHello& client_keyshare,
@@ -180,7 +167,7 @@ class Key_Share_ClientHello {
          // Client_Hello message. Hence, if offset or length fields are skewed
          // or maliciously fabricated, it is possible to read further than the
          // bounds of the current extension.
-         // Note that this aplies to many locations in the code base.
+         // Note that this applies to many locations in the code base.
          //
          // TODO: Overhaul the TLS_Data_Reader to allow for cheap "sub-readers"
          //       that enforce read bounds of sub-structures while parsing.
@@ -361,7 +348,7 @@ class Key_Share_HelloRetryRequest {
          m_selected_group = static_cast<Named_Group>(reader.get_uint16_t());
       }
 
-      Key_Share_HelloRetryRequest(Named_Group selected_group) : m_selected_group(selected_group) {}
+      explicit Key_Share_HelloRetryRequest(Named_Group selected_group) : m_selected_group(selected_group) {}
 
       ~Key_Share_HelloRetryRequest() = default;
 
@@ -394,10 +381,9 @@ class Key_Share::Key_Share_Impl {
    public:
       using Key_Share_Type = std::variant<Key_Share_ClientHello, Key_Share_ServerHello, Key_Share_HelloRetryRequest>;
 
-      Key_Share_Impl(Key_Share_Type ks) : key_share(std::move(ks)) {}
+      explicit Key_Share_Impl(Key_Share_Type ks) : key_share(std::move(ks)) {}
 
-      // NOLINTNEXTLINE(*-non-private-member-variables-in-classes)
-      Key_Share_Type key_share;
+      Key_Share_Type key_share;  // NOLINT(*-non-private-member-variable*)
 };
 
 Key_Share::Key_Share(TLS_Data_Reader& reader, uint16_t extension_size, Handshake_Type message_type) {

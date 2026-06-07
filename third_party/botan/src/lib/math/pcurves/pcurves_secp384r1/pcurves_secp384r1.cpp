@@ -80,7 +80,7 @@ class Secp384r1Rep final {
 
          BOTAN_DEBUG_ASSERT(S <= 4);
 
-         bigint_correct_redc<N>(r, P, p384_mul_mod_384(S));
+         solinas_correct_redc<N>(r, P, p384_mul_mod_384(S));
 
          return r;
       }
@@ -120,8 +120,9 @@ class Secp384r1Rep final {
       }
 };
 
-// clang-format off
 namespace secp384r1 {
+
+// clang-format off
 
 class Params final : public EllipticCurveParameters<
    "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFFFF0000000000000000FFFFFFFF",
@@ -177,6 +178,46 @@ class Curve final : public EllipticCurve<Params, Secp384r1Rep> {
          r.square_n(2);
 
          return r;
+      }
+
+      static constexpr FieldElement fe_sqrt(const FieldElement& x) {
+         // Generated using https://github.com/mmcloughlin/addchain
+
+         auto z = x.square();
+         z *= x;
+         z = z.square();
+         auto t0 = x * z;
+         z = t0;
+         z.square_n(3);
+         auto t1 = t0 * z;
+         auto t2 = t1.square();
+         z = t2 * x;
+         t2.square_n(5);
+         t1 *= t2;
+         t2 = t1;
+         t2.square_n(12);
+         t1 *= t2;
+         t1.square_n(7);
+         t1 *= z;
+         z = t1.square();
+         z *= x;
+         t2 = z;
+         t2.square_n(31);
+         t1 *= t2;
+         t2 = t1;
+         t2.square_n(63);
+         t1 *= t2;
+         t2 = t1;
+         t2.square_n(126);
+         t1 *= t2;
+         t1.square_n(3);
+         t0 *= t1;
+         t0.square_n(33);
+         z *= t0;
+         z.square_n(64);
+         z *= x;
+         z.square_n(30);
+         return z;
       }
 
       static constexpr Scalar scalar_invert(const Scalar& x) {

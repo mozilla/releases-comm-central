@@ -17,7 +17,7 @@ namespace Botan {
 /**
 * Certificate Store Interface
 */
-class BOTAN_PUBLIC_API(2, 0) Certificate_Store {
+class BOTAN_PUBLIC_API(2, 0) Certificate_Store /* NOLINT(*-special-member-functions) */ {
    public:
       virtual ~Certificate_Store();
 
@@ -57,6 +57,16 @@ class BOTAN_PUBLIC_API(2, 0) Certificate_Store {
          const std::vector<uint8_t>& subject_hash) const = 0;
 
       /**
+      * Find a certificate by searching for one with a matching issuer DN and
+      * serial number. Used for CMS or PKCS#7.
+      * @param issuer_dn the distinguished name of the issuer
+      * @param serial_number the certificate's serial number
+      * @return a matching certificate or nullopt otherwise
+      */
+      virtual std::optional<X509_Certificate> find_cert_by_issuer_dn_and_serial_number(
+         const X509_DN& issuer_dn, std::span<const uint8_t> serial_number) const = 0;
+
+      /**
       * Finds a CRL for the given certificate
       * @param subject the subject certificate
       * @return the CRL for subject or nullopt otherwise
@@ -64,12 +74,10 @@ class BOTAN_PUBLIC_API(2, 0) Certificate_Store {
       virtual std::optional<X509_CRL> find_crl_for(const X509_Certificate& subject) const;
 
       /**
-      * @return whether the certificate is known
-      * @param cert certififcate to be searched
+      * @return whether this certificate is contained within the store
+      * @param cert certificate to be searched
       */
-      bool certificate_known(const X509_Certificate& cert) const {
-         return find_cert(cert.subject_dn(), cert.subject_key_id()).has_value();
-      }
+      bool certificate_known(const X509_Certificate& cert) const;
 
       // remove this (used by TLS::Server)
       virtual std::vector<X509_DN> all_subjects() const = 0;
@@ -92,6 +100,11 @@ class BOTAN_PUBLIC_API(2, 0) Certificate_Store_In_Memory final : public Certific
       * Adds given certificate to the store.
       */
       explicit Certificate_Store_In_Memory(const X509_Certificate& cert);
+
+      /**
+      * Adds given certificate and CRL to the store.
+      */
+      Certificate_Store_In_Memory(const X509_Certificate& cert, const X509_CRL& crl);
 
       /**
       * Create an empty store.
@@ -133,6 +146,9 @@ class BOTAN_PUBLIC_API(2, 0) Certificate_Store_In_Memory final : public Certific
 
       std::optional<X509_Certificate> find_cert_by_raw_subject_dn_sha256(
          const std::vector<uint8_t>& subject_hash) const override;
+
+      std::optional<X509_Certificate> find_cert_by_issuer_dn_and_serial_number(
+         const X509_DN& issuer_dn, std::span<const uint8_t> serial_number) const override;
 
       /**
       * Finds a CRL for the given certificate

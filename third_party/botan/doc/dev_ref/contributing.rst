@@ -12,7 +12,7 @@ Under ``src`` there are directories
 * ``tests`` contain what you would expect. Input files go under ``tests/data``.
 * ``python/botan3.py`` is the Python ctypes wrapper
 * ``bogo_shim`` contains the shim binary and configuration for
-  `BoringSSL's TLS test suite <https://github.com/google/boringssl/tree/master/ssl/test>`_
+  `BoringSSL's TLS test suite <https://github.com/google/boringssl/tree/main/ssl/test>`_
 * ``fuzzer`` contains fuzz targets for various modules of the library
 * ``ct_selftest`` has some tests to validate constant time checker tools (e.g. valgrind)
 * ``build-data`` contains files read by the configure script. For
@@ -165,24 +165,32 @@ run the tests, test the fuzzers against a corpus, and produce an HTML report
 of total coverage. This coverage build requires the development headers for
 zlib, bzip2, liblzma, TrouSerS (libtspi), and Sqlite3.
 
+Development Container
+----------------------------------------
+
+The repository root contains a .devcontainer configuration based on Ubuntu which
+conveniently sets up a fully-functional build and test environment. This is the
+recommended way for new contributors to start developing.
+
+Currently, the .devcontainer integrates best with Visual Studio Code, but other
+integrations would be welcome. The container should also work decently using the
+bare-metal devcontainer CLI.
+
 Editor Integrations
 ----------------------------------------
 
 The folder ``src/editors`` contains configuration files for a few editors.
 To make use of them, create symlinks of those into the root of your local
-Botan repository. For example, to enable integration with VSCode and configure
-the editor using editorconfig, you can do the following:
+Botan repository. For instance, to enable editorconfig for any editor that
+supports it, you can do the following:
 
 .. code-block:: bash
 
   cd /home/you/projects/botan
-  ln -s src/editors/vscode .vscode
   ln -s src/editors/editorconfig .editorconfig
 
-  code .
-
-With the recommended extensions installed, you should now have a good starting
-point for working with Botan in VSCode.
+If you are using VSCode with the development container, the right symlinks are
+created automatically and you should be good to go off the bat.
 
 Copyright Notice
 ----------------------------------------
@@ -241,12 +249,13 @@ Avoid explicit ``new`` or (especially) explicit ``delete``: use RAII,
 Use ``m_`` prefix on all member variables.
 
 ``clang-format`` is used for all C++ formatting. The configuration is
-in ``.clang-format`` in the root directory. You can rerun the
-formatter using ``make fmt``, by invoking the script
-``src/scripts/dev_tools/run_clang_format.py`` or using an appropriate editor
-configuration from ``src/editors``. If the output would be truly horrible, it is
-allowed to disable formatting for a specific area using ``// clang-format off``
-annotations.
+in ``src/configs/clang-format``. You can rerun the formatter using ``make fmt``,
+by invoking the script ``src/scripts/dev_tools/run_clang_format.py`` or symlink
+the configuration into the repo root as ``.clang-format`` and using an appropriate
+editor configuration from ``src/editors``. Note that the dev-container shipped with
+this repository sets this up properly when used with VSCode. If the output would be
+truly horrible, it is allowed to disable formatting for a specific area using
+``// clang-format off`` annotations.
 
 .. note::
 
@@ -284,6 +293,13 @@ with intrinsics is that the compiler might rewrite your clever const-time SIMD
 into something with a conditional jump, but code intended to be const-time
 should in any case be annotated (using ``CT::poison``) so it can be checked at
 runtime with tools.
+
+SIMD Intrinsics
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Using intrinsics is the preferred method of invoking hardware specific instructions.
+In doing so, prefer using (and extending if required) the wrapper types included in
+``utils/simd``.
 
 Operating System Dependencies
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

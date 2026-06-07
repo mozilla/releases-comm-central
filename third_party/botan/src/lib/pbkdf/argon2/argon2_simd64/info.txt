@@ -1,0 +1,18 @@
+<internal_defines>
+ARGON2_SIMD64 -> 20251107
+</internal_defines>
+
+<module_info>
+name -> "Argon2 SIMD_2x64"
+brief -> "Argon2 using SIMD_2x64"
+</module_info>
+
+# MSVC miscompiles this code on x86-32
+<cc>
+!msvc
+</cc>
+
+<requires>
+cpuid
+simd_2x64
+</requires>

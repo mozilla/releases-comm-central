@@ -6,8 +6,10 @@
 
 #include <botan/auto_rng.h>
 
+#include <botan/assert.h>
+#include <botan/exceptn.h>
 #include <botan/hmac_drbg.h>
-#include <botan/internal/loadstor.h>
+#include <botan/mac.h>
 
 #if defined(BOTAN_HAS_ENTROPY_SOURCE)
    #include <botan/entropy_src.h>
@@ -38,6 +40,8 @@ std::unique_ptr<MessageAuthenticationCode> auto_rng_hmac() {
 }
 
 }  // namespace
+
+AutoSeeded_RNG::AutoSeeded_RNG(AutoSeeded_RNG&& other) noexcept = default;
 
 AutoSeeded_RNG::~AutoSeeded_RNG() = default;
 
@@ -95,8 +99,8 @@ std::string AutoSeeded_RNG::name() const {
    return m_rng->name();
 }
 
-size_t AutoSeeded_RNG::reseed(Entropy_Sources& srcs, size_t poll_bits, std::chrono::milliseconds poll_timeout) {
-   return m_rng->reseed(srcs, poll_bits, poll_timeout);
+size_t AutoSeeded_RNG::reseed_from_sources(Entropy_Sources& srcs, size_t poll_bits) {
+   return m_rng->reseed_from_sources(srcs, poll_bits);
 }
 
 void AutoSeeded_RNG::fill_bytes_with_input(std::span<uint8_t> out, std::span<const uint8_t> in) {

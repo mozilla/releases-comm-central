@@ -34,7 +34,7 @@ class EAX_Mode : public AEAD_Mode {
       Key_Length_Specification key_spec() const final;
 
       // EAX supports arbitrary nonce lengths
-      bool valid_nonce_length(size_t) const final { return true; }
+      bool valid_nonce_length(size_t /*length*/) const final { return true; }
 
       size_t tag_size() const final { return m_tag_size; }
 
@@ -53,15 +53,15 @@ class EAX_Mode : public AEAD_Mode {
 
       size_t block_size() const { return m_cipher->block_size(); }
 
-      size_t m_tag_size;
+      size_t m_tag_size;  // NOLINT(*non-private-member-variable*)
 
-      std::unique_ptr<BlockCipher> m_cipher;
-      std::unique_ptr<StreamCipher> m_ctr;
-      std::unique_ptr<MessageAuthenticationCode> m_cmac;
+      std::unique_ptr<BlockCipher> m_cipher;              // NOLINT(*non-private-member-variable*)
+      std::unique_ptr<StreamCipher> m_ctr;                // NOLINT(*non-private-member-variable*)
+      std::unique_ptr<MessageAuthenticationCode> m_cmac;  // NOLINT(*non-private-member-variable*)
 
-      secure_vector<uint8_t> m_ad_mac;
+      secure_vector<uint8_t> m_ad_mac;  // NOLINT(*non-private-member-variable*)
 
-      secure_vector<uint8_t> m_nonce_mac;
+      secure_vector<uint8_t> m_nonce_mac;  // NOLINT(*non-private-member-variable*)
 
    private:
       void start_msg(const uint8_t nonce[], size_t nonce_len) final;
@@ -78,7 +78,7 @@ class EAX_Encryption final : public EAX_Mode {
       * @param cipher a 128-bit block cipher
       * @param tag_size is how big the auth tag will be
       */
-      EAX_Encryption(std::unique_ptr<BlockCipher> cipher, size_t tag_size = 0) :
+      explicit EAX_Encryption(std::unique_ptr<BlockCipher> cipher, size_t tag_size = 0) :
             EAX_Mode(std::move(cipher), tag_size) {}
 
       size_t output_length(size_t input_length) const override { return input_length + tag_size(); }
@@ -99,7 +99,7 @@ class EAX_Decryption final : public EAX_Mode {
       * @param cipher a 128-bit block cipher
       * @param tag_size is how big the auth tag will be
       */
-      EAX_Decryption(std::unique_ptr<BlockCipher> cipher, size_t tag_size = 0) :
+      explicit EAX_Decryption(std::unique_ptr<BlockCipher> cipher, size_t tag_size = 0) :
             EAX_Mode(std::move(cipher), tag_size) {}
 
       size_t output_length(size_t input_length) const override {

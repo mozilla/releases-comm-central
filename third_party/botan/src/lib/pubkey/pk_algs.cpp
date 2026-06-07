@@ -7,7 +7,9 @@
 
 #include <botan/pk_algs.h>
 
+#include <botan/asn1_obj.h>
 #include <botan/assert.h>
+#include <botan/pk_keys.h>
 #include <botan/internal/fmt.h>
 #include <botan/internal/parsing.h>
 
@@ -33,6 +35,10 @@
 
 #if defined(BOTAN_HAS_ECC_PUBLIC_KEY_CRYPTO)
    #include <botan/ecc_key.h>
+#endif
+
+#if defined(BOTAN_HAS_ECC_GROUP)
+   #include <botan/ec_group.h>
 #endif
 
 #if defined(BOTAN_HAS_ECDSA)
@@ -125,7 +131,7 @@ std::unique_ptr<Public_Key> load_public_key(const AlgorithmIdentifier& alg_id,
                                             [[maybe_unused]] std::span<const uint8_t> key_bits) {
    const std::string oid_str = alg_id.oid().to_formatted_string();
    const std::vector<std::string> alg_info = split_on(oid_str, '/');
-   std::string_view alg_name = alg_info[0];
+   const std::string_view alg_name = alg_info[0];
 
 #if defined(BOTAN_HAS_RSA)
    if(alg_name == "RSA") {
@@ -284,7 +290,7 @@ std::unique_ptr<Private_Key> load_private_key(const AlgorithmIdentifier& alg_id,
                                               [[maybe_unused]] std::span<const uint8_t> key_bits) {
    const std::string oid_str = alg_id.oid().to_formatted_string();
    const std::vector<std::string> alg_info = split_on(oid_str, '/');
-   std::string_view alg_name = alg_info[0];
+   const std::string_view alg_name = alg_info[0];
 
 #if defined(BOTAN_HAS_RSA)
    if(alg_name == "RSA") {
@@ -489,7 +495,7 @@ std::unique_ptr<Private_Key> create_private_key(std::string_view alg_name,
                                                 std::string_view params,
                                                 std::string_view provider) {
    /*
-   * Default paramaters are chosen for work factor > 2**128 where possible
+   * Default parameters are chosen for work factor > 2**128 where possible
    */
 
 #if defined(BOTAN_HAS_X25519)

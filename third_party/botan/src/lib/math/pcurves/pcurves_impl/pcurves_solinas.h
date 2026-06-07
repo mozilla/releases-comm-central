@@ -47,7 +47,7 @@ class SolinasAccum final {
 
       static constexpr size_t N32 = N * (WordInfo<W>::bits / 32);
 
-      constexpr SolinasAccum(std::array<W, N>& r) : m_r(r), m_S(0), m_idx(0) {}
+      constexpr explicit SolinasAccum(std::array<W, N>& r) : m_r(r) {}
 
       constexpr void accum(int64_t v) {
          BOTAN_DEBUG_ASSERT(m_idx < N32);
@@ -73,9 +73,29 @@ class SolinasAccum final {
 
    private:
       std::array<W, N>& m_r;
-      int64_t m_S;
-      size_t m_idx;
+      int64_t m_S = 0;
+      size_t m_idx = 0;
 };
+
+/**
+* Set r to r - C. Then if r < 0, add P to r
+*/
+template <size_t N, WordType W>
+constexpr inline void solinas_correct_redc(std::array<W, N>& r, const std::array<W, N>& P, const std::array<W, N>& C) {
+   W borrow = 0;
+   for(size_t i = 0; i != N; ++i) {
+      r[i] = word_sub(r[i], C[i], &borrow);
+   }
+
+   // borrow is either 0 or 1, perfect for setting up a mask without extra work
+   const W mask = CT::value_barrier<W>(0 - borrow);
+
+   W carry = 0;
+
+   for(size_t i = 0; i != N; ++i) {
+      r[i] = word_add(r[i], P[i] & mask, &carry);
+   }
+}
 
 }  // namespace Botan
 

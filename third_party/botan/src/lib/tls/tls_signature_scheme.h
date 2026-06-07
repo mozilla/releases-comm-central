@@ -10,11 +10,17 @@
 #define BOTAN_TLS_SIGNATURE_SCHEME_H_
 
 #include <botan/asn1_obj.h>
-#include <botan/pk_keys.h>
 #include <botan/types.h>
-
 #include <optional>
 #include <string>
+#include <vector>
+
+namespace Botan {
+
+enum class Signature_Format : uint8_t;
+class Private_Key;
+
+}  // namespace Botan
 
 namespace Botan::TLS {
 
@@ -29,7 +35,7 @@ class BOTAN_PUBLIC_API(3, 0) Signature_Scheme {
       * API where `Signature_Scheme` was an enum class with associated free-standing
       * functions. Leaving it as a bare enum resembles the legacy user-facing API.
       */
-      enum Code : uint16_t {
+      enum Code : uint16_t /* NOLINT(*-use-enum-class) */ {
          NONE = 0x0000,
 
          RSA_PKCS1_SHA1 = 0x0201,  // not implemented
@@ -61,9 +67,9 @@ class BOTAN_PUBLIC_API(3, 0) Signature_Scheme {
       */
       Signature_Scheme();
 
-      Signature_Scheme(uint16_t wire_code);
+      /* NOLINT(*-explicit-conversions) */ Signature_Scheme(uint16_t wire_code);
 
-      Signature_Scheme(Signature_Scheme::Code wire_code);
+      /* NOLINT(*-explicit-conversions) */ Signature_Scheme(Signature_Scheme::Code wire_code);
 
       Signature_Scheme::Code wire_code() const noexcept { return m_code; }
 

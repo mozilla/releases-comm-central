@@ -28,6 +28,14 @@ class Whirlpool final : public HashFunction {
       static void compress_n(digest_type& digest, std::span<const uint8_t> input, size_t blocks);
       static void init(digest_type& digest);
 
+#if defined(BOTAN_HAS_WHIRLPOOL_AVX512)
+      static void compress_n_avx512(digest_type& digest, std::span<const uint8_t> input, size_t blocks);
+#endif
+
+#if defined(BOTAN_HAS_WHIRLPOOL_AVX2)
+      static void compress_n_avx2(digest_type& digest, std::span<const uint8_t> input, size_t blocks);
+#endif
+
    public:
       std::string name() const override { return "Whirlpool"; }
 
@@ -38,6 +46,8 @@ class Whirlpool final : public HashFunction {
       std::unique_ptr<HashFunction> new_object() const override;
 
       std::unique_ptr<HashFunction> copy_state() const override;
+
+      std::string provider() const override;
 
       void clear() override { m_md.clear(); }
 

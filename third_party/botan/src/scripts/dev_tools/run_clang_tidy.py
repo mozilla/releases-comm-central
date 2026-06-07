@@ -1,29 +1,25 @@
 #!/usr/bin/env python3
 
 """
-(C) 2022,2023 Jack Lloyd
+(C) 2022,2023,2025 Jack Lloyd
 
 Botan is released under the Simplified BSD License (see license.txt)
 """
 
-import subprocess
-import sys
+import hashlib
 import json
+import multiprocessing
+from multiprocessing.pool import ThreadPool
 import optparse # pylint: disable=deprecated-module
 import os
+import random
 import re
-import multiprocessing
+import shlex
+import sqlite3
+import subprocess
+import sys
 import time
 import uuid
-from multiprocessing.pool import ThreadPool
-
-quick_checks = [
-    '-clang-analyzer*', # has to be explicitly disabled
-    'modernize-use-nullptr',
-    'readability-braces-around-statements',
-    'performance-unnecessary-value-param',
-    '*-non-private-member-variables-in-classes',
-]
 
 enabled_checks = [
     'bugprone-*',
@@ -41,31 +37,20 @@ enabled_checks = [
 # these are ones that we might want to be clean for in the future,
 # but currently are not
 disabled_needs_work = [
-    '*-named-parameter',
-    '*-member-init', # should definitely fix this one
-    'bugprone-lambda-function-name', # should be an easy fix
-    'bugprone-unchecked-optional-access', # clang-tidy seems buggy (many false positives)
+    'cppcoreguidelines-use-default-member-init',
+    'bugprone-unchecked-optional-access',
     'bugprone-empty-catch',
-    'cert-err58-cpp', # many false positives eg __m128i
     'cppcoreguidelines-avoid-const-or-ref-data-members',
-    'cppcoreguidelines-init-variables',
-    'cppcoreguidelines-owning-memory',
-    'cppcoreguidelines-prefer-member-initializer',
-    'cppcoreguidelines-slicing', # private->public key slicing
-    'hicpp-explicit-conversions',
-    'misc-const-correctness', # pretty noisy
-    'misc-include-cleaner',
-    'misc-redundant-expression', # BigInt seems to confuse clang-tidy
-    'misc-misplaced-const',
-    'misc-confusable-identifiers',
-    'modernize-avoid-bind',
+    'cppcoreguidelines-pro-type-const-cast',
+    'misc-include-cleaner', # warning: useful but quite buggy
+    'misc-multiple-inheritance', # public key uses this but should be fixed
+    'misc-override-with-different-visibility', # mostly fine but should be looked at
     'modernize-pass-by-value',
     'modernize-use-ranges', # limited by compiler support currently
     'performance-avoid-endl',
+    'readability-redundant-typename', # TODO(Botan4) when Clang min version increases this can be fixed
     'readability-convert-member-functions-to-static',
-    'readability-implicit-bool-conversion',
     'readability-inconsistent-declaration-parameter-name', # should fix this, blocked by https://github.com/llvm/llvm-project/issues/60845
-    'readability-qualified-auto',
     'readability-simplify-boolean-expr', # sometimes ok
     'readability-static-accessed-through-instance',
 ]
@@ -73,7 +58,7 @@ disabled_needs_work = [
 # these we are probably not interested in ever being clang-tidy clean for
 disabled_not_interested = [
     '*-array-to-pointer-decay',
-    '*-avoid-c-arrays',
+    '*-avoid-c-arrays', # triggers also on foo(T x[], size_t len) decls
     '*-else-after-return',
     '*-function-size',
     '*-magic-numbers', # can't stop the magic
@@ -82,45 +67,35 @@ disabled_not_interested = [
     '*-use-auto', # not universally a good idea
     '*-use-emplace', # often less clear
     '*-deprecated-headers', # wrong for system headers like stdlib.h
-    'bugprone-argument-comment',
-    'bugprone-branch-clone', # doesn't interact well with feature macros
+    'cert-dcl21-cpp', # invalid, and removed already in clang-tidy 19
     'bugprone-easily-swappable-parameters',
-    'bugprone-implicit-widening-of-multiplication-result',
-    'bugprone-suspicious-stringview-data-usage', # triggers on every use of string_view::data ??
-    'cppcoreguidelines-avoid-do-while',
-    'cppcoreguidelines-non-private-member-variables-in-classes', # pk split keys
+    'bugprone-implicit-widening-of-multiplication-result', # would be reasonable if it ignored constants (it doesn't)
+    'cppcoreguidelines-pro-bounds-avoid-unchecked-container-access',
     'cppcoreguidelines-pro-bounds-pointer-arithmetic',
     'cppcoreguidelines-pro-bounds-constant-array-index',
-    'cppcoreguidelines-pro-type-const-cast', # see above
-    'cppcoreguidelines-pro-type-reinterpret-cast', # not possible thanks though
-    'cppcoreguidelines-pro-type-vararg', # idiocy
-    'hicpp-no-assembler',
-    'hicpp-vararg', # idiocy
-    'hicpp-signed-bitwise', # impossible to avoid in C/C++, int promotion rules :/
+    'cppcoreguidelines-pro-type-reinterpret-cast',
+    'hicpp-signed-bitwise', # would be reasonable if it ignored constants (it doesn't)
     'misc-no-recursion',
-    'modernize-loop-convert', # sometimes very ugly
-    'modernize-raw-string-literal', # usually less readable
+    'modernize-avoid-c-style-cast', # the kind of cast clang-tidy is complaining about here is fine
     'modernize-use-trailing-return-type', # fine, but we're not using it everywhere
     'modernize-return-braced-init-list', # thanks I hate it
     'modernize-use-default-member-init',
     'modernize-use-designated-initializers',
     'modernize-use-nodiscard',
     'modernize-use-using', # fine not great
-    'portability-simd-intrinsics',
-    'readability-avoid-return-with-void-value',
-    'readability-container-data-pointer',
+    'readability-avoid-return-with-void-value', # Jack likes doing this
     'readability-function-cognitive-complexity',
     'readability-identifier-length', # lol, lmao
-    'readability-isolate-declaration',
     'readability-math-missing-parentheses',
     'readability-non-const-parameter',
+    'readability-use-concise-preprocessor-directives', # it's not more readable...
+    'readability-redundant-parentheses', # often improves readability ...
+    'readability-redundant-inline-specifier', # Jack likes doing this
     'readability-redundant-access-specifiers', # reneme likes doing this
-    'readability-suspicious-call-argument',
-    'readability-use-std-min-max',
     'readability-use-anyofallof', # not more readable
 ]
 
-disabled_checks = disabled_needs_work + disabled_not_interested
+disabled_checks = sorted(disabled_needs_work + disabled_not_interested)
 
 def create_check_option(enabled, disabled):
     return ','.join(enabled) + ',' + ','.join(['-' + d for d in disabled])
@@ -137,8 +112,8 @@ def render_clang_tidy_file(target_dir, enabled, disabled):
             '# then regenerate this configuration file.\n',
             '\n',
             'Checks: >\n'] +
-            [ f'    {check},\n' for check in enabled ] +
-            [ f'    -{check},\n' for check in disabled] +
+            [ f'    {check},\n' for check in sorted(enabled)] +
+            [ f'    -{check},\n' for check in sorted(disabled)] +
             ['---\n'])
 
 def load_compile_commands(build_dir):
@@ -166,7 +141,8 @@ def run_clang_tidy(compile_commands_file,
     cmdline = ['clang-tidy',
                '--quiet',
                '-checks=%s' % (check_config),
-               '-p', compile_commands_file]
+               '-p', compile_commands_file,
+               '-header-filter=.*']
 
     if options.fixit:
         cmdline.append('-fix')
@@ -180,10 +156,8 @@ def run_clang_tidy(compile_commands_file,
 
     stdout = run_command(cmdline)
 
-    if options.verbose:
-        print("Checked", source_file)
-        sys.stdout.flush()
     if stdout != "":
+        print("### Errors in", source_file)
         print(stdout)
         sys.stdout.flush()
         return False
@@ -199,23 +173,124 @@ def file_matches(file, args):
             return True
     return False
 
+def preproc_file(compile_commands):
+    cmd = shlex.split(compile_commands['command'])
+
+    dash_o = cmd.index("-o")
+    if dash_o >= 0:
+        cmd.pop(dash_o + 1) # remove object file name
+        cmd.pop(dash_o)     # remove -o
+
+    if "-c" in cmd:
+        cmd.remove("-c")
+    cmd.append("-E")
+
+    result = subprocess.run(
+        cmd,
+        check=True,
+        stdout=subprocess.PIPE,
+        universal_newlines=True)
+
+    return hashlib.sha256(result.stdout.encode('utf-8')).hexdigest()
+
+def hash_args(**kwargs):
+    outer_hash = hashlib.sha256()
+
+    for key in sorted(kwargs.keys()):
+        value = kwargs[key]
+        outer_hash.update(hashlib.sha256(key.encode('utf-8')).digest())
+        outer_hash.update(hashlib.sha256(value.encode('utf-8')).digest())
+
+    return outer_hash.hexdigest()
+
+class CacheDatabase:
+    """
+    Caches SUCCESSFUL clang-tidy runs on source files to speed up whole-tree
+    runs of clang-tidy. The cache key is calculated as the hash of the source file
+    and a set of meta information such as 'clang-tidy --version' and the check configuration.
+    """
+    CACHE_DEBUG = False
+
+    def __init__(self, db_path):
+        self.db = sqlite3.connect(db_path)
+        cur = self.db.cursor()
+        cur.execute("CREATE TABLE IF NOT EXISTS clang_tidy_clean(key UNIQUE)")
+        self.db.commit()
+
+    def hit(self, **kwargs):
+        cache_key = hash_args(**kwargs)
+
+        cur = self.db.cursor()
+        cur.execute("SELECT key from clang_tidy_clean where key = ?", (cache_key, ))
+        res = cur.fetchall()
+
+        if len(res) > 0:
+            if self.CACHE_DEBUG:
+                print("Cache hit for", cache_key)
+            return True
+        else:
+            if self.CACHE_DEBUG:
+                print("Cache miss for", cache_key)
+            return False
+
+    def record(self, **kwargs):
+        cache_key = hash_args(**kwargs)
+
+        cur = self.db.cursor()
+        if self.CACHE_DEBUG:
+            print("Cache save for", cache_key)
+        cur.execute("INSERT OR IGNORE INTO clang_tidy_clean values(?)", (cache_key, ))
+        self.db.commit()
+
+    def count(self):
+        cur = self.db.cursor()
+        cur.execute("SELECT count(*) FROM clang_tidy_clean")
+        entries = cur.fetchall()
+        return int(entries[0][0])
+
+    def cleanup(self, limit):
+        cur = self.db.cursor()
+
+        cur.execute("SELECT key FROM clang_tidy_clean")
+        entries = cur.fetchall()
+
+        if len(entries) <= limit:
+            return
+
+        to_prune = len(entries) - limit
+
+        # Randomly evict entries if cache has grown too large
+        random.shuffle(entries)
+
+        for cache_key in entries[:to_prune]:
+            if self.CACHE_DEBUG:
+                print("Pruning", cache_key[0])
+            cur.execute("DELETE FROM clang_tidy_clean WHERE key = ?", (cache_key[0], ))
+        self.db.commit()
+
 def main(args = None): # pylint: disable=too-many-return-statements
     if args is None:
         args = sys.argv
 
     parser = optparse.OptionParser()
 
-    parser.add_option('-j', '--jobs', action='store', type='int', default=0)
-    parser.add_option('--verbose', action='store_true', default=False)
+    parser.add_option('-j', '--jobs', action='store', type='int', default=multiprocessing.cpu_count() + 1,
+                      help='set number of jobs to run (default %default)')
+    parser.add_option('--quiet', action='store_true', default=False)
     parser.add_option('--fixit', action='store_true', default=False)
     parser.add_option('--build-dir', default='build')
     parser.add_option('--list-checks', action='store_true', default=False)
     parser.add_option('--regenerate-inline-config-file', action='store_true', default=False)
-    parser.add_option('--fast-checks-only', action='store_true', default=False)
     parser.add_option('--only-changed-files', action='store_true', default=False)
     parser.add_option('--only-matching', metavar='REGEX', default='.*')
     parser.add_option('--take-file-list-from-stdin', action='store_true', default=False)
     parser.add_option('--export-fixes-dir', default=None)
+    parser.add_option('--cache-db', metavar='DB',
+                      help='Path to sqlite3 database file for caching',
+                      default=os.getenv("BOTAN_CLANG_TIDY_CACHE"))
+
+    # 100K entries with our current schema is about 15 Mb
+    max_db_entries = int(os.getenv("BOTAN_CLANG_TIDY_CACHE_MAX_SIZE") or 100_000)
 
     (options, args) = parser.parse_args(args)
 
@@ -240,25 +315,25 @@ def main(args = None): # pylint: disable=too-many-return-statements
             print("No C++ files were modified vs master, skipping clang-tidy checks")
             return 0
     elif options.take_file_list_from_stdin:
+        scan_all = False
+
         for line in sys.stdin:
             file = os.path.basename(line.strip())
             if file.endswith('.cpp') or file.endswith('.h'):
                 files_to_check.append(file)
+            elif file in ['run_clang_tidy.py']:
+                scan_all = True
 
-        if len(files_to_check) == 0:
+        if scan_all:
+            # clear this to revert to disable filtering causing all files to be scanned
+            files_to_check = []
+        elif len(files_to_check) == 0:
             print("No C++ files were provided on stdin, skipping clang-tidy checks")
             return 0
 
-    jobs = options.jobs
-    if jobs == 0:
-        jobs = multiprocessing.cpu_count() + 1
-
     (compile_commands_file, compile_commands) = load_compile_commands(options.build_dir)
 
-    if options.fast_checks_only:
-        check_config = ','.join(quick_checks)
-    else:
-        check_config = create_check_option(enabled_checks, disabled_checks)
+    check_config = create_check_option(enabled_checks, disabled_checks)
 
     if options.list_checks:
         print(run_command(['clang-tidy', '-list-checks', '-checks', check_config]), end='')
@@ -268,12 +343,39 @@ def main(args = None): # pylint: disable=too-many-return-statements
         render_clang_tidy_file('src', enabled_checks, disabled_checks)
         return 0
 
-    pool = ThreadPool(jobs)
+    pool = ThreadPool(options.jobs)
+
+    cache = CacheDatabase(options.cache_db) if options.cache_db else None
 
     start_time = time.time()
     files_checked = 0
 
     file_matcher = re.compile(options.only_matching)
+
+    clang_tidy_version = None
+
+    if cache is not None:
+        if not options.quiet:
+            print("Using cache at %s with %d entries" % (options.cache_db, cache.count()))
+
+        results = []
+
+        clang_tidy_version = subprocess.run(['clang-tidy', '--version'],
+                                            check=True,
+                                            stdout=subprocess.PIPE).stdout.decode('utf-8')
+
+        for info in compile_commands:
+            results.append(pool.apply_async(preproc_file, (info, )))
+
+        assert(len(results) == len(compile_commands))
+        for (i, result) in enumerate(results):
+            compile_commands[i]['preproc'] = result.get()
+
+        if not options.quiet:
+            print("Preprocessing/hashing %d files took %.02f sec" % (len(results), time.time() - start_time))
+            sys.stdout.flush()
+
+        start_time = time.time()
 
     results = []
     for info in compile_commands:
@@ -285,22 +387,45 @@ def main(args = None): # pylint: disable=too-many-return-statements
         if file_matcher.search(file) is None:
             continue
 
-        files_checked += 1
-        results.append(pool.apply_async(
-            run_clang_tidy,
-            (compile_commands_file,
-             check_config,
-             file,
-             options)))
+        cache_hit = False
+        if cache is not None:
+            if cache.hit(config=check_config, source_file=info['preproc'], clang_tidy=clang_tidy_version):
+                cache_hit = True
+
+        if cache_hit and not options.quiet:
+            print("Checked", info["file"], " (cached)")
+            sys.stdout.flush()
+
+        if not cache_hit:
+            files_checked += 1
+
+            results.append((info, pool.apply_async(
+                run_clang_tidy,
+                (compile_commands_file,
+                 check_config,
+                 file,
+                 options))))
 
     fail_cnt = 0
-    for result in results:
-        if not result.get():
+    for (info, result) in results:
+        success = result.get()
+
+        if not options.quiet:
+            print("Checked", info['file'])
+            sys.stdout.flush()
+
+        if success and cache is not None:
+            cache.record(config=check_config, source_file=info['preproc'], clang_tidy=clang_tidy_version)
+
+        if not success:
             fail_cnt += 1
 
     time_consumed = time.time() - start_time
 
     print("Checked %d files in %d seconds" % (files_checked, time_consumed))
+
+    if cache is not None and max_db_entries > 0:
+        cache.cleanup(max_db_entries)
 
     if fail_cnt == 0:
         return 0

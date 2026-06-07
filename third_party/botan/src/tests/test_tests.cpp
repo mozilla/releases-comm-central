@@ -6,11 +6,15 @@
 
 #include "tests.h"
 
+#include <botan/rng.h>
+
 #if defined(BOTAN_HAS_BIGINT)
    #include <botan/bigint.h>
 #endif
 
 namespace Botan_Tests {
+
+namespace {
 
 /*
 * Test the test framework :)
@@ -56,66 +60,63 @@ class Test_Tests final : public Test {
 
          {
             Test::Result test_result(testcase_name);
-            std::vector<uint8_t> vec1(5), vec2(3, 9);
-            test_result.test_eq("test vectors equal", vec1, vec2);
+            std::vector<uint8_t> vec1(5);
+            std::vector<uint8_t> vec2(3, 9);
+            test_result.test_bin_eq("test vectors equal", vec1, vec2);
             verify_failure("test vectors equal", result, test_result);
          }
 
          {
             Test::Result test_result(testcase_name);
-            std::vector<uint8_t> vec1(5), vec2(5);
-            test_result.test_ne("test vectors not equal", vec1, vec2);
+            std::vector<uint8_t> vec1(5);
+            std::vector<uint8_t> vec2(5);
+            test_result.test_bin_ne("test vectors not equal", vec1, vec2);
             verify_failure("test vectors equal", result, test_result);
          }
 
          {
             Test::Result test_result(testcase_name);
-            std::vector<uint8_t> vec1(5), vec2(5);
-            test_result.test_ne("test arrays not equal", vec1.data(), vec1.size(), vec2.data(), vec2.size());
-            verify_failure("test vectors equal", result, test_result);
-         }
-
-         {
-            Test::Result test_result(testcase_name);
-            size_t x = 5, y = 6;
-            test_result.test_eq("test ints equal", x, y);
+            const size_t x = 5;
+            const size_t y = 6;
+            test_result.test_sz_eq("test ints equal", x, y);
             verify_failure("test ints equal", result, test_result);
          }
 
          {
             Test::Result test_result(testcase_name);
-            size_t x = 5, y = 5;
-            test_result.test_ne("test ints not equal", x, y);
+            const size_t x = 5;
+            const size_t y = 5;
+            test_result.test_sz_ne("test ints not equal", x, y);
             verify_failure("test ints not equal", result, test_result);
          }
 
          {
             Test::Result test_result(testcase_name);
-            test_result.test_is_nonempty("empty", "");
-            verify_failure("test_is_nonempty", result, test_result);
+            test_result.test_str_not_empty("empty", "");
+            verify_failure("test_str_not_empty", result, test_result);
          }
 
          {
             Test::Result test_result(testcase_name);
-            test_result.test_lt("not less", 5, 5);
+            test_result.test_sz_lt("not less", 5, 5);
             verify_failure("test_lt", result, test_result);
          }
 
          {
             Test::Result test_result(testcase_name);
-            test_result.test_lte("not lte", 6, 5);
+            test_result.test_sz_lte("not lte", 6, 5);
             verify_failure("test_lte", result, test_result);
          }
 
          {
             Test::Result test_result(testcase_name);
-            test_result.test_gte("not gte", 5, 6);
+            test_result.test_sz_gte("not gte", 5, 6);
             verify_failure("test_gte", result, test_result);
          }
 
          {
             Test::Result test_result(testcase_name);
-            test_result.test_ne("string ne", "foo", "foo");
+            test_result.test_str_ne("string ne", "foo", "foo");
             verify_failure("test_ne", result, test_result);
          }
 
@@ -184,7 +185,7 @@ class Test_Tests final : public Test {
             Test::Result test_result(testcase_name);
             const auto x = Botan::BigInt::from_word(5);
             const auto y = Botan::BigInt::from_word(6);
-            test_result.test_eq("test ints equal", x, y);
+            test_result.test_bn_eq("test ints equal", x, y);
             verify_failure("test ints equal", result, test_result);
          }
 
@@ -192,7 +193,7 @@ class Test_Tests final : public Test {
             Test::Result test_result(testcase_name);
             const auto x = Botan::BigInt::from_word(5);
             const auto y = Botan::BigInt::from_word(5);
-            test_result.test_ne("test ints not equal", x, y);
+            test_result.test_bn_ne("test ints not equal", x, y);
             verify_failure("test ints not equal", result, test_result);
          }
 #endif
@@ -214,8 +215,8 @@ class Test_Tests final : public Test {
             histogram[rng->next_byte()] += 1;
          }
 
-         for(size_t i = 0; i != 256; ++i) {
-            if(histogram[i] < RUNS / 2 || histogram[i] > RUNS * 2) {
+         for(const size_t count : histogram) {
+            if(count < RUNS / 2 || count > RUNS * 2) {
                result.test_failure("Testsuite_RNG produced non-uniform output");
             } else {
                result.test_success("Testsuite_RNG seemed roughly uniform");
@@ -230,7 +231,7 @@ class Test_Tests final : public Test {
             result.test_success("Got expected failure for " + what);
             const std::string result_str = test_result.result_string();
 
-            result.confirm("result string contains FAIL", result_str.find("FAIL") != std::string::npos);
+            result.test_is_true("result string contains FAIL", result_str.find("FAIL") != std::string::npos);
          } else {
             result.test_failure("Expected test to fail for " + what);
          }
@@ -238,5 +239,7 @@ class Test_Tests final : public Test {
 };
 
 BOTAN_REGISTER_TEST("utils", "testcode", Test_Tests);
+
+}  // namespace
 
 }  // namespace Botan_Tests

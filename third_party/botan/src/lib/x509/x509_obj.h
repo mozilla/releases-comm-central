@@ -11,6 +11,7 @@
 #include <botan/asn1_obj.h>
 #include <botan/pkix_enums.h>
 #include <memory>
+#include <span>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -60,7 +61,7 @@ class BOTAN_PUBLIC_API(2, 0) X509_Object : public ASN1_Object {
       static std::vector<uint8_t> make_signed(PK_Signer& signer,
                                               RandomNumberGenerator& rng,
                                               const AlgorithmIdentifier& alg_id,
-                                              const secure_vector<uint8_t>& tbs);
+                                              std::span<const uint8_t> tbs);
 
       /**
       * Check the signature on this data
@@ -68,7 +69,7 @@ class BOTAN_PUBLIC_API(2, 0) X509_Object : public ASN1_Object {
       * @return status of the signature - OK if verified or otherwise an indicator of
       *         the problem preventing verification, along with the hash function that
       *         was used, for further policy checks. The second parameter is empty
-      *         unless the validation was sucessful.
+      *         unless the validation was successful.
       */
       std::pair<Certificate_Status_Code, std::string> verify_signature(const Public_Key& key) const;
 
@@ -96,14 +97,9 @@ class BOTAN_PUBLIC_API(2, 0) X509_Object : public ASN1_Object {
       */
       std::string PEM_encode() const;
 
-      X509_Object(const X509_Object&) = default;
-      X509_Object& operator=(const X509_Object&) = default;
-
       virtual std::string PEM_label() const = 0;
 
       virtual std::vector<std::string> alternate_PEM_labels() const { return std::vector<std::string>(); }
-
-      ~X509_Object() override = default;
 
       /**
       * Choose and return a signature scheme appropriate for X.509 signing

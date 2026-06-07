@@ -7,6 +7,8 @@
 
 #include <botan/x509_crl.h>
 
+#include <botan/asn1_obj.h>
+#include <botan/asn1_time.h>
 #include <botan/ber_dec.h>
 #include <botan/bigint.h>
 #include <botan/der_enc.h>
@@ -37,7 +39,7 @@ CRL_Entry::CRL_Entry(const X509_Certificate& cert, CRL_Code why) {
 }
 
 /*
-* Compare two CRL_Entrys for equality
+* Compare two CRL_Entry structs for equality
 */
 bool operator==(const CRL_Entry& a1, const CRL_Entry& a2) {
    if(a1.serial_number() != a2.serial_number()) {
@@ -53,7 +55,7 @@ bool operator==(const CRL_Entry& a1, const CRL_Entry& a2) {
 }
 
 /*
-* Compare two CRL_Entrys for inequality
+* Compare two CRL_Entry structs for inequality
 */
 bool operator!=(const CRL_Entry& a1, const CRL_Entry& a2) {
    return !(a1 == a2);
@@ -79,10 +81,12 @@ std::vector<uint8_t> decode_serial_number(const BER_Object& obj) {
 
    if(!obj.data().empty() && obj.data()[0] == 0x00) {
       return std::vector<uint8_t>(obj.data().begin() + 1, obj.data().end());
-   } else if(!obj.data().empty() && obj.data()[0] & 0x80) {
+   } else if(!obj.data().empty() && ((obj.data()[0] & 0x80) == 0x80)) {
       std::vector<uint8_t> vec(obj.data().begin(), obj.data().end());
       for(size_t i = vec.size(); i > 0; --i) {
-         if(vec[i - 1]--) {
+         const bool gt0 = vec[i - 1] > 0;
+         vec[i - 1] -= 1;
+         if(gt0) {
             break;
          }
       }
@@ -112,7 +116,7 @@ void CRL_Entry::decode_from(BER_Decoder& source) {
 
    if(entry.more_items()) {
       entry.decode(data->m_extensions);
-      if(auto ext = data->m_extensions.get_extension_object_as<Cert_Extension::CRL_ReasonCode>()) {
+      if(const auto* ext = data->m_extensions.get_extension_object_as<Cert_Extension::CRL_ReasonCode>()) {
          data->m_reason = ext->get_reason();
       } else {
          data->m_reason = CRL_Code::Unspecified;

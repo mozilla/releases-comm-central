@@ -28,7 +28,7 @@ rule compile_lib
 %{if ninja_header_deps_style}
   deps = %{ninja_header_deps_style}
 %{endif}
-  command = %{cxx} %{lib_flags} ${ABI_FLAGS} ${LANG_FLAGS} ${CXXFLAGS} -DBOTAN_IS_BEING_BUILT ${WARN_FLAGS} ${isa_flags} %{public_include_flags} %{internal_include_flags} %{external_include_flags} %{header_deps_flag} %{header_deps_out|concat: $out.d} %{dash_c} $in %{dash_o}$out
+  command = %{cxx} %{lib_flags} ${ABI_FLAGS} ${LANG_FLAGS} ${CXXFLAGS} -DBOTAN_IS_BEING_BUILT ${WARN_FLAGS} %{public_include_flags} %{internal_include_flags} %{external_include_flags} %{header_deps_flag} %{header_deps_out|concat: $out.d} %{dash_c} $in %{dash_o}$out
 
 rule compile_exe
 %{if header_deps_out}
@@ -37,7 +37,7 @@ rule compile_exe
 %{if ninja_header_deps_style}
   deps = %{ninja_header_deps_style}
 %{endif}
-  command = %{cxx} ${ABI_FLAGS} ${LANG_FLAGS} ${CXXFLAGS} -DBOTAN_IS_BEING_BUILT ${WARN_FLAGS} ${isa_flags} %{public_include_flags} %{internal_include_flags} %{external_include_flags} %{header_deps_flag} %{header_deps_out|concat: $out.d} %{dash_c} $in %{dash_o}$out
+  command = %{cxx} ${ABI_FLAGS} ${LANG_FLAGS} ${CXXFLAGS} -DBOTAN_IS_BEING_BUILT ${WARN_FLAGS} %{public_include_flags} %{internal_include_flags} %{external_include_flags} %{header_deps_flag} %{header_deps_out|concat: $out.d} %{dash_c} $in %{dash_o}$out
 
 rule compile_example_exe
 %{if header_deps_out}
@@ -46,7 +46,7 @@ rule compile_example_exe
 %{if ninja_header_deps_style}
   deps = %{ninja_header_deps_style}
 %{endif}
-  command = %{cxx} ${ABI_FLAGS} ${LANG_FLAGS} ${CXXFLAGS} ${WARN_FLAGS} ${isa_flags} %{public_include_flags} %{external_include_flags} %{header_deps_flag} %{header_deps_out|concat: $out.d} %{dash_c} $in %{dash_o}$out
+  command = %{cxx} ${ABI_FLAGS} ${LANG_FLAGS} ${CXXFLAGS} ${WARN_FLAGS} %{public_include_flags} %{external_include_flags} %{header_deps_flag} %{header_deps_out|concat: $out.d} %{dash_c} $in %{dash_o}$out
 
 # The primary target
 build all: phony %{all_targets}
@@ -54,16 +54,24 @@ default all
 
 # Library targets
 
-%{if build_static_lib}
+%{if build_static_lib_using_response_file}
 
 rule link_static
   rspfile = %{response_file_dir}/static.txt
   rspfile_content = $in
   command = %{ar_command} %{ar_options} %{ar_output_to}$out @%{response_file_dir}/static.txt
 
-build %{out_dir}/%{static_lib_name}: link_static %{join lib_objs}
+%{endif}
+%{if build_static_lib_using_cmdline_args}
+
+rule link_static
+  command = %{ar_command} %{ar_options} %{ar_output_to}$out $in
 
 %{endif}
+%{if build_static_lib}
+build %{out_dir}/%{static_lib_name}: link_static %{join lib_objs}
+%{endif}
+
 %{if build_shared_lib}
 
 rule link_shared
@@ -204,7 +212,6 @@ build tidy: tidy
 
 %{for lib_build_info}
 build %{obj}: compile_lib %{src}
-  isa_flags = %{isa_flags}
 %{endfor}
 
 %{for cli_build_info}

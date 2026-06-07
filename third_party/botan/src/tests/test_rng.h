@@ -9,15 +9,15 @@
 #define BOTAN_TESTS_RNGS_FOR_TESTING_H_
 
 #include "tests.h"
-#include <botan/exceptn.h>
-#include <botan/hex.h>
 #include <botan/rng.h>
-#include <deque>
+#include <optional>
 #include <string>
 
-#if defined(BOTAN_HAS_AES)
-   #include <botan/block_cipher.h>
-#endif
+namespace Botan {
+
+class BlockCipher;
+
+}
 
 namespace Botan_Tests {
 
@@ -29,11 +29,9 @@ class Fixed_Output_RNG : public Botan::RandomNumberGenerator {
    public:
       bool empty() const { return !is_seeded(); }
 
-      bool is_seeded() const override { return !m_buf.empty(); }
+      bool is_seeded() const override { return m_buf_pos < m_buf.size(); }
 
       bool accepts_input() const override { return true; }
-
-      size_t reseed(Botan::Entropy_Sources&, size_t, std::chrono::milliseconds) override { return 0; }
 
       std::string name() const override { return "Fixed_Output_RNG"; }
 
@@ -41,22 +39,15 @@ class Fixed_Output_RNG : public Botan::RandomNumberGenerator {
 
       explicit Fixed_Output_RNG(std::span<const uint8_t> in) { m_buf.insert(m_buf.end(), in.begin(), in.end()); }
 
-      explicit Fixed_Output_RNG(const std::string& in_str) {
-         std::vector<uint8_t> in = Botan::hex_decode(in_str);
-         m_buf.insert(m_buf.end(), in.begin(), in.end());
-      }
+      explicit Fixed_Output_RNG(const std::string& in_str);
 
-      Fixed_Output_RNG(RandomNumberGenerator& rng, size_t len) {
-         std::vector<uint8_t> output;
-         rng.random_vec(output, len);
-         m_buf.insert(m_buf.end(), output.begin(), output.end());
-      }
+      Fixed_Output_RNG(RandomNumberGenerator& rng, size_t len);
 
       /**
        * Provide a non-fixed RNG as fallback to be used once the Fixed_Output_RNG runs out of bytes.
        * If more bytes are provided after that, those will be preferred over the fallback again.
        */
-      Fixed_Output_RNG(RandomNumberGenerator& fallback_rng) : m_fallback(&fallback_rng) {}
+      explicit Fixed_Output_RNG(RandomNumberGenerator& fallback_rng) : m_fallback(&fallback_rng) {}
 
       Fixed_Output_RNG() = default;
 
@@ -69,22 +60,11 @@ class Fixed_Output_RNG : public Botan::RandomNumberGenerator {
          }
       }
 
-      uint8_t random() {
-         if(m_buf.empty()) {
-            if(m_fallback.has_value()) {
-               return m_fallback.value()->next_byte();
-            } else {
-               throw Test_Error("Fixed output RNG ran out of bytes, test bug?");
-            }
-         }
-
-         uint8_t out = m_buf.front();
-         m_buf.pop_front();
-         return out;
-      }
+      uint8_t random();
 
    private:
-      std::deque<uint8_t> m_buf;
+      std::vector<uint8_t> m_buf;
+      size_t m_buf_pos = 0;
       std::optional<RandomNumberGenerator*> m_fallback;
 };
 
@@ -165,8 +145,6 @@ class SeedCapturing_RNG final : public Botan::RandomNumberGenerator {
 */
 class Request_Counting_RNG final : public Botan::RandomNumberGenerator {
    public:
-      Request_Counting_RNG() : m_randomize_count(0) {}
-
       size_t randomize_count() const { return m_randomize_count; }
 
       bool accepts_input() const override { return false; }
@@ -183,8 +161,8 @@ class Request_Counting_RNG final : public Botan::RandomNumberGenerator {
          The HMAC_DRBG and ChaCha reseed KATs assume this RNG type
          outputs all 0x80
          */
-         for(auto& out : output) {
-            out = 0x80;
+         for(auto& b : output) {
+            b = 0x80;
          }
          if(!output.empty()) {
             m_randomize_count++;
@@ -192,7 +170,7 @@ class Request_Counting_RNG final : public Botan::RandomNumberGenerator {
       }
 
    private:
-      size_t m_randomize_count;
+      size_t m_randomize_count = 0;
 };
 
 #if defined(BOTAN_HAS_AES)
@@ -210,7 +188,14 @@ class CTR_DRBG_AES256 final : public Botan::RandomNumberGenerator {
 
       bool is_seeded() const override { return true; }
 
-      CTR_DRBG_AES256(std::span<const uint8_t> seed);
+      explicit CTR_DRBG_AES256(std::span<const uint8_t> seed);
+
+      ~CTR_DRBG_AES256() override;
+
+      CTR_DRBG_AES256(const CTR_DRBG_AES256& other) = delete;
+      CTR_DRBG_AES256(CTR_DRBG_AES256&& other) = default;
+      CTR_DRBG_AES256& operator=(const CTR_DRBG_AES256& other) = delete;
+      CTR_DRBG_AES256& operator=(CTR_DRBG_AES256&& other) = delete;
 
    private:
       void fill_bytes_with_input(std::span<uint8_t> output, std::span<const uint8_t> input) override;
@@ -219,7 +204,7 @@ class CTR_DRBG_AES256 final : public Botan::RandomNumberGenerator {
 
       void update(std::span<const uint8_t> provided_data);
 
-      uint64_t m_V0, m_V1;
+      uint64_t m_V0 = 0, m_V1 = 0;
       std::unique_ptr<Botan::BlockCipher> m_cipher;
 };
 

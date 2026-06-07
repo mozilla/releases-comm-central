@@ -8,11 +8,13 @@
 #include <botan/bcrypt.h>
 
 #include <botan/base64.h>
+#include <botan/exceptn.h>
 #include <botan/mem_ops.h>
 #include <botan/rng.h>
 #include <botan/internal/blowfish.h>
 #include <botan/internal/ct_utils.h>
 #include <botan/internal/fmt.h>
+#include <botan/internal/mem_utils.h>
 #include <botan/internal/parsing.h>
 
 namespace Botan {
@@ -74,15 +76,15 @@ uint8_t bcrypt_encoding_to_base64(uint8_t c) {
    return ret;
 }
 
-std::string bcrypt_base64_encode(const uint8_t input[], size_t length) {
-   std::string b64 = base64_encode(input, length);
+std::string bcrypt_base64_encode(std::span<const uint8_t> input) {
+   std::string b64 = base64_encode(input);
 
    while(!b64.empty() && b64.back() == '=') {
       b64.pop_back();
    }
 
-   for(size_t i = 0; i != b64.size(); ++i) {
-      b64[i] = static_cast<char>(base64_to_bcrypt_encoding(static_cast<uint8_t>(b64[i])));
+   for(char& c : b64) {
+      c = static_cast<char>(base64_to_bcrypt_encoding(static_cast<uint8_t>(c)));
    }
 
    return b64;
@@ -90,15 +92,14 @@ std::string bcrypt_base64_encode(const uint8_t input[], size_t length) {
 
 std::vector<uint8_t> bcrypt_base64_decode(std::string_view input) {
    std::string translated;
-   for(size_t i = 0; i != input.size(); ++i) {
-      char c = bcrypt_encoding_to_base64(static_cast<uint8_t>(input[i]));
-      translated.push_back(c);
+   for(const char c : input) {
+      translated.push_back(bcrypt_encoding_to_base64(static_cast<uint8_t>(c)));
    }
 
    return unlock(base64_decode(translated));
 }
 
-std::string make_bcrypt(std::string_view pass, const std::vector<uint8_t>& salt, uint16_t work_factor, char version) {
+std::string make_bcrypt(std::string_view pass, std::span<const uint8_t> salt, uint16_t work_factor, char version) {
    /*
    * On a 4 GHz Skylake, workfactor == 18 takes about 15 seconds to
    * hash a password. This seems like a reasonable upper bound for the
@@ -113,12 +114,12 @@ std::string make_bcrypt(std::string_view pass, const std::vector<uint8_t>& salt,
 
    Blowfish blowfish;
 
-   secure_vector<uint8_t> pass_with_trailing_null(pass.size() + 1);
-   copy_mem(pass_with_trailing_null.data(), cast_char_ptr_to_uint8(pass.data()), pass.length());
+   // Bcrypt is defined with the key including the trailing NULL so we must copy it to a local
+   // variable since std::string_view is not necessarily NULL terminated.
+   secure_vector<uint8_t> pass_w_null(pass.size() + 1);
+   copy_mem(std::span{pass_w_null}.first(pass.size()), as_span_of_bytes(pass));
 
-   // Include the trailing NULL byte, so we need c_str() not data()
-   blowfish.salted_set_key(
-      pass_with_trailing_null.data(), pass_with_trailing_null.size(), salt.data(), salt.size(), work_factor);
+   blowfish.salted_set_key(pass_w_null.data(), pass_w_null.size(), salt.data(), salt.size(), work_factor);
 
    std::vector<uint8_t> ctext(BCRYPT_MAGIC, BCRYPT_MAGIC + 8 * 3);
 
@@ -126,7 +127,7 @@ std::string make_bcrypt(std::string_view pass, const std::vector<uint8_t>& salt,
       blowfish.encrypt_n(ctext.data(), ctext.data(), 3);
    }
 
-   std::string salt_b64 = bcrypt_base64_encode(salt.data(), salt.size());
+   const std::string salt_b64 = bcrypt_base64_encode(salt);
 
    std::string work_factor_str = std::to_string(work_factor);
    if(work_factor_str.length() == 1) {
@@ -137,7 +138,7 @@ std::string make_bcrypt(std::string_view pass, const std::vector<uint8_t>& salt,
               version,
               work_factor_str,
               salt_b64.substr(0, 22),
-              bcrypt_base64_encode(ctext.data(), ctext.size() - 1));
+              bcrypt_base64_encode(std::span{ctext}.first(ctext.size() - 1)));
 }
 
 }  // namespace
@@ -177,8 +178,7 @@ bool check_bcrypt(std::string_view pass, std::string_view hash) {
 
    const std::string compare = make_bcrypt(pass, salt, workfactor, bcrypt_version);
 
-   return CT::is_equal(cast_char_ptr_to_uint8(hash.data()), cast_char_ptr_to_uint8(compare.data()), compare.size())
-      .as_bool();
+   return CT::is_equal(as_span_of_bytes(hash), as_span_of_bytes(compare)).as_bool();
 }
 
 }  // namespace Botan

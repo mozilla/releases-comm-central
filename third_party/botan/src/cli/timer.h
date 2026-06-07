@@ -8,7 +8,6 @@
 #define BOTAN_CLI_TIMER_H_
 
 #include <botan/types.h>
-#include <chrono>
 #include <string>
 
 namespace Botan_CLI {
@@ -23,18 +22,18 @@ class Timer final {
             double clock_cycle_ratio,
             uint64_t clock_speed);
 
-      Timer(std::string_view name) : Timer(name, "", "", 1, 0, 0.0, 0) {}
+      explicit Timer(std::string_view name) : Timer(name, "", "", 1, 0, 0.0, 0) {}
 
       Timer(std::string_view name, size_t buf_size) : Timer(name, "", "", buf_size, buf_size, 0.0, 0) {}
-
-      Timer(const Timer& other) = default;
-      Timer& operator=(const Timer& other) = default;
 
       void start();
 
       void stop();
 
-      bool under(std::chrono::milliseconds msec) const { return (milliseconds() < msec.count()); }
+      bool under(uint64_t msec) const {
+         const uint64_t nano = msec * 1000000;
+         return value() < nano;
+      }
 
       class Timer_Scope final {
          public:
@@ -46,18 +45,23 @@ class Timer final {
                } catch(...) {}
             }
 
+            Timer_Scope(const Timer_Scope& other) = delete;
+            Timer_Scope(Timer_Scope&& other) = delete;
+            Timer_Scope& operator=(const Timer_Scope& other) = delete;
+            Timer_Scope& operator=(Timer_Scope&& other) = delete;
+
          private:
             Timer& m_timer;
       };
 
       template <typename F>
       auto run(F f) -> decltype(f()) {
-         Timer_Scope timer(*this);
+         const Timer_Scope timer(*this);
          return f();
       }
 
       template <typename F>
-      void run_until_elapsed(std::chrono::milliseconds msec, F f) {
+      void run_until_elapsed(uint64_t msec, F f) {
          while(this->under(msec)) {
             run(f);
          }
@@ -65,19 +69,17 @@ class Timer final {
 
       uint64_t value() const { return m_time_used; }
 
-      double seconds() const { return value() / 1000000000.0; }
+      double seconds() const { return nanoseconds() / 1000000000.0; }
 
-      double milliseconds() const { return value() / 1000000.0; }
+      double milliseconds() const { return nanoseconds() / 1000000.0; }
 
-      double microseconds() const { return value() / 1000.0; }
+      double microseconds() const { return nanoseconds() / 1000.0; }
 
       double nanoseconds() const { return static_cast<double>(value()); }
 
-      double ms_per_event() const { return milliseconds() / events(); }
-
       uint64_t cycles_consumed() const {
          if(m_clock_speed != 0) {
-            return static_cast<uint64_t>((m_clock_speed * value()) / 1000.0);
+            return (m_clock_speed * value()) / 1000;
          }
          return m_cpu_cycles_used;
       }
@@ -90,11 +92,23 @@ class Timer final {
 
       size_t buf_size() const { return m_buf_size; }
 
-      double bytes_per_second() const { return seconds() > 0.0 ? events() / seconds() : 0.0; }
+      double bytes_per_second() const { return events_per_second(); }
 
-      double events_per_second() const { return seconds() > 0.0 ? events() / seconds() : 0.0; }
+      double events_per_second() const {
+         if(seconds() > 0.0 && events() > 0) {
+            return static_cast<double>(events()) / seconds();
+         } else {
+            return 0.0;
+         }
+      }
 
-      double seconds_per_event() const { return events() > 0 ? seconds() / events() : 0.0; }
+      double seconds_per_event() const {
+         if(seconds() > 0.0 && events() > 0) {
+            return seconds() / static_cast<double>(events());
+         } else {
+            return 0.0;
+         }
+      }
 
       bool operator<(const Timer& other) const;
 

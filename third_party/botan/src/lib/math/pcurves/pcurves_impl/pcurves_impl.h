@@ -1,5 +1,5 @@
 /*
-* (C) 2024,2025 Jack Lloyd
+* (C) 2024,2025,2026 Jack Lloyd
 *
 * Botan is released under the Simplified BSD License (see license.txt)
 */
@@ -8,15 +8,37 @@
 #define BOTAN_PCURVES_IMPL_H_
 
 #include <botan/rng.h>
+#include <botan/internal/buffer_stuffer.h>
 #include <botan/internal/ct_utils.h>
 #include <botan/internal/loadstor.h>
+#include <botan/internal/mem_utils.h>
 #include <botan/internal/pcurves_algos.h>
 #include <botan/internal/pcurves_mul.h>
 #include <botan/internal/pcurves_util.h>
-#include <botan/internal/stl_util.h>
+#include <concepts>
 #include <vector>
 
 namespace Botan {
+
+/*
+ * @brief Helper class to pass literal strings to C++ templates
+ *
+ * This is a generic utility so it may make sense to move this into utils
+ * if someday such functionality is useful outside of pcurves.
+ */
+template <size_t N>
+class StringLiteral final {
+   public:
+      // NOLINTNEXTLINE(*-explicit-conversions)
+      consteval StringLiteral(const char (&str)[N]) : value() {
+         for(size_t i = 0; i != N; ++i) {
+            value[i] = str[i];
+         }
+      }
+
+      // NOLINTNEXTLINE(*non-private-member-variable*)
+      char value[N];
+};
 
 /*
 This file implements a system for compile-time instantiation of elliptic curve arithmetic.
@@ -39,8 +61,6 @@ is available) and to provide pre-computed addition chains for field and scalar
 inversions. See pcurves_secp256r1.cpp or pcurves_secp256k1.cpp for examples with all
 the bells and whistles.
 */
-
-namespace {
 
 /**
 * Montomgomery Representation of Integers
@@ -93,7 +113,7 @@ class MontgomeryRep final {
       * Convert an integer into Montgomery representation
       */
       constexpr static std::array<W, N> to_rep(const std::array<W, N>& x) {
-         std::array<W, 2 * N> z;
+         std::array<W, 2 * N> z;  // NOLINT(*-member-init)
          comba_mul<N>(z.data(), x.data(), R2.data());
          return Self::redc(z);
       }
@@ -106,7 +126,7 @@ class MontgomeryRep final {
       */
       constexpr static std::array<W, N> wide_to_rep(const std::array<W, 2 * N>& x) {
          auto redc_x = Self::redc(x);
-         std::array<W, 2 * N> z;
+         std::array<W, 2 * N> z;  // NOLINT(*-member-init)
          comba_mul<N>(z.data(), redc_x.data(), R3.data());
          return Self::redc(z);
       }
@@ -163,6 +183,7 @@ class IntMod final {
       IntMod(Self&& other) = default;
       IntMod& operator=(const Self& other) = default;
       IntMod& operator=(Self&& other) = default;
+      ~IntMod() = default;
 
       /**
       * Return integer zero
@@ -222,17 +243,34 @@ class IntMod final {
       }
 
       /**
+      * Return either this or -this depending on which is even
+      */
+      constexpr Self correct_sign(CT::Choice even) const {
+         const auto flip = (even != this->is_even());
+         return Self::choose(flip, this->negate(), *this);
+      }
+
+      /**
+      * Return x or y depending on if choice is set or not
+      */
+      static constexpr Self choose(CT::Choice choice, const Self& x, const Self& y) {
+         auto r = y;
+         r.conditional_assign(choice, x);
+         return r;
+      }
+
+      /**
       * Modular addition; return c = a + b
       */
-      friend constexpr Self operator+(const Self& a, const Self& b) {
-         std::array<W, N> t;
+      friend constexpr BOTAN_FORCE_INLINE Self operator+(const Self& a, const Self& b) {
+         std::array<W, N> t;  // NOLINT(*-member-init)
 
          W carry = 0;
          for(size_t i = 0; i != N; ++i) {
             t[i] = word_add(a.m_val[i], b.m_val[i], &carry);
          }
 
-         std::array<W, N> r;
+         std::array<W, N> r;  // NOLINT(*-member-init)
          bigint_monty_maybe_sub<N>(r.data(), carry, t.data(), P.data());
          return Self(r);
       }
@@ -240,14 +278,21 @@ class IntMod final {
       /**
       * Modular subtraction; return c = a - b
       */
-      friend constexpr Self operator-(const Self& a, const Self& b) {
-         std::array<W, N> r;
+      friend constexpr BOTAN_FORCE_INLINE Self operator-(const Self& a, const Self& b) {
+         std::array<W, N> r;  // NOLINT(*-member-init)
          W carry = 0;
          for(size_t i = 0; i != N; ++i) {
             r[i] = word_sub(a.m_val[i], b.m_val[i], &carry);
          }
 
-         bigint_cnd_add(carry, r.data(), N, P.data(), N);
+         const auto mask = CT::Mask<W>::expand(carry).value();
+
+         carry = 0;
+
+         for(size_t i = 0; i != N; ++i) {
+            r[i] = word_add(r[i], P[i] & mask, &carry);
+         }
+
          return Self(r);
       }
 
@@ -262,38 +307,44 @@ class IntMod final {
          // We could multiply by INV_2 but there is a better way ...
 
          std::array<W, N> t = value();
-         W borrow = shift_right<1>(t);
+         const W borrow = shift_right<1>(t);
 
          // If value was odd, add (P/2)+1
-         bigint_cnd_add(borrow, t.data(), N, INV_2.data(), N);
+         const auto mask = CT::Mask<W>::expand(borrow).value();
+
+         W carry = 0;
+
+         for(size_t i = 0; i != N; ++i) {
+            t[i] = word_add(t[i], INV_2[i] & mask, &carry);
+         }
 
          return Self(t);
       }
 
       /// Return (*this) multiplied by 2
-      constexpr Self mul2() const {
+      constexpr BOTAN_FORCE_INLINE Self mul2() const {
          std::array<W, N> t = value();
-         W carry = shift_left<1>(t);
+         const W carry = shift_left<1>(t);
 
-         std::array<W, N> r;
+         std::array<W, N> r;  // NOLINT(*-member-init)
          bigint_monty_maybe_sub<N>(r.data(), carry, t.data(), P.data());
          return Self(r);
       }
 
       /// Return (*this) multiplied by 3
-      constexpr Self mul3() const { return mul2() + (*this); }
+      constexpr inline Self mul3() const { return mul2() + (*this); }
 
       /// Return (*this) multiplied by 4
-      constexpr Self mul4() const { return mul2().mul2(); }
+      constexpr inline Self mul4() const { return mul2().mul2(); }
 
       /// Return (*this) multiplied by 8
-      constexpr Self mul8() const { return mul2().mul2().mul2(); }
+      constexpr inline Self mul8() const { return mul2().mul2().mul2(); }
 
       /**
       * Modular multiplication; return c = a * b
       */
-      friend constexpr Self operator*(const Self& a, const Self& b) {
-         std::array<W, 2 * N> z;
+      friend constexpr BOTAN_FORCE_INLINE Self operator*(const Self& a, const Self& b) {
+         std::array<W, 2 * N> z;  // NOLINT(*-member-init)
          comba_mul<N>(z.data(), a.data(), b.data());
          return Self(Rep::redc(z));
       }
@@ -301,8 +352,8 @@ class IntMod final {
       /**
       * Modular multiplication; set this to this * other
       */
-      constexpr Self& operator*=(const Self& other) {
-         std::array<W, 2 * N> z;
+      constexpr BOTAN_FORCE_INLINE Self& operator*=(const Self& other) {
+         std::array<W, 2 * N> z;  // NOLINT(*-member-init)
          comba_mul<N>(z.data(), data(), other.data());
          m_val = Rep::redc(z);
          return (*this);
@@ -314,10 +365,10 @@ class IntMod final {
       * If `cond` is true, sets *this to `nx`
       */
       constexpr void conditional_assign(CT::Choice cond, const Self& nx) {
-         const W mask = CT::Mask<W>::from_choice(cond).value();
+         const W mask = cond.into_bitmask<W>();
 
          for(size_t i = 0; i != N; ++i) {
-            m_val[i] = choose(mask, nx.m_val[i], m_val[i]);
+            m_val[i] = Botan::choose(mask, nx.m_val[i], m_val[i]);
          }
       }
 
@@ -327,11 +378,11 @@ class IntMod final {
       * If `cond` is true, sets `x` to `nx` and `y` to `ny`
       */
       static constexpr void conditional_assign(Self& x, Self& y, CT::Choice cond, const Self& nx, const Self& ny) {
-         const W mask = CT::Mask<W>::from_choice(cond).value();
+         const W mask = cond.into_bitmask<W>();
 
          for(size_t i = 0; i != N; ++i) {
-            x.m_val[i] = choose(mask, nx.m_val[i], x.m_val[i]);
-            y.m_val[i] = choose(mask, ny.m_val[i], y.m_val[i]);
+            x.m_val[i] = Botan::choose(mask, nx.m_val[i], x.m_val[i]);
+            y.m_val[i] = Botan::choose(mask, ny.m_val[i], y.m_val[i]);
          }
       }
 
@@ -342,12 +393,28 @@ class IntMod final {
       */
       static constexpr void conditional_assign(
          Self& x, Self& y, Self& z, CT::Choice cond, const Self& nx, const Self& ny, const Self& nz) {
-         const W mask = CT::Mask<W>::from_choice(cond).value();
+         const W mask = cond.into_bitmask<W>();
 
          for(size_t i = 0; i != N; ++i) {
-            x.m_val[i] = choose(mask, nx.m_val[i], x.m_val[i]);
-            y.m_val[i] = choose(mask, ny.m_val[i], y.m_val[i]);
-            z.m_val[i] = choose(mask, nz.m_val[i], z.m_val[i]);
+            x.m_val[i] = Botan::choose(mask, nx.m_val[i], x.m_val[i]);
+            y.m_val[i] = Botan::choose(mask, ny.m_val[i], y.m_val[i]);
+            z.m_val[i] = Botan::choose(mask, nz.m_val[i], z.m_val[i]);
+         }
+      }
+
+      /**
+      * Conditional swap
+      *
+      * If `cond` is true, swaps the values of `x` and `y`
+      */
+      static constexpr void conditional_swap(CT::Choice cond, Self& x, Self& y) {
+         const W mask = cond.into_bitmask<W>();
+
+         for(size_t i = 0; i != N; ++i) {
+            auto nx = Botan::choose(mask, y.m_val[i], x.m_val[i]);
+            auto ny = Botan::choose(mask, x.m_val[i], y.m_val[i]);
+            x.m_val[i] = nx;
+            y.m_val[i] = ny;
          }
       }
 
@@ -356,8 +423,8 @@ class IntMod final {
       *
       * Returns the square of this after modular reduction
       */
-      constexpr Self square() const {
-         std::array<W, 2 * N> z;
+      constexpr BOTAN_FORCE_INLINE Self square() const {
+         std::array<W, 2 * N> z;  // NOLINT(*-member-init)
          comba_sqr<N>(z.data(), this->data());
          return Self(Rep::redc(z));
       }
@@ -370,7 +437,7 @@ class IntMod final {
       * (Alternate view, returns this raised to the 2^nth power)
       */
       constexpr void square_n(size_t n) {
-         std::array<W, 2 * N> z;
+         std::array<W, 2 * N> z;  // NOLINT(*-member-init)
          for(size_t i = 0; i != n; ++i) {
             comba_sqr<N>(z.data(), this->data());
             m_val = Rep::redc(z);
@@ -385,7 +452,7 @@ class IntMod final {
       constexpr Self negate() const {
          const W x_is_zero = ~CT::all_zeros(this->data(), N).value();
 
-         std::array<W, N> r;
+         std::array<W, N> r;  // NOLINT(*-member-init)
          W carry = 0;
          for(size_t i = 0; i != N; ++i) {
             r[i] = word_sub(P[i] & x_is_zero, m_val[i], &carry);
@@ -424,6 +491,7 @@ class IntMod final {
          tbl[0] = (*this);
 
          for(size_t i = 1; i != WindowElements; ++i) {
+            // Conditional ok: table indexes are public here
             if(i % 2 == 1) {
                tbl[i] = tbl[i / 2].square();
             } else {
@@ -435,6 +503,7 @@ class IntMod final {
 
          const size_t w0 = read_window_bits<WindowBits>(std::span{exp}, (Windows - 1) * WindowBits);
 
+         // Conditional ok: this function is variable time
          if(w0 > 0) {
             r = tbl[w0 - 1];
          }
@@ -444,6 +513,7 @@ class IntMod final {
 
             const size_t w = read_window_bits<WindowBits>(std::span{exp}, (Windows - i - 1) * WindowBits);
 
+            // Conditional ok: this function is variable time
             if(w > 0) {
                r *= tbl[w - 1];
             }
@@ -477,13 +547,15 @@ class IntMod final {
       static constexpr void _invert_vartime_div2_helper(Self& a, Self& x) {
          constexpr auto INV_2 = p_div_2_plus_1(Rep::P);
 
+         // Conditional ok: this function is variable time
          while((a.m_val[0] & 1) != 1) {
             shift_right<1>(a.m_val);
 
-            W borrow = shift_right<1>(x.m_val);
+            const W borrow = shift_right<1>(x.m_val);
 
+            // Conditional ok: this function is variable time
             if(borrow) {
-               bigint_add2_nc(x.m_val.data(), N, INV_2.data(), N);
+               bigint_add2(x.m_val.data(), N, INV_2.data(), N);
             }
          }
       }
@@ -524,6 +596,7 @@ class IntMod final {
       * a/y resp.
       */
       constexpr Self invert_vartime() const {
+         // Conditional ok: this function is variable time
          if(this->is_zero().as_bool()) {
             return Self::zero();
          }
@@ -542,6 +615,7 @@ class IntMod final {
          Self::_invert_vartime_div2_helper(a, y);
 
          for(;;) {
+            // Conditional ok: this function is variable time
             if(a.m_val == b.m_val) {
                // At this point it should be that a == b == 1
                auto r = y.negate();
@@ -562,9 +636,10 @@ class IntMod final {
             * Compute r = b - a and check if it underflowed
             * If it did not then we are in the b > a path
             */
-            std::array<W, N> r;
-            word carry = bigint_sub3(r.data(), b.data(), N, a.data(), N);
+            std::array<W, N> r;  // NOLINT(*-member-init)
+            const word carry = bigint_sub3(r.data(), b.data(), N, a.data(), N);
 
+            // Conditional ok: this function is variable time
             if(carry == 0) {
                // b > a
                b.m_val = r;
@@ -583,9 +658,9 @@ class IntMod final {
       /**
       * Return the modular square root if it exists
       *
-      * The CT::Choice indicates if the square root exists or not.
+      * The CT::Option will be unset if the square root does not exist
       */
-      constexpr std::pair<Self, CT::Choice> sqrt() const {
+      constexpr CT::Option<Self> sqrt() const {
          if constexpr(Self::P_MOD_4 == 3) {
             // The easy case for square root is when p == 3 (mod 4)
 
@@ -595,7 +670,7 @@ class IntMod final {
             // Zero out the return value if it would otherwise be incorrect
             const CT::Choice correct = (z.square() == *this);
             z.conditional_assign(!correct, Self::zero());
-            return {z, correct};
+            return CT::Option<Self>(z, correct);
          } else {
             // Shanks-Tonelli, following I.4 in RFC 9380
 
@@ -634,7 +709,7 @@ class IntMod final {
             // Zero out the return value if it would otherwise be incorrect
             const CT::Choice correct = (z.square() == *this);
             z.conditional_assign(!correct, Self::zero());
-            return {z, correct};
+            return CT::Option<Self>(z, correct);
          }
       }
 
@@ -715,12 +790,14 @@ class IntMod final {
       * also rejected.
       */
       static std::optional<Self> deserialize(std::span<const uint8_t> bytes) {
+         // Conditional ok: input length is public
          if(bytes.size() != Self::BYTES) {
             return {};
          }
 
          const auto words = bytes_to_words<W, N, BYTES>(bytes.first<Self::BYTES>());
 
+         // Conditional acceptable: std::optional is implicitly not constant time
          if(!bigint_ct_is_lt(words.data(), N, P.data(), N).as_bool()) {
             return {};
          }
@@ -750,6 +827,7 @@ class IntMod final {
       * modular reduces it.
       */
       static constexpr std::optional<Self> from_wide_bytes_varlen(std::span<const uint8_t> bytes) {
+         // Conditional ok: input length is public
          if(bytes.size() > 2 * Self::BYTES) {
             return {};
          }
@@ -773,7 +851,7 @@ class IntMod final {
       static Self random(RandomNumberGenerator& rng) {
          constexpr size_t MAX_ATTEMPTS = 1000;
 
-         std::array<uint8_t, Self::BYTES> buf;
+         std::array<uint8_t, Self::BYTES> buf{};
 
          for(size_t i = 0; i != MAX_ATTEMPTS; ++i) {
             rng.randomize(buf);
@@ -785,6 +863,7 @@ class IntMod final {
                buf[0] &= mask;
             }
 
+            // Conditionals ok: rejection sampling reveals only values we didn't use
             if(auto s = Self::deserialize(buf)) {
                if(s.value().is_nonzero().as_bool()) {
                   return s.value();
@@ -801,7 +880,7 @@ class IntMod final {
       * Notice this function is consteval, and so can only be called at compile time
       */
       static consteval Self constant(int8_t x) {
-         std::array<W, 1> v;
+         std::array<W, 1> v{};
          v[0] = (x >= 0) ? x : -x;
          auto s = Self::from_words(v);
          return (x >= 0) ? s : s.negate();
@@ -826,20 +905,15 @@ class IntMod final {
 *
 * This contains a pair of integers (x,y) which satisfy the curve equation
 */
-template <typename FieldElement, typename Params>
+template <typename FieldElement>
 class AffineCurvePoint final {
    public:
-      // We can't pass a FieldElement directly because FieldElement is
-      // not "structural" due to having private members, so instead
-      // recreate it here from the words.
-      static constexpr FieldElement A = FieldElement::from_words(Params::AW);
-      static constexpr FieldElement B = FieldElement::from_words(Params::BW);
-
       static constexpr size_t BYTES = 1 + 2 * FieldElement::BYTES;
-      static constexpr size_t COMPRESSED_BYTES = 1 + FieldElement::BYTES;
 
-      using Self = AffineCurvePoint<FieldElement, Params>;
+      using Self = AffineCurvePoint<FieldElement>;
 
+      // Note this constructor does not check the validity of the x/y pair
+      // This must be verified prior to this constructor being called
       constexpr AffineCurvePoint(const FieldElement& x, const FieldElement& y) : m_x(x), m_y(y) {}
 
       constexpr AffineCurvePoint() : m_x(FieldElement::zero()), m_y(FieldElement::zero()) {}
@@ -847,7 +921,9 @@ class AffineCurvePoint final {
       static constexpr Self identity() { return Self(FieldElement::zero(), FieldElement::zero()); }
 
       // Helper for ct_select of pcurves_generic
-      static constexpr Self identity(const Self&) { return Self(FieldElement::zero(), FieldElement::zero()); }
+      static constexpr Self identity(const Self& /*unused*/) {
+         return Self(FieldElement::zero(), FieldElement::zero());
+      }
 
       constexpr CT::Choice is_identity() const { return x().is_zero() && y().is_zero(); }
 
@@ -855,6 +931,7 @@ class AffineCurvePoint final {
       AffineCurvePoint(Self&& other) = default;
       AffineCurvePoint& operator=(const Self& other) = default;
       AffineCurvePoint& operator=(Self&& other) = default;
+      ~AffineCurvePoint() = default;
 
       constexpr Self negate() const { return Self(x(), y().negate()); }
 
@@ -886,48 +963,6 @@ class AffineCurvePoint final {
          }
 
          return result;
-      }
-
-      /**
-      * Return (x^3 + A*x + B) mod p
-      */
-      static constexpr FieldElement x3_ax_b(const FieldElement& x) { return (x.square() + Self::A) * x + Self::B; }
-
-      /**
-      * Point deserialization
-      *
-      * This accepts compressed or uncompressed formats.
-      */
-      static std::optional<Self> deserialize(std::span<const uint8_t> bytes) {
-         if(bytes.size() == Self::BYTES && bytes[0] == 0x04) {
-            auto x = FieldElement::deserialize(bytes.subspan(1, FieldElement::BYTES));
-            auto y = FieldElement::deserialize(bytes.subspan(1 + FieldElement::BYTES, FieldElement::BYTES));
-
-            if(x && y) {
-               const auto lhs = (*y).square();
-               const auto rhs = Self::x3_ax_b(*x);
-               if((lhs == rhs).as_bool()) {
-                  return Self(*x, *y);
-               }
-            }
-         } else if(bytes.size() == Self::COMPRESSED_BYTES && (bytes[0] == 0x02 || bytes[0] == 0x03)) {
-            const CT::Choice y_is_even = CT::Mask<uint8_t>::is_equal(bytes[0], 0x02).as_choice();
-
-            if(auto x = FieldElement::deserialize(bytes.subspan(1, FieldElement::BYTES))) {
-               auto [y, is_square] = x3_ax_b(*x).sqrt();
-
-               if(is_square.as_bool()) {
-                  const auto flip_y = y_is_even != y.is_even();
-                  y.conditional_assign(flip_y, y.negate());
-                  return Self(*x, y);
-               }
-            }
-         } else if(bytes.size() == 1 && bytes[0] == 0x00) {
-            // See SEC1 section 2.3.4
-            return Self::identity();
-         }
-
-         return {};
       }
 
       /**
@@ -973,17 +1008,28 @@ class ProjectiveCurvePoint {
       static constexpr bool A_is_minus_3 = (A == FieldElement::constant(-3)).as_bool();
 
       using Self = ProjectiveCurvePoint<FieldElement, Params>;
-      using AffinePoint = AffineCurvePoint<FieldElement, Params>;
+      using AffinePoint = AffineCurvePoint<FieldElement>;
 
       /**
       * Convert a point from affine to projective form
       */
       static constexpr Self from_affine(const AffinePoint& pt) {
-         if(pt.is_identity().as_bool()) {
-            return Self::identity();
-         } else {
-            return ProjectiveCurvePoint(pt.x(), pt.y());
-         }
+         /*
+         * If the point is the identity element (x=0, y=0) then instead of
+         * creating (x, y, 1) = (0, 0, 1) we want our projective identity
+         * encoding of (0, 1, 0)
+         *
+         * Which we can achieve by a conditional swap of y and z if the
+         * affine point is the identity.
+         */
+
+         auto x = pt.x();
+         auto y = pt.y();
+         auto z = FieldElement::one();
+
+         FieldElement::conditional_swap(pt.is_identity(), y, z);
+
+         return ProjectiveCurvePoint(x, y, z);
       }
 
       /**
@@ -1013,6 +1059,7 @@ class ProjectiveCurvePoint {
       ProjectiveCurvePoint(Self&& other) = default;
       ProjectiveCurvePoint& operator=(const Self& other) = default;
       ProjectiveCurvePoint& operator=(Self&& other) = default;
+      ~ProjectiveCurvePoint() = default;
 
       friend constexpr Self operator+(const Self& a, const Self& b) { return Self::add(a, b); }
 
@@ -1096,6 +1143,7 @@ class ProjectiveCurvePoint {
          // In certain contexts we may be called with a Null_RNG; in that case the
          // caller is accepting that randomization will not occur
 
+         // Conditional ok: caller's RNG state (seeded vs not) is presumed public
          if(rng.is_seeded()) {
             auto r = FieldElement::random(rng);
 
@@ -1161,7 +1209,7 @@ class EllipticCurveParameters {
 };
 
 /**
-* This exists soley as a hack which somewhat reduces symbol lengths
+* This exists solely as a hack which somewhat reduces symbol lengths
 */
 template <WordType WI, size_t NI, std::array<WI, NI> PI>
 struct IntParams {
@@ -1200,7 +1248,7 @@ class EllipticCurve {
 
       using FieldElement = IntMod<FieldRep<FieldParams>>;
 
-      using AffinePoint = AffineCurvePoint<FieldElement, Params>;
+      using AffinePoint = AffineCurvePoint<FieldElement>;
       using ProjectivePoint = ProjectiveCurvePoint<FieldElement, Params>;
 
       static constexpr size_t OrderBits = Scalar::BITS;
@@ -1220,6 +1268,11 @@ class EllipticCurve {
          (Params::Z != 0 && A.is_nonzero().as_bool() && B.is_nonzero().as_bool() && FieldElement::P_MOD_4 == 3);
 
       static constexpr bool OrderIsLessThanField = bigint_cmp(NW.data(), Words, PW.data(), Words) == -1;
+
+      /**
+      * Return (x^3 + A*x + B) mod p
+      */
+      static constexpr FieldElement x3_ax_b(const FieldElement& x) { return (x.square() + A) * x + B; }
 };
 
 /**
@@ -1233,77 +1286,47 @@ class EllipticCurve {
 * an additional precaution to guard against compilers introducing conditional
 * jumps where not expected.
 *
-* If you would like a "go faster" button, change the BlindingEnabled variable
-* below to false.
+* If the provided RNG is not seeded, blinding is skipped and the scalar
+* is used directly. This allows blinding to be disabled at runtime.
 */
 template <typename C, size_t WindowBits>
 class BlindedScalarBits final {
    private:
       typedef typename C::W W;
 
-      static constexpr bool BlindingEnabled = true;
+      static constexpr size_t BlindingBits = scalar_blinding_bits(C::OrderBits);
 
-      // Decide size of scalar blinding factor based on bitlength of the scalar
-      //
-      // This can return any value between 0 and the scalar bit length, as long
-      // as it is a multiple of the word size.
-      static constexpr size_t blinding_bits(size_t sb) {
-         constexpr size_t wb = WordInfo<W>::bits;
-
-         static_assert(wb == 32 || wb == 64, "Unexpected W size");
-
-         if(sb == 521) {
-            /*
-            Treat P-521 as if it was a 512 bit field; otherwise it is penalized
-            by the below computation, using either 160 or 192 bits of blinding
-            (depending on wb), vs 128 bits used for 512 bit groups.
-            */
-            return blinding_bits(512);
-         } else {
-            // For blinding use 1/4 the order, rounded up to the next word
-            return ((sb / 4 + wb - 1) / wb) * wb;
-         }
-      }
-
-      static constexpr size_t BlindingBits = blinding_bits(C::OrderBits);
-
-      static_assert(BlindingBits % WordInfo<W>::bits == 0);
       static_assert(BlindingBits < C::Scalar::BITS);
 
    public:
-      static constexpr size_t Bits = C::Scalar::BITS + (BlindingEnabled ? BlindingBits : 0);
-      static constexpr size_t Bytes = (Bits + 7) / 8;
+      // Maximum number of bits (used for table sizing)
+      static constexpr size_t Bits = C::Scalar::BITS + BlindingBits;
 
-      constexpr size_t bits() const { return Bits; }
+      size_t bits() const { return m_bits; }
 
       BlindedScalarBits(const typename C::Scalar& scalar, RandomNumberGenerator& rng) {
-         if constexpr(BlindingEnabled) {
-            constexpr size_t mask_words = BlindingBits / WordInfo<W>::bits;
-            constexpr size_t mask_bytes = mask_words * WordInfo<W>::bytes;
+         if(BlindingBits > 0 && rng.is_seeded()) {
+            constexpr size_t MaskWords = (BlindingBits + WordInfo<W>::bits - 1) / WordInfo<W>::bits;
+            constexpr size_t MaskBytes = MaskWords * WordInfo<W>::bytes;
 
             constexpr size_t n_words = C::Words;
 
-            uint8_t maskb[mask_bytes] = {0};
-            if(rng.is_seeded()) {
-               rng.randomize(maskb, mask_bytes);
-            } else {
-               // If we don't have an RNG we don't have many good options. We
-               // could just omit the blinding entirely, but this changes the
-               // size of the blinded scalar, which we're expecting otherwise is
-               // knowable at compile time. So generate a mask by XORing the
-               // bytes of the scalar together. At worst, it's equivalent to
-               // omitting the blinding entirely.
-
-               std::array<uint8_t, C::Scalar::BYTES> sbytes;
-               scalar.serialize_to(sbytes);
-               for(size_t i = 0; i != sbytes.size(); ++i) {
-                  maskb[i % mask_bytes] ^= sbytes[i];
-               }
-            }
+            uint8_t maskb[MaskBytes + (BlindingBits == 0 ? 1 : 0)] = {0};
+            rng.randomize(maskb, MaskBytes);
 
             W mask[n_words] = {0};
-            load_le(mask, maskb, mask_words);
-            mask[mask_words - 1] |= WordInfo<W>::top_bit;
+            load_le(mask, maskb, MaskWords);
+
+            // Mask to exactly BlindingBits
+            constexpr size_t ExcessBits = MaskWords * WordInfo<W>::bits - BlindingBits;
+            if constexpr(ExcessBits > 0) {
+               constexpr W ExcessMask = (static_cast<W>(1) << (WordInfo<W>::bits - ExcessBits)) - 1;
+               mask[MaskWords - 1] &= ExcessMask;
+            }
+
+            // Set top and bottom bits of mask
+            constexpr size_t TopMaskBit = (BlindingBits - 1) % WordInfo<W>::bits;
+            mask[(BlindingBits - 1) / WordInfo<W>::bits] |= static_cast<W>(1) << TopMaskBit;
             mask[0] |= 1;
 
             W mask_n[2 * n_words] = {0};
@@ -1312,14 +1335,16 @@ class BlindedScalarBits final {
 
             // Compute masked scalar s + k*n
             comba_mul<n_words>(mask_n, mask, C::NW.data());
-            bigint_add2_nc(mask_n, 2 * n_words, sw.data(), sw.size());
+            bigint_add2(mask_n, 2 * n_words, sw.data(), sw.size());
 
             std::reverse(mask_n, mask_n + 2 * n_words);
             m_bytes = store_be<std::vector<uint8_t>>(mask_n);
+            m_bits = C::Scalar::BITS + BlindingBits;
          } else {
-            static_assert(Bytes == C::Scalar::BYTES);
-            m_bytes.resize(Bytes);
-            scalar.serialize_to(std::span{m_bytes}.template first<Bytes>());
+            // No RNG available, skip blinding
+            m_bytes.resize(C::Scalar::BYTES);
+            scalar.serialize_to(std::span{m_bytes}.template first<C::Scalar::BYTES>());
+            m_bits = C::Scalar::BITS;
          }
 
          CT::poison(m_bytes.data(), m_bytes.size());
@@ -1331,13 +1356,18 @@ class BlindedScalarBits final {
       }
 
       ~BlindedScalarBits() {
-         secure_scrub_memory(m_bytes.data(), m_bytes.size());
+         secure_zeroize_buffer(m_bytes.data(), m_bytes.size());
          CT::unpoison(m_bytes.data(), m_bytes.size());
       }
 
+      BlindedScalarBits(const BlindedScalarBits& other) = delete;
+      BlindedScalarBits(BlindedScalarBits&& other) = delete;
+      BlindedScalarBits& operator=(const BlindedScalarBits& other) = delete;
+      BlindedScalarBits& operator=(BlindedScalarBits&& other) = delete;
+
    private:
-      // TODO this could be a fixed size array
       std::vector<uint8_t> m_bytes;
+      size_t m_bits;
 };
 
 template <typename C, size_t WindowBits>
@@ -1345,7 +1375,7 @@ class UnblindedScalarBits final {
    public:
       static constexpr size_t Bits = C::Scalar::BITS;
 
-      UnblindedScalarBits(const typename C::Scalar& scalar) { scalar.serialize_to(std::span{m_bytes}); }
+      explicit UnblindedScalarBits(const typename C::Scalar& scalar) { scalar.serialize_to(std::span{m_bytes}); }
 
       size_t get_window(size_t offset) const {
          // Extract a WindowBits sized window out of s, depending on offset.
@@ -1366,15 +1396,17 @@ class PrecomputedBaseMulTable final {
       static constexpr size_t WindowBits = W;
       static_assert(WindowBits >= 1 && WindowBits <= 8);
 
-      using BlindedScalar = BlindedScalarBits<C, WindowBits>;
+      // W+1 bit extraction windows for Booth recoding overlap
+      using BlindedScalar = BlindedScalarBits<C, WindowBits + 1>;
 
-      static constexpr size_t Windows = (BlindedScalar::Bits + WindowBits - 1) / WindowBits;
-
-      PrecomputedBaseMulTable(const AffinePoint& p) : m_table(basemul_setup<C, WindowBits>(p, BlindedScalar::Bits)) {}
+      // +1 for Booth carry: if the top window's sign bit is set, the
+      // carry propagates into an extra window
+      explicit PrecomputedBaseMulTable(const AffinePoint& p) :
+            m_table(basemul_booth_setup<C, WindowBits>(p, BlindedScalar::Bits + 1)) {}
 
       ProjectivePoint mul(const Scalar& s, RandomNumberGenerator& rng) const {
          const BlindedScalar scalar(s, rng);
-         return basemul_exec<C, WindowBits>(m_table, scalar, rng);
+         return basemul_booth_exec<C, WindowBits>(m_table, scalar, rng);
       }
 
    private:
@@ -1405,7 +1437,7 @@ class WindowedMulTable final {
       // 2^W elements, less the identity element
       static constexpr size_t TableSize = (1 << WindowBits) - 1;
 
-      WindowedMulTable(const AffinePoint& p) : m_table(varpoint_setup<C, TableSize>(p)) {}
+      explicit WindowedMulTable(const AffinePoint& p) : m_table(varpoint_setup<C, TableSize>(p)) {}
 
       ProjectivePoint mul(const Scalar& s, RandomNumberGenerator& rng) const {
          const BlindedScalar bits(s, rng);
@@ -1441,8 +1473,6 @@ class WindowedBoothMulTable final {
          }
       }
 
-      static constexpr size_t FullWindows = compute_full_windows(BlindedScalar::Bits + 1, WindowBits);
-
       static constexpr size_t compute_initial_shift(size_t sb, size_t wb) {
          if(sb % wb == 0) {
             return wb;
@@ -1451,28 +1481,31 @@ class WindowedBoothMulTable final {
          }
       }
 
-      static constexpr size_t InitialShift = compute_initial_shift(BlindedScalar::Bits + 1, WindowBits);
-
-      static_assert(FullWindows * WindowBits + InitialShift == BlindedScalar::Bits + 1);
-      static_assert(InitialShift > 0);
-
       // 2^W elements [1*P, 2*P, ..., 2^W*P]
       static constexpr size_t TableSize = 1 << TableBits;
 
-      WindowedBoothMulTable(const AffinePoint& p) : m_table(varpoint_setup<C, TableSize>(p)) {}
+      explicit WindowedBoothMulTable(const AffinePoint& p) : m_table(varpoint_setup<C, TableSize>(p)) {}
 
       ProjectivePoint mul(const Scalar& s, RandomNumberGenerator& rng) const {
          const BlindedScalar bits(s, rng);
 
+         const size_t scalar_bits = bits.bits();
+         const size_t full_windows = compute_full_windows(scalar_bits + 1, WindowBits);
+         const size_t initial_shift = compute_initial_shift(scalar_bits + 1, WindowBits);
+
+         BOTAN_DEBUG_ASSERT(full_windows * WindowBits + initial_shift == scalar_bits + 1);
+         BOTAN_DEBUG_ASSERT(initial_shift > 0);
+
          auto accum = ProjectivePoint::identity();
          CT::poison(accum);
 
-         for(size_t i = 0; i != FullWindows; ++i) {
-            const size_t idx = BlindedScalar::Bits - InitialShift - WindowBits * i;
+         for(size_t i = 0; i != full_windows; ++i) {
+            const size_t idx = scalar_bits - initial_shift - WindowBits * i;
 
             const size_t w_i = bits.get_window(idx);
             const auto [tidx, tneg] = booth_recode<WindowBits>(w_i);
 
+            // Conditional ok: loop iteration count is public
             if(i == 0) {
                accum = ProjectivePoint::from_affine(m_table.ct_select(tidx));
                accum.conditional_assign(tneg, accum.negate());
@@ -1482,6 +1515,7 @@ class WindowedBoothMulTable final {
 
             accum = accum.dbl_n(WindowBits);
 
+            // Conditional ok: loop iteration count is public
             if(i <= 3) {
                accum.randomize_rep(rng);
             }
@@ -1497,18 +1531,6 @@ class WindowedBoothMulTable final {
       }
 
    private:
-      template <size_t B, typename T>
-      static constexpr std::pair<size_t, CT::Choice> booth_recode(T x) {
-         static_assert(B < sizeof(T) * 8 - 2, "Invalid B");
-
-         auto s_mask = CT::Mask<T>::expand(x >> B);
-         const T neg_x = (1 << (B + 1)) - x - 1;
-         T d = s_mask.select(neg_x, x);
-         d = (d >> 1) + (d & 1);
-
-         return std::make_pair(static_cast<size_t>(d), s_mask.as_choice());
-      }
-
       AffinePointTable<C> m_table;
 };
 
@@ -1529,8 +1551,8 @@ class WindowedMul2Table final {
       */
       ProjectivePoint mul2(const Scalar& s1, const Scalar& s2, RandomNumberGenerator& rng) const {
          using BlindedScalar = BlindedScalarBits<C, W>;
-         BlindedScalar bits1(s1, rng);
-         BlindedScalar bits2(s2, rng);
+         const BlindedScalar bits1(s1, rng);
+         const BlindedScalar bits2(s2, rng);
 
          return mul2_exec<C, W>(m_table, bits1, bits2, rng);
       }
@@ -1552,7 +1574,7 @@ class VartimeMul2Table final {
       using ProjectivePoint = typename C::ProjectivePoint;
 
       VartimeMul2Table(const AffinePoint& p, const AffinePoint& q) :
-            m_table(to_affine_batch<C>(mul2_setup<C, W>(p, q))) {}
+            m_table(to_affine_batch<C, true>(mul2_setup<C, W>(p, q))) {}
 
       /**
       * Variable time 2-ary multiplication
@@ -1569,9 +1591,10 @@ class VartimeMul2Table final {
          const UnblindedScalarBits<C, W> bits1(s1);
          const UnblindedScalarBits<C, W> bits2(s2);
 
-         bool s1_is_zero = s1.is_zero().as_bool();
-         bool s2_is_zero = s2.is_zero().as_bool();
+         const bool s1_is_zero = s1.is_zero().as_bool();
+         const bool s2_is_zero = s2.is_zero().as_bool();
 
+         // Conditional ok: this function is variable time
          if(s1_is_zero && s2_is_zero) {
             return ProjectivePoint::identity();
          }
@@ -1581,6 +1604,7 @@ class VartimeMul2Table final {
                const size_t w_1 = bits1.get_window((Windows - i - 1) * WindowBits);
                const size_t w_2 = bits2.get_window((Windows - i - 1) * WindowBits);
                const size_t window = w_1 + (w_2 << WindowBits);
+               // Conditional ok: this function is variable time
                if(window > 0) {
                   return std::make_pair(window, i);
                }
@@ -1600,6 +1624,7 @@ class VartimeMul2Table final {
 
             const size_t window = w_1 + (w_2 << WindowBits);
 
+            // Conditional ok: this function is variable time
             if(window > 0) {
                accum += m_table[window - 1];
             }
@@ -1654,23 +1679,18 @@ inline auto map_to_curve_sswu(const typename C::FieldElement& u) -> typename C::
    const auto tv1 = invert_field_element<C>(z2_u4 + z_u2);
    auto x1 = SSWU_C1<C>() * (C::FieldElement::one() + tv1);
    x1.conditional_assign(tv1.is_zero(), SSWU_C2<C>());
-   const auto gx1 = C::AffinePoint::x3_ax_b(x1);
-
    const auto x2 = z_u2 * x1;
-   const auto gx2 = C::AffinePoint::x3_ax_b(x2);
 
-   // Will be zero if gx1 is not a square
-   const auto [gx1_sqrt, gx1_is_square] = gx1.sqrt();
-
-   auto x = x2;
    // By design one of gx1 and gx2 must be a quadratic residue
-   auto y = gx2.sqrt().first;
+   const CT::Option<typename C::FieldElement> y1 = sqrt_field_element<C>(C::x3_ax_b(x1));
+   const CT::Option<typename C::FieldElement> y2 = sqrt_field_element<C>(C::x3_ax_b(x2));
 
-   C::FieldElement::conditional_assign(x, y, gx1_is_square, x1, gx1_sqrt);
+   const auto use_y1 = y1.has_value();
 
-   y.conditional_assign(y.is_even() != u.is_even(), y.negate());
+   auto x = C::FieldElement::choose(use_y1, x1, x2);
+   auto y = C::FieldElement::choose(use_y1, y1.value_or(C::FieldElement::zero()), y2.value_or(C::FieldElement::zero()));
 
-   auto pt = typename C::AffinePoint(x, y);
+   auto pt = typename C::AffinePoint(x, y.correct_sign(u.is_even()));
 
    CT::unpoison(pt);
    return pt;
@@ -1689,13 +1709,13 @@ inline auto map_to_curve_sswu(const typename C::FieldElement& u) -> typename C::
 */
 template <typename C, bool RO, std::invocable<std::span<uint8_t>> ExpandMsg>
    requires C::ValidForSswuHash
-inline auto hash_to_curve_sswu(ExpandMsg expand_message)
+inline auto hash_to_curve_sswu(const ExpandMsg& expand_message)
    -> std::conditional_t<RO, typename C::ProjectivePoint, typename C::AffinePoint> {
    constexpr size_t SecurityLevel = (C::OrderBits + 1) / 2;
    constexpr size_t L = (C::PrimeFieldBits + SecurityLevel + 7) / 8;
    constexpr size_t Cnt = RO ? 2 : 1;
 
-   std::array<uint8_t, L * Cnt> uniform_bytes;
+   std::array<uint8_t, L * Cnt> uniform_bytes = {};
    expand_message(uniform_bytes);
 
    if constexpr(RO) {
@@ -1710,8 +1730,6 @@ inline auto hash_to_curve_sswu(ExpandMsg expand_message)
       return map_to_curve_sswu<C>(u);
    }
 }
-
-}  // namespace
 
 }  // namespace Botan
 

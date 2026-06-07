@@ -65,37 +65,33 @@ class scoped_CFType {
  * See: opensource.apple.com/source/Security/Security-55471/sec/Security/SecCertificate.c.auto.html
  */
 X509_DN normalize(const X509_DN& dn) {
-   X509_DN result;
+   X509_DN result{};
 
-   for(const auto& rdn : dn.dn_info()) {
-      // TODO: C++14 - use std::get<ASN1_String>(), resp. std::get<OID>()
-      const auto oid = rdn.first;
-      auto str = rdn.second;
-
+   for(const auto& [oid, str] : dn.dn_info()) {
       if(str.tagging() == ASN1_Type::PrintableString) {
          std::string normalized;
          normalized.reserve(str.value().size());
+
          for(const char c : str.value()) {
             if(c != ' ') {
                // store all 'normal' characters as upper case
-               normalized.push_back(::toupper(c));
+               normalized.push_back(std::toupper(c));
             } else if(!normalized.empty() && normalized.back() != ' ') {
                // remove leading and squash multiple white spaces
                normalized.push_back(c);
             }
          }
 
-         if(normalized.back() == ' ') {
+         if(!normalized.empty() && normalized.back() == ' ') {
             // remove potential remaining single trailing white space char
-            normalized.erase(normalized.end() - 1);
+            normalized.pop_back();
          }
 
-         str = ASN1_String(normalized, str.tagging());
+         result.add_attribute(oid, ASN1_String(normalized, str.tagging()));
+      } else {
+         result.add_attribute(oid, str);
       }
-
-      result.add_attribute(oid, str);
    }
-
    return result;
 }
 
@@ -156,8 +152,8 @@ class Certificate_Store_MacOS_Impl {
    public:
       /**
        * Wraps a list of search query parameters that are later passed into
-       * Apple's certifificate store API. The class provides some convenience
-       * functionality and handles the query paramenter's data lifetime.
+       * Apple's certificate store API. The class provides some convenience
+       * functionality and handles the query parameter's data lifetime.
        */
       class Query {
          public:
@@ -218,7 +214,7 @@ class Certificate_Store_MacOS_Impl {
             using Values = std::vector<CFTypeRef>;
 
             Data m_data_store;     //! makes sure that data parameters are kept alive
-            DataRefs m_data_refs;  //! keeps track of CFDataRef objects refering into \p m_data_store
+            DataRefs m_data_refs;  //! keeps track of CFDataRef objects referring into \p m_data_store
             Keys m_keys;           //! ordered list of search parameter keys
             Values m_values;       //! ordered list of search parameter values
       };
@@ -394,6 +390,30 @@ std::optional<X509_Certificate> Certificate_Store_MacOS::find_cert_by_raw_subjec
    const std::vector<uint8_t>& subject_hash) const {
    BOTAN_UNUSED(subject_hash);
    throw Not_Implemented("Certificate_Store_MacOS::find_cert_by_raw_subject_dn_sha256");
+}
+
+std::optional<X509_Certificate> Certificate_Store_MacOS::find_cert_by_issuer_dn_and_serial_number(
+   const X509_DN& issuer_dn, std::span<const uint8_t> serial_number) const {
+   Certificate_Store_MacOS_Impl::Query query;
+   /*
+   Directly using kSecAttrSerialNumber can't find the certificate
+   Maybe macOS has a special encoding for the serial number
+
+   query.addParameter(kSecAttrSerialNumber, serial_number);
+   */
+   query.addParameter(kSecAttrIssuer, normalizeAndSerialize(issuer_dn));
+
+   /*
+   This is a temporary solution
+   Use only the issuer DN to find all certificates and filters the serial number, but may affect performance
+   */
+   for(const auto& cert : m_impl->findAll(std::move(query))) {
+      if(std::ranges::equal(cert.serial_number(), serial_number)) {
+         return cert;
+      }
+   }
+
+   return std::nullopt;
 }
 
 std::optional<X509_CRL> Certificate_Store_MacOS::find_crl_for(const X509_Certificate& subject) const {

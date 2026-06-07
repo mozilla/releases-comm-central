@@ -69,7 +69,7 @@ class Secp256r1Rep final {
 
          BOTAN_DEBUG_ASSERT(S <= 8);
 
-         bigint_correct_redc<N>(r, P, p256_mul_mod_256(S));
+         solinas_correct_redc<N>(r, P, p256_mul_mod_256(S));
 
          return r;
       }
@@ -112,6 +112,7 @@ class Secp256r1Rep final {
 namespace secp256r1 {
 
 // clang-format off
+
 class Params final : public EllipticCurveParameters<
    "FFFFFFFF00000001000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFF",
    "FFFFFFFF00000001000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFC",
@@ -157,6 +158,31 @@ class Curve final : public EllipticCurve<Params, Secp256r1Rep> {
          z *= t0;
          z.square_n(2);
 
+         return z;
+      }
+
+      // Return the square root of x
+      static constexpr FieldElement fe_sqrt(const FieldElement& x) {
+         // Generated using addchain
+         auto z = x.square();
+         z *= x;
+         auto t0 = z;
+         t0.square_n(2);
+         z *= t0;
+         t0 = z;
+         t0.square_n(4);
+         z *= t0;
+         t0 = z;
+         t0.square_n(8);
+         z *= t0;
+         t0 = z;
+         t0.square_n(16);
+         z *= t0;
+         z.square_n(32);
+         z *= x;
+         z.square_n(96);
+         z *= x;
+         z.square_n(94);
          return z;
       }
 

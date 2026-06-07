@@ -10,7 +10,10 @@
 
 #include <botan/credentials_manager.h>
 #include <botan/rng.h>
-#include <botan/internal/loadstor.h>
+#include <botan/tls_callbacks.h>
+#include <botan/tls_extensions_13.h>
+#include <botan/tls_policy.h>
+#include <botan/x509cert.h>
 #include <botan/internal/stl_util.h>
 #include <botan/internal/tls_cipher_state.h>
 
@@ -34,7 +37,7 @@ Server_Impl_13::Server_Impl_13(const std::shared_ptr<Callbacks>& callbacks,
 std::string Server_Impl_13::application_protocol() const {
    if(is_handshake_complete()) {
       const auto& eee = m_handshake_state.encrypted_extensions().extensions();
-      if(const auto alpn = eee.get<Application_Layer_Protocol_Notification>()) {
+      if(auto* const alpn = eee.get<Application_Layer_Protocol_Notification>()) {
          return alpn->single_protocol();
       }
    }
@@ -230,7 +233,7 @@ void Server_Impl_13::handle_reply_to_client_hello(Server_Hello_13 server_hello) 
 
    std::unique_ptr<Cipher_State> psk_cipher_state;
    if(uses_psk) {
-      auto psk_extension = server_hello.extensions().get<PSK>();
+      auto* psk_extension = server_hello.extensions().get<PSK>();
 
       psk_cipher_state =
          std::visit(overloaded{[&, this](Session session) {
@@ -288,7 +291,7 @@ void Server_Impl_13::handle_reply_to_client_hello(Server_Hello_13 server_hello) 
    // Setup encryption for all the remaining handshake messages
    m_cipher_state = [&] {
       // Currently, PSK without DHE is not implemented...
-      const auto my_keyshare = m_handshake_state.server_hello().extensions().get<Key_Share>();
+      auto* const my_keyshare = m_handshake_state.server_hello().extensions().get<Key_Share>();
       BOTAN_ASSERT_NONNULL(my_keyshare);
 
       if(uses_psk) {
@@ -326,7 +329,7 @@ void Server_Impl_13::handle_reply_to_client_hello(Server_Hello_13 server_hello) 
       //
       // Note: TLS 1.3 carries this extension in the Encrypted Extensions
       //       message instead of the Server Hello.
-      if(auto client_cert_type = enc_exts.get<Client_Certificate_Type>()) {
+      if(auto* client_cert_type = enc_exts.get<Client_Certificate_Type>()) {
          set_selected_certificate_type(client_cert_type->selected_certificate_type());
       }
 
@@ -336,7 +339,7 @@ void Server_Impl_13::handle_reply_to_client_hello(Server_Hello_13 server_hello) 
       //    was negotiated, then each CertificateEntry contains a DER-encoded
       //    X.509 certificate.
       const auto cert_type = [&] {
-         if(auto server_cert_type = enc_exts.get<Server_Certificate_Type>()) {
+         if(auto* server_cert_type = enc_exts.get<Server_Certificate_Type>()) {
             return server_cert_type->selected_certificate_type();
          } else {
             return Certificate_Type::X509;
@@ -374,8 +377,8 @@ void Server_Impl_13::handle_reply_to_client_hello(Server_Hello_13 server_hello) 
       //
       // Hence, the "outgoing" limit is what the client requested and the
       // "incoming" limit is what we will request in the Encrypted Extensions.
-      const auto outgoing_limit = client_hello.extensions().get<Record_Size_Limit>();
-      const auto incoming_limit = m_handshake_state.encrypted_extensions().extensions().get<Record_Size_Limit>();
+      auto* const outgoing_limit = client_hello.extensions().get<Record_Size_Limit>();
+      auto* const incoming_limit = m_handshake_state.encrypted_extensions().extensions().get<Record_Size_Limit>();
       set_record_size_limits(outgoing_limit->limit(), incoming_limit->limit());
    }
 
@@ -408,7 +411,7 @@ void Server_Impl_13::handle_reply_to_client_hello(Hello_Retry_Request hello_retr
    m_transitions.set_expected_next(Handshake_Type::ClientHello);
 }
 
-void Server_Impl_13::handle(const Client_Hello_12& ch) {
+void Server_Impl_13::handle(const Client_Hello_12_Shim& ch) {
    // The detailed handling of the TLS 1.2 compliant Client Hello is left to
    // the TLS 1.2 server implementation.
    BOTAN_UNUSED(ch);
@@ -551,7 +554,7 @@ void Server_Impl_13::handle(const Certificate_Verify_13& certificate_verify_msg)
 
    BOTAN_ASSERT_NOMSG(m_handshake_state.has_client_certificate_msg() &&
                       !m_handshake_state.client_certificate().empty());
-   bool sig_valid = certificate_verify_msg.verify(
+   const bool sig_valid = certificate_verify_msg.verify(
       *m_handshake_state.client_certificate().public_key(), callbacks(), m_transcript_hash.previous());
 
    // RFC 8446 4.4.3
@@ -572,6 +575,8 @@ void Server_Impl_13::handle(const Finished_13& finished_msg) {
    if(!finished_msg.verify(m_cipher_state.get(), m_transcript_hash.previous())) {
       throw TLS_Exception(Alert::DecryptError, "Finished message didn't verify");
    }
+
+   m_handshake_state.confirm_peer_finished_verified();
 
    // Give the application a chance for a final veto before fully
    // establishing the connection.

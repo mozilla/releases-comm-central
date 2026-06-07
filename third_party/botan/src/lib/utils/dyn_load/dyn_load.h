@@ -9,6 +9,7 @@
 #define BOTAN_DYNAMIC_LOADER_H_
 
 #include <botan/types.h>
+#include <optional>
 #include <string>
 
 namespace Botan {
@@ -27,7 +28,7 @@ class BOTAN_TEST_API Dynamically_Loaded_Library final {
       * qualified pathnames can help prevent code injection attacks (eg
       * via manipulation of LD_LIBRARY_PATH on Linux)
       */
-      Dynamically_Loaded_Library(std::string_view lib_name);
+      explicit Dynamically_Loaded_Library(std::string_view lib_name);
 
       /**
       * Unload the DLL
@@ -37,25 +38,48 @@ class BOTAN_TEST_API Dynamically_Loaded_Library final {
       ~Dynamically_Loaded_Library();
 
       /**
+      * Try to load a symbol
+      * @param symbol names the symbol to load
+      * @return address of the loaded symbol or std::nullopt if the symbol
+      *         was not found
+      */
+      template <typename PtrT>
+      std::optional<PtrT> try_resolve_symbol(const std::string& symbol) const
+         requires(std::is_pointer_v<PtrT>)
+      {
+         void* addr = resolve_symbol_internal(symbol);
+         return addr ? std::optional(reinterpret_cast<PtrT>(addr)) : std::nullopt;
+      }
+
+      /**
       * Load a symbol (or fail with an exception)
       * @param symbol names the symbol to load
       * @return address of the loaded symbol
+      * @throws Invalid_Argument if the symbol is not found
       */
-      void* resolve_symbol(const std::string& symbol);
+      void* resolve_symbol(const std::string& symbol) const;
 
       /**
       * Convenience function for casting symbol to the right type
       * @param symbol names the symbol to load
       * @return address of the loaded symbol
+      * @throws Invalid_Argument if the symbol is not found
       */
-      template <typename T>
-      T resolve(const std::string& symbol) {
-         return reinterpret_cast<T>(resolve_symbol(symbol));
+      template <typename PtrT>
+      PtrT resolve(const std::string& symbol) const
+         requires(std::is_pointer_v<PtrT>)
+      {
+         return reinterpret_cast<PtrT>(resolve_symbol(symbol));
       }
 
+      Dynamically_Loaded_Library(const Dynamically_Loaded_Library&) = delete;
+      Dynamically_Loaded_Library(Dynamically_Loaded_Library&&) = default;
+      Dynamically_Loaded_Library& operator=(const Dynamically_Loaded_Library&) = delete;
+      Dynamically_Loaded_Library& operator=(Dynamically_Loaded_Library&&) = default;
+
    private:
-      Dynamically_Loaded_Library(const Dynamically_Loaded_Library&);
-      Dynamically_Loaded_Library& operator=(const Dynamically_Loaded_Library&);
+      /// Returns a pointer to the symbol or nullptr if the symbol is not found.
+      void* resolve_symbol_internal(const std::string& symbol) const;
 
       std::string m_lib_name;
       void* m_lib;

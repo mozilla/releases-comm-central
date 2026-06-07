@@ -1,0 +1,12 @@
+<internal_defines>
+CAMELLIA_HWAES -> 20260321
+</internal_defines>
+
+<module_info>
+name -> "Camellia using hardware AES instructions"
+</module_info>
+
+<requires>
+cpuid
+simd_hwaes
+</requires>

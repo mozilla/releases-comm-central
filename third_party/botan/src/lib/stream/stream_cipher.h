@@ -23,8 +23,6 @@ namespace Botan {
 */
 class BOTAN_PUBLIC_API(2, 0) StreamCipher : public SymmetricAlgorithm {
    public:
-      ~StreamCipher() override = default;
-
       /**
       * Create an instance based on a name
       * If provider is empty then best available is chosen.
@@ -90,7 +88,7 @@ class BOTAN_PUBLIC_API(2, 0) StreamCipher : public SymmetricAlgorithm {
       /**
       * Get @p bytes from the keystream
       *
-      * The bytes are written into a continous byte buffer of your choosing.
+      * The bytes are written into a continuous byte buffer of your choosing.
       *
       * @param bytes The number of bytes to be produced
       */

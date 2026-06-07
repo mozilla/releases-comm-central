@@ -8,12 +8,12 @@
 
 #include <botan/allocator.h>
 #include <botan/internal/target_info.h>
-#include <memory>
 
 #if defined(BOTAN_TARGET_OS_HAS_CAP_ENTER)
    #include <sys/capsicum.h>
    #include <unistd.h>
 #elif defined(BOTAN_TARGET_OS_HAS_SETPPRIV)
+   #include <memory>
    #include <priv.h>
 #elif defined(BOTAN_TARGET_OS_HAS_SANDBOX_PROC)
    #include <sandbox.h>
@@ -30,17 +30,23 @@ struct SandboxPrivDelete {
 };
 #endif
 
-Sandbox::Sandbox() {
+namespace {
+
+std::string sandbox_impl_name() {
 #if defined(BOTAN_TARGET_OS_HAS_CAP_ENTER)
-   m_name = "capsicum";
+   return "capsicum";
 #elif defined(BOTAN_TARGET_OS_HAS_SETPPRIV)
-   m_name = "privilege";
+   return "privilege";
 #elif defined(BOTAN_TARGET_OS_HAS_SANDBOX_PROC)
-   m_name = "sandbox";
+   return "sandbox";
 #else
-   m_name = "<none>";
+   return "<none>";
 #endif
 }
+
+}  // namespace
+
+Sandbox::Sandbox() : m_name(sandbox_impl_name()) {}
 
 bool Sandbox::init() {
    Botan::initialize_allocator();

@@ -1,7 +1,7 @@
 /*
  * Tests for FrodoKEM ("You SHALL Pass")
  * - KAT tests using the KAT vectors from
- *   https://github.com/microsoft/PQCrypto-LWEKE/tree/master/KAT
+ *   https://github.com/microsoft/PQCrypto-LWEKE/tree/master
  *
  * (C) 2023 Jack Lloyd
  * (C) 2023 René Meusel and Amos Treiber, Rohde & Schwarz Cybersecurity
@@ -9,20 +9,18 @@
  * Botan is released under the Simplified BSD License (see license.txt)
  */
 
-#include "test_pubkey_pqc.h"
-#include "test_rng.h"
 #include "tests.h"
 
-#include <iterator>
 #include <memory>
 
 #if defined(BOTAN_HAS_FRODOKEM)
    #include "test_pubkey.h"
+   #include "test_pubkey_pqc.h"
+   #include "test_rng.h"
 
    #include <botan/frodokem.h>
    #include <botan/pubkey.h>
    #include <botan/xof.h>
-   #include <botan/internal/fmt.h>
    #include <botan/internal/frodo_constants.h>
 #endif
 
@@ -40,7 +38,9 @@ class Frodo_KAT_Tests final : public PK_PQC_KEM_KAT_Test {
 
       bool is_available(const std::string& mode) const final { return get_mode(mode).is_available(); }
 
-      std::vector<uint8_t> map_value(const std::string&, std::span<const uint8_t> value, VarType var_type) const final {
+      std::vector<uint8_t> map_value(const std::string& /*params*/,
+                                     std::span<const uint8_t> value,
+                                     VarType var_type) const final {
          if(var_type == VarType::SharedSecret) {
             return {value.begin(), value.end()};
          }
@@ -50,13 +50,13 @@ class Frodo_KAT_Tests final : public PK_PQC_KEM_KAT_Test {
       }
 
       Fixed_Output_RNG rng_for_keygen(const std::string& mode, Botan::RandomNumberGenerator& rng) const final {
-         Botan::FrodoKEMConstants consts(get_mode(mode));
-         return Fixed_Output_RNG(rng, consts.len_sec_bytes() + consts.len_se_bytes() + consts.len_a_bytes());
+         const Botan::FrodoKEMConstants constants(get_mode(mode));
+         return Fixed_Output_RNG(rng, constants.len_sec_bytes() + constants.len_se_bytes() + constants.len_a_bytes());
       }
 
       Fixed_Output_RNG rng_for_encapsulation(const std::string& mode, Botan::RandomNumberGenerator& rng) const final {
-         Botan::FrodoKEMConstants consts(get_mode(mode));
-         return Fixed_Output_RNG(rng, consts.len_sec_bytes() + consts.len_salt_bytes());
+         const Botan::FrodoKEMConstants constants(get_mode(mode));
+         return Fixed_Output_RNG(rng, constants.len_sec_bytes() + constants.len_salt_bytes());
       }
 };
 
@@ -76,58 +76,59 @@ std::vector<Test::Result> test_frodo_roundtrips() {
                             Botan::FrodoKEMMode::FrodoKEM976_AES,
                             Botan::FrodoKEMMode::FrodoKEM640_AES};
 
-   auto get_decryption_error_value = [](Botan::FrodoKEMConstants& consts,
+   auto get_decryption_error_value = [](const Botan::FrodoKEMConstants& constants,
                                         std::span<const uint8_t> encaps_value,
                                         const Botan::FrodoKEM_PrivateKey& sk) {
       // Extracts the `S` value from the encoded private key
-      auto& shake = consts.SHAKE_XOF();
+      auto shake = constants.create_xof();
       const auto sk_bytes = sk.raw_private_key_bits();
-      auto sk_s = std::span<const uint8_t>(sk_bytes.data(), consts.len_sec_bytes());
-      shake.update(encaps_value);
-      shake.update(sk_s);
-      return shake.output(consts.len_sec_bytes());
+      auto sk_s = std::span<const uint8_t>(sk_bytes.data(), constants.len_sec_bytes());
+      shake->update(encaps_value);
+      shake->update(sk_s);
+      return shake->output(constants.len_sec_bytes());
    };
 
    std::vector<Test::Result> results;
    for(auto mode : modes) {
-      Botan::FrodoKEMMode m(mode);
+      const Botan::FrodoKEMMode m(mode);
       if(!m.is_available()) {
          continue;
       }
-      Botan::FrodoKEMConstants consts(mode);
+      const Botan::FrodoKEMConstants constants(mode);
       Test::Result& result = results.emplace_back("FrodoKEM roundtrip: " + m.to_string());
 
-      Botan::FrodoKEM_PrivateKey sk1(*rng, mode);
-      Botan::FrodoKEM_PublicKey pk1(sk1.public_key_bits(), mode);
+      const Botan::FrodoKEM_PrivateKey sk1(*rng, mode);
+      const Botan::FrodoKEM_PublicKey pk1(sk1.public_key_bits(), mode);
 
       // Happy case
       Botan::PK_KEM_Encryptor enc1(pk1, "Raw");
       const auto enc_res = enc1.encrypt(*rng, 0 /* no KDF */);
 
-      result.test_eq("length of shared secret", enc_res.shared_key().size(), enc1.shared_key_length(0));
-      result.test_eq("length of ciphertext", enc_res.encapsulated_shared_key().size(), enc1.encapsulated_key_length());
+      result.test_sz_eq("length of shared secret", enc_res.shared_key().size(), enc1.shared_key_length(0));
+      result.test_sz_eq(
+         "length of ciphertext", enc_res.encapsulated_shared_key().size(), enc1.encapsulated_key_length());
 
       Botan::PK_KEM_Decryptor dec1(sk1, *rng, "Raw");
       auto ss = dec1.decrypt(enc_res.encapsulated_shared_key(), 0 /* no KDF */);
 
-      result.test_eq("shared secrets match", ss, enc_res.shared_key());
-      result.test_eq("length of shared secret (decaps)", ss.size(), dec1.shared_key_length(0));
+      result.test_bin_eq("shared secrets match", ss, enc_res.shared_key());
+      result.test_sz_eq("length of shared secret (decaps)", ss.size(), dec1.shared_key_length(0));
 
       // Decryption failures ("All right then, keep your secrets.")
-      Botan::FrodoKEM_PrivateKey sk2(*rng, mode);
+      const Botan::FrodoKEM_PrivateKey sk2(*rng, mode);
 
       // Decryption failure: mismatching private key
       Botan::PK_KEM_Decryptor dec2(sk2, *rng, "Raw");
       auto ss_mismatch = dec2.decrypt(enc_res.encapsulated_shared_key(), 0 /* no KDF */);
-      result.test_eq("decryption failure sk",
-                     ss_mismatch,
-                     get_decryption_error_value(consts, enc_res.encapsulated_shared_key(), sk2));
+      result.test_bin_eq("decryption failure sk",
+                         ss_mismatch,
+                         get_decryption_error_value(constants, enc_res.encapsulated_shared_key(), sk2));
 
       // Decryption failure: bitflip in encapsulated shared value
       const auto mutated_encaps_value = Test::mutate_vec(enc_res.encapsulated_shared_key(), *rng);
       ss_mismatch = dec2.decrypt(mutated_encaps_value, 0 /* no KDF */);
-      result.test_eq(
-         "decryption failure bitflip", ss_mismatch, get_decryption_error_value(consts, mutated_encaps_value, sk2));
+      result.test_bin_eq(
+         "decryption failure bitflip", ss_mismatch, get_decryption_error_value(constants, mutated_encaps_value, sk2));
 
       // Decryption failure: malformed encapsulation value
       result.test_throws(

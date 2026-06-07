@@ -69,12 +69,14 @@ class BOTAN_UNSTABLE_API SessionHandle final {
       SessionHandle& operator=(SessionHandle&&) = delete;
 
       ~SessionHandle();
+
+      // NOLINTNEXTLINE(*-explicit-conversions) Intentional: SessionHandle is a wrapper around ESYS_TR for C API interop
       [[nodiscard]] operator ESYS_TR() && noexcept;
 
    private:
       friend class Botan::TPM2::Session;
 
-      SessionHandle(Session& session);
+      explicit SessionHandle(Session& session);
 
    private:
       std::optional<std::reference_wrapper<Session>> m_session;
@@ -138,7 +140,7 @@ class BOTAN_PUBLIC_API(3, 6) Session {
        */
       Session(std::shared_ptr<Context> ctx, ESYS_TR session_handle) : m_session(std::move(ctx), session_handle) {}
 
-      [[nodiscard]] detail::SessionHandle handle() { return *this; }
+      [[nodiscard]] detail::SessionHandle handle() { return detail::SessionHandle(*this); }
 
       SessionAttributes attributes() const;
       void set_attributes(SessionAttributes attributes);
@@ -156,15 +158,6 @@ class BOTAN_PUBLIC_API(3, 6) Session {
       Object m_session;
 };
 
-inline detail::SessionHandle::~SessionHandle() {
-   if(m_session) {
-      m_session->get().set_attributes(m_original_attributes);
-   }
-}
-
-inline detail::SessionHandle::SessionHandle(Session& session) :
-      m_session(session), m_original_attributes(session.attributes()) {}
-
 /**
  * This bundles up to three sessions into a single object to be used in a
  * single TSS2 library function call to simplify passing the sessions around
@@ -172,6 +165,7 @@ inline detail::SessionHandle::SessionHandle(Session& session) :
  */
 class SessionBundle {
    public:
+      // NOLINTNEXTLINE(*-explicit-conversions) Intentional: Allows convenient single-session usage without explicit SessionBundle construction
       SessionBundle(std::shared_ptr<Session> s1 = nullptr,
                     std::shared_ptr<Session> s2 = nullptr,
                     std::shared_ptr<Session> s3 = nullptr) :

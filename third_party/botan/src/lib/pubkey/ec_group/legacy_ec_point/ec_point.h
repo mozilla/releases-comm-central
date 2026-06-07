@@ -14,7 +14,6 @@
 
 #include <botan/curve_gfp.h>
 #include <botan/ec_point_format.h>
-#include <botan/exceptn.h>
 #include <vector>
 
 namespace Botan {
@@ -25,7 +24,7 @@ namespace Botan {
 * Use EC_AffinePoint in new code; this type is no longer used internally at all
 * except to support very unfortunate (and deprecated) curve types, specifically
 * those with a cofactor, or with unreasonable sizes (above 521 bits), which
-* cannot be accomodated by the new faster EC library in math/pcurves. For
+* cannot be accommodated by the new faster EC library in math/pcurves. For
 * normal curves EC_AffinePoint will typically be 2 or 3 times faster.
 *
 * This type will be completely removed in Botan4
@@ -39,7 +38,7 @@ class BOTAN_PUBLIC_API(2, 0) EC_Point final {
       typedef EC_Point_Format Compression_Type;
       using enum EC_Point_Format;
 
-      enum { WORKSPACE_SIZE = 8 };
+      enum : uint8_t /* NOLINT(*-use-enum-class) */ { WORKSPACE_SIZE = 8 };
 
       /**
       * Construct an uninitialized EC_Point
@@ -60,7 +59,7 @@ class BOTAN_PUBLIC_API(2, 0) EC_Point final {
       /**
       * Move Constructor
       */
-      EC_Point(EC_Point&& other) { this->swap(other); }
+      EC_Point(EC_Point&& other) noexcept { this->swap(other); }
 
       /**
       * Standard Assignment
@@ -70,12 +69,14 @@ class BOTAN_PUBLIC_API(2, 0) EC_Point final {
       /**
       * Move Assignment
       */
-      EC_Point& operator=(EC_Point&& other) {
+      EC_Point& operator=(EC_Point&& other) noexcept {
          if(this != &other) {
             this->swap(other);
          }
          return (*this);
       }
+
+      ~EC_Point() = default;
 
       /**
       * Point multiplication operator
@@ -258,7 +259,7 @@ class BOTAN_PUBLIC_API(2, 0) EC_Point final {
          m_z.swap(new_z);
       }
 
-      friend void swap(EC_Point& x, EC_Point& y) { x.swap(y); }
+      friend void swap(EC_Point& x, EC_Point& y) noexcept { x.swap(y); }
 
       /**
       * Randomize the point representation

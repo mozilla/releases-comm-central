@@ -12,15 +12,20 @@
 #define BOTAN_TLS_CLIENT_H_
 
 #include <botan/credentials_manager.h>
+#include <botan/tls_callbacks.h>  // TODO(Botan4) not necessary here, remove
 #include <botan/tls_channel.h>
-#include <botan/tls_policy.h>
+#include <botan/tls_policy.h>  // TODO(Botan4) not necessary here, remove
+#include <botan/tls_server_info.h>
+#include <botan/tls_version.h>
 #include <memory>
 #include <vector>
 
 namespace Botan::TLS {
 
+class Callbacks;
+class Session_Manager;
 class Channel_Impl;
-class Handshake_IO;
+class Policy;
 
 /**
 * SSL/TLS Client
@@ -123,6 +128,11 @@ class BOTAN_PUBLIC_API(2, 0) Client final : public Channel {
       void close() override;
 
       bool timeout_check() override;
+
+      Client(const Client& other) = delete;
+      Client(Client&& other) = default;
+      Client& operator=(const Client& other) = delete;
+      Client& operator=(Client&& other) = delete;
 
    private:
       size_t downgrade();

@@ -8,6 +8,8 @@ brief -> "TLS 1.2 protocol implementation"
 </module_info>
 
 <header:public>
+tls_messages_12.h
+tls_extensions_12.h
 </header:public>
 
 <header:internal>
@@ -23,17 +25,9 @@ tls_session_key.h
 </header:internal>
 
 <requires>
-aead
-aes
-asn1
-dh
 eme_pkcs1
 emsa_pkcs1
-gcm
-hmac
 prf_tls
-rng
 rsa
-x509
 tls
 </requires>

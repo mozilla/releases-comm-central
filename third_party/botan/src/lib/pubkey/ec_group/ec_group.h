@@ -26,24 +26,6 @@
 namespace Botan {
 
 /**
-* This enum indicates the method used to encode the EC parameters
-*
-* @warning All support for explicit or implicit domain encodings
-* will be removed in Botan4. Only named curves will be supported.
-*
-* TODO(Botan4) remove this enum
-*/
-enum class EC_Group_Encoding {
-   Explicit,
-   ImplicitCA,
-   NamedCurve,
-
-   EC_DOMPAR_ENC_EXPLICIT = Explicit,
-   EC_DOMPAR_ENC_IMPLICITCA = ImplicitCA,
-   EC_DOMPAR_ENC_OID = NamedCurve
-};
-
-/**
 * This enum indicates the source of the elliptic curve parameters
 * in use.
 *
@@ -53,7 +35,7 @@ enum class EC_Group_Encoding {
 * ExternalSource means the curve parameters came from either an explicit
 * curve encoding or an application defined curve.
 */
-enum class EC_Group_Source {
+enum class EC_Group_Source : uint8_t {
    Builtin,
    ExternalSource,
 };
@@ -63,7 +45,7 @@ enum class EC_Group_Source {
 *
 * This is returned by EC_Group::engine
 */
-enum class EC_Group_Engine {
+enum class EC_Group_Engine : uint8_t {
    /// Using per curve implementation; fastest available
    Optimized,
    /// A generic implementation that handles many curves in one implementation
@@ -223,6 +205,16 @@ class BOTAN_PUBLIC_API(2, 0) EC_Group final {
       */
       BOTAN_DEPRECATED("Deprecated no replacement") EC_Group();
 
+      /**
+      * Unregister a previously registered group.
+      *
+      * Using this is discouraged for normal use. This is only useful or necessary if
+      * you are registering a very large number of distinct groups, and need to worry about memory constraints.
+      *
+      * Returns true if the group was found and unregistered.
+      */
+      static bool unregister(const OID& oid);
+
       ~EC_Group();
 
       EC_Group(const EC_Group&);
@@ -248,6 +240,13 @@ class BOTAN_PUBLIC_API(2, 0) EC_Group final {
       * register an application specific elliptic curve.
       */
       static bool supports_application_specific_group();
+
+      /**
+      * Return true if in this build configuration it is possible to
+      * register an application specific elliptic curve with a cofactor
+      * larger than 1.
+      */
+      static bool supports_application_specific_group_with_cofactor();
 
       /**
       * Return true if in this build configuration EC_Group::from_name(name) will succeed
@@ -329,7 +328,7 @@ class BOTAN_PUBLIC_API(2, 0) EC_Group final {
             /**
             * Create a table for computing g*x + h*y
             */
-            Mul2Table(const EC_AffinePoint& h);
+            BOTAN_FUTURE_EXPLICIT Mul2Table(const EC_AffinePoint& h);
 
             /**
             * Return the elliptic curve point g*x + h*y
@@ -368,6 +367,10 @@ class BOTAN_PUBLIC_API(2, 0) EC_Group final {
                                              const EC_Scalar& y) const;
 
             ~Mul2Table();
+            Mul2Table(const Mul2Table& other) = delete;
+            Mul2Table(Mul2Table&& other) noexcept;
+            Mul2Table& operator=(const Mul2Table& other) = delete;
+            Mul2Table& operator=(Mul2Table&& other) noexcept;
 
          private:
             std::unique_ptr<EC_Mul2Table_Data> m_tbl;
@@ -497,7 +500,7 @@ class BOTAN_PUBLIC_API(2, 0) EC_Group final {
          auto y = EC_Scalar::from_bigint(*this, y_bn);
          auto h = EC_AffinePoint(*this, h_pt);
 
-         Mul2Table gh_mul(h);
+         const Mul2Table gh_mul(h);
 
          if(auto r = gh_mul.mul2_vartime(x, y)) {
             return r->to_legacy_point();
@@ -513,7 +516,9 @@ class BOTAN_PUBLIC_API(2, 0) EC_Group final {
       * @return base_point*k
       */
       BOTAN_DEPRECATED("Use EC_AffinePoint and EC_Scalar")
-      EC_Point blinded_base_point_multiply(const BigInt& k_bn, RandomNumberGenerator& rng, std::vector<BigInt>&) const {
+      EC_Point blinded_base_point_multiply(const BigInt& k_bn,
+                                           RandomNumberGenerator& rng,
+                                           std::vector<BigInt>& /*ws*/) const {
          auto k = EC_Scalar::from_bigint(*this, k_bn);
          auto pt = EC_AffinePoint::g_mul(k, rng);
          return pt.to_legacy_point();
@@ -528,7 +533,9 @@ class BOTAN_PUBLIC_API(2, 0) EC_Group final {
       * @return x coordinate of base_point*k
       */
       BOTAN_DEPRECATED("Use EC_AffinePoint and EC_Scalar")
-      BigInt blinded_base_point_multiply_x(const BigInt& k_bn, RandomNumberGenerator& rng, std::vector<BigInt>&) const {
+      BigInt blinded_base_point_multiply_x(const BigInt& k_bn,
+                                           RandomNumberGenerator& rng,
+                                           std::vector<BigInt>& /*ws*/) const {
          auto k = EC_Scalar::from_bigint(*this, k_bn);
          return BigInt(EC_AffinePoint::g_mul(k, rng).x_bytes());
       }
@@ -544,7 +551,7 @@ class BOTAN_PUBLIC_API(2, 0) EC_Group final {
       EC_Point blinded_var_point_multiply(const EC_Point& point,
                                           const BigInt& k_bn,
                                           RandomNumberGenerator& rng,
-                                          std::vector<BigInt>&) const {
+                                          std::vector<BigInt>& /*ws*/) const {
          auto k = EC_Scalar::from_bigint(*this, k_bn);
          auto pt = EC_AffinePoint(*this, point);
          return pt.mul(k, rng).to_legacy_point();
@@ -565,7 +572,7 @@ class BOTAN_PUBLIC_API(2, 0) EC_Group final {
       * @param hash_fn the hash function to use (typically "SHA-256" or "SHA-512")
       * @param input the input to hash
       * @param input_len length of input in bytes
-      * @param domain_sep a domain seperator
+      * @param domain_sep a domain separator
       * @param domain_sep_len length of domain_sep in bytes
       * @param random_oracle if the mapped point must be uniform (use
                "true" here unless you know what you are doing)
@@ -595,7 +602,7 @@ class BOTAN_PUBLIC_API(2, 0) EC_Group final {
       * @param hash_fn the hash function to use (typically "SHA-256" or "SHA-512")
       * @param input the input to hash
       * @param input_len length of input in bytes
-      * @param domain_sep a domain seperator
+      * @param domain_sep a domain separator
       * @param random_oracle if the mapped point must be uniform (use
                "true" here unless you know what you are doing)
       */
@@ -606,12 +613,11 @@ class BOTAN_PUBLIC_API(2, 0) EC_Group final {
                              std::string_view domain_sep,
                              bool random_oracle = true) const {
          auto inp = std::span{input, input_len};
-         auto dst = std::span{reinterpret_cast<const uint8_t*>(domain_sep.data()), domain_sep.size()};
 
          if(random_oracle) {
-            return EC_AffinePoint::hash_to_curve_ro(*this, hash_fn, inp, dst).to_legacy_point();
+            return EC_AffinePoint::hash_to_curve_ro(*this, hash_fn, inp, domain_sep).to_legacy_point();
          } else {
-            return EC_AffinePoint::hash_to_curve_nu(*this, hash_fn, inp, dst).to_legacy_point();
+            return EC_AffinePoint::hash_to_curve_nu(*this, hash_fn, inp, domain_sep).to_legacy_point();
          }
       }
 
@@ -707,7 +713,7 @@ class BOTAN_PUBLIC_API(2, 0) EC_Group final {
    private:
       static EC_Group_Data_Map& ec_group_data();
 
-      EC_Group(std::shared_ptr<EC_Group_Data>&& data);
+      explicit EC_Group(std::shared_ptr<EC_Group_Data>&& data);
 
       static std::pair<std::shared_ptr<EC_Group_Data>, bool> BER_decode_EC_group(std::span<const uint8_t> ber,
                                                                                  EC_Group_Source source);

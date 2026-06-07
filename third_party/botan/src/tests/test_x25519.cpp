@@ -10,11 +10,14 @@
    #include "test_pubkey.h"
    #include <botan/data_src.h>
    #include <botan/pkcs8.h>
+   #include <botan/pubkey.h>
    #include <botan/x25519.h>
    #include <botan/x509_key.h>
 #endif
 
 namespace Botan_Tests {
+
+namespace {
 
 #if defined(BOTAN_HAS_X25519)
 
@@ -55,8 +58,8 @@ class X25519_Roundtrip_Test final : public Test {
          for(size_t i = 0; i < 10; ++i) {
             Test::Result result("X25519 roundtrip");
 
-            Botan::X25519_PrivateKey a_priv_gen(this->rng());
-            Botan::X25519_PrivateKey b_priv_gen(this->rng());
+            const Botan::X25519_PrivateKey a_priv_gen(this->rng());
+            const Botan::X25519_PrivateKey b_priv_gen(this->rng());
 
    #if defined(BOTAN_HAS_PKCS5_PBES2) && defined(BOTAN_HAS_AES) && defined(BOTAN_HAS_AEAD_GCM) && \
       defined(BOTAN_HAS_SHA2_32)
@@ -96,17 +99,17 @@ class X25519_Roundtrip_Test final : public Test {
             auto a_pub = Botan::X509::load_key(a_pub_ds);
             auto b_pub = Botan::X509::load_key(b_pub_ds);
 
-            Botan::X25519_PublicKey* a_pub_key = dynamic_cast<Botan::X25519_PublicKey*>(a_pub.get());
-            Botan::X25519_PublicKey* b_pub_key = dynamic_cast<Botan::X25519_PublicKey*>(b_pub.get());
+            const Botan::X25519_PublicKey* a_pub_key = dynamic_cast<Botan::X25519_PublicKey*>(a_pub.get());
+            const Botan::X25519_PublicKey* b_pub_key = dynamic_cast<Botan::X25519_PublicKey*>(b_pub.get());
 
-            if(a_pub_key && b_pub_key) {
-               Botan::PK_Key_Agreement a_ka(*a_priv, this->rng(), "Raw");
-               Botan::PK_Key_Agreement b_ka(*b_priv, this->rng(), "Raw");
+            if(a_pub_key != nullptr && b_pub_key != nullptr) {
+               const Botan::PK_Key_Agreement a_ka(*a_priv, this->rng(), "Raw");
+               const Botan::PK_Key_Agreement b_ka(*b_priv, this->rng(), "Raw");
 
-               Botan::SymmetricKey a_key = a_ka.derive_key(32, b_pub_key->public_value());
-               Botan::SymmetricKey b_key = b_ka.derive_key(32, a_pub_key->public_value());
+               const Botan::SymmetricKey a_key = a_ka.derive_key(32, b_pub_key->public_value());
+               const Botan::SymmetricKey b_key = b_ka.derive_key(32, a_pub_key->public_value());
 
-               if(!result.test_eq("key agreement", a_key.bits_of(), b_key.bits_of())) {
+               if(!result.test_bin_eq("key agreement", a_key.bits_of(), b_key.bits_of())) {
                   result.test_note(a_priv_pem);
                   result.test_note(b_priv_pem);
                }
@@ -139,5 +142,7 @@ class X25519_Keygen_Tests final : public PK_Key_Generation_Test {
 BOTAN_REGISTER_TEST("pubkey", "x25519_keygen", X25519_Keygen_Tests);
 
 #endif
+
+}  // namespace
 
 }  // namespace Botan_Tests

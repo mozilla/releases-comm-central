@@ -79,8 +79,8 @@ class BOTAN_TEST_API Hybrid_PublicKey : public virtual Public_Key {
    private:
       std::vector<std::unique_ptr<Public_Key>> m_pks;
 
-      size_t m_key_length;
-      size_t m_estimated_strength;
+      size_t m_key_length = 0;
+      size_t m_estimated_strength = 0;
 };
 
 BOTAN_DIAGNOSTIC_PUSH
@@ -110,7 +110,7 @@ class BOTAN_TEST_API Hybrid_PrivateKey : virtual public Private_Key {
        * To use KEX algorithms use the KEX_to_KEM_Adapter_PrivateKey.
        * @param private_keys List of private keys to combine
        */
-      Hybrid_PrivateKey(std::vector<std::unique_ptr<Private_Key>> private_keys);
+      explicit Hybrid_PrivateKey(std::vector<std::unique_ptr<Private_Key>> private_keys);
 
       /// Disabled by default
       secure_vector<uint8_t> private_key_bits() const override;

@@ -12,12 +12,14 @@
 
 #include <botan/ec_group.h>
 #include <botan/pk_algs.h>
-
-#include <botan/internal/fmt.h>
+#include <botan/internal/buffer_slicer.h>
+#include <botan/internal/buffer_stuffer.h>
+#include <botan/internal/concat_util.h>
 #include <botan/internal/hybrid_kem_ops.h>
 #include <botan/internal/kex_to_kem_adapter.h>
-#include <botan/internal/pk_ops_impl.h>
 #include <botan/internal/stl_util.h>
+#include <algorithm>
+#include <sstream>
 
 namespace Botan::TLS {
 
@@ -115,26 +117,22 @@ std::vector<size_t> public_key_lengths_for_group(Group_Params group) {
          return {97, 1568};
 
       case Group_Params::HYBRID_X25519_eFRODOKEM_640_SHAKE_OQS:
-         return {32, 9616};
       case Group_Params::HYBRID_X25519_eFRODOKEM_640_AES_OQS:
          return {32, 9616};
+
       case Group_Params::HYBRID_X448_eFRODOKEM_976_SHAKE_OQS:
-         return {56, 15632};
       case Group_Params::HYBRID_X448_eFRODOKEM_976_AES_OQS:
          return {56, 15632};
 
       case Group_Params::HYBRID_SECP256R1_eFRODOKEM_640_SHAKE_OQS:
-         return {65, 9616};
       case Group_Params::HYBRID_SECP256R1_eFRODOKEM_640_AES_OQS:
          return {65, 9616};
 
       case Group_Params::HYBRID_SECP384R1_eFRODOKEM_976_SHAKE_OQS:
-         return {97, 15632};
       case Group_Params::HYBRID_SECP384R1_eFRODOKEM_976_AES_OQS:
          return {97, 15632};
 
       case Group_Params::HYBRID_SECP521R1_eFRODOKEM_1344_SHAKE_OQS:
-         return {133, 21520};
       case Group_Params::HYBRID_SECP521R1_eFRODOKEM_1344_AES_OQS:
          return {133, 21520};
 
@@ -163,7 +161,7 @@ std::vector<std::unique_ptr<Private_Key>> convert_kex_to_kem_sks(std::vector<std
       BOTAN_ARG_CHECK(key != nullptr, "Private key list contains a nullptr");
       if(key->supports_operation(PublicKeyOperation::KeyAgreement) &&
          !key->supports_operation(PublicKeyOperation::KeyEncapsulation)) {
-         auto ka_key = dynamic_cast<PK_Key_Agreement_Key*>(key.get());
+         auto* ka_key = dynamic_cast<PK_Key_Agreement_Key*>(key.get());
          BOTAN_ASSERT_NONNULL(ka_key);
          (void)key.release();
          return std::make_unique<KEX_to_KEM_Adapter_PrivateKey>(std::unique_ptr<PK_Key_Agreement_Key>(ka_key));
@@ -183,8 +181,8 @@ void concat_secret_combiner(KEM_Operation& op,
                    "Invalid output buffer size");
 
    BufferStuffer shared_secret_stuffer(out_shared_secret);
-   for(size_t idx = 0; idx < shared_secrets.size(); idx++) {
-      shared_secret_stuffer.append(shared_secrets.at(idx));
+   for(const auto& ss : shared_secrets) {
+      shared_secret_stuffer.append(ss);
    }
    BOTAN_ASSERT_NOMSG(shared_secret_stuffer.full());
 }

@@ -11,13 +11,14 @@
 #include <botan/mem_ops.h>
 #include <botan/types.h>
 #include <botan/internal/bit_ops.h>
+#include <botan/internal/ct_utils.h>
 
 #include <array>
 #include <span>
 
 namespace Botan {
 
-constexpr size_t BYTES_448 = ceil_tobytes(448);
+constexpr size_t BYTES_448 = ceil_tobytes<size_t>(448);
 /* uint64_t words to store a 448 bit value */
 constexpr size_t WORDS_448 = 7;
 
@@ -38,19 +39,29 @@ class Gf448Elem final {
        * @brief Construct a GF element from a 448-bit integer gives as 56 bytes @p x in
        * little-endian order.
        */
-      Gf448Elem(std::span<const uint8_t, BYTES_448> x);
+      explicit Gf448Elem(std::span<const uint8_t, BYTES_448> x);
 
       /**
        * @brief Construct a GF element from a 448-bit integer gives as 7 uint64_t words @p x in
        * little-endian order.
        */
-      Gf448Elem(std::span<const uint64_t, WORDS_448> data) { copy_mem(m_x, data); }
+      explicit Gf448Elem(std::span<const uint64_t, WORDS_448> data) /* NOLINT(*-member-init) */ { copy_mem(m_x, data); }
 
       /**
        * @brief Construct a GF element by passing the least significant 64 bits as a word.
        * All other become zero.
        */
-      Gf448Elem(uint64_t least_sig_word);
+      explicit Gf448Elem(uint64_t least_sig_word);
+
+      /**
+      * Return the constant value zero
+      */
+      static Gf448Elem zero() { return Gf448Elem(0); }
+
+      /**
+      * Return the constant value one
+      */
+      static Gf448Elem one() { return Gf448Elem(1); }
 
       /**
        * @brief Store the canonical representation of the GF element as 56 bytes in little-endian
@@ -67,14 +78,14 @@ class Gf448Elem final {
       std::array<uint8_t, BYTES_448> to_bytes() const;
 
       /**
-       * @brief Swap this and other if b == true. Constant time for any b.
+       * @brief Swap this and @p other if @p mask is set. Constant time.
        */
-      void ct_cond_swap(bool b, Gf448Elem& other);
+      void ct_cond_swap(CT::Mask<uint64_t> mask, Gf448Elem& other);
 
       /**
-       * @brief Set this to @p other if b is true. Constant time for any b.
+       * @brief Set this to @p other if @p mask is true. Constant time.
        */
-      void ct_cond_assign(bool b, const Gf448Elem& other);
+      void ct_cond_assign(CT::Mask<uint64_t> mask, const Gf448Elem& other);
 
       Gf448Elem operator+(const Gf448Elem& other) const;
 
@@ -125,6 +136,11 @@ class Gf448Elem final {
    private:
       std::array<uint64_t, WORDS_448> m_x;
 };
+
+/**
+ * @brief Multiply a field element by the Curve448 constant a24 = 39081.
+ */
+Gf448Elem mul_a24(const Gf448Elem& a);
 
 /**
  * @brief Computes elem^2. Faster than operator*.

@@ -9,7 +9,6 @@
  * Botan is released under the Simplified BSD License (see license.txt)
  */
 
-#include "test_rng.h"
 #include "tests.h"
 
 #if defined(BOTAN_HAS_DILITHIUM_COMMON)
@@ -17,19 +16,21 @@
    #include <botan/hash.h>
    #include <botan/pk_algs.h>
    #include <botan/pubkey.h>
-   #include <botan/internal/fmt.h>
-   #include <algorithm>
 
    #include "test_pubkey.h"
+   #include "test_rng.h"
 #endif
 
 namespace Botan_Tests {
+
+namespace {
 
 #if defined(BOTAN_HAS_DILITHIUM_COMMON) && defined(BOTAN_HAS_AES) && defined(BOTAN_HAS_SHA3)
 
 template <typename DerivedT>
 class Dilithium_KAT_Tests : public Text_Based_Test {
    public:
+      // NOLINTNEXTLINE(*crtp-constructor-accessibility)
       Dilithium_KAT_Tests() : Text_Based_Test(DerivedT::test_vector, "Seed,Msg,HashPk,HashSk,HashSig", "Sig") {}
 
       Test::Result run_one_test(const std::string& name, const VarMap& vars) override {
@@ -47,34 +48,34 @@ class Dilithium_KAT_Tests : public Text_Based_Test {
 
          auto dilithium_test_rng = std::make_unique<CTR_DRBG_AES256>(ref_seed);
 
-         Botan::Dilithium_PrivateKey priv_key(*dilithium_test_rng, DerivedT::mode);
+         const Botan::Dilithium_PrivateKey priv_key(*dilithium_test_rng, DerivedT::mode);
 
-         result.test_eq(
+         result.test_bin_eq(
             "generated expected private key hash", sha3_256->process(priv_key.private_key_bits()), ref_sk_hash);
 
-         result.test_eq(
+         result.test_bin_eq(
             "generated expected public key hash", sha3_256->process(priv_key.public_key_bits()), ref_pk_hash);
 
          auto signer = Botan::PK_Signer(priv_key, *dilithium_test_rng, DerivedT::sign_param);
          auto signature = signer.sign_message(ref_msg.data(), ref_msg.size(), *dilithium_test_rng);
 
-         result.test_eq("generated expected signature hash", sha3_256->process(signature), ref_sig_hash);
+         result.test_bin_eq("generated expected signature hash", sha3_256->process(signature), ref_sig_hash);
          if(!ref_sig.empty()) {
-            result.test_eq("generated expected signature", signature, ref_sig);
+            result.test_bin_eq("generated expected signature", signature, ref_sig);
          }
 
-         Botan::Dilithium_PublicKey pub_key(priv_key.public_key_bits(), DerivedT::mode);
+         const Botan::Dilithium_PublicKey pub_key(priv_key.public_key_bits(), DerivedT::mode);
          auto verifier = Botan::PK_Verifier(pub_key, "");
          verifier.update(ref_msg.data(), ref_msg.size());
-         result.confirm("signature verifies", verifier.check_signature(signature.data(), signature.size()));
+         result.test_is_true("signature verifies", verifier.check_signature(signature.data(), signature.size()));
 
          // test validating incorrect wrong signature
          auto mutated_signature = Test::mutate_vec(signature, this->rng());
-         result.confirm("invalid signature rejected",
-                        !verifier.check_signature(mutated_signature.data(), mutated_signature.size()));
+         result.test_is_true("invalid signature rejected",
+                             !verifier.check_signature(mutated_signature.data(), mutated_signature.size()));
 
          verifier.update(ref_msg.data(), ref_msg.size());
-         result.confirm("signature verifies", verifier.check_signature(signature.data(), signature.size()));
+         result.test_is_true("signature verifies", verifier.check_signature(signature.data(), signature.size()));
 
          return result;
       }
@@ -154,41 +155,44 @@ class DilithiumRoundtripTests final : public Test {
          const std::string msg = "The quick brown fox jumps over the lazy dog.";
          const std::vector<uint8_t> msgvec(msg.data(), msg.data() + msg.size());
 
-         Botan::Dilithium_PrivateKey priv_key(*rng, mode);
+         const Botan::Dilithium_PrivateKey priv_key(*rng, mode);
          const Botan::Dilithium_PublicKey& pub_key = priv_key;
 
-         result.test_eq("key strength", priv_key.estimated_strength(), strength);
-         result.test_eq("key length", priv_key.key_length(), psid);
-         result.test_eq("key strength", pub_key.estimated_strength(), strength);
-         result.test_eq("key length", pub_key.key_length(), psid);
+         result.test_sz_eq("key strength", priv_key.estimated_strength(), strength);
+         result.test_sz_eq("key length", priv_key.key_length(), psid);
+         result.test_sz_eq("key strength", pub_key.estimated_strength(), strength);
+         result.test_sz_eq("key length", pub_key.key_length(), psid);
 
          const auto sig_before_codec = sign(priv_key, msgvec);
 
          const auto priv_key_encoded = priv_key.private_key_bits();
          const auto pub_key_encoded = priv_key.public_key_bits();
 
-         Botan::Dilithium_PrivateKey priv_key_decoded(priv_key_encoded, mode);
-         Botan::Dilithium_PublicKey pub_key_decoded(pub_key_encoded, mode);
+         const Botan::Dilithium_PrivateKey priv_key_decoded(priv_key_encoded, mode);
+         const Botan::Dilithium_PublicKey pub_key_decoded(pub_key_encoded, mode);
 
          const auto sig_after_codec = sign(priv_key_decoded, msgvec);
 
-         result.confirm("Pubkey: before,   Sig: before", verify(pub_key, msgvec, sig_before_codec));
-         result.confirm("Pubkey: before,   Sig: after", verify(pub_key, msgvec, sig_after_codec));
-         result.confirm("Pubkey: after,    Sig: after", verify(pub_key_decoded, msgvec, sig_after_codec));
-         result.confirm("Pubkey: after,    Sig: before", verify(pub_key_decoded, msgvec, sig_before_codec));
-         result.confirm("Pubkey: recalc'ed Sig: before", verify(priv_key_decoded, msgvec, sig_before_codec));
-         result.confirm("Pubkey: recalc'ed Sig: after", verify(priv_key_decoded, msgvec, sig_after_codec));
+         result.test_is_true("Pubkey: before,   Sig: before", verify(pub_key, msgvec, sig_before_codec));
+         result.test_is_true("Pubkey: before,   Sig: after", verify(pub_key, msgvec, sig_after_codec));
+         result.test_is_true("Pubkey: after,    Sig: after", verify(pub_key_decoded, msgvec, sig_after_codec));
+         result.test_is_true("Pubkey: after,    Sig: before", verify(pub_key_decoded, msgvec, sig_before_codec));
+         result.test_is_true("Pubkey: recalc'ed Sig: before", verify(priv_key_decoded, msgvec, sig_before_codec));
+         result.test_is_true("Pubkey: recalc'ed Sig: after", verify(priv_key_decoded, msgvec, sig_after_codec));
 
          auto tampered_msgvec = msgvec;
          tampered_msgvec.front() = 'X';
-         result.confirm("Pubkey: before,   Broken Sig: before", !verify(pub_key, tampered_msgvec, sig_before_codec));
-         result.confirm("Pubkey: before,   Broken Sig: after", !verify(pub_key, tampered_msgvec, sig_after_codec));
-         result.confirm("Pubkey: after,    Broken Sig: after",
-                        !verify(pub_key_decoded, tampered_msgvec, sig_after_codec));
-         result.confirm("Pubkey: after,    Broken Sig: before",
-                        !verify(pub_key_decoded, tampered_msgvec, sig_before_codec));
-         result.confirm("Pubkey: recalc'ed Sig: before", !verify(priv_key_decoded, tampered_msgvec, sig_before_codec));
-         result.confirm("Pubkey: recalc'ed Sig: after", !verify(priv_key_decoded, tampered_msgvec, sig_after_codec));
+         result.test_is_true("Pubkey: before,   Broken Sig: before",
+                             !verify(pub_key, tampered_msgvec, sig_before_codec));
+         result.test_is_true("Pubkey: before,   Broken Sig: after", !verify(pub_key, tampered_msgvec, sig_after_codec));
+         result.test_is_true("Pubkey: after,    Broken Sig: after",
+                             !verify(pub_key_decoded, tampered_msgvec, sig_after_codec));
+         result.test_is_true("Pubkey: after,    Broken Sig: before",
+                             !verify(pub_key_decoded, tampered_msgvec, sig_before_codec));
+         result.test_is_true("Pubkey: recalc'ed Sig: before",
+                             !verify(priv_key_decoded, tampered_msgvec, sig_before_codec));
+         result.test_is_true("Pubkey: recalc'ed Sig: after",
+                             !verify(priv_key_decoded, tampered_msgvec, sig_after_codec));
 
          // decoding via generic pk_algs.h
          const auto generic_pubkey_decoded = Botan::load_public_key(pub_key.algorithm_identifier(), pub_key_encoded);
@@ -200,12 +204,12 @@ class DilithiumRoundtripTests final : public Test {
 
          const auto sig_after_generic_codec = sign(*generic_privkey_decoded, msgvec);
 
-         result.confirm("verification with generic public key",
-                        verify(*generic_pubkey_decoded, msgvec, sig_before_codec));
-         result.confirm("verification of signature with generic private key",
-                        verify(*generic_pubkey_decoded, msgvec, sig_after_generic_codec));
-         result.confirm("verification with generic private key",
-                        verify(*generic_privkey_decoded, msgvec, sig_before_codec));
+         result.test_is_true("verification with generic public key",
+                             verify(*generic_pubkey_decoded, msgvec, sig_before_codec));
+         result.test_is_true("verification of signature with generic private key",
+                             verify(*generic_pubkey_decoded, msgvec, sig_after_generic_codec));
+         result.test_is_true("verification with generic private key",
+                             verify(*generic_privkey_decoded, msgvec, sig_before_codec));
 
          return result;
       }
@@ -239,7 +243,7 @@ BOTAN_REGISTER_TEST("pubkey", "dilithium_roundtrips", DilithiumRoundtripTests);
 class Dilithium_Keygen_Tests final : public PK_Key_Generation_Test {
    public:
       std::vector<std::string> keygen_params() const override {
-         std::vector<std::string> all_instances = {
+         const std::vector<std::string> all_instances = {
             "Dilithium-4x4-AES-r3",
             "Dilithium-6x5-AES-r3",
             "Dilithium-8x7-AES-r3",
@@ -250,11 +254,14 @@ class Dilithium_Keygen_Tests final : public PK_Key_Generation_Test {
             "ML-DSA-6x5",
             "ML-DSA-8x7",
          };
+
          std::vector<std::string> available_instances;
-         std::copy_if(all_instances.begin(),
-                      all_instances.end(),
-                      std::back_inserter(available_instances),
-                      [](const std::string& instance) { return Botan::DilithiumMode(instance).is_available(); });
+
+         for(const auto& mode : all_instances) {
+            if(Botan::DilithiumMode(mode).is_available()) {
+               available_instances.push_back(mode);
+            }
+         }
          return available_instances;
       }
 
@@ -278,5 +285,7 @@ class Dilithium_Keygen_Tests final : public PK_Key_Generation_Test {
 BOTAN_REGISTER_TEST("pubkey", "dilithium_keygen", Dilithium_Keygen_Tests);
 
 #endif
+
+}  // namespace
 
 }  // namespace Botan_Tests

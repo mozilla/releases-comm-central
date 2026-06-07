@@ -4,7 +4,7 @@
 # Strips the KAT harness produced by the SPHINCS+ reference implementation down
 # to a less space consuming version. This script was used to generate
 # `src/tests/data/pubkey/sphincsplus.vec` test data from the *.rsp files of the
-# reference implemenation.
+# reference implementation.
 #
 # (C) 2023 Jack Lloyd
 # (C) 2023 René Meusel, Rohde & Schwarz Cybersecurity
@@ -85,11 +85,11 @@ def main(args = None):
 
     hash_fn = sha256 if "sha2" in param.lower() else sha3_256
 
-    l = 0
+    cnt = 0
     for kat in reader.read_kats():
-        if l >= limit:
+        if cnt >= limit:
             break
-        l += 1
+        cnt += 1
 
         # Remove the input message from the end of the 'sm' field
         signature = binascii.unhexlify(kat["sm"][:-kat["mlen"]*2])

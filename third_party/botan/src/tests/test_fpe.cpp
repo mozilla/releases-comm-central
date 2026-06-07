@@ -12,6 +12,8 @@
 
 namespace Botan_Tests {
 
+namespace {
+
 #if defined(BOTAN_HAS_FPE_FE1)
 
 class FPE_FE1_Tests final : public Text_Based_Test {
@@ -29,11 +31,11 @@ class FPE_FE1_Tests final : public Text_Based_Test {
 
          const Botan::BigInt got = Botan::FPE::fe1_encrypt(modulus, input, key, tweak);
 
-         result.test_eq("ciphertext", got, expected);
+         result.test_bn_eq("ciphertext", got, expected);
 
          const Botan::BigInt decry = Botan::FPE::fe1_decrypt(modulus, got, key, tweak);
 
-         result.test_eq("decrypted", decry, input);
+         result.test_bn_eq("decrypted", decry, input);
 
          return result;
       }
@@ -42,5 +44,7 @@ class FPE_FE1_Tests final : public Text_Based_Test {
 BOTAN_REGISTER_TEST("misc", "fpe_fe1", FPE_FE1_Tests);
 
 #endif
+
+}  // namespace
 
 }  // namespace Botan_Tests

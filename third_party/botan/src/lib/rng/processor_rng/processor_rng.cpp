@@ -6,11 +6,13 @@
 
 #include <botan/processor_rng.h>
 
+#include <botan/exceptn.h>
 #include <botan/internal/cpuid.h>
+#include <botan/internal/isa_extn.h>
 #include <botan/internal/loadstor.h>
 #include <botan/internal/target_info.h>
 
-#if defined(BOTAN_TARGET_CPU_IS_X86_FAMILY) && !defined(BOTAN_USE_GCC_INLINE_ASM)
+#if defined(BOTAN_TARGET_ARCH_IS_X86_FAMILY) && !defined(BOTAN_USE_GCC_INLINE_ASM)
    #include <immintrin.h>
 #endif
 
@@ -18,14 +20,14 @@ namespace Botan {
 
 namespace {
 
-#if defined(BOTAN_TARGET_CPU_IS_X86_FAMILY)
+#if defined(BOTAN_TARGET_ARCH_IS_X86_FAMILY)
 /*
    * According to Intel, RDRAND is guaranteed to generate a random
    * number within 10 retries on a working CPU
    */
 const size_t HWRNG_RETRIES = 10;
 
-#elif defined(BOTAN_TARGET_CPU_IS_PPC_FAMILY)
+#elif defined(BOTAN_TARGET_ARCH_IS_PPC_FAMILY)
 /**
     * PowerISA 3.0 p.78:
     *    When the error value is obtained, software is expected to repeat the
@@ -48,14 +50,15 @@ typedef uint32_t hwrng_output;
 typedef uint64_t hwrng_output;
 #endif
 
-hwrng_output read_hwrng(bool& success) {
-   hwrng_output output = 0;
+hwrng_output BOTAN_FN_ISA_RNG read_hwrng(bool& success) {
+   hwrng_output output = 0;  // NOLINT(*-const-correctness) clang-tidy doesn't understand inline asm
    success = false;
 
-#if defined(BOTAN_TARGET_CPU_IS_X86_FAMILY)
-   int cf = 0;
+#if defined(BOTAN_TARGET_ARCH_IS_X86_FAMILY)
+   int cf = 0;  // NOLINT(*-const-correctness) clang-tidy doesn't understand inline asm
    #if defined(BOTAN_USE_GCC_INLINE_ASM)
    // same asm seq works for 32 and 64 bit
+   // NOLINTNEXTLINE(*-no-assembler)
    asm volatile("rdrand %0; adcl $0,%1" : "=r"(output), "=r"(cf) : "0"(output), "1"(cf) : "cc");
    #elif defined(BOTAN_TARGET_ARCH_IS_X86_32)
    cf = _rdrand32_step(&output);
@@ -64,17 +67,17 @@ hwrng_output read_hwrng(bool& success) {
    #endif
    success = (1 == cf);
 
-#elif defined(BOTAN_TARGET_CPU_IS_PPC_FAMILY)
+#elif defined(BOTAN_TARGET_ARCH_IS_PPC_FAMILY)
 
    /*
    DARN indicates error by returning 0xFF..FF, ie is biased. Which is crazy.
    Avoid the bias by invoking it twice and, assuming both succeed, returning the
    XOR of the two results, which should unbias the output.
    */
-   uint64_t output2 = 0;
+   uint64_t output2 = 0;  // NOLINT(*-const-correctness) clang-tidy doesn't understand inline asm
    // DARN codes are 0: 32-bit conditioned, 1: 64-bit conditioned, 2: 64-bit raw (ala RDSEED)
-   asm volatile("darn %0, 1" : "=r"(output));
-   asm volatile("darn %0, 1" : "=r"(output2));
+   asm volatile("darn %0, 1" : "=r"(output));   // NOLINT(*-no-assembler)
+   asm volatile("darn %0, 1" : "=r"(output2));  // NOLINT(*-no-assembler)
 
    if((~output) != 0 && (~output2) != 0) {
       output ^= output2;
@@ -93,7 +96,7 @@ hwrng_output read_hwrng(bool& success) {
 hwrng_output read_hwrng() {
    for(size_t i = 0; i < HWRNG_RETRIES; ++i) {
       bool success = false;
-      hwrng_output output = read_hwrng(success);
+      const hwrng_output output = read_hwrng(success);
 
       if(success) {
          return output;
@@ -107,9 +110,9 @@ hwrng_output read_hwrng() {
 
 //static
 bool Processor_RNG::available() {
-#if defined(BOTAN_TARGET_CPU_IS_X86_FAMILY)
+#if defined(BOTAN_TARGET_ARCH_IS_X86_FAMILY)
    return CPUID::has(CPUID::Feature::RDRAND);
-#elif defined(BOTAN_TARGET_CPU_IS_PPC_FAMILY)
+#elif defined(BOTAN_TARGET_ARCH_IS_PPC_FAMILY)
    return CPUID::has(CPUID::Feature::DARN);
 #else
    return false;
@@ -117,9 +120,9 @@ bool Processor_RNG::available() {
 }
 
 std::string Processor_RNG::name() const {
-#if defined(BOTAN_TARGET_CPU_IS_X86_FAMILY)
+#if defined(BOTAN_TARGET_ARCH_IS_X86_FAMILY)
    return "rdrand";
-#elif defined(BOTAN_TARGET_CPU_IS_PPC_FAMILY)
+#elif defined(BOTAN_TARGET_ARCH_IS_PPC_FAMILY)
    return "darn";
 #else
    return "hwrng";
@@ -152,13 +155,6 @@ Processor_RNG::Processor_RNG() {
    if(!Processor_RNG::available()) {
       throw Invalid_State("Current CPU does not support RNG instruction");
    }
-}
-
-size_t Processor_RNG::reseed(Entropy_Sources& /*srcs*/,
-                             size_t /*poll_bits*/,
-                             std::chrono::milliseconds /*poll_timeout*/) {
-   /* no way to add entropy */
-   return 0;
 }
 
 }  // namespace Botan

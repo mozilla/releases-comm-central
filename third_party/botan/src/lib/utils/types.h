@@ -45,8 +45,8 @@ namespace Botan {
 * <dt>Public Key Interface Classes<dd>
 *        PK_Key_Agreement, PK_Signer, PK_Verifier, PK_Encryptor, PK_Decryptor, PK_KEM_Encryptor, PK_KEM_Decryptor
 * <dt>Authenticated Encryption Modes<dd>
-*        @ref CCM_Mode "CCM", @ref ChaCha20Poly1305_Mode "ChaCha20Poly1305", @ref EAX_Mode "EAX",
-*        @ref GCM_Mode "GCM", @ref OCB_Mode "OCB", @ref SIV_Mode "SIV"
+*        @ref Ascon_AEAD128 "Ascon-AEAD128" @ref CCM_Mode "CCM", @ref ChaCha20Poly1305_Mode "ChaCha20Poly1305",
+*        @ref EAX_Mode "EAX", @ref GCM_Mode "GCM", @ref OCB_Mode "OCB", @ref SIV_Mode "SIV"
 * <dt>Block Ciphers<dd>
 *        @ref aria.h "ARIA", @ref aes.h "AES", @ref Blowfish, @ref camellia.h "Camellia", @ref Cascade_Cipher "Cascade",
 *        @ref CAST_128 "CAST-128", @ref CAST_128 DES, @ref TripleDES "3DES",
@@ -55,9 +55,9 @@ namespace Botan {
 * <dt>Stream Ciphers<dd>
 *        ChaCha, @ref CTR_BE "CTR", OFB, RC4, Salsa20
 * <dt>Hash Functions<dd>
-*        BLAKE2b, @ref GOST_34_11 "GOST 34.11", @ref Keccak_1600 "Keccak", MD4, MD5, @ref RIPEMD_160 "RIPEMD-160",
-*        @ref SHA_1 "SHA-1", @ref SHA_224 "SHA-224", @ref SHA_256 "SHA-256", @ref SHA_384 "SHA-384",
-*        @ref SHA_512 "SHA-512", @ref Skein_512 "Skein-512", SM3, Streebog, Whirlpool
+*        @ref Ascon_Hash256 "Ascon-Hash256", BLAKE2b, @ref GOST_34_11 "GOST 34.11", @ref Keccak_1600 "Keccak", MD4,
+*        MD5, @ref RIPEMD_160 "RIPEMD-160", @ref SHA_1 "SHA-1", @ref SHA_224 "SHA-224", @ref SHA_256 "SHA-256",
+*        @ref SHA_384 "SHA-384", @ref SHA_512 "SHA-512", @ref Skein_512 "Skein-512", SM3, Streebog, Whirlpool
 * <dt>Non-Cryptographic Checksums<dd>
 *        Adler32, CRC24, CRC32
 * <dt>Message Authentication Codes<dd>
@@ -89,7 +89,7 @@ namespace Botan {
 *        X509_Certificate, X509_CRL, X509_CA, Certificate_Extension, PKCS10_Request, X509_Cert_Options,
 *        Certificate_Store, Certificate_Store_In_SQL, Certificate_Store_In_SQLite
 * <dt>eXtendable Output Functions<dd>
-*        @ref SHAKE_XOF "SHAKE"
+*        @ref Ascon_XOF128 "Ascon-XOF128", @ref SHAKE_XOF "SHAKE"
 * </dl>
 */
 

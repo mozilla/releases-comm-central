@@ -6,11 +6,13 @@
 * Botan is released under the Simplified BSD License (see license.txt)
 */
 
-#include <botan/tls_messages.h>
+#include <botan/tls_messages_12.h>
 
+#include <botan/bigint.h>
 #include <botan/credentials_manager.h>
-#include <botan/pubkey.h>
-#include <botan/tls_extensions.h>
+#include <botan/dl_group.h>
+#include <botan/tls_callbacks.h>
+#include <botan/tls_policy.h>
 #include <botan/internal/loadstor.h>
 #include <botan/internal/target_info.h>
 #include <botan/internal/tls_handshake_io.h>
@@ -18,17 +20,10 @@
 #include <botan/internal/tls_reader.h>
 
 #include <botan/dh.h>
-#include <botan/dl_group.h>
-#include <botan/ecdh.h>
-
-#if defined(BOTAN_HAS_X25519)
-   #include <botan/x25519.h>
-#endif
-#if defined(BOTAN_HAS_X448)
-   #include <botan/x448.h>
-#endif
 
 namespace Botan::TLS {
+
+Server_Key_Exchange::~Server_Key_Exchange() = default;
 
 /**
 * Create a new Server Key Exchange message
@@ -43,7 +38,7 @@ Server_Key_Exchange::Server_Key_Exchange(Handshake_IO& io,
    const Kex_Algo kex_algo = state.ciphersuite().kex_method();
 
    if(kex_algo == Kex_Algo::PSK || kex_algo == Kex_Algo::ECDHE_PSK) {
-      std::string identity_hint = creds.psk_identity_hint("tls-server", hostname);
+      const std::string identity_hint = creds.psk_identity_hint("tls-server", hostname);
 
       append_tls_length_value(m_params, identity_hint, 2);
    }
@@ -84,8 +79,8 @@ Server_Key_Exchange::Server_Key_Exchange(Handshake_IO& io,
       // `Policy::default_dh_group()` could return a `std::variant<Group_Params,
       // DL_Group>`, allowing it to define arbitrary groups.
       m_kex_key = state.callbacks().tls_generate_ephemeral_key(m_shared_group.value(), rng);
-      auto dh = dynamic_cast<DH_PrivateKey*>(m_kex_key.get());
-      if(!dh) {
+      auto* dh = dynamic_cast<DH_PrivateKey*>(m_kex_key.get());
+      if(dh == nullptr) {
          throw TLS_Exception(Alert::InternalError, "Application did not provide a Diffie-Hellman key");
       }
 
@@ -105,25 +100,19 @@ Server_Key_Exchange::Server_Key_Exchange(Handshake_IO& io,
          throw TLS_Exception(Alert::HandshakeFailure, "No shared ECC group with client");
       }
 
-      std::vector<uint8_t> ecdh_public_val;
-
-      if(m_shared_group.value() == Group_Params::X25519 || m_shared_group.value() == Group_Params::X448) {
-         m_kex_key = state.callbacks().tls_generate_ephemeral_key(m_shared_group.value(), rng);
-         if(!m_kex_key) {
-            throw TLS_Exception(Alert::InternalError, "Application did not provide an EC key");
+      m_kex_key = [&] {
+         if(m_shared_group->is_ecdh_named_curve()) {
+            const auto pubkey_point_format = state.client_hello()->prefers_compressed_ec_points()
+                                                ? EC_Point_Format::Compressed
+                                                : EC_Point_Format::Uncompressed;
+            return state.callbacks().tls12_generate_ephemeral_ecdh_key(*m_shared_group, rng, pubkey_point_format);
+         } else {
+            return state.callbacks().tls_generate_ephemeral_key(*m_shared_group, rng);
          }
-         ecdh_public_val = m_kex_key->public_value();
-      } else {
-         m_kex_key = state.callbacks().tls_generate_ephemeral_key(m_shared_group.value(), rng);
-         auto ecdh = dynamic_cast<ECDH_PrivateKey*>(m_kex_key.get());
-         if(!ecdh) {
-            throw TLS_Exception(Alert::InternalError, "Application did not provide a EC-Diffie-Hellman key");
-         }
+      }();
 
-         // follow client's preference for point compression
-         ecdh_public_val =
-            ecdh->public_value(state.client_hello()->prefers_compressed_ec_points() ? EC_Point_Format::Compressed
-                                                                                    : EC_Point_Format::Uncompressed);
+      if(!m_kex_key) {
+         throw TLS_Exception(Alert::InternalError, "Application did not provide an EC key");
       }
 
       const uint16_t named_curve_id = m_shared_group.value().wire_code();
@@ -131,7 +120,10 @@ Server_Key_Exchange::Server_Key_Exchange(Handshake_IO& io,
       m_params.push_back(get_byte<0>(named_curve_id));
       m_params.push_back(get_byte<1>(named_curve_id));
 
-      append_tls_length_value(m_params, ecdh_public_val, 1);
+      // Note: In contrast to public_value(), raw_public_key_bits() takes the
+      // point format (compressed vs. uncompressed) into account that was set
+      // in its construction within tls_generate_ephemeral_key().
+      append_tls_length_value(m_params, m_kex_key->raw_public_key_bits(), 1);
    } else if(kex_algo != Kex_Algo::PSK) {
       throw Internal_Error("Server_Key_Exchange: Unknown kex type " + kex_method_to_string(kex_algo));
    }
@@ -139,7 +131,8 @@ Server_Key_Exchange::Server_Key_Exchange(Handshake_IO& io,
    if(state.ciphersuite().signature_used()) {
       BOTAN_ASSERT(signing_key, "Signing key was set");
 
-      std::pair<std::string, Signature_Format> format = state.choose_sig_format(*signing_key, m_scheme, false, policy);
+      const std::pair<std::string, Signature_Format> format =
+         state.choose_sig_format(*signing_key, m_scheme, false, policy);
 
       std::vector<uint8_t> buf = state.client_hello()->random();
 
@@ -222,7 +215,7 @@ bool Server_Key_Exchange::verify(const Public_Key& server_key,
                                  const Policy& policy) const {
    policy.check_peer_key_acceptable(server_key);
 
-   std::pair<std::string, Signature_Format> format =
+   const std::pair<std::string, Signature_Format> format =
       state.parse_sig_format(server_key, m_scheme, state.client_hello()->signature_schemes(), false, policy);
 
    std::vector<uint8_t> buf = state.client_hello()->random();

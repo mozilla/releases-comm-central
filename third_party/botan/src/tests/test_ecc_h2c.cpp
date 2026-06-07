@@ -6,11 +6,12 @@
 
 #include "tests.h"
 
-#if defined(BOTAN_HAS_EC_HASH_TO_CURVE)
+#if defined(BOTAN_HAS_ECC_GROUP)
    #include <botan/ec_group.h>
 #endif
 
 #if defined(BOTAN_HAS_XMD)
+   #include <botan/internal/mem_utils.h>
    #include <botan/internal/xmd.h>
 #endif
 
@@ -34,14 +35,54 @@ class ECC_H2C_XMD_Tests final : public Text_Based_Test {
          const std::vector<uint8_t> expected = vars.get_req_bin("Output");
 
          std::vector<uint8_t> output(expected.size());
-         Botan::expand_message_xmd(hash, output, input, domain);
+         Botan::expand_message_xmd(hash, output, Botan::as_span_of_bytes(input), Botan::as_span_of_bytes(domain));
 
-         result.test_eq("XMD output", output, expected);
+         result.test_bin_eq("XMD output", output, expected);
          return result;
       }
 };
 
 BOTAN_REGISTER_TEST("ec_h2c", "ec_h2c_xmd", ECC_H2C_XMD_Tests);
+
+#endif
+
+#if defined(BOTAN_HAS_XMD) && defined(BOTAN_HAS_ECC_GROUP)
+
+class ECC_H2S_Tests final : public Text_Based_Test {
+   public:
+      ECC_H2S_Tests() : Text_Based_Test("pubkey/ec_h2s.vec", "Hash,Domain,Input,Output") {}
+
+      bool clear_between_callbacks() const override { return false; }
+
+      bool skip_this_test(const std::string& group_id, const VarMap& /*vars*/) override {
+         return !Botan::EC_Group::supports_named_group(group_id);
+      }
+
+      Test::Result run_one_test(const std::string& group_id, const VarMap& vars) override {
+         Test::Result result("ECC hash to scalar " + group_id);
+
+         const std::string hash_fn = vars.get_req_str("Hash");
+         const std::string domain_str = vars.get_req_str("Domain");
+         const std::string input_str = vars.get_req_str("Input");
+         const std::vector<uint8_t> expected_value = vars.get_req_bin("Output");
+
+         auto input = std::span{reinterpret_cast<const uint8_t*>(input_str.data()), input_str.size()};
+         auto domain = std::span{reinterpret_cast<const uint8_t*>(domain_str.data()), domain_str.size()};
+
+         const auto group = Botan::EC_Group::from_name(group_id);
+
+         try {
+            auto scalar = Botan::EC_Scalar::hash(group, hash_fn, input, domain).serialize();
+            result.test_bin_eq("output", scalar, expected_value);
+         } catch(Botan::Not_Implemented&) {
+            result.test_note("Skipping due to not implemented");
+         }
+
+         return result;
+      }
+};
+
+BOTAN_REGISTER_TEST("ec_h2c", "ec_h2s_kat", ECC_H2S_Tests);
 
 #endif
 
@@ -53,7 +94,7 @@ class ECC_H2C_Tests final : public Text_Based_Test {
 
       bool clear_between_callbacks() const override { return false; }
 
-      bool skip_this_test(const std::string&, const VarMap& vars) override {
+      bool skip_this_test(const std::string& /*header*/, const VarMap& vars) override {
          return !Botan::EC_Group::supports_named_group(vars.get_req_str("Group"));
       }
 
@@ -80,7 +121,7 @@ class ECC_H2C_Tests final : public Text_Based_Test {
                pt = Botan::EC_AffinePoint::hash_to_curve_nu(group, hash_fn, input, domain).serialize_uncompressed();
             }
 
-            result.test_eq("Generated point serialization", pt, expected_point);
+            result.test_bin_eq("Generated point serialization", pt, expected_point);
          } catch(Botan::Not_Implemented&) {
             result.test_note("Skipping due to not implemented");
          }

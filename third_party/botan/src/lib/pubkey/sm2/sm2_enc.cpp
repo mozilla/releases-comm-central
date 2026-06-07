@@ -9,6 +9,7 @@
 
 #include <botan/ber_dec.h>
 #include <botan/der_enc.h>
+#include <botan/ec_group.h>
 #include <botan/hash.h>
 #include <botan/kdf.h>
 #include <botan/mem_ops.h>
@@ -119,8 +120,10 @@ class SM2_Decryption_Operation final : public PK_Ops::Decryption {
             return secure_vector<uint8_t>();
          }
 
-         BigInt x1, y1;
-         secure_vector<uint8_t> C3, masked_msg;
+         BigInt x1;
+         BigInt y1;
+         secure_vector<uint8_t> C3;
+         secure_vector<uint8_t> masked_msg;
 
          BER_Decoder(ctext)
             .start_sequence()
@@ -131,6 +134,11 @@ class SM2_Decryption_Operation final : public PK_Ops::Decryption {
             .end_cons()
             .verify_end();
 
+         // Wrong length so certainly invalid, reject immediately
+         if(C3.size() != m_hash->output_length()) {
+            return secure_vector<uint8_t>();
+         }
+
          std::vector<uint8_t> recode_ctext;
          DER_Encoder(recode_ctext)
             .start_sequence()
@@ -140,17 +148,13 @@ class SM2_Decryption_Operation final : public PK_Ops::Decryption {
             .encode(masked_msg, ASN1_Type::OctetString)
             .end_cons();
 
-         if(recode_ctext.size() != ctext.size()) {
-            return secure_vector<uint8_t>();
-         }
-
-         if(CT::is_equal(recode_ctext.data(), ctext.data(), ctext.size()).as_bool() == false) {
+         if(!CT::is_equal<uint8_t>(recode_ctext, ctext).as_bool()) {
             return secure_vector<uint8_t>();
          }
 
          auto C1 = EC_AffinePoint::from_bigint_xy(m_group, x1, y1);
 
-         // Here C1 is publically invalid, so no problem with early return:
+         // Here C1 is publicly invalid, so no problem with early return:
          if(!C1) {
             return secure_vector<uint8_t>();
          }
@@ -168,7 +172,7 @@ class SM2_Decryption_Operation final : public PK_Ops::Decryption {
          m_hash->update(y2_bytes);
          const auto u = m_hash->final();
 
-         if(!CT::is_equal(u.data(), C3.data(), m_hash->output_length()).as_bool()) {
+         if(!CT::is_equal<uint8_t>(u, C3).as_bool()) {
             return secure_vector<uint8_t>();
          }
 

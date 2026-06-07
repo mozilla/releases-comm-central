@@ -14,11 +14,11 @@
    #if defined(BOTAN_FOUND_COMPATIBLE_BOOST_ASIO_VERSION)
 
       #include <botan/asio_stream.h>
+      #include <botan/hex.h>
       #include <botan/tls_callbacks.h>
       #include <botan/tls_session_manager_noop.h>
 
       #include <boost/beast/_experimental/test/stream.hpp>
-      #include <boost/bind.hpp>
       #include <utility>
 
 namespace Botan_Tests {
@@ -37,7 +37,7 @@ static_assert(sizeof(TEST_DATA) == TEST_DATA_SIZE, "size of TEST_DATA must match
  */
 class MockChannel {
    public:
-      MockChannel(std::shared_ptr<Botan::TLS::Callbacks> core) :
+      explicit MockChannel(std::shared_ptr<Botan::TLS::Callbacks> core) :
             m_callbacks(std::move(core)),
             m_bytes_till_complete_record(TEST_DATA_SIZE),
             m_active(false),
@@ -82,18 +82,20 @@ class ThrowingMockChannel : public MockChannel {
    public:
       static boost::system::error_code expected_ec() { return Botan::TLS::Alert::UnexpectedMessage; }
 
-      ThrowingMockChannel(std::shared_ptr<Botan::TLS::Callbacks> core) : MockChannel(std::move(core)) {}
+      explicit ThrowingMockChannel(std::shared_ptr<Botan::TLS::Callbacks> core) : MockChannel(std::move(core)) {}
 
-      std::size_t received_data(std::span<const uint8_t>) { throw Botan::TLS::Unexpected_Message("test_error"); }
+      std::size_t received_data(std::span<const uint8_t> /*data*/) {
+         throw Botan::TLS::Unexpected_Message("test_error");
+      }
 
-      void send(std::span<const uint8_t>) { throw Botan::TLS::Unexpected_Message("test_error"); }
+      void send(std::span<const uint8_t> /*data*/) { throw Botan::TLS::Unexpected_Message("test_error"); }
 };
 
 class CancellingMockChannel : public MockChannel {
    public:
-      CancellingMockChannel(std::shared_ptr<Botan::TLS::Callbacks> core) : MockChannel(std::move(core)) {}
+      explicit CancellingMockChannel(std::shared_ptr<Botan::TLS::Callbacks> core) : MockChannel(std::move(core)) {}
 
-      std::size_t received_data(std::span<const uint8_t>) {
+      std::size_t received_data(std::span<const uint8_t> /*data*/) {
          received_close_notify();
          return 0;
       }
@@ -113,8 +115,8 @@ using FailCount = boost::beast::test::fail_count;
 class AsioStream : public Botan::TLS::Stream<TestStream, MockChannel> {
    public:
       template <typename... Args>
-      AsioStream(std::shared_ptr<Botan::TLS::Context> context, Args&&... args) :
-            Stream(context, std::forward<Args>(args)...) {
+      explicit AsioStream(std::shared_ptr<Botan::TLS::Context> context, Args&&... args) :
+            Stream(std::move(context), std::forward<Args>(args)...) {
          m_native_handle = std::make_unique<MockChannel>(m_core);
       }
 };
@@ -122,8 +124,8 @@ class AsioStream : public Botan::TLS::Stream<TestStream, MockChannel> {
 class ThrowingAsioStream : public Botan::TLS::Stream<TestStream, ThrowingMockChannel> {
    public:
       template <typename... Args>
-      ThrowingAsioStream(std::shared_ptr<Botan::TLS::Context> context, Args&&... args) :
-            Stream(context, std::forward<Args>(args)...) {
+      explicit ThrowingAsioStream(std::shared_ptr<Botan::TLS::Context> context, Args&&... args) :
+            Stream(std::move(context), std::forward<Args>(args)...) {
          m_native_handle = std::make_unique<ThrowingMockChannel>(m_core);
       }
 };
@@ -131,8 +133,8 @@ class ThrowingAsioStream : public Botan::TLS::Stream<TestStream, ThrowingMockCha
 class CancellingAsioStream : public Botan::TLS::Stream<TestStream, CancellingMockChannel> {
    public:
       template <typename... Args>
-      CancellingAsioStream(std::shared_ptr<Botan::TLS::Context> context, Args&&... args) :
-            Stream(context, std::forward<Args>(args)...) {
+      explicit CancellingAsioStream(std::shared_ptr<Botan::TLS::Context> context, Args&&... args) :
+            Stream(std::move(context), std::forward<Args>(args)...) {
          m_native_handle = std::make_unique<CancellingMockChannel>(m_core);
       }
 };
@@ -168,7 +170,7 @@ class Asio_Stream_Tests final : public Test {
          ssl.handshake(Botan::TLS::Connection_Side::Client);
 
          Test::Result result("sync TLS handshake");
-         result.test_eq("feeds data into channel until active", ssl.native_handle()->is_active(), true);
+         result.test_is_true("feeds data into channel until active", ssl.native_handle()->is_active());
          results.push_back(result);
       }
 
@@ -189,8 +191,8 @@ class Asio_Stream_Tests final : public Test {
          ssl.handshake(Botan::TLS::Connection_Side::Client, ec);
 
          Test::Result result("sync TLS handshake error");
-         result.test_eq("does not activate channel", ssl.native_handle()->is_active(), false);
-         result.confirm("propagates error code", ec == net::error::no_recovery);
+         result.test_is_false("does not activate channel", ssl.native_handle()->is_active());
+         result.test_is_true("propagates error code", ec == net::error::no_recovery);
          results.push_back(result);
       }
 
@@ -209,9 +211,9 @@ class Asio_Stream_Tests final : public Test {
          ssl.handshake(Botan::TLS::Connection_Side::Client, ec);
 
          Test::Result result("sync TLS handshake cancellation");
-         result.test_eq("does not activate channel", ssl.native_handle()->is_active(), false);
-         result.test_eq("does not finish handshake", ssl.native_handle()->is_handshake_complete(), false);
-         result.confirm("cancelled handshake means EOF", ec == net::error::eof);
+         result.test_is_false("does not activate channel", ssl.native_handle()->is_active());
+         result.test_is_false("does not finish handshake", ssl.native_handle()->is_handshake_complete());
+         result.test_is_true("cancelled handshake means EOF", ec == net::error::eof);
          results.push_back(result);
       }
 
@@ -227,8 +229,8 @@ class Asio_Stream_Tests final : public Test {
          ssl.handshake(Botan::TLS::Connection_Side::Client, ec);
 
          Test::Result result("sync TLS handshake error");
-         result.test_eq("does not activate channel", ssl.native_handle()->is_active(), false);
-         result.confirm("propagates error code", ec == ThrowingMockChannel::expected_ec());
+         result.test_is_false("does not activate channel", ssl.native_handle()->is_active());
+         result.test_is_true("propagates error code", ec == ThrowingMockChannel::expected_ec());
          results.push_back(result);
       }
 
@@ -246,9 +248,9 @@ class Asio_Stream_Tests final : public Test {
          Test::Result result("async TLS handshake");
 
          auto handler = [&](const error_code&) {
-            result.confirm("reads from socket", ssl.next_layer().nread() > 0);
-            result.confirm("writes from socket", ssl.next_layer().nwrite() > 0);
-            result.test_eq("feeds data into channel until active", ssl.native_handle()->is_active(), true);
+            result.test_is_true("reads from socket", ssl.next_layer().nread() > 0);
+            result.test_is_true("writes from socket", ssl.next_layer().nwrite() > 0);
+            result.test_is_true("feeds data into channel until active", ssl.native_handle()->is_active());
          };
 
          ssl.async_handshake(Botan::TLS::Connection_Side::Client, handler);
@@ -274,8 +276,8 @@ class Asio_Stream_Tests final : public Test {
          Test::Result result("async TLS handshake error");
 
          auto handler = [&](const error_code& ec) {
-            result.test_eq("does not activate channel", ssl.native_handle()->is_active(), false);
-            result.confirm("propagates error code", ec == net::error::no_recovery);
+            result.test_is_false("does not activate channel", ssl.native_handle()->is_active());
+            result.test_is_true("propagates error code", ec == net::error::no_recovery);
          };
 
          ssl.async_handshake(Botan::TLS::Connection_Side::Client, handler);
@@ -298,9 +300,9 @@ class Asio_Stream_Tests final : public Test {
          Test::Result result("async TLS handshake cancellation");
 
          auto handler = [&](const error_code& ec) {
-            result.test_eq("does not activate channel", ssl.native_handle()->is_active(), false);
-            result.test_eq("does not finish handshake", ssl.native_handle()->is_handshake_complete(), false);
-            result.confirm("cancelled handshake means EOF", ec == net::error::eof);
+            result.test_is_false("does not activate channel", ssl.native_handle()->is_active());
+            result.test_is_false("does not finish handshake", ssl.native_handle()->is_handshake_complete());
+            result.test_is_true("cancelled handshake means EOF", ec == net::error::eof);
          };
 
          ssl.async_handshake(Botan::TLS::Connection_Side::Client, handler);
@@ -320,8 +322,8 @@ class Asio_Stream_Tests final : public Test {
          Test::Result result("async TLS handshake throw");
 
          auto handler = [&](const error_code& ec) {
-            result.test_eq("does not activate channel", ssl.native_handle()->is_active(), false);
-            result.confirm("propagates error code", ec == ThrowingMockChannel::expected_ec());
+            result.test_is_false("does not activate channel", ssl.native_handle()->is_active());
+            result.test_is_true("propagates error code", ec == ThrowingMockChannel::expected_ec());
          };
 
          ssl.async_handshake(Botan::TLS::Connection_Side::Client, handler);
@@ -343,9 +345,9 @@ class Asio_Stream_Tests final : public Test {
          auto bytes_transferred = net::read(ssl, net::mutable_buffer(buf, sizeof(buf)), ec);
 
          Test::Result result("sync read_some success");
-         result.confirm("reads the correct data", contains(buf, TEST_DATA, buf_size));
-         result.test_eq("reads the correct amount of data", bytes_transferred, buf_size);
-         result.confirm("does not report an error", !ec);
+         result.test_is_true("reads the correct data", contains(buf, TEST_DATA, buf_size));
+         result.test_sz_eq("reads the correct amount of data", bytes_transferred, buf_size);
+         result.test_is_true("does not report an error", !ec);
 
          results.push_back(result);
       }
@@ -367,11 +369,11 @@ class Asio_Stream_Tests final : public Test {
 
          Test::Result result("sync read_some buffer sequence");
 
-         result.confirm("reads the correct data",
-                        contains(buf1, TEST_DATA, TEST_DATA_SIZE / 2) &&
-                           contains(buf2, TEST_DATA + TEST_DATA_SIZE / 2, TEST_DATA_SIZE / 2));
-         result.test_eq("reads the correct amount of data", bytes_transferred, TEST_DATA_SIZE);
-         result.confirm("does not report an error", !ec);
+         result.test_is_true("reads the correct data",
+                             contains(buf1, TEST_DATA, TEST_DATA_SIZE / 2) &&
+                                contains(buf2, TEST_DATA + TEST_DATA_SIZE / 2, TEST_DATA_SIZE / 2));
+         result.test_sz_eq("reads the correct amount of data", bytes_transferred, TEST_DATA_SIZE);
+         result.test_is_true("does not report an error", !ec);
 
          results.push_back(result);
       }
@@ -392,8 +394,8 @@ class Asio_Stream_Tests final : public Test {
          auto bytes_transferred = net::read(ssl, net::mutable_buffer(buf, sizeof(buf)), ec);
 
          Test::Result result("sync read_some error");
-         result.test_eq("didn't transfer anything", bytes_transferred, 0);
-         result.confirm("propagates error code", ec == net::error::no_recovery);
+         result.test_sz_eq("didn't transfer anything", bytes_transferred, 0);
+         result.test_is_true("propagates error code", ec == net::error::no_recovery);
 
          results.push_back(result);
       }
@@ -412,8 +414,8 @@ class Asio_Stream_Tests final : public Test {
          auto bytes_transferred = net::read(ssl, net::mutable_buffer(buf, sizeof(buf)), ec);
 
          Test::Result result("sync read_some throw");
-         result.test_eq("didn't transfer anything", bytes_transferred, 0);
-         result.confirm("propagates error code", ec == ThrowingMockChannel::expected_ec());
+         result.test_sz_eq("didn't transfer anything", bytes_transferred, 0);
+         result.test_is_true("propagates error code", ec == ThrowingMockChannel::expected_ec());
 
          results.push_back(result);
       }
@@ -431,31 +433,31 @@ class Asio_Stream_Tests final : public Test {
          auto bytes_transferred = net::read(ssl, net::mutable_buffer(buf, std::size_t(0)), ec);
 
          Test::Result result("sync read_some into zero-size buffer");
-         result.test_eq("reads the correct amount of data", bytes_transferred, 0);
+         result.test_sz_eq("reads the correct amount of data", bytes_transferred, 0);
          // This relies on an implementation detail of TestStream: A "real" asio::tcp::stream
          // would block here. TestStream sets error_code::eof.
-         result.confirm("does not report an error", !ec);
+         result.test_is_true("does not report an error", !ec);
 
          results.push_back(result);
       }
 
       void test_async_read_some_success(std::vector<Test::Result>& results) {
          net::io_context ioc;
-         TestStream remote{ioc};
+         const TestStream remote{ioc};
 
          auto ctx = get_context();
          AsioStream ssl(ctx, ioc, test_data());
-         uint8_t data[TEST_DATA_SIZE];
+         uint8_t data[TEST_DATA_SIZE]{};
 
          Test::Result result("async read_some success");
 
          auto read_handler = [&](const error_code& ec, std::size_t bytes_transferred) {
-            result.confirm("reads the correct data", contains(data, TEST_DATA, TEST_DATA_SIZE));
-            result.test_eq("reads the correct amount of data", bytes_transferred, TEST_DATA_SIZE);
-            result.confirm("does not report an error", !ec);
+            result.test_is_true("reads the correct data", contains(data, TEST_DATA, TEST_DATA_SIZE));
+            result.test_sz_eq("reads the correct amount of data", bytes_transferred, TEST_DATA_SIZE);
+            result.test_is_true("does not report an error", !ec);
          };
 
-         net::mutable_buffer buf{data, TEST_DATA_SIZE};
+         const net::mutable_buffer buf{data, TEST_DATA_SIZE};
          net::async_read(ssl, buf, read_handler);
 
          ssl.next_layer().close_remote();
@@ -477,11 +479,11 @@ class Asio_Stream_Tests final : public Test {
          Test::Result result("async read_some buffer sequence");
 
          auto read_handler = [&](const error_code& ec, std::size_t bytes_transferred) {
-            result.confirm("reads the correct data",
-                           contains(buf1, TEST_DATA, TEST_DATA_SIZE / 2) &&
-                              contains(buf2, TEST_DATA + TEST_DATA_SIZE / 2, TEST_DATA_SIZE / 2));
-            result.test_eq("reads the correct amount of data", bytes_transferred, TEST_DATA_SIZE);
-            result.confirm("does not report an error", !ec);
+            result.test_is_true("reads the correct data",
+                                contains(buf1, TEST_DATA, TEST_DATA_SIZE / 2) &&
+                                   contains(buf2, TEST_DATA + TEST_DATA_SIZE / 2, TEST_DATA_SIZE / 2));
+            result.test_sz_eq("reads the correct amount of data", bytes_transferred, TEST_DATA_SIZE);
+            result.test_is_true("does not report an error", !ec);
          };
 
          net::async_read(ssl, data, read_handler);
@@ -502,11 +504,11 @@ class Asio_Stream_Tests final : public Test {
          Test::Result result("async read_some error");
 
          auto read_handler = [&](const error_code& ec, std::size_t bytes_transferred) {
-            result.test_eq("didn't transfer anything", bytes_transferred, 0);
-            result.confirm("propagates error code", ec == net::error::no_recovery);
+            result.test_sz_eq("didn't transfer anything", bytes_transferred, 0);
+            result.test_is_true("propagates error code", ec == net::error::no_recovery);
          };
 
-         net::mutable_buffer buf{data, TEST_DATA_SIZE};
+         const net::mutable_buffer buf{data, TEST_DATA_SIZE};
          net::async_read(ssl, buf, read_handler);
 
          ssl.next_layer().close_remote();
@@ -523,11 +525,11 @@ class Asio_Stream_Tests final : public Test {
          Test::Result result("async read_some throw");
 
          auto read_handler = [&](const error_code& ec, std::size_t bytes_transferred) {
-            result.test_eq("didn't transfer anything", bytes_transferred, 0);
-            result.confirm("propagates error code", ec == ThrowingMockChannel::expected_ec());
+            result.test_sz_eq("didn't transfer anything", bytes_transferred, 0);
+            result.test_is_true("propagates error code", ec == ThrowingMockChannel::expected_ec());
          };
 
-         net::mutable_buffer buf{data, TEST_DATA_SIZE};
+         const net::mutable_buffer buf{data, TEST_DATA_SIZE};
          net::async_read(ssl, buf, read_handler);
 
          ssl.next_layer().close_remote();
@@ -537,7 +539,7 @@ class Asio_Stream_Tests final : public Test {
 
       void test_async_read_zero_buffer(std::vector<Test::Result>& results) {
          net::io_context ioc;
-         TestStream remote{ioc};
+         const TestStream remote{ioc};
 
          auto ctx = get_context();
          AsioStream ssl(ctx, ioc);
@@ -546,13 +548,13 @@ class Asio_Stream_Tests final : public Test {
          Test::Result result("async read_some into zero-size buffer");
 
          auto read_handler = [&](const error_code& ec, std::size_t bytes_transferred) {
-            result.test_eq("reads the correct amount of data", bytes_transferred, 0);
+            result.test_sz_eq("reads the correct amount of data", bytes_transferred, 0);
             // This relies on an implementation detail of TestStream: A "real" asio::tcp::stream
             // would block here. TestStream sets error_code::eof.
-            result.confirm("does not report an error", !ec);
+            result.test_is_true("does not report an error", !ec);
          };
 
-         net::mutable_buffer buf{data, std::size_t(0)};
+         const net::mutable_buffer buf{data, std::size_t(0)};
          net::async_read(ssl, buf, read_handler);
 
          ssl.next_layer().close_remote();
@@ -572,9 +574,9 @@ class Asio_Stream_Tests final : public Test {
          auto bytes_transferred = net::write(ssl, net::const_buffer(TEST_DATA, TEST_DATA_SIZE), ec);
 
          Test::Result result("sync write_some success");
-         result.confirm("writes the correct data", remote.str() == test_data());
-         result.test_eq("writes the correct amount of data", bytes_transferred, TEST_DATA_SIZE);
-         result.confirm("does not report an error", !ec);
+         result.test_is_true("writes the correct data", remote.str() == test_data());
+         result.test_sz_eq("writes the correct amount of data", bytes_transferred, TEST_DATA_SIZE);
+         result.test_is_true("does not report an error", !ec);
 
          results.push_back(result);
       }
@@ -591,7 +593,7 @@ class Asio_Stream_Tests final : public Test {
          net::write(ssl, net::const_buffer(TEST_DATA, TEST_DATA_SIZE), ec);
 
          Test::Result result("sync write_some without handshake fails gracefully");
-         result.confirm("reports an error", ec.failed());
+         result.test_is_true("reports an error", ec.failed());
 
          results.push_back(result);
       }
@@ -606,7 +608,7 @@ class Asio_Stream_Tests final : public Test {
          error_code ec;
 
          // this should be Botan::TLS::MAX_PLAINTEXT_SIZE + 1024 + 1
-         std::array<uint8_t, 17 * 1024 + 1> random_data;
+         std::array<uint8_t, 17 * 1024 + 1> random_data{};
          random_data.fill('4');  // chosen by fair dice roll
          random_data.back() = '5';
 
@@ -620,14 +622,14 @@ class Asio_Stream_Tests final : public Test {
 
          Test::Result result("sync write_some buffer sequence");
 
-         result.confirm("[precondition] MAX_PLAINTEXT_SIZE is still smaller than random_data.size()",
-                        Botan::TLS::MAX_PLAINTEXT_SIZE < random_data.size());
+         result.test_is_true("[precondition] MAX_PLAINTEXT_SIZE is still smaller than random_data.size()",
+                             Botan::TLS::MAX_PLAINTEXT_SIZE < random_data.size());
 
-         result.confirm("writes the correct data",
-                        contains(remote.buffer().data().data(), random_data.data(), random_data.size()));
-         result.test_eq("writes the correct amount of data", bytes_transferred, random_data.size());
-         result.test_eq("correct number of writes", ssl.next_layer().nwrite(), 2);
-         result.confirm("does not report an error", !ec);
+         result.test_is_true("writes the correct data",
+                             contains(remote.buffer().data().data(), random_data.data(), random_data.size()));
+         result.test_sz_eq("writes the correct amount of data", bytes_transferred, random_data.size());
+         result.test_sz_eq("correct number of writes", ssl.next_layer().nwrite(), 2);
+         result.test_is_true("does not report an error", !ec);
 
          results.push_back(result);
       }
@@ -647,8 +649,8 @@ class Asio_Stream_Tests final : public Test {
          auto bytes_transferred = net::write(ssl, net::const_buffer(TEST_DATA, TEST_DATA_SIZE), ec);
 
          Test::Result result("sync write_some error");
-         result.test_eq("didn't transfer anything", bytes_transferred, 0);
-         result.confirm("propagates error code", ec == net::error::no_recovery);
+         result.test_sz_eq("didn't transfer anything", bytes_transferred, 0);
+         result.test_is_true("propagates error code", ec == net::error::no_recovery);
 
          results.push_back(result);
       }
@@ -665,8 +667,8 @@ class Asio_Stream_Tests final : public Test {
          auto bytes_transferred = net::write(ssl, net::const_buffer(TEST_DATA, TEST_DATA_SIZE), ec);
 
          Test::Result result("sync write_some throw");
-         result.test_eq("didn't transfer anything", bytes_transferred, 0);
-         result.confirm("propagates error code", ec == ThrowingMockChannel::expected_ec());
+         result.test_sz_eq("didn't transfer anything", bytes_transferred, 0);
+         result.test_is_true("propagates error code", ec == ThrowingMockChannel::expected_ec());
 
          results.push_back(result);
       }
@@ -682,9 +684,9 @@ class Asio_Stream_Tests final : public Test {
          Test::Result result("async write_some success");
 
          auto write_handler = [&](const error_code& ec, std::size_t bytes_transferred) {
-            result.confirm("writes the correct data", remote.str() == test_data());
-            result.test_eq("writes the correct amount of data", bytes_transferred, TEST_DATA_SIZE);
-            result.confirm("does not report an error", !ec);
+            result.test_is_true("writes the correct data", remote.str() == test_data());
+            result.test_sz_eq("writes the correct amount of data", bytes_transferred, TEST_DATA_SIZE);
+            result.test_is_true("does not report an error", !ec);
          };
 
          net::async_write(ssl, net::const_buffer(TEST_DATA, TEST_DATA_SIZE), write_handler);
@@ -702,7 +704,7 @@ class Asio_Stream_Tests final : public Test {
          ssl.next_layer().connect(remote);
 
          // this should be Botan::TLS::MAX_PLAINTEXT_SIZE + 1024 + 1
-         std::array<uint8_t, 17 * 1024 + 1> random_data;
+         std::array<uint8_t, 17 * 1024 + 1> random_data{};
          random_data.fill('4');  // chosen by fair dice roll
          random_data.back() = '5';
 
@@ -714,15 +716,15 @@ class Asio_Stream_Tests final : public Test {
 
          Test::Result result("async write_some buffer sequence");
 
-         result.confirm("[precondition] MAX_PLAINTEXT_SIZE is still smaller than random_data.size()",
-                        Botan::TLS::MAX_PLAINTEXT_SIZE < random_data.size());
+         result.test_is_true("[precondition] MAX_PLAINTEXT_SIZE is still smaller than random_data.size()",
+                             Botan::TLS::MAX_PLAINTEXT_SIZE < random_data.size());
 
          auto write_handler = [&](const error_code& ec, std::size_t bytes_transferred) {
-            result.confirm("writes the correct data",
-                           contains(remote.buffer().data().data(), random_data.data(), random_data.size()));
-            result.test_eq("writes the correct amount of data", bytes_transferred, random_data.size());
-            result.test_eq("correct number of writes", ssl.next_layer().nwrite(), 2);
-            result.confirm("does not report an error", !ec);
+            result.test_is_true("writes the correct data",
+                                contains(remote.buffer().data().data(), random_data.data(), random_data.size()));
+            result.test_sz_eq("writes the correct amount of data", bytes_transferred, random_data.size());
+            result.test_sz_eq("correct number of writes", ssl.next_layer().nwrite(), 2);
+            result.test_is_true("does not report an error", !ec);
          };
 
          net::async_write(ssl, src, write_handler);
@@ -744,8 +746,8 @@ class Asio_Stream_Tests final : public Test {
          Test::Result result("async write_some error");
 
          auto write_handler = [&](const error_code& ec, std::size_t bytes_transferred) {
-            result.test_eq("committed some bytes to the core", bytes_transferred, TEST_DATA_SIZE);
-            result.confirm("propagates error code", ec == net::error::no_recovery);
+            result.test_sz_eq("committed some bytes to the core", bytes_transferred, TEST_DATA_SIZE);
+            result.test_is_true("propagates error code", ec == net::error::no_recovery);
          };
 
          net::async_write(ssl, net::const_buffer(TEST_DATA, TEST_DATA_SIZE), write_handler);
@@ -765,8 +767,8 @@ class Asio_Stream_Tests final : public Test {
          Test::Result result("async write_some throw");
 
          auto write_handler = [&](const error_code& ec, std::size_t bytes_transferred) {
-            result.test_eq("didn't transfer anything", bytes_transferred, 0);
-            result.confirm("propagates error code", ec == ThrowingMockChannel::expected_ec());
+            result.test_sz_eq("didn't transfer anything", bytes_transferred, 0);
+            result.test_is_true("propagates error code", ec == ThrowingMockChannel::expected_ec());
          };
 
          net::async_write(ssl, net::const_buffer(TEST_DATA, TEST_DATA_SIZE), write_handler);

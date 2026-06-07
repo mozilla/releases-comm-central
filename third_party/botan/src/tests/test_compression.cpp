@@ -8,6 +8,8 @@
 
 #if defined(BOTAN_HAS_COMPRESSION)
    #include <botan/compression.h>
+   #include <botan/rng.h>
+   #include <cstring>
 #endif
 
 namespace Botan_Tests {
@@ -58,7 +60,7 @@ class Compression_Tests final : public Test {
          std::vector<Test::Result> results;
          const size_t text_len = std::strlen(COMPRESSION_TEST_TEXT);
 
-         for(std::string algo : {"zlib", "deflate", "gzip", "bz2", "lzma"}) {
+         for(const std::string algo : {"zlib", "deflate", "gzip", "bz2", "lzma"}) {
             try {
                Test::Result result(algo + " compression");
 
@@ -72,7 +74,7 @@ class Compression_Tests final : public Test {
                   continue;
                }
 
-               result.test_ne("Not the same name", c->name(), d->name());
+               result.test_str_ne("Not the same name", c->name(), d->name());
 
                const Botan::secure_vector<uint8_t> empty;
                const Botan::secure_vector<uint8_t> all_zeros(text_len, 0);
@@ -93,20 +95,21 @@ class Compression_Tests final : public Test {
                const size_t c1_s = run_compression(result, 1, *c, *d, short_text);
                const size_t c9_s = run_compression(result, 9, *c, *d, short_text);
 
-               result.test_gte("Empty input L1 compresses to non-empty output", c1_e, 1);
-               result.test_gte("Empty input L9 compresses to non-empty output", c9_e, 1);
+               result.test_sz_gte("Empty input L1 compresses to non-empty output", c1_e, 1);
+               result.test_sz_gte("Empty input L9 compresses to non-empty output", c9_e, 1);
 
                // We assume that Level 9 is better than Level 1, but this is not
                // guaranteed (see GitHub #3896). Hence, we assert that level 9
                // it is at most 10% worse than level 1.
-               result.test_gte("Level 9 compresses empty at least as well as level 1", c1_e + (c1_e / 10), c9_e);
-               result.test_gte("Level 9 compresses zeros at least as well as level 1", c1_z + (c1_z / 10), c9_z);
-               result.test_gte("Level 9 compresses random at least as well as level 1", c1_r + (c1_r / 10), c9_r);
-               result.test_gte("Level 9 compresses text at least as well as level 1", c1_t + (c1_t / 10), c9_t);
-               result.test_gte("Level 9 compresses short text at least as well as level 1", c1_s + (c1_s / 10), c9_s);
+               result.test_sz_gte("Level 9 compresses empty at least as well as level 1", c1_e + (c1_e / 10), c9_e);
+               result.test_sz_gte("Level 9 compresses zeros at least as well as level 1", c1_z + (c1_z / 10), c9_z);
+               result.test_sz_gte("Level 9 compresses random at least as well as level 1", c1_r + (c1_r / 10), c9_r);
+               result.test_sz_gte("Level 9 compresses text at least as well as level 1", c1_t + (c1_t / 10), c9_t);
+               result.test_sz_gte(
+                  "Level 9 compresses short text at least as well as level 1", c1_s + (c1_s / 10), c9_s);
 
-               result.test_lt("Zeros compresses much better than text", c1_z / 8, c1_t);
-               result.test_lt("Text compresses much better than random", c1_t / 2, c1_r);
+               result.test_sz_lt("Zeros compresses much better than text", c1_z / 8, c1_t);
+               result.test_sz_lt("Text compresses much better than random", c1_t / 2, c1_r);
 
                result.end_timer();
 
@@ -128,7 +131,7 @@ class Compression_Tests final : public Test {
                              const Botan::secure_vector<uint8_t>& msg) {
          Botan::secure_vector<uint8_t> compressed(2 * msg.size());
 
-         for(bool with_flush : {true, false}) {
+         for(const bool with_flush : {true, false}) {
             try {
                compressed = msg;
 
@@ -154,7 +157,7 @@ class Compression_Tests final : public Test {
 
                decompressed += final_outputs;
 
-               result.test_eq("compression round tripped", msg, decompressed);
+               result.test_bin_eq("compression round tripped", msg, decompressed);
             } catch(Botan::Exception& e) {
                result.test_failure(e.what());
             }
@@ -171,7 +174,7 @@ class CompressionCreate_Tests final : public Test {
       std::vector<Test::Result> run() override {
          std::vector<Test::Result> results;
 
-         for(std::string algo : {"zlib", "deflate", "gzip", "bz2", "lzma"}) {
+         for(const std::string algo : {"zlib", "deflate", "gzip", "bz2", "lzma"}) {
             try {
                Test::Result result(algo + " create compression");
 
@@ -182,7 +185,7 @@ class CompressionCreate_Tests final : public Test {
                   result.note_missing(algo);
                   continue;
                }
-               result.test_ne("Not the same name after create", c1->name(), d1->name());
+               result.test_str_ne("Not the same name after create", c1->name(), d1->name());
 
                auto c2 = Botan::Compression_Algorithm::create_or_throw(algo);
                auto d2 = Botan::Decompression_Algorithm::create_or_throw(algo);
@@ -191,7 +194,7 @@ class CompressionCreate_Tests final : public Test {
                   result.note_missing(algo);
                   continue;
                }
-               result.test_ne("Not the same name after create_or_throw", c2->name(), d2->name());
+               result.test_str_ne("Not the same name after create_or_throw", c2->name(), d2->name());
 
                results.emplace_back(result);
             } catch(std::exception& e) {

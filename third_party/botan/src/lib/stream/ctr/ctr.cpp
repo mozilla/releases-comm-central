@@ -12,6 +12,10 @@
 #include <botan/internal/fmt.h>
 #include <botan/internal/loadstor.h>
 
+#if defined(BOTAN_HAS_CTR_BE_AVX2) || defined(BOTAN_HAS_CTR_BE_SIMD32)
+   #include <botan/internal/cpuid.h>
+#endif
+
 namespace Botan {
 
 CTR_BE::CTR_BE(std::unique_ptr<BlockCipher> cipher) :
@@ -84,8 +88,10 @@ std::string CTR_BE::name() const {
 void CTR_BE::cipher_bytes(const uint8_t in[], uint8_t out[], size_t length) {
    assert_key_material_set();
 
-   const uint8_t* pad_bits = &m_pad[0];
+   const uint8_t* pad_bits = m_pad.data();
    const size_t pad_size = m_pad.size();
+
+   /* Consume any already computed keystream in m_pad */
 
    if(m_pad_pos > 0) {
       const size_t avail = pad_size - m_pad_pos;
@@ -103,6 +109,28 @@ void CTR_BE::cipher_bytes(const uint8_t in[], uint8_t out[], size_t length) {
       }
    }
 
+   /* Bulk processing */
+
+   [[maybe_unused]] const bool can_use_bs16_ctr4_fastpath = m_block_size == 16 && m_ctr_size == 4 && pad_size % 64 == 0;
+
+#if defined(BOTAN_HAS_CTR_BE_AVX2)
+   if(length >= pad_size && can_use_bs16_ctr4_fastpath && CPUID::has(CPUID::Feature::AVX2)) {
+      const size_t consumed = ctr_proc_bs16_ctr4_avx2(in, out, length);
+      in += consumed;
+      out += consumed;
+      length -= consumed;
+   }
+#endif
+
+#if defined(BOTAN_HAS_CTR_BE_SIMD32)
+   if(length >= pad_size && can_use_bs16_ctr4_fastpath && CPUID::has(CPUID::Feature::SIMD_4X32)) {
+      const size_t consumed = ctr_proc_bs16_ctr4_simd32(in, out, length);
+      in += consumed;
+      out += consumed;
+      length -= consumed;
+   }
+#endif
+
    while(length >= pad_size) {
       xor_buf(out, in, pad_bits, pad_size);
       length -= pad_size;
@@ -113,8 +141,11 @@ void CTR_BE::cipher_bytes(const uint8_t in[], uint8_t out[], size_t length) {
       m_cipher->encrypt_n(m_counter.data(), m_pad.data(), m_ctr_blocks);
    }
 
-   xor_buf(out, in, pad_bits, length);
-   m_pad_pos += length;
+   /* Now if length > 0 then we have some remaining text, and m_pad is full - consume as required */
+   if(length > 0) {
+      xor_buf(out, in, pad_bits, length);
+      m_pad_pos = length;
+   }
 }
 
 void CTR_BE::generate_keystream(uint8_t out[], size_t length) {
@@ -141,7 +172,7 @@ void CTR_BE::generate_keystream(uint8_t out[], size_t length) {
       m_pad_pos = 0;
    }
 
-   copy_mem(out, &m_pad[0], length);
+   copy_mem(out, m_pad.data(), length);
    m_pad_pos += length;
    BOTAN_ASSERT_NOMSG(m_pad_pos < m_pad.size());
 }
@@ -153,7 +184,7 @@ void CTR_BE::set_iv_bytes(const uint8_t iv[], size_t iv_len) {
 
    m_iv.resize(m_block_size);
    zeroise(m_iv);
-   copy_mem(&m_iv[0], iv, iv_len);
+   copy_mem(m_iv.data(), iv, iv_len);
 
    seek(0);
 }
@@ -188,13 +219,15 @@ void CTR_BE::add_counter(const uint64_t counter) {
          store_be(b0, &m_counter[i * BS + off]);
          store_be(b1, &m_counter[i * BS + off + 8]);
          b1 += 1;
-         b0 += (b1 == 0);  // carry
+         if(b1 == 0) {
+            b0 += 1;  // carry
+         }
       }
    } else {
       for(size_t i = 0; i != ctr_blocks; ++i) {
          uint64_t local_counter = counter;
          uint16_t carry = static_cast<uint8_t>(local_counter);
-         for(size_t j = 0; (carry || local_counter) && j != ctr_size; ++j) {
+         for(size_t j = 0; (carry > 0 || local_counter > 0) && j != ctr_size; ++j) {
             const size_t off = i * BS + (BS - 1 - j);
             const uint16_t cnt = static_cast<uint16_t>(m_counter[off]) + carry;
             m_counter[off] = static_cast<uint8_t>(cnt);
@@ -212,7 +245,7 @@ void CTR_BE::seek(uint64_t offset) {
 
    zeroise(m_counter);
    BOTAN_ASSERT_NOMSG(m_counter.size() >= m_iv.size());
-   copy_mem(&m_counter[0], &m_iv[0], m_iv.size());
+   copy_mem(m_counter.data(), m_iv.data(), m_iv.size());
 
    const size_t BS = m_block_size;
 
@@ -224,12 +257,12 @@ void CTR_BE::seek(uint64_t offset) {
       if(m_ctr_blocks >= 4 && is_power_of_2(m_ctr_blocks)) {
          size_t written = 1;
          while(written < m_ctr_blocks) {
-            copy_mem(&m_counter[written * BS], &m_counter[0], BS * written);
+            copy_mem(&m_counter[written * BS], &m_counter[0], BS * written);  // NOLINT(*container-data-pointer)
             written *= 2;
          }
       } else {
          for(size_t i = 1; i != m_ctr_blocks; ++i) {
-            copy_mem(&m_counter[i * BS], &m_counter[0], BS - 4);
+            copy_mem(&m_counter[i * BS], &m_counter[0], BS - 4);  // NOLINT(*container-data-pointer)
          }
       }
 
@@ -243,7 +276,9 @@ void CTR_BE::seek(uint64_t offset) {
          copy_mem(&m_counter[i * BS], &m_counter[(i - 1) * BS], BS);
 
          for(size_t j = 0; j != m_ctr_size; ++j) {
-            if(++m_counter[i * BS + (BS - 1 - j)]) {
+            uint8_t& c = m_counter[i * BS + (BS - 1 - j)];
+            c += 1;
+            if(c > 0) {
                break;
             }
          }

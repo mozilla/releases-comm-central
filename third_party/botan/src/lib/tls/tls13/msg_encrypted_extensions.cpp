@@ -6,16 +6,19 @@
 * Botan is released under the Simplified BSD License (see license.txt)
 */
 
-#include <botan/tls_messages.h>
+#include <botan/tls_messages_13.h>
 
 #include <botan/tls_callbacks.h>
 #include <botan/tls_exceptn.h>
+#include <botan/tls_policy.h>
 #include <botan/internal/tls_reader.h>
 
 namespace Botan::TLS {
 
 Encrypted_Extensions::Encrypted_Extensions(const Client_Hello_13& client_hello, const Policy& policy, Callbacks& cb) {
    const auto& exts = client_hello.extensions();
+
+   // NOLINTBEGIN(*-owning-memory)
 
    // RFC 8446 4.2.7
    //    As of TLS 1.3, servers are permitted to send the "supported_groups"
@@ -52,8 +55,8 @@ Encrypted_Extensions::Encrypted_Extensions(const Client_Hello_13& client_hello, 
    //    If the server does not send a certificate_request payload [...],
    //    then the client_certificate_type payload in the server hello MUST be
    //    omitted.
-   if(auto ch_client_cert_types = exts.get<Client_Certificate_Type>();
-      ch_client_cert_types && policy.request_client_certificate_authentication()) {
+   if(auto* ch_client_cert_types = exts.get<Client_Certificate_Type>();
+      ch_client_cert_types != nullptr && policy.request_client_certificate_authentication()) {
       m_extensions.add(new Client_Certificate_Type(*ch_client_cert_types, policy));
    }
 
@@ -63,7 +66,7 @@ Encrypted_Extensions::Encrypted_Extensions(const Client_Hello_13& client_hello, 
    //    the server in a subsequent certificate payload. [...] With the
    //    server_certificate_type extension in the server hello, the TLS server
    //    indicates the certificate type carried in the Certificate payload.
-   if(auto ch_server_cert_types = exts.get<Server_Certificate_Type>()) {
+   if(auto* ch_server_cert_types = exts.get<Server_Certificate_Type>()) {
       m_extensions.add(new Server_Certificate_Type(*ch_server_cert_types, policy));
    }
 
@@ -76,12 +79,14 @@ Encrypted_Extensions::Encrypted_Extensions(const Client_Hello_13& client_hello, 
       m_extensions.add(new Server_Name_Indicator(""));
    }
 
-   if(auto alpn_ext = exts.get<Application_Layer_Protocol_Notification>()) {
+   if(auto* alpn_ext = exts.get<Application_Layer_Protocol_Notification>()) {
       const auto next_protocol = cb.tls_server_choose_app_protocol(alpn_ext->protocols());
       if(!next_protocol.empty()) {
          m_extensions.add(new Application_Layer_Protocol_Notification(next_protocol));
       }
    }
+
+   // NOLINTEND(*-owning-memory)
 
    // TODO: Implement handling for (at least)
    //       * SRTP

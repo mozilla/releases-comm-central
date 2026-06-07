@@ -26,13 +26,14 @@ constexpr std::optional<T> operator+(const std::optional<T>& a, const std::optio
 }  // namespace
 
 TestSummary::TestSummary(const Test::Result& result) :
-      name(result.who()),
-      code_location(result.code_location()),
-      assertions(result.tests_run()),
-      notes(result.notes()),
-      failures(result.failures()),
-      timestamp(result.timestamp()),
-      elapsed_time(result.elapsed_time()) {}
+      m_name(result.who()),
+      m_code_location(result.code_location()),
+      m_assertions(result.tests_run()),
+      m_notes(result.notes()),
+      m_failures(result.failures()),
+      m_timestamp(
+         std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::nanoseconds(result.timestamp()))),
+      m_elapsed_time(result.elapsed_time()) {}
 
 Testsuite::Testsuite(std::string name) : m_name(std::move(name)) {}
 
@@ -54,7 +55,7 @@ std::chrono::system_clock::time_point Testsuite::timestamp() const {
       m_results.end(),
       std::chrono::system_clock::time_point::max(),
       [](const auto& a, const auto& b) { return std::min(a, b); },
-      [](const auto& result) { return result.timestamp; });
+      [](const auto& result) { return result.timestamp(); });
 }
 
 std::optional<std::chrono::nanoseconds> Testsuite::elapsed_time() const {
@@ -63,7 +64,7 @@ std::optional<std::chrono::nanoseconds> Testsuite::elapsed_time() const {
       m_results.end(),
       std::make_optional(std::chrono::nanoseconds::zero()),
       [](const auto& a, const auto& b) { return a + b; },
-      [](const auto& result) { return result.elapsed_time; });
+      [](const auto& result) { return result.elapsed_time(); });
 }
 
 Reporter::Reporter(const Test_Options& opts) : m_total_test_runs(opts.test_runs()), m_current_test_run(0) {}

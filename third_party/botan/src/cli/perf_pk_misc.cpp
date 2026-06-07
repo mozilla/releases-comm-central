@@ -10,16 +10,20 @@
    #include <botan/assert.h>
    #include <botan/pk_algs.h>
    #include <botan/pkcs8.h>
+   #include <botan/rng.h>
    #include <botan/x509_key.h>
    #include <botan/internal/fmt.h>
 #endif
 
 #if defined(BOTAN_HAS_ECDSA)
+   #include <botan/ec_group.h>
    #include <botan/ecdsa.h>
    #include <botan/pubkey.h>
 #endif
 
 namespace Botan_CLI {
+
+namespace {
 
 #if defined(BOTAN_HAS_PUBLIC_KEY_CRYPTO)
 
@@ -128,7 +132,7 @@ class PerfTest_ECDSAKeyRec final : public PerfTest {
                const uint8_t v = key.recovery_param(message, r, s);
 
                recovery_timer->run([&]() {
-                  Botan::ECDSA_PublicKey recovered_key(group, message, r, s, v);
+                  const Botan::ECDSA_PublicKey recovered_key(group, message, r, s, v);
                   BOTAN_ASSERT(recovered_key.public_key_bits() == key.public_key_bits(),
                                "Recovered public key correctly");
                });
@@ -142,5 +146,7 @@ class PerfTest_ECDSAKeyRec final : public PerfTest {
 BOTAN_REGISTER_PERF_TEST("ecdsa_recovery", PerfTest_ECDSAKeyRec);
 
 #endif
+
+}  // namespace
 
 }  // namespace Botan_CLI

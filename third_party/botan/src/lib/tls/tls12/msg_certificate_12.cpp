@@ -5,18 +5,21 @@
 * Botan is released under the Simplified BSD License (see license.txt)
 */
 
-#include <botan/tls_messages.h>
+#include <botan/tls_messages_12.h>
 
 #include <botan/data_src.h>
 #include <botan/tls_alert.h>
 #include <botan/tls_exceptn.h>
 #include <botan/tls_extensions.h>
+#include <botan/tls_policy.h>
+#include <botan/x509cert.h>
 #include <botan/internal/loadstor.h>
 #include <botan/internal/tls_handshake_hash.h>
 #include <botan/internal/tls_handshake_io.h>
-#include <botan/internal/tls_reader.h>
 
 namespace Botan::TLS {
+
+Certificate_12::~Certificate_12() = default;
 
 /**
 * Create a new Certificate message
@@ -47,7 +50,7 @@ Certificate_12::Certificate_12(const std::vector<uint8_t>& buf, const Policy& po
 
    const uint8_t* certs = buf.data() + 3;
 
-   while(size_t remaining_bytes = buf.data() + buf.size() - certs) {
+   while(const size_t remaining_bytes = buf.data() + buf.size() - certs) {
       if(remaining_bytes < 3) {
          throw Decoding_Error("Certificate: Message malformed");
       }
@@ -97,6 +100,10 @@ std::vector<uint8_t> Certificate_12::serialize() const {
    }
 
    return buf;
+}
+
+size_t Certificate_12::count() const {
+   return m_certs.size();
 }
 
 }  // namespace Botan::TLS

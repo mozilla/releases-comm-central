@@ -36,6 +36,7 @@ default   -> iterator,address
 iterator  -> "-D_GLIBCXX_DEBUG"
 address   -> "-fsanitize=address"
 undefined -> "-fsanitize=undefined -fno-sanitize-recover=undefined"
+thread    -> "-fsanitize=thread"
 </sanitizers>
 
 visibility_build_flags "-fvisibility=hidden"
@@ -69,6 +70,8 @@ ssse3   -> "-mssse3"
 sse41   -> "-msse4.1"
 avx2    -> "-mavx2"
 avx512  -> "-mavx512f -mavx512bw -mavx512dq -mavx512vbmi -mavx512vbmi2 -mavx512bitalg -mavx512vl -mavx512ifma"
+
+avx512_clmul -> "-mavx512f -mavx512bw -mavx512dq -mavx512vbmi -mavx512vbmi2 -mavx512bitalg -mavx512vl -mavx512ifma -mvpclmulqdq"
 
 vaes    -> "-mvaes -mavx2"
 sha512  -> "-msha512 -mavx2"

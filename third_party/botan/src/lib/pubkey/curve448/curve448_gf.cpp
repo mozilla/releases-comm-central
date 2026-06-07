@@ -12,49 +12,9 @@
 #include <botan/internal/mp_asmi.h>
 #include <botan/internal/mp_core.h>
 
-#include <algorithm>
-
 namespace Botan {
 
 namespace {
-
-/**
- * @brief Compute (a + b). The carry is returned in the carry parameter.
- *  The carry is not included for the addition.
- */
-inline uint64_t u64_add(uint64_t a, uint64_t b, bool* carry) {
-   // Let the compiler optimize this into fancy instructions
-   const uint64_t sum = a + b;
-   *carry = sum < a;
-   return sum;
-}
-
-/**
- * @brief Compute (a + b + carry), where carry is in {0, 1}. The carry of this computation
- * is store in the in/out @p carry parameter.
- */
-inline uint64_t u64_add_with_carry(uint64_t a, uint64_t b, bool* carry) {
-   // Let the compiler optimize this into fancy instructions
-   uint64_t sum = a + b;
-   const bool carry_a_plus_b = (sum < a);
-   sum += static_cast<uint64_t>(*carry);
-   *carry = static_cast<uint64_t>(carry_a_plus_b) | static_cast<uint64_t>(sum < static_cast<uint64_t>(*carry));
-   return sum;
-}
-
-/**
- * @brief Compute (a - (b + borrow)). The borrow is returned in the carry parameter.
- *
- * I.e. borrow = 1 if a < b + borrow, else 0.
- */
-inline uint64_t u64_sub_with_borrow(uint64_t a, uint64_t b, bool* borrow) {
-   // Let the compiler optimize this into fancy instructions
-   const uint64_t diff = a - b;
-   const bool borrow_a_min_b = diff > a;
-   const uint64_t z = diff - static_cast<uint64_t>(*borrow);
-   *borrow = static_cast<uint64_t>(borrow_a_min_b) | static_cast<uint64_t>(z > diff);
-   return z;
-}
 
 /**
  * @brief Reduce the result of a addition modulo 2^448 - 2^224 - 1.
@@ -65,28 +25,30 @@ inline uint64_t u64_sub_with_borrow(uint64_t a, uint64_t b, bool* borrow) {
  * @param h_1 Input
  */
 void reduce_after_add(std::span<uint64_t, WORDS_448> h_3, std::span<const uint64_t, 8> h_1) {
-   std::array<uint64_t, 8> h_2;
-   bool carry;
+   std::array<uint64_t, 8> h_2; /* NOLINT(*-member-init) */
+   uint64_t carry = 0;
+
+   constexpr uint64_t zero = 0;
 
    // Line 27+ (of the paper's algorithm 1)
-   h_2[0] = u64_add(h_1[0], h_1[7], &carry);
-
-   h_2[1] = u64_add(h_1[1], carry, &carry);
-   h_2[2] = u64_add(h_1[2], carry, &carry);
+   h_2[0] = word_add(h_1[0], h_1[7], &carry);
+   h_2[1] = word_add(h_1[1], zero, &carry);
+   h_2[2] = word_add(h_1[2], zero, &carry);
 
    // Line 30
-   h_2[3] = u64_add_with_carry(h_1[3], h_1[7] << 32, &carry);
+   h_2[3] = word_add(h_1[3], h_1[7] << 32, &carry);
 
    // Line 31+
-   h_2[4] = u64_add(h_1[4], carry, &carry);
-   h_2[5] = u64_add(h_1[5], carry, &carry);
-   h_2[6] = u64_add(h_1[6], carry, &carry);
+   h_2[4] = word_add(h_1[4], zero, &carry);
+   h_2[5] = word_add(h_1[5], zero, &carry);
+   h_2[6] = word_add(h_1[6], zero, &carry);
 
    h_2[7] = carry;
 
-   h_3[0] = u64_add(h_2[0], h_2[7], &carry);
-   h_3[1] = u64_add(h_2[1], carry, &carry);
-   h_3[2] = u64_add(h_2[2], carry, &carry);
+   carry = 0;
+   h_3[0] = word_add(h_2[0], h_2[7], &carry);
+   h_3[1] = word_add(h_2[1], zero, &carry);
+   h_3[2] = word_add(h_2[2], zero, &carry);
    // Line 37
    h_3[3] = h_2[3] + (h_2[7] << 32) + carry;
 
@@ -102,62 +64,88 @@ void reduce_after_add(std::span<uint64_t, WORDS_448> h_3, std::span<const uint64
  * Algorithm 1 of paper "Reduction Modulo 2^448 - 2^224 - 1".
  */
 void reduce_after_mul(std::span<uint64_t, WORDS_448> out, std::span<const uint64_t, 14> in) {
-   std::array<uint64_t, 8> r;
-   std::array<uint64_t, 8> s;
-   std::array<uint64_t, 8> t_0;
-   std::array<uint64_t, 8> h_1;
+   std::array<uint64_t, 8> r;    // NOLINT(*-member-init)
+   std::array<uint64_t, 8> s;    // NOLINT(*-member-init)
+   std::array<uint64_t, 8> t_0;  // NOLINT(*-member-init)
+   std::array<uint64_t, 8> h_1;  // NOLINT(*-member-init)
 
-   bool carry;
+   uint64_t carry = 0;
 
    // Line 4 (of the paper's algorithm 1)
-   r[0] = u64_add(in[0], in[7], &carry);
+   r[0] = word_add(in[0], in[7], &carry);
 
    // Line 5-7
-   for(size_t i = 1; i < 7; ++i) {
-      r[i] = u64_add_with_carry(in[i], in[i + 7], &carry);
-   }
+   r[1] = word_add(in[1], in[1 + 7], &carry);
+   r[2] = word_add(in[2], in[2 + 7], &carry);
+   r[3] = word_add(in[3], in[3 + 7], &carry);
+   r[4] = word_add(in[4], in[4 + 7], &carry);
+   r[5] = word_add(in[5], in[5 + 7], &carry);
+   r[6] = word_add(in[6], in[6 + 7], &carry);
    r[7] = carry;
    s[0] = r[0];
    s[1] = r[1];
    s[2] = r[2];
    // Line 10
-   s[3] = u64_add(r[3], in[10] & 0xFFFFFFFF00000000, &carry);
+   carry = 0;
+   s[3] = word_add(r[3], in[10] & 0xFFFFFFFF00000000, &carry);
    // Line 11-13
-   for(size_t i = 4; i < 7; ++i) {
-      s[i] = u64_add_with_carry(r[i], in[i + 7], &carry);
-   }
+   s[4] = word_add(r[4], in[4 + 7], &carry);
+   s[5] = word_add(r[5], in[5 + 7], &carry);
+   s[6] = word_add(r[6], in[6 + 7], &carry);
    s[7] = r[7] + carry;
 
    // Line 15-17
-   for(size_t i = 0; i < 3; ++i) {
-      t_0[i] = (in[i + 11] << 32) | (in[i + 10] >> 32);
-   }
+   t_0[0] = (in[0 + 11] << 32) | (in[0 + 10] >> 32);
+   t_0[1] = (in[1 + 11] << 32) | (in[1 + 10] >> 32);
+   t_0[2] = (in[2 + 11] << 32) | (in[2 + 10] >> 32);
    // Line 18
    t_0[3] = (in[7] << 32) | (in[13] >> 32);
    // Line 19-21
-   for(size_t i = 4; i < 7; ++i) {
-      t_0[i] = (in[i + 4] << 32) | (in[i + 3] >> 32);
-   }
-   h_1[0] = u64_add(s[0], t_0[0], &carry);
+   t_0[4] = (in[4 + 4] << 32) | (in[4 + 3] >> 32);
+   t_0[5] = (in[5 + 4] << 32) | (in[5 + 3] >> 32);
+   t_0[6] = (in[6 + 4] << 32) | (in[6 + 3] >> 32);
+   carry = 0;
    // Line 23-25
-   for(size_t i = 1; i < 7; ++i) {
-      h_1[i] = u64_add_with_carry(s[i], t_0[i], &carry);
-   }
+   h_1[0] = word_add(s[0], t_0[0], &carry);
+   h_1[1] = word_add(s[1], t_0[1], &carry);
+   h_1[2] = word_add(s[2], t_0[2], &carry);
+   h_1[3] = word_add(s[3], t_0[3], &carry);
+   h_1[4] = word_add(s[4], t_0[4], &carry);
+   h_1[5] = word_add(s[5], t_0[5], &carry);
+   h_1[6] = word_add(s[6], t_0[6], &carry);
    h_1[7] = s[7] + carry;
 
    reduce_after_add(out, h_1);
 }
 
+// Multiply by the Curve448 constant a24 = (a-2)/4 = 39081.
+// Uses a 7-word × 1-word multiply (7 muls vs 49 for full comba_mul<7>),
+// and the result fits in 8 words so only needs reduce_after_add.
+void gf_mul_a24(std::span<uint64_t, WORDS_448> out, std::span<const uint64_t, WORDS_448> a) {
+   constexpr uint64_t A24 = 39081;
+   std::array<uint64_t, 8> ws;  // NOLINT(*-member-init)
+   uint64_t carry = 0;
+   ws[0] = word_madd2(a[0], A24, &carry);
+   ws[1] = word_madd2(a[1], A24, &carry);
+   ws[2] = word_madd2(a[2], A24, &carry);
+   ws[3] = word_madd2(a[3], A24, &carry);
+   ws[4] = word_madd2(a[4], A24, &carry);
+   ws[5] = word_madd2(a[5], A24, &carry);
+   ws[6] = word_madd2(a[6], A24, &carry);
+   ws[7] = carry;
+   reduce_after_add(out, ws);
+}
+
 void gf_mul(std::span<uint64_t, WORDS_448> out,
             std::span<const uint64_t, WORDS_448> a,
             std::span<const uint64_t, WORDS_448> b) {
-   std::array<uint64_t, 14> ws;
+   std::array<uint64_t, 14> ws;  // NOLINT(*-member-init)
    comba_mul<7>(ws.data(), a.data(), b.data());
    reduce_after_mul(out, ws);
 }
 
 void gf_square(std::span<uint64_t, WORDS_448> out, std::span<const uint64_t, WORDS_448> a) {
-   std::array<uint64_t, 14> ws;
+   std::array<uint64_t, 14> ws;  // NOLINT(*-member-init)
    comba_sqr<7>(ws.data(), a.data());
    reduce_after_mul(out, ws);
 }
@@ -165,15 +153,17 @@ void gf_square(std::span<uint64_t, WORDS_448> out, std::span<const uint64_t, WOR
 void gf_add(std::span<uint64_t, WORDS_448> out,
             std::span<const uint64_t, WORDS_448> a,
             std::span<const uint64_t, WORDS_448> b) {
-   std::array<uint64_t, WORDS_448 + 1> ws;
-   copy_mem(std::span(ws).first<WORDS_448>(), a);
-   ws[WORDS_448] = 0;
+   std::array<uint64_t, WORDS_448 + 1> ws;  // NOLINT(*-member-init)
 
-   bool carry = false;
-   for(size_t i = 0; i < WORDS_448; ++i) {
-      ws[i] = u64_add_with_carry(a[i], b[i], &carry);
-   }
-   ws[WORDS_448] = carry;
+   uint64_t carry = 0;
+   ws[0] = word_add(a[0], b[0], &carry);
+   ws[1] = word_add(a[1], b[1], &carry);
+   ws[2] = word_add(a[2], b[2], &carry);
+   ws[3] = word_add(a[3], b[3], &carry);
+   ws[4] = word_add(a[4], b[4], &carry);
+   ws[5] = word_add(a[5], b[5], &carry);
+   ws[6] = word_add(a[6], b[6], &carry);
+   ws[7] = carry;
 
    reduce_after_add(out, ws);
 }
@@ -186,53 +176,154 @@ void gf_add(std::span<uint64_t, WORDS_448> out,
 void gf_sub(std::span<uint64_t, WORDS_448> out,
             std::span<const uint64_t, WORDS_448> a,
             std::span<const uint64_t, WORDS_448> b) {
-   std::array<uint64_t, WORDS_448> h_0;
-   std::array<uint64_t, WORDS_448> h_1;
+   std::array<uint64_t, WORDS_448> h_0;  // NOLINT(*-member-init)
+   std::array<uint64_t, WORDS_448> h_1;  // NOLINT(*-member-init)
 
-   bool borrow = false;
-   for(size_t i = 0; i < WORDS_448; ++i) {
-      h_0[i] = u64_sub_with_borrow(a[i], b[i], &borrow);
-   }
+   uint64_t borrow = 0;
+   h_0[0] = word_sub(a[0], b[0], &borrow);
+   h_0[1] = word_sub(a[1], b[1], &borrow);
+   h_0[2] = word_sub(a[2], b[2], &borrow);
+   h_0[3] = word_sub(a[3], b[3], &borrow);
+   h_0[4] = word_sub(a[4], b[4], &borrow);
+   h_0[5] = word_sub(a[5], b[5], &borrow);
+   h_0[6] = word_sub(a[6], b[6], &borrow);
    uint64_t delta = borrow;
    uint64_t delta_p = delta << 32;
-   borrow = false;
+   borrow = 0;
 
-   h_1[0] = u64_sub_with_borrow(h_0[0], delta, &borrow);
-   h_1[1] = u64_sub_with_borrow(h_0[1], 0, &borrow);
-   h_1[2] = u64_sub_with_borrow(h_0[2], 0, &borrow);
-   h_1[3] = u64_sub_with_borrow(h_0[3], delta_p, &borrow);
-   h_1[4] = u64_sub_with_borrow(h_0[4], 0, &borrow);
-   h_1[5] = u64_sub_with_borrow(h_0[5], 0, &borrow);
-   h_1[6] = u64_sub_with_borrow(h_0[6], 0, &borrow);
+   constexpr uint64_t zero = 0;
+
+   h_1[0] = word_sub(h_0[0], delta, &borrow);
+   h_1[1] = word_sub(h_0[1], zero, &borrow);
+   h_1[2] = word_sub(h_0[2], zero, &borrow);
+   h_1[3] = word_sub(h_0[3], delta_p, &borrow);
+   h_1[4] = word_sub(h_0[4], zero, &borrow);
+   h_1[5] = word_sub(h_0[5], zero, &borrow);
+   h_1[6] = word_sub(h_0[6], zero, &borrow);
 
    delta = borrow;
    delta_p = delta << 32;
-   borrow = false;
+   borrow = 0;
 
-   out[0] = u64_sub_with_borrow(h_1[0], delta, &borrow);
-   out[1] = u64_sub_with_borrow(h_1[1], 0, &borrow);
-   out[2] = u64_sub_with_borrow(h_1[2], 0, &borrow);
-   out[3] = u64_sub_with_borrow(h_1[3], delta_p, &borrow);
+   out[0] = word_sub(h_1[0], delta, &borrow);
+   out[1] = word_sub(h_1[1], zero, &borrow);
+   out[2] = word_sub(h_1[2], zero, &borrow);
+   out[3] = word_sub(h_1[3], delta_p, &borrow);
    out[4] = h_1[4];
    out[5] = h_1[5];
    out[6] = h_1[6];
 }
 
+/// Square a field element n times
+void gf_sqr_n(std::span<uint64_t, WORDS_448> out, std::span<const uint64_t, WORDS_448> a, size_t n) {
+   gf_square(out, a);
+   for(size_t i = 1; i < n; ++i) {
+      gf_square(out, out);
+   }
+}
+
+/**
+ * @brief Compute x^(2^222 - 1) using an addition chain.
+ *
+ * This is the shared prefix of the addition chains for both
+ * inversion (x^(p-2)) and square root (x^((p-3)/4)).
+ *
+ * Addition chain from addchain tool (cost 446):
+ *   _11     = 1 + _10
+ *   _111    = 1 + _110
+ *   _111111 = _111 + _111 << 3
+ *   x12     = _111111 << 6 + _111111
+ *   x24     = x12 << 12 + x12
+ *   x30     = _111111 + x24 << 6
+ *   x48     = x24 << 6 << 18 + x24
+ *   x96     = x48 << 48 + x48
+ *   x192    = x96 << 96 + x96
+ *   x222    = x192 << 30 + x30
+ */
+void gf_pow_2_222m1(std::span<uint64_t, WORDS_448> x222,
+                    std::span<uint64_t, WORDS_448> x223,
+                    std::span<const uint64_t, WORDS_448> a) {
+   std::array<uint64_t, WORDS_448> t;  // NOLINT(*-member-init)
+
+   // _10 = a^2
+   std::array<uint64_t, WORDS_448> a2;  // NOLINT(*-member-init)
+   gf_square(a2, a);
+
+   // _11 = a^3
+   std::array<uint64_t, WORDS_448> a3;  // NOLINT(*-member-init)
+   gf_mul(a3, a, a2);
+
+   // _111 = a^7
+   std::array<uint64_t, WORDS_448> a7;  // NOLINT(*-member-init)
+   gf_square(t, a3);
+   gf_mul(a7, a, t);
+
+   // _111111 = a^63
+   std::array<uint64_t, WORDS_448> a63;  // NOLINT(*-member-init)
+   gf_sqr_n(t, a7, 3);
+   gf_mul(a63, a7, t);
+
+   // x12 = a^(2^12 - 1)
+   std::array<uint64_t, WORDS_448> x12;  // NOLINT(*-member-init)
+   gf_sqr_n(t, a63, 6);
+   gf_mul(x12, a63, t);
+
+   // x24 = a^(2^24 - 1)
+   std::array<uint64_t, WORDS_448> x24;  // NOLINT(*-member-init)
+   gf_sqr_n(t, x12, 12);
+   gf_mul(x24, x12, t);
+
+   // i34 = x24 << 6 = a^((2^24 - 1) * 2^6)
+   std::array<uint64_t, WORDS_448> i34;  // NOLINT(*-member-init)
+   gf_sqr_n(i34, x24, 6);
+
+   // x30 = a^(2^30 - 1)
+   std::array<uint64_t, WORDS_448> x30;  // NOLINT(*-member-init)
+   gf_mul(x30, a63, i34);
+
+   // x48 = a^(2^48 - 1)
+   std::array<uint64_t, WORDS_448> x48;  // NOLINT(*-member-init)
+   gf_sqr_n(t, i34, 18);
+   gf_mul(x48, x24, t);
+
+   // x96 = a^(2^96 - 1)
+   std::array<uint64_t, WORDS_448> x96;  // NOLINT(*-member-init)
+   gf_sqr_n(t, x48, 48);
+   gf_mul(x96, x48, t);
+
+   // x192 = a^(2^192 - 1)
+   std::array<uint64_t, WORDS_448> x192;  // NOLINT(*-member-init)
+   gf_sqr_n(t, x96, 96);
+   gf_mul(x192, x96, t);
+
+   // x222 = a^(2^222 - 1)
+   gf_sqr_n(t, x192, 30);
+   gf_mul(x222, x30, t);
+
+   // x223 = a^(2^223 - 1)
+   gf_square(t, x222);
+   gf_mul(x223, a, t);
+}
+
 /**
  * @brief Inversion in GF(P) using Fermat's little theorem:
  * x^-1 = x^(P-2) mod P
+ *
+ * Uses an optimized addition chain (cost 460) found by addchain.
+ * P-2 = 2^448 - 2^224 - 3
+ * return = (x223 << 223 + x222) << 2 + 1
  */
 void gf_inv(std::span<uint64_t, WORDS_448> out, std::span<const uint64_t, WORDS_448> a) {
-   clear_mem(out);
-   out[0] = 1;
-   // Square and multiply
-   for(int16_t t = 448; t >= 0; --t) {
-      gf_square(out, out);
-      // (P-2) has zero bits at indices 1, 224, 448. All others are one.
-      if(t != 448 && t != 224 && t != 1) {
-         gf_mul(out, out, a);
-      }
-   }
+   std::array<uint64_t, WORDS_448> x222;  // NOLINT(*-member-init)
+   std::array<uint64_t, WORDS_448> x223;  // NOLINT(*-member-init)
+   gf_pow_2_222m1(x222, x223, a);
+
+   // (x223 << 223 + x222) << 2 + 1
+   std::array<uint64_t, WORDS_448> t;  // NOLINT(*-member-init)
+   gf_sqr_n(t, x223, 223);
+   gf_mul(t, t, x222);
+   gf_sqr_n(t, t, 2);
+   gf_mul(out, t, a);
 }
 
 /**
@@ -250,23 +341,23 @@ std::array<uint64_t, WORDS_448> to_canonical(std::span<const uint64_t, WORDS_448
                                               0xffffffffffffffff,
                                               0xffffffffffffffff};
 
-   std::array<uint64_t, WORDS_448> in_minus_p;
-   bool borrow = false;
+   std::array<uint64_t, WORDS_448> in_minus_p;  // NOLINT(*-member-init)
+   uint64_t borrow = 0;
    for(size_t i = 0; i < WORDS_448; ++i) {
-      in_minus_p[i] = u64_sub_with_borrow(in[i], p[i], &borrow);
+      in_minus_p[i] = word_sub(in[i], p[i], &borrow);
    }
-   std::array<uint64_t, WORDS_448> out;
+   std::array<uint64_t, WORDS_448> out;  // NOLINT(*-member-init)
    CT::Mask<uint64_t>::expand(borrow).select_n(out.data(), in.data(), in_minus_p.data(), WORDS_448);
    return out;
 }
 
 }  // namespace
 
-Gf448Elem::Gf448Elem(std::span<const uint8_t, BYTES_448> x) {
+Gf448Elem::Gf448Elem(std::span<const uint8_t, BYTES_448> x) /* NOLINT(*-member-init) */ {
    load_le(m_x, x);
 }
 
-Gf448Elem::Gf448Elem(uint64_t least_sig_word) {
+Gf448Elem::Gf448Elem(uint64_t least_sig_word) /* NOLINT(*-member-init) */ {
    clear_mem(m_x);
    m_x[0] = least_sig_word;
 }
@@ -276,19 +367,19 @@ void Gf448Elem::to_bytes(std::span<uint8_t, BYTES_448> out) const {
 }
 
 std::array<uint8_t, BYTES_448> Gf448Elem::to_bytes() const {
-   std::array<uint8_t, BYTES_448> bytes;
+   std::array<uint8_t, BYTES_448> bytes{};
    to_bytes(bytes);
    return bytes;
 }
 
-void Gf448Elem::ct_cond_swap(bool b, Gf448Elem& other) {
+void Gf448Elem::ct_cond_swap(CT::Mask<uint64_t> mask, Gf448Elem& other) {
    for(size_t i = 0; i < WORDS_448; ++i) {
-      CT::conditional_swap(b, m_x[i], other.m_x[i]);
+      mask.conditional_swap(m_x[i], other.m_x[i]);
    }
 }
 
-void Gf448Elem::ct_cond_assign(bool b, const Gf448Elem& other) {
-   CT::conditional_assign_mem(static_cast<uint64_t>(b), m_x.data(), other.m_x.data(), WORDS_448);
+void Gf448Elem::ct_cond_assign(CT::Mask<uint64_t> mask, const Gf448Elem& other) {
+   mask.select_n(m_x.data(), other.m_x.data(), m_x.data(), WORDS_448);
 }
 
 Gf448Elem Gf448Elem::operator+(const Gf448Elem& other) const {
@@ -345,6 +436,12 @@ bool Gf448Elem::bytes_are_canonical_representation(std::span<const uint8_t, BYTE
    return CT::is_equal(x_words.data(), x_words_canonical.data(), WORDS_448).as_bool();
 }
 
+Gf448Elem mul_a24(const Gf448Elem& a) {
+   Gf448Elem res(0);
+   gf_mul_a24(res.words(), a.words());
+   return res;
+}
+
 Gf448Elem square(const Gf448Elem& elem) {
    Gf448Elem res(0);
    gf_square(res.words(), elem.words());
@@ -352,16 +449,16 @@ Gf448Elem square(const Gf448Elem& elem) {
 }
 
 Gf448Elem root(const Gf448Elem& elem) {
-   Gf448Elem res(1);
+   // Compute elem^((P-3)/4) using an optimized addition chain (cost 457).
+   // (P-3)/4 = 2^446 - 2^222 - 1
+   // return = x223 << 223 + x222
+   std::array<uint64_t, WORDS_448> x222;  // NOLINT(*-member-init)
+   std::array<uint64_t, WORDS_448> x223;  // NOLINT(*-member-init)
+   gf_pow_2_222m1(x222, x223, elem.words());
 
-   // (P-3)/4 is an 445 bit integer with one zero bits at 222. All others are one.
-   for(int16_t t = 445; t >= 0; --t) {
-      gf_square(res.words(), res.words());
-      if(t != 222) {
-         gf_mul(res.words(), res.words(), elem.words());
-      }
-   }
-
+   Gf448Elem res(0);
+   gf_sqr_n(res.words(), x223, 223);
+   gf_mul(res.words(), res.words(), x222);
    return res;
 }
 

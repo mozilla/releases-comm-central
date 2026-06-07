@@ -60,7 +60,7 @@ PKCS11_RSA_PrivateKey::PKCS11_RSA_PrivateKey(Session& session, const RSA_Private
 PKCS11_RSA_PrivateKey::PKCS11_RSA_PrivateKey(Session& session,
                                              uint32_t bits,
                                              const RSA_PrivateKeyGenerationProperties& priv_key_props) :
-      Object(session), RSA_PublicKey() {
+      Object(session) {
    RSA_PublicKeyGenerationProperties pub_key_props(bits);
    pub_key_props.set_encrypt(true);
    pub_key_props.set_verify(true);
@@ -68,7 +68,7 @@ PKCS11_RSA_PrivateKey::PKCS11_RSA_PrivateKey(Session& session,
 
    ObjectHandle pub_key_handle = CK_INVALID_HANDLE;
    ObjectHandle priv_key_handle = CK_INVALID_HANDLE;
-   Mechanism mechanism = {static_cast<CK_MECHANISM_TYPE>(MechanismType::RsaPkcsKeyPairGen), nullptr, 0};
+   const Mechanism mechanism = {static_cast<CK_MECHANISM_TYPE>(MechanismType::RsaPkcsKeyPairGen), nullptr, 0};
    session.module()->C_GenerateKeyPair(session.handle(),
                                        &mechanism,
                                        pub_key_props.data(),
@@ -119,7 +119,8 @@ class PKCS11_RSA_Decryption_Operation final : public PK_Ops::Decryption {
             m_key(key),
             m_mechanism(MechanismWrapper::create_rsa_crypt_mechanism(padding)),
             m_mod_n(Barrett_Reduction::for_public_modulus(m_key.get_n())),
-            m_monty_n(std::make_shared<Montgomery_Params>(m_key.get_n(), m_mod_n)),
+            m_monty_n(m_key.get_n(), m_mod_n),
+            m_bits(m_key.get_n().bits() - 1),
             m_blinder(
                m_mod_n,
                rng,
@@ -128,9 +129,7 @@ class PKCS11_RSA_Decryption_Operation final : public PK_Ops::Decryption {
                   auto powm_m_n = monty_precompute(m_monty_n, k, powm_window, false);
                   return monty_execute_vartime(*powm_m_n, m_key.get_e()).value();
                },
-               [this](const BigInt& k) { return inverse_mod_rsa_public_modulus(k, m_key.get_n()); }) {
-         m_bits = m_key.get_n().bits() - 1;
-      }
+               [this](const BigInt& k) { return inverse_mod_rsa_public_modulus(k, m_key.get_n()); }) {}
 
       size_t plaintext_length(size_t /*ctext_len*/) const override { return m_key.get_n().bytes(); }
 
@@ -143,7 +142,7 @@ class PKCS11_RSA_Decryption_Operation final : public PK_Ops::Decryption {
          const size_t modulus_bytes = (m_key.get_n().bits() + 7) / 8;
 
          // blind for RSA/RAW decryption
-         const bool use_blinding = !m_mechanism.padding_size();
+         const bool use_blinding = m_mechanism.padding_size() == 0;
 
          if(use_blinding) {
             const BigInt blinded = m_blinder.blind(BigInt::from_bytes(encrypted_data));
@@ -169,19 +168,19 @@ class PKCS11_RSA_Decryption_Operation final : public PK_Ops::Decryption {
       const PKCS11_RSA_PrivateKey& m_key;
       MechanismWrapper m_mechanism;
       Barrett_Reduction m_mod_n;
-      std::shared_ptr<const Montgomery_Params> m_monty_n;
-      size_t m_bits = 0;
+      const Montgomery_Params m_monty_n;
+      size_t m_bits;
       Blinder m_blinder;
 };
 
 // note: multiple-part decryption operations (with C_DecryptUpdate/C_DecryptFinal)
 // are not supported (PK_Ops::Decryption does not provide an `update` method)
-class PKCS11_RSA_Decryption_Operation_Software_EME final : public PK_Ops::Decryption_with_EME {
+class PKCS11_RSA_Decryption_Operation_Software_EME final : public PK_Ops::Decryption_with_Padding {
    public:
       PKCS11_RSA_Decryption_Operation_Software_EME(const PKCS11_RSA_PrivateKey& key,
                                                    std::string_view padding,
                                                    RandomNumberGenerator& rng) :
-            PK_Ops::Decryption_with_EME(padding), m_raw_decryptor(key, rng, "Raw") {}
+            PK_Ops::Decryption_with_Padding(padding), m_raw_decryptor(key, rng, "Raw") {}
 
       size_t plaintext_length(size_t ctext_len) const override { return m_raw_decryptor.plaintext_length(ctext_len); }
 
@@ -198,9 +197,9 @@ class PKCS11_RSA_Decryption_Operation_Software_EME final : public PK_Ops::Decryp
 class PKCS11_RSA_Encryption_Operation final : public PK_Ops::Encryption {
    public:
       PKCS11_RSA_Encryption_Operation(const PKCS11_RSA_PublicKey& key, std::string_view padding) :
-            m_key(key), m_mechanism(MechanismWrapper::create_rsa_crypt_mechanism(padding)) {
-         m_bits = 8 * (key.get_n().bytes() - m_mechanism.padding_size()) - 1;
-      }
+            m_key(key),
+            m_mechanism(MechanismWrapper::create_rsa_crypt_mechanism(padding)),
+            m_bits(8 * (key.get_n().bytes() - m_mechanism.padding_size()) - 1) {}
 
       size_t ciphertext_length(size_t /*ptext_len*/) const override { return m_key.get_n().bytes(); }
 
@@ -218,7 +217,7 @@ class PKCS11_RSA_Encryption_Operation final : public PK_Ops::Encryption {
    private:
       const PKCS11_RSA_PublicKey& m_key;
       MechanismWrapper m_mechanism;
-      size_t m_bits = 0;
+      size_t m_bits;
 };
 
 class PKCS11_RSA_Signature_Operation final : public PK_Ops::Signature {
@@ -432,7 +431,7 @@ PKCS11_RSA_KeyPair generate_rsa_keypair(Session& session,
    ObjectHandle pub_key_handle = 0;
    ObjectHandle priv_key_handle = 0;
 
-   Mechanism mechanism = {static_cast<CK_MECHANISM_TYPE>(MechanismType::RsaPkcsKeyPairGen), nullptr, 0};
+   const Mechanism mechanism = {static_cast<CK_MECHANISM_TYPE>(MechanismType::RsaPkcsKeyPairGen), nullptr, 0};
 
    session.module()->C_GenerateKeyPair(session.handle(),
                                        &mechanism,

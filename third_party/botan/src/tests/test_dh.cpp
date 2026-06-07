@@ -28,7 +28,7 @@ class Diffie_Hellman_KAT_Tests final : public PK_Key_Agreement_Test {
 
       std::unique_ptr<Botan::Private_Key> load_our_key(const std::string& /*header*/, const VarMap& vars) override {
          const Botan::BigInt p = vars.get_req_bn("P");
-         const Botan::BigInt q = vars.get_opt_bn("Q", 0);
+         const Botan::BigInt q = vars.get_opt_bn("Q", Botan::BigInt::zero());
          const Botan::BigInt g = vars.get_req_bn("G");
          const Botan::BigInt x = vars.get_req_bn("X");
 
@@ -45,7 +45,7 @@ class Diffie_Hellman_KAT_Tests final : public PK_Key_Agreement_Test {
 
       std::vector<uint8_t> load_their_key(const std::string& /*header*/, const VarMap& vars) override {
          const Botan::BigInt p = vars.get_req_bn("P");
-         const Botan::BigInt q = vars.get_opt_bn("Q", 0);
+         const Botan::BigInt q = vars.get_opt_bn("Q", Botan::BigInt::zero());
          const Botan::BigInt g = vars.get_req_bn("G");
          const Botan::BigInt y = vars.get_req_bn("Y");
 
@@ -57,7 +57,7 @@ class Diffie_Hellman_KAT_Tests final : public PK_Key_Agreement_Test {
             }
          }();
 
-         Botan::DH_PublicKey key(group, y);
+         const Botan::DH_PublicKey key(group, y);
          return key.public_value();
       }
 
@@ -75,12 +75,12 @@ class Diffie_Hellman_KAT_Tests final : public PK_Key_Agreement_Test {
 
          result.test_throws("agreement input too big", "DH agreement - invalid key provided", [&kas]() {
             const BigInt too_big("584580020955360946586837552585233629614212007514394561597561641914945762794672");
-            kas->derive_key(16, BigInt::encode(too_big));
+            kas->derive_key(16, too_big.serialize());
          });
 
          result.test_throws("agreement input too small", "DH agreement - invalid key provided", [&kas]() {
             const BigInt too_small("1");
-            kas->derive_key(16, BigInt::encode(too_small));
+            kas->derive_key(16, too_small.serialize());
          });
 
          return {result};
@@ -101,10 +101,10 @@ class DH_Invalid_Key_Tests final : public Text_Based_Test {
          const Botan::BigInt g = vars.get_req_bn("G");
          const Botan::BigInt pubkey = vars.get_req_bn("InvalidKey");
 
-         Botan::DL_Group group(p, q, g);
+         const Botan::DL_Group group(p, q, g);
 
          auto key = std::make_unique<Botan::DH_PublicKey>(group, pubkey);
-         result.test_eq("public key fails check", key->check_key(this->rng(), false), false);
+         result.test_is_false("public key fails check", key->check_key(this->rng(), false));
          return result;
       }
 };

@@ -18,17 +18,12 @@ BOTAN_FUTURE_INTERNAL_HEADER(argon2.h)
 
 namespace Botan {
 
-class RandomNumberGenerator;
-
 /**
 * Argon2 key derivation function
 */
 class BOTAN_PUBLIC_API(2, 11) Argon2 final : public PasswordHash {
    public:
       Argon2(uint8_t family, size_t M, size_t t, size_t p);
-
-      Argon2(const Argon2& other) = default;
-      Argon2& operator=(const Argon2&) = default;
 
       /**
       * Derive a new key under the current Argon2 parameter set
@@ -77,12 +72,16 @@ class BOTAN_PUBLIC_API(2, 11) Argon2 final : public PasswordHash {
       static void blamka(uint64_t N[128], uint64_t T[128]);
 
    private:
+#if defined(BOTAN_HAS_ARGON2_AVX512)
+      static void blamka_avx512(uint64_t N[128], uint64_t T[128]);
+#endif
+
 #if defined(BOTAN_HAS_ARGON2_AVX2)
       static void blamka_avx2(uint64_t N[128], uint64_t T[128]);
 #endif
 
-#if defined(BOTAN_HAS_ARGON2_SSSE3)
-      static void blamka_ssse3(uint64_t N[128], uint64_t T[128]);
+#if defined(BOTAN_HAS_ARGON2_SIMD64)
+      static void blamka_simd64(uint64_t N[128], uint64_t T[128]);
 #endif
 
       void argon2(uint8_t output[],
@@ -102,14 +101,14 @@ class BOTAN_PUBLIC_API(2, 11) Argon2 final : public PasswordHash {
 
 class BOTAN_PUBLIC_API(2, 11) Argon2_Family final : public PasswordHashFamily {
    public:
-      Argon2_Family(uint8_t family);
+      BOTAN_FUTURE_EXPLICIT Argon2_Family(uint8_t family);
 
       std::string name() const override;
 
-      std::unique_ptr<PasswordHash> tune(size_t output_length,
-                                         std::chrono::milliseconds msec,
-                                         size_t max_memory,
-                                         std::chrono::milliseconds tune_msec) const override;
+      std::unique_ptr<PasswordHash> tune_params(size_t output_len,
+                                                uint64_t desired_runtime_msec,
+                                                std::optional<size_t> max_memory,
+                                                uint64_t tune_msec) const override;
 
       std::unique_ptr<PasswordHash> default_params() const override;
 

@@ -1,0 +1,26 @@
+<internal_defines>
+CTR_BE_SIMD32 -> 20260323
+</internal_defines>
+
+<module_info>
+name -> "CTR-BE SIMD"
+brief -> "SIMD-accelerated CTR-BE counter management and XOR"
+</module_info>
+
+<requires>
+cpuid
+simd_4x32
+</requires>
+
+<isa>
+x86_32:ssse3
+x86_64:ssse3
+x32:ssse3
+arm32:neon
+arm64:neon
+
+# disabled until tested
+#ppc64:altivec
+#loongarch64:lsx
+#wasm:simd128
+</isa>

@@ -11,6 +11,7 @@
 #include <botan/exceptn.h>
 #include <botan/mem_ops.h>
 #include <botan/internal/fmt.h>
+#include <botan/internal/stl_util.h>
 #include <botan/internal/target_info.h>
 #include <botan/internal/uri.h>
 #include <chrono>
@@ -51,7 +52,7 @@ class Asio_SocketUDP final : public OS::SocketUDP {
          check_timeout();
 
          boost::asio::ip::udp::resolver resolver(m_io);
-         boost::asio::ip::udp::resolver::results_type dns_iter =
+         const boost::asio::ip::udp::resolver::results_type dns_iter =
             resolver.resolve(std::string{hostname}, std::string{service});
 
          boost::system::error_code ec = boost::asio::error::would_block;
@@ -68,7 +69,7 @@ class Asio_SocketUDP final : public OS::SocketUDP {
          if(ec) {
             throw boost::system::system_error(ec);
          }
-         if(m_udp.is_open() == false) {
+         if(!m_udp.is_open()) {
             throw System_Error(fmt("Connection to host {} failed", hostname));
          }
       }
@@ -123,6 +124,7 @@ class Asio_SocketUDP final : public OS::SocketUDP {
             m_udp.close(err);
          }
 
+         // NOLINTNEXTLINE(*-avoid-bind) FIXME - unclear why we can't use a lambda here
          m_timer.async_wait(std::bind(&Asio_SocketUDP::check_timeout, this));
       }
 
@@ -135,27 +137,24 @@ class Asio_SocketUDP final : public OS::SocketUDP {
 class BSD_SocketUDP final : public OS::SocketUDP {
    public:
       BSD_SocketUDP(std::string_view hostname, std::string_view service, std::chrono::microseconds timeout) :
-            m_timeout(timeout) {
+            m_timeout(timeout), m_socket(invalid_socket()) {
          socket_init();
-
-         m_socket = invalid_socket();
-
-         addrinfo* res;
-         addrinfo hints;
-         clear_mem(&hints, 1);
-         hints.ai_family = AF_UNSPEC;
-         hints.ai_socktype = SOCK_DGRAM;
 
          const std::string hostname_str(hostname);
          const std::string service_str(service);
 
-         int rc = ::getaddrinfo(hostname_str.c_str(), service_str.c_str(), &hints, &res);
+         addrinfo hints{};
+         hints.ai_family = AF_UNSPEC;
+         hints.ai_socktype = SOCK_DGRAM;
 
+         unique_addr_info_ptr res = nullptr;
+
+         const int rc = ::getaddrinfo(hostname_str.c_str(), service_str.c_str(), &hints, Botan::out_ptr(res));
          if(rc != 0) {
             throw System_Error(fmt("Name resolution failed for {}", hostname), rc);
          }
 
-         for(addrinfo* rp = res; (m_socket == invalid_socket()) && (rp != nullptr); rp = rp->ai_next) {
+         for(const addrinfo* rp = res.get(); (m_socket == invalid_socket()) && (rp != nullptr); rp = rp->ai_next) {
             if(rp->ai_family != AF_INET && rp->ai_family != AF_INET6) {
                continue;
             }
@@ -169,10 +168,8 @@ class BSD_SocketUDP final : public OS::SocketUDP {
 
             set_nonblocking(m_socket);
             memcpy(&sa, res->ai_addr, res->ai_addrlen);
-            salen = static_cast<socklen_t>(res->ai_addrlen);
+            salen = static_cast<socklen_t>(res->ai_addrlen);  // NOLINT(*-redundant-casting)
          }
-
-         ::freeaddrinfo(res);
 
          if(m_socket == invalid_socket()) {
             throw System_Error(fmt("Connecting to {} for service {} failed with errno {}", hostname, service, errno),
@@ -199,19 +196,19 @@ class BSD_SocketUDP final : public OS::SocketUDP {
          size_t sent_so_far = 0;
          while(sent_so_far != len) {
             struct timeval timeout = make_timeout_tv();
-            int active = ::select(static_cast<int>(m_socket + 1), nullptr, &write_set, nullptr, &timeout);
+            const int active = ::select(static_cast<int>(m_socket + 1), nullptr, &write_set, nullptr, &timeout);
 
             if(active == 0) {
                throw System_Error("Timeout during socket write");
             }
 
             const size_t left = len - sent_so_far;
-            socket_op_ret_type sent = ::sendto(m_socket,
-                                               cast_uint8_ptr_to_char(buf + sent_so_far),
-                                               static_cast<sendrecv_len_type>(left),
-                                               0,
-                                               reinterpret_cast<sockaddr*>(&sa),
-                                               salen);
+            const socket_op_ret_type sent = ::sendto(m_socket,
+                                                     cast_uint8_ptr_to_char(buf + sent_so_far),
+                                                     static_cast<sendrecv_len_type>(left),
+                                                     0,
+                                                     reinterpret_cast<sockaddr*>(&sa),
+                                                     salen);
             if(sent < 0) {
                throw System_Error("Socket write failed", errno);
             } else {
@@ -226,13 +223,13 @@ class BSD_SocketUDP final : public OS::SocketUDP {
          FD_SET(m_socket, &read_set);
 
          struct timeval timeout = make_timeout_tv();
-         int active = ::select(static_cast<int>(m_socket + 1), &read_set, nullptr, nullptr, &timeout);
+         const int active = ::select(static_cast<int>(m_socket + 1), &read_set, nullptr, nullptr, &timeout);
 
          if(active == 0) {
             throw System_Error("Timeout during socket read");
          }
 
-         socket_op_ret_type got =
+         const socket_op_ret_type got =
             ::recvfrom(m_socket, cast_uint8_ptr_to_char(buf), static_cast<sendrecv_len_type>(len), 0, nullptr, nullptr);
 
          if(got < 0) {
@@ -290,6 +287,7 @@ class BSD_SocketUDP final : public OS::SocketUDP {
       static bool nonblocking_connect_in_progress() { return (errno == EINPROGRESS); }
 
       static void set_nonblocking(socket_type s) {
+         // NOLINTNEXTLINE(*-vararg)
          if(::fcntl(s, F_SETFL, O_NONBLOCK) < 0) {
             throw System_Error("Setting socket to non-blocking state failed", errno);
          }
@@ -299,11 +297,12 @@ class BSD_SocketUDP final : public OS::SocketUDP {
 
       static void socket_fini() {}
    #endif
-      sockaddr_storage sa;
+      sockaddr_storage sa = {};
       socklen_t salen;
 
       struct timeval make_timeout_tv() const {
-         struct timeval tv;
+         struct timeval tv {};
+
          tv.tv_sec = static_cast<decltype(timeval::tv_sec)>(m_timeout.count() / 1000000);
          tv.tv_usec = static_cast<decltype(timeval::tv_usec)>(m_timeout.count() % 1000000);
          return tv;
@@ -311,6 +310,12 @@ class BSD_SocketUDP final : public OS::SocketUDP {
 
       const std::chrono::microseconds m_timeout;
       socket_type m_socket;
+
+      using unique_addr_info_ptr = std::unique_ptr<addrinfo, decltype([](addrinfo* p) {
+                                                      if(p != nullptr) {
+                                                         ::freeaddrinfo(p);
+                                                      }
+                                                   })>;
 };
 #endif
 }  // namespace

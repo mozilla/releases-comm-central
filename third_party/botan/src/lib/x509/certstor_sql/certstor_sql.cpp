@@ -8,6 +8,8 @@
 
 #include <botan/certstor_sql.h>
 
+#include <botan/asn1_obj.h>
+#include <botan/asn1_time.h>
 #include <botan/ber_dec.h>
 #include <botan/data_src.h>
 #include <botan/pk_keys.h>
@@ -88,7 +90,6 @@ std::vector<X509_Certificate> Certificate_Store_In_SQL::find_all_certs(const X50
       stmt->bind(2, key_id);
    }
 
-   std::optional<X509_Certificate> cert;
    while(stmt->step()) {
       auto blob = stmt->get_blob(0);
       certs.push_back(X509_Certificate(blob.first, blob.second));
@@ -107,10 +108,15 @@ std::optional<X509_Certificate> Certificate_Store_In_SQL::find_cert_by_raw_subje
    throw Not_Implemented("Certificate_Store_In_SQL::find_cert_by_raw_subject_dn_sha256");
 }
 
-std::optional<X509_CRL> Certificate_Store_In_SQL::find_crl_for(const X509_Certificate& subject) const {
-   auto all_crls = generate_crls();
+std::optional<X509_Certificate> Certificate_Store_In_SQL::find_cert_by_issuer_dn_and_serial_number(
+   const X509_DN& /*issuer_dn*/, std::span<const uint8_t> /*serial_number*/) const {
+   throw Not_Implemented("Certificate_Store_In_SQL::find_cert_by_issuer_dn_and_serial_number");
+}
 
-   for(auto crl : all_crls) {
+std::optional<X509_CRL> Certificate_Store_In_SQL::find_crl_for(const X509_Certificate& subject) const {
+   const auto all_crls = generate_crls();
+
+   for(const auto& crl : all_crls) {
       if(!crl.get_revoked().empty() && crl.issuer_dn() == subject.issuer_dn()) {
          return crl;
       }
@@ -194,11 +200,11 @@ std::shared_ptr<const Private_Key> Certificate_Store_In_SQL::find_key(const X509
 }
 
 std::vector<X509_Certificate> Certificate_Store_In_SQL::find_certs_for_key(const Private_Key& key) const {
-   auto fpr = key.fingerprint_private("SHA-256");
+   auto fprint = key.fingerprint_private("SHA-256");
    auto stmt =
       m_database->new_statement("SELECT certificate FROM " + m_prefix + "certificates WHERE priv_fingerprint == ?1");
 
-   stmt->bind(1, fpr);
+   stmt->bind(1, fprint);
 
    std::vector<X509_Certificate> certs;
    while(stmt->step()) {
@@ -217,19 +223,19 @@ bool Certificate_Store_In_SQL::insert_key(const X509_Certificate& cert, const Pr
    }
 
    auto pkcs8 = PKCS8::BER_encode(key, m_rng, m_password);
-   auto fpr = key.fingerprint_private("SHA-256");
+   auto fprint = key.fingerprint_private("SHA-256");
 
    auto stmt1 =
       m_database->new_statement("INSERT OR REPLACE INTO " + m_prefix + "keys ( fingerprint, key ) VALUES ( ?1, ?2 )");
 
-   stmt1->bind(1, fpr);
+   stmt1->bind(1, fprint);
    stmt1->bind(2, pkcs8.data(), pkcs8.size());
    stmt1->spin();
 
    auto stmt2 = m_database->new_statement("UPDATE " + m_prefix +
                                           "certificates SET priv_fingerprint = ?1 WHERE fingerprint == ?2");
 
-   stmt2->bind(1, fpr);
+   stmt2->bind(1, fprint);
    stmt2->bind(2, cert.fingerprint("SHA-256"));
    stmt2->spin();
 
@@ -237,15 +243,16 @@ bool Certificate_Store_In_SQL::insert_key(const X509_Certificate& cert, const Pr
 }
 
 void Certificate_Store_In_SQL::remove_key(const Private_Key& key) {
-   auto fpr = key.fingerprint_private("SHA-256");
+   auto fprint = key.fingerprint_private("SHA-256");
    auto stmt = m_database->new_statement("DELETE FROM " + m_prefix + "keys WHERE fingerprint == ?1");
 
-   stmt->bind(1, fpr);
+   stmt->bind(1, fprint);
    stmt->spin();
 }
 
 // Revocation
 void Certificate_Store_In_SQL::revoke_cert(const X509_Certificate& cert, CRL_Code code, const X509_Time& time) {
+   // TODO(Botan4) require that time be valid
    insert_cert(cert);
 
    auto stmt1 = m_database->new_statement("INSERT OR REPLACE INTO " + m_prefix +
@@ -259,6 +266,20 @@ void Certificate_Store_In_SQL::revoke_cert(const X509_Certificate& cert, CRL_Cod
    } else {
       stmt1->bind(3, static_cast<size_t>(-1));
    }
+
+   stmt1->spin();
+}
+
+// Revocation
+void Certificate_Store_In_SQL::revoke_cert(const X509_Certificate& cert, CRL_Code code) {
+   insert_cert(cert);
+
+   auto stmt1 = m_database->new_statement("INSERT OR REPLACE INTO " + m_prefix +
+                                          "revoked ( fingerprint, reason, time ) VALUES ( ?1, ?2, ?3 )");
+
+   stmt1->bind(1, cert.fingerprint("SHA-256"));
+   stmt1->bind(2, static_cast<uint32_t>(code));
+   stmt1->bind(3, static_cast<size_t>(-1));
 
    stmt1->spin();
 }
@@ -292,7 +313,7 @@ std::vector<X509_CRL> Certificate_Store_In_SQL::generate_crls() const {
       }
    }
 
-   X509_Time t(std::chrono::system_clock::now());
+   const X509_Time t(std::chrono::system_clock::now());
 
    std::vector<X509_CRL> ret;
    ret.reserve(crls.size());

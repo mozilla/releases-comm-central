@@ -10,6 +10,7 @@
 
 #if defined(BOTAN_HAS_ECKCDSA)
    #include "test_pubkey.h"
+   #include <botan/ec_group.h>
    #include <botan/eckcdsa.h>
 #endif
 
@@ -24,7 +25,7 @@ class ECKCDSA_Signature_KAT_Tests final : public PK_Signature_Generation_Test {
       ECKCDSA_Signature_KAT_Tests() :
             PK_Signature_Generation_Test("ECKCDSA", "pubkey/eckcdsa.vec", "Group,X,Hash,Msg,Nonce,Signature") {}
 
-      bool skip_this_test(const std::string&, const VarMap& vars) override {
+      bool skip_this_test(const std::string& /*header*/, const VarMap& vars) override {
          return !Botan::EC_Group::supports_named_group(vars.get_req_str("Group"));
       }
 

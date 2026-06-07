@@ -1,0 +1,16 @@
+<internal_defines>
+WHIRLPOOL_AVX2 -> 20260321
+</internal_defines>
+
+<module_info>
+name -> "Whirlpool AVX2"
+</module_info>
+
+<isa>
+avx2
+</isa>
+
+<requires>
+cpuid
+simd_avx2
+</requires>

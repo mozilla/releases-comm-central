@@ -75,8 +75,8 @@ BOTAN_DIAGNOSTIC_PUSH
 BOTAN_DIAGNOSTIC_IGNORE_INHERITED_VIA_DOMINANCE
 
 class BOTAN_PUBLIC_API(2, 0) ECDH_PrivateKey final : public ECDH_PublicKey,
-                                                     public EC_PrivateKey,
-                                                     public PK_Key_Agreement_Key {
+                                                     public virtual EC_PrivateKey,
+                                                     public virtual PK_Key_Agreement_Key {
    public:
       /**
       * Load a private key.
@@ -91,14 +91,14 @@ class BOTAN_PUBLIC_API(2, 0) ECDH_PrivateKey final : public ECDH_PublicKey,
       * @param group curve parameters to bu used for this key
       * @param x      the private key
       */
-      ECDH_PrivateKey(EC_Group group, EC_Scalar x) : EC_PrivateKey(std::move(group), std::move(x)) {}
+      ECDH_PrivateKey(const EC_Group& group, const EC_Scalar& x) : EC_PrivateKey(group, x) {}
 
       /**
       * Create a new private key
       * @param rng a random number generator
       * @param group parameters to used for this key
       */
-      ECDH_PrivateKey(RandomNumberGenerator& rng, EC_Group group) : EC_PrivateKey(rng, std::move(group)) {}
+      ECDH_PrivateKey(RandomNumberGenerator& rng, const EC_Group& group) : EC_PrivateKey(rng, group) {}
 
       /**
       * Generate a new private key
@@ -112,10 +112,12 @@ class BOTAN_PUBLIC_API(2, 0) ECDH_PrivateKey final : public ECDH_PublicKey,
 
       std::unique_ptr<Public_Key> public_key() const override;
 
+      // NOLINTNEXTLINE(bugprone-derived-method-shadowing-base-method)
       std::vector<uint8_t> public_value() const override {
          return ECDH_PublicKey::public_value(EC_Point_Format::Uncompressed);
       }
 
+      // NOLINTNEXTLINE(bugprone-derived-method-shadowing-base-method)
       std::vector<uint8_t> public_value(EC_Point_Format type) const { return ECDH_PublicKey::public_value(type); }
 
       std::unique_ptr<PK_Ops::Key_Agreement> create_key_agreement_op(RandomNumberGenerator& rng,

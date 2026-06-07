@@ -36,7 +36,7 @@ std::optional<uint32_t> aarch64_feat_via_auxval(uint32_t allowed) {
       * These following values are all fixed, for the Linux ELF format,
       * so we just hardcode them in ARM_hwcap_bit enum.
       */
-      enum class ARM_hwcap_bit : uint64_t {
+      enum class ARM_hwcap_bit : uint64_t /* NOLINT(*-enum-size) */ {
          NEON_bit = (1 << 1),
          AES_bit = (1 << 3),
          PMULL_bit = (1 << 4),
@@ -53,7 +53,7 @@ std::optional<uint32_t> aarch64_feat_via_auxval(uint32_t allowed) {
 
       feat |= CPUID::if_set(hwcap, ARM_hwcap_bit::NEON_bit, CPUFeature::Bit::NEON, allowed);
 
-      if(feat & CPUFeature::Bit::NEON) {
+      if((feat & CPUFeature::Bit::NEON) == CPUFeature::Bit::NEON) {
          feat |= CPUID::if_set(hwcap, ARM_hwcap_bit::AES_bit, CPUFeature::Bit::AES, allowed);
          feat |= CPUID::if_set(hwcap, ARM_hwcap_bit::PMULL_bit, CPUFeature::Bit::PMULL, allowed);
          feat |= CPUID::if_set(hwcap, ARM_hwcap_bit::SHA1_bit, CPUFeature::Bit::SHA1, allowed);
@@ -87,7 +87,7 @@ std::optional<uint32_t> aarch64_feat_using_mac_api(uint32_t allowed) {
 
    // All 64-bit Apple ARM chips have NEON, AES, and SHA support
    feat |= CPUFeature::Bit::NEON & allowed;
-   if(feat & CPUFeature::Bit::NEON) {
+   if((feat & CPUFeature::Bit::NEON) == CPUFeature::Bit::NEON) {
       feat |= CPUFeature::Bit::AES & allowed;
       feat |= CPUFeature::Bit::PMULL & allowed;
       feat |= CPUFeature::Bit::SHA1 & allowed;
@@ -109,7 +109,9 @@ std::optional<uint32_t> aarch64_feat_using_mac_api(uint32_t allowed) {
 }
 
 std::optional<uint32_t> aarch64_feat_using_instr_probe(uint32_t allowed) {
-#if defined(BOTAN_USE_GCC_INLINE_ASM)
+#if defined(BOTAN_USE_GCC_INLINE_ASM) && defined(BOTAN_HAS_OS_UTILS)
+
+   // NOLINTBEGIN(*-no-assembler)
 
    /*
    No getauxval API available, fall back on probe functions.
@@ -141,13 +143,13 @@ std::optional<uint32_t> aarch64_feat_using_instr_probe(uint32_t allowed) {
       return 1;
    };
 
+   // NOLINTEND(*-no-assembler)
+
    uint32_t feat = 0;
-   if(allowed & CPUFeature::Bit::NEON) {
+   if((allowed & CPUFeature::Bit::NEON) == CPUFeature::Bit::NEON) {
       if(OS::run_cpu_instruction_probe(neon_probe) == 1) {
          feat |= CPUFeature::Bit::NEON;
-      }
 
-      if(feat & CPUFeature::Bit::NEON) {
          if(OS::run_cpu_instruction_probe(aes_probe) == 1) {
             feat |= CPUFeature::Bit::AES & allowed;
          }

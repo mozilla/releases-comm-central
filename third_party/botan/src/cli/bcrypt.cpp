@@ -12,6 +12,8 @@
 
 namespace Botan_CLI {
 
+namespace {
+
 #if defined(BOTAN_HAS_BCRYPT)
 
 class Generate_Bcrypt final : public Command {
@@ -55,9 +57,9 @@ class Check_Bcrypt final : public Command {
 
          const bool ok = Botan::check_bcrypt(password, hash);
 
-         output() << "Password is " << (ok ? "valid" : "NOT valid") << std::endl;
+         output() << "Password is " << (ok ? "valid" : "NOT valid") << "\n";
 
-         if(ok == false) {
+         if(!ok) {
             set_return_code(1);
          }
       }
@@ -66,5 +68,7 @@ class Check_Bcrypt final : public Command {
 BOTAN_REGISTER_COMMAND("check_bcrypt", Check_Bcrypt);
 
 #endif  // bcrypt
+
+}  // namespace
 
 }  // namespace Botan_CLI

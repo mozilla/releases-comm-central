@@ -1,0 +1,12 @@
+<internal_defines>
+ARIA_HWAES -> 20260323
+</internal_defines>
+
+<module_info>
+name -> "ARIA using hardware AES instructions"
+</module_info>
+
+<requires>
+cpuid
+simd_hwaes
+</requires>

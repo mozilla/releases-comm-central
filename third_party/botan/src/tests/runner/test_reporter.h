@@ -10,6 +10,10 @@
 
 #include "../tests.h"
 
+#include <botan/assert.h>
+#include <chrono>
+#include <map>
+
 namespace Botan_Tests {
 
 /**
@@ -17,22 +21,36 @@ namespace Botan_Tests {
  */
 class TestSummary final {
    public:
-      TestSummary(const Test::Result& result);
+      explicit TestSummary(const Test::Result& result);
 
-      bool passed() const { return failures.empty(); }
+      bool passed() const { return m_failures.empty(); }
 
-      bool failed() const { return !failures.empty(); }
+      bool failed() const { return !m_failures.empty(); }
 
-   public:
-      const std::string name;
-      const std::optional<CodeLocation> code_location;
+      const std::string& name() const { return m_name; }
 
-      const size_t assertions;
-      const std::vector<std::string> notes;
-      const std::vector<std::string> failures;
+      const std::optional<CodeLocation>& code_location() const { return m_code_location; }
 
-      const std::chrono::system_clock::time_point timestamp;
-      const std::optional<std::chrono::nanoseconds> elapsed_time;
+      size_t assertions() const { return m_assertions; }
+
+      const std::vector<std::string>& notes() const { return m_notes; }
+
+      const std::vector<std::string>& failures() const { return m_failures; }
+
+      const std::chrono::system_clock::time_point& timestamp() const { return m_timestamp; }
+
+      const std::optional<std::chrono::nanoseconds>& elapsed_time() const { return m_elapsed_time; }
+
+   private:
+      const std::string m_name;
+      const std::optional<CodeLocation> m_code_location;
+
+      const size_t m_assertions;
+      const std::vector<std::string> m_notes;
+      const std::vector<std::string> m_failures;
+
+      const std::chrono::system_clock::time_point m_timestamp;
+      const std::optional<std::chrono::nanoseconds> m_elapsed_time;
 };
 
 /**
@@ -40,7 +58,7 @@ class TestSummary final {
  */
 class Testsuite final {
    public:
-      Testsuite(std::string name);
+      explicit Testsuite(std::string name);
 
       void record(const Test::Result& result);
 
@@ -140,7 +158,7 @@ class Reporter {
        *
        * Note that this merges test results with the same name
        */
-      void record(const std::string& test_name, const std::vector<Botan_Tests::Test::Result>& results);
+      void record(const std::string& testsuite_name, const std::vector<Botan_Tests::Test::Result>& results);
 
       /**
        * Called once all test results have been reported for a single run.

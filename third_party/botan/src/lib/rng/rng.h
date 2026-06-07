@@ -10,15 +10,24 @@
 #define BOTAN_RANDOM_NUMBER_GENERATOR_H_
 
 #include <botan/concepts.h>
-#include <botan/exceptn.h>
 #include <botan/secmem.h>
 
 #include <array>
-#include <chrono>
 #include <concepts>
 #include <span>
 #include <string>
 #include <type_traits>
+
+/*
+* We only include <chrono> in downstream applications to avoid
+* breaking semver wrt RandomNumberGenerator::reseed. Within the
+* library we avoid it because it slows down compilation significantly.
+*
+* TODO(Botan4): remove this entirely
+*/
+#if !defined(BOTAN_IS_BEING_BUILT)
+   #include <chrono>
+#endif
 
 namespace Botan {
 
@@ -40,11 +49,6 @@ class BOTAN_PUBLIC_API(2, 0) RandomNumberGenerator {
       */
       static constexpr size_t DefaultPollBits = 256;
 
-      /**
-      * Default poll timeout
-      */
-      static constexpr auto DefaultPollTimeout = std::chrono::milliseconds(50);
-
       virtual ~RandomNumberGenerator() = default;
 
       RandomNumberGenerator() = default;
@@ -54,6 +58,9 @@ class BOTAN_PUBLIC_API(2, 0) RandomNumberGenerator {
       */
       RandomNumberGenerator(const RandomNumberGenerator& rng) = delete;
       RandomNumberGenerator& operator=(const RandomNumberGenerator& rng) = delete;
+
+      RandomNumberGenerator(RandomNumberGenerator&& rng) = default;
+      RandomNumberGenerator& operator=(RandomNumberGenerator&& rng) = default;
 
       /**
       * Randomize a byte array.
@@ -96,7 +103,7 @@ class BOTAN_PUBLIC_API(2, 0) RandomNumberGenerator {
       * Incorporate some additional data into the RNG state.
       */
       template <typename T>
-         requires std::is_standard_layout<T>::value && std::is_trivial<T>::value
+         requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
       void add_entropy_T(const T& t) {
          this->add_entropy(reinterpret_cast<const uint8_t*>(&t), sizeof(T));
       }
@@ -163,15 +170,15 @@ class BOTAN_PUBLIC_API(2, 0) RandomNumberGenerator {
       virtual bool is_seeded() const = 0;
 
       /**
-      * Poll provided sources for up to poll_bits bits of entropy
-      * or until the timeout expires. Returns estimate of the number
-      * of bits collected.
-      *
+      * Poll provided sources for up to poll_bits bits of entropy.
+      * Returns estimate of the number of bits collected.
       * Sets the seeded state to true if enough entropy was added.
+      *
+      * @throws Exception if RNG accepts input but reseeding failed.
       */
-      virtual size_t reseed(Entropy_Sources& srcs,
-                            size_t poll_bits = RandomNumberGenerator::DefaultPollBits,
-                            std::chrono::milliseconds poll_timeout = RandomNumberGenerator::DefaultPollTimeout);
+      size_t reseed_from(Entropy_Sources& srcs, size_t poll_bits = RandomNumberGenerator::DefaultPollBits) {
+         return reseed_from_sources(srcs, poll_bits);
+      }
 
       /**
       * Reseed by reading specified bits from the RNG
@@ -180,8 +187,9 @@ class BOTAN_PUBLIC_API(2, 0) RandomNumberGenerator {
       *
       * @throws Exception if RNG accepts input but reseeding failed.
       */
-      virtual void reseed_from_rng(RandomNumberGenerator& rng,
-                                   size_t poll_bits = RandomNumberGenerator::DefaultPollBits);
+      void reseed_from(RandomNumberGenerator& rng, size_t poll_bits = RandomNumberGenerator::DefaultPollBits) {
+         return reseed_from_rng(rng, poll_bits);
+      }
 
       // Some utility functions built on the interface above:
 
@@ -230,7 +238,7 @@ class BOTAN_PUBLIC_API(2, 0) RandomNumberGenerator {
        */
       template <size_t bytes>
       std::array<uint8_t, bytes> random_array() {
-         std::array<uint8_t, bytes> result;
+         std::array<uint8_t, bytes> result{};
          random_vec(result);
          return result;
       }
@@ -242,7 +250,7 @@ class BOTAN_PUBLIC_API(2, 0) RandomNumberGenerator {
       * @throws Exception if the RNG fails
       */
       uint8_t next_byte() {
-         uint8_t b;
+         uint8_t b = 0;
          this->fill_bytes_with_input(std::span(&b, 1), {});
          return b;
       }
@@ -260,7 +268,49 @@ class BOTAN_PUBLIC_API(2, 0) RandomNumberGenerator {
          return b;
       }
 
+      /**
+      * Reseed by reading specified bits from the RNG
+      *
+      * Sets the seeded state to true if enough entropy was added.
+      *
+      * @throws Exception if RNG accepts input but reseeding failed.
+      */
+      virtual void reseed_from_rng(RandomNumberGenerator& rng,
+                                   size_t poll_bits = RandomNumberGenerator::DefaultPollBits);
+
+#if !defined(BOTAN_IS_BEING_BUILT)
+      /**
+      * Default poll timeout
+      */
+      static constexpr auto DefaultPollTimeout = std::chrono::milliseconds(50);
+
+      /**
+       * Poll provided sources for up to poll_bits bits of entropy.
+       * Returns estimate of the number of bits collected.
+       *
+       * Sets the seeded state to true if enough entropy was added.
+       *
+       * TODO(Botan4) remove this function
+       */
+      BOTAN_DEPRECATED("Use reseed_from_sources")
+      inline size_t reseed(Entropy_Sources& srcs,
+                           size_t poll_bits = RandomNumberGenerator::DefaultPollBits,
+                           std::chrono::milliseconds /*unused_timeout*/ = DefaultPollTimeout) {
+         return reseed_from(srcs, poll_bits);
+      }
+#endif
+
    protected:
+      /**
+      * Poll provided sources for up to poll_bits bits of entropy.
+      * Returns estimate of the number of bits collected.
+      * Sets the seeded state to true if enough entropy was added.
+      *
+      * @throws Exception if RNG accepts input but reseeding failed.
+      */
+      virtual size_t reseed_from_sources(Entropy_Sources& srcs,
+                                         size_t poll_bits = RandomNumberGenerator::DefaultPollBits);
+
       /**
       * Generic interface to provide entropy to a concrete implementation and to
       * fill a given buffer with random output. Both @p output and @p input may

@@ -9,21 +9,21 @@
 #ifndef BOTAN_TLS_HANDSHAKE_STATE_H_
 #define BOTAN_TLS_HANDSHAKE_STATE_H_
 
-#include <botan/pk_keys.h>
-#include <botan/pubkey.h>
-#include <botan/tls_callbacks.h>
 #include <botan/tls_ciphersuite.h>
 #include <botan/tls_exceptn.h>
+#include <botan/tls_extensions.h>
 #include <botan/tls_handshake_msg.h>
+#include <botan/tls_session.h>
 #include <botan/internal/tls_handshake_hash.h>
 #include <botan/internal/tls_handshake_io.h>
 #include <botan/internal/tls_handshake_transitions.h>
 #include <botan/internal/tls_session_key.h>
-#include <functional>
 #include <optional>
 
 namespace Botan {
 
+enum class Signature_Format : uint8_t;
+class Public_Key;
 class KDF;
 
 namespace TLS {
@@ -61,8 +61,10 @@ class Handshake_State {
       Handshake_State(std::unique_ptr<Handshake_IO> io, Callbacks& callbacks);
       virtual ~Handshake_State();
 
-      Handshake_State(const Handshake_State&) = delete;
-      Handshake_State& operator=(const Handshake_State&) = delete;
+      Handshake_State(const Handshake_State& other) = delete;
+      Handshake_State(Handshake_State&& other) = delete;
+      Handshake_State& operator=(const Handshake_State& other) = delete;
+      Handshake_State& operator=(Handshake_State&& other) = delete;
 
       Handshake_IO& handshake_io() { return *m_handshake_io; }
 
@@ -107,26 +109,24 @@ class Handshake_State {
 
       void hello_verify_request(const Hello_Verify_Request& hello_verify);
 
-      // TODO: take unique_ptr instead of raw pointers for all of these, as
-      // we're taking the ownership
-      void client_hello(Client_Hello_12* client_hello);
-      void server_hello(Server_Hello_12* server_hello);
-      void server_cert_status(Certificate_Status* server_cert_status);
-      void server_kex(Server_Key_Exchange* server_kex);
-      void cert_req(Certificate_Request_12* cert_req);
-      void server_hello_done(Server_Hello_Done* server_hello_done);
-      void client_kex(Client_Key_Exchange* client_kex);
+      void client_hello(std::unique_ptr<Client_Hello_12> client_hello);
+      void server_hello(std::unique_ptr<Server_Hello_12> server_hello);
+      void server_cert_status(std::unique_ptr<Certificate_Status> server_cert_status);
+      void server_kex(std::unique_ptr<Server_Key_Exchange> server_kex);
+      void cert_req(std::unique_ptr<Certificate_Request_12> cert_req);
+      void server_hello_done(std::unique_ptr<Server_Hello_Done> server_hello_done);
+      void client_kex(std::unique_ptr<Client_Key_Exchange> client_kex);
 
-      void client_certs(Certificate_12* client_certs);
-      void server_certs(Certificate_12* server_certs);
+      void client_certs(std::unique_ptr<Certificate_12> client_certs);
+      void server_certs(std::unique_ptr<Certificate_12> server_certs);
 
-      void client_verify(Certificate_Verify_12* client_verify);
-      void server_verify(Certificate_Verify_12* server_verify);
+      void client_verify(std::unique_ptr<Certificate_Verify_12> client_verify);
+      void server_verify(std::unique_ptr<Certificate_Verify_12> server_verify);
 
-      void server_finished(Finished_12* server_finished);
-      void client_finished(Finished_12* client_finished);
+      void server_finished(std::unique_ptr<Finished_12> server_finished);
+      void client_finished(std::unique_ptr<Finished_12> client_finished);
 
-      void new_session_ticket(New_Session_Ticket_12* new_session_ticket);
+      void new_session_ticket(std::unique_ptr<New_Session_Ticket_12> new_session_ticket);
 
       const Client_Hello_12* client_hello() const { return m_client_hello.get(); }
 

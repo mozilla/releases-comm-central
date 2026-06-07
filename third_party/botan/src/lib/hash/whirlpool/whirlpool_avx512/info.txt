@@ -1,0 +1,20 @@
+<internal_defines>
+WHIRLPOOL_AVX512 -> 20260316
+</internal_defines>
+
+<module_info>
+name -> "Whirlpool using AVX512"
+brief -> "Whirlpool using AVX512 instructions"
+</module_info>
+
+<isa>
+avx512
+</isa>
+
+<arch>
+x86_64
+</arch>
+
+<requires>
+cpuid
+</requires>

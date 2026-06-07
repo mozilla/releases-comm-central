@@ -35,11 +35,13 @@
 
 namespace Botan_CLI {
 
+namespace {
+
 class PerfTest_Rng final : public PerfTest {
    public:
       void go(const PerfConfig& config) override {
 #if defined(BOTAN_HAS_HMAC_DRBG)
-         for(std::string hash : {"SHA-256", "SHA-384", "SHA-512"}) {
+         for(const std::string hash : {"SHA-256", "SHA-384", "SHA-512"}) {
             Botan::HMAC_DRBG hmac_drbg(hash);
             bench_rng(config, hmac_drbg, hmac_drbg.name());
          }
@@ -95,5 +97,7 @@ class PerfTest_Rng final : public PerfTest {
 };
 
 BOTAN_REGISTER_PERF_TEST("RNG", PerfTest_Rng);
+
+}  // namespace
 
 }  // namespace Botan_CLI

@@ -7,12 +7,14 @@
 
 #include <botan/ffi.h>
 
+#include <botan/assert.h>
 #include <botan/numthry.h>
 #include <botan/internal/barrett.h>
 #include <botan/internal/divide.h>
 #include <botan/internal/ffi_mp.h>
 #include <botan/internal/ffi_rng.h>
 #include <botan/internal/ffi_util.h>
+#include <botan/internal/mem_utils.h>
 #include <botan/internal/mod_inv.h>
 
 extern "C" {
@@ -26,8 +28,7 @@ int botan_mp_init(botan_mp_t* mp_out) {
       }
 
       auto mp = std::make_unique<Botan::BigInt>();
-      *mp_out = new botan_mp_struct(std::move(mp));
-      return BOTAN_FFI_SUCCESS;
+      return ffi_new_object(mp_out, std::move(mp));
    });
 }
 
@@ -45,22 +46,16 @@ int botan_mp_set_from_str(botan_mp_t mp, const char* str) {
 
 int botan_mp_set_from_radix_str(botan_mp_t mp, const char* str, size_t radix) {
    return BOTAN_FFI_VISIT(mp, [=](auto& bn) {
-      Botan::BigInt::Base base;
-      if(radix == 10) {
-         base = Botan::BigInt::Decimal;
-      } else if(radix == 16) {
-         base = Botan::BigInt::Hexadecimal;
-      } else {
+      if(radix != 10 && radix != 16) {
          return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
       }
 
-      const uint8_t* bytes = Botan::cast_char_ptr_to_uint8(str);
-      const size_t len = strlen(str);
-
-      bn = Botan::BigInt(bytes, len, base);
+      bn = Botan::BigInt::from_radix_digits(std::string_view(str), radix);
       return BOTAN_FFI_SUCCESS;
    });
 }
+
+// NOLINTBEGIN(misc-misplaced-const)
 
 int botan_mp_set_from_mp(botan_mp_t dest, const botan_mp_t source) {
    return BOTAN_FFI_VISIT(dest, [=](auto& bn) { bn = safe_get(source); });
@@ -85,16 +80,39 @@ int botan_mp_from_bin(botan_mp_t mp, const uint8_t bin[], size_t bin_len) {
 int botan_mp_to_hex(const botan_mp_t mp, char* out) {
    return BOTAN_FFI_VISIT(mp, [=](const auto& bn) {
       const std::string hex = bn.to_hex_string();
+
+      // Check that we are about to write no more than the documented upper bound
+      const size_t upper_bound = 2 * bn.bytes() + 5;
+      BOTAN_ASSERT_NOMSG(hex.size() + 1 <= upper_bound);
       std::memcpy(out, hex.c_str(), 1 + hex.size());
    });
 }
 
-int botan_mp_to_str(const botan_mp_t mp, uint8_t digit_base, char* out, size_t* out_len) {
+int botan_mp_view_hex(const botan_mp_t mp, botan_view_ctx ctx, botan_view_str_fn view) {
    return BOTAN_FFI_VISIT(mp, [=](const auto& bn) -> int {
-      if(digit_base == 0 || digit_base == 10) {
+      const std::string hex = bn.to_hex_string();
+      return invoke_view_callback(view, ctx, hex);
+   });
+}
+
+int botan_mp_to_str(const botan_mp_t mp, uint8_t radix, char* out, size_t* out_len) {
+   return BOTAN_FFI_VISIT(mp, [=](const auto& bn) -> int {
+      if(radix == 0 || radix == 10) {
          return write_str_output(out, out_len, bn.to_dec_string());
-      } else if(digit_base == 16) {
+      } else if(radix == 16) {
          return write_str_output(out, out_len, bn.to_hex_string());
+      } else {
+         return BOTAN_FFI_ERROR_BAD_PARAMETER;
+      }
+   });
+}
+
+int botan_mp_view_str(const botan_mp_t mp, uint8_t radix, botan_view_ctx ctx, botan_view_str_fn view) {
+   return BOTAN_FFI_VISIT(mp, [=](const auto& bn) -> int {
+      if(radix == 10) {
+         return invoke_view_callback(view, ctx, bn.to_dec_string());
+      } else if(radix == 16) {
+         return invoke_view_callback(view, ctx, bn.to_hex_string());
       } else {
          return BOTAN_FFI_ERROR_BAD_PARAMETER;
       }
@@ -103,6 +121,13 @@ int botan_mp_to_str(const botan_mp_t mp, uint8_t digit_base, char* out, size_t* 
 
 int botan_mp_to_bin(const botan_mp_t mp, uint8_t vec[]) {
    return BOTAN_FFI_VISIT(mp, [=](const auto& bn) { bn.serialize_to(std::span{vec, bn.bytes()}); });
+}
+
+int botan_mp_view_bin(const botan_mp_t mp, botan_view_ctx ctx, botan_view_bin_fn view) {
+   return BOTAN_FFI_VISIT(mp, [=](const auto& bn) {
+      const auto bytes = bn.serialize();
+      return invoke_view_callback(view, ctx, bytes);
+   });
 }
 
 int botan_mp_to_uint32(const botan_mp_t mp, uint32_t* val) {
@@ -261,4 +286,6 @@ int botan_mp_num_bits(const botan_mp_t mp, size_t* bits) {
 int botan_mp_num_bytes(const botan_mp_t mp, size_t* bytes) {
    return BOTAN_FFI_VISIT(mp, [=](const auto& n) { *bytes = n.bytes(); });
 }
+
+// NOLINTEND(misc-misplaced-const)
 }

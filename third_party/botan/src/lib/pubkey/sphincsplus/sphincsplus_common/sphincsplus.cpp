@@ -9,6 +9,9 @@
 #include <botan/sphincsplus.h>
 
 #include <botan/rng.h>
+#include <botan/internal/buffer_slicer.h>
+#include <botan/internal/buffer_stuffer.h>
+#include <botan/internal/concat_util.h>
 #include <botan/internal/int_utils.h>
 #include <botan/internal/pk_ops_impl.h>
 #include <botan/internal/sp_fors.h>
@@ -18,7 +21,6 @@
 #include <botan/internal/sp_types.h>
 #include <botan/internal/sp_wots.h>
 #include <botan/internal/sp_xmss.h>
-#include <botan/internal/stl_util.h>
 
 #include <utility>
 
@@ -159,7 +161,7 @@ OID SphincsPlus_PublicKey::object_identifier() const {
    return m_public->parameters().object_identifier();
 }
 
-bool SphincsPlus_PublicKey::check_key(RandomNumberGenerator&, bool) const {
+bool SphincsPlus_PublicKey::check_key(RandomNumberGenerator& /*rng*/, bool /*strong*/) const {
    // Nothing to check. It's literally just hashes. :-)
    return true;
 }
@@ -178,9 +180,11 @@ std::unique_ptr<Private_Key> SphincsPlus_PublicKey::generate_another(RandomNumbe
    return std::make_unique<SphincsPlus_PrivateKey>(rng, m_public->parameters());
 }
 
+namespace {
+
 class SphincsPlus_Verification_Operation final : public PK_Ops::Verification {
    public:
-      SphincsPlus_Verification_Operation(std::shared_ptr<SphincsPlus_PublicKeyInternal> pub_key) :
+      explicit SphincsPlus_Verification_Operation(std::shared_ptr<SphincsPlus_PublicKeyInternal> pub_key) :
             m_public(std::move(pub_key)),
             m_hashes(Botan::Sphincs_Hash_Functions::create(m_public->parameters(), m_public->seed())),
             m_context(/* TODO: Add API */ {}) {
@@ -240,6 +244,8 @@ class SphincsPlus_Verification_Operation final : public PK_Ops::Verification {
       SphincsInputMessage m_msg_buffer;
       SphincsContext m_context;
 };
+
+}  // namespace
 
 std::unique_ptr<PK_Ops::Verification> SphincsPlus_PublicKey::create_verification_op(std::string_view /*params*/,
                                                                                     std::string_view provider) const {
@@ -338,6 +344,8 @@ std::unique_ptr<Public_Key> SphincsPlus_PrivateKey::public_key() const {
    return std::make_unique<SphincsPlus_PublicKey>(*this);
 }
 
+namespace {
+
 class SphincsPlus_Signature_Operation final : public PK_Ops::Signature {
    public:
       SphincsPlus_Signature_Operation(std::shared_ptr<SphincsPlus_PrivateKeyInternal> private_key,
@@ -426,6 +434,8 @@ class SphincsPlus_Signature_Operation final : public PK_Ops::Signature {
       bool m_randomized;
       SphincsContext m_context;
 };
+
+}  // namespace
 
 std::unique_ptr<PK_Ops::Signature> SphincsPlus_PrivateKey::create_signature_op(RandomNumberGenerator& rng,
                                                                                std::string_view params,

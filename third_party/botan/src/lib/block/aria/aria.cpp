@@ -23,6 +23,10 @@
 #include <botan/internal/prefetch.h>
 #include <botan/internal/rotate.h>
 
+#if defined(BOTAN_HAS_CPUID)
+   #include <botan/internal/cpuid.h>
+#endif
+
 namespace Botan {
 
 namespace {
@@ -170,7 +174,10 @@ void transform(const uint8_t in[], uint8_t out[], size_t blocks, const secure_ve
    const size_t ROUNDS = (KS.size() / 4) - 1;
 
    for(size_t i = 0; i != blocks; ++i) {
-      uint32_t t0, t1, t2, t3;
+      uint32_t t0 = 0;
+      uint32_t t1 = 0;
+      uint32_t t2 = 0;
+      uint32_t t3 = 0;
       load_be(in + 16 * i, t0, t1, t2, t3);
 
       for(size_t r = 0; r < ROUNDS; r += 2) {
@@ -317,7 +324,7 @@ void key_schedule(secure_vector<uint32_t>& ERK, secure_vector<uint32_t>& DRK, st
       ERK.resize(4 * 17);
    }
 
-   ARIA_ROL128<19>(w0, w1, &ERK[0]);
+   ARIA_ROL128<19>(w0, w1, &ERK[0]);  // NOLINT(*-container-data-pointer)
    ARIA_ROL128<19>(w1, w2, &ERK[4]);
    ARIA_ROL128<19>(w2, w3, &ERK[8]);
    ARIA_ROL128<19>(w3, w0, &ERK[12]);
@@ -362,31 +369,109 @@ void key_schedule(secure_vector<uint32_t>& ERK, secure_vector<uint32_t>& DRK, st
 
 void ARIA_128::encrypt_n(const uint8_t in[], uint8_t out[], size_t blocks) const {
    assert_key_material_set();
+
+#if defined(BOTAN_HAS_ARIA_AVX512_GFNI)
+   if(CPUID::has(CPUID::Feature::AVX512, CPUID::Feature::GFNI)) {
+      return aria_avx512_gfni_encrypt(in, out, blocks);
+   }
+#endif
+
+#if defined(BOTAN_HAS_ARIA_HWAES)
+   if(CPUID::has(CPUID::Feature::HW_AES)) {
+      return aria_hwaes_encrypt(in, out, blocks);
+   }
+#endif
+
    ARIA_F::transform(in, out, blocks, m_ERK);
 }
 
 void ARIA_192::encrypt_n(const uint8_t in[], uint8_t out[], size_t blocks) const {
    assert_key_material_set();
+
+#if defined(BOTAN_HAS_ARIA_AVX512_GFNI)
+   if(CPUID::has(CPUID::Feature::AVX512, CPUID::Feature::GFNI)) {
+      return aria_avx512_gfni_encrypt(in, out, blocks);
+   }
+#endif
+
+#if defined(BOTAN_HAS_ARIA_HWAES)
+   if(CPUID::has(CPUID::Feature::HW_AES)) {
+      return aria_hwaes_encrypt(in, out, blocks);
+   }
+#endif
+
    ARIA_F::transform(in, out, blocks, m_ERK);
 }
 
 void ARIA_256::encrypt_n(const uint8_t in[], uint8_t out[], size_t blocks) const {
    assert_key_material_set();
+
+#if defined(BOTAN_HAS_ARIA_AVX512_GFNI)
+   if(CPUID::has(CPUID::Feature::AVX512, CPUID::Feature::GFNI)) {
+      return aria_avx512_gfni_encrypt(in, out, blocks);
+   }
+#endif
+
+#if defined(BOTAN_HAS_ARIA_HWAES)
+   if(CPUID::has(CPUID::Feature::HW_AES)) {
+      return aria_hwaes_encrypt(in, out, blocks);
+   }
+#endif
+
    ARIA_F::transform(in, out, blocks, m_ERK);
 }
 
 void ARIA_128::decrypt_n(const uint8_t in[], uint8_t out[], size_t blocks) const {
    assert_key_material_set();
+
+#if defined(BOTAN_HAS_ARIA_AVX512_GFNI)
+   if(CPUID::has(CPUID::Feature::AVX512, CPUID::Feature::GFNI)) {
+      return aria_avx512_gfni_decrypt(in, out, blocks);
+   }
+#endif
+
+#if defined(BOTAN_HAS_ARIA_HWAES)
+   if(CPUID::has(CPUID::Feature::HW_AES)) {
+      return aria_hwaes_decrypt(in, out, blocks);
+   }
+#endif
+
    ARIA_F::transform(in, out, blocks, m_DRK);
 }
 
 void ARIA_192::decrypt_n(const uint8_t in[], uint8_t out[], size_t blocks) const {
    assert_key_material_set();
+
+#if defined(BOTAN_HAS_ARIA_AVX512_GFNI)
+   if(CPUID::has(CPUID::Feature::AVX512, CPUID::Feature::GFNI)) {
+      return aria_avx512_gfni_decrypt(in, out, blocks);
+   }
+#endif
+
+#if defined(BOTAN_HAS_ARIA_HWAES)
+   if(CPUID::has(CPUID::Feature::HW_AES)) {
+      return aria_hwaes_decrypt(in, out, blocks);
+   }
+#endif
+
    ARIA_F::transform(in, out, blocks, m_DRK);
 }
 
 void ARIA_256::decrypt_n(const uint8_t in[], uint8_t out[], size_t blocks) const {
    assert_key_material_set();
+
+#if defined(BOTAN_HAS_ARIA_AVX512_GFNI)
+   if(CPUID::has(CPUID::Feature::AVX512, CPUID::Feature::GFNI)) {
+      return aria_avx512_gfni_decrypt(in, out, blocks);
+   }
+#endif
+
+#if defined(BOTAN_HAS_ARIA_HWAES)
+   if(CPUID::has(CPUID::Feature::HW_AES)) {
+      return aria_hwaes_decrypt(in, out, blocks);
+   }
+#endif
+
    ARIA_F::transform(in, out, blocks, m_DRK);
 }
 
@@ -400,6 +485,66 @@ bool ARIA_192::has_keying_material() const {
 
 bool ARIA_256::has_keying_material() const {
    return !m_ERK.empty();
+}
+
+namespace {
+
+size_t aria_parallelism() {
+#if defined(BOTAN_HAS_ARIA_AVX512_GFNI)
+   if(CPUID::has(CPUID::Feature::AVX512, CPUID::Feature::GFNI)) {
+      return 16;
+   }
+#endif
+
+#if defined(BOTAN_HAS_ARIA_HWAES)
+   if(CPUID::has(CPUID::Feature::HW_AES)) {
+      return 4;
+   }
+#endif
+
+   return 1;
+}
+
+std::string aria_provider() {
+#if defined(BOTAN_HAS_ARIA_AVX512_GFNI)
+   if(auto feat = CPUID::check(CPUID::Feature::AVX512, CPUID::Feature::GFNI)) {
+      return *feat;
+   }
+#endif
+
+#if defined(BOTAN_HAS_ARIA_HWAES)
+   if(auto feat = CPUID::check(CPUID::Feature::HW_AES)) {
+      return *feat;
+   }
+#endif
+
+   return "base";
+}
+
+}  // namespace
+
+size_t ARIA_128::parallelism() const {
+   return aria_parallelism();
+}
+
+std::string ARIA_128::provider() const {
+   return aria_provider();
+}
+
+size_t ARIA_192::parallelism() const {
+   return aria_parallelism();
+}
+
+std::string ARIA_192::provider() const {
+   return aria_provider();
+}
+
+size_t ARIA_256::parallelism() const {
+   return aria_parallelism();
+}
+
+std::string ARIA_256::provider() const {
+   return aria_provider();
 }
 
 void ARIA_128::key_schedule(std::span<const uint8_t> key) {

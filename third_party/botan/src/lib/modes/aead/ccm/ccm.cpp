@@ -8,6 +8,7 @@
 
 #include <botan/internal/ccm.h>
 
+#include <botan/exceptn.h>
 #include <botan/internal/ct_utils.h>
 #include <botan/internal/fmt.h>
 #include <botan/internal/loadstor.h>
@@ -50,8 +51,8 @@ std::string CCM_Mode::name() const {
    return fmt("{}/CCM({},{})", m_cipher->name(), tag_size(), L());
 }
 
-bool CCM_Mode::valid_nonce_length(size_t n) const {
-   return (n == (15 - L()));
+bool CCM_Mode::valid_nonce_length(size_t length) const {
+   return (length == (15 - L()));
 }
 
 size_t CCM_Mode::default_nonce_length() const {
@@ -95,7 +96,7 @@ void CCM_Mode::set_associated_data_n(size_t idx, std::span<const uint8_t> ad) {
       m_ad_buf.push_back(get_byte<0>(static_cast<uint16_t>(ad.size())));
       m_ad_buf.push_back(get_byte<1>(static_cast<uint16_t>(ad.size())));
       m_ad_buf.insert(m_ad_buf.end(), ad.begin(), ad.end());
-      while(m_ad_buf.size() % CCM_BS) {
+      while(m_ad_buf.size() % CCM_BS != 0) {
          m_ad_buf.push_back(0);  // pad with zeros to full block size
       }
    }
@@ -132,7 +133,9 @@ void CCM_Mode::encode_length(uint64_t len, uint8_t out[]) {
 
 void CCM_Mode::inc(secure_vector<uint8_t>& C) {
    for(size_t i = 0; i != C.size(); ++i) {
-      if(++C[C.size() - i - 1]) {
+      uint8_t& b = C[C.size() - i - 1];
+      b += 1;
+      if(b > 0) {
          break;
       }
    }

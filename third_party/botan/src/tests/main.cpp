@@ -17,7 +17,7 @@
 
 namespace {
 
-void print_item_list(std::ostringstream& err, const std::set<std::string>& list) {
+void print_item_list(std::ostringstream& err, const std::vector<std::string>& list) {
    size_t line_len = 0;
 
    for(const auto& item : list) {
@@ -121,9 +121,9 @@ int main(int argc, char* argv[]) {
 
       return tests.run(opts) ? 0 : 1;
    } catch(std::exception& e) {
-      std::cerr << "Exiting with error: " << e.what() << std::endl;
+      std::cerr << "Exiting with error: " << e.what() << "\n";
    } catch(...) {
-      std::cerr << "Exiting with unknown exception" << std::endl;
+      std::cerr << "Exiting with unknown exception\n";
    }
    return 2;
 }

@@ -9,6 +9,7 @@
 #include <botan/bigint.h>
 #include <botan/exceptn.h>
 #include <botan/rng.h>
+#include <botan/internal/buffer_stuffer.h>
 #include <botan/internal/ct_utils.h>
 #include <botan/internal/loadstor.h>
 #include <botan/internal/mp_core.h>
@@ -28,7 +29,7 @@ constexpr std::optional<std::array<word, N>> bytes_to_words(std::span<const uint
       return std::nullopt;
    }
 
-   std::array<word, N> r = {};
+   std::array<word, N> r{};
 
    const size_t full_words = bytes.size() / WordInfo<word>::bytes;
    const size_t extra_bytes = bytes.size() % WordInfo<word>::bytes;
@@ -117,7 +118,7 @@ class GenericCurveParams final {
             m_field_monty_r1(bn_to_fixed(m_monty_field.R1())),
             m_field_monty_r2(bn_to_fixed(m_monty_field.R2())),
             m_field_p_plus_1_over_4(bn_to_fixed_rev((p + 1) / 4)),
-            m_field_p_over_2_plus_1(bn_to_fixed((p / 2) + 1)),
+            m_field_inv_2(bn_to_fixed((p / 2) + 1)),
             m_field_p_dash(m_monty_field.p_dash()),
 
             m_order(bn_to_fixed(order)),
@@ -125,6 +126,7 @@ class GenericCurveParams final {
             m_order_monty_r1(bn_to_fixed(m_monty_order.R1())),
             m_order_monty_r2(bn_to_fixed(m_monty_order.R2())),
             m_order_monty_r3(bn_to_fixed(m_monty_order.R3())),
+            m_order_inv_2(bn_to_fixed((order / 2) + 1)),
             m_order_p_dash(m_monty_order.p_dash()),
 
             m_a_is_minus_3(a + 3 == p),
@@ -162,7 +164,7 @@ class GenericCurveParams final {
 
       const StorageUnit& field_p_plus_1_over_4() const { return m_field_p_plus_1_over_4; }
 
-      const StorageUnit& field_p_over_2_plus_1() const { return m_field_p_over_2_plus_1; }
+      const StorageUnit& field_inv_2() const { return m_field_inv_2; }
 
       word field_p_dash() const { return m_field_p_dash; }
 
@@ -175,6 +177,8 @@ class GenericCurveParams final {
       const StorageUnit& order_monty_r2() const { return m_order_monty_r2; }
 
       const StorageUnit& order_monty_r3() const { return m_order_monty_r3; }
+
+      const StorageUnit& order_inv_2() const { return m_order_inv_2; }
 
       word order_p_dash() const { return m_order_p_dash; }
 
@@ -229,7 +233,7 @@ class GenericCurveParams final {
          const size_t n_words = n.sig_words();
          BOTAN_ASSERT_NOMSG(n_words <= PrimeOrderCurve::StorageWords);
 
-         std::array<word, PrimeOrderCurve::StorageWords> r = {};
+         std::array<word, PrimeOrderCurve::StorageWords> r{};
          copy_mem(std::span{r}.first(n_words), n._as_span().first(n_words));
          return r;
       }
@@ -255,7 +259,7 @@ class GenericCurveParams final {
       StorageUnit m_field_monty_r1;
       StorageUnit m_field_monty_r2;
       StorageUnit m_field_p_plus_1_over_4;
-      StorageUnit m_field_p_over_2_plus_1;
+      StorageUnit m_field_inv_2;
       word m_field_p_dash;
 
       StorageUnit m_order;
@@ -263,13 +267,14 @@ class GenericCurveParams final {
       StorageUnit m_order_monty_r1;
       StorageUnit m_order_monty_r2;
       StorageUnit m_order_monty_r3;
+      StorageUnit m_order_inv_2;
       word m_order_p_dash;
 
-      StorageUnit m_monty_curve_a;
-      StorageUnit m_monty_curve_b;
+      StorageUnit m_monty_curve_a{};
+      StorageUnit m_monty_curve_b{};
 
-      StorageUnit m_base_x;
-      StorageUnit m_base_y;
+      StorageUnit m_base_x{};
+      StorageUnit m_base_y{};
 
       bool m_a_is_minus_3;
       bool m_a_is_zero;
@@ -290,7 +295,7 @@ class GenericScalar final {
             return {};
          }
 
-         std::array<uint8_t, 2 * sizeof(word) * N> padded_bytes = {};
+         std::array<uint8_t, 2 * sizeof(word) * N> padded_bytes{};
          copy_mem(std::span{padded_bytes}.last(bytes.size()), bytes);
 
          auto words = bytes_to_words<2 * N>(std::span{padded_bytes});
@@ -325,7 +330,7 @@ class GenericScalar final {
       }
 
       static GenericScalar zero(const GenericPrimeOrderCurve* curve) {
-         StorageUnit zeros = {};
+         const StorageUnit zeros{};
          return GenericScalar(curve, zeros);
       }
 
@@ -361,13 +366,13 @@ class GenericScalar final {
       }
 
       friend GenericScalar operator+(const GenericScalar& a, const GenericScalar& b) {
-         auto curve = check_curve(a, b);
+         const auto* curve = check_curve(a, b);
          const size_t words = curve->_params().words();
 
-         StorageUnit t = {};
-         W carry = bigint_add3_nc(t.data(), a.data(), words, b.data(), words);
+         StorageUnit t{};
+         const W carry = bigint_add3(t.data(), a.data(), words, b.data(), words);
 
-         StorageUnit r = {};
+         StorageUnit r{};
          bigint_monty_maybe_sub(words, r.data(), carry, t.data(), curve->_params().order().data());
          return GenericScalar(curve, r);
       }
@@ -375,26 +380,26 @@ class GenericScalar final {
       friend GenericScalar operator-(const GenericScalar& a, const GenericScalar& b) { return a + b.negate(); }
 
       friend GenericScalar operator*(const GenericScalar& a, const GenericScalar& b) {
-         auto curve = check_curve(a, b);
+         const auto* curve = check_curve(a, b);
 
-         std::array<W, 2 * N> z;
+         std::array<W, 2 * N> z;  // NOLINT(*-member-init)
          curve->_params().mul(z, a.value(), b.value());
          return GenericScalar(curve, redc(curve, z));
       }
 
       GenericScalar& operator*=(const GenericScalar& other) {
-         auto curve = check_curve(*this, other);
+         const auto* curve = check_curve(*this, other);
 
-         std::array<W, 2 * N> z;
+         std::array<W, 2 * N> z;  // NOLINT(*-member-init)
          curve->_params().mul(z, value(), other.value());
          m_val = redc(curve, z);
          return (*this);
       }
 
       GenericScalar square() const {
-         auto curve = this->m_curve;
+         const auto* curve = this->m_curve;
 
-         std::array<W, 2 * N> z;
+         std::array<W, 2 * N> z;  // NOLINT(*-member-init)
          curve->_params().sqr(z, value());
          return GenericScalar(curve, redc(curve, z));
       }
@@ -416,6 +421,90 @@ class GenericScalar final {
       }
 
       GenericScalar invert() const { return pow_vartime(m_curve->_params().order_minus_2()); }
+
+      /**
+      * Helper for variable time BEEA
+      *
+      * Note this function assumes that its arguments are in the standard
+      * domain, not the Montgomery domain. invert_vartime converts its argument
+      * out of Montgomery, and then back to Montgomery when returning the result.
+      */
+      static void _invert_vartime_div2_helper(GenericScalar& a, GenericScalar& x) {
+         const auto& inv_2 = a.curve()->_params().order_inv_2();
+
+         // Conditional ok: this function is variable time
+         while((a.m_val[0] & 1) != 1) {
+            shift_right<1>(a.m_val);
+
+            const W borrow = shift_right<1>(x.m_val);
+
+            // Conditional ok: this function is variable time
+            if(borrow > 0) {
+               bigint_add2(x.m_val.data(), N, inv_2.data(), N);
+            }
+         }
+      }
+
+      /*
+      * See the comments on invert_vartime in pcurves_impl.h for background
+      */
+      GenericScalar invert_vartime() const {
+         if(this->is_zero().as_bool()) {
+            return (*this);
+         }
+
+         auto x = GenericScalar(m_curve, std::array<W, N>{1});
+         auto b = GenericScalar(m_curve, from_rep(m_curve, m_val));
+
+         // First loop iteration
+         GenericScalar::_invert_vartime_div2_helper(b, x);
+
+         auto a = b.negate();
+         // y += x but y is zero at the outset
+         auto y = x;
+
+         // First half of second loop iteration
+         GenericScalar::_invert_vartime_div2_helper(a, y);
+
+         for(;;) {
+            // Conditional ok: this function is variable time
+            if(a.m_val == b.m_val) {
+               // At this point it should be that a == b == 1
+               auto r = y.negate();
+
+               // Convert back to Montgomery
+               return GenericScalar(curve(), to_rep(curve(), r.m_val));
+            }
+
+            auto nx = x + y;
+
+            /*
+            * Otherwise either b > a or a > b
+            *
+            * If b > a we want to set b to b - a
+            * Otherwise we want to set a to a - b
+            *
+            * Compute r = b - a and check if it underflowed
+            * If it did not then we are in the b > a path
+            */
+            std::array<W, N> r{};
+            const word carry = bigint_sub3(r.data(), b.data(), N, a.data(), N);
+
+            // Conditional ok: this function is variable time
+            if(carry == 0) {
+               // b > a
+               b.m_val = r;
+               x = nx;
+               GenericScalar::_invert_vartime_div2_helper(b, x);
+            } else {
+               // We know this can't underflow because a > b
+               bigint_sub3(r.data(), a.data(), N, b.data(), N);
+               a.m_val = r;
+               y = nx;
+               GenericScalar::_invert_vartime_div2_helper(a, y);
+            }
+         }
+      }
 
       template <concepts::resizable_byte_buffer T>
       T serialize() const {
@@ -473,28 +562,28 @@ class GenericScalar final {
       static StorageUnit redc(const GenericPrimeOrderCurve* curve, std::array<W, 2 * N> z) {
          const auto& mod = curve->_params().order();
          const size_t words = curve->_params().words();
-         StorageUnit r = {};
-         StorageUnit ws = {};
+         StorageUnit r{};
+         StorageUnit ws{};
          bigint_monty_redc(
             r.data(), z.data(), mod.data(), words, curve->_params().order_p_dash(), ws.data(), ws.size());
          return r;
       }
 
       static StorageUnit from_rep(const GenericPrimeOrderCurve* curve, StorageUnit z) {
-         std::array<W, 2 * N> ze = {};
+         std::array<W, 2 * N> ze{};
          copy_mem(std::span{ze}.template first<N>(), z);
          return redc(curve, ze);
       }
 
       static StorageUnit to_rep(const GenericPrimeOrderCurve* curve, StorageUnit x) {
-         std::array<W, 2 * N> z;
+         std::array<W, 2 * N> z;  // NOLINT(*-member-init)
          curve->_params().mul(z, x, curve->_params().order_monty_r2());
          return redc(curve, z);
       }
 
       static StorageUnit wide_to_rep(const GenericPrimeOrderCurve* curve, std::array<W, 2 * N> x) {
          auto redc_x = redc(curve, x);
-         std::array<W, 2 * N> z;
+         std::array<W, 2 * N> z;  // NOLINT(*-member-init)
          curve->_params().mul(z, redc_x, curve->_params().order_monty_r3());
          return redc(curve, z);
       }
@@ -502,6 +591,8 @@ class GenericScalar final {
       const GenericPrimeOrderCurve* m_curve;
       StorageUnit m_val;
 };
+
+namespace {
 
 class GenericField final {
    public:
@@ -536,7 +627,7 @@ class GenericField final {
       }
 
       static GenericField zero(const GenericPrimeOrderCurve* curve) {
-         StorageUnit zeros = {};
+         const StorageUnit zeros{};
          return GenericField(curve, zeros);
       }
 
@@ -584,10 +675,10 @@ class GenericField final {
       */
       GenericField div2() const {
          StorageUnit t = value();
-         W borrow = shift_right<1>(t);
+         const W borrow = shift_right<1>(t);
 
          // If value was odd, add (P/2)+1
-         bigint_cnd_add(borrow, t.data(), N, m_curve->_params().field_p_over_2_plus_1().data(), N);
+         bigint_cnd_add(borrow, t.data(), m_curve->_params().field_inv_2().data(), N);
 
          return GenericField(m_curve, t);
       }
@@ -595,7 +686,7 @@ class GenericField final {
       /// Return (*this) multiplied by 2
       GenericField mul2() const {
          StorageUnit t = value();
-         W carry = shift_left<1>(t);
+         const W carry = shift_left<1>(t);
 
          StorageUnit r;
          bigint_monty_maybe_sub<N>(r.data(), carry, t.data(), m_curve->_params().field().data());
@@ -612,13 +703,13 @@ class GenericField final {
       GenericField mul8() const { return mul2().mul2().mul2(); }
 
       friend GenericField operator+(const GenericField& a, const GenericField& b) {
-         auto curve = check_curve(a, b);
+         const auto* curve = check_curve(a, b);
          const size_t words = curve->_params().words();
 
-         StorageUnit t = {};
-         W carry = bigint_add3_nc(t.data(), a.data(), words, b.data(), words);
+         StorageUnit t{};
+         const W carry = bigint_add3(t.data(), a.data(), words, b.data(), words);
 
-         StorageUnit r = {};
+         StorageUnit r{};
          bigint_monty_maybe_sub(words, r.data(), carry, t.data(), curve->_params().field().data());
          return GenericField(curve, r);
       }
@@ -626,24 +717,24 @@ class GenericField final {
       friend GenericField operator-(const GenericField& a, const GenericField& b) { return a + b.negate(); }
 
       friend GenericField operator*(const GenericField& a, const GenericField& b) {
-         auto curve = check_curve(a, b);
+         const auto* curve = check_curve(a, b);
 
-         std::array<W, 2 * N> z;
+         std::array<W, 2 * N> z;  // NOLINT(*-member-init)
          curve->_params().mul(z, a.value(), b.value());
          return GenericField(curve, redc(curve, z));
       }
 
       GenericField& operator*=(const GenericField& other) {
-         auto curve = check_curve(*this, other);
+         const auto* curve = check_curve(*this, other);
 
-         std::array<W, 2 * N> z;
+         std::array<W, 2 * N> z;  // NOLINT(*-member-init)
          curve->_params().mul(z, value(), other.value());
          m_val = redc(curve, z);
          return (*this);
       }
 
       GenericField square() const {
-         std::array<W, 2 * N> z;
+         std::array<W, 2 * N> z;  // NOLINT(*-member-init)
          m_curve->_params().sqr(z, value());
          return GenericField(m_curve, redc(m_curve, z));
       }
@@ -665,6 +756,12 @@ class GenericField final {
       }
 
       GenericField invert() const { return pow_vartime(m_curve->_params().field_minus_2()); }
+
+      GenericField invert_vartime() const {
+         // TODO take advantage of variable time here using eg BEEA
+         // see IntMod::invert_vartime in pcurves_impl.h
+         return invert();
+      }
 
       template <concepts::resizable_byte_buffer T>
       T serialize() const {
@@ -716,8 +813,19 @@ class GenericField final {
 
       void _const_time_unpoison() const { CT::unpoison(m_val); }
 
+      static void conditional_swap(CT::Choice cond, GenericField& x, GenericField& y) {
+         const W mask = cond.into_bitmask<W>();
+
+         for(size_t i = 0; i != N; ++i) {
+            auto nx = choose(mask, y.m_val[i], x.m_val[i]);
+            auto ny = choose(mask, x.m_val[i], y.m_val[i]);
+            x.m_val[i] = nx;
+            y.m_val[i] = ny;
+         }
+      }
+
       void conditional_assign(CT::Choice cond, const GenericField& nx) {
-         const W mask = CT::Mask<W>::from_choice(cond).value();
+         const W mask = cond.into_bitmask<W>();
 
          for(size_t i = 0; i != N; ++i) {
             m_val[i] = choose(mask, nx.m_val[i], m_val[i]);
@@ -731,7 +839,7 @@ class GenericField final {
       */
       static void conditional_assign(
          GenericField& x, GenericField& y, CT::Choice cond, const GenericField& nx, const GenericField& ny) {
-         const W mask = CT::Mask<W>::from_choice(cond).value();
+         const W mask = cond.into_bitmask<W>();
 
          for(size_t i = 0; i != N; ++i) {
             x.m_val[i] = choose(mask, nx.m_val[i], x.m_val[i]);
@@ -751,7 +859,7 @@ class GenericField final {
                                      const GenericField& nx,
                                      const GenericField& ny,
                                      const GenericField& nz) {
-         const W mask = CT::Mask<W>::from_choice(cond).value();
+         const W mask = cond.into_bitmask<W>();
 
          for(size_t i = 0; i != N; ++i) {
             x.m_val[i] = choose(mask, nx.m_val[i], x.m_val[i]);
@@ -785,21 +893,21 @@ class GenericField final {
       static StorageUnit redc(const GenericPrimeOrderCurve* curve, std::array<W, 2 * N> z) {
          const auto& mod = curve->_params().field();
          const size_t words = curve->_params().words();
-         StorageUnit r = {};
-         StorageUnit ws = {};
+         StorageUnit r{};
+         StorageUnit ws{};
          bigint_monty_redc(
             r.data(), z.data(), mod.data(), words, curve->_params().field_p_dash(), ws.data(), ws.size());
          return r;
       }
 
       static StorageUnit from_rep(const GenericPrimeOrderCurve* curve, StorageUnit z) {
-         std::array<W, 2 * N> ze = {};
+         std::array<W, 2 * N> ze{};
          copy_mem(std::span{ze}.template first<N>(), z);
          return redc(curve, ze);
       }
 
       static StorageUnit to_rep(const GenericPrimeOrderCurve* curve, StorageUnit x) {
-         std::array<W, 2 * N> z;
+         std::array<W, 2 * N> z{};
          curve->_params().mul(z, x, curve->_params().field_monty_r2());
          return redc(curve, z);
       }
@@ -807,6 +915,8 @@ class GenericField final {
       const GenericPrimeOrderCurve* m_curve;
       StorageUnit m_val;
 };
+
+}  // namespace
 
 /**
 * Affine Curve Point
@@ -817,7 +927,7 @@ class GenericAffinePoint final {
    public:
       GenericAffinePoint(const GenericField& x, const GenericField& y) : m_x(x), m_y(y) {}
 
-      GenericAffinePoint(const GenericPrimeOrderCurve* curve) :
+      explicit GenericAffinePoint(const GenericPrimeOrderCurve* curve) :
             m_x(GenericField::zero(curve)), m_y(GenericField::zero(curve)) {}
 
       static GenericAffinePoint identity(const GenericPrimeOrderCurve* curve) {
@@ -948,11 +1058,13 @@ class GenericProjectivePoint final {
       * Convert a point from affine to projective form
       */
       static Self from_affine(const GenericAffinePoint& pt) {
-         if(pt.is_identity().as_bool()) {
-            return Self::identity(pt.curve());
-         } else {
-            return GenericProjectivePoint(pt.x(), pt.y());
-         }
+         auto x = pt.x();
+         auto y = pt.y();
+         auto z = GenericField::one(x.curve());
+
+         // If pt is identity (0,0) swap y/z to convert (0,0,1) into (0,1,0)
+         GenericField::conditional_swap(pt.is_identity(), y, z);
+         return GenericProjectivePoint(x, y, z);
       }
 
       /**
@@ -965,7 +1077,7 @@ class GenericProjectivePoint final {
       /**
       * Default constructor: the identity element
       */
-      GenericProjectivePoint(const GenericPrimeOrderCurve* curve) :
+      explicit GenericProjectivePoint(const GenericPrimeOrderCurve* curve) :
             m_x(GenericField::zero(curve)), m_y(GenericField::one(curve)), m_z(GenericField::zero(curve)) {}
 
       /**
@@ -998,11 +1110,19 @@ class GenericProjectivePoint final {
 
       CT::Choice is_identity() const { return z().is_zero(); }
 
+      void conditional_assign(CT::Choice cond, const Self& pt) {
+         GenericField::conditional_assign(m_x, m_y, m_z, cond, pt.x(), pt.y(), pt.z());
+      }
+
       /**
       * Mixed (projective + affine) point addition
       */
       static Self add_mixed(const Self& a, const GenericAffinePoint& b) {
          return point_add_mixed<Self, GenericAffinePoint, GenericField>(a, b, GenericField::one(a.curve()));
+      }
+
+      static Self add_or_sub(const Self& a, const GenericAffinePoint& b, CT::Choice sub) {
+         return point_add_or_sub_mixed<Self, GenericAffinePoint, GenericField>(a, b, sub, GenericField::one(a.curve()));
       }
 
       /**
@@ -1092,6 +1212,8 @@ class GenericProjectivePoint final {
       GenericField m_z;
 };
 
+namespace {
+
 class GenericCurve final {
    public:
       typedef GenericField FieldElement;
@@ -1100,53 +1222,59 @@ class GenericCurve final {
       typedef GenericProjectivePoint ProjectivePoint;
 
       typedef word WordType;
-      static constexpr size_t Words = PCurve::PrimeOrderCurve::StorageWords;
 };
 
 class GenericBlindedScalarBits final {
    public:
       GenericBlindedScalarBits(const GenericScalar& scalar, RandomNumberGenerator& rng, size_t wb) {
-         // Just a simplifying assumption for get_window, can extend to 1..7 as required
-         BOTAN_ASSERT_NOMSG(wb == 3 || wb == 4 || wb == 5);
+         BOTAN_ASSERT_NOMSG(wb == 1 || wb == 2 || wb == 3 || wb == 4 || wb == 5 || wb == 6 || wb == 7);
 
          const auto& params = scalar.curve()->_params();
 
          const size_t order_bits = params.order_bits();
-         const size_t blinder_bits = blinding_bits(order_bits);
+         m_window_bits = wb;
 
-         const size_t mask_words = blinder_bits / WordInfo<word>::bits;
-         const size_t mask_bytes = mask_words * WordInfo<word>::bytes;
+         const size_t blinder_bits = scalar_blinding_bits(order_bits);
 
-         const size_t words = params.words();
+         if(blinder_bits > 0 && rng.is_seeded()) {
+            const size_t mask_words = (blinder_bits + WordInfo<word>::bits - 1) / WordInfo<word>::bits;
+            const size_t mask_bytes = mask_words * WordInfo<word>::bytes;
 
-         secure_vector<uint8_t> maskb(mask_bytes);
-         if(rng.is_seeded()) {
+            const size_t words = params.words();
+
+            secure_vector<uint8_t> maskb(mask_bytes);
             rng.randomize(maskb);
-         } else {
-            auto sbytes = scalar.serialize<std::vector<uint8_t>>();
-            for(size_t i = 0; i != sbytes.size(); ++i) {
-               maskb[i % mask_bytes] ^= sbytes[i];
+
+            std::array<word, PrimeOrderCurve::StorageWords> mask{};
+            load_le(mask.data(), maskb.data(), mask_words);
+
+            // Mask to exactly blinder_bits and set MSB and LSB
+            const size_t excess = mask_words * WordInfo<word>::bits - blinder_bits;
+            if(excess > 0) {
+               mask[mask_words - 1] &= (static_cast<word>(1) << (WordInfo<word>::bits - excess)) - 1;
             }
+            const size_t msb_pos = (blinder_bits - 1) % WordInfo<word>::bits;
+            mask[(blinder_bits - 1) / WordInfo<word>::bits] |= static_cast<word>(1) << msb_pos;
+            mask[0] |= 1;
+
+            std::array<word, 2 * PrimeOrderCurve::StorageWords> mask_n{};
+
+            const auto sw = scalar.to_words();
+
+            // Compute masked scalar s + k*n
+            params.mul(mask_n, mask, params.order());
+            bigint_add2(mask_n.data(), 2 * words, sw.data(), words);
+
+            std::reverse(mask_n.begin(), mask_n.end());
+            m_bytes = store_be<std::vector<uint8_t>>(mask_n);
+            m_bits = order_bits + blinder_bits;
+         } else {
+            // No RNG available, skip blinding
+            m_bytes = scalar.serialize<std::vector<uint8_t>>();
+            m_bits = order_bits;
          }
 
-         std::array<word, PrimeOrderCurve::StorageWords> mask = {};
-         load_le(mask.data(), maskb.data(), mask_words);
-         mask[mask_words - 1] |= WordInfo<word>::top_bit;
-         mask[0] |= 1;
-
-         std::array<word, 2 * PrimeOrderCurve::StorageWords> mask_n = {};
-
-         const auto sw = scalar.to_words();
-
-         // Compute masked scalar s + k*n
-         params.mul(mask_n, mask, params.order());
-         bigint_add2_nc(mask_n.data(), 2 * words, sw.data(), words);
-
-         std::reverse(mask_n.begin(), mask_n.end());
-         m_bytes = store_be<std::vector<uint8_t>>(mask_n);
-         m_bits = order_bits + blinder_bits;
-         m_window_bits = wb;
-         m_windows = (order_bits + blinder_bits + wb - 1) / wb;
+         m_windows = (m_bits + wb - 1) / wb;
       }
 
       size_t windows() const { return m_windows; }
@@ -1154,24 +1282,23 @@ class GenericBlindedScalarBits final {
       size_t bits() const { return m_bits; }
 
       size_t get_window(size_t offset) const {
-         if(m_window_bits == 3) {
+         if(m_window_bits == 1) {
+            return read_window_bits<1>(std::span{m_bytes}, offset);
+         } else if(m_window_bits == 2) {
+            return read_window_bits<2>(std::span{m_bytes}, offset);
+         } else if(m_window_bits == 3) {
             return read_window_bits<3>(std::span{m_bytes}, offset);
          } else if(m_window_bits == 4) {
             return read_window_bits<4>(std::span{m_bytes}, offset);
          } else if(m_window_bits == 5) {
             return read_window_bits<5>(std::span{m_bytes}, offset);
+         } else if(m_window_bits == 6) {
+            return read_window_bits<6>(std::span{m_bytes}, offset);
+         } else if(m_window_bits == 7) {
+            return read_window_bits<7>(std::span{m_bytes}, offset);
          } else {
             BOTAN_ASSERT_UNREACHABLE();
          }
-      }
-
-      static size_t blinding_bits(size_t order_bits) {
-         if(order_bits > 512) {
-            return blinding_bits(512);
-         }
-
-         const size_t wb = sizeof(word) * 8;
-         return ((order_bits / 4 + wb - 1) / wb) * wb;
       }
 
    private:
@@ -1186,10 +1313,11 @@ class GenericWindowedMul final {
       static constexpr size_t WindowBits = VarPointWindowBits;
       static constexpr size_t TableSize = (1 << WindowBits) - 1;
 
-      GenericWindowedMul(const GenericAffinePoint& pt) : m_table(varpoint_setup<GenericCurve, TableSize>(pt)) {}
+      explicit GenericWindowedMul(const GenericAffinePoint& pt) :
+            m_table(varpoint_setup<GenericCurve, TableSize>(pt)) {}
 
       GenericProjectivePoint mul(const GenericScalar& s, RandomNumberGenerator& rng) {
-         GenericBlindedScalarBits bits(s, rng, WindowBits);
+         const GenericBlindedScalarBits bits(s, rng, WindowBits);
 
          return varpoint_exec<GenericCurve, WindowBits>(m_table, bits, rng);
       }
@@ -1198,28 +1326,32 @@ class GenericWindowedMul final {
       AffinePointTable<GenericCurve> m_table;
 };
 
+}  // namespace
+
 class GenericBaseMulTable final {
    public:
       static constexpr size_t WindowBits = BasePointWindowBits;
 
-      static constexpr size_t WindowElements = (1 << WindowBits) - 1;
-
-      GenericBaseMulTable(const GenericAffinePoint& pt) :
-            m_table(basemul_setup<GenericCurve, WindowBits>(pt, blinded_scalar_bits(*pt.curve()))) {}
+      // +1 for Booth carry from the top window
+      explicit GenericBaseMulTable(const GenericAffinePoint& pt) :
+            m_table(basemul_booth_setup<GenericCurve, WindowBits>(pt, blinded_scalar_bits(*pt.curve()) + 1)) {}
 
       GenericProjectivePoint mul(const GenericScalar& s, RandomNumberGenerator& rng) {
-         GenericBlindedScalarBits scalar(s, rng, WindowBits);
-         return basemul_exec<GenericCurve, WindowBits>(m_table, scalar, rng);
+         // W+1 bit windows for Booth recoding overlap
+         const GenericBlindedScalarBits scalar(s, rng, WindowBits + 1);
+         return basemul_booth_exec<GenericCurve, WindowBits>(m_table, scalar, rng);
       }
 
    private:
       static size_t blinded_scalar_bits(const GenericPrimeOrderCurve& curve) {
          const size_t order_bits = curve.order_bits();
-         return order_bits + GenericBlindedScalarBits::blinding_bits(order_bits);
+         return order_bits + scalar_blinding_bits(order_bits);
       }
 
       std::vector<GenericAffinePoint> m_table;
 };
+
+namespace {
 
 class GenericWindowedMul2 final {
    public:
@@ -1236,8 +1368,8 @@ class GenericWindowedMul2 final {
             m_table(mul2_setup<GenericCurve, WindowBits>(p, q)) {}
 
       GenericProjectivePoint mul2(const GenericScalar& x, const GenericScalar& y, RandomNumberGenerator& rng) const {
-         GenericBlindedScalarBits x_bits(x, rng, WindowBits);
-         GenericBlindedScalarBits y_bits(y, rng, WindowBits);
+         const GenericBlindedScalarBits x_bits(x, rng, WindowBits);
+         const GenericBlindedScalarBits y_bits(y, rng, WindowBits);
          return mul2_exec<GenericCurve, WindowBits>(m_table, x_bits, y_bits, rng);
       }
 
@@ -1257,7 +1389,7 @@ class GenericVartimeWindowedMul2 final : public PrimeOrderCurve::PrecomputedMul2
       ~GenericVartimeWindowedMul2() override = default;
 
       GenericVartimeWindowedMul2(const GenericAffinePoint& p, const GenericAffinePoint& q) :
-            m_table(to_affine_batch<GenericCurve>(mul2_setup<GenericCurve, WindowBits>(p, q))) {}
+            m_table(to_affine_batch<GenericCurve, true>(mul2_setup<GenericCurve, WindowBits>(p, q))) {}
 
       GenericProjectivePoint mul2_vartime(const GenericScalar& x, const GenericScalar& y) const {
          const auto x_bits = x.serialize<std::vector<uint8_t>>();
@@ -1292,6 +1424,8 @@ class GenericVartimeWindowedMul2 final : public PrimeOrderCurve::PrecomputedMul2
       std::vector<GenericAffinePoint> m_table;
 };
 
+}  // namespace
+
 GenericPrimeOrderCurve::GenericPrimeOrderCurve(
    const BigInt& p, const BigInt& a, const BigInt& b, const BigInt& base_x, const BigInt& base_y, const BigInt& order) :
       m_params(std::make_unique<GenericCurveParams>(p, a, b, base_x, base_y, order)) {}
@@ -1324,7 +1458,11 @@ PrimeOrderCurve::Scalar GenericPrimeOrderCurve::base_point_mul_x_mod_order(const
    BOTAN_STATE_CHECK(m_basemul != nullptr);
    auto pt_s = m_basemul->mul(from_stash(scalar), rng);
    const auto x_bytes = to_affine_x<GenericCurve>(pt_s).serialize<secure_vector<uint8_t>>();
-   return stash(GenericScalar::from_wide_bytes(this, x_bytes).value());
+   if(auto s = GenericScalar::from_wide_bytes(this, x_bytes)) {
+      return stash(*s);
+   } else {
+      throw Internal_Error("Failed to convert x coordinate to integer modulo scalar");
+   }
 }
 
 PrimeOrderCurve::ProjectivePoint GenericPrimeOrderCurve::mul(const AffinePoint& pt,
@@ -1361,7 +1499,7 @@ std::optional<PrimeOrderCurve::ProjectivePoint> GenericPrimeOrderCurve::mul2_var
 
 std::optional<PrimeOrderCurve::ProjectivePoint> GenericPrimeOrderCurve::mul_px_qy(
    const AffinePoint& p, const Scalar& x, const AffinePoint& q, const Scalar& y, RandomNumberGenerator& rng) const {
-   GenericWindowedMul2 table(from_stash(p), from_stash(q));
+   const GenericWindowedMul2 table(from_stash(p), from_stash(q));
    auto pt = table.mul2(from_stash(x), from_stash(y), rng);
    if(pt.is_identity().as_bool()) {
       return {};
@@ -1487,8 +1625,7 @@ PrimeOrderCurve::Scalar GenericPrimeOrderCurve::scalar_invert(const Scalar& s) c
 }
 
 PrimeOrderCurve::Scalar GenericPrimeOrderCurve::scalar_invert_vartime(const Scalar& s) const {
-   // TODO support BEEA for this
-   return stash(from_stash(s).invert());
+   return stash(from_stash(s).invert_vartime());
 }
 
 PrimeOrderCurve::Scalar GenericPrimeOrderCurve::scalar_negate(const Scalar& s) const {
@@ -1576,7 +1713,9 @@ std::shared_ptr<const PrimeOrderCurve> PCurveInstance::from_params(
    // exactly the primes for the 521 or 239 bit exceptions; this code
    // should work fine with any such prime and we are relying on the higher
    // levels to prevent creating such a group in the first place
-
+   //
+   // TODO(Botan4) increase the 128 here to 192 when the corresponding EC_Group constructor is changed
+   //
    if(p_bits != 521 && p_bits != 239 && (p_bits < 128 || p_bits > 512 || p_bits % 32 != 0)) {
       return {};
    }

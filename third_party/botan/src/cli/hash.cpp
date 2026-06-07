@@ -12,6 +12,8 @@
 
 namespace Botan_CLI {
 
+namespace {
+
 #if defined(BOTAN_HAS_HASH)
 
 class Hash final : public Command {
@@ -61,5 +63,7 @@ class Hash final : public Command {
 BOTAN_REGISTER_COMMAND("hash", Hash);
 
 #endif
+
+}  // namespace
 
 }  // namespace Botan_CLI

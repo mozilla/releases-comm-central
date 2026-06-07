@@ -9,7 +9,6 @@
 #define BOTAN_CIPHER_MODE_H_
 
 #include <botan/concepts.h>
-#include <botan/exceptn.h>
 #include <botan/secmem.h>
 #include <botan/sym_algo.h>
 #include <memory>
@@ -23,9 +22,9 @@ namespace Botan {
 /**
 * The two possible directions a Cipher_Mode can operate in
 */
-enum class Cipher_Dir : int {
-   Encryption,
-   Decryption,
+enum class Cipher_Dir : uint8_t {
+   Encryption = 0,
+   Decryption = 1,
 
    ENCRYPTION BOTAN_DEPRECATED("Use Cipher_Dir::Encryption") = Encryption,
    DECRYPTION BOTAN_DEPRECATED("Use Cipher_Dir::Decryption") = Decryption,
@@ -233,7 +232,7 @@ class BOTAN_PUBLIC_API(2, 0) Cipher_Mode : public SymmetricAlgorithm {
       virtual bool requires_entire_message() const { return false; }
 
       /**
-      * @return required minimium size to finalize() - may be any
+      * @return required minimum size to finalize() - may be any
       *         length larger than this.
       */
       virtual size_t minimum_final_size() const = 0;

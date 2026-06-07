@@ -53,6 +53,9 @@ class BOTAN_PUBLIC_API(2, 0) Certificate_Store_In_SQL : public Certificate_Store
       std::optional<X509_Certificate> find_cert_by_raw_subject_dn_sha256(
          const std::vector<uint8_t>& subject_hash) const override;
 
+      std::optional<X509_Certificate> find_cert_by_issuer_dn_and_serial_number(
+         const X509_DN& issuer_dn, std::span<const uint8_t> serial_number) const override;
+
       /**
       * Returns all subject DNs known to the store instance.
       */
@@ -71,7 +74,7 @@ class BOTAN_PUBLIC_API(2, 0) Certificate_Store_In_SQL : public Certificate_Store
       bool remove_cert(const X509_Certificate& cert);
 
       /// Returns the private key for "cert" or an empty shared_ptr if none was found.
-      std::shared_ptr<const Private_Key> find_key(const X509_Certificate&) const;
+      std::shared_ptr<const Private_Key> find_key(const X509_Certificate& cert) const;
 
       /// Returns all certificates for private key "key".
       std::vector<X509_Certificate> find_certs_for_key(const Private_Key& key) const;
@@ -86,10 +89,13 @@ class BOTAN_PUBLIC_API(2, 0) Certificate_Store_In_SQL : public Certificate_Store
       void remove_key(const Private_Key& key);
 
       /// Marks "cert" as revoked starting from "time".
-      void revoke_cert(const X509_Certificate&, CRL_Code, const X509_Time& time = X509_Time());
+      void revoke_cert(const X509_Certificate& cert, CRL_Code reason, const X509_Time& time);
 
-      /// Reverses the revokation for "cert".
-      void affirm_cert(const X509_Certificate&);
+      /// Marks "cert" as revoked with no time specified
+      void revoke_cert(const X509_Certificate& cert, CRL_Code reason);
+
+      /// Reverses the revocation for "cert".
+      void affirm_cert(const X509_Certificate& cert);
 
       /**
       * Generates Certificate Revocation Lists for all certificates marked as revoked.

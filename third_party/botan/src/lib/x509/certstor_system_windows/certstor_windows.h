@@ -11,8 +11,11 @@
 #define BOTAN_CERT_STORE_SYSTEM_WINDOWS_H_
 
 #include <botan/certstor.h>
-
+#include <botan/mutex.h>
 #include <map>
+
+// Use Certificate_Store_System instead
+BOTAN_FUTURE_INTERNAL_HEADER(certstor_windows.h)
 
 namespace Botan {
 /**
@@ -22,10 +25,10 @@ class BOTAN_PUBLIC_API(2, 11) Certificate_Store_Windows final : public Certifica
    public:
       Certificate_Store_Windows();
 
-      Certificate_Store_Windows(const Certificate_Store_Windows&) = default;
-      Certificate_Store_Windows(Certificate_Store_Windows&&) = default;
-      Certificate_Store_Windows& operator=(const Certificate_Store_Windows&) = default;
-      Certificate_Store_Windows& operator=(Certificate_Store_Windows&&) = default;
+      Certificate_Store_Windows(const Certificate_Store_Windows&) = delete;
+      Certificate_Store_Windows(Certificate_Store_Windows&&) = delete;
+      Certificate_Store_Windows& operator=(const Certificate_Store_Windows&) = delete;
+      Certificate_Store_Windows& operator=(Certificate_Store_Windows&&) = delete;
 
       /**
       * @return DNs for all certificates managed by the store
@@ -59,6 +62,9 @@ class BOTAN_PUBLIC_API(2, 11) Certificate_Store_Windows final : public Certifica
       std::optional<X509_Certificate> find_cert_by_raw_subject_dn_sha256(
          const std::vector<uint8_t>& subject_hash) const override;
 
+      std::optional<X509_Certificate> find_cert_by_issuer_dn_and_serial_number(
+         const X509_DN& issuer_dn, std::span<const uint8_t> serial_number) const override;
+
       /**
        * Not Yet Implemented
        * @return nullptr;
@@ -79,8 +85,10 @@ class BOTAN_PUBLIC_API(2, 11) Certificate_Store_Windows final : public Certifica
          const std::vector<uint8_t>& key_hash) const;
 
    private:
-      mutable std::map<std::vector<uint8_t>, std::optional<X509_Certificate>> m_non_rfc3289_certs;
+      mutable mutex_type m_mutex;
+      mutable std::map<std::vector<uint8_t>, std::optional<X509_Certificate>> m_sha1_pubkey_to_cert;
 };
+
 }  // namespace Botan
 
 #endif

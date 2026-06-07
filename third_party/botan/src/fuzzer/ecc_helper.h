@@ -14,8 +14,6 @@
 #include <botan/numthry.h>
 #include <botan/internal/barrett.h>
 
-namespace {
-
 inline std::ostream& operator<<(std::ostream& o, const Botan::EC_AffinePoint& point) {
    o << Botan::hex_encode(point.serialize_uncompressed()) << "\n";
    return o;
@@ -26,7 +24,7 @@ inline Botan::BigInt decompress_point(bool yMod2,
                                       const Botan::BigInt& curve_p,
                                       const Botan::BigInt& curve_a,
                                       const Botan::BigInt& curve_b) {
-   Botan::BigInt xpow3 = x * x * x;
+   const Botan::BigInt xpow3 = x * x * x;
 
    Botan::BigInt g = curve_a * x;
    g += xpow3;
@@ -82,7 +80,5 @@ inline void check_ecc_math(const Botan::EC_Group& group, std::span<const uint8_t
    FUZZER_ASSERT_EQUAL(S2, R2);
    FUZZER_ASSERT_EQUAL(T2, R2);
 }
-
-}  // namespace
 
 #endif

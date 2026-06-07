@@ -56,7 +56,9 @@ class BOTAN_PUBLIC_API(2, 0) Filter {
       virtual ~Filter() = default;
 
       Filter(const Filter&) = delete;
+      Filter(Filter&&) = delete;
       Filter& operator=(const Filter&) = delete;
+      Filter& operator=(Filter&&) = delete;
 
    protected:
       /**
@@ -132,10 +134,11 @@ class BOTAN_PUBLIC_API(2, 0) Filter {
 
       secure_vector<uint8_t> m_write_queue;
       std::vector<Filter*> m_next;  // not owned
-      size_t m_port_num, m_filter_owns;
+      size_t m_port_num = 0;
+      size_t m_filter_owns = 0;
 
       // true if filter belongs to a pipe --> prohibit filter sharing!
-      bool m_owned;
+      bool m_owned = false;
 };
 
 /**
@@ -148,10 +151,13 @@ class BOTAN_PUBLIC_API(2, 0) Fanout_Filter : public Filter {
       */
       void incr_owns() { ++m_filter_owns; }
 
+      // NOLINTNEXTLINE(bugprone-derived-method-shadowing-base-method)
       void set_port(size_t n) { Filter::set_port(n); }
 
+      // NOLINTNEXTLINE(bugprone-derived-method-shadowing-base-method)
       void set_next(Filter* f[], size_t n) { Filter::set_next(f, n); }
 
+      // NOLINTNEXTLINE(bugprone-derived-method-shadowing-base-method)
       void attach(Filter* f) { Filter::attach(f); }
 };
 
@@ -161,7 +167,7 @@ class BOTAN_PUBLIC_API(2, 0) Fanout_Filter : public Filter {
 * whitespaces, FULL_CHECK - perform checks, also complain
 * about white spaces.
 */
-enum Decoder_Checking { NONE, IGNORE_WS, FULL_CHECK };
+enum Decoder_Checking : uint8_t /* NOLINT(*-use-enum-class) */ { NONE, IGNORE_WS, FULL_CHECK };
 
 }  // namespace Botan
 

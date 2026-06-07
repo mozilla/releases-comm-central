@@ -7,6 +7,7 @@
 
 #include <botan/uuid.h>
 
+#include <botan/exceptn.h>
 #include <botan/hex.h>
 #include <botan/rng.h>
 #include <botan/internal/fmt.h>
@@ -40,7 +41,7 @@ UUID::UUID(std::string_view uuid_str) {
    }
 
    std::string just_hex;
-   for(char c : uuid_str) {
+   for(const char c : uuid_str) {
       if(c == '-') {
          continue;
       }
@@ -56,7 +57,7 @@ UUID::UUID(std::string_view uuid_str) {
 }
 
 std::string UUID::to_string() const {
-   if(is_valid() == false) {
+   if(!is_valid()) {
       throw Invalid_State("UUID object is empty cannot convert to string");
    }
 

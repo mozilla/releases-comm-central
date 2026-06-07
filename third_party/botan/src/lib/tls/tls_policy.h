@@ -10,9 +10,7 @@
 #ifndef BOTAN_TLS_POLICY_H_
 #define BOTAN_TLS_POLICY_H_
 
-#include <botan/tls_ciphersuite.h>
-#include <botan/tls_extensions.h>
-#include <botan/tls_signature_scheme.h>
+#include <botan/tls_algos.h>
 #include <botan/tls_version.h>
 #include <chrono>
 #include <map>
@@ -25,11 +23,14 @@ class Public_Key;
 
 namespace TLS {
 
+class Ciphersuite;
+class Signature_Scheme;
+
 /**
 * TLS Policy Base Class
 * Inherit and overload as desired to suit local policy concerns
 */
-class BOTAN_PUBLIC_API(2, 0) Policy {
+class BOTAN_PUBLIC_API(2, 0) Policy /* NOLINT(*-special-member-functions) */ {
    public:
       /**
       * Allow ssl key log file

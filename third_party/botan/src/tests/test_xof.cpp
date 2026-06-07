@@ -8,9 +8,11 @@
 #include "tests.h"
 
 #if defined(BOTAN_HAS_XOF)
+   #include <botan/exceptn.h>
+   #include <botan/rng.h>
    #include <botan/xof.h>
+   #include <botan/internal/concat_util.h>
    #include <botan/internal/fmt.h>
-   #include <botan/internal/stl_util.h>
 
    #if defined(BOTAN_HAS_CSHAKE_XOF)
       // This XOF implementation is not exposed via the library's public interface
@@ -26,6 +28,8 @@
 #endif
 
 namespace Botan_Tests {
+
+namespace {
 
 #if defined(BOTAN_HAS_XOF)
 
@@ -89,33 +93,44 @@ class XOF_Tests final : public Text_Based_Test {
             }
 
             const std::string provider(xof->provider());
-            result.test_is_nonempty("provider", provider);
-            result.test_eq(provider, xof->name(), algo);
+            result.test_str_not_empty("provider", provider);
+            result.test_str_eq(provider, xof->name(), algo);
 
             // Some XOFs don't accept input at all. We assume that this stays the same
             // after calling `XOF::clear()`.
             const auto new_accepts_input = xof->accepts_input();
 
-            result.confirm("advertised block size is > 0", xof->block_size() > 0);
-            result.test_eq("new object may accept input", xof->accepts_input(), new_accepts_input);
+            result.test_is_true("advertised block size is > 0", xof->block_size() > 0);
+            result.test_bool_eq("new object may accept input", xof->accepts_input(), new_accepts_input);
 
             // input and output in bulk
             xof->start(salt, key);
             xof->update(in);
-            result.test_eq("object may accept input before first output", xof->accepts_input(), new_accepts_input);
-            result.test_eq("generated output", xof->output_stdvec(expected.size()), expected);
-            result.confirm("object does not accept input after first output", !xof->accepts_input());
+            result.test_bool_eq("object may accept input before first output", xof->accepts_input(), new_accepts_input);
+            result.test_bin_eq("generated output", xof->output_stdvec(expected.size()), expected);
+            result.test_is_true("object does not accept input after first output", !xof->accepts_input());
+
+            // input and output (overwriting existing data)
+            // -> regression test where the buffer content was inadvertently
+            //    xor'ed into the state. Fine with zero-buffer not so fine with
+            //    random buffer -.-
+            xof->clear();
+            xof->start(salt, key);
+            xof->update(in);
+            auto nonzero_data = rng().random_vec(expected.size());
+            xof->output(nonzero_data);
+            result.test_bin_eq("generated output (overwriting existing data)", nonzero_data, expected);
 
             // if not necessary, invoking start() should be optional
             if(salt.empty() && key.empty()) {
                xof->clear();
                xof->update(in);
-               result.test_eq("generated output (w/o start())", xof->output_stdvec(expected.size()), expected);
+               result.test_bin_eq("generated output (w/o start())", xof->output_stdvec(expected.size()), expected);
             }
 
             // input again and output bytewise
             xof->clear();
-            result.test_eq("object might accept input after clear()", xof->accepts_input(), new_accepts_input);
+            result.test_bool_eq("object might accept input after clear()", xof->accepts_input(), new_accepts_input);
             xof->start(salt, key);
             xof->update(in);
 
@@ -123,14 +138,14 @@ class XOF_Tests final : public Text_Based_Test {
             for(uint8_t& chr : singlebyte_out) {
                chr = xof->output_next_byte();
             }
-            result.test_eq("generated singlebyte output", singlebyte_out, expected);
+            result.test_bin_eq("generated singlebyte output", singlebyte_out, expected);
 
             // input and output blocksize-ish wise
             auto process_as_blocks = [&](const std::string& id, size_t block_size) {
                auto new_xof = xof->new_object();
-               result.test_eq(Botan::fmt("reconstructed XOF may accept input ({})", id),
-                              new_xof->accepts_input(),
-                              new_accepts_input);
+               result.test_bool_eq(Botan::fmt("reconstructed XOF may accept input ({})", id),
+                                   new_xof->accepts_input(),
+                                   new_accepts_input);
 
                new_xof->start(salt, key);
                std::span<const uint8_t> in_span(in);
@@ -146,7 +161,7 @@ class XOF_Tests final : public Text_Based_Test {
                   new_xof->output(out_span.first(bytes));
                   out_span = out_span.last(out_span.size() - bytes);
                }
-               result.test_eq(Botan::fmt("generated blockwise output ({})", id), blockwise_out, expected);
+               result.test_bin_eq(Botan::fmt("generated blockwise output ({})", id), blockwise_out, expected);
             };
 
             process_as_blocks("-1", xof->block_size() - 1);
@@ -159,18 +174,20 @@ class XOF_Tests final : public Text_Based_Test {
                xof->start(salt, key);
                xof->update(std::span(in).first(in.size() / 2));
                auto xof2 = xof->copy_state();
-               result.test_eq("copied object might still accept input", xof2->accepts_input(), new_accepts_input);
+               result.test_bool_eq("copied object might still accept input", xof2->accepts_input(), new_accepts_input);
                xof->update(std::span(in).last(in.size() - in.size() / 2));
                xof2->update(std::span(in).last(in.size() - in.size() / 2));
                auto cp_out1 = xof->output_stdvec(expected.size());
                auto cp_out2_1 = xof2->output_stdvec(expected.size() / 2);
                auto xof3 = xof2->copy_state();
-               result.confirm("copied object doesn't allow input after reading output", !xof3->accepts_input());
+               result.test_is_true("copied object doesn't allow input after reading output", !xof3->accepts_input());
                auto cp_out2_2a = xof2->output_stdvec(expected.size() - expected.size() / 2);
                auto cp_out2_2b = xof3->output_stdvec(expected.size() - expected.size() / 2);
-               result.test_eq("output is equal, after state copy", cp_out1, expected);
-               result.test_eq("output is equal, after state copy (A)", Botan::concat(cp_out2_1, cp_out2_2a), expected);
-               result.test_eq("output is equal, after state copy (B)", Botan::concat(cp_out2_1, cp_out2_2b), expected);
+               result.test_bin_eq("output is equal, after state copy", cp_out1, expected);
+               result.test_bin_eq(
+                  "output is equal, after state copy (A)", Botan::concat(cp_out2_1, cp_out2_2a), expected);
+               result.test_bin_eq(
+                  "output is equal, after state copy (B)", Botan::concat(cp_out2_1, cp_out2_2b), expected);
             } catch(const Botan::Not_Implemented&) {
                // pass...
             }
@@ -189,9 +206,9 @@ class XOF_Tests final : public Text_Based_Test {
                      cshakes.push_back(std::make_unique<Botan::cSHAKE_256_XOF>(""));
 
                      for(auto& cshake : cshakes) {
-                        result.confirm("cSHAKE without a name rejects empty salt", !cshake->valid_salt_length(0));
-                        result.confirm("cSHAKE without a name requests at least one byte of salt",
-                                       cshake->valid_salt_length(1));
+                        result.test_is_true("cSHAKE without a name rejects empty salt", !cshake->valid_salt_length(0));
+                        result.test_is_true("cSHAKE without a name requests at least one byte of salt",
+                                            cshake->valid_salt_length(1));
                         result.test_throws("cSHAKE without a name throws without salt", [&]() { cshake->start({}); });
                      }
                   }),
@@ -213,5 +230,7 @@ class XOF_Tests final : public Text_Based_Test {
 BOTAN_REGISTER_SERIALIZED_TEST("xof", "extendable_output_functions", XOF_Tests);
 
 #endif
+
+}  // namespace
 
 }  // namespace Botan_Tests

@@ -9,6 +9,7 @@
 #include <botan/system_rng.h>
 
 #include <botan/assert.h>
+#include <botan/exceptn.h>
 #include <botan/internal/target_info.h>
 
 #if defined(BOTAN_TARGET_OS_HAS_WIN32)
@@ -19,10 +20,12 @@
 
 #if defined(BOTAN_TARGET_OS_HAS_RTLGENRANDOM)
    #include <botan/internal/dyn_load.h>
+   #include <limits>
 #elif defined(BOTAN_TARGET_OS_HAS_CRYPTO_NG)
    #include <bcrypt.h>
    #include <windows.h>
 #elif defined(BOTAN_TARGET_OS_HAS_CCRANDOM)
+   #include <errno.h>
    #include <CommonCrypto/CommonRandom.h>
 #elif defined(BOTAN_TARGET_OS_HAS_ARC4RANDOM)
    #include <stdlib.h>

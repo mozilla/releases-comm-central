@@ -20,8 +20,14 @@
 
 namespace Botan {
 
+// NOLINTBEGIN(*-macro-usage,*-no-assembler)
+
 #if defined(BOTAN_USE_GCC_INLINE_ASM) && defined(BOTAN_TARGET_ARCH_IS_X86_64)
    #define BOTAN_MP_USE_X86_64_ASM
+#endif
+
+#if defined(BOTAN_USE_GCC_INLINE_ASM) && defined(BOTAN_TARGET_ARCH_IS_ARM64)
+   #define BOTAN_MP_USE_AARCH64_ASM
 #endif
 
 /*
@@ -95,6 +101,23 @@ inline constexpr auto word_madd2(W a, W b, W* c) -> W {
 
       return a;
    }
+#elif defined(BOTAN_MP_USE_AARCH64_ASM)
+   if(std::same_as<W, uint64_t> && !std::is_constant_evaluated()) {
+      W lo = 0;
+      W hi = 0;
+      asm(R"(
+         mul  %[lo], %[a], %[b]
+         umulh %[hi], %[a], %[b]
+         adds %[lo], %[lo], %[c]
+         adc  %[hi], %[hi], xzr
+         )"
+          : [lo] "=&r"(lo), [hi] "=&r"(hi)
+          : [a] "r"(a), [b] "r"(b), [c] "r"(*c)
+          : "cc");
+
+      *c = hi;
+      return lo;
+   }
 #endif
 
    typedef typename WordInfo<W>::dword dword;
@@ -124,6 +147,25 @@ inline constexpr auto word_madd3(W a, W b, W c, W* d) -> W {
           : "cc");
 
       return a;
+   }
+#elif defined(BOTAN_MP_USE_AARCH64_ASM)
+   if(std::same_as<W, uint64_t> && !std::is_constant_evaluated()) {
+      W lo = 0;
+      W hi = 0;
+      asm(R"(
+         mul  %[lo], %[a], %[b]
+         umulh %[hi], %[a], %[b]
+         adds %[lo], %[lo], %[c]
+         adc  %[hi], %[hi], xzr
+         adds %[lo], %[lo], %[d]
+         adc  %[hi], %[hi], xzr
+         )"
+          : [lo] "=&r"(lo), [hi] "=&r"(hi)
+          : [a] "r"(a), [b] "r"(b), [c] "r"(c), [d] "r"(*d)
+          : "cc");
+
+      *d = hi;
+      return lo;
    }
 #endif
 
@@ -323,32 +365,6 @@ inline constexpr auto word8_sub2(W x[8], const W y[8], W carry) -> W {
 }
 
 /*
-* Eight Word Block Subtraction, Two Argument
-*/
-template <WordType W>
-inline constexpr auto word8_sub2_rev(W x[8], const W y[8], W carry) -> W {
-#if defined(BOTAN_MP_USE_X86_64_ASM)
-   if(std::same_as<W, uint64_t> && !std::is_constant_evaluated()) {
-      asm(ADD_OR_SUBTRACT(DO_8_TIMES(ADDSUB3_OP, "sbbq"))
-          : [carry] "=r"(carry)
-          : [x] "r"(y), [y] "r"(x), [z] "r"(x), "0"(carry)
-          : "cc", "memory");
-      return carry;
-   }
-#endif
-
-   x[0] = word_sub(y[0], x[0], &carry);
-   x[1] = word_sub(y[1], x[1], &carry);
-   x[2] = word_sub(y[2], x[2], &carry);
-   x[3] = word_sub(y[3], x[3], &carry);
-   x[4] = word_sub(y[4], x[4], &carry);
-   x[5] = word_sub(y[5], x[5], &carry);
-   x[6] = word_sub(y[6], x[6], &carry);
-   x[7] = word_sub(y[7], x[7], &carry);
-   return carry;
-}
-
-/*
 * Eight Word Block Subtraction, Three Argument
 */
 template <WordType W>
@@ -371,32 +387,6 @@ inline constexpr auto word8_sub3(W z[8], const W x[8], const W y[8], W carry) ->
    z[5] = word_sub(x[5], y[5], &carry);
    z[6] = word_sub(x[6], y[6], &carry);
    z[7] = word_sub(x[7], y[7], &carry);
-   return carry;
-}
-
-/*
-* Eight Word Block Linear Multiplication
-*/
-template <WordType W>
-inline constexpr auto word8_linmul2(W x[8], W y, W carry) -> W {
-#if defined(BOTAN_MP_USE_X86_64_ASM)
-   if(std::same_as<W, uint64_t> && !std::is_constant_evaluated()) {
-      asm(DO_8_TIMES(LINMUL_OP, "x")
-          : [carry] "=r"(carry)
-          : [x] "r"(x), [y] "rm"(y), "0"(carry)
-          : "cc", "%rax", "%rdx");
-      return carry;
-   }
-#endif
-
-   x[0] = word_madd2(x[0], y, &carry);
-   x[1] = word_madd2(x[1], y, &carry);
-   x[2] = word_madd2(x[2], y, &carry);
-   x[3] = word_madd2(x[3], y, &carry);
-   x[4] = word_madd2(x[4], y, &carry);
-   x[5] = word_madd2(x[5], y, &carry);
-   x[6] = word_madd2(x[6], y, &carry);
-   x[7] = word_madd2(x[7], y, &carry);
    return carry;
 }
 
@@ -465,7 +455,7 @@ class word3 final {
 #if defined(__BITINT_MAXWIDTH__) && (__BITINT_MAXWIDTH__ >= 3 * 64)
 
    public:
-      constexpr word3() { m_w = 0; }
+      constexpr word3() : m_w(0) {}
 
       inline constexpr void mul(W x, W y) { m_w += static_cast<W3>(x) * y; }
 
@@ -500,16 +490,13 @@ class word3 final {
 #else
 
    public:
-      constexpr word3() {
-         m_w2 = 0;
-         m_w1 = 0;
-         m_w0 = 0;
-      }
+      constexpr word3() : m_w0(0), m_w1(0), m_w2(0) {}
 
       inline constexpr void mul(W x, W y) {
    #if defined(BOTAN_MP_USE_X86_64_ASM)
          if(std::same_as<W, uint64_t> && !std::is_constant_evaluated()) {
-            W z0 = 0, z1 = 0;
+            W z0 = 0;
+            W z1 = 0;
 
             asm("mulq %[y]" : "=a"(z0), "=d"(z1) : "a"(x), [y] "rm"(y) : "cc");
 
@@ -523,20 +510,40 @@ class word3 final {
                 : "cc");
             return;
          }
+   #elif defined(BOTAN_MP_USE_AARCH64_ASM)
+         if(std::same_as<W, uint64_t> && !std::is_constant_evaluated()) {
+            W t0 = 0;
+            W t1 = 0;
+            asm(R"(
+                mul  %[t0], %[x], %[y]
+                umulh %[t1], %[x], %[y]
+                adds %[w0], %[w0], %[t0]
+                adcs %[w1], %[w1], %[t1]
+                adc  %[w2], %[w2], xzr
+                )"
+                : [w0] "+r"(m_w0), [w1] "+r"(m_w1), [w2] "+r"(m_w2), [t0] "=&r"(t0), [t1] "=&r"(t1)
+                : [x] "r"(x), [y] "r"(y)
+                : "cc");
+            return;
+         }
    #endif
 
          typedef typename WordInfo<W>::dword dword;
-         const dword s = dword(x) * y + m_w0;
-         W carry = static_cast<W>(s >> WordInfo<W>::bits);
-         m_w0 = static_cast<W>(s);
-         m_w1 += carry;
-         m_w2 += (m_w1 < carry);
+         const auto z = dword(x) * y;
+         const auto z0 = static_cast<W>(z);
+         const auto z1 = static_cast<W>(z >> WordInfo<W>::bits);
+
+         W carry = 0;
+         m_w0 = word_add(m_w0, z0, &carry);
+         m_w1 = word_add(m_w1, z1, &carry);
+         m_w2 += carry;
       }
 
       inline constexpr void mul_x2(W x, W y) {
    #if defined(BOTAN_MP_USE_X86_64_ASM)
          if(std::same_as<W, uint64_t> && !std::is_constant_evaluated()) {
-            W z0 = 0, z1 = 0;
+            W z0 = 0;
+            W z1 = 0;
 
             asm("mulq %[y]" : "=a"(z0), "=d"(z1) : "a"(x), [y] "rm"(y) : "cc");
 
@@ -554,20 +561,40 @@ class word3 final {
                 : "cc");
             return;
          }
+   #elif defined(BOTAN_MP_USE_AARCH64_ASM)
+         if(std::same_as<W, uint64_t> && !std::is_constant_evaluated()) {
+            W t0 = 0;
+            W t1 = 0;
+            asm(R"(
+                mul  %[t0], %[x], %[y]
+                umulh %[t1], %[x], %[y]
+                adds %[w0], %[w0], %[t0]
+                adcs %[w1], %[w1], %[t1]
+                adc  %[w2], %[w2], xzr
+                adds %[w0], %[w0], %[t0]
+                adcs %[w1], %[w1], %[t1]
+                adc  %[w2], %[w2], xzr
+                )"
+                : [w0] "+r"(m_w0), [w1] "+r"(m_w1), [w2] "+r"(m_w2), [t0] "=&r"(t0), [t1] "=&r"(t1)
+                : [x] "r"(x), [y] "r"(y)
+                : "cc");
+            return;
+         }
    #endif
 
-         W carry = 0;
-         x = word_madd2(x, y, &carry);
-         y = carry;
+         typedef typename WordInfo<W>::dword dword;
+         const auto z = dword(x) * y;
+         const auto z0 = static_cast<W>(z);
+         const auto z1 = static_cast<W>(z >> WordInfo<W>::bits);
 
-         carry = 0;
-         m_w0 = word_add(m_w0, x, &carry);
-         m_w1 = word_add(m_w1, y, &carry);
+         W carry = 0;
+         m_w0 = word_add(m_w0, z0, &carry);
+         m_w1 = word_add(m_w1, z1, &carry);
          m_w2 += carry;
 
          carry = 0;
-         m_w0 = word_add(m_w0, x, &carry);
-         m_w1 = word_add(m_w1, y, &carry);
+         m_w0 = word_add(m_w0, z0, &carry);
+         m_w1 = word_add(m_w1, z1, &carry);
          m_w2 += carry;
       }
 
@@ -607,7 +634,9 @@ class word3 final {
       }
 
    private:
-      W m_w0, m_w1, m_w2;
+      W m_w0;
+      W m_w1;
+      W m_w2;
 #endif
 };
 
@@ -620,6 +649,8 @@ class word3 final {
    #undef LINMUL_OP
    #undef MULADD_OP
 #endif
+
+// NOLINTEND(*-macro-usage,*-no-assembler)
 
 }  // namespace Botan
 

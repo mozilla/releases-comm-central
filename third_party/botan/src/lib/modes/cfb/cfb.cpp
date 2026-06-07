@@ -8,6 +8,7 @@
 
 #include <botan/internal/cfb.h>
 
+#include <botan/exceptn.h>
 #include <botan/mem_ops.h>
 #include <botan/internal/fmt.h>
 
@@ -16,8 +17,8 @@ namespace Botan {
 CFB_Mode::CFB_Mode(std::unique_ptr<BlockCipher> cipher, size_t feedback_bits) :
       m_cipher(std::move(cipher)),
       m_block_size(m_cipher->block_size()),
-      m_feedback_bytes(feedback_bits ? feedback_bits / 8 : m_block_size) {
-   if(feedback_bits % 8 || feedback() > m_block_size) {
+      m_feedback_bytes(feedback_bits != 0 ? feedback_bits / 8 : m_block_size) {
+   if(feedback_bits % 8 != 0 || feedback() > m_block_size) {
       throw Invalid_Argument(fmt("{} does not support feedback bits of {}", name(), feedback_bits));
    }
 }
@@ -159,7 +160,7 @@ namespace {
 
 inline void xor_copy(uint8_t buf[], uint8_t key_buf[], size_t len) {
    for(size_t i = 0; i != len; ++i) {
-      uint8_t k = key_buf[i];
+      const uint8_t k = key_buf[i];
       key_buf[i] = buf[i];
       buf[i] ^= k;
    }

@@ -7,24 +7,23 @@
 * Botan is released under the Simplified BSD License (see license.txt)
 */
 
-#include "test_pubkey.h"
-#include "test_pubkey_pqc.h"
-#include "test_rng.h"
 #include "tests.h"
 
 #if defined(BOTAN_HAS_CLASSICMCELIECE)
 
+   #include "test_arb_eq.h"
+   #include "test_pubkey.h"
+   #include "test_pubkey_pqc.h"
+   #include "test_rng.h"
    #include <botan/cmce.h>
    #include <botan/hash.h>
+   #include <botan/hex.h>
    #include <botan/pk_algs.h>
    #include <botan/pubkey.h>
-   #include <botan/internal/cmce_decaps.h>
-   #include <botan/internal/cmce_encaps.h>
-   #include <botan/internal/cmce_field_ordering.h>
    #include <botan/internal/cmce_gf.h>
-   #include <botan/internal/cmce_keys_internal.h>
    #include <botan/internal/cmce_parameters.h>
    #include <botan/internal/cmce_poly.h>
+   #include <algorithm>
 
 namespace Botan_Tests {
 
@@ -37,9 +36,10 @@ Botan::Classic_McEliece_Polynomial create_element_from_bytes(std::span<const uin
    Botan::load_le<uint16_t>(coef.data(), bytes.data(), ring.degree());
 
    std::vector<Botan::Classic_McEliece_GF> coeff_vec_gf;
-   std::transform(coef.begin(), coef.end(), std::back_inserter(coeff_vec_gf), [&](auto& coeff) {
-      return Botan::Classic_McEliece_GF(Botan::CmceGfElem(coeff), ring.poly_f());
-   });
+   coeff_vec_gf.reserve(coef.size());
+   for(const auto& coeff : coef) {
+      coeff_vec_gf.push_back(Botan::Classic_McEliece_GF(Botan::CmceGfElem(coeff), ring.poly_f()));
+   }
    return Botan::Classic_McEliece_Polynomial(coeff_vec_gf);
 }
 
@@ -86,7 +86,6 @@ bool skip_cmce_test(const std::string& params_str) {
    auto to_test = instances_to_test();
    return std::find(to_test.begin(), to_test.end(), params.parameter_set()) == to_test.end();
 }
-}  // namespace
 
 class CMCE_Utility_Tests final : public Test {
    public:
@@ -103,13 +102,13 @@ class CMCE_Utility_Tests final : public Test {
             "543e2791fd98dbc1"    // first 8 bytes
             "d332a7c40776ca01");  // last 8 bytes
 
-         size_t byte_length =
+         const size_t byte_length =
             (params.n() + params.sigma2() * params.q() + params.sigma1() * params.t() + params.ell()) / 8;
 
          auto rand = params.prg(seed)->output_stdvec(byte_length);
          rand.erase(rand.begin() + 8, rand.end() - 8);
 
-         result.test_is_eq("Seed expansion", rand, exp_first_and_last_bytes);
+         result.test_bin_eq("Seed expansion", rand, exp_first_and_last_bytes);
 
          return result;
       }
@@ -132,8 +131,8 @@ class CMCE_Utility_Tests final : public Test {
             params.poly_f());
 
          auto g = params.poly_ring().compute_minimal_polynomial(random_bits);
-         result.confirm("Minimize polynomial successful", g.has_value());
-         result.test_is_eq("Minimize polynomial", g.value().coef(), exp_g.coef());
+         result.test_is_true("Minimize polynomial successful", g.has_value());
+         result.test_is_true("Minimize polynomial", g.value().coef() == exp_g.coef());
 
          return result;
       }
@@ -146,7 +145,7 @@ class CMCE_Utility_Tests final : public Test {
 
          auto v = params.gf(Botan::CmceGfElem(42));
          auto v_inv = v.inv();
-         result.test_is_eq("Control bits creation", (v * v_inv).elem(), Botan::CmceGfElem(1));
+         test_arb_eq(result, "Control bits creation", (v * v_inv).elem(), Botan::CmceGfElem(1));
 
          return result;
       }
@@ -178,7 +177,7 @@ class CMCE_Utility_Tests final : public Test {
             field);
 
          auto mul = field.multiply(val1, val2);  // val1 * val2;
-         result.test_is_eq("GF multiplication", mul.coef(), exp_mul.coef());
+         result.test_is_true("GF multiplication", mul.coef() == exp_mul.coef());
 
          return result;
       }
@@ -233,9 +232,9 @@ class CMCE_Invalid_Test : public Text_Based_Test {
 
          auto params = Botan::Classic_McEliece_Parameters::create(params_str);
 
-         const auto kat_seed = Botan::lock(vars.get_req_bin("seed"));
+         const auto kat_seed = vars.get_req_bin("seed");
          const auto ct_invalid = vars.get_req_bin("ct_invalid");
-         const auto ref_ss_invalid = Botan::lock(vars.get_req_bin("ss_invalid"));
+         const auto ref_ss_invalid = vars.get_req_bin("ss_invalid");
 
          const auto test_rng = std::make_unique<CTR_DRBG_AES256>(kat_seed);
 
@@ -245,17 +244,17 @@ class CMCE_Invalid_Test : public Text_Based_Test {
          auto dec = Botan::PK_KEM_Decryptor(*private_key, *test_rng, "Raw");
          auto decaps_ct_invalid = dec.decrypt(ct_invalid);
 
-         result.test_is_eq("Decaps an invalid encapsulated key", decaps_ct_invalid, ref_ss_invalid);
+         result.test_bin_eq("Decaps an invalid encapsulated key", decaps_ct_invalid, ref_ss_invalid);
 
          if(params.is_pc()) {
             // For pc variants, additionally check the plaintext confirmation (pc) logic by
             // flipping a bit in the second part of the ciphertext (C_1 in pc). In this case
             // C_0 is decoded correctly, but pc will change the shared secret, since C_1' != C_1.
             const auto ct_invalid_c1 = vars.get_opt_bin("ct_invalid_c1");
-            const auto ref_ss_invalid_c1 = Botan::lock(vars.get_opt_bin("ss_invalid_c1"));
+            const auto ref_ss_invalid_c1 = vars.get_opt_bin("ss_invalid_c1");
             auto decaps_ct_invalid_c1 = dec.decrypt(ct_invalid_c1);
 
-            result.test_is_eq("Decaps with invalid C_1 in pc", decaps_ct_invalid_c1, ref_ss_invalid_c1);
+            result.test_bin_eq("Decaps with invalid C_1 in pc", decaps_ct_invalid_c1, ref_ss_invalid_c1);
          }
 
          return result;
@@ -266,13 +265,10 @@ class CMCE_Invalid_Test : public Text_Based_Test {
 class CMCE_Generic_Keygen_Tests final : public PK_Key_Generation_Test {
    public:
       std::vector<std::string> keygen_params() const override {
-         auto to_test = get_test_instances_min();
-
          std::vector<std::string> res;
-         std::transform(to_test.begin(), to_test.end(), std::back_inserter(res), [](auto& param_set) {
-            return param_set.to_string();
-         });
-
+         for(const auto& param_set : get_test_instances_min()) {
+            res.push_back(param_set.to_string());
+         }
          return res;
       }
 
@@ -297,7 +293,9 @@ class Classic_McEliece_KAT_Tests final : public Botan_Tests::PK_PQC_KEM_KAT_Test
 
       bool is_available(const std::string& alg_name) const final { return !skip_cmce_test(alg_name); }
 
-      std::vector<uint8_t> map_value(const std::string&, std::span<const uint8_t> value, VarType var_type) const final {
+      std::vector<uint8_t> map_value(const std::string& /*params*/,
+                                     std::span<const uint8_t> value,
+                                     VarType var_type) const final {
          if(var_type == VarType::Ciphertext || var_type == VarType::SharedSecret) {
             return {value.begin(), value.end()};
          }
@@ -305,14 +303,14 @@ class Classic_McEliece_KAT_Tests final : public Botan_Tests::PK_PQC_KEM_KAT_Test
          return hash->process<std::vector<uint8_t>>(value);
       }
 
-      Fixed_Output_RNG rng_for_keygen(const std::string&, Botan::RandomNumberGenerator& rng) const final {
+      Fixed_Output_RNG rng_for_keygen(const std::string& /*params*/, Botan::RandomNumberGenerator& rng) const final {
          const auto seed = rng.random_vec(Botan::Classic_McEliece_Parameters::seed_len());
          return Fixed_Output_RNG(seed);
       }
 
       Fixed_Output_RNG rng_for_encapsulation(const std::string& alg_name,
                                              Botan::RandomNumberGenerator& rng) const final {
-         // There is no way to tell exacly how much randomness is
+         // There is no way to tell exactly how much randomness is
          // needed for encapsulation (rejection sampling)
          // For testing we use a number that fits for all test cases
          auto params = get_params(alg_name);
@@ -328,7 +326,9 @@ class Classic_McEliece_KAT_Tests final : public Botan_Tests::PK_PQC_KEM_KAT_Test
          return Fixed_Output_RNG(rand_buffer);
       }
 
-      void inspect_rng_after_encaps(const std::string&, const Fixed_Output_RNG&, Test::Result&) const final {
+      void inspect_rng_after_encaps(const std::string& /*params*/,
+                                    const Fixed_Output_RNG& /*rng*/,
+                                    Test::Result& /*result*/) const final {
          // Encaps uses any number of random bytes, so we cannot check the RNG
       }
 };
@@ -339,6 +339,8 @@ BOTAN_REGISTER_TEST("cmce", "cmce_generic_kat", Classic_McEliece_KAT_Tests);
    #if defined(BOTAN_HAS_AES)
 BOTAN_REGISTER_TEST("cmce", "cmce_invalid", CMCE_Invalid_Test);
    #endif
+
+}  // namespace
 
 }  // namespace Botan_Tests
 

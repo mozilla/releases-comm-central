@@ -14,6 +14,8 @@
 
 namespace Botan {
 
+// NOLINTBEGIN(portability-simd-intrinsics)
+
 class SIMD_16x32 final {
    public:
       SIMD_16x32& operator=(const SIMD_16x32& other) = default;
@@ -22,11 +24,16 @@ class SIMD_16x32 final {
       SIMD_16x32& operator=(SIMD_16x32&& other) = default;
       SIMD_16x32(SIMD_16x32&& other) = default;
 
-      BOTAN_FN_ISA_AVX512
-      BOTAN_FORCE_INLINE SIMD_16x32() { m_avx512 = _mm512_setzero_si512(); }
+      ~SIMD_16x32() = default;
 
       BOTAN_FN_ISA_AVX512
-      explicit SIMD_16x32(const uint32_t B[16]) { m_avx512 = _mm512_loadu_si512(reinterpret_cast<const __m512i*>(B)); }
+      BOTAN_FORCE_INLINE SIMD_16x32() : m_avx512(_mm512_setzero_si512()) {}
+
+      BOTAN_FN_ISA_AVX512
+      explicit SIMD_16x32(const uint32_t B[16]) {
+         // NOLINTNEXTLINE(*-prefer-member-initializer)
+         m_avx512 = _mm512_loadu_si512(reinterpret_cast<const __m512i*>(B));
+      }
 
       BOTAN_FN_ISA_AVX512
       explicit SIMD_16x32(uint32_t B0,
@@ -45,6 +52,7 @@ class SIMD_16x32 final {
                           uint32_t BD,
                           uint32_t BE,
                           uint32_t BF) {
+         // NOLINTNEXTLINE(*-prefer-member-initializer)
          m_avx512 = _mm512_set_epi32(BF, BE, BD, BC, BB, BA, B9, B8, B7, B6, B5, B4, B3, B2, B1, B0);
       }
 
@@ -78,17 +86,17 @@ class SIMD_16x32 final {
       }
 
       SIMD_16x32 BOTAN_FN_ISA_AVX512 sigma0() const {
-         const SIMD_16x32 rot1 = this->rotr<2>();
-         const SIMD_16x32 rot2 = this->rotr<13>();
-         const SIMD_16x32 rot3 = this->rotr<22>();
-         return rot1 ^ rot2 ^ rot3;
+         const SIMD_16x32 r1 = this->rotr<2>();
+         const SIMD_16x32 r2 = this->rotr<13>();
+         const SIMD_16x32 r3 = this->rotr<22>();
+         return r1 ^ r2 ^ r3;
       }
 
       SIMD_16x32 BOTAN_FN_ISA_AVX512 sigma1() const {
-         const SIMD_16x32 rot1 = this->rotr<6>();
-         const SIMD_16x32 rot2 = this->rotr<11>();
-         const SIMD_16x32 rot3 = this->rotr<25>();
-         return rot1 ^ rot2 ^ rot3;
+         const SIMD_16x32 r1 = this->rotr<6>();
+         const SIMD_16x32 r2 = this->rotr<11>();
+         const SIMD_16x32 r3 = this->rotr<25>();
+         return r1 ^ r2 ^ r3;
       }
 
       BOTAN_FN_ISA_AVX512
@@ -165,7 +173,7 @@ class SIMD_16x32 final {
 
       template <uint8_t TBL>
       BOTAN_FN_ISA_AVX512 static SIMD_16x32 ternary_fn(const SIMD_16x32& a, const SIMD_16x32& b, const SIMD_16x32& c) {
-         return _mm512_ternarylogic_epi32(a.raw(), b.raw(), c.raw(), TBL);
+         return SIMD_16x32(_mm512_ternarylogic_epi32(a.raw(), b.raw(), c.raw(), TBL));
       }
 
       BOTAN_FN_ISA_AVX512
@@ -182,6 +190,9 @@ class SIMD_16x32 final {
 
          return SIMD_16x32(output);
       }
+
+      BOTAN_FN_ISA_AVX512
+      SIMD_16x32 rev_words() const noexcept { return SIMD_16x32(_mm512_shuffle_epi32(raw(), _MM_PERM_ABCD)); }
 
       BOTAN_FN_ISA_AVX512
       static void transpose(SIMD_16x32& B0, SIMD_16x32& B1, SIMD_16x32& B2, SIMD_16x32& B3) {
@@ -300,25 +311,27 @@ class SIMD_16x32 final {
       __m512i BOTAN_FN_ISA_AVX512 raw() const { return m_avx512; }
 
       BOTAN_FN_ISA_AVX512
-      SIMD_16x32(__m512i x) : m_avx512(x) {}
+      explicit SIMD_16x32(__m512i x) noexcept : m_avx512(x) {}
 
    private:
       __m512i m_avx512;
 };
 
+// NOLINTEND(portability-simd-intrinsics)
+
 template <size_t R>
-inline SIMD_16x32 rotl(SIMD_16x32 input) {
+inline SIMD_16x32 BOTAN_FN_ISA_AVX512 rotl(SIMD_16x32 input) {
    return input.rotl<R>();
 }
 
 template <size_t R>
-inline SIMD_16x32 rotr(SIMD_16x32 input) {
+inline SIMD_16x32 BOTAN_FN_ISA_AVX512 rotr(SIMD_16x32 input) {
    return input.rotr<R>();
 }
 
 // For Serpent:
 template <size_t S>
-inline SIMD_16x32 shl(SIMD_16x32 input) {
+inline SIMD_16x32 BOTAN_FN_ISA_AVX512 shl(SIMD_16x32 input) {
    return input.shl<S>();
 }
 

@@ -95,7 +95,7 @@ removed in a future major release.
       Return an object containing the public key corresponding to this private key.
 
       Prefer this over the (deprecated) implicit conversion of a private key to
-      a public key currently possible due to an inheritence relation.
+      a public key currently possible due to an inheritance relation.
 
    .. cpp:function:: secure_vector<uint8_t> private_key_info() const
 
@@ -107,7 +107,7 @@ removed in a future major release.
 
    .. cpp:function:: secure_vector<uint8_t> private_key_bits() const
 
-      Return the serialization of the private key, cooresponding to the
+      Return the serialization of the private key, corresponding to the
       `PrivateKey` field of a PKCS #8 `PrivateKeyInfo` structure. See
       :rfc:`5208` for details.
 
@@ -209,6 +209,14 @@ signatures can be created. If the same state is ever used to generate two
 signatures, then the whole scheme becomes insecure, and signatures can be
 forged.
 
+ .. warning::
+
+    Maintaining consistent state without replays is extremely difficult,
+    especially when multiple machines are involved. Even a single error will
+    compromise the entire signature scheme. XMSS should only be used in an
+    environment carefully designed to maintain consistent state. Prefer
+    the stateless SLH-DSA in new designs.
+
 HSS-LMS
 ~~~~~~~
 
@@ -216,6 +224,14 @@ A post-quantum secure hash-based signature scheme similar to XMSS. Contains
 support for multitrees. It is stateful, meaning the private key changes after
 each signature. If the same state is ever used to generate two signatures, then
 the whole scheme becomes insecure, and signatures can be forged.
+
+ .. warning::
+
+    Maintaining consistent state without replays is extremely difficult,
+    especially when multiple machines are involved. Even a single error will
+    compromise the entire signature scheme. HSS-LMS should only be used in an
+    environment carefully designed to maintain consistent state. Prefer
+    the stateless SLH-DSA in new designs.
 
 SLH-DSA (FIPS 205)
 ~~~~~~~~~~~~~~~~~~
@@ -352,7 +368,7 @@ are no extra parameters:
 
    Generate a new X448 private key
 
-Others require additionally specfiying which curve to use. First create a
+Others require additionally specifying which curve to use. First create a
 relevant :cpp:class:`EC_Group` using for example :cpp:func:`EC_Group::from_name`
 or :cpp:func:`EC_Group::from_OID`. Then pass it to the private key
 constructor. If the choice of group is not otherwise mandated by your
@@ -893,7 +909,7 @@ Signature generation is performed using
 
    .. cpp:function:: PK_Signer(const Private_Key& key, \
       const std::string& padding, \
-      Signature_Format format = Siganture_Format::Standard)
+      Signature_Format format = Signature_Format::Standard)
 
      Constructs a new signer object for the private key *key* using the
      hash/padding specified in *padding*. The key must support signature operations. In
@@ -1006,7 +1022,7 @@ Signatures are verified using
 
 Botan implements the following signature algorithms:
 
-1. RSA. Requires a :ref:`padding scheme <emsa>` as parameter.
+1. RSA. Requires a :ref:`padding scheme <rsa_padding>` as parameter.
 #. DSA. Requires a :ref:`hash function <sig_with_hash>` as parameter.
 #. ECDSA. Requires a :ref:`hash function <sig_with_hash>` as parameter.
 #. ECGDSA. Requires a :ref:`hash function <sig_with_hash>` as parameter.
@@ -1041,7 +1057,7 @@ signature is validated.
 .. literalinclude:: /../src/examples/ecdsa.cpp
    :language: cpp
 
-.. _emsa:
+.. _rsa_padding:
 
 RSA signature padding schemes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1080,10 +1096,10 @@ PKCS #1 v1.5 Type 1 (signature) padding, aka EMSA3 in IEEE 1363.
   ``PKCS1v15(Raw)``,
   ``PKCS1v15(Raw,MD5)``,
 
-EMSA-PSS
-""""""""
+Probabilistic signature scheme (PSS)
+"""""""""""""""""""""""""""""""""""""""
 
-Probabilistic signature scheme (PSS) (called EMSA4 in IEEE 1363).
+Called EMSA4 in IEEE 1363.
 
 - Name: ``PSS``
 - Deprecated aliases: ``EMSA-PSS``, ``PSSR``, ``PSS-MGF1``, ``EMSA4``
@@ -1143,11 +1159,11 @@ i.e. DS2 without a salt.
 X9.31
 """""
 
+Padding scheme from ANSI X9.31. Called EMSA2 in IEEE 1363.
+
 .. deprecated:: 3.7.0
 
    X9.31 signatures are obsolete, and support for it is deprecated
-
-EMSA from X9.31 (EMSA2 in IEEE 1363).
 
 - Name: ``X9.31``
 - Deprecated aliases: ``EMSA2``, ``EMSA_X931``
@@ -1155,16 +1171,16 @@ EMSA from X9.31 (EMSA2 in IEEE 1363).
   ``(<HashFunction>)``
 - Example: ``X9.31(SHA-256)``
 
-Raw EMSA
+Raw
 """"""""
 
 Sign inputs directly with no hashing or padding
 
 .. warning::
 
-   This exists as an escape hatch allowing an application to define
-   some protocol-specific padding scheme. Don't use this unless you
-   know what you are doing.
+   This exists as an escape hatch allowing an application to define some
+   protocol-specific padding scheme, and using it in a naive way is completely
+   insecure. Don't use this unless you know what you are doing.
 
 - Name: ``Raw``
 - Parameters specification:
@@ -1181,10 +1197,12 @@ Signature with Hash
 For many signature schemes including ECDSA and DSA,
 simply naming a hash function like ``SHA-256`` is all that is required.
 
-Previous versions of Botan required using a hash specifier
-like ``EMSA1(SHA-256)`` when generating or verifying ECDSA/DSA signatures,
-with the specified hash.
-The ``EMSA1`` was a reference to a now obsolete IEEE standard.
+.. note::
+
+   Previous versions of Botan required using a hash specifier like
+   ``EMSA1(SHA-256)`` when generating or verifying ECDSA/DSA signatures, with
+   the specified hash. The ``EMSA1`` was a reference to a now obsolete IEEE
+   standard.
 
 Parameters specification:
 
@@ -1312,7 +1330,7 @@ produce an output of the desired length.
 
      The *peer_key* parameter must be the public key associated with the other party.
 
-     The shared key will be of length *key_len*. If the KDF cannot accomodate
+     The shared key will be of length *key_len*. If the KDF cannot accommodate
      outputs of this size (only likely for very large values, or if using KDF1),
      an exception will be thrown. If a KDF is not in use ("Raw" KDF), *key_len*
      is ignored and this function will always return directly what the agreement
@@ -1569,6 +1587,15 @@ The following algorithms are implemented:
 #. XMSS-SHAKE_10_512
 #. XMSS-SHAKE_16_512
 #. XMSS-SHAKE_20_512
+#. XMSS-SHA2_10_192
+#. XMSS-SHA2_16_192
+#. XMSS-SHA2_20_192
+#. XMSS-SHAKE256_10_256
+#. XMSS-SHAKE256_16_256
+#. XMSS-SHAKE256_20_256
+#. XMSS-SHAKE256_10_192
+#. XMSS-SHAKE256_16_192
+#. XMSS-SHAKE256_20_192
 
 The algorithm name contains the hash function name, tree height and digest
 width defined by the corresponding parameter set. Choosing `XMSS-SHA2_10_256`

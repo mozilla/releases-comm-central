@@ -15,114 +15,20 @@
 #include <botan/tls_ciphersuite.h>
 #include <botan/tls_magic.h>
 #include <botan/tls_server_info.h>
+#include <botan/tls_session_id.h>
 #include <botan/tls_version.h>
-#include <botan/x509cert.h>
-
 #include <chrono>
+#include <memory>
 #include <span>
-#include <variant>
+
+namespace Botan {
+
+class Public_Key;
+class X509_Certificate;
+
+}  // namespace Botan
 
 namespace Botan::TLS {
-
-// Different flavors of session handles are used, depending on the usage
-// scenario and the TLS protocol version.
-
-/// @brief holds a TLS 1.2 session ID for stateful resumption
-using Session_ID = Strong<std::vector<uint8_t>, struct Session_ID_>;
-
-/// @brief holds a TLS 1.2 session ticket for stateless resumption
-using Session_Ticket = Strong<std::vector<uint8_t>, struct Session_Ticket_>;
-
-/// @brief holds an opaque session handle as used in TLS 1.3 that could be
-///        either a ticket for stateless resumption or a database handle.
-using Opaque_Session_Handle = Strong<std::vector<uint8_t>, struct Opaque_Session_Handle_>;
-
-inline auto operator<(const Session_ID& id1, const Session_ID& id2) {
-   // TODO: C++20 better use std::lexicographical_compare_three_way
-   //       that was not available on all target platforms at the time
-   //       of this writing.
-   return std::lexicographical_compare(id1.begin(), id1.end(), id2.begin(), id2.end());
-}
-
-/**
- * @brief Helper class to embody a session handle in all protocol versions
- *
- * Sessions in TLS 1.2 are identified by an arbitrary and unique ID of up to
- * 32 bytes or by a self-contained arbitrary-length ticket (RFC 5077).
- *
- * TLS 1.3 does not distinct between the two and handles both as tickets. Also
- * a TLS 1.3 server can issue multiple tickets in one connection and the
- * resumption mechanism is compatible with the PSK establishment.
- *
- * Concrete implementations of Session_Manager use this helper to distinguish
- * the different states and manage sessions for TLS 1.2 and 1.3 connections.
- *
- * Note that all information stored in a Session_Handle might be transmitted in
- * unprotected form. Hence, it should not contain any confidential information.
- */
-class BOTAN_PUBLIC_API(3, 0) Session_Handle {
-   public:
-      /**
-       * Constructs a Session_Handle from a session ID which is an
-       * arbitrary byte vector that must be 32 bytes long at most.
-       */
-      Session_Handle(Session_ID id) : m_handle(std::move(id)) { validate_constraints(); }
-
-      /**
-       * Constructs a Session_Handle from a session ticket which is a
-       * non-empty byte vector that must be 64kB long at most.
-       * Typically, tickets facilitate stateless server implementations
-       * and contain all relevant context in encrypted/authenticated form.
-       *
-       * Note that (for technical reasons) we enforce that tickets are
-       * longer than 32 bytes.
-       */
-      Session_Handle(Session_Ticket ticket) : m_handle(std::move(ticket)) { validate_constraints(); }
-
-      /**
-       * Constructs a Session_Handle from an Opaque_Handle such as TLS 1.3
-       * uses them in its resumption mechanism. This could be either a
-       * Session_ID or a Session_Ticket and it is up to the Session_Manager
-       * to figure out what it actually is.
-       */
-      Session_Handle(Opaque_Session_Handle ticket) : m_handle(std::move(ticket)) { validate_constraints(); }
-
-      bool is_id() const { return std::holds_alternative<Session_ID>(m_handle); }
-
-      bool is_ticket() const { return std::holds_alternative<Session_Ticket>(m_handle); }
-
-      bool is_opaque_handle() const { return std::holds_alternative<Opaque_Session_Handle>(m_handle); }
-
-      /**
-       * Returns the Session_Handle as an opaque handle. If the object was not
-       * constructed as an Opaque_Session_Handle, the contained value is
-       * converted.
-       */
-      Opaque_Session_Handle opaque_handle() const;
-
-      /**
-       * If the Session_Handle was constructed with a Session_ID or an
-       * Opaque_Session_Handle that can be converted to a Session_ID (up to
-       * 32 bytes long), this returns the handle as a Session_ID. Otherwise,
-       * std::nullopt is returned.
-       */
-      std::optional<Session_ID> id() const;
-
-      /**
-       * If the Session_Handle was constructed with a Session_Ticket or an
-       * Opaque_Session_Handle this returns the handle as a Session_ID.
-       * Otherwise, std::nullopt is returned.
-       */
-      std::optional<Session_Ticket> ticket() const;
-
-      decltype(auto) get() const { return m_handle; }
-
-   private:
-      void validate_constraints() const;
-
-   private:
-      std::variant<Session_ID, Session_Ticket, Opaque_Session_Handle> m_handle;
-};
 
 class Client_Hello_13;
 class Server_Hello_13;
@@ -142,22 +48,20 @@ class BOTAN_PUBLIC_API(3, 0) Session_Base {
                    uint16_t srtp_profile,
                    bool extended_master_secret,
                    bool encrypt_then_mac,
-                   std::vector<X509_Certificate> peer_certs,
+                   const std::vector<X509_Certificate>& peer_certs,
                    std::shared_ptr<const Public_Key> peer_raw_public_key,
-                   Server_Information server_info) :
-            m_start_time(start_time),
-            m_version(version),
-            m_ciphersuite(ciphersuite),
-            m_connection_side(connection_side),
-            m_srtp_profile(srtp_profile),
-            m_extended_master_secret(extended_master_secret),
-            m_encrypt_then_mac(encrypt_then_mac),
-            m_peer_certs(std::move(peer_certs)),
-            m_peer_raw_public_key(std::move(peer_raw_public_key)),
-            m_server_info(std::move(server_info)) {}
+                   Server_Information server_info);
+
+      Session_Base(const Session_Base& other);
+      Session_Base& operator=(const Session_Base& other);
+
+      Session_Base(Session_Base&& other) noexcept;
+      Session_Base& operator=(Session_Base&& other) noexcept;
+
+      ~Session_Base();
 
    protected:
-      Session_Base() = default;
+      Session_Base();
 
    public:
       /**
@@ -223,19 +127,19 @@ class BOTAN_PUBLIC_API(3, 0) Session_Base {
       const Server_Information& server_info() const { return m_server_info; }
 
    protected:
-      std::chrono::system_clock::time_point m_start_time;
+      std::chrono::system_clock::time_point m_start_time;  // NOLINT(*non-private-member-variable*)
 
-      Protocol_Version m_version;
-      uint16_t m_ciphersuite;
-      Connection_Side m_connection_side;
-      uint16_t m_srtp_profile;
+      Protocol_Version m_version;                                   // NOLINT(*non-private-member-variable*)
+      uint16_t m_ciphersuite = 0;                                   // NOLINT(*non-private-member-variable*)
+      Connection_Side m_connection_side = Connection_Side::Client;  // NOLINT(*non-private-member-variable*)
+      uint16_t m_srtp_profile = 0;                                  // NOLINT(*non-private-member-variable*)
 
-      bool m_extended_master_secret;
-      bool m_encrypt_then_mac;
+      bool m_extended_master_secret = false;  // NOLINT(*non-private-member-variable*)
+      bool m_encrypt_then_mac = false;        // NOLINT(*non-private-member-variable*)
 
-      std::vector<X509_Certificate> m_peer_certs;
-      std::shared_ptr<const Public_Key> m_peer_raw_public_key;
-      Server_Information m_server_info;
+      std::vector<X509_Certificate> m_peer_certs;               // NOLINT(*non-private-member-variable*)
+      std::shared_ptr<const Public_Key> m_peer_raw_public_key;  // NOLINT(*non-private-member-variable*)
+      Server_Information m_server_info;                         // NOLINT(*non-private-member-variable*)
 };
 
 /**
@@ -306,7 +210,7 @@ class BOTAN_PUBLIC_API(3, 0) Session_Summary : public Session_Base {
 #if defined(BOTAN_HAS_TLS_13)
       Session_Summary(const Server_Hello_13& server_hello,
                       Connection_Side side,
-                      std::vector<X509_Certificate> peer_certs,
+                      const std::vector<X509_Certificate>& peer_certs,
                       std::shared_ptr<const Public_Key> peer_raw_public_key,
                       std::optional<std::string> psk_identity,
                       bool session_was_resumed,
@@ -386,7 +290,7 @@ class BOTAN_PUBLIC_API(3, 0) Session final : public Session_Base {
       * Load a session from DER representation (created by DER_encode)
       * @param ber_data DER representation buffer
       */
-      Session(std::span<const uint8_t> ber_data);
+      BOTAN_FUTURE_EXPLICIT Session(std::span<const uint8_t> ber_data);
 
       /**
       * Load a session from PEM representation (created by PEM_encode)
@@ -461,24 +365,26 @@ class BOTAN_PUBLIC_API(3, 0) Session final : public Session_Base {
       std::chrono::seconds lifetime_hint() const { return m_lifetime_hint; }
 
    private:
-      // Struct Version history
-      //
-      // 20160812 - Pre TLS 1.3
-      // 20220505 - Introduction of TLS 1.3 sessions
-      //            - added fields:
-      //              - m_early_data_allowed
-      //              - m_max_early_data_bytes
-      //              - m_ticket_age_add
-      //              - m_lifetime_hint
-      // 20230112 - Remove Session_ID and Session_Ticket from this object
-      //            (association is now in the hands of the Session_Manager)
-      //          - Peer certificates are now stored as a SEQUENCE
-      // 20230222 - Remove deprecated and unused fields
-      //            - compression method (always 0)
-      //            - fragment size (always 0)
-      //            - SRP identifier (always "")
-      // 20231031 - Allow storage of peer's raw public key
-      enum { TLS_SESSION_PARAM_STRUCT_VERSION = 20231031 };
+      /*
+      * Struct Version history
+      *
+      * 20160812 - Pre TLS 1.3
+      * 20220505 - Introduction of TLS 1.3 sessions
+      *            - added fields:
+      *              - m_early_data_allowed
+      *              - m_max_early_data_bytes
+      *              - m_ticket_age_add
+      *              - m_lifetime_hint
+      * 20230112 - Remove Session_ID and Session_Ticket from this object
+      *            (association is now in the hands of the Session_Manager)
+      *          - Peer certificates are now stored as a SEQUENCE
+      * 20230222 - Remove deprecated and unused fields
+      *            - compression method (always 0)
+      *            - fragment size (always 0)
+      *            - SRP identifier (always "")
+      * 20231031 - Allow storage of peer's raw public key
+      */
+      static constexpr size_t TLS_SESSION_PARAM_STRUCT_VERSION = 20231031;
 
       secure_vector<uint8_t> m_master_secret;
 
@@ -491,7 +397,8 @@ class BOTAN_PUBLIC_API(3, 0) Session final : public Session_Base {
 /**
  * Helper struct to conveniently pass a Session and its Session_Handle around
  */
-struct BOTAN_PUBLIC_API(3, 0) Session_with_Handle {
+class BOTAN_PUBLIC_API(3, 0) Session_with_Handle {
+   public:
       Session session;
       Session_Handle handle;
 };

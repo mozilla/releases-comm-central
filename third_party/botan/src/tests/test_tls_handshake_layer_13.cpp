@@ -9,12 +9,12 @@
 
 #if defined(BOTAN_HAS_TLS_13)
 
+   #include <botan/hex.h>
    #include <botan/tls_exceptn.h>
    #include <botan/tls_magic.h>
-
-   #include <botan/internal/stl_util.h>
+   #include <botan/tls_policy.h>
+   #include <botan/internal/concat_util.h>
    #include <botan/internal/tls_handshake_layer_13.h>
-   #include <botan/internal/tls_handshake_state_13.h>
    #include <botan/internal/tls_transcript_hash_13.h>
 
 using namespace Botan::TLS;
@@ -36,6 +36,7 @@ const Handshake_Message_13& get_message(Test::Result& test_result,
    return std::get<T>(read_result.value());
 }
 
+// NOLINTBEGIN(cert-err58-cpp,bugprone-throwing-static-initialization)
 const auto client_hello_message = Botan::hex_decode_locked(  // from RFC 8448
    "01 00 00 c0 03 03 cb"
    "34 ec b1 e7 81 63 ba 1c 38 c6 da cb 19 6a 6d ff a2 1a 8d 99 12"
@@ -140,6 +141,8 @@ const std::vector<Botan::secure_vector<uint8_t>> tls_12_only_messages{
    {static_cast<uint8_t>(Handshake_Type::CertificateUrl), 0x00, 0x00, 0x02, 0x42, 0x42},
    {static_cast<uint8_t>(Handshake_Type::CertificateStatus), 0x00, 0x00, 0x02, 0x42, 0x42}};
 
+// NOLINTEND(cert-err58-cpp,bugprone-throwing-static-initialization)
+
 void check_transcript_hash_empty(Test::Result& result, const Transcript_Hash_State& transcript_hash) {
    result.test_throws<Botan::Invalid_State>("empty transcript_hash throws", [&] { transcript_hash.current(); });
 }
@@ -154,7 +157,7 @@ std::vector<Test::Result> read_handshake_messages() {
             [&](auto& result) {
                Handshake_Layer hl(Connection_Side::Client);
                Transcript_Hash_State th("SHA-256");
-               result.confirm("needs header bytes", !hl.next_message(Policy(), th));
+               result.test_is_true("needs header bytes", !hl.next_message(Policy(), th));
                check_transcript_hash_empty(result, th);
             }),
 
@@ -163,7 +166,7 @@ std::vector<Test::Result> read_handshake_messages() {
                Handshake_Layer hl(Connection_Side::Client);
                Transcript_Hash_State th("SHA-256");
                hl.copy_data(std::vector<uint8_t>{0x00, 0x01, 0x02});
-               result.confirm("needs more bytes", !hl.next_message(Policy(), th));
+               result.test_is_true("needs more bytes", !hl.next_message(Policy(), th));
                check_transcript_hash_empty(result, th);
             }),
 
@@ -172,7 +175,8 @@ std::vector<Test::Result> read_handshake_messages() {
                Handshake_Layer hl(Connection_Side::Client);
                Transcript_Hash_State th("SHA-256");
                hl.copy_data(client_hello_message);
-               result.confirm("is a client hello", has_message<Client_Hello_13>(result, hl.next_message(Policy(), th)));
+               result.test_is_true("is a client hello",
+                                   has_message<Client_Hello_13>(result, hl.next_message(Policy(), th)));
                check_transcript_hash_filled(result, th);
             }),
 
@@ -181,7 +185,8 @@ std::vector<Test::Result> read_handshake_messages() {
                Handshake_Layer hl(Connection_Side::Client);
                Transcript_Hash_State th("SHA-256");
                hl.copy_data(server_hello_message);
-               result.confirm("is a server hello", has_message<Server_Hello_13>(result, hl.next_message(Policy(), th)));
+               result.test_is_true("is a server hello",
+                                   has_message<Server_Hello_13>(result, hl.next_message(Policy(), th)));
                check_transcript_hash_filled(result, th);
             }),
 
@@ -190,8 +195,8 @@ std::vector<Test::Result> read_handshake_messages() {
                Handshake_Layer hl(Connection_Side::Client);
                Transcript_Hash_State th("SHA-256");
                hl.copy_data(server_hello_12_message);
-               result.confirm("is a legacy server hello",
-                              has_message<Server_Hello_12>(result, hl.next_message(Policy(), th)));
+               result.test_is_true("is a legacy server hello",
+                                   has_message<Server_Hello_12_Shim>(result, hl.next_message(Policy(), th)));
                check_transcript_hash_filled(result, th);
             }),
 
@@ -203,13 +208,14 @@ std::vector<Test::Result> read_handshake_messages() {
                const Botan::secure_vector<uint8_t> partial_client_hello_message(client_hello_message.cbegin(),
                                                                                 client_hello_message.cend() - 15);
                hl.copy_data(partial_client_hello_message);
-               result.confirm("needs more bytes", !hl.next_message(Policy(), th));
-               result.confirm("holds pending message data", hl.has_pending_data());
+               result.test_is_true("needs more bytes", !hl.next_message(Policy(), th));
+               result.test_is_true("holds pending message data", hl.has_pending_data());
 
                const Botan::secure_vector<uint8_t> remaining_client_hello_message(client_hello_message.cend() - 15,
                                                                                   client_hello_message.cend());
                hl.copy_data(remaining_client_hello_message);
-               result.confirm("is a client hello", has_message<Client_Hello_13>(result, hl.next_message(Policy(), th)));
+               result.test_is_true("is a client hello",
+                                   has_message<Client_Hello_13>(result, hl.next_message(Policy(), th)));
 
                check_transcript_hash_filled(result, th);
             }),
@@ -219,9 +225,10 @@ std::vector<Test::Result> read_handshake_messages() {
                Handshake_Layer hl(Connection_Side::Client);
                Transcript_Hash_State th("SHA-256");
                hl.copy_data(Botan::concat(server_hello_message, encrypted_extensions));
-               result.confirm("is a server hello", has_message<Server_Hello_13>(result, hl.next_message(Policy(), th)));
-               result.confirm("is encrypted extensions",
-                              has_message<Encrypted_Extensions>(result, hl.next_message(Policy(), th)));
+               result.test_is_true("is a server hello",
+                                   has_message<Server_Hello_13>(result, hl.next_message(Policy(), th)));
+               result.test_is_true("is encrypted extensions",
+                                   has_message<Encrypted_Extensions>(result, hl.next_message(Policy(), th)));
                check_transcript_hash_filled(result, th);
             }),
 
@@ -265,9 +272,9 @@ std::vector<Test::Result> prepare_message() {
             [&](auto& result) {
                auto hello = std::get<Client_Hello_13>(
                   Client_Hello_13::parse({client_hello_message.cbegin() + 4, client_hello_message.cend()}));
-               Handshake_Layer hl(Connection_Side::Client);
+               const Handshake_Layer hl(Connection_Side::Client);
                Transcript_Hash_State th("SHA-256");
-               result.test_eq("produces the same message", hl.prepare_message(hello, th), client_hello_message);
+               result.test_bin_eq("produces the same message", hl.prepare_message(hello, th), client_hello_message);
                check_transcript_hash_filled(result, th);
             }),
 
@@ -275,9 +282,9 @@ std::vector<Test::Result> prepare_message() {
             [&](auto& result) {
                auto hello = std::get<Server_Hello_13>(
                   Server_Hello_13::parse({server_hello_message.cbegin() + 4, server_hello_message.cend()}));
-               Handshake_Layer hl(Connection_Side::Server);
+               const Handshake_Layer hl(Connection_Side::Server);
                Transcript_Hash_State th("SHA-256");
-               result.test_eq("produces the same message", hl.prepare_message(hello, th), server_hello_message);
+               result.test_bin_eq("produces the same message", hl.prepare_message(hello, th), server_hello_message);
                check_transcript_hash_filled(result, th);
             }),
    };
@@ -303,7 +310,7 @@ std::vector<Test::Result> full_client_handshake() {
                hl.copy_data(server_hello_message);
 
                const auto server_hello = hl.next_message(policy, th);
-               result.confirm("is a Server Hello", has_message<Server_Hello_13>(result, server_hello));
+               result.test_is_true("is a Server Hello", has_message<Server_Hello_13>(result, server_hello));
 
                // we now know the algorithm from the Server Hello
                th.set_algorithm("SHA-256");
@@ -313,34 +320,35 @@ std::vector<Test::Result> full_client_handshake() {
                const auto expected_after_server_hello = Botan::hex_decode(
                   "86 0c 06 ed c0 78 58 ee 8e 78 f0 e7 42 8c 58 ed d6 b4 3f 2c a3 e6 e9 5f 02 ed 06 3c f0 e1 ca d8");
 
-               result.test_eq(
+               result.test_bin_eq(
                   "correct transcript hash produced after server hello", th.current(), expected_after_server_hello);
             }),
 
-      CHECK("server handshake messages",
-            [&](auto& result) {
-               hl.copy_data(server_handshake_messages);
+      CHECK(
+         "server handshake messages",
+         [&](auto& result) {
+            hl.copy_data(server_handshake_messages);
 
-               const auto enc_exts = hl.next_message(policy, th);
-               result.confirm("is Encrypted Extensions", has_message<Encrypted_Extensions>(result, enc_exts));
+            const auto enc_exts = hl.next_message(policy, th);
+            result.test_is_true("is Encrypted Extensions", has_message<Encrypted_Extensions>(result, enc_exts));
 
-               const auto cert = hl.next_message(policy, th);
-               result.confirm("is Certificate", has_message<Certificate_13>(result, cert));
+            const auto cert = hl.next_message(policy, th);
+            result.test_is_true("is Certificate", has_message<Certificate_13>(result, cert));
 
-               const auto expected_after_certificate = Botan::hex_decode(
-                  "76 4d 66 32 b3 c3 5c 3f 32 05 e3 49 9a c3 ed ba ab b8 82 95 fb a7 51 46 1d 36 78 e2 e5 ea 06 87");
+            const auto expected_after_certificate = Botan::hex_decode(
+               "76 4d 66 32 b3 c3 5c 3f 32 05 e3 49 9a c3 ed ba ab b8 82 95 fb a7 51 46 1d 36 78 e2 e5 ea 06 87");
 
-               const auto cert_verify = hl.next_message(policy, th);
-               result.confirm("is Certificate Verify", has_message<Certificate_Verify_13>(result, cert_verify));
-               result.test_eq("hash before Cert Verify is still available", th.previous(), expected_after_certificate);
+            const auto cert_verify = hl.next_message(policy, th);
+            result.test_is_true("is Certificate Verify", has_message<Certificate_Verify_13>(result, cert_verify));
+            result.test_bin_eq("hash before Cert Verify is still available", th.previous(), expected_after_certificate);
 
-               const auto expected_after_server_finished = Botan::hex_decode(
-                  "96 08 10 2a 0f 1c cc 6d b6 25 0b 7b 7e 41 7b 1a 00 0e aa da 3d aa e4 77 7a 76 86 c9 ff 83 df 13");
+            const auto expected_after_server_finished = Botan::hex_decode(
+               "96 08 10 2a 0f 1c cc 6d b6 25 0b 7b 7e 41 7b 1a 00 0e aa da 3d aa e4 77 7a 76 86 c9 ff 83 df 13");
 
-               const auto server_finished = hl.next_message(policy, th);
-               result.confirm("is Finished", has_message<Finished_13>(result, server_finished));
-               result.test_eq("hash is updated after server Finished", th.current(), expected_after_server_finished);
-            }),
+            const auto server_finished = hl.next_message(policy, th);
+            result.test_is_true("is Finished", has_message<Finished_13>(result, server_finished));
+            result.test_bin_eq("hash is updated after server Finished", th.current(), expected_after_server_finished);
+         }),
 
       CHECK("client finished",
             [&](auto& result) {
@@ -349,7 +357,8 @@ std::vector<Test::Result> full_client_handshake() {
 
                Finished_13 client_finished({client_finished_message.cbegin() + 4, client_finished_message.cend()});
                hl.prepare_message(client_finished, th);
-               result.test_eq("hash is updated after client Finished", th.current(), expected_after_client_finished);
+               result.test_bin_eq(
+                  "hash is updated after client Finished", th.current(), expected_after_client_finished);
             }),
    };
 }
@@ -366,7 +375,7 @@ std::vector<Test::Result> hello_retry_request_handshake() {
                auto hello = std::get<Client_Hello_13>(
                   Client_Hello_13::parse({hrr_client_hello_msg.cbegin() + 4, hrr_client_hello_msg.cend()}));
                auto msg = hl.prepare_message(hello, th);
-               result.test_eq("parsing and re-marshalling produces same message", msg, hrr_client_hello_msg);
+               result.test_bin_eq("parsing and re-marshalling produces same message", msg, hrr_client_hello_msg);
                check_transcript_hash_empty(result, th);
             }),
 
@@ -375,7 +384,7 @@ std::vector<Test::Result> hello_retry_request_handshake() {
                hl.copy_data(hrr_hello_retry_request_msg);
 
                const auto hrr = hl.next_message(policy, th);
-               result.confirm("is a Hello Retry Request", has_message<Hello_Retry_Request>(result, hrr));
+               result.test_is_true("is a Hello Retry Request", has_message<Hello_Retry_Request>(result, hrr));
 
                // we now know the algorithm from the Hello Retry Request
                // which will not change with the future Server Hello anymore (RFC 8446 4.1.4)
@@ -386,9 +395,9 @@ std::vector<Test::Result> hello_retry_request_handshake() {
                const auto expected_after_hello_retry_request =
                   Botan::hex_decode("74EEC04D09C926E86C0647C37BA4DC18D277EEC3337E4608C4D829B77E2FD2B3");
 
-               result.test_eq("correct transcript hash produced after hello retry request",
-                              th.current(),
-                              expected_after_hello_retry_request);
+               result.test_bin_eq("correct transcript hash produced after hello retry request",
+                                  th.current(),
+                                  expected_after_hello_retry_request);
             }),
 
       // ... the rest of the handshake will work just like in full_client_handshake

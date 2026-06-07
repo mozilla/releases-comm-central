@@ -4,9 +4,9 @@
 # Strips the KAT harness in the FrodoKEM reference implementation down
 # to a less space consuming version. This script was used to generate
 # `src/tests/data/pubkey/frodokem_kat.vec` test data from the *.rsp files in
-# the reference implemenation repository.
+# the reference implementation repository.
 #
-# See here: https://github.com/microsoft/PQCrypto-LWEKE/tree/master/KAT
+# See here: https://github.com/microsoft/PQCrypto-LWEKE/tree/master
 #
 # (C) 2023 Jack Lloyd
 # (C) 2023 René Meusel, Amos Treiber - Rohde & Schwarz Cybersecurity
@@ -44,7 +44,7 @@ class KatReader:
         while True:
             key, val = self.next_value()
 
-            if key == None:
+            if key is None:
                 return # eof
 
             if key not in ['count', 'seed', 'pk', 'sk', 'ct', 'ss']:
@@ -66,8 +66,7 @@ def shake_256_16(v):
     return h.hexdigest(16)
 
 def compress_kat(kat):
-    first = kat['count'] == 0
-    del kat['count']
+    del kat['count'] # not needed
 
     # rename keys
     kat['Seed'] = kat.pop('seed')
@@ -110,7 +109,7 @@ def main(args = None):
         args = sys.argv
 
     with open('src/tests/data/pubkey/frodokem_kat.vec', 'w') as output:
-        print("# This file was auto-generated from the reference implemention's KATs", file=output)
+        print("# This file was auto-generated from the reference implementation's KATs", file=output)
         print("# See src/scripts/dev_tools/gen_frodo_kat.py\n", file=output)
 
         for file in args[1:]:

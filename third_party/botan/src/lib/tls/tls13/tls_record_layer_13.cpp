@@ -11,8 +11,8 @@
 #include <botan/tls_alert.h>
 #include <botan/tls_exceptn.h>
 #include <botan/tls_version.h>
+#include <botan/internal/loadstor.h>
 #include <botan/internal/tls_cipher_state.h>
-#include <botan/internal/tls_reader.h>
 #include <algorithm>
 
 namespace Botan::TLS {
@@ -52,10 +52,12 @@ Record_Type read_record_type(const uint8_t type_byte) {
 class TLSPlaintext_Header final {
    public:
       TLSPlaintext_Header(std::vector<uint8_t> hdr, const bool check_tls13_version) {
+         // NOLINTBEGIN(*-prefer-member-initializer)
          m_type = read_record_type(hdr[0]);
          m_legacy_version = Protocol_Version(make_uint16(hdr[1], hdr[2]));
          m_fragment_length = make_uint16(hdr[3], hdr[4]);
          m_serialized = std::move(hdr);
+         // NOLINTEND(*-prefer-member-initializer)
 
          // If no full version check is requested, we just verify the practically
          // ossified major version number.
@@ -237,6 +239,7 @@ std::vector<uint8_t> Record_Layer::prepare_records(const Record_Type type,
    // even if the plaintext size is zero. This happens only for Application
    // Data types.
    BOTAN_ASSERT_NOMSG(to_process != 0 || protect);
+   // NOLINTNEXTLINE(*-avoid-do-while)
    do {
       const size_t pt_size = std::min<size_t>(to_process, max_plaintext_size);
       const size_t ct_size =
@@ -288,7 +291,7 @@ Record_Layer::ReadResult<Record> Record_Layer::next_record(Cipher_State* cipher_
    // The first received record(s) are likely a client or server hello. To be able to
    // perform protocol downgrades we must be less vigorous with the record's
    // legacy version. Hence, `check_tls13_version` is `false` for the first record(s).
-   TLSPlaintext_Header plaintext_header({header_begin, header_end}, !m_receiving_compat_mode);
+   const TLSPlaintext_Header plaintext_header({header_begin, header_end}, !m_receiving_compat_mode);
 
    // After the key exchange phase of the handshake is completed and record protection is engaged,
    // cipher_state is set. At this point, only protected traffic (and CCS) is allowed.
@@ -361,6 +364,16 @@ Record_Layer::ReadResult<Record> Record_Layer::next_record(Cipher_State* cipher_
 
       // erase content type and padding
       record.fragment.erase((end_of_content + 1).base(), record.fragment.cend());
+
+      // RFC 8446 5.4
+      //    Implementations MUST NOT send Handshake and Alert records that have
+      //    a zero-length TLSInnerPlaintext.content; if such a message is
+      //    received, the receiving implementation MUST terminate the connection
+      //    with an "unexpected_message" alert.
+      if(record.fragment.empty() && record.type != Record_Type::ApplicationData) {
+         throw TLS_Exception(Alert::UnexpectedMessage,
+                             "Received a protected record with empty TLSInnerPlaintext content");
+      }
    }
 
    return record;

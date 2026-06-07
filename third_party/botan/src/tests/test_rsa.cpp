@@ -4,11 +4,12 @@
 * Botan is released under the Simplified BSD License (see license.txt)
 */
 
-#include "test_rng.h"
 #include "tests.h"
 
 #if defined(BOTAN_HAS_RSA)
    #include "test_pubkey.h"
+   #include "test_rng.h"
+   #include <botan/pubkey.h>
    #include <botan/rsa.h>
    #include <botan/internal/blinding.h>
    #include <botan/internal/fmt.h>
@@ -168,11 +169,11 @@ class RSA_Keygen_Bad_RNG_Test final : public Test {
          Request_Counting_RNG rng;
 
          try {
-            Botan::RSA_PrivateKey rsa(rng, 1024);
+            const Botan::RSA_PrivateKey rsa(rng, 1024);
             result.test_failure("Generated a key with a bad RNG");
          } catch(Botan::Internal_Error& e) {
             result.test_success("Key generation with bad RNG failed");
-            result.test_eq("Expected message", e.what(), "Internal error: RNG failure during RSA key generation");
+            result.test_str_eq("Expected message", e.what(), "Internal error: RNG failure during RSA key generation");
          }
 
          return {result};
@@ -191,7 +192,7 @@ class RSA_Blinding_Tests final : public Test {
          }
 
    #if defined(BOTAN_HAS_EMSA_RAW) || defined(BOTAN_HAS_EME_RAW)
-         Botan::RSA_PrivateKey rsa(this->rng(), 1024);
+         const Botan::RSA_PrivateKey rsa(this->rng(), 1024);
          Botan::Null_RNG null_rng;
    #endif
 
@@ -218,7 +219,7 @@ class RSA_Blinding_Tests final : public Test {
             // assert RNG is not called in this situation
             std::vector<uint8_t> signature = signer.signature(null_rng);
 
-            result.test_eq("Signature verifies", verifier.verify_message(input, signature), true);
+            result.test_is_true("Signature verifies", verifier.verify_message(input, signature));
          }
    #endif
 
@@ -255,14 +256,14 @@ class RSA_Blinding_Tests final : public Test {
             std::vector<uint8_t> plaintext = Botan::unlock(decryptor.decrypt(ciphertext));
             plaintext.insert(plaintext.begin(), input.size() - 1, 0);
 
-            result.test_eq("Successful decryption", plaintext, input);
+            result.test_bin_eq("Successful decryption", plaintext, input);
          }
 
-         result.test_eq("RNG is no longer seeded", fixed_rng.is_seeded(), false);
+         result.test_is_false("RNG is no longer seeded", fixed_rng.is_seeded());
 
          // one more decryption should trigger a blinder reinitialization
          result.test_throws("RSA blinding reinit",
-                            "Test error Fixed output RNG ran out of bytes, test bug?",
+                            "Fixed output RNG ran out of bytes, test bug?",
                             [&decryptor, &encryptor, &null_rng]() {
                                std::vector<uint8_t> ciphertext =
                                   encryptor.encrypt(std::vector<uint8_t>(16, 5), null_rng);
@@ -311,10 +312,10 @@ class RSA_DecryptOrRandom_Tests : public Test {
          auto public_key = private_key.public_key();
          const auto msg = rng.random_vec(pt_len);
 
-         Botan::PK_Encryptor_EME enc(*public_key, rng, padding);
+         const Botan::PK_Encryptor_EME enc(*public_key, rng, padding);
          const auto ctext = enc.encrypt(msg, rng);
 
-         Botan::PK_Decryptor_EME dec(private_key, rng, padding);
+         const Botan::PK_Decryptor_EME dec(private_key, rng, padding);
 
          const BigInt modulus = public_key->get_int_field("n");
 
@@ -323,7 +324,7 @@ class RSA_DecryptOrRandom_Tests : public Test {
 
             auto rec = dec.decrypt_or_random(bad_ctext.data(), bad_ctext.size(), pt_len, rng);
 
-            result.test_eq("Returns a ciphertext of expected length", rec.size(), pt_len);
+            result.test_sz_eq("Returns a ciphertext of expected length", rec.size(), pt_len);
          }
 
          // Test decrypt_or_random with content check happy path
@@ -334,7 +335,7 @@ class RSA_DecryptOrRandom_Tests : public Test {
             std::vector<uint8_t> required_offsets(req_bytes);
 
             for(size_t j = 0; j != req_bytes; ++j) {
-               uint8_t idx = rng.next_byte() % pt_len;
+               const uint8_t idx = rng.next_byte() % pt_len;
                required_contents[j] = msg[idx];
                required_offsets[j] = idx;
             }
@@ -342,7 +343,7 @@ class RSA_DecryptOrRandom_Tests : public Test {
             auto rec = dec.decrypt_or_random(
                ctext.data(), ctext.size(), pt_len, rng, required_contents.data(), required_offsets.data(), req_bytes);
 
-            result.test_eq("Returned the expected message", rec, msg);
+            result.test_bin_eq("Returned the expected message", rec, msg);
          }
 
          // Test decrypt_or_random with content check error path
@@ -352,11 +353,11 @@ class RSA_DecryptOrRandom_Tests : public Test {
             std::vector<uint8_t> required_contents(req_bytes);
             std::vector<uint8_t> required_offsets(req_bytes);
 
-            size_t corrupted = Test::random_index(rng, req_bytes);
-            uint8_t corruption = rng.next_nonzero_byte();
+            const size_t corrupted = Test::random_index(rng, req_bytes);
+            const uint8_t corruption = rng.next_nonzero_byte();
 
             for(size_t j = 0; j != req_bytes; ++j) {
-               uint8_t idx = rng.next_byte() % pt_len;
+               const uint8_t idx = rng.next_byte() % pt_len;
                required_offsets[j] = idx;
 
                if(idx == corrupted) {
@@ -369,11 +370,11 @@ class RSA_DecryptOrRandom_Tests : public Test {
             auto rec = dec.decrypt_or_random(
                ctext.data(), ctext.size(), pt_len, rng, required_contents.data(), required_offsets.data(), req_bytes);
 
-            result.test_ne("Returned random message", rec, ctext);
+            result.test_bin_ne("Returned random message", rec, ctext);
 
             for(size_t j = 0; j != req_bytes; ++j) {
-               result.confirm("Random message satisfies stated content requirements",
-                              rec[required_offsets[j]] == required_contents[j]);
+               result.test_is_true("Random message satisfies stated content requirements",
+                                   rec[required_offsets[j]] == required_contents[j]);
             }
          }
       }

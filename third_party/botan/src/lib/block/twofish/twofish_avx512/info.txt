@@ -1,0 +1,22 @@
+<internal_defines>
+TWOFISH_AVX512 -> 20260318
+</internal_defines>
+
+<module_info>
+name -> "Twofish AVX-512"
+brief -> "Twofish using AVX-512 and GFNI instructions"
+</module_info>
+
+<isa>
+avx512
+gfni
+</isa>
+
+<requires>
+cpuid
+simd_avx512
+</requires>
+
+<cc>
+!msvc
+</cc>

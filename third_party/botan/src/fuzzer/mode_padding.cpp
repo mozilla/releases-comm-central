@@ -15,7 +15,7 @@ size_t ref_pkcs7_unpad(std::span<const uint8_t> in) {
    if(in.size() <= 2) {
       return in.size();
    }
-   size_t len = in.size();
+   const size_t len = in.size();
 
    const size_t padding_length = in[len - 1];
 
@@ -35,7 +35,7 @@ size_t ref_pkcs7_unpad(std::span<const uint8_t> in) {
 }
 
 size_t ref_x923_unpad(std::span<const uint8_t> in) {
-   size_t len = in.size();
+   const size_t len = in.size();
    if(len <= 2) {
       return len;
    }
@@ -57,7 +57,7 @@ size_t ref_x923_unpad(std::span<const uint8_t> in) {
 }
 
 size_t ref_oneandzero_unpad(std::span<const uint8_t> in) {
-   size_t len = in.size();
+   const size_t len = in.size();
    if(len <= 2) {
       return len;
    }
@@ -82,7 +82,7 @@ size_t ref_oneandzero_unpad(std::span<const uint8_t> in) {
 }
 
 size_t ref_esp_unpad(std::span<const uint8_t> in) {
-   size_t len = in.size();
+   const size_t len = in.size();
    if(len <= 2) {
       return len;
    }
@@ -104,7 +104,7 @@ size_t ref_esp_unpad(std::span<const uint8_t> in) {
 }
 
 uint16_t ref_tls_cbc_unpad(std::span<const uint8_t> in) {
-   size_t len = in.size();
+   const size_t len = in.size();
    if(len == 0) {
       return 0;
    }
@@ -130,33 +130,33 @@ uint16_t ref_tls_cbc_unpad(std::span<const uint8_t> in) {
 }  // namespace
 
 void fuzz(std::span<const uint8_t> in) {
-   static Botan::PKCS7_Padding pkcs7;
-   static Botan::ANSI_X923_Padding x923;
-   static Botan::OneAndZeros_Padding oneandzero;
-   static Botan::ESP_Padding esp;
+   static const Botan::PKCS7_Padding pkcs7;
+   static const Botan::ANSI_X923_Padding x923;
+   static const Botan::OneAndZeros_Padding oneandzero;
+   static const Botan::ESP_Padding esp;
 
-   size_t len = in.size();
+   const size_t len = in.size();
 
    if(pkcs7.valid_blocksize(len)) {
-      const size_t ct_pkcs7 = pkcs7.unpad(in.data(), len);
+      const size_t ct_pkcs7 = pkcs7.unpad(in);
       const size_t ref_pkcs7 = ref_pkcs7_unpad(in);
       FUZZER_ASSERT_EQUAL(ct_pkcs7, ref_pkcs7);
    }
 
    if(x923.valid_blocksize(len)) {
-      const size_t ct_x923 = x923.unpad(in.data(), len);
+      const size_t ct_x923 = x923.unpad(in);
       const size_t ref_x923 = ref_x923_unpad(in);
       FUZZER_ASSERT_EQUAL(ct_x923, ref_x923);
    }
 
    if(oneandzero.valid_blocksize(len)) {
-      const size_t ct_oneandzero = oneandzero.unpad(in.data(), len);
+      const size_t ct_oneandzero = oneandzero.unpad(in);
       const size_t ref_oneandzero = ref_oneandzero_unpad(in);
       FUZZER_ASSERT_EQUAL(ct_oneandzero, ref_oneandzero);
    }
 
    if(esp.valid_blocksize(len)) {
-      const size_t ct_esp = esp.unpad(in.data(), len);
+      const size_t ct_esp = esp.unpad(in);
       const size_t ref_esp = ref_esp_unpad(in);
       FUZZER_ASSERT_EQUAL(ct_esp, ref_esp);
    }

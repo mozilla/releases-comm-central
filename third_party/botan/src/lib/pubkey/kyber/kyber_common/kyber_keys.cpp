@@ -11,8 +11,9 @@
 
 #include <botan/internal/kyber_keys.h>
 
+#include <botan/internal/buffer_slicer.h>
+#include <botan/internal/concat_util.h>
 #include <botan/internal/kyber_symmetric_primitives.h>
-#include <botan/internal/stl_util.h>
 
 namespace Botan {
 
@@ -129,9 +130,10 @@ Kyber_PublicKeyInternal::Kyber_PublicKeyInternal(KyberConstants mode, KyberPolyV
 void Kyber_PublicKeyInternal::indcpa_encrypt(StrongSpan<KyberCompressedCiphertext> out_ct,
                                              StrongSpan<const KyberMessage> m,
                                              StrongSpan<const KyberEncryptionRandomness> r,
-                                             const KyberPolyMat& At) const {
+                                             const KyberPolyMat& At,
+                                             const KyberConstants& mode) const {
    // The nonce N is handled internally by the PolynomialSampler
-   Kyber_Algos::PolynomialSampler ps(r, m_mode);
+   Kyber_Algos::PolynomialSampler ps(r, mode);
    const auto y = ntt(ps.sample_polynomial_vector_cbd_eta1());
    const auto e1 = ps.sample_polynomial_vector_cbd_eta2();
    const auto e2 = ps.sample_polynomial_cbd_eta2();

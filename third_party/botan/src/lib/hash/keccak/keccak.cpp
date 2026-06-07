@@ -9,7 +9,6 @@
 
 #include <botan/exceptn.h>
 #include <botan/internal/fmt.h>
-#include <botan/internal/loadstor.h>
 
 namespace Botan {
 
@@ -17,7 +16,9 @@ std::unique_ptr<HashFunction> Keccak_1600::copy_state() const {
    return std::make_unique<Keccak_1600>(*this);
 }
 
-Keccak_1600::Keccak_1600(size_t output_bits) : m_keccak(2 * output_bits, 0, 0), m_output_length(output_bits / 8) {
+Keccak_1600::Keccak_1600(size_t output_bits) :
+      m_keccak({.capacity_bits = 2 * output_bits, .padding = KeccakPadding::keccak1600()}),
+      m_output_length(output_bits / 8) {
    // We only support the parameters for the SHA-3 proposal
 
    if(output_bits != 224 && output_bits != 256 && output_bits != 384 && output_bits != 512) {

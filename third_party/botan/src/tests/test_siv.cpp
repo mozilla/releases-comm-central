@@ -8,6 +8,7 @@
 
 #if defined(BOTAN_HAS_AEAD_SIV)
    #include <botan/aead.h>
+   #include <botan/hex.h>
    #include <botan/internal/parsing.h>
 #endif
 
@@ -50,7 +51,7 @@ class SIV_Tests final : public Text_Based_Test {
          siv->start(nonce);
          siv->finish(buf, 0);
 
-         result.test_eq("SIV ciphertext", buf, expected);
+         result.test_bin_eq("SIV ciphertext", buf, expected);
 
          return result;
       }

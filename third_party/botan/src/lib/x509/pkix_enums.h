@@ -17,7 +17,9 @@ class Public_Key;
 /**
 * Certificate validation status code
 */
-enum class Certificate_Status_Code {
+enum class Certificate_Status_Code : uint16_t {
+   // TODO(Botan4) renumber this, e.g. Validation Errors -> IP_ADDR_BLOCKS_ERROR
+   // TODO(Botan4) rename variants to CamelCase
    OK = 0,
    VERIFIED = 0,
 
@@ -67,6 +69,8 @@ enum class Certificate_Status_Code {
    CERT_CHAIN_TOO_LONG = 4002,
    CA_CERT_NOT_FOR_CERT_ISSUER = 4003,
    NAME_CONSTRAINT_ERROR = 4004,
+   IPADDR_BLOCKS_ERROR = 4011,
+   AS_BLOCKS_ERROR = 4012,
 
    // Revocation errors
    CA_CERT_NOT_FOR_CRL_ISSUER = 4005,
@@ -96,7 +100,7 @@ enum class Certificate_Status_Code {
 
 /**
 * Convert a status code to a human readable diagnostic message
-* @param code the certifcate status
+* @param code the certificate status
 * @return string literal constant, or nullptr if code unknown
 */
 BOTAN_PUBLIC_API(2, 0) const char* to_string(Certificate_Status_Code code);
@@ -105,9 +109,9 @@ BOTAN_PUBLIC_API(2, 0) const char* to_string(Certificate_Status_Code code);
 * X.509v3 Key Constraints.
 * If updating update copy in ffi.h
 */
-class BOTAN_PUBLIC_API(3, 0) Key_Constraints {
+class BOTAN_PUBLIC_API(3, 0) Key_Constraints final {
    public:
-      enum Bits : uint32_t {
+      enum Bits : uint16_t /* NOLINT(*-use-enum-class) */ {
          None = 0,
          DigitalSignature = 1 << 15,
          NonRepudiation = 1 << 14,
@@ -137,7 +141,9 @@ class BOTAN_PUBLIC_API(3, 0) Key_Constraints {
       Key_Constraints(Key_Constraints&& other) = default;
       Key_Constraints& operator=(const Key_Constraints& other) = default;
       Key_Constraints& operator=(Key_Constraints&& other) = default;
+      ~Key_Constraints() = default;
 
+      // NOLINTNEXTLINE(*-explicit-conversions)
       Key_Constraints(Key_Constraints::Bits bits) : m_value(bits) {}
 
       explicit Key_Constraints(uint32_t bits) : m_value(bits) {}
@@ -189,7 +195,7 @@ class BOTAN_PUBLIC_API(3, 0) Key_Constraints {
 /**
 * X.509v2 CRL Reason Code.
 */
-enum class CRL_Code : uint32_t {
+enum class CRL_Code : uint8_t {
    Unspecified = 0,
    KeyCompromise = 1,
    CaCompromise = 2,
@@ -200,6 +206,15 @@ enum class CRL_Code : uint32_t {
    RemoveFromCrl = 8,
    PrivilegeWithdrawn = 9,
    AaCompromise = 10,
+};
+
+enum class Usage_Type : uint8_t {
+   UNSPECIFIED,  // no restrictions
+   TLS_SERVER_AUTH,
+   TLS_CLIENT_AUTH,
+   CERTIFICATE_AUTHORITY,
+   OCSP_RESPONDER,
+   ENCRYPTION
 };
 
 }  // namespace Botan

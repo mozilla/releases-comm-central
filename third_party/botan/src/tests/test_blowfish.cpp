@@ -12,6 +12,8 @@
 
 namespace Botan_Tests {
 
+namespace {
+
 class Blowfish_Salted_Tests final : public Text_Based_Test {
    public:
       Blowfish_Salted_Tests() : Text_Based_Test("salted_blowfish.vec", "Key,Salt,Out") {}
@@ -30,13 +32,15 @@ class Blowfish_Salted_Tests final : public Text_Based_Test {
          std::vector<uint8_t> block(8);
          blowfish.encrypt(block);
 
-         result.test_eq("Expected output", block, expected);
+         result.test_bin_eq("Expected output", block, expected);
 
          return result;
       }
 };
 
 BOTAN_REGISTER_TEST("block", "blowfish_salted", Blowfish_Salted_Tests);
+
+}  // namespace
 
 }  // namespace Botan_Tests
 

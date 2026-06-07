@@ -27,6 +27,7 @@ tls_policy.h
 tls_server.h
 tls_server_info.h
 tls_session.h
+tls_session_id.h
 tls_session_manager.h
 tls_session_manager_noop.h
 tls_session_manager_memory.h
@@ -39,10 +40,15 @@ tls_version.h
 <header:internal>
 tls_channel_impl.h
 tls_handshake_transitions.h
+tls_messages_internal.h
 tls_reader.h
 </header:internal>
 
 <requires>
+aead
+aes
+asn1
+dh
 ecdh
 ecdsa
 gcm
@@ -50,11 +56,7 @@ hmac
 rng
 sha2_32
 sha2_64
-tls12
 x509
-pcurves_secp256r1
-pcurves_secp384r1
-pcurves_secp521r1
 </requires>
 
 <os_features>

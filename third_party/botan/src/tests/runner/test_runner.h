@@ -10,7 +10,6 @@
 
 #include <iosfwd>
 #include <memory>
-#include <optional>
 #include <string>
 #include <vector>
 
@@ -19,9 +18,9 @@ namespace Botan_Tests {
 class Test_Options;
 class Reporter;
 
-class Test_Runner final {
+class Test_Runner final /* NOLINT(*-special-member-functions) */ {
    public:
-      Test_Runner(std::ostream& out);
+      explicit Test_Runner(std::ostream& out);
       ~Test_Runner();
 
       /// @return true iff all tests have passed

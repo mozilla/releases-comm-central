@@ -5,7 +5,7 @@
 Botan is released under the Simplified BSD License (see license.txt)
 
 Compare two JSON files output by `botan speed --format=json` and report
-on noticable improvements or regressions in performance.
+on noticeable improvements or regressions in performance.
 """
 
 import json
@@ -34,20 +34,32 @@ def parse_perf_report(report):
 
         report = report[1:]
 
+    re_with_suffix = re.compile(r'(.*) \[[a-z0-9_]+\]$')
+
     results = []
     for t in report:
         if 'algo' in t and 'op' in t and 'events' in t and 'nanos' in t:
 
+            algo = t['algo']
+            match = re_with_suffix.match(algo)
+            if match:
+                algo = match.group(1)
             op = t['op']
             if 'buf_size' in t:
                 op += ' ' + str(t['buf_size']) + ' buffer'
 
-            results.append(((t['algo'], op), ops_per_second(t['events'], t['nanos'])))
+            results.append(((algo, op), ops_per_second(t['events'], t['nanos'])))
         else:
             print("Unexpected record", t)
 
     results = sorted(results, key=lambda r: r[0])
     return (version, results)
+
+def read_src(src):
+    if src in ['stdin', '-']:
+        return sys.stdin.read()
+    else:
+        return open(src, encoding='utf8').read()
 
 def main(args = None):
     if args is None:
@@ -65,8 +77,15 @@ def main(args = None):
         print("Usage: compare_perf.py orig.json new.json")
         return 1
 
-    (ver0, rep0) = parse_perf_report(json.loads(open(args[1], encoding='utf8').read()))
-    (ver1, rep1) = parse_perf_report(json.loads(open(args[2], encoding='utf8').read()))
+    src1 = args[1]
+    src2 = args[2]
+
+    if src1 == src2:
+        print("Doesn't make sense to compare the same inputs")
+        return 1
+
+    (ver0, rep0) = parse_perf_report(json.loads(read_src(src1)))
+    (ver1, rep1) = parse_perf_report(json.loads(read_src(src2)))
 
     reportable = float(options.limit) / 100
     filter_re = re.compile(options.filter)
@@ -82,7 +101,7 @@ def main(args = None):
 
         # TODO check/diff the compiler flags
 
-        s += args[1]
+        s += src1
 
         if diff_version or diff_git:
             s += " ("
@@ -94,7 +113,7 @@ def main(args = None):
                 s += ver0['git']
             s += ")"
 
-        s += " and " + args[2]
+        s += " and " + src2
 
         if diff_version or diff_git:
             s += " ("
@@ -145,7 +164,7 @@ def main(args = None):
             rep1 = rep1[1:]
 
     for (pct, algo) in sorted(speedups, key=lambda v: v[0], reverse=True):
-        print("+ %s improvment in %s" % (format_pct(pct), algo))
+        print("+ %s improvement in %s" % (format_pct(pct), algo))
 
     for (pct, algo) in sorted(slowdowns, key=lambda v: v[0]):
         print("- %s regression in %s" % (format_pct(pct), algo))

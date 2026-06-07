@@ -9,14 +9,12 @@
 #ifndef BOTAN_TLS_RECORD_LAYER_13_H_
 #define BOTAN_TLS_RECORD_LAYER_13_H_
 
+#include <botan/secmem.h>
+#include <botan/tls_magic.h>
 #include <optional>
 #include <span>
 #include <variant>
 #include <vector>
-
-#include <botan/secmem.h>
-#include <botan/tls_magic.h>
-#include <botan/internal/tls_channel_impl.h>
 
 namespace Botan::TLS {
 
@@ -25,9 +23,11 @@ namespace Botan::TLS {
  * minus the record protocol specifics and ossified bytes.
  */
 struct Record {
-      Record_Type type;
-      secure_vector<uint8_t> fragment;
-      std::optional<uint64_t> seq_no;  // unprotected records have no sequence number
+      Record_Type type;                 // NOLINT(*non-private-member-variable*)
+      secure_vector<uint8_t> fragment;  // NOLINT(*non-private-member-variable*)
+
+      // unprotected records have no sequence number
+      std::optional<uint64_t> seq_no;  // NOLINT(*non-private-member-variable*)
 
       Record(Record_Type record_type, secure_vector<uint8_t> frgmnt) :
             type(record_type), fragment(std::move(frgmnt)), seq_no(std::nullopt) {}
@@ -45,7 +45,7 @@ class Cipher_State;
  */
 class BOTAN_TEST_API Record_Layer {
    public:
-      Record_Layer(Connection_Side side);
+      explicit Record_Layer(Connection_Side side);
 
       template <typename ResT>
       using ReadResult = std::variant<BytesNeeded, ResT>;

@@ -73,7 +73,7 @@ class Processor_RNG_EntropySource final : public Entropy_Source {
          *
          * The reseeding conditions of the POWER and ARM processor RNGs are not known
          * but probably work in a somewhat similar manner. The exact amount requested
-         * may be tweaked if and when such conditions become publically known.
+         * may be tweaked if and when such conditions become publicly known.
          */
          const size_t poll_bits = 65536;
          rng.reseed_from_rng(m_hwrng, poll_bits);
@@ -180,6 +180,20 @@ size_t Entropy_Sources::poll(RandomNumberGenerator& rng, size_t poll_bits, std::
       bits_collected += src->poll(rng);
 
       if(bits_collected >= poll_bits || timeout_expired()) {
+         break;
+      }
+   }
+
+   return bits_collected;
+}
+
+size_t Entropy_Sources::poll(RandomNumberGenerator& rng, size_t poll_bits) {
+   size_t bits_collected = 0;
+
+   for(auto& src : m_srcs) {
+      bits_collected += src->poll(rng);
+
+      if(bits_collected >= poll_bits) {
          break;
       }
    }

@@ -1,5 +1,5 @@
 /*
-* ECDH implemenation
+* ECDH implementation
 * (C) 2007 Manuel Hartl, FlexSecure GmbH
 *     2007 Falko Strenzke, FlexSecure GmbH
 *     2008-2010 Jack Lloyd
@@ -10,6 +10,7 @@
 #include <botan/ecdh.h>
 
 #include <botan/bigint.h>
+#include <botan/ec_group.h>
 #include <botan/internal/pk_ops_impl.h>
 
 namespace Botan {

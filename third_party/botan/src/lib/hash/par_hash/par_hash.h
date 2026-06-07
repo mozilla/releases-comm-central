@@ -32,11 +32,14 @@ class Parallel final : public HashFunction {
       explicit Parallel(std::vector<std::unique_ptr<HashFunction>>& hashes);
 
       Parallel(const Parallel&) = delete;
+      Parallel(Parallel&&) = default;
       Parallel& operator=(const Parallel&) = delete;
+      Parallel& operator=(Parallel&&) = default;
+      ~Parallel() override = default;
 
    private:
-      void add_data(std::span<const uint8_t>) override;
-      void final_result(std::span<uint8_t>) override;
+      void add_data(std::span<const uint8_t> input) override;
+      void final_result(std::span<uint8_t> output) override;
 
       std::vector<std::unique_ptr<HashFunction>> m_hashes;
 };

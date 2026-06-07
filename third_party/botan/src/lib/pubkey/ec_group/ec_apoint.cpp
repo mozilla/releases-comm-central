@@ -9,6 +9,7 @@
 #include <botan/ec_group.h>
 #include <botan/ec_scalar.h>
 #include <botan/internal/ec_inner_data.h>
+#include <botan/internal/mem_utils.h>
 
 namespace Botan {
 
@@ -82,9 +83,9 @@ EC_AffinePoint EC_AffinePoint::identity(const EC_Group& group) {
 
 EC_AffinePoint EC_AffinePoint::generator(const EC_Group& group) {
    // TODO it would be nice to improve this (pcurves supports returning generator directly)
-   try {
-      return EC_AffinePoint::from_bigint_xy(group, group.get_g_x(), group.get_g_y()).value();
-   } catch(...) {
+   if(auto g = EC_AffinePoint::from_bigint_xy(group, group.get_g_x(), group.get_g_y())) {
+      return *g;
+   } else {
       throw Internal_Error("EC_AffinePoint::generator curve rejected generator");
    }
 }
@@ -122,12 +123,26 @@ EC_AffinePoint EC_AffinePoint::hash_to_curve_ro(const EC_Group& group,
    return EC_AffinePoint(std::move(pt));
 }
 
+EC_AffinePoint EC_AffinePoint::hash_to_curve_ro(const EC_Group& group,
+                                                std::string_view hash_fn,
+                                                std::span<const uint8_t> input,
+                                                std::string_view domain_sep) {
+   return EC_AffinePoint::hash_to_curve_ro(group, hash_fn, input, as_span_of_bytes(domain_sep));
+}
+
 EC_AffinePoint EC_AffinePoint::hash_to_curve_nu(const EC_Group& group,
                                                 std::string_view hash_fn,
                                                 std::span<const uint8_t> input,
                                                 std::span<const uint8_t> domain_sep) {
    auto pt = group._data()->point_hash_to_curve_nu(hash_fn, input, domain_sep);
    return EC_AffinePoint(std::move(pt));
+}
+
+EC_AffinePoint EC_AffinePoint::hash_to_curve_nu(const EC_Group& group,
+                                                std::string_view hash_fn,
+                                                std::span<const uint8_t> input,
+                                                std::string_view domain_sep) {
+   return EC_AffinePoint::hash_to_curve_nu(group, hash_fn, input, as_span_of_bytes(domain_sep));
 }
 
 EC_AffinePoint::~EC_AffinePoint() = default;

@@ -13,6 +13,8 @@
 #include <botan/internal/cmce_matrix.h>
 
 #include <botan/strong_type.h>
+#include <botan/internal/buffer_slicer.h>
+#include <botan/internal/buffer_stuffer.h>
 
 namespace Botan {
 
@@ -31,10 +33,10 @@ CT::Mask<uint64_t> bit_at_mask(uint64_t val, size_t pos) {
 }
 
 /// Swaps bit i with bit j in val
-void swap_bits(uint64_t& val, size_t i, size_t j) {
-   uint64_t bit_i = (val >> i) & CT::value_barrier<uint64_t>(1);
-   uint64_t bit_j = (val >> j) & CT::value_barrier<uint64_t>(1);
-   uint64_t xor_sum = bit_i ^ bit_j;
+void swap_1_bit(uint64_t& val, size_t i, size_t j) {
+   const uint64_t bit_i = (val >> i) & CT::value_barrier<uint64_t>(1);
+   const uint64_t bit_j = (val >> j) & CT::value_barrier<uint64_t>(1);
+   const uint64_t xor_sum = bit_i ^ bit_j;
    val ^= (xor_sum << i);
    val ^= (xor_sum << j);
 }
@@ -64,8 +66,9 @@ CmceMatrix init_matrix_with_alphas(const Classic_McEliece_Parameters& params,
 
    for(size_t i = 0; i < params.t(); ++i) {
       for(size_t j = 0; j < params.n(); ++j) {
+         const auto inv_g = inv_g_of_alpha[j].elem().get();
          for(size_t alpha_i_j_bit = 0; alpha_i_j_bit < params.m(); ++alpha_i_j_bit) {
-            mat[i * params.m() + alpha_i_j_bit][j] = (uint16_t(1) << alpha_i_j_bit) & inv_g_of_alpha[j].elem().get();
+            mat[i * params.m() + alpha_i_j_bit][j] = static_cast<bool>((inv_g >> alpha_i_j_bit) & 1);
          }
       }
       // Update for the next i so that:
@@ -97,7 +100,7 @@ std::optional<CmceColumnSelection> move_columns(CmceMatrix& mat, const Classic_M
 
    // To find which columns need to be swapped to allow for a systematic matrix form, we need to
    // investigate how a gauss algorithm affects the last mu rows of the swap area.
-   std::array<uint64_t, Classic_McEliece_Parameters::mu()> sub_mat;
+   std::array<uint64_t, Classic_McEliece_Parameters::mu()> sub_mat;  // NOLINT(*-member-init)
 
    // Extract the bottom mu x nu matrix at offset pos_offset
    for(size_t i = 0; i < Classic_McEliece_Parameters::mu(); i++) {
@@ -126,7 +129,7 @@ std::optional<CmceColumnSelection> move_columns(CmceMatrix& mat, const Classic_M
       // Using the row accumulator we can predict the index of the pivot
       // bit for the current row, i.e., the first index where we can set
       // the bit to one row by adding any subsequent row
-      size_t current_pivot_idx = count_lsb_zeros(row_acc);
+      const size_t current_pivot_idx = count_lsb_zeros(row_acc);
       pivot_indices.at(row_idx) = current_pivot_idx;
 
       // Add subsequent rows to the current row, until the pivot
@@ -155,14 +158,14 @@ std::optional<CmceColumnSelection> move_columns(CmceMatrix& mat, const Classic_M
    for(auto pivot_idx : pivot_indices) {
       for(size_t i = 0; i < Classic_McEliece_Parameters::nu(); ++i) {
          auto mask_is_at_current_idx = Botan::CT::Mask<size_t>::is_equal(i, pivot_idx);
-         pivots.at(i) = mask_is_at_current_idx.select(1, pivots.at(i).as<size_t>());
+         pivots.at(i) = static_cast<bool>(mask_is_at_current_idx.select(1, pivots.at(i).as<size_t>()));
       }
    }
 
    // Swap the rows so the matrix can be transformed into systematic form
    for(size_t mat_row = 0; mat_row < params.pk_no_rows(); ++mat_row) {
       for(size_t col = 0; col < Classic_McEliece_Parameters::mu(); ++col) {
-         swap_bits(matrix_swap_area.at(mat_row), col, pivot_indices.at(col));
+         swap_1_bit(matrix_swap_area.at(mat_row), col, pivot_indices.at(col));
       }
    }
 
@@ -185,7 +188,7 @@ std::optional<CmceColumnSelection> apply_gauss(const Classic_McEliece_Parameters
    for(size_t diag_pos = 0; diag_pos < params.pk_no_rows(); ++diag_pos) {
       if(params.is_f() && diag_pos == params.pk_no_rows() - params.mu()) {
          auto ret_pivots = move_columns(mat, params);
-         bool move_columns_failed = !ret_pivots.has_value();
+         const bool move_columns_failed = !ret_pivots.has_value();
          CT::unpoison(move_columns_failed);
          if(move_columns_failed) {
             return std::nullopt;
@@ -204,14 +207,14 @@ std::optional<CmceColumnSelection> apply_gauss(const Classic_McEliece_Parameters
 
       // If the current bit on the diagonal is not set at this point
       // the matrix is not systematic. We abort the computation in this case.
-      bool diag_bit_zero = !mat[diag_pos].at(diag_pos);
+      const bool diag_bit_zero = !mat[diag_pos].at(diag_pos);
       CT::unpoison(diag_bit_zero);
       if(diag_bit_zero) {
          return std::nullopt;
       }
 
       // Now the new row is added to all other rows, where the
-      // bit in the column of the current postion on the diagonal
+      // bit in the column of the current position on the diagonal
       // is still one
       for(size_t row = 0; row < params.pk_no_rows(); ++row) {
          if(row != diag_pos) {
@@ -263,7 +266,7 @@ Classic_McEliece_Matrix::create_matrix_and_apply_pivots(const Classic_McEliece_P
                                                         const Classic_McEliece_Minimal_Polynomial& g) {
    auto pk_matrix_and_pivots = create_matrix(params, field_ordering, g);
 
-   bool matrix_creation_failed = !pk_matrix_and_pivots.has_value();
+   const bool matrix_creation_failed = !pk_matrix_and_pivots.has_value();
    CT::unpoison(matrix_creation_failed);
    if(matrix_creation_failed) {
       return std::nullopt;

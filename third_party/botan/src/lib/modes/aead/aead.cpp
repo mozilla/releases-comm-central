@@ -7,6 +7,7 @@
 #include <botan/aead.h>
 
 #include <botan/assert.h>
+#include <botan/exceptn.h>
 #include <botan/internal/parsing.h>
 #include <botan/internal/scan_name.h>
 #include <sstream>
@@ -39,6 +40,10 @@
    #include <botan/internal/siv.h>
 #endif
 
+#if defined(BOTAN_HAS_ASCON_AEAD128)
+   #include <botan/internal/ascon_aead128.h>
+#endif
+
 namespace Botan {
 
 std::unique_ptr<AEAD_Mode> AEAD_Mode::create_or_throw(std::string_view algo,
@@ -63,9 +68,19 @@ std::unique_ptr<AEAD_Mode> AEAD_Mode::create(std::string_view algo, Cipher_Dir d
    }
 #endif
 
+#if defined(BOTAN_HAS_ASCON_AEAD128)
+   if(algo == "Ascon-AEAD128") {
+      if(dir == Cipher_Dir::Encryption) {
+         return std::make_unique<Ascon_AEAD128_Encryption>();
+      } else {
+         return std::make_unique<Ascon_AEAD128_Decryption>();
+      }
+   }
+#endif
+
    if(algo.find('/') != std::string::npos) {
       const std::vector<std::string> algo_parts = split_on(algo, '/');
-      std::string_view cipher_name = algo_parts[0];
+      const std::string_view cipher_name = algo_parts[0];
       const std::vector<std::string> mode_info = parse_algorithm_name(algo_parts[1]);
 
       if(mode_info.empty()) {
@@ -88,7 +103,7 @@ std::unique_ptr<AEAD_Mode> AEAD_Mode::create(std::string_view algo, Cipher_Dir d
 
 #if defined(BOTAN_HAS_BLOCK_CIPHER)
 
-   SCAN_Name req(algo);
+   const SCAN_Name req(algo);
 
    if(req.arg_count() == 0) {
       return std::unique_ptr<AEAD_Mode>();
@@ -102,8 +117,8 @@ std::unique_ptr<AEAD_Mode> AEAD_Mode::create(std::string_view algo, Cipher_Dir d
 
    #if defined(BOTAN_HAS_AEAD_CCM)
    if(req.algo_name() == "CCM") {
-      size_t tag_len = req.arg_as_integer(1, 16);
-      size_t L_len = req.arg_as_integer(2, 3);
+      const size_t tag_len = req.arg_as_integer(1, 16);
+      const size_t L_len = req.arg_as_integer(2, 3);
       if(dir == Cipher_Dir::Encryption) {
          return std::make_unique<CCM_Encryption>(std::move(bc), tag_len, L_len);
       } else {
@@ -114,7 +129,7 @@ std::unique_ptr<AEAD_Mode> AEAD_Mode::create(std::string_view algo, Cipher_Dir d
 
    #if defined(BOTAN_HAS_AEAD_GCM)
    if(req.algo_name() == "GCM") {
-      size_t tag_len = req.arg_as_integer(1, 16);
+      const size_t tag_len = req.arg_as_integer(1, 16);
       if(dir == Cipher_Dir::Encryption) {
          return std::make_unique<GCM_Encryption>(std::move(bc), tag_len);
       } else {
@@ -125,7 +140,7 @@ std::unique_ptr<AEAD_Mode> AEAD_Mode::create(std::string_view algo, Cipher_Dir d
 
    #if defined(BOTAN_HAS_AEAD_OCB)
    if(req.algo_name() == "OCB") {
-      size_t tag_len = req.arg_as_integer(1, 16);
+      const size_t tag_len = req.arg_as_integer(1, 16);
       if(dir == Cipher_Dir::Encryption) {
          return std::make_unique<OCB_Encryption>(std::move(bc), tag_len);
       } else {
@@ -136,7 +151,7 @@ std::unique_ptr<AEAD_Mode> AEAD_Mode::create(std::string_view algo, Cipher_Dir d
 
    #if defined(BOTAN_HAS_AEAD_EAX)
    if(req.algo_name() == "EAX") {
-      size_t tag_len = req.arg_as_integer(1, bc->block_size());
+      const size_t tag_len = req.arg_as_integer(1, bc->block_size());
       if(dir == Cipher_Dir::Encryption) {
          return std::make_unique<EAX_Encryption>(std::move(bc), tag_len);
       } else {

@@ -10,12 +10,45 @@
 #define BOTAN_STRONG_TYPE_H_
 
 #include <botan/concepts.h>
-
 #include <iosfwd>
 #include <span>
 #include <string>
 
 namespace Botan {
+
+template <typename T, typename Tag, typename... Capabilities>
+class Strong;
+
+template <typename... Ts>
+struct is_strong_type : std::false_type {};
+
+template <typename... Ts>
+struct is_strong_type<Strong<Ts...>> : std::true_type {};
+
+template <typename... Ts>
+constexpr bool is_strong_type_v = is_strong_type<std::remove_const_t<Ts>...>::value;
+
+namespace concepts {
+
+template <typename T>
+concept streamable = requires(std::ostream& os, T a) { os << a; };
+
+template <class T>
+concept strong_type = is_strong_type_v<T>;
+
+template <class T>
+concept contiguous_strong_type = strong_type<T> && contiguous_container<T>;
+
+template <class T>
+concept integral_strong_type = strong_type<T> && std::integral<typename T::wrapped_type>;
+
+template <class T>
+concept unsigned_integral_strong_type = strong_type<T> && std::unsigned_integral<typename T::wrapped_type>;
+
+template <typename T, typename Capability>
+concept strong_type_with_capability = T::template has_capability<Capability>();
+
+}  // namespace concepts
 
 /**
  * Added as an additional "capability tag" to enable arithmetic operators with
@@ -45,6 +78,7 @@ class Strong_Base {
       Strong_Base(Strong_Base&&) noexcept = default;
       Strong_Base& operator=(const Strong_Base&) = default;
       Strong_Base& operator=(Strong_Base&&) noexcept = default;
+      ~Strong_Base() = default;
 
       constexpr explicit Strong_Base(T v) : m_value(std::move(v)) {}
 
@@ -132,20 +166,6 @@ class Container_Strong_Adapter_Base : public Strong_Base<T> {
       template <typename U>
       decltype(auto) operator[](U&& i) noexcept(noexcept(this->get().operator[](i))) {
          return this->get()[std::forward<U>(i)];
-      }
-
-      template <typename U>
-      decltype(auto) at(U&& i) const noexcept(noexcept(this->get().at(i)))
-         requires(concepts::has_bounds_checked_accessors<T>)
-      {
-         return this->get().at(std::forward<U>(i));
-      }
-
-      template <typename U>
-      decltype(auto) at(U&& i) noexcept(noexcept(this->get().at(i)))
-         requires(concepts::has_bounds_checked_accessors<T>)
-      {
-         return this->get().at(std::forward<U>(i));
       }
 };
 
@@ -621,7 +641,7 @@ constexpr auto operator--(Strong<T, Tags...>& a) {
 }
 
 /**
- * This mimmicks a std::span but keeps track of the strong-type information. Use
+ * This mimics a std::span but keeps track of the strong-type information. Use
  * this when you would want to use `const Strong<...>&` as a parameter
  * declaration. In particular this allows assigning strong-type information to
  * slices of a bigger buffer without copying the bytes. E.g:
@@ -651,6 +671,7 @@ class StrongSpan {
 
       explicit StrongSpan(underlying_span span) : m_span(span) {}
 
+      // NOLINTNEXTLINE(*-explicit-conversions)
       StrongSpan(T& strong) : m_span(strong) {}
 
       // Allows implicit conversion from `StrongSpan<T>` to `StrongSpan<const T>`.
@@ -660,14 +681,19 @@ class StrongSpan {
       // TODO: Technically, we should be able to phrase this with a `requires std::is_const_v<T>`
       //       instead of the `std::enable_if` constructions. clang-tidy (14 or 15) doesn't seem
       //       to pick up on that (yet?). As a result, for a non-const T it assumes this to be
-      //       a declaration of an ordinary copy constructor. The existance of a copy constructor
+      //       a declaration of an ordinary copy constructor. The existence of a copy constructor
       //       is interpreted as "not cheap to copy", setting off the `performance-unnecessary-value-param` check.
       //       See also: https://github.com/randombit/botan/issues/3591
-      template <concepts::contiguous_strong_type T2,
-                typename = std::enable_if_t<std::is_same_v<T2, std::remove_const_t<T>>>>
-      StrongSpan(const StrongSpan<T2>& other) : m_span(other.get()) {}
+      template <concepts::contiguous_strong_type T2>
+      // NOLINTNEXTLINE(*-explicit-conversions)
+      StrongSpan(const StrongSpan<T2>& other)
+         requires(std::is_same_v<T2, std::remove_const_t<T>>)
+            : m_span(other.get()) {}
 
       StrongSpan(const StrongSpan& other) = default;
+      StrongSpan(StrongSpan&& other) = default;
+      StrongSpan& operator=(const StrongSpan& other) = default;
+      StrongSpan& operator=(StrongSpan&& other) = default;
 
       ~StrongSpan() = default;
 

@@ -76,7 +76,7 @@ def prepend_destdir(path):
             raise PrependDestdirError("--prefix must be an absolute path when DESTDIR is set.")
 
         path = os.path.normpath(path)
-        # Remove / or \ prefixes if existent to accomodate for os.path.join()
+        # Remove / or \ prefixes if existent to accommodate for os.path.join()
         path = path.lstrip(os.path.sep)
         path = os.path.join(destdir, path)
 
@@ -123,7 +123,7 @@ def main(args):
 
     def copy_file(src, dst):
         logging.debug('Copying %s to %s', src, dst)
-        shutil.copyfile(src, dst)
+        shutil.copy2(src, dst)
 
     def copy_executable(src, dst):
         copy_file(src, dst)
@@ -146,7 +146,7 @@ def main(args):
     lib_dir = cfg['libdir']
     target_include_dir = cfg['installed_include_dir']
     pkgconfig_dir = os.path.join(lib_dir, 'pkgconfig')
-    cmake_dir = os.path.join(lib_dir, 'cmake', 'Botan-%s' % cfg["version"])
+    cmake_dir = cfg.get('cmake_install_dir')
 
     prefix = cfg['prefix']
 

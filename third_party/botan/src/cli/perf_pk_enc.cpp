@@ -9,9 +9,13 @@
 #if defined(BOTAN_HAS_PUBLIC_KEY_CRYPTO)
    #include <botan/pk_algs.h>
    #include <botan/pubkey.h>
+   #include <botan/rng.h>
+   #include <botan/internal/fmt.h>
 #endif
 
 namespace Botan_CLI {
+
+namespace {
 
 #if defined(BOTAN_HAS_PUBLIC_KEY_CRYPTO)
 
@@ -32,15 +36,16 @@ class PerfTest_PKEnc : public PerfTest {
          }
       }
 
-      void bench_pk_ka(const PerfConfig& config,
-                       const std::string& nm,
-                       const std::string& algo,
-                       const std::string& params,
-                       const std::string& provider = "") {
+      static void bench_pk_ka(const PerfConfig& config,
+                              const std::string& nm,
+                              const std::string& algo,
+                              const std::string& params,
+                              const std::string& provider = "") {
          auto& rng = config.rng();
          const auto msec = config.runtime();
 
-         std::vector<uint8_t> plaintext, ciphertext;
+         std::vector<uint8_t> plaintext;
+         std::vector<uint8_t> ciphertext;
 
          auto keygen_timer = config.make_timer(nm, 1, "keygen");
 
@@ -111,5 +116,7 @@ class PerfTest_ElGamal final : public PerfTest_PKEnc {
 BOTAN_REGISTER_PERF_TEST("ElGamal", PerfTest_ElGamal);
 
 #endif
+
+}  // namespace
 
 }  // namespace Botan_CLI

@@ -8,9 +8,9 @@
 
 #include <botan/dlies.h>
 #include <botan/mem_ops.h>
+#include <botan/internal/concat_util.h>
 #include <botan/internal/ct_utils.h>
-#include <botan/internal/stl_util.h>
-#include <limits>
+#include <span>
 
 namespace Botan {
 
@@ -28,15 +28,14 @@ DLIES_Encryptor::DLIES_Encryptor(const DH_PrivateKey& own_priv_key,
                                  size_t cipher_key_len,
                                  std::unique_ptr<MessageAuthenticationCode> mac,
                                  size_t mac_key_length) :
-      m_other_pub_key(),
+
       m_own_pub_key(own_priv_key.public_value()),
       m_ka(own_priv_key, rng, "Raw"),
       m_kdf(std::move(kdf)),
       m_cipher(std::move(cipher)),
       m_cipher_key_len(cipher_key_len),
       m_mac(std::move(mac)),
-      m_mac_keylen(mac_key_length),
-      m_iv() {
+      m_mac_keylen(mac_key_length) {
    BOTAN_ASSERT_NONNULL(m_kdf);
    BOTAN_ASSERT_NONNULL(m_mac);
 }
@@ -61,7 +60,7 @@ std::vector<uint8_t> DLIES_Encryptor::enc(const uint8_t in[], size_t length, Ran
    const size_t cipher_key_len = m_cipher ? m_cipher_key_len : length;
 
    if(m_cipher) {
-      SymmetricKey enc_key(secret_keys.data(), cipher_key_len);
+      const SymmetricKey enc_key(secret_keys.data(), cipher_key_len);
       m_cipher->set_key(enc_key);
 
       if(m_iv.empty() && !m_cipher->valid_nonce_length(m_iv.size())) {
@@ -107,8 +106,7 @@ DLIES_Decryptor::DLIES_Decryptor(const DH_PrivateKey& own_priv_key,
       m_cipher(std::move(cipher)),
       m_cipher_key_len(cipher_key_len),
       m_mac(std::move(mac)),
-      m_mac_keylen(mac_key_length),
-      m_iv() {
+      m_mac_keylen(mac_key_length) {
    BOTAN_ASSERT_NONNULL(m_kdf);
    BOTAN_ASSERT_NONNULL(m_mac);
 }
@@ -138,7 +136,7 @@ secure_vector<uint8_t> DLIES_Decryptor::do_decrypt(uint8_t& valid_mask, const ui
    const SymmetricKey secret_value = m_ka.derive_key(0, other_pub_key);
 
    const size_t ciphertext_len = length - m_pub_key_size - m_mac->output_length();
-   size_t cipher_key_len = m_cipher ? m_cipher_key_len : ciphertext_len;
+   const size_t cipher_key_len = m_cipher ? m_cipher_key_len : ciphertext_len;
 
    // derive secret key from secret value
    const size_t required_key_length = cipher_key_len + m_mac_keylen;
@@ -155,15 +153,15 @@ secure_vector<uint8_t> DLIES_Decryptor::do_decrypt(uint8_t& valid_mask, const ui
    secure_vector<uint8_t> calculated_tag = m_mac->process(ciphertext);
 
    // calculated tag == received tag ?
-   secure_vector<uint8_t> tag(msg + m_pub_key_size + ciphertext_len,
-                              msg + m_pub_key_size + ciphertext_len + m_mac->output_length());
 
-   valid_mask = CT::is_equal(tag.data(), calculated_tag.data(), tag.size()).value();
+   const std::span<const uint8_t> tag(msg + m_pub_key_size + ciphertext_len, m_mac->output_length());
+
+   valid_mask = CT::is_equal<uint8_t>(tag, calculated_tag).value();
 
    // decrypt
    if(m_cipher) {
-      if(valid_mask) {
-         SymmetricKey dec_key(secret_keys.data(), cipher_key_len);
+      if(valid_mask == 0xFF) {
+         const SymmetricKey dec_key(secret_keys.data(), cipher_key_len);
          m_cipher->set_key(dec_key);
 
          try {

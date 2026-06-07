@@ -10,6 +10,7 @@
 
 #include <botan/pk_ops.h>
 #include <botan/xmss.h>
+#include <botan/internal/xmss_hash.h>
 #include <botan/internal/xmss_signature.h>
 
 namespace Botan {
@@ -20,7 +21,7 @@ namespace Botan {
  **/
 class XMSS_Verification_Operation final : public virtual PK_Ops::Verification {
    public:
-      XMSS_Verification_Operation(const XMSS_PublicKey& public_key);
+      explicit XMSS_Verification_Operation(const XMSS_PublicKey& public_key);
 
       bool is_valid_signature(std::span<const uint8_t> sign) override;
 
@@ -35,7 +36,6 @@ class XMSS_Verification_Operation final : public virtual PK_Ops::Verification {
        *
        * @param msg A message.
        * @param sig The XMSS signature for msg.
-       * @param ards A XMSS tree address.
        * @param seed A seed.
        *
        * @return An n-byte string holding the value of the root of a tree
@@ -43,7 +43,6 @@ class XMSS_Verification_Operation final : public virtual PK_Ops::Verification {
        **/
       secure_vector<uint8_t> root_from_signature(const XMSS_Signature& sig,
                                                  const secure_vector<uint8_t>& msg,
-                                                 XMSS_Address& ards,
                                                  const secure_vector<uint8_t>& seed);
 
       /**

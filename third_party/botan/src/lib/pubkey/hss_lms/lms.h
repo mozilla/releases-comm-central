@@ -19,6 +19,8 @@
 
 namespace Botan {
 
+class BufferSlicer;
+
 /**
  * @brief Enum of available LMS algorithm types.
  *
@@ -27,7 +29,7 @@ namespace Botan {
  * introduced in RFC 8554 Section 3.2. and their format specified in
  * Section 3.3.
  */
-enum class LMS_Algorithm_Type : uint32_t {
+enum class LMS_Algorithm_Type : uint32_t /* NOLINT(*-enum-size) */ {
    // --- RFC 8554 ---
    RESERVED = 0x00,
 
@@ -104,7 +106,7 @@ class LMS_Params final {
       static LMS_Params create_or_throw(std::string_view hash_name, uint8_t h);
 
       /**
-       * @brief Retuns the LMS algorithm type.
+       * @brief Returns the LMS algorithm type.
        */
       LMS_Algorithm_Type algorithm_type() const { return m_algorithm_type; }
 
@@ -126,7 +128,7 @@ class LMS_Params final {
       /**
        * @brief Construct a new hash instance for the LMS instance.
        */
-      std::unique_ptr<HashFunction> hash() const { return HashFunction::create_or_throw(hash_name()); }
+      std::unique_ptr<HashFunction> hash() const;
 
    private:
       /**
@@ -241,7 +243,7 @@ class BOTAN_TEST_API LMS_PublicKey final : public LMS_Instance {
       /**
        * @brief Construct a new public key from a given LMS private key (RFC 8554 5.3).
        */
-      LMS_PublicKey(const LMS_PrivateKey& sk);
+      explicit LMS_PublicKey(const LMS_PrivateKey& sk);
 
       /**
        * @brief Bytes of the full lms public key according to 8554 5.3

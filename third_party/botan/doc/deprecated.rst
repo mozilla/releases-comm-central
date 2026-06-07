@@ -117,6 +117,10 @@ Deprecated modules include
 
 - Dilithium mode ``dilithium_aes``: Similar situation to Kyber 90s mode.
 
+- Kyber R3 support: prefer ML-KEM
+
+- Dilithium R3 support: prefer ML-DSA
+
 - Block cipher ``gost_28147``: This cipher was obsolete 20 years ago.
 
 - Block cipher ``noekeon``: An interesting design but not widely implemented.
@@ -173,7 +177,7 @@ release, or where a backwards incompatible change is expected.
 
 - Implicit conversion of a private key into a public key. Currently
   ``Private_Key`` derives from ``Public_Key`` (and likewise for each of the
-  algorithm specfic classes, eg ``RSA_PrivateKey`` derives from
+  algorithm specific classes, eg ``RSA_PrivateKey`` derives from
   ``RSA_PublicKey``). In a future release these derivations will not exist. To
   correctly extract the public key from a private key, use the function
   ``Private_Key::public_key()``
@@ -218,8 +222,11 @@ release, or where a backwards incompatible change is expected.
 Deprecated Headers
 ^^^^^^^^^^^^^^^^^^^^^^
 
-These headers are currently publically available, but will be made
+These headers are currently publicly available, but will be made
 internal to the library in the future.
+
+  System-specific certificate store headers: ``certstor_macos.h``, ``certstor_windows.h`` --
+  use via ``Certificate_Store_System`` in ``certstor_system.h``
 
   PBKDF headers: ``bcrypt_pbkdf.h``, ``pbkdf2.h``, ``pgp_s2k.h``, ``scrypt.h``,
   and ``argon2.h``: Use the ``PasswordHash`` interface instead.
@@ -227,7 +234,6 @@ internal to the library in the future.
   Internal implementation headers - seemingly no reason for applications to use:
   ``assert.h``,
   ``curve_gfp.h``,
-  ``numthry.h``,
   ``reducer.h``,
   ``tls_algos.h``,
   ``tls_magic.h``

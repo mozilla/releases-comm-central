@@ -7,9 +7,11 @@
 
 #include <botan/bigint.h>
 
+#include <botan/exceptn.h>
 #include <botan/internal/bit_ops.h>
 #include <botan/internal/ct_utils.h>
 #include <botan/internal/loadstor.h>
+#include <botan/internal/mem_utils.h>
 #include <botan/internal/mp_core.h>
 #include <botan/internal/rounding.h>
 
@@ -52,35 +54,30 @@ BigInt BigInt::with_capacity(size_t size) {
    return bn;
 }
 
-/*
-* Construct a BigInt from a string
-*/
-BigInt::BigInt(std::string_view str) {
-   Base base = Decimal;
-   size_t markers = 0;
+BigInt BigInt::from_string(std::string_view str) {
+   size_t prefix_bytes = 0;
    bool negative = false;
+   size_t radix = 10;
 
    if(!str.empty() && str[0] == '-') {
-      markers += 1;
+      prefix_bytes += 1;
       negative = true;
    }
 
-   if(str.length() > markers + 2 && str[markers] == '0' && str[markers + 1] == 'x') {
-      markers += 2;
-      base = Hexadecimal;
+   if(str.length() > prefix_bytes + 2 && str[prefix_bytes] == '0' && str[prefix_bytes + 1] == 'x') {
+      prefix_bytes += 2;
+      radix = 16;
    }
 
-   *this = decode(cast_char_ptr_to_uint8(str.data()) + markers, str.length() - markers, base);
+   BigInt r = BigInt::from_radix_digits(str.substr(prefix_bytes), radix);
 
    if(negative) {
-      set_sign(Negative);
+      r.set_sign(Negative);
    } else {
-      set_sign(Positive);
+      r.set_sign(Positive);
    }
-}
 
-BigInt BigInt::from_string(std::string_view str) {
-   return BigInt(str);
+   return r;
 }
 
 BigInt BigInt::from_bytes(std::span<const uint8_t> input) {
@@ -161,7 +158,7 @@ bool BigInt::is_equal(const BigInt& other) const {
       return false;
    }
 
-   return bigint_ct_is_eq(this->_data(), this->sig_words(), other._data(), other.sig_words()).as_bool();
+   return bigint_ct_is_eq(this->_data(), this->size(), other._data(), other.size()).as_bool();
 }
 
 bool BigInt::is_less_than(const BigInt& other) const {
@@ -174,10 +171,10 @@ bool BigInt::is_less_than(const BigInt& other) const {
    }
 
    if(other.is_negative() && this->is_negative()) {
-      return bigint_ct_is_lt(other._data(), other.sig_words(), this->_data(), this->sig_words()).as_bool();
+      return bigint_ct_is_lt(other._data(), other.size(), this->_data(), this->size()).as_bool();
    }
 
-   return bigint_ct_is_lt(this->_data(), this->sig_words(), other._data(), other.sig_words()).as_bool();
+   return bigint_ct_is_lt(this->_data(), this->size(), other._data(), other.size()).as_bool();
 }
 
 void BigInt::encode_words(word out[], size_t size) const {
@@ -349,8 +346,8 @@ size_t BigInt::reduce_below(const BigInt& p, secure_vector<word>& ws) {
    size_t reductions = 0;
 
    for(;;) {
-      word borrow = bigint_sub3(ws.data(), _data(), p_words + 1, p._data(), p_words);
-      if(borrow) {
+      const word borrow = bigint_sub3(ws.data(), _data(), p_words + 1, p._data(), p_words);
+      if(borrow > 0) {
          break;
       }
 
@@ -377,7 +374,7 @@ void BigInt::ct_reduce_below(const BigInt& mod, secure_vector<word>& ws, size_t 
    clear_mem(ws.data(), sz);
 
    for(size_t i = 0; i != bound; ++i) {
-      word borrow = bigint_sub3(ws.data(), _data(), sz, mod._data(), mod_words);
+      const word borrow = bigint_sub3(ws.data(), _data(), sz, mod._data(), mod_words);
 
       CT::Mask<word>::is_zero(borrow).select_n(mutable_data(), ws.data(), _data(), sz);
    }
@@ -453,9 +450,24 @@ void BigInt::ct_cond_add(bool predicate, const BigInt& value) {
    if(this->is_negative() || value.is_negative()) {
       throw Invalid_Argument("BigInt::ct_cond_add requires both values to be positive");
    }
-   this->grow_to(1 + value.sig_words());
+   const size_t v_words = value.sig_words();
 
-   bigint_cnd_add(static_cast<word>(predicate), this->mutable_data(), this->size(), value._data(), value.sig_words());
+   this->grow_to(1 + v_words);
+
+   const auto mask = CT::Mask<word>::expand(static_cast<word>(predicate)).value();
+
+   word carry = 0;
+
+   word* x = this->mutable_data();
+   const word* y = value._data();
+
+   for(size_t i = 0; i != v_words; ++i) {
+      x[i] = word_add(x[i], y[i] & mask, &carry);
+   }
+
+   for(size_t i = v_words; i != size(); ++i) {
+      x[i] = word_add(x[i], static_cast<word>(0), &carry);
+   }
 }
 
 void BigInt::ct_shift_left(size_t shift) {
@@ -503,7 +515,7 @@ void BigInt::ct_cond_swap(bool predicate, BigInt& other) {
 void BigInt::cond_flip_sign(bool predicate) {
    // This code is assuming Negative == 0, Positive == 1
 
-   const auto mask = CT::Mask<uint8_t>::expand(predicate);
+   const auto mask = CT::Mask<uint8_t>::expand_bool(predicate);
 
    const uint8_t current_sign = static_cast<uint8_t>(sign());
 
@@ -522,7 +534,7 @@ void BigInt::ct_cond_assign(bool predicate, const BigInt& other) {
 
    const size_t r_words = std::max(t_words, o_words);
 
-   const auto mask = CT::Mask<word>::expand(predicate);
+   const auto mask = CT::Mask<word>::expand_bool(predicate);
 
    for(size_t i = 0; i != r_words; ++i) {
       const word o_word = other.word_at(i);

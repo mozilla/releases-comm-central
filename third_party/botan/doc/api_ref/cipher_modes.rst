@@ -158,6 +158,11 @@ with PKCS#7 padding.
 Available Unauthenticated Cipher Modes
 -----------------------------------------
 
+.. warning::
+
+   As noted above these modes are insecure if used without an authentication code.
+   Prefer using an AEAD.
+
 .. note::
    CTR and OFB modes are also implemented, but these are treated as
    :cpp:class:`Stream_Cipher`\s instead.
@@ -166,6 +171,12 @@ CBC
 ~~~~~~~~~~~~
 
 Available if ``BOTAN_HAS_MODE_CBC`` is defined.
+
+CBC mode has a significant drawback, namely that due to its structure, when
+encrypting a message it is not possible to process multiple blocks simultaneously.
+This effectively prevents any use of optimizations based on SIMD or interleaving,
+resulting in relatively poor performance compared to the same cipher in another
+mode.
 
 CBC requires the plaintext be padded using a reversible rule. The following
 padding schemes are implemented
@@ -349,6 +360,27 @@ If in doubt about what to use, pick ChaCha20Poly1305, AES-256/GCM, or AES-256/SI
 Both ChaCha20Poly1305 and AES with GCM are widely implemented. SIV is somewhat
 more obscure (and is slower than either GCM or ChaCha20Poly1305), but has
 excellent security properties.
+
+Ascon-AEAD128
+~~~~~~~~~~~~~
+
+Available if ``BOTAN_HAS_ASCON_AEAD128`` is defined.
+
+An AEAD scheme based on the Ascon permutation, specifically designed to allow
+small footprint implementations. Its main use case is in constrained
+environments, such as IoT devices where traditional cryptographic functions
+may be too resource intensive.
+
+Unless you are interoperating with an existing device which due to resource
+constraints can only use Ascon, prefer more typical AEADs such as AES-256/GCM,
+AES-256/SIV, or ChaCha20Poly1305.
+
+This AEAD scheme is standardized by NIST in SP.800-232. It is not compatible
+with earlier versions of the Ascon specification. The current implementation
+does not provide explicit support for the tag truncation and nonce masking
+features specified in the standard.
+
+Algorithm specification name: ``Ascon-AEAD128``
 
 CCM
 ~~~~~

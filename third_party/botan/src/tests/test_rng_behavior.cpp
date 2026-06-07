@@ -5,10 +5,14 @@
 * Botan is released under the Simplified BSD License (see license.txt)
 */
 
-#include "test_rng.h"
 #include "tests.h"
 
+#include "test_rng.h"
+
+#include <botan/exceptn.h>
+#include <botan/hex.h>
 #include <botan/internal/target_info.h>
+#include <cstring>
 
 #if defined(BOTAN_HAS_STATEFUL_RNG)
    #include <botan/stateful_rng.h>
@@ -16,6 +20,7 @@
 
 #if defined(BOTAN_HAS_HMAC_DRBG)
    #include <botan/hmac_drbg.h>
+   #include <botan/mac.h>
 #endif
 
 #if defined(BOTAN_HAS_AUTO_RNG)
@@ -119,27 +124,27 @@ class Stateful_RNG_Tests : public Test {
          auto rng = make_rng(counting_rng, 2);
 
          rng->random_vec(7);
-         result.test_eq("initial seeding", counting_rng.randomize_count(), 1);
+         result.test_sz_eq("initial seeding", counting_rng.randomize_count(), 1);
          rng->random_vec(9);
-         result.test_eq("still initial seed", counting_rng.randomize_count(), 1);
+         result.test_sz_eq("still initial seed", counting_rng.randomize_count(), 1);
 
          rng->random_vec(1);
-         result.test_eq("first reseed", counting_rng.randomize_count(), 2);
+         result.test_sz_eq("first reseed", counting_rng.randomize_count(), 2);
          rng->random_vec(15);
-         result.test_eq("still first reseed", counting_rng.randomize_count(), 2);
+         result.test_sz_eq("still first reseed", counting_rng.randomize_count(), 2);
 
          rng->random_vec(15);
-         result.test_eq("second reseed", counting_rng.randomize_count(), 3);
+         result.test_sz_eq("second reseed", counting_rng.randomize_count(), 3);
          rng->random_vec(1);
-         result.test_eq("still second reseed", counting_rng.randomize_count(), 3);
+         result.test_sz_eq("still second reseed", counting_rng.randomize_count(), 3);
 
          if(rng->max_number_of_bytes_per_request() > 0) {
             // request > max_number_of_bytes_per_request, do reseeds occur?
             rng->random_vec(64 * 1024 + 1);
-            result.test_eq("request exceeds output limit", counting_rng.randomize_count(), 4);
+            result.test_sz_eq("request exceeds output limit", counting_rng.randomize_count(), 4);
 
             rng->random_vec(9 * 64 * 1024 + 1);
-            result.test_eq("request exceeds output limit", counting_rng.randomize_count(), 9);
+            result.test_sz_eq("request exceeds output limit", counting_rng.randomize_count(), 9);
          }
 
          return result;
@@ -170,7 +175,7 @@ class Stateful_RNG_Tests : public Test {
 
          // underlying_rng throws exception
          Botan::Null_RNG broken_entropy_input_rng;
-         result.test_eq("Null_RNG not seeded", broken_entropy_input_rng.is_seeded(), false);
+         result.test_is_false("Null_RNG not seeded", broken_entropy_input_rng.is_seeded());
          auto rng_with_broken_rng = make_rng(broken_entropy_input_rng);
 
          result.test_throws("broken underlying rng", [&rng_with_broken_rng]() { rng_with_broken_rng->random_vec(16); });
@@ -226,18 +231,18 @@ class Stateful_RNG_Tests : public Test {
          // make sure the nonce has at least security_strength bits
          auto rng = create_rng(nullptr, nullptr, 0);
 
-         for(size_t nonce_size : {0, 4, 8, 16, 31, 32, 34, 64}) {
+         for(const size_t nonce_size : {0, 4, 8, 16, 31, 32, 34, 64}) {
             rng->clear();
-            result.test_eq("not seeded", rng->is_seeded(), false);
+            result.test_is_false("not seeded", rng->is_seeded());
 
             const std::vector<uint8_t> nonce(nonce_size);
             rng->initialize_with(nonce.data(), nonce.size());
 
             if(nonce_size < rng->security_level() / 8) {
-               result.test_eq("not seeded", rng->is_seeded(), false);
+               result.test_is_false("not seeded", rng->is_seeded());
                result.test_throws("invalid nonce size", [&rng]() { rng->random_vec(32); });
             } else {
-               result.test_eq("is seeded", rng->is_seeded(), true);
+               result.test_is_true("is seeded", rng->is_seeded());
                rng->random_vec(32);
             }
          }
@@ -253,13 +258,13 @@ class Stateful_RNG_Tests : public Test {
          auto rng = make_rng(counting_rng, 1);
 
          rng->random_vec(16);
-         result.test_eq("first request", counting_rng.randomize_count(), size_t(1));
+         result.test_sz_eq("first request", counting_rng.randomize_count(), size_t(1));
 
          rng->random_vec(16);
-         result.test_eq("second request", counting_rng.randomize_count(), size_t(2));
+         result.test_sz_eq("second request", counting_rng.randomize_count(), size_t(2));
 
          rng->random_vec(16);
-         result.test_eq("third request", counting_rng.randomize_count(), size_t(3));
+         result.test_sz_eq("third request", counting_rng.randomize_count(), size_t(3));
 
          return result;
       }
@@ -275,18 +280,19 @@ class Stateful_RNG_Tests : public Test {
          auto rng = make_rng(counting_rng, reseed_interval);
 
          rng->random_vec(16);
-         result.test_eq("first request", counting_rng.randomize_count(), size_t(1));
+         result.test_sz_eq("first request", counting_rng.randomize_count(), size_t(1));
 
          // fork and request from parent and child, both should output different sequences
          size_t count = counting_rng.randomize_count();
-         Botan::secure_vector<uint8_t> parent_bytes(16), child_bytes(16);
+         Botan::secure_vector<uint8_t> parent_bytes(16);
+         Botan::secure_vector<uint8_t> child_bytes(16);
          int fd[2];
-         int rc = ::pipe(fd);
+         const int rc = ::pipe(fd);
          if(rc != 0) {
             result.test_failure("failed to create pipe");
          }
 
-         pid_t pid = ::fork();
+         const pid_t pid = ::fork();
          if(pid == -1) {
       #if defined(BOTAN_TARGET_OS_IS_EMSCRIPTEN)
             result.test_note("failed to fork process");
@@ -300,19 +306,19 @@ class Stateful_RNG_Tests : public Test {
             ssize_t got = ::read(fd[0], &count, sizeof(count));
 
             if(got > 0) {
-               result.test_eq("expected bytes from child", got, sizeof(count));
-               result.test_eq("parent not reseeded", counting_rng.randomize_count(), 1);
-               result.test_eq("child reseed occurred", count, 2);
+               result.test_sz_eq("expected bytes from child", got, sizeof(count));
+               result.test_sz_eq("parent not reseeded", counting_rng.randomize_count(), 1);
+               result.test_sz_eq("child reseed occurred", count, 2);
             } else {
                result.test_failure("Failed to read count size from child process");
             }
 
             parent_bytes = rng->random_vec(16);
-            got = ::read(fd[0], &child_bytes[0], child_bytes.size());
+            got = ::read(fd[0], child_bytes.data(), child_bytes.size());
 
             if(got > 0) {
-               result.test_eq("expected bytes from child", got, child_bytes.size());
-               result.test_ne("parent and child output sequences differ", parent_bytes, child_bytes);
+               result.test_sz_eq("expected bytes from child", got, child_bytes.size());
+               result.test_bin_ne("parent and child output sequences differ", parent_bytes, child_bytes);
             } else {
                result.test_failure("Failed to read RNG bytes from child process");
             }
@@ -324,17 +330,15 @@ class Stateful_RNG_Tests : public Test {
          } else {
             // child process, send randomize_count and first output sequence back to parent
             ::close(fd[0]);  // close read end in child
-            rng->randomize(&child_bytes[0], child_bytes.size());
+            rng->randomize(child_bytes.data(), child_bytes.size());
             count = counting_rng.randomize_count();
-            ssize_t written = ::write(fd[1], &count, sizeof(count));
-            BOTAN_UNUSED(written);
+            [[maybe_unused]] ssize_t written = ::write(fd[1], &count, sizeof(count));
             try {
-               rng->randomize(&child_bytes[0], child_bytes.size());
+               rng->randomize(child_bytes.data(), child_bytes.size());
             } catch(std::exception& e) {
-               static_cast<void>(fprintf(stderr, "%s", e.what()));
+               static_cast<void>(fprintf(stderr, "%s", e.what()));  // NOLINT(*-vararg)
             }
-            written = ::write(fd[1], &child_bytes[0], child_bytes.size());
-            BOTAN_UNUSED(written);
+            written = ::write(fd[1], child_bytes.data(), child_bytes.size());
             ::close(fd[1]);  // close write end in child
 
             /*
@@ -342,8 +346,8 @@ class Stateful_RNG_Tests : public Test {
             * We can't call _exit because it makes valgrind think we leaked memory.
             * So instead we execute something that will return 0 for us.
             */
-            ::execl("/bin/true", "true", NULL);
-            ::_exit(0);  // just in case /bin/true isn't available (sandbox?)
+            ::execl("/bin/true", "true", NULL);  // NOLINT(*-vararg)
+            ::_exit(0);                          // just in case /bin/true isn't available (sandbox?)
          }
    #endif
          return result;
@@ -369,12 +373,12 @@ class Stateful_RNG_Tests : public Test {
          rng1->randomize(output1.data(), output1.size());
          rng2->randomize(output2.data(), output2.size());
 
-         result.test_eq("equal output due to same seed", output1, output2);
+         result.test_bin_eq("equal output due to same seed", output1, output2);
 
          rng1->randomize_with_ts_input(output1.data(), output1.size());
          rng2->randomize_with_ts_input(output2.data(), output2.size());
 
-         result.test_ne("output differs due to different timestamp", output1, output2);
+         result.test_bin_ne("output differs due to different timestamp", output1, output2);
 
          return result;
       }
@@ -413,11 +417,11 @@ class HMAC_DRBG_Unit_Tests final : public Stateful_RNG_Tests {
          std::unique_ptr<Botan::MessageAuthenticationCode> mac =
             Botan::MessageAuthenticationCode::create("HMAC(SHA-256)");
 
-         if(underlying_rng && underlying_es) {
+         if(underlying_rng != nullptr && underlying_es != nullptr) {
             return std::make_unique<Botan::HMAC_DRBG>(std::move(mac), *underlying_rng, *underlying_es, reseed_interval);
-         } else if(underlying_rng) {
+         } else if(underlying_rng != nullptr) {
             return std::make_unique<Botan::HMAC_DRBG>(std::move(mac), *underlying_rng, reseed_interval);
-         } else if(underlying_es) {
+         } else if(underlying_es != nullptr) {
             return std::make_unique<Botan::HMAC_DRBG>(std::move(mac), *underlying_es, reseed_interval);
          } else if(reseed_interval == 0) {
             return std::make_unique<Botan::HMAC_DRBG>(std::move(mac));
@@ -433,14 +437,15 @@ class HMAC_DRBG_Unit_Tests final : public Stateful_RNG_Tests {
 
          Request_Counting_RNG counting_rng;
 
-         result.test_throws(
-            "HMAC_DRBG does not accept 0 for max_number_of_bytes_per_request", [&mac_string, &counting_rng]() {
-               Botan::HMAC_DRBG failing_rng(Botan::MessageAuthenticationCode::create(mac_string), counting_rng, 2, 0);
-            });
+         result.test_throws("HMAC_DRBG does not accept 0 for max_number_of_bytes_per_request",
+                            [&mac_string, &counting_rng]() {
+                               const Botan::HMAC_DRBG failing_rng(
+                                  Botan::MessageAuthenticationCode::create(mac_string), counting_rng, 2, 0);
+                            });
 
          result.test_throws("HMAC_DRBG does not accept values higher than 64KB for max_number_of_bytes_per_request",
                             [&mac_string, &counting_rng]() {
-                               Botan::HMAC_DRBG failing_rng(
+                               const Botan::HMAC_DRBG failing_rng(
                                   Botan::MessageAuthenticationCode::create(mac_string), counting_rng, 2, 64 * 1024 + 1);
                             });
 
@@ -451,25 +456,25 @@ class HMAC_DRBG_Unit_Tests final : public Stateful_RNG_Tests {
          Botan::HMAC_DRBG rng(Botan::MessageAuthenticationCode::create(mac_string), counting_rng, 1, 64);
 
          rng.random_vec(63);
-         result.test_eq("one request", counting_rng.randomize_count(), 1);
+         result.test_sz_eq("one request", counting_rng.randomize_count(), 1);
 
          rng.clear();
          counting_rng.clear();
 
          rng.random_vec(64);
-         result.test_eq("one request", counting_rng.randomize_count(), 1);
+         result.test_sz_eq("one request", counting_rng.randomize_count(), 1);
 
          rng.clear();
          counting_rng.clear();
 
          rng.random_vec(65);
-         result.test_eq("two requests", counting_rng.randomize_count(), 2);
+         result.test_sz_eq("two requests", counting_rng.randomize_count(), 2);
 
          rng.clear();
          counting_rng.clear();
 
          rng.random_vec(1025);
-         result.test_eq("17 requests", counting_rng.randomize_count(), 17);
+         result.test_sz_eq("17 requests", counting_rng.randomize_count(), 17);
 
          return result;
       }
@@ -482,14 +487,14 @@ class HMAC_DRBG_Unit_Tests final : public Stateful_RNG_Tests {
          Request_Counting_RNG counting_rng;
 
          result.test_throws("HMAC_DRBG does not accept 0 for reseed_interval", [&mac_string, &counting_rng]() {
-            Botan::HMAC_DRBG failing_rng(Botan::MessageAuthenticationCode::create(mac_string), counting_rng, 0);
+            const Botan::HMAC_DRBG failing_rng(Botan::MessageAuthenticationCode::create(mac_string), counting_rng, 0);
          });
 
          result.test_throws("HMAC_DRBG does not accept values higher than 2^24 for reseed_interval",
                             [&mac_string, &counting_rng]() {
-                               Botan::HMAC_DRBG failing_rng(Botan::MessageAuthenticationCode::create(mac_string),
-                                                            counting_rng,
-                                                            (static_cast<size_t>(1) << 24) + 1);
+                               const Botan::HMAC_DRBG failing_rng(Botan::MessageAuthenticationCode::create(mac_string),
+                                                                  counting_rng,
+                                                                  (static_cast<size_t>(1) << 24) + 1);
                             });
 
          return result;
@@ -512,8 +517,8 @@ class HMAC_DRBG_Unit_Tests final : public Stateful_RNG_Tests {
                continue;
             }
 
-            Botan::HMAC_DRBG rng(std::move(mac));
-            result.test_eq(hash_fn + " security level", rng.security_level(), expected_security_level);
+            const Botan::HMAC_DRBG rng(std::move(mac));
+            result.test_sz_eq(hash_fn + " security level", rng.security_level(), expected_security_level);
          }
 
          return result;
@@ -529,20 +534,22 @@ class HMAC_DRBG_Unit_Tests final : public Stateful_RNG_Tests {
             {0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF,
              0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF});
 
-         result.test_eq("is_seeded", rng->is_seeded(), false);
+         result.test_is_false("is_seeded", rng->is_seeded());
 
          rng->initialize_with(seed_input.data(), seed_input.size());
 
          Botan::secure_vector<uint8_t> out(32);
 
          rng->randomize(out.data(), out.size());
-         result.test_eq("underlying RNG calls", counting_rng.randomize_count(), size_t(0));
-         result.test_eq("out before reseed", out, "48D3B45AAB65EF92CCFCB9427EF20C90297065ECC1B8A525BFE4DC6FF36D0E38");
+         result.test_sz_eq("underlying RNG calls", counting_rng.randomize_count(), size_t(0));
+         result.test_bin_eq(
+            "out before reseed", out, "48D3B45AAB65EF92CCFCB9427EF20C90297065ECC1B8A525BFE4DC6FF36D0E38");
 
          // reseed must happen here
          rng->randomize(out.data(), out.size());
-         result.test_eq("underlying RNG calls", counting_rng.randomize_count(), size_t(1));
-         result.test_eq("out after reseed", out, "2F8FCA696832C984781123FD64F4B20C7379A25C87AB29A21C9BF468B0081CE2");
+         result.test_sz_eq("underlying RNG calls", counting_rng.randomize_count(), size_t(1));
+         result.test_bin_eq(
+            "out after reseed", out, "2F8FCA696832C984781123FD64F4B20C7379A25C87AB29A21C9BF468B0081CE2");
 
          return result;
       }
@@ -567,8 +574,8 @@ std::vector<Test::Result> hmac_drbg_multiple_requests() {
                     auto rng1 = make_seeded_rng(2);
                     auto rng2 = make_seeded_rng(2);
 
-                    result.confirm("RNG 1 is seeded and ready to go", rng1->is_seeded());
-                    result.confirm("RNG 2 is seeded and ready to go", rng2->is_seeded());
+                    result.test_is_true("RNG 1 is seeded and ready to go", rng1->is_seeded());
+                    result.test_is_true("RNG 2 is seeded and ready to go", rng2->is_seeded());
 
                     auto bulk = rng1->random_vec<std::vector<uint8_t>>(2 * rng_max_output);
 
@@ -576,7 +583,7 @@ std::vector<Test::Result> hmac_drbg_multiple_requests() {
                     auto split2 = rng2->random_vec<std::vector<uint8_t>>(rng_max_output);
                     split1.insert(split1.end(), split2.begin(), split2.end());
 
-                    result.test_eq("Output is equal, regardless bulk request", bulk, split1);
+                    result.test_bin_eq("Output is equal, regardless bulk request", bulk, split1);
 
                     return result;
                  }),
@@ -585,26 +592,26 @@ std::vector<Test::Result> hmac_drbg_multiple_requests() {
               auto rng1 = make_seeded_rng(3);
               auto rng2 = make_seeded_rng(3);
 
-              result.confirm("RNG 1 is seeded and ready to go", rng1->is_seeded());
-              result.confirm("RNG 2 is seeded and ready to go", rng2->is_seeded());
+              result.test_is_true("RNG 1 is seeded and ready to go", rng1->is_seeded());
+              result.test_is_true("RNG 2 is seeded and ready to go", rng2->is_seeded());
 
               std::vector<uint8_t> bulk(3 * rng_max_output);
               rng1->randomize_with_input(bulk, seed);
 
               std::vector<uint8_t> split(3 * rng_max_output);
-              std::span<uint8_t> split_span(split);
+              const std::span<uint8_t> split_span(split);
               rng2->randomize_with_input(split_span.subspan(0, rng_max_output), seed);
               rng2->randomize_with_input(split_span.subspan(rng_max_output, rng_max_output), {});
               rng2->randomize_with_input(split_span.subspan(2 * rng_max_output), {});
 
-              result.test_eq("Output is equal, regardless bulk request", bulk, split);
+              result.test_bin_eq("Output is equal, regardless bulk request", bulk, split);
 
               return result;
            })};
 }
 
 BOTAN_REGISTER_TEST("rng", "hmac_drbg_unit", HMAC_DRBG_Unit_Tests);
-BOTAN_REGISTER_TEST_FN("rng", "hmac_drbg_multi_requst", hmac_drbg_multiple_requests);
+BOTAN_REGISTER_TEST_FN("rng", "hmac_drbg_multi_request", hmac_drbg_multiple_requests);
 
 #endif
 
@@ -617,11 +624,11 @@ class ChaCha_RNG_Unit_Tests final : public Stateful_RNG_Tests {
       std::unique_ptr<Botan::Stateful_RNG> create_rng(Botan::RandomNumberGenerator* underlying_rng,
                                                       Botan::Entropy_Sources* underlying_es,
                                                       size_t reseed_interval) override {
-         if(underlying_rng && underlying_es) {
+         if(underlying_rng != nullptr && underlying_es != nullptr) {
             return std::make_unique<Botan::ChaCha_RNG>(*underlying_rng, *underlying_es, reseed_interval);
-         } else if(underlying_rng) {
+         } else if(underlying_rng != nullptr) {
             return std::make_unique<Botan::ChaCha_RNG>(*underlying_rng, reseed_interval);
-         } else if(underlying_es) {
+         } else if(underlying_es != nullptr) {
             return std::make_unique<Botan::ChaCha_RNG>(*underlying_es, reseed_interval);
          } else if(reseed_interval == 0) {
             return std::make_unique<Botan::ChaCha_RNG>();
@@ -632,8 +639,8 @@ class ChaCha_RNG_Unit_Tests final : public Stateful_RNG_Tests {
 
       Test::Result test_security_level() override {
          Test::Result result("ChaCha_RNG Security Level");
-         Botan::ChaCha_RNG rng;
-         result.test_eq("Expected security level", rng.security_level(), size_t(256));
+         const Botan::ChaCha_RNG rng;
+         result.test_sz_eq("Expected security level", rng.security_level(), size_t(256));
          return result;
       }
 
@@ -657,20 +664,22 @@ class ChaCha_RNG_Unit_Tests final : public Stateful_RNG_Tests {
 
          const Botan::secure_vector<uint8_t> seed_input(32);
 
-         result.test_eq("is_seeded", rng->is_seeded(), false);
+         result.test_is_false("is_seeded", rng->is_seeded());
 
          rng->initialize_with(seed_input.data(), seed_input.size());
 
          Botan::secure_vector<uint8_t> out(32);
 
          rng->randomize(out.data(), out.size());
-         result.test_eq("underlying RNG calls", counting_rng.randomize_count(), size_t(0));
-         result.test_eq("out before reseed", out, "1F0E6F13429D5073B59C057C37CBE9587740A0A894D247E2596C393CE91DDC6F");
+         result.test_sz_eq("underlying RNG calls", counting_rng.randomize_count(), size_t(0));
+         result.test_bin_eq(
+            "out before reseed", out, "1F0E6F13429D5073B59C057C37CBE9587740A0A894D247E2596C393CE91DDC6F");
 
          // reseed must happen here
          rng->randomize(out.data(), out.size());
-         result.test_eq("underlying RNG calls", counting_rng.randomize_count(), size_t(1));
-         result.test_eq("out after reseed", out, "F2CAE73F22684D5D773290B48FDCDA0E6C0661EBA0A854AFEC922832BDBB9C49");
+         result.test_sz_eq("underlying RNG calls", counting_rng.randomize_count(), size_t(1));
+         result.test_bin_eq(
+            "out after reseed", out, "F2CAE73F22684D5D773290B48FDCDA0E6C0661EBA0A854AFEC922832BDBB9C49");
 
          return result;
       }
@@ -689,10 +698,10 @@ class AutoSeeded_RNG_Tests final : public Test {
 
          Botan::Null_RNG null_rng;
 
-         result.test_eq("Null_RNG is null", null_rng.is_seeded(), false);
+         result.test_is_false("Null_RNG is null", null_rng.is_seeded());
 
          try {
-            Botan::AutoSeeded_RNG rng(null_rng);
+            const Botan::AutoSeeded_RNG rng(null_rng);
          } catch(Botan::PRNG_Unseeded&) {
             result.test_success("AutoSeeded_RNG rejected useless RNG");
          }
@@ -701,14 +710,14 @@ class AutoSeeded_RNG_Tests final : public Test {
          Botan::Entropy_Sources no_entropy_for_you;
 
          try {
-            Botan::AutoSeeded_RNG rng(no_entropy_for_you);
+            const Botan::AutoSeeded_RNG rng(no_entropy_for_you);
             result.test_failure("AutoSeeded_RNG should have rejected useless entropy source");
          } catch(Botan::PRNG_Unseeded&) {
             result.test_success("AutoSeeded_RNG rejected empty entropy source");
          }
 
          try {
-            Botan::AutoSeeded_RNG rng(null_rng, no_entropy_for_you);
+            const Botan::AutoSeeded_RNG rng(null_rng, no_entropy_for_you);
          } catch(Botan::PRNG_Unseeded&) {
             result.test_success("AutoSeeded_RNG rejected useless RNG+entropy sources");
          }
@@ -716,30 +725,30 @@ class AutoSeeded_RNG_Tests final : public Test {
 
          Botan::AutoSeeded_RNG rng;
 
-         result.confirm("AutoSeeded_RNG::name", rng.name().starts_with("HMAC_DRBG(HMAC(SHA-"));
+         result.test_is_true("AutoSeeded_RNG::name", rng.name().starts_with("HMAC_DRBG(HMAC(SHA-"));
 
-         result.confirm("AutoSeeded_RNG starts seeded", rng.is_seeded());
+         result.test_is_true("AutoSeeded_RNG starts seeded", rng.is_seeded());
          rng.random_vec(16);  // generate and discard output
          rng.clear();
-         result.test_eq("AutoSeeded_RNG unseeded after calling clear", rng.is_seeded(), false);
+         result.test_is_false("AutoSeeded_RNG unseeded after calling clear", rng.is_seeded());
 
          // AutoSeeded_RNG automatically reseeds as required:
          rng.random_vec(16);
-         result.confirm("AutoSeeded_RNG can be reseeded", rng.is_seeded());
+         result.test_is_true("AutoSeeded_RNG can be reseeded", rng.is_seeded());
 
-         result.confirm("AutoSeeded_RNG ", rng.is_seeded());
+         result.test_is_true("AutoSeeded_RNG ", rng.is_seeded());
          rng.random_vec(16);  // generate and discard output
          rng.clear();
-         result.test_eq("AutoSeeded_RNG unseeded after calling clear", rng.is_seeded(), false);
+         result.test_is_false("AutoSeeded_RNG unseeded after calling clear", rng.is_seeded());
 
    #if defined(BOTAN_HAS_ENTROPY_SOURCE)
-         const size_t no_entropy_bits = rng.reseed(no_entropy_for_you, 256, std::chrono::milliseconds(300));
-         result.test_eq("AutoSeeded_RNG can't reseed from nothing", no_entropy_bits, 0);
-         result.test_eq("AutoSeeded_RNG still unseeded", rng.is_seeded(), false);
+         const size_t no_entropy_bits = rng.reseed_from(no_entropy_for_you, 256);
+         result.test_sz_eq("AutoSeeded_RNG can't reseed from nothing", no_entropy_bits, 0);
+         result.test_is_false("AutoSeeded_RNG still unseeded", rng.is_seeded());
    #endif
 
          rng.random_vec(16);  // generate and discard output
-         result.confirm("AutoSeeded_RNG can be reseeded", rng.is_seeded());
+         result.test_is_true("AutoSeeded_RNG can be reseeded", rng.is_seeded());
 
          for(size_t i = 0; i != 4096; ++i) {
             std::vector<uint8_t> buf(i);
@@ -775,14 +784,14 @@ class System_RNG_Tests final : public Test {
 
          Botan::System_RNG rng;
 
-         result.test_gte("Some non-empty name is returned", rng.name().size(), 1);
+         result.test_sz_gte("Some non-empty name is returned", rng.name().size(), 1);
 
-         result.confirm("System RNG always seeded", rng.is_seeded());
+         result.test_is_true("System RNG always seeded", rng.is_seeded());
          rng.clear();  // clear is a noop for system rng
-         result.confirm("System RNG always seeded", rng.is_seeded());
+         result.test_is_true("System RNG always seeded", rng.is_seeded());
 
    #if defined(BOTAN_HAS_ENTROPY_SOURCE)
-         rng.reseed(Botan::Entropy_Sources::global_sources(), 256, std::chrono::milliseconds(100));
+         rng.reseed_from(Botan::Entropy_Sources::global_sources(), 256);
    #endif
 
          for(size_t i = 0; i != 128; ++i) {
@@ -793,17 +802,17 @@ class System_RNG_Tests final : public Test {
 
          if(Test::run_long_tests() && Test::run_memory_intensive_tests() && (sizeof(size_t) > 4)) {
             // Pass buffer with a size greater than 32bit
-            const size_t size32BitsMax = std::numeric_limits<uint32_t>::max();
+            constexpr size_t maximum_u32 = 0xFFFFFFFF;
             const size_t checkSize = 1024;
-            std::vector<uint8_t> large_buf(size32BitsMax + checkSize);
-            std::memset(large_buf.data() + size32BitsMax, 0xFE, checkSize);
+            std::vector<uint8_t> large_buf(maximum_u32 + checkSize);
+            std::memset(large_buf.data() + maximum_u32, 0xFE, checkSize);
 
             rng.randomize(large_buf.data(), large_buf.size());
 
             std::vector<uint8_t> check_buf(checkSize, 0xFE);
 
-            result.confirm("System RNG failed to write after 4GB boundry",
-                           std::memcmp(large_buf.data() + size32BitsMax, check_buf.data(), checkSize) != 0);
+            result.test_is_true("System RNG failed to write after 4GB boundary",
+                                std::memcmp(large_buf.data() + maximum_u32, check_buf.data(), checkSize) != 0);
          }
 
          return std::vector<Test::Result>{result};
@@ -824,14 +833,14 @@ class Processor_RNG_Tests final : public Test {
          if(Botan::Processor_RNG::available()) {
             Botan::Processor_RNG rng;
 
-            result.test_ne("Has a name", rng.name(), "");
-            result.confirm("CPU RNG always seeded", rng.is_seeded());
+            result.test_str_not_empty("Has a name", rng.name());
+            result.test_is_true("CPU RNG always seeded", rng.is_seeded());
             rng.clear();  // clear is a noop for rdrand
-            result.confirm("CPU RNG always seeded", rng.is_seeded());
+            result.test_is_true("CPU RNG always seeded", rng.is_seeded());
 
    #if defined(BOTAN_HAS_ENTROPY_SOURCE)
-            size_t reseed_bits = rng.reseed(Botan::Entropy_Sources::global_sources(), 256, std::chrono::seconds(1));
-            result.test_eq("CPU RNG cannot consume inputs", reseed_bits, size_t(0));
+            const size_t reseed_bits = rng.reseed_from(Botan::Entropy_Sources::global_sources(), 256);
+            result.test_sz_eq("CPU RNG cannot consume inputs", reseed_bits, size_t(0));
    #endif
 
             /*
@@ -849,7 +858,8 @@ class Processor_RNG_Tests final : public Test {
                rng.randomize(out_buf.data(), out_buf.size());
             }
          } else {
-            result.test_throws("Processor_RNG throws if instruction not available", []() { Botan::Processor_RNG rng; });
+            result.test_throws("Processor_RNG throws if instruction not available",
+                               []() { const Botan::Processor_RNG rng; });
          }
 
          return std::vector<Test::Result>{result};

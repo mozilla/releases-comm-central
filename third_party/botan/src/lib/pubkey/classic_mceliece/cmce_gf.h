@@ -13,7 +13,6 @@
 #include <botan/internal/bit_ops.h>
 #include <botan/internal/cmce_types.h>
 #include <botan/internal/ct_utils.h>
-#include <botan/internal/stl_util.h>
 
 namespace Botan {
 
@@ -171,7 +170,7 @@ class BOTAN_TEST_API GF_Mask final {
 
       static GF_Mask set() { return GF_Mask(CT::Mask<uint16_t>::set()); }
 
-      GF_Mask(CT::Mask<uint16_t> underlying_mask) : m_mask(underlying_mask) {}
+      explicit GF_Mask(CT::Mask<uint16_t> underlying_mask) : m_mask(underlying_mask) {}
 
       Classic_McEliece_GF if_set_return(const Classic_McEliece_GF x) const {
          return Classic_McEliece_GF(CmceGfElem(m_mask.if_set_return(x.elem().get())), x.modulus());

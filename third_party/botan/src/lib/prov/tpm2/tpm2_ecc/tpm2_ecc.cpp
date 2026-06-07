@@ -8,7 +8,7 @@
 
 #include <botan/tpm2_ecc.h>
 
-#include <botan/internal/stl_util.h>
+#include <botan/internal/concat_util.h>
 #include <botan/internal/tpm2_algo_mappings.h>
 #include <botan/internal/tpm2_hash.h>
 #include <botan/internal/tpm2_pkops.h>
@@ -21,9 +21,11 @@ namespace Botan::TPM2 {
 EC_PublicKey::EC_PublicKey(Object handle, SessionBundle sessions, const TPM2B_PUBLIC* public_blob) :
       EC_PublicKey(std::move(handle), std::move(sessions), ecc_pubkey_from_tss2_public(public_blob)) {}
 
-EC_PublicKey::EC_PublicKey(Object handle, SessionBundle sessions, std::pair<EC_Group, EC_AffinePoint> public_key) :
+EC_PublicKey::EC_PublicKey(Object handle,
+                           SessionBundle sessions,
+                           const std::pair<EC_Group, EC_AffinePoint>& public_key) :
       Botan::TPM2::PublicKey(std::move(handle), std::move(sessions)),
-      Botan::EC_PublicKey(std::move(public_key.first), public_key.second) {}
+      Botan::EC_PublicKey(public_key.first, public_key.second) {}
 
 EC_PrivateKey::EC_PrivateKey(Object handle,
                              SessionBundle sessions,
@@ -33,10 +35,10 @@ EC_PrivateKey::EC_PrivateKey(Object handle,
 
 EC_PrivateKey::EC_PrivateKey(Object handle,
                              SessionBundle sessions,
-                             std::pair<EC_Group, EC_AffinePoint> public_key,
+                             const std::pair<EC_Group, EC_AffinePoint>& public_key,
                              std::span<const uint8_t> private_blob) :
       Botan::TPM2::PrivateKey(std::move(handle), std::move(sessions), private_blob),
-      Botan::EC_PublicKey(std::move(public_key.first), public_key.second) {}
+      Botan::EC_PublicKey(public_key.first, public_key.second) {}
 
 std::unique_ptr<Public_Key> EC_PrivateKey::public_key() const {
    return std::make_unique<Botan::ECDSA_PublicKey>(domain(), _public_ec_point());
@@ -71,7 +73,7 @@ std::unique_ptr<TPM2::PrivateKey> EC_PrivateKey::create_unrestricted_transient(c
       throw Invalid_Argument("Unsupported ECC curve");
    }
 
-   TPM2B_SENSITIVE_CREATE sensitive_data = {
+   const TPM2B_SENSITIVE_CREATE sensitive_data = {
       .size = 0,  // ignored
       .sensitive =
          {
@@ -84,7 +86,7 @@ std::unique_ptr<TPM2::PrivateKey> EC_PrivateKey::create_unrestricted_transient(c
          },
    };
 
-   TPMT_PUBLIC key_template = {
+   const TPMT_PUBLIC key_template = {
       .type = TPM2_ALG_ECC,
 
       // This is the algorithm for fingerprinting the newly created public key.
@@ -171,7 +173,7 @@ SignatureAlgorithmSelection make_signature_scheme(std::string_view hash_name) {
    };
 }
 
-size_t signature_length_for_key_handle(const SessionBundle& sessions, const Object& object) {
+size_t signature_length_for_ecdsa_key_handle(const SessionBundle& sessions, const Object& object) {
    const auto curve_id = object._public_info(sessions, TPM2_ALG_ECDSA).pub->publicArea.parameters.eccDetail.curveID;
 
    const auto order_bytes = curve_id_order_byte_size(curve_id);
@@ -186,7 +188,9 @@ class EC_Signature_Operation final : public Signature_Operation {
       EC_Signature_Operation(const Object& object, const SessionBundle& sessions, std::string_view hash) :
             Signature_Operation(object, sessions, make_signature_scheme(hash)) {}
 
-      size_t signature_length() const override { return signature_length_for_key_handle(sessions(), key_handle()); }
+      size_t signature_length() const override {
+         return signature_length_for_ecdsa_key_handle(sessions(), key_handle());
+      }
 
       AlgorithmIdentifier algorithm_identifier() const override {
          // Copied from ECDSA
@@ -201,7 +205,7 @@ class EC_Signature_Operation final : public Signature_Operation {
 
          const auto r = as_span(signature.signature.ecdsa.signatureR);
          const auto s = as_span(signature.signature.ecdsa.signatureS);
-         const auto sig_len = signature_length_for_key_handle(sessions(), key_handle());
+         const auto sig_len = signature_length_for_ecdsa_key_handle(sessions(), key_handle());
          BOTAN_ASSERT_NOMSG(sig_len % 2 == 0);
          BOTAN_ASSERT_NOMSG(r.size() == sig_len / 2 && s.size() == sig_len / 2);
 
@@ -218,7 +222,7 @@ class EC_Verification_Operation final : public Verification_Operation {
       TPMT_SIGNATURE unmarshal_signature(std::span<const uint8_t> sig_data) const override {
          BOTAN_STATE_CHECK(scheme().scheme == TPM2_ALG_ECDSA);
 
-         const auto sig_len = signature_length_for_key_handle(sessions(), key_handle());
+         const auto sig_len = signature_length_for_ecdsa_key_handle(sessions(), key_handle());
          BOTAN_ARG_CHECK(sig_data.size() == sig_len, "Invalid signature length");
          BOTAN_ASSERT_NOMSG(sig_len % 2 == 0);
 

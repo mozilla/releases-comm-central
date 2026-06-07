@@ -11,9 +11,11 @@
    #include <botan/numthry.h>
    #include <botan/internal/mod_inv.h>
    #include <botan/internal/monty.h>
-   #include <iterator>
+   #include <algorithm>
 
 namespace Botan_CLI {
+
+namespace {
 
 class Modular_Inverse final : public Command {
    public:
@@ -54,7 +56,7 @@ class Gen_Prime final : public Command {
             const Botan::BigInt p = Botan::random_prime(rng(), bits);
 
             if(hex) {
-               output() << "0x" << std::hex << p << "\n";
+               output() << std::hex << p << "\n";
             } else {
                output() << p << "\n";
             }
@@ -73,7 +75,7 @@ class Is_Prime final : public Command {
       std::string description() const override { return "Test if the integer n is composite or prime"; }
 
       void go() override {
-         Botan::BigInt n(get_arg("n"));
+         const Botan::BigInt n(get_arg("n"));
          const size_t prob = get_arg_sz("prob");
          const bool prime = Botan::is_prime(n, rng(), prob);
 
@@ -96,7 +98,7 @@ class Factor final : public Command {
       std::string description() const override { return "Factor a given integer"; }
 
       void go() override {
-         Botan::BigInt n(get_arg("n"));
+         const Botan::BigInt n(get_arg("n"));
 
          std::vector<Botan::BigInt> factors = factorize(n, rng());
          std::sort(factors.begin(), factors.end());
@@ -119,7 +121,7 @@ class Factor final : public Command {
                break;
             }
 
-            Botan::BigInt a_factor = 0;
+            Botan::BigInt a_factor;
             while(a_factor == 0) {
                a_factor = rho(n, rng);
             }
@@ -140,11 +142,13 @@ class Factor final : public Command {
       * Uses Brent's cycle finding
       */
       static Botan::BigInt rho(const Botan::BigInt& n, Botan::RandomNumberGenerator& rng) {
-         auto monty_n = std::make_shared<Botan::Montgomery_Params>(n);
+         const Botan::Montgomery_Params monty_n(n);
 
-         const Botan::Montgomery_Int one(monty_n, monty_n->R1(), false);
+         const auto one = Botan::Montgomery_Int::one(monty_n);
 
-         Botan::Montgomery_Int x(monty_n, Botan::BigInt::random_integer(rng, 2, n - 3), false);
+         const auto two = Botan::BigInt::from_s32(2);
+         const auto three = Botan::BigInt::from_s32(3);
+         Botan::Montgomery_Int x(monty_n, Botan::BigInt::random_integer(rng, two, n - three), false);
          Botan::Montgomery_Int y = x;
          Botan::Montgomery_Int z = one;
          Botan::Montgomery_Int t(monty_n);
@@ -152,7 +156,8 @@ class Factor final : public Command {
 
          Botan::secure_vector<Botan::word> ws;
 
-         size_t i = 1, k = 2;
+         size_t i = 1;
+         size_t k = 2;
 
          while(true) {
             i++;
@@ -162,11 +167,10 @@ class Factor final : public Command {
                break;
             }
 
-            x.square_this(ws);  // x = x^2
-            x.add(one, ws);
+            x.square_this_n_times(ws, 1);  // x = x^2
+            x = x + one;
 
-            t = y;
-            t.sub(x, ws);
+            t = y - x;
 
             z.mul_by(t, ws);
 
@@ -191,7 +195,7 @@ class Factor final : public Command {
          }
 
          // failed
-         return 0;
+         return Botan::BigInt::zero();
       }
 
       // Remove (and return) any small (< 2^16) factors
@@ -199,12 +203,12 @@ class Factor final : public Command {
          std::vector<Botan::BigInt> factors;
 
          while(n.is_even()) {
-            factors.push_back(2);
-            n /= 2;
+            factors.push_back(Botan::BigInt::from_s32(2));
+            n >>= 1;
          }
 
          for(size_t j = 0; j != Botan::PRIME_TABLE_SIZE; j++) {
-            uint16_t prime = Botan::PRIMES[j];
+            auto prime = Botan::BigInt::from_s32(Botan::PRIMES[j]);
             if(n < prime) {
                break;
             }
@@ -226,6 +230,8 @@ class Factor final : public Command {
 };
 
 BOTAN_REGISTER_COMMAND("factor", Factor);
+
+}  // namespace
 
 }  // namespace Botan_CLI
 

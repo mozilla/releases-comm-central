@@ -28,8 +28,8 @@ struct CRL_Data;
 */
 class BOTAN_PUBLIC_API(2, 0) CRL_Entry final : public ASN1_Object {
    public:
-      void encode_into(DER_Encoder&) const override;
-      void decode_from(BER_Decoder&) override;
+      void encode_into(DER_Encoder& to) const override;
+      void decode_from(BER_Decoder& from) override;
 
       /**
       * Get the serial number of the certificate associated with this entry.
@@ -64,7 +64,7 @@ class BOTAN_PUBLIC_API(2, 0) CRL_Entry final : public ASN1_Object {
       * @param cert the certificate to revoke
       * @param reason the reason code to set in the entry
       */
-      CRL_Entry(const X509_Certificate& cert, CRL_Code reason = CRL_Code::Unspecified);
+      BOTAN_FUTURE_EXPLICIT CRL_Entry(const X509_Certificate& cert, CRL_Code reason = CRL_Code::Unspecified);
 
    private:
       friend class X509_CRL;
@@ -77,12 +77,12 @@ class BOTAN_PUBLIC_API(2, 0) CRL_Entry final : public ASN1_Object {
 /**
 * Test two CRL entries for equality in all fields.
 */
-BOTAN_PUBLIC_API(2, 0) bool operator==(const CRL_Entry&, const CRL_Entry&);
+BOTAN_PUBLIC_API(2, 0) bool operator==(const CRL_Entry& lhs, const CRL_Entry& rhs);
 
 /**
 * Test two CRL entries for inequality in at least one field.
 */
-BOTAN_PUBLIC_API(2, 0) bool operator!=(const CRL_Entry&, const CRL_Entry&);
+BOTAN_PUBLIC_API(2, 0) bool operator!=(const CRL_Entry& lhs, const CRL_Entry& rhs);
 
 /**
 * This class represents X.509 Certificate Revocation Lists (CRLs).
@@ -170,21 +170,21 @@ class BOTAN_PUBLIC_API(2, 0) X509_CRL final : public X509_Object {
       * Construct a CRL from a data source.
       * @param source the data source providing the DER or PEM encoded CRL.
       */
-      X509_CRL(DataSource& source);
+      BOTAN_FUTURE_EXPLICIT X509_CRL(DataSource& source);
 
 #if defined(BOTAN_TARGET_OS_HAS_FILESYSTEM)
       /**
       * Construct a CRL from a file containing the DER or PEM encoded CRL.
       * @param filename the name of the CRL file
       */
-      X509_CRL(std::string_view filename);
+      BOTAN_FUTURE_EXPLICIT X509_CRL(std::string_view filename);
 #endif
 
       /**
       * Construct a CRL from a binary vector
       * @param vec the binary (DER) representation of the CRL
       */
-      X509_CRL(const std::vector<uint8_t>& vec);
+      BOTAN_FUTURE_EXPLICIT X509_CRL(const std::vector<uint8_t>& vec);
 
       /**
       * Construct a CRL

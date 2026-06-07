@@ -1,6 +1,6 @@
-<defines>
+<internal_defines>
 AES_VPERM -> 20190901
-</defines>
+</internal_defines>
 
 <module_info>
 name -> "AES Vector Permutation"
@@ -8,17 +8,14 @@ brief -> "AES using Vector Permutation Instructions"
 </module_info>
 
 <isa>
-x86_32:sse2
-x86_64:sse2
 x86_32:ssse3
 x86_64:ssse3
-x32:sse2
 x32:ssse3
 arm32:neon
 arm64:neon
-ppc32:altivec
 ppc64:altivec
 loongarch64:lsx
+wasm:simd128
 </isa>
 
 <arch>
@@ -27,9 +24,9 @@ x86_64
 x32
 arm32
 arm64
-ppc32
 ppc64
 loongarch64
+wasm
 </arch>
 
 <requires>

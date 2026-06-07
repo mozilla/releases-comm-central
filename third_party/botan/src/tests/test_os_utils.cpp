@@ -48,15 +48,15 @@ class OS_Utils_Tests final : public Test {
       static Test::Result test_get_process_id() {
          Test::Result result("OS::get_process_id");
 
-         uint32_t pid1 = Botan::OS::get_process_id();
-         uint32_t pid2 = Botan::OS::get_process_id();
+         const uint32_t pid1 = Botan::OS::get_process_id();
+         const uint32_t pid2 = Botan::OS::get_process_id();
 
-         result.test_eq("PID same across calls", static_cast<size_t>(pid1), static_cast<size_t>(pid2));
+         result.test_u32_eq("PID same across calls", pid1, pid2);
 
    #if defined(BOTAN_TARGET_OS_IS_LLVM) || defined(BOTAN_TARGET_OS_IS_NONE)
-         result.test_eq("PID is expected to be zero on this platform", pid1, size_t(0));
+         result.test_u32_eq("PID is expected to be zero on this platform", pid1, 0);
    #else
-         result.test_ne("PID is non-zero on systems with processes", pid1, 0);
+         result.test_sz_ne("PID is non-zero on systems with processes", pid1, 0);
    #endif
 
          return result;
@@ -72,7 +72,7 @@ class OS_Utils_Tests final : public Test {
 
          if(proc_ts1 == 0) {
             const uint64_t proc_ts2 = Botan::OS::get_cpu_cycle_counter();
-            result.test_is_eq("Disabled processor timestamp stays at zero", proc_ts1, proc_ts2);
+            result.test_u64_eq("Disabled processor timestamp stays at zero", proc_ts1, proc_ts2);
             return result;
          }
 
@@ -81,27 +81,31 @@ class OS_Utils_Tests final : public Test {
             ++counts;
          }
 
-         result.test_lt("CPU cycle counter eventually changes value", counts, max_repeats);
+         result.test_sz_lt("CPU cycle counter eventually changes value", counts, max_repeats);
 
          return result;
       }
 
       static Test::Result test_get_high_resolution_clock() {
-         const size_t max_trials = 1024;
-         const size_t max_repeats = 128;
+         // We can easily test progression; however, testing precision is trickier.
+         // On very fast machines with very low clock resolution (like the web platform offers),
+         // it may be necessary to make the call quite a few times to notice any change.
+         constexpr auto max_trials = 32768;
 
          Test::Result result("OS::get_high_resolution_clock");
 
          // TODO better tests
-         const uint64_t hr_ts1 = Botan::OS::get_high_resolution_clock();
-         result.confirm("high resolution timestamp value is never zero", hr_ts1 != 0);
+         const auto hr_ts1 = Botan::OS::get_high_resolution_clock();
+         result.test_is_true("high resolution timestamp value is never zero", hr_ts1 != 0);
 
-         size_t counts = 0;
-         while(counts < max_trials && (Botan::OS::get_high_resolution_clock() == hr_ts1)) {
-            ++counts;
+         for(size_t trials = 0; trials < max_trials; ++trials) {
+            if(hr_ts1 < Botan::OS::get_high_resolution_clock()) {
+               result.test_success("high resolution clock made forward progress");
+               return result;
+            }
          }
 
-         result.test_lt("high resolution clock eventually changes value", counts, max_repeats);
+         result.test_failure("high resolution clock didn't make forward progress, even after many trials");
 
          return result;
       }
@@ -111,7 +115,7 @@ class OS_Utils_Tests final : public Test {
 
          const size_t ta = Botan::OS::get_cpu_available();
 
-         result.test_gte("get_cpu_available is at least 1", ta, 1);
+         result.test_sz_gte("get_cpu_available is at least 1", ta, 1);
 
          return result;
       }
@@ -120,15 +124,15 @@ class OS_Utils_Tests final : public Test {
          // TODO better tests
          Test::Result result("OS::get_system_timestamp_ns");
 
-         uint64_t sys_ts1 = Botan::OS::get_system_timestamp_ns();
-         result.confirm("System timestamp value is never zero", sys_ts1 != 0);
+         const uint64_t sys_ts1 = Botan::OS::get_system_timestamp_ns();
+         result.test_is_true("System timestamp value is never zero", sys_ts1 != 0);
 
          // do something that consumes a little time
          Botan::OS::get_process_id();
 
-         uint64_t sys_ts2 = Botan::OS::get_system_timestamp_ns();
+         const uint64_t sys_ts2 = Botan::OS::get_system_timestamp_ns();
 
-         result.confirm("System time moves forward", sys_ts1 <= sys_ts2);
+         result.test_is_true("System time moves forward", sys_ts1 <= sys_ts2);
 
          return result;
       }
@@ -144,9 +148,9 @@ class OS_Utils_Tests final : public Test {
       static Test::Result test_cpu_instruction_probe() {
          Test::Result result("OS::run_cpu_instruction_probe");
 
-         // OS::run_cpu_instruction_probe only implemented for Unix signals or Windows SEH
+         // OS::run_cpu_instruction_probe is only implemented on systems supporting Unix-style signals
 
-         std::function<int()> ok_fn = []() noexcept -> int { return 5; };
+         const std::function<int()> ok_fn = []() noexcept -> int { return 5; };
          const int run_rc = Botan::OS::run_cpu_instruction_probe(ok_fn);
 
          if(run_rc == -3) {
@@ -154,23 +158,23 @@ class OS_Utils_Tests final : public Test {
             return {result};
          }
 
-         result.confirm("Correct result returned by working probe fn", run_rc == 5);
+         result.test_is_true("Correct result returned by working probe fn", run_rc == 5);
 
          std::function<int()> crash_probe;
 
    #if defined(BOTAN_USE_GCC_INLINE_ASM)
 
-      #if defined(BOTAN_TARGET_CPU_IS_X86_FAMILY)
+      #if defined(BOTAN_TARGET_ARCH_IS_X86_FAMILY)
          crash_probe = []() noexcept -> int {
-            asm volatile("ud2");
+            asm volatile("ud2");  // NOLINT(*-no-assembler)
             return 3;
          };
 
-      #elif defined(BOTAN_TARGET_CPU_IS_ARM_FAMILY)
+      #elif defined(BOTAN_TARGET_ARCH_IS_ARM_FAMILY)
          //ARM: asm volatile (".word 0xf7f0a000\n");
          // illegal instruction in both ARM and Thumb modes
          crash_probe = []() noexcept -> int {
-            asm volatile(".word 0xe7f0def0\n");
+            asm volatile(".word 0xe7f0def0\n");  // NOLINT(*-no-assembler)
             return 3;
          };
 
@@ -186,7 +190,7 @@ class OS_Utils_Tests final : public Test {
 
          if(crash_probe) {
             const int crash_rc = Botan::OS::run_cpu_instruction_probe(crash_probe);
-            result.confirm("Result for function executing undefined opcode", crash_rc < 0);
+            result.test_is_true("Result for function executing undefined opcode", crash_rc < 0);
          }
 
          return result;

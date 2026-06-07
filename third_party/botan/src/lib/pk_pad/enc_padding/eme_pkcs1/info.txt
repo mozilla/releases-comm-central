@@ -1,0 +1,11 @@
+<defines>
+PKCSV15_ENCRYPTION_PADDING -> 20250126
+
+# TODO(Botan4) remove these macro
+EME_PKCS1v15 -> 20131128
+EME_PKCS1 -> 20190426
+</defines>
+
+<module_info>
+name -> "PKCS #1 v1.5 encryption padding"
+</module_info>

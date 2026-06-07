@@ -8,8 +8,9 @@
 
 #include <botan/internal/sp_wots.h>
 
+#include <botan/internal/buffer_slicer.h>
+#include <botan/internal/buffer_stuffer.h>
 #include <botan/internal/sp_hash.h>
-#include <botan/internal/stl_util.h>
 
 namespace Botan {
 namespace {
@@ -78,7 +79,7 @@ void wots_checksum(std::span<WotsHashIndex> output,
    // Convert checksum to base_w.
    csum = csum << ((8 - ((params.wots_len_2() * params.log_w()) % 8)) % 8);
 
-   std::array<uint8_t, 4> csum_bytes;
+   std::array<uint8_t, 4> csum_bytes{};
    store_be(csum, csum_bytes.data());
 
    const size_t csum_bytes_size = params.wots_checksum_bytes();
@@ -143,7 +144,7 @@ void wots_sign_and_pkgen(StrongSpan<WotsSignature> sig_out,
    BOTAN_ASSERT_NOMSG(!sign_leaf_idx.has_value() || wots_steps.size() == params.wots_len());
    BOTAN_ASSERT_NOMSG(pk_addr.get_type() == Sphincs_Address_Type::WotsPublicKeyCompression);
 
-   secure_vector<uint8_t> wots_sig;
+   const secure_vector<uint8_t> wots_sig;
    WotsPublicKey wots_pk_buffer(params.wots_bytes());
 
    BufferStuffer wots_pk(wots_pk_buffer);
@@ -154,7 +155,7 @@ void wots_sign_and_pkgen(StrongSpan<WotsSignature> sig_out,
 
    for(WotsChainIndex i(0); i < params.wots_len(); i++) {
       // If the current leaf is part of the signature wots_k stores the chain index
-      //   of the value neccessary for the signature. Otherwise: nullopt (no signature)
+      //   of the value necessary for the signature. Otherwise: nullopt (no signature)
       const auto wots_k = [&]() -> std::optional<WotsHashIndex> {
          if(sign_leaf_idx.has_value() && leaf_idx == sign_leaf_idx.value()) {
             return wots_steps[i.get()];

@@ -49,6 +49,58 @@ void append_utf8_for(std::string& s, uint32_t c) {
    }
 }
 
+uint32_t next_utf8_codepoint(const std::string& utf8, size_t& pos) {
+   auto read_continuation = [&]() -> uint32_t {
+      if(pos >= utf8.size()) {
+         throw Decoding_Error("Invalid UTF-8 sequence");
+      }
+      const uint8_t b = static_cast<uint8_t>(utf8[pos++]);
+      if((b & 0xC0) != 0x80) {
+         throw Decoding_Error("Invalid UTF-8 sequence");
+      }
+      return b & 0x3F;
+   };
+
+   const uint8_t lead = static_cast<uint8_t>(utf8[pos++]);
+   uint32_t c = 0;
+
+   if(lead <= 0x7F) {
+      c = lead;
+   } else if((lead & 0xE0) == 0xC0) {
+      c = (lead & 0x1F) << 6;
+      c |= read_continuation();
+      if(c < 0x80) {
+         throw Decoding_Error("Overlong UTF-8 sequence");
+      }
+   } else if((lead & 0xF0) == 0xE0) {
+      c = (lead & 0x0F) << 12;
+      c |= read_continuation() << 6;
+      c |= read_continuation();
+      if(c < 0x800) {
+         throw Decoding_Error("Overlong UTF-8 sequence");
+      }
+   } else if((lead & 0xF8) == 0xF0) {
+      c = (lead & 0x07) << 18;
+      c |= read_continuation() << 12;
+      c |= read_continuation() << 6;
+      c |= read_continuation();
+      if(c < 0x10000) {
+         throw Decoding_Error("Overlong UTF-8 sequence");
+      }
+   } else {
+      throw Decoding_Error("Invalid UTF-8 sequence");
+   }
+
+   if(c > 0x10FFFF) {
+      throw Decoding_Error("UTF-8 sequence encodes value outside Unicode range");
+   }
+   if(c >= 0xD800 && c < 0xE000) {
+      throw Decoding_Error("UTF-8 sequence encodes surrogate code point");
+   }
+
+   return c;
+}
+
 }  // namespace
 
 std::string ucs2_to_utf8(const uint8_t ucs2[], size_t len) {
@@ -67,6 +119,24 @@ std::string ucs2_to_utf8(const uint8_t ucs2[], size_t len) {
    return s;
 }
 
+std::vector<uint8_t> utf8_to_ucs2(const std::string& utf8) {
+   std::vector<uint8_t> out;
+   out.reserve(utf8.size() * 2);
+
+   size_t pos = 0;
+   while(pos < utf8.size()) {
+      const uint32_t c = next_utf8_codepoint(utf8, pos);
+      if(c > 0xFFFF) {
+         throw Decoding_Error("Cannot encode character in UCS-2");
+      }
+      const uint16_t val = static_cast<uint16_t>(c);
+      out.push_back(get_byte<0>(val));
+      out.push_back(get_byte<1>(val));
+   }
+
+   return out;
+}
+
 std::string ucs4_to_utf8(const uint8_t ucs4[], size_t len) {
    if(len % 4 != 0) {
       throw Decoding_Error("Invalid length for UCS-4 string");
@@ -81,6 +151,22 @@ std::string ucs4_to_utf8(const uint8_t ucs4[], size_t len) {
    }
 
    return s;
+}
+
+std::vector<uint8_t> utf8_to_ucs4(const std::string& utf8) {
+   std::vector<uint8_t> out;
+   out.reserve(utf8.size() * 4);
+
+   size_t pos = 0;
+   while(pos < utf8.size()) {
+      const uint32_t val = next_utf8_codepoint(utf8, pos);
+      out.push_back(get_byte<0>(val));
+      out.push_back(get_byte<1>(val));
+      out.push_back(get_byte<2>(val));
+      out.push_back(get_byte<3>(val));
+   }
+
+   return out;
 }
 
 /*
@@ -107,7 +193,7 @@ std::string format_char_for_display(char c) {
    } else if(c == '\r') {
       oss << "\\r";
    } else if(static_cast<unsigned char>(c) >= 128) {
-      unsigned char z = static_cast<unsigned char>(c);
+      const unsigned char z = static_cast<unsigned char>(c);
       oss << "\\x" << std::hex << std::uppercase << static_cast<int>(z);
    } else {
       oss << c;

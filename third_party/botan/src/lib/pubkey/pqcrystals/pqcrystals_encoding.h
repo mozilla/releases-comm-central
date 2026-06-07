@@ -15,10 +15,11 @@
 #include <numeric>
 #include <span>
 
+#include <botan/internal/buffer_slicer.h>
+#include <botan/internal/buffer_stuffer.h>
 #include <botan/internal/loadstor.h>
 #include <botan/internal/pqcrystals.h>
 #include <botan/internal/pqcrystals_helpers.h>
-#include <botan/internal/stl_util.h>
 
 #if defined(BOTAN_HAS_XOF)
    #include <botan/xof.h>
@@ -75,7 +76,7 @@ struct BitPackingTrait final {
       constexpr static size_t bits_per_pack = [] {
          // Ensure that the bit-packing is byte-aligned and scale it
          // to utilize the collector's bit-width as much as possible.
-         size_t smallest_aligned_pack = std::lcm(bits_per_coeff, size_t(8));
+         const size_t smallest_aligned_pack = std::lcm(bits_per_coeff, size_t(8));
          return (smallest_aligned_pack < bits_in_collector)
                    ? (bits_in_collector / smallest_aligned_pack) * smallest_aligned_pack
                    : smallest_aligned_pack;
@@ -107,7 +108,7 @@ struct BitPackingTrait final {
  *
  * Note that this bit-packing algorithm is inefficient if the bit-length of the
  * coefficients is a multiple of 8. In that case, a byte-level encoding (that
- * might need to take endianess into account) would be more efficient. However,
+ * might need to take endianness into account) would be more efficient. However,
  * neither Kyber nor Dilithium instantiate bit-packings with such a value range.
  *
  * @tparam range the upper bound of the coefficient range.

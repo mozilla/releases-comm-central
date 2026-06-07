@@ -31,17 +31,14 @@ class ANSI_X919_MAC final : public MessageAuthenticationCode {
 
       ANSI_X919_MAC();
 
-      ANSI_X919_MAC(const ANSI_X919_MAC&) = delete;
-      ANSI_X919_MAC& operator=(const ANSI_X919_MAC&) = delete;
-
    private:
-      void add_data(std::span<const uint8_t>) override;
-      void final_result(std::span<uint8_t>) override;
-      void key_schedule(std::span<const uint8_t>) override;
+      void add_data(std::span<const uint8_t> input) override;
+      void final_result(std::span<uint8_t> output) override;
+      void key_schedule(std::span<const uint8_t> key) override;
 
       std::unique_ptr<BlockCipher> m_des1, m_des2;
       secure_vector<uint8_t> m_state;
-      size_t m_position;
+      size_t m_position = 0;
 };
 
 }  // namespace Botan

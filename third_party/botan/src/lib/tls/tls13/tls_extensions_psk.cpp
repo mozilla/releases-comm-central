@@ -7,21 +7,21 @@
 * Botan is released under the Simplified BSD License (see license.txt)
 */
 
-#include <botan/tls_extensions.h>
+#include <botan/tls_extensions_13.h>
 
 #include <botan/credentials_manager.h>
+#include <botan/hash.h>
 #include <botan/tls_callbacks.h>
 #include <botan/tls_exceptn.h>
+#include <botan/tls_psk_identity_13.h>
 #include <botan/tls_session.h>
 #include <botan/tls_session_manager.h>
+#include <botan/internal/ct_utils.h>
 #include <botan/internal/stl_util.h>
 #include <botan/internal/tls_cipher_state.h>
 #include <botan/internal/tls_reader.h>
-
 #include <algorithm>
 #include <utility>
-
-#if defined(BOTAN_HAS_TLS_13)
 
 namespace Botan::TLS {
 
@@ -46,7 +46,7 @@ class Client_PSK {
                        Cipher_State::PSK_Type::Resumption) {}
 
       // NOLINTNEXTLINE(*-rvalue-reference-param-not-moved)
-      Client_PSK(ExternalPSK&& psk) :
+      explicit Client_PSK(ExternalPSK&& psk) :
             Client_PSK(PskIdentity(PresharedKeyID(psk.identity())),
                        psk.prf_algo(),
                        psk.extract_master_secret(),
@@ -106,7 +106,7 @@ class Client_PSK {
 
 class Server_PSK {
    public:
-      Server_PSK(uint16_t id) : m_selected_identity(id), m_session_to_resume_or_psk(std::monostate()) {}
+      explicit Server_PSK(uint16_t id) : m_selected_identity(id), m_session_to_resume_or_psk(std::monostate()) {}
 
       Server_PSK(uint16_t id, Session session) :
             m_selected_identity(id), m_session_to_resume_or_psk(std::move(session)) {}
@@ -131,11 +131,11 @@ class Server_PSK {
 
 class PSK::PSK_Internal {
    public:
-      PSK_Internal(Server_PSK srv_psk) : psk(std::move(srv_psk)) {}
+      explicit PSK_Internal(Server_PSK srv_psk) : psk(std::move(srv_psk)) {}
 
-      PSK_Internal(std::vector<Client_PSK> clt_psks) : psk(std::move(clt_psks)) {}
+      explicit PSK_Internal(std::vector<Client_PSK> clt_psks) : psk(std::move(clt_psks)) {}
 
-      // NOLINTNEXTLINE(*-non-private-member-variables-in-classes)
+      // NOLINTNEXTLINE(*-non-private-member-variable*)
       std::variant<std::vector<Client_PSK>, Server_PSK> psk;
 };
 
@@ -206,10 +206,10 @@ PSK::PSK(std::optional<Session_with_Handle>& session_to_resume, std::vector<Exte
    m_impl = std::make_unique<PSK_Internal>(std::move(cpsk));
 }
 
-PSK::PSK(Session session_to_resume, const uint16_t psk_index) :
+PSK::PSK(Session session_to_resume, uint16_t psk_index) :
       m_impl(std::make_unique<PSK_Internal>(Server_PSK(psk_index, std::move(session_to_resume)))) {}
 
-PSK::PSK(ExternalPSK psk, const uint16_t psk_index) :
+PSK::PSK(ExternalPSK psk, uint16_t psk_index) :
       m_impl(std::make_unique<PSK_Internal>(Server_PSK(psk_index, std::move(psk)))) {}
 
 PSK::~PSK() = default;
@@ -428,9 +428,8 @@ bool PSK::validate_binder(const PSK& server_psk, const std::vector<uint8_t>& bin
    const auto& psks = std::get<std::vector<Client_PSK>>(m_impl->psk);
 
    BOTAN_STATE_CHECK(index < psks.size());
-   return psks[index].binder() == binder;
+   const auto& expected_binder = psks[index].binder();
+   return CT::is_equal<uint8_t>(binder, expected_binder).as_bool();
 }
 
 }  // namespace Botan::TLS
-
-#endif  // HAS_TLS_13

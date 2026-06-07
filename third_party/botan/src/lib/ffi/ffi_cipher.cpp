@@ -7,9 +7,12 @@
 #include <botan/ffi.h>
 
 #include <botan/aead.h>
+#include <botan/mem_ops.h>
 #include <botan/internal/bit_ops.h>
+#include <botan/internal/buffer_slicer.h>
+#include <botan/internal/buffer_stuffer.h>
 #include <botan/internal/ffi_util.h>
-#include <botan/internal/stl_util.h>
+#include <botan/internal/scoped_cleanup.h>
 
 #include <limits>
 
@@ -106,8 +109,7 @@ int botan_cipher_init(botan_cipher_t* cipher, const char* cipher_name, uint32_t 
       const size_t update_size = ffi_choose_update_size(*mode);
       const size_t ideal_update_size = std::max(mode->ideal_granularity(), update_size);
 
-      *cipher = new botan_cipher_struct(std::move(mode), update_size, ideal_update_size);
-      return BOTAN_FFI_SUCCESS;
+      return ffi_new_object(cipher, std::move(mode), update_size, ideal_update_size);
    });
 }
 
@@ -185,7 +187,7 @@ int botan_cipher_update(botan_cipher_t cipher_obj,
       // called with the final flag set but not enough buffer space was provided
       // to accommodate the final output.
       const bool was_finished_before = !mbuf.empty();
-      const bool final_input = (flags & BOTAN_CIPHER_UPDATE_FLAG_FINAL);
+      const bool final_input = (flags & BOTAN_CIPHER_UPDATE_FLAG_FINAL) != 0;
 
       // Bring the output variables into a defined state.
       *output_written = 0;

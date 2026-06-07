@@ -9,7 +9,10 @@
 #define BOTAN_DER_ENCODER_H_
 
 #include <botan/asn1_obj.h>
+#include <botan/secmem.h>
 #include <functional>
+#include <optional>
+#include <span>
 #include <vector>
 
 namespace Botan {
@@ -34,19 +37,19 @@ class BOTAN_PUBLIC_API(2, 0) DER_Encoder final {
       * DER encode, writing to @param vec
       * If this constructor is used, get_contents* may not be called.
       */
-      DER_Encoder(secure_vector<uint8_t>& vec);
+      BOTAN_FUTURE_EXPLICIT DER_Encoder(secure_vector<uint8_t>& vec);
 
       /**
       * DER encode, writing to @param vec
       * If this constructor is used, get_contents* may not be called.
       */
-      DER_Encoder(std::vector<uint8_t>& vec);
+      BOTAN_FUTURE_EXPLICIT DER_Encoder(std::vector<uint8_t>& vec);
 
       /**
       * DER encode, calling append to write output
       * If this constructor is used, get_contents* may not be called.
       */
-      DER_Encoder(append_fn append) : m_append_output(std::move(append)) {}
+      BOTAN_FUTURE_EXPLICIT DER_Encoder(append_fn append) : m_append_output(std::move(append)) {}
 
       secure_vector<uint8_t> get_contents();
 
@@ -54,8 +57,8 @@ class BOTAN_PUBLIC_API(2, 0) DER_Encoder final {
       * Return the encoded contents as a std::vector
       *
       * If using this function, instead pass a std::vector to the
-      * contructor of DER_Encoder where the output will be placed. This
-      * avoids several unecessary copies.
+      * constructor of DER_Encoder where the output will be placed. This
+      * avoids several unnecessary copies.
       */
       BOTAN_DEPRECATED("Use DER_Encoder(vector) instead") std::vector<uint8_t> get_contents_unlocked();
 
@@ -83,10 +86,7 @@ class BOTAN_PUBLIC_API(2, 0) DER_Encoder final {
       */
       DER_Encoder& raw_bytes(const uint8_t val[], size_t len);
 
-      template <typename Alloc>
-      DER_Encoder& raw_bytes(const std::vector<uint8_t, Alloc>& val) {
-         return raw_bytes(val.data(), val.size());
-      }
+      DER_Encoder& raw_bytes(std::span<const uint8_t> val) { return raw_bytes(val.data(), val.size()); }
 
       DER_Encoder& encode_null();
       DER_Encoder& encode(bool b);
@@ -120,9 +120,18 @@ class BOTAN_PUBLIC_API(2, 0) DER_Encoder final {
       }
 
       template <typename T>
+      BOTAN_DEPRECATED("Use the version that takes a std::optional")
       DER_Encoder& encode_optional(const T& value, const T& default_value) {
          if(value != default_value) {
             encode(value);
+         }
+         return (*this);
+      }
+
+      template <typename T>
+      DER_Encoder& encode_optional(const std::optional<T>& value) {
+         if(value) {
+            encode(*value);
          }
          return (*this);
       }
@@ -164,14 +173,25 @@ class BOTAN_PUBLIC_API(2, 0) DER_Encoder final {
          return (*this);
       }
 
+      DER_Encoder& encode_if(bool pred, bool num) {
+         if(pred) {
+            encode(num);
+         }
+         return (*this);
+      }
+
       DER_Encoder& add_object(ASN1_Type type_tag, ASN1_Class class_tag, const uint8_t rep[], size_t length);
 
-      DER_Encoder& add_object(ASN1_Type type_tag, ASN1_Class class_tag, const std::vector<uint8_t>& rep) {
+      DER_Encoder& add_object(ASN1_Type type_tag, ASN1_Class class_tag, std::span<const uint8_t> rep) {
          return add_object(type_tag, class_tag, rep.data(), rep.size());
       }
 
+      DER_Encoder& add_object(ASN1_Type type_tag, ASN1_Class class_tag, const std::vector<uint8_t>& rep) {
+         return add_object(type_tag, class_tag, std::span{rep});
+      }
+
       DER_Encoder& add_object(ASN1_Type type_tag, ASN1_Class class_tag, const secure_vector<uint8_t>& rep) {
-         return add_object(type_tag, class_tag, rep.data(), rep.size());
+         return add_object(type_tag, class_tag, std::span{rep});
       }
 
       DER_Encoder& add_object(ASN1_Type type_tag, ASN1_Class class_tag, std::string_view str);
@@ -189,11 +209,11 @@ class BOTAN_PUBLIC_API(2, 0) DER_Encoder final {
 
             void add_bytes(const uint8_t hdr[], size_t hdr_len, const uint8_t val[], size_t val_len);
 
-            DER_Sequence(ASN1_Type, ASN1_Class);
+            DER_Sequence(ASN1_Type type_tag, ASN1_Class class_tag);
 
             DER_Sequence(DER_Sequence&& seq) noexcept :
-                  m_type_tag(std::move(seq.m_type_tag)),
-                  m_class_tag(std::move(seq.m_class_tag)),
+                  m_type_tag(seq.m_type_tag),
+                  m_class_tag(seq.m_class_tag),
                   m_contents(std::move(seq.m_contents)),
                   m_set_contents(std::move(seq.m_set_contents)) {}
 
@@ -206,8 +226,8 @@ class BOTAN_PUBLIC_API(2, 0) DER_Encoder final {
             }
 
             DER_Sequence(const DER_Sequence& seq) = default;
-
             DER_Sequence& operator=(const DER_Sequence& seq) = default;
+            ~DER_Sequence() = default;
 
          private:
             ASN1_Type m_type_tag;

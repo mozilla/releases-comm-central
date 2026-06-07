@@ -9,15 +9,16 @@
 
 #include <botan/eckcdsa.h>
 
+#include <botan/ec_group.h>
 #include <botan/hash.h>
 #include <botan/mem_ops.h>
 #include <botan/rng.h>
+#include <botan/internal/concat_util.h>
 #include <botan/internal/fmt.h>
 #include <botan/internal/keypair.h>
 #include <botan/internal/parsing.h>
 #include <botan/internal/pk_ops_impl.h>
 #include <botan/internal/scan_name.h>
-#include <botan/internal/stl_util.h>
 
 namespace Botan {
 
@@ -44,7 +45,7 @@ std::unique_ptr<HashFunction> eckcdsa_signature_hash(std::string_view padding) {
       return hash;
    }
 
-   SCAN_Name req(padding);
+   const SCAN_Name req(padding);
 
    if(req.algo_name() == "EMSA1" && req.arg_count() == 1) {
       if(auto hash = HashFunction::create(req.arg(0))) {
@@ -259,6 +260,10 @@ bool ECKCDSA_Verification_Operation::verify(std::span<const uint8_t> msg, std::s
 }
 
 }  // namespace
+
+std::optional<size_t> ECKCDSA_PublicKey::_signature_element_size_for_DER_encoding() const {
+   return domain().get_order_bytes();
+}
 
 std::unique_ptr<Private_Key> ECKCDSA_PublicKey::generate_another(RandomNumberGenerator& rng) const {
    return std::make_unique<ECKCDSA_PrivateKey>(rng, domain());

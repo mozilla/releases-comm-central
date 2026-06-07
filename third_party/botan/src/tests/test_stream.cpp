@@ -7,6 +7,8 @@
 #include "tests.h"
 
 #if defined(BOTAN_HAS_STREAM_CIPHER)
+   #include <botan/exceptn.h>
+   #include <botan/rng.h>
    #include <botan/stream_cipher.h>
    #include <botan/internal/fmt.h>
 #endif
@@ -14,6 +16,8 @@
 namespace Botan_Tests {
 
 #if defined(BOTAN_HAS_STREAM_CIPHER)
+
+namespace {
 
 class Stream_Cipher_Tests final : public Text_Based_Test {
    public:
@@ -48,15 +52,15 @@ class Stream_Cipher_Tests final : public Text_Based_Test {
             }
 
             const std::string provider(cipher->provider());
-            result.test_is_nonempty("provider", provider);
-            result.test_eq(provider, cipher->name(), algo);
+            result.test_str_not_empty("provider", provider);
+            result.test_str_eq(provider, cipher->name(), algo);
 
-            result.confirm("default iv length is valid", cipher->valid_iv_length(cipher->default_iv_length()));
+            result.test_is_true("default iv length is valid", cipher->valid_iv_length(cipher->default_iv_length()));
 
-            result.confirm("advertised buffer size is > 0", cipher->buffer_size() > 0);
+            result.test_is_true("advertised buffer size is > 0", cipher->buffer_size() > 0);
 
             if(cipher->default_iv_length() == 0) {
-               result.confirm("if default iv length is zero, no iv supported", nonce.empty());
+               result.test_is_true("if default iv length is zero, no iv supported", nonce.empty());
 
                // This should still succeed
                cipher->set_iv(nullptr, 0);
@@ -101,22 +105,22 @@ class Stream_Cipher_Tests final : public Text_Based_Test {
                continue;
             }
 
-            result.test_eq("key not set", cipher->has_keying_material(), false);
+            result.test_is_false("key not set", cipher->has_keying_material());
             cipher->set_key(key);
-            result.test_eq("key set", cipher->has_keying_material(), true);
+            result.test_is_true("key set", cipher->has_keying_material());
 
             /*
             Test invalid nonce sizes. this assumes no implemented cipher supports a nonce of 65000
             */
             const size_t large_nonce_size = 65000;
-            result.confirm("Stream cipher does not support very large nonce",
-                           cipher->valid_iv_length(large_nonce_size) == false);
+            result.test_is_true("Stream cipher does not support very large nonce",
+                                cipher->valid_iv_length(large_nonce_size) == false);
 
             result.test_throws("Throws if invalid nonce size given",
                                [&]() { cipher->set_iv(nullptr, large_nonce_size); });
 
             /*
-            If the set_nonce call earlier succeded, then we require that it also
+            If the set_nonce call earlier succeeded, then we require that it also
             worked (ie saved the nonce for later use) even though the key was
             not set. So, don't set the nonce now, to ensure the previous call
             had an effect.
@@ -131,14 +135,14 @@ class Stream_Cipher_Tests final : public Text_Based_Test {
 
             // Test that clone works and does not affect parent object
             auto clone = cipher->new_object();
-            result.confirm("Clone has different pointer", cipher.get() != clone.get());
-            result.test_eq("Clone has same name", cipher->name(), clone->name());
+            result.test_is_true("Clone has different pointer", cipher.get() != clone.get());
+            result.test_str_eq("Clone has same name", cipher->name(), clone->name());
             clone->set_key(this->rng().random_vec(cipher->maximum_keylength()));
 
             {
                std::vector<uint8_t> buf = input;
                cipher->encrypt(buf);
-               result.test_eq(provider, "encrypt", buf, expected);
+               result.test_bin_eq(provider + " encrypt", buf, expected);
             }
 
             {
@@ -152,7 +156,7 @@ class Stream_Cipher_Tests final : public Text_Based_Test {
                }
                std::vector<uint8_t> buf = input;
                cipher->encrypt(buf);
-               result.test_eq(provider, "encrypt 2", buf, expected);
+               result.test_bin_eq(provider + " encrypt 2", buf, expected);
             }
 
             if(!nonce.empty()) {
@@ -162,7 +166,7 @@ class Stream_Cipher_Tests final : public Text_Based_Test {
                }
                std::vector<uint8_t> buf = input;
                cipher->encrypt(buf);
-               result.test_eq(provider, "second encrypt", buf, expected);
+               result.test_bin_eq(provider + " second encrypt", buf, expected);
             }
 
             {
@@ -180,7 +184,7 @@ class Stream_Cipher_Tests final : public Text_Based_Test {
                size_t buf_len = buf.size();
 
                while(buf_len > 0) {
-                  size_t next = std::min<size_t>(buf_len, this->rng().next_byte());
+                  const size_t next = std::min<size_t>(buf_len, this->rng().next_byte());
                   cipher->write_keystream(buf_ptr, next);
                   buf_ptr += next;
                   buf_len -= next;
@@ -189,12 +193,12 @@ class Stream_Cipher_Tests final : public Text_Based_Test {
                for(size_t i = 0; i != input.size(); ++i) {
                   buf[i] ^= input[i];
                }
-               result.test_eq(provider, "write_keystream", buf, expected);
+               result.test_bin_eq(provider + " write_keystream", buf, expected);
             }
 
-            result.test_eq("key set", cipher->has_keying_material(), true);
+            result.test_is_true("key set", cipher->has_keying_material());
             cipher->clear();
-            result.test_eq("key not set", cipher->has_keying_material(), false);
+            result.test_is_false("key not set", cipher->has_keying_material());
 
             try {
                std::vector<uint8_t> buf(128);
@@ -210,6 +214,8 @@ class Stream_Cipher_Tests final : public Text_Based_Test {
 };
 
 BOTAN_REGISTER_SERIALIZED_SMOKE_TEST("stream", "stream_ciphers", Stream_Cipher_Tests);
+
+}  // namespace
 
 #endif
 

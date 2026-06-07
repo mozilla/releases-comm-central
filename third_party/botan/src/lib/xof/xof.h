@@ -12,10 +12,10 @@
 #include <botan/concepts.h>
 #include <botan/secmem.h>
 #include <botan/sym_algo.h>
-
 #include <memory>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace Botan {
 
@@ -26,10 +26,8 @@ namespace Botan {
  * stream of output bits. Typically, it is illegal to call `update()` after
  * the first call to `output()`.
  */
-class BOTAN_PUBLIC_API(3, 2) XOF {
+class BOTAN_PUBLIC_API(3, 2) XOF /* NOLINT(*special-member-functions) */ {
    public:
-      XOF() : m_xof_started(false) {}
-
       virtual ~XOF() = default;
 
       /**
@@ -163,7 +161,7 @@ class BOTAN_PUBLIC_API(3, 2) XOF {
        */
       template <size_t count>
       std::array<uint8_t, count> output() {
-         std::array<uint8_t, count> out;
+         std::array<uint8_t, count> out;  // NOLINT(*-member-init)
          generate_bytes(out);
          return out;
       }
@@ -186,7 +184,7 @@ class BOTAN_PUBLIC_API(3, 2) XOF {
        * @return the next single output byte
        */
       uint8_t output_next_byte() {
-         uint8_t out;
+         uint8_t out = 0;
          generate_bytes({&out, 1});
          return out;
       }
@@ -232,7 +230,7 @@ class BOTAN_PUBLIC_API(3, 2) XOF {
       virtual void reset() = 0;
 
    private:
-      bool m_xof_started;
+      bool m_xof_started = false;
 };
 
 }  // namespace Botan

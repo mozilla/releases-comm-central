@@ -8,7 +8,9 @@
 
 #if defined(BOTAN_HAS_ECDH)
    #include "test_pubkey.h"
+   #include <botan/ec_group.h>
    #include <botan/ecdh.h>
+   #include <botan/pubkey.h>
 #endif
 
 namespace Botan_Tests {
@@ -23,7 +25,7 @@ class ECDH_KAT_Tests final : public PK_Key_Agreement_Test {
 
       std::string default_kdf(const VarMap& /*unused*/) const override { return "Raw"; }
 
-      bool skip_this_test(const std::string& group_id, const VarMap&) override {
+      bool skip_this_test(const std::string& group_id, const VarMap& /*vars*/) override {
          return !Botan::EC_Group::supports_named_group(group_id);
       }
 
@@ -74,7 +76,8 @@ class ECDH_AllGroups_Tests : public Test {
                // Regression test: prohibit loading an all-zero private key
                result.test_throws<Botan::Invalid_Argument>("all-zero private key is unacceptable", [&] {
                   const auto one = Botan::EC_Scalar::one(group);
-                  Botan::ECDH_PrivateKey(group, one - one);
+                  const auto zero = one - one;  // NOLINT(*-redundant-expression)
+                  Botan::ECDH_PrivateKey(group, zero);
                });
 
                // Regression test: prohibit loading a public point that is the identity (point at infinity)
@@ -86,8 +89,8 @@ class ECDH_AllGroups_Tests : public Test {
                // Regression test: prohibit ECDH-agreement with all-zero public value
                result.test_throws<Botan::Decoding_Error>("ECDH public value is point-at-infinity", [&] {
                   const auto sk = Botan::ECDH_PrivateKey(rng(), group);
-                  Botan::PK_Key_Agreement ka(sk, rng(), kdf);
-                  const auto sec1_infinity = std::array{uint8_t(0x00)};
+                  const Botan::PK_Key_Agreement ka(sk, rng(), kdf);
+                  std::vector<uint8_t> sec1_infinity(1, 0x00);
                   const auto a_ss = ka.derive_key(0, sec1_infinity);
                });
 
@@ -98,13 +101,13 @@ class ECDH_AllGroups_Tests : public Test {
                   const Botan::ECDH_PrivateKey b_priv(rng(), group);
                   const auto b_pub = b_priv.public_value();
 
-                  Botan::PK_Key_Agreement a_ka(a_priv, rng(), kdf);
+                  const Botan::PK_Key_Agreement a_ka(a_priv, rng(), kdf);
                   const auto a_ss = a_ka.derive_key(0, b_pub);
 
-                  Botan::PK_Key_Agreement b_ka(b_priv, rng(), kdf);
+                  const Botan::PK_Key_Agreement b_ka(b_priv, rng(), kdf);
                   const auto b_ss = b_ka.derive_key(0, a_pub);
 
-                  result.test_eq("Same shared secret", a_ss.bits_of(), b_ss.bits_of());
+                  result.test_bin_eq("Same shared secret", a_ss.bits_of(), b_ss.bits_of());
                }
             } catch(std::exception& e) {
                result.test_failure("Exception", e.what());

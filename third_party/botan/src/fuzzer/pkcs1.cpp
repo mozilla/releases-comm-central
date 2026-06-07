@@ -39,21 +39,22 @@ void fuzz(std::span<const uint8_t> in) {
 
    std::vector<uint8_t> lib_result;
    std::vector<uint8_t> ref_result;
-   bool lib_rejected = false, ref_rejected = false;
+   bool lib_rejected = false;
+   bool ref_rejected = false;
 
    try {
       lib_result.resize(in.size());
-      auto written = (static_cast<Botan::EME*>(&pkcs1))->unpad(lib_result, in);
+      auto written = (static_cast<Botan::EncryptionPaddingScheme*>(&pkcs1))->unpad(lib_result, in);
       lib_rejected = !written.has_value().as_bool();
 
       lib_result.resize(written.value_or(0));
-   } catch(Botan::Decoding_Error&) {
+   } catch(const Botan::Decoding_Error&) {
       lib_rejected = true;
    }
 
    try {
       ref_result = simple_pkcs1_unpad(in.data(), in.size());
-   } catch(Botan::Decoding_Error& e) {
+   } catch(const Botan::Decoding_Error& e) {
       ref_rejected = true;
    }
 

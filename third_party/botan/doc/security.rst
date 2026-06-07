@@ -15,6 +15,66 @@ mail please use::
 This key can be found in the file ``doc/pgpkey.txt`` or online at
 https://keybase.io/jacklloyd and on most PGP keyservers.
 
+2026
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* 2026-03-31 (CVE-2026-35582): TLS 1.3 client authentication bypass
+
+  The TLS 1.3 implementation allowed ApplicationData records to be processed
+  prior to the Finished message being received. A server which is attempting to
+  enforce client authentication via certificates can by bypassed by a client
+  which entirely omits Certificate, CertificateVerify, and the Finished message
+  and instead sends application data records.
+
+  Introduced in 3.0.0, fixed in 3.11.1
+
+  Credit: Ben Smyth
+
+* 2026-03-31 (CVE-2026-35580): Certificate verification bypass due to trust anchor confusion
+
+  During path validation, an end-entity certificate whose DN collided with the
+  DN of a trust anchor would be accepted immediately without further validation.
+  This bug was introduced in 3.11.0; prior versions are not affected.
+
+  Introduced in 3.11.0, fixed in 3.11.1
+
+  Credit: Nicholas Carlini with Claude, Anthropic
+
+* 2026-03-15 (CVE-2026-32883): OCSP Response Forgery
+
+  During verification of X.509 paths involving OCSP responses, Botan omitted checking
+  that the response signature was itself valid. This would allow a MitM attacker to
+  insert forged responses. It would also allow a malicious TLS server to staple
+  forged OCSP responses.
+
+  Introduced in 3.0.0, fixed in 3.11.0
+
+  Found by Haruto Kimura
+
+* 2026-03-15 (CVE-2026-32877): Heap Overread During SM2 Decryption
+
+  Decryption of SM2 ciphertexts failed to account for the possibility that the enclosed
+  MAC was of an invalid length. An invalid ciphertext with a MAC of the wrong length would
+  cause a heap over-read when the computed MAC value was compared with the insufficiently
+  sized buffer. This could result in denial of service.
+
+  Introduced in 2.3.0, fixed in 3.11.0
+
+  Found by Haruto Kimura
+
+* 2026-03-15 (CVE-2026-32884): Bypass of Name Constraint Exclusion in CN Fallback Case
+
+  If DNS name constraints apply to a certificate, and the certificate does not
+  contain any Subject Alternative Name extension, Botan checks that the certificates
+  commonName field (CN) would not be prohibited by the name constraint. However it
+  failed to account for the possibility that the CN might be mixed case; a certificate
+  with a mixed case CN and omitted SAN would be accepted even if the DNS name in the
+  CN violated a name constraint imposed by the issuing chain.
+
+  Introduced in 2.0.0, fixed in 3.11.0
+
+  Found by Haruto Kimura
+
 2024
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

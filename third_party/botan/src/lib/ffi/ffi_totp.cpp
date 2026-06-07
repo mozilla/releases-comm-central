@@ -6,6 +6,7 @@
 
 #include <botan/ffi.h>
 
+#include <botan/assert.h>
 #include <botan/internal/ffi_util.h>
 
 #if defined(BOTAN_HAS_TOTP)
@@ -33,9 +34,7 @@ int botan_totp_init(
 #if defined(BOTAN_HAS_TOTP)
    return ffi_guard_thunk(__func__, [=]() -> int {
       auto otp = std::make_unique<Botan::TOTP>(key, key_len, hash_algo, digits, time_step);
-      *totp = new botan_totp_struct(std::move(otp));
-
-      return BOTAN_FFI_SUCCESS;
+      return ffi_new_object(totp, std::move(otp));
    });
 #else
    BOTAN_UNUSED(totp, key, key_len, hash_algo, digits, time_step);

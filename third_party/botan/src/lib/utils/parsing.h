@@ -9,7 +9,7 @@
 #define BOTAN_PARSING_UTILS_H_
 
 #include <botan/types.h>
-#include <istream>
+#include <iosfwd>
 #include <map>
 #include <optional>
 #include <string>
@@ -28,7 +28,7 @@ std::vector<std::string> parse_algorithm_name(std::string_view scan_name);
 /**
 * Split a string
 * @param str the input string
-* @param delim the delimitor
+* @param delim the delimiter
 * @return string split by delim
 */
 BOTAN_TEST_API std::vector<std::string> split_on(std::string_view str, char delim);
@@ -36,7 +36,7 @@ BOTAN_TEST_API std::vector<std::string> split_on(std::string_view str, char deli
 /**
 * Join a string
 * @param strs strings to join
-* @param delim the delimitor
+* @param delim the delimiter
 * @return string joined by delim
 */
 std::string string_join(const std::vector<std::string>& strs, char delim);
@@ -72,7 +72,7 @@ std::string BOTAN_TEST_API ipv4_to_string(uint32_t ip_addr);
 std::map<std::string, std::string> read_cfg(std::istream& is);
 
 /**
-* Accepts key value pairs deliminated by commas:
+* Accepts key value pairs delimited by commas:
 *
 * "" (returns empty map)
 * "K=V" (returns map {'K': 'V'})
@@ -89,7 +89,7 @@ std::map<std::string, std::string> read_cfg(std::istream& is);
 BOTAN_TEST_API
 std::map<std::string, std::string> read_kv(std::string_view kv);
 
-std::string tolower_string(std::string_view s);
+std::string tolower_string(std::string_view str);
 
 /**
 * Check if the given hostname is a match for the specified wildcard
@@ -102,7 +102,7 @@ bool host_wildcard_match(std::string_view wildcard, std::string_view host);
 *
 * Otherwise throws Decoding_Error
 */
-std::string check_and_canonicalize_dns_name(std::string_view name);
+BOTAN_TEST_API std::string check_and_canonicalize_dns_name(std::string_view name);
 
 }  // namespace Botan
 

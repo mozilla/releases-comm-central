@@ -18,15 +18,14 @@
 #include <botan/internal/dilithium_algos.h>
 
 #include <botan/internal/bit_ops.h>
+#include <botan/internal/buffer_slicer.h>
+#include <botan/internal/buffer_stuffer.h>
 #include <botan/internal/ct_utils.h>
 #include <botan/internal/dilithium_keys.h>
 #include <botan/internal/dilithium_symmetric_primitives.h>
-#include <botan/internal/fmt.h>
 #include <botan/internal/loadstor.h>
 #include <botan/internal/pqcrystals_encoding.h>
 #include <botan/internal/pqcrystals_helpers.h>
-#include <botan/internal/stl_util.h>
-
 #include <utility>
 
 namespace Botan::Dilithium_Algos {
@@ -113,10 +112,10 @@ void poly_pack_w1(const DilithiumPoly& p, BufferStuffer& stuffer, const Dilithiu
    using Gamma2 = DilithiumConstants::DilithiumGamma2;
    auto calculate_b = [](auto gamma2) { return ((DilithiumConstants::Q - 1) / (2 * gamma2)) - 1; };
    switch(mode.gamma2()) {
-      case Gamma2::Qminus1DevidedBy88:
-         return poly_pack<0, calculate_b(Gamma2::Qminus1DevidedBy88)>(p, stuffer);
-      case Gamma2::Qminus1DevidedBy32:
-         return poly_pack<0, calculate_b(Gamma2::Qminus1DevidedBy32)>(p, stuffer);
+      case Gamma2::Qminus1DividedBy88:
+         return poly_pack<0, calculate_b(Gamma2::Qminus1DividedBy88)>(p, stuffer);
+      case Gamma2::Qminus1DividedBy32:
+         return poly_pack<0, calculate_b(Gamma2::Qminus1DividedBy32)>(p, stuffer);
    }
 
    BOTAN_ASSERT_UNREACHABLE();
@@ -287,8 +286,12 @@ std::optional<DilithiumPolyVec> hint_unpack(BufferSlicer& slicer, const Dilithiu
    }
 
    // Check that the remaining bit positions are all zero (strong unforgeability)
-   const auto remaining = bit_positions.take(bit_positions.remaining());
-   if(!std::all_of(remaining.begin(), remaining.end(), [](auto b) { return b == 0; })) {
+   uint8_t sum = 0;
+   for(const uint8_t b : bit_positions.take(bit_positions.remaining())) {
+      sum |= b;
+   }
+
+   if(sum != 0) {
       return std::nullopt;
    }
 
@@ -366,7 +369,7 @@ std::pair<DilithiumSeedRho, DilithiumPolyVec> decode_public_key(StrongSpan<const
  * NIST FIPS 204, Algorithm 24 (skEncode)
  */
 DilithiumSerializedPrivateKey encode_keypair(const DilithiumInternalKeypair& keypair) {
-   auto& [pk, sk] = keypair;
+   const auto& [pk, sk] = keypair;
    BOTAN_ASSERT_NONNULL(pk);
    BOTAN_ASSERT_NONNULL(sk);
    const auto& mode = sk->mode();
@@ -501,7 +504,7 @@ std::optional<std::tuple<DilithiumCommitmentHash, DilithiumPolyVec, DilithiumPol
    for(auto& p : response) {
       poly_unpack_gamma1(p, slicer, mode);
    }
-   BOTAN_ASSERT_NOMSG(slicer.remaining() == mode.omega() + mode.k());
+   BOTAN_ASSERT_NOMSG(slicer.remaining() == size_t(mode.omega()) + mode.k());
 
    auto hint = hint_unpack(slicer, mode);
    BOTAN_ASSERT_NOMSG(slicer.empty());
@@ -531,8 +534,8 @@ DilithiumSerializedCommitment encode_commitment(const DilithiumPolyVec& w1, cons
  */
 DilithiumPoly sample_in_ball(StrongSpan<const DilithiumCommitmentHash> seed, const DilithiumConstants& mode) {
    // This generator resembles the while loop in the spec.
-   auto& xof = mode.symmetric_primitives().H(seed);
-   auto bounded_xof = Bounded_XOF<DilithiumConstants::SAMPLE_IN_BALL_XOF_BOUND + 8>(xof);
+   auto xof = mode.symmetric_primitives().H(seed);
+   auto bounded_xof = Bounded_XOF<DilithiumConstants::SAMPLE_IN_BALL_XOF_BOUND + 8>(*xof);
 
    DilithiumPoly c;
    uint64_t signs = load_le(bounded_xof.next<8>());
@@ -562,8 +565,8 @@ void sample_ntt_uniform(StrongSpan<const DilithiumSeedRho> rho,
     * A generator that returns the next coefficient sampled from the XOF,
     * according to: NIST FIPS 204, Algorithm 14 (CoeffFromThreeBytes).
     */
-   auto& xof = mode.symmetric_primitives().H(rho, nonce);
-   auto bounded_xof = Bounded_XOF<DilithiumConstants::SAMPLE_NTT_POLY_FROM_XOF_BOUND>(xof);
+   auto xof = mode.symmetric_primitives().H(rho, nonce);
+   auto bounded_xof = Bounded_XOF<DilithiumConstants::SAMPLE_NTT_POLY_FROM_XOF_BOUND>(*xof);
 
    for(auto& coeff : p) {
       coeff =
@@ -638,13 +641,13 @@ void sample_uniform_eta(StrongSpan<const DilithiumSeedRhoPrime> rhoprime,
                         const DilithiumConstants& mode) {
    using Eta = DilithiumConstants::DilithiumEta;
 
-   auto& xof = mode.symmetric_primitives().H(rhoprime, nonce);
+   auto xof = mode.symmetric_primitives().H(rhoprime, nonce);
    switch(mode.eta()) {
       case Eta::_2:
-         sample_uniform_eta<Eta::_2>(p, xof);
+         sample_uniform_eta<Eta::_2>(p, *xof);
          break;
       case Eta::_4:
-         sample_uniform_eta<Eta::_4>(p, xof);
+         sample_uniform_eta<Eta::_4>(p, *xof);
          break;
    }
 
@@ -663,6 +666,9 @@ void sample_uniform_eta(StrongSpan<const DilithiumSeedRhoPrime> rhoprime,
  * encoding is deferred until the user explicitly invokes the encoding.
  */
 DilithiumInternalKeypair expand_keypair(DilithiumSeedRandomness xi, DilithiumConstants mode) {
+   if(xi.size() != DilithiumConstants::SEED_RANDOMNESS_BYTES) {
+      throw Decoding_Error("Invalid ML-DSA seed size");
+   }
    const auto& sympriv = mode.symmetric_primitives();
    CT::poison(xi);
 
@@ -730,8 +736,8 @@ DilithiumPolyVec expand_mask(StrongSpan<const DilithiumSeedRhoPrime> rhoprime,
                              const DilithiumConstants& mode) {
    DilithiumPolyVec s(mode.l());
    for(auto& p : s) {
-      auto& xof = mode.symmetric_primitives().H(rhoprime, nonce++);
-      poly_unpack_gamma1(p, xof, mode);
+      auto xof = mode.symmetric_primitives().H(rhoprime, nonce++);
+      poly_unpack_gamma1(p, *xof, mode);
    }
    return s;
 }
@@ -775,10 +781,10 @@ template <DilithiumConstants::DilithiumGamma2 gamma2>
 std::pair<int32_t, int32_t> decompose(int32_t r) {
    int32_t r1 = (r + 127) >> 7;
 
-   if constexpr(gamma2 == DilithiumConstants::DilithiumGamma2::Qminus1DevidedBy32) {
+   if constexpr(gamma2 == DilithiumConstants::DilithiumGamma2::Qminus1DividedBy32) {
       r1 = (r1 * 1025 + (1 << 21)) >> 22;
       r1 &= 15;
-   } else if constexpr(gamma2 == DilithiumConstants::DilithiumGamma2::Qminus1DevidedBy88) {
+   } else if constexpr(gamma2 == DilithiumConstants::DilithiumGamma2::Qminus1DividedBy88) {
       r1 = (r1 * 11275 + (1 << 23)) >> 24;
       r1 = is_negative_mask(43 - r1).if_not_set_return(r1);
    }
@@ -796,7 +802,7 @@ std::pair<int32_t, int32_t> decompose(int32_t r) {
  * optimization given the statically known value of gamma2.
  */
 template <DilithiumConstants::DilithiumGamma2 gamma2>
-std::pair<DilithiumPolyVec, DilithiumPolyVec> decompose_all_coefficents(const DilithiumPolyVec& vec) {
+std::pair<DilithiumPolyVec, DilithiumPolyVec> decompose_all_coefficients(const DilithiumPolyVec& vec) {
    auto result = std::make_pair(DilithiumPolyVec(vec.size()), DilithiumPolyVec(vec.size()));
 
    for(size_t i = 0; i < vec.size(); ++i) {
@@ -819,11 +825,11 @@ std::pair<DilithiumPolyVec, DilithiumPolyVec> decompose_all_coefficents(const Di
 std::pair<DilithiumPolyVec, DilithiumPolyVec> decompose(const DilithiumPolyVec& vec, const DilithiumConstants& mode) {
    using Gamma2 = DilithiumConstants::DilithiumGamma2;
    switch(mode.gamma2()) {
-      case Gamma2::Qminus1DevidedBy32:
-         return decompose_all_coefficents<Gamma2::Qminus1DevidedBy32>(vec);
+      case Gamma2::Qminus1DividedBy32:
+         return decompose_all_coefficients<Gamma2::Qminus1DividedBy32>(vec);
          break;
-      case Gamma2::Qminus1DevidedBy88:
-         return decompose_all_coefficents<Gamma2::Qminus1DevidedBy88>(vec);
+      case Gamma2::Qminus1DividedBy88:
+         return decompose_all_coefficients<Gamma2::Qminus1DividedBy88>(vec);
          break;
    }
 
@@ -861,7 +867,7 @@ DilithiumPolyVec make_hint(const DilithiumPolyVec& z, const DilithiumPolyVec& r,
 
    for(size_t i = 0; i < r.size(); ++i) {
       for(size_t j = 0; j < r[i].size(); ++j) {
-         hint[i][j] = make_hint(z[i][j], r[i][j]).as_bool();
+         hint[i][j] = static_cast<int>(make_hint(z[i][j], r[i][j]).as_bool());
       }
    }
 
@@ -922,11 +928,11 @@ void use_hint(DilithiumPolyVec& vec, const DilithiumPolyVec& hints, const Dilith
 
    using Gamma2 = DilithiumConstants::DilithiumGamma2;
    switch(mode.gamma2()) {
-      case Gamma2::Qminus1DevidedBy32:
-         use_hint_on_coefficients<Gamma2::Qminus1DevidedBy32>(hints, vec);
+      case Gamma2::Qminus1DividedBy32:
+         use_hint_on_coefficients<Gamma2::Qminus1DividedBy32>(hints, vec);
          break;
-      case Gamma2::Qminus1DevidedBy88:
-         use_hint_on_coefficients<Gamma2::Qminus1DevidedBy88>(hints, vec);
+      case Gamma2::Qminus1DividedBy88:
+         use_hint_on_coefficients<Gamma2::Qminus1DividedBy88>(hints, vec);
          break;
    }
 

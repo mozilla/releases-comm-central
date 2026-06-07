@@ -16,12 +16,16 @@
    #include <botan/bigint.h>
    #include <botan/der_enc.h>
    #include <botan/pk_algs.h>
+   #include <botan/pk_keys.h>
+   #include <botan/rng.h>
    #include <botan/x509_ca.h>
    #include <botan/x509_ext.h>
    #include <botan/x509self.h>
 #endif
 
 namespace Botan_CLI {
+
+namespace {
 
 #if defined(BOTAN_HAS_X509) && defined(BOTAN_HAS_ML_DSA)
 
@@ -147,5 +151,7 @@ class PerfTest_ASN1_Parsing final : public PerfTest {
 BOTAN_REGISTER_PERF_TEST("asn1_parsing", PerfTest_ASN1_Parsing);
 
 #endif
+
+}  // namespace
 
 }  // namespace Botan_CLI

@@ -6,18 +6,19 @@
 *
 * Botan is released under the Simplified BSD License (see license.txt)
 */
+
 #include <botan/internal/tls_client_impl_13.h>
 
 #include <botan/credentials_manager.h>
-#include <botan/hash.h>
-#include <botan/tls_client.h>
-#include <botan/tls_messages.h>
-#include <botan/types.h>
+#include <botan/tls_callbacks.h>
+#include <botan/tls_extensions_13.h>
+#include <botan/tls_messages_13.h>
+#include <botan/tls_policy.h>
+#include <botan/x509cert.h>
 #include <botan/internal/stl_util.h>
 #include <botan/internal/tls_channel_impl_13.h>
 #include <botan/internal/tls_cipher_state.h>
 
-#include <iterator>
 #include <utility>
 
 namespace Botan::TLS {
@@ -147,7 +148,7 @@ std::optional<Session_with_Handle> Client_Impl_13::find_session_for_resumption()
    return std::move(session_to_resume);
 }
 
-void Client_Impl_13::handle(const Server_Hello_12& server_hello_msg) {
+void Client_Impl_13::handle(const Server_Hello_12_Shim& server_hello_msg) {
    if(m_handshake_state.has_hello_retry_request()) {
       throw TLS_Exception(Alert::UnexpectedMessage, "Version downgrade received after Hello Retry");
    }
@@ -179,7 +180,7 @@ void Client_Impl_13::handle(const Server_Hello_12& server_hello_msg) {
    //    MUST NOT send the "supported_versions" extension.
    //
    // Note that this condition should never happen, as the Server_Hello parsing
-   // code decides to create a Server_Hello_12 based on the absense of this extension.
+   // code decides to create a Server_Hello_12 based on the absence of this extension.
    if(server_hello_msg.extensions().has<Supported_Versions>()) {
       throw TLS_Exception(Alert::IllegalParameter, "Unexpected extension received");
    }
@@ -303,7 +304,7 @@ void Client_Impl_13::handle(const Server_Hello_13& sh) {
       throw TLS_Exception(Alert::IllegalParameter, "Server Hello did not contain a key share extension");
    }
 
-   auto my_keyshare = ch.extensions().get<Key_Share>();
+   auto* my_keyshare = ch.extensions().get<Key_Share>();
    auto shared_secret = my_keyshare->decapsulate(*sh.extensions().get<Key_Share>(), policy(), callbacks(), rng());
 
    m_transcript_hash.set_algorithm(cipher.value().prf_algo());
@@ -358,6 +359,13 @@ void Client_Impl_13::handle(const Hello_Retry_Request& hrr) {
    auto cipher = Ciphersuite::by_id(hrr.ciphersuite());
    BOTAN_ASSERT_NOMSG(cipher.has_value());  // should work, since we offered this suite
 
+   // RFC 8446 4.1.4 / Appendix B.4
+   //    Similarly, cipher suites for TLS 1.2 and lower cannot be used with
+   //    TLS 1.3.
+   if(!cipher->usable_in_version(Protocol_Version::TLS_V13)) {
+      throw TLS_Exception(Alert::IllegalParameter, "HelloRetryRequest selected a cipher suite not usable in TLS 1.3");
+   }
+
    m_transcript_hash =
       Transcript_Hash_State::recreate_after_hello_retry_request(cipher.value().prf_algo(), m_transcript_hash);
 
@@ -398,8 +406,8 @@ void Client_Impl_13::handle(const Encrypted_Extensions& encrypted_extensions_msg
       //
       // Hence, the "outgoing" limit is what the server requested and the
       // "incoming" limit is what we requested in the Client Hello.
-      const auto outgoing_limit = exts.get<Record_Size_Limit>();
-      const auto incoming_limit = m_handshake_state.client_hello().extensions().get<Record_Size_Limit>();
+      auto* const outgoing_limit = exts.get<Record_Size_Limit>();
+      auto* const incoming_limit = m_handshake_state.client_hello().extensions().get<Record_Size_Limit>();
       set_record_size_limits(outgoing_limit->limit(), incoming_limit->limit());
    }
 
@@ -481,7 +489,7 @@ void Client_Impl_13::handle(const Certificate_Verify_13& certificate_verify_msg)
                              " as a signature scheme");
    }
 
-   bool sig_valid = certificate_verify_msg.verify(
+   const bool sig_valid = certificate_verify_msg.verify(
       *m_handshake_state.server_certificate().public_key(), callbacks(), m_transcript_hash.previous());
 
    if(!sig_valid) {
@@ -554,6 +562,8 @@ void Client_Impl_13::handle(const Finished_13& finished_msg) {
       throw TLS_Exception(Alert::DecryptError, "Finished message didn't verify");
    }
 
+   m_handshake_state.confirm_peer_finished_verified();
+
    // Give the application a chance for a final veto before fully
    // establishing the connection.
    callbacks().tls_session_established(Session_Summary(m_handshake_state.server_hello(),
@@ -600,20 +610,20 @@ void TLS::Client_Impl_13::handle(const New_Session_Ticket_13& new_session_ticket
    callbacks().tls_examine_extensions(
       new_session_ticket.extensions(), Connection_Side::Server, Handshake_Type::NewSessionTicket);
 
-   Session session(m_cipher_state->psk(new_session_ticket.nonce()),
-                   new_session_ticket.early_data_byte_limit(),
-                   new_session_ticket.ticket_age_add(),
-                   new_session_ticket.lifetime_hint(),
-                   m_handshake_state.server_hello().selected_version(),
-                   m_handshake_state.server_hello().ciphersuite(),
-                   Connection_Side::Client,
-                   peer_cert_chain(),
-                   peer_raw_public_key(),
-                   m_info,
-                   callbacks().tls_current_timestamp());
+   const Session session(m_cipher_state->psk(new_session_ticket.nonce()),
+                         new_session_ticket.early_data_byte_limit(),
+                         new_session_ticket.ticket_age_add(),
+                         new_session_ticket.lifetime_hint(),
+                         m_handshake_state.server_hello().selected_version(),
+                         m_handshake_state.server_hello().ciphersuite(),
+                         Connection_Side::Client,
+                         peer_cert_chain(),
+                         peer_raw_public_key(),
+                         m_info,
+                         callbacks().tls_current_timestamp());
 
    if(callbacks().tls_should_persist_resumption_information(session)) {
-      session_manager().store(session, new_session_ticket.handle());
+      session_manager().store(session, Session_Handle(new_session_ticket.handle()));
    }
 }
 

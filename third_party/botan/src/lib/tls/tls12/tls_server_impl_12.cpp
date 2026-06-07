@@ -8,13 +8,16 @@
 
 #include <botan/internal/tls_server_impl_12.h>
 
+#include <botan/certstor.h>
 #include <botan/ocsp.h>
+#include <botan/tls_callbacks.h>
 #include <botan/tls_magic.h>
-#include <botan/tls_messages.h>
-#include <botan/tls_server.h>
+#include <botan/tls_messages_12.h>
+#include <botan/tls_policy.h>
 #include <botan/tls_version.h>
 #include <botan/internal/stl_util.h>
 #include <botan/internal/tls_handshake_state.h>
+#include <botan/internal/tls_messages_internal.h>
 
 namespace Botan::TLS {
 
@@ -170,7 +173,7 @@ uint16_t choose_ciphersuite(const Policy& policy,
 
          const std::vector<Signature_Scheme> allowed = policy.allowed_signature_schemes();
 
-         std::vector<Signature_Scheme> client_sig_methods = client_hello.signature_schemes();
+         const std::vector<Signature_Scheme> client_sig_methods = client_hello.signature_schemes();
 
          /*
          Contrary to the wording of draft-ietf-tls-md5-sha1-deprecate we do
@@ -179,7 +182,7 @@ uint16_t choose_ciphersuite(const Policy& policy,
          */
          bool we_support_some_hash_by_client = false;
 
-         for(Signature_Scheme scheme : client_sig_methods) {
+         for(const Signature_Scheme scheme : client_sig_methods) {
             if(!scheme.is_available()) {
                continue;
             }
@@ -214,16 +217,16 @@ uint16_t choose_ciphersuite(const Policy& policy,
 
 std::map<std::string, std::vector<X509_Certificate>> get_server_certs(
    std::string_view hostname, const std::vector<Signature_Scheme>& cert_sig_schemes, Credentials_Manager& creds) {
-   const char* cert_types[] = {"RSA", "ECDSA", "DSA", nullptr};
+   const std::vector<std::string> cert_types = {"RSA", "ECDSA"};
 
    std::map<std::string, std::vector<X509_Certificate>> cert_chains;
 
-   for(size_t i = 0; cert_types[i]; ++i) {
+   for(const auto& cert_type : cert_types) {
       const std::vector<X509_Certificate> certs = creds.cert_chain_single_type(
-         cert_types[i], to_algorithm_identifiers(cert_sig_schemes), "tls-server", std::string(hostname));
+         cert_type, to_algorithm_identifiers(cert_sig_schemes), "tls-server", std::string(hostname));
 
       if(!certs.empty()) {
-         cert_chains[cert_types[i]] = certs;
+         cert_chains[cert_type] = certs;
       }
    }
 
@@ -265,7 +268,7 @@ std::vector<X509_Certificate> Server_Impl_12::get_peer_cert_chain(const Handshak
       return state.resume_peer_certs();
    }
 
-   if(state.client_certs()) {
+   if(state.client_certs() != nullptr) {
       return state.client_certs()->cert_chain();
    }
    return std::vector<X509_Certificate>();
@@ -277,7 +280,7 @@ std::vector<X509_Certificate> Server_Impl_12::get_peer_cert_chain(const Handshak
 void Server_Impl_12::initiate_handshake(Handshake_State& state, bool force_full_renegotiation) {
    dynamic_cast<Server_Handshake_State&>(state).set_allow_session_resumption(!force_full_renegotiation);
 
-   Hello_Request hello_req(state.handshake_io());
+   const Hello_Request hello_req(state.handshake_io());
 }
 
 namespace {
@@ -344,7 +347,7 @@ void Server_Impl_12::process_client_hello_msg(const Handshake_State* active_stat
                                               bool epoch0_restart) {
    BOTAN_ASSERT_IMPLICATION(epoch0_restart, active_state != nullptr, "Can't restart with a dead connection");
 
-   const bool initial_handshake = epoch0_restart || !active_state;
+   const bool initial_handshake = epoch0_restart || active_state == nullptr;
 
    if(initial_handshake == false && policy().allow_client_initiated_renegotiation() == false) {
       if(policy().abort_connection_on_undesired_renegotiation()) {
@@ -364,7 +367,7 @@ void Server_Impl_12::process_client_hello_msg(const Handshake_State* active_stat
       throw TLS_Exception(Alert::UnexpectedMessage, "Have data remaining in buffer after ClientHello");
    }
 
-   pending_state.client_hello(new Client_Hello_12(contents));
+   pending_state.client_hello(std::make_unique<Client_Hello_12>(contents));
    const Protocol_Version client_offer = pending_state.client_hello()->legacy_version();
    const bool datagram = client_offer.is_datagram_protocol();
 
@@ -394,7 +397,7 @@ void Server_Impl_12::process_client_hello_msg(const Handshake_State* active_stat
    const Protocol_Version negotiated_version =
       select_version(policy(),
                      client_offer,
-                     active_state ? active_state->version() : Protocol_Version(),
+                     active_state != nullptr ? active_state->version() : Protocol_Version(),
                      pending_state.client_hello()->supported_versions());
 
    pending_state.set_version(negotiated_version);
@@ -413,7 +416,8 @@ void Server_Impl_12::process_client_hello_msg(const Handshake_State* active_stat
 
       if(!cookie_secret.empty()) {
          const std::string client_identity = callbacks().tls_peer_network_identity();
-         Hello_Verify_Request verify(pending_state.client_hello()->cookie_input_data(), client_identity, cookie_secret);
+         const Hello_Verify_Request verify(
+            pending_state.client_hello()->cookie_input_data(), client_identity, cookie_secret);
 
          if(pending_state.client_hello()->cookie() != verify.cookie()) {
             if(epoch0_restart) {
@@ -422,7 +426,7 @@ void Server_Impl_12::process_client_hello_msg(const Handshake_State* active_stat
                pending_state.handshake_io().send(verify);
             }
 
-            pending_state.client_hello(static_cast<Client_Hello_12*>(nullptr));
+            pending_state.client_hello(nullptr);
             pending_state.set_expected_next(Handshake_Type::ClientHello);
             return;
          }
@@ -464,7 +468,7 @@ void Server_Impl_12::process_client_hello_msg(const Handshake_State* active_stat
 
 void Server_Impl_12::process_certificate_msg(Server_Handshake_State& pending_state,
                                              const std::vector<uint8_t>& contents) {
-   pending_state.client_certs(new Certificate_12(contents, policy()));
+   pending_state.client_certs(std::make_unique<Certificate_12>(contents, policy()));
 
    // CERTIFICATE_REQUIRED would make more sense but BoGo expects handshake failure alert
    if(pending_state.client_certs()->empty() && policy().require_client_certificate_authentication()) {
@@ -482,8 +486,8 @@ void Server_Impl_12::process_client_key_exchange_msg(Server_Handshake_State& pen
       pending_state.set_expected_next(Handshake_Type::HandshakeCCS);
    }
 
-   pending_state.client_kex(
-      new Client_Key_Exchange(contents, pending_state, pending_state.server_rsa_kex_key(), *m_creds, policy(), rng()));
+   pending_state.client_kex(std::make_unique<Client_Key_Exchange>(
+      contents, pending_state, pending_state.server_rsa_kex_key(), *m_creds, policy(), rng()));
 
    pending_state.compute_session_keys();
    if(policy().allow_ssl_key_log_file()) {
@@ -504,7 +508,7 @@ void Server_Impl_12::process_change_cipher_spec_msg(Server_Handshake_State& pend
 void Server_Impl_12::process_certificate_verify_msg(Server_Handshake_State& pending_state,
                                                     Handshake_Type type,
                                                     const std::vector<uint8_t>& contents) {
-   pending_state.client_verify(new Certificate_Verify_12(contents));
+   pending_state.client_verify(std::make_unique<Certificate_Verify_12>(contents));
 
    const std::vector<X509_Certificate>& client_certs = pending_state.client_certs()->cert_chain();
 
@@ -555,13 +559,13 @@ void Server_Impl_12::process_finished_msg(Server_Handshake_State& pending_state,
       throw TLS_Exception(Alert::UnexpectedMessage, "Have data remaining in buffer after Finished");
    }
 
-   pending_state.client_finished(new Finished_12(contents));
+   pending_state.client_finished(std::make_unique<Finished_12>(contents));
 
    if(!pending_state.client_finished()->verify(pending_state, Connection_Side::Client)) {
       throw TLS_Exception(Alert::DecryptError, "Finished message didn't verify");
    }
 
-   if(!pending_state.server_finished()) {
+   if(pending_state.server_finished() == nullptr) {
       // already sent finished if resuming, so this is a new session
 
       pending_state.hash().update(pending_state.handshake_io().format(contents, type));
@@ -591,16 +595,17 @@ void Server_Impl_12::process_finished_msg(Server_Handshake_State& pending_state,
                                                    !pending_state.server_hello()->supports_session_ticket());
 
          if(pending_state.server_hello()->supports_session_ticket() && handle.has_value() && handle->is_ticket()) {
-            pending_state.new_session_ticket(new New_Session_Ticket_12(pending_state.handshake_io(),
-                                                                       pending_state.hash(),
-                                                                       handle->ticket().value(),
-                                                                       policy().session_ticket_lifetime()));
+            pending_state.new_session_ticket(std::make_unique<New_Session_Ticket_12>(
+               pending_state.handshake_io(),
+               pending_state.hash(),
+               handle->ticket().value(),
+               static_cast<uint32_t>(policy().session_ticket_lifetime().count())));
          }
       }
 
-      if(!pending_state.new_session_ticket() && pending_state.server_hello()->supports_session_ticket()) {
+      if(pending_state.new_session_ticket() == nullptr && pending_state.server_hello()->supports_session_ticket()) {
          pending_state.new_session_ticket(
-            new New_Session_Ticket_12(pending_state.handshake_io(), pending_state.hash()));
+            std::make_unique<New_Session_Ticket_12>(pending_state.handshake_io(), pending_state.hash()));
       }
 
       pending_state.handshake_io().send(Change_Cipher_Spec());
@@ -608,7 +613,7 @@ void Server_Impl_12::process_finished_msg(Server_Handshake_State& pending_state,
       change_cipher_spec_writer(Connection_Side::Server);
 
       pending_state.server_finished(
-         new Finished_12(pending_state.handshake_io(), pending_state, Connection_Side::Server));
+         std::make_unique<Finished_12>(pending_state.handshake_io(), pending_state, Connection_Side::Server));
    }
 
    activate_session();
@@ -669,16 +674,16 @@ void Server_Impl_12::session_resume(Server_Handshake_State& pending_state, const
                                          pending_state.client_hello()->session_ticket().empty() &&
                                          session_manager().emits_session_tickets();
 
-   pending_state.server_hello(new Server_Hello_12(pending_state.handshake_io(),
-                                                  pending_state.hash(),
-                                                  policy(),
-                                                  callbacks(),
-                                                  rng(),
-                                                  secure_renegotiation_data_for_server_hello(),
-                                                  *pending_state.client_hello(),
-                                                  session.session,
-                                                  offer_new_session_ticket,
-                                                  m_next_protocol));
+   pending_state.server_hello(std::make_unique<Server_Hello_12>(pending_state.handshake_io(),
+                                                                pending_state.hash(),
+                                                                policy(),
+                                                                callbacks(),
+                                                                rng(),
+                                                                secure_renegotiation_data_for_server_hello(),
+                                                                *pending_state.client_hello(),
+                                                                session.session,
+                                                                offer_new_session_ticket,
+                                                                m_next_protocol));
 
    secure_renegotiation_check(pending_state.server_hello());
 
@@ -716,13 +721,12 @@ void Server_Impl_12::session_resume(Server_Handshake_State& pending_state, const
 
    if(pending_state.server_hello()->supports_session_ticket()) {
       if(new_handle.has_value() && new_handle->is_ticket()) {
-         pending_state.new_session_ticket(new New_Session_Ticket_12(pending_state.handshake_io(),
-                                                                    pending_state.hash(),
-                                                                    new_handle->ticket().value(),
-                                                                    policy().session_ticket_lifetime()));
+         const uint32_t lifetime = static_cast<uint32_t>(policy().session_ticket_lifetime().count());
+         pending_state.new_session_ticket(std::make_unique<New_Session_Ticket_12>(
+            pending_state.handshake_io(), pending_state.hash(), new_handle->ticket().value(), lifetime));
       } else {
          pending_state.new_session_ticket(
-            new New_Session_Ticket_12(pending_state.handshake_io(), pending_state.hash()));
+            std::make_unique<New_Session_Ticket_12>(pending_state.handshake_io(), pending_state.hash()));
       }
    }
 
@@ -730,7 +734,8 @@ void Server_Impl_12::session_resume(Server_Handshake_State& pending_state, const
 
    change_cipher_spec_writer(Connection_Side::Server);
 
-   pending_state.server_finished(new Finished_12(pending_state.handshake_io(), pending_state, Connection_Side::Server));
+   pending_state.server_finished(
+      std::make_unique<Finished_12>(pending_state.handshake_io(), pending_state, Connection_Side::Server));
    pending_state.set_expected_next(Handshake_Type::HandshakeCCS);
 }
 
@@ -766,20 +771,20 @@ void Server_Impl_12::session_create(Server_Handshake_State& pending_state) {
    const uint16_t ciphersuite =
       choose_ciphersuite(policy(), pending_state.version(), cert_chains, *pending_state.client_hello());
 
-   Server_Hello_12::Settings srv_settings(Session_ID(make_hello_random(rng(), callbacks(), policy())),
-                                          pending_state.version(),
-                                          ciphersuite,
-                                          session_manager().emits_session_tickets());
+   const Server_Hello_12::Settings srv_settings(Session_ID(make_hello_random(rng(), callbacks(), policy())),
+                                                pending_state.version(),
+                                                ciphersuite,
+                                                session_manager().emits_session_tickets());
 
-   pending_state.server_hello(new Server_Hello_12(pending_state.handshake_io(),
-                                                  pending_state.hash(),
-                                                  policy(),
-                                                  callbacks(),
-                                                  rng(),
-                                                  secure_renegotiation_data_for_server_hello(),
-                                                  *pending_state.client_hello(),
-                                                  srv_settings,
-                                                  m_next_protocol));
+   pending_state.server_hello(std::make_unique<Server_Hello_12>(pending_state.handshake_io(),
+                                                                pending_state.hash(),
+                                                                policy(),
+                                                                callbacks(),
+                                                                rng(),
+                                                                secure_renegotiation_data_for_server_hello(),
+                                                                *pending_state.client_hello(),
+                                                                srv_settings,
+                                                                m_next_protocol));
 
    secure_renegotiation_check(pending_state.server_hello());
 
@@ -793,7 +798,7 @@ void Server_Impl_12::session_create(Server_Handshake_State& pending_state) {
       BOTAN_ASSERT(!cert_chains[algo_used].empty(), "Attempting to send empty certificate chain");
 
       pending_state.server_certs(
-         new Certificate_12(pending_state.handshake_io(), pending_state.hash(), cert_chains[algo_used]));
+         std::make_unique<Certificate_12>(pending_state.handshake_io(), pending_state.hash(), cert_chains[algo_used]));
 
       if(pending_state.client_hello()->supports_cert_status_message() && pending_state.is_a_resumption() == false) {
          auto* csr = pending_state.client_hello()->extensions().get<Certificate_Status_Request>();
@@ -802,7 +807,7 @@ void Server_Impl_12::session_create(Server_Handshake_State& pending_state) {
          const auto resp_bytes = callbacks().tls_provide_cert_status(cert_chains[algo_used], *csr);
          if(!resp_bytes.empty()) {
             pending_state.server_cert_status(
-               new Certificate_Status(pending_state.handshake_io(), pending_state.hash(), resp_bytes));
+               std::make_unique<Certificate_Status_12>(pending_state.handshake_io(), pending_state.hash(), resp_bytes));
          }
       }
 
@@ -816,7 +821,7 @@ void Server_Impl_12::session_create(Server_Handshake_State& pending_state) {
    if(pending_suite.kex_method() == Kex_Algo::STATIC_RSA) {
       pending_state.set_server_rsa_kex_key(private_key);
    } else {
-      pending_state.server_kex(new Server_Key_Exchange(
+      pending_state.server_kex(std::make_unique<Server_Key_Exchange>(
          pending_state.handshake_io(), pending_state, policy(), *m_creds, rng(), private_key.get()));
    }
 
@@ -832,8 +837,8 @@ void Server_Impl_12::session_create(Server_Handshake_State& pending_state) {
    const bool request_cert = (client_auth_CAs.empty() == false) || policy().request_client_certificate_authentication();
 
    if(request_cert && pending_state.ciphersuite().signature_used()) {
-      pending_state.cert_req(
-         new Certificate_Request_12(pending_state.handshake_io(), pending_state.hash(), policy(), client_auth_CAs));
+      pending_state.cert_req(std::make_unique<Certificate_Request_12>(
+         pending_state.handshake_io(), pending_state.hash(), policy(), client_auth_CAs));
 
       /*
       SSLv3 allowed clients to skip the Certificate message entirely
@@ -845,6 +850,7 @@ void Server_Impl_12::session_create(Server_Handshake_State& pending_state) {
       pending_state.set_expected_next(Handshake_Type::ClientKeyExchange);
    }
 
-   pending_state.server_hello_done(new Server_Hello_Done(pending_state.handshake_io(), pending_state.hash()));
+   pending_state.server_hello_done(
+      std::make_unique<Server_Hello_Done>(pending_state.handshake_io(), pending_state.hash()));
 }
 }  // namespace Botan::TLS

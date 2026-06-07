@@ -8,25 +8,24 @@
 #define BOTAN_ASN1_OBJECT_TYPES_H_
 
 #include <botan/exceptn.h>
-#include <botan/secmem.h>
-#include <chrono>
 #include <iosfwd>
 #include <optional>
 #include <span>
 #include <string>
 #include <string_view>
-#include <unordered_map>
 #include <vector>
 
 namespace Botan {
 
 class BER_Decoder;
 class DER_Encoder;
+class ASN1_Time;  // in asn1_time.h
+typedef ASN1_Time X509_Time;
 
 /**
 * ASN.1 Class Tags
 */
-enum class ASN1_Class : uint32_t {
+enum class ASN1_Class : uint32_t /* NOLINT(performance-enum-size) */ {
    Universal = 0b0000'0000,
    Application = 0b0100'0000,
    ContextSpecific = 0b1000'0000,
@@ -41,7 +40,7 @@ enum class ASN1_Class : uint32_t {
 /**
 * ASN.1 Type Tags
 */
-enum class ASN1_Type : uint32_t {
+enum class ASN1_Type : uint32_t /* NOLINT(performance-enum-size) */ {
    Eoc = 0x00,
    Boolean = 0x01,
    Integer = 0x02,
@@ -69,7 +68,7 @@ enum class ASN1_Type : uint32_t {
 };
 
 inline bool intersects(ASN1_Class x, ASN1_Class y) {
-   return static_cast<uint32_t>(x) & static_cast<uint32_t>(y);
+   return (static_cast<uint32_t>(x) & static_cast<uint32_t>(y)) != 0;
 }
 
 inline ASN1_Type operator|(ASN1_Type x, ASN1_Type y) {
@@ -118,6 +117,8 @@ class BOTAN_PUBLIC_API(2, 0) ASN1_Object {
       ASN1_Object() = default;
       ASN1_Object(const ASN1_Object&) = default;
       ASN1_Object& operator=(const ASN1_Object&) = default;
+      ASN1_Object(ASN1_Object&&) = default;
+      ASN1_Object& operator=(ASN1_Object&&) = default;
       virtual ~ASN1_Object() = default;
 };
 
@@ -126,15 +127,13 @@ class BOTAN_PUBLIC_API(2, 0) ASN1_Object {
 */
 class BOTAN_PUBLIC_API(2, 0) BER_Object final {
    public:
-      BER_Object() : m_type_tag(ASN1_Type::NoObject), m_class_tag(ASN1_Class::Universal) {}
+      BER_Object() = default;
 
       BER_Object(const BER_Object& other) = default;
-
-      BER_Object& operator=(const BER_Object& other) = default;
-
       BER_Object(BER_Object&& other) = default;
-
+      BER_Object& operator=(const BER_Object& other) = default;
       BER_Object& operator=(BER_Object&& other) = default;
+      ~BER_Object();
 
       bool is_set() const { return m_type_tag != ASN1_Type::NoObject; }
 
@@ -161,9 +160,9 @@ class BOTAN_PUBLIC_API(2, 0) BER_Object final {
       bool is_a(int type_tag, ASN1_Class class_tag) const;
 
    private:
-      ASN1_Type m_type_tag;
-      ASN1_Class m_class_tag;
-      secure_vector<uint8_t> m_value;
+      ASN1_Type m_type_tag = ASN1_Type::NoObject;
+      ASN1_Class m_class_tag = ASN1_Class::Universal;
+      std::vector<uint8_t> m_value;
 
       friend class BER_Decoder;
 
@@ -199,7 +198,7 @@ bool maybe_BER(DataSource& src);
 */
 class BOTAN_PUBLIC_API(2, 0) BER_Decoding_Error : public Decoding_Error {
    public:
-      explicit BER_Decoding_Error(std::string_view);
+      explicit BER_Decoding_Error(std::string_view err);
 };
 
 /**
@@ -231,7 +230,7 @@ class BOTAN_PUBLIC_API(2, 0) OID final : public ASN1_Object {
       /**
       * Initialize an OID from a sequence of integer values
       */
-      explicit OID(std::initializer_list<uint32_t> init);
+      OID(std::initializer_list<uint32_t> init);
 
       /**
       * Initialize an OID from a vector of integer values
@@ -256,8 +255,8 @@ class BOTAN_PUBLIC_API(2, 0) OID final : public ASN1_Object {
       */
       static void register_oid(const OID& oid, std::string_view name);
 
-      void encode_into(DER_Encoder&) const override;
-      void decode_from(BER_Decoder&) override;
+      void encode_into(DER_Encoder& to) const override;
+      void decode_from(BER_Decoder& from) override;
 
       /**
       * Find out whether this OID is empty
@@ -304,10 +303,15 @@ class BOTAN_PUBLIC_API(2, 0) OID final : public ASN1_Object {
       /**
       * Return a hash code for this OID
       *
-      * This value is only meant as a std::unsorted_map hash and
+      * This value is only meant as a std::unordered_map hash and
       * can change value from release to release.
       */
-      size_t hash_code() const;
+      uint64_t hash_code() const;
+
+      /**
+      * Check if this OID matches the provided value
+      */
+      bool matches(std::initializer_list<uint32_t> other) const;
 
       /**
       * Get this OID as list (vector) of its components.
@@ -327,10 +331,7 @@ class BOTAN_PUBLIC_API(2, 0) OID final : public ASN1_Object {
       std::vector<uint32_t> m_id;
 };
 
-inline std::ostream& operator<<(std::ostream& out, const OID& oid) {
-   out << oid.to_string();
-   return out;
-}
+BOTAN_PUBLIC_API(3, 0) std::ostream& operator<<(std::ostream& out, const OID& oid);
 
 /**
 * Compare two OIDs.
@@ -351,79 +352,13 @@ inline bool operator!=(const OID& a, const OID& b) {
 BOTAN_PUBLIC_API(2, 0) bool operator<(const OID& a, const OID& b);
 
 /**
-* Time (GeneralizedTime/UniversalTime)
-*/
-class BOTAN_PUBLIC_API(2, 0) ASN1_Time final : public ASN1_Object {
-   public:
-      /// DER encode a ASN1_Time
-      void encode_into(DER_Encoder&) const override;
-
-      // Decode a BER encoded ASN1_Time
-      void decode_from(BER_Decoder&) override;
-
-      /// Return an internal string representation of the time
-      std::string to_string() const;
-
-      /// Returns a human friendly string replesentation of no particular formatting
-      std::string readable_string() const;
-
-      /// Return if the time has been set somehow
-      bool time_is_set() const;
-
-      ///  Compare this time against another
-      int32_t cmp(const ASN1_Time& other) const;
-
-      /// Create an invalid ASN1_Time
-      ASN1_Time() = default;
-
-      /// Create a ASN1_Time from a time point
-      explicit ASN1_Time(const std::chrono::system_clock::time_point& time);
-
-      /// Create an ASN1_Time from string
-      ASN1_Time(std::string_view t_spec);
-
-      /// Create an ASN1_Time from string and a specified tagging (Utc or Generalized)
-      ASN1_Time(std::string_view t_spec, ASN1_Type tag);
-
-      /// Returns a STL timepoint object
-      std::chrono::system_clock::time_point to_std_timepoint() const;
-
-      /// Return time since epoch
-      uint64_t time_since_epoch() const;
-
-   private:
-      void set_to(std::string_view t_spec, ASN1_Type type);
-      bool passes_sanity_check() const;
-
-      uint32_t m_year = 0;
-      uint32_t m_month = 0;
-      uint32_t m_day = 0;
-      uint32_t m_hour = 0;
-      uint32_t m_minute = 0;
-      uint32_t m_second = 0;
-      ASN1_Type m_tag = ASN1_Type::NoObject;
-};
-
-/*
-* Comparison Operations
-*/
-BOTAN_PUBLIC_API(2, 0) bool operator==(const ASN1_Time&, const ASN1_Time&);
-BOTAN_PUBLIC_API(2, 0) bool operator!=(const ASN1_Time&, const ASN1_Time&);
-BOTAN_PUBLIC_API(2, 0) bool operator<=(const ASN1_Time&, const ASN1_Time&);
-BOTAN_PUBLIC_API(2, 0) bool operator>=(const ASN1_Time&, const ASN1_Time&);
-BOTAN_PUBLIC_API(2, 0) bool operator<(const ASN1_Time&, const ASN1_Time&);
-BOTAN_PUBLIC_API(2, 0) bool operator>(const ASN1_Time&, const ASN1_Time&);
-
-typedef ASN1_Time X509_Time;
-
-/**
 * ASN.1 string type
 * This class normalizes all inputs to a UTF-8 std::string
 */
 class BOTAN_PUBLIC_API(2, 0) ASN1_String final : public ASN1_Object {
    public:
-      void encode_into(DER_Encoder&) const override;
-      void decode_from(BER_Decoder&) override;
+      void encode_into(DER_Encoder& to) const override;
+      void decode_from(BER_Decoder& from) override;
 
       ASN1_Type tagging() const { return m_tag; }
 
@@ -456,10 +391,10 @@ class BOTAN_PUBLIC_API(2, 0) ASN1_String final : public ASN1_Object {
 */
 class BOTAN_PUBLIC_API(2, 0) AlgorithmIdentifier final : public ASN1_Object {
    public:
-      enum Encoding_Option { USE_NULL_PARAM, USE_EMPTY_PARAM };
+      enum Encoding_Option : uint8_t { USE_NULL_PARAM, USE_EMPTY_PARAM }; /* NOLINT(*-use-enum-class) */
 
-      void encode_into(DER_Encoder&) const override;
-      void decode_from(BER_Decoder&) override;
+      void encode_into(DER_Encoder& to) const override;
+      void decode_from(BER_Decoder& from) override;
 
       AlgorithmIdentifier() = default;
 
@@ -495,15 +430,26 @@ class BOTAN_PUBLIC_API(2, 0) AlgorithmIdentifier final : public ASN1_Object {
 /*
 * Comparison Operations
 */
-BOTAN_PUBLIC_API(2, 0) bool operator==(const AlgorithmIdentifier&, const AlgorithmIdentifier&);
-BOTAN_PUBLIC_API(2, 0) bool operator!=(const AlgorithmIdentifier&, const AlgorithmIdentifier&);
+BOTAN_PUBLIC_API(2, 0) bool operator==(const AlgorithmIdentifier& x, const AlgorithmIdentifier& y);
+BOTAN_PUBLIC_API(2, 0) bool operator!=(const AlgorithmIdentifier& x, const AlgorithmIdentifier& y);
 
 }  // namespace Botan
 
 template <>
 class std::hash<Botan::OID> {
    public:
-      size_t operator()(const Botan::OID& oid) const noexcept { return oid.hash_code(); }
+      size_t operator()(const Botan::OID& oid) const noexcept { return static_cast<size_t>(oid.hash_code()); }
 };
+
+/*
+In 3.11 ASN1_Time was split out to its own header as <chrono> is huge in C++20
+However we continue to include this header (when not building the library),
+to avoid breaking applications which would expect it to still be available.
+
+TODO(Botan4) remove this
+*/
+#if defined(BOTAN_AMALGAMATION_H_) || (!defined(BOTAN_IS_BEING_BUILT) && !defined(__clang_analyzer__))
+   #include <botan/asn1_time.h>
+#endif
 
 #endif

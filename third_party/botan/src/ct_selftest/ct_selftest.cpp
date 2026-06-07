@@ -18,6 +18,7 @@
 #include <botan/internal/fmt.h>
 #include <botan/internal/target_info.h>
 
+#include <cstring>
 #include <functional>
 #include <map>
 
@@ -136,7 +137,7 @@ void test_clang_conditional_jump_on_bare_metal_ct_mask(Botan::RandomNumberGenera
    std::array<uint8_t, 16> output_bytes;
    std::memset(output_bytes.data(), 0x42, sizeof(output_bytes));
 
-   // This mimicks what went wrong in Kyber's secret message expansion
+   // This mimics what went wrong in Kyber's secret message expansion
    // that was found by PQShield in Kyber's reference implementation and
    // was fixed in https://github.com/randombit/botan/pull/4107.
    //

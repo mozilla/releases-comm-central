@@ -30,13 +30,13 @@ class XMSS_Common_Ops {
         * Generates a randomized hash.
         *
         * This overload is used in multithreaded scenarios, where it is
-        * required to provide seperate instances of XMSS_Hash to each
+        * required to provide separate instances of XMSS_Hash to each
         * thread.
         *
         * @param[out] result The resulting randomized hash.
         * @param[in] left Left half of the hash function input.
         * @param[in] right Right half of the hash function input.
-        * @param[in] adrs Adress of the hash function call.
+        * @param[in] adrs Address of the hash function call.
         * @param[in] seed The seed for G.
         * @param[in] hash Instance of XMSS_Hash, that may only by the thread
         *            executing generate_public_key.
@@ -45,7 +45,7 @@ class XMSS_Common_Ops {
       static void randomize_tree_hash(secure_vector<uint8_t>& result,
                                       const secure_vector<uint8_t>& left,
                                       const secure_vector<uint8_t>& right,
-                                      XMSS_Address& adrs,
+                                      XMSS_Address adrs,
                                       const secure_vector<uint8_t>& seed,
                                       XMSS_Hash& hash,
                                       const XMSS_Parameters& params);
@@ -56,7 +56,7 @@ class XMSS_Common_Ops {
        * Takes a WOTS+ public key and compresses it to a single n-byte value.
        *
        * This overload is used in multithreaded scenarios, where it is
-       * required to provide seperate instances of XMSS_Hash to each thread.
+       * required to provide separate instances of XMSS_Hash to each thread.
        *
        * @param[out] result Public key compressed to a single n-byte value
        *             pk[0].
@@ -69,7 +69,7 @@ class XMSS_Common_Ops {
       **/
       static void create_l_tree(secure_vector<uint8_t>& result,
                                 wots_keysig_t pk,
-                                XMSS_Address& adrs,
+                                XMSS_Address adrs,
                                 const secure_vector<uint8_t>& seed,
                                 XMSS_Hash& hash,
                                 const XMSS_Parameters& params);

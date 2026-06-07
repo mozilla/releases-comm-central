@@ -10,9 +10,9 @@
 #define BOTAN_CERT_STORE_FLATFILE_H_
 
 #include <botan/certstor.h>
+#include <botan/pkix_types.h>
 
 #include <map>
-#include <memory>
 #include <vector>
 
 namespace Botan {
@@ -29,12 +29,13 @@ class BOTAN_PUBLIC_API(2, 11) Flatfile_Certificate_Store final : public Certific
       * @param ignore_non_ca if true, certs that are not self-signed CA certs will
       * be ignored. Otherwise (if false), an exception will be thrown instead.
       */
-      Flatfile_Certificate_Store(std::string_view file, bool ignore_non_ca = false);
+      BOTAN_FUTURE_EXPLICIT Flatfile_Certificate_Store(std::string_view file, bool ignore_non_ca = false);
 
       Flatfile_Certificate_Store(const Flatfile_Certificate_Store&) = default;
       Flatfile_Certificate_Store(Flatfile_Certificate_Store&&) = default;
       Flatfile_Certificate_Store& operator=(const Flatfile_Certificate_Store&) = default;
       Flatfile_Certificate_Store& operator=(Flatfile_Certificate_Store&&) = default;
+      ~Flatfile_Certificate_Store() override = default;
 
       /**
       * @return DNs for all certificates managed by the store
@@ -58,6 +59,9 @@ class BOTAN_PUBLIC_API(2, 11) Flatfile_Certificate_Store final : public Certific
       std::optional<X509_Certificate> find_cert_by_raw_subject_dn_sha256(
          const std::vector<uint8_t>& subject_hash) const override;
 
+      std::optional<X509_Certificate> find_cert_by_issuer_dn_and_serial_number(
+         const X509_DN& issuer_dn, std::span<const uint8_t> serial_number) const override;
+
       /**
        * Fetching CRLs is not supported by this certificate store. This will
        * always return an empty list.
@@ -69,6 +73,7 @@ class BOTAN_PUBLIC_API(2, 11) Flatfile_Certificate_Store final : public Certific
       std::map<X509_DN, std::vector<X509_Certificate>> m_dn_to_cert;
       std::map<std::vector<uint8_t>, std::optional<X509_Certificate>> m_pubkey_sha1_to_cert;
       std::map<std::vector<uint8_t>, std::optional<X509_Certificate>> m_subject_dn_sha256_to_cert;
+      std::map<X509_DN, std::vector<X509_Certificate>> m_issuer_dn_to_cert;
 };
 }  // namespace Botan
 

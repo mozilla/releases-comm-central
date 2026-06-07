@@ -17,6 +17,10 @@
    #include <botan/rsa.h>
 #endif
 
+#if defined(BOTAN_HAS_ECC_GROUP)
+   #include <botan/ec_group.h>
+#endif
+
 #if defined(BOTAN_HAS_ECDH)
    #include <botan/ecdh.h>
 #endif
@@ -50,11 +54,11 @@ class TLS_Policy_Unit_Tests final : public Test {
       }
 
    private:
-      static Test::Result test_peer_key_acceptable_rsa(Botan::RandomNumberGenerator& rng) {
+      static Test::Result test_peer_key_acceptable_rsa([[maybe_unused]] Botan::RandomNumberGenerator& rng) {
          Test::Result result("TLS Policy RSA key verification");
    #if defined(BOTAN_HAS_RSA)
          auto rsa_key_1024 = std::make_unique<Botan::RSA_PrivateKey>(rng, 1024);
-         Botan::TLS::Policy policy;
+         const Botan::TLS::Policy policy;
 
          try {
             policy.check_peer_key_acceptable(*rsa_key_1024);
@@ -70,11 +74,11 @@ class TLS_Policy_Unit_Tests final : public Test {
          return result;
       }
 
-      static Test::Result test_peer_key_acceptable_ecdh(Botan::RandomNumberGenerator& rng) {
+      static Test::Result test_peer_key_acceptable_ecdh([[maybe_unused]] Botan::RandomNumberGenerator& rng) {
          Test::Result result("TLS Policy ECDH key verification");
    #if defined(BOTAN_HAS_ECDH)
 
-         Botan::TLS::Policy policy;
+         const Botan::TLS::Policy policy;
 
          if(Botan::EC_Group::supports_named_group("secp192r1")) {
             const auto group_192 = Botan::EC_Group::from_name("secp192r1");
@@ -98,10 +102,10 @@ class TLS_Policy_Unit_Tests final : public Test {
          return result;
       }
 
-      static Test::Result test_peer_key_acceptable_ecdsa(Botan::RandomNumberGenerator& rng) {
+      static Test::Result test_peer_key_acceptable_ecdsa([[maybe_unused]] Botan::RandomNumberGenerator& rng) {
          Test::Result result("TLS Policy ECDSA key verification");
    #if defined(BOTAN_HAS_ECDSA)
-         Botan::TLS::Policy policy;
+         const Botan::TLS::Policy policy;
 
          if(Botan::EC_Group::supports_named_group("secp192r1")) {
             const auto group_192 = Botan::EC_Group::from_name("secp192r1");
@@ -134,7 +138,7 @@ class TLS_Policy_Unit_Tests final : public Test {
          const Botan::BigInt x("46205663093589612668746163860870963912226379131190812163519349848291472898748");
          auto dhkey = std::make_unique<Botan::DH_PrivateKey>(grp, x);
 
-         Botan::TLS::Policy policy;
+         const Botan::TLS::Policy policy;
          try {
             policy.check_peer_key_acceptable(*dhkey);
             result.test_failure("Incorrectly accepting short bit DH keys");
@@ -148,28 +152,29 @@ class TLS_Policy_Unit_Tests final : public Test {
       static Test::Result test_key_exchange_groups_to_offer() {
          Test::Result result("TLS Policy key share offering");
 
-         Botan::TLS::Policy default_policy;
-         result.test_eq(
+         const Botan::TLS::Policy default_policy;
+         result.test_sz_eq(
             "default TLS Policy offers exactly one", default_policy.key_exchange_groups_to_offer().size(), 1);
-         result.confirm(
+         result.test_is_true(
             "default TLS Policy offers preferred group",
             default_policy.key_exchange_groups().front() == default_policy.key_exchange_groups_to_offer().front());
 
          using TP = Botan::TLS::Text_Policy;
 
-         result.test_eq("default behaviour from text policy (size)", TP("").key_exchange_groups_to_offer().size(), 1);
-         result.confirm("default behaviour from text policy (preferred)",
-                        TP("").key_exchange_groups().front() == TP("").key_exchange_groups_to_offer().front());
+         result.test_sz_eq(
+            "default behaviour from text policy (size)", TP("").key_exchange_groups_to_offer().size(), 1);
+         result.test_is_true("default behaviour from text policy (preferred)",
+                             TP("").key_exchange_groups().front() == TP("").key_exchange_groups_to_offer().front());
 
-         result.confirm("no offerings",
-                        TP("key_exchange_groups_to_offer = none").key_exchange_groups_to_offer().empty());
+         result.test_is_true("no offerings",
+                             TP("key_exchange_groups_to_offer = none").key_exchange_groups_to_offer().empty());
 
          const std::string two_groups = "key_exchange_groups_to_offer = secp256r1 ffdhe/ietf/4096";
-         result.test_eq("list of offerings (size)", TP(two_groups).key_exchange_groups_to_offer().size(), 2);
-         result.confirm("list of offerings (0)",
-                        TP(two_groups).key_exchange_groups_to_offer()[0] == Botan::TLS::Group_Params::SECP256R1);
-         result.confirm("list of offerings (1)",
-                        TP(two_groups).key_exchange_groups_to_offer()[1] == Botan::TLS::Group_Params::FFDHE_4096);
+         result.test_sz_eq("list of offerings (size)", TP(two_groups).key_exchange_groups_to_offer().size(), 2);
+         result.test_is_true("list of offerings (0)",
+                             TP(two_groups).key_exchange_groups_to_offer()[0] == Botan::TLS::Group_Params::SECP256R1);
+         result.test_is_true("list of offerings (1)",
+                             TP(two_groups).key_exchange_groups_to_offer()[1] == Botan::TLS::Group_Params::FFDHE_4096);
 
          return result;
       }

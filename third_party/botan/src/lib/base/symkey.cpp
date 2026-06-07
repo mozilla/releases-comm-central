@@ -55,8 +55,8 @@ uint8_t odd_parity_of(uint8_t x) {
 * Set the parity of each key byte to odd
 */
 void OctetString::set_odd_parity() {
-   for(size_t j = 0; j != m_data.size(); ++j) {
-      m_data[j] = odd_parity_of(m_data[j]);
+   for(auto& b : m_data) {
+      b = odd_parity_of(b);
    }
 }
 
@@ -87,7 +87,7 @@ bool operator==(const OctetString& s1, const OctetString& s2) {
 }
 
 /*
-* Unequality Operation for OctetStrings
+* Inequality Operation for OctetStrings
 */
 bool operator!=(const OctetString& s1, const OctetString& s2) {
    return !(s1 == s2);

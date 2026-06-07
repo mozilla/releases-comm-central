@@ -16,7 +16,6 @@
 #include "test_rng.h"
 #include "tests.h"
 
-#include <cmath>
 #include <iterator>
 #include <memory>
 
@@ -26,13 +25,15 @@
    #include <botan/kyber.h>
    #include <botan/pubkey.h>
    #include <botan/rng.h>
+   #include <botan/internal/concat_util.h>
    #include <botan/internal/fmt.h>
    #include <botan/internal/kyber_constants.h>
    #include <botan/internal/kyber_helpers.h>
-   #include <botan/internal/stl_util.h>
 #endif
 
 namespace Botan_Tests {
+
+namespace {
 
 #if defined(BOTAN_HAS_KYBER) || defined(BOTAN_HAS_KYBER_90S) || defined(BOTAN_HAS_ML_KEM)
 
@@ -54,25 +55,25 @@ class KYBER_Tests final : public Test {
          const Botan::Kyber_PrivateKey priv_key(*rng, mode);
          const auto pub_key = priv_key.public_key();
 
-         result.test_eq("estimated strength private", priv_key.estimated_strength(), strength);
-         result.test_eq("estimated strength public", pub_key->estimated_strength(), strength);
-         result.test_eq("canonical parameter set identifier", priv_key.key_length(), psid);
-         result.test_eq("canonical parameter set identifier", pub_key->key_length(), psid);
+         result.test_sz_eq("estimated strength private", priv_key.estimated_strength(), strength);
+         result.test_sz_eq("estimated strength public", pub_key->estimated_strength(), strength);
+         result.test_sz_eq("canonical parameter set identifier", priv_key.key_length(), psid);
+         result.test_sz_eq("canonical parameter set identifier", pub_key->key_length(), psid);
 
          // Serialize
          const auto priv_key_bits = priv_key.private_key_bits();
          const auto pub_key_bits = pub_key->public_key_bits();
 
          // Bob (reading from serialized public key)
-         Botan::Kyber_PublicKey alice_pub_key(pub_key_bits, mode);
+         const Botan::Kyber_PublicKey alice_pub_key(pub_key_bits, mode);
          auto enc = Botan::PK_KEM_Encryptor(alice_pub_key, "Raw", "base");
          const auto kem_result = enc.encrypt(*rng);
 
          // Alice (reading from serialized private key)
-         Botan::Kyber_PrivateKey alice_priv_key(priv_key_bits, mode);
+         const Botan::Kyber_PrivateKey alice_priv_key(priv_key_bits, mode);
          auto dec = Botan::PK_KEM_Decryptor(alice_priv_key, *rng, "Raw", "base");
          const auto key_alice = dec.decrypt(kem_result.encapsulated_shared_key(), 0 /* no KDF */, empty_salt);
-         result.test_eq("shared secrets are equal", key_alice, kem_result.shared_key());
+         result.test_bin_eq("shared secrets are equal", key_alice, kem_result.shared_key());
 
          //
          // negative tests
@@ -91,11 +92,11 @@ class KYBER_Tests final : public Test {
                    kem_result.encapsulated_shared_key().crend(),
                    std::back_inserter(reverse_cipher_text));
          const auto key_alice_rev = dec.decrypt(reverse_cipher_text, 0, empty_salt);
-         result.confirm("shared secrets are not equal", key_alice != key_alice_rev);
+         result.test_is_true("shared secrets are not equal", key_alice != key_alice_rev);
 
          // Try to decrypt the valid ciphertext again
          const auto key_alice_try2 = dec.decrypt(kem_result.encapsulated_shared_key(), 0 /* no KDF */, empty_salt);
-         result.test_eq("shared secrets are equal", key_alice_try2, kem_result.shared_key());
+         result.test_bin_eq("shared secrets are equal", key_alice_try2, kem_result.shared_key());
 
          return result;
       }
@@ -140,7 +141,7 @@ class Kyber_KAT_Tests : public PK_PQC_KEM_KAT_Test {
 
          // We use different hash functions for Kyber 90s, as those are
          // consistent with the algorithm requirements of the implementations.
-         std::string_view hash_name = get_mode(mode).is_90s() ? "SHA-256" : "SHAKE-256(128)";
+         const std::string_view hash_name = get_mode(mode).is_90s() ? "SHA-256" : "SHAKE-256(128)";
 
          auto hash = Botan::HashFunction::create_or_throw(hash_name);
          const auto digest = hash->process(value);
@@ -161,7 +162,8 @@ class Kyber_KAT_Tests : public PK_PQC_KEM_KAT_Test {
          }
       }
 
-      Fixed_Output_RNG rng_for_encapsulation(const std::string&, Botan::RandomNumberGenerator& rng) const final {
+      Fixed_Output_RNG rng_for_encapsulation(const std::string& /*mode*/,
+                                             Botan::RandomNumberGenerator& rng) const final {
          return Fixed_Output_RNG(rng.random_vec(32));
       }
 };
@@ -252,34 +254,34 @@ class Kyber_Encoding_Test : public Text_Based_Test {
             const auto skr = std::make_unique<Botan::Kyber_PrivateKey>(sk_raw, mode);
             const auto pkr = std::make_unique<Botan::Kyber_PublicKey>(pk_raw, mode);
 
-            result.test_eq("sk's encoding of pk", skr->public_key_bits(), pk_raw);
-            result.test_eq("sk's encoding of sk", skr->private_key_bits(), sk_raw);
-            result.test_eq("pk's encoding of pk", pkr->public_key_bits(), pk_raw);
+            result.test_bin_eq("sk's encoding of pk", skr->public_key_bits(), pk_raw);
+            result.test_bin_eq("sk's encoding of sk", skr->private_key_bits(), sk_raw);
+            result.test_bin_eq("pk's encoding of pk", pkr->public_key_bits(), pk_raw);
 
             // expanded vs seed encoding
             if(skr->private_key_format() == Botan::MlPrivateKeyFormat::Seed) {
-               result.test_eq("sk's seed encoding of sk",
-                              skr->private_key_bits_with_format(Botan::MlPrivateKeyFormat::Seed),
-                              sk_raw);
+               result.test_bin_eq("sk's seed encoding of sk",
+                                  skr->private_key_bits_with_format(Botan::MlPrivateKeyFormat::Seed),
+                                  sk_raw);
                const auto skr_expanded = std::make_unique<Botan::Kyber_PrivateKey>(
                   skr->private_key_bits_with_format(Botan::MlPrivateKeyFormat::Expanded), mode);
-               result.test_eq("sk's expanded encoding consistency",
-                              skr->private_key_bits_with_format(Botan::MlPrivateKeyFormat::Expanded),
-                              skr_expanded->private_key_bits_with_format(Botan::MlPrivateKeyFormat::Expanded));
+               result.test_bin_eq("sk's expanded encoding consistency",
+                                  skr->private_key_bits_with_format(Botan::MlPrivateKeyFormat::Expanded),
+                                  skr_expanded->private_key_bits_with_format(Botan::MlPrivateKeyFormat::Expanded));
                result.test_throws<Botan::Encoding_Error>("expect no seed in expanded sk", [&] {
                   skr_expanded->private_key_bits_with_format(Botan::MlPrivateKeyFormat::Seed);
                });
 
                const auto encapsulation = Botan::PK_KEM_Encryptor(*pkr, "Raw").encrypt(rng());
-               result.test_eq(
+               result.test_bin_eq(
                   "expanded sk decapsulation",
                   Botan::PK_KEM_Decryptor(*skr_expanded, rng(), "Raw").decrypt(encapsulation.encapsulated_shared_key()),
                   encapsulation.shared_key());
 
             } else {
-               result.test_eq("sk's expanded encoding of sk",
-                              skr->private_key_bits_with_format(Botan::MlPrivateKeyFormat::Expanded),
-                              sk_raw);
+               result.test_bin_eq("sk's expanded encoding of sk",
+                                  skr->private_key_bits_with_format(Botan::MlPrivateKeyFormat::Expanded),
+                                  sk_raw);
             }
          }
 
@@ -379,6 +381,7 @@ void test_compress_roundtrip(Test::Result& result) {
 
    result.start_timer();
 
+   // NOLINTNEXTLINE(*-redundant-expression)
    for(uint16_t x = 0; x < q && x < (1 << d); ++x) {
       const uint16_t c = Kyber_Algos::compress<d>(Kyber_Algos::decompress<d>(x));
       if(x != c) {
@@ -418,5 +421,7 @@ std::vector<Test::Result> test_kyber_helpers() {
 BOTAN_REGISTER_TEST_FN("pubkey", "kyber_helpers", test_kyber_helpers);
 
 #endif
+
+}  // namespace
 
 }  // namespace Botan_Tests

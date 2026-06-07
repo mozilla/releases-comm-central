@@ -1,7 +1,3 @@
-<defines>
-UTIL_FUNCTIONS -> 20180903
-</defines>
-
 <module_info>
 name -> "Utilities"
 brief -> "Various utility functions and types"
@@ -10,9 +6,9 @@ brief -> "Various utility functions and types"
 load_on always
 
 <header:public>
+allocator.h
 api.h
 assert.h
-allocator.h
 compiler.h
 concepts.h
 data_src.h
@@ -20,8 +16,10 @@ database.h
 exceptn.h
 mem_ops.h
 mutex.h
-types.h
+# TODO(Botan4) move this to internal
+range_concepts.h
 strong_type.h
+types.h
 version.h
 </header:public>
 
@@ -29,22 +27,30 @@ version.h
 alignment_buffer.h
 bit_ops.h
 bswap.h
+buffer_slicer.h
+buffer_stuffer.h
 calendar.h
 charset.h
 codec_base.h
+concat_util.h
 ct_utils.h
 donna128.h
 filesystem.h
 fmt.h
 isa_extn.h
 int_utils.h
+gfni_utils.h
 loadstor.h
 mul128.h
+mem_utils.h
 parsing.h
 prefetch.h
 rotate.h
 rounding.h
 scan_name.h
+scoped_cleanup.h
+stack_scrubbing.h
 stl_util.h
 time_utils.h
+value_barrier.h
 </header:internal>

@@ -10,9 +10,14 @@
 
 #if defined(BOTAN_HAS_CIPHER_MODES)
    #include <botan/cipher_mode.h>
+   #include <botan/exceptn.h>
+   #include <botan/hex.h>
+   #include <botan/rng.h>
 #endif
 
 namespace Botan_Tests {
+
+namespace {
 
 #if defined(BOTAN_HAS_CIPHER_MODES)
 
@@ -55,18 +60,19 @@ class Cipher_Mode_Tests final : public Text_Based_Test {
                return result;
             }
 
-            result.test_eq("enc and dec granularity is the same", enc->update_granularity(), dec->update_granularity());
+            result.test_sz_eq(
+               "enc and dec granularity is the same", enc->update_granularity(), dec->update_granularity());
 
-            result.test_gt("update granularity is non-zero", enc->update_granularity(), 0);
+            result.test_sz_gt("update granularity is non-zero", enc->update_granularity(), 0);
 
-            result.test_eq(
+            result.test_sz_eq(
                "enc and dec ideal granularity is the same", enc->ideal_granularity(), dec->ideal_granularity());
 
-            result.test_gt(
+            result.test_sz_gt(
                "ideal granularity is at least update granularity", enc->ideal_granularity(), enc->update_granularity());
 
-            result.confirm("ideal granularity is a multiple of update granularity",
-                           enc->ideal_granularity() % enc->update_granularity() == 0);
+            result.test_is_true("ideal granularity is a multiple of update granularity",
+                                enc->ideal_granularity() % enc->update_granularity() == 0);
 
             try {
                test_mode(result, algo, provider_ask, "encryption", *enc, key, nonce, input, expected, this->rng());
@@ -75,6 +81,7 @@ class Cipher_Mode_Tests final : public Text_Based_Test {
             }
 
             try {
+               // NOLINTNEXTLINE(*-suspicious-call-argument) intentionally swapping ptext and ctext arguments here
                test_mode(result, algo, provider_ask, "decryption", *dec, key, nonce, expected, input, this->rng());
             } catch(Botan::Exception& e) {
                result.test_failure("Decryption tests failed", e.what());
@@ -98,25 +105,25 @@ class Cipher_Mode_Tests final : public Text_Based_Test {
          const bool is_cbc = (algo.find("/CBC") != std::string::npos);
          const bool is_ctr = (algo.find("CTR") != std::string::npos);
 
-         result.test_eq("name", mode.name(), algo);
+         result.test_str_eq("name", mode.name(), algo);
 
          // Some modes report base even if got from another provider
          if(mode.provider() != "base") {
-            result.test_eq("provider", mode.provider(), provider);
+            result.test_str_eq("provider", mode.provider(), provider);
          }
 
-         result.test_eq("mode not authenticated", mode.authenticated(), false);
+         result.test_is_false("mode not authenticated", mode.authenticated());
 
          const size_t update_granularity = mode.update_granularity();
          const size_t min_final_bytes = mode.minimum_final_size();
 
          // FFI currently requires this, so assure it is true for all modes
-         result.test_gt("buffer sizes ok", mode.ideal_granularity(), min_final_bytes);
+         result.test_sz_gt("buffer sizes ok", mode.ideal_granularity(), min_final_bytes);
 
-         result.test_eq("key not set", mode.has_keying_material(), false);
+         result.test_is_false("key not set", mode.has_keying_material());
 
-         result.test_throws("Unkeyed object throws", [&]() {
-            Botan::secure_vector<uint8_t> bad(update_granularity);
+         result.test_throws<Botan::Invalid_State>("Unkeyed object throws", [&]() {
+            Botan::secure_vector<uint8_t> bad(min_final_bytes);
             mode.finish(bad);
          });
 
@@ -124,40 +131,45 @@ class Cipher_Mode_Tests final : public Text_Based_Test {
             // can't test equal due to CBC padding
 
             if(direction == "encryption") {
-               result.test_lte("output_length", mode.output_length(input.size()), expected.size());
+               result.test_sz_lte("output_length", mode.output_length(input.size()), expected.size());
             } else {
-               result.test_gte("output_length", mode.output_length(input.size()), expected.size());
+               result.test_sz_gte("output_length", mode.output_length(input.size()), expected.size());
             }
          } else {
             // assume all other modes are not expanding (currently true)
-            result.test_eq("output_length", mode.output_length(input.size()), expected.size());
+            result.test_sz_eq("output_length", mode.output_length(input.size()), expected.size());
          }
 
-         result.confirm("default nonce size is allowed", mode.valid_nonce_length(mode.default_nonce_length()));
+         result.test_is_true("default nonce size is allowed", mode.valid_nonce_length(mode.default_nonce_length()));
 
          // Test that disallowed nonce sizes result in an exception
          static constexpr size_t large_nonce_size = 65000;
-         result.test_eq("Large nonce not allowed", mode.valid_nonce_length(large_nonce_size), false);
-         result.test_throws("Large nonce causes exception", [&mode]() { mode.start(nullptr, large_nonce_size); });
+         result.test_is_false("Large nonce not allowed", mode.valid_nonce_length(large_nonce_size));
+         result.test_throws<Botan::Invalid_Argument>("Large nonce causes exception",
+                                                     [&mode]() { mode.start(nullptr, large_nonce_size); });
 
          Botan::secure_vector<uint8_t> garbage = rng.random_vec(update_granularity);
+         Botan::secure_vector<uint8_t> ultimate_garbage = rng.random_vec(min_final_bytes);
 
          // Test to make sure reset() resets what we need it to
-         result.test_throws("Cannot process data (update) until key is set", [&]() { mode.update(garbage); });
-         result.test_throws("Cannot process data (finish) until key is set", [&]() { mode.finish(garbage); });
+         result.test_throws<Botan::Invalid_State>("Cannot process data (update) until key is set",
+                                                  [&]() { mode.update(garbage); });
+         result.test_throws<Botan::Invalid_State>("Cannot process data (finish) until key is set",
+                                                  [&]() { mode.finish(ultimate_garbage); });
 
          mode.set_key(mutate_vec(key, rng));
 
-         if(is_ctr == false) {
-            result.test_throws("Cannot process data until nonce is set", [&]() { mode.update(garbage); });
+         if(!is_ctr) {
+            result.test_throws<Botan::Invalid_State>("Cannot process data until nonce is set",
+                                                     [&]() { mode.update(garbage); });
          }
 
          mode.start(mutate_vec(nonce, rng));
          mode.reset();
 
-         if(is_ctr == false) {
-            result.test_throws("Cannot process data until nonce is set (after start/reset)",
-                               [&]() { mode.update(garbage); });
+         if(!is_ctr) {
+            result.test_throws<Botan::Invalid_State>("Cannot process data until nonce is set (after start/reset)",
+                                                     [&]() { mode.update(garbage); });
          }
 
          mode.start(mutate_vec(nonce, rng));
@@ -166,14 +178,14 @@ class Cipher_Mode_Tests final : public Text_Based_Test {
          mode.reset();
 
          mode.set_key(key);
-         result.test_eq("key is set", mode.has_keying_material(), true);
+         result.test_is_true("key is set", mode.has_keying_material());
          mode.start(nonce);
 
          Botan::secure_vector<uint8_t> buf;
 
          buf.assign(input.begin(), input.end());
          mode.finish(buf);
-         result.test_eq(direction + " all-in-one", buf, expected);
+         result.test_bin_eq(direction + " all-in-one", buf, expected);
 
          // additionally test update() and process() if possible
          if(input.size() >= update_granularity + min_final_bytes) {
@@ -197,7 +209,7 @@ class Cipher_Mode_Tests final : public Text_Based_Test {
                mode.finish(last_bits);
                buf += last_bits;
 
-               result.test_eq(direction + " update-1", buf, expected);
+               result.test_bin_eq(direction + " update-1", buf, expected);
             }
 
             // test update with maximum length input
@@ -210,7 +222,7 @@ class Cipher_Mode_Tests final : public Text_Based_Test {
 
             buf += last_bits;
 
-            result.test_eq(direction + " update-all", buf, expected);
+            result.test_bin_eq(direction + " update-all", buf, expected);
 
             // test process with maximum length input
             mode.start(nonce);
@@ -218,17 +230,17 @@ class Cipher_Mode_Tests final : public Text_Based_Test {
 
             const size_t bytes_written = mode.process(buf.data(), bytes_to_process);
 
-            result.test_eq("correct number of bytes processed", bytes_written, bytes_to_process);
+            result.test_sz_eq("correct number of bytes processed", bytes_written, bytes_to_process);
 
             mode.finish(buf, bytes_to_process);
-            result.test_eq(direction + " process", buf, expected);
+            result.test_bin_eq(direction + " process", buf, expected);
          }
 
          mode.clear();
-         result.test_eq("key is not set", mode.has_keying_material(), false);
+         result.test_is_false("key is not set", mode.has_keying_material());
 
-         result.test_throws("Unkeyed object throws after clear", [&]() {
-            Botan::secure_vector<uint8_t> bad(update_granularity);
+         result.test_throws<Botan::Invalid_State>("Unkeyed object throws after clear", [&]() {
+            Botan::secure_vector<uint8_t> bad(min_final_bytes);
             mode.finish(bad);
          });
       }
@@ -269,17 +281,18 @@ class Cipher_Mode_IV_Carry_Tests final : public Test {
 
          enc->start(iv);
          enc->finish(msg1);
-         result.test_eq("First ciphertext", msg1, "9BDD7300E0CB61CA71FFF957A71605DB6836159C36781246A1ADF50982757F4B");
+         result.test_bin_eq(
+            "First ciphertext", msg1, "9BDD7300E0CB61CA71FFF957A71605DB6836159C36781246A1ADF50982757F4B");
 
          enc->start();
          enc->finish(msg2);
 
-         result.test_eq("Second ciphertext", msg2, "AA8D682958A4A044735DAC502B274DB2");
+         result.test_bin_eq("Second ciphertext", msg2, "AA8D682958A4A044735DAC502B274DB2");
 
          enc->start();
          enc->finish(msg3);
 
-         result.test_eq("Third ciphertext", msg3, "1241B9976F73051BCF809525D6E86C25");
+         result.test_bin_eq("Third ciphertext", msg3, "1241B9976F73051BCF809525D6E86C25");
 
          dec->start(iv);
          dec->finish(msg1);
@@ -289,7 +302,7 @@ class Cipher_Mode_IV_Carry_Tests final : public Test {
 
          dec->start();
          dec->finish(msg3);
-         result.test_eq("Third plaintext", msg3, "49562063617272796F76657232");
+         result.test_bin_eq("Third plaintext", msg3, "49562063617272796F76657232");
 
    #endif
          return result;
@@ -315,29 +328,29 @@ class Cipher_Mode_IV_Carry_Tests final : public Test {
 
          enc->start(iv);
          enc->finish(msg1);
-         result.test_eq("First ciphertext", msg1, "a51522387c4c9b");
+         result.test_bin_eq("First ciphertext", msg1, "a51522387c4c9b");
 
          enc->start();
          enc->finish(msg2);
 
-         result.test_eq("Second ciphertext", msg2, "105457dc2e0649d4");
+         result.test_bin_eq("Second ciphertext", msg2, "105457dc2e0649d4");
 
          enc->start();
          enc->finish(msg3);
 
-         result.test_eq("Third ciphertext", msg3, "53bd65");
+         result.test_bin_eq("Third ciphertext", msg3, "53bd65");
 
          dec->start(iv);
          dec->finish(msg1);
-         result.test_eq("First plaintext", msg1, "ABCDEF01234567");
+         result.test_bin_eq("First plaintext", msg1, "ABCDEF01234567");
 
          dec->start();
          dec->finish(msg2);
-         result.test_eq("Second plaintext", msg2, "0000123456ABCDEF");
+         result.test_bin_eq("Second plaintext", msg2, "0000123456ABCDEF");
 
          dec->start();
          dec->finish(msg3);
-         result.test_eq("Third plaintext", msg3, "012345");
+         result.test_bin_eq("Third plaintext", msg3, "012345");
    #endif
          return result;
       }
@@ -382,12 +395,12 @@ class Cipher_Mode_IV_Carry_Tests final : public Test {
             Botan::secure_vector<uint8_t> msg(i, 0);
             enc->finish(msg);
 
-            result.test_eq("Ciphertext", msg, exp_ciphertext[i - 1].c_str());
+            result.test_bin_eq("Ciphertext", msg, exp_ciphertext[i - 1]);
 
             dec->finish(msg);
 
-            for(size_t j = 0; j != msg.size(); ++j) {
-               result.test_eq("Plaintext zeros", static_cast<size_t>(msg[j]), 0);
+            for(const uint8_t b : msg) {
+               result.test_u8_eq("Plaintext zeros", b, 0);
             }
          }
    #endif
@@ -398,5 +411,7 @@ class Cipher_Mode_IV_Carry_Tests final : public Test {
 BOTAN_REGISTER_TEST("modes", "iv_carryover", Cipher_Mode_IV_Carry_Tests);
 
 #endif
+
+}  // namespace
 
 }  // namespace Botan_Tests

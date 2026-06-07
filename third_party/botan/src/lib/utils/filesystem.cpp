@@ -5,10 +5,10 @@
 * Botan is released under the Simplified BSD License (see license.txt)
 */
 
-#include <botan/exceptn.h>
+#include <botan/internal/filesystem.h>
 
 #include <botan/assert.h>
-#include <botan/internal/filesystem.h>
+#include <botan/exceptn.h>
 #include <botan/internal/target_info.h>
 #include <algorithm>
 #include <deque>
@@ -41,7 +41,7 @@ std::vector<std::string> impl_readdir(std::string_view dir_path) {
       const std::string cur_path = dir_list[0];
       dir_list.pop_front();
 
-      std::unique_ptr<DIR, std::function<int(DIR*)>> dir(::opendir(cur_path.c_str()), ::closedir);
+      const std::unique_ptr<DIR, std::function<int(DIR*)>> dir(::opendir(cur_path.c_str()), ::closedir);
 
       if(dir) {
          while(struct dirent* dirent = ::readdir(dir.get())) {
@@ -54,7 +54,7 @@ std::vector<std::string> impl_readdir(std::string_view dir_path) {
             full_path_sstr << cur_path << "/" << filename;
             const std::string full_path = full_path_sstr.str();
 
-            struct stat stat_buf;
+            struct stat stat_buf {};
 
             if(::stat(full_path.c_str(), &stat_buf) == -1) {
                continue;

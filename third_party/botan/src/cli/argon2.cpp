@@ -12,6 +12,8 @@
 
 namespace Botan_CLI {
 
+namespace {
+
 #if defined(BOTAN_HAS_ARGON2_FMT)
 
 class Generate_Argon2 final : public Command {
@@ -48,9 +50,9 @@ class Check_Argon2 final : public Command {
 
          const bool ok = Botan::argon2_check_pwhash(password.data(), password.size(), hash);
 
-         output() << "Password is " << (ok ? "valid" : "NOT valid") << std::endl;
+         output() << "Password is " << (ok ? "valid" : "NOT valid") << "\n";
 
-         if(ok == false) {
+         if(!ok) {
             set_return_code(1);
          }
       }
@@ -59,5 +61,7 @@ class Check_Argon2 final : public Command {
 BOTAN_REGISTER_COMMAND("check_argon2", Check_Argon2);
 
 #endif  // argon2
+
+}  // namespace
 
 }  // namespace Botan_CLI

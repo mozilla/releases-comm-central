@@ -16,12 +16,12 @@ namespace Botan {
 
 class cSHAKE_XOF;
 
-class KMAC : public MessageAuthenticationCode {
+class KMAC /* NOLINT(*-special-member-functions*) */ : public MessageAuthenticationCode {
    protected:
       KMAC(std::unique_ptr<cSHAKE_XOF> cshake, size_t output_bit_length);
 
    public:
-      virtual ~KMAC();
+      ~KMAC() override;
 
       KMAC(const KMAC&) = delete;
       KMAC& operator=(const KMAC&) = delete;
@@ -35,9 +35,9 @@ class KMAC : public MessageAuthenticationCode {
 
    private:
       void start_msg(std::span<const uint8_t> nonce) final;
-      void add_data(std::span<const uint8_t>) final;
-      void final_result(std::span<uint8_t>) final;
-      void key_schedule(std::span<const uint8_t>) final;
+      void add_data(std::span<const uint8_t> input) final;
+      void final_result(std::span<uint8_t> output) final;
+      void key_schedule(std::span<const uint8_t> key) final;
 
    private:
       size_t m_output_bit_length;
@@ -52,7 +52,7 @@ class KMAC : public MessageAuthenticationCode {
 */
 class KMAC128 final : public KMAC {
    public:
-      KMAC128(size_t output_bit_length);
+      explicit KMAC128(size_t output_bit_length);
       std::string name() const override;
       std::unique_ptr<MessageAuthenticationCode> new_object() const override;
 };
@@ -62,7 +62,7 @@ class KMAC128 final : public KMAC {
 */
 class KMAC256 final : public KMAC {
    public:
-      KMAC256(size_t output_bit_length);
+      explicit KMAC256(size_t output_bit_length);
       std::string name() const override;
       std::unique_ptr<MessageAuthenticationCode> new_object() const override;
 };

@@ -21,7 +21,7 @@ namespace Botan {
 
 namespace {
 
-BOTAN_FUNC_ISA("rdseed") bool read_rdseed(secure_vector<uint32_t>& seed) {
+BOTAN_FUNC_ISA("rdseed,sse2") bool read_rdseed(secure_vector<uint32_t>& seed) {
    /*
    * RDSEED is not guaranteed to generate an output within any specific number
    * of attempts. However in testing on a Skylake system, with all hyperthreads
@@ -37,11 +37,11 @@ BOTAN_FUNC_ISA("rdseed") bool read_rdseed(secure_vector<uint32_t>& seed) {
    const size_t RDSEED_RETRIES = 1024;
 
    for(size_t i = 0; i != RDSEED_RETRIES; ++i) {
-      uint32_t r = 0;
-      int cf = 0;
+      uint32_t r = 0;  // NOLINT(*-const-correctness) clang-tidy doesn't understand inline asm
+      int cf = 0;      // NOLINT(*-const-correctness) clang-tidy doesn't understand inline asm
 
 #if defined(BOTAN_USE_GCC_INLINE_ASM)
-      asm("rdseed %0; adcl $0,%1" : "=r"(r), "=r"(cf) : "0"(r), "1"(cf) : "cc");
+      asm("rdseed %0; adcl $0,%1" : "=r"(r), "=r"(cf) : "0"(r), "1"(cf) : "cc");  // NOLINT(*-no-assembler)
 #else
       cf = _rdseed32_step(&r);
 #endif
@@ -53,9 +53,9 @@ BOTAN_FUNC_ISA("rdseed") bool read_rdseed(secure_vector<uint32_t>& seed) {
 
       // Intel suggests pausing if RDSEED fails.
 #if defined(BOTAN_USE_GCC_INLINE_ASM)
-      asm volatile("pause");
+      asm volatile("pause");  // NOLINT(*-no-assembler)
 #else
-      _mm_pause();
+      _mm_pause();  // NOLINT(portability-simd-intrinsics)
 #endif
    }
 

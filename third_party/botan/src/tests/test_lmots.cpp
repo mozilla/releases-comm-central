@@ -8,8 +8,9 @@
 
 #if defined(BOTAN_HAS_HSS_LMS)
 
+   #include <botan/hash.h>
+   #include <botan/internal/buffer_slicer.h>
    #include <botan/internal/lm_ots.h>
-   #include <botan/internal/stl_util.h>
 
 namespace Botan_Tests {
 
@@ -22,12 +23,12 @@ class LMOTS_Test final : public Text_Based_Test {
    public:
       LMOTS_Test() : Text_Based_Test("pubkey/lmots.vec", "TypeId,Seed,I,q,Msg,PublicKey,HashSig") {}
 
-      bool skip_this_test(const std::string&, const VarMap& vars) override {
+      bool skip_this_test(const std::string& /*header*/, const VarMap& vars) override {
          BOTAN_UNUSED(vars);
          return false;
       }
 
-      Test::Result run_one_test(const std::string&, const VarMap& vars) final {
+      Test::Result run_one_test(const std::string& /*header*/, const VarMap& vars) final {
          Test::Result result("LMOTS");
 
          const auto lmots_type_id = vars.get_req_u32("TypeId");
@@ -47,18 +48,18 @@ class LMOTS_Test final : public Text_Based_Test {
          // Test private/public OTS key creation
          auto sk = Botan::LMOTS_Private_Key(params, identifier, q, seed);
          const auto pk = Botan::LMOTS_Public_Key(sk);
-         result.test_is_eq("Public key generation", pk.K(), pk_ref);
+         result.test_bin_eq("Public key generation", pk.K(), pk_ref);
 
          // Test signature creation
          Botan::LMOTS_Signature_Bytes sig(Botan::LMOTS_Signature::size(params));
          sk.sign(sig, msg);
-         result.test_is_eq("Signature generation", hash->process<std::vector<uint8_t>>(sig), sig_ref);
+         result.test_bin_eq("Signature generation", hash->process<std::vector<uint8_t>>(sig), sig_ref);
 
          // Test create pubkey from signature
          auto sig_slicer = Botan::BufferSlicer(sig);
          auto sig_obj = Botan::LMOTS_Signature::from_bytes_or_throw(sig_slicer);
-         Botan::LMOTS_K pk_from_sig = Botan::lmots_compute_pubkey_from_sig(sig_obj, msg, identifier, q);
-         result.test_is_eq("Public key from signature", pk_from_sig, pk_ref);
+         const Botan::LMOTS_K pk_from_sig = Botan::lmots_compute_pubkey_from_sig(sig_obj, msg, identifier, q);
+         result.test_bin_eq("Public key from signature", pk_from_sig, pk_ref);
 
          return result;
       }

@@ -37,14 +37,15 @@ bool is_domain_name(std::string_view domain) {
 }
 
 bool is_ipv4(std::string_view ip) {
-   std::string ip_str(ip);
-   sockaddr_storage inaddr;
-   return !!inet_pton(AF_INET, ip_str.c_str(), &inaddr);
+   return string_to_ipv4(ip).has_value();
 }
 
 bool is_ipv6(std::string_view ip) {
-   std::string ip_str(ip);
-   sockaddr_storage in6addr;
+   const std::string ip_str(ip);
+   sockaddr_storage in6addr{};
+
+   // TODO use string_to_ipv6 here
+   // NOLINTNEXTLINE(*-implicit-bool-conversion)
    return !!inet_pton(AF_INET6, ip_str.c_str(), &in6addr);
 }
 
@@ -57,8 +58,8 @@ uint16_t parse_port_number(const char* func_name, std::string_view uri, size_t p
 
    uint32_t port = 0;
 
-   for(char c : uri.substr(pos + 1)) {
-      size_t digit = c - '0';
+   for(const char c : uri.substr(pos + 1)) {
+      const size_t digit = c - '0';
       if(digit >= 10) {
          throw Invalid_Argument(fmt("URI::{} invalid port field in {}", func_name, uri));
       }
@@ -121,7 +122,8 @@ URI URI::from_ipv6(std::string_view uri) {
 
       port = parse_port_number("from_ipv6", uri, port_pos + 1);
    }
-   const auto ip = uri.substr((with_braces ? 1 : 0), port_pos - with_braces);
+   const auto ip = with_braces ? uri.substr(1, port_pos - 1) : uri.substr(0, port_pos);
+
    if(!is_ipv6(ip)) {
       throw Invalid_Argument("URI::from_ipv6 URI has invalid IPv6 address");
    }

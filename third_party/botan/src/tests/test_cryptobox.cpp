@@ -4,13 +4,12 @@
 * Botan is released under the Simplified BSD License (see license.txt)
 */
 
-#define BOTAN_NO_DEPRECATED_WARNINGS
-
-#include "test_rng.h"
 #include "tests.h"
 
 #if defined(BOTAN_HAS_CRYPTO_BOX)
+   #include "test_rng.h"
    #include <botan/cryptobox.h>
+   #include <botan/exceptn.h>
    #include <botan/pem.h>
 #endif
 
@@ -41,9 +40,9 @@ class Cryptobox_KAT final : public Text_Based_Test {
 
          const std::string ciphertext = Botan::CryptoBox::encrypt(input.data(), input.size(), password, salt_rng);
 
-         result.test_eq("encryption is expected value", ciphertext, expected_pem);
+         result.test_str_eq("encryption is expected value", ciphertext, expected_pem);
 
-         result.test_eq("decryption works", Botan::CryptoBox::decrypt_bin(ciphertext, password), input);
+         result.test_bin_eq("decryption works", Botan::CryptoBox::decrypt_bin(ciphertext, password), input);
 
          // Now corrupt a bit and ensure it fails
          try {

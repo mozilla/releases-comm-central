@@ -10,11 +10,11 @@
 #include <botan/ber_dec.h>
 #include <botan/der_enc.h>
 #include <botan/internal/bit_ops.h>
+#include <botan/internal/buffer_slicer.h>
 #include <botan/internal/fmt.h>
 #include <botan/internal/int_utils.h>
 #include <botan/internal/oid_map.h>
 #include <botan/internal/parsing.h>
-#include <botan/internal/stl_util.h>
 #include <algorithm>
 #include <span>
 #include <sstream>
@@ -38,7 +38,7 @@ std::vector<uint32_t> parse_oid_str(std::string_view oid) {
       std::string elem;
       std::vector<uint32_t> oid_elems;
 
-      for(char c : oid) {
+      for(const char c : oid) {
          if(c == '.') {
             if(elem.empty()) {
                return std::vector<uint32_t>();
@@ -152,13 +152,19 @@ bool OID::registered_oid() const {
    return !human_name_or_empty().empty();
 }
 
-size_t OID::hash_code() const {
-   constexpr uint64_t mod = 0xffffffffffffffc5;
-   uint64_t hash = 0;
+bool OID::matches(std::initializer_list<uint32_t> other) const {
+   // TODO: once all target compilers support it, use std::ranges::equal
+   return std::equal(m_id.begin(), m_id.end(), other.begin(), other.end());
+}
+
+uint64_t OID::hash_code() const {
+   // If this is changed also update gen_oids.py to match
+   uint64_t hash = 0x621F302327D9A49A;
    for(auto id : m_id) {
-      hash = (hash * 257 + id) % mod;
+      hash *= 193;
+      hash += id;
    }
-   return static_cast<size_t>(hash);
+   return hash;
 }
 
 /*
@@ -183,7 +189,7 @@ void OID::encode_into(DER_Encoder& der) const {
       if(z <= 0x7F) {
          encoding.push_back(static_cast<uint8_t>(z));
       } else {
-         size_t z7 = (high_bit(z) + 7 - 1) / 7;
+         const size_t z7 = (high_bit(z) + 7 - 1) / 7;
 
          for(size_t j = 0; j != z7; ++j) {
             uint8_t zp = static_cast<uint8_t>(z >> (7 * (z7 - j - 1)) & 0x7F);
@@ -200,9 +206,10 @@ void OID::encode_into(DER_Encoder& der) const {
    std::vector<uint8_t> encoding;
 
    // We know 40 * root can't overflow because root is between 0 and 2
-   auto first = BOTAN_ASSERT_IS_SOME(checked_add(40 * m_id[0], m_id[1]));
+   auto first = checked_add(40 * m_id[0], m_id[1]);
+   BOTAN_ASSERT_NOMSG(first.has_value());
 
-   append(encoding, first);
+   append(encoding, *first);
 
    for(size_t i = 2; i != m_id.size(); ++i) {
       append(encoding, m_id[i]);
@@ -214,7 +221,7 @@ void OID::encode_into(DER_Encoder& der) const {
 * Decode a BER encoded OBJECT IDENTIFIER
 */
 void OID::decode_from(BER_Decoder& decoder) {
-   BER_Object obj = decoder.get_next_object();
+   const BER_Object obj = decoder.get_next_object();
    if(obj.tagging() != (ASN1_Class::Universal | ASN1_Type::ObjectId)) {
       throw BER_Bad_Tag("Error decoding OID, unknown tag", obj.tagging());
    }
@@ -243,7 +250,7 @@ void OID::decode_from(BER_Decoder& decoder) {
             }
 
             const uint8_t next = data.take_byte();
-            const bool more = (next & 0x80);
+            const bool more = (next & 0x80) == 0x80;
             const uint8_t value = next & 0x7F;
 
             if((b >> (32 - 7)) != 0) {
@@ -288,6 +295,11 @@ void OID::decode_from(BER_Decoder& decoder) {
    }
 
    m_id = parts;
+}
+
+std::ostream& operator<<(std::ostream& out, const OID& oid) {
+   out << oid.to_string();
+   return out;
 }
 
 }  // namespace Botan

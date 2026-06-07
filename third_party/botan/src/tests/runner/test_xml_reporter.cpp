@@ -10,6 +10,8 @@
 #if defined(BOTAN_TARGET_OS_HAS_FILESYSTEM)
 
    #include <botan/build.h>
+   #include <botan/exceptn.h>
+   #include <botan/hex.h>
    #include <botan/version.h>
    #include <botan/internal/loadstor.h>
    #include <botan/internal/target_info.h>
@@ -18,8 +20,6 @@
       #include <botan/internal/os_utils.h>
    #endif
 
-   #include <iomanip>
-   #include <numeric>
    #include <sstream>
 
 namespace Botan_Tests {
@@ -42,7 +42,7 @@ std::string full_compiler_version_string() {
    std::ostringstream oss;
 
    oss << std::setfill('0') << std::setw(2) << major << "." << std::setw(2) << minor << "." << std::setw(5) << patch
-       << "." << std::setw(2) << build << std::endl;
+       << "." << std::setw(2) << build << "\n";
 
    return oss.str();
    #else
@@ -55,6 +55,8 @@ std::string full_compiler_name_string() {
    return "xcode";
    #elif defined(BOTAN_BUILD_COMPILER_IS_CLANG)
    return "clang";
+   #elif defined(BOTAN_BUILD_COMPILER_IS_CLANGCL)
+   return "clangcl";
    #elif defined(BOTAN_BUILD_COMPILER_IS_GCC)
    return "gcc";
    #elif defined(BOTAN_BUILD_COMPILER_IS_MSVC)
@@ -75,12 +77,28 @@ std::string format(const std::chrono::system_clock::time_point& tp) {
 }
 
 std::string format(const std::chrono::nanoseconds& dur) {
-   const float secs = static_cast<float>(dur.count()) / 1000000000;
+   const double secs = static_cast<double>(dur.count()) / 1000000000.0;
 
    std::ostringstream out;
    out.precision(3);
    out << std::fixed << secs;
    return out.str();
+}
+
+std::map<std::string, std::string> parse_report_properties(const std::vector<std::string>& report_properties) {
+   std::map<std::string, std::string> result;
+
+   for(const auto& prop : report_properties) {
+      const auto colon = prop.find(':');
+      // props without a colon separator or without a name are not allowed
+      if(colon == std::string::npos || colon == 0) {
+         throw Test_Error("--report-properties should be of the form <key>:<value>,<key>:<value>,...");
+      }
+
+      result.insert_or_assign(prop.substr(0, colon), prop.substr(colon + 1, prop.size() - colon - 1));
+   }
+
+   return result;
 }
 
 }  // namespace
@@ -91,7 +109,7 @@ XmlReporter::XmlReporter(const Test_Options& opts, std::string output_dir) :
    set_property("compiler", full_compiler_name_string());
    set_property("compiler_version", full_compiler_version_string());
    set_property("timestamp", format(std::chrono::system_clock::now()));
-   auto custom_props = opts.report_properties();
+   auto custom_props = parse_report_properties(opts.report_properties());
    for(const auto& prop : custom_props) {
       set_property(prop.first, prop.second);
    }
@@ -243,20 +261,20 @@ void XmlReporter::render_testsuite(std::ostream& out, const Testsuite& suite) co
 
 void XmlReporter::render_testcase(std::ostream& out, const TestSummary& test) const {
    out << "<testcase"
-       << " name=\"" << escape(test.name) << "\""
-       << " assertions=\"" << test.assertions << "\""
-       << " timestamp=\"" << format(test.timestamp) << "\"";
+       << " name=\"" << escape(test.name()) << "\""
+       << " assertions=\"" << test.assertions() << "\""
+       << " timestamp=\"" << format(test.timestamp()) << "\"";
 
-   if(test.elapsed_time.has_value()) {
-      out << " time=\"" << format(test.elapsed_time.value()) << "\"";
+   if(test.elapsed_time().has_value()) {
+      out << " time=\"" << format(test.elapsed_time().value()) << "\"";
    }
 
-   if(test.code_location.has_value()) {
-      out << " file=\"" << escape(test.code_location->path) << "\""
-          << " line=\"" << test.code_location->line << "\"";
+   if(test.code_location().has_value()) {
+      out << " file=\"" << escape(test.code_location()->path) << "\""
+          << " line=\"" << test.code_location()->line << "\"";
    }
 
-   if(test.failures.empty() && test.notes.empty()) {
+   if(test.passed() && test.notes().empty()) {
       out << " />\n";
    } else {
       out << ">\n";
@@ -266,7 +284,7 @@ void XmlReporter::render_testcase(std::ostream& out, const TestSummary& test) co
 }
 
 void XmlReporter::render_failures_and_stdout(std::ostream& out, const TestSummary& test) const {
-   for(const auto& failure : test.failures) {
+   for(const auto& failure : test.failures()) {
       out << "<failure>\n"
           << format_cdata(failure) << "\n"
           << "</failure>\n";
@@ -274,9 +292,9 @@ void XmlReporter::render_failures_and_stdout(std::ostream& out, const TestSummar
 
    // xUnit format does not have a special tag for test notes, hence we
    // render it into the freetext 'system-out'
-   if(!test.notes.empty()) {
+   if(!test.notes().empty()) {
       out << "<system-out>\n";
-      for(const auto& note : test.notes) {
+      for(const auto& note : test.notes()) {
          out << format_cdata(note) << '\n';
       }
       out << "</system-out>\n";

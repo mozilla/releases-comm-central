@@ -9,11 +9,15 @@
 #define BOTAN_BER_DECODER_H_
 
 #include <botan/asn1_obj.h>
-#include <botan/data_src.h>
+#include <botan/secmem.h>
+#include <cstring>
+#include <memory>
+#include <optional>
 
 namespace Botan {
 
 class BigInt;
+class DataSource;
 
 /**
 * BER Decoding Object
@@ -28,7 +32,7 @@ class BOTAN_PUBLIC_API(2, 0) BER_Decoder final {
       /**
       * Set up to BER decode the data in buf of length len
       */
-      BER_Decoder(std::span<const uint8_t> buf) : BER_Decoder(buf.data(), buf.size()) {}
+      BOTAN_FUTURE_EXPLICIT BER_Decoder(std::span<const uint8_t> buf) : BER_Decoder(buf.data(), buf.size()) {}
 
       /**
       * Set up to BER decode the data in vec
@@ -48,16 +52,18 @@ class BOTAN_PUBLIC_API(2, 0) BER_Decoder final {
       /**
       * Set up to BER decode the data in obj
       */
-      BER_Decoder(const BER_Object& obj) : BER_Decoder(obj.bits(), obj.length()) {}
+      BOTAN_FUTURE_EXPLICIT BER_Decoder(const BER_Object& obj) : BER_Decoder(obj.bits(), obj.length()) {}
 
       /**
       * Set up to BER decode the data in obj
       */
-      BER_Decoder(BER_Object&& obj) : BER_Decoder(std::move(obj), nullptr) {}
+      BOTAN_FUTURE_EXPLICIT BER_Decoder(BER_Object&& obj) : BER_Decoder(std::move(obj), nullptr) {}
 
       BER_Decoder(const BER_Decoder& other);
+      BER_Decoder(BER_Decoder&& other) noexcept;
 
       BER_Decoder& operator=(const BER_Decoder&) = delete;
+      BER_Decoder& operator=(BER_Decoder&&) noexcept;
 
       /**
       * Get the next object in the data stream.
@@ -149,15 +155,9 @@ class BOTAN_PUBLIC_API(2, 0) BER_Decoder final {
       */
       template <typename T>
       BER_Decoder& get_next_value(T& out, ASN1_Type type_tag, ASN1_Class class_tag = ASN1_Class::ContextSpecific)
-         requires std::is_standard_layout<T>::value && std::is_trivial<T>::value
+         requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
       {
-         BER_Object obj = get_next_object();
-         obj.assert_is_a(type_tag, class_tag);
-
-         if(obj.length() != sizeof(T)) {
-            throw BER_Decoding_Error("Size mismatch. Object value size is " + std::to_string(obj.length()) +
-                                     "; Output type size is " + std::to_string(sizeof(T)));
-         }
+         const BER_Object obj = get_next_value(sizeof(T), type_tag, class_tag);
 
          std::memcpy(reinterpret_cast<uint8_t*>(&out), obj.bits(), obj.length());
 
@@ -170,9 +170,12 @@ class BOTAN_PUBLIC_API(2, 0) BER_Decoder final {
       template <typename Alloc>
       BER_Decoder& raw_bytes(std::vector<uint8_t, Alloc>& out) {
          out.clear();
-         uint8_t buf;
-         while(m_source->read_byte(buf)) {
-            out.push_back(buf);
+         for(;;) {
+            if(auto next = this->read_next_byte()) {
+               out.push_back(*next);
+            } else {
+               break;
+            }
          }
          return (*this);
       }
@@ -247,7 +250,15 @@ class BOTAN_PUBLIC_API(2, 0) BER_Decoder final {
       }
 
       template <typename T>
-      BER_Decoder& decode_optional(T& out, ASN1_Type type_tag, ASN1_Class class_tag, const T& default_value = T());
+      BER_Decoder& decode_optional(T& out, ASN1_Type type_tag, ASN1_Class class_tag, const T& default_value = T()) {
+         std::optional<T> optval;
+         this->decode_optional(optval, type_tag, class_tag);
+         out = optval ? *optval : default_value;
+         return (*this);
+      }
+
+      template <typename T>
+      BER_Decoder& decode_optional(std::optional<T>& out, ASN1_Type type_tag, ASN1_Class class_tag);
 
       template <typename T>
       BER_Decoder& decode_optional_implicit(T& out,
@@ -289,7 +300,7 @@ class BOTAN_PUBLIC_API(2, 0) BER_Decoder final {
                                           ASN1_Class class_tag = ASN1_Class::ContextSpecific) {
          BER_Object obj = get_next_object();
 
-         ASN1_Type type_tag = static_cast<ASN1_Type>(expected_tag);
+         const ASN1_Type type_tag = static_cast<ASN1_Type>(expected_tag);
 
          if(obj.is_a(type_tag, class_tag)) {
             if(class_tag == ASN1_Class::ExplicitContextSpecific) {
@@ -314,8 +325,14 @@ class BOTAN_PUBLIC_API(2, 0) BER_Decoder final {
          return decode_optional_string(out, real_type, static_cast<uint32_t>(expected_tag), class_tag);
       }
 
+      ~BER_Decoder();
+
    private:
       BER_Decoder(BER_Object&& obj, BER_Decoder* parent);
+
+      std::optional<uint8_t> read_next_byte();
+
+      BER_Object get_next_value(size_t sizeofT, ASN1_Type type_tag, ASN1_Class class_tag);
 
       BER_Decoder* m_parent = nullptr;
       BER_Object m_pushed;
@@ -328,19 +345,21 @@ class BOTAN_PUBLIC_API(2, 0) BER_Decoder final {
 * Decode an OPTIONAL or DEFAULT element
 */
 template <typename T>
-BER_Decoder& BER_Decoder::decode_optional(T& out, ASN1_Type type_tag, ASN1_Class class_tag, const T& default_value) {
+BER_Decoder& BER_Decoder::decode_optional(std::optional<T>& optval, ASN1_Type type_tag, ASN1_Class class_tag) {
    BER_Object obj = get_next_object();
 
    if(obj.is_a(type_tag, class_tag)) {
+      T out{};
       if(class_tag == ASN1_Class::ExplicitContextSpecific) {
          BER_Decoder(std::move(obj)).decode(out).verify_end();
       } else {
-         push_back(std::move(obj));
-         decode(out, type_tag, class_tag);
+         this->push_back(std::move(obj));
+         this->decode(out, type_tag, class_tag);
       }
+      optval = std::move(out);
    } else {
-      out = default_value;
-      push_back(std::move(obj));
+      this->push_back(std::move(obj));
+      optval = std::nullopt;
    }
 
    return (*this);
@@ -372,7 +391,7 @@ BER_Decoder& BER_Decoder::decode_optional_implicit(T& out,
 }
 
 /*
-* Decode a list of homogenously typed values
+* Decode a list of homogeneously typed values
 */
 template <typename T>
 BER_Decoder& BER_Decoder::decode_list(std::vector<T>& vec, ASN1_Type type_tag, ASN1_Class class_tag) {
@@ -390,7 +409,7 @@ BER_Decoder& BER_Decoder::decode_list(std::vector<T>& vec, ASN1_Type type_tag, A
 }
 
 /*
-* Decode an optional list of homogenously typed values
+* Decode an optional list of homogeneously typed values
 */
 template <typename T>
 bool BER_Decoder::decode_optional_list(std::vector<T>& vec, ASN1_Type type_tag, ASN1_Class class_tag) {

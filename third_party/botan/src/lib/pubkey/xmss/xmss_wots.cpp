@@ -13,8 +13,9 @@
 #include <botan/internal/xmss_wots.h>
 
 #include <botan/mem_ops.h>
-#include <botan/internal/stl_util.h>
+#include <botan/internal/concat_util.h>
 #include <botan/internal/xmss_address.h>
+#include <botan/internal/xmss_hash.h>
 #include <botan/internal/xmss_tools.h>
 
 namespace Botan {
@@ -29,7 +30,7 @@ namespace {
  * the input x using the outputs of the PRNG "G".
  *
  * This overload is used in multithreaded scenarios, where it is
- * required to provide seperate instances of XMSS_Hash to each
+ * required to provide separate instances of XMSS_Hash to each
  * thread.
  *
  * @param params      The WOTS parameters to use
@@ -46,7 +47,7 @@ void chain(const XMSS_WOTS_Parameters& params,
            secure_vector<uint8_t>& result,
            size_t start_idx,
            size_t steps,
-           XMSS_Address& adrs,
+           XMSS_Address adrs,
            std::span<const uint8_t> seed,
            XMSS_Hash& hash) {
    BOTAN_ASSERT_NOMSG(result.size() == hash.output_length());
@@ -80,7 +81,7 @@ void chain(const XMSS_WOTS_Parameters& params,
 XMSS_WOTS_PublicKey::XMSS_WOTS_PublicKey(XMSS_WOTS_Parameters params,
                                          std::span<const uint8_t> public_seed,
                                          const XMSS_WOTS_PrivateKey& private_key,
-                                         XMSS_Address& adrs,
+                                         XMSS_Address adrs,
                                          XMSS_Hash& hash) :
       XMSS_WOTS_Base(std::move(params), private_key.key_data()) {
    for(size_t i = 0; i < m_params.len(); ++i) {
@@ -93,7 +94,7 @@ XMSS_WOTS_PublicKey::XMSS_WOTS_PublicKey(XMSS_WOTS_Parameters params,
                                          std::span<const uint8_t> public_seed,
                                          wots_keysig_t signature,
                                          const secure_vector<uint8_t>& msg,
-                                         XMSS_Address& adrs,
+                                         XMSS_Address adrs,
                                          XMSS_Hash& hash) :
       XMSS_WOTS_Base(std::move(params), std::move(signature)) {
    secure_vector<uint8_t> msg_digest{m_params.base_w(msg, m_params.len_1())};
@@ -114,7 +115,7 @@ XMSS_WOTS_PublicKey::XMSS_WOTS_PublicKey(XMSS_WOTS_Parameters params,
 
 wots_keysig_t XMSS_WOTS_PrivateKey::sign(const secure_vector<uint8_t>& msg,
                                          std::span<const uint8_t> public_seed,
-                                         XMSS_Address& adrs,
+                                         XMSS_Address adrs,
                                          XMSS_Hash& hash) {
    secure_vector<uint8_t> msg_digest{m_params.base_w(msg, m_params.len_1())};
 
@@ -155,7 +156,7 @@ XMSS_WOTS_PrivateKey::XMSS_WOTS_PrivateKey(XMSS_WOTS_Parameters params,
    hash.prf(r, private_seed, adrs.bytes());
 
    for(size_t i = 0; i < m_params.len(); ++i) {
-      XMSS_Tools::concat<size_t>(m_key_data[i], i, 32);
+      xmss_concat<size_t>(m_key_data[i], i, 32);
       hash.prf(m_key_data[i], r, m_key_data[i]);
    }
 }

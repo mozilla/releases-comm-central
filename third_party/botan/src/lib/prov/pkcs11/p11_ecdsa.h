@@ -35,8 +35,7 @@ class BOTAN_PUBLIC_API(2, 0) PKCS11_ECDSA_PublicKey final : public PKCS11_EC_Pub
       * @param session the session to use
       * @param handle the handle of the ECDSA public key
       */
-      PKCS11_ECDSA_PublicKey(Session& session, ObjectHandle handle) :
-            EC_PublicKey(), PKCS11_EC_PublicKey(session, handle) {}
+      PKCS11_ECDSA_PublicKey(Session& session, ObjectHandle handle) : PKCS11_EC_PublicKey(session, handle) {}
 
       /**
       * Imports an ECDSA public key
@@ -44,7 +43,7 @@ class BOTAN_PUBLIC_API(2, 0) PKCS11_ECDSA_PublicKey final : public PKCS11_EC_Pub
       * @param props the attributes of the public key
       */
       PKCS11_ECDSA_PublicKey(Session& session, const EC_PublicKeyImportProperties& props) :
-            EC_PublicKey(), PKCS11_EC_PublicKey(session, props) {}
+            PKCS11_EC_PublicKey(session, props) {}
 
       inline std::string algo_name() const override { return "ECDSA"; }
 
@@ -54,7 +53,7 @@ class BOTAN_PUBLIC_API(2, 0) PKCS11_ECDSA_PublicKey final : public PKCS11_EC_Pub
       /**
        * @throws Not_Implemented as this operation is not possible in PKCS11
        */
-      std::unique_ptr<Private_Key> generate_another(RandomNumberGenerator&) const final {
+      std::unique_ptr<Private_Key> generate_another(RandomNumberGenerator& /*rng*/) const final {
          throw Not_Implemented("Cannot generate a new PKCS#11 ECDSA keypair from this public key");
       }
 
@@ -99,7 +98,7 @@ class BOTAN_PUBLIC_API(2, 0) PKCS11_ECDSA_PrivateKey final : public PKCS11_EC_Pr
       /**
        * @throws Not_Implemented as this operation is not possible in PKCS11
        */
-      std::unique_ptr<Private_Key> generate_another(RandomNumberGenerator&) const override {
+      std::unique_ptr<Private_Key> generate_another(RandomNumberGenerator& /*rng*/) const override {
          throw Not_Implemented("Cannot generate a new PKCS#11 ECDSA keypair from this private key");
       }
 
@@ -116,7 +115,7 @@ class BOTAN_PUBLIC_API(2, 0) PKCS11_ECDSA_PrivateKey final : public PKCS11_EC_Pr
 
       secure_vector<uint8_t> private_key_bits() const override;
 
-      bool check_key(RandomNumberGenerator&, bool) const override;
+      bool check_key(RandomNumberGenerator& rng, bool strong) const override;
 
       std::unique_ptr<PK_Ops::Signature> create_signature_op(RandomNumberGenerator& rng,
                                                              std::string_view params,

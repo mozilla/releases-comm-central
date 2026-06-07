@@ -7,7 +7,6 @@
 
 #include <botan/ffi.h>
 
-#include <botan/pk_keys.h>
 #include <botan/internal/ffi_oid.h>
 #include <botan/internal/ffi_pkey.h>
 #include <botan/internal/ffi_util.h>
@@ -34,8 +33,7 @@ int botan_oid_from_string(botan_asn1_oid_t* oid_obj, const char* oid_str) {
          return BOTAN_FFI_ERROR_BAD_PARAMETER;
       }
       auto oid_ptr = std::make_unique<Botan::OID>(std::move(oid));
-      *oid_obj = new botan_asn1_oid_struct(std::move(oid_ptr));
-      return BOTAN_FFI_SUCCESS;
+      return ffi_new_object(oid_obj, std::move(oid_ptr));
    });
 }
 
@@ -67,7 +65,7 @@ int botan_oid_cmp(int* result, botan_asn1_oid_t a_w, botan_asn1_oid_t b_w) {
       if(result == nullptr) {
          return BOTAN_FFI_ERROR_NULL_POINTER;
       }
-      Botan::OID b = safe_get(b_w);
+      const Botan::OID b = safe_get(b_w);
       // we don't have .cmp for OID
       if(a == b) {
          *result = 0;

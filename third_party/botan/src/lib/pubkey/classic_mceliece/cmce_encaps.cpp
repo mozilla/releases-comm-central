@@ -8,9 +8,12 @@
  *
  * Botan is released under the Simplified BSD License (see license.txt)
  **/
+
 #include <botan/internal/cmce_encaps.h>
 
 #include <botan/rng.h>
+#include <botan/internal/buffer_slicer.h>
+#include <botan/internal/buffer_stuffer.h>
 
 namespace Botan {
 
@@ -24,7 +27,7 @@ std::optional<CmceErrorVector> Classic_McEliece_Encryptor::fixed_weight_vector_g
    const Classic_McEliece_Parameters& params, RandomNumberGenerator& rng) const {
    const auto rand = rng.random_vec((params.sigma1() / 8) * params.tau());
    CT::poison(rand);
-   uint16_t mask_m = (uint32_t(1) << params.m()) - 1;  // Only take m least significant bits
+   const uint16_t mask_m = (uint32_t(1) << params.m()) - 1;  // Only take m least significant bits
    secure_vector<uint16_t> a_values;
    a_values.reserve(params.tau());
    BufferSlicer rand_slicer(rand);
@@ -37,7 +40,7 @@ std::optional<CmceErrorVector> Classic_McEliece_Encryptor::fixed_weight_vector_g
       // This side channel only leaks which random elements are selected and which are dropped,
       // but no information about their content is leaked.
       d &= mask_m;
-      bool d_in_range = d < params.n();
+      const bool d_in_range = d < params.n();
       CT::unpoison(d_in_range);
       if(d_in_range && a_values.size() < params.t()) {
          a_values.push_back(d);
@@ -51,7 +54,7 @@ std::optional<CmceErrorVector> Classic_McEliece_Encryptor::fixed_weight_vector_g
    // Step 4: Restart if not all a_i are distinct
    for(size_t i = 1; i < params.t(); ++i) {
       for(size_t j = 0; j < i; ++j) {
-         bool a_i_j_equal = a_values.at(i) == a_values.at(j);
+         const bool a_i_j_equal = a_values.at(i) == a_values.at(j);
          CT::unpoison(a_i_j_equal);
          if(a_i_j_equal) {
             return std::nullopt;

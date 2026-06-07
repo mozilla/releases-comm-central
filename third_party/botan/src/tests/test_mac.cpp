@@ -8,7 +8,9 @@
 #include "tests.h"
 
 #if defined(BOTAN_HAS_MAC)
+   #include <botan/exceptn.h>
    #include <botan/mac.h>
+   #include <botan/rng.h>
    #include <botan/internal/fmt.h>
 #endif
 
@@ -51,8 +53,8 @@ class Message_Auth_Tests final : public Text_Based_Test {
 
             const std::string provider(mac->provider());
 
-            result.test_is_nonempty("provider", provider);
-            result.test_eq(provider, mac->name(), algo);
+            result.test_str_not_empty("provider", provider);
+            result.test_str_eq(provider, mac->name(), algo);
 
             try {
                std::vector<uint8_t> buf(128);
@@ -62,29 +64,29 @@ class Message_Auth_Tests final : public Text_Based_Test {
                result.test_success("Trying to MAC with no key set fails");
             }
 
-            result.test_eq("key not set", mac->has_keying_material(), false);
+            result.test_is_false("key not set", mac->has_keying_material());
             mac->set_key(key);
-            result.test_eq("key set", mac->has_keying_material(), true);
+            result.test_is_true("key set", mac->has_keying_material());
             mac->start(iv);
             mac->update(input);
-            result.test_eq(provider, "correct mac", mac->final(), expected);
+            result.test_bin_eq(provider + " correct mac", mac->final(), expected);
 
             mac->set_key(key);
             mac->start(iv);
             mac->update(input);
-            result.test_eq(provider, "correct mac (try 2)", mac->final(), expected);
+            result.test_bin_eq(provider + " correct mac (try 2)", mac->final(), expected);
 
             if(iv.empty()) {
                mac->set_key(key);
                mac->update(input);
-               result.test_eq(provider, "correct mac (no start call)", mac->final(), expected);
+               result.test_bin_eq(provider + " correct mac (no start call)", mac->final(), expected);
             }
 
             if(!mac->fresh_key_required_per_message()) {
                for(size_t i = 0; i != 3; ++i) {
                   mac->start(iv);
                   mac->update(input);
-                  result.test_eq(provider, "correct mac (same key)", mac->final(), expected);
+                  result.test_bin_eq(provider + " correct mac (same key)", mac->final(), expected);
                }
             }
 
@@ -93,7 +95,7 @@ class Message_Auth_Tests final : public Text_Based_Test {
             mac->start(iv);
             mac->update("some discarded input");
             mac->clear();
-            result.test_eq("key not set", mac->has_keying_material(), false);
+            result.test_is_false("key not set", mac->has_keying_material());
 
             // do the same to test verify_mac()
             mac->set_key(key);
@@ -102,13 +104,13 @@ class Message_Auth_Tests final : public Text_Based_Test {
 
             // Test that clone works and does not affect parent object
             auto clone = mac->new_object();
-            result.confirm("Clone has different pointer", mac.get() != clone.get());
-            result.test_eq("Clone has same name", mac->name(), clone->name());
+            result.test_is_true("Clone has different pointer", mac.get() != clone.get());
+            result.test_str_eq("Clone has same name", mac->name(), clone->name());
             clone->set_key(key);
             clone->start(iv);
             clone->update(this->rng().random_vec(32));
 
-            result.test_eq(provider + " verify mac", mac->verify_mac(expected.data(), expected.size()), true);
+            result.test_is_true(provider + " verify mac", mac->verify_mac(expected.data(), expected.size()));
 
             if(input.size() > 2) {
                mac->set_key(key);  // Poly1305 requires the re-key
@@ -118,7 +120,7 @@ class Message_Auth_Tests final : public Text_Based_Test {
                mac->update(&input[1], input.size() - 2);
                mac->update(input[input.size() - 1]);
 
-               result.test_eq(provider, "split mac", mac->final(), expected);
+               result.test_bin_eq(provider + " split mac", mac->final(), expected);
 
                // do the same to test verify_mac()
                mac->set_key(key);
@@ -128,7 +130,7 @@ class Message_Auth_Tests final : public Text_Based_Test {
                mac->update(&input[1], input.size() - 2);
                mac->update(input[input.size() - 1]);
 
-               result.test_eq(provider + " split mac", mac->verify_mac(expected.data(), expected.size()), true);
+               result.test_is_true(provider + " split mac", mac->verify_mac(expected.data(), expected.size()));
             }
 
             mac->clear();

@@ -9,6 +9,7 @@
 #define BOTAN_OCSP_H_
 
 #include <botan/asn1_obj.h>
+#include <botan/asn1_time.h>
 #include <botan/bigint.h>
 #include <botan/pkix_types.h>
 #include <botan/x509cert.h>
@@ -49,9 +50,9 @@ class BOTAN_PUBLIC_API(2, 0) SingleResponse final : public ASN1_Object {
 
       size_t cert_status() const { return m_cert_status; }
 
-      X509_Time this_update() const { return m_thisupdate; }
+      const X509_Time& this_update() const { return m_thisupdate; }
 
-      X509_Time next_update() const { return m_nextupdate; }
+      const X509_Time& next_update() const { return m_nextupdate; }
 
       void encode_into(DER_Encoder& to) const override;
 
@@ -95,8 +96,11 @@ class BOTAN_PUBLIC_API(2, 0) Request final {
 
       /**
       * @return subject certificate
+      * TODO(Botan4) remove this function
       */
-      const X509_Certificate& subject() const { throw Not_Implemented("Method have been deprecated"); }
+      const X509_Certificate& subject() const {  // NOLINT(*-convert-member-functions-to-static)
+         throw Not_Implemented("Method have been deprecated");
+      }
 
       const std::vector<uint8_t>& issuer_key_hash() const { return m_certid.issuer_key_hash(); }
 
@@ -110,7 +114,7 @@ class BOTAN_PUBLIC_API(2, 0) Request final {
 *
 * see https://tools.ietf.org/html/rfc6960#section-4.2.1
 */
-enum class Response_Status_Code {
+enum class Response_Status_Code : uint8_t {
    Successful = 0,
    Malformed_Request = 1,
    Internal_Error = 2,
@@ -130,13 +134,14 @@ class BOTAN_PUBLIC_API(2, 0) Response final {
       * Create a fake OCSP response from a given status code.
       * @param status the status code the check functions will return
       */
-      Response(Certificate_Status_Code status);
+      BOTAN_FUTURE_EXPLICIT Response(Certificate_Status_Code status);
 
       /**
       * Parses an OCSP response.
       * @param response_bits response bits received
       */
-      Response(const std::vector<uint8_t>& response_bits) : Response(response_bits.data(), response_bits.size()) {}
+      BOTAN_FUTURE_EXPLICIT Response(const std::vector<uint8_t>& response_bits) :
+            Response(response_bits.data(), response_bits.size()) {}
 
       /**
       * Parses an OCSP response.

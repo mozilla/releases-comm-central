@@ -8,6 +8,7 @@
 #include "tests.h"
 
 #if defined(BOTAN_HAS_PBKDF)
+   #include <botan/exceptn.h>
    #include <botan/pbkdf.h>
    #include <botan/pwdhash.h>
 #endif
@@ -40,11 +41,11 @@ class PBKDF_KAT_Tests final : public Text_Based_Test {
             return result;
          }
 
-         result.test_eq("Expected name", pbkdf->name(), pbkdf_name);
+         result.test_str_eq("Expected name", pbkdf->name(), pbkdf_name);
 
          const Botan::secure_vector<uint8_t> derived =
             pbkdf->derive_key(outlen, passphrase, salt.data(), salt.size(), iterations).bits_of();
-         result.test_eq("derived key", derived, expected);
+         result.test_bin_eq("derived key", derived, expected);
 
          auto pwdhash_fam = Botan::PasswordHashFamily::create(pbkdf_name);
 
@@ -58,7 +59,7 @@ class PBKDF_KAT_Tests final : public Text_Based_Test {
          std::vector<uint8_t> pwdhash_derived(outlen);
          pwdhash->hash(pwdhash_derived, passphrase, salt);
 
-         result.test_eq("pwdhash derived key", pwdhash_derived, expected);
+         result.test_bin_eq("pwdhash derived key", pwdhash_derived, expected);
 
          return result;
       }
@@ -74,8 +75,8 @@ class Pwdhash_Tests : public Test {
          const std::vector<std::string> all_pwdhash = {
             "Scrypt", "PBKDF2(SHA-256)", "OpenPGP-S2K(SHA-384)", "Argon2d", "Argon2i", "Argon2id", "Bcrypt-PBKDF"};
 
-         const auto run_time = std::chrono::milliseconds(3);
-         const auto tune_time = std::chrono::milliseconds(1);
+         const uint64_t run_time = 3;
+         const uint64_t tune_time = 1;
          const size_t max_mem = 32;
 
          for(const std::string& pwdhash : all_pwdhash) {
@@ -85,35 +86,41 @@ class Pwdhash_Tests : public Test {
             if(pwdhash_fam) {
                result.start_timer();
 
-               const std::vector<uint8_t> salt(8);
-               const std::string password = "test";
-
-               auto tuned_pwhash = pwdhash_fam->tune(32, run_time, max_mem, tune_time);
-
-               std::vector<uint8_t> output1(32);
-               tuned_pwhash->hash(output1, password, salt);
-
-               std::unique_ptr<Botan::PasswordHash> pwhash;
-
-               if(pwdhash_fam->name() == "Scrypt" || pwdhash_fam->name().starts_with("Argon2")) {
-                  pwhash = pwdhash_fam->from_params(
-                     tuned_pwhash->memory_param(), tuned_pwhash->iterations(), tuned_pwhash->parallelism());
-               } else {
-                  pwhash = pwdhash_fam->from_params(tuned_pwhash->iterations());
+               std::unique_ptr<Botan::PasswordHash> tuned_pwhash;
+               try {
+                  tuned_pwhash = pwdhash_fam->tune_params(32, run_time, max_mem, tune_time);
+               } catch(const Botan::Not_Implemented&) {
+                  // tune_params requires os_utils for clock access; not available in minimized builds
+                  result.test_note("tune_params not available in current build config");
                }
 
-               std::vector<uint8_t> output2(32);
-               pwhash->hash(output2, password, salt);
+               if(tuned_pwhash != nullptr) {
+                  std::vector<uint8_t> output1(32);
+                  const std::vector<uint8_t> salt(8);
+                  const std::string password = "test";
+                  tuned_pwhash->hash(output1, password, salt);
 
-               result.test_eq("PasswordHash produced same output when run with same params", output1, output2);
+                  std::unique_ptr<Botan::PasswordHash> pwhash;
 
-               auto default_pwhash = pwdhash_fam->default_params();
-               std::vector<uint8_t> output3(32);
-               default_pwhash->hash(output3, password, salt);
+                  if(pwdhash_fam->name() == "Scrypt" || pwdhash_fam->name().starts_with("Argon2")) {
+                     pwhash = pwdhash_fam->from_params(
+                        tuned_pwhash->memory_param(), tuned_pwhash->iterations(), tuned_pwhash->parallelism());
+                  } else {
+                     pwhash = pwdhash_fam->from_params(tuned_pwhash->iterations());
+                  }
 
+                  std::vector<uint8_t> output2(32);
+                  pwhash->hash(output2, password, salt);
+
+                  result.test_bin_eq("PasswordHash produced same output when run with same params", output1, output2);
+
+                  auto default_pwhash = pwdhash_fam->default_params();
+                  std::vector<uint8_t> output3(32);
+                  default_pwhash->hash(output3, password, salt);
+               }
                result.end_timer();
             } else {
-               result.test_note("No such algo " + pwdhash);
+               result.test_note("No such algo", pwdhash);
             }
 
             results.push_back(result);
@@ -153,7 +160,7 @@ class Bcrypt_PBKDF_KAT_Tests final : public Text_Based_Test {
          std::vector<uint8_t> derived(expected.size());
          pwdhash->hash(derived, passphrase, salt);
 
-         result.test_eq("derived key", derived, expected);
+         result.test_bin_eq("derived key", derived, expected);
 
          return result;
       }
@@ -195,7 +202,7 @@ class Scrypt_KAT_Tests final : public Text_Based_Test {
          std::vector<uint8_t> pwdhash_derived(expected.size());
          pwdhash->hash(pwdhash_derived, passphrase, salt);
 
-         result.test_eq("pwdhash derived key", pwdhash_derived, expected);
+         result.test_bin_eq("pwdhash derived key", pwdhash_derived, expected);
 
          return result;
       }
@@ -237,7 +244,7 @@ class Argon2_KAT_Tests final : public Text_Based_Test {
          std::vector<uint8_t> pwdhash_derived(expected.size());
          pwdhash->hash(pwdhash_derived, passphrase_str, salt, ad, key);
 
-         result.test_eq("pwdhash derived key", pwdhash_derived, expected);
+         result.test_bin_eq("pwdhash derived key", pwdhash_derived, expected);
 
          return result;
       }
@@ -257,30 +264,30 @@ class PGP_S2K_Iter_Test final : public Test {
          // The maximum representable iteration count
          const size_t max_iter = 65011712;
 
-         result.test_eq("Encoding of large value accepted", Botan::RFC4880_encode_count(max_iter * 2), size_t(255));
-         result.test_eq("Encoding of small value accepted", Botan::RFC4880_encode_count(0), size_t(0));
+         result.test_sz_eq("Encoding of large value accepted", Botan::RFC4880_encode_count(max_iter * 2), size_t(255));
+         result.test_sz_eq("Encoding of small value accepted", Botan::RFC4880_encode_count(0), size_t(0));
 
          for(size_t c = 0; c != 256; ++c) {
             const size_t dec = Botan::RFC4880_decode_count(static_cast<uint8_t>(c));
             const size_t comp_dec = (16 + (c & 0x0F)) << ((c >> 4) + 6);
-            result.test_eq("Decoded value matches PGP formula", dec, comp_dec);
+            result.test_sz_eq("Decoded value matches PGP formula", dec, comp_dec);
 
             const size_t enc = Botan::RFC4880_encode_count(comp_dec);
-            result.test_eq("Encoded value matches PGP formula", enc, c);
+            result.test_sz_eq("Encoded value matches PGP formula", enc, c);
          }
 
          uint8_t last_enc = 0;
 
          for(size_t i = 0; i <= max_iter; i += 64) {
             const uint8_t enc = Botan::RFC4880_encode_count(i);
-            result.test_lte("Encoded value non-decreasing", last_enc, enc);
+            result.test_sz_lte("Encoded value non-decreasing", last_enc, enc);
 
             /*
             The iteration count as encoded may not be exactly the
             value requested, but should never be less
             */
             const size_t dec = Botan::RFC4880_decode_count(enc);
-            result.test_gte("Decoded value is >= requested", dec, i);
+            result.test_sz_gte("Decoded value is >= requested", dec, i);
 
             last_enc = enc;
          }

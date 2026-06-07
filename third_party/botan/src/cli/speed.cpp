@@ -9,7 +9,6 @@
 #include "perf.h"
 
 #include <algorithm>
-#include <chrono>
 #include <iomanip>
 #include <map>
 #include <set>
@@ -17,8 +16,6 @@
 
 // Always available:
 #include <botan/version.h>
-#include <botan/internal/fmt.h>
-#include <botan/internal/stl_util.h>
 #include <botan/internal/target_info.h>
 
 #if defined(BOTAN_HAS_CPUID)
@@ -47,22 +44,22 @@ class JSON_Output final {
          out << "[\n";
 
          out << "{"
-             << "\"arch\": \"" << BOTAN_TARGET_ARCH << "\", "
-             << "\"version\": \"" << Botan::short_version_cstr() << "\", ";
+             << R"("arch": ")" << BOTAN_TARGET_ARCH << "\", "
+             << R"("version": ")" << Botan::short_version_cstr() << "\", ";
 
          if(auto vc_revision = Botan::version_vc_revision()) {
-            out << "\"git\": \"" << *vc_revision << "\", ";
+            out << R"("git": ")" << *vc_revision << "\", ";
          }
 
-         out << "\"compiler\": \"" << BOTAN_COMPILER_INVOCATION_STRING << "\""
+         out << R"("compiler": ")" << BOTAN_COMPILER_INVOCATION_STRING << "\""
              << "},\n";
 
          for(size_t i = 0; i != m_results.size(); ++i) {
             const Timer& t = m_results[i];
 
             out << "{"
-                << "\"algo\": \"" << t.get_name() << "\", "
-                << "\"op\": \"" << t.doing() << "\", "
+                << R"("algo": ")" << t.get_name() << "\", "
+                << R"("op": ")" << t.doing() << "\", "
                 << "\"events\": " << t.events() << ", ";
 
             if(t.cycles_consumed() > 0) {
@@ -70,7 +67,7 @@ class JSON_Output final {
             }
 
             if(t.buf_size() > 0) {
-               out << "\"bps\": " << static_cast<uint64_t>(t.events() / (t.value() / 1000000000.0)) << ", ";
+               out << "\"bps\": " << static_cast<uint64_t>(t.events() / (t.nanoseconds() / 1000000000.0)) << ", ";
                out << "\"buf_size\": " << t.buf_size() << ", ";
             }
 
@@ -271,7 +268,45 @@ std::string format_timer(const Timer& t, size_t time_unit) {
    return oss.str();
 }
 
-}  // namespace
+std::vector<std::string> interpret_ecc_groups(const std::string& arg) {
+   if(arg.empty()) {
+      return {"secp256r1", "secp384r1", "secp521r1", "brainpool256r1", "brainpool384r1", "brainpool512r1"};
+   }
+   if(arg == "nist") {
+      return {"secp224r1", "secp256r1", "secp384r1", "secp521r1"};
+   }
+
+#if defined(BOTAN_HAS_ECC_GROUP)
+   if(arg == "all") {
+      const auto& all = Botan::EC_Group::known_named_groups();
+      return std::vector<std::string>(all.begin(), all.end());
+   }
+
+   if(arg == "generic") {
+      std::vector<std::string> groups;
+      for(const auto& group_name : Botan::EC_Group::known_named_groups()) {
+         const Botan::EC_Group group(group_name);
+         if(group.engine() == Botan::EC_Group_Engine::Generic) {
+            groups.push_back(group_name);
+         }
+      }
+      return groups;
+   }
+
+   if(arg == "pcurves") {
+      std::vector<std::string> groups;
+      for(const auto& group_name : Botan::EC_Group::known_named_groups()) {
+         const Botan::EC_Group group(group_name);
+         if(group.engine() == Botan::EC_Group_Engine::Optimized) {
+            groups.push_back(group_name);
+         }
+      }
+      return groups;
+   }
+#endif
+
+   return Command::split_on(arg, ',');
+}
 
 class Speed final : public Command {
    public:
@@ -318,6 +353,7 @@ class Speed final : public Command {
             "AES-128/GCM",
             "AES-128/XTS",
             "AES-128/SIV",
+            "Ascon-AEAD128",
 
             "Serpent/CBC",
             "Serpent/CTR-BE",
@@ -340,6 +376,7 @@ class Speed final : public Command {
             "SHA-512",
             "SHA-3(256)",
             "SHA-3(512)",
+            "Ascon-Hash256",
             "RIPEMD-160",
             "Skein-512",
             "Blake2b",
@@ -348,6 +385,7 @@ class Speed final : public Command {
             /* XOFs */
             "SHAKE-128",
             "SHAKE-256",
+            "Ascon-XOF128",
 
             /* MACs */
             "CMAC(AES-128)",
@@ -376,8 +414,8 @@ class Speed final : public Command {
       std::string description() const override { return "Measures the speed of algorithms"; }
 
       void go() override {
-         std::chrono::milliseconds msec(get_arg_sz("msec"));
-         std::vector<std::string> ecc_groups = Command::split_on(get_arg("ecc-groups"), ',');
+         const uint64_t milliseconds = get_arg_sz("msec");
+         const std::string ecc_groups_arg = get_arg("ecc-groups");
          const std::string format = get_arg("format");
          const std::string clock_ratio = get_arg("cpu-clock-ratio");
 
@@ -425,14 +463,7 @@ class Speed final : public Command {
             throw CLI_Usage_Error("Unknown --format type '" + format + "'");
          }
 
-#if defined(BOTAN_HAS_ECC_GROUP)
-         if(ecc_groups.empty()) {
-            ecc_groups = {"secp256r1", "secp384r1", "secp521r1", "brainpool256r1", "brainpool384r1", "brainpool512r1"};
-         } else if(ecc_groups.size() == 1 && ecc_groups[0] == "all") {
-            auto all = Botan::EC_Group::known_named_groups();
-            ecc_groups.assign(all.begin(), all.end());
-         }
-#endif
+         const auto ecc_groups = interpret_ecc_groups(ecc_groups_arg);
 
          std::vector<std::string> algos = get_arg_list("algos");
 
@@ -462,14 +493,14 @@ class Speed final : public Command {
             algos = default_benchmark_list();
          }
 
-         PerfConfig perf_config([&](const Timer& t) { this->record_result(t); },
-                                clock_speed,
-                                clock_cycle_ratio,
-                                msec,
-                                ecc_groups,
-                                buf_sizes,
-                                this->error_output(),
-                                this->rng());
+         const PerfConfig perf_config([&](const Timer& t) { this->record_result(t); },
+                                      clock_speed,
+                                      clock_cycle_ratio,
+                                      milliseconds,
+                                      ecc_groups,
+                                      buf_sizes,
+                                      this->error_output(),
+                                      this->rng());
 
          for(const auto& algo : algos) {
             if(auto perf = PerfTest::get(algo)) {
@@ -507,7 +538,7 @@ class Speed final : public Command {
          if(m_json) {
             m_json->add(t);
          } else {
-            output() << format_timer(t, m_time_unit) << std::endl;
+            output() << format_timer(t, m_time_unit) << "\n" << std::flush;
 
             if(m_summary) {
                m_summary->add(t);
@@ -517,5 +548,7 @@ class Speed final : public Command {
 };
 
 BOTAN_REGISTER_COMMAND("speed", Speed);
+
+}  // namespace
 
 }  // namespace Botan_CLI

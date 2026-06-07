@@ -90,7 +90,7 @@ class PrimeOrderCurveImpl final : public PrimeOrderCurve {
                                                const AffinePoint& q,
                                                const Scalar& y,
                                                RandomNumberGenerator& rng) const override {
-         WindowedMul2Table<C, Mul2WindowBits> tbl(from_stash(p), from_stash(q));
+         const WindowedMul2Table<C, Mul2WindowBits> tbl(from_stash(p), from_stash(q));
          auto pt = tbl.mul2(from_stash(x), from_stash(y), rng);
          if(pt.is_identity().as_bool()) {
             return {};
@@ -122,11 +122,11 @@ class PrimeOrderCurveImpl final : public PrimeOrderCurve {
             * With overwhelming probability, this conversion is correct. The
             * only time it is not is in the extremely unlikely case where the
             * signer actually reduced the x coordinate modulo the group order.
-            * That is handled seperately in a second step.
+            * That is handled separately in a second step.
             */
             const auto z2 = pt.z().square();
 
-            std::array<uint8_t, C::Scalar::BYTES> v_bytes;
+            std::array<uint8_t, C::Scalar::BYTES> v_bytes{};
             from_stash(v).serialize_to(v_bytes);
 
             if(const auto fe_v = C::FieldElement::deserialize(v_bytes)) {
@@ -178,7 +178,7 @@ class PrimeOrderCurveImpl final : public PrimeOrderCurve {
 
       Scalar base_point_mul_x_mod_order(const Scalar& scalar, RandomNumberGenerator& rng) const override {
          auto pt = m_mul_by_g.mul(from_stash(scalar), rng);
-         std::array<uint8_t, C::FieldElement::BYTES> x_bytes;
+         std::array<uint8_t, C::FieldElement::BYTES> x_bytes{};
          to_affine_x<C>(pt).serialize_to(std::span{x_bytes});
          // Reduction might be required (if unlikely)
          return stash(C::Scalar::from_wide_bytes(std::span<const uint8_t, C::FieldElement::BYTES>{x_bytes}));
@@ -190,7 +190,7 @@ class PrimeOrderCurveImpl final : public PrimeOrderCurve {
          auto affine = to_affine<C>(from_stash(pt));
 
          const auto y2 = affine.y().square();
-         const auto x3_ax_b = C::AffinePoint::x3_ax_b(affine.x());
+         const auto x3_ax_b = C::x3_ax_b(affine.x());
          const auto valid_point = affine.is_identity() || (y2 == x3_ax_b);
 
          BOTAN_ASSERT(valid_point.as_bool(), "Computed point is on the curve");
@@ -237,11 +237,41 @@ class PrimeOrderCurveImpl final : public PrimeOrderCurve {
       }
 
       std::optional<AffinePoint> deserialize_point(std::span<const uint8_t> bytes) const override {
-         if(auto pt = C::AffinePoint::deserialize(bytes)) {
-            return stash(*pt);
-         } else {
-            return {};
+         // The identity element (see SEC1 section 2.3.4)
+         // TODO(Botan4) remove this - we should reject the identity encoding
+         if(bytes.size() == 1 && bytes[0] == 0x00) {
+            return stash(C::AffinePoint::identity());
          }
+
+         constexpr size_t FieldElementBytes = C::FieldElement::BYTES;
+         constexpr size_t CompressedBytes = C::FieldElement::BYTES + 1;
+         constexpr size_t UncompressedBytes = 2 * C::FieldElement::BYTES + 1;
+
+         if(bytes.size() == UncompressedBytes && bytes[0] == 0x04) {
+            const auto encoded_point = bytes.subspan(1);
+            auto x = C::FieldElement::deserialize(encoded_point.first(FieldElementBytes));
+            auto y = C::FieldElement::deserialize(encoded_point.last(FieldElementBytes));
+
+            if(x && y) {
+               // Check that y^2 = x^3 + ax + b
+               const auto lhs = (*y).square();
+               const auto rhs = C::x3_ax_b(*x);
+               const auto valid = (lhs == rhs);
+               if(valid.as_bool()) {
+                  return stash(typename C::AffinePoint(*x, *y));
+               }
+            }
+         } else if(bytes.size() == CompressedBytes && (bytes[0] == 0x02 || bytes[0] == 0x03)) {
+            const CT::Choice y_is_even = CT::Mask<uint8_t>::is_equal(bytes[0], 0x02).as_choice();
+
+            if(auto x = C::FieldElement::deserialize(bytes.subspan(1, FieldElementBytes))) {
+               if(auto y = sqrt_field_element<C>(C::x3_ax_b(*x)).as_optional_vartime()) {
+                  return stash(typename C::AffinePoint(*x, y->correct_sign(y_is_even)));
+               }
+            }
+         }
+
+         return {};
       }
 
       AffinePoint hash_to_curve_nu(std::function<void(std::span<uint8_t>)> expand_message) const override {

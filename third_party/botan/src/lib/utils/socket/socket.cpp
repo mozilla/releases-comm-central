@@ -10,6 +10,7 @@
 #include <botan/exceptn.h>
 #include <botan/mem_ops.h>
 #include <botan/internal/fmt.h>
+#include <botan/internal/stl_util.h>
 #include <botan/internal/target_info.h>
 #include <chrono>
 
@@ -51,7 +52,7 @@ class Asio_Socket final : public OS::Socket {
          check_timeout();
 
          boost::asio::ip::tcp::resolver resolver(m_io);
-         boost::asio::ip::tcp::resolver::results_type dns_iter =
+         const boost::asio::ip::tcp::resolver::results_type dns_iter =
             resolver.resolve(std::string{hostname}, std::string{service});
 
          boost::system::error_code ec = boost::asio::error::would_block;
@@ -67,17 +68,19 @@ class Asio_Socket final : public OS::Socket {
          if(ec) {
             throw boost::system::system_error(ec);
          }
-         if(m_tcp.is_open() == false) {
+         if(!m_tcp.is_open()) {
             throw System_Error(fmt("Connection to host {} failed", hostname));
          }
       }
 
-      void write(const uint8_t buf[], size_t len) override {
+      void write(std::span<const uint8_t> buf) override {
          m_timer.expires_after(m_timeout);
 
          boost::system::error_code ec = boost::asio::error::would_block;
 
-         m_tcp.async_send(boost::asio::buffer(buf, len), [&ec](boost::system::error_code e, size_t) { ec = e; });
+         // Some versions of asio don't know about span...
+         m_tcp.async_send(boost::asio::buffer(buf.data(), buf.size()),
+                          [&ec](boost::system::error_code e, size_t) { ec = e; });
 
          while(ec == boost::asio::error::would_block) {
             m_io.run_one();
@@ -122,6 +125,7 @@ class Asio_Socket final : public OS::Socket {
             m_tcp.close(err);
          }
 
+         // NOLINTNEXTLINE(*-avoid-bind) FIXME - unclear why we can't use a lambda here
          m_timer.async_wait(std::bind(&Asio_Socket::check_timeout, this));
       }
 
@@ -184,6 +188,7 @@ class BSD_Socket final : public OS::Socket {
       static bool nonblocking_connect_in_progress() { return (errno == EINPROGRESS); }
 
       static void set_nonblocking(socket_type s) {
+         // NOLINTNEXTLINE(*-vararg)
          if(::fcntl(s, F_SETFL, O_NONBLOCK) < 0) {
             throw System_Error("Setting socket to non-blocking state failed", errno);
          }
@@ -196,27 +201,24 @@ class BSD_Socket final : public OS::Socket {
 
    public:
       BSD_Socket(std::string_view hostname, std::string_view service, std::chrono::microseconds timeout) :
-            m_timeout(timeout) {
+            m_timeout(timeout), m_socket(invalid_socket()) {
          socket_init();
-
-         m_socket = invalid_socket();
-
-         addrinfo hints;
-         clear_mem(&hints, 1);
-         hints.ai_family = AF_UNSPEC;
-         hints.ai_socktype = SOCK_STREAM;
-         addrinfo* res;
 
          const std::string hostname_str(hostname);
          const std::string service_str(service);
 
-         int rc = ::getaddrinfo(hostname_str.c_str(), service_str.c_str(), &hints, &res);
+         addrinfo hints{};
+         hints.ai_family = AF_UNSPEC;
+         hints.ai_socktype = SOCK_STREAM;
 
+         unique_addr_info_ptr res = nullptr;
+
+         const int rc = ::getaddrinfo(hostname_str.c_str(), service_str.c_str(), &hints, Botan::out_ptr(res));
          if(rc != 0) {
             throw System_Error(fmt("Name resolution failed for {}", hostname), rc);
          }
 
-         for(addrinfo* rp = res; (m_socket == invalid_socket()) && (rp != nullptr); rp = rp->ai_next) {
+         for(const addrinfo* rp = res.get(); (m_socket == invalid_socket()) && (rp != nullptr); rp = rp->ai_next) {
             if(rp->ai_family != AF_INET && rp->ai_family != AF_INET6) {
                continue;
             }
@@ -230,7 +232,7 @@ class BSD_Socket final : public OS::Socket {
 
             set_nonblocking(m_socket);
 
-            int err = ::connect(m_socket, rp->ai_addr, static_cast<socklen_type>(rp->ai_addrlen));
+            const int err = ::connect(m_socket, rp->ai_addr, static_cast<socklen_type>(rp->ai_addrlen));
 
             if(err == -1) {
                int active = 0;
@@ -238,12 +240,11 @@ class BSD_Socket final : public OS::Socket {
                   struct timeval timeout_tv = make_timeout_tv();
                   fd_set write_set;
                   FD_ZERO(&write_set);
-                  // Weirdly, Winsock uses a SOCKET type but wants FD_SET to get an int instead
-                  FD_SET(static_cast<int>(m_socket), &write_set);
+                  FD_SET(m_socket, &write_set);
 
                   active = ::select(static_cast<int>(m_socket + 1), nullptr, &write_set, nullptr, &timeout_tv);
 
-                  if(active) {
+                  if(active > 0) {
                      int socket_error = 0;
                      socklen_t len = sizeof(socket_error);
 
@@ -266,8 +267,6 @@ class BSD_Socket final : public OS::Socket {
             }
          }
 
-         ::freeaddrinfo(res);
-
          if(m_socket == invalid_socket()) {
             throw System_Error(fmt("Connecting to {} for service {} failed with errno {}", hostname, service, errno),
                                errno);
@@ -285,22 +284,24 @@ class BSD_Socket final : public OS::Socket {
       BSD_Socket& operator=(const BSD_Socket& other) = delete;
       BSD_Socket& operator=(BSD_Socket&& other) = delete;
 
-      void write(const uint8_t buf[], size_t len) override {
+      void write(std::span<const uint8_t> buf) override {
          fd_set write_set;
          FD_ZERO(&write_set);
          FD_SET(m_socket, &write_set);
 
+         const size_t len = buf.size();
+
          size_t sent_so_far = 0;
          while(sent_so_far != len) {
             struct timeval timeout = make_timeout_tv();
-            int active = ::select(static_cast<int>(m_socket + 1), nullptr, &write_set, nullptr, &timeout);
+            const int active = ::select(static_cast<int>(m_socket + 1), nullptr, &write_set, nullptr, &timeout);
 
             if(active == 0) {
                throw System_Error("Timeout during socket write");
             }
 
             const size_t left = len - sent_so_far;
-            socket_op_ret_type sent =
+            const socket_op_ret_type sent =
                ::send(m_socket, cast_uint8_ptr_to_char(&buf[sent_so_far]), static_cast<sendrecv_len_type>(left), 0);
             if(sent < 0) {
                throw System_Error("Socket write failed", errno);
@@ -316,13 +317,14 @@ class BSD_Socket final : public OS::Socket {
          FD_SET(m_socket, &read_set);
 
          struct timeval timeout = make_timeout_tv();
-         int active = ::select(static_cast<int>(m_socket + 1), &read_set, nullptr, nullptr, &timeout);
+         const int active = ::select(static_cast<int>(m_socket + 1), &read_set, nullptr, nullptr, &timeout);
 
          if(active == 0) {
             throw System_Error("Timeout during socket read");
          }
 
-         socket_op_ret_type got = ::recv(m_socket, cast_uint8_ptr_to_char(buf), static_cast<sendrecv_len_type>(len), 0);
+         const socket_op_ret_type got =
+            ::recv(m_socket, cast_uint8_ptr_to_char(buf), static_cast<sendrecv_len_type>(len), 0);
 
          if(got < 0) {
             throw System_Error("Socket read failed", errno);
@@ -333,7 +335,8 @@ class BSD_Socket final : public OS::Socket {
 
    private:
       struct timeval make_timeout_tv() const {
-         struct timeval tv;
+         struct timeval tv {};
+
          tv.tv_sec = static_cast<decltype(timeval::tv_sec)>(m_timeout.count() / 1000000);
          tv.tv_usec = static_cast<decltype(timeval::tv_usec)>(m_timeout.count() % 1000000);
          return tv;
@@ -341,6 +344,12 @@ class BSD_Socket final : public OS::Socket {
 
       const std::chrono::microseconds m_timeout;
       socket_type m_socket;
+
+      using unique_addr_info_ptr = std::unique_ptr<addrinfo, decltype([](addrinfo* p) {
+                                                      if(p != nullptr) {
+                                                         ::freeaddrinfo(p);
+                                                      }
+                                                   })>;
 };
 
 #endif

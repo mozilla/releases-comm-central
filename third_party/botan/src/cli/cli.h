@@ -31,7 +31,7 @@ class Argument_Parser;
 std::shared_ptr<Botan::RandomNumberGenerator> cli_make_rng(const std::string& type = "",
                                                            const std::string& hex_drbg_seed = "");
 
-class Command {
+class Command /* NOLINT(*special-member-functions) */ {
    public:
       /**
       * Get a registered command
@@ -160,9 +160,9 @@ class Command {
       /*
       * Read an entire file into memory and return the contents
       */
-      std::vector<uint8_t> slurp_file(const std::string& input_file, size_t buf_size = 0) const;
+      static std::vector<uint8_t> slurp_file(const std::string& input_file, size_t buf_size = 0);
 
-      std::string slurp_file_as_str(const std::string& input_file, size_t buf_size = 0) const;
+      static std::string slurp_file_as_str(const std::string& input_file, size_t buf_size = 0);
 
       /*
       * Read a file calling consumer_fn() with the inputs
@@ -218,8 +218,10 @@ class Command {
       };
 };
 
-#define BOTAN_REGISTER_COMMAND(name, CLI_Class)                \
-   const Botan_CLI::Command::Registration reg_cmd_##CLI_Class( \
+// NOLINTNEXTLINE(*-macro-usage)
+#define BOTAN_REGISTER_COMMAND(name, CLI_Class)                          \
+   /* NOLINTNEXTLINE(cert-err58-cpp,*-throwing-static-initialization) */ \
+   const Botan_CLI::Command::Registration reg_cmd_##CLI_Class(           \
       name, []() -> std::unique_ptr<Botan_CLI::Command> { return std::make_unique<CLI_Class>(); })
 
 }  // namespace Botan_CLI

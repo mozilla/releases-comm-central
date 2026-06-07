@@ -21,7 +21,7 @@ class RFC6066_Empty_Certificate_Status_Request {
    public:
       RFC6066_Empty_Certificate_Status_Request() = default;
 
-      RFC6066_Empty_Certificate_Status_Request(uint16_t extension_size) {
+      explicit RFC6066_Empty_Certificate_Status_Request(uint16_t extension_size) {
          if(extension_size != 0) {
             throw Decoding_Error("Received an unexpectedly non-empty Certificate_Status_Request");
          }
@@ -65,9 +65,9 @@ class RFC6066_Certificate_Status_Request {
          };
       }
 
-      std::vector<uint8_t> ocsp_names;              // NOLINT(*-non-private-member-variables-in-classes)
-      std::vector<std::vector<uint8_t>> ocsp_keys;  // NOLINT(*-non-private-member-variables-in-classes)
-      std::vector<uint8_t> extension_bytes;         // NOLINT(*-non-private-member-variables-in-classes)
+      std::vector<uint8_t> ocsp_names;              // NOLINT(*-non-private-member-variable*)
+      std::vector<std::vector<uint8_t>> ocsp_keys;  // NOLINT(*-non-private-member-variable*)
+      std::vector<uint8_t> extension_bytes;         // NOLINT(*-non-private-member-variable*)
 };
 
 }  // namespace
@@ -78,9 +78,9 @@ class Certificate_Status_Request_Internal {
          std::variant<RFC6066_Empty_Certificate_Status_Request, RFC6066_Certificate_Status_Request, Certificate_Status>;
 
    public:
-      Certificate_Status_Request_Internal(Contents c) : content(std::move(c)) {}
+      explicit Certificate_Status_Request_Internal(Contents c) : content(std::move(c)) {}
 
-      Contents content;  // NOLINT(*-non-private-member-variables-in-classes)
+      Contents content;  // NOLINT(*-non-private-member-variable*)
 };
 
 Certificate_Status_Request::Certificate_Status_Request(TLS_Data_Reader& reader,
@@ -166,7 +166,7 @@ const std::vector<uint8_t>& Certificate_Status_Request::get_ocsp_response() cons
    return std::get<Certificate_Status>(m_impl->content).response();
 }
 
-std::vector<uint8_t> Certificate_Status_Request::serialize(Connection_Side) const {
+std::vector<uint8_t> Certificate_Status_Request::serialize(Connection_Side /*side*/) const {
    BOTAN_ASSERT_NONNULL(m_impl);
    return std::visit([](const auto& c) { return c.serialize(); }, m_impl->content);
 }

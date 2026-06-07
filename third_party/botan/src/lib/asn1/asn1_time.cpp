@@ -5,7 +5,7 @@
 * Botan is released under the Simplified BSD License (see license.txt)
 */
 
-#include <botan/asn1_obj.h>
+#include <botan/asn1_time.h>
 
 #include <botan/assert.h>
 #include <botan/ber_dec.h>
@@ -18,8 +18,12 @@
 
 namespace Botan {
 
+ASN1_Time ASN1_Time::from_seconds_since_epoch(uint64_t time_since_epoch) {
+   return ASN1_Time(std::chrono::system_clock::time_point(std::chrono::seconds(time_since_epoch)));
+}
+
 ASN1_Time::ASN1_Time(const std::chrono::system_clock::time_point& time) {
-   calendar_point cal(time);
+   const calendar_point cal(time);
 
    m_year = cal.year();
    m_month = cal.month();
@@ -28,6 +32,7 @@ ASN1_Time::ASN1_Time(const std::chrono::system_clock::time_point& time) {
    m_minute = cal.minutes();
    m_second = cal.seconds();
 
+   // NOLINTNEXTLINE(*-prefer-member-initializer)
    m_tag = (m_year >= 2050) ? ASN1_Type::GeneralizedTime : ASN1_Type::UtcTime;
 }
 
@@ -52,13 +57,13 @@ void ASN1_Time::encode_into(DER_Encoder& der) const {
 }
 
 void ASN1_Time::decode_from(BER_Decoder& source) {
-   BER_Object ber_time = source.get_next_object();
+   const BER_Object ber_time = source.get_next_object();
 
    set_to(ASN1::to_string(ber_time), ber_time.type());
 }
 
 std::string ASN1_Time::to_string() const {
-   if(time_is_set() == false) {
+   if(!time_is_set()) {
       throw Invalid_State("ASN1_Time::to_string: No time set");
    }
 
@@ -81,7 +86,7 @@ std::string ASN1_Time::to_string() const {
    const uint64_t int_repr = year_factor * full_year + mon_factor * m_month + day_factor * m_day +
                              hour_factor * m_hour + min_factor * m_minute + m_second;
 
-   std::string repr = std::to_string(int_repr) + "Z";
+   const std::string repr = std::to_string(int_repr) + "Z";
 
    const size_t desired_size = (m_tag == ASN1_Type::UtcTime) ? 13 : 15;
 
@@ -91,7 +96,7 @@ std::string ASN1_Time::to_string() const {
 }
 
 std::string ASN1_Time::readable_string() const {
-   if(time_is_set() == false) {
+   if(!time_is_set()) {
       throw Invalid_State("ASN1_Time::readable_string: No time set");
    }
 
@@ -113,7 +118,9 @@ int32_t ASN1_Time::cmp(const ASN1_Time& other) const {
       throw Invalid_State("ASN1_Time::cmp: Cannot compare empty times");
    }
 
-   const int32_t EARLIER = -1, LATER = 1, SAME_TIME = 0;
+   constexpr int32_t EARLIER = -1;
+   constexpr int32_t LATER = 1;
+   constexpr int32_t SAME_TIME = 0;
 
    if(m_year < other.m_year) {
       return EARLIER;

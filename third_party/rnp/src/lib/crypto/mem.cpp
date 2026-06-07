@@ -25,6 +25,7 @@
  */
 
 #include <cstdio>
+#include <string.h>
 #include "mem.h"
 #include "logging.h"
 #include <botan/ffi.h>

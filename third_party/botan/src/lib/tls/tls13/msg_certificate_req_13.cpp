@@ -5,11 +5,15 @@
 * Botan is released under the Simplified BSD License (see license.txt)
 */
 
-#include <botan/tls_messages.h>
+#include <botan/tls_messages_13.h>
 
+#include <botan/certstor.h>
 #include <botan/credentials_manager.h>
+#include <botan/pkix_types.h>
 #include <botan/tls_callbacks.h>
 #include <botan/tls_exceptn.h>
+#include <botan/tls_extensions_13.h>
+#include <botan/tls_policy.h>
 #include <botan/internal/tls_reader.h>
 
 namespace Botan::TLS {
@@ -50,7 +54,7 @@ Certificate_Request_13::Certificate_Request_13(const std::vector<uint8_t>& buf, 
    // For Certificate Request said table states:
    //    "status_request", "signature_algorithms", "signed_certificate_timestamp",
    //     "certificate_authorities", "oid_filters", "signature_algorithms_cert",
-   std::set<Extension_Code> allowed_extensions = {
+   const std::set<Extension_Code> allowed_extensions = {
       Extension_Code::CertificateStatusRequest,
       Extension_Code::SignatureAlgorithms,
       // Extension_Code::SignedCertificateTimestamp,  // NYI
@@ -64,7 +68,7 @@ Certificate_Request_13::Certificate_Request_13(const std::vector<uint8_t>& buf, 
    }
 }
 
-Certificate_Request_13::Certificate_Request_13(std::vector<X509_DN> acceptable_CAs,
+Certificate_Request_13::Certificate_Request_13(const std::vector<X509_DN>& acceptable_CAs,
                                                const Policy& policy,
                                                Callbacks& callbacks) {
    // RFC 8446 4.3.2
@@ -93,7 +97,7 @@ Certificate_Request_13::Certificate_Request_13(std::vector<X509_DN> acceptable_C
    }
 
    if(!acceptable_CAs.empty()) {
-      m_extensions.add(std::make_unique<Certificate_Authorities>(std::move(acceptable_CAs)));
+      m_extensions.add(std::make_unique<Certificate_Authorities>(acceptable_CAs));
    }
 
    // TODO: Support cert_status_request for OCSP stapling
@@ -108,7 +112,7 @@ std::optional<Certificate_Request_13> Certificate_Request_13::maybe_create(const
    const auto trusted_CAs = cred_mgr.trusted_certificate_authorities("tls-server", client_hello.sni_hostname());
 
    std::vector<X509_DN> client_auth_CAs;
-   for(const auto store : trusted_CAs) {
+   for(auto* const store : trusted_CAs) {
       const auto subjects = store->all_subjects();
       client_auth_CAs.insert(client_auth_CAs.end(), subjects.begin(), subjects.end());
    }
@@ -117,7 +121,7 @@ std::optional<Certificate_Request_13> Certificate_Request_13::maybe_create(const
       return std::nullopt;
    }
 
-   return Certificate_Request_13(std::move(client_auth_CAs), policy, callbacks);
+   return Certificate_Request_13(client_auth_CAs, policy, callbacks);
 }
 
 std::vector<X509_DN> Certificate_Request_13::acceptable_CAs() const {
@@ -140,7 +144,7 @@ const std::vector<Signature_Scheme>& Certificate_Request_13::certificate_signatu
    //   If no "signature_algorithms_cert" extension is present, then the
    //   "signature_algorithms" extension also applies to signatures appearing
    //   in certificates.
-   if(auto sig_schemes_cert = m_extensions.get<Signature_Algorithms_Cert>()) {
+   if(auto* sig_schemes_cert = m_extensions.get<Signature_Algorithms_Cert>()) {
       return sig_schemes_cert->supported_schemes();
    } else {
       return signature_schemes();

@@ -7,11 +7,12 @@
 
 #include <botan/reducer.h>
 
+#include <botan/exceptn.h>
 #include <botan/internal/divide.h>
 
 namespace Botan {
 
-Modular_Reducer::Modular_Reducer(const BigInt& mod) {
+Modular_Reducer::Modular_Reducer(const BigInt& mod) : m_mod_words(mod.sig_words()) {
    if(mod < 0) {
       throw Invalid_Argument("Modular_Reducer: modulus must be positive");
    }

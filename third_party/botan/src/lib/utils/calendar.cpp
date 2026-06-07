@@ -19,17 +19,21 @@ namespace Botan {
 
 namespace {
 
+// TODO replace this with https://howardhinnant.github.io/date_algorithms.html#civil_from_days
 std::tm do_gmtime(std::time_t time_val) {
-   std::tm tm;
+   std::tm tm{};
 
 #if defined(BOTAN_TARGET_OS_HAS_WIN32)
    ::gmtime_s(&tm, &time_val);  // Windows
 #elif defined(BOTAN_TARGET_OS_HAS_POSIX1)
-   ::gmtime_r(&time_val, &tm);  // Unix/SUSv2
+   if(::gmtime_r(&time_val, &tm) == nullptr) {
+      throw Encoding_Error("do_gmtime could not convert");
+   }
 #else
    std::tm* tm_p = std::gmtime(&time_val);
-   if(tm_p == nullptr)
-      throw Encoding_Error("time_t_to_tm could not convert");
+   if(tm_p == nullptr) {
+      throw Encoding_Error("do_gmtime could not convert");
+   }
    tm = *tm_p;
 #endif
 
@@ -42,7 +46,7 @@ Portable replacement for timegm, _mkgmtime, etc
 Algorithm due to Howard Hinnant
 
 See https://howardhinnant.github.io/date_algorithms.html#days_from_civil
-for details and explaination. The code is slightly simplified by our assumption
+for details and explanation. The code is slightly simplified by our assumption
 that the date is at least 1970, which is sufficient for our purposes.
 */
 uint64_t days_since_epoch(uint32_t year, uint32_t month, uint32_t day) {
@@ -85,7 +89,7 @@ std::string calendar_point::to_string() const {
 }
 
 calendar_point::calendar_point(const std::chrono::system_clock::time_point& time_point) {
-   std::tm tm = do_gmtime(std::chrono::system_clock::to_time_t(time_point));
+   const std::tm tm = do_gmtime(std::chrono::system_clock::to_time_t(time_point));
 
    m_year = tm.tm_year + 1900;
    m_month = tm.tm_mon + 1;

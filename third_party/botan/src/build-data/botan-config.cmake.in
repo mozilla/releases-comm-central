@@ -1,3 +1,24 @@
+# Copyright (c) 2023-present The Botan Authors (see doc/authors.txt)
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+#
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 #.rst:
 # botan-config.cmake
 # -----------
@@ -19,10 +40,17 @@
 #
 # This module defines :prop_tgt:`IMPORTED` targets:
 #
-# ``Botan::Botan``
+# ``botan::botan``
 #   The botan shared library, if found.
-# ``Botan::Botan-static``
+# ``botan::botan-static``
 #   The botan static library, if found.
+#
+# Previous versions of this CMake module defined the targets in uppercase,
+# such as ``Botan::Botan``, for backward-compatibility we define those as
+# aliases (if CMake is 3.18 or newer, see GH #5098):
+#
+# ``Botan::Botan`` as an alias for ``botan::botan``
+# ``Botan::Botan-static`` as an alias for ``botan::botan-static``
 #
 # Result variables
 # ^^^^^^^^^^^^^^^^
@@ -65,66 +93,82 @@ if(DEFINED ${CMAKE_FIND_PACKAGE_NAME}_FOUND AND NOT ${${CMAKE_FIND_PACKAGE_NAME}
   return()
 endif()
 
-# botan-config.cmake lives in "${_Botan_PREFIX}/lib[/<arch_dir>]/cmake/Botan-X"
-# traverse up and derive ${_Botan_LIB_PREFIX} and ${_Botan_INCLUDE_DIR} accordingly.
-get_filename_component(_Botan_PREFIX "${CMAKE_CURRENT_LIST_DIR}/../../.." ABSOLUTE)
-if(EXISTS ${_Botan_PREFIX}/include/botan-%{version_major})
-  set(_Botan_INCLUDE_DIR "${_Botan_PREFIX}/include/botan-%{version_major}")
-  set(_Botan_LIB_PREFIX "${_Botan_PREFIX}/lib")
-elseif(DEFINED CMAKE_LIBRARY_ARCHITECTURE)
-  # likely we have to traverse out of a debian-style multiarch path
-  get_filename_component(_Botan_PREFIX "${_Botan_PREFIX}" DIRECTORY)
-  if(EXISTS "${_Botan_PREFIX}/include/botan-%{version_major}")
-    set(_Botan_INCLUDE_DIR "${_Botan_PREFIX}/include/botan-%{version_major}")
-    set(_Botan_LIB_PREFIX "${_Botan_PREFIX}/lib/${CMAKE_LIBRARY_ARCHITECTURE}")
-  endif()
+# botan-config.cmake lives N levels below the install prefix in the file system.
+# Traverse up to the prefix, but first snap to the known original install path
+# if loaded from there -- this handles cross-prefix symbolic links such as
+# /lib -> /usr/lib that would otherwise make the traversal land at the wrong root.
+get_filename_component(_realCurr "${CMAKE_CURRENT_LIST_DIR}" REALPATH)
+get_filename_component(_realOrig "%{cmake_install_dir}" REALPATH)
+if(_realCurr STREQUAL _realOrig)
+  set(_Botan_PREFIX "%{cmake_install_dir}")
+else()
+  set(_Botan_PREFIX "${CMAKE_CURRENT_LIST_DIR}")
+endif()
+unset(_realCurr)
+unset(_realOrig)
+
+# Traverse from the cmake config directory up to the install prefix.
+# The exact number of steps is fixed at configure time from the known layout.
+%{for cmake_relpath_components}
+get_filename_component(_Botan_PREFIX "${_Botan_PREFIX}" PATH)
+%{endfor}
+if(_Botan_PREFIX STREQUAL "/")
+  set(_Botan_PREFIX "")
 endif()
 
-if(NOT DEFINED _Botan_INCLUDE_DIR OR NOT DEFINED _Botan_LIB_PREFIX)
-  set(${CMAKE_FIND_PACKAGE_NAME}_FOUND False)
-  set(${CMAKE_FIND_PACKAGE_NAME}_NOT_FOUND_MESSAGE "Failed to locate installation paths, please consider opening a bug report with details about your setup.")
-  return()
-endif()
+set(_Botan_INCLUDE_DIR "${_Botan_PREFIX}/%{includedir}/botan-%{version_major}")
+set(_Botan_LIB_PREFIX  "${_Botan_PREFIX}/%{libdir_rel}")
+set(_Botan_BIN_DIR     "${_Botan_PREFIX}/%{bindir_rel}")
 
 %{if build_static_lib}
-if(NOT TARGET Botan::Botan-static)
-  add_library(Botan::Botan-static STATIC IMPORTED)
-  set_target_properties(Botan::Botan-static
+if(NOT TARGET botan::botan-static)
+  add_library(botan::botan-static STATIC IMPORTED)
+  set_target_properties(botan::botan-static
     PROPERTIES
       IMPORTED_LOCATION                 "${_Botan_LIB_PREFIX}/%{static_lib_name}"
       INTERFACE_INCLUDE_DIRECTORIES     "${_Botan_INCLUDE_DIR}"
       IMPORTED_LINK_INTERFACE_LANGUAGES "CXX"
       INTERFACE_LINK_OPTIONS            "SHELL:%{cxx_abi_flags}")
+
+  # TODO(Botan4): Remove this alias
+  if(NOT ${CMAKE_VERSION} VERSION_LESS "3.18.0") # 3.18 allows creating ALIAS targets to non-GLOBAL targets
+    add_library(Botan::Botan-static ALIAS botan::botan-static)
+  endif()
 endif()
 %{endif}
 
 %{if implib_name}
 set(_Botan_implib     "${_Botan_LIB_PREFIX}/%{implib_name}")
-set(_Botan_shared_lib "${_Botan_PREFIX}/bin/%{shared_lib_name}")
+set(_Botan_shared_lib "${_Botan_BIN_DIR}/%{shared_lib_name}")
 %{endif}
 %{unless implib_name}
 set(_Botan_implib "")
 %{endif}
 
 %{if build_shared_lib}
-if(NOT TARGET Botan::Botan)
+if(NOT TARGET botan::botan)
   if(NOT DEFINED _Botan_shared_lib)
     set(_Botan_shared_lib "${_Botan_LIB_PREFIX}/%{shared_lib_name}")
   endif()
 
-  add_library(Botan::Botan SHARED IMPORTED)
-  set_target_properties(Botan::Botan
+  add_library(botan::botan SHARED IMPORTED)
+  set_target_properties(botan::botan
     PROPERTIES
       IMPORTED_LOCATION             "${_Botan_shared_lib}"
       IMPORTED_IMPLIB               "${_Botan_implib}"
       INTERFACE_INCLUDE_DIRECTORIES "${_Botan_INCLUDE_DIR}"
       INTERFACE_LINK_OPTIONS        "SHELL:%{cxx_abi_flags}")
-  set_property(TARGET Botan::Botan APPEND PROPERTY IMPORTED_CONFIGURATIONS NOCONFIG)
-  set_target_properties(Botan::Botan
+  set_property(TARGET botan::botan APPEND PROPERTY IMPORTED_CONFIGURATIONS NOCONFIG)
+  set_target_properties(botan::botan
     PROPERTIES
       IMPORTED_LOCATION_NOCONFIG "${_Botan_LIB_PREFIX}/%{shared_lib_name}"
       IMPORTED_SONAME_NOCONFIG   "%{shared_lib_name}"
       IMPORTED_IMPLIB_NOCONFIG   "${_Botan_implib}")
+
+  # TODO(Botan4): Remove this alias
+  if(NOT ${CMAKE_VERSION} VERSION_LESS "3.18.0") # 3.18 allows creating ALIAS targets to non-GLOBAL targets
+    add_library(Botan::Botan ALIAS botan::botan)
+  endif()
 endif()
 %{endif}
 

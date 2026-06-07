@@ -11,6 +11,9 @@
 
 #include <botan/internal/cmce_decaps.h>
 
+#include <botan/internal/buffer_slicer.h>
+#include <algorithm>
+
 namespace Botan {
 
 Classic_McEliece_Polynomial Classic_McEliece_Decryptor::compute_goppa_syndrome(
@@ -97,9 +100,9 @@ std::pair<CT::Mask<uint8_t>, CmceErrorVector> Classic_McEliece_Decryptor::decode
    const auto locator = berlekamp_massey(m_key->params(), syndrome);
 
    std::vector<Classic_McEliece_GF> images;
-   const auto alphas = m_key->field_ordering().alphas(m_key->params().n());
-   std::transform(
-      alphas.begin(), alphas.end(), std::back_inserter(images), [&](const auto& alpha) { return locator(alpha); });
+   for(const auto& alpha : m_key->field_ordering().alphas(m_key->params().n())) {
+      images.push_back(locator(alpha));
+   }
 
    // Obtain e and check whether wt(e) = t. locator(alpha_i) = 0 <=> error at position i
    CmceErrorVector e;
@@ -117,7 +120,7 @@ std::pair<CT::Mask<uint8_t>, CmceErrorVector> Classic_McEliece_Decryptor::decode
       syndromes_are_eq &= GF_Mask::is_equal(syndrome.coef_at(i), syndrome_from_e.coef_at(i));
    }
 
-   decode_success &= syndromes_are_eq.elem_mask();
+   decode_success &= CT::Mask<uint8_t>(syndromes_are_eq.elem_mask());
 
    return {decode_success, std::move(e)};
 }
@@ -153,7 +156,7 @@ void Classic_McEliece_Decryptor::raw_kem_decrypt(std::span<uint8_t> out_shared_k
       hash_func->update(0x02);
       hash_func->update(e_bytes);
       const auto c1_p = hash_func->final_stdvec();
-      const CT::Mask<uint8_t> eq_mask = CT::is_equal(c1.data(), c1_p.data(), c1.size());
+      const CT::Mask<uint8_t> eq_mask = CT::is_equal<uint8_t>(c1, c1_p);
       eq_mask.select_n(e_bytes.data(), e_bytes.data(), m_key->s().data(), m_key->s().size());
       b = eq_mask.select(b, 0);
    }

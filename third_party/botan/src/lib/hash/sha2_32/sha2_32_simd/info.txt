@@ -1,6 +1,6 @@
-<defines>
+<internal_defines>
 SHA2_32_SIMD -> 20250402
-</defines>
+</internal_defines>
 
 <module_info>
 name -> "SHA-256 using SIMD"
@@ -14,6 +14,8 @@ x32:ssse3
 
 arm32:neon
 arm64:neon
+
+wasm:simd128
 </isa>
 
 <arch>
@@ -25,10 +27,23 @@ arm32
 arm64
 
 # Works for VMX and LSX but not faster on systems tested so far
-#ppc32
 #ppc64
 #loongson64
+
+wasm
 </arch>
+
+<isa>
+x86_32:ssse3
+x86_64:ssse3
+x32:ssse3
+arm32:neon
+arm64:neon
+ppc32:altivec
+ppc64:altivec
+loongarch64:lsx
+wasm:simd128
+</isa>
 
 <requires>
 cpuid

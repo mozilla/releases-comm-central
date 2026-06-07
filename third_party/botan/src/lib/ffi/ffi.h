@@ -2,6 +2,7 @@
 * FFI (C89 API)
 * (C) 2015,2017 Jack Lloyd
 * (C) 2021 René Fischer
+* (C) 2024,2025,2026 Amos Treiber, René Meusel, Rohde & Schwarz Cybersecurity
 *
 * Botan is released under the Simplified BSD License (see license.txt)
 */
@@ -33,7 +34,7 @@ API follows a few simple rules:
   uint8_t for binary.
 
 - No ownership of memory transfers across the API boundary. The API will consume
-  data from const pointers with specifed lengths. Outputs are either placed into
+  data from const pointers with specified lengths. Outputs are either placed into
   buffers provided by (and allocated by) the caller, or are returned via a
   callback (what the FFI layer calls "view" functions).
 
@@ -58,6 +59,8 @@ API follows a few simple rules:
 #include <stddef.h>
 #include <stdint.h>
 
+/* NOLINTBEGIN(*-macro-usage,*-misplaced-const) */
+
 /**
 * The compile time API version. This matches the value of
 * botan_ffi_api_version. This can be used for compile-time checking if a
@@ -67,7 +70,7 @@ API follows a few simple rules:
 * that declaration is not visible here since this header is intentionally
 * free-standing, depending only on a few C standard library headers.
 */
-#define BOTAN_FFI_API_VERSION 20250506
+#define BOTAN_FFI_API_VERSION 20260303
 
 /**
 * BOTAN_FFI_EXPORT indicates public FFI functions.
@@ -89,7 +92,7 @@ API follows a few simple rules:
    #endif
 #endif
 
-#if !defined(BOTAN_NO_DEPRECATED_WARNINGS) && !defined(BOTAN_IS_BEING_BUILT)
+#if !defined(BOTAN_NO_DEPRECATED_WARNINGS) && !defined(BOTAN_AMALGAMATION_H_) && !defined(BOTAN_IS_BEING_BUILT)
    #if defined(__has_attribute)
       #if __has_attribute(deprecated)
          #define BOTAN_FFI_DEPRECATED(msg) __attribute__((deprecated(msg)))
@@ -109,7 +112,7 @@ API follows a few simple rules:
 * If you add a new value here be sure to also add it in
 * botan_error_description
 */
-enum BOTAN_FFI_ERROR {
+enum BOTAN_FFI_ERROR /* NOLINT(*-enum-size,*-use-enum-class) */ {
    BOTAN_FFI_SUCCESS = 0,
 
    BOTAN_FFI_INVALID_VERIFIER = 1,
@@ -132,6 +135,7 @@ enum BOTAN_FFI_ERROR {
    BOTAN_FFI_ERROR_KEY_NOT_SET = -33,
    BOTAN_FFI_ERROR_INVALID_KEY_LENGTH = -34,
    BOTAN_FFI_ERROR_INVALID_OBJECT_STATE = -35,
+   BOTAN_FFI_ERROR_OUT_OF_RANGE = -36,
 
    BOTAN_FFI_ERROR_NOT_IMPLEMENTED = -40,
    BOTAN_FFI_ERROR_INVALID_OBJECT = -50,
@@ -372,6 +376,84 @@ BOTAN_FFI_EXPORT(2, 8) int botan_rng_add_entropy(botan_rng_t rng, const uint8_t*
 * @return 0 if success, error if invalid object handle
 */
 BOTAN_FFI_EXPORT(2, 0) int botan_rng_destroy(botan_rng_t rng);
+
+/*
+* Opaque type of an eXtendable Output Function (XOF)
+*/
+typedef struct botan_xof_struct* botan_xof_t;
+
+/**
+* Initialize an eXtendable Output Function
+* @param xof XOF object
+* @param xof_name name of the XOF, e.g., "SHAKE-128"
+* @param flags should be 0 in current API revision, all other uses are reserved
+*       and return BOTAN_FFI_ERROR_BAD_FLAG
+*/
+BOTAN_FFI_EXPORT(3, 11) int botan_xof_init(botan_xof_t* xof, const char* xof_name, uint32_t flags);
+
+/**
+* Copy the state of an eXtendable Output Function
+* @param dest destination XOF object
+* @param source source XOF object
+* @return 0 on success, a negative value on failure
+*/
+BOTAN_FFI_EXPORT(3, 11) int botan_xof_copy_state(botan_xof_t* dest, botan_xof_t source);
+
+/**
+* Writes the block size of the eXtendable Output Function to *block_size
+* @param xof XOF object
+* @param block_size variable to hold the XOF's block size
+* @return 0 on success, a negative value on failure
+*/
+BOTAN_FFI_EXPORT(3, 11) int botan_xof_block_size(botan_xof_t xof, size_t* block_size);
+
+/**
+* Get the name of this eXtendable Output Function
+* @param xof the object to read
+* @param name output buffer
+* @param name_len on input, the length of buffer, on success the number of bytes written
+*/
+BOTAN_FFI_EXPORT(3, 11) int botan_xof_name(botan_xof_t xof, char* name, size_t* name_len);
+
+/**
+* Get the input/output state of this eXtendable Output Function
+* Typically, XOFs don't accept input as soon as the first output bytes were requested.
+* @param xof the object to read
+* @returns 1 iff the XOF is still accepting input bytes
+*/
+BOTAN_FFI_EXPORT(3, 11) int botan_xof_accepts_input(botan_xof_t xof);
+
+/**
+* Reinitializes the state of the eXtendable Output Function.
+* @param xof XOF object
+* @return 0 on success, a negative value on failure
+*/
+BOTAN_FFI_EXPORT(3, 11) int botan_xof_clear(botan_xof_t xof);
+
+/**
+* Send more input to the eXtendable Output Function
+* @param xof XOF object
+* @param in input buffer
+* @param in_len number of bytes to read from the input buffer
+* @return 0 on success, a negative value on failure
+*/
+BOTAN_FFI_EXPORT(3, 11) int botan_xof_update(botan_xof_t xof, const uint8_t* in, size_t in_len);
+
+/**
+* Generate output bytes from the eXtendable Output Function
+* @param xof XOF object
+* @param out output buffer
+* @param out_len number of bytes to write into the output buffer
+* @return 0 on success, a negative value on failure
+*/
+BOTAN_FFI_EXPORT(3, 11) int botan_xof_output(botan_xof_t xof, uint8_t* out, size_t out_len);
+
+/**
+* Frees all resources of the eXtendable Output Function object
+* @param xof xof object
+* @return 0 if success, error if invalid object handle
+*/
+BOTAN_FFI_EXPORT(3, 11) int botan_xof_destroy(botan_xof_t xof);
 
 /*
 * Opaque type of a hash function
@@ -616,13 +698,13 @@ BOTAN_FFI_EXPORT(3, 0) int botan_cipher_get_ideal_update_granularity(botan_ciphe
 * Get information about the key lengths. Prefer botan_cipher_get_keyspec
 */
 BOTAN_FFI_EXPORT(2, 0)
-int botan_cipher_query_keylen(botan_cipher_t, size_t* out_minimum_keylength, size_t* out_maximum_keylength);
+int botan_cipher_query_keylen(botan_cipher_t cipher, size_t* out_minimum_keylength, size_t* out_maximum_keylength);
 
 /**
 * Get information about the supported key lengths.
 */
 BOTAN_FFI_EXPORT(2, 8)
-int botan_cipher_get_keyspec(botan_cipher_t, size_t* min_keylen, size_t* max_keylen, size_t* mod_keylen);
+int botan_cipher_get_keyspec(botan_cipher_t cipher, size_t* min_keylen, size_t* max_keylen, size_t* mod_keylen);
 
 /**
 * Set the key for this cipher object
@@ -768,16 +850,17 @@ int botan_pbkdf_timed(const char* pbkdf_algo,
 * @param salt_len length of salt in bytes
 * @return 0 on success, a negative value on failure
 */
-int BOTAN_FFI_EXPORT(2, 8) botan_pwdhash(const char* algo,
-                                         size_t param1,
-                                         size_t param2,
-                                         size_t param3,
-                                         uint8_t out[],
-                                         size_t out_len,
-                                         const char* passphrase,
-                                         size_t passphrase_len,
-                                         const uint8_t salt[],
-                                         size_t salt_len);
+BOTAN_FFI_EXPORT(2, 8)
+int botan_pwdhash(const char* algo,
+                  size_t param1,
+                  size_t param2,
+                  size_t param3,
+                  uint8_t out[],
+                  size_t out_len,
+                  const char* passphrase,
+                  size_t passphrase_len,
+                  const uint8_t salt[],
+                  size_t salt_len);
 
 /*
 * Derive a key from a passphrase
@@ -795,17 +878,18 @@ int BOTAN_FFI_EXPORT(2, 8) botan_pwdhash(const char* algo,
 * @param salt_len length of salt in bytes
 * @return 0 on success, a negative value on failure
 */
-int BOTAN_FFI_EXPORT(2, 8) botan_pwdhash_timed(const char* algo,
-                                               uint32_t msec,
-                                               size_t* param1,
-                                               size_t* param2,
-                                               size_t* param3,
-                                               uint8_t out[],
-                                               size_t out_len,
-                                               const char* passphrase,
-                                               size_t passphrase_len,
-                                               const uint8_t salt[],
-                                               size_t salt_len);
+BOTAN_FFI_EXPORT(2, 8)
+int botan_pwdhash_timed(const char* algo,
+                        uint32_t msec,
+                        size_t* param1,
+                        size_t* param2,
+                        size_t* param3,
+                        uint8_t out[],
+                        size_t out_len,
+                        const char* passphrase,
+                        size_t passphrase_len,
+                        const uint8_t salt[],
+                        size_t salt_len);
 
 /**
 * Derive a key using scrypt
@@ -930,14 +1014,26 @@ BOTAN_FFI_EXPORT(2, 1) int botan_mp_init(botan_mp_t* mp);
 BOTAN_FFI_EXPORT(2, 1) int botan_mp_destroy(botan_mp_t mp);
 
 /**
-* Convert the MPI to a hex string. Writes botan_mp_num_bytes(mp)*2 + 1 bytes
+* Convert the MPI to a hex string. Writes up to botan_mp_num_bytes(mp)*2 + 5 bytes
+*
+* Prefer botan_mp_view_hex
 */
 BOTAN_FFI_EXPORT(2, 1) int botan_mp_to_hex(botan_mp_t mp, char* out);
 
 /**
-* Convert the MPI to a string. Currently base == 10 and base == 16 are supported.
+* View the hex string encoding of the MPI.
 */
-BOTAN_FFI_EXPORT(2, 1) int botan_mp_to_str(botan_mp_t mp, uint8_t base, char* out, size_t* out_len);
+BOTAN_FFI_EXPORT(3, 10) int botan_mp_view_hex(botan_mp_t mp, botan_view_ctx ctx, botan_view_str_fn view);
+
+/**
+* Convert the MPI to a string. Currently radix == 10 and radix == 16 are supported.
+*/
+BOTAN_FFI_EXPORT(2, 1) int botan_mp_to_str(botan_mp_t mp, uint8_t radix, char* out, size_t* out_len);
+
+/**
+* View the MPI as a radix-N integer. Currently only radix 10 and radix 16 are supported
+*/
+BOTAN_FFI_EXPORT(3, 10) int botan_mp_view_str(botan_mp_t mp, uint8_t radix, botan_view_ctx ctx, botan_view_str_fn view);
 
 /**
 * Set the MPI to zero
@@ -977,8 +1073,17 @@ BOTAN_FFI_EXPORT(2, 1) int botan_mp_num_bytes(botan_mp_t n, size_t* bytes);
 
 /*
 * Convert the MPI to a big-endian binary string. Writes botan_mp_num_bytes to vec
+*
+* Note that the sign of the integer is ignored here; only the absolute value is copied
 */
 BOTAN_FFI_EXPORT(2, 1) int botan_mp_to_bin(botan_mp_t mp, uint8_t vec[]);
+
+/*
+* View the big-endian binary string encoding of this integer
+*
+* Note that the sign of the integer is ignored here; only the absolute value is viewed
+*/
+BOTAN_FFI_EXPORT(3, 10) int botan_mp_view_bin(botan_mp_t mp, botan_view_ctx ctx, botan_view_bin_fn view);
 
 /*
 * Set an MP to the big-endian binary value
@@ -1093,8 +1198,10 @@ BOTAN_FFI_EXPORT(2, 1) int botan_mp_clear_bit(botan_mp_t n, size_t bit);
 * @param flags should be 0 in current API revision, all other uses are reserved
 *       and return BOTAN_FFI_ERROR_BAD_FLAG
 * @return 0 on success, a negative value on failure
-
+*
 * Output is formatted bcrypt $2a$...
+*
+* TOD(Botan4) this should use char for the type of `out`
 */
 BOTAN_FFI_EXPORT(2, 0)
 int botan_bcrypt_generate(
@@ -1123,7 +1230,7 @@ BOTAN_FFI_EXPORT(3, 8) int botan_oid_destroy(botan_asn1_oid_t oid);
 
 /**
 * Create an OID from a string, either dot notation (e.g. '1.2.3.4') or a registered name (e.g. 'RSA')
-* @param oid hanlder to the resulting OID
+* @param oid handle to the resulting OID
 * @param oid_str the name of the OID to create
 * @returns negative number on error, or zero on success
 */
@@ -1239,6 +1346,16 @@ BOTAN_FFI_EXPORT(3, 8) int botan_ec_group_from_oid(botan_ec_group_t* ec_group, b
 * @returns negative number on error, or zero on success
 */
 BOTAN_FFI_EXPORT(3, 8) int botan_ec_group_from_name(botan_ec_group_t* ec_group, const char* name);
+
+/**
+* Unregister a previously registered group.
+* @param oid the oid associated with the group to unregister
+* @returns 1 if the group was found and unregistered, else 0
+*
+* Using this is discouraged for normal use. This is only useful or necessary if
+* you are registering a very large number of distinct groups, and need to worry about memory constraints.
+*/
+BOTAN_FFI_EXPORT(3, 11) int botan_ec_group_unregister(botan_asn1_oid_t oid);
 
 /**
 * View an EC Group in DER encoding
@@ -1624,6 +1741,8 @@ int botan_privkey_rsa_get_privkey(botan_privkey_t rsa_key, uint8_t out[], size_t
 
 BOTAN_FFI_EXPORT(2, 0) int botan_pubkey_load_rsa(botan_pubkey_t* key, botan_mp_t n, botan_mp_t e);
 
+BOTAN_FFI_EXPORT(3, 11) int botan_pubkey_load_rsa_pkcs1(botan_pubkey_t* key, const uint8_t bits[], size_t len);
+
 BOTAN_FFI_DEPRECATED("Use botan_pubkey_get_field")
 BOTAN_FFI_EXPORT(2, 0) int botan_pubkey_rsa_get_e(botan_mp_t e, botan_pubkey_t rsa_key);
 BOTAN_FFI_DEPRECATED("Use botan_pubkey_get_field")
@@ -1858,14 +1977,23 @@ int botan_privkey_load_ecdsa(botan_privkey_t* key, botan_mp_t scalar, const char
 BOTAN_FFI_EXPORT(2, 2)
 int botan_pubkey_load_ecdsa(botan_pubkey_t* key, botan_mp_t public_x, botan_mp_t public_y, const char* curve_name);
 
+BOTAN_FFI_EXPORT(3, 10)
+int botan_pubkey_load_ecdsa_sec1(botan_pubkey_t* key, const uint8_t sec1[], size_t sec1_len, const char* curve_name);
+
 BOTAN_FFI_EXPORT(2, 2)
 int botan_pubkey_load_ecdh(botan_pubkey_t* key, botan_mp_t public_x, botan_mp_t public_y, const char* curve_name);
+
+BOTAN_FFI_EXPORT(3, 10)
+int botan_pubkey_load_ecdh_sec1(botan_pubkey_t* key, const uint8_t sec1[], size_t sec1_len, const char* curve_name);
 
 BOTAN_FFI_EXPORT(2, 2)
 int botan_privkey_load_ecdh(botan_privkey_t* key, botan_mp_t scalar, const char* curve_name);
 
 BOTAN_FFI_EXPORT(2, 2)
 int botan_pubkey_load_sm2(botan_pubkey_t* key, botan_mp_t public_x, botan_mp_t public_y, const char* curve_name);
+
+BOTAN_FFI_EXPORT(3, 10)
+int botan_pubkey_load_sm2_sec1(botan_pubkey_t* key, const uint8_t sec1[], size_t sec1_len, const char* curve_name);
 
 BOTAN_FFI_EXPORT(2, 2)
 int botan_privkey_load_sm2(botan_privkey_t* key, botan_mp_t scalar, const char* curve_name);
@@ -2102,6 +2230,39 @@ int botan_mceies_decrypt(botan_privkey_t mce_key,
 
 typedef struct botan_x509_cert_struct* botan_x509_cert_t;
 
+/**
+ * Generic values that may be retrieved from X.509 certificates or CRLs via
+ * the generic getter functions.
+ *
+ * When extending this list the existing entries must stay backward-compatible
+ * to remain ABI compatible across versions. Therefore, new values must be added
+ * to the end of this list.
+ *
+ * See:
+ *   * botan_x509_cert_view_binary_values()
+ *   * botan_x509_crl_view_binary_values()
+ *   * botan_x509_cert_view_string_values()
+ */
+typedef enum /* NOLINT(*-enum-size,*-use-enum-class) */ {
+   BOTAN_X509_SERIAL_NUMBER = 0,            /** singleton binary big-endian encoding */
+   BOTAN_X509_SUBJECT_DN_BITS = 1,          /** singleton binary DER encoding of the subject distinguished name */
+   BOTAN_X509_ISSUER_DN_BITS = 2,           /** singleton binary DER encoding of the issuer distinguished name */
+   BOTAN_X509_SUBJECT_KEY_IDENTIFIER = 3,   /** singleton binary encoding */
+   BOTAN_X509_AUTHORITY_KEY_IDENTIFIER = 4, /** singleton binary encoding */
+
+   BOTAN_X509_PUBLIC_KEY_PKCS8_BITS = 200, /** singleton binary DER encoding of the PKCS#8 public key */
+   BOTAN_X509_TBS_DATA_BITS = 201,         /** singleton binary DER encoding */
+   BOTAN_X509_SIGNATURE_SCHEME_BITS = 202, /** singleton binary DER encoding of the algorithm identifier */
+   BOTAN_X509_SIGNATURE_BITS = 203,        /** singleton binary signature bits */
+
+   BOTAN_X509_DER_ENCODING = 300, /** singleton binary DER encoding of the whole object */
+   BOTAN_X509_PEM_ENCODING = 301, /** singleton string value PEM encoding of the whole object */
+
+   BOTAN_X509_CRL_DISTRIBUTION_URLS = 400, /** multi-value string of the CRL distribution points */
+   BOTAN_X509_OCSP_RESPONDER_URLS = 401,   /** multi-value string of the OCSP responder URLs */
+   BOTAN_X509_CA_ISSUERS_URLS = 402,       /** multi-value string of the CA issuer URLs */
+} botan_x509_value_type;
+
 BOTAN_FFI_EXPORT(2, 0) int botan_x509_cert_load(botan_x509_cert_t* cert_obj, const uint8_t cert[], size_t cert_len);
 BOTAN_FFI_EXPORT(2, 0) int botan_x509_cert_load_file(botan_x509_cert_t* cert_obj, const char* filename);
 
@@ -2112,6 +2273,38 @@ BOTAN_FFI_EXPORT(2, 0) int botan_x509_cert_destroy(botan_x509_cert_t cert);
 
 BOTAN_FFI_EXPORT(2, 8) int botan_x509_cert_dup(botan_x509_cert_t* new_cert, botan_x509_cert_t cert);
 
+/**
+ * Retrieve a specific binary value from an X.509 certificate.
+ *
+ * For multi-values @p index allows enumerating the available entries, until
+ * BOTAN_FFI_ERROR_OUT_OF_RANGE is returned. For singleton values, an @p index
+ * of value "0" is expected.
+ *
+ * @returns BOTAN_FFI_ERROR_NO_VALUE if the provided @p cert does not provide
+ *          the requested @p value_type at all or not in binary format.
+ */
+BOTAN_FFI_EXPORT(3, 11)
+int botan_x509_cert_view_binary_values(
+   botan_x509_cert_t cert, botan_x509_value_type value_type, size_t index, botan_view_ctx ctx, botan_view_bin_fn view);
+BOTAN_FFI_EXPORT(3, 11)
+int botan_x509_cert_view_binary_values_count(botan_x509_cert_t cert, botan_x509_value_type value_type, size_t* count);
+
+/**
+ * Retrieve a specific string value from an X.509 certificate.
+ *
+ * For multi-values @p index allows enumerating the available entries, until
+ * BOTAN_FFI_ERROR_OUT_OF_RANGE is returned. For singleton values, an @p index
+ * of value "0" is expected.
+ *
+ * @returns BOTAN_FFI_ERROR_NO_VALUE if the provided @p cert does not provide
+ *          the requested @p value_type at all or not in string format.
+ */
+BOTAN_FFI_EXPORT(3, 11)
+int botan_x509_cert_view_string_values(
+   botan_x509_cert_t cert, botan_x509_value_type value_type, size_t index, botan_view_ctx ctx, botan_view_str_fn view);
+BOTAN_FFI_EXPORT(3, 11)
+int botan_x509_cert_view_string_values_count(botan_x509_cert_t cert, botan_x509_value_type value_type, size_t* count);
+
 /* Prefer botan_x509_cert_not_before and botan_x509_cert_not_after */
 BOTAN_FFI_EXPORT(2, 0) int botan_x509_cert_get_time_starts(botan_x509_cert_t cert, char out[], size_t* out_len);
 BOTAN_FFI_EXPORT(2, 0) int botan_x509_cert_get_time_expires(botan_x509_cert_t cert, char out[], size_t* out_len);
@@ -2119,10 +2312,12 @@ BOTAN_FFI_EXPORT(2, 0) int botan_x509_cert_get_time_expires(botan_x509_cert_t ce
 BOTAN_FFI_EXPORT(2, 8) int botan_x509_cert_not_before(botan_x509_cert_t cert, uint64_t* time_since_epoch);
 BOTAN_FFI_EXPORT(2, 8) int botan_x509_cert_not_after(botan_x509_cert_t cert, uint64_t* time_since_epoch);
 
+/* TODO(Botan4) this should use char for the out param */
 BOTAN_FFI_EXPORT(2, 0)
 int botan_x509_cert_get_fingerprint(botan_x509_cert_t cert, const char* hash, uint8_t out[], size_t* out_len);
 
 BOTAN_FFI_EXPORT(2, 0) int botan_x509_cert_get_serial_number(botan_x509_cert_t cert, uint8_t out[], size_t* out_len);
+BOTAN_FFI_EXPORT(3, 11) int botan_x509_cert_serial_number(botan_x509_cert_t cert, botan_mp_t* serial_number);
 BOTAN_FFI_EXPORT(2, 0) int botan_x509_cert_get_authority_key_id(botan_x509_cert_t cert, uint8_t out[], size_t* out_len);
 BOTAN_FFI_EXPORT(2, 0) int botan_x509_cert_get_subject_key_id(botan_x509_cert_t cert, uint8_t out[], size_t* out_len);
 
@@ -2133,21 +2328,49 @@ int botan_x509_cert_view_public_key_bits(botan_x509_cert_t cert, botan_view_ctx 
 
 BOTAN_FFI_EXPORT(2, 0) int botan_x509_cert_get_public_key(botan_x509_cert_t cert, botan_pubkey_t* key);
 
+/**
+ * Returns 1 iff the cert is a CA certificate
+ */
+BOTAN_FFI_EXPORT(3, 11) int botan_x509_cert_is_ca(botan_x509_cert_t cert);
+
+/**
+ * Retrieves the path length constraint from the certificate.
+ * If no such constraint is present, BOTAN_FFI_ERROR_NO_VALUE is returned.
+ */
+BOTAN_FFI_EXPORT(3, 11) int botan_x509_cert_get_path_length_constraint(botan_x509_cert_t cert, size_t* path_limit);
+
+/**
+ * Enumerates the names of the given @p key in the issuer DN. If @p index is
+ * out of bounds, BOTAN_FFI_ERROR_BAD_PARAMETER is returned.
+ *
+ * TODO(Botan4) use BOTAN_FFI_ERROR_OUT_OF_RANGE instead of BAD_PARAMETER
+ * TODO(Botan4) this should use char for the out param
+ */
 BOTAN_FFI_EXPORT(2, 0)
 int botan_x509_cert_get_issuer_dn(
    botan_x509_cert_t cert, const char* key, size_t index, uint8_t out[], size_t* out_len);
+BOTAN_FFI_EXPORT(3, 11) int botan_x509_cert_get_issuer_dn_count(botan_x509_cert_t cert, const char* key, size_t* count);
 
+/**
+ * Enumerates the names of the given @p key in the subject DN. If @p index is
+ * out of bounds, BOTAN_FFI_ERROR_BAD_PARAMETER is returned.
+ *
+ * TODO(Botan4) use BOTAN_FFI_ERROR_OUT_OF_RANGE instead of BAD_PARAMETER
+ * TODO(Botan4) this should use char for the out param
+ */
 BOTAN_FFI_EXPORT(2, 0)
 int botan_x509_cert_get_subject_dn(
    botan_x509_cert_t cert, const char* key, size_t index, uint8_t out[], size_t* out_len);
+BOTAN_FFI_EXPORT(3, 11)
+int botan_x509_cert_get_subject_dn_count(botan_x509_cert_t cert, const char* key, size_t* count);
 
 BOTAN_FFI_EXPORT(2, 0) int botan_x509_cert_to_string(botan_x509_cert_t cert, char out[], size_t* out_len);
 
 BOTAN_FFI_EXPORT(3, 0)
 int botan_x509_cert_view_as_string(botan_x509_cert_t cert, botan_view_ctx ctx, botan_view_str_fn view);
 
-/* Must match values of Key_Constraints in key_constraints.h */
-enum botan_x509_cert_key_constraints {
+/* Must match values of Key_Constraints in pkix_enums.h */
+enum botan_x509_cert_key_constraints /* NOLINT(*-enum-size,*-use-enum-class) */ {
    NO_CONSTRAINTS = 0,
    DIGITAL_SIGNATURE = 32768,
    NON_REPUDIATION = 16384,
@@ -2161,6 +2384,127 @@ enum botan_x509_cert_key_constraints {
 };
 
 BOTAN_FFI_EXPORT(2, 0) int botan_x509_cert_allowed_usage(botan_x509_cert_t cert, unsigned int key_usage);
+
+/**
+* Check if the certificate allows the specified extended usage OID. See RFC 5280
+* Section 4.2.1.12 for OIDs to query for this. If no extended key usage
+* extension is found in the certificate, this always returns "not success".
+*
+* Typical OIDs to check for:
+*   * "PKIX.ServerAuth"
+*   * "PKIX.ClientAuth"
+*   * "PKIX.CodeSigning"
+*   * "PKIX.OCSPSigning"
+*
+* The @p oid parameter can be either a canonical OID string or identifiers as
+* indicated in the examples above.
+*/
+BOTAN_FFI_EXPORT(3, 11) int botan_x509_cert_allowed_extended_usage_str(botan_x509_cert_t cert, const char* oid);
+
+/**
+* Check if the certificate allows the specified extended usage OID. See RFC 5280
+* Section 4.2.1.12 for OIDs to query for this. If no extended key usage
+* extension is found in the certificate, this always returns "not success".
+*
+* This is similar to botan_x509_cert_allowed_extended_usage_str but takes an OID
+* object instead of a string describing the OID.
+*/
+BOTAN_FFI_EXPORT(3, 11) int botan_x509_cert_allowed_extended_usage_oid(botan_x509_cert_t cert, botan_asn1_oid_t oid);
+
+typedef struct botan_x509_general_name_struct* botan_x509_general_name_t;
+
+/**
+* GeneralName type identifiers as defined in RFC 5280 A.2 (GeneralName ::= CHOICE)
+* Type identifiers that are omitted here are (currently) not supported. Also,
+* there is currently no way to access OTHER_NAME values via the FFI.
+*/
+enum botan_x509_general_name_types /* NOLINT(*-enum-size,*-use-enum-class) */ {
+   BOTAN_X509_OTHER_NAME = 0,
+   BOTAN_X509_EMAIL_ADDRESS = 1,
+   BOTAN_X509_DNS_NAME = 2,
+   BOTAN_X509_DIRECTORY_NAME = 4,
+   BOTAN_X509_URI = 6,
+   BOTAN_X509_IP_ADDRESS = 7,
+};
+
+/**
+* Provides the contained type of the @p name and returns BOTAN_FFI_SUCCESS if
+* that type is supported and may be retrieved via the view functions below.
+* Otherwise BOTAN_FFI_ERROR_INVALID_OBJECT_STATE is returned.
+*/
+BOTAN_FFI_EXPORT(3, 11) int botan_x509_general_name_get_type(botan_x509_general_name_t name, unsigned int* type);
+
+/**
+* Views the name as a string or returns BOTAN_FFI_ERROR_INVALID_OBJECT_STATE
+* if the contained GeneralName value cannot be represented as a string.
+*
+* The types BOTAN_X509_EMAIL_ADDRESS, BOTAN_X509_DNS_NAME, BOTAN_X509_URI,
+* BOTAN_X509_IP_ADDRESS may be viewed as "string".
+*/
+BOTAN_FFI_EXPORT(3, 11)
+int botan_x509_general_name_view_string_value(botan_x509_general_name_t name,
+                                              botan_view_ctx ctx,
+                                              botan_view_str_fn view);
+
+/**
+* Views the name as a bit string or returns BOTAN_FFI_ERROR_INVALID_OBJECT_STATE
+* if the contained GeneralName value cannot be represented as a binary string.
+*
+* The types BOTAN_X509_DIRECTORY_NAME, BOTAN_X509_IP_ADDRESS may be viewed as
+* "binary".
+*/
+BOTAN_FFI_EXPORT(3, 11)
+int botan_x509_general_name_view_binary_value(botan_x509_general_name_t name,
+                                              botan_view_ctx ctx,
+                                              botan_view_bin_fn view);
+
+BOTAN_FFI_EXPORT(3, 11) int botan_x509_general_name_destroy(botan_x509_general_name_t alt_names);
+
+/**
+* Extracts "permitted" name constraints from a given @p cert one-by-one.
+* Returns BOTAN_FFI_ERROR_OUT_OF_RANGE if the given @p index is larger than the
+* available number of "permitted" name constraints.
+*/
+BOTAN_FFI_EXPORT(3, 11)
+int botan_x509_cert_permitted_name_constraints(botan_x509_cert_t cert,
+                                               size_t index,
+                                               botan_x509_general_name_t* constraint);
+BOTAN_FFI_EXPORT(3, 11) int botan_x509_cert_permitted_name_constraints_count(botan_x509_cert_t cert, size_t* count);
+
+/**
+* Extracts "excluded" name constraints from a given @p cert one-by-one.
+* Returns BOTAN_FFI_ERROR_OUT_OF_RANGE if the given @p index is larger than the
+* available number of "excluded" name constraints.
+*/
+BOTAN_FFI_EXPORT(3, 11)
+int botan_x509_cert_excluded_name_constraints(botan_x509_cert_t cert,
+                                              size_t index,
+                                              botan_x509_general_name_t* constraint);
+BOTAN_FFI_EXPORT(3, 11) int botan_x509_cert_excluded_name_constraints_count(botan_x509_cert_t cert, size_t* count);
+
+/**
+* Provides access to all "subject alternative names", where each entry is
+* returned as a botan_x509_general_name_t. If the given @p index is not
+* within range of the available entries, BOTAN_FFI_ERROR_OUT_OF_RANGE is
+* returned. If @p cert does not contain a SubjectAlternativeNames extension,
+* BOTAN_FFI_ERROR_NO_VALUE is returned.
+*/
+BOTAN_FFI_EXPORT(3, 11)
+int botan_x509_cert_subject_alternative_names(botan_x509_cert_t cert,
+                                              size_t index,
+                                              botan_x509_general_name_t* alt_name);
+BOTAN_FFI_EXPORT(3, 11) int botan_x509_cert_subject_alternative_names_count(botan_x509_cert_t cert, size_t* count);
+
+/**
+* Provides access to all "issuer alternative names", where each entry is
+* returned as a botan_x509_general_name_t. If the given @p index is not
+* within range of the available entries, BOTAN_FFI_ERROR_OUT_OF_RANGE is
+* returned. If @p cert does not contain an IssuerAlternativeNames extension,
+* BOTAN_FFI_ERROR_NO_VALUE is returned.
+*/
+BOTAN_FFI_EXPORT(3, 11)
+int botan_x509_cert_issuer_alternative_names(botan_x509_cert_t cert, size_t index, botan_x509_general_name_t* alt_name);
+BOTAN_FFI_EXPORT(3, 11) int botan_x509_cert_issuer_alternative_names_count(botan_x509_cert_t cert, size_t* count);
 
 /**
 * Check if the certificate matches the specified hostname via alternative name or CN match.
@@ -2199,18 +2543,174 @@ BOTAN_FFI_EXPORT(2, 8) const char* botan_x509_cert_validation_status(int code);
 **************************/
 
 typedef struct botan_x509_crl_struct* botan_x509_crl_t;
+typedef struct botan_x509_crl_entry_struct* botan_x509_crl_entry_t;
 
 BOTAN_FFI_EXPORT(2, 13) int botan_x509_crl_load_file(botan_x509_crl_t* crl_obj, const char* crl_path);
 BOTAN_FFI_EXPORT(2, 13)
 int botan_x509_crl_load(botan_x509_crl_t* crl_obj, const uint8_t crl_bits[], size_t crl_bits_len);
 
+BOTAN_FFI_EXPORT(3, 11) int botan_x509_crl_this_update(botan_x509_crl_t crl, uint64_t* time_since_epoch);
+BOTAN_FFI_EXPORT(3, 11) int botan_x509_crl_next_update(botan_x509_crl_t crl, uint64_t* time_since_epoch);
+
+/**
+* Create a new CRL
+* @param crl_obj The newly created CRL
+* @param rng a random number generator object
+* @param ca_cert The CA Certificate the CRL belongs to
+* @param ca_key The private key of that CA
+* @param issue_time The time when the CRL becomes valid
+* @param next_update The number of seconds after issue_time until the CRL expires
+* @param hash_fn The hash function to use, may be null
+* @param padding The padding to use, may be null
+*/
+BOTAN_FFI_EXPORT(3, 11)
+int botan_x509_crl_create(botan_x509_crl_t* crl_obj,
+                          botan_rng_t rng,
+                          botan_x509_cert_t ca_cert,
+                          botan_privkey_t ca_key,
+                          uint64_t issue_time,
+                          uint32_t next_update,
+                          const char* hash_fn,
+                          const char* padding);
+
+/* Must match values of CRL_Code in pkix_enums.h */
+enum botan_x509_crl_reason_code /* NOLINT(*-enum-size,*-use-enum-class) */ {
+   BOTAN_CRL_ENTRY_UNSPECIFIED = 0,
+   BOTAN_CRL_ENTRY_KEY_COMPROMISE = 1,
+   BOTAN_CRL_ENTRY_CA_COMPROMISE = 2,
+   BOTAN_CRL_ENTRY_AFFILIATION_CHANGED = 3,
+   BOTAN_CRL_ENTRY_SUPERSEDED = 4,
+   BOTAN_CRL_ENTRY_CESSATION_OF_OPERATION = 5,
+   BOTAN_CRL_ENTRY_CERTIFICATE_HOLD = 6,
+   BOTAN_CRL_ENTRY_REMOVE_FROM_CRL = 8,
+   BOTAN_CRL_ENTRY_PRIVILEGE_WITHDRAWN = 9,
+   BOTAN_CRL_ENTRY_AA_COMPROMISE = 10
+};
+
+/**
+* Create a new CRL entry that marks @p cert as revoked
+* @param entry The newly created CRL entry
+* @param cert The certificate to mark as revoked
+* @param reason_code The reason code for revocation
+*/
+BOTAN_FFI_EXPORT(3, 11)
+int botan_x509_crl_entry_create(botan_x509_crl_entry_t* entry, botan_x509_cert_t cert, int reason_code);
+
+/**
+* Update a CRL with new revoked entries. This does not modify the old crl, and instead creates a new one.
+* @param crl_obj The newly created CRL
+* @param last_crl The CRL to update
+* @param rng a random number generator object
+* @param ca_cert The CA Certificate the CRL belongs to
+* @param ca_key The private key of that CA
+* @param issue_time The time when the CRL becomes valid
+* @param next_update The number of seconds after issue_time until the CRL expires
+* @param new_entries The entries to add to the CRL
+* @param new_entries_len The number of entries
+* @param hash_fn The hash function to use, may be null
+* @param padding The padding to use, may be null
+*/
+BOTAN_FFI_EXPORT(3, 11)
+int botan_x509_crl_update(botan_x509_crl_t* crl_obj,
+                          botan_x509_crl_t last_crl,
+                          botan_rng_t rng,
+                          botan_x509_cert_t ca_cert,
+                          botan_privkey_t ca_key,
+                          uint64_t issue_time,
+                          uint32_t next_update,
+                          const botan_x509_crl_entry_t* new_entries,
+                          size_t new_entries_len,
+                          const char* hash_fn,
+                          const char* padding);
+
+BOTAN_FFI_EXPORT(3, 11) int botan_x509_crl_verify_signature(botan_x509_crl_t crl, botan_pubkey_t key);
+
 BOTAN_FFI_EXPORT(2, 13) int botan_x509_crl_destroy(botan_x509_crl_t crl);
+
+/**
+ * Retrieve a specific binary value from an X.509 certificate revocation list.
+ *
+ * For multi-values @p index allows enumerating the available entries, until
+ * BOTAN_FFI_ERROR_OUT_OF_RANGE is returned. For singleton values, an @p index
+ * of value "0" is expected.
+ *
+ * @returns BOTAN_FFI_ERROR_NO_VALUE if the provided @p crl_obj does not provide
+ *          the requested @p value_type at all or not in binary format.
+ */
+BOTAN_FFI_EXPORT(3, 11)
+int botan_x509_crl_view_binary_values(botan_x509_crl_t crl_obj,
+                                      botan_x509_value_type value_type,
+                                      size_t index,
+                                      botan_view_ctx ctx,
+                                      botan_view_bin_fn view);
+BOTAN_FFI_EXPORT(3, 11)
+int botan_x509_crl_view_binary_values_count(botan_x509_crl_t crl_obj, botan_x509_value_type value_type, size_t* count);
+
+/**
+ * Retrieve a specific string value from an X.509 certificate revocation list.
+ *
+ * For multi-values @p index allows enumerating the available entries, until
+ * BOTAN_FFI_ERROR_OUT_OF_RANGE is returned. For singleton values, an @p index
+ * of value "0" is expected.
+ *
+ * @returns BOTAN_FFI_ERROR_NO_VALUE if the provided @p crl_obj does not provide
+ *          the requested @p value_type at all or not in string format.
+ */
+BOTAN_FFI_EXPORT(3, 11)
+int botan_x509_crl_view_string_values(botan_x509_crl_t crl_obj,
+                                      botan_x509_value_type value_type,
+                                      size_t index,
+                                      botan_view_ctx ctx,
+                                      botan_view_str_fn view);
+BOTAN_FFI_EXPORT(3, 11)
+int botan_x509_crl_view_string_values_count(botan_x509_crl_t crl_obj, botan_x509_value_type value_type, size_t* count);
 
 /**
  * Given a CRL and a certificate,
  * check if the certificate is revoked on that particular CRL
  */
 BOTAN_FFI_EXPORT(2, 13) int botan_x509_is_revoked(botan_x509_crl_t crl, botan_x509_cert_t cert);
+
+/**
+* Allows iterating all entries of the CRL.
+*
+* @param crl     the CRL whose entries should be listed
+* @param index   the index of the CRL entry to return
+* @param entry   an object handle containing the CRL entry data
+*
+* @returns BOTAN_FFI_ERROR_OUT_OF_RANGE if the given @p index is out of range of
+*          the CRL entry list.
+*/
+BOTAN_FFI_EXPORT(3, 11)
+int botan_x509_crl_entries(botan_x509_crl_t crl, size_t index, botan_x509_crl_entry_t* entry);
+BOTAN_FFI_EXPORT(3, 11) int botan_x509_crl_entries_count(botan_x509_crl_t crl, size_t* count);
+
+/**
+* Return the revocation reason code for the given CRL @p entry.
+* See `botan_x509_crl_reason_code` and RFC 5280 - 5.3.1 for possible reason codes.
+*/
+BOTAN_FFI_EXPORT(3, 11) int botan_x509_crl_entry_reason(botan_x509_crl_entry_t entry, int* reason_code);
+
+/**
+* Return the revocation date for the given CRL @p entry as time since epoch
+* in seconds.
+*/
+BOTAN_FFI_EXPORT(3, 11)
+int botan_x509_crl_entry_revocation_date(botan_x509_crl_entry_t entry, uint64_t* time_since_epoch);
+
+/**
+* Return the serial number associated with the given CRL @p entry.
+*/
+BOTAN_FFI_EXPORT(3, 11)
+int botan_x509_crl_entry_serial_number(botan_x509_crl_entry_t entry, botan_mp_t* serial_number);
+
+/**
+* View the serial number associated with the given CRL @p entry.
+*/
+BOTAN_FFI_EXPORT(3, 11)
+int botan_x509_crl_entry_view_serial_number(botan_x509_crl_entry_t entry, botan_view_ctx ctx, botan_view_bin_fn view);
+
+BOTAN_FFI_EXPORT(3, 11) int botan_x509_crl_entry_destroy(botan_x509_crl_entry_t entry);
 
 /**
  * Different flavor of `botan_x509_cert_verify`, supports revocation lists.
@@ -2591,7 +3091,7 @@ BOTAN_FFI_EXPORT(3, 6)
 int botan_tpm2_ctx_enable_crypto_backend(botan_tpm2_ctx_t ctx, botan_rng_t rng);
 
 /**
-* Frees all resouces of a TPM2 context
+* Frees all resources of a TPM2 context
 * @param ctx TPM2 context
 * @return 0 on success
 */
@@ -2614,7 +3114,7 @@ int botan_tpm2_enable_crypto_backend(botan_tpm2_crypto_backend_state_t* cbs_out,
                                      botan_rng_t rng);
 
 /**
-* Frees all resouces of a TPM2 Crypto Callback State
+* Frees all resources of a TPM2 Crypto Callback State
 * Note that this does not attempt to de-register the crypto backend,
 * it just frees the resource pointed to by @p cbs. Use the ESAPI function
 * ``Esys_SetCryptoCallbacks(ctx, nullptr)`` to deregister manually.
@@ -2652,6 +3152,8 @@ int botan_tpm2_unauthenticated_session_init(botan_tpm2_session_t* session_out, b
 */
 BOTAN_FFI_EXPORT(3, 6)
 int botan_tpm2_session_destroy(botan_tpm2_session_t session);
+
+/* NOLINTEND(*-macro-usage,*-misplaced-const) */
 
 #ifdef __cplusplus
 }

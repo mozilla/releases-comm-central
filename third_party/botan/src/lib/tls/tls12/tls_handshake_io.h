@@ -10,7 +10,6 @@
 
 #include <botan/tls_magic.h>
 #include <botan/tls_version.h>
-#include <botan/internal/tls_channel_impl.h>
 #include <deque>
 #include <functional>
 #include <map>
@@ -69,8 +68,9 @@ class Handshake_IO {
       Handshake_IO() = default;
 
       Handshake_IO(const Handshake_IO&) = delete;
-
+      Handshake_IO(Handshake_IO&&) = delete;
       Handshake_IO& operator=(const Handshake_IO&) = delete;
+      Handshake_IO& operator=(Handshake_IO&&) = delete;
 
       virtual ~Handshake_IO() = default;
 };
@@ -82,13 +82,13 @@ class Stream_Handshake_IO final : public Handshake_IO {
    public:
       typedef std::function<void(Record_Type, const std::vector<uint8_t>&)> writer_fn;
 
-      explicit Stream_Handshake_IO(writer_fn writer) : m_send_hs(writer) {}
+      explicit Stream_Handshake_IO(writer_fn writer) : m_send_hs(std::move(writer)) {}
 
       Protocol_Version initial_record_version() const override;
 
       bool timeout_check() override { return false; }
 
-      bool have_more_data() const override { return m_queue.empty() == false; }
+      bool have_more_data() const override { return !m_queue.empty(); }
 
       std::vector<uint8_t> send(const Handshake_Message& msg) override;
 
@@ -122,7 +122,7 @@ class Datagram_Handshake_IO final : public Handshake_IO {
             m_flights(1),
             m_initial_timeout(initial_timeout_ms),
             m_max_timeout(max_timeout_ms),
-            m_send_hs(writer),
+            m_send_hs(std::move(writer)),
             m_mtu(mtu) {}
 
       Protocol_Version initial_record_version() const override;
@@ -194,9 +194,9 @@ class Datagram_Handshake_IO final : public Handshake_IO {
 
             Message_Info() : epoch(0xFFFF), msg_type(Handshake_Type::None) {}
 
-            uint16_t epoch;
-            Handshake_Type msg_type;
-            std::vector<uint8_t> msg_bits;
+            uint16_t epoch;                 // NOLINT(*non-private-member-variable*)
+            Handshake_Type msg_type;        // NOLINT(*non-private-member-variable*)
+            std::vector<uint8_t> msg_bits;  // NOLINT(*non-private-member-variable*)
       };
 
       class Connection_Sequence_Numbers& m_seqs;

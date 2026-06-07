@@ -11,8 +11,8 @@
 #include <botan/hex.h>
 #include <botan/pwdhash.h>
 #include <botan/rng.h>
+#include <botan/tls_session.h>
 #include <botan/internal/loadstor.h>
-#include <chrono>
 
 namespace Botan::TLS {
 
@@ -93,11 +93,11 @@ void Session_Manager_SQL::create_with_latest_schema(std::string_view passphrase,
 
    secure_vector<uint8_t> derived_key(32 + 2);
 
-   const auto pbkdf_name = "PBKDF2(SHA-512)";
+   const std::string pbkdf_name = "PBKDF2(SHA-512)";
    auto pbkdf_fam = PasswordHashFamily::create_or_throw(pbkdf_name);
 
-   auto desired_runtime = std::chrono::milliseconds(100);
-   auto pbkdf = pbkdf_fam->tune(derived_key.size(), desired_runtime);
+   constexpr uint32_t desired_runtime_msec = 100;
+   auto pbkdf = pbkdf_fam->tune_params(derived_key.size(), desired_runtime_msec);
 
    pbkdf->derive_key(
       derived_key.data(), derived_key.size(), passphrase.data(), passphrase.size(), salt.data(), salt.size());
@@ -123,7 +123,7 @@ void Session_Manager_SQL::initialize_existing_database(std::string_view passphra
       throw Internal_Error("Failed to initialize TLS session database");
    }
 
-   std::pair<const uint8_t*, size_t> salt = stmt->get_blob(0);
+   const std::pair<const uint8_t*, size_t> salt = stmt->get_blob(0);
    const size_t iterations = stmt->get_size_t(1);
    const size_t check_val_db = stmt->get_size_t(2);
    const std::string pbkdf_name = stmt->get_str(3);
@@ -188,7 +188,7 @@ std::optional<Session> Session_Manager_SQL::retrieve_one(const Session_Handle& h
       stmt->bind(1, hex_encode(session_id->get()));
 
       while(stmt->step()) {
-         std::pair<const uint8_t*, size_t> blob = stmt->get_blob(0);
+         const std::pair<const uint8_t*, size_t> blob = stmt->get_blob(0);
 
          try {
             return Session::decrypt(blob.first, blob.second, m_session_key);
@@ -221,13 +221,13 @@ std::vector<Session_with_Handle> Session_Manager_SQL::find_some(const Server_Inf
       auto handle = [&]() -> Session_Handle {
          auto ticket_blob = stmt->get_blob(1);
          if(ticket_blob.second > 0) {
-            return Session_Ticket(std::span(ticket_blob.first, ticket_blob.second));
+            return Session_Handle(Session_Ticket(std::span(ticket_blob.first, ticket_blob.second)));
          } else {
-            return Session_ID(Botan::hex_decode(stmt->get_str(0)));
+            return Session_Handle(Session_ID(Botan::hex_decode(stmt->get_str(0))));
          }
       }();
 
-      std::pair<const uint8_t*, size_t> blob = stmt->get_blob(2);
+      const std::pair<const uint8_t*, size_t> blob = stmt->get_blob(2);
 
       try {
          found_sessions.emplace_back(
@@ -241,7 +241,7 @@ std::vector<Session_with_Handle> Session_Manager_SQL::find_some(const Server_Inf
 size_t Session_Manager_SQL::remove(const Session_Handle& handle) {
    // The number of deleted rows is taken globally from the database connection,
    // therefore we need to serialize this implementation.
-   lock_guard_type<recursive_mutex_type> lk(mutex());
+   const lock_guard_type<recursive_mutex_type> lk(mutex());
 
    if(const auto id = handle.id()) {
       auto stmt = m_db->new_statement("DELETE FROM tls_sessions WHERE session_id = ?1");
@@ -262,7 +262,7 @@ size_t Session_Manager_SQL::remove(const Session_Handle& handle) {
 size_t Session_Manager_SQL::remove_all() {
    // The number of deleted rows is taken globally from the database connection,
    // therefore we need to serialize this implementation.
-   lock_guard_type<recursive_mutex_type> lk(mutex());
+   const lock_guard_type<recursive_mutex_type> lk(mutex());
 
    m_db->exec("DELETE FROM tls_sessions");
    return m_db->rows_changed_by_last_statement();

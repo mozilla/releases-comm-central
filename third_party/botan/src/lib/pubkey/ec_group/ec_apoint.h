@@ -68,6 +68,14 @@ class BOTAN_PUBLIC_API(3, 6) EC_AffinePoint final {
                                              std::span<const uint8_t> input,
                                              std::span<const uint8_t> domain_sep);
 
+      /// Hash to curve (RFC 9380), random oracle variant
+      ///
+      /// Only supported for specific groups
+      static EC_AffinePoint hash_to_curve_ro(const EC_Group& group,
+                                             std::string_view hash_fn,
+                                             std::span<const uint8_t> input,
+                                             std::string_view domain_sep);
+
       /// Hash to curve (RFC 9380), non uniform variant
       ///
       /// Only supported for specific groups
@@ -75,6 +83,14 @@ class BOTAN_PUBLIC_API(3, 6) EC_AffinePoint final {
                                              std::string_view hash_fn,
                                              std::span<const uint8_t> input,
                                              std::span<const uint8_t> domain_sep);
+
+      /// Hash to curve (RFC 9380), non uniform variant
+      ///
+      /// Only supported for specific groups
+      static EC_AffinePoint hash_to_curve_nu(const EC_Group& group,
+                                             std::string_view hash_fn,
+                                             std::span<const uint8_t> input,
+                                             std::string_view domain_sep);
 
       /// Multiply a point by a scalar returning a complete point
       EC_AffinePoint mul(const EC_Scalar& scalar, RandomNumberGenerator& rng) const;
@@ -100,7 +116,7 @@ class BOTAN_PUBLIC_API(3, 6) EC_AffinePoint final {
       /// field inversion. This can be sufficient when implementing protocols
       /// that just need to perform a few additions.
       ///
-      /// In the future a cooresponding EC_ProjectivePoint type may be added
+      /// In the future a corresponding EC_ProjectivePoint type may be added
       /// which would avoid the expensive affine conversions
       EC_AffinePoint add(const EC_AffinePoint& q) const;
 
@@ -226,19 +242,19 @@ class BOTAN_PUBLIC_API(3, 6) EC_AffinePoint final {
 #endif
 
       BOTAN_DEPRECATED("Use version without workspace arg")
-      static EC_AffinePoint g_mul(const EC_Scalar& scalar, RandomNumberGenerator& rng, std::vector<BigInt>&) {
+      static EC_AffinePoint g_mul(const EC_Scalar& scalar, RandomNumberGenerator& rng, std::vector<BigInt>& /*ws*/) {
          return EC_AffinePoint::g_mul(scalar, rng);
       }
 
       BOTAN_DEPRECATED("Use version without workspace arg")
-      EC_AffinePoint mul(const EC_Scalar& scalar, RandomNumberGenerator& rng, std::vector<BigInt>&) const {
+      EC_AffinePoint mul(const EC_Scalar& scalar, RandomNumberGenerator& rng, std::vector<BigInt>& /*ws*/) const {
          return this->mul(scalar, rng);
       }
 
       /// Multiply a point by a scalar, returning the byte encoding of the x coordinate only
       secure_vector<uint8_t> mul_x_only(const EC_Scalar& scalar,
                                         RandomNumberGenerator& rng,
-                                        std::vector<BigInt>&) const {
+                                        std::vector<BigInt>& /*ws*/) const {
          return this->mul_x_only(scalar, rng);
       }
 
@@ -253,7 +269,7 @@ class BOTAN_PUBLIC_API(3, 6) EC_AffinePoint final {
    private:
       friend class EC_Mul2Table;
 
-      EC_AffinePoint(std::unique_ptr<EC_AffinePoint_Data> point);
+      explicit EC_AffinePoint(std::unique_ptr<EC_AffinePoint_Data> point);
 
       const EC_AffinePoint_Data& inner() const { return *m_point; }
 

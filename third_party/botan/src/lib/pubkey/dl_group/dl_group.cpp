@@ -31,7 +31,7 @@ class DL_Group_Data final {
             m_g(g),
             m_mod_p(Barrett_Reduction::for_public_modulus(p)),
             m_mod_q(Barrett_Reduction::for_public_modulus(q)),
-            m_monty_params(std::make_shared<Montgomery_Params>(m_p, m_mod_p)),
+            m_monty_params(m_p, m_mod_p),
             m_monty(monty_precompute(m_monty_params, m_g, /*window bits=*/4)),
             m_p_bits(p.bits()),
             m_q_bits(q.bits()),
@@ -43,7 +43,7 @@ class DL_Group_Data final {
             m_p(p),
             m_g(g),
             m_mod_p(Barrett_Reduction::for_public_modulus(p)),
-            m_monty_params(std::make_shared<Montgomery_Params>(m_p, m_mod_p)),
+            m_monty_params(m_p, m_mod_p),
             m_monty(monty_precompute(m_monty_params, m_g, /*window bits=*/4)),
             m_p_bits(p.bits()),
             m_q_bits(0),
@@ -71,7 +71,7 @@ class DL_Group_Data final {
          return *m_mod_q;
       }
 
-      std::shared_ptr<const Montgomery_Params> monty_params_p() const { return m_monty_params; }
+      const Montgomery_Params& monty_params_p() const { return m_monty_params; }
 
       size_t p_bits() const { return m_p_bits; }
 
@@ -102,7 +102,7 @@ class DL_Group_Data final {
       bool q_is_set() const { return m_q_bits > 0; }
 
       void assert_q_is_set(std::string_view function) const {
-         if(q_is_set() == false) {
+         if(!q_is_set()) {
             throw Invalid_State(fmt("DL_Group::{}: q is not set for this group", function));
          }
       }
@@ -115,8 +115,8 @@ class DL_Group_Data final {
       BigInt m_g;
       Barrett_Reduction m_mod_p;
       std::optional<Barrett_Reduction> m_mod_q;
-      std::shared_ptr<const Montgomery_Params> m_monty_params;
-      std::shared_ptr<const Montgomery_Exponentation_State> m_monty;
+      Montgomery_Params m_monty_params;
+      std::shared_ptr<const Montgomery_Exponentiation_State> m_monty;
       size_t m_p_bits;
       size_t m_q_bits;
       size_t m_estimated_strength;
@@ -133,15 +133,20 @@ std::shared_ptr<DL_Group_Data> DL_Group::BER_decode_DL_group(const uint8_t data[
    BER_Decoder ber = decoder.start_sequence();
 
    if(format == DL_Group_Format::ANSI_X9_57) {
-      BigInt p, q, g;
+      BigInt p;
+      BigInt q;
+      BigInt g;
       ber.decode(p).decode(q).decode(g).verify_end();
       return std::make_shared<DL_Group_Data>(p, q, g, source);
    } else if(format == DL_Group_Format::ANSI_X9_42) {
-      BigInt p, g, q;
+      BigInt p;
+      BigInt g;
+      BigInt q;
       ber.decode(p).decode(g).decode(q).discard_remaining();
       return std::make_shared<DL_Group_Data>(p, q, g, source);
    } else if(format == DL_Group_Format::PKCS_3) {
-      BigInt p, g;
+      BigInt p;
+      BigInt g;
       ber.decode(p).decode(g).discard_remaining();
       return std::make_shared<DL_Group_Data>(p, g, source);
    } else {
@@ -198,7 +203,7 @@ DL_Group::DL_Group(std::string_view str) {
       try {
          std::string label;
          const std::vector<uint8_t> ber = unlock(PEM_Code::decode(str, label));
-         DL_Group_Format format = pem_label_to_dl_format(label);
+         const DL_Group_Format format = pem_label_to_dl_format(label);
 
          m_data = BER_decode_DL_group(ber.data(), ber.size(), format, DL_Group_Source::ExternalSource);
       } catch(...) {}
@@ -223,7 +228,7 @@ DL_Group DL_Group::from_name(std::string_view name) {
 DL_Group DL_Group::from_PEM(std::string_view pem) {
    std::string label;
    const std::vector<uint8_t> ber = unlock(PEM_Code::decode(pem, label));
-   DL_Group_Format format = pem_label_to_dl_format(label);
+   const DL_Group_Format format = pem_label_to_dl_format(label);
    return DL_Group(ber, format);
 }
 
@@ -233,7 +238,8 @@ namespace {
 * Create generator of the q-sized subgroup (DSA style generator)
 */
 BigInt make_dsa_generator(const BigInt& p, const BigInt& q) {
-   BigInt e, r;
+   BigInt e;
+   BigInt r;
    vartime_divide(p - 1, q, e, r);
 
    if(e == 0 || r > 0) {
@@ -241,11 +247,11 @@ BigInt make_dsa_generator(const BigInt& p, const BigInt& q) {
    }
 
    // TODO we compute these, then throw them away and recompute in DL_Group_Data
-   auto reduce_mod = Barrett_Reduction::for_public_modulus(p);
-   auto monty_params = std::make_shared<Montgomery_Params>(p, reduce_mod);
+   auto mod_p = Barrett_Reduction::for_public_modulus(p);
+   const Montgomery_Params params(p, mod_p);
 
    for(size_t i = 0; i != PRIME_TABLE_SIZE; ++i) {
-      BigInt g = monty_exp_vartime(monty_params, BigInt::from_word(PRIMES[i]), e).value();
+      BigInt g = monty_exp_vartime(params, BigInt::from_word(PRIMES[i]), e).value();
       if(g > 1) {
          return g;
       }
@@ -311,7 +317,8 @@ DL_Group::DL_Group(RandomNumberGenerator& rng, PrimeType type, size_t pbits, siz
          qbits = ((pbits <= 1024) ? 160 : 256);
       }
 
-      BigInt p, q;
+      BigInt p;
+      BigInt q;
       generate_dsa_primes(rng, p, q, pbits, qbits);
       const BigInt g = make_dsa_generator(p, q);
       m_data = std::make_shared<DL_Group_Data>(p, q, g, DL_Group_Source::RandomlyGenerated);
@@ -324,13 +331,14 @@ DL_Group::DL_Group(RandomNumberGenerator& rng, PrimeType type, size_t pbits, siz
 * DL_Group Constructor
 */
 DL_Group::DL_Group(RandomNumberGenerator& rng, const std::vector<uint8_t>& seed, size_t pbits, size_t qbits) {
-   BigInt p, q;
+   BigInt p;
+   BigInt q;
 
    if(!generate_dsa_primes(rng, p, q, pbits, qbits, seed)) {
       throw Invalid_Argument("DL_Group: The seed given does not generate a DSA group");
    }
 
-   BigInt g = make_dsa_generator(p, q);
+   const BigInt g = make_dsa_generator(p, q);
 
    m_data = std::make_shared<DL_Group_Data>(p, q, g, DL_Group_Source::RandomlyGenerated);
 }
@@ -369,7 +377,7 @@ bool DL_Group::verify_public_element(const BigInt& y) const {
       return false;
    }
 
-   if(q.is_zero() == false) {
+   if(!q.is_zero()) {
       if(data().power_b_p_vartime(y, q) != 1) {
          return false;
       }
@@ -481,7 +489,7 @@ const BigInt& DL_Group::get_q() const {
    return data().q();
 }
 
-std::shared_ptr<const Montgomery_Params> DL_Group::monty_params_p() const {
+const Montgomery_Params& DL_Group::_monty_params_p() const {
    return data().monty_params_p();
 }
 

@@ -11,6 +11,7 @@
 #include <botan/types.h>
 #include <chrono>
 #include <memory>
+#include <span>
 #include <string_view>
 
 namespace Botan::OS {
@@ -26,7 +27,7 @@ namespace Botan::OS {
 /**
 * A wrapper around a simple blocking TCP socket
 */
-class BOTAN_TEST_API Socket {
+class BOTAN_TEST_API Socket /* NOLINT(*-special-member-functions) */ {
    public:
       /**
       * The socket will be closed upon destruction
@@ -37,7 +38,7 @@ class BOTAN_TEST_API Socket {
       * Write to the socket. Blocks until all bytes sent.
       * Throws on error.
       */
-      virtual void write(const uint8_t buf[], size_t len) = 0;
+      virtual void write(std::span<const uint8_t> bytes) = 0;
 
       /**
       * Reads up to len bytes, returns bytes written to buf.

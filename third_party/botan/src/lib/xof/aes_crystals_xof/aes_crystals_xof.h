@@ -23,7 +23,7 @@ class StreamCipher;
  * This is an internal class that is not meant for consumption
  * by library users. It is therefore not registered in XOF::create().
  */
-class BOTAN_TEST_API AES_256_CTR_XOF final : public XOF {
+class BOTAN_TEST_API AES_256_CTR_XOF final : public XOF /* NOLINT(*-special-member-functions) */ {
    public:
       AES_256_CTR_XOF();
       ~AES_256_CTR_XOF() override;
@@ -56,7 +56,7 @@ class BOTAN_TEST_API AES_256_CTR_XOF final : public XOF {
       /**
        * @throws Not_Implemented, use XOF::start() instead of XOF::update()
        */
-      void add_data(std::span<const uint8_t>) override;
+      void add_data(std::span<const uint8_t> input) override;
 
       void generate_bytes(std::span<uint8_t> output) override;
 

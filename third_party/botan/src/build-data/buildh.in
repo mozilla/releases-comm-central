@@ -6,6 +6,8 @@
 * @brief Build configuration for Botan %{version}
 */
 
+/* NOLINTBEGIN(*-macro-usage,*-macro-to-enum) */
+
 /**
  * @defgroup buildinfo Build Information
  */
@@ -137,20 +139,21 @@
 #define BOTAN_HAS_%{i}
 %{endfor}
 
+/*
+* Internal module feature definitions
+*
+* These macros have been in the past visible in build.h as feature macros
+* but in the future these will be only visible in an internal header.
+* Applications should not rely on or check for these macros.
+*/
+%{for module_internal_defines}
+#define BOTAN_HAS_%{i}
+%{endfor}
+
 /**
  * @}
  */
 
-/**
- * @addtogroup buildinfo_configuration
- * @{
- */
-
-/** Local/misc configuration options (if any) follow */
-%{local_config}
-
-/**
- * @}
- */
+/* NOLINTEND(*-macro-usage,*-macro-to-enum) */
 
 #endif

@@ -10,11 +10,10 @@
 #define BOTAN_HSS_H_
 
 #include <botan/asn1_obj.h>
-#include <botan/rng.h>
 #include <botan/internal/ct_utils.h>
 #include <botan/internal/int_utils.h>
 #include <botan/internal/lms.h>
-
+#include <botan/internal/stateful_key_index_registry.h>
 #include <memory>
 #include <span>
 #include <string_view>
@@ -22,6 +21,8 @@
 #include <vector>
 
 namespace Botan {
+
+class RandomNumberGenerator;
 
 /**
  * @brief The index of a node within a specific LMS tree layer
@@ -75,7 +76,7 @@ class BOTAN_TEST_API HSS_LMS_Params final {
        * @brief Construct the HSS-LMS parameters form an algorithm parameter string.
        *
        * The HSS/LMS instance to use for creating new keys is defined using an algorithm parameter string,
-       * i.e. to define which hash function (hash), LMS tree hights (h)
+       * i.e. to define which hash function (hash), LMS tree height (h)
        * and OTS Winternitz coefficient widths (w) to use. The syntax is the following:
        *
        * HSS-LMS(<hash>,HW(<h>,<w>),HW(<h>,<w>),...)
@@ -155,13 +156,14 @@ class HSS_LMS_PrivateKeyInternal final {
       /**
        * @brief Get the idx of the next signature to generate.
        */
-      HSS_Sig_Idx get_idx() const { return m_current_idx; }
+      HSS_Sig_Idx remaining_operations(HSS_Sig_Idx idx) const;
 
       /**
        * @brief Set the idx of the next signature to generate.
        *
        * Note that creating two signatures with the same index is insecure.
        * The index must be lower than hss_params().max_sig_count().
+       * The index will never go backward (highest value wins).
        */
       void set_idx(HSS_Sig_Idx idx);
 
@@ -230,7 +232,7 @@ class HSS_LMS_PrivateKeyInternal final {
       HSS_LMS_Params m_hss_params;
       LMS_Seed m_hss_seed;
       LMS_Identifier m_identifier;
-      HSS_Sig_Idx m_current_idx;
+      Stateful_Key_Index_Registry::KeyId m_keyid;
       const size_t m_sig_size;
 };
 

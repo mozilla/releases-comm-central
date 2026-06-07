@@ -21,6 +21,7 @@
 
 #include <botan/hex.h>
 #include <botan/rng.h>
+#include <botan/internal/ct_utils.h>
 #include <botan/internal/filesystem.h>
 #include <botan/internal/fmt.h>
 #include <botan/internal/loadstor.h>
@@ -58,7 +59,10 @@
 #endif
 
 #if defined(BOTAN_HAS_TLS_CBC)
+   #include <botan/block_cipher.h>
+   #include <botan/mac.h>
    #include <botan/tls_exceptn.h>
+   #include <botan/tls_version.h>
    #include <botan/internal/tls_cbc.h>
 #endif
 
@@ -85,7 +89,7 @@ namespace {
 
 class TimingTestTimer {
    public:
-      TimingTestTimer() { m_start = get_high_resolution_clock(); }
+      TimingTestTimer() : m_start(get_high_resolution_clock()) {}
 
       uint64_t complete() const { return get_high_resolution_clock() - m_start; }
 
@@ -98,8 +102,6 @@ class TimingTestTimer {
 
       uint64_t m_start;
 };
-
-}  // namespace
 
 class Timing_Test {
    public:
@@ -140,8 +142,8 @@ class Bleichenbacker_Timing_Test final : public Timing_Test {
    public:
       explicit Bleichenbacker_Timing_Test(size_t keysize) :
             m_privkey(timing_test_rng(), keysize),
-            m_pubkey(m_privkey),
-            m_enc(m_pubkey, timing_test_rng(), "Raw"),
+            m_pubkey(m_privkey.public_key()),
+            m_enc(*m_pubkey, timing_test_rng(), "Raw"),
             m_dec(m_privkey, timing_test_rng(), "PKCS1v15") {}
 
       std::vector<uint8_t> prepare_input(const std::string& input) override {
@@ -150,7 +152,7 @@ class Bleichenbacker_Timing_Test final : public Timing_Test {
       }
 
       uint64_t measure_critical_function(const std::vector<uint8_t>& input) override {
-         TimingTestTimer timer;
+         const TimingTestTimer timer;
          m_dec.decrypt_or_random(input.data(), m_ctext_length, m_expected_content_size, timing_test_rng());
          return timer.complete();
       }
@@ -159,7 +161,7 @@ class Bleichenbacker_Timing_Test final : public Timing_Test {
       const size_t m_expected_content_size = 48;
       const size_t m_ctext_length = 256;
       Botan::RSA_PrivateKey m_privkey;
-      Botan::RSA_PublicKey m_pubkey;
+      std::unique_ptr<Botan::Public_Key> m_pubkey;
       Botan::PK_Encryptor_EME m_enc;
       Botan::PK_Decryptor_EME m_dec;
 };
@@ -179,8 +181,8 @@ class Manger_Timing_Test final : public Timing_Test {
    public:
       explicit Manger_Timing_Test(size_t keysize) :
             m_privkey(timing_test_rng(), keysize),
-            m_pubkey(m_privkey),
-            m_enc(m_pubkey, timing_test_rng(), m_encrypt_padding),
+            m_pubkey(m_privkey.public_key()),
+            m_enc(*m_pubkey, timing_test_rng(), m_encrypt_padding),
             m_dec(m_privkey, timing_test_rng(), m_decrypt_padding) {}
 
       std::vector<uint8_t> prepare_input(const std::string& input) override {
@@ -189,7 +191,7 @@ class Manger_Timing_Test final : public Timing_Test {
       }
 
       uint64_t measure_critical_function(const std::vector<uint8_t>& input) override {
-         TimingTestTimer timer;
+         const TimingTestTimer timer;
          try {
             m_dec.decrypt(input.data(), m_ctext_length);
          } catch(Botan::Decoding_Error&) {}
@@ -201,7 +203,7 @@ class Manger_Timing_Test final : public Timing_Test {
       const std::string m_decrypt_padding = "EME1(SHA-256)";
       const size_t m_ctext_length = 256;
       Botan::RSA_PrivateKey m_privkey;
-      Botan::RSA_PublicKey m_pubkey;
+      std::unique_ptr<Botan::Public_Key> m_pubkey;
       Botan::PK_Encryptor_EME m_enc;
       Botan::PK_Decryptor_EME m_dec;
 };
@@ -252,13 +254,13 @@ uint64_t Lucky13_Timing_Test::measure_critical_function(const std::vector<uint8_
    Botan::secure_vector<uint8_t> data(input.begin(), input.end());
    Botan::secure_vector<uint8_t> aad(13);
    const Botan::secure_vector<uint8_t> iv(16);
-   Botan::secure_vector<uint8_t> key(16 + m_mac_keylen);
+   const Botan::secure_vector<uint8_t> key(16 + m_mac_keylen);
 
    m_dec.set_key(unlock(key));
    m_dec.set_associated_data(aad);
    m_dec.start(unlock(iv));
 
-   TimingTestTimer timer;
+   const TimingTestTimer timer;
    try {
       m_dec.finish(data);
    } catch(Botan::TLS::TLS_Exception&) {}
@@ -295,7 +297,7 @@ uint64_t ECDSA_Timing_Test::measure_critical_function(const std::vector<uint8_t>
    // fixed message to minimize noise
    const auto m = Botan::EC_Scalar::from_bytes_with_trunc(m_group, std::vector<uint8_t>{5});
 
-   TimingTestTimer timer;
+   const TimingTestTimer timer;
 
    // the following ECDSA operations involve and should not leak any information about k
    const auto r = Botan::EC_Scalar::gk_x_mod_order(k, timing_test_rng());
@@ -326,7 +328,7 @@ class ECC_Mul_Timing_Test final : public Timing_Test {
 uint64_t ECC_Mul_Timing_Test::measure_critical_function(const std::vector<uint8_t>& input) {
    const auto k = Botan::EC_Scalar::from_bytes_with_trunc(m_group, input);
 
-   TimingTestTimer timer;
+   const TimingTestTimer timer;
    const auto kG = Botan::EC_AffinePoint::g_mul(k, timing_test_rng());
    return timer.complete();
 }
@@ -349,7 +351,7 @@ uint64_t Powmod_Timing_Test::measure_critical_function(const std::vector<uint8_t
    const Botan::BigInt x(input.data(), input.size());
    const size_t max_x_bits = m_group.p_bits();
 
-   TimingTestTimer timer;
+   const TimingTestTimer timer;
 
    const Botan::BigInt g_x_p = m_group.power_g_p(x, max_x_bits);
 
@@ -373,7 +375,7 @@ class Invmod_Timing_Test final : public Timing_Test {
 uint64_t Invmod_Timing_Test::measure_critical_function(const std::vector<uint8_t>& input) {
    const Botan::BigInt k(input.data(), input.size());
 
-   TimingTestTimer timer;
+   const TimingTestTimer timer;
    const Botan::BigInt inv = Botan::inverse_mod_secret_prime(k, m_p);
    return timer.complete();
 }
@@ -448,7 +450,7 @@ class Timing_Test_Command final : public Command {
             filename = test_data_dir + "/" + test_type + ".vec";
          }
 
-         std::vector<std::string> lines = read_testdata(filename);
+         const std::vector<std::string> lines = read_testdata(filename);
 
          std::vector<std::vector<uint64_t>> results = test->execute_evaluation(lines, warmup_runs, measurement_runs);
 
@@ -467,7 +469,7 @@ class Timing_Test_Command final : public Command {
       static std::vector<std::string> read_testdata(const std::string& filename) {
          std::vector<std::string> lines;
          std::ifstream infile(filename);
-         if(infile.good() == false) {
+         if(!infile.good()) {
             throw CLI_Error("Error reading test data from '" + filename + "'");
          }
          std::string line;
@@ -560,7 +562,7 @@ BOTAN_REGISTER_COMMAND("timing_test", Timing_Test_Command);
 class MARVIN_Test_Command final : public Command {
    public:
       MARVIN_Test_Command() :
-            Command("marvin_test key_file ctext_dir --runs=1000 --report-every=0 --output-nsec --expect-pt-len=0") {}
+            Command("marvin_test key_file ctext_dir --runs=1K --report-every=0 --output-nsec --expect-pt-len=0") {}
 
       std::string group() const override { return "testing"; }
 
@@ -575,7 +577,7 @@ class MARVIN_Test_Command final : public Command {
       void go() override {
          const std::string key_file = get_arg("key_file");
          const std::string ctext_dir = get_arg("ctext_dir");
-         const size_t measurement_runs = get_arg_sz("runs");
+         const size_t measurement_runs = parse_runs_arg(get_arg("runs"));
          const size_t expect_pt_len = get_arg_sz("expect-pt-len");
          const size_t report_every = get_arg_sz("report-every");
          const bool output_nsec = flag_set("output-nsec");
@@ -583,13 +585,13 @@ class MARVIN_Test_Command final : public Command {
    #if defined(BOTAN_TARGET_OS_HAS_POSIX1)
          ::setenv("BOTAN_THREAD_POOL_SIZE", "none", /*overwrite?*/ 1);
 
-         struct sigaction sigaction;
+         struct sigaction sigaction {};
 
          sigaction.sa_handler = marvin_sigint_handler;
          sigemptyset(&sigaction.sa_mask);
          sigaction.sa_flags = 0;
 
-         int rc = ::sigaction(SIGINT, &sigaction, nullptr);
+         const int rc = ::sigaction(SIGINT, &sigaction, nullptr);
          if(rc != 0) {
             throw CLI_Error("Failed to set SIGINT handler");
          }
@@ -628,26 +630,32 @@ class MARVIN_Test_Command final : public Command {
             throw CLI_Usage_Error("Empty ciphertext directory for MARVIN test");
          }
 
+         auto& test_results_file = output();
+
+         const size_t testcases = names.size();
+
    #if defined(BOTAN_HAS_CHACHA_RNG)
          auto rng = Botan::ChaCha_RNG(Botan::system_rng());
    #else
          auto& rng = Botan::system_rng();
    #endif
 
-         Botan::PK_Decryptor_EME op(*key, rng, "PKCS1v15");
+         const Botan::PK_Decryptor_EME op(*key, rng, "PKCS1v15");
 
          std::vector<size_t> indexes;
-         for(size_t i = 0; i != names.size(); ++i) {
+         for(size_t i = 0; i != testcases; ++i) {
             indexes.push_back(i);
          }
 
-         std::vector<std::vector<uint64_t>> measurements(names.size());
+         std::vector<std::vector<uint64_t>> measurements(testcases);
          for(auto& m : measurements) {
             m.reserve(measurement_runs);
          }
 
          // This is only set differently if we exit early from the loop
          size_t runs_completed = measurement_runs;
+
+         std::vector<uint8_t> ciphertext(modulus_bytes);
 
          for(size_t r = 0; r != measurement_runs; ++r) {
             if(r > 0 && report_every > 0 && (r % report_every) == 0) {
@@ -656,14 +664,15 @@ class MARVIN_Test_Command final : public Command {
 
             shuffle(indexes, rng);
 
-            std::vector<uint8_t> ciphertext(modulus_bytes);
-            for(size_t i = 0; i != indexes.size(); ++i) {
-               const size_t testcase = indexes[i];
+            for(const size_t testcase : indexes) {
+               // Load the test ciphertext in constant time to avoid cache pollution
+               for(size_t j = 0; j != testcases; ++j) {
+                  const auto j_eq_testcase = Botan::CT::Mask<size_t>::is_equal(j, testcase).as_choice();
+                  const auto* testcase_j = &ciphertext_data[j * modulus_bytes];
+                  Botan::CT::conditional_assign_mem(j_eq_testcase, ciphertext.data(), testcase_j, modulus_bytes);
+               }
 
-               // FIXME should this load be constant time?
-               Botan::copy_mem(&ciphertext[0], &ciphertext_data[testcase * modulus_bytes], modulus_bytes);
-
-               TimingTestTimer timer;
+               const TimingTestTimer timer;
                op.decrypt_or_random(ciphertext.data(), modulus_bytes, expect_pt_len, rng);
                const uint64_t duration = timer.complete();
                BOTAN_ASSERT_NOMSG(measurements[testcase].size() == r);
@@ -680,29 +689,56 @@ class MARVIN_Test_Command final : public Command {
    #endif
          }
 
+         report_results(test_results_file, names, measurements, runs_completed, output_nsec);
+      }
+
+   private:
+      static void report_results(std::ostream& output,
+                                 std::span<const std::string> names,
+                                 std::span<const std::vector<uint64_t>> measurements,
+                                 size_t runs_completed,
+                                 bool output_nsec) {
          for(size_t t = 0; t != names.size(); ++t) {
             if(t > 0) {
-               output() << ",";
+               output << ",";
             }
-            output() << names[t];
+            output << names[t];
          }
-         output() << "\n";
+         output << "\n";
 
          for(size_t r = 0; r != runs_completed; ++r) {
             for(size_t t = 0; t != names.size(); ++t) {
                if(t > 0) {
-                  output() << ",";
+                  output << ",";
                }
 
                const uint64_t dur_nsec = measurements[t][r];
                if(output_nsec) {
-                  output() << dur_nsec;
+                  output << dur_nsec;
                } else {
                   const double dur_s = static_cast<double>(dur_nsec) / 1000000000.0;
-                  output() << dur_s;
+                  output << dur_s;
                }
             }
-            output() << "\n";
+            output << "\n";
+         }
+      }
+
+      static size_t parse_runs_arg(const std::string& param) {
+         if(param.starts_with("-")) {
+            throw CLI_Usage_Error("Cannot have a negative run count");
+         }
+
+         if(param.ends_with("m") || param.ends_with("M")) {
+            return parse_runs_arg(param.substr(0, param.size() - 1)) * 1'000'000;
+         } else if(param.ends_with("k") || param.ends_with("K")) {
+            return parse_runs_arg(param.substr(0, param.size() - 1)) * 1'000;
+         } else {
+            try {
+               return static_cast<size_t>(std::stoul(param));
+            } catch(std::exception&) {
+               throw CLI_Usage_Error("Unexpected syntax for --runs option (try 1000, 1K, or 2M)");
+            }
          }
       }
 
@@ -712,8 +748,8 @@ class MARVIN_Test_Command final : public Command {
          for(size_t i = 0; i != n; ++i) {
             uint8_t jb[sizeof(uint64_t)];
             rng.randomize(jb, sizeof(jb));
-            uint64_t j8 = Botan::load_le<uint64_t>(jb, 0);
-            size_t j = i + static_cast<size_t>(j8) % (n - i);
+            const uint64_t j8 = Botan::load_le<uint64_t>(jb, 0);
+            const size_t j = i + static_cast<size_t>(j8) % (n - i);
             std::swap(vec[i], vec[j]);
          }
       }
@@ -722,5 +758,7 @@ class MARVIN_Test_Command final : public Command {
 BOTAN_REGISTER_COMMAND("marvin_test", MARVIN_Test_Command);
 
 #endif
+
+}  // namespace
 
 }  // namespace Botan_CLI

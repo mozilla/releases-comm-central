@@ -39,11 +39,8 @@ class Cascade_Cipher final : public BlockCipher {
       */
       Cascade_Cipher(std::unique_ptr<BlockCipher> cipher1, std::unique_ptr<BlockCipher> cipher2);
 
-      Cascade_Cipher(const Cascade_Cipher&) = delete;
-      Cascade_Cipher& operator=(const Cascade_Cipher&) = delete;
-
    private:
-      void key_schedule(std::span<const uint8_t>) override;
+      void key_schedule(std::span<const uint8_t> key) override;
 
       std::unique_ptr<BlockCipher> m_cipher1, m_cipher2;
       size_t m_block_size;

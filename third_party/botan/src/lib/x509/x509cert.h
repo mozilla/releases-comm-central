@@ -13,20 +13,11 @@
 
 namespace Botan {
 
+class AlternativeName;
+class Extensions;
+class NameConstraints;
 class Public_Key;
 class X509_DN;
-class Extensions;
-class AlternativeName;
-class NameConstraints;
-
-enum class Usage_Type {
-   UNSPECIFIED,  // no restrictions
-   TLS_SERVER_AUTH,
-   TLS_CLIENT_AUTH,
-   CERTIFICATE_AUTHORITY,
-   OCSP_RESPONDER,
-   ENCRYPTION
-};
 
 struct X509_Certificate_Data;
 
@@ -252,11 +243,27 @@ class BOTAN_PUBLIC_API(2, 0) X509_Certificate : public X509_Object {
       bool has_ex_constraint(const OID& ex_constraint) const;
 
       /**
-      * Get the path limit as defined in the BasicConstraints extension of
-      * this certificate.
+      * Get the path length constraint as defined in the BasicConstraints extension.
+      *
+      * This returns an arbitrary value if the extension is not set (either 32 for v1
+      * self-signed certificates, or else Cert_Extension::NO_CERT_PATH_LIMIT for v3
+      * certificates without the extension)
+      *
+      * Prefer path_length_constraint
+      *
       * @return path limit
       */
-      uint32_t path_limit() const;
+      BOTAN_DEPRECATED("Use X509_Certificate::path_length_constraint") uint32_t path_limit() const;
+
+      /**
+      * Get the path length constraint as defined in the BasicConstraints extension.
+      *
+      * Returns nullopt if either the extension is not set in the certificate,
+      * or if the pathLenConstraint field was absent from the extension.
+      *
+      * @return path limit
+      */
+      std::optional<size_t> path_length_constraint() const;
 
       /**
       * Check whenever a given X509 Extension is marked critical in this
@@ -323,7 +330,12 @@ class BOTAN_PUBLIC_API(2, 0) X509_Certificate : public X509_Object {
       /**
       * Return the listed address of an OCSP responder, or empty if not set
       */
-      std::string ocsp_responder() const;
+      BOTAN_DEPRECATED("Use ocsp_responders") std::string ocsp_responder() const;
+
+      /**
+      * Return the listed addresses of OCSP responders, or empty if not set
+      */
+      const std::vector<std::string>& ocsp_responders() const;
 
       /**
       * Return the listed addresses of ca issuers, or empty if not set
@@ -410,8 +422,10 @@ class BOTAN_PUBLIC_API(2, 0) X509_Certificate : public X509_Object {
       X509_Certificate() = default;
 
       X509_Certificate(const X509_Certificate& other) = default;
-
+      X509_Certificate(X509_Certificate&& other) = default;
       X509_Certificate& operator=(const X509_Certificate& other) = default;
+      X509_Certificate& operator=(X509_Certificate&& other) = default;
+      ~X509_Certificate() override;
 
    private:
       std::string PEM_label() const override;

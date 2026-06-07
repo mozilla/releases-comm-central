@@ -10,10 +10,7 @@
 #if defined(BOTAN_HAS_CERTSTOR_SYSTEM)
 
    #include "test_certstor_utils.h"
-   #include <botan/ber_dec.h>
    #include <botan/certstor_system.h>
-   #include <botan/der_enc.h>
-   #include <botan/hex.h>
    #include <algorithm>
    #include <memory>
 
@@ -29,10 +26,10 @@ Test::Result find_certificate_by_pubkey_sha1(Botan::Certificate_Store& certstore
       auto cert = certstore.find_cert_by_pubkey_sha1(get_key_id());
       result.end_timer();
 
-      if(result.test_not_nullopt("found certificate", cert)) {
+      if(result.test_opt_not_null("found certificate", cert)) {
          auto cns = cert->subject_dn().get_attribute("CN");
-         result.test_is_eq("exactly one CN", cns.size(), size_t(1));
-         result.test_eq("CN", cns.front(), get_subject_cn());
+         result.test_sz_eq("exactly one CN", cns.size(), 1);
+         result.test_str_eq("CN", cns.front(), get_subject_cn());
       }
    } catch(std::exception& e) {
       result.test_failure(e.what());
@@ -56,10 +53,10 @@ Test::Result find_certificate_by_pubkey_sha1_with_unmatching_key_id(Botan::Certi
       auto cert = certstore.find_cert_by_pubkey_sha1(get_pubkey_sha1_of_cert_with_different_key_id());
       result.end_timer();
 
-      if(result.test_not_nullopt("found certificate", cert)) {
+      if(result.test_opt_not_null("found certificate", cert)) {
          auto cns = cert->subject_dn().get_attribute("CN");
-         result.test_is_eq("exactly one CN", cns.size(), size_t(1));
-         result.test_eq("CN", cns.front(), "SecureTrust CA");
+         result.test_sz_eq("exactly one CN", cns.size(), 1);
+         result.test_str_eq("CN", cns.front(), "SecureTrust CA");
       }
    } catch(std::exception& e) {
       result.test_failure(e.what());
@@ -78,10 +75,10 @@ Test::Result find_cert_by_subject_dn(Botan::Certificate_Store& certstore) {
       auto cert = certstore.find_cert(dn, std::vector<uint8_t>());
       result.end_timer();
 
-      if(result.test_not_nullopt("found certificate", cert)) {
+      if(result.test_opt_not_null("found certificate", cert)) {
          auto cns = cert->subject_dn().get_attribute("CN");
-         result.test_is_eq("exactly one CN", cns.size(), size_t(1));
-         result.test_eq("CN", cns.front(), get_subject_cn());
+         result.test_sz_eq("exactly one CN", cns.size(), 1);
+         result.test_str_eq("CN", cns.front(), get_subject_cn());
       }
    } catch(std::exception& e) {
       result.test_failure(e.what());
@@ -102,8 +99,8 @@ Test::Result find_cert_by_utf8_subject_dn(Botan::Certificate_Store& certstore) {
       for(const auto& [cn, dn] : DNs) {
          if(auto cert = certstore.find_cert(dn, {})) {
             auto cns = cert->subject_dn().get_attribute("CN");
-            result.test_is_eq("exactly one CN", cns.size(), size_t(1));
-            result.test_eq("CN", cns.front(), cn);
+            result.test_sz_eq("exactly one CN", cns.size(), 1);
+            result.test_str_eq("CN", cns.front(), cn);
 
             ++found;
          }
@@ -120,7 +117,7 @@ Test::Result find_cert_by_utf8_subject_dn(Botan::Certificate_Store& certstore) {
          result.test_failure("Did not find any certificate via an UTF-8 encoded DN");
       }
 
-      result.test_gte("found at least one certificate", found, 1);
+      result.test_sz_gte("found at least one certificate", found, 1);
    } catch(std::exception& e) {
       result.test_failure(e.what());
    }
@@ -138,10 +135,10 @@ Test::Result find_cert_by_subject_dn_and_key_id(Botan::Certificate_Store& certst
       auto cert = certstore.find_cert(dn, get_key_id());
       result.end_timer();
 
-      if(result.test_not_nullopt("found certificate", cert)) {
+      if(result.test_opt_not_null("found certificate", cert)) {
          auto cns = cert->subject_dn().get_attribute("CN");
-         result.test_is_eq("exactly one CN", cns.size(), size_t(1));
-         result.test_eq("CN", cns.front(), get_subject_cn());
+         result.test_sz_eq("exactly one CN", cns.size(), 1);
+         result.test_str_eq("CN", cns.front(), get_subject_cn());
       }
    } catch(std::exception& e) {
       result.test_failure(e.what());
@@ -160,11 +157,11 @@ Test::Result find_certs_by_subject_dn_and_key_id(Botan::Certificate_Store& certs
       auto certs = certstore.find_all_certs(dn, get_key_id());
       result.end_timer();
 
-      if(result.confirm("result not empty", !certs.empty()) &&
-         result.test_eq("exactly one certificate", certs.size(), 1)) {
+      if(result.test_is_true("result not empty", !certs.empty()) &&
+         result.test_sz_eq("exactly one certificate", certs.size(), 1)) {
          auto cns = certs.front().subject_dn().get_attribute("CN");
-         result.test_is_eq("exactly one CN", cns.size(), size_t(1));
-         result.test_eq("CN", cns.front(), get_subject_cn());
+         result.test_sz_eq("exactly one CN", cns.size(), 1);
+         result.test_str_eq("CN", cns.front(), get_subject_cn());
       }
    } catch(std::exception& e) {
       result.test_failure(e.what());
@@ -191,10 +188,10 @@ Test::Result find_all_certs_by_subject_dn(Botan::Certificate_Store& certstore) {
          }
       }
 
-      if(result.confirm("result not empty", !certs.empty())) {
+      if(result.test_is_true("result not empty", !certs.empty())) {
          auto cns = certs.front().subject_dn().get_attribute("CN");
-         result.test_gte("at least one CN", cns.size(), size_t(1));
-         result.test_eq("CN", cns.front(), get_subject_cn());
+         result.test_sz_gte("at least one CN", cns.size(), size_t(1));
+         result.test_str_eq("CN", cns.front(), get_subject_cn());
       }
    } catch(std::exception& e) {
       result.test_failure(e.what());
@@ -211,14 +208,35 @@ Test::Result find_all_subjects(Botan::Certificate_Store& certstore) {
       auto subjects = certstore.all_subjects();
       result.end_timer();
 
-      if(result.confirm("result not empty", !subjects.empty())) {
+      if(result.test_is_true("result not empty", !subjects.empty())) {
          auto dn = get_dn();
          auto needle = std::find_if(
             subjects.cbegin(), subjects.cend(), [=](const Botan::X509_DN& subject) { return subject == dn; });
 
-         if(result.confirm("found expected certificate", needle != subjects.end())) {
-            result.confirm("expected certificate", *needle == dn);
+         if(result.test_is_true("found expected certificate", needle != subjects.end())) {
+            result.test_is_true("expected certificate", *needle == dn);
          }
+      }
+   } catch(std::exception& e) {
+      result.test_failure(e.what());
+   }
+
+   return result;
+}
+
+Test::Result find_cert_by_issuer_dn_and_serial_number(Botan::Certificate_Store& certstore) {
+   Test::Result result("System Certificate Store - Find Certificate by issuer DN and serial number");
+
+   try {
+      result.start_timer();
+      auto cert = certstore.find_cert_by_issuer_dn_and_serial_number(get_dn(), get_serial_number());
+      result.end_timer();
+
+      if(result.test_opt_not_null("found certificate", cert)) {
+         auto cns = cert->subject_dn().get_attribute("CN");
+         result.test_sz_eq("exactly one CN", cns.size(), 1);
+         result.test_str_eq("CN", cns.front(), get_subject_cn());
+         result.test_bin_eq("serial number", cert->serial_number(), get_serial_number());
       }
    } catch(std::exception& e) {
       result.test_failure(e.what());
@@ -240,9 +258,9 @@ Test::Result no_certificate_matches(Botan::Certificate_Store& certstore) {
       auto pubk_cert = certstore.find_cert_by_pubkey_sha1(kid);
       result.end_timer();
 
-      result.confirm("find_all_certs did not find the dummy", certs.empty());
-      result.confirm("find_cert did not find the dummy", !cert);
-      result.confirm("find_cert_by_pubkey_sha1 did not find the dummy", !pubk_cert);
+      result.test_is_true("find_all_certs did not find the dummy", certs.empty());
+      result.test_is_true("find_cert did not find the dummy", !cert);
+      result.test_is_true("find_cert_by_pubkey_sha1 did not find the dummy", !pubk_cert);
    } catch(std::exception& e) {
       result.test_failure(e.what());
    }
@@ -263,11 +281,11 @@ Test::Result certificate_matching_with_dn_normalization(Botan::Certificate_Store
       auto cert = certstore.find_cert(dn, std::vector<uint8_t>());
       result.end_timer();
 
-      if(result.confirm("find_all_certs did find the skewed DN", !certs.empty()) &&
-         result.confirm("find_cert did find the skewed DN", cert.has_value())) {
-         result.test_eq(
+      if(result.test_is_true("find_all_certs did find the skewed DN", !certs.empty()) &&
+         result.test_is_true("find_cert did find the skewed DN", cert.has_value())) {
+         result.test_str_eq(
             "it is the correct cert", certs.front().subject_dn().get_first_attribute("CN"), get_subject_cn());
-         result.test_eq("it is the correct cert", cert->subject_dn().get_first_attribute("CN"), get_subject_cn());
+         result.test_str_eq("it is the correct cert", cert->subject_dn().get_first_attribute("CN"), get_subject_cn());
       }
    } catch(std::exception& e) {
       result.test_failure(e.what());
@@ -289,8 +307,7 @@ class Certstor_System_Tests final : public Test {
             open_result.start_timer();
             system = std::make_unique<Botan::System_Certificate_Store>();
             open_result.end_timer();
-         } catch(Botan::Not_Implemented& e) {
-            BOTAN_UNUSED(e);
+         } catch(Botan::Not_Implemented&) {
             open_result.test_note("Skipping due to not available in current build");
             return {open_result};
          } catch(std::exception& e) {
@@ -312,6 +329,7 @@ class Certstor_System_Tests final : public Test {
          results.push_back(find_all_subjects(*system));
          results.push_back(no_certificate_matches(*system));
          results.push_back(find_cert_by_utf8_subject_dn(*system));
+         results.push_back(find_cert_by_issuer_dn_and_serial_number(*system));
    #if defined(BOTAN_HAS_CERTSTOR_MACOS)
          results.push_back(certificate_matching_with_dn_normalization(*system));
    #endif

@@ -48,8 +48,8 @@ class BOTAN_PUBLIC_API(2, 0) ECDSA_PublicKey : public virtual EC_PublicKey {
       * See SEC section 4.6.1
       * @param group the elliptic curve group
       * @param msg the message
-      * @param r the r paramter of the signature
-      * @param s the s paramter of the signature
+      * @param r the r parameter of the signature
+      * @param s the s parameter of the signature
       * @param v the recovery ID
       */
       ECDSA_PublicKey(
@@ -61,9 +61,7 @@ class BOTAN_PUBLIC_API(2, 0) ECDSA_PublicKey : public virtual EC_PublicKey {
       */
       std::string algo_name() const override { return "ECDSA"; }
 
-      std::optional<size_t> _signature_element_size_for_DER_encoding() const override {
-         return domain().get_order_bytes();
-      }
+      std::optional<size_t> _signature_element_size_for_DER_encoding() const override;
 
       bool supports_operation(PublicKeyOperation op) const override { return (op == PublicKeyOperation::Signature); }
 
@@ -104,14 +102,14 @@ class BOTAN_PUBLIC_API(2, 0) ECDSA_PrivateKey final : public ECDSA_PublicKey,
       * @param group curve parameters to bu used for this key
       * @param x      the private key
       */
-      ECDSA_PrivateKey(EC_Group group, EC_Scalar x) : EC_PrivateKey(std::move(group), std::move(x)) {}
+      ECDSA_PrivateKey(const EC_Group& group, const EC_Scalar& x) : EC_PrivateKey(group, x) {}
 
       /**
       * Create a new private key
       * @param rng a random number generator
       * @param group parameters to used for this key
       */
-      ECDSA_PrivateKey(RandomNumberGenerator& rng, EC_Group group) : EC_PrivateKey(rng, std::move(group)) {}
+      ECDSA_PrivateKey(RandomNumberGenerator& rng, const EC_Group& group) : EC_PrivateKey(rng, group) {}
 
       /**
       * Create a private key.
@@ -123,7 +121,7 @@ class BOTAN_PUBLIC_API(2, 0) ECDSA_PrivateKey final : public ECDSA_PublicKey,
       ECDSA_PrivateKey(RandomNumberGenerator& rng, const EC_Group& group, const BigInt& x) :
             EC_PrivateKey(rng, group, x) {}
 
-      bool check_key(RandomNumberGenerator& rng, bool) const override;
+      bool check_key(RandomNumberGenerator& rng, bool strong) const override;
 
       std::unique_ptr<Public_Key> public_key() const override;
 

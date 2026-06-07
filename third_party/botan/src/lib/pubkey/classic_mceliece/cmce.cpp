@@ -11,13 +11,9 @@
 #include <botan/rng.h>
 #include <botan/internal/cmce_decaps.h>
 #include <botan/internal/cmce_encaps.h>
-#include <botan/internal/cmce_field_ordering.h>
 #include <botan/internal/cmce_keys_internal.h>
 #include <botan/internal/cmce_matrix.h>
 #include <botan/internal/ct_utils.h>
-#include <botan/internal/pk_ops_impl.h>
-
-#include <algorithm>
 
 namespace Botan {
 
@@ -69,7 +65,7 @@ std::vector<uint8_t> Classic_McEliece_PublicKey::raw_public_key_bits() const {
    return m_public->matrix().bytes();
 }
 
-bool Classic_McEliece_PublicKey::check_key(RandomNumberGenerator&, bool) const {
+bool Classic_McEliece_PublicKey::check_key(RandomNumberGenerator& /*rng*/, bool /*strong*/) const {
    return true;
 }
 
@@ -126,7 +122,7 @@ secure_vector<uint8_t> Classic_McEliece_PrivateKey::raw_private_key_bits() const
    return m_private->serialize();
 }
 
-bool Classic_McEliece_PrivateKey::check_key(RandomNumberGenerator&, bool) const {
+bool Classic_McEliece_PrivateKey::check_key(RandomNumberGenerator& /*rng*/, bool /*strong*/) const {
    return m_private->check_key();
 }
 

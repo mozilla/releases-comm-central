@@ -8,14 +8,26 @@
 
 #include <botan/certstor.h>
 
+#include <botan/asn1_time.h>
 #include <botan/data_src.h>
 #include <botan/hash.h>
 #include <botan/pkix_types.h>
 #include <botan/internal/filesystem.h>
+#include <algorithm>
 
 namespace Botan {
 
 Certificate_Store::~Certificate_Store() = default;
+
+bool Certificate_Store::certificate_known(const X509_Certificate& searching) const {
+   for(const auto& cert : find_all_certs(searching.subject_dn(), searching.subject_key_id())) {
+      if(cert == searching) {
+         return true;
+      }
+   }
+
+   return false;
+}
 
 std::optional<X509_Certificate> Certificate_Store::find_cert(const X509_DN& subject_dn,
                                                              const std::vector<uint8_t>& key_id) const {
@@ -99,7 +111,7 @@ std::optional<X509_Certificate> Certificate_Store_In_Memory::find_cert_by_pubkey
       throw Invalid_Argument("Certificate_Store_In_Memory::find_cert_by_pubkey_sha1 invalid hash");
    }
 
-   auto hash = HashFunction::create("SHA-1");
+   auto hash = HashFunction::create_or_throw("SHA-1");
 
    for(const auto& cert : m_certs) {
       hash->update(cert.subject_public_key_bitstring());
@@ -117,11 +129,22 @@ std::optional<X509_Certificate> Certificate_Store_In_Memory::find_cert_by_raw_su
       throw Invalid_Argument("Certificate_Store_In_Memory::find_cert_by_raw_subject_dn_sha256 invalid hash");
    }
 
-   auto hash = HashFunction::create("SHA-256");
+   auto hash = HashFunction::create_or_throw("SHA-256");
 
    for(const auto& cert : m_certs) {
       hash->update(cert.raw_subject_dn());
       if(subject_hash == hash->final_stdvec()) {  //final_stdvec also clears the hash to initial state
+         return cert;
+      }
+   }
+
+   return std::nullopt;
+}
+
+std::optional<X509_Certificate> Certificate_Store_In_Memory::find_cert_by_issuer_dn_and_serial_number(
+   const X509_DN& issuer_dn, std::span<const uint8_t> serial_number) const {
+   for(const auto& cert : m_certs) {
+      if(cert.issuer_dn() == issuer_dn && std::ranges::equal(cert.serial_number(), serial_number)) {
          return cert;
       }
    }
@@ -171,6 +194,11 @@ Certificate_Store_In_Memory::Certificate_Store_In_Memory(const X509_Certificate&
    add_certificate(cert);
 }
 
+Certificate_Store_In_Memory::Certificate_Store_In_Memory(const X509_Certificate& cert, const X509_CRL& crl) {
+   add_certificate(cert);
+   add_crl(crl);
+}
+
 #if defined(BOTAN_TARGET_OS_HAS_FILESYSTEM)
 Certificate_Store_In_Memory::Certificate_Store_In_Memory(std::string_view dir) {
    if(dir.empty()) {
@@ -188,7 +216,7 @@ Certificate_Store_In_Memory::Certificate_Store_In_Memory(std::string_view dir) {
          DataSource_Stream src(cert_file, true);
          while(!src.end_of_data()) {
             try {
-               X509_Certificate cert(src);
+               const X509_Certificate cert(src);
                m_certs.push_back(cert);
             } catch(std::exception&) {
                // stop searching for other certificate at first exception

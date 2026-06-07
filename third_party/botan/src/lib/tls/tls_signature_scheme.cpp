@@ -7,12 +7,8 @@
 
 #include <botan/tls_signature_scheme.h>
 
-#include <botan/der_enc.h>
-#include <botan/ec_group.h>
-#include <botan/hash.h>
-#include <botan/hex.h>
+#include <botan/pk_keys.h>
 #include <botan/pss_params.h>
-#include <botan/tls_exceptn.h>
 #include <botan/tls_version.h>
 #include <botan/internal/stl_util.h>
 
@@ -157,7 +153,6 @@ std::string Signature_Scheme::padding_string() const noexcept {
          return "PSS(SHA-512,MGF1,64)";
 
       case EDDSA_25519:
-         return "Pure";
       case EDDSA_448:
          return "Pure";
 
@@ -195,14 +190,23 @@ std::string Signature_Scheme::algorithm_name() const noexcept {
 }
 
 AlgorithmIdentifier Signature_Scheme::key_algorithm_identifier() const noexcept {
+   const auto der_encode_oid = [](const std::string_view oid_name) {
+      try {
+         if(auto oid = OID::from_name(oid_name)) {
+            return oid->BER_encode();
+         }
+      } catch(...) {}
+      BOTAN_ASSERT_UNREACHABLE();
+   };
+
    switch(m_code) {
       // case ECDSA_SHA1:  not defined
       case ECDSA_SHA256:
-         return {"ECDSA", EC_Group::from_name("secp256r1").DER_encode()};
+         return {"ECDSA", der_encode_oid("secp256r1")};
       case ECDSA_SHA384:
-         return {"ECDSA", EC_Group::from_name("secp384r1").DER_encode()};
+         return {"ECDSA", der_encode_oid("secp384r1")};
       case ECDSA_SHA512:
-         return {"ECDSA", EC_Group::from_name("secp521r1").DER_encode()};
+         return {"ECDSA", der_encode_oid("secp521r1")};
 
       case EDDSA_25519:
          return {"Ed25519", AlgorithmIdentifier::USE_EMPTY_PARAM};
@@ -331,9 +335,10 @@ bool Signature_Scheme::is_suitable_for(const Private_Key& private_key) const noe
 
 std::vector<AlgorithmIdentifier> to_algorithm_identifiers(const std::vector<Signature_Scheme>& schemes) {
    std::vector<AlgorithmIdentifier> result;
-   std::transform(schemes.begin(), schemes.end(), std::back_inserter(result), [](const auto& scheme) {
-      return scheme.algorithm_identifier();
-   });
+   result.reserve(schemes.size());
+   for(const auto& scheme : schemes) {
+      result.push_back(scheme.algorithm_identifier());
+   }
    return result;
 }
 

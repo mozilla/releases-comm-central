@@ -10,12 +10,10 @@
 
 #include <botan/exceptn.h>
 #include <botan/mem_ops.h>
+#include <botan/internal/buffer_slicer.h>
 #include <botan/internal/fmt.h>
 #include <botan/internal/loadstor.h>
 #include <botan/internal/rotate.h>
-#include <botan/internal/stl_util.h>
-
-#include <algorithm>
 #include <array>
 
 namespace Botan {
@@ -192,7 +190,7 @@ void BLAKE2b::key_schedule(std::span<const uint8_t> key) {
    m_padded_key_buffer.resize(m_buffer.size());
 
    if(m_padded_key_buffer.size() > m_key_size) {
-      size_t padding = m_padded_key_buffer.size() - m_key_size;
+      const size_t padding = m_padded_key_buffer.size() - m_key_size;
       clear_mem(m_padded_key_buffer.data() + m_key_size, padding);
    }
 

@@ -9,15 +9,13 @@
 #ifndef BOTAN_SPHINCS_PLUS_ADDRESS_H_
 #define BOTAN_SPHINCS_PLUS_ADDRESS_H_
 
-#include <array>
-
-#include <botan/hash.h>
 #include <botan/internal/loadstor.h>
 #include <botan/internal/sp_types.h>
+#include <array>
 
 namespace Botan {
 
-enum class Sphincs_Address_Type : uint32_t {
+enum class Sphincs_Address_Type : uint32_t /* NOLINT(*-enum-size) */ {
    WotsHash = 0,
    WotsPublicKeyCompression = 1,
    HashTree = 2,
@@ -46,12 +44,11 @@ class BOTAN_TEST_API Sphincs_Address final {
    public:
       using enum Sphincs_Address_Type;
 
-      Sphincs_Address(Sphincs_Address_Type type) {
-         m_address.fill(0);
-         set_type(type);
-      }
+      explicit Sphincs_Address(Sphincs_Address_Type type) : m_address{} { set_type(type); }
 
-      Sphincs_Address(std::array<uint32_t, 8> address) { std::copy(address.begin(), address.end(), m_address.begin()); }
+      explicit Sphincs_Address(std::array<uint32_t, 8> address) : m_address{} {
+         std::copy(address.begin(), address.end(), m_address.begin());
+      }
 
       /* Setter member functions as specified in FIPS 205, Section 4.3 */
 
@@ -137,7 +134,7 @@ class BOTAN_TEST_API Sphincs_Address final {
       Sphincs_Address_Type get_type() const { return Sphincs_Address_Type(m_address[type_offset]); }
 
       std::array<uint8_t, 32> to_bytes() const {
-         std::array<uint8_t, sizeof(m_address)> result;
+         std::array<uint8_t, sizeof(m_address)> result{};
          for(unsigned int i = 0; i < m_address.size(); ++i) {
             store_be(m_address[i], result.data() + (i * 4));
          }
@@ -145,7 +142,7 @@ class BOTAN_TEST_API Sphincs_Address final {
       }
 
       std::array<uint8_t, 22> to_bytes_compressed() const {
-         std::array<uint8_t, 22> result;
+         std::array<uint8_t, 22> result{};
 
          result[0] = static_cast<uint8_t>(m_address[layer_offset]);
          store_be(m_address[tree_offset + 1], &result[1]);

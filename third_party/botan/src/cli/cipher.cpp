@@ -19,6 +19,8 @@
 
 namespace Botan_CLI {
 
+namespace {
+
 class Cipher final : public Command {
    public:
       Cipher() : Command("cipher --cipher=AES-256/GCM --decrypt --key= --nonce= --ad= --buf-size=4096 input-file") {}
@@ -74,6 +76,8 @@ class Cipher final : public Command {
 };
 
 BOTAN_REGISTER_COMMAND("cipher", Cipher);
+
+}  // namespace
 
 }  // namespace Botan_CLI
 

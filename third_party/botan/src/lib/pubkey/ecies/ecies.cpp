@@ -14,6 +14,7 @@
 #include <botan/kdf.h>
 #include <botan/mac.h>
 #include <botan/rng.h>
+#include <botan/internal/concat_util.h>
 #include <botan/internal/ct_utils.h>
 #include <botan/internal/pk_ops_impl.h>
 
@@ -23,15 +24,18 @@ namespace {
 
 /**
 * Private key type for ECIES_ECDH_KA_Operation
+*
+* TODO(Botan4) this can be removed once cofactor support is removed from ECDH
 */
 
 BOTAN_DIAGNOSTIC_PUSH
 BOTAN_DIAGNOSTIC_IGNORE_INHERITED_VIA_DOMINANCE
 
-class ECIES_PrivateKey final : public EC_PrivateKey,
-                               public PK_Key_Agreement_Key {
+class ECIES_PrivateKey final : public virtual EC_PrivateKey,
+                               public virtual PK_Key_Agreement_Key {
    public:
       explicit ECIES_PrivateKey(const ECDH_PrivateKey& private_key) :
+            // NOLINTNEXTLINE(*-slicing)
             EC_PublicKey(private_key), EC_PrivateKey(private_key), PK_Key_Agreement_Key(), m_key(private_key) {}
 
       std::vector<uint8_t> public_value() const override { return m_key.public_value(); }
@@ -114,7 +118,7 @@ PK_Key_Agreement create_key_agreement(const PK_Key_Agreement_Key& private_key,
       throw Invalid_Argument("ECIES: cofactor, old cofactor and check mode are only supported for ECDH_PrivateKey");
    }
 
-   if(ecdh_key && (for_encryption || !ecies_params.cofactor_mode())) {
+   if(ecdh_key != nullptr && (for_encryption || !ecies_params.cofactor_mode())) {
       // ECDH_KA_Operation uses cofactor mode: use own key agreement method if cofactor should not be used.
       return PK_Key_Agreement(ECIES_PrivateKey(*ecdh_key), rng, "Raw");
    }
@@ -280,10 +284,7 @@ ECIES_Encryptor::ECIES_Encryptor(const PK_Key_Agreement_Key& private_key,
                                  RandomNumberGenerator& rng) :
       m_ka(private_key, ecies_params, true, rng),
       m_params(ecies_params),
-      m_eph_public_key_bin(private_key.public_value()),  // returns the uncompressed public key, see conversion below
-      m_iv(),
-      m_other_point(),
-      m_label() {
+      m_eph_public_key_bin(private_key.public_value()) {
    if(ecies_params.point_format() != EC_Point_Format::Uncompressed) {
       // ISO 18033: step d
       // convert only if necessary; m_eph_public_key_bin has been initialized with the uncompressed format
@@ -351,7 +352,7 @@ std::vector<uint8_t> ECIES_Encryptor::enc(const uint8_t data[],
 ECIES_Decryptor::ECIES_Decryptor(const PK_Key_Agreement_Key& key,
                                  const ECIES_System_Params& ecies_params,
                                  RandomNumberGenerator& rng) :
-      m_ka(key, ecies_params, false, rng), m_params(ecies_params), m_iv(), m_label() {
+      m_ka(key, ecies_params, false, rng), m_params(ecies_params) {
    /*
    ISO 18033: "If v > 1 and CheckMode = 0, then we must have gcd(u, v) = 1." (v = index, u= order)
 
@@ -425,9 +426,9 @@ secure_vector<uint8_t> ECIES_Decryptor::do_decrypt(uint8_t& valid_mask, const ui
       m_mac->update(m_label);
    }
    const secure_vector<uint8_t> calculated_mac = m_mac->final();
-   valid_mask = CT::is_equal(mac_data.data(), calculated_mac.data(), mac_data.size()).value();
+   valid_mask = CT::is_equal<uint8_t>(mac_data, calculated_mac).value();
 
-   if(valid_mask) {
+   if(valid_mask == 0xFF) {
       // decrypt data
 
       m_cipher->set_key(SymmetricKey(secret_key.begin(), m_params.dem_keylen()));

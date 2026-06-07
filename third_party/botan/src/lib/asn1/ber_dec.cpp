@@ -8,6 +8,7 @@
 #include <botan/ber_dec.h>
 
 #include <botan/bigint.h>
+#include <botan/data_src.h>
 #include <botan/internal/int_utils.h>
 #include <botan/internal/loadstor.h>
 #include <memory>
@@ -27,28 +28,30 @@ const size_t ALLOWED_EOC_NESTINGS = 16;
 * BER decode an ASN.1 type tag
 */
 size_t decode_tag(DataSource* ber, ASN1_Type& type_tag, ASN1_Class& class_tag) {
-   uint8_t b;
-   if(!ber->read_byte(b)) {
+   auto b = ber->read_byte();
+
+   if(!b) {
       type_tag = ASN1_Type::NoObject;
       class_tag = ASN1_Class::NoObject;
       return 0;
    }
 
-   if((b & 0x1F) != 0x1F) {
-      type_tag = ASN1_Type(b & 0x1F);
-      class_tag = ASN1_Class(b & 0xE0);
+   if((*b & 0x1F) != 0x1F) {
+      type_tag = ASN1_Type(*b & 0x1F);
+      class_tag = ASN1_Class(*b & 0xE0);
       return 1;
    }
 
    size_t tag_bytes = 1;
-   class_tag = ASN1_Class(b & 0xE0);
+   class_tag = ASN1_Class(*b & 0xE0);
 
    size_t tag_buf = 0;
    while(true) {
-      if(!ber->read_byte(b)) {
+      b = ber->read_byte();
+      if(!b) {
          throw BER_Decoding_Error("Long-form tag truncated");
       }
-      if(tag_buf & 0xFF000000) {
+      if((tag_buf >> 24) != 0) {
          throw BER_Decoding_Error("Long-form tag overflowed 32 bits");
       }
       // This is required even by BER (see X.690 section 8.1.2.4.2 sentence c)
@@ -56,8 +59,8 @@ size_t decode_tag(DataSource* ber, ASN1_Type& type_tag, ASN1_Class& class_tag) {
          throw BER_Decoding_Error("Long form tag with leading zero");
       }
       ++tag_bytes;
-      tag_buf = (tag_buf << 7) | (b & 0x7F);
-      if((b & 0x80) == 0) {
+      tag_buf = (tag_buf << 7) | (*b & 0x7F);
+      if((*b & 0x80) == 0) {
          break;
       }
    }
@@ -74,8 +77,8 @@ size_t find_eoc(DataSource* src, size_t allow_indef);
 * BER decode an ASN.1 length field
 */
 size_t decode_length(DataSource* ber, size_t& field_size, size_t allow_indef) {
-   uint8_t b;
-   if(!ber->read_byte(b)) {
+   uint8_t b = 0;
+   if(ber->read_byte(b) == 0) {
       throw BER_Decoding_Error("Length field not found");
    }
    field_size = 1;
@@ -102,7 +105,7 @@ size_t decode_length(DataSource* ber, size_t& field_size, size_t allow_indef) {
       if(get_byte<0>(length) != 0) {
          throw BER_Decoding_Error("Field length overflow");
       }
-      if(!ber->read_byte(b)) {
+      if(ber->read_byte(b) == 0) {
          throw BER_Decoding_Error("Corrupted length field");
       }
       length = (length << 8) | b;
@@ -114,7 +117,8 @@ size_t decode_length(DataSource* ber, size_t& field_size, size_t allow_indef) {
 * Find the EOC marker
 */
 size_t find_eoc(DataSource* ber, size_t allow_indef) {
-   secure_vector<uint8_t> buffer(DefaultBufferSize), data;
+   secure_vector<uint8_t> buffer(DefaultBufferSize);
+   secure_vector<uint8_t> data;
 
    while(true) {
       const size_t got = ber->peek(buffer.data(), buffer.size(), data.size());
@@ -130,8 +134,8 @@ size_t find_eoc(DataSource* ber, size_t allow_indef) {
 
    size_t length = 0;
    while(true) {
-      ASN1_Type type_tag;
-      ASN1_Class class_tag;
+      ASN1_Type type_tag = ASN1_Type::NoObject;
+      ASN1_Class class_tag = ASN1_Class::NoObject;
       const size_t tag_size = decode_tag(&source, type_tag, class_tag);
       if(type_tag == ASN1_Type::NoObject) {
          break;
@@ -186,14 +190,16 @@ class DataSource_BERObject final : public DataSource {
 
       size_t get_bytes_read() const override { return m_offset; }
 
-      explicit DataSource_BERObject(BER_Object&& obj) : m_obj(std::move(obj)), m_offset(0) {}
+      explicit DataSource_BERObject(BER_Object&& obj) : m_obj(std::move(obj)) {}
 
    private:
       BER_Object m_obj;
-      size_t m_offset;
+      size_t m_offset = 0;
 };
 
 }  // namespace
+
+BER_Decoder::~BER_Decoder() = default;
 
 /*
 * Check if more objects are there
@@ -226,9 +232,19 @@ BER_Decoder& BER_Decoder::verify_end(std::string_view err) {
 * Discard all the bytes remaining in the source
 */
 BER_Decoder& BER_Decoder::discard_remaining() {
-   uint8_t buf;
-   while(m_source->read_byte(buf)) {}
+   uint8_t buf = 0;
+   while(m_source->read_byte(buf) != 0) {}
    return (*this);
+}
+
+std::optional<uint8_t> BER_Decoder::read_next_byte() {
+   BOTAN_ASSERT_NOMSG(m_source != nullptr);
+   uint8_t b = 0;
+   if(m_source->read_byte(b) != 0) {
+      return b;
+   } else {
+      return {};
+   }
 }
 
 const BER_Object& BER_Decoder::peek_next_object() {
@@ -251,15 +267,15 @@ BER_Object BER_Decoder::get_next_object() {
    }
 
    for(;;) {
-      ASN1_Type type_tag;
-      ASN1_Class class_tag;
+      ASN1_Type type_tag = ASN1_Type::NoObject;
+      ASN1_Class class_tag = ASN1_Class::NoObject;
       decode_tag(m_source, type_tag, class_tag);
       next.set_tagging(type_tag, class_tag);
       if(next.is_set() == false) {  // no more objects
          return next;
       }
 
-      size_t field_size;
+      size_t field_size = 0;
       const size_t length = decode_length(m_source, field_size, ALLOWED_EOC_NESTINGS);
       if(!m_source->check_available(length)) {
          throw BER_Decoding_Error("Value truncated");
@@ -278,6 +294,18 @@ BER_Object BER_Decoder::get_next_object() {
    }
 
    return next;
+}
+
+BER_Object BER_Decoder::get_next_value(size_t sizeofT, ASN1_Type type_tag, ASN1_Class class_tag) {
+   const BER_Object obj = get_next_object();
+   obj.assert_is_a(type_tag, class_tag);
+
+   if(obj.length() != sizeofT) {
+      throw BER_Decoding_Error("Size mismatch. Object value size is " + std::to_string(obj.length()) +
+                               "; Output type size is " + std::to_string(sizeofT));
+   }
+
+   return obj;
 }
 
 /*
@@ -307,7 +335,7 @@ BER_Decoder BER_Decoder::start_cons(ASN1_Type type_tag, ASN1_Class class_tag) {
 * Finish decoding a CONSTRUCTED type
 */
 BER_Decoder& BER_Decoder::end_cons() {
-   if(!m_parent) {
+   if(m_parent == nullptr) {
       throw Invalid_State("BER_Decoder::end_cons called with null parent");
    }
    if(!m_source->end_of_data()) {
@@ -316,18 +344,15 @@ BER_Decoder& BER_Decoder::end_cons() {
    return (*m_parent);
 }
 
-BER_Decoder::BER_Decoder(BER_Object&& obj, BER_Decoder* parent) {
+BER_Decoder::BER_Decoder(BER_Object&& obj, BER_Decoder* parent) : m_parent(parent) {
    m_data_src = std::make_unique<DataSource_BERObject>(std::move(obj));
    m_source = m_data_src.get();
-   m_parent = parent;
 }
 
 /*
 * BER_Decoder Constructor
 */
-BER_Decoder::BER_Decoder(DataSource& src) {
-   m_source = &src;
-}
+BER_Decoder::BER_Decoder(DataSource& src) : m_source(&src) {}
 
 /*
 * BER_Decoder Constructor
@@ -356,13 +381,14 @@ BER_Decoder::BER_Decoder(const std::vector<uint8_t>& data) {
 /*
 * BER_Decoder Copy Constructor
 */
-BER_Decoder::BER_Decoder(const BER_Decoder& other) {
-   m_source = other.m_source;
-
-   // take ownership
+BER_Decoder::BER_Decoder(const BER_Decoder& other) : m_parent(other.m_parent), m_source(other.m_source) {
+   // take ownership of other's data source
    std::swap(m_data_src, other.m_data_src);
-   m_parent = other.m_parent;
 }
+
+BER_Decoder::BER_Decoder(BER_Decoder&& other) noexcept = default;
+
+BER_Decoder& BER_Decoder::operator=(BER_Decoder&&) noexcept = default;
 
 /*
 * Request for an object to decode itself
@@ -376,7 +402,7 @@ BER_Decoder& BER_Decoder::decode(ASN1_Object& obj, ASN1_Type /*unused*/, ASN1_Cl
 * Decode a BER encoded NULL
 */
 BER_Decoder& BER_Decoder::decode_null() {
-   BER_Object obj = get_next_object();
+   const BER_Object obj = get_next_object();
    obj.assert_is_a(ASN1_Type::Null, ASN1_Class::Universal);
    if(obj.length() > 0) {
       throw BER_Decoding_Error("NULL object had nonzero size");
@@ -395,14 +421,18 @@ BER_Decoder& BER_Decoder::decode_octet_string_bigint(BigInt& out) {
 * Decode a BER encoded BOOLEAN
 */
 BER_Decoder& BER_Decoder::decode(bool& out, ASN1_Type type_tag, ASN1_Class class_tag) {
-   BER_Object obj = get_next_object();
+   const BER_Object obj = get_next_object();
    obj.assert_is_a(type_tag, class_tag);
 
    if(obj.length() != 1) {
       throw BER_Decoding_Error("BER boolean value had invalid size");
    }
 
-   out = (obj.bits()[0]) ? true : false;
+   const uint8_t val = obj.bits()[0];
+
+   // TODO if decoding DER we should reject non-canonical booleans
+   out = (val != 0) ? true : false;
+
    return (*this);
 }
 
@@ -456,18 +486,21 @@ uint64_t BER_Decoder::decode_constrained_integer(ASN1_Type type_tag, ASN1_Class 
 * Decode a BER encoded INTEGER
 */
 BER_Decoder& BER_Decoder::decode(BigInt& out, ASN1_Type type_tag, ASN1_Class class_tag) {
-   BER_Object obj = get_next_object();
+   const BER_Object obj = get_next_object();
    obj.assert_is_a(type_tag, class_tag);
 
    if(obj.length() == 0) {
       out.clear();
    } else {
-      const bool negative = (obj.bits()[0] & 0x80) ? true : false;
+      const uint8_t first = obj.bits()[0];
+      const bool negative = (first & 0x80) == 0x80;
 
       if(negative) {
          secure_vector<uint8_t> vec(obj.bits(), obj.bits() + obj.length());
          for(size_t i = obj.length(); i > 0; --i) {
-            if(vec[i - 1]--) {
+            const bool gt0 = (vec[i - 1] > 0);
+            vec[i - 1] -= 1;
+            if(gt0) {
                break;
             }
          }

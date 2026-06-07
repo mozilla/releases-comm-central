@@ -29,6 +29,10 @@ EC_Group check_domain(EC_Group domain) {
 
 }  // namespace
 
+std::optional<size_t> GOST_3410_PublicKey::_signature_element_size_for_DER_encoding() const {
+   return domain().get_order_bytes();
+}
+
 std::vector<uint8_t> GOST_3410_PublicKey::public_key_bits() const {
    auto bits = _public_ec_point().xy_bytes();
 
@@ -124,8 +128,8 @@ EC_Scalar gost_msg_to_scalar(const EC_Group& group, std::span<const uint8_t> msg
 */
 class GOST_3410_Signature_Operation final : public PK_Ops::Signature_with_Hash {
    public:
-      GOST_3410_Signature_Operation(const GOST_3410_PrivateKey& gost_3410, std::string_view emsa) :
-            PK_Ops::Signature_with_Hash(emsa), m_group(gost_3410.domain()), m_x(gost_3410._private_key()) {}
+      GOST_3410_Signature_Operation(const GOST_3410_PrivateKey& gost_3410, std::string_view hash_fn) :
+            PK_Ops::Signature_with_Hash(hash_fn), m_group(gost_3410.domain()), m_x(gost_3410._private_key()) {}
 
       size_t signature_length() const override { return 2 * m_group.get_order_bytes(); }
 

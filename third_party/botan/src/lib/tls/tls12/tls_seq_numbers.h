@@ -8,12 +8,13 @@
 #ifndef BOTAN_TLS_SEQ_NUMBERS_H_
 #define BOTAN_TLS_SEQ_NUMBERS_H_
 
+#include <botan/assert.h>
 #include <botan/exceptn.h>
 #include <map>
 
 namespace Botan::TLS {
 
-class Connection_Sequence_Numbers {
+class Connection_Sequence_Numbers /* NOLINT(*-special-member-functions) */ {
    public:
       virtual ~Connection_Sequence_Numbers() = default;
 
@@ -34,7 +35,7 @@ class Connection_Sequence_Numbers {
 
 class Stream_Sequence_Numbers final : public Connection_Sequence_Numbers {
    public:
-      Stream_Sequence_Numbers() { Stream_Sequence_Numbers::reset(); }
+      Stream_Sequence_Numbers() : m_write_seq_no(0), m_read_seq_no(0), m_read_epoch(0), m_write_epoch(0) {}
 
       void reset() override {
          m_write_seq_no = 0;
@@ -57,13 +58,13 @@ class Stream_Sequence_Numbers final : public Connection_Sequence_Numbers {
 
       uint16_t current_write_epoch() const override { return m_write_epoch; }
 
-      uint64_t next_write_sequence(uint16_t) override { return m_write_seq_no++; }
+      uint64_t next_write_sequence(uint16_t /*epoch*/) override { return m_write_seq_no++; }
 
       uint64_t next_read_sequence() override { return m_read_seq_no; }
 
-      bool already_seen(uint64_t) const override { return false; }
+      bool already_seen(uint64_t /*seq*/) const override { return false; }
 
-      void read_accept(uint64_t) override { m_read_seq_no++; }
+      void read_accept(uint64_t /*seq*/) override { m_read_seq_no++; }
 
    private:
       uint64_t m_write_seq_no;

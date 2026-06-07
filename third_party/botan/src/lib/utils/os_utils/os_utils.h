@@ -96,7 +96,7 @@ std::string BOTAN_TEST_API format_time(time_t time, const std::string& format);
 
 /**
 * @return maximum amount of memory (in bytes) Botan could/should
-* hyptothetically allocate for the memory poool. Reads environment
+* hypothetically allocate for the memory poool. Reads environment
 * variable "BOTAN_MLOCK_POOL_SIZE", set to "0" to disable pool.
 */
 size_t get_memory_locking_limit();
@@ -120,7 +120,7 @@ bool read_env_variable(std::string& value_out, std::string_view var_name);
 * integer. If not set or conversion fails, returns the default value.
 *
 * If the process seems to be running in a privileged state (such as setuid)
-* then always returns nullptr, similiar to glibc's secure_getenv.
+* then always returns nullptr, similar to glibc's secure_getenv.
 */
 size_t read_env_variable_sz(std::string_view var_name, size_t def_value = 0);
 
@@ -192,7 +192,7 @@ int BOTAN_TEST_API run_cpu_instruction_probe(const std::function<int()>& probe_f
 /**
 * Represents a terminal state
 */
-class BOTAN_UNSTABLE_API Echo_Suppression {
+class BOTAN_UNSTABLE_API Echo_Suppression /* NOLINT(*special-member-functions) */ {
    public:
       /**
       * Reenable echo on this terminal. Can be safely called

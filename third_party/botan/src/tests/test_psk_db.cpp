@@ -9,6 +9,8 @@
 #if defined(BOTAN_HAS_PSK_DB)
 
    #include <botan/psk_db.h>
+   #include <botan/rng.h>
+   #include <map>
 
    #if defined(BOTAN_HAS_SQLITE3)
       #include <botan/sqlite3.h>
@@ -29,7 +31,7 @@ class Test_Map_PSK_Db : public Botan::Encrypted_PSK_Database {
          if(i == m_vals.end()) {
             result.test_failure("Expected to find encrypted name " + index);
          } else {
-            result.test_eq("Encrypted value", i->second, value);
+            result.test_str_eq("Encrypted value", i->second, value);
          }
       }
 
@@ -66,8 +68,6 @@ class Test_Map_PSK_Db : public Botan::Encrypted_PSK_Database {
       std::map<std::string, std::string, std::less<>> m_vals;
 };
 
-}  // namespace
-
 class PSK_DB_Tests final : public Test {
    public:
       std::vector<Test::Result> run() override {
@@ -91,43 +91,43 @@ class PSK_DB_Tests final : public Test {
 
          db.set_str("name", "value");
          db.test_entry(result, "CUCJjJgWSa079ubutJQwlw==", "clYJSAf9CThuL96CP+rAfA==");
-         result.test_eq("DB read", db.get_str("name"), "value");
+         result.test_str_eq("DB read", db.get_str("name"), "value");
 
          db.set_str("name", "value1");
          db.test_entry(result, "CUCJjJgWSa079ubutJQwlw==", "7R8am3x/gLawOzMp5WwIJg==");
-         result.test_eq("DB read", db.get_str("name"), "value1");
+         result.test_str_eq("DB read", db.get_str("name"), "value1");
 
          db.set_str("name", "value");
          db.test_entry(result, "CUCJjJgWSa079ubutJQwlw==", "clYJSAf9CThuL96CP+rAfA==");
-         result.test_eq("DB read", db.get_str("name"), "value");
+         result.test_str_eq("DB read", db.get_str("name"), "value");
 
          db.set_str("name2", "value");
          db.test_entry(result, "7CvsM7HDCZsV6VsFwWylNg==", "BqVQo4rdwOmf+ItCzEmjAg==");
-         result.test_eq("DB read", db.get_str("name2"), "value");
+         result.test_str_eq("DB read", db.get_str("name2"), "value");
 
          db.set_vec("name2", zeros);
          db.test_entry(result, "7CvsM7HDCZsV6VsFwWylNg==", "x+I1bUF/fJYPOTvKwOihEPWGR1XGzVuyRdsw4n5gpBRzNR7LjH7vjw==");
-         result.test_eq("DB read", db.get("name2"), zeros);
+         result.test_bin_eq("DB read", db.get("name2"), zeros);
 
          // Test longer names
          db.set_str("leroy jeeeeeeeenkins", "chicken");
          db.test_entry(result, "KyYo272vlSjClM2F0OZBMlRYjr33ZXv2jN1oY8OfCEs=", "tCl1qShSTsXi9tA5Kpo9vg==");
-         result.test_eq("DB read", db.get_str("leroy jeeeeeeeenkins"), "chicken");
+         result.test_str_eq("DB read", db.get_str("leroy jeeeeeeeenkins"), "chicken");
 
          std::set<std::string> all_names = db.list_names();
 
-         result.test_eq("Expected number of names", all_names.size(), 3);
-         result.test_eq("Have expected name", all_names.count("name"), 1);
-         result.test_eq("Have expected name", all_names.count("name2"), 1);
-         result.test_eq("Have expected name", all_names.count("leroy jeeeeeeeenkins"), 1);
+         result.test_sz_eq("Expected number of names", all_names.size(), 3);
+         result.test_sz_eq("Have expected name", all_names.count("name"), 1);
+         result.test_sz_eq("Have expected name", all_names.count("name2"), 1);
+         result.test_sz_eq("Have expected name", all_names.count("leroy jeeeeeeeenkins"), 1);
 
          db.remove("name2");
 
          all_names = db.list_names();
 
-         result.test_eq("Expected number of names", all_names.size(), 2);
-         result.test_eq("Have expected name", all_names.count("name"), 1);
-         result.test_eq("Have expected name", all_names.count("leroy jeeeeeeeenkins"), 1);
+         result.test_sz_eq("Expected number of names", all_names.size(), 2);
+         result.test_sz_eq("Have expected name", all_names.count("name"), 1);
+         result.test_sz_eq("Have expected name", all_names.count("leroy jeeeeeeeenkins"), 1);
 
          result.test_throws(
             "exception if get called on non-existent PSK", "Named PSK not located", [&]() { db.get("name2"); });
@@ -147,11 +147,11 @@ class PSK_DB_Tests final : public Test {
                       const std::string& expected_value) {
          auto stmt = db.new_statement("select psk_value from " + table + " where psk_name='" + expected_name + "'");
 
-         bool got_it = stmt->step();
-         result.confirm("Had expected name", got_it);
+         const bool got_it = stmt->step();
+         result.test_is_true("Had expected name", got_it);
 
          if(got_it) {
-            result.test_eq("Had expected value", stmt->get_str(0), expected_value);
+            result.test_str_eq("Had expected value", stmt->get_str(0), expected_value);
          }
       }
 
@@ -162,25 +162,25 @@ class PSK_DB_Tests final : public Test {
          const Botan::secure_vector<uint8_t> not_zeros = this->rng().random_vec(32);
 
          const std::string table_name = "bobby";
-         std::shared_ptr<Botan::SQL_Database> sqldb = std::make_shared<Botan::Sqlite3_Database>(":memory:");
+         const std::shared_ptr<Botan::SQL_Database> sqldb = std::make_shared<Botan::Sqlite3_Database>(":memory:");
 
          Botan::Encrypted_PSK_Database_SQL db(zeros, sqldb, table_name);
          db.set_str("name", "value");
 
          test_entry(result, *sqldb, table_name, "CUCJjJgWSa079ubutJQwlw==", "clYJSAf9CThuL96CP+rAfA==");
-         result.test_eq("DB read", db.get_str("name"), "value");
+         result.test_str_eq("DB read", db.get_str("name"), "value");
 
          db.set_str("name", "value1");
          test_entry(result, *sqldb, table_name, "CUCJjJgWSa079ubutJQwlw==", "7R8am3x/gLawOzMp5WwIJg==");
-         result.test_eq("DB read", db.get_str("name"), "value1");
+         result.test_str_eq("DB read", db.get_str("name"), "value1");
 
          db.set_str("name", "value");
          test_entry(result, *sqldb, table_name, "CUCJjJgWSa079ubutJQwlw==", "clYJSAf9CThuL96CP+rAfA==");
-         result.test_eq("DB read", db.get_str("name"), "value");
+         result.test_str_eq("DB read", db.get_str("name"), "value");
 
          db.set_str("name2", "value");
          test_entry(result, *sqldb, table_name, "7CvsM7HDCZsV6VsFwWylNg==", "BqVQo4rdwOmf+ItCzEmjAg==");
-         result.test_eq("DB read", db.get_str("name2"), "value");
+         result.test_str_eq("DB read", db.get_str("name2"), "value");
 
          db.set_vec("name2", zeros);
          test_entry(result,
@@ -188,13 +188,13 @@ class PSK_DB_Tests final : public Test {
                     table_name,
                     "7CvsM7HDCZsV6VsFwWylNg==",
                     "x+I1bUF/fJYPOTvKwOihEPWGR1XGzVuyRdsw4n5gpBRzNR7LjH7vjw==");
-         result.test_eq("DB read", db.get("name2"), zeros);
+         result.test_bin_eq("DB read", db.get("name2"), zeros);
 
          // Test longer names
          db.set_str("leroy jeeeeeeeenkins", "chicken");
          test_entry(
             result, *sqldb, table_name, "KyYo272vlSjClM2F0OZBMlRYjr33ZXv2jN1oY8OfCEs=", "tCl1qShSTsXi9tA5Kpo9vg==");
-         result.test_eq("DB read", db.get_str("leroy jeeeeeeeenkins"), "chicken");
+         result.test_str_eq("DB read", db.get_str("leroy jeeeeeeeenkins"), "chicken");
 
          /*
          * Test that we can have another database in the same table with distinct key
@@ -202,23 +202,23 @@ class PSK_DB_Tests final : public Test {
          */
          Botan::Encrypted_PSK_Database_SQL db2(not_zeros, sqldb, table_name);
          db2.set_str("name", "price&value");
-         result.test_eq("DB read", db2.get_str("name"), "price&value");
-         result.test_eq("DB2 size", db2.list_names().size(), 1);
+         result.test_str_eq("DB read", db2.get_str("name"), "price&value");
+         result.test_sz_eq("DB2 size", db2.list_names().size(), 1);
 
          std::set<std::string> all_names = db.list_names();
 
-         result.test_eq("Expected number of names", all_names.size(), 3);
-         result.test_eq("Have expected name", all_names.count("name"), 1);
-         result.test_eq("Have expected name", all_names.count("name2"), 1);
-         result.test_eq("Have expected name", all_names.count("leroy jeeeeeeeenkins"), 1);
+         result.test_sz_eq("Expected number of names", all_names.size(), 3);
+         result.test_sz_eq("Have expected name", all_names.count("name"), 1);
+         result.test_sz_eq("Have expected name", all_names.count("name2"), 1);
+         result.test_sz_eq("Have expected name", all_names.count("leroy jeeeeeeeenkins"), 1);
 
          db.remove("name2");
 
          all_names = db.list_names();
 
-         result.test_eq("Expected number of names", all_names.size(), 2);
-         result.test_eq("Have expected name", all_names.count("name"), 1);
-         result.test_eq("Have expected name", all_names.count("leroy jeeeeeeeenkins"), 1);
+         result.test_sz_eq("Expected number of names", all_names.size(), 2);
+         result.test_sz_eq("Have expected name", all_names.count("name"), 1);
+         result.test_sz_eq("Have expected name", all_names.count("leroy jeeeeeeeenkins"), 1);
 
          result.test_throws(
             "exception if get called on non-existent PSK", "Named PSK not located", [&]() { db.get("name2"); });
@@ -232,6 +232,8 @@ class PSK_DB_Tests final : public Test {
 };
 
 BOTAN_REGISTER_TEST("misc", "psk_db", PSK_DB_Tests);
+
+}  // namespace
 
 }  // namespace Botan_Tests
 

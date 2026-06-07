@@ -40,7 +40,7 @@ class BOTAN_PUBLIC_API(2, 0) RSA_PublicKey : public virtual Public_Key {
 
       std::string algo_name() const override { return "RSA"; }
 
-      bool check_key(RandomNumberGenerator& rng, bool) const override;
+      bool check_key(RandomNumberGenerator& rng, bool strong) const override;
 
       AlgorithmIdentifier algorithm_identifier() const override;
 
@@ -88,7 +88,7 @@ class BOTAN_PUBLIC_API(2, 0) RSA_PublicKey : public virtual Public_Key {
 
       void init(BigInt&& n, BigInt&& e);
 
-      std::shared_ptr<const RSA_Public_Data> m_public;
+      std::shared_ptr<const RSA_Public_Data> m_public;  // NOLINT(*non-private-member-variable*)
 };
 
 /**
@@ -98,8 +98,8 @@ class BOTAN_PUBLIC_API(2, 0) RSA_PublicKey : public virtual Public_Key {
 BOTAN_DIAGNOSTIC_PUSH
 BOTAN_DIAGNOSTIC_IGNORE_INHERITED_VIA_DOMINANCE
 
-class BOTAN_PUBLIC_API(2, 0) RSA_PrivateKey final : public Private_Key,
-                                                    public RSA_PublicKey {
+class BOTAN_PUBLIC_API(2, 0) RSA_PrivateKey final : public virtual Private_Key,
+                                                    public virtual RSA_PublicKey {
    public:
       /**
       * Load a private key.
@@ -135,7 +135,7 @@ class BOTAN_PUBLIC_API(2, 0) RSA_PrivateKey final : public Private_Key,
 
       std::unique_ptr<Public_Key> public_key() const override;
 
-      bool check_key(RandomNumberGenerator& rng, bool) const override;
+      bool check_key(RandomNumberGenerator& rng, bool strong) const override;
 
       const BigInt& get_int_field(std::string_view field) const override;
 

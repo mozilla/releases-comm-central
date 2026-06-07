@@ -176,9 +176,21 @@ void SM4::encrypt_n(const uint8_t in[], uint8_t out[], size_t blocks) const {
    }
 #endif
 
+#if defined(BOTAN_HAS_SM4_AVX512_GFNI)
+   if(CPUID::has(CPUID::Feature::AVX512, CPUID::Feature::GFNI)) {
+      return sm4_avx512_gfni_encrypt(in, out, blocks);
+   }
+#endif
+
 #if defined(BOTAN_HAS_SM4_GFNI)
    if(CPUID::has(CPUID::Feature::GFNI)) {
       return sm4_gfni_encrypt(in, out, blocks);
+   }
+#endif
+
+#if defined(BOTAN_HAS_SM4_HWAES)
+   if(CPUID::has(CPUID::Feature::HW_AES)) {
+      return sm4_hwaes_encrypt(in, out, blocks);
    }
 #endif
 
@@ -249,9 +261,21 @@ void SM4::decrypt_n(const uint8_t in[], uint8_t out[], size_t blocks) const {
    }
 #endif
 
+#if defined(BOTAN_HAS_SM4_AVX512_GFNI)
+   if(CPUID::has(CPUID::Feature::AVX512, CPUID::Feature::GFNI)) {
+      return sm4_avx512_gfni_decrypt(in, out, blocks);
+   }
+#endif
+
 #if defined(BOTAN_HAS_SM4_GFNI)
    if(CPUID::has(CPUID::Feature::GFNI)) {
       return sm4_gfni_decrypt(in, out, blocks);
+   }
+#endif
+
+#if defined(BOTAN_HAS_SM4_HWAES)
+   if(CPUID::has(CPUID::Feature::HW_AES)) {
+      return sm4_hwaes_decrypt(in, out, blocks);
    }
 #endif
 
@@ -345,9 +369,21 @@ size_t SM4::parallelism() const {
    }
 #endif
 
+#if defined(BOTAN_HAS_SM4_AVX512_GFNI)
+   if(CPUID::has(CPUID::Feature::AVX512, CPUID::Feature::GFNI)) {
+      return 16;
+   }
+#endif
+
 #if defined(BOTAN_HAS_SM4_GFNI)
    if(CPUID::has(CPUID::Feature::GFNI)) {
       return 8;
+   }
+#endif
+
+#if defined(BOTAN_HAS_SM4_HWAES)
+   if(CPUID::has(CPUID::Feature::HW_AES)) {
+      return 4;
    }
 #endif
 
@@ -361,8 +397,20 @@ std::string SM4::provider() const {
    }
 #endif
 
+#if defined(BOTAN_HAS_SM4_AVX512_GFNI)
+   if(auto feat = CPUID::check(CPUID::Feature::AVX512, CPUID::Feature::GFNI)) {
+      return *feat;
+   }
+#endif
+
 #if defined(BOTAN_HAS_SM4_GFNI)
    if(auto feat = CPUID::check(CPUID::Feature::GFNI)) {
+      return *feat;
+   }
+#endif
+
+#if defined(BOTAN_HAS_SM4_HWAES)
+   if(auto feat = CPUID::check(CPUID::Feature::HW_AES)) {
       return *feat;
    }
 #endif

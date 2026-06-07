@@ -1,0 +1,29 @@
+<internal_defines>
+SIMD_HWAES -> 20260322
+</internal_defines>
+
+<module_info>
+name -> "SIMD hardware AES support"
+</module_info>
+
+<header:internal>
+simd_hwaes.h
+</header:internal>
+
+<requires>
+simd_4x32
+</requires>
+
+<isa>
+x86_32:aesni
+x86_64:aesni
+x32:aesni
+arm64:armv8crypto
+</isa>
+
+<arch>
+x86_32
+x86_64
+x32
+arm64
+</arch>

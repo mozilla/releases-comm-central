@@ -7,6 +7,7 @@
 #include <botan/sodium.h>
 
 #include <botan/aead.h>
+#include <botan/exceptn.h>
 #include <botan/mem_ops.h>
 
 namespace Botan {
@@ -36,7 +37,7 @@ int sodium_aead_chacha20poly1305_encrypt(uint8_t ctext[],
    chacha20poly1305->finish(buf);
 
    copy_mem(ctext, buf.data(), buf.size());
-   if(ctext_len) {
+   if(ctext_len != nullptr) {
       *ctext_len = buf.size();
    }
    return 0;
@@ -181,7 +182,7 @@ int Sodium::crypto_aead_chacha20poly1305_ietf_encrypt_detached(uint8_t ctext[],
                                                                const uint8_t key[]) {
    BOTAN_UNUSED(unused_secret_nonce);
 
-   if(mac_len) {
+   if(mac_len != nullptr) {
       *mac_len = 16;
    }
 
@@ -243,7 +244,7 @@ int Sodium::crypto_aead_chacha20poly1305_encrypt_detached(uint8_t ctext[],
                                                           const uint8_t nonce[],
                                                           const uint8_t key[]) {
    BOTAN_UNUSED(unused_secret_nonce);
-   if(mac_len) {
+   if(mac_len != nullptr) {
       *mac_len = 16;
    }
 
@@ -307,7 +308,7 @@ int Sodium::crypto_aead_xchacha20poly1305_ietf_encrypt_detached(uint8_t ctext[],
                                                                 const uint8_t nonce[],
                                                                 const uint8_t key[]) {
    BOTAN_UNUSED(unused_secret_nonce);
-   if(mac_len) {
+   if(mac_len != nullptr) {
       *mac_len = 16;
    }
 

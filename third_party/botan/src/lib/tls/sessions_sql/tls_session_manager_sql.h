@@ -9,6 +9,7 @@
 #define BOTAN_TLS_SQL_SESSION_MANAGER_H_
 
 #include <botan/database.h>
+#include <botan/symkey.h>
 #include <botan/tls_session_manager.h>
 
 namespace Botan {
@@ -43,6 +44,9 @@ class BOTAN_PUBLIC_API(3, 0) Session_Manager_SQL : public Session_Manager {
 
       Session_Manager_SQL(const Session_Manager_SQL&) = delete;
       Session_Manager_SQL& operator=(const Session_Manager_SQL&) = delete;
+      Session_Manager_SQL(Session_Manager_SQL&&) = delete;
+      Session_Manager_SQL& operator=(Session_Manager_SQL&&) = delete;
+      ~Session_Manager_SQL() override = default;
 
       void store(const Session& session, const Session_Handle& handle) override;
       size_t remove(const Session_Handle& handle) override;
@@ -69,7 +73,7 @@ class BOTAN_PUBLIC_API(3, 0) Session_Manager_SQL : public Session_Manager {
       // 20120609 - older (Botan 2.0) database scheme
       // 20230113 - adapt to Botan 3.0 Session_Manager API
       //            (Session objects don't contain Session_ID, Session_Ticket)
-      enum Schema_Revision {
+      enum Schema_Revision /* NOLINT(*-use-enum-class) */ {
          EMPTY = 0,
          CORRUPTED = 1,
          PRE_BOTAN_3_0 = 20120609,

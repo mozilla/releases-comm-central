@@ -7,22 +7,18 @@
 * Botan is released under the Simplified BSD License (see license.txt)
 */
 
-#include <botan/tls_messages.h>
+#include <botan/tls_messages_13.h>
 
 #include <botan/credentials_manager.h>
-#include <botan/data_src.h>
 #include <botan/ocsp.h>
 #include <botan/tls_alert.h>
 #include <botan/tls_callbacks.h>
 #include <botan/tls_exceptn.h>
 #include <botan/tls_extensions.h>
+#include <botan/tls_policy.h>
 #include <botan/x509_key.h>
-#include <botan/internal/loadstor.h>
-#include <botan/internal/stl_util.h>
-#include <botan/internal/tls_handshake_hash.h>
-#include <botan/internal/tls_handshake_io.h>
 #include <botan/internal/tls_reader.h>
-
+#include <algorithm>
 #include <iterator>
 #include <memory>
 
@@ -161,7 +157,7 @@ void Certificate_13::setup_entries(std::vector<X509_Certificate> cert_chain,
    for(size_t i = 0; i < cert_chain.size(); ++i) {
       auto& entry = m_entries.emplace_back(cert_chain[i]);
       if(!ocsp_responses[i].empty()) {
-         entry.extensions().add(new Certificate_Status_Request(ocsp_responses[i]));
+         entry.extensions().add(new Certificate_Status_Request(ocsp_responses[i]));  // NOLINT(*-owning-memory)
       }
 
       // This will call the modification callback multiple times. Once for
@@ -192,7 +188,7 @@ Certificate_13::Certificate_13(const Certificate_Request_13& cert_request,
                                Certificate_Type cert_type) :
       m_request_context(cert_request.context()), m_side(Connection_Side::Client) {
    const auto key_types = filter_signature_schemes(cert_request.signature_schemes());
-   const auto op_type = "tls-client";
+   const std::string op_type = "tls-client";
 
    if(cert_type == Certificate_Type::X509) {
       setup_entries(
@@ -227,14 +223,24 @@ Certificate_13::Certificate_13(const Client_Hello_13& client_hello,
                                Callbacks& callbacks,
                                Certificate_Type cert_type) :
       // RFC 8446 4.4.2:
-      //    [In the case of server authentication], this field
+      //    [In the case of server authentication], the request context
       //    SHALL be zero length
-      m_request_context(), m_side(Connection_Side::Server) {
-   BOTAN_ASSERT_NOMSG(client_hello.extensions().has<Signature_Algorithms>());
+      m_request_context(/* NOLINT(*-redundant-member-init) */), m_side(Connection_Side::Server) {
+   /*
+   RFC 8446 4.2.3:
+       Clients which desire the server to authenticate itself via a
+       certificate MUST send the "signature_algorithms" extension.  If a
+       server is authenticating via a certificate and the client has not sent
+       a "signature_algorithms" extension, then the server MUST abort the
+       handshake with a "missing_extension" alert.
+   */
+   if(!client_hello.extensions().has<Signature_Algorithms>()) {
+      throw TLS_Exception(Alert::MissingExtension, "Client Hello is missing required signature_algorithms extension");
+   }
 
    const auto key_types = filter_signature_schemes(client_hello.signature_schemes());
-   const auto op_type = "tls-server";
-   const auto context = client_hello.sni_hostname();
+   const std::string op_type = "tls-server";
+   const std::string context = client_hello.sni_hostname();
 
    if(cert_type == Certificate_Type::X509) {
       auto cert_chain = credentials_manager.find_cert_chain(
@@ -264,14 +270,14 @@ Certificate_13::Certificate_13(const Client_Hello_13& client_hello,
 }
 
 Certificate_13::Certificate_Entry::Certificate_Entry(TLS_Data_Reader& reader,
-                                                     const Connection_Side side,
-                                                     const Certificate_Type cert_type) {
+                                                     Connection_Side side,
+                                                     Certificate_Type cert_type) {
    switch(cert_type) {
       case Certificate_Type::X509:
          // RFC 8446 4.2.2
          //    [...] each CertificateEntry contains a DER-encoded X.509
          //    certificate.
-         m_certificate = X509_Certificate(reader.get_tls_length_value(3));
+         m_certificate = std::make_unique<X509_Certificate>(reader.get_tls_length_value(3));
          m_raw_public_key = m_certificate->subject_public_key();
          break;
       case Certificate_Type::RawPublicKey:
@@ -317,17 +323,23 @@ Certificate_13::Certificate_Entry::Certificate_Entry(TLS_Data_Reader& reader,
    }
 }
 
-Certificate_13::Certificate_Entry::Certificate_Entry(X509_Certificate cert) :
-      m_certificate(std::move(cert)), m_raw_public_key(m_certificate->subject_public_key()) {}
+Certificate_13::Certificate_Entry::~Certificate_Entry() = default;
+
+Certificate_13::Certificate_Entry::Certificate_Entry(Certificate_13::Certificate_Entry&& other) noexcept = default;
+Certificate_13::Certificate_Entry& Certificate_13::Certificate_Entry::operator=(
+   Certificate_13::Certificate_Entry&& other) noexcept = default;
+
+Certificate_13::Certificate_Entry::Certificate_Entry(const X509_Certificate& cert) :
+      m_certificate(std::make_unique<X509_Certificate>(cert)), m_raw_public_key(m_certificate->subject_public_key()) {}
 
 Certificate_13::Certificate_Entry::Certificate_Entry(std::shared_ptr<Public_Key> raw_public_key) :
-      m_certificate(std::nullopt), m_raw_public_key(std::move(raw_public_key)) {
+      m_raw_public_key(std::move(raw_public_key)) {
    BOTAN_ASSERT_NONNULL(m_raw_public_key);
 }
 
 const X509_Certificate& Certificate_13::Certificate_Entry::certificate() const {
    BOTAN_STATE_CHECK(has_certificate());
-   return m_certificate.value();
+   return *m_certificate;
 }
 
 std::shared_ptr<const Public_Key> Certificate_13::Certificate_Entry::public_key() const {

@@ -7,17 +7,21 @@
 #include "tests.h"
 
 #if defined(BOTAN_HAS_ASN1)
+   #include <botan/asn1_obj.h>
    #include <botan/asn1_print.h>
+   #include <botan/asn1_time.h>
    #include <botan/ber_dec.h>
+   #include <botan/bigint.h>
+   #include <botan/data_src.h>
    #include <botan/der_enc.h>
    #include <botan/internal/fmt.h>
 #endif
 
 namespace Botan_Tests {
 
-#if defined(BOTAN_HAS_ASN1)
-
 namespace {
+
+#if defined(BOTAN_HAS_ASN1)
 
 Test::Result test_ber_stack_recursion() {
    Test::Result result("BER stack recursion");
@@ -45,7 +49,7 @@ Test::Result test_ber_eoc_decoding_limits() {
 
    // OSS-Fuzz #4353
 
-   Botan::ASN1_Pretty_Printer printer;
+   const Botan::ASN1_Pretty_Printer printer;
 
    size_t max_eoc_allowed = 0;
 
@@ -70,7 +74,7 @@ Test::Result test_ber_eoc_decoding_limits() {
       }
    }
 
-   result.test_eq("EOC limited to prevent stack exhaustion", max_eoc_allowed, 16);
+   result.test_sz_eq("EOC limited to prevent stack exhaustion", max_eoc_allowed, 16);
 
    return result;
 }
@@ -90,7 +94,7 @@ Test::Result test_asn1_utf8_ascii_parsing() {
       Botan::ASN1_String str;
       str.decode_from(dec);
 
-      result.test_eq("value()", str.value(), moscow_plain);
+      result.test_str_eq("value()", str.value(), moscow_plain);
    } catch(const Botan::Decoding_Error& ex) {
       result.test_failure(ex.what());
    }
@@ -113,7 +117,7 @@ Test::Result test_asn1_utf8_parsing() {
       Botan::ASN1_String str;
       str.decode_from(dec);
 
-      result.test_eq("value()", str.value(), moscow_plain);
+      result.test_str_eq("value()", str.value(), moscow_plain);
    } catch(const Botan::Decoding_Error& ex) {
       result.test_failure(ex.what());
    }
@@ -137,7 +141,7 @@ Test::Result test_asn1_ucs2_parsing() {
       Botan::ASN1_String str;
       str.decode_from(dec);
 
-      result.test_eq("value()", str.value(), moscow_plain);
+      result.test_str_eq("value()", str.value(), moscow_plain);
    } catch(const Botan::Decoding_Error& ex) {
       result.test_failure(ex.what());
    }
@@ -161,7 +165,7 @@ Test::Result test_asn1_ucs4_parsing() {
       Botan::ASN1_String str;
       str.decode_from(dec);
 
-      result.test_eq("value()", str.value(), moscow_plain);
+      result.test_str_eq("value()", str.value(), moscow_plain);
    } catch(const Botan::Decoding_Error& ex) {
       result.test_failure(ex.what());
    }
@@ -174,8 +178,8 @@ Test::Result test_asn1_ascii_encoding() {
 
    try {
       // UTF-8 encoded (ASCII chars only) word 'Moscow'
-      const std::string moscow = "\x4D\x6F\x73\x63\x6F\x77";
-      Botan::ASN1_String str(moscow);
+      const std::string moscow = "Moscow";
+      const Botan::ASN1_String str(moscow);
 
       Botan::DER_Encoder enc;
 
@@ -184,8 +188,7 @@ Test::Result test_asn1_ascii_encoding() {
 
       // \x13 - ASN1 tag for 'printable string'
       // \x06 - 6 characters of payload
-      const auto moscowEncoded = Botan::hex_decode("13064D6F73636F77");
-      result.test_eq("encoding result", encodingResult, moscowEncoded);
+      result.test_bin_eq("encoding result", encodingResult, "13064D6F73636F77");
 
       result.test_success("No crash");
    } catch(const std::exception& ex) {
@@ -201,7 +204,7 @@ Test::Result test_asn1_utf8_encoding() {
    try {
       // UTF-8 encoded russian word for Moscow in cyrillic script
       const std::string moscow = "\xD0\x9C\xD0\xBE\xD1\x81\xD0\xBA\xD0\xB2\xD0\xB0";
-      Botan::ASN1_String str(moscow);
+      const Botan::ASN1_String str(moscow);
 
       Botan::DER_Encoder enc;
 
@@ -210,8 +213,7 @@ Test::Result test_asn1_utf8_encoding() {
 
       // \x0C - ASN1 tag for 'UTF8 string'
       // \x0C - 12 characters of payload
-      const auto moscowEncoded = Botan::hex_decode("0C0CD09CD0BED181D0BAD0B2D0B0");
-      result.test_eq("encoding result", encodingResult, moscowEncoded);
+      result.test_bin_eq("encoding result", encodingResult, "0C0CD09CD0BED181D0BAD0B2D0B0");
 
       result.test_success("No crash");
    } catch(const std::exception& ex) {
@@ -239,7 +241,24 @@ Test::Result test_asn1_tag_underlying_type() {
    return result;
 }
 
-}  // namespace
+Test::Result test_asn1_negative_int_encoding() {
+   Test::Result result("DER encode/decode of negative integers");
+
+   BigInt n(32);
+
+   for(size_t i = 0; i != 2048; ++i) {
+      n--;
+
+      const auto enc = Botan::DER_Encoder().encode(n).get_contents_unlocked();
+
+      BigInt n_dec;
+      Botan::BER_Decoder(enc).decode(n_dec);
+
+      result.test_bn_eq("DER encoding round trips negative integers", n_dec, n);
+   }
+
+   return result;
+}
 
 class ASN1_Tests final : public Test {
    public:
@@ -255,6 +274,7 @@ class ASN1_Tests final : public Test {
          results.push_back(test_asn1_ascii_encoding());
          results.push_back(test_asn1_utf8_encoding());
          results.push_back(test_asn1_tag_underlying_type());
+         results.push_back(test_asn1_negative_int_encoding());
 
          return results;
       }
@@ -283,10 +303,10 @@ class ASN1_Time_Parsing_Tests final : public Text_Based_Test {
          const bool valid = tag_str.find(".invalid") == std::string::npos;
 
          if(valid) {
-            Botan::ASN1_Time time(tspec, tag);
+            const Botan::ASN1_Time time(tspec, tag);
             result.test_success("Accepted valid time");
          } else {
-            result.test_throws("Invalid time rejected", [=]() { Botan::ASN1_Time time(tspec, tag); });
+            result.test_throws("Invalid time rejected", [=]() { const Botan::ASN1_Time time(tspec, tag); });
          }
 
          return result;
@@ -300,18 +320,18 @@ class ASN1_Printer_Tests final : public Test {
       std::vector<Test::Result> run() override {
          Test::Result result("ASN1_Pretty_Printer");
 
-         Botan::ASN1_Pretty_Printer printer;
+         const Botan::ASN1_Pretty_Printer printer;
 
          const size_t num_tests = 7;
 
          for(size_t i = 1; i <= num_tests; ++i) {
-            std::string i_str = std::to_string(i);
+            const std::string i_str = std::to_string(i);
             const std::vector<uint8_t> input_data = Test::read_binary_data_file("asn1_print/input" + i_str + ".der");
             const std::string expected_output = Test::read_data_file("asn1_print/output" + i_str + ".txt");
 
             try {
                const std::string output = printer.print(input_data);
-               result.test_eq("Test " + i_str, output, expected_output);
+               result.test_str_eq("Test " + i_str, output, expected_output);
             } catch(Botan::Exception& e) {
                result.test_failure(Botan::fmt("Printing test {} failed with an exception: '{}'", i, e.what()));
             }
@@ -324,5 +344,7 @@ class ASN1_Printer_Tests final : public Test {
 BOTAN_REGISTER_TEST("asn1", "asn1_printer", ASN1_Printer_Tests);
 
 #endif
+
+}  // namespace
 
 }  // namespace Botan_Tests

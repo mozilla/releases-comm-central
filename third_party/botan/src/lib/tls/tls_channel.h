@@ -11,16 +11,21 @@
 #ifndef BOTAN_TLS_CHANNEL_H_
 #define BOTAN_TLS_CHANNEL_H_
 
+#include <botan/symkey.h>
 #include <botan/tls_alert.h>
-#include <botan/tls_callbacks.h>
-#include <botan/tls_session.h>
-#include <botan/tls_session_manager.h>
-#include <botan/x509cert.h>
-
+#include <memory>
+#include <optional>
 #include <span>
 #include <string>
 #include <string_view>
 #include <vector>
+
+namespace Botan {
+
+class Public_Key;
+class X509_Certificate;
+
+}  // namespace Botan
 
 namespace Botan::TLS {
 
@@ -33,7 +38,14 @@ class BOTAN_PUBLIC_API(2, 0) Channel {
 
       virtual ~Channel() = default;
 
+      Channel(const Channel& other) = delete;
+      Channel(Channel&& other) = default;
+      Channel& operator=(const Channel& other) = delete;
+      Channel& operator=(Channel&& other) = delete;
+
    protected:
+      Channel() = default;
+
       virtual size_t from_peer(std::span<const uint8_t> data) = 0;
       virtual void to_peer(std::span<const uint8_t> data) = 0;
 

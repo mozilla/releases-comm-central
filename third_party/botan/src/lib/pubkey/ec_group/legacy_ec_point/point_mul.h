@@ -26,9 +26,8 @@ class EC_Point_Base_Point_Precompute final {
       const EC_Point& m_base_point;
       const Barrett_Reduction& m_mod_order;
 
-      enum { WINDOW_BITS = 3 };
-
-      enum { WINDOW_SIZE = (1 << WINDOW_BITS) - 1 };
+      static constexpr size_t WindowBits = 3;
+      static constexpr size_t WindowSize = (1 << WindowBits) - 1;
 
       const size_t m_p_words;
 
@@ -48,9 +47,10 @@ class EC_Point_Var_Point_Precompute final {
                    std::vector<BigInt>& ws) const;
 
    private:
+      static constexpr size_t WindowBits = 4;
+
       const CurveGFp m_curve;
       const size_t m_p_words;
-      const size_t m_window_bits;
 
       /*
       * Table of 2^window_bits * 3*2*p_word words

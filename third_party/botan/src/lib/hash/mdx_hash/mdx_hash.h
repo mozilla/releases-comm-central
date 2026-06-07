@@ -12,12 +12,12 @@
 
 #include <botan/internal/alignment_buffer.h>
 #include <botan/internal/bit_ops.h>
+#include <botan/internal/buffer_slicer.h>
 #include <botan/internal/loadstor.h>
-#include <botan/internal/stl_util.h>
 
 namespace Botan {
 
-enum class MD_Endian {
+enum class MD_Endian : uint8_t {
    Little,
    Big,
 };
@@ -122,7 +122,7 @@ class MerkleDamgard_Hash final {
 
    private:
       typename MD::digest_type m_digest;
-      uint64_t m_count;
+      uint64_t m_count = 0;
 
       AlignmentBuffer<uint8_t, MD::block_bytes> m_buffer;
 };

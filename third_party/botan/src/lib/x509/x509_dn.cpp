@@ -7,9 +7,10 @@
 
 #include <botan/pkix_types.h>
 
+#include <botan/assert.h>
 #include <botan/ber_dec.h>
 #include <botan/der_enc.h>
-#include <botan/internal/stl_util.h>
+#include <botan/internal/x509_utils.h>
 #include <cctype>
 #include <ostream>
 #include <sstream>
@@ -18,24 +19,20 @@ namespace Botan {
 
 namespace {
 
-namespace {
-
-bool caseless_cmp(char a, char b) {
+bool caseless_eq(char a, char b) {
    return (std::tolower(static_cast<unsigned char>(a)) == std::tolower(static_cast<unsigned char>(b)));
 }
 
 bool is_space(char c) {
-   return std::isspace(static_cast<unsigned char>(c));
+   return c == ' ' || c == '\t';
 }
 
 }  // namespace
 
-/*
-* X.500 String Comparison
-*/
 bool x500_name_cmp(std::string_view name1, std::string_view name2) {
-   auto p1 = name1.begin();
-   auto p2 = name2.begin();
+   // MSVC uses an actual iterator type for string_view, so we must use plain `auto` here
+   auto p1 = name1.begin();  // NOLINT(readability-qualified-auto)
+   auto p2 = name2.begin();  // NOLINT(readability-qualified-auto)
 
    while((p1 != name1.end()) && is_space(*p1)) {
       ++p1;
@@ -65,27 +62,31 @@ bool x500_name_cmp(std::string_view name1, std::string_view name2) {
          }
       }
 
-      if(!caseless_cmp(*p1, *p2)) {
+      if(!caseless_eq(*p1, *p2)) {
          return false;
       }
       ++p1;
       ++p2;
    }
 
+   // Accept/ignore trailing spaces
    while((p1 != name1.end()) && is_space(*p1)) {
       ++p1;
    }
+   if(p1 != name1.end()) {
+      return false;
+   }
+
    while((p2 != name2.end()) && is_space(*p2)) {
       ++p2;
    }
-
-   if((p1 != name1.end()) || (p2 != name2.end())) {
+   if(p2 != name2.end()) {
       return false;
    }
+
+   // accept:
    return true;
 }
-
-}  // namespace
 
 /*
 * Add an attribute to a X509_DN
@@ -112,7 +113,7 @@ void X509_DN::add_attribute(const OID& oid, const ASN1_String& str) {
 std::multimap<OID, std::string> X509_DN::get_attributes() const {
    std::multimap<OID, std::string> retval;
 
-   for(auto& i : m_rdn) {
+   for(const auto& i : m_rdn) {
       retval.emplace(i.first, i.second.value());
    }
    return retval;
@@ -124,7 +125,7 @@ std::multimap<OID, std::string> X509_DN::get_attributes() const {
 std::multimap<std::string, std::string> X509_DN::contents() const {
    std::multimap<std::string, std::string> retval;
 
-   for(auto& i : m_rdn) {
+   for(const auto& i : m_rdn) {
       retval.emplace(i.first.to_formatted_string(), i.second.value());
    }
    return retval;
@@ -142,7 +143,7 @@ bool X509_DN::has_field(std::string_view attr) const {
 }
 
 bool X509_DN::has_field(const OID& oid) const {
-   for(auto& i : m_rdn) {
+   for(const auto& i : m_rdn) {
       if(i.first == oid) {
          return true;
       }
@@ -157,7 +158,7 @@ std::string X509_DN::get_first_attribute(std::string_view attr) const {
 }
 
 ASN1_String X509_DN::get_first_attribute(const OID& oid) const {
-   for(auto& i : m_rdn) {
+   for(const auto& i : m_rdn) {
       if(i.first == oid) {
          return i.second;
       }
@@ -174,7 +175,7 @@ std::vector<std::string> X509_DN::get_attribute(std::string_view attr) const {
 
    std::vector<std::string> values;
 
-   for(auto& i : m_rdn) {
+   for(const auto& i : m_rdn) {
       if(i.first == oid) {
          values.push_back(i.second.value());
       }
@@ -410,7 +411,7 @@ std::ostream& operator<<(std::ostream& out, const X509_DN& dn) {
 
    for(size_t i = 0; i != info.size(); ++i) {
       out << to_short_form(info[i].first) << "=\"";
-      for(char c : info[i].second.value()) {
+      for(const char c : info[i].second.value()) {
          if(c == '\\' || c == '\"') {
             out << "\\";
          }
@@ -427,17 +428,18 @@ std::ostream& operator<<(std::ostream& out, const X509_DN& dn) {
 
 std::istream& operator>>(std::istream& in, X509_DN& dn) {
    in >> std::noskipws;
+   // NOLINTNEXTLINE(*-avoid-do-while)
    do {
       std::string key;
       std::string val;
-      char c;
+      char c = 0;
 
       while(in.good()) {
          in >> c;
 
-         if(std::isspace(c) && key.empty()) {
+         if(is_space(c) && key.empty()) {
             continue;
-         } else if(!std::isspace(c)) {
+         } else if(!is_space(c)) {
             key.push_back(c);
             break;
          } else {
@@ -448,7 +450,7 @@ std::istream& operator>>(std::istream& in, X509_DN& dn) {
       while(in.good()) {
          in >> c;
 
-         if(!std::isspace(c) && c != '=') {
+         if(!is_space(c) && c != '=') {
             key.push_back(c);
          } else if(c == '=') {
             break;
@@ -461,7 +463,7 @@ std::istream& operator>>(std::istream& in, X509_DN& dn) {
       while(in.good()) {
          in >> c;
 
-         if(std::isspace(c)) {
+         if(is_space(c)) {
             if(!in_quotes && !val.empty()) {
                break;
             } else if(in_quotes) {

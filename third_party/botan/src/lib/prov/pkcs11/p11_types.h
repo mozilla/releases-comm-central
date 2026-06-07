@@ -13,7 +13,6 @@
 #include <functional>
 #include <memory>
 #include <string>
-#include <utility>
 
 namespace Botan {
 
@@ -28,13 +27,15 @@ namespace PKCS11 {
 class BOTAN_PUBLIC_API(2, 0) Module final {
    public:
       /**
-      * Loads the shared library and calls C_Initialize
+      * Loads the shared library and calls C_Initialize. The latest supported
+      * "PKCS 11" interface is used.
       * @param file_path the path to the PKCS#11 shared library
       * @param init_args flags to use for `C_Initialize`
       */
-      Module(std::string_view file_path,
-             C_InitializeArgs init_args = {
-                nullptr, nullptr, nullptr, nullptr, static_cast<CK_FLAGS>(Flag::OsLockingOk), nullptr});
+      BOTAN_FUTURE_EXPLICIT Module(
+         std::string_view file_path,
+         C_InitializeArgs init_args = {
+            nullptr, nullptr, nullptr, nullptr, static_cast<CK_FLAGS>(Flag::OsLockingOk), nullptr});
 
       Module(Module&& other) noexcept;
       Module& operator=(Module&& other) = delete;
@@ -48,7 +49,7 @@ class BOTAN_PUBLIC_API(2, 0) Module final {
       ~Module() noexcept;
 
       /**
-      * Reloads the module and reinitializes it
+      * Reloads the module and reinitializes it.
       * @param init_args flags to use for `C_Initialize`
       */
       void reload(C_InitializeArgs init_args = {
@@ -63,9 +64,12 @@ class BOTAN_PUBLIC_API(2, 0) Module final {
          return info;
       }
 
+      std::string_view library_path() const { return m_file_path; }
+
+      const Dynamically_Loaded_Library& library() { return *m_library; }
+
    private:
       const std::string m_file_path;
-      FunctionListPtr m_func_list = nullptr;
       std::unique_ptr<Dynamically_Loaded_Library> m_library;
       std::unique_ptr<LowLevel> m_low_level = nullptr;
 };

@@ -10,26 +10,27 @@
 #define BOTAN_TLS_SESSION_MANAGER_H_
 
 #include <botan/mutex.h>
-#include <botan/tls_session.h>
+#include <botan/tls_session_id.h>
 #include <botan/types.h>
-
-#if defined(BOTAN_HAS_TLS_13)
-   #include <botan/tls_psk_identity_13.h>
-#endif
-
-#include <chrono>
-#include <map>
+#include <memory>
+#include <optional>
 #include <utility>
-#include <variant>
+#include <vector>
 
 namespace Botan {
+
 class RandomNumberGenerator;
+
 }
 
 namespace Botan::TLS {
 
 class Callbacks;
 class Policy;
+class PskIdentity;
+class Server_Information;
+class Session;
+class Session_with_Handle;
 
 /**
 * Session_Manager is an interface to systems which can save session parameters
@@ -42,9 +43,9 @@ class Policy;
 * recursive mutex (via Session_Manager::mutex()). Derived classes may simply
 * reuse this for their own locking.
 */
-class BOTAN_PUBLIC_API(3, 0) Session_Manager {
+class BOTAN_PUBLIC_API(3, 0) Session_Manager /* NOLINT(*-special-member-functions) */ {
    public:
-      Session_Manager(const std::shared_ptr<RandomNumberGenerator>& rng);
+      BOTAN_FUTURE_EXPLICIT Session_Manager(const std::shared_ptr<RandomNumberGenerator>& rng);
 
       /**
        * @brief Save a new Session and assign a Session_Handle (TLS Server)
@@ -85,7 +86,7 @@ class BOTAN_PUBLIC_API(3, 0) Session_Manager {
        * This method is only called on TLS clients.
        *
        * @param session to save
-       * @param handle a Session_Handle on which this session shoud by stored
+       * @param handle a Session_Handle on which this session should by stored
        */
       virtual void store(const Session& session, const Session_Handle& handle) = 0;
 
@@ -111,7 +112,7 @@ class BOTAN_PUBLIC_API(3, 0) Session_Manager {
        * @param callbacks callbacks to be used for session policy decisions
        * @param policy policy to be used for session policy decisions
        *
-       * @return a std::pair of the Session associated to the choosen PSK and
+       * @return a std::pair of the Session associated to the chosen PSK and
        *         the index of the selected ticket; std::nullopt if no PSK was
        *         chosen for usage (will result in a full handshake)
        *
@@ -272,7 +273,7 @@ class BOTAN_PUBLIC_API(3, 0) Session_Manager {
                                                        const Policy& policy);
 
    protected:
-      std::shared_ptr<RandomNumberGenerator> m_rng;
+      std::shared_ptr<RandomNumberGenerator> m_rng;  // NOLINT(*non-private-member-variable*)
 
    private:
       recursive_mutex_type m_mutex;

@@ -8,6 +8,7 @@
 
 #if defined(BOTAN_HAS_DL_GROUP)
    #include <botan/dl_group.h>
+   #include <botan/hex.h>
    #include <botan/internal/workfactor.h>
 #endif
 
@@ -32,7 +33,7 @@ class DL_Group_Tests final : public Test {
       static Test::Result test_dl_errors() {
          Test::Result result("DL_Group errors");
          result.test_throws("Uninitialized", "DL_Group uninitialized", []() {
-            Botan::DL_Group dl;
+            const Botan::DL_Group dl;
             dl.get_p();
          });
 
@@ -50,21 +51,21 @@ class DL_Group_Tests final : public Test {
 
          const auto group1 = Botan::DL_Group::from_PEM(pem1);
 
-         result.test_eq("Same p in X9.42 decoding", group1.get_p(), orig.get_p());
-         result.test_eq("Same q in X9.42 decoding", group1.get_q(), orig.get_q());
-         result.test_eq("Same g in X9.42 decoding", group1.get_g(), orig.get_g());
+         result.test_bn_eq("Same p in X9.42 decoding", group1.get_p(), orig.get_p());
+         result.test_bn_eq("Same q in X9.42 decoding", group1.get_q(), orig.get_q());
+         result.test_bn_eq("Same g in X9.42 decoding", group1.get_g(), orig.get_g());
 
          const auto group2 = Botan::DL_Group::from_PEM(pem2);
 
-         result.test_eq("Same p in X9.57 decoding", group2.get_p(), orig.get_p());
-         result.test_eq("Same q in X9.57 decoding", group2.get_q(), orig.get_q());
-         result.test_eq("Same g in X9.57 decoding", group2.get_g(), orig.get_g());
+         result.test_bn_eq("Same p in X9.57 decoding", group2.get_p(), orig.get_p());
+         result.test_bn_eq("Same q in X9.57 decoding", group2.get_q(), orig.get_q());
+         result.test_bn_eq("Same g in X9.57 decoding", group2.get_g(), orig.get_g());
 
          const auto group3 = Botan::DL_Group::from_PEM(pem3);
 
-         result.test_eq("Same p in X9.57 decoding", group3.get_p(), orig.get_p());
+         result.test_bn_eq("Same p in X9.57 decoding", group3.get_p(), orig.get_p());
          // no q in PKCS #3 format
-         result.test_eq("Same g in X9.57 decoding", group3.get_g(), orig.get_g());
+         result.test_bn_eq("Same g in X9.57 decoding", group3.get_g(), orig.get_g());
 
          return result;
       }
@@ -81,61 +82,64 @@ class DL_Generate_Group_Tests final : public Test {
 
          auto& rng = this->rng();
 
-         Botan::DL_Group dh1050(rng, Botan::DL_Group::Prime_Subgroup, 1050, 175);
-         result.test_eq("DH p size", dh1050.get_p().bits(), 1050);
-         result.test_eq("DH q size", dh1050.get_q().bits(), 175);
-         result.test_lte("DH g size", dh1050.get_g().bits(), 1050);
-         result.test_eq("DH group verifies", dh1050.verify_group(rng, false), true);
+         const Botan::DL_Group dh1050(rng, Botan::DL_Group::Prime_Subgroup, 1050, 175);
+         result.test_sz_eq("DH p size", dh1050.get_p().bits(), 1050);
+         result.test_sz_eq("DH q size", dh1050.get_q().bits(), 175);
+         result.test_sz_lte("DH g size", dh1050.get_g().bits(), 1050);
+         result.test_is_true("DH group verifies", dh1050.verify_group(rng, false));
 
-         Botan::DL_Group dh_implicit_q(rng, Botan::DL_Group::Prime_Subgroup, 1040);
-         result.test_eq("DH p size", dh_implicit_q.get_p().bits(), 1040);
-         result.test_eq("DH q size", dh_implicit_q.get_q().bits(), Botan::dl_exponent_size(1040));
-         result.test_lte("DH g size", dh_implicit_q.get_g().bits(), 1040);
-         result.test_eq("DH group verifies", dh_implicit_q.verify_group(rng, false), true);
+         const Botan::DL_Group dh_implicit_q(rng, Botan::DL_Group::Prime_Subgroup, 1040);
+         result.test_sz_eq("DH p size", dh_implicit_q.get_p().bits(), 1040);
+         result.test_sz_eq("DH q size", dh_implicit_q.get_q().bits(), Botan::dl_exponent_size(1040));
+         result.test_sz_lte("DH g size", dh_implicit_q.get_g().bits(), 1040);
+         result.test_is_true("DH group verifies", dh_implicit_q.verify_group(rng, false));
 
          if(Test::run_long_tests()) {
-            Botan::DL_Group dh_strong(rng, Botan::DL_Group::Strong, 1025);
-            result.test_eq("DH p size", dh_strong.get_p().bits(), 1025);
-            result.test_eq("DH q size", dh_strong.get_q().bits(), 1024);
-            result.test_eq("DH group verifies", dh_strong.verify_group(rng, false), true);
+            const Botan::DL_Group dh_strong(rng, Botan::DL_Group::Strong, 1025);
+            result.test_sz_eq("DH p size", dh_strong.get_p().bits(), 1025);
+            result.test_sz_eq("DH q size", dh_strong.get_q().bits(), 1024);
+            result.test_is_true("DH group verifies", dh_strong.verify_group(rng, false));
          }
 
    #if defined(BOTAN_HAS_SHA1)
-         Botan::DL_Group dsa1024(rng, Botan::DL_Group::DSA_Kosherizer, 1024);
-         result.test_eq("DSA p size", dsa1024.get_p().bits(), 1024);
-         result.test_eq("DSA q size", dsa1024.get_q().bits(), 160);
-         result.test_lte("DSA g size", dsa1024.get_g().bits(), 1024);
-         result.test_eq("DSA group verifies", dsa1024.verify_group(rng, false), true);
+         const Botan::DL_Group dsa1024(rng, Botan::DL_Group::DSA_Kosherizer, 1024);
+         result.test_sz_eq("DSA p size", dsa1024.get_p().bits(), 1024);
+         result.test_sz_eq("DSA q size", dsa1024.get_q().bits(), 160);
+         result.test_sz_lte("DSA g size", dsa1024.get_g().bits(), 1024);
+         result.test_is_true("DSA group verifies", dsa1024.verify_group(rng, false));
 
-         const std::vector<uint8_t> short_seed(16);
          const std::vector<uint8_t> invalid_seed(20);
-         const std::vector<uint8_t> working_seed = Botan::hex_decode("0000000000000000000000000000000000000021");
-
          result.test_throws("DSA seed does not generate group",
                             "DL_Group: The seed given does not generate a DSA group",
-                            [&rng, &invalid_seed]() { Botan::DL_Group dsa(rng, invalid_seed, 1024, 160); });
+                            [&rng, &invalid_seed]() { const Botan::DL_Group dsa(rng, invalid_seed, 1024, 160); });
 
+         const std::vector<uint8_t> short_seed(16);
          result.test_throws(
             "DSA seed is too short",
             "Generating a DSA parameter set with a 160 bit long q requires a seed at least as many bits long",
-            [&rng, &short_seed]() { Botan::DL_Group dsa(rng, short_seed, 1024, 160); });
+            [&rng, &short_seed]() { const Botan::DL_Group dsa(rng, short_seed, 1024, 160); });
+
+         const std::vector<uint8_t> working_seed = Botan::hex_decode("0000000000000000000000000000000000000021");
+         const Botan::DL_Group dsa(rng, working_seed, 1024, 160);
+         result.test_is_true("DSA group from working seed verifies", dsa.verify_group(rng, false));
 
          // From FIPS 186-3 test data
          const std::vector<uint8_t> seed = Botan::hex_decode("1F5DA0AF598EEADEE6E6665BF880E63D8B609BA2");
 
-         result.test_throws("invalid params", [&]() { Botan::DL_Group invalid(rng, seed, 1024, 224); });
-         result.test_throws("invalid params", [&]() { Botan::DL_Group invalid(rng, seed, 3072, 224); });
-         result.test_throws("invalid params", [&]() { Botan::DL_Group invalid(rng, seed, 2048, 256); });
+         result.test_throws("invalid params", [&]() { const Botan::DL_Group invalid(rng, seed, 1024, 224); });
+         result.test_throws("invalid params", [&]() { const Botan::DL_Group invalid(rng, seed, 3072, 224); });
+         result.test_throws("invalid params", [&]() { const Botan::DL_Group invalid(rng, seed, 2048, 256); });
 
-         Botan::DL_Group dsa_from_seed(rng, seed, 1024, 160);
+         const Botan::DL_Group dsa_from_seed(rng, seed, 1024, 160);
 
-         result.test_eq(
+         result.test_bn_eq(
             "DSA q from seed", dsa_from_seed.get_q(), Botan::BigInt("0xAB1A788BCE3C557A965A5BFA6908FAA665FDEB7D"));
 
          // Modulo just to avoid embedding entire 1024-bit P in src file
-         result.test_eq("DSA p from seed", static_cast<size_t>(dsa_from_seed.get_p() % 4294967291), size_t(2513712339));
+         result.test_sz_eq(
+            "DSA p from seed", static_cast<size_t>(dsa_from_seed.get_p() % 4294967291), size_t(2513712339));
 
-         result.test_eq("DSA group from seed verifies", dsa_from_seed.verify_group(rng, false), true);
+         result.test_is_true("DSA group from seed verifies", dsa_from_seed.verify_group(rng, false));
    #endif
 
          result.end_timer();
@@ -168,24 +172,24 @@ class DL_Named_Group_Tests final : public Test {
             // Confirm we can load every group we expect
             auto group = Botan::DL_Group::from_name(name);
 
-            result.test_ne("DL_Group p is set", group.get_p(), 0);
-            result.test_ne("DL_Group g is set", group.get_g(), 0);
+            result.test_bn_ne("DL_Group p is set", group.get_p(), 0);
+            result.test_bn_ne("DL_Group g is set", group.get_g(), 0);
 
             const size_t strength = group.estimated_strength();
 
             // 8192 bit ~~ 2**202 strength
-            result.confirm("Plausible strength", strength >= 80 && strength < 210);
+            result.test_is_true("Plausible strength", strength >= 80 && strength < 210);
 
-            result.confirm("Expected source", group.source() == Botan::DL_Group_Source::Builtin);
+            result.test_enum_eq("Expected source", group.source(), Botan::DL_Group_Source::Builtin);
 
             if(name.find("modp/srp/") == std::string::npos) {
-               result.test_ne("DL_Group q is set", group.get_q(), 0);
+               result.test_bn_ne("DL_Group q is set", group.get_q(), 0);
             } else {
-               result.test_eq("DL_Group q is not set for SRP groups", group.get_q(), 0);
+               result.test_bn_eq("DL_Group q is not set for SRP groups", group.get_q(), 0);
             }
 
             if(group.p_bits() <= 1536 || Test::run_long_tests()) {
-               result.test_eq(name + " verifies", group.verify_group(this->rng()), true);
+               result.test_is_true(name + " verifies", group.verify_group(this->rng()));
             }
          }
          result.end_timer();

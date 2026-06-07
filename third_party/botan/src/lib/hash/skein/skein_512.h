@@ -13,6 +13,7 @@
 #include <botan/internal/threefish_512.h>
 
 #include <memory>
+#include <span>
 #include <string>
 
 namespace Botan {
@@ -27,7 +28,7 @@ class Skein_512 final : public HashFunction {
       * @param personalization is a string that will parameterize the
       * hash output
       */
-      Skein_512(size_t output_bits = 512, std::string_view personalization = "");
+      explicit Skein_512(size_t output_bits = 512, std::string_view personalization = "");
 
       size_t hash_block_size() const override { return 64; }
 
@@ -39,7 +40,7 @@ class Skein_512 final : public HashFunction {
       void clear() override;
 
    private:
-      enum type_code {
+      enum type_code : uint8_t /* NOLINT(*-use-enum-class) */ {
          SKEIN_KEY = 0,
          SKEIN_CONFIG = 4,
          SKEIN_PERSONALIZATION = 8,
@@ -53,7 +54,9 @@ class Skein_512 final : public HashFunction {
       void add_data(std::span<const uint8_t> input) override;
       void final_result(std::span<uint8_t> out) override;
 
-      void ubi_512(const uint8_t msg[], size_t msg_len);
+      void ubi_512(std::span<const uint8_t> msg);
+
+      void ubi_512(const uint8_t msg[], size_t length) { ubi_512({msg, length}); }
 
       void initial_block();
       void reset_tweak(type_code type, bool is_final);

@@ -25,7 +25,7 @@ botan_root = os.path.join(os.path.dirname(sys.argv[0]), "..", "..")
 
 # locale
 sys.path.append(botan_root)
-from configure import ModuleInfo
+from configure import ModuleInfo # noqa: E402
 
 parser = argparse.ArgumentParser(description=
     'Show Botan module dependencies. '
@@ -148,7 +148,7 @@ while True:
 # Return true iff a depends on b,
 # i.e. b is in the dependencies of a
 def depends_on(a, b):
-    if not a in direct_dependencies:
+    if a not in direct_dependencies:
         return False
     else:
         return b in direct_dependencies[a]

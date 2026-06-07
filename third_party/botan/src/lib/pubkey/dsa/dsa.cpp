@@ -9,6 +9,7 @@
 #include <botan/dsa.h>
 
 #include <botan/assert.h>
+#include <botan/internal/buffer_stuffer.h>
 #include <botan/internal/divide.h>
 #include <botan/internal/dl_scheme.h>
 #include <botan/internal/keypair.h>
@@ -126,10 +127,10 @@ namespace {
 class DSA_Signature_Operation final : public PK_Ops::Signature_with_Hash {
    public:
       DSA_Signature_Operation(const std::shared_ptr<const DL_PrivateKey>& key,
-                              std::string_view emsa,
+                              std::string_view hash_fn,
                               RandomNumberGenerator& rng) :
-            PK_Ops::Signature_with_Hash(emsa), m_key(key) {
-         m_b = BigInt::random_integer(rng, 2, m_key->group().get_q());
+            PK_Ops::Signature_with_Hash(hash_fn), m_key(key) {
+         m_b = BigInt::random_integer(rng, BigInt::from_s32(2), m_key->group().get_q());
          m_b_inv = m_key->group().inverse_mod_q(m_b);
       }
 
@@ -196,7 +197,12 @@ std::vector<uint8_t> DSA_Signature_Operation::raw_sign(std::span<const uint8_t> 
       throw Internal_Error("Computed zero r/s during DSA signature");
    }
 
-   return unlock(BigInt::encode_fixed_length_int_pair(r, s, q.bytes()));
+   const size_t q_bytes = q.bytes();
+   std::vector<uint8_t> sig(2 * q_bytes);
+   BufferStuffer stuffer(sig);
+   r.serialize_to(stuffer.next(q_bytes));
+   s.serialize_to(stuffer.next(q_bytes));
+   return sig;
 }
 
 /**
@@ -204,8 +210,8 @@ std::vector<uint8_t> DSA_Signature_Operation::raw_sign(std::span<const uint8_t> 
 */
 class DSA_Verification_Operation final : public PK_Ops::Verification_with_Hash {
    public:
-      DSA_Verification_Operation(const std::shared_ptr<const DL_PublicKey>& key, std::string_view emsa) :
-            PK_Ops::Verification_with_Hash(emsa), m_key(key) {}
+      DSA_Verification_Operation(const std::shared_ptr<const DL_PublicKey>& key, std::string_view hash_fn) :
+            PK_Ops::Verification_with_Hash(hash_fn), m_key(key) {}
 
       DSA_Verification_Operation(const std::shared_ptr<const DL_PublicKey>& key, const AlgorithmIdentifier& alg_id) :
             PK_Ops::Verification_with_Hash(alg_id, "DSA"), m_key(key) {}
@@ -226,7 +232,7 @@ bool DSA_Verification_Operation::verify(std::span<const uint8_t> input, std::spa
       return false;
    }
 
-   BigInt r(sig.first(q_bytes));
+   const BigInt r(sig.first(q_bytes));
    BigInt s(sig.last(q_bytes));
 
    if(r == 0 || r >= q || s == 0 || s >= q) {

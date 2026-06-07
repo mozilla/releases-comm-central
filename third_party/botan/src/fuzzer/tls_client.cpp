@@ -7,14 +7,24 @@
 #include "fuzzers.h"
 
 #include <botan/hex.h>
+#include <botan/tls_callbacks.h>
+#include <botan/tls_ciphersuite.h>
 #include <botan/tls_client.h>
+#include <botan/tls_external_psk.h>
+#include <botan/tls_policy.h>
 #include <botan/tls_session_manager_noop.h>
 
 class Fuzzer_TLS_Client_Creds : public Botan::Credentials_Manager {
    public:
-      std::string psk_identity_hint(const std::string&, const std::string&) override { return "psk_hint"; }
+      std::string psk_identity_hint(const std::string& /*type*/, const std::string& /*context*/) override {
+         return "psk_hint";
+      }
 
-      std::string psk_identity(const std::string&, const std::string&, const std::string&) override { return "psk_id"; }
+      std::string psk_identity(const std::string& /*type*/,
+                               const std::string& /*context*/,
+                               const std::string& /*hint*/) override {
+         return "psk_id";
+      }
 
       Botan::secure_vector<uint8_t> session_ticket_key() override {
          return Botan::hex_decode_locked("AABBCCDDEEFF00112233445566778899");
@@ -41,11 +51,11 @@ class Fuzzer_TLS_Client_Creds : public Botan::Credentials_Manager {
 
 class Fuzzer_TLS_Policy : public Botan::TLS::Policy {
    public:
-      std::vector<uint16_t> ciphersuite_list(Botan::TLS::Protocol_Version) const override {
+      std::vector<uint16_t> ciphersuite_list(Botan::TLS::Protocol_Version version) const override {
          std::vector<uint16_t> ciphersuites;
 
          for(auto&& suite : Botan::TLS::Ciphersuite::all_known_ciphersuites()) {
-            if(suite.valid() == false) {
+            if(suite.valid() && suite.usable_in_version(version)) {
                ciphersuites.push_back(suite.ciphersuite_code());
             }
          }
@@ -56,15 +66,15 @@ class Fuzzer_TLS_Policy : public Botan::TLS::Policy {
 
 class Fuzzer_TLS_Client_Callbacks : public Botan::TLS::Callbacks {
    public:
-      void tls_emit_data(std::span<const uint8_t>) override {
+      void tls_emit_data(std::span<const uint8_t> /*data*/) override {
          // discard
       }
 
-      void tls_record_received(uint64_t, std::span<const uint8_t>) override {
+      void tls_record_received(uint64_t /*rec*/, std::span<const uint8_t> /*data*/) override {
          // ignore peer data
       }
 
-      void tls_alert(Botan::TLS::Alert) override {
+      void tls_alert(Botan::TLS::Alert /*alert*/) override {
          // ignore alert
       }
 
@@ -91,8 +101,8 @@ void fuzz(std::span<const uint8_t> in) {
 
    auto session_manager = std::make_shared<Botan::TLS::Session_Manager_Noop>();
    auto policy = std::make_shared<Fuzzer_TLS_Policy>();
-   Botan::TLS::Protocol_Version client_offer = Botan::TLS::Protocol_Version::TLS_V12;
-   Botan::TLS::Server_Information info("server.name", 443);
+   const Botan::TLS::Protocol_Version client_offer = Botan::TLS::Protocol_Version::TLS_V12;
+   const Botan::TLS::Server_Information info("server.name", 443);
    auto callbacks = std::make_shared<Fuzzer_TLS_Client_Callbacks>();
    auto creds = std::make_shared<Fuzzer_TLS_Client_Creds>();
 
@@ -100,5 +110,5 @@ void fuzz(std::span<const uint8_t> in) {
 
    try {
       client.received_data(in);
-   } catch(std::exception& e) {}
+   } catch(const std::exception& e) {}
 }

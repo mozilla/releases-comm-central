@@ -30,9 +30,6 @@
 namespace Botan {
 
 class RandomNumberGenerator;
-class EME;
-class KDF;
-class EMSA;
 
 }  // namespace Botan
 
@@ -41,7 +38,7 @@ namespace Botan::PK_Ops {
 /**
 * Public key encryption interface
 */
-class BOTAN_UNSTABLE_API Encryption {
+class BOTAN_UNSTABLE_API Encryption /* NOLINT(*special-member-functions) */ {
    public:
       /**
       * Encrypt a message returning the ciphertext
@@ -65,7 +62,7 @@ class BOTAN_UNSTABLE_API Encryption {
 /**
 * Public key decryption interface
 */
-class BOTAN_UNSTABLE_API Decryption {
+class BOTAN_UNSTABLE_API Decryption /* NOLINT(*special-member-functions) */ {
    public:
       virtual secure_vector<uint8_t> decrypt(uint8_t& valid_mask, std::span<const uint8_t> ctext) = 0;
 
@@ -77,7 +74,7 @@ class BOTAN_UNSTABLE_API Decryption {
 /**
 * Public key signature verification interface
 */
-class BOTAN_UNSTABLE_API Verification {
+class BOTAN_UNSTABLE_API Verification /* NOLINT(*special-member-functions) */ {
    public:
       /**
       * Add more data to the message currently being signed
@@ -102,7 +99,7 @@ class BOTAN_UNSTABLE_API Verification {
 /**
 * Public key signature creation interface
 */
-class BOTAN_UNSTABLE_API Signature {
+class BOTAN_UNSTABLE_API Signature /* NOLINT(*special-member-functions) */ {
    public:
       /**
       * Add more data to the message currently being signed
@@ -139,7 +136,7 @@ class BOTAN_UNSTABLE_API Signature {
 /**
 * A generic key agreement operation (eg DH or ECDH)
 */
-class BOTAN_UNSTABLE_API Key_Agreement {
+class BOTAN_UNSTABLE_API Key_Agreement /* NOLINT(*special-member-functions) */ {
    public:
       virtual secure_vector<uint8_t> agree(size_t key_len,
                                            std::span<const uint8_t> other_key,
@@ -153,7 +150,7 @@ class BOTAN_UNSTABLE_API Key_Agreement {
 /**
 * KEM (key encapsulation)
 */
-class BOTAN_UNSTABLE_API KEM_Encryption {
+class BOTAN_UNSTABLE_API KEM_Encryption /* NOLINT(*special-member-functions) */ {
    public:
       virtual void kem_encrypt(std::span<uint8_t> out_encapsulated_key,
                                std::span<uint8_t> out_shared_key,
@@ -168,7 +165,7 @@ class BOTAN_UNSTABLE_API KEM_Encryption {
       virtual ~KEM_Encryption() = default;
 };
 
-class BOTAN_UNSTABLE_API KEM_Decryption {
+class BOTAN_UNSTABLE_API KEM_Decryption /* NOLINT(*special-member-functions) */ {
    public:
       virtual void kem_decrypt(std::span<uint8_t> out_shared_key,
                                std::span<const uint8_t> encapsulated_key,

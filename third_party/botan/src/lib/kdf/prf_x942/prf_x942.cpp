@@ -11,8 +11,9 @@
 #include <botan/der_enc.h>
 #include <botan/hash.h>
 #include <botan/internal/bit_ops.h>
+#include <botan/internal/buffer_stuffer.h>
+#include <botan/internal/concat_util.h>
 #include <botan/internal/loadstor.h>
-#include <botan/internal/stl_util.h>
 
 namespace Botan {
 
@@ -45,7 +46,7 @@ void X942_PRF::perform_kdf(std::span<uint8_t> key,
    // This KDF uses a 32-bit counter for the hash blocks, initialized at 1.
    // It will wrap around after 2^32 - 1 iterations limiting the theoretically
    // possible output to 2^32 - 1 blocks.
-   BOTAN_ARG_CHECK(blocks_required <= 0xFFFFFFFE, "X942_PRF maximum output length exceeeded");
+   BOTAN_ARG_CHECK(blocks_required <= 0xFFFFFFFE, "X942_PRF maximum output length exceeded");
 
    auto hash = HashFunction::create("SHA-1");
    const auto in = concat<secure_vector<uint8_t>>(label, salt);
@@ -78,7 +79,7 @@ void X942_PRF::perform_kdf(std::span<uint8_t> key,
       if(k.remaining_capacity() >= sha1_output_bytes) {
          hash->final(k.next(sha1_output_bytes));
       } else {
-         std::array<uint8_t, sha1_output_bytes> h;
+         std::array<uint8_t, sha1_output_bytes> h{};
          hash->final(h);
          k.append(std::span{h}.first(k.remaining_capacity()));
       }

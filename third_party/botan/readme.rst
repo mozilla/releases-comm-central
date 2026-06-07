@@ -1,8 +1,8 @@
 Botan
 ========================================
 
-Botan (Japanese for peony flower) is a cryptography library released under the
-permissive `Simplified BSD <https://botan.randombit.net/license.txt>`_ license.
+Botan is a C++ cryptography library released under the permissive
+`Simplified BSD <https://botan.randombit.net/license.txt>`_ license.
 
 Botan's `goal <https://botan.randombit.net/handbook/goals.html>`_
 is to be the best option for production cryptography by offering the tools
@@ -73,9 +73,9 @@ New minor releases of Botan3 are made quarterly, normally on the first Tuesday o
 February, May, August, and November.
 
 The latest release in the Botan3 series is
-`3.8.1 <https://botan.randombit.net/releases/Botan-3.8.1.tar.xz>`_
-`(sig) <https://botan.randombit.net/releases/Botan-3.8.1.tar.xz.asc>`__,
-released on 2025-05-07.
+`3.11.1 <https://botan.randombit.net/releases/Botan-3.11.1.tar.xz>`_
+`(sig) <https://botan.randombit.net/releases/Botan-3.11.1.tar.xz.asc>`__,
+released on 2026-03-31.
 
 Botan2
 --------

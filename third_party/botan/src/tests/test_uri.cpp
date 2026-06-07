@@ -11,28 +11,33 @@
 
 #if defined(BOTAN_HAS_SOCKETS) && (defined(BOTAN_TARGET_OS_HAS_SOCKETS) || defined(BOTAN_TARGET_OS_HAS_WINSOCK2))
 
+   #include <botan/exceptn.h>
    #include <botan/internal/uri.h>
 
 namespace Botan_Tests {
+
+namespace {
 
 class URI_Tests final : public Test {
    private:
       static Test::Result test_uri_ctor() {
          Test::Result result("URI constructors");
-         Botan::URI uri(Botan::URI::Type::Domain, "localhost", 9000);
-         result.confirm("type", uri.type() == Botan::URI::Type::Domain);
-         result.test_eq("host", uri.host(), "localhost");
-         result.test_eq("post", size_t(uri.port()), 9000);
+         const Botan::URI uri(Botan::URI::Type::Domain, "localhost", 9000);
+         result.test_is_true("type", uri.type() == Botan::URI::Type::Domain);
+         result.test_str_eq("host", uri.host(), "localhost");
+         result.test_sz_eq("post", size_t(uri.port()), 9000);
          return result;
       }
 
       static Test::Result test_uri_tostring() {
          Test::Result result("URI to_string");
 
-         result.test_eq("domain", Botan::URI(Botan::URI::Type::Domain, "localhost", 23).to_string(), "localhost:23");
-         result.test_eq("IPv4", Botan::URI(Botan::URI::Type::IPv4, "192.168.1.1", 25).to_string(), "192.168.1.1:25");
-         result.test_eq("IPv6", Botan::URI(Botan::URI::Type::IPv6, "::1", 65535).to_string(), "[::1]:65535");
-         result.test_eq("IPv6 no port", Botan::URI(Botan::URI::Type::IPv6, "::1", 0).to_string(), "::1");
+         result.test_str_eq(
+            "domain", Botan::URI(Botan::URI::Type::Domain, "localhost", 23).to_string(), "localhost:23");
+         result.test_str_eq(
+            "IPv4", Botan::URI(Botan::URI::Type::IPv4, "192.168.1.1", 25).to_string(), "192.168.1.1:25");
+         result.test_str_eq("IPv6", Botan::URI(Botan::URI::Type::IPv6, "::1", 65535).to_string(), "[::1]:65535");
+         result.test_str_eq("IPv6 no port", Botan::URI(Botan::URI::Type::IPv6, "::1", 0).to_string(), "::1");
 
          return result;
       }
@@ -40,23 +45,25 @@ class URI_Tests final : public Test {
       static Test::Result test_uri_parsing() {
          Test::Result result("URI parsing");
 
-         struct {
+         struct URITestCase {
                std::string uri;
                std::string host;
                Botan::URI::Type type;
                uint16_t port;
-         } tests[]{
-            {"localhost:80", "localhost", Botan::URI::Type::Domain, 80},
-            {"www.example.com", "www.example.com", Botan::URI::Type::Domain, 0},
-            {"192.168.1.1", "192.168.1.1", Botan::URI::Type::IPv4, 0},
-            {"192.168.1.1:34567", "192.168.1.1", Botan::URI::Type::IPv4, 34567},
-            {"[::1]:61234", "::1", Botan::URI::Type::IPv6, 61234},
+         };
+
+         const std::vector<URITestCase> tests{
+            URITestCase{"localhost:80", "localhost", Botan::URI::Type::Domain, 80},
+            URITestCase{"www.example.com", "www.example.com", Botan::URI::Type::Domain, 0},
+            URITestCase{"192.168.1.1", "192.168.1.1", Botan::URI::Type::IPv4, 0},
+            URITestCase{"192.168.1.1:34567", "192.168.1.1", Botan::URI::Type::IPv4, 34567},
+            URITestCase{"[::1]:61234", "::1", Botan::URI::Type::IPv6, 61234},
          };
 
          for(const auto& t : tests) {
             auto test_URI = [&result](const Botan::URI& uri, const std::string& host, const uint16_t port) {
-               result.test_eq("host", uri.host(), host);
-               result.test_int_eq("port", uri.port(), port);
+               result.test_str_eq("host", uri.host(), host);
+               result.test_u16_eq("port", uri.port(), port);
             };
 
             if(t.type != Botan::URI::Type::IPv4) {
@@ -70,7 +77,7 @@ class URI_Tests final : public Test {
             }
 
             const auto any = Botan::URI::from_any(t.uri);
-            result.confirm("from_any type is expected", any.type() == t.type);
+            result.test_is_true("from_any type is expected", any.type() == t.type);
             test_URI(any, t.host, t.port);
             if(t.type == Botan::URI::Type::Domain) {
                test_URI(Botan::URI::from_domain(t.uri), t.host, t.port);
@@ -81,7 +88,7 @@ class URI_Tests final : public Test {
             }
          }
 
-         //since GCC 4.8 does not support regex this would possibly be acceped as valid domains,
+         //since GCC 4.8 does not support regex this would possibly be accepted as valid domains,
          //but we just want to test IPv6 parsing, so the test needs to be individual
          result.test_throws("invalid IPv6", []() { Botan::URI::from_ipv6("]"); });
          result.test_throws("invalid IPv6", []() { Botan::URI::from_ipv6("[::1]1"); });
@@ -127,6 +134,8 @@ class URI_Tests final : public Test {
 };
 
 BOTAN_REGISTER_TEST("utils", "uri", URI_Tests);
+
+}  // namespace
 
 }  // namespace Botan_Tests
 

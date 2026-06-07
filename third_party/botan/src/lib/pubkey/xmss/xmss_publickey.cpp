@@ -1,6 +1,6 @@
 /*
  * XMSS Public Key
- * An XMSS: Extended Hash-Based Siganture public key.
+ * An XMSS: Extended Hash-Based Signature public key.
  * The XMSS public key does not support the X509 standard. Instead the
  * raw format described in [1] is used.
  *
@@ -18,11 +18,11 @@
 
 #include <botan/ber_dec.h>
 #include <botan/der_enc.h>
+#include <botan/rng.h>
+#include <botan/internal/buffer_slicer.h>
+#include <botan/internal/concat_util.h>
 #include <botan/internal/loadstor.h>
-#include <botan/internal/stl_util.h>
 #include <botan/internal/xmss_verification_operation.h>
-
-#include <iterator>
 
 namespace Botan {
 
@@ -46,13 +46,12 @@ XMSS_Parameters::xmss_algorithm_t deserialize_xmss_oid(std::span<const uint8_t> 
 std::vector<uint8_t> extract_raw_public_key(std::span<const uint8_t> key_bits) {
    std::vector<uint8_t> raw_key;
    try {
-      DataSource_Memory src(key_bits);
-      BER_Decoder(src).decode(raw_key, ASN1_Type::OctetString).verify_end();
+      BER_Decoder(key_bits).decode(raw_key, ASN1_Type::OctetString).verify_end();
 
-      // Smoke check the decoded key. Valid raw keys might be decodeable as BER
+      // Smoke check the decoded key. Valid raw keys might be decodable as BER
       // and they might be either a sole public key or a concatenation of public
       // and private key (with the optional WOTS+ derivation identifier).
-      XMSS_Parameters params(deserialize_xmss_oid(raw_key));
+      const XMSS_Parameters params(deserialize_xmss_oid(raw_key));
       if(raw_key.size() != params.raw_public_key_size() && raw_key.size() != params.raw_private_key_size() &&
          raw_key.size() != params.raw_legacy_private_key_size()) {
          throw Decoding_Error("unpacked XMSS key does not have the correct length");

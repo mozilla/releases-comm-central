@@ -6,6 +6,8 @@
 
 #include <botan/internal/mod_inv.h>
 
+#include <botan/exceptn.h>
+#include <botan/mem_ops.h>
 #include <botan/numthry.h>
 #include <botan/internal/ct_utils.h>
 #include <botan/internal/divide.h>
@@ -47,7 +49,7 @@ BigInt inverse_mod_odd_modulus(const BigInt& n, const BigInt& mod) {
 
    secure_vector<word> tmp_mem(5 * mod_words);
 
-   word* v_w = &tmp_mem[0];
+   word* v_w = &tmp_mem[0];  // NOLINT(readability-container-data-pointer)
    word* u_w = &tmp_mem[1 * mod_words];
    word* b_w = &tmp_mem[2 * mod_words];
    word* a_w = &tmp_mem[3 * mod_words];
@@ -64,7 +66,7 @@ BigInt inverse_mod_odd_modulus(const BigInt& n, const BigInt& mod) {
    // (mod / 2) + 1
    copy_mem(mp1o2, mod._data(), std::min(mod.size(), mod_words));
    bigint_shr1(mp1o2, mod_words, 1);
-   word carry = bigint_add2_nc(mp1o2, mod_words, u_w, 1);
+   const word carry = bigint_add2(mp1o2, mod_words, u_w, 1);
    BOTAN_ASSERT_NOMSG(carry == 0);
 
    // Only n.bits() + mod.bits() iterations are required, but avoid leaking the size of n
@@ -74,7 +76,7 @@ BigInt inverse_mod_odd_modulus(const BigInt& n, const BigInt& mod) {
       const word odd_a = a_w[0] & 1;
 
       //if(odd_a) a -= b
-      word underflow = bigint_cnd_sub(odd_a, a_w, b_w, mod_words);
+      const word underflow = bigint_cnd_sub(odd_a, a_w, b_w, mod_words);
 
       //if(underflow) { b -= a; a = abs(a); swap(u, v); }
       bigint_cnd_add(underflow, b_w, a_w, mod_words);
@@ -85,7 +87,7 @@ BigInt inverse_mod_odd_modulus(const BigInt& n, const BigInt& mod) {
       bigint_shr1(a_w, mod_words, 1);
 
       //if(odd_a) u -= v;
-      word borrow = bigint_cnd_sub(odd_a, u_w, v_w, mod_words);
+      const word borrow = bigint_cnd_sub(odd_a, u_w, v_w, mod_words);
 
       // if(borrow) u += p
       bigint_cnd_add(borrow, u_w, mod._data(), mod_words);
@@ -280,7 +282,7 @@ std::optional<BigInt> inverse_mod_general(const BigInt& x, const BigInt& mod) {
 BigInt inverse_mod_secret_prime(const BigInt& x, const BigInt& p) {
    BOTAN_ARG_CHECK(x.is_positive() && p.is_positive(), "Parameters must be positive");
    BOTAN_ARG_CHECK(x < p, "x must be less than p");
-   BOTAN_ARG_CHECK(p.is_odd() and p > 1, "Primes are odd integers greater than 1");
+   BOTAN_ARG_CHECK(p.is_odd() && p > 1, "Primes are odd integers greater than 1");
 
    // TODO possibly use FLT, or the algorithm presented for this case in
    // Handbook of Elliptic and Hyperelliptic Curve Cryptography
@@ -307,8 +309,8 @@ uint64_t barrett_mod_65537(uint64_t x) {
    constexpr size_t s = 32;
    constexpr uint64_t c = (static_cast<uint64_t>(1) << s) / mod;
 
-   uint64_t q = (x * c) >> s;
-   uint64_t r = x - q * mod;
+   const uint64_t q = (x * c) >> s;
+   const uint64_t r = x - q * mod;
 
    auto r_gt_mod = CT::Mask<uint64_t>::is_gte(r, mod);
    return r - r_gt_mod.if_set_return(mod);

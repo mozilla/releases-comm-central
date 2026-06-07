@@ -35,6 +35,8 @@ class polyn_gf2m {
 
       polyn_gf2m(const secure_vector<uint8_t>& encoded, const std::shared_ptr<GF2m_Field>& sp_field);
 
+      ~polyn_gf2m() = default;
+
       polyn_gf2m& operator=(const polyn_gf2m&) = default;
 
       /**
@@ -130,7 +132,7 @@ class polyn_gf2m {
       static polyn_gf2m gcd_aux(polyn_gf2m& p1, polyn_gf2m& p2);
 
    private:
-      int m_deg;
+      int m_deg = -1;
       secure_vector<gf2m> m_coeff;
       std::shared_ptr<GF2m_Field> m_sp_field;
 };

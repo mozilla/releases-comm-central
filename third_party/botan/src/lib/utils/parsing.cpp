@@ -22,7 +22,7 @@ namespace Botan {
 uint16_t to_uint16(std::string_view str) {
    const uint32_t x = to_u32bit(str);
 
-   if(x >> 16) {
+   if(x != static_cast<uint16_t>(x)) {
       throw Invalid_Argument("Integer value exceeds 16 bit range");
    }
 
@@ -54,12 +54,12 @@ uint32_t to_u32bit(std::string_view str_view) {
 /*
 * Parse a SCAN-style algorithm name
 */
-std::vector<std::string> parse_algorithm_name(std::string_view namex) {
-   if(namex.find('(') == std::string::npos && namex.find(')') == std::string::npos) {
-      return {std::string(namex)};
+std::vector<std::string> parse_algorithm_name(std::string_view scan_name) {
+   if(scan_name.find('(') == std::string::npos && scan_name.find(')') == std::string::npos) {
+      return {std::string(scan_name)};
    }
 
-   std::string name(namex);
+   std::string name(scan_name);
    std::string substring;
    std::vector<std::string> elems;
    size_t level = 0;
@@ -68,7 +68,7 @@ std::vector<std::string> parse_algorithm_name(std::string_view namex) {
    name = name.substr(name.find('('));
 
    for(auto i = name.begin(); i != name.end(); ++i) {
-      char c = *i;
+      const char c = *i;
 
       if(c == '(') {
          ++level;
@@ -84,7 +84,7 @@ std::vector<std::string> parse_algorithm_name(std::string_view namex) {
          }
 
          if(level == 0 || (level == 1 && i != name.end() - 1)) {
-            throw Invalid_Algorithm_Name(namex);
+            throw Invalid_Algorithm_Name(scan_name);
          }
          --level;
       }
@@ -102,7 +102,7 @@ std::vector<std::string> parse_algorithm_name(std::string_view namex) {
    }
 
    if(!substring.empty()) {
-      throw Invalid_Algorithm_Name(namex);
+      throw Invalid_Algorithm_Name(scan_name);
    }
 
    return elems;
@@ -115,14 +115,14 @@ std::vector<std::string> split_on(std::string_view str, char delim) {
    }
 
    std::string substr;
-   for(auto i = str.begin(); i != str.end(); ++i) {
-      if(*i == delim) {
+   for(const char c : str) {
+      if(c == delim) {
          if(!substr.empty()) {
             elems.push_back(substr);
          }
          substr.clear();
       } else {
-         substr += *i;
+         substr += c;
       }
    }
 
@@ -169,7 +169,7 @@ std::optional<uint32_t> string_to_ipv4(std::string_view str) {
    // # of digits pushed to accum since last dot
    size_t cur_digits = 0;
 
-   for(char c : str) {
+   for(const char c : str) {
       if(c == '.') {
          // . without preceding digit is invalid
          if(cur_digits == 0) {
@@ -238,15 +238,15 @@ std::string ipv4_to_string(uint32_t ip) {
    return str;
 }
 
-std::string tolower_string(std::string_view in) {
-   std::string s(in);
-   for(size_t i = 0; i != s.size(); ++i) {
-      const int cu = static_cast<unsigned char>(s[i]);
-      if(std::isalpha(cu)) {
-         s[i] = static_cast<char>(std::tolower(cu));
+std::string tolower_string(std::string_view str) {
+   std::string lower(str);
+   for(char& c : lower) {
+      const int cu = static_cast<unsigned char>(c);
+      if(std::isalpha(cu) != 0) {
+         c = static_cast<char>(std::tolower(cu));
       }
    }
-   return s;
+   return lower;
 }
 
 bool host_wildcard_match(std::string_view issued_, std::string_view host_) {
@@ -322,7 +322,9 @@ bool host_wildcard_match(std::string_view issued_, std::string_view host_) {
    size_t host_idx = 0;
 
    for(size_t i = 0; i != issued.size(); ++i) {
-      dots_seen += (issued[i] == '.');
+      if(issued[i] == '.') {
+         dots_seen += 1;
+      }
 
       if(issued[i] == '*') {
          // Fail: wildcard can only come in leftmost component
@@ -373,13 +375,13 @@ std::string check_and_canonicalize_dns_name(std::string_view name) {
       throw Decoding_Error("DNS name cannot be empty");
    }
 
-   if(name.starts_with(".")) {
-      throw Decoding_Error("DNS name cannot start with a dot");
+   if(name.starts_with(".") || name.ends_with(".")) {
+      throw Decoding_Error("DNS name cannot start or end with a dot");
    }
 
    /*
    * Table mapping uppercase to lowercase and only including values for valid DNS names
-   * namely A-Z, a-z, 0-9, hypen, and dot, plus '*' for wildcarding.
+   * namely A-Z, a-z, 0-9, hyphen, and dot, plus '*' for wildcarding. (RFC 1035)
    */
    // clang-format off
    constexpr uint8_t DNS_CHAR_MAPPING[128] = {
@@ -396,15 +398,26 @@ std::string check_and_canonicalize_dns_name(std::string_view name) {
    std::string canon;
    canon.reserve(name.size());
 
+   // RFC 1035: DNS labels must not exceed 63 characters
+   size_t current_label_length = 0;
+
    for(size_t i = 0; i != name.size(); ++i) {
-      char c = name[i];
+      const char c = name[i];
 
       if(c == '.') {
-         if(name[i - 1] == '.') {
+         if(i > 0 && name[i - 1] == '.') {
             throw Decoding_Error("DNS name contains sequential period chars");
          }
-         if(i == name.size() - 1) {
-            throw Decoding_Error("DNS name cannot end in a period");
+
+         if(current_label_length == 0) {
+            throw Decoding_Error("DNS name contains empty label");
+         }
+         current_label_length = 0;  // Reset for next label
+      } else {
+         current_label_length++;
+
+         if(current_label_length > 63) {  // RFC 1035 Maximum DNS label length
+            throw Decoding_Error("DNS name label exceeds maximum length of 63 characters");
          }
       }
 
@@ -416,10 +429,20 @@ std::string check_and_canonicalize_dns_name(std::string_view name) {
       if(mapped == 0) {
          throw Decoding_Error("DNS name includes invalid character");
       }
-      // TODO check label lengths
+
+      if(mapped == '-') {
+         if(i == 0 || (i > 0 && name[i - 1] == '.')) {
+            throw Decoding_Error("DNS name has label with leading hyphen");
+         } else if(i == name.size() - 1 || (i < name.size() - 1 && name[i + 1] == '.')) {
+            throw Decoding_Error("DNS name has label with trailing hyphen");
+         }
+      }
       canon.push_back(static_cast<char>(mapped));
    }
 
+   if(current_label_length == 0) {
+      throw Decoding_Error("DNS name contains empty label");
+   }
    return canon;
 }
 

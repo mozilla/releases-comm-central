@@ -1,6 +1,6 @@
 /*
  * XMSS WOTS Parameters
- * Descibes a signature method for XMSS Winternitz One Time Signatures,
+ * Describes a signature method for XMSS Winternitz One Time Signatures,
  * as defined in:
  * [1] XMSS: Extended Hash-Based Signatures,
  *     Request for Comments: 8391
@@ -12,7 +12,7 @@
  * Botan is released under the Simplified BSD License (see license.txt)
  **/
 
-#include <botan/internal/xmss_wots.h>
+#include <botan/xmss_parameters.h>
 
 #include <botan/assert.h>
 #include <botan/exceptn.h>
@@ -143,17 +143,17 @@ secure_vector<uint8_t> XMSS_WOTS_Parameters::base_w(const secure_vector<uint8_t>
 
 secure_vector<uint8_t> XMSS_WOTS_Parameters::base_w(size_t value) const {
    value <<= (8 - ((m_len_2 * m_lg_w) % 8));
-   size_t len_2_bytes = static_cast<size_t>(std::ceil(static_cast<float>(m_len_2 * m_lg_w) / 8.0));
+   const size_t len_2_bytes = static_cast<size_t>(std::ceil(static_cast<float>(m_len_2 * m_lg_w) / 8.0));
    secure_vector<uint8_t> result;
-   XMSS_Tools::concat(result, value, len_2_bytes);
+   xmss_concat(result, value, len_2_bytes);
    return base_w(result, m_len_2);
 }
 
 void XMSS_WOTS_Parameters::append_checksum(secure_vector<uint8_t>& data) const {
    size_t csum = 0;
 
-   for(size_t i = 0; i < data.size(); i++) {
-      csum += wots_parameter() - 1 - data[i];
+   for(const uint8_t b : data) {
+      csum += wots_parameter() - 1 - b;
    }
 
    secure_vector<uint8_t> csum_bytes = base_w(csum);

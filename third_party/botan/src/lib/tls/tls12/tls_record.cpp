@@ -9,21 +9,28 @@
 
 #include <botan/internal/tls_record.h>
 
+#include <botan/aead.h>
+#include <botan/block_cipher.h>
+#include <botan/mac.h>
 #include <botan/rng.h>
-#include <botan/tls_callbacks.h>
 #include <botan/tls_ciphersuite.h>
 #include <botan/tls_exceptn.h>
-#include <botan/internal/ct_utils.h>
+#include <botan/internal/fmt.h>
 #include <botan/internal/loadstor.h>
 #include <botan/internal/tls_seq_numbers.h>
 #include <botan/internal/tls_session_key.h>
-#include <sstream>
 
 #if defined(BOTAN_HAS_TLS_CBC)
    #include <botan/internal/tls_cbc.h>
 #endif
 
+#if defined(BOTAN_HAS_TLS_NULL)
+   #include <botan/internal/tls_null.h>
+#endif
+
 namespace Botan::TLS {
+
+Connection_Cipher_State::~Connection_Cipher_State() = default;
 
 Connection_Cipher_State::Connection_Cipher_State(Protocol_Version version,
                                                  Connection_Side side,
@@ -31,19 +38,21 @@ Connection_Cipher_State::Connection_Cipher_State(Protocol_Version version,
                                                  const Ciphersuite& suite,
                                                  const Session_Keys& keys,
                                                  bool uses_encrypt_then_mac) {
+   // NOLINTBEGIN(*-prefer-member-initializer)
    m_nonce_format = suite.nonce_format();
    m_nonce_bytes_from_record = suite.nonce_bytes_from_record(version);
    m_nonce_bytes_from_handshake = suite.nonce_bytes_from_handshake();
 
    const secure_vector<uint8_t>& aead_key = keys.aead_key(side);
    m_nonce = keys.nonce(side);
+   // NOLINTEND(*-prefer-member-initializer)
 
    BOTAN_ASSERT_NOMSG(m_nonce.size() == m_nonce_bytes_from_handshake);
 
    if(nonce_format() == Nonce_Format::CBC_MODE) {
 #if defined(BOTAN_HAS_TLS_CBC)
       // legacy CBC+HMAC mode
-      auto mac = MessageAuthenticationCode::create_or_throw("HMAC(" + suite.mac_algo() + ")");
+      auto mac = MessageAuthenticationCode::create_or_throw(fmt("HMAC({})", suite.mac_algo()));
       auto cipher = BlockCipher::create_or_throw(suite.cipher_algo());
 
       if(our_side) {
@@ -66,6 +75,18 @@ Connection_Cipher_State::Connection_Cipher_State(Protocol_Version version,
       BOTAN_UNUSED(uses_encrypt_then_mac);
       throw Internal_Error("Negotiated disabled TLS CBC+HMAC ciphersuite");
 #endif
+   } else if(nonce_format() == Nonce_Format::NULL_CIPHER) {
+#if defined(BOTAN_HAS_TLS_NULL)
+      auto mac = MessageAuthenticationCode::create_or_throw(fmt("HMAC({})", suite.mac_algo()));
+
+      if(our_side) {
+         m_aead = std::make_unique<TLS_NULL_HMAC_AEAD_Encryption>(std::move(mac), suite.mac_keylen());
+      } else {
+         m_aead = std::make_unique<TLS_NULL_HMAC_AEAD_Decryption>(std::move(mac), suite.mac_keylen());
+      }
+#else
+      throw Internal_Error("Negotiated disabled TLS NULL ciphersuite");
+#endif
    } else {
       m_aead =
          AEAD_Mode::create_or_throw(suite.cipher_algo(), our_side ? Cipher_Dir::Encryption : Cipher_Dir::Decryption);
@@ -76,6 +97,9 @@ Connection_Cipher_State::Connection_Cipher_State(Protocol_Version version,
 
 std::vector<uint8_t> Connection_Cipher_State::aead_nonce(uint64_t seq, RandomNumberGenerator& rng) {
    switch(m_nonce_format) {
+      case Nonce_Format::NULL_CIPHER: {
+         return std::vector<uint8_t>{};
+      }
       case Nonce_Format::CBC_MODE: {
          if(!m_nonce.empty()) {
             std::vector<uint8_t> nonce;
@@ -95,7 +119,7 @@ std::vector<uint8_t> Connection_Cipher_State::aead_nonce(uint64_t seq, RandomNum
       case Nonce_Format::AEAD_IMPLICIT_4: {
          BOTAN_ASSERT_NOMSG(m_nonce.size() == 4);
          std::vector<uint8_t> nonce(12);
-         copy_mem(&nonce[0], m_nonce.data(), 4);
+         copy_mem(&nonce[0], m_nonce.data(), 4);  // NOLINT(*container-data-pointer)
          store_be(seq, &nonce[nonce_bytes_from_handshake()]);
          return nonce;
       }
@@ -106,6 +130,9 @@ std::vector<uint8_t> Connection_Cipher_State::aead_nonce(uint64_t seq, RandomNum
 
 std::vector<uint8_t> Connection_Cipher_State::aead_nonce(const uint8_t record[], size_t record_len, uint64_t seq) {
    switch(m_nonce_format) {
+      case Nonce_Format::NULL_CIPHER: {
+         return std::vector<uint8_t>{};
+      }
       case Nonce_Format::CBC_MODE: {
          if(nonce_bytes_from_record() == 0 && !m_nonce.empty()) {
             std::vector<uint8_t> nonce;
@@ -130,7 +157,7 @@ std::vector<uint8_t> Connection_Cipher_State::aead_nonce(const uint8_t record[],
             throw Decoding_Error("Invalid AEAD packet too short to be valid");
          }
          std::vector<uint8_t> nonce(12);
-         copy_mem(&nonce[0], m_nonce.data(), 4);
+         copy_mem(&nonce[0], m_nonce.data(), 4);  // NOLINT(*container-data-pointer)
          copy_mem(&nonce[nonce_bytes_from_handshake()], record, nonce_bytes_from_record());
          return nonce;
       }
@@ -145,7 +172,7 @@ std::vector<uint8_t> Connection_Cipher_State::format_ad(uint64_t msg_sequence,
                                                         uint16_t msg_length) {
    std::vector<uint8_t> ad(13);
 
-   store_be(msg_sequence, &ad[0]);
+   store_be(msg_sequence, &ad[0]);  // NOLINT(*container-data-pointer)
    ad[8] = static_cast<uint8_t>(msg_type);
    ad[9] = version.major_version();
    ad[10] = version.minor_version();
@@ -299,7 +326,7 @@ Record_Header read_tls_record(secure_vector<uint8_t>& readbuf,
                               const get_cipherstate_fn& get_cipherstate) {
    if(readbuf.size() < TLS_HEADER_SIZE) {
       // header incomplete
-      if(size_t needed = fill_buffer_to(readbuf, input, input_len, consumed, TLS_HEADER_SIZE)) {
+      if(const size_t needed = fill_buffer_to(readbuf, input, input_len, consumed, TLS_HEADER_SIZE)) {
          return Record_Header(needed);
       }
 
@@ -310,16 +337,15 @@ Record_Header read_tls_record(secure_vector<uint8_t>& readbuf,
    Verify that the record type and record version are within some expected
    range, so we can quickly reject totally invalid packets.
 
-   The version check is a little hacky but given how TLS 1.3 versioning works
-   this is probably safe
+   Unfortunately we cannot be more strict about the record number than just
+   checking the major version, at least at this level, due to this requirement
+   in RFC 7568
 
-   - The first byte is the record version which in TLS 1.2 is always in [20..23)
-   - The second byte is the TLS major version which is effectively fossilized at 3
-   - The third byte is the TLS minor version which (due to TLS 1.3 versioning changes)
-     will never be more than 3 (signifying TLS 1.2)
+      TLS servers MUST accept any value {03,XX} (including {03,00}) as
+      the record layer version number for ClientHello
    */
    const bool bad_record_type = readbuf[0] < 20 || readbuf[0] > 23;
-   const bool bad_record_version = readbuf[1] != 3 || readbuf[2] >= 4;
+   const bool bad_record_version = readbuf[1] != 3;
 
    if(bad_record_type || bad_record_version) {
       // We know we read up to at least the 5 byte TLS header
@@ -359,7 +385,7 @@ Record_Header read_tls_record(secure_vector<uint8_t>& readbuf,
       throw TLS_Exception(Alert::DecodeError, "Received a completely empty record");
    }
 
-   if(size_t needed = fill_buffer_to(readbuf, input, input_len, consumed, TLS_HEADER_SIZE + record_size)) {
+   if(const size_t needed = fill_buffer_to(readbuf, input, input_len, consumed, TLS_HEADER_SIZE + record_size)) {
       return Record_Header(needed);
    }
 
@@ -370,7 +396,7 @@ Record_Header read_tls_record(secure_vector<uint8_t>& readbuf,
    uint16_t epoch = 0;
 
    uint64_t sequence = 0;
-   if(sequence_numbers) {
+   if(sequence_numbers != nullptr) {
       sequence = sequence_numbers->next_read_sequence();
       epoch = sequence_numbers->current_read_epoch();
    } else {
@@ -392,7 +418,7 @@ Record_Header read_tls_record(secure_vector<uint8_t>& readbuf,
 
    decrypt_record(recbuf, &readbuf[TLS_HEADER_SIZE], record_size, sequence, version, type, *cs);
 
-   if(sequence_numbers) {
+   if(sequence_numbers != nullptr) {
       sequence_numbers->read_accept(sequence);
    }
 
@@ -410,7 +436,7 @@ Record_Header read_dtls_record(secure_vector<uint8_t>& readbuf,
                                bool allow_epoch0_restart) {
    if(readbuf.size() < DTLS_HEADER_SIZE) {
       // header incomplete
-      if(fill_buffer_to(readbuf, input, input_len, consumed, DTLS_HEADER_SIZE)) {
+      if(fill_buffer_to(readbuf, input, input_len, consumed, DTLS_HEADER_SIZE) != 0) {
          readbuf.clear();
          return Record_Header(0);
       }
@@ -433,7 +459,7 @@ Record_Header read_dtls_record(secure_vector<uint8_t>& readbuf,
       return Record_Header(0);
    }
 
-   if(fill_buffer_to(readbuf, input, input_len, consumed, DTLS_HEADER_SIZE + record_size)) {
+   if(fill_buffer_to(readbuf, input, input_len, consumed, DTLS_HEADER_SIZE + record_size) != 0) {
       // Truncated packet?
       readbuf.clear();
       return Record_Header(0);
@@ -446,7 +472,7 @@ Record_Header read_dtls_record(secure_vector<uint8_t>& readbuf,
    const uint64_t sequence = load_be<uint64_t>(&readbuf[3], 0);
    const uint16_t epoch = (sequence >> 48);
 
-   const bool already_seen = sequence_numbers && sequence_numbers->already_seen(sequence);
+   const bool already_seen = sequence_numbers != nullptr && sequence_numbers->already_seen(sequence);
 
    if(already_seen && !(epoch == 0 && allow_epoch0_restart)) {
       readbuf.clear();
@@ -457,7 +483,7 @@ Record_Header read_dtls_record(secure_vector<uint8_t>& readbuf,
       // Unencrypted initial handshake
       recbuf.assign(readbuf.begin() + DTLS_HEADER_SIZE, readbuf.begin() + DTLS_HEADER_SIZE + record_size);
       readbuf.clear();
-      if(sequence_numbers) {
+      if(sequence_numbers != nullptr) {
          sequence_numbers->read_accept(sequence);
       }
       return Record_Header(sequence, version, type);
@@ -475,7 +501,7 @@ Record_Header read_dtls_record(secure_vector<uint8_t>& readbuf,
       return Record_Header(0);
    }
 
-   if(sequence_numbers) {
+   if(sequence_numbers != nullptr) {
       sequence_numbers->read_accept(sequence);
    }
 

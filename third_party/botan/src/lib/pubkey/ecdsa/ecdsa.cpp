@@ -1,5 +1,5 @@
 /*
-* ECDSA implemenation
+* ECDSA implementation
 * (C) 2007 Manuel Hartl, FlexSecure GmbH
 *     2007 Falko Strenzke, FlexSecure GmbH
 *     2008-2010,2015,2016,2018,2024 Jack Lloyd
@@ -10,6 +10,7 @@
 
 #include <botan/ecdsa.h>
 
+#include <botan/ec_group.h>
 #include <botan/internal/keypair.h>
 #include <botan/internal/pk_ops_impl.h>
 
@@ -38,7 +39,7 @@ EC_AffinePoint recover_ecdsa_public_key(
    }
 
    const uint8_t y_odd = v % 2;
-   const uint8_t add_order = v >> 1;
+   const bool add_order = (v >> 1) == 0x01;
    const size_t p_bytes = group.get_p_bytes();
 
    BigInt x = r;
@@ -60,7 +61,7 @@ EC_AffinePoint recover_ecdsa_public_key(
 
          const auto r_inv = EC_Scalar::from_bigint(group, r).invert_vartime();
 
-         EC_Group::Mul2Table GR_mul(R.value());
+         const EC_Group::Mul2Table GR_mul(R.value());
          if(auto egsr = GR_mul.mul2_vartime(ne * r_inv, ss * r_inv)) {
             return egsr.value();
          }
@@ -75,6 +76,10 @@ EC_AffinePoint recover_ecdsa_public_key(
 ECDSA_PublicKey::ECDSA_PublicKey(
    const EC_Group& group, const std::vector<uint8_t>& msg, const BigInt& r, const BigInt& s, uint8_t v) :
       EC_PublicKey(group, recover_ecdsa_public_key(group, msg, r, s, v)) {}
+
+std::optional<size_t> ECDSA_PublicKey::_signature_element_size_for_DER_encoding() const {
+   return domain().get_order_bytes();
+}
 
 std::unique_ptr<Private_Key> ECDSA_PublicKey::generate_another(RandomNumberGenerator& rng) const {
    return std::make_unique<ECDSA_PrivateKey>(rng, domain());
@@ -125,8 +130,7 @@ class ECDSA_Signature_Operation final : public PK_Ops::Signature_with_Hash {
             PK_Ops::Signature_with_Hash(padding),
             m_group(ecdsa.domain()),
             m_x(ecdsa._private_key()),
-            m_b(EC_Scalar::random(m_group, rng)),
-            m_b_inv(m_b.invert()) {
+            m_b(EC_Scalar::random(m_group, rng)) {
 #if defined(BOTAN_HAS_RFC6979_GENERATOR)
          m_rfc6979 = std::make_unique<RFC6979_Nonce_Generator>(
             this->rfc6979_hash_function(), m_group.get_order_bits(), ecdsa._private_key());
@@ -148,7 +152,6 @@ class ECDSA_Signature_Operation final : public PK_Ops::Signature_with_Hash {
 #endif
 
       EC_Scalar m_b;
-      EC_Scalar m_b_inv;
 };
 
 AlgorithmIdentifier ECDSA_Signature_Operation::algorithm_identifier() const {
@@ -168,18 +171,33 @@ std::vector<uint8_t> ECDSA_Signature_Operation::raw_sign(std::span<const uint8_t
 
    const auto r = EC_Scalar::gk_x_mod_order(k, rng);
 
-   // Blind the inversion of k
-   const auto k_inv = (m_b * k).invert() * m_b;
-
    /*
-   * Blind the input message and compute x*r+m as (x*r*b + m*b)/b
+   * Blind the inputs
+   *
+   * Here we are computing (x*r+m)/k
+   *
+   * Instead have a random b and compute (k*b)^-1
+   *
+   * Then compute (x*r+m) as (x*r*b + m*b)
+   *
+   * Finally (x*r*b + m*b)/(k*b) = (x*r+m)/k
+   *
+   * This effectively blinds both the inversion as well as the various scalar
+   * multiplications. All of these operations should be constant-time anyway but
+   * blinding is very cheap and may help if either the compiler introduces
+   * variable-time behavior, or for the case of EM/power side channel attacks [1].
+   *
+   * [1] But note that such attacks are currently outside of Botan's threat model.
+   *
    */
-   m_b.square_self();
-   m_b_inv.square_self();
+   const auto k_inv = (m_b * k).invert();
 
    const auto xr_m = ((m_x * m_b) * r) + (m * m_b);
 
-   const auto s = (k_inv * xr_m) * m_b_inv;
+   const auto s = (k_inv * xr_m);
+
+   // Generate the next blinding value via modular squaring
+   m_b.square_self();
 
    // With overwhelming probability, a bug rather than actual zero r/s
    if(r.is_zero() || s.is_zero()) {

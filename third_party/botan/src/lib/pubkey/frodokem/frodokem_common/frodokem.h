@@ -1,7 +1,7 @@
 /*
  * FrodoKEM implementation
  * Based on the MIT licensed reference implementation by the designers
- * (https://github.com/microsoft/PQCrypto-LWEKE/tree/master/src)
+ * (https://github.com/microsoft/PQCrypto-LWEKE/tree/master)
  *
  * The Fellowship of the FrodoKEM:
  * (C) 2023 Jack Lloyd
@@ -16,7 +16,6 @@
 #include <botan/frodo_mode.h>
 #include <botan/pk_keys.h>
 
-#include <tuple>
 #include <vector>
 
 namespace Botan {
@@ -58,7 +57,7 @@ class BOTAN_PUBLIC_API(3, 3) FrodoKEM_PublicKey : public virtual Public_Key {
 
       std::vector<uint8_t> public_key_bits() const override;
 
-      bool check_key(RandomNumberGenerator&, bool) const override;
+      bool check_key(RandomNumberGenerator& rng, bool strong) const override;
 
       bool supports_operation(PublicKeyOperation op) const override {
          return (op == PublicKeyOperation::KeyEncapsulation);
@@ -73,7 +72,7 @@ class BOTAN_PUBLIC_API(3, 3) FrodoKEM_PublicKey : public virtual Public_Key {
       FrodoKEM_PublicKey() = default;
 
    protected:
-      std::shared_ptr<FrodoKEM_PublicKeyInternal> m_public;  // NOLINT(misc-non-private-member-variables-in-classes)
+      std::shared_ptr<FrodoKEM_PublicKeyInternal> m_public;  // NOLINT(*-non-private-member-variable*)
 };
 
 BOTAN_DIAGNOSTIC_PUSH

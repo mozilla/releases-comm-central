@@ -14,6 +14,9 @@
 
 namespace Botan {
 
+RFC6979_Nonce_Generator::RFC6979_Nonce_Generator(RFC6979_Nonce_Generator&& other) noexcept = default;
+RFC6979_Nonce_Generator& RFC6979_Nonce_Generator::operator=(RFC6979_Nonce_Generator&& other) noexcept = default;
+
 RFC6979_Nonce_Generator::~RFC6979_Nonce_Generator() = default;
 
 RFC6979_Nonce_Generator::RFC6979_Nonce_Generator(std::string_view hash, size_t order_bits, const BigInt& x) :
@@ -35,14 +38,18 @@ BigInt RFC6979_Nonce_Generator::nonce_for(const BigInt& order, const BigInt& m) 
 
    BigInt k;
 
-   do {
+   for(;;) {
       m_hmac_drbg->randomize(m_rng_out);
       k._assign_from_bytes(m_rng_out);
 
       if(shift > 0) {
          k >>= shift;
       }
-   } while(k == 0 || k >= order);
+
+      if(k > 0 && k < order) {
+         break;
+      }
+   }
 
    return k;
 }

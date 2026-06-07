@@ -11,32 +11,31 @@
 
 #include <botan/internal/dilithium_symmetric_primitives.h>
 
-#include <botan/internal/loadstor.h>
-#include <botan/internal/shake_xof.h>
-
 namespace Botan {
 
 class DilithiumShakeXOF final : public DilithiumXOF {
    public:
-      Botan::XOF& XOF128(std::span<const uint8_t> seed, uint16_t nonce) const override {
-         return XOF(m_xof_128, seed, nonce);
+      DilithiumShakeXOF() = default;
+
+      ~DilithiumShakeXOF() override;
+
+      DilithiumShakeXOF(const DilithiumShakeXOF& other) = delete;
+      DilithiumShakeXOF(DilithiumShakeXOF&& other) = delete;
+      DilithiumShakeXOF& operator=(const DilithiumShakeXOF& other) = delete;
+      DilithiumShakeXOF& operator=(DilithiumShakeXOF&& other) = delete;
+
+      std::unique_ptr<XOF> XOF128(std::span<const uint8_t> seed, uint16_t nonce) const override {
+         return createXOF("SHAKE-128", seed, nonce);
       }
 
-      Botan::XOF& XOF256(std::span<const uint8_t> seed, uint16_t nonce) const override {
-         return XOF(m_xof_256, seed, nonce);
+      std::unique_ptr<XOF> XOF256(std::span<const uint8_t> seed, uint16_t nonce) const override {
+         return createXOF("SHAKE-256", seed, nonce);
       }
 
    private:
-      static Botan::XOF& XOF(Botan::XOF& xof, std::span<const uint8_t> seed, uint16_t nonce) {
-         xof.clear();
-         xof.update(seed);
-         xof.update(store_le(nonce));
-         return xof;
-      }
-
-   private:
-      mutable SHAKE_256_XOF m_xof_256;
-      mutable SHAKE_128_XOF m_xof_128;
+      static std::unique_ptr<Botan::XOF> createXOF(std::string_view name,
+                                                   std::span<const uint8_t> seed,
+                                                   uint16_t nonce);
 };
 
 }  // namespace Botan

@@ -1,0 +1,17 @@
+<internal_defines>
+SEED_AVX512_GFNI -> 20260319
+</internal_defines>
+
+<module_info>
+name -> "SEED AVX-512/GFNI"
+</module_info>
+
+<requires>
+cpuid
+simd_avx512
+</requires>
+
+<isa>
+gfni
+avx512
+</isa>

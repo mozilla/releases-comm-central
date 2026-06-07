@@ -46,6 +46,14 @@ Random Number Generators
      no matter how many 'system' rng instances are created. Thus it is
      easy to use the RNG in a one-off way, with `botan.RandomNumberGenerator().get(32)`.
 
+     For some use cases it can be useful to provide a custom RNG implementation.
+     Use 'custom' as the rng_type and provide the ``get_callback=`` and
+     ``add_entropy_callback=`` arguments. The latter is optional.
+     ``get_callback`` takes an integer and is expected to return a bytes object
+     with the requested number of random bytes.
+     ``add_entropy_callback`` takes a bytes object containing entropy bytes and
+     is expected to add the given entropy to the RNG.
+
      When Botan is configured with TPM 2.0 support, also 'tpm2' is allowed
      to instantiate a TPM-backed RNG. Note that this requires passing
      additional named arguments ``tpm2_context=`` with a ``TPM2Context`` and
@@ -138,7 +146,7 @@ Ciphers
 
        Previously ``cipher``
 
-       The algorithm is spcified as a string (eg 'AES-128/GCM',
+       The algorithm is specified as a string (eg 'AES-128/GCM',
        'Serpent/OCB(12)', 'Threefish-512/EAX').
 
        Set the second param to False for decryption
@@ -801,7 +809,7 @@ X509Cert
                   crls=None)
 
       Verify a certificate. Returns 0 if validation was successful, returns a positive error code
-      if the validation was unsuccesful.
+      if the validation was unsuccessful.
 
       ``intermediates`` is a list of untrusted subauthorities.
 

@@ -1,6 +1,6 @@
-<defines>
+<internal_defines>
 SIMD_4X32 -> 20131128
-</defines>
+</internal_defines>
 
 <module_info>
 name -> "SIMD 4x32"
@@ -17,9 +17,9 @@ x86_64:ssse3
 x32:ssse3
 arm32:neon
 arm64:neon
-ppc32:altivec
 ppc64:altivec
 loongarch64:lsx
+wasm:simd128
 </isa>
 
 <arch>
@@ -28,7 +28,7 @@ x86_64
 x32
 arm32
 arm64
-ppc32
 ppc64
 loongarch64
+wasm
 </arch>

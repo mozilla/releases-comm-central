@@ -30,7 +30,7 @@ class P521Rep final {
          /*
          * Extract the high part of z (z >> 521)
          */
-         std::array<W, N> t;
+         std::array<W, N> t;  // NOLINT(*-member-init)
 
          for(size_t i = 0; i != N; ++i) {
             t[i] = z[(N - 1) + i] >> 9;
@@ -81,6 +81,7 @@ class P521Rep final {
 };
 
 // clang-format off
+
 class Params final : public EllipticCurveParameters<
    "1FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
    "1FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFC",
@@ -134,6 +135,12 @@ class Curve final : public EllipticCurve<Params, P521Rep> {
          r.square_n(2);
 
          return r;
+      }
+
+      static constexpr FieldElement fe_sqrt(const FieldElement& x) {
+         auto z = x;
+         z.square_n(519);
+         return z;
       }
 
       static constexpr Scalar scalar_invert(const Scalar& x) {

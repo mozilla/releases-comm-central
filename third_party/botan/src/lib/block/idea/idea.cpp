@@ -22,17 +22,14 @@ namespace {
 * Multiplication modulo 65537
 */
 inline uint16_t mul(uint16_t x, uint16_t y) {
-   const uint32_t P = static_cast<uint32_t>(x) * y;
-   const auto P_mask = CT::Mask<uint16_t>(CT::Mask<uint32_t>::is_zero(P));
+   uint32_t P = static_cast<uint32_t>(x) * y;
+   const uint16_t P_is_zero = static_cast<uint16_t>(ct_is_zero(P));
 
-   const uint32_t P_hi = P >> 16;
-   const uint32_t P_lo = P & 0xFFFF;
+   P = (P & 0xFFFF) - (P >> 16);
+   const uint16_t R1 = static_cast<uint16_t>(P - (P >> 16));
+   const uint16_t R0 = 1 - x - y;
 
-   const uint16_t carry = (P_lo < P_hi);
-   const uint16_t r_1 = static_cast<uint16_t>((P_lo - P_hi) + carry);
-   const uint16_t r_2 = 1 - x - y;
-
-   return P_mask.select(r_2, r_1);
+   return choose(P_is_zero, R0, R1);
 }
 
 /*
@@ -68,7 +65,10 @@ void idea_op(const uint8_t in[], uint8_t out[], size_t blocks, const uint16_t K[
    CT::poison(K, 52);
 
    for(size_t i = 0; i < blocks; ++i) {
-      uint16_t X1, X2, X3, X4;
+      uint16_t X1 = 0;
+      uint16_t X2 = 0;
+      uint16_t X3 = 0;
+      uint16_t X4 = 0;
       load_be(in + BLOCK_SIZE * i, X1, X2, X3, X4);
 
       for(size_t j = 0; j != 8; ++j) {
@@ -106,6 +106,12 @@ void idea_op(const uint8_t in[], uint8_t out[], size_t blocks, const uint16_t K[
 }  // namespace
 
 size_t IDEA::parallelism() const {
+#if defined(BOTAN_HAS_IDEA_AVX2)
+   if(CPUID::has(CPUID::Feature::AVX2)) {
+      return 16;
+   }
+#endif
+
 #if defined(BOTAN_HAS_IDEA_SSE2)
    if(CPUID::has(CPUID::Feature::SSE2)) {
       return 8;
@@ -116,6 +122,12 @@ size_t IDEA::parallelism() const {
 }
 
 std::string IDEA::provider() const {
+#if defined(BOTAN_HAS_IDEA_AVX2)
+   if(auto feat = CPUID::check(CPUID::Feature::AVX2)) {
+      return *feat;
+   }
+#endif
+
 #if defined(BOTAN_HAS_IDEA_SSE2)
    if(auto feat = CPUID::check(CPUID::Feature::SSE2)) {
       return *feat;
@@ -130,6 +142,17 @@ std::string IDEA::provider() const {
 */
 void IDEA::encrypt_n(const uint8_t in[], uint8_t out[], size_t blocks) const {
    assert_key_material_set();
+
+#if defined(BOTAN_HAS_IDEA_AVX2)
+   if(CPUID::has(CPUID::Feature::AVX2)) {
+      while(blocks >= 16) {
+         avx2_idea_op_16(in, out, m_EK.data());
+         in += 16 * BLOCK_SIZE;
+         out += 16 * BLOCK_SIZE;
+         blocks -= 16;
+      }
+   }
+#endif
 
 #if defined(BOTAN_HAS_IDEA_SSE2)
    if(CPUID::has(CPUID::Feature::SSE2)) {
@@ -150,6 +173,17 @@ void IDEA::encrypt_n(const uint8_t in[], uint8_t out[], size_t blocks) const {
 */
 void IDEA::decrypt_n(const uint8_t in[], uint8_t out[], size_t blocks) const {
    assert_key_material_set();
+
+#if defined(BOTAN_HAS_IDEA_AVX2)
+   if(CPUID::has(CPUID::Feature::AVX2)) {
+      while(blocks >= 16) {
+         avx2_idea_op_16(in, out, m_DK.data());
+         in += 16 * BLOCK_SIZE;
+         out += 16 * BLOCK_SIZE;
+         blocks -= 16;
+      }
+   }
+#endif
 
 #if defined(BOTAN_HAS_IDEA_SSE2)
    if(CPUID::has(CPUID::Feature::SSE2)) {

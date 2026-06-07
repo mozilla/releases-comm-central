@@ -18,7 +18,7 @@ namespace Botan::TLS {
 *
 * The enumeration value matches the wire encoding
 */
-enum class AlertType {
+enum class AlertType : uint16_t {
    CloseNotify = 0,
    UnexpectedMessage = 10,
    BadRecordMac = 20,
@@ -58,6 +58,7 @@ enum class AlertType {
    None = 256,
 
    // Compat enum variants, will be removed in a future major release
+   // TODO(Botan4): remove these
    CLOSE_NOTIFY BOTAN_DEPRECATED("Use CloseNotify") = CloseNotify,
    NO_APPLICATION_PROTOCOL BOTAN_DEPRECATED("Use NoApplicationProtocol") = NoApplicationProtocol,
    PROTOCOL_VERSION BOTAN_DEPRECATED("Use ProtocolVersion") = ProtocolVersion,
@@ -121,7 +122,8 @@ class BOTAN_PUBLIC_API(2, 0) Alert final {
       * @param type_code the type of alert
       * @param fatal specifies if this is a fatal alert
       */
-      Alert(Type type_code, bool fatal = false) : m_fatal(fatal), m_type_code(type_code) {}
+      Alert(Type type_code, bool fatal = false) :  // NOLINT(*-explicit-conversions)
+            m_fatal(fatal), m_type_code(type_code) {}
 
       Alert() : m_fatal(false), m_type_code(AlertType::None) {}
 

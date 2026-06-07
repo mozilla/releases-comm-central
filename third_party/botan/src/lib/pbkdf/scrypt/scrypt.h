@@ -22,9 +22,6 @@ class BOTAN_PUBLIC_API(2, 8) Scrypt final : public PasswordHash {
    public:
       Scrypt(size_t N, size_t r, size_t p);
 
-      Scrypt(const Scrypt& other) = default;
-      Scrypt& operator=(const Scrypt&) = default;
-
       /**
       * Derive a new key under the current Scrypt parameter set
       */
@@ -53,10 +50,10 @@ class BOTAN_PUBLIC_API(2, 8) Scrypt_Family final : public PasswordHashFamily {
    public:
       std::string name() const override;
 
-      std::unique_ptr<PasswordHash> tune(size_t output_length,
-                                         std::chrono::milliseconds msec,
-                                         size_t max_memory,
-                                         std::chrono::milliseconds tune_msec) const override;
+      std::unique_ptr<PasswordHash> tune_params(size_t output_len,
+                                                uint64_t desired_runtime_msec,
+                                                std::optional<size_t> max_memory,
+                                                uint64_t tune_msec) const override;
 
       std::unique_ptr<PasswordHash> default_params() const override;
 

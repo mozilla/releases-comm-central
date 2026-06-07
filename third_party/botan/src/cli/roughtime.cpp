@@ -11,9 +11,6 @@
 
    #include <botan/base64.h>
    #include <botan/ed25519.h>
-   #include <botan/hash.h>
-   #include <botan/hex.h>
-   #include <botan/rng.h>
    #include <botan/roughtime.h>
    #include <botan/internal/calendar.h>
 
@@ -21,6 +18,8 @@
    #include <iomanip>
 
 namespace Botan_CLI {
+
+namespace {
 
 class RoughtimeCheck final : public Command {
    public:
@@ -69,7 +68,7 @@ class Roughtime final : public Command {
       Google-Sandbox-Roughtime ed25519 etPaaIxcBMY1oUeGpwvPMCJMwlRVNxv51KK/tktoJTQ= udp roughtime.sandbox.google.com:2002
 
 --chain-file=<filename>
-   Succesfull queries are appended to this file.
+   Successful queries are appended to this file.
    If limit of --max-chain-size records is reached, the oldest records are truncated.
    This queries records can be replayed using command roughtime_check <chain-file>.
 
@@ -86,8 +85,8 @@ class Roughtime final : public Command {
                  const size_t max_chain_size,
                  const std::string& address,
                  const Botan::Ed25519_PublicKey& public_key) {
-         Botan::Roughtime::Nonce nonce;
-         Botan::Roughtime::Nonce blind;
+         Botan::Roughtime::Nonce nonce{};
+         Botan::Roughtime::Nonce blind{};
          if(chain) {
             blind = Botan::Roughtime::Nonce(rng());
             nonce = chain->next_nonce(blind);
@@ -110,7 +109,7 @@ class Roughtime final : public Command {
             return;
          }
          const auto tolerance = get_arg_sz("check-local-clock");
-         if(tolerance) {
+         if(tolerance > 0) {
             const auto now = std::chrono::system_clock::now();
             const auto diff_abs =
                now >= response.utc_midpoint() ? now - response.utc_midpoint() : response.utc_midpoint() - now;
@@ -180,6 +179,8 @@ class Roughtime final : public Command {
 };
 
 BOTAN_REGISTER_COMMAND("roughtime", Roughtime);
+
+}  // namespace
 
 }  // namespace Botan_CLI
 

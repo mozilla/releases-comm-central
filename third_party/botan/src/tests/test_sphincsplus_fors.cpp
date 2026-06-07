@@ -9,10 +9,8 @@
 
 #if defined(BOTAN_HAS_SPHINCS_PLUS_COMMON)
 
-   #include <botan/hash.h>
-   #include <botan/hex.h>
-
    #include <botan/assert.h>
+   #include <botan/hash.h>
    #include <botan/sp_parameters.h>
    #include <botan/internal/loadstor.h>
    #include <botan/internal/sp_address.h>
@@ -21,12 +19,14 @@
 
 namespace Botan_Tests {
 
+namespace {
+
 class SPHINCS_Plus_FORS_Test final : public Text_Based_Test {
    private:
       static Botan::Sphincs_Address read_address(std::span<const uint8_t> address_buffer) {
          BOTAN_ASSERT_NOMSG(address_buffer.size() == 32);
 
-         std::array<uint32_t, 8> adrs;
+         std::array<uint32_t, 8> adrs{};
          for(size_t i = 0; i < 8; ++i) {
             adrs[i] = Botan::load_be<uint32_t>(address_buffer.data(), i);
          }
@@ -39,12 +39,12 @@ class SPHINCS_Plus_FORS_Test final : public Text_Based_Test {
             Text_Based_Test("pubkey/sphincsplus_fors.vec",
                             "SphincsParameterSet,Address,SecretSeed,PublicSeed,PublicKey,Msg,HashSig") {}
 
-      bool skip_this_test(const std::string&, const VarMap& vars) override {
+      bool skip_this_test(const std::string& /*header*/, const VarMap& vars) override {
          auto params = Botan::Sphincs_Parameters::create(vars.get_req_str("SphincsParameterSet"));
          return !params.is_available();
       }
 
-      Test::Result run_one_test(const std::string&, const VarMap& vars) final {
+      Test::Result run_one_test(const std::string& /*header*/, const VarMap& vars) final {
          Test::Result result("SLH-DSA's FORS");
 
          auto params = Botan::Sphincs_Parameters::create(vars.get_req_str("SphincsParameterSet"));
@@ -72,26 +72,28 @@ class SPHINCS_Plus_FORS_Test final : public Text_Based_Test {
          }
 
          auto hashes = Botan::Sphincs_Hash_Functions::create(params, public_seed);
-         Botan::Sphincs_Address address = read_address(vars.get_req_bin("Address"));
+         const Botan::Sphincs_Address address = read_address(vars.get_req_bin("Address"));
 
          Botan::ForsSignature sig(params.fors_signature_bytes());
 
          auto pk = Botan::fors_sign_and_pkgen(sig, hashed_message, secret_seed, address, params, *hashes);
 
          const auto pk_ref = Botan::SphincsTreeNode(vars.get_req_bin("PublicKey"));
-         result.test_is_eq("Derived public key", pk, pk_ref);
+         result.test_bin_eq("Derived public key", pk, pk_ref);
 
          const auto hashed_sig_ref = Botan::ForsSignature(vars.get_req_bin("HashSig"));
-         result.test_is_eq("Signature result", unlock(hash->process(sig)), hashed_sig_ref.get());
+         result.test_bin_eq("Signature result", hash->process(sig), hashed_sig_ref.get());
 
          auto pk_from_sig = Botan::fors_public_key_from_signature(hashed_message, sig, address, params, *hashes);
-         result.test_is_eq("Public key from signature", pk_from_sig, pk);
+         result.test_bin_eq("Public key from signature", pk_from_sig, pk);
 
          return result;
       }
 };
 
 BOTAN_REGISTER_TEST("pubkey", "sphincsplus_fors", SPHINCS_Plus_FORS_Test);
+
+}  // namespace
 
 }  // namespace Botan_Tests
 

@@ -76,7 +76,7 @@ ObjectFinder::ObjectFinder(Session& session, const std::vector<Attribute>& searc
 
 ObjectFinder::~ObjectFinder() noexcept {
    try {
-      if(m_search_terminated == false) {
+      if(!m_search_terminated) {
          module()->C_FindObjectsFinal(m_session.get().handle(), nullptr);
       }
    } catch(...) {
@@ -170,7 +170,7 @@ void Object::destroy() const {
 }
 
 ObjectHandle Object::copy(const AttributeContainer& modified_attributes) const {
-   ObjectHandle copied_handle;
+   ObjectHandle copied_handle = {};
    module()->C_CopyObject(m_session.get().handle(),
                           m_handle,
                           modified_attributes.data(),

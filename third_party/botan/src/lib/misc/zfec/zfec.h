@@ -72,10 +72,6 @@ class BOTAN_PUBLIC_API(3, 0) ZFEC final {
    private:
       static void addmul(uint8_t z[], const uint8_t x[], uint8_t y, size_t size);
 
-#if defined(BOTAN_HAS_ZFEC_SSE2)
-      static size_t addmul_sse2(uint8_t z[], const uint8_t x[], uint8_t y, size_t size);
-#endif
-
 #if defined(BOTAN_HAS_ZFEC_VPERM)
       static size_t addmul_vperm(uint8_t z[], const uint8_t x[], uint8_t y, size_t size);
 #endif

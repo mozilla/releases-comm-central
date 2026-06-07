@@ -11,6 +11,7 @@
    #include <botan/data_src.h>
    #include <botan/ed25519.h>
    #include <botan/pkcs8.h>
+   #include <botan/pubkey.h>
    #include <botan/x509_key.h>
 #endif
 
@@ -82,11 +83,11 @@ class Ed25519_Curdle_Format_Tests final : public Test {
 
          Botan::DataSource_Memory priv_data(priv_key_str);
          auto priv_key = Botan::PKCS8::load_key(priv_data);
-         result.confirm("Private key loaded", priv_key != nullptr);
+         result.test_is_true("Private key loaded", priv_key != nullptr);
 
          Botan::DataSource_Memory pub_data(pub_key_str);
          auto pub_key = Botan::X509::load_key(pub_data);
-         result.confirm("Public key loaded", pub_key != nullptr);
+         result.test_is_true("Public key loaded", pub_key != nullptr);
 
          Botan::PK_Signer signer(*priv_key, this->rng(), "Pure");
          signer.update("message");
@@ -94,7 +95,7 @@ class Ed25519_Curdle_Format_Tests final : public Test {
 
          Botan::PK_Verifier verifier(*pub_key, "Pure");
          verifier.update("message");
-         result.confirm("Signature valid", verifier.check_signature(sig));
+         result.test_is_true("Signature valid", verifier.check_signature(sig));
 
          return std::vector<Test::Result>{result};
       }

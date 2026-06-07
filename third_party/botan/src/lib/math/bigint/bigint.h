@@ -9,11 +9,12 @@
 #ifndef BOTAN_BIGINT_H_
 #define BOTAN_BIGINT_H_
 
-#include <botan/exceptn.h>
 #include <botan/secmem.h>
 #include <botan/types.h>
 #include <iosfwd>
 #include <span>
+#include <string>
+#include <string_view>
 
 namespace Botan {
 
@@ -27,7 +28,7 @@ class BOTAN_PUBLIC_API(2, 0) BigInt final {
       /**
        * Base enumerator for encoding and decoding
        */
-      enum Base {
+      enum Base : uint16_t /* NOLINT(*-use-enum-class) */ {
          Decimal BOTAN_DEPRECATED("All functions using this enum are deprecated") = 10,
          Hexadecimal BOTAN_DEPRECATED("All functions using this enum are deprecated") = 16,
          Binary BOTAN_DEPRECATED("All functions using this enum are deprecated") = 256
@@ -36,7 +37,7 @@ class BOTAN_PUBLIC_API(2, 0) BigInt final {
       /**
        * Sign symbol definitions for positive and negative numbers
        */
-      enum Sign { Negative = 0, Positive = 1 };
+      enum Sign : uint8_t /* NOLINT(*-use-enum-class) */ { Negative = 0, Positive = 1 };
 
       /**
        * Create empty (zero) BigInt
@@ -78,7 +79,7 @@ class BOTAN_PUBLIC_API(2, 0) BigInt final {
        *
        * Prefer BigInt::from_u64
        */
-      BigInt(uint64_t n);
+      BigInt(uint64_t n);  // NOLINT(*-explicit-conversions) TODO(Botan4) make this explicit
 
       /**
        * Copy Constructor
@@ -94,7 +95,7 @@ class BOTAN_PUBLIC_API(2, 0) BigInt final {
        * @param str the string to parse for an integer value
        */
       //BOTAN_DEPRECATED("Use BigInt::from_string")
-      explicit BigInt(std::string_view str);
+      explicit BigInt(std::string_view str) { *this = BigInt::from_string(str); }
 
       /**
        * Create BigInt from a string.
@@ -108,6 +109,21 @@ class BOTAN_PUBLIC_API(2, 0) BigInt final {
        * @param str the string to parse for an integer value
        */
       static BigInt from_string(std::string_view str);
+
+      /**
+       * Create BigInt from a sequence of digits
+       *
+       * The string is interpreted as a sequence of digits in base @p radix.
+       *
+       * Each character must be interpretable as such a digit; there is no support
+       * for whitespace or prefixes (eg '0x' or '-').
+       *
+       * Currently radix must be 10 or 16.
+       *
+       * @param digits the sequence of digits
+       * @param radix the base
+       */
+      static BigInt from_radix_digits(std::string_view digits, size_t radix);
 
       /**
        * Create a BigInt from an integer in a byte array
@@ -164,14 +180,14 @@ class BOTAN_PUBLIC_API(2, 0) BigInt final {
       /**
        * Move constructor
        */
-      BigInt(BigInt&& other) { this->swap(other); }
+      BigInt(BigInt&& other) noexcept { this->swap(other); }
 
       ~BigInt() { _const_time_unpoison(); }
 
       /**
        * Move assignment
        */
-      BigInt& operator=(BigInt&& other) {
+      BigInt& operator=(BigInt&& other) noexcept {
          if(this != &other) {
             this->swap(other);
          }
@@ -188,12 +204,12 @@ class BOTAN_PUBLIC_API(2, 0) BigInt final {
        * Swap this value with another
        * @param other BigInt to swap values with
        */
-      void swap(BigInt& other) {
+      void swap(BigInt& other) noexcept {
          m_data.swap(other.m_data);
          std::swap(m_signedness, other.m_signedness);
       }
 
-      friend void swap(BigInt& x, BigInt& y) { x.swap(y); }
+      friend void swap(BigInt& x, BigInt& y) noexcept { x.swap(y); }
 
       BOTAN_DEPRECATED("Deprecated no replacement") void swap_reg(secure_vector<word>& reg) {
          m_data.swap(reg);
@@ -436,13 +452,13 @@ class BOTAN_PUBLIC_API(2, 0) BigInt final {
        * Test if the integer has an even value
        * @result true if the integer is even, false otherwise
        */
-      bool is_even() const { return (get_bit(0) == 0); }
+      bool is_even() const { return !get_bit(0); }
 
       /**
        * Test if the integer has an odd value
        * @result true if the integer is odd, false otherwise
        */
-      bool is_odd() const { return (get_bit(0) == 1); }
+      bool is_odd() const { return get_bit(0); }
 
       /**
        * Test if the integer is not zero
@@ -493,7 +509,7 @@ class BOTAN_PUBLIC_API(2, 0) BigInt final {
        * @param n the bit offset to test
        * @result true, if the bit at position n is set, false otherwise
        */
-      bool get_bit(size_t n) const { return ((word_at(n / (sizeof(word) * 8)) >> (n % (sizeof(word) * 8))) & 1); }
+      bool get_bit(size_t n) const { return ((word_at(n / (sizeof(word) * 8)) >> (n % (sizeof(word) * 8))) & 1) == 1; }
 
       /**
        * Return (a maximum of) 32 bits of the complete value
@@ -952,7 +968,7 @@ class BOTAN_PUBLIC_API(2, 0) BigInt final {
        * @warning this is an implementation detail which is not for
        * public use and not covered by SemVer.
        */
-      static BigInt _from_words(secure_vector<word>&& words) {
+      static BigInt _from_words(secure_vector<word>& words) {
          BigInt bn;
          bn.m_data.swap(words);
          return bn;
@@ -1045,17 +1061,17 @@ class BOTAN_PUBLIC_API(2, 0) BigInt final {
 
             void resize(size_t s) { m_reg.resize(s); }
 
-            void swap(Data& other) {
+            void swap(Data& other) noexcept {
                m_reg.swap(other.m_reg);
                std::swap(m_sig_words, other.m_sig_words);
             }
 
-            void swap(secure_vector<word>& reg) {
+            void swap(secure_vector<word>& reg) noexcept {
                m_reg.swap(reg);
                invalidate_sig_words();
             }
 
-            void invalidate_sig_words() const { m_sig_words = sig_words_npos; }
+            void invalidate_sig_words() const noexcept { m_sig_words = sig_words_npos; }
 
             size_t sig_words() const {
                if(m_sig_words == sig_words_npos) {
@@ -1169,9 +1185,10 @@ inline bool operator>(const BigInt& a, word b) {
  * I/O Operators
  */
 BOTAN_DEPRECATED("Use BigInt::to_{hex,dec}_string")
-BOTAN_PUBLIC_API(2, 0) std::ostream& operator<<(std::ostream&, const BigInt&);
+BOTAN_PUBLIC_API(2, 0) std::ostream& operator<<(std::ostream& stream, const BigInt& n);
 
-BOTAN_DEPRECATED("Use BigInt::from_string") BOTAN_PUBLIC_API(2, 0) std::istream& operator>>(std::istream&, BigInt&);
+BOTAN_DEPRECATED("Use BigInt::from_string")
+BOTAN_PUBLIC_API(2, 0) std::istream& operator>>(std::istream& stream, BigInt& n);
 
 }  // namespace Botan
 

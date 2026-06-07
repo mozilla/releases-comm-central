@@ -6,6 +6,7 @@
 
 #include <botan/internal/barrett.h>
 
+#include <botan/mem_ops.h>
 #include <botan/internal/ct_utils.h>
 #include <botan/internal/divide.h>
 #include <botan/internal/mp_core.h>
@@ -23,7 +24,7 @@ Barrett_Reduction Barrett_Reduction::for_secret_modulus(const BigInt& mod) {
    BOTAN_ARG_CHECK(!mod.is_zero(), "Modulus cannot be zero");
    BOTAN_ARG_CHECK(!mod.is_negative(), "Modulus cannot be negative");
 
-   size_t mod_words = mod.sig_words();
+   const size_t mod_words = mod.sig_words();
 
    // Compute mu = floor(2^{2k} / m)
    const size_t mu_bits = 2 * WordInfo<word>::bits * mod_words;
@@ -34,11 +35,11 @@ Barrett_Reduction Barrett_Reduction::for_public_modulus(const BigInt& mod) {
    BOTAN_ARG_CHECK(!mod.is_zero(), "Modulus cannot be zero");
    BOTAN_ARG_CHECK(!mod.is_negative(), "Modulus cannot be negative");
 
-   size_t mod_words = mod.sig_words();
+   const size_t mod_words = mod.sig_words();
 
    // Compute mu = floor(2^{2k} / m)
    const size_t mu_bits = 2 * WordInfo<word>::bits * mod_words;
-   return Barrett_Reduction(mod, BigInt::power_of_2(mu_bits) / mod, mod_words);
+   return Barrett_Reduction(mod, vartime_divide_pow2k(mu_bits, mod), mod_words);
 }
 
 namespace {
@@ -54,6 +55,10 @@ namespace {
 BigInt barrett_reduce(
    size_t mod_words, const BigInt& modulus, const BigInt& mu, std::span<const word> x_words, secure_vector<word>& ws) {
    BOTAN_ASSERT_NOMSG(modulus.sig_words() == mod_words);
+
+   // Caller must expand input to be at least this size
+   BOTAN_ASSERT_NOMSG(x_words.size() >= 2 * mod_words);
+
    // Normally mod_words + 1 but can be + 2 if the modulus is a power of 2
    const size_t mu_words = mu.sig_words();
    BOTAN_ASSERT_NOMSG(mu_words <= mod_words + 2);
@@ -77,11 +82,7 @@ BigInt barrett_reduce(
    // 2 * mod_words + 1 is sufficient, extra is to enable Karatsuba
    secure_vector<word> r(2 * mu_words + 2);
 
-   const size_t usable_words = std::min(x_words.size(), 2 * mod_words);
-
-   if(usable_words >= mod_words - 1) {
-      copy_mem(r.data(), x_words.data() + (mod_words - 1), usable_words - (mod_words - 1));
-   }
+   copy_mem(r.data(), x_words.data() + (mod_words - 1), mod_words + 1);
 
    // Now compute q2 = q1 * μ
 
@@ -113,26 +114,22 @@ BigInt barrett_reduce(
 
    // Compute r = r1 - r2
 
-   clear_mem(ws.data(), ws.size());
+   // The return value of bigint_sub_abs isn't quite right for what we need here so first compare
+   const int32_t relative_size = bigint_cmp(r.data(), mod_words + 1, x_words.data(), mod_words + 1);
 
-   const int32_t relative_size =
-      bigint_sub_abs(ws.data(), r.data(), mod_words + 1, x_words.data(), std::min(x_words.size(), mod_words + 1));
-
-   r.swap(ws);
+   bigint_sub_abs(r.data(), r.data(), x_words.data(), mod_words + 1, ws.data());
 
    /*
    If r is negative then we have to set r to r + 2^(k+1)
 
-   However for r negative computing this sum is equivalent to computing 2^(k+1) - r
+   However for r negative computing this sum is equivalent to computing 2^(k+1) - abs(r)
    */
-   word borrow = 0;
-   for(size_t i = 0; i != mod_words + 1; ++i) {
-      ws[i] = word_sub(static_cast<word>(0), r[i], &borrow);
-   }
-   ws[mod_words + 1] = word_sub(static_cast<word>(1), r[mod_words + 1], &borrow);
+   clear_mem(ws.data(), mod_words + 2);
+   ws[mod_words + 1] = 1;
+   bigint_sub2(ws.data(), mod_words + 2, r.data(), mod_words + 2);
 
    // If relative_size > 0 then assign r to 2^(k+1) - r
-   CT::Mask<word>::expand(relative_size > 0).select_n(r.data(), ws.data(), r.data(), mod_words + 2);
+   CT::Mask<word>::is_equal(static_cast<word>(relative_size), 1).select_n(r.data(), ws.data(), r.data(), mod_words + 2);
 
    /*
    * Per HAC Note 14.44 (ii) "step 4 is repeated at most twice since 0 ≤ r < 3m"
@@ -141,7 +138,7 @@ BigInt barrett_reduce(
 
    BOTAN_ASSERT_NOMSG(r.size() >= mod_words + 1);
    for(size_t i = 0; i != bound; ++i) {
-      borrow = bigint_sub3(ws.data(), r.data(), mod_words + 1, modulus._data(), mod_words);
+      const word borrow = bigint_sub3(ws.data(), r.data(), mod_words + 1, modulus._data(), mod_words);
       CT::Mask<word>::is_zero(borrow).select_n(r.data(), ws.data(), r.data(), mod_words + 1);
    }
 
@@ -150,14 +147,20 @@ BigInt barrett_reduce(
    CT::unpoison(ws);
    CT::unpoison(x_words);
 
-   return BigInt::_from_words(std::move(r));
+   return BigInt::_from_words(r);
+}
+
+CT::Choice acceptable_barrett_input(const BigInt& x, const BigInt& modulus) {
+   auto x_is_positive = CT::Choice::from_int(static_cast<uint32_t>(x.is_positive()));
+   auto x_lt_mod = bigint_ct_is_lt(x._data(), x.size(), modulus._data(), modulus.sig_words()).as_choice();
+   return x_is_positive && x_lt_mod;
 }
 
 }  // namespace
 
 BigInt Barrett_Reduction::multiply(const BigInt& x, const BigInt& y) const {
-   BOTAN_ARG_CHECK(x.is_positive() && x < m_modulus, "Invalid x param for Barrett multiply");
-   BOTAN_ARG_CHECK(y.is_positive() && y < m_modulus, "Invalid y param for Barrett multiply");
+   BOTAN_ARG_CHECK(acceptable_barrett_input(x, m_modulus).as_bool(), "Invalid x param for Barrett multiply");
+   BOTAN_ARG_CHECK(acceptable_barrett_input(y, m_modulus).as_bool(), "Invalid y param for Barrett multiply");
 
    secure_vector<word> ws(2 * (m_mod_words + 2));
    secure_vector<word> xy(2 * m_mod_words);
@@ -177,7 +180,7 @@ BigInt Barrett_Reduction::multiply(const BigInt& x, const BigInt& y) const {
 }
 
 BigInt Barrett_Reduction::square(const BigInt& x) const {
-   BOTAN_ARG_CHECK(x.is_positive() && x < m_modulus, "Invalid x param for Barrett square");
+   BOTAN_ARG_CHECK(acceptable_barrett_input(x, m_modulus).as_bool(), "Invalid x param for Barrett square");
 
    secure_vector<word> ws(2 * (m_mod_words + 2));
    secure_vector<word> x2(2 * m_mod_words);
@@ -192,6 +195,8 @@ BigInt Barrett_Reduction::reduce(const BigInt& x) const {
 
    const size_t x_sw = x.sig_words();
    BOTAN_ARG_CHECK(x_sw <= 2 * m_mod_words, "Argument is too large for Barrett reduction");
+
+   x.grow_to(2 * m_mod_words);
 
    secure_vector<word> ws;
    return barrett_reduce(m_mod_words, m_modulus, m_mu, x._as_span(), ws);

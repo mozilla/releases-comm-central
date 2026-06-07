@@ -10,9 +10,9 @@
 
 #include <botan/internal/kex_to_kem_adapter.h>
 
+#include <botan/assert.h>
 #include <botan/internal/fmt.h>
 #include <botan/internal/pk_ops_impl.h>
-#include <botan/internal/stl_util.h>
 
 #if defined(BOTAN_HAS_DIFFIE_HELLMAN)
    #include <botan/dh.h>
@@ -20,6 +20,7 @@
 #endif
 
 #if defined(BOTAN_HAS_ECDH)
+   #include <botan/ec_group.h>
    #include <botan/ecdh.h>
 #endif
 
@@ -89,8 +90,8 @@ std::unique_ptr<PK_Key_Agreement_Key> generate_key_agreement_private_key(const P
 
    auto new_kex_key = [&] {
       auto new_private_key = kex_public_key.generate_another(rng);
-      const auto kex_key = dynamic_cast<PK_Key_Agreement_Key*>(new_private_key.get());
-      if(kex_key) [[likely]] {
+      auto* const kex_key = dynamic_cast<PK_Key_Agreement_Key*>(new_private_key.get());
+      if(kex_key != nullptr) [[likely]] {
          // Intentionally leak new_private_key since we hold an alias of it in kex_key,
          // which is captured in a unique_ptr below
          // NOLINTNEXTLINE(*-unused-return-value)
@@ -221,12 +222,24 @@ bool KEX_to_KEM_Adapter_PublicKey::supports_operation(PublicKeyOperation op) con
    return op == PublicKeyOperation::KeyEncapsulation;
 }
 
+namespace {
+
+std::unique_ptr<PK_Key_Agreement_Key> capture_as_ka_key(std::unique_ptr<Private_Key> private_key) {
+   auto* raw_ptr = private_key.release();
+   if(auto* sk = dynamic_cast<PK_Key_Agreement_Key*>(raw_ptr)) {
+      return std::unique_ptr<PK_Key_Agreement_Key>(sk);
+   } else {
+      delete raw_ptr;  // NOLINT(*-owning-memory)
+      throw_invalid_argument(
+         "Private key must implement PK_Key_Agreement_Key", "KEX_to_KEM_Adapter_PrivateKey", __FILE__);
+   }
+}
+
+}  // namespace
+
 KEX_to_KEM_Adapter_PrivateKey::KEX_to_KEM_Adapter_PrivateKey(std::unique_ptr<Private_Key> private_key) :
-      KEX_to_KEM_Adapter_PublicKey(maybe_get_public_key(private_key)), m_private_key([&]() {
-         auto sk = dynamic_cast<PK_Key_Agreement_Key*>(private_key.release());
-         BOTAN_ARG_CHECK(sk != nullptr, "Private Key must implement the PK_Key_Agreement_Key interface");
-         return std::unique_ptr<PK_Key_Agreement_Key>(sk);
-      }()) {}
+      KEX_to_KEM_Adapter_PublicKey(maybe_get_public_key(private_key)),
+      m_private_key(capture_as_ka_key(std::move(private_key))) {}
 
 secure_vector<uint8_t> KEX_to_KEM_Adapter_PrivateKey::private_key_bits() const {
    return m_private_key->private_key_bits();

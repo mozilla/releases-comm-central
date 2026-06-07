@@ -11,18 +11,15 @@
 #if defined(BOTAN_HAS_PUBLIC_KEY_CRYPTO)
 
    #include <botan/base64.h>
-   #include <botan/hex.h>
-   #include <botan/rng.h>
-
    #include <botan/data_src.h>
    #include <botan/hash.h>
+   #include <botan/hex.h>
    #include <botan/pk_algs.h>
    #include <botan/pk_keys.h>
    #include <botan/pkcs8.h>
    #include <botan/pubkey.h>
    #include <botan/x509_key.h>
    #include <botan/internal/workfactor.h>
-
    #include <fstream>
    #include <sstream>
 
@@ -36,11 +33,13 @@
 
 namespace Botan_CLI {
 
+namespace {
+
 class PK_Keygen final : public Command {
    public:
       PK_Keygen() :
             Command(
-               "keygen --algo=RSA --params= --passphrase= --cipher= --pbkdf= --pbkdf-ms=300 --pbkdf-iter= --provider= --der-out") {
+               "keygen --algo=RSA --params= --passphrase= --cipher= --pbkdf= --pbkdf-ms=300 --pbkdf-iter= --provider= --rng-type= --drbg-seed= --der-out") {
       }
 
       std::string group() const override { return "pubkey"; }
@@ -52,7 +51,7 @@ class PK_Keygen final : public Command {
          const std::string params = get_arg("params");
          const std::string provider = get_arg("provider");
 
-         std::unique_ptr<Botan::Private_Key> key = Botan::create_private_key(algo, rng(), params, provider);
+         const std::unique_ptr<Botan::Private_Key> key = Botan::create_private_key(algo, rng(), params, provider);
 
          if(!key) {
             throw CLI_Error_Unsupported("keygen", algo);
@@ -178,7 +177,10 @@ std::unique_ptr<Botan::Private_Key> load_private_key(const std::string& key_file
 
 class PK_Sign final : public Command {
    public:
-      PK_Sign() : Command("sign --der-format --passphrase= --hash=SHA-256 --padding= --provider= key file") {}
+      PK_Sign() :
+            Command(
+               "sign --der-format --passphrase= --hash=SHA-256 --padding= --provider= --rng-type= --drbg-seed= key file") {
+      }
 
       std::string group() const override { return "pubkey"; }
 
@@ -284,7 +286,7 @@ class PKCS8_Tool final : public Command {
    public:
       PKCS8_Tool() :
             Command(
-               "pkcs8 --pass-in= --pub-out --der-out --pass-out= --cipher= --pbkdf= --pbkdf-ms=300 --pbkdf-iter= key") {
+               "pkcs8 --pass-in= --pub-out --der-out --pass-out= --cipher= --pbkdf= --pbkdf-ms=300 --pbkdf-iter= --rng-type= --drbg-seed= key") {
       }
 
       std::string group() const override { return "pubkey"; }
@@ -435,7 +437,8 @@ BOTAN_REGISTER_COMMAND("pk_workfactor", PK_Workfactor);
 
 class Gen_DL_Group final : public Command {
    public:
-      Gen_DL_Group() : Command("gen_dl_group --pbits=2048 --qbits=0 --seed= --type=subgroup") {}
+      Gen_DL_Group() :
+            Command("gen_dl_group --pbits=2048 --qbits=0 --seed= --type=subgroup --rng-type= --drbg-seed=") {}
 
       std::string group() const override { return "pubkey"; }
 
@@ -452,13 +455,13 @@ class Gen_DL_Group final : public Command {
             if(!seed_str.empty()) {
                throw CLI_Usage_Error("Seed only supported for DSA param gen");
             }
-            Botan::DL_Group grp(rng(), Botan::DL_Group::Strong, pbits);
+            const Botan::DL_Group grp(rng(), Botan::DL_Group::Strong, pbits);
             output() << grp.PEM_encode(Botan::DL_Group_Format::ANSI_X9_42);
          } else if(type == "subgroup") {
             if(!seed_str.empty()) {
                throw CLI_Usage_Error("Seed only supported for DSA param gen");
             }
-            Botan::DL_Group grp(rng(), Botan::DL_Group::Prime_Subgroup, pbits, qbits);
+            const Botan::DL_Group grp(rng(), Botan::DL_Group::Prime_Subgroup, pbits, qbits);
             output() << grp.PEM_encode(Botan::DL_Group_Format::ANSI_X9_42);
          } else if(type == "dsa") {
             size_t dsa_qbits = qbits;
@@ -473,11 +476,11 @@ class Gen_DL_Group final : public Command {
             }
 
             if(seed_str.empty()) {
-               Botan::DL_Group grp(rng(), Botan::DL_Group::DSA_Kosherizer, pbits, dsa_qbits);
+               const Botan::DL_Group grp(rng(), Botan::DL_Group::DSA_Kosherizer, pbits, dsa_qbits);
                output() << grp.PEM_encode(Botan::DL_Group_Format::ANSI_X9_57);
             } else {
                const std::vector<uint8_t> seed = Botan::hex_decode(seed_str);
-               Botan::DL_Group grp(rng(), seed, pbits, dsa_qbits);
+               const Botan::DL_Group grp(rng(), seed, pbits, dsa_qbits);
                output() << grp.PEM_encode(Botan::DL_Group_Format::ANSI_X9_57);
             }
 
@@ -490,6 +493,8 @@ class Gen_DL_Group final : public Command {
 BOTAN_REGISTER_COMMAND("gen_dl_group", Gen_DL_Group);
 
    #endif
+
+}  // namespace
 
 }  // namespace Botan_CLI
 

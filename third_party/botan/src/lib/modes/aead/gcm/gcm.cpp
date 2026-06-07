@@ -9,11 +9,12 @@
 #include <botan/internal/gcm.h>
 
 #include <botan/block_cipher.h>
+#include <botan/exceptn.h>
+#include <botan/mem_ops.h>
 #include <botan/internal/ct_utils.h>
 #include <botan/internal/ctr.h>
 #include <botan/internal/fmt.h>
 #include <botan/internal/ghash.h>
-
 #include <array>
 
 namespace Botan {
@@ -46,7 +47,7 @@ void GCM_Mode::clear() {
 }
 
 void GCM_Mode::reset() {
-   m_ghash->reset();
+   m_ghash->reset_state();
 }
 
 std::string GCM_Mode::name() const {
@@ -81,8 +82,8 @@ bool GCM_Mode::has_keying_material() const {
 void GCM_Mode::key_schedule(std::span<const uint8_t> key) {
    m_ctr->set_key(key);
 
-   const std::vector<uint8_t> zeros(GCM_BS);
-   m_ctr->set_iv(zeros.data(), zeros.size());
+   std::array<uint8_t, GCM_BS> zeros{};
+   m_ctr->set_iv(zeros);
 
    uint8_t H[GCM_BS] = {0};
    m_ctr->encipher(H);
@@ -158,7 +159,7 @@ void GCM_Decryption::finish_msg(secure_vector<uint8_t>& buffer, size_t offset) {
    const size_t remaining = sz - tag_size();
 
    // handle any final input before the tag
-   if(remaining) {
+   if(remaining > 0) {
       m_ghash->update({buf, remaining});
       m_ctr->cipher(buf, buf, remaining);
    }

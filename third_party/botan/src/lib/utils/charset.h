@@ -10,6 +10,7 @@
 
 #include <botan/types.h>
 #include <string>
+#include <vector>
 
 namespace Botan {
 
@@ -22,12 +23,33 @@ namespace Botan {
 BOTAN_TEST_API std::string ucs2_to_utf8(const uint8_t ucs2[], size_t len);
 
 /**
+ * Convert a UTF-8 string to a sequence of UCS-2 (big endian) characters
+ * This is used for ASN.1 BMPString type
+ * @param utf8 the UTF-8 string
+ * @return a vector of bytes containing the UCS-2 (big endian) encoding
+ * @throws Decoding_Error if the input is not valid UTF-8 (including overlong encodings,
+ *         surrogate code points, or values outside Unicode), or if a code point exceeds
+ *         U+FFFF and cannot be represented in UCS-2
+ */
+BOTAN_TEST_API std::vector<uint8_t> utf8_to_ucs2(const std::string& utf8);
+
+/**
 * Convert a sequence of UCS-4 (big endian) characters to a UTF-8 string
 * This is used for ASN.1 UniversalString type
 * @param ucs4 the sequence of UCS-4 characters
 * @param len length of ucs4 in bytes, must be a multiple of 4
 */
 BOTAN_TEST_API std::string ucs4_to_utf8(const uint8_t ucs4[], size_t len);
+
+/**
+ * Convert a UTF-8 string to a sequence of UCS-4 (big endian) characters
+ * This is used for ASN.1 UniversalString type
+ * @param utf8 the UTF-8 string
+ * @return a vector of bytes containing the UCS-4 (big endian) encoding
+ * @throws Decoding_Error if the input is not valid UTF-8 (including overlong encodings,
+ *         surrogate code points, or values outside the Unicode scalar value range U+0000..U+10FFFF)
+ */
+BOTAN_TEST_API std::vector<uint8_t> utf8_to_ucs4(const std::string& utf8);
 
 BOTAN_TEST_API std::string latin1_to_utf8(const uint8_t latin1[], size_t len);
 

@@ -14,6 +14,7 @@
    #include <botan/ed448.h>
    #include <botan/internal/curve448_scalar.h>
    #include <botan/internal/ed448_internal.h>
+   #include <algorithm>
 
 namespace Botan_Tests {
 namespace {
@@ -57,7 +58,9 @@ class Ed448_Signature_Tests final : public PK_Signature_Generation_Test {
          return sk;
       }
 
-      bool skip_this_test(const std::string&, const VarMap& vars) override { return vars.get_req_sz("Valid") != 1; }
+      bool skip_this_test(const std::string& /*header*/, const VarMap& vars) override {
+         return vars.get_req_sz("Valid") != 1;
+      }
 };
 
 class Ed448_Verification_Tests : public PK_Signature_Verification_Test {
@@ -76,7 +79,7 @@ class Ed448_General_Test final : public Text_Based_Test {
       template <size_t S>
       std::array<uint8_t, S> to_array(std::span<const uint8_t> sp) {
          BOTAN_ASSERT_NOMSG(sp.size() == S);
-         std::array<uint8_t, S> arr;
+         std::array<uint8_t, S> arr{};
          Botan::copy_mem(arr.data(), sp.data(), S);
          return arr;
       }
@@ -84,7 +87,7 @@ class Ed448_General_Test final : public Text_Based_Test {
    public:
       Ed448_General_Test() : Text_Based_Test("pubkey/ed448.vec", "Msg,PrivateKey,PublicKey,Valid,Signature") {}
 
-      Test::Result run_one_test(const std::string&, const VarMap& vars) final {
+      Test::Result run_one_test(const std::string& /*header*/, const VarMap& vars) final {
          Test::Result result("Ed448 general tests");
 
          const auto pub_key_ref = to_array<57>(vars.get_req_bin("PublicKey"));
@@ -94,17 +97,19 @@ class Ed448_General_Test final : public Text_Based_Test {
          const auto p = Botan::Ed448Point::decode(pub_key_ref);
          const auto reencoded_point_data = p.encode();
 
-         result.test_is_eq("Enc- and decoding roundtrip", reencoded_point_data, pub_key_ref);
+         result.test_bin_eq("Enc- and decoding roundtrip", reencoded_point_data, pub_key_ref);
 
          // Test public key creation
          const auto pub_key = Botan::create_pk_from_sk(sk);
 
-         result.test_is_eq("Public key from secret key", pub_key, pub_key_ref);
+         result.test_bin_eq("Public key from secret key", pub_key, pub_key_ref);
 
          return result;
       }
 
-      bool skip_this_test(const std::string&, const VarMap& vars) override { return vars.get_req_sz("Valid") != 1; }
+      bool skip_this_test(const std::string& /*header*/, const VarMap& vars) override {
+         return vars.get_req_sz("Valid") != 1;
+      }
 };
 
 class Ed448_Utils_Test final : public Test {
@@ -129,11 +134,11 @@ class Ed448_Utils_Test final : public Test {
          const std::vector<std::array<uint8_t, 114>> test_vectors = {
             full, std::array<uint8_t, 114>{0x42}, std::array<uint8_t, 114>{0}};
 
-         for(auto& t : test_vectors) {
+         for(const auto& t : test_vectors) {
             const auto ref = reduce_mod_L_ref(t);
-            std::array<uint8_t, 56> res;
+            std::array<uint8_t, 56> res{};
             result.test_no_throw("Reduce mod L does not throw", [&] { res = Botan::Scalar448(t).to_bytes<56>(); });
-            result.test_is_eq("Reduce mod L result", res, ref);
+            result.test_bin_eq("Reduce mod L result", res, ref);
          }
 
          return result;

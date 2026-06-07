@@ -10,9 +10,10 @@
 
 #include <botan/allocator.h>
 #include <botan/types.h>  // IWYU pragma: export
-#include <algorithm>
+#include <span>
 #include <type_traits>
 #include <vector>  // IWYU pragma: export
+#include <algorithm>
 
 #if !defined(BOTAN_IS_BEING_BUILT) && !defined(BOTAN_DISABLE_DEPRECATED_FEATURES)
    // TODO(Botan4) remove this
@@ -24,13 +25,13 @@ namespace Botan {
 template <typename T>
 #if !defined(_ITERATOR_DEBUG_LEVEL) || _ITERATOR_DEBUG_LEVEL == 0
 /*
-  * Assert exists to prevent someone from doing something that will
+  * Check exists to prevent someone from doing something that will
   * probably crash anyway (like secure_vector<non_POD_t> where ~non_POD_t
   * deletes a member pointer which was zeroed before it ran).
   * MSVC in debug mode uses non-integral proxy types in container types
   * like std::vector, thus we disable the check there.
  */
-   requires std::is_integral<T>::value || std::is_enum<T>::value
+   requires std::is_integral_v<T> || std::is_enum_v<T>
 #endif
 class secure_allocator {
 
@@ -41,10 +42,13 @@ class secure_allocator {
       secure_allocator() noexcept = default;
       secure_allocator(const secure_allocator&) noexcept = default;
       secure_allocator& operator=(const secure_allocator&) noexcept = default;
+      secure_allocator(secure_allocator&&) noexcept = default;
+      secure_allocator& operator=(secure_allocator&&) noexcept = default;
+
       ~secure_allocator() noexcept = default;
 
       template <typename U>
-      secure_allocator(const secure_allocator<U>&) noexcept {}
+      explicit secure_allocator(const secure_allocator<U>& /*other*/) noexcept {}
 
       T* allocate(std::size_t n) { return static_cast<T*>(allocate_memory(n, sizeof(T))); }
 
@@ -52,12 +56,12 @@ class secure_allocator {
 };
 
 template <typename T, typename U>
-inline bool operator==(const secure_allocator<T>&, const secure_allocator<U>&) {
+inline bool operator==(const secure_allocator<T>& /*a*/, const secure_allocator<U>& /*b*/) {
    return true;
 }
 
 template <typename T, typename U>
-inline bool operator!=(const secure_allocator<T>&, const secure_allocator<U>&) {
+inline bool operator!=(const secure_allocator<T>& /*a*/, const secure_allocator<U>& /*b*/) {
    return false;
 }
 
@@ -85,6 +89,12 @@ std::vector<T> unlock(const secure_vector<T>& in) {
 
 template <typename T, typename Alloc, typename Alloc2>
 std::vector<T, Alloc>& operator+=(std::vector<T, Alloc>& out, const std::vector<T, Alloc2>& in) {
+   out.insert(out.end(), in.begin(), in.end());
+   return out;
+}
+
+template <typename T, typename Alloc>
+std::vector<T, Alloc>& operator+=(std::vector<T, Alloc>& out, std::span<const T> in) {
    out.insert(out.end(), in.begin(), in.end());
    return out;
 }

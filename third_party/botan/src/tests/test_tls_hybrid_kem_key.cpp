@@ -11,9 +11,11 @@
    defined(BOTAN_HAS_ECDSA)
 
    #include <botan/pk_algs.h>
+   #include <botan/rng.h>
    #include <botan/internal/hybrid_public_key.h>
    #include <botan/internal/kex_to_kem_adapter.h>
    #include <botan/internal/stl_util.h>
+   #include <algorithm>
 
 namespace Botan_Tests {
 
@@ -39,8 +41,8 @@ std::unique_ptr<Botan::Private_Key> kem() {
 std::unique_ptr<Botan::PK_Key_Agreement_Key> kex_dh() {
    static auto kex_key = Botan::create_private_key("DH", global_test_rng(), "ffdhe/ietf/2048");
    auto sk = Botan::load_private_key(kex_key->algorithm_identifier(), kex_key->private_key_bits());
-   auto kex_sk = dynamic_cast<Botan::PK_Key_Agreement_Key*>(sk.get());
-   if(kex_sk) {
+   auto* kex_sk = dynamic_cast<Botan::PK_Key_Agreement_Key*>(sk.get());
+   if(kex_sk != nullptr) {
       // NOLINTNEXTLINE(bugprone-unused-return-value)
       (void)sk.release();
       return std::unique_ptr<Botan::PK_Key_Agreement_Key>(kex_sk);
@@ -52,8 +54,8 @@ std::unique_ptr<Botan::PK_Key_Agreement_Key> kex_dh() {
 std::unique_ptr<Botan::PK_Key_Agreement_Key> kex_ecdh() {
    static auto kex_key = Botan::create_private_key("ECDH", global_test_rng(), "secp256r1");
    auto sk = Botan::load_private_key(kex_key->algorithm_identifier(), kex_key->private_key_bits());
-   auto kex_sk = dynamic_cast<Botan::PK_Key_Agreement_Key*>(sk.get());
-   if(kex_sk) {
+   auto* kex_sk = dynamic_cast<Botan::PK_Key_Agreement_Key*>(sk.get());
+   if(kex_sk != nullptr) {
       // NOLINTNEXTLINE(bugprone-unused-return-value)
       (void)sk.release();
       return std::unique_ptr<Botan::PK_Key_Agreement_Key>(kex_sk);
@@ -92,33 +94,33 @@ auto pubkeys(KeyTs... keys) {
 
 template <typename... Ts>
 size_t length_of_hybrid_shared_key(Ts... kex_kem_fn) {
-   Botan::overloaded f{[](const Botan::PK_Key_Agreement_Key& kex_key) {
-                          Botan::PK_Key_Agreement ka(kex_key, global_test_rng(), "Raw");
-                          return ka.agreed_value_size();
-                       },
-                       [](const Botan::Private_Key& kem_key) {
-                          Botan::PK_KEM_Encryptor enc(kem_key, "Raw");
-                          return enc.shared_key_length(0);
-                       }};
+   const Botan::overloaded f{[](const Botan::PK_Key_Agreement_Key& kex_key) {
+                                const Botan::PK_Key_Agreement ka(kex_key, global_test_rng(), "Raw");
+                                return ka.agreed_value_size();
+                             },
+                             [](const Botan::Private_Key& kem_key) {
+                                const Botan::PK_KEM_Encryptor enc(kem_key, "Raw");
+                                return enc.shared_key_length(0);
+                             }};
 
    return (f(*kex_kem_fn()) + ...);
 }
 
 template <typename... Ts>
 size_t length_of_hybrid_ciphertext(Ts... kex_kem_fn) {
-   Botan::overloaded f{[](const Botan::PK_Key_Agreement_Key& kex_key) { return kex_key.public_value().size(); },
-                       [](const Botan::Private_Key& kem_key) {
-                          Botan::PK_KEM_Encryptor enc(kem_key, "Raw");
-                          return enc.encapsulated_key_length();
-                       }};
+   const Botan::overloaded f{[](const Botan::PK_Key_Agreement_Key& kex_key) { return kex_key.public_value().size(); },
+                             [](const Botan::Private_Key& kem_key) {
+                                const Botan::PK_KEM_Encryptor enc(kem_key, "Raw");
+                                return enc.encapsulated_key_length();
+                             }};
 
    return (f(*kex_kem_fn()) + ...);
 }
 
 template <typename... Ts>
 size_t length_of_hybrid_public_value(Ts... kex_kem_fn) {
-   Botan::overloaded f{[](const Botan::PK_Key_Agreement_Key& kex_key) { return kex_key.public_value().size(); },
-                       [](const Botan::Private_Key& kem_key) { return kem_key.public_key_bits().size(); }};
+   const Botan::overloaded f{[](const Botan::PK_Key_Agreement_Key& kex_key) { return kex_key.public_value().size(); },
+                             [](const Botan::Private_Key& kem_key) { return kem_key.public_key_bits().size(); }};
 
    return (f(*kex_kem_fn()) + ...);
 }
@@ -138,8 +140,8 @@ size_t estimated_strength_of_hybrid_public_key(Ts... kex_kem_fn) {
 
 template <typename... Ts>
 void roundtrip_test(Test::Result& result, Ts... kex_kem_fn) {
-   Botan::TLS::Hybrid_KEM_PrivateKey hybrid_key(keys(kex_kem_fn()...));
-   Botan::TLS::Hybrid_KEM_PublicKey hybrid_public_key(pubkeys(kex_kem_fn()...));
+   const Botan::TLS::Hybrid_KEM_PrivateKey hybrid_key(keys(kex_kem_fn()...));
+   const Botan::TLS::Hybrid_KEM_PublicKey hybrid_public_key(pubkeys(kex_kem_fn()...));
 
    auto& rng = global_test_rng();
 
@@ -152,30 +154,32 @@ void roundtrip_test(Test::Result& result, Ts... kex_kem_fn) {
    const auto expected_key_length = key_length_of_hybrid_public_key(kex_kem_fn...);
    const auto expected_strength = estimated_strength_of_hybrid_public_key(kex_kem_fn...);
 
-   result.test_eq(
+   result.test_sz_eq(
       "ciphertext has expected length", kem_result.encapsulated_shared_key().size(), expected_ciphertext_length);
-   result.test_eq("shared secret has expected length", kem_result.shared_key().size(), expected_shared_secret_length);
-   result.test_eq(
+   result.test_sz_eq(
+      "shared secret has expected length", kem_result.shared_key().size(), expected_shared_secret_length);
+   result.test_sz_eq(
       "expected length of ciphertext is as expected", encryptor.encapsulated_key_length(), expected_ciphertext_length);
-   result.test_eq("shared secret has expected length", encryptor.shared_key_length(0), expected_shared_secret_length);
+   result.test_sz_eq(
+      "shared secret has expected length", encryptor.shared_key_length(0), expected_shared_secret_length);
 
    Botan::PK_KEM_Decryptor decryptor(hybrid_key, rng, "Raw");
    Botan::secure_vector<uint8_t> decaps_shared_secret = decryptor.decrypt(kem_result.encapsulated_shared_key(), 0, {});
 
-   result.test_eq("shared secret after KEM roundtrip matches", decaps_shared_secret, kem_result.shared_key());
-   result.test_eq(
+   result.test_bin_eq("shared secret after KEM roundtrip matches", decaps_shared_secret, kem_result.shared_key());
+   result.test_sz_eq(
       "expected shared secret has expected length", decryptor.shared_key_length(0), expected_shared_secret_length);
-   result.test_eq("shared secret has expected length", decaps_shared_secret.size(), expected_shared_secret_length);
+   result.test_sz_eq("shared secret has expected length", decaps_shared_secret.size(), expected_shared_secret_length);
 
-   result.test_eq("public key bits is the sum of its parts",
-                  hybrid_public_key.raw_public_key_bits().size(),
-                  expected_public_key_length);
+   result.test_sz_eq("public key bits is the sum of its parts",
+                     hybrid_public_key.raw_public_key_bits().size(),
+                     expected_public_key_length);
 
-   result.test_eq(
+   result.test_sz_eq(
       "Public_Key::key_length is the maximum of its parts", hybrid_public_key.key_length(), expected_key_length);
-   result.test_eq("Public_Key::estimated_strength is the maximum of its parts",
-                  hybrid_public_key.estimated_strength(),
-                  expected_strength);
+   result.test_sz_eq("Public_Key::estimated_strength is the maximum of its parts",
+                     hybrid_public_key.estimated_strength(),
+                     expected_strength);
 }
 
 std::vector<Test::Result> hybrid_kem_keypair() {
@@ -238,31 +242,32 @@ std::vector<Test::Result> hybrid_kem_keypair() {
 
 void kex_to_kem_roundtrip(Test::Result& result,
                           const std::function<std::unique_ptr<Botan::PK_Key_Agreement_Key>()>& kex_fn) {
-   Botan::KEX_to_KEM_Adapter_PrivateKey kexkem_key(kex_fn());
-   Botan::KEX_to_KEM_Adapter_PublicKey kexkem_public_key(kex_fn());
+   const Botan::KEX_to_KEM_Adapter_PrivateKey kexkem_key(kex_fn());
+   const Botan::KEX_to_KEM_Adapter_PublicKey kexkem_public_key(kex_fn());
 
    auto& rng = global_test_rng();
 
    Botan::PK_KEM_Encryptor encryptor(kexkem_public_key, "Raw");
    const auto kem_result = encryptor.encrypt(rng);
 
-   result.test_eq("ciphertext has expected length",
-                  kem_result.encapsulated_shared_key().size(),
-                  encryptor.encapsulated_key_length());
-   result.test_eq("shared secret has expected length", kem_result.shared_key().size(), encryptor.shared_key_length(0));
+   result.test_sz_eq("ciphertext has expected length",
+                     kem_result.encapsulated_shared_key().size(),
+                     encryptor.encapsulated_key_length());
+   result.test_sz_eq(
+      "shared secret has expected length", kem_result.shared_key().size(), encryptor.shared_key_length(0));
 
    Botan::PK_KEM_Decryptor decryptor(kexkem_key, rng, "Raw");
 
-   result.test_eq("encapsulated length matches the decryptor's expectation",
-                  kem_result.encapsulated_shared_key().size(),
-                  decryptor.encapsulated_key_length());
+   result.test_sz_eq("encapsulated length matches the decryptor's expectation",
+                     kem_result.encapsulated_shared_key().size(),
+                     decryptor.encapsulated_key_length());
 
    Botan::secure_vector<uint8_t> decaps_shared_secret = decryptor.decrypt(kem_result.encapsulated_shared_key(), 0, {});
 
-   result.test_eq(
+   result.test_sz_eq(
       "decapsulated shared secret has expected length", decaps_shared_secret.size(), decryptor.shared_key_length(0));
 
-   result.test_eq("shared secret after KEM roundtrip matches", decaps_shared_secret, kem_result.shared_key());
+   result.test_bin_eq("shared secret after KEM roundtrip matches", decaps_shared_secret, kem_result.shared_key());
 }
 
 std::vector<Test::Result> kex_to_kem_adapter() {

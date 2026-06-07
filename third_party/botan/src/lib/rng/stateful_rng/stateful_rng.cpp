@@ -6,30 +6,31 @@
 
 #include <botan/stateful_rng.h>
 
-#include <botan/internal/loadstor.h>
+#include <botan/assert.h>
+#include <botan/exceptn.h>
 #include <botan/internal/os_utils.h>
 
 namespace Botan {
 
 void Stateful_RNG::clear() {
-   lock_guard_type<recursive_mutex_type> lock(m_mutex);
+   const lock_guard_type<recursive_mutex_type> lock(m_mutex);
    m_reseed_counter = 0;
    m_last_pid = 0;
    clear_state();
 }
 
 void Stateful_RNG::force_reseed() {
-   lock_guard_type<recursive_mutex_type> lock(m_mutex);
+   const lock_guard_type<recursive_mutex_type> lock(m_mutex);
    m_reseed_counter = 0;
 }
 
 bool Stateful_RNG::is_seeded() const {
-   lock_guard_type<recursive_mutex_type> lock(m_mutex);
+   const lock_guard_type<recursive_mutex_type> lock(m_mutex);
    return m_reseed_counter > 0;
 }
 
 void Stateful_RNG::initialize_with(std::span<const uint8_t> input) {
-   lock_guard_type<recursive_mutex_type> lock(m_mutex);
+   const lock_guard_type<recursive_mutex_type> lock(m_mutex);
 
    clear();
    add_entropy(input);
@@ -60,7 +61,7 @@ void Stateful_RNG::generate_batched_output(std::span<uint8_t> output, std::span<
 }
 
 void Stateful_RNG::fill_bytes_with_input(std::span<uint8_t> output, std::span<const uint8_t> input) {
-   lock_guard_type<recursive_mutex_type> lock(m_mutex);
+   const lock_guard_type<recursive_mutex_type> lock(m_mutex);
 
    if(output.empty()) {
       // Special case for exclusively adding entropy to the stateful RNG.
@@ -74,10 +75,10 @@ void Stateful_RNG::fill_bytes_with_input(std::span<uint8_t> output, std::span<co
    }
 }
 
-size_t Stateful_RNG::reseed(Entropy_Sources& srcs, size_t poll_bits, std::chrono::milliseconds poll_timeout) {
-   lock_guard_type<recursive_mutex_type> lock(m_mutex);
+size_t Stateful_RNG::reseed_from_sources(Entropy_Sources& srcs, size_t poll_bits) {
+   const lock_guard_type<recursive_mutex_type> lock(m_mutex);
 
-   const size_t bits_collected = RandomNumberGenerator::reseed(srcs, poll_bits, poll_timeout);
+   const size_t bits_collected = RandomNumberGenerator::reseed_from_sources(srcs, poll_bits);
 
    if(bits_collected >= security_level()) {
       reset_reseed_counter();
@@ -87,7 +88,7 @@ size_t Stateful_RNG::reseed(Entropy_Sources& srcs, size_t poll_bits, std::chrono
 }
 
 void Stateful_RNG::reseed_from_rng(RandomNumberGenerator& rng, size_t poll_bits) {
-   lock_guard_type<recursive_mutex_type> lock(m_mutex);
+   const lock_guard_type<recursive_mutex_type> lock(m_mutex);
 
    RandomNumberGenerator::reseed_from_rng(rng, poll_bits);
 
@@ -112,12 +113,12 @@ void Stateful_RNG::reseed_check() {
       m_reseed_counter = 0;
       m_last_pid = cur_pid;
 
-      if(m_underlying_rng) {
+      if(m_underlying_rng != nullptr) {
          reseed_from_rng(*m_underlying_rng, security_level());
       }
 
-      if(m_entropy_sources) {
-         reseed(*m_entropy_sources, security_level());
+      if(m_entropy_sources != nullptr) {
+         reseed_from_sources(*m_entropy_sources, security_level());
       }
 
       if(!is_seeded()) {

@@ -9,6 +9,7 @@
 #include <botan/internal/siv.h>
 
 #include <botan/block_cipher.h>
+#include <botan/exceptn.h>
 #include <botan/mem_ops.h>
 #include <botan/internal/cmac.h>
 #include <botan/internal/ct_utils.h>
@@ -46,7 +47,7 @@ std::string SIV_Mode::name() const {
    return m_name;
 }
 
-bool SIV_Mode::valid_nonce_length(size_t /*nonce_len*/) const {
+bool SIV_Mode::valid_nonce_length(size_t /*length*/) const {
    return true;
 }
 
@@ -100,7 +101,7 @@ void SIV_Mode::start_msg(const uint8_t nonce[], size_t nonce_len) {
       throw Invalid_IV_Length(name(), nonce_len);
    }
 
-   if(nonce_len) {
+   if(nonce_len > 0) {
       m_nonce = m_mac->process(nonce, nonce_len);
    } else {
       m_nonce.clear();
@@ -120,9 +121,9 @@ secure_vector<uint8_t> SIV_Mode::S2V(const uint8_t* text, size_t text_len) {
 
    secure_vector<uint8_t> V = m_mac->process(zeros.data(), zeros.size());
 
-   for(size_t i = 0; i != m_ad_macs.size(); ++i) {
+   for(const auto& ad_mac : m_ad_macs) {
       poly_double_n(V.data(), V.size());
-      V ^= m_ad_macs[i];
+      V ^= ad_mac;
    }
 
    if(!m_nonce.empty()) {
@@ -189,7 +190,7 @@ void SIV_Decryption::finish_msg(secure_vector<uint8_t>& buffer, size_t offset) {
 
    const secure_vector<uint8_t> T = S2V(buffer.data() + offset, buffer.size() - offset - V.size());
 
-   if(!CT::is_equal(T.data(), V.data(), T.size()).as_bool()) {
+   if(!CT::is_equal<uint8_t>(T, V).as_bool()) {
       throw Invalid_Authentication_Tag("SIV tag check failed");
    }
 

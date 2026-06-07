@@ -6,7 +6,7 @@
 
 #include "tests.h"
 
-#if defined(BOTAN_HAS_KDF_BASE)
+#if defined(BOTAN_HAS_KDF)
    #include <botan/kdf.h>
 #endif
 
@@ -19,7 +19,7 @@ namespace Botan_Tests {
 
 namespace {
 
-#if defined(BOTAN_HAS_KDF_BASE)
+#if defined(BOTAN_HAS_KDF)
 class KDF_KAT_Tests final : public Text_Based_Test {
    public:
       KDF_KAT_Tests() : Text_Based_Test("kdf", "Secret,Output", "Salt,Label,IKM,XTS") {}
@@ -39,18 +39,18 @@ class KDF_KAT_Tests final : public Text_Based_Test {
          const std::vector<uint8_t> label = vars.get_opt_bin("Label");
          const std::vector<uint8_t> expected = vars.get_req_bin("Output");
 
-         result.test_eq("name", kdf->name(), kdf_name);
-         result.test_eq("derived key", kdf->derive_key(expected.size(), secret, salt, label), expected);
+         result.test_str_eq("name", kdf->name(), kdf_name);
+         result.test_bin_eq("derived key", kdf->derive_key(expected.size(), secret, salt, label), expected);
 
          if(expected.size() == 32) {
             const auto key = kdf->derive_key<32>(secret, salt, label);
-            result.test_eq("derived key as array", Botan::secure_vector<uint8_t>{key.begin(), key.end()}, expected);
+            result.test_bin_eq("derived key as array", Botan::secure_vector<uint8_t>{key.begin(), key.end()}, expected);
          }
 
          // Test that clone works
          auto clone = kdf->new_object();
-         result.confirm("Clone has different pointer", kdf.get() != clone.get());
-         result.test_eq("Clone has same name", kdf->name(), clone->name());
+         result.test_is_true("Clone has different pointer", kdf.get() != clone.get());
+         result.test_str_eq("Clone has same name", kdf->name(), clone->name());
 
          return result;
       }
@@ -83,7 +83,7 @@ class HKDF_Expand_Label_Tests final : public Text_Based_Test {
          Botan::secure_vector<uint8_t> output =
             Botan::hkdf_expand_label(hash_name, secret, label, hashval, expected.size());
 
-         result.test_eq("Output matches", output, expected);
+         result.test_bin_eq("Output matches", output, expected);
 
          return result;
       }

@@ -7,7 +7,7 @@
 #include <botan/argon2fmt.h>
 
 #include <botan/base64.h>
-#include <botan/mem_ops.h>
+#include <botan/exceptn.h>
 #include <botan/pwdhash.h>
 #include <botan/rng.h>
 #include <botan/internal/ct_utils.h>
@@ -103,7 +103,9 @@ bool argon2_check_pwhash(const char* password, size_t password_len, std::string_
       return false;
    }
 
-   size_t M = 0, t = 0, p = 0;
+   size_t M = 0;
+   size_t t = 0;
+   size_t p = 0;
 
    for(const auto& param_str : params) {
       const std::vector<std::string> param = split_on(param_str, '=');
@@ -112,7 +114,7 @@ bool argon2_check_pwhash(const char* password, size_t password_len, std::string_
          return false;
       }
 
-      std::string_view key = param[0];
+      const std::string_view key = param[0];
       const size_t val = to_u32bit(param[1]);
       if(key == "m") {
          M = val;

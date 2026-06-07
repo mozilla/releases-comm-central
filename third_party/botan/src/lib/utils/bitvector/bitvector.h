@@ -66,7 +66,7 @@ using first_t = typename first_type<Ts...>::type;
 // TODO: C++26 will bring Parameter Pack indexing:
 //       auto first = s...[0];
 template <typename T0, typename... Ts>
-constexpr static first_t<T0, Ts...> first(T0&& t, Ts&&...) {
+constexpr static first_t<T0, Ts...> first(T0&& t, Ts&&... /*rest*/) {
    return std::forward<T0>(t);
 }
 
@@ -279,11 +279,12 @@ class bitvector_base final {
             ~bitref_base() = default;
 
          public:
+            // NOLINTNEXTLINE(*-explicit-conversions)
             constexpr operator bool() const noexcept { return is_set(); }
 
             constexpr bool is_set() const noexcept { return (m_block & m_mask) > 0; }
 
-            template <std::integral T>
+            template <std::unsigned_integral T>
             constexpr T as() const noexcept {
                return static_cast<T>(is_set());
             }
@@ -293,8 +294,8 @@ class bitvector_base final {
             }
 
          protected:
-            BlockT& m_block;  // NOLINT(*-non-private-member-variables-in-classes)
-            BlockT m_mask;    // NOLINT(*-non-private-member-variables-in-classes)
+            BlockT& m_block;  // NOLINT(*-non-private-member-variable*)
+            BlockT m_mask;    // NOLINT(*-non-private-member-variable*)
       };
 
    public:
@@ -373,7 +374,7 @@ class bitvector_base final {
    public:
       bitvector_base() : m_bits(0) {}
 
-      bitvector_base(size_type bits) : m_bits(bits), m_blocks(ceil_toblocks(bits)) {}
+      explicit bitvector_base(size_type bits) : m_bits(bits), m_blocks(ceil_toblocks(bits)) {}
 
       /**
        * Initialize the bitvector from a byte-array. Bits are taken byte-wise
@@ -388,7 +389,9 @@ class bitvector_base final {
        * @param bits  The number of bits to be loaded. This must not be more
        *              than the number of bytes in @p bytes.
        */
-      bitvector_base(std::span<const uint8_t> bytes, std::optional<size_type> bits = std::nullopt) {
+      bitvector_base(std::span<const uint8_t> bytes, /* NOLINT(*-explicit-conversions) */
+                     std::optional<size_type> bits = std::nullopt) :
+            m_bits() {
          from_bytes(bytes, bits);
       }
 
@@ -600,7 +603,9 @@ class bitvector_base final {
        */
       bitvector_base& set() {
          full_range_operation(
-            [](std::unsigned_integral auto block) -> decltype(block) { return static_cast<decltype(block)>(~0); },
+            [](std::unsigned_integral auto block) -> decltype(block) {
+               return static_cast<decltype(block)>(~static_cast<decltype(block)>(0));
+            },
             *this);
          zero_unused_bits();
          return *this;
@@ -696,7 +701,7 @@ class bitvector_base final {
        */
       template <bitvectorish OutT = bitvector_base<AllocatorT>>
       auto subvector(size_type pos, std::optional<size_type> length = std::nullopt) const {
-         size_type bitlen = length.value_or(size() - pos);
+         const size_type bitlen = length.value_or(size() - pos);
          BOTAN_ARG_CHECK(pos + bitlen <= size(), "Not enough bits to copy");
 
          OutT newvector(bitlen);
@@ -710,9 +715,9 @@ class bitvector_base final {
                   newvector_unwrapped.m_blocks,
                   std::span{m_blocks}.subspan(block_index(pos), block_index(pos + bitlen - 1) - block_index(pos) + 1));
             } else {
-               BitRangeOperator<const bitvector_base<AllocatorT>, BitRangeAlignment::no_alignment> from_op(
+               const BitRangeOperator<const bitvector_base<AllocatorT>, BitRangeAlignment::no_alignment> from_op(
                   *this, pos, bitlen);
-               BitRangeOperator<strong_type_wrapped_type<OutT>> to_op(
+               const BitRangeOperator<strong_type_wrapped_type<OutT>> to_op(
                   unwrap_strong_type(newvector_unwrapped), 0, bitlen);
                range_operation([](auto /* to */, auto from) { return from; }, to_op, from_op);
             }
@@ -744,7 +749,8 @@ class bitvector_base final {
          if(pos % 8 == 0) {
             out = load_le<result_t>(std::span{m_blocks}.subspan(block_index(pos)).template first<sizeof(result_t)>());
          } else {
-            BitRangeOperator<const bitvector_base<AllocatorT>, BitRangeAlignment::no_alignment> op(*this, pos, bits);
+            const BitRangeOperator<const bitvector_base<AllocatorT>, BitRangeAlignment::no_alignment> op(
+               *this, pos, bits);
             range_operation(
                [&](std::unsigned_integral auto integer) {
                   if constexpr(std::same_as<result_t, decltype(integer)>) {
@@ -780,7 +786,7 @@ class bitvector_base final {
             store_le(std::span{m_blocks}.subspan(block_index(pos)).template first<sizeof(in_t)>(),
                      unwrap_strong_type(value));
          } else {
-            BitRangeOperator<bitvector_base<AllocatorT>, BitRangeAlignment::no_alignment> op(*this, pos, bits);
+            const BitRangeOperator<bitvector_base<AllocatorT>, BitRangeAlignment::no_alignment> op(*this, pos, bits);
             range_operation(
                [&]<std::unsigned_integral BlockT>(BlockT block) -> BlockT {
                   if constexpr(std::same_as<in_t, BlockT>) {
@@ -923,7 +929,7 @@ class bitvector_base final {
       auto ref(size_type pos) { return bitref<block_type>(m_blocks, pos); }
 
    private:
-      enum class BitRangeAlignment { byte_aligned, no_alignment };
+      enum class BitRangeAlignment : uint8_t { byte_aligned, no_alignment };
 
       /**
        * Helper construction to implement bit range operations on the bitvector.
@@ -960,7 +966,7 @@ class bitvector_base final {
                BOTAN_ASSERT(m_source.size() >= m_start_bitoffset + m_bitlength, "enough bytes in underlying source");
             }
 
-            BitRangeOperator(BitvectorT& source) : BitRangeOperator(source, 0, source.size()) {}
+            explicit BitRangeOperator(BitvectorT& source) : BitRangeOperator(source, 0, source.size()) {}
 
             static constexpr bool is_byte_aligned() { return alignment == BitRangeAlignment::byte_aligned; }
 
@@ -1089,7 +1095,7 @@ class bitvector_base final {
                // std::align takes `ptr` as a reference (!), i.e. `void*&` and
                // uses it as an out-param. Though, `cptr` is const because this
                // method is const-qualified, hence the const_cast<>.
-               void* ptr = const_cast<void*>(cptr);
+               void* ptr = const_cast<void*>(cptr);  // NOLINT(*-const-correctness)
                size_t size = sizeof(BlockT);
                return ptr_before != nullptr && std::align(alignof(BlockT), size, ptr, size) == ptr_before;
             }
@@ -1179,7 +1185,7 @@ class bitvector_base final {
 
          private:
             template <std::unsigned_integral... BlockTs>
-               requires(all_same_v<BlockTs...>)
+               requires(all_same_v<std::remove_cv_t<BlockTs>...>)
             constexpr static auto apply(FnT fn, size_type bits, BlockTs... blocks) {
                if constexpr(needs_mask) {
                   return fn(blocks..., make_mask<detail::first_t<BlockTs...>>(bits));
@@ -1305,7 +1311,7 @@ namespace detail {
  * prefer it. Otherwise, the allocator of @p lhs will be used as a default.
  */
 template <bitvectorish T1, bitvectorish T2>
-constexpr auto copy_lhs_allocator_aware(const T1& lhs, const T2&) {
+constexpr auto copy_lhs_allocator_aware(const T1& lhs, const T2& /*rhs*/) {
    constexpr bool needs_secure_allocator =
       strong_type_wrapped_type<T1>::uses_secure_allocator || strong_type_wrapped_type<T2>::uses_secure_allocator;
 
@@ -1341,11 +1347,6 @@ auto operator^(const T1& lhs, const T2& rhs) {
 
 template <bitvectorish T1, bitvectorish T2>
 bool operator==(const T1& lhs, const T2& rhs) {
-   return lhs.equals_vartime(rhs);
-}
-
-template <bitvectorish T1, bitvectorish T2>
-bool operator!=(const T1& lhs, const T2& rhs) {
    return lhs.equals_vartime(rhs);
 }
 

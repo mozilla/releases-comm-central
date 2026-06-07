@@ -5,8 +5,8 @@
 * Botan is released under the Simplified BSD License (see license.txt)
 */
 
-#ifndef BOTAN_DIVISON_ALGORITHM_H_
-#define BOTAN_DIVISON_ALGORITHM_H_
+#ifndef BOTAN_BIGINT_DIVIDE_H_
+#define BOTAN_BIGINT_DIVIDE_H_
 
 #include <botan/bigint.h>
 
@@ -51,6 +51,20 @@ BOTAN_TEST_API
 BigInt ct_divide_pow2k(size_t k, const BigInt& y);
 
 /**
+* BigInt division, variable time, 2^k variant
+*
+* This is identical to ct_divide_pow2k in functionality,
+* but leaks both k and y to side channels, so it should only
+* be used with public inputs.
+*
+* @param k an integer
+* @param y a positive integer
+* @return q equal to 2**k / y
+*/
+BOTAN_TEST_API
+BigInt vartime_divide_pow2k(size_t k, const BigInt& y);
+
+/**
 * BigInt division, const time variant
 *
 * This runs with control flow independent of the values of x/y.
@@ -61,7 +75,8 @@ BigInt ct_divide_pow2k(size_t k, const BigInt& y);
 * @return x/y with remainder discarded
 */
 inline BigInt ct_divide(const BigInt& x, const BigInt& y) {
-   BigInt q, r;
+   BigInt q;
+   BigInt r;
    ct_divide(x, y, q, r);
    return q;
 }

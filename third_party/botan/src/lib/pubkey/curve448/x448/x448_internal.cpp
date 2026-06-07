@@ -46,21 +46,19 @@ Point448 x448_basepoint(const ScalarX448& k) {
 // Algorithm see RFC 7748, Section 5:
 // https://datatracker.ietf.org/doc/html/rfc7748#section-5
 Point448 x448(const ScalarX448& k, const Point448& u) {
-   const Gf448Elem a24 = 39081;
-
-   Gf448Elem x_1 = Gf448Elem(u.get());
-   Gf448Elem x_2 = 1;
-   Gf448Elem z_2 = 0;
+   const Gf448Elem x_1 = Gf448Elem(u.get());
+   Gf448Elem x_2 = Gf448Elem::one();
+   Gf448Elem z_2 = Gf448Elem::zero();
    Gf448Elem x_3 = Gf448Elem(u.get());
-   Gf448Elem z_3 = 1;
+   Gf448Elem z_3 = Gf448Elem::one();
    auto swap = CT::Mask<uint64_t>::cleared();
 
    for(int16_t t = 448 - 1; t >= 0; --t) {
       auto k_t = CT::Mask<uint64_t>::expand(get_bit(k, t));
       swap ^= k_t;
 
-      x_2.ct_cond_swap(swap.as_bool(), x_3);
-      z_2.ct_cond_swap(swap.as_bool(), z_3);
+      x_2.ct_cond_swap(swap, x_3);
+      z_2.ct_cond_swap(swap, z_3);
       swap = k_t;
 
       const auto A = x_2 + z_2;
@@ -75,11 +73,11 @@ Point448 x448(const ScalarX448& k, const Point448& u) {
       x_3 = square(DA + CB);
       z_3 = x_1 * square(DA - CB);
       x_2 = AA * BB;
-      z_2 = E * (AA + a24 * E);
+      z_2 = E * (AA + mul_a24(E));
    }
 
-   x_2.ct_cond_swap(swap.as_bool(), x_3);
-   z_2.ct_cond_swap(swap.as_bool(), z_3);
+   x_2.ct_cond_swap(swap, x_3);
+   z_2.ct_cond_swap(swap, z_3);
 
    const auto res = x_2 / z_2;
 

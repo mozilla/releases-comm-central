@@ -9,82 +9,17 @@
 #include <botan/internal/tls_handshake_state.h>
 
 #include <botan/kdf.h>
-#include <botan/tls_messages.h>
+#include <botan/pkix_types.h>
+#include <botan/tls_callbacks.h>
+#include <botan/tls_messages_12.h>
+#include <botan/tls_policy.h>
 #include <botan/tls_signature_scheme.h>
 #include <botan/internal/tls_record.h>
-#include <sstream>
 
 namespace Botan::TLS {
 
 std::string Handshake_Message::type_string() const {
    return handshake_type_to_string(type());
-}
-
-const char* handshake_type_to_string(Handshake_Type type) {
-   switch(type) {
-      case Handshake_Type::HelloVerifyRequest:
-         return "hello_verify_request";
-
-      case Handshake_Type::HelloRequest:
-         return "hello_request";
-
-      case Handshake_Type::ClientHello:
-         return "client_hello";
-
-      case Handshake_Type::ServerHello:
-         return "server_hello";
-
-      case Handshake_Type::HelloRetryRequest:
-         return "hello_retry_request";
-
-      case Handshake_Type::Certificate:
-         return "certificate";
-
-      case Handshake_Type::CertificateUrl:
-         return "certificate_url";
-
-      case Handshake_Type::CertificateStatus:
-         return "certificate_status";
-
-      case Handshake_Type::ServerKeyExchange:
-         return "server_key_exchange";
-
-      case Handshake_Type::CertificateRequest:
-         return "certificate_request";
-
-      case Handshake_Type::ServerHelloDone:
-         return "server_hello_done";
-
-      case Handshake_Type::CertificateVerify:
-         return "certificate_verify";
-
-      case Handshake_Type::ClientKeyExchange:
-         return "client_key_exchange";
-
-      case Handshake_Type::NewSessionTicket:
-         return "new_session_ticket";
-
-      case Handshake_Type::HandshakeCCS:
-         return "change_cipher_spec";
-
-      case Handshake_Type::Finished:
-         return "finished";
-
-      case Handshake_Type::EndOfEarlyData:
-         return "end_of_early_data";
-
-      case Handshake_Type::EncryptedExtensions:
-         return "encrypted_extensions";
-
-      case Handshake_Type::KeyUpdate:
-         return "key_update";
-
-      case Handshake_Type::None:
-         return "invalid";
-   }
-
-   throw TLS_Exception(Alert::UnexpectedMessage,
-                       "Unknown TLS handshake message type " + std::to_string(static_cast<size_t>(type)));
 }
 
 /*
@@ -102,85 +37,100 @@ void Handshake_State::note_message(const Handshake_Message& msg) {
 void Handshake_State::hello_verify_request(const Hello_Verify_Request& hello_verify) {
    note_message(hello_verify);
 
+   BOTAN_ASSERT_NONNULL(m_client_hello);
    m_client_hello->update_hello_cookie(hello_verify);
    hash().reset();
    hash().update(handshake_io().send(*m_client_hello));
    note_message(*m_client_hello);
 }
 
-void Handshake_State::client_hello(Client_Hello_12* client_hello) {
+void Handshake_State::client_hello(std::unique_ptr<Client_Hello_12> client_hello) {
+   // Legacy behavior (exception to the rule): Allow client_hello to be nullptr to reset state.
    if(client_hello == nullptr) {
       m_client_hello.reset();
       hash().reset();
    } else {
-      m_client_hello.reset(client_hello);
+      m_client_hello = std::move(client_hello);
       note_message(*m_client_hello);
    }
 }
 
-void Handshake_State::server_hello(Server_Hello_12* server_hello) {
-   m_server_hello.reset(server_hello);
+void Handshake_State::server_hello(std::unique_ptr<Server_Hello_12> server_hello) {
+   BOTAN_ASSERT_NONNULL(server_hello);
+   m_server_hello = std::move(server_hello);
    m_ciphersuite = Ciphersuite::by_id(m_server_hello->ciphersuite());
    note_message(*m_server_hello);
 }
 
-void Handshake_State::server_certs(Certificate_12* server_certs) {
-   m_server_certs.reset(server_certs);
+void Handshake_State::server_certs(std::unique_ptr<Certificate_12> server_certs) {
+   BOTAN_ASSERT_NONNULL(server_certs);
+   m_server_certs = std::move(server_certs);
    note_message(*m_server_certs);
 }
 
-void Handshake_State::server_cert_status(Certificate_Status* server_cert_status) {
-   m_server_cert_status.reset(server_cert_status);
+void Handshake_State::server_cert_status(std::unique_ptr<Certificate_Status> server_cert_status) {
+   BOTAN_ASSERT_NONNULL(server_cert_status);
+   m_server_cert_status = std::move(server_cert_status);
    note_message(*m_server_cert_status);
 }
 
-void Handshake_State::server_kex(Server_Key_Exchange* server_kex) {
-   m_server_kex.reset(server_kex);
+void Handshake_State::server_kex(std::unique_ptr<Server_Key_Exchange> server_kex) {
+   BOTAN_ASSERT_NONNULL(server_kex);
+   m_server_kex = std::move(server_kex);
    note_message(*m_server_kex);
 }
 
-void Handshake_State::cert_req(Certificate_Request_12* cert_req) {
-   m_cert_req.reset(cert_req);
+void Handshake_State::cert_req(std::unique_ptr<Certificate_Request_12> cert_req) {
+   BOTAN_ASSERT_NONNULL(cert_req);
+   m_cert_req = std::move(cert_req);
    note_message(*m_cert_req);
 }
 
-void Handshake_State::server_hello_done(Server_Hello_Done* server_hello_done) {
-   m_server_hello_done.reset(server_hello_done);
+void Handshake_State::server_hello_done(std::unique_ptr<Server_Hello_Done> server_hello_done) {
+   BOTAN_ASSERT_NONNULL(server_hello_done);
+   m_server_hello_done = std::move(server_hello_done);
    note_message(*m_server_hello_done);
 }
 
-void Handshake_State::client_certs(Certificate_12* client_certs) {
-   m_client_certs.reset(client_certs);
+void Handshake_State::client_certs(std::unique_ptr<Certificate_12> client_certs) {
+   BOTAN_ASSERT_NONNULL(client_certs);
+   m_client_certs = std::move(client_certs);
    note_message(*m_client_certs);
 }
 
-void Handshake_State::client_kex(Client_Key_Exchange* client_kex) {
-   m_client_kex.reset(client_kex);
+void Handshake_State::client_kex(std::unique_ptr<Client_Key_Exchange> client_kex) {
+   BOTAN_ASSERT_NONNULL(client_kex);
+   m_client_kex = std::move(client_kex);
    note_message(*m_client_kex);
 }
 
-void Handshake_State::client_verify(Certificate_Verify_12* client_verify) {
-   m_client_verify.reset(client_verify);
+void Handshake_State::client_verify(std::unique_ptr<Certificate_Verify_12> client_verify) {
+   BOTAN_ASSERT_NONNULL(client_verify);
+   m_client_verify = std::move(client_verify);
    note_message(*m_client_verify);
 }
 
-void Handshake_State::server_verify(Certificate_Verify_12* server_verify) {
-   m_server_verify.reset(server_verify);
+void Handshake_State::server_verify(std::unique_ptr<Certificate_Verify_12> server_verify) {
+   BOTAN_ASSERT_NONNULL(server_verify);
+   m_server_verify = std::move(server_verify);
    note_message(*m_server_verify);
 }
 
-void Handshake_State::new_session_ticket(New_Session_Ticket_12* new_session_ticket) {
-   m_new_session_ticket.reset(new_session_ticket);
+void Handshake_State::new_session_ticket(std::unique_ptr<New_Session_Ticket_12> new_session_ticket) {
+   BOTAN_ASSERT_NONNULL(new_session_ticket);
+   m_new_session_ticket = std::move(new_session_ticket);
    note_message(*m_new_session_ticket);
 }
 
-void Handshake_State::server_finished(Finished_12* server_finished) {
-   m_server_finished.reset(server_finished);
+void Handshake_State::server_finished(std::unique_ptr<Finished_12> server_finished) {
+   BOTAN_ASSERT_NONNULL(server_finished);
+   m_server_finished = std::move(server_finished);
    note_message(*m_server_finished);
 }
 
-void Handshake_State::client_finished(Finished_12* client_finished) {
-   m_client_finished.reset(client_finished);
+void Handshake_State::client_finished(std::unique_ptr<Finished_12> client_finished) {
+   BOTAN_ASSERT_NONNULL(client_finished);
+   m_client_finished = std::move(client_finished);
    note_message(*m_client_finished);
 }
 
@@ -203,6 +153,7 @@ void Handshake_State::set_version(const Protocol_Version& version) {
 }
 
 void Handshake_State::compute_session_keys() {
+   BOTAN_ASSERT_NONNULL(client_kex());
    m_session_keys = Session_Keys(this, client_kex()->pre_master_secret(), false);
 }
 
@@ -227,21 +178,19 @@ std::pair<Handshake_Type, std::vector<uint8_t>> Handshake_State::get_next_handsh
 }
 
 Session_Ticket Handshake_State::session_ticket() const {
-   if(new_session_ticket() && !new_session_ticket()->ticket().empty()) {
-      return new_session_ticket()->ticket();
+   if(const auto* nst = new_session_ticket()) {
+      const auto& ticket = nst->ticket();
+      if(!ticket.empty()) {
+         return ticket;
+      }
    }
 
+   BOTAN_ASSERT_NONNULL(client_hello());
    return client_hello()->session_ticket();
 }
 
 std::unique_ptr<KDF> Handshake_State::protocol_specific_prf() const {
-   const std::string prf_algo = ciphersuite().prf_algo();
-
-   if(prf_algo == "MD5" || prf_algo == "SHA-1") {
-      return KDF::create_or_throw("TLS-12-PRF(SHA-256)");
-   }
-
-   return KDF::create_or_throw("TLS-12-PRF(" + prf_algo + ")");
+   return m_callbacks.tls12_protocol_specific_kdf(ciphersuite().prf_algo());
 }
 
 std::pair<std::string, Signature_Format> Handshake_State::choose_sig_format(const Private_Key& key,
@@ -252,10 +201,16 @@ std::pair<std::string, Signature_Format> Handshake_State::choose_sig_format(cons
 
    const std::vector<Signature_Scheme> allowed = policy.allowed_signature_schemes();
 
+   if(for_client_auth) {
+      BOTAN_ASSERT_NONNULL(cert_req());
+   } else {
+      BOTAN_ASSERT_NONNULL(client_hello());
+   }
+
    std::vector<Signature_Scheme> requested =
       (for_client_auth) ? cert_req()->signature_schemes() : client_hello()->signature_schemes();
 
-   for(Signature_Scheme scheme : allowed) {
+   for(const Signature_Scheme scheme : allowed) {
       if(!scheme.is_available()) {
          continue;
       }
@@ -286,7 +241,7 @@ namespace {
 bool supported_algos_include(const std::vector<Signature_Scheme>& schemes,
                              std::string_view key_type,
                              std::string_view hash_type) {
-   for(Signature_Scheme scheme : schemes) {
+   for(const Signature_Scheme scheme : schemes) {
       if(scheme.is_available() && hash_type == scheme.hash_function_name() && key_type == scheme.algorithm_name()) {
          return true;
       }
@@ -317,8 +272,8 @@ std::pair<std::string, Signature_Format> Handshake_State::parse_sig_format(
       throw Decoding_Error("Counterparty sent inconsistent key and sig types");
    }
 
-   if(for_client_auth && !cert_req()) {
-      throw TLS_Exception(Alert::HandshakeFailure, "No certificate verify set");
+   if(for_client_auth && cert_req() == nullptr) {
+      throw TLS_Exception(Alert::HandshakeFailure, "No CertificateVerify message received");
    }
 
    /*

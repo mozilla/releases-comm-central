@@ -17,7 +17,7 @@
 * This file consolidates the actual definition of such target attributes
 */
 
-#if defined(BOTAN_TARGET_CPU_IS_X86_FAMILY)
+#if defined(BOTAN_TARGET_ARCH_IS_X86_FAMILY)
 
    #define BOTAN_FN_ISA_SIMD_4X32 BOTAN_FUNC_ISA("ssse3")
    #define BOTAN_FN_ISA_SIMD_2X64 BOTAN_FUNC_ISA("ssse3")
@@ -27,15 +27,25 @@
    #define BOTAN_FN_ISA_AESNI BOTAN_FUNC_ISA("aes,ssse3")
    #define BOTAN_FN_ISA_SHANI BOTAN_FUNC_ISA("sha,ssse3,sse4.1")
    #define BOTAN_FN_ISA_SHA512 BOTAN_FUNC_ISA("sha512,avx2")
+   #define BOTAN_FN_ISA_BMI2 BOTAN_FUNC_ISA("bmi,bmi2")
+   #define BOTAN_FN_ISA_RNG BOTAN_FUNC_ISA("rdrnd")
    #define BOTAN_FN_ISA_SSE2 BOTAN_FUNC_ISA("sse2")
    #define BOTAN_FN_ISA_AVX2 BOTAN_FUNC_ISA("avx2")
    #define BOTAN_FN_ISA_AVX2_BMI2 BOTAN_FUNC_ISA("avx2,bmi,bmi2")
+   #define BOTAN_FN_ISA_AVX2_GFNI BOTAN_FUNC_ISA("avx2,gfni")
    #define BOTAN_FN_ISA_AVX2_VAES BOTAN_FUNC_ISA("vaes,avx2")
+   #define BOTAN_FN_ISA_AVX2_SM3 BOTAN_FUNC_ISA("sm3,avx2")
    #define BOTAN_FN_ISA_AVX2_SM4 BOTAN_FUNC_ISA("sm4,avx2")
-   #define BOTAN_FN_ISA_AVX2_GFNI BOTAN_FUNC_ISA("gfni,avx2")
-   #define BOTAN_FN_ISA_AVX512 BOTAN_FUNC_ISA("avx512f,avx512dq,avx512bw")
-   #define BOTAN_FN_ISA_AVX512_BMI2 BOTAN_FUNC_ISA("avx512f,avx512dq,avx512bw,bmi,bmi2")
+   #define BOTAN_FN_ISA_AVX512 \
+      BOTAN_FUNC_ISA("avx512f,avx512dq,avx512bw,avx512vl,avx512vbmi,avx512vbmi2,avx512bitalg,avx512ifma")
+   #define BOTAN_FN_ISA_AVX512_CLMUL \
+      BOTAN_FUNC_ISA("avx512f,avx512dq,avx512bw,avx512vl,avx512vbmi,avx512vbmi2,avx512bitalg,pclmul,vpclmulqdq")
+   #define BOTAN_FN_ISA_AVX512_BMI2 \
+      BOTAN_FUNC_ISA("avx512f,avx512dq,avx512bw,avx512vl,avx512vbmi,avx512vbmi2,avx512bitalg,avx512ifma,bmi,bmi2")
+   #define BOTAN_FN_ISA_AVX512_GFNI \
+      BOTAN_FUNC_ISA("avx512f,avx512dq,avx512bw,avx512vl,avx512vbmi,avx512vbmi2,avx512bitalg,avx512ifma,gfni")
 
+   #define BOTAN_FN_ISA_HWAES BOTAN_FN_ISA_AESNI
 #endif
 
 #if defined(BOTAN_TARGET_ARCH_IS_ARM64)
@@ -44,26 +54,37 @@
    #define BOTAN_FN_ISA_CLMUL BOTAN_FUNC_ISA("+crypto+aes")
    #define BOTAN_FN_ISA_AES BOTAN_FUNC_ISA("+crypto+aes")
    #define BOTAN_FN_ISA_SHA2 BOTAN_FUNC_ISA("+crypto+sha2")
+   #define BOTAN_FN_ISA_SM3 BOTAN_FUNC_ISA("arch=armv8.2-a+sm4")
    #define BOTAN_FN_ISA_SM4 BOTAN_FUNC_ISA("arch=armv8.2-a+sm4")
    #define BOTAN_FN_ISA_SHA512 BOTAN_FUNC_ISA("arch=armv8.2-a+sha3")
 
+   #define BOTAN_FN_ISA_HWAES BOTAN_FN_ISA_AES
 #endif
 
 #if defined(BOTAN_TARGET_ARCH_IS_ARM32)
    #define BOTAN_FN_ISA_SIMD_4X32 BOTAN_FUNC_ISA("fpu=neon")
 #endif
 
-#if defined(BOTAN_TARGET_CPU_IS_PPC_FAMILY)
+#if defined(BOTAN_TARGET_ARCH_IS_PPC_FAMILY)
 
    #define BOTAN_FN_ISA_SIMD_4X32 BOTAN_FUNC_ISA("altivec")
    #define BOTAN_FN_ISA_CLMUL BOTAN_FUNC_ISA("vsx,crypto")
    #define BOTAN_FN_ISA_AES BOTAN_FUNC_ISA("vsx,crypto")
+   #define BOTAN_FN_ISA_RNG BOTAN_FUNC_ISA("cpu=power9")
 
+   #define BOTAN_FN_ISA_HWAES BOTAN_FN_ISA_AES
 #endif
 
 #if defined(BOTAN_TARGET_ARCH_IS_LOONGARCH64)
 
    #define BOTAN_FN_ISA_SIMD_4X32 BOTAN_FUNC_ISA("lsx")
+
+#endif
+
+#if defined(BOTAN_TARGET_ARCH_IS_WASM)
+
+   #define BOTAN_FN_ISA_SIMD_4X32 BOTAN_FUNC_ISA("simd128")
+   #define BOTAN_FN_ISA_SIMD_2X64 BOTAN_FUNC_ISA("simd128")
 
 #endif
 

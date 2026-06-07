@@ -1,6 +1,6 @@
-<defines>
+<internal_defines>
 AES_ARMV8 -> 20170903
-</defines>
+</internal_defines>
 
 <module_info>
 name -> "AES ARMv8"
@@ -10,3 +10,7 @@ brief -> "AES using ARMv8 crypto instructions"
 <isa>
 armv8crypto
 </isa>
+
+<requires>
+cpuid
+</requires>

@@ -30,7 +30,8 @@ secure_vector<uint8_t> derive_key(std::string_view passphrase,
                                   size_t default_key_size) {
    if(kdf_algo.oid() == OID::from_string("PKCS5.PBKDF2")) {
       secure_vector<uint8_t> salt;
-      size_t iterations = 0, key_length = 0;
+      size_t iterations = 0;
+      size_t key_length = 0;
 
       AlgorithmIdentifier prf_algo;
       BER_Decoder(kdf_algo.parameters())
@@ -65,10 +66,12 @@ secure_vector<uint8_t> derive_key(std::string_view passphrase,
       return derived_key;
    } else if(kdf_algo.oid() == OID::from_string("Scrypt")) {
       secure_vector<uint8_t> salt;
-      size_t N = 0, r = 0, p = 0;
+      size_t N = 0;
+      size_t r = 0;
+      size_t p = 0;
       size_t key_length = 0;
 
-      AlgorithmIdentifier prf_algo;
+      const AlgorithmIdentifier prf_algo;
       BER_Decoder(kdf_algo.parameters())
          .start_sequence()
          .decode(salt, ASN1_Type::OctetString)
@@ -110,9 +113,8 @@ secure_vector<uint8_t> derive_key(std::string_view passphrase,
 
       std::unique_ptr<PasswordHash> pwhash;
 
-      if(msec_in_iterations_out) {
-         const std::chrono::milliseconds msec(*msec_in_iterations_out);
-         pwhash = pwhash_fam->tune(key_length, msec);
+      if(msec_in_iterations_out != nullptr) {
+         pwhash = pwhash_fam->tune_params(key_length, *msec_in_iterations_out);
       } else {
          pwhash = pwhash_fam->from_iterations(iterations_if_msec_null);
       }
@@ -124,7 +126,7 @@ secure_vector<uint8_t> derive_key(std::string_view passphrase,
       const size_t r = pwhash->iterations();
       const size_t p = pwhash->parallelism();
 
-      if(msec_in_iterations_out) {
+      if(msec_in_iterations_out != nullptr) {
          *msec_in_iterations_out = 0;
       }
 
@@ -151,9 +153,8 @@ secure_vector<uint8_t> derive_key(std::string_view passphrase,
 
       std::unique_ptr<PasswordHash> pwhash;
 
-      if(msec_in_iterations_out) {
-         const std::chrono::milliseconds msec(*msec_in_iterations_out);
-         pwhash = pwhash_fam->tune(key_length, msec);
+      if(msec_in_iterations_out != nullptr) {
+         pwhash = pwhash_fam->tune_params(key_length, *msec_in_iterations_out);
       } else {
          pwhash = pwhash_fam->from_iterations(iterations_if_msec_null);
       }
@@ -165,7 +166,7 @@ secure_vector<uint8_t> derive_key(std::string_view passphrase,
 
       const size_t iterations = pwhash->iterations();
 
-      if(msec_in_iterations_out) {
+      if(msec_in_iterations_out != nullptr) {
          *msec_in_iterations_out = iterations;
       }
 
@@ -232,7 +233,7 @@ std::pair<AlgorithmIdentifier, std::vector<uint8_t>> pbes2_encrypt_shared(std::s
       .encode(AlgorithmIdentifier(cipher, encoded_iv))
       .end_cons();
 
-   AlgorithmIdentifier id(OID::from_string("PBE-PKCS5v20"), pbes2_params);
+   const AlgorithmIdentifier id(OID::from_string("PBE-PKCS5v20"), pbes2_params);
 
    return std::make_pair(id, unlock(ctext));
 }
@@ -261,7 +262,7 @@ std::pair<AlgorithmIdentifier, std::vector<uint8_t>> pbes2_encrypt_msec(std::spa
 
    auto ret = pbes2_encrypt_shared(key_bits, passphrase, &msec_in_iterations_out, 0, cipher, digest, rng);
 
-   if(out_iterations_if_nonnull) {
+   if(out_iterations_if_nonnull != nullptr) {
       *out_iterations_if_nonnull = msec_in_iterations_out;
    }
 
@@ -280,7 +281,8 @@ std::pair<AlgorithmIdentifier, std::vector<uint8_t>> pbes2_encrypt_iter(std::spa
 secure_vector<uint8_t> pbes2_decrypt(std::span<const uint8_t> key_bits,
                                      std::string_view passphrase,
                                      const std::vector<uint8_t>& params) {
-   AlgorithmIdentifier kdf_algo, enc_algo;
+   AlgorithmIdentifier kdf_algo;
+   AlgorithmIdentifier enc_algo;
 
    BER_Decoder(params).start_sequence().decode(kdf_algo).decode(enc_algo).end_cons();
 

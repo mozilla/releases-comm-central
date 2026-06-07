@@ -10,8 +10,8 @@
 #define BOTAN_KDF_BASE_H_
 
 #include <botan/concepts.h>
-#include <botan/exceptn.h>
 #include <botan/secmem.h>
+#include <array>
 #include <memory>
 #include <span>
 #include <string>
@@ -22,7 +22,7 @@ namespace Botan {
 /**
 * Key Derivation Function
 */
-class BOTAN_PUBLIC_API(2, 0) KDF {
+class BOTAN_PUBLIC_API(2, 0) KDF /* NOLINT(*-special-member-functions*) */ {
    public:
       virtual ~KDF() = default;
 
@@ -196,7 +196,7 @@ class BOTAN_PUBLIC_API(2, 0) KDF {
       std::array<uint8_t, key_len> derive_key(std::span<const uint8_t> secret,
                                               std::span<const uint8_t> salt = {},
                                               std::span<const uint8_t> label = {}) {
-         std::array<uint8_t, key_len> key;
+         std::array<uint8_t, key_len> key{};
          perform_kdf(key, secret, salt, label);
          return key;
       }
@@ -259,9 +259,7 @@ class BOTAN_PUBLIC_API(2, 0) KDF {
                                std::span<const uint8_t> label) const = 0;
 
    private:
-      static std::span<const uint8_t> _as_span(std::string_view s) {
-         return {reinterpret_cast<const uint8_t*>(s.data()), s.size()};
-      }
+      static std::span<const uint8_t> _as_span(std::string_view s);
 };
 
 /**

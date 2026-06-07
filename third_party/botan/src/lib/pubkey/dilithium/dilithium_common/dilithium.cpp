@@ -248,7 +248,7 @@ class Dilithium_Signature_Operation final : public PK_Ops::Signature {
 
 class Dilithium_Verification_Operation final : public PK_Ops::Verification {
    public:
-      Dilithium_Verification_Operation(std::shared_ptr<Dilithium_PublicKeyInternal> pubkey) :
+      explicit Dilithium_Verification_Operation(std::shared_ptr<Dilithium_PublicKeyInternal> pubkey) :
             m_pub_key(std::move(pubkey)),
             m_A(Dilithium_Algos::expand_A(m_pub_key->rho(), m_pub_key->mode())),
             m_t1_ntt_shifted(ntt(m_pub_key->t1() << DilithiumConstants::D)),
@@ -269,7 +269,7 @@ class Dilithium_Verification_Operation final : public PK_Ops::Verification {
       bool is_valid_signature(std::span<const uint8_t> sig) override {
          const auto& mode = m_pub_key->mode();
          const auto& sympri = mode.symmetric_primitives();
-         StrongSpan<const DilithiumSerializedSignature> sig_bytes(sig);
+         const StrongSpan<const DilithiumSerializedSignature> sig_bytes(sig);
 
          const auto mu = m_h->final();
 
@@ -365,7 +365,7 @@ std::vector<uint8_t> Dilithium_PublicKey::public_key_bits() const {
    return raw_public_key_bits();
 }
 
-bool Dilithium_PublicKey::check_key(RandomNumberGenerator&, bool) const {
+bool Dilithium_PublicKey::check_key(RandomNumberGenerator& /*rng*/, bool /*strong*/) const {
    return true;  // ???
 }
 

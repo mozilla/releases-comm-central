@@ -13,6 +13,7 @@
 #include <botan/exceptn.h>
 #include <initializer_list>
 #include <iosfwd>
+#include <span>
 
 namespace Botan {
 
@@ -25,6 +26,10 @@ class Output_Buffers;
 * through the pipe until it reaches the end, where the output is
 * collected for retrieval.  If you're familiar with the Unix shell
 * environment, this design will sound quite familiar.
+*
+* @warning This Pipe interface, and all associated types (Filter, etc)
+* are considered decrepit, no longer used within the library itself,
+* and likely will see no future development. Avoid in new code.
 */
 class BOTAN_PUBLIC_API(2, 0) Pipe final : public DataSource {
    public:
@@ -65,6 +70,12 @@ class BOTAN_PUBLIC_API(2, 0) Pipe final : public DataSource {
 
       /**
       * Write input to the pipe, i.e. to its first filter.
+      * @param in the byte array to write
+      */
+      void write(std::span<const uint8_t> in);
+
+      /**
+      * Write input to the pipe, i.e. to its first filter.
       * @param in the secure_vector containing the data to write
       */
       void write(const secure_vector<uint8_t>& in) { write(in.data(), in.size()); }
@@ -99,6 +110,12 @@ class BOTAN_PUBLIC_API(2, 0) Pipe final : public DataSource {
       * @param length the length of the byte array to write
       */
       void process_msg(const uint8_t in[], size_t length);
+
+      /**
+      * Perform start_msg(), write() and end_msg() sequentially.
+      * @param input the byte array containing the data to write
+      */
+      void process_msg(std::span<const uint8_t> input);
 
       /**
       * Perform start_msg(), write() and end_msg() sequentially.
@@ -313,27 +330,32 @@ class BOTAN_PUBLIC_API(2, 0) Pipe final : public DataSource {
       * Construct a Pipe of up to four filters. The filters are set up
       * in the same order as the arguments.
       */
-      Pipe(Filter* = nullptr, Filter* = nullptr, Filter* = nullptr, Filter* = nullptr);
+      BOTAN_FUTURE_EXPLICIT Pipe(Filter* f1 = nullptr,
+                                 Filter* f2 = nullptr,
+                                 Filter* f3 = nullptr,
+                                 Filter* f4 = nullptr);
 
       /**
       * Construct a Pipe from a list of filters
       * @param filters the set of filters to use
       */
-      explicit Pipe(std::initializer_list<Filter*> filters);
+      Pipe(std::initializer_list<Filter*> filters);
 
       Pipe(const Pipe&) = delete;
+      Pipe(Pipe&&) noexcept;
       Pipe& operator=(const Pipe&) = delete;
+      Pipe& operator=(Pipe&&) = delete;
 
       ~Pipe() override;
 
    private:
-      void destruct(Filter*);
+      void destruct(Filter* filt);
       void do_append(Filter* filt);
       void do_prepend(Filter* filt);
-      void find_endpoints(Filter*);
-      void clear_endpoints(Filter*);
+      void find_endpoints(Filter* filt);
+      void clear_endpoints(Filter* filt);
 
-      message_id get_message_no(std::string_view, message_id) const;
+      message_id get_message_no(std::string_view func_name, message_id msg) const;
 
       Filter* m_pipe;
       std::unique_ptr<Output_Buffers> m_outputs;

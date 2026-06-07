@@ -1,0 +1,17 @@
+<internal_defines>
+ARGON2_AVX512 -> 20260318
+</internal_defines>
+
+<module_info>
+name -> "Argon2 AVX-512"
+brief -> "Argon2 using AVX-512 instructions"
+</module_info>
+
+<isa>
+avx512
+</isa>
+
+<requires>
+cpuid
+simd_8x64
+</requires>

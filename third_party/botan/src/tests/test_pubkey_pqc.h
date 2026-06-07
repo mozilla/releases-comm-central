@@ -16,6 +16,7 @@
 
    #include <botan/hash.h>
    #include <botan/pk_algs.h>
+   #include <botan/pubkey.h>
    #include <botan/internal/fmt.h>
 
 namespace Botan_Tests {
@@ -33,7 +34,7 @@ namespace Botan_Tests {
 class PK_PQC_KEM_KAT_Test : public PK_Test {
    protected:
       /// Type of a KAT vector entry that can be recomputed using the seed
-      enum class VarType { SharedSecret, PublicKey, PrivateKey, Ciphertext };
+      enum class VarType : uint8_t { SharedSecret, PublicKey, PrivateKey, Ciphertext };
 
       PK_PQC_KEM_KAT_Test(const std::string& algo_name,
                           const std::string& input_file,
@@ -60,36 +61,32 @@ class PK_PQC_KEM_KAT_Test : public PK_Test {
       virtual bool is_available(const std::string& params) const = 0;
 
       /// Callback to test the RNG's state after key generation. If not overridden checks that the RNG is empty.
-      virtual void inspect_rng_after_keygen(const std::string& params,
+      virtual void inspect_rng_after_keygen(const std::string& /*params*/,
                                             const Fixed_Output_RNG& rng_keygen,
                                             Test::Result& result) const {
-         BOTAN_UNUSED(params);
-         result.confirm("All prepared random bits used for key generation", rng_keygen.empty());
+         result.test_is_true("All prepared random bits used for key generation", rng_keygen.empty());
       }
 
       /// Callback to test the RNG's state after encapsulation. If not overridden checks that the RNG is empty.
-      virtual void inspect_rng_after_encaps(const std::string& params,
+      virtual void inspect_rng_after_encaps(const std::string& /*params*/,
                                             const Fixed_Output_RNG& rng_encaps,
                                             Test::Result& result) const {
-         BOTAN_UNUSED(params);
-         result.confirm("All prepared random bits used for encapsulation", rng_encaps.empty());
+         result.test_is_true("All prepared random bits used for encapsulation", rng_encaps.empty());
       }
 
    private:
-      bool skip_this_test(const std::string& params, const VarMap&) final {
+      bool skip_this_test([[maybe_unused]] const std::string& params, const VarMap& /*vars*/) final {
    #if !defined(BOTAN_HAS_AES)
-         BOTAN_UNUSED(params);
          return true;
    #else
          return !is_available(params);
    #endif
       }
 
-      std::unique_ptr<Botan::RandomNumberGenerator> create_drbg(std::span<const uint8_t> seed) {
+      std::unique_ptr<Botan::RandomNumberGenerator> create_drbg([[maybe_unused]] std::span<const uint8_t> seed) {
    #if defined(BOTAN_HAS_AES)
          return std::make_unique<CTR_DRBG_AES256>(seed);
    #else
-         BOTAN_UNUSED(seed);
          throw Botan_Tests::Test_Error("PQC KAT tests require a build with AES");
    #endif
       }
@@ -110,23 +107,23 @@ class PK_PQC_KEM_KAT_Test : public PK_Test {
          if(!result.test_not_null("Successfully generated private key", sk)) {
             return result;
          }
-         result.test_is_eq("Generated private key",
-                           map_value(params, sk->raw_private_key_bits(), VarType::PrivateKey),
-                           vars.get_req_bin("SK"));
+         result.test_bin_eq("Generated private key",
+                            map_value(params, sk->raw_private_key_bits(), VarType::PrivateKey),
+                            vars.get_req_bin("SK"));
          inspect_rng_after_keygen(params, rng_keygen, result);
 
          // Algorithm properties
-         result.test_eq("Algorithm name", sk->algo_name(), algo_name());
-         result.confirm("Supported operation KeyEncapsulation",
-                        sk->supports_operation(Botan::PublicKeyOperation::KeyEncapsulation));
-         result.test_gte("Key has reasonable estimated strength (lower)", sk->estimated_strength(), 64);
-         result.test_lt("Key has reasonable estimated strength (upper)", sk->estimated_strength(), 512);
+         result.test_str_eq("Algorithm name", sk->algo_name(), algo_name());
+         result.test_is_true("Supported operation KeyEncapsulation",
+                             sk->supports_operation(Botan::PublicKeyOperation::KeyEncapsulation));
+         result.test_sz_gte("Key has reasonable estimated strength (lower)", sk->estimated_strength(), 64);
+         result.test_sz_lt("Key has reasonable estimated strength (upper)", sk->estimated_strength(), 512);
 
          // Extract Public Key
          auto pk = sk->public_key();
-         result.test_is_eq("Generated public key",
-                           map_value(params, pk->public_key_bits(), VarType::PublicKey),
-                           vars.get_req_bin("PK"));
+         result.test_bin_eq("Generated public key",
+                            map_value(params, pk->public_key_bits(), VarType::PublicKey),
+                            vars.get_req_bin("PK"));
 
          // Serialize/Deserialize the Public Key
          auto pk2 = Botan::load_public_key(pk->algorithm_identifier(), pk->public_key_bits());
@@ -137,11 +134,11 @@ class PK_PQC_KEM_KAT_Test : public PK_Test {
          // Encapsulation
          auto enc = Botan::PK_KEM_Encryptor(*pk2, "Raw");
          const auto encaped = enc.encrypt(rng_encaps, 0 /* no KDF */);
-         result.test_is_eq(
+         result.test_bin_eq(
             "Shared Secret", map_value(params, encaped.shared_key(), VarType::SharedSecret), vars.get_req_bin("SS"));
-         result.test_is_eq("Ciphertext",
-                           map_value(params, encaped.encapsulated_shared_key(), VarType::Ciphertext),
-                           vars.get_req_bin("CT"));
+         result.test_bin_eq("Ciphertext",
+                            map_value(params, encaped.encapsulated_shared_key(), VarType::Ciphertext),
+                            vars.get_req_bin("CT"));
          inspect_rng_after_encaps(params, rng_keygen, result);
 
          // Decapsulation
@@ -153,13 +150,12 @@ class PK_PQC_KEM_KAT_Test : public PK_Test {
          Botan::Null_RNG null_rng;
          auto dec = Botan::PK_KEM_Decryptor(*sk2, null_rng, "Raw");
          const auto shared_key = dec.decrypt(encaped.encapsulated_shared_key(), 0 /* no KDF */);
-         result.test_is_eq("Decaps. Shared Secret", shared_key, Botan::lock(vars.get_req_bin("SS")));
+         result.test_bin_eq("Decaps. Shared Secret", shared_key, vars.get_req_bin("SS"));
 
          if(vars.has_key("CT_N")) {
             // Shared secret from invalid KEM ciphertext
             const auto shared_key_invalid = dec.decrypt(vars.get_req_bin("CT_N"), 0 /* no KDF */);
-            result.test_is_eq(
-               "Decaps. Shared Secret Invalid", shared_key_invalid, Botan::lock(vars.get_req_bin("SS_N")));
+            result.test_bin_eq("Decaps. Shared Secret Invalid", shared_key_invalid, vars.get_req_bin("SS_N"));
          }
 
          return result;
@@ -192,7 +188,7 @@ class PK_PQC_KEM_ACVP_KAT_KeyGen_Test : public PK_Test {
       }
 
    private:
-      bool skip_this_test(const std::string& params, const VarMap&) final { return !is_available(params); }
+      bool skip_this_test(const std::string& params, const VarMap& /*vars*/) final { return !is_available(params); }
 
       Test::Result run_one_test(const std::string& params, const VarMap& vars) final {
          Test::Result result(Botan::fmt("PQC ACVP KAT for {} KeyGen with parameters {}", algo_name(), params));
@@ -204,20 +200,21 @@ class PK_PQC_KEM_ACVP_KAT_KeyGen_Test : public PK_Test {
          if(!result.test_not_null("Successfully generated private key", sk)) {
             return result;
          }
-         result.test_is_eq("Generated private key", compress_value(sk->raw_private_key_bits()), vars.get_req_bin("DK"));
+         result.test_bin_eq(
+            "Generated private key", compress_value(sk->raw_private_key_bits()), vars.get_req_bin("DK"));
 
          // Algorithm properties
-         result.test_eq("Algorithm name", sk->algo_name(), algo_name());
-         result.confirm("Supported operation KeyEncapsulation",
-                        sk->supports_operation(Botan::PublicKeyOperation::KeyEncapsulation));
-         result.test_gte("Key has reasonable estimated strength (lower)", sk->estimated_strength(), 64);
-         result.test_lt("Key has reasonable estimated strength (upper)", sk->estimated_strength(), 512);
+         result.test_str_eq("Algorithm name", sk->algo_name(), algo_name());
+         result.test_is_true("Supported operation KeyEncapsulation",
+                             sk->supports_operation(Botan::PublicKeyOperation::KeyEncapsulation));
+         result.test_sz_gte("Key has reasonable estimated strength (lower)", sk->estimated_strength(), 64);
+         result.test_sz_lt("Key has reasonable estimated strength (upper)", sk->estimated_strength(), 512);
 
          // Extract Public Key
          auto pk = sk->public_key();
-         result.test_is_eq("Generated public key", compress_value(pk->public_key_bits()), vars.get_req_bin("EK"));
+         result.test_bin_eq("Generated public key", compress_value(pk->public_key_bits()), vars.get_req_bin("EK"));
 
-         result.confirm("All prepared random bits used for key generation", rng_keygen.empty());
+         result.test_is_true("All prepared random bits used for key generation", rng_keygen.empty());
 
          return result;
       }
@@ -240,7 +237,7 @@ class PK_PQC_KEM_ACVP_KAT_Encap_Test : public PK_Test {
       virtual bool is_available(const std::string& params) const = 0;
 
    private:
-      bool skip_this_test(const std::string& params, const VarMap&) final { return !is_available(params); }
+      bool skip_this_test(const std::string& params, const VarMap& /*vars*/) final { return !is_available(params); }
 
       std::vector<uint8_t> compress_value(std::span<const uint8_t> value) {
          // We always use SHAKE-256(128) for ML-KEM
@@ -257,10 +254,10 @@ class PK_PQC_KEM_ACVP_KAT_Encap_Test : public PK_Test {
 
          auto enc = Botan::PK_KEM_Encryptor(*pk, "Raw");
          const auto encaped = enc.encrypt(rng_encap, 0 /* no KDF */);
-         result.test_is_eq("Shared Secret", encaped.shared_key(), Botan::lock(vars.get_req_bin("K")));
-         result.test_is_eq("Ciphertext", compress_value(encaped.encapsulated_shared_key()), vars.get_req_bin("C"));
+         result.test_bin_eq("Shared Secret", encaped.shared_key(), vars.get_req_bin("K"));
+         result.test_bin_eq("Ciphertext", compress_value(encaped.encapsulated_shared_key()), vars.get_req_bin("C"));
 
-         result.confirm("All prepared random bits used for key generation", rng_encap.empty());
+         result.test_is_true("All prepared random bits used for key generation", rng_encap.empty());
 
          return result;
       }
@@ -278,7 +275,7 @@ class PK_PQC_KEM_ACVP_KAT_Decap_Test : public PK_Test {
       virtual bool is_available(const std::string& params) const = 0;
 
    private:
-      bool skip_this_test(const std::string& params, const VarMap&) final { return !is_available(params); }
+      bool skip_this_test(const std::string& params, const VarMap& /*vars*/) final { return !is_available(params); }
 
       Test::Result run_one_test(const std::string& params, const VarMap& vars) final {
          Test::Result result(Botan::fmt("PQC ACVP KAT for {} Decap with parameters {}", algo_name(), params));
@@ -288,7 +285,7 @@ class PK_PQC_KEM_ACVP_KAT_Decap_Test : public PK_Test {
          Botan::Null_RNG null_rng;
          auto dec = Botan::PK_KEM_Decryptor(*sk, null_rng, "Raw");
          const auto shared_key = dec.decrypt(vars.get_req_bin("C"), 0 /* no KDF */);
-         result.test_is_eq("Decaps. Shared Secret", shared_key, Botan::lock(vars.get_req_bin("K")));
+         result.test_bin_eq("Decaps. Shared Secret", shared_key, vars.get_req_bin("K"));
 
          return result;
       }

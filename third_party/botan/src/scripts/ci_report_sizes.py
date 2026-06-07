@@ -12,7 +12,6 @@ Botan is released under the Simplified BSD License (see license.txt)
 import os
 import sys
 import json
-import re
 
 def format_size(bytes):
     kB = 1024
@@ -23,7 +22,7 @@ def format_size(bytes):
         return "%d bytes" % (bytes)
 
 def report_size(fsname):
-    if os.access(fsname, os.R_OK) == False:
+    if not os.access(fsname, os.R_OK):
         print("ERROR: Could not find %s" % (fsname))
         return
     bytes = os.stat(fsname).st_size

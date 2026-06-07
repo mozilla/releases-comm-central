@@ -10,6 +10,7 @@
 
 #include <botan/tls_alert.h>
 #include <botan/tls_exceptn.h>
+#include <botan/internal/concat_util.h>
 #include <botan/internal/stl_util.h>
 #include <botan/internal/tls_reader.h>
 #include <botan/internal/tls_transcript_hash_13.h>
@@ -64,7 +65,7 @@ std::optional<Msg_Type> parse_message(TLS::TLS_Data_Reader& reader,
       return std::nullopt;
    }
 
-   Handshake_Type type = handshake_type_from_byte<Msg_Type>(reader.get_byte());
+   const Handshake_Type type = handshake_type_from_byte<Msg_Type>(reader.get_byte());
 
    // make sure we have received the full message
    const size_t msg_len = reader.get_uint24_t();

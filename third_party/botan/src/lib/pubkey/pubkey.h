@@ -8,7 +8,6 @@
 #ifndef BOTAN_PUBKEY_H_
 #define BOTAN_PUBKEY_H_
 
-#include <botan/asn1_obj.h>
 #include <botan/pk_keys.h>
 #include <botan/pk_ops_fwd.h>
 #include <botan/symkey.h>
@@ -420,12 +419,22 @@ class BOTAN_PUBLIC_API(2, 0) PK_Key_Agreement final {
       * Perform Key Agreement Operation
       * @param key_len the desired key output size (ignored if "Raw" KDF is used)
       * @param peer_key the other parties key
+      * @param salt extra derivation salt
+      */
+      SymmetricKey derive_key(size_t key_len, std::span<const uint8_t> peer_key, std::span<const uint8_t> salt) const;
+
+      /**
+      * Perform Key Agreement Operation
+      * @param key_len the desired key output size (ignored if "Raw" KDF is used)
+      * @param peer_key the other parties key
       * @param peer_key_len the length of peer_key in bytes
       * @param salt extra derivation salt
       * @param salt_len the length of salt in bytes
       */
       SymmetricKey derive_key(
-         size_t key_len, const uint8_t peer_key[], size_t peer_key_len, const uint8_t salt[], size_t salt_len) const;
+         size_t key_len, const uint8_t peer_key[], size_t peer_key_len, const uint8_t salt[], size_t salt_len) const {
+         return this->derive_key(key_len, {peer_key, peer_key_len}, {salt, salt_len});
+      }
 
       /**
       * Perform Key Agreement Operation
@@ -507,13 +516,15 @@ class BOTAN_PUBLIC_API(2, 0) PK_Encryptor_EME final : public PK_Encryptor {
       size_t ciphertext_length(size_t ptext_len) const override;
 
    private:
-      std::vector<uint8_t> enc(const uint8_t[], size_t, RandomNumberGenerator& rng) const override;
+      std::vector<uint8_t> enc(const uint8_t ptext[], size_t len, RandomNumberGenerator& rng) const override;
 
       std::unique_ptr<PK_Ops::Encryption> m_op;
 };
 
 /**
-* Decryption with an MR algorithm and an EME.
+* Decryption with a padding scheme.
+*
+* This is typically only used with RSA
 */
 class BOTAN_PUBLIC_API(2, 0) PK_Decryptor_EME final : public PK_Decryptor {
    public:
@@ -521,12 +532,12 @@ class BOTAN_PUBLIC_API(2, 0) PK_Decryptor_EME final : public PK_Decryptor {
       * Construct an instance.
       * @param key the key to use inside the decryptor
       * @param rng the random generator to use
-      * @param eme the EME to use
+      * @param padding the padding scheme to use
       * @param provider the provider to use
       */
       PK_Decryptor_EME(const Private_Key& key,
                        RandomNumberGenerator& rng,
-                       std::string_view eme,
+                       std::string_view padding,
                        std::string_view provider = "");
 
       size_t plaintext_length(size_t ptext_len) const override;
@@ -566,7 +577,8 @@ class KEM_Encapsulation final {
       /**
        * @returns the pair (encapsulated key, key) extracted from @p kem
        */
-      static std::pair<std::vector<uint8_t>, secure_vector<uint8_t>> destructure(KEM_Encapsulation&& kem) {
+      static std::pair<std::vector<uint8_t>, secure_vector<uint8_t>> destructure(
+         KEM_Encapsulation&& kem) /* NOLINT(*param-not-moved*) */ {
          return std::make_pair(std::exchange(kem.m_encapsulated_shared_key, {}), std::exchange(kem.m_shared_key, {}));
       }
 
@@ -592,7 +604,9 @@ class BOTAN_PUBLIC_API(2, 0) PK_KEM_Encryptor final {
       * @param kem_param additional KEM parameters
       * @param provider the provider to use
       */
-      PK_KEM_Encryptor(const Public_Key& key, std::string_view kem_param = "", std::string_view provider = "");
+      BOTAN_FUTURE_EXPLICIT PK_KEM_Encryptor(const Public_Key& key,
+                                             std::string_view kem_param = "",
+                                             std::string_view provider = "");
 
       /**
       * Construct an instance.
@@ -703,7 +717,7 @@ class BOTAN_PUBLIC_API(2, 0) PK_KEM_Encryptor final {
          this->encrypt(out_encapsulated_key, out_shared_key, rng, desired_shared_key_len, {salt, salt_len});
       }
 
-      BOTAN_DEPRECATED("use overload where rng comes after the out-paramters")
+      BOTAN_DEPRECATED("use overload where rng comes after the out-parameters")
       void encrypt(secure_vector<uint8_t>& out_encapsulated_key,
                    secure_vector<uint8_t>& out_shared_key,
                    size_t desired_shared_key_len,

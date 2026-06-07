@@ -12,6 +12,7 @@
 #include <memory>
 #include <optional>
 #include <span>
+#include <string_view>
 #include <vector>
 
 namespace Botan {
@@ -19,7 +20,6 @@ namespace Botan {
 class BigInt;
 class RandomNumberGenerator;
 class EC_Group;
-class EC_Group_Data;
 class EC_Scalar_Data;
 
 /**
@@ -53,6 +53,16 @@ class BOTAN_PUBLIC_API(3, 6) EC_Scalar final {
       * 2*bytes() long
       */
       static EC_Scalar from_bytes_mod_order(const EC_Group& group, std::span<const uint8_t> bytes);
+
+      /**
+      * Hash to scalar following RFC 9380
+      *
+      * This requires XMD. Unlike hash2curve, any group is supported
+      */
+      static EC_Scalar hash(const EC_Group& group,
+                            std::string_view hash_fn,
+                            std::span<const uint8_t> input,
+                            std::span<const uint8_t> domain_sep);
 
       /**
       * Convert a bytestring to an EC_Scalar
@@ -96,7 +106,8 @@ class BOTAN_PUBLIC_API(3, 6) EC_Scalar final {
       static EC_Scalar gk_x_mod_order(const EC_Scalar& scalar, RandomNumberGenerator& rng);
 
       BOTAN_DEPRECATED("Use version without workspace arg")
-      static EC_Scalar gk_x_mod_order(const EC_Scalar& scalar, RandomNumberGenerator& rng, std::vector<BigInt>&) {
+      static EC_Scalar
+         gk_x_mod_order(const EC_Scalar& scalar, RandomNumberGenerator& rng, std::vector<BigInt>& /*ws*/) {
          return EC_Scalar::gk_x_mod_order(scalar, rng);
       }
 
@@ -193,6 +204,13 @@ class BOTAN_PUBLIC_API(3, 6) EC_Scalar final {
       void assign(const EC_Scalar& x);
 
       /**
+      * Equivalent to assigning a zero value, but also does so in a way that
+      * attempts to ensure the write always occurs even if a compiler can deduce
+      * the assignment is otherwise unnecessary.
+      */
+      void zeroize();
+
+      /**
       * Set *this to its own square modulo the group order
       */
       void square_self();
@@ -230,7 +248,7 @@ class BOTAN_PUBLIC_API(3, 6) EC_Scalar final {
    private:
       friend class EC_AffinePoint;
 
-      EC_Scalar(std::unique_ptr<EC_Scalar_Data> scalar);
+      explicit EC_Scalar(std::unique_ptr<EC_Scalar_Data> scalar);
 
       const EC_Scalar_Data& inner() const { return *m_scalar; }
 

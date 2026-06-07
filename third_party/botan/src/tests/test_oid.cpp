@@ -11,7 +11,6 @@
    #include <botan/asn1_obj.h>
    #include <botan/ber_dec.h>
    #include <botan/der_enc.h>
-   #include <botan/oids.h>
 #endif
 
 namespace Botan_Tests {
@@ -24,10 +23,10 @@ Test::Result test_OID_to_string() {
    /*
    See #2730 and #2237
 
-   Certain locales format integers with thousands seperators.  This
+   Certain locales format integers with thousands separators.  This
    caused a subtle bug which caused OID comparisons to fail because
    OID::to_string(), which used ostringstream, introduced a thousands
-   seperator when the OID component had a value >= 1000. But this
+   separator when the OID component had a value >= 1000. But this
    only failed in certain locales (pt_BR was reported).
 
    Nominally C++ requires std::to_string to also be locale-respecting.
@@ -38,17 +37,17 @@ Test::Result test_OID_to_string() {
 
    Here we test the original issue of #2237 to verify it works. If
    the compiler implements std::to_string in a way that respects locale,
-   *and* this test is run in a locale that uses thousands seperators,
+   *and* this test is run in a locale that uses thousands separators,
    then it will fail. Which is much better than a very subtle failure.
    However if it ever does fail then we must replace nearly every
    call to std::to_string with something else that ignores locale.
    */
 
-   Botan::OID oid{1, 2, 1000, 1001, 1002000};
+   const Botan::OID oid{1, 2, 1000, 1001, 1002000};
 
    Test::Result result("OID::to_string");
 
-   result.test_eq("OID::to_string behaves as we expect", oid.to_string(), "1.2.1000.1001.1002000");
+   result.test_str_eq("OID::to_string behaves as we expect", oid.to_string(), "1.2.1000.1001.1002000");
 
    return result;
 }
@@ -59,13 +58,13 @@ Test::Result test_oid_registration() {
    const std::string name = "botan-test-oid1";
    const Botan::OID oid("1.3.6.1.4.1.25258.1000.1");
 
-   result.test_eq("named OID not found", Botan::OID::from_name(name).has_value(), false);
+   result.test_is_false("named OID not found", Botan::OID::from_name(name).has_value());
 
    Botan::OID::register_oid(oid, name);
 
-   result.test_eq("named OID found", Botan::OID::from_name(name).has_value(), true);
+   result.test_is_true("named OID found", Botan::OID::from_name(name).has_value());
 
-   result.test_eq("name of OID matches expected", oid.to_formatted_string(), name);
+   result.test_str_eq("name of OID matches expected", oid.to_formatted_string(), name);
 
    return result;
 }
@@ -78,12 +77,12 @@ Test::Result test_add_and_lookup() {
    const Botan::OID oid("1.3.6.1.4.1.25258.1001.1");
    const Botan::OID oid2("1.3.6.1.4.1.25258.1001.2");
 
-   result.test_eq("named OID not found", Botan::OID::from_name(name).has_value(), false);
+   result.test_is_false("named OID not found", Botan::OID::from_name(name).has_value());
 
    Botan::OID::register_oid(oid, name);
 
-   result.confirm("named OID found", Botan::OID::from_name(name).value_or(Botan::OID()) == oid);
-   result.test_eq("name of OID matches expected", oid.to_formatted_string(), name);
+   result.test_is_true("named OID found", Botan::OID::from_name(name).value_or(Botan::OID()) == oid);
+   result.test_str_eq("name of OID matches expected", oid.to_formatted_string(), name);
 
    // completely redundant, nothing happens:
    Botan::OID::register_oid(oid, name);
@@ -95,10 +94,11 @@ Test::Result test_add_and_lookup() {
    Botan::OID::register_oid(oid2, name);
 
    // name->oid map is unchanged:
-   result.confirm("named OID found after second insert", Botan::OID::from_name(name).value_or(Botan::OID()) == oid);
-   result.test_eq("name of OID matches expected", oid.to_formatted_string(), name);
+   result.test_is_true("named OID found after second insert",
+                       Botan::OID::from_name(name).value_or(Botan::OID()) == oid);
+   result.test_str_eq("name of OID matches expected", oid.to_formatted_string(), name);
    // now second OID maps back to the string as expected:
-   result.test_eq("name of OID matches expected", oid2.to_formatted_string(), name);
+   result.test_str_eq("name of OID matches expected", oid2.to_formatted_string(), name);
 
    try {
       Botan::OID::register_oid(oid2, name2);
@@ -139,7 +139,7 @@ class OID_Encoding_Tests : public Text_Based_Test {
    public:
       OID_Encoding_Tests() : Text_Based_Test("asn1_oid.vec", "OID,DER") {}
 
-      Test::Result run_one_test(const std::string&, const VarMap& vars) override {
+      Test::Result run_one_test(const std::string& /*header*/, const VarMap& vars) override {
          const auto oid_str = vars.get_req_str("OID");
          const auto expected_der = vars.get_req_bin("DER");
 
@@ -151,7 +151,7 @@ class OID_Encoding_Tests : public Text_Based_Test {
             std::vector<uint8_t> der;
             Botan::DER_Encoder enc(der);
             enc.encode(oid);
-            result.test_eq("Encoding correct", der, expected_der);
+            result.test_bin_eq("Encoding correct", der, expected_der);
          } catch(std::exception& e) {
             result.test_failure("Encoding OID failed", e.what());
          }
@@ -161,7 +161,7 @@ class OID_Encoding_Tests : public Text_Based_Test {
             Botan::OID dec_oid;
             dec.decode(dec_oid);
             dec.verify_end();
-            result.test_eq("Decoding OID correct", dec_oid.to_string(), oid_str);
+            result.test_str_eq("Decoding OID correct", dec_oid.to_string(), oid_str);
          } catch(std::exception& e) {
             result.test_failure("Decoding OID failed", e.what());
          }
@@ -176,7 +176,7 @@ class OID_Invalid_Encoding_Tests : public Text_Based_Test {
    public:
       OID_Invalid_Encoding_Tests() : Text_Based_Test("asn1_oid_invalid.vec", "DER") {}
 
-      Test::Result run_one_test(const std::string&, const VarMap& vars) override {
+      Test::Result run_one_test(const std::string& /*header*/, const VarMap& vars) override {
          const auto test_der = vars.get_req_bin("DER");
 
          Test::Result result("OID DER decode invalid");

@@ -13,7 +13,6 @@
 #include <botan/internal/ct_utils.h>
 #include <botan/internal/ffi_util.h>
 #include <cstdio>
-#include <cstdlib>
 
 #if defined(BOTAN_HAS_OS_UTILS)
    #include <botan/internal/os_utils.h>
@@ -92,7 +91,8 @@ int ffi_error_exception_thrown(const char* func_name, const char* exn, int rc) {
 
 #if defined(BOTAN_HAS_OS_UTILS)
    std::string val;
-   if(Botan::OS::read_env_variable(val, "BOTAN_FFI_PRINT_EXCEPTIONS") == true && !val.empty()) {
+   if(Botan::OS::read_env_variable(val, "BOTAN_FFI_PRINT_EXCEPTIONS") && !val.empty()) {
+      // NOLINTNEXTLINE(*-vararg)
       static_cast<void>(std::fprintf(stderr, "in %s exception '%s' returning %d\n", func_name, exn, rc));
    }
 #endif
@@ -113,13 +113,13 @@ int botan_view_bin_bounce_fn(botan_view_ctx vctx, const uint8_t* buf, size_t len
       return BOTAN_FFI_ERROR_NULL_POINTER;
    }
 
-   botan_view_bounce_struct* ctx = static_cast<botan_view_bounce_struct*>(vctx);
+   const botan_view_bounce_struct* ctx = static_cast<botan_view_bounce_struct*>(vctx);
 
    const size_t avail = *ctx->out_len;
    *ctx->out_len = len;
 
    if(avail < len || ctx->out_ptr == nullptr) {
-      if(ctx->out_ptr) {
+      if(ctx->out_ptr != nullptr) {
          Botan::clear_mem(ctx->out_ptr, avail);
       }
       return BOTAN_FFI_ERROR_INSUFFICIENT_BUFFER_SPACE;
@@ -192,6 +192,9 @@ const char* botan_error_description(int err) {
       case BOTAN_FFI_ERROR_INVALID_OBJECT_STATE:
          return "Invalid object state";
 
+      case BOTAN_FFI_ERROR_OUT_OF_RANGE:
+         return "Index out of range";
+
       case BOTAN_FFI_ERROR_NOT_IMPLEMENTED:
          return "Not implemented";
 
@@ -205,8 +208,6 @@ const char* botan_error_description(int err) {
          return "HTTP error";
 
       case BOTAN_FFI_ERROR_UNKNOWN_ERROR:
-         return "Unknown error";
-
       default:
          return "Unknown error";
    }
@@ -220,6 +221,16 @@ uint32_t botan_ffi_api_version() {
 }
 
 int botan_ffi_supports_api(uint32_t api_version) {
+   // This is the API introduced in 3.11
+   if(api_version == 20260303) {
+      return BOTAN_FFI_SUCCESS;
+   }
+
+   // This is the API introduced in 3.10
+   if(api_version == 20250829) {
+      return BOTAN_FFI_SUCCESS;
+   }
+
    // This is the API introduced in 3.8
    if(api_version == 20250506) {
       return BOTAN_FFI_SUCCESS;

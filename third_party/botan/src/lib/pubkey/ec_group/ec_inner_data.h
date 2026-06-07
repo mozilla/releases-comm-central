@@ -12,7 +12,6 @@
 #include <botan/asn1_obj.h>
 #include <botan/bigint.h>
 #include <botan/internal/monty.h>
-#include <botan/internal/stl_util.h>
 #include <memory>
 #include <span>
 
@@ -34,7 +33,7 @@ class PrimeOrderCurve;
 
 class EC_Group_Data;
 
-class EC_Scalar_Data {
+class EC_Scalar_Data /* NOLINT(*-special-member-functions) */ {
    public:
       virtual ~EC_Scalar_Data() = default;
 
@@ -49,6 +48,8 @@ class EC_Scalar_Data {
       virtual bool is_eq(const EC_Scalar_Data& y) const = 0;
 
       virtual void assign(const EC_Scalar_Data& y) = 0;
+
+      virtual void zeroize() = 0;
 
       virtual void square_self() = 0;
 
@@ -67,7 +68,7 @@ class EC_Scalar_Data {
       virtual void serialize_to(std::span<uint8_t> bytes) const = 0;
 };
 
-class EC_AffinePoint_Data {
+class EC_AffinePoint_Data /* NOLINT(*-special-member-functions) */ {
    public:
       virtual ~EC_AffinePoint_Data() = default;
 
@@ -106,7 +107,7 @@ class EC_AffinePoint_Data {
 #endif
 };
 
-class EC_Mul2Table_Data {
+class EC_Mul2Table_Data /* NOLINT(*-special-member-functions) */ {
    public:
       virtual ~EC_Mul2Table_Data() = default;
 
@@ -136,11 +137,24 @@ class EC_Group_Data final : public std::enable_shared_from_this<EC_Group_Data> {
 
       ~EC_Group_Data();
 
+      EC_Group_Data(const EC_Group_Data& other) = delete;
+      EC_Group_Data(EC_Group_Data&& other) = delete;
+      EC_Group_Data& operator=(const EC_Group_Data& other) = delete;
+      EC_Group_Data& operator=(EC_Group_Data&& other) = delete;
+
       bool params_match(const BigInt& p,
                         const BigInt& a,
                         const BigInt& b,
                         const BigInt& g_x,
                         const BigInt& g_y,
+                        const BigInt& order,
+                        const BigInt& cofactor) const;
+
+      // Like the other params_match but accepting the base point in encoded form
+      bool params_match(const BigInt& p,
+                        const BigInt& a,
+                        const BigInt& b,
+                        std::span<const uint8_t> base_pt,
                         const BigInt& order,
                         const BigInt& cofactor) const;
 
@@ -212,7 +226,7 @@ class EC_Group_Data final : public std::enable_shared_from_this<EC_Group_Data> {
       /// If the input is rejected then nullptr is returned
       std::unique_ptr<EC_Scalar_Data> scalar_deserialize(std::span<const uint8_t> bytes) const;
 
-      /// Scalar from bytes with ECDSA style trunction
+      /// Scalar from bytes with ECDSA style truncation
       ///
       /// This should always succeed
       std::unique_ptr<EC_Scalar_Data> scalar_from_bytes_with_trunc(std::span<const uint8_t> bytes) const;

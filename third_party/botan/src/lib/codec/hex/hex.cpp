@@ -10,7 +10,6 @@
 #include <botan/exceptn.h>
 #include <botan/mem_ops.h>
 #include <botan/internal/charset.h>
-#include <botan/internal/ct_utils.h>
 #include <botan/internal/fmt.h>
 #include <botan/internal/int_utils.h>
 #include <botan/internal/loadstor.h>
@@ -43,7 +42,7 @@ void hex_encode(char output[], const uint8_t input[], size_t input_length, bool 
 std::string hex_encode(const uint8_t input[], size_t input_length, bool uppercase) {
    std::string output(2 * input_length, 0);
 
-   if(input_length) {
+   if(input_length > 0) {
       hex_encode(&output.front(), input, input_length, uppercase);
    }
 
@@ -100,7 +99,7 @@ size_t hex_decode(uint8_t output[], const char input[], size_t input_length, siz
    }
 
    input_consumed = input_length;
-   size_t written = (out_ptr - output);
+   const size_t written = (out_ptr - output);
 
    /*
    * We only got half of a uint8_t at the end; zap the half-written
@@ -116,7 +115,7 @@ size_t hex_decode(uint8_t output[], const char input[], size_t input_length, siz
 
 size_t hex_decode(uint8_t output[], const char input[], size_t input_length, bool ignore_ws) {
    size_t consumed = 0;
-   size_t written = hex_decode(output, input, input_length, consumed, ignore_ws);
+   const size_t written = hex_decode(output, input, input_length, consumed, ignore_ws);
 
    if(consumed != input_length) {
       throw Invalid_Argument("hex_decode: input did not have full bytes");
@@ -136,7 +135,7 @@ size_t hex_decode(std::span<uint8_t> output, std::string_view input, bool ignore
 secure_vector<uint8_t> hex_decode_locked(const char input[], size_t input_length, bool ignore_ws) {
    secure_vector<uint8_t> bin(1 + input_length / 2);
 
-   size_t written = hex_decode(bin.data(), input, input_length, ignore_ws);
+   const size_t written = hex_decode(bin.data(), input, input_length, ignore_ws);
 
    bin.resize(written);
    return bin;
@@ -149,7 +148,7 @@ secure_vector<uint8_t> hex_decode_locked(std::string_view input, bool ignore_ws)
 std::vector<uint8_t> hex_decode(const char input[], size_t input_length, bool ignore_ws) {
    std::vector<uint8_t> bin(1 + input_length / 2);
 
-   size_t written = hex_decode(bin.data(), input, input_length, ignore_ws);
+   const size_t written = hex_decode(bin.data(), input, input_length, ignore_ws);
 
    bin.resize(written);
    return bin;

@@ -15,6 +15,8 @@
 *  - OS: %{os}
 */
 
+/* NOLINTBEGIN(*-macro-usage,*-macro-to-enum) */
+
 /*
 * Configuration
 */
@@ -47,6 +49,10 @@
 #define BOTAN_USE_GCC_INLINE_ASM
 %{endif}
 
+%{if compiler_assisted_stack_scrubbing}
+#define BOTAN_USE_COMPILER_ASSISTED_STACK_SCRUBBING
+%{endif}
+
 /*
 * External tool settings
 */
@@ -70,11 +76,11 @@
 #define BOTAN_TARGET_ARCH_IS_%{arch|upper}
 
 %{if cpu_family}
-#define BOTAN_TARGET_CPU_IS_%{cpu_family|upper}_FAMILY
+#define BOTAN_TARGET_ARCH_IS_%{cpu_family|upper}_FAMILY
 %{endif}
 
 %{for cpu_features}
-#define BOTAN_TARGET_CPU_SUPPORTS_%{i|upper}
+#define BOTAN_TARGET_ARCH_SUPPORTS_%{i|upper}
 %{endfor}
 
 /*
@@ -98,5 +104,7 @@
 %{if system_cert_bundle}
 #define BOTAN_SYSTEM_CERT_BUNDLE "%{system_cert_bundle}"
 %{endif}
+
+/* NOLINTEND(*-macro-usage,*-macro-to-enum) */
 
 #endif

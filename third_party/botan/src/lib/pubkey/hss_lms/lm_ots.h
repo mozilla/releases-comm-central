@@ -9,15 +9,18 @@
 #ifndef BOTAN_LM_OTS_H_
 #define BOTAN_LM_OTS_H_
 
-#include <botan/hash.h>
-#include <botan/internal/stl_util.h>
-
+#include <botan/secmem.h>
+#include <botan/strong_type.h>
+#include <memory>
 #include <span>
 #include <string>
 #include <string_view>
 #include <vector>
 
 namespace Botan {
+
+class BufferSlicer;
+class HashFunction;
 
 /**
  * @brief Seed of the LMS tree, used to generate the LM-OTS private keys.
@@ -62,7 +65,7 @@ using LMS_Message = Strong<std::vector<uint8_t>, struct LMS_Message_>;
  * introduced in RFC 8554 Section 3.2. and their format specified in
  * Section 3.3.
  */
-enum class LMOTS_Algorithm_Type : uint32_t {
+enum class LMOTS_Algorithm_Type : uint32_t /* NOLINT(*-enum-size) */ {
    // --- RFC 8554 ---
    RESERVED = 0x00,
 
@@ -108,7 +111,7 @@ class BOTAN_TEST_API LMOTS_Params final {
       /**
        * @brief Create the LM-OTS parameters from a hash function and width.
        *
-       * @param hash_name tha name of the hash function to use.
+       * @param hash_name the name of the hash function to use.
        * @param w the width (in bits) of the Winternitz coefficients.
        * @throws Decoding_Error If the algorithm type is unknown
        */
@@ -152,7 +155,7 @@ class BOTAN_TEST_API LMOTS_Params final {
       /**
        * @brief Construct a new hash instance for the OTS instance.
        */
-      std::unique_ptr<HashFunction> hash() const { return HashFunction::create_or_throw(hash_name()); }
+      std::unique_ptr<HashFunction> hash() const;
 
    private:
       /**
@@ -309,7 +312,7 @@ class BOTAN_TEST_API LMOTS_Public_Key final : public OTS_Instance {
        * @brief Derivivation of an LMOTS public key using an LMOTS_Private_Key as defined
        * in RFC 8554 4.3
        */
-      LMOTS_Public_Key(const LMOTS_Private_Key& lmots_sk);
+      explicit LMOTS_Public_Key(const LMOTS_Private_Key& lmots_sk);
 
       /**
        * @brief Construct a new LMOTS public key object using the bytes.

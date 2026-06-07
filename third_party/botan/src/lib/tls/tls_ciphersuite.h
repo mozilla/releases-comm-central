@@ -54,7 +54,7 @@ class BOTAN_PUBLIC_API(2, 0) Ciphersuite final {
       * e.g "RSA_WITH_RC4_128_SHA" or "ECDHE_RSA_WITH_AES_128_GCM_SHA256"
       * @return RFC ciphersuite string identifier
       */
-      std::string to_string() const { return (!m_iana_id) ? "unknown cipher suite" : m_iana_id; }
+      std::string to_string() const { return (m_iana_id == nullptr) ? "unknown cipher suite" : m_iana_id; }
 
       /**
       * @return ciphersuite number
@@ -75,6 +75,11 @@ class BOTAN_PUBLIC_API(2, 0) Ciphersuite final {
        * @return true if this suite uses a CBC cipher
        */
       bool cbc_ciphersuite() const;
+
+      /**
+       * @return true if this suite uses a NULL cipher
+       */
+      bool null_ciphersuite() const;
 
       /**
        * @return true if this suite uses a AEAD cipher
@@ -155,9 +160,8 @@ class BOTAN_PUBLIC_API(2, 0) Ciphersuite final {
             m_cipher_algo(cipher_algo),
             m_mac_algo(mac_algo),
             m_cipher_keylen(cipher_keylen),
-            m_mac_keylen(mac_keylen) {
-         m_usable = is_usable();
-      }
+            m_mac_keylen(mac_keylen),
+            m_usable(is_usable()) {}
 
       uint16_t m_ciphersuite_code = 0;
 

@@ -6,11 +6,11 @@
 
 #include "fuzzers.h"
 
-#include <botan/tls_messages.h>
+#include <botan/tls_messages_12.h>
 
 void fuzz(std::span<const uint8_t> in) {
    try {
-      std::vector<uint8_t> v(in.begin(), in.end());
-      Botan::TLS::Client_Hello_12 ch(v);  // TODO: We might want to do that for TLS 1.3 as well
-   } catch(Botan::Exception& e) {}
+      const std::vector<uint8_t> v(in.begin(), in.end());
+      const Botan::TLS::Client_Hello_12 ch(v);  // TODO: We might want to do that for TLS 1.3 as well
+   } catch(const Botan::Exception& e) {}
 }

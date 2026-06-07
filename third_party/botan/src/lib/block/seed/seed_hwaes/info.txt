@@ -1,0 +1,12 @@
+<internal_defines>
+SEED_HWAES -> 20260322
+</internal_defines>
+
+<module_info>
+name -> "SEED using hardware AES instructions"
+</module_info>
+
+<requires>
+cpuid
+simd_hwaes
+</requires>

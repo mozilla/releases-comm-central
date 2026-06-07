@@ -12,9 +12,10 @@ command -v shellcheck > /dev/null && shellcheck "$0" # Run shellcheck on this if
 set -ex
 
 TARGET="$1"
+COMPILER="$2"
 
 # shellcheck disable=SC2034
-ARCH="$2"
+ARCH="$3"
 
 SCRIPT_LOCATION=$(cd "$(dirname "$0")"; pwd)
 
@@ -30,11 +31,11 @@ fi
 
 if type -p "apt-get"; then
 
-    sudo rm /var/lib/man-db/auto-update
+    sudo rm -f /var/lib/man-db/auto-update
 
     sudo apt-get -qq update
     # shellcheck disable=SC2046
-    sudo apt-get -qq install $("${SCRIPT_LOCATION}"/gha_linux_packages.py "$TARGET")
+    sudo apt-get -qq install $("${SCRIPT_LOCATION}"/gha_linux_packages.py "$TARGET" "$COMPILER")
 
     if [ "$TARGET" = "sde" ]; then
         wget -nv "https://downloadmirror.intel.com/823664/${INTEL_SDE_VERSION}.tar.xz"
@@ -53,6 +54,12 @@ if type -p "apt-get"; then
 
     elif [ "$TARGET" = "limbo" ]; then
         wget -nv "https://raw.githubusercontent.com/C2SP/x509-limbo/${LIMBO_TEST_SUITE_REVISION}/limbo.json" -O "${SCRIPT_LOCATION}/../../../limbo.json"
+
+    elif [ "$TARGET" = "lint" ]; then
+        pip install ruff
+
+    elif [ "$TARGET" = "typos" ]; then
+        cargo install typos-cli
 
     elif [ "$TARGET" = "coverage" ] || [ "$TARGET" = "sanitizer" ]; then
         if [ "$TARGET" = "coverage" ]; then
@@ -87,7 +94,7 @@ else
 
     if [ -d '/Applications/Xcode_16.1.app/Contents/Developer' ]; then
         sudo xcrun xcode-select --switch '/Applications/Xcode_16.1.app/Contents/Developer'
-    else
+    elif [ -d '/Applications/Xcode_15.2.app/Contents/Developer' ]; then
         sudo xcrun xcode-select --switch '/Applications/Xcode_15.2.app/Contents/Developer'
     fi
 fi
@@ -97,3 +104,5 @@ if type -p "ccache"; then
     cache_location="$( ccache --get-config cache_dir )"
     echo "COMPILER_CACHE_LOCATION=${cache_location}" >> "${GITHUB_ENV}"
 fi
+
+echo "BOTAN_CLANG_TIDY_CACHE=$HOME/botan_clang_tidy.db" >> "${GITHUB_ENV}"

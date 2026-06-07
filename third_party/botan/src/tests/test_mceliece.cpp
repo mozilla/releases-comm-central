@@ -14,7 +14,7 @@
    #include <botan/hex.h>
    #include <botan/mceliece.h>
    #include <botan/pubkey.h>
-   #include <botan/internal/loadstor.h>
+   #include <botan/rng.h>
 
    #if defined(BOTAN_HAS_HMAC_DRBG)
       #include <botan/hmac_drbg.h>
@@ -57,10 +57,10 @@ class McEliece_Keygen_Encrypt_Test final : public Text_Based_Test {
 
          Botan::HMAC_DRBG rng("SHA-384");
          rng.initialize_with(keygen_seed.data(), keygen_seed.size());
-         Botan::McEliece_PrivateKey mce_priv(rng, keygen_n, keygen_t);
+         const Botan::McEliece_PrivateKey mce_priv(rng, keygen_n, keygen_t);
 
-         result.test_eq("public key fingerprint", hash_bytes(mce_priv.public_key_bits()), fprint_pub);
-         result.test_eq("private key fingerprint", hash_bytes(mce_priv.private_key_bits()), fprint_priv);
+         result.test_bin_eq("public key fingerprint", hash_bytes(mce_priv.public_key_bits()), fprint_pub);
+         result.test_bin_eq("private key fingerprint", hash_bytes(mce_priv.private_key_bits()), fprint_priv);
 
          rng.clear();
          rng.initialize_with(encrypt_seed.data(), encrypt_seed.size());
@@ -74,9 +74,9 @@ class McEliece_Keygen_Encrypt_Test final : public Text_Based_Test {
             Botan::secure_vector<uint8_t> dec_shared_key =
                kem_dec.decrypt(kem_result.encapsulated_shared_key(), 64, {});
 
-            result.test_eq("ciphertext", kem_result.encapsulated_shared_key(), ciphertext);
-            result.test_eq("encrypt shared", kem_result.shared_key(), shared_key);
-            result.test_eq("decrypt shared", dec_shared_key, shared_key);
+            result.test_bin_eq("ciphertext", kem_result.encapsulated_shared_key(), ciphertext);
+            result.test_bin_eq("encrypt shared", kem_result.shared_key(), shared_key);
+            result.test_bin_eq("decrypt shared", dec_shared_key, shared_key);
          } catch(Botan::Lookup_Error&) {}
 
          result.end_timer();
@@ -135,27 +135,27 @@ class McEliece_Tests final : public Test {
 
          std::vector<Test::Result> results;
 
-         for(size_t i = 0; i < sizeof(param_sets) / sizeof(param_sets[0]); ++i) {
-            if(Test::run_long_tests() == false && param_sets[i].code_length >= 2048) {
+         for(const auto& params : param_sets) {
+            if(Test::run_long_tests() == false && params.code_length >= 2048) {
                continue;
             }
 
-            for(size_t t = param_sets[i].t_min; t <= param_sets[i].t_max; ++t) {
+            for(size_t t = params.t_min; t <= params.t_max; ++t) {
                Test::Result result("McEliece keygen");
                result.start_timer();
 
-               Botan::McEliece_PrivateKey sk1(this->rng(), param_sets[i].code_length, t);
+               const Botan::McEliece_PrivateKey sk1(this->rng(), params.code_length, t);
                const Botan::McEliece_PublicKey& pk1 = sk1;
 
                const std::vector<uint8_t> pk_enc = pk1.public_key_bits();
                const Botan::secure_vector<uint8_t> sk_enc = sk1.private_key_bits();
 
-               Botan::McEliece_PublicKey pk(pk_enc);
-               Botan::McEliece_PrivateKey sk(sk_enc);
+               const Botan::McEliece_PublicKey pk(pk_enc);
+               const Botan::McEliece_PrivateKey sk(sk_enc);
 
-               result.test_eq("decoded public key equals original", fingerprint(pk1), fingerprint(pk));
-               result.test_eq("decoded private key equals original", fingerprint(sk1), fingerprint(sk));
-               result.test_eq("key validation passes", sk.check_key(this->rng(), false), true);
+               result.test_str_eq("decoded public key equals original", fingerprint(pk1), fingerprint(pk));
+               result.test_str_eq("decoded private key equals original", fingerprint(sk1), fingerprint(sk));
+               result.test_is_true("key validation passes", sk.check_key(this->rng(), false));
                result.end_timer();
 
                result.end_timer();
@@ -189,7 +189,7 @@ class McEliece_Tests final : public Test {
 
             Botan::secure_vector<uint8_t> shared_key2 = dec_op.decrypt(kem_result.encapsulated_shared_key(), 64, salt);
 
-            result.test_eq("same key", kem_result.shared_key(), shared_key2);
+            result.test_bin_eq("same key", kem_result.shared_key(), shared_key2);
          }
          result.end_timer();
          return result;

@@ -9,12 +9,11 @@
 #ifndef BOTAN_TLS_13_TICKET_H_
 #define BOTAN_TLS_13_TICKET_H_
 
+#include <botan/strong_type.h>
 #include <botan/tls_external_psk.h>
-#include <botan/tls_session.h>
+#include <botan/tls_session.h>  // TODO remove this dep
 #include <botan/types.h>
-
 #include <chrono>
-#include <cstdint>
 #include <vector>
 
 namespace Botan::TLS {
@@ -43,7 +42,7 @@ class BOTAN_PUBLIC_API(3, 1) PskIdentity {
       /**
        * Construct from an externally provided PSK in the client
        */
-      PskIdentity(PresharedKeyID identity);
+      BOTAN_FUTURE_EXPLICIT PskIdentity(PresharedKeyID identity);
 
       const std::vector<uint8_t>& identity() const { return m_identity; }
 

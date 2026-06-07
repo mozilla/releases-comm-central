@@ -14,6 +14,8 @@
 
 namespace Botan_Tests {
 
+namespace {
+
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
 class X509_Alt_Name_Tests final : public Test {
    public:
@@ -72,23 +74,23 @@ class X509_Alt_Name_Tests final : public Test {
          Botan::BER_Decoder dec(der);
          dec.decode(recoded);
 
-         result.test_eq("Expected number of domains", recoded.dns().size(), dns_names.size());
+         result.test_sz_eq("Expected number of domains", recoded.dns().size(), dns_names.size());
          for(const auto& name : dns_names) {
-            result.confirm("Has expected DNS name", recoded.dns().contains(name));
+            result.test_is_true("Has expected DNS name", recoded.dns().contains(name));
          }
 
-         result.test_eq("Expected number of URIs", recoded.uris().size(), uri_names.size());
+         result.test_sz_eq("Expected number of URIs", recoded.uris().size(), uri_names.size());
          for(const auto& name : uri_names) {
-            result.confirm("Has expected URI name", recoded.uris().contains(name));
+            result.test_is_true("Has expected URI name", recoded.uris().contains(name));
          }
 
-         result.test_eq("Expected number of email", recoded.email().size(), email_names.size());
+         result.test_sz_eq("Expected number of email", recoded.email().size(), email_names.size());
          for(const auto& name : email_names) {
-            result.confirm("Has expected email name", recoded.email().contains(name));
+            result.test_is_true("Has expected email name", recoded.email().contains(name));
          }
 
-         result.test_eq("Expected number of DNs", recoded.directory_names().size(), 2);
-         result.test_eq("Expected number of Othernames", recoded.other_names().size(), 2);
+         result.test_sz_eq("Expected number of DNs", recoded.directory_names().size(), 2);
+         result.test_sz_eq("Expected number of Othernames", recoded.other_names().size(), 2);
 
          return {result};
       }
@@ -97,5 +99,7 @@ class X509_Alt_Name_Tests final : public Test {
 BOTAN_REGISTER_TEST("x509", "x509_alt_name", X509_Alt_Name_Tests);
 
 #endif
+
+}  // namespace
 
 }  // namespace Botan_Tests

@@ -9,11 +9,11 @@
 
 #include <botan/assert.h>
 #include <botan/ber_dec.h>
+#include <botan/data_src.h>
 #include <botan/der_enc.h>
 #include <botan/pem.h>
 #include <botan/pubkey.h>
 #include <botan/internal/fmt.h>
-#include <algorithm>
 #include <sstream>
 
 namespace Botan {
@@ -32,7 +32,7 @@ void X509_Object::load_data(DataSource& in) {
 
          if(got_label != PEM_label()) {
             bool is_alternate = false;
-            for(std::string_view alt_label : alternate_PEM_labels()) {
+            for(const std::string_view alt_label : alternate_PEM_labels()) {
                if(got_label == alt_label) {
                   is_alternate = true;
                   break;
@@ -125,7 +125,7 @@ std::pair<Certificate_Status_Code, std::string> X509_Object::verify_signature(co
 std::vector<uint8_t> X509_Object::make_signed(PK_Signer& signer,
                                               RandomNumberGenerator& rng,
                                               const AlgorithmIdentifier& algo,
-                                              const secure_vector<uint8_t>& tbs_bits) {
+                                              std::span<const uint8_t> tbs_bits) {
    const std::vector<uint8_t> signature = signer.sign_message(tbs_bits, rng);
 
    std::vector<uint8_t> output;

@@ -7,9 +7,9 @@
 
 #include <botan/bigint.h>
 
+#include <botan/exceptn.h>
 #include <botan/internal/bit_ops.h>
 #include <botan/internal/mp_core.h>
-#include <algorithm>
 
 namespace Botan {
 
@@ -19,7 +19,8 @@ BigInt& BigInt::add(const word y[], size_t y_words, Sign y_sign) {
    grow_to(std::max(x_sw, y_words) + 1);
 
    if(sign() == y_sign) {
-      bigint_add2(mutable_data(), size() - 1, y, y_words);
+      const word carry = bigint_add2(mutable_data(), size() - 1, y, y_words);
+      mutable_data()[size() - 1] += carry;
    } else {
       const int32_t relative_size = bigint_cmp(_data(), x_sw, y, y_words);
 
@@ -27,11 +28,10 @@ BigInt& BigInt::add(const word y[], size_t y_words, Sign y_sign) {
          // *this >= y
          bigint_sub2(mutable_data(), x_sw, y, y_words);
       } else {
-         // *this < y
+         // *this < y: compute *this = y - *this
          bigint_sub2_rev(mutable_data(), y, y_words);
       }
 
-      //this->sign_fixup(relative_size, y_sign);
       if(relative_size < 0) {
          set_sign(y_sign);
       } else if(relative_size == 0) {
@@ -71,6 +71,8 @@ BigInt& BigInt::mod_add(const BigInt& s, const BigInt& mod, secure_vector<word>&
       ws.resize(3 * mod_sw);
    }
 
+   // NOLINTBEGIN(readability-container-data-pointer)
+
    word borrow = bigint_sub3(&ws[0], mod._data(), mod_sw, s._data(), mod_sw);
    BOTAN_DEBUG_ASSERT(borrow == 0);
    BOTAN_UNUSED(borrow);
@@ -79,10 +81,12 @@ BigInt& BigInt::mod_add(const BigInt& s, const BigInt& mod, secure_vector<word>&
    borrow = bigint_sub3(&ws[mod_sw], this->_data(), mod_sw, &ws[0], mod_sw);
 
    // Compute t + s
-   bigint_add3_nc(&ws[mod_sw * 2], this->_data(), mod_sw, s._data(), mod_sw);
+   bigint_add3(&ws[mod_sw * 2], this->_data(), mod_sw, s._data(), mod_sw);
 
    CT::conditional_copy_mem(borrow, &ws[0], &ws[mod_sw * 2], &ws[mod_sw], mod_sw);
    set_words(&ws[0], mod_sw);
+
+   // NOLINTEND(readability-container-data-pointer)
 
    return (*this);
 }
@@ -105,7 +109,12 @@ BigInt& BigInt::mod_sub(const BigInt& s, const BigInt& mod, secure_vector<word>&
       ws.resize(mod_sw);
    }
 
-   bigint_mod_sub(mutable_data(), s._data(), mod._data(), mod_sw, ws.data());
+   const word borrow = bigint_sub3(ws.data(), mutable_data(), mod_sw, s._data(), mod_sw);
+
+   // Conditionally add back the modulus
+   bigint_cnd_add(borrow, ws.data(), mod._data(), mod_sw);
+
+   unchecked_copy_memory(mutable_data(), ws.data(), mod_sw);
 
    return (*this);
 }
@@ -122,20 +131,10 @@ BigInt& BigInt::mod_mul(uint8_t y, const BigInt& mod, secure_vector<word>& ws) {
 }
 
 BigInt& BigInt::rev_sub(const word y[], size_t y_sw, secure_vector<word>& ws) {
-   if(this->sign() != BigInt::Positive) {
-      throw Invalid_State("BigInt::sub_rev requires this is positive");
-   }
-
-   const size_t x_sw = this->sig_words();
-
-   ws.resize(std::max(x_sw, y_sw));
-   clear_mem(ws.data(), ws.size());
-
-   const int32_t relative_size = bigint_sub_abs(ws.data(), _data(), x_sw, y, y_sw);
-
-   this->cond_flip_sign(relative_size > 0);
-   this->swap_reg(ws);
-
+   BOTAN_UNUSED(ws);
+   BigInt y_bn;
+   y_bn.m_data.set_words(y, y_sw);
+   *this = y_bn - *this;
    return (*this);
 }
 
@@ -155,12 +154,9 @@ BigInt& BigInt::mul(const BigInt& y, secure_vector<word>& ws) {
    if(x_sw == 0 || y_sw == 0) {
       clear();
       set_sign(Positive);
-   } else if(x_sw == 1 && y_sw) {
+   } else if(x_sw == 1 && y_sw > 0) {
       grow_to(y_sw + 1);
       bigint_linmul3(mutable_data(), y._data(), y_sw, word_at(0));
-   } else if(y_sw == 1 && x_sw) {
-      word carry = bigint_linmul2(mutable_data(), x_sw, y.word_at(0));
-      set_word_at(x_sw, carry);
    } else {
       const size_t new_size = x_sw + y_sw + 1;
       if(ws.size() < new_size) {
@@ -206,7 +202,7 @@ BigInt& BigInt::operator*=(word y) {
 * Division Operator
 */
 BigInt& BigInt::operator/=(const BigInt& y) {
-   if(y.sig_words() == 1 && is_power_of_2(y.word_at(0))) {
+   if(y.sig_words() == 1 && is_positive() && y.is_positive() && is_power_of_2(y.word_at(0))) {
       (*this) >>= (y.bits() - 1);
    } else {
       (*this) = (*this) / y;
@@ -234,13 +230,14 @@ word BigInt::operator%=(word mod) {
    if(is_power_of_2(mod)) {
       remainder = (word_at(0) & (mod - 1));
    } else {
+      const divide_precomp redc_mod(mod);
       const size_t sw = sig_words();
       for(size_t i = sw; i > 0; --i) {
-         remainder = bigint_modop_vartime(remainder, word_at(i - 1), mod);
+         remainder = redc_mod.vartime_mod_2to1(remainder, word_at(i - 1));
       }
    }
 
-   if(remainder && sign() == BigInt::Negative) {
+   if(remainder != 0 && sign() == BigInt::Negative) {
       remainder = mod - remainder;
    }
 

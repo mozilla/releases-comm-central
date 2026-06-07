@@ -37,6 +37,9 @@
 namespace Botan_Tests {
 
 #if defined(BOTAN_TEST_TLS_STREAM_INTEGRATION)
+
+// NOLINTBEGIN(*-avoid-bind)
+
 namespace {
 
 namespace net = boost::asio;
@@ -46,8 +49,10 @@ using error_code = boost::system::error_code;
 using ssl_stream = Botan::TLS::Stream<net::ip::tcp::socket>;
 using namespace std::placeholders;
 
+// NOLINTBEGIN(cert-err58-cpp)
 const auto k_timeout = std::chrono::seconds(30);
 const auto k_endpoints = std::vector<tcp::endpoint>{tcp::endpoint{net::ip::make_address("127.0.0.1"), 8082}};
+// NOLINTEND(cert-err58-cpp)
 
 constexpr size_t MAX_MSG_LENGTH = 512;
 
@@ -147,7 +152,7 @@ class Peer {
                   m_stream->lowest_layer().close();
                }
 
-               throw Timeout_Exception("timeout occured: " + message);
+               throw Timeout_Exception("timeout occurred: " + message);
             }
          });
       }
@@ -176,21 +181,21 @@ class Peer {
       net::system_timer m_timeout_timer;
       std::function<void(const std::string&)> m_on_timeout;
 
-      char m_data[MAX_MSG_LENGTH];
+      char m_data[MAX_MSG_LENGTH]{};
 };
 
 class Result_Wrapper {
    public:
-      Result_Wrapper(std::string name) : m_result(std::move(name)) {}
+      explicit Result_Wrapper(std::string_view name) : m_result(name) {}
 
       Test::Result& result() { return m_result; }
 
-      void expect_success(const std::string& msg, const error_code& ec) {
-         error_code success;
+      void expect_success(std::string_view msg, const error_code& ec) {
+         const error_code success;
          expect_ec(msg, success, ec);
       }
 
-      void expect_ec(const std::string& msg, const error_code& expected, const error_code& ec) {
+      void expect_ec(std::string_view msg, const error_code& expected, const error_code& ec) {
          if(ec != expected) {
             m_result.test_failure(msg, "Unexpected error code: " + ec.message() + " expected: " + expected.message());
          } else {
@@ -198,13 +203,19 @@ class Result_Wrapper {
          }
       }
 
-      void confirm(const std::string& msg, bool condition) { m_result.confirm(msg, condition); }
+      void test_is_true(std::string_view msg, bool condition) { m_result.test_is_true(msg, condition); }
 
-      void test_failure(const std::string& msg) { m_result.test_failure(msg); }
+      void test_str_eq(std::string_view what, std::string_view produced, std::string_view expected) {
+         m_result.test_str_eq(what, produced, expected);
+      }
+
+      void test_failure(std::string_view msg) { m_result.test_failure(msg); }
 
    private:
       Test::Result m_result;
 };
+
+// NOLINTBEGIN(cert-err58-cpp)
 
 // Control messages
 // The messages below can be used by the test clients in order to configure the server's behavior during a test
@@ -214,6 +225,8 @@ class Result_Wrapper {
 const std::string EXPECT_SHORT_READ_MESSAGE = "SHORT_READ";
 // Prepare the server for the test case "Shutdown No Response"
 const std::string PREPARE_SHUTDOWN_NO_RESPONSE_MESSAGE = "SHUTDOWN_NOW";
+
+// NOLINTEND(cert-err58-cpp)
 
 class Server : public Peer,
                public std::enable_shared_from_this<Server> {
@@ -361,12 +374,13 @@ class Server : public Peer,
 };
 
 class Client : public Peer {
-      static void accept_all(const std::vector<Botan::X509_Certificate>&,
-                             const std::vector<std::optional<Botan::OCSP::Response>>&,
-                             const std::vector<Botan::Certificate_Store*>&,
-                             Botan::Usage_Type,
-                             std::string_view,
-                             const Botan::TLS::Policy&) {}
+   private:
+      static void accept_all(const std::vector<Botan::X509_Certificate>& /*cert*/,
+                             const std::vector<std::optional<Botan::OCSP::Response>>& /*ocsp*/,
+                             const std::vector<Botan::Certificate_Store*>& /*trusted*/,
+                             Botan::Usage_Type /*usage*/,
+                             std::string_view /*hostname*/,
+                             const Botan::TLS::Policy& /*policy*/) {}
 
    public:
       Client(const std::shared_ptr<const Botan::TLS::Policy>& policy, net::io_context& ioc) : Peer(policy, ioc) {
@@ -412,7 +426,7 @@ class TestBase {
 
       virtual void finishAsynchronousWork() {}
 
-      void fail(const std::string& msg) { m_result.test_failure(msg); }
+      void fail(std::string_view msg) { m_result.test_failure(msg); }
 
       void extend_results(std::vector<Test::Result>& results) {
          results.push_back(m_result.result());
@@ -444,7 +458,7 @@ class Synchronous_Test : public TestBase {
 
       void finishAsynchronousWork() override { m_client_thread.join(); }
 
-      void run(const error_code&) {
+      void run(const error_code& /*err*/) {
          m_client_thread = std::thread([this] {
             try {
                this->run_synchronous_client();
@@ -508,7 +522,7 @@ class Test_Conversation : public TestBase,
                                   std::bind(&Client::received_zero_byte, client().get(), _1, _2),
                                   std::bind(test_case, shared_from_this(), _1));
             result().expect_success("receive_response", ec);
-            result().confirm("correct message", client()->message() == message);
+            result().test_str_eq("correct message", client()->message(), message);
 
             client()->reset_timeout("shutdown");
             yield client()->stream().async_shutdown(std::bind(test_case, shared_from_this(), _1));
@@ -516,7 +530,7 @@ class Test_Conversation : public TestBase,
 
             client()->reset_timeout("await close_notify");
             yield net::async_read(client()->stream(), client()->buffer(), std::bind(test_case, shared_from_this(), _1));
-            result().confirm("received close_notify", client()->stream().shutdown_received());
+            result().test_is_true("received close_notify", client()->stream().shutdown_received());
             result().expect_ec("closed with EOF", net::error::eof, ec);
 
             teardown();
@@ -550,13 +564,13 @@ class Test_Conversation_Sync : public Synchronous_Test {
          net::read(
             client()->stream(), client()->buffer(), std::bind(&Client::received_zero_byte, client().get(), _1, _2), ec);
          result().expect_success("receive_response", ec);
-         result().confirm("correct message", client()->message() == message);
+         result().test_str_eq("correct message", client()->message(), message);
 
          client()->stream().shutdown(ec);
          result().expect_success("shutdown", ec);
 
          net::read(client()->stream(), client()->buffer(), ec);
-         result().confirm("received close_notify", client()->stream().shutdown_received());
+         result().test_is_true("received close_notify", client()->stream().shutdown_received());
          result().expect_ec("closed with EOF", net::error::eof, ec);
 
          teardown();
@@ -595,7 +609,7 @@ class Test_Eager_Close : public TestBase,
             result().expect_success("shutdown", ec);
 
             client()->close_socket();
-            result().confirm("did not receive close_notify", !client()->stream().shutdown_received());
+            result().test_is_true("did not receive close_notify", !client()->stream().shutdown_received());
 
             teardown();
          }
@@ -623,7 +637,7 @@ class Test_Eager_Close_Sync : public Synchronous_Test {
          result().expect_success("shutdown", ec);
 
          client()->close_socket();
-         result().confirm("did not receive close_notify", !client()->stream().shutdown_received());
+         result().test_is_true("did not receive close_notify", !client()->stream().shutdown_received());
 
          teardown();
       }
@@ -672,7 +686,7 @@ class Test_Close_Without_Shutdown : public TestBase,
             result().expect_success("receive_response", ec);
 
             client()->close_socket();
-            result().confirm("did not receive close_notify", !client()->stream().shutdown_received());
+            result().test_is_true("did not receive close_notify", !client()->stream().shutdown_received());
 
             teardown();
          }
@@ -698,7 +712,7 @@ class Test_Close_Without_Shutdown_Sync : public Synchronous_Test {
          server()->expect_short_read();
 
          client()->close_socket();
-         result().confirm("did not receive close_notify", !client()->stream().shutdown_received());
+         result().test_is_true("did not receive close_notify", !client()->stream().shutdown_received());
 
          teardown();
       }
@@ -744,7 +758,7 @@ class Test_No_Shutdown_Response : public TestBase,
             client()->reset_timeout("read close_notify");
             yield net::async_read(client()->stream(), client()->buffer(), std::bind(test_case, shared_from_this(), _1));
             result().expect_ec("read gives EOF", net::error::eof, ec);
-            result().confirm("received close_notify", client()->stream().shutdown_received());
+            result().test_is_true("received close_notify", client()->stream().shutdown_received());
 
             // close the socket rather than shutting down
             client()->close_socket();
@@ -778,7 +792,7 @@ class Test_No_Shutdown_Response_Sync : public Synchronous_Test {
 
          net::read(client()->stream(), client()->buffer(), ec);
          result().expect_ec("read gives EOF", net::error::eof, ec);
-         result().confirm("received close_notify", client()->stream().shutdown_received());
+         result().test_is_true("received close_notify", client()->stream().shutdown_received());
 
          // close the socket rather than shutting down
          client()->close_socket();
@@ -900,10 +914,16 @@ class SystemConfiguration {
 
 std::vector<SystemConfiguration> get_configurations() {
    return {
+   #if defined(BOTAN_HAS_TLS_12)
       SystemConfiguration("TLS 1.2 only", "allow_tls12=true\nallow_tls13=false", "allow_tls12=true\nallow_tls13=false"),
+   #endif
+
    #if defined(BOTAN_HAS_TLS_13)
          SystemConfiguration(
             "TLS 1.3 only", "allow_tls12=false\nallow_tls13=true", "allow_tls12=false\nallow_tls13=true"),
+   #endif
+
+   #if defined(BOTAN_HAS_TLS_12) && defined(BOTAN_HAS_TLS_13)
          SystemConfiguration("TLS 1.x server, TLS 1.2 client",
                              "allow_tls12=true\nallow_tls13=false",
                              "allow_tls12=true\nallow_tls13=true"),
@@ -941,6 +961,8 @@ class Tls_Stream_Integration_Tests final : public Test {
 BOTAN_REGISTER_TEST("tls", "tls_stream_integration", Tls_Stream_Integration_Tests);
 
 }  // namespace
+
+// NOLINTEND(*-avoid-bind)
 
 #endif
 

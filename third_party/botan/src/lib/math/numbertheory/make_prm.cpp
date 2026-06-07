@@ -7,13 +7,14 @@
 
 #include <botan/internal/primality.h>
 
+#include <botan/exceptn.h>
 #include <botan/numthry.h>
 #include <botan/rng.h>
 #include <botan/internal/barrett.h>
 #include <botan/internal/bit_ops.h>
 #include <botan/internal/ct_utils.h>
+#include <botan/internal/divide.h>
 #include <botan/internal/loadstor.h>
-#include <algorithm>
 
 namespace Botan {
 
@@ -24,7 +25,7 @@ class Prime_Sieve final {
       Prime_Sieve(const BigInt& init_value, size_t sieve_size, word step, bool check_2p1) :
             m_sieve(std::min(sieve_size, PRIME_TABLE_SIZE)), m_step(step), m_check_2p1(check_2p1) {
          for(size_t i = 0; i != m_sieve.size(); ++i) {
-            m_sieve[i] = init_value % PRIMES[i];
+            m_sieve[i] = ct_mod_word(init_value, PRIMES[i]);
          }
       }
 
@@ -35,7 +36,7 @@ class Prime_Sieve final {
       bool next() {
          auto passes = CT::Mask<word>::set();
          for(size_t i = 0; i != m_sieve.size(); ++i) {
-            m_sieve[i] = (m_sieve[i] + m_step) % PRIMES[i];
+            m_sieve[i] = sieve_step_incr(m_sieve[i], m_step, PRIMES[i]);
 
             // If m_sieve[i] == 0 then val % p == 0 -> not prime
             passes &= CT::Mask<word>::expand(m_sieve[i]);
@@ -58,6 +59,19 @@ class Prime_Sieve final {
       }
 
    private:
+      // Return (v + step) % mod
+      //
+      // This assumes v is already < mod, which is an invariant of the sieve
+      static constexpr word sieve_step_incr(word v, word step, word mod) {
+         BOTAN_DEBUG_ASSERT(v < mod);
+         // The sieve step and primes are public so this modulo is ok
+         const word stepmod = (step >= mod) ? (step % mod) : step;
+
+         // This sum is at most 2*(mod-1)
+         const word next = (v + stepmod);
+         return next - CT::Mask<word>::is_gte(next, mod).if_set_return(mod);
+      }
+
       std::vector<word> m_sieve;
       const word m_step;
       const bool m_check_2p1;
@@ -102,6 +116,7 @@ BigInt random_prime(
    if(coprime.is_negative() || (!coprime.is_zero() && coprime.is_even()) || coprime.bits() >= bits) {
       throw Invalid_Argument("random_prime: invalid coprime");
    }
+   // TODO(Botan4) reduce this to ~1000
    if(modulo == 0 || modulo >= 100000) {
       throw Invalid_Argument("random_prime: Invalid modulo value");
    }
@@ -120,11 +135,11 @@ BigInt random_prime(
       }
 
       if(bits == 2) {
-         return BigInt::from_word(((rng.next_byte() % 2) ? 2 : 3));
+         return BigInt::from_word(((rng.next_byte() % 2) == 0 ? 2 : 3));
       } else if(bits == 3) {
-         return BigInt::from_word(((rng.next_byte() % 2) ? 5 : 7));
+         return BigInt::from_word(((rng.next_byte() % 2) == 0 ? 5 : 7));
       } else if(bits == 4) {
-         return BigInt::from_word(((rng.next_byte() % 2) ? 11 : 13));
+         return BigInt::from_word(((rng.next_byte() % 2) == 0 ? 11 : 13));
       } else {
          for(;;) {
             // This is slightly biased, but for small primes it does not seem to matter
@@ -175,10 +190,10 @@ BigInt random_prime(
 
          if(coprime > 1) {
             /*
-            First do a single M-R iteration to quickly elimate most non-primes,
+            First do a single M-R iteration to quickly eliminate most non-primes,
             before doing the coprimality check which is expensive
             */
-            if(is_miller_rabin_probable_prime(p, mod_p, rng, 1) == false) {
+            if(!is_miller_rabin_probable_prime(p, mod_p, rng, 1)) {
                continue;
             }
 
@@ -195,7 +210,7 @@ BigInt random_prime(
             break;
          }
 
-         if(is_miller_rabin_probable_prime(p, mod_p, rng, mr_trials) == false) {
+         if(!is_miller_rabin_probable_prime(p, mod_p, rng, mr_trials)) {
             continue;
          }
 
@@ -233,6 +248,8 @@ BigInt generate_rsa_prime(RandomNumberGenerator& keygen_rng,
    while(true) {
       BigInt p(keygen_rng, bits);
 
+      auto scope = CT::scoped_poison(p);
+
       /*
       Force high two bits so multiplication always results in expected n bit integer
 
@@ -266,7 +283,7 @@ BigInt generate_rsa_prime(RandomNumberGenerator& keygen_rng,
          * currently a single Miller-Rabin test is faster than computing gcd,
          * and this eliminates almost all wasted gcd computations.
          */
-         if(is_miller_rabin_probable_prime(p, mod_p, prime_test_rng, 1) == false) {
+         if(!is_miller_rabin_probable_prime(p, mod_p, prime_test_rng, 1)) {
             continue;
          }
 
@@ -281,7 +298,7 @@ BigInt generate_rsa_prime(RandomNumberGenerator& keygen_rng,
             break;
          }
 
-         if(is_miller_rabin_probable_prime(p, mod_p, prime_test_rng, mr_trials) == true) {
+         if(is_miller_rabin_probable_prime(p, mod_p, prime_test_rng, mr_trials)) {
             return p;
          }
       }
@@ -298,7 +315,8 @@ BigInt random_safe_prime(RandomNumberGenerator& rng, size_t bits) {
 
    const size_t error_bound = 128;
 
-   BigInt q, p;
+   BigInt q;
+   BigInt p;
    for(;;) {
       /*
       Generate q == 2 (mod 3), since otherwise [in the case of q == 1 (mod 3)],

@@ -1,10 +1,281 @@
 Release Notes
 ========================================
 
+Version 3.11.1, 2026-03-31
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* CVE-2026-35580: Resolve certificate verification bypass bug introduced in 3.11.0 (GH #5500)
+
+* CVE-2026-35582: Resolve TLS 1.3 client authentication bypass (GH #5599)
+
+* Add optimized Argon2 implementation using AVX512 (GH #5471)
+
+* Add optimized and constant-time Twofish implementation using AVX512/GFNI (GH #5465)
+
+* Add optimized and constant-time SEED implementation using AVX512/GFNI (GH #5472)
+
+* Add optimized and constant-time Whirlpool implementations using AVX2 and AVX512 (GH #5453 #5473)
+
+* Add SSSE3/NEON and AVX2 optimized codepaths for CTR (GH #5474 #5480)
+
+* Add constant time implementations of Camellia, ARIA, SEED and SM4 using AES-NI
+  or ARMv8 AES instructions to implement sbox lookups (GH #5476 #5477 #5479 #5481 #5485 #5492)
+
+* Improve performance of the AVX512 implementation of SHA-512 especially for Clang (GH #5490)
+
+* Optimizations for the IDEA modular multiplication (GH #5484)
+
+* Fix various minor TLS conformance issues flagged by TLS-Anvil (GH #5494 #5498)
+
+* Fix bug in Ed25519 where an invalid signature checked with PK_Verifier might
+  cause a later valid signature to be rejected. (GH #5454)
+
+* Fix a bug in handling of ECDSA DER-encode signatures where an invalid signature
+  checked with PK_Verifier might cause a later valid signature to be rejected.
+  (GH #5455)
+
+* Fix a problem introduced in 3.11.0 which could cause crashes on processors
+  without SSSE3 support, particularly when compiled by GCC. (GH #5460 #5463 #5469)
+
+* Fix various new warnings from ``clang-tidy`` 22 (GH #5456)
+
+* Fix a compilation error introduced in 3.11.0 which prevented using ``ffi`` unless
+  ``bcrypt`` was also enabled. (GH #5462)
+
+* Avoid a macro collision with Microsoft headers that could cause a compilation
+  problem in amalgamation mode. (GH #5486)
+
+* Enable explicit_bzero, getentropy, getrandom on Hurd (GH #5488)
+
+Version 3.11.0, 2026-03-15
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* CVE-2026-32877: Fix a heap over-read during SM2 decryption (GH #5450)
+
+* CVE-2026-32883: Fix an OCSP response forgery vulnerability (GH #5449)
+
+* CVE-2026-32884: Fix a name constraints bypass for DNS names (GH #5448)
+
+* Upgrade PKCS #11 wrapper to support v3.2 of the standard (GH #4540)
+
+* Add support for verifying X509 certificate chains when the trust anchor is
+  not self signed. (GH #5047)
+
+* Add support for multiple OCSP responders in an Authority Information Acesss
+  extension. (GH #5231)
+
+* Many additions to the C89/FFI interface, especially regarding X.509
+  certificates and CRLs, also XOF support (GH #5148 #5166 #5188 #5217 #5220
+  #5221 #5222 #5225 #5230 #5232 #5234 #5235 #5236 #5252)
+
+* Avoid using ISA enabling flags (like `-mavx2` or `/arch:AVX`) in the build
+  anymore, as this conflicts with precompiled headers and has been known to cause
+  miscompilations in certain circumstances. (GH #5297 #5260)
+
+* Add optimized Keccak permutation implementation using AVX-512 (GH #5191)
+
+* Add optimized SM3 implementations using AVX2/BMI2 (GH #5178), SM3-NI (GH #5183),
+  and ARMv8 instructions (GH #5444)
+
+* Add optimized SM4 implementation using AVX-512/GFNI (GH #5192 #5333)
+
+* Add optimized Camellia implementations using AVX2/GFNI and AVX-512/GFNI (GH #5442)
+
+* Add optimized ARIA implementation using AVX-512/GFNI (GH #5440)
+
+* Add AVX2 implementation of IDEA (GH #5447)
+
+* Ed448 and X448 optimizations (GH #5383)
+
+* Add AVX-512/CLMUL optimized XTS mode (GH #5251)
+
+* GCM and GMAC optimizations including new AVX-512 codepaths (GH #5273 #5278 #5379 #5418)
+
+* Poly1305 optimizations, including AVX2 and AVX-512 implementations (GH #5227)
+
+* Add new DES implementation using bitslicing (GH #5433)
+
+* Rewrite Twofish key schedule to avoid use of large tables (GH #5432)
+
+* Generate Streebog and Whirlpool tables at compile time (GH #5427 #5430 #5434)
+
+* Various elliptic curve arithmetic optimizations (GH #5186 #5194 #5195 #5196
+  #5275 #5387 #5393 #5394 #5400 #5403)
+
+* Add some inline asm for aarch64 improving multiprecision integer performance (GH #5407)
+
+* Certain signature and KEM schemes, including XMSS, LMS, FrodoKEM,
+  ML-KEM/Kyber, and ML-DSA/Dilithium, would fail or produce incorrect results if
+  multiple threads attempted operations on the same key object concurrently. In
+  a strict sense uncoordinated multithreaded use of the same object was never
+  supported, but this usage did work for RSA, ECDSA, and other schemes, and the
+  previous behavior is potentially quite surprising. Tests have been added to
+  ensure this usage works for all schemes going forward. (GH #5359 #5361 #5366
+  #5367 #5371 #5376 #5380 #5382)
+
+* Improve handling of constant time and variable time divisions (GH #5176 #5177 #5180)
+
+* In finite-field Diffie-Hellman use exponent lengths as prescribed in NIST SP 800-56A
+  and SP 800-56B. (GH #5384)
+
+* Optimize ECDSA signature setup phase (GH #5173)
+
+* The R3 versions of Kyber and Dilithium are official deprecated (GH #5368)
+
+* Check for already known/validated groups when decoding explicit EC parameters (GH #5268)
+
+* Add support for WebAssembly SIMD, optimizing various algorithms including AES, GCM,
+  ChaCha, SHA-1, SHA-256, Argon2 and others. (GH #5155 #5163 #5201)
+
+* Emscripten/WebAssembly improvements including using the new Wasm exception mechanism
+  (GH #5202) and re-enabling testing in CI with Emscripten (GH #5209)
+
+* Allow building TLS 1.3 without TLS 1.2 (GH #5292 #5293 #5303 #5309 #5318)
+
+* Add optional callback to provide a user-defined TLS 1.2 key derivation function (GH #5107)
+
+* Add scripts to run Wycheproof tests every night in CI (GH #5269)
+
+* Support for AltiVec on 32-bit PowerPC platforms has been dropped (GH #5266)
+
+* Many changes to improve library build times (GH #5279 #5280 #5284 #5285 #5286 #5287 #5288
+  #5289 #5291 #5294 #5295 #5296 #5300 #5302 #5304 #5314 #5315 #5321 #5323 #5343 #5344 #5345
+  #5346 #5347 #5354)
+
+* Test suite infrastructure cleanups (GH #5327 #5328 #5329 #5330 #5334 #5337 #5338 #5340
+  #5341 #5342 #5348 #5351 #5352 #5357)
+
+* Unroll loops to improve Montgomery reduction performance. (GH #5150)
+
+* Increase maximum HMAC key length to 8192 bytes. (GH #5156)
+
+* Python binding additions including custom RNG (GH #5271) and checks for explicit
+  EC parameter encoding (GH #5282)
+
+* On MSVC default to using embedded debug info rather than the PDB (GH #5349)
+
+* Fix various clang-tidy and cppcheck warnings (GH #5172 #5207 #5204 #5205)
+
+Version 3.10.0, 2025-11-06
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Add support for Ascon AEAD, hash and XOF from NIST SP 800-232 (GH #5061 #5076 #5097)
+
+* Add support for building with clang-cl (GH #4255)
+
+* Optimizations for base58 encoding and decoding (GH #5051)
+
+* Optimizations for SHA-3/SHAKE (GH #5133)
+
+* Optimizations for SEED (GH #5147)
+
+* Optimizations and cleanups for BLAKE2s (GH #5117)
+
+* Optimizations for Streebog (GH #5111)
+
+* Add new interface to ``Certificate_Store`` allowing search by issuer DN
+  plus serial. (GH #5072)
+
+* Fix a bug preventing botan_srp6_server_session_step1 from being reinvoked
+  (GH #5112 #5135)
+
+* Modify some bit operation functions to reduce risk of compilers introducing
+  non-constant time behavior (GH #5066)
+
+* Add new FFI functions for loading elliptic curve keys in SEC1 format (GH #5083)
+
+* Add new FFI functions for viewing the value of a ``botan_mp_t`` (GH #5131)
+
+* New faster implementation of Jacobi function (GH #5057)
+
+* Add optimized integer division logic for various special cases (GH #5068 #5077)
+
+* Correct documentation/comments relating to the maximum output length
+  that ``botan_mp_to_hex`` might write (GH #5131 #5129)
+
+* Fix an issue when trying to use CMake older than 3.18 (GH #5098 #5099)
+
+* Add typing hints to the Python binding (GH #5086 #5092)
+
+* Fix various issues flagged by the ``ruff`` Python linter (GH #5089)
+
+* Fix a bug in the Python binding which prevented signing raw bytes with ``PKSign``
+  (GH #5082)
+
+* Update configure to check for Fedora's new location for trust roots (GH #5052)
+
+* Remove various internal references to "EME", an obsolete term used for RSA
+  encryption padding that originates from IEEE 1363. (GH #5055)
+
+* Fix various typos in the source and documentation (GH #5071 #5075 #5114)
+
+* Add a ``.devcontainer`` setup (GH #5094)
+
+Version 3.9.0, 2025-08-05
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Add SHA-1 implementation using AVX2/BMI2 (GH #4852)
+
+* Add Camellia implementation using GFNI/AVX2 (GH #4848)
+
+* Add SHACAL2 implementation using AVX512 (GH #4878)
+
+* The eFrodoKEM TLS 1.3 ciphersuites have changed the suite code to match changes
+  in OQS. (GH #4900)
+
+* Add support for TLS 1.2 NULL cipher suites. These suites are disabled in the
+  build by default, enable ``tls_null`` module to use. (GH #4776)
+
+* Add support for X.509 extensions from RFC 3779 (GH #4699 #4883 #4884 #4886)
+
+* Elliptic curve improvements (GH #4841 #4934 #4935 #4937 #4949 $4953 #4991)
+
+* Add ``EC_Scalar::hash`` following RFC 9380's hash_to_field (GH #4950)
+
+* Modify the OID lookup system to use a static switch for builtin OIDs. (GH #4896 #4888)
+
+* Optimizations for X448 and Ed448 (GH #5037)
+
+* Modify ``BOTAN_CLEAR_CPUID`` so that clearing ``ssse3`` also disables AVX2/AVX512
+  (GH #4853)
+
+* Remove various internal references to "EMSA", an obsolete term used for RSA
+  signature padding that originates from IEEE 1363. (GH #5008 #5024)
+
+* Enable support for GCC's "strub" stack clearing. This is disabled by default, use
+  the ``--enable-stack-scrubbing`` option to turn on. (GH #4882 #4925)
+
+* Use ``std::span`` in the internal block cipher padding mode interfaces (GH #4873)
+
+* Properly check DNS label length restrictions when checking wildcards. (GH #4876 #4881)
+
+* Work around a GCC 13/14 miscompilation when LTO is used (GH #4863 #4862)
+
+* Fix a bug preventing building ``System_RNG`` with only ``getrandom`` enabled. (GH #4932 #4930)
+
+* Document the specific threat model the library uses (GH #4955)
+
+* Remove ``configure.py`` options to disable specific CPU instructions. (GH #4927)
+
+* Remove ``configure.py`` option ``--with-local-config`` (GH #4905)
+
+* Add a better interface for encoding optional ASN.1 elements using ``std::optional`` (GH #5001)
+
+* Internal cleanups relating to multiprecision integers (GH #5009 #5010 #5012 #5014 #5017)
+
+* Resolve many warnings from ``clang-tidy`` (GH #4907 #4908 #4910 #4912 #4913 #4919 #4920 #4923
+  #4924 #4931 #4956 #4957 #4958 #4959 #4960 #4961 #4962 #4963 #4964 #4968 #4969 #4971 #4972 #4973
+  #4974 #4975 #4976 #4977 #4978 #4979 #4980 #4981 #4982 #4983 #4984 #4985 #4986 #4987 #4988 #4989
+  #4990 #4992 #4993 #4998 #5004 #5005 #5031 #5032 #5034 #5035 #5036)
+
+* CMake improvements (GH #5022 #5027)
+
+* CI improvements (GH #4920 #4294 #4926 #4929)
+
 Version 3.8.1, 2025-05-07
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* Fix a bug that prevented building using the `fips140` or `modern` module
+* Fix a bug that prevented building using the ``fips140`` or ``modern`` module
   policies. (GH #4854 #4856)
 
 * Fix a missing include that caused compilation failures with libc++20
@@ -104,8 +375,6 @@ Version 3.8.0, 2025-05-06
   input length. Add explicit ``from_seed`` and ``from_bytes`` functions which
   make the two options explicit. (GH #4701 #4702)
 
-* Add some examples of using format preserving encryption (GH #4758)
-
 * Add a new cleaner interface for handling ECIES flags (GH #4691)
 
 * Reduce use of heap in GCM/GMAC (GH #4826) and hex/base64 (GH #4832)
@@ -168,7 +437,7 @@ Version 3.7.0, 2025-02-04
   all elliptic curves. This is no longer the case. You can re-enable support for
   specific named curves by adding a ``pcurves`` module, for example
   ``pcurves_secp256r1`` or ``pcurves_brainpool384r1``. Also in 3.7.0, the old
-  BigInt based EC arithemtic implementation was moved to ``legacy_ec_point``,
+  BigInt based EC arithmetic implementation was moved to ``legacy_ec_point``,
   which is marked as deprecated. Disabling this module will disable support for
   certain (also deprecated) elliptic curves such as "x962_p239v1" and
   "secp224k1". It will also disable support for application specific
@@ -335,7 +604,7 @@ Version 3.6.0, 2024-10-21
 * Fix certificate validation when the trust root is a self-signed MD2 cert.
   (GH #4247 #4248)
 
-* Internal "strong types" improvments (GH #4170)
+* Internal "strong types" improvements (GH #4170)
 
 * Refactor the ``speed`` cli utility (GH #4364 #4367 #4369)
 
@@ -741,8 +1010,8 @@ Version 3.2.0, 2023-10-09
 
 * Add checks for invalid length AD in Argon2 (GH #3626)
 
-* CI now uses Android NDK 26, and earlier NDKs are not supported
-  due to limitations of the C++ library in earlier NDKs (GH #3718)
+* CI now uses Android NDK 26. Earlier NDK versions are no longer supported
+  due to limitations in their C++ library implementations. (GH #3718)
 
 * Improve support for IBM's XLC compiler (GH #3730)
 

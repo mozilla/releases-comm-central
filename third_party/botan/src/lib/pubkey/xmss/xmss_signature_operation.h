@@ -11,6 +11,7 @@
 #include <botan/pk_ops.h>
 #include <botan/xmss.h>
 #include <botan/internal/xmss_address.h>
+#include <botan/internal/xmss_hash.h>
 #include <botan/internal/xmss_signature.h>
 #include <botan/internal/xmss_wots.h>
 
@@ -27,7 +28,7 @@ namespace Botan {
  **/
 class XMSS_Signature_Operation final : public virtual PK_Ops::Signature {
    public:
-      XMSS_Signature_Operation(const XMSS_PrivateKey& private_key);
+      explicit XMSS_Signature_Operation(const XMSS_PrivateKey& private_key);
 
       /**
        * Creates an XMSS signature for the message provided through call to
@@ -35,7 +36,7 @@ class XMSS_Signature_Operation final : public virtual PK_Ops::Signature {
        *
        * @return serialized XMSS signature.
        **/
-      std::vector<uint8_t> sign(RandomNumberGenerator&) override;
+      std::vector<uint8_t> sign(RandomNumberGenerator& rng) override;
 
       void update(std::span<const uint8_t> input) override;
 
@@ -46,32 +47,6 @@ class XMSS_Signature_Operation final : public virtual PK_Ops::Signature {
       std::string hash_function() const override { return m_hash.hash_function(); }
 
    private:
-      /**
-       * Algorithm 11: "treeSig"
-       * Generate a WOTS+ signature on a message with corresponding auth path.
-       *
-       * @param msg A message.
-       * @param xmss_priv_key A XMSS private key.
-       * @param adrs A XMSS Address.
-       **/
-      XMSS_Signature::TreeSignature generate_tree_signature(const secure_vector<uint8_t>& msg,
-                                                            XMSS_PrivateKey& xmss_priv_key,
-                                                            XMSS_Address& adrs);
-
-      /**
-       * Algorithm 12: "XMSS_sign"
-       * Generate an XMSS signature and update the XMSS secret key
-       *
-       * @param msg A message to sign of arbitrary length.
-       * @param [out] xmss_priv_key A XMSS private key. The private key will be
-       *              updated during the signing process.
-       *
-       * @return The signature of msg signed using xmss_priv_key.
-       **/
-      XMSS_Signature sign(const secure_vector<uint8_t>& msg, XMSS_PrivateKey& xmss_priv_key);
-
-      wots_keysig_t build_auth_path(XMSS_PrivateKey& priv_key, XMSS_Address& adrs);
-
       void initialize();
 
       XMSS_PrivateKey m_priv_key;

@@ -15,7 +15,7 @@ namespace Botan {
 void XMSS_Common_Ops::randomize_tree_hash(secure_vector<uint8_t>& result,
                                           const secure_vector<uint8_t>& left,
                                           const secure_vector<uint8_t>& right,
-                                          XMSS_Address& adrs,
+                                          XMSS_Address adrs,
                                           const secure_vector<uint8_t>& seed,
                                           XMSS_Hash& hash,
                                           const XMSS_Parameters& params) {
@@ -45,7 +45,7 @@ void XMSS_Common_Ops::randomize_tree_hash(secure_vector<uint8_t>& result,
 
 void XMSS_Common_Ops::create_l_tree(secure_vector<uint8_t>& result,
                                     wots_keysig_t pk,
-                                    XMSS_Address& adrs,
+                                    XMSS_Address adrs,
                                     const secure_vector<uint8_t>& seed,
                                     XMSS_Hash& hash,
                                     const XMSS_Parameters& params) {
@@ -57,7 +57,7 @@ void XMSS_Common_Ops::create_l_tree(secure_vector<uint8_t>& result,
          adrs.set_tree_index(static_cast<uint32_t>(i));
          randomize_tree_hash(pk[i], pk[2 * i], pk[2 * i + 1], adrs, seed, hash, params);
       }
-      if(l & 0x01) {
+      if((l & 0x01) == 0x01) {
          pk[l >> 1] = pk[l - 1];
       }
       l = (l >> 1) + (l & 0x01);

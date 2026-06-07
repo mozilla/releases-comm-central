@@ -36,9 +36,13 @@ class BOTAN_PUBLIC_API(3, 5) HSS_LMS_PublicKey : public virtual Public_Key {
       /**
        * @brief Load an existing public key using its bytes.
        */
-      HSS_LMS_PublicKey(std::span<const uint8_t> pub_key_bytes);
+      BOTAN_FUTURE_EXPLICIT HSS_LMS_PublicKey(std::span<const uint8_t> pub_key_bytes);
 
       ~HSS_LMS_PublicKey() override;
+      HSS_LMS_PublicKey(const HSS_LMS_PublicKey& other) = default;
+      HSS_LMS_PublicKey(HSS_LMS_PublicKey&& other) = default;
+      HSS_LMS_PublicKey& operator=(const HSS_LMS_PublicKey& other) = delete;
+      HSS_LMS_PublicKey& operator=(HSS_LMS_PublicKey&& other) = delete;
 
       size_t key_length() const override;
 
@@ -67,7 +71,7 @@ class BOTAN_PUBLIC_API(3, 5) HSS_LMS_PublicKey : public virtual Public_Key {
    protected:
       HSS_LMS_PublicKey() = default;
 
-      std::shared_ptr<HSS_LMS_PublicKeyInternal> m_public;
+      std::shared_ptr<HSS_LMS_PublicKeyInternal> m_public;  // NOLINT(*non-private-member-variable*)
 };
 
 BOTAN_DIAGNOSTIC_PUSH
@@ -104,7 +108,7 @@ BOTAN_DIAGNOSTIC_IGNORE_INHERITED_VIA_DOMINANCE
  * HSS-LMS(<hash>,HW(<h>,<w>),HW(<h>,<w>),...)
  *
  * e.g. 'HSS-LMS(SHA-256,HW(5,1),HW(5,1))' to use SHA-256 in a two-layer HSS instance
- * with a LMS tree hights 5 and w=1. The following parameters are allowed (which are
+ * with a LMS tree height 5 and w=1. The following parameters are allowed (which are
  * specified in RFC 8554 and draft-fluhrer-lms-more-parm-sets-11):
  *
  * hash: 'SHA-256', 'Truncated(SHA-256,192)', 'SHAKE-256(256)', SHAKE-256(192)
@@ -119,7 +123,7 @@ class BOTAN_PUBLIC_API(3, 5) HSS_LMS_PrivateKey final : public virtual HSS_LMS_P
       /**
        * @brief Load an existing LMS private key using its bytes
        */
-      HSS_LMS_PrivateKey(std::span<const uint8_t> private_key_bytes);
+      BOTAN_FUTURE_EXPLICIT HSS_LMS_PrivateKey(std::span<const uint8_t> private_key_bytes);
 
       /**
        * @brief Construct a new hss lms privatekey object.
@@ -130,6 +134,10 @@ class BOTAN_PUBLIC_API(3, 5) HSS_LMS_PrivateKey final : public virtual HSS_LMS_P
       HSS_LMS_PrivateKey(RandomNumberGenerator& rng, std::string_view algo_params);
 
       ~HSS_LMS_PrivateKey() override;
+      HSS_LMS_PrivateKey(const HSS_LMS_PrivateKey& other) = delete;
+      HSS_LMS_PrivateKey(HSS_LMS_PrivateKey&& other) = default;
+      HSS_LMS_PrivateKey& operator=(const HSS_LMS_PrivateKey& other) = delete;
+      HSS_LMS_PrivateKey& operator=(HSS_LMS_PrivateKey&& other) = delete;
 
       secure_vector<uint8_t> private_key_bits() const override;
       secure_vector<uint8_t> raw_private_key_bits() const override;
@@ -151,7 +159,7 @@ class BOTAN_PUBLIC_API(3, 5) HSS_LMS_PrivateKey final : public virtual HSS_LMS_P
                                                              std::string_view provider) const override;
 
    private:
-      HSS_LMS_PrivateKey(std::shared_ptr<HSS_LMS_PrivateKeyInternal> sk);
+      explicit HSS_LMS_PrivateKey(std::shared_ptr<HSS_LMS_PrivateKeyInternal> sk);
 
       std::shared_ptr<HSS_LMS_PrivateKeyInternal> m_private;
 };

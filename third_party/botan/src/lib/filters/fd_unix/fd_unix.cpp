@@ -17,11 +17,11 @@ namespace Botan {
 */
 int operator<<(int fd, Pipe& pipe) {
    secure_vector<uint8_t> buffer(DefaultBufferSize);
-   while(pipe.remaining()) {
+   while(pipe.remaining() > 0) {
       size_t got = pipe.read(buffer.data(), buffer.size());
       size_t position = 0;
-      while(got) {
-         ssize_t ret = ::write(fd, &buffer[position], got);
+      while(got > 0) {
+         const ssize_t ret = ::write(fd, &buffer[position], got);
          if(ret < 0) {
             throw Stream_IO_Error("Pipe output operator (unixfd) has failed");
          }
@@ -39,7 +39,7 @@ int operator<<(int fd, Pipe& pipe) {
 int operator>>(int fd, Pipe& pipe) {
    secure_vector<uint8_t> buffer(DefaultBufferSize);
    while(true) {
-      ssize_t ret = ::read(fd, buffer.data(), buffer.size());
+      const ssize_t ret = ::read(fd, buffer.data(), buffer.size());
       if(ret < 0) {
          throw Stream_IO_Error("Pipe input operator (unixfd) has failed");
       } else if(ret == 0) {

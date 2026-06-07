@@ -8,7 +8,8 @@
 #include <botan/internal/tls_handshake_io.h>
 
 #include <botan/exceptn.h>
-#include <botan/tls_messages.h>
+#include <botan/tls_exceptn.h>
+#include <botan/tls_handshake_msg.h>
 #include <botan/internal/loadstor.h>
 #include <botan/internal/tls_record.h>
 #include <botan/internal/tls_seq_numbers.h>
@@ -59,18 +60,31 @@ void Stream_Handshake_IO::add_record(const uint8_t record[],
    }
 }
 
-std::pair<Handshake_Type, std::vector<uint8_t>> Stream_Handshake_IO::get_next_record(bool /*expecting_ccs*/) {
+std::pair<Handshake_Type, std::vector<uint8_t>> Stream_Handshake_IO::get_next_record(bool expecting_ccs) {
    if(m_queue.size() >= 4) {
-      const size_t length = 4 + make_uint32(0, m_queue[1], m_queue[2], m_queue[3]);
+      const Handshake_Type type = static_cast<Handshake_Type>(m_queue[0]);
+
+      if(type == Handshake_Type::None) {
+         throw Decoding_Error("Invalid handshake message type");
+      }
+
+      const size_t rec_length = make_uint32(0, m_queue[1], m_queue[2], m_queue[3]);
+
+      // If we are expecting a CCS but the next queued message is not a CCS,
+      // the peer has skipped the CCS message. This can happen when the peer
+      // sends an encrypted Finished without the preceding CCS, in which case
+      // the encrypted bytes are misinterpreted as a handshake message.
+      if(expecting_ccs) {
+         const bool is_ccs = (type == Handshake_Type::HandshakeCCS && rec_length == 0);
+         if(!is_ccs) {
+            throw TLS_Exception(Alert::UnexpectedMessage, "Expected ChangeCipherSpec but got a handshake message");
+         }
+      }
+
+      const size_t length = 4 + rec_length;
 
       if(m_queue.size() >= length) {
-         Handshake_Type type = static_cast<Handshake_Type>(m_queue[0]);
-
-         if(type == Handshake_Type::None) {
-            throw Decoding_Error("Invalid handshake message type");
-         }
-
-         std::vector<uint8_t> contents(m_queue.begin() + 4, m_queue.begin() + length);
+         const std::vector<uint8_t> contents(m_queue.begin() + 4, m_queue.begin() + length);
 
          m_queue.erase(m_queue.begin(), m_queue.begin() + length);
 
@@ -135,7 +149,7 @@ void Datagram_Handshake_IO::retransmit_flight(size_t flight_idx) {
 
       if(msg.epoch != epoch) {
          // Epoch gap: insert the CCS
-         std::vector<uint8_t> ccs(1, 1);
+         const std::vector<uint8_t> ccs(1, 1);
          m_send_hs(epoch, Record_Type::ChangeCipherSpec, ccs);
       }
 
@@ -187,7 +201,7 @@ void Datagram_Handshake_IO::add_record(const uint8_t record[],
 
    const size_t DTLS_HANDSHAKE_HEADER_LEN = 12;
 
-   while(record_len) {
+   while(record_len > 0) {
       if(record_len < DTLS_HANDSHAKE_HEADER_LEN) {
          return;  // completely bogus? at least degenerate/weird
       }

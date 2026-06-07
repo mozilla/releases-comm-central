@@ -7,6 +7,7 @@
 
 #include <botan/ffi.h>
 
+#include <botan/assert.h>
 #include <botan/internal/ffi_rng.h>
 #include <botan/internal/ffi_util.h>
 
@@ -30,10 +31,8 @@ BOTAN_FFI_DECLARE_DUMMY_STRUCT(botan_srp6_server_session_struct, 0x44F7425F);
 
 int botan_srp6_server_session_init(botan_srp6_server_session_t* srp6) {
 #if defined(BOTAN_HAS_SRP6)
-   return ffi_guard_thunk(__func__, [=]() -> int {
-      *srp6 = new botan_srp6_server_session_struct(std::make_unique<Botan::SRP6_Server_Session>());
-      return BOTAN_FFI_SUCCESS;
-   });
+   return ffi_guard_thunk(
+      __func__, [=]() -> int { return ffi_new_object(srp6, std::make_unique<Botan::SRP6_Server_Session>()); });
 #else
    BOTAN_UNUSED(srp6);
    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
@@ -46,12 +45,12 @@ int botan_srp6_server_session_destroy(botan_srp6_server_session_t srp6) {
 
 int botan_srp6_group_size(const char* group_id, size_t* group_p_bytes) {
 #if defined(BOTAN_HAS_SRP6)
-   if(group_id == nullptr || group_p_bytes == nullptr) {
+   if(any_null_pointers(group_id, group_p_bytes)) {
       return BOTAN_FFI_ERROR_NULL_POINTER;
    }
 
    return ffi_guard_thunk(__func__, [=]() -> int {
-      auto group = Botan::DL_Group::from_name(group_id);
+      const auto group = Botan::DL_Group::from_name(group_id);
       *group_p_bytes = group.p_bytes();
       return BOTAN_FFI_SUCCESS;
    });
@@ -71,14 +70,20 @@ int botan_srp6_server_session_step1(botan_srp6_server_session_t srp6,
                                     size_t* b_pub_len) {
 #if defined(BOTAN_HAS_SRP6)
    return BOTAN_FFI_VISIT(srp6, [=](auto& s) -> int {
-      if(!verifier || !group_id || !hash_id || !rng_obj) {
+      if(any_null_pointers(verifier, group_id, hash_id, rng_obj)) {
          return BOTAN_FFI_ERROR_NULL_POINTER;
       }
       try {
+         const auto group = Botan::DL_Group::from_name(group_id);
+         const auto rc = check_and_prepare_output_space(b_pub, b_pub_len, group.p_bytes());
+         if(rc != BOTAN_FFI_SUCCESS) {
+            return rc;
+         }
+
          Botan::RandomNumberGenerator& rng = safe_get(rng_obj);
          auto v_bn = Botan::BigInt::from_bytes(std::span{verifier, verifier_len});
-         auto b_pub_bn = s.step1(v_bn, group_id, hash_id, rng);
-         return write_vec_output(b_pub, b_pub_len, b_pub_bn.serialize());
+         auto b_pub_bn = s.step1(v_bn, group, hash_id, group.exponent_bits(), rng);
+         return write_vec_output(b_pub, b_pub_len, b_pub_bn.serialize(group.p_bytes()));
       } catch(Botan::Decoding_Error&) {
          return BOTAN_FFI_ERROR_BAD_PARAMETER;
       } catch(Botan::Lookup_Error&) {
@@ -99,7 +104,7 @@ int botan_srp6_server_session_step2(
          return BOTAN_FFI_ERROR_NULL_POINTER;
       }
       try {
-         Botan::BigInt a_bn = Botan::BigInt::from_bytes({a, a_len});
+         const Botan::BigInt a_bn = Botan::BigInt::from_bytes({a, a_len});
          auto key_sk = s.step2(a_bn);
          return write_vec_output(key, key_len, key_sk.bits_of());
       } catch(Botan::Decoding_Error&) {
@@ -122,13 +127,15 @@ int botan_srp6_generate_verifier(const char* username,
                                  size_t* verifier_len) {
 #if defined(BOTAN_HAS_SRP6)
    return ffi_guard_thunk(__func__, [=]() -> int {
-      if(!username || !password || !salt || !group_id || !hash_id) {
+      if(any_null_pointers(username, password, salt, group_id, hash_id)) {
          return BOTAN_FFI_ERROR_NULL_POINTER;
       }
       try {
-         std::vector<uint8_t> salt_vec(salt, salt + salt_len);
-         auto verifier_bn = Botan::srp6_generate_verifier(username, password, salt_vec, group_id, hash_id);
-         return write_vec_output(verifier, verifier_len, verifier_bn.serialize());
+         const std::vector<uint8_t> salt_vec(salt, salt + salt_len);
+         const auto group = Botan::DL_Group::from_name(group_id);
+         const size_t p_bytes = group.p_bytes();
+         auto verifier_bn = Botan::srp6_generate_verifier(username, password, salt_vec, group, hash_id);
+         return write_vec_output(verifier, verifier_len, verifier_bn.serialize(p_bytes));
       } catch(Botan::Lookup_Error&) {
          return BOTAN_FFI_ERROR_BAD_PARAMETER;
       }
@@ -155,15 +162,17 @@ int botan_srp6_client_agree(const char* identity,
                             size_t* K_len) {
 #if defined(BOTAN_HAS_SRP6)
    return ffi_guard_thunk(__func__, [=]() -> int {
-      if(!identity || !password || !salt || !group_id || !hash_id || !b || !rng_obj) {
+      if(any_null_pointers(identity, password, salt, group_id, hash_id, b, rng_obj)) {
          return BOTAN_FFI_ERROR_NULL_POINTER;
       }
       try {
-         std::vector<uint8_t> saltv(salt, salt + salt_len);
+         const std::vector<uint8_t> saltv(salt, salt + salt_len);
          Botan::RandomNumberGenerator& rng = safe_get(rng_obj);
          auto b_bn = Botan::BigInt::from_bytes({b, b_len});
-         auto [A_bn, K_sk] = Botan::srp6_client_agree(identity, password, group_id, hash_id, saltv, b_bn, rng);
-         auto ret_a = write_vec_output(A, A_len, A_bn.serialize());
+         const auto group = Botan::DL_Group::from_name(group_id);
+         const size_t a_bits = group.exponent_bits();
+         auto [A_bn, K_sk] = Botan::srp6_client_agree(identity, password, group, hash_id, saltv, b_bn, a_bits, rng);
+         auto ret_a = write_vec_output(A, A_len, A_bn.serialize(group.p_bytes()));
          auto ret_k = write_vec_output(K, K_len, K_sk.bits_of());
          if(ret_a != BOTAN_FFI_SUCCESS) {
             return ret_a;

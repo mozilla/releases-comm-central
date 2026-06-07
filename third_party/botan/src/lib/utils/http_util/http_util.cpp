@@ -8,12 +8,12 @@
 
 #include <botan/internal/http_util.h>
 
-#include <botan/hex.h>
 #include <botan/mem_ops.h>
 #include <botan/internal/fmt.h>
+#include <botan/internal/mem_utils.h>
 #include <botan/internal/parsing.h>
 #include <botan/internal/socket.h>
-#include <botan/internal/stl_util.h>
+#include <iomanip>
 #include <sstream>
 
 namespace Botan::HTTP {
@@ -42,7 +42,7 @@ std::string http_transact(std::string_view hostname,
    }
 
    // Blocks until entire message has been written
-   socket->write(cast_char_ptr_to_uint8(message.data()), message.size());
+   socket->write(as_span_of_bytes(message));
 
    if(std::chrono::system_clock::now() - start_time > timeout) {
       throw HTTP_Error("Timeout during writing message body");
@@ -89,7 +89,8 @@ std::string url_encode(std::string_view in) {
 
    for(auto c : in) {
       if(needs_url_encoding(c)) {
-         out << '%' << hex_encode(cast_char_ptr_to_uint8(&c), 1);
+         out << '%' << std::uppercase << std::hex << std::setfill('0') << std::setw(2) << static_cast<int>(c);
+         out << std::dec << std::nouppercase;  // reset flags
       } else {
          out << c;
       }
@@ -125,14 +126,16 @@ Response http_sync(const http_exch_fn& http_transact,
 
    const auto host_loc_sep = url.find('/', protocol_host_sep + 3);
 
-   std::string hostname, loc, service;
+   std::string hostname;
+   std::string loc;
+   std::string service;
 
    if(host_loc_sep == std::string::npos) {
-      hostname = url.substr(protocol_host_sep + 3, std::string::npos);
+      hostname = url.substr(protocol_host_sep + 3);
       loc = "/";
    } else {
       hostname = url.substr(protocol_host_sep + 3, host_loc_sep - protocol_host_sep - 3);
-      loc = url.substr(host_loc_sep, std::string::npos);
+      loc = url.substr(host_loc_sep);
    }
 
    const auto port_sep = hostname.find(':');
@@ -172,14 +175,14 @@ Response http_sync(const http_exch_fn& http_transact,
 
    std::stringstream response_stream(line1);
    std::string http_version;
-   unsigned int status_code;
+   unsigned int status_code = 0;
    std::string status_message;
 
    response_stream >> http_version >> status_code;
 
    std::getline(response_stream, status_message);
 
-   if(!response_stream || http_version.substr(0, 5) != "HTTP/") {
+   if(!response_stream || !http_version.starts_with("HTTP/")) {
       throw HTTP_Error("Not an HTTP response");
    }
 

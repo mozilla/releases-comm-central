@@ -7,17 +7,15 @@
 
 #include <botan/internal/gost_3411.h>
 
+#include <botan/internal/buffer_slicer.h>
 #include <botan/internal/loadstor.h>
-#include <botan/internal/stl_util.h>
 
 namespace Botan {
 
 /**
 * GOST 34.11 Constructor
 */
-GOST_34_11::GOST_34_11() : m_cipher(GOST_28147_89_Params("R3411_CryptoPro")), m_sum(32), m_hash(32) {
-   m_count = 0;
-}
+GOST_34_11::GOST_34_11() : m_cipher(GOST_28147_89_Params("R3411_CryptoPro")), m_sum(32), m_hash(32), m_count(0) {}
 
 void GOST_34_11::clear() {
    m_cipher.clear();
@@ -59,14 +57,15 @@ void GOST_34_11::add_data(std::span<const uint8_t> input) {
 void GOST_34_11::compress_n(const uint8_t input[], size_t blocks) {
    for(size_t i = 0; i != blocks; ++i) {
       for(uint16_t j = 0, carry = 0; j != 32; ++j) {
-         uint16_t s = m_sum[j] + input[32 * i + j] + carry;
+         const uint16_t s = m_sum[j] + input[32 * i + j] + carry;
          carry = get_byte<0>(s);
          m_sum[j] = get_byte<1>(s);
       }
 
       uint8_t S[32] = {0};
 
-      uint64_t U[4], V[4];
+      uint64_t U[4];
+      uint64_t V[4];
       load_be(U, m_hash.data(), 4);
       load_be(V, input + 32 * i, 4);
 
@@ -89,7 +88,7 @@ void GOST_34_11::compress_n(const uint8_t input[], size_t blocks) {
          }
 
          // A(x)
-         uint64_t A_U = U[0];
+         const uint64_t A_U = U[0];
          U[0] = U[1];
          U[1] = U[2];
          U[2] = U[3];
@@ -104,8 +103,8 @@ void GOST_34_11::compress_n(const uint8_t input[], size_t blocks) {
          }
 
          // A(A(x))
-         uint64_t AA_V_1 = V[0] ^ V[1];
-         uint64_t AA_V_2 = V[1] ^ V[2];
+         const uint64_t AA_V_1 = V[0] ^ V[1];
+         const uint64_t AA_V_2 = V[1] ^ V[2];
          V[0] = V[2];
          V[1] = V[3];
          V[2] = AA_V_1;

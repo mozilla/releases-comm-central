@@ -13,6 +13,8 @@
 
 namespace Botan_Tests {
 
+namespace {
+
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
 class X509_DN_Comparisons_Tests final : public Text_Based_Test {
    public:
@@ -35,17 +37,17 @@ class X509_DN_Comparisons_Tests final : public Text_Based_Test {
             dn2.decode_from(bd2);
 
             const bool compared_same = (dn1 == dn2);
-            result.test_eq("Comparison matches expected", dn_same, compared_same);
+            result.test_bool_eq("Comparison matches expected", dn_same, compared_same);
 
             const bool lt1 = (dn1 < dn2);
             const bool lt2 = (dn2 < dn1);
 
             if(dn_same) {
-               result.test_eq("same means neither is less than", lt1, false);
-               result.test_eq("same means neither is less than", lt2, false);
+               result.test_is_false("same means neither is less than", lt1);
+               result.test_is_false("same means neither is less than", lt2);
             } else {
-               result.test_eq("different means one is less than", lt1 || lt2, true);
-               result.test_eq("different means only one is less than", lt1 && lt2, false);
+               result.test_is_true("different means one is less than", lt1 || lt2);
+               result.test_is_false("different means only one is less than", lt1 && lt2);
             }
          } catch(Botan::Exception& e) {
             result.test_failure(e.what());
@@ -57,5 +59,7 @@ class X509_DN_Comparisons_Tests final : public Text_Based_Test {
 
 BOTAN_REGISTER_TEST("x509", "x509_dn_cmp", X509_DN_Comparisons_Tests);
 #endif
+
+}  // namespace
 
 }  // namespace Botan_Tests

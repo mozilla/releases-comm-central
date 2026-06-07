@@ -9,17 +9,25 @@
 #if defined(BOTAN_HAS_TLS) && defined(BOTAN_TARGET_OS_HAS_FILESYSTEM)
 
    #include <botan/hex.h>
+   #include <botan/tls_ciphersuite.h>
    #include <botan/tls_messages.h>
-   #include <botan/tls_policy.h>
    #include <botan/tls_version.h>
    #include <botan/internal/fmt.h>
    #include <botan/internal/loadstor.h>
    #include <botan/internal/stl_util.h>
    #include <sstream>
 
+   #if defined(BOTAN_HAS_TLS_12) && defined(BOTAN_HAS_TLS_13)
+      #include <botan/tls_extensions_13.h>
+      #include <botan/tls_messages_12.h>
+      #include <botan/tls_messages_13.h>
+   #endif
+
    #include "tls_helpers.h"
 
 namespace Botan_CLI {
+
+namespace {
 
 class TLS_Ciphersuites final : public Command {
    public:
@@ -46,12 +54,12 @@ class TLS_Ciphersuites final : public Command {
 
          auto policy = load_tls_policy(policy_type);
 
-         if(policy->acceptable_protocol_version(version) == false) {
+         if(!policy->acceptable_protocol_version(version)) {
             error_output() << "Error: the policy specified does not allow the given TLS version\n";
             return;
          }
 
-         for(uint16_t suite_id : policy->ciphersuite_list(version)) {
+         for(const uint16_t suite_id : policy->ciphersuite_list(version)) {
             const auto s = Botan::TLS::Ciphersuite::by_id(suite_id);
             output() << ((s) ? s->to_string() : "unknown cipher suite") << "\n";
          }
@@ -60,7 +68,7 @@ class TLS_Ciphersuites final : public Command {
 
 BOTAN_REGISTER_COMMAND("tls_ciphers", TLS_Ciphersuites);
 
-   #if defined(BOTAN_HAS_TLS_13)
+   #if defined(BOTAN_HAS_TLS_12) && defined(BOTAN_HAS_TLS_13)
 
 class TLS_Client_Hello_Reader final : public Command {
    public:
@@ -110,9 +118,14 @@ class TLS_Client_Hello_Reader final : public Command {
          }
 
          try {
-            auto hello = Botan::TLS::Client_Hello_13::parse(input);
-
-            output() << format_hello(hello);
+            output() << format_hello([&]() -> std::variant<Botan::TLS::Client_Hello_13, Botan::TLS::Client_Hello_12> {
+               auto data = Botan::TLS::Client_Hello_13::parse(input);
+               if(std::holds_alternative<Botan::TLS::Client_Hello_13>(data)) {
+                  return std::get<Botan::TLS::Client_Hello_13>(std::move(data));
+               } else {
+                  return Botan::TLS::Client_Hello_12(input);
+               }
+            }());
          } catch(std::exception& e) {
             error_output() << "Parsing client hello failed: " << e.what() << "\n";
          }
@@ -126,11 +139,11 @@ class TLS_Client_Hello_Reader final : public Command {
          const auto* hello_base =
             std::visit([](const auto& ch) -> const Botan::TLS::Client_Hello* { return &ch; }, hello);
 
-         const auto version = std::visit(Botan::overloaded{
-                                            [](const Botan::TLS::Client_Hello_12&) { return "1.2"; },
-                                            [](const Botan::TLS::Client_Hello_13&) { return "1.3"; },
-                                         },
-                                         hello);
+         const std::string version = std::visit(Botan::overloaded{
+                                                   [](const Botan::TLS::Client_Hello_12&) { return "1.2"; },
+                                                   [](const Botan::TLS::Client_Hello_13&) { return "1.3"; },
+                                                },
+                                                hello);
 
          oss << "Version: " << version << "\n"
              << "Random: " << Botan::hex_encode(hello_base->random()) << "\n";
@@ -138,7 +151,7 @@ class TLS_Client_Hello_Reader final : public Command {
          if(!hello_base->session_id().empty()) {
             oss << "SessionID: " << Botan::hex_encode(hello_base->session_id().get()) << "\n";
          }
-         for(uint16_t csuite_id : hello_base->ciphersuites()) {
+         for(const uint16_t csuite_id : hello_base->ciphersuites()) {
             const auto csuite = Botan::TLS::Ciphersuite::by_id(csuite_id);
             if(csuite && csuite->valid()) {
                oss << "Cipher: " << csuite->to_string() << "\n";
@@ -154,7 +167,7 @@ class TLS_Client_Hello_Reader final : public Command {
          if(hello_base->signature_schemes().empty()) {
             oss << "Did not send signature_algorithms extension\n";
          } else {
-            for(Botan::TLS::Signature_Scheme scheme : hello_base->signature_schemes()) {
+            for(const Botan::TLS::Signature_Scheme scheme : hello_base->signature_schemes()) {
                try {
                   auto s = scheme.to_string();
                   oss << s << " ";
@@ -165,7 +178,7 @@ class TLS_Client_Hello_Reader final : public Command {
             oss << "\n";
          }
 
-         if(auto sg = hello_base->extensions().get<Botan::TLS::Supported_Groups>()) {
+         if(auto* sg = hello_base->extensions().get<Botan::TLS::Supported_Groups>()) {
             oss << "Supported Groups: ";
             for(const auto group : sg->groups()) {
                oss << group.to_string().value_or(Botan::fmt("Unknown group: {}", group.wire_code())) << " ";
@@ -183,7 +196,7 @@ class TLS_Client_Hello_Reader final : public Command {
                           hello_flags["Session Ticket"] = ch12.supports_session_ticket();
                        },
                        [&](const Botan::TLS::Client_Hello_13& ch13) {
-                          if(auto ks = ch13.extensions().get<Botan::TLS::Key_Share>()) {
+                          if(auto* ks = ch13.extensions().get<Botan::TLS::Key_Share>()) {
                              oss << "Key Shares: ";
                              for(const auto group : ks->offered_groups()) {
                                 oss << group.to_string().value_or(Botan::fmt("Unknown group: {}", group.wire_code()))
@@ -206,6 +219,8 @@ class TLS_Client_Hello_Reader final : public Command {
 BOTAN_REGISTER_COMMAND("tls_client_hello", TLS_Client_Hello_Reader);
 
    #endif
+
+}  // namespace
 
 }  // namespace Botan_CLI
 

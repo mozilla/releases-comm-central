@@ -12,7 +12,12 @@
 #include <botan/rng.h>
 #include <botan/tls_callbacks.h>
 #include <botan/tls_policy.h>
+#include <botan/tls_session.h>
 #include <algorithm>
+
+#if defined(BOTAN_HAS_TLS_13)
+   #include <botan/tls_psk_identity_13.h>
+#endif
 
 namespace Botan::TLS {
 
@@ -208,7 +213,7 @@ std::optional<std::pair<Session, uint16_t>> Session_Manager::choose_from_offered
    // reused. As a result, no locking is required on this level.
 
    for(uint16_t i = 0; const auto& ticket : tickets) {
-      auto session = retrieve(Opaque_Session_Handle(ticket.identity()), callbacks, policy);
+      auto session = retrieve(Session_Handle(Opaque_Session_Handle(ticket.identity())), callbacks, policy);
       if(session.has_value() && session->ciphersuite().prf_algo() == hash_function &&
          session->version().is_tls_13_or_later()) {
          return std::pair{std::move(session.value()), i};

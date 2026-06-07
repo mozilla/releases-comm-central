@@ -23,25 +23,22 @@ class BOTAN_UNSTABLE_API UUID final {
       /**
       * Create an uninitialized UUID object
       */
-      UUID() : m_uuid() {}
+      UUID() = default;
 
       /**
       * Create a random UUID
       */
-      UUID(RandomNumberGenerator& rng);
+      BOTAN_FUTURE_EXPLICIT UUID(RandomNumberGenerator& rng);
 
       /**
       * Load a UUID from a 16 byte vector
       */
-      UUID(const std::vector<uint8_t>& blob);
-
-      UUID& operator=(const UUID& other) = default;
-      UUID(const UUID& other) = default;
+      BOTAN_FUTURE_EXPLICIT UUID(const std::vector<uint8_t>& blob);
 
       /**
       * Decode a UUID string
       */
-      UUID(std::string_view uuid_str);
+      BOTAN_FUTURE_EXPLICIT UUID(std::string_view uuid_str);
 
       /**
       * Convert the UUID to a string

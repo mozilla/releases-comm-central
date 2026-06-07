@@ -8,6 +8,8 @@
 #ifndef BOTAN_X509_SELF_H_
 #define BOTAN_X509_SELF_H_
 
+#include <botan/asn1_obj.h>
+#include <botan/asn1_time.h>
 #include <botan/pkcs10.h>
 #include <botan/pkix_types.h>
 #include <botan/x509cert.h>
@@ -25,113 +27,116 @@ class BOTAN_PUBLIC_API(2, 0) X509_Cert_Options final {
       /**
       * the subject common name
       */
-      std::string common_name;
+      std::string common_name;  // NOLINT(*non-private-member-variable*)
 
       /**
-      * the subject counry
+      * the subject country
       */
-      std::string country;
+      std::string country;  // NOLINT(*non-private-member-variable*)
 
       /**
       * the subject organization
       */
-      std::string organization;
+      std::string organization;  // NOLINT(*non-private-member-variable*)
 
       /**
       * the subject organizational unit
       */
-      std::string org_unit;
+      std::string org_unit;  // NOLINT(*non-private-member-variable*)
 
       /**
        * additional subject organizational units.
        */
-      std::vector<std::string> more_org_units;
+      std::vector<std::string> more_org_units;  // NOLINT(*non-private-member-variable*)
 
       /**
       * the subject locality
       */
-      std::string locality;
+      std::string locality;  // NOLINT(*non-private-member-variable*)
 
       /**
       * the subject state
       */
-      std::string state;
+      std::string state;  // NOLINT(*non-private-member-variable*)
 
       /**
       * the subject serial number
       */
-      std::string serial_number;
+      std::string serial_number;  // NOLINT(*non-private-member-variable*)
 
       /**
-      * the subject email adress
+      * the subject email address
       */
-      std::string email;
+      std::string email;  // NOLINT(*non-private-member-variable*)
 
       /**
       * the subject URI
       */
-      std::string uri;
+      std::string uri;  // NOLINT(*non-private-member-variable*)
 
       /**
       * the subject IPv4 address
       */
-      std::string ip;
+      std::string ip;  // NOLINT(*non-private-member-variable*)
 
       /**
       * the subject DNS
       */
-      std::string dns;
+      std::string dns;  // NOLINT(*non-private-member-variable*)
 
       /**
        * additional subject DNS entries.
        */
-      std::vector<std::string> more_dns;
+      std::vector<std::string> more_dns;  // NOLINT(*non-private-member-variable*)
 
       /**
       * the subject XMPP
       */
-      std::string xmpp;
+      std::string xmpp;  // NOLINT(*non-private-member-variable*)
 
       /**
       * the subject challenge password
       */
-      std::string challenge;
+      std::string challenge;  // NOLINT(*non-private-member-variable*)
 
       /**
       * the subject notBefore
       */
-      X509_Time start;
+      X509_Time start;  // NOLINT(*non-private-member-variable*)
       /**
       * the subject notAfter
       */
-      X509_Time end;
+      X509_Time end;  // NOLINT(*non-private-member-variable*)
 
       /**
       * Indicates whether the certificate request
       */
-      bool is_CA;
+      bool is_CA = false;  // NOLINT(*non-private-member-variable*)
 
       /**
       * Indicates the BasicConstraints path limit
       */
-      size_t path_limit;
+      size_t path_limit = 0;  // NOLINT(*non-private-member-variable*)
 
-      std::string padding_scheme;
+      /**
+      * Padding scheme to use. If empty uses a default
+      */
+      std::string padding_scheme;  // NOLINT(*non-private-member-variable*)
 
       /**
       * The key constraints for the subject public key
       */
-      Key_Constraints constraints;
+      Key_Constraints constraints;  // NOLINT(*non-private-member-variable*)
 
       /**
       * The key extended constraints for the subject public key
       */
-      std::vector<OID> ex_constraints;
+      std::vector<OID> ex_constraints;  // NOLINT(*non-private-member-variable*)
 
       /**
       * Additional X.509 extensions
       */
-      Extensions extensions;
+      Extensions extensions;  // NOLINT(*non-private-member-variable*)
 
       /**
       * Mark the certificate as a CA certificate and set the path limit.
@@ -180,7 +185,7 @@ class BOTAN_PUBLIC_API(2, 0) X509_Cert_Options final {
       * parameter would be "common_name/country/organization/organizational_unit".
       * @param expire_time the expiration time (from the current clock in seconds)
       */
-      X509_Cert_Options(std::string_view opts = "", uint32_t expire_time = 365 * 24 * 60 * 60);
+      BOTAN_FUTURE_EXPLICIT X509_Cert_Options(std::string_view opts = "", uint32_t expire_time = 365 * 24 * 60 * 60);
 };
 
 namespace X509 {

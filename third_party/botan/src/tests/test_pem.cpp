@@ -12,21 +12,23 @@
 
 namespace Botan_Tests {
 
+namespace {
+
 class PEM_Tests : public Test {
    public:
       std::vector<Test::Result> run() override {
          Test::Result result("PEM encoding");
 
-         std::vector<uint8_t> vec = {0, 1, 2, 3, 4};
+         const std::vector<uint8_t> vec = {0, 1, 2, 3, 4};
 
          const std::string pem1 = Botan::PEM_Code::encode(vec, "BUNNY", 3);
 
-         result.test_eq("PEM encoding", pem1, "-----BEGIN BUNNY-----\nAAE\nCAw\nQ=\n-----END BUNNY-----\n");
+         result.test_str_eq("PEM encoding", pem1, "-----BEGIN BUNNY-----\nAAE\nCAw\nQ=\n-----END BUNNY-----\n");
 
          std::string label1 = "this is overwritten";
          const Botan::secure_vector<uint8_t> decoded1 = Botan::PEM_Code::decode(pem1, label1);
 
-         result.test_eq("PEM decoding label", label1, "BUNNY");
+         result.test_str_eq("PEM decoding label", label1, "BUNNY");
 
          result.test_throws("PEM decoding unexpected label",
                             "PEM: Label mismatch, wanted 'FLOOFY' got 'BUNNY'",
@@ -47,6 +49,8 @@ class PEM_Tests : public Test {
 };
 
 BOTAN_REGISTER_TEST("pubkey", "pem", PEM_Tests);
+
+}  // namespace
 
 }  // namespace Botan_Tests
 

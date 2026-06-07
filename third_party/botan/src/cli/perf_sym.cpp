@@ -9,6 +9,7 @@
 #include <botan/assert.h>
 #include <set>
 
+#include <botan/rng.h>
 #include <botan/symkey.h>
 
 #if defined(BOTAN_HAS_BLOCK_CIPHER)
@@ -37,15 +38,17 @@
 
 namespace Botan_CLI {
 
+namespace {
+
 #if defined(BOTAN_HAS_BLOCK_CIPHER)
 class PerfTest_BlockCipher final : public PerfTest {
    public:
-      PerfTest_BlockCipher(std::string_view alg) : m_alg(alg) {}
+      explicit PerfTest_BlockCipher(std::string_view alg) : m_alg(alg) {}
 
       void go(const PerfConfig& config) override {
          for(const auto& provider : Botan::BlockCipher::providers(m_alg)) {
             if(auto cipher = Botan::BlockCipher::create(m_alg, provider)) {
-               bench_stream_cipher(config, *cipher);
+               bench_block_cipher(config, *cipher);
             }
          }
       }
@@ -53,7 +56,7 @@ class PerfTest_BlockCipher final : public PerfTest {
       static bool has_impl_for(std::string_view alg) { return !Botan::BlockCipher::providers(alg).empty(); }
 
    private:
-      void bench_stream_cipher(const PerfConfig& config, Botan::BlockCipher& cipher) {
+      static void bench_block_cipher(const PerfConfig& config, Botan::BlockCipher& cipher) {
          auto& rng = config.rng();
          const auto runtime = config.runtime();
          const auto provider = cipher.provider();
@@ -65,7 +68,7 @@ class PerfTest_BlockCipher final : public PerfTest {
 
          const size_t bs = cipher.block_size();
          std::set<size_t> buf_sizes_in_blocks;
-         for(size_t buf_size : config.buffer_sizes()) {
+         for(const size_t buf_size : config.buffer_sizes()) {
             if(buf_size % bs == 0) {
                buf_sizes_in_blocks.insert(buf_size);
             } else {
@@ -73,7 +76,7 @@ class PerfTest_BlockCipher final : public PerfTest {
             }
          }
 
-         for(size_t buf_size : buf_sizes_in_blocks) {
+         for(const size_t buf_size : buf_sizes_in_blocks) {
             std::vector<uint8_t> buffer(buf_size);
             const size_t mult = std::max<size_t>(1, 65536 / buf_size);
             const size_t blocks = buf_size / bs;
@@ -83,14 +86,14 @@ class PerfTest_BlockCipher final : public PerfTest {
 
             encrypt_timer->run_until_elapsed(runtime, [&]() {
                for(size_t i = 0; i != mult; ++i) {
-                  cipher.encrypt_n(&buffer[0], &buffer[0], blocks);
+                  cipher.encrypt_n(buffer.data(), buffer.data(), blocks);
                }
             });
             config.record_result(*encrypt_timer);
 
             decrypt_timer->run_until_elapsed(runtime, [&]() {
                for(size_t i = 0; i != mult; ++i) {
-                  cipher.decrypt_n(&buffer[0], &buffer[0], blocks);
+                  cipher.decrypt_n(buffer.data(), buffer.data(), blocks);
                }
             });
             config.record_result(*decrypt_timer);
@@ -104,7 +107,7 @@ class PerfTest_BlockCipher final : public PerfTest {
 #if defined(BOTAN_HAS_CIPHER_MODES)
 class PerfTest_CipherMode final : public PerfTest {
    public:
-      PerfTest_CipherMode(std::string_view alg) : m_alg(alg) {}
+      explicit PerfTest_CipherMode(std::string_view alg) : m_alg(alg) {}
 
       void go(const PerfConfig& config) override {
          for(const auto& provider : Botan::Cipher_Mode::providers(m_alg)) {
@@ -118,7 +121,7 @@ class PerfTest_CipherMode final : public PerfTest {
       static bool has_impl_for(std::string_view alg) { return !Botan::Cipher_Mode::providers(alg).empty(); }
 
    private:
-      void bench_cipher_mode(const PerfConfig& config, Botan::Cipher_Mode& enc, Botan::Cipher_Mode& dec) {
+      static void bench_cipher_mode(const PerfConfig& config, Botan::Cipher_Mode& enc, Botan::Cipher_Mode& dec) {
          auto& rng = config.rng();
          const auto runtime = config.runtime();
          const auto provider = enc.provider();
@@ -150,17 +153,23 @@ class PerfTest_CipherMode final : public PerfTest {
                   }
                });
 
+               Botan::secure_vector<uint8_t> dbuffer;
+
+               size_t iter = 0;
+
                while(decrypt_timer->under(runtime)) {
-                  if(!iv.empty()) {
-                     iv[iv.size() - 1] += 1;
+                  if(iter == 0 || iter % 128 == 0) {
+                     if(!iv.empty()) {
+                        iv[iv.size() - 1] += 1;
+                     }
+
+                     // Create a valid ciphertext/tag for decryption to run on
+                     buffer.resize(buf_size);
+                     enc.start(iv);
+                     enc.finish(buffer);
                   }
 
-                  // Create a valid ciphertext/tag for decryption to run on
-                  buffer.resize(buf_size);
-                  enc.start(iv);
-                  enc.finish(buffer);
-
-                  Botan::secure_vector<uint8_t> dbuffer;
+                  ++iter;
 
                   decrypt_timer->run([&]() {
                      for(size_t i = 0; i != mult; ++i) {
@@ -184,7 +193,7 @@ class PerfTest_CipherMode final : public PerfTest {
 #if defined(BOTAN_HAS_STREAM_CIPHER)
 class PerfTest_StreamCipher final : public PerfTest {
    public:
-      PerfTest_StreamCipher(std::string_view alg) : m_alg(alg) {}
+      explicit PerfTest_StreamCipher(std::string_view alg) : m_alg(alg) {}
 
       void go(const PerfConfig& config) override {
          for(const auto& provider : Botan::StreamCipher::providers(m_alg)) {
@@ -197,7 +206,7 @@ class PerfTest_StreamCipher final : public PerfTest {
       static bool has_impl_for(std::string_view alg) { return !Botan::StreamCipher::providers(alg).empty(); }
 
    private:
-      void bench_stream_cipher(const PerfConfig& config, Botan::StreamCipher& cipher) {
+      static void bench_stream_cipher(const PerfConfig& config, Botan::StreamCipher& cipher) {
          auto& rng = config.rng();
          const auto runtime = config.runtime();
          const auto provider = cipher.provider();
@@ -247,7 +256,7 @@ class PerfTest_StreamCipher final : public PerfTest {
 #if defined(BOTAN_HAS_HASH)
 class PerfTest_HashFunction final : public PerfTest {
    public:
-      PerfTest_HashFunction(std::string_view alg) : m_alg(alg) {}
+      explicit PerfTest_HashFunction(std::string_view alg) : m_alg(alg) {}
 
       void go(const PerfConfig& config) override {
          for(const auto& provider : Botan::HashFunction::providers(m_alg)) {
@@ -260,7 +269,7 @@ class PerfTest_HashFunction final : public PerfTest {
       static bool has_impl_for(std::string_view alg) { return !Botan::HashFunction::providers(alg).empty(); }
 
    private:
-      void bench_hash_fn(const PerfConfig& config, Botan::HashFunction& hash) {
+      static void bench_hash_fn(const PerfConfig& config, Botan::HashFunction& hash) {
          std::vector<uint8_t> output(hash.output_length());
          const auto provider = hash.provider();
          const auto runtime = config.runtime();
@@ -288,7 +297,7 @@ class PerfTest_HashFunction final : public PerfTest {
 #if defined(BOTAN_HAS_MAC)
 class PerfTest_MessageAuthenticationCode final : public PerfTest {
    public:
-      PerfTest_MessageAuthenticationCode(std::string_view alg) : m_alg(alg) {}
+      explicit PerfTest_MessageAuthenticationCode(std::string_view alg) : m_alg(alg) {}
 
       void go(const PerfConfig& config) override {
          for(const auto& provider : Botan::MessageAuthenticationCode::providers(m_alg)) {
@@ -303,7 +312,7 @@ class PerfTest_MessageAuthenticationCode final : public PerfTest {
       }
 
    private:
-      void bench_mac_fn(const PerfConfig& config, Botan::MessageAuthenticationCode& mac) {
+      static void bench_mac_fn(const PerfConfig& config, Botan::MessageAuthenticationCode& mac) {
          std::vector<uint8_t> output(mac.output_length());
          const auto provider = mac.provider();
          const auto runtime = config.runtime();
@@ -339,7 +348,7 @@ class PerfTest_MessageAuthenticationCode final : public PerfTest {
 #if defined(BOTAN_HAS_XOF)
 class PerfTest_XOF final : public PerfTest {
    public:
-      PerfTest_XOF(std::string_view alg) : m_alg(alg) {}
+      explicit PerfTest_XOF(std::string_view alg) : m_alg(alg) {}
 
       void go(const PerfConfig& config) override {
          for(const auto& provider : Botan::XOF::providers(m_alg)) {
@@ -352,11 +361,11 @@ class PerfTest_XOF final : public PerfTest {
       static bool has_impl_for(std::string_view alg) { return !Botan::XOF::providers(alg).empty(); }
 
    private:
-      void bench_xof_fn(const PerfConfig& config, Botan::XOF& xof) {
+      static void bench_xof_fn(const PerfConfig& config, Botan::XOF& xof) {
          const auto runtime = config.runtime();
          const auto provider = xof.provider();
 
-         for(size_t buf_size : config.buffer_sizes()) {
+         for(const size_t buf_size : config.buffer_sizes()) {
             auto in = config.rng().random_vec(buf_size);
             Botan::secure_vector<uint8_t> out(buf_size);
 
@@ -368,12 +377,17 @@ class PerfTest_XOF final : public PerfTest {
 
             config.record_result(*in_timer);
             config.record_result(*out_timer);
+
+            // Our XOFs don't want to consume inputs after producing output, so reset the state
+            xof.clear();
          }
       }
 
       std::string m_alg;
 };
 #endif
+
+}  // namespace
 
 //static
 std::unique_ptr<PerfTest> PerfTest::get_sym(const std::string& alg) {

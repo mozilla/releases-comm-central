@@ -36,7 +36,7 @@ int botan_rng_init(botan_rng_t* rng_out, const char* rng_type) {
          return BOTAN_FFI_ERROR_NULL_POINTER;
       }
 
-      const std::string rng_type_s(rng_type ? rng_type : "system");
+      const std::string rng_type_s(rng_type != nullptr ? rng_type : "system");
 
       std::unique_ptr<Botan::RandomNumberGenerator> rng;
 
@@ -69,8 +69,7 @@ int botan_rng_init(botan_rng_t* rng_out, const char* rng_type) {
          return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
       }
 
-      *rng_out = new botan_rng_struct(std::move(rng));
-      return BOTAN_FFI_SUCCESS;
+      return ffi_new_object(rng_out, std::move(rng));
    });
 }
 
@@ -100,12 +99,11 @@ int botan_rng_init_custom(botan_rng_t* rng_out,
                        int (*get_cb)(void* context, uint8_t* out, size_t out_len),
                        int (*add_entropy_cb)(void* context, const uint8_t input[], size_t length),
                        void (*destroy_cb)(void* context)) :
-                  m_name(name) {
-               m_context = context;
-               m_get_cb = get_cb;
-               m_add_entropy_cb = add_entropy_cb;
-               m_destroy_cb = destroy_cb;
-            }
+                  m_name(name),
+                  m_context(context),
+                  m_get_cb(get_cb),
+                  m_add_entropy_cb(add_entropy_cb),
+                  m_destroy_cb(destroy_cb) {}
 
             ~Custom_RNG() override {
                if(m_destroy_cb) {
@@ -121,15 +119,15 @@ int botan_rng_init_custom(botan_rng_t* rng_out,
          protected:
             void fill_bytes_with_input(std::span<uint8_t> output, std::span<const uint8_t> input) override {
                if(accepts_input() && !input.empty()) {
-                  int rc = m_add_entropy_cb(m_context, input.data(), input.size());
-                  if(rc) {
+                  const int rc = m_add_entropy_cb(m_context, input.data(), input.size());
+                  if(rc != 0) {
                      throw Botan::Invalid_State("Failed to add entropy via C callback, rc=" + std::to_string(rc));
                   }
                }
 
                if(!output.empty()) {
-                  int rc = m_get_cb(m_context, output.data(), output.size());
-                  if(rc) {
+                  const int rc = m_get_cb(m_context, output.data(), output.size());
+                  if(rc != 0) {
                      throw Botan::Invalid_State("Failed to get random from C callback, rc=" + std::to_string(rc));
                   }
                }
@@ -154,8 +152,7 @@ int botan_rng_init_custom(botan_rng_t* rng_out,
 
       auto rng = std::make_unique<Custom_RNG>(rng_name, context, get_cb, add_entropy_cb, destroy_cb);
 
-      *rng_out = new botan_rng_struct(std::move(rng));
-      return BOTAN_FFI_SUCCESS;
+      return ffi_new_object(rng_out, std::move(rng));
    });
 }
 

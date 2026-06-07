@@ -11,6 +11,7 @@
 #include <botan/exceptn.h>
 #include <botan/mem_ops.h>
 #include <botan/internal/fmt.h>
+#include <botan/internal/mem_utils.h>
 #include <algorithm>
 #include <istream>
 
@@ -28,6 +29,18 @@ size_t DataSource::read_byte(uint8_t& out) {
 }
 
 /*
+* Read a single byte from the DataSource
+*/
+std::optional<uint8_t> DataSource::read_byte() {
+   uint8_t b = 0;
+   if(this->read(&b, 1) == 1) {
+      return b;
+   } else {
+      return {};
+   }
+}
+
+/*
 * Peek a single byte from the DataSource
 */
 size_t DataSource::peek_byte(uint8_t& out) const {
@@ -41,7 +54,7 @@ size_t DataSource::discard_next(size_t n) {
    uint8_t buf[64] = {0};
    size_t discarded = 0;
 
-   while(n) {
+   while(n > 0) {
       const size_t got = this->read(buf, std::min(n, sizeof(buf)));
       discarded += got;
       n -= got;
@@ -92,8 +105,7 @@ bool DataSource_Memory::end_of_data() const {
 /*
 * DataSource_Memory Constructor
 */
-DataSource_Memory::DataSource_Memory(std::string_view in) :
-      m_source(cast_char_ptr_to_uint8(in.data()), cast_char_ptr_to_uint8(in.data()) + in.length()), m_offset(0) {}
+DataSource_Memory::DataSource_Memory(std::string_view in) : DataSource_Memory(as_span_of_bytes(in)) {}
 
 /*
 * Read from a stream
@@ -127,7 +139,7 @@ size_t DataSource_Stream::peek(uint8_t out[], size_t length, size_t offset) cons
 
    size_t got = 0;
 
-   if(offset) {
+   if(offset > 0) {
       secure_vector<uint8_t> buf(offset);
       m_source.read(cast_uint8_ptr_to_char(buf.data()), buf.size());
       if(m_source.bad()) {

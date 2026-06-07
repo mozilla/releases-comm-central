@@ -9,15 +9,12 @@
 #ifndef BOTAN_TLS_HANDSHAKE_STATE_13_H_
 #define BOTAN_TLS_HANDSHAKE_STATE_13_H_
 
-#include <functional>
-#include <optional>
-#include <variant>
-#include <vector>
-
 #include <botan/tls_exceptn.h>
 #include <botan/tls_magic.h>
-#include <botan/tls_messages.h>
+#include <botan/tls_messages_13.h>
 #include <botan/internal/stl_util.h>
+#include <optional>
+#include <variant>
 
 namespace Botan::TLS {
 
@@ -40,7 +37,15 @@ class BOTAN_TEST_API Handshake_State_13_Base {
 
       bool has_client_finished() const { return m_client_finished.has_value(); }
 
-      bool handshake_finished() const { return has_server_finished() && has_client_finished(); }
+      bool handshake_finished() const {
+         return has_server_finished() && has_client_finished() && m_peer_finished_verified;
+      }
+
+      /**
+       * Once the implementation has successfully verified the peer's Finished
+       * message, the handshake is considered complete and successful.
+       */
+      void confirm_peer_finished_verified() { m_peer_finished_verified = true; }
 
       // Client_Hello_13 cannot be const because it might need modification due to a Hello_Retry_Request
       Client_Hello_13& client_hello() { return get(m_client_hello); }
@@ -68,12 +73,12 @@ class BOTAN_TEST_API Handshake_State_13_Base {
       const Finished_13& client_finished() const { return get(m_client_finished); }
 
    protected:
-      Handshake_State_13_Base(Connection_Side whoami) : m_side(whoami) {}
+      explicit Handshake_State_13_Base(Connection_Side whoami) : m_side(whoami) {}
 
       Client_Hello_13& store(Client_Hello_13 client_hello, bool from_peer);
-      Client_Hello_12& store(Client_Hello_12 client_hello, bool from_peer);
+      Client_Hello_12_Shim& store(Client_Hello_12_Shim client_hello, bool from_peer);
       Server_Hello_13& store(Server_Hello_13 server_hello, bool from_peer);
-      Server_Hello_12& store(Server_Hello_12 server_hello, bool from_peer);
+      Server_Hello_12_Shim& store(Server_Hello_12_Shim server_hello, bool from_peer);
       Hello_Retry_Request& store(Hello_Retry_Request hello_retry_request, bool from_peer);
       Encrypted_Extensions& store(Encrypted_Extensions encrypted_extensions, bool from_peer);
       Certificate_Request_13& store(Certificate_Request_13 certificate_request, bool from_peer);
@@ -99,11 +104,12 @@ class BOTAN_TEST_API Handshake_State_13_Base {
       }
 
       Connection_Side m_side;
+      bool m_peer_finished_verified = false;
 
       std::optional<Client_Hello_13> m_client_hello;
-      std::optional<Client_Hello_12> m_client_hello_12;
+      std::optional<Client_Hello_12_Shim> m_client_hello_12;
       std::optional<Server_Hello_13> m_server_hello;
-      std::optional<Server_Hello_12> m_server_hello_12;
+      std::optional<Server_Hello_12_Shim> m_server_hello_12;
       std::optional<Hello_Retry_Request> m_hello_retry_request;
       std::optional<Encrypted_Extensions> m_encrypted_extensions;
       std::optional<Certificate_Request_13> m_certificate_request;
@@ -147,13 +153,15 @@ class BOTAN_TEST_API Handshake_State_13 : public Internal::Handshake_State_13_Ba
          requires(is_generalizable_to<Outbound_Message_T>(message))
       {
          return std::visit(
-            [&](auto msg) -> as_wrapped_references_t<std::variant<MsgTs...>> { return sending(std::move(msg)); },
+            [&](auto msg) -> detail::as_wrapped_references_t<std::variant<MsgTs...>> {
+               return sending(std::move(msg));
+            },
             std::move(message));
       }
 
       decltype(auto) received(Handshake_Message_13 message) {
          return std::visit(
-            [&](auto msg) -> as_wrapped_references_t<Inbound_Message_T> {
+            [&](auto msg) -> detail::as_wrapped_references_t<Inbound_Message_T> {
                if constexpr(std::is_constructible_v<Inbound_Message_T, decltype(msg)>) {
                   return std::reference_wrapper<decltype(msg)>(store(std::move(msg), true));
                } else {

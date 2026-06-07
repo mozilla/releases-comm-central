@@ -4,19 +4,21 @@
 * Botan is released under the Simplified BSD License (see license.txt)
 */
 
-#include "test_rng.h"
 #include "tests.h"
 
 #if defined(BOTAN_HAS_SM2)
    #include "test_pubkey.h"
+   #include "test_rng.h"
+   #include <botan/ec_group.h>
+   #include <botan/pubkey.h>
    #include <botan/sm2.h>
 #endif
 
 namespace Botan_Tests {
 
-#if defined(BOTAN_HAS_SM2)
-
 namespace {
+
+#if defined(BOTAN_HAS_SM2)
 
 std::unique_ptr<Botan::Private_Key> load_sm2_private_key(const VarMap& vars) {
    // group params
@@ -29,7 +31,7 @@ std::unique_ptr<Botan::Private_Key> load_sm2_private_key(const VarMap& vars) {
    const BigInt x = vars.get_req_bn("x");
    const Botan::OID oid = Botan::OID(vars.get_req_str("Oid"));
 
-   Botan::EC_Group domain(oid, p, a, b, xG, yG, order);
+   const Botan::EC_Group domain(oid, p, a, b, xG, yG, order);
 
    Botan::Null_RNG null_rng;
    return std::make_unique<Botan::SM2_PrivateKey>(null_rng, domain, x);
@@ -41,7 +43,7 @@ class SM2_Signature_KAT_Tests final : public PK_Signature_Generation_Test {
             PK_Signature_Generation_Test(
                "SM2", "pubkey/sm2_sig.vec", "P,A,B,xG,yG,Order,Oid,Ident,Msg,x,Nonce,Signature", "Hash") {}
 
-      bool skip_this_test(const std::string&, const VarMap&) override {
+      bool skip_this_test(const std::string& /*header*/, const VarMap& /*vars*/) override {
          return !Botan::EC_Group::supports_application_specific_group();
       }
 
@@ -68,7 +70,7 @@ class SM2_Encryption_KAT_Tests final : public PK_Encryption_Decryption_Test {
             PK_Encryption_Decryption_Test(
                "SM2", "pubkey/sm2_enc.vec", "P,A,B,xG,yG,Order,Oid,Msg,x,Nonce,Ciphertext", "Hash") {}
 
-      bool skip_this_test(const std::string&, const VarMap&) override {
+      bool skip_this_test(const std::string& /*header*/, const VarMap& /*vars*/) override {
          return !Botan::EC_Group::supports_application_specific_group();
       }
 
@@ -84,8 +86,6 @@ class SM2_Encryption_KAT_Tests final : public PK_Encryption_Decryption_Test {
          return load_sm2_private_key(vars);
       }
 };
-
-}  // namespace
 
 BOTAN_REGISTER_TEST("pubkey", "sm2_enc", SM2_Encryption_KAT_Tests);
 
@@ -106,6 +106,34 @@ class SM2_Keygen_Tests final : public PK_Key_Generation_Test {
 
 BOTAN_REGISTER_TEST("pubkey", "sm2_keygen", SM2_Keygen_Tests);
 
+class SM2_Invalid_Ciphertexts : public Text_Based_Test {
+   public:
+      SM2_Invalid_Ciphertexts() : Text_Based_Test("pubkey/sm2_invalid.vec", "Key,Ctext") {}
+
+      bool clear_between_callbacks() const override { return false; }
+
+      Test::Result run_one_test(const std::string& /*header*/, const VarMap& vars) override {
+         Test::Result result("SM2 invalid ciphertext");
+
+         const auto key = vars.get_req_bin("Key");
+         const auto ctext = vars.get_req_bin("Ctext");
+
+         const auto group = Botan::EC_Group::from_name("sm2p256v1");
+         const auto pkey = Botan::SM2_PrivateKey(group, Botan::EC_Scalar::deserialize(group, key).value());
+
+         Botan::PK_Decryptor_EME dec(pkey, rng(), "SM3");
+
+         result.test_throws<Botan::Exception>("Decryption should fail for invalid ciphertext",
+                                              [&] { dec.decrypt(ctext); });
+
+         return result;
+      }
+};
+
+BOTAN_REGISTER_TEST("pubkey", "sm2_invalid_ctext", SM2_Invalid_Ciphertexts);
+
 #endif
+
+}  // namespace
 
 }  // namespace Botan_Tests

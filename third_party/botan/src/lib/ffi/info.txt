@@ -1,5 +1,10 @@
 <defines>
-FFI -> 20250506
+# When bumping remember to also update
+# - BOTAN_FFI_API_VERSION in ffi.h
+# - botan_ffi_supports_api in ffi.cpp
+# - The table of versions in ffi.rst
+# - BOTAN_FFI_VERSION in botan3.py
+FFI -> 20260303
 </defines>
 
 <module_info>
@@ -8,6 +13,7 @@ brief -> "C API for Botan's functionality"
 </module_info>
 
 <header:internal>
+ffi_cert.h
 ffi_ec.h
 ffi_mp.h
 ffi_oid.h
@@ -28,6 +34,7 @@ aead
 kdf
 pbkdf
 pubkey
+xof
 pem
 bigint
 sha2_32
@@ -35,4 +42,7 @@ sha2_32
 #tls
 system_rng
 auto_rng
+
+# TODO this should be made optional
+ec_group
 </requires>

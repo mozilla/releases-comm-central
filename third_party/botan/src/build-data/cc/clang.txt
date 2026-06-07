@@ -69,6 +69,8 @@ sse41  -> "-msse4.1"
 avx2   -> "-mavx2"
 avx512  -> "-mavx512f -mavx512bw -mavx512dq -mavx512vbmi -mavx512vbmi2 -mavx512bitalg -mavx512vl -mavx512ifma"
 
+avx512_clmul -> "-mavx512f -mavx512bw -mavx512dq -mavx512vbmi -mavx512vbmi2 -mavx512bitalg -mavx512vl -mavx512ifma -mvpclmulqdq"
+
 vaes    -> "-mvaes -mavx2"
 sha512  -> "-msha512 -mavx2"
 sm3     -> "-msm3"
@@ -88,6 +90,8 @@ ppc64:power9 -> "-mcpu=power9"
 
 arm64:armv8crypto -> "-march=armv8+crypto"
 arm64:armv8sha512 -> "-march=armv8.2-a+sha3"
+arm64:armv8sm3 -> "-march=armv8.2-a+sm4"
+arm64:armv8sm4 -> "-march=armv8.2-a+sm4"
 
 loongarch64:lsx -> "-mlsx"
 loongarch64:lasx -> "-mlasx"

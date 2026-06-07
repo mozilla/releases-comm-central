@@ -219,6 +219,26 @@ std::optional<X509_Certificate> Certificate_Store_Windows::find_cert_by_raw_subj
    throw Not_Implemented("Certificate_Store_Windows::find_cert_by_raw_subject_dn_sha256");
 }
 
+std::optional<X509_Certificate> Certificate_Store_Windows::find_cert_by_issuer_dn_and_serial_number(
+   const X509_DN& issuer_dn, std::span<const uint8_t> serial_number) const {
+   std::vector<uint8_t> dn_data = issuer_dn.BER_encode();
+
+   _CRYPTOAPI_BLOB blob;
+   blob.cbData = static_cast<DWORD>(dn_data.size());
+   blob.pbData = reinterpret_cast<BYTE*>(dn_data.data());
+
+   auto filter = [&](const std::vector<X509_Certificate>& certs, const X509_Certificate& cert) {
+      return !already_contains_certificate(certs, cert) && std::ranges::equal(cert.serial_number(), serial_number);
+   };
+
+   const auto certs = search_cert_stores(blob, CERT_FIND_ISSUER_NAME, filter, true);
+   if(certs.empty()) {
+      return std::nullopt;
+   }
+
+   return certs.front();
+}
+
 std::optional<X509_CRL> Certificate_Store_Windows::find_crl_for(const X509_Certificate& subject) const {
    // TODO: this could be implemented by using the CertFindCRLInStore function
    BOTAN_UNUSED(subject);
@@ -227,9 +247,16 @@ std::optional<X509_CRL> Certificate_Store_Windows::find_crl_for(const X509_Certi
 
 std::optional<X509_Certificate> Certificate_Store_Windows::find_cert_by_pubkey_sha1_via_exhaustive_search(
    const std::vector<uint8_t>& key_hash) const {
-   if(const auto cache_hit = m_non_rfc3289_certs.find(key_hash); cache_hit != m_non_rfc3289_certs.end()) {
+   const lock_guard_type<mutex_type> lock(m_mutex);
+
+   if(const auto cache_hit = m_sha1_pubkey_to_cert.find(key_hash); cache_hit != m_sha1_pubkey_to_cert.end()) {
       return cache_hit->second;
    }
+
+   /*
+   * TODO: it would be possible to perform this search loop without holding the lock, and
+   * only taking the lock once right when the result was saved to the map.
+   */
 
    auto sha1 = HashFunction::create_or_throw("SHA-1");
    for(const auto store_name : cert_store_names) {
@@ -244,14 +271,14 @@ std::optional<X509_Certificate> Certificate_Store_Windows::find_cert_by_pubkey_s
 
          if(std::equal(key_hash.begin(), key_hash.end(), key_hash_candidate.begin())) {
             X509_Certificate result(cert_context->pbCertEncoded, cert_context->cbCertEncoded);
-            m_non_rfc3289_certs[key_hash] = result;
+            m_sha1_pubkey_to_cert[key_hash] = result;
             return result;
          }
       }
    }
 
    // insert a negative query result into the cache
-   m_non_rfc3289_certs[key_hash] = std::nullopt;
+   m_sha1_pubkey_to_cert[key_hash] = std::nullopt;
    return std::nullopt;
 }
 

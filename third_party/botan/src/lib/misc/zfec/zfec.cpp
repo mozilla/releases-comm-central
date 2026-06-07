@@ -23,7 +23,7 @@ namespace Botan {
 
 namespace {
 
-/* Tables for arithetic in GF(2^8) using 1+x^2+x^3+x^4+x^8
+/* Tables for arithmetic in GF(2^8) using 1+x^2+x^3+x^4+x^8
 *
 * See Lin & Costello, Appendix A, and Lee & Messerschmitt, p. 453.
 *
@@ -102,7 +102,7 @@ const uint8_t* GF_MUL_TABLE(uint8_t y) {
          std::vector<uint8_t> m_table;
    };
 
-   static GF_Table table;
+   static const GF_Table table;
    return table.ptr(y);
 }
 
@@ -177,7 +177,7 @@ void invert_matrix(uint8_t matrix[], size_t K) {
       pivot_row[icol] = 1;
 
       if(c == 0) {
-         throw Invalid_Argument("ZFEC: singlar matrix");
+         throw Invalid_Argument("ZFEC: singular matrix");
       }
 
       if(c != 1) {
@@ -292,7 +292,7 @@ void ZFEC::addmul(uint8_t z[], const uint8_t x[], uint8_t y, size_t size) {
    const uint8_t* GF_MUL_Y = GF_MUL_TABLE(y);
 
    // first align z to 16 bytes
-   while(size > 0 && reinterpret_cast<uintptr_t>(z) % 16) {
+   while(size > 0 && reinterpret_cast<uintptr_t>(z) % 16 > 0) {
       z[0] ^= GF_MUL_Y[x[0]];
       ++z;
       ++x;
@@ -302,15 +302,6 @@ void ZFEC::addmul(uint8_t z[], const uint8_t x[], uint8_t y, size_t size) {
 #if defined(BOTAN_HAS_ZFEC_VPERM)
    if(size >= 16 && CPUID::has(CPUID::Feature::SIMD_4X32)) {
       const size_t consumed = addmul_vperm(z, x, y, size);
-      z += consumed;
-      x += consumed;
-      size -= consumed;
-   }
-#endif
-
-#if defined(BOTAN_HAS_ZFEC_SSE2)
-   if(size >= 64 && CPUID::has(CPUID::Feature::SSE2)) {
-      const size_t consumed = addmul_sse2(z, x, y, size);
       z += consumed;
       x += consumed;
       size -= consumed;
@@ -367,7 +358,7 @@ ZFEC::ZFEC(size_t K, size_t N) : m_K(K), m_N(N), m_enc_matrix(N * K) {
    * K*K Vandermonde matrix, multiply right the bottom n-K rows
    * by the inverse, and construct the identity matrix at the top.
    */
-   create_inverted_vdm(&temp_matrix[0], m_K);
+   create_inverted_vdm(temp_matrix.data(), m_K);
 
    for(size_t i = m_K * m_K; i != temp_matrix.size(); ++i) {
       temp_matrix[i] = GF_EXP[((i / m_K) * (i % m_K)) % 255];
@@ -432,10 +423,10 @@ void ZFEC::encode_shares(const std::vector<const uint8_t*>& shares,
       clear_mem(fec_buf.data(), fec_buf.size());
 
       for(size_t j = 0; j != m_K; ++j) {
-         addmul(&fec_buf[0], shares[j], m_enc_matrix[i * m_K + j], share_size);
+         addmul(fec_buf.data(), shares[j], m_enc_matrix[i * m_K + j], share_size);
       }
 
-      output_cb(i, &fec_buf[0], fec_buf.size());
+      output_cb(i, fec_buf.data(), fec_buf.size());
    }
 }
 
@@ -509,21 +500,21 @@ void ZFEC::decode_shares(const std::map<size_t, const uint8_t*>& shares,
    // If we had the original data shares then no need to perform
    // a matrix inversion, return immediately.
    if(!missing_primary_share) {
-      for(size_t i = 0; i != indexes.size(); ++i) {
-         BOTAN_ASSERT_NOMSG(indexes[i] < m_K);
+      for(const size_t index : indexes) {
+         BOTAN_ASSERT_NOMSG(index < m_K);
       }
       return;
    }
 
-   invert_matrix(&decoding_matrix[0], m_K);
+   invert_matrix(decoding_matrix.data(), m_K);
 
    for(size_t i = 0; i != indexes.size(); ++i) {
       if(indexes[i] >= m_K) {
          std::vector<uint8_t> buf(share_size);
          for(size_t col = 0; col != m_K; ++col) {
-            addmul(&buf[0], sharesv[col], decoding_matrix[i * m_K + col], share_size);
+            addmul(buf.data(), sharesv[col], decoding_matrix[i * m_K + col], share_size);
          }
-         output_cb(i, &buf[0], share_size);
+         output_cb(i, buf.data(), share_size);
       }
    }
 }
@@ -531,12 +522,6 @@ void ZFEC::decode_shares(const std::map<size_t, const uint8_t*>& shares,
 std::string ZFEC::provider() const {
 #if defined(BOTAN_HAS_ZFEC_VPERM)
    if(auto feat = CPUID::check(CPUID::Feature::SIMD_4X32)) {
-      return *feat;
-   }
-#endif
-
-#if defined(BOTAN_HAS_ZFEC_SSE2)
-   if(auto feat = CPUID::check(CPUID::Feature::SSE2)) {
       return *feat;
    }
 #endif

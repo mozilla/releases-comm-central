@@ -7,17 +7,20 @@
 
 #include <botan/internal/siphash.h>
 
+#include <botan/internal/buffer_slicer.h>
 #include <botan/internal/fmt.h>
 #include <botan/internal/loadstor.h>
 #include <botan/internal/rotate.h>
-#include <botan/internal/stl_util.h>
 
 namespace Botan {
 
 namespace {
 
 void SipRounds(uint64_t M, secure_vector<uint64_t>& V, size_t r) {
-   uint64_t V0 = V[0], V1 = V[1], V2 = V[2], V3 = V[3];
+   uint64_t V0 = V[0];
+   uint64_t V1 = V[1];
+   uint64_t V2 = V[2];
+   uint64_t V3 = V[3];
 
    V3 ^= M;
    for(size_t i = 0; i != r; ++i) {
@@ -55,7 +58,7 @@ void SipHash::add_data(std::span<const uint8_t> input) {
 
    BufferSlicer in(input);
 
-   if(m_mbuf_pos) {
+   if(m_mbuf_pos > 0) {
       while(!in.empty() && m_mbuf_pos != 8) {
          m_mbuf = (m_mbuf >> 8) | (static_cast<uint64_t>(in.take_byte()) << 56);
          ++m_mbuf_pos;

@@ -54,10 +54,7 @@ class binary_matrix final {
       std::vector<uint32_t> m_elem;
 };
 
-binary_matrix::binary_matrix(size_t rown, size_t coln) {
-   m_coln = coln;
-   m_rown = rown;
-   m_rwdcnt = 1 + ((m_coln - 1) / 32);
+binary_matrix::binary_matrix(size_t rown, size_t coln) : m_rown(rown), m_coln(coln), m_rwdcnt(1 + ((m_coln - 1) / 32)) {
    m_elem = std::vector<uint32_t>(m_rown * m_rwdcnt);
 }
 
@@ -81,7 +78,7 @@ secure_vector<size_t> binary_matrix::row_reduced_echelon_form() {
       bool found_row = false;
 
       for(size_t j = i; !found_row && j != m_rown; j++) {
-         if(coef(j, max)) {
+         if(coef(j, max) > 0) {
             if(i != j)  //not needed as ith row is 0 and jth row is 1.
             {
                row_xor(i, j);  //xor to the row.(swap)?
@@ -95,7 +92,7 @@ secure_vector<size_t> binary_matrix::row_reduced_echelon_form() {
       if(!found_row) {
          perm[m_coln - m_rown - 1 - failcnt] = static_cast<int>(max);
          failcnt++;
-         if(!max) {
+         if(max == 0) {
             perm.clear();
          }
          i--;
@@ -103,14 +100,14 @@ secure_vector<size_t> binary_matrix::row_reduced_echelon_form() {
          perm[i + m_coln - m_rown] = max;
          for(size_t j = i + 1; j < m_rown; j++)  //fill the column downwards with 0's
          {
-            if(coef(j, max)) {
+            if(coef(j, max) > 0) {
                row_xor(j, i);  //check the arg. order.
             }
          }
 
          //fill the column with 0's upwards too.
          for(size_t j = i; j != 0; --j) {
-            if(coef(j - 1, max)) {
+            if(coef(j - 1, max) > 0) {
                row_xor(j - 1, i);
             }
          }
@@ -121,7 +118,7 @@ secure_vector<size_t> binary_matrix::row_reduced_echelon_form() {
 
 void randomize_support(std::vector<gf2m>& L, RandomNumberGenerator& rng) {
    for(size_t i = 0; i != L.size(); ++i) {
-      gf2m rnd = random_gf2m(rng);
+      const gf2m rnd = random_gf2m(rng);
 
       // no rejection sampling, but for useful code-based parameters with n <= 13 this seem tolerable
       std::swap(L[i], L[rnd % L.size()]);
@@ -146,7 +143,7 @@ std::unique_ptr<binary_matrix> generate_R(
       gf2m y = x;
       for(size_t j = 0; j < t; j++) {
          for(size_t k = 0; k < sp_field.get_extension_degree(); k++) {
-            if(y & (1 << k)) {
+            if((y & (1 << k)) != 0) {
                //the co-eff. are set in 2^0,...,2^11 ; 2^0,...,2^11 format along the rows/cols?
                H.set_coef_to_one(j * sp_field.get_extension_degree() + k, i);
             }
@@ -163,7 +160,7 @@ std::unique_ptr<binary_matrix> generate_R(
    auto result = std::make_unique<binary_matrix>(code_length - r, r);
    for(size_t i = 0; i < result->rows(); ++i) {
       for(size_t j = 0; j < result->columns(); ++j) {
-         if(H.coef(j, perm[i])) {
+         if(H.coef(j, perm[i]) > 0) {
             result->toggle_coeff(i, j);
          }
       }
@@ -202,6 +199,7 @@ McEliece_PrivateKey generate_mceliece_key(RandomNumberGenerator& rng, size_t ext
    bool success = false;
    std::unique_ptr<binary_matrix> R;
 
+   // NOLINTNEXTLINE(*-avoid-do-while)
    do {
       // create a random irreducible polynomial
       g = polyn_gf2m(t, rng, sp_field);
@@ -212,7 +210,7 @@ McEliece_PrivateKey generate_mceliece_key(RandomNumberGenerator& rng, size_t ext
       } catch(const Invalid_State&) {}
    } while(!success);
 
-   std::vector<polyn_gf2m> sqrtmod = polyn_gf2m::sqrt_mod_init(g);
+   const std::vector<polyn_gf2m> sqrtmod = polyn_gf2m::sqrt_mod_init(g);
    std::vector<polyn_gf2m> F = syndrome_init(g, L, static_cast<int>(code_length));
 
    // Each F[i] is the (precomputed) syndrome of the error vector with

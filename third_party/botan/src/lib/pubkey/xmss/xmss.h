@@ -9,12 +9,10 @@
 #ifndef BOTAN_XMSS_H_
 #define BOTAN_XMSS_H_
 
-#include <memory>
-#include <span>
-
-#include <botan/exceptn.h>
 #include <botan/pk_keys.h>
 #include <botan/xmss_parameters.h>
+#include <memory>
+#include <span>
 
 namespace Botan {
 
@@ -55,7 +53,7 @@ class BOTAN_PUBLIC_API(2, 0) XMSS_PublicKey : public virtual Public_Key {
        *
        * @param key_bits DER encoded public key bits
        */
-      XMSS_PublicKey(std::span<const uint8_t> key_bits);
+      BOTAN_FUTURE_EXPLICIT XMSS_PublicKey(std::span<const uint8_t> key_bits);
 
       /**
        * Creates a new XMSS public key for a chosen XMSS signature method as
@@ -75,7 +73,7 @@ class BOTAN_PUBLIC_API(2, 0) XMSS_PublicKey : public virtual Public_Key {
          return AlgorithmIdentifier(object_identifier(), AlgorithmIdentifier::USE_EMPTY_PARAM);
       }
 
-      bool check_key(RandomNumberGenerator&, bool) const override { return true; }
+      bool check_key(RandomNumberGenerator& /*rng*/, bool /*strong*/) const override { return true; }
 
       size_t estimated_strength() const override { return m_xmss_params.estimated_strength(); }
 
@@ -120,11 +118,11 @@ class BOTAN_PUBLIC_API(2, 0) XMSS_PublicKey : public virtual Public_Key {
       const XMSS_Parameters& xmss_parameters() const { return m_xmss_params; }
 
    protected:
-      std::vector<uint8_t> m_raw_key;
-      XMSS_Parameters m_xmss_params;
-      XMSS_WOTS_Parameters m_wots_params;
-      secure_vector<uint8_t> m_root;
-      secure_vector<uint8_t> m_public_seed;
+      std::vector<uint8_t> m_raw_key;        // NOLINT(*non-private-member-variable*)
+      XMSS_Parameters m_xmss_params;         // NOLINT(*non-private-member-variable*)
+      XMSS_WOTS_Parameters m_wots_params;    // NOLINT(*non-private-member-variable*)
+      secure_vector<uint8_t> m_root;         // NOLINT(*non-private-member-variable*)
+      secure_vector<uint8_t> m_public_seed;  // NOLINT(*non-private-member-variable*)
 };
 
 template <typename>
@@ -135,7 +133,7 @@ class XMSS_Index_Registry;
 /**
  * Determines how WOTS+ private keys are derived from the XMSS private key
  */
-enum class WOTS_Derivation_Method {
+enum class WOTS_Derivation_Method : uint8_t {
    /// This roughly followed the suggestions in RFC 8391 but is vulnerable
    /// to a multi-target attack. For new private keys, we recommend using
    /// the derivation as suggested in NIST SP.800-208.
@@ -186,7 +184,7 @@ class BOTAN_PUBLIC_API(2, 0) XMSS_PrivateKey final : public virtual XMSS_PublicK
        *
        * @param raw_key An XMSS private key serialized using raw_private_key().
        **/
-      XMSS_PrivateKey(std::span<const uint8_t> raw_key);
+      BOTAN_FUTURE_EXPLICIT XMSS_PrivateKey(std::span<const uint8_t> raw_key);
 
       /**
        * Creates a new XMSS private key for the chosen XMSS signature method
@@ -232,19 +230,20 @@ class BOTAN_PUBLIC_API(2, 0) XMSS_PrivateKey final : public virtual XMSS_PublicK
 
       std::optional<uint64_t> remaining_operations() const override;
 
-      std::unique_ptr<PK_Ops::Signature> create_signature_op(RandomNumberGenerator&,
-                                                             std::string_view,
+      std::unique_ptr<PK_Ops::Signature> create_signature_op(RandomNumberGenerator& rng,
+                                                             std::string_view params,
                                                              std::string_view provider) const override;
 
       secure_vector<uint8_t> private_key_bits() const override;
 
       /**
-       * Generates a non standartized byte sequence representing the XMSS
+       * Generates a non standardized byte sequence representing the XMSS
        * private key.
        *
        * @return byte sequence consisting of the following elements in order:
        *         4-byte OID, n-byte root node, n-byte public seed,
-       *         8-byte unused leaf index, n-byte prf seed, n-byte private seed.
+       *         4-byte unused leaf index, n-byte prf seed, n-byte private seed.
+       *         At last 1-byte that encodes the WOTS+ key derivation method.
        **/
       secure_vector<uint8_t> raw_private_key() const;
 
@@ -257,8 +256,8 @@ class BOTAN_PUBLIC_API(2, 0) XMSS_PrivateKey final : public virtual XMSS_PublicK
 
       const secure_vector<uint8_t>& prf_value() const;
 
-      XMSS_WOTS_PublicKey wots_public_key_for(XMSS_Address& adrs, XMSS_Hash& hash) const;
-      XMSS_WOTS_PrivateKey wots_private_key_for(XMSS_Address& adrs, XMSS_Hash& hash) const;
+      XMSS_WOTS_PublicKey wots_public_key_for(const XMSS_Address& adrs, XMSS_Hash& hash) const;
+      XMSS_WOTS_PrivateKey wots_private_key_for(const XMSS_Address& adrs, XMSS_Hash& hash) const;
 
       /**
        * Algorithm 9: "treeHash"
@@ -267,26 +266,22 @@ class BOTAN_PUBLIC_API(2, 0) XMSS_PrivateKey final : public virtual XMSS_PublicK
        * @param start_idx The start index.
        * @param target_node_height Height of the target node.
        * @param adrs Address of the tree containing the target node.
+       * @param hash The hash function to use
        *
        * @return The root node of a tree of height target_node height with the
        *         leftmost leaf being the hash of the WOTS+ pk with index
        *         start_idx.
        **/
-      secure_vector<uint8_t> tree_hash(size_t start_idx, size_t target_node_height, XMSS_Address& adrs);
+      secure_vector<uint8_t> tree_hash(size_t start_idx,
+                                       size_t target_node_height,
+                                       const XMSS_Address& adrs,
+                                       XMSS_Hash& hash) const;
 
-      void tree_hash_subtree(secure_vector<uint8_t>& result,
-                             size_t start_idx,
-                             size_t target_node_height,
-                             XMSS_Address& adrs);
-
-      /**
-       * Helper for multithreaded tree hashing.
-       */
       void tree_hash_subtree(secure_vector<uint8_t>& result,
                              size_t start_idx,
                              size_t target_node_height,
                              XMSS_Address& adrs,
-                             XMSS_Hash& hash);
+                             XMSS_Hash& hash) const;
 
       std::shared_ptr<XMSS_PrivateKey_Internal> m_private;
 };

@@ -9,44 +9,10 @@
 
 #include <botan/internal/simd_avx2.h>
 
+#include <botan/internal/gfni_utils.h>
 #include <botan/internal/isa_extn.h>
-#include <stdexcept>
-#include <string_view>
 
 namespace Botan {
-
-// Helper for defining GFNI constants
-consteval uint64_t gfni_matrix(std::string_view s) {
-   uint64_t matrix = 0;
-   size_t bit_cnt = 0;
-   uint8_t row = 0;
-
-   for(char c : s) {
-      if(c == ' ' || c == '\n') {
-         continue;
-      }
-      if(c != '0' && c != '1') {
-         throw std::runtime_error("gfni_matrix: invalid bit value");
-      }
-
-      if(c == '1') {
-         row |= 0x80 >> (7 - bit_cnt % 8);
-      }
-      bit_cnt++;
-
-      if(bit_cnt % 8 == 0) {
-         matrix <<= 8;
-         matrix |= row;
-         row = 0;
-      }
-   }
-
-   if(bit_cnt != 64) {
-      throw std::runtime_error("gfni_matrix: invalid bit count");
-   }
-
-   return matrix;
-}
 
 template <uint64_t A, uint8_t B>
 BOTAN_FORCE_INLINE BOTAN_FN_ISA_AVX2_GFNI SIMD_8x32 gf2p8affine(const SIMD_8x32& x) {

@@ -10,12 +10,11 @@
 
 #if defined(BOTAN_HAS_PQCRYSTALS)
    #include <botan/hex.h>
+   #include <botan/rng.h>
 
-   #include <botan/internal/fmt.h>
    #include <botan/internal/pqcrystals.h>
    #include <botan/internal/pqcrystals_encoding.h>
    #include <botan/internal/pqcrystals_helpers.h>
-   #include <botan/internal/stl_util.h>
 
 namespace Botan_Tests {
 
@@ -42,27 +41,27 @@ Test::Result test_extended_euclidean_algorithm() {
    // The wrapper template functions gcd<>(), v<>() and u<>() are workarounds
    // for an assumed bug in MSVC 19.38.33134 that does not accept the invocation
    // of the consteval function `extended_euclidean_algorithm` as a parameter to
-   // `test_is_eq()`.
+   // `test_.._eq()`.
    //
    // The resulting error is:
    //    error C7595: 'Botan::extended_euclidean_algorithm': call to immediate function is not a constant expression
    //
    // What we'd actually want to write here:
-   //    res.test_is_eq<uint32_t>("gcd(350, 294)", Botan::extended_euclidean_algorithm<uint32_t>(350, 294).gcd, 14);
-   res.test_is_eq<uint32_t>("gcd(1337, 1337)", gcd<uint32_t>(1337, 1337), 1337);
-   res.test_is_eq<uint32_t>("gcd(350, 294)", gcd<uint32_t>(350, 294), 14);
-   res.test_is_eq<uint32_t>("gcd(294, 350)", gcd<uint32_t>(294, 350), 14);
+   //    res.test_u32_eq("gcd(350, 294)", Botan::extended_euclidean_algorithm<uint32_t>(350, 294).gcd, 14);
+   res.test_u32_eq("gcd(1337, 1337)", gcd<uint32_t>(1337, 1337), 1337);
+   res.test_u32_eq("gcd(350, 294)", gcd<uint32_t>(350, 294), 14);
+   res.test_u32_eq("gcd(294, 350)", gcd<uint32_t>(294, 350), 14);
 
-   res.test_is_eq<uint16_t>("gcd(1337, 1337)", gcd<uint16_t>(1337, 1337), 1337);
-   res.test_is_eq<uint16_t>("gcd(350, 294)", gcd<uint16_t>(350, 294), 14);
-   res.test_is_eq<uint16_t>("gcd(294, 350)", gcd<uint16_t>(294, 350), 14);
+   res.test_u16_eq("gcd(1337, 1337)", gcd<uint16_t>(1337, 1337), 1337);
+   res.test_u16_eq("gcd(350, 294)", gcd<uint16_t>(350, 294), 14);
+   res.test_u16_eq("gcd(294, 350)", gcd<uint16_t>(294, 350), 14);
 
-   res.test_is_eq<uint16_t>("u(1337, 1337)", u<uint16_t>(1337, 1337), 0);
-   res.test_is_eq<uint16_t>("v(1337, 1337)", v<uint16_t>(1337, 1337), 1);
-   res.test_is_eq<uint16_t>("u(294, 350)", u<uint16_t>(294, 350), 6);
+   res.test_u16_eq("u(1337, 1337)", u<uint16_t>(1337, 1337), 0);
+   res.test_u16_eq("v(1337, 1337)", v<uint16_t>(1337, 1337), 1);
+   res.test_u16_eq("u(294, 350)", u<uint16_t>(294, 350), 6);
 
-   res.test_is_eq<int16_t>("q^-1(3329) - Kyber::Q", Botan::modular_inverse<int16_t>(3329), -3327);
-   res.test_is_eq<int32_t>("q^-1(8380417) - Dilithium::Q", Botan::modular_inverse<int32_t>(8380417), 58728449);
+   res.test_i16_eq("q^-1(3329) - Kyber::Q", Botan::modular_inverse<int16_t>(3329), -3327);
+   res.test_i32_eq("q^-1(8380417) - Dilithium::Q", Botan::modular_inverse<int32_t>(8380417), 58728449);
 
    return res;
 }
@@ -87,24 +86,30 @@ struct Dilithiumish_Constants {
       static constexpr size_t NTT_Degree = 256;
 };
 
-template <typename ConstsT>
-class Mock_Trait final : public Botan::CRYSTALS::Trait_Base<ConstsT, Mock_Trait<ConstsT>> {
+template <typename ConstantsT>
+class Mock_Trait final : public Botan::CRYSTALS::Trait_Base<ConstantsT, Mock_Trait<ConstantsT>> {
    public:
-      using T = typename Botan::CRYSTALS::Trait_Base<ConstsT, Mock_Trait<ConstsT>>::T;
-      using T2 = typename Botan::CRYSTALS::Trait_Base<ConstsT, Mock_Trait<ConstsT>>::T2;
-      constexpr static auto N = Botan::CRYSTALS::Trait_Base<ConstsT, Mock_Trait<ConstsT>>::N;
+      using T = typename Botan::CRYSTALS::Trait_Base<ConstantsT, Mock_Trait<ConstantsT>>::T;
+      using T2 = typename Botan::CRYSTALS::Trait_Base<ConstantsT, Mock_Trait<ConstantsT>>::T2;
+      constexpr static auto N = Botan::CRYSTALS::Trait_Base<ConstantsT, Mock_Trait<ConstantsT>>::N;
 
-      static T montgomery_reduce_coefficient(T2) {
+      static T montgomery_reduce_coefficient(T2 /*unused*/) {
          throw Botan_Tests::Test_Error("montgomery reduction not implemented");
       }
 
-      static T barrett_reduce_coefficient(T) { throw Botan_Tests::Test_Error("barrett reduction not implemented"); }
+      static T barrett_reduce_coefficient(T /*unused*/) {
+         throw Botan_Tests::Test_Error("barrett reduction not implemented");
+      }
 
-      static void ntt(std::span<T, N>) { throw Botan_Tests::Test_Error("NTT not implemented"); }
+      static void ntt(std::span<T, N> /*unused*/) { throw Botan_Tests::Test_Error("NTT not implemented"); }
 
-      static void inverse_ntt(std::span<T, N>) { throw Botan_Tests::Test_Error("inverse NTT not implemented"); }
+      static void inverse_ntt(std::span<T, N> /*unused*/) {
+         throw Botan_Tests::Test_Error("inverse NTT not implemented");
+      }
 
-      static void poly_pointwise_montgomery(std::span<T, N>, std::span<T, N>, std::span<T, N>) {
+      static void poly_pointwise_montgomery(std::span<T, N> /*unused*/,
+                                            std::span<T, N> /*unused*/,
+                                            std::span<T, N> /*unused*/) {
          throw Botan_Tests::Test_Error("pointwise multiplication not implemented");
       }
 };
@@ -123,157 +128,157 @@ std::vector<Test::Result> test_polynomial_basics() {
    return {
       CHECK("polynomial owning storage",
             [](Test::Result& res) {
-               Kyberish_Poly<Domain::Normal> p;
-               res.confirm("default constructed poly owns memory", p.owns_storage());
+               const Kyberish_Poly<Domain::Normal> p;
+               res.test_is_true("default constructed poly owns memory", p.owns_storage());
                for(auto coeff : p) {
-                  res.test_is_eq<int16_t>("default constructed poly has 0 coefficients", coeff, 0);
+                  res.test_i16_eq("default constructed poly has 0 coefficients", coeff, 0);
                }
 
-               Kyberish_Poly<Domain::NTT> p_ntt;
-               res.confirm("default constructed poly owns memory (NTT)", p_ntt.owns_storage());
+               const Kyberish_Poly<Domain::NTT> p_ntt;
+               res.test_is_true("default constructed poly owns memory (NTT)", p_ntt.owns_storage());
                for(auto coeff : p) {
-                  res.test_is_eq<int16_t>("default constructed poly (NTT) has 0 coefficients", coeff, 0);
+                  res.test_i16_eq("default constructed poly (NTT) has 0 coefficients", coeff, 0);
                }
             }),
 
       CHECK("polynomial vector managing storage",
             [](Test::Result& res) {
-               Kyberish_PolyVec<Domain::Normal> polys(4);
-               res.test_is_eq<size_t>("requested size", polys.size(), 4);
+               const Kyberish_PolyVec<Domain::Normal> polys(4);
+               res.test_sz_eq("requested size", polys.size(), 4);
 
                for(const auto& poly : polys) {
-                  res.confirm("poly embedded in vector does not own memory", !poly.owns_storage());
+                  res.test_is_true("poly embedded in vector does not own memory", !poly.owns_storage());
                }
 
-               Kyberish_PolyVec<Domain::NTT> polys_ntt(4);
-               res.test_is_eq<size_t>("requested size (NTT)", polys.size(), 4);
+               const Kyberish_PolyVec<Domain::NTT> polys_ntt(4);
+               res.test_sz_eq("requested size (NTT)", polys.size(), 4);
 
                for(const auto& poly : polys_ntt) {
-                  res.confirm("poly (NTT) embedded in vector does not own memory", !poly.owns_storage());
+                  res.test_is_true("poly (NTT) embedded in vector does not own memory", !poly.owns_storage());
                }
             }),
 
-      CHECK("cloned polynomials always manage their storge",
+      CHECK("cloned polynomials always manage their storage",
             [](Test::Result& res) {
-               Kyberish_Poly<Domain::Normal> p;
+               const Kyberish_Poly<Domain::Normal> p;
                auto p2 = p.clone();
-               res.confirm("cloned poly owns memory", p2.owns_storage());
+               res.test_is_true("cloned poly owns memory", p2.owns_storage());
 
-               Kyberish_PolyVec<Domain::Normal> pv(3);
-               for(auto& poly : pv) {
+               const Kyberish_PolyVec<Domain::Normal> pv(3);
+               for(const auto& poly : pv) {
                   res.require("poly in vector does not own memory", !poly.owns_storage());
                   auto pv2 = poly.clone();
-                  res.confirm("cloned poly in vector owns memory", pv2.owns_storage());
+                  res.test_is_true("cloned poly in vector owns memory", pv2.owns_storage());
                }
 
                auto pv2 = pv.clone();
                for(const auto& poly : pv2) {
-                  res.confirm("cloned vector polynomial don't own memory", !poly.owns_storage());
+                  res.test_is_true("cloned vector polynomial don't own memory", !poly.owns_storage());
                }
 
-               Kyberish_Poly<Domain::NTT> p_ntt;
+               const Kyberish_Poly<Domain::NTT> p_ntt;
                auto p2_ntt = p_ntt.clone();
-               res.confirm("cloned poly (NTT) owns memory", p2_ntt.owns_storage());
+               res.test_is_true("cloned poly (NTT) owns memory", p2_ntt.owns_storage());
 
-               Kyberish_PolyVec<Domain::NTT> pv_ntt(3);
-               for(auto& poly : pv_ntt) {
+               const Kyberish_PolyVec<Domain::NTT> pv_ntt(3);
+               for(const auto& poly : pv_ntt) {
                   res.require("poly (NTT) in vector does not own memory", !poly.owns_storage());
                   auto pv2_ntt = poly.clone();
-                  res.confirm("cloned poly (NTT) in vector owns memory", pv2_ntt.owns_storage());
+                  res.test_is_true("cloned poly (NTT) in vector owns memory", pv2_ntt.owns_storage());
                }
 
                auto pv2_ntt = pv_ntt.clone();
                for(const auto& poly : pv2_ntt) {
-                  res.confirm("cloned vector polynomial (NTT) don't own memory", !poly.owns_storage());
+                  res.test_is_true("cloned vector polynomial (NTT) don't own memory", !poly.owns_storage());
                }
             }),
 
       CHECK("hamming weight of polynomials",
             [](Test::Result& res) {
                Kyberish_Poly<Domain::Normal> p;
-               res.test_is_eq<size_t>("hamming weight of 0", p.hamming_weight(), 0);
+               res.test_sz_eq("hamming weight of 0", p.hamming_weight(), 0);
 
                p[0] = 1337;
-               res.test_is_eq<size_t>("hamming weight of 1", p.hamming_weight(), 1);
+               res.test_sz_eq("hamming weight of 1", p.hamming_weight(), 1);
 
                p[1] = 42;
-               res.test_is_eq<size_t>("hamming weight of 2", p.hamming_weight(), 2);
+               res.test_sz_eq("hamming weight of 2", p.hamming_weight(), 2);
 
                p[2] = 11;
-               res.test_is_eq<size_t>("hamming weight of 3", p.hamming_weight(), 3);
+               res.test_sz_eq("hamming weight of 3", p.hamming_weight(), 3);
 
                p[3] = 4;
-               res.test_is_eq<size_t>("hamming weight of 4", p.hamming_weight(), 4);
+               res.test_sz_eq("hamming weight of 4", p.hamming_weight(), 4);
 
                p[3] = 0;
-               res.test_is_eq<size_t>("hamming weight of 3", p.hamming_weight(), 3);
+               res.test_sz_eq("hamming weight of 3", p.hamming_weight(), 3);
 
                p[2] = 0;
-               res.test_is_eq<size_t>("hamming weight of 2", p.hamming_weight(), 2);
+               res.test_sz_eq("hamming weight of 2", p.hamming_weight(), 2);
 
                p[1] = 0;
-               res.test_is_eq<size_t>("hamming weight of 1", p.hamming_weight(), 1);
+               res.test_sz_eq("hamming weight of 1", p.hamming_weight(), 1);
 
                p[0] = 0;
-               res.test_is_eq<size_t>("hamming weight of 0", p.hamming_weight(), 0);
+               res.test_sz_eq("hamming weight of 0", p.hamming_weight(), 0);
             }),
 
       CHECK("hamming weight of polynomial vectors",
             [](Test::Result& res) {
                Kyberish_PolyVec<Domain::Normal> pv(3);
-               res.test_is_eq<size_t>("hamming weight of 0", pv.hamming_weight(), 0);
+               res.test_sz_eq("hamming weight of 0", pv.hamming_weight(), 0);
 
                pv[0][0] = 1337;
-               res.test_is_eq<size_t>("hamming weight of 1", pv.hamming_weight(), 1);
+               res.test_sz_eq("hamming weight of 1", pv.hamming_weight(), 1);
 
                pv[1][1] = 42;
-               res.test_is_eq<size_t>("hamming weight of 2", pv.hamming_weight(), 2);
+               res.test_sz_eq("hamming weight of 2", pv.hamming_weight(), 2);
 
                pv[2][2] = 11;
-               res.test_is_eq<size_t>("hamming weight of 3", pv.hamming_weight(), 3);
+               res.test_sz_eq("hamming weight of 3", pv.hamming_weight(), 3);
 
                pv[2][2] = 0;
-               res.test_is_eq<size_t>("hamming weight of 2", pv.hamming_weight(), 2);
+               res.test_sz_eq("hamming weight of 2", pv.hamming_weight(), 2);
 
                pv[1][1] = 0;
-               res.test_is_eq<size_t>("hamming weight of 1", pv.hamming_weight(), 1);
+               res.test_sz_eq("hamming weight of 1", pv.hamming_weight(), 1);
 
                pv[0][0] = 0;
-               res.test_is_eq<size_t>("hamming weight of 0", pv.hamming_weight(), 0);
+               res.test_sz_eq("hamming weight of 0", pv.hamming_weight(), 0);
             }),
 
       CHECK("value range validation",
             [](Test::Result& res) {
                Kyberish_Poly<Domain::Normal> p;
-               res.confirm("value range validation (all zero)", p.ct_validate_value_range(0, 1));
+               res.test_is_true("value range validation (all zero)", p.ct_validate_value_range(0, 1));
 
                p[0] = 1;
                p[32] = 1;
                p[172] = 1;
-               res.confirm("value range validation", p.ct_validate_value_range(0, 1));
+               res.test_is_true("value range validation", p.ct_validate_value_range(0, 1));
 
                p[11] = 2;
-               res.confirm("value range validation", !p.ct_validate_value_range(0, 1));
+               res.test_is_true("value range validation", !p.ct_validate_value_range(0, 1));
 
                p[11] = -1;
-               res.confirm("value range validation", !p.ct_validate_value_range(0, 1));
+               res.test_is_true("value range validation", !p.ct_validate_value_range(0, 1));
             }),
 
       CHECK("value range validation for polynomial vectors",
             [](Test::Result& res) {
                Kyberish_PolyVec<Domain::Normal> pv(3);
-               res.confirm("value range validation (all zero)", pv.ct_validate_value_range(0, 1));
+               res.test_is_true("value range validation (all zero)", pv.ct_validate_value_range(0, 1));
 
                pv[0][0] = 1;
                pv[1][32] = 1;
                pv[2][172] = 1;
-               res.confirm("value range validation", pv.ct_validate_value_range(0, 1));
+               res.test_is_true("value range validation", pv.ct_validate_value_range(0, 1));
 
                pv[0][11] = 2;
-               res.confirm("value range validation", !pv.ct_validate_value_range(0, 1));
+               res.test_is_true("value range validation", !pv.ct_validate_value_range(0, 1));
 
                pv[0][11] = -1;
-               res.confirm("value range validation", !pv.ct_validate_value_range(0, 1));
+               res.test_is_true("value range validation", !pv.ct_validate_value_range(0, 1));
             }),
    };
 }
@@ -284,7 +289,7 @@ namespace {
 
 class DeterministicXOF : public Botan::XOF {
    public:
-      DeterministicXOF(std::span<const uint8_t> data) : m_data(data) {}
+      explicit DeterministicXOF(std::span<const uint8_t> data) : m_data(data) {}
 
       std::string name() const override { return "DeterministicXOF"; }
 
@@ -296,11 +301,13 @@ class DeterministicXOF : public Botan::XOF {
 
       size_t block_size() const override { return 1; }
 
-      void start_msg(std::span<const uint8_t>, std::span<const uint8_t>) override {
+      void start_msg(std::span<const uint8_t> /*unused*/, std::span<const uint8_t> /*unused*/) override {
          throw Botan_Tests::Test_Error("start_msg not implemented");
       }
 
-      void add_data(std::span<const uint8_t>) override { throw Botan_Tests::Test_Error("add_data not implemented"); }
+      void add_data(std::span<const uint8_t> /*unused*/) override {
+         throw Botan_Tests::Test_Error("add_data not implemented");
+      }
 
       void generate_bytes(std::span<uint8_t> output) override { m_data.copy_into(output); }
 
@@ -319,7 +326,7 @@ void random_encoding_roundtrips(Test::Result& res, Botan::RandomNumberGenerator&
 
    auto random_poly = [&rng]() -> Poly {
       Poly p;
-      std::array<uint8_t, sizeof(T)> buf;
+      std::array<uint8_t, sizeof(T)> buf{};
       for(auto& coeff : p) {
          rng.randomize(buf);
          coeff = static_cast<T>((Botan::load_be(buf) % (range + 1)));
@@ -331,15 +338,15 @@ void random_encoding_roundtrips(Test::Result& res, Botan::RandomNumberGenerator&
    std::vector<uint8_t> buffer((p.size() * expected_encoding_bits + 7) / 8);
    Botan::BufferStuffer stuffer(buffer);
    Botan::CRYSTALS::pack<range>(p, stuffer);
-   res.confirm("encoded polynomial fills buffer", stuffer.full());
+   res.test_is_true("encoded polynomial fills buffer", stuffer.full());
 
    Botan::BufferSlicer slicer(buffer);
    Poly p_unpacked;
    Botan::CRYSTALS::unpack<range>(p_unpacked, slicer);
-   res.confirm("decoded polynomial reads all bytes", slicer.empty());
+   res.test_is_true("decoded polynomial reads all bytes", slicer.empty());
 
    p_unpacked -= p;
-   res.test_eq("p = unpack(pack(p))", p_unpacked.hamming_weight(), 0);
+   res.test_sz_eq("p = unpack(pack(p))", p_unpacked.hamming_weight(), 0);
 }
 
 }  // namespace
@@ -383,7 +390,7 @@ std::vector<Test::Result> test_encoding() {
                std::vector<uint8_t> buffer1(96);
                Botan::BufferStuffer stuffer1(buffer1);
                Botan::CRYSTALS::pack<6>(p1, stuffer1);
-               res.test_eq("3 bit encoding", buffer1, threebitencoding);
+               res.test_bin_eq("3 bit encoding", buffer1, threebitencoding);
 
                // value range is exactly one byte
                Kyberish_Poly<Domain::Normal> p2;
@@ -394,13 +401,13 @@ std::vector<Test::Result> test_encoding() {
                std::vector<uint8_t> buffer2(256);
                Botan::BufferStuffer stuffer2(buffer2);
                Botan::CRYSTALS::pack<255>(p2, stuffer2);
-               res.test_eq("8 bit encoding", buffer2, eightbitencoding);
+               res.test_bin_eq("8 bit encoding", buffer2, eightbitencoding);
 
                // value range for 10 bits, with mapping function
                std::vector<uint8_t> buffer3(p2.size() / 8 * 10 /* bits */);
                Botan::BufferStuffer stuffer3(buffer3);
                Botan::CRYSTALS::pack<512>(p2, stuffer3, [](int16_t x) -> uint16_t { return x * 2; });
-               res.test_eq("10 bit encoding", buffer3, tenbitencoding);
+               res.test_bin_eq("10 bit encoding", buffer3, tenbitencoding);
             }),
 
       CHECK("decode polynomial coefficients from buffer",
@@ -408,25 +415,25 @@ std::vector<Test::Result> test_encoding() {
                Kyberish_Poly<Domain::Normal> p1;
                Botan::BufferSlicer slicer1(threebitencoding);
                Botan::CRYSTALS::unpack<6>(p1, slicer1);
-               res.require("read all bytes from 3-bit encoding", slicer1.empty());
+               res.test_is_true("read all bytes from 3-bit encoding", slicer1.empty());
                for(size_t i = 0; i < p1.size(); ++i) {
-                  res.test_is_eq<int16_t>("decoded 3-bit coefficient", p1[i], i % 7);
+                  res.test_i16_eq("decoded 3-bit coefficient", p1[i], i % 7);
                }
 
                Kyberish_Poly<Domain::Normal> p2;
                Botan::BufferSlicer slicer2(eightbitencoding);
                Botan::CRYSTALS::unpack<255>(p2, slicer2);
-               res.require("read all bytes from 8-bit encoding", slicer2.empty());
+               res.test_is_true("read all bytes from 8-bit encoding", slicer2.empty());
                for(size_t i = 0; i < p2.size(); ++i) {
-                  res.test_is_eq<size_t>("decoded 8-bit coefficient", p2[i], i);
+                  res.test_sz_eq("decoded 8-bit coefficient", p2[i], i);
                }
 
                Kyberish_Poly<Domain::Normal> p3;
                Botan::BufferSlicer slicer3(tenbitencoding);
                Botan::CRYSTALS::unpack<512>(p3, slicer3, [](uint16_t x) -> int16_t { return x / 2; });
-               res.require("read all bytes from 10-bit encoding", slicer3.empty());
+               res.test_is_true("read all bytes from 10-bit encoding", slicer3.empty());
                for(size_t i = 0; i < p3.size(); ++i) {
-                  res.test_is_eq<size_t>("decoded 10-bit coefficient with mapping", p3[i], i);
+                  res.test_sz_eq("decoded 10-bit coefficient with mapping", p3[i], i);
                }
             }),
 
@@ -437,22 +444,24 @@ std::vector<Test::Result> test_encoding() {
                DeterministicXOF xof1(threebitencoding);
                Botan::CRYSTALS::unpack<6>(p1, xof1);
                for(size_t i = 0; i < p1.size(); ++i) {
-                  res.test_is_eq<int16_t>("decoded 3-bit coefficient", p1[i], i % 7);
+                  res.test_i16_eq("decoded 3-bit coefficient", p1[i], i % 7);
                }
 
                Kyberish_Poly<Domain::Normal> p2;
                DeterministicXOF xof2(eightbitencoding);
                Botan::CRYSTALS::unpack<255>(p2, xof2);
                for(size_t i = 0; i < p2.size(); ++i) {
-                  res.test_is_eq<size_t>("decoded 8-bit coefficient", p2[i], i);
+                  res.test_sz_eq("decoded 8-bit coefficient", p2[i], i);
                }
 
                Kyberish_Poly<Domain::Normal> p3;
                DeterministicXOF xof3(tenbitencoding);
                Botan::CRYSTALS::unpack<512>(p3, xof3, [](int16_t x) -> int16_t { return x / 2; });
                for(size_t i = 0; i < p3.size(); ++i) {
-                  res.test_is_eq<size_t>("decoded 10-bit coefficient with mapping", p3[i], i);
+                  res.test_sz_eq("decoded 10-bit coefficient with mapping", p3[i], i);
                }
+   #else
+               BOTAN_UNUSED(res);
    #endif
             }),
 
@@ -511,7 +520,7 @@ class MockedXOF {
 
       template <size_t bytes>
       auto output() {
-         std::array<uint8_t, bytes> result;
+         std::array<uint8_t, bytes> result{};
          for(uint8_t& byte : result) {
             byte = static_cast<uint8_t>(m_counter++);
          }
@@ -536,9 +545,9 @@ std::vector<Test::Result> test_bounded_xof() {
       CHECK("bounded XOF with small bound",
             [](Test::Result& result) {
                Mocked_Bounded_XOF<3> xof;
-               result.test_is_eq("next_byte() returns 0", xof.next_byte(), uint8_t(0));
-               result.test_is_eq("next_byte() returns 1", xof.next_byte(), uint8_t(1));
-               result.test_is_eq("next_byte() returns 2", xof.next_byte(), uint8_t(2));
+               result.test_u8_eq("next_byte() returns 0", xof.next_byte(), uint8_t(0));
+               result.test_u8_eq("next_byte() returns 1", xof.next_byte(), uint8_t(1));
+               result.test_u8_eq("next_byte() returns 2", xof.next_byte(), uint8_t(2));
                result.test_throws<Botan::Internal_Error>("next_byte() throws", [&xof]() { xof.next_byte(); });
             }),
 
@@ -550,8 +559,8 @@ std::vector<Test::Result> test_bounded_xof() {
                };
 
                Mocked_Bounded_XOF<5> xof;
-               result.test_is_eq("next_byte() returns 1", xof.next_byte(filter), uint8_t(1));
-               result.test_is_eq("next_byte() returns 3", xof.next_byte(filter), uint8_t(3));
+               result.test_u8_eq("next_byte() returns 1", xof.next_byte(filter), uint8_t(1));
+               result.test_u8_eq("next_byte() returns 3", xof.next_byte(filter), uint8_t(3));
                result.test_throws<Botan::Internal_Error>("next_byte() throws", [&]() { xof.next_byte(filter); });
             }),
 
@@ -560,10 +569,10 @@ std::vector<Test::Result> test_bounded_xof() {
                auto map = [](auto bytes) { return Botan::load_be(bytes); };
 
                Mocked_Bounded_XOF<17> xof;
-               result.test_is_eq("next returns 0x00010203", xof.next<4>(map), uint32_t(0x00010203));
-               result.test_is_eq("next returns 0x04050607", xof.next<4>(map), uint32_t(0x04050607));
-               result.test_is_eq("next returns 0x08090A0B", xof.next<4>(map), uint32_t(0x08090A0B));
-               result.test_is_eq("next returns 0x0C0D0E0F", xof.next<4>(map), uint32_t(0x0C0D0E0F));
+               result.test_u32_eq("next returns 0x00010203", xof.next<4>(map), uint32_t(0x00010203));
+               result.test_u32_eq("next returns 0x04050607", xof.next<4>(map), uint32_t(0x04050607));
+               result.test_u32_eq("next returns 0x08090A0B", xof.next<4>(map), uint32_t(0x08090A0B));
+               result.test_u32_eq("next returns 0x0C0D0E0F", xof.next<4>(map), uint32_t(0x0C0D0E0F));
                result.test_throws<Botan::Internal_Error>("next() throws", [&]() { xof.next<4>(map); });
             }),
 
@@ -573,11 +582,11 @@ std::vector<Test::Result> test_bounded_xof() {
                auto filter = [](uint32_t number) { return number < 50; };
 
                Mocked_Bounded_XOF<17> xof;
-               result.test_is_eq("next returns 3", xof.next<3>(map, filter), uint32_t(3));
-               result.test_is_eq("next returns 12", xof.next<3>(map, filter), uint32_t(12));
-               result.test_is_eq("next returns 21", xof.next<3>(map, filter), uint32_t(21));
-               result.test_is_eq("next returns 30", xof.next<3>(map, filter), uint32_t(30));
-               result.test_is_eq("next returns 39", xof.next<3>(map, filter), uint32_t(39));
+               result.test_u32_eq("next returns 3", xof.next<3>(map, filter), uint32_t(3));
+               result.test_u32_eq("next returns 12", xof.next<3>(map, filter), uint32_t(12));
+               result.test_u32_eq("next returns 21", xof.next<3>(map, filter), uint32_t(21));
+               result.test_u32_eq("next returns 30", xof.next<3>(map, filter), uint32_t(30));
+               result.test_u32_eq("next returns 39", xof.next<3>(map, filter), uint32_t(39));
                result.test_throws<Botan::Internal_Error>("next() throws", [&]() { xof.next<3>(map, filter); });
             }),
    };

@@ -9,9 +9,12 @@
 #if defined(BOTAN_HAS_PUBLIC_KEY_CRYPTO)
    #include <botan/pk_algs.h>
    #include <botan/pubkey.h>
+   #include <botan/internal/fmt.h>
 #endif
 
 namespace Botan_CLI {
+
+namespace {
 
 #if defined(BOTAN_HAS_PUBLIC_KEY_CRYPTO)
 
@@ -32,11 +35,11 @@ class PerfTest_PKKa : public PerfTest {
          }
       }
 
-      void bench_pk_ka(const PerfConfig& config,
-                       const std::string& nm,
-                       const std::string& algo,
-                       const std::string& params,
-                       const std::string& provider = "") {
+      static void bench_pk_ka(const PerfConfig& config,
+                              const std::string& nm,
+                              const std::string& algo,
+                              const std::string& params,
+                              const std::string& provider = "") {
          const auto msec = config.runtime();
 
          const std::string kdf = "KDF2(SHA-256)";  // arbitrary choice
@@ -141,5 +144,7 @@ class PerfTest_X448 final : public PerfTest_PKKa {
 BOTAN_REGISTER_PERF_TEST("X448", PerfTest_X448);
 
 #endif
+
+}  // namespace
 
 }  // namespace Botan_CLI

@@ -26,14 +26,30 @@
  */
 
 namespace Botan {
+
+/**
+* Generic base class wrapping boost::system::error_category and
+* adding a (bizarrely missing) virtual destructor.
+*/
+class BoostErrorCategory : public boost::system::error_category {
+   public:
+      virtual ~BoostErrorCategory() = default;
+
+      BoostErrorCategory() = default;
+      BoostErrorCategory(const BoostErrorCategory& other) = delete;
+      BoostErrorCategory(BoostErrorCategory&& other) = delete;
+      BoostErrorCategory& operator=(const BoostErrorCategory& other) = delete;
+      BoostErrorCategory& operator=(BoostErrorCategory&& other) = delete;
+};
+
 namespace TLS {
 
-enum StreamError { StreamTruncated = 1 };
+// NOLINTNEXTLINE(*-use-enum-class)
+enum StreamError : uint8_t { StreamTruncated = 1 };
 
 //! @brief An error category for errors from the TLS::Stream
-struct StreamCategory : public boost::system::error_category {
-      virtual ~StreamCategory() = default;
-
+class StreamCategory final : public BoostErrorCategory {
+   public:
       const char* name() const noexcept override { return "Botan TLS Stream"; }
 
       std::string message(int value) const override {
@@ -46,7 +62,7 @@ struct StreamCategory : public boost::system::error_category {
 };
 
 inline const StreamCategory& botan_stream_category() {
-   static StreamCategory category;
+   static const StreamCategory category;
    return category;
 }
 
@@ -55,19 +71,18 @@ inline boost::system::error_code make_error_code(Botan::TLS::StreamError e) {
 }
 
 //! @brief An error category for TLS alerts
-struct BotanAlertCategory : boost::system::error_category {
-      virtual ~BotanAlertCategory() = default;
-
+class BotanAlertCategory final : public BoostErrorCategory {
+   public:
       const char* name() const noexcept override { return "Botan TLS Alert"; }
 
       std::string message(int ev) const override {
-         Botan::TLS::Alert alert(static_cast<Botan::TLS::Alert::Type>(ev));
+         const Botan::TLS::Alert alert(static_cast<Botan::TLS::Alert::Type>(ev));
          return alert.type_string();
       }
 };
 
 inline const BotanAlertCategory& botan_alert_category() noexcept {
-   static BotanAlertCategory category;
+   static const BotanAlertCategory category;
    return category;
 }
 
@@ -78,16 +93,15 @@ inline boost::system::error_code make_error_code(Botan::TLS::Alert::Type c) {
 }  // namespace TLS
 
 //! @brief An error category for errors from Botan (other than TLS alerts)
-struct BotanErrorCategory : boost::system::error_category {
-      virtual ~BotanErrorCategory() = default;
-
+class BotanErrorCategory : public BoostErrorCategory {
+   public:
       const char* name() const noexcept override { return "Botan"; }
 
       std::string message(int ev) const override { return Botan::to_string(static_cast<Botan::ErrorType>(ev)); }
 };
 
 inline const BotanErrorCategory& botan_category() noexcept {
-   static BotanErrorCategory category;
+   static const BotanErrorCategory category;
    return category;
 }
 

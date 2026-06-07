@@ -14,8 +14,9 @@
 #include <botan/assert.h>
 #include <botan/tls_channel.h>
 #include <botan/tls_magic.h>
+#include <botan/tls_session.h>  // TODO remove this dep
+#include <botan/tls_session_manager.h>
 #include <botan/tls_version.h>
-
 #include <memory>
 #include <utility>
 #include <vector>
@@ -30,20 +31,14 @@ namespace TLS {
 class Client;
 class Server;
 
-enum class Record_Type : uint8_t {
-   Invalid = 0,  // RFC 8446 (TLS 1.3)
-
-   ChangeCipherSpec = 20,
-   Alert = 21,
-   Handshake = 22,
-   ApplicationData = 23,
-
-   Heartbeat = 24,  // RFC 6520 (TLS 1.3)
-};
-
 class Channel_Impl {
    public:
       virtual ~Channel_Impl() = default;
+
+      Channel_Impl(const Channel_Impl& other) = delete;
+      Channel_Impl(Channel_Impl&& other) = default;
+      Channel_Impl& operator=(const Channel_Impl& other) = delete;
+      Channel_Impl& operator=(Channel_Impl&& other) = delete;
 
       /**
       * Inject TLS traffic received from counterparty
@@ -187,6 +182,8 @@ class Channel_Impl {
       virtual std::string application_protocol() const = 0;
 
    protected:
+      Channel_Impl() = default;
+
       /**
        * This struct collect all information required to perform a downgrade from TLS 1.3 to TLS 1.2.
        *
@@ -222,7 +219,7 @@ class Channel_Impl {
             bool will_downgrade;
       };
 
-      std::unique_ptr<Downgrade_Information> m_downgrade_info;
+      std::unique_ptr<Downgrade_Information> m_downgrade_info;  // NOLINT(*non-private-member-variable*)
 
       void preserve_peer_transcript(std::span<const uint8_t> input) {
          BOTAN_STATE_CHECK(m_downgrade_info);
@@ -245,7 +242,7 @@ class Channel_Impl {
       /**
        * Implementations use this to signal that the peer indicated a protocol
        * version downgrade. After calling `request_downgrade()` no further
-       * state changes must be perfomed by the implementation. Particularly, no
+       * state changes must be performed by the implementation. Particularly, no
        * further handshake messages must be emitted. Instead, they must yield
        * control flow back to the underlying Channel implementation to perform
        * the protocol version downgrade.

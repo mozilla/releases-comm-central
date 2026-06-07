@@ -73,7 +73,7 @@ class BOTAN_PUBLIC_API(3, 7) Classic_McEliece_PublicKey : public virtual Public_
 
       std::vector<uint8_t> raw_public_key_bits() const override;
 
-      bool check_key(RandomNumberGenerator&, bool) const override;
+      bool check_key(RandomNumberGenerator& rng, bool strong) const override;
 
       bool supports_operation(PublicKeyOperation op) const override {
          return (op == PublicKeyOperation::KeyEncapsulation);
@@ -88,8 +88,7 @@ class BOTAN_PUBLIC_API(3, 7) Classic_McEliece_PublicKey : public virtual Public_
       Classic_McEliece_PublicKey() = default;
 
    protected:
-      std::shared_ptr<Classic_McEliece_PublicKeyInternal>
-         m_public;  // NOLINT(misc-non-private-member-variables-in-classes)
+      std::shared_ptr<Classic_McEliece_PublicKeyInternal> m_public;  // NOLINT(*-non-private-member-variable*)
 };
 
 BOTAN_DIAGNOSTIC_PUSH
@@ -128,7 +127,7 @@ class BOTAN_PUBLIC_API(3, 7) Classic_McEliece_PrivateKey final : public virtual 
 
       secure_vector<uint8_t> raw_private_key_bits() const override;
 
-      bool check_key(RandomNumberGenerator&, bool) const override;
+      bool check_key(RandomNumberGenerator& rng, bool strong) const override;
 
       std::unique_ptr<PK_Ops::KEM_Decryption> create_kem_decryption_op(RandomNumberGenerator& rng,
                                                                        std::string_view params,

@@ -22,27 +22,28 @@ class Twofish final : public Block_Cipher_Fixed_Params<16, 16, 32, 8> {
       void decrypt_n(const uint8_t in[], uint8_t out[], size_t blocks) const override;
 
       void clear() override;
+      std::string provider() const override;
 
       std::string name() const override { return "Twofish"; }
 
       std::unique_ptr<BlockCipher> new_object() const override { return std::make_unique<Twofish>(); }
+
+      size_t parallelism() const override;
 
       bool has_keying_material() const override;
 
    private:
       void key_schedule(std::span<const uint8_t> key) override;
 
-      static const uint32_t MDS0[256];
-      static const uint32_t MDS1[256];
-      static const uint32_t MDS2[256];
-      static const uint32_t MDS3[256];
-      static const uint8_t Q0[256];
-      static const uint8_t Q1[256];
-      static const uint8_t RS[32];
-      static const uint8_t EXP_TO_POLY[255];
-      static const uint8_t POLY_TO_EXP[255];
+#if defined(BOTAN_HAS_TWOFISH_AVX512)
+      void avx512_encrypt_16(const uint8_t in[16 * 16], uint8_t out[16 * 16]) const;
+      void avx512_decrypt_16(const uint8_t in[16 * 16], uint8_t out[16 * 16]) const;
+#endif
 
-      secure_vector<uint32_t> m_SB, m_RK;
+      secure_vector<uint32_t> m_SB;
+      secure_vector<uint32_t> m_RK;
+
+      secure_vector<uint8_t> m_QS;  // Sboxes without MDS applied, only used for AVX-512
 };
 
 }  // namespace Botan

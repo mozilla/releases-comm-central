@@ -10,6 +10,7 @@
 
 #include <botan/filter.h>
 #include <botan/mem_ops.h>
+#include <botan/internal/mem_utils.h>
 #include <botan/internal/out_buf.h>
 
 namespace Botan {
@@ -31,6 +32,10 @@ Pipe::message_id Pipe::get_message_no(std::string_view func_name, message_id msg
    return msg;
 }
 
+void Pipe::write(std::span<const uint8_t> input) {
+   this->write(input.data(), input.size());
+}
+
 /*
 * Write into a Pipe
 */
@@ -45,7 +50,7 @@ void Pipe::write(const uint8_t input[], size_t length) {
 * Write a string into a Pipe
 */
 void Pipe::write(std::string_view str) {
-   write(cast_char_ptr_to_uint8(str.data()), str.size());
+   write(as_span_of_bytes(str));
 }
 
 /*
@@ -61,7 +66,7 @@ void Pipe::write(uint8_t input) {
 void Pipe::write(DataSource& source) {
    secure_vector<uint8_t> buffer(DefaultBufferSize);
    while(!source.end_of_data()) {
-      size_t got = source.read(buffer.data(), buffer.size());
+      const size_t got = source.read(buffer.data(), buffer.size());
       write(buffer.data(), got);
    }
 }
@@ -93,7 +98,7 @@ size_t Pipe::read(uint8_t& out, message_id msg) {
 secure_vector<uint8_t> Pipe::read_all(message_id msg) {
    msg = ((msg != DEFAULT_MESSAGE) ? msg : default_msg());
    secure_vector<uint8_t> buffer(remaining(msg));
-   size_t got = read(buffer.data(), buffer.size(), msg);
+   const size_t got = read(buffer.data(), buffer.size(), msg);
    buffer.resize(got);
    return buffer;
 }
@@ -108,7 +113,7 @@ std::string Pipe::read_all_as_string(message_id msg) {
    str.reserve(remaining(msg));
 
    while(true) {
-      size_t got = read(buffer.data(), buffer.size(), msg);
+      const size_t got = read(buffer.data(), buffer.size(), msg);
       if(got == 0) {
          break;
       }

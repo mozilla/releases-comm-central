@@ -8,7 +8,6 @@
 #define BOTAN_PRIMALITY_TEST_H_
 
 #include <botan/types.h>
-#include <memory>
 #include <vector>
 
 namespace Botan {
@@ -66,7 +65,7 @@ size_t miller_rabin_test_iterations(size_t n_bits, size_t prob, bool random);
 */
 bool passes_miller_rabin_test(const BigInt& n,
                               const Barrett_Reduction& mod_n,
-                              const std::shared_ptr<Montgomery_Params>& monty_n,
+                              const Montgomery_Params& monty_n,
                               const BigInt& a);
 
 /**

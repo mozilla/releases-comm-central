@@ -1,5 +1,5 @@
 /*
-* Base class for message authentiction codes
+* Base class for message authentication codes
 * (C) 1999-2007 Jack Lloyd
 *
 * Botan is released under the Simplified BSD License (see license.txt)
@@ -46,8 +46,6 @@ class BOTAN_PUBLIC_API(2, 0) MessageAuthenticationCode : public Buffered_Computa
       * @return list of available providers for this algorithm, empty if not available
       */
       static std::vector<std::string> providers(std::string_view algo_spec);
-
-      ~MessageAuthenticationCode() override = default;
 
       /**
       * Prepare for processing a message under the specified nonce

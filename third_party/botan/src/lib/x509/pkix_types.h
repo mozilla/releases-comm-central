@@ -14,6 +14,7 @@
 #include <botan/asn1_obj.h>
 
 #include <botan/pkix_enums.h>
+#include <initializer_list>
 #include <iosfwd>
 #include <map>
 #include <memory>
@@ -41,20 +42,36 @@ class BOTAN_PUBLIC_API(2, 0) X509_DN final : public ASN1_Object {
    public:
       X509_DN() = default;
 
+      X509_DN(std::initializer_list<std::pair<std::string_view, std::string_view>> args) {
+         for(const auto& i : args) {
+            add_attribute(i.first, i.second);
+         }
+      }
+
+      /**
+      * Since DN matching for Name Constraints requires preserving order and
+      * multimaps have sorted keys, this constructor is deprecated.
+      */
+      BOTAN_DEPRECATED("Deprecated use initializer list constructor")
       explicit X509_DN(const std::multimap<OID, std::string>& args) {
          for(const auto& i : args) {
             add_attribute(i.first, i.second);
          }
       }
 
+      /**
+      * Since DN matching for Name Constraints requires preserving order and
+      * multimaps have sorted keys, this constructor is deprecated.
+      */
+      BOTAN_DEPRECATED("Deprecated use initializer list constructor")
       explicit X509_DN(const std::multimap<std::string, std::string>& args) {
          for(const auto& i : args) {
             add_attribute(i.first, i.second);
          }
       }
 
-      void encode_into(DER_Encoder&) const override;
-      void decode_from(BER_Decoder&) override;
+      void encode_into(DER_Encoder& to) const override;
+      void decode_from(BER_Decoder& from) override;
 
       bool has_field(const OID& oid) const;
       ASN1_String get_first_attribute(const OID& oid) const;
@@ -72,6 +89,10 @@ class BOTAN_PUBLIC_API(2, 0) X509_DN final : public ASN1_Object {
 
       std::string to_string() const;
 
+      /**
+      * Return the DN components as a vector. Note that the order of the components is
+      * preserved only when using the initializer list constructor.
+      */
       const std::vector<std::pair<OID, ASN1_String>>& dn_info() const { return m_rdn; }
 
       std::multimap<OID, std::string> get_attributes() const;
@@ -108,7 +129,7 @@ BOTAN_PUBLIC_API(2, 0) bool operator!=(const X509_DN& dn1, const X509_DN& dn2);
 
 /*
 The ordering here is arbitrary and may change from release to release.
-It is intended for allowing DNs as keys in std::map and similiar containers
+It is intended for allowing DNs as keys in std::map and similar containers
 */
 BOTAN_PUBLIC_API(2, 0) bool operator<(const X509_DN& dn1, const X509_DN& dn2);
 
@@ -120,11 +141,11 @@ BOTAN_PUBLIC_API(2, 0) std::istream& operator>>(std::istream& in, X509_DN& dn);
 */
 class BOTAN_PUBLIC_API(2, 0) AlternativeName final : public ASN1_Object {
    public:
-      void encode_into(DER_Encoder&) const override;
-      void decode_from(BER_Decoder&) override;
+      void encode_into(DER_Encoder& to) const override;
+      void decode_from(BER_Decoder& from) override;
 
       /// Create an empty name
-      AlternativeName() {}
+      AlternativeName() = default;
 
       /// Add a URI to this AlternativeName
       void add_uri(std::string_view uri);
@@ -201,10 +222,10 @@ class BOTAN_PUBLIC_API(2, 0) AlternativeName final : public ASN1_Object {
       BOTAN_DEPRECATED("Use AlternativeName::directory_names") X509_DN dn() const;
 
       BOTAN_DEPRECATED("Use plain constructor plus add_{uri,dns,email,ipv4_address}")
-      AlternativeName(std::string_view email_addr,
-                      std::string_view uri = "",
-                      std::string_view dns = "",
-                      std::string_view ip_address = "");
+      BOTAN_FUTURE_EXPLICIT AlternativeName(std::string_view email_addr,
+                                            std::string_view uri = "",
+                                            std::string_view dns = "",
+                                            std::string_view ip_address = "");
 
    private:
       std::set<std::string> m_dns;
@@ -245,14 +266,14 @@ class BOTAN_PUBLIC_API(2, 0) Attribute final : public ASN1_Object {
 *
 * Handles parsing GeneralName types in their BER and canonical string
 * encoding. Allows matching GeneralNames against each other using
-* the rules laid out in the RFC 5280, sec. 4.2.1.10 (Name Contraints).
+* the rules laid out in the RFC 5280, sec. 4.2.1.10 (Name Constraints).
 *
 * This entire class is deprecated and will be removed in a future
 * major release
 */
 class BOTAN_PUBLIC_API(2, 0) GeneralName final : public ASN1_Object {
    public:
-      enum MatchResult : int {
+      enum MatchResult : uint8_t /* NOLINT(*-use-enum-class) */ {
          All,
          Some,
          None,
@@ -272,10 +293,17 @@ class BOTAN_PUBLIC_API(2, 0) GeneralName final : public ASN1_Object {
 
       BOTAN_DEPRECATED("Deprecated use NameConstraints") GeneralName() = default;
 
-      // Encoding is not implemented
-      void encode_into(DER_Encoder&) const override;
+      static GeneralName email(std::string_view email);
+      static GeneralName dns(std::string_view dns);
+      static GeneralName uri(std::string_view uri);
+      static GeneralName directory_name(Botan::X509_DN dn);
+      static GeneralName ipv4_address(uint32_t ipv4);
+      static GeneralName ipv4_address(uint32_t ipv4, uint32_t mask);
 
-      void decode_from(BER_Decoder&) override;
+      // Encoding is not implemented
+      void encode_into(DER_Encoder& to) const override;
+
+      void decode_from(BER_Decoder& from) override;
 
       /**
       * @return Type of the name expressed in this restriction
@@ -291,6 +319,11 @@ class BOTAN_PUBLIC_API(2, 0) GeneralName final : public ASN1_Object {
       * @return The name as string. Format depends on type.
       */
       BOTAN_DEPRECATED("Deprecated no replacement") std::string name() const;
+
+      /**
+      * @return The name as binary string. Format depends on type.
+      */
+      BOTAN_DEPRECATED("Deprecated no replacement") std::vector<uint8_t> binary_name() const;
 
       /**
       * Checks whether a given certificate (partially) matches this name.
@@ -310,11 +343,26 @@ class BOTAN_PUBLIC_API(2, 0) GeneralName final : public ASN1_Object {
       static constexpr size_t DN_IDX = 3;
       static constexpr size_t IPV4_IDX = 4;
 
-      NameType m_type;
-      std::variant<std::string, std::string, std::string, X509_DN, std::pair<uint32_t, uint32_t>> m_name;
+      using NameVariant = std::variant<std::string, std::string, std::string, X509_DN, std::pair<uint32_t, uint32_t>>;
+
+      GeneralName(NameType type, NameVariant name) : m_type(type), m_name(std::move(name)) {}
+
+      template <size_t idx, typename T>
+         requires(idx < 5)
+      static GeneralName make(T&& value) {
+         return {NameType(idx + 1 /* implicit enum relationship! */),
+                 NameVariant(std::in_place_index_t<idx>(), std::forward<T>(value))};
+      }
+
+      NameType m_type = NameType::Unknown;
+      NameVariant m_name;
 
       static bool matches_dns(std::string_view name, std::string_view constraint);
 
+      /**
+      * Partial DN matching according to RFC 5280, Section 7.1, i.e.,
+      * whether the constraint is a prefix of the name.
+      */
       static bool matches_dn(const X509_DN& name, const X509_DN& constraint);
 };
 
@@ -337,9 +385,9 @@ class BOTAN_PUBLIC_API(2, 0) GeneralSubtree final : public ASN1_Object {
       */
       BOTAN_DEPRECATED("Deprecated use NameConstraints") GeneralSubtree();
 
-      void encode_into(DER_Encoder&) const override;
+      void encode_into(DER_Encoder& to) const override;
 
-      void decode_from(BER_Decoder&) override;
+      void decode_from(BER_Decoder& from) override;
 
       /**
       * @return name
@@ -362,7 +410,7 @@ class BOTAN_PUBLIC_API(2, 0) NameConstraints final {
       /**
       * Creates an empty name NameConstraints.
       */
-      NameConstraints() : m_permitted_subtrees(), m_excluded_subtrees() {}
+      NameConstraints() = default;
 
       /**
       * Creates NameConstraints from a list of permitted and excluded subtrees.
@@ -407,7 +455,7 @@ class BOTAN_PUBLIC_API(2, 0) NameConstraints final {
 /**
 * X.509 Certificate Extension
 */
-class BOTAN_PUBLIC_API(2, 0) Certificate_Extension {
+class BOTAN_PUBLIC_API(2, 0) Certificate_Extension /* NOLINT(*-special-member-functions) */ {
    public:
       /**
       * @return OID representing this extension
@@ -439,13 +487,14 @@ class BOTAN_PUBLIC_API(2, 0) Certificate_Extension {
       * an appropriate status code shall be added to cert_status.
       *
       * @param subject Subject certificate that contains this extension
-      * @param issuer Issuer certificate
-      * @param status Certificate validation status codes for subject certificate
+      * @param issuer Issuer certificate. nullopt for certificates with no
+      *        available issuer (e.g. non self-signed trust anchors).
       * @param cert_path Certificate path which is currently validated
+      * @param cert_status Certificate validation status codes for subject certificate
       * @param pos Position of subject certificate in cert_path
       */
       virtual void validate(const X509_Certificate& subject,
-                            const X509_Certificate& issuer,
+                            const std::optional<X509_Certificate>& issuer,
                             const std::vector<X509_Certificate>& cert_path,
                             std::vector<std::set<Certificate_Status_Code>>& cert_status,
                             size_t pos);
@@ -503,7 +552,7 @@ class BOTAN_PUBLIC_API(2, 0) Extensions final : public ASN1_Object {
       bool extension_set(const OID& oid) const;
 
       /**
-      * Return true if an extesion was set and marked critical
+      * Return true if an extension was set and marked critical
       */
       bool critical_extension_set(const OID& oid) const;
 
@@ -513,8 +562,8 @@ class BOTAN_PUBLIC_API(2, 0) Extensions final : public ASN1_Object {
       */
       std::vector<uint8_t> get_extension_bits(const OID& oid) const;
 
-      void encode_into(DER_Encoder&) const override;
-      void decode_from(BER_Decoder&) override;
+      void encode_into(DER_Encoder& to) const override;
+      void decode_from(BER_Decoder& from) override;
 
       /**
       * Adds a new extension to the list.
@@ -603,6 +652,8 @@ class BOTAN_PUBLIC_API(2, 0) Extensions final : public ASN1_Object {
 
       Extensions(Extensions&&) = default;
       Extensions& operator=(Extensions&&) = default;
+
+      ~Extensions() override = default;
 
    private:
       static std::unique_ptr<Certificate_Extension> create_extn_obj(const OID& oid,

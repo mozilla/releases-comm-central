@@ -14,6 +14,8 @@
 
 #include <botan/internal/kyber_algos.h>
 
+#include <botan/internal/buffer_slicer.h>
+#include <botan/internal/buffer_stuffer.h>
 #include <botan/internal/kyber_helpers.h>
 #include <botan/internal/kyber_keys.h>
 #include <botan/internal/loadstor.h>
@@ -183,7 +185,7 @@ void sample_poly_cbd<KyberConstants::KyberEta::_3>(KyberPoly& poly,
 
 void encode_polynomial_vector(std::span<uint8_t> out, const KyberPolyVecNTT& vec) {
    BufferStuffer bs(out);
-   for(auto& v : vec) {
+   for(const auto& v : vec) {
       byte_encode(bs, v);
    }
    BOTAN_ASSERT_NOMSG(bs.full());
@@ -382,10 +384,14 @@ KyberPolyMat sample_matrix(StrongSpan<const KyberSeedRho> seed, bool transposed,
 
    KyberPolyMat mat(mode.k(), mode.k());
 
+   const auto& sym = mode.symmetric_primitives();
+   std::unique_ptr<Botan::XOF> xof;
+
    for(uint8_t i = 0; i < mode.k(); ++i) {
       for(uint8_t j = 0; j < mode.k(); ++j) {
          const auto pos = (transposed) ? std::tuple(i, j) : std::tuple(j, i);
-         sample_ntt_uniform(mat[i][j], mode.symmetric_primitives().XOF(seed, pos));
+         sym.setup_XOF(xof, seed, pos);
+         sample_ntt_uniform(mat[i][j], *xof);
       }
    }
 

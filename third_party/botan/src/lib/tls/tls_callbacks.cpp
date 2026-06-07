@@ -12,14 +12,16 @@
 
 #include <botan/dh.h>
 #include <botan/dl_group.h>
+#include <botan/ec_group.h>
 #include <botan/ecdh.h>
 #include <botan/ocsp.h>
 #include <botan/pk_algs.h>
 #include <botan/tls_algos.h>
 #include <botan/tls_exceptn.h>
 #include <botan/tls_policy.h>
+#include <botan/tls_session.h>
 #include <botan/x509path.h>
-#include <botan/internal/ct_utils.h>
+#include <botan/internal/fmt.h>
 #include <botan/internal/stl_util.h>
 
 #if defined(BOTAN_HAS_X25519)
@@ -93,17 +95,17 @@ void TLS::Callbacks::tls_verify_cert_chain(const std::vector<X509_Certificate>& 
       throw Invalid_Argument("Certificate chain was empty");
    }
 
-   Path_Validation_Restrictions restrictions(policy.require_cert_revocation_info(),
-                                             policy.minimum_signature_strength());
+   const Path_Validation_Restrictions restrictions(policy.require_cert_revocation_info(),
+                                                   policy.minimum_signature_strength());
 
-   Path_Validation_Result result = x509_path_validate(cert_chain,
-                                                      restrictions,
-                                                      trusted_roots,
-                                                      hostname,
-                                                      usage,
-                                                      tls_current_timestamp(),
-                                                      tls_verify_cert_chain_ocsp_timeout(),
-                                                      ocsp_responses);
+   const Path_Validation_Result result = x509_path_validate(cert_chain,
+                                                            restrictions,
+                                                            trusted_roots,
+                                                            hostname,
+                                                            usage,
+                                                            tls_current_timestamp(),
+                                                            tls_verify_cert_chain_ocsp_timeout(),
+                                                            ocsp_responses);
 
    if(!result.successful_validation()) {
       throw TLS_Exception(Alert::BadCertificate, "Certificate validation failure: " + result.result_string());
@@ -313,7 +315,7 @@ secure_vector<uint8_t> TLS::Callbacks::tls_kem_decapsulate(TLS::Group_Params gro
    }
 
    try {
-      auto& key_agreement_key = dynamic_cast<const PK_Key_Agreement_Key&>(private_key);
+      const auto& key_agreement_key = dynamic_cast<const PK_Key_Agreement_Key&>(private_key);
       return tls_ephemeral_key_agreement(group, key_agreement_key, encapsulated_bytes, rng, policy);
    } catch(const std::bad_cast&) {
       throw Invalid_Argument("provided ephemeral key is not a PK_Key_Agreement_Key");
@@ -354,6 +356,25 @@ std::unique_ptr<PK_Key_Agreement_Key> TLS::Callbacks::tls_generate_ephemeral_key
    throw TLS_Exception(Alert::DecodeError, "cannot create a key offering without a group definition");
 }
 
+std::unique_ptr<PK_Key_Agreement_Key> TLS::Callbacks::tls12_generate_ephemeral_ecdh_key(
+   TLS::Group_Params group, RandomNumberGenerator& rng, EC_Point_Format tls12_ecc_pubkey_encoding_format) {
+   // Delegating to the "universal" callback to obtain an ECDH key pair
+   auto key = tls_generate_ephemeral_key(group, rng);
+
+   // For ordinary ECDH key pairs (that are derived from `ECDH_PublicKey`), we
+   // set the internal point encoding flag for the key before passing it on into
+   // the TLS 1.2 implementation. For user-defined keypair types (e.g. to
+   // offload to some crypto hardware) inheriting from Botan's `ECDH_PublicKey`
+   // might not be feasible. Such users should consider overriding this
+   // ECDH-specific callback and ensure that their custom class handles the
+   // public point encoding as requested by `tls12_ecc_pubkey_encoding_format`.
+   if(auto* ecc_key = dynamic_cast<ECDH_PublicKey*>(key.get())) {
+      ecc_key->set_point_encoding(tls12_ecc_pubkey_encoding_format);
+   }
+
+   return key;
+}
+
 secure_vector<uint8_t> TLS::Callbacks::tls_ephemeral_key_agreement(
    const std::variant<TLS::Group_Params, DL_Group>& group,
    const PK_Key_Agreement_Key& private_key,
@@ -381,7 +402,7 @@ secure_vector<uint8_t> TLS::Callbacks::tls_ephemeral_key_agreement(
    // This is done within the key agreement operation and throws
    // an Invalid_Argument exception if the shared secret is all-zero.
    try {
-      PK_Key_Agreement ka(private_key, rng, "Raw");
+      const PK_Key_Agreement ka(private_key, rng, "Raw");
       return ka.derive_key(0, kex_pub_key->raw_public_key_bits()).bits_of();
    } catch(const Invalid_Argument& ex) {
       throw TLS_Exception(Alert::IllegalParameter, ex.what());
@@ -414,6 +435,14 @@ void TLS::Callbacks::tls_ssl_key_log_data(std::string_view label,
                                           std::span<const uint8_t> client_random,
                                           std::span<const uint8_t> secret) const {
    BOTAN_UNUSED(label, client_random, secret);
+}
+
+std::unique_ptr<KDF> TLS::Callbacks::tls12_protocol_specific_kdf(std::string_view prf_algo) const {
+   if(prf_algo == "MD5" || prf_algo == "SHA-1") {
+      return KDF::create_or_throw("TLS-12-PRF(SHA-256)");
+   }
+
+   return KDF::create_or_throw(Botan::fmt("TLS-12-PRF({})", prf_algo));
 }
 
 }  // namespace Botan

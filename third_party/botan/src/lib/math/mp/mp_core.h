@@ -11,12 +11,10 @@
 #define BOTAN_MP_CORE_OPS_H_
 
 #include <botan/assert.h>
-#include <botan/exceptn.h>
-#include <botan/mem_ops.h>
 #include <botan/types.h>
 #include <botan/internal/ct_utils.h>
+#include <botan/internal/mem_utils.h>
 #include <botan/internal/mp_asmi.h>
-#include <algorithm>
 #include <array>
 #include <span>
 
@@ -39,129 +37,38 @@ inline constexpr void bigint_cnd_swap(W cnd, W x[], W y[], size_t size) {
    }
 }
 
-template <WordType W>
-inline constexpr W bigint_cnd_add(W cnd, W x[], size_t x_size, const W y[], size_t y_size) {
-   BOTAN_ASSERT(x_size >= y_size, "Expected sizes");
-
-   const auto mask = CT::Mask<W>::expand(cnd).value();
-
-   W carry = 0;
-
-   for(size_t i = 0; i != y_size; ++i) {
-      x[i] = word_add(x[i], y[i] & mask, &carry);
-   }
-
-   for(size_t i = y_size; i != x_size; ++i) {
-      x[i] = word_add(x[i], static_cast<W>(0), &carry);
-   }
-
-   return (mask & carry);
-}
-
 /*
 * If cond > 0 adds x[0:size] and y[0:size] and returns carry
 * Runs in constant time
 */
 template <WordType W>
 inline constexpr W bigint_cnd_add(W cnd, W x[], const W y[], size_t size) {
-   return bigint_cnd_add(cnd, x, size, y, size);
-}
-
-/*
-* If cond > 0 subtracts x[0:size] and y[0:size] and returns borrow
-* Runs in constant time
-*/
-template <WordType W>
-inline constexpr auto bigint_cnd_sub(W cnd, W x[], size_t x_size, const W y[], size_t y_size) -> W {
-   BOTAN_ASSERT(x_size >= y_size, "Expected sizes");
-
    const auto mask = CT::Mask<W>::expand(cnd).value();
 
    W carry = 0;
 
-   for(size_t i = 0; i != y_size; ++i) {
-      x[i] = word_sub(x[i], y[i] & mask, &carry);
-   }
-
-   for(size_t i = y_size; i != x_size; ++i) {
-      x[i] = word_sub(x[i], static_cast<W>(0), &carry);
+   for(size_t i = 0; i != size; ++i) {
+      x[i] = word_add(x[i], y[i] & mask, &carry);
    }
 
    return (mask & carry);
 }
 
 /*
-* If cond > 0 adds x[0:size] and y[0:size] and returns carry
+* If cond > 0 subtracts y[0:size] from x[0:size] and returns borrow
 * Runs in constant time
 */
 template <WordType W>
 inline constexpr auto bigint_cnd_sub(W cnd, W x[], const W y[], size_t size) -> W {
-   return bigint_cnd_sub(cnd, x, size, y, size);
-}
-
-/*
-* Equivalent to
-*   bigint_cnd_add( mask, x, y, size);
-*   bigint_cnd_sub(~mask, x, y, size);
-*
-* Mask must be either 0 or all 1 bits
-*/
-template <WordType W>
-inline constexpr void bigint_cnd_add_or_sub(CT::Mask<W> mask, W x[], const W y[], size_t size) {
-   const size_t blocks = size - (size % 8);
+   const auto mask = CT::Mask<W>::expand(cnd).value();
 
    W carry = 0;
-   W borrow = 0;
 
-   W t0[8] = {0};
-   W t1[8] = {0};
-
-   for(size_t i = 0; i != blocks; i += 8) {
-      carry = word8_add3(t0, x + i, y + i, carry);
-      borrow = word8_sub3(t1, x + i, y + i, borrow);
-      mask.select_n(x + i, t0, t1, 8);
+   for(size_t i = 0; i != size; ++i) {
+      x[i] = word_sub(x[i], y[i] & mask, &carry);
    }
 
-   for(size_t i = blocks; i != size; ++i) {
-      const W a = word_add(x[i], y[i], &carry);
-      const W s = word_sub(x[i], y[i], &borrow);
-
-      x[i] = mask.select(a, s);
-   }
-}
-
-/*
-* Equivalent to
-*   bigint_cnd_add( mask, x, size, y, size);
-*   bigint_cnd_sub(~mask, x, size, z, size);
-*
-* Mask must be either 0 or all 1 bits
-*
-* Returns the carry or borrow resp
-*/
-template <WordType W>
-inline constexpr auto bigint_cnd_addsub(CT::Mask<W> mask, W x[], const W y[], const W z[], size_t size) -> W {
-   const size_t blocks = size - (size % 8);
-
-   W carry = 0;
-   W borrow = 0;
-
-   W t0[8] = {0};
-   W t1[8] = {0};
-
-   for(size_t i = 0; i != blocks; i += 8) {
-      carry = word8_add3(t0, x + i, y + i, carry);
-      borrow = word8_sub3(t1, x + i, z + i, borrow);
-      mask.select_n(x + i, t0, t1, 8);
-   }
-
-   for(size_t i = blocks; i != size; ++i) {
-      t0[0] = word_add(x[i], y[i], &carry);
-      t1[0] = word_sub(x[i], z[i], &borrow);
-      x[i] = mask.select(t0[0], t1[0]);
-   }
-
-   return mask.select(carry, borrow);
+   return (mask & carry);
 }
 
 /*
@@ -184,7 +91,7 @@ inline constexpr void bigint_cnd_abs(W cnd, W x[], size_t size) {
 * Two operand addition with carry out
 */
 template <WordType W>
-inline constexpr auto bigint_add2_nc(W x[], size_t x_size, const W y[], size_t y_size) -> W {
+inline constexpr auto bigint_add2(W x[], size_t x_size, const W y[], size_t y_size) -> W {
    W carry = 0;
 
    BOTAN_ASSERT(x_size >= y_size, "Expected sizes");
@@ -210,9 +117,9 @@ inline constexpr auto bigint_add2_nc(W x[], size_t x_size, const W y[], size_t y
 * Three operand addition with carry out
 */
 template <WordType W>
-inline constexpr auto bigint_add3_nc(W z[], const W x[], size_t x_size, const W y[], size_t y_size) -> W {
+inline constexpr auto bigint_add3(W z[], const W x[], size_t x_size, const W y[], size_t y_size) -> W {
    if(x_size < y_size) {
-      return bigint_add3_nc(z, y, y_size, x, x_size);
+      return bigint_add3(z, y, y_size, x, x_size);
    }
 
    W carry = 0;
@@ -232,26 +139,6 @@ inline constexpr auto bigint_add3_nc(W z[], const W x[], size_t x_size, const W 
    }
 
    return carry;
-}
-
-/**
-* Two operand addition
-* @param x the first operand (and output)
-* @param x_size size of x
-* @param y the second operand
-* @param y_size size of y (must be <= x_size)
-*/
-template <WordType W>
-inline constexpr void bigint_add2(W x[], size_t x_size, const W y[], size_t y_size) {
-   x[x_size] += bigint_add2_nc(x, x_size, y, y_size);
-}
-
-/**
-* Three operand addition
-*/
-template <WordType W>
-inline constexpr void bigint_add3(W z[], const W x[], size_t x_size, const W y[], size_t y_size) {
-   z[x_size > y_size ? x_size : y_size] += bigint_add3_nc(z, x, x_size, y, y_size);
 }
 
 /**
@@ -287,13 +174,7 @@ template <WordType W>
 inline constexpr void bigint_sub2_rev(W x[], const W y[], size_t y_size) {
    W borrow = 0;
 
-   const size_t blocks = y_size - (y_size % 8);
-
-   for(size_t i = 0; i != blocks; i += 8) {
-      borrow = word8_sub2_rev(x + i, y + i, borrow);
-   }
-
-   for(size_t i = blocks; i != y_size; ++i) {
+   for(size_t i = 0; i != y_size; ++i) {
       x[i] = word_sub(y[i], x[i], &borrow);
    }
 
@@ -387,7 +268,7 @@ inline constexpr void bigint_monty_maybe_sub(W z[N], W x0, const W x[N], const W
 * Otherwise compute z = y - x
 * No borrow is possible since the result is always >= 0
 *
-* Returns ~0 if x >= y or 0 if x < y
+* Returns a Mask: |1| if x >= y or |0| if x < y
 * @param z output array of at least N words
 * @param x input array of N words
 * @param y input array of N words
@@ -427,8 +308,8 @@ inline constexpr void bigint_shl1(W x[], size_t x_size, size_t x_words, size_t s
    const size_t word_shift = shift / WordInfo<W>::bits;
    const size_t bit_shift = shift % WordInfo<W>::bits;
 
-   copy_mem(x + word_shift, x, x_words);
-   clear_mem(x, word_shift);
+   unchecked_copy_memory(x + word_shift, x, x_words);
+   zeroize_buffer(x, word_shift);
 
    const auto carry_mask = CT::Mask<W>::expand(bit_shift);
    const W carry_shift = carry_mask.if_set_return(WordInfo<W>::bits - bit_shift);
@@ -449,9 +330,9 @@ inline constexpr void bigint_shr1(W x[], size_t x_size, size_t shift) {
    const size_t top = x_size >= word_shift ? (x_size - word_shift) : 0;
 
    if(top > 0) {
-      copy_mem(x, x + word_shift, top);
+      unchecked_copy_memory(x, x + word_shift, top);
    }
-   clear_mem(x + top, std::min(word_shift, x_size));
+   zeroize_buffer(x + top, std::min(word_shift, x_size));
 
    const auto carry_mask = CT::Mask<W>::expand(bit_shift);
    const W carry_shift = carry_mask.if_set_return(WordInfo<W>::bits - bit_shift);
@@ -470,7 +351,7 @@ inline constexpr void bigint_shl2(W y[], const W x[], size_t x_size, size_t shif
    const size_t word_shift = shift / WordInfo<W>::bits;
    const size_t bit_shift = shift % WordInfo<W>::bits;
 
-   copy_mem(y + word_shift, x, x_size);
+   unchecked_copy_memory(y + word_shift, x, x_size);
 
    const auto carry_mask = CT::Mask<W>::expand(bit_shift);
    const W carry_shift = carry_mask.if_set_return(WordInfo<W>::bits - bit_shift);
@@ -490,7 +371,7 @@ inline constexpr void bigint_shr2(W y[], const W x[], size_t x_size, size_t shif
    const size_t new_size = x_size < word_shift ? 0 : (x_size - word_shift);
 
    if(new_size > 0) {
-      copy_mem(y, x + word_shift, new_size);
+      unchecked_copy_memory(y, x + word_shift, new_size);
    }
 
    const auto carry_mask = CT::Mask<W>::expand(bit_shift);
@@ -509,15 +390,9 @@ inline constexpr void bigint_shr2(W y[], const W x[], size_t x_size, size_t shif
 */
 template <WordType W>
 [[nodiscard]] inline constexpr auto bigint_linmul2(W x[], size_t x_size, W y) -> W {
-   const size_t blocks = x_size - (x_size % 8);
-
    W carry = 0;
 
-   for(size_t i = 0; i != blocks; i += 8) {
-      carry = word8_linmul2(x + i, y, carry);
-   }
-
-   for(size_t i = blocks; i != x_size; ++i) {
+   for(size_t i = 0; i != x_size; ++i) {
       x[i] = word_madd2(x[i], y, &carry);
    }
 
@@ -591,8 +466,8 @@ inline constexpr int32_t bigint_cmp(const W x[], size_t x_size, const W y[], siz
 
 /**
 * Compare x and y
-* Return ~0 if x[0:x_size] < y[0:y_size] or 0 otherwise
-* If lt_or_equal is true, returns ~0 also for x == y
+* Returns a Mask: |1| if x[0:x_size] < y[0:y_size] or |0| otherwise
+* If lt_or_equal is true, returns |1| also for x == y
 */
 template <WordType W>
 inline constexpr auto bigint_ct_is_lt(const W x[], size_t x_size, const W y[], size_t y_size, bool lt_or_equal = false)
@@ -651,109 +526,158 @@ inline constexpr auto bigint_ct_is_eq(const W x[], size_t x_size, const W y[], s
    return CT::Mask<W>::is_zero(diff);
 }
 
-/**
-* Set z to abs(x-y), ie if x >= y, then compute z = x - y
-* Otherwise compute z = y - x
-* No borrow is possible since the result is always >= 0
-*
-* Return the relative size of x vs y (-1, 0, 1)
-*
-* @param z output array of max(x_size,y_size) words
-* @param x input param
-* @param x_size length of x
-* @param y input param
-* @param y_size length of y
-*/
-template <WordType W>
-inline constexpr int32_t bigint_sub_abs(W z[], const W x[], size_t x_size, const W y[], size_t y_size) {
-   const int32_t relative_size = bigint_cmp(x, x_size, y, y_size);
-
-   // Swap if relative_size == -1
-   const bool need_swap = relative_size < 0;
-   CT::conditional_swap_ptr(need_swap, x, y);
-   CT::conditional_swap(need_swap, x_size, y_size);
-
-   /*
-   * We know at this point that x >= y so if y_size is larger than
-   * x_size, we are guaranteed they are just leading zeros which can
-   * be ignored
-   */
-   y_size = std::min(x_size, y_size);
-
-   bigint_sub3(z, x, x_size, y, y_size);
-
-   return relative_size;
-}
-
-/**
-* Set t to t-s modulo mod
-*
-* @param t first integer
-* @param s second integer
-* @param mod the modulus
-* @param mod_sw size of t, s, and mod
-* @param ws workspace of size mod_sw
-*/
-template <WordType W>
-inline constexpr void bigint_mod_sub(W t[], const W s[], const W mod[], size_t mod_sw, W ws[]) {
-   // ws = t - s
-   const W borrow = bigint_sub3(ws, t, mod_sw, s, mod_sw);
-
-   // Conditionally add back the modulus
-   bigint_cnd_add(borrow, ws, mod, mod_sw);
-
-   copy_mem(t, ws, mod_sw);
-}
-
-/**
-* Compute ((n1<<bits) + n0) / d
-*/
-template <WordType W>
-inline constexpr auto bigint_divop_vartime(W n1, W n0, W d) -> W {
-   if(d == 0) {
-      throw Invalid_Argument("bigint_divop_vartime divide by zero");
+template <WordType W, W div>
+consteval std::pair<W, size_t> div_magic()
+   requires(div == 10)
+{
+   if constexpr(div == 10 && std::same_as<W, uint32_t>) {
+      constexpr W magic = 0xCCCCCCCD;
+      constexpr size_t shift = 35;
+      return std::make_pair(magic, shift);
+   } else if constexpr(div == 10 && std::same_as<W, uint64_t>) {
+      constexpr W magic = 0xCCCCCCCCCCCCCCCD;
+      constexpr size_t shift = 67;
+      return std::make_pair(magic, shift);
    }
+}
 
-   if constexpr(WordInfo<W>::dword_is_native) {
-      typename WordInfo<W>::dword n = n1;
-      n <<= WordInfo<W>::bits;
-      n |= n0;
-      return static_cast<W>(n / d);
-   } else {
-      W high = n1 % d;
-      W quotient = 0;
+template <WordType W>
+inline constexpr W divide_10(W x) {
+   auto [magic, shift] = div_magic<W, 10>();
+   const auto p = typename WordInfo<W>::dword(magic) * x;
+   return static_cast<W>(p >> shift);
+}
 
-      for(size_t i = 0; i != WordInfo<W>::bits; ++i) {
-         const W high_top_bit = high >> (WordInfo<W>::bits - 1);
-
-         high <<= 1;
-         high |= (n0 >> (WordInfo<W>::bits - 1 - i)) & 1;
-         quotient <<= 1;
-
-         if(high_top_bit || high >= d) {
-            high -= d;
-            quotient |= 1;
-         }
+/**
+* Setup for variable-time word level division/modulo operations
+*
+* Currently this just uses the compiler's support for a 2/1 word division,
+* but likely could be improved by precomputed values based on the divisor,
+* for example using the approaches outlined in Hacker's Delight chapter 10.
+*/
+template <WordType W>
+class divide_precomp final {
+   public:
+      explicit constexpr divide_precomp(W divisor) : m_divisor(divisor) {
+         BOTAN_ARG_CHECK(m_divisor != 0, "Division by zero");
       }
 
-      return quotient;
-   }
-}
+      // Return floor((n1 || n0) / d)
+      //
+      // This assumes n1 < d so that the quotient fits in a word
+      inline constexpr W vartime_div_2to1(W n1, W n0) const {
+         BOTAN_ASSERT_NOMSG(n1 < m_divisor);
 
-/**
-* Compute ((n1<<bits) + n0) % d
-*/
-template <WordType W>
-inline constexpr auto bigint_modop_vartime(W n1, W n0, W d) -> W {
-   if(d == 0) {
-      throw Invalid_Argument("bigint_modop_vartime divide by zero");
-   }
+         if(m_divisor == WordInfo<W>::max) {
+            return vartime_div_2to1_max_d(n1, n0);
+         }
 
-   W z = bigint_divop_vartime(n1, n0, d);
-   W carry = 0;
-   z = word_madd2(z, d, &carry);
-   return (n0 - z);
-}
+         if(m_divisor == WordInfo<W>::top_bit) {
+            // Simply a shift by N-1 bits
+            return (n1 << 1) | (n0 >> (WordInfo<W>::bits - 1));
+         }
+
+         if(!std::is_constant_evaluated()) {
+#if defined(BOTAN_MP_USE_X86_64_ASM)
+            if constexpr(std::same_as<W, uint64_t>) {
+               W quotient = 0;
+               W remainder = 0;
+               // NOLINTNEXTLINE(*-no-assembler)
+               asm("divq %[v]" : "=a"(quotient), "=d"(remainder) : [v] "r"(m_divisor), "a"(n0), "d"(n1));
+               return quotient;
+            }
+#endif
+
+#if !defined(BOTAN_BUILD_COMPILER_IS_CLANGCL)
+
+            /* clang-cl has a bug where on encountering a 128/64 division it emits
+            * a call to __udivti3() but then fails to link the relevant builtin into
+            * the binary, causing a link failure. Work around this by simply omitting
+            * such code for clang-cl
+            *
+            * See https://github.com/llvm/llvm-project/issues/25679
+            */
+            if constexpr(WordInfo<W>::dword_is_native) {
+               typename WordInfo<W>::dword n = n1;
+               n <<= WordInfo<W>::bits;
+               n |= n0;
+               return static_cast<W>(n / m_divisor);
+            }
+#endif
+         }
+
+         W high = n1;
+         W quotient = 0;
+
+         for(size_t i = 0; i != WordInfo<W>::bits; ++i) {
+            const W high_top_bit = high >> (WordInfo<W>::bits - 1);
+
+            high <<= 1;
+            high |= (n0 >> (WordInfo<W>::bits - 1 - i)) & 1;
+            quotient <<= 1;
+
+            if(high_top_bit || high >= m_divisor) {
+               high -= m_divisor;
+               quotient |= 1;
+            }
+         }
+
+         return quotient;
+      }
+
+      // Return floor((n1 || n0) % d)
+      //
+      // This assumes n1 < d so that the quotient fits in a word
+      inline constexpr W vartime_mod_2to1(W n1, W n0) const {
+         BOTAN_ASSERT_NOMSG(n1 < m_divisor);
+         W q = this->vartime_div_2to1(n1, n0);
+         W carry = 0;
+         q = word_madd2(q, m_divisor, &carry);
+         return (n0 - q);
+      }
+
+   private:
+      /*
+      * When the divisor is the maximum integer value, then a two word
+      * division becomes simple.
+      */
+      static inline constexpr W vartime_div_2to1_max_d(W n1, W n0) {
+         /*
+         Use k to refer to WordInfo<W>::bits
+
+         We are dividing n = (n1 * 2^k) + n0 by 2^k - 1
+
+         Recall that 2^k = 1 (mod 2^k - 1)
+
+         Rewrite n = n1*2^k + n0 as n1*(2^k - 1) + n1 + n0
+
+         The result of dividing n by (2^k - 1) will be equal to
+         (n1*(2^k-1) + n1 + n0) / (2^k-1) =
+         n1 + ((n1 + n0) / (2^k-1)
+
+         Use c to refer to ((n1 + n0) / (2^k-1))
+
+         If (n1 + n0) < (2^k - 1) then c is 0
+         If (n1 + n0) >= (2^k - 1) then c is 1
+
+         Since n1 < 2^k - 1 [*] and n0 <= 2^k - 1 it is impossible for (n1 + n0) / (2^k -1)
+         to be greater than 1.
+
+         [*] We require n1 be strictly less than the divisor to ensure that the
+         output fits in a single word; this is checked at the start of vartime_div_2to1.
+         */
+
+         const W s = n0 + n1;
+         // did n0 + n1 overflow? or does (n0 + n1) == 2^k - 1? if either, c == 1
+         if(s < n0 || s == WordInfo<W>::max) {
+            n1 += 1;
+         }
+
+         return n1;
+      }
+
+      W m_divisor;
+};
 
 /*
 * Compute an integer x such that (a*x) == -1 (mod 2^n)
@@ -764,25 +688,18 @@ inline constexpr auto bigint_modop_vartime(W n1, W n0, W d) -> W {
 */
 template <WordType W>
 inline constexpr auto monty_inverse(W a) -> W {
-   if(a % 2 == 0) {
-      throw Invalid_Argument("monty_inverse only valid for odd integers");
-   }
+   BOTAN_ARG_CHECK(a % 2 == 1, "Cannot compute Montgomery inverse of an even integer");
 
-   /*
-   * From "A New Algorithm for Inversion mod p^k" by Çetin Kaya Koç
-   * https://eprint.iacr.org/2017/411.pdf sections 5 and 7.
-   */
+   // Newton's Method, following https://lemire.me/blog/2017/09/18/computing-the-inverse-of-odd-integers/
 
-   W b = 1;
-   W r = 0;
+   constexpr size_t iter = WordInfo<W>::bits == 64 ? 4 : 3;
 
-   for(size_t i = 0; i != WordInfo<W>::bits; ++i) {
-      const W bi = b % 2;
-      r >>= 1;
-      r += bi << (WordInfo<W>::bits - 1);
+   // Initial guess provides 5 bits of accuracy
+   W r = (3 * a) ^ 2;
 
-      b -= a * bi;
-      b >>= 1;
+   // Each iteration doubles the accuracy
+   for(size_t i = 0; i != iter; ++i) {
+      r = r * (2 - r * a);
    }
 
    // Now invert in addition space
@@ -793,28 +710,30 @@ inline constexpr auto monty_inverse(W a) -> W {
 
 template <size_t S, WordType W, size_t N>
 inline constexpr W shift_left(std::array<W, N>& x) {
+   static_assert(N >= 1, "Invalid input size");
    static_assert(S < WordInfo<W>::bits, "Shift too large");
 
-   W carry = 0;
-   for(size_t i = 0; i != N; ++i) {
-      const W w = x[i];
-      x[i] = (w << S) | carry;
-      carry = w >> (WordInfo<W>::bits - S);
+   const W carry = x[N - 1] >> (WordInfo<W>::bits - S);
+
+   for(size_t i = N - 1; i != 0; --i) {
+      x[i] = (x[i] << S) | (x[i - 1] >> (WordInfo<W>::bits - S));
    }
+   x[0] <<= S;
 
    return carry;
 }
 
 template <size_t S, WordType W, size_t N>
 inline constexpr W shift_right(std::array<W, N>& x) {
+   static_assert(N >= 1, "Invalid input size");
    static_assert(S < WordInfo<W>::bits, "Shift too large");
 
-   W carry = 0;
-   for(size_t i = 0; i != N; ++i) {
-      const W w = x[N - 1 - i];
-      x[N - 1 - i] = (w >> S) | carry;
-      carry = w << (WordInfo<W>::bits - S);
+   const W carry = x[0] << (WordInfo<W>::bits - S);
+
+   for(size_t i = 0; i != N - 1; ++i) {
+      x[i] = (x[i] >> S) | (x[i + 1] << (WordInfo<W>::bits - S));
    }
+   x[N - 1] >>= S;
 
    return carry;
 }
@@ -1011,7 +930,7 @@ inline void bigint_monty_redc(
 
 inline void bigint_monty_redc_inplace(word z[], const word p[], size_t p_size, word p_dash, word ws[], size_t ws_size) {
    bigint_monty_redc(z, z, p, p_size, p_dash, ws, ws_size);
-   clear_mem(z + p_size, p_size);
+   zeroize_buffer(z + p_size, p_size);
 }
 
 /**
@@ -1069,7 +988,7 @@ constexpr std::array<W, N> redc_crandall(std::span<const W, 2 * N> z) {
    word carry_c[2] = {0};
    carry_c[0] = word_madd2(carry, C, &carry_c[1]);
 
-   carry = bigint_add2_nc(hi.data(), N, carry_c, 2);
+   carry = bigint_add2(hi.data(), N, carry_c, 2);
 
    constexpr W P0 = WordInfo<W>::max - (C - 1);
 
@@ -1128,16 +1047,6 @@ constexpr std::array<W, N> redc_crandall(std::span<const W, 2 * N> z) {
    CT::conditional_assign_mem(borrow, r.data(), hi.data(), N);
 
    return r;
-}
-
-/**
-* Set r to r - C. Then if r < 0, add P to r
-*/
-template <size_t N, WordType W>
-constexpr inline void bigint_correct_redc(std::array<W, N>& r, const std::array<W, N>& P, const std::array<W, N>& C) {
-   // TODO look into combining the two operations for important values of N
-   W borrow = bigint_sub2(r.data(), N, C.data(), N);
-   bigint_cnd_add(borrow, r.data(), N, P.data(), N);
 }
 
 // Extract a WindowBits sized window out of s, depending on offset.

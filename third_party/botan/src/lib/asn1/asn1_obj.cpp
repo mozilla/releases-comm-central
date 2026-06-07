@@ -7,11 +7,12 @@
 
 #include <botan/asn1_obj.h>
 
+#include <botan/assert.h>
 #include <botan/data_src.h>
 #include <botan/der_enc.h>
 #include <botan/mem_ops.h>
 #include <botan/internal/fmt.h>
-#include <botan/internal/stl_util.h>
+#include <botan/internal/mem_utils.h>
 #include <sstream>
 
 namespace Botan {
@@ -23,11 +24,15 @@ std::vector<uint8_t> ASN1_Object::BER_encode() const {
    return output;
 }
 
+BER_Object::~BER_Object() {
+   secure_scrub_memory(m_value);
+}
+
 /*
 * Check a type invariant on BER data
 */
 void BER_Object::assert_is_a(ASN1_Type expected_type_tag, ASN1_Class expected_class_tag, std::string_view descr) const {
-   if(this->is_a(expected_type_tag, expected_class_tag) == false) {
+   if(!this->is_a(expected_type_tag, expected_class_tag)) {
       std::stringstream msg;
 
       msg << "Tag mismatch when decoding " << descr << " got ";
@@ -160,7 +165,7 @@ std::string asn1_tag_to_string(ASN1_Type type) {
 /*
 * BER Decoding Exceptions
 */
-BER_Decoding_Error::BER_Decoding_Error(std::string_view str) : Decoding_Error(fmt("BER: {}", str)) {}
+BER_Decoding_Error::BER_Decoding_Error(std::string_view err) : Decoding_Error(fmt("BER: {}", err)) {}
 
 BER_Bad_Tag::BER_Bad_Tag(std::string_view str, uint32_t tagging) : BER_Decoding_Error(fmt("{}: {}", str, tagging)) {}
 
@@ -183,24 +188,21 @@ std::vector<uint8_t> put_in_sequence(const uint8_t bits[], size_t len) {
 * Convert a BER object into a string object
 */
 std::string to_string(const BER_Object& obj) {
-   return std::string(cast_uint8_ptr_to_char(obj.bits()), obj.length());
+   return bytes_to_string(obj.data());
 }
 
 /*
 * Do heuristic tests for BER data
 */
 bool maybe_BER(DataSource& source) {
-   uint8_t first_u8;
-   if(!source.peek_byte(first_u8)) {
+   uint8_t first_u8 = 0;
+   if(source.peek_byte(first_u8) == 0) {
       BOTAN_ASSERT_EQUAL(source.read_byte(first_u8), 0, "Expected EOF");
       throw Stream_IO_Error("ASN1::maybe_BER: Source was empty");
    }
 
    const auto cons_seq = static_cast<uint8_t>(ASN1_Class::Constructed) | static_cast<uint8_t>(ASN1_Type::Sequence);
-   if(first_u8 == cons_seq) {
-      return true;
-   }
-   return false;
+   return first_u8 == cons_seq;
 }
 
 }  // namespace ASN1

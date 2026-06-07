@@ -1,7 +1,7 @@
 /*
  * FrodoKEM matrix logic
  * Based on the MIT licensed reference implementation by the designers
- * (https://github.com/microsoft/PQCrypto-LWEKE/tree/master/src)
+ * (https://github.com/microsoft/PQCrypto-LWEKE/tree/master)
  *
  * The Fellowship of the FrodoKEM:
  * (C) 2023 Jack Lloyd
@@ -13,14 +13,15 @@
 #include <botan/internal/frodo_matrix.h>
 
 #include <botan/assert.h>
-#include <botan/frodokem.h>
-#include <botan/hex.h>
-#include <botan/mem_ops.h>
 #include <botan/xof.h>
 #include <botan/internal/bit_ops.h>
+#include <botan/internal/buffer_stuffer.h>
 #include <botan/internal/frodo_constants.h>
 #include <botan/internal/loadstor.h>
-#include <botan/internal/stl_util.h>
+#include <array>
+#include <span>
+#include <utility>
+#include <vector>
 
 #if defined(BOTAN_HAS_FRODOKEM_AES)
    #include <botan/internal/frodo_aes_generator.h>
@@ -29,14 +30,6 @@
 #if defined(BOTAN_HAS_FRODOKEM_SHAKE)
    #include <botan/internal/frodo_shake_generator.h>
 #endif
-
-#include <array>
-#include <cmath>
-#include <cstdint>
-#include <memory>
-#include <span>
-#include <utility>
-#include <vector>
 
 namespace Botan {
 
@@ -130,8 +123,8 @@ FrodoMatrix FrodoMatrix::mul_add_as_plus_e(const FrodoKEMConstants& constants,
    std::vector<uint16_t> a_row_data(4 * constants.n(), 0);
    // TODO: maybe use std::as_bytes() instead
    //       (take extra care, as it produces a std::span<std::byte>)
-   std::span<uint8_t> a_row_data_bytes(reinterpret_cast<uint8_t*>(a_row_data.data()),
-                                       sizeof(uint16_t) * a_row_data.size());
+   const std::span<uint8_t> a_row_data_bytes(reinterpret_cast<uint8_t*>(a_row_data.data()),
+                                             sizeof(uint16_t) * a_row_data.size());
 
    for(size_t i = 0; i < constants.n(); i += 4) {
       auto a_row = BufferStuffer(a_row_data_bytes);
@@ -189,8 +182,8 @@ FrodoMatrix FrodoMatrix::mul_add_sa_plus_e(const FrodoKEMConstants& constants,
    */
    std::vector<uint16_t> a_row_data(8 * constants.n(), 0);
    // TODO: maybe use std::as_bytes()
-   std::span<uint8_t> a_row_data_bytes(reinterpret_cast<uint8_t*>(a_row_data.data()),
-                                       sizeof(uint16_t) * a_row_data.size());
+   const std::span<uint8_t> a_row_data_bytes(reinterpret_cast<uint8_t*>(a_row_data.data()),
+                                             sizeof(uint16_t) * a_row_data.size());
 
    // Start matrix multiplication
    for(size_t i = 0; i < constants.n(); i += 8) {
@@ -211,7 +204,7 @@ FrodoMatrix FrodoMatrix::mul_add_sa_plus_e(const FrodoKEMConstants& constants,
 
       for(size_t j = 0; j < constants.n_bar(); ++j) {
          uint16_t sum = 0;
-         std::array<uint32_t /* to avoid integral promotion */, 8> sp;
+         std::array<uint32_t /* to avoid integral promotion */, 8> sp{};
          for(size_t p = 0; p < 8; ++p) {
             sp[p] = s.elements_at(j * constants.n() + i + p);
          }
@@ -318,7 +311,7 @@ CT::Mask<uint8_t> FrodoMatrix::constant_time_compare(const FrodoMatrix& other) c
 }
 
 FrodoMatrix FrodoMatrix::mul_bs(const FrodoKEMConstants& constants, const FrodoMatrix& b, const FrodoMatrix& s) {
-   Dimensions dimensions = {constants.n_bar(), constants.n_bar()};
+   const Dimensions dimensions = {constants.n_bar(), constants.n_bar()};
    auto elements = make_elements_vector(dimensions);
 
    for(size_t i = 0; i < constants.n_bar(); ++i) {
@@ -453,7 +446,7 @@ FrodoMatrix FrodoMatrix::unpack(const FrodoKEMConstants& constants,
       while(b < lsb) {
          const uint8_t nbits = std::min(static_cast<uint8_t>(lsb - b), bits);
          const uint16_t mask = static_cast<uint16_t>(1 << nbits) - 1;
-         uint8_t t = (w >> (bits - nbits)) & mask;  // the bits to copy from w to out
+         const uint8_t t = (w >> (bits - nbits)) & mask;  // the bits to copy from w to out
 
          elements.at(i) = elements.at(i) + static_cast<uint16_t>(t << (lsb - b - nbits));
          b += nbits;

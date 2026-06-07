@@ -9,6 +9,7 @@
 
 #if defined(BOTAN_HAS_FPE_FE1) && defined(BOTAN_HAS_PBKDF)
 
+   #include <botan/exceptn.h>
    #include <botan/fpe_fe1.h>
    #include <botan/pbkdf.h>
    #include <botan/symkey.h>
@@ -21,7 +22,7 @@ uint8_t luhn_checksum(uint64_t cc_number) {
    uint8_t sum = 0;
 
    bool alt = false;
-   while(cc_number) {
+   while(cc_number > 0) {
       uint8_t digit = cc_number % 10;
       if(alt) {
          digit *= 2;
@@ -59,11 +60,9 @@ uint64_t cc_derank(uint64_t cc_number) {
 }
 
 uint64_t encrypt_cc_number(uint64_t cc_number, const Botan::SymmetricKey& key, const std::vector<uint8_t>& tweak) {
-   const Botan::BigInt n = 1000000000000000;
+   const Botan::BigInt n(1000000000000000);
 
-   const uint64_t cc_ranked = cc_rank(cc_number);
-
-   const Botan::BigInt c = Botan::FPE::fe1_encrypt(n, cc_ranked, key, tweak);
+   const Botan::BigInt c = Botan::FPE::fe1_encrypt(n, Botan::BigInt::from_u64(cc_rank(cc_number)), key, tweak);
 
    if(c.bits() > 50) {
       throw Botan::Internal_Error("FPE produced a number too large");
@@ -77,11 +76,9 @@ uint64_t encrypt_cc_number(uint64_t cc_number, const Botan::SymmetricKey& key, c
 }
 
 uint64_t decrypt_cc_number(uint64_t enc_cc, const Botan::SymmetricKey& key, const std::vector<uint8_t>& tweak) {
-   const Botan::BigInt n = 1000000000000000;
+   const Botan::BigInt n(1000000000000000);
 
-   const uint64_t cc_ranked = cc_rank(enc_cc);
-
-   const Botan::BigInt c = Botan::FPE::fe1_decrypt(n, cc_ranked, key, tweak);
+   const Botan::BigInt c = Botan::FPE::fe1_decrypt(n, Botan::BigInt::from_u64(cc_rank(enc_cc)), key, tweak);
 
    if(c.bits() > 50) {
       throw CLI_Error("FPE produced a number too large");
@@ -93,8 +90,6 @@ uint64_t decrypt_cc_number(uint64_t enc_cc, const Botan::SymmetricKey& key, cons
    }
    return cc_derank(dec_cc);
 }
-
-}  // namespace
 
 class CC_Encrypt final : public Command {
    public:
@@ -151,6 +146,8 @@ class CC_Decrypt final : public Command {
 };
 
 BOTAN_REGISTER_COMMAND("cc_decrypt", CC_Decrypt);
+
+}  // namespace
 
 }  // namespace Botan_CLI
 

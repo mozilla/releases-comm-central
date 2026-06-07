@@ -10,7 +10,6 @@
 #include <botan/internal/ml_kem_impl.h>
 
 #include <botan/internal/ct_utils.h>
-#include <botan/internal/kyber_algos.h>
 #include <botan/internal/kyber_constants.h>
 #include <botan/internal/kyber_types.h>
 
@@ -25,13 +24,13 @@ namespace Botan {
 void ML_KEM_Encryptor::encapsulate(StrongSpan<KyberCompressedCiphertext> out_encapsulated_key,
                                    StrongSpan<KyberSharedSecret> out_shared_key,
                                    RandomNumberGenerator& rng) {
-   const auto& sym = m_public_key->mode().symmetric_primitives();
+   const auto& sym = mode().symmetric_primitives();
 
    const auto m = rng.random_vec<KyberMessage>(KyberConstants::SEED_BYTES);
    auto scope = CT::scoped_poison(m);
 
    const auto [K, r] = sym.G(m, m_public_key->H_public_key_bits_raw());
-   m_public_key->indcpa_encrypt(out_encapsulated_key, m, r, precomputed_matrix_At());
+   m_public_key->indcpa_encrypt(out_encapsulated_key, m, r, precomputed_matrix_At(), mode());
 
    // TODO: avoid this copy by letting sym.G() directly write to the span.
    copy_mem(out_shared_key, K);
@@ -49,7 +48,7 @@ void ML_KEM_Decryptor::decapsulate(StrongSpan<KyberSharedSecret> out_shared_key,
                                    StrongSpan<const KyberCompressedCiphertext> c) {
    auto scope = CT::scoped_poison(*m_private_key);
 
-   const auto& sym = m_public_key->mode().symmetric_primitives();
+   const auto& sym = mode().symmetric_primitives();
 
    const auto& h = m_public_key->H_public_key_bits_raw();
    const auto& z = m_private_key->z();
@@ -58,11 +57,11 @@ void ML_KEM_Decryptor::decapsulate(StrongSpan<KyberSharedSecret> out_shared_key,
    const auto [K_prime, r_prime] = sym.G(m_prime, h);
 
    const auto K_bar = sym.J(z, c);
-   const auto c_prime = m_public_key->indcpa_encrypt(m_prime, r_prime, precomputed_matrix_At());
+   const auto c_prime = m_public_key->indcpa_encrypt(m_prime, r_prime, precomputed_matrix_At(), mode());
 
    BOTAN_ASSERT_NOMSG(c.size() == c_prime.size());
    BOTAN_ASSERT_NOMSG(K_prime.size() == K_bar.size() && out_shared_key.size() == K_bar.size());
-   const auto reencrypt_success = CT::is_equal(c.data(), c_prime.data(), c.size());
+   const auto reencrypt_success = CT::is_equal<uint8_t>(c, c_prime);
    CT::conditional_copy_mem(reencrypt_success, out_shared_key.data(), K_prime.data(), K_bar.data(), K_prime.size());
 
    CT::unpoison(out_shared_key);

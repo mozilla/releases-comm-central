@@ -56,14 +56,14 @@ class Stream;
  */
 class StreamCallbacks : public Callbacks {
    public:
-      StreamCallbacks() {}
+      StreamCallbacks() = default;
 
       void tls_emit_data(std::span<const uint8_t> data) final {
          m_send_buffer.commit(boost::asio::buffer_copy(m_send_buffer.prepare(data.size()),
                                                        boost::asio::buffer(data.data(), data.size())));
       }
 
-      void tls_record_received(uint64_t, std::span<const uint8_t> data) final {
+      void tls_record_received(uint64_t /*record_number*/, std::span<const uint8_t> data) final {
          m_receive_buffer.commit(boost::asio::buffer_copy(m_receive_buffer.prepare(data.size()),
                                                           boost::asio::const_buffer(data.data(), data.size())));
       }
@@ -241,7 +241,7 @@ class Stream {
       //! \name boost::asio accessor methods
       //! @{
 
-      using next_layer_type = typename std::remove_reference<StreamLayer>::type;
+      using next_layer_type = std::remove_reference_t<StreamLayer>;
 
       const next_layer_type& next_layer() const { return m_nextLayer; }
 
@@ -257,7 +257,7 @@ class Stream {
 
       executor_type get_executor() noexcept { return m_nextLayer.get_executor(); }
 
-      using native_handle_type = typename std::add_pointer<ChannelT>::type;
+      using native_handle_type = std::add_pointer_t<ChannelT>;
 
       native_handle_type native_handle() {
          if(m_native_handle == nullptr) {
@@ -341,7 +341,7 @@ class Stream {
        * The function call will block until handshaking is complete or an error occurs.
        *
        * @param side The type of handshaking to be performed, i.e. as a client or as a server.
-       * @throws boost::system::system_error if error occured
+       * @throws boost::system::system_error if error occurred
        */
       void handshake(Connection_Side side) {
          boost::system::error_code ec;
@@ -361,7 +361,7 @@ class Stream {
          setup_native_handle(side, ec);
 
          // We write to the socket if we have data to send and read from it
-         // otherwise, until either some error occured or we have successfully
+         // otherwise, until either some error occurred or we have successfully
          // performed the handshake.
          while(!ec) {
             // Send pending data to the peer and abort the handshake if that
@@ -402,6 +402,7 @@ class Stream {
        */
       template <detail::basic_completion_token CompletionToken = default_completion_token>
       auto async_handshake(Botan::TLS::Connection_Side side,
+                           // NOLINTNEXTLINE(*-missing-std-forward)
                            CompletionToken&& completion_token = default_completion_token{}) {
          return boost::asio::async_initiate<CompletionToken, void(boost::system::error_code)>(
             [this](auto&& completion_handler, TLS::Connection_Side connection_side) {
@@ -410,7 +411,7 @@ class Stream {
                boost::system::error_code ec;
                setup_native_handle(connection_side, ec);
 
-               detail::AsyncHandshakeOperation<completion_handler_t, Stream> op{
+               const detail::AsyncHandshakeOperation<completion_handler_t, Stream> op{
                   std::forward<completion_handler_t>(completion_handler), *this, ec};
             },
             completion_token,
@@ -424,7 +425,7 @@ class Stream {
       template <typename ConstBufferSequence, detail::basic_completion_token BufferedHandshakeHandler>
       auto async_handshake([[maybe_unused]] Connection_Side side,
                            [[maybe_unused]] const ConstBufferSequence& buffers,
-                           [[maybe_unused]] BufferedHandshakeHandler&& handler) {
+                           [[maybe_unused]] BufferedHandshakeHandler&& handler /* NOLINT(*missing-std-forward) */) {
          throw Not_Implemented("buffered async handshake is not implemented");
       }
 
@@ -440,7 +441,7 @@ class Stream {
        *
        * Note that this can be used in reaction of a received shutdown alert from the peer.
        *
-       * @param ec Set to indicate what error occured, if any.
+       * @param ec Set to indicate what error occurred, if any.
        */
       void shutdown(boost::system::error_code& ec) {
          try_with_error_code([&] { native_handle()->close(); }, ec);
@@ -456,7 +457,7 @@ class Stream {
        *
        * Note that this can be used in reaction of a received shutdown alert from the peer.
        *
-       * @throws boost::system::system_error if error occured
+       * @throws boost::system::system_error if error occurred
        */
       void shutdown() {
          boost::system::error_code ec;
@@ -474,7 +475,7 @@ class Stream {
        */
       template <typename Handler, typename Executor>
       struct Wrapper {
-            void operator()(boost::system::error_code ec, std::size_t) { handler(ec); }
+            void operator()(boost::system::error_code ec, std::size_t /*unused*/) { handler(ec); }
 
             using executor_type = boost::asio::associated_executor_t<Handler, Executor>;
 
@@ -486,8 +487,8 @@ class Stream {
 
             allocator_type get_allocator() const noexcept { return boost::asio::get_associated_allocator(handler); }
 
-            Handler handler;
-            Executor io_executor;
+            Handler handler;       // NOLINT(*-non-private-member-variable*)
+            Executor io_executor;  // NOLINT(*-non-private-member-variable*)
       };
 
    public:
@@ -502,6 +503,7 @@ class Stream {
        *                         The completion signature of the handler must be: void(boost::system::error_code).
        */
       template <detail::basic_completion_token CompletionToken = default_completion_token>
+      // NOLINTNEXTLINE(*-missing-std-forward)
       auto async_shutdown(CompletionToken&& completion_token = default_completion_token{}) {
          return boost::asio::async_initiate<CompletionToken, void(boost::system::error_code)>(
             [this](auto&& completion_handler) {
@@ -512,7 +514,7 @@ class Stream {
 
                using write_handler_t = Wrapper<completion_handler_t, typename Stream::executor_type>;
 
-               TLS::detail::AsyncWriteOperation<write_handler_t, Stream> op{
+               const TLS::detail::AsyncWriteOperation<write_handler_t, Stream> op{
                   write_handler_t{std::forward<completion_handler_t>(completion_handler), get_executor()},
                   *this,
                   boost::asio::buffer_size(send_buffer()),
@@ -538,7 +540,7 @@ class Stream {
        */
       template <typename MutableBufferSequence>
       std::size_t read_some(const MutableBufferSequence& buffers, boost::system::error_code& ec) {
-         // We read from the socket until either some error occured or we have
+         // We read from the socket until either some error occurred or we have
          // decrypted at least one byte of application data.
          while(!ec) {
             // Some previous invocation of process_encrypted_data() generated
@@ -574,7 +576,7 @@ class Stream {
        *
        * @param buffers The buffers into which the data will be read.
        * @return The number of bytes read. Returns 0 if an error occurred.
-       * @throws boost::system::system_error if error occured
+       * @throws boost::system::system_error if error occurred
        */
       template <typename MutableBufferSequence>
       std::size_t read_some(const MutableBufferSequence& buffers) {
@@ -609,7 +611,7 @@ class Stream {
        *
        * @param buffers The data to be written.
        * @return The number of bytes written.
-       * @throws boost::system::system_error if error occured
+       * @throws boost::system::system_error if error occurred
        */
       template <typename ConstBufferSequence>
       std::size_t write_some(const ConstBufferSequence& buffers) {
@@ -630,6 +632,7 @@ class Stream {
       template <typename ConstBufferSequence,
                 detail::byte_size_completion_token CompletionToken = default_completion_token>
       auto async_write_some(const ConstBufferSequence& buffers,
+                            // NOLINTNEXTLINE(*-missing-std-forward)
                             CompletionToken&& completion_token = default_completion_token{}) {
          return boost::asio::async_initiate<CompletionToken, void(boost::system::error_code, std::size_t)>(
             [this](auto&& completion_handler, const auto& bufs) {
@@ -644,7 +647,7 @@ class Stream {
                   m_core->send_buffer().consume(m_core->send_buffer().size());
                }
 
-               detail::AsyncWriteOperation<completion_handler_t, Stream> op{
+               const detail::AsyncWriteOperation<completion_handler_t, Stream> op{
                   std::forward<completion_handler_t>(completion_handler),
                   *this,
                   ec ? 0 : boost::asio::buffer_size(bufs),
@@ -666,12 +669,13 @@ class Stream {
       template <typename MutableBufferSequence,
                 detail::byte_size_completion_token CompletionToken = default_completion_token>
       auto async_read_some(const MutableBufferSequence& buffers,
+                           // NOLINTNEXTLINE(*-missing-std-forward)
                            CompletionToken&& completion_token = default_completion_token{}) {
          return boost::asio::async_initiate<CompletionToken, void(boost::system::error_code, std::size_t)>(
             [this](auto&& completion_handler, const auto& bufs) {
                using completion_handler_t = std::decay_t<decltype(completion_handler)>;
 
-               detail::AsyncReadOperation<completion_handler_t, Stream, MutableBufferSequence> op{
+               const detail::AsyncReadOperation<completion_handler_t, Stream, MutableBufferSequence> op{
                   std::forward<completion_handler_t>(completion_handler), *this, bufs};
             },
             completion_token,
@@ -731,7 +735,7 @@ class Stream {
       void setup_native_handle(Connection_Side side, boost::system::error_code& ec) {
          // Do not attempt to instantiate the native_handle when a custom (mocked) channel type template parameter has
          // been specified. This allows mocking the native_handle in test code.
-         if constexpr(std::is_same<ChannelT, Channel>::value) {
+         if constexpr(std::is_same_v<ChannelT, Channel>) {
             if(m_native_handle != nullptr) {
                throw Botan::Invalid_State("ASIO native handle unexpectedly set");
             }
@@ -835,7 +839,7 @@ class Stream {
          // the peer and report any sort of network error. TLS related errors do
          // not immediately cause an abort, they are checked in the invocation
          // via `error_from_us()`.
-         boost::asio::const_buffer read_buffer{input_buffer().data(), m_nextLayer.read_some(input_buffer(), ec)};
+         const boost::asio::const_buffer read_buffer{input_buffer().data(), m_nextLayer.read_some(input_buffer(), ec)};
          if(!ec) {
             process_encrypted_data(read_buffer);
          } else if(ec == boost::asio::error::eof) {
@@ -958,16 +962,16 @@ class Stream {
       boost::system::error_code error_from_us() const { return m_ec_from_last_read; }
 
    protected:
-      std::shared_ptr<Context> m_context;
-      StreamLayer m_nextLayer;
+      std::shared_ptr<Context> m_context;  // NOLINT(*-non-private-member-variable*)
+      StreamLayer m_nextLayer;             // NOLINT(*-non-private-member-variable*)
 
-      std::shared_ptr<StreamCallbacks> m_core;
-      std::unique_ptr<ChannelT> m_native_handle;
-      boost::system::error_code m_ec_from_last_read;
+      std::shared_ptr<StreamCallbacks> m_core;        // NOLINT(*-non-private-member-variable*)
+      std::unique_ptr<ChannelT> m_native_handle;      // NOLINT(*-non-private-member-variable*)
+      boost::system::error_code m_ec_from_last_read;  // NOLINT(*-non-private-member-variable*)
 
       // Buffer space used to read input intended for the core
-      std::vector<uint8_t> m_input_buffer_space;
-      const boost::asio::mutable_buffer m_input_buffer;
+      std::vector<uint8_t> m_input_buffer_space;         // NOLINT(*-non-private-member-variable*)
+      const boost::asio::mutable_buffer m_input_buffer;  // NOLINT(*-non-private-member-variable*)
 };
 
 // deduction guides for convenient construction from an existing

@@ -7,13 +7,13 @@
 
 #include <botan/internal/semaphore.h>
 
-// Based on code by Pierre Gaston (http://p9as.blogspot.com/2012/06/c11-semaphores.html)
+// Based on code by Pierre Gaston
 
 namespace Botan {
 
 void Semaphore::release(size_t n) {
    for(size_t i = 0; i != n; ++i) {
-      std::lock_guard<std::mutex> lock(m_mutex);
+      const std::scoped_lock<std::mutex> lock(m_mutex);
 
       if(m_value++ < 0) {
          ++m_wakeups;

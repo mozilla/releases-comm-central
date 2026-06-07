@@ -10,15 +10,15 @@
 
 #include <botan/exceptn.h>
 #include <botan/types.h>
+#include <botan/xof.h>
+#include <botan/internal/buffer_slicer.h>
+#include <botan/internal/buffer_stuffer.h>
+#include <botan/internal/concat_util.h>
 #include <botan/internal/ct_utils.h>
 #include <botan/internal/loadstor.h>
-#include <botan/internal/shake_xof.h>
-#include <botan/internal/stl_util.h>
 
 namespace Botan {
 namespace {
-
-constexpr uint64_t MINUS_D = 39081;
 
 std::vector<uint8_t> dom4(uint8_t x, std::span<const uint8_t> y) {
    // RFC 8032 2. Notation and Conventions
@@ -35,11 +35,11 @@ std::vector<uint8_t> dom4(uint8_t x, std::span<const uint8_t> y) {
 
 template <ranges::spanable_range... Ts>
 std::array<uint8_t, 2 * ED448_LEN> shake(bool f, std::span<const uint8_t> context, Ts... xs) {
-   auto shake_xof = SHAKE_256_XOF();
-   shake_xof.update(dom4(static_cast<uint8_t>(f), context));
-   (shake_xof.update(std::span(xs)), ...);
-   std::array<uint8_t, 2 * ED448_LEN> res;
-   shake_xof.output(res);
+   auto shake_xof = XOF::create_or_throw("SHAKE-256");
+   shake_xof->update(dom4(static_cast<uint8_t>(f), context));
+   (shake_xof->update(std::span(xs)), ...);
+   std::array<uint8_t, 2 * ED448_LEN> res{};
+   shake_xof->output(res);
    return res;
 }
 
@@ -56,7 +56,7 @@ Scalar448 scalar_from_xof(XOF& shake_xof) {
    // 1. Hash the 57-byte private key using SHAKE256(x, 114), storing the
    //    digest in a 114-octet large buffer, denoted h. Only the lower 57
    //    bytes are used for generating the public key.
-   std::array<uint8_t, ED448_LEN> raw_s;
+   std::array<uint8_t, ED448_LEN> raw_s{};
    shake_xof.output(raw_s);
    // 2. Prune the buffer: The two least significant bits of the first
    //    octet are cleared, all eight bits the last octet are cleared, and
@@ -96,9 +96,8 @@ Ed448Point Ed448Point::decode(std::span<const uint8_t, ED448_LEN> enc) {
    //    inversion of v and the square root:
    //                      (p+1)/4    3            (p-3)/4
    //             x = (u/v)        = u  v (u^5 v^3)         (mod p)
-   const auto d = -Gf448Elem(MINUS_D);
-   const auto u = square(Gf448Elem(y)) - 1;
-   const auto v = d * square(Gf448Elem(y)) - 1;
+   const auto u = square(Gf448Elem(y)) - Gf448Elem::one();
+   const auto v = -mul_a24(square(Gf448Elem(y))) - Gf448Elem::one();
    const auto maybe_x = (u * square(u)) * v * root((square(square(u)) * u) * square(v) * v);
 
    // 3. If v * x^2 = u, the recovered x-coordinate is x.  Otherwise, no
@@ -112,10 +111,10 @@ Ed448Point Ed448Point::decode(std::span<const uint8_t, ED448_LEN> enc) {
    if(maybe_x.is_zero() && x_distinguisher) {
       throw Decoding_Error("Square root of zero cannot be odd");
    }
-   bool maybe_x_parity = maybe_x.is_odd();
-   std::array<uint64_t, WORDS_448> x_data;
-   CT::Mask<uint64_t>::expand(maybe_x_parity == x_distinguisher)
-      .select_n(x_data.data(), maybe_x.words().data(), (-maybe_x).words().data(), 7);
+   const bool maybe_x_parity = maybe_x.is_odd();
+   std::array<uint64_t, WORDS_448> x_data{};
+   CT::Mask<uint64_t>::expand_bool(maybe_x_parity == x_distinguisher)
+      .select_n(x_data.data(), maybe_x.words().data(), (-maybe_x).words().data(), WORDS_448);
 
    return {Gf448Elem(x_data), y};
 }
@@ -161,7 +160,7 @@ Ed448Point Ed448Point::operator+(const Ed448Point& other) const {
    const Gf448Elem B = square(A);
    const Gf448Elem C = m_x * other.m_x;
    const Gf448Elem D = m_y * other.m_y;
-   const Gf448Elem E = (-Gf448Elem(MINUS_D)) * C * D;
+   const Gf448Elem E = -mul_a24(C * D);
    const Gf448Elem F = B - E;
    const Gf448Elem G = B + E;
    const Gf448Elem H = (m_x + m_y) * (other.m_x + other.m_y);
@@ -188,33 +187,179 @@ Ed448Point Ed448Point::double_point() const {
 }
 
 Ed448Point Ed448Point::scalar_mul(const Scalar448& s) const {
-   Ed448Point res(0, 1);
+   // 4-bit windowed scalar multiplication.
+   std::array<Ed448Point, 16> table = {Ed448Point::identity(),
+                                       *this,
+                                       Ed448Point::identity(),
+                                       Ed448Point::identity(),
+                                       Ed448Point::identity(),
+                                       Ed448Point::identity(),
+                                       Ed448Point::identity(),
+                                       Ed448Point::identity(),
+                                       Ed448Point::identity(),
+                                       Ed448Point::identity(),
+                                       Ed448Point::identity(),
+                                       Ed448Point::identity(),
+                                       Ed448Point::identity(),
+                                       Ed448Point::identity(),
+                                       Ed448Point::identity(),
+                                       Ed448Point::identity()};
 
-   // Square and multiply (double and add) in constant time.
-   // TODO: Optimization potential. E.g. for a = *this precompute
-   //       0, a, 2a, 3a, ..., 15a and ct select and add the right one for
-   //       each 4 bit window instead of conditional add.
-   for(int16_t i = 445; i >= 0; --i) {
-      res = res.double_point();
-      // Conditional add if bit is set
-      auto add_sum = res + *this;
-      res.ct_conditional_assign(s.get_bit(i), add_sum);
+   for(size_t i = 2; i < 16; ++i) {
+      if(i % 2 == 0) {
+         table[i] = table[i / 2].double_point();
+      } else {
+         table[i] = table[i - 1] + *this;
+      }
    }
+
+   // Process 448 bits (446-bit scalar + 2 leading zero bits) in 112 4-bit windows
+   auto res = Ed448Point::identity();
+
+   for(int window = 111; window >= 0; --window) {
+      // Double 4 times
+      res = res.double_point();
+      res = res.double_point();
+      res = res.double_point();
+      res = res.double_point();
+
+      // Extract 4-bit window value. Bits at position >= 446 are zero.
+      const uint64_t w = s.get_window(static_cast<size_t>(window) * 4, 4);
+
+      // Constant-time table lookup
+      auto selected = Ed448Point::identity();
+      for(size_t i = 0; i < 16; ++i) {
+         const auto correct_idx = CT::Mask<uint64_t>::is_equal(static_cast<uint64_t>(i), w);
+         selected.ct_conditional_assign(correct_idx, table[i]);
+      }
+
+      res = res + selected;
+   }
+
+   return res;
+}
+
+Ed448Point Ed448Point::base_point_mul(const Scalar448& scalar) {
+   /*
+   Fixed base point multiplication
+
+   Same idea as base point multiply used in pcurves
+   */
+   constexpr size_t W = 4;
+   constexpr size_t WindowElements = (1 << W) - 1;         // 15
+   constexpr size_t Windows = (448 + W - 1) / W;           // 112
+   constexpr size_t TableSize = Windows * WindowElements;  // 1680
+
+   static const auto table = []() {
+      std::vector<Ed448Point> tbl(TableSize, Ed448Point::identity());
+
+      auto accum = Ed448Point::base_point();
+
+      for(size_t i = 0; i < TableSize; i += WindowElements) {
+         tbl[i] = accum;
+
+         for(size_t j = 1; j < WindowElements; ++j) {
+            if(j % 2 == 1) {
+               tbl[i + j] = tbl[i + j / 2].double_point();
+            } else {
+               tbl[i + j] = tbl[i + j - 1] + tbl[i];
+            }
+         }
+
+         accum = tbl[i + (WindowElements / 2)].double_point();
+      }
+
+      return tbl;
+   }();
+
+   auto res = Ed448Point::identity();
+
+   for(size_t i = 0; i != Windows; ++i) {
+      const uint8_t w = static_cast<uint8_t>(scalar.get_window(i * W, W));
+
+      // Constant-time table lookup from this window's 15-entry subtable
+      auto selected = Ed448Point::identity();
+      for(size_t j = 0; j != WindowElements; ++j) {
+         const auto assign = CT::Mask<uint64_t>::is_equal(j + 1, w);
+         selected.ct_conditional_assign(assign, table[i * WindowElements + j]);
+      }
+
+      res = res + selected;
+   }
+
+   return res;
+}
+
+Ed448Point Ed448Point::double_scalar_mul_vartime(const Scalar448& s1,
+                                                 const Ed448Point& p1,
+                                                 const Scalar448& s2,
+                                                 const Ed448Point& p2) {
+   // 2-bit 2-ary Shamir's trick (variable time)
+   // Process 2 bits from each scalar per iteration, using a 16-entry table.
+   // table[w1 | (w2 << 2)] = w1*p1 + w2*p2, for w1,w2 in 0..3.
+
+   // Precompute small multiples of each point
+   const auto p1x2 = p1.double_point();
+   const auto p1x3 = p1x2 + p1;
+   const auto p2x2 = p2.double_point();
+   const auto p2x3 = p2x2 + p2;
+
+   // Build table indexed by (w2 << 2) | w1, excluding identity at index 0
+   const std::array<Ed448Point, 15> table = {
+      p1,           // 1*p1 + 0*p2
+      p1x2,         // 2*p1 + 0*p2
+      p1x3,         // 3*p1 + 0*p2
+      p2,           // 0*p1 + 1*p2
+      p1 + p2,      // 1*p1 + 1*p2
+      p1x2 + p2,    // 2*p1 + 1*p2
+      p1x3 + p2,    // 3*p1 + 1*p2
+      p2x2,         // 0*p1 + 2*p2
+      p1 + p2x2,    // 1*p1 + 2*p2
+      p1x2 + p2x2,  // 2*p1 + 2*p2
+      p1x3 + p2x2,  // 3*p1 + 2*p2
+      p2x3,         // 0*p1 + 3*p2
+      p1 + p2x3,    // 1*p1 + 3*p2
+      p1x2 + p2x3,  // 2*p1 + 3*p2
+      p1x3 + p2x3,  // 3*p1 + 3*p2
+   };
+
+   auto res = Ed448Point::identity();
+
+   // 446 bits / 2 = 223 windows, covering bit positions 0..445
+   for(int window = 222; window >= 0; --window) {
+      res = res.double_point();
+      res = res.double_point();
+
+      const size_t bit_pos = static_cast<size_t>(window) * 2;
+      const size_t idx = s1.get_window(bit_pos, 2) | (s2.get_window(bit_pos, 2) << 2);
+
+      if(idx > 0) {
+         res = res + table[idx - 1];
+      }
+   }
+
    return res;
 }
 
 bool Ed448Point::operator==(const Ed448Point& other) const {
-   // Note that the operator== of of Gf448Elem is constant time
-   const auto mask_x = CT::Mask<uint8_t>::expand(x() == other.x());
-   const auto mask_y = CT::Mask<uint8_t>::expand(y() == other.y());
+   // Compare in projective coordinates: (X1:Y1:Z1) == (X2:Y2:Z2)
+   // iff X1*Z2 == X2*Z1 && Y1*Z2 == Y2*Z1
+   // This avoids two field inversions that x() and y() would require.
+   const auto lhs_x = m_x * other.m_z;
+   const auto rhs_x = other.m_x * m_z;
+   const auto lhs_y = m_y * other.m_z;
+   const auto rhs_y = other.m_y * m_z;
+
+   const auto mask_x = CT::Mask<uint8_t>::expand_bool(lhs_x == rhs_x);
+   const auto mask_y = CT::Mask<uint8_t>::expand_bool(lhs_y == rhs_y);
 
    return (mask_x & mask_y).as_bool();
 }
 
-void Ed448Point::ct_conditional_assign(bool cond, const Ed448Point& other) {
-   m_x.ct_cond_assign(cond, other.m_x);
-   m_y.ct_cond_assign(cond, other.m_y);
-   m_z.ct_cond_assign(cond, other.m_z);
+void Ed448Point::ct_conditional_assign(CT::Mask<uint64_t> mask, const Ed448Point& other) {
+   m_x.ct_cond_assign(mask, other.m_x);
+   m_y.ct_cond_assign(mask, other.m_y);
+   m_z.ct_cond_assign(mask, other.m_z);
 }
 
 Ed448Point operator*(const Scalar448& lhs, const Ed448Point& rhs) {
@@ -224,14 +369,14 @@ Ed448Point operator*(const Scalar448& lhs, const Ed448Point& rhs) {
 std::array<uint8_t, ED448_LEN> create_pk_from_sk(std::span<const uint8_t, ED448_LEN> sk) {
    // 5.2.5. Key Generation
    // The 57-byte public key is generated by the following steps:
-   auto shake_xof = SHAKE_256_XOF();
-   shake_xof.update(sk);
+   auto shake_xof = XOF::create_or_throw("SHAKE-256");
+   shake_xof->update(sk);
 
-   const Scalar448 s = scalar_from_xof(shake_xof);
+   const Scalar448 s = scalar_from_xof(*shake_xof);
    // 3. Interpret the buffer as the little-endian integer, forming a
    //    secret scalar s. Perform a known-base-point scalar
    //    multiplication [s]B.
-   return (s * Ed448Point::base_point()).encode();
+   return Ed448Point::base_point_mul(s).encode();
 }
 
 std::array<uint8_t, 2 * ED448_LEN> sign_message(std::span<const uint8_t, ED448_LEN> sk,
@@ -248,11 +393,11 @@ std::array<uint8_t, 2 * ED448_LEN> sign_message(std::span<const uint8_t, ED448_L
    //    the first half of the digest, and the corresponding public key A,
    //    as described in the previous section. Let prefix denote the
    //    second half of the hash digest, h[57],...,h[113].
-   auto shake_xof = SHAKE_256_XOF();
-   shake_xof.update(sk);
-   const Scalar448 s = scalar_from_xof(shake_xof);
-   std::array<uint8_t, ED448_LEN> prefix;
-   shake_xof.output(prefix);
+   auto shake_xof = XOF::create_or_throw("SHAKE-256");
+   shake_xof->update(sk);
+   const Scalar448 s = scalar_from_xof(*shake_xof);
+   std::array<uint8_t, ED448_LEN> prefix{};
+   shake_xof->output(prefix);
    // 2. Compute SHAKE256(dom4(F, C) || prefix || PH(M), 114), where M is
    //    the message to be signed, F is 1 for Ed448ph, 0 for Ed448, and C
    //    is the context to use. Interpret the 114-octet digest as a
@@ -261,7 +406,7 @@ std::array<uint8_t, 2 * ED448_LEN> sign_message(std::span<const uint8_t, ED448_L
    // 3. Compute the point [r]B. For efficiency, do this by first
    //    reducing r modulo L, the group order of B. Let the string R be
    //    the encoding of this point.
-   const auto big_r = (r * Ed448Point::base_point()).encode();
+   const auto big_r = Ed448Point::base_point_mul(r).encode();
    // 4. Compute SHAKE256(dom4(F, C) || R || A || PH(M), 114), and
    //    interpret the 114-octet digest as a little-endian integer k.
    const Scalar448 k(shake(pgflag, context, big_r, pk, msg));
@@ -271,7 +416,7 @@ std::array<uint8_t, 2 * ED448_LEN> sign_message(std::span<const uint8_t, ED448_L
    // 6. Form the signature of the concatenation of R (57 octets) and the
    //    little-endian encoding of S (57 octets; the ten most significant
    //    bits of the final octets are always zero).
-   std::array<uint8_t, 2 * ED448_LEN> sig;
+   std::array<uint8_t, 2 * ED448_LEN> sig{};
    BufferStuffer stuf(sig);
    stuf.append(big_r);
    stuf.append(big_s.to_bytes<ED448_LEN>());
@@ -309,7 +454,9 @@ bool verify_signature(std::span<const uint8_t, ED448_LEN> pk,
    const Scalar448 k(shake(phflag, context, big_r_bytes, pk, msg));
    // 3. Check the group equation [4][S]B = [4]R + [4][k]A’. It’s
    //    sufficient, but not required, to instead check [S]B = R + [k]A’.
-   return (big_s * Ed448Point::base_point()) == (big_r + k * Ed448Point::decode(pk));
+   //    Rearranged as [S]B + [k](-A’) = R, computed via Shamir’s trick.
+   const auto neg_A = Ed448Point::decode(pk).negate();
+   return Ed448Point::double_scalar_mul_vartime(big_s, Ed448Point::base_point(), k, neg_A) == big_r;
 }
 
 }  // namespace Botan

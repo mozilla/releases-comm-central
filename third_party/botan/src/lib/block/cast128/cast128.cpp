@@ -7,6 +7,7 @@
 
 #include <botan/internal/cast128.h>
 
+#include <botan/mem_ops.h>
 #include <botan/internal/loadstor.h>
 #include <botan/internal/rotate.h>
 
@@ -187,7 +188,10 @@ void CAST_128::encrypt_n(const uint8_t in[], uint8_t out[], size_t blocks) const
    assert_key_material_set();
 
    while(blocks >= 2) {
-      uint32_t L0, R0, L1, R1;
+      uint32_t L0 = 0;
+      uint32_t R0 = 0;
+      uint32_t L1 = 0;
+      uint32_t R1 = 0;
       load_be(in, L0, R0, L1, R1);
 
       L0 ^= F1(R0, m_MK[0], m_RK[0]);
@@ -230,8 +234,9 @@ void CAST_128::encrypt_n(const uint8_t in[], uint8_t out[], size_t blocks) const
       in += 2 * BLOCK_SIZE;
    }
 
-   if(blocks) {
-      uint32_t L, R;
+   if(blocks > 0) {
+      uint32_t L = 0;
+      uint32_t R = 0;
       load_be(in, L, R);
 
       L ^= F1(R, m_MK[0], m_RK[0]);
@@ -262,7 +267,10 @@ void CAST_128::decrypt_n(const uint8_t in[], uint8_t out[], size_t blocks) const
    assert_key_material_set();
 
    while(blocks >= 2) {
-      uint32_t L0, R0, L1, R1;
+      uint32_t L0 = 0;
+      uint32_t R0 = 0;
+      uint32_t L1 = 0;
+      uint32_t R1 = 0;
       load_be(in, L0, R0, L1, R1);
 
       L0 ^= F1(R0, m_MK[15], m_RK[15]);
@@ -305,8 +313,9 @@ void CAST_128::decrypt_n(const uint8_t in[], uint8_t out[], size_t blocks) const
       in += 2 * BLOCK_SIZE;
    }
 
-   if(blocks) {
-      uint32_t L, R;
+   if(blocks > 0) {
+      uint32_t L = 0;
+      uint32_t R = 0;
       load_be(in, L, R);
 
       L ^= F1(R, m_MK[15], m_RK[15]);
@@ -503,7 +512,8 @@ void CAST_128::cast_ks(secure_vector<uint32_t>& K, secure_vector<uint32_t>& X) {
    };
 
    secure_vector<uint32_t> Z(4);
-   ByteReader x(X.data()), z(Z.data());
+   const ByteReader x(X.data());
+   const ByteReader z(Z.data());
 
    Z[0] = X[0] ^ S5[x(13)] ^ S6[x(15)] ^ S7[x(12)] ^ S8[x(14)] ^ S7[x(8)];
    Z[1] = X[2] ^ S5[z(0)] ^ S6[z(2)] ^ S7[z(1)] ^ S8[z(3)] ^ S8[x(10)];

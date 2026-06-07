@@ -9,13 +9,11 @@
 
 #include <botan/internal/tls_channel_impl_13.h>
 
-#include <botan/hash.h>
-#include <botan/tls_messages.h>
-#include <botan/internal/stl_util.h>
+#include <botan/tls_callbacks.h>
+#include <botan/tls_exceptn.h>
+#include <botan/tls_messages_13.h>
+#include <botan/internal/concat_util.h>
 #include <botan/internal/tls_cipher_state.h>
-#include <botan/internal/tls_handshake_state.h>
-#include <botan/internal/tls_record.h>
-#include <botan/internal/tls_seq_numbers.h>
 
 #include <array>
 
@@ -124,7 +122,7 @@ size_t Channel_Impl_13::from_peer(std::span<const uint8_t> data) {
                   // Note: Server_Hello_12 was deliberately not included in the check below because in TLS 1.2 Server Hello and
                   //       other handshake messages can be legally coalesced in a single record.
                   //
-                  if(holds_any_of<Client_Hello_12,
+                  if(holds_any_of<Client_Hello_12_Shim,
                                   Client_Hello_13 /*, EndOfEarlyData,*/,
                                   Server_Hello_13,
                                   Hello_Retry_Request,
@@ -165,6 +163,10 @@ size_t Channel_Impl_13::from_peer(std::span<const uint8_t> data) {
          } else if(record.type == Record_Type::ChangeCipherSpec) {
             process_dummy_change_cipher_spec();
          } else if(record.type == Record_Type::ApplicationData) {
+            BOTAN_ASSERT_NONNULL(m_cipher_state);
+            if(!m_cipher_state->can_decrypt_application_traffic()) {
+               throw Unexpected_Message("Application data received before handshake completion");
+            }
             BOTAN_ASSERT(record.seq_no.has_value(), "decrypted application traffic had a sequence number");
             callbacks().tls_record_received(record.seq_no.value(), record.fragment);
          } else if(record.type == Record_Type::Alert) {
@@ -198,6 +200,7 @@ void Channel_Impl_13::handle(const Key_Update& key_update) {
       throw Unexpected_Message("Unexpected additional post-handshake message data found in record");
    }
 
+   BOTAN_ASSERT_NONNULL(m_cipher_state);
    m_cipher_state->update_read_keys(*this);
 
    // TODO: introduce some kind of rate limit of key updates, otherwise we
@@ -349,7 +352,7 @@ void Channel_Impl_13::send_record(Record_Type type, const std::vector<uint8_t>& 
 }
 
 void Channel_Impl_13::process_alert(const secure_vector<uint8_t>& record) {
-   Alert alert(record);
+   const Alert alert(record);
 
    if(is_close_notify_alert(alert)) {
       m_can_read = false;

@@ -15,7 +15,7 @@
 
 namespace Botan {
 
-uint32_t CPUID::CPUID_Data::detect_cpu_features(uint32_t allowed) {
+uint32_t CPUID::CPUID_Data::detect_cpu_features([[maybe_unused]] uint32_t allowed) {
    uint32_t feat = 0;
 
 #if defined(BOTAN_HAS_OS_UTILS)
@@ -23,7 +23,7 @@ uint32_t CPUID::CPUID_Data::detect_cpu_features(uint32_t allowed) {
    if(auto auxval = OS::get_auxval_hwcap()) {
       const auto [hwcap_altivec, hwcap_crypto] = *auxval;
 
-      enum class PPC_hwcap_bit : uint64_t {
+      enum class PPC_hwcap_bit : uint64_t /* NOLINT(performance-enum-size) */ {
          ALTIVEC_bit = (1 << 28),
          CRYPTO_bit = (1 << 25),
          DARN_bit = (1 << 21),
@@ -32,7 +32,7 @@ uint32_t CPUID::CPUID_Data::detect_cpu_features(uint32_t allowed) {
       feat |= if_set(hwcap_altivec, PPC_hwcap_bit::ALTIVEC_bit, CPUFeature::Bit::ALTIVEC, allowed);
 
    #if defined(BOTAN_TARGET_ARCH_IS_PPC64)
-      if(feat & CPUFeature::Bit::ALTIVEC) {
+      if(is_set(feat, CPUFeature::Bit::ALTIVEC)) {
          feat |= if_set(hwcap_crypto, PPC_hwcap_bit::CRYPTO_bit, CPUFeature::Bit::POWER_CRYPTO, allowed);
          feat |= if_set(hwcap_crypto, PPC_hwcap_bit::DARN_bit, CPUFeature::Bit::DARN, allowed);
       }
@@ -43,17 +43,20 @@ uint32_t CPUID::CPUID_Data::detect_cpu_features(uint32_t allowed) {
 #endif
 
 #if defined(BOTAN_USE_GCC_INLINE_ASM) && defined(BOTAN_HAS_OS_UTILS)
+
+   // NOLINTBEGIN(*-no-assembler)
+
    auto vmx_probe = []() noexcept -> int {
       asm("vor 0, 0, 0");
       return 1;
    };
 
-   if(allowed & CPUFeature::Bit::ALTIVEC) {
+   if(is_set(allowed, CPUFeature::Bit::ALTIVEC)) {
       if(OS::run_cpu_instruction_probe(vmx_probe) == 1) {
          feat |= CPUFeature::Bit::ALTIVEC;
       }
 
-   #if defined(BOTAN_TARGET_CPU_IS_PPC64)
+   #if defined(BOTAN_TARGET_ARCH_IS_PPC64)
       auto vcipher_probe = []() noexcept -> int {
          asm("vcipher 0, 0, 0");
          return 1;
@@ -65,7 +68,7 @@ uint32_t CPUID::CPUID_Data::detect_cpu_features(uint32_t allowed) {
          return (~output) != 0;
       };
 
-      if(feat & CPUFeature::Bit::ALTIVEC) {
+      if(is_set(feat, CPUFeature::Bit::ALTIVEC)) {
          if(OS::run_cpu_instruction_probe(vcipher_probe) == 1) {
             feat |= CPUFeature::Bit::POWER_CRYPTO & allowed;
          }
@@ -76,6 +79,8 @@ uint32_t CPUID::CPUID_Data::detect_cpu_features(uint32_t allowed) {
       }
    #endif
    }
+
+   // NOLINTBEGIN(*-no-assembler)
 
 #endif
 

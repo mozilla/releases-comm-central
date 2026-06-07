@@ -41,7 +41,6 @@ snail-mail address (S), and Bitcoin address (B).
 
   N: Simon Cogliani
   E: simon.cogliani@tanker.io
-  W: https://www.tanker.io/
   P: EA73 D0AF 5A81 A61A 8931  C2CA C9AB F2E4 3820 4F25
   D: Getting keystream of ChaCha
   S: Paris, France
@@ -93,6 +92,12 @@ snail-mail address (S), and Bitcoin address (B).
 
   N: Justin Karneges
   D: Qt support modules (mutexes and types), X.509 API design
+
+  N: Kagan Can Sit
+  E: kagancansit@hotmail.com
+  W: https://kagancansit.github.io
+  D: C++20 modernization, performance optimizations, code quality improvements
+  S: Turkey
 
   N: Rostyslav Khudolii
   E: rhudoliy@gmail.com
@@ -185,7 +190,6 @@ snail-mail address (S), and Bitcoin address (B).
 
   N: Simon Warta
   E: simon@kullo.net
-  W: https://www.kullo.net
   D: Build system
   S: Germany
 

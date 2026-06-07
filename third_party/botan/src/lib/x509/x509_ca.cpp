@@ -7,12 +7,13 @@
 
 #include <botan/x509_ca.h>
 
+#include <botan/asn1_obj.h>
+#include <botan/asn1_time.h>
 #include <botan/bigint.h>
 #include <botan/der_enc.h>
 #include <botan/pkcs10.h>
 #include <botan/pubkey.h>
 #include <botan/x509_ext.h>
-#include <botan/x509_key.h>
 
 namespace Botan {
 
@@ -34,8 +35,8 @@ X509_CA::X509_CA(const X509_Certificate& cert,
    m_hash_fn = m_signer->hash_function();
 }
 
-X509_CA::X509_CA(X509_CA&&) = default;
-X509_CA& X509_CA::operator=(X509_CA&&) = default;
+X509_CA::X509_CA(X509_CA&&) noexcept = default;
+X509_CA& X509_CA::operator=(X509_CA&&) noexcept = default;
 
 X509_CA::~X509_CA() = default;
 
@@ -51,7 +52,8 @@ Extensions X509_CA::choose_extensions(const PKCS10_Request& req,
 
    Extensions extensions = req.extensions();
 
-   extensions.replace(std::make_unique<Cert_Extension::Basic_Constraints>(req.is_CA(), req.path_limit()), true);
+   extensions.replace(std::make_unique<Cert_Extension::Basic_Constraints>(req.is_CA(), req.path_length_constraint()),
+                      true);
 
    if(!constraints.empty()) {
       extensions.replace(std::make_unique<Cert_Extension::Key_Usage>(constraints), true);
@@ -116,7 +118,7 @@ X509_Certificate X509_CA::make_cert(PK_Signer& signer,
                                     const X509_DN& subject_dn,
                                     const Extensions& extensions) {
    const size_t SERIAL_BITS = 128;
-   BigInt serial_no(rng, SERIAL_BITS);
+   const BigInt serial_no(rng, SERIAL_BITS);
 
    return make_cert(
       signer, rng, serial_no, sig_algo, pub_key, not_before, not_after, issuer_dn, subject_dn, extensions);
@@ -164,7 +166,7 @@ X509_Certificate X509_CA::make_cert(PK_Signer& signer,
              .end_cons()
          .end_explicit()
       .end_cons()
-      .get_contents()
+      .get_contents_unlocked()
       ));
    // clang-format on
 }
@@ -189,7 +191,7 @@ X509_CRL X509_CA::update_crl(const X509_CRL& crl,
 X509_CRL X509_CA::new_crl(RandomNumberGenerator& rng,
                           std::chrono::system_clock::time_point issue_time,
                           std::chrono::seconds next_update) const {
-   std::vector<CRL_Entry> empty;
+   const std::vector<CRL_Entry> empty;
    return make_crl(empty, 1, rng, issue_time, next_update);
 }
 
@@ -242,7 +244,7 @@ X509_CRL X509_CA::make_crl(const std::vector<CRL_Entry>& revoked,
             .end_cons()
          .end_explicit()
       .end_cons()
-      .get_contents());
+      .get_contents_unlocked());
    // clang-format on
 
    return X509_CRL(crl);

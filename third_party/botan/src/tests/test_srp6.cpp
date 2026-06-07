@@ -59,24 +59,24 @@ class SRP6_KAT_Tests final : public Text_Based_Test {
          auto group = Botan::DL_Group::from_name(group_id);
 
          const Botan::BigInt v = Botan::srp6_generate_verifier(username, password, salt, group_id, hash);
-         result.test_eq("SRP verifier", v, exp_v);
+         result.test_bn_eq("SRP verifier", v, exp_v);
 
          Botan::SRP6_Server_Session server;
 
          const size_t b_bits = Botan::BigInt::from_bytes(b).bits();
          Fixed_Output_RNG b_rng(b);
          const Botan::BigInt B = server.step1(v, group, hash, b_bits, b_rng);
-         result.test_eq("SRP B", B, exp_B);
+         result.test_bn_eq("SRP B", B, exp_B);
 
          const size_t a_bits = Botan::BigInt::from_bytes(a).bits();
          Fixed_Output_RNG a_rng(a);
          const auto srp_resp = Botan::srp6_client_agree(username, password, group, hash, salt, B, a_bits, a_rng);
-         result.test_eq("SRP A", srp_resp.first, exp_A);
+         result.test_bn_eq("SRP A", srp_resp.first, exp_A);
 
          const auto S = server.step2(srp_resp.first);
 
-         result.test_eq("SRP client S", srp_resp.second, exp_S);
-         result.test_eq("SRP server S", S, exp_S);
+         result.test_bin_eq("SRP client S", srp_resp.second, exp_S);
+         result.test_bin_eq("SRP server S", S, exp_S);
 
          return result;
       }
@@ -95,7 +95,7 @@ class SRP6_RT_Tests final : public Test {
          const std::string password = "Awellchosen1_to_be_sure_";
          const std::string hash_id = "SHA-256";
 
-         for(size_t b : {1024, 1536, 2048, 3072, 4096, 6144, 8192}) {
+         for(const size_t b : {1024, 1536, 2048, 3072, 4096, 6144, 8192}) {
             if(b >= 4096 && !Test::run_long_tests()) {
                continue;
             }
@@ -122,7 +122,7 @@ class SRP6_RT_Tests final : public Test {
 
                const Botan::SymmetricKey server_K = server.step2(client.first);
 
-               result.test_eq("computed same keys", client.second.bits_of(), server_K.bits_of());
+               result.test_bin_eq("computed same keys", client.second.bits_of(), server_K.bits_of());
             }
             result.end_timer();
             results.push_back(result);

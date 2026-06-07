@@ -7,6 +7,7 @@
 
 #include <botan/fpe_fe1.h>
 
+#include <botan/exceptn.h>
 #include <botan/mac.h>
 #include <botan/numthry.h>
 #include <botan/internal/divide.h>
@@ -40,7 +41,7 @@ void factor(BigInt n, BigInt& a, BigInt& b) {
    * fixing the factoring for those users.
    */
 
-   size_t n_low_zero = low_zero_bits(n);
+   const size_t n_low_zero = low_zero_bits(n);
 
    a <<= (n_low_zero / 2);
    b <<= n_low_zero - (n_low_zero / 2);
@@ -93,6 +94,8 @@ FPE_FE1::FPE_FE1(const BigInt& n, size_t rounds, bool compat_mode, std::string_v
       }
    }
 }
+
+FPE_FE1::FPE_FE1(FPE_FE1&& other) noexcept = default;
 
 FPE_FE1::~FPE_FE1() = default;
 
@@ -151,7 +154,9 @@ BigInt FPE_FE1::encrypt(const BigInt& input, const uint8_t tweak[], size_t tweak
 
    secure_vector<uint8_t> tmp;
 
-   BigInt L, R, Fi;
+   BigInt L;
+   BigInt R;
+   BigInt Fi;
    for(size_t i = 0; i != m_rounds; ++i) {
       ct_divide(X, m_b, L, R);
       Fi = F(R, i, tweak_mac, tmp);
@@ -167,7 +172,9 @@ BigInt FPE_FE1::decrypt(const BigInt& input, const uint8_t tweak[], size_t tweak
    BigInt X = input;
    secure_vector<uint8_t> tmp;
 
-   BigInt W, R, Fi;
+   BigInt W;
+   BigInt R;
+   BigInt Fi;
    for(size_t i = 0; i != m_rounds; ++i) {
       ct_divide(X, m_a, R, W);
 

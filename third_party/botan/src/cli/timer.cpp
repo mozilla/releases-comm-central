@@ -7,7 +7,6 @@
 #include "timer.h"
 
 #include <chrono>
-#include <iomanip>
 #include <sstream>
 
 #if defined(BOTAN_HAS_OS_UTILS)
@@ -64,7 +63,7 @@ uint64_t Timer::cycle_counter() {
 }
 
 void Timer::stop() {
-   if(m_timer_start) {
+   if(m_timer_start != 0) {
       const uint64_t now = timestamp_ns();
 
       if(now > m_timer_start) {

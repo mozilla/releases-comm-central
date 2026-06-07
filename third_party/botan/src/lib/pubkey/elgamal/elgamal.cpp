@@ -8,6 +8,7 @@
 #include <botan/elgamal.h>
 
 #include <botan/internal/blinding.h>
+#include <botan/internal/buffer_stuffer.h>
 #include <botan/internal/dl_scheme.h>
 #include <botan/internal/keypair.h>
 #include <botan/internal/monty_exp.h>
@@ -105,12 +106,12 @@ namespace {
 /**
 * ElGamal encryption operation
 */
-class ElGamal_Encryption_Operation final : public PK_Ops::Encryption_with_EME {
+class ElGamal_Encryption_Operation final : public PK_Ops::Encryption_with_Padding {
    public:
-      ElGamal_Encryption_Operation(const std::shared_ptr<const DL_PublicKey>& key, std::string_view eme) :
-            PK_Ops::Encryption_with_EME(eme), m_key(key) {
+      ElGamal_Encryption_Operation(const std::shared_ptr<const DL_PublicKey>& key, std::string_view padding) :
+            PK_Ops::Encryption_with_Padding(padding), m_key(key) {
          const size_t powm_window = 4;
-         m_monty_y_p = monty_precompute(m_key->group().monty_params_p(), m_key->public_key(), powm_window);
+         m_monty_y_p = monty_precompute(m_key->group()._monty_params_p(), m_key->public_key(), powm_window);
       }
 
       size_t ciphertext_length(size_t /*ptext_len*/) const override { return 2 * m_key->group().p_bytes(); }
@@ -121,12 +122,12 @@ class ElGamal_Encryption_Operation final : public PK_Ops::Encryption_with_EME {
 
    private:
       std::shared_ptr<const DL_PublicKey> m_key;
-      std::shared_ptr<const Montgomery_Exponentation_State> m_monty_y_p;
+      std::shared_ptr<const Montgomery_Exponentiation_State> m_monty_y_p;
 };
 
 std::vector<uint8_t> ElGamal_Encryption_Operation::raw_encrypt(std::span<const uint8_t> ptext,
                                                                RandomNumberGenerator& rng) {
-   BigInt m(ptext);
+   const BigInt m(ptext);
 
    const auto& group = m_key->group();
 
@@ -148,18 +149,23 @@ std::vector<uint8_t> ElGamal_Encryption_Operation::raw_encrypt(std::span<const u
    const BigInt a = group.power_g_p(k, k_bits);
    const BigInt b = group.multiply_mod_p(m, monty_execute(*m_monty_y_p, k, k_bits).value());
 
-   return unlock(BigInt::encode_fixed_length_int_pair(a, b, group.p_bytes()));
+   const size_t p_bytes = group.p_bytes();
+   std::vector<uint8_t> ctext(2 * p_bytes);
+   BufferStuffer stuffer(ctext);
+   a.serialize_to(stuffer.next(p_bytes));
+   b.serialize_to(stuffer.next(p_bytes));
+   return ctext;
 }
 
 /**
 * ElGamal decryption operation
 */
-class ElGamal_Decryption_Operation final : public PK_Ops::Decryption_with_EME {
+class ElGamal_Decryption_Operation final : public PK_Ops::Decryption_with_Padding {
    public:
       ElGamal_Decryption_Operation(const std::shared_ptr<const DL_PrivateKey>& key,
-                                   std::string_view eme,
+                                   std::string_view padding,
                                    RandomNumberGenerator& rng) :
-            PK_Ops::Decryption_with_EME(eme),
+            PK_Ops::Decryption_with_Padding(padding),
             m_key(key),
             m_blinder(
                m_key->group()._reducer_mod_p(),

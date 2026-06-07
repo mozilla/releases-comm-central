@@ -16,7 +16,8 @@ or HSM specific code for each device they want to support.
 
    .. note::
 
-     The Botan PKCS#11 interface is implemented against version v2.40 of the standard.
+     The Botan PKCS#11 interface is implemented against version v3.2 of the standard.
+     Versions 2.40 upto 3.2 are supported, but only the 3.2 headers are shipped with Botan.
 
 Botan wraps the C PKCS#11 API to provide a C++ PKCS#11 interface. This is done
 in two levels of abstraction: a low level API (see :ref:`pkcs11_low_level`) and
@@ -39,7 +40,9 @@ Low Level API
 The PKCS#11 standards committee provides header files (``pkcs11.h``, ``pkcs11f.h`` and
 ``pkcs11t.h``) which define the PKCS#11 API in the C programming language. These
 header files could be used directly to access PKCS#11 compatible smart cards or
-HSMs. The external header files are shipped with Botan in version v2.4 of the standard. The PKCS#11 low
+HSMs. A public domain variant of these header files is shipped with Botan in
+version v3.2 (Draft wd13) of the standard. This variant is interchangeable with the original
+v3.2 header files of OASIS. The PKCS#11 low
 level API wraps the original PKCS#11 API, but still allows to access all functions described in the
 standard and has the advantage that it is a C++ interface with features like RAII, exceptions
 and automatic memory management.
@@ -777,7 +780,7 @@ The following PIN and SO-PIN/PUK values are used in tests:
    Unlike the CardOS (4.4, 5.0, 5.3), the aforementioned SO-PIN/PUK is
    inappropriate for Gemalto (IDPrime MD 3840) cards, as it must be a byte array
    of length 24. For this reason some of the tests for Gemalto card involving
-   SO-PIN will fail.  You run into a risk of exceding login attempts and as a
+   SO-PIN will fail.  You run into a risk of exceeding login attempts and as a
    result locking your card!  Currently, specifying pin via command-line option
    is not implemented, and therefore the desired PIN must be modified in the
    header src/tests/test_pkcs11.h:
@@ -798,7 +801,7 @@ You are very welcome to contribute your own test results for other testing envir
 Test results
 
 +-------------------------------------+-------------------------------------------+---------------------------------------------------+---------------------------------------------------+---------------------------------------------------+---------------------------------------------------+
-|  Smartcard                          | Status                                    | OS                                                | Midleware                                         |   Botan                                           | Errors                                            |
+|  Smartcard                          | Status                                    | OS                                                | Middleware                                        |   Botan                                           | Errors                                            |
 +=====================================+===========================================+===================================================+===================================================+===================================================+===================================================+
 | CardOS 4.4                          | mostly works                              | Windows 10, 64-bit, version 1709                  | API Version 5.4.9.77 (Cryptoki v2.11)             |  2.4.0, Cryptoki v2.40                            | [50]_                                             |
 +-------------------------------------+-------------------------------------------+---------------------------------------------------+---------------------------------------------------+---------------------------------------------------+---------------------------------------------------+
@@ -887,7 +890,7 @@ Test results
 
  - rng_add_entropy [5]_
 
-.. [53] Failing operations for CardOS 5.3 (middelware 5.5.1)
+.. [53] Failing operations for CardOS 5.3 (middleware 5.5.1)
 
  - ecdh_privkey_export [2]_
  - ecdh_generate_private_key [35]_

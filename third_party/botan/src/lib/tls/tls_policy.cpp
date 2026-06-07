@@ -14,7 +14,9 @@
 #include <botan/tls_algos.h>
 #include <botan/tls_ciphersuite.h>
 #include <botan/tls_exceptn.h>
+#include <botan/tls_signature_scheme.h>
 #include <botan/internal/stl_util.h>
+#include <algorithm>
 #include <optional>
 #include <sstream>
 
@@ -27,7 +29,7 @@ bool Policy::allow_ssl_key_log_file() const {
 std::vector<Signature_Scheme> Policy::allowed_signature_schemes() const {
    std::vector<Signature_Scheme> schemes;
 
-   for(Signature_Scheme scheme : Signature_Scheme::all_available_schemes()) {
+   for(const Signature_Scheme scheme : Signature_Scheme::all_available_schemes()) {
       const bool sig_allowed = allowed_signature_method(scheme.algorithm_name());
       const bool hash_allowed = allowed_signature_hash(scheme.hash_function_name());
 
@@ -230,7 +232,7 @@ std::vector<Group_Params> Policy::key_exchange_groups_to_offer() const {
 
    /*
    * If for some reason no pure ECC groups are enabled then simply
-   * send a share of whatever the policys top preference is.
+   * send a share of whatever the policy's top preference is.
    */
    if(groups_to_offer.empty()) {
       groups_to_offer.push_back(supported_groups.front());
@@ -331,6 +333,7 @@ bool Policy::acceptable_protocol_version(Protocol_Version version) const {
    }
 #endif
 
+   BOTAN_UNUSED(version);
    return false;
 }
 
@@ -339,18 +342,16 @@ Protocol_Version Policy::latest_supported_version(bool datagram) const {
       if(acceptable_protocol_version(Protocol_Version::DTLS_V12)) {
          return Protocol_Version::DTLS_V12;
       }
-      throw Invalid_State("Policy forbids all available DTLS version");
    } else {
-#if defined(BOTAN_HAS_TLS_13)
       if(acceptable_protocol_version(Protocol_Version::TLS_V13)) {
          return Protocol_Version::TLS_V13;
       }
-#endif
       if(acceptable_protocol_version(Protocol_Version::TLS_V12)) {
          return Protocol_Version::TLS_V12;
       }
-      throw Invalid_State("Policy forbids all available TLS version");
    }
+
+   throw Invalid_State("Policy forbids all available TLS version");
 }
 
 bool Policy::acceptable_ciphersuite(const Ciphersuite& ciphersuite) const {
@@ -608,12 +609,12 @@ std::vector<uint16_t> Policy::ciphersuite_list(Protocol_Version version) const {
       throw Invalid_State("Policy does not allow any available cipher suite");
    }
 
-   Ciphersuite_Preference_Ordering order(ciphers, macs, kex, sigs);
+   const Ciphersuite_Preference_Ordering order(ciphers, macs, kex, sigs);
    std::sort(ciphersuites.begin(), ciphersuites.end(), order);
 
    std::vector<uint16_t> ciphersuite_codes;
    ciphersuite_codes.reserve(ciphersuites.size());
-   for(auto i : ciphersuites) {
+   for(const auto& i : ciphersuites) {
       ciphersuite_codes.push_back(i.ciphersuite_code());
    }
    return ciphersuite_codes;

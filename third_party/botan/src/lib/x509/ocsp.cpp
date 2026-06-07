@@ -13,9 +13,6 @@
 #include <botan/der_enc.h>
 #include <botan/pubkey.h>
 #include <botan/x509_ext.h>
-#include <botan/internal/parsing.h>
-
-#include <functional>
 
 #if defined(BOTAN_HAS_HTTP_UTIL)
    #include <botan/internal/http_util.h>
@@ -27,9 +24,9 @@ namespace {
 
 // TODO: should this be in a header somewhere?
 void decode_optional_list(BER_Decoder& ber, ASN1_Type tag, std::vector<X509_Certificate>& output) {
-   BER_Object obj = ber.get_next_object();
+   const BER_Object obj = ber.get_next_object();
 
-   if(obj.is_a(tag, ASN1_Class::ContextSpecific | ASN1_Class::Constructed) == false) {
+   if(!obj.is_a(tag, ASN1_Class::ContextSpecific | ASN1_Class::Constructed)) {
       ber.push_back(obj);
       return;
    }
@@ -193,13 +190,14 @@ std::optional<X509_Certificate> Response::find_signing_certificate(
    }
 
    // Then try to find a delegated responder certificate in the stapled certs
-   auto match = std::find_if(m_certs.begin(), m_certs.end(), std::bind(&Response::is_issued_by, this, _1));
-   if(match != m_certs.end()) {
-      return *match;
+   for(const auto& cert : m_certs) {
+      if(this->is_issued_by(cert)) {
+         return cert;
+      }
    }
 
    // Last resort: check the additionally provides trusted OCSP responders
-   if(trusted_ocsp_responders) {
+   if(trusted_ocsp_responders != nullptr) {
       if(!m_key_hash.empty()) {
          auto signing_cert = trusted_ocsp_responders->find_cert_by_pubkey_sha1(m_key_hash);
          if(signing_cert) {
@@ -228,7 +226,7 @@ Certificate_Status_Code Response::status_for(const X509_Certificate& issuer,
 
    for(const auto& response : m_responses) {
       if(response.certid().is_id_for(issuer, subject)) {
-         X509_Time x509_ref_time(ref_time);
+         const X509_Time x509_ref_time(ref_time);
 
          if(response.cert_status() == 1) {
             return Certificate_Status_Code::CERT_IS_REVOKED;
@@ -268,7 +266,7 @@ Response online_check(const X509_Certificate& issuer,
       throw Invalid_Argument("No OCSP responder specified");
    }
 
-   OCSP::Request req(issuer, subject_serial);
+   const OCSP::Request req(issuer, subject_serial);
 
    auto http = HTTP::POST_sync(ocsp_responder, "application/ocsp-request", req.BER_encode(), 1, timeout);
 

@@ -8,7 +8,6 @@
 
 #include <botan/internal/kdf1.h>
 
-#include <botan/exceptn.h>
 #include <botan/mem_ops.h>
 #include <botan/internal/fmt.h>
 
@@ -31,7 +30,7 @@ void KDF1::perform_kdf(std::span<uint8_t> key,
    }
 
    const size_t hash_output_len = m_hash->output_length();
-   BOTAN_ARG_CHECK(key.size() <= hash_output_len, "KDF1 maximum output length exceeeded");
+   BOTAN_ARG_CHECK(key.size() <= hash_output_len, "KDF1 maximum output length exceeded");
 
    m_hash->update(secret);
    m_hash->update(label);

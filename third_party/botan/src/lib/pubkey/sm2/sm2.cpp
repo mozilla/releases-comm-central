@@ -8,16 +8,20 @@
 
 #include <botan/sm2.h>
 
+#include <botan/ec_group.h>
 #include <botan/hash.h>
 #include <botan/internal/keypair.h>
 #include <botan/internal/loadstor.h>
-#include <botan/internal/parsing.h>
 #include <botan/internal/pk_ops_impl.h>
 
 namespace Botan {
 
 std::string SM2_PublicKey::algo_name() const {
    return "SM2";
+}
+
+std::optional<size_t> SM2_PublicKey::_signature_element_size_for_DER_encoding() const {
+   return domain().get_order_bytes();
 }
 
 std::unique_ptr<Public_Key> SM2_PrivateKey::public_key() const {
@@ -50,20 +54,30 @@ SM2_PrivateKey::SM2_PrivateKey(const AlgorithmIdentifier& alg_id, std::span<cons
       m_da_inv((this->_private_key() + EC_Scalar::one(domain())).invert()),
       m_da_inv_legacy(m_da_inv.to_bigint()) {}
 
-SM2_PrivateKey::SM2_PrivateKey(EC_Group group, EC_Scalar x) :
-      EC_PrivateKey(std::move(group), std::move(x)),
+SM2_PrivateKey::SM2_PrivateKey(const EC_Group& group, const EC_Scalar& x) :
+      EC_PrivateKey(group, x),
       m_da_inv((this->_private_key() + EC_Scalar::one(domain())).invert()),
       m_da_inv_legacy(m_da_inv.to_bigint()) {}
 
-SM2_PrivateKey::SM2_PrivateKey(RandomNumberGenerator& rng, EC_Group group) :
-      EC_PrivateKey(rng, std::move(group)),
+SM2_PrivateKey::SM2_PrivateKey(RandomNumberGenerator& rng, const EC_Group& group) :
+      EC_PrivateKey(rng, group),
       m_da_inv((this->_private_key() + EC_Scalar::one(domain())).invert()),
       m_da_inv_legacy(m_da_inv.to_bigint()) {}
 
-SM2_PrivateKey::SM2_PrivateKey(RandomNumberGenerator& rng, EC_Group group, const BigInt& x) :
-      EC_PrivateKey(rng, std::move(group), x),
+SM2_PrivateKey::SM2_PrivateKey(RandomNumberGenerator& rng, const EC_Group& group, const BigInt& x) :
+      EC_PrivateKey(rng, group, x),
       m_da_inv((this->_private_key() + EC_Scalar::one(domain())).invert()),
       m_da_inv_legacy(m_da_inv.to_bigint()) {}
+
+#if defined(BOTAN_HAS_LEGACY_EC_POINT)
+std::vector<uint8_t> sm2_compute_za(HashFunction& hash,
+                                    std::string_view user_id,
+                                    const EC_Group& group,
+                                    const EC_Point& pubkey) {
+   auto apoint = EC_AffinePoint(group, pubkey);
+   return sm2_compute_za(hash, user_id, group, apoint);
+}
+#endif
 
 std::vector<uint8_t> sm2_compute_za(HashFunction& hash,
                                     std::string_view user_id,
@@ -252,7 +266,8 @@ std::unique_ptr<Private_Key> SM2_PublicKey::generate_another(RandomNumberGenerat
 std::unique_ptr<PK_Ops::Verification> SM2_PublicKey::create_verification_op(std::string_view params,
                                                                             std::string_view provider) const {
    if(provider == "base" || provider.empty()) {
-      std::string userid, hash;
+      std::string userid;
+      std::string hash;
       parse_sm2_param_string(params, userid, hash);
       return std::make_unique<SM2_Verification_Operation>(*this, userid, hash);
    }
@@ -264,7 +279,8 @@ std::unique_ptr<PK_Ops::Signature> SM2_PrivateKey::create_signature_op(RandomNum
                                                                        std::string_view params,
                                                                        std::string_view provider) const {
    if(provider == "base" || provider.empty()) {
-      std::string userid, hash;
+      std::string userid;
+      std::string hash;
       parse_sm2_param_string(params, userid, hash);
       return std::make_unique<SM2_Signature_Operation>(*this, userid, hash);
    }

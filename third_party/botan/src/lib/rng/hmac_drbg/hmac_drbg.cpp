@@ -7,6 +7,8 @@
 
 #include <botan/hmac_drbg.h>
 
+#include <botan/exceptn.h>
+#include <botan/mac.h>
 #include <botan/mem_ops.h>
 #include <botan/internal/fmt.h>
 #include <algorithm>
@@ -43,6 +45,8 @@ void check_limits(size_t reseed_interval, size_t max_number_of_bytes_per_request
 }
 
 }  // namespace
+
+HMAC_DRBG::~HMAC_DRBG() = default;
 
 HMAC_DRBG::HMAC_DRBG(std::unique_ptr<MessageAuthenticationCode> prf,
                      RandomNumberGenerator& underlying_rng,
@@ -91,7 +95,6 @@ HMAC_DRBG::HMAC_DRBG(std::unique_ptr<MessageAuthenticationCode> prf,
 }
 
 HMAC_DRBG::HMAC_DRBG(std::unique_ptr<MessageAuthenticationCode> prf) :
-      Stateful_RNG(),
       m_mac(std::move(prf)),
       m_max_number_of_bytes_per_request(64 * 1024),
       m_security_level(hmac_drbg_security_level(m_mac->output_length())) {
@@ -100,7 +103,6 @@ HMAC_DRBG::HMAC_DRBG(std::unique_ptr<MessageAuthenticationCode> prf) :
 }
 
 HMAC_DRBG::HMAC_DRBG(std::string_view hmac_hash) :
-      Stateful_RNG(),
       m_mac(MessageAuthenticationCode::create_or_throw(fmt("HMAC({})", hmac_hash))),
       m_max_number_of_bytes_per_request(64 * 1024),
       m_security_level(hmac_drbg_security_level(m_mac->output_length())) {
@@ -114,9 +116,7 @@ void HMAC_DRBG::clear_state() {
       m_T.resize(output_length);
    }
 
-   for(size_t i = 0; i != m_V.size(); ++i) {
-      m_V[i] = 0x01;
-   }
+   std::fill(m_V.begin(), m_V.end(), 0x01);
    m_mac->set_key(std::vector<uint8_t>(m_V.size(), 0x00));
 }
 

@@ -12,11 +12,13 @@
 #include <botan/internal/isa_extn.h>
 #include <botan/internal/target_info.h>
 
-#if defined(BOTAN_TARGET_CPU_SUPPORTS_AVX2)
+#if defined(BOTAN_TARGET_ARCH_SUPPORTS_AVX2)
    #include <immintrin.h>
 #endif
 
 namespace Botan {
+
+// NOLINTBEGIN(portability-simd-intrinsics)
 
 class SIMD_4x64 final {
    public:
@@ -29,16 +31,16 @@ class SIMD_4x64 final {
       ~SIMD_4x64() = default;
 
       // zero initialized
-      BOTAN_FN_ISA_SIMD_4X64 SIMD_4x64() { m_simd = _mm256_setzero_si256(); }
+      BOTAN_FN_ISA_SIMD_4X64 SIMD_4x64() : m_simd(_mm256_setzero_si256()) {}
 
       // Load two halves at different addresses
-      static BOTAN_FN_ISA_SIMD_4X64 SIMD_4x64 load_le2(const void* inl, const void* inh) {
+      static BOTAN_FN_ISA_SIMD_4X64 SIMD_4x64 load_le2(const void* lo, const void* hi) {
          return SIMD_4x64(
-            _mm256_loadu2_m128i(reinterpret_cast<const __m128i*>(inl), reinterpret_cast<const __m128i*>(inh)));
+            _mm256_loadu2_m128i(reinterpret_cast<const __m128i*>(lo), reinterpret_cast<const __m128i*>(hi)));
       }
 
-      static BOTAN_FN_ISA_SIMD_4X64 SIMD_4x64 load_be2(const void* inl, const void* inh) {
-         return SIMD_4x64::load_le2(inl, inh).bswap();
+      static BOTAN_FN_ISA_SIMD_4X64 SIMD_4x64 load_be2(const void* lo, const void* hi) {
+         return SIMD_4x64::load_le2(lo, hi).bswap();
       }
 
       static BOTAN_FN_ISA_SIMD_4X64 SIMD_4x64 load_le(const void* in) {
@@ -47,6 +49,10 @@ class SIMD_4x64 final {
 
       static BOTAN_FN_ISA_SIMD_4X64 SIMD_4x64 load_be(const void* in) { return SIMD_4x64::load_le(in).bswap(); }
 
+      static BOTAN_FN_ISA_SIMD_4X64 SIMD_4x64 broadcast_2x64(const uint64_t* in) {
+         return SIMD_4x64(_mm256_broadcastsi128_si256(_mm_loadu_si128(reinterpret_cast<const __m128i*>(in))));
+      }
+
       SIMD_4x64 BOTAN_FN_ISA_SIMD_4X64 bswap() const {
          const auto idx = _mm256_set_epi8(
             8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7);
@@ -54,7 +60,7 @@ class SIMD_4x64 final {
          return SIMD_4x64(_mm256_shuffle_epi8(m_simd, idx));
       }
 
-      void store_le(uint64_t out[4]) const { this->store_le(reinterpret_cast<uint8_t*>(out)); }
+      void BOTAN_FN_ISA_SIMD_4X64 store_le(uint64_t out[4]) const { this->store_le(reinterpret_cast<uint8_t*>(out)); }
 
       BOTAN_FN_ISA_SIMD_4X64 void store_le(uint8_t out[]) const {
          _mm256_storeu_si256(reinterpret_cast<__m256i*>(out), m_simd);
@@ -64,15 +70,29 @@ class SIMD_4x64 final {
          _mm256_storeu2_m128i(reinterpret_cast<__m128i*>(outh), reinterpret_cast<__m128i*>(outl), m_simd);
       }
 
-      SIMD_4x64 operator+(const SIMD_4x64& other) const {
+      BOTAN_FN_ISA_SIMD_4X64 void store_be(uint8_t out[]) const { bswap().store_le(out); }
+
+      SIMD_4x64 BOTAN_FN_ISA_SIMD_4X64 operator+(const SIMD_4x64& other) const {
          SIMD_4x64 retval(*this);
          retval += other;
          return retval;
       }
 
-      SIMD_4x64 operator^(const SIMD_4x64& other) const {
+      SIMD_4x64 BOTAN_FN_ISA_SIMD_4X64 operator^(const SIMD_4x64& other) const {
          SIMD_4x64 retval(*this);
          retval ^= other;
+         return retval;
+      }
+
+      SIMD_4x64 BOTAN_FN_ISA_SIMD_4X64 operator&(const SIMD_4x64& other) const {
+         SIMD_4x64 retval(*this);
+         retval &= other;
+         return retval;
+      }
+
+      SIMD_4x64 BOTAN_FN_ISA_SIMD_4X64 operator|(const SIMD_4x64& other) const {
+         SIMD_4x64 retval(*this);
+         retval |= other;
          return retval;
       }
 
@@ -83,6 +103,12 @@ class SIMD_4x64 final {
       BOTAN_FN_ISA_SIMD_4X64 void operator^=(const SIMD_4x64& other) {
          m_simd = _mm256_xor_si256(m_simd, other.m_simd);
       }
+
+      BOTAN_FN_ISA_SIMD_4X64 void operator&=(const SIMD_4x64& other) {
+         m_simd = _mm256_and_si256(m_simd, other.m_simd);
+      }
+
+      BOTAN_FN_ISA_SIMD_4X64 void operator|=(const SIMD_4x64& other) { m_simd = _mm256_or_si256(m_simd, other.m_simd); }
 
       template <size_t ROT>
       BOTAN_FN_ISA_SIMD_4X64 SIMD_4x64 rotr() const
@@ -119,13 +145,18 @@ class SIMD_4x64 final {
       }
 
       template <size_t ROT>
-      SIMD_4x64 rotl() const {
+      SIMD_4x64 BOTAN_FN_ISA_SIMD_4X64 rotl() const {
          return this->rotr<64 - ROT>();
       }
 
       template <int SHIFT>
       SIMD_4x64 BOTAN_FN_ISA_SIMD_4X64 shr() const noexcept {
          return SIMD_4x64(_mm256_srli_epi64(m_simd, SHIFT));
+      }
+
+      template <int SHIFT>
+      SIMD_4x64 BOTAN_FN_ISA_SIMD_4X64 shl() const noexcept {
+         return SIMD_4x64(_mm256_slli_epi64(m_simd, SHIFT));
       }
 
       static SIMD_4x64 BOTAN_FN_ISA_SIMD_4X64 alignr8(const SIMD_4x64& a, const SIMD_4x64& b) {
@@ -144,24 +175,31 @@ class SIMD_4x64 final {
       }
 
       // Argon2 specific
-      static void twist(SIMD_4x64& B, SIMD_4x64& C, SIMD_4x64& D) {
+      static void BOTAN_FN_ISA_SIMD_4X64 twist(SIMD_4x64& B, SIMD_4x64& C, SIMD_4x64& D) {
          B = SIMD_4x64::permute_4x64<0b00'11'10'01>(B);
          C = SIMD_4x64::permute_4x64<0b01'00'11'10>(C);
          D = SIMD_4x64::permute_4x64<0b10'01'00'11>(D);
       }
 
       // Argon2 specific
-      static void untwist(SIMD_4x64& B, SIMD_4x64& C, SIMD_4x64& D) {
+      static void BOTAN_FN_ISA_SIMD_4X64 untwist(SIMD_4x64& B, SIMD_4x64& C, SIMD_4x64& D) {
          B = SIMD_4x64::permute_4x64<0b10'01'00'11>(B);
          C = SIMD_4x64::permute_4x64<0b01'00'11'10>(C);
          D = SIMD_4x64::permute_4x64<0b00'11'10'01>(D);
       }
+
+      BOTAN_FN_ISA_SIMD_4X64
+      static SIMD_4x64 splat(uint64_t v) { return SIMD_4x64(_mm256_set1_epi64x(v)); }
+
+      __m256i BOTAN_FN_ISA_SIMD_4X64 raw() const noexcept { return m_simd; }
 
       explicit BOTAN_FN_ISA_SIMD_4X64 SIMD_4x64(__m256i x) : m_simd(x) {}
 
    private:
       __m256i m_simd;
 };
+
+// NOLINTEND(portability-simd-intrinsics)
 
 }  // namespace Botan
 

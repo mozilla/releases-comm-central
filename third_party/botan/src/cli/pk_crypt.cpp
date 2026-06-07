@@ -61,7 +61,7 @@ class PK_Encrypt final : public Command {
          const Botan::AlgorithmIdentifier hash_id(OAEP_HASH, Botan::AlgorithmIdentifier::USE_EMPTY_PARAM);
          const Botan::AlgorithmIdentifier pk_alg_id("RSA/OAEP", hash_id.BER_encode());
 
-         Botan::PK_Encryptor_EME enc(*key, rng(), "OAEP(" + OAEP_HASH + ")");
+         const Botan::PK_Encryptor_EME enc(*key, rng(), "OAEP(" + OAEP_HASH + ")");
 
          const Botan::secure_vector<uint8_t> file_key = rng().random_vec(aead->key_spec().maximum_keylength());
 
@@ -155,7 +155,7 @@ class PK_Decrypt final : public Command {
             return set_return_code(1);
          }
 
-         if(oaep_hash_id.parameters().empty() == false) {
+         if(!oaep_hash_id.parameters().empty()) {
             error_output() << "Unknown OAEP parameters used\n";
             return set_return_code(1);
          }
@@ -165,7 +165,7 @@ class PK_Decrypt final : public Command {
 
          const size_t expected_keylen = aead->key_spec().maximum_keylength();
 
-         Botan::PK_Decryptor_EME dec(*key, rng(), "OAEP(" + oaep_hash + ")");
+         const Botan::PK_Decryptor_EME dec(*key, rng(), "OAEP(" + oaep_hash + ")");
 
          const Botan::secure_vector<uint8_t> file_key =
             dec.decrypt_or_random(encrypted_key.data(), encrypted_key.size(), expected_keylen, rng());

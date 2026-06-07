@@ -9,6 +9,7 @@
 
 #if defined(BOTAN_HAS_HMAC_DRBG)
    #include <botan/hmac_drbg.h>
+   #include <botan/mac.h>
 #endif
 
 #if defined(BOTAN_HAS_CHACHA_RNG)
@@ -55,7 +56,7 @@ class HMAC_DRBG_Tests final : public Text_Based_Test {
          rng->randomize_with_input(out.data(), out.size(), ad1.data(), ad1.size());
          rng->randomize_with_input(out.data(), out.size(), ad2.data(), ad2.size());
 
-         result.test_eq("rng", out, expected);
+         result.test_bin_eq("rng", out, expected);
          return result;
       }
 };
@@ -93,7 +94,7 @@ class ChaCha_RNG_Tests final : public Text_Based_Test {
          rng.randomize_with_input(out.data(), out.size(), ad1.data(), ad1.size());
          rng.randomize_with_input(out.data(), out.size(), ad2.data(), ad2.size());
 
-         result.test_eq("rng", out, expected);
+         result.test_bin_eq("rng", out, expected);
          return result;
       }
 };

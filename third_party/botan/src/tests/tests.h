@@ -1,5 +1,5 @@
 /*
-* (C) 2014,2015 Jack Lloyd
+* (C) 2014,2015,2026 Jack Lloyd
 * (C) 2015 Simon Warta (Kullo GmbH)
 *
 * Botan is released under the Simplified BSD License (see license.txt)
@@ -8,34 +8,29 @@
 #ifndef BOTAN_TESTS_H_
 #define BOTAN_TESTS_H_
 
-#include <botan/hex.h>
-#include <botan/mem_ops.h>
-#include <botan/rng.h>
-#include <botan/symkey.h>
+/*
+Warning: be very careful about adding any new includes here
+
+Each include is parsed for every test file which can get quite expensive
+*/
+
 #include <botan/types.h>
-#include <deque>
 #include <functional>
-#include <iosfwd>
-#include <map>
 #include <memory>
 #include <optional>
-#include <set>
 #include <span>
-#include <sstream>
+#include <stdexcept>
 #include <string>
-#include <typeindex>
-#include <unordered_map>
+#include <string_view>
 #include <variant>
 #include <vector>
 
 namespace Botan {
 
+class RandomNumberGenerator;
+
 #if defined(BOTAN_HAS_BIGINT)
 class BigInt;
-#endif
-
-#if defined(BOTAN_HAS_LEGACY_EC_POINT)
-class EC_Point;
 #endif
 
 }  // namespace Botan
@@ -46,16 +41,14 @@ namespace Botan_Tests {
 using Botan::BigInt;
 #endif
 
-class Test_Error : public Botan::Exception {
+class Test_Error : public std::runtime_error {
    public:
-      explicit Test_Error(const std::string& what) : Exception("Test error", what) {}
-
-      Botan::ErrorType error_type() const noexcept override { return Botan::ErrorType::Unknown; }
+      explicit Test_Error(std::string_view what);
 };
 
 class Test_Aborted final : public Test_Error {
    public:
-      explicit Test_Aborted(const std::string& what) : Test_Error(what) {}
+      explicit Test_Aborted(std::string_view what) : Test_Error(what) {}
 };
 
 class Test_Options {
@@ -85,7 +78,7 @@ class Test_Options {
                    bool abort_on_first_fail,
                    bool no_stdout) :
             m_requested_tests(requested_tests),
-            m_skip_tests(skip_tests.begin(), skip_tests.end()),
+            m_skip_tests(skip_tests),
             m_data_dir(data_dir),
             m_pkcs11_lib(pkcs11_lib),
             m_provider(provider),
@@ -109,7 +102,7 @@ class Test_Options {
 
       const std::vector<std::string>& requested_tests() const { return m_requested_tests; }
 
-      const std::set<std::string>& skip_tests() const { return m_skip_tests; }
+      const std::vector<std::string>& skip_tests() const { return m_skip_tests; }
 
       const std::string& data_dir() const { return m_data_dir; }
 
@@ -125,17 +118,13 @@ class Test_Options {
 
       uint32_t tpm2_persistent_ecc_handle() const { return static_cast<uint32_t>(m_tpm2_persistent_ecc_handle); }
 
-      std::vector<uint8_t> tpm2_persistent_auth_value() const {
-         std::span<const uint8_t> auth_value(Botan::cast_char_ptr_to_uint8(m_tpm2_persistent_auth_value.data()),
-                                             m_tpm2_persistent_auth_value.size());
-         return std::vector<uint8_t>(auth_value.begin(), auth_value.end());
-      }
+      const std::string& tpm2_persistent_auth_value() const { return m_tpm2_persistent_auth_value; }
 
       const std::string& drbg_seed() const { return m_drbg_seed; }
 
       const std::string& xml_results_dir() const { return m_xml_results_dir; }
 
-      std::map<std::string, std::string> report_properties() const;
+      const std::vector<std::string>& report_properties() const { return m_report_properties; }
 
       size_t test_runs() const { return m_test_runs; }
 
@@ -157,64 +146,34 @@ class Test_Options {
 
    private:
       std::vector<std::string> m_requested_tests;
-      std::set<std::string> m_skip_tests;
+      std::vector<std::string> m_skip_tests;
       std::string m_data_dir;
       std::string m_pkcs11_lib;
       std::string m_provider;
       std::optional<std::string> m_tpm2_tcti_name;
       std::optional<std::string> m_tpm2_tcti_conf;
-      size_t m_tpm2_persistent_rsa_handle;
-      size_t m_tpm2_persistent_ecc_handle;
+      size_t m_tpm2_persistent_rsa_handle = 0;
+      size_t m_tpm2_persistent_ecc_handle = 0;
       std::string m_tpm2_persistent_auth_value;
       std::string m_drbg_seed;
       std::string m_xml_results_dir;
       std::vector<std::string> m_report_properties;
-      size_t m_test_runs;
-      size_t m_test_threads;
-      bool m_verbose;
-      bool m_log_success;
-      bool m_run_online_tests;
-      bool m_run_long_tests;
-      bool m_run_memory_intensive_tests;
-      bool m_abort_on_first_fail;
-      bool m_no_stdout;
+      size_t m_test_runs = 0;
+      size_t m_test_threads = 0;
+      bool m_verbose = false;
+      bool m_log_success = false;
+      bool m_run_online_tests = false;
+      bool m_run_long_tests = false;
+      bool m_run_memory_intensive_tests = false;
+      bool m_abort_on_first_fail = false;
+      bool m_no_stdout = false;
 };
-
-namespace detail {
-
-template <typename, typename = void>
-constexpr bool has_Botan_to_string = false;
-template <typename T>
-constexpr bool has_Botan_to_string<T, std::void_t<decltype(Botan::to_string(std::declval<T>()))>> = true;
-
-template <typename, typename = void>
-constexpr bool has_std_to_string = false;
-template <typename T>
-constexpr bool has_std_to_string<T, std::void_t<decltype(std::to_string(std::declval<T>()))>> = true;
-
-template <typename, typename = void>
-constexpr bool has_ostream_operator = false;
-template <typename T>
-constexpr bool
-   has_ostream_operator<T, std::void_t<decltype(operator<<(std::declval<std::ostringstream&>(), std::declval<T>()))>> =
-      true;
-
-template <typename T>
-struct is_optional : std::false_type {};
-
-template <typename T>
-struct is_optional<std::optional<T>> : std::true_type {};
-
-template <typename T>
-constexpr bool is_optional_v = is_optional<T>::value;
-
-}  // namespace detail
 
 /**
  * A code location consisting of the source file path and a line
  */
 struct CodeLocation {
-      std::string path;
+      const char* path;
       unsigned int line;
 };
 
@@ -232,13 +191,13 @@ class Test {
       */
       class Result final {
          public:
-            explicit Result(std::string who) : m_who(std::move(who)), m_timestamp(std::chrono::system_clock::now()) {}
+            explicit Result(std::string_view who);
 
             /**
              * This 'consolidation constructor' creates a single test result from
              * a vector of downstream test result objects.
              */
-            Result(std::string who, const std::vector<Result>& downstream_results);
+            Result(std::string_view who, const std::vector<Result>& downstream_results);
 
             size_t tests_passed() const { return m_tests_passed; }
 
@@ -254,296 +213,242 @@ class Test {
 
             const std::vector<std::string>& notes() const { return m_log; }
 
-            std::optional<std::chrono::nanoseconds> elapsed_time() const {
+            std::optional<uint64_t> elapsed_time() const {
                if(m_ns_taken == 0) {
                   return std::nullopt;
                } else {
-                  return std::chrono::nanoseconds(m_ns_taken);
+                  return m_ns_taken;
                }
             }
 
-            const std::chrono::system_clock::time_point& timestamp() const { return m_timestamp; }
+            // Nanoseconds since epoch
+            uint64_t timestamp() const { return m_timestamp; }
 
             std::string result_string() const;
 
-            static Result Failure(const std::string& who, const std::string& what) {
+            static Result Failure(std::string_view who, std::string_view what) {
                Result r(who);
                r.test_failure(what);
                return r;
             }
 
-            static Result Note(const std::string& who, const std::string& what) {
+            static Result Note(std::string_view who, std::string_view what) {
                Result r(who);
                r.test_note(what);
                return r;
             }
 
-            static Result OfExpectedFailure(bool expecting_failure, const Test::Result& result) {
-               if(!expecting_failure) {
-                  return result;
-               }
-
-               if(result.tests_failed() == 0) {
-                  Result r = result;
-                  r.test_failure("Expected this test to fail, but it did not");
-                  return r;
-               } else {
-                  Result r(result.who());
-                  r.test_note("Got expected failure");
-                  return r;
-               }
-            }
-
             void merge(const Result& other, bool ignore_test_name = false);
 
-            void test_note(const std::string& note, const char* extra = nullptr);
+            /* Test reporting functions */
 
-            template <typename Alloc>
-            void test_note(const std::string& who, const std::vector<uint8_t, Alloc>& vec) {
-               const std::string hex = Botan::hex_encode(vec);
-               return test_note(who, hex.c_str());
-            }
+            void test_note(std::string_view note);
 
-            void note_missing(const std::string& thing);
+            void test_note(std::string_view note, std::string_view context);
 
-            bool test_success(const std::string& note = "");
+            void test_note(std::string_view note, std::span<const uint8_t> context);
 
-            bool test_failure(const std::string& err);
+            void note_missing(std::string_view whatever);
 
-            bool test_failure(const std::string& what, const std::string& error);
+            bool test_success(std::string_view note = "");
 
-            void test_failure(const std::string& what, const uint8_t buf[], size_t buf_len);
+            bool test_failure(std::string err);
 
-            template <typename Alloc>
-            void test_failure(const std::string& what, const std::vector<uint8_t, Alloc>& buf) {
-               test_failure(what, buf.data(), buf.size());
-            }
+            bool test_failure(std::string_view err);
 
-            bool confirm(const std::string& what, bool expr, bool expected = true) {
-               return test_eq(what, expr, expected);
-            }
+            bool test_failure(const char* err);
+
+            bool test_failure(std::string_view what, std::string_view error);
+
+            void test_failure(std::string_view what, const uint8_t buf[], size_t buf_len);
+
+            void test_failure(std::string_view what, std::span<const uint8_t> context);
 
             /**
              * Require a condition, throw Test_Aborted otherwise
              * Note: works best when combined with CHECK scopes!
              */
-            void require(const std::string& what, bool expr, bool expected = true) {
-               if(!confirm(what, expr, expected)) {
-                  throw Test_Aborted("test aborted, because required condition was not met: " + what);
-               }
+            void require(std::string_view what, bool expr);
+
+            /* Generic arbitrary equality check */
+
+            template <typename E>
+               requires std::is_enum_v<E>
+            bool test_enum_eq(std::string_view what, const E& produced, const E& expected) {
+               auto produced_v = static_cast<std::underlying_type_t<E>>(produced);
+               auto expected_v = static_cast<std::underlying_type_t<E>>(expected);
+               return test_u64_eq(what, produced_v, expected_v);
             }
 
             template <typename T>
-            bool test_is_eq(const T& produced, const T& expected) {
-               return test_is_eq("comparison", produced, expected);
-            }
-
-            template <typename T>
-            bool test_is_eq(const std::string& what, const T& produced, const T& expected) {
-               std::ostringstream out;
-               out << m_who << " " << what;
-
-               if(produced == expected) {
-                  out << " produced expected result";
-                  return test_success(out.str());
-               } else {
-                  out << " produced unexpected result '" << to_string(produced) << "' expected '" << to_string(expected)
-                      << "'";
-                  return test_failure(out.str());
-               }
-            }
-
-            template <typename T>
-            bool test_not_null(const std::string& what, const T& ptr) {
+            bool test_not_null(std::string_view what, const T& ptr) {
                if(ptr == nullptr) {
-                  return test_failure(what + " was null");
+                  return test_failure(what, "was null");
                } else {
-                  return test_success(what + " was not null");
+                  return test_success("not null");
                }
             }
 
+            /* String comparison predicates */
+            bool test_str_not_empty(std::string_view what, std::string_view produced);
+
+            bool test_str_eq(std::string_view what, std::string_view produced, std::string_view expected);
+
+            bool test_str_ne(std::string_view what, std::string_view produced, std::string_view expected);
+
+            /* Test predicates on bool */
+            bool test_bool_eq(std::string_view what, bool produced, bool expected);
+
+            bool test_is_false(std::string_view what, bool produced);
+
+            bool test_is_true(std::string_view what, bool produced);
+
+            /* Test predicates on size_t */
+            bool test_sz_eq(std::string_view what, size_t produced, size_t expected);
+            bool test_sz_ne(std::string_view what, size_t produced, size_t expected);
+            bool test_sz_lt(std::string_view what, size_t produced, size_t expected);
+            bool test_sz_lte(std::string_view what, size_t produced, size_t expected);
+            bool test_sz_gt(std::string_view what, size_t produced, size_t expected);
+            bool test_sz_gte(std::string_view what, size_t produced, size_t expected);
+
+            /* Type-hinted unsigned integer equality predicates */
+            bool test_u8_eq(std::string_view what, uint8_t produced, uint8_t expected);
+            bool test_u16_eq(std::string_view what, uint16_t produced, uint16_t expected);
+            bool test_u32_eq(std::string_view what, uint32_t produced, uint32_t expected);
+            bool test_u64_eq(std::string_view what, uint64_t produced, uint64_t expected);
+            bool test_i16_eq(std::string_view what, int16_t produced, int16_t expected);
+            bool test_i32_eq(std::string_view what, int32_t produced, int32_t expected);
+
+            bool test_u64_lt(std::string_view what, uint64_t produced, uint64_t expected);
+
+            /* Prefer the versions that take a descriptor string above */
+            bool test_u8_eq(uint8_t produced, uint8_t expected);
+            bool test_u16_eq(uint16_t produced, uint16_t expected);
+            bool test_u32_eq(uint32_t produced, uint32_t expected);
+            bool test_u64_eq(uint64_t produced, uint64_t expected);
+
+            /* Test predicates on integer return codes */
+            bool test_rc_ok(std::string_view func, int rc);
+            bool test_rc_fail(std::string_view func, std::string_view why, int rc);
+            bool test_rc(std::string_view func, int rc, int expected);
+            bool test_rc_init(std::string_view func, int rc);
+
+            /* Test predicates on optional values */
+
             template <typename T>
-            bool test_not_nullopt(const std::string& what, std::optional<T> val) {
+            bool test_opt_not_null(std::string_view what, const std::optional<T>& val) {
                if(val == std::nullopt) {
-                  return test_failure(what + " was nullopt");
+                  return test_failure(what, "was nullopt");
                } else {
-                  return test_success(what + " was not nullopt");
+                  return test_success("not nullopt");
                }
-            }
-
-            bool test_eq(const std::string& what, const char* produced, const char* expected);
-
-            bool test_is_nonempty(const std::string& what_is_it, const std::string& to_examine);
-
-            bool test_eq(const std::string& what, const std::string& produced, const std::string& expected);
-
-            bool test_eq(const std::string& what, bool produced, bool expected);
-
-            bool test_eq(const std::string& what, size_t produced, size_t expected);
-            bool test_eq_sz(const std::string& what, size_t produced, size_t expected);
-
-            bool test_eq(const std::string& what,
-                         const Botan::OctetString& produced,
-                         const Botan::OctetString& expected);
-
-            template <typename I1, typename I2>
-            bool test_int_eq(I1 x, I2 y, const char* what) {
-               return test_eq(what, static_cast<size_t>(x), static_cast<size_t>(y));
-            }
-
-            template <typename I1, typename I2>
-            bool test_int_eq(const std::string& what, I1 x, I2 y) {
-               return test_eq(what, static_cast<size_t>(x), static_cast<size_t>(y));
-            }
-
-            bool test_lt(const std::string& what, size_t produced, size_t expected);
-            bool test_lte(const std::string& what, size_t produced, size_t expected);
-            bool test_gt(const std::string& what, size_t produced, size_t expected);
-            bool test_gte(const std::string& what, size_t produced, size_t expected);
-
-            template <typename T>
-            bool test_rc_ok(const std::string& func, T rc) {
-               static_assert(std::is_integral<T>::value, "Integer required.");
-
-               if(rc != 0) {
-                  std::ostringstream err;
-                  err << m_who;
-                  err << " " << func;
-                  err << " unexpectedly failed with error code " << rc;
-                  return test_failure(err.str());
-               }
-
-               return test_success();
             }
 
             template <typename T>
-            bool test_rc_fail(const std::string& func, const std::string& why, T rc) {
-               static_assert(std::is_integral<T>::value, "Integer required.");
-
-               if(rc == 0) {
-                  std::ostringstream err;
-                  err << m_who;
-                  err << " call to " << func << " unexpectedly succeeded";
-                  err << " expecting failure because " << why;
-                  return test_failure(err.str());
+            bool test_opt_is_null(std::string_view what, const std::optional<T>& val) {
+               if(val == std::nullopt) {
+                  return test_success("was nullopt");
+               } else {
+                  return test_failure(what, "not nullopt");
                }
-
-               return test_success();
             }
 
-            bool test_rc(const std::string& func, int expected, int rc);
+            bool test_opt_u8_eq(std::string_view what,
+                                std::optional<uint8_t> produced,
+                                std::optional<uint8_t> expected);
 
-            bool test_rc_init(const std::string& func, int rc);
-
-            bool test_ne(const std::string& what, size_t produced, size_t expected);
-
-            bool test_ne(const std::string& what, const std::string& str1, const std::string& str2);
+            bool test_opt_u64_eq(std::string_view what,
+                                 std::optional<uint64_t> produced,
+                                 std::optional<uint64_t> expected);
 
 #if defined(BOTAN_HAS_BIGINT)
-            bool test_eq(const std::string& what, const BigInt& produced, const BigInt& expected);
-            bool test_ne(const std::string& what, const BigInt& produced, const BigInt& expected);
+            /* Test predicates for BigInt */
+            bool test_bn_eq(std::string_view what, const BigInt& produced, const BigInt& expected);
+            bool test_bn_ne(std::string_view what, const BigInt& produced, const BigInt& expected);
 #endif
 
-#if defined(BOTAN_HAS_LEGACY_EC_POINT)
-            bool test_eq(const std::string& what, const Botan::EC_Point& a, const Botan::EC_Point& b);
-#endif
+            /* Test predicates for binary strings */
+            bool test_bin_ne(std::string_view what,
+                             std::span<const uint8_t> produced,
+                             std::span<const uint8_t> expected);
 
-            bool test_eq(const char* producer,
-                         const std::string& what,
-                         const uint8_t produced[],
-                         size_t produced_len,
-                         const uint8_t expected[],
-                         size_t expected_len);
+            bool test_bin_eq(std::string_view what,
+                             std::span<const uint8_t> produced,
+                             std::span<const uint8_t> expected);
 
-            bool test_ne(const std::string& what,
-                         const uint8_t produced[],
-                         size_t produced_len,
-                         const uint8_t expected[],
-                         size_t expected_len);
+            bool test_bin_eq(std::string_view what, std::span<const uint8_t> produced, std::string_view expected_hex);
 
-            bool test_eq(const std::string& what,
-                         std::span<const uint8_t> produced,
-                         std::span<const uint8_t> expected) {
-               return test_eq(nullptr, what, produced.data(), produced.size(), expected.data(), expected.size());
-            }
-
-            bool test_eq(const std::string& producer,
-                         const std::string& what,
-                         std::span<const uint8_t> produced,
-                         std::span<const uint8_t> expected) {
-               return test_eq(
-                  producer.c_str(), what, produced.data(), produced.size(), expected.data(), expected.size());
-            }
-
-            bool test_eq(const std::string& what, std::span<const uint8_t> produced, const char* expected_hex) {
-               const std::vector<uint8_t> expected = Botan::hex_decode(expected_hex);
-               return test_eq(nullptr, what, produced.data(), produced.size(), expected.data(), expected.size());
-            }
-
-            bool test_ne(const std::string& what,
-                         std::span<const uint8_t> produced,
-                         std::span<const uint8_t> expected) {
-               return test_ne(what, produced.data(), produced.size(), expected.data(), expected.size());
+            template <std::size_t N>
+            bool test_bin_eq(std::string_view what,
+                             const std::array<uint8_t, N>& produced,
+                             const std::array<uint8_t, N>& expected) {
+               return test_bin_eq(what, std::span{produced}, std::span{expected});
             }
 
          private:
             class ThrowExpectations {
                public:
-                  ThrowExpectations(std::function<void()> fn) :
-                        m_fn(std::move(fn)), m_expect_success(false), m_consumed(false) {}
+                  explicit ThrowExpectations(std::function<void()> fn) : m_fn(std::move(fn)) {}
 
                   ThrowExpectations(const ThrowExpectations&) = delete;
                   ThrowExpectations& operator=(const ThrowExpectations&) = delete;
                   ThrowExpectations(ThrowExpectations&&) = default;
                   ThrowExpectations& operator=(ThrowExpectations&&) = default;
 
-                  ~ThrowExpectations() { BOTAN_ASSERT_NOMSG(m_consumed); }
+                  ~ThrowExpectations();
 
-                  ThrowExpectations& expect_success() {
-                     BOTAN_ASSERT_NOMSG(!m_expected_message && !m_expected_exception_type);
-                     m_expect_success = true;
-                     return *this;
-                  }
+                  ThrowExpectations& expect_success();
 
-                  ThrowExpectations& expect_message(const std::string& message) {
-                     BOTAN_ASSERT_NOMSG(!m_expect_success);
-                     m_expected_message = message;
-                     return *this;
-                  }
+                  ThrowExpectations& expect_message(std::string_view message);
 
                   template <typename ExT>
                   ThrowExpectations& expect_exception_type() {
-                     BOTAN_ASSERT_NOMSG(!m_expect_success);
-                     m_expected_exception_type = typeid(ExT);
+                     assert_that_success_is_not_expected();
+
+                     m_expected_exception_check_fn = [](const std::exception_ptr& e) {
+                        try {
+                           if(e) {
+                              std::rethrow_exception(e);
+                           }
+                        } catch(const ExT&) {
+                           return true;
+                        } catch(...) {
+                           return false;
+                        }
+                        return false;
+                     };
                      return *this;
                   }
 
-                  bool check(const std::string& test_name, Test::Result& result);
+                  bool check(std::string_view test_name, Test::Result& result);
 
                private:
+                  void assert_that_success_is_not_expected() const;
+
                   std::function<void()> m_fn;
-                  bool m_expect_success;
                   std::optional<std::string> m_expected_message;
-                  std::optional<std::type_index> m_expected_exception_type;
-                  bool m_consumed;
+                  std::function<bool(std::exception_ptr)> m_expected_exception_check_fn;
+                  bool m_expect_success = false;
+                  bool m_consumed = false;
             };
 
          public:
-            bool test_throws(const std::string& what, const std::function<void()>& fn);
+            bool test_throws(std::string_view what, std::function<void()> fn);
 
-            bool test_throws(const std::string& what, const std::string& expected, const std::function<void()>& fn);
+            bool test_throws(std::string_view what, std::string_view expected, std::function<void()> fn);
 
-            bool test_no_throw(const std::string& what, const std::function<void()>& fn);
+            bool test_no_throw(std::string_view what, std::function<void()> fn);
 
             template <typename ExceptionT>
-            bool test_throws(const std::string& what, const std::function<void()>& fn) {
-               return ThrowExpectations(fn).expect_exception_type<ExceptionT>().check(what, *this);
+            bool test_throws(std::string_view what, std::function<void()> fn) {
+               return ThrowExpectations(std::move(fn)).expect_exception_type<ExceptionT>().check(what, *this);
             }
 
             template <typename ExceptionT>
-            bool test_throws(const std::string& what, const std::string& expected, const std::function<void()>& fn) {
-               return ThrowExpectations(fn).expect_exception_type<ExceptionT>().expect_message(expected).check(what,
-                                                                                                               *this);
+            bool test_throws(std::string_view what, std::string_view expected, std::function<void()> fn) {
+               // clang-format off
+               return ThrowExpectations(std::move(fn)).expect_exception_type<ExceptionT>().expect_message(expected).check(what, *this);
+               // clang-format on
             }
 
             void set_ns_consumed(uint64_t ns) { m_ns_taken = ns; }
@@ -551,32 +456,14 @@ class Test {
             void start_timer();
             void end_timer();
 
-            void set_code_location(CodeLocation where) { m_where = std::move(where); }
+            void set_code_location(CodeLocation where) { m_where = where; }
 
             const std::optional<CodeLocation>& code_location() const { return m_where; }
 
          private:
-            template <typename T>
-            std::string to_string(const T& v) {
-               if constexpr(detail::is_optional_v<T>) {
-                  return (v.has_value()) ? to_string(v.value()) : std::string("std::nullopt");
-               } else if constexpr(detail::has_Botan_to_string<T>) {
-                  return Botan::to_string(v);
-               } else if constexpr(detail::has_ostream_operator<T>) {
-                  std::ostringstream oss;
-                  oss << v;
-                  return oss.str();
-               } else if constexpr(detail::has_std_to_string<T>) {
-                  return std::to_string(v);
-               } else {
-                  return "<?>";
-               }
-            }
-
-         private:
             std::string m_who;
             std::optional<CodeLocation> m_where;
-            std::chrono::system_clock::time_point m_timestamp;
+            uint64_t m_timestamp;
             uint64_t m_started = 0;
             uint64_t m_ns_taken = 0;
             size_t m_tests_passed = 0;
@@ -584,16 +471,35 @@ class Test {
             std::vector<std::string> m_log;
       };
 
-      virtual ~Test() = default;
+      virtual ~Test();
+
+      Test();
+      Test(const Test& other) = delete;
+      Test(Test&& other) = default;
+      Test& operator=(const Test& other) = delete;
+      Test& operator=(Test&& other) = delete;
+
       virtual std::vector<Test::Result> run() = 0;
 
-      virtual std::vector<std::string> possible_providers(const std::string&);
+      virtual std::vector<std::string> possible_providers(const std::string& alg);
 
       void initialize(std::string test_name, CodeLocation location);
 
       const std::string& test_name() const { return m_test_name; }
 
       Botan::RandomNumberGenerator& rng() const;
+
+      /**
+       * Use this if a test needs some supported EC group but it is not relevant
+       * which one exactly. This tries to find a commonly used group that is
+       * both supported in this build and as small as possible (for test speed).
+       *
+       * If @p preferred_groups is non-empty, a group from that list is chosen
+       *
+       * @returns the name of a supported EC group, or std::nullopt if no
+       *          supported EC group could be found for this build
+       */
+      static std::optional<std::string> supported_ec_group_name(std::vector<std::string> preferred_groups = {});
 
       const std::optional<CodeLocation>& registration_location() const { return m_registration_location; }
 
@@ -604,47 +510,26 @@ class Test {
                                 bool needs_serialization,
                                 std::function<std::unique_ptr<Test>()> maker_fn);
 
-      static std::set<std::string> registered_tests();
-      static std::set<std::string> registered_test_categories();
+      static std::vector<std::string> registered_tests();
+      static std::vector<std::string> registered_test_categories();
+
       static std::vector<std::string> filter_registered_tests(const std::vector<std::string>& requested,
-                                                              const std::set<std::string>& to_be_skipped);
+                                                              const std::vector<std::string>& to_be_skipped);
 
       static std::unique_ptr<Test> get_test(const std::string& test_name);
       static bool test_needs_serialization(const std::string& test_name);
 
       static std::string data_dir(const std::string& subdir);
       static std::vector<std::string> files_in_data_dir(const std::string& subdir);
-      static std::string data_file(const std::string& what);
+      static std::string data_file(const std::string& file);
       static std::string data_file_as_temporary_copy(const std::string& what);
 
       static std::string format_time(uint64_t nanoseconds);
 
-      static std::string format_time(const std::chrono::nanoseconds nanoseconds) {
-         return format_time(nanoseconds.count());
-      }
-
-      template <typename Alloc>
-      static std::vector<uint8_t, Alloc> mutate_vec(const std::vector<uint8_t, Alloc>& v,
-                                                    Botan::RandomNumberGenerator& rng,
-                                                    bool maybe_resize = false,
-                                                    size_t min_offset = 0) {
-         std::vector<uint8_t, Alloc> r = v;
-
-         if(maybe_resize && (r.empty() || rng.next_byte() < 32)) {
-            // TODO: occasionally truncate, insert at random index
-            const size_t add = 1 + (rng.next_byte() % 16);
-            r.resize(r.size() + add);
-            rng.randomize(&r[r.size() - add], add);
-         }
-
-         if(r.size() > min_offset) {
-            const size_t offset = std::max<size_t>(min_offset, rng.next_byte() % r.size());
-            const uint8_t perturb = rng.next_nonzero_byte();
-            r[offset] ^= perturb;
-         }
-
-         return r;
-      }
+      static std::vector<uint8_t> mutate_vec(const std::vector<uint8_t>& v,
+                                             Botan::RandomNumberGenerator& rng,
+                                             bool maybe_resize = false,
+                                             size_t min_offset = 0);
 
       static void set_test_options(const Test_Options& opts);
 
@@ -697,7 +582,7 @@ class TestClassRegistration {
                             const std::string& name,
                             bool smoke_test,
                             bool needs_serialization,
-                            CodeLocation registration_location) {
+                            const CodeLocation& registration_location) {
          Test::register_test(category, name, smoke_test, needs_serialization, [=] {
             auto test = std::make_unique<Test_Class>();
             test->initialize(name, registration_location);
@@ -706,14 +591,22 @@ class TestClassRegistration {
       }
 };
 
-#define BOTAN_REGISTER_TEST(category, name, Test_Class) \
+// NOLINTBEGIN(*-macro-usage)
+
+#define BOTAN_REGISTER_TEST(category, name, Test_Class)                  \
+   /* NOLINTNEXTLINE(cert-err58-cpp,*-throwing-static-initialization) */ \
    const TestClassRegistration<Test_Class> reg_##Test_Class##_tests(category, name, false, false, {__FILE__, __LINE__})
-#define BOTAN_REGISTER_SERIALIZED_TEST(category, name, Test_Class) \
+#define BOTAN_REGISTER_SERIALIZED_TEST(category, name, Test_Class)       \
+   /* NOLINTNEXTLINE(cert-err58-cpp,*-throwing-static-initialization) */ \
    const TestClassRegistration<Test_Class> reg_##Test_Class##_tests(category, name, false, true, {__FILE__, __LINE__})
-#define BOTAN_REGISTER_SMOKE_TEST(category, name, Test_Class) \
+#define BOTAN_REGISTER_SMOKE_TEST(category, name, Test_Class)            \
+   /* NOLINTNEXTLINE(cert-err58-cpp,*-throwing-static-initialization) */ \
    const TestClassRegistration<Test_Class> reg_##Test_Class##_tests(category, name, true, false, {__FILE__, __LINE__})
 #define BOTAN_REGISTER_SERIALIZED_SMOKE_TEST(category, name, Test_Class) \
+   /* NOLINTNEXTLINE(cert-err58-cpp,*-throwing-static-initialization) */ \
    const TestClassRegistration<Test_Class> reg_##Test_Class##_tests(category, name, true, true, {__FILE__, __LINE__})
+
+// NOLINTEND(*-macro-usage)
 
 typedef Test::Result (*test_fn)();
 typedef std::vector<Test::Result> (*test_fn_vec)();
@@ -740,11 +633,13 @@ class FnTest : public Test {
 
    public:
       template <typename... TestFns>
-      FnTest(TestFns... fns) : m_fns(make_variant_vector(fns...)) {}
+      explicit FnTest(TestFns... fns) : m_fns(make_variant_vector(fns...)) {}
 
       std::vector<Test::Result> run() override {
          std::vector<Test::Result> result;
 
+         // TODO(Botan4) use std::ranges::reverse_view here once available (need newer Clang)
+         // NOLINTNEXTLINE(modernize-loop-convert)
          for(auto fn_variant = m_fns.crbegin(); fn_variant != m_fns.crend(); ++fn_variant) {
             std::visit(
                [&](auto&& fn) {
@@ -773,7 +668,7 @@ class TestFnRegistration {
                          const std::string& name,
                          bool smoke_test,
                          bool needs_serialization,
-                         CodeLocation registration_location,
+                         const CodeLocation& registration_location,
                          TestFns... fn) {
          Test::register_test(category, name, smoke_test, needs_serialization, [=] {
             auto test = std::make_unique<FnTest>(fn...);
@@ -783,7 +678,10 @@ class TestFnRegistration {
       }
 };
 
+// NOLINTBEGIN(*-macro-usage)
+
 #define BOTAN_REGISTER_TEST_FN_IMPL(category, name, smoke_test, needs_serialization, fn0, ...) \
+   /* NOLINTNEXTLINE(cert-err58-cpp,*-throwing-static-initialization) */                       \
    static const TestFnRegistration register_##fn0(                                             \
       category, name, smoke_test, needs_serialization, {__FILE__, __LINE__}, fn0 __VA_OPT__(, ) __VA_ARGS__)
 
@@ -796,41 +694,46 @@ class TestFnRegistration {
 #define BOTAN_REGISTER_SERIALIZED_SMOKE_TEST_FN(category, name, ...) \
    BOTAN_REGISTER_TEST_FN_IMPL(category, name, true, true, __VA_ARGS__)
 
+// NOLINTEND(*-macro-usage)
+
 class VarMap {
    public:
-      void clear() { m_vars.clear(); }
+      bool has_key(std::string_view key) const;
 
-      void add(const std::string& key, const std::string& value) { m_vars[key] = value; }
+      bool get_req_bool(std::string_view key) const;
 
-      bool has_key(const std::string& key) const { return m_vars.count(key) == 1; }
+      std::vector<uint8_t> get_req_bin(std::string_view key) const;
+      std::vector<uint8_t> get_opt_bin(std::string_view key) const;
 
-      bool get_req_bool(const std::string& key) const;
-
-      std::vector<uint8_t> get_req_bin(const std::string& key) const;
-      std::vector<uint8_t> get_opt_bin(const std::string& key) const;
-
-      std::vector<std::vector<uint8_t>> get_req_bin_list(const std::string& key) const;
+      std::vector<std::vector<uint8_t>> get_req_bin_list(std::string_view key) const;
 
 #if defined(BOTAN_HAS_BIGINT)
-      Botan::BigInt get_req_bn(const std::string& key) const;
-      Botan::BigInt get_opt_bn(const std::string& key, const Botan::BigInt& def_value) const;
+      Botan::BigInt get_req_bn(std::string_view key) const;
+      Botan::BigInt get_opt_bn(std::string_view key, const Botan::BigInt& def_value) const;
 #endif
 
-      std::string get_req_str(const std::string& key) const;
-      std::string get_opt_str(const std::string& key, const std::string& def_value) const;
+      std::string get_req_str(std::string_view key) const;
+      std::string get_opt_str(std::string_view key, std::string_view def_value) const;
 
-      size_t get_req_sz(const std::string& key) const;
+      size_t get_req_sz(std::string_view key) const;
 
-      uint8_t get_req_u8(const std::string& key) const;
-      uint32_t get_req_u32(const std::string& key) const;
-      uint64_t get_req_u64(const std::string& key) const;
+      uint8_t get_req_u8(std::string_view key) const;
+      uint32_t get_req_u32(std::string_view key) const;
+      uint64_t get_req_u64(std::string_view key) const;
 
-      size_t get_opt_sz(const std::string& key, size_t def_value) const;
+      size_t get_opt_sz(std::string_view key, size_t def_value) const;
 
-      uint64_t get_opt_u64(const std::string& key, uint64_t def_value) const;
+      uint64_t get_opt_u64(std::string_view key, uint64_t def_value) const;
+
+      void clear();
+
+      void add(std::string_view key, std::string_view value);
 
    private:
-      std::unordered_map<std::string, std::string> m_vars;
+      const std::string& get_req_var(std::string_view key) const;
+      std::optional<std::string> get_opt_var(std::string_view key) const;
+
+      std::vector<std::pair<std::string, std::string>> m_vars;
 };
 
 /*
@@ -850,17 +753,22 @@ class VarMap {
 */
 class Text_Based_Test : public Test {
    public:
-      Text_Based_Test(const std::string& input_file,
-                      const std::string& required_keys,
-                      const std::string& optional_keys = "");
+      Text_Based_Test(const std::string& data_src,
+                      const std::string& required_keys_str,
+                      const std::string& optional_keys_str = "");
+
+      Text_Based_Test(const Text_Based_Test& other) = delete;
+      Text_Based_Test(Text_Based_Test&& other) = default;
+      Text_Based_Test& operator=(const Text_Based_Test& other) = delete;
+      Text_Based_Test& operator=(Text_Based_Test&& other) = delete;
+
+      ~Text_Based_Test() override;
 
       virtual bool clear_between_callbacks() const { return true; }
 
       std::vector<Test::Result> run() override;
 
-   protected:
-      std::string get_next_line();
-
+   private:
       virtual Test::Result run_one_test(const std::string& header, const VarMap& vars) = 0;
       // Called before run_one_test
       virtual bool skip_this_test(const std::string& header, const VarMap& vars);
@@ -868,16 +776,8 @@ class Text_Based_Test : public Test {
       virtual std::vector<Test::Result> run_final_tests() { return std::vector<Test::Result>(); }
 
    private:
-      std::string m_data_src;
-      std::set<std::string> m_required_keys;
-      std::set<std::string> m_optional_keys;
-      std::string m_output_key;
-
-      bool m_first = true;
-      std::unique_ptr<std::istream> m_cur;
-      std::string m_cur_src_name;
-      std::deque<std::string> m_srcs;
-      std::vector<std::string> m_cpu_flags;
+      class Text_Based_Test_Data;
+      std::unique_ptr<Text_Based_Test_Data> m_data;
 };
 
 /**
@@ -895,7 +795,7 @@ class Text_Based_Test : public Test {
  *       {
  *       CHECK("some unit test name", [](Test::Result& r)
  *          {
- *          r.confirm("some observation", 1+1 == 2);
+ *          r.test_is_true("some observation", 1+1 == 2);
  *          }),
  *       CHECK("some other unit test name", [](Test::Result& r)
  *          {
