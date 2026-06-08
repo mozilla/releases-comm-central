@@ -1722,8 +1722,9 @@ nsresult nsImapService::OfflineAppendFromFile(
       // if (NS_SUCCEEDED(rv) && bytesRead > 0)
       msgParser->SetState(nsIMsgParseMailMsgState::ParseHeadersState);
       msgParser->SetNewMsgHdr(newMsgHdr);
-      // set the new key to fake key so the msg hdr will have that for a key
-      msgParser->SetNewKey(fakeKey);
+      // Set the new UID to fake key so the msg hdr will have that for a key.
+      // See https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
+      msgParser->SetMsgUid((ImapUid)fakeKey);
       bool needMoreData = false;
       char* newLine = nullptr;
       uint32_t numBytesInLine = 0;

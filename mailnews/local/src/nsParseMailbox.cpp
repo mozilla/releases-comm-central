@@ -123,7 +123,7 @@ NS_IMPL_ISUPPORTS(nsParseMailMessageState, nsIMsgParseMailMsgState,
 nsParseMailMessageState::nsParseMailMessageState() {
   m_EnvDate = 0;
   m_position = 0;
-  m_new_key = nsMsgKey_None;
+  m_msgUid = ImapUid_None;
   m_state = nsIMsgParseMailMsgState::ParseHeadersState;
 
   // setup handling of custom db headers, headers that are added to .msf files
@@ -183,7 +183,7 @@ NS_IMETHODIMP nsParseMailMessageState::Clear() {
   m_body_lines = 0;
   m_newMsgHdr = nullptr;
   m_envelope_pos = 0;
-  m_new_key = nsMsgKey_None;
+  m_msgUid = ImapUid_None;
   m_toList.Clear();
   m_ccList.Clear();
   m_headers.clear();
@@ -275,8 +275,8 @@ NS_IMETHODIMP nsParseMailMessageState::SetBackupMailDB(
   return NS_OK;
 }
 
-NS_IMETHODIMP nsParseMailMessageState::SetNewKey(nsMsgKey aKey) {
-  m_new_key = aKey;
+NS_IMETHODIMP nsParseMailMessageState::SetMsgUid(ImapUid uid) {
+  m_msgUid = uid;
   return NS_OK;
 }
 
@@ -716,17 +716,21 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
       ret = m_backupMailDB->GetMsgHdrForMessageID(rawMsgId.get(),
                                                   getter_AddRefs(oldHeader));
 
-    // m_new_key is set in nsImapMailFolder::ParseAdoptedHeaderLine to be
-    // the UID of the message, so that the key can get created as UID. That of
+    // m_msgUid may have been set previously by IMAP code, in order to force
+    // use of the server-assigned UID as the local database nsMsgKey. That of
     // course is extremely confusing, and we really need to clean that up. We
-    // really should not conflate the meaning of envelope position, key, and
-    // UID.
-    if (NS_SUCCEEDED(ret) && oldHeader)
-      ret = m_mailDB->CopyHdrFromExistingHdr(m_new_key, oldHeader, false,
+    // really should not conflate the meaning of nsMsgKey and UID.
+    // See https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
+    nsMsgKey newKey = nsMsgKey_None;
+    if (m_msgUid != ImapUid_None) {
+      newKey = (nsMsgKey)m_msgUid;
+    }
+    if (NS_SUCCEEDED(ret) && oldHeader) {
+      ret = m_mailDB->CopyHdrFromExistingHdr(newKey, oldHeader, false,
                                              getter_AddRefs(m_newMsgHdr));
-    else if (!m_newMsgHdr) {
+    } else if (!m_newMsgHdr) {
       // Should assert that this is not a local message
-      ret = m_mailDB->CreateNewHdr(m_new_key, getter_AddRefs(m_newMsgHdr));
+      ret = m_mailDB->CreateNewHdr(newKey, getter_AddRefs(m_newMsgHdr));
     }
 
     if (NS_SUCCEEDED(ret) && m_newMsgHdr) {

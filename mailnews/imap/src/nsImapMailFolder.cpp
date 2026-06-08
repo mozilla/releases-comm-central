@@ -2854,7 +2854,7 @@ nsresult nsImapMailFolder::ParseAdoptedHeaderLine(const char* aMessageLine,
   // but they never contain partial lines
   const char* str = aMessageLine;
   m_curMsgUid = uid;
-  m_msgParser->SetNewKey(m_curMsgUid);
+  m_msgParser->SetMsgUid(uid);
   // m_envelope_pos, for local folders,
   // is the msg key. Setting this will set the msg key for the new header.
 

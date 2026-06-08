@@ -5,6 +5,7 @@
 #ifndef COMM_MAILNEWS_LOCAL_SRC_NSPARSEMAILBOX_H_
 #define COMM_MAILNEWS_LOCAL_SRC_NSPARSEMAILBOX_H_
 
+#include "ImapTypes.h"
 #include "nsIMsgParseMailMsgState.h"
 #include "nsMsgLineBuffer.h"
 #include "nsIMsgDatabase.h"
@@ -71,7 +72,7 @@ class nsParseMailMessageState : public nsIMsgParseMailMsgState,
   nsAutoCString m_EnvAddr;  // "" if missing.
   PRTime m_EnvDate;         // 0 if missing.
 
-  nsMsgKey m_new_key;  // DB key for the new header.
+  ImapUid m_msgUid;  // IMAP UID for the new header.
 
   // The raw header data.
   mozilla::Vector<char> m_headers;

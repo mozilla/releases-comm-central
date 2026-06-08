@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "ImapTypes.idl"
 #include "nsISupports.idl"
 #include "MailNewsTypes2.idl"  // for nsMsgKey typedef
 
@@ -35,10 +36,13 @@ interface nsIMsgParseMailMsgState : nsISupports {
     const long ParseBodyState=2;
 
     /**
-     * Set the key to be used for the new message header.
+     * Set the UID for the message being parsed (IMAP only).
      *
-     * @param aNewKey  the new db key
+     * This will be used as the nsMsgkey for the new message header.
+     * (See https://bugzilla.mozilla.org/show_bug.cgi?id=1806770)
+     *
+     * @param uid  the UID
      *
      */
-    void setNewKey(in nsMsgKey aKey);
+    void setMsgUid(in ImapUid uid);
 };
