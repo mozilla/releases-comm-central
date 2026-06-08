@@ -16,6 +16,9 @@ const { NetworkTestUtils } = ChromeUtils.importESModule(
 const { POP3Server } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/POP3Server.sys.mjs"
 );
+const { OAuth2TestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/OAuth2TestUtils.sys.mjs"
+);
 
 const { ConfigVerifier } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/ConfigVerifier.sys.mjs"
@@ -25,7 +28,8 @@ const certOverrideService = Cc[
   "@mozilla.org/security/certoverride;1"
 ].getService(Ci.nsICertOverrideService);
 
-const verifier = new ConfigVerifier(window.msgWindow);
+const abortController = new AbortController();
+const verifier = new ConfigVerifier(window.msgWindow, abortController.signal);
 
 // Change this for more server debugging output. See Maild.sys.mjs for values.
 const serverDebugLevel = 0;
@@ -38,6 +42,7 @@ add_setup(async function () {
   await createServers([
     serverDefs.imap.tls,
     serverDefs.imap.expiredTLS,
+    serverDefs.imap.oAuth,
     serverDefs.pop3.tls,
     serverDefs.pop3.expiredTLS,
   ]);
@@ -204,4 +209,57 @@ add_task(async function testPOP3ExpiredCertNoException() {
 
 add_task(async function testPOP3ExpiredCertException() {
   await subtestExpiredCertException({ type: "pop3", port: 995 });
+});
+
+add_task(async function testIMAPCancelOAuth() {
+  await OAuth2TestUtils.startServer();
+  const abortable = new AbortController();
+  const abortedVerifier = new ConfigVerifier(
+    window.msgWindow,
+    abortable.signal
+  );
+  const config = {
+    incoming: {
+      type: "imap",
+      hostname: "test.test",
+      port: 143,
+      socketType: Ci.nsMsgSocketType.STARTTLS,
+      auth: Ci.nsMsgAuthMethod.OAuth2,
+      username: "user",
+      password: "password",
+    },
+    outgoing: {},
+    identity: {
+      emailAddress: "test@test.test",
+    },
+  };
+  const oauthPromptKey = "oauth://test.test/user";
+  const testAbort = new Error("Aborting for test");
+  const asyncPrompter = Cc[
+    "@mozilla.org/messenger/msgAsyncPrompter;1"
+  ].getService(Ci.nsIMsgAsyncPrompter);
+
+  const promptPromise = OAuth2TestUtils.promiseOAuthWindow();
+  const verificationPromise = abortedVerifier.verifyConfig(config);
+  await promptPromise;
+  Assert.ok(
+    asyncPrompter.wrappedJSObject.pendingPrompts[oauthPromptKey],
+    "Should have a pending prompt from this verification"
+  );
+  abortable.abort(testAbort);
+
+  await Assert.rejects(
+    verificationPromise,
+    error => error === testAbort,
+    "Should reject with abort reason"
+  );
+
+  Assert.equal(
+    asyncPrompter.wrappedJSObject.pendingPrompts[oauthPromptKey],
+    undefined,
+    "Should not have a pending prompt from this verification"
+  );
+
+  OAuth2TestUtils.forgetObjects();
+  OAuth2TestUtils.stopServer();
 });

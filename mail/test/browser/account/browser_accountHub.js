@@ -611,6 +611,10 @@ add_task(async function test_account_enter_password_imap_account() {
 
   // The back button should be hidden now, as we shouldn't be able to cancel
   // account creation.
+  await BrowserTestUtils.waitForAttribute(
+    "hidden",
+    footer.querySelector("#back")
+  );
   Assert.ok(
     BrowserTestUtils.isHidden(footer.querySelector("#back")),
     "Back button should be hidden."

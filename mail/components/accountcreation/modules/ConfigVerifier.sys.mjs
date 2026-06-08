@@ -7,6 +7,9 @@ import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 import { OAuth2Providers } from "resource:///modules/OAuth2Providers.sys.mjs";
 
 const lazy = {};
+ChromeUtils.defineESModuleGetters(lazy, {
+  OAuth2Module: "resource:///modules/OAuth2Module.sys.mjs",
+});
 ChromeUtils.defineLazyGetter(
   lazy,
   "l10n",
@@ -29,26 +32,39 @@ export class ConfigVerifier {
     return this.QueryInterface(iid);
   }
 
-  constructor(msgWindow) {
+  /**
+   * @param {nsIMsgWindow} msgWindow
+   * @param {AbortSignal} abortSignal
+   */
+  constructor(msgWindow, abortSignal) {
     this.msgWindow = msgWindow;
     this._log = console.createInstance({
       prefix: "mail.setup",
       maxLogLevel: "Warn",
       maxLogLevelPref: "mail.setup.loglevel",
     });
+    this.signal = abortSignal;
+    this.signal.addEventListener("abort", this, { once: true });
+  }
+
+  handleEvent(event) {
+    if (event.type == "abort") {
+      this._runningUrl?.SetUrlState(false, Cr.NS_ERROR_ABORT);
+    }
   }
 
   /**
-   * @param {nsIURI} _url - The URL being processed.
+   * @param {nsIURI} url - The URL being processed.
    * @see {nsIUrlListener}
    */
-  OnStartRunningUrl(_url) {
+  OnStartRunningUrl(url) {
     this._log.debug(`Starting to verify configuration;
       email as username=${
         this.config.incoming.username != this.config.identity.emailAddress
       }
       savedUsername=${this.config.usernameSaved ? "true" : "false"},
       authMethod=${this.server.authMethod}`);
+    this._runningUrl = url;
   }
 
   /**
@@ -57,6 +73,7 @@ export class ConfigVerifier {
    * @see {nsIUrlListener}
    */
   OnStopRunningUrl(url, status) {
+    this._runningUrl = null;
     if (Components.isSuccessCode(status)) {
       this._log.debug(`Configuration verified successfully!`);
       this.cleanup();
@@ -182,7 +199,38 @@ export class ConfigVerifier {
    */
   cleanup() {
     try {
+      this.signal.removeEventListener("abort", this);
       if (this.server) {
+        // Clean up any OAuth2 prompt that may be stuck. Optimally we'd be able
+        // to pass the abort along to the server trying to verify the logon
+        // information instead of having to handle this here. See also bug
+        // 2046212.
+        if (this.server.authMethod == Ci.nsMsgAuthMethod.OAuth2) {
+          const asyncPrompter = Cc[
+            "@mozilla.org/messenger/msgAsyncPrompter;1"
+          ].getService(Ci.nsIMsgAsyncPrompter);
+          // Initialize an OAuth module that will match what the server would've
+          // initialized.
+          const module = new lazy.OAuth2Module();
+          module.initFromMail(this.server);
+          if (
+            Object.hasOwn(
+              asyncPrompter.wrappedJSObject.pendingPrompts,
+              `${module._loginOrigin}/${module._username}`
+            )
+          ) {
+            // This new prompt should match the existing pending prompt from
+            // verifyLogon, so the MsgAsyncPrompter should reuse it for this
+            // request (through MsgAsyncPrompter). As a result, no new prompt is
+            // shown. This then allows us to cancel the prompt started by
+            // verifyLogon.
+            module.getAccessToken({
+              onSuccess() {},
+              onFailure() {},
+            });
+            module.cancelPrompt();
+          }
+        }
         MailServices.accounts.removeIncomingServer(this.server, true);
         this.server = null;
       }
@@ -196,6 +244,12 @@ export class ConfigVerifier {
    */
   _failed(url) {
     this.cleanup();
+
+    if (this.signal.aborted) {
+      this.errorCallback(this.signal.reason);
+      return;
+    }
+
     let code = "login-error-unknown";
     let msg = "";
 

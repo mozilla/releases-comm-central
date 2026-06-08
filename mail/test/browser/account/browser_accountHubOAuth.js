@@ -28,12 +28,10 @@ registerCleanupFunction(function () {
 
 add_task(async function test_account_oauth_imap_account() {
   Services.fog.testResetFOG();
-  const oauthImap = await ServerTestUtils.createServer(
-    ServerTestUtils.serverDefs.imap.oAuth
-  );
-  const oauthSmtp = await ServerTestUtils.createServer(
-    ServerTestUtils.serverDefs.smtp.oAuth
-  );
+  const [oauthImap, oauthSmtp] = await ServerTestUtils.createServers([
+    ServerTestUtils.serverDefs.imap.oAuth,
+    ServerTestUtils.serverDefs.smtp.oAuth,
+  ]);
   await OAuth2TestUtils.startServer();
   const emailUser = {
     name: "John Doe",
@@ -137,13 +135,11 @@ add_task(async function test_account_oauth_imap_account() {
   await subtest_close_account_hub_dialog(dialog, successStep);
 });
 
-add_task(async function test_account_oauth_cancel() {
-  const oauthImap = await ServerTestUtils.createServer(
-    ServerTestUtils.serverDefs.imap.oAuth
-  );
-  const oauthSmtp = await ServerTestUtils.createServer(
-    ServerTestUtils.serverDefs.smtp.oAuth
-  );
+add_task(async function test_account_oauth_cancel_prompt_window() {
+  const [oauthImap, oauthSmtp] = await ServerTestUtils.createServers([
+    ServerTestUtils.serverDefs.imap.oAuth,
+    ServerTestUtils.serverDefs.smtp.oAuth,
+  ]);
   await OAuth2TestUtils.startServer();
   const emailUser = {
     name: "John Doe",
@@ -169,11 +165,9 @@ add_task(async function test_account_oauth_cancel() {
 
   const oAuthWindow = await oAuthWindowPromise;
 
-  // The back button should be hidden now, as we shouldn't be able to cancel
-  // account creation with OAuth using the back/cancel button.
   Assert.ok(
-    BrowserTestUtils.isHidden(footer.querySelector("#back")),
-    "Back button should be hidden"
+    BrowserTestUtils.isVisible(footer.querySelector("#back")),
+    "Back button should be visible"
   );
 
   await SimpleTest.promiseFocus(oAuthWindow.getBrowser());
@@ -195,8 +189,80 @@ add_task(async function test_account_oauth_cancel() {
   );
   Assert.ok(!footerForward.disabled, "Forward button should still be enabled");
 
-  // The back button should be visible again because we cancelled OAuth through
-  // the OAuth window.
+  // The back button should be visible still.
+  Assert.ok(
+    BrowserTestUtils.isVisible(footer.querySelector("#back")),
+    "Back button should be visible"
+  );
+
+  await subtest_clear_status_bar();
+
+  OAuth2TestUtils.stopServer();
+  oauthImap.close();
+  oauthSmtp.close();
+  OAuth2TestUtils.forgetObjects();
+  await Services.logins.removeAllLoginsAsync();
+  await subtest_close_account_hub_dialog(dialog, configFoundTemplate);
+});
+
+add_task(async function test_account_oauth_cancel_button() {
+  const [oauthImap, oauthSmtp] = await ServerTestUtils.createServers([
+    ServerTestUtils.serverDefs.imap.oAuth,
+    ServerTestUtils.serverDefs.smtp.oAuth,
+  ]);
+  await OAuth2TestUtils.startServer();
+  const emailUser = {
+    name: "John Doe",
+    email: "user@test.test",
+  };
+
+  const dialog = await subtest_open_account_hub_dialog();
+  await subtest_fill_initial_config_fields(dialog, emailUser);
+  const footer = dialog.querySelector("account-hub-footer");
+  const footerForward = footer.querySelector("#forward");
+  const configFoundTemplate = dialog.querySelector("email-config-found");
+
+  await TestUtils.waitForCondition(
+    () =>
+      configFoundTemplate.querySelector("#imap") &&
+      BrowserTestUtils.isVisible(configFoundTemplate.querySelector("#imap")),
+    "The IMAP config option should be visible"
+  );
+
+  const oAuthWindowPromise = OAuth2TestUtils.promiseOAuthWindow();
+  // Continue button should trigger oAuth popup.
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+
+  const oAuthWindow = await oAuthWindowPromise;
+
+  // The back button should be visible to allow cancelling the config
+  // verification.
+  Assert.ok(
+    BrowserTestUtils.isVisible(footer.querySelector("#back")),
+    "Back button should be visible"
+  );
+
+  // Click cancel button.
+  EventUtils.synthesizeMouseAtCenter(footer.querySelector("#back"), {});
+
+  await BrowserTestUtils.windowClosed(oAuthWindow);
+  await TestUtils.waitForCondition(
+    () => !dialog.querySelector("account-hub-email.busy"),
+    "Should stop loading"
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(configFoundTemplate),
+    "Should still be on config template"
+  );
+  Assert.ok(
+    MailServices.accounts.accounts.every(
+      account => account.defaultIdentity?.email !== emailUser.email
+    ),
+    "Should have no email account for the address"
+  );
+  Assert.ok(!footerForward.disabled, "Forward button should still be enabled");
+
+  // The back button should be visible still.
   Assert.ok(
     BrowserTestUtils.isVisible(footer.querySelector("#back")),
     "Back button should be visible"

@@ -45,7 +45,7 @@ const serverDebugLevel = 0;
  * Create and start a single server.
  *
  * @param {ServerDef} def - The server definition.
- * @returns {IMAPServer|POP3Server|SMTPServer|EwsServer|NNTPServer}
+ * @returns {IMAPServer|POP3Server|SMTPServer|EwsServer|NNTPServer|GraphServer}
  */
 async function createServer({
   type,
@@ -79,7 +79,7 @@ async function createServer({
  * Create and start multiple servers.
  *
  * @param {ServerDef[]} serverDefs - The server definitions.
- * @returns {IMAPServer[]|POP3Server[]|SMTPServer[]} - The created servers,
+ * @returns {(IMAPServer|POP3Server|SMTPServer|EwsServer|NNTPServer|GraphServer)[]} The created servers,
  *   in the same order as the definitions given.
  */
 async function createServers(serverDefs) {

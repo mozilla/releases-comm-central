@@ -68,7 +68,8 @@ async function subtest(grantedScope, expectFailure) {
   };
 
   expectOAuthDialog(grantedScope);
-  const verifier = new ConfigVerifier(window.msgWindow);
+  const abortController = new AbortController();
+  const verifier = new ConfigVerifier(window.msgWindow, abortController.signal);
   const verifyPromise = verifier.verifyConfig(config);
 
   // We must handle `verifyPromise` before yielding the event loop to avoid it
@@ -86,11 +87,17 @@ async function subtest(grantedScope, expectFailure) {
     // IMAP may time out before OAuth completes. If that happens, retry once the
     // token is cached.
     configOut = await verifyPromise.catch(async () => {
+      info(
+        "IMAP probably timed out, retrying after OAuth completes with the cached token..."
+      );
       await TestUtils.waitForCondition(
         () => Glean.mail.oauth2Authentication.testGetValue(),
         "waiting for OAuth telemetry"
       );
-      return new ConfigVerifier(window.msgWindow).verifyConfig(config);
+      return new ConfigVerifier(
+        window.msgWindow,
+        abortController.signal
+      ).verifyConfig(config);
     });
   }
 

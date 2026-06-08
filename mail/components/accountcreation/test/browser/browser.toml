@@ -60,3 +60,4 @@ support-files = ["files/**"]
 tags = ["oauth"]
 
 ["browser_verifyConfig.js"]
+tags = ["oauth"]
