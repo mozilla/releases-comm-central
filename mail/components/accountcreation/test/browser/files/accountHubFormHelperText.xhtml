@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Account Hub Form Helper Text Test</title>
+    <link rel="stylesheet" href="chrome://messenger/skin/accountHub.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/accountHubForms.css" />
+  </head>
+  <body>
+    <form id="helperTextForm">
+      <div class="input-control">
+        <input
+          id="userInvalidInput"
+          class="input-field"
+          required="required"
+        />
+        <span id="userInvalidError" class="input-error-message">
+          Error message
+        </span>
+      </div>
+      <small id="userInvalidHelper" class="account-hub-form-small-comment">
+        Helper text
+      </small>
+
+      <div class="input-control">
+        <input
+          id="manualInput"
+          class="input-field manual-input"
+          required="required"
+          value="mail.example.com"
+        />
+        <span id="manualError" class="input-error-message">Error message</span>
+      </div>
+      <small id="manualHelper" class="account-hub-form-small-comment">
+        Helper text
+      </small>
+
+      <div class="input-control">
+        <input id="warningInput" class="input-field warning" />
+        <span id="warningError" class="input-error-message">
+          Error message
+        </span>
+      </div>
+      <small id="warningHelper" class="account-hub-form-small-comment">
+        Helper text
+      </small>
+    </form>
+  </body>
+</html>

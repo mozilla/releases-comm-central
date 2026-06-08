@@ -316,6 +316,13 @@ div:has(legend) {
     padding-block-start: calc(var(--hub-form-label-height) - var(--hub-form-input-block-padding));
   }
 
+  /* Hide the helper text if there is a visible error message, as it will
+   * errantly visually overlap otherwise. Use 'visibility' to avoid
+   * element collapse and incorrect spacing. */
+  &:has(:is(:user-invalid, .manual-input:invalid, .warning) ~ .input-error-message) + .account-hub-form-small-comment {
+    visibility: hidden;
+  }
+
   &:has(.security-warning) {
     flex-wrap: wrap;
   }
