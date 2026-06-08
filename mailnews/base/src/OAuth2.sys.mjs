@@ -83,6 +83,8 @@ function generateRandomURLToken(byteLength) {
  * @param {object} issuerDetails
  * @param {string} issuerDetails.authorizationEndpoint - The authorization
  *   endpoint as defined by RFC 6749 Section 3.1.
+ * @param {?string} issuerDetails.issuerIdentifier - The expected issuer
+ *   identifier, as defined by RFC 9207.
  * @param {string} issuerDetails.clientId - The client_id as specified by RFC
  *   6749 Section 2.3.1.
  * @param {string} issuerDetails.clientSecret - The client_secret as specified
@@ -101,6 +103,7 @@ function generateRandomURLToken(byteLength) {
 export function OAuth2(scope, issuerDetails) {
   this.scope = scope;
   this.authorizationEndpoint = issuerDetails.authorizationEndpoint;
+  this.issuerIdentifier = issuerDetails.issuerIdentifier || null;
   this.clientId = issuerDetails.clientId;
   this.consumerSecret = issuerDetails.clientSecret || null;
   this.usePKCE = issuerDetails.usePKCE;
@@ -318,6 +321,31 @@ OAuth2.prototype = {
       this._authorizationState !== url.searchParams.get("state")
     ) {
       return false;
+    }
+    const iss = url.searchParams.get("iss");
+    if (this.issuerIdentifier) {
+      if (iss !== this.issuerIdentifier) {
+        log.warn(
+          `Unexpected issuer: requested ${this.issuerIdentifier}, found ${iss}.`
+        );
+        return false;
+      }
+    } else if (iss) {
+      // An issuer field was present when not required. This means either:
+      //   1. An OAuth provider that doesn't advertise RFC 9207 support is
+      //      behaving maliciously and trying to trick us into sending it
+      //      credentials for another provider who does, or
+      //   2. The provider has implemented support for RFC 9207 since
+      //      OAuth2Providers.sys.mjs was last updated for them.
+      // The spec tells us to assume the first scenario, but that would cause
+      // quite a bit of breakage until an update can ship, so we instead do a
+      // best effort check that the issuer and authorization endpoint are using
+      // the same domain (which is not technically required, but has been true
+      // for all providers so far).
+      if (new URL(iss).origin != new URL(this.authorizationEndpoint).origin) {
+        log.warn(`Unexpected issuer: expected no issuer, found ${iss}.`);
+        return false;
+      }
     }
     return url.searchParams.has("code");
   },

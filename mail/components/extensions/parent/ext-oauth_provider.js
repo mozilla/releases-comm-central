@@ -10,16 +10,19 @@ this.oauth_provider = class extends ExtensionAPIPersistent {
   onManifestEntry() {
     const details = this.extension.manifest.oauth_provider;
     OAuth2Providers.registerProvider(
-      details.issuer,
-      details.clientId,
-      details.clientSecret,
-      details.authorizationEndpoint,
-      details.tokenEndpoint,
-      details.redirectionEndpoint,
-      details.usePKCE,
+      {
+        name: details.issuer,
+        clientId: details.clientId,
+        clientSecret: details.clientSecret,
+        issuerIdentifier: details.issuerIdentifier,
+        authorizationEndpoint: details.authorizationEndpoint,
+        tokenEndpoint: details.tokenEndpoint,
+        redirectionEndpoint: details.redirectionEndpoint,
+        usePKCE: details.usePKCE,
+        useExternalBrowser: details.useExternalBrowser,
+      },
       details.hostnames,
-      details.scopes,
-      details.useExternalBrowser
+      details.scopes
     );
   }
 

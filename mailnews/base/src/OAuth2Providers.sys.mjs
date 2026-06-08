@@ -147,27 +147,31 @@ const kIssuersWithoutExchangeSupport = new Set([
 ]);
 
 /**
- * @typedef issuerDetails
+ * @typedef IssuerDetails
  * The information required to perform OAuth authentication with an provider.
  * See RFC6749 for more information.
  *
  * @property {string} name - An internal name Thunderbird uses to identify the
  *   details object. Usually but not necessarily the hostname of the endpoints.
- * @property {boolean} builtIn - If the details are in `kIssuers`, below.
- * @property {string} clientId
- * @property {string} [clientSecret]
- * @property {string} authorizationEndpoint
- * @property {string} [redirectionEndpoint]
- * @property {string} tokenEndpoint
- * @property {boolean} [usePKCE] - The issuer uses PKCE (RFC7636)
+ * @property {boolean} builtIn - If the details are built-in to the shipped
+ *   `kIssuers` map. `registerProvider` always sets this to false.
+ * @property {string} clientId - Identifies the OAuth client to the server.
+ * @property {string} [clientSecret] - "Secret" to verify the clientId, if the
+ *   server requires it.
+ * @property {string} [issuerIdentifier] - The issuer identifier, as defined by
+ *   RFC9207, if one is expected.
+ * @property {string} authorizationEndpoint - OAuth authorization endpoint URL.
+ * @property {string} tokenEndpoint - OAuth token endpoint URL.
+ * @property {string} [redirectionEndpoint] - OAuth redirection endpoint.
+ * @property {boolean} [usePKCE] - The issuer uses PKCE (RFC7636).
  * @property {boolean} [useExternalBrowser] - Whether to use the external
  *   browser OAuth login flow.
- * @property {boolean} [useSchemeRedirect] - Whether to use a net.thunderbird
- *   URL for the OAuth login flow.
+ * @property {boolean} [useSchemeRedirect] - Whether to use a net.thunderbird://
+ *   URL for the OAuth login flow. Only built-in providers can use this.
  */
 
 /**
- * Map of issuers to issuerDetails. Issuer is a unique string for the
+ * Map of issuers to IssuerDetails. Issuer is a unique string for the
  * organization that a Thunderbird account was registered at.
  *
  * For the moment these details are hard-coded, since dynamic client
@@ -185,6 +189,7 @@ var kIssuers = new Map([
       clientId:
         "406964657835-aq8lmia8j95dhl1a2bvharmfk3t1hgqj.apps.googleusercontent.com",
       clientSecret: "kSmqreRr0qwBWJgbf5Y-PjSU",
+      issuerIdentifier: "https://accounts.google.com",
       authorizationEndpoint: "https://accounts.google.com/o/oauth2/auth",
       tokenEndpoint: "https://www.googleapis.com/oauth2/v3/token",
       usePKCE: true,
@@ -259,6 +264,7 @@ var kIssuers = new Map([
       name: "www.fastmail.com",
       builtIn: true,
       clientId: "35f141ae",
+      issuerIdentifier: "https://api.fastmail.com",
       authorizationEndpoint: "https://api.fastmail.com/oauth/authorize",
       tokenEndpoint: "https://api.fastmail.com/oauth/refresh",
       usePKCE: true,
@@ -285,6 +291,7 @@ var kIssuers = new Map([
       name: "auth.tb.pro",
       builtIn: true,
       clientId: "desktop",
+      issuerIdentifier: "https://auth.tb.pro/realms/tbpro",
       authorizationEndpoint:
         "https://auth.tb.pro/realms/tbpro/protocol/openid-connect/auth",
       tokenEndpoint:
@@ -300,6 +307,7 @@ var kIssuers = new Map([
       name: "auth-stage.tb.pro",
       builtIn: true,
       clientId: "desktop",
+      issuerIdentifier: "https://auth-stage.tb.pro/realms/tbpro",
       authorizationEndpoint:
         "https://auth-stage.tb.pro/realms/tbpro/protocol/openid-connect/auth",
       tokenEndpoint:
@@ -501,30 +509,13 @@ export var OAuth2Providers = {
    * Add a provider at run-time. This will typically only be called by the
    * extension API.
    *
-   * @param {string} issuer - To identify this provider in the login manager.
-   * @param {string} clientId - Identifies the OAuth client to the server.
-   * @param {string} clientSecret - Identifies the OAuth client to the server.
-   * @param {string} authorizationEndpoint - OAuth authorization endpoint address.
-   * @param {string} tokenEndpoint - OAuth token endpoint address.
-   * @param {string} redirectionEndpoint - OAuth redirection endpoint.
-   * @param {boolean} usePKCE - If the authorization uses PKCE.
+   * @param {IssuerDetails} details - OAuth provider details. `builtIn` and
+   *   `useSchemeRedirect` are ignored and overwritten.
    * @param {string[]} hostnames - One or more hostnames which use this OAuth provider.
    * @param {string} scopes - The scopes to request when using this OAuth provider.
-   * @param {boolean} useExternalBrowser - If the login flow should use the
-   *   system web browser.
    */
-  registerProvider(
-    issuer,
-    clientId,
-    clientSecret,
-    authorizationEndpoint,
-    tokenEndpoint,
-    redirectionEndpoint,
-    usePKCE,
-    hostnames,
-    scopes,
-    useExternalBrowser
-  ) {
+  registerProvider(details, hostnames, scopes) {
+    const issuer = details.name;
     if (kIssuers.has(issuer)) {
       throw new Error(`Issuer ${issuer} already registered.`);
     }
@@ -534,15 +525,8 @@ export var OAuth2Providers = {
       }
     }
     const issuerDetails = {
-      name: issuer,
+      ...details,
       builtIn: false,
-      clientId,
-      clientSecret,
-      authorizationEndpoint,
-      tokenEndpoint,
-      redirectionEndpoint,
-      usePKCE,
-      useExternalBrowser,
       useSchemeRedirect: false,
     };
     Object.freeze(issuerDetails);

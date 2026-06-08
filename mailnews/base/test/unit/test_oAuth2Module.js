@@ -839,6 +839,63 @@ add_task(async function testOverrideIssuer() {
   );
 });
 
+/**
+ * Tests that issuer verification behaves as expected, in both the configured
+ * and unconfigured cases.
+ */
+add_task(async function testIssuerIdentification() {
+  const mod1 = new OAuth2Module();
+  mod1.initFromHostname("gmail.com", "user@gmail.com", "imap");
+  Assert.ok(
+    mod1._oauth.checkResultURL(
+      new URL("http://localhost/?code=foo&iss=https://accounts.google.com")
+    ),
+    "Should accept exact issuer identification match."
+  );
+  Assert.ok(
+    mod1._oauth.checkResultURL(
+      new URL(
+        "http://localhost/?code=foo&iss=https%3A%2F%2Faccounts.google.com"
+      )
+    ),
+    "Should accept url-encoded issuer identification match."
+  );
+  Assert.ok(
+    !mod1._oauth.checkResultURL(
+      // has an unacceptable trailing /
+      new URL("http://localhost/?code=foo&iss=https://accounts.google.com/")
+    ),
+    "Should reject any mismatch when issuer identification is configured."
+  );
+  Assert.ok(
+    !mod1._oauth.checkResultURL(new URL("http://localhost/?code=auth_code")),
+    "Should reject missing 'iss' when issuer identification is configured."
+  );
+
+  const mod2 = new OAuth2Module();
+  mod2.initFromHostname("test.test", "user@test.test", "imap");
+  Assert.ok(
+    mod2._oauth.checkResultURL(
+      new URL("http://localhost/?code=foo&iss=https://oauth.test.test/issuer")
+    ),
+    "Should accept matching domains when issuer identification is unconfigured."
+  );
+  Assert.ok(
+    !mod2._oauth.checkResultURL(
+      new URL("http://localhost/?code=foo&iss=http://oauth.test.test/issuer")
+    ),
+    "Should always reject mismatched issuer protocol."
+  );
+  Assert.ok(
+    !mod2._oauth.checkResultURL(
+      new URL("http://localhost/?code=foo&iss=https://bad.test.test/issuer")
+    ),
+    "Should always reject issuers on a different domain than expected."
+  );
+
+  OAuth2TestUtils.forgetObjects();
+});
+
 async function subtestExternalRequest(useCustomScheme) {
   Services.fog.testResetFOG();
   Services.prefs.setBoolPref("mailnews.oauth.useExternalBrowser", true);

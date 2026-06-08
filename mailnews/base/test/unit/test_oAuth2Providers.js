@@ -182,38 +182,31 @@ add_task(function testMicrosoftHostnameDetails() {
 
 add_task(function testRegisterUnregister() {
   Assert.throws(
-    () => OAuth2Providers.registerProvider("test.test"),
+    () => OAuth2Providers.registerProvider({ name: "test.test" }),
     /Issuer test\.test already registered/,
     "registering an existing provider should fail"
   );
   Assert.throws(
     () =>
-      OAuth2Providers.registerProvider(
-        "oauth.test",
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        ["mochi.test"]
-      ),
+      OAuth2Providers.registerProvider({ name: "oauth.test" }, ["mochi.test"]),
     /Hostname mochi\.test already registered/,
     "registering an existing hostname should fail"
   );
 
   OAuth2Providers.registerProvider(
-    "oauth.test",
-    "my_client_id",
-    "my_secret",
-    "https://oauth.test/auth",
-    "https://oauth.test/token",
-    "https://localhost/",
-    true,
+    {
+      name: "oauth.test",
+      builtIn: true,
+      clientId: "my_client_id",
+      clientSecret: "my_secret",
+      authorizationEndpoint: "https://oauth.test/auth",
+      tokenEndpoint: "https://oauth.test/token",
+      redirectionEndpoint: "https://localhost/",
+      usePKCE: true,
+      useExternalBrowser: true,
+    },
     ["mail.test"],
-    "my_scope",
-    true,
-    false
+    "my_scope"
   );
   Assert.deepEqual(
     OAuth2Providers.getHostnameDetails("mail.test", "imap"),
