@@ -34,6 +34,10 @@
   background-color: var(--tree-view-bg);
   color: var(--tree-view-color);
   overflow-anchor: none;
+
+  &[rows="thread-row"] {
+    background-color: var(--layout-background-0);
+  }
 }
 
 #threadTree tbody {

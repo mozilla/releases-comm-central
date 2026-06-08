@@ -353,7 +353,7 @@ th[is="tree-view-table-header-cell"] {
   padding: 0;
   position: relative;
   overflow: hidden;
-  background-color: var(--tree-view-bg);
+  background-color: var(--layout-background-1);
 
   &[data-type="icon"] {
     inline-size: var(--table-header-cell-icon-width);
