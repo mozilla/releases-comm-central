@@ -1692,7 +1692,8 @@ nsresult nsImapService::OfflineAppendFromFile(
       aDstFolder->GetServer(getter_AddRefs(dstServer));
       rv = dstServer->GetMsgStore(getter_AddRefs(msgStore));
       NS_ENSURE_SUCCESS(rv, rv);
-      rv = destDB->CreateNewHdr(fakeKey, getter_AddRefs(newMsgHdr));
+      rv = destDB->CreateNewHdrWithSpecificMsgKey(fakeKey,
+                                                  getter_AddRefs(newMsgHdr));
       NS_ENSURE_SUCCESS(rv, rv);
       rv = msgStore->GetNewMsgOutputStream(aDstFolder,
                                            getter_AddRefs(outputStream));

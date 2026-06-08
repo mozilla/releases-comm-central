@@ -730,7 +730,14 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
                                              getter_AddRefs(m_newMsgHdr));
     } else if (!m_newMsgHdr) {
       // Should assert that this is not a local message
-      ret = m_mailDB->CreateNewHdr(newKey, getter_AddRefs(m_newMsgHdr));
+      if (newKey == nsMsgKey_None) {
+        // Let the database assign the msgKey.
+        ret = m_mailDB->CreateNewHdr(getter_AddRefs(m_newMsgHdr));
+      } else {
+        // Force the UID to be used as the key.
+        ret = m_mailDB->CreateNewHdrWithSpecificMsgKey(
+            newKey, getter_AddRefs(m_newMsgHdr));
+      }
     }
 
     if (NS_SUCCEEDED(ret) && m_newMsgHdr) {

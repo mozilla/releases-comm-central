@@ -339,7 +339,7 @@ NS_IMETHODIMP nsPop3Sink::IncorporateBegin(const char* uidlString,
   }
 
   nsCOMPtr<nsIMsgDBHdr> newHdr;
-  rv = db->CreateNewHdr(nsMsgKey_None, getter_AddRefs(newHdr));
+  rv = db->CreateNewHdr(getter_AddRefs(newHdr));
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Create a new mail parser to parse out the headers of the message and

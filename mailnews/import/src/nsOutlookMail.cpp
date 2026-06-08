@@ -409,7 +409,7 @@ NS_IMETHODIMP ImportMailboxRunnable::Run() {
       if (NS_SUCCEEDED(rv)) {  // No errors & really imported
         (*mMsgCount)++;
         nsCOMPtr<nsIMsgDBHdr> msgHdr;
-        rv = db->CreateNewHdr(nsMsgKey_None, getter_AddRefs(msgHdr));
+        rv = db->CreateNewHdr(getter_AddRefs(msgHdr));
         if (NS_FAILED(rv)) {
           IMPORT_LOG1("*** Error creating DB header for mailbox: %S\n",
                       (const wchar_t*)mName);

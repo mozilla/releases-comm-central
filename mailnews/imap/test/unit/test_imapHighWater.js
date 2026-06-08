@@ -158,7 +158,8 @@ add_task(async function doMoves() {
   }
   // Check that copyMessages will handle having a high highwater mark.
   // It will thrown an exception if it can't.
-  const msgHdr = gFolder1.msgDatabase.createNewHdr(0xfffffffd);
+  const msgHdr =
+    gFolder1.msgDatabase.createNewHdrWithSpecificMsgKey(0xfffffffd);
   gFolder1.msgDatabase.addNewHdrToDB(msgHdr, false);
   const copyListenerHighWater = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.copyMessages(

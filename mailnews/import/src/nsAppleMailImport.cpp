@@ -504,7 +504,7 @@ nsAppleMailImportMail::ImportMailbox(nsIImportMailboxDescriptor* aMailbox,
       if (!StringEndsWith(leafName, u".emlx"_ns)) continue;
 
       nsCOMPtr<nsIMsgDBHdr> msgHdr;
-      rv = db->CreateNewHdr(nsMsgKey_None, getter_AddRefs(msgHdr));
+      rv = db->CreateNewHdr(getter_AddRefs(msgHdr));
       if (NS_FAILED(rv)) break;
       rv = msgStore->GetNewMsgOutputStream(aDstFolder,
                                            getter_AddRefs(outStream));

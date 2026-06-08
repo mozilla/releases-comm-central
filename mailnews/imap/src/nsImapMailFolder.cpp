@@ -7655,7 +7655,8 @@ nsresult nsImapMailFolder::CopyFileToOfflineStore(nsIFile* srcFile,
   }
 
   nsCOMPtr<nsIMsgDBHdr> fakeHdr;
-  rv = mDatabase->CreateNewHdr(msgKey, getter_AddRefs(fakeHdr));
+  rv = mDatabase->CreateNewHdrWithSpecificMsgKey(msgKey,
+                                                 getter_AddRefs(fakeHdr));
   NS_ENSURE_SUCCESS(rv, rv);
   fakeHdr->SetUint32Property("pseudoHdr", 1);
 

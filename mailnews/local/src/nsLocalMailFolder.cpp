@@ -2029,7 +2029,7 @@ nsresult nsMsgLocalMailFolder::InitCopyMsgHdrAndFileStream() {
   // See also test_copyToInvalidDB.js.
   if (mCopyState->m_destDB) {
     rv = mCopyState->m_destDB->CreateNewHdr(
-        nsMsgKey_None, getter_AddRefs(mCopyState->m_newHdr));
+        getter_AddRefs(mCopyState->m_newHdr));
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
@@ -3333,7 +3333,7 @@ nsMsgLocalMailFolder::AddMessageBatch(
       if (!mGettingNewMessages) newMailParser->DisableFilters();
 
       nsCOMPtr<nsIMsgDBHdr> newHdr;
-      rv = db->CreateNewHdr(nsMsgKey_None, getter_AddRefs(newHdr));
+      rv = db->CreateNewHdr(getter_AddRefs(newHdr));
       NS_ENSURE_SUCCESS(rv, rv);
 
       nsCOMPtr<nsIOutputStream> outStream;

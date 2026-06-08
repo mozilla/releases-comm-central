@@ -129,7 +129,7 @@ class MessageCreateHandler : public IExchangeMessageCreateListener {
 
     // Create a (detached) nsIMsgDBHdr.
     nsCOMPtr<nsIMsgDBHdr> tmpHdr;
-    MOZ_TRY(db->CreateNewHdr(nsMsgKey_None, getter_AddRefs(tmpHdr)));
+    MOZ_TRY(db->CreateNewHdr(getter_AddRefs(tmpHdr)));
     bool isLive;
     MOZ_TRY(tmpHdr->GetIsLive(&isLive));
     MOZ_ASSERT(!isLive);

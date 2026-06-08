@@ -159,7 +159,7 @@ export class NntpNewsGroup {
       bytes,
       lines,
     ] = parts;
-    const msgHdr = this._db.createNewHdr(articleNumber);
+    const msgHdr = this._db.createNewHdrWithSpecificMsgKey(articleNumber);
     msgHdr.orFlags(Ci.nsMsgMessageFlags.New);
     this.setSubject(msgHdr, subject);
     msgHdr.author = from;
@@ -223,7 +223,7 @@ export class NntpNewsGroup {
     }
 
     if (articleNumber >= 0) {
-      this._msgHdr = this._db.createNewHdr(articleNumber);
+      this._msgHdr = this._db.createNewHdrWithSpecificMsgKey(articleNumber);
     }
   }
 

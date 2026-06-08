@@ -355,7 +355,7 @@ nsresult LocalCreateHeader(nsIMsgFolder* destinationFolder,
   nsresult rv = destinationFolder->GetMsgDatabase(getter_AddRefs(msgDB));
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIMsgDBHdr> hdr;
-  rv = msgDB->CreateNewHdr(nsMsgKey_None, getter_AddRefs(hdr));
+  rv = msgDB->CreateNewHdr(getter_AddRefs(hdr));
   NS_ENSURE_SUCCESS(rv, rv);
 
   hdr.forget(newHeader);

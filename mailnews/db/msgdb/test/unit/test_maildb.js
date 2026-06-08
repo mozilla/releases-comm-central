@@ -166,7 +166,6 @@ add_task(function test_uid_functions() {
  * Check that nsIMsgDatabase.deleteMessages() does what it says.
  */
 add_task(function test_deletion() {
-  const nsMsgKey_None = 0xffffffff; // Arrrrg!
   localAccountUtils.loadLocalMailAccount();
   try {
     const inbox = localAccountUtils.inboxFolder;
@@ -180,7 +179,7 @@ add_task(function test_deletion() {
     {
       const generator = new MessageGenerator();
       for (let uniq = 0; uniq < 30; ++uniq) {
-        const hdr = db.createNewHdr(nsMsgKey_None);
+        const hdr = db.createNewHdr();
         hdr.messageId = generator.makeMessageId(uniq);
         hdr.author = generator.makeMailAddress(uniq * 2);
         hdr.recipients = generator.makeMailAddress(uniq * 2 + 1);
