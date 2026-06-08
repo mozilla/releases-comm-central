@@ -761,7 +761,7 @@ header {
 
 .account-hub-form-small-comment {
   display: inline-block;
-  font-size: 0.77rem;
+  font-size: 0.85rem;
   color: var(--color-text-muted);
   margin-block-end: 1rem;
 }
