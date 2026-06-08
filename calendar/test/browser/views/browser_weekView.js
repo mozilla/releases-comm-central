@@ -190,7 +190,7 @@ add_task(async function testWeekViewCurrentDayHighlight() {
     const container = CalendarTestUtils.weekView.getColumnContainer(window, i);
     Assert.equal(
       container.classList.contains("day-column-today"),
-      [4, 5, 6, 7, 1, 2, 3][today.getUTCDate()] == i,
+      [4, 5, 6, 7, 1, 2, 3][today.getUTCDay()] == i,
       "the displayed date should be highlighted as the current day"
     );
   }
