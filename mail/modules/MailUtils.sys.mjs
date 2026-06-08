@@ -265,9 +265,9 @@ export var MailUtils = {
       aMsgHdrs.length > Services.prefs.getIntPref("mailnews.open_tab_warning")
     ) {
       const [title, message] = lazy.l10n.formatValuesSync([
-        "open-tab-warning-confirmation-title",
+        "open-tabs-warning-confirmation-title",
         {
-          id: "open-tab-warning-confirmation",
+          id: "open-tabs-warning-confirmation",
           args: { count: aMsgHdrs.length },
         },
       ]);
