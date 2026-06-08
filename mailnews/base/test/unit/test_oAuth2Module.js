@@ -839,16 +839,16 @@ add_task(async function testOverrideIssuer() {
   );
 });
 
-async function subtestExternalRequest(useNetThunderbird) {
+async function subtestExternalRequest(useCustomScheme) {
   Services.fog.testResetFOG();
   Services.prefs.setBoolPref("mailnews.oauth.useExternalBrowser", true);
   Services.prefs.setBoolPref(
-    "mailnews.oauth.useNetThunderbirdRedirect",
-    useNetThunderbird
+    "mailnews.oauth.useSchemeRedirect",
+    useCustomScheme
   );
   await OAuth2TestUtils.startServer();
 
-  const hostname = useNetThunderbird ? "net.thunderbird.test" : "external.test";
+  const hostname = useCustomScheme ? "net.thunderbird.test" : "external.test";
   try {
     const mod = new OAuth2Module();
     Assert.ok(
@@ -912,14 +912,14 @@ async function subtestExternalRequest(useNetThunderbird) {
     OAuth2TestUtils.forgetObjects();
     OAuth2TestUtils.stopServer();
     Services.prefs.clearUserPref("mailnews.oauth.useExternalBrowser");
-    Services.prefs.clearUserPref("mailnews.oauth.useNetThunderbirdRedirect");
+    Services.prefs.clearUserPref("mailnews.oauth.useSchemeRedirect");
   }
   OAuth2TestUtils.checkTelemetry([
     {
       issuer: hostname,
       reason: "no refresh token",
       result: "succeeded",
-      where: useNetThunderbird
+      where: useCustomScheme
         ? "external-net-thunderbird"
         : "external-localhost",
     },

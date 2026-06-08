@@ -160,6 +160,10 @@ const kIssuersWithoutExchangeSupport = new Set([
  * @property {string} [redirectionEndpoint]
  * @property {string} tokenEndpoint
  * @property {boolean} [usePKCE] - The issuer uses PKCE (RFC7636)
+ * @property {boolean} [useExternalBrowser] - Whether to use the external
+ *   browser OAuth login flow.
+ * @property {boolean} [useSchemeRedirect] - Whether to use a net.thunderbird
+ *   URL for the OAuth login flow.
  */
 
 /**
@@ -184,6 +188,7 @@ var kIssuers = new Map([
       authorizationEndpoint: "https://accounts.google.com/o/oauth2/auth",
       tokenEndpoint: "https://www.googleapis.com/oauth2/v3/token",
       usePKCE: true,
+      useExternalBrowser: true,
     },
   ],
   [
@@ -244,7 +249,7 @@ var kIssuers = new Map([
       // https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-v2-protocols#endpoints
       authorizationEndpoint: `https://login.microsoftonline.com/common/oauth2/v2.0/authorize`,
       tokenEndpoint: `https://login.microsoftonline.com/common/oauth2/v2.0/token`,
-      redirectionEndpoint: "https://localhost",
+      useExternalBrowser: true,
     },
   ],
 
@@ -257,6 +262,7 @@ var kIssuers = new Map([
       authorizationEndpoint: "https://api.fastmail.com/oauth/authorize",
       tokenEndpoint: "https://api.fastmail.com/oauth/refresh",
       usePKCE: true,
+      useExternalBrowser: true,
     },
   ],
 
@@ -284,6 +290,7 @@ var kIssuers = new Map([
       tokenEndpoint:
         "https://auth.tb.pro/realms/tbpro/protocol/openid-connect/token",
       usePKCE: true,
+      useExternalBrowser: true,
     },
   ],
 
@@ -298,6 +305,7 @@ var kIssuers = new Map([
       tokenEndpoint:
         "https://auth-stage.tb.pro/realms/tbpro/protocol/openid-connect/token",
       usePKCE: true,
+      useExternalBrowser: true,
     },
   ],
 
@@ -326,6 +334,7 @@ var kIssuers = new Map([
       tokenEndpoint: "https://oauth.test.test/token",
       redirectionEndpoint: "http://localhost",
       usePKCE: true,
+      useExternalBrowser: true,
     },
   ],
   [
@@ -339,6 +348,7 @@ var kIssuers = new Map([
       tokenEndpoint: "https://oauth.test.test/token",
       redirectionEndpoint: "net.thunderbird://oauth2/callback",
       usePKCE: true,
+      useSchemeRedirect: true,
     },
   ],
 ]);
@@ -500,6 +510,8 @@ export var OAuth2Providers = {
    * @param {boolean} usePKCE - If the authorization uses PKCE.
    * @param {string[]} hostnames - One or more hostnames which use this OAuth provider.
    * @param {string} scopes - The scopes to request when using this OAuth provider.
+   * @param {boolean} useExternalBrowser - If the login flow should use the
+   *   system web browser.
    */
   registerProvider(
     issuer,
@@ -510,7 +522,8 @@ export var OAuth2Providers = {
     redirectionEndpoint,
     usePKCE,
     hostnames,
-    scopes
+    scopes,
+    useExternalBrowser
   ) {
     if (kIssuers.has(issuer)) {
       throw new Error(`Issuer ${issuer} already registered.`);
@@ -529,6 +542,8 @@ export var OAuth2Providers = {
       tokenEndpoint,
       redirectionEndpoint,
       usePKCE,
+      useExternalBrowser,
+      useSchemeRedirect: false,
     };
     Object.freeze(issuerDetails);
     kIssuers.set(issuer, issuerDetails);

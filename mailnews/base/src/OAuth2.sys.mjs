@@ -24,8 +24,8 @@ XPCOMUtils.defineLazyPreferenceGetter(
 );
 XPCOMUtils.defineLazyPreferenceGetter(
   lazy,
-  "useNetThunderbirdRedirect",
-  "mailnews.oauth.useNetThunderbirdRedirect"
+  "useSchemeRedirect",
+  "mailnews.oauth.useSchemeRedirect"
 );
 ChromeUtils.defineLazyGetter(
   lazy,
@@ -75,36 +75,6 @@ function generateRandomURLToken(byteLength) {
 }
 
 /**
- * @param {string} redirectURI
- * @returns {boolean}
- */
-function isLoopbackHttpRedirect(redirectURI) {
-  try {
-    const uri = Services.io.newURI(redirectURI);
-    if (!uri.schemeIs("http")) {
-      return false;
-    }
-
-    const principal = Services.scriptSecurityManager.createContentPrincipal(
-      uri,
-      {}
-    );
-    return principal.isLoopbackHost;
-  } catch (e) {
-    return false;
-  }
-}
-
-/**
- * @param {string} redirectURI
- * @returns {boolean}
- */
-function isNetThunderbirdRedirect(redirectURI) {
-  const url = URL.parse(redirectURI);
-  return url && url.protocol == "net.thunderbird:";
-}
-
-/**
  * Constructor for the OAuth2 object.
  *
  * @class
@@ -119,6 +89,10 @@ function isNetThunderbirdRedirect(redirectURI) {
  *   in RFC 6749 section 2.3.1. Will not be included in the requests if null.
  * @param {boolean} issuerDetails.usePKCE - Whether to use PKCE as specified
  *   in RFC 7636 during the oauth registration process
+ * @param {boolean} issuerDetails.useExternalBrowser - Whether to use the
+ *   external browser OAuth login flow.
+ * @param {boolean} issuerDetails.useSchemeRedirect - Whether to use a
+ *   net.thunderbird URL for the OAuth login flow.
  * @param {string} issuerDetails.redirectionEndpoint - The redirect_uri as
  *   specified by RFC 6749 section 3.1.2.
  * @param {string} issuerDetails.tokenEndpoint - The token endpoint as defined
@@ -130,6 +104,8 @@ export function OAuth2(scope, issuerDetails) {
   this.clientId = issuerDetails.clientId;
   this.consumerSecret = issuerDetails.clientSecret || null;
   this.usePKCE = issuerDetails.usePKCE;
+  this.useExternalBrowser = issuerDetails.useExternalBrowser;
+  this.useSchemeRedirect = issuerDetails.useSchemeRedirect;
   this.redirectionEndpoint =
     issuerDetails.redirectionEndpoint || "http://localhost";
   this.tokenEndpoint = issuerDetails.tokenEndpoint;
@@ -262,10 +238,7 @@ OAuth2.prototype = {
         authEndpointURL.toString()
     );
 
-    if (
-      lazy.useExternalBrowser &&
-      isLoopbackHttpRedirect(this.redirectionEndpoint)
-    ) {
+    if (lazy.useExternalBrowser && this.useExternalBrowser) {
       if (isReauthentication) {
         const [title, description] = lazy.l10n.formatValuesSync([
           { id: "oauth-reauthorize-title" },
@@ -298,10 +271,7 @@ OAuth2.prototype = {
         );
         return;
       }
-    } else if (
-      lazy.useNetThunderbirdRedirect &&
-      isNetThunderbirdRedirect(this.redirectionEndpoint)
-    ) {
+    } else if (lazy.useSchemeRedirect && this.useSchemeRedirect) {
       // TODO: Check that we are the default handler.
       this.telemetryData.where = "external-net-thunderbird";
       this.request = new URLCallbackRequest(this);

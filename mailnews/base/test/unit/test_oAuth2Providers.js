@@ -211,7 +211,9 @@ add_task(function testRegisterUnregister() {
     "https://localhost/",
     true,
     ["mail.test"],
-    "my_scope"
+    "my_scope",
+    true,
+    false
   );
   Assert.deepEqual(
     OAuth2Providers.getHostnameDetails("mail.test", "imap"),
@@ -234,6 +236,8 @@ add_task(function testRegisterUnregister() {
       tokenEndpoint: "https://oauth.test/token",
       redirectionEndpoint: "https://localhost/",
       usePKCE: true,
+      useExternalBrowser: true,
+      useSchemeRedirect: false,
     },
     "issuer details should be registered"
   );

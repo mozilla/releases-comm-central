@@ -19,6 +19,7 @@ add_task(async function () {
         usePKCE: false,
         hostnames: ["mail.invalid"],
         scopes: "my_scope",
+        useExternalBrowser: true,
       },
     },
   });
@@ -54,6 +55,8 @@ add_task(async function () {
       tokenEndpoint: "https://oauth.invalid/token",
       redirectionEndpoint: "http://localhost",
       usePKCE: false,
+      useExternalBrowser: true,
+      useSchemeRedirect: false,
     },
     "issuer details should be registered while the extension is running"
   );

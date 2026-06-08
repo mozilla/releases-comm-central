@@ -52,6 +52,11 @@
               "scopes": {
                 "description": "The scopes to request when using this OAuth provider.",
                 "type": "string"
+              },
+              "useExternalBrowser": {
+                "description": "If the login flow should use the system web browser. If true, the redirectionEndpoint <em>must</em> be a loopback address, so an origin of http://127.0.0.1 or http://localhost.",
+                "type": "boolean",
+                "optional": true
               }
             },
             "optional": true
