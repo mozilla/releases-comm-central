@@ -485,7 +485,7 @@ async function openMailContextFromThreadTree(indexToClick) {
   await BrowserTestUtils.waitForPopupEvent(menu, "shown");
   tagsMenu.openMenu(true);
   await BrowserTestUtils.waitForPopupEvent(tagsPopup, "shown");
-  await TestUtils.waitForTick();
+  await about3Pane.document.l10n.translateFragment(tagsPopup);
   return tagsPopup;
 }
 
@@ -515,7 +515,7 @@ async function openMailContextFromMessagePane(
   await BrowserTestUtils.waitForPopupEvent(menu, "shown");
   tagsMenu.openMenu(true);
   await BrowserTestUtils.waitForPopupEvent(tagsPopup, "shown");
-  await TestUtils.waitForTick();
+  await topWindow.document.l10n.translateFragment(tagsPopup);
   return tagsPopup;
 }
 
@@ -535,7 +535,7 @@ async function openHeaderPopup(aboutMessage = tabmail.currentAboutMessage) {
   await BrowserTestUtils.waitForPopupEvent(popup, "shown");
   tagsMenu.openMenu(true);
   await BrowserTestUtils.waitForPopupEvent(tagsPopup, "shown");
-  await TestUtils.waitForTick();
+  await aboutMessage.document.l10n.translateFragment(tagsPopup);
   return tagsPopup;
 }
 
@@ -554,7 +554,7 @@ async function openToolbarPopup(win = window) {
     button.menupopup ?? win.document.getElementById("toolbarTagPopup");
   EventUtils.synthesizeMouseAtCenter(button, {}, win);
   await BrowserTestUtils.waitForPopupEvent(tagsPopup, "shown");
-  await TestUtils.waitForTick();
+  await win.document.l10n.translateFragment(tagsPopup);
   return tagsPopup;
 }
 
@@ -574,7 +574,7 @@ async function openMessageMenu(win = window) {
   await BrowserTestUtils.waitForPopupEvent(menu, "shown");
   tagsMenu.openMenu(true);
   await BrowserTestUtils.waitForPopupEvent(tagsPopup, "shown");
-  await TestUtils.waitForTick();
+  await win.document.l10n.translateFragment(tagsPopup);
   return tagsPopup;
 }
 
