@@ -1847,15 +1847,14 @@ ItipItemFinder.prototype = {
                     // again, fall back to using configured organizer if not found
                     let foundAttendee = firstFoundItem.getAttendeeById(att.id) || att;
 
-                    // If the user hasn't responded to the invitation yet and we
-                    // are viewing the current representation of the item, show the
-                    // accept/decline buttons. This means newer events will show the
-                    // "Update" button and older events will show the "already
-                    // processed" text.
+                    // If the user hasn't responded to the invitation yet and the
+                    // SEQUENCE is unchanged, show the accept/decline buttons. We
+                    // intentionally ignore the DTSTAMP here so a reply from another
+                    // attendee doesn't make the invitation look already processed.
                     if (
                       foundAttendee.participationStatus == "NEEDS-ACTION" &&
                       (item.calendar.getProperty("itip.disableRevisionChecks") ||
-                        itip.compare(itipItemItem, item) == 0)
+                        itip.compareSequence(itipItemItem, item) == 0)
                     ) {
                       actionMethod = "REQUEST:NEEDS-ACTION";
                       operations.push((opListener, partStat, extResponse) => {
