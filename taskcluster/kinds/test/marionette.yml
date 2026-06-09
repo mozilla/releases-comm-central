@@ -22,7 +22,10 @@ task-defaults:
         extra-options:
             - --application=thunderbird
             - --test-manifest=../../../../../comm/testing/marionette/unit-tests.toml
-    run-on-projects: built-projects
+    run-on-projects:
+        by-test-platform:
+            macosx1500-aarch64.*: []  # Bug 2044830.
+            default: built-projects
     test-manifest-loader: null  # don't load tests in the taskgraph
     tier: default
     virtualization: virtual
