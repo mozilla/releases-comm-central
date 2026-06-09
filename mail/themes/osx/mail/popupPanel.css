@@ -6,19 +6,6 @@
 
 @namespace html url("http://www.w3.org/1999/xhtml");
 
-#editContactAddressBookList {
-  margin-inline: 6px;
-  padding-inline-start: 8px;
-
-  &:focus {
-    outline: var(--focus-outline);
-  }
-
-  &[disabled] {
-    opacity: 0.5;
-  }
-}
-
 html|input.editContactTextbox {
   padding: 3px 8px;
 }
