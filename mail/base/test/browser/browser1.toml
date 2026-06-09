@@ -23,9 +23,6 @@ support-files = [
 ["browser_3paneTelemetry.js"]
 
 ["browser_accountCentral.js"]
-skip-if = [
-  "os == 'mac' && os_version == '15.30' && arch == 'aarch64'"  # Bug 2044830
-]
 
 ["browser_addressBook.js"]
 

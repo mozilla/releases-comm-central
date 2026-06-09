@@ -68,7 +68,13 @@ function checkForEmail() {
   if (pageData.email) {
     email.value = pageData.email;
   }
-  if (email.value == "" && "@mozilla.org/userinfo;1" in Cc) {
+  if (
+    email.value == "" &&
+    "@mozilla.org/userinfo;1" in Cc &&
+    !Cu.isInAutomation
+    // Don't fetch the email address in tests, it may try to access the
+    // address book and time out with a permissions prompt.
+  ) {
     email.value = Cc["@mozilla.org/userinfo;1"].getService(
       Ci.nsIUserInfo
     ).emailAddress;
