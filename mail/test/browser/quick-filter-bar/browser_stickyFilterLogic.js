@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/*
+/**
  * Sticky logic only needs to test the general sticky logic plus any filters
  *  with custom propagateState implementations (currently: tags, text filter.)
  */
 
 "use strict";
 
-var { assert_messages_in_view, be_in_folder, create_folder } =
+var { assert_messages_in_view, be_in_folder, create_folder, get_about_3pane } =
   ChromeUtils.importESModule(
     "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
   );
@@ -20,6 +20,7 @@ var {
   assert_constraints_expressed,
   assert_filter_text,
   assert_tag_constraints_visible,
+  assert_quick_filter_bar_visible,
   clear_constraints,
   set_filter_text,
   toggle_boolean_constraints,
@@ -46,6 +47,7 @@ add_setup(async function () {
     await cleanup_qfb_button();
     // Quick filter bar is hidden by default, need to toggle it off.
     await toggle_quick_filter_bar();
+    folder.deleteSelf(null);
   });
 });
 
@@ -82,8 +84,10 @@ add_task(async function test_sticky_basics() {
   // let tabB = await open_folder_in_new_tab(folderOne);
   // assert_constraints_expressed({ sticky: true, unread: true });
   // assert_messages_in_view(unreadOne);
-
   // close_tab(tabB);
+
+  folderOne.deleteSelf(null);
+  folderTwo.deleteSelf(null);
   teardownTest();
 });
 
@@ -139,6 +143,8 @@ add_task(async function test_sticky_tags() {
   await toggle_boolean_constraints("sticky");
   await be_in_folder(folderTwo);
   assert_constraints_expressed({});
+  folderOne.deleteSelf(null);
+  folderTwo.deleteSelf(null);
   teardownTest();
 });
 
@@ -157,6 +163,51 @@ add_task(async function test_sticky_text() {
 
   await be_in_folder(folderTwo);
   assert_filter_text("foo");
+  folderOne.deleteSelf(null);
+  folderTwo.deleteSelf(null);
+  teardownTest();
+});
+
+/**
+ * When sticky is active and a search text is set, pressing ESC after a folder
+ * change should first (only) clear the text, then clear sticky on next press
+ * of ESC. A third ESC then closes the quick search bar.
+ */
+add_task(async function test_sticky_escape_clears_text_before_sticky() {
+  const folderOne = await create_folder("QuickFilterBarStickyEsc1");
+  const folderTwo = await create_folder("QuickFilterBarStickyEsc2");
+
+  await be_in_folder(folderOne);
+  await toggle_boolean_constraints("sticky");
+  await set_filter_text("foo");
+  assert_constraints_expressed({ sticky: true });
+  assert_filter_text("foo");
+
+  await be_in_folder(folderTwo);
+  assert_constraints_expressed({ sticky: true });
+  assert_filter_text("foo");
+
+  get_about_3pane().document.getElementById("threadTree").focus();
+
+  // First ESC: should only clear text.
+  EventUtils.synthesizeKey("KEY_Escape", {});
+  assert_filter_text("");
+  assert_constraints_expressed({ sticky: true });
+
+  // Second ESC: should clear sticky.
+  EventUtils.synthesizeKey("KEY_Escape", {});
+  assert_constraints_expressed({});
+
+  // Third ESC: should close the quick search bar.
+  EventUtils.synthesizeKey("KEY_Escape", {});
+  assert_quick_filter_bar_visible(false);
+
+  // Toggle filter back on, as it was (so this test is independent).
+  await toggle_quick_filter_bar();
+  assert_quick_filter_bar_visible(true);
+
+  folderOne.deleteSelf(null);
+  folderTwo.deleteSelf(null);
   teardownTest();
 });
 
