@@ -6323,11 +6323,10 @@ dependencies = [
 name = "ssl_tokens_cache"
 version = "0.1.0"
 dependencies = [
+ "adler2",
  "bincode",
- "flate2",
  "log",
  "nsstring",
- "rustc-hash 2.1.1",
  "serde",
  "static_assertions",
  "thin-vec",
