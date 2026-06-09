@@ -1113,7 +1113,7 @@ add_task(async function testExternalRequestRejectsMismatchedState() {
       "access token should not be set"
     );
     Assert.equal(
-      await Services.logins.countLogins(
+      await Services.logins.countLoginsAsync(
         "oauth://external.test",
         "",
         "test_mail"
