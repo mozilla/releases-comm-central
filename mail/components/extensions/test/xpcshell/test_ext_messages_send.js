@@ -182,7 +182,7 @@ add_task(async function test_send_save_denied() {
 });
 
 // Verify the per-extension throttle enforces a minimum start-to-start gap
-// between sends. SEND_GAP_MS is 60 ms (not configurable), so 10 sends in a
+// between sends. SEND_SAVE_GAP_MS is 125 ms (not configurable), so 10 sends in a
 // tight loop incur at least 9 gaps.
 add_task(async function test_send_gap_delays() {
   gServer.resetTest();
@@ -209,10 +209,11 @@ add_task(async function test_send_gap_delays() {
         browser.test.assertEq("sendNow", rv.mode, `Send ${i} should succeed`);
       }
       const elapsed = Date.now() - t0;
-      // SEND_GAP_MS is 60 ms, so 10 tight-loop sends take at least 9*60=540 ms.
+      // SEND_SAVE_GAP_MS is 125 ms, so 10 tight-loop sends take at least
+      // 9*125=1125 ms.
       browser.test.assertTrue(
-        elapsed >= 500,
-        `10 tight-loop sends should take >= 500ms, took ${elapsed}ms`
+        elapsed >= 1000,
+        `10 tight-loop sends should take >= 1000ms, took ${elapsed}ms`
       );
       browser.test.notifyPass("finished");
     },
@@ -965,6 +966,96 @@ add_task(async function test_send_save_Message() {
     },
   });
 
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+});
+
+// Verify the per-extension throttle also applies to save operations, not just
+// sends. SEND_SAVE_GAP_MS is 125 ms (not configurable), so 10 saves in a tight loop
+// incur at least 9 gaps.
+add_task(async function test_save_gap_delays() {
+  gServer.resetTest();
+  clearTestFolders();
+
+  const extension = ExtensionTestUtils.loadExtension({
+    background: async () => {
+      const details = {
+        to: "to@example.invalid",
+        subject: "Save gap test",
+        body: "Body",
+      };
+      const t0 = Date.now();
+      for (let i = 1; i <= 10; i++) {
+        const rv = await browser.messages.saveMessage(details);
+        browser.test.assertEq("draft", rv.mode, `Save ${i} should succeed`);
+      }
+      const elapsed = Date.now() - t0;
+      // SEND_SAVE_GAP_MS is 125 ms, so 10 tight-loop saves take at least
+      // 9*125=1125 ms.
+      browser.test.assertTrue(
+        elapsed >= 1000,
+        `10 tight-loop saves should take >= 1000ms, took ${elapsed}ms`
+      );
+      browser.test.notifyPass("finished");
+    },
+    manifest: {
+      permissions: [
+        "messagesRead",
+        "accountsRead",
+        "messagesDelete",
+        "messages.save",
+      ],
+    },
+  });
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+});
+
+// Verify plain text messages use Content-Transfer-Encoding: 7bit, not base64, as
+// we do not set forceMsgEncoding.
+add_task(async function test_plaintext_uses_7bit_encoding() {
+  gServer.resetTest();
+  clearTestFolders();
+
+  const extension = ExtensionTestUtils.loadExtension({
+    background: async () => {
+      const { messages } = await browser.messages.saveMessage(
+        {
+          to: "to@example.invalid",
+          subject: "Encoding test",
+          isPlainText: true,
+          plainTextBody: "A readable ASCII body.",
+        },
+        { mode: "draft" }
+      );
+      browser.test.assertEq(1, messages.length, "One draft should be saved");
+
+      const raw = await browser.messages.getRaw(messages[0].id);
+      browser.test.assertTrue(
+        raw.includes("Content-Transfer-Encoding: 7bit"),
+        `Plain text body should be 7bit encoded:\n${raw}`
+      );
+      browser.test.assertFalse(
+        raw.includes("Content-Transfer-Encoding: base64"),
+        "Plain text body should not be base64 encoded"
+      );
+      browser.test.assertTrue(
+        raw.includes("A readable ASCII body."),
+        "Plain text body should be human-readable in the raw message"
+      );
+      browser.test.notifyPass("finished");
+    },
+    manifest: {
+      permissions: [
+        "messagesRead",
+        "accountsRead",
+        "messagesDelete",
+        "messages.save",
+      ],
+    },
+  });
   await extension.startup();
   await extension.awaitFinish("finished");
   await extension.unload();

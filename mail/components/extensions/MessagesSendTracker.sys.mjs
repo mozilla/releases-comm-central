@@ -3,14 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Per-extension audit log and send-rate throttle for messages.sendMessage().
+ * Per-extension audit log and rate throttle for messages.sendMessage() and
+ * messages.saveMessage().
  *
- * - The audit log posts a live Activity Manager process the first time an
- *   extension sends, and updates it after every send to reflect the running
- *   count. Once ACTIVITY_FLUSH_MS have elapsed with no further send, the live
+ * - The audit log covers send operations only. It posts a live Activity Manager
+ *   process the first time an extension sends, and updates it after each
+ *   completed send operation to report the running  count.
+ *   Once ACTIVITY_FLUSH_MS have passed with no further send activity, the live
  *   process is replaced by a permanent Activity Manager event.
- * - The throttle enforces a fixed minimum gap (SEND_GAP_MS) between the starts
- *   of two consecutive sends from the same extension.
+ * - The throttle enforces a fixed minimum gap (SEND_SAVE_GAP_MS) between the
+ *   starts of two consecutive operations (send or save) from the same extension.
  */
 
 import { DeferredTask } from "resource://gre/modules/DeferredTask.sys.mjs";
@@ -39,17 +41,18 @@ ChromeUtils.defineLazyGetter(lazy, "activityManager", () =>
   Cc["@mozilla.org/activity-manager;1"].getService(Ci.nsIActivityManager)
 );
 
-// Minimum interval between the starts of two sends from one extension. A value
-// of 60 ms equals a steady-state rate of ~16.7 sends/s.
-export const SEND_GAP_MS = 60;
+// Minimum interval between the starts of two operations (send or save) from one
+// extension. A value of 125 ms equals a steady-state rate of 8 operations/s.
+export const SEND_SAVE_GAP_MS = 125;
 
 // Start-to-start rate limiter. Async generators serialize .next() calls, so
-// concurrent sends from one extension queue here instead of all firing at once.
-// The value of lastStartMs is updated before the next caller's iteration runs.
-async function* sendGapGenerator() {
+// concurrent operations from one extension queue here instead of all firing at
+// once. The value of lastStartMs is updated before the next caller's iteration
+// runs.
+async function* sendSaveGapGenerator() {
   let lastStartMs = 0;
   while (true) {
-    const waitMs = lastStartMs + SEND_GAP_MS - Date.now();
+    const waitMs = lastStartMs + SEND_SAVE_GAP_MS - Date.now();
     if (waitMs > 0) {
       await new Promise(resolve => lazy.setTimeout(resolve, waitMs));
     }
@@ -66,7 +69,7 @@ export const ACTIVITY_FLUSH_MS = 10 * 1000; // 10 seconds
 const trackers = new Map();
 
 /**
- * Tracks send activity for a single extension: throttles the send rate and
+ * Tracks activity for a single extension: throttles the send/save rate and
  * maintains the Activity Manager audit log (a live process while sending, a
  * permanent event once idle).
  */
@@ -86,7 +89,7 @@ class SendTracker {
     // idle. The setProgress() method is called on it after every send, flush()
     // finalizes it into a permanent event.
     this.process = null;
-    this.gapLimiter = sendGapGenerator();
+    this.gapLimiter = sendSaveGapGenerator();
     this.flushTask = new DeferredTask(() => {
       try {
         this.flush();
@@ -190,14 +193,14 @@ function getTracker(extension) {
 }
 
 /**
- * Wait until at least SEND_GAP_MS has elapsed since this extension's previous
- * send started, then return. Enforces a minimum start-to-start gap between
- * sends from the same extension.
+ * Wait until at least SEND_SAVE_GAP_MS has elapsed since this extension's
+ * previous operation started, then return. Enforces a minimum start-to-start
+ * gap between operations (send or save) from the same extension.
  *
  * @param {Extension} extension
  * @returns {Promise<void>}
  */
-export function enforceSendGap(extension) {
+export function enforceSendSaveGap(extension) {
   return getTracker(extension).gapLimiter.next();
 }
 

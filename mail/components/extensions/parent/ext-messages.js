@@ -35,7 +35,7 @@ var { MailStringUtils } = ChromeUtils.importESModule(
   "resource:///modules/MailStringUtils.sys.mjs"
 );
 
-var { enforceSendGap, recordSend: recordSendActivity } =
+var { enforceSendSaveGap, recordSend: recordSendActivity } =
   ChromeUtils.importESModule("resource:///modules/MessagesSendTracker.sys.mjs");
 
 XPCOMUtils.defineLazyGlobalGetters(this, ["File", "DOMParser"]);
@@ -143,7 +143,6 @@ class MsgOperationWrapper {
     composeParams.identity = identity;
     composeParams.composeFields = composeFields;
     msgCompose.initialize(composeParams);
-    msgCompose.compFields.forceMsgEncoding = true;
 
     // Recipients.
     msgCompose.compFields.from = await global.parseComposeRecipientList(
@@ -283,10 +282,8 @@ class MsgOperationWrapper {
       msgCompose.compFields.attachVCard = details.attachVCard;
     }
 
-    // Audit log and burst throttle apply to send modes only. Saved drafts and
-    // templates do not reach a recipient. Since the additionalFccFolder field
-    // is ignored for save operations, it is resolved and validated only for
-    // send modes.
+    // The audit log and additionalFccFolder apply to send modes only: saved
+    // drafts and templates do not reach a recipient.
 
     // If overrideDefaultFccFolder is "" AND additionalFccFolder is set, promote
     // the additional folder to the primary fcc target. The additional fcc2 copy
@@ -348,9 +345,9 @@ class MsgOperationWrapper {
       }
     }
 
-    if (isSend) {
-      await enforceSendGap(this.extension);
-    }
+    // Throttle all operations (send and save) so an extension cannot exhaust
+    // resources with a tight loop of calls.
+    await enforceSendSaveGap(this.extension);
 
     // No catch here. Errors propagate to the caller (sendMessage / saveMessage)
     // and they can attach their own API-named prefix. The finally clause does
