@@ -10,6 +10,7 @@ use super::{get_bool_in, get_map_in, get_node_in, get_seq_in, get_str_in};
 
 /// A recursive OpenAPI schema object, or reference to another schema object.
 #[derive(Debug, Clone, Eq, PartialEq)]
+#[allow(clippy::large_enum_variant)]
 pub enum OaSchema {
     // e.g., `$ref: "#/components/schemas/microsoft.graph.user"`
     Ref {
@@ -24,6 +25,7 @@ pub enum OaSchema {
         all_of: Option<Vec<OaSchema>>,
         one_of: Option<Vec<OaSchema>>,
         any_of: Option<Vec<OaSchema>>,
+        enum_variants: Option<Vec<String>>,
         description: Option<String>,
         navigation_property: bool,
     },
@@ -40,6 +42,7 @@ impl Default for OaSchema {
             all_of: None,
             one_of: None,
             any_of: None,
+            enum_variants: None,
             description: None,
             navigation_property: false,
         }
@@ -104,6 +107,17 @@ fn parse_schema_from_map(map: &Hash) -> OaSchema {
     let one_of = get_seq_in(map, "oneOf").map(|seq| seq.iter().map(parse_schema).collect());
     let any_of = get_seq_in(map, "anyOf").map(|seq| seq.iter().map(parse_schema).collect());
 
+    let enum_variants = get_seq_in(map, "enum").map(|seq| {
+        seq.iter()
+            .map(|value| {
+                value
+                    .as_str()
+                    .expect("enum values should be strings")
+                    .to_string()
+            })
+            .collect()
+    });
+
     let navigation_property = get_bool_in(map, "x-ms-navigationProperty").unwrap_or(false);
 
     OaSchema::Obj {
@@ -115,6 +129,7 @@ fn parse_schema_from_map(map: &Hash) -> OaSchema {
         all_of,
         one_of,
         any_of,
+        enum_variants,
         description,
         navigation_property,
     }

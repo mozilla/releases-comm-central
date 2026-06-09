@@ -1,9 +1,8 @@
-# One Graph schema base name per line.
+# One Graph object schema base name per line.
 
 directoryObject
 emailAddress
 entity
-importance
 internetMessageHeader
 itemBody
 mailFolder

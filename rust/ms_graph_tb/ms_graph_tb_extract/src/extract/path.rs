@@ -4,13 +4,13 @@
 
 use strum::Display;
 
-use crate::extract::schema::{Property, SchemaContext, SchemaKind};
-use crate::naming::simple_name;
+use crate::extract::schema::object::{Property, extract_from_schema};
+use crate::extract::schema::{
+    SchemaContext, SchemaKind, ref_simple_name, supported_named_schema_type,
+};
 use crate::openapi::path::{OaBody, OaParameter, OaPath};
 use crate::openapi::schema::OaSchema;
-use crate::oxidize::{RustType, SchemaName};
-
-use super::schema::extract_from_schema;
+use crate::oxidize::RustType;
 
 /// Our representation of a Graph API path.
 ///
@@ -99,9 +99,9 @@ impl From<&OaParameter> for Parameter {
     fn from(value: &OaParameter) -> Self {
         let typ = match &value.schema {
             None => None,
-            Some(OaSchema::Ref { reference }) => Some(RustType::NamedSchema(SchemaName::from(
-                simple_name(reference).to_string(),
-            ))),
+            Some(OaSchema::Ref { reference }) => {
+                supported_named_schema_type(ref_simple_name(reference))
+            }
             Some(schema) => {
                 let properties = extract_from_schema(
                     schema,
@@ -296,6 +296,7 @@ mod tests {
                                     all_of: None,
                                     one_of: None,
                                     any_of: None,
+                                    enum_variants: None,
                                     description: None,
                                     navigation_property: false,
                                 },

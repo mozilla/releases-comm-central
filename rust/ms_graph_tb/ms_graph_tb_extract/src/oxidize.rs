@@ -5,43 +5,35 @@
 //! Modules for turning our representation of the Graph API into Rust code
 //! (specifically, a [`proc_macro2::TokenStream`]).
 
-use log::warn;
 use proc_macro2::{Ident, TokenStream};
 use quote::{ToTokens, TokenStreamExt, format_ident, quote};
 use std::{collections::HashSet, fmt};
 
 use crate::{
-    extract::schema::Property, module_hierarchy::ModuleName, naming, oxidize::types::GraphType,
+    extract::schema::object::Property, module_hierarchy::ModuleName, naming,
+    oxidize::structs::GraphStruct,
 };
 
+pub mod enums;
 pub mod paths;
-pub mod types;
+pub mod structs;
 
 /// Generate the token stream representing the given properties.
 /// `exclude_module` is intended to be the name of the module itself to avoid
 /// self-imports in potentially recursive types.
 fn imports(
-    properties: &[crate::extract::schema::Property],
+    properties: &[crate::extract::schema::object::Property],
     exclude_module: Option<&str>,
 ) -> TokenStream {
     let mut imports = properties
         .iter()
         .filter_map(|p| {
-            if let RustType::NamedSchema(custom_rust_type) = &p.rust_type {
-                let original_name = custom_rust_type.original_name();
-                if crate::SUPPORTED_TYPES.contains(original_name.as_str()) {
-                    let module_name = custom_rust_type.as_snake_case();
-                    if exclude_module == Some(module_name.as_str()) {
-                        None
-                    } else {
-                        Some(module_name)
-                    }
-                } else {
-                    warn!(
-                        "not generating imports for property of unsupported custom type {}",
-                        original_name
-                    );
+            if let Some(custom_rust_type) = p.rust_type.schema_name() {
+                let module_name = custom_rust_type.as_snake_case();
+                if exclude_module == Some(module_name.as_str()) {
                     None
+                } else {
+                    Some(module_name)
                 }
             } else {
                 None
@@ -249,11 +241,14 @@ pub enum RustType {
     String,
     Bytes,
 
-    /// A type represented by a named schema in the OpenAPI spec.
-    NamedSchema(SchemaName),
+    /// A struct generated from a named OpenAPI object schema.
+    NamedObjectSchema(SchemaName),
 
-    /// A type represented by an unnamed "object" schema in the OpenAPI spec.
-    UnnamedSchema(GraphType),
+    /// A enum generated from a named OpenAPI enum schema.
+    NamedEnumSchema(SchemaName),
+
+    /// A struct generated from an unnamed OpenAPI object schema.
+    UnnamedObjectSchema(GraphStruct),
 }
 
 impl RustType {
@@ -266,7 +261,8 @@ impl RustType {
             | Self::I32
             | Self::I64
             | Self::F32
-            | Self::F64 => Composed::Copy,
+            | Self::F64
+            | Self::NamedEnumSchema(_) => Composed::Copy,
             Self::String | Self::Bytes => Composed::Slice,
             _ => Composed::Composite,
         }
@@ -291,8 +287,8 @@ impl RustType {
             Self::F64 => "f64",
             Self::String => string,
             Self::Bytes => bytes,
-            Self::NamedSchema(s) => s.as_pascal_case(),
-            Self::UnnamedSchema(s) => s.name(),
+            Self::NamedObjectSchema(s) | Self::NamedEnumSchema(s) => s.as_pascal_case(),
+            Self::UnnamedObjectSchema(s) => s.name(),
         }
     }
 
@@ -311,21 +307,28 @@ impl RustType {
             Self::String => quote!(str),
             Self::Bytes if !sliced => quote!(Vec<u8>),
             Self::Bytes => quote!([u8]),
-            Self::NamedSchema(name) => {
+            Self::NamedObjectSchema(name) | Self::NamedEnumSchema(name) => {
                 let ident = format_ident!("{}", name.as_pascal_case());
                 quote!(#ident)
             }
-            Self::UnnamedSchema(unnamed) => {
+            Self::UnnamedObjectSchema(unnamed) => {
                 let ident = format_ident!("{}", unnamed.name());
                 quote!(#ident)
             }
         }
     }
+
+    fn schema_name(&self) -> Option<&SchemaName> {
+        match self {
+            Self::NamedObjectSchema(name) | Self::NamedEnumSchema(name) => Some(name),
+            _ => None,
+        }
+    }
 }
 
-/// The name of a named type/schema from the OpenAPI spec.
+/// The name of an OpenAPI schema used to generate a Rust type.
 ///
-/// This struct holds both the PascalCase and original versions of the type's
+/// This struct holds both the PascalCase and original versions of the schema
 /// name. Ideally we'd generate the PascalCase version upon request (e.g. when
 /// `as_pascal_case` is called), but this would cause ownership issues further
 /// down the line.
@@ -351,17 +354,17 @@ impl From<&str> for SchemaName {
 }
 
 impl SchemaName {
-    /// Returns the type's name in PascalCase.
+    /// Returns the Rust type name in PascalCase.
     pub fn as_pascal_case(&self) -> &String {
         &self.pascal_case
     }
 
-    /// Returns the type's name in snake_case.
+    /// Returns the Rust module name in snake_case.
     pub fn as_snake_case(&self) -> String {
         naming::snakeify(&self.original_name)
     }
 
-    /// Returns the type's name as it was written in the OpenAPI spec.
+    /// Returns the schema name as it was written in the OpenAPI spec.
     pub fn original_name(&self) -> &String {
         &self.original_name
     }
@@ -396,7 +399,7 @@ fn instantiated_type(
 ) -> TokenStream {
     let base = &prop.rust_type.base_token(prop.nullable, refers);
 
-    let mut ty: TokenStream = if matches!(prop.rust_type, RustType::NamedSchema(_)) {
+    let mut ty: TokenStream = if matches!(prop.rust_type, RustType::NamedObjectSchema(_)) {
         // The format_ident! macro doesn't like lifetime names, so we do this manually.
         let lifetime_name: TokenStream = lifetime_name
             .unwrap_or("'a")
@@ -411,7 +414,7 @@ fn instantiated_type(
     if refers == Reference::Ref
         && composed != Composed::Copy
         && (!prop.is_collection || composed == Composed::Slice)
-        && !matches!(prop.rust_type, RustType::NamedSchema(_))
+        && !matches!(prop.rust_type, RustType::NamedObjectSchema(_))
     {
         ty = quote!(&#ty);
     }

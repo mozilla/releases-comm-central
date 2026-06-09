@@ -280,21 +280,20 @@ impl<'a> Message<'a> {
         self
     }
     #[doc = "The importance of the message.\n\n The possible values are: low, normal, and high."]
-    pub fn importance(&'a self) -> Result<Importance<'a>, Error> {
+    pub fn importance(&self) -> Result<Importance, Error> {
         let val = self.properties.0.get("importance").ok_or(Error::NotFound)?;
-        Ok(PropertyMap(Cow::Borrowed(
-            val.as_object()
-                .ok_or_else(|| Error::UnexpectedResponse(format!("{val:?}")))?,
-        ))
-        .into())
+        val.as_str()
+            .ok_or_else(|| Error::UnexpectedResponse(format!("{val:?}")))?
+            .parse::<Importance>()
+            .map_err(|e| Error::UnexpectedResponse(format!("{e:?}")))
     }
     #[doc = "Setter for [`importance`](Self::importance).\n\nThis library makes no guarantees that Graph exposes this property as writable."]
     #[must_use]
-    pub fn set_importance(mut self, val: Importance<'_>) -> Self {
-        self.properties.0.to_mut().insert(
-            "importance".to_string(),
-            Value::Object(val.properties.0.into_owned()),
-        );
+    pub fn set_importance(mut self, val: Importance) -> Self {
+        self.properties
+            .0
+            .to_mut()
+            .insert("importance".to_string(), Value::String(val.to_string()));
         self
     }
     #[doc = "A collection of message headers defined by RFC5322.\n\n The set includes message headers indicating the network path taken by a message from the sender to the recipient. It can also contain custom message headers that hold app data for the message.  Returned only on applying a `$select` query option. Read-only."]

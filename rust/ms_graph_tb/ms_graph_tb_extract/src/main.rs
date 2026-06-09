@@ -21,11 +21,11 @@ mod openapi;
 mod oxidize;
 
 use crate::extract::path::extract_from_oa_path;
-use crate::extract::schema::{Property, SchemaContext, SchemaKind, extract_from_schema};
+use crate::extract::schema::{ExtractedSchema, SchemaContext, SchemaKind, extract_from_schema};
 use crate::module_hierarchy::{ModuleHierarchy, ModuleHierarchyElement, ModuleName};
 use crate::naming::{base_name, simple_name};
 use crate::openapi::{LoadedYaml, load_yaml, path::OaPath};
-use crate::oxidize::{ModuleFile, paths::PathModule, types};
+use crate::oxidize::{ModuleFile, paths::PathModule, structs};
 
 const FILE_LEDE: &str = r#"/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -36,10 +36,20 @@ const FILE_LEDE: &str = r#"/* This Source Code Form is subject to the terms of t
 
 const GENERATION_DISCLOSURE: &str = "Auto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`.";
 
-const SUPPORTED_TYPES_FILE: &str = "supported_types.txt";
+const SUPPORTED_OBJECTS_FILE: &str = "supported_objects.txt";
+const SUPPORTED_ENUMS_FILE: &str = "supported_enums.txt";
 const SUPPORTED_PATHS_FILE: &str = "supported_paths.txt";
+pub(crate) static SUPPORTED_OBJECTS: LazyLock<HashSet<String>> = LazyLock::new(|| {
+    load_supported_values(SUPPORTED_OBJECTS_FILE).expect("supported_objects.txt must load")
+});
+pub(crate) static SUPPORTED_ENUMS: LazyLock<HashSet<String>> = LazyLock::new(|| {
+    load_supported_values(SUPPORTED_ENUMS_FILE).expect("supported_enums.txt must load")
+});
 pub(crate) static SUPPORTED_TYPES: LazyLock<HashSet<String>> = LazyLock::new(|| {
-    load_supported_values(SUPPORTED_TYPES_FILE).expect("supported_types.txt must load")
+    SUPPORTED_OBJECTS
+        .union(&SUPPORTED_ENUMS)
+        .cloned()
+        .collect::<HashSet<_>>()
 });
 pub(crate) static SUPPORTED_PATHS: LazyLock<HashSet<String>> = LazyLock::new(|| {
     load_supported_values(SUPPORTED_PATHS_FILE).expect("supported_paths.txt must load")
@@ -79,7 +89,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 /// Read the file at `filename` and parse it as a hash set of lines of supported
-/// types/paths.
+/// objects/enums/paths.
 fn load_supported_values(filename: &str) -> Result<HashSet<String>, Box<dyn Error>> {
     let path = Path::new(env!("CARGO_MANIFEST_DIR")).join(filename);
     let contents = fs::read_to_string(&path)?;
@@ -127,7 +137,7 @@ fn generate_paths(
     write_generated_file(&paths_dir.join("mod.rs"), &quote!(#root_module))?;
 
     for (name, path) in supported_path_entries {
-        info!("generating Rust type for {name} request");
+        info!("generating Rust request module for {name}");
         let module_path = ModuleHierarchyElement::from_api_path(name);
         process_path(
             out_dir,
@@ -162,13 +172,20 @@ fn generate_types(
     for (full_name, schema) in schemas {
         let simple_name = simple_name(full_name);
         let base_name = base_name(full_name);
-        if SUPPORTED_TYPES.contains(base_name) {
+        let kind = if SUPPORTED_OBJECTS.contains(base_name) {
+            SchemaKind::Other
+        } else if SUPPORTED_ENUMS.contains(base_name) {
+            SchemaKind::Enum
+        } else {
+            SchemaKind::Unsupported
+        };
+        if !matches!(kind, SchemaKind::Unsupported) {
             info!("generating Rust type for {full_name}");
 
             let extracted = extract_from_schema(
                 schema,
                 SchemaContext {
-                    kind: SchemaKind::Other,
+                    kind,
                     is_delta: false,
                 },
             );
@@ -179,14 +196,7 @@ fn generate_types(
                 .expect("schema paths should have a leaf")
                 .clone();
 
-            process_schema(
-                out_dir,
-                &schema_path,
-                simple_name,
-                extracted.description,
-                extracted.properties,
-                extracted.has_expansions,
-            )?;
+            process_schema(out_dir, &schema_path, simple_name, extracted)?;
 
             direct_type_modules.push((schema_namespace.clone(), module_name));
             if !schema_namespace.is_root() {
@@ -246,18 +256,24 @@ fn process_schema(
     schemas_dir: &std::path::Path,
     schema_path: &ModuleHierarchyElement,
     simple_name: &str,
-    description: Option<String>,
-    properties: Vec<Property>,
-    has_expansions: bool,
+    extracted: ExtractedSchema,
 ) -> Result<(), Box<dyn Error>> {
-    let graph_type = types::GraphType::new(
-        simple_name,
-        description,
-        properties,
-        types::TypeKind::Named,
-        has_expansions,
-    );
-    let generated = quote!(#graph_type);
+    let generated = match extracted {
+        ExtractedSchema::Enum(schema) => {
+            let graph_enum = oxidize::enums::GraphEnum::new(simple_name, None, schema.variants);
+            quote!(#graph_enum)
+        }
+        ExtractedSchema::Object(schema) => {
+            let graph_struct = structs::GraphStruct::new(
+                simple_name,
+                schema.description,
+                schema.properties,
+                structs::StructKind::Named,
+                schema.has_expansions,
+            );
+            quote!(#graph_struct)
+        }
+    };
 
     let destination = schemas_dir.join("src/types/").join(schema_path.file_path());
 

@@ -251,10 +251,7 @@ fn headers_for_message(message: &Message) -> Option<RefPtr<IHeaderBlock>> {
 
     // Priority
     if let Ok(importance) = message.importance() {
-        header_fields.insert(
-            rfc5322_header::PRIORITY.to_string(),
-            importance.string().unwrap_or("normal").to_string(),
-        );
+        header_fields.insert(rfc5322_header::PRIORITY.to_string(), importance.to_string());
     }
 
     if let Ok(internet_message_headers) = message.internet_message_headers() {

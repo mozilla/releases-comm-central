@@ -6,42 +6,42 @@ use proc_macro2::{Ident, TokenStream};
 use quote::{ToTokens, TokenStreamExt, format_ident, quote};
 
 use super::{Reference, RustType, arg_type, return_type};
-use crate::extract::schema::Property;
+use crate::GENERATION_DISCLOSURE;
+use crate::extract::schema::object::Property;
 use crate::naming::{pascalize, snakeify};
 use crate::oxidize::markup_doc_comment;
-use crate::{GENERATION_DISCLOSURE, SUPPORTED_TYPES};
 
-/// The kind of Graph type we're generating.
+/// The kind of Graph struct we're generating.
 ///
-/// This is used to infer how and where the type will be generated.
+/// This is used to infer how and where the struct will be generated.
 #[derive(Debug, Clone)]
-pub enum TypeKind {
-    /// The type is named in the OpenAPI spec, and will likely be generated in
-    /// its own module.
+pub enum StructKind {
+    /// The struct is generated from a named OpenAPI object schema, and will
+    /// likely be generated in its own module.
     Named,
 
-    /// The type isn't named in the OpenAPI spec (and probably represented by an
-    /// "object" schema), and is likely a request or response body that will be
-    /// generated alongside the request/path it's associated with.
+    /// The struct is generated from an unnamed OpenAPI object schema, and is
+    /// likely a request or response body that will be generated alongside the
+    /// request/path it's associated with.
     Unnamed,
 }
 
-/// A Graph API type, ready for converting to a stream of tokens via [`quote!`].
+/// A Graph API struct, ready for converting to a stream of tokens via [`quote!`].
 #[derive(Debug, Clone)]
-pub struct GraphType {
+pub struct GraphStruct {
     name: String,
     description: Option<TokenStream>,
     pub(crate) properties: Vec<Property>,
-    pub(crate) kind: TypeKind,
+    pub(crate) kind: StructKind,
     has_expansions: bool,
 }
 
-impl GraphType {
+impl GraphStruct {
     pub fn new(
         name: &str,
         description: Option<String>,
         properties: Vec<Property>,
-        kind: TypeKind,
+        kind: StructKind,
         has_expansions: bool,
     ) -> Self {
         let name = String::from(name);
@@ -61,7 +61,7 @@ impl GraphType {
     }
 }
 
-impl ToTokens for GraphType {
+impl ToTokens for GraphStruct {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let Self {
             name,
@@ -78,20 +78,20 @@ impl ToTokens for GraphType {
         let select_variants = select_variants(properties);
         let single_value_extended_properties_expand_impl = (*has_expansions)
             .then(|| single_value_extended_properties_expand_impl(&expand_ident, properties));
-        let single_value_extended_properties_impl = matches!(kind, TypeKind::Named)
+        let single_value_extended_properties_impl = matches!(kind, StructKind::Named)
             .then(|| single_value_extended_properties_impl(&name, properties));
 
         // Generating documentation for methods of unnamed types seems to cause
         // some weird bug with rustc's diagnostics that means we end up with
         // leftover unused imports even after running Clippy, see
         // https://github.com/rust-lang/rust/issues/155098
-        let function_defs = function_defs(properties, matches!(kind, TypeKind::Named));
+        let function_defs = function_defs(properties, matches!(kind, StructKind::Named));
         let expand_def = (*has_expansions).then(|| expand_def(expand_ident, properties));
 
-        // Unnamed types typically represent the body of requests or responses,
+        // Unnamed structs typically represent the body of requests or responses,
         // where selection is not relevant.
         let selection = match kind {
-            TypeKind::Named => {
+            StructKind::Named => {
                 let selection_ident = format_ident!("{}Selection", name);
                 let selection = quote! {
                     ///Properties that can be selected from this type.
@@ -104,19 +104,19 @@ impl ToTokens for GraphType {
 
                 Some(selection)
             }
-            TypeKind::Unnamed => None,
+            StructKind::Unnamed => None,
         };
 
-        // Unnamed types are generated in the same file as the request/path they
+        // Unnamed structs are generated in the same file as the request/path they
         // relate to, so a module documentation does not make sense for them.
         let module_doc = match kind {
-            TypeKind::Named => {
+            StructKind::Named => {
                 let module_doc = format!("Types related to {name}.\n\n{GENERATION_DISCLOSURE}");
                 let module_doc = quote!(#![doc = #module_doc]);
 
                 Some(module_doc)
             }
-            TypeKind::Unnamed => None,
+            StructKind::Unnamed => None,
         };
 
         tokens.append_all(quote!(
@@ -228,7 +228,7 @@ fn select_variants(properties: &[Property]) -> Vec<TokenStream> {
             let name = pascalize(&p.name);
             let ident = format_ident!("{name}");
             if p.is_ref {
-                if SUPPORTED_TYPES.contains(p.name.as_str()) {
+                if matches!(p.rust_type, RustType::NamedObjectSchema(_)) {
                     let inner = format_ident!("{name}Selection");
                     Some(quote!(#ident(#inner)))
                 } else {
@@ -292,7 +292,7 @@ fn expand_variants(properties: &[Property]) -> Vec<TokenStream> {
         .iter()
         .filter(|p| p.navigation_property)
         .filter_map(|p| {
-            let RustType::NamedSchema(custom_type) = &p.rust_type else {
+            let RustType::NamedObjectSchema(custom_type) = &p.rust_type else {
                 return None;
             };
 
@@ -309,7 +309,7 @@ fn expand_variants(properties: &[Property]) -> Vec<TokenStream> {
 fn expand_display_arms(properties: &[Property], expand_ident: &Ident) -> Vec<TokenStream> {
     let mut expand_arms = properties
         .iter()
-        .filter(|p| p.navigation_property && matches!(p.rust_type, RustType::NamedSchema(_)))
+        .filter(|p| p.navigation_property && matches!(p.rust_type, RustType::NamedObjectSchema(_)))
         .map(|p| {
             let variant = format_ident!("{}", pascalize(&p.name));
             quote! {
@@ -352,7 +352,8 @@ fn function_defs(properties: &[Property], generate_doc: bool) -> Vec<MethodDef> 
 
             let body = getter_body(p);
             let lifetime =
-                (p.is_ref || matches!(p.rust_type, RustType::NamedSchema(_))).then_some(quote!('a));
+                (p.is_ref || matches!(p.rust_type, RustType::NamedObjectSchema(_)))
+                    .then_some(quote!('a));
             let getter = MethodDef {
                 doc_comment,
                 must_use,
@@ -403,7 +404,7 @@ fn has_single_value_extended_properties(properties: &[Property]) -> bool {
     properties.iter().any(|prop| {
         prop.name == "singleValueExtendedProperties"
             && prop.navigation_property
-            && matches!(prop.rust_type, RustType::NamedSchema(_))
+            && matches!(prop.rust_type, RustType::NamedObjectSchema(_))
             && prop.is_collection
     })
 }
@@ -453,11 +454,11 @@ fn getter_body(prop: &Property) -> TokenStream {
         // refs are actually flattened in responses, but we want them abstracted,
         // so the accessor is actually just a type conversion
         let Property {
-            rust_type: RustType::NamedSchema(typ),
+            rust_type: RustType::NamedObjectSchema(typ),
             ..
         } = prop
         else {
-            panic!("Reference to non-custom type: {prop:?}");
+            panic!("Reference to non-object schema: {prop:?}");
         };
         let ident = format_ident!("{}", typ.as_pascal_case());
 
@@ -477,7 +478,8 @@ fn getter_body(prop: &Property) -> TokenStream {
             F32 | F64 => "f64",
             String => "str",
             Bytes => "array",
-            NamedSchema(_) | UnnamedSchema(_) => "object",
+            NamedEnumSchema(_) => "str",
+            NamedObjectSchema(_) | UnnamedObjectSchema(_) => "object",
         }
     }
 
@@ -509,8 +511,14 @@ fn getter_body(prop: &Property) -> TokenStream {
 
     // If the type that produced isn't the base return type, it needs an additional conversion.
     if getter != base_str {
-        if matches!(prop.rust_type, RustType::NamedSchema(_)) {
+        if matches!(prop.rust_type, RustType::NamedObjectSchema(_)) {
             ret = quote!(PropertyMap(Cow::Borrowed(#ret)).into());
+        } else if let RustType::NamedEnumSchema(schema) = &prop.rust_type {
+            let enum_type = format_ident!("{}", schema.as_pascal_case());
+            ret = quote! {
+                #ret.parse::<#enum_type>()
+                    .or_else(|e| Err(Error::UnexpectedResponse(format!("{e:?}"))))?
+            };
         } else {
             ret = quote!(#ret.try_into().or_else(|e| Err(Error::UnexpectedResponse(format!("{e:?}"))))?);
         }
@@ -543,18 +551,41 @@ fn getter_body(prop: &Property) -> TokenStream {
 fn setter_body(prop: &Property) -> TokenStream {
     let name = &prop.name;
     let modification = match (&prop.rust_type, prop.is_ref, prop.is_collection) {
-        (RustType::NamedSchema(_), true, false) => quote!(append(val.properties.0.to_mut())),
-        (RustType::NamedSchema(_), false, false) => quote! {
+        (RustType::NamedObjectSchema(_), true, false) => {
+            quote!(append(val.properties.0.to_mut()))
+        }
+        (RustType::NamedObjectSchema(_), false, false) => {
+            quote! {
                 insert(#name.to_string(), Value::Object(val.properties.0.into_owned()))
-        },
-        (RustType::NamedSchema(_), false, true) => quote! {
+            }
+        }
+        (RustType::NamedObjectSchema(_), false, true) => {
+            quote! {
             insert(
                 #name.to_string(),
                 val.into_iter()
                     .map(|v| Value::Object(v.properties.0.into_owned()))
                     .collect(),
             )
-        },
+            }
+        }
+        (RustType::NamedEnumSchema(_), false, false) => {
+            quote! {
+                insert(#name.to_string(), Value::String(val.to_string()))
+            }
+        }
+        (RustType::NamedEnumSchema(_), false, true) => {
+            quote! {
+                insert(
+                    #name.to_string(),
+                    Value::Array(
+                        val.into_iter()
+                            .map(|v| Value::String(v.to_string()))
+                            .collect(),
+                    ),
+                )
+            }
+        }
         (_, _, _) => quote!(insert(#name.to_string(), val.into())),
     };
 

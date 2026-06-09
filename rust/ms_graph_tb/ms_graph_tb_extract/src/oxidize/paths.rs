@@ -9,11 +9,11 @@ use crate::GENERATION_DISCLOSURE;
 use crate::extract::path::ApiBody;
 use crate::extract::{
     path::{Method, Operation, Path, Success},
-    schema::Property,
+    schema::object::Property,
 };
 use crate::module_hierarchy::ModuleName;
 use crate::naming::snakeify;
-use crate::oxidize::types::GraphType;
+use crate::oxidize::structs::GraphStruct;
 
 use super::{Reference, RustType, markup_doc_comment, return_type};
 
@@ -160,17 +160,17 @@ fn odata_target_property(operation: &Operation) -> Option<Property> {
     // Operations with responses of type `*CollectionResponse` don't apply the
     // query to that type, they apply it to the type in the collection.
     if operation.pageable
-        && let RustType::NamedSchema(custom_type) = &property.rust_type
+        && let RustType::NamedObjectSchema(custom_type) = &property.rust_type
         && let Some(base_name) = custom_type
             .original_name()
             .strip_suffix("CollectionResponse")
     {
         assert!(
-            crate::SUPPORTED_TYPES.contains(base_name),
+            crate::SUPPORTED_OBJECTS.contains(base_name),
             "a {base_name}CollectionResponse type should not be present if {base_name} is not a supported type"
         );
         property.name = base_name.to_string();
-        property.rust_type = RustType::NamedSchema(base_name.into());
+        property.rust_type = RustType::NamedObjectSchema(base_name.into());
         property.is_ref = false;
 
         // This only works if all `*CollectionResponse` types aren't collections
@@ -191,10 +191,10 @@ fn odata_target_property(operation: &Operation) -> Option<Property> {
 /// given generated suffix.
 ///
 /// Returns `None` if the operation success response has no body or if the OData
-/// target is not a custom Graph type.
+/// target is not a generated Graph struct.
 fn odata_target_ident(operation: &Operation, suffix: &str) -> Option<Ident> {
     let property = odata_target_property(operation)?;
-    let RustType::NamedSchema(custom_type) = property.rust_type else {
+    let RustType::NamedObjectSchema(custom_type) = property.rust_type else {
         return None;
     };
     Some(format_ident!("{}{}", custom_type.as_pascal_case(), suffix))
@@ -234,9 +234,9 @@ fn request_without_body(
 
     let mut unnamed_body_types = Vec::new();
     if let Success::WithBody(resp_body) = &operation.success
-        && let RustType::UnnamedSchema(graph_type) = &resp_body.property.rust_type
+        && let RustType::UnnamedObjectSchema(graph_struct) = &resp_body.property.rust_type
     {
-        unnamed_body_types.push(graph_type.clone());
+        unnamed_body_types.push(graph_struct.clone());
     }
 
     let struct_def = StructDef {
@@ -320,20 +320,22 @@ fn request_with_body(
 
     let mut body = op_body.property.rust_type.base_token(false, Reference::Own);
     let body_lifetime = match op_body.property.rust_type {
-        RustType::NamedSchema(_) | RustType::UnnamedSchema(_) => Some(quote!(<'body>)),
+        RustType::NamedObjectSchema(_) | RustType::UnnamedObjectSchema(_) => Some(quote!(<'body>)),
         _ => None,
     };
-    if op_body.property.is_ref || matches!(op_body.property.rust_type, RustType::UnnamedSchema(_)) {
+    if op_body.property.is_ref
+        || matches!(op_body.property.rust_type, RustType::UnnamedObjectSchema(_))
+    {
         body = quote!(#body #body_lifetime);
     }
 
     let mut unnamed_body_types = Vec::new();
-    if let RustType::UnnamedSchema(graph_type) = op_body.property.rust_type {
-        unnamed_body_types.push(graph_type);
+    if let RustType::UnnamedObjectSchema(graph_struct) = op_body.property.rust_type {
+        unnamed_body_types.push(graph_struct);
     } else if let Success::WithBody(resp_body) = &operation.success
-        && let RustType::UnnamedSchema(graph_type) = &resp_body.property.rust_type
+        && let RustType::UnnamedObjectSchema(graph_struct) = &resp_body.property.rust_type
     {
-        unnamed_body_types.push(graph_type.clone());
+        unnamed_body_types.push(graph_struct.clone());
     }
 
     let struct_def = StructDef {
@@ -433,7 +435,7 @@ impl ToTokens for TemplateExpressionsDef {
 }
 
 pub struct RequestDef {
-    unnamed_body_types: Vec<GraphType>,
+    unnamed_body_types: Vec<GraphStruct>,
     struct_def: StructDef,
     impl_def: ImplDef,
     operation_def: OperationDef,
@@ -458,7 +460,7 @@ impl ToTokens for RequestDef {
         tokens.append_all(
             unnamed_body_types
                 .iter()
-                .map(|graph_type| quote!(#graph_type)),
+                .map(|graph_struct| quote!(#graph_struct)),
         );
         tokens.append_all(quote! {
             #struct_def
