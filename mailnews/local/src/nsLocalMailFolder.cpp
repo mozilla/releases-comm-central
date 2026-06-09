@@ -1055,13 +1055,13 @@ NS_IMETHODIMP nsMsgLocalMailFolder::GetSizeOnDisk(int64_t* aSize) {
   if (folderFlags & nsMsgFolderFlags::Virtual) mFolderSize = 0;
 
   if (mFolderSize == kSizeUnknown) {
-    nsCOMPtr<nsIFile> file;
-    rv = GetFilePath(getter_AddRefs(file));
+    nsCOMPtr<nsIMsgPluggableStore> msgStore;
+    rv = GetMsgStore(getter_AddRefs(msgStore));
     NS_ENSURE_SUCCESS(rv, rv);
     // Use a temporary variable so that we keep mFolderSize on kSizeUnknown
-    // if GetFileSize() fails.
+    // if EstimateFolderSize() fails.
     int64_t folderSize;
-    rv = file->GetFileSize(&folderSize);
+    rv = msgStore->EstimateFolderSize(this, &folderSize);
     NS_ENSURE_SUCCESS(rv, rv);
 
     mFolderSize = folderSize;

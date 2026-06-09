@@ -1319,6 +1319,16 @@ NS_IMETHODIMP nsMsgMaildirStore::EstimateFolderSize(nsIMsgFolder* folder,
   NS_ENSURE_SUCCESS(rv, rv);
   cur->Append(u"cur"_ns);
 
+  // The cur/ subdirectory may not exist yet (e.g. no messages have been
+  // delivered). Treat that as a size of 0, the same way the mbox store
+  // treats a missing mbox file.
+  bool exists = false;
+  rv = cur->Exists(&exists);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (!exists) {
+    return NS_OK;
+  }
+
   nsCOMPtr<nsIDirectoryEnumerator> dirEnumerator;
   rv = cur->GetDirectoryEntries(getter_AddRefs(dirEnumerator));
   NS_ENSURE_SUCCESS(rv, rv);

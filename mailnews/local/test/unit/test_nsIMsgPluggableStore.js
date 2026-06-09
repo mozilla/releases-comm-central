@@ -647,6 +647,71 @@ async function test_ensureLocalStore() {
   }
 }
 
+/**
+ * Test estimateFolderSize() returns a sensible total for a folder.
+ *
+ * Regression test for bug 1288968 / bug 1032360: maildir folders used to
+ * report size 0 because nsMsgLocalMailFolder::GetSizeOnDisk() stat'd the
+ * folder *directory* instead of summing up the individual message files.
+ */
+async function test_estimateFolderSize() {
+  localAccountUtils.loadLocalMailAccount();
+  try {
+    const inbox = localAccountUtils.inboxFolder;
+    const store = inbox.msgStore;
+    const storeType = store.storeType;
+
+    // An empty folder should estimate as 0 bytes. For maildir this also
+    // exercises the case where the cur/ subdirectory is empty (or missing).
+    Assert.equal(
+      store.estimateFolderSize(inbox),
+      0,
+      `${storeType}: empty folder should estimate 0 bytes`
+    );
+
+    // Generate and write some messages.
+    const generator = new MessageGenerator();
+    const msgs = generator
+      .makeMessages({ count: 10 })
+      .map(message => message.toMessageString());
+
+    let totalMessageBytes = 0;
+    for (const msg of msgs) {
+      const out = store.getNewMsgOutputStream(inbox);
+      out.write(msg, msg.length);
+      store.finishNewMessage(inbox, out);
+      totalMessageBytes += msg.length;
+    }
+
+    const estimate = store.estimateFolderSize(inbox);
+    Assert.greater(
+      estimate,
+      0,
+      `${storeType}: non-empty folder should estimate > 0 bytes`
+    );
+
+    if (storeType == "maildir") {
+      // maildir stores each message as its own file under cur/, so the
+      // estimate is exactly the total of the message sizes.
+      Assert.equal(
+        estimate,
+        totalMessageBytes,
+        "maildir: estimate should equal the total message size"
+      );
+    } else if (storeType == "mbox") {
+      // mbox uses the size of the mbox file, which includes "From " lines
+      // and escaping, so just check it matches the file on disk.
+      Assert.equal(
+        estimate,
+        inbox.filePath.fileSize,
+        "mbox: estimate should equal the mbox file size"
+      );
+    }
+  } finally {
+    localAccountUtils.clearAll();
+  }
+}
+
 // Return a wrapper which sets the store type before running fn().
 function withStore(store, fn) {
   return async () => {
@@ -666,5 +731,6 @@ for (const store of localAccountUtils.pluggableStores) {
   add_task(withStore(store, test_oneWritePerFolder));
   add_task(withStore(store, test_multiFolderWriting));
   add_task(withStore(store, test_changeFlags));
+  add_task(withStore(store, test_estimateFolderSize));
   add_task(withStore(store, test_ensureLocalStore));
 }
