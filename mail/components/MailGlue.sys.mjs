@@ -1038,7 +1038,9 @@ MailGlue.prototype = {
         reportAccountSizes();
         reportAccountPreferences();
         await reportCalendars();
-        reportPreferences();
+        const preferenceTelemetry = new PreferenceTelemetry();
+        preferenceTelemetry.reportPreferences();
+        preferenceTelemetry.registerPrefObservers();
         reportUIConfiguration();
         reportEwsAccounts();
       },
@@ -1368,8 +1370,8 @@ async function reportCalendars() {
  * Note: These probes can handle up to 100 labels each. If you add a preference
  * to these lists, you MUST also update the relevant metrics.yaml.
  */
-function reportPreferences() {
-  const booleanPrefs = [
+class PreferenceTelemetry {
+  #booleanPrefs = [
     // General
     "browser.cache.disk.smart_size.enabled",
     "extensions.hasExperimentsInstalled",
@@ -1476,7 +1478,7 @@ function reportPreferences() {
     "mail.operate_on_msgs_in_collapsed_threads",
   ];
 
-  const calendarBooleanPrefs = [
+  #calendarBooleanPrefs = [
     // Calendar views
     "calendar.view.showLocation",
     "calendar.view-minimonth.showWeekNumber",
@@ -1499,7 +1501,7 @@ function reportPreferences() {
     "calendar.alarms.showmissed",
   ];
 
-  const integerPrefs = [
+  #integerPrefs = [
     // Mail UI
     "mail.addressDisplayFormat",
     "mail.biff.alert.preview_length",
@@ -1509,55 +1511,82 @@ function reportPreferences() {
     "mail.ui.display.dateformat.today",
   ];
 
-  // Platform-specific preferences
-  if (AppConstants.platform === "win") {
-    booleanPrefs.push("mail.biff.show_tray_icon", "mail.minimizeToTray");
+  constructor() {
+    // Platform-specific preferences
+    if (AppConstants.platform === "win") {
+      this.#booleanPrefs.push(
+        "mail.biff.show_tray_icon",
+        "mail.minimizeToTray"
+      );
+    }
+
+    if (AppConstants.platform !== "macosx") {
+      this.#booleanPrefs.push("mail.biff.use_system_alert");
+    }
+
+    // Compile-time flag-dependent preferences
+    if (AppConstants.HAVE_SHELL_SERVICE) {
+      this.#booleanPrefs.push("mail.shell.checkDefaultClient");
+    }
+
+    if (AppConstants.MOZ_WIDGET_GTK) {
+      this.#booleanPrefs.push("widget.gtk.overlay-scrollbars.enabled");
+    }
+
+    if (AppConstants.MOZ_MAINTENANCE_SERVICE) {
+      this.#booleanPrefs.push("app.update.service.enabled");
+    }
+
+    if (AppConstants.MOZ_DATA_REPORTING) {
+      this.#booleanPrefs.push("datareporting.healthreport.uploadEnabled");
+    }
+
+    if (AppConstants.MOZ_CRASHREPORTER) {
+      this.#booleanPrefs.push(
+        "browser.crashReports.unsubmittedCheck.autoSubmit2"
+      );
+    }
+
+    // Nightly experimental prefs.
+    if (AppConstants.NIGHTLY_BUILD) {
+      this.#booleanPrefs.push("mail.thread.conversation.enabled");
+    }
   }
 
-  if (AppConstants.platform !== "macosx") {
-    booleanPrefs.push("mail.biff.use_system_alert");
+  /**
+   * Report the current value of every tracked preference.
+   */
+  reportPreferences() {
+    for (const prefName of this.#booleanPrefs) {
+      const prefValue = Services.prefs.getBoolPref(prefName, false);
+      Glean.mail.preferencesBoolean[prefName].set(prefValue);
+    }
+
+    for (const prefName of this.#calendarBooleanPrefs) {
+      const prefValue = Services.prefs.getBoolPref(prefName, false);
+      Glean.calendar.preferencesBoolean[prefName].set(prefValue);
+    }
+
+    for (const prefName of this.#integerPrefs) {
+      const prefValue = Services.prefs.getIntPref(prefName, 0);
+      Glean.mail.preferencesInteger[prefName].set(prefValue);
+    }
   }
 
-  // Compile-time flag-dependent preferences
-  if (AppConstants.HAVE_SHELL_SERVICE) {
-    booleanPrefs.push("mail.shell.checkDefaultClient");
-  }
-
-  if (AppConstants.MOZ_WIDGET_GTK) {
-    booleanPrefs.push("widget.gtk.overlay-scrollbars.enabled");
-  }
-
-  if (AppConstants.MOZ_MAINTENANCE_SERVICE) {
-    booleanPrefs.push("app.update.service.enabled");
-  }
-
-  if (AppConstants.MOZ_DATA_REPORTING) {
-    booleanPrefs.push("datareporting.healthreport.uploadEnabled");
-  }
-
-  if (AppConstants.MOZ_CRASHREPORTER) {
-    booleanPrefs.push("browser.crashReports.unsubmittedCheck.autoSubmit2");
-  }
-
-  // Nightly experimental prefs.
-  if (AppConstants.NIGHTLY_BUILD) {
-    booleanPrefs.push("mail.thread.conversation.enabled");
-  }
-
-  // Fetch and report preference values
-  for (const prefName of booleanPrefs) {
-    const prefValue = Services.prefs.getBoolPref(prefName, false);
-    Glean.mail.preferencesBoolean[prefName].set(prefValue);
-  }
-
-  for (const prefName of calendarBooleanPrefs) {
-    const prefValue = Services.prefs.getBoolPref(prefName, false);
-    Glean.calendar.preferencesBoolean[prefName].set(prefValue);
-  }
-
-  for (const prefName of integerPrefs) {
-    const prefValue = Services.prefs.getIntPref(prefName, 0);
-    Glean.mail.preferencesInteger[prefName].set(prefValue);
+  /**
+   * Update the application-lifetime glean metrics, whenever a tracked preference
+   * changes. The next Glean ping then includes the updated value.
+   */
+  registerPrefObservers() {
+    Services.prefs.addObserver("", (subject, topic, data) => {
+      if (this.#booleanPrefs.includes(data)) {
+        const prefValue = Services.prefs.getBoolPref(data, false);
+        Glean.mail.preferencesBoolean[data].set(prefValue);
+      } else if (this.#integerPrefs.includes(data)) {
+        const prefValue = Services.prefs.getIntPref(data, 0);
+        Glean.mail.preferencesInteger[data].set(prefValue);
+      }
+    });
   }
 }
 
@@ -1635,7 +1664,7 @@ export var MailTelemetryForTests = {
   reportAccountPreferences,
   reportAddressBookTypes,
   reportCalendars,
-  reportPreferences,
+  reportPreferences: () => new PreferenceTelemetry().reportPreferences(),
   reportUIConfiguration,
   reportEwsAccounts,
 };
