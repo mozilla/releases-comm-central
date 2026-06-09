@@ -72,7 +72,7 @@
 #include "nsTextNode.h"  // from dom/base
 #include "nsIParserUtils.h"
 #include "nsIStringBundle.h"
-#include "nsPIDOMWindowInlines.h" // For nsPIDOMWindowOuter::GetDocShell - see bug 2046012
+#include "nsPIDOMWindowInlines.h"  // For nsPIDOMWindowOuter::GetDocShell - see bug 2046012
 #include "nsWeakReference.h"
 
 using namespace mozilla;
