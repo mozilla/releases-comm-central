@@ -56,7 +56,6 @@ UNIFIED_SOURCES += [
     "nsMailChannel.cpp",
     "nsMailDirProvider.cpp",
     "nsMessenger.cpp",
-    "nsMessengerBootstrap.cpp",
     "nsMsgAccount.cpp",
     "nsMsgAccountManager.cpp",
     "nsMsgBiffManager.cpp",

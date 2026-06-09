@@ -42,7 +42,6 @@
 #include "nsIMsgParseMailMsgState.h"
 #include "nsIOutputStream.h"
 #include "nsIDocShell.h"
-#include "nsIMessengerWindowService.h"
 #include "nsIWindowMediator.h"
 #include "nsIPrompt.h"
 #include "nsIWindowWatcher.h"
@@ -2449,12 +2448,6 @@ NS_IMETHODIMP nsImapService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
         // null out this channel, so it'll stop trying to run the url.
         *aRetVal = nullptr;
         rv = NS_OK;
-      } else {
-        // Got IMAP folder URL from command line (most likely).
-        // Set action to nsImapSelectFolder (x-application-imapfolder), so
-        // ::HandleContent will handle it.
-        imapUrl->SetImapAction(nsIImapUrl::nsImapSelectFolder);
-        HandleContent("x-application-imapfolder", nullptr, channel);
       }
     }
   }
@@ -2964,42 +2957,5 @@ NS_IMETHODIMP nsImapService::GetCacheStorage(nsICacheStorage** result) {
 NS_IMETHODIMP nsImapService::HandleContent(
     const char* aContentType, nsIInterfaceRequestor* aWindowContext,
     nsIRequest* request) {
-  NS_ENSURE_ARG_POINTER(request);
-
-  nsresult rv;
-  nsCOMPtr<nsIChannel> aChannel = do_QueryInterface(request, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  if (PL_strcasecmp(aContentType, "x-application-imapfolder") == 0) {
-    nsCOMPtr<nsIURI> uri;
-    rv = aChannel->GetURI(getter_AddRefs(uri));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    if (uri) {
-      request->Cancel(NS_BINDING_ABORTED);
-      nsCOMPtr<nsIWindowMediator> mediator(
-          do_GetService(NS_WINDOWMEDIATOR_CONTRACTID, &rv));
-      NS_ENSURE_SUCCESS(rv, rv);
-
-      nsAutoCString uriStr;
-      rv = uri->GetSpec(uriStr);
-      NS_ENSURE_SUCCESS(rv, rv);
-
-      // imap uri's are unescaped, so unescape the url.
-      nsCString unescapedUriStr;
-      MsgUnescapeString(uriStr, 0, unescapedUriStr);
-      nsCOMPtr<nsIMessengerWindowService> messengerWindowService =
-          do_GetService("@mozilla.org/messenger/windowservice;1", &rv);
-      NS_ENSURE_SUCCESS(rv, rv);
-
-      rv = messengerWindowService->OpenMessengerWindowWithUri(
-          "mail:3pane", unescapedUriStr, nsMsgKey_None);
-      NS_ENSURE_SUCCESS(rv, rv);
-    }
-  } else {
-    // The content-type was not x-application-imapfolder
-    return NS_ERROR_WONT_HANDLE_CONTENT;
-  }
-
-  return rv;
+  return NS_ERROR_WONT_HANDLE_CONTENT;
 }
