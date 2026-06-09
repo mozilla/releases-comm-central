@@ -41,10 +41,12 @@ dialog {
   --hub-loader-color: var(--color-primary-default);
   --hub-floating-button-line-height: 1.3em;
   --hub-width: 500px;
+  --hub-manual-config-gap: calc(calc(4 * var(--space-step)) + var(--hub-input-error-message-font-size));
 
   --hub-input-height: 33px;
   --hub-input-border-radius: 3px;
   --hub-input-border-color: color-mix(in srgb, currentColor 50%, transparent);
+  --hub-input-error-message-font-size: 0.846rem;
   --hub-close-button-color: light-dark(#18181b, #eeeef0);
   --hub-close-button-hover-background: var(--color-surface-subtle);
   --hub-close-button-active-background: var(--color-text-muted);
@@ -447,6 +449,11 @@ header {
         flex: 1;
       }
     }
+  }
+
+  &.manual-config-body {
+    gap: calc(8 * var(--space-step));
+    padding-block: calc(3 * var(--space-step));
   }
 
   &.hub-form-grid {

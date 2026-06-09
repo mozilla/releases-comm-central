@@ -2,7 +2,244 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-<html:template id="accountHubEmailManualConfigFormTemplate" xmlns="http://www.w3.org/1999/xhtml">
+<html:template
+  id="accountHubEmailManualConfigFormTemplate"
+  xmlns="http://www.w3.org/1999/xhtml"
+>
   <form id="manualConfigForm" class="account-hub-form" slot="content">
+    <div class="hub-body manual-config-body">
+      <fieldset
+        class="manual-config-server-fields"
+        aria-labelledby="manualIncomingConfigLegend"
+      >
+        <h2
+          id="manualIncomingConfigLegend"
+          class="manual-config-server-header"
+          data-l10n-id="account-hub-manual-config-incoming-legend"
+        ></h2>
+        <!-- Incoming Hostname -->
+        <account-hub-input
+          id="manualIncomingHostname"
+          l10n-label-id="account-hub-result-hostname-label"
+          l10n-error-id="account-hub-hostname-error-text"
+          type="text"
+          placeholder="mail.example.com"
+          required="required"
+          classes="input-field manual-input"
+        ></account-hub-input>
+
+        <!-- Incoming Username -->
+        <account-hub-input
+          id="manualIncomingUsername"
+          l10n-label-id="account-hub-result-username-label"
+          l10n-error-id="account-hub-username-error-text"
+          type="text"
+          required="required"
+          classes="username input-field manual-input"
+        ></account-hub-input>
+
+        <!-- Incoming Authentication -->
+        <account-hub-select
+          id="manualIncomingAuthMethod"
+          l10n-label-id="account-hub-auth-label"
+          required="required"
+          value="0"
+          flex="1"
+        >
+          <option
+            id="manualIncomingAuthMethodAutodetect"
+            data-l10n-id="account-hub-ssl-autodetect-option"
+            value="0"
+          ></option>
+          <option
+            id="manualIncomingAuthMethodCleartext"
+            data-l10n-id="account-hub-ssl-cleartext-password-option"
+            value="3"
+          ></option>
+          <option
+            id="manualIncomingAuthMethodEncrypted"
+            data-l10n-id="account-hub-ssl-encrypted-password-option"
+            value="4"
+          ></option>
+          <option
+            id="manualIncomingAuthMethodKerbos"
+            label="Kerberos / GSSAPI"
+            value="5"
+          ></option>
+          <option
+            id="manualIncomingAuthMethodNtlm"
+            label="NTLM"
+            value="6"
+          ></option>
+          <option
+            id="manualIncomingAuthMethodOAuth2"
+            value="10"
+            hidden="hidden"
+            label="OAuth2"
+          ></option>
+        </account-hub-select>
+
+        <!-- Incoming Connection Security -->
+        <account-hub-select
+          id="manualIncomingConnectionSecurity"
+          l10n-label-id="account-hub-ssl-label"
+          l10n-error-id="account-hub-select-security-warning"
+          flex="1"
+        >
+          <option
+            id="manualIncomingConnectionSecurityAutodetect"
+            data-l10n-id="account-hub-ssl-autodetect-option"
+            value="-1"
+          ></option>
+          <option
+            id="manualIncomingConnectionSecurityNoEncryption"
+            selected="true"
+            data-l10n-id="account-hub-ssl-noencryption-option"
+            value="0"
+          ></option>
+          <option
+            id="manualIncomingConnectionSecurityStartTtls"
+            label="STARTTLS"
+            value="2"
+          ></option>
+          <option
+            id="manualIncomingConnectionSecuritySslTls"
+            label="SSL/TLS"
+            value="3"
+          ></option>
+        </account-hub-select>
+
+        <!-- Incoming Port -->
+        <account-hub-input
+          id="manualIncomingPort"
+          l10n-label-id="account-hub-on-port-label"
+          l10n-error-id="account-hub-port-error-text"
+          type="number"
+          min="1"
+          max="65535"
+          required="required"
+          classes="input-field number-input"
+        ></account-hub-input>
+      </fieldset>
+      <fieldset
+        class="manual-config-server-fields"
+        aria-labelledby="manualOutgoingConfigLegend"
+      >
+        <h2
+          id="manualOutgoingConfigLegend"
+          class="manual-config-server-header"
+          data-l10n-id="account-hub-manual-config-outgoing-legend"
+        ></h2>
+
+        <!-- Outgoing Hostname -->
+        <account-hub-input
+          id="manualOutgoingHostname"
+          l10n-label-id="account-hub-result-hostname-label"
+          l10n-error-id="account-hub-hostname-error-text"
+          type="text"
+          placeholder="mail.example.com"
+          required="required"
+          classes="input-field manual-input"
+        ></account-hub-input>
+
+        <!-- Outgoing Username -->
+        <account-hub-input
+          id="manualOutgoingUsername"
+          l10n-label-id="account-hub-result-username-label"
+          l10n-error-id="account-hub-username-error-text"
+          type="text"
+          required="required"
+          classes="username input-field manual-input"
+        ></account-hub-input>
+
+        <!-- Outgoing Authentication -->
+        <account-hub-select
+          id="manualOutgoingAuthMethod"
+          l10n-label-id="account-hub-auth-label"
+          required="required"
+          flex="1"
+        >
+          <option
+            id="manualOutgoingAuthMethodAutodetect"
+            data-l10n-id="account-hub-ssl-autodetect-option"
+            selected="selected"
+            value="0"
+          ></option>
+          <option
+            id="manualOutgoingAuthMethodNone"
+            data-l10n-id="account-hub-auth-no-authentication-option"
+            value="1"
+          ></option>
+          <option
+            id="manualOutgoingAuthMethodCleartext"
+            data-l10n-id="account-hub-ssl-cleartext-password-option"
+            value="3"
+          ></option>
+          <option
+            id="manualOutgoingAuthMethodEncrypted"
+            data-l10n-id="account-hub-ssl-encrypted-password-option"
+            value="4"
+          ></option>
+          <option
+            id="manualOutgoingAuthMethodKerbos"
+            label="Kerberos / GSSAPI"
+            value="5"
+          ></option>
+          <option
+            id="manualOutgoingAuthMethodNtlm"
+            label="NTLM"
+            value="6"
+          ></option>
+          <option
+            id="manualOutgoingAuthMethodOAuth2"
+            value="10"
+            hidden="hidden"
+            label="OAuth2"
+          ></option>
+        </account-hub-select>
+
+        <!-- Outgoing Connection Security -->
+        <account-hub-select
+          id="manualOutgoingConnectionSecurity"
+          l10n-label-id="account-hub-ssl-label"
+          l10n-error-id="account-hub-select-security-warning"
+          flex="1"
+        >
+          <option
+            id="manualOutgoingConnectionSecurityAutodetect"
+            data-l10n-id="account-hub-ssl-autodetect-option"
+            value="-1"
+          ></option>
+          <option
+            id="manualOutgoingConnectionSecurityNoEncryption"
+            selected="selected"
+            data-l10n-id="account-hub-ssl-noencryption-option"
+            value="0"
+          ></option>
+          <option
+            id="manualOutgoingConnectionSecurityStartTtls"
+            label="STARTTLS"
+            value="2"
+          ></option>
+          <option
+            id="manualOutgoingConnectionSecuritySslTls"
+            label="SSL/TLS"
+            value="3"
+          ></option>
+        </account-hub-select>
+
+        <!-- Outgoing Port -->
+        <account-hub-input
+          id="manualOutgoingPort"
+          l10n-label-id="account-hub-on-port-label"
+          l10n-error-id="account-hub-port-error-text"
+          type="number"
+          min="1"
+          max="65535"
+          required="required"
+          classes="input-field number-input"
+        ></account-hub-input>
+      </fieldset>
+    </div>
   </form>
 </html:template>

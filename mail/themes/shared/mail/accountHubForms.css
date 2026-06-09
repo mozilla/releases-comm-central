@@ -20,7 +20,7 @@ form {
   --hub-menuitem-background-color-selected: var(--color-primary-default);
   --hub-form-input-line-height: 1em;
   --hub-form-label-font-size: 1rem;
-  --hub-form-label-line-height: 1rlh;
+  --hub-form-label-line-height: 1.5rem;
   --hub-form-label-padding: var(--space-step);
   --hub-form-label-height: calc(var(--hub-form-label-line-height) + 2 * var(--hub-form-label-padding));
   --hub-form-input-block-padding: 12px;
@@ -241,11 +241,12 @@ form {
       color: light-dark(var(--color-critical-default), var(--color-critical-pressed));
       display: none;
       position: absolute;
-      inset-block-end: calc(-1 * var(--hub-form-input-line-height) - 5px);
+      inset-block-end: calc(-1 * var(--hub-form-input-line-height) - var(--space-step));
       white-space: nowrap;
       text-overflow: ellipsis;
       overflow: hidden;
       inline-size: -moz-available;
+      font-size: var(--hub-input-error-message-font-size);
 
       &.security-warning {
         white-space: normal;
@@ -292,14 +293,22 @@ form {
     padding-inline-end: 48px;
   }
 
-  legend {
-    margin-block: 0 10px;
-    background-color: var(--hub-account-primary-button-background);
-    border-radius: 7px;
-    padding: 5px 10px;
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    color: var(--hub-button-color);
+  .manual-config-server-header {
+    color: var(--color-primary-pressed);
+    font-size: 1.154rem;
+    margin-block: 0;
+    font-weight: 500;
+  }
+
+  .manual-config-server-fields {
+    display: flex;
+    flex-direction: column;
+    min-inline-size: unset;
+    border: none;
+    padding-block: 0;
+    padding-inline: 0;
+    margin-inline: 0;
+    gap: var(--hub-manual-config-gap);
   }
 }
 
