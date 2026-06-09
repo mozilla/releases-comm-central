@@ -482,8 +482,8 @@ async function assert_dark_style() {
   );
   Assert.equal(
     headStyle.color,
-    "rgb(255, 255, 255)",
-    "The #headStyle should have a white color"
+    "rgb(238, 238, 240)",
+    "The #headStyle should have a light grey color"
   );
 
   const headStyle2 = aboutMessage.getComputedStyle(
@@ -541,8 +541,8 @@ async function assert_dark_style() {
   );
   Assert.equal(
     style.color,
-    "rgb(255, 255, 255)",
-    "The paragraph styled via CSS class should inherit the white body color."
+    "rgb(238, 238, 240)",
+    "The paragraph styled via CSS class should inherit the light grey body color."
   );
 
   const tableBlock = aboutMessage.getComputedStyle(
