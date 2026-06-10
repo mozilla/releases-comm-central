@@ -75,6 +75,8 @@ run-if = [
 ]
 reason = "Cannot open the Format menu"
 
+["browser_pillDragCrossWindow.js"]
+
 ["browser_publicRecipientsWarning.js"]
 
 ["browser_quoteMessage.js"]

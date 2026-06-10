@@ -535,9 +535,14 @@ class MailRecipientsArea extends MozXULElement {
         }
         targetPill.toggleAttribute("selected");
       }
+      const addresses = [...this.getAllSelectedPills()].map(
+        pill => pill.fullAddress
+      );
       event.dataTransfer.effectAllowed = "move";
       event.dataTransfer.dropEffect = "move";
-      event.dataTransfer.setData("text/pills", "pills");
+      // Carry the actual addresses so the drop can recreate the pills, even in
+      // another compose window where this widget's selection isn't available.
+      event.dataTransfer.setData("text/pills", JSON.stringify(addresses));
       event.dataTransfer.setDragImage(targetPill, 50, 12);
     });
 
@@ -546,7 +551,10 @@ class MailRecipientsArea extends MozXULElement {
     });
 
     this.addEventListener("dragenter", event => {
-      if (!event.dataTransfer.getData("text/pills")) {
+      // Use types.includes rather than getData: during dragover-phase events
+      // the data store is protected and getData returns empty, especially for
+      // a drag originating in another window.
+      if (!event.dataTransfer.types.includes("text/pills")) {
         return;
       }
 
@@ -564,7 +572,7 @@ class MailRecipientsArea extends MozXULElement {
     });
 
     this.addEventListener("dragleave", event => {
-      if (!event.dataTransfer.getData("text/pills")) {
+      if (!event.dataTransfer.types.includes("text/pills")) {
         return;
       }
       // If dragleave from pill, remove its drop indicator style.
@@ -582,7 +590,7 @@ class MailRecipientsArea extends MozXULElement {
 
     this.addEventListener("drop", event => {
       // First handle cases where the dropped data is not pills.
-      if (!event.dataTransfer.getData("text/pills")) {
+      if (!event.dataTransfer.types.includes("text/pills")) {
         // Bail out if the dropped data comes from the contacts sidebar.
         // Those addresses will be added immediately as pills without going
         // through the input field as plain text.
@@ -607,6 +615,23 @@ class MailRecipientsArea extends MozXULElement {
         return;
       }
 
+      let addresses;
+      try {
+        addresses = JSON.parse(event.dataTransfer.getData("text/pills"));
+      } catch {
+        return;
+      }
+      if (!Array.isArray(addresses) || !addresses.length) {
+        return;
+      }
+
+      // The drag may have started in another compose window; find the
+      // recipients area it came from so its pills can be removed there.
+      const sourceRecipientsArea =
+        event.dataTransfer.mozSourceNode?.ownerDocument.getElementById(
+          "recipientsContainer"
+        );
+
       // Pills have been dropped somewhere inside an address row.
       // If they have been dropped directly on an address container, use that.
       // Otherwise ensure having an addressContainer for drop targets inside
@@ -624,8 +649,10 @@ class MailRecipientsArea extends MozXULElement {
       const targetPill = event.target.closest("mail-address-pill");
       this.createDNDPills(
         addressContainer,
+        addresses,
         targetPill || !targetAddressContainer,
-        targetPill ? targetPill.fullAddress : null
+        targetPill ? targetPill.fullAddress : null,
+        sourceRecipientsArea
       );
       addressContainer.classList.remove("drag-address-container");
     });
@@ -661,19 +688,29 @@ class MailRecipientsArea extends MozXULElement {
    *
    * @param {string} addressContainer - The address container on which pills
    *   have been dropped.
-   * @param {boolean} [appendStart] - If the selected addresses should be
+   * @param {string[]} draggedAddresses - The addresses being dropped, taken
+   *   from the drag's dataTransfer so they are available even when the drag
+   *   started in another compose window.
+   * @param {boolean} [appendStart] - If the dragged addresses should be
    *   appended at the start or at the end of existing addresses.
    *   Specifying targetAddress will override this.
    * @param {string} [targetAddress] - The existing address before which all
-   *   selected addresses should be appended.
+   *   dragged addresses should be appended.
+   * @param {MailRecipientsArea} [sourceRecipientsArea] - The recipients area
+   *   the drag started in. For a cross-window drag this is the other window's
+   *   widget; its dragged pills are removed there. Defaults to this widget.
    */
-  createDNDPills(addressContainer, appendStart, targetAddress) {
+  createDNDPills(
+    addressContainer,
+    draggedAddresses,
+    appendStart,
+    targetAddress,
+    sourceRecipientsArea = this
+  ) {
     const existingPills =
       addressContainer.querySelectorAll("mail-address-pill");
     const existingAddresses = [...existingPills].map(pill => pill.fullAddress);
-    const selectedAddresses = [...this.getAllSelectedPills()].map(
-      pill => pill.fullAddress
-    );
+    const selectedAddresses = draggedAddresses;
     const originalTargetIndex = existingAddresses.indexOf(targetAddress);
 
     // Remove all the duplicate existing addresses.
@@ -704,9 +741,13 @@ class MailRecipientsArea extends MozXULElement {
         : existingAddresses.concat(selectedAddresses);
     }
 
-    // Remove all selected pills.
-    for (const pill of this.getAllSelectedPills()) {
-      pill.remove();
+    // The source window may not be this one, in which case it won't be rebuilt below and has to clean up after itself.
+    if (sourceRecipientsArea == this) {
+      for (const pill of this.getAllSelectedPills()) {
+        pill.remove();
+      }
+    } else {
+      sourceRecipientsArea?.removeSelectedPills();
     }
 
     // Existing pills are removed before creating new ones in the right order.
@@ -725,7 +766,7 @@ class MailRecipientsArea extends MozXULElement {
     }
 
     // Move the focus to the first selected pill.
-    this.getAllSelectedPills()[0].focus();
+    this.getAllSelectedPills()[0]?.focus();
   }
 
   /**
