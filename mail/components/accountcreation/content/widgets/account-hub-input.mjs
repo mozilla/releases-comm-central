@@ -86,7 +86,6 @@ class AccountHubInput extends HTMLElement {
     this.#input.id = `${this.id}Input`;
     this.#input.type = this.getAttribute("type");
     this.#input.className = this.getAttribute("classes");
-    this.#input.ariaLabelledByElements = [this.#label];
 
     this.#label.htmlFor = this.#input.id;
     this.#error.id = `${this.#input.id}ErrorMessage`;
@@ -118,7 +117,9 @@ class AccountHubInput extends HTMLElement {
 
     switch (attribute) {
       case "l10n-label-id": {
+        const labelText = await document.l10n.formatValue(newValue);
         document.l10n.setAttributes(this.#label, newValue);
+        this.#input.ariaLabel = labelText;
         break;
       }
       case "l10n-error-id": {
