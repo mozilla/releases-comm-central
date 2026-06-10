@@ -350,12 +350,12 @@ body:not(.layout-table):not(.all-ab-selected) ~ menupopup#sortContext > menuitem
 }
 
 #cards {
-  padding-block: 2px;
+  border-block-start: 1px solid var(--sidebar-border);
   -moz-context-properties: fill;
   fill: currentColor;
 
   &[rows="ab-card-row"] {
-    border-block-start: 1px solid var(--sidebar-border);
+    padding-block: 2px;
   }
 }
 

@@ -69,9 +69,12 @@
   --selected-item-text-color: var(--sidebar-highlight-text-color, AccentColorText);
   --sidebar-header-gap: 9px;
   --sidebar-header-spacing: 9px;
-  --sidebar-background: var(--sidebar-background-color, var(--layout-background-1));
-  --sidebar-color: var(--sidebar-text-color, var(--layout-color-1));
-  --sidebar-border: var(--sidebar-border-color, var(--layout-border-0));
+  --sidebar-background-color: var(--layout-background-1);
+  --sidebar-text-color: var(--layout-color-1);
+  --sidebar-border-color: var(--layout-border-0);
+  --sidebar-background: var(--sidebar-background-color);
+  --sidebar-color: var(--sidebar-text-color);
+  --sidebar-border: var(--sidebar-border-color);
 
   --tab-min-height: 33px;
   --lwt-tabs-border-color: var(--sidebar-border);
