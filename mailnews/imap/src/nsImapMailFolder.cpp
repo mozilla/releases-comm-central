@@ -5170,12 +5170,18 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
             nsCOMPtr<nsIMsgFolder> srcFolder =
                 do_QueryInterface(m_copyState->m_srcSupport);
             if (srcFolder) {
-              nsIMsgFolder* arrived = m_copyState->m_arrFolder;
-              copyService->NotifyCompletion(m_copyState->m_srcSupport,
-                                            arrived ? arrived : this,
+              // NotifyCompletion() starts the next queued move which re-enters
+              // nsImapMailFolder::InitCopyState(). This fails if `m_copyState`
+              // is still set. So clear it here while keeping the references we
+              // need.
+              nsCOMPtr<nsISupports> src = m_copyState->m_srcSupport;
+              nsCOMPtr<nsIMsgFolder> arrived = m_copyState->m_arrFolder;
+              m_copyState = nullptr;
+              copyService->NotifyCompletion(src, arrived ? arrived.get() : this,
                                             aExitCode);
+            } else {
+              m_copyState = nullptr;
             }
-            m_copyState = nullptr;
           }
           break;
         case nsIImapUrl::nsImapRenameFolder:
