@@ -189,6 +189,11 @@
       box.parentBox = this;
       box.occurrence = aItem;
 
+      box.setAttribute("data-event-id", aItem.id);
+      if (aItem.recurrenceId) {
+        box.setAttribute("data-recurrence-id", aItem.recurrenceId.nativeTime);
+      }
+
       this.mItemHash[aItem.hashId] = box;
       return box;
     }

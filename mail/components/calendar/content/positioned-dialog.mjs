@@ -49,7 +49,7 @@ export class PositionedDialog extends HTMLDialogElement {
    *
    * @type {HTMLElement}
    */
-  #trigger;
+  trigger;
 
   /**
    * Function to handle debouncing window resizes
@@ -77,11 +77,6 @@ export class PositionedDialog extends HTMLDialogElement {
    * @param {MouseEvent} [event] - The dblClick event that triggered the dialog.
    */
   show(event) {
-    if (!event && !this.#trigger) {
-      super.show();
-      return;
-    }
-
     //  If we have not yet stored a reference to the container element do so.
     if (!this.container) {
       this.container = document.getElementById(
@@ -104,8 +99,13 @@ export class PositionedDialog extends HTMLDialogElement {
     // to be called in child methods to keep this self contained.
     window.addEventListener("resize", this.#debounceResize);
 
-    if (!this.#trigger) {
-      this.#trigger = event.target.closest(this.triggerSelector);
+    if (!this.trigger && event) {
+      this.trigger = event.target.closest(this.triggerSelector);
+    }
+
+    if (!this.trigger) {
+      super.show();
+      return;
     }
 
     // Visibly hide the dialog but show it, this allows us to get the true
@@ -134,7 +134,7 @@ export class PositionedDialog extends HTMLDialogElement {
         margin: this.margin,
         width: dialogRect.width,
       },
-      trigger: this.#trigger?.getBoundingClientRect(),
+      trigger: this.trigger?.getBoundingClientRect(),
     });
 
     this.style.visibility = "visible";
@@ -143,7 +143,7 @@ export class PositionedDialog extends HTMLDialogElement {
   }
 
   close() {
-    this.#trigger = null;
+    this.trigger = null;
     clearTimeout(this.#resizeTimeout);
     window.removeEventListener("resize", this.#debounceResize);
     super.close();

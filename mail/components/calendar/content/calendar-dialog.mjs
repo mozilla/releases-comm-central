@@ -387,17 +387,18 @@ export class CalendarDialog extends PositionedDialog {
     if (!event.isEvent()) {
       console.error(calendarId, eventId, "is not an event");
       this.close();
-
       return;
     }
 
     // If we want a specific recurrence, retrieve it.
+    let recurrenceSelector = "";
     if (this.getAttribute("recurrence-id")) {
       const recurrenceId = cal.createDateTime();
       recurrenceId.nativeTime = this.getAttribute("recurrence-id");
       if (recurrenceId.isValid) {
         try {
           event = event.recurrenceInfo.getOccurrenceFor(recurrenceId);
+          recurrenceSelector = `[data-recurrence-id="${recurrenceId.nativeTime}"]`;
         } catch {
           console.warn(
             "Error retrieving occurrence for",
@@ -408,6 +409,8 @@ export class CalendarDialog extends PositionedDialog {
         }
       }
     }
+    const selector = `#view-box > :not([hidden]) [data-event-id="${event.id}"]${recurrenceSelector}`;
+    this.trigger = document.querySelector(selector);
 
     // We did it, we have an event to display \o/.
     this.#subviewManager.showDefaultSubview();

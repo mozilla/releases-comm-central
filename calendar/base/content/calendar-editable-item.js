@@ -209,6 +209,10 @@
     }
 
     set occurrence(val) {
+      this.setAttribute("data-event-id", val.id);
+      if (val.recurrenceId) {
+        this.setAttribute("data-recurrence-id", val.recurrenceId.nativeTime);
+      }
       this.mOccurrence = val;
       this.setEditableLabel();
       this.setLocationLabel();
