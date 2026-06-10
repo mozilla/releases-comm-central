@@ -173,9 +173,9 @@ add_task(function testMicrosoftHostnameDetails() {
     {
       issuer: "login.microsoftonline.com",
       allScopes:
-        "https://graph.microsoft.com/User.Read https://graph.microsoft.com/MailboxFolder.ReadWrite offline_access",
+        "https://graph.microsoft.com/User.Read https://graph.microsoft.com/MailboxFolder.ReadWrite https://graph.microsoft.com/Mail.ReadWrite https://graph.microsoft.com/Mail.Send offline_access",
       requiredScopes:
-        "https://graph.microsoft.com/User.Read https://graph.microsoft.com/MailboxFolder.ReadWrite offline_access",
+        "https://graph.microsoft.com/User.Read https://graph.microsoft.com/MailboxFolder.ReadWrite https://graph.microsoft.com/Mail.ReadWrite https://graph.microsoft.com/Mail.Send offline_access",
     }
   );
 });
