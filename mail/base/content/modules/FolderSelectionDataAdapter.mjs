@@ -91,7 +91,7 @@ export class FolderSelectionDataAdapter extends TreeDataAdapter {
       if (!serverOrServers) {
         // All the servers.
         serverOrServers = Array.from(
-          FolderUtils.allAccountsSorted(),
+          FolderUtils.allAccountsSorted(true),
           a => a.incomingServer
         );
       }
