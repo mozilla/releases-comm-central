@@ -341,9 +341,8 @@ export class MessageSend {
       return;
     }
     this._aborting = true;
-    if (this._smtpRequest?.value) {
-      this._smtpRequest.value.cancel(Cr.NS_ERROR_ABORT);
-      this._smtpRequest = null;
+    if (this._outgoingListener) {
+      this._outgoingListener.cancel(Cr.NS_ERROR_ABORT);
     }
     if (this._msgCopy) {
       MailServices.copy.notifyCompletion(
@@ -540,7 +539,10 @@ export class MessageSend {
           }
         }
       }
-      this.fail(Cr.NS_OK, null);
+      // A failed or declined primary FCC copy must not skip the additional
+      // folder copy.
+      await this._doFcc2();
+      return;
     }
 
     if (
@@ -550,11 +552,16 @@ export class MessageSend {
         this._deliverMode
       )
     ) {
+      // Sent-message filters finish asynchronously in onStopOperation. Wait for
+      // that callback so FCC2 remains ordered after the filters.
+      const { promise, resolve, reject } = Promise.withResolvers();
+      this._filterCompletionResolvers = { resolve, reject };
       try {
         this._filterSentMessage();
       } catch (e) {
         await this.onStopOperation(e.result);
       }
+      await promise;
       return;
     }
 
@@ -607,7 +614,17 @@ export class MessageSend {
       );
     }
 
-    await this._doFcc2();
+    try {
+      await this._doFcc2();
+      this._filterCompletionResolvers?.resolve();
+    } catch (e) {
+      // The awaiter in _doFcc surfaces this via the rejected promise; don't
+      // also throw, or the ignored onStopOperation promise becomes an
+      // unhandled rejection.
+      this._filterCompletionResolvers?.reject(e);
+    } finally {
+      this._filterCompletionResolvers = null;
+    }
   }
 
   /**
@@ -1187,7 +1204,9 @@ export class MessageSend {
       throw new Error(`No outgoing server for ${this._userIdentity.email}`);
     }
 
-    this._smtpRequest = outgoingListener.requestPromise;
+    // Keep the listener available for abort(): the cancelable request may not
+    // exist until onSendStart runs.
+    this._outgoingListener = outgoingListener;
 
     // Send the message using the server that was retrieved.
     server.sendMailMessage(
@@ -1202,7 +1221,7 @@ export class MessageSend {
       this._compFields.messageId,
       outgoingListener
     );
-    await this._smtpRequest;
+    await outgoingListener.requestPromise;
   }
 
   /**
@@ -1559,6 +1578,14 @@ class PromiseMsgOutgoingListener {
    */
   #request;
 
+  /**
+   * A cancel status requested via cancel() before onSendStart had a cancelable
+   * request. onSendStart applies it once the request exists.
+   *
+   * @type {nsresult}
+   */
+  #pendingCancelStatus;
+
   QueryInterface = ChromeUtils.generateQI(["nsIMsgOutgoingListener"]);
 
   /**
@@ -1567,8 +1594,7 @@ class PromiseMsgOutgoingListener {
   constructor(msgSend) {
     this.#msgSend = msgSend;
 
-    // Initialize the Promise that will be resolved when the send attempt
-    // starts.
+    // We track the outcome of the send attempt, settled in onSendStop.
     const { promise, resolve, reject } = Promise.withResolvers();
     this.#requestPromise = promise;
     this.#resolve = resolve;
@@ -1584,6 +1610,11 @@ class PromiseMsgOutgoingListener {
   onSendStart(request) {
     this.#request = request;
     this.#msgSend.notifyListenerOnStartSending(null, 0);
+    if (this.#pendingCancelStatus !== undefined) {
+      // Apply a cancellation that was requested before onSendStart.
+      request.cancel(this.#pendingCancelStatus);
+      this.#pendingCancelStatus = undefined;
+    }
   }
 
   /**
@@ -1598,6 +1629,9 @@ class PromiseMsgOutgoingListener {
    *    message.
    */
   async onSendStop(serverURI, exitCode, secInfo, errMsg) {
+    if (this.#msgSend._outgoingListener == this) {
+      this.#msgSend._outgoingListener = null;
+    }
     await this.#msgSend.sendDeliveryCallback(
       serverURI,
       exitCode,
@@ -1611,7 +1645,12 @@ class PromiseMsgOutgoingListener {
     if (Components.isSuccessCode(exitCode)) {
       this.#resolve(this.#request);
     } else {
-      this.#reject(new Error(`Sending FAILED! ${errMsg}`));
+      // Reject with an exception carrying the send status, so that
+      // nsMsgCompose::SendMsg can recognize NS_ERROR_ABORT and skip the
+      // failure alert when the user cancels their own send.
+      this.#reject(
+        new Components.Exception(`Sending FAILED! ${errMsg}`, exitCode)
+      );
     }
   }
 
@@ -1621,6 +1660,20 @@ class PromiseMsgOutgoingListener {
    */
   get requestPromise() {
     return this.#requestPromise;
+  }
+
+  /**
+   * Cancel the outgoing request, or remember the cancellation until the request
+   * exists.
+   *
+   * @param {nsresult} status - The cancellation status.
+   */
+  cancel(status) {
+    if (this.#request) {
+      this.#request.cancel(status);
+    } else {
+      this.#pendingCancelStatus = status;
+    }
   }
 }
 

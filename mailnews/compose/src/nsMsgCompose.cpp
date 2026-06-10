@@ -55,6 +55,9 @@
 #include "mozilla/Preferences.h"
 #include "mozilla/ErrorResult.h"
 #include "mozilla/glean/CommMailComponentsComposeMetrics.h"
+#include "mozilla/dom/BindingUtils.h"
+#include "mozilla/dom/DOMException.h"
+#include "mozilla/dom/DOMExceptionBinding.h"
 #include "mozilla/dom/Document.h"
 #include "mozilla/dom/HTMLAnchorElement.h"
 #include "mozilla/dom/HTMLImageElement.h"
@@ -155,6 +158,7 @@ nsMsgCompose::nsMsgCompose() {
   m_composeHTML = false;
 
   mTmpAttachmentsDeleted = false;
+  mSendInFlight = false;
   mDraftDisposition = nsIMsgFolder::nsMsgDispositionState_None;
   mDeliverMode = 0;
 }
@@ -167,9 +171,9 @@ nsMsgCompose::~nsMsgCompose() {
     return;
   }
   m_window = nullptr;
-  if (!mMsgSend) {
-    // This dtor can be called before mMsgSend->CreateAndSendMessage returns,
-    // tmp attachments are needed to create the message, so don't delete them.
+  if (!mSendInFlight) {
+    // CreateAndSendMessage can still need temporary attachments after the
+    // compose window is gone.
     DeleteTmpAttachments();
   }
 
@@ -1046,6 +1050,7 @@ nsMsgCompose::SendMsgToServer(MSG_DeliverMode deliverMode,
     // We need an nsIMsgSend instance to send the message. Allow extensions
     // to override the default SMTP sender by observing mail-set-sender.
     mMsgSend = nullptr;
+    mSendInFlight = false;
     mDeliverMode = deliverMode;  // save for possible access by observer.
 
     // Allow extensions to specify an outgoing server.
@@ -1117,6 +1122,7 @@ nsMsgCompose::SendMsgToServer(MSG_DeliverMode deliverMode,
       nsCOMPtr<nsIMsgSendListener> sendListener =
           do_QueryInterface(composeSendListener);
       RefPtr<mozilla::dom::Promise> promise;
+      mSendInFlight = true;
       rv = mMsgSend->CreateAndSendMessage(
           m_composeHTML ? m_editor.get() : nullptr, identity, accountKey,
           m_compFields, false, false, (nsMsgDeliverMode)deliverMode, nullptr,
@@ -1272,48 +1278,71 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode,
   rv = SendMsgToServer(deliverMode, identity, accountKey,
                        getter_AddRefs(promise));
 
+  auto finishMessageSend = [](nsMsgCompose* compose) {
+    // Keep mMsgSend for deferred OnStopCopy; only end the temporary-attachment
+    // guard.
+    compose->mSendInFlight = false;
+    if (!compose->m_window) compose->DeleteTmpAttachments();
+  };
+
   RefPtr<nsMsgCompose> self = this;
-  auto handleFailure = [self = std::move(self), deliverMode](nsresult rv) {
+  auto handleFailure = [self = std::move(self), deliverMode,
+                        finishMessageSend](nsresult rv) {
     self->NotifyStateListeners(
         nsIMsgComposeNotificationType::ComposeProcessDone, rv);
-    nsCOMPtr<nsIMsgSendReport> sendReport;
-    if (self->mMsgSend)
-      self->mMsgSend->GetSendReport(getter_AddRefs(sendReport));
-    if (sendReport) {
-      sendReport->DisplayReport(nullptr);
-    } else {
-      // If we come here it's because we got an error before we could initialize
-      // a send report! Let's try our best...
-      // Seems we only get here by "silent" send such as forward/reply
-      // filter actions or MAPI. Should those alert? Consider reworking.
-      switch (deliverMode) {
-        case nsIMsgCompDeliverMode::Later:
-          nsMsgDisplayMessageByName("unableToSendLater");
-          break;
-        case nsIMsgCompDeliverMode::AutoSaveAsDraft:
-        case nsIMsgCompDeliverMode::SaveAsDraft:
-          nsMsgDisplayMessageByName("unableToSaveDraft");
-          break;
-        case nsIMsgCompDeliverMode::SaveAsTemplate:
-          nsMsgDisplayMessageByName("unableToSaveTemplate");
-          break;
+    // User cancel already updated compose state; do not show a generic send
+    // error alert.
+    if (rv != NS_ERROR_ABORT) {
+      nsCOMPtr<nsIMsgSendReport> sendReport;
+      if (self->mMsgSend)
+        self->mMsgSend->GetSendReport(getter_AddRefs(sendReport));
+      if (sendReport) {
+        sendReport->DisplayReport(nullptr);
+      } else {
+        // Some send modes may fail before nsMsgSend creates its detailed
+        // report. Fall back to the mode-specific generic error.
+        switch (deliverMode) {
+          case nsIMsgCompDeliverMode::Later:
+            nsMsgDisplayMessageByName("unableToSendLater");
+            break;
+          case nsIMsgCompDeliverMode::AutoSaveAsDraft:
+          case nsIMsgCompDeliverMode::SaveAsDraft:
+            nsMsgDisplayMessageByName("unableToSaveDraft");
+            break;
+          case nsIMsgCompDeliverMode::SaveAsTemplate:
+            nsMsgDisplayMessageByName("unableToSaveTemplate");
+            break;
 
-        default:
-          nsMsgDisplayMessageByName("sendFailed");
-          break;
+          default:
+            nsMsgDisplayMessageByName("sendFailed");
+            break;
+        }
       }
     }
     if (self->mProgress) self->mProgress->CloseProgressDialog(true);
 
-    self->DeleteTmpAttachments();
+    finishMessageSend(self);
   };
   if (promise) {
     promise->AddCallbacksWithCycleCollectedArgs(
-        [self = RefPtr(this)](JSContext*, JS::Handle<JS::Value> aValue,
-                              ErrorResult&) { self->DeleteTmpAttachments(); },
+        [self = RefPtr(this), finishMessageSend](
+            JSContext*, JS::Handle<JS::Value> aValue, ErrorResult&) {
+          finishMessageSend(self);
+        },
         [handleFailure](JSContext*, JS::Handle<JS::Value> aValue,
                         ErrorResult&) {
-          handleFailure(Promise::TryExtractNSResultFromRejectionValue(aValue));
+          nsresult rv = Promise::TryExtractNSResultFromRejectionValue(aValue);
+          if (rv == NS_ERROR_DOM_NOT_NUMBER_ERR && aValue.isObject()) {
+            // The send promise rejects with a Components.Exception holding
+            // the send status. TryExtractNSResultFromRejectionValue cannot
+            // unwrap it; it only understands numbers and DOMExceptions.
+            RefPtr<Exception> exception;
+            UNWRAP_OBJECT(Exception, aValue, exception);
+            if (exception) {
+              rv = exception->GetResult();
+            }
+          }
+          handleFailure(rv);
         });
     promise.forget(aPromise);
   } else if (NS_FAILED(rv)) {
@@ -1876,6 +1905,7 @@ NS_IMETHODIMP nsMsgCompose::SetMessageSend(nsIMsgSend* aMsgSend) {
 
 NS_IMETHODIMP nsMsgCompose::ClearMessageSend() {
   mMsgSend = nullptr;
+  mSendInFlight = false;
   return NS_OK;
 }
 

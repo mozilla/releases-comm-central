@@ -115,6 +115,7 @@ class nsMsgCompose : public nsIMsgCompose, public nsSupportsWeakReference {
   RefPtr<QuotingOutputStreamListener> mQuoteStreamListener;
 
   nsCOMPtr<nsIMsgSend> mMsgSend;  // for composition back end
+  bool mSendInFlight;
   nsCOMPtr<nsIMsgProgress>
       mProgress;  // use by the back end to report progress to the front end
 

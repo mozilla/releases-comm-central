@@ -6567,8 +6567,12 @@ async function CompleteGenericSendMessage(msgType) {
       progress
     );
   } catch (ex) {
-    console.warn(`GenericSendMessage FAILED: ${ex.message}`, ex);
     ToggleWindowLock(false);
+    if (ex?.result == Cr.NS_ERROR_ABORT) {
+      // The user cancelled the send; this is not an error.
+      return;
+    }
+    console.warn(`GenericSendMessage FAILED: ${ex.message}`, ex);
     return;
   } finally {
     if (gAutoSaving) {
