@@ -61,6 +61,11 @@ nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
         mozilla::GetMainThreadSerialEventTarget(), task);
     return rv;
   }
+
+  // If the scheme is one of the IMAP URL schemes, we need to use a mailnews
+  // URL because it parses extra query parameters such as filename= into values
+  // that are used when saving inline attachments via the m-c HTML5 rendering
+  // code.
   if (scheme.EqualsLiteral("imap") || scheme.EqualsLiteral("imap-message")) {
     if (NS_IsMainThread()) {
       return nsImapService::NewURI(aSpec, aCharset, aBaseURI, aURI);
@@ -125,11 +130,36 @@ nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
         .SetSpec(aSpec)
         .Finalize(aURI);
   }
+
+  // If the scheme is one of the Exchange URL schemes, we need to use a mailnews
+  // URL because it parses extra query parameters such as filename= into values
+  // that are used when saving inline attachments via the m-c HTML5 rendering
+  // code.
   if (scheme.EqualsLiteral("ews") || scheme.EqualsLiteral("ews-message") ||
-      scheme.EqualsLiteral("graph") || scheme.EqualsLiteral("graph-message")) {
-    return NS_MutateURI(new mozilla::net::nsStandardURL::Mutator())
-        .SetSpec(aSpec)
-        .Finalize(aURI);
+      scheme.EqualsLiteral("graph") || scheme.EqualsLiteral("graph-message") ||
+      scheme.EqualsLiteral("x-moz-ews") ||
+      scheme.EqualsLiteral("x-moz-graph")) {
+    nsCOMPtr<nsIURI> uriResult;
+    rv = NS_MutateURI(new mozilla::net::nsStandardURL::Mutator())
+             .SetSpec(aSpec)
+             .Finalize(uriResult);
+
+    nsAutoCString query;
+    rv = uriResult->GetQuery(query);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    if (query.Find("filename=") == kNotFound) {
+      uriResult.forget(aURI);
+      return NS_OK;
+    }
+
+    // If the URI contains a filename as a query string, we need to return an
+    // nsIURL that parses that query string into its filename so that the m-c
+    // HTML rendering code understands the file attachment names.
+    RefPtr<nsMsgMailNewsUrl> url = new nsMsgMailNewsUrl();
+    url->SetSpecInternal(aSpec);
+    url.forget(aURI);
+    return NS_OK;
   }
 
   rv = NS_ERROR_UNKNOWN_PROTOCOL;  // Let M-C handle it by default.
