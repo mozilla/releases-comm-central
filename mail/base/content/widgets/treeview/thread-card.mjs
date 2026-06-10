@@ -30,6 +30,7 @@ class ThreadCard extends TreeViewTableRow {
       document.getElementById("threadPaneCardTemplate").content.cloneNode(true)
     );
 
+    this.accountIndicator = this.querySelector(".account-indicator");
     this.senderLine = this.querySelector(".sender");
     this.subjectLine = this.querySelector(".subject");
     this.dateLine = this.querySelector(".date");
@@ -59,8 +60,23 @@ class ThreadCard extends TreeViewTableRow {
     const ariaLabelPromises = [];
     // Use static mapping instead of threadPane.cardColumns since the name of
     // the sender column changes. (see getProperSenderForCardsView)
-    const KEYS = ["subject", "sender", "date", "tagKeys", "total", "unread"];
+    const KEYS = [
+      "subject",
+      "sender",
+      "date",
+      "tagKeys",
+      "total",
+      "unread",
+      "account",
+      "serverKey",
+    ];
     const data = Object.fromEntries(KEYS.map((key, i) => [key, cellTexts[i]]));
+
+    this.accountIndicator.style.setProperty(
+      "--account-color",
+      `var(--server-${CSS.escape(data.serverKey)}-color)`
+    );
+    this.accountIndicator.title = data.account;
 
     if (threadLevel.value) {
       properties.value += " thread-children";

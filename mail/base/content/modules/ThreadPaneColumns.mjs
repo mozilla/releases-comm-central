@@ -427,6 +427,8 @@ function getDefaultColumnsForCardsView(folder) {
     "tagKeysCol",
     "totalCol",
     "unreadCol",
+    "accountCol",
+    "serverKeyCol",
   ];
 }
 

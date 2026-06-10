@@ -13,6 +13,7 @@
   --folder-pane-icon-more: var(--icon-more);
   --folder-pane-icon-download: var(--icon-cloud-download);
   --folder-pane-icon-kebab: var(--icon-kebab);
+  --account-indicator-inline-end: -1px;
 
   @media not (prefers-contrast) {
     --folderpane-unread-count-background: var(--color-gray-50);
@@ -35,6 +36,7 @@
 
   &[uidensity="compact"] {
     --folder-mode-name-padding: 3px;
+    --account-indicator-inline-end: 1px;
   }
 
   &[uidensity="touch"] {
@@ -43,6 +45,7 @@
     --folder-pane-icon-new: var(--icon-add-md);
     --folder-pane-icon-more: var(--icon-more-md);
     --folder-pane-icon-download: var(--icon-cloud-download-md);
+    --account-indicator-inline-end: -3px;
   }
 
   @media (prefers-contrast) {
@@ -324,7 +327,7 @@ body {
 
     &[data-folder-type="inbox"] > .container > .icon {
       content: var(--icon-inbox);
-      --icon-color: var(--folder-color-inbox);
+      --icon-color: var(--account-color, var(--folder-color-inbox));
     }
 
     &[data-folder-type="junk"] > .container > .icon {
@@ -652,4 +655,47 @@ body {
 
 conversation-view:not([hidden]) {
   flex: 1;
+}
+
+/* Account indicator */
+
+.account-indicator {
+  display: none;
+  box-sizing: border-box;
+  background-color: var(--account-color, var(--folder-color-inbox));
+  border-radius: 3px;
+  inline-size: 3px;
+  block-size: 1rem;
+  margin-inline-start: 3px;
+  margin-inline-end: var(--account-indicator-inline-end);
+
+  [data-mode="smart"] & {
+    margin-inline-start: 4px;
+    margin-inline-end: -4px;
+  }
+}
+
+[data-mode="smart"]
+  :is(
+    [data-folder-type="inbox"],
+    [data-folder-type="drafts"],
+    [data-folder-type="templates"],
+    [data-folder-type="sent"],
+    [data-folder-type="archive"],
+    [data-folder-type="junk"],
+    [data-folder-type="trash"]
+  ).children
+  [role="group"]
+  :is(
+    [data-folder-type="inbox"],
+    [data-folder-type="drafts"],
+    [data-folder-type="templates"],
+    [data-folder-type="sent"],
+    [data-folder-type="archive"],
+    [data-folder-type="junk"],
+    [data-folder-type="trash"]
+  )
+  > .container
+  > .account-indicator {
+  display: inline-flex;
 }

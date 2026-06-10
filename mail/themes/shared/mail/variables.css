@@ -8,7 +8,6 @@
 
 :host,
 :root {
-  --account-color: var(--selected-item-color);
   --transition-duration: 200ms;
   --transition-timing: ease;
   --lwt-additional-images: none;

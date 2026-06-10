@@ -9,7 +9,10 @@
 import { FolderTreeProperties } from "resource:///modules/FolderTreeProperties.sys.mjs";
 
 export class AccountManagerUtils {
-  defaultServerColor = "#2493ef";
+  // Hardcoded light color from the --color-primary-default Bolt token.
+  // TODO: We should find a way to make this dynamic and return the proper
+  // color based on light/dark settings.
+  defaultServerColor = "#1373d9";
 
   /**
    * The account currently being edited.
@@ -60,6 +63,7 @@ export class AccountManagerUtils {
       this.#account.incomingServer.rootFolder.URI,
       color
     );
+
     Services.obs.notifyObservers(this.#account, "server-color-changed", color);
   }
 

@@ -445,6 +445,31 @@ nsresult nsMsgDBView::FetchAccount(nsIMsgDBHdr* aHdr, nsAString& aAccount) {
   return NS_OK;
 }
 
+nsresult nsMsgDBView::FetchServerKey(nsIMsgDBHdr* aHdr,
+                                      nsAString& aServerKey) {
+  aServerKey.Truncate();
+
+  nsCOMPtr<nsIMsgFolder> folder;
+  nsresult rv = aHdr->GetFolder(getter_AddRefs(folder));
+  if (NS_FAILED(rv) || !folder) {
+    return rv;
+  }
+
+  nsCOMPtr<nsIMsgIncomingServer> server;
+  rv = folder->GetServer(getter_AddRefs(server));
+  if (NS_FAILED(rv) || !server) {
+    return rv;
+  }
+
+  nsCString serverKey;
+  rv = server->GetKey(serverKey);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  CopyASCIItoUTF16(serverKey, aServerKey);
+
+  return rv;
+}
+
 nsresult nsMsgDBView::FetchRecipients(nsIMsgDBHdr* aHdr,
                                       nsAString& aRecipientsString) {
   nsCString recipients;
@@ -1780,6 +1805,8 @@ nsMsgDBView::CellTextForColumn(int32_t aRow, const nsAString& aColumnName,
         msgHdr->GetFlags(&flags);
         rv = FetchStatus(flags, aValue);
       }
+      else if (aColumnName.EqualsLiteral("serverKeyCol"))
+        rv = FetchServerKey(msgHdr, aValue);
       break;
     case 'r':
       if (aColumnName.EqualsLiteral("recipientCol"))

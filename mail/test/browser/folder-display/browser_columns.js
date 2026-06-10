@@ -82,6 +82,8 @@ add_setup(async function () {
     "tagKeysCol",
     "totalCol",
     "unreadCol",
+    "accountCol",
+    "serverKeyCol",
   ];
   SENT_DEFAULTS = [
     "threadCol",
@@ -100,6 +102,8 @@ add_setup(async function () {
     "tagKeysCol",
     "totalCol",
     "unreadCol",
+    "accountCol",
+    "serverKeyCol",
   ];
   VIRTUAL_DEFAULTS = [
     "threadCol",

@@ -169,6 +169,7 @@ class nsMsgDBView : public nsIMsgDBView,
   nsresult FetchRowKeywords(nsMsgViewIndex aRow, nsIMsgDBHdr* aHdr,
                             nsACString& keywordString);
   nsresult FetchAccount(nsIMsgDBHdr* aHdr, nsAString& aAccount);
+  nsresult FetchServerKey(nsIMsgDBHdr* aHdr, nsAString& aServerKey);
   bool IsOutgoingMsg(nsIMsgDBHdr* aHdr);
 
   // The default enumerator is over the db, but things like

@@ -49,6 +49,8 @@ class FolderTreeRow extends HTMLLIElement {
   icon;
   /** @type {HTMLSpanElement} */
   unreadCountLabel;
+  /** @type {HTMLSpanElement} */
+  accountIndicator;
   /** @type {HTMLUListElement} */
   totalCountLabel;
   /** @type {HTMLSpanElement} */
@@ -78,6 +80,7 @@ class FolderTreeRow extends HTMLLIElement {
     );
     this.nameLabel = this.querySelector(".name");
     this.icon = this.querySelector(".icon");
+    this.accountIndicator = this.querySelector(".account-indicator");
     this.unreadCountLabel = this.querySelector(".unread-count");
     this.totalCountLabel = this.querySelector(".total-count");
     this.folderSizeLabel = this.querySelector(".folder-size");
@@ -254,6 +257,18 @@ class FolderTreeRow extends HTMLLIElement {
       iconColor = lazy.FolderTreeProperties.getColor(this.uri);
     }
     this.icon.style.setProperty("--icon-color", iconColor ?? "");
+  }
+
+  /**
+   * Set the color of the account indicator in case this folder is a server
+   * folder used inside the unified folders mode.
+   */
+  setAccountIndicatorColor() {
+    const folder = lazy.MailServices.folderLookup.getFolderForURL(this.uri);
+    this.accountIndicator.style.setProperty(
+      "--account-color",
+      `var(--server-${CSS.escape(folder.server.key)}-color)`
+    );
   }
 
   /**
