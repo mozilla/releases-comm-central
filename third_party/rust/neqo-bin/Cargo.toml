@@ -13,7 +13,7 @@
 edition = "2024"
 rust-version = "1.90.0"
 name = "neqo-bin"
-version = "0.28.1"
+version = "0.29.0"
 authors = ["The Neqo Authors <necko@mozilla.com>"]
 build = "build.rs"
 autolib = false
@@ -43,6 +43,7 @@ repository = "https://github.com/mozilla/neqo/"
 ignored = [
     "cfg_aliases",
     "criterion",
+    "test-fixture",
 ]
 
 [[package.metadata.bench]]
@@ -138,9 +139,14 @@ path = "./../neqo-transport"
 path = "./../neqo-udp"
 
 [dependencies.nss]
+version = "0.13.0"
 git = "https://github.com/mozilla/nss-rs"
-rev = "0.9.0"
 package = "nss-rs"
+
+[dependencies.nss-test-fixture]
+version = "0.1.0"
+git = "https://github.com/mozilla/nss-rs"
+package = "test-fixture"
 
 [dependencies.qlog]
 version = "0.16.0"
@@ -187,6 +193,9 @@ package = "codspeed-criterion-compat"
 [dev-dependencies.neqo-bin]
 path = "."
 features = ["draft-29"]
+
+[dev-dependencies.test-fixture]
+path = "../test-fixture"
 
 [dev-dependencies.tokio]
 version = "1"

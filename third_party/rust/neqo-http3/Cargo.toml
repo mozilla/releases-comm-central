@@ -13,7 +13,7 @@
 edition = "2024"
 rust-version = "1.90.0"
 name = "neqo-http3"
-version = "0.28.1"
+version = "0.29.0"
 authors = ["The Neqo Authors <necko@mozilla.com>"]
 build = false
 autolib = false
@@ -143,13 +143,15 @@ path = "./../neqo-common"
 
 [dependencies.neqo-qpack]
 path = "./../neqo-qpack"
+default-features = false
 
 [dependencies.neqo-transport]
 path = "./../neqo-transport"
+default-features = false
 
 [dependencies.nss]
+version = "0.13.0"
 git = "https://github.com/mozilla/nss-rs"
-rev = "0.9.0"
 package = "nss-rs"
 
 [dependencies.qlog]
@@ -183,6 +185,7 @@ package = "codspeed-criterion-compat"
 [dev-dependencies.neqo-http3]
 path = "."
 features = ["draft-29"]
+default-features = false
 
 [dev-dependencies.test-fixture]
 path = "../test-fixture"

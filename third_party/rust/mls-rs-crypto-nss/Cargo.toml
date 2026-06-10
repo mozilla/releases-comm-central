@@ -12,7 +12,7 @@
 [package]
 edition = "2021"
 name = "mls-rs-crypto-nss"
-version = "0.2.0"
+version = "0.2.1"
 build = false
 autolib = false
 autobins = false
@@ -69,8 +69,8 @@ version = "0.21"
 default-features = false
 
 [dependencies.nss-rs]
+version = "0.13"
 git = "https://github.com/mozilla/nss-rs"
-rev = "c54949bbff92795b8b2e837ec84decc9b468081a"
 default-features = false
 
 [dependencies.rand_core]

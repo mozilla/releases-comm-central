@@ -13,7 +13,7 @@
 edition = "2024"
 rust-version = "1.90.0"
 name = "neqo-transport"
-version = "0.28.1"
+version = "0.29.0"
 authors = ["The Neqo Authors <necko@mozilla.com>"]
 build = false
 autolib = false
@@ -69,12 +69,14 @@ bench = [
     "test-fixture/bench",
     "log/release_max_level_info",
 ]
+blapi = ["nss/blapi"]
 build-fuzzing-corpus = [
     "neqo-common/build-fuzzing-corpus",
     "nss/disable-encryption",
     "nss/disable-random",
     "test-fixture/disable-random",
 ]
+default = ["blapi"]
 disable-encryption = ["nss/disable-encryption"]
 draft-29 = []
 gecko = []
@@ -171,8 +173,8 @@ path = "../mtu"
 path = "../neqo-common"
 
 [dependencies.nss]
+version = "0.13.0"
 git = "https://github.com/mozilla/nss-rs"
-rev = "0.9.0"
 package = "nss-rs"
 
 [dependencies.qlog]
@@ -213,6 +215,7 @@ package = "codspeed-criterion-compat"
 [dev-dependencies.neqo-transport]
 path = "."
 features = ["draft-29"]
+default-features = false
 
 [dev-dependencies.test-fixture]
 path = "../test-fixture"

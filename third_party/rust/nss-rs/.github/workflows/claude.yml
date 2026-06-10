@@ -1,0 +1,26 @@
+name: Claude Code Review
+on:
+  # Use pull_request_target to allow secrets access for fork PRs.
+  # The reusable workflow only runs for trusted contributors (OWNER/MEMBER/COLLABORATOR).
+  pull_request_target: # zizmor: ignore[dangerous-triggers] See rationale above.
+    branches: ["main"]
+    types: [opened, synchronize, ready_for_review, reopened]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  claude-review:
+    uses: mozilla/actions/.github/workflows/claude-review.yml@2e46408d5c495e59a21e5e125e82008fad0d9408 # v1.1.7
+    permissions:
+      contents: read
+      pull-requests: write # Required to post review comments.
+      issues: read # Required to read issue context via MCP tools.
+      actions: read # Required to read workflow run context via MCP tools.
+      discussions: read # Required to read discussion context via MCP tools.
+    secrets:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}

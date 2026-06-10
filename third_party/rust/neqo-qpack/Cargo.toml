@@ -13,7 +13,7 @@
 edition = "2024"
 rust-version = "1.90.0"
 name = "neqo-qpack"
-version = "0.28.1"
+version = "0.29.0"
 authors = ["The Neqo Authors <necko@mozilla.com>"]
 build = false
 autolib = false
@@ -68,6 +68,7 @@ path = "./../neqo-common"
 
 [dependencies.neqo-transport]
 path = "./../neqo-transport"
+default-features = false
 
 [dependencies.qlog]
 version = "0.16.0"

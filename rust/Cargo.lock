@@ -4173,7 +4173,7 @@ dependencies = [
 [[package]]
 name = "mls-platform-api"
 version = "0.2.0"
-source = "git+https://github.com/mozilla/mls-platform-api?rev=bbbf9d51d60e5f63ab2b791ffbfd884c4d1a317b#bbbf9d51d60e5f63ab2b791ffbfd884c4d1a317b"
+source = "git+https://github.com/mozilla/mls-platform-api?rev=2a2e344019bfc76b7e566ee6e0549cf668d90127#2a2e344019bfc76b7e566ee6e0549cf668d90127"
 dependencies = [
  "bincode",
  "hex",
@@ -4272,8 +4272,8 @@ dependencies = [
 
 [[package]]
 name = "mls-rs-crypto-nss"
-version = "0.2.0"
-source = "git+https://github.com/mozilla/mls-platform-api?rev=bbbf9d51d60e5f63ab2b791ffbfd884c4d1a317b#bbbf9d51d60e5f63ab2b791ffbfd884c4d1a317b"
+version = "0.2.1"
+source = "git+https://github.com/mozilla/mls-platform-api?rev=2a2e344019bfc76b7e566ee6e0549cf668d90127#2a2e344019bfc76b7e566ee6e0549cf668d90127"
 dependencies = [
  "getrandom 0.2.999",
  "hex",
@@ -4316,7 +4316,7 @@ dependencies = [
 [[package]]
 name = "mls-rs-provider-sqlite"
 version = "0.22.0"
-source = "git+https://github.com/mozilla/mls-platform-api?rev=bbbf9d51d60e5f63ab2b791ffbfd884c4d1a317b#bbbf9d51d60e5f63ab2b791ffbfd884c4d1a317b"
+source = "git+https://github.com/mozilla/mls-platform-api?rev=2a2e344019bfc76b7e566ee6e0549cf668d90127#2a2e344019bfc76b7e566ee6e0549cf668d90127"
 dependencies = [
  "async-trait",
  "hex",
@@ -4487,7 +4487,7 @@ dependencies = [
 [[package]]
 name = "mtu"
 version = "0.4.1"
-source = "git+https://github.com/mozilla/neqo?tag=v0.28.1#006442de909e35d9ab9d6fcb86155f77779d3090"
+source = "git+https://github.com/mozilla/neqo?tag=v0.29.0#18832752db4700df4bdbb26f655b675931b234ac"
 dependencies = [
  "cfg_aliases",
  "libc",
@@ -4528,8 +4528,8 @@ dependencies = [
 
 [[package]]
 name = "neqo-common"
-version = "0.28.1"
-source = "git+https://github.com/mozilla/neqo?tag=v0.28.1#006442de909e35d9ab9d6fcb86155f77779d3090"
+version = "0.29.0"
+source = "git+https://github.com/mozilla/neqo?tag=v0.29.0#18832752db4700df4bdbb26f655b675931b234ac"
 dependencies = [
  "enum-map",
  "env_logger",
@@ -4542,8 +4542,8 @@ dependencies = [
 
 [[package]]
 name = "neqo-http3"
-version = "0.28.1"
-source = "git+https://github.com/mozilla/neqo?tag=v0.28.1#006442de909e35d9ab9d6fcb86155f77779d3090"
+version = "0.29.0"
+source = "git+https://github.com/mozilla/neqo?tag=v0.29.0#18832752db4700df4bdbb26f655b675931b234ac"
 dependencies = [
  "enumset",
  "http 1.4.0",
@@ -4561,8 +4561,8 @@ dependencies = [
 
 [[package]]
 name = "neqo-qpack"
-version = "0.28.1"
-source = "git+https://github.com/mozilla/neqo?tag=v0.28.1#006442de909e35d9ab9d6fcb86155f77779d3090"
+version = "0.29.0"
+source = "git+https://github.com/mozilla/neqo?tag=v0.29.0#18832752db4700df4bdbb26f655b675931b234ac"
 dependencies = [
  "log",
  "neqo-common",
@@ -4575,8 +4575,8 @@ dependencies = [
 
 [[package]]
 name = "neqo-transport"
-version = "0.28.1"
-source = "git+https://github.com/mozilla/neqo?tag=v0.28.1#006442de909e35d9ab9d6fcb86155f77779d3090"
+version = "0.29.0"
+source = "git+https://github.com/mozilla/neqo?tag=v0.29.0#18832752db4700df4bdbb26f655b675931b234ac"
 dependencies = [
  "enum-map",
  "enumset",
@@ -4595,8 +4595,8 @@ dependencies = [
 
 [[package]]
 name = "neqo-udp"
-version = "0.28.1"
-source = "git+https://github.com/mozilla/neqo?tag=v0.28.1#006442de909e35d9ab9d6fcb86155f77779d3090"
+version = "0.29.0"
+source = "git+https://github.com/mozilla/neqo?tag=v0.29.0#18832752db4700df4bdbb26f655b675931b234ac"
 dependencies = [
  "cfg_aliases",
  "libc",
@@ -4719,7 +4719,8 @@ dependencies = [
 
 [[package]]
 name = "nss-rs"
-version = "0.9.0"
+version = "0.13.2"
+source = "git+https://github.com/mozilla/nss-rs#a77e4287a92ba310b1542be2f53fcde3552a79e3"
 dependencies = [
  "bindgen 0.72.0",
  "enum-map",
@@ -4734,6 +4735,7 @@ dependencies = [
  "thiserror 2.0.12",
  "toml 0.9.8",
  "windows",
+ "zeroize",
 ]
 
 [[package]]
