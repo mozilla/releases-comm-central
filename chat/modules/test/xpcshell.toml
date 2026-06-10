@@ -11,8 +11,5 @@
 ["test_jsProtoHelper.js"]
 
 ["test_otrlib.js"]
-fail-if = [
-  "os == 'mac' && os_version == '15.30' && arch == 'aarch64'"  # Bug 2044830
-]
 
 ["test_socket.js"]
