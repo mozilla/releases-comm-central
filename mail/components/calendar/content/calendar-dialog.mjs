@@ -39,7 +39,10 @@ ChromeUtils.defineESModuleGetters(lazy, {
 export const DEFAULT_DIALOG_MARGIN = 12;
 
 /**
- * Dialog for calendar.
+ * Dialog for calendar. Expects to find an element to anchor to at a selector of the pattern
+ * `#view-box > :not([hidden]) [data-event-id="${event-id}"][data-recurrence-id="${recurrence-id}"]`.
+ * If there is no recurrence ID, that part of the selector is omitted. If no element is found we
+ * attempt to fall back to the target of the opening event if possible.
  * Template ID: #calendarDialogTemplate
  *
  * @tagname calendar-dialog
@@ -94,6 +97,13 @@ export class CalendarDialog extends PositionedDialog {
   #resolver;
 
   /**
+   * Reject for show promise if the dialog does not have the data to load the event.
+   *
+   * @type {Function}
+   */
+  #rejecter;
+
+  /**
    * A promse that resolves when loading is complete.
    *
    * @type {Promise<void>}
@@ -113,6 +123,14 @@ export class CalendarDialog extends PositionedDialog {
    * @type {HTMLElement}
    */
   #title;
+
+  /**
+   * A timeout ID for debouncing updates to the dialog when attributes change
+   * rapidly.
+   *
+   * @type {number}
+   */
+  #debounceTimeout;
 
   connectedCallback() {
     if (!this.hasConnected) {
@@ -147,14 +165,14 @@ export class CalendarDialog extends PositionedDialog {
     }
 
     document.l10n.translateFragment(this);
-    this.#loadCalendarEvent();
+    this.#setupShowPromise();
   }
 
   attributeChangedCallback(attribute) {
     switch (attribute) {
       case "calendar-id":
       case "event-id":
-        this.#loadCalendarEvent();
+        this.#loadCalendarEventDebounce();
         break;
     }
   }
@@ -231,6 +249,18 @@ export class CalendarDialog extends PositionedDialog {
     return true;
   }
 
+  #loadCalendarEventDebounce() {
+    // If there's a timer, cancel it
+    if (this.#debounceTimeout) {
+      window.cancelAnimationFrame(this.#debounceTimeout);
+    }
+
+    // Setup the new requestAnimationFrame()
+    this.#debounceTimeout = window.requestAnimationFrame(() => {
+      this.#loadCalendarEvent();
+    });
+  }
+
   /**
    * Helper to set up the calendar event reference for the dialog. When called
    * with a calIEvent the dialog will update to show the data of that event.
@@ -265,11 +295,33 @@ export class CalendarDialog extends PositionedDialog {
    * to identify the trigger element for dialog positioning
    */
   async show(event) {
-    if (this.showPromise) {
-      await this.showPromise;
-    }
-
+    await this.showPromise;
     super.show(event);
+  }
+
+  close() {
+    super.close();
+
+    this.#loading = false;
+    this.#reload = false;
+    this.#clearData();
+    this.showPromise = null;
+    this.#setupShowPromise();
+  }
+
+  /**
+   * Helper function to set up the showPromise if it doesn't exist. This is used
+   * to ensure that we have a promise to await in the show method while still
+   * allowing the promise to be created lazily when we know we need it for
+   * loading an event.
+   */
+  #setupShowPromise() {
+    if (!this.showPromise) {
+      const { promise, resolve, reject } = Promise.withResolvers();
+      this.showPromise = promise;
+      this.#resolver = resolve;
+      this.#rejecter = reject;
+    }
   }
 
   /**
@@ -281,11 +333,7 @@ export class CalendarDialog extends PositionedDialog {
       return;
     }
 
-    if (!this.showPromise) {
-      const { promise, resolve } = Promise.withResolvers();
-      this.showPromise = promise;
-      this.#resolver = resolve;
-    }
+    this.#setupShowPromise();
 
     if (this.#loading) {
       this.#reload = true;
@@ -298,13 +346,12 @@ export class CalendarDialog extends PositionedDialog {
     const calendarId = this.getAttribute("calendar-id");
     const eventId = this.getAttribute("event-id");
     if (!calendarId || !eventId) {
-      // Need to call clearData explicitly here to reset the dialog
-      // checkReloadAndReturn only clears if reloading.
-      this.#clearData();
       this.#loading = false;
       if (!(await this.#checkReloadAndReturn())) {
-        this.#resolver();
-        this.showPromise = null;
+        // Need to call clearData explicitly here to reset the dialog
+        // checkReloadAndReturn only clears if reloading.
+        this.#clearData();
+        this.#rejecter(new Error("Event or calendar ID not set"));
       }
       return;
     }
@@ -464,8 +511,6 @@ export class CalendarDialog extends PositionedDialog {
     this.#loading = false;
 
     this.#resolver();
-
-    this.showPromise = null;
   }
 
   /**

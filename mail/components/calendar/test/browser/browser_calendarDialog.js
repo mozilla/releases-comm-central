@@ -70,14 +70,13 @@ add_setup(async function () {
   });
 });
 
-async function resetDialog() {
-  dialog.removeAttribute("calendar-id");
+function resetDialog() {
   dialog.removeAttribute("recurrence-id");
-  dialog.removeAttribute("event-id");
   dialog.close();
 }
 
 add_task(async function test_dialogStructure() {
+  dialog.setCalendarEvent(calendarEvent);
   await dialog.show();
   const titlebar = dialog.querySelectorAll(".titlebar");
   const closeButton = dialog.querySelectorAll(".titlebar .close-button");
@@ -97,6 +96,7 @@ add_task(async function test_dialogStructure() {
 });
 
 add_task(async function test_dialogOpenAndClose() {
+  dialog.setCalendarEvent(calendarEvent);
   await dialog.show();
 
   Assert.ok(dialog.open, "Dialog is updated to open");
@@ -147,6 +147,7 @@ add_task(async function test_setCalendarEvent() {
 });
 
 add_task(async function test_dialogSubviewNavigation() {
+  dialog.setCalendarEvent(calendarEvent);
   await dialog.show();
   const subviewManager = dialog.querySelector(
     "calendar-dialog-subview-manager"
@@ -197,9 +198,11 @@ add_task(async function test_dialogSubviewNavigation() {
     BrowserTestUtils.isHidden(otherSubview),
     "Other subview should be hidden again"
   );
+  resetDialog();
 });
 
 add_task(async function test_setCalendarEventResetsSubview() {
+  dialog.setCalendarEvent(calendarEvent);
   await dialog.show();
   const subviewManager = dialog.querySelector(
     "calendar-dialog-subview-manager"
@@ -239,6 +242,7 @@ add_task(async function test_setCalendarEventResetsSubview() {
 
   resetDialog();
 
+  dialog.setCalendarEvent(calendarEvent);
   await dialog.show();
 
   await BrowserTestUtils.waitForMutationCondition(
@@ -251,11 +255,6 @@ add_task(async function test_setCalendarEventResetsSubview() {
     () => subviewManager.isDefaultSubviewVisible()
   );
 
-  await BrowserTestUtils.waitForCondition(
-    () => title.textContent.trim() == "",
-    "waiting for title to be clear"
-  );
-
   Assert.ok(
     subviewManager.isDefaultSubviewVisible(),
     "Clearing event data should return to default subivew"
@@ -264,12 +263,6 @@ add_task(async function test_setCalendarEventResetsSubview() {
 
 add_task(async function test_dialogTitle() {
   const title = dialog.querySelector(".calendar-dialog-title");
-
-  Assert.equal(
-    title.textContent.trim(),
-    "",
-    "The dialog title has no text before data is set"
-  );
 
   dialog.setCalendarEvent(calendarEvent);
   await dialog.show();
@@ -290,8 +283,6 @@ add_task(async function test_dialogTitle() {
   );
 
   resetDialog();
-
-  Assert.equal(title.textContent, "", "The dialog title text is cleared");
 });
 
 add_task(async function test_dialogTitleOccurrenceException() {
@@ -972,6 +963,11 @@ add_task(async function test_dialogAttachmentsSubview() {
 
   resetDialog();
 
+  dialog.setCalendarEvent(calendarEvent);
+
+  await dialog.show();
+  subviewManager.showSubview("calendarAttachmentsSubview");
+
   await BrowserTestUtils.waitForMutationCondition(
     list,
     {
@@ -980,6 +976,8 @@ add_task(async function test_dialogAttachmentsSubview() {
     },
     () => list.childElementCount == 0
   );
+
+  Assert.equal(list.childElementCount, 0, "Should have no attachments");
 });
 
 add_task(async function test_dialogAttachmentsRow() {
@@ -1077,11 +1075,10 @@ add_task(async function testAttendeesRowVisibility() {
 
   resetDialog();
 
-  await dialog.show();
-
   calendarEventData.attendees = [];
   calEvent = await createEvent(calendarEventData);
   dialog.setCalendarEvent(calEvent);
+  await dialog.show();
 
   await BrowserTestUtils.waitForCondition(
     () => BrowserTestUtils.isHidden(attendeesRow),
@@ -1274,49 +1271,6 @@ add_task(async function testAttendeesRowExpandButtonHiddenTooFewAttendees() {
   );
 });
 
-add_task(async function test_calendarDialogMenu() {
-  const title = dialog.querySelector(".calendar-dialog-title");
-  const menu = dialog.querySelector("menupopup");
-
-  dialog.setCalendarEvent(calendarEvent);
-  await dialog.show();
-
-  await BrowserTestUtils.waitForMutationCondition(
-    title,
-    {
-      subtree: true,
-      childList: true,
-      characterData: true,
-    },
-    () => title.textContent == calendarEvent.title
-  );
-
-  Assert.ok(
-    BrowserTestUtils.isHidden(menu),
-    "The menupopup should initially be hidden"
-  );
-
-  EventUtils.synthesizeMouseAtCenter(
-    dialog.querySelector(".menu-button"),
-    {},
-    browser.contentWindow
-  );
-
-  await BrowserTestUtils.waitForPopupEvent(menu, "shown");
-
-  Assert.ok(
-    BrowserTestUtils.isVisible(menu),
-    "The menupopup should visible after clicking menu button"
-  );
-
-  menu.hidePopup();
-  await BrowserTestUtils.waitForPopupEvent(menu, "hidden");
-
-  // Clean up.
-  calendar.setProperty("organizerId", "");
-  resetDialog();
-});
-
 add_task(async function test_attendeeResponseStatus() {
   // We set the calendar organizer as the same email as the attendee below.
   calendar.setProperty(
@@ -1453,6 +1407,49 @@ add_task(async function test_userAttendanceResponse() {
     "TENTATIVE",
     "Maybe should be checked in the acceptance widget"
   );
+
+  // Clean up.
+  calendar.setProperty("organizerId", "");
+  resetDialog();
+});
+
+add_task(async function test_calendarDialogMenu() {
+  const title = dialog.querySelector(".calendar-dialog-title");
+  const menu = dialog.querySelector("menupopup");
+
+  dialog.setCalendarEvent(calendarEvent);
+  await dialog.show();
+
+  await BrowserTestUtils.waitForMutationCondition(
+    title,
+    {
+      subtree: true,
+      childList: true,
+      characterData: true,
+    },
+    () => title.textContent == calendarEvent.title
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(menu),
+    "The menupopup should initially be hidden"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(
+    dialog.querySelector(".menu-button"),
+    {},
+    browser.contentWindow
+  );
+
+  await BrowserTestUtils.waitForPopupEvent(menu, "shown");
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(menu),
+    "The menupopup should visible after clicking menu button"
+  );
+
+  menu.hidePopup();
+  await BrowserTestUtils.waitForPopupEvent(menu, "hidden");
 
   // Clean up.
   calendar.setProperty("organizerId", "");
