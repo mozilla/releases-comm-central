@@ -10,6 +10,7 @@
 #include "ExchangeListeners.h"
 #include "ExchangeOAuth2CustomDetails.h"
 #include "IExchangeClient.h"
+#include "mozilla/Logging.h"
 #include "nsIMsgFolderNotificationService.h"
 #include "nsIFeedbackService.h"
 #include "nsIMsgWindow.h"
@@ -29,6 +30,8 @@ static constexpr auto kDeleteModelPreferenceName = "delete_model";
 static constexpr auto kTrashFolderPreferenceName = "trash_folder_path";
 
 constexpr auto kSyncStateTokenProperty = "ewsSyncStateToken";
+
+extern mozilla::LazyLogModule gExchangeLog;
 
 namespace {
 
@@ -84,7 +87,12 @@ NS_IMETHODIMP ExchangeBiffUrlListener::OnStopRunningUrl(nsIURI* uri,
   nsresult rv = uri->GetSpec(uriString);
   NS_ENSURE_SUCCESS(rv, rv);
 
+  MOZ_LOG_FMT(gExchangeLog, mozilla::LogLevel::Debug,
+              "Biff completed for folder {}", uriString);
+
   if (auto lookup = mCompletionStates.Lookup(uriString); lookup) {
+    MOZ_LOG_FMT(gExchangeLog, mozilla::LogLevel::Debug, "Marking {} as done",
+                uriString);
     lookup.Data() = true;
   }
 
@@ -97,6 +105,8 @@ NS_IMETHODIMP ExchangeBiffUrlListener::OnStopRunningUrl(nsIURI* uri,
   }
 
   if (allDone) {
+    MOZ_LOG_FMT(gExchangeLog, mozilla::LogLevel::Debug,
+                "Biff completed for {} folders", mCompletionStates.Count());
     mServer->SetPerformingBiff(false);
   }
 
@@ -464,14 +474,20 @@ nsresult ExchangeIncomingServer::SyncFolderList(
     return postSyncCallback();
   };
 
-  auto onError = [](nsresult _status) {
+  auto onError = [postSyncCallback](nsresult _status) {
     // Reset the status bar since the remote operation has finished.
     nsCOMPtr<nsIFeedbackService> feedback =
         mozilla::components::Feedback::Service();
     if (feedback) {
       feedback->ReportStatus(""_ns, "stop-meteors"_ns);
     }
-    return NS_OK;
+    // Even if we got an error during the synchronization, we need to continue
+    // with the post sync callback because it might contain additional
+    // operations to fully complete whichever operation initiated this sync. For
+    // example, during Biff, even if the folder list sync fails, we still need
+    // to continue with the follow-on folder item synchronization for the
+    // existing folders.
+    return postSyncCallback();
   };
 
   RefPtr<ExchangeFolderSyncListener> listener = new ExchangeFolderSyncListener(
@@ -631,6 +647,9 @@ NS_IMETHODIMP ExchangeIncomingServer::PerformBiff(nsIMsgWindow* aMsgWindow) {
     rv = ExchangeBiffUrlListener::ForFolders(self, msgFolders.Clone(),
                                              getter_AddRefs(listener));
     NS_ENSURE_SUCCESS(rv, rv);
+
+    MOZ_LOG_FMT(gExchangeLog, mozilla::LogLevel::Debug,
+                "Biff syncing {} folders", msgFolders.Length());
 
     return self->SyncFolders(msgFolders, window, listener);
   });
