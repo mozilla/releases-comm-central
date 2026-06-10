@@ -3,8 +3,23 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 "use strict";
+const { sinon } = ChromeUtils.importESModule(
+  "resource://testing-common/Sinon.sys.mjs"
+);
+const { ConfigVerifier } = ChromeUtils.importESModule(
+  "resource:///modules/accountcreation/ConfigVerifier.sys.mjs"
+);
+const { GuessConfig } = ChromeUtils.importESModule(
+  "resource:///modules/accountcreation/GuessConfig.sys.mjs"
+);
+
 const PREF_NAME = "mailnews.auto_config_url";
 const PREF_VALUE = Services.prefs.getCharPref(PREF_NAME);
+const GSSAPI_TEST_EMAIL = "badtest@example.localhost";
+
+let gssapiSandbox;
+let gssapiDialog;
+let gssapiCurrentStep;
 
 // The guessConfig requests make this test take a long time, so we need a
 // longer timeout.
@@ -18,9 +33,10 @@ add_setup(function () {
   Services.prefs.setCharPref(PREF_NAME, url);
 });
 
-registerCleanupFunction(function () {
+registerCleanupFunction(async function () {
   // Restore the original pref.
   Services.prefs.setCharPref(PREF_NAME, PREF_VALUE);
+  await cleanupGssapiTest();
 });
 
 add_task(async function test_account_email_advanced_setup_incoming() {
@@ -887,6 +903,200 @@ add_task(async function test_account_invalid_email_advanced_setup_incoming() {
   Assert.ok(BrowserTestUtils.isVisible(tabmail.currentAbout3Pane.folderTree));
 });
 
+add_task(async function test_direct_to_manual_gssapi_skips_password_step() {
+  gssapiSandbox = sinon.createSandbox();
+  const guessConfigStub = gssapiSandbox
+    .stub(GuessConfig, "guessConfig")
+    .callsFake((_domain, _progressCallback, initialConfig) =>
+      Promise.resolve(initialConfig.copy())
+    );
+  const verifyConfigStub = gssapiSandbox
+    .stub(ConfigVerifier.prototype, "verifyConfig")
+    .callsFake(config => Promise.resolve(config));
+
+  gssapiDialog = await subtest_open_account_hub_dialog();
+  const emailTemplate = gssapiDialog.querySelector("email-auto-form");
+  gssapiCurrentStep = emailTemplate;
+  const nameInput = emailTemplate.querySelector("#realName");
+  const emailInput = emailTemplate.querySelector("#email");
+
+  nameInput.value = "";
+  emailInput.value = "";
+  await fillInvalidUserInfo(nameInput, emailInput);
+
+  const manualConfigButton = emailTemplate.querySelector(
+    "#manualConfiguration"
+  );
+  EventUtils.synthesizeMouseAtCenter(manualConfigButton, {});
+
+  const incomingConfigTemplate = gssapiDialog.querySelector(
+    "#emailIncomingConfigSubview"
+  );
+  await BrowserTestUtils.waitForAttributeRemoval(
+    "hidden",
+    incomingConfigTemplate
+  );
+  gssapiCurrentStep = incomingConfigTemplate;
+
+  const incomingHostname =
+    incomingConfigTemplate.querySelector("#incomingHostname");
+  EventUtils.synthesizeMouseAtCenter(incomingHostname, {});
+  incomingHostname.select();
+  let inputEvent = BrowserTestUtils.waitForEvent(
+    incomingHostname,
+    "input",
+    false,
+    event => event.target.value === "imap.gssapi.test"
+  );
+  EventUtils.synthesizeKey("KEY_Backspace", {}, window);
+  EventUtils.sendString("imap.gssapi.test", window);
+  await inputEvent;
+
+  const incomingPort = incomingConfigTemplate.querySelector("#incomingPort");
+  EventUtils.synthesizeMouseAtCenter(incomingPort, {});
+  incomingPort.select();
+  inputEvent = BrowserTestUtils.waitForEvent(
+    incomingPort,
+    "input",
+    false,
+    event => event.target.value === "993"
+  );
+  EventUtils.synthesizeKey("KEY_Backspace", {}, window);
+  EventUtils.sendString("993", window);
+  await inputEvent;
+
+  const incomingConnectionSecurity = incomingConfigTemplate.querySelector(
+    "#incomingConnectionSecurity"
+  );
+  let selectPopupShown = BrowserTestUtils.waitForSelectPopupShown(window);
+  await EventUtils.synthesizeMouseAtCenter(incomingConnectionSecurity, {});
+  let selectPopup = await selectPopupShown;
+  let selectItems = selectPopup.querySelectorAll("menuitem");
+  // #incomingConnectionSecuritySslTls
+  selectPopup.activateItem(selectItems[3]);
+  await BrowserTestUtils.waitForPopupEvent(selectPopup, "hidden");
+
+  const incomingAuthMethod = incomingConfigTemplate.querySelector(
+    "#incomingAuthMethod"
+  );
+  selectPopupShown = BrowserTestUtils.waitForSelectPopupShown(window);
+  await EventUtils.synthesizeMouseAtCenter(incomingAuthMethod, {});
+  selectPopup = await selectPopupShown;
+  selectItems = selectPopup.querySelectorAll("menuitem");
+  // #incomingAuthMethodKerbos
+  selectPopup.activateItem(selectItems[3]);
+  await BrowserTestUtils.waitForPopupEvent(selectPopup, "hidden");
+
+  const footer = gssapiDialog.querySelector("account-hub-footer");
+  const footerForward = footer.querySelector("#forward");
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+
+  const outgoingConfigTemplate = gssapiDialog.querySelector(
+    "#emailOutgoingConfigSubview"
+  );
+  await BrowserTestUtils.waitForAttributeRemoval(
+    "hidden",
+    outgoingConfigTemplate
+  );
+  gssapiCurrentStep = outgoingConfigTemplate;
+
+  const outgoingHostname =
+    outgoingConfigTemplate.querySelector("#outgoingHostname");
+  EventUtils.synthesizeMouseAtCenter(outgoingHostname, {});
+  outgoingHostname.select();
+  inputEvent = BrowserTestUtils.waitForEvent(
+    outgoingHostname,
+    "input",
+    false,
+    event => event.target.value === "smtp.gssapi.test"
+  );
+  EventUtils.synthesizeKey("KEY_Backspace", {}, window);
+  EventUtils.sendString("smtp.gssapi.test", window);
+  await inputEvent;
+
+  const outgoingPort = outgoingConfigTemplate.querySelector("#outgoingPort");
+  EventUtils.synthesizeMouseAtCenter(outgoingPort, {});
+  outgoingPort.select();
+  inputEvent = BrowserTestUtils.waitForEvent(
+    outgoingPort,
+    "input",
+    false,
+    event => event.target.value === "587"
+  );
+  EventUtils.synthesizeKey("KEY_Backspace", {}, window);
+  EventUtils.sendString("587", window);
+  await inputEvent;
+
+  const outgoingConnectionSecurity = outgoingConfigTemplate.querySelector(
+    "#outgoingConnectionSecurity"
+  );
+  selectPopupShown = BrowserTestUtils.waitForSelectPopupShown(window);
+  await EventUtils.synthesizeMouseAtCenter(outgoingConnectionSecurity, {});
+  selectPopup = await selectPopupShown;
+  selectItems = selectPopup.querySelectorAll("menuitem");
+  // #outgoingConnectionSecurityStartTtls
+  selectPopup.activateItem(selectItems[2]);
+  await BrowserTestUtils.waitForPopupEvent(selectPopup, "hidden");
+
+  const outgoingAuthMethod = outgoingConfigTemplate.querySelector(
+    "#outgoingAuthMethod"
+  );
+  selectPopupShown = BrowserTestUtils.waitForSelectPopupShown(window);
+  await EventUtils.synthesizeMouseAtCenter(outgoingAuthMethod, {});
+  selectPopup = await selectPopupShown;
+  selectItems = selectPopup.querySelectorAll("menuitem");
+  // #outgoingAuthMethodKerbos
+  selectPopup.activateItem(selectItems[4]);
+  await BrowserTestUtils.waitForPopupEvent(selectPopup, "hidden");
+
+  const footerCustom = footer.querySelector("#custom");
+  Assert.ok(!footerCustom.disabled, "Test button should be enabled");
+
+  EventUtils.synthesizeMouseAtCenter(footerCustom, {});
+  await BrowserTestUtils.waitForAttributeRemoval("disabled", footerForward);
+
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(
+      gssapiDialog.querySelector("email-password-form")
+    ),
+    "The email password form should not be visible."
+  );
+
+  const successStep = gssapiDialog.querySelector("email-added-success");
+  await BrowserTestUtils.waitForAttributeRemoval("hidden", successStep);
+  gssapiCurrentStep = successStep;
+
+  Assert.ok(guessConfigStub.calledOnce, "Should test the manual config.");
+  Assert.ok(
+    verifyConfigStub.calledOnce,
+    "Should verify the GSSAPI config once."
+  );
+
+  const imapAccount = MailServices.accounts.accounts.find(
+    account => account.defaultIdentity?.email === GSSAPI_TEST_EMAIL
+  );
+
+  Assert.ok(imapAccount, "IMAP account should be created.");
+  Assert.equal(
+    imapAccount.incomingServer.authMethod,
+    Ci.nsMsgAuthMethod.GSSAPI,
+    "Incoming server should use GSSAPI."
+  );
+
+  const smtpServer = MailServices.outgoingServer.getServerByKey(
+    imapAccount.defaultIdentity.smtpServerKey
+  );
+  Assert.equal(
+    smtpServer.authMethod,
+    Ci.nsMsgAuthMethod.GSSAPI,
+    "Outgoing server should use GSSAPI."
+  );
+
+  await cleanupGssapiTest();
+});
+
 async function fillInvalidUserInfo(nameInput, emailInput) {
   EventUtils.synthesizeMouseAtCenter(nameInput, {});
 
@@ -911,4 +1121,28 @@ async function fillInvalidUserInfo(nameInput, emailInput) {
   );
   EventUtils.sendString("badtest@example.localhost", window);
   await inputEvent;
+}
+
+async function cleanupGssapiTest() {
+  gssapiSandbox?.restore();
+  gssapiSandbox = null;
+
+  const imapAccount = MailServices.accounts.accounts.find(
+    account => account.defaultIdentity?.email === GSSAPI_TEST_EMAIL
+  );
+  if (imapAccount) {
+    const smtpServer = MailServices.outgoingServer.getServerByKey(
+      imapAccount.defaultIdentity.smtpServerKey
+    );
+    MailServices.accounts.removeAccount(imapAccount);
+    MailServices.outgoingServer.deleteServer(smtpServer);
+  }
+
+  await Services.logins.removeAllLoginsAsync();
+
+  if (gssapiDialog?.open && gssapiCurrentStep) {
+    await subtest_close_account_hub_dialog(gssapiDialog, gssapiCurrentStep);
+  }
+  gssapiDialog = null;
+  gssapiCurrentStep = null;
 }

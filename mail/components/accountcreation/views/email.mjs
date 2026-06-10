@@ -1487,8 +1487,13 @@ class AccountHubEmail extends HTMLElement {
   async #validateAccountConfig(accountConfig) {
     this.#currentConfig = this.#fillAccountConfig(accountConfig);
 
-    if (this.#currentConfig.isOauthOnly()) {
-      await this.#createAccount("account-hub-oauth-pending");
+    if (this.#currentConfig.usesPasswordlessAuthentication()) {
+      await this.#createAccount(
+        this.#currentConfig.incoming.auth === Ci.nsMsgAuthMethod.OAuth2 ||
+          this.#currentConfig.outgoing.auth === Ci.nsMsgAuthMethod.OAuth2
+          ? "account-hub-oauth-pending"
+          : "account-hub-creating-account"
+      );
       return;
     }
 

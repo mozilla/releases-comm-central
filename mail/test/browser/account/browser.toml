@@ -92,6 +92,9 @@ tags = ["accounthub"]
 ["browser_accountHubExchange.js"]
 tags = ["accounthub"]
 
+["browser_accountHubGssapi.js"]
+tags = ["accounthub"]
+
 ["browser_accountHubManualConfig.js"]
 
 ["browser_accountHubOAuth.js"]

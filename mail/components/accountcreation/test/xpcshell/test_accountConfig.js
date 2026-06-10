@@ -31,7 +31,87 @@ add_task(function test_isOauthOnly() {
   configIncomingHandlesOutgoing.incoming.auth = Ci.nsMsgAuthMethod.OAuth2;
   configIncomingHandlesOutgoing.incoming.type = "ews";
 
-  Assert.ok(config.isOauthOnly(), "Config should be oAuth only.");
+  Assert.ok(
+    configIncomingHandlesOutgoing.isOauthOnly(),
+    "Config should be oAuth only."
+  );
+});
+
+add_task(function test_isGssapiOnly() {
+  const config = new AccountConfig();
+
+  Assert.ok(!config.isGssapiOnly(), "Should initially not be GSSAPI only");
+
+  config.incoming.auth = Ci.nsMsgAuthMethod.GSSAPI;
+
+  Assert.ok(
+    !config.isGssapiOnly(),
+    "One of two servers should still not be GSSAPI only"
+  );
+
+  config.outgoing.auth = Ci.nsMsgAuthMethod.GSSAPI;
+
+  Assert.ok(
+    config.isGssapiOnly(),
+    "When both incoming and outgoing use GSSAPI, the config should be GSSAPI only"
+  );
+
+  config.outgoing.auth = Ci.nsMsgAuthMethod.passwordCleartext;
+
+  Assert.ok(
+    !config.isGssapiOnly(),
+    "GSSAPI incoming with password outgoing should not be GSSAPI only"
+  );
+
+  const configIncomingHandlesOutgoing = new AccountConfig();
+  configIncomingHandlesOutgoing.incoming.auth = Ci.nsMsgAuthMethod.GSSAPI;
+  configIncomingHandlesOutgoing.incoming.type = "ews";
+
+  Assert.ok(
+    configIncomingHandlesOutgoing.isGssapiOnly(),
+    "Config should be GSSAPI only."
+  );
+});
+
+add_task(function test_usesPasswordlessAuthentication() {
+  const config = new AccountConfig();
+
+  Assert.ok(
+    !config.usesPasswordlessAuthentication(),
+    "Should initially need password authentication"
+  );
+
+  config.incoming.auth = Ci.nsMsgAuthMethod.OAuth2;
+  config.outgoing.auth = Ci.nsMsgAuthMethod.GSSAPI;
+
+  Assert.ok(
+    config.usesPasswordlessAuthentication(),
+    "Mixed OAuth incoming and GSSAPI outgoing should not require a password"
+  );
+
+  config.incoming.auth = Ci.nsMsgAuthMethod.GSSAPI;
+  config.outgoing.auth = Ci.nsMsgAuthMethod.OAuth2;
+
+  Assert.ok(
+    config.usesPasswordlessAuthentication(),
+    "Mixed GSSAPI incoming and OAuth outgoing should not require a password"
+  );
+
+  config.outgoing.auth = Ci.nsMsgAuthMethod.passwordCleartext;
+
+  Assert.ok(
+    !config.usesPasswordlessAuthentication(),
+    "GSSAPI incoming with password outgoing should require a password"
+  );
+
+  const configIncomingHandlesOutgoing = new AccountConfig();
+  configIncomingHandlesOutgoing.incoming.auth = Ci.nsMsgAuthMethod.OAuth2;
+  configIncomingHandlesOutgoing.incoming.type = "ews";
+
+  Assert.ok(
+    configIncomingHandlesOutgoing.usesPasswordlessAuthentication(),
+    "Passwordless incoming with derived outgoing should not require a password."
+  );
 });
 
 add_task(function test_configureOutgoingFromIncoming() {

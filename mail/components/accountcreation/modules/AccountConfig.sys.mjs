@@ -390,6 +390,46 @@ AccountConfig.prototype = {
   },
 
   /**
+   * True if all servers use GSSAPI as authentication method and no password
+   * entry is required.
+   *
+   * @returns {boolean}
+   */
+  isGssapiOnly() {
+    return (
+      this.incoming.auth === Ci.nsMsgAuthMethod.GSSAPI &&
+      (this.configureOutgoingFromIncoming() ||
+        this.outgoing.auth === Ci.nsMsgAuthMethod.GSSAPI)
+    );
+  },
+
+  /**
+   * True if the incoming and outgoing server authentication methods do not
+   * require password entry.
+   *
+   * @returns {boolean}
+   */
+  usesPasswordlessAuthentication() {
+    return (
+      this.authDoesNotRequirePassword(this.incoming.auth) &&
+      (this.configureOutgoingFromIncoming() ||
+        this.authDoesNotRequirePassword(this.outgoing.auth))
+    );
+  },
+
+  /**
+   * True if a server authentication method does not require password entry.
+   *
+   * @param {Ci.nsMsgAuthMethod} authMethod - Authentication method.
+   * @returns {boolean}
+   */
+  authDoesNotRequirePassword(authMethod) {
+    return [Ci.nsMsgAuthMethod.GSSAPI, Ci.nsMsgAuthMethod.OAuth2].includes(
+      authMethod
+    );
+  },
+
+  /**
    * True if either the incoming or outgoing config is configured with a
    * password.
    *
