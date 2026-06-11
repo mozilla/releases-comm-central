@@ -8,6 +8,10 @@ about-dialog-title = About { -brand-full-name }
 
 release-notes-link = Release notes
 
+about-dialog-meadow-logo =
+    .alt = { -brand-short-name } codename Meadow badge
+    .title = { -brand-short-name } - Codename Meadow
+
 update-internal-error = Unable to check for updates due to internal error. Updates available at <a data-l10n-name="manual-link"/>
 
 update-check-for-updates-button = Check for Updates
