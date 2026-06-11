@@ -19,11 +19,17 @@ menupopup {
     padding-block: var(--menuitem-vertical-padding);
   }
 
+  & .menu-icon {
+    /* Override the toolkit design-token. */
+    margin-inline-end: 0.5rem;
+  }
+
   menulist > & > :is(menu, menuitem) {
     padding-inline-end: 5px;
   }
 
-  menuitem[checked] > .menu-icon {
+  menuitem[checked] > .menu-icon,
+  &:not([needsgutter], .webextension-menupopup) > menuitem:is([type="checkbox"], [type="radio"]):not([checked]) > .menu-icon {
     display: flex;
   }
 
@@ -31,15 +37,8 @@ menupopup {
   &.webextension-menupopup > menuitem:not([checked], [icon], .menuitem-iconic),
   &.gutter-popup:not([needsgutter]) > :is(menu:not(.menu-iconic), menuitem:not(.menuitem-iconic, [type="checkbox"], [type="radio"])),
   menubar > menu &:not([needsgutter]) > :is(menu:not(.menu-iconic), menuitem:not(.menuitem-iconic, [type="checkbox"], [type="radio"])) {
-    padding-inline-start: 32px;
-  }
-
-  /* Override menu.css rule. */
-  &:not([needsgutter], .webextension-menupopup) {
-    & > menuitem:is([type="checkbox"], [type="radio"]):not([checked]) > .menu-icon {
-      padding-inline-end: 8px;
-      display: flex;
-    }
+    /* (margin-inline-start + icon width) + margin-inline-end. */
+    padding-inline-start: calc(24px + 0.5rem);
   }
 
   & > :is(menu, menuitem):not([needsgutter]) > menuitem:not([icon], .menuitem-iconic) {
