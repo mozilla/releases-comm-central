@@ -69,7 +69,10 @@ async function checkAuthMethods(select, protocol) {
   await BrowserTestUtils.waitForPopupEvent(popup, "hidden");
 }
 
-add_task(async function test_switchBetweenIMAPAndEWS() {
+add_task(async function test_switchBetweenIMAPAndEWSNoPref() {
+  await SpecialPowers.pushPrefEnv({
+    set: [["experimental.mail.ews.overrideOAuth.enabled", false]],
+  });
   let config = new AccountConfig();
   config.incoming.type = "imap";
   subview.setState(config);
@@ -257,7 +260,7 @@ add_task(async function test_switchBetweenIMAPAndEWS() {
   subview.setState(config);
 
   await configUpdatedEventPromise;
-
+  await SpecialPowers.popPrefEnv();
   subview.resetState();
 });
 
@@ -498,4 +501,69 @@ add_task(async function test_switchBetweenIMAPAndGraph() {
 
   subview.resetState();
   await SpecialPowers.popPrefEnv();
+});
+
+add_task(async function testEWSGraphProtocolOauthOption() {
+  await SpecialPowers.pushPrefEnv({ set: [["mail.graph.enabled", true]] });
+  const config = new AccountConfig();
+  config.incoming.type = "imap";
+  subview.setState(config);
+
+  const protocolSelector = subview.querySelector("#incomingProtocol");
+  const incomingAuthMethod = subview.querySelector("#incomingAuthMethod");
+
+  let configUpdatedEventPromise = BrowserTestUtils.waitForEvent(
+    subview,
+    "config-updated"
+  );
+
+  await checkAuthMethods(incomingAuthMethod, "imap");
+
+  info("Switch to EWS");
+
+  await SimpleTest.promiseFocus(browser.contentWindow);
+  let protocolSelectorPromise =
+    BrowserTestUtils.waitForSelectPopupShown(window);
+  await EventUtils.synthesizeMouseAtCenter(
+    protocolSelector,
+    {},
+    browser.contentWindow
+  );
+  let protocolSelectorPopup = await protocolSelectorPromise;
+
+  let protocolSelectorItems =
+    protocolSelectorPopup.querySelectorAll("menuitem");
+
+  // #incomingProtocolEWS
+  protocolSelectorPopup.activateItem(protocolSelectorItems[2]);
+
+  await BrowserTestUtils.waitForPopupEvent(protocolSelectorPopup, "hidden");
+  await configUpdatedEventPromise;
+  await checkAuthMethods(incomingAuthMethod, "ewsWithOauth");
+
+  info("Switch to Graph");
+
+  await SimpleTest.promiseFocus(browser.contentWindow);
+  configUpdatedEventPromise = BrowserTestUtils.waitForEvent(
+    subview,
+    "config-updated"
+  );
+  protocolSelectorPromise = BrowserTestUtils.waitForSelectPopupShown(window);
+  await EventUtils.synthesizeMouseAtCenter(
+    protocolSelector,
+    {},
+    browser.contentWindow
+  );
+  protocolSelectorPopup = await protocolSelectorPromise;
+  protocolSelectorItems = protocolSelectorPopup.querySelectorAll("menuitem");
+
+  // #incomingProtocolGraph
+  protocolSelectorPopup.activateItem(protocolSelectorItems[3]);
+
+  await BrowserTestUtils.waitForPopupEvent(protocolSelectorPopup, "hidden");
+  await configUpdatedEventPromise;
+  await checkAuthMethods(incomingAuthMethod, "ewsWithOauth");
+
+  await SpecialPowers.popPrefEnv();
+  subview.resetState();
 });

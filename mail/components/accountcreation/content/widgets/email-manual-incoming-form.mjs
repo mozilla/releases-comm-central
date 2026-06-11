@@ -150,6 +150,7 @@ class EmailIncomingForm extends AccountHubStep {
       this.#updateConfigInputsVisibility(this.#incomingProtocol.value >= 4);
       this.#configChanged();
       this.#adjustPortToSSLAndProtocol();
+      this.#adjustOAuth2Visibility();
     });
 
     this.#incomingExchangeUrl.addEventListener("input", () => {
