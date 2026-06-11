@@ -241,7 +241,13 @@ tasks:
                       - bash
                       - -cx
                       - $let:
-                            extraArgs: {$if: 'tasks_for == "cron"', then: '${cron.quoted_args}', else: ''}
+                            extraArgs:
+                                $switch:
+                                    'tasks_for == "cron"': '${cron.quoted_args}'
+                                    $default:
+                                        $switch:
+                                            'repository.project == "try-comm-central"': '--allow-parameter-override'
+                                            $default: ''
                         in:
                             $if: 'tasks_for == "action"'
                             then: >
