@@ -1050,7 +1050,10 @@ export class OAuth2URLHandler {
     }
 
     const url = URL.parse(data);
-    if (url.pathname != "/callback") {
+    if (
+      (url.host == "oauth2" && url.pathname != "/callback") ||
+      (url.host == "oauth" && url.pathname != "/yahoo")
+    ) {
       return;
     }
     const state = url.searchParams.get("state");

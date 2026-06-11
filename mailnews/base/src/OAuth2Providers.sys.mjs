@@ -227,8 +227,9 @@ var kIssuers = new Map([
         "dj0yJmk9WVZUaWRNUUZSQTBNJmQ9WVdrOVNqbHJUMGhtTkU4bWNHbzlNQT09JnM9Y29uc3VtZXJzZWNyZXQmc3Y9MCZ4PTgz",
       authorizationEndpoint: "https://api.login.yahoo.com/oauth2/request_auth",
       tokenEndpoint: "https://api.login.yahoo.com/oauth2/get_token",
-      redirectionEndpoint: "https://127.0.0.1",
+      redirectionEndpoint: "net.thunderbird://oauth/yahoo",
       usePKCE: true,
+      useSchemeRedirect: true,
     },
   ],
   [

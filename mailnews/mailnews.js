@@ -1065,7 +1065,7 @@ pref("mailnews.oauth.usePrivateBrowser", false);
 // Use the system browser for OAuth instead of a Thunderbird window.
 pref("mailnews.oauth.useExternalBrowser", true);
 // Use a net.thunderbird: URL instead of localhost for redirection.
-pref("mailnews.oauth.useSchemeRedirect", false);
+pref("mailnews.oauth.useSchemeRedirect", true);
 
 pref("test.loghelper.loglevel", "Warn");
 
