@@ -9,11 +9,15 @@ use std::{
 
 use base64::prelude::*;
 
-use moz_http::Client;
+use moz_http::{Client, Response};
 use nserror::nsresult;
 use nsstring::{nsCString, nsString};
-use url::Url;
 use xpcom::{RefPtr, getter_addrefs, interfaces::nsIAuthModule};
+
+use crate::{
+    error::ProtocolError,
+    operation_sender::send_request::{OperationRequest, send_request},
+};
 
 unsafe extern "C" {
     /// Defined and documented in `mailnews_ffi_glue.h`.
@@ -21,15 +25,6 @@ unsafe extern "C" {
         auth_method: *const c_char,
         out_module: *mut *const nsIAuthModule,
     ) -> nsresult;
-}
-
-/// The outcome of [`authenticate`].
-pub enum NTLMAuthOutcome {
-    /// We've successfully managed to authenticate over NTLM.
-    Success,
-
-    /// We've failed to authenticate over NTLM.
-    Failure,
 }
 
 /// Retrieve the next token from the provided [`nsIAuthModule`] in accordance
@@ -108,23 +103,22 @@ fn next_b64_token_from_auth_module(
 ///    communicate the user's credentials.
 ///  * the server responds with either a 200 OK or 401 Unauthorized status.
 ///
-/// Ideally, we could include the original SOAP request body in the second
-/// request, and the final response would also include the server's response if
-/// successful. However, at the point of sending this request, we're not
-/// entirely sure whether we're authenticating with the right credentials (the
-/// user might have supplied e.g. an invalid password). Considering the requests
-/// body might be large (e.g. if we're sending a message with a lot of
-/// attachments, or operating on a large number of messages or folders), sending
-/// a smaller request first slightly increases the number of requests made to
-/// perform a single operation, but likely helps reduce the network traffic
-/// overall.
+/// Although it might seem a bit wasteful, we perform our re-authentication
+/// attempts using the original requests because some servers don't seem to like
+/// it when we try to authenticate using a different path/method/body.
+///
+/// As a result, if the authentication attempt succeeds, this method returns the
+/// [`Response`] resulting from the last request, so that the consumer does not
+/// need to repeat the operation. If the authentication attempt was
+/// unsuccessful, [`ProtocolError::Authentication`] is returned. In this
+/// context, an authentication failure is any response with a 401 status code.
 ///
 /// See <https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-ntht/f09cf6e1-529e-403b-a8a5-7368ee096a6a>
-pub async fn authenticate(
+pub(crate) async fn authenticate<'or>(
     username: &str,
     password: &str,
-    ews_url: &Url,
-) -> Result<NTLMAuthOutcome, nsresult> {
+    op_request: &OperationRequest<'or>,
+) -> Result<Response, ProtocolError> {
     // SAFETY: `new_auth_module`'s call contract states it always
     // returns a valid `nsIAuthModule` if the function succeeds.
     let ntlm_module = getter_addrefs(|p| unsafe { new_auth_module(c"ntlm".as_ptr(), p) })?;
@@ -157,11 +151,8 @@ pub async fn authenticate(
     log::debug!("ntlm: sending message 1");
 
     let client = Client::new();
-    let resp = client
-        .get(ews_url)?
-        .header("Authorization", format!("NTLM {msg_1}").as_str())
-        .send()
-        .await?;
+
+    let resp = send_request(&client, op_request, Some(format!("NTLM {msg_1}"))).await?;
 
     // Extract and validate the `WWW-Authenticate` header from the
     // response, which should include the NTLM challenge to solve.
@@ -173,39 +164,33 @@ pub async fn authenticate(
         // challenge (`NTLM XXXXX`). We only care about the latter.
         .find(|value| value.to_lowercase().starts_with("ntlm "));
 
-    let challenge = if let Some(hdr) = authenticate_header {
+    let msg_2 = if let Some(hdr) = authenticate_header {
         hdr.split(' ')
             .nth(1)
-            .ok_or_else(|| {
-                log::error!("ntlm: missing challenge");
-                nserror::NS_ERROR_FAILURE
+            .ok_or_else(|| ProtocolError::Processing {
+                message: "ntlm: missing message 2".to_string(),
             })?
             .to_string()
     } else {
-        log::error!("ntlm: unexpected empty or missing WWW-Authenticate response header");
-        return Err(nserror::NS_ERROR_FAILURE);
+        return Err(ProtocolError::Processing {
+            message: "ntlm: unexpected empty or missing WWW-Authenticate response header"
+                .to_string(),
+        });
     };
 
-    log::debug!("ntlm: sending message 2");
+    log::debug!("ntlm: sending message 3");
 
-    // Use the challenge to generate the second and final message,
-    // which we can attach to the `Authorization` header in the
-    // final request to authenticate it.
-    let msg_2 = next_b64_token_from_auth_module(&ntlm_module, Some(challenge))?;
+    // Use the challenge to generate the third and final message, which we can
+    // attach to the `Authorization` header in the final request to authenticate
+    // it.
+    let msg_3 = next_b64_token_from_auth_module(&ntlm_module, Some(msg_2))?;
 
-    let resp = client
-        .get(ews_url)?
-        .header("Authorization", format!("NTLM {msg_2}").as_str())
-        .send()
-        .await?;
+    let resp = send_request(&client, op_request, Some(format!("NTLM {msg_3}"))).await?;
 
     // If we still got an error, then we're not using the right credentials.
-    // Otherwise, the server should have set a cookie that will authenticate us
-    // in further requests.
-    let outcome = match resp.status()?.0 {
-        401 => NTLMAuthOutcome::Failure,
-        _ => NTLMAuthOutcome::Success,
-    };
+    if resp.status()?.0 == 401 {
+        return Err(ProtocolError::Authentication);
+    }
 
-    Ok(outcome)
+    Ok(resp)
 }

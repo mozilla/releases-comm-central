@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use std::{cell::RefCell, env, ops::ControlFlow, sync::Arc, time::Duration};
+use std::{cell::RefCell, ops::ControlFlow, sync::Arc, time::Duration};
 
 use async_lock::Mutex;
 use http::Request;
@@ -18,15 +18,14 @@ use xpcom::{RefCounted, RefPtr};
 
 use crate::{
     ServerType,
-    authentication::{
-        credentials::{AuthValidationOutcome, Credentials},
-        ntlm::{self, NTLMAuthOutcome},
-    },
+    authentication::{credentials::Credentials, ntlm},
     error::ProtocolError,
     observers::UrlPrefObserver,
+    operation_sender::send_request::{OperationRequest, send_request},
 };
 
 pub mod observable_server;
+pub(crate) mod send_request;
 
 /// A [`ResponseProcessor`] processes protocol-specific parts of the response.
 ///
@@ -79,11 +78,6 @@ pub trait ResponseProcessor {
         resp: Response,
     ) -> Result<ControlFlow<Self::ReturnValue, Duration>, Self::Error>;
 }
-
-// The environment variable that controls whether to include request/response
-// payloads when logging. We only check for the variable's presence, not any
-// specific value.
-pub(crate) const LOG_NETWORK_PAYLOADS_ENV_VAR: &str = "THUNDERBIRD_LOG_NETWORK_PAYLOADS";
 
 /// Options to to control the behavior of
 /// [`OperationSender::make_and_send_request`].
@@ -228,28 +222,45 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
 
         let mut token = None;
 
+        let op_request = OperationRequest {
+            operation_id,
+            operation_name: name,
+            request,
+        };
+
         loop {
-            let response = match self.send_http_request(operation_id, name, request).await {
+            let response = match self.send_http_request(&op_request).await {
                 Ok(response) => response,
                 Err(err) => {
-                    token = match self
+                    let resp = match self
                         .error_handling_line
                         .try_acquire_token()
                         .await
                         .or_token(token)
                     {
                         AcquireOutcome::Success(new_token) => {
-                            self.handle_early_failure(err, options).await?;
-                            Some(new_token)
+                            token = Some(new_token);
+                            let resp = self.handle_early_failure(err, options, &op_request).await?;
+                            Some(resp)
                         }
                         AcquireOutcome::Failure(shared) => {
                             log::debug!("early failure: waiting for another runner to handle");
+                            token = None;
                             shared.await.map_err(ProtocolError::from)?;
                             None
                         }
                     };
 
-                    continue;
+                    if let Some(resp) = resp {
+                        // We've managed to acquire the line and to retry our
+                        // request, and it has yielded a response, so we can
+                        // move on to inspecting it for further errors.
+                        resp
+                    } else {
+                        // We've waited for the line to be freed; that's
+                        // happened, so we should be able to retry the request.
+                        continue;
+                    }
                 }
             };
 
@@ -336,11 +347,9 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
     /// provide.
     ///
     /// The `op_name` and `operation_id` parameters are only used for logging.
-    async fn send_http_request(
+    async fn send_http_request<'or>(
         &self,
-        operation_id: &Uuid,
-        op_name: &str,
-        request: &Request<Vec<u8>>,
+        op_request: &OperationRequest<'or>,
     ) -> Result<Response, ProtocolError> {
         // Get a new `Credentials` for the request.
         //
@@ -361,109 +370,44 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
         let credentials = self.server().await?.get_credentials()?;
         let auth_header_value = credentials.to_auth_header_value().await?;
 
-        let method = request.method();
-        let url = Url::parse(&request.uri().to_string())?;
-        let mut request_builder = self.client.request(method, &url)?;
-
-        log::info!("Making operation request {operation_id}: {op_name}");
-
-        // Add any header that was set on the original request.
-        let headers = request.headers();
-        for (name, value) in headers {
-            let value = value
-                .to_str()
-                .map_err(|_| ProtocolError::InvalidHeaderValue(value.clone()))?;
-
-            request_builder = request_builder.header(name.as_str(), value);
-        }
-
-        if let Some(ref hdr_value) = auth_header_value {
-            // Only set an `Authorization` header if necessary.
-            request_builder = request_builder.header("Authorization", hdr_value);
-        }
-
-        // Only add a body if not empty.
-        let body = request.body();
-        if !body.is_empty() {
-            // If we have a body, we expect a valid `Content-Type` header to be
-            // set as well. Searching through a `http::HeaderMap` (as returned
-            // by `request.headers`) is case-insensitive.
-            let content_type = headers
-                .get("content-type")
-                .ok_or(ProtocolError::Processing {
-                    message: "Missing Content-Type header for request with body".to_string(),
-                })?
-                .to_str()
-                .map_err(|_| ProtocolError::Processing {
-                    message: "Invalid Content-Type header in request".to_string(),
-                })?;
-
-            if env::var(LOG_NETWORK_PAYLOADS_ENV_VAR).is_ok() {
-                // Also log the request body if requested.
-                log::info!("C: {}", String::from_utf8_lossy(body.as_slice()));
-            }
-
-            request_builder = request_builder.body(body.as_slice(), content_type);
-        }
-
-        let response = request_builder.send().await?;
-
-        let response_body = response.body();
-        let response_status = response.status()?;
-        log::info!(
-            "Response received for request {operation_id} (status {response_status}): {op_name}"
-        );
-
-        if env::var(LOG_NETWORK_PAYLOADS_ENV_VAR).is_ok() {
-            // Also log the response body if requested.
-            log::info!("S: {}", String::from_utf8_lossy(response_body));
-        }
+        let resp = send_request(&self.client, op_request, auth_header_value).await?;
 
         // Catch authentication errors quickly so we can react to them
         // appropriately.
-        if response_status.0 == 401 {
+        if resp.status()?.0 == 401 {
             Err(ProtocolError::Authentication)
         } else {
-            Ok(response)
+            Ok(resp)
         }
     }
 
     /// Handles failures which do not require the response body to be
     /// deserialized, such as authentication, HTTP and TLS issues.
     ///
-    /// This method returns `Ok(())` if the failure has been handled and the
-    /// request is ready to be retried.
+    /// When the error is recoverable (e.g. an authentication failure), an
+    /// attempt to address it is performed (e.g. asking the user for new
+    /// credentials) and the request is retried. If the retry is successful, the
+    /// resulting [`Response`] is returned.
     ///
-    /// If the request shouldn't be retried (e.g. if the user cancelled from a
-    /// prompt, or if another error came up), an error result is returned. If
-    /// the cancellation originates from the user, the error returned is the one
-    /// that was passed as input.
-    async fn handle_early_failure(
+    /// If the error isn't recoverable (e.g. the user cancelled from a prompt,
+    /// or we cannot recover even with user input), an error result is returned.
+    /// If the cancellation originates from the user, the error returned is the
+    /// one that was passed as input.
+    async fn handle_early_failure<'or>(
         &self,
         err: ProtocolError,
         options: &OperationRequestOptions,
-    ) -> Result<(), ProtocolError> {
+        op_request: &OperationRequest<'or>,
+    ) -> Result<Response, ProtocolError> {
         log::warn!("handling early failure: {err}");
 
         match err {
             // If the error is an authentication failure, try to authenticate
             // again (as far as the operation's configuration allows us to).
             ProtocolError::Authentication => {
-                match self
-                    .handle_authentication_failure(&options.auth_failure_behavior)
-                    .await?
-                {
-                    // We should continue with the authentication
-                    // attempts, and retry the request with
-                    // refreshed credentials.
-                    ControlFlow::Continue(_) => Ok(()),
-
-                    // We've been instructed to abort the request
-                    // here (either because the user asked us to, or
-                    // because the selected authentication method
-                    // does not support retrying at this stage).
-                    ControlFlow::Break(_) => Err(err),
-                }
+                return self
+                    .handle_authentication_failure(&options.auth_failure_behavior, op_request)
+                    .await;
             }
 
             // If the error is a transport security failure (e.g. an
@@ -498,24 +442,20 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
 
     /// Handles an authentication failure from the server.
     ///
-    /// This method instructs its consumer on whether to retry
-    /// ([`ControlFlow::Continue`]) or cancel the request
-    /// ([`ControlFlow::Break`]) based on the configured behavior, user input
-    /// and the authentication method.
-    async fn handle_authentication_failure(
+    /// This works by attempting to send the request again with the right
+    /// credentials. If the request succeeds (meaning we were able to
+    /// successfully re-authenticate), this returns the resulting [`Response`].
+    /// Otherwise, this errors with [`ProtocolError::Authentication`].
+    async fn handle_authentication_failure<'or>(
         &self,
         behavior: &AuthFailureBehavior,
-    ) -> Result<ControlFlow<()>, ProtocolError> {
+        op_request: &OperationRequest<'or>,
+    ) -> Result<Response, ProtocolError> {
         log::debug!("handling authentication failure");
 
         let credentials = self.server().await?.get_credentials()?;
 
-        if let Credentials::Ntlm {
-            username,
-            password,
-            ews_url,
-        } = &credentials
-        {
+        if let Credentials::Ntlm { username, password } = &credentials {
             // NTLM is a bit special since it authenticates through additional
             // requests to complete a challenge, and the result of this flow is
             // persisted through a cookie. This means we might be getting a 401
@@ -524,9 +464,14 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
             // refreshing it before prompting for a new password. This step
             // should be completely silent, so we run it even if the configured
             // behaviour isn't to re-auth.
-            match ntlm::authenticate(username, password, ews_url).await? {
-                NTLMAuthOutcome::Success => return Ok(ControlFlow::Continue(())),
-                NTLMAuthOutcome::Failure => (),
+            match ntlm::authenticate(username, password, op_request).await {
+                Ok(resp) => return Ok(resp),
+
+                // We haven't managed to authenticate with the current
+                // credentials, so fall back to asking the user for credentials
+                // (if the request's options allow it).
+                Err(ProtocolError::Authentication) => (),
+                Err(err) => return Err(err),
             }
         }
 
@@ -535,7 +480,7 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
         // `mailnews_ui_glue::handle_auth_failure` might not always prompt the
         // user to re-auth, but it will in a number of cases.
         if let AuthFailureBehavior::Silent = behavior {
-            return Ok(ControlFlow::Break(()));
+            return Err(ProtocolError::Authentication);
         }
 
         loop {
@@ -551,13 +496,17 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
                 AuthErrorOutcome::RETRY => {
                     log::debug!("retrying auth with new credentials");
 
-                    match credentials.validate().await? {
+                    match credentials.validate(op_request).await {
                         // The credentials work, let's move on.
-                        AuthValidationOutcome::Valid => break,
+                        Ok(resp) => return Ok(resp),
 
                         // The credentials are still invalid, let's prompt the
                         // user for more info.
-                        AuthValidationOutcome::Invalid => continue,
+                        Err(ProtocolError::Authentication) => continue,
+
+                        // `credentials.validate()` has encountered an error
+                        // that isn't auth-related, let's stop here.
+                        Err(err) => return Err(err),
                     }
                 }
 
@@ -566,11 +515,9 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
                 // this stage, let's stop here.
                 AuthErrorOutcome::ABORT => {
                     log::debug!("aborting attempt to re-authenticate");
-                    return Ok(ControlFlow::Break(()));
+                    return Err(ProtocolError::Authentication);
                 }
             }
         }
-
-        Ok(ControlFlow::Continue(()))
     }
 }

@@ -59,6 +59,10 @@ struct RequestBody<'b> {
 }
 
 /// A builder to create and send HTTP requests.
+///
+/// Ideally this would also have a `build()` method that returns a request-like
+/// struct, however this isn't trivial to support in contexts when acquiring
+/// ownership of the request's body without cloning is difficult.
 #[must_use]
 pub struct RequestBuilder<'rb> {
     url: &'rb Url,
