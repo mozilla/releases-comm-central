@@ -1995,7 +1995,7 @@ Enigmail.msg = {
     this.fetchParticipants();
 
     for (const newKey of preview) {
-      const oldKey = EnigmailKeyRing.getKeyById(newKey.fpr);
+      const oldKey = EnigmailKeyRing.getKeyById(newKey.fpr, true);
       if (!oldKey) {
         // If the key is unknown, an expired key cannot help us
         // for anything new, so don't use it.
@@ -2152,8 +2152,14 @@ Enigmail.msg = {
       ) {
         shouldUpdate = true;
       } else if (
-        oldKey.userIds.length != newKey.userIds.length ||
-        !oldKey.userIds.every((el, ix) => el === newKey.userIds[ix])
+        // Attached keys may be in minimal form (cf. `extractPublicKeys` in `keyRing.sys.mjs`
+        // in which case the `userIds` list is always empty. Hence, an empty `userIds` list does not convey
+        // information about whether the key changed, so we explicitly exclude this case.
+        newKey.userIds.length > 0 &&
+        (oldKey.userIds.length != newKey.userIds.length ||
+          !oldKey.userIds.every(
+            (el, ix) => el.userId == newKey.userIds[ix].userId
+          ))
       ) {
         shouldUpdate = true;
       }

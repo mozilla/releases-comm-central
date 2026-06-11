@@ -99,7 +99,7 @@ export var EnigmailKeyRing = {
     }
     keyId = keyId.toUpperCase();
 
-    if (!noLoadKeys) {
+    if (!noLoadKeys || this.getCacheEmpty()) {
       this.getAllKeys(); // ensure keylist is loaded;
     }
 
