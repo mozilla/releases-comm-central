@@ -108,6 +108,7 @@
   --color-text-base-light: #1a202c;
   --color-text-secondary-light: #4c4d58;
   --color-text-muted-light: #737584;
+  --color-text-brand-light: #19518f;
   --color-text-highlight-light: #1373d9;
   --color-text-warning-light: #713f12;
   --color-text-critical-light: #dc2626;
@@ -149,6 +150,7 @@
   --color-text-base-dark: #eeeef0;
   --color-text-secondary-dark: #e4e4e7;
   --color-text-muted-dark: #7f94ac;
+  --color-text-brand-dark: #1b90f5;
   --color-text-highlight-dark: #58c9ff;
   --color-text-warning-dark: #fee78a;
   --color-text-critical-dark: #f05252;
@@ -190,6 +192,7 @@
   --color-text-base: light-dark(var(--color-text-base-light), var(--color-text-base-dark));
   --color-text-secondary: light-dark(var(--color-text-secondary-light), var(--color-text-secondary-dark));
   --color-text-muted: light-dark(var(--color-text-muted-light), var(--color-text-muted-dark));
+  --color-text-brand: light-dark(var(--color-text-brand-light), var(--color-text-brand-dark));
   --color-text-highlight: light-dark(var(--color-text-highlight-light), var(--color-text-highlight-dark));
   --color-text-warning: light-dark(var(--color-text-warning-light), var(--color-text-warning-dark));
   --color-text-critical: light-dark(var(--color-text-critical-light), var(--color-text-critical-dark));
