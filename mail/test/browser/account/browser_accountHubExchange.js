@@ -839,6 +839,130 @@ add_task(async function test_full_exchange_account_creation() {
   await SpecialPowers.popPrefEnv();
 });
 
+add_task(async function test_exchange_back_to_manual_configuration() {
+  needsAuthentication = false;
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.graph.enabled", true]],
+  });
+  const dialog = await subtest_open_account_hub_dialog();
+  const emailTemplate = dialog.querySelector("email-auto-form");
+  const footerForward = dialog.querySelector("#emailFooter #forward");
+
+  await fillUserInformation(emailTemplate);
+
+  Assert.ok(!footerForward.disabled, "Continue button should be enabled");
+
+  // Click continue and wait for config found template to be in view.
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+
+  const configFoundTemplate = await checkAvailableConfigs(dialog, [
+    "imap",
+    "ews",
+    "graph",
+    "exchange",
+  ]);
+
+  const editConfigurationButton =
+    configFoundTemplate.querySelector("#editConfiguration");
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(editConfigurationButton),
+    "EWS config should be editable"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(editConfigurationButton, {});
+  const ewsConfigStep = dialog.querySelector("#emailIncomingConfigSubview");
+  await BrowserTestUtils.waitForAttributeRemoval("hidden", ewsConfigStep);
+
+  const checkConfig = () => {
+    // The protocol option select, connection securty, and port should be hidden,
+    // and we should be showing the EWS label, with only OAuth and
+    // Normal Password as authentication options, and the EWS url input.
+    Assert.ok(
+      BrowserTestUtils.isVisible(
+        ewsConfigStep.querySelector("#incomingProtocol")
+      ),
+      "Default protocol dropdown should be visible"
+    );
+    Assert.equal(
+      ewsConfigStep.querySelector("#incomingProtocol").value,
+      4,
+      "EWS should be the selected protocol"
+    );
+    Assert.ok(
+      BrowserTestUtils.isHidden(
+        ewsConfigStep.querySelector("#incomingConnectionSecurity")
+      ),
+      "Incoming connection security dropdown should be hidden"
+    );
+    Assert.ok(
+      BrowserTestUtils.isHidden(ewsConfigStep.querySelector("#incomingPort")),
+      "Incoming port input should be hidden"
+    );
+    Assert.ok(
+      BrowserTestUtils.isVisible(
+        ewsConfigStep.querySelector("#incomingExchangeUrl")
+      ),
+      "EWS URL input should be visible"
+    );
+
+    // The available config fields should be filled in with the correct info.
+    // The test server isn't set up with HTTPS, so we have an insecure URL here.
+    Assert.equal(
+      ewsConfigStep.querySelector("#incomingExchangeUrl").value,
+      "http://exchange.test/EWS/Exchange.asmx", // eslint-disable @microsoft/sdl/no-insecure-url
+      "The EWS URL input should have the correct exchange url"
+    );
+    Assert.equal(
+      ewsConfigStep.querySelector("#incomingAuthMethod").value,
+      3,
+      "The auth method should be Normal Password"
+    );
+    Assert.equal(
+      ewsConfigStep.querySelector("#incomingUsername").value,
+      "testExchange@exchange.test",
+      "The username input should have the exchange email from the config"
+    );
+  };
+  checkConfig();
+
+  Assert.ok(!footerForward.disabled, "Should be able to continue from here");
+
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+  await BrowserTestUtils.waitForAttributeRemoval(
+    "hidden",
+    dialog.querySelector("#emailPasswordSubview")
+  );
+
+  const footerBack = dialog.querySelector("#emailFooter #back");
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(footerBack),
+    "Back button should be visible"
+  );
+  Assert.ok(!footerBack.disabled, "Back button should be enabled");
+
+  EventUtils.synthesizeMouseAtCenter(footerBack, {});
+  await BrowserTestUtils.waitForAttributeRemoval("hidden", ewsConfigStep);
+
+  // The config fields should be filled the same as before.
+  checkConfig();
+
+  Assert.ok(
+    !BrowserTestUtils.isVisible(
+      ewsConfigStep.shadowRoot
+        .querySelector("account-hub-header")
+        .shadowRoot.querySelector("#emailFormNotification")
+    ),
+    "Should not be showing any notification"
+  );
+
+  await Services.logins.removeAllLoginsAsync();
+  await subtest_close_account_hub_dialog(dialog, ewsConfigStep);
+  needsAuthentication = true;
+  await SpecialPowers.popPrefEnv();
+});
+
 /**
  * Fills the name and email inputs in the first step of account hub
  * email setup.

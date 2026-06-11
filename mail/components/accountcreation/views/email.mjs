@@ -861,9 +861,11 @@ class AccountHubEmail extends HTMLElement {
         break;
       case "incomingConfigSubview":
         // Set the currentConfig outgoing to the updated fields in the
-        // outgoing form.
-        this.#currentConfig.outgoing =
-          this.#states.outgoingConfigSubview.subview.captureState().outgoing;
+        // outgoing form if we're coming from the outgoing form.
+        if (!this.#currentConfig.configureOutgoingFromIncoming()) {
+          this.#currentConfig.outgoing =
+            this.#states.outgoingConfigSubview.subview.captureState().outgoing;
+        }
         this.#setCurrentConfigForSubview();
         break;
       case "outgoingConfigSubview":
