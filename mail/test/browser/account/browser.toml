@@ -120,6 +120,8 @@ tags = ["archive"]
 
 ["browser_certificateCheck.js"]
 
+["browser_copiesAndFolders.js"]
+
 ["browser_deletion.js"]
 
 ["browser_imAccountSettings.js"]
