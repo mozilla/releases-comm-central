@@ -1,0 +1,52 @@
+---
+name: Lint
+
+"on":
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  fmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1.12.0
+        with:
+          components: rustfmt
+
+      - name: Check with Rustfmt
+        run: cargo fmt --all -- --check
+
+  clippy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1.12.0
+        with:
+          components: clippy
+
+      - name: Check with Clippy
+        uses: giraffate/clippy-action@v1
+        with:
+          reporter: github-pr-check
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          clippy_flags: --workspace --all-features --tests --examples --bins -- -Dclippy::todo -Aunknown_lints
+
+  lint-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1.12.0
+        with:
+          components: rust-docs
+
+      - name: Check for broken intra-doc links
+        env:
+          RUSTDOCFLAGS: -Dwarnings
+        run: cargo doc --no-deps --all-features --workspace

@@ -393,26 +393,25 @@ dependencies = [
 
 [[package]]
 name = "authenticator"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bbd6f57365675990f2db272a6560b28945df74cf3749c70aafd9b1c7829edebc"
+version = "0.6.0"
+source = "git+https://github.com/mozilla/authenticator-rs?tag=v0.6.0#86caf8b8bcda16d8a36325e9e78f8da2c46084e2"
 dependencies = [
  "base64 0.21.999",
  "bitflags 1.999.999",
  "cfg-if",
- "core-foundation 0.9.999",
+ "core-foundation 0.10.0",
  "devd-rs",
  "libc",
  "libudev",
  "log",
  "memoffset 0.8.999",
- "nss-gk-api",
+ "nss-rs",
  "pkcs11-bindings",
  "rand",
  "runloop",
  "serde",
  "serde_bytes",
- "serde_cbor",
+ "serde_cbor_2",
  "serde_json",
  "sha2",
  "winapi",
@@ -431,7 +430,7 @@ dependencies = [
  "nsstring",
  "rand",
  "serde",
- "serde_cbor",
+ "serde_cbor_2",
  "serde_json",
  "static_prefs",
  "thin-vec",
@@ -2908,13 +2907,6 @@ dependencies = [
 
 [[package]]
 name = "half"
-version = "1.999.999"
-dependencies = [
- "half 2.5.0",
-]
-
-[[package]]
-name = "half"
 version = "2.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7db2ff139bba50379da6aa0766b52fdcb62cb5b263009b09ed58ba604e14bbd1"
@@ -4512,7 +4504,7 @@ dependencies = [
  "cfg-if",
  "cfg_aliases",
  "codespan-reporting",
- "half 2.5.0",
+ "half",
  "hashbrown 0.16.999",
  "indexmap",
  "libm",
@@ -4700,21 +4692,6 @@ dependencies = [
  "serde",
  "serde_derive",
  "thiserror 2.0.12",
-]
-
-[[package]]
-name = "nss-gk-api"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4c17aec6d4e1822c023689899f09311592a36cbf6de8f85dfaf5f01976790d8d"
-dependencies = [
- "bindgen 0.72.0",
- "mozbuild",
- "once_cell",
- "pkcs11-bindings",
- "serde",
- "serde_derive",
- "toml 0.5.999",
 ]
 
 [[package]]
@@ -6063,12 +6040,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "serde_cbor"
-version = "0.11.2"
+name = "serde_cbor_2"
+version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2bef2ebfde456fb76bbcf9f59315333decc4fda0b2b44b420243c11e0f5ec1f5"
+checksum = "34aec2709de9078e077090abd848e967abab63c9fb3fdb5d4799ad359d8d482c"
 dependencies = [
- "half 1.999.999",
+ "half",
  "serde",
 ]
 

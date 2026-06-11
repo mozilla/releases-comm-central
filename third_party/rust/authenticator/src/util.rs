@@ -18,16 +18,19 @@ macro_rules! try_or {
     };
 }
 
+#[cfg(all(not(test), any(target_os = "linux", target_os = "freebsd", target_os = "openbsd")))]
 pub trait Signed {
     fn is_negative(&self) -> bool;
 }
 
+#[cfg(all(not(test), any(target_os = "linux", target_os = "freebsd", target_os = "openbsd")))]
 impl Signed for i32 {
     fn is_negative(&self) -> bool {
         *self < 0
     }
 }
 
+#[cfg(all(not(test), any(target_os = "linux", target_os = "freebsd", target_os = "openbsd")))]
 impl Signed for usize {
     fn is_negative(&self) -> bool {
         (*self as isize) < 0
@@ -64,7 +67,7 @@ pub fn from_unix_result<T: Signed>(rv: T) -> io::Result<T> {
 }
 
 pub fn io_err(msg: &str) -> io::Error {
-    io::Error::new(io::ErrorKind::Other, msg)
+    io::Error::other(msg)
 }
 
 #[cfg(test)]
@@ -164,6 +167,16 @@ macro_rules! serialize_map_optional {
             v1: $k1 => $v1, v2: $k2 => $v2, v3: $k3 => $v3, v4: $k4 => $v4, v5: $k5 => $v5,
             v6: $k6 => $v6, v7: $k7 => $v7, v8: $k8 => $v8, v9: $k9 => $v9, va: $ka => $va,
             $( $value_ident : $key => $value , )*
+        )
+    };
+    ($s:expr, $k1:expr => $v1:expr, $k2:expr => $v2:expr, $k3:expr => $v3:expr, $k4:expr => $v4:expr, $k5:expr => $v5:expr,
+     $k6:expr => $v6:expr, $k7:expr => $v7:expr, $k8:expr => $v8:expr, $k9:expr => $v9:expr, $ka:expr => $va:expr, $kb:expr => $vb:expr,
+     $( $value_ident:ident : $key:expr => $value:expr , )*) => {
+        serialize_map_optional!(
+            @internal $s,
+            v1: $k1 => $v1, v2: $k2 => $v2, v3: $k3 => $v3, v4: $k4 => $v4, v5: $k5 => $v5,
+            v6: $k6 => $v6, v7: $k7 => $v7, v8: $k8 => $v8, v9: $k9 => $v9, va: $ka => $va,
+            vb: $kb => $vb, $( $value_ident : $key => $value , )*
         )
     };
 

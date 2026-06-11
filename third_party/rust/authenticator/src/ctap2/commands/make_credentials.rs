@@ -15,9 +15,9 @@ use crate::ctap2::attestation::{
 use crate::ctap2::client_data::ClientDataHash;
 use crate::ctap2::server::{
     AuthenticationExtensionsClientInputs, AuthenticationExtensionsClientOutputs,
-    AuthenticationExtensionsPRFOutputs, AuthenticatorAttachment, CredentialProtectionPolicy,
-    PublicKeyCredentialDescriptor, PublicKeyCredentialParameters, PublicKeyCredentialUserEntity,
-    RelyingParty, RpIdHash, UserVerificationRequirement,
+    AuthenticationExtensionsPRFOutputs, AuthenticatorAttachment, AuthenticatorExtensionsCredBlob,
+    CredentialProtectionPolicy, PublicKeyCredentialDescriptor, PublicKeyCredentialParameters,
+    PublicKeyCredentialUserEntity, RelyingParty, RpIdHash, UserVerificationRequirement,
 };
 use crate::ctap2::utils::{read_byte, serde_parse_err};
 use crate::errors::AuthenticatorError;
@@ -28,7 +28,9 @@ use serde::{
     de::{Error as DesError, MapAccess, Unexpected, Visitor},
     Deserialize, Deserializer, Serialize, Serializer,
 };
+use serde_bytes::ByteBuf;
 use serde_cbor::{self, de::from_slice, ser, Value};
+use std::collections::HashMap;
 use std::fmt;
 use std::io::{Cursor, Read};
 
@@ -37,6 +39,9 @@ pub struct MakeCredentialsResult {
     pub att_obj: AttestationObject,
     pub attachment: AuthenticatorAttachment,
     pub extensions: AuthenticationExtensionsClientOutputs,
+    pub ep_attestation: Option<bool>,
+    pub large_blob_key: Option<Vec<u8>>,
+    pub unsigned_extension_outputs: Option<HashMap<String, serde_cbor::Value>>,
 }
 
 impl MakeCredentialsResult {
@@ -106,6 +111,9 @@ impl MakeCredentialsResult {
             att_obj,
             attachment: AuthenticatorAttachment::Unknown,
             extensions: Default::default(),
+            ep_attestation: None,
+            large_blob_key: None,
+            unsigned_extension_outputs: None,
         })
     }
 }
@@ -131,22 +139,26 @@ impl<'de> Deserialize<'de> for MakeCredentialsResult {
                 let mut format: Option<&str> = None;
                 let mut auth_data: Option<AuthenticatorData> = None;
                 let mut att_stmt: Option<AttestationStatement> = None;
+                let mut ep_attestation: Option<bool> = None;
+                let mut large_blob_key: Option<Vec<u8>> = None;
+                let mut unsigned_extension_outputs: Option<HashMap<String, serde_cbor::Value>> =
+                    None;
 
                 while let Some(key) = map.next_key()? {
                     match key {
-                        1 => {
+                        0x01 => {
                             if format.is_some() {
                                 return Err(DesError::duplicate_field("fmt (0x01)"));
                             }
                             format = Some(map.next_value()?);
                         }
-                        2 => {
+                        0x02 => {
                             if auth_data.is_some() {
                                 return Err(DesError::duplicate_field("authData (0x02)"));
                             }
                             auth_data = Some(map.next_value()?);
                         }
-                        3 => {
+                        0x03 => {
                             let format =
                                 format.ok_or_else(|| DesError::missing_field("fmt (0x01)"))?;
                             if att_stmt.is_some() {
@@ -175,6 +187,28 @@ impl<'de> Deserialize<'de> for MakeCredentialsResult {
                                 }
                             }
                         }
+                        0x04 => {
+                            if ep_attestation.is_some() {
+                                return Err(M::Error::duplicate_field("ep_attestation"));
+                            }
+                            let ep_attestation_val: bool = map.next_value()?;
+                            ep_attestation = Some(ep_attestation_val);
+                        }
+                        0x05 => {
+                            if large_blob_key.is_some() {
+                                return Err(M::Error::duplicate_field("large_blob_key"));
+                            }
+                            let large_blob_key_bytes: ByteBuf = map.next_value()?;
+                            large_blob_key = Some(large_blob_key_bytes.into_vec());
+                        }
+                        0x06 => {
+                            if unsigned_extension_outputs.is_some() {
+                                return Err(M::Error::duplicate_field(
+                                    "unsigned_extension_outputs",
+                                ));
+                            }
+                            unsigned_extension_outputs = Some(map.next_value()?);
+                        }
                         _ => continue,
                     }
                 }
@@ -191,6 +225,9 @@ impl<'de> Deserialize<'de> for MakeCredentialsResult {
                     },
                     attachment: AuthenticatorAttachment::Unknown,
                     extensions: Default::default(),
+                    ep_attestation,
+                    large_blob_key,
+                    unsigned_extension_outputs,
                 })
             }
         }
@@ -224,11 +261,7 @@ pub(crate) trait UserVerification {
 
 impl UserVerification for MakeCredentialsOptions {
     fn ask_user_verification(&self) -> bool {
-        if let Some(e) = self.user_verification {
-            e
-        } else {
-            false
-        }
+        self.user_verification.unwrap_or(false)
     }
 }
 
@@ -242,6 +275,12 @@ pub struct MakeCredentialsExtensions {
     pub hmac_secret: Option<HmacCreateSecretOrPrf>,
     #[serde(rename = "minPinLength", skip_serializing_if = "Option::is_none")]
     pub min_pin_length: Option<bool>,
+    #[serde(rename = "credBlob", skip_serializing_if = "Option::is_none")]
+    pub cred_blob: Option<AuthenticatorExtensionsCredBlob>,
+    #[serde(rename = "largeBlobKey", skip_serializing_if = "Option::is_none")]
+    pub large_blob_key: Option<bool>,
+    #[serde(rename = "thirdPartyPayment", skip_serializing_if = "Option::is_none")]
+    pub third_party_payment: Option<bool>,
 }
 
 #[derive(Debug, Clone)]
@@ -264,7 +303,12 @@ impl Serialize for HmacCreateSecretOrPrf {
 
 impl MakeCredentialsExtensions {
     fn has_content(&self) -> bool {
-        self.cred_protect.is_some() || self.hmac_secret.is_some() || self.min_pin_length.is_some()
+        self.cred_protect.is_some()
+            || self.hmac_secret.is_some()
+            || self.min_pin_length.is_some()
+            || self.cred_blob.is_some()
+            || self.large_blob_key.is_some()
+            || self.third_party_payment.is_some()
     }
 }
 
@@ -281,6 +325,9 @@ impl From<AuthenticationExtensionsClientInputs> for MakeCredentialsExtensions {
                 }
             },
             min_pin_length: input.min_pin_length,
+            cred_blob: input.cred_blob,
+            large_blob_key: input.large_blob_key,
+            third_party_payment: input.third_party_payment,
         }
     }
 }
@@ -304,6 +351,9 @@ pub struct MakeCredentials {
     pub options: MakeCredentialsOptions,
     pub pin_uv_auth_param: Option<PinUvAuthParam>,
     pub enterprise_attestation: Option<u64>,
+
+    // CTAP 2.2
+    pub attestation_formats_preference: Option<Vec<String>>,
 }
 
 impl MakeCredentials {
@@ -327,6 +377,7 @@ impl MakeCredentials {
             options,
             pin_uv_auth_param: None,
             enterprise_attestation: None,
+            attestation_formats_preference: None,
         }
     }
 
@@ -347,7 +398,7 @@ impl MakeCredentials {
         //      Note: a CTAP 2.0 authenticator is allowed to create a discoverable credential even
         //      if one was not requested, so there is a case in which we cannot confidently
         //      return `rk=false` here. We omit the response entirely in this case.
-        let dev_supports_rk = maybe_info.map_or(false, |info| info.options.resident_key);
+        let dev_supports_rk = maybe_info.is_some_and(|info| info.options.resident_key);
         let requested_rk = self.options.resident_key.unwrap_or(false);
         let max_supported_version = maybe_info.map_or(AuthenticatorVersion::U2F_V2, |info| {
             info.max_supported_version()
@@ -409,6 +460,11 @@ impl MakeCredentials {
             }
             None | Some(HmacCreateSecretOrPrf::HmacCreateSecret(false)) => {}
         }
+
+        // 3. credBlob
+        //      The extension returns a flag in the authenticator data which we need to mirror as a
+        //      client output.
+        result.extensions.cred_blob = result.att_obj.auth_data.extensions.cred_blob.clone();
     }
 }
 
@@ -496,6 +552,7 @@ impl Serialize for MakeCredentials {
             &0x08 => &self.pin_uv_auth_param,
             &0x09 => self.pin_uv_auth_param.as_ref().map(|p| p.pin_protocol.id()),
             &0x0a => &self.enterprise_attestation,
+            &0x0b => &self.attestation_formats_preference,
         )
     }
 }
@@ -716,6 +773,9 @@ pub mod test {
             att_obj: create_attestation_obj(),
             attachment: AuthenticatorAttachment::Unknown,
             extensions: Default::default(),
+            ep_attestation: None,
+            large_blob_key: None,
+            unsigned_extension_outputs: None,
         };
 
         assert_eq!(make_cred_result, expected);
@@ -763,6 +823,9 @@ pub mod test {
                 ),
                 hmac_secret: Some(HmacCreateSecretOrPrf::HmacCreateSecret(true)),
                 min_pin_length: Some(true),
+                cred_blob: None,
+                large_blob_key: None,
+                third_party_payment: None,
             },
             options: MakeCredentialsOptions {
                 resident_key: Some(true),
@@ -778,6 +841,7 @@ pub mod test {
                 p
             }),
             enterprise_attestation: Some(7),
+            attestation_formats_preference: None,
         };
 
         let req_serialized = req
@@ -963,6 +1027,9 @@ pub mod test {
             att_obj,
             attachment: AuthenticatorAttachment::Unknown,
             extensions: Default::default(),
+            ep_attestation: None,
+            large_blob_key: None,
+            unsigned_extension_outputs: None,
         };
 
         assert_eq!(make_cred_result, expected);

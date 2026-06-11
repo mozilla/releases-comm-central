@@ -1,0 +1,57 @@
+---
+name: CI
+
+"on":
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main]
+
+jobs:
+  build_and_test:
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - { name: msrv, version: '1.81' }
+          - { name: stable, version: stable }
+          - { name: nightly, version: nightly }
+
+    name: ${{ matrix.version.name }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1.12.0
+        with:
+          toolchain: ${{ matrix.version.version }}
+
+      - name: cargo check
+        run: cargo check --workspace --bins --examples --tests
+
+      - name: cargo test
+        run: |
+          cargo test --workspace --all-features --no-fail-fast -- --nocapture
+          cargo build --features=unsealed_read_write
+          cargo build --no-default-features --features=unsealed_read_write
+
+  build_and_test_no_std:
+    name: stable (no_std)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1.12.0
+
+      - name: Add no_std target
+        run: rustup target add thumbv7em-none-eabihf
+
+      - name: cargo test
+        run: |
+          cargo build --target thumbv7em-none-eabihf --no-default-features --features=alloc
+          cargo test --no-default-features --lib --tests
+          cargo build --no-default-features --features=alloc
