@@ -492,3 +492,7 @@ account-hub-thundermail-button = Sign in with Thundermail
 
 # Used as part of a divider between sign in button and a sign in form.
 account-hub-thundermail-divider-text = or
+
+account-hub-manual-config-incoming-legend = Incoming server
+
+account-hub-manual-config-outgoing-legend = Outgoing server

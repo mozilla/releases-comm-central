@@ -20,6 +20,7 @@ label {
   font-size: var(--hub-form-label-font-size);
   font-weight: 600;
   color: var(--hub-menulist-label-color);
+  line-height: var(--hub-form-label-line-height);
 }
 
 label:has(+ .input-control input:required)::after,

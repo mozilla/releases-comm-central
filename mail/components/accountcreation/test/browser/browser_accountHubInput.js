@@ -33,14 +33,10 @@ add_task(async function test_correctlyAppliesL10nAttributes() {
     "Should display correct text in label"
   );
 
-  const labelText = await browser.contentWindow.document.l10n.formatValue(
-    customElement.getAttribute("l10n-label-id")
-  );
-
-  Assert.equal(
-    input.ariaLabel,
-    labelText,
-    "Should display correct text in aria-label"
+  Assert.deepEqual(
+    input.ariaLabelledByElements,
+    [label],
+    "The input should have the label element as it's aria-label"
   );
 
   Assert.equal(
