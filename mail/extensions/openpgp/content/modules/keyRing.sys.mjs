@@ -44,8 +44,8 @@ import { openLinkExternally } from "resource:///modules/LinkHelper.sys.mjs";
 
 /** @type {KeyList} */
 let gKeyListObj = null;
-let gKeyIndex = [];
-let gSubkeyIndex = [];
+let gKeyIndex = new Map();
+let gSubkeyIndex = new Map();
 let gLoadingKeys = false;
 
 export var EnigmailKeyRing = {
@@ -103,10 +103,10 @@ export var EnigmailKeyRing = {
       this.getAllKeys(); // ensure keylist is loaded;
     }
 
-    let keyObj = gKeyIndex[keyId];
+    let keyObj = gKeyIndex.get(keyId);
 
     if (keyObj === undefined) {
-      keyObj = gSubkeyIndex[keyId];
+      keyObj = gSubkeyIndex.get(keyId);
     }
 
     return keyObj !== undefined ? keyObj : null;
@@ -119,7 +119,7 @@ export var EnigmailKeyRing = {
 
     keyId = keyId.replace(/^0x/, "").toUpperCase();
 
-    const keyObj = gSubkeyIndex[keyId];
+    const keyObj = gSubkeyIndex.get(keyId);
 
     return keyObj !== undefined;
   },
@@ -469,8 +469,8 @@ export var EnigmailKeyRing = {
       keySortList: [],
     };
 
-    gKeyIndex = [];
-    gSubkeyIndex = [];
+    gKeyIndex = new Map();
+    gSubkeyIndex = new Map();
   },
 
   /**
@@ -479,7 +479,7 @@ export var EnigmailKeyRing = {
    * @returns {boolean} true if cache is empty.
    */
   getCacheEmpty() {
-    return gKeyIndex.length === 0;
+    return !gKeyIndex.size;
   },
 
   /**
@@ -1435,18 +1435,18 @@ export var EnigmailKeyRing = {
    * Rebuild the quick access search indexes after the key list was loaded
    */
   rebuildKeyIndex() {
-    gKeyIndex = [];
-    gSubkeyIndex = [];
+    gKeyIndex = new Map();
+    gSubkeyIndex = new Map();
 
     for (const i in gKeyListObj.keyList) {
       const k = gKeyListObj.keyList[i];
-      gKeyIndex[k.keyId] = k;
-      gKeyIndex[k.fpr] = k;
-      gKeyIndex[k.keyId.substr(-8, 8)] = k;
+      gKeyIndex.set(k.keyId, k);
+      gKeyIndex.set(k.fpr, k);
+      gKeyIndex.set(k.keyId.substr(-8, 8), k);
 
       // add subkeys
       for (const j in k.subKeys) {
-        gSubkeyIndex[k.subKeys[j].keyId] = k;
+        gSubkeyIndex.set(k.subKeys[j].keyId, k);
       }
     }
   },
