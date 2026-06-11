@@ -75,6 +75,7 @@ async function subtest(grantedScope, expectFailure) {
   // being recorded as unhandled. On slow machines, the IMAP server can time
   // out before the OAuth token exchange completes, so the telemetry may not
   // be recorded by the time `verifyPromise` settles.
+  let configOut;
   if (expectFailure) {
     await Assert.rejects(
       verifyPromise,
@@ -82,7 +83,15 @@ async function subtest(grantedScope, expectFailure) {
       "verify should fail"
     );
   } else {
-    await verifyPromise;
+    // IMAP may time out before OAuth completes. If that happens, retry once the
+    // token is cached.
+    configOut = await verifyPromise.catch(async () => {
+      await TestUtils.waitForCondition(
+        () => Glean.mail.oauth2Authentication.testGetValue(),
+        "waiting for OAuth telemetry"
+      );
+      return new ConfigVerifier(window.msgWindow).verifyConfig(config);
+    });
   }
 
   // Wait for the OAuth module to record telemetry, which signals that the
@@ -118,7 +127,6 @@ async function subtest(grantedScope, expectFailure) {
     return;
   }
 
-  const configOut = await verifyPromise;
   OAuth2TestUtils.forgetObjects();
 
   const allLogins = await Services.logins.getAllLogins();
