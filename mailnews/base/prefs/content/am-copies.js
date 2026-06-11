@@ -19,10 +19,11 @@ var gFccRadioElemChoiceLocked,
   gTmplRadioElemChoiceLocked;
 var gDefaultPickerMode = "0";
 
-var gFccFolderWithDelim,
-  gDraftsFolderWithDelim,
-  gArchivesFolderWithDelim,
-  gTemplatesFolderWithDelim;
+const gFccFolderWithDelim = "/Sent";
+const gDraftsFolderWithDelim = "/Drafts";
+const gArchivesFolderWithDelim = "/Archives";
+const gTemplatesFolderWithDelim = "/Templates";
+
 var gAccount;
 var gCurrentServerId;
 var gIdentity;
@@ -92,8 +93,6 @@ function onInitCopiesAndFolders(aIdentity) {
   setupDoCcBccItems("identity.doBcc", "identity.doBccList");
   setupFccItems();
   setupArchiveItems();
-
-  SetSpecialFolderNamesWithDelims();
 
   gIdentity = aIdentity;
 }
@@ -266,19 +265,6 @@ function noteSelectionChange(aGroup, aType, aEvent) {
   picker.menupopup.selectFolder(folder);
 }
 
-// Need to append special folders when account picker is selected.
-// Create a set of global special folder vars to be suffixed to the
-// server URI of the selected account.
-function SetSpecialFolderNamesWithDelims() {
-  var folderDelim = "/";
-  /* we use internal names known to everyone like "Sent", "Templates" and "Drafts" */
-
-  gFccFolderWithDelim = folderDelim + "Sent";
-  gArchivesFolderWithDelim = folderDelim + "Archives";
-  gDraftsFolderWithDelim = folderDelim + "Drafts";
-  gTemplatesFolderWithDelim = folderDelim + "Templates";
-}
-
 // Save all changes on this page
 function onSave() {
   onSaveCopiesAndFolders();
@@ -288,6 +274,7 @@ function onSaveCopiesAndFolders() {
   SaveFolderSettings(
     gFccRadioElemChoice,
     "doFcc",
+    Ci.nsMsgFolderFlags.SentMail,
     gFccFolderWithDelim,
     "msgFccAccountPicker",
     "msgFccFolderPicker",
@@ -298,6 +285,7 @@ function onSaveCopiesAndFolders() {
   SaveFolderSettings(
     gArchivesRadioElemChoice,
     "messageArchives",
+    Ci.nsMsgFolderFlags.Archive,
     gArchivesFolderWithDelim,
     "msgArchivesAccountPicker",
     "msgArchivesFolderPicker",
@@ -308,6 +296,7 @@ function onSaveCopiesAndFolders() {
   SaveFolderSettings(
     gDraftsRadioElemChoice,
     "messageDrafts",
+    Ci.nsMsgFolderFlags.Drafts,
     gDraftsFolderWithDelim,
     "msgDraftsAccountPicker",
     "msgDraftsFolderPicker",
@@ -318,6 +307,7 @@ function onSaveCopiesAndFolders() {
   SaveFolderSettings(
     gTmplRadioElemChoice,
     "messageTemplates",
+    Ci.nsMsgFolderFlags.Templates,
     gTemplatesFolderWithDelim,
     "msgTemplatesAccountPicker",
     "msgTemplatesFolderPicker",
@@ -330,14 +320,15 @@ function onSaveCopiesAndFolders() {
 function SaveFolderSettings(
   radioElemChoice,
   radioGroupId,
-  folderSuffix,
+  folderFlag,
+  defaultFolderSuffix,
   accountPickerId,
   folderPickerId,
   folderElementId,
   folderPickerModeId
 ) {
-  var formElement = document.getElementById(folderElementId);
-  var uri;
+  let formElement = document.getElementById(folderElementId);
+  let uri;
 
   if (
     radioElemChoice == "0" ||
@@ -347,8 +338,10 @@ function SaveFolderSettings(
     radioElemChoice = "0";
     uri = document.getElementById(accountPickerId).folder?.URI;
     if (uri) {
+      const rootFolder = MailServices.folderLookup.getFolderForURL(uri);
+      const flaggedFolder = rootFolder.getFolderWithFlags(folderFlag);
       // Create Folder URI.
-      uri = uri + folderSuffix;
+      uri = flaggedFolder?.URI ?? uri + defaultFolderSuffix;
     }
   } else if (radioElemChoice == "1") {
     uri = document.getElementById(folderPickerId).folder?.URI;
