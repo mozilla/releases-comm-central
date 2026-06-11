@@ -684,3 +684,29 @@ mail:
     notification_emails:
       - telemetry-client-dev@thunderbird.net
     expires: never
+
+  account_hub_finished:
+    type: event
+    description: >
+      Tracks each time account setup is finished
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1983842
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1983842#cXXX
+    data_sensitivity:
+      - technical
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never
+    extra_keys:
+      account_type:
+        description: Type of mail account set up.
+        type: string
+      address_books:
+        description: Number of address books to sync found.
+        type: quantity
+        unit: items
+      calendars:
+        description: Number of calendars to sync found.
+        type: quantity
+        unit: items

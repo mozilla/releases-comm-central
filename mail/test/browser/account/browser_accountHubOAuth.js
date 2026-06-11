@@ -27,6 +27,7 @@ registerCleanupFunction(function () {
 });
 
 add_task(async function test_account_oauth_imap_account() {
+  Services.fog.testResetFOG();
   const oauthImap = await ServerTestUtils.createServer(
     ServerTestUtils.serverDefs.imap.oAuth
   );
@@ -102,6 +103,24 @@ add_task(async function test_account_oauth_imap_account() {
   Assert.ok(
     dialog.querySelector("account-hub-email:not(.busy)"),
     "Should no longer be loading"
+  );
+
+  const events = Glean.mail.accountHubFinished.testGetValue();
+  Assert.equal(events.length, 1, "Should have recorded account_hub_finished");
+  Assert.equal(
+    events[0]?.extra.account_type,
+    "imap",
+    "should have recorded account_type"
+  );
+  Assert.equal(
+    events[0]?.extra.address_books,
+    0,
+    "should have recorded no address_books"
+  );
+  Assert.equal(
+    events[0]?.extra.calendars,
+    0,
+    "should have recorded no calendars"
   );
 
   await subtest_clear_status_bar();

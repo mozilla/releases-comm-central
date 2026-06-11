@@ -182,6 +182,7 @@ add_task(async function test_skip_sync_accounts_load() {
 });
 
 add_task(async function test_account_load_sync_accounts_imap_account() {
+  Services.fog.testResetFOG();
   IMAPServer.open();
   SMTPServer.open();
   const emailUser = {
@@ -455,6 +456,24 @@ add_task(async function test_account_load_sync_accounts_imap_account() {
   const calendar = await calendarPromise;
   Assert.equal(calendar.name, "You found me!");
   Assert.equal(calendar.type, "caldav");
+
+  const events = Glean.mail.accountHubFinished.testGetValue();
+  Assert.equal(events.length, 1, "Should have recorded account_hub_finished");
+  Assert.equal(
+    events[0]?.extra.account_type,
+    "imap",
+    "should have recorded account_type"
+  );
+  Assert.equal(
+    events[0]?.extra.address_books,
+    1,
+    "should have recorded 1 address_books"
+  );
+  Assert.equal(
+    events[0]?.extra.calendars,
+    2,
+    "should have recorded 2 calendars"
+  );
 
   // Remove the address book and calendar.
   MailServices.ab.deleteAddressBook(addressBookDirectory.URI);

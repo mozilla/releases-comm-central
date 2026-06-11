@@ -1612,6 +1612,12 @@ class AccountHubEmail extends HTMLElement {
       this.abortable?.signal?.throwIfAborted();
       this.abortable = null;
 
+      Glean.mail.accountHubFinished.record({
+        account_type: this.#currentConfig.incoming.type,
+        address_books: syncAccounts.addressBooks.length,
+        calendars: syncAccounts.calendars.length,
+      });
+
       // If there are no syncable accounts, we should go to the email added
       // success view.
       if (
@@ -1632,6 +1638,14 @@ class AccountHubEmail extends HTMLElement {
         });
       }
     } catch (error) {
+      gAccountSetupLogger.warn("Fetch sync accounts FAILED!", error);
+
+      Glean.mail.accountHubFinished.record({
+        account_type: this.#currentConfig.incoming.type,
+        address_books: 0,
+        calendars: 0,
+      });
+
       // If there's an error, we should just move to the success subview.
       await this.#initUI("emailAddedSuccessSubview");
       this.#currentSubview.setState(this.#currentConfig);
