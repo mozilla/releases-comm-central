@@ -7,6 +7,7 @@ loader: taskgraph.loader.transform:loader
 transforms:
     - gecko_taskgraph.transforms.release:run_on_releases
     - gecko_taskgraph.transforms.release_deps:transforms
+    - taskgraph.transforms.task_context
     - gecko_taskgraph.transforms.release_msix_push:transforms
     - gecko_taskgraph.transforms.task:transforms
 
@@ -19,6 +20,14 @@ task-defaults:
     run-on-projects: []  # to make sure this never runs as part of CI
     run-on-releases: [beta, release, esr140]
     shipping-phase: ship  # note override in transform
+    task-context:
+        from-parameters:
+            release-type: release_type
+        from-custom:
+            - release-level
+        substitution-fields:
+            - worker.channel
+            - worker-type
     treeherder:
         platform: win32-shippable/opt
         kind: build

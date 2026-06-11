@@ -11,6 +11,7 @@ kind-dependencies:
 transforms:
     - gecko_taskgraph.transforms.build:transforms
     - gecko_taskgraph.transforms.release_deps:transforms
+    - taskgraph.transforms.task_context
     - gecko_taskgraph.transforms.release_generate_checksums:transforms
     - gecko_taskgraph.transforms.job:transforms
     - gecko_taskgraph.transforms.task:transforms
@@ -19,6 +20,12 @@ task-defaults:
     run-on-repo-type: [hg]
     name: generate-checksums
     description: generates checksums
+    task-context:
+        from-custom:
+            - release-level
+        substitution-fields:
+            - run.config
+            - run.extra-config
     run-on-projects: []  # to make sure this never runs as part of CI
     shipping-phase: promote
     worker-type: b-linux

@@ -6,6 +6,7 @@ loader: taskgraph.loader.transform:loader
 
 transforms:
     - taskgraph.transforms.from_deps
+    - taskgraph.transforms.task_context
     - gecko_taskgraph.transforms.mark_as_merged:transforms
     - gecko_taskgraph.transforms.task:transforms
 
@@ -15,6 +16,11 @@ kind-dependencies:
 task-defaults:
     run-on-repo-type: [hg]
     description: mark merge automation as completed in shipit
+    task-context:
+        from-custom:
+            - release-level
+        substitution-fields:
+            - scopes
     worker-type: shipit
     from-deps:
         kinds:

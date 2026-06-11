@@ -18,8 +18,8 @@ task-defaults:
     run-on-repo-type: [hg]
     description: nightly bouncer locations job
     task-context:
-        from-custom:
-            - release-level
+        from-parameters:
+            project: project
         substitution-fields:
             - scopes
     attributes:
