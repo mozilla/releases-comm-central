@@ -220,7 +220,7 @@ nsIMdbCell* morkRow::AcquireCellHandle(morkEnv* ev, morkCell* ioCell,
 }
 
 mork_count morkRow::CountOverlap(morkEnv* ev, morkCell* ioVector,
-                                 mork_fill inFill)
+                                 mork_fill inFill, mork_count& outDups)
 // Count cells in ioVector that change existing cells in this row when
 // ioVector is added to the row (as in TakeCells()).   This is the set
 // of cells with the same columns in ioVector and mRow_Cells, which do
@@ -228,11 +228,14 @@ mork_count morkRow::CountOverlap(morkEnv* ev, morkCell* ioVector,
 // have change status equal to morkChange_kCut (because cutting a cut
 // cell still yields a cell that has been cut).  CountOverlap() also
 // modifies the change attribute of any cell in ioVector to kDup when
-// the change was previously kCut and the same column cell was found
-// in this row with change also equal to kCut; this tells callers later
-// they need not look for that cell in the row again on a second pass.
+// the cell changes nothing in the row (same column with the same atom,
+// or cutting an already cut cell); this tells callers later they need
+// not look for that cell in the row again on a second pass.  outDups
+// returns how many cells were marked kDup, so TakeCells() can exclude
+// them when growing the row.
 {
   mork_count outCount = 0;
+  outDups = 0;
   mork_pos pos = 0;  // needed by GetCell()
   morkCell* cells = ioVector;
   morkCell* end = cells + inFill;
@@ -249,8 +252,18 @@ mork_count morkRow::CountOverlap(morkEnv* ev, morkCell* ioVector,
       {
         if (cells->mCell_Atom != old->mCell_Atom)  // not same atom?
           ++outCount;  // cells will replace old significantly when added
-      } else
+        else {
+          /* Same column and same atom: the cell changes nothing, but
+           * without dup status MergeCells() would append it as a duplicate
+           * cell. Replayed transactions then grow the row without bound,
+           * and rows with many duplicate cells make parsing quadratic. */
+          cells->SetColumnAndChange(col, morkChange_kDup);
+          ++outDups;
+        }
+      } else {
         cells->SetColumnAndChange(col, morkChange_kDup);  // note dup status
+        ++outDups;
+      }
     }
   }
   return outCount;
@@ -302,9 +315,10 @@ void morkRow::TakeCells(morkEnv* ev, morkCell* ioVector, mork_fill inVecLength,
     ++mRow_Seed;  // intend to change structure of mRow_Cells
     mork_size length = (mork_size)mRow_Length;
 
-    mork_count overlap = this->CountOverlap(ev, ioVector, inVecLength);
+    mork_count dups = 0;  // cells that change nothing, skipped by MergeCells
+    mork_count overlap = this->CountOverlap(ev, ioVector, inVecLength, dups);
 
-    mork_size growth = inVecLength - overlap;  // cells to add
+    mork_size growth = inVecLength - overlap - dups;  // cells to add
     mork_size newLength = length + growth;
 
     if (growth && ev->Good())  // need to add any cells?
