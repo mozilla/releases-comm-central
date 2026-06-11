@@ -517,8 +517,12 @@ div:has(legend) {
     line-height: normal;
     border: 1px solid transparent;
 
-    &.recommended-protocol .info-badge {
-      display: flex;
+    & .badge:not(.experimental) {
+      display: none;
+    }
+
+    &.recommended-protocol .badge:not(.experimental) {
+      display: initial;
     }
 
     & .config-title {
@@ -584,14 +588,16 @@ div:has(legend) {
         padding-block: var(--hub-config-option-padding-block);
       }
 
-      & .info-badge {
-        background-color: light-dark(var(--color-primary-soft), transparent);
-        color: light-dark(var(--color-primary-default), currentColor);
-      }
-
       & input[type="radio"]:checked {
         border-width: 2px;
         border-color: var(--color-surface-base);
+      }
+
+      @media (prefers-color-scheme: light) {
+        & .badge:not(.experimental) {
+          background-color: var(--color-surface-base);
+          color: var(--color-primary-default);
+        }
       }
     }
   }
@@ -743,7 +749,7 @@ div:has(legend) {
         }
       }
 
-      & .info-badge {
+      & .info {
         font-size: 0.8rem;
         line-height: 1;
       }
@@ -1150,26 +1156,4 @@ button.account-hub-option-button {
 .confirmation-question {
   text-align: center;
   margin-block: 0;
-}
-
-.info-badge {
-  display: none;
-  text-transform: uppercase;
-  font-size: 0.9rem;
-  font-weight: 600;
-  padding: 2px;
-  border: 1px solid transparent;
-  border-radius: 3px;
-
-  &.addon {
-    display: flex;
-    background-color: var(--color-warning-soft);
-    color: var(--color-text-warning);
-  }
-
-  &.warning {
-    display: inline-block;
-    background-color: light-dark(var(--color-warning-default-light), var(--color-warning-soft-dark));
-    color: light-dark(var(--color-text-base-light), var(--color-text-warning-dark));
-  }
 }
