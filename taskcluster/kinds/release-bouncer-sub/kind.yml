@@ -5,6 +5,8 @@
 loader: taskgraph.loader.transform:loader
 
 transforms:
+    - gecko_taskgraph.transforms.release:run_on_releases
+    - taskgraph.transforms.task_context
     - comm_taskgraph.transforms.l10n:handle_keyed_by_local
     - gecko_taskgraph.transforms.bouncer_submission:transforms
     - gecko_taskgraph.transforms.task:transforms
@@ -12,6 +14,15 @@ transforms:
 task-defaults:
     run-on-repo-type: [hg]
     description: release bouncer submission job
+    task-context:
+        from-parameters:
+            release-type: release_type
+        from-custom:
+            - release-level
+        substitution-fields:
+            - worker-type
+            - scopes
+            - bouncer-products
     worker-type: bouncer
     worker:
         implementation: bouncer-submission

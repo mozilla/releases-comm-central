@@ -5,6 +5,7 @@
 loader: taskgraph.loader.transform:loader
 
 transforms:
+    - taskgraph.transforms.task_context
     - gecko_taskgraph.transforms.release_deps:transforms
     - gecko_taskgraph.transforms.bouncer_aliases:transforms
     - gecko_taskgraph.transforms.task:transforms
@@ -15,6 +16,15 @@ kind-dependencies:
 task-defaults:
     run-on-repo-type: [hg]
     description: Update bouncer aliases job
+    task-context:
+        from-parameters:
+            release-type: release_type
+        from-custom:
+            - release-level
+        substitution-fields:
+            - worker-type
+            - scopes
+            - bouncer-products-per-alias
     worker-type: bouncer
     worker:
         implementation: bouncer-aliases

@@ -6,6 +6,7 @@ loader: taskgraph.loader.transform:loader
 
 transforms:
     - gecko_taskgraph.transforms.release_deps:transforms
+    - taskgraph.transforms.task_context
     - gecko_taskgraph.transforms.release_mark_as_shipped:transforms
     - gecko_taskgraph.transforms.task:transforms
 
@@ -17,6 +18,12 @@ kind-dependencies:
 task-defaults:
     run-on-repo-type: [hg]
     description: mark release as shipped in Ship-It
+    task-context:
+        from-custom:
+            - release-level
+        substitution-fields:
+            - worker-type
+            - scopes
     worker-type: shipit
     worker:
         implementation: shipit-shipped

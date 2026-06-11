@@ -43,6 +43,7 @@ def register(graph_config):
     the process.
     """
     extend_sys_path(GECKO)
+    from gecko_taskgraph import task_context  # noqa - trigger custom task-context registration
     from gecko_taskgraph.util import dependencies  # noqa: F401 trigger group_by registration
 
     from comm_taskgraph.parameters import register_parameters

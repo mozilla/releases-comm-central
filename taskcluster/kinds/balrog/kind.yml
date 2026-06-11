@@ -7,6 +7,7 @@ loader: taskgraph.loader.transform:loader
 transforms:
     - taskgraph.transforms.from_deps
     - gecko_taskgraph.transforms.name_sanity
+    - taskgraph.transforms.task_context
     - gecko_taskgraph.transforms.balrog_submit
     - gecko_taskgraph.transforms.scriptworker:add_balrog_scopes
     - gecko_taskgraph.transforms.task
@@ -16,6 +17,15 @@ kind-dependencies:
 
 only-for-attributes:
     - shippable
+
+task-defaults:
+    run-on-repo-type: [hg]
+    task-context:
+        from-parameters:
+            project: project
+            release-type: release_type
+        substitution-fields:
+            - update-no-wnp
 
 tasks:
     balrog:
