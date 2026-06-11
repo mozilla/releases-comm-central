@@ -4,6 +4,7 @@
 
 #include "nsMsgProtocol.h"
 
+#include "mozilla/dom/ParentProcessChannelHandle.h"
 #include "msgCore.h"
 #include "nsString.h"
 #include "nsMemory.h"
@@ -651,6 +652,24 @@ NS_IMETHODIMP nsMsgProtocol::Resume() {
 
   NS_WARNING("no request to resume");
   return NS_ERROR_NOT_AVAILABLE;
+}
+
+NS_IMETHODIMP nsMsgProtocol::GetParentProcessChannelHandle(
+    mozilla::dom::ParentProcessChannelHandle** aValue) {
+  *aValue = do_AddRef(mParentProcessChannelHandle).take();
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgProtocol::SetParentProcessChannelHandle(
+    mozilla::dom::ParentProcessChannelHandle* aValue) {
+  if (XRE_IsParentProcess()) {
+    MOZ_ASSERT_UNREACHABLE(
+        "SetParentProcessChannelHandle in the parent process would leak");
+    return NS_ERROR_NOT_AVAILABLE;
+  }
+
+  mParentProcessChannelHandle = aValue;
+  return NS_OK;
 }
 
 nsresult nsMsgProtocol::DoGSSAPIStep1(const nsACString& service,

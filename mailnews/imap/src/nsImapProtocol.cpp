@@ -85,6 +85,8 @@
 #include "mozilla/SyncRunnable.h"
 #include "mozilla/intl/LocaleService.h"
 
+#include "mozilla/dom/ParentProcessChannelHandle.h"
+
 using namespace mozilla;
 
 LazyLogModule IMAP("IMAP");
@@ -9592,6 +9594,24 @@ nsresult nsImapMockChannel::ReadFromCache2(nsICacheEntry* entry) {
              static_cast<uint32_t>(rv)));
   }
   return rv;
+}
+
+NS_IMETHODIMP nsImapMockChannel::GetParentProcessChannelHandle(
+    mozilla::dom::ParentProcessChannelHandle** aValue) {
+  *aValue = do_AddRef(mParentProcessChannelHandle).take();
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsImapMockChannel::SetParentProcessChannelHandle(
+    mozilla::dom::ParentProcessChannelHandle* aValue) {
+  if (XRE_IsParentProcess()) {
+    MOZ_ASSERT_UNREACHABLE(
+        "SetParentProcessChannelHandle in the parent process would leak");
+    return NS_ERROR_NOT_AVAILABLE;
+  }
+
+  mParentProcessChannelHandle = aValue;
+  return NS_OK;
 }
 
 class nsReadFromImapConnectionFailure : public mozilla::Runnable {

@@ -5,6 +5,7 @@
 #ifndef COMM_MAILNEWS_BASE_SRC_NSMSGPROTOCOL_H_
 #define COMM_MAILNEWS_BASE_SRC_NSMSGPROTOCOL_H_
 
+#include "mozilla/dom/ParentProcessChannelHandle.h"
 #include "nsIStreamListener.h"
 #include "nsIInputStream.h"
 #include "nsIOutputStream.h"
@@ -141,6 +142,8 @@ class nsMsgProtocol : public nsIStreamListener,
   bool mSuppressListenerNotifications;
 
   uint32_t mContentDisposition;
+
+  RefPtr<mozilla::dom::ParentProcessChannelHandle> mParentProcessChannelHandle;
 };
 
 #endif  // COMM_MAILNEWS_BASE_SRC_NSMSGPROTOCOL_H_

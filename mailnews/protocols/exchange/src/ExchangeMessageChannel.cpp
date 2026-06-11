@@ -28,6 +28,7 @@
 #include "nsNetUtil.h"
 #include "OfflineStorage.h"
 #include "mozilla/Components.h"
+#include "mozilla/dom/ParentProcessChannelHandle.h"
 
 /**
  * nsIChannel/nsIRequest impl for ExchangeMessageChannel
@@ -402,6 +403,24 @@ NS_IMETHODIMP ExchangeMessageChannel::SetLoadInfo(nsILoadInfo* aLoadInfo) {
 
 NS_IMETHODIMP ExchangeMessageChannel::GetIsDocument(bool* aIsDocument) {
   return NS_GetIsDocumentChannel(this, aIsDocument);
+}
+
+NS_IMETHODIMP ExchangeMessageChannel::GetParentProcessChannelHandle(
+    mozilla::dom::ParentProcessChannelHandle** aValue) {
+  *aValue = do_AddRef(mParentProcessChannelHandle).take();
+  return NS_OK;
+}
+
+NS_IMETHODIMP ExchangeMessageChannel::SetParentProcessChannelHandle(
+    mozilla::dom::ParentProcessChannelHandle* aValue) {
+  if (XRE_IsParentProcess()) {
+    MOZ_ASSERT_UNREACHABLE(
+        "SetParentProcessChannelHandle in the parent process would leak");
+    return NS_ERROR_NOT_AVAILABLE;
+  }
+
+  mParentProcessChannelHandle = aValue;
+  return NS_OK;
 }
 
 nsresult ExchangeMessageChannel::StartMessageReadFromStore(

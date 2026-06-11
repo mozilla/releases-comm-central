@@ -5,6 +5,7 @@
 #ifndef COMM_MAILNEWS_IMAP_SRC_NSIMAPPROTOCOL_H_
 #define COMM_MAILNEWS_IMAP_SRC_NSIMAPPROTOCOL_H_
 
+#include "mozilla/dom/ParentProcessChannelHandle.h"
 #include "nsIImapProtocol.h"
 
 #include "ImapTypes.h"
@@ -805,6 +806,9 @@ class nsImapMockChannel : public nsIImapMockChannel,
   nsCOMPtr<nsIInterfaceRequestor> mCallbacks;
   nsCOMPtr<nsISupports> mOwner;
   nsCOMPtr<nsITransportSecurityInfo> mSecurityInfo;
+
+  RefPtr<mozilla::dom::ParentProcessChannelHandle> mParentProcessChannelHandle;
+
   nsCString mContentType;
   nsCString mCharset;
   nsWeakPtr mProtocol;

@@ -114,6 +114,7 @@ class ExchangeMessageChannel : public nsMailChannel,
   nsCOMPtr<nsILoadInfo> mLoadInfo;
   bool mPending;
   nsresult mStatus;
+  RefPtr<mozilla::dom::ParentProcessChannelHandle> mParentProcessChannelHandle;
 };
 
 #endif  // COMM_MAILNEWS_PROTOCOLS_EXCHANGE_SRC_EXCHANGEMESSAGECHANNEL_H_
