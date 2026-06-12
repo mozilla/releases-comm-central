@@ -445,8 +445,7 @@ nsresult nsMsgDBView::FetchAccount(nsIMsgDBHdr* aHdr, nsAString& aAccount) {
   return NS_OK;
 }
 
-nsresult nsMsgDBView::FetchServerKey(nsIMsgDBHdr* aHdr,
-                                      nsAString& aServerKey) {
+nsresult nsMsgDBView::FetchServerKey(nsIMsgDBHdr* aHdr, nsAString& aServerKey) {
   aServerKey.Truncate();
 
   nsCOMPtr<nsIMsgFolder> folder;
@@ -1804,8 +1803,7 @@ nsMsgDBView::CellTextForColumn(int32_t aRow, const nsAString& aColumnName,
         uint32_t flags;
         msgHdr->GetFlags(&flags);
         rv = FetchStatus(flags, aValue);
-      }
-      else if (aColumnName.EqualsLiteral("serverKeyCol"))
+      } else if (aColumnName.EqualsLiteral("serverKeyCol"))
         rv = FetchServerKey(msgHdr, aValue);
       break;
     case 'r':
