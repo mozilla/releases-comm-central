@@ -52,7 +52,7 @@ async function checkAuthMethods(select, protocol) {
   await new Promise(resolve => window.requestAnimationFrame(resolve));
 
   const popupPromise = BrowserTestUtils.waitForSelectPopupShown(window);
-  await EventUtils.synthesizeMouseAtCenter(select, {}, browser.contentWindow);
+  EventUtils.synthesizeMouseAtCenter(select, {}, browser.contentWindow);
   const popup = await popupPromise;
 
   for (const item of popup.querySelectorAll("menuitem")) {
@@ -129,7 +129,7 @@ add_task(async function test_switchBetweenIMAPAndEWSNoPref() {
   const protocolSelectorPromise =
     BrowserTestUtils.waitForSelectPopupShown(window);
 
-  await EventUtils.synthesizeMouseAtCenter(
+  EventUtils.synthesizeMouseAtCenter(
     protocolSelector,
     {},
     browser.contentWindow
@@ -192,7 +192,31 @@ add_task(async function test_switchBetweenIMAPAndEWSNoPref() {
 
   await checkAuthMethods(incomingAuthMethod, "ewsWithOauth");
 
-  info("Switch back to IMAP");
+  info("Select OAuth");
+  await SimpleTest.promiseFocus(browser.contentWindow);
+
+  const authSelectorMethodPromise =
+    BrowserTestUtils.waitForSelectPopupShown(window);
+  EventUtils.synthesizeMouseAtCenter(
+    incomingAuthMethod,
+    {},
+    browser.contentWindow
+  );
+
+  const authMethodSelectorPopup = await authSelectorMethodPromise;
+  const authMethodSelectorItems =
+    authMethodSelectorPopup.querySelectorAll("menuitem");
+
+  // #incomingAuthMethodOAuth2.
+  authMethodSelectorPopup.activateItem(authMethodSelectorItems[2]);
+  await BrowserTestUtils.waitForPopupEvent(authMethodSelectorPopup, "hidden");
+  Assert.equal(
+    incomingAuthMethod.value,
+    Ci.nsMsgAuthMethod.OAuth2,
+    "The auth method should be set as OAuth2"
+  );
+
+  info("Delete exchange URL");
 
   configUpdatedEventPromise = BrowserTestUtils.waitForEvent(
     subview,
@@ -213,10 +237,18 @@ add_task(async function test_switchBetweenIMAPAndEWSNoPref() {
     "config-updated"
   );
 
+  // Auth method should have auto updated to Normal Password.
+  Assert.equal(
+    incomingAuthMethod.value,
+    Ci.nsMsgAuthMethod.passwordCleartext,
+    "The auth method should be set as Normal Password"
+  );
+
+  info("Switch to IMAP");
   const protocolSelectorMethodPromise =
     BrowserTestUtils.waitForSelectPopupShown(window);
 
-  await EventUtils.synthesizeMouseAtCenter(
+  EventUtils.synthesizeMouseAtCenter(
     protocolSelector,
     {},
     browser.contentWindow
@@ -315,7 +347,7 @@ add_task(async function test_settingStateLeavesConfigIntact() {
   const protocolSelectorPromise =
     BrowserTestUtils.waitForSelectPopupShown(window);
 
-  await EventUtils.synthesizeMouseAtCenter(
+  EventUtils.synthesizeMouseAtCenter(
     protocolSelector,
     {},
     browser.contentWindow
@@ -368,7 +400,7 @@ add_task(async function test_graphIsEnabledByPref() {
   const protocolSelectorPromise =
     BrowserTestUtils.waitForSelectPopupShown(window);
 
-  await EventUtils.synthesizeMouseAtCenter(
+  EventUtils.synthesizeMouseAtCenter(
     protocolSelector,
     {},
     browser.contentWindow
@@ -417,7 +449,7 @@ add_task(async function test_switchBetweenIMAPAndGraph() {
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 100));
 
-  await EventUtils.synthesizeMouseAtCenter(
+  EventUtils.synthesizeMouseAtCenter(
     protocolSelector,
     {},
     browser.contentWindow
@@ -524,7 +556,7 @@ add_task(async function testEWSGraphProtocolOauthOption() {
   await SimpleTest.promiseFocus(browser.contentWindow);
   let protocolSelectorPromise =
     BrowserTestUtils.waitForSelectPopupShown(window);
-  await EventUtils.synthesizeMouseAtCenter(
+  EventUtils.synthesizeMouseAtCenter(
     protocolSelector,
     {},
     browser.contentWindow
@@ -534,7 +566,7 @@ add_task(async function testEWSGraphProtocolOauthOption() {
   let protocolSelectorItems =
     protocolSelectorPopup.querySelectorAll("menuitem");
 
-  // #incomingProtocolEWS
+  // #incomingProtocolEWS.
   protocolSelectorPopup.activateItem(protocolSelectorItems[2]);
 
   await BrowserTestUtils.waitForPopupEvent(protocolSelectorPopup, "hidden");
@@ -549,7 +581,7 @@ add_task(async function testEWSGraphProtocolOauthOption() {
     "config-updated"
   );
   protocolSelectorPromise = BrowserTestUtils.waitForSelectPopupShown(window);
-  await EventUtils.synthesizeMouseAtCenter(
+  EventUtils.synthesizeMouseAtCenter(
     protocolSelector,
     {},
     browser.contentWindow
@@ -557,12 +589,71 @@ add_task(async function testEWSGraphProtocolOauthOption() {
   protocolSelectorPopup = await protocolSelectorPromise;
   protocolSelectorItems = protocolSelectorPopup.querySelectorAll("menuitem");
 
-  // #incomingProtocolGraph
+  // #incomingProtocolGraph.
   protocolSelectorPopup.activateItem(protocolSelectorItems[3]);
 
   await BrowserTestUtils.waitForPopupEvent(protocolSelectorPopup, "hidden");
   await configUpdatedEventPromise;
   await checkAuthMethods(incomingAuthMethod, "ewsWithOauth");
+
+  info("Select OAuth");
+  await SimpleTest.promiseFocus(browser.contentWindow);
+  configUpdatedEventPromise = BrowserTestUtils.waitForEvent(
+    subview,
+    "config-updated"
+  );
+
+  const authSelectorMethodPromise =
+    BrowserTestUtils.waitForSelectPopupShown(window);
+  EventUtils.synthesizeMouseAtCenter(
+    incomingAuthMethod,
+    {},
+    browser.contentWindow
+  );
+
+  const authMethodSelectorPopup = await authSelectorMethodPromise;
+  const authMethodSelectorItems =
+    authMethodSelectorPopup.querySelectorAll("menuitem");
+
+  // #incomingAuthMethodOAuth2.
+  authMethodSelectorPopup.activateItem(authMethodSelectorItems[2]);
+  await BrowserTestUtils.waitForPopupEvent(authMethodSelectorPopup, "hidden");
+  await configUpdatedEventPromise;
+  Assert.equal(
+    incomingAuthMethod.value,
+    Ci.nsMsgAuthMethod.OAuth2,
+    "The auth method should be set as OAuth2"
+  );
+
+  info("Switch to IMAP");
+
+  // The selected OAuth option should change to Normal Password when switching
+  // to IMAP.
+  await SimpleTest.promiseFocus(browser.contentWindow);
+  configUpdatedEventPromise = BrowserTestUtils.waitForEvent(
+    subview,
+    "config-updated"
+  );
+  protocolSelectorPromise = BrowserTestUtils.waitForSelectPopupShown(window);
+  EventUtils.synthesizeMouseAtCenter(
+    protocolSelector,
+    {},
+    browser.contentWindow
+  );
+  protocolSelectorPopup = await protocolSelectorPromise;
+  protocolSelectorItems = protocolSelectorPopup.querySelectorAll("menuitem");
+
+  // #incomingProtocolIMAP.
+  protocolSelectorPopup.activateItem(protocolSelectorItems[0]);
+
+  await BrowserTestUtils.waitForPopupEvent(protocolSelectorPopup, "hidden");
+  await configUpdatedEventPromise;
+  await checkAuthMethods(incomingAuthMethod, "imap");
+  Assert.equal(
+    incomingAuthMethod.value,
+    Ci.nsMsgAuthMethod.passwordCleartext,
+    "The auth method should be set as Normal Password"
+  );
 
   await SpecialPowers.popPrefEnv();
   subview.resetState();

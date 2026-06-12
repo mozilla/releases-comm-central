@@ -40,6 +40,8 @@ support-files = ["files/**"]
 
 ["browser_accountHubEmailManualIncomingForm.js"]
 
+["browser_accountHubEmailManualOutgoingForm.js"]
+
 ["browser_accountHubEmailPasswordForm.js"]
 
 ["browser_accountHubFooter.js"]

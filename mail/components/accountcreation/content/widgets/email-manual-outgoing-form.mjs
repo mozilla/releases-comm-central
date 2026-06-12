@@ -196,13 +196,36 @@ class EmailOutgoingForm extends AccountHubStep {
   #adjustOAuth2Visibility(accountConfig) {
     // Get current config.
     const config = accountConfig || this.getConfig();
+    let outgoingDetails = "";
 
-    // If the smtp hostname supports OAuth2, enable it.
-    const outgoingDetails = OAuth2Providers.getHostnameDetails(
-      config.outgoing.hostname,
-      config.outgoing.type ? config.outgoing.type : "smtp"
-    );
+    // If the smtp hostname supports OAuth2, enable it. We have to parse the
+    // fresh value because if it isn't valid, the config will produce a stale
+    // hostname.
+    try {
+      const host = InputSanitizer.hostname(this.#outgoingHostname.value);
+      outgoingDetails =
+        host &&
+        OAuth2Providers.getHostnameDetails(
+          host,
+          config.outgoing.type ? config.outgoing.type : "smtp"
+        );
+    } catch {
+      outgoingDetails = "";
+    }
+
     this.querySelector("#outgoingAuthMethodOAuth2").hidden = !outgoingDetails;
+
+    // Reset the auth method as Normal Password if OAuth is selected
+    // and isn't supported.
+    if (
+      !outgoingDetails &&
+      this.querySelector("#outgoingAuthMethod").value ==
+        Ci.nsMsgAuthMethod.OAuth2
+    ) {
+      this.querySelector("#outgoingAuthMethod").value =
+        Ci.nsMsgAuthMethod.passwordCleartext;
+    }
+
     if (outgoingDetails) {
       gAccountSetupLogger.debug(
         `OAuth2 details for outgoing server ${config.outgoing.hostname} is ${outgoingDetails}`

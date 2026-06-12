@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <head>
+    <meta charset="utf-8" />
+    <title>Account Hub Email Manual Outgoing Form Test</title>
+    <link rel="stylesheet" href="chrome://messenger/skin/icons.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/spacings.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/accountHub.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/accountHubForms.css" />
+    <link rel="localization" href="messenger/accountcreation/accountHub.ftl" />
+    <script type="module" src="chrome://messenger/content/accountcreation/content/widgets/email-manual-outgoing-form.mjs"></script>
+  </head>
+  <body>
+    <template id="accountHubHeaderTemplate">
+      <header id="accountHubHeader" class="hub-header">
+        <div id="brandingHeader" class="branding-header" hidden="hidden">
+          <img src="chrome://branding/content/logo-gradient.svg" alt="" />
+          <h1 class="account-hub-title">
+            <span class="branding-header-name" aria-hidden="hidden"></span>
+            <span class="branding-header-title" aria-hidden="hidden"></span>
+            <span class="account-hub-welcome-text screen-reader-only" data-l10n-id="account-hub-welcome-text"></span>
+          </h1>
+          <div id="headerButtonsContainer">
+            <button id="minimizeButton"
+                    class="button button-flat button-round icon-button icon-only modal-close-button"
+                    data-l10n-id="account-hub-minimize-button"
+                    type="button">
+              <img class="icon-minimize" src="" alt="" />
+            </button>
+            <button id="closeButton"
+                    class="button button-flat button-round icon-button icon-only modal-close-button"
+                    data-l10n-id="account-hub-close-button"
+                    type="button">
+              <img class="icon-close-lg" src="" alt="" />
+            </button>
+          </div>
+        </div>
+        <slot name="middle-content"></slot>
+        <!-- Title Text for Email Setup -->
+        <h1 id="accountHubHeaderTitle"
+            class="sub-view-title">
+            <slot name="title"></slot>
+        </h1>
+        <h2 id="accountHubHeaderSubheader"
+            class="sub-view-sub-header"
+            hidden="hidden">
+            <slot name="subheader"></slot>
+        </h2>
+        <details id="emailFormNotification" class="notification-bar">
+          <summary id="emailFormNotificationSummary"
+                   class="notification-title-container"
+                   role="alert">
+            <img class="form-icon icon-warning"
+                 src=""
+                 alt=""/>
+            <img class="form-icon icon-success"
+                 src=""
+                 alt="" />
+            <img class="form-icon icon-info"
+                 src=""
+                 alt="" />
+            <img class="form-icon icon-danger"
+                 src=""
+                 alt="" />
+            <p id="emailFormNotificationTitle" class="notification-title">
+              <span class="localized-title"></span>
+              <span class="raw-title"></span>
+            </p>
+            <div id="emailFormNotificationToggle">
+              <span data-l10n-id="account-hub-notification-show-more"></span>
+              <span data-l10n-id="account-hub-notification-show-less"></span>
+            </div>
+          </summary>
+          <p id="emailFormNotificationText" class="notification-text">
+            <span class="localized-description"></span>
+            <span class="raw-description"></span>
+          </p>
+        </details>
+      </header>
+    </template>
+    <template id="accountHubStepTemplate">
+      <account-hub-header>
+        <span id="title" slot="title">
+        </span>
+        <span id="subheader" slot="subheader">
+        </span>
+      </account-hub-header>
+      <div class="account-hub-grid">
+        <slot name="content"></slot>
+      </div>
+    </template>
+    <template id="accountHubSelectTemplate">
+      <label>
+      </label>
+      <div class="input-control">
+        <select
+                class="menulist"
+                value="1"
+                flex="1">
+        </select>
+
+        <p id="securityWarning" class="input-error-message">
+          <span data-l10n-name="error-text"></span>
+          <a class="more-info-link" data-l10n-name="error-link"></a>
+        </p>
+        <slot hidden="hidden"></slot>
+      </div>
+    </template>
+    <template id="accountHubOutgoingEmailFormTemplate">
+      <form id="outgoingEmailForm" class="account-hub-form" slot="content">
+        <div class="hub-body manual-form-body">
+          <div class="form-row">
+            <div>
+              <span data-l10n-id="account-hub-protocol-label"></span>
+              <div class="selected-option">
+                SMTP
+              </div>
+            </div>
+            <div class="expanded">
+              <label for="outgoingHostname"
+                    data-l10n-id="account-hub-result-hostname-label"
+                    class="option-label">
+              </label>
+              <div class="input-control">
+                <input id="outgoingHostname"
+                      type="text"
+                      placeholder="mail.example.com"
+                      required="required"
+                      class="input-field manual-input"
+                      aria-invalid="false" />
+                <img src=""
+                    alt=""
+                    class="form-icon icon-danger input-warning" />
+                <img src=""
+                    alt=""
+                    class="form-icon icon-success input-success" />
+                <span id="outgoingHostnameErrorMessage"
+                      class="input-error-message"
+                      data-l10n-id="account-hub-hostname-error-text">
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div>
+              <label for="outgoingPort"
+                    data-l10n-id="account-hub-on-port-label"
+                    class="option-label">
+              </label>
+              <div class="input-control">
+                <input id="outgoingPort"
+                      min="1"
+                      max="65535"
+                      type="number"
+                      placeholder="465"
+                      required="required"
+                      class="input-field number-input"
+                      aria-invalid="false" />
+                <img src=""
+                    alt=""
+                    class="form-icon icon-danger input-warning" />
+                <img src=""
+                    alt=""
+                    class="form-icon icon-success input-success" />
+                <span id="outgoingPortErrorMessage"
+                      class="input-error-message"
+                      data-l10n-id="account-hub-port-error-text">
+                </span>
+              </div>
+            </div>
+            <div class="expanded">
+              <account-hub-select id="outgoingConnectionSecurity"
+                  l10n-label-id="account-hub-ssl-label"
+                  l10n-error-id="account-hub-select-security-warning"
+                  flex="1">
+                <option id="outgoingConnectionSecurityAutodetect"
+                        data-l10n-id="account-hub-ssl-autodetect-option"
+                        value="-1"></option>
+                <option id="outgoingConnectionSecurityNoEncryption"
+                        data-l10n-id="account-hub-ssl-noencryption-option"
+                        selected="selected"
+                        value="0"></option>
+                <option id="outgoingConnectionSecurityStartTtls"
+                        label="STARTTLS"
+                        value="2"></option>
+                <option id="outgoingConnectionSecuritySslTls"
+                        label="SSL/TLS"
+                        value="3"></option>
+              </account-hub-select>
+            </div>
+          </div>
+          <div class="form-row responsive-row">
+            <account-hub-select id="outgoingAuthMethod"
+                    l10n-label-id="account-hub-auth-label"
+                    flex="1">
+                <option id="outgoingAuthMethodAutodetect"
+                        data-l10n-id="account-hub-ssl-autodetect-option"
+                        selected="selected"
+                        value="0">
+                </option>
+                <option id="outgoingAuthMethodNone"
+                        data-l10n-id="account-hub-auth-no-authentication-option"
+                        value="1">
+                </option>
+                <option id="outgoingAuthMethodCleartext"
+                        data-l10n-id="account-hub-ssl-cleartext-password-option"
+                        value="3">
+                </option>
+                <option id="outgoingAuthMethodEncrypted"
+                        data-l10n-id="account-hub-ssl-encrypted-password-option"
+                        value="4">
+                </option>
+                <option id="outgoingAuthMethodKerbos"
+                        label="Kerberos / GSSAPI"
+                        value="5">
+                </option>
+                <option id="outgoingAuthMethodNtlm"
+                        label="NTLM"
+                        value="6">
+                </option>
+                <option id="outgoingAuthMethodOAuth2"
+                        value="10"
+                        hidden="hidden"
+                        label="OAuth2">
+                </option>
+            </account-hub-select>
+            <div class="expanded">
+              <label for="outgoingUsername"
+                    data-l10n-id="account-hub-result-username-label"
+                    class="option-label">
+              </label>
+              <div class="input-control">
+                <input id="outgoingUsername"
+                      type="text"
+                      data-l10n-id="account-hub-email-input"
+                      required="required"
+                      class="username input-field manual-input"
+                      aria-invalid="false" />
+                <img src=""
+                    alt=""
+                    class="form-icon icon-danger input-warning" />
+                <img src=""
+                    alt=""
+                    class="form-icon icon-success input-success" />
+                <span id="outgoingUsernameErrorMessage"
+                      class="input-error-message"
+                      data-l10n-id="account-hub-username-error-text">
+                </span>
+              </div>
+            </div>
+          </div>
+          <button id="advancedConfigurationOutgoing"
+                  type="button"
+                  class="button link-button link-button-sm align-self-end"
+                  data-l10n-id="account-hub-advanced-setup-button">
+          </button>
+        </div>
+        <button type="submit" hidden="hidden"></button>
+      </form>
+    </template>
+    <email-manual-outgoing-form></email-manual-outgoing-form>
+  </body>
+</html>

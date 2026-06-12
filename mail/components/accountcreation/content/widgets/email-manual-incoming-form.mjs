@@ -154,11 +154,6 @@ class EmailIncomingForm extends AccountHubStep {
     });
 
     this.#incomingExchangeUrl.addEventListener("input", () => {
-      // Skip validation while there isn't a URL with a full host in the field
-      // to avoid inserting a slash into the host through the validation.
-      if (/^[^/]+\/\/[^/]+$/.test(this.#incomingExchangeUrl.value)) {
-        return;
-      }
       this.#configChanged();
       this.#adjustOAuth2Visibility();
     });
@@ -259,6 +254,7 @@ class EmailIncomingForm extends AccountHubStep {
   #adjustOAuth2Visibility(accountConfig) {
     // Get current config.
     const config = accountConfig || this.getIncomingUserConfig();
+    let incomingDetails = "";
 
     // If it's an exchange account and the experimental pref to allow
     // OAuth customization is enabled, always allow OAuth since they
@@ -270,11 +266,22 @@ class EmailIncomingForm extends AccountHubStep {
     if (oauthCustomizationEnabled && config.isExchangeConfig()) {
       this.querySelector("#incomingAuthMethodOAuth2").hidden = false;
     } else {
-      const host = config.getConfiguredHost();
+      // We get the input value here instead of using the config, because the
+      // config isn't updated until the value is valid, which leads to stale
+      // data.
+      try {
+        const host = config.isExchangeConfig()
+          ? URL.parse(InputSanitizer.url(this.#incomingExchangeUrl.value))
+              ?.hostname
+          : InputSanitizer.hostname(this.#incomingHostname.value);
 
-      // If the incoming server hostname supports OAuth2, enable it.
-      const incomingDetails =
-        host && OAuth2Providers.getHostnameDetails(host, config.incoming.type);
+        // If the incoming server hostname supports OAuth2, enable it.
+        incomingDetails =
+          host &&
+          OAuth2Providers.getHostnameDetails(host, config.incoming.type);
+      } catch (error) {
+        incomingDetails = "";
+      }
 
       this.querySelector("#incomingAuthMethodOAuth2").hidden = !incomingDetails;
       if (incomingDetails) {
@@ -282,6 +289,22 @@ class EmailIncomingForm extends AccountHubStep {
           `OAuth2 details for incoming server ${config.incoming.hostname} is ${incomingDetails}`
         );
       }
+    }
+
+    // If OAuth isn't an option, we reset the Authentication option to default,
+    // "Normal Password".
+    if (
+      !(
+        (oauthCustomizationEnabled && config.isExchangeConfig()) ||
+        incomingDetails
+      ) &&
+      this.#incomingAuthenticationMethod.value == Ci.nsMsgAuthMethod.OAuth2
+    ) {
+      this.#incomingAuthenticationMethod.value =
+        Ci.nsMsgAuthMethod.passwordCleartext;
+      config.incoming.auth = InputSanitizer.integer(
+        this.#incomingAuthenticationMethod.value
+      );
     }
 
     this.#currentConfig = config;
@@ -531,6 +554,15 @@ class EmailIncomingForm extends AccountHubStep {
    * @returns {AccountConfig}
    */
   #getExchangeConfigValues(config) {
+    // Skip validation while there isn't a URL with a full host in the field
+    // to avoid inserting a slash into the host through the validation.
+    // Reset the exchange host in case there was a URL with a full host
+    // previously and the url was edited.
+    if (/^[^/]+\/\/[^/]+$/.test(this.#incomingExchangeUrl.value)) {
+      config.incoming.hostname = "";
+      return config;
+    }
+
     try {
       const inExchangeUrl = this.#incomingExchangeUrl.value;
       config.incoming.exchangeURL = InputSanitizer.url(inExchangeUrl);
@@ -546,6 +578,7 @@ class EmailIncomingForm extends AccountHubStep {
       }
     } catch (error) {
       gAccountSetupLogger.warn(error);
+      config.incoming.hostname = "";
       this.#incomingExchangeUrl.setCustomValidity(error._message);
       this.#incomingExchangeUrl.setAttribute("aria-invalid", true);
       this.#incomingExchangeUrl.setAttribute(
