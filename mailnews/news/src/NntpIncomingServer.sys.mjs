@@ -358,7 +358,7 @@ export class NntpIncomingServer extends MsgIncomingServer {
         suffix = ".rc";
       }
       this._newsrcFilePath = this.newsrcRootPath;
-      this._newsrcFilePath.append(`${prefix}${this.hostName}${suffix}`);
+      this._newsrcFilePath.append(`${prefix}${this.hostname}${suffix}`);
       this._newsrcFilePath.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
       this.newsrcFilePath = this._newsrcFilePath;
     }
@@ -536,7 +536,7 @@ export class NntpIncomingServer extends MsgIncomingServer {
       "# This is a generated file!  Do not edit.",
       "",
       "version=2",
-      `newsrcname=${this.hostName}`,
+      `newsrcname=${this.hostname}`,
       `lastgroupdate=${Math.floor(Date.now() / 1000)}`,
       "uniqueid=0",
       "",

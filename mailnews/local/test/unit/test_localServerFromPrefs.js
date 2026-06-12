@@ -33,7 +33,7 @@ add_task(async function () {
 
   const localServer = MailServices.accounts.localFoldersServer;
   Assert.equal(localServer.key, "server1");
-  Assert.equal(localServer.hostName, "Local Folders");
+  Assert.equal(localServer.hostname, "Local Folders");
   Assert.equal(localServer.type, "none");
   Assert.equal(localServer.username, "nobody");
 

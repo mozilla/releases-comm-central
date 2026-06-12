@@ -298,7 +298,7 @@ export class SmtpServer {
           );
           for (const server of MailServices.accounts.allServers) {
             if (server.username == this.username) {
-              const serverHostName = server.hostName;
+              const serverHostName = server.hostname;
               if (
                 serverHostName.includes(".") &&
                 serverHostName.slice(0, serverHostName.indexOf(".")) ==

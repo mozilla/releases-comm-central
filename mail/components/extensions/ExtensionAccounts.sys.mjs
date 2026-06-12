@@ -35,7 +35,7 @@ export class AccountManager {
   getType(server) {
     // Skip the "smart" account, which holds the unified mailbox folders and the
     // virtual tag folders.
-    if (server.hostName == "smart mailboxes") {
+    if (server.hostname == "smart mailboxes") {
       return null;
     }
 
@@ -396,7 +396,7 @@ export function getSpecialUse(flags) {
 function isUnifiedMailboxFolder(folder) {
   return (
     folder &&
-    folder.server.hostName == "smart mailboxes" &&
+    folder.server.hostname == "smart mailboxes" &&
     folder.parent?.isServer &&
     SmartMailboxUtils.getFolderTypes().some(({ flag }) => flag & folder.flags)
   );
@@ -411,7 +411,7 @@ function isUnifiedMailboxFolder(folder) {
 function isVirtualTagFolder(folder) {
   return (
     folder &&
-    folder.server.hostName == "smart mailboxes" &&
+    folder.server.hostname == "smart mailboxes" &&
     folder.parent?.name == "tags" &&
     !!(folder.flags & Ci.nsMsgFolderFlags.Virtual)
   );
@@ -459,7 +459,7 @@ export class FolderManager {
    * @returns {boolean}
    */
   static canBeDeleted(folder) {
-    return folder.deletable && folder.server.hostName != "smart mailboxes";
+    return folder.deletable && folder.server.hostname != "smart mailboxes";
   }
 
   /**
@@ -469,7 +469,7 @@ export class FolderManager {
    * @returns {boolean}
    */
   static canBeRenamed(folder) {
-    return folder.canRename && folder.server.hostName != "smart mailboxes";
+    return folder.canRename && folder.server.hostname != "smart mailboxes";
   }
 
   /**

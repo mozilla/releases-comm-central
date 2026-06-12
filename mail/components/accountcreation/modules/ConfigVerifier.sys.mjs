@@ -383,7 +383,7 @@ export class ConfigVerifier {
    * Verify that the provided credentials can log in to the incoming server.
    */
   verifyLogon() {
-    this._log.info("verifyLogon for server at " + this.server.hostName);
+    this._log.info("verifyLogon for server at " + this.server.hostname);
 
     this.server.password = this.config.incoming.password;
     const uri = this.server.verifyLogon(this, this.msgWindow);

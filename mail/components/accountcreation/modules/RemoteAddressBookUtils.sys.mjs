@@ -115,7 +115,7 @@ export const RemoteAddressBookUtils = {
         if (account.incomingServer.authMethod === Ci.nsMsgAuthMethod.OAuth2) {
           if (
             !lazy.OAuth2Providers.getHostnameDetails(
-              account.incomingServer.hostName,
+              account.incomingServer.hostname,
               "carddav"
             )
           ) {

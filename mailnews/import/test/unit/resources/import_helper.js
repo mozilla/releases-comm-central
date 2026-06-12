@@ -163,7 +163,7 @@ SettingsImportHelper.prototype = {
     Assert.equal(expected.port, actual.port);
     Assert.equal(expected.username, actual.username);
     Assert.equal(expected.isSecure, actual.isSecure);
-    Assert.equal(expected.hostName, actual.hostName);
+    Assert.equal(expected.hostname, actual.hostname);
     Assert.equal(expected.prettyName, actual.prettyName);
     Assert.equal(expected.authMethod, actual.authMethod);
     Assert.equal(expected.socketType, actual.socketType);
@@ -197,7 +197,7 @@ SettingsImportHelper.prototype = {
     return (
       account.incomingServer.type == "none" &&
       account.incomingServer.username == "nobody" &&
-      account.incomingServer.hostName == "Local Folders"
+      account.incomingServer.hostname == "Local Folders"
     );
   },
 
@@ -207,8 +207,8 @@ SettingsImportHelper.prototype = {
         expectedAccount.incomingServer.type == account.incomingServer.type &&
         expectedAccount.incomingServer.username ==
           account.incomingServer.username &&
-        expectedAccount.incomingServer.hostName ==
-          account.incomingServer.hostName
+        expectedAccount.incomingServer.hostname ==
+          account.incomingServer.hostname
       );
     });
   },

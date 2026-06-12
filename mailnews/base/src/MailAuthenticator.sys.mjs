@@ -326,7 +326,7 @@ class IncomingServerAuthenticator extends MailAuthenticator {
   }
 
   get hostname() {
-    return this._server.hostName;
+    return this._server.hostname;
   }
 
   get username() {
@@ -414,14 +414,14 @@ export class Pop3Authenticator extends IncomingServerAuthenticator {
     const composeBundle = Services.strings.createBundle(
       "chrome://messenger/locale/localMsgs.properties"
     );
-    const params = [this._server.username, this._server.hostName];
+    const params = [this._server.username, this._server.hostname];
     const promptString = composeBundle.formatStringFromName(
       "pop3EnterPasswordPrompt",
       params
     );
     const promptTitle = composeBundle.formatStringFromName(
       "pop3EnterPasswordPromptTitleWithUsername",
-      [this._server.hostName]
+      [this._server.hostname]
     );
     return this._server.wrappedJSObject.getPasswordWithUIAsync(
       promptString,
@@ -443,14 +443,14 @@ export class ImapAuthenticator extends IncomingServerAuthenticator {
     const composeBundle = Services.strings.createBundle(
       "chrome://messenger/locale/imapMsgs.properties"
     );
-    const params = [this._server.username, this._server.hostName];
+    const params = [this._server.username, this._server.hostname];
     const promptString = composeBundle.formatStringFromName(
       "imapEnterServerPasswordPrompt",
       params
     );
     const promptTitle = composeBundle.formatStringFromName(
       "imapEnterPasswordPromptTitleWithUsername",
-      [this._server.hostName]
+      [this._server.hostname]
     );
     return this._server.wrappedJSObject.getPasswordWithUIAsync(
       promptString,

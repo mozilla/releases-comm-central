@@ -35,7 +35,7 @@ X) and "serverY" is the server's key.
 - `prettyName` - User-visible name.
 - `key` - Unique identifier.
 - `type` - "imap", "ews", "none", etc.
-- `hostName`/`port`/`username` - Connection information.
+- `hostname`/`port`/`username` - Connection information.
 - `localPath` - Where mail is stored on the file system.
 - `rootFolder` - The root of the folder tree for this account.
 

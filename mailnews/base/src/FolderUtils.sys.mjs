@@ -305,7 +305,7 @@ function getFolderIcon(folder) {
 function isSmartVirtualFolder(folder) {
   return (
     folder.isSpecialFolder(Ci.nsMsgFolderFlags.Virtual) &&
-    folder.server.hostName == "smart mailboxes" &&
+    folder.server.hostname == "smart mailboxes" &&
     folder.parent?.isServer
   );
 }
@@ -319,7 +319,7 @@ function isSmartVirtualFolder(folder) {
 function isSmartTagsFolder(folder) {
   return (
     folder.isSpecialFolder(Ci.nsMsgFolderFlags.Virtual) &&
-    folder.server.hostName == "smart mailboxes" &&
+    folder.server.hostname == "smart mailboxes" &&
     folder.parent?.name == "tags"
   );
 }

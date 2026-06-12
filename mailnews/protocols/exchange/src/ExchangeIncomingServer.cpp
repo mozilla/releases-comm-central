@@ -895,7 +895,7 @@ nsresult GetDetailsForHostname(ExchangeIncomingServer* server,
   NS_ENSURE_ARG_POINTER(details);
 
   nsAutoCString hostname;
-  nsresult rv = server->GetHostName(hostname);
+  nsresult rv = server->GetHostname(hostname);
   NS_ENSURE_SUCCESS(rv, rv);
 
   RefPtr<ExchangeOAuth2CustomDetails> result;

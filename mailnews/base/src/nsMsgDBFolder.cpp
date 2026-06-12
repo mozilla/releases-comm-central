@@ -4231,12 +4231,12 @@ NS_IMETHODIMP nsMsgDBFolder::GetUsername(nsACString& userName) {
   return server->GetUsername(userName);
 }
 
-NS_IMETHODIMP nsMsgDBFolder::GetHostname(nsACString& hostName) {
+NS_IMETHODIMP nsMsgDBFolder::GetHostname(nsACString& hostname) {
   nsresult rv;
   nsCOMPtr<nsIMsgIncomingServer> server;
   rv = GetServer(getter_AddRefs(server));
   NS_ENSURE_SUCCESS(rv, rv);
-  return server->GetHostName(hostName);
+  return server->GetHostname(hostname);
 }
 
 NS_IMETHODIMP nsMsgDBFolder::GetNewMessages(nsIMsgWindow*,

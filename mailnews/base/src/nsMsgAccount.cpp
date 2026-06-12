@@ -87,7 +87,7 @@ nsresult nsMsgAccount::createIncomingServer() {
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCString hostname;
-  rv = server->GetHostName(hostname);
+  rv = server->GetHostname(hostname);
   NS_ENSURE_SUCCESS(rv, rv);
   if (hostname.IsEmpty()) {
     NS_WARNING(

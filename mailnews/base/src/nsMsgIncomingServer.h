@@ -75,7 +75,7 @@ class nsMsgIncomingServer : public nsIMsgIncomingServer,
 
   virtual nsresult CreateRootFolder();
 
-  nsresult InternalSetHostName(const nsACString& aHostname,
+  nsresult InternalSetHostname(const nsACString& aHostname,
                                const char* prefName);
 
   nsCOMPtr<nsIFile> mFilterFile;

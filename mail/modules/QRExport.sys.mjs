@@ -198,7 +198,7 @@ export const QRExport = {
     return [
       [
         INCOMING_PROTOCOL.get(incomingServer.type),
-        incomingServer.hostName,
+        incomingServer.hostname,
         incomingServer.port,
         SOCKET_TYPES.get(incomingServer.socketType),
         AUTH_METHODS.get(incomingServer.authMethod),

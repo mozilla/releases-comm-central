@@ -71,7 +71,7 @@ export class Pop3Client {
     // need is just a valid nsIMsgMailNewsUrl to propagate OnStopRunningUrl and
     // secInfo.
     this.runningUri = Services.io
-      .newURI(`smtp://${this._server.hostName}:${this._server.port}`)
+      .newURI(`smtp://${this._server.hostname}:${this._server.port}`)
       .mutate()
       .setScheme("pop3")
       .finalize()
@@ -136,7 +136,7 @@ export class Pop3Client {
    * Initiate a connection to the server
    */
   connect() {
-    const hostname = this._server.hostName.toLowerCase();
+    const hostname = this._server.hostname.toLowerCase();
     this._logger.debug(`Connecting to pop://${hostname}:${this._server.port}`);
     this.runningUri
       .QueryInterface(Ci.nsIMsgMailNewsUrl)
@@ -406,7 +406,7 @@ export class Pop3Client {
     if (errorName) {
       const errorMessage = lazy.messengerStrings.formatStringFromName(
         errorName,
-        [this._server.hostName]
+        [this._server.hostname]
       );
 
       // If there's a message window on the URI, then we should alert the user.
@@ -536,7 +536,7 @@ export class Pop3Client {
       "# POP3 State File",
       "# This is a generated file!  Do not edit.",
       "",
-      `*${this._server.hostName} ${this._server.username}`,
+      `*${this._server.hostname} ${this._server.username}`,
     ];
     for (const msg of this._messagesToHandle) {
       // _messagesToHandle is not empty means an error happened, put them back
@@ -917,7 +917,7 @@ export class Pop3Client {
       );
       const errorMessage = lazy.messengerStrings.formatStringFromName(
         "oAuth2Error",
-        [this._server.hostName]
+        [this._server.hostname]
       );
 
       // If there's a message window on the URI, then we should alert the user.
@@ -1412,7 +1412,7 @@ export class Pop3Client {
     // some reason. Treat this as a temporary error and no messages will be
     // fetched this time.
     if (this._capabilities.includes("UIDL")) {
-      this._actionError("pop3TempServerError", [this._server.hostName]);
+      this._actionError("pop3TempServerError", [this._server.hostname]);
       return;
     }
     // UIDL has failed because the capability is lacking. Inform the user to
@@ -1426,7 +1426,7 @@ export class Pop3Client {
       this._singleUidlToDownload
     ) {
       this._actionError("pop3ServerDoesNotSupportUidlEtc", [
-        this._server.hostName,
+        this._server.hostname,
       ]);
       return;
     }
@@ -1738,7 +1738,7 @@ export class Pop3Client {
     if (serverErrorMsg) {
       const serverSaidPrefix = lazy.localStrings.formatStringFromName(
         "pop3ServerSaid",
-        [this._server.hostName]
+        [this._server.hostname]
       );
       errorMsg += ` ${serverSaidPrefix} ${serverErrorMsg}`;
     }

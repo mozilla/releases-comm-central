@@ -56,10 +56,10 @@ class nsImapNamespaceList {
   nsImapNamespace* GetDefaultNamespaceOfType(EIMAPNamespaceType type);
   int AddNewNamespace(nsImapNamespace* ns);
   nsImapNamespace* GetNamespaceForMailbox(const char* boxname);
-  static nsImapNamespace* GetNamespaceForFolder(const char* hostName,
+  static nsImapNamespace* GetNamespaceForFolder(const char* hostname,
                                                 const char* canonicalFolderName,
                                                 char delimiter);
-  static bool GetFolderIsNamespace(const char* hostName,
+  static bool GetFolderIsNamespace(const char* hostname,
                                    const char* canonicalFolderName,
                                    char delimiter,
                                    nsImapNamespace* namespaceForFolder);
@@ -68,7 +68,7 @@ class nsImapNamespaceList {
   static void SuggestHierarchySeparatorForNamespace(
       nsImapNamespace* namespaceForFolder, char delimiterFromFolder);
   static nsCString GenerateFullFolderNameWithDefaultNamespace(
-      const char* hostName, const char* canonicalFolderName, const char* owner,
+      const char* hostname, const char* canonicalFolderName, const char* owner,
       EIMAPNamespaceType nsType, nsImapNamespace** nsUsed);
 
  protected:

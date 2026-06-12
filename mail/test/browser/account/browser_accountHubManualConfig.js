@@ -865,7 +865,7 @@ add_task(async function test_account_invalid_email_advanced_setup_incoming() {
       expected: "badtest@example.localhost",
     },
     "incoming server hostname": {
-      actual: incoming.hostName,
+      actual: incoming.hostname,
       expected: ".example.localhost",
     },
     "outgoing server hostname": {

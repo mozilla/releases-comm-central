@@ -282,13 +282,13 @@ async function subsubtest(
         if (server.port == 443) {
           Assert.equal(
             location,
-            server.hostName,
+            server.hostname,
             "the exception dialog should show the hostname of the server"
           );
         } else {
           Assert.equal(
             location,
-            `${server.hostName}:${server.port}`,
+            `${server.hostname}:${server.port}`,
             "the exception dialog should show the hostname and port of the server"
           );
         }
@@ -346,7 +346,7 @@ async function subsubtest(
   );
   Assert.stringContains(
     alert.text,
-    server.hostName,
+    server.hostname,
     "the alert text should include the hostname of the server"
   );
   Assert.stringContains(
@@ -431,13 +431,13 @@ async function subsubtest(
   const isTemporary = {};
   Assert.ok(
     certOverrideService.hasMatchingOverride(
-      server.hostName,
+      server.hostname,
       server.port,
       {},
       await getCertificate(expectedCert),
       isTemporary
     ),
-    `certificate exception should exist for ${server.hostName}:${server.port}`
+    `certificate exception should exist for ${server.hostname}:${server.port}`
   );
   // The checkbox in the dialog was checked, so this exception is permanent.
   Assert.ok(!isTemporary.value, "certificate exception should be permanent");

@@ -102,7 +102,7 @@ function onInit(aPageId, aServerId) {
   }
   // OAuth2 is only supported on certain servers.
   const details = OAuth2Providers.getHostnameDetails(
-    document.getElementById("server.hostName").value,
+    document.getElementById("server.hostname").value,
     serverType
   );
   document.getElementById("authMethod-oauth2").hidden = !details;
@@ -486,7 +486,7 @@ function secureSelect(aLoading) {
     certCheck.hidden = true;
   } else {
     certCheck.init(
-      document.getElementById("server.hostName").value,
+      document.getElementById("server.hostname").value,
       document.getElementById("server.port").value,
       document.getElementById("server.type").value,
       document.getElementById("server.socketType").value ==

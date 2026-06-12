@@ -2821,7 +2821,7 @@ function isAddressMatch(searchTerm, addressObjects) {
 }
 
 async function retrieveMessageFromServer(mid, server) {
-  const url = new URL(`news://${server.hostName}:${server.port}/${mid}`);
+  const url = new URL(`news://${server.hostname}:${server.port}/${mid}`);
 
   const tempFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
   tempFile.append("nntp-downloaded-message.eml");

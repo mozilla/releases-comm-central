@@ -206,8 +206,8 @@ async function subtest_check_account_name(
     tab.browser.contentWindow.document.getElementById("contentFrame");
 
   if (newHostname) {
-    const hostname = iframe.contentDocument.getElementById("server.hostName");
-    Assert.equal(hostname.value, account.incomingServer.hostName);
+    const hostname = iframe.contentDocument.getElementById("server.hostname");
+    Assert.equal(hostname.value, account.incomingServer.hostname);
 
     // Now change the server host name.
     hostname.value = newHostname;
@@ -314,7 +314,7 @@ async function subtest_check_invalid_hostname(
 
   let iframe =
     tab.browser.contentWindow.document.getElementById("contentFrame");
-  let hostname = iframe.contentDocument.getElementById("server.hostName");
+  let hostname = iframe.contentDocument.getElementById("server.hostname");
   Assert.equal(hostname.value, originalHostname);
 
   hostname.value = "some_invalid+host&domain*in>invalid";
@@ -329,7 +329,7 @@ async function subtest_check_invalid_hostname(
 
     // ...let's check that:
     iframe = tab.browser.contentWindow.document.getElementById("contentFrame");
-    hostname = iframe.contentDocument.getElementById("server.hostName");
+    hostname = iframe.contentDocument.getElementById("server.hostname");
     Assert.equal(hostname.value, originalHostname);
   } else {
     // If the hostname is bad, we should get a warning dialog.

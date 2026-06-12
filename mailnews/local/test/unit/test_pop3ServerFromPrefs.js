@@ -40,7 +40,7 @@ add_task(async function () {
   );
   const pop3Server = MailServices.accounts.getIncomingServer("server1");
   Assert.equal(pop3Server.key, "server1");
-  Assert.equal(pop3Server.hostName, "test.invalid");
+  Assert.equal(pop3Server.hostname, "test.invalid");
   Assert.equal(pop3Server.type, "pop3");
   Assert.equal(pop3Server.username, "test");
 

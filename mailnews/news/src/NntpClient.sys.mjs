@@ -112,7 +112,7 @@ export class NntpClient {
     } else {
       // Start a new connection.
       this._authenticated = false;
-      const hostname = this._server.hostName.toLowerCase();
+      const hostname = this._server.hostname.toLowerCase();
       const useSecureTransport = this._server.isSecure;
       this._logger.debug(
         `Connecting to ${useSecureTransport ? "snews" : "news"}://${hostname}:${
@@ -144,7 +144,7 @@ export class NntpClient {
     this.runningUri = runningUri;
     if (!this.runningUri) {
       this.runningUri = Services.io
-        .newURI(`news://${this._server.hostName}:${this._server.port}`)
+        .newURI(`news://${this._server.hostname}:${this._server.port}`)
         .QueryInterface(Ci.nsIMsgMailNewsUrl);
     }
     if (msgWindow) {
@@ -331,7 +331,7 @@ export class NntpClient {
 
       MailServices.mailSession.alertUser(
         lazy.messengerBundle.formatStringFromName(errorName, [
-          this._server.hostName,
+          this._server.hostname,
         ]),
         this.runningUri,
         silent
@@ -1189,7 +1189,7 @@ export class NntpClient {
     };
     const l10nId = statusToId(status);
     const statusMessage = lazy.l10n.formatValueSync(l10nId, {
-      host: this._server.hostName,
+      host: this._server.hostname,
     });
     MailServices.feedback.reportStatus(statusMessage);
   }

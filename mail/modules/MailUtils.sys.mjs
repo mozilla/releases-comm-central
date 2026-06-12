@@ -937,7 +937,7 @@ export var MailUtils = {
         console.warn("No news server set up.");
         return;
       }
-      url.hostname = firstNntpServer.hostName;
+      url.hostname = firstNntpServer.hostname;
       url.port = firstNntpServer.port;
     }
     if (!url.port) {
@@ -989,7 +989,7 @@ export var MailUtils = {
     }
     let spec = "news:";
     if (server) {
-      spec += `//${server.hostName}`;
+      spec += `//${server.hostname}`;
       if (server.port != Ci.nsINntpUrl.DEFAULT_NNTP_PORT) {
         spec += `:${server.port}`;
       }

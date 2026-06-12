@@ -239,7 +239,7 @@ export class NntpService {
         server instanceof Ci.nsINntpIncomingServer &&
         server.containsNewsgroup(groupName)
       ) {
-        return server.hostName;
+        return server.hostname;
       }
     }
     return "";

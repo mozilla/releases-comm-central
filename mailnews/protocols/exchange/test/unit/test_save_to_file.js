@@ -50,7 +50,7 @@ add_task(async function test_save_to_file() {
 
   // Guess the message URI for the new message; it should be the only message in
   // the new folder.
-  const messageURI = `ews-message://${incomingServer.username}@${incomingServer.hostName}/${folderName}#1`;
+  const messageURI = `ews-message://${incomingServer.username}@${incomingServer.hostname}/${folderName}#1`;
 
   // Create a new handle for the temporary file that will be written to disk. We
   // don't need to create the file here, the save-to-disk backend code will take

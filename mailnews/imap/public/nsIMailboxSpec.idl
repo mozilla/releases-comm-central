@@ -34,7 +34,7 @@ interface nsIMailboxSpec : nsISupports
   attribute ACString allocatedPathName;
   attribute AString unicharPathName;
   attribute char hierarchyDelimiter;
-  attribute ACString hostName;
+  attribute ACString hostname;
 
   attribute nsIImapFlagAndUidState flagState;
 

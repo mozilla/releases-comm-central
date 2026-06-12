@@ -298,7 +298,7 @@ export class MsgIncomingServer {
       }
       if (otherFullName) {
         if (
-          otherFullName != "mailbox://" + this.hostName ||
+          otherFullName != "mailbox://" + this.hostname ||
           otherUsername != this.username
         ) {
           // Not for this server; keep this server's cached password.
@@ -363,18 +363,18 @@ export class MsgIncomingServer {
     this._prefs.setStringPref("uid", uid);
   }
 
-  get hostName() {
+  get hostname() {
     const hostname = this.getStringValue("hostname");
     if (hostname.includes(":")) {
       // Reformat the hostname if it contains a port number.
-      this.hostName = hostname;
-      return this.hostName;
+      this.hostname = hostname;
+      return this.hostname;
     }
     return hostname;
   }
 
-  set hostName(value) {
-    const oldName = this.hostName;
+  set hostname(value) {
+    const oldName = this.hostname;
     this._setHostName("hostname", value);
 
     if (oldName && oldName != value) {
@@ -476,9 +476,9 @@ export class MsgIncomingServer {
         ? `${encodeURIComponent(this.username)}@`
         : "";
     // When constructing nsIURI, need to wrap IPv6 address in [].
-    const hostname = this.hostName.includes(":")
-      ? `[${this.hostName}]`
-      : this.hostName;
+    const hostname = this.hostname.includes(":")
+      ? `[${this.hostname}]`
+      : this.hostname;
     return `${this.localStoreType}://${auth}${encodeURIComponent(hostname)}`;
   }
 
@@ -504,7 +504,7 @@ export class MsgIncomingServer {
   }
 
   get constructedPrettyName() {
-    return this._constructPrettyName(this.username, this.hostName);
+    return this._constructPrettyName(this.username, this.hostname);
   }
 
   get localPath() {
@@ -520,7 +520,7 @@ export class MsgIncomingServer {
       localPath.create(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
     }
 
-    localPath.append(this.hostName);
+    localPath.append(this.hostname);
     localPath.createUnique(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
 
     this.localPath = localPath;
@@ -816,9 +816,9 @@ export class MsgIncomingServer {
   onUserOrHostNameChanged(oldValue, newValue, hostnameChanged) {
     migrateServerUris(
       this.localStoreType,
-      hostnameChanged ? oldValue : this.hostName,
+      hostnameChanged ? oldValue : this.hostname,
       hostnameChanged ? this.username : oldValue,
-      this.hostName,
+      this.hostname,
       this.username
     );
     this._spamSettings = null;

@@ -237,7 +237,7 @@ impl AuthenticationProvider for nsIMsgIncomingServer {
 
     fn oauth_details_identifier(&self) -> Result<nsCString, nsresult> {
         let mut hostname = nsCString::from("");
-        unsafe { self.GetHostName(&raw mut *hostname) }.to_result()?;
+        unsafe { self.GetHostname(&raw mut *hostname) }.to_result()?;
         Ok(hostname)
     }
 

@@ -155,7 +155,7 @@ add_task(async function testSyncIMAPRecords() {
   const server = MailServices.accounts.allServers.find(s => s.UID == id);
   Assert.equal(server.prettyName, "New IMAP Server");
   Assert.equal(server.type, "imap");
-  Assert.equal(server.hostName, "new.hostname");
+  Assert.equal(server.hostname, "new.hostname");
   Assert.equal(server.port, 143);
   Assert.equal(server.socketType, Ci.nsMsgSocketType.plain);
   Assert.equal(server.authMethod, Ci.nsMsgAuthMethod.passwordCleartext);
@@ -172,7 +172,7 @@ add_task(async function testSyncIMAPRecords() {
 
   Assert.equal(server.prettyName, "Changed IMAP Server");
   Assert.equal(server.type, "imap"); // Unchanged.
-  Assert.equal(server.hostName, "changed.hostname");
+  Assert.equal(server.hostname, "changed.hostname");
   Assert.equal(server.port, 993);
   Assert.equal(server.socketType, Ci.nsMsgSocketType.SSL);
   Assert.equal(server.authMethod, Ci.nsMsgAuthMethod.OAuth2);
@@ -219,7 +219,7 @@ add_task(async function testSyncPOP3Records() {
   const server = MailServices.accounts.allServers.find(s => s.UID == id);
   Assert.equal(server.prettyName, "New POP3 Server");
   Assert.equal(server.type, "pop3");
-  Assert.equal(server.hostName, "new.hostname");
+  Assert.equal(server.hostname, "new.hostname");
   Assert.equal(server.port, 110);
   Assert.equal(server.socketType, Ci.nsMsgSocketType.plain);
   Assert.equal(server.authMethod, Ci.nsMsgAuthMethod.passwordCleartext);
@@ -236,7 +236,7 @@ add_task(async function testSyncPOP3Records() {
 
   Assert.equal(server.prettyName, "Changed POP3 Server");
   Assert.equal(server.type, "pop3"); // Unchanged.
-  Assert.equal(server.hostName, "changed.hostname");
+  Assert.equal(server.hostname, "changed.hostname");
   Assert.equal(server.port, 995);
   Assert.equal(server.socketType, Ci.nsMsgSocketType.SSL);
   Assert.equal(server.authMethod, Ci.nsMsgAuthMethod.OAuth2);
@@ -389,7 +389,7 @@ add_task(async function testSyncUnknownProperties() {
   Assert.equal(MailServices.accounts.accounts.length, 4);
   const newServer = MailServices.accounts.allServers.find(s => s.UID == id);
   Assert.equal(newServer.username, "username");
-  Assert.equal(newServer.hostName, "v999.hostname");
+  Assert.equal(newServer.hostname, "v999.hostname");
   Assert.equal(newServer.prettyName, "Future IMAP Server");
   Assert.equal(newServer.port, 143);
   Assert.equal(newServer.socketType, Ci.nsMsgSocketType.plain);

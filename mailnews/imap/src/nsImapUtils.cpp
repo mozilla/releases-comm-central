@@ -12,14 +12,14 @@
 #include "nsImapNamespace.h"
 #include "nsIImapFlagAndUidState.h"
 
-nsresult nsImapURI2FullName(const char* rootURI, const char* hostName,
+nsresult nsImapURI2FullName(const char* rootURI, const char* hostname,
                             const char* uriStr, char** name) {
   nsAutoCString uri(uriStr);
   nsAutoCString fullName;
   if (uri.Find(rootURI) != 0) return NS_ERROR_FAILURE;
   fullName = Substring(uri, strlen(rootURI));
   uri = fullName;
-  int32_t hostStart = uri.Find(hostName);
+  int32_t hostStart = uri.Find(hostname);
   if (hostStart <= 0) return NS_ERROR_FAILURE;
   fullName = Substring(uri, hostStart);
   uri = fullName;
@@ -174,12 +174,12 @@ NS_IMETHODIMP nsImapMailboxSpec::SetUnicharPathName(
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImapMailboxSpec::GetHostName(nsACString& aHostName) {
+NS_IMETHODIMP nsImapMailboxSpec::GetHostname(nsACString& aHostName) {
   aHostName = mHostName;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImapMailboxSpec::SetHostName(const nsACString& aHostName) {
+NS_IMETHODIMP nsImapMailboxSpec::SetHostname(const nsACString& aHostName) {
   mHostName = aHostName;
   return NS_OK;
 }

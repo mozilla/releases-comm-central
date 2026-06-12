@@ -156,7 +156,7 @@ add_task(async function testGoodConfig() {
   );
   incomingServer = account.incomingServer;
   Assert.equal(incomingServer.type, "imap");
-  Assert.equal(incomingServer.hostName, "external.test");
+  Assert.equal(incomingServer.hostname, "external.test");
   Assert.equal(incomingServer.port, 143);
   Assert.equal(incomingServer.authMethod, Ci.nsMsgAuthMethod.OAuth2);
   Assert.equal(incomingServer.username, username);

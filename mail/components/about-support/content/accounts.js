@@ -105,7 +105,7 @@ var AboutSupport = {
             "(" +
             server.type +
             ") " +
-            server.hostName +
+            server.hostname +
             (server.port != -1 ? ":" + server.port : ""),
           socketType: server.socketType,
           authMethod: server.authMethod,

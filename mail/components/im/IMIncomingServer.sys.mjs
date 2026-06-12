@@ -249,10 +249,10 @@ IMIncomingServer.prototype = {
     this._prefBranch.setCharPref("userName", aUsername);
   },
 
-  get hostName() {
+  get hostname() {
     return this._prefBranch.getCharPref("hostname");
   },
-  set hostName(aHostName) {
+  set hostname(aHostName) {
     this._prefBranch.setCharPref("hostname", aHostName);
   },
 

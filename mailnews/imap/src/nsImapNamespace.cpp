@@ -277,8 +277,8 @@ int nsImapNamespaceList::UnserializeNamespaces(const char* str, char** prefixes,
 }
 
 nsImapNamespace* nsImapNamespaceList::GetNamespaceForFolder(
-    const char* hostName, const char* canonicalFolderName, char delimiter) {
-  if (!hostName || !canonicalFolderName) return nullptr;
+    const char* hostname, const char* canonicalFolderName, char delimiter) {
+  if (!hostname || !canonicalFolderName) return nullptr;
 
   nsImapNamespace* resultNamespace = nullptr;
   nsresult rv;
@@ -294,7 +294,7 @@ nsImapNamespace* nsImapNamespaceList::GetNamespaceForFolder(
   if (NS_FAILED(rv)) {
     return nullptr;
   }
-  hostSessionList->GetNamespaceForMailboxForHost(hostName, folderName.get(),
+  hostSessionList->GetNamespaceForMailboxForHost(hostname, folderName.get(),
                                                  resultNamespace);
 
   return resultNamespace;
@@ -345,7 +345,7 @@ a namespace.
 */
 
 bool nsImapNamespaceList::GetFolderIsNamespace(
-    const char* hostName, const char* canonicalFolderName, char delimiter,
+    const char* hostname, const char* canonicalFolderName, char delimiter,
     nsImapNamespace* namespaceForFolder) {
   NS_ASSERTION(namespaceForFolder, "null namespace");
 
@@ -400,7 +400,7 @@ void nsImapNamespaceList::SuggestHierarchySeparatorForNamespace(
  is the namespace used for generating the folder name.
 */
 nsCString nsImapNamespaceList::GenerateFullFolderNameWithDefaultNamespace(
-    const char* hostName, const char* canonicalFolderName, const char* owner,
+    const char* hostname, const char* canonicalFolderName, const char* owner,
     EIMAPNamespaceType nsType, nsImapNamespace** nsUsed) {
   nsresult rv = NS_OK;
 
@@ -409,7 +409,7 @@ nsCString nsImapNamespaceList::GenerateFullFolderNameWithDefaultNamespace(
   NS_ENSURE_SUCCESS(rv, ""_ns);
   nsImapNamespace* ns;
   nsCString fullFolderName;
-  rv = hostSession->GetDefaultNamespaceOfTypeForHost(hostName, nsType, ns);
+  rv = hostSession->GetDefaultNamespaceOfTypeForHost(hostname, nsType, ns);
   NS_ENSURE_SUCCESS(rv, ""_ns);
   if (ns) {
     if (nsUsed) *nsUsed = ns;

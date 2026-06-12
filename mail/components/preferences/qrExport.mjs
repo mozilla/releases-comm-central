@@ -70,7 +70,7 @@ export const qrExportPane = {
         item.querySelector("li").title =
           `${incomingServer.type.toUpperCase()}: ${
             incomingServer.username
-          } - ${incomingServer.hostName}:${incomingServer.port}`;
+          } - ${incomingServer.hostname}:${incomingServer.port}`;
         return item;
       })
     );

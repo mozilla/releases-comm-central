@@ -850,7 +850,7 @@ this.folders = class extends ExtensionAPIPersistent {
               if (
                 queryInfo.isUnified != null &&
                 queryInfo.isUnified !=
-                  (folder.server.hostName == "smart mailboxes")
+                  (folder.server.hostname == "smart mailboxes")
               ) {
                 continue;
               }

@@ -1318,15 +1318,15 @@ void nsImapServerResponseParser::parse_address(nsAutoCString& addressLine) {
       char* mailboxName = CreateNilString();
       if (ContinueParse()) {
         AdvanceToNextToken();
-        char* hostName = CreateNilString();
+        char* hostname = CreateNilString();
         AdvanceToNextToken();
         if (mailboxName) {
           addressLine += mailboxName;
         }
-        if (hostName) {
+        if (hostname) {
           addressLine += '@';
-          addressLine += hostName;
-          PR_Free(hostName);
+          addressLine += hostname;
+          PR_Free(hostname);
         }
         if (personalName) {
           addressLine += " (";

@@ -41,7 +41,7 @@ OAuth2Module.prototype = {
 
   initFromMail(server, customDetails) {
     return this.initFromHostname(
-      server.hostName,
+      server.hostname,
       server.username,
       server.type,
       customDetails

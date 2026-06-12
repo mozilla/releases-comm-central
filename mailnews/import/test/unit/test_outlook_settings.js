@@ -66,7 +66,7 @@ var expectedPop3Account = {
   incomingServer: {
     prettyName: "POP3 Account Name",
     type: "pop3",
-    hostName: "pop.host.invalid",
+    hostname: "pop.host.invalid",
     username: "pop3user",
     leaveMessagesOnServer: true,
 
@@ -102,7 +102,7 @@ var expectedImapAccount = {
   incomingServer: {
     prettyName: "IMAP Account Name",
     type: "imap",
-    hostName: "imap.host.invalid",
+    hostname: "imap.host.invalid",
     username: "imapuser",
 
     // These are account default values, not imported from Outlook.

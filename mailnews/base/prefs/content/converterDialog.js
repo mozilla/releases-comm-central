@@ -110,7 +110,7 @@ function placeAccountName(aServer) {
     // Username of Local Folders is "nobody". So it's better to use
     // its hostname which is "Local Folders".
     // TODO: maybe test against .key == MailServices.accounts.localFoldersServer.key ?
-    if (deferredToAccount.incomingServer.hostName == "Local Folders") {
+    if (deferredToAccount.incomingServer.hostname == "Local Folders") {
       accountsToConvert += ", " + deferredToAccount.incomingServer.prettyName;
     } else {
       accountsToConvert += ", " + deferredToAccount.incomingServer.prettyName;
@@ -129,7 +129,7 @@ function placeAccountName(aServer) {
     // Username of Local Folders is "nobody". So it's better to use
     // its hostname which is "Local Folders".
     // TODO: maybe test against .key != MailServices.accounts.localFoldersServer.key ?
-    let deferredToAccountName = deferredToAccount.incomingServer.hostName;
+    let deferredToAccountName = deferredToAccount.incomingServer.hostname;
     if (deferredToAccountName != "Local Folders") {
       deferredToAccountName = deferredToAccount.incomingServer.username;
     }
@@ -183,7 +183,7 @@ function placeAccountName(aServer) {
     if (tempName == "nobody") {
       tempName = "Local Folders";
     } else if (!tempName) {
-      tempName = aServer.hostName;
+      tempName = aServer.hostname;
     }
 
     document.getElementById("warningSpan").textContent =

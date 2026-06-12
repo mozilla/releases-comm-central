@@ -185,7 +185,7 @@ export var moveCopyModule = {
     if (
       !MailServices.accounts.findServer(
         server.username,
-        server.hostName,
+        server.hostname,
         server.type
       )
     ) {

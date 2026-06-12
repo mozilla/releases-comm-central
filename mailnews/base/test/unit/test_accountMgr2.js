@@ -178,7 +178,7 @@ add_task(async function testAccountManager() {
     Services.io.newURI("imap://xn--thnderbird-beb.test:143/INBOX")
   );
   Assert.ok(
-    punyServer?.hostName,
+    punyServer?.hostname,
     "should find server by uri for punycode hostname"
   );
 
@@ -186,7 +186,7 @@ add_task(async function testAccountManager() {
     Services.io.newURI("imap://thünderbird.test:143/INBOX")
   );
   Assert.ok(
-    punyServer2?.hostName,
+    punyServer2?.hostname,
     "should find ACE server by normalized IDN hostname"
   );
 
@@ -218,13 +218,13 @@ add_task(async function testAccountManager() {
   const idnServer = MailServices.accounts.findServerByURI(
     Services.io.newURI("imap://thünderbird.example:143/INBOX")
   );
-  Assert.ok(idnServer?.hostName, "should find server by uri for IDN hostname");
+  Assert.ok(idnServer?.hostname, "should find server by uri for IDN hostname");
 
   const idnServer2 = MailServices.accounts.findServerByURI(
     Services.io.newURI("imap://xn--thnderbird-beb.example:143/INBOX")
   );
   Assert.ok(
-    idnServer2?.hostName,
+    idnServer2?.hostname,
     "should find idn server by by ACE encodeed uri"
   );
 
@@ -248,13 +248,13 @@ add_task(async function testAccountManager() {
   const twoServer = MailServices.accounts.findServerByURI(
     Services.io.newURI("imap://2:143/INBOX")
   );
-  Assert.ok(twoServer?.hostName, "should find server by uri for hostname '2'");
+  Assert.ok(twoServer?.hostname, "should find server by uri for hostname '2'");
 
   const twoServerNorm = MailServices.accounts.findServerByURI(
     Services.io.newURI("imap://0.0.0.2:143/INBOX")
   );
   Assert.ok(
-    twoServerNorm?.hostName,
+    twoServerNorm?.hostname,
     "should find server by uri for normalized hostname '2'"
   );
 
@@ -318,7 +318,7 @@ add_task(async function testAccountManager() {
     const serverLater = MailServices.accounts.getIncomingServer(server.key);
 
     Assert.equal(
-      serverLater.hostName,
+      serverLater.hostname,
       `${server.key}.invalid`,
       `invalid hostname ${hostname} should turn into <key>.invalid"`
     );

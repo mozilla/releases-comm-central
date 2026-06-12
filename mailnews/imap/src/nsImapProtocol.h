@@ -388,7 +388,7 @@ class nsImapProtocol : public nsIImapProtocol,
   /** Current imap action associated with this connection. */
   nsImapAction m_imapAction;
 
-  nsCString m_hostName;
+  nsCString m_hostname;
   nsCString m_userName;
   nsCString m_serverKey;
   char* m_dataOutputBuf;

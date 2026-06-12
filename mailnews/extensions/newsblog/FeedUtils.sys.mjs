@@ -134,20 +134,20 @@ export var FeedUtils = {
    */
   createRssAccount(aName) {
     const userName = "nobody";
-    let hostName = "Feeds";
-    const hostNamePref = hostName;
+    let hostname = "Feeds";
+    const hostnamePref = hostname;
     const serverType = "rss";
     const defaultName =
       FeedUtils.strings.GetStringFromName("feeds-accountname");
     let i = 2;
-    while (MailServices.accounts.findServer(userName, hostName, serverType)) {
+    while (MailServices.accounts.findServer(userName, hostname, serverType)) {
       // If "Feeds" exists, try "Feeds-2", then "Feeds-3", etc.
-      hostName = hostNamePref + "-" + i++;
+      hostname = hostnamePref + "-" + i++;
     }
 
     const server = MailServices.accounts.createIncomingServer(
       userName,
-      hostName,
+      hostname,
       serverType
     );
     server.biffMinutes = FeedUtils.kBiffPollMinutes;

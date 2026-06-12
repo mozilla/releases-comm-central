@@ -88,7 +88,7 @@ impl UserInteractiveServer for nsIMsgIncomingServer {
 
     fn host_name(&self) -> Result<String, nsresult> {
         let mut host_name = nsCString::new();
-        unsafe { self.GetHostName(&raw mut *host_name) }.to_result()?;
+        unsafe { self.GetHostname(&raw mut *host_name) }.to_result()?;
         Ok(host_name.to_string())
     }
 

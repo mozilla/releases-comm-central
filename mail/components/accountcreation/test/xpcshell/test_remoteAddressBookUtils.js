@@ -445,7 +445,7 @@ add_task(
     const imapLogin = Cc[
       "@mozilla.org/login-manager/loginInfo;1"
     ].createInstance(Ci.nsILoginInfo);
-    const imapUri = `${abAccount.incomingServer.localStoreType}://${abAccount.incomingServer.hostName}`;
+    const imapUri = `${abAccount.incomingServer.localStoreType}://${abAccount.incomingServer.hostname}`;
     imapLogin.init(
       imapUri,
       null,

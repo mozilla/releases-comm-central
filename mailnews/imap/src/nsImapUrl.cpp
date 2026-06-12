@@ -970,10 +970,10 @@ NS_IMETHODIMP nsImapUrl::GetUri(nsACString& aURI) {
     }
     nsCString fullFolderPath("/");
     fullFolderPath.Append(m_userName);
-    nsAutoCString hostName;
-    rv = GetHost(hostName);
+    nsAutoCString hostname;
+    rv = GetHost(hostname);
     fullFolderPath.Append('@');
-    fullFolderPath.Append(hostName);
+    fullFolderPath.Append(hostname);
     fullFolderPath.Append('/');
     fullFolderPath.Append(canonicalPath);
 

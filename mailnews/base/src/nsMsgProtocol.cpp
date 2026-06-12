@@ -827,12 +827,12 @@ char16_t* FormatStringWithHostNameByName(const char16_t* stringName,
   rv = msgUri->GetServer(getter_AddRefs(server));
   NS_ENSURE_SUCCESS(rv, nullptr);
 
-  nsCString hostName;
-  rv = server->GetHostName(hostName);
+  nsCString hostname;
+  rv = server->GetHostname(hostname);
   NS_ENSURE_SUCCESS(rv, nullptr);
 
   AutoTArray<nsString, 1> params;
-  CopyASCIItoUTF16(hostName, *params.AppendElement());
+  CopyASCIItoUTF16(hostname, *params.AppendElement());
   nsAutoString str;
   rv = sBundle->FormatStringFromName(NS_ConvertUTF16toUTF8(stringName).get(),
                                      params, str);

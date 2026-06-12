@@ -637,7 +637,7 @@ function checkUserServerChanges(showAlert) {
 
   // Get the new username, hostname and type from the page.
   var typeElem = getPageFormElement("server.type");
-  var hostElem = getPageFormElement("server.hostName");
+  var hostElem = getPageFormElement("server.hostname");
   var userElem = getPageFormElement("server.username");
   if (typeElem && userElem && hostElem) {
     var newType = getFormElementValue(typeElem);
@@ -645,7 +645,7 @@ function checkUserServerChanges(showAlert) {
       currentAccount,
       accountValues,
       "server",
-      "hostName",
+      "hostname",
       null,
       false
     );

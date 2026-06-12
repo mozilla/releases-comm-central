@@ -226,7 +226,7 @@ ServerStore.prototype = {
       server.hostname = hostname;
     } else {
       server.prettyName = record.name;
-      server.hostName = hostname;
+      server.hostname = hostname;
     }
 
     server.port = port;
@@ -301,7 +301,7 @@ ServerStore.prototype = {
         record.location = `${server.hostname}:${server.port}`;
       } else {
         record.name = server.prettyName;
-        record.location = `${server.hostName}:${server.port}`;
+        record.location = `${server.hostname}:${server.port}`;
       }
 
       super.update(record);

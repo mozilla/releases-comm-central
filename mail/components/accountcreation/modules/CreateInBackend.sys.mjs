@@ -310,7 +310,7 @@ function setFolders(identity, server) {
 async function rememberPassword(server, password) {
   let passwordURI;
   if (server instanceof Ci.nsIMsgIncomingServer) {
-    passwordURI = server.localStoreType + "://" + server.hostName;
+    passwordURI = server.localStoreType + "://" + server.hostname;
   } else if (server instanceof Ci.nsIMsgOutgoingServer) {
     passwordURI = server.type + "://" + server.serverURI.host;
   } else {

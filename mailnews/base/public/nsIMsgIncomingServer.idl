@@ -56,7 +56,7 @@ interface nsIMsgIncomingServer : nsISupports {
   /**
    * hostname of the server
    */
-  attribute AUTF8String hostName;
+  attribute AUTF8String hostname;
 
   /* port of the server */
   attribute long port;

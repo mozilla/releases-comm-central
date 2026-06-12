@@ -126,7 +126,7 @@ nsMsgIncomingServer::Observe(nsISupports* aSubject, const char* aTopic,
     if (!otherFullName.IsEmpty()) {
       nsAutoCString thisHostname;
       nsAutoCString thisUsername;
-      GetHostName(thisHostname);
+      GetHostname(thisHostname);
       GetUsername(thisUsername);
       nsAutoCString thisFullName;
       GetType(thisFullName);
@@ -383,7 +383,7 @@ nsMsgIncomingServer::GetServerURI(nsACString& aResult) {
   }
 
   nsCString hostname;
-  rv = GetHostName(hostname);
+  rv = GetHostname(hostname);
   if (NS_SUCCEEDED(rv) && !hostname.IsEmpty()) {
     nsCString escapedHostname;
     MsgEscapeString(hostname, nsINetUtil::ESCAPE_URL_PATH, escapedHostname);
@@ -616,7 +616,7 @@ nsMsgIncomingServer::GetConstructedPrettyName(nsACString& retval) {
   }
 
   nsCString hostname;
-  rv = GetHostName(hostname);
+  rv = GetHostname(hostname);
   NS_ENSURE_SUCCESS(rv, rv);
 
   retval.Append(hostname);
@@ -661,7 +661,7 @@ nsMsgIncomingServer::GetPasswordWithUI(const nsAString& aPromptMessage,
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsAutoCString hostname;
-  rv = GetHostName(hostname);
+  rv = GetHostname(hostname);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsAutoCString username;
@@ -688,7 +688,7 @@ nsresult nsMsgIncomingServer::GetPasswordWithoutUI() {
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsAutoCString hostname;
-  rv = GetHostName(hostname);
+  rv = GetHostname(hostname);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsAutoCString username;
@@ -710,7 +710,7 @@ nsMsgIncomingServer::ForgetPassword() {
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsAutoCString hostname;
-  rv = GetHostName(hostname);
+  rv = GetHostname(hostname);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsAutoCString username;
@@ -761,7 +761,7 @@ nsMsgIncomingServer::GetLocalPath(nsIFile** aLocalPath) {
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCString hostname;
-  rv = GetHostName(hostname);
+  rv = GetHostname(hostname);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // set the leaf name to "dummy", and then call MakeUnique with a suggested
@@ -1015,7 +1015,7 @@ nsMsgIncomingServer::GetEditableFilterList(nsIMsgWindow* aMsgWindow,
 
 // If the hostname contains ':' (like hostname:1431)
 // then parse and set the port number.
-nsresult nsMsgIncomingServer::InternalSetHostName(const nsACString& aHostname,
+nsresult nsMsgIncomingServer::InternalSetHostname(const nsACString& aHostname,
                                                   const char* prefName) {
   nsCString hostname;
   hostname = aHostname;
@@ -1061,14 +1061,14 @@ nsMsgIncomingServer::OnUserOrHostNameChanged(const nsACString& oldName,
   atPos = acctName.FindChar('@');
 
   // get previous username and hostname
-  nsCString userName, hostName;
+  nsCString userName, hostname;
   if (hostnameChanged) {
     rv = GetUsername(userName);
     NS_ENSURE_SUCCESS(rv, rv);
-    hostName.Assign(oldName);
+    hostname.Assign(oldName);
   } else {
     userName.Assign(oldName);
-    rv = GetHostName(hostName);
+    rv = GetHostname(hostname);
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
@@ -1086,7 +1086,7 @@ nsMsgIncomingServer::OnUserOrHostNameChanged(const nsACString& oldName,
       atPos = 0;
     else
       atPos += 1;
-    if (Substring(acctName, atPos).Equals(hostName)) {
+    if (Substring(acctName, atPos).Equals(hostname)) {
       acctName.Replace(atPos, acctName.Length() - atPos, newName);
     }
   }
@@ -1095,11 +1095,11 @@ nsMsgIncomingServer::OnUserOrHostNameChanged(const nsACString& oldName,
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::SetHostName(const nsACString& aHostname) {
+nsMsgIncomingServer::SetHostname(const nsACString& aHostname) {
   nsCString oldName;
-  nsresult rv = GetHostName(oldName);
+  nsresult rv = GetHostname(oldName);
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = InternalSetHostName(aHostname, "hostname");
+  rv = InternalSetHostname(aHostname, "hostname");
 
   if (!oldName.IsEmpty() &&
       !aHostname.Equals(oldName, nsCaseInsensitiveCStringComparator))
@@ -1108,11 +1108,11 @@ nsMsgIncomingServer::SetHostName(const nsACString& aHostname) {
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetHostName(nsACString& aResult) {
+nsMsgIncomingServer::GetHostname(nsACString& aResult) {
   nsresult rv = GetStringValue("hostname", aResult);
   if (aResult.CountChar(':') == 1) {
-    // gack, we need to reformat the hostname - SetHostName will do that
-    SetHostName(aResult);
+    // gack, we need to reformat the hostname - SetHostname will do that
+    SetHostname(aResult);
     rv = GetStringValue("hostname", aResult);
   }
   return rv;

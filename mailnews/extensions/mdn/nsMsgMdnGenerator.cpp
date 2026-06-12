@@ -593,12 +593,12 @@ nsresult nsMsgMdnGenerator::CreateSecondPart() {
 
         if (!userAgentString.IsEmpty()) {
           // Prepend the product name with the dns name according to RFC 3798.
-          char hostName[256];
-          PR_GetSystemInfo(PR_SI_HOSTNAME_UNTRUNCATED, hostName,
-                           sizeof hostName);
-          if ((hostName[0] != '\0') && (strchr(hostName, '.') != NULL)) {
+          char hostname[256];
+          PR_GetSystemInfo(PR_SI_HOSTNAME_UNTRUNCATED, hostname,
+                           sizeof hostname);
+          if ((hostname[0] != '\0') && (strchr(hostname, '.') != NULL)) {
             userAgentString.InsertLiteral("; ", 0);
-            userAgentString.Insert(nsDependentCString(hostName), 0);
+            userAgentString.Insert(nsDependentCString(hostname), 0);
           }
 
           tmpBuffer =

@@ -262,10 +262,10 @@ export function isLegalIPv6Address(aHostName) {
   // TODO: support Zone indices in Link-local addresses? Currently they are rejected.
   // http://en.wikipedia.org/wiki/IPv6_address#Link-local_addresses_and_zone_indices
 
-  const hostName = ipComponents.join(":");
+  const hostname = ipComponents.join(":");
   // Treat 0000:0000:0000:0000:0000:0000:0000:0000 as an invalid IPv6 address.
-  return hostName != "0000:0000:0000:0000:0000:0000:0000:0000"
-    ? hostName
+  return hostname != "0000:0000:0000:0000:0000:0000:0000:0000"
+    ? hostname
     : null;
 }
 

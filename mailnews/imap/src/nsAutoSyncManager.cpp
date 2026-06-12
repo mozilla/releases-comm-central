@@ -801,7 +801,7 @@ nsresult nsAutoSyncManager::AutoUpdateFolders() {
       if (notLoggedIn) {
         if (MOZ_LOG_TEST(gAutoSyncLog, LogLevel::Debug)) {
           nsCString serverName;
-          incomingServer->GetHostName(serverName);
+          incomingServer->GetHostname(serverName);
           MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
                   ("%s: server |%s| don't autosync; not yet logged in",
                    __func__, serverName.get()));
@@ -833,7 +833,7 @@ nsresult nsAutoSyncManager::AutoUpdateFolders() {
       PRTime span = updateMinutes * (PR_USEC_PER_SEC * 60UL);
       if (MOZ_LOG_TEST(gAutoSyncLog, LogLevel::Debug)) {
         nsCString serverName;
-        incomingServer->GetHostName(serverName);
+        incomingServer->GetHostname(serverName);
         MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
                 ("%s: Update time set to |%d| minutes for "
                  "folders in account |%s|",

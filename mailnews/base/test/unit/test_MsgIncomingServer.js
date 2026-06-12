@@ -57,7 +57,7 @@ add_task(async function testMigratePasswordOnChangeUsernameHostname() {
   equal(pop3IncomingServer.password, "password-pop");
 
   // Change the hostname, check password can be found using the new hostname.
-  pop3IncomingServer.hostName = "localhost";
+  pop3IncomingServer.hostname = "localhost";
   serverUri = "mailbox://localhost";
   logins = await Services.logins.searchLoginsAsync({
     origin: serverUri,
@@ -113,7 +113,7 @@ add_task(function testMigrateIdentitiesOnChangeUsernameHostname() {
   equal(identity2.draftsFolderURI, "mailbox://oscar@pop3.localhost/Drafts");
 
   // Change the hostname.
-  incomingServer1.hostName = "localhost";
+  incomingServer1.hostname = "localhost";
 
   // Check folders were correctly updated.
   identity1 = MailServices.accounts.getIdentity(identity1.key);
@@ -198,7 +198,7 @@ add_task(function testMigrateFiltersOnChangeUsernameHostname() {
   filterList.insertFilterAt(filterList.filterCount, filter);
 
   // Change the hostname, test targetFolderUri of filters are changed accordingly.
-  nntpIncomingServer.hostName = "localhost";
+  nntpIncomingServer.hostname = "localhost";
   filterList = nntpIncomingServer.getFilterList(null);
   filter = filterList.getFilterAt(0);
   equal(

@@ -218,12 +218,12 @@ nsMsgMaildirStore::nsMsgMaildirStore() {
   // Hostname is part of the traditional maildir file naming.
   // A blank or truncated hostname isn't ideal, but neither is it fatal - it
   // doesn't add any real uniqueness to our filenames.
-  char hostName[64];
-  if (PR_GetSystemInfo(PR_SI_HOSTNAME, hostName, sizeof hostName) ==
+  char hostname[64];
+  if (PR_GetSystemInfo(PR_SI_HOSTNAME, hostname, sizeof hostname) ==
       PR_SUCCESS) {
     // NUL-terminator is not guaranteed if truncated.
-    hostName[sizeof hostName - 1] = '\0';
-    mHostname = hostName;
+    hostname[sizeof hostname - 1] = '\0';
+    mHostname = hostname;
   }
 }
 

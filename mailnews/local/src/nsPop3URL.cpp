@@ -138,7 +138,7 @@ nsresult nsPop3URL::NewURI(const nsACString& aSpec, nsIURI* aBaseURI,
 
   nsCString hostname;
   nsCString username;
-  server->GetHostName(hostname);
+  server->GetHostname(hostname);
   server->GetUsername(username);
 
   int32_t port;

@@ -169,7 +169,7 @@ export var MailMigrator = {
       }
 
       if (currentUIVersion < 45) {
-        // Fix bad hostName for feeds in anchient profiles.
+        // Fix bad hostname for feeds in anchient profiles.
         // Newer profiles use a valid hostname which is Feeds, Feeds-2 etc.
         // This migration is a bit of a hack and for proper functionality
         // of these feeds, a restart will be required...
@@ -177,7 +177,7 @@ export var MailMigrator = {
         const migrations = [];
         for (const server of MailServices.accounts.accounts
           .map(a => a.incomingServer)
-          .filter(s => s.type == "rss" && !s.hostName.startsWith("Feeds"))) {
+          .filter(s => s.type == "rss" && !s.hostname.startsWith("Feeds"))) {
           server.QueryInterface(Ci.nsIRssIncomingServer);
           const path = server.subscriptionsPath.path;
           const migrateJSON = async () => {
@@ -197,7 +197,7 @@ export var MailMigrator = {
               );
             }
             await IOUtils.writeJSON(path, feeds);
-            server.hostName = hostname;
+            server.hostname = hostname;
           };
           migrations.push(migrateJSON());
         }
@@ -489,7 +489,7 @@ export var MailMigrator = {
   _migrateIncomingToOAuth2(hostnameHint) {
     for (const account of MailServices.accounts.accounts) {
       // Skip if not a matching account.
-      if (!account.incomingServer.hostName.endsWith(hostnameHint)) {
+      if (!account.incomingServer.hostname.endsWith(hostnameHint)) {
         continue;
       }
 

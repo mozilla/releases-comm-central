@@ -698,12 +698,12 @@ nsImapProtocol::~nsImapProtocol() {
 }
 
 const nsCString& nsImapProtocol::GetImapHostName() {
-  if (m_runningUrl && m_hostName.IsEmpty()) {
+  if (m_runningUrl && m_hostname.IsEmpty()) {
     nsCOMPtr<nsIURI> url = do_QueryInterface(m_runningUrl);
-    url->GetAsciiHost(m_hostName);
+    url->GetAsciiHost(m_hostname);
   }
 
-  return m_hostName;
+  return m_hostname;
 }
 
 const nsCString& nsImapProtocol::GetImapUserName() {
@@ -877,7 +877,7 @@ nsresult nsImapProtocol::SetupWithUrl(nsIURI* aURL, nsISupports* aConsumer) {
       m_channelListener = new StreamListenerProxy(aRealStreamListener);
     }
 
-    server->GetHostName(m_hostName);
+    server->GetHostname(m_hostname);
     int32_t authMethod;
     (void)server->GetAuthMethod(&authMethod);
     InitPrefAuthMethods(authMethod, server);
@@ -985,7 +985,7 @@ nsresult nsImapProtocol::SetupWithUrlCallback(nsIProxyInfo* aProxyInfo) {
   if (connectionType) connectionTypeArray.AppendElement(connectionType);
   // NOTE: Some errors won't show up until the first read attempt (SSL bad
   // certificate errors, for example).
-  rv = socketService->CreateTransport(connectionTypeArray, m_hostName, port,
+  rv = socketService->CreateTransport(connectionTypeArray, m_hostname, port,
                                       aProxyInfo, nullptr,
                                       getter_AddRefs(m_transport));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -1690,12 +1690,12 @@ void nsImapProtocol::EstablishServerConnection() {
       // than STARTTLS to allow PREAUTH to be accepted on subsequent IMAP
       // connections.
       AlertUserEventUsingName("imapServerDisconnected");
-      const nsCString& hostName = GetImapHostName();
+      const nsCString& hostname = GetImapHostName();
       MOZ_LOG(
           IMAP, LogLevel::Error,
           ("PREAUTH received from IMAP server %s because STARTTLS selected. "
            "Connection dropped",
-           hostName.get()));
+           hostname.get()));
       SetConnectionStatus(NS_ERROR_FAILURE);  // stop netlib
     }
   } else if (!PL_strncasecmp(serverResponse, ESC_BYE, ESC_BYE_LEN)) {
@@ -1706,11 +1706,11 @@ void nsImapProtocol::EstablishServerConnection() {
     }
     SetConnectionStatus(NS_ERROR_FAILURE);  // stop netlib
     if (MOZ_LOG_TEST(IMAP, LogLevel::Error)) {
-      const nsCString& hostName = GetImapHostName();
+      const nsCString& hostname = GetImapHostName();
       MOZ_LOG(IMAP, LogLevel::Error,
               ("BYE greeting sent by IMAP server %s. "
                "Connection rejected by server and is now closed.",
-               hostName.get()));
+               hostname.get()));
     }
   }
   PR_Free(serverResponse);  // we don't care about the greeting yet...
@@ -1774,7 +1774,7 @@ bool nsImapProtocol::ProcessCurrentURL() {
     return RetryUrl();
   }
   Log("ProcessCurrentURL", nullptr, "entering");
-  (void)GetImapHostName();  // force m_hostName to get set.
+  (void)GetImapHostName();  // force m_hostname to get set.
 
   bool logonFailed = false;
   bool anotherUrlRun = false;
@@ -2563,7 +2563,7 @@ NS_IMETHODIMP nsImapProtocol::CanHandleUrl(nsIImapUrl* aImapUrl,
     // compare host/user between url and connection.
     nsCString urlHostName;
     nsCString urlUserName;
-    rv = server->GetHostName(urlHostName);
+    rv = server->GetHostname(urlHostName);
     NS_ENSURE_SUCCESS(rv, rv);
     rv = server->GetUsername(urlUserName);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -4651,7 +4651,7 @@ void nsImapProtocol::Log(const char* logSubName, const char* extraInfo,
     static const char nonAuthStateName[] = "NA";
     static const char authStateName[] = "A";
     static const char selectedStateName[] = "S";
-    const nsCString& hostName =
+    const nsCString& hostname =
         GetImapHostName();  // initialize to empty string
 
     int32_t logDataLen = PL_strlen(logData);  // PL_strlen checks for null
@@ -4679,13 +4679,13 @@ void nsImapProtocol::Log(const char* logSubName, const char* extraInfo,
       case nsImapServerResponseParser::kFolderSelected:
         if (extraInfo)
           MOZ_LOG(IMAP, LogLevel::Info,
-                  ("%p:%s:%s-%s:%s:%s: %.400s", this, hostName.get(),
+                  ("%p:%s:%s-%s:%s:%s: %.400s", this, hostname.get(),
                    selectedStateName,
                    GetServerStateParser().GetSelectedMailboxName(), logSubName,
                    extraInfo, logDataToLog));
         else
           MOZ_LOG(IMAP, LogLevel::Info,
-                  ("%p:%s:%s-%s:%s: %.400s", this, hostName.get(),
+                  ("%p:%s:%s-%s:%s: %.400s", this, hostname.get(),
                    selectedStateName,
                    GetServerStateParser().GetSelectedMailboxName(), logSubName,
                    logDataToLog));
@@ -4698,11 +4698,11 @@ void nsImapProtocol::Log(const char* logSubName, const char* extraInfo,
                                     : authStateName;
         if (extraInfo)
           MOZ_LOG(IMAP, LogLevel::Info,
-                  ("%p:%s:%s:%s:%s: %.400s", this, hostName.get(), stateName,
+                  ("%p:%s:%s:%s:%s: %.400s", this, hostname.get(), stateName,
                    logSubName, extraInfo, logDataToLog));
         else
           MOZ_LOG(IMAP, LogLevel::Info,
-                  ("%p:%s:%s:%s: %.400s", this, hostName.get(), stateName,
+                  ("%p:%s:%s:%s: %.400s", this, hostname.get(), stateName,
                    logSubName, logDataToLog));
       }
     }
@@ -5967,7 +5967,7 @@ nsresult nsImapProtocol::AuthLogin(const char* userName,
     nsAutoCString response;
 
     nsAutoCString service("imap@");
-    service.Append(m_hostName);
+    service.Append(m_hostname);
     rv = DoGSSAPIStep1(service, userName, response);
     NS_ENSURE_SUCCESS(rv, rv);
 
@@ -10128,7 +10128,7 @@ nsImapMockChannel::OnTransportStatus(nsITransport* transport, nsresult status,
     nsCOMPtr<nsIMsgIncomingServer> server;
     mailnewsUrl->GetServer(getter_AddRefs(server));
     if (server) {
-      server->GetHostName(host);
+      server->GetHostname(host);
       nsAutoCString name;
       server->GetPrettyName(name);
       accountName.Assign(NS_ConvertUTF8toUTF16(name));

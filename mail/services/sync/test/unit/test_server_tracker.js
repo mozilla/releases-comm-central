@@ -50,7 +50,7 @@ add_task(async function testTrackingIncomingServers() {
 
   await checkPropertyChanges(tracker, incomingServer, [
     ["prettyName", "Changed Server"],
-    ["hostName", "changed.hostname"],
+    ["hostname", "changed.hostname"],
     ["port", 993],
     ["socketType", Ci.nsMsgSocketType.SSL],
     ["authMethod", Ci.nsMsgAuthMethod.OAuth2],

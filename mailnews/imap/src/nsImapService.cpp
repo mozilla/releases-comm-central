@@ -2124,7 +2124,7 @@ nsresult nsImapService::GetServerFromUrl(nsIImapUrl* aImapUrl,
   nsresult rv;
   nsCString folderName;
   nsAutoCString userPass;
-  nsAutoCString hostName;
+  nsAutoCString hostname;
   nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(aImapUrl);
 
   // if we can't get a folder name out of the url then I think this is an error

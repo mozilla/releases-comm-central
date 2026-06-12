@@ -461,12 +461,10 @@ async function subtest_verify_account_hub_account(tab, user, type) {
       expected: user.email.split("@")[0],
     },
     "incoming server hostname": {
-      // Note: N in the hostName is uppercase
-      actual: incoming.hostName,
+      actual: incoming.hostname,
       expected: `${type}.${user.incomingHost}`,
     },
     "outgoing server hostname": {
-      // And this is lowercase
       actual: outgoing.serverURI.host,
       expected: `smtp.${user.outgoingHost}`,
     },
