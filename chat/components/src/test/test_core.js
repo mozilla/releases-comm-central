@@ -11,6 +11,7 @@ const DISABLED_PROTOCOLS = [
   "prpl-gtalk",
   "prpl-twitter",
   "prpl-yahoo",
+  "prpl-odnoklassniki",
 ];
 
 add_setup(() => {
@@ -24,8 +25,8 @@ add_task(function test_getProtocols() {
   Assert.ok(Array.isArray(protocols), "Protocols are returned as array");
   Assert.greaterOrEqual(
     protocols.length,
-    4,
-    "At least 4 active protocols are returned"
+    3,
+    "At least 3 active protocols are returned"
   );
   for (const protocol of protocols) {
     Assert.ok(
