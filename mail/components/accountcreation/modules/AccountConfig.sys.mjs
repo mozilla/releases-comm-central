@@ -424,9 +424,11 @@ AccountConfig.prototype = {
    * @returns {boolean}
    */
   authDoesNotRequirePassword(authMethod) {
-    return [Ci.nsMsgAuthMethod.GSSAPI, Ci.nsMsgAuthMethod.OAuth2].includes(
-      authMethod
-    );
+    return [
+      Ci.nsMsgAuthMethod.none,
+      Ci.nsMsgAuthMethod.GSSAPI,
+      Ci.nsMsgAuthMethod.OAuth2,
+    ].includes(authMethod);
   },
 
   /**

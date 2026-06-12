@@ -39,6 +39,15 @@ add_task(async function test_mixed_passwordless_account_skips_password_step() {
   });
 });
 
+add_task(async function test_no_auth_account_skips_password_step() {
+  await subtest_passwordless_account_skips_password_step({
+    email: "john.doe@oauth-no-auth.test",
+    expectedAuthLabelId: "account-hub-result-auth-oauth2",
+    incomingAuthMethod: Ci.nsMsgAuthMethod.OAuth2,
+    outgoingAuthMethod: Ci.nsMsgAuthMethod.none,
+  });
+});
+
 async function subtest_passwordless_account_skips_password_step({
   email,
   expectedAuthLabelId,

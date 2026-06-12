@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clientConfig>
+  <emailProvider id="oauth-no-auth.test">
+    <domain>oauth-no-auth.test</domain>
+    <displayName>Example OAuth No Auth</displayName>
+    <incomingServer type="imap">
+      <hostname>test.test</hostname>
+      <port>993</port>
+      <socketType>SSL</socketType>
+      <username>%EMAILLOCALPART%</username>
+      <authentication>OAuth2</authentication>
+    </incomingServer>
+    <outgoingServer type="smtp">
+      <hostname>smtp.oauth-no-auth.test</hostname>
+      <port>25</port>
+      <socketType>plain</socketType>
+      <username>%EMAILLOCALPART%</username>
+      <authentication>none</authentication>
+      <useGlobalPreferredServer>false</useGlobalPreferredServer>
+    </outgoingServer>
+  </emailProvider>
+</clientConfig>
