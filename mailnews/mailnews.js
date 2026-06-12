@@ -1082,7 +1082,3 @@ pref("experimental.mail.ews.overrideOAuth.enabled", true);
 
 // Use the Microsoft365 sandbox application and tenant information.
 pref("mail.microsoft.useM365Sandbox", false);
-
-// Disable the ssl_tokens_cache feature in Thunderbird, see bug 2046402
-pref("network.ssl_tokens_cache_persistence", false);
-pref("network.ssl_tokens_cache_capacity", 0);
