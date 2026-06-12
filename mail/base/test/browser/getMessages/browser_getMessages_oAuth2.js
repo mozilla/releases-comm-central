@@ -179,11 +179,13 @@ async function waitForMessages(inbox) {
 async function handleOAuthDialog() {
   const oAuthWindow = await OAuth2TestUtils.promiseOAuthWindow();
   info("oauth2 window shown");
+  const windowClosedPromise = BrowserTestUtils.windowClosed(oAuthWindow);
   await SpecialPowers.spawn(
     oAuthWindow.getBrowser(),
     [{ expectedHint: "user", username: "user", password: "password" }],
     OAuth2TestUtils.submitOAuthLogin
   );
+  await windowClosedPromise;
 }
 
 async function checkSavedPassword() {
