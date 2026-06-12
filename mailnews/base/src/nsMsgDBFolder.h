@@ -237,6 +237,10 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
   static nsrefcnt mInstanceCount;
 
   uint32_t mFlags;
+  // Flags that cannot be cleared. These are set if the server says the
+  // mailbox has one or more special folder flags.
+  uint32_t mLockedFlags{0};
+
   uint32_t mUserSortOrder;    // Sort order among sibling folders.
   nsWeakPtr mParent;          // This won't be refcounted for ownership reasons.
   int32_t mNumUnreadMessages; /* count of unread messages (-1 means unknown; -2

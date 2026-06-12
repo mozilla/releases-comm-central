@@ -1163,6 +1163,7 @@ NS_IMETHODIMP nsImapMailFolder::SetBoxFlags(int32_t aBoxFlags) {
     newFlags |= nsMsgFolderFlags::Archive | nsMsgFolderFlags::AllMail;
   if (m_boxFlags & kImapArchive) newFlags |= nsMsgFolderFlags::Archive;
 
+  mLockedFlags = newFlags & nsMsgFolderFlags::SpecialUse;
   SetFlags(newFlags);
   return NS_OK;
 }

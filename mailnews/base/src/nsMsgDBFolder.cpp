@@ -4009,6 +4009,10 @@ NS_IMETHODIMP nsMsgDBFolder::SetFlag(uint32_t flag) {
 }
 
 NS_IMETHODIMP nsMsgDBFolder::ClearFlag(uint32_t flag) {
+  if (flag & mLockedFlags) {
+    return NS_OK;
+  }
+
   // If calling this function causes us to open the db (i.e., it was not
   // open before), we're going to close the db before returning.
   bool dbWasOpen = mDatabase != nullptr;
@@ -4037,6 +4041,10 @@ NS_IMETHODIMP nsMsgDBFolder::GetFlag(uint32_t flag, bool* _retval) {
 }
 
 NS_IMETHODIMP nsMsgDBFolder::ToggleFlag(uint32_t flag) {
+  if (flag & mLockedFlags) {
+    return NS_OK;
+  }
+
   mFlags ^= flag;
   OnFlagChange(flag);
 
@@ -4069,6 +4077,8 @@ NS_IMETHODIMP nsMsgDBFolder::OnFlagChange(uint32_t flag) {
 }
 
 NS_IMETHODIMP nsMsgDBFolder::SetFlags(uint32_t aFlags) {
+  aFlags |= mLockedFlags;
+
   if (mFlags != aFlags) {
     uint32_t changedFlags = aFlags ^ mFlags;
     mFlags = aFlags;
