@@ -1111,11 +1111,9 @@ function reportAccountTypes() {
     exchange: 0,
     ews: 0,
     rss: 0,
-    im_gtalk: 0,
     im_irc: 0,
     im_jabber: 0,
     im_matrix: 0,
-    im_odnoklassniki: 0,
   };
 
   const accountsByOauthProviders = new Map(); // issuer -> count

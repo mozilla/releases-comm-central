@@ -73,9 +73,10 @@ pref("chat.irc.defaultQuitMessage", "");
 pref("chat.irc.automaticList", true);
 // Whether to enable or disable message carbons protocol (XEP-0280).
 pref("chat.xmpp.messageCarbons", true);
-// Disable Facebook and Google Talk as the XMPP gateways no longer exist.
+// Disable Facebook, Google Talk, and Odnoklassniki as the XMPP gateways no longer exist.
 pref("chat.prpls.prpl-facebook.disable", true);
 pref("chat.prpls.prpl-gtalk.disable", true);
+pref("chat.prpls.prpl-odnoklassniki.disable", true);
 // Disable Twitter as the streaming API was shut down.
 pref("chat.prpls.prpl-twitter.disable", true);
 // Disable Yahoo Messenger as legacy Yahoo was shut down.
