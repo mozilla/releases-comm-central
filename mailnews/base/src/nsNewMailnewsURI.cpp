@@ -143,6 +143,7 @@ nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
     rv = NS_MutateURI(new mozilla::net::nsStandardURL::Mutator())
              .SetSpec(aSpec)
              .Finalize(uriResult);
+    NS_ENSURE_SUCCESS(rv, rv);
 
     nsAutoCString query;
     rv = uriResult->GetQuery(query);
