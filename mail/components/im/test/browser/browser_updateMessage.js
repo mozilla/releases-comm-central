@@ -61,4 +61,5 @@ add_task(async function testUpdate() {
   conversation.close();
   account.disconnect();
   IMServices.accounts.deleteAccount(account.id);
+  await Promise.resolve(); // Ensure login removal.
 });

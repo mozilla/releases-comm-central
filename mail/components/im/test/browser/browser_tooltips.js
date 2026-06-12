@@ -121,6 +121,7 @@ add_task(async function testMUCMessageSenderTooltip() {
   conversation.close();
   account.disconnect();
   IMServices.accounts.deleteAccount(account.id);
+  await Promise.resolve(); // Ensure login removal.
 });
 
 add_task(async function testTimestampTooltip() {
@@ -187,6 +188,7 @@ add_task(async function testTimestampTooltip() {
   conversation.close();
   account.disconnect();
   IMServices.accounts.deleteAccount(account.id);
+  await Promise.resolve(); // Ensure login removal.
 });
 
 async function showTooltip(elementSelector, tooltip, browser) {

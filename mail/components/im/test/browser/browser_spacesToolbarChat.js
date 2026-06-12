@@ -61,6 +61,7 @@ add_task(async function test_spacesToolbarChatBadgeMUC() {
   conversation.close();
   account.disconnect();
   IMServices.accounts.deleteAccount(account.id);
+  await Promise.resolve(); // Ensure login removal.
 });
 
 add_task(async function test_spacesToolbarChatBadgeDM() {
@@ -134,6 +135,7 @@ add_task(async function test_spacesToolbarChatBadgeDM() {
   conversation.close();
   account.disconnect();
   IMServices.accounts.deleteAccount(account.id);
+  await Promise.resolve(); // Ensure login removal.
 });
 
 add_task(async function test_spacesToolbarPinnedChatBadgeMUC() {
@@ -197,6 +199,7 @@ add_task(async function test_spacesToolbarPinnedChatBadgeMUC() {
   conversation.close();
   account.disconnect();
   IMServices.accounts.deleteAccount(account.id);
+  await Promise.resolve(); // Ensure login removal.
 });
 
 add_task(async function test_spacesToolbarPinnedChatBadgeDM() {
@@ -258,4 +261,5 @@ add_task(async function test_spacesToolbarPinnedChatBadgeDM() {
   conversation.close();
   account.disconnect();
   IMServices.accounts.deleteAccount(account.id);
+  await Promise.resolve(); // Ensure login removal.
 });

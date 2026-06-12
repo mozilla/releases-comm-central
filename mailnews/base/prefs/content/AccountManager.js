@@ -894,13 +894,6 @@ function markDefaultServer(newDefault, oldDefault) {
 }
 
 /**
- * Notify the UI to rebuild the account tree.
- */
-function rebuildAccountTree() {
-  // TODO: Reimplement or replace.
-}
-
-/**
  * Make currentAccount (currently selected in the account tree) the default one.
  */
 function onSetDefault(event) {
@@ -1292,7 +1285,7 @@ function loadPage(pageId) {
 
 // save the values of the widgets to the given server
 function savePage(account) {
-  if (!account) {
+  if (!account || !MailServices.accounts.getAccount(account.key)) {
     return;
   }
 
@@ -1657,7 +1650,6 @@ function setAccountLabel(aAccountKey, aLabel) {
     row.title = aLabel;
     row.querySelector(".name").textContent = aLabel;
   }
-  rebuildAccountTree(false);
 }
 
 var gAccountTree = {
@@ -1690,7 +1682,6 @@ var gAccountTree = {
       const accountKeyList = Array.from(mainTree.children, row => row.id);
       accountKeyList.pop(); // Remove SMTP.
       MailServices.accounts.reorderAccounts(accountKeyList);
-      rebuildAccountTree();
     });
     mainTree.addEventListener("expanded", event => {
       this._dataStore.setValue(

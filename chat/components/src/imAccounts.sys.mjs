@@ -743,30 +743,12 @@ imAccount.prototype = {
     AutoLoginCounter.finishedAutoLogin();
   },
 
-  // Delete the account (from the preferences, mozStorage, and call unInit).
+  /**
+   * Delete the account (from the preferences, mozStorage, and call unInit).
+   */
   remove() {
-    let finished = false;
-    this._removeInternal().finally(() => (finished = true));
-    Services.tm.spinEventLoopUntilOrQuit("imAccount.remove", () => finished);
-  },
-  async _removeInternal() {
-    const login = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
-      Ci.nsILoginInfo
-    );
     const passwordURI = "im://" + this.protocol.id;
-    // Note: the normalizedName may not be exactly right if the
-    // protocol plugin is missing.
-    login.init(passwordURI, null, passwordURI, this.normalizedName, "", "", "");
-    const logins = await Services.logins.searchLoginsAsync({
-      origin: passwordURI,
-      httpRealm: passwordURI,
-    });
-    for (const l of logins) {
-      if (login.matches(l, true)) {
-        await Services.logins.removeLoginAsync(l);
-        break;
-      }
-    }
+    const username = this.normalizedName;
     if (this.connected || this.connecting) {
       this.disconnect();
     }
@@ -777,6 +759,30 @@ imAccount.prototype = {
     IMServices.contacts.forgetAccount(this.numericId);
     for (const prefName of this.prefBranch.getChildList("")) {
       this.prefBranch.clearUserPref(prefName);
+    }
+    // Remove the password, but don't wait for it to happen.
+    this._removePasswordInternal(passwordURI, username);
+  },
+
+  /**
+   * Remove the password from the login store.
+   */
+  async _removePasswordInternal(passwordURI, username) {
+    const login = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
+      Ci.nsILoginInfo
+    );
+    // Note: the normalizedName may not be exactly right if the
+    // protocol plugin is missing.
+    login.init(passwordURI, null, passwordURI, username, "", "", "");
+    const logins = await Services.logins.searchLoginsAsync({
+      origin: passwordURI,
+      httpRealm: passwordURI,
+    });
+    for (const l of logins) {
+      if (login.matches(l, true)) {
+        await Services.logins.removeLoginAsync(l);
+        break;
+      }
     }
   },
   unInit() {

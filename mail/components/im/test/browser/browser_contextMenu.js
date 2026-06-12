@@ -52,6 +52,7 @@ add_task(async function testContextMenu() {
   conversation.close();
   account.disconnect();
   IMServices.accounts.deleteAccount(account.id);
+  await Promise.resolve(); // Ensure login removal.
 });
 
 add_task(async function testMessageContextMenuOnLink() {
@@ -161,6 +162,7 @@ add_task(async function testMessageContextMenuOnLink() {
   conversation.close();
   account.disconnect();
   IMServices.accounts.deleteAccount(account.id);
+  await Promise.resolve(); // Ensure login removal.
 });
 
 add_task(async function testMessageAction() {
@@ -244,4 +246,5 @@ add_task(async function testMessageAction() {
   conversation.close();
   account.disconnect();
   IMServices.accounts.deleteAccount(account.id);
+  await Promise.resolve(); // Ensure login removal.
 });

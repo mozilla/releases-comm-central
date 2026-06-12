@@ -50,6 +50,7 @@ add_task(async function testGrantingBuddyRequest() {
 
   account.disconnect();
   IMServices.accounts.deleteAccount(account.id);
+  await Promise.resolve(); // Ensure login removal.
 });
 
 add_task(async function testCancellingBuddyRequest() {
@@ -105,6 +106,7 @@ add_task(async function testCancellingBuddyRequest() {
 
   account.disconnect();
   IMServices.accounts.deleteAccount(account.id);
+  await Promise.resolve(); // Ensure login removal.
 });
 
 add_task(async function testDenyingBuddyRequest() {
@@ -152,6 +154,7 @@ add_task(async function testDenyingBuddyRequest() {
 
   account.disconnect();
   IMServices.accounts.deleteAccount(account.id);
+  await Promise.resolve(); // Ensure login removal.
 });
 
 add_task(async function testGrantingChatRequest() {
@@ -202,6 +205,7 @@ add_task(async function testGrantingChatRequest() {
 
   account.disconnect();
   IMServices.accounts.deleteAccount(account.id);
+  await Promise.resolve(); // Ensure login removal.
 });
 
 add_task(async function testCancellingChatRequest() {
@@ -258,6 +262,7 @@ add_task(async function testCancellingChatRequest() {
 
   account.disconnect();
   IMServices.accounts.deleteAccount(account.id);
+  await Promise.resolve(); // Ensure login removal.
 });
 
 add_task(async function testDenyingChatRequest() {
@@ -307,6 +312,7 @@ add_task(async function testDenyingChatRequest() {
 
   account.disconnect();
   IMServices.accounts.deleteAccount(account.id);
+  await Promise.resolve(); // Ensure login removal.
 });
 
 add_task(async function testUndenyableChatRequest() {
@@ -357,4 +363,5 @@ add_task(async function testUndenyableChatRequest() {
 
   account.disconnect();
   IMServices.accounts.deleteAccount(account.id);
+  await Promise.resolve(); // Ensure login removal.
 });

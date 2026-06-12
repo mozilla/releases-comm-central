@@ -548,7 +548,7 @@ export const TreeListboxMixin = Base =>
      * @param {?Event|null} event - The DOM Event if provided.
      */
     updateSelection(row, event = null) {
-      // No need to do anything if no keyboard even is present and the row is
+      // No need to do anything if no keyboard event is present and the row is
       // the currently selected one.
       if (
         this.selectedRow == row &&

@@ -17,6 +17,8 @@ tags = ["notifications"]
 
 ["browser_contextMenu.js"]
 
+["browser_createRemoveAccount.js"]
+
 ["browser_logs.js"]
 
 ["browser_messagesMail.js"]

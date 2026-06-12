@@ -2398,9 +2398,11 @@ var folderPane = {
         serverKeys.indexOf(a.dataset.serverKey) -
         serverKeys.indexOf(b.dataset.serverKey)
     );
-    list.replaceChildren(...serverRows);
-    if (selected) {
-      setTimeout(() => selected.classList.add("selected"));
+    if (serverRows.some((row, index) => list.children[index] != row)) {
+      list.replaceChildren(...serverRows);
+      if (selected) {
+        setTimeout(() => selected.classList.add("selected"));
+      }
     }
   },
 

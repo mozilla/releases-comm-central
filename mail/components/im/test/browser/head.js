@@ -123,6 +123,7 @@ registerCleanupFunction(async () => {
         account.disconnect();
       }
       IMServices.accounts.deleteAccount(account.id);
+      await Promise.resolve(); // Ensure login removal.
     } catch (error) {
       ok(false, "Error deleting account " + account.id + ": " + error.message);
     }
