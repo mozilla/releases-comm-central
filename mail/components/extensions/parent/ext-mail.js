@@ -417,7 +417,6 @@ class TabTracker extends TabTrackerBase {
     super();
 
     this._tabs = new WeakMap();
-    this._browsers = new Map();
     this._tabIds = new Map();
     this._nextId = 1;
     this._movingTabs = new Map();
@@ -501,30 +500,22 @@ class TabTracker extends TabTrackerBase {
   }
 
   /**
-   * Returns the tab id corresponding to the given browser element.
+   * Returns the native tab associated with the given <browser>, if any.
    *
    * @param {XULElement} browser - The <browser> element to retrieve for
-   * @returns {Integer} The tab's numeric ID
+   * @returns {NativeTabInfo|null} The native tab, or null if not found
    */
-  getBrowserTabId(browser) {
-    let id = this._browsers.get(browser.browserId);
-    if (id) {
-      return id;
-    }
-
+  getTabForBrowser(browser) {
     const window = browser.browsingContext.topChromeWindow;
     const tabmail = window.document.getElementById("tabmail");
-    const tab = tabmail && tabmail.getTabForBrowser(browser);
-
+    const tab = tabmail?.getTabForBrowser(browser);
     if (tab) {
-      id = this.getId(tab);
-      this._browsers.set(browser.browserId, id);
-      return id;
+      return tab;
     }
     if (windowTracker.isSecondaryWindow(window)) {
-      return this.getId(window);
+      return window;
     }
-    return -1;
+    return null;
   }
 
   /**
@@ -535,10 +526,6 @@ class TabTracker extends TabTrackerBase {
    */
   setId(nativeTabInfo, id) {
     this._tabs.set(nativeTabInfo, id);
-    const browser = getTabBrowser(nativeTabInfo);
-    if (browser) {
-      this._browsers.set(browser.browserId, id);
-    }
     this._tabIds.set(id, nativeTabInfo);
   }
 
@@ -553,9 +540,6 @@ class TabTracker extends TabTrackerBase {
     const id = this._tabs.get(nativeTabInfo);
     if (id) {
       this._tabs.delete(nativeTabInfo);
-      if (nativeTabInfo.browser) {
-        this._browsers.delete(nativeTabInfo.browser.browserId);
-      }
       if (this._tabIds.get(id) === nativeTabInfo) {
         this._tabIds.delete(id);
       }
@@ -799,8 +783,9 @@ class TabTracker extends TabTrackerBase {
     } catch (ex) {
       windowId = -1;
     }
+    const tab = this.getTabForBrowser(browser);
     return {
-      tabId: this.getBrowserTabId(browser),
+      tabId: tab ? this.getId(tab) : -1,
       windowId,
     };
   }

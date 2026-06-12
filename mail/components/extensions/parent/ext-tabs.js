@@ -365,13 +365,13 @@ this.tabs = class extends ExtensionAPIPersistent {
       const statusListener = ({ browser, status, url }) => {
         const { extension } = this;
         const { tabManager } = extension;
-        const tabId = tabTracker.getBrowserTabId(browser);
-        if (tabId != -1) {
+        const nativeTabInfo = tabTracker.getTabForBrowser(browser);
+        if (nativeTabInfo) {
           const changed = { status };
           if (url) {
             changed.url = url;
           }
-          fireForTab(tabManager.get(tabId), changed);
+          fireForTab(tabManager.getWrapper(nativeTabInfo), changed);
         }
       };
 

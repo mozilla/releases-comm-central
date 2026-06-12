@@ -42,6 +42,8 @@ tags = ["webextensions"]
 
 ["browser_ext_tabs_events.js"]
 
+["browser_ext_tabs_getCurrent.js"]
+
 ["browser_ext_tabs_move.js"]
 
 ["browser_ext_tabs_onCreated_bug1817872.js"]
