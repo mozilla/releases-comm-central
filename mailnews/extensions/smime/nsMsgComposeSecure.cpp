@@ -24,8 +24,10 @@
 #include "nsServiceManagerUtils.h"
 #include "nspr.h"
 #include "mozpkix/Result.h"
+#include "mozpkix/pkixnss.h"
 #include "nsNSSCertificate.h"
 #include "nsNSSHelper.h"
+#include "nsINSSErrorsService.h"
 #include "CryptoTask.h"
 
 using namespace mozilla::mailnews;
@@ -226,7 +228,7 @@ void nsMsgComposeSecure::SetErrorWithParam(nsIMsgSendReport* sendReport,
   nsString errorString;
   nsresult res;
   AutoTArray<nsString, 1> params;
-  CopyASCIItoUTF16(MakeStringSpan(param), *params.AppendElement());
+  CopyUTF8toUTF16(MakeStringSpan(param), *params.AppendElement());
   res = SMIMEBundleFormatStringFromName(bundle_string, params, errorString);
 
   if (NS_SUCCEEDED(res)) {
@@ -799,6 +801,8 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const nsACString& aRecipients,
   nsCOMPtr<nsIX509CertDB> certdb =
       mozilla::components::NSSCertificateDB::Service();
   nsresult res = NS_OK;
+  nsAutoString selfSigningCertErrorReason;
+  nsAutoString selfEncryptionCertErrorReason;
 
   PR_ASSERT(aEncrypt || aSign);
 
@@ -831,17 +835,34 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const nsACString& aRecipients,
       res = mSelfEncryptionCert->GetRawDER(certBytes);
       NS_ENSURE_SUCCESS(res, res);
 
-      if (certVerifier->VerifyCert(
-              certBytes, mozilla::psm::VerifyUsage::EmailRecipient,
-              mozilla::pkix::Now(), nullptr, nullptr, builtChain,
-              // Only local checks can run on the main thread.
-              // Skipping OCSP for the user's own cert seems acceptable.
-              CertVerifier::FLAG_LOCAL_ONLY) != mozilla::pkix::Success) {
-        // not suitable for encryption, so unset cert and clear pref
+      mozilla::pkix::Result result = certVerifier->VerifyCert(
+          certBytes, mozilla::psm::VerifyUsage::EmailRecipient,
+          mozilla::pkix::Now(), nullptr, nullptr, builtChain,
+          // Only local checks can run on the main thread.
+          // Skipping OCSP for the user's own cert seems acceptable.
+          CertVerifier::FLAG_LOCAL_ONLY);
+      if (result != mozilla::pkix::Success) {
+        int32_t nssError = mozilla::pkix::MapResultToPRErrorCode(result);
+        nsCOMPtr<nsINSSErrorsService> nssErrorsService =
+            do_GetService("@mozilla.org/nss_errors_service;1");
+        if (nssErrorsService) {
+          nsresult xpcomErrorCode;
+          if (NS_SUCCEEDED(nssErrorsService->GetXPCOMFromNSSError(
+                  nssError, &xpcomErrorCode))) {
+            (void)nssErrorsService->GetErrorMessage(
+                xpcomErrorCode, selfEncryptionCertErrorReason);
+          }
+        } else {
+          NS_WARNING("Failed to get nsINSSErrorsService");
+        }
+        if (selfEncryptionCertErrorReason.IsEmpty()) {
+          const char* errorName = PR_ErrorToName(nssError);
+          if (errorName) {
+            selfEncryptionCertErrorReason = NS_ConvertASCIItoUTF16(errorName);
+          }
+        }
+        // not suitable for encryption, so unset cert
         mSelfEncryptionCert = nullptr;
-        mEncryptionCertDBKey.Truncate();
-        aIdentity->SetCharAttribute("encryption_cert_dbkey",
-                                    mEncryptionCertDBKey);
       }
     }
   }
@@ -855,28 +876,52 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const nsACString& aRecipients,
       res = mSelfSigningCert->GetRawDER(certBytes);
       NS_ENSURE_SUCCESS(res, res);
 
-      if (certVerifier->VerifyCert(
-              certBytes, mozilla::psm::VerifyUsage::EmailSigner,
-              mozilla::pkix::Now(), nullptr, nullptr, builtChain,
-              // Only local checks can run on the main thread.
-              // Skipping OCSP for the user's own cert seems acceptable.
-              CertVerifier::FLAG_LOCAL_ONLY) != mozilla::pkix::Success) {
-        // not suitable for signing, so unset cert and clear pref
+      mozilla::pkix::Result result = certVerifier->VerifyCert(
+          certBytes, mozilla::psm::VerifyUsage::EmailSigner,
+          mozilla::pkix::Now(), nullptr, nullptr, builtChain,
+          // Only local checks can run on the main thread.
+          // Skipping OCSP for the user's own cert seems acceptable.
+          CertVerifier::FLAG_LOCAL_ONLY);
+      if (result != mozilla::pkix::Success) {
+        int32_t nssError = mozilla::pkix::MapResultToPRErrorCode(result);
+        nsCOMPtr<nsINSSErrorsService> nssErrorsService =
+            do_GetService("@mozilla.org/nss_errors_service;1");
+        if (nssErrorsService) {
+          nsresult xpcomErrorCode;
+          if (NS_SUCCEEDED(nssErrorsService->GetXPCOMFromNSSError(
+                  nssError, &xpcomErrorCode))) {
+            (void)nssErrorsService->GetErrorMessage(xpcomErrorCode,
+                                                    selfSigningCertErrorReason);
+          }
+        } else {
+          NS_WARNING("Failed to get nsINSSErrorsService");
+        }
+        if (selfSigningCertErrorReason.IsEmpty()) {
+          const char* errorName = PR_ErrorToName(nssError);
+          if (errorName) {
+            selfSigningCertErrorReason = NS_ConvertASCIItoUTF16(errorName);
+          }
+        }
+        // not suitable for signing, so unset cert
         mSelfSigningCert = nullptr;
-        mSigningCertDBKey.Truncate();
-        aIdentity->SetCharAttribute("signing_cert_dbkey", mSigningCertDBKey);
       }
     }
   }
 
   // must have both the signing and encryption certs to sign
   if (!mSelfSigningCert && aSign) {
-    SetError(sendReport, u"NoSenderSigningCert");
+    nsAutoCString errorReason =
+        NS_ConvertUTF16toUTF8(selfSigningCertErrorReason);
+    SetErrorWithParam(sendReport, "SenderSigningCertInvalid",
+                      errorReason.get());
     return NS_ERROR_FAILURE;
   }
 
   if (!mSelfEncryptionCert && aEncrypt) {
-    SetError(sendReport, u"NoSenderEncryptionCert");
+    nsAutoCString errorReason =
+        NS_ConvertUTF16toUTF8(selfEncryptionCertErrorReason);
+    SetErrorWithParam(sendReport, "SenderEncryptionCertInvalid",
+                      errorReason.get());
     return NS_ERROR_FAILURE;
   }
 
