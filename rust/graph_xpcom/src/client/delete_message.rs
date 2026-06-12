@@ -33,12 +33,13 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
         &mut self,
         client: &XpComGraphClient<ServerT>,
     ) -> Result<Self::Okay, XpComGraphError> {
+        let base_api_url = client.base_api_url()?;
         let requests = self
             .message_ids
             .iter()
             .map(|message_id| {
                 paths::me::messages::message_id::Delete::new(
-                    client.base_url().to_string(),
+                    base_api_url.to_string(),
                     message_id.clone(),
                 )
             })

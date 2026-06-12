@@ -8,7 +8,7 @@ use http::{Method, Request};
 use moz_http::{Response, StatusCode};
 use ms_graph_tb::{
     Operation,
-    batching::{BatchRequest, BatchResponse, GRAPH_BATCH_ENDPOINT},
+    batching::{BatchRequest, BatchResponse},
 };
 use operation_queue::{OperationQueue, QueuedOperation};
 use protocol_shared::{
@@ -275,10 +275,40 @@ impl<ServerT: ServerType> XpComGraphClient<ServerT> {
         self.queue.idle()
     }
 
-    /// Returns the [`Url`] currently used as the base URL to build request
-    /// with.
-    pub fn base_url(&self) -> Url {
-        self.op_sender.base_url()
+    /// Return the [`Url`] that serves as the Graph API base, including the required API version.
+    ///
+    /// Note that the final value for this URL must be computed at the time of access since
+    /// internally, the operation sender has an observer that can change the base URL based on the
+    /// Exchange URL configuration, and the exchange URL configuration does not contain the API
+    /// version component.
+    pub fn base_api_url(&self) -> Result<Url, XpComGraphError> {
+        let mut api_url = self.op_sender.base_url();
+
+        // The ms_graph_tb crate is built from the Graph 1.0 API specification.
+        // Incoming configuration is assumed to exclude the API version, so it
+        // needs to be added to the base endpoint for all API calls here.
+        {
+            let mut api_path = api_url
+                .path_segments_mut()
+                .or(Err(nserror::NS_ERROR_MALFORMED_URI))?;
+            api_path.push("v1.0");
+        }
+
+        Ok(api_url)
+    }
+
+    /// Return the [`Url`] that serves as the Graph API Batch request base.
+    pub fn base_batch_api_url(&self) -> Result<Url, XpComGraphError> {
+        let mut batch_api_url = self.base_api_url()?;
+
+        {
+            let mut batch_api_path = batch_api_url
+                .path_segments_mut()
+                .or(Err(nserror::NS_ERROR_MALFORMED_URI))?;
+            batch_api_path.push("$batch");
+        }
+
+        Ok(batch_api_url)
     }
 
     async fn send_request<Op>(
@@ -316,11 +346,8 @@ impl<ServerT: ServerType> XpComGraphClient<ServerT> {
         for block in blocks {
             let batch_request = BatchRequest::new(block);
 
-            let resource_url = self
-                .op_sender
-                .base_url()
-                .join(GRAPH_BATCH_ENDPOINT)
-                .map_err(ProtocolError::from)?;
+            let resource_url = self.base_batch_api_url()?;
+
             let body = serde_json::to_vec(&batch_request).map_err(XpComGraphError::Json)?;
 
             let request = Request::builder()

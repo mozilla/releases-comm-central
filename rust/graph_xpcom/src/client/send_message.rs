@@ -75,7 +75,7 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
         // Send the update request. We don't need to check the response, since
         // it should just be the original message with the added properties (and
         // all we need to send is the ID, which we already have).
-        let base_url = client.base_url();
+        let base_url = client.base_api_url()?;
         let request = messages::message_id::Patch::new(
             base_url.to_string(),
             message_id.clone(),

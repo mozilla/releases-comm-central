@@ -46,7 +46,7 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
             .map(|message_id| {
                 client.move_message_request(self.destination_folder_id.clone(), message_id.clone())
             })
-            .collect();
+            .collect::<Result<Vec<r#move::Post<'_>>, XpComGraphError>>()?;
 
         let responses = client
             .send_batch_request_json_response(requests, Default::default())
@@ -115,14 +115,16 @@ impl<ServerT: ServerType> XpComGraphClient<ServerT> {
         &'m self,
         destination_folder_id: String,
         message_id: String,
-    ) -> r#move::Post<'m> {
+    ) -> Result<r#move::Post<'m>, XpComGraphError> {
         let body = messages::message_id::r#move::PostRequestBody::new()
             .set_destination_id(destination_folder_id);
 
-        messages::message_id::r#move::Post::new(
-            self.base_url().to_string(),
+        let base_api_url = self.base_api_url()?;
+
+        Ok(messages::message_id::r#move::Post::new(
+            base_api_url.to_string(),
             message_id,
             OperationBody::JSON(body),
-        )
+        ))
     }
 }

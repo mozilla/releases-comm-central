@@ -33,6 +33,7 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
         &mut self,
         client: &XpComGraphClient<ServerT>,
     ) -> Result<Self::Okay, XpComGraphError> {
+        let base_api_url = client.base_api_url()?;
         let requests = self
             .folder_ids
             .iter()
@@ -40,7 +41,7 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
                 let body = paths::me::mail_folders::mail_folder_id::r#move::PostRequestBody::new()
                     .set_destination_id(self.destination_folder_id.clone());
                 paths::me::mail_folders::mail_folder_id::r#move::Post::new(
-                    client.base_url().to_string(),
+                    base_api_url.to_string(),
                     folder_id.clone(),
                     OperationBody::JSON(body),
                 )

@@ -581,12 +581,12 @@ add_task(async function test_exchange_graph_advanced_configuration() {
     incomingForm,
     "config-updated",
     false,
-    () => exchangeURLField.value == "https://graph.microsoft.com/v1.0"
+    () => exchangeURLField.value == "https://graph.microsoft.com/"
   );
   const focusEvent = BrowserTestUtils.waitForEvent(exchangeURLField, "focus");
   EventUtils.synthesizeMouseAtCenter(exchangeURLField, {});
   await focusEvent;
-  EventUtils.sendString("https://graph.microsoft.com/v1.0");
+  EventUtils.sendString("https://graph.microsoft.com/");
   ({ detail: configUpdatedEvent } = await configUpdatedEventPromise);
 
   Assert.ok(
@@ -605,7 +605,7 @@ add_task(async function test_exchange_graph_advanced_configuration() {
 
   Assert.equal(
     graphAccount.incomingServer.getStringValue("ews_url"),
-    "https://graph.microsoft.com/v1.0",
+    "https://graph.microsoft.com/",
     "The Exchange URL should be a Graph API URL."
   );
 

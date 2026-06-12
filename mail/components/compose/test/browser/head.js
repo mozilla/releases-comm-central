@@ -76,7 +76,7 @@ function createEWSAccount() {
  */
 function createGraphAccount() {
   // As per `ServerTestUtils.sys.mjs`, the port for the Graph server is 8080.
-  const ret = createExchangeAccount("graph", "http://test.test:8080/v1.0");
+  const ret = createExchangeAccount("graph", "http://test.test:8080/");
 
   return {
     graphAccount: ret.account,

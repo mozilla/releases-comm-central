@@ -13,10 +13,6 @@ use serde_json::{Value, value::RawValue};
 
 use crate::Operation;
 
-/// The endpoint location for Graph API batch operations.
-/// See <https://learn.microsoft.com/en-us/graph/json-batching>
-pub const GRAPH_BATCH_ENDPOINT: &str = "/v1.0/$batch";
-
 /// The top level structure of a Graph API batch request.
 ///
 /// See <https://learn.microsoft.com/en-us/graph/json-batching>

@@ -34,6 +34,8 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
         &mut self,
         client: &XpComGraphClient<ServerT>,
     ) -> Result<Self::Okay, XpComGraphError> {
+        let base_api_url = client.base_api_url()?;
+
         // Note: the C++ consumer code expects the order of new messages IDs to
         // match that of the old ones (so that e.g. `new_message_ids[0]` is the
         // new ID for `self.message_ids[0]`).
@@ -45,7 +47,7 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
                     .set_destination_id(self.destination_folder_id.clone());
 
                 messages::message_id::copy::Post::new(
-                    client.base_url().to_string(),
+                    base_api_url.to_string(),
                     message_id.clone(),
                     OperationBody::JSON(body),
                 )

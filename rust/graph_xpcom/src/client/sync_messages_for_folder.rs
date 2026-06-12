@@ -76,7 +76,7 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
                     MessageSelection::ToRecipients,
                 ];
 
-                let base_url = client.base_url().to_string();
+                let base_url = client.base_api_url()?.to_string();
                 let folder_id = self.folder_id.clone();
                 let mut request = messages::delta::Get::new(base_url, folder_id);
                 request.select(select_properties);

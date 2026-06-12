@@ -35,8 +35,9 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
         client: &XpComGraphClient<ServerT>,
     ) -> Result<Self::Okay, XpComGraphError> {
         let folder_config = MailFolder::new().set_display_name(Some(self.name.clone()));
+        let base_api_url = client.base_api_url()?;
         let request = child_folders::Post::new(
-            client.base_url().to_string(),
+            base_api_url.to_string(),
             self.parent_id.clone(),
             OperationBody::JSON(folder_config),
         );

@@ -34,12 +34,13 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
         client: &XpComGraphClient<ServerT>,
     ) -> Result<Self::Okay, XpComGraphError> {
         let message_update = Message::new().set_is_read(Some(self.is_read));
+        let base_api_url = client.base_api_url()?;
         let operations = self
             .message_ids
             .iter()
             .map(|message_id| {
                 paths::me::messages::message_id::Patch::new(
-                    client.base_url().to_string(),
+                    base_api_url.to_string(),
                     message_id.clone(),
                     OperationBody::JSON(message_update.clone()),
                 )

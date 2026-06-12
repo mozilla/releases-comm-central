@@ -11,7 +11,7 @@
       <username>%EMAILADDRESS%</username>
     </incomingServer>
     <incomingServer type="graph">
-      <url>https://graph.exchange.test/v1.0/</url>
+      <url>https://graph.exchange.test/</url>
       <username>%EMAILADDRESS%</username>
       <authentication>plain</authentication>
     </incomingServer>

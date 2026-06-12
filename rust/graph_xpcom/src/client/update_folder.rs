@@ -33,7 +33,7 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
     ) -> Result<Self::Okay, XpComGraphError> {
         let patch_body = MailFolder::new().set_display_name(Some(self.folder_name.clone()));
         let request = me::mail_folders::mail_folder_id::Patch::new(
-            client.base_url().to_string(),
+            client.base_api_url()?.to_string(),
             self.folder_id.clone(),
             OperationBody::JSON(patch_body),
         );

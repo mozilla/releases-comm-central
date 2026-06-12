@@ -267,9 +267,14 @@ export class GraphServer extends MockServer {
       }
     }
 
-    const resourcePath = request.path.startsWith("/v1.0")
-      ? request.path.substring(5)
-      : request.path;
+    if (!request.path.startsWith("/v1.0")) {
+      // Make sure all of the endpoints always include the version string. This
+      // is to mimic what M365 does and catch nonconformance in testing.
+      throw new Error(`Invalid API version in request: ${request.path}`);
+    }
+
+    // Strip the API version to get the actual resource path.
+    const resourcePath = request.path.substring(5);
 
     if (resourcePath === "/$batch") {
       this.#handleBatchRequest(request, response);
@@ -1060,7 +1065,7 @@ export class GraphServer extends MockServer {
   }
 
   get #endpoint() {
-    return `http://127.0.0.1:${this.port}`;
+    return `http://127.0.0.1:${this.port}/v1.0`;
   }
 }
 

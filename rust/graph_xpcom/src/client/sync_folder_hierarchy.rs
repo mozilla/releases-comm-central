@@ -47,7 +47,7 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
                 (response, None)
             }
             None => {
-                let base_url = client.base_url().to_string();
+                let base_url = client.base_api_url()?.to_string();
                 let request = mail_folders::delta::Get::new(base_url);
                 let response = client
                     .send_request_json_response(request, Default::default())
@@ -179,7 +179,7 @@ async fn get_well_known_folder_map<ServerT: ServerType>(
         "expected first fetched folder to be root"
     );
 
-    let base_url = client.base_url().to_string();
+    let base_url = client.base_api_url()?.to_string();
 
     let mut ret = FxHashMap::default();
     for distinguished_id in EXCHANGE_DISTINGUISHED_IDS {

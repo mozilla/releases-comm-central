@@ -32,7 +32,7 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
         &mut self,
         client: &XpComGraphClient<ServerT>,
     ) -> Result<Self::Okay, XpComGraphError> {
-        let base_url = client.base_url();
+        let base_url = client.base_api_url()?;
 
         log::info!("Start running for URI {base_url}");
         self.listener

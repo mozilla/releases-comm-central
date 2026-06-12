@@ -283,7 +283,7 @@ add_task(function test_getConfiguredHost() {
 
   const graphConfig = new AccountConfig();
   graphConfig.incoming.type = "graph";
-  graphConfig.incoming.exchangeURL = "https://graph.example.com/v1.0";
+  graphConfig.incoming.exchangeURL = "https://graph.example.com/";
   Assert.equal(
     graphConfig.getConfiguredHost(),
     "graph.example.com",

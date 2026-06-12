@@ -67,9 +67,7 @@ add_setup(async () => {
   exchangeOutgoingServer = graphOutgoingServer.QueryInterface(
     Ci.IExchangeOutgoingServer
   );
-  exchangeOutgoingServer.initialize(
-    `http://127.0.0.1:${graphServer.port}/v1.0`
-  );
+  exchangeOutgoingServer.initialize(`http://127.0.0.1:${graphServer.port}/`);
 
   // Configure the outgoing servers to use Basic/password auth (which we map to
   // `nsMsgAuthMethod.passwordCleartext`).

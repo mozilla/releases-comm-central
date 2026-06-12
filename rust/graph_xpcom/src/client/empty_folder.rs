@@ -39,13 +39,14 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
         &mut self,
         client: &XpComGraphClient<ServerT>,
     ) -> Result<Self::Okay, XpComGraphError> {
+        let base_api_url = client.base_api_url()?;
         if !self.subfolder_ids.is_empty() {
             let requests = self
                 .subfolder_ids
                 .iter()
                 .map(|folder_id| {
                     paths::me::mail_folders::mail_folder_id::Delete::new(
-                        client.base_url().to_string(),
+                        base_api_url.to_string(),
                         folder_id.clone(),
                     )
                 })

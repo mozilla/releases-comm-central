@@ -102,17 +102,7 @@ impl XpcomGraphBridge {
     ) -> Result<(), nsresult> {
         log::debug!("Initializing XpcomGraphBridge with endpoint {endpoint}");
 
-        // The ms_graph_tb crate is built from the Graph 1.0 API specification.
-        // Incoming configuration is assumed to exclude the API version, so it
-        // needs to be added to the base endpoint for all API calls here.
-        let mut endpoint = Url::parse(&endpoint.to_utf8()).or(Err(NS_ERROR_INVALID_ARG))?;
-        {
-            let mut endpoint_path = endpoint
-                .path_segments_mut()
-                .or(Err(nserror::NS_ERROR_MALFORMED_URI))?;
-            endpoint_path.push("v1.0");
-        }
-
+        let endpoint = Url::parse(&endpoint.to_utf8()).or(Err(NS_ERROR_INVALID_ARG))?;
         let server = RefPtr::new(server);
 
         let client = XpComGraphClient::new(server, endpoint)?;
@@ -134,7 +124,7 @@ impl XpcomGraphBridge {
     fn check_connectivity(&self, listener: &nsIUrlListener) -> Result<RefPtr<nsIURI>, nsresult> {
         let client = self.client()?;
 
-        let uri = client.base_url().to_string();
+        let uri = client.base_api_url()?.to_string();
         let uri = SafeUri::new(uri)?;
 
         let listener = SafeUrlListener::new(listener);
