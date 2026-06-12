@@ -165,7 +165,7 @@ account-hub-email-setup-incoming = Incoming server settings
 
 account-hub-email-setup-outgoing = Outgoing server settings
 
-account-hub-email-config-found = Choose your email account type
+account-hub-email-connect-settings = Connect your email settings
 
 account-hub-email-enter-password = Enter your email account password
 
@@ -203,17 +203,19 @@ account-hub-result-addon-label = Requires Add-on
 
 account-hub-edit-configuration = Edit configuration
 
-account-hub-config-success = Configuration found in Mozilla ISPDB
+account-hub-config-success-title = Account settings found automatically.
 
-account-hub-config-success-exchange = Configuration found for a Microsoft Exchange server
+account-hub-config-success-description-db = Configuration found in Mozilla ISPDB.
 
-account-hub-config-success-guess = Configuration found by trying common server names
+account-hub-config-success-description-exchange = Configuration found for a Microsoft Exchange server.
 
-account-hub-config-success-disk = Configuration found in { -brand-short-name } installation
+account-hub-config-success-description-guess = Configuration found by trying common server names.
 
-account-hub-config-success-isp = Configuration found at email provider
+account-hub-config-success-description-disk = Configuration found in { -brand-short-name } installation.
 
-account-hub-config-success-unknown = Configuration found
+account-hub-config-success-description-isp = Configuration found at email provider.
+
+account-hub-config-success-description-read-more = You can <a data-l10n-name="automated-setup-link">read about how automated email setup works.</a>
 
 account-hub-password-info = Your credentials will only be stored locally on your computer
 

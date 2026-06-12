@@ -444,6 +444,13 @@ div:has(legend) {
     stroke: currentColor;
   }
 
+  &.error a,
+  &.success a,
+  &.warning a,
+  &.info a {
+    color: inherit;
+  }
+
   &.error {
     background-color: var(--color-critical-soft);
     color: light-dark(var(--color-critical-pressed-light), var(--color-text-base-dark));

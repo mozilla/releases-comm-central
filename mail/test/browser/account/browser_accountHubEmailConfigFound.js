@@ -28,41 +28,41 @@ const CONFIG_FOUND_TESTS = [
   {
     name: "exchange",
     source: AccountConfig.kSourceExchange,
-    messageId: "account-hub-config-success-exchange",
+    descriptionId: "account-hub-config-success-description-exchange",
   },
   {
     name: "guess",
     source: AccountConfig.kSourceGuess,
-    messageId: "account-hub-config-success-guess",
+    descriptionId: "account-hub-config-success-description-guess",
   },
   {
     name: "unknown source",
     source: null,
-    messageId: "account-hub-config-success-unknown",
+    descriptionId: null,
   },
   {
     name: "XML from disk",
     source: AccountConfig.kSourceXML,
     subSource: "xml-from-disk",
-    messageId: "account-hub-config-success-disk",
+    descriptionId: "account-hub-config-success-description-disk",
   },
   {
     name: "XML from ISP (HTTPS)",
     source: AccountConfig.kSourceXML,
     subSource: "xml-from-isp-https",
-    messageId: "account-hub-config-success-isp",
+    descriptionId: "account-hub-config-success-description-isp",
   },
   {
     name: "XML from ISP (HTTP)",
     source: AccountConfig.kSourceXML,
     subSource: "xml-from-isp-http",
-    messageId: "account-hub-config-success-isp",
+    descriptionId: "account-hub-config-success-description-isp",
   },
   {
     name: "XML from DB",
     source: AccountConfig.kSourceXML,
     subSource: "xml-from-db",
-    messageId: "account-hub-config-success",
+    descriptionId: "account-hub-config-success-description-db",
   },
 ];
 
@@ -73,7 +73,7 @@ add_task(async function test_configFoundMessage() {
       testDetails.source,
       testDetails.subSource
     );
-    await checkConfigFoundMessage(dialog, testDetails.messageId);
+    await checkConfigFoundMessage(dialog, testDetails.descriptionId);
     await subtest_close_account_hub_dialog(
       dialog,
       dialog.querySelector("email-config-found")
@@ -120,15 +120,18 @@ async function subtest_find_config(source, subSource) {
  * Check that a config found message is being displayed.
  *
  * @param {HTMLDialogElement} dialog - Reference to the account hub dial
- * @param {string} foundStringId - The fluent ID of the message to expect.
+ * @param {string} descriptionId - The fluent ID of the message to expect.
  */
-async function checkConfigFoundMessage(dialog, foundStringId) {
+async function checkConfigFoundMessage(dialog, descriptionId) {
   const step = dialog.querySelector("email-config-found");
   const header = step.shadowRoot.querySelector("account-hub-header");
   const notificationTitle = header.shadowRoot.querySelector(
     "#emailFormNotificationTitle"
   );
-  info(`Waiting for ${foundStringId} config found message...`);
+  const notificationDescription = header.shadowRoot.querySelector(
+    "#emailFormNotificationText"
+  );
+  info(`Waiting for ${descriptionId} config found message...`);
   const notification = header.shadowRoot.querySelector(
     "#emailFormNotification"
   );
@@ -149,7 +152,22 @@ async function checkConfigFoundMessage(dialog, foundStringId) {
     document.l10n.getAttributes(
       notificationTitle.querySelector(".localized-title")
     ).id,
-    foundStringId,
-    "Should display correct message"
+    "account-hub-config-success-title",
+    "Should display the config found title"
   );
+  const rawDescription =
+    notificationDescription.querySelector(".raw-description");
+  if (descriptionId) {
+    const configDescription = rawDescription.querySelector("span");
+    Assert.equal(
+      document.l10n.getAttributes(configDescription).id,
+      descriptionId,
+      "Should display the config source description"
+    );
+  }
+
+  const readMoreDescription = rawDescription.querySelector(
+    '[data-l10n-id="account-hub-config-success-description-read-more"]'
+  );
+  Assert.ok(readMoreDescription, "Should include the read-more description");
 }

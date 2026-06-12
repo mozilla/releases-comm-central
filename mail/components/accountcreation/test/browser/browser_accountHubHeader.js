@@ -136,6 +136,61 @@ add_task(async function test_subheader_showNotification_fluent_title() {
   );
 });
 
+add_task(async function test_showNotification_dom_description() {
+  const notification = header.shadowRoot.querySelector(
+    "#emailFormNotification"
+  );
+
+  const { ownerDocument } = header;
+  const description = ownerDocument.createDocumentFragment();
+  const text = ownerDocument.createElement("span");
+  text.textContent = "First description.";
+  const link = ownerDocument.createElement("a");
+  link.href = "https://example.com/";
+  link.textContent = "Read more";
+  description.append(text, " ", link);
+
+  header.showNotification({
+    title: "Test notification",
+    description,
+    type: "info",
+  });
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(notification),
+    "Should show notification"
+  );
+
+  const localizedDescription = notification.querySelector(
+    ".localized-description"
+  );
+  Assert.equal(
+    localizedDescription.textContent,
+    "",
+    "Should not use the localized description container"
+  );
+
+  const rawDescription = notification.querySelector(".raw-description");
+  Assert.equal(
+    rawDescription.textContent,
+    "First description. Read more",
+    "Should insert DOM description content"
+  );
+
+  Assert.equal(
+    rawDescription.querySelector("a")?.href,
+    "https://example.com/",
+    "Should preserve DOM nodes in the description"
+  );
+
+  header.clearNotifications();
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(notification),
+    "Notification should be hidden"
+  );
+});
+
 add_task(async function test_showNotification_error_without_cause() {
   const notification = header.shadowRoot.querySelector(
     "#emailFormNotification"

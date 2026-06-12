@@ -98,7 +98,8 @@ class AccountHubHeader extends HTMLElement {
    * Show an error notification in-case something went wrong.
    *
    * @param {object} options - An options object for displaying notification.
-   * @param {string} [options.description] - A raw string to show in the title.
+   * @param {string|Node} [options.description] - A raw string or DOM content to
+   *   show in the description.
    * @param {Error} [options.error] - An error object. Must be set if type is "error".
    * @param {string} [options.fluentTitleId] - A string representing a fluent id
    *   to localize for the title.
@@ -106,7 +107,7 @@ class AccountHubHeader extends HTMLElement {
    *   fluent string.
    * @param {string} [options.fluentDescriptionId] - A string representing a
    *   fluent id to localize for the description.
-   * @param {string} [options.title] - A raw string to display in the description.
+   * @param {string} [options.title] - A raw string to display in the title.
    * @param {"error"|"warning"|"info"|"success"} options.type - The type of notification.
    */
   showNotification({
@@ -179,6 +180,13 @@ class AccountHubHeader extends HTMLElement {
 
       // If we have a specific Fluent id for the description, return early
       // so we don't have two descriptions.
+      return;
+    }
+
+    if (Node.isInstance(description)) {
+      descriptionElement
+        .querySelector(".raw-description")
+        .replaceChildren(description);
       return;
     }
 

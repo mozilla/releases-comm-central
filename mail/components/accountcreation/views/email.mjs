@@ -30,6 +30,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   OAuth2Providers: "resource:///modules/OAuth2Providers.sys.mjs",
   RemoteAddressBookUtils:
     "resource:///modules/accountcreation/RemoteAddressBookUtils.sys.mjs",
+  openLinkExternally: "resource:///modules/LinkHelper.sys.mjs",
 });
 
 import "chrome://messenger/content/accountcreation/content/widgets/account-hub-step.mjs"; // eslint-disable-line import/no-unassigned-import
@@ -1996,31 +1997,78 @@ class AccountHubEmail extends HTMLElement {
     await this.reset();
   }
 
-  #showConfigFoundNotification() {
-    let configFoundString = "account-hub-config-success-unknown";
+  #getConfigFoundNotificationCustomDescription() {
+    let configFoundDescriptionStringId;
 
     const CONFIG_SOURCE = {
       [lazy.AccountConfig.kSourceExchange]:
-        "account-hub-config-success-exchange",
-      [lazy.AccountConfig.kSourceGuess]: "account-hub-config-success-guess",
+        "account-hub-config-success-description-exchange",
+      [lazy.AccountConfig.kSourceGuess]:
+        "account-hub-config-success-description-guess",
     };
 
     if (Object.hasOwn(CONFIG_SOURCE, this.#currentConfig.source)) {
-      configFoundString = CONFIG_SOURCE[this.#currentConfig.source];
+      configFoundDescriptionStringId =
+        CONFIG_SOURCE[this.#currentConfig.source];
     } else if (this.#currentConfig.source == lazy.AccountConfig.kSourceXML) {
       const CONFIG_SUBSOURCE = {
-        "xml-from-disk": "account-hub-config-success-disk",
-        "xml-from-isp-https": "account-hub-config-success-isp",
-        "xml-from-isp-http": "account-hub-config-success-isp",
-        "xml-from-db": "account-hub-config-success",
+        "xml-from-disk": "account-hub-config-success-description-disk",
+        "xml-from-isp-https": "account-hub-config-success-description-isp",
+        "xml-from-isp-http": "account-hub-config-success-description-isp",
+        "xml-from-db": "account-hub-config-success-description-db",
       };
       if (Object.hasOwn(CONFIG_SUBSOURCE, this.#currentConfig.subSource)) {
-        configFoundString = CONFIG_SUBSOURCE[this.#currentConfig.subSource];
+        configFoundDescriptionStringId =
+          CONFIG_SUBSOURCE[this.#currentConfig.subSource];
       }
     }
 
+    return configFoundDescriptionStringId;
+  }
+
+  #showConfigFoundNotification() {
+    const configFoundDescriptionId =
+      this.#getConfigFoundNotificationCustomDescription();
+
+    const description = document.createDocumentFragment();
+
+    const configDescription = document.createElement("span");
+    document.l10n.setAttributes(configDescription, configFoundDescriptionId);
+
+    const readMore = document.createElement("span");
+    document.l10n.setAttributes(
+      readMore,
+      "account-hub-config-success-description-read-more"
+    );
+
+    const link = document.createElement("a");
+    link.href =
+      "https://support.thunderbird.net/kb/automatic-account-configuration";
+    link.dataset.l10nName = "automated-setup-link";
+
+    // Fluent does a shallow clone of the <a> element, which doesn't copy
+    // over event handlers. Instead, add a click handler to the parent element
+    // so that the external link is opened correctly.
+    readMore.addEventListener("click", event => {
+      const eventLink = event.target.closest(
+        'a[data-l10n-name="automated-setup-link"]'
+      );
+      if (!eventLink) {
+        return;
+      }
+      event.preventDefault();
+      lazy.openLinkExternally(eventLink.href, {
+        addToHistory: false,
+      });
+    });
+
+    readMore.appendChild(link);
+
+    description.append(configDescription, " ", readMore);
+
     this.#currentSubview.showNotification({
-      fluentTitleId: configFoundString,
+      fluentTitleId: "account-hub-config-success-title",
+      description,
       type: "success",
     });
   }
