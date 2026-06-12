@@ -692,7 +692,8 @@ NS_IMETHODIMP nsAutoSyncState::DownloadMessagesForOffline(
     rv = imapService->DownloadMessagesForOffline(messageIds, folder, this,
                                                  nullptr);
     NS_ENSURE_SUCCESS(rv, rv);
-  } else if (serverType.EqualsLiteral("ews")) {
+  } else if (serverType.EqualsLiteral("ews") ||
+             serverType.EqualsLiteral("graph")) {
     nsTArray<nsMsgKey> keys(messages.Length());
     for (nsIMsgDBHdr* hdr : messages) {
       nsMsgKey key;
