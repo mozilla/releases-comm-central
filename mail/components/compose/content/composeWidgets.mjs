@@ -615,15 +615,7 @@ class MailRecipientsArea extends MozXULElement {
         return;
       }
 
-      let addresses;
-      try {
-        addresses = JSON.parse(event.dataTransfer.getData("text/pills"));
-      } catch {
-        return;
-      }
-      if (!Array.isArray(addresses) || !addresses.length) {
-        return;
-      }
+      const addresses = JSON.parse(event.dataTransfer.getData("text/pills"));
 
       // The drag may have started in another compose window; find the
       // recipients area it came from so its pills can be removed there.

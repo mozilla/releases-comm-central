@@ -101,3 +101,65 @@ add_task(async function test_pill_drag_cross_window() {
   await close_compose_window(cwcB);
   await close_compose_window(cwcA);
 });
+
+/**
+ * Drag a pill from the To field of compose window A onto the collapsed Cc
+ * disclosure button of compose window B. The Cc row of window B should open
+ * and receive the pill, just like in the same-window case.
+ */
+add_task(async function test_pill_drag_cross_window_cc_label() {
+  const cwcA = await open_compose_new_mail();
+  const cwcB = await open_compose_new_mail();
+  await setup_msg_contents(
+    cwcA,
+    "person@example.invalid",
+    "Cross-window label drag",
+    ""
+  );
+
+  const ccButton = cwcB.document.getElementById("addr_ccShowAddressRowButton");
+  const ccRow = cwcB.document.getElementById("addressRowCc");
+  Assert.ok(
+    ccRow.classList.contains("hidden"),
+    "Cc row of window B should start hidden"
+  );
+  Assert.ok(
+    !ccButton.hidden,
+    "Cc disclosure button of window B should be visible"
+  );
+
+  const pill = cwcA.document.querySelector("mail-address-pill");
+  // The dragged pill is removed from window A by the drop, so no dragend can
+  // fire on it.
+  await EventUtils.synthesizePlainDragAndDrop({
+    srcElement: pill,
+    destElement: ccButton,
+    srcWindow: cwcA,
+    destWindow: cwcB,
+    expectSrcElementDisconnected: true,
+  });
+
+  Assert.ok(
+    !ccRow.classList.contains("hidden"),
+    "Cc row of window B should have been opened"
+  );
+  const ccPills = ccRow.querySelectorAll("mail-address-pill");
+  Assert.equal(
+    ccPills.length,
+    1,
+    "Pill should have arrived in the Cc row of window B"
+  );
+  Assert.equal(
+    ccPills[0]?.fullAddress,
+    "person@example.invalid",
+    "Pill in the Cc row of window B should carry the dragged address"
+  );
+  Assert.equal(
+    cwcA.document.getElementById("recipientsContainer").getAllPills().length,
+    0,
+    "Pill should have been removed from window A"
+  );
+
+  await close_compose_window(cwcB);
+  await close_compose_window(cwcA);
+});

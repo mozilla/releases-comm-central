@@ -6816,16 +6816,34 @@ function showAddressRowButtonOnDragover(event) {
  * @param {Event} event - The DOM drop event on a recipient disclosure label.
  */
 function showAddressRowButtonOnDrop(event) {
-  if (event.dataTransfer.types.includes("text/pills")) {
-    // If the dragged data includes the type "text/pills", we believe that
-    // the user is dragging our own pills, so we try to move the selected pills
-    // to the address row of the recipient label they were dropped on (Cc, Bcc,
-    // etc.), which will also show the row if needed. If there are no selected
-    // pills (so "text/pills" was generated elsewhere), moveSelectedPills() will
-    // bail out and we'll do nothing.
-    const row = document.getElementById(event.target.dataset.addressRow);
-    document.getElementById("recipientsContainer").moveSelectedPills(row);
+  if (!event.dataTransfer.types.includes("text/pills")) {
+    return;
   }
+  const row = document.getElementById(event.target.dataset.addressRow);
+  const recipientsArea = document.getElementById("recipientsContainer");
+  // The drag may have started in another compose window; find the recipients
+  // area it came from so its pills can be removed there.
+  const sourceRecipientsArea =
+    event.dataTransfer.mozSourceNode?.ownerDocument.getElementById(
+      "recipientsContainer"
+    );
+  if (!sourceRecipientsArea || sourceRecipientsArea == recipientsArea) {
+    // Same-window drag: move the selected pills to the address row of the
+    // recipient label they were dropped on (Cc, Bcc, etc.), which will also
+    // show the row if needed. If there are no selected pills (so "text/pills"
+    // was generated elsewhere), moveSelectedPills() will bail out and we'll
+    // do nothing.
+    recipientsArea.moveSelectedPills(row);
+    return;
+  }
+  const addresses = JSON.parse(event.dataTransfer.getData("text/pills"));
+  recipientsArea.createDNDPills(
+    row.querySelector(".address-container"),
+    addresses,
+    false,
+    null,
+    sourceRecipientsArea
+  );
 }
 
 /**
