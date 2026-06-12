@@ -526,6 +526,8 @@ widths: 30 70
     * mail/locales/\*\*
 * - Bugzilla Components
   - MailNews Core::Localization
+* - Review Group
+  - [#thunderbird-l10n-reviewers](https://phabricator.services.mozilla.com/tag/thunderbird-l10n-reviewers/)
 ```
 
 

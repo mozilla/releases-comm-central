@@ -8,10 +8,10 @@
 # documentation and how to modify this file.
 repo: comm-central
 created_at: '2022-10-20T11:26:42.853013'
-updated_at: '2026-05-22T17:41:27.515498+00:00'
+updated_at: '2026-06-11T12:34:29.734562+00:00'
 hashes:
-  config: 4f283e4629ca9a3b1d84f39d72297ab4261621ee
-  export: fc25be45570516a5d9eb56682ec3c7417168e2d6
+  config: ad812b65af480cffc09409a76943bbb446ea7cc8
+  export: 74e97d3cf27cdc840a23a246beb5bfc419779862
 export:
   path: ./docs/mots/index.md
   format: md
@@ -604,6 +604,7 @@ modules:
           components:
             - MailNews Core::Localization
           peers_emeritus: [*standard8]
+          review_group: thunderbird-l10n-reviewers
       - name: MIME Parser
         machine_name: mime_parser
         description: RFC822 MIME Parser
