@@ -33,7 +33,7 @@ configured-cert-failure-use-anyway-detail-v2 =
 configured-cert-failure-use-anyway-v2 =
 
   There is a problem with this certificate.
-  
+
   Certificate verification failed with error code { $errorCode }.
-  
+
   Would you like to use this certificate anyway?
