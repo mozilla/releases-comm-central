@@ -641,7 +641,7 @@ async function smimeGenCSR() {
  *   receive the certificate identifier. That parameter is also used
  *   when deciding whether to select a signing or an encryption certificate.
  */
-function smimeSelectCert(id) {
+async function smimeSelectCert(id) {
   var certInfo = document.getElementById(id);
   if (!certInfo) {
     return;
@@ -699,6 +699,41 @@ function smimeSelectCert(id) {
         );
       }
     } else {
+      // Local-only check: skip OCSP/network so selecting a cert never stalls
+      // on a slow responder or triggers a smartcard PIN prompt.
+      const verifyResult = await smimeVerifyCert(
+        x509cert,
+        selectEncryptionCert
+          ? Ci.nsIX509CertDB.verifyUsageEmailRecipient
+          : Ci.nsIX509CertDB.verifyUsageEmailSigner,
+        Ci.nsIX509CertDB.FLAG_LOCAL_ONLY
+      );
+      if (!verifyResult.ok) {
+        let failureText;
+        if (verifyResult.isNssError) {
+          failureText = await document.l10n.formatValue(
+            "configured-cert-failure-detail",
+            {
+              errorMsg: verifyResult.errorMsg,
+              errorCodeStr: verifyResult.errorName,
+            }
+          );
+        } else {
+          failureText = await document.l10n.formatValue(
+            "configured-cert-failure",
+            { errorCode: verifyResult.errorCode }
+          );
+        }
+        const useAnyway = await document.l10n.formatValue(
+          "configured-cert-use-anyway"
+        );
+        // Let the user override: a local-only failure can be a false
+        // negative, e.g. an issuer CA not yet installed.
+        if (!askUser(`${failureText}\n\n${useAnyway}`)) {
+          return;
+        }
+      }
+
       certInfo.disabled = false;
       certInfo.value =
         x509cert.displayName + " [" + x509cert.serialNumber + "]";
@@ -739,6 +774,72 @@ function smimeSelectCert(id) {
 }
 
 /**
+ * Verify an S/MIME certificate for a specific usage.
+ *
+ * @param {nsIX509Cert} x509cert - Certificate to verify.
+ * @param {number} certUsage - Ci.nsIX509CertDB.verifyUsageEmailSigner or
+ *   Ci.nsIX509CertDB.verifyUsageEmailRecipient.
+ * @param {number} [flags=0] - Verification flags for asyncVerifyCertAtTime,
+ *   e.g. Ci.nsIX509CertDB.FLAG_LOCAL_ONLY to skip OCSP/network checks.
+ * @returns {Promise<object>} result.
+ * @returns {boolean} result.ok - Whether certificate verification succeeded.
+ * @returns {number} result.errorCode - PR error code from asyncVerifyCertAtTime.
+ * @returns {boolean} result.isNssError - Whether errorCode is an NSS error.
+ * @returns {string} result.errorName - NSS error name, e.g.
+ *   SEC_ERROR_EXPIRED_CERTIFICATE.
+ * @returns {string} result.errorMsg - Localized NSS error message, if available.
+ */
+async function smimeVerifyCert(x509cert, certUsage, flags = 0) {
+  const certdb = Cc["@mozilla.org/security/x509certdb;1"].getService(
+    Ci.nsIX509CertDB
+  );
+  const { promise, resolve } = Promise.withResolvers();
+  certdb.asyncVerifyCertAtTime(
+    x509cert,
+    certUsage,
+    flags,
+    "",
+    Math.floor(Date.now() / 1000),
+    [],
+    // An object that works as a nsICertVerificationCallback instance
+    // and provides member function verifyCertFinished()
+    { verifyCertFinished: resolve }
+  );
+  const prErrorCode = await promise;
+  if (!prErrorCode) {
+    return {
+      ok: true,
+      errorCode: 0,
+      isNssError: false,
+      errorName: "",
+      errorMsg: "",
+    };
+  }
+
+  const nssErrorsService = Cc["@mozilla.org/nss_errors_service;1"].getService(
+    Ci.nsINSSErrorsService
+  );
+  if (nssErrorsService.isNSSErrorCode(prErrorCode)) {
+    const errorCode = nssErrorsService.getXPCOMFromNSSError(prErrorCode);
+    return {
+      ok: false,
+      errorCode: prErrorCode,
+      isNssError: true,
+      errorName: nssErrorsService.getErrorName(errorCode),
+      errorMsg: nssErrorsService.getErrorMessage(errorCode),
+    };
+  }
+
+  return {
+    ok: false,
+    errorCode: prErrorCode,
+    isNssError: false,
+    errorName: "",
+    errorMsg: "",
+  };
+}
+
+/**
  * Check if a certificate is considered valid for email use and give
  * status feedback to the user.
  *
@@ -774,21 +875,8 @@ async function smimeTestCert(id) {
     return;
   }
 
-  const { promise, resolve } = Promise.withResolvers();
-  const flags = 0; // Allow online checks
-  certdb.asyncVerifyCertAtTime(
-    x509cert,
-    certUsage,
-    flags,
-    "",
-    Math.floor(Date.now() / 1000),
-    [],
-    // An object that works as a nsICertVerificationCallback instance
-    // and provides member function verifyCertFinished()
-    { verifyCertFinished: resolve }
-  );
-  const prErrorCode = await promise;
-  if (!prErrorCode) {
+  const verifyResult = await smimeVerifyCert(x509cert, certUsage);
+  if (verifyResult.ok) {
     let infoStrID;
     if (certUsage == Ci.nsIX509CertDB.verifyUsageEmailSigner) {
       infoStrID = "configured-cert-ok-sig";
@@ -798,24 +886,18 @@ async function smimeTestCert(id) {
     alertUser(await document.l10n.formatValue(infoStrID));
     return;
   }
-  const nssErrorsService = Cc["@mozilla.org/nss_errors_service;1"].getService(
-    Ci.nsINSSErrorsService
-  );
-  if (nssErrorsService.isNSSErrorCode(prErrorCode)) {
-    const errorCode = nssErrorsService.getXPCOMFromNSSError(prErrorCode);
-    const errorCodeStr = nssErrorsService.getErrorName(errorCode);
-    const errorMsg = nssErrorsService.getErrorMessage(errorCode);
+  if (verifyResult.isNssError) {
     alertUser(
       await document.l10n.formatValue("configured-cert-failure-detail", {
-        errorMsg,
-        errorCodeStr,
+        errorMsg: verifyResult.errorMsg,
+        errorCodeStr: verifyResult.errorName,
       })
     );
     return;
   }
   alertUser(
     await document.l10n.formatValue("configured-cert-failure", {
-      errorCode: prErrorCode,
+      errorCode: verifyResult.errorCode,
     })
   );
 }
