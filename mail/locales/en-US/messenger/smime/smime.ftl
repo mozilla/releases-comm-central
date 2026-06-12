@@ -18,7 +18,22 @@ configured-cert-failure = The certificate verification failed with error code { 
 
 # $errorMsg A sentence that explains the error.
 # $errorCodeStr A human readable error code, e.g. SEC_ERROR_UNKNOWN_ISSUER
-configured-cert-failure-use-anyway-detail = There is a problem with this certificate. Would you like to use it anyway? Certificate verification failed with the following error: { $errorMsg } (Error Code: { $errorCodeStr })
+# Note the initial empty line is necessary to preserve the line breaks.
+configured-cert-failure-use-anyway-detail-v2 =
+
+  There is a problem with this certificate.
+
+  Certificate verification failed with the following error: { $errorMsg } (Error Code: { $errorCodeStr })
+
+  Would you like to use this certificate anyway?
+
 
 # $errorCode A numeric error code
-configured-cert-failure-use-anyway = There is a problem with this certificate. Would you like to use it anyway? Certificate verification failed with error code { $errorCode }
+# Note the initial empty line is necessary to preserve the line breaks.
+configured-cert-failure-use-anyway-v2 =
+
+  There is a problem with this certificate.
+  
+  Certificate verification failed with error code { $errorCode }.
+  
+  Would you like to use this certificate anyway?

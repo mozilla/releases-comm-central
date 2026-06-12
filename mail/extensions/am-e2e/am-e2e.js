@@ -712,7 +712,7 @@ async function smimeSelectCert(id) {
         let failureText;
         if (verifyResult.isNssError) {
           failureText = await document.l10n.formatValue(
-            "configured-cert-failure-use-anyway-detail",
+            "configured-cert-failure-use-anyway-detail-v2",
             {
               errorMsg: verifyResult.errorMsg,
               errorCodeStr: verifyResult.errorName,
@@ -720,7 +720,7 @@ async function smimeSelectCert(id) {
           );
         } else {
           failureText = await document.l10n.formatValue(
-            "configured-cert-failure-use-anyway",
+            "configured-cert-failure-use-anyway-v2",
             { errorCode: verifyResult.errorCode }
           );
         }
