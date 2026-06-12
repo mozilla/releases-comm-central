@@ -661,6 +661,9 @@ label.label {
   margin-inline-start: 0;
 }
 
+#calendar-summary-dialog .item-comment,
+#calendar-event-summary-dialog .item-comment,
+#calendar-task-summary-dialog .item-comment,
 #calendar-summary-dialog .item-description,
 #calendar-event-summary-dialog .item-description,
 #calendar-task-summary-dialog .item-description {
@@ -668,13 +671,19 @@ label.label {
   margin: 2px 4px 0;
 }
 
+#calendar-summary-dialog .item-comment,
+#calendar-event-summary-dialog .item-comment a,
+#calendar-task-summary-dialog .item-comment a,
 #calendar-summary-dialog .item-description a,
-#calendar-event-summary-dialog .item-description a,
-#calendar-task-summary-dialog .item-description a {
+#calendar-task-summary-dialog .item-description a,
+#calendar-event-summary-dialog .item-description a {
   color: LinkText;
   color-scheme: light dark;
 }
 
+:root[lwt-tree-brighttext] #calendar-summary-dialog .item-comment a,
+:root[lwt-tree-brighttext] #calendar-event-summary-dialog .item-comment a,
+:root[lwt-tree-brighttext] #calendar-task-summary-dialog .item-comment a,
 :root[lwt-tree-brighttext] #calendar-summary-dialog .item-description a,
 :root[lwt-tree-brighttext] #calendar-event-summary-dialog .item-description a,
 :root[lwt-tree-brighttext] #calendar-task-summary-dialog .item-description a {

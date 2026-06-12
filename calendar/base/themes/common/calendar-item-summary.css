@@ -69,9 +69,16 @@
 }
 
 .item-description-box {
-  flex: 1 1 10em;
+  flex: 2 1 10em;
+  min-block-size: 0;
 }
 
+.item-comment-box {
+  flex: 1 1 0;
+  min-block-size: 0;
+}
+
+.item-comment,
 .item-description {
   flex: 1 1 0;
 }

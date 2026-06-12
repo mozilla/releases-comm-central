@@ -522,6 +522,8 @@ export var invitation = {
       ev => ev.descriptionHTML
     );
 
+    setField("comment", ev => ev.getProperty("COMMENT"), true);
+
     setField("url", ev => ev.getProperty("URL"), true);
     setField(
       "attachments",
