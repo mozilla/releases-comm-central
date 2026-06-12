@@ -16,6 +16,9 @@ configured-cert-failure-detail = The certificate verification failed with the fo
 # $errorCode A numeric error code
 configured-cert-failure = The certificate verification failed with error code { $errorCode }
 
-# Shown in a confirmation dialog after an S/MIME certificate the user just
-# selected fails verification, offering to use it regardless.
-configured-cert-use-anyway = Do you want to use this certificate anyway?
+# $errorMsg A sentence that explains the error.
+# $errorCodeStr A human readable error code, e.g. SEC_ERROR_UNKNOWN_ISSUER
+configured-cert-failure-use-anyway-detail = There is a problem with this certificate. Would you like to use it anyway? Certificate verification failed with the following error: { $errorMsg } (Error Code: { $errorCodeStr })
+
+# $errorCode A numeric error code
+configured-cert-failure-use-anyway = There is a problem with this certificate. Would you like to use it anyway? Certificate verification failed with error code { $errorCode }

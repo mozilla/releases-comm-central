@@ -712,7 +712,7 @@ async function smimeSelectCert(id) {
         let failureText;
         if (verifyResult.isNssError) {
           failureText = await document.l10n.formatValue(
-            "configured-cert-failure-detail",
+            "configured-cert-failure-use-anyway-detail",
             {
               errorMsg: verifyResult.errorMsg,
               errorCodeStr: verifyResult.errorName,
@@ -720,16 +720,13 @@ async function smimeSelectCert(id) {
           );
         } else {
           failureText = await document.l10n.formatValue(
-            "configured-cert-failure",
+            "configured-cert-failure-use-anyway",
             { errorCode: verifyResult.errorCode }
           );
         }
-        const useAnyway = await document.l10n.formatValue(
-          "configured-cert-use-anyway"
-        );
         // Let the user override: a local-only failure can be a false
         // negative, e.g. an issuer CA not yet installed.
-        if (!askUser(`${failureText}\n\n${useAnyway}`)) {
+        if (!askUser(failureText)) {
           return;
         }
       }
