@@ -51,15 +51,15 @@ pub type ClubcardIndex = BTreeMap</* block id */ Vec<u8>, ClubcardIndexEntry>;
 #[derive(Serialize, Deserialize)]
 pub struct Clubcard<const W: usize, UniverseMetadata, PartitionMetadata> {
     /// Metadata for determining whether a Queryable is in the encoded universe.
-    pub(crate) universe: UniverseMetadata,
+    pub universe: UniverseMetadata,
     /// Metadata for determining the block to which a Queryable belongs.
-    pub(crate) partition: PartitionMetadata,
+    pub partition: PartitionMetadata,
     /// Lookup table for per-block metadata.
-    pub(crate) index: ClubcardIndex,
+    pub index: ClubcardIndex,
     /// The matrix X
-    pub(crate) approx_filter: Vec<Vec<u64>>,
+    pub approx_filter: Vec<Vec<u64>>,
     /// The matrix Y
-    pub(crate) exact_filter: Vec<u64>,
+    pub exact_filter: Vec<u64>,
 }
 
 impl<const W: usize, UniverseMetadata, PartitionMetadata> fmt::Display

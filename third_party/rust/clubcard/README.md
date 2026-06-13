@@ -1,8 +1,8 @@
 # Clubcard
 
-Clubcard is an exact membership query filter for static sets.
+Clubcard is a compact datastructure for set membership tests.
 
-It is based on the *Ribbon filters* of Dillinger and Walzer[^1] and Dillinger, Hübschle-Schneider, Sanders, and Walzer[^2]. And it makes use of a partitioning strategy described by Mike Hamburg in his Real World Crypto 2022 talk[^3].
+It is based on the *two-level cascade* construction from Mike Hamburg's Real World Crypto 2022 talk[^3] and the the *Ribbon filters* of Dillinger and Walzer[^1] and Dillinger, Hübschle-Schneider, Sanders, and Walzer[^2]. More details on the construction can be found in [the paper](https://jmschanck.info/papers/20250327-clubcard.pdf).
 
 > [!WARNING]
 > This is work in progress. Neither the API nor the serialization format for clubcard are stable.

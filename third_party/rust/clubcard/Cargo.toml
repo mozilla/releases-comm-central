@@ -12,12 +12,29 @@
 [package]
 edition = "2021"
 name = "clubcard"
-version = "0.3.2"
+version = "0.3.3"
 authors = ["John M. Schanck <jschanck@mozilla.com>"]
+build = false
+autolib = false
+autobins = false
+autoexamples = false
+autotests = false
+autobenches = false
 description = "Clubcard is an exact membership query filter for static sets"
 readme = "README.md"
 license = "MPL-2.0"
 repository = "https://github.com/mozilla/clubcard/"
+
+[features]
+builder = ["dep:rand"]
+
+[lib]
+name = "clubcard"
+path = "src/lib.rs"
+
+[[example]]
+name = "uint_no_partition"
+path = "examples/uint_no_partition/main.rs"
 
 [dependencies.rand]
 version = "0.8.5"
@@ -29,6 +46,3 @@ features = ["derive"]
 
 [dev-dependencies.sha2]
 version = "0.10"
-
-[features]
-builder = ["dep:rand"]

@@ -2,7 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use crate::query::{CRLiteCoverage, CRLiteKey, CRLiteQuery};
+use crate::query::{
+    CRLiteCoverage, CRLiteKey, CRLiteQuery, IssuerSpkiHash, LogId, Timestamp, TimestampInterval,
+};
 use clubcard::{AsQuery, Equation, Filterable};
 use serde::Deserialize;
 use std::collections::HashMap;
@@ -60,14 +62,18 @@ impl CRLiteCoverage {
                 Ok(bytes) if bytes.len() == 32 => log_id.copy_from_slice(&bytes),
                 _ => continue,
             };
-            let min_covered = if entry.MinEntry == 0 {
-                0
-            } else {
-                entry.MinTimestamp + entry.MMD
+            // The MMD is in seconds but timestamps are in milliseconds
+            let Some(entry_mmd_ms) = entry.MMD.checked_mul(1000) else {
+                continue;
             };
-            let max_covered = entry.MaxTimestamp.saturating_sub(entry.MMD);
-            if min_covered < max_covered {
-                coverage.insert(log_id, (min_covered, max_covered));
+            let low = Timestamp(if entry.MinEntry == 0 {
+                entry.MinTimestamp
+            } else {
+                entry.MinTimestamp + entry_mmd_ms
+            });
+            let high = Timestamp(entry.MaxTimestamp.saturating_sub(entry_mmd_ms));
+            if low < high {
+                coverage.insert(LogId(log_id), TimestampInterval { low, high });
             }
         }
         CRLiteCoverage(coverage)
@@ -76,7 +82,7 @@ impl CRLiteCoverage {
 
 pub struct CRLiteBuilderItem {
     /// issuer spki hash
-    issuer: [u8; 32],
+    issuer: IssuerSpkiHash,
     /// serial number. TODO: smallvec?
     serial: Vec<u8>,
     /// revocation status
@@ -84,7 +90,7 @@ pub struct CRLiteBuilderItem {
 }
 
 impl CRLiteBuilderItem {
-    pub fn revoked(issuer: [u8; 32], serial: Vec<u8>) -> Self {
+    pub fn revoked(issuer: IssuerSpkiHash, serial: Vec<u8>) -> Self {
         Self {
             issuer,
             serial,
@@ -92,7 +98,7 @@ impl CRLiteBuilderItem {
         }
     }
 
-    pub fn not_revoked(issuer: [u8; 32], serial: Vec<u8>) -> Self {
+    pub fn not_revoked(issuer: IssuerSpkiHash, serial: Vec<u8>) -> Self {
         Self {
             issuer,
             serial,
@@ -109,7 +115,7 @@ impl AsQuery<4> for CRLiteBuilderItem {
     }
 
     fn block(&self) -> &[u8] {
-        &self.issuer
+        &self.issuer.0
     }
 
     fn discriminant(&self) -> &[u8] {
@@ -125,13 +131,123 @@ impl Filterable<4> for CRLiteBuilderItem {
 
 #[cfg(test)]
 mod tests {
-    use crate::builder::*;
-    use clubcard::builder::*;
-    use clubcard::Membership;
     use std::collections::HashMap;
+
+    use clubcard::builder::*;
+    use clubcard::Clubcard;
+    use clubcard::Membership;
+
+    use crate::builder::*;
+    use crate::codec::Codec;
+    use crate::query::Encoding;
+    use crate::CRLiteClubcard;
 
     #[test]
     fn test_crlite_clubcard() {
+        let (subset_sizes, universe_size, clubcard) = build_clubcard();
+        let sum_subset_sizes: usize = subset_sizes.iter().sum();
+        let sum_universe_sizes: usize = subset_sizes.len() * universe_size;
+        let min_size = (sum_subset_sizes as f64)
+            * ((sum_universe_sizes as f64) / (sum_subset_sizes as f64)).log2()
+            + 1.44 * ((sum_subset_sizes) as f64);
+        println!("Size lower bound {}", min_size);
+        println!("Checking construction");
+        println!(
+            "\texpecting {} included, {} excluded",
+            sum_subset_sizes,
+            subset_sizes.len() * universe_size - sum_subset_sizes
+        );
+
+        let mut included = 0;
+        let mut excluded = 0;
+        for i in 0..subset_sizes.len() {
+            let issuer = IssuerSpkiHash([i as u8; 32]);
+            for j in 0..universe_size {
+                let serial = j.to_le_bytes();
+                let key = CRLiteKey::new(&issuer, &serial);
+                if clubcard.unchecked_contains(&CRLiteQuery::new(&key, None)) {
+                    included += 1;
+                } else {
+                    excluded += 1;
+                }
+            }
+        }
+        println!("\tfound {} included, {} excluded", included, excluded);
+        assert!(sum_subset_sizes == included);
+        assert!(sum_universe_sizes - sum_subset_sizes == excluded);
+
+        // Test that querying a serial from a never-before-seen issuer results in a non-member return.
+        let issuer = IssuerSpkiHash([subset_sizes.len() as u8; 32]);
+        let serial = 0usize.to_le_bytes();
+        let key = CRLiteKey::new(&issuer, &serial);
+        assert!(!clubcard.unchecked_contains(&CRLiteQuery::new(&key, None)));
+
+        assert!(!subset_sizes.is_empty() && subset_sizes[0] > 0 && subset_sizes[0] < universe_size);
+        let issuer = IssuerSpkiHash([0u8; 32]);
+        let revoked_serial = 0usize.to_le_bytes();
+        let nonrevoked_serial = (universe_size - 1).to_le_bytes();
+
+        // Test that calling contains() without a timestamp results in a NotInUniverse return
+        let revoked_serial_key = CRLiteKey::new(&issuer, &revoked_serial);
+        let query = CRLiteQuery::new(&revoked_serial_key, None);
+        assert!(matches!(
+            clubcard.contains(&query),
+            Membership::NotInUniverse
+        ));
+
+        // Test that calling contains() with a timestamp in a covered interval results in a
+        // Member return.
+        let log_id = LogId([0u8; 32]);
+        let timestamp = Timestamp(100);
+        let query = CRLiteQuery::new(&revoked_serial_key, Some((log_id, timestamp)));
+        assert!(matches!(clubcard.contains(&query), Membership::Member));
+
+        // Test that calling contains() without a timestamp in a covered interval results in a
+        // Member return.
+        let nonrevoked_serial_key = CRLiteKey::new(&issuer, &nonrevoked_serial);
+        let query = CRLiteQuery::new(&nonrevoked_serial_key, Some((log_id, timestamp)));
+        assert!(matches!(clubcard.contains(&query), Membership::Nonmember));
+
+        // Test that calling contains() without a timestamp in a covered interval results in a
+        // Member return.
+        let log_id = LogId([1u8; 32]);
+        let query = CRLiteQuery::new(&revoked_serial_key, Some((log_id, timestamp)));
+        assert!(matches!(
+            clubcard.contains(&query),
+            Membership::NotInUniverse
+        ));
+    }
+
+    #[test]
+    fn test_serialization_roundtrip() {
+        let (subset_sizes, universe_size, clubcard) = build_clubcard();
+
+        let crlite = CRLiteClubcard::from(clubcard);
+        for encoding in [Encoding::V3, Encoding::V4] {
+            let bytes = crlite.to_bytes(encoding).unwrap();
+
+            // Version prefix is LE u16 0x0004
+            assert_eq!(Encoding::read(&bytes).unwrap().0, encoding);
+
+            let restored = CRLiteClubcard::from_bytes(&bytes).unwrap();
+
+            // Verify query results match on all items
+            for i in 0..subset_sizes.len() {
+                let issuer = IssuerSpkiHash([i as u8; 32]);
+                for j in 0..universe_size {
+                    let serial = j.to_le_bytes();
+                    let key = CRLiteKey::new(&issuer, &serial);
+                    let query = CRLiteQuery::new(&key, None);
+                    assert_eq!(
+                        crlite.as_ref().unchecked_contains(&query),
+                        restored.as_ref().unchecked_contains(&query),
+                    );
+                }
+            }
+        }
+    }
+
+    fn build_clubcard() -> ([usize; 5], usize, Clubcard<4, CRLiteCoverage, ()>) {
         let subset_sizes = [1 << 17, 1 << 16, 1 << 15, 1 << 14, 1 << 13];
         let universe_size = 1 << 18;
 
@@ -140,8 +256,10 @@ mod tests {
         for (i, n) in subset_sizes.iter().enumerate() {
             let mut r = clubcard_builder.new_approx_builder(&[i as u8; 32]);
             for j in 0usize..*n {
-                let eq = CRLiteBuilderItem::revoked([i as u8; 32], j.to_le_bytes().to_vec());
-                r.insert(eq);
+                r.insert(CRLiteBuilderItem::revoked(
+                    IssuerSpkiHash([i as u8; 32]),
+                    j.to_le_bytes().to_vec(),
+                ));
             }
             r.set_universe_size(universe_size);
             approx_builders.push(r)
@@ -163,12 +281,17 @@ mod tests {
         for (i, n) in subset_sizes.iter().enumerate() {
             let mut r = clubcard_builder.new_exact_builder(&[i as u8; 32]);
             for j in 0usize..universe_size {
-                let item = if j < *n {
-                    CRLiteBuilderItem::revoked([i as u8; 32], j.to_le_bytes().to_vec())
+                r.insert(if j < *n {
+                    CRLiteBuilderItem::revoked(
+                        IssuerSpkiHash([i as u8; 32]),
+                        j.to_le_bytes().to_vec(),
+                    )
                 } else {
-                    CRLiteBuilderItem::not_revoked([i as u8; 32], j.to_le_bytes().to_vec())
-                };
-                r.insert(item);
+                    CRLiteBuilderItem::not_revoked(
+                        IssuerSpkiHash([i as u8; 32]),
+                        j.to_le_bytes().to_vec(),
+                    )
+                });
             }
             exact_builders.push(r)
         }
@@ -183,84 +306,16 @@ mod tests {
         clubcard_builder.collect_exact_ribbons(exact_ribbons);
 
         let mut log_coverage = HashMap::new();
-        log_coverage.insert([0u8; 32], (0u64, u64::MAX));
-
-        let clubcard =
-            clubcard_builder.build::<CRLiteQuery>(CRLiteCoverage(log_coverage), Default::default());
-        println!("{}", clubcard);
-
-        let sum_subset_sizes: usize = subset_sizes.iter().sum();
-        let sum_universe_sizes: usize = subset_sizes.len() * universe_size;
-        let min_size = (sum_subset_sizes as f64)
-            * ((sum_universe_sizes as f64) / (sum_subset_sizes as f64)).log2()
-            + 1.44 * ((sum_subset_sizes) as f64);
-        println!("Size lower bound {}", min_size);
-        println!("Checking construction");
-        println!(
-            "\texpecting {} included, {} excluded",
-            sum_subset_sizes,
-            subset_sizes.len() * universe_size - sum_subset_sizes
+        log_coverage.insert(
+            LogId([0u8; 32]),
+            TimestampInterval {
+                low: Timestamp(0),
+                high: Timestamp(u64::MAX),
+            },
         );
 
-        let mut included = 0;
-        let mut excluded = 0;
-        for i in 0..subset_sizes.len() {
-            let issuer = [i as u8; 32];
-            for j in 0..universe_size {
-                let serial = j.to_le_bytes();
-                let key = CRLiteKey::new(&issuer, &serial);
-                if clubcard.unchecked_contains(&CRLiteQuery::new(&key, None)) {
-                    included += 1;
-                } else {
-                    excluded += 1;
-                }
-            }
-        }
-        println!("\tfound {} included, {} excluded", included, excluded);
-        assert!(sum_subset_sizes == included);
-        assert!(sum_universe_sizes - sum_subset_sizes == excluded);
-
-        // Test that querying a serial from a never-before-seen issuer results in a non-member return.
-        let issuer = [subset_sizes.len() as u8; 32];
-        let serial = 0usize.to_le_bytes();
-        let key = CRLiteKey::new(&issuer, &serial);
-        assert!(!clubcard.unchecked_contains(&CRLiteQuery::new(&key, None)));
-
-        assert!(subset_sizes.len() > 0 && subset_sizes[0] > 0 && subset_sizes[0] < universe_size);
-        let issuer = [0u8; 32];
-        let revoked_serial = 0usize.to_le_bytes();
-        let nonrevoked_serial = (universe_size - 1).to_le_bytes();
-
-        // Test that calling contains() without a timestamp results in a NotInUniverse return
-        let revoked_serial_key = CRLiteKey::new(&issuer, &revoked_serial);
-        let query = CRLiteQuery::new(&revoked_serial_key, None);
-        assert!(matches!(
-            clubcard.contains(&query),
-            Membership::NotInUniverse
-        ));
-
-        // Test that calling contains() with a timestamp in a covered interval results in a
-        // Member return.
-        let log_id = [0u8; 32];
-        let timestamp = (&log_id, 100);
-        let query = CRLiteQuery::new(&revoked_serial_key, Some(timestamp));
-        assert!(matches!(clubcard.contains(&query), Membership::Member));
-
-        // Test that calling contains() without a timestamp in a covered interval results in a
-        // Member return.
-        let timestamp = (&log_id, 100);
-        let nonrevoked_serial_key = CRLiteKey::new(&issuer, &nonrevoked_serial);
-        let query = CRLiteQuery::new(&nonrevoked_serial_key, Some(timestamp));
-        assert!(matches!(clubcard.contains(&query), Membership::Nonmember));
-
-        // Test that calling contains() without a timestamp in a covered interval results in a
-        // Member return.
-        let log_id = [1u8; 32];
-        let timestamp = (&log_id, 100);
-        let query = CRLiteQuery::new(&revoked_serial_key, Some(timestamp));
-        assert!(matches!(
-            clubcard.contains(&query),
-            Membership::NotInUniverse
-        ));
+        let clubcard = clubcard_builder.build::<CRLiteQuery>(CRLiteCoverage(log_coverage), ());
+        println!("{}", clubcard);
+        (subset_sizes, universe_size, clubcard)
     }
 }

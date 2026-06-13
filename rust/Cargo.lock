@@ -892,18 +892,18 @@ dependencies = [
 
 [[package]]
 name = "clubcard"
-version = "0.3.2"
+version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8ec3fe691cfeac642b45d2acee55f4c745fe9eed548380fd41d1fb7daf54297c"
+checksum = "3ef474a1b4f0f838c9f513e224f6b5b74ee63a55d9ec42874bfb343b0fce29c8"
 dependencies = [
  "serde",
 ]
 
 [[package]]
 name = "clubcard-crlite"
-version = "0.3.0"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dd2c6f668aeaab6cf4c9637400ce5bc1f7ab1cf9b424dd0125273f16bd26ca25"
+checksum = "94db8308070798e004eba1d535f6fb78e3ba7170deb40ab767776d3025747707"
 dependencies = [
  "base64 0.21.999",
  "bincode",

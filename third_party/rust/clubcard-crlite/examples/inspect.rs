@@ -10,7 +10,7 @@ use std::process::ExitCode;
 fn parse_args() -> Option<PathBuf> {
     let mut args = args().map(PathBuf::from);
     let _name = args.next()?;
-    Some(args.next()?)
+    args.next()
 }
 
 fn main() -> std::process::ExitCode {

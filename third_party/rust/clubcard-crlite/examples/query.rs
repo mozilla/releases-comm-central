@@ -2,15 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use clubcard_crlite::{CRLiteClubcard, CRLiteKey, CRLiteStatus};
-use sha2::{Digest, Sha256};
 use std::env::args;
 use std::path::PathBuf;
 use std::process::ExitCode;
+
+use clubcard_crlite::{CRLiteClubcard, CRLiteKey, CRLiteStatus, IssuerSpkiHash, LogId, Timestamp};
+use sha2::{Digest, Sha256};
 use x509_parser::prelude::*;
 
 fn read_as_der(path: &PathBuf) -> Result<Vec<u8>, std::io::Error> {
-    let bytes = std::fs::read(&path)?;
+    let bytes = std::fs::read(path)?;
     match parse_x509_pem(&bytes) {
         Ok((_, pem)) => Ok(pem.contents),
         _ => Ok(bytes),
@@ -85,11 +86,16 @@ fn main() -> std::process::ExitCode {
         return ExitCode::FAILURE;
     };
 
-    let issuer_spki_hash: [u8; 32] = Sha256::digest(issuer.tbs_certificate.subject_pki.raw).into();
+    let issuer_spki_hash =
+        IssuerSpkiHash(Sha256::digest(issuer.tbs_certificate.subject_pki.raw).into());
     let serial = cert.tbs_certificate.raw_serial();
-    let key = CRLiteKey::new(&issuer_spki_hash, &serial);
+    let key = CRLiteKey::new(&issuer_spki_hash, serial);
 
-    match filter.contains(&key, scts.iter().map(|sct| (sct.id.key_id, sct.timestamp))) {
+    match filter.contains(
+        &key,
+        scts.iter()
+            .map(|sct| (LogId(*sct.id.key_id), Timestamp(sct.timestamp))),
+    ) {
         CRLiteStatus::Good => println!("Good"),
         CRLiteStatus::Revoked => println!("Revoked"),
         CRLiteStatus::NotEnrolled | CRLiteStatus::NotCovered => println!("Unknown"),
