@@ -46,7 +46,19 @@ async function genericChecker() {
   });
 
   browser.test.log(`${kind} extension page loaded`);
-  browser.test.sendMessage(`${kind}-loaded`);
+  // Collect a part of the context that runtime.getContexts() is expected to
+  // return, that can only be meaningfully computed here in the page itself.
+  const thisPartialContext = {
+    documentId: browser.runtime.getDocumentId(window),
+  };
+  if (kind === "sidebar" || kind === "sidebar-subframe") {
+    // The test opens multiple windows; to have deterministic test results, we
+    // order by windowId. To enable correlation, include windowId.
+    thisPartialContext.windowId = (await browser.windows.getCurrent()).id;
+    // The sidebar-subframe test needs the frameId for assertions.
+    thisPartialContext.frameId = browser.runtime.getFrameId(window);
+  }
+  browser.test.sendMessage(`${kind}-loaded`, thisPartialContext);
 }
 
 const byWindowId = (a, b) => a.windowId - b.windowId;
@@ -133,7 +145,7 @@ add_task(async function test_runtime_getContexts() {
   //  let secondWin = await BrowserTestUtils.openNewBrowserWindow();
 
   await extension.startup();
-  await extension.awaitMessage("background-loaded");
+  const bgPartialContext = await extension.awaitMessage("background-loaded");
 
   const firstWinId = windowTracker.getId(firstWin);
   //let secondWinId = windowTracker.getId(secondWin);
@@ -157,6 +169,7 @@ add_task(async function test_runtime_getContexts() {
   const getExpectedExtensionContext = ({
     contextId,
     contextType,
+    documentId,
     documentUrl,
     incognito = false,
     frameId = 0,
@@ -165,6 +178,7 @@ add_task(async function test_runtime_getContexts() {
   }) => {
     const props = {
       contextType,
+      documentId,
       documentOrigin,
       documentUrl,
       incognito,
@@ -181,6 +195,7 @@ add_task(async function test_runtime_getContexts() {
   const expected = [
     getExpectedExtensionContext({
       contextType: "BACKGROUND",
+      documentId: bgPartialContext.documentId,
       documentUrl: resolveExtPageUrl("page.html?kind=background"),
     }),
   ].sort(byWindowId);
@@ -217,10 +232,11 @@ add_task(async function test_runtime_getContexts() {
     const tabmail = firstWin.document.getElementById("tabmail");
     const url = resolveExtPageUrl("page.html?kind=tab");
     const nativeTab = tabmail.openTab("contentTab", { url });
-    await extension.awaitMessage("tab-loaded");
+    const tabPartialContext = await extension.awaitMessage("tab-loaded");
     const tabId = tabTracker.getId(nativeTab);
     const expectedTabContext = getExpectedExtensionContext({
       contextType: "TAB",
+      documentId: tabPartialContext.documentId,
       documentUrl: resolveExtPageUrl("page.html?kind=tab"),
       windowId: firstWinId,
       tabId,
@@ -265,7 +281,8 @@ add_task(async function test_runtime_getContexts() {
     nativeTab.browser.loadURI(Services.io.newURI(newTabURL), {
       triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
     });
-    await extension.awaitMessage("tab-loaded");
+    const navigatedTabPartialContext =
+      await extension.awaitMessage("tab-loaded");
 
     actual = await getGetContextsResults({
       filter: {
@@ -274,6 +291,16 @@ add_task(async function test_runtime_getContexts() {
       },
     });
     Assert.equal(actual.length, 1, "Expect 1 tab extension context");
+    Assert.equal(
+      actual[0].documentId,
+      navigatedTabPartialContext.documentId,
+      "Expect documentId to match the new loaded document"
+    );
+    Assert.notEqual(
+      tabPartialContext.documentId,
+      navigatedTabPartialContext.documentId,
+      "documentId differs after tab navigation"
+    );
     Assert.equal(
       actual[0].documentUrl,
       newTabURL,
@@ -300,10 +327,11 @@ add_task(async function test_runtime_getContexts() {
     await focusWindow(firstWin);
     extension.sendMessage("open-browser-action");
     await extension.awaitMessage("open-browser-action:done");
-    await extension.awaitMessage("action-loaded");
+    const popupPartialContext = await extension.awaitMessage("action-loaded");
 
     const expectedPopupContext = getExpectedExtensionContext({
       contextType: "POPUP",
+      documentId: popupPartialContext.documentId,
       documentUrl: resolveExtPageUrl("page.html?kind=action"),
       windowId: firstWinId,
       tabId: -1,
@@ -345,7 +373,9 @@ add_task(async function test_runtime_getContexts() {
       `background-create-iframe`,
       resolveExtPageUrl("page.html?kind=background-subframe")
     );
-    await extension.awaitMessage(`background-subframe-loaded`);
+    const bgFramePartialContext = await extension.awaitMessage(
+      `background-subframe-loaded`
+    );
 
     let actual = await getGetContextsResults({
       filter: { contextTypes: ["BACKGROUND"] },
@@ -392,6 +422,16 @@ add_task(async function test_runtime_getContexts() {
       bgTopFrame.tabId,
       "Expect background top frame to have same tabId as the top frame"
     );
+    Assert.equal(
+      bgPartialContext.documentId,
+      bgTopFrame.documentId,
+      "Background top frame's documentId still matches"
+    );
+    Assert.equal(
+      bgFramePartialContext.documentId,
+      bgSubFrame.documentId,
+      "Background sub frame's documentId matches"
+    );
 
     info("Test getContexts after background history push state");
     const pushStateURLPath = "/page.html?kind=background&pushedState=1";
@@ -429,7 +469,8 @@ add_task(async function test_runtime_getContexts() {
     // load of the options page and cause the options page to not be shown. Instead,
     // let's use runtime.openOptionsPage() to load the add-on manager.
     extension.sendMessage("background-open-options-page");
-    await extension.awaitMessage("options-loaded");
+    const optionsPartialContext =
+      await extension.awaitMessage("options-loaded");
     const tabmail = firstWin.document.getElementById("tabmail");
     Assert.equal(
       tabmail.currentTabInfo.browser.currentURI.spec,
@@ -446,6 +487,7 @@ add_task(async function test_runtime_getContexts() {
       [
         getExpectedExtensionContext({
           contextType: "TAB",
+          documentId: optionsPartialContext.documentId,
           documentUrl: resolveExtPageUrl("page.html?kind=options"),
           windowId: firstWinId,
           tabId: optionsTabId,
