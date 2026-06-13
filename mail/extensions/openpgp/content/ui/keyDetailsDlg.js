@@ -140,7 +140,7 @@ async function refreshOnline() {
     return;
   }
 
-  const imported = await KeyLookupHelper.lookupAndImportByKeyID(
+  const imported = await KeyLookupHelper.downloadDirectlyByFingerprint(
     "interactive-import",
     window,
     keyObj.fpr,

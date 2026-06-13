@@ -39,6 +39,7 @@ export var KeyLookupHelper = {
    *     be imported. New keys will only be added to CollectedKeysDB.
    * @param {Window} window - Parent window.
    * @param {string} query - A search string; keyId, fingerprint or email.
+   * @param {boolean} skipSearch - If true, skip search and download directly.
    * @returns {object} state - Lookup state.
    * @returns {boolean} state.keyImported - At least one key was imported.
    * @returns {boolean} state.foundUpdated - At least one update for a local
@@ -48,7 +49,7 @@ export var KeyLookupHelper = {
    * @returns {boolean} state.collectedForLater - At least one key was added to
    *  CollectedKeysDB.
    */
-  async _lookupAndImportOnKeyserver(mode, window, query) {
+  async _lookupAndImportOnKeyserver(mode, window, query, skipSearch = false) {
     let keyImported = false;
     let foundUpdated = false;
     let foundUnchanged = false;
@@ -65,7 +66,7 @@ export var KeyLookupHelper = {
     let continueSearching = true;
     for (const ks of keyServers) {
       let foundKey;
-      if (ks.startsWith("vks://")) {
+      if (ks.startsWith("vks://") || skipSearch) {
         foundKey = await lazy.EnigmailKeyServer.downloadNoImport(query, ks);
       } else if (ks.startsWith("hkp://") || ks.startsWith("hkps://")) {
         foundKey =
@@ -177,7 +178,41 @@ export var KeyLookupHelper = {
       keyId = "0x" + keyId;
     }
     const { keyImported, foundUnchanged } =
-      await this._lookupAndImportOnKeyserver(mode, window, keyId);
+      await this._lookupAndImportOnKeyserver(mode, window, keyId, false);
+    if (mode == "interactive-import" && giveFeedbackToUser && !keyImported) {
+      Services.prompt.alert(
+        window,
+        null,
+        await lazy.l10n.formatValue(
+          foundUnchanged ? "no-update-found" : "no-key-found2"
+        )
+      );
+    }
+    return keyImported;
+  },
+
+  /**
+   * Download a key by fingerprint from a keyserver without searching.
+   *
+   * @param {string} mode - "interactive-import" or "silent-collection"
+   *    In interactive-import mode, the user will be asked to confirm
+   *    import of keys into the permanent keyring.
+   *    In silent-collection mode, only updates to existing keys will
+   *    be imported. New keys will only be added to CollectedKeysDB.
+   * @param {Window} window - parent window
+   * @param {string} fingerprint - the fingerprint of the key to download.
+   * @param {boolean} giveFeedbackToUser - false to be silent,
+   *    true to show feedback to user after search and import is complete.
+   * @returns {boolean} - true if at least one key was imported.
+   */
+  async downloadDirectlyByFingerprint(
+    mode,
+    window,
+    fingerprint,
+    giveFeedbackToUser
+  ) {
+    const { keyImported, foundUnchanged } =
+      await this._lookupAndImportOnKeyserver(mode, window, fingerprint, true);
     if (mode == "interactive-import" && giveFeedbackToUser && !keyImported) {
       Services.prompt.alert(
         window,
@@ -303,7 +338,7 @@ export var KeyLookupHelper = {
     }
 
     const { keyImported, foundUnchanged } =
-      await this._lookupAndImportOnKeyserver(mode, window, email);
+      await this._lookupAndImportOnKeyserver(mode, window, email, false);
     resultKeyImported = wkdKeyImported || keyImported;
 
     if (
