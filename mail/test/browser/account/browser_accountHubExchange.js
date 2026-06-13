@@ -205,7 +205,7 @@ add_task(async function test_exchange_requires_credentials_account_creation() {
 
   Assert.equal(
     configFoundTemplate.l10n.getAttributes(
-      configFoundTemplate.querySelector("#authenticationType")
+      configFoundTemplate.querySelector("#incomingAuthenticationType")
     ).id,
     "account-hub-result-auth-password",
     "Authentication type should be expected type"
@@ -330,7 +330,7 @@ add_task(
 
     Assert.equal(
       configFoundTemplate.l10n.getAttributes(
-        configFoundTemplate.querySelector("#authenticationType")
+        configFoundTemplate.querySelector("#incomingAuthenticationType")
       ).id,
       "account-hub-result-auth-password",
       "Authentication type should be expected type"
@@ -764,10 +764,10 @@ add_task(async function test_full_exchange_account_creation() {
 
   Assert.equal(
     configFoundTemplate.l10n.getAttributes(
-      configFoundTemplate.querySelector("#authenticationType")
+      configFoundTemplate.querySelector("#incomingAuthenticationType")
     ).id,
     "account-hub-result-auth-password",
-    "Authentication type should be expected type"
+    "Incoming authentication type should be expected type"
   );
 
   Assert.equal(

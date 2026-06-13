@@ -36,10 +36,30 @@ add_task(async function test_account_oauth_imap_account() {
     "The IMAP config option should be visible"
   );
 
+  for (const selector of [
+    "#incomingUsername",
+    "#incomingSocketType",
+    "#incomingAuthenticationType",
+    "#outgoingUsername",
+    "#outgoingSocketType",
+    "#outgoingAuthenticationType",
+  ]) {
+    Assert.ok(
+      BrowserTestUtils.isHidden(configFoundTemplate.querySelector(selector)),
+      `${selector} should be hidden when shared details shown`
+    );
+  }
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(
+      configFoundTemplate.querySelector(".config-common")
+    ),
+    "Shared config details should be visible when incoming and outgoing details match"
+  );
   Assert.equal(
-    configFoundTemplate.querySelector("#incomingUsername").textContent,
+    configFoundTemplate.querySelector("#sharedUsername").textContent,
     "user",
-    "Should show replaced username on incoming config."
+    "Should show replaced username in shared config details."
   );
 
   Assert.equal(
@@ -56,7 +76,7 @@ add_task(async function test_account_oauth_imap_account() {
 
   Assert.equal(
     configFoundTemplate.l10n.getAttributes(
-      configFoundTemplate.querySelector("#incomingSocketType")
+      configFoundTemplate.querySelector("#sharedSocketType")
     ).id,
     "account-hub-result-no-encryption",
     "Should show expected socket type on IMAP config."
@@ -64,7 +84,7 @@ add_task(async function test_account_oauth_imap_account() {
 
   Assert.equal(
     configFoundTemplate.l10n.getAttributes(
-      configFoundTemplate.querySelector("#authenticationType")
+      configFoundTemplate.querySelector("#sharedAuthenticationType")
     ).id,
     "account-hub-result-auth-oauth2",
     "Should show expected authentication type on IMAP config."
@@ -75,10 +95,45 @@ add_task(async function test_account_oauth_imap_account() {
     {}
   );
 
+  Assert.ok(
+    BrowserTestUtils.isHidden(
+      configFoundTemplate.querySelector(".config-common")
+    ),
+    "Shared config details should be hidden when any shared detail differs"
+  );
+  for (const selector of [
+    "#incomingUsername",
+    "#incomingSocketType",
+    "#incomingAuthenticationType",
+    "#outgoingUsername",
+    "#outgoingSocketType",
+    "#outgoingAuthenticationType",
+  ]) {
+    Assert.ok(
+      BrowserTestUtils.isVisible(configFoundTemplate.querySelector(selector)),
+      `${selector} should be visible when shared configs hidden`
+    );
+  }
+  Assert.equal(
+    configFoundTemplate.querySelector("#incomingHost").textContent,
+    "atest.test",
+    "POP3 incoming host should be displayed"
+  );
+  Assert.equal(
+    configFoundTemplate.querySelector("#outgoingUsername").textContent,
+    "user",
+    "POP3 outgoing username should be displayed"
+  );
+
   Assert.equal(
     configFoundTemplate.querySelector("#incomingUsername").textContent,
     "user@test.test",
     "Should show replaced username on incoming config."
+  );
+  Assert.equal(
+    configFoundTemplate.querySelector("#outgoingUsername").textContent,
+    "user",
+    "Outgoing username should be shown"
   );
 
   Assert.equal(
@@ -98,15 +153,31 @@ add_task(async function test_account_oauth_imap_account() {
       configFoundTemplate.querySelector("#incomingSocketType")
     ).id,
     "account-hub-result-starttls",
-    "Should show expected socket type on POP3 config."
+    "Should show expected incoming socket type on POP3 config."
   );
 
   Assert.equal(
     configFoundTemplate.l10n.getAttributes(
-      configFoundTemplate.querySelector("#authenticationType")
+      configFoundTemplate.querySelector("#incomingAuthenticationType")
     ).id,
     "account-hub-result-auth-password",
-    "Should show expected authentication type on POP3 config."
+    "Should show expected incoming authentication type on POP3 config."
+  );
+
+  Assert.equal(
+    configFoundTemplate.l10n.getAttributes(
+      configFoundTemplate.querySelector("#outgoingSocketType")
+    ).id,
+    "account-hub-result-no-encryption",
+    "Should show expected outgoing socket type on POP3 config."
+  );
+
+  Assert.equal(
+    configFoundTemplate.l10n.getAttributes(
+      configFoundTemplate.querySelector("#outgoingAuthenticationType")
+    ).id,
+    "account-hub-result-auth-oauth2",
+    "Should show expected outgoing authentication type on POP3 config."
   );
 
   await subtest_clear_status_bar();

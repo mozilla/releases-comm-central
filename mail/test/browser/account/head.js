@@ -410,21 +410,21 @@ function subtest_config_results(template, configType) {
   );
 
   Assert.equal(
-    template.l10n.getAttributes(template.querySelector("#incomingSocketType"))
-      .id,
+    template.l10n.getAttributes(template.querySelector("#sharedSocketType")).id,
     "account-hub-result-ssl",
     `${configType}: Incoming socketType should be as expected`
   );
 
   Assert.equal(
-    template.l10n.getAttributes(template.querySelector("#authenticationType"))
-      .id,
+    template.l10n.getAttributes(
+      template.querySelector("#sharedAuthenticationType")
+    ).id,
     "account-hub-result-auth-password",
     `${configType}: Authentication type should be expected`
   );
 
   Assert.equal(
-    template.querySelector("#incomingUsername").textContent,
+    template.querySelector("#sharedUsername").textContent,
     "john.doe",
     `${configType}: Incoming username should be expected username`
   );

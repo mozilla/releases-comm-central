@@ -70,10 +70,8 @@ account-hub-email-continue-button = Continue
 account-hub-email-confirm-button = Confirm
 
 account-hub-result-incoming-legend = Incoming
-    .title = Incoming
 
 account-hub-result-outgoing-legend = Outgoing
-    .title = Outgoing
 
 account-hub-all-servers-legend = All servers
 
@@ -85,10 +83,8 @@ account-hub-result-hostname-label = Hostname
 account-hub-result-socket-type-label = Connection security
 
 account-hub-servers-username-label = Username:
-    .title = Username
 
 account-hub-result-server-label = Server:
-    .title = Server
 
 account-hub-result-port-label = Port:
 
@@ -97,18 +93,25 @@ account-hub-result-security-label = Security:
 account-hub-result-authentication-type-label = Authentication:
 
 account-hub-result-auth-none = None
+    .title = None
 
 account-hub-result-auth-password = Normal Password
+    .title = Normal Password
 
 account-hub-result-auth-encrypted-password = Encrypted Password
+    .title = Encrypted Password
 
 account-hub-result-auth-gssapi = Kerberos
+    .title = Kerberos
 
 account-hub-result-auth-ntlm = NTLM
+    .title = NTLM
 
 account-hub-result-auth-external = External
+    .title = External
 
 account-hub-result-auth-oauth2 = OAuth2
+    .title = OAuth2
 
 account-hub-on-port-label = Port
 
@@ -456,10 +459,13 @@ account-hub-success-addon = Successfully installed the add-on
 account-hub-success-half-manual = The following settings were found by probing the given server:
 
 account-hub-result-no-encryption = No Encryption
+    .title = No Encryption
 
 account-hub-result-ssl = SSL/TLS
+    .title = SSL/TLS
 
 account-hub-result-starttls = STARTTLS
+    .title = STARTTLS
 
 account-hub-credentials-wrong = Authentication failed. Please check the username and password
 

@@ -79,7 +79,7 @@ async function subtest_passwordless_account_skips_password_step({
 
   Assert.equal(
     configFoundTemplate.l10n.getAttributes(
-      configFoundTemplate.querySelector("#authenticationType")
+      configFoundTemplate.querySelector("#incomingAuthenticationType")
     ).id,
     expectedAuthLabelId,
     "Should show expected authentication type on IMAP config."

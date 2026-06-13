@@ -314,10 +314,10 @@ add_task(async function test_credentials_confirmation() {
 
   Assert.equal(
     configFoundTemplate.l10n.getAttributes(
-      configFoundTemplate.querySelector("#authenticationType")
+      configFoundTemplate.querySelector("#incomingAuthenticationType")
     ).id,
     "account-hub-result-auth-password",
-    "Authentication type should be expected type"
+    "Incoming Authentication type should be expected type"
   );
 
   Assert.equal(

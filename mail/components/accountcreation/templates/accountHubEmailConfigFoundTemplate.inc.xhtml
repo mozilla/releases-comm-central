@@ -69,7 +69,7 @@
               <div class="config-text" data-l10n-id="account-hub-result-exchange-description"></div>
             </label>
           </fieldset>
-          <div id="configSelection" class="form-selection config-selection">
+          <div id="configSelection" class="form-selection config-selection is-showing-shared-config">
             <div class="selection-grid">
               <div id="incomingConfig" class="config-column">
                 <div id="incomingConfigType" class="config-header">
@@ -82,7 +82,7 @@
 
                 <!-- Host -->
                 <div class="config-detail">
-                  <img class="config-item-icon" src="chrome://messenger/skin/icons/new/compact/globe.svg" />
+                  <img class="config-item-icon" src="chrome://messenger/skin/icons/new/compact/globe.svg" alt="" />
                   <div class="config-item-data">
                     <p class="title" data-l10n-id="account-hub-result-server-label"></p>
                     <p id="incomingHost" class="data"></p>
@@ -91,10 +91,37 @@
 
                 <!-- Port -->
                 <div id="incomingPortConfig" class="config-detail">
-                  <img class="config-item-icon" src="chrome://messenger/skin/icons/new/compact/conversation.svg" />
+                  <img class="config-item-icon" src="chrome://messenger/skin/icons/new/compact/conversation.svg" alt="" />
                   <div class="config-item-data">
                     <p class="title" data-l10n-id="account-hub-result-port-label"></p>
                     <p id="incomingPort" class="data"></p>
+                  </div>
+                </div>
+
+                <!-- Connection security -->
+                <div class="config-detail shared-config-item">
+                  <img class="config-item-icon" src="chrome://messenger/skin/icons/new/compact/shield.svg" alt="" />
+                  <div class="config-item-data">
+                    <p class="title" data-l10n-id="account-hub-result-security-label"></p>
+                    <p id="incomingSocketType" class="data"></p>
+                  </div>
+                </div>
+
+                <!-- Username -->
+                <div class="config-detail shared-config-item">
+                  <img class="config-item-icon" src="chrome://messenger/skin/icons/new/compact/account-settings.svg" alt="" />
+                  <div class="config-item-data">
+                    <p class="title" data-l10n-id="account-hub-servers-username-label"></p>
+                    <p id="incomingUsername" class="data"></p>
+                  </div>
+                </div>
+
+                <!-- Authentication type -->
+                <div class="config-detail shared-config-item">
+                  <img class="config-item-icon" src="chrome://messenger/skin/icons/new/compact/key.svg" alt="" />
+                  <div class="config-item-data">
+                    <p class="title" data-l10n-id="account-hub-result-authentication-type-label"></p>
+                    <p id="incomingAuthenticationType" class="data"></p>
                   </div>
                 </div>
               </div>
@@ -110,7 +137,7 @@
 
                 <!-- Host -->
                 <div class="config-detail">
-                  <img class="config-item-icon" src="chrome://messenger/skin/icons/new/compact/globe.svg" />
+                  <img class="config-item-icon" src="chrome://messenger/skin/icons/new/compact/globe.svg" alt="" />
                   <div class="config-item-data">
                     <p class="title" data-l10n-id="account-hub-result-server-label"></p>
                     <p id="outgoingHost" class="data"></p>
@@ -119,10 +146,37 @@
 
                 <!-- Port -->
                 <div class="config-detail">
-                  <img class="config-item-icon" src="chrome://messenger/skin/icons/new/compact/conversation.svg" />
+                  <img class="config-item-icon" src="chrome://messenger/skin/icons/new/compact/conversation.svg" alt="" />
                   <div class="config-item-data">
                     <p class="title" data-l10n-id="account-hub-result-port-label"></p>
                     <p id="outgoingPort" class="data"></p>
+                  </div>
+                </div>
+
+                <!-- Connection security -->
+                <div class="config-detail shared-config-item">
+                  <img class="config-item-icon" src="chrome://messenger/skin/icons/new/compact/shield.svg" alt="" />
+                  <div class="config-item-data">
+                    <p class="title" data-l10n-id="account-hub-result-security-label"></p>
+                    <p id="outgoingSocketType" class="data"></p>
+                  </div>
+                </div>
+
+                <!-- Username -->
+                <div class="config-detail shared-config-item">
+                  <img class="config-item-icon" src="chrome://messenger/skin/icons/new/compact/account-settings.svg" alt="" />
+                  <div class="config-item-data">
+                    <p class="title" data-l10n-id="account-hub-servers-username-label"></p>
+                    <p id="outgoingUsername" class="data"></p>
+                  </div>
+                </div>
+
+                <!-- Authentication type -->
+                <div class="config-detail shared-config-item">
+                  <img class="config-item-icon" src="chrome://messenger/skin/icons/new/compact/key.svg" alt="" />
+                  <div class="config-item-data">
+                    <p class="title" data-l10n-id="account-hub-result-authentication-type-label"></p>
+                    <p id="outgoingAuthenticationType" class="data"></p>
                   </div>
                 </div>
               </div>
@@ -135,29 +189,29 @@
 
               <!-- Username -->
               <div class="config-detail">
-                <img class="config-item-icon" src="chrome://messenger/skin/icons/new/compact/account-settings.svg" />
+                <img class="config-item-icon" src="chrome://messenger/skin/icons/new/compact/account-settings.svg" alt="" />
                 <div class="config-item-data">
                   <p class="title" data-l10n-id="account-hub-servers-username-label"></p>
-                  <p id="incomingUsername" class="data"></p>
+                  <p id="sharedUsername" class="data"></p>
                 </div>
               </div>
 
               <div class="config-row">
                 <!-- Connection security -->
                 <div class="config-detail">
-                  <img class="config-item-icon" src="chrome://messenger/skin/icons/new/compact/shield.svg" />
+                  <img class="config-item-icon" src="chrome://messenger/skin/icons/new/compact/shield.svg" alt="" />
                   <div class="config-item-data">
                     <p class="title" data-l10n-id="account-hub-result-security-label"></p>
-                    <p id="incomingSocketType" class="data"></p>
+                    <p id="sharedSocketType" class="data"></p>
                   </div>
                 </div>
 
                 <!-- Authentication type -->
                 <div class="config-detail">
-                  <img class="config-item-icon" src="chrome://messenger/skin/icons/new/compact/key.svg" />
+                  <img class="config-item-icon" src="chrome://messenger/skin/icons/new/compact/key.svg" alt="" />
                   <div class="config-item-data">
                     <p class="title" data-l10n-id="account-hub-result-authentication-type-label"></p>
-                    <p id="authenticationType" class="data"></p>
+                    <p id="sharedAuthenticationType" class="data"></p>
                   </div>
                 </div>
               </div>
