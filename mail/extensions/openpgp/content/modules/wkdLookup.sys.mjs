@@ -4,12 +4,13 @@
 
 /**
  * Lookup keys by email addresses using WKD. A an email address is lookep up at most
- * once a day. (see https://tools.ietf.org/html/draft-koch-openpgp-webkey-service)
+ * once a day.
+ *
+ * @see the OpenPGP Web Key Directory specification: https://tools.ietf.org/html/draft-koch-openpgp-webkey-service
  */
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
-  DNS: "resource:///modules/DNS.sys.mjs",
   EnigmailZBase32: "chrome://openpgp/content/modules/zbase32.sys.mjs",
   MailStringUtils: "resource:///modules/MailStringUtils.sys.mjs",
 });
@@ -213,48 +214,20 @@ export var EnigmailWkdLookup = {
    * @returns {Promise<string>} a URL (or null if not possible)
    */
   async getDownloadUrlFromEmail(email, advancedMethod) {
-    email = email.toLowerCase().trim();
-
-    let url = await getSiteSpecificUrl(email);
-    if (url) {
-      return url;
-    }
-
-    const at = email.indexOf("@");
-
-    const domain = email.substr(at + 1);
-    const user = email.substr(0, at);
+    const [user, domain] = email.toLowerCase().trim().split("@");
 
     const data = [...new TextEncoder().encode(user)];
     const ch = Cc["@mozilla.org/security/hash;1"].createInstance(
       Ci.nsICryptoHash
     );
-    ch.init(ch.SHA1);
+    ch.init(Ci.nsICryptoHash.SHA1);
     ch.update(data, data.length);
     const gotHash = ch.finish(false);
     const encodedHash = lazy.EnigmailZBase32.encode(gotHash);
 
-    if (advancedMethod) {
-      url =
-        "https://openpgpkey." +
-        domain +
-        "/.well-known/openpgpkey/" +
-        domain +
-        "/hu/" +
-        encodedHash +
-        "?l=" +
-        escape(user);
-    } else {
-      url =
-        "https://" +
-        domain +
-        "/.well-known/openpgpkey/hu/" +
-        encodedHash +
-        "?l=" +
-        escape(user);
-    }
-
-    return url;
+    return advancedMethod
+      ? `https://openpgpkey.${domain}/.well-known/openpgpkey/${domain}/hu/${encodedHash}?l=${escape(user)}`
+      : `https://${domain}/.well-known/openpgpkey/hu/${encodedHash}?l=${escape(user)}`;
   },
 
   /**
@@ -288,53 +261,19 @@ export var EnigmailWkdLookup = {
         return null;
       }
     } catch (ex) {
-      lazy.log.warn(`Requesting key from ${url} FAILED.`, ex);
+      lazy.log.debug(`Requesting key from ${url} FAILED.`, ex);
       return null;
     }
     const uint8Array = new Uint8Array(await response.arrayBuffer());
     return lazy.MailStringUtils.uint8ArrayToByteString(uint8Array);
   },
 
+  /**
+   * @param {string} email
+   * @returns {boolean} true if WKD should be attempted.
+   */
   isWkdAvailable(email) {
     const domain = email.toLowerCase().replace(/^.*@/, "");
-
     return !EXCLUDE_DOMAINS.includes(domain);
   },
 };
-
-/**
- * Get special URLs for specific sites that don't use WKD, but still provide
- * public keys of their users in
- *
- * @param {string} emailAddr - Email address in lowercase.
- * @returns {Promise<string>} - URL or null of no URL relevant.
- */
-async function getSiteSpecificUrl(emailAddr) {
-  const domain = emailAddr.replace(/^.+@/, "");
-  let url = null;
-
-  switch (domain) {
-    case "protonmail.ch":
-    case "protonmail.com":
-    case "pm.me":
-      url =
-        "https://api.protonmail.ch/pks/lookup?op=get&options=mr&search=" +
-        escape(emailAddr);
-      break;
-  }
-  if (!url) {
-    const records = await lazy.DNS.mx(domain);
-    const mxHosts = records.filter(record => record.host);
-
-    if (
-      mxHosts &&
-      (mxHosts.includes("mail.protonmail.ch") ||
-        mxHosts.includes("mailsec.protonmail.ch"))
-    ) {
-      url =
-        "https://api.protonmail.ch/pks/lookup?op=get&options=mr&search=" +
-        escape(emailAddr);
-    }
-  }
-  return url;
-}

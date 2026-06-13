@@ -159,7 +159,7 @@ pref("temp.openpgp.inlineSigAttachExt", ".sig");
 
 // List of key servers to use (comma separated list), ordered by priority.
 // Only the first supported keyserver will be used for uploading keys.
-pref("mail.openpgp.keyserver_list", "vks://keys.openpgp.org, hkps://keys.mailvelope.com");
+pref("mail.openpgp.keyserver_list", "vks://keys.openpgp.org, hkps://keys.mailvelope.com, hkps://mail-api.proton.me");
 
 // keep passphrase for ... minutes
 pref("temp.openpgp.maxIdleMinutes", 5);

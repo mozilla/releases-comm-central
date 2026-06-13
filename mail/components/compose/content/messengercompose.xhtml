@@ -533,6 +533,11 @@
 
 <popupset id="mainPopupSet">
 #include ../../../base/content/widgets/browserPopups.inc.xhtml
+  <menupopup id="keyAssistantLinkContext">
+    <menuitem label="&copyLinkCmd.label;"
+              accesskey="&copyLinkCmd.accesskey;"
+              oncommand="navigator.clipboard.writeText(document.getElementById('keyAssistantLinkContext').triggerNode.closest('a').href);"/>
+  </menupopup>
 </popupset>
 
 <!-- Reorder Attachments Panel -->
