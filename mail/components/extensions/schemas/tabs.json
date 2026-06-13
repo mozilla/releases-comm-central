@@ -285,6 +285,11 @@
                 "optional": true,
                 "minimum": 0,
                 "description": "Open a port to a specific frame identified by <var>frameId</var> instead of all frames in the tab."
+              },
+              "documentId": {
+                "type": "string",
+                "optional": true,
+                "description": "Open a port to a specific document identified by <var>documentId</var> instead of all frames in the tab."
               }
             },
             "optional": true
@@ -319,6 +324,11 @@
                 "optional": true,
                 "minimum": 0,
                 "description": "Send a message to a specific frame identified by <var>frameId</var> instead of all frames in the tab."
+              },
+              "documentId": {
+                "type": "string",
+                "optional": true,
+                "description": "Send a message to a specific document identified by <var>documentId</var> instead of all frames in the tab."
               }
             },
             "optional": true
