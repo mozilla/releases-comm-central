@@ -513,7 +513,7 @@ treechildren::-moz-tree-cell-text(selected) {
 
 .updateSettingCrossUserWarningContainer {
   background: var(--background-color-box-info);
-  border: 1px solid var(--in-content-box-info-border);
+  border: 1px solid var(--border-color-box-info);
   border-radius: 5px;
   padding: 2px 8px 8px;
   margin-block-end: 17px;

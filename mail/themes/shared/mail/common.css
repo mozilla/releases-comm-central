@@ -18,7 +18,7 @@
 
   @media not (forced-colors) {
     --background-color-box-info: light-dark(var(--layout-background-1), var(--layout-background-2));
-    --in-content-box-info-border: light-dark(var(--layout-border-0), transparent);
+    --border-color-box-info: light-dark(var(--layout-border-0), transparent);
     --color-accent-primary-selected-unfocused: light-dark(var(--color-gray-20), rgba(249, 249, 250, 0.05));
     --color-accent-primary-selected: var(--selected-item-color);
     --text-color-accent-primary-selected: var(--selected-item-text-color);
@@ -28,7 +28,7 @@
 
   @media (forced-colors) {
     --background-color-box-info: transparent;
-    --in-content-box-info-border: currentColor;
+    --border-color-box-info: currentColor;
     --border-color: -moz-DialogText;
     --in-content-accent-color: SelectedItem;
   }
