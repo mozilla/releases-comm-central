@@ -23,8 +23,6 @@
 #include "nsIDocShell.h"
 #include "nsIMsgWindow.h"
 #include "nsIWindowMediator.h"
-#include "nsIPrompt.h"
-#include "nsIInterfaceRequestorUtils.h"
 #include "nsIAbCard.h"
 #include "nsISpamSettings.h"
 #include "nsIMsgFilterPlugin.h"
@@ -88,6 +86,9 @@ static LazyLogModule gFolderLockLog("FolderLock");
 
 static PRTime gtimeOfLastPurgeCheck;  // variable to know when to check for
                                       // purge threshold
+
+// Guard to prevent re-entrant auto-compaction.
+static bool gAutoCompactInProgress;
 
 #define PREF_MAIL_PROMPT_PURGE_THRESHOLD "mail.prompt_purge_threshold"
 #define PREF_MAIL_PURGE_THRESHOLD_MB "mail.purge_threshold_mb"
@@ -1556,6 +1557,18 @@ class AutoCompactEvent : public mozilla::Runnable {
 
 nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow* aWindow) {
   MOZ_LOG(gCompactLog, LogLevel::Debug, ("Performing AutoCompactEvent check"));
+
+  // Prevent re-entrant auto-compaction. The compact dialog is modal and
+  // spins the event loop, which can allow the autosync timer or additional
+  // AutoCompactEvents to fire. Those nested operations may commit or modify
+  // the same Mork database, corrupting iterators (bug 554482).
+  if (gAutoCompactInProgress) {
+    MOZ_LOG(gCompactLog, LogLevel::Debug,
+            ("AutoCompactEvent already in progress, skipping"));
+    return NS_OK;
+  }
+  gAutoCompactInProgress = true;
+  auto guard = mozilla::MakeScopeExit([&] { gAutoCompactInProgress = false; });
 
   nsCOMPtr<nsIMsgAccountManager> accountMgr =
       mozilla::components::AccountManager::Service();
