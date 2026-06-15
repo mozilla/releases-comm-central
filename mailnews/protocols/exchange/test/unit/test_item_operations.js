@@ -797,47 +797,55 @@ add_task(async function test_mark_as_junk() {
   );
 });
 
-add_task(async function test_change_flag_status() {
-  const folderName = "change_flag_status";
-  ewsServer.appendRemoteFolder(
+async function runChangeFlagStatusTest(mockServer, incomingServer) {
+  const folderName = `change_flag_status_${incomingServer.type}`;
+  mockServer.appendRemoteFolder(
     new RemoteFolder(folderName, "root", folderName, folderName)
   );
 
-  const rootFolder = ewsIncomingServer.rootFolder;
-  await syncFolder(ewsIncomingServer, rootFolder);
+  const rootFolder = incomingServer.rootFolder;
+  await syncFolder(incomingServer, rootFolder);
 
   const folder = rootFolder.getChildNamed(folderName);
   Assert.ok(!!folder, `${folderName} folder should exist.`);
 
   // Add messages to the folder.
   const message = generator.makeMessages({ count: 1 })[0];
-  ewsServer.addItemToFolder("message", folderName, message);
+  mockServer.addItemToFolder("message", folderName, message);
 
-  await syncFolder(ewsIncomingServer, folder);
+  await syncFolder(incomingServer, folder);
 
   // Get the message header.
   const messageHeaders = [...folder.messages];
   Assert.equal(messageHeaders.length, 1, "Should have one message to flag.");
   const messageHeader = messageHeaders[0];
 
-  const serverItem = ewsServer.getItemInfo("message");
+  const serverItem = mockServer.getItemInfo("message");
   Assert.ok(!!serverItem, "Message should exist on server.");
   const serverMessage = serverItem.syntheticMessage;
   Assert.ok(!!serverMessage, "Synthetic message should exist.");
 
   // Flag the message.
   folder.markMessagesFlagged([messageHeader], true);
-  TestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => serverMessage.metaState.flagged,
     "Waiting for message to be flagged."
   );
 
   // Unflag the message.
   folder.markMessagesFlagged([messageHeader], false);
-  TestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => !serverMessage.metaState.flagged,
     "Waiting for message to be unflagged."
   );
+}
+
+add_task(async function test_flag_item_ews() {
+  await runChangeFlagStatusTest(ewsServer, ewsIncomingServer);
+});
+
+add_task(async function test_flag_item_graph() {
+  await runChangeFlagStatusTest(graphServer, graphIncomingServer);
 });
 
 async function runHardDeleteTest(mockServer, incomingServer) {

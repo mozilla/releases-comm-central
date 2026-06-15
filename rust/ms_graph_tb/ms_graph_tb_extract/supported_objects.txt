@@ -3,6 +3,7 @@
 directoryObject
 emailAddress
 entity
+followupFlag
 internetMessageHeader
 itemBody
 mailFolder

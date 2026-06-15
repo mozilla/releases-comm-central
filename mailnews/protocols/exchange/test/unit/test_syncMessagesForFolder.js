@@ -596,11 +596,7 @@ async function testSyncChangesWithRealFolder(mockServer, incomingServer) {
   const flaggedMessage =
     folder.msgDatabase.getMsgHdrForMessageID(messageIdToFlag);
 
-  // Flagging messages isn't supported for Graph yet, see:
-  // https://bugzilla.mozilla.org/show_bug.cgi?id=2025019
-  if (incomingServer.type != "graph") {
-    Assert.ok(flaggedMessage.isFlagged, "Message should be flagged");
-  }
+  Assert.ok(flaggedMessage.isFlagged, "Message should be flagged");
 
   // Check that the moved message arrives at its destination.
 

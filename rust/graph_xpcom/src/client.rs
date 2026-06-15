@@ -23,6 +23,7 @@ use xpcom::RefPtr;
 
 use crate::error::XpComGraphError;
 
+mod change_flag_status;
 mod change_read_status;
 mod change_read_status_all;
 mod check_connectivity;
