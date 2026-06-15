@@ -1,0 +1,157 @@
+Content-Type: multipart/mixed; boundary="===============2310128894279869299=="
+From: request@example.com
+Subject: dovecot Digest, Vol 262, Issue 11
+To: dovecot@example.com
+Reply-To: dovecot@example.com
+Date: Wed, 05 Feb 2025 15:01:20 +0000
+Message-ID: <173876768022.3259771.2364708388995943818@example.com>
+Precedence: list
+MIME-Version: 1.0
+
+--===============2310128894279869299==
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Description: dovecot Digest, Vol 262, Issue 11
+
+Send dovecot mailing list submissions to
+	dovecot@example.com
+
+To subscribe or unsubscribe via email, send a message with subject or
+body 'help' to
+	request@example.com
+
+You can reach the person managing the list at
+	owner@example.com
+
+When replying, please edit your Subject line so it is more specific
+than "Re: Contents of dovecot digest..."
+--===============2310128894279869299==
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Description: Today's Topics (3 messages)
+
+Today's Topics:
+
+   1. a-subject-1
+      (person1)
+   2. a-subject-1
+      (person2@example.com)
+   3. a-subject-2
+
+--===============2310128894279869299==
+Content-Type: multipart/digest;
+ boundary="===============6855716194037955891=="
+
+--===============6855716194037955891==
+Content-Type: message/rfc822
+
+Message-ID: <5c72c1d4-b825-48d9-8eb4-374eb5c066b0@example.com>
+Date: Wed, 5 Feb 2025 13:30:23 +0100
+Subject: a-subject-1
+Content-Language: pl-PL
+To: dovecot@example.com
+From: person1 <person1@example.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature";
+	boundary="------------DMLmBArblOGDgeZNJ3l0o0OR"
+Message: 1
+MIME-Version: 1.0
+
+--------------DMLmBArblOGDgeZNJ3l0o0OR
+Content-Type: multipart/mixed; boundary="------------PlOGY3W5UZCcV4V2m1FY6RIX";
+ protected-headers="v1"
+From: person1 <person1@example.com>
+To: dovecot@example.com
+Message-ID: <5c72c1d4-b825-48d9-8eb4-374eb5c066b0@example.com>
+Subject: a-subject-1
+
+--------------PlOGY3W5UZCcV4V2m1FY6RIX
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
+
+aGVsbG8xCg==
+
+--------------PlOGY3W5UZCcV4V2m1FY6RIX--
+
+--------------DMLmBArblOGDgeZNJ3l0o0OR
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsF5BAABCAAjFiEEdfoOiTgMR3zjsw4p2a7MPgQKbpYFAmejWd8FAwAAAAAACgkQ2a7MPgQKbpZa
+rhAAjxuHuf4lttcsNdmzejR631NxRbu6aOnN0Hl8eATI3dXjBsOiUf/R+3k2Kt3YM1JiZh1lYIR6
+Ouq0XM5L8kmk12R0LYK8q5v5m5A7CVV2qXMtT7P3/OioB9dfyns/0kAQUK2ha3sKkYHE835SsjG1
+iM/mKLh7K15470rIc6SpbtpMGWZ+5l2NWRwTLZ+Je2iGuH29YZZG09wEjnjOVAhTTOV7j90StgFr
+Sz9/o+dd/Qds0mBfay2ShRttmScdnHXUDrwWofl8GOaunJDCRt6V7oF+GezUwXJeRy5y+igA5z9e
+tYgwqK8/hjuWY8TYvjYnHD+k8WUu7R5oOlEhIZFSOEak3Xz1xwGpnLtDW60g6JgE3BNdRLgY6LQw
+L8fM/RjWUJN5Z4EGJi4FoeJhfRF0//kCeVtWGKJ+MsToFWnLdX1TS667ZiBuixbe/h25G00cEXeU
+ephZjYM33Ssy9XTyVTnEJqPxSXU/sD1cJ5I4lV1gaiy654NQLmEaWzQBoksf34Z3SLjEvdeetvw/
+5Xv+4XFHSK+epHR8TPBs4xCj4kEmmakJ/N9zrz4BnGhJoxZvLs3Eff1WG+ULdRxTY6bqSxTxt6St
+C1tBea5/wtSExNHzROLo/T7IrqYhmEsuBuseSBGWelVBXawdBfu4ywmXcdJ0tR3hmwkKGcTmKdK3
+IsQ=
+=8Wm/
+-----END PGP SIGNATURE-----
+
+--------------DMLmBArblOGDgeZNJ3l0o0OR--
+
+--===============6855716194037955891==
+Content-Type: message/rfc822
+
+Date: Wed, 05 Feb 2025 14:25:58 +0000
+From: person2@example.com
+To: person3 <person3@example.com>
+Subject: a-subject-1
+Message-ID: <a561db6219db74b0576e8a44f9e2c8ca@example.com>
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="US-ASCII"; format=flowed
+CC: Dovecot <dovecot@example.com>
+Precedence: list
+Message: 2
+MIME-Version: 1.0
+
+hello2
+
+On 2025-02-05 12:15, someone via dovecot wrote:
+> hey, :)
+> 
+> _______________________________________________
+> dovecot mailing list -- dovecot@example.com
+> To unsubscribe send an email to dovecot-leave@dovecot.org
+
+--===============6855716194037955891==
+Content-Type: message/rfc822
+
+Message-ID: <20491276-0b35-41f3-8379-eb6878aa204e@ipb.pt>
+Date: Wed, 5 Feb 2025 15:01:10 +0000
+To: dovecot@example.com
+Content-Language: en-US
+From: person4 <person4@example.com>
+Subject: a-subject-2
+Content-Type: multipart/signed; protocol="application/pkcs7-signature";
+ micalg=sha-512; boundary="------------ms070108020304010502040609"
+Precedence: list
+Message: 3
+MIME-Version: 1.0
+
+--------------ms070108020304010502040609
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
+
+aGVsbG8zCg==
+
+--------------ms070108020304010502040609--
+
+--===============6855716194037955891==--
+
+--===============2310128894279869299==
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Description: Digest Footer
+
+_______________________________________________
+dovecot mailing list -- dovecot@example.com
+To unsubscribe send an email to dovecot-leave@dovecot.org
+
+--===============2310128894279869299==--

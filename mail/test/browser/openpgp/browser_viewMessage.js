@@ -859,6 +859,32 @@ add_task(async function testOuterPgpSigOpenSignedByUnverifiedEncrypted() {
 });
 
 /**
+ * Test that processing a mailing list digest containing multiple different
+ * signatures does not result in an endless reload loop, see bug 1946168.
+ */
+add_task(async function testMultipleSignatures() {
+  const msgc = await open_message_from_file(
+    new FileUtils.File(getTestFilePath("data/eml/multiple-signatures.eml"))
+  );
+  const aboutMessage = get_about_message(msgc);
+  Assert.ok(
+    getMsgBodyTxt(msgc).includes("Send dovecot mailing list submissions to"),
+    "message text should be in body"
+  );
+  // This is an S/MIME signature status; at the time of writing this test,
+  // the string "mismatch" is used for status "notok".
+  Assert.ok(
+    !OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "mismatch"),
+    "signed icon should not be displayed"
+  );
+  Assert.ok(
+    !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
+    "encrypted icon should not be displayed"
+  );
+  await BrowserTestUtils.closeWindow(msgc);
+});
+
+/**
  * Test that the message is properly reloaded and the message security icon is
  * updated if the user changes the signature acceptance level.
  */
