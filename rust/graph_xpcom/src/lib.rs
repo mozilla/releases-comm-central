@@ -350,21 +350,11 @@ impl XpcomGraphBridge {
     ));
     fn change_flag_status(
         &self,
-        listener: &IExchangeSimpleOperationListener,
-        message_ids: &ThinVec<nsCString>,
-        is_flagged: bool,
+        _listener: &IExchangeSimpleOperationListener,
+        _message_ids: &ThinVec<nsCString>,
+        _is_flagged: bool,
     ) -> Result<(), nsresult> {
-        let client = self.client()?;
-        let message_ids = message_ids.into_iter().map(ToString::to_string).collect();
-        let listener = SafeExchangeSimpleOperationListener::new(listener);
-
-        moz_task::spawn_local(
-            "change_flag_status",
-            client.change_flag_status(message_ids, is_flagged, listener),
-        )
-        .detach();
-
-        Ok(())
+        Err(nserror::NS_ERROR_NOT_IMPLEMENTED)
     }
 
     xpcom_method!(change_read_status_all => ChangeReadStatusAll(

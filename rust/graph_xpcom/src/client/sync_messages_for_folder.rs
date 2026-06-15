@@ -10,7 +10,6 @@ use ms_graph_tb::{
     pagination::{DeltaItem, DeltaResponse},
     paths::me::mail_folders::mail_folder_id::messages,
     types::{
-        followup_flag_status::FollowupFlagStatus,
         internet_message_header::InternetMessageHeader,
         message::{Message, MessageSelection},
         recipient::Recipient,
@@ -63,7 +62,6 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
                     MessageSelection::BodyPreview,
                     MessageSelection::CcRecipients,
                     MessageSelection::From,
-                    MessageSelection::Flag,
                     MessageSelection::Importance,
                     MessageSelection::InternetMessageHeaders,
                     MessageSelection::InternetMessageId,
@@ -108,8 +106,10 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
                             message: "isRead not present in response despite being requested"
                                 .into(),
                         })?;
-                        let is_flagged =
-                            message.flag()?.flag_status()? == FollowupFlagStatus::Flagged;
+                        // TODO
+                        // (https://bugzilla.mozilla.org/show_bug.cgi?id=2025019)
+                        // Get message flagged status.
+                        let is_flagged = false;
                         let preview_text = message.body_preview().unwrap_or(None).unwrap_or("");
 
                         log::debug!("Found message in response with ID {message_id}");

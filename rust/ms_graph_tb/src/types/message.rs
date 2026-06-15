@@ -6,7 +6,6 @@
 
 #![doc = "Types related to Message.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
 use crate::odata::ExpandOptions;
-use crate::types::followup_flag::FollowupFlag;
 use crate::types::importance::Importance;
 use crate::types::internet_message_header::InternetMessageHeader;
 use crate::types::item_body::ItemBody;
@@ -31,7 +30,6 @@ pub enum MessageSelection {
     CcRecipients,
     ConversationId,
     ConversationIndex,
-    Flag,
     From,
     HasAttachments,
     Importance,
@@ -238,24 +236,6 @@ impl<'a> Message<'a> {
             .0
             .to_mut()
             .insert("conversationIndex".to_string(), val.into());
-        self
-    }
-    #[doc = "Indicates the status, start date, due date, or completion date for the message."]
-    pub fn flag(&'a self) -> Result<FollowupFlag<'a>, Error> {
-        let val = self.properties.0.get("flag").ok_or(Error::NotFound)?;
-        Ok(PropertyMap(Cow::Borrowed(
-            val.as_object()
-                .ok_or_else(|| Error::UnexpectedResponse(format!("{val:?}")))?,
-        ))
-        .into())
-    }
-    #[doc = "Setter for [`flag`](Self::flag).\n\nThis library makes no guarantees that Graph exposes this property as writable."]
-    #[must_use]
-    pub fn set_flag(mut self, val: FollowupFlag<'_>) -> Self {
-        self.properties.0.to_mut().insert(
-            "flag".to_string(),
-            Value::Object(val.properties.0.into_owned()),
-        );
         self
     }
     #[doc = "The owner of the mailbox from which the message is sent.\n\n In most cases, this value is the same as the sender property, except for sharing or delegation scenarios. The value must correspond to the actual mailbox used. Find out more about setting the from and sender properties of a message."]
