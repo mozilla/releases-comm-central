@@ -2028,40 +2028,11 @@ nsresult nsImapMailFolder::BuildIdsAndKeyArray(
 nsresult nsImapMailFolder::AllocateUidStringFromKeys(
     const nsTArray<nsMsgKey>& keys, nsCString& msgIds) {
   if (keys.IsEmpty()) return NS_ERROR_INVALID_ARG;
-  nsresult rv = NS_OK;
-  uint32_t startSequence;
-  startSequence = keys[0];
-  uint32_t curSequenceEnd = startSequence;
-  uint32_t total = keys.Length();
-  // sort keys and then generate ranges instead of singletons!
-  nsTArray<nsMsgKey> sorted(keys.Clone());
-  sorted.Sort();
-  for (uint32_t keyIndex = 0; keyIndex < total; keyIndex++) {
-    uint32_t curKey = sorted[keyIndex];
-    uint32_t nextKey =
-        (keyIndex + 1 < total) ? sorted[keyIndex + 1] : 0xFFFFFFFF;
-    bool lastKey = (nextKey == 0xFFFFFFFF);
 
-    if (lastKey) curSequenceEnd = curKey;
-    if (nextKey == (uint32_t)curSequenceEnd + 1 && !lastKey) {
-      curSequenceEnd = nextKey;
-      continue;
-    }
-    if (curSequenceEnd > startSequence) {
-      AppendUid(msgIds, startSequence);
-      msgIds += ':';
-      AppendUid(msgIds, curSequenceEnd);
-      if (!lastKey) msgIds += ',';
-      startSequence = nextKey;
-      curSequenceEnd = startSequence;
-    } else {
-      startSequence = nextKey;
-      curSequenceEnd = startSequence;
-      AppendUid(msgIds, sorted[keyIndex]);
-      if (!lastKey) msgIds += ',';
-    }
-  }
-  return rv;
+  // TODO: msgKey->UID- mapping.
+  // https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
+  msgIds = UidSetFromUids(keys);
+  return NS_OK;
 }
 
 nsresult nsImapMailFolder::MarkMessagesImapDeleted(nsTArray<nsMsgKey>* keyArray,

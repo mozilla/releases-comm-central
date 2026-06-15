@@ -10,6 +10,7 @@
 #include "nsTArray.h"
 #include "nsIMailboxSpec.h"
 #include "nsCOMPtr.h"
+#include "mozilla/Span.h"
 
 class nsImapFlagAndUidState;
 class nsImapProtocol;
@@ -38,6 +39,32 @@ void AllocateImapUidString(const ImapUid* msgUids, uint32_t& msgCount,
                            nsCString& returnString);
 void ParseUidString(const char* uidString, nsTArray<ImapUid>& uids);
 void AppendUid(nsCString& msgIds, ImapUid uid);
+
+/**
+ * Build an IMAP UID-set string from a bunch of UIDs, as per
+ * https://datatracker.ietf.org/doc/html/rfc9051#name-sequence-set-and-uid-set
+ *
+ * The input doesn't need to be ordered, may contain duplicates, and may be
+ * empty.
+ * All input values MUST be non-zero (UIDs are non-zero by definition).
+ *
+ * examples:
+ * UidSetFromUids({1,5,8,9,10})
+ *   => "1,5,8:10"
+ * UidSetFromUids({10,9,9,9,1,5,8})
+ *   => "1,5,8:10"
+ * UidSetFromUids({})
+ *   => ""
+ *
+ * NOTE: This implementation makes style choices. In the IMAP spec, no
+ * guarantee is made about the ordering of UID-set strings.
+ * e.g. Input of {1,2,8,9,10} could produce any of
+ * "1,2,8:10", "1,2,2,2,2,2,8:10", "1:2,8:10", "2,10:8,1" etc...
+ * The spec allows any of these.
+ * In practice the output will likely be sorted and de-duped,
+ * but the spec implies you shouldn't rely on that.
+ */
+nsCString UidSetFromUids(mozilla::Span<const ImapUid> uids);
 
 class nsImapMailboxSpec : public nsIMailboxSpec {
  public:
