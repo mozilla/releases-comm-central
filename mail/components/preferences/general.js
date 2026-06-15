@@ -2026,10 +2026,6 @@ var gGeneralPane = {
       return aHandlerApp.uriTemplate;
     }
 
-    if (aHandlerApp instanceof Ci.nsIWebContentHandlerInfo) {
-      return aHandlerApp.uri;
-    }
-
     return false;
   },
 
@@ -2139,10 +2135,6 @@ var gGeneralPane = {
 
     if (aHandlerApp instanceof Ci.nsIWebHandlerApp) {
       return this._getIconURLForWebApp(aHandlerApp.uriTemplate);
-    }
-
-    if (aHandlerApp instanceof Ci.nsIWebContentHandlerInfo) {
-      return this._getIconURLForWebApp(aHandlerApp.uri);
     }
 
     // We know nothing about other kinds of handler apps.

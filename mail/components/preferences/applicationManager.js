@@ -100,8 +100,6 @@ var gAppManagerDialog = {
       address = app.executable.path;
     } else if (app instanceof Ci.nsIWebHandlerApp) {
       address = app.uriTemplate;
-    } else if (app instanceof Ci.nsIWebContentHandlerInfo) {
-      address = app.uri;
     }
     document.getElementById("appLocation").value = address;
     var bundle = document.getElementById("appManagerBundle");
