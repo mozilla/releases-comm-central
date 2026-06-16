@@ -344,7 +344,7 @@ dependencies = [
 [[package]]
 name = "audioipc2"
 version = "0.6.0"
-source = "git+https://github.com/mozilla/audioipc?rev=042d48dc5932ced772c2bf20a2aef2845fd6ec85#042d48dc5932ced772c2bf20a2aef2845fd6ec85"
+source = "git+https://github.com/mozilla/audioipc?rev=c9dcbaee1624daad2fa6b1445fd047efde4f1ec0#c9dcbaee1624daad2fa6b1445fd047efde4f1ec0"
 dependencies = [
  "arrayvec",
  "ashmem",
@@ -370,7 +370,7 @@ dependencies = [
 [[package]]
 name = "audioipc2-client"
 version = "0.6.0"
-source = "git+https://github.com/mozilla/audioipc?rev=042d48dc5932ced772c2bf20a2aef2845fd6ec85#042d48dc5932ced772c2bf20a2aef2845fd6ec85"
+source = "git+https://github.com/mozilla/audioipc?rev=c9dcbaee1624daad2fa6b1445fd047efde4f1ec0#c9dcbaee1624daad2fa6b1445fd047efde4f1ec0"
 dependencies = [
  "audio_thread_priority",
  "audioipc2",
@@ -381,7 +381,7 @@ dependencies = [
 [[package]]
 name = "audioipc2-server"
 version = "0.6.0"
-source = "git+https://github.com/mozilla/audioipc?rev=042d48dc5932ced772c2bf20a2aef2845fd6ec85#042d48dc5932ced772c2bf20a2aef2845fd6ec85"
+source = "git+https://github.com/mozilla/audioipc?rev=c9dcbaee1624daad2fa6b1445fd047efde4f1ec0#c9dcbaee1624daad2fa6b1445fd047efde4f1ec0"
 dependencies = [
  "audio_thread_priority",
  "audioipc2",
@@ -1638,6 +1638,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "dom_speculationrules"
+version = "0.1.0"
+dependencies = [
+ "env_logger",
+ "log",
+ "nsstring",
+ "regex",
+ "serde",
+ "serde_json",
+ "thin-vec",
+ "url",
+ "urlpattern",
+]
+
+[[package]]
 name = "dtoa"
 version = "0.4.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2505,6 +2520,7 @@ dependencies = [
  "data_storage",
  "dom",
  "dom_fragmentdirectives",
+ "dom_speculationrules",
  "encoding_glue",
  "etagere",
  "ews_xpcom",
@@ -2640,6 +2656,7 @@ dependencies = [
  "detect_win32k_conflicts",
  "dom",
  "dom_fragmentdirectives",
+ "dom_speculationrules",
  "encoding_glue",
  "etagere",
  "fluent 0.17.0",
@@ -4437,7 +4454,7 @@ dependencies = [
 [[package]]
 name = "mp4parse"
 version = "0.17.0"
-source = "git+https://github.com/mozilla/mp4parse-rust?rev=3d36cb1c1211f0aa65087895524f3e6690e23289#3d36cb1c1211f0aa65087895524f3e6690e23289"
+source = "git+https://github.com/mozilla/mp4parse-rust?rev=b693c7e4a91d1d5a391c0404d18b6fc94714894e#b693c7e4a91d1d5a391c0404d18b6fc94714894e"
 dependencies = [
  "bitreader",
  "byteorder",
@@ -4454,7 +4471,7 @@ version = "0.1.0"
 [[package]]
 name = "mp4parse_capi"
 version = "0.17.0"
-source = "git+https://github.com/mozilla/mp4parse-rust?rev=3d36cb1c1211f0aa65087895524f3e6690e23289#3d36cb1c1211f0aa65087895524f3e6690e23289"
+source = "git+https://github.com/mozilla/mp4parse-rust?rev=b693c7e4a91d1d5a391c0404d18b6fc94714894e#b693c7e4a91d1d5a391c0404d18b6fc94714894e"
 dependencies = [
  "byteorder",
  "fallible_collections",
@@ -4939,7 +4956,7 @@ dependencies = [
 [[package]]
 name = "ohttp"
 version = "0.7.2"
-source = "git+https://github.com/martinthomson/ohttp#600931b5a1e947776cbaad931ed78f1e89005352"
+source = "git+https://github.com/martinthomson/ohttp?rev=600931b5a1e947776cbaad931ed78f1e89005352#600931b5a1e947776cbaad931ed78f1e89005352"
 dependencies = [
  "bindgen 0.72.0",
  "byteorder",
@@ -6653,6 +6670,9 @@ name = "thin-vec"
 version = "0.2.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "259cdf8ed4e4aca6f1e9d011e10bd53f524a2d0637d7b28450f6c64ac298c4c6"
+dependencies = [
+ "serde",
+]
 
 [[package]]
 name = "thiserror"

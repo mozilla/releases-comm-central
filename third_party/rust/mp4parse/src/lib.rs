@@ -467,8 +467,8 @@ impl From<Status> for &str {
                  per HEIF (ISO/IEC DIS 23008-12) § 6.5.5.1"
             }
             Status::ColrBadQuantityBMFF => {
-                "Each sample entry shall have at most one ColourInformationBox (colr) \
-                 per ISOBMFF (ISO 14496-12:2020) § 12.1.5"
+                "Each sample entry should have at most one ColourInformationBox (colr) \
+                 for a given value of colour_type per ISOBMFF (ISO 14496-12:2020) § 12.1.5"
             }
             Status::ColrBadSize => {
                 "Unexpected size for colr box"
@@ -3636,13 +3636,16 @@ fn read_ipco<T: Read>(
         let property = match b.head.name {
             BoxType::AuxiliaryTypeProperty => ItemProperty::AuxiliaryType(read_auxc(&mut b)?),
             BoxType::AV1CodecConfigurationBox => ItemProperty::AV1Config(read_av1c(&mut b)?),
-            BoxType::ColourInformationBox => match read_colr(&mut b, strictness)? {
-                ParsedColourInformation::Supported(colr) => ItemProperty::Colour(colr),
-                ParsedColourInformation::Unsupported(colour_type) => {
-                    error!("read_colr colour_type: {colour_type:?}");
-                    return Status::ColrBadType.into();
+            BoxType::ColourInformationBox => {
+                let colour_type = be_u32(&mut b)?.to_be_bytes();
+                match read_colr(&mut b, colour_type, strictness)? {
+                    ParsedColourInformation::Supported(colr) => ItemProperty::Colour(colr),
+                    ParsedColourInformation::Unsupported(colour_type) => {
+                        error!("read_colr colour_type: {colour_type:?}");
+                        return Status::ColrBadType.into();
+                    }
                 }
-            },
+            }
             BoxType::ImageMirror => ItemProperty::Mirroring(read_imir(&mut b)?),
             BoxType::ImageRotation => ItemProperty::Rotation(read_irot(&mut b)?),
             BoxType::ImageSpatialExtentsProperty => {
@@ -3837,12 +3840,12 @@ enum ParsedColourInformation {
 
 /// Parse colour information
 /// See ISOBMFF (ISO 14496-12:2020) § 12.1.5
+/// The caller is expected to have already read the colour_type field.
 fn read_colr<T: Read>(
     src: &mut BMFFBox<T>,
+    colour_type: [u8; 4],
     strictness: ParseStrictness,
 ) -> Result<ParsedColourInformation> {
-    let colour_type = be_u32(src)?.to_be_bytes();
-
     match &colour_type {
         b"nclx" => {
             const NUM_RESERVED_BITS: u8 = 7;
@@ -3850,22 +3853,31 @@ fn read_colr<T: Read>(
             let transfer_characteristics = be_u16(src)?.try_into()?;
             let matrix_coefficients = be_u16(src)?.try_into()?;
             let bytes = src.read_into_try_vec()?;
-            let mut bit_reader = BitReader::new(&bytes);
-            let full_range_flag = bit_reader.read_bool()?;
-            if bit_reader.remaining() != NUM_RESERVED_BITS.into() {
-                error!(
-                    "read_colr expected {} reserved bits, found {}",
-                    NUM_RESERVED_BITS,
-                    bit_reader.remaining()
-                );
-                return Status::ColrBadSize.into();
-            }
-            if bit_reader.read_u8(NUM_RESERVED_BITS)? != 0 {
-                fail_with_status_if(
-                    strictness != ParseStrictness::Permissive,
-                    Status::ColrReservedNonzero,
-                )?;
-            }
+            // Tolerate an nclx box truncated before full_range_flag;
+            // treat it as unset (limited range).
+            let full_range_flag = if bytes.is_empty() {
+                warn!("read_colr: nclx missing full_range_flag, assuming limited range");
+                fail_with_status_if(strictness == ParseStrictness::Strict, Status::ColrBadSize)?;
+                false
+            } else {
+                let mut bit_reader = BitReader::new(&bytes);
+                let full_range_flag = bit_reader.read_bool()?;
+                if bit_reader.remaining() != NUM_RESERVED_BITS.into() {
+                    error!(
+                        "read_colr expected {} reserved bits, found {}",
+                        NUM_RESERVED_BITS,
+                        bit_reader.remaining()
+                    );
+                    return Status::ColrBadSize.into();
+                }
+                if bit_reader.read_u8(NUM_RESERVED_BITS)? != 0 {
+                    fail_with_status_if(
+                        strictness != ParseStrictness::Permissive,
+                        Status::ColrReservedNonzero,
+                    )?;
+                }
+                full_range_flag
+            };
 
             Ok(ParsedColourInformation::Supported(ColourInformation::Nclx(
                 NclxColourInformation {
@@ -5151,6 +5163,20 @@ fn read_ds_descriptor(
     esds: &mut ES_Descriptor,
     strictness: ParseStrictness,
 ) -> Result<()> {
+    // Keep the first DecSpecificInfo and ignore subsequent entries in
+    // non-strict mode.  Concatenating raw bytes and/or overwriting the parsed
+    // fields from a second DSI leaves the ES_Descriptor inconsistent (e.g.
+    // sample-rate/channel-count mismatched with the stored DSI bytes) and
+    // produces silent-audio playback.  A single well-formed DSI is always
+    // sufficient.
+    if !esds.decoder_specific_data.is_empty() {
+        fail_with_status_if(
+            strictness == ParseStrictness::Strict,
+            Status::EsdsDecSpecificInfoTagQuantity,
+        )?;
+        return Ok(());
+    }
+
     #[cfg(feature = "mp4v")]
     // Check if we are in a Visual esda Box.
     if esds.video_codec != CodecType::Unknown {
@@ -5253,6 +5279,32 @@ fn read_ds_descriptor(
                 _ => 96000,
             };
 
+            // Map channel_configuration to channel count.  Zero indicates PCE
+            // (program_config_element) signalling, which requires parsing the
+            // trailing GASpecificConfig fields below and so can't be resolved
+            // yet.
+            let channel_count_from_config = match channel_configuration {
+                0 => None,
+                1..=7 => Some(channel_configuration),
+                11 => Some(7),      // 6.1, AAC Amendment 4 (2013)
+                12 | 14 => Some(8), // 7.1 (a/d), ITU BS.2159
+                _ => return Err(Error::Unsupported("invalid channel configuration")),
+            };
+
+            // Record the essential audio fields now, before any further bit
+            // reads that may hit EOF on a truncated DSI.  find_descriptor
+            // swallows BitReaderError in non-strict mode; without recording
+            // here we'd return a playable-looking track with no usable config
+            // (see band-orion.de, where HE-AAC with explicit SBR signalling
+            // omits the GASpecificConfig tail).
+            esds.audio_object_type = Some(audio_object_type);
+            esds.extended_audio_object_type = extended_audio_object_type;
+            esds.audio_sample_rate = Some(sample_frequency_value);
+            if let Some(cc) = channel_count_from_config {
+                esds.audio_channel_count = Some(cc);
+                esds.decoder_specific_data.extend_from_slice(data)?;
+            }
+
             bit_reader.skip(1)?; // frameLengthFlag
             let depend_on_core_order: u8 = ReadInto::read(bit_reader, 1)?;
             if depend_on_core_order > 0 {
@@ -5260,63 +5312,45 @@ fn read_ds_descriptor(
             }
             bit_reader.skip(1)?; // extensionFlag
 
-            let channel_counts = match channel_configuration {
-                0 => {
-                    debug!("Parsing program_config_element for channel counts");
+            if channel_count_from_config.is_none() {
+                // channel_configuration == 0: derive channel count from the
+                // program_config_element.
+                debug!("Parsing program_config_element for channel counts");
 
-                    bit_reader.skip(4)?; // element_instance_tag
-                    bit_reader.skip(2)?; // object_type
-                    bit_reader.skip(4)?; // sampling_frequency_index
-                    let num_front_channel: u8 = ReadInto::read(bit_reader, 4)?;
-                    let num_side_channel: u8 = ReadInto::read(bit_reader, 4)?;
-                    let num_back_channel: u8 = ReadInto::read(bit_reader, 4)?;
-                    let num_lfe_channel: u8 = ReadInto::read(bit_reader, 2)?;
-                    bit_reader.skip(3)?; // num_assoc_data
-                    bit_reader.skip(4)?; // num_valid_cc
+                bit_reader.skip(4)?; // element_instance_tag
+                bit_reader.skip(2)?; // object_type
+                bit_reader.skip(4)?; // sampling_frequency_index
+                let num_front_channel: u8 = ReadInto::read(bit_reader, 4)?;
+                let num_side_channel: u8 = ReadInto::read(bit_reader, 4)?;
+                let num_back_channel: u8 = ReadInto::read(bit_reader, 4)?;
+                let num_lfe_channel: u8 = ReadInto::read(bit_reader, 2)?;
+                bit_reader.skip(3)?; // num_assoc_data
+                bit_reader.skip(4)?; // num_valid_cc
 
-                    let mono_mixdown_present: bool = ReadInto::read(bit_reader, 1)?;
-                    if mono_mixdown_present {
-                        bit_reader.skip(4)?; // mono_mixdown_element_number
-                    }
-
-                    let stereo_mixdown_present: bool = ReadInto::read(bit_reader, 1)?;
-                    if stereo_mixdown_present {
-                        bit_reader.skip(4)?; // stereo_mixdown_element_number
-                    }
-
-                    let matrix_mixdown_idx_present: bool = ReadInto::read(bit_reader, 1)?;
-                    if matrix_mixdown_idx_present {
-                        bit_reader.skip(2)?; // matrix_mixdown_idx
-                        bit_reader.skip(1)?; // pseudo_surround_enable
-                    }
-                    let mut _channel_counts = 0;
-                    _channel_counts += read_surround_channel_count(bit_reader, num_front_channel)?;
-                    _channel_counts += read_surround_channel_count(bit_reader, num_side_channel)?;
-                    _channel_counts += read_surround_channel_count(bit_reader, num_back_channel)?;
-                    _channel_counts += read_surround_channel_count(bit_reader, num_lfe_channel)?;
-                    _channel_counts
+                let mono_mixdown_present: bool = ReadInto::read(bit_reader, 1)?;
+                if mono_mixdown_present {
+                    bit_reader.skip(4)?; // mono_mixdown_element_number
                 }
-                1..=7 => channel_configuration,
-                // Amendment 4 of the AAC standard in 2013 below
-                11 => 7,      // 6.1 Amendment 4 of the AAC standard in 2013
-                12 | 14 => 8, // 7.1 (a/d) of ITU BS.2159
-                _ => {
-                    return Err(Error::Unsupported("invalid channel configuration"));
+
+                let stereo_mixdown_present: bool = ReadInto::read(bit_reader, 1)?;
+                if stereo_mixdown_present {
+                    bit_reader.skip(4)?; // stereo_mixdown_element_number
                 }
-            };
 
-            esds.audio_object_type = Some(audio_object_type);
-            esds.extended_audio_object_type = extended_audio_object_type;
-            esds.audio_sample_rate = Some(sample_frequency_value);
-            esds.audio_channel_count = Some(channel_counts);
+                let matrix_mixdown_idx_present: bool = ReadInto::read(bit_reader, 1)?;
+                if matrix_mixdown_idx_present {
+                    bit_reader.skip(2)?; // matrix_mixdown_idx
+                    bit_reader.skip(1)?; // pseudo_surround_enable
+                }
+                let mut channel_counts = 0;
+                channel_counts += read_surround_channel_count(bit_reader, num_front_channel)?;
+                channel_counts += read_surround_channel_count(bit_reader, num_side_channel)?;
+                channel_counts += read_surround_channel_count(bit_reader, num_back_channel)?;
+                channel_counts += read_surround_channel_count(bit_reader, num_lfe_channel)?;
 
-            if !esds.decoder_specific_data.is_empty() {
-                fail_with_status_if(
-                    strictness == ParseStrictness::Strict,
-                    Status::EsdsDecSpecificInfoTagQuantity,
-                )?;
+                esds.audio_channel_count = Some(channel_counts);
+                esds.decoder_specific_data.extend_from_slice(data)?;
             }
-            esds.decoder_specific_data.extend_from_slice(data)?;
 
             Ok(())
         }
@@ -5652,6 +5686,7 @@ fn read_video_sample_entry<T: Read>(
     let mut codec_specific = None;
     let mut pixel_aspect_ratio = None;
     let mut colour_info = None;
+    let mut colr_types_seen = TryVec::<FourCC>::new();
     let mut hdr_mastering_display = None;
     let mut hdr_content_light_level = None;
     let mut protection_info = TryVec::new();
@@ -5771,22 +5806,32 @@ fn read_video_sample_entry<T: Read>(
                 debug!("Parsed pasp box: {pasp:?}, PAR {pixel_aspect_ratio:?}");
             }
             BoxType::ColourInformationBox => {
-                if colour_info.is_some() {
-                    // ISO/IEC 14496-12:2015 § 12.1.5.1 permits one or more colr boxes
-                    // in a VisualSampleEntry and assigns them no normative behaviour;
-                    // a reader may keep the first (most accurate) and ignore the rest.
-                    // Only reject under Strict.
-                    warn!("Multiple colr boxes in video sample entry, keeping first");
+                // ISO/IEC 14496-12:2015 § 12.1.5.1 permits one or more colr boxes
+                // in a VisualSampleEntry (at most one for a given colour_type) and
+                // assigns them no normative behaviour; a reader may keep the first
+                // (most accurate) and ignore the rest. Only reject a repeated
+                // colour_type, and only under Strict.
+                let colour_type = FourCC::from(be_u32(&mut b)?.to_be_bytes());
+                if colr_types_seen.contains(&colour_type) {
+                    warn!(
+                        "Multiple {colour_type:?} colr boxes in video sample entry, keeping first"
+                    );
                     fail_with_status_if(
                         strictness == ParseStrictness::Strict,
                         Status::ColrBadQuantityBMFF,
                     )?;
-                    skip_box_content(&mut b)?;
-                } else if let ParsedColourInformation::Supported(colr) =
-                    read_colr(&mut b, strictness)?
-                {
-                    debug!("Parsed colr box: {colr:?}");
-                    colour_info = Some(colr);
+                    skip_box_remain(&mut b)?;
+                } else {
+                    colr_types_seen.push(colour_type.clone())?;
+                    if colour_info.is_some() {
+                        debug!("Already have colour info, skipping {colour_type:?} colr box");
+                        skip_box_remain(&mut b)?;
+                    } else if let ParsedColourInformation::Supported(colr) =
+                        read_colr(&mut b, colour_type.value, strictness)?
+                    {
+                        debug!("Parsed colr box: {colr:?}");
+                        colour_info = Some(colr);
+                    }
                 }
             }
             BoxType::MasteringDisplayColourVolumeBox => {

@@ -33,8 +33,8 @@ abridged_certs = { path = "../../../security/manager/ssl/abridged_certs" }
 adblock = { version = "0.12.1", features = ['full-regex-handling', 'single-thread'], default-features = false }
 app_collator_glue = { path = "../../../intl/app_collator_glue" }
 audio_thread_priority = { version = "0.35" }
-audioipc2-client = { git = "https://github.com/mozilla/audioipc", rev = "042d48dc5932ced772c2bf20a2aef2845fd6ec85", optional = true }
-audioipc2-server = { git = "https://github.com/mozilla/audioipc", rev = "042d48dc5932ced772c2bf20a2aef2845fd6ec85", optional = true }
+audioipc2-client = { git = "https://github.com/mozilla/audioipc", rev = "c9dcbaee1624daad2fa6b1445fd047efde4f1ec0", optional = true }
+audioipc2-server = { git = "https://github.com/mozilla/audioipc", rev = "c9dcbaee1624daad2fa6b1445fd047efde4f1ec0", optional = true }
 authrs_bridge = { path = "../../../dom/webauthn/authrs_bridge" }
 binary_http = { path = "../../../netwerk/protocol/http/binary_http" }
 bitsdownload = { path = "../../../toolkit/components/bitsdownload", optional = true }
@@ -55,6 +55,7 @@ data-encoding-ffi = { path = "../../../dom/fs/parent/rust/data-encoding-ffi" }
 data_storage = { path = "../../../security/manager/ssl/data_storage" }
 dom = { path = "../../../dom/base/rust" }
 dom_fragmentdirectives = { path = "../../../dom/base/fragmentdirectives" }
+dom_speculationrules = { path = "../../../dom/base/speculationrules" }
 encoding_glue = { path = "../../../intl/encoding_glue" }
 etagere = { version = "0.2.13", features = ['ffi'] }
 fluent = { version = "0.17.0", features = ['fluent-pseudo'] }
@@ -96,7 +97,7 @@ mozannotation_client = { path = "../../../toolkit/crashreporter/mozannotation_cl
 mozannotation_server = { path = "../../../toolkit/crashreporter/mozannotation_server", optional = true }
 mozglue-static = { path = "../../../mozglue/static/rust" }
 mozurl = { path = "../../../netwerk/base/mozurl" }
-mp4parse_capi = { git = "https://github.com/mozilla/mp4parse-rust", rev = "3d36cb1c1211f0aa65087895524f3e6690e23289", features = ['missing-pixi-permitted'] }
+mp4parse_capi = { git = "https://github.com/mozilla/mp4parse-rust", rev = "b693c7e4a91d1d5a391c0404d18b6fc94714894e", features = ['missing-pixi-permitted'] }
 neqo_glue = { path = "../../../netwerk/socket/neqo_glue" }
 netwerk_helper = { path = "../../../netwerk/base/rust-helper" }
 nserror = { path = "../../../xpcom/rust/nserror" }

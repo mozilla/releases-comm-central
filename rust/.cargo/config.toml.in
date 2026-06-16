@@ -56,13 +56,14 @@ git = "https://github.com/libjxl/jxl-rs"
 rev = "c41cbfaf34c2c8ebc3fb6655c885fe427ab9542a"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/martinthomson/ohttp"]
+[source."git+https://github.com/martinthomson/ohttp?rev=600931b5a1e947776cbaad931ed78f1e89005352"]
 git = "https://github.com/martinthomson/ohttp"
+rev = "600931b5a1e947776cbaad931ed78f1e89005352"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/mozilla/audioipc?rev=042d48dc5932ced772c2bf20a2aef2845fd6ec85"]
+[source."git+https://github.com/mozilla/audioipc?rev=c9dcbaee1624daad2fa6b1445fd047efde4f1ec0"]
 git = "https://github.com/mozilla/audioipc"
-rev = "042d48dc5932ced772c2bf20a2aef2845fd6ec85"
+rev = "c9dcbaee1624daad2fa6b1445fd047efde4f1ec0"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/mozilla/authenticator-rs?tag=v0.6.0"]
@@ -100,9 +101,9 @@ git = "https://github.com/mozilla/mls-platform-api"
 rev = "2a2e344019bfc76b7e566ee6e0549cf668d90127"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/mozilla/mp4parse-rust?rev=3d36cb1c1211f0aa65087895524f3e6690e23289"]
+[source."git+https://github.com/mozilla/mp4parse-rust?rev=b693c7e4a91d1d5a391c0404d18b6fc94714894e"]
 git = "https://github.com/mozilla/mp4parse-rust"
-rev = "3d36cb1c1211f0aa65087895524f3e6690e23289"
+rev = "b693c7e4a91d1d5a391c0404d18b6fc94714894e"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/mozilla/neqo?tag=v0.29.0"]
