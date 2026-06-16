@@ -28,5 +28,8 @@ testing/**
 build/**
 suite/**
 
+# Built-in addons that are maintained/linted out-of-tree
+mail/extensions/builtin-addons/**
+
 # Empty file to ignore
 mail/components/im/messages/simple/Variants/Normal.css
