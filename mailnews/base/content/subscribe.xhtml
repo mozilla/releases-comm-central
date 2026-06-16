@@ -3,7 +3,6 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE html SYSTEM "chrome://messenger/locale/subscribe.dtd">
 <html
   id="subscribeWindow"
   xmlns="http://www.w3.org/1999/xhtml"
@@ -15,12 +14,13 @@
   scrolling="false"
 >
   <head>
-    <title>&subscribeDialog.title;</title>
+    <title data-l10n-id="subscribe-window-title"></title>
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src chrome:; script-src chrome: 'unsafe-inline' moz-src:; style-src chrome: 'unsafe-inline'"
     />
     <link rel="localization" href="messenger/treeView.ftl" />
+    <link rel="localization" href="messenger/subscribe.ftl" />
     <link rel="stylesheet" href="chrome://messenger/skin/subscribe.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/searchBox.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/icons.css" />
@@ -68,10 +68,6 @@
   >
     <dialog>
       <stringbundle
-        id="bundle_subscribe"
-        src="chrome://messenger/locale/subscribe.properties"
-      />
-      <stringbundle
         id="bundle_messenger"
         src="chrome://messenger/locale/messenger.properties"
       />
@@ -82,10 +78,9 @@
           <vbox id="serverContainer" flex="1">
             <label
               id="serverlabel"
-              value="&server.label;"
-              accesskey="&server.accesskey;"
+              data-l10n-id="subscribe-server"
               control="serverMenu"
-            />
+            ></label>
             <menulist id="serverMenu" flex="1" class="folderMenuItem">
               <menupopup
                 is="folder-menupopup"
@@ -100,10 +95,9 @@
           <vbox id="nameContainer" flex="1">
             <label
               id="namefieldlabel"
-              accesskey="&namefield.accesskey;"
-              value="&namefield.label;"
+              data-l10n-id="subscribe-namefield"
               control="namefield"
-            />
+            ></label>
             <html:input
               type="search"
               id="namefield"
@@ -128,8 +122,7 @@
               />
               <tab
                 id="newGroupsTab"
-                label="&newGroupsTab.label;"
-                accesskey="&newGroupsTab.accesskey;"
+                data-l10n-id="subscribe-new-groups-tab"
                 onclick="if (!event.target.disabled) ShowNewGroupsList();"
                 oncommand="ShowNewGroupsList()"
               />
@@ -142,17 +135,15 @@
                   <vbox>
                     <button
                       id="refreshButton"
-                      label="&refreshButton.label;"
-                      accesskey="&refreshButton.accesskey;"
+                      data-l10n-id="subscribe-refresh-button"
                       oncommand="Refresh()"
-                    />
+                    ></button>
                     <button
                       id="stopButton"
-                      label="&stopButton.label;"
-                      accesskey="&stopButton.accesskey;"
+                      data-l10n-id="subscribe-stop-button"
                       oncommand="Stop()"
                       disabled=""
-                    />
+                    ></button>
                     <spacer flex="1" />
                   </vbox>
                 </html:div>

@@ -24,7 +24,6 @@ var gServerURI = null;
 var gSubscribableServer = null;
 var gNameField = null;
 var gStatusFeedback;
-var gSubscribeBundle;
 
 window.addEventListener("load", SubscribeOnLoad);
 window.addEventListener("unload", SubscribeOnUnload);
@@ -45,28 +44,22 @@ function SetServerTypeSpecificTextValues() {
 
   const serverType = MailUtils.getExistingFolder(gServerURI).server.type;
 
-  // Set the server specific ui elements.
-  const subscribeLabelString = gSubscribeBundle.getString(
-    "subscribeLabel-" + serverType
-  );
-  const currentListTab = "currentListTab-" + serverType;
-  const currentListTabLabel = gSubscribeBundle.getString(
-    currentListTab + ".label"
-  );
-  const currentListTabAccesskey = gSubscribeBundle.getString(
-    currentListTab + ".accesskey"
+  // Generated Fluent IDs are:
+  // subscribe-current-list-tab-imap, subscribe-current-list-tab-nntp
+  document.l10n.setAttributes(
+    document.getElementById("currentListTab"),
+    `subscribe-current-list-tab-${serverType}`
   );
 
-  document
-    .getElementById("currentListTab")
-    .setAttribute("label", currentListTabLabel);
-  document
-    .getElementById("currentListTab")
-    .setAttribute("accesskey", currentListTabAccesskey);
-  document.getElementById("newGroupsTab").collapsed = serverType != "nntp"; // show newGroupsTab only for nntp servers
-  document
-    .getElementById("subscribeLabel")
-    .setAttribute("value", subscribeLabelString);
+  // Show newGroupsTab only for nntp servers.
+  document.getElementById("newGroupsTab").collapsed = serverType != "nntp";
+
+  // Generated Fluent IDs are:
+  // subscribe-label-imap, subscribe-label-nntp
+  document.l10n.setAttributes(
+    document.getElementById("subscribeLabel"),
+    `subscribe-label-${serverType}`
+  );
 }
 
 function onServerClick(aFolder) {
@@ -91,7 +84,7 @@ var MySubscribeListener = {
   },
 };
 
-function SetUpTree(forceToServer, getOnlyNew) {
+async function SetUpTree(forceToServer, getOnlyNew) {
   if (!gServerURI) {
     return;
   }
@@ -111,26 +104,24 @@ function SetUpTree(forceToServer, getOnlyNew) {
     document.getElementById("newGroupsTab").disabled = true;
     document.getElementById("refreshButton").disabled = true;
 
-    MailServices.feedback.reportStatus(
-      gSubscribeBundle.getString("pleaseWaitString"),
-      "start-meteors"
-    );
+    const waitString = await document.l10n.formatValue("subscribe-please-wait");
+    MailServices.feedback.reportStatus(waitString, "start-meteors");
+
     document.getElementById("stopButton").disabled = false;
 
     gSubscribableServer.startPopulating(msgWindow, forceToServer, getOnlyNew);
   } catch (e) {
     if (e.result == 0x80550014) {
       // NS_MSG_ERROR_OFFLINE
-      MailServices.feedback.reportStatus(
-        gSubscribeBundle.getString("offlineState"),
-        "stop-meteors"
-      );
+      const offlineString =
+        await document.l10n.formatValue("subscribe-offline");
+      MailServices.feedback.reportStatus(offlineString, "stop-meteors");
     } else {
       console.error("Failed to populate subscribe tree", e);
-      MailServices.feedback.reportStatus(
-        gSubscribeBundle.getString("errorPopulating"),
-        "stop-meteors"
+      const errorString = await document.l10n.formatValue(
+        "subscribe-error-populating"
       );
+      MailServices.feedback.reportStatus(errorString, "stop-meteors");
     }
     Stop();
   }
@@ -146,7 +137,6 @@ function SubscribeOnUnload() {
 
 function SubscribeOnLoad() {
   UIFontSize.registerWindow(window);
-  gSubscribeBundle = document.getElementById("bundle_subscribe");
 
   gSubscribeTree = document.getElementById("subscribeTree");
   gSubscribeTree.setAttribute("rows", "checkbox-tree-table-row");
