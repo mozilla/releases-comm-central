@@ -3,7 +3,7 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at https://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE html SYSTEM "chrome://messenger/locale/folderProps.dtd">
+<!DOCTYPE html>
 <html
   xmlns="http://www.w3.org/1999/xhtml"
   xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -12,7 +12,7 @@
   scrolling="false"
 >
   <head>
-    <title>&folderProps.windowtitle.label;</title>
+    <title data-l10n-id="folder-props-window-title"></title>
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src chrome:; script-src chrome: 'unsafe-inline' moz-src:"
@@ -50,22 +50,22 @@
     <dialog id="folderPropertiesDialog">
       <tabbox id="folderPropTabBox">
         <tabs id="folderPropTabs">
-          <tab id="GeneralTab" label="&generalInfo.label;" />
+          <tab id="GeneralTab" data-l10n-id="folder-props-general-tab" />
           <tab id="Retention" data-l10n-id="retention-tab" />
           <tab
             id="SynchronizationTab"
+            data-l10n-id="folder-props-synchronization-tab"
             hidefor="pop3,rss,none"
-            label="&folderSynchronizationTab.label;"
           />
           <tab
             id="SharingTab"
+            data-l10n-id="folder-props-sharing-tab"
             hidefor="pop3,rss,none,nntp,ews"
-            label="&folderSharingTab.label;"
           />
           <tab
             id="QuotaTab"
+            data-l10n-id="folder-props-quota-tab"
             hidefor="pop3,rss,none,nntp,ews"
-            label="&folderQuotaTab.label;"
           />
         </tabs>
         <tabpanels id="folderPropTabPanels">
@@ -73,9 +73,8 @@
             <hbox id="nameBox" align="center" class="input-container">
               <label
                 id="nameLabel"
-                value="&folderProps.name.label;"
+                data-l10n-id="folder-props-name"
                 control="name"
-                accesskey="&folderProps.name.accesskey;"
               />
               <hbox align="center" class="input-container">
                 <html:input
@@ -88,9 +87,8 @@
                 />
                 <label
                   id="colorLabel"
-                  value="&folderProps.color.label;"
+                  data-l10n-id="folder-props-color"
                   control="color"
-                  accesskey="&folderProps.color.accesskey;"
                 />
                 <html:input
                   id="color"
@@ -101,15 +99,14 @@
                 />
                 <button
                   id="resetColor"
-                  tooltiptext="&folderProps.reset.tooltip;"
+                  data-l10n-id="folder-props-reset-color"
                   class="toolbarbutton-1 btn-flat btn-reset"
                 />
               </hbox>
               <label
                 id="locationLabel"
-                value="&folderProps.location.label;"
+                data-l10n-id="folder-props-location"
                 control="location"
-                accesskey="&folderProps.location.accesskey;"
               />
               <html:input
                 id="location"
@@ -122,38 +119,42 @@
             <vbox>
               <spacer height="2" />
               <hbox align="center">
-                <label value="&numberOfMessages.label;" />
-                <label id="numberOfMessages" value="&numberUnknown.label;" />
+                <label data-l10n-id="folder-props-number-of-messages" />
+                <label
+                  id="numberOfMessages"
+                  data-l10n-id="folder-props-number-unknown"
+                />
                 <spacer flex="1" />
-                <label value="&sizeOnDisk.label;" />
-                <label id="sizeOnDisk" value="&sizeUnknown.label;" />
+                <label data-l10n-id="folder-props-size-on-disk" />
+                <label
+                  id="sizeOnDisk"
+                  data-l10n-id="folder-props-size-unknown"
+                />
               </hbox>
               <spacer height="2" />
             </vbox>
             <checkbox
               id="folderIncludeInGlobalSearch"
+              data-l10n-id="folder-props-include-in-global-search"
               hidefor="nntp"
-              label="&folderIncludeInGlobalSearch.label;"
-              accesskey="&folderIncludeInGlobalSearch.accesskey;"
             />
             <checkbox
-              hidefor="pop3,none,nntp"
               id="folderCheckForNewMessages"
-              label="&folderCheckForNewMessages2.label;"
-              accesskey="&folderCheckForNewMessages2.accesskey;"
+              data-l10n-id="folder-props-check-for-new-messages"
+              hidefor="pop3,none,nntp"
             />
             <separator class="thin" />
             <hbox>
-              <description id="folderRebuildSummaryExplanation" flex="1">
-                &folderRebuildSummaryFile.explanation;
-              </description>
+              <description
+                id="folderRebuildSummaryExplanation"
+                data-l10n-id="folder-props-rebuild-summary-explanation"
+                flex="1"
+              ></description>
               <vbox>
                 <button
                   id="folderRebuildSummaryButton"
-                  label="&folderRebuildSummaryFile2.label;"
+                  data-l10n-id="folder-props-rebuild-summary"
                   oncommand="RebuildSummaryInformation(event)"
-                  accesskey="&folderRebuildSummaryFile2.accesskey;"
-                  tooltiptext="&folderRebuildSummaryFileTip2.label;"
                   align="center"
                 />
               </vbox>
@@ -274,66 +275,60 @@
           <vbox id="SyncPanel" align="start">
             <vbox>
               <checkbox
+                id="offline.selectForOfflineFolder"
+                data-l10n-id="folder-props-select-for-offline"
                 hidefor="nntp"
                 wsm_persist="true"
-                id="offline.selectForOfflineFolder"
-                label="&offlineFolder.check.label;"
-                accesskey="&offlineFolder.check.accesskey;"
               />
               <checkbox
+                id="offline.selectForOfflineNewsgroup"
+                data-l10n-id="folder-props-select-newsgroup-for-offline"
                 hidefor="imap,ews"
                 wsm_persist="true"
-                id="offline.selectForOfflineNewsgroup"
-                label="&selectofflineNewsgroup.check.label;"
-                accesskey="&selectofflineNewsgroup.check.accesskey;"
               />
             </vbox>
             <button
-              hidefor="nntp"
-              label="&offlineFolder.button.label;"
-              oncommand="onOfflineFolderDownload()"
-              accesskey="&offlineFolder.button.accesskey;"
               id="offline.offlineFolderDownloadButton"
+              data-l10n-id="folder-props-download-now"
               orient="right"
+              hidefor="nntp"
+              oncommand="onOfflineFolderDownload()"
             />
             <button
-              hidefor="imap,ews"
-              label="&offlineNewsgroup.button.label;"
-              oncommand="onOfflineFolderDownload()"
-              accesskey="&offlineNewsgroup.button.accesskey;"
               id="offline.offlineNewsgroupDownloadButton"
+              data-l10n-id="folder-props-download-newsgroup-now"
               orient="right"
+              hidefor="imap,ews"
+              oncommand="onOfflineFolderDownload()"
             />
           </vbox>
 
           <vbox id="SharingPanel">
             <hbox align="start">
-              <label value="&folderType.label;" id="folderTypeLabel" />
+              <label id="folderTypeLabel" data-l10n-id="folder-props-type" />
               <label value="" id="folderType.text" />
             </hbox>
             <vbox align="start">
               <label value="" id="folderDescription.text" />
               <label value=" " />
               <label
-                value="&permissionsDesc.label;"
                 id="permissionsDescLabel"
+                data-l10n-id="folder-props-permissions"
               />
-
               <description id="folderPermissions.text"></description>
             </vbox>
             <vbox id="folderOtherUsers" align="start" hidden="hidden">
               <label value=" " />
-              <label value="&folderOtherUsers.label;" />
+              <label data-l10n-id="folder-props-other-users" />
               <description id="folderOtherUsersText"></description>
             </vbox>
             <spacer flex="1" />
             <vbox align="start">
               <button
                 id="imap.FolderPrivileges"
+                data-l10n-id="folder-props-privileges"
                 hidefor="pop3,none,rss,nntp,ews"
-                label="&privileges.button.label;"
                 oncommand="onFolderPrivileges()"
-                accesskey="&privileges.button.accesskey;"
                 orient="right"
               />
             </vbox>

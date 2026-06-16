@@ -55,7 +55,6 @@
   locale/@AB_CD@/messenger/messenger.properties                         (%chrome/messenger/messenger.properties)
   locale/@AB_CD@/messenger/renameFolderDialog.dtd                       (%chrome/messenger/renameFolderDialog.dtd)
   locale/@AB_CD@/messenger/folderpane.dtd                               (%chrome/messenger/folderpane.dtd)
-  locale/@AB_CD@/messenger/folderProps.dtd                              (%chrome/messenger/folderProps.dtd)
   locale/@AB_CD@/messenger/msgHdrViewOverlay.dtd                        (%chrome/messenger/msgHdrViewOverlay.dtd)
   locale/@AB_CD@/messenger/editContactOverlay.dtd                       (%chrome/messenger/editContactOverlay.dtd)
   locale/@AB_CD@/messenger/editContactOverlay.properties                (%chrome/messenger/editContactOverlay.properties)
