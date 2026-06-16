@@ -1,0 +1,106 @@
+[
+  {
+    "namespace": "CloudFileAccounts",
+    "functions": [
+      {
+        "name": "createAccount",
+        "type": "function",
+        "description": "Creates a new cloud file account in Thunderbird. If the account already exists, it will not be recreated.",
+        "async": true,
+        "parameters": [
+          {
+            "name": "type",
+            "type": "string",
+            "description": "The cloud file provider type, e.g., 'ext-tbpro-addon-stage@thunderbird.net'."
+          },
+          {
+            "name": "configured",
+            "type": "boolean",
+            "description": "Whether the account should be marked as configured."
+          }
+        ],
+        "returns": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "description": "Whether the operation was successful."
+            },
+            "accountId": {
+              "type": "string",
+              "optional": true,
+              "description": "The ID of the created cloud file account."
+            },
+            "alreadyExists": {
+              "type": "boolean",
+              "optional": true,
+              "description": "True if the account already existed and was not recreated."
+            },
+            "message": {
+              "type": "string",
+              "optional": true,
+              "description": "Additional information about the operation."
+            },
+            "error": {
+              "type": "string",
+              "optional": true,
+              "description": "Error message if the operation failed."
+            }
+          }
+        }
+      },
+      {
+        "name": "registerProvider",
+        "type": "function",
+        "description": "Re-registers the Send cloud file provider (the same instance Thunderbird created from the manifest) so it appears in the provider list. Idempotent. Used on sign-in.",
+        "async": true,
+        "parameters": [],
+        "returns": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "description": "Whether the operation was successful."
+            },
+            "alreadyRegistered": {
+              "type": "boolean",
+              "optional": true,
+              "description": "True if the provider was already registered."
+            },
+            "error": {
+              "type": "string",
+              "optional": true,
+              "description": "Error message if the operation failed."
+            }
+          }
+        }
+      },
+      {
+        "name": "unregisterProvider",
+        "type": "function",
+        "description": "Unregisters the Send cloud file provider so it is hidden from the provider list while the user is signed out. Idempotent. The provider instance is retained for re-registration on sign-in.",
+        "async": true,
+        "parameters": [],
+        "returns": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "description": "Whether the operation was successful."
+            },
+            "alreadyUnregistered": {
+              "type": "boolean",
+              "optional": true,
+              "description": "True if the provider was not registered to begin with."
+            },
+            "error": {
+              "type": "string",
+              "optional": true,
+              "description": "Error message if the operation failed."
+            }
+          }
+        }
+      }
+    ]
+  }
+]

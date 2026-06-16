@@ -1,0 +1,141 @@
+{
+  "manifest_version": 2,
+  "version": "1.8.5",
+  "author": "Thunderbird Team",
+  "name": "__MSG_thunderbirdPro__",
+  "description": "__MSG_extensionDescription__",
+  "browser_specific_settings": {
+    "gecko": {
+     "id": "tbpro-system-add-on@thunderbird.net",
+      "strict_min_version": "140.0",
+      "strict_max_version": "153.*"
+    }
+  },
+  "background": {
+    "scripts": [
+      "background.mjs"
+    ],
+    "type": "module"
+  },
+  "default_locale": "en",
+  "options_ui": {
+    "page": "index.management.html",
+    "open_in_tab": true,
+    "browser_style": true
+  },
+  "cloud_file": {
+    "name": "__MSG_thunderbirdSend__",
+    "management_url": "index.management.html",
+    "browser_style": true,
+    "reuse_uploads": false
+  },
+  "icons": {
+    "64": "icons/64.png"
+  },
+  "permissions": [
+    "accountsRead",
+    "storage",
+    "compose",
+    "notifications",
+    "webRequest",
+    "webRequestBlocking",
+    "messagesRead",
+    "sensitiveDataUpload",
+    "tabs",
+    "activeTab",
+    "https://*.backblazeb2.com/*",
+    "http://localhost:5173/*"
+  ],
+  "experiment_apis": {
+    "AccountHub": {
+      "schema": "api/AccountHub/schema.json",
+      "parent": {
+        "scopes": [
+          "addon_parent"
+        ],
+        "paths": [
+          [
+            "AccountHub"
+          ]
+        ],
+        "script": "api/AccountHub/implementation.js"
+      }
+    },
+    "MailAccounts": {
+      "schema": "api/MailAccounts/schema.json",
+      "parent": {
+        "scopes": [
+          "addon_parent"
+        ],
+        "paths": [
+          [
+            "MailAccounts"
+          ]
+        ],
+        "script": "api/MailAccounts/implementation.js"
+      }
+    },
+    "CloudFileAccounts": {
+      "schema": "api/CloudFileAccounts/schema.json",
+      "parent": {
+        "scopes": [
+          "addon_parent"
+        ],
+        "paths": [
+          [
+            "CloudFileAccounts"
+          ]
+        ],
+        "script": "api/CloudFileAccounts/implementation.js",
+        "events": [
+          "startup"
+        ]
+      }
+    },
+    "TBProMenu": {
+      "schema": "api/TBProMenu/schema.json",
+      "parent": {
+        "scopes": [
+          "addon_parent"
+        ],
+        "paths": [
+          [
+            "TBProMenu"
+          ]
+        ],
+        "script": "api/TBProMenu/implementation.js",
+        "events": [
+          "startup"
+        ]
+      }
+    },
+    "ProTweaks": {
+      "schema": "api/ProTweaks/schema.json",
+      "parent": {
+        "scopes": [
+          "addon_parent"
+        ],
+        "paths": [
+          [
+            "ProTweaks"
+          ]
+        ],
+        "script": "api/ProTweaks/implementation.js",
+        "events": [
+          "startup"
+        ]
+      }
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "token-bridge.js"
+      ],
+      "run_at": "document_start"
+    }
+  ]
+}

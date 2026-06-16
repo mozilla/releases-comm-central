@@ -1,0 +1,96 @@
+[
+  {
+    "namespace": "MailAccounts",
+    "functions": [
+      {
+        "name": "createAccount",
+        "type": "function",
+        "description": "Creates a new mail account in Thunderbird with OAuth2 authentication. If the account already exists, it will not be recreated.",
+        "async": true,
+        "parameters": [
+          {
+            "name": "email",
+            "type": "string",
+            "description": "The user's email address."
+          },
+          {
+            "name": "realname",
+            "type": "string",
+            "description": "The user's full name, displayed in the 'From' field of outgoing emails."
+          },
+          {
+            "name": "hostname",
+            "type": "string",
+            "description": "The mail server hostname, e.g., 'mail.thundermail.com'."
+          },
+          {
+            "name": "displayName",
+            "type": "string",
+            "description": "The display name for the account in Thunderbird's folder pane."
+          }
+        ],
+        "returns": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "description": "Whether the operation was successful."
+            },
+            "alreadyExists": {
+              "type": "boolean",
+              "optional": true,
+              "description": "True if the account already existed and was not recreated."
+            },
+            "message": {
+              "type": "string",
+              "optional": true,
+              "description": "Additional information about the operation."
+            },
+            "error": {
+              "type": "string",
+              "optional": true,
+              "description": "Error message if the operation failed."
+            }
+          }
+        }
+      },
+      {
+        "name": "setToken",
+        "type": "function",
+        "description": "Sets the OAuth2 refresh token for an existing mail account.",
+        "async": true,
+        "parameters": [
+          {
+            "name": "refreshToken",
+            "type": "string",
+            "description": "The OAuth2 refresh token for the account."
+          },
+          {
+            "name": "email",
+            "type": "string",
+            "description": "The email address of the account."
+          },
+          {
+            "name": "hostname",
+            "type": "string",
+            "description": "The mail server hostname, e.g., 'mail.thundermail.com'."
+          }
+        ],
+        "returns": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "description": "Whether the token was set successfully."
+            },
+            "error": {
+              "type": "string",
+              "optional": true,
+              "description": "Error message if the operation failed."
+            }
+          }
+        }
+      }
+    ]
+  }
+]
