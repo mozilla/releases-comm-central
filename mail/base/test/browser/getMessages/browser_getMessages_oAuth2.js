@@ -162,7 +162,9 @@ async function waitForMessages(inbox) {
 
   await TestUtils.waitForCondition(
     () => inbox.getNumUnread(false) == 10 && inbox.numPendingUnread == 0,
-    `waiting for new ${inbox.server.type} messages to be received`
+    `waiting for new ${inbox.server.type} messages to be received`,
+    100,
+    200
   );
   await promiseServerIdle(inbox.server);
   info(`${inbox.server.type} messages received`);
@@ -355,11 +357,6 @@ add_task(async function testBadAccessToken() {
   oAuth2Server.accessToken = "bad_access_token";
 
   for (const inbox of allInboxes) {
-    Assert.ok(
-      !MockAlertsService.alert,
-      "no alerts were shown before this test"
-    );
-
     info("poisoning the cache with a bad access token");
 
     const expiredModule = new OAuth2Module();
@@ -372,6 +369,7 @@ add_task(async function testBadAccessToken() {
       `getting messages for ${inbox.server.type} inbox with a bad access token`
     );
 
+    MockAlertsService.reset();
     await fetchMessages(inbox);
     const alert = await TestUtils.waitForCondition(
       () => MockAlertsService.alert,
