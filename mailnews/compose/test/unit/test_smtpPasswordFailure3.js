@@ -11,6 +11,9 @@
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
+const { TestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/TestUtils.sys.mjs"
+);
 
 /* import-globals-from ../../../test/resources/alertTestUtils.js */
 /* import-globals-from ../../../test/resources/passwordStorage.js */
@@ -125,10 +128,14 @@ var listener = {
     // Check for ok status.
     Assert.equal(status, 0);
     // Now check the new password has been saved.
-    const logins = await Services.logins.searchLoginsAsync({
-      origin: "smtp://localhost",
-      httpRealm: "smtp://localhost",
-    });
+    let logins;
+    await TestUtils.waitForCondition(async () => {
+      logins = await Services.logins.searchLoginsAsync({
+        origin: "smtp://localhost",
+        httpRealm: "smtp://localhost",
+      });
+      return logins.length == 1 && logins[0].password == kValidPassword;
+    }, "waiting for the password to be updated");
 
     Assert.equal(logins.length, 1);
     Assert.equal(logins[0].username, kUsername);

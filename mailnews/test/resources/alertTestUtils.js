@@ -463,6 +463,7 @@ const alertUtilsMsgAuthPrompt = {
       );
 
       Services.logins.addLoginAsync(newLogin);
+      Services.tm.spinEventLoopUntilEmpty();
     }
 
     return ok;
