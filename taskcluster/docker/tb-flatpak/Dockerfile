@@ -27,5 +27,8 @@ RUN /scripts/make_venv.sh /scripts/fluent_requirements.txt
 RUN ["gcc", "-Wall", "-shared", "-o", "/scripts/close_range.so", "/scripts/close_range.c"]
 ENV LD_PRELOAD /scripts/close_range.so
 
+# Override the base image's own ENTRYPOINT (the linter tool itself)
+ENTRYPOINT []
+
 # Set a default command useful for debugging
 CMD ["/bin/bash", "--login"]
