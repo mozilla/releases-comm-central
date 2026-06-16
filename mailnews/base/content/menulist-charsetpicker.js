@@ -45,7 +45,7 @@ if (!customElements.get("menulist")) {
       ];
     }
 
-    connectedCallback() {
+    async connectedCallback() {
       super.connectedCallback();
       if (this.delayConnectedCallback()) {
         return;
@@ -55,15 +55,27 @@ if (!customElements.get("menulist")) {
         return;
       }
 
-      const charsetBundle = Services.strings.createBundle(
-        "chrome://messenger/locale/charsetTitles.properties"
+      window.MozXULElement.insertFTLIfNeeded(
+        "messenger/menulist-charsetpicker.ftl"
       );
+
+      // Map values to our new Fluent IDs. Generated IDs are:
+      // charset-utf-8, charset-big5, charset-euc-kr, charset-gbk,
+      // charset-koi8-r, charset-iso-2022-jp, charset-iso-8859-1,
+      // charset-iso-8859-2, charset-iso-8859-7, charset-windows-874,
+      // charset-windows-1250, charset-windows-1251, charset-windows-1252,
+      // charset-windows-1255, charset-windows-1256, charset-windows-1257,
+      // charset-windows-1258
+      const l10nIds = this.charsetValues.map(item => ({
+        id: `charset-${item.toLowerCase()}`,
+      }));
+
+      // Fetch all translated strings asynchronously.
+      const translatedLabels = await document.l10n.formatValues(l10nIds);
+
       this.charsetValues
-        .map(item => {
-          const strCharset = charsetBundle.GetStringFromName(
-            item.toLowerCase() + ".title"
-          );
-          return { label: strCharset, value: item };
+        .map((item, index) => {
+          return { label: translatedLabels[index], value: item };
         })
         .sort((a, b) => {
           if (a.value == "UTF-8" || a.label < b.label) {
