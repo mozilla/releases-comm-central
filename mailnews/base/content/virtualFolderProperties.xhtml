@@ -5,8 +5,6 @@
    -->
 
 <!DOCTYPE html [
-  <!ENTITY % folderDTD SYSTEM "chrome://messenger/locale/virtualFolderProperties.dtd">
-  %folderDTD;
   <!ENTITY % folderPropsDTD SYSTEM "chrome://messenger/locale/folderProps.dtd">
   %folderPropsDTD;
 ]>
@@ -18,7 +16,7 @@
       style="min-width: 60em; min-height: 30em;"
       scrolling="false">
 <head>
-  <title>&virtualFolderProperties.title;</title>
+  <title data-l10n-id="virtual-folder-properties-title"></title>
   <meta
     http-equiv="Content-Security-Policy"
     content="default-src chrome:; script-src chrome: 'unsafe-inline' moz-src:; style-src chrome: 'unsafe-inline'"
@@ -37,6 +35,8 @@
 
   <link rel="localization" href="branding/brand.ftl" />
   <link rel="localization" href="messenger/searchWidgets.ftl" />
+  <link rel="localization" href="messenger/virtualFolderProperties.ftl" />
+
   <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
   <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
   <script defer="defer" src="chrome://messenger/content/searchWidgets.js"></script>
@@ -49,15 +49,14 @@
 <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 <dialog id="virtualFolderPropertiesDialog"
         buttons="accept,cancel"
-        newFolderAcceptButtonLabel="&newFolderButton.label;"
-        newFolderAcceptButtonAccessKey="&newFolderButton.accesskey;"
-        editFolderAcceptButtonLabel="&editFolderButton.label;"
-        editFolderAcceptButtonAccessKey="&editFolderButton.accesskey;"
         style="min-width: 60em; min-height: 30em;">
 
   <html:div class="grid-two-column-fr grid-items-center">
-    <label id="nameLabel" value="&name.label;" accesskey="&name.accesskey;"
-           control="name"/>
+    <label
+      id="nameLabel"
+      data-l10n-id="virtual-folder-name"
+      control="name"
+    />
     <hbox class="input-container">
       <html:input id="name"
                   hidden="hidden"
@@ -82,30 +81,37 @@
                 class="toolbarbutton-1 btn-flat btn-reset"/>
       </hbox>
     </hbox>
-    <label class="chooseFolderLocation" value="&description.label;"
-           accesskey="&description.accesskey;" control="msgNewFolderPicker"/>
+    <label
+      class="chooseFolderLocation"
+      data-l10n-id="virtual-folder-description"
+      control="msgNewFolderPicker"
+    />
     <menulist id="msgNewFolderPicker" class="folderMenuItem chooseFolderLocation"
               align="center" displayformat="verbose">
       <menupopup is="folder-menupopup" id="msgNewFolderPopup" class="menulist-menupopup"
                  mode="newFolder" showFileHereLabel="true" oncommand="onFolderPick(event);"/>
     </menulist>
-    <label value="&folderSelectionCaption.label;"/>
+    <label data-l10n-id="virtual-folder-folder-selection-caption"/>
     <hbox align="center">
       <label id="chosenFoldersCount"/>
       <spacer flex="1"/>
-      <button id="folderListPicker" label="&chooseFoldersButton.label;"
-              accesskey="&chooseFoldersButton.accesskey;"
-              oncommand="chooseFoldersToSearch();"/>
+      <button
+        id="folderListPicker"
+        data-l10n-id="virtual-folder-choose-folders-button"
+        oncommand="chooseFoldersToSearch();"
+      />
     </hbox>
   </html:div>
 
-  <checkbox id="searchOnline" label="&searchOnline.label;"
-            accesskey="&searchOnline.accesskey;"/>
+  <checkbox
+    id="searchOnline"
+    data-l10n-id="virtual-folder-search-online"
+  />
 
   <separator class="thin"/>
 
   <vbox id="virtualFolderSearchTerms">
-    <label value="&searchTermCaption.label;"/>
+    <label data-l10n-id="virtual-folder-search-term-caption"/>
     <hbox id="virtualFolderSearchTermListBoxWrapper">
       <vbox id="virtualFolderSearchTermListBox">
 #include ../../search/content/searchTerm.inc.xhtml

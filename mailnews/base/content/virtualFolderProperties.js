@@ -58,27 +58,23 @@ function onLoad() {
   initializeSearchWidgets();
 
   setSearchScope(Ci.nsMsgSearchScope.offlineMail);
+
   if (windowArgs.editExistingFolder) {
-    acceptButton.label = document
-      .querySelector("dialog")
-      .getAttribute("editFolderAcceptButtonLabel");
-    acceptButton.accessKey = document
-      .querySelector("dialog")
-      .getAttribute("editFolderAcceptButtonAccessKey");
+    document.l10n.setAttributes(
+      acceptButton,
+      "virtual-folder-accept-button-update"
+    );
     InitDialogWithVirtualFolder(windowArgs.folder);
   } else {
     // we are creating a new virtual folder
-    acceptButton.label = document
-      .querySelector("dialog")
-      .getAttribute("newFolderAcceptButtonLabel");
-    acceptButton.accessKey = document
-      .querySelector("dialog")
-      .getAttribute("newFolderAcceptButtonAccessKey");
+    document.l10n.setAttributes(
+      acceptButton,
+      "virtual-folder-accept-button-create"
+    );
     // it is possible that we were given arguments to pre-fill the dialog with...
     gSearchTermSession = Cc[
       "@mozilla.org/messenger/searchSession;1"
     ].createInstance(Ci.nsIMsgSearchSession);
-
     if (windowArgs.searchTerms) {
       // then add them to our search session
       for (const searchTerm of windowArgs.searchTerms) {
@@ -231,9 +227,10 @@ function InitDialogWithVirtualFolder(aVirtualFolder) {
   ]);
   folderNameField.setAttribute("value", name);
   // update the window title based on the name of the saved search
-  document.title = gMessengerBundle.formatStringFromName(
-    "editVirtualFolderPropertiesTitle",
-    [aVirtualFolder.localizedName]
+  document.l10n.setAttributes(
+    document.querySelector("title"),
+    "virtual-folder-properties-edit-title",
+    { folderName: aVirtualFolder.localizedName }
   );
 }
 
@@ -250,7 +247,7 @@ function onOK(event) {
     Services.prompt.alert(
       window,
       null,
-      gMessengerBundle.GetStringFromName("alertNoSearchFoldersSelected")
+      l10n.formatValueSync("virtual-folder-no-search-folders-selected")
     );
     event.preventDefault();
     return;
