@@ -388,6 +388,23 @@ export async function setData(dialogWindow, iframeWindow, data) {
  * @param {Window} dialogWindow
  */
 export async function saveAndCloseItemDialog(dialogWindow) {
+  let calendarObserver;
+  const itemSaved = new Promise(resolve => {
+    calendarObserver = {
+      QueryInterface: ChromeUtils.generateQI(["calIObserver"]),
+      onAddItem: resolve,
+      onModifyItem: resolve,
+      onDeleteItem() {},
+      onStartBatch() {},
+      onEndBatch() {},
+      onLoad() {},
+      onError() {},
+      onPropertyChanged() {},
+      onPropertyDeleting() {},
+    };
+    cal.manager.addCalendarObserver(calendarObserver);
+  });
+
   const dialogClosing = BrowserTestUtils.domWindowClosed(dialogWindow);
   synthesizeMouseAtCenter(
     dialogWindow.document.getElementById("button-saveandclose"),
@@ -396,6 +413,8 @@ export async function saveAndCloseItemDialog(dialogWindow) {
   );
   await dialogClosing;
   Assert.report(false, undefined, undefined, "Item dialog closed");
+  await itemSaved;
+  cal.manager.removeCalendarObserver(calendarObserver);
   await new Promise(resolve => setTimeout(resolve));
 }
 
