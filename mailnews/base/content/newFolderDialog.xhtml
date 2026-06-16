@@ -3,8 +3,6 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE html [ <!ENTITY % newFolderDTD SYSTEM "chrome://messenger/locale/newFolderDialog.dtd">
-%newFolderDTD; ]>
 <html
   xmlns="http://www.w3.org/1999/xhtml"
   xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -14,7 +12,7 @@
   scrolling="false"
 >
   <head>
-    <title>&newFolderDialog.title;</title>
+    <title data-l10n-id="new-folder-dialog-title"></title>
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src chrome:; script-src chrome: 'unsafe-inline' moz-src:; style-src chrome: 'unsafe-inline'"
@@ -27,6 +25,7 @@
     <link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/contextMenu.css" />
     <link rel="localization" href="branding/brand.ftl" />
+    <link rel="localization" href="messenger/new-folder-dialog.ftl" />
     <script
       defer="defer"
       src="chrome://messenger/content/globalOverlay.js"
@@ -48,15 +47,14 @@
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   >
     <dialog
-      buttonlabelaccept="&accept.label;"
-      buttonaccesskeyaccept="&accept.accesskey;"
+      data-l10n-id="new-folder-dialog-accept-button"
+      data-l10n-attrs="buttonlabelaccept"
     >
       <label
         id="nameLabel"
-        value="&name.label;"
-        accesskey="&name.accesskey;"
+        data-l10n-id="new-folder-name-label"
         control="name"
-      />
+      ></label>
       <html:input
         id="name"
         type="text"
@@ -67,10 +65,9 @@
       <separator />
 
       <label
-        value="&description.label;"
-        accesskey="&description.accesskey;"
+        data-l10n-id="new-folder-description-label"
         control="msgNewFolderPicker"
-      />
+      ></label>
 
       <menulist
         id="msgNewFolderPicker"
@@ -90,16 +87,19 @@
       <vbox id="newFolderTypeBox">
         <separator class="thin" />
 
-        <label value="&folderRestriction1.label;" />
-        <label value="&folderRestriction2.label;" />
+        <label data-l10n-id="new-folder-restriction-1"></label>
+        <label data-l10n-id="new-folder-restriction-2"></label>
 
         <separator class="thin" />
 
         <radiogroup id="folderGroup" orient="horizontal" class="indent">
-          <radio oncommand="onFoldersOnly()" label="&foldersOnly.label;" />
+          <radio
+            oncommand="onFoldersOnly()"
+            data-l10n-id="new-folder-folders-only"
+          />
           <radio
             oncommand="onMessagesOnly()"
-            label="&messagesOnly.label;"
+            data-l10n-id="new-folder-messages-only"
             selected="true"
           />
         </radiogroup>
