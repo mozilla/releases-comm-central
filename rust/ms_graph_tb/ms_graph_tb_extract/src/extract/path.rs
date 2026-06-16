@@ -293,6 +293,7 @@ mod tests {
                                     nullable: None,
                                     properties: None,
                                     items: None,
+                                    enum_values: None,
                                     all_of: None,
                                     one_of: None,
                                     any_of: None,

@@ -729,6 +729,15 @@ export class GraphServer extends MockServer {
       item.syntheticMessage.metaState.read = parsedReq.isRead;
     }
 
+    if (parsedReq.flag?.flagStatus) {
+      const item = this.getItemInfo(messageId);
+      item.syntheticMessage.metaState.graphFlagStatus =
+        parsedReq.flag.flagStatus;
+      item.syntheticMessage.metaState.flagged =
+        parsedReq.flag.flagStatus == "flagged";
+      this.itemChanges.push(["update", item.parentId, messageId]);
+    }
+
     // Note: returning only the ID should be fine for now because we don't
     // actually look at the response from this request (beyond basic things like
     // the HTTP status code), but in the future we'll probably want to expand
@@ -873,6 +882,13 @@ export class GraphServer extends MockServer {
             .toMessageString()
             .slice(0, 10),
           isRead: item.syntheticMessage.metaState.read,
+          flag: {
+            flagStatus:
+              item.syntheticMessage.metaState.graphFlagStatus ??
+              (item.syntheticMessage.metaState.flagged
+                ? "flagged"
+                : "notFlagged"),
+          },
           toRecipients: syntheticRecipientsToGraph(item.syntheticMessage.to),
           ccRecipients: syntheticRecipientsToGraph(item.syntheticMessage.cc),
         };
