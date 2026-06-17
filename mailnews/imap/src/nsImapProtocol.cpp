@@ -3140,9 +3140,7 @@ void nsImapProtocol::ProcessSelectedStateURL() {
                   ParseUidString(trashIdString.get(), msgUids);
 
                   // Re-create trashIdString as a ascending range or ranges.
-                  trashIdString.Truncate();
-                  nsImapMailFolder::AllocateUidStringFromKeys(msgUids,
-                                                              trashIdString);
+                  trashIdString = UidSetFromUids(msgUids);
 
                   // Imap SELECT trash folder and do UID Expunge on messages
                   // just moved to trash. However, don't do a folder update to

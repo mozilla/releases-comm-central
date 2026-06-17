@@ -229,10 +229,10 @@ void nsImapOfflineSync::ProcessFlagOperation(nsIMsgOfflineImapOperation* op) {
   } while (currentOp);
 
   if (!matchingFlagKeys.IsEmpty()) {
-    nsAutoCString uids;
     // TODO: map msgKey->UIDs
     // https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
-    nsImapMailFolder::AllocateUidStringFromKeys(matchingFlagKeys, uids);
+    nsAutoCString uids(UidSetFromUids(matchingFlagKeys));
+
     uint32_t curFolderFlags;
     m_currentFolder->GetFlags(&curFolderFlags);
 

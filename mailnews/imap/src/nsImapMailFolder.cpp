@@ -2019,19 +2019,7 @@ nsresult nsImapMailFolder::BuildIdsAndKeyArray(
   }
   // TODO: msgKey->UID- mapping.
   // https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
-  return AllocateUidStringFromKeys(keyArray, msgIds);
-}
-
-// This function overlaps with AllocateImapUidString().
-// See https://bugzilla.mozilla.org/show_bug.cgi?id=2031552
-/* static */
-nsresult nsImapMailFolder::AllocateUidStringFromKeys(
-    const nsTArray<nsMsgKey>& keys, nsCString& msgIds) {
-  if (keys.IsEmpty()) return NS_ERROR_INVALID_ARG;
-
-  // TODO: msgKey->UID- mapping.
-  // https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
-  msgIds = UidSetFromUids(keys);
+  msgIds = UidSetFromUids(keyArray);
   return NS_OK;
 }
 
@@ -3673,8 +3661,9 @@ nsImapMailFolder::ReplayOfflineMoveCopy(const nsTArray<nsMsgKey>& aMsgKeys,
 
   nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
   nsCOMPtr<nsIURI> resultUrl;
-  nsAutoCString uids;
-  AllocateUidStringFromKeys(aMsgKeys, uids);
+  // TODO: Map keys to proper UIDs.
+  // See https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
+  nsAutoCString uids(UidSetFromUids(aMsgKeys));
   // Tell IMAP to copy (or move) messages with given uids in this folder to
   // aDstFolder.
   rv = imapService->OnlineMessageCopy(this, uids, aDstFolder, true, isMove,
@@ -3715,8 +3704,9 @@ NS_IMETHODIMP nsImapMailFolder::StoreImapFlags(int32_t flags, bool addFlags,
   nsresult rv = NS_OK;
   if (!WeAreOffline()) {
     nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
-    nsAutoCString msgIds;
-    AllocateUidStringFromKeys(keys, msgIds);
+    // TODO: Map keys to UIDs.
+    // See https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
+    nsAutoCString msgIds(UidSetFromUids(keys));
     if (addFlags)
       imapService->AddMessageFlags(this, aUrlListener ? aUrlListener : this,
                                    msgIds, flags, true);
@@ -7025,9 +7015,12 @@ nsImapMailFolder::CopyMessages(
       goto done;
     }
 
-    nsAutoCString messageIds;
-    rv = AllocateUidStringFromKeys(keyArray, messageIds);
-    if (NS_FAILED(rv)) goto done;
+    if (keyArray.IsEmpty()) {
+      goto done;
+    }
+    // TODO: map keys->UIDs
+    // See https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
+    nsAutoCString messageIds(UidSetFromUids(keyArray));
 
     nsCOMPtr<nsIUrlListener> urlListener;
     rv =
@@ -8268,8 +8261,9 @@ nsImapMailFolder::StoreCustomKeywords(nsIMsgWindow* aMsgWindow,
   }
 
   nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
-  nsAutoCString msgIds;
-  AllocateUidStringFromKeys(aKeysToStore, msgIds);
+  // TODO: map keys->UIDs
+  // See https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
+  nsAutoCString msgIds(UidSetFromUids(aKeysToStore));
   nsCOMPtr<nsIURI> retUri;
   rv = imapService->StoreCustomKeywords(this, aMsgWindow, aFlagsToAdd,
                                         aFlagsToSubtract, msgIds,

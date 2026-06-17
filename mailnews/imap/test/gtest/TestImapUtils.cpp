@@ -42,28 +42,6 @@ TEST(TestImapUtils, ImapUidSets)
   }
 }
 
-// Test nsImapMailFolder::AllocateUidStringFromKeys().
-TEST(TestImapUtils, AllocateUidStringFromKeys)
-{
-  static const struct {
-    nsTArray<ImapUid> uids;   // Individual IMAP UIDs.
-    nsLiteralCString uidSet;  // Uids as an IMAP UID set string.
-  } uidTests[] = {
-      {{42}, "42"_ns},
-      {{1, 2, 3, 4, 5}, "1:5"_ns},
-      {{10, 20, 30}, "10,20,30"_ns},
-      {{1, 2, 3, 4, 5, 10, 11, 12}, "1:5,10:12"_ns},
-      // TODO: See https://bugzilla.mozilla.org/show_bug.cgi?id=2031555
-      // {{5, 4, 3, 2, 1}, "1:5"_ns},
-  };
-
-  for (auto const& t : uidTests) {
-    nsCString got;
-    nsImapMailFolder::AllocateUidStringFromKeys(t.uids, got);
-    ASSERT_EQ(t.uidSet, got);
-  }
-}
-
 // Test UidSetFromUids().
 TEST(TestImapUtils, UidSetFromUids)
 {

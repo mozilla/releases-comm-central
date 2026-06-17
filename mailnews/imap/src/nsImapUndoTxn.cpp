@@ -13,6 +13,7 @@
 #include "nsIImapService.h"
 #include "nsIDBFolderInfo.h"
 #include "nsIMsgDatabase.h"
+#include "nsImapUtils.h"
 #include "nsMsgUtils.h"
 #include "nsServiceManagerUtils.h"
 
@@ -388,9 +389,10 @@ NS_IMETHODIMP nsImapMoveCopyMsgTxn::OnStopRunningUrl(nsIURI* aUrl,
           dstKeys.AppendElement(dstKey);
         }
       }
-      if (dstKeys.Length()) {
-        nsAutoCString uids;
-        nsImapMailFolder::AllocateUidStringFromKeys(dstKeys, uids);
+      if (!dstKeys.IsEmpty()) {
+        // TODO: msgKey->UID mapping.
+        // https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
+        nsAutoCString uids(UidSetFromUids(dstKeys));
         rv = imapService->OnlineMessageCopy(dstFolder, uids, srcFolder, true,
                                             true, nullptr, nullptr, nullptr,
                                             nullptr);
