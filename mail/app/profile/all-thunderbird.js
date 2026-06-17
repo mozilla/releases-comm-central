@@ -1544,7 +1544,7 @@ pref("mail.dark-reader.show-toggle", true);
 pref("mail.accounthub.addressbook.enabled", true);
 
 // Enable Thundermail ui in account hub.
-pref("mail.accounthub.thundermail.enabled", false);
+pref("mail.accounthub.thundermail.enabled", true);
 
 // Enable new manual config ui in account hub.
 pref("mail.accounthub.manualconfig.enabled", false);
