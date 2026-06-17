@@ -520,8 +520,10 @@
         calendar: null,
         items: null,
         operation: null,
+        cancelled: false,
 
         async cancel() {
+          this.cancelled = true;
           if (this.operation) {
             await this.operation.cancel();
             this.operation = null;
@@ -542,14 +544,18 @@
             this.items = this.items.concat(items);
           }
 
+          if (this.cancelled || this.tree.mPendingRefreshJobs[calendar.id] != this) {
+            // A newer refresh job for this calendar has superseded us (or we were
+            // cancelled). Don't mutate the view or fire "refresh" with stale data.
+            return;
+          }
+
           if (!this.tree.mTreeView.tree) {
             // Looks like we've been disconnected from the DOM, there's no point in continuing.
             return;
           }
 
-          if (calendar.id in this.tree.mPendingRefreshJobs) {
-            delete this.tree.mPendingRefreshJobs[calendar.id];
-          }
+          delete this.tree.mPendingRefreshJobs[calendar.id];
 
           const oldItems = this.tree.mTaskArray.filter(item => item.calendar.id == calendar.id);
           this.tree.mTreeView.modifyItems(this.items, oldItems);
