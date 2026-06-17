@@ -1358,6 +1358,20 @@ nsresult MsgGetHeadersFromKeys(nsIMsgDatabase* aDB,
   return NS_OK;
 }
 
+mozilla::Result<nsTArray<nsMsgKey>, nsresult> MsgGetKeysFromHdrs(
+    nsTArray<RefPtr<nsIMsgDBHdr>> const& hdrs) {
+  nsTArray<nsMsgKey> keys(hdrs.Length());
+  for (nsIMsgDBHdr* hdr : hdrs) {
+    nsMsgKey key;
+    MOZ_TRY(hdr->GetMessageKey(&key));
+    if (key == nsMsgKey_None) {
+      return Err(NS_ERROR_UNEXPECTED);
+    }
+    keys.AppendElement(key);
+  }
+  return keys;
+}
+
 nsresult MsgExamineForProxyAsync(nsIChannel* channel,
                                  nsIProtocolProxyCallback* listener,
                                  nsICancelable** result) {

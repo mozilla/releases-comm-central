@@ -247,11 +247,25 @@ nsresult MsgUnescapeString(const nsACString& aStr, uint32_t aFlags,
 nsresult MsgEscapeURL(const nsACString& aStr, uint32_t aFlags,
                       nsACString& aResult);
 
-// Given a message db and a set of keys, fetch the corresponding message
-// headers.
+/**
+ * Given a message db and a set of keys, fetch the corresponding message
+ * headers.
+ * If a key cannot be found in the database, it will be ignored. So the
+ * returned array may not correspond directly to the one passed in.
+ */
 nsresult MsgGetHeadersFromKeys(nsIMsgDatabase* aDB,
                                const nsTArray<nsMsgKey>& aMsgKeys,
                                nsTArray<RefPtr<nsIMsgDBHdr>>& aHeaders);
+
+/**
+ * Given a set of nsIMsgDBHdrs, return the corresponding array of nsMsgKeys.
+ * The returned array will:
+ *   1. Map directly to the header array passed in.
+ *   2. NOT include nsMsgKey_None.
+ * If these conditions cannot be met, the function will return an error.
+ */
+mozilla::Result<nsTArray<nsMsgKey>, nsresult> MsgGetKeysFromHdrs(
+    nsTArray<RefPtr<nsIMsgDBHdr>> const& hdrs);
 
 nsresult MsgExamineForProxyAsync(nsIChannel* channel,
                                  nsIProtocolProxyCallback* listener,

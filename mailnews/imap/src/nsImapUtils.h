@@ -14,6 +14,7 @@
 
 class nsImapFlagAndUidState;
 class nsImapProtocol;
+class nsIMsgDBHdr;
 
 static const char kImapRootURI[] = "imap:/";
 static const char kImapMessageRootURI[] = "imap-message:/";
@@ -65,6 +66,15 @@ void AppendUid(nsCString& msgIds, ImapUid uid);
  * but the spec implies you shouldn't rely on that.
  */
 nsCString UidSetFromUids(mozilla::Span<const ImapUid> uids);
+
+/**
+ * Returns a list of UIDs for the given messages.
+ * If a message doesn't have a UID, it will _not_ appear in the returned list.
+ * So the size of the returned list may differ to the number of messages passed
+ * in.
+ */
+mozilla::Result<nsTArray<ImapUid>, nsresult> UidsFromHdrs(
+    nsTArray<RefPtr<nsIMsgDBHdr>> const& hdrs);
 
 class nsImapMailboxSpec : public nsIMailboxSpec {
  public:

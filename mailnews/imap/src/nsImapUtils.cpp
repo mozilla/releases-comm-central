@@ -6,14 +6,16 @@
 
 #include <fmt/format.h>
 
+#include "MailNewsTypes.h"
 #include "nsCOMPtr.h"
+#include "nsDebug.h"
+#include "nsError.h"
 #include "prsystem.h"
 #include "prprf.h"
 
-#include "nsMsgUtils.h"
+#include "nsIImapFlagAndUidState.h"
 #include "nsImapFlagAndUidState.h"
 #include "nsImapNamespace.h"
-#include "nsIImapFlagAndUidState.h"
 #include "nsString.h"
 
 nsresult nsImapURI2FullName(const char* rootURI, const char* hostname,
@@ -387,4 +389,35 @@ nsCString UidSetFromUids(mozilla::Span<const ImapUid> uids) {
   }
 
   return StringJoin(","_ns, fragments);
+}
+
+mozilla::Result<nsTArray<ImapUid>, nsresult> UidsFromHdrs(
+    nsTArray<RefPtr<nsIMsgDBHdr>> const& hdrs) {
+  nsTArray<ImapUid> uids(hdrs.Length());
+  for (nsIMsgDBHdr* hdr : hdrs) {
+    // TODO: When we take the final step to separate nsMsgKey and UIDs,
+    // this function will have to be changed to use GetUidOnServer() instead
+    // of GetMessageKey().
+    // https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
+
+    //    ImapUid uid;
+    //    nsresult rv = hdr->GetUidOnServer(&uid);
+    //    if (NS_FAILED(rv)) {
+    //      return mozilla::Err(rv);
+    //    }
+    //    // Ignore messages with no UID.
+    //    if (uid != 0) {
+    //      uids.AppendElement(uid);
+    //    }
+
+    // But for now the UID is the nsMsgKey...
+    nsMsgKey key;
+    nsresult rv = hdr->GetMessageKey(&key);
+    if (NS_FAILED(rv)) {
+      return mozilla::Err(rv);
+    }
+    MOZ_ASSERT(key != nsMsgKey_None);
+    uids.AppendElement((ImapUid)key);
+  }
+  return uids;
 }

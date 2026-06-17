@@ -7,10 +7,12 @@
 #include "ExchangeFetchMsgsToOffline.h"
 #include "IExchangeFolder.h"
 #include "nsImapMailFolder.h"
+#include "nsImapUtils.h"
 #include "nsIImapService.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsIMsgMailSession.h"
 #include "nsMsgFolderFlags.h"
+#include "nsMsgUtils.h"
 #include "nsIAutoSyncManager.h"
 #include "nsIAutoSyncMsgStrategy.h"
 #include "nsServiceManagerUtils.h"
@@ -669,14 +671,12 @@ NS_IMETHODIMP nsAutoSyncState::DownloadMessagesForOffline(
   rv = folder->GetIncomingServerType(serverType);
   NS_ENSURE_SUCCESS(rv, rv);
   if (serverType.EqualsLiteral("imap")) {
-    // The keys are IMAP UIDs we can send to the server.
-    nsAutoCString messageIds;
-    nsTArray<nsMsgKey> msgKeys;
-    rv = nsImapMailFolder::BuildIdsAndKeyArray(messages, messageIds, msgKeys);
-    NS_ENSURE_SUCCESS(rv, rv);
-    if (messageIds.IsEmpty()) {
+    nsTArray<nsMsgKey> msgKeys = MOZ_TRY(MsgGetKeysFromHdrs(messages));
+    nsTArray<ImapUid> uids = MOZ_TRY(UidsFromHdrs(messages));
+    if (uids.IsEmpty()) {
       return NS_OK;
     }
+    nsAutoCString messageIds(UidSetFromUids(uids));
 
     if (MOZ_LOG_TEST(gAutoSyncLog, LogLevel::Debug)) {
       nsCString folderName;
