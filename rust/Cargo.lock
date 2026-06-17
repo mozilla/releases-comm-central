@@ -3569,7 +3569,9 @@ dependencies = [
 [[package]]
 name = "jxl_simd"
 version = "0.4.3"
-source = "git+https://github.com/libjxl/jxl-rs?rev=c41cbfaf34c2c8ebc3fb6655c885fe427ab9542a#c41cbfaf34c2c8ebc3fb6655c885fe427ab9542a"
+dependencies = [
+ "rustversion",
+]
 
 [[package]]
 name = "jxl_transforms"
