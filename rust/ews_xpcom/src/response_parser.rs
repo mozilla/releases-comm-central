@@ -22,7 +22,7 @@ pub(crate) struct EwsResponseProcessor<RespT: OperationResponse> {
 }
 
 impl<RespT: OperationResponse> EwsResponseProcessor<RespT> {
-    pub fn new(version_handler: Arc<ServerVersionHandler>) -> EwsResponseProcessor<RespT> {
+    pub(crate) fn new(version_handler: Arc<ServerVersionHandler>) -> EwsResponseProcessor<RespT> {
         EwsResponseProcessor {
             version_handler,
             resp_type: PhantomData,

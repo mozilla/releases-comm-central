@@ -96,7 +96,7 @@ impl<ServerT: ServerType> XpComGraphClient<ServerT> {
     ///
     /// [message update]:
     ///     https://learn.microsoft.com/en-us/graph/api/message-update
-    pub async fn change_flag_status(
+    pub(crate) async fn change_flag_status(
         self: Arc<XpComGraphClient<ServerT>>,
         message_ids: Vec<String>,
         is_flagged: bool,

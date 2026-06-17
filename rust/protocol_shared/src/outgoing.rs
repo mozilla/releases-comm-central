@@ -129,10 +129,9 @@ impl<ClientT: SendCapableClient> OutgoingServer<ClientT> {
     pub fn new(
         client_constructor: fn(&OutgoingServer<ClientT>) -> Result<ClientT, nsresult>,
     ) -> Result<RefPtr<Self>, nsresult> {
-        let password_module = xpcom::get_service::<msgIPasswordAuthModule>(
-            c"@mozilla.org/mail/password-auth-module;1",
-        )
-        .ok_or(Err::<(), nsresult>(nserror::NS_ERROR_FAILURE))?;
+        let password_module =
+            get_service::<msgIPasswordAuthModule>(c"@mozilla.org/mail/password-auth-module;1")
+                .ok_or(Err::<(), nsresult>(nserror::NS_ERROR_FAILURE))?;
 
         Ok(OutgoingServer::allocate(InitOutgoingServer {
             key: Default::default(),
@@ -634,7 +633,7 @@ impl<ClientT: SendCapableClient> OutgoingServer<ClientT> {
     // Server URI
     xpcom_method!(server_uri => GetServerURI() -> *const nsIURI);
     fn server_uri(&self) -> Result<RefPtr<nsIURI>, nsresult> {
-        self.safe_server_uri().map(std::convert::Into::into)
+        self.safe_server_uri().map(Into::into)
     }
 
     fn safe_server_uri(&self) -> Result<SafeUri, nsresult> {

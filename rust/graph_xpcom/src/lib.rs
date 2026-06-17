@@ -32,8 +32,6 @@ use xpcom::{
 
 use crate::client::XpComGraphClient;
 
-extern crate xpcom;
-
 mod client;
 mod error;
 mod outgoing;

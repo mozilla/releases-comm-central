@@ -102,7 +102,7 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError> fo
 }
 
 impl<ServerT: ServerType> XpComEwsClient<ServerT> {
-    pub async fn mark_as_junk(
+    pub(crate) async fn mark_as_junk(
         self: Arc<XpComEwsClient<ServerT>>,
         listener: SafeExchangeSimpleOperationListener,
         ews_ids: ThinVec<nsCString>,

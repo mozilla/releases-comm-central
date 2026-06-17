@@ -151,7 +151,7 @@ impl<ServerT: ServerType> XpComGraphClient<ServerT> {
     ///
     /// [folder delta]:
     ///     https://learn.microsoft.com/en-us/graph/api/mailfolder-delta
-    pub async fn sync_folder_hierarchy(
+    pub(crate) async fn sync_folder_hierarchy(
         self: Arc<XpComGraphClient<ServerT>>,
         listener: SafeExchangeFolderListener,
         sync_state_token: Option<String>,

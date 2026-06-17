@@ -27,18 +27,18 @@ impl<T: Clone> Default for Selection<T> {
 
 impl<P: Display + Clone> Selection<P> {
     /// Set the selected properties.
-    pub fn select<I: IntoIterator<Item = P>>(&mut self, properties: I) {
+    pub(crate) fn select<I: IntoIterator<Item = P>>(&mut self, properties: I) {
         self.properties = properties.into_iter().collect();
     }
 
     /// Add additional properties to the selection.
-    pub fn extend<I: IntoIterator<Item = P>>(&mut self, properties: I) {
+    pub(crate) fn extend<I: IntoIterator<Item = P>>(&mut self, properties: I) {
         self.properties.extend(properties);
     }
 
     /// Get the selection as a (key, value) pair. Useful for combining with
     /// `form_urlencoded::Serializer::append_pair` and similar.
-    pub fn pair(&self) -> Option<(&'static str, String)> {
+    pub(crate) fn pair(&self) -> Option<(&'static str, String)> {
         if self.properties.is_empty() {
             None
         } else {
@@ -70,18 +70,18 @@ impl<E: Clone> Default for ExpansionList<E> {
 
 impl<E: Display + Clone> ExpansionList<E> {
     /// Set the expanded properties.
-    pub fn expand<I: IntoIterator<Item = E>>(&mut self, expansions: I) {
+    pub(crate) fn expand<I: IntoIterator<Item = E>>(&mut self, expansions: I) {
         self.expansions = expansions.into_iter().collect();
     }
 
     /// Add additional properties to be expanded.
-    pub fn extend<I: IntoIterator<Item = E>>(&mut self, expansions: I) {
+    pub(crate) fn extend<I: IntoIterator<Item = E>>(&mut self, expansions: I) {
         self.expansions.extend(expansions);
     }
 
     /// Get the expansion as a (key, value) pair. Useful for combining with
     /// `form_urlencoded::Serializer::append_pair` and similar.
-    pub fn pair(&self) -> Option<(&'static str, String)> {
+    pub(crate) fn pair(&self) -> Option<(&'static str, String)> {
         if self.expansions.is_empty() {
             None
         } else {
@@ -180,13 +180,13 @@ pub(crate) struct FilterQuery {
 }
 
 impl FilterQuery {
-    pub fn set(&mut self, expression: FilterExpression) {
+    pub(crate) fn set(&mut self, expression: FilterExpression) {
         self.expression = Some(expression);
     }
 
     /// Get the filter query as a (key, value) pair. Useful for combining with
     /// `form_urlencoded::Serializer::append_pair` and similar.
-    pub fn pair(&self) -> Option<(&'static str, String)> {
+    pub(crate) fn pair(&self) -> Option<(&'static str, String)> {
         self.expression
             .as_ref()
             .map(|expression| ("$filter", expression.to_string()))
@@ -442,7 +442,7 @@ mod tests {
 
     #[test]
     fn serialize_message_delta_with_filter() -> Result<(), Error> {
-        let mut request = paths::me::mail_folders::mail_folder_id::messages::delta::Get::new(
+        let mut request = mail_folders::mail_folder_id::messages::delta::Get::new(
             "https://graph.microsoft.com/v1.0".to_string(),
             "inbox".to_string(),
         );

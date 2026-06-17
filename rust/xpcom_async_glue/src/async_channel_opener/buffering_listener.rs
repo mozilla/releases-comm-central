@@ -8,7 +8,6 @@ use std::io::{Read, Write};
 use std::os::raw::c_char;
 use std::slice;
 use std::task::Waker;
-use std::vec::Vec;
 
 use nserror::{NS_OK, nsresult};
 use xpcom::interfaces::{nsIInputStream, nsIRequest};
@@ -26,7 +25,7 @@ pub struct BufferingStreamListener {
 }
 
 impl BufferingStreamListener {
-    pub fn new() -> RefPtr<BufferingStreamListener> {
+    pub(super) fn new() -> RefPtr<BufferingStreamListener> {
         BufferingStreamListener::allocate(InitBufferingStreamListener {
             buf: Default::default(),
             waker: Default::default(),
@@ -108,13 +107,13 @@ impl BufferingStreamListener {
     }
 
     /// Returns the final status of the request, if it has completed.
-    pub fn status(&self) -> Option<nsresult> {
+    pub(super) fn status(&self) -> Option<nsresult> {
         self.status.take()
     }
 
     /// Sets the `Waker` to be woken when the request is completed, or wakes it
     /// immediately if the request has already completed.
-    pub fn set_waker(&self, waker: Waker) {
+    pub(super) fn set_waker(&self, waker: Waker) {
         if self.must_wake.take() {
             waker.wake();
         } else {
@@ -129,7 +128,7 @@ impl BufferingStreamListener {
     /// trait, in order to accommodate XPCOM limitations (the inability to hold
     /// a mutable reference to an XPCOM implementation and the need to return an
     /// instance of [`nsresult`] in case of an error).
-    pub fn read(&self, dest: &mut [u8]) -> Result<usize, nsresult> {
+    pub(super) fn read(&self, dest: &mut [u8]) -> Result<usize, nsresult> {
         let mut buf = self.buf.borrow_mut();
 
         let read = buf.read(dest).or(Err(nserror::NS_ERROR_FAILURE))?;

@@ -118,6 +118,28 @@ assigning_clones = "warn"
 implicit_clone = "warn"
 redundant_closure_for_method_calls = "warn"
 
+[workspace.lints.rust]
+# for details and motivations, see
+# https://doc.rust-lang.org/rustc/lints/listing/allowed-by-default.html
+non_ascii_idents = "warn"
+redundant_imports = "warn"
+redundant_lifetimes = "warn"
+trivial_casts = "warn"
+trivial_numeric_casts = "warn"
+unit_bindings = "warn"
+unreachable_pub = "warn"
+unsafe_attr_outside_unsafe = "warn"
+unused_extern_crates = "warn"
+unused_import_braces = "warn"
+unused_lifetimes = "warn"
+unused_macro_rules = "warn"
+unused_qualifications = "warn"
+
+# This can't be on by default because it generates false positives for
+# dependencies used on other platforms, but is good to turn on and occasionally
+# run locally to manually look for stale dependencies.
+#unused_crate_dependencies = "warn"
+
 [workspace.dependencies]
 {dependencies}
 

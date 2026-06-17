@@ -14,7 +14,7 @@ use super::{DoEraseFolder, XpComEwsClient};
 use crate::client::ServerType;
 
 impl<ServerT: ServerType> XpComEwsClient<ServerT> {
-    pub async fn empty_folder(
+    pub(crate) async fn empty_folder(
         self: Arc<XpComEwsClient<ServerT>>,
         listener: SafeExchangeSimpleOperationListener,
         folder_id: String,

@@ -122,7 +122,7 @@ impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     /// All headers are expected to be included in the provided MIME content.
     ///
     /// [`CreateItem` operation]: https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/createitem-operation-email-message
-    pub async fn create_message(
+    pub(crate) async fn create_message(
         self: Arc<XpComEwsClient<ServerT>>,
         folder_id: String,
         is_draft: bool,

@@ -22,7 +22,7 @@ use xpcom::{
 pub(crate) struct CancellableRequest {}
 
 impl CancellableRequest {
-    pub fn new() -> RefPtr<Self> {
+    pub(crate) fn new() -> RefPtr<Self> {
         CancellableRequest::allocate(InitCancellableRequest {})
     }
 

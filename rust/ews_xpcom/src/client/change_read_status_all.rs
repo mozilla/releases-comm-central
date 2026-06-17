@@ -87,7 +87,7 @@ impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     /// Mark folders as read or unread by performing a [`MarkAllItemsAsRead` operation] via EWS.
     ///
     /// [`MarkAllItemsAsRead` operation]: https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/markallitemsasread-operation
-    pub async fn change_read_status_all(
+    pub(crate) async fn change_read_status_all(
         self: Arc<XpComEwsClient<ServerT>>,
         listener: SafeExchangeSimpleOperationListener,
         folder_ids: ThinVec<nsCString>,

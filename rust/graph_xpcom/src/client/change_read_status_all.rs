@@ -53,7 +53,7 @@ impl<ServerT: ServerType> XpComGraphClient<ServerT> {
     /// Graph only provides an API for this in the beta version, so until it
     /// gets stabilized we don't do anything and tell the consumer to use the
     /// legacy fallback (i.e. to use `IExchangeClient::ChangeReadStatus`).
-    pub async fn change_read_status_all(
+    pub(crate) async fn change_read_status_all(
         self: Arc<XpComGraphClient<ServerT>>,
         folder_ids: ThinVec<String>,
         is_read: bool,

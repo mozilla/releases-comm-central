@@ -31,7 +31,7 @@ pub(super) struct OutgoingRemovalObserver<ClientT: ProtocolClient + 'static> {
 impl<ClientT: ProtocolClient + 'static> OutgoingRemovalObserver<ClientT> {
     /// Creates a new [`OutgoingRemovalObserver`], and converts it into the more generic
     /// type [`nsIObserver`] before returning.
-    pub fn new_observer(
+    pub(crate) fn new_observer(
         client: Arc<ClientT>,
         key: String,
     ) -> Result<RefPtr<nsIObserver>, nsresult> {
@@ -83,7 +83,9 @@ pub(crate) struct UrlPrefObserver {
 impl UrlPrefObserver {
     /// Creates a new [`UrlPrefObserver`], and converts it into the more generic
     /// type [`nsIObserver`] before returning.
-    pub fn new_observer(endpoint: Arc<RefCell<Url>>) -> Result<RefPtr<nsIObserver>, nsresult> {
+    pub(crate) fn new_observer(
+        endpoint: Arc<RefCell<Url>>,
+    ) -> Result<RefPtr<nsIObserver>, nsresult> {
         let obs = UrlPrefObserver::allocate(InitUrlPrefObserver { inner: endpoint });
 
         obs.query_interface::<nsIObserver>()

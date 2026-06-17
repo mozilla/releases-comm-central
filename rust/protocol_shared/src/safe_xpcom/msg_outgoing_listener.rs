@@ -87,7 +87,7 @@ where
     fn from((server_uri, err_msg): (SafeUri, Option<S>)) -> Self {
         Self {
             server_uri,
-            err_msg: err_msg.map(std::convert::Into::into),
+            err_msg: err_msg.map(Into::into),
         }
     }
 }

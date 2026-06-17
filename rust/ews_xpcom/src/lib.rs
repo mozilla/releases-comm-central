@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-extern crate xpcom;
-
 use ews::copy_folder::CopyFolder;
 use ews::copy_item::CopyItem;
 use ews::move_folder::MoveFolder;
@@ -107,12 +105,11 @@ impl XpcomEwsBridge {
     xpcom_method!(record_telemetry => RecordTelemetry(server_url: *const nsACString));
     fn record_telemetry(&self, server_url: &nsACString) -> Result<(), nsresult> {
         // Try to parse the URL.
-        let server_url =
-            Url::parse(&server_url.to_utf8()).or(Err(nserror::NS_ERROR_INVALID_ARG))?;
+        let server_url = Url::parse(&server_url.to_utf8()).or(Err(NS_ERROR_INVALID_ARG))?;
 
         // Try to extract a domain from the URL, so we can compare it with the
         // Offiche365 base domain.
-        let domain = server_url.host_str().ok_or(nserror::NS_ERROR_INVALID_ARG)?;
+        let domain = server_url.host_str().ok_or(NS_ERROR_INVALID_ARG)?;
 
         // See if we know an Exchange Server version for this URL.
         let version = server_version::read_server_version(&server_url)?;
@@ -237,7 +234,7 @@ impl XpcomEwsBridge {
         name: &nsACString,
     ) -> Result<(), nsresult> {
         if parent_id.is_empty() || name.is_empty() {
-            return Err(nserror::NS_ERROR_INVALID_ARG);
+            return Err(NS_ERROR_INVALID_ARG);
         }
 
         let client = self.client()?;
@@ -710,7 +707,7 @@ fn maybe_set_ews_o365_pref(endpoint: &nsACString) -> Result<(), nsresult> {
     let server_url = Url::parse(&endpoint.to_utf8()).or(Err(NS_ERROR_INVALID_ARG))?;
 
     // Extract the host (domain) from the URL. This matches the behavior in `record_telemetry`.
-    let domain = server_url.host_str().ok_or(nserror::NS_ERROR_INVALID_ARG)?;
+    let domain = server_url.host_str().ok_or(NS_ERROR_INVALID_ARG)?;
 
     // Check if the domain ends with any of the known Office365 base domains.
     if OFFICE365_BASE_DOMAINS

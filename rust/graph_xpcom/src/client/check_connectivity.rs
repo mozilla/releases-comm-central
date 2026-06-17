@@ -68,7 +68,7 @@ impl<ServerT: ServerType> XpComGraphClient<ServerT> {
     /// Perform a connectivity check by querying the [user information] endpoint.
     ///
     /// [user information]: https://learn.microsoft.com/en-us/graph/api/user-get
-    pub async fn check_connectivity(
+    pub(crate) async fn check_connectivity(
         self: Arc<XpComGraphClient<ServerT>>,
         uri: SafeUri,
         listener: SafeUrlListener,

@@ -54,7 +54,7 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
 use crate::{client::XpComGraphClient, error::XpComGraphError};
 
 impl<ServerT: ServerType> XpComGraphClient<ServerT> {
-    pub async fn get_message(
+    pub(crate) async fn get_message(
         self: Arc<XpComGraphClient<ServerT>>,
         listener: SafeExchangeMessageFetchListener,
         message_id: String,

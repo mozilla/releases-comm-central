@@ -78,7 +78,7 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError> fo
 }
 
 impl<ServerT: ServerType> XpComEwsClient<ServerT> {
-    pub async fn update_folder(
+    pub(crate) async fn update_folder(
         self: Arc<XpComEwsClient<ServerT>>,
         listener: SafeExchangeSimpleOperationListener,
         folder_id: String,

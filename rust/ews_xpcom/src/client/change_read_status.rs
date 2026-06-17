@@ -156,7 +156,7 @@ impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     /// Mark a message as read or unread by performing an [`UpdateItem` operation] via EWS.
     ///
     /// [`UpdateItem` operation]: https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/updateitem-operation
-    pub async fn change_read_status(
+    pub(crate) async fn change_read_status(
         self: Arc<XpComEwsClient<ServerT>>,
         listener: SafeExchangeSimpleOperationListener,
         message_ids: ThinVec<nsCString>,

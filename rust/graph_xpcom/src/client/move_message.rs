@@ -4,10 +4,7 @@
 
 use std::sync::Arc;
 
-use ms_graph_tb::{
-    OperationBody,
-    paths::me::messages::{self, message_id::r#move},
-};
+use ms_graph_tb::{OperationBody, paths::me::messages::message_id::r#move};
 use nsstring::nsCString;
 use protocol_shared::{
     ServerType,
@@ -116,12 +113,11 @@ impl<ServerT: ServerType> XpComGraphClient<ServerT> {
         destination_folder_id: String,
         message_id: String,
     ) -> Result<r#move::Post<'m>, XpComGraphError> {
-        let body = messages::message_id::r#move::PostRequestBody::new()
-            .set_destination_id(destination_folder_id);
+        let body = r#move::PostRequestBody::new().set_destination_id(destination_folder_id);
 
         let base_api_url = self.base_api_url()?;
 
-        Ok(messages::message_id::r#move::Post::new(
+        Ok(r#move::Post::new(
             base_api_url.to_string(),
             message_id,
             OperationBody::JSON(body),

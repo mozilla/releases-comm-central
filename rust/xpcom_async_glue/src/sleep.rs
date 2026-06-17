@@ -4,7 +4,6 @@
 
 use std::{
     cell::Cell,
-    future::Future,
     task::{Poll, Waker},
     time::Duration,
 };
@@ -88,10 +87,7 @@ impl SleepTimer {
 impl Future for SleepTimerFuture {
     type Output = ();
 
-    fn poll(
-        self: std::pin::Pin<&mut Self>,
-        cx: &mut std::task::Context<'_>,
-    ) -> std::task::Poll<Self::Output> {
+    fn poll(self: std::pin::Pin<&mut Self>, cx: &mut std::task::Context<'_>) -> Poll<Self::Output> {
         if self.0.has_timer_completed.take() {
             Poll::Ready(())
         } else {

@@ -4,7 +4,6 @@
 
 use std::{
     cell::{Cell, OnceCell},
-    future::Future,
     task::Waker,
 };
 
@@ -23,7 +22,7 @@ pub(super) struct OAuthListener {
 }
 
 impl OAuthListener {
-    pub fn new() -> RefPtr<Self> {
+    pub(super) fn new() -> RefPtr<Self> {
         Self::allocate(InitOAuthListener {
             result: Default::default(),
             waker: Default::default(),

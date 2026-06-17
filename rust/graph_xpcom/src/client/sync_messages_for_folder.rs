@@ -174,7 +174,7 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
 }
 
 impl<ServerT: ServerType> XpComGraphClient<ServerT> {
-    pub async fn sync_messages_for_folder(
+    pub(crate) async fn sync_messages_for_folder(
         self: Arc<XpComGraphClient<ServerT>>,
         listener: SafeExchangeMessageSyncListener,
         folder_id: String,

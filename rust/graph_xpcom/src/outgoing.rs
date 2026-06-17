@@ -11,7 +11,7 @@ use xpcom::{interfaces::nsIMsgOutgoingServer, nsIID};
 use crate::client::XpComGraphClient;
 
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn nsMsGraphOutgoingServerConstructor(
+pub(crate) unsafe extern "C" fn nsMsGraphOutgoingServerConstructor(
     iid: &nsIID,
     result: *mut *mut c_void,
 ) -> nsresult {

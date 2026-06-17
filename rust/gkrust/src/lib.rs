@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // Add new crates to Cargo.toml and build them here to get into gkrust/libxul
-extern crate gkrust_shared;
-extern crate sys_tray;
+extern crate gkrust_shared as _;
 
-extern crate ews_xpcom;
-extern crate graph_xpcom;
-extern crate mailnews_string_glue;
-extern crate mailnews_ui_glue;
+extern crate ews_xpcom as _;
+extern crate graph_xpcom as _;
+extern crate mailnews_string_glue as _;
+extern crate mailnews_ui_glue as _;
+extern crate sys_tray as _;

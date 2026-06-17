@@ -71,7 +71,7 @@ type EwsOperationResult<T> = Result<<T as Operation>::Response, XpComEwsError>;
 
 /// The EWS implementation of the [`QueuedOperation`] trait. It wraps around a
 /// type that implements [`ews::Operation`].
-pub struct QueuedEwsOperation<Op: Operation, ServerT: ServerType + 'static> {
+pub(crate) struct QueuedEwsOperation<Op: Operation, ServerT: ServerType + 'static> {
     operation_id: Uuid,
     inner: Op,
     sender: Cell<Option<oneshot::Sender<EwsOperationResult<Op>>>>,
@@ -90,7 +90,7 @@ where
     /// the consumer.
     ///
     /// [`Receiver`]: oneshot::Receiver
-    pub fn new(
+    pub(crate) fn new(
         op: Op,
         options: OperationRequestOptions,
         op_sender: Arc<OperationSender<ServerT>>,
@@ -114,7 +114,7 @@ where
     /// Return the unique ID associated with this operation.
     ///
     /// In general, this is useful for tracing an operation through application phases.
-    pub fn id(&self) -> &Uuid {
+    pub(crate) fn id(&self) -> &Uuid {
         &self.operation_id
     }
 

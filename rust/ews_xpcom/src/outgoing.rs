@@ -11,7 +11,7 @@ use xpcom::{interfaces::nsIMsgOutgoingServer, nsIID};
 use crate::client::XpComEwsClient;
 
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn nsEwsOutgoingServerConstructor(
+pub(crate) unsafe extern "C" fn nsEwsOutgoingServerConstructor(
     iid: &nsIID,
     result: *mut *mut c_void,
 ) -> nsresult {

@@ -109,7 +109,7 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError> fo
 }
 
 impl<ServerT: ServerType> XpComEwsClient<ServerT> {
-    pub async fn delete_messages(
+    pub(crate) async fn delete_messages(
         self: Arc<XpComEwsClient<ServerT>>,
         listener: SafeExchangeSimpleOperationListener,
         ews_ids: ThinVec<nsCString>,

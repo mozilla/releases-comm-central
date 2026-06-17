@@ -9,7 +9,6 @@ base64 = "0.21.3"
 fxhash = "0.2.1"
 http = "0.2.9"
 log = "0.4.21"
-mailnews_ui_glue = { version = "0.1.0", path = "../mailnews_ui_glue" }
 moz_http = { version = "0.1.0", path = "../moz_http" }
 moz_task = { version = "0.1.0", path = "../../../xpcom/rust/moz_task" }
 ms_graph_tb = { version = "0.1.0", path = "../ms_graph_tb" }
@@ -18,7 +17,6 @@ nsstring = { version = "0.1.0", path = "../../../xpcom/rust/nsstring" }
 oneshot = "0.1.11"
 operation-queue = "1.1.0"
 protocol_shared = { version = "0.1.0", path = "../protocol_shared" }
-serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 thin-vec = { version = "0.2.12", features = ["gecko-ffi"] }
 thiserror = "1.0.56"

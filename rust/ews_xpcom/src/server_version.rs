@@ -145,7 +145,7 @@ pub(crate) struct ServerVersionHandler {
 }
 
 impl ServerVersionHandler {
-    pub fn new(endpoint: Url) -> Result<ServerVersionHandler, XpComEwsError> {
+    pub(crate) fn new(endpoint: Url) -> Result<ServerVersionHandler, XpComEwsError> {
         let version = read_server_version(&endpoint)?.unwrap_or(DEFAULT_EWS_SERVER_VERSION);
         Ok(ServerVersionHandler {
             version: Cell::new(version),
@@ -153,13 +153,16 @@ impl ServerVersionHandler {
         })
     }
 
-    pub fn get_version(&self) -> ExchangeServerVersion {
+    pub(crate) fn get_version(&self) -> ExchangeServerVersion {
         self.version.get()
     }
 
     /// Updates the server version associated with the client's current endpoint
     /// in the relevant pref.
-    pub fn update_server_version(&self, header: ServerVersionInfo) -> Result<(), XpComEwsError> {
+    pub(crate) fn update_server_version(
+        &self,
+        header: ServerVersionInfo,
+    ) -> Result<(), XpComEwsError> {
         let version = match header.version {
             Some(version) if !version.is_empty() => version,
             // If the server did not include a version identifier in the

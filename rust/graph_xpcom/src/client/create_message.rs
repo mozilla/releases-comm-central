@@ -77,7 +77,7 @@ impl<ServerT: ServerType> XpComGraphClient<ServerT> {
     ///
     /// [message creation]:
     ///     https://learn.microsoft.com/en-us/graph/api/user-post-messages
-    pub async fn create_message(
+    pub(crate) async fn create_message(
         self: Arc<XpComGraphClient<ServerT>>,
         folder_id: String,
         is_draft: bool,
@@ -105,7 +105,7 @@ impl<ServerT: ServerType> XpComGraphClient<ServerT> {
     /// [message creation]:
     ///     https://learn.microsoft.com/en-us/graph/api/user-post-messages
     /// [message move]: https://learn.microsoft.com/en-us/graph/api/message-move
-    pub async fn send_create_message_request<ContentT: AsRef<[u8]>>(
+    pub(crate) async fn send_create_message_request<ContentT: AsRef<[u8]>>(
         &self,
         folder_id: Option<String>,
         content: ContentT,

@@ -16,7 +16,7 @@ use crate::{Response, StatusCode};
 /// status) of an HTTP request.
 pub struct TransportSecurityInfo(pub RefPtr<nsITransportSecurityInfo>);
 
-impl std::fmt::Debug for TransportSecurityInfo {
+impl Debug for TransportSecurityInfo {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         // The underlying type does not implement the `Debug` trait, but we need
         // it to be supported so we can include transport security information
