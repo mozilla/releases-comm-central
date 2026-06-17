@@ -270,7 +270,11 @@
               value="&biffEnd.label;"
             />
           </hbox>
-          <vbox id="server.useIdle.box" align="start" hidefor="pop3,nntp,ews">
+          <vbox
+            id="server.useIdle.box"
+            align="start"
+            hidefor="pop3,nntp,ews,graph"
+          >
             <checkbox
               wsm_persist="true"
               id="imap.useIdle"
@@ -286,7 +290,7 @@
           <vbox
             id="pop3.downloadOnBiff.box"
             align="start"
-            hidefor="imap,nntp,ews"
+            hidefor="imap,nntp,ews,graph"
           >
             <checkbox
               wsm_persist="true"
@@ -298,7 +302,11 @@
             />
           </vbox>
           <!-- POP3 -->
-          <vbox id="pop3.settings.box" align="start" hidefor="imap,nntp,ews">
+          <vbox
+            id="pop3.settings.box"
+            align="start"
+            hidefor="imap,nntp,ews,graph"
+          >
             <checkbox
               wsm_persist="true"
               id="pop3.headersOnly"
@@ -357,7 +365,7 @@
             />
 
             <!-- hidden elements for data transfer to and from advanced... dialog -->
-            <hbox flex="1" hidefor="imap,nntp,ews" hidden="hidden">
+            <hbox flex="1" hidefor="imap,nntp,ews,graph" hidden="hidden">
               <checkbox
                 hidden="hidden"
                 wsm_persist="true"
@@ -385,7 +393,7 @@
 
           <separator class="thin" />
 
-          <hbox align="center" hidefor="pop3,nntp,ews">
+          <hbox align="center" hidefor="pop3,nntp,ews,graph">
             <label
               value="&deleteMessagePrefix.label;"
               align="start"
@@ -396,7 +404,7 @@
             <hbox
               align="center"
               id="imap.deleteModel.box"
-              hidefor="pop3,nntp,ews"
+              hidefor="pop3,nntp,ews,graph"
               flex="1"
             >
               <radiogroup
@@ -462,13 +470,13 @@
                 wsm_persist="true"
                 id="server.imapAdvancedButton"
                 prefstring="mail.server.%serverkey%.advanced.disable"
-                hidefor="pop3,nntp,ews"
+                hidefor="pop3,nntp,ews,graph"
               />
             </hbox>
           </vbox>
 
           <!-- Advanced IMAP settings -->
-          <hbox flex="1" hidefor="pop3,nntp,ews" hidden="hidden">
+          <hbox flex="1" hidefor="pop3,nntp,ews,graph" hidden="hidden">
             <checkbox
               hidden="hidden"
               wsm_persist="true"
@@ -639,7 +647,11 @@
           </hbox>
 
           <!-- NNTP -->
-          <hbox id="nntp.articles.box" hidefor="pop3,imap,ews" align="center">
+          <hbox
+            id="nntp.articles.box"
+            hidefor="pop3,imap,ews,graph"
+            align="center"
+          >
             <checkbox
               id="nntp.notifyOn"
               wsm_persist="true"
@@ -666,7 +678,7 @@
             />
           </hbox>
           <checkbox
-            hidefor="pop3,imap,ews"
+            hidefor="pop3,imap,ews,graph"
             wsm_persist="true"
             id="nntp.pushAuth"
             label="&alwaysAuthenticate.label;"
@@ -709,7 +721,7 @@
               wsm_persist="true"
               id="server.popAdvancedButton"
               prefstring="mail.server.%serverkey%.advanced.disable"
-              hidefor="imap,nntp,ews"
+              hidefor="imap,nntp,ews,graph"
             />
           </hbox>
           <hbox align="center">
@@ -737,7 +749,11 @@
             </menulist>
           </hbox>
 
-          <hbox id="nntp.settings.box" align="center" hidefor="imap,pop3,ews">
+          <hbox
+            id="nntp.settings.box"
+            align="center"
+            hidefor="imap,pop3,ews,graph"
+          >
             <label
               id="nntp.newsrcFilePath.label"
               value="&newsrcFilePath1.label;"
@@ -795,14 +811,14 @@
         </html:fieldset>
       </html:div>
 
-      <hbox id="nntp.charset.box" hidefor="imap,pop3,ews" align="center">
+      <hbox id="nntp.charset.box" hidefor="imap,pop3,ews,graph" align="center">
         <separator class="thin" />
         <label value="&serverDefaultCharset2.label;" control="nntp.charset" />
         <menulist
           is="menulist-charsetpicker-viewing"
           id="nntp.charset"
           hidable="true"
-          hidefor="imap,pop3,ews"
+          hidefor="imap,pop3,ews,graph"
           wsm_persist="true"
           preftype="string"
           prefstring="mail.server.%serverkey%.charset"

@@ -31,8 +31,9 @@ class ExchangeOAuth2CustomDetails : public IOAuth2CustomDetails {
   NS_DECL_ISUPPORTS;
 
   /** Return an instance of this class for the given `hostname`. */
-  static nsresult ForHostname(const nsACString& hostname,
-                              ExchangeOAuth2CustomDetails** details);
+  static nsresult ForTypeAndHostname(const nsACString& type,
+                                     const nsACString& hostname,
+                                     ExchangeOAuth2CustomDetails** details);
 
   /** Set whether or not the custom details should be used for this provider. */
   nsresult SetConfiguredUseCustomDetails(bool useCustomDetails);

@@ -72,7 +72,10 @@ function onLoad() {
 
     const picker = document.getElementById("deferredServerFolderPicker");
     picker.disabled = radioGroup.selectedIndex != 1;
-  } else if (gServerSettings.serverType == "ews") {
+  } else if (
+    gServerSettings.serverType == "ews" ||
+    gServerSettings.serverType == "graph"
+  ) {
     document.getElementById("pop3Panel").hidden = true;
     document.getElementById("imapPanel").hidden = true;
     if (

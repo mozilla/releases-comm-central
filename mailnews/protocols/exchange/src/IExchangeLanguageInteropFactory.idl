@@ -13,8 +13,8 @@ interface IOAuth2CustomDetails;
 interface IExchangeLanguageInteropFactory : nsISupports {
 
   /**
-   * Return OAuth2 custom details for the given string identifier.
+   * Return OAuth2 custom details for the given server type and string identifier.
    */
-  IOAuth2CustomDetails createOAuth2Details(in AUTF8String identifier);
+  IOAuth2CustomDetails createOAuth2Details(in AUTF8String type, in AUTF8String identifier);
 
 };

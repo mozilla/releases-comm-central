@@ -258,7 +258,7 @@ function onAdvanced() {
     serverSettings.deferredToAccount = document
       .getElementById("pop3.deferredToAccount")
       .getAttribute("value");
-  } else if (serverType == "ews") {
+  } else if (serverType == "ews" || serverType == "graph") {
     serverSettings.exchangeUrl = document
       .getElementById("ews.exchangeUrl")
       .getAttribute("value");
@@ -410,7 +410,7 @@ function onAdvanced() {
           );
         }
       }
-    } else if (serverType == "ews") {
+    } else if (serverType == "ews" || serverType == "graph") {
       document
         .getElementById("ews.exchangeUrl")
         .setAttribute("value", serverSettings.exchangeUrl);

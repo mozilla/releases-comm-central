@@ -10,17 +10,17 @@
 
 NS_IMPL_ISUPPORTS(ExchangeOAuth2CustomDetails, IOAuth2CustomDetails);
 
-nsresult ExchangeOAuth2CustomDetails::ForHostname(
-    const nsACString& hostname, ExchangeOAuth2CustomDetails** details) {
+nsresult ExchangeOAuth2CustomDetails::ForTypeAndHostname(
+    const nsACString& type, const nsACString& hostname,
+    ExchangeOAuth2CustomDetails** details) {
   NS_ENSURE_ARG_POINTER(details);
 
   nsCOMPtr<nsIPrefService> prefs = mozilla::Preferences::GetService();
 
   nsAutoCString branchName;
-  // TODO https://bugzilla.mozilla.org/show_bug.cgi?id=2037255
-  // Update this to support Graph servers. (The second component
-  // of the prefs branch will be `graph`)
-  branchName.AssignLiteral("mail.ews.server.details.");
+  branchName.AssignLiteral("mail.");
+  branchName.Append(type);
+  branchName.Append(".server.details.");
   branchName.Append(hostname);
   branchName.Append(".");
 
