@@ -78,7 +78,7 @@ add_task(async function test_account_oauth_imap_account() {
     configFoundTemplate.l10n.getAttributes(
       configFoundTemplate.querySelector("#sharedSocketType")
     ).id,
-    "account-hub-result-no-encryption",
+    "account-hub-result-security-no-encryption",
     "Should show expected socket type on IMAP config."
   );
 
@@ -86,7 +86,7 @@ add_task(async function test_account_oauth_imap_account() {
     configFoundTemplate.l10n.getAttributes(
       configFoundTemplate.querySelector("#sharedAuthenticationType")
     ).id,
-    "account-hub-result-auth-oauth2",
+    "account-hub-result-authentication-oauth2",
     "Should show expected authentication type on IMAP config."
   );
 
@@ -152,7 +152,7 @@ add_task(async function test_account_oauth_imap_account() {
     configFoundTemplate.l10n.getAttributes(
       configFoundTemplate.querySelector("#incomingSocketType")
     ).id,
-    "account-hub-result-starttls",
+    "account-hub-result-security-starttls",
     "Should show expected incoming socket type on POP3 config."
   );
 
@@ -160,7 +160,7 @@ add_task(async function test_account_oauth_imap_account() {
     configFoundTemplate.l10n.getAttributes(
       configFoundTemplate.querySelector("#incomingAuthenticationType")
     ).id,
-    "account-hub-result-auth-password",
+    "account-hub-result-authentication-password",
     "Should show expected incoming authentication type on POP3 config."
   );
 
@@ -168,7 +168,7 @@ add_task(async function test_account_oauth_imap_account() {
     configFoundTemplate.l10n.getAttributes(
       configFoundTemplate.querySelector("#outgoingSocketType")
     ).id,
-    "account-hub-result-no-encryption",
+    "account-hub-result-security-no-encryption",
     "Should show expected outgoing socket type on POP3 config."
   );
 
@@ -176,7 +176,7 @@ add_task(async function test_account_oauth_imap_account() {
     configFoundTemplate.l10n.getAttributes(
       configFoundTemplate.querySelector("#outgoingAuthenticationType")
     ).id,
-    "account-hub-result-auth-oauth2",
+    "account-hub-result-authentication-oauth2",
     "Should show expected outgoing authentication type on POP3 config."
   );
 

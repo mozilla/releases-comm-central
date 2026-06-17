@@ -411,7 +411,7 @@ function subtest_config_results(template, configType) {
 
   Assert.equal(
     template.l10n.getAttributes(template.querySelector("#sharedSocketType")).id,
-    "account-hub-result-ssl",
+    "account-hub-result-security-ssl",
     `${configType}: Incoming socketType should be as expected`
   );
 
@@ -419,7 +419,7 @@ function subtest_config_results(template, configType) {
     template.l10n.getAttributes(
       template.querySelector("#sharedAuthenticationType")
     ).id,
-    "account-hub-result-auth-password",
+    "account-hub-result-authentication-password",
     `${configType}: Authentication type should be expected`
   );
 

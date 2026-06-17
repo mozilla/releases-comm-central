@@ -187,9 +187,10 @@ class EmailConfigFound extends AccountHubStep {
    */
   #getSocketTypeL10nId(socketType) {
     const socketTypeName = InputSanitizer.translate(socketType, {
-      [Ci.nsMsgSocketType.plain]: "account-hub-result-no-encryption",
-      [Ci.nsMsgSocketType.alwaysSTARTTLS]: "account-hub-result-starttls",
-      [Ci.nsMsgSocketType.SSL]: "account-hub-result-ssl",
+      [Ci.nsMsgSocketType.plain]: "account-hub-result-security-no-encryption",
+      [Ci.nsMsgSocketType.alwaysSTARTTLS]:
+        "account-hub-result-security-starttls",
+      [Ci.nsMsgSocketType.SSL]: "account-hub-result-security-ssl",
     });
     return socketTypeName;
   }
@@ -204,18 +205,19 @@ class EmailConfigFound extends AccountHubStep {
     const authTypeName = InputSanitizer.translate(
       auth,
       {
-        [Ci.nsMsgAuthMethod.none]: "account-hub-result-auth-none",
+        [Ci.nsMsgAuthMethod.none]: "account-hub-result-authentication-none",
         [Ci.nsMsgAuthMethod.passwordCleartext]:
-          "account-hub-result-auth-password",
+          "account-hub-result-authentication-password",
         [Ci.nsMsgAuthMethod.passwordEncrypted]:
-          "account-hub-result-auth-encrypted-password",
-        [Ci.nsMsgAuthMethod.GSSAPI]: "account-hub-result-auth-gssapi",
-        [Ci.nsMsgAuthMethod.NTLM]: "account-hub-result-auth-ntlm",
-        [Ci.nsMsgAuthMethod.External]: "account-hub-result-auth-external",
+          "account-hub-result-authentication-encrypted-password",
+        [Ci.nsMsgAuthMethod.GSSAPI]: "account-hub-result-authentication-gssapi",
+        [Ci.nsMsgAuthMethod.NTLM]: "account-hub-result-authentication-ntlm",
+        [Ci.nsMsgAuthMethod.External]:
+          "account-hub-result-authentication-external",
         [Ci.nsMsgAuthMethod.secure]: "vencrypted-password",
-        [Ci.nsMsgAuthMethod.OAuth2]: "account-hub-result-auth-oauth2",
+        [Ci.nsMsgAuthMethod.OAuth2]: "account-hub-result-authentication-oauth2",
       },
-      "account-hub-result-auth-none"
+      "account-hub-result-authentication-none"
     );
     return authTypeName;
   }

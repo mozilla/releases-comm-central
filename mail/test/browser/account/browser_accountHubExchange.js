@@ -199,7 +199,7 @@ add_task(async function test_exchange_requires_credentials_account_creation() {
     configFoundTemplate.l10n.getAttributes(
       configFoundTemplate.querySelector("#incomingSocketType")
     ).id,
-    "account-hub-result-ssl",
+    "account-hub-result-security-ssl",
     "Incoming socket type should be expected type"
   );
 
@@ -207,7 +207,7 @@ add_task(async function test_exchange_requires_credentials_account_creation() {
     configFoundTemplate.l10n.getAttributes(
       configFoundTemplate.querySelector("#incomingAuthenticationType")
     ).id,
-    "account-hub-result-auth-password",
+    "account-hub-result-authentication-password",
     "Authentication type should be expected type"
   );
 
@@ -324,7 +324,7 @@ add_task(
       configFoundTemplate.l10n.getAttributes(
         configFoundTemplate.querySelector("#incomingSocketType")
       ).id,
-      "account-hub-result-ssl",
+      "account-hub-result-security-ssl",
       "Incoming socket type should be expected type"
     );
 
@@ -332,7 +332,7 @@ add_task(
       configFoundTemplate.l10n.getAttributes(
         configFoundTemplate.querySelector("#incomingAuthenticationType")
       ).id,
-      "account-hub-result-auth-password",
+      "account-hub-result-authentication-password",
       "Authentication type should be expected type"
     );
 
@@ -758,7 +758,7 @@ add_task(async function test_full_exchange_account_creation() {
     configFoundTemplate.l10n.getAttributes(
       configFoundTemplate.querySelector("#incomingSocketType")
     ).id,
-    "account-hub-result-ssl",
+    "account-hub-result-security-ssl",
     "Incoming socket type should be expected type"
   );
 
@@ -766,7 +766,7 @@ add_task(async function test_full_exchange_account_creation() {
     configFoundTemplate.l10n.getAttributes(
       configFoundTemplate.querySelector("#incomingAuthenticationType")
     ).id,
-    "account-hub-result-auth-password",
+    "account-hub-result-authentication-password",
     "Incoming authentication type should be expected type"
   );
 

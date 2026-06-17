@@ -92,25 +92,25 @@ account-hub-result-security-label = Security:
 
 account-hub-result-authentication-type-label = Authentication:
 
-account-hub-result-auth-none = None
+account-hub-result-authentication-none = None
     .title = None
 
-account-hub-result-auth-password = Normal Password
+account-hub-result-authentication-password = Normal Password
     .title = Normal Password
 
-account-hub-result-auth-encrypted-password = Encrypted Password
+account-hub-result-authentication-encrypted-password = Encrypted Password
     .title = Encrypted Password
 
-account-hub-result-auth-gssapi = Kerberos
+account-hub-result-authentication-gssapi = Kerberos
     .title = Kerberos
 
-account-hub-result-auth-ntlm = NTLM
+account-hub-result-authentication-ntlm = NTLM
     .title = NTLM
 
-account-hub-result-auth-external = External
+account-hub-result-authentication-external = External
     .title = External
 
-account-hub-result-auth-oauth2 = OAuth2
+account-hub-result-authentication-oauth2 = OAuth2
     .title = OAuth2
 
 account-hub-on-port-label = Port
@@ -458,13 +458,13 @@ account-hub-success-addon = Successfully installed the add-on
 
 account-hub-success-half-manual = The following settings were found by probing the given server:
 
-account-hub-result-no-encryption = No Encryption
+account-hub-result-security-no-encryption = No Encryption
     .title = No Encryption
 
-account-hub-result-ssl = SSL/TLS
+account-hub-result-security-ssl = SSL/TLS
     .title = SSL/TLS
 
-account-hub-result-starttls = STARTTLS
+account-hub-result-security-starttls = STARTTLS
     .title = STARTTLS
 
 account-hub-credentials-wrong = Authentication failed. Please check the username and password

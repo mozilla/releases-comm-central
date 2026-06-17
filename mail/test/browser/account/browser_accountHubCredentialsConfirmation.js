@@ -308,7 +308,7 @@ add_task(async function test_credentials_confirmation() {
     configFoundTemplate.l10n.getAttributes(
       configFoundTemplate.querySelector("#incomingSocketType")
     ).id,
-    "account-hub-result-ssl",
+    "account-hub-result-security-ssl",
     "Incoming socket type should be expected type"
   );
 
@@ -316,7 +316,7 @@ add_task(async function test_credentials_confirmation() {
     configFoundTemplate.l10n.getAttributes(
       configFoundTemplate.querySelector("#incomingAuthenticationType")
     ).id,
-    "account-hub-result-auth-password",
+    "account-hub-result-authentication-password",
     "Incoming Authentication type should be expected type"
   );
 
