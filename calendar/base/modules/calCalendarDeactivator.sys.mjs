@@ -121,7 +121,7 @@ export var calendarDeactivator = {
         if (isEnabled) {
           notificationbox.removeNotification(existingNotification);
         }
-      } else {
+      } else if (!isEnabled) {
         notificationbox
           .appendNotification(
             value,
