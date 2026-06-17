@@ -3427,9 +3427,6 @@ function MarkSelectedMessagesRead(markRead) {
       ? Ci.nsMsgViewCommandType.markMessagesRead
       : Ci.nsMsgViewCommandType.markMessagesUnread
   );
-  if (markRead) {
-    reportMsgRead({ isNewRead: true });
-  }
 }
 
 function MarkSelectedMessagesFlagged(markFlagged) {
@@ -4291,7 +4288,6 @@ function setMsgHdrPropertyAndReload(aProperty, aValue) {
 function MarkMessageAsRead(msgHdr) {
   ClearPendingReadTimer();
   msgHdr.folder.markMessagesRead([msgHdr], true);
-  reportMsgRead({ isNewRead: true });
 }
 
 function ClearPendingReadTimer() {
@@ -4428,93 +4424,48 @@ function IgnoreMDNResponse() {
   gMessageNotificationBar.mdnGenerator.userDeclined();
 }
 
-// A Map() to help collecting statistics of emails.
-var gMsgProbe = new Map();
+let gLastSmimeTelemetryUri = null;
+window.addEventListener("MsgLoading", () => {
+  gLastSmimeTelemetryUri = null;
+});
 
-/**
- * Process and clear the collected telemetry data.
- */
-function flushPendingTelemetryData() {
-  // Clear any pending action.
-  window.clearTimeout(gMsgProbe.get("timeoutId"));
-
-  const security = gMsgProbe.get("security");
-
-  // Only process telemetry for encrypted and/or signed messages.
-  if (security) {
-    let skipped = true;
-
-    // Skip telemetry data for messages which are not new.
-    if (gMsgProbe.has("isNewRead")) {
-      const is_signed = gMsgProbe.has("is_signed");
-      const is_encrypted = gMsgProbe.has("is_encrypted");
-      Glean.mail.mailsReadSecure.record({ security, is_signed, is_encrypted });
-      skipped = false;
-    }
-
-    // Let tests and other consumers know when the data has been processed or
-    // skipped.
-    window.dispatchEvent(
-      new CustomEvent("MsgSecurityTelemetryProcessed", {
-        bubbles: true,
-        detail: {
-          skipped,
-        },
-      })
-    );
+// Collect S/MIME telemetry when S/MIME processing completes.
+// smimeprocessed can be dispatched more than once per message.
+// See scheduleSmimeProcessed() in msgHdrViewSMIMEOverlay.js.
+window.addEventListener("smimeprocessed", () => {
+  const isSigned = !!gSignatureStatusForURI;
+  const isEncrypted = !!gEncryptionStatusForURI;
+  if (!isSigned && !isEncrypted) {
+    return;
   }
-
-  // Reset collected data.
-  gMsgProbe.clear();
-}
-
-/**
- * Update gMsgProbe and schedule submission of collected telemetry if necessary.
- */
-function reportMsgRead({ isNewRead = false, key = null }) {
-  // Usually telemetry data is processed after a short delay to ensure all data
-  // has been captured and the full telemetry information is available (security,
-  // is_signed and is_encrypted). Forcfully process any pending telemetry data,
-  // if a different message is loaded.
-  let pendingMsgURI = gMsgProbe.get("messageURI");
-  if (pendingMsgURI && pendingMsgURI != gMessageURI) {
-    flushPendingTelemetryData();
-    pendingMsgURI = undefined;
+  const uri = gSignatureStatusForURI ?? gEncryptionStatusForURI;
+  // Only the first smimeprocessed event for a URL will be reported.
+  if (gLastSmimeTelemetryUri === uri) {
+    return;
   }
+  gLastSmimeTelemetryUri = uri;
+  Glean.mail.secureMailLoaded.record({
+    security: "S/MIME",
+    is_signed: isSigned,
+    is_encrypted: isEncrypted,
+  });
+  window.dispatchEvent(new CustomEvent("SecureMailLoaded", { bubbles: true }));
+});
 
-  // Update probe data.
-  if (!pendingMsgURI) {
-    gMsgProbe.set("messageURI", gMessageURI);
+// Collect OpenPGP telemetry after the message is fully processed.
+// openpgpprocessed fires after MsgLoaded, once all decrypt/verify is done.
+document.addEventListener("openpgpprocessed", () => {
+  const isSigned = !!Enigmail.hdrView.msgSignedStateString;
+  const isEncrypted = !!Enigmail.hdrView.msgEncryptedStateString;
+  if (!isSigned && !isEncrypted) {
+    return;
   }
-  if (isNewRead) {
-    gMsgProbe.set("isNewRead", true);
-  }
-  if (key) {
-    // The key is one of:
-    // - 'signed-smime'
-    // - 'signed-openpgp'
-    // - 'encrypted-smime'
-    // - 'encrypted-openpgp'
-    if (key.startsWith("signed-")) {
-      gMsgProbe.set("is_signed", true);
-    }
-    if (key.startsWith("encrypted-")) {
-      gMsgProbe.set("is_encrypted", true);
-    }
-    gMsgProbe.set("security", key.endsWith("-openpgp") ? "OpenPGP" : "S/MIME");
-
-    // This seems to be an encrypted and/or signed message. Schedule to process
-    // the collected telemetry data.
-    window.clearTimeout(gMsgProbe.get("timeoutId"));
-    gMsgProbe.set(
-      "timeoutId",
-      window.setTimeout(flushPendingTelemetryData, 500)
-    );
-  }
-}
-
-window.addEventListener("secureMsgLoaded", event => {
-  reportMsgRead({ key: event.detail.key });
+  Glean.mail.secureMailLoaded.record({
+    security: "OpenPGP",
+    is_signed: isSigned,
+    is_encrypted: isEncrypted,
+  });
+  window.dispatchEvent(new CustomEvent("SecureMailLoaded", { bubbles: true }));
 });
 
 /**

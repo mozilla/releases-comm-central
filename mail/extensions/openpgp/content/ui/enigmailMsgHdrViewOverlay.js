@@ -292,28 +292,6 @@ Enigmail.hdrView = {
       this.msgSignedStateString = signed;
     }
     this.updateVisibleSecurityStatus(triggeredByMimePartNumber);
-
-    if (encrypted) {
-      // For telemetry purposes.
-      window.dispatchEvent(
-        new CustomEvent("secureMsgLoaded", {
-          detail: {
-            key: "encrypted-openpgp",
-            data: encrypted,
-          },
-        })
-      );
-    }
-    if (signed) {
-      window.dispatchEvent(
-        new CustomEvent("secureMsgLoaded", {
-          detail: {
-            key: "signed-openpgp",
-            data: signed,
-          },
-        })
-      );
-    }
   },
 
   /**

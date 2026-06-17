@@ -24,6 +24,23 @@ ChromeUtils.defineESModuleGetters(lazy, {
 
 var gIgnoreStatusFromMimePart = null;
 
+var gSmimeMsgLoadedFired = false;
+
+// Defer smimeprocessed so that any pending I/O-driven S/MIME callbacks
+// complete before we fire the event.
+function scheduleSmimeProcessed() {
+  setTimeout(() => {
+    window.dispatchEvent(new CustomEvent("smimeprocessed", { bubbles: true }));
+  });
+}
+
+window.addEventListener("MsgLoaded", () => {
+  gSmimeMsgLoadedFired = true;
+  if (gSignatureStatusForURI !== null || gEncryptionStatusForURI !== null) {
+    scheduleSmimeProcessed();
+  }
+});
+
 function setIgnoreStatusFromMimePart(mimePart) {
   gIgnoreStatusFromMimePart = mimePart;
 }
@@ -268,16 +285,9 @@ var smimeSink = {
     if (signed == "unknown" || signed == "mismatch") {
       this.showSenderIfSigner();
     }
-
-    // For telemetry purposes.
-    window.dispatchEvent(
-      new CustomEvent("secureMsgLoaded", {
-        detail: {
-          key: "signed-smime",
-          data: signed,
-        },
-      })
-    );
+    if (gSmimeMsgLoadedFired) {
+      scheduleSmimeProcessed();
+    }
   },
 
   /**
@@ -404,16 +414,9 @@ var smimeSink = {
         );
         break;
     }
-
-    // For telemetry purposes.
-    window.dispatchEvent(
-      new CustomEvent("secureMsgLoaded", {
-        detail: {
-          key: "encrypted-smime",
-          data: smimeEncryptedStateToString(aEncryptionStatus),
-        },
-      })
-    );
+    if (gSmimeMsgLoadedFired) {
+      scheduleSmimeProcessed();
+    }
   },
 };
 
@@ -434,6 +437,8 @@ function onSMIMEStartHeaders() {
 
   gSignatureStatusForURI = null;
   gEncryptionStatusForURI = null;
+
+  gSmimeMsgLoadedFired = false;
 
   gSignerCert = null;
   gEncryptionCert = null;
