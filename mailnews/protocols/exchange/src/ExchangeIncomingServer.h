@@ -83,11 +83,6 @@ class ExchangeIncomingServer : public nsMsgIncomingServer,
                           nsIUrlListener* urlListener);
 
   /**
-   * Retrieve the trash folder using the path stored in the server's prefs.
-   */
-  nsresult GetTrashFolder(nsIMsgFolder** trashFolder);
-
-  /**
    * Set the trash folder flag to the folder which path is stored in the
    * relevant pref.
    */

@@ -139,6 +139,15 @@ add_task(async function test_delete_model() {
   Assert.ok(!!newDeleteFolder, "New delete folder should exist.");
 
   ewsIncomingServer.trashFolderPath = "delete2";
+  Assert.ok(
+    newDeleteFolder.getFlag(Ci.nsMsgFolderFlags.Trash),
+    "New delete folder should now have the Trash flag."
+  );
+  Assert.equal(
+    ewsIncomingServer.trashFolderPath,
+    "delete2",
+    "Incoming server preference should have been updated."
+  );
 
   const headersToDelete2 = [[...inboxFolder.messages][0]];
 

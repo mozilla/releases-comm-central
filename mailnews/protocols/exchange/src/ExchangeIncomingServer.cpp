@@ -724,7 +724,8 @@ NS_IMETHODIMP ExchangeIncomingServer::GetProtocolClient(
   return NS_OK;
 }
 
-nsresult ExchangeIncomingServer::GetTrashFolder(nsIMsgFolder** trashFolder) {
+NS_IMETHODIMP
+ExchangeIncomingServer::GetTrashFolder(nsIMsgFolder** trashFolder) {
   NS_ENSURE_ARG_POINTER(trashFolder);
 
   *trashFolder = nullptr;

@@ -169,6 +169,30 @@ ExchangeFolder::ExchangeFolder()
 
 ExchangeFolder::~ExchangeFolder() = default;
 
+NS_IMETHODIMP
+ExchangeFolder::SetStringProperty(const char* propertyName,
+                                  const nsACString& propertyValue) {
+  if (!strcmp(propertyName, kExchangeIdProperty)) {
+    // See EXCHANGE_DISTINGUISHED_IDS.
+    mLockedFlags = 0;
+    if (propertyValue.EqualsLiteral("inbox"))
+      mLockedFlags |= nsMsgFolderFlags::Inbox;
+    if (propertyValue.EqualsLiteral("deleteditems"))
+      mLockedFlags |= nsMsgFolderFlags::Trash;
+    if (propertyValue.EqualsLiteral("drafts"))
+      mLockedFlags |= nsMsgFolderFlags::Drafts;
+    if (propertyValue.EqualsLiteral("outbox"))
+      mLockedFlags |= nsMsgFolderFlags::Queue;
+    if (propertyValue.EqualsLiteral("sentitems"))
+      mLockedFlags |= nsMsgFolderFlags::SentMail;
+    if (propertyValue.EqualsLiteral("junkemail"))
+      mLockedFlags |= nsMsgFolderFlags::Junk;
+    if (propertyValue.EqualsLiteral("archive"))
+      mLockedFlags |= nsMsgFolderFlags::Archive;
+  }
+  return nsMsgDBFolder::SetStringProperty(propertyName, propertyValue);
+}
+
 nsresult ExchangeFolder::CreateBaseMessageURI(const nsACString& aURI) {
   nsCOMPtr<nsIURI> folderUri;
   nsresult rv =
@@ -1317,24 +1341,13 @@ nsresult ExchangeFolder::GetProtocolClient(IExchangeClient** exchangeClient) {
 
 nsresult ExchangeFolder::GetTrashFolder(nsIMsgFolder** result) {
   NS_ENSURE_ARG_POINTER(result);
-  nsCOMPtr<nsIMsgFolder> rootFolder;
 
-  nsresult rv = GetRootFolder(getter_AddRefs(rootFolder));
+  nsCOMPtr<nsIMsgIncomingServer> server;
+  nsresult rv = GetServer(getter_AddRefs(server));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIMsgFolder> trashFolder;
-  rootFolder->GetFolderWithFlags(nsMsgFolderFlags::Trash,
-                                 getter_AddRefs(trashFolder));
-
-  // `GetFolderWithFlags()` returns NS_OK even if no folder was found, so we
-  // need to check whether it returned it returned a valid folder.
-  if (!trashFolder) {
-    return NS_ERROR_FAILURE;
-  }
-
-  trashFolder.forget(result);
-
-  return NS_OK;
+  nsCOMPtr<IExchangeIncomingServer> exchangeServer(do_QueryInterface(server));
+  return exchangeServer->GetTrashFolder(result);
 }
 
 nsresult ExchangeFolder::SyncMessages(nsIMsgWindow* window,

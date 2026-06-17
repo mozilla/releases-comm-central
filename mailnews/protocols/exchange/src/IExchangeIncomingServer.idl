@@ -6,6 +6,7 @@
 
 interface IExchangeClient;
 interface IExchangeSimpleOperationListener;
+interface nsIMsgFolder;
 interface nsIMsgWindow;
 
 /**
@@ -46,6 +47,11 @@ interface IExchangeIncomingServer : nsISupports
    * new one if one hasn't already been created.
    */
   IExchangeClient getProtocolClient();
+
+  /**
+   * Retrieve the trash folder using the path stored in the server's prefs.
+   */
+  readonly attribute nsIMsgFolder trashFolder;
 
   /** The URL for the Exchange Server */
   attribute AUTF8String exchangeUrl;
