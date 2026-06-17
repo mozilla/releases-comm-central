@@ -68,8 +68,9 @@ add_task(async function testCollapse() {
 
   conversation.close();
   account.disconnect();
+  const loginUpdate = TestUtils.topicObserved("passwordmgr-storage-changed");
   IMServices.accounts.deleteAccount(account.id);
-  await Promise.resolve(); // Ensure login removal.
+  await loginUpdate; // Ensure login removal.
 });
 
 add_task(async function testGrouping() {
@@ -143,8 +144,9 @@ add_task(async function testGrouping() {
 
   conversation.close();
   account.disconnect();
+  const loginUpdate = TestUtils.topicObserved("passwordmgr-storage-changed");
   IMServices.accounts.deleteAccount(account.id);
-  await Promise.resolve(); // Ensure login removal.
+  await loginUpdate; // Ensure login removal.
 });
 
 add_task(async function testSystemMessageReplacement() {
@@ -231,8 +233,9 @@ add_task(async function testSystemMessageReplacement() {
 
   conversation.close();
   account.disconnect();
+  const loginUpdate = TestUtils.topicObserved("passwordmgr-storage-changed");
   IMServices.accounts.deleteAccount(account.id);
-  await Promise.resolve(); // Ensure login removal.
+  await loginUpdate; // Ensure login removal.
 });
 
 function addNotice(conversation, uiConversation) {

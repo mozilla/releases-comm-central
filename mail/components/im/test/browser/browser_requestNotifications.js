@@ -49,8 +49,9 @@ add_task(async function testGrantingBuddyRequest() {
   ok(!notificationBox.getNotificationWithValue(value), "notification closed");
 
   account.disconnect();
+  const loginUpdate = TestUtils.topicObserved("passwordmgr-storage-changed");
   IMServices.accounts.deleteAccount(account.id);
-  await Promise.resolve(); // Ensure login removal.
+  await loginUpdate; // Ensure login removal.
 });
 
 add_task(async function testCancellingBuddyRequest() {
@@ -105,8 +106,9 @@ add_task(async function testCancellingBuddyRequest() {
   ok(!notificationBox.getNotificationWithValue(value), "notification closed");
 
   account.disconnect();
+  const loginUpdate = TestUtils.topicObserved("passwordmgr-storage-changed");
   IMServices.accounts.deleteAccount(account.id);
-  await Promise.resolve(); // Ensure login removal.
+  await loginUpdate; // Ensure login removal.
 });
 
 add_task(async function testDenyingBuddyRequest() {
@@ -153,8 +155,9 @@ add_task(async function testDenyingBuddyRequest() {
   ok(!notificationBox.getNotificationWithValue(value), "notification closed");
 
   account.disconnect();
+  const loginUpdate = TestUtils.topicObserved("passwordmgr-storage-changed");
   IMServices.accounts.deleteAccount(account.id);
-  await Promise.resolve(); // Ensure login removal.
+  await loginUpdate; // Ensure login removal.
 });
 
 add_task(async function testGrantingChatRequest() {
@@ -204,8 +207,9 @@ add_task(async function testGrantingChatRequest() {
   ok(!notificationBox.getNotificationWithValue(value), "notification closed");
 
   account.disconnect();
+  const loginUpdate = TestUtils.topicObserved("passwordmgr-storage-changed");
   IMServices.accounts.deleteAccount(account.id);
-  await Promise.resolve(); // Ensure login removal.
+  await loginUpdate; // Ensure login removal.
 });
 
 add_task(async function testCancellingChatRequest() {
@@ -261,8 +265,9 @@ add_task(async function testCancellingChatRequest() {
   ok(!notificationBox.getNotificationWithValue(value), "notification closed");
 
   account.disconnect();
+  const loginUpdate = TestUtils.topicObserved("passwordmgr-storage-changed");
   IMServices.accounts.deleteAccount(account.id);
-  await Promise.resolve(); // Ensure login removal.
+  await loginUpdate; // Ensure login removal.
 });
 
 add_task(async function testDenyingChatRequest() {
@@ -311,8 +316,9 @@ add_task(async function testDenyingChatRequest() {
   ok(!notificationBox.getNotificationWithValue(value), "notification closed");
 
   account.disconnect();
+  const loginUpdate = TestUtils.topicObserved("passwordmgr-storage-changed");
   IMServices.accounts.deleteAccount(account.id);
-  await Promise.resolve(); // Ensure login removal.
+  await loginUpdate; // Ensure login removal.
 });
 
 add_task(async function testUndenyableChatRequest() {
@@ -362,6 +368,7 @@ add_task(async function testUndenyableChatRequest() {
   ok(!notificationBox.getNotificationWithValue(value), "notification closed");
 
   account.disconnect();
+  const loginUpdate = TestUtils.topicObserved("passwordmgr-storage-changed");
   IMServices.accounts.deleteAccount(account.id);
-  await Promise.resolve(); // Ensure login removal.
+  await loginUpdate; // Ensure login removal.
 });

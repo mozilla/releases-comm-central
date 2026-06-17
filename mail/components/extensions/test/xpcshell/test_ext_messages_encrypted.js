@@ -28,6 +28,7 @@ const OPENPGP_KEY_PATH = PathUtils.join(
 );
 
 add_setup(async () => {
+  await Services.logins.initializationPromise;
   // Prepare OpenPGP messages.
   await OpenPGPTestUtils.initOpenPGP();
 

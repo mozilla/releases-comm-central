@@ -120,8 +120,9 @@ add_task(async function testMUCMessageSenderTooltip() {
 
   conversation.close();
   account.disconnect();
+  const loginUpdate = TestUtils.topicObserved("passwordmgr-storage-changed");
   IMServices.accounts.deleteAccount(account.id);
-  await Promise.resolve(); // Ensure login removal.
+  await loginUpdate; // Ensure login removal.
 });
 
 add_task(async function testTimestampTooltip() {
@@ -187,8 +188,9 @@ add_task(async function testTimestampTooltip() {
 
   conversation.close();
   account.disconnect();
+  const loginUpdate = TestUtils.topicObserved("passwordmgr-storage-changed");
   IMServices.accounts.deleteAccount(account.id);
-  await Promise.resolve(); // Ensure login removal.
+  await loginUpdate; // Ensure login removal.
 });
 
 async function showTooltip(elementSelector, tooltip, browser) {
