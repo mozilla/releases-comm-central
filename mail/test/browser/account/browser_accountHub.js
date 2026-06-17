@@ -110,8 +110,9 @@ add_task(async function test_account_email_step() {
   nameInput.value = "";
   emailInput.value = "";
 
-  // Check if the input icons are hidden.
-  const icons = emailTemplate.querySelectorAll("img");
+  // Validation/status icons should be hidden initially.
+  // Provider login buttons may contain visible images.
+  const icons = emailTemplate.querySelectorAll("img.form-icon");
 
   for (const icon of icons) {
     Assert.ok(BrowserTestUtils.isHidden(icon), `${icon.src} should be hidden`);
