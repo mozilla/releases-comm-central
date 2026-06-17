@@ -4,6 +4,7 @@
 
 import { OAuth2 } from "resource:///modules/OAuth2.sys.mjs";
 import { OAuth2Providers } from "resource:///modules/OAuth2Providers.sys.mjs";
+import { enforcePrimaryPassword } from "resource:///modules/PrimaryPassword.sys.mjs";
 
 const log = console.createInstance({
   prefix: "mailnews.oauth",
@@ -226,6 +227,10 @@ OAuth2Module.prototype = {
 
     // Unless the token is null, we need to create and fill in a new login.
     if (!didChangePassword && token) {
+      if (!enforcePrimaryPassword()) {
+        log.debug(`Need primary password. Will skip creating new login.`);
+        return;
+      }
       log.debug(
         `Creating new login for ${this._username} at ${this._loginOrigin} with scope "${scope}"`
       );

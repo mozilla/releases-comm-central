@@ -8,13 +8,11 @@ import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 
 const lazy = {};
-
 ChromeUtils.defineESModuleGetters(lazy, {
   CardDAVDirectory: "resource:///modules/CardDAVDirectory.sys.mjs",
-
   ContextualIdentityService:
     "resource://gre/modules/ContextualIdentityService.sys.mjs",
-
+  enforcePrimaryPassword: "resource:///modules/PrimaryPassword.sys.mjs",
   MsgAuthPrompt: "resource:///modules/MsgAsyncPrompter.sys.mjs",
   OAuth2Module: "resource:///modules/OAuth2Module.sys.mjs",
 });
@@ -674,6 +672,9 @@ export class NotificationCallbacks {
         ""
       );
       try {
+        if (!lazy.enforcePrimaryPassword()) {
+          return;
+        }
         await Services.logins.addLoginAsync(newLoginInfo);
       } catch (ex) {
         console.error(ex);

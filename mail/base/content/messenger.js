@@ -290,6 +290,15 @@ var gMailInit = {
     // Don't trigger the existing account verification if the user wants to use
     // Thunderbird without an email account.
     if (!Services.prefs.getBoolPref("app.use_without_mail_account", false)) {
+      // This is as much restoring we'll do. Notify to hook up enterprice
+      // policies properly.
+      Services.obs.notifyObservers(window, "sessionstore-windows-restored");
+      // For the crash monitor.
+      Services.obs.notifyObservers(
+        window,
+        "sessionstore-final-state-write-complete"
+      );
+
       // Load the Mail UI only if we already have at least one account configured
       // otherwise the verifyExistingAccounts will trigger the account wizard.
       verifyExistingAccounts();
@@ -563,6 +572,13 @@ async function atStartupRestoreTabs(aDontRestoreFirstTab) {
   // Note: The tabs have not finished loading at this point.
   SessionStoreManager._restored = true;
   Services.obs.notifyObservers(window, "mail-tabs-session-restored");
+  // We only restore one window, so this is it...
+  Services.obs.notifyObservers(window, "sessionstore-windows-restored");
+  // For the crash monitor.
+  Services.obs.notifyObservers(
+    window,
+    "sessionstore-final-state-write-complete"
+  );
 
   return !!state;
 }

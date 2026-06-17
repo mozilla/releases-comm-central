@@ -21,6 +21,7 @@ ChromeUtils.defineLazyGetter(lazy, "log", () => {
 ChromeUtils.defineESModuleGetters(lazy, {
   MsgAuthPrompt: "resource:///modules/MsgAsyncPrompter.sys.mjs",
   cal: "resource:///modules/calendar/calUtils.sys.mjs",
+  enforcePrimaryPassword: "resource:///modules/PrimaryPassword.sys.mjs",
   setTimeout: "resource://gre/modules/Timer.sys.mjs",
 });
 
@@ -472,6 +473,9 @@ export var auth = {
           await Services.logins.modifyLoginAsync(login, newLoginInfo);
           return;
         }
+      }
+      if (!lazy.enforcePrimaryPassword()) {
+        return;
       }
       await Services.logins.addLoginAsync(newLoginInfo);
     } catch (e) {

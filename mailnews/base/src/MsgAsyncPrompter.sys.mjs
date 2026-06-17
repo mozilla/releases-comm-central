@@ -11,6 +11,7 @@ const LoginInfo = Components.Constructor(
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   PromptUtils: "resource://gre/modules/PromptUtils.sys.mjs",
+  enforcePrimaryPassword: "resource:///modules/PrimaryPassword.sys.mjs",
 });
 ChromeUtils.defineLazyGetter(lazy, "dialogsBundle", function () {
   return Services.strings.createBundle(
@@ -311,6 +312,10 @@ export class MsgAuthPrompt {
       return ok;
     }
 
+    if (!lazy.enforcePrimaryPassword()) {
+      return ok;
+    }
+
     const newLogin = new LoginInfo(
       origin,
       null,
@@ -412,6 +417,9 @@ export class MsgAuthPrompt {
     );
 
     if (ok && checkBox.value && origin && aPassword.value) {
+      if (!lazy.enforcePrimaryPassword()) {
+        return ok;
+      }
       const newLogin = new LoginInfo(
         origin,
         null,
@@ -419,7 +427,6 @@ export class MsgAuthPrompt {
         username,
         aPassword.value
       );
-
       await Services.logins.addLoginAsync(newLogin);
     }
 

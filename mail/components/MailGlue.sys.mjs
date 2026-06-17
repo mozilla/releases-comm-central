@@ -36,6 +36,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   ChatCore: "resource:///modules/chatHandler.sys.mjs",
   ExtensionSupport: "resource:///modules/ExtensionSupport.sys.mjs",
   checkInstalledExtensions: "resource:///modules/ExtensionUtilities.sys.mjs",
+  ExtensionsUI: "resource:///modules/ExtensionsUI.sys.mjs",
   InAppNotifications:
     "moz-src:///comm/mail/components/inappnotifications/modules/InAppNotifications.sys.mjs",
   LightweightThemeConsumer:
@@ -385,6 +386,7 @@ MailGlue.prototype = {
     // app-startup happens first, registered in components.conf.
     Services.obs.addObserver(this, "command-line-startup");
     Services.obs.addObserver(this, "final-ui-startup");
+    Services.obs.addObserver(this, "sessionstore-windows-restored");
     Services.obs.addObserver(this, "quit-application-granted");
     Services.obs.addObserver(this, "mail-startup-done");
 
@@ -417,6 +419,7 @@ MailGlue.prototype = {
   _dispose() {
     Services.obs.removeObserver(this, "command-line-startup");
     Services.obs.removeObserver(this, "final-ui-startup");
+    Services.obs.removeObserver(this, "sessionstore-windows-restored");
     Services.obs.removeObserver(this, "quit-application-granted");
     // mail-startup-done is removed by its handler.
 
@@ -499,6 +502,9 @@ MailGlue.prototype = {
           .getService(Ci.nsIMsgDBViewService)
           .initializeDBViewStrings();
         this._beforeUIStartup();
+        break;
+      case "sessionstore-windows-restored":
+        this._onWindowsRestored();
         break;
       case "quit-application-granted":
         Services.startup.trackStartupCrashEnd();
@@ -725,10 +731,33 @@ MailGlue.prototype = {
       WinTaskbarJumpList.startup();
     }
 
-    const { ExtensionsUI } = ChromeUtils.importESModule(
-      "resource:///modules/ExtensionsUI.sys.mjs"
+    this._scheduleStartupIdleTasks();
+    this._lateTasksIdleObserver = (idleService, topic) => {
+      if (topic == "idle") {
+        idleService.removeIdleObserver(
+          this._lateTasksIdleObserver,
+          LATE_TASKS_IDLE_TIME_SEC
+        );
+        delete this._lateTasksIdleObserver;
+        this._scheduleBestEffortUserIdleTasks();
+      }
+    };
+    this._userIdleService.addIdleObserver(
+      this._lateTasksIdleObserver,
+      LATE_TASKS_IDLE_TIME_SEC
     );
-    ExtensionsUI.init();
+  },
+
+  // All initial windows have opened.
+  _onWindowsRestored() {
+    if (this._windowsWereRestored) {
+      return;
+    }
+    this._windowsWereRestored = true;
+
+    lazy.MailUsageTelemetry.init();
+
+    lazy.ExtensionsUI.init();
 
     // If the application has been updated, check all installed extensions for
     // updates.
@@ -758,13 +787,6 @@ MailGlue.prototype = {
       }
     }
 
-    if (AppConstants.ASAN_REPORTER) {
-      var { AsanReporter } = ChromeUtils.importESModule(
-        "resource://gre/modules/AsanReporter.sys.mjs"
-      );
-      AsanReporter.init();
-    }
-
     // Check if Sync is configured
     if (
       AppConstants.MOZ_SERVICES_SYNC &&
@@ -773,23 +795,12 @@ MailGlue.prototype = {
       lazy.WeaveService.init();
     }
 
-    this._scheduleStartupIdleTasks();
-    this._lateTasksIdleObserver = (idleService, topic) => {
-      if (topic == "idle") {
-        idleService.removeIdleObserver(
-          this._lateTasksIdleObserver,
-          LATE_TASKS_IDLE_TIME_SEC
-        );
-        delete this._lateTasksIdleObserver;
-        this._scheduleBestEffortUserIdleTasks();
-      }
-    };
-    this._userIdleService.addIdleObserver(
-      this._lateTasksIdleObserver,
-      LATE_TASKS_IDLE_TIME_SEC
-    );
-
-    lazy.MailUsageTelemetry.init();
+    if (AppConstants.ASAN_REPORTER) {
+      var { AsanReporter } = ChromeUtils.importESModule(
+        "resource://gre/modules/AsanReporter.sys.mjs"
+      );
+      AsanReporter.init();
+    }
   },
 
   /**

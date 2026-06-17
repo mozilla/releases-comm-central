@@ -20,6 +20,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   ConfigVerifier: "resource:///modules/accountcreation/ConfigVerifier.sys.mjs",
   CreateInBackend:
     "resource:///modules/accountcreation/CreateInBackend.sys.mjs",
+  enforcePrimaryPassword: "resource:///modules/PrimaryPassword.sys.mjs",
   FetchConfig: "resource:///modules/accountcreation/FetchConfig.sys.mjs",
   FindConfig: "resource:///modules/accountcreation/FindConfig.sys.mjs",
   getAddonsList:
@@ -2193,6 +2194,9 @@ class AccountHubEmail extends HTMLElement {
     }
 
     // Save token to logins store.
+    if (!lazy.enforcePrimaryPassword()) {
+      return;
+    }
     const login = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
       Ci.nsILoginInfo
     );

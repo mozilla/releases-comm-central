@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { clearTimeout, setTimeout } from "resource://gre/modules/Timer.sys.mjs";
+import { enforcePrimaryPassword } from "resource:///modules/PrimaryPassword.sys.mjs";
 import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 import {
   ClassInfo,
@@ -675,7 +676,7 @@ imAccount.prototype = {
           break;
         }
       }
-      if (!saved && password) {
+      if (!saved && password && enforcePrimaryPassword()) {
         await Services.logins.addLoginAsync(newLogin);
       }
     } catch (e) {

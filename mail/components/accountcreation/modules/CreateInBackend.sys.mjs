@@ -2,15 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const lazy = {};
+import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
+const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   AccountConfig: "resource:///modules/accountcreation/AccountConfig.sys.mjs",
   AccountCreationUtils:
     "resource:///modules/accountcreation/AccountCreationUtils.sys.mjs",
+  enforcePrimaryPassword: "resource:///modules/PrimaryPassword.sys.mjs",
 });
-
-import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
 /**
  * Takes an |AccountConfig| JS object and creates that account in the
@@ -308,6 +308,10 @@ function setFolders(identity, server) {
 }
 
 async function rememberPassword(server, password) {
+  if (!lazy.enforcePrimaryPassword()) {
+    return;
+  }
+
   let passwordURI;
   if (server instanceof Ci.nsIMsgIncomingServer) {
     passwordURI = server.localStoreType + "://" + server.hostname;
@@ -466,4 +470,5 @@ export const CreateInBackend = {
   checkIncomingServerAlreadyExists,
   checkOutgoingServerAlreadyExists,
   createAccountInBackend,
+  rememberPassword,
 };

@@ -36,6 +36,7 @@ EXTRA_JS_MODULES += [
     "MozIconUtils.mjs",
     "NotificationSounds.sys.mjs",
     "PhishingDetector.sys.mjs",
+    "PrimaryPassword.sys.mjs",
     "QuickFilterManager.sys.mjs",
     "QuoteSanitizer.sys.mjs",
     "SearchSpec.sys.mjs",

@@ -12,6 +12,9 @@ const { OSKeyStore } = ChromeUtils.importESModule(
 const { OSKeyStoreTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/OSKeyStoreTestUtils.sys.mjs"
 );
+const { CreateInBackend } = ChromeUtils.importESModule(
+  "resource:///modules/accountcreation/CreateInBackend.sys.mjs"
+);
 
 add_task(async () => {
   await testCheckboxes(
