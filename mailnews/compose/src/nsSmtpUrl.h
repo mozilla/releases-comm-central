@@ -17,11 +17,13 @@
 #include "nsIURIMutator.h"
 #include "nsIURIWithSizeOf.h"
 #include "nsMsgMailNewsUrl.h"
+#include "URIHasher.h"
 
 class nsMailtoUrl : public nsIMailtoUrl,
                     public nsIURI,
                     public nsIIPCSerializableURI,
-                    public nsIURIWithSizeOf {
+                    public nsIURIWithSizeOf,
+                    public mozilla::net::URIHasher {
  public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMAILTOURL

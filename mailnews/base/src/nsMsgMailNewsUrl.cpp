@@ -444,6 +444,12 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetSpec(nsACString& aSpec) {
   return NS_OK;
 }
 
+uint32_t nsMsgMailNewsUrl::SpecHash() {
+  nsAutoCString spec;
+  (void)GetSpec(spec);
+  return CachedSpecHash(spec);
+}
+
 nsresult nsMsgMailNewsUrl::CreateURL(const nsACString& aSpec, nsIURL** aURL) {
   nsCOMPtr<nsIURL> url;
   nsresult rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID)

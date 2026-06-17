@@ -11,6 +11,7 @@
 #include "nsIURIMutator.h"
 #include "nsIURIWithSizeOf.h"
 #include "nsString.h"
+#include "URIHasher.h"
 
 /**
  * nsLDAPURL
@@ -29,7 +30,8 @@
 
 class nsLDAPURL : public nsILDAPURL,
                   public nsIIPCSerializableURI,
-                  public nsIURIWithSizeOf {
+                  public nsIURIWithSizeOf,
+                  public mozilla::net::URIHasher {
  public:
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIURI

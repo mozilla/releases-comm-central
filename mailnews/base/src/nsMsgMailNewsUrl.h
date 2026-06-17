@@ -25,6 +25,7 @@
 #include "nsIWeakReferenceUtils.h"
 #include "nsString.h"
 #include "nsTObserverArray.h"
+#include "URIHasher.h"
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Okay, I found that all of the mail and news url interfaces needed to support
@@ -39,7 +40,8 @@ class nsMsgMailNewsUrl : public nsIMsgMailNewsUrl,
                          public nsISerializable,
                          public nsIIPCSerializableURI,
                          public nsIURIWithSizeOf,
-                         public nsIClassInfo {
+                         public nsIClassInfo,
+                         public mozilla::net::URIHasher {
  public:
   nsMsgMailNewsUrl();
 

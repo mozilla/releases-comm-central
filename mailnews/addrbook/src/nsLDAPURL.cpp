@@ -129,6 +129,12 @@ nsresult nsLDAPURL::SetSpecInternal(const nsACString& aSpec) {
   return rv;
 }
 
+uint32_t nsLDAPURL::SpecHash() {
+  nsAutoCString spec;
+  (void)GetSpec(spec);
+  return CachedSpecHash(spec);
+}
+
 NS_IMETHODIMP nsLDAPURL::GetPrePath(nsACString& _retval) {
   if (!mBaseURL) return NS_ERROR_NOT_INITIALIZED;
 

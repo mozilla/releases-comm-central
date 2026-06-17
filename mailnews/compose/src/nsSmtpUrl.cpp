@@ -339,6 +339,12 @@ NS_IMETHODIMP nsMailtoUrl::GetSpec(nsACString& aSpec) {
   return m_baseURL->GetSpec(aSpec);
 }
 
+uint32_t nsMailtoUrl::SpecHash() {
+  nsAutoCString spec;
+  (void)GetSpec(spec);
+  return CachedSpecHash(spec);
+}
+
 NS_IMETHODIMP nsMailtoUrl::GetPrePath(nsACString& aPrePath) {
   return m_baseURL->GetPrePath(aPrePath);
 }
