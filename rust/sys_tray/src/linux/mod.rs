@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use cstr::cstr;
 use fluent_ffi::{FluentBundleRc, adapt_bundle_for_gecko};
 use ksni::Handle;
 use nserror::{NS_OK, nsresult};
@@ -31,7 +30,7 @@ pub mod system_tray;
 /// pref.
 fn get_bool_pref(name: &CStr) -> Option<bool> {
     let mut value = false;
-    let prefs_service = get_service::<nsIPrefBranch>(cstr!("@mozilla.org/preferences-service;1"))?;
+    let prefs_service = get_service::<nsIPrefBranch>(c"@mozilla.org/preferences-service;1")?;
     unsafe {
         prefs_service
             .GetBoolPref(name.as_ptr(), &mut value)
@@ -109,7 +108,7 @@ impl LinuxSysTrayHandler {
         let tray = SystemTray::new("Thunderbird", icon, "Thunderbird Daily").with_items(menus);
         let service = ksni::TrayService::new(tray);
         let handle = service.handle();
-        if get_bool_pref(cstr!("mail.biff.show_tray_icon_always")).unwrap_or(true) {
+        if get_bool_pref(c"mail.biff.show_tray_icon_always").unwrap_or(true) {
             thread::spawn(|| match service.run_without_dbus_name() {
                 Ok(_) => (),
                 Err(e) => log::error!("Spawning system tray FAILED: {e}"),

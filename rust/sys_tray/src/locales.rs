@@ -4,7 +4,6 @@
 
 // Return the set of locales according to LocaleService
 
-use cstr::cstr;
 use fluent_ffi::FluentResource;
 use nserror::nsresult;
 use nsstring::nsCString;
@@ -23,7 +22,7 @@ static BRANDING_FILE: &str = include_str!(mozbuild::srcdir_path!(
 
 // Ask mozILocaleService for the known locale list
 fn supported_locales() -> Result<ThinVec<nsCString>, nsresult> {
-    let service = get_service::<mozILocaleService>(cstr!("@mozilla.org/intl/localeservice;1"))
+    let service = get_service::<mozILocaleService>(c"@mozilla.org/intl/localeservice;1")
         .ok_or(nserror::NS_ERROR_NO_INTERFACE)?;
     let mut locales = ThinVec::new();
     unsafe {

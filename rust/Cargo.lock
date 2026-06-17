@@ -4368,7 +4368,6 @@ checksum = "2133b12230591b7e727c8977b96b791bba421cd80ce8eb08b782dcb4a43fa1e9"
 name = "moz_http"
 version = "0.1.0"
 dependencies = [
- "cstr",
  "http 0.2.12",
  "mozilla-central-workspace-hack",
  "nserror",
@@ -5430,7 +5429,6 @@ version = "0.1.0"
 dependencies = [
  "async-lock",
  "base64 0.21.999",
- "cstr",
  "fxhash",
  "http 0.2.12",
  "log",
@@ -6587,7 +6585,6 @@ dependencies = [
 name = "sys_tray"
 version = "0.1.0"
 dependencies = [
- "cstr",
  "fluent 0.16.1",
  "fluent-ffi",
  "ksni",
@@ -7941,7 +7938,6 @@ dependencies = [
 name = "xpcom_async_glue"
 version = "0.1.0"
 dependencies = [
- "cstr",
  "mozilla-central-workspace-hack",
  "nserror",
  "thin-vec",

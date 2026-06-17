@@ -14,7 +14,6 @@ nsstring = { path = "../../../xpcom/rust/nsstring" }
 nserror = { path = "../../../xpcom/rust/nserror" }
 xpcom_async_glue = { path = "../xpcom_async_glue" }
 
-cstr = "0.2"
 url = "2.5"
 thiserror = "1.0.56"
 http = "0.2.9"

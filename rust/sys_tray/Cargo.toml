@@ -5,7 +5,6 @@ edition = "2024"
 rust-version.workspace = true
 
 [dependencies]
-cstr = "0.2"
 fluent = "0.16"
 log = "0.4"
 moz_task = { path = "../../../xpcom/rust/moz_task" }

@@ -5,7 +5,6 @@
 use std::ops::Deref;
 
 use base64::prelude::*;
-use cstr::cstr;
 
 use moz_http::{Client, Response};
 use nserror::nsresult;
@@ -179,9 +178,9 @@ pub trait AuthenticationProvider {
                 // Get the OAuth details.
                 let server_type = self.server_type()?;
                 let oauth_details_identifier = self.oauth_details_identifier()?;
-                let interop_factory = create_instance::<IExchangeLanguageInteropFactory>(cstr!(
-                    "@mozilla.org/messenger/exchange-interop;1"
-                ))
+                let interop_factory = create_instance::<IExchangeLanguageInteropFactory>(
+                    c"@mozilla.org/messenger/exchange-interop;1",
+                )
                 .ok_or(Err::<RefPtr<IExchangeLanguageInteropFactory>, _>(
                     nserror::NS_ERROR_FAILURE,
                 ))?;
@@ -262,7 +261,7 @@ impl AuthenticationProvider for nsIMsgIncomingServer {
         override_details: &IOAuth2CustomDetails,
     ) -> Result<Option<RefPtr<msgIOAuth2Module>>, nsresult> {
         let oauth2_module =
-            create_instance::<msgIOAuth2Module>(cstr!("@mozilla.org/mail/oauth2-module;1")).ok_or(
+            create_instance::<msgIOAuth2Module>(c"@mozilla.org/mail/oauth2-module;1").ok_or(
                 Err::<RefPtr<msgIOAuth2Module>, _>(nserror::NS_ERROR_FAILURE),
             )?;
 
@@ -325,7 +324,7 @@ impl AuthenticationProvider for nsIMsgOutgoingServer {
         override_details: &IOAuth2CustomDetails,
     ) -> Result<Option<RefPtr<msgIOAuth2Module>>, nsresult> {
         let oauth2_module =
-            create_instance::<msgIOAuth2Module>(cstr!("@mozilla.org/mail/oauth2-module;1")).ok_or(
+            create_instance::<msgIOAuth2Module>(c"@mozilla.org/mail/oauth2-module;1").ok_or(
                 Err::<RefPtr<msgIOAuth2Module>, _>(nserror::NS_ERROR_FAILURE),
             )?;
 

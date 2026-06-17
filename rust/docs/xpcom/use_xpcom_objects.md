@@ -28,13 +28,9 @@ For example, getting a reference on an instance of `nsIIOService` looks like
 this:
 
 ```rust
-use cstr::cstr;
-
 use xpcom::interfaces::nsIIOService;
 
-let io_srv = xpcom::get_service::<nsIIOService>(cstr!(
-    "@mozilla.org/network/io-service;1"
-));
+let io_srv = xpcom::get_service::<nsIIOService>(c"@mozilla.org/network/io-service;1");
 ```
 
 The type for the return value of `get_service` here is an `Option` which, once
@@ -44,21 +40,17 @@ the member fields and methods described in the `nsIIOService` interface.
 Similarly, to create a new instance of `nsIStringInputStream`, we would do:
 
 ```rust
-use cstr::cstr;
-
 use xpcom::interfaces::nsIStringInputStream;
 
-let stream = xpcom::create_instance::<nsIStringInputStream>(cstr!(
-    "@mozilla.org/io/string-input-stream;1"
-));
+let stream =
+    xpcom::create_instance::<nsIStringInputStream>(c"@mozilla.org/io/string-input-stream;1");
 ```
 
 Here as well, the type for the return value of `create_instance` is
 `Option<xpcom::RefPtr<nsIStringInputStream>>`.
 
 Note that both `xpcom::get_service` and `xpcom::create_instance` require the
-contract ID to be passed as a `&CStr`, which we do here using the
-[cstr](https://crates.io/crates/cstr) crate.
+contract ID to be passed as a `&CStr`.
 
 
 ## Calling methods on XPCOM objects
@@ -91,7 +83,7 @@ use xpcom::interfaces::{nsIPrincipal, nsIScriptSecurityManager};
 
 fn retrieve_principal() -> Result<(), nsresult> {
     let script_sec_mgr: RefPtr<nsIScriptSecurityManager> =
-        get_service::<nsIScriptSecurityManager>(cstr!("@mozilla.org/scriptsecuritymanager;1"))
+        get_service::<nsIScriptSecurityManager>(c"@mozilla.org/scriptsecuritymanager;1")
             .ok_or(nserror::NS_ERROR_FAILURE)?;
 
     let principal: RefPtr<nsIPrincipal> =

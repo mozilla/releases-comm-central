@@ -34,9 +34,9 @@ impl SafeExchangeMessageFetchListener {
             return Err(ProtocolError::Size(data.len()));
         }
 
-        let stream = xpcom::create_instance::<nsIStringInputStream>(cstr::cstr!(
-            "@mozilla.org/io/string-input-stream;1"
-        ))
+        let stream = xpcom::create_instance::<nsIStringInputStream>(
+            c"@mozilla.org/io/string-input-stream;1",
+        )
         .ok_or(nserror::NS_ERROR_UNEXPECTED)?;
 
         let data = nsCString::from(data);

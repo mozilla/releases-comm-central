@@ -5,7 +5,6 @@
 use std::collections::HashMap;
 use std::ptr;
 
-use cstr::cstr;
 use http::Method;
 use nserror::nsresult;
 use url::Url;
@@ -129,21 +128,20 @@ impl<'rb> RequestBuilder<'rb> {
     pub async fn send(&self) -> crate::Result<Response> {
         // Get the nsIScriptSecurityManager service to retrieve an nsIPrincipal we can use in
         // NewChannel.
-        let script_sec_mgr = xpcom::get_service::<nsIScriptSecurityManager>(cstr!(
-            "@mozilla.org/scriptsecuritymanager;1"
-        ))
-        .ok_or(Error::XpComOperationFailure(
-            "failed to get service nsIScriptSecurityManager",
-        ))?;
+        let script_sec_mgr =
+            xpcom::get_service::<nsIScriptSecurityManager>(c"@mozilla.org/scriptsecuritymanager;1")
+                .ok_or(Error::XpComOperationFailure(
+                    "failed to get service nsIScriptSecurityManager",
+                ))?;
 
         let principal: RefPtr<nsIPrincipal> =
             getter_addrefs(unsafe { |p| script_sec_mgr.GetSystemPrincipal(p) })?;
 
         // Get the nsIIOService service to generate the nsIChannel.
-        let io_service =
-            xpcom::get_service::<nsIIOService>(cstr!("@mozilla.org/network/io-service;1")).ok_or(
-                Error::XpComOperationFailure("failed to get service nsIIOService"),
-            )?;
+        let io_service = xpcom::get_service::<nsIIOService>(c"@mozilla.org/network/io-service;1")
+            .ok_or(Error::XpComOperationFailure(
+            "failed to get service nsIIOService",
+        ))?;
 
         let url = nsCString::from(self.url.as_str());
         let uri: RefPtr<nsIURI> = getter_addrefs(|p| unsafe {
@@ -217,12 +215,11 @@ impl<'rb> RequestBuilder<'rb> {
             Err(err) => {
                 // If we got an error back from Necko, ask the NSS errors
                 // service if it's a security error.
-                let nss_service = xpcom::get_service::<nsINSSErrorsService>(cstr!(
-                    "@mozilla.org/nss_errors_service;1"
-                ))
-                .ok_or(Error::XpComOperationFailure(
-                    "failed to get service nsINSSErrorsService",
-                ))?;
+                let nss_service =
+                    xpcom::get_service::<nsINSSErrorsService>(c"@mozilla.org/nss_errors_service;1")
+                        .ok_or(Error::XpComOperationFailure(
+                            "failed to get service nsINSSErrorsService",
+                        ))?;
 
                 let sec_info: Option<RefPtr<nsITransportSecurityInfo>> =
                     match getter_addrefs(|p| unsafe { channel.GetSecurityInfo(p) }) {
@@ -286,9 +283,9 @@ impl<'rb> RequestBuilder<'rb> {
         }
 
         // Create an input stream for the body.
-        let body_stream = xpcom::create_instance::<nsIStringInputStream>(cstr!(
-            "@mozilla.org/io/string-input-stream;1"
-        ))
+        let body_stream = xpcom::create_instance::<nsIStringInputStream>(
+            c"@mozilla.org/io/string-input-stream;1",
+        )
         .ok_or(Error::XpComOperationFailure(
             "failed to create instance of nsIStringInputStream",
         ))?;

@@ -6,7 +6,6 @@ edition = "2024"
 [dependencies]
 async-lock = "3.4.2"
 base64 = "0.21.3"
-cstr = "0.2"
 fxhash = "0.2.1"
 log = "0.4.21"
 mail-parser = "0.9.3"
