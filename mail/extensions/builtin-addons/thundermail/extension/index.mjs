@@ -3,13 +3,13 @@ import { e as N, f as U, g as H, h as D, i as q } from "./background2.mjs";
 (function() {
   try {
     var a = typeof window < "u" ? window : typeof global < "u" ? global : typeof globalThis < "u" ? globalThis : typeof self < "u" ? self : {};
-    a.SENTRY_RELEASE = { id: "ee8296024a94b624bcad12906f96a0242118e8b2" }, a._sentryModuleMetadata = a._sentryModuleMetadata || {}, a._sentryModuleMetadata[new a.Error().stack] = (function(n) {
+    a.SENTRY_RELEASE = { id: "d61553dafd81e9dbc55b313bda41af550f53d80a" }, a._sentryModuleMetadata = a._sentryModuleMetadata || {}, a._sentryModuleMetadata[new a.Error().stack] = (function(n) {
       for (var s = 1; s < arguments.length; s++) {
         var e = arguments[s];
         if (e != null) for (var c in e) e.hasOwnProperty(c) && (n[c] = e[c]);
       }
       return n;
-    })({}, a._sentryModuleMetadata[new a.Error().stack], { version: "1.8.5", appHost: "background" });
+    })({}, a._sentryModuleMetadata[new a.Error().stack], { version: "1.9.0", appHost: "background" });
     var r = new a.Error().stack;
     r && (a._sentryDebugIds = a._sentryDebugIds || {}, a._sentryDebugIds[r] = "041bf71d-016e-4550-a8b6-ccfe93c34ce7", a._sentryDebugIdIdentifier = "sentry-dbid-041bf71d-016e-4550-a8b6-ccfe93c34ce7");
   } catch {
@@ -22,7 +22,7 @@ async function R(a, r, n, s) {
   const {
     challengeKey: c,
     challengeSalt: u,
-    challengeCiphertext: d
+    challengeCiphertext: p
   } = e;
   let l;
   try {
@@ -36,7 +36,7 @@ async function R(a, r, n, s) {
       r,
       l
     ), S = await s.challenge.decryptChallenge(
-      d,
+      p,
       o,
       l
     ), f = await n.call(
@@ -90,8 +90,8 @@ class M {
     const e = [];
     for (const u of r)
       if (u.multipart) {
-        const d = await this.handleMultipartItems(u);
-        e.push(...d);
+        const p = await this.handleMultipartItems(u);
+        e.push(...p);
       } else
         e.push(u);
     const c = await this.createShareOnlyContainer(e, null);
@@ -114,8 +114,8 @@ class M {
         },
         !0,
         ["wrapKey"]
-      ), d = await this.keychain.get(r), l = await this.keychain.rsa.wrapContainerKey(
-        d,
+      ), p = await this.keychain.get(r), l = await this.keychain.rsa.wrapContainerKey(
+        p,
         u
       );
       if (!l)
@@ -139,7 +139,7 @@ class M {
     const s = [...r];
     let e = { name: "default" };
     n && (e = await this.api.call(`containers/${n}/info`));
-    const d = await this.api.call(
+    const p = await this.api.call(
       "containers",
       {
         name: e.name,
@@ -149,9 +149,9 @@ class M {
       },
       "POST"
     );
-    if (!((f = d.container) != null && f.id))
+    if (!((f = p.container) != null && f.id))
       return null;
-    const { id: l } = d.container;
+    const { id: l } = p.container;
     return await this.keychain.newKeyForContainer(l), await this.keychain.store(), await Promise.all(
       s.map(async (h) => {
         const k = h.containerId ?? h.folderId, m = h.name ?? h.filename, g = await this.keychain.get(k), { uploadId: b, wrappedKey: C, type: I } = h, P = await this.keychain.container.unwrapContentKey(
@@ -184,7 +184,7 @@ class M {
       throw new Error(
         "Cannot create access link for this container because it contains files that have been reported for abuse."
       );
-    const c = await this.keychain.get(r), u = K.generateSalt(), d = await this.keychain.password.wrapContainerKey(
+    const c = await this.keychain.get(r), u = K.generateSalt(), p = await this.keychain.password.wrapContainerKey(
       c,
       n,
       //@ts-ignore
@@ -203,7 +203,7 @@ class M {
       "sharing",
       {
         containerId: r,
-        wrappedKey: d,
+        wrappedKey: p,
         salt: k,
         challengeKey: S,
         challengeSalt: m,
@@ -219,24 +219,24 @@ class M {
 }
 const W = A("sharingManager", () => {
   const { api: a } = T(), { user: r } = O(), { keychain: n } = v(), s = new M(r, n, a), e = L([]), c = E(() => [...e.value]);
-  async function u(t, i, p) {
+  async function u(t, i, d) {
     let y = !1;
     i.length === 0 && (i = K.generateRandomPassword(), y = !0);
-    let w = await s.requestAccessLink(t, i, p);
+    let w = await s.requestAccessLink(t, i, d);
     return w ? (y && (w = `${w}#${i}`), w) : null;
   }
-  async function d(t, i) {
-    const p = await R(
+  async function p(t, i) {
+    const d = await R(
       t,
       i,
       a,
       n
     );
-    if (!(p != null && p.unwrappedKey))
+    if (!(d != null && d.unwrappedKey))
       return await _.incrementPasswordRetryCount.mutate({
         linkId: t
       }), !1;
-    const { unwrappedKey: y, containerId: w } = p;
+    const { unwrappedKey: y, containerId: w } = d;
     return await n.rsa.generateKeyPair(), await n.add(w, y), await n.store(), !0;
   }
   async function l(t) {
@@ -248,13 +248,13 @@ const W = A("sharingManager", () => {
   async function S(t) {
     e.value = await a.call(`sharing/${t}/links?type=file`);
   }
-  async function f(t, i, p) {
+  async function f(t, i, d) {
     let y = !1;
     i.length === 0 && (i = K.generateRandomPassword(), y = !0);
     let w = await s.shareItemsWithPassword(
       t,
       i,
-      p
+      d
     );
     return w ? (y && (w = `${w}#${i}`), w) : null;
   }
@@ -284,17 +284,17 @@ const W = A("sharingManager", () => {
       "POST"
     );
   }
-  async function I(t, i, p, y) {
+  async function I(t, i, d, y) {
     return await a.call(
       `containers/${t}/shares/invitation/update`,
-      { userId: i, invitationId: p, permission: y },
+      { userId: i, invitationId: d, permission: y },
       "POST"
     );
   }
-  async function P(t, i, p, y) {
+  async function P(t, i, d, y) {
     return await a.call(
       `containers/${t}/shares/accessLink/update`,
-      { userId: i, accessLinkId: p, permission: y },
+      { userId: i, accessLinkId: d, permission: y },
       "POST"
     );
   }
@@ -304,7 +304,7 @@ const W = A("sharingManager", () => {
     // Actions ==================================
     createAccessLink: u,
     isAccessLinkValid: l,
-    acceptAccessLink: d,
+    acceptAccessLink: p,
     fetchFolderAccessLinks: o,
     fetchFileAccessLinks: S,
     shareItems: f,

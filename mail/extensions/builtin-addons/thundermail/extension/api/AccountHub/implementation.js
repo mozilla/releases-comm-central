@@ -36,9 +36,9 @@
                   'nsIIncomingServerListener',
                 ]),
 
-                onServerLoaded(server) {
+                async onServerLoaded(server) {
                   try {
-                    const hostname = server.hostName;
+                    const hostname = server.hostname;
                     if (!THUNDERMAIL_HOST_PATTERN.test(hostname)) {
                       return;
                     }
@@ -53,12 +53,12 @@
                       return;
                     }
 
-                    // getRefreshToken() reads the stored token directly from
-                    // the Thunderbird login manager (password manager).
+                    // getRefreshToken() asynchronously reads the stored token
+                    // from the Thunderbird login manager (password manager).
                     // The token is guaranteed to be stored already because
                     // verifyConfig() (which runs OAuth2 auth) completes before
                     // createAccountInBackend() fires NotifyServerLoaded.
-                    const token = oauth2Module.getRefreshToken();
+                    const token = await oauth2Module.getRefreshToken();
 
                     if (!token) {
                       console.warn(
@@ -82,8 +82,8 @@
                 },
 
                 // Required by nsIMsgIncomingServerListener but not used here.
-                onServerUnloaded(_server) {},
-                onServerChanged(_server) {},
+                onServerUnloaded(_server) { },
+                onServerChanged(_server) { },
               };
 
               MailServices.accounts.addIncomingServerListener(serverListener);

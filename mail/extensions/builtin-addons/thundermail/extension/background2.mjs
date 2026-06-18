@@ -1,13 +1,13 @@
 (function() {
   try {
     var t = typeof window < "u" ? window : typeof global < "u" ? global : typeof globalThis < "u" ? globalThis : typeof self < "u" ? self : {};
-    t.SENTRY_RELEASE = { id: "ee8296024a94b624bcad12906f96a0242118e8b2" }, t._sentryModuleMetadata = t._sentryModuleMetadata || {}, t._sentryModuleMetadata[new t.Error().stack] = (function(r) {
+    t.SENTRY_RELEASE = { id: "d61553dafd81e9dbc55b313bda41af550f53d80a" }, t._sentryModuleMetadata = t._sentryModuleMetadata || {}, t._sentryModuleMetadata[new t.Error().stack] = (function(r) {
       for (var n = 1; n < arguments.length; n++) {
         var i = arguments[n];
         if (i != null) for (var s in i) i.hasOwnProperty(s) && (r[s] = i[s]);
       }
       return r;
-    })({}, t._sentryModuleMetadata[new t.Error().stack], { version: "1.8.5", appHost: "background" });
+    })({}, t._sentryModuleMetadata[new t.Error().stack], { version: "1.9.0", appHost: "background" });
     var e = new t.Error().stack;
     e && (t._sentryDebugIds = t._sentryDebugIds || {}, t._sentryDebugIds[e] = "aef3ff62-a07c-4f30-b20e-6a09b71d7d3f", t._sentryDebugIdIdentifier = "sentry-dbid-aef3ff62-a07c-4f30-b20e-6a09b71d7d3f");
   } catch {
