@@ -33,6 +33,24 @@ ChromeUtils.defineESModuleGetters(this, {
   CalEvent: "resource:///modules/CalEvent.sys.mjs",
 });
 
+/**
+ * Encodes a string as a UTF-16LE binary string (one byte per character).
+ *
+ * @param {string} str - The string to encode.
+ * @returns {string} A binary string of the UTF-16LE bytes.
+ */
+function encodeUtf16LE(str) {
+  const bytes = new Uint8Array(str.length * 2);
+  const view = new DataView(bytes.buffer);
+  for (let i = 0; i < str.length; i++) {
+    view.setUint16(i * 2, str.charCodeAt(i), true);
+  }
+  return String.fromCharCode(...bytes);
+}
+
+/**
+ * A Map where keys are lowercase.
+ */
 class LowerMap extends Map {
   get(key) {
     return super.get(key.toLowerCase());
@@ -83,6 +101,9 @@ var gMockCalendar = {
 };
 gMockCalendar.superCalendar = gMockCalendar;
 
+/**
+ * CalDAV server.
+ */
 class CalDavServer {
   constructor(calendarId) {
     this.server = new HttpServer();
@@ -436,6 +457,29 @@ class CalDavServer {
         `);
       }
       response.setStatusLine(null, 207, "Multistatus");
+    } else if (method == "REPORT" && request.path == "/calendars/xpcshell/utf16events/") {
+      // A sync-collection response encoded as UTF-16, advertising the charset
+      // only in the Content-Type header.
+      response.setHeader("Content-Type", "text/xml; charset=utf-16", false);
+      response.write(
+        encodeUtf16LE(dedent`
+          <?xml version="1.0" encoding="utf-16" ?>
+          <D:multistatus ${CalDavXmlns("D")}>
+            <D:response>
+              <D:href>${this.uri("/calendars/xpcshell/utf16events/test.ics").spec}</D:href>
+              <D:propstat>
+                <D:prop>
+                  <D:getcontenttype>text/calendar; charset=utf-8; component=VEVENT</D:getcontenttype>
+                  <D:getetag>"2decee6ffb701583398996bfbdacb8eec53edf94"</D:getetag>
+                  <D:displayname>イベント</D:displayname>
+                </D:prop>
+                <D:status>HTTP/1.1 200 OK</D:status>
+              </D:propstat>
+            </D:response>
+          </D:multistatus>
+        `)
+      );
+      response.setStatusLine(null, 207, "Multistatus");
     } else {
       console.log("XXX: " + method, request.path, [...headers.entries()]);
     }
@@ -446,6 +490,20 @@ class CalDavServer {
     const parts = request.path.split("/");
     const id = parts[2];
     let status = parseInt(parts[3] || "", 10) || 200;
+
+    if (id == "utf16") {
+      // A server that always answers with a UTF-16 encoded body, advertising
+      // the charset only in the Content-Type header.
+      this.serverRequests[id] = { method, headers, parameters, body };
+      response.setHeader("Content-Type", "text/xml; charset=utf-16", false);
+      response.write(
+        encodeUtf16LE(
+          `<?xml version="1.0" encoding="utf-16"?>\n<response id="utf16">イベント</response>`
+        )
+      );
+      response.setStatusLine(null, status, null);
+      return;
+    }
 
     if (id == "redirected") {
       response.setHeader("Location", "/requests/redirected-target", false);
@@ -877,4 +935,39 @@ add_task(async function test_caldav_sync() {
   await webDavSync.doWebDAVSync();
   await new Promise(executeSoon);
   Assert.stringContains(webDavSync.logXML, "イベント", "Non-ASCII text should be parsed correctly");
+});
+
+/**
+ * Test that a UTF-16 encoded response body, with the charset only advertised in
+ * the Content-Type header, is decoded correctly by CalDavSimpleResponse.
+ */
+add_task(async function test_utf16_response() {
+  gServer.reset();
+  const uri = gServer.uri("/requests/utf16");
+  const request = new CalDavGenericRequest(gServer.session, gMockCalendar, "GET", uri);
+  const response = await request.commit();
+
+  equal(response.status, 200);
+  Assert.stringContains(response.text, "イベント", "UTF-16 body should be decoded correctly");
+  equal(response.xml.documentElement.getAttribute("id"), "utf16");
+  equal(response.xml.documentElement.textContent, "イベント");
+});
+
+/**
+ * Test that a UTF-16 encoded sync-collection response, with the charset only
+ * advertised in the Content-Type header, is decoded correctly by the
+ * XMLResponseHandler used by CalDavWebDavSyncHandler.
+ */
+add_task(async function test_caldav_sync_utf16() {
+  gServer.reset();
+  const uri = gServer.uri("/calendars/xpcshell/utf16events/");
+  gMockCalendar.session = gServer.session;
+  const webDavSync = new CalDavWebDavSyncHandler(gMockCalendar, uri);
+  await webDavSync.doWebDAVSync();
+  await new Promise(executeSoon);
+  Assert.stringContains(
+    webDavSync.logXML,
+    "イベント",
+    "UTF-16 encoded sync response should be parsed correctly"
+  );
 });

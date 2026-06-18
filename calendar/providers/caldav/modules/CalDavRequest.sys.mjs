@@ -22,7 +22,7 @@ const MIME_TEXT_CALENDAR = "text/calendar; charset=utf-8";
 const MIME_TEXT_XML = "text/xml; charset=utf-8";
 
 /**
- * Base class for a caldav request.
+ * Base class for a CalDAV request.
  *
  * @implements {nsIChannelEventSink}
  * @implements {nsIInterfaceRequestor}
@@ -100,10 +100,10 @@ class CalDavRequestBase {
   }
 
   /**
-   * Executes the request with the configuration set up in the constructor
+   * Executes the request with the configuration set up in the constructor.
    *
    * @returns {Promise} A promise that resolves with a subclass of CalDavResponseBase
-   *                            which is based on |responseClass|.
+   *   which is based on |responseClass|.
    */
   async commit() {
     await this.session.prepareRequest(this.channel);
@@ -112,9 +112,9 @@ class CalDavRequestBase {
       this.onSetupChannel(this.channel);
     }
 
-    if (cal.verboseLogEnabled && this.uploadData) {
+    if (this.uploadData) {
       const method = this.channel.requestMethod;
-      lazy.log.debug(`CalDAV: send (${method} ${this.uri.spec}): ${this.uploadData}`);
+      lazy.log.debug(`C: (HTTP ${method} ${this.uri.spec}): ${this.uploadData}`);
     }
 
     const ResponseClass = this.responseClass;
@@ -124,13 +124,10 @@ class CalDavRequestBase {
 
     await this.response.responded;
 
-    if (cal.verboseLogEnabled) {
-      const text = this.response.text;
-      if (text) {
-        lazy.log.debug("CalDAV: recv: " + text);
-      }
+    const text = this.response.text;
+    if (text) {
+      lazy.log.debug(`S: ${text}`);
     }
-
     return this.response;
   }
 
@@ -243,7 +240,7 @@ class CalDavRequestBase {
 }
 
 /**
- * The caldav response base class. Should be subclassed, and works with xpcom network code that uses
+ * The CalDAV response base class. Should be subclassed, and works with xpcom network code that uses
  * nsIRequest.
  */
 class CalDavResponseBase {
@@ -414,7 +411,9 @@ class HttpServerError extends Error {
 }
 
 /**
- * A simple caldav response using nsIStreamLoader
+ * A simple caldav response using nsIStreamLoader.
+ *
+ * @implements {nsIStreamLoaderObserver}
  */
 class CalDavSimpleResponse extends CalDavResponseBase {
   QueryInterface = ChromeUtils.generateQI(["nsIStreamLoaderObserver"]);
@@ -429,12 +428,20 @@ class CalDavSimpleResponse extends CalDavResponseBase {
 
   get text() {
     if (!this._responseText) {
-      this._responseText = new TextDecoder().decode(Uint8Array.from(this.result)) || "";
+      const decoder = new TextDecoder(this.nsirequest.contentCharset || "utf-8");
+      this._responseText = decoder.decode(Uint8Array.from(this.result)) || "";
     }
     return this._responseText;
   }
 
-  /** Implement nsIStreamLoaderObserver */
+  /**
+   * @param {nsIStreamLoader} aLoader
+   * @param {nsISupports} aContext
+   * @param {nsresult} aStatus
+   * @param {integer} aResultLength
+   * @param {Uint8Array} aResult
+   * @see {nsIStreamLoaderObserver}
+   */
   onStreamComplete(aLoader, aContext, aStatus, aResultLength, aResult) {
     this.resultLength = aResultLength;
     this.result = aResult;

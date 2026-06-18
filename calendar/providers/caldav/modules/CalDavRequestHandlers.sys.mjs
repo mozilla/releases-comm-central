@@ -21,24 +21,49 @@ const MIME_TEXT_XML = "text/xml; charset=utf-8";
 /**
  * Accumulate all XML response, then parse with DOMParser. This class imitates
  * nsISAXXMLReader by calling startDocument/endDocument and startElement/endElement.
+ *
+ * @implements {nsIStreamListener}
  */
 class XMLResponseHandler {
   constructor() {
-    this._inStream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
-      Ci.nsIScriptableInputStream
-    );
-    this._xmlString = "";
+    this._inStream = Cc["@mozilla.org/binaryinputstream;1"].createInstance(Ci.nsIBinaryInputStream);
+    this.resetXMLResponseHandler();
   }
 
   /**
-   * @see nsIStreamListener
+   * The accumulated response body, decoded using the charset advertised by the
+   * server.
+   *
+   * @returns {string}
+   */
+  get _xmlString() {
+    if (this._decoded == null) {
+      const bytes = new Uint8Array(this._chunks.reduce((sum, chunk) => sum + chunk.length, 0));
+      let offset = 0;
+      for (const chunk of this._chunks) {
+        bytes.set(chunk, offset);
+        offset += chunk.length;
+      }
+      // Honor the charset advertised by the server in the Content-Type header.
+      const charset = this._channel?.contentCharset || "UTF-8";
+      this._decoded = new TextDecoder(charset).decode(bytes);
+    }
+    return this._decoded;
+  }
+
+  /**
+   * @param {nsIRequest} request
+   * @param {nsIInputStream} inputStream
+   * @param {integer} offset
+   * @param {integer} count
+   * @see {nsIStreamListener}
    */
   onDataAvailable(request, inputStream, offset, count) {
-    this._inStream.init(inputStream);
-    // What we get from inputStream is BinaryString, decode it to UTF-8.
-    this._xmlString += new TextDecoder("UTF-8").decode(
-      this._binaryStringToTypedArray(this._inStream.read(count))
-    );
+    this._channel ??= request.QueryInterface(Ci.nsIChannel);
+    this._inStream.setInputStream(inputStream);
+    // Keep the raw bytes and decode them once the full response has been received.
+    this._chunks.push(Uint8Array.from(this._inStream.readByteArray(count)));
+    this._decoded = null;
   }
 
   /**
@@ -47,7 +72,7 @@ class XMLResponseHandler {
    * @param {number} responseStatus
    */
   logResponse(responseStatus) {
-    lazy.log.debug(`CalDAV: recv (${responseStatus}): ${this._xmlString}`);
+    lazy.log.debug(`S: (HTTP ${responseStatus}): ${this._xmlString}`);
   }
 
   /**
@@ -60,7 +85,7 @@ class XMLResponseHandler {
     try {
       doc = parser.parseFromString(this._xmlString, "application/xml");
     } catch (e) {
-      lazy.log.error("CALDAV: DOMParser parse error: ", e);
+      lazy.log.error("DOMParser parse error: ", e);
       this.fatalError();
     }
 
@@ -71,28 +96,18 @@ class XMLResponseHandler {
   }
 
   /**
-   * Reset this._xmlString.
+   * Reset the accumulated response.
    */
   resetXMLResponseHandler() {
-    this._xmlString = "";
-  }
-
-  /**
-   * Converts a binary string into a Uint8Array.
-   *
-   * @param {BinaryString} str - The string to convert.
-   * @returns {Uint8Array}.
-   */
-  _binaryStringToTypedArray(str) {
-    const arr = new Uint8Array(str.length);
-    for (let i = 0; i < str.length; i++) {
-      arr[i] = str.charCodeAt(i);
-    }
-    return arr;
+    this._chunks = [];
+    this._channel = null;
+    this._decoded = null;
   }
 
   /**
    * Walk the tree node by node, call startElement and endElement when appropriate.
+   *
+   * @param {TreeWalker} treeWalker
    */
   async _walk(treeWalker) {
     const currentNode = treeWalker.currentNode;
@@ -129,6 +144,9 @@ class XMLResponseHandler {
  * This is a handler for the etag request in calDavCalendar.js' getUpdatedItem.
  * It uses XMLResponseHandler to parse the items and compose the resulting
  * multiget.
+ *
+ * @implements {nsIRequestObserver}
+ * @implements {nsIStreamListener}
  */
 export class CalDavEtagsHandler extends XMLResponseHandler {
   /**
@@ -160,7 +178,8 @@ export class CalDavEtagsHandler extends XMLResponseHandler {
   QueryInterface = ChromeUtils.generateQI(["nsIRequestObserver", "nsIStreamListener"]);
 
   /**
-   * @see nsIRequestObserver
+   * @param {nsIRequest} request
+   * @see {nsIRequestObserver}
    */
   onStartRequest(request) {
     const httpchannel = request.QueryInterface(Ci.nsIHttpChannel);
@@ -185,6 +204,9 @@ export class CalDavEtagsHandler extends XMLResponseHandler {
     }
   }
 
+  /**
+   * @param {nsIRequest} request
+   */
   async onStopRequest(request) {
     const httpchannel = request.QueryInterface(Ci.nsIHttpChannel);
 
@@ -271,14 +293,15 @@ export class CalDavEtagsHandler extends XMLResponseHandler {
   }
 
   /**
-   * @see XMLResponseHandler
+   * @see {XMLResponseHandler}
    */
   fatalError() {
     lazy.log.warn("CalDAV: Fatal Error parsing etags for " + this.calendar.name);
   }
 
   /**
-   * @see XMLResponseHandler
+   * @param {string} aValue
+   * @see {XMLResponseHandler}
    */
   characters(aValue) {
     this.logXML += aValue;
@@ -372,6 +395,9 @@ export class CalDavEtagsHandler extends XMLResponseHandler {
  * This is a handler for the webdav sync request in calDavCalendar.js'
  * getUpdatedItem. It uses XMLResponseHandler to parse the items and compose the
  * resulting multiget.
+ *
+ * @implements {nsIRequestObserver}
+ * @implements {nsIStreamListener}
  */
 export class CalDavWebDavSyncHandler extends XMLResponseHandler {
   /**
@@ -413,7 +439,7 @@ export class CalDavWebDavSyncHandler extends XMLResponseHandler {
     }
 
     let syncTokenString = "<sync-token/>";
-    if (this.calendar.mWebdavSyncToken && this.calendar.mWebdavSyncToken.length > 0) {
+    if (this.calendar.mWebdavSyncToken && this.calendar.mWebdavSyncToken.length) {
       const syncToken = cal.xml.escapeString(this.calendar.mWebdavSyncToken);
       syncTokenString = "<sync-token>" + syncToken + "</sync-token>";
     }
@@ -464,7 +490,8 @@ export class CalDavWebDavSyncHandler extends XMLResponseHandler {
   }
 
   /**
-   * @see nsIRequestObserver
+   * @param {nsIRequest} request
+   * @see {nsIRequestObserver}
    */
   onStartRequest(request) {
     const httpchannel = request.QueryInterface(Ci.nsIHttpChannel);
@@ -485,6 +512,10 @@ export class CalDavWebDavSyncHandler extends XMLResponseHandler {
     }
   }
 
+  /**
+   * @param {nsIRequest} request
+   * @param {nsresult} status
+   */
   async onStopRequest(request, status) {
     const httpchannel = request.QueryInterface(Ci.nsIHttpChannel);
 
@@ -541,7 +572,8 @@ export class CalDavWebDavSyncHandler extends XMLResponseHandler {
   }
 
   /**
-   * @see XMLResponseHandler
+   * @param {string} aValue
+   * @see {XMLResponseHandler}
    */
   characters(aValue) {
     this.logXML += aValue;
@@ -691,7 +723,7 @@ export class CalDavWebDavSyncHandler extends XMLResponseHandler {
           resp.href &&
           resp.href.length &&
           (!resp.status || // Draft 3 does not require
-            resp.status.length == 0 || // a status for created or updated items but
+            !resp.status.length || // a status for created or updated items but
             resp.status.indexOf(" 204") || // draft 0, 1 and 2 needed it so treat no status
             resp.status.indexOf(" 200") || // Apple iCloud returns 200 status for each item
             resp.status.indexOf(" 201"))
@@ -883,7 +915,8 @@ export class CalDavMultigetSyncHandler extends XMLResponseHandler {
   }
 
   /**
-   * @see nsIRequestObserver
+   * @param {nsIRequest} request
+   * @see {nsIRequestObserver}
    */
   onStartRequest(request) {
     const httpchannel = request.QueryInterface(Ci.nsIHttpChannel);
@@ -936,7 +969,7 @@ export class CalDavMultigetSyncHandler extends XMLResponseHandler {
       this.calendar.notifyGetFailed("multiget error", this.listener, this.changeLogListener);
       return;
     }
-    if (this.itemsNeedFetching.length == 0) {
+    if (!this.itemsNeedFetching.length) {
       if (this.newSyncToken) {
         this.calendar.mWebdavSyncToken = this.newSyncToken;
         this.calendar.saveCalendarProperties();
@@ -944,7 +977,7 @@ export class CalDavMultigetSyncHandler extends XMLResponseHandler {
       }
     }
     await this.handleResponse();
-    if (this.itemsNeedFetching.length > 0) {
+    if (this.itemsNeedFetching.length) {
       lazy.log.debug("CalDAV: Still need to fetch " + this.itemsNeedFetching.length + " elements.");
       this.resetXMLResponseHandler();
       const timerCallback = {
@@ -965,14 +998,16 @@ export class CalDavMultigetSyncHandler extends XMLResponseHandler {
   }
 
   /**
-   * @see XMLResponseHandler
+   * @param {Error} error
+   * @see {XMLResponseHandler}
    */
   fatalError(error) {
     lazy.log.warn("CalDAV: Fatal Error doing multiget for " + this.calendar.name + ": " + error);
   }
 
   /**
-   * @see XMLResponseHandler
+   * @param {string} aValue
+   * @see {XMLResponseHandler}
    */
   characters(aValue) {
     this.logXML += aValue;
