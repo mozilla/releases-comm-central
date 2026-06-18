@@ -31,9 +31,14 @@ if CONFIG["OS_ARCH"] == "WINNT":
     RCINCLUDE = "splash.rc"
     DEFINES["MOZ_THUNDERBIRD"] = True
 
+    OS_LIBS += [
+        "advapi32",
+        "shell32",
+        "ntdll",
+    ]
+
     # Don't build thunderbird.exe with CETCOMPAT, because we need to be able to
     # only enable it for processes that are not using JIT in xul.dll.
-
     LINK_FLAGS["CETCOMPAT"] = []
 
 if CONFIG["OS_ARCH"] == "Darwin":
@@ -48,28 +53,20 @@ if CONFIG["MOZ_SANDBOX"] and CONFIG["OS_ARCH"] == "WINNT":
         "/security/sandbox/chromium-shim",
     ]
 
-    OS_LIBS += [
-        "version",
-    ]
-
     USE_LIBS += [
         "sandbox_s",
     ]
 
     OS_LIBS += [
-        "advapi32",
-        "winmm",
+        "shlwapi",
         "user32",
+        "version",
+        "winmm",
     ]
 
     DELAYLOAD_DLLS += [
         "winmm.dll",
         "user32.dll",
-    ]
-
-if CONFIG["OS_ARCH"] == "WINNT":
-    OS_LIBS += [
-        "ntdll",
     ]
 
 if CONFIG["CC_TYPE"] in ("msvc", "clang-cl"):
