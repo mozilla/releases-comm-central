@@ -25,8 +25,8 @@ export class NntpProtocolInfo extends MsgProtocolInfo {
 
   getDefaultServerPort(isSecure) {
     return isSecure
-      ? Ci.nsINntpUrl.DEFAULT_NNTPS_PORT
-      : Ci.nsINntpUrl.DEFAULT_NNTP_PORT;
+      ? Ci.nsINntpIncomingServer.DEFAULT_NNTPS_PORT
+      : Ci.nsINntpIncomingServer.DEFAULT_NNTP_PORT;
   }
 
   // @see MsgProtocolInfo.sys.mjs

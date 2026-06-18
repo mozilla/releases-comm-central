@@ -4,7 +4,6 @@
 
 #include "nsNewsFolder.h"
 
-#include "mozilla/intl/Localization.h"
 #include "nsIDBFolderInfo.h"
 #include "prlog.h"
 
@@ -29,10 +28,8 @@
 
 #include "nsLocalFile.h"
 #include "nsNetUtil.h"
-#include "nsIAuthPrompt.h"
 #include "nsIURL.h"
 #include "nsNetCID.h"
-#include "nsINntpUrl.h"
 
 #include "nsMsgI18N.h"
 
@@ -899,7 +896,7 @@ NS_IMETHODIMP nsMsgNewsFolder::GetUrlForSignon(nsAString& result) {
     // password manager "blanks" those out.
     if (socketType == nsMsgSocketType::SSL) {
       rv = NS_MutateURI(url)
-               .SetPort(nsINntpUrl::DEFAULT_NNTPS_PORT)
+               .SetPort(nsINntpIncomingServer::DEFAULT_NNTPS_PORT)
                .Finalize(url);
       NS_ENSURE_SUCCESS(rv, rv);
     }

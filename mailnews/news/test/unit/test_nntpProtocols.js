@@ -14,13 +14,13 @@ var protocols = [
   {
     protocol: "news",
     urlSpec: "news://user@localhost/",
-    defaultPort: Ci.nsINntpUrl.DEFAULT_NNTP_PORT,
+    defaultPort: Ci.nsINntpIncomingServer.DEFAULT_NNTP_PORT,
   },
-  // XXX News secure protocol not working yet.
-  /* { protocol: "snews",
-  urlSpec: "snews://user@localhost/",
-  defaultPort: Ci.nsINntpUrl.DEFAULT_NNTPS_PORT
-} */
+  {
+    protocol: "snews",
+    urlSpec: "snews://user@localhost/",
+    defaultPort: Ci.nsINntpIncomingServer.DEFAULT_NNTPS_PORT,
+  },
 ];
 
 function run_test() {
@@ -46,8 +46,6 @@ function run_test() {
 
     // Check we get a URI when we ask for one
     var uri = Services.io.newURI(protocols[part].urlSpec);
-
-    uri.QueryInterface(Ci.nsINntpUrl);
 
     Assert.equal(uri.spec, protocols[part].urlSpec);
   }

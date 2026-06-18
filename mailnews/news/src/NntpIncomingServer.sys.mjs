@@ -180,7 +180,6 @@ export class NntpIncomingServer extends MsgIncomingServer {
   }
 
   setAsSubscribed(path) {
-    this._tmpSubscribed.add(path);
     // Calling nsISubscribableServer.isSubscribable with a path that does not
     // exist in the tree will add a new node and return false. These paths will
     // be displayed grayed out.
@@ -190,20 +189,11 @@ export class NntpIncomingServer extends MsgIncomingServer {
   }
 
   updateSubscribed() {
-    this._tmpSubscribed = new Set();
     this._subscribed.forEach(path => this.setAsSubscribed(path));
   }
 
   setState(path, state) {
-    const changed = this._subscribable.setState(path, state);
-    if (changed) {
-      if (state) {
-        this._tmpSubscribed.add(path);
-      } else {
-        this._tmpSubscribed.delete(path);
-      }
-    }
-    return changed;
+    return this._subscribable.setState(path, state);
   }
 
   hasChildren(path) {

@@ -17,13 +17,16 @@ add_task(async function textChannelAsync() {
   const uri = Services.io.newURI(
     "news://localhost:" + server.port + "/1@regular.invalid"
   );
-  const newsUri = uri
-    .QueryInterface(Ci.nsINntpUrl)
-    .QueryInterface(Ci.nsIMsgMailNewsUrl);
+  const newsUri = uri.QueryInterface(Ci.nsIMsgMailNewsUrl);
   Assert.equal(uri.port, server.port);
   Assert.equal(newsUri.server, null);
-  Assert.equal(newsUri.messageID, "1@regular.invalid");
-  Assert.equal(newsUri.folder, null);
+  // GetFolder() is not implemented by the base nsMsgMailNewsUrl (only
+  // by protocol-specific subclasses like nsImapUrl and nsMailboxUrl).
+  Assert.throws(
+    () => newsUri.folder,
+    /NS_ERROR_NOT_IMPLEMENTED/,
+    "GetFolder not implemented for generic news URL"
+  );
 
   // Run the URI and make sure we get the message
   const channel = Services.io.newChannelFromURI(

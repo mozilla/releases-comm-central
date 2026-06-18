@@ -10,17 +10,12 @@
 #include "nsString.h"
 #include "nsILoadGroup.h"
 #include "nsIDocShell.h"
-#include "nsIWebProgress.h"
 #include "nsIWebProgressListener.h"
-#include "nsIInterfaceRequestorUtils.h"
 #include "nsIIOService.h"
 #include "nsNetCID.h"
 #include "nsIStreamListener.h"
-#include "nsIOutputStream.h"
-#include "nsIInputStream.h"
 #include "nsNetUtil.h"
 #include "nsIFile.h"
-#include "prmem.h"
 #include <time.h>
 #include "nsMsgUtils.h"
 #include "mozilla/Components.h"
@@ -278,9 +273,13 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetServer(
   nsAutoCString scheme;
   rv = GetScheme(scheme);
   if (NS_SUCCEEDED(rv)) {
-    if (scheme.EqualsLiteral("pop")) scheme.AssignLiteral("pop3");
-    // we use "nntp" in the server list so translate it here.
-    if (scheme.EqualsLiteral("news")) scheme.AssignLiteral("nntp");
+    if (scheme.EqualsLiteral("pop")) {
+      scheme.AssignLiteral("pop3");
+    }
+    // we use "nntp" in the server list so translate news/snews here.
+    if (scheme.EqualsLiteral("news") || scheme.EqualsLiteral("snews")) {
+      scheme.AssignLiteral("nntp");
+    }
     rv = NS_MutateURI(url).SetScheme(scheme).Finalize(url);
     NS_ENSURE_SUCCESS(rv, rv);
     nsCOMPtr<nsIMsgAccountManager> accountManager =
@@ -295,6 +294,12 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetServer(
       rv = NS_MutateURI(url).SetUserPass(EmptyCString()).Finalize(url);
       NS_ENSURE_SUCCESS(rv, rv);
       rv = accountManager->FindServerByURI(url, aIncomingServer);
+    }
+    // A null server is valid for news URLs — they can be opened without
+    // any configured news accounts.
+    if (!*aIncomingServer && scheme.EqualsLiteral("nntp")) {
+      *aIncomingServer = nullptr;
+      return NS_OK;
     }
   }
 
@@ -422,24 +427,19 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetSearchSession(
 // Begin nsIURI support
 ////////////////////////////////////////////////////////////////////////////////////
 
-// For '[s]news:' URIs independent of a specific server,
-// nsNntpUrl::SetSpecInternal had to add three slashes to have them parsed
-// correctly by nsStandardURL. This restores the correct format, see also
-// https://datatracker.ietf.org/doc/html/rfc5538#section-4.
-void unmungeNewsURL(nsACString& aSpec) {
-  if (aSpec.Length() < 8) {
-    return;
-  }
-  int32_t colon = aSpec.Find(":");
-  if (Substring(aSpec, colon - 4, 8).EqualsLiteral("news:///")) {
-    aSpec.Cut(colon + 1, 3);
+// Authority-less [s]news: URIs get extra slashes inserted in
+// SetSpecInternal() so nsStandardURL can parse them. Remove them here.
+static void unmungeNewsURL(nsACString& aSpec) {
+  if (StringBeginsWith(aSpec, "news:///"_ns)) {
+    aSpec.Cut(5, 3);
+  } else if (StringBeginsWith(aSpec, "snews:///"_ns)) {
+    aSpec.Cut(6, 3);
   }
 }
 
 NS_IMETHODIMP nsMsgMailNewsUrl::GetSpec(nsACString& aSpec) {
   nsresult rv = m_baseURL->GetSpec(aSpec);
   NS_ENSURE_SUCCESS(rv, rv);
-
   unmungeNewsURL(aSpec);
   return NS_OK;
 }
@@ -460,26 +460,40 @@ nsresult nsMsgMailNewsUrl::CreateURL(const nsACString& aSpec, nsIURL** aURL) {
   return NS_OK;
 }
 
-#define FILENAME_PART_LEN 10
-
 nsresult nsMsgMailNewsUrl::SetSpecInternal(const nsACString& aSpec) {
-  nsAutoCString spec(aSpec);
+  nsAutoCString lowerSpec(aSpec);
+  ToLowerCase(lowerSpec);
+
   // Parse out "filename" attribute if present.
-  char *start, *end;
-  start = PL_strcasestr(spec.BeginWriting(), "?filename=");
-  if (!start) start = PL_strcasestr(spec.BeginWriting(), "&filename=");
-  if (start) {  // Make sure we only get our own value.
-    end = PL_strcasestr((char*)(start + FILENAME_PART_LEN), "&");
-    if (end) {
-      *end = 0;
-      mAttachmentFileName = start + FILENAME_PART_LEN;
-      *end = '&';
-    } else
-      mAttachmentFileName = start + FILENAME_PART_LEN;
+  int32_t filenamePos = lowerSpec.Find("?filename="_ns);
+  if (filenamePos == kNotFound) {
+    filenamePos = lowerSpec.Find("&filename="_ns);
+  }
+  if (filenamePos != kNotFound) {
+    int32_t valuePos = filenamePos + 10;
+    int32_t endPos = lowerSpec.FindChar('&', valuePos);
+    if (endPos != kNotFound) {
+      mAttachmentFileName = Substring(aSpec, valuePos, endPos - valuePos);
+    } else {
+      mAttachmentFileName = Substring(aSpec, valuePos);
+    }
   }
 
-  // Now, set the rest.
-  nsresult rv = CreateURL(aSpec, getter_AddRefs(m_baseURL));
+  // For authority-less [s]news: URIs, insert three slashes so that
+  // nsStandardURL can parse them with an empty authority component.
+  // The extra slashes are removed in GetSpec() / GetDisplaySpec().
+  // See RFC 5538 section 4.
+  nsAutoCString parseSpec(aSpec);
+  // Use the lowercased copy for case-insensitive scheme matching.
+  if (StringBeginsWith(lowerSpec, "news:"_ns) && lowerSpec.Length() > 5 &&
+      aSpec[5] != '/') {
+    parseSpec.Insert("///", 5);
+  } else if (StringBeginsWith(lowerSpec, "snews:"_ns) &&
+             lowerSpec.Length() > 6 && aSpec[6] != '/') {
+    parseSpec.Insert("///", 6);
+  }
+
+  nsresult rv = CreateURL(parseSpec, getter_AddRefs(m_baseURL));
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Check whether the URL is in normalized form.
@@ -488,11 +502,9 @@ nsresult nsMsgMailNewsUrl::SetSpecInternal(const nsACString& aSpec) {
 
   nsAutoCString normalizedSpec;
   if (!msgUrl || NS_FAILED(msgUrl->GetNormalizedSpec(normalizedSpec))) {
-    // If we can't get the normalized spec, never QI this to
-    // nsIURIWithSpecialOrigin.
     m_hasNormalizedOrigin = false;
   } else {
-    m_hasNormalizedOrigin = !spec.Equals(normalizedSpec);
+    m_hasNormalizedOrigin = !aSpec.Equals(normalizedSpec);
   }
   return NS_OK;
 }
@@ -618,7 +630,6 @@ NS_IMETHODIMP
 nsMsgMailNewsUrl::GetDisplaySpec(nsACString& aUnicodeSpec) {
   nsresult rv = m_baseURL->GetDisplaySpec(aUnicodeSpec);
   NS_ENSURE_SUCCESS(rv, rv);
-
   unmungeNewsURL(aUnicodeSpec);
   return NS_OK;
 }

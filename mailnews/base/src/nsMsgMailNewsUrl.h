@@ -5,7 +5,6 @@
 #ifndef COMM_MAILNEWS_BASE_SRC_NSMSGMAILNEWSURL_H_
 #define COMM_MAILNEWS_BASE_SRC_NSMSGMAILNEWSURL_H_
 
-#include "msgCore.h"
 #include "nsCOMPtr.h"
 #include "nscore.h"
 #include "nsICacheEntry.h"
@@ -23,7 +22,6 @@
 #include "nsIURL.h"
 #include "nsIUrlListener.h"
 #include "nsIWeakReferenceUtils.h"
-#include "nsString.h"
 #include "nsTObserverArray.h"
 #include "URIHasher.h"
 

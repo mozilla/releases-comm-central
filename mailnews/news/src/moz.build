@@ -4,7 +4,6 @@
 
 UNIFIED_SOURCES += [
     "nsNewsFolder.cpp",
-    "nsNntpUrl.cpp",
 ]
 
 EXTRA_JS_MODULES += [

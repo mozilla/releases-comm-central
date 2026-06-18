@@ -945,7 +945,7 @@ export var MailUtils = {
       url.port = firstNntpServer.port;
     }
     if (!url.port) {
-      url.port = Ci.nsINntpUrl.DEFAULT_NNTP_PORT;
+      url.port = Ci.nsINntpIncomingServer.DEFAULT_NNTP_PORT;
     }
 
     const tempFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
@@ -994,7 +994,7 @@ export var MailUtils = {
     let spec = "news:";
     if (server) {
       spec += `//${server.hostname}`;
-      if (server.port != Ci.nsINntpUrl.DEFAULT_NNTP_PORT) {
+      if (server.port != Ci.nsINntpIncomingServer.DEFAULT_NNTP_PORT) {
         spec += `:${server.port}`;
       }
       spec += "/";

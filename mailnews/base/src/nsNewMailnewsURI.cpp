@@ -18,8 +18,8 @@
 #include "../src/nsMsgMailNewsUrl.h"
 #include "../../addrbook/src/nsLDAPURL.h"
 #include "../../imap/src/nsImapService.h"
-#include "../../news/src/nsNntpUrl.h"
 #include "../src/nsCidProtocolHandler.h"
+#include "nsMsgUtils.h"
 
 // Instantiates a new `nsIURI` of the appropriate concrete type for the provided
 // URI spec.
@@ -91,9 +91,21 @@ nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
   if (scheme.EqualsLiteral("pop") || scheme.EqualsLiteral("pop3")) {
     return nsPop3URL::NewURI(aSpec, aBaseURI, aURI);
   }
-  if (scheme.EqualsLiteral("news") || scheme.EqualsLiteral("snews") ||
-      scheme.EqualsLiteral("news-message") || scheme.EqualsLiteral("nntp")) {
-    return nsNntpUrl::NewURI(aSpec, aBaseURI, aURI);
+  if (IsNewsScheme(scheme)) {
+    nsCOMPtr<nsIMsgMailNewsUrl> uri =
+        do_CreateInstance("@mozilla.org/messenger/msgmailnewsurl;1", &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (aBaseURI) {
+      nsAutoCString newSpec;
+      rv = aBaseURI->Resolve(aSpec, newSpec);
+      NS_ENSURE_SUCCESS(rv, rv);
+      rv = uri->SetSpecInternal(newSpec);
+    } else {
+      rv = uri->SetSpecInternal(aSpec);
+    }
+    NS_ENSURE_SUCCESS(rv, rv);
+    uri.forget(aURI);
+    return NS_OK;
   }
   if (scheme.EqualsLiteral("cid")) {
     return nsCidProtocolHandler::NewURI(aSpec, aCharset, aBaseURI, aURI);

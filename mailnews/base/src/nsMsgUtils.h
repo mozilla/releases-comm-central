@@ -542,4 +542,13 @@ nsresult LocalizeMessage(mozilla::intl::Localization* l10n,
  */
 nsTArray<nsCString> StringFields(nsACString const& s);
 
+/**
+ * Returns true if the given string is a news-related URI scheme.
+ */
+inline bool IsNewsScheme(const nsACString& scheme) {
+  return scheme.EqualsLiteral("news") || scheme.EqualsLiteral("snews") ||
+         scheme.EqualsLiteral("nntp") || scheme.EqualsLiteral("nntps") ||
+         scheme.EqualsLiteral("news-message");
+}
+
 #endif  // COMM_MAILNEWS_BASE_SRC_NSMSGUTILS_H_

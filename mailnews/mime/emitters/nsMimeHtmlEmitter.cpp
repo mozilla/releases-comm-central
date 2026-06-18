@@ -15,11 +15,10 @@
 #include "nsIMailChannel.h"
 #include "nsIMimeStreamConverter.h"
 #include "nsIMsgMailNewsUrl.h"
-#include "nsINntpUrl.h"  // hack: include this to fix opening news attachments.
+
 #include "nsMailHeaders.h"
 #include "nsMimeTypes.h"
 #include "nsMsgUtils.h"
-#include "nsServiceManagerUtils.h"
 #include "plstr.h"
 #include "prprf.h"
 #include "prtime.h"
@@ -268,8 +267,8 @@ nsresult nsMimeHtmlDisplayEmitter::StartAttachment(const nsACString& name,
   if (NS_SUCCEEDED(rv)) {
     // HACK: news urls require us to use the originalSpec. Everyone
     // else uses GetURI to get the RDF resource which describes the message.
-    nsCOMPtr<nsINntpUrl> nntpUrl(do_QueryInterface(mURL, &rv));
-    if (NS_SUCCEEDED(rv) && nntpUrl) {
+    nsAutoCString scheme;
+    if (NS_SUCCEEDED(mURL->GetScheme(scheme)) && IsNewsScheme(scheme)) {
       rv = msgurl->GetOriginalSpec(uriString);
     } else {
       rv = msgurl->GetUri(uriString);

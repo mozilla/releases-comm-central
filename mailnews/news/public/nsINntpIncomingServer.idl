@@ -106,4 +106,10 @@ interface nsINntpIncomingServer : nsISupports {
      *       is subscribed to (e.g., by containsNewsgroup)
      */
     nsIMsgNewsFolder findGroup(in AUTF8String name);
+
+    /// Constant for the default NNTP port number, per RFC 3977.
+    const int32_t DEFAULT_NNTP_PORT = 119;
+
+    /// Constant for the default NNTP over SSL port number.
+    const int32_t DEFAULT_NNTPS_PORT = 563;
 };

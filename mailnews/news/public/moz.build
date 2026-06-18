@@ -6,7 +6,6 @@ XPIDL_SOURCES += [
     "nsIMsgNewsFolder.idl",
     "nsINntpIncomingServer.idl",
     "nsINntpService.idl",
-    "nsINntpUrl.idl",
 ]
 
 XPIDL_MODULE = "msgnews"

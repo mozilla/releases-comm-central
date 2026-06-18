@@ -6,7 +6,6 @@
 
 #include "nsIPermissionManager.h"
 #include "nsIPrefBranch.h"
-#include "nsIMsgWindow.h"
 #include "nsIMsgHdr.h"
 #include "nsIEncryptedSMIMEURIsSrvc.h"
 #include "nsNetUtil.h"
@@ -20,7 +19,6 @@
 #include "nsThreadUtils.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/dom/HTMLImageElement.h"
-#include "nsINntpUrl.h"
 #include "nsILoadInfo.h"
 #include "nsSandboxFlags.h"
 #include "mozilla/Components.h"
@@ -230,40 +228,47 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
   // -------------------------+---------------+--------------+------------------
   // http(s)/data, etc.       | (default)     | (default)    | (default)
   // -------------------------+---------------+--------------+------------------
-  nsCOMPtr<nsIMsgMessageUrl> contentURL(do_QueryInterface(aContentLocation));
-  if (contentURL) {
-    nsCOMPtr<nsINntpUrl> contentNntpURL(do_QueryInterface(aContentLocation));
-    if (!contentNntpURL) {
-      // Mail message (mailbox, imap or JsAccount) content requested, for
-      // example a message part, like an image: To load mail message content the
-      // requester must have the same "normalized" principal. This is basically
-      // a "same origin" test, it protects against cross-loading of mail message
-      // content from other mail or news messages.
-      nsCOMPtr<nsIMsgMessageUrl> requestURL(
-          do_QueryInterface(aRequestingLocation));
-      // If the request URL is not also a message URL, then we don't accept.
-      if (requestURL) {
-        nsCString contentPrincipalSpec, requestPrincipalSpec;
-        nsresult rv1 = contentURL->GetNormalizedSpec(contentPrincipalSpec);
-        nsresult rv2 = requestURL->GetNormalizedSpec(requestPrincipalSpec);
-        if (NS_SUCCEEDED(rv1) && NS_SUCCEEDED(rv2) &&
-            contentPrincipalSpec.Equals(requestPrincipalSpec))
-          *aDecision = nsIContentPolicy::ACCEPT;  // (1)
-      }
-      return NS_OK;  // (2) and (3)
-    }
 
-    // News message content requested. Don't accept request coming
-    // from a mail message since it would access the news server.
+  // Check news message content first — news URLs may not implement
+  // nsIMsgMessageUrl, but the scheme check works regardless.
+  nsAutoCString contentScheme;
+  if (NS_SUCCEEDED(aContentLocation->GetScheme(contentScheme)) &&
+      IsNewsScheme(contentScheme)) {
+    // News message content requested (4), (5), (6).
+    // Don't accept request coming from a mail message since it would
+    // access the news server (4).
     nsCOMPtr<nsIMsgMessageUrl> requestURL(
         do_QueryInterface(aRequestingLocation));
     if (requestURL) {
-      nsCOMPtr<nsINntpUrl> requestNntpURL(
-          do_QueryInterface(aRequestingLocation));
-      if (!requestNntpURL) return NS_OK;  // (4)
+      nsAutoCString requestScheme;
+      bool requestIsNews =
+          NS_SUCCEEDED(aRequestingLocation->GetScheme(requestScheme)) &&
+          IsNewsScheme(requestScheme);
+      if (!requestIsNews) return NS_OK;  // (4)
     }
     *aDecision = nsIContentPolicy::ACCEPT;  // (5) and (6)
     return NS_OK;
+  }
+
+  nsCOMPtr<nsIMsgMessageUrl> contentURL(do_QueryInterface(aContentLocation));
+  if (contentURL) {
+    // Mail message (mailbox, imap or JsAccount) content requested, for
+    // example a message part, like an image: To load mail message content the
+    // requester must have the same "normalized" principal. This is basically
+    // a "same origin" test, it protects against cross-loading of mail message
+    // content from other mail or news messages.
+    nsCOMPtr<nsIMsgMessageUrl> requestURL(
+        do_QueryInterface(aRequestingLocation));
+    // If the request URL is not also a message URL, then we don't accept.
+    if (requestURL) {
+      nsCString contentPrincipalSpec, requestPrincipalSpec;
+      nsresult rv1 = contentURL->GetNormalizedSpec(contentPrincipalSpec);
+      nsresult rv2 = requestURL->GetNormalizedSpec(requestPrincipalSpec);
+      if (NS_SUCCEEDED(rv1) && NS_SUCCEEDED(rv2) &&
+          contentPrincipalSpec.Equals(requestPrincipalSpec))
+        *aDecision = nsIContentPolicy::ACCEPT;  // (1)
+    }
+    return NS_OK;  // (2) and (3)
   }
 
   // If exposed protocol not covered by the test above or protocol that has been

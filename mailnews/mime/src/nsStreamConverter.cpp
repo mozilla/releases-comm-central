@@ -15,7 +15,7 @@
 #include "nsICategoryManager.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsIMsgQuote.h"
-#include "nsINntpUrl.h"
+#include "nsINntpIncomingServer.h"
 #include "nsIPipe.h"
 #include "nsMimeTypes.h"
 #include "nsMsgUtils.h"
@@ -109,10 +109,20 @@ nsresult bridge_new_new_uri(void* bridgeStream, nsIURI* aURI,
           } else {
             *override_charset = false;
             // Special treatment for news: URLs. Get the server default charset.
-            nsCOMPtr<nsINntpUrl> nntpURL(do_QueryInterface(aURI));
-            if (nntpURL) {
+            nsAutoCString scheme;
+            if (NS_SUCCEEDED(aURI->GetScheme(scheme)) && IsNewsScheme(scheme)) {
               nsCString charset;
-              rv = nntpURL->GetCharset(charset);
+              rv = NS_ERROR_FAILURE;
+              nsCOMPtr<nsIMsgMailNewsUrl> mailNewsUrl(do_QueryInterface(aURI));
+              if (mailNewsUrl) {
+                nsCOMPtr<nsIMsgIncomingServer> server;
+                mailNewsUrl->GetServer(getter_AddRefs(server));
+                nsCOMPtr<nsINntpIncomingServer> nntpServer(
+                    do_QueryInterface(server));
+                if (nntpServer) {
+                  rv = nntpServer->GetCharset(charset);
+                }
+              }
               if (NS_SUCCEEDED(rv)) {
                 *default_charset = ToNewCString(charset);
               } else {

@@ -27,10 +27,6 @@ add_task(async function test403242() {
     "@mozilla.org/messenger/messageservice;1?type=news"
   ].getService(Ci.nsIMsgMessageService);
 
-  // Does the URL lie to us?
-  const neckoUrl = msgService.getUrlForUri(uri).QueryInterface(Ci.nsINntpUrl);
-  Assert.equal(neckoUrl.newsAction, Ci.nsINntpUrl.ActionFetchArticle);
-
   // Stream the message.
   const streamListener = new PromiseTestUtils.PromiseStreamListener();
   msgService.streamMessage(uri, streamListener, null, null, false, "", false);

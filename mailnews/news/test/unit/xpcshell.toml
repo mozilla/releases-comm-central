@@ -53,7 +53,5 @@ disabled = "The server doesn't support returning sizes! (bug 782629)"
 ["test_server.js"]
 run-sequentially = true  # Uses fixed NNTP_PORT
 
-["test_uriParser.js"]
-
 ["test_xover.js"]
 run-sequentially = true  # Uses fixed NNTP_PORT

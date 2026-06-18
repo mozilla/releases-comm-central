@@ -56,9 +56,6 @@ class BaseMessageService {
       .newURI(this._createMessageIdUrl(messageURI))
       .QueryInterface(Ci.nsIMsgMailNewsUrl);
     uri.msgWindow = msgWindow;
-    uri.QueryInterface(Ci.nsIMsgMessageUrl).originalSpec = messageURI;
-    uri.QueryInterface(Ci.nsINntpUrl).newsAction =
-      Ci.nsINntpUrl.ActionFetchArticle;
     return uri;
   }
 
@@ -89,9 +86,6 @@ class BaseMessageService {
     if (urlListener) {
       url.RegisterListener(urlListener);
     }
-    url.newsAction = Ci.nsINntpUrl.ActionSaveMessageToDisk;
-    url.AddDummyEnvelope = addDummyEnvelope;
-    url.canonicalLineEnding = canonicalLineEnding;
 
     const [folder, key] = this._decomposeNewsMessageURI(messageUri);
     if (folder && folder.QueryInterface(Ci.nsIMsgNewsFolder)) {
@@ -159,7 +153,7 @@ class BaseMessageService {
     }
 
     const streamListener = consumer.QueryInterface(Ci.nsIStreamListener);
-    const channel = new lazy.NntpChannel(uri.QueryInterface(Ci.nsINntpUrl));
+    const channel = new lazy.NntpChannel(uri);
     let listener = streamListener;
     if (convertData) {
       const converter = Cc["@mozilla.org/streamConverters;1"].getService(
