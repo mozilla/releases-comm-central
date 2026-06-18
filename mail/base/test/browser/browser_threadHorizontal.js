@@ -101,7 +101,7 @@ add_task(async function testHorizontalScroll() {
     element.width = "400px";
   }
 
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () =>
       threadTree.table.getBoundingClientRect().width >
       threadPane.getBoundingClientRect().width,
@@ -126,7 +126,7 @@ add_task(async function testHorizontalScroll() {
 
   Services.prefs.setBoolPref("mail.threadpane.table.horizontal_scroll", false);
 
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () =>
       threadTree.table.getBoundingClientRect().width ==
       threadPane.getBoundingClientRect().width,

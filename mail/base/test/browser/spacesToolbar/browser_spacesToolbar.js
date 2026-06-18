@@ -956,7 +956,7 @@ add_task(async function testSpacesToolbarOSX() {
     "The custom styling was cleared from all toolbars"
   );
 
-  const styleAppliedPromise = BrowserTestUtils.waitForCondition(
+  const styleAppliedPromise = TestUtils.waitForCondition(
     () =>
       document.getElementById("tabmail-tabs").getAttribute("style") ==
       `margin-inline-start: ${size}px;`,
@@ -968,7 +968,7 @@ add_task(async function testSpacesToolbarOSX() {
   await new Promise(resolve => requestAnimationFrame(resolve));
   await styleAppliedPromise;
 
-  const styleRemovedPromise = BrowserTestUtils.waitForCondition(
+  const styleRemovedPromise = TestUtils.waitForCondition(
     () => !document.getElementById("tabmail-tabs").hasAttribute("style"),
     "The custom styling was cleared from all toolbars"
   );
@@ -1097,7 +1097,7 @@ add_task(async function testSpacesToolbarExtension() {
   // Set a ridiculous tiny height to be sure all add-on buttons are hidden.
   window.resizeTo(window.outerWidth, 300);
   await new Promise(resolve => requestAnimationFrame(resolve));
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => !overflowButton.hidden,
     "The overflow button is visible"
   );
@@ -1118,7 +1118,7 @@ add_task(async function testSpacesToolbarExtension() {
   await new Promise(resolve => requestAnimationFrame(resolve));
 
   await popuphidden;
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => overflowButton.hidden,
     "The overflow button is hidden"
   );

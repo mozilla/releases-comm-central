@@ -106,7 +106,7 @@ add_task(async function test_account_email_advanced_setup_incoming() {
   // The dialog should automatically close after clicking advanced config
   await BrowserTestUtils.waitForEvent(dialog, "close");
 
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => tabmail.selectedTab != oldTab,
     "The tab should change to the account settings tab"
   );
@@ -214,7 +214,7 @@ add_task(async function test_account_email_advanced_setup_outgoing() {
   // The dialog should automatically close after clicking advanced config
   await BrowserTestUtils.waitForEvent(dialog, "close");
 
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => tabmail.selectedTab != oldTab,
     "The tab should change to the account settings tab"
   );
@@ -832,12 +832,12 @@ add_task(async function test_account_invalid_email_advanced_setup_incoming() {
   await BrowserTestUtils.waitForEvent(dialog, "close");
   const accountTab = tabmail.selectedTab;
 
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => accountTab != oldTab,
     "The tab should change to the account settings tab"
   );
 
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => !!accountTab.browser.contentWindow.currentAccount,
     "The new account should have been created"
   );

@@ -3032,7 +3032,7 @@ add_task(async function test_special_date_field() {
   selectPopup.activateItem(selectPopup.children[2]);
   await changePromise;
 
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => firstDay.childNodes.length == 30, // 29 days + empty option 0.
     "day options filled with leap year"
   );
@@ -3040,7 +3040,7 @@ add_task(async function test_special_date_field() {
   // No leap year.
   firstYear.select();
   EventUtils.sendString("2003");
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => firstDay.childNodes.length == 29, // 28 days + empty option 0.
     "day options filled without leap year"
   );

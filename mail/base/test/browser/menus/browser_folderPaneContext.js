@@ -755,7 +755,7 @@ add_task(async function testEmpty() {
   await promptPromise;
 
   // The empty operation is async; wait until it’s really done.
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => trashFolder.getTotalMessages(false) === 0,
     "waiting for trash empty to complete"
   );
@@ -778,7 +778,7 @@ add_task(async function testEmpty() {
   await promptPromise;
 
   // The empty operation is async; wait until it’s really done.
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => junkFolder.getTotalMessages(false) === 0,
     "waiting for junk empty to complete"
   );
@@ -826,7 +826,7 @@ add_task(async function testEmpty() {
   );
 
   // The empty operation is async; wait until it’s really done.
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => trashFolder.getTotalMessages(false) === 0,
     "waiting for trash empty to complete via smart trash empty"
   );
@@ -838,7 +838,7 @@ add_task(async function testEmpty() {
   );
 
   // The empty operation is async; wait until it’s really done.
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => rssTrashFolder.getTotalMessages(false) === 0,
     "waiting for trash empty to complete via smart trash empty"
   );
@@ -861,7 +861,7 @@ add_task(async function testEmpty() {
   await promptPromise;
 
   // The empty operation is async; wait until it’s really done.
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => smartJunkFolder.getTotalMessages(false) === 0,
     "waiting for junk empty to complete via smart junk empty"
   );

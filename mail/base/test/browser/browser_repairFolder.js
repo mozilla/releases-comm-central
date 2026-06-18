@@ -82,7 +82,7 @@ async function subtestRepairFolder(folder) {
   about3Pane.sortController.sortThreadPane("correspondentCol");
   about3Pane.sortController.sortAscending();
   about3Pane.sortController.groupBySort();
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => threadTree.dataset.showGroupedBySort == "true",
     "The tree view should be grouped by sort"
   );
@@ -90,7 +90,7 @@ async function subtestRepairFolder(folder) {
   const dialog = await openFolderProperties(folder);
   dialog.repairFolder();
   await dialog.accept();
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => about3Pane.dbViewWrapperListener.allMessagesLoaded,
     "waiting for message list to finish loading"
   );

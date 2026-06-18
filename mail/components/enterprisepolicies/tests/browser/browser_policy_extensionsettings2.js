@@ -7,7 +7,7 @@ const BASE_URL =
   "http://mochi.test:8888/browser/comm/mail/components/enterprisepolicies/tests/browser";
 
 async function isExtensionLockedAndUpdateDisabled(win, addonID) {
-  const addonCard = await BrowserTestUtils.waitForCondition(() => {
+  const addonCard = await TestUtils.waitForCondition(() => {
     return win.document.querySelector(`addon-card[addon-id="${addonID}"]`);
   }, `Get addon-card for "${addonID}"`);
   const disableBtn = addonCard.querySelector('[action="toggle-disabled"]');

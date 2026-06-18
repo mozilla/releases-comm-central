@@ -323,7 +323,7 @@ async function waitForLaunchBrowser(expectedUrl) {
     window
   );
 
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => BrowserTestUtils.isVisible(richDescription.contentDocument.body),
     "wait for description document to be visible"
   );
@@ -370,7 +370,7 @@ async function checkDescription({
     ".plain-text-description"
   );
 
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => plainText.textContent == description,
     "Waiting for description to update"
   );

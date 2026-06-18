@@ -1036,7 +1036,7 @@ add_task(async function test_restore_attachment_bucket_height() {
       ? { accelKey: true, shiftKey: true }
       : { ctrlKey: true, shiftKey: true };
 
-  const collapsedPromise = BrowserTestUtils.waitForCondition(
+  const collapsedPromise = TestUtils.waitForCondition(
     () => BrowserTestUtils.isVisible(attachmentArea) && !attachmentArea.open,
     "The attachment area should be visible but closed."
   );
@@ -1045,7 +1045,7 @@ add_task(async function test_restore_attachment_bucket_height() {
   EventUtils.synthesizeKey("M", modifiers, cwc);
   await collapsedPromise;
 
-  const visiblePromise = BrowserTestUtils.waitForCondition(
+  const visiblePromise = TestUtils.waitForCondition(
     () => BrowserTestUtils.isVisible(attachmentArea) && attachmentArea.open,
     "The attachment area should be visible and open."
   );

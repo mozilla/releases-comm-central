@@ -72,7 +72,7 @@ add_task(async function test_dummy_row_in_table_view() {
   });
 
   about3Pane.sortController.groupBySort();
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => threadTree.dataset.showGroupedBySort == "true",
     "The tree view should be grouped by sort"
   );
@@ -123,7 +123,7 @@ add_task(async function test_dummy_row_selection() {
 
   about3Pane.sortController.sortThreadPane("subjectCol");
   about3Pane.sortController.groupBySort();
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => threadTree.dataset.showGroupedBySort == "true",
     "The tree view should be grouped by sort"
   );

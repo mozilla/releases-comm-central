@@ -175,7 +175,7 @@ add_task(async function test_customize_toolbar_buttons() {
   EventUtils.sendKey("down", aboutMessage);
   EventUtils.sendKey("return", aboutMessage);
 
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => header.classList.contains("message-header-buttons-only-text"),
     "The buttons are showing only text"
   );
@@ -199,7 +199,7 @@ add_task(async function test_customize_toolbar_buttons() {
   await openMenuPopup();
   EventUtils.sendKey("down", aboutMessage);
   EventUtils.sendKey("return", aboutMessage);
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => header.classList.contains("message-header-buttons-only-icons"),
     "The buttons are showing only icons"
   );
@@ -212,7 +212,7 @@ add_task(async function test_customize_toolbar_buttons() {
   EventUtils.sendKey("up", aboutMessage);
   EventUtils.sendKey("up", aboutMessage);
   EventUtils.sendKey("return", aboutMessage);
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () =>
       !header.classList.contains("message-header-buttons-only-icons") &&
       !header.classList.contains("message-header-buttons-only-text") &&
@@ -224,20 +224,20 @@ add_task(async function test_customize_toolbar_buttons() {
   );
 
   EventUtils.synthesizeMouseAtCenter(subjectLarge, {}, aboutMessage);
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => !header.classList.contains("message-header-large-subject"),
     "The subject line was changed"
   );
 
   EventUtils.synthesizeMouseAtCenter(showAvatar, {}, aboutMessage);
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => !header.classList.contains("message-header-show-recipient-avatar"),
     "The avatar style was changed"
   );
   await assertVisibility(avatar, false, "The recipient avatar is hidden");
 
   EventUtils.synthesizeMouseAtCenter(showFullAddress, {}, aboutMessage);
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => !header.classList.contains("message-header-show-sender-full-address"),
     "The full address style was changed"
   );
@@ -253,12 +253,12 @@ add_task(async function test_customize_toolbar_buttons() {
   );
 
   EventUtils.synthesizeMouseAtCenter(hideLabels, {}, aboutMessage);
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => !header.classList.contains("message-header-hide-label-column"),
     "The labels column style was changed"
   );
   await assertVisibility(firstLabel, true, "The first label is visible");
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => firstLabel.style.minWidth != "0px",
     "The first label has a min-width value"
   );
@@ -267,11 +267,11 @@ add_task(async function test_customize_toolbar_buttons() {
   EventUtils.sendKey("down", aboutMessage);
   EventUtils.sendKey("down", aboutMessage);
   EventUtils.sendKey("return", aboutMessage);
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => header.classList.contains("message-header-buttons-only-icons"),
     "The buttons are showing only icons"
   );
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => !header.classList.contains("message-header-large-subject"),
     "The subject line edit was maintained"
   );
@@ -280,7 +280,7 @@ add_task(async function test_customize_toolbar_buttons() {
   EventUtils.synthesizeKey("KEY_Escape", {}, aboutMessage);
   await panelHidden;
 
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () =>
       Services.xulStore.hasValue(
         "chrome://messenger/content/messenger.xhtml",
@@ -332,7 +332,7 @@ add_task(async function test_customize_toolbar_buttons() {
   EventUtils.sendKey("up", aboutMessage);
   EventUtils.sendKey("return", aboutMessage);
 
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () =>
       !header.classList.contains("message-header-buttons-only-icons") &&
       !header.classList.contains("message-header-buttons-only-text"),
@@ -348,7 +348,7 @@ add_task(async function test_customize_toolbar_buttons() {
   EventUtils.synthesizeKey("KEY_Escape", {}, aboutMessage);
   await panelHidden;
 
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => header.classList.contains("message-header-large-subject"),
     "The subject line is large again"
   );
@@ -363,7 +363,7 @@ add_task(async function test_customize_toolbar_buttons() {
     false,
     "he recipient single line is hidden"
   );
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => firstLabel.style.minWidth == "0px",
     "The first label has no min-width value"
   );

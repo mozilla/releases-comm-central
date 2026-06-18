@@ -541,7 +541,7 @@ async function positionTest({ calendar, duration = 1, offset, hour, size }) {
   dialog?.close();
 
   if (dialog) {
-    await BrowserTestUtils.waitForCondition(
+    await TestUtils.waitForCondition(
       () => BrowserTestUtils.isHidden(dialog),
       "Waiting for dialog to close and reset"
     );

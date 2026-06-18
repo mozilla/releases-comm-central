@@ -372,7 +372,7 @@ add_task(async function test_address_book_sync_account() {
   const booksList = addressBookDocument.getElementById("books");
 
   const index = booksList.getIndexForUID(addressBookDirectory.UID);
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => booksList.selectedIndex == index,
     `Waiting for the new address book at index ${index} to be selected`
   );
@@ -540,7 +540,7 @@ add_task(async function test_localAddressBookCreation() {
   );
 
   await closeEvent;
-  const booksList = await BrowserTestUtils.waitForCondition(() => {
+  const booksList = await TestUtils.waitForCondition(() => {
     return tabmail.currentTabInfo.browser.contentWindow.document.getElementById(
       "books"
     );
@@ -561,7 +561,7 @@ add_task(async function test_localAddressBookCreation() {
   );
 
   const index = booksList.getIndexForUID(addressBookDirectory.UID);
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => booksList.selectedIndex == index,
     `Waiting for the correct address book at index ${index} to be selected`
   );

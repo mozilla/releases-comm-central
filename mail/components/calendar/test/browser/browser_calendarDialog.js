@@ -235,7 +235,7 @@ add_task(async function test_setCalendarEventResetsSubview() {
     "Should be showing another subiew 2"
   );
   const title = dialog.querySelector(".calendar-dialog-title");
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => title.textContent.trim() == "Test Event",
     "waiting for title to be updated"
   );
@@ -1068,7 +1068,7 @@ add_task(async function testAttendeesRowVisibility() {
 
   const attendeesRow = dialog.querySelector("calendar-dialog-attendees-row");
 
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => BrowserTestUtils.isVisible(attendeesRow),
     "Attendees row should be visible"
   );
@@ -1080,7 +1080,7 @@ add_task(async function testAttendeesRowVisibility() {
   dialog.setCalendarEvent(calEvent);
   await dialog.show();
 
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => BrowserTestUtils.isHidden(attendeesRow),
     "Attendees row should be hidden"
   );
@@ -1119,7 +1119,7 @@ add_task(async function testAttendeesRowData() {
 
   const attendeesRow = dialog.querySelector("calendar-dialog-attendees-row");
 
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => BrowserTestUtils.isVisible(attendeesRow),
     "Attendees row should be visible"
   );
@@ -1191,7 +1191,7 @@ add_task(async function testAttendeesRowExpandButton() {
     `calendar-dialog-attendees-row:not([type="full"])`
   );
 
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => BrowserTestUtils.isVisible(attendeesRow),
     "Attendees row should be visible"
   );
@@ -1207,7 +1207,7 @@ add_task(async function testAttendeesRowExpandButton() {
     browser.contentWindow
   );
 
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => BrowserTestUtils.isHidden(attendeesRow),
     "Inline attendees row should be hidden"
   );
@@ -1260,7 +1260,7 @@ add_task(async function testAttendeesRowExpandButtonHiddenTooFewAttendees() {
 
   const attendeesRow = dialog.querySelector("calendar-dialog-attendees-row");
 
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => BrowserTestUtils.isVisible(attendeesRow),
     "Attendees row should be visible"
   );

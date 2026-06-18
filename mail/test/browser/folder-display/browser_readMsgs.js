@@ -54,7 +54,7 @@ add_task(async function testMarkedAsRead() {
   // Make sure it's the msg we want.
   Assert.equal(msg.subject, "this contains an invalid vcard");
   // The message should get marked as read.
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => msg.isRead,
     "should get marked as read"
   );

@@ -364,7 +364,7 @@ async function testEncryptedRecipientKeyNotAvailabeMessageComposition(
   await OpenPGPTestUtils.toggleMessageEncryption(composeWin);
   await checkDonePromise;
 
-  const kaShown = BrowserTestUtils.waitForCondition(
+  const kaShown = TestUtils.waitForCondition(
     () => composeWin.document.getElementById("keyAssistant").open,
     "Timeout waiting for the #keyAssistant to be visible"
   );
@@ -507,7 +507,7 @@ async function testEncryptedRecipientKeyNotAcceptedMessageComposition(
     await OpenPGPTestUtils.toggleMessageEncryption(composeWin);
     await checkDonePromise;
 
-    const kaShown = BrowserTestUtils.waitForCondition(
+    const kaShown = TestUtils.waitForCondition(
       () => composeWin.document.getElementById("keyAssistant").open,
       "Timeout waiting for the #keyAssistant to be visible"
     );
@@ -683,7 +683,7 @@ async function testEncryptedOneRecipientKeyNotAvailableMessageComposition(
   await OpenPGPTestUtils.toggleMessageEncryption(composeWin);
   await checkDonePromise;
 
-  const kaShown = BrowserTestUtils.waitForCondition(
+  const kaShown = TestUtils.waitForCondition(
     () => composeWin.document.getElementById("keyAssistant").open,
     "Timeout waiting for the #keyAssistant to be visible"
   );
@@ -782,7 +782,7 @@ async function testEncryptedOneRecipientKeyNotAcceptedMessageComposition(
     await OpenPGPTestUtils.toggleMessageEncryption(composeWin);
     await checkDonePromise;
 
-    const kaShown = BrowserTestUtils.waitForCondition(
+    const kaShown = TestUtils.waitForCondition(
       () => composeWin.document.getElementById("keyAssistant").open,
       "Timeout waiting for the #keyAssistant to be visible"
     );

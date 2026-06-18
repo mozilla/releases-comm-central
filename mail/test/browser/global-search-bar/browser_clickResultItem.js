@@ -48,7 +48,7 @@ const tests = [
       EventUtils.sendString("us", input.documentGlobal);
       EventUtils.synthesizeKey("KEY_Enter", {}, input.documentGlobal);
 
-      await BrowserTestUtils.waitForCondition(
+      await TestUtils.waitForCondition(
         () =>
           window.document.getElementById("tabmail").selectedTab.browser &&
           window.document.getElementById("tabmail").selectedTab.browser.src ==
@@ -124,7 +124,7 @@ add_task(async function testClickingGlobalSearchResultItemOpensOneTab() {
     EventUtils.synthesizeKey("s", {}, input.documentGlobal);
     EventUtils.synthesizeKey("e", {}, input.documentGlobal);
 
-    await BrowserTestUtils.waitForCondition(
+    await TestUtils.waitForCondition(
       () => input.controller.matchCount > 0,
       `"${test.selector}" did not find any matches`
     );

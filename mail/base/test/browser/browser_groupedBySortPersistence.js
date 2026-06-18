@@ -77,7 +77,7 @@ const subTest = async folder => {
   about3Pane.sortController.sortThreadPane("correspondentCol");
   about3Pane.sortController.sortAscending();
   about3Pane.sortController.groupBySort();
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => threadTree.dataset.showGroupedBySort == "true",
     "The tree view should be grouped by sort"
   );
@@ -107,7 +107,7 @@ const subTest = async folder => {
 
   // Disable grouped by sort.
   about3Pane.sortController.sortThreadPane("dateCol");
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => threadTree.dataset.showGroupedBySort == "false",
     "The tree view should not be grouped by sort anymore"
   );

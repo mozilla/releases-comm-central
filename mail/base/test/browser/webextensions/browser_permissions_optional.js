@@ -105,7 +105,7 @@ add_task(async function test_request_permissions_from_popup() {
   // popup. Apparently it is not fully opened despite the correct events have
   // already been fired.
   await new Promise(resolve => requestAnimationFrame(resolve));
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => actionPanel.getAttribute("panelopen") == "true"
   );
 

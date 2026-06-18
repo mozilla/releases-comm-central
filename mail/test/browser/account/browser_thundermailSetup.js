@@ -73,7 +73,7 @@ add_task(async function () {
   const footer = dialog.querySelector("#emailFooter");
   const footerForward = footer.querySelector("#forward");
 
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => BrowserTestUtils.isVisible(button),
     "waiting for Thundermail button to be visible"
   );

@@ -40,7 +40,7 @@ function promiseEvent(eventEmitter, event) {
 }
 
 function getAddonElement(managerWindow, addonId) {
-  return BrowserTestUtils.waitForCondition(
+  return TestUtils.waitForCondition(
     () =>
       managerWindow.document.querySelector(`addon-card[addon-id="${addonId}"]`),
     `Found entry for sideload extension addon "${addonId}" in HTML about:addons`

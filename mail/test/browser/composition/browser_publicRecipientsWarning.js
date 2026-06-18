@@ -75,7 +75,7 @@ add_task(async function testWarningShowsOnceWhenToFieldOverLimit() {
   await assert_selected_and_displayed(window, msg);
   const cwc = await open_compose_with_reply_to_all();
 
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () =>
       cwc.gComposeNotification.getNotificationWithValue(
         "warnPublicRecipientsNotification"
@@ -110,7 +110,7 @@ add_task(async function testWarningShowsWhenToFieldHitsLimit() {
     ""
   );
 
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () =>
       cwc.gComposeNotification.getNotificationWithValue(
         "warnPublicRecipientsNotification"
@@ -153,7 +153,7 @@ add_task(async function testWarningShowsWhenCcFieldHitLimit() {
     "ccAddrInput"
   );
 
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () =>
       cwc.gComposeNotification.getNotificationWithValue(
         "warnPublicRecipientsNotification"
@@ -198,7 +198,7 @@ add_task(async function testWarningShowsWhenToAndCcFieldHitLimit() {
 
   await setup_msg_contents(cwc, "test@example.org", "", "", "ccAddrInput");
 
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () =>
       cwc.gComposeNotification.getNotificationWithValue(
         "warnPublicRecipientsNotification"
@@ -225,7 +225,7 @@ add_task(async function testToRecipientsMovedToBcc() {
     ""
   );
 
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () =>
       cwc.gComposeNotification.getNotificationWithValue(
         "warnPublicRecipientsNotification"
@@ -233,7 +233,7 @@ add_task(async function testToRecipientsMovedToBcc() {
     `Timeout waiting for warnPublicRecipientsNotification`
   );
 
-  const notificationHidden = BrowserTestUtils.waitForCondition(
+  const notificationHidden = TestUtils.waitForCondition(
     () =>
       !cwc.gComposeNotification.getNotificationWithValue(
         "warnPublicRecipientsNotification"
@@ -283,7 +283,7 @@ add_task(async function testAllToRecipientsMovedToBccWhenOverLimit() {
     ""
   );
 
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () =>
       cwc.gComposeNotification.getNotificationWithValue(
         "warnPublicRecipientsNotification"
@@ -291,7 +291,7 @@ add_task(async function testAllToRecipientsMovedToBccWhenOverLimit() {
     `Timeout waiting for warnPublicRecipientsNotification`
   );
 
-  const notificationHidden = BrowserTestUtils.waitForCondition(
+  const notificationHidden = TestUtils.waitForCondition(
     () =>
       !cwc.gComposeNotification.getNotificationWithValue(
         "warnPublicRecipientsNotification"
@@ -359,7 +359,7 @@ add_task(async function testCcRecipientsMovedToBcc() {
     ""
   );
 
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () =>
       cwc.gComposeNotification.getNotificationWithValue(
         "warnPublicRecipientsNotification"
@@ -367,7 +367,7 @@ add_task(async function testCcRecipientsMovedToBcc() {
     `Timeout waiting for warnPublicRecipientsNotification`
   );
 
-  const notificationHidden = BrowserTestUtils.waitForCondition(
+  const notificationHidden = TestUtils.waitForCondition(
     () =>
       !cwc.gComposeNotification.getNotificationWithValue(
         "warnPublicRecipientsNotification"
@@ -434,7 +434,7 @@ add_task(async function testAllCcRecipientsMovedToBccWhenOverLimit() {
     ""
   );
 
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () =>
       cwc.gComposeNotification.getNotificationWithValue(
         "warnPublicRecipientsNotification"
@@ -442,7 +442,7 @@ add_task(async function testAllCcRecipientsMovedToBccWhenOverLimit() {
     `Timeout waiting for warnPublicRecipientsNotification`
   );
 
-  const notificationHidden = BrowserTestUtils.waitForCondition(
+  const notificationHidden = TestUtils.waitForCondition(
     () =>
       !cwc.gComposeNotification.getNotificationWithValue(
         "warnPublicRecipientsNotification"
@@ -509,7 +509,7 @@ add_task(async function testToAndCcRecipientsMovedToBcc() {
   );
   await setup_msg_contents(cwc, "test@example.org", "", "");
 
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () =>
       cwc.gComposeNotification.getNotificationWithValue(
         "warnPublicRecipientsNotification"
@@ -517,7 +517,7 @@ add_task(async function testToAndCcRecipientsMovedToBcc() {
     `Timeout waiting for warnPublicRecipientsNotification`
   );
 
-  const notificationHidden = BrowserTestUtils.waitForCondition(
+  const notificationHidden = TestUtils.waitForCondition(
     () =>
       !cwc.gComposeNotification.getNotificationWithValue(
         "warnPublicRecipientsNotification"
@@ -575,7 +575,7 @@ add_task(async function testWarningRemovedWhenKeepPublic() {
     ""
   );
 
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () =>
       cwc.gComposeNotification.getNotificationWithValue(
         "warnPublicRecipientsNotification"
@@ -583,7 +583,7 @@ add_task(async function testWarningRemovedWhenKeepPublic() {
     `Timeout waiting for warnPublicRecipientsNotification`
   );
 
-  const notificationHidden = BrowserTestUtils.waitForCondition(
+  const notificationHidden = TestUtils.waitForCondition(
     () =>
       !cwc.gComposeNotification.getNotificationWithValue(
         "warnPublicRecipientsNotification"
@@ -633,7 +633,7 @@ add_task(async function testWarningNotShownAfterDismissal() {
     ""
   );
 
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () =>
       cwc.gComposeNotification.getNotificationWithValue(
         "warnPublicRecipientsNotification"
@@ -641,7 +641,7 @@ add_task(async function testWarningNotShownAfterDismissal() {
     `Timeout waiting for warnPublicRecipientsNotification`
   );
 
-  const notificationHidden = BrowserTestUtils.waitForCondition(
+  const notificationHidden = TestUtils.waitForCondition(
     () =>
       !cwc.gComposeNotification.getNotificationWithValue(
         "warnPublicRecipientsNotification"
@@ -702,7 +702,7 @@ add_task(async function testMailingListMembersCounted() {
   const cwc = await open_compose_new_mail();
   await setup_msg_contents(cwc, "Test List", "Testing mailing lists", "");
 
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () =>
       cwc.gComposeNotification.getNotificationWithValue(
         "warnPublicRecipientsNotification"

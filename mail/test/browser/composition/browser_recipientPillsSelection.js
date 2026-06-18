@@ -198,7 +198,7 @@ add_task(async function test_pill_context_menu() {
     "The first pill was selected"
   );
 
-  const pillMoved = BrowserTestUtils.waitForCondition(
+  const pillMoved = TestUtils.waitForCondition(
     () =>
       cDoc.querySelectorAll("#ccAddrContainer mail-address-pill").length == 1,
     "Timeout waiting for the pill to be moved to the Cc field"
@@ -245,7 +245,7 @@ add_task(async function test_pill_context_menu() {
   );
   await popupPromise2;
 
-  const pillMoved2 = BrowserTestUtils.waitForCondition(
+  const pillMoved2 = TestUtils.waitForCondition(
     () =>
       cDoc.querySelectorAll("#bccAddrContainer mail-address-pill").length == 1,
     "Timeout waiting for the pill to be moved to the Bcc field"

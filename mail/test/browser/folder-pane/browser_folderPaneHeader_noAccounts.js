@@ -37,12 +37,12 @@ add_task(async function testActionButtonsState() {
   account.addIdentity(identity);
   account.incomingServer = popServer;
 
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => !fetchButton.disabled,
     "The Get Messages button is enabled"
   );
 
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => !newButton.disabled,
     "The New Message button is enabled"
   );

@@ -95,7 +95,7 @@ add_task(async function testAttachWebPage() {
   );
 
   const listBox = iframeDocument.querySelector("#attachment-link");
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => listBox.itemChildren.length == 1,
     "attachment list did not show in time"
   );
@@ -190,7 +190,7 @@ add_task(async function testAttachProvider() {
   const menu = dialogDocument.querySelector("#button-attach-menupopup");
   let menuItem;
 
-  await BrowserTestUtils.waitForCondition(() => {
+  await TestUtils.waitForCondition(() => {
     menuItem = menu.querySelector("menuitem[label='File using Mochitest Account']");
     return menuItem;
   });
@@ -210,10 +210,7 @@ add_task(async function testAttachProvider() {
 
   // Check if the file dialog was "shown". MockFilePicker.open() is asynchronous
   // but does not return a promise.
-  await BrowserTestUtils.waitForCondition(
-    () => MockFilePicker.shown,
-    "file picker was not shown in time"
-  );
+  await TestUtils.waitForCondition(() => MockFilePicker.shown, "file picker was not shown in time");
 
   // Click on the attachments tab of the event dialog.
   EventUtils.synthesizeMouseAtCenter(
@@ -224,7 +221,7 @@ add_task(async function testAttachProvider() {
 
   // Wait until the file we attached appears.
   const listBox = iframeDocument.querySelector("#attachment-link");
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => listBox.itemChildren.length == 1,
     "attachment list did not show in time"
   );
@@ -234,7 +231,7 @@ add_task(async function testAttachProvider() {
   // XXX: This property is set after an async operation. Unfortunately, that
   // operation is not awaited on in its surrounding code so the assertion
   // after this will occasionally fail if this is not done.
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => listItem.attachCloudFileUpload,
     "attachCloudFileUpload property not set on attachment listitem in time."
   );

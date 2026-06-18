@@ -439,7 +439,7 @@ function subtest_config_results(template, configType) {
  * @param {string} type - The config's server type.
  */
 async function subtest_verify_account_hub_account(tab, user, type) {
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => !!tab.browser.contentWindow.currentAccount,
     "The new account should have been created"
   );

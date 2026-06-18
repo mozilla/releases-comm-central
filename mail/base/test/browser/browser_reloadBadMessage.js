@@ -53,7 +53,7 @@ add_task(async function () {
     messagePaneVisible: true,
   });
 
-  await BrowserTestUtils.waitForCondition(() => {
+  await TestUtils.waitForCondition(() => {
     for (const m of imapFolder.messages) {
       if (!(m.flags & Ci.nsMsgMessageFlags.Offline)) {
         return false;

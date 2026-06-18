@@ -979,7 +979,7 @@ add_task(async function test_column_defaults_gloda_collection() {
     }),
     title: "Test gloda results",
   });
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => tab.chromeBrowser.contentWindow.gViewWrapper?.isSynthetic,
     "synthetic view loaded"
   );
@@ -998,7 +998,7 @@ add_task(async function test_persist_columns_gloda_collection() {
     }),
     title: "Test gloda results 1",
   });
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => tab1.chromeBrowser.contentWindow.gViewWrapper?.isSynthetic,
     "synthetic view loaded"
   );
@@ -1017,7 +1017,7 @@ add_task(async function test_persist_columns_gloda_collection() {
     }),
     title: "Test gloda results 2",
   });
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => tab2.chromeBrowser.contentWindow.gViewWrapper?.isSynthetic,
     "synthetic view loaded"
   );
@@ -1040,7 +1040,7 @@ add_task(async function test_reset_columns_gloda_collection() {
     }),
     title: "Test gloda results 1",
   });
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => tab1.chromeBrowser.contentWindow.gViewWrapper?.isSynthetic,
     "synthetic view loaded"
   );
@@ -1066,7 +1066,7 @@ add_task(async function test_reset_columns_gloda_collection() {
     }),
     title: "Test gloda results 2",
   });
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => tab2.chromeBrowser.contentWindow.gViewWrapper?.isSynthetic,
     "synthetic view loaded"
   );

@@ -111,7 +111,7 @@ add_task(async function test_message_header_toggle() {
 
   info("Disable the toggle visibility");
   Services.prefs.setBoolPref("mail.dark-reader.show-toggle", false);
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => BrowserTestUtils.isHidden(toggle),
     "toggle button should be hidden"
   );
@@ -119,7 +119,7 @@ add_task(async function test_message_header_toggle() {
   info("Enable the toggle visibility");
   Services.prefs.setBoolPref("mail.dark-reader.show-toggle", true);
 
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => BrowserTestUtils.isVisible(toggle),
     "toggle button should be visible"
   );
@@ -160,7 +160,7 @@ add_task(async function test_message_header_toggle() {
     "Dark reader toggle should be visible before synthesizing mouse click"
   );
   EventUtils.synthesizeMouseAtCenter(darkToggleCustomizer, {}, aboutMessage);
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => BrowserTestUtils.isHidden(toggle),
     "toggle button should be hidden"
   );
@@ -170,7 +170,7 @@ add_task(async function test_message_header_toggle() {
     "Dark reader toggle should be hidden before synthesizing mouse click"
   );
   EventUtils.synthesizeMouseAtCenter(darkToggleCustomizer, {}, aboutMessage);
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => BrowserTestUtils.isVisible(toggle),
     "toggle button should be visible"
   );
@@ -205,7 +205,7 @@ add_task(async function test_message_scroll_position() {
       top: 143,
       behavior: "instant",
     });
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () =>
       aboutMessage.getMessagePaneBrowser().contentDocument.documentElement
         .scrollTop === 143,
@@ -221,7 +221,7 @@ add_task(async function test_message_scroll_position() {
   );
   await msgLoaded;
 
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () =>
       aboutMessage.getMessagePaneBrowser().contentDocument.documentElement
         .scrollTop === 143,

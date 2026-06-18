@@ -102,7 +102,7 @@ add_task(async function testWarningShowsWhenEncryptionEnabled() {
   await checkDonePromise;
 
   // Warning should show when encryption enabled
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () =>
       cwc.gComposeNotification.getNotificationWithValue(
         "warnEncryptedBccRecipients"
@@ -149,7 +149,7 @@ add_task(async function testNotificationDismissal() {
   await checkDonePromise;
 
   // Warning should show when encryption enabled
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () =>
       cwc.gComposeNotification.getNotificationWithValue(
         "warnEncryptedBccRecipients"
@@ -157,7 +157,7 @@ add_task(async function testNotificationDismissal() {
     "Timeout waiting for warnEncryptedBccRecipients notification"
   );
 
-  const notificationHidden = BrowserTestUtils.waitForCondition(
+  const notificationHidden = TestUtils.waitForCondition(
     () =>
       !cwc.gComposeNotification.getNotificationWithValue(
         "warnEncryptedBccRecipients"

@@ -60,7 +60,7 @@ add_task(async function () {
   dialog.setCalendarEvent(calendarEvent);
   await dialog.show({ target });
 
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => BrowserTestUtils.isVisible(dialog),
     "Waiting for dialog to be visible"
   );

@@ -125,7 +125,7 @@ async function doDragToComposeWindow(sourceIndices, expectedPills) {
     );
   }
 
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => composeWindow.gContentChanged,
     "Waiting for compose window to become dirty"
   );

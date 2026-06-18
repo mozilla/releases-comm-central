@@ -125,7 +125,7 @@ add_task(async function test_drag_and_drop_single_folder() {
 
   // The backend folder move is asynchronous. Wait for it to complete
   // and assign the new folder reference as soon as it succeeds.
-  await BrowserTestUtils.waitForCondition(() => {
+  await TestUtils.waitForCondition(() => {
     try {
       folderB = folderC.getChildNamed("folderB");
       return !!folderB;

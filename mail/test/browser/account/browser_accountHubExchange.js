@@ -1048,7 +1048,7 @@ async function chooseAdvancedSetup(incomingConfigForm, dialog) {
   // The dialog should automatically close after clicking advanced config
   await BrowserTestUtils.waitForEvent(dialog, "close");
 
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => tabmail.selectedTab != oldTab,
     "The tab should change to the account settings tab"
   );

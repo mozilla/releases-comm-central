@@ -607,7 +607,7 @@ add_task(async function test_addressing_fields_shortcuts() {
       : { ctrlKey: true, shiftKey: true };
 
   const addrCcInput = cwc.document.getElementById("ccAddrInput");
-  const ccRowShownPromise = BrowserTestUtils.waitForCondition(
+  const ccRowShownPromise = TestUtils.waitForCondition(
     () => !addrCcInput.closest(".address-row").classList.contains("hidden"),
     "The Cc addressing row is not visible."
   );
@@ -619,7 +619,7 @@ add_task(async function test_addressing_fields_shortcuts() {
   Assert.equal(cwc.document.activeElement, addrCcInput);
 
   const addrBccInput = cwc.document.getElementById("bccAddrInput");
-  const bccRowShownPromise = BrowserTestUtils.waitForCondition(
+  const bccRowShownPromise = TestUtils.waitForCondition(
     () => !addrBccInput.closest(".address-row").classList.contains("hidden"),
     "The Bcc addressing row is not visible."
   );

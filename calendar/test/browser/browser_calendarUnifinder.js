@@ -62,7 +62,7 @@ add_task(async function testOpenEvent() {
   if (isUnifinderHidden()) {
     window.toggleUnifinder();
 
-    await BrowserTestUtils.waitForCondition(
+    await TestUtils.waitForCondition(
       () => isUnifinderHidden(),
       "calendar unifinder should have opened"
     );
