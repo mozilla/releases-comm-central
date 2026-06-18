@@ -346,22 +346,7 @@
 <!ENTITY event.timezone.custom.label     "More Timezones…">
 
 <!-- Read-Only dialog -->
-<!ENTITY read.only.general.label         "General">
-<!ENTITY read.only.title.label           "Title:">
-<!ENTITY read.only.calendar.label        "Calendar:">
-<!ENTITY read.only.event.start.label     "Start Date:">
-<!ENTITY read.only.task.start.label      "Start Date:">
-<!ENTITY read.only.event.end.label       "End Date:">
-<!ENTITY read.only.task.due.label        "Due Date:">
-<!ENTITY read.only.repeat.label          "Repeat:">
-<!ENTITY read.only.location.label        "Location:">
-<!ENTITY read.only.category.label        "Category:">
 <!ENTITY read.only.organizer.label       "Organizer:">
-<!ENTITY read.only.reminder.label        "Reminder:">
-<!ENTITY read.only.attachments.label     "Attachments:">
-<!ENTITY read.only.attendees.label       "Attendees">
-<!ENTITY read.only.description.label     "Description">
-<!ENTITY read.only.link.label            "Related Link">
 
 <!-- Summary dialog -->
 <!ENTITY summary.dialog.saveclose.label         "Save and Close">
