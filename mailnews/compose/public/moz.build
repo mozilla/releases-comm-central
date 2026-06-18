@@ -22,7 +22,6 @@ XPIDL_SOURCES += [
     "nsIMsgSendListener.idl",
     "nsIMsgSendReport.idl",
     "nsISmtpServer.idl",
-    "nsISmtpUrl.idl",
 ]
 
 XPIDL_MODULE = "msgcompose"

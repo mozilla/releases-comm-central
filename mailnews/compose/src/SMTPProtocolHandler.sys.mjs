@@ -18,7 +18,7 @@ export class SMTPProtocolHandler {
   }
 
   allowPort(port) {
-    return port == Ci.nsISmtpUrl.DEFAULT_SMTP_PORT;
+    return port == 25;
   }
 }
 
@@ -30,7 +30,7 @@ export class SMTPSProtocolHandler extends SMTPProtocolHandler {
   scheme = "smtps";
 
   allowPort(port) {
-    return port == Ci.nsISmtpUrl.DEFAULT_SMTPS_PORT;
+    return port == 465;
   }
 }
 

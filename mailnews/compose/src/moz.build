@@ -24,7 +24,6 @@ UNIFIED_SOURCES += [
     "nsMsgPrompts.cpp",
     "nsMsgQuote.cpp",
     "nsMsgSendLater.cpp",
-    "nsSmtpUrl.cpp",
 ]
 
 LOCAL_INCLUDES += [

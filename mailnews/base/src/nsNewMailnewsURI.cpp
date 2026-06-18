@@ -15,7 +15,7 @@
 
 #include "../../local/src/nsPop3URL.h"
 #include "../../local/src/nsMailboxService.h"
-#include "../../compose/src/nsSmtpUrl.h"
+#include "../src/nsMsgMailNewsUrl.h"
 #include "../../addrbook/src/nsLDAPURL.h"
 #include "../../imap/src/nsImapService.h"
 #include "../../news/src/nsNntpUrl.h"
@@ -79,21 +79,14 @@ nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
     return rv;
   }
   if (scheme.EqualsLiteral("smtp") || scheme.EqualsLiteral("smtps")) {
-    return nsSmtpUrl::NewSmtpURI(aSpec, aBaseURI, aURI);
+    return NS_MutateURI(new nsMsgMailNewsUrl::Mutator())
+        .SetSpec(aSpec)
+        .Finalize(aURI);
   }
   if (scheme.EqualsLiteral("mailto")) {
-    if (NS_IsMainThread()) {
-      return nsMailtoUrl::NewMailtoURI(aSpec, aBaseURI, aURI);
-    }
-    // If we're for some reason not on the main thread, dispatch to main
-    // or else we'll crash.
-    auto NewURI = [&aSpec, &aBaseURI, aURI, &rv]() -> auto {
-      rv = nsMailtoUrl::NewMailtoURI(aSpec, aBaseURI, aURI);
-    };
-    nsCOMPtr<nsIRunnable> task = NS_NewRunnableFunction("NewURI", NewURI);
-    mozilla::SyncRunnable::DispatchToThread(
-        mozilla::GetMainThreadSerialEventTarget(), task);
-    return rv;
+    return NS_MutateURI(new mozilla::net::nsSimpleURI::Mutator())
+        .SetSpec(aSpec)
+        .Finalize(aURI);
   }
   if (scheme.EqualsLiteral("pop") || scheme.EqualsLiteral("pop3")) {
     return nsPop3URL::NewURI(aSpec, aBaseURI, aURI);

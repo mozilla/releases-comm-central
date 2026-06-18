@@ -7,7 +7,7 @@
 #include "nsIMsgMessageService.h"
 #include "nsIMsgSend.h"
 #include "nsIMsgIdentity.h"
-#include "nsISmtpUrl.h"
+#include "nsIMimeConverter.h"
 #include "nsIURI.h"
 #include "nsMsgI18N.h"
 #include "nsIMsgComposeParams.h"
@@ -23,14 +23,10 @@
 #include "nsIAppWindow.h"
 #include "nsIWindowMediator.h"
 #include "nsIDocShellTreeItem.h"
-#include "nsIPrefService.h"
-#include "nsIPrefBranch.h"
 #include "nsIMsgAccountManager.h"
 #include "nsIStreamConverter.h"
-#include "nsToolkitCompsCID.h"
 #include "nsNetUtil.h"
 #include "nsIMsgMailNewsUrl.h"
-#include "nsIInterfaceRequestorUtils.h"
 #include "nsIMsgDatabase.h"
 #include "nsIDocumentEncoder.h"
 #include "mozilla/dom/Selection.h"
@@ -40,7 +36,6 @@
 #include "nsIURIMutator.h"
 #include "mozilla/dom/Element.h"
 #include "nsFrameLoader.h"
-#include "nsSmtpUrl.h"
 #include "mozilla/Components.h"
 #include "mozilla/NullPrincipal.h"
 #include "mozilla/Preferences.h"
@@ -393,6 +388,224 @@ nsMsgComposeService::OpenComposeWindow(
   return rv;
 }
 
+namespace {
+
+// Parsed fields from a mailto: URL that are used to populate the compose
+// window.
+struct ParsedMailtoFields {
+  nsCString to;
+  nsCString cc;
+  nsCString bcc;
+  nsCString subject;
+  nsCString body;
+  nsCString html;
+  nsCString reference;
+  nsCString newsgroup;
+  MSG_ComposeFormat format = nsIMsgCompFormat::Default;
+};
+
+// Unescape and decode a mailto header value.
+nsCString UnescapeAndConvert(nsIMimeConverter* aMimeConverter,
+                             const nsACString& aEscaped) {
+  if (aEscaped.IsEmpty()) {
+    return ""_ns;
+  }
+  nsAutoCString out;
+  MsgUnescapeString(aEscaped, 0, out);
+  nsAutoCString decoded;
+  nsresult rv = aMimeConverter->DecodeMimeHeaderToUTF8(out, "UTF_8", false,
+                                                       true, decoded);
+  if (NS_SUCCEEDED(rv) && !decoded.IsEmpty()) {
+    return decoded;
+  }
+  return out;
+}
+
+/**
+ * Parse a mailto: URL spec and extract the fields used to populate a compose
+ * window.
+ *
+ * The following RFC 6068 parameters are handled: to, cc, bcc, subject, body,
+ * in-reply-to, references. Thunderbird-specific additions: html-part,
+ * html-body, newsgroups.
+ *
+ * from=, followup-to=, organization=, reply-to= and priority= are
+ * intentionally ignored for security and privacy reasons. Any unrecognised
+ * parameter names are silently dropped.
+ */
+nsresult ParseMailtoSpec(const nsACString& aSpec, ParsedMailtoFields& aFields) {
+  // Find the query string (everything after '?').
+  int32_t queryStart = aSpec.FindChar('?');
+
+  if (queryStart >= 0) {
+    // Extract the 'to' part (everything between "mailto:" and '?').
+    nsAutoCString toPart(
+        Substring(aSpec, 7 /* strlen("mailto:") */, queryStart - 7));
+    if (!toPart.IsEmpty()) {
+      MsgUnescapeString(toPart, 0, aFields.to);
+    }
+  } else {
+    // No query string - the entire remainder is the 'to' address.
+    nsAutoCString toPart(Substring(aSpec, 7));
+    if (!toPart.IsEmpty()) {
+      MsgUnescapeString(toPart, 0, aFields.to);
+    }
+    return NS_OK;
+  }
+
+  // Build escaped parts from the query string.
+  nsCString escapedTo = aFields.to;
+  nsCString escapedCc;
+  nsCString escapedBcc;
+  nsCString escapedSubject;
+  nsCString escapedBody;
+  nsCString escapedHtml;
+  nsCString escapedReference;
+  nsCString escapedInReplyTo;
+  nsCString escapedNewsgroup;
+
+  nsAutoCString searchPart(Substring(aSpec, queryStart + 1));
+
+  // Parse the query string manually to avoid issues with NS_strtok modifying
+  // the buffer.
+  int32_t pos = 0;
+  while (pos < (int32_t)searchPart.Length()) {
+    int32_t amp = searchPart.FindChar('&', pos);
+    nsAutoCString token;
+    if (amp >= 0) {
+      token = Substring(searchPart, pos, amp - pos);
+      pos = amp + 1;
+    } else {
+      token = Substring(searchPart, pos);
+      pos = searchPart.Length();
+    }
+
+    int32_t eq = token.FindChar('=');
+    if (eq < 0) {
+      continue;
+    }
+
+    nsCString value;
+    if (eq + 1 < (int32_t)token.Length()) {
+      value = Substring(token, eq + 1);
+    }
+    token.SetLength(eq);
+
+    nsCString decodedName;
+    MsgUnescapeString(token, 0, decodedName);
+    if (decodedName.IsEmpty()) {
+      continue;
+    }
+
+    switch (NS_ToUpper(decodedName.First())) {
+      case 'B':
+        if (decodedName.LowerCaseEqualsLiteral("bcc")) {
+          if (!escapedBcc.IsEmpty()) {
+            escapedBcc += ", "_ns;
+            escapedBcc += value;
+          } else {
+            escapedBcc = value;
+          }
+        } else if (decodedName.LowerCaseEqualsLiteral("body")) {
+          if (!escapedBody.IsEmpty()) {
+            escapedBody += "\n"_ns;
+            escapedBody += value;
+          } else {
+            escapedBody = value;
+          }
+        }
+        break;
+      case 'C':
+        if (decodedName.LowerCaseEqualsLiteral("cc")) {
+          if (!escapedCc.IsEmpty()) {
+            escapedCc += ", "_ns;
+            escapedCc += value;
+          } else {
+            escapedCc = value;
+          }
+        }
+        break;
+      case 'H':
+        if (decodedName.LowerCaseEqualsLiteral("html-part") ||
+            decodedName.LowerCaseEqualsLiteral("html-body")) {
+          escapedHtml = value;
+          aFields.format = nsIMsgCompFormat::HTML;
+        }
+        break;
+      case 'I':
+        if (decodedName.LowerCaseEqualsLiteral("in-reply-to")) {
+          escapedInReplyTo = value;
+        }
+        break;
+      case 'N':
+        if (decodedName.LowerCaseEqualsLiteral("newsgroups")) {
+          escapedNewsgroup = value;
+        }
+        break;
+      case 'R':
+        if (decodedName.LowerCaseEqualsLiteral("references")) {
+          escapedReference = value;
+        }
+        break;
+      case 'S':
+        if (decodedName.LowerCaseEqualsLiteral("subject")) {
+          escapedSubject = value;
+        }
+        break;
+      case 'T':
+        if (decodedName.LowerCaseEqualsLiteral("to")) {
+          if (!escapedTo.IsEmpty()) {
+            escapedTo += ", "_ns;
+            escapedTo += value;
+          } else {
+            escapedTo = value;
+          }
+        }
+        break;
+    }
+  }
+
+  // Get a global converter and decode all the escaped fields.
+  nsCOMPtr<nsIMimeConverter> mimeConverter =
+      mozilla::components::MimeConverter::Service();
+  NS_ENSURE_TRUE(mimeConverter, NS_ERROR_FAILURE);
+
+  aFields.to = UnescapeAndConvert(mimeConverter, escapedTo);
+  aFields.cc = UnescapeAndConvert(mimeConverter, escapedCc);
+  aFields.bcc = UnescapeAndConvert(mimeConverter, escapedBcc);
+  aFields.subject = UnescapeAndConvert(mimeConverter, escapedSubject);
+  aFields.newsgroup = UnescapeAndConvert(mimeConverter, escapedNewsgroup);
+  aFields.reference = UnescapeAndConvert(mimeConverter, escapedReference);
+
+  // Fold in-reply-to into references, but don't duplicate if it's already
+  // the last entry.
+  if (!escapedInReplyTo.IsEmpty()) {
+    nsCString inReplyTo;
+    MsgUnescapeString(escapedInReplyTo, 0, inReplyTo);
+    if (aFields.reference.IsEmpty()) {
+      aFields.reference = inReplyTo;
+    } else {
+      int32_t lastRef = aFields.reference.RFindChar('<');
+      if (lastRef == kNotFound ||
+          !StringTail(aFields.reference, lastRef).Equals(inReplyTo)) {
+        aFields.reference += " "_ns;
+        aFields.reference += inReplyTo;
+      }
+    }
+  }
+
+  if (!escapedBody.IsEmpty()) {
+    MsgUnescapeString(escapedBody, 0, aFields.body);
+  }
+  if (!escapedHtml.IsEmpty()) {
+    MsgUnescapeString(escapedHtml, 0, aFields.html);
+  }
+
+  return NS_OK;
+}
+
+}  // namespace
+
 NS_IMETHODIMP nsMsgComposeService::GetParamsForMailto(
     nsIURI* aURI, nsIMsgIdentity* aIdentity, MSG_ComposeFormat aFormat,
     nsIMsgComposeParams** aParams) {
@@ -401,98 +614,77 @@ NS_IMETHODIMP nsMsgComposeService::GetParamsForMailto(
     nsCString spec;
     aURI->GetSpec(spec);
 
-    nsCOMPtr<nsIURI> url;
-    rv = nsMailtoUrl::NewMailtoURI(spec, nullptr, getter_AddRefs(url));
+    ParsedMailtoFields fields;
+    rv = ParseMailtoSpec(spec, fields);
     NS_ENSURE_SUCCESS(rv, rv);
-    nsCOMPtr<nsIMailtoUrl> aMailtoUrl = do_QueryInterface(url, &rv);
 
-    if (NS_SUCCEEDED(rv)) {
-      MSG_ComposeFormat requestedComposeFormat = nsIMsgCompFormat::Default;
-      nsCString toPart;
-      nsCString ccPart;
-      nsCString bccPart;
-      nsCString subjectPart;
-      nsCString bodyPart;
-      nsCString newsgroup;
-      nsCString refPart;
-      nsCString HTMLBodyPart;
+    MSG_ComposeFormat requestedComposeFormat = fields.format;
 
-      aMailtoUrl->GetMessageContents(toPart, ccPart, bccPart, subjectPart,
-                                     bodyPart, HTMLBodyPart, refPart, newsgroup,
-                                     &requestedComposeFormat);
+    // Override the compose format only for URLs that do not require a
+    // specific format.
+    if (requestedComposeFormat == nsIMsgCompFormat::Default) {
+      requestedComposeFormat = aFormat;
+    }
+    bool composeHTMLFormat;
+    DetermineComposeHTML(aIdentity, requestedComposeFormat, &composeHTMLFormat);
 
-      // Override the compose format only for URLs that do not require a
-      // specific format.
-      if (requestedComposeFormat == nsIMsgCompFormat::Default) {
-        requestedComposeFormat = aFormat;
+    // If there was an 'html-body' param, finding it will have set HTML
+    // format, so we try to use it first. If it's empty, but we are composing
+    // in HTML because of the user's prefs, the 'body' param needs to be
+    // escaped, since it's supposed to be plain text.
+    nsString rawBody;
+    nsAutoString sanitizedBody;
+    if (fields.html.IsEmpty()) {
+      if (composeHTMLFormat) {
+        nsCString escaped;
+        nsAppendEscapedHTML(fields.body, escaped);
+        CopyUTF8toUTF16(escaped, sanitizedBody);
+      } else {
+        CopyUTF8toUTF16(fields.body, rawBody);
       }
-      bool composeHTMLFormat;
-      DetermineComposeHTML(aIdentity, requestedComposeFormat,
-                           &composeHTMLFormat);
+    } else {
+      CopyUTF8toUTF16(fields.html, rawBody);
+    }
 
-      // If there was an 'html-body' param, finding it will have requested
-      // HTML format in GetMessageContents, so we try to use it first. If it's
-      // empty, but we are composing in HTML because of the user's prefs, the
-      // 'body' param needs to be escaped, since it's supposed to be plain
-      // text, but it then doesn't need to sanitized.
-      nsString rawBody;
-      nsAutoString sanitizedBody;
-      if (HTMLBodyPart.IsEmpty()) {
-        if (composeHTMLFormat) {
-          nsCString escaped;
-          nsAppendEscapedHTML(bodyPart, escaped);
-          CopyUTF8toUTF16(escaped, sanitizedBody);
-        } else
-          CopyUTF8toUTF16(bodyPart, rawBody);
-      } else
-        CopyUTF8toUTF16(HTMLBodyPart, rawBody);
+    if (!rawBody.IsEmpty() && composeHTMLFormat) {
+      // For security reasons, we must sanitize the message body before
+      // accepting any HTML.
+      rv = HTMLSanitize(rawBody, sanitizedBody);  // from mimemoz2.h
+      if (NS_FAILED(rv)) {
+        // Something went wrong with parsing; fall back to plain text compose.
+        composeHTMLFormat = false;
+      }
+    }
 
-      if (!rawBody.IsEmpty() && composeHTMLFormat) {
-        // For security reason, we must sanitize the message body before
-        // accepting any html...
-
-        rv = HTMLSanitize(rawBody, sanitizedBody);  // from mimemoz2.h
-
-        if (NS_FAILED(rv)) {
-          // Something went horribly wrong with parsing for html format
-          // in the body.  Set composeHTMLFormat to false so we show the
-          // plain text mail compose.
-          composeHTMLFormat = false;
-        }
+    nsCOMPtr<nsIMsgComposeParams> pMsgComposeParams(do_CreateInstance(
+        "@mozilla.org/messengercompose/composeparams;1", &rv));
+    if (NS_SUCCEEDED(rv) && pMsgComposeParams) {
+      pMsgComposeParams->SetType(nsIMsgCompType::MailToUrl);
+      pMsgComposeParams->SetFormat(composeHTMLFormat
+                                       ? nsIMsgCompFormat::HTML
+                                       : nsIMsgCompFormat::PlainText);
+      if (aIdentity) {
+        pMsgComposeParams->SetIdentity(aIdentity);
       }
 
-      nsCOMPtr<nsIMsgComposeParams> pMsgComposeParams(do_CreateInstance(
-          "@mozilla.org/messengercompose/composeparams;1", &rv));
-      if (NS_SUCCEEDED(rv) && pMsgComposeParams) {
-        pMsgComposeParams->SetType(nsIMsgCompType::MailToUrl);
-        pMsgComposeParams->SetFormat(composeHTMLFormat
-                                         ? nsIMsgCompFormat::HTML
-                                         : nsIMsgCompFormat::PlainText);
-        if (aIdentity) {
-          pMsgComposeParams->SetIdentity(aIdentity);
-        }
+      nsCOMPtr<nsIMsgCompFields> pMsgCompFields(do_CreateInstance(
+          "@mozilla.org/messengercompose/composefields;1", &rv));
+      if (pMsgCompFields) {
+        pMsgCompFields->SetTo(NS_ConvertUTF8toUTF16(fields.to));
+        pMsgCompFields->SetCc(NS_ConvertUTF8toUTF16(fields.cc));
+        pMsgCompFields->SetBcc(NS_ConvertUTF8toUTF16(fields.bcc));
+        pMsgCompFields->SetNewsgroups(NS_ConvertUTF8toUTF16(fields.newsgroup));
+        pMsgCompFields->SetReferences(fields.reference.get());
+        pMsgCompFields->SetSubject(NS_ConvertUTF8toUTF16(fields.subject));
+        pMsgCompFields->SetBody(composeHTMLFormat ? sanitizedBody : rawBody);
+        pMsgComposeParams->SetComposeFields(pMsgCompFields);
 
-        nsCOMPtr<nsIMsgCompFields> pMsgCompFields(do_CreateInstance(
-            "@mozilla.org/messengercompose/composefields;1", &rv));
-        if (pMsgCompFields) {
-          // ugghh more conversion work!!!!
-          pMsgCompFields->SetTo(NS_ConvertUTF8toUTF16(toPart));
-          pMsgCompFields->SetCc(NS_ConvertUTF8toUTF16(ccPart));
-          pMsgCompFields->SetBcc(NS_ConvertUTF8toUTF16(bccPart));
-          pMsgCompFields->SetNewsgroups(NS_ConvertUTF8toUTF16(newsgroup));
-          pMsgCompFields->SetReferences(refPart.get());
-          pMsgCompFields->SetSubject(NS_ConvertUTF8toUTF16(subjectPart));
-          pMsgCompFields->SetBody(composeHTMLFormat ? sanitizedBody : rawBody);
-          pMsgComposeParams->SetComposeFields(pMsgCompFields);
+        NS_ADDREF(*aParams = pMsgComposeParams);
+        return NS_OK;
+      }
+    }
+  }
 
-          NS_ADDREF(*aParams = pMsgComposeParams);
-          return NS_OK;
-        }
-      }  // if we created msg compose params....
-    }  // if we had a mailto url
-  }  // if we had a url...
-
-  // if we got here we must have encountered an error
   *aParams = nullptr;
   return NS_ERROR_FAILURE;
 }

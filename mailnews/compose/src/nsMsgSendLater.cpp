@@ -18,7 +18,6 @@
 #include "nsMsgUtils.h"
 #include "nsMailHeaders.h"
 #include "nsMsgPrompts.h"
-#include "nsISmtpUrl.h"
 #include "nsIChannel.h"
 #include "nsNetUtil.h"
 #include "nsString.h"

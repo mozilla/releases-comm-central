@@ -12,8 +12,6 @@
 #include "nsIMimeStreamConverter.h"
 #include "nsInterfaceHashtable.h"
 
-#include "nsICommandLineHandler.h"
-
 class nsMsgComposeService : public nsIMsgComposeService,
                             public nsSupportsWeakReference {
  public:
