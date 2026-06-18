@@ -877,6 +877,10 @@ export var MailUtils = {
    */
   handleNewsUri(uri, win) {
     // @see {@link https://datatracker.ietf.org/doc/html/rfc5538#section-2.2}
+    if (!URL.canParse(uri)) {
+      console.warn(`Malformed news URI: ${uri}`);
+      return;
+    }
     const url = new URL(uri);
     if (url.pathname.length <= 1) {
       return;

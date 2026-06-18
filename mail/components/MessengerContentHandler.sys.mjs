@@ -572,6 +572,10 @@ export class MessengerContentHandler {
         getOrOpen3PaneWindow().then(win => {
           lazy.MailUtils.handleNewsUri(uri, win);
         });
+      } else if (uri?.startsWith("news:") || uri?.startsWith("snews:")) {
+        // url is null, so the URI is malformed (e.g. bare "news:" with no
+        // message-id or newsgroup).  Don't pass it to handleNewsUri.
+        console.error(`Malformed news URI from command line: ${uri}`);
       } else if (/^(web|ext)\+[a-z]+:/.test(url?.protocol)) {
         getOrOpen3PaneWindow().then(win => {
           win.gTabmail.openTab("contentTab", {

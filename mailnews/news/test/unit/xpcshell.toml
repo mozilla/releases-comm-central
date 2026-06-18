@@ -23,6 +23,8 @@ run-sequentially = true  # Restarts server twice--may work but dangerous
 
 ["test_getNewsMessage.js"]
 
+["test_handleNewsUri.js"]
+
 ["test_internalUris.js"]
 
 ["test_newsAutocomplete.js"]
