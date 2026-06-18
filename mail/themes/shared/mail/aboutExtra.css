@@ -15,6 +15,16 @@ body {
 .main-search,
 .main-heading {
   background: var(--layout-background-0);
+  /* Nova overrides */
+  --button-background-color: transparent;
+  --button-background-color-ghost: transparent;
+  --button-background-color-ghost-hover: var(--button-background-color-hover);
+  --button-background-color-ghost-active: var(--button-background-color-active);
+  --button-border-color-ghost: var(--button-border-color);
+  --button-border-color-ghost-hover: var(--button-border-color-hover);
+  --button-border-color-ghost-active: var(--button-border-color-active);
+  --button-icon-fill: color-mix(in srgb, currentColor 20%, transparent);
+  --button-icon-stroke: currentColor;
 }
 
 #full {
@@ -38,15 +48,6 @@ button[name="plugin"] {
   --main-margin-start: 28px;
 }
 
-.page-options-menu > .more-options-button {
-  background-size: 24px;
-  inline-size: 32px;
-  block-size: 32px;
-  border: none;
-  background-color: transparent;
-  background-image: var(--icon-more);
-}
-
 /* Hide in extension details the private browsing section */
 section > .addon-detail-row-private-browsing,
 .addon-detail-row-private-browsing + .addon-detail-row.addon-detail-help-row {
@@ -56,6 +57,10 @@ section > .addon-detail-row-private-browsing,
 /* Hide the options entry in the options menu, as we have a dedicated button */
 addon-options panel-item[action="preferences"] {
   display: none;
+}
+
+.theme-enable-button {
+  --button-border: none;
 }
 
 .extension-options-button {
@@ -88,7 +93,7 @@ recommended-addon-card .addon.card:hover {
 panel-list {
   --panel-list-background-color: var(--color-surface-subtle);
   --panel-list-color: var(--color-text-base);
-  --panel-list-border-color: var(--color-surface-border-intense);
+  --panel-list-border-color: var(--color-surface-border);
   --panel-list-border-radius: 8px;
   padding: 4px;
 }
