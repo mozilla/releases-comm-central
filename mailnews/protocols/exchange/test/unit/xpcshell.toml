@@ -3,6 +3,8 @@ head = "head.js"
 support-files = ["data/*"]
 prefs = ["mail.graph.enabled=true"]
 
+["test_autosync.js"]
+
 ["test_client.js"]
 
 ["test_delete_model_trash_path.js"]
