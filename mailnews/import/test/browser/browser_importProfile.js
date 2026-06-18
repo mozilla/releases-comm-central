@@ -4,8 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-// Writing the fake zip and deleting it can take some time.
-requestLongerTimeout(5);
+requestLongerTimeout(2);
 
 const { MockFilePicker } = ChromeUtils.importESModule(
   "resource://testing-common/MockFilePicker.sys.mjs"
@@ -138,6 +137,13 @@ add_task(async function testProfileImport() {
 
   checkSteps(importDocument, 2, 4);
   checkVisiblePane(importDocument, "tabPane-app", "app-profiles");
+  await importDocument.l10n.translateElements([
+    importDocument.getElementById("profilesPaneTitle"),
+    importDocument.getElementById("profilesPaneSubtitle"),
+  ]);
+  importDocument
+    .getElementById("profileNextButton")
+    .scrollIntoView({ block: "end", behavior: "instant" });
   ok(
     BrowserTestUtils.isVisible(
       importDocument.getElementById("profileBackButton")
@@ -192,6 +198,16 @@ add_task(async function testProfileImport() {
     {},
     tab.browser
   );
+
+  const profilesStep = importDocument.getElementById("app-profiles");
+  await BrowserTestUtils.waitForMutationCondition(
+    profilesStep,
+    { attributes: true },
+    () => BrowserTestUtils.isVisible(profilesStep)
+  );
+  importDocument
+    .getElementById("profileNextButton")
+    .scrollIntoView({ block: "end", behavior: "instant" });
 
   MockFilePicker.setFiles([await IOUtils.getFile(profileDir)]);
   await BrowserTestUtils.synthesizeMouseAtCenter(
@@ -314,33 +330,31 @@ add_task(async function testImportLargeZIP() {
     "profile-tmp"
   );
   const profileZip = PathUtils.join(profileDir, "profile.zip");
-  // This block makes sure the ZIP file's fake contents go out of scope once
-  // written out.
-  {
-    const halfAGigabyte = new Uint8Array(2 ** 29);
-    await IOUtils.write(profileZip, halfAGigabyte);
-    info("ZIP is 0.5 GB big now");
-    for (let i = 0; i < 3; ++i) {
-      await IOUtils.write(profileZip, halfAGigabyte, { mode: "append" });
-      info(`ZIP is ${(i + 2) * 0.5} GB big now`);
-    }
-  }
-  await IOUtils.write(
-    profileZip,
-    new Uint8Array(2), // These are extra bytes beyond 2 GB
-    {
-      mode: "append",
-    }
-  );
-  const filePath = Services.io
-    .newURI(PathUtils.toFileURI(profileZip))
-    .QueryInterface(Ci.nsIFileURL);
-  MockFilePicker.setFiles([filePath.file]);
   registerCleanupFunction(async () => {
     await IOUtils.remove(profileDir, {
       recursive: true,
     });
   });
+  // Create a sparse file just over 2 GB. The importer rejects files based on
+  // fileSize metadata, so we don't need to actually write 2 GB of bytes.
+  const zipNsFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+  zipNsFile.initWithPath(profileZip);
+  const fos = Cc["@mozilla.org/network/file-output-stream;1"].createInstance(
+    Ci.nsIFileOutputStream
+  );
+  const PR_WRONLY = 0x2;
+  const PR_CREATE_FILE = 0x08;
+  const PR_TRUNCATE = 0x20;
+  fos.init(zipNsFile, PR_WRONLY | PR_CREATE_FILE | PR_TRUNCATE, 0o644, 0);
+  fos
+    .QueryInterface(Ci.nsISeekableStream)
+    .seek(Ci.nsISeekableStream.NS_SEEK_SET, 2 * 1024 * 1024 * 1024);
+  fos.write("\x00", 1);
+  fos.close();
+  const filePath = Services.io
+    .newURI(PathUtils.toFileURI(profileZip))
+    .QueryInterface(Ci.nsIFileURL);
+  MockFilePicker.setFiles([filePath.file]);
 
   const tab = await new Promise(resolve => {
     const newTab = window.openTab("contentTab", {
@@ -379,6 +393,13 @@ add_task(async function testImportLargeZIP() {
 
   checkSteps(importDocument, 2, 4);
   checkVisiblePane(importDocument, "tabPane-app", "app-profiles");
+  await importDocument.l10n.translateElements([
+    importDocument.getElementById("profilesPaneTitle"),
+    importDocument.getElementById("profilesPaneSubtitle"),
+  ]);
+  importDocument
+    .getElementById("profileNextButton")
+    .scrollIntoView({ block: "end", behavior: "instant" });
   ok(
     BrowserTestUtils.isVisible(
       importDocument.getElementById("profileBackButton")
@@ -448,19 +469,45 @@ add_task(async function testImportModules() {
     );
 
     if (source.value != "file") {
+      const appPane = importDocument.getElementById("tabPane-app");
+      await BrowserTestUtils.waitForMutationCondition(
+        appPane,
+        { attributes: true },
+        () => BrowserTestUtils.isVisible(appPane)
+      );
       checkVisiblePane(importDocument, "tabPane-app", "app-profiles");
+      await importDocument.l10n.translateElements([
+        importDocument.getElementById("profilesPaneTitle"),
+        importDocument.getElementById("profilesPaneSubtitle"),
+      ]);
+      importDocument
+        .getElementById("profileNextButton")
+        .scrollIntoView({ block: "end", behavior: "instant" });
       Assert.ok(
         BrowserTestUtils.isVisible(
           importDocument.getElementById("profileBackButton")
         ),
         "Back button is visible"
       );
+      // XXX: may need to use profileBackButton.click()
       await BrowserTestUtils.synthesizeMouseAtCenter(
         "#profileBackButton",
         {},
         tab.browser
       );
+      const startPane = importDocument.getElementById("tabPane-start");
+      await BrowserTestUtils.waitForMutationCondition(
+        startPane,
+        { attributes: true },
+        () => BrowserTestUtils.isVisible(startPane)
+      );
     } else {
+      const startFile = importDocument.getElementById("start-file");
+      await BrowserTestUtils.waitForMutationCondition(
+        startFile,
+        { attributes: true },
+        () => BrowserTestUtils.isVisible(startFile)
+      );
       checkVisiblePane(importDocument, "tabPane-start", "start-file");
       Assert.ok(
         BrowserTestUtils.isVisible(
@@ -472,6 +519,12 @@ add_task(async function testImportModules() {
         "#startBackButton",
         {},
         tab.browser
+      );
+      const sourcesStep = importDocument.getElementById("start-sources");
+      await BrowserTestUtils.waitForMutationCondition(
+        sourcesStep,
+        { attributes: true },
+        () => BrowserTestUtils.isVisible(sourcesStep)
       );
     }
 
