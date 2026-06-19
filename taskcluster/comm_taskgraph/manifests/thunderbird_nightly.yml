@@ -54,19 +54,15 @@ platform_names:
     filename_platform:
         by-platform:
             linux64-shippable: 'linux-x86_64'
-            linux64-aarch64-shippable: 'linux-aarch64'
             macosx64-shippable: 'mac'
             win32-shippable: 'win32'
             win64-shippable: 'win64'
-            win64-aarch64-shippable: 'win64-aarch64'
     stage_platform:
         by-platform:
             linux64-shippable: 'linux64'
-            linux64-aarch64-shippable: 'linux64-aarch64'
             macosx64-shippable: 'macosx64'
             win32-shippable: 'win32'
             win64-shippable: 'win64'
-            win64-aarch64-shippable: 'win64-aarch64'
 
 default: &default
     from:
@@ -200,7 +196,6 @@ mapping:
         not_for_platforms:
             - win32-shippable
             - win64-shippable
-            - win64-aarch64-shippable
         destinations:
             - ${year}/${month}/${upload_date}-${branch}/mar-tools/${stage_platform}
             - latest-${branch}/mar-tools/${stage_platform}
@@ -213,7 +208,6 @@ mapping:
         not_for_platforms:
             - win32-shippable
             - win64-shippable
-            - win64-aarch64-shippable
         destinations:
             - ${year}/${month}/${upload_date}-${branch}/mar-tools/${stage_platform}
             - latest-${branch}/mar-tools/${stage_platform}
@@ -225,7 +219,6 @@ mapping:
             - signing
         only_for_platforms:
             - linux64-shippable
-            - linux64-aarch64-shippable
         pretty_name: thunderbird-${version}.${locale}.${filename_platform}.tar.xz
         checksums_path: thunderbird-${version}.${locale}.${filename_platform}.tar.xz
         destinations:
@@ -245,7 +238,6 @@ mapping:
             - signing
         only_for_platforms:
             - linux64-shippable
-            - linux64-aarch64-shippable
         pretty_name: thunderbird-${version}.${locale}.${filename_platform}.tar.xz.asc
         checksums_path: thunderbird-${version}.${locale}.${filename_platform}.tar.xz.asc
         destinations:
@@ -304,7 +296,6 @@ mapping:
         only_for_platforms:
             - win64-shippable
             - win32-shippable
-            - win64-aarch64-shippable
         pretty_name: thunderbird-${version}.${locale}.${filename_platform}.zip
         checksums_path: thunderbird-${version}.${locale}.${filename_platform}.zip
     target.installer.exe:
@@ -316,7 +307,6 @@ mapping:
         only_for_platforms:
             - win64-shippable
             - win32-shippable
-            - win64-aarch64-shippable
         pretty_name: thunderbird-${version}.${locale}.${filename_platform}.installer.exe
         checksums_path: thunderbird-${version}.${locale}.${filename_platform}.installer.exe
         destinations:
