@@ -634,3 +634,59 @@ win64-aarch64/opt:
             - winappsdk-aarch64-pc-windows-msvc
     optimization:
         never: null
+
+win64-aarch64-shippable/opt:
+    description: "AArch64 Win64 Opt Shippable"
+    index:
+        product: thunderbird
+        job-name: win64-aarch64-opt
+        type: shippable
+    attributes:
+        shippable: true
+        enable-build-signing: true
+        enable-full-crashsymbols: true
+        skip-verify-test-packaging: true
+    shipping-phase: build
+    shipping-product: thunderbird
+    treeherder:
+        platform: windows2012-aarch64-shippable/opt
+        symbol: B
+        tier: 1
+    worker-type: b-linux
+    worker:
+        max-run-time: 9000
+        env:
+            PERFHERDER_EXTRA_OPTIONS: aarch64
+            RUST_MIN_STACK: "16777216"
+            MOZ_AUTOMATION_PACKAGE_TESTS: "1"
+    run:
+        actions: [build]
+        options: [append-env-variables-from-configs]
+        script: mozharness/scripts/fx_desktop_build.py
+        config:
+            - builds/taskcluster_base_thunderbird.py
+            - builds/releng_base_linux_64_builds.py
+            - taskcluster_nightly.py
+        extra-config:
+            stage_platform: win64-aarch64
+            mozconfig_platform: win64-aarch64
+    run-on-projects: ['comm-central']
+    optimization:
+        never: null
+    fetches:
+        toolchain:
+            - linux64-7zz
+            - linux64-cbindgen
+            - linux64-clang
+            - linux64-dump_syms
+            - linux64-nasm
+            - linux64-node
+            - linux64-rust-cross
+            - linux64-rust-size
+            - linux64-upx
+            - linux64-winchecksec
+            - linux64-wine
+            - sysroot-wasm32-wasi
+            - sysroot-x86_64-linux-gnu
+            - terser
+            - winappsdk-aarch64-pc-windows-msvc
