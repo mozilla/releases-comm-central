@@ -10,6 +10,38 @@ const { cloudFileAccounts } = ChromeUtils.importESModule(
   "resource:///modules/cloudFileAccounts.sys.mjs"
 );
 
+// The Thundermail system add-on (bug 2036665) auto-registers a "Thunderbird
+// Send" cloud_file provider, breaking the test assumption of a known set of
+// providers. It's a system add-on and can't be disabled, so unregister the
+// provider for the run and restore it on cleanup. Since the add-on starts
+// asynchronously, the provider can appear after add_setup runs, so a
+// providerRegistered listener unregisters it again whenever it reappears.
+const BUILTIN_PROVIDER_TYPE = "ext-tbpro-system-add-on@thunderbird.net";
+
+add_setup(function suppressBuiltInProvider() {
+  let captured = null;
+  function suppress() {
+    const provider = cloudFileAccounts.getProviderForType(
+      BUILTIN_PROVIDER_TYPE
+    );
+    if (provider) {
+      captured = provider;
+      cloudFileAccounts.unregisterProvider(BUILTIN_PROVIDER_TYPE);
+    }
+  }
+  suppress();
+  cloudFileAccounts.on("providerRegistered", suppress);
+  registerCleanupFunction(() => {
+    cloudFileAccounts.off("providerRegistered", suppress);
+    if (
+      captured &&
+      !cloudFileAccounts.getProviderForType(BUILTIN_PROVIDER_TYPE)
+    ) {
+      cloudFileAccounts.registerProvider(BUILTIN_PROVIDER_TYPE, captured);
+    }
+  });
+});
+
 function ManagementScript() {
   browser.test.onMessage.addListener((message, assertMessage, browserStyle) => {
     if (message !== "check-style") {
