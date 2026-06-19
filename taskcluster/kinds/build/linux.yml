@@ -256,6 +256,46 @@ linux64-aarch64/opt:
             - sysroot-x86_64-linux-gnu
             - terser
 
+linux64-aarch64-shippable/opt:
+    description: "Linux64 aarch64 Shippable"
+    attributes:
+        shippable: true
+        enable-full-crashsymbols: true
+        skip-verify-test-packaging: true
+    shipping-phase: build
+    shipping-product: thunderbird
+    index:
+        product: thunderbird
+        job-name: linux64-aarch64-opt
+        type: shippable
+    treeherder:
+        platform: linux64-aarch64-shippable/opt
+        symbol: B
+    worker:
+        max-run-time: 9000
+        env:
+            MOZ_AUTOMATION_PACKAGE_TESTS: "1"
+            MOZ_ENABLE_FULL_SYMBOLS: "1"
+    run:
+        config:
+            - builds/taskcluster_base_thunderbird.py
+            - builds/releng_base_linux_64_builds.py
+            - taskcluster_nightly.py
+        extra-config:
+            mozconfig_platform: linux64-aarch64
+        tooltool-downloads: public
+    run-on-projects: ['comm-central']
+    optimization:
+        never: null
+    fetches:
+        toolchain:
+            - linux-aarch64-libotr
+            - linux64-llvm-symbolizer
+            - linux64-rust
+            - sysroot-aarch64-linux-gnu
+            - sysroot-x86_64-linux-gnu
+            - terser
+
 linux64-ccov/opt:
     description: "Linux64-CCov Opt"
     index:
