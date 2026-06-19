@@ -76,16 +76,12 @@ fn happy_eyeballs_debug() {
 
     // Drive through DNS queries, feed HTTPS+ECH and AAAA to get a connection
     // attempt that carries ECH config.
+    expect_initial_dns_queries(&mut he2, now2);
     he2.expect(
-        vec![
-            (None, Some(out_send_dns_https(Id::from(0)))),
-            (None, Some(out_send_dns_aaaa(Id::from(1)))),
-            (None, Some(out_send_dns_a(Id::from(2)))),
-            (
-                Some(in_dns_https_positive_ech(Id::from(0))),
-                Some(out_resolution_delay()),
-            ),
-        ],
+        vec![(
+            Some(in_dns_https_positive_ech(Id::from(0))),
+            Some(out_resolution_delay()),
+        )],
         now2,
     );
 

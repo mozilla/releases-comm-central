@@ -12,11 +12,9 @@ use happy_eyeballs::{
 fn all_dns_failed() {
     let (now, mut he) = setup();
 
+    expect_initial_dns_queries(&mut he, now);
     he.expect(
         vec![
-            (None, Some(out_send_dns_https(Id::from(0)))),
-            (None, Some(out_send_dns_aaaa(Id::from(1)))),
-            (None, Some(out_send_dns_a(Id::from(2)))),
             (
                 Some(in_dns_https_negative(Id::from(0))),
                 Some(out_resolution_delay()),
@@ -39,11 +37,9 @@ fn all_dns_failed() {
 fn dns_partial_failure_then_connection_failed() {
     let (now, mut he) = setup();
 
+    expect_initial_dns_queries(&mut he, now);
     he.expect(
         vec![
-            (None, Some(out_send_dns_https(Id::from(0)))),
-            (None, Some(out_send_dns_aaaa(Id::from(1)))),
-            (None, Some(out_send_dns_a(Id::from(2)))),
             (
                 Some(in_dns_https_negative(Id::from(0))),
                 Some(out_resolution_delay()),
@@ -70,11 +66,9 @@ fn dns_partial_failure_then_connection_failed() {
 fn all_connections_failed() {
     let (now, mut he) = setup();
 
+    expect_initial_dns_queries(&mut he, now);
     he.expect(
         vec![
-            (None, Some(out_send_dns_https(Id::from(0)))),
-            (None, Some(out_send_dns_aaaa(Id::from(1)))),
-            (None, Some(out_send_dns_a(Id::from(2)))),
             (
                 Some(in_dns_https_positive_no_alpn(Id::from(0))),
                 Some(out_resolution_delay()),
@@ -136,11 +130,9 @@ fn ip_host_connection_failure() {
 fn first_connection_fails_second_succeeds() {
     let (now, mut he) = setup();
 
+    expect_initial_dns_queries(&mut he, now);
     he.expect(
         vec![
-            (None, Some(out_send_dns_https(Id::from(0)))),
-            (None, Some(out_send_dns_aaaa(Id::from(1)))),
-            (None, Some(out_send_dns_a(Id::from(2)))),
             (
                 Some(in_dns_https_positive_no_alpn(Id::from(0))),
                 Some(out_resolution_delay()),

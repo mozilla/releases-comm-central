@@ -15,11 +15,9 @@ use happy_eyeballs::{
 fn ipv6_blackhole() {
     let (mut now, mut he) = setup();
 
+    expect_initial_dns_queries(&mut he, now);
     he.expect(
         vec![
-            (None, Some(out_send_dns_https(Id::from(0)))),
-            (None, Some(out_send_dns_aaaa(Id::from(1)))),
-            (None, Some(out_send_dns_a(Id::from(2)))),
             (
                 Some(in_dns_https_positive(Id::from(0))),
                 Some(out_resolution_delay()),
@@ -51,11 +49,9 @@ fn ipv6_blackhole() {
 fn connection_attempt_delay() {
     let (mut now, mut he) = setup();
 
+    expect_initial_dns_queries(&mut he, now);
     he.expect(
         vec![
-            (None, Some(out_send_dns_https(Id::from(0)))),
-            (None, Some(out_send_dns_aaaa(Id::from(1)))),
-            (None, Some(out_send_dns_a(Id::from(2)))),
             (
                 Some(in_dns_https_positive_no_alpn(Id::from(0))),
                 Some(out_resolution_delay()),
@@ -81,11 +77,9 @@ fn connection_attempt_delay() {
 fn never_try_same_attempt_twice() {
     let (mut now, mut he) = setup();
 
+    expect_initial_dns_queries(&mut he, now);
     he.expect(
         vec![
-            (None, Some(out_send_dns_https(Id::from(0)))),
-            (None, Some(out_send_dns_aaaa(Id::from(1)))),
-            (None, Some(out_send_dns_a(Id::from(2)))),
             (
                 Some(in_dns_https_negative(Id::from(0))),
                 Some(out_resolution_delay()),
@@ -111,11 +105,9 @@ fn never_try_same_attempt_twice() {
 fn successful_connection_cancels_others() {
     let (mut now, mut he) = setup();
 
+    expect_initial_dns_queries(&mut he, now);
     he.expect(
         vec![
-            (None, Some(out_send_dns_https(Id::from(0)))),
-            (None, Some(out_send_dns_aaaa(Id::from(1)))),
-            (None, Some(out_send_dns_a(Id::from(2)))),
             (
                 Some(in_dns_https_positive_no_alpn(Id::from(0))),
                 Some(out_resolution_delay()),
@@ -171,11 +163,9 @@ fn successful_connection_cancels_others() {
 fn failed_connection_tries_next_immediately() {
     let (now, mut he) = setup();
 
+    expect_initial_dns_queries(&mut he, now);
     he.expect(
         vec![
-            (None, Some(out_send_dns_https(Id::from(0)))),
-            (None, Some(out_send_dns_aaaa(Id::from(1)))),
-            (None, Some(out_send_dns_a(Id::from(2)))),
             (
                 Some(in_dns_https_positive_no_alpn(Id::from(0))),
                 Some(out_resolution_delay()),
@@ -205,11 +195,9 @@ fn failed_connection_tries_next_immediately() {
 fn successful_connection_emits_succeeded() {
     let (now, mut he) = setup();
 
+    expect_initial_dns_queries(&mut he, now);
     he.expect(
         vec![
-            (None, Some(out_send_dns_https(Id::from(0)))),
-            (None, Some(out_send_dns_aaaa(Id::from(1)))),
-            (None, Some(out_send_dns_a(Id::from(2)))),
             (
                 Some(in_dns_https_positive_no_alpn(Id::from(0))),
                 Some(out_resolution_delay()),
@@ -231,11 +219,9 @@ fn successful_connection_emits_succeeded() {
 fn succeeded_keeps_emitting_succeeded() {
     let (now, mut he) = setup();
 
+    expect_initial_dns_queries(&mut he, now);
     he.expect(
         vec![
-            (None, Some(out_send_dns_https(Id::from(0)))),
-            (None, Some(out_send_dns_aaaa(Id::from(1)))),
-            (None, Some(out_send_dns_a(Id::from(2)))),
             (
                 Some(in_dns_https_positive_no_alpn(Id::from(0))),
                 Some(out_resolution_delay()),
@@ -267,11 +253,9 @@ fn connection_attempt_delay_partial_elapsed() {
     });
 
     // Drive to first connection attempt at time T=now.
+    expect_initial_dns_queries(&mut he, now);
     he.expect(
         vec![
-            (None, Some(out_send_dns_https(Id::from(0)))),
-            (None, Some(out_send_dns_aaaa(Id::from(1)))),
-            (None, Some(out_send_dns_a(Id::from(2)))),
             (
                 Some(in_dns_https_negative(Id::from(0))),
                 Some(out_resolution_delay()),
@@ -300,11 +284,9 @@ fn connection_attempt_delay_partial_elapsed() {
 fn cancelled_connection_result_ignored() {
     let (mut now, mut he) = setup();
 
+    expect_initial_dns_queries(&mut he, now);
     he.expect(
         vec![
-            (None, Some(out_send_dns_https(Id::from(0)))),
-            (None, Some(out_send_dns_aaaa(Id::from(1)))),
-            (None, Some(out_send_dns_a(Id::from(2)))),
             (
                 Some(in_dns_https_positive_no_alpn(Id::from(0))),
                 Some(out_resolution_delay()),

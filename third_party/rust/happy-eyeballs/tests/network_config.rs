@@ -54,11 +54,9 @@ fn alt_svc_used_immediately() {
     let mut he = HappyEyeballs::new_with_network_config(HOSTNAME, PORT, config).unwrap();
 
     // Alt-svc with H3 should make H3 available even without HTTPS DNS response
+    expect_initial_dns_queries(&mut he, now);
     he.expect(
         vec![
-            (None, Some(out_send_dns_https(Id::from(0)))),
-            (None, Some(out_send_dns_aaaa(Id::from(1)))),
-            (None, Some(out_send_dns_a(Id::from(2)))),
             (
                 Some(in_dns_https_negative(Id::from(0))),
                 Some(out_resolution_delay()),
@@ -93,11 +91,9 @@ fn alt_svc_with_port() {
     };
     let (mut now, mut he) = setup_with_config(config);
 
+    expect_initial_dns_queries(&mut he, now);
     he.expect(
         vec![
-            (None, Some(out_send_dns_https(Id::from(0)))),
-            (None, Some(out_send_dns_aaaa(Id::from(1)))),
-            (None, Some(out_send_dns_a(Id::from(2)))),
             (
                 Some(in_dns_https_negative(Id::from(0))),
                 Some(out_resolution_delay()),
@@ -226,19 +222,15 @@ fn custom_delays() {
         ..NetworkConfig::default()
     });
 
+    expect_initial_dns_queries(&mut he, now);
     he.expect(
-        vec![
-            (None, Some(out_send_dns_https(Id::from(0)))),
-            (None, Some(out_send_dns_aaaa(Id::from(1)))),
-            (None, Some(out_send_dns_a(Id::from(2)))),
-            (
-                Some(in_dns_a_positive(Id::from(2))),
-                // Should use the custom resolution delay, not the default 50ms.
-                Some(Output::Timer {
-                    duration: custom_resolution_delay,
-                }),
-            ),
-        ],
+        vec![(
+            Some(in_dns_a_positive(Id::from(2))),
+            // Should use the custom resolution delay, not the default 50ms.
+            Some(Output::Timer {
+                duration: custom_resolution_delay,
+            }),
+        )],
         now,
     );
 

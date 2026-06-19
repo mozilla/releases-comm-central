@@ -21,13 +21,9 @@ fn expect_hints_move_on_with_timeout(
     https_input: Input,
     expected_attempt: Output,
 ) {
+    expect_initial_dns_queries(he, *now);
     he.expect(
-        vec![
-            (None, Some(out_send_dns_https(Id::from(0)))),
-            (None, Some(out_send_dns_aaaa(Id::from(1)))),
-            (None, Some(out_send_dns_a(Id::from(2)))),
-            (Some(https_input), Some(out_resolution_delay())),
-        ],
+        vec![(Some(https_input), Some(out_resolution_delay()))],
         *now,
     );
     *now += RESOLUTION_DELAY;
@@ -55,14 +51,7 @@ fn initial_state() {
 fn sendig_dns_queries() {
     let (now, mut he) = setup();
 
-    he.expect(
-        vec![
-            (None, Some(out_send_dns_https(Id::from(0)))),
-            (None, Some(out_send_dns_aaaa(Id::from(1)))),
-            (None, Some(out_send_dns_a(Id::from(2)))),
-        ],
-        now,
-    );
+    expect_initial_dns_queries(&mut he, now);
 }
 
 /// > Implementations SHOULD NOT wait for all answers to return before
@@ -73,11 +62,9 @@ fn sendig_dns_queries() {
 fn dont_wait_for_all_dns_answers() {
     let (now, mut he) = setup();
 
+    expect_initial_dns_queries(&mut he, now);
     he.expect(
         vec![
-            (None, Some(out_send_dns_https(Id::from(0)))),
-            (None, Some(out_send_dns_aaaa(Id::from(1)))),
-            (None, Some(out_send_dns_a(Id::from(2)))),
             (
                 Some(in_dns_https_positive(Id::from(0))),
                 Some(out_resolution_delay()),
@@ -188,11 +175,9 @@ fn move_on_non_timeout() {
         ] {
             let (now, mut he) = setup_with_config(test_case.address_family.clone());
 
+            expect_initial_dns_queries(&mut he, now);
             he.expect(
                 vec![
-                    (None, Some(out_send_dns_https(Id::from(0)))),
-                    (None, Some(out_send_dns_aaaa(Id::from(1)))),
-                    (None, Some(out_send_dns_a(Id::from(2)))),
                     (
                         Some(test_case.positive.clone()),
                         Some(out_resolution_delay()),
@@ -217,16 +202,12 @@ fn move_on_non_timeout() {
 fn move_on_timeout() {
     let (mut now, mut he) = setup();
 
+    expect_initial_dns_queries(&mut he, now);
     he.expect(
-        vec![
-            (None, Some(out_send_dns_https(Id::from(0)))),
-            (None, Some(out_send_dns_aaaa(Id::from(1)))),
-            (None, Some(out_send_dns_a(Id::from(2)))),
-            (
-                Some(in_dns_a_positive(Id::from(2))),
-                Some(out_resolution_delay()),
-            ),
-        ],
+        vec![(
+            Some(in_dns_a_positive(Id::from(2))),
+            Some(out_resolution_delay()),
+        )],
         now,
     );
 
@@ -243,11 +224,9 @@ fn move_on_timeout() {
 fn resolution_delay_starts_after_other_response() {
     let (mut now, mut he) = setup();
 
+    expect_initial_dns_queries(&mut he, now);
     he.expect(
         vec![
-            (None, Some(out_send_dns_https(Id::from(0)))),
-            (None, Some(out_send_dns_aaaa(Id::from(1)))),
-            (None, Some(out_send_dns_a(Id::from(2)))),
             // No other response received yet.
             (None, None),
             (
@@ -274,11 +253,9 @@ fn resolution_delay_starts_on_first_response() {
     const RESPONSE_DELAY: Duration = Duration::from_millis(10);
     let (start, mut he) = setup();
 
+    expect_initial_dns_queries(&mut he, start);
     he.expect(
         vec![
-            (None, Some(out_send_dns_https(Id::from(0)))),
-            (None, Some(out_send_dns_aaaa(Id::from(1)))),
-            (None, Some(out_send_dns_a(Id::from(2)))),
             // No other response received yet.
             (None, None),
         ],
@@ -329,16 +306,12 @@ fn resolution_delay_starts_on_first_response() {
 fn https_hints() {
     let (mut now, mut he) = setup();
 
+    expect_initial_dns_queries(&mut he, now);
     he.expect(
-        vec![
-            (None, Some(out_send_dns_https(Id::from(0)))),
-            (None, Some(out_send_dns_aaaa(Id::from(1)))),
-            (None, Some(out_send_dns_a(Id::from(2)))),
-            (
-                Some(in_dns_https_positive_v4_and_v6_hints(Id::from(0))),
-                Some(out_resolution_delay()),
-            ),
-        ],
+        vec![(
+            Some(in_dns_https_positive_v4_and_v6_hints(Id::from(0))),
+            Some(out_resolution_delay()),
+        )],
         now,
     );
 
@@ -407,11 +380,9 @@ fn https_v4_hints_move_on_with_timeout() {
 fn resolution_delay_boundary() {
     let (mut now, mut he) = setup();
 
+    expect_initial_dns_queries(&mut he, now);
     he.expect(
         vec![
-            (None, Some(out_send_dns_https(Id::from(0)))),
-            (None, Some(out_send_dns_aaaa(Id::from(1)))),
-            (None, Some(out_send_dns_a(Id::from(2)))),
             // HTTPS negative and A positive arrive at T; AAAA still pending.
             (
                 Some(in_dns_https_negative(Id::from(0))),
@@ -446,16 +417,12 @@ fn resolution_delay_boundary() {
 fn https_hints_still_query_a_aaaa() {
     let (now, mut he) = setup();
 
+    expect_initial_dns_queries(&mut he, now);
     he.expect(
-        vec![
-            (None, Some(out_send_dns_https(Id::from(0)))),
-            (None, Some(out_send_dns_aaaa(Id::from(1)))),
-            (None, Some(out_send_dns_a(Id::from(2)))),
-            (
-                Some(in_dns_https_positive_svc1(Id::from(0))),
-                Some(out_send_dns_svc1(Id::from(3))),
-            ),
-        ],
+        vec![(
+            Some(in_dns_https_positive_svc1(Id::from(0))),
+            Some(out_send_dns_svc1(Id::from(3))),
+        )],
         now,
     );
 }
@@ -464,11 +431,9 @@ fn https_hints_still_query_a_aaaa() {
 fn https_h3_upgrade_without_hints() {
     let (now, mut he) = setup();
 
+    expect_initial_dns_queries(&mut he, now);
     he.expect(
         vec![
-            (None, Some(out_send_dns_https(Id::from(0)))),
-            (None, Some(out_send_dns_aaaa(Id::from(1)))),
-            (None, Some(out_send_dns_a(Id::from(2)))),
             (
                 Some(in_dns_aaaa_positive(Id::from(1))),
                 Some(out_resolution_delay()),
@@ -495,11 +460,9 @@ fn https_h3_disabled() {
         ..NetworkConfig::default()
     });
 
+    expect_initial_dns_queries(&mut he, now);
     he.expect(
         vec![
-            (None, Some(out_send_dns_https(Id::from(0)))),
-            (None, Some(out_send_dns_aaaa(Id::from(1)))),
-            (None, Some(out_send_dns_a(Id::from(2)))),
             (
                 Some(in_dns_aaaa_positive(Id::from(1))),
                 Some(out_resolution_delay()),
@@ -517,11 +480,9 @@ fn https_h3_disabled() {
 fn multiple_ips_per_record() {
     let (mut now, mut he) = setup();
 
+    expect_initial_dns_queries(&mut he, now);
     he.expect(
         vec![
-            (None, Some(out_send_dns_https(Id::from(0)))),
-            (None, Some(out_send_dns_aaaa(Id::from(1)))),
-            (None, Some(out_send_dns_a(Id::from(2)))),
             (
                 Some(in_dns_https_negative(Id::from(0))),
                 Some(out_resolution_delay()),
@@ -631,11 +592,7 @@ fn single_stack_target_name_skips_disabled_address_family() {
         Case {
             ip: IpPreference::Ipv4Only,
             origin_dns_query: out_send_dns_a(Id::from(1)),
-            target_name_dns_query: Output::SendDnsQuery {
-                id: Id::from(2),
-                hostname: SVC1.into(),
-                record_type: DnsRecordType::A,
-            },
+            target_name_dns_query: out_send_dns(Id::from(2), SVC1, DnsRecordType::A),
         },
     ];
 
