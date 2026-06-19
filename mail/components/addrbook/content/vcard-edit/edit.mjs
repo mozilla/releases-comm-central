@@ -994,6 +994,7 @@ class VCardTypeSelectionComponent extends HTMLElement {
    *   the `home`, `work` and `(None)` types. Also used to set the telemetry
    *   identifier.
    */
+  
   createTypeSelection(vCardPropertyEntry, options) {
     let template;
     let types;
@@ -1014,41 +1015,51 @@ class VCardTypeSelectionComponent extends HTMLElement {
     this.selectEl = this.querySelector("select");
     const selectId = vCardIdGen.next().value;
     this.selectEl.id = selectId;
-    this.selectEl.dataset.telemetryId = `vcard-type-selection-${options.propertyType}`;
 
-    // Just abandon any values we don't have UI for. We don't have any way to
-    // know whether to keep them or not, and they're very rarely used.
-    const paramsType = vCardPropertyEntry.params.type;
-    // toLowerCase is called because other vCard sources are saving the type
-    // in upper case. E.g. from Google.
-    if (Array.isArray(paramsType)) {
-      const lowerCaseTypes = paramsType.map(type => type.toLowerCase());
-      this.selectEl.value = lowerCaseTypes.find(t => types.includes(t)) || "";
-    } else if (paramsType && types.includes(paramsType.toLowerCase())) {
-      this.selectEl.value = paramsType.toLowerCase();
+    // Support for previously-saved custom labels
+    const currentType = vCardPropertyEntry.params.type?.toLowerCase();
+    if (currentType && !types.includes(currentType)) {
+      const customOption = new Option(currentType, currentType);
+      customOption.setAttribute("data-custom", "true");
+      this.selectEl.appendChild(customOption);
+      this.selectEl.value = currentType;
+    } else {
+      this.selectEl.value = currentType || "";
     }
 
-    // Change the value on the vCardPropertyEntry.
+    // handle dropdown changes
     this.selectEl.addEventListener("change", () => {
-      if (this.selectEl.value) {
-        vCardPropertyEntry.params.type = this.selectEl.value;
+      const selected = this.selectEl.value;
+
+      if (selected === "custom") {
+        const label = prompt("Enter your custom email type:");
+        if (label) {
+          const customOption = new Option(label, label);
+          customOption.setAttribute("data-custom", "true");
+
+          // Remove previous custom if any
+          const existing = [...this.selectEl.options].find(
+            o => o.getAttribute("data-custom") === "true"
+          );
+          if (existing) this.selectEl.removeChild(existing);
+
+          this.selectEl.appendChild(customOption);
+          this.selectEl.value = label;
+          vCardPropertyEntry.params.type = label;
+        } else {
+          this.selectEl.value = "";
+          delete vCardPropertyEntry.params.type;
+        }
       } else {
-        delete vCardPropertyEntry.params.type;
+        vCardPropertyEntry.params.type = selected;
       }
     });
 
-    // Set an aria-labelledyby on the select.
+    // Accessibility support
     if (options.labelledBy) {
-      if (!document.getElementById(options.labelledBy)) {
-        throw new Error(`No such label element with id ${options.labelledBy}`);
-      }
-      this.querySelector("select").setAttribute(
-        "aria-labelledby",
-        options.labelledBy
-      );
+      this.selectEl.setAttribute("aria-labelledby", options.labelledBy);
     }
 
-    // Create a label element for the select.
     if (options.createLabel) {
       const labelEl = document.createElement("label");
       labelEl.htmlFor = selectId;
