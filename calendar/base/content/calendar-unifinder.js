@@ -30,7 +30,7 @@ function toggleUnifinder() {
 
   // Toggle the elements
   goToggleToolbar("bottom-events-box", "calendar_show_unifinder_command");
-  goToggleToolbar("calendar-view-splitter");
+  goToggleToolbar("calendar-view-splitter", "calShowUnifinder");
   window.dispatchEvent(new CustomEvent("viewresize"));
 
   if (wasHidden) {
