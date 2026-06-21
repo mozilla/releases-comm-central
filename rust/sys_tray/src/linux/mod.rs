@@ -77,11 +77,12 @@ impl LinuxSysTrayHandler {
 
         // Grab the quit message
         let msg = bundle
-            .get_message("system-tray-menu-quit")
-            .expect("Message doesn't exist.");
+            .get_message("system-tray-menuitem-quit")
+            .expect("Message doesn't exist.")
+            .value()
+            .expect("Message has no value.");
         let mut errors = vec![];
-        let label = msg.get_attribute("label").expect("Message doesn't exist.");
-        let quit_msg = bundle.format_pattern(label.value(), None, &mut errors);
+        let quit_msg = bundle.format_pattern(msg, None, &mut errors);
         if !errors.is_empty() {
             log::error!("translation issues: {errors:?}");
         }

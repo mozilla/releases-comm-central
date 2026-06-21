@@ -83,12 +83,11 @@ menu-quit =
 menu-quit-mac =
     .label = Quit { -brand-shorter-name }
 
-system-tray-menu-quit =
-    .label =
-        { PLATFORM() ->
-            [windows] Exit { -brand-full-name }
-           *[other] Quit { -brand-full-name }
-        }
+system-tray-menuitem-quit =
+    { PLATFORM() ->
+        [windows] Exit { -brand-full-name }
+        *[other] Quit { -brand-full-name }
+    }
 
 # Localization note: Do not translate unless your locale's keyboard layout
 # does not include this key, as it determines the keyboard shortcut for

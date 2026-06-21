@@ -20,6 +20,12 @@ class nsMessengerWinIntegration : public nsIMessengerWindowsIntegration {
   NS_DECL_NSIMESSENGEROSINTEGRATION
 
  private:
+  static nsString kSystemTrayMenuQuitMsg;
+
+  static nsresult HandleIconLeftClick(nsMessengerWinIntegration* instance);
+  static nsresult HandleIconContextMenu(int xPos, int yPos);
+  static nsresult HandleTaskbarRecreated(nsMessengerWinIntegration* instance);
+
   static LRESULT CALLBACK IconWindowProc(HWND msgWindow, UINT msg, WPARAM wp,
                                          LPARAM lp);
 
