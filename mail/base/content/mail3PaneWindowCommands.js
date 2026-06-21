@@ -192,7 +192,7 @@ function CloseTabOrWindow() {
   }
   if (tabmail.tabInfo.length == 1) {
     if (Services.prefs.getBoolPref("mail.tabs.closeWindowWithLastTab")) {
-      window.close();
+      requestWindowClose();
     }
   } else {
     tabmail.removeCurrentTab();

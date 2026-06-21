@@ -200,6 +200,8 @@ mail:
       - mail.chat.play_sound
       - mail.chat.show_desktop_notifications
       - mail.close_message_window.on_delete
+      - mail.closeToTray
+      - mail.closeToTray.startInTray
       - mail.collect_email_address_outgoing
       - mail.compose.attachment_reminder
       - mail.compose.autosave
@@ -219,7 +221,6 @@ mail:
       - mail.inappnotifications.isSnap
       - mail.inappnotifications.pkceUpgradeForYahooAol
       - mail.mdn.report.enabled
-      - mail.minimizeToTray
       - mail.operate_on_msgs_in_collapsed_threads
       - mail.phishing.detection.enabled
       - mail.prompt_purge_threshold

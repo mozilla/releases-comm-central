@@ -106,8 +106,13 @@
       </hbox>
 #ifdef XP_WIN
       <hbox align="start">
-        <checkbox data-l10n-id="minimize-to-tray-label"
-                  preference="mail.minimizeToTray"/>
+        <checkbox data-l10n-id="close-to-tray-label"
+                  preference="mail.closeToTray"/>
+      </hbox>
+      <hbox align="start" class="indent">
+          <checkbox id="startInTray"
+                    data-l10n-id="start-in-tray-label"
+                    preference="mail.closeToTray.startInTray"/>
       </hbox>
 #endif
       <hbox id="searchIntegrationContainer">

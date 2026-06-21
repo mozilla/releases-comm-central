@@ -29,7 +29,7 @@ export var MailMigrator = {
   _migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 60;
+    const UI_VERSION = 61;
     const UI_VERSION_PREF = "mail.ui-rdf.version";
     let currentUIVersion = Services.prefs.getIntPref(UI_VERSION_PREF, 0);
 
@@ -456,6 +456,14 @@ export var MailMigrator = {
           "chrome://messenger/content/messenger.xhtml",
           "calendar_toggle_show_completed_in_view_command"
         );
+      }
+
+      if (currentUIVersion < 61) {
+        if (Services.prefs.prefHasUserValue("mail.minimizeToTray")) {
+          const old = Services.prefs.getBoolPref("mail.minimizeToTray");
+          Services.prefs.setBoolPref("mail.closeToTray", old);
+          Services.prefs.clearUserPref("mail.minimizeToTray");
+        }
       }
 
       // Migration tasks that may take a long time are not run immediately, but

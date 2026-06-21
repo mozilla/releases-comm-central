@@ -1,6 +1,11 @@
 [DEFAULT]
 support-files = ["data/**", "scripts/**"]
 
+["test_close_to_tray.py"]
+run-if = [
+  "os == 'win'",
+]
+
 ["test_commandline.py"]
 
 ["test_menubar_migration.py"]

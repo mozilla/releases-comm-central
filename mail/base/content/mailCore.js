@@ -797,6 +797,20 @@ function safeModeRestart() {
   }
 }
 
+/**
+ * Dispatch a cancelable close event and close the window.
+ */
+function requestWindowClose() {
+  const closeEvent = new CustomEvent("close", {
+    bubbles: true,
+    cancelable: true,
+  });
+
+  if (window.dispatchEvent(closeEvent)) {
+    window.close();
+  }
+}
+
 function getMostRecentMailWindow() {
   let win = null;
 

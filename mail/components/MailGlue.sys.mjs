@@ -1525,7 +1525,8 @@ class PreferenceTelemetry {
     if (AppConstants.platform === "win") {
       this.#booleanPrefs.push(
         "mail.biff.show_tray_icon",
-        "mail.minimizeToTray"
+        "mail.closeToTray",
+        "mail.closeToTray.startInTray"
       );
     }
 

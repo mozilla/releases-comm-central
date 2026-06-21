@@ -14,6 +14,10 @@ var SESSION_AUTO_SAVE_DEFAULT_MS = 300000; // 5 minutes
 export var SessionStoreManager = {
   _initialized: false,
 
+  get initialized() {
+    return this._initialized;
+  },
+
   /**
    * Session restored successfully on startup; use this to test for an early
    * failed startup which does not restore user tab state to ensure a session

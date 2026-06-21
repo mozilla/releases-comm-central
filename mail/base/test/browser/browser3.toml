@@ -46,4 +46,9 @@ tags = ["oauth"]
 ["browser_smartFolderDelete.js"]
 tags = ["virtualfolders"]
 
+["browser_startInTray.js"]
+run-if = [
+  "os == 'win'",
+]
+
 ["browser_statusFeedback.js"]

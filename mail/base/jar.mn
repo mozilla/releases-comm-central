@@ -58,7 +58,7 @@ messenger.jar:
 *   content/messenger/messenger.xhtml               (content/messenger.xhtml)
     content/messenger/webextensions.css             (content/webextensions.css)
 #ifdef XP_WIN
-    content/messenger/minimizeToTray.js             (content/minimizeToTray.js)
+    content/messenger/closeToTray.mjs               (content/closeToTray.mjs)
 #endif
     content/messenger/migrationProgress.js          (content/migrationProgress.js)
     content/messenger/migrationProgress.xhtml       (content/migrationProgress.xhtml)
