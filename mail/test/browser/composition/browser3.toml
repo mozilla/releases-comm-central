@@ -79,3 +79,5 @@ support-files = [
 ["browser_inlineRelatedAttachmentDraft.js"]
 
 ["browser_malformedMultipartMixedForward.js"]
+
+["browser_sandwichedImageForward.js"]

@@ -1,0 +1,32 @@
+From: sender@example.invalid
+Content-Type: multipart/mixed; boundary="BOUNDARY"
+Mime-Version: 1.0
+Subject: Inline image sandwiched between two text parts
+Message-Id: <text-sandwiched-inline-image@example.invalid>
+Date: Thu, 12 Nov 2020 09:41:00 -0800
+To: recipient@example.invalid
+
+--BOUNDARY
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset=us-ascii
+
+Here's that pic of that beautiful landscape.
+
+--BOUNDARY
+Content-Disposition: inline;
+	filename=pixel.png
+Content-Type: image/png;
+	name="pixel.png"
+Content-Transfer-Encoding: base64
+
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==
+
+--BOUNDARY
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset=us-ascii
+
+Don't leave me behind, I also wanna go.
+
+--BOUNDARY--
