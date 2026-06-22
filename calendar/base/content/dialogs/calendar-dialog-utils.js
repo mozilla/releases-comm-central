@@ -9,8 +9,8 @@
  *          openAttachmentFromItemSummary,
  */
 
-/* import-globals-from ../item-editing/calendar-item-iframe.js */
-/* import-globals-from ../calendar-ui-utils.js */
+/* globals enableElementWithLock, disableElementWithLock */ // calendar-ui-utils.js
+/* globals updateEntryDate, updateDueDate */ // calendar-item-iframe.js
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 var { openLinkExternally } = ChromeUtils.importESModule("resource:///modules/LinkHelper.sys.mjs");

@@ -1261,3 +1261,74 @@ calendar-extract-event-button =
 calendar-extract-task-button =
     .label = Add as task
     .tooltiptext = Extract calendaring information from the message and add it to your calendar as a task
+
+new-event-input =
+    .placeholder = New Event
+
+new-task-input =
+    .placeholder = New Task
+
+item-menu-label-event =
+    .label = Event
+    .accesskey = T
+
+item-menu-label-task =
+    .label = Task
+    .accesskey = T
+
+# Link Location Dialog
+specify-link-location = Please specify the link location
+enter-link-location = Enter a web page, or document location.
+
+# Attach File Dialog
+# Variables:
+#   $providerName - The FileLink provider display name
+attach-via-filelink = File using { $providerName }
+
+select-a-file = Please select the file(s) to attach
+
+# Variables:
+#   $name - The name of responding invitee.
+counter-accepted = { $name } has accepted the invitation, but made a counter proposal:
+# Variables:
+
+#   $name - The name of responding invitee.
+counter-tentative = { $name } has accepted the invitation only tentatively and made a counter proposal:
+
+# Variables:
+#   $name - The name of responding invitee.
+counter-declined = { $name } has declined the invitation, but made a counter proposal:
+
+# Variables:
+#   $name - The name of responding invitee.
+counter-delegated = { $name } has delegated the invitation, but made a counter proposal:
+
+# Variables:
+#   $name - The name of responding invitee.
+counter-needs-action = { $name } hasn’t decided whether to participate and made a counter proposal:
+
+counter-on-previous-version-notification = This is a counter proposal for a previous version of this event.
+counter-on-counter-disallowed-notification = You disallowed countering when sending out the invitation.
+
+sendandclose-button =
+    .label = Send And Close
+    .tooltiptext = Notify attendees and close
+
+saveandsend-button =
+    .label = Save And Send
+    .tooltiptext = Save and notify attendees
+
+saveandsend-menu =
+    .label = Save and Send
+
+sendandclose-menu =
+    .label = Send and Close
+
+event-recurrence-forever =
+   .label = Forever
+
+# $count - the number of attendees
+attendees-tab-label = Attendees ({ $count }):
+
+# $count - the number of attachments
+attachments-tab-label = Attachments ({ $count }):

@@ -7,8 +7,8 @@
  *          toggleKeepDuration, dateTimeControls2State, onUpdateAllDay,
  *          openNewEvent, openNewTask, openNewMessage,
  *          deleteAllAttachments, copyAttachment, attachmentLinkKeyPress,
- *          attachmentDblClick, attachmentClick, notifyUser,
- *          removeNotification, chooseRecentTimezone, showTimezonePopup,
+ *          attachmentDblClick, attachmentClick,
+ *          chooseRecentTimezone, showTimezonePopup,
  *          attendeeDblClick, setAttendeeContext, removeAttendee,
  *          removeAllAttendees, sendMailToUndecidedAttendees, checkUntilDate,
  *          applyValues
@@ -32,8 +32,6 @@ var {
   countOccurrences,
   hasUnsupported,
 } = ChromeUtils.importESModule("resource:///modules/calendar/calRecurrenceUtils.sys.mjs");
-var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
-
 ChromeUtils.defineESModuleGetters(this, {
   CalAttachment: "resource:///modules/CalAttachment.sys.mjs",
   CalAttendee: "resource:///modules/CalAttendee.sys.mjs",
@@ -88,7 +86,11 @@ ChromeUtils.defineLazyGetter(this, "gEventNotification", () => {
     document.getElementById("event-dialog-notifications").append(element);
   });
 });
-ChromeUtils.defineLazyGetter(this, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
+ChromeUtils.defineLazyGetter(
+  this,
+  "l10n",
+  () => new Localization(["calendar/calendar.ftl", "calendar/recurrence.ftl"], true)
+);
 
 var eventDialogRequestObserver = {
   QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
@@ -340,9 +342,9 @@ function onLoad() {
     setDialogId(document.documentElement, "calendar-task-dialog-inner");
   }
 
-  document.getElementById("item-title").placeholder = cal.l10n.getString(
-    "calendar-event-dialog",
-    item.isEvent() ? "newEvent" : "newTask"
+  document.l10n.setAttributes(
+    document.getElementById("item-title"),
+    item.isEvent() ? "new-event-input" : "new-task-input"
   );
 
   window.onAcceptCallback = args.onOk;
@@ -685,17 +687,9 @@ function loadDialog(aItem) {
 
   // When in a window, set Item-Menu label to Event or Task
   if (!gInTab) {
-    const isEvent = aItem.isEvent();
-
-    const labelString = isEvent ? "itemMenuLabelEvent" : "itemMenuLabelTask";
-    const label = cal.l10n.getString("calendar-event-dialog", labelString);
-
-    const accessKeyString = isEvent ? "itemMenuAccesskeyEvent2" : "itemMenuAccesskeyTask2";
-    const accessKey = cal.l10n.getString("calendar-event-dialog", accessKeyString);
     sendMessage({
       command: "initializeItemMenu",
-      label,
-      accessKey,
+      l10nId: aItem.isEvent() ? "item-menu-label-event" : "item-menu-label-task",
     });
   }
 
@@ -2113,10 +2107,9 @@ function loadCloudProviders() {
   for (const cloudProvider of cloudFileAccounts.configuredAccounts) {
     // Create a serializable object to pass in a message outside the iframe
     const itemObject = {};
-    itemObject.displayName = cloudFileAccounts.getDisplayName(cloudProvider);
-    itemObject.label = cal.l10n.getString("calendar-event-dialog", "attachViaFilelink", [
-      itemObject.displayName,
-    ]);
+    const providerName = cloudFileAccounts.getDisplayName(cloudProvider);
+    itemObject.displayName = providerName;
+    itemObject.label = this.l10n.formatValueSync("attach-via-filelink", { providerName });
     itemObject.cloudProviderAccountKey = cloudProvider.accountKey;
     if (cloudProvider.iconURL) {
       itemObject.class = "menuitem-iconic";
@@ -2151,36 +2144,32 @@ function loadCloudProviders() {
 /**
  * Prompts the user to attach an url to this item.
  */
-function attachURL() {
-  if (Services.prompt) {
-    // ghost in an example...
-    const result = { value: "http://" };
-    const confirm = Services.prompt.prompt(
-      window,
-      cal.l10n.getString("calendar-event-dialog", "specifyLinkLocation"),
-      cal.l10n.getString("calendar-event-dialog", "enterLinkLocation"),
-      result,
-      null,
-      { value: 0 }
-    );
+async function attachURL() {
+  const result = { value: "http://" };
+  const [title, description] = await document.l10n.formatValues([
+    { id: "specify-link-location" },
+    { id: "enter-link-location" },
+  ]);
 
-    if (confirm) {
-      try {
-        // If something bogus was entered, Services.io.newURI may fail.
-        const attachment = new CalAttachment();
-        attachment.uri = Services.io.newURI(result.value);
-        addAttachment(attachment);
-        // we switch to the attachment tab if it is not already displayed
-        // to allow the user to see the attachment was added
-        const tabs = document.getElementById("event-grid-tabs");
-        const attachTab = document.getElementById("event-grid-tab-attachments");
-        tabs.selectedItem = attachTab;
-      } catch (e) {
-        // TODO We might want to show a warning instead of just not
-        // adding the file
-      }
-    }
+  const confirm = Services.prompt.prompt(window, title, description, result, null, { value: 0 });
+
+  if (!confirm || !result.value) {
+    return;
   }
+  if (!URL.canParse(result.value)) {
+    // TODO We might want to show a warning instead of just not adding the file.
+    console.error(`Can't attach. Invalid URL: ${result.value}`);
+    return;
+  }
+
+  const attachment = new CalAttachment();
+  attachment.uri = Services.io.newURI(result.value);
+  addAttachment(attachment);
+  // we switch to the attachment tab if it is not already displayed
+  // to allow the user to see the attachment was added
+  const tabs = document.getElementById("event-grid-tabs");
+  const attachTab = document.getElementById("event-grid-tab-attachments");
+  tabs.selectedItem = attachTab;
 }
 
 /**
@@ -2188,10 +2177,10 @@ function attachURL() {
  *
  * @param {string} aAccountKey - The accountKey for a cloud provider
  */
-function attachFileByAccountKey(aAccountKey) {
+async function attachFileByAccountKey(aAccountKey) {
   for (const cloudProvider of cloudFileAccounts.configuredAccounts) {
     if (aAccountKey == cloudProvider.accountKey) {
-      attachFile(cloudProvider);
+      await attachFile(cloudProvider);
       return;
     }
   }
@@ -2203,7 +2192,7 @@ function attachFileByAccountKey(aAccountKey) {
  * @param {object} cloudProvider - The cloud provider will be used for attaching.
  * @see cloudFileAccounts
  */
-function attachFile(cloudProvider) {
+async function attachFile(cloudProvider) {
   if (!cloudProvider) {
     throw new Error("Need a filelink provider to attach a file!");
   }
@@ -2211,7 +2200,7 @@ function attachFile(cloudProvider) {
   const filePicker = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
   filePicker.init(
     window.browsingContext,
-    cal.l10n.getString("calendar-event-dialog", "selectAFile"),
+    document.l10n.formatValue("select-a-file"),
     Ci.nsIFilePicker.modeOpenMultiple
   );
 
@@ -2420,8 +2409,6 @@ function addAttachment(attachment, cloudFileAccount) {
 
 /**
  * Removes the currently selected attachment from the dialog controls.
- *
- * XXX This could use a dialog maybe?
  */
 function deleteAttachment() {
   const documentLink = document.getElementById("attachment-link");
@@ -2554,40 +2541,6 @@ function attachmentClick(aEvent) {
     } else {
       node.toggleAttribute("hidden", true);
     }
-  }
-}
-
-/**
- * Helper function to show a notification in the event-dialog's notificationbox
- *
- * @param {string} aMessage - The message text to show
- * @param {string} aValue - String identifying the notification
- * @param {"info"|"warn"|"critical"} [aPriority="warn"] - The priority of the warning.
- */
-async function notifyUser(aMessage, aValue, aPriority = "warn") {
-  // only append, if the notification does not already exist
-  if (gEventNotification.getNotificationWithValue(aValue) == null) {
-    const prioMap = {
-      info: gEventNotification.PRIORITY_INFO_MEDIUM,
-      critical: gEventNotification.PRIORITY_CRITICAL_MEDIUM,
-    };
-    const prio = prioMap[aPriority] || gEventNotification.PRIORITY_WARNING_MEDIUM;
-    await gEventNotification.appendNotification(aValue, {
-      label: aMessage,
-      priority: prio,
-    });
-  }
-}
-
-/**
- * Remove a notification from the notifiactionBox
- *
- * @param {string} aValue - string identifying the notification to remove
- */
-function removeNotification(aValue) {
-  const notification = gEventNotification.getNotificationWithValue(aValue);
-  if (notification) {
-    gEventNotification.removeNotification(notification);
   }
 }
 
@@ -3695,23 +3648,20 @@ function updateTimezone() {
 function updateAttachment() {
   const hasAttachments = capSupported("attachments");
   document.getElementById("cmd_attach_url").toggleAttribute("disabled", !hasAttachments);
-
-  // update the attachment tab label to make the number of (uri) attachments visible
-  // even if another tab is displayed
-  const attachments = Object.values(gAttachMap).filter(aAtt => aAtt.uri);
-  const attachmentTab = document.getElementById("event-grid-tab-attachments");
-  if (attachments.length) {
-    attachmentTab.label = cal.l10n.getString("calendar-event-dialog", "attachmentsTabLabel", [
-      attachments.length,
-    ]);
-  } else {
-    attachmentTab.label = window.attachmentTabLabel;
-  }
-
   sendMessage({
     command: "updateConfigState",
     argument: { attachUrlCommand: hasAttachments },
   });
+
+  const attachments = Object.values(gAttachMap).filter(aAtt => aAtt.uri);
+  const attachmentTab = document.getElementById("event-grid-tab-attachments");
+  if (attachments.length) {
+    attachmentTab.label = this.l10n.formatValueSync("attachments-tab-label", {
+      count: attachments.length,
+    });
+  } else {
+    attachmentTab.label = window.attachmentTabLabel;
+  }
 }
 
 /**
@@ -3774,12 +3724,10 @@ function updateAttendeeInterface() {
       label.setAttribute("tabindex", "0");
     }
 
-    // update the attendee tab label to make the number of attendees
-    // visible even if another tab is displayed
     if (window.attendees.length) {
-      attendeeTab.label = cal.l10n.getString("calendar-event-dialog", "attendeesTabLabel", [
-        window.attendees.length,
-      ]);
+      attendeeTab.label = this.l10n.formatValueSync("attendees-tab-label", {
+        count: window.attendees.length,
+      });
     } else {
       attendeeTab.label = window.attendeeTabLabel;
     }
@@ -3833,9 +3781,8 @@ function updateRepeatDetails() {
 
     const allDay = document.getElementById("event-all-day").checked;
     let detailsString = recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay);
-
     if (!detailsString) {
-      detailsString = cal.l10n.getString("calendar-event-dialog", "ruleTooComplex");
+      detailsString = this.l10n.formatValueSync("recurrence-rule-too-complex");
     }
     repeatDetails.hidden = false;
 
@@ -4092,7 +4039,7 @@ function checkUntilDate() {
 /**
  * Displays a counterproposal if any.
  */
-function displayCounterProposal() {
+async function displayCounterProposal() {
   if (
     !window.counterProposal ||
     !window.counterProposal.attendee ||
@@ -4134,58 +4081,45 @@ function displayCounterProposal() {
     }
   }
 
-  const attendeeId =
+  const name =
     window.counterProposal.attendee.CN ||
     cal.email.removeMailTo(window.counterProposal.attendee.id || "");
-  let partStat = window.counterProposal.attendee.participationStatus;
-  if (partStat == "DECLINED") {
-    partStat = "counterSummaryDeclined";
-  } else if (partStat == "TENTATIVE") {
-    partStat = "counterSummaryTentative";
-  } else if (partStat == "ACCEPTED") {
-    partStat = "counterSummaryAccepted";
-  } else if (partStat == "DELEGATED") {
-    partStat = "counterSummaryDelegated";
-  } else if (partStat == "NEEDS-ACTION") {
-    partStat = "counterSummaryNeedsAction";
-  } else {
-    // we simply reset partStat not display the summary text of the counter box
-    // to avoid the window of death
-    partStat = null;
-  }
-
+  const partStat = window.counterProposal.attendee.participationStatus;
   if (idCounter > 0) {
-    if (partStat && attendeeId.length) {
-      document.getElementById("counter-proposal-summary").value = cal.l10n.getString(
-        "calendar-event-dialog",
-        partStat,
-        [attendeeId]
+    if (partStat && name) {
+      document.l10n.setAttributes(
+        document.getElementById("counter-proposal-summary"),
+        // counter-declined, counter-tentative, counter-accepted, counter-delegated
+        // counter-needs-action
+        `counter-${partStat.toLowerCase()}`,
+        { name }
       );
       document.getElementById("counter-proposal-summary").removeAttribute("collapsed");
     }
     if (comment) {
       document.getElementById("counter-proposal-comment").value = comment;
-      document.getElementById("counter-proposal-box").removeAttribute("collapsed");
     }
     document.getElementById("counter-proposal-box").removeAttribute("collapsed");
 
     if (window.counterProposal.oldVersion) {
       // this is a counterproposal to a previous version of the event - we should notify the
       // user accordingly
-      notifyUser(
-        "counterProposalOnPreviousVersion",
-        cal.l10n.getString("calendar-event-dialog", "counterOnPreviousVersionNotification"),
-        "warn"
-      );
+      if (!gEventNotification.getNotificationWithValue("counterProposalOnPreviousVersion")) {
+        await gEventNotification.appendNotification("counterProposalOnPreviousVersion", {
+          label: { "l10n-id": "counter-on-previous-version-notification" },
+          priority: gEventNotification.PRIORITY_WARNING_MEDIUM,
+        });
+      }
     }
     if (window.calendarItem.getProperty("X-MICROSOFT-DISALLOW-COUNTER") == "TRUE") {
       // this is a counterproposal although the user disallowed countering when sending the
       // invitation, so we notify the user accordingly
-      notifyUser(
-        "counterProposalOnCounteringDisallowed",
-        cal.l10n.getString("calendar-event-dialog", "counterOnCounterDisallowedNotification"),
-        "warn"
-      );
+      if (!gEventNotification.getNotificationWithValue("counterProposalOnCounteringDisallowed")) {
+        await gEventNotification.appendNotification("counterProposalOnCounteringDisallowed", {
+          label: { "l10n-id": "counter-on-counter-disallowed-notification" },
+          priority: gEventNotification.PRIORITY_WARNING_MEDIUM,
+        });
+      }
     }
   }
 }

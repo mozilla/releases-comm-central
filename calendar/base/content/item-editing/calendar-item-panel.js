@@ -11,12 +11,10 @@
  *          openNewMessage
  */
 
-/* import-globals-from ../../../../mail/base/content/globalOverlay.js */
-/* import-globals-from ../dialogs/calendar-dialog-utils.js */
-/* import-globals-from ../calendar-ui-utils.js */
+/* globals goUpdateCommand */ // mail/base/content/globalOverlay.js
+/* globals setDialogId */ // calendar-dialog-utils.js
 
 // XXX Need to determine which of these we really need here.
-var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 var { MailServices } = ChromeUtils.importESModule("resource:///modules/MailServices.sys.mjs");
 
 var gTabmail;
@@ -103,7 +101,7 @@ function receiveMessage(aEvent) {
   }
   switch (aEvent.data.command) {
     case "initializeItemMenu":
-      initializeItemMenu(aEvent.data.label, aEvent.data.accessKey);
+      initializeItemMenu(aEvent.data.l10nId);
       break;
     case "cancelDialog":
       document.querySelector("dialog").cancelDialog();
@@ -242,24 +240,27 @@ function onLoadCalendarItemPanel(aIframeId, aUrl) {
     // Note: iframe.contentWindow is undefined before the iframe is inserted here.
     dialog.insertBefore(iframe, document.getElementById("status-bar"));
 
-    iframe.addEventListener("load", function loadHandler(event) {
+    iframe.addEventListener("load", async function loadHandler(event) {
       if (event.target.location.href == "about:blank") {
         return;
       }
-      // Push setting dimensions to the end of the event queue.
-      setTimeout(() => {
-        const body = iframe.contentDocument.body;
-        // Make sure the body does not exceed its content's size.
-        body.style.width = "fit-content";
-        body.style.height = "fit-content";
-        const { scrollHeight, scrollWidth } = body;
-        iframe.style.minHeight = `${scrollHeight}px`;
-        iframe.style.minWidth = `${scrollWidth}px`;
-        // Reset the body.
-        body.style.width = null;
-        body.style.height = null;
-      });
       iframe.removeEventListener("load", loadHandler);
+      const contentDocument = iframe.contentDocument;
+      if (contentDocument.hasPendingL10nMutations) {
+        await new Promise(resolve =>
+          contentDocument.addEventListener("L10nMutationsFinished", resolve, { once: true })
+        );
+      }
+      const body = contentDocument.body;
+      // Make sure the body does not exceed its content's size.
+      body.style.width = "fit-content";
+      body.style.height = "fit-content";
+      const { scrollHeight, scrollWidth } = body;
+      iframe.style.minHeight = `${scrollHeight}px`;
+      iframe.style.minWidth = `${scrollWidth}px`;
+      // Reset the body.
+      body.style.width = null;
+      body.style.height = null;
     });
 
     args = window.arguments;
@@ -374,13 +375,10 @@ function updateItemTabState(aArg) {
 /**
  * When in a window, set Item-Menu label to Event or Task.
  *
- * @param {string} aLabel - The new name for the menu
- * @param {string} aAccessKey - The access key for the menu
+ * @param {string} l10nId - Fluent id.
  */
-function initializeItemMenu(aLabel, aAccessKey) {
-  const menuItem = document.getElementById("item-menu");
-  menuItem.setAttribute("label", aLabel);
-  menuItem.setAttribute("accesskey", aAccessKey);
+function initializeItemMenu(l10nId) {
+  document.l10n.setAttributes(document.getElementById("item-menu"), l10nId);
 }
 
 /**
@@ -1096,13 +1094,13 @@ function updateSaveControls(aSendNotSave) {
     if (saveBtn) {
       window.window.calItemSaveControls.saveBtn = {
         label: saveBtn.label,
-        tooltiptext: saveBtn.tooltip,
+        tooltiptext: saveBtn.tooltiptext,
       };
     }
     if (saveandcloseBtn) {
       window.window.calItemSaveControls.saveandcloseBtn = {
         label: saveandcloseBtn.label,
-        tooltiptext: saveandcloseBtn.tooltip,
+        tooltiptext: saveandcloseBtn.tooltiptext,
       };
     }
   }
@@ -1111,35 +1109,33 @@ function updateSaveControls(aSendNotSave) {
   window.calItemSaveControls.state = aSendNotSave;
   if (aSendNotSave) {
     if (saveBtn) {
-      saveBtn.label = cal.l10n.getString("calendar-event-dialog", "saveandsendButtonLabel");
-      saveBtn.tooltiptext = cal.l10n.getString("calendar-event-dialog", "saveandsendButtonTooltip");
+      document.l10n.setAttributes(saveBtn, "saveandsend-button");
       saveBtn.setAttribute("mode", "send");
     }
     if (saveandcloseBtn) {
-      saveandcloseBtn.label = cal.l10n.getString(
-        "calendar-event-dialog",
-        "sendandcloseButtonLabel"
-      );
-      saveandcloseBtn.tooltiptext = cal.l10n.getString(
-        "calendar-event-dialog",
-        "sendandcloseButtonTooltip"
-      );
+      document.l10n.setAttributes(saveandcloseBtn, "sendandclose-button");
       saveandcloseBtn.setAttribute("mode", "send");
     }
-    saveMenu.label = cal.l10n.getString("calendar-event-dialog", "saveandsendMenuLabel");
-    saveandcloseMenu.label = cal.l10n.getString("calendar-event-dialog", "sendandcloseMenuLabel");
+    document.l10n.setAttributes(saveMenu, "saveandsend-menu");
+    document.l10n.setAttributes(saveandcloseMenu, "sendandclose-menu");
   } else {
+    // The original labels and tooltips come from non-Fluent attributes, so clear
+    // the l10n id set above before restoring the stored values.
     if (saveBtn) {
+      saveBtn.removeAttribute("data-l10n-id");
       saveBtn.label = window.calItemSaveControls.saveBtn.label;
-      saveBtn.tooltiptext = window.calItemSaveControls.saveBtn.tooltip;
+      saveBtn.tooltiptext = window.calItemSaveControls.saveBtn.tooltiptext;
       saveBtn.removeAttribute("mode");
     }
     if (saveandcloseBtn) {
+      saveandcloseBtn.removeAttribute("data-l10n-id");
       saveandcloseBtn.label = window.calItemSaveControls.saveandcloseBtn.label;
-      saveandcloseBtn.tooltiptext = window.calItemSaveControls.saveandcloseBtn.tooltip;
+      saveandcloseBtn.tooltiptext = window.calItemSaveControls.saveandcloseBtn.tooltiptext;
       saveandcloseBtn.removeAttribute("mode");
     }
+    saveMenu.removeAttribute("data-l10n-id");
     saveMenu.label = window.calItemSaveControls.saveMenu.label;
+    saveandcloseMenu.removeAttribute("data-l10n-id");
     saveandcloseMenu.label = window.calItemSaveControls.saveandcloseMenu.label;
   }
 }
