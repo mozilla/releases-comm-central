@@ -1153,6 +1153,7 @@ dependencies = [
  "nix",
  "num-derive",
  "num-traits",
+ "process_reader",
  "thiserror 2.0.12",
  "windows-sys",
  "yaml-rust2",
