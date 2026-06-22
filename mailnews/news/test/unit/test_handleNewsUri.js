@@ -310,7 +310,7 @@ add_task(async function test_messageId_not_found() {
   MailUtils.handleNewsUri(uri, null);
 
   // Wait for the async URL to fail.
-  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+
   await new Promise(resolve => do_timeout(500, resolve));
 
   Assert.equal(
