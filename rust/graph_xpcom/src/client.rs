@@ -35,6 +35,7 @@ mod delete_folder;
 mod delete_message;
 mod empty_folder;
 mod get_message;
+mod mark_as_junk;
 mod move_folder;
 mod move_message;
 mod send_message;

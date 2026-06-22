@@ -706,22 +706,38 @@ add_task(async function test_copy_folder_graph() {
   await runCopyFolderTest(graphServer, graphIncomingServer);
 });
 
-add_task(async function test_mark_as_junk() {
-  const rootFolder = ewsIncomingServer.rootFolder;
-  await syncFolder(ewsIncomingServer, rootFolder);
+add_task(async function test_mark_as_junk_ews() {
+  await runMarkAsJunkTest(ewsServer, ewsIncomingServer);
+});
+
+add_task(async function test_mark_as_junk_graph() {
+  await runMarkAsJunkTest(graphServer, graphIncomingServer);
+});
+
+/**
+ * Tests mark as junk/unjunk for both EWS and Graph protocols.
+ *
+ * @param {MockServer} mockServer - The `MockServer` child class instance to use
+ *   for creating folders and messages.
+ * @param {nsIMsgIncomingServer} incomingServer - The incoming message server for
+ *   the protocol being tested.
+ */
+async function runMarkAsJunkTest(mockServer, incomingServer) {
+  const rootFolder = incomingServer.rootFolder;
+  await syncFolder(incomingServer, rootFolder);
 
   // Add messages to the test folder.
   const junkMessages = generator.makeMessages({ count: 2 });
-  ewsServer.addItemToFolder("junk_message_1", "inbox", junkMessages[0]);
-  ewsServer.addItemToFolder("junk_message_2", "inbox", junkMessages[1]);
+  mockServer.addItemToFolder("junk_message_1", "inbox", junkMessages[0]);
+  mockServer.addItemToFolder("junk_message_2", "inbox", junkMessages[1]);
 
   const inboxFolder = rootFolder.getChildNamed("Inbox");
   Assert.ok(!!inboxFolder, `Inbox folder should exist`);
   const junkFolder = rootFolder.getChildNamed("Junk");
   Assert.ok(!!junkFolder, "Junk folder should exist");
 
-  await syncFolder(ewsIncomingServer, inboxFolder);
-  await syncFolder(ewsIncomingServer, junkFolder);
+  await syncFolder(incomingServer, inboxFolder);
+  await syncFolder(incomingServer, junkFolder);
 
   Assert.equal(
     inboxFolder.getTotalMessages(false),
@@ -783,7 +799,7 @@ add_task(async function test_mark_as_junk() {
     unjunkListener
   );
   await unjunkListener.promise;
-  await syncFolder(ewsIncomingServer, inboxFolder);
+  await syncFolder(incomingServer, inboxFolder);
 
   Assert.equal(
     [...inboxFolder.messages].length,
@@ -795,7 +811,7 @@ add_task(async function test_mark_as_junk() {
     1,
     "Should still be one junked message in junk folder."
   );
-});
+}
 
 async function runChangeFlagStatusTest(mockServer, incomingServer) {
   const folderName = `change_flag_status_${incomingServer.type}`;

@@ -562,12 +562,30 @@ impl XpcomGraphBridge {
     ));
     fn mark_items_as_junk(
         &self,
-        _listener: &IExchangeSimpleOperationListener,
-        _ews_ids: &ThinVec<nsCString>,
+        listener: &IExchangeSimpleOperationListener,
+        ews_ids: &ThinVec<nsCString>,
         _is_junk: bool,
-        _legacy_destination_folder_id: &nsACString,
+        legacy_destination_folder_id: &nsACString,
     ) -> Result<(), nsresult> {
-        Err(nserror::NS_ERROR_NOT_IMPLEMENTED)
+        let client = self.client()?;
+
+        let ews_ids = ews_ids.iter().map(ToString::to_string).collect();
+        let legacy_destination_folder_id = legacy_destination_folder_id.to_utf8().into_owned();
+
+        // NOTE: The is_junk parameter is unused because the Graph 1.0 API does not support a mark
+        // as junk operation. Instead, we use the caller-supplied legacy_destination_folder_id
+        // parameter to initiate a move to the caller-requested folder.
+        moz_task::spawn_local(
+            "mark_items_as_junk",
+            client.mark_items_as_junk(
+                legacy_destination_folder_id,
+                ews_ids,
+                SafeExchangeSimpleOperationListener::new(listener),
+            ),
+        )
+        .detach();
+
+        Ok(())
     }
 
     /// Gets a new reference to the Graph client if initialized. The client is
