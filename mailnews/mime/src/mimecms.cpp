@@ -937,6 +937,8 @@ static int MimeCMS_eof(MimeClosure crypto_closure, bool abort_p) {
       MimeCMSGetFromSender(data->self, from_addr, from_name, sender_addr,
                            sender_name, msg_date);
 
+      data->smimeSink->SignatureProcessingStarted(aRelativeNestLevel,
+                                                  data->url);
       MimeCMSRequestAsyncSignatureVerification(
           data->content_info, from_addr.get(), from_name.get(),
           sender_addr.get(), sender_name.get(), msg_date.get(), data->smimeSink,

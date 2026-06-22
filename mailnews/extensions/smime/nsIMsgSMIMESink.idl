@@ -11,6 +11,18 @@ interface nsIX509Cert;
 interface nsIMsgSMIMESink : nsISupports {
   void ignoreStatusFrom(in AUTF8String originMimePartNumber);
 
+  /**
+   * Notify that asynchronous signature verification has been started for the
+   * given message. A matching signedStatus() call will follow once the
+   * verification completes. This lets consumers know how many signedStatus()
+   * callbacks to expect, so they can tell when S/MIME processing is complete.
+   *
+   * @param nestingLevel - The crypto nesting level of the signed part.
+   * @param msgNeckoURL - URL being processed.
+   */
+  void signatureProcessingStarted(in long nestingLevel,
+                                  in AUTF8String msgNeckoURL);
+
   void signedStatus(in long nestingLevel,
                     in long signatureStatus,
                     in nsIX509Cert signerCert,

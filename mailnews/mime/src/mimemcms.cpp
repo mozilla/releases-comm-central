@@ -553,6 +553,7 @@ static char* MimeMultCMS_generate(MimeClosure crypto_closure) {
   digest.AppendElements(data->item_data, data->item_len);
 
   if (!data->reject_signature && !data->ignoredLayer && data->smimeSink) {
+    data->smimeSink->SignatureProcessingStarted(aRelativeNestLevel, data->url);
     MimeCMSRequestAsyncSignatureVerification(
         data->content_info, from_addr.get(), from_name.get(), sender_addr.get(),
         sender_name.get(), msg_date.get(), data->smimeSink, aRelativeNestLevel,

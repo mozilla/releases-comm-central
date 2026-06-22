@@ -223,6 +223,7 @@ const smimeSink = {
       this._deferred.resolve(this._results);
     }
   },
+  signatureProcessingStarted() {},
   QueryInterface: ChromeUtils.generateQI(["nsIMsgSMIMESink"]),
 };
 

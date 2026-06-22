@@ -4424,26 +4424,16 @@ function IgnoreMDNResponse() {
   gMessageNotificationBar.mdnGenerator.userDeclined();
 }
 
-let gLastSmimeTelemetryUri = null;
-window.addEventListener("MsgLoading", () => {
-  gLastSmimeTelemetryUri = null;
-});
-
-// Collect S/MIME telemetry when S/MIME processing completes.
-// smimeprocessed can be dispatched more than once per message.
-// See scheduleSmimeProcessed() in msgHdrViewSMIMEOverlay.js.
+// Collect S/MIME telemetry once S/MIME processing is complete.
+// smimeprocessed fires exactly once per message, after MsgLoaded and after any
+// asynchronous signature verification has finished, so the globals hold the
+// complete state. See msgHdrViewSMIMEOverlay.js.
 window.addEventListener("smimeprocessed", () => {
   const isSigned = !!gSignatureStatusForURI;
   const isEncrypted = !!gEncryptionStatusForURI;
   if (!isSigned && !isEncrypted) {
     return;
   }
-  const uri = gSignatureStatusForURI ?? gEncryptionStatusForURI;
-  // Only the first smimeprocessed event for a URL will be reported.
-  if (gLastSmimeTelemetryUri === uri) {
-    return;
-  }
-  gLastSmimeTelemetryUri = uri;
   Glean.mail.secureMailLoaded.record({
     security: "S/MIME",
     is_signed: isSigned,

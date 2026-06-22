@@ -26,19 +26,37 @@ var gIgnoreStatusFromMimePart = null;
 
 var gSmimeMsgLoadedFired = false;
 
-// Defer smimeprocessed so that any pending I/O-driven S/MIME callbacks
-// complete before we fire the event.
-function scheduleSmimeProcessed() {
-  setTimeout(() => {
-    window.dispatchEvent(new CustomEvent("smimeprocessed", { bubbles: true }));
-  });
+// S/MIME status arrives via several sink callbacks. encryptionStatus() is
+// delivered synchronously during MIME parsing, but signedStatus() is delivered
+// asynchronously once signature verification completes, possibly after
+// MsgLoaded. To know when all processing is done (without a timeout), the MIME
+// code calls signatureProcessingStarted() for each verification it kicks off.
+// We then know to expect that many signedStatus() callbacks.
+var gExpectedSignatureCount = 0;
+var gReceivedSignatureCount = 0;
+var gSmimeProcessedDispatched = false;
+
+// Dispatch smimeprocessed exactly once, when the message has loaded and every
+// expected signature verification has reported back.
+function maybeDispatchSmimeProcessed() {
+  if (!gSmimeMsgLoadedFired || gSmimeProcessedDispatched) {
+    return;
+  }
+  if (gReceivedSignatureCount < gExpectedSignatureCount) {
+    // Still waiting for asynchronous signature verification to complete.
+    return;
+  }
+  if (gSignatureStatusForURI === null && gEncryptionStatusForURI === null) {
+    // Not an S/MIME message.
+    return;
+  }
+  gSmimeProcessedDispatched = true;
+  window.dispatchEvent(new CustomEvent("smimeprocessed", { bubbles: true }));
 }
 
 window.addEventListener("MsgLoaded", () => {
   gSmimeMsgLoadedFired = true;
-  if (gSignatureStatusForURI !== null || gEncryptionStatusForURI !== null) {
-    scheduleSmimeProcessed();
-  }
+  maybeDispatchSmimeProcessed();
 });
 
 function setIgnoreStatusFromMimePart(mimePart) {
@@ -222,6 +240,25 @@ var smimeSink = {
   },
 
   /**
+   * Notify that an asynchronous signature verification has started, so a
+   * matching signedStatus() callback should be expected.
+   *
+   * @param {integer} aNestingLevel - Nesting level.
+   * @param {string} aMsgNeckoURL - URL processed.
+   */
+  signatureProcessingStarted(aNestingLevel, aMsgNeckoURL) {
+    if (aNestingLevel > 1) {
+      // We are not interested.
+      return;
+    }
+    if (!lazy.EnigmailFuncs.isCurrentMessage(gMessageURI, aMsgNeckoURL)) {
+      // Status isn't for selected message.
+      return;
+    }
+    gExpectedSignatureCount++;
+  },
+
+  /**
    * @param {string} msgNeckoURL - URL processed.
    */
   resetSignedStatus(msgNeckoURL) {
@@ -249,15 +286,8 @@ var smimeSink = {
     aMsgNeckoURL,
     aOriginMimePartNumber
   ) {
-    if (
-      !!gIgnoreStatusFromMimePart &&
-      aOriginMimePartNumber == gIgnoreStatusFromMimePart
-    ) {
-      return;
-    }
-
     if (aNestingLevel > 1) {
-      // we are not interested
+      // We are not interested.
       return;
     }
 
@@ -266,28 +296,36 @@ var smimeSink = {
       return;
     }
 
-    if (gSignatureStatusForURI == aMsgNeckoURL) {
-      // We already received a status previously for this URL.
-      // Don't allow overriding an existing bad status.
-      if (gSignatureStatus != Ci.nsICMSMessageErrors.SUCCESS) {
-        return;
+    // A signature verification we were told to expect has reported back. Count
+    // it even when its status is ignored or a duplicate below, so the expected
+    // and received counts stay balanced and processing can be considered done.
+    gReceivedSignatureCount++;
+
+    const ignored =
+      !!gIgnoreStatusFromMimePart &&
+      aOriginMimePartNumber == gIgnoreStatusFromMimePart;
+
+    // We may already have received a status for this URL. Don't allow
+    // overriding an existing bad status.
+    const duplicateBad =
+      gSignatureStatusForURI == aMsgNeckoURL &&
+      gSignatureStatus != Ci.nsICMSMessageErrors.SUCCESS;
+
+    if (!ignored && !duplicateBad) {
+      gSignatureStatusForURI = aMsgNeckoURL;
+
+      gSignatureStatus = aSignatureStatus;
+      gSignerCert = aSignerCert;
+
+      refreshSmimeMessageEncryptionStatus(aOriginMimePartNumber);
+
+      const signed = smimeSignedStateToString(aSignatureStatus);
+      if (signed == "unknown" || signed == "mismatch") {
+        this.showSenderIfSigner();
       }
     }
 
-    gSignatureStatusForURI = aMsgNeckoURL;
-
-    gSignatureStatus = aSignatureStatus;
-    gSignerCert = aSignerCert;
-
-    refreshSmimeMessageEncryptionStatus(aOriginMimePartNumber);
-
-    const signed = smimeSignedStateToString(aSignatureStatus);
-    if (signed == "unknown" || signed == "mismatch") {
-      this.showSenderIfSigner();
-    }
-    if (gSmimeMsgLoadedFired) {
-      scheduleSmimeProcessed();
-    }
+    maybeDispatchSmimeProcessed();
   },
 
   /**
@@ -414,9 +452,7 @@ var smimeSink = {
         );
         break;
     }
-    if (gSmimeMsgLoadedFired) {
-      scheduleSmimeProcessed();
-    }
+    maybeDispatchSmimeProcessed();
   },
 };
 
@@ -439,6 +475,9 @@ function onSMIMEStartHeaders() {
   gEncryptionStatusForURI = null;
 
   gSmimeMsgLoadedFired = false;
+  gExpectedSignatureCount = 0;
+  gReceivedSignatureCount = 0;
+  gSmimeProcessedDispatched = false;
 
   gSignerCert = null;
   gEncryptionCert = null;
