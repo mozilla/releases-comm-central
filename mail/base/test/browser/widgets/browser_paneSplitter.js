@@ -675,3 +675,68 @@ async function subtestCollapseExpand() {
 
   testRunner.clearCollapseSize();
 }
+
+add_task(async function testIsDisabled() {
+  const splitters = doc.querySelectorAll(`hr[is="pane-splitter"]`);
+  Assert.greater(splitters.length, 0, "should find splitters");
+
+  for (const splitter of splitters) {
+    // Setting to true adds the disabled attribute.
+    splitter.isDisabled = true;
+    Assert.ok(
+      splitter.hasAttribute("disabled"),
+      `${splitter.id}: has disabled attribute`
+    );
+    Assert.ok(splitter.isDisabled, `${splitter.id}: isDisabled returns true`);
+
+    // Setting to false removes it.
+    splitter.isDisabled = false;
+    Assert.ok(
+      !splitter.hasAttribute("disabled"),
+      `${splitter.id}: no disabled attribute`
+    );
+    Assert.ok(!splitter.isDisabled, `${splitter.id}: isDisabled returns false`);
+
+    // Falsy values should remove the attribute.
+    splitter.isDisabled = undefined;
+    Assert.ok(
+      !splitter.hasAttribute("disabled"),
+      `${splitter.id}: undefined removes attribute`
+    );
+    splitter.isDisabled = null;
+    Assert.ok(
+      !splitter.hasAttribute("disabled"),
+      `${splitter.id}: null removes attribute`
+    );
+    splitter.isDisabled = 0;
+    Assert.ok(
+      !splitter.hasAttribute("disabled"),
+      `${splitter.id}: 0 removes attribute`
+    );
+    splitter.isDisabled = "";
+    Assert.ok(
+      !splitter.hasAttribute("disabled"),
+      `${splitter.id}: empty string removes attribute`
+    );
+
+    // Truthy values should add the attribute.
+    splitter.isDisabled = 1;
+    Assert.ok(
+      splitter.hasAttribute("disabled"),
+      `${splitter.id}: 1 adds attribute`
+    );
+    splitter.isDisabled = "false";
+    Assert.ok(
+      splitter.hasAttribute("disabled"),
+      `${splitter.id}: 'false' string adds attribute`
+    );
+    splitter.isDisabled = {};
+    Assert.ok(
+      splitter.hasAttribute("disabled"),
+      `${splitter.id}: object adds attribute`
+    );
+
+    // Clean up.
+    splitter.isDisabled = false;
+  }
+});
