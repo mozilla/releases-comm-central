@@ -105,6 +105,9 @@ export function NewsArticle(text) {
     const lines = this.body.split("\n").length;
     this.headers.set("lines", lines);
   }
+  if (!this.headers.has("bytes")) {
+    this.headers.set("bytes", text.length);
+  }
 }
 
 /**

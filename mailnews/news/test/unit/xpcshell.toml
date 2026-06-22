@@ -30,7 +30,6 @@ run-sequentially = true  # Restarts server twice--may work but dangerous
 ["test_newsAutocomplete.js"]
 
 ["test_nntpContentLength.js"]
-disabled = "The server doesn't support returning sizes! (bug 782629)"
 
 ["test_nntpGroupPassword.js"]
 
