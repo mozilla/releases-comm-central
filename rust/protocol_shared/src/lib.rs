@@ -59,3 +59,10 @@ pub const EXCHANGE_DISTINGUISHED_IDS: &[&str] = &[
     // ids result in folder not found errors.
     "archive",
 ];
+
+/// The maximum number of messages we want the server to send back in a single
+/// response.
+///
+/// This value is kept in sync with `test_syncMessagesForFolder.js`; if it gets
+/// updated here it should also be updated there.
+pub const EXCHANGE_MAX_PAGE_SIZE: u16 = 256;

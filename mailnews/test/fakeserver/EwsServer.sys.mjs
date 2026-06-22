@@ -793,6 +793,11 @@ export class EwsServer extends MockServer {
 
     this.#setVersion(resDoc);
 
+    const maxChanges =
+      reqDoc.getElementsByTagName("MaxChangesReturned")[0].firstChild.nodeValue;
+
+    this.lastMaxMessagePageSize = parseInt(maxChanges);
+
     const syncFolderId = reqDoc
       .getElementsByTagName("SyncFolderId")[0]
       .getElementsByTagName("t:FolderId")[0]

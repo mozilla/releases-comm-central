@@ -129,6 +129,14 @@ add_setup(async () => {
   );
 });
 
+add_task(async function testMaxPageEws() {
+  await testMaxPage(ewsServer, ewsClient);
+});
+
+add_task(async function testMaxPageGraph() {
+  await testMaxPage(graphServer, graphClient);
+});
+
 add_task(async function testMessageBatchingEws() {
   await testMessageBatching(ewsServer, ewsClient);
 });
@@ -160,6 +168,34 @@ add_task(async function testSyncRecipientsEws() {
 add_task(async function testSyncRecipientsGraph() {
   await testSyncRecipients(graphServer, incomingGraphServer);
 });
+
+/**
+ * Test that we message sync requests that are sent request a correct number of
+ * messages to be included in responses.
+ *
+ * @param {MockServer} mockServer - The `MockServer` instance that implements
+ *   the protocol being tested.
+ * @param {EwsClient|GraphClient} client - The protocol client to test.
+ */
+async function testMaxPage(mockServer, client) {
+  mockServer.setRemoteFolders(mockServer.getWellKnownFolders());
+  mockServer.clearItems();
+
+  const messages = generator.makeMessages({ count: 6 });
+  mockServer.addMessages("inbox", messages);
+
+  const listener = new ExchangeMessageCallbackListener();
+  client.syncMessagesForFolder(listener, "inbox", null);
+  await listener.deferred.promise;
+
+  // This value is defined in both the EWS client's and the Graph client's
+  // `sync_messages_for_folder.rs`. It should be kept in sync with these files.
+  Assert.equal(
+    mockServer.lastMaxMessagePageSize,
+    256,
+    "message syncs should be performed with the expected maximum page size"
+  );
+}
 
 /**
  * Test sync wherein we sync more changes than the server will send in one

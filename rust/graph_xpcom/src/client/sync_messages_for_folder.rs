@@ -17,7 +17,7 @@ use ms_graph_tb::{
     },
 };
 use protocol_shared::{
-    ServerType,
+    EXCHANGE_MAX_PAGE_SIZE, ServerType,
     client::DoOperation,
     headerblock_xpcom::{HeaderBlock, rfc5322_header},
     headers::Mailbox,
@@ -81,6 +81,7 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
                 let base_url = client.base_api_url()?.to_string();
                 let folder_id = self.folder_id.clone();
                 let mut request = messages::delta::Get::new(base_url, folder_id);
+                request.set_max_page_size(EXCHANGE_MAX_PAGE_SIZE);
                 request.select(select_properties);
                 request.expand_typed_svlep([PID_TAG_MESSAGE_SIZE]);
                 client
@@ -152,7 +153,8 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
             }
 
             match response {
-                DeltaResponse::NextLink { next_page, .. } => {
+                DeltaResponse::NextLink { mut next_page, .. } => {
+                    next_page.set_max_page_size(EXCHANGE_MAX_PAGE_SIZE);
                     response = client
                         .send_request_json_response(next_page, Default::default())
                         .await?;

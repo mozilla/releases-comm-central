@@ -136,6 +136,7 @@ pub enum RemovedReason {
 pub struct NextPage<R> {
     _phantom: PhantomData<R>,
     next_uri: http::Uri,
+    max_page_size: Option<u16>,
 }
 
 impl<R> Clone for NextPage<R> {
@@ -143,6 +144,7 @@ impl<R> Clone for NextPage<R> {
         Self {
             _phantom: PhantomData,
             next_uri: self.next_uri.clone(),
+            max_page_size: None,
         }
     }
 }
@@ -160,6 +162,7 @@ impl<R> TryFrom<NextPageWire> for NextPage<R> {
         Ok(Self {
             _phantom: PhantomData,
             next_uri: value.next_link.try_into()?,
+            max_page_size: None,
         })
     }
 }
@@ -167,6 +170,10 @@ impl<R> TryFrom<NextPageWire> for NextPage<R> {
 impl<R> NextPage<R> {
     pub fn next_uri(&self) -> &http::Uri {
         &self.next_uri
+    }
+
+    pub fn set_max_page_size(&mut self, size: u16) {
+        self.max_page_size = Some(size);
     }
 }
 
@@ -177,10 +184,15 @@ impl<R: for<'a> Deserialize<'a>> Operation for NextPage<R> {
     /// Create an [`http::Request`] object from `Self`. See the struct note, the
     /// URI should not be modified.
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
-        let req = http::Request::builder()
+        let mut req = http::Request::builder()
             .uri(&self.next_uri)
-            .method(Method::GET)
-            .body(vec![])?;
+            .method(Method::GET);
+
+        if let Some(page_size) = self.max_page_size {
+            req = req.header("Prefer", format!("odata.maxpagesize={page_size}"));
+        }
+
+        let req = req.body(vec![])?;
 
         Ok(req)
     }

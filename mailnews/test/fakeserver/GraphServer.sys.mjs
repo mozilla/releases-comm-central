@@ -289,8 +289,16 @@ export class GraphServer extends MockServer {
     const requestBody = CommonUtils.readBytesFromInputStream(
       request.bodyInputStream
     );
+
+    const requestHeaders = new Map(
+      [...request.headers].map(headerName => [
+        headerName.data,
+        request.getHeader(headerName.data),
+      ])
+    );
     const httpResponseData = this.#dispatchRequest(
       method,
+      requestHeaders,
       resourcePath,
       resourceQuery,
       requestBody
@@ -318,11 +326,13 @@ export class GraphServer extends MockServer {
     for (const batchRequestItem of batchRequest.requests) {
       const id = batchRequestItem.id;
       const method = batchRequestItem.method;
+      const headers = new Map(Object.entries(batchRequestItem.headers));
       const path = batchRequestItem.url;
       const body = batchRequestItem.body;
 
       const itemResponseData = this.#dispatchRequest(
         method,
+        headers,
         path,
         null,
         JSON.stringify(body)
@@ -360,12 +370,19 @@ export class GraphServer extends MockServer {
    * Dispatch a request to the appropriate handler.
    *
    * @param {string} requestMethod
+   * @param {Map<string, string>} requestHeaders
    * @param {string} resourcePath
    * @param {string} resourceQuery
    * @param {string} requestBody
    * @returns {HttpResponseData} The response status code and content for the request.
    */
-  #dispatchRequest(requestMethod, resourcePath, resourceQuery, requestBody) {
+  #dispatchRequest(
+    requestMethod,
+    requestHeaders,
+    resourcePath,
+    resourceQuery,
+    requestBody
+  ) {
     // Try to find a handler that matches the method and path for the request.
     let responseJsonObject = {};
     let pathMatch;
@@ -380,6 +397,7 @@ export class GraphServer extends MockServer {
         ) {
           const folderName = pathMatch[1];
           responseJsonObject = this.#syncFolderMessages(
+            requestHeaders,
             folderName,
             resourceQuery
           );
@@ -390,6 +408,7 @@ export class GraphServer extends MockServer {
         ) {
           const folderName = pathMatch[1];
           responseJsonObject = this.#syncFolderMessages(
+            requestHeaders,
             folderName,
             resourceQuery
           );
@@ -840,10 +859,20 @@ export class GraphServer extends MockServer {
   /**
    * Handles GET /me/mailFolders/{folderId}/delta
    *
+   * @param {Map<string, string>} requestHeaders - The map of headers included
+   *   in the request.
    * @param {string} folderName - The name of the folder to sync.
    * @param {string} queryString - The query parameters from the request.
    */
-  #syncFolderMessages(folderName, queryString) {
+  #syncFolderMessages(requestHeaders, folderName, queryString) {
+    const preferHeaderValue = requestHeaders.get("prefer");
+    let maxPageSizeMatch;
+    if (
+      (maxPageSizeMatch = /odata\.maxpagesize=([0-9]+)/.exec(preferHeaderValue))
+    ) {
+      this.lastMaxMessagePageSize = parseInt(maxPageSizeMatch[1]);
+    }
+
     const params = new URLSearchParams(queryString);
     let offset;
     if (params.has("$skiptoken")) {

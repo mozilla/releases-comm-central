@@ -109,8 +109,8 @@ impl Operation for Post<'_> {
         let request = http::Request::builder()
             .uri(uri)
             .method(Self::METHOD)
-            .header("Content-Type", content_type)
-            .body(body)?;
+            .header("Content-Type", content_type);
+        let request = request.body(body)?;
         Ok(request)
     }
 }

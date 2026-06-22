@@ -7,8 +7,8 @@ use ews::{
     server_version::ExchangeServerVersion,
     sync_folder_items::{self, SyncFolderItems},
 };
-use protocol_shared::client::DoOperation;
 use protocol_shared::safe_xpcom::SafeExchangeMessageSyncListener;
+use protocol_shared::{EXCHANGE_MAX_PAGE_SIZE, client::DoOperation};
 use std::sync::Arc;
 
 use crate::headerblock;
@@ -91,7 +91,7 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError>
                 },
                 sync_state: self.sync_state_token.clone(),
                 ignore: None,
-                max_changes_returned: 256,
+                max_changes_returned: EXCHANGE_MAX_PAGE_SIZE,
                 sync_scope: None,
             };
 

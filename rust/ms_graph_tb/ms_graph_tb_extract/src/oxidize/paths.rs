@@ -118,6 +118,34 @@ impl ToTokens for PathModule<'_> {
     }
 }
 
+/// Generates a setter for a `page_size` property within the current struct.
+///
+/// The property is expected to have the type `Option<u16>`.
+fn page_size_impl() -> TokenStream {
+    quote! {
+        ///Sets the page size to request from the server (via the `Prefer:
+        /// odata.maxpagesize=x` header).
+        pub fn set_max_page_size(&mut self, size: u16) {
+            self.max_page_size = Some(size);
+        }
+    }
+}
+
+/// Generates code that sets the "Prefer: odata.maxpagesize=x" header on the
+/// current request builder.
+///
+/// Although Microsoft's recommendation is that we use `$top` to specify page
+/// sizes, this does not seem to work for delta requests, but this header seems
+/// to do the job. Setting both in the request seems to lead to weird behaviour,
+/// so we only set the header for now.
+fn page_size_header() -> TokenStream {
+    quote! {
+        if let Some(page_size) = self.max_page_size {
+            request = request.header("Prefer", format!("odata.maxpagesize={page_size}"));
+        }
+    }
+}
+
 fn operation_response(operation: &Operation) -> TokenStream {
     if operation.is_delta {
         let response = delta_response_value(operation);
@@ -247,6 +275,7 @@ fn request_without_body(
         selection_type: selection_type.clone(),
         expand_type: expand_type.clone(),
         filterable,
+        is_delta: operation.is_delta,
     };
     let impl_def = ImplDef {
         method,
@@ -256,6 +285,7 @@ fn request_without_body(
         selectable,
         expandable,
         filterable,
+        is_delta: operation.is_delta,
     };
     let operation_def = OperationDef {
         method: method.to_string(),
@@ -265,6 +295,7 @@ fn request_without_body(
         selectable,
         expandable,
         filterable,
+        is_delta: operation.is_delta,
     };
     let select_def = SelectDef {
         selection_type,
@@ -346,6 +377,7 @@ fn request_with_body(
         selection_type: selection_type.clone(),
         expand_type: None,
         filterable,
+        is_delta: false,
     };
     let impl_def = ImplDef {
         method,
@@ -355,6 +387,7 @@ fn request_with_body(
         selectable,
         expandable: false,
         filterable,
+        is_delta: false,
     };
     let operation_def = OperationDef {
         method: method.to_string(),
@@ -364,6 +397,7 @@ fn request_with_body(
         selectable,
         expandable: false,
         filterable,
+        is_delta: false,
     };
     let select_def = SelectDef {
         selection_type,
@@ -482,6 +516,7 @@ struct StructDef {
     selection_type: Option<Ident>,
     expand_type: Option<Ident>,
     filterable: bool,
+    is_delta: bool,
 }
 
 impl ToTokens for StructDef {
@@ -494,6 +529,7 @@ impl ToTokens for StructDef {
             selection_type,
             expand_type,
             filterable,
+            is_delta,
         } = self;
         let selection_line = selection_type
             .as_ref()
@@ -502,6 +538,12 @@ impl ToTokens for StructDef {
             .as_ref()
             .map(|expand_type| quote!(expansion: ExpansionList<#expand_type>,));
         let filter_line = filterable.then(|| quote!(filter: FilterQuery,));
+
+        // The maximum page size when listing messages is 1000 (the API for
+        // listing folders does not specify a maximum page size), which fits in
+        // a `u16`.
+        let page_size_line = is_delta.then(|| quote!(max_page_size: Option<u16>));
+
         tokens.append_all(quote! {
             #description
             #[derive(Debug)]
@@ -511,6 +553,7 @@ impl ToTokens for StructDef {
                 #selection_line
                 #expand_line
                 #filter_line
+                #page_size_line
             }
         })
     }
@@ -524,6 +567,7 @@ struct ImplDef {
     selectable: bool,
     expandable: bool,
     filterable: bool,
+    is_delta: bool,
 }
 
 impl ToTokens for ImplDef {
@@ -536,6 +580,7 @@ impl ToTokens for ImplDef {
             selectable,
             expandable,
             filterable,
+            is_delta,
         } = self;
         let body_line = if arg.is_some() {
             Some(quote!(body,))
@@ -557,6 +602,10 @@ impl ToTokens for ImplDef {
         } else {
             None
         };
+        let page_size_line = is_delta.then(|| quote!(max_page_size: None,));
+
+        let page_size_impl = is_delta.then(page_size_impl);
+
         tokens.append_all(quote! {
             impl #lifetime #method #lifetime {
                 #[must_use]
@@ -569,8 +618,11 @@ impl ToTokens for ImplDef {
                         #selection_line
                         #expand_line
                         #filter_line
+                        #page_size_line
                     }
                 }
+
+                #page_size_impl
             }
         })
     }
@@ -584,6 +636,7 @@ struct OperationDef {
     selectable: bool,
     expandable: bool,
     filterable: bool,
+    is_delta: bool,
 }
 
 impl ToTokens for OperationDef {
@@ -596,6 +649,7 @@ impl ToTokens for OperationDef {
             selectable,
             expandable,
             filterable,
+            is_delta,
         } = self;
         let upper_method = format_ident!("{}", method.to_ascii_uppercase());
         let method = format_ident!("{method}");
@@ -640,12 +694,17 @@ impl ToTokens for OperationDef {
             quote!(let uri = format_path(&self.template_expressions).parse::<http::uri::Uri>().unwrap();)
         };
 
+        let page_size_hdr = is_delta.then(page_size_header);
+
         let build_request = match body {
             None => quote! {
-                let request = http::Request::builder()
+                let mut request = http::Request::builder()
                     .uri(uri)
-                    .method(Self::METHOD)
-                    .body(vec![])?;
+                    .method(Self::METHOD);
+
+                #page_size_hdr
+
+                let request = request.body(vec![])?;
             },
             Some(_) => quote! {
                 let (body, content_type) = match self.body {
@@ -653,11 +712,14 @@ impl ToTokens for OperationDef {
                     OperationBody::Other { body, content_type } => (body, content_type),
                 };
 
-                let request = http::Request::builder()
+                let mut request = http::Request::builder()
                     .uri(uri)
                     .method(Self::METHOD)
-                    .header("Content-Type", content_type)
-                    .body(body)?;
+                    .header("Content-Type", content_type);
+
+                #page_size_hdr
+
+                let request = request.body(body)?;
             },
         };
 
@@ -807,6 +869,9 @@ struct DeltaDef {
 impl ToTokens for DeltaDef {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let Self { response } = self;
+        let page_size_impl = page_size_impl();
+        let page_size_hdr = page_size_header();
+
         tokens.append_all(quote! {
             ///Retrieve delta changes using an opaque token from a previous
             /// delta response. The caller must ensure only tokens from this
@@ -814,13 +879,22 @@ impl ToTokens for DeltaDef {
             #[derive(Debug)]
             pub struct GetDelta {
                 token: http::Uri,
+                max_page_size: Option<u16>,
             }
+
+            impl GetDelta {
+                #page_size_impl
+            }
+
             impl TryFrom<&str> for GetDelta {
                 type Error = Error;
 
                 fn try_from(token: &str) -> Result<Self, Self::Error> {
                     let token = http::Uri::from_str(token)?;
-                    Ok(Self { token })
+                    Ok(Self {
+                        token,
+                        max_page_size: None,
+                    })
                 }
             }
 
@@ -829,10 +903,13 @@ impl ToTokens for DeltaDef {
                 type Response<'response> = #response;
 
                 fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
-                    let request = http::Request::builder()
+                    let mut request = http::Request::builder()
                         .uri(&self.token)
-                        .method(Self::METHOD)
-                        .body(vec![])?;
+                        .method(Self::METHOD);
+
+                        #page_size_hdr
+
+                    let request = request.body(vec![])?;
 
                     Ok(request)
                 }

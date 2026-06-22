@@ -28,6 +28,7 @@ pub struct Get {
     selection: Selection<MailFolderSelection>,
     expansion: ExpansionList<MailFolderExpand>,
     filter: FilterQuery,
+    max_page_size: Option<u16>,
 }
 impl Get {
     #[must_use]
@@ -37,7 +38,13 @@ impl Get {
             selection: Selection::default(),
             expansion: ExpansionList::default(),
             filter: FilterQuery::default(),
+            max_page_size: None,
         }
+    }
+    #[doc = r"Sets the page size to request from the server (via the `Prefer:"]
+    #[doc = r" odata.maxpagesize=x` header)."]
+    pub fn set_max_page_size(&mut self, size: u16) {
+        self.max_page_size = Some(size);
     }
 }
 impl Operation for Get {
@@ -63,10 +70,11 @@ impl Operation for Get {
                 .parse::<http::uri::Uri>()
                 .unwrap()
         };
-        let request = http::Request::builder()
-            .uri(uri)
-            .method(Self::METHOD)
-            .body(vec![])?;
+        let mut request = http::Request::builder().uri(uri).method(Self::METHOD);
+        if let Some(page_size) = self.max_page_size {
+            request = request.header("Prefer", format!("odata.maxpagesize={page_size}"));
+        }
+        let request = request.body(vec![])?;
         Ok(request)
     }
 }
@@ -99,22 +107,36 @@ impl Filter for Get {
 #[derive(Debug)]
 pub struct GetDelta {
     token: http::Uri,
+    max_page_size: Option<u16>,
+}
+impl GetDelta {
+    #[doc = r"Sets the page size to request from the server (via the `Prefer:"]
+    #[doc = r" odata.maxpagesize=x` header)."]
+    pub fn set_max_page_size(&mut self, size: u16) {
+        self.max_page_size = Some(size);
+    }
 }
 impl TryFrom<&str> for GetDelta {
     type Error = Error;
     fn try_from(token: &str) -> Result<Self, Self::Error> {
         let token = http::Uri::from_str(token)?;
-        Ok(Self { token })
+        Ok(Self {
+            token,
+            max_page_size: None,
+        })
     }
 }
 impl Operation for GetDelta {
     const METHOD: Method = Method::GET;
     type Response<'response> = DeltaResponse<MailFolder<'response>>;
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
-        let request = http::Request::builder()
+        let mut request = http::Request::builder()
             .uri(&self.token)
-            .method(Self::METHOD)
-            .body(vec![])?;
+            .method(Self::METHOD);
+        if let Some(page_size) = self.max_page_size {
+            request = request.header("Prefer", format!("odata.maxpagesize={page_size}"));
+        }
+        let request = request.body(vec![])?;
         Ok(request)
     }
 }

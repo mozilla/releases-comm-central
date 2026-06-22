@@ -172,6 +172,17 @@ export class MockServer {
   lastSentMessage = null;
 
   /**
+   * The latest requested maximum page size in responses when synchronizing
+   * message lists.
+   *
+   * This does not necessarily represent how many results are actually returned
+   * by the mock server, but rather how many were requested by the client.
+   *
+   * @type {?number}
+   */
+  lastMaxMessagePageSize = null;
+
+  /**
    * The number of times a message has been moved in the server's lifespan.
    *
    * @type {number}

@@ -67,10 +67,8 @@ impl Operation for Get {
                 .parse::<http::uri::Uri>()
                 .unwrap()
         };
-        let request = http::Request::builder()
-            .uri(uri)
-            .method(Self::METHOD)
-            .body(vec![])?;
+        let request = http::Request::builder().uri(uri).method(Self::METHOD);
+        let request = request.body(vec![])?;
         Ok(request)
     }
 }
@@ -138,8 +136,8 @@ impl Operation for Patch<'_> {
         let request = http::Request::builder()
             .uri(uri)
             .method(Self::METHOD)
-            .header("Content-Type", content_type)
-            .body(body)?;
+            .header("Content-Type", content_type);
+        let request = request.body(body)?;
         Ok(request)
     }
 }
@@ -175,10 +173,8 @@ impl Operation for Delete {
         let uri = format_path(&self.template_expressions)
             .parse::<http::uri::Uri>()
             .unwrap();
-        let request = http::Request::builder()
-            .uri(uri)
-            .method(Self::METHOD)
-            .body(vec![])?;
+        let request = http::Request::builder().uri(uri).method(Self::METHOD);
+        let request = request.body(vec![])?;
         Ok(request)
     }
 }
