@@ -906,6 +906,7 @@ export const CalendarTestUtils = {
     const dialogWindow = await dialogPromise;
     const iframe = dialogWindow.document.querySelector("#calendar-item-panel-iframe");
     await new Promise(resolve => iframe.contentWindow.setTimeout(resolve));
+    await this._waitForItemDialogSized(iframe);
     Assert.report(false, undefined, undefined, `New ${type} dialog opened`);
     return {
       dialogWindow,
@@ -947,6 +948,7 @@ export const CalendarTestUtils = {
     const dialogWindow = await promise;
     const iframe = dialogWindow.document.querySelector("#calendar-item-panel-iframe");
     await new Promise(resolve => iframe.contentWindow.setTimeout(resolve));
+    await this._waitForItemDialogSized(iframe);
     return {
       dialogWindow,
       dialogDocument: dialogWindow.document,
@@ -956,12 +958,40 @@ export const CalendarTestUtils = {
   },
 
   /**
+   * Waits until the item dialog iframe has finished flexing to its final size.
+   * The iframe opens collapsed and only flexes to fill the dialog a refresh tick
+   * later, once its labels have been localized asynchronously via Fluent.
+   *
+   * @param {XULElement} iframe - The item panel iframe.
+   */
+  async _waitForItemDialogSized(iframe) {
+    const contentDocument = iframe.contentDocument;
+    if (contentDocument.hasPendingL10nMutations) {
+      await BrowserTestUtils.waitForEvent(contentDocument, "L10nMutationsFinished");
+    }
+    let previousHeight = -1;
+    let stableTicks = 0;
+    await TestUtils.waitForCondition(() => {
+      const currentHeight = iframe.contentWindow.innerHeight;
+      if (currentHeight >= contentDocument.body.scrollHeight) {
+        return true;
+      }
+      if (currentHeight == previousHeight) {
+        stableTicks++;
+      } else {
+        stableTicks = 0;
+        previousHeight = currentHeight;
+      }
+      return stableTicks >= 3;
+    }, "the item dialog iframe should settle to its final size");
+  },
+
+  /**
    * Opens the event dialog for editing by clicking on the provided event item.
    *
    * @param {Window} win - The window containing the calendar.
    * @param {MozCalendarEditableItem} item - An event box item that can be
-   * clicked on to open the dialog.
-   *
+   *   clicked on to open the dialog.
    * @returns {Promise<EditItemAtResult>}
    */
   async editItem(win, item) {
@@ -974,8 +1004,7 @@ export const CalendarTestUtils = {
    *
    * @param {Window} win - The window containing the calendar.
    * @param {MozCalendarEditableItem} item - An event box item that can be
-   * clicked on to open the dialog.
-   *
+   *   clicked on to open the dialog.
    * @returns {Window}
    */
   async editItemOccurrence(win, item) {
@@ -988,8 +1017,7 @@ export const CalendarTestUtils = {
    *
    * @param {Window} win - The window containing the calendar.
    * @param {MozCalendarEditableItem} item - An event box item that can be
-   * clicked on to open the dialog.
-   *
+   *   clicked on to open the dialog.
    * @returns {Window}
    */
   async editItemOccurrences(win, item) {
@@ -1002,8 +1030,7 @@ export const CalendarTestUtils = {
    * wait for.
    *
    * @param {string} [mode="view"] Determines which dialog we are waiting on,
-   *  can be "view" for the summary or "edit" for the editing one.
-   *
+   *   can be "view" for the summary or "edit" for the editing one.
    * @returns {Promise<Window>}
    */
   async waitForEventDialog(mode = "view") {
