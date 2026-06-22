@@ -5,15 +5,23 @@
 #ifndef COMM_MAILNEWS_LOCAL_SRC_NSMAILBOXURL_H_
 #define COMM_MAILNEWS_LOCAL_SRC_NSMAILBOXURL_H_
 
-#include "nsIMailboxUrl.h"
 #include "nsMsgMailNewsUrl.h"
 #include "nsIStreamListener.h"
 #include "nsIFile.h"
 #include "nsCOMPtr.h"
 #include "nsTArray.h"
 
-class nsMailboxUrl : public nsIMailboxUrl,
-                     public nsMsgMailNewsUrl,
+enum class MailboxAction : int32_t {
+  Invalid = 0,
+  FetchMessage = 1,
+  CopyMessage = 2,
+  MoveMessage = 3,
+  SaveMessageToDisk = 4,
+  AppendMessageToDisk = 5,
+  FetchPart = 6,
+};
+
+class nsMailboxUrl : public nsMsgMailNewsUrl,
                      public nsIMsgMessageUrl,
                      public nsIMsgI18NUrl {
  public:
@@ -22,33 +30,28 @@ class nsMailboxUrl : public nsIMailboxUrl,
   nsresult SetQuery(const nsACString& aQuery) override;
   nsresult CreateURL(const nsACString& aSpec, nsIURL** aURL) override;
 
-  // from nsIMailboxUrl:
-  NS_IMETHOD SetMailboxCopyHandler(nsIStreamListener* aConsumer) override;
-  NS_IMETHOD GetMailboxCopyHandler(nsIStreamListener** aConsumer) override;
-
-  NS_IMETHOD GetMessageKey(nsMsgKey* aMessageKey) override;
-  NS_IMETHOD GetMessageSize(uint32_t* aMessageSize) override;
-  NS_IMETHOD SetMessageSize(uint32_t aMessageSize) override;
-  NS_IMETHOD GetMailboxAction(nsMailboxAction* result) override {
+  nsresult GetMessageKey(nsMsgKey* aMessageKey);
+  nsresult GetMessageSize(uint32_t* aMessageSize);
+  nsresult SetMessageSize(uint32_t aMessageSize);
+  NS_IMETHOD GetMailboxAction(MailboxAction* result) {
     NS_ENSURE_ARG_POINTER(result);
     *result = m_mailboxAction;
     return NS_OK;
   }
-  NS_IMETHOD SetMailboxAction(nsMailboxAction aAction) override {
+  NS_IMETHOD SetMailboxAction(MailboxAction aAction) {
     m_mailboxAction = aAction;
     return NS_OK;
   }
   NS_IMETHOD IsUrlType(uint32_t type, bool* isType) override;
-  NS_IMETHOD SetMoveCopyMsgKeys(const nsTArray<nsMsgKey>& keysToFlag) override;
-  NS_IMETHOD GetMoveCopyMsgHdrForIndex(uint32_t msgIndex,
-                                       nsIMsgDBHdr** msgHdr) override;
-  NS_IMETHOD GetNumMoveCopyMsgs(uint32_t* numMsgs) override;
-  NS_IMETHOD GetCurMoveCopyMsgIndex(uint32_t* result) override {
+  nsresult SetMoveCopyMsgKeys(const nsTArray<nsMsgKey>& keysToFlag);
+  nsresult GetMoveCopyMsgHdrForIndex(uint32_t msgIndex, nsIMsgDBHdr** msgHdr);
+  nsresult GetNumMoveCopyMsgs(uint32_t* numMsgs);
+  NS_IMETHOD GetCurMoveCopyMsgIndex(uint32_t* result) {
     NS_ENSURE_ARG_POINTER(result);
     *result = m_curMsgIndex;
     return NS_OK;
   }
-  NS_IMETHOD SetCurMoveCopyMsgIndex(uint32_t aIndex) override {
+  NS_IMETHOD SetCurMoveCopyMsgIndex(uint32_t aIndex) {
     m_curMsgIndex = aIndex;
     return NS_OK;
   }
@@ -64,6 +67,10 @@ class nsMailboxUrl : public nsIMailboxUrl,
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_NSIMSGI18NURL
 
+  // Mailbox copy handler.
+  nsresult SetMailboxCopyHandler(nsIStreamListener* aConsumer);
+  nsresult GetMailboxCopyHandler(nsIStreamListener** aConsumer);
+
  protected:
   virtual ~nsMailboxUrl();
   // protocol specific code to parse a url...
@@ -74,8 +81,8 @@ class nsMailboxUrl : public nsIMailboxUrl,
   nsCOMPtr<nsIStreamListener> m_mailboxParser;
   nsCOMPtr<nsIStreamListener> m_mailboxCopyHandler;
 
-  nsMailboxAction m_mailboxAction;  // the action this url represents...parse
-                                    // mailbox, display messages, etc.
+  MailboxAction m_mailboxAction;  // the action this url represents...parse
+                                  // mailbox, display messages, etc.
   nsCOMPtr<nsIFile> m_filePath;
   char* m_messageID;
   uint32_t m_messageSize;

@@ -12,7 +12,6 @@
 #include "nsCOMPtr.h"
 #include "nsIFolderLookupService.h"
 #include "nsIImapUrl.h"
-#include "nsIMailboxUrl.h"
 #include "nsMsgI18N.h"
 #include "nsCharTraits.h"
 #include "prprf.h"

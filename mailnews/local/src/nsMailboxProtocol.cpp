@@ -47,7 +47,7 @@ static LazyLogModule MAILBOX("Mailbox");
 
 nsMailboxProtocol::nsMailboxProtocol(nsIURI* aURI)
     : nsMsgProtocol(aURI),
-      m_mailboxAction(nsIMailboxUrl::ActionInvalid),
+      m_mailboxAction(MailboxAction::Invalid),
       m_nextState(MAILBOX_UNINITIALIZED),
       mCurrentProgress(0) {}
 
@@ -75,7 +75,7 @@ nsresult nsMailboxProtocol::Initialize(nsIURI* aURL) {
     //  "\\steal-your-stuff.com\bob\mail/Inbox"  -> NO!
     //            unless "steal-your-stuff.com" is in `mail.allowed_unc_hosts`.
 
-    m_runningUrl = do_QueryInterface(aURL, &rv);
+    m_runningUrl = static_cast<nsMailboxUrl*>(aURL);
     nsCString filePath;
     rv = aURL->GetFilePath(filePath);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -142,9 +142,8 @@ nsresult nsMailboxProtocol::Initialize(nsIURI* aURL) {
         // This appears to be an .eml file.
         rv = OpenFileSocket(aURL);
       } else {
-        nsCOMPtr<nsIMsgMessageUrl> msgUrl =
-            do_QueryInterface(m_runningUrl, &rv);
-        if (NS_SUCCEEDED(rv)) {
+        nsCOMPtr<nsIMsgMessageUrl> msgUrl = m_runningUrl.get();
+        if (msgUrl) {
           nsCOMPtr<nsIMsgFolder> folder;
           nsCOMPtr<nsIMsgDBHdr> msgHdr;
           rv = msgUrl->GetMessageHeader(getter_AddRefs(msgHdr));
@@ -158,9 +157,8 @@ nsresult nsMailboxProtocol::Initialize(nsIURI* aURL) {
             SetContentLength(msgSize);
             rv = m_runningUrl->GetMailboxAction(&m_mailboxAction);
             NS_ENSURE_SUCCESS(rv, rv);
-            nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl =
-                do_QueryInterface(m_runningUrl);
-            MOZ_ASSERT(m_mailboxAction != nsIMailboxUrl::ActionInvalid);
+            nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = m_runningUrl.get();
+            MOZ_ASSERT(m_mailboxAction != MailboxAction::Invalid);
             mailnewsUrl->SetMaxProgress(msgSize);
 
             rv = msgHdr->GetFolder(getter_AddRefs(folder));
@@ -199,8 +197,8 @@ NS_IMETHODIMP nsMailboxProtocol::OnStartRequest(nsIRequest* request) {
 }
 
 bool nsMailboxProtocol::RunningMultipleMsgUrl() {
-  if (m_mailboxAction == nsIMailboxUrl::ActionCopyMessage ||
-      m_mailboxAction == nsIMailboxUrl::ActionMoveMessage) {
+  if (m_mailboxAction == MailboxAction::CopyMessage ||
+      m_mailboxAction == MailboxAction::MoveMessage) {
     uint32_t numMoveCopyMsgs;
     nsresult rv = m_runningUrl->GetNumMoveCopyMsgs(&numMoveCopyMsgs);
     if (NS_SUCCEEDED(rv) && numMoveCopyMsgs > 1) return true;
@@ -221,8 +219,8 @@ NS_IMETHODIMP nsMailboxProtocol::OnStopRequest(nsIRequest* request,
   // I'm not getting cancel status - maybe the load group still has the status.
   if (m_runningUrl) {
     if (NS_SUCCEEDED(aStatus) &&
-        (m_mailboxAction == nsIMailboxUrl::ActionCopyMessage ||
-         m_mailboxAction == nsIMailboxUrl::ActionMoveMessage)) {
+        (m_mailboxAction == MailboxAction::CopyMessage ||
+         m_mailboxAction == MailboxAction::MoveMessage)) {
       uint32_t numMoveCopyMsgs;
       uint32_t curMoveCopyMsgIndex;
       rv = m_runningUrl->GetNumMoveCopyMsgs(&numMoveCopyMsgs);
@@ -257,8 +255,7 @@ NS_IMETHODIMP nsMailboxProtocol::OnStopRequest(nsIRequest* request,
             if (msgFolder) {
               nsCString uri;
               msgFolder->GetUriForMsg(nextMsg, uri);
-              nsCOMPtr<nsIMsgMessageUrl> msgUrl =
-                  do_QueryInterface(m_runningUrl);
+              nsCOMPtr<nsIMsgMessageUrl> msgUrl = m_runningUrl.get();
               if (msgUrl) {
                 msgUrl->SetOriginalSpec(uri);
                 msgUrl->SetUri(uri);
@@ -340,7 +337,7 @@ nsresult nsMailboxProtocol::DoneReadingMessage() {
   nsresult rv = NS_OK;
   // and close the article file if it was open....
 
-  if (m_mailboxAction == nsIMailboxUrl::ActionSaveMessageToDisk &&
+  if (m_mailboxAction == MailboxAction::SaveMessageToDisk &&
       m_msgFileOutputStream)
     rv = m_msgFileOutputStream->Close();
 
@@ -358,7 +355,7 @@ nsresult nsMailboxProtocol::LoadUrl(nsIURI* aURL, nsISupports* aConsumer) {
   if (consumer) m_channelListener = consumer;
 
   if (aURL) {
-    m_runningUrl = do_QueryInterface(aURL);
+    m_runningUrl = static_cast<nsMailboxUrl*>(aURL);
     if (m_runningUrl) {
       // find out from the url what action we are supposed to perform...
       rv = m_runningUrl->GetMailboxAction(&m_mailboxAction);
@@ -367,10 +364,8 @@ nsresult nsMailboxProtocol::LoadUrl(nsIURI* aURL, nsISupports* aConsumer) {
 
       // need to check if we're fetching an rfc822 part in order to
       // quote a message.
-      if (m_mailboxAction == nsIMailboxUrl::ActionFetchMessage) {
-        nsCOMPtr<nsIMsgMailNewsUrl> msgUrl =
-            do_QueryInterface(m_runningUrl, &rv);
-        NS_ENSURE_SUCCESS(rv, rv);
+      if (m_mailboxAction == MailboxAction::FetchMessage) {
+        nsCOMPtr<nsIMsgMailNewsUrl> msgUrl = m_runningUrl.get();
 
         nsAutoCString queryStr;
         rv = msgUrl->GetQuery(queryStr);
@@ -380,7 +375,7 @@ nsresult nsMailboxProtocol::LoadUrl(nsIURI* aURL, nsISupports* aConsumer) {
         // in that case, set up a text converter
         convertData = (queryStr.Find("header=filter") != -1 ||
                        queryStr.Find("header=attach") != -1);
-      } else if (m_mailboxAction == nsIMailboxUrl::ActionFetchPart) {
+      } else if (m_mailboxAction == MailboxAction::FetchPart) {
         // when fetching a part, we need to insert a converter into the listener
         // chain order to force just the part out of the message. Our channel
         // listener is the consumer we'll pass in to AsyncConvertData.
@@ -401,13 +396,11 @@ nsresult nsMailboxProtocol::LoadUrl(nsIURI* aURL, nsISupports* aConsumer) {
 
       if (NS_SUCCEEDED(rv)) {
         switch (m_mailboxAction) {
-          case nsIMailboxUrl::ActionInvalid:
+          case MailboxAction::Invalid:
             MOZ_ASSERT(false);  // Bad URL.
             break;
-          case nsIMailboxUrl::ActionSaveMessageToDisk: {
-            nsCOMPtr<nsIMsgMessageUrl> messageUrl =
-                do_QueryInterface(m_runningUrl, &rv);
-            NS_ENSURE_SUCCESS(rv, rv);
+          case MailboxAction::SaveMessageToDisk: {
+            nsCOMPtr<nsIMsgMessageUrl> messageUrl = m_runningUrl.get();
             nsCOMPtr<nsIFile> tempMsgFile;
             messageUrl->GetMessageFile(getter_AddRefs(tempMsgFile));
             NS_ENSURE_STATE(tempMsgFile);
@@ -425,13 +418,13 @@ nsresult nsMailboxProtocol::LoadUrl(nsIURI* aURL, nsISupports* aConsumer) {
             m_nextState = MAILBOX_READ_MESSAGE;
             break;
           }
-          case nsIMailboxUrl::ActionCopyMessage:
-          case nsIMailboxUrl::ActionMoveMessage:
-          case nsIMailboxUrl::ActionFetchMessage:
+          case MailboxAction::CopyMessage:
+          case MailboxAction::MoveMessage:
+          case MailboxAction::FetchMessage:
             ClearFlag(MAILBOX_MSG_PARSE_FIRST_LINE);
             m_nextState = MAILBOX_READ_MESSAGE;
             break;
-          case nsIMailboxUrl::ActionFetchPart:
+          case MailboxAction::FetchPart:
             m_nextState = MAILBOX_READ_MESSAGE;
             break;
           default:
@@ -465,7 +458,7 @@ int32_t nsMailboxProtocol::ReadMessageResponse(nsIInputStream* inputStream,
   } else {
     bool pauseForMoreData = false;
     bool canonicalLineEnding = false;
-    nsCOMPtr<nsIMsgMessageUrl> msgurl = do_QueryInterface(m_runningUrl);
+    nsCOMPtr<nsIMsgMessageUrl> msgurl = m_runningUrl.get();
 
     if (msgurl) msgurl->GetCanonicalLineEnding(&canonicalLineEnding);
 
@@ -505,7 +498,7 @@ int32_t nsMailboxProtocol::ReadMessageResponse(nsIInputStream* inputStream,
   SetFlag(MAILBOX_PAUSE_FOR_READ);  // wait for more data to become available...
   if (m_runningUrl) {
     int64_t maxProgress;
-    nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl(do_QueryInterface(m_runningUrl));
+    nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl(m_runningUrl.get());
     mailnewsUrl->GetMaxProgress(&maxProgress);
 
     if (mCurrentProgress > 0 && maxProgress > 0) {
@@ -548,8 +541,7 @@ nsresult nsMailboxProtocol::ProcessProtocolState(nsIURI* url,
         break;
       case MAILBOX_DONE:
       case MAILBOX_ERROR_DONE: {
-        nsCOMPtr<nsIMsgMailNewsUrl> anotherUrl =
-            do_QueryInterface(m_runningUrl);
+        nsCOMPtr<nsIMsgMailNewsUrl> anotherUrl = m_runningUrl.get();
         rv = m_nextState == MAILBOX_DONE ? NS_OK : NS_ERROR_FAILURE;
         anotherUrl->SetUrlState(false, rv);
         m_nextState = MAILBOX_FREE;

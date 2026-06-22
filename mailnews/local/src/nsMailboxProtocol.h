@@ -9,7 +9,7 @@
 #include "nsCOMPtr.h"
 #include "nsIFile.h"
 #include "nsIOutputStream.h"
-#include "nsIMailboxUrl.h"
+#include "nsMailboxUrl.h"
 // State Flags (Note, I use the word state in terms of storing
 // state information about the connection (authentication, have we sent
 // commands, etc. I do not intend it to refer to protocol state)
@@ -52,9 +52,9 @@ class nsMailboxProtocol : public nsMsgProtocol {
   NS_IMETHOD OnStopRequest(nsIRequest* request, nsresult aStatus) override;
 
  private:
-  nsCOMPtr<nsIMailboxUrl>
-      m_runningUrl;  // the nsIMailboxURL that is currently running
-  nsMailboxAction m_mailboxAction;  // current mailbox action associated with
+  RefPtr<nsMailboxUrl>
+      m_runningUrl;  // the nsMailboxUrl that is currently running
+  MailboxAction m_mailboxAction;  // current mailbox action associated with
                                     // this connection...
 
   // Local state for the current operation

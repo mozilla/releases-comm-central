@@ -11,7 +11,7 @@
 #include "nsIMsgFolder.h"
 #include "nsIMsgMessageService.h"
 #include "nsIMsgWindow.h"
-#include "nsIMailboxUrl.h"
+#include "nsMailboxUrl.h"
 #include "nsIURI.h"
 #include "nsIUrlListener.h"
 #include "nsIProtocolHandler.h"
@@ -43,8 +43,8 @@ class nsMailboxService : public nsIMsgMessageService,
   // helper functions used by the service
   nsresult PrepareMessageUrl(const nsACString& aSrcMsgMailboxURI,
                              nsIUrlListener* aUrlListener,
-                             nsMailboxAction aMailboxAction,
-                             nsIMailboxUrl** aMailboxUrl,
+                             MailboxAction aMailboxAction,
+                             nsIMsgMailNewsUrl** aMailboxUrl,
                              nsIMsgWindow* msgWindow);
 
   nsresult RunMailboxUrl(nsIURI* aMailboxUrl,
@@ -54,7 +54,7 @@ class nsMailboxService : public nsIMsgMessageService,
       const nsACString& aMessageURI, nsISupports* aDisplayConsumer,
       nsIMsgWindow* aMsgWindow, nsIUrlListener* aUrlListener,
       const char* aFileName, /* only used by open attachment */
-      nsMailboxAction mailboxAction, bool aAutodetectCharset, nsIURI** aURL);
+      MailboxAction mailboxAction, bool aAutodetectCharset, nsIURI** aURL);
 
   nsresult DecomposeMailboxURI(const nsACString& aMessageURI,
                                nsIMsgFolder** aFolder, nsMsgKey* aMsgKey);

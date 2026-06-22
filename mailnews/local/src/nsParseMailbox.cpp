@@ -11,7 +11,6 @@
 #include "nsMsgMessageFlags.h"
 #include "nsIInputStream.h"
 #include "nsMsgLocalFolderHdrs.h"
-#include "nsIMailboxUrl.h"
 #include "nsNetUtil.h"
 #include "nsMsgFolderFlags.h"
 #include "nsIMsgFolder.h"

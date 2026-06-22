@@ -41,8 +41,6 @@ function run_test() {
     // Check we get a URI when we ask for one
     var uri = Services.io.newURI(protocols[part].urlSpec);
 
-    uri.QueryInterface(Ci.nsIMailboxUrl);
-
     Assert.equal(uri.spec, protocols[part].urlSpec);
 
     // XXX This fails on Windows

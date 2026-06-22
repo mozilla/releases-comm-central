@@ -6,7 +6,6 @@
 #include "msgCore.h"  // precompiled header...
 
 #include "nsIURI.h"
-#include "nsIMailboxUrl.h"
 #include "nsMailboxUrl.h"
 
 #include "nsString.h"
@@ -36,7 +35,7 @@ char* extractAttributeValue(const char* searchString,
                             const char* attributeName);
 
 nsMailboxUrl::nsMailboxUrl() {
-  m_mailboxAction = nsIMailboxUrl::ActionInvalid;
+  m_mailboxAction = MailboxAction::Invalid;
   m_filePath = nullptr;
   m_messageID = nullptr;
   m_messageKey = nsMsgKey_None;
@@ -54,14 +53,13 @@ NS_IMPL_ADDREF_INHERITED(nsMailboxUrl, nsMsgMailNewsUrl)
 NS_IMPL_RELEASE_INHERITED(nsMailboxUrl, nsMsgMailNewsUrl)
 
 NS_INTERFACE_MAP_BEGIN(nsMailboxUrl)
-  NS_INTERFACE_MAP_ENTRY_AMBIGUOUS(nsISupports, nsIMailboxUrl)
-  NS_INTERFACE_MAP_ENTRY(nsIMailboxUrl)
+  NS_INTERFACE_MAP_ENTRY_AMBIGUOUS(nsISupports, nsIMsgMessageUrl)
   NS_INTERFACE_MAP_ENTRY(nsIMsgMessageUrl)
   NS_INTERFACE_MAP_ENTRY(nsIMsgI18NUrl)
 NS_INTERFACE_MAP_END_INHERITING(nsMsgMailNewsUrl)
 
 ////////////////////////////////////////////////////////////////////////////////////
-// Begin nsIMailboxUrl specific support
+// Begin nsMailboxUrl specific support
 ////////////////////////////////////////////////////////////////////////////////////
 
 nsresult nsMailboxUrl::SetMailboxCopyHandler(
@@ -86,7 +84,7 @@ nsresult nsMailboxUrl::GetMessageKey(nsMsgKey* aMessageKey) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMailboxUrl::GetMessageSize(uint32_t* aMessageSize) {
+nsresult nsMailboxUrl::GetMessageSize(uint32_t* aMessageSize) {
   if (aMessageSize) {
     *aMessageSize = m_messageSize;
     return NS_OK;
@@ -298,14 +296,14 @@ NS_IMETHODIMP nsMailboxUrl::IsUrlType(uint32_t type, bool* isType) {
 
   switch (type) {
     case nsIMsgMailNewsUrl::eCopy:
-      *isType = (m_mailboxAction == nsIMailboxUrl::ActionCopyMessage);
+      *isType = (m_mailboxAction == MailboxAction::CopyMessage);
       break;
     case nsIMsgMailNewsUrl::eMove:
-      *isType = (m_mailboxAction == nsIMailboxUrl::ActionMoveMessage);
+      *isType = (m_mailboxAction == MailboxAction::MoveMessage);
       break;
     case nsIMsgMailNewsUrl::eDisplay:
-      *isType = (m_mailboxAction == nsIMailboxUrl::ActionFetchMessage ||
-                 m_mailboxAction == nsIMailboxUrl::ActionFetchPart);
+      *isType = (m_mailboxAction == MailboxAction::FetchMessage ||
+                 m_mailboxAction == MailboxAction::FetchPart);
       break;
     default:
       *isType = false;
@@ -315,7 +313,7 @@ NS_IMETHODIMP nsMailboxUrl::IsUrlType(uint32_t type, bool* isType) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
-// End nsIMailboxUrl specific support
+// End nsMailboxUrl specific support
 ////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -330,9 +328,9 @@ nsresult nsMailboxUrl::ParseSearchPart() {
     char* msgPart = extractAttributeValue(searchPart.get(), "part=");
     if (msgPart)  // if we have a part in the url then we must be fetching just
                   // the part.
-      m_mailboxAction = nsIMailboxUrl::ActionFetchPart;
+      m_mailboxAction = MailboxAction::FetchPart;
     else
-      m_mailboxAction = nsIMailboxUrl::ActionFetchMessage;
+      m_mailboxAction = MailboxAction::FetchMessage;
 
     char* messageKey = extractAttributeValue(searchPart.get(), "number=");
     m_messageID = extractAttributeValue(searchPart.get(), "messageid=");
@@ -343,7 +341,7 @@ nsresult nsMailboxUrl::ParseSearchPart() {
     PR_Free(msgPart);
     PR_Free(messageKey);
   } else {
-    m_mailboxAction = nsIMailboxUrl::ActionInvalid;
+    m_mailboxAction = MailboxAction::Invalid;
     return NS_ERROR_UNEXPECTED;
   }
 
@@ -472,7 +470,7 @@ NS_IMETHODIMP nsMailboxUrl::SetAutodetectCharset(bool aAutodetectCharset) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMailboxUrl::SetMoveCopyMsgKeys(
+nsresult nsMailboxUrl::SetMoveCopyMsgKeys(
     const nsTArray<nsMsgKey>& keysToFlag) {
   m_keys = keysToFlag.Clone();
   if (!m_keys.IsEmpty() && m_messageKey == nsMsgKey_None)
@@ -480,8 +478,8 @@ NS_IMETHODIMP nsMailboxUrl::SetMoveCopyMsgKeys(
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMailboxUrl::GetMoveCopyMsgHdrForIndex(uint32_t msgIndex,
-                                                      nsIMsgDBHdr** msgHdr) {
+nsresult nsMailboxUrl::GetMoveCopyMsgHdrForIndex(uint32_t msgIndex,
+                                                 nsIMsgDBHdr** msgHdr) {
   NS_ENSURE_ARG(msgHdr);
   if (msgIndex < m_keys.Length()) {
     nsMsgKey nextKey = m_keys[msgIndex];
@@ -490,7 +488,7 @@ NS_IMETHODIMP nsMailboxUrl::GetMoveCopyMsgHdrForIndex(uint32_t msgIndex,
   return NS_MSG_MESSAGE_NOT_FOUND;
 }
 
-NS_IMETHODIMP nsMailboxUrl::GetNumMoveCopyMsgs(uint32_t* numMsgs) {
+nsresult nsMailboxUrl::GetNumMoveCopyMsgs(uint32_t* numMsgs) {
   NS_ENSURE_ARG(numMsgs);
   *numMsgs = m_keys.Length();
   return NS_OK;
