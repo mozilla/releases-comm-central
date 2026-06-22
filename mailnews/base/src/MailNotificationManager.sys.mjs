@@ -576,6 +576,22 @@ export const MailNotificationManager = new (class {
       wrappedJSObject: newMsgKeys,
     });
     args.appendElement(this);
+
+    // Pass the main window's screen geometry so the alert positions itself on
+    // the correct monitor, even on mixed-DPI setups where the OS might place
+    // the popup on a different monitor.
+    const mainWindow = Services.wm.getMostRecentWindow("mail:3pane");
+    if (mainWindow?.screen) {
+      args.appendElement({
+        wrappedJSObject: {
+          availLeft: mainWindow.screen.availLeft,
+          availTop: mainWindow.screen.availTop,
+          availWidth: mainWindow.screen.availWidth,
+          availHeight: mainWindow.screen.availHeight,
+        },
+      });
+    }
+
     Services.ww.openWindow(
       null,
       "chrome://messenger/content/newmailalert.xhtml",

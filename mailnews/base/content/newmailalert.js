@@ -70,10 +70,11 @@ async function doOnAlertLoad() {
   const alertImageBox = document.getElementById("alertImageBox");
   alertImageBox.style.minHeight = alertTextBox.scrollHeight + "px";
 
-  // Cache the target screen metrics immediately. If the window expands
-  // and temporarily bleeds into an adjacent monitor during layout,
-  // this anchors our math to the original monitor, preventing an OS hijack.
-  const targetScreen = {
+  // Use the main window's screen metrics if provided (via window.arguments[3]).
+  // This ensures the alert targets the correct monitor even on mixed-DPI setups
+  // where the OS might place the popup on a different monitor.
+  // Falls back to the alert's own screen if no target screen was provided.
+  const targetScreen = window.arguments[3]?.wrappedJSObject || {
     availLeft: screen.availLeft,
     availTop: screen.availTop,
     availWidth: screen.availWidth,
