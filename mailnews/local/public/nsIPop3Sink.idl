@@ -13,8 +13,7 @@ interface nsIURI;
  * nsIPop3Sink is the interface the POP3 protocol code uses to pass message
  * data to the folder.
  * NOTE: unlike the IMAP sink interfaces, nsIPop3Sink is not provided by the
- * folder object. Instead, nsPop3Sink is a stand-alone object, created and
- * owned by the nsPop3URL.
+ * folder object. Instead, nsPop3Sink is a stand-alone object.
  */
 [scriptable, uuid(ceabfc6b-f139-4c25-890f-efb7c3069d40)]
 interface nsIPop3Sink : nsISupports {

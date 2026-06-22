@@ -13,7 +13,6 @@
 #include "nsIComponentRegistrar.h"
 #include "nsXULAppAPI.h"
 
-#include "../../local/src/nsPop3URL.h"
 #include "../../local/src/nsMailboxService.h"
 #include "../src/nsMsgMailNewsUrl.h"
 #include "../../addrbook/src/nsLDAPURL.h"
@@ -89,7 +88,7 @@ nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
         .Finalize(aURI);
   }
   if (scheme.EqualsLiteral("pop") || scheme.EqualsLiteral("pop3")) {
-    return nsPop3URL::NewURI(aSpec, aBaseURI, aURI);
+    return nsMailboxService::CreatePop3URI(aSpec, aBaseURI, aURI);
   }
   if (IsNewsScheme(scheme)) {
     nsCOMPtr<nsIMsgMailNewsUrl> uri =

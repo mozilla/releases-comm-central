@@ -75,23 +75,63 @@ export class Pop3Channel {
       );
     }
 
-    const match = this.URI.spec.match(/pop3?:\/\/.+\/(?:\?|&)uidl=([^&]+)/);
-    const uidl = decodeURIComponent(match?.[1] || "");
+    // Extract uidl, optional number, and optional folderURI from the query.
+    const spec = this.URI.spec;
+    const uidlMatch = spec.match(/[?&]uidl=([^&]+)/);
+    const uidl = decodeURIComponent(uidlMatch?.[1] || "");
     if (!uidl) {
       throw Components.Exception(
-        `Unrecognized url=${this.URI.spec}`,
+        `Unrecognized url=${spec}`,
         Cr.NS_ERROR_ILLEGAL_VALUE
       );
+    }
+
+    const numberMatch = spec.match(/[?&]number=([^&]+)/);
+    const number = numberMatch ? parseInt(numberMatch[1], 10) : 0;
+
+    // folderURI is stored raw (no percent-decoding) because getFolderForURL
+    // expects the canonical percent-escaped form.
+    const folderURIMatch = spec.match(/[?&]folderURI=([^&]+)/);
+    if (!folderURIMatch) {
+      throw Components.Exception(
+        `Missing folderURI in url=${spec}`,
+        Cr.NS_ERROR_ILLEGAL_VALUE
+      );
+    }
+    const folderURI = folderURIMatch[1];
+    const folder = MailServices.folderLookup.getFolderForURL(folderURI);
+    if (!folder) {
+      throw Components.Exception(
+        `Folder not found for folderURI=${folderURI}`,
+        Cr.NS_ERROR_ILLEGAL_VALUE
+      );
+    }
+
+    // Create the nsIPop3Sink and configure it.
+    const sink = Cc["@mozilla.org/messenger/pop3-sink;1"].createInstance(
+      Ci.nsIPop3Sink
+    );
+    sink.popServer = this._server;
+    sink.folder = folder;
+    sink.buildMessageUri = true;
+    if (folder.baseMessageURI) {
+      sink.baseMessageUri = folder.baseMessageURI;
+    }
+    if (number > 0) {
+      // Build origMessageUri in the form mailbox-message://folderpath#number.
+      let folderPath = folder.URI;
+      // Replace mailbox:// with mailbox-message: for local folders.
+      if (folderPath.startsWith("mailbox:")) {
+        folderPath = folderPath.replace(/^mailbox:/, "mailbox-message:");
+      }
+      sink.origMessageUri = folderPath + "#" + number;
     }
 
     this._server.wrappedJSObject.withClient(client => {
       client.runningUri = this.URI;
       client.onOpen = () => {
         listener.onStartRequest(this);
-        client.fetchBodyForUidl(
-          this.URI.QueryInterface(Ci.nsIPop3URL).pop3Sink,
-          uidl
-        );
+        client.fetchBodyForUidl(sink, uidl);
       };
       client.onDone = status => {
         this._status = status;

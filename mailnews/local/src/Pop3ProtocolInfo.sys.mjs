@@ -24,9 +24,7 @@ export class Pop3ProtocolInfo extends MsgProtocolInfo {
   foldersCreatedAsync = false;
 
   getDefaultServerPort(isSecure) {
-    return isSecure
-      ? Ci.nsIPop3URL.DEFAULT_POP3S_PORT
-      : Ci.nsIPop3URL.DEFAULT_POP3_PORT;
+    return isSecure ? 995 : 110;
   }
 
   // @see MsgProtocolInfo.sys.mjs

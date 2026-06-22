@@ -42,7 +42,6 @@
 #include "nsIMessenger.h"
 #include "nsIDocShell.h"
 #include "nsIPrompt.h"
-#include "nsIPop3URL.h"
 #include "nsIMsgMailSession.h"
 #include "nsNetCID.h"
 #include "nsISpamSettings.h"
@@ -2964,28 +2963,6 @@ nsresult nsMsgLocalMailFolder::CreateBaseMessageURI(const nsACString& aURI) {
 }
 
 NS_IMETHODIMP
-nsMsgLocalMailFolder::OnStartRunningUrl(nsIURI* aUrl) {
-  nsresult rv;
-  nsCOMPtr<nsIPop3URL> popurl = do_QueryInterface(aUrl, &rv);
-  if (NS_SUCCEEDED(rv)) {
-    nsAutoCString aSpec;
-    rv = aUrl->GetSpec(aSpec);
-    NS_ENSURE_SUCCESS(rv, rv);
-    if (strstr(aSpec.get(), "uidl=")) {
-      nsCOMPtr<nsIPop3Sink> popsink;
-      rv = popurl->GetPop3Sink(getter_AddRefs(popsink));
-      if (NS_SUCCEEDED(rv)) {
-        popsink->SetBaseMessageUri(mBaseMessageURI);
-        nsCString messageuri;
-        popurl->GetMessageUri(messageuri);
-        popsink->SetOrigMessageUri(messageuri);
-      }
-    }
-  }
-  return nsMsgDBFolder::OnStartRunningUrl(aUrl);
-}
-
-NS_IMETHODIMP
 nsMsgLocalMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
   // If we just finished a DownloadMessages call, reset...
   if (mDownloadInProgress) {
@@ -2996,10 +2973,9 @@ nsMsgLocalMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
 
   if (mFlags & nsMsgFolderFlags::Inbox) {
     // if we are the inbox and running pop url
-    nsresult rv;
-    nsCOMPtr<nsIPop3URL> popurl = do_QueryInterface(aUrl, &rv);
-    (void)popurl;
-    if (NS_SUCCEEDED(rv)) {
+    bool isPop = false, isPop3 = false;
+    if ((NS_SUCCEEDED(aUrl->SchemeIs("pop", &isPop)) && isPop) ||
+        (NS_SUCCEEDED(aUrl->SchemeIs("pop3", &isPop3)) && isPop3)) {
       nsCOMPtr<nsIMsgIncomingServer> server;
       GetServer(getter_AddRefs(server));
       // this is the deferred to account, in the global inbox case

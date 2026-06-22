@@ -14,7 +14,6 @@
 #include "nsLocalUtils.h"
 #include "nsIDocShell.h"
 #include "nsMsgUtils.h"
-#include "nsPop3URL.h"
 #include "nsNetUtil.h"
 #include "nsIWebNavigation.h"
 #include "prprf.h"
@@ -25,6 +24,10 @@
 #include "nsDocShellLoadState.h"
 #include "nsContentUtils.h"
 #include "nsMsgFileHdr.h"
+#include "nsIPop3IncomingServer.h"
+#include "nsLocalMailFolder.h"
+#include "nsIMsgAccountManager.h"
+#include "mozilla/Components.h"
 
 using mozilla::net::LoadInfo;
 
@@ -437,7 +440,7 @@ NS_IMETHODIMP nsMailboxService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
     if (NS_SUCCEEDED(rv)) {
       nsCOMPtr<nsIURI> pop3Uri;
 
-      rv = nsPop3URL::NewURI(spec, aURI, getter_AddRefs(pop3Uri));
+      rv = CreatePop3URI(spec, aURI, getter_AddRefs(pop3Uri));
       NS_ENSURE_SUCCESS(rv, rv);
       return handler->NewChannel(pop3Uri, aLoadInfo, _retval);
     }
@@ -522,4 +525,117 @@ nsMailboxService::MessageURIToMsgHdr(const nsACString& uri,
   NS_ENSURE_SUCCESS(rv, rv);
 
   return folder->GetMessageHeader(msgKey, _retval);
+}
+
+nsresult nsMailboxService::CreatePop3URI(const nsACString& aSpec,
+                                         nsIURI* aBaseURI, nsIURI** _retval) {
+  NS_ENSURE_ARG_POINTER(_retval);
+
+  nsAutoCString folderUri(aSpec);
+  int32_t offset = folderUri.FindChar('?');
+  if (offset != kNotFound) folderUri.SetLength(offset);
+
+  const nsPromiseFlatCString& flat = PromiseFlatCString(aSpec);
+  const char* uidl = PL_strstr(flat.get(), "uidl=");
+  NS_ENSURE_TRUE(uidl, NS_ERROR_FAILURE);
+  uidl += 5;  // skip "uidl="
+  // Extract just the uidl value (up to & or end of string).
+  nsDependentCSubstring uidlValue(uidl, strlen(uidl));
+  int32_t ampPos = uidlValue.FindChar('&');
+  if (ampPos != kNotFound) {
+    uidlValue.SetLength(ampPos);
+  }
+
+  nsresult rv;
+
+  nsCOMPtr<nsIMsgFolder> folder;
+  rv = GetOrCreateFolder(folderUri, getter_AddRefs(folder));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIMsgIncomingServer> server;
+
+  nsLocalFolderScanState folderScanState;
+  nsCOMPtr<nsIMsgLocalMailFolder> localFolder = do_QueryInterface(folder);
+  nsCOMPtr<nsIMailboxUrl> mailboxUrl = do_QueryInterface(aBaseURI);
+
+  if (mailboxUrl && localFolder) {
+    rv = localFolder->GetFolderScanState(&folderScanState);
+    NS_ENSURE_SUCCESS(rv, rv);
+    nsCOMPtr<nsIMsgDBHdr> msgHdr;
+    nsMsgKey msgKey;
+    mailboxUrl->GetMessageKey(&msgKey);
+    folder->GetMessageHeader(msgKey, getter_AddRefs(msgHdr));
+    if (msgHdr) localFolder->GetUidlFromFolder(&folderScanState, msgHdr);
+    if (!folderScanState.m_accountKey.IsEmpty()) {
+      nsCOMPtr<nsIMsgAccountManager> accountManager =
+          mozilla::components::AccountManager::Service();
+      nsCOMPtr<nsIMsgAccount> account;
+      accountManager->GetAccount(folderScanState.m_accountKey,
+                                 getter_AddRefs(account));
+      if (account) account->GetIncomingServer(getter_AddRefs(server));
+    }
+  }
+
+  if (!server) rv = folder->GetServer(getter_AddRefs(server));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIPop3IncomingServer> popServer = do_QueryInterface(server);
+  NS_ENSURE_TRUE(popServer, NS_ERROR_FAILURE);
+
+  nsCString hostname;
+  nsCString username;
+  server->GetHostname(hostname);
+  server->GetUsername(username);
+
+  int32_t port;
+  server->GetPort(&port);
+  if (port == -1) port = 110;  // DEFAULT_POP3_PORT
+
+  nsCString escapedUsername;
+  MsgEscapeString(username, nsINetUtil::ESCAPE_XALPHAS, escapedUsername);
+
+  // Extract the message key from the spec, if present.
+  nsMsgKey msgKey = nsMsgKey_None;
+  const char* numberPart = PL_strstr(flat.get(), "number=");
+  if (numberPart) {
+    msgKey = strtoul(numberPart + 7, nullptr, 10);
+  }
+
+  nsAutoCString popSpec("pop://");
+  popSpec += escapedUsername;
+  popSpec += "@";
+  popSpec += hostname;
+  popSpec += ":";
+  popSpec.AppendInt(port);
+  popSpec += "?uidl=";
+  popSpec += uidlValue;
+  if (msgKey != nsMsgKey_None) {
+    popSpec += "&number=";
+    popSpec.AppendInt(msgKey);
+  }
+  // Pass the folder URI so Pop3Channel finds the right folder,
+  // even if the account's inbox has moved (e.g. deferred-to switching).
+  // The value is appended raw because getFolderForURL expects the canonical
+  // form. Folder URIs are already percent-escaped so they can't contain
+  // literal & or # that would break query parsing.
+  popSpec += "&folderURI=";
+  popSpec += folderUri;
+
+  nsCOMPtr<nsIUrlListener> urlListener = do_QueryInterface(folder, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIMsgMailNewsUrl> mailnewsurl =
+      do_CreateInstance("@mozilla.org/messenger/msgmailnewsurl;1", &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = mailnewsurl->SetSpecInternal(popSpec);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  if (urlListener) mailnewsurl->RegisterListener(urlListener);
+
+  rv = mailnewsurl->SetUsernameInternal(escapedUsername);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  mailnewsurl.forget(_retval);
+  return NS_OK;
 }

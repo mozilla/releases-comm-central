@@ -24,6 +24,14 @@ class nsMailboxService : public nsIMsgMessageService,
   static nsresult NewURI(const nsACString& aSpec, const char* aOriginCharset,
                          nsIURI* aBaseURI, nsIURI** _retval);
 
+  /**
+   * Create a pop3:// URI from a spec containing a ?uidl= query parameter.
+   * Encodes folder URI and message key so Pop3Channel can find the folder
+   * and reconstruct the original message URI.
+   */
+  static nsresult CreatePop3URI(const nsACString& aSpec, nsIURI* aBaseURI,
+                                nsIURI** _retval);
+
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGMESSAGESERVICE
   NS_DECL_NSIMSGMESSAGEFETCHPARTSERVICE

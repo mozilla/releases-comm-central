@@ -14,7 +14,6 @@ XPIDL_SOURCES += [
     "nsIPop3Protocol.idl",
     "nsIPop3Service.idl",
     "nsIPop3Sink.idl",
-    "nsIPop3URL.idl",
     "nsIRssIncomingServer.idl",
     "nsIRssService.idl",
 ]
