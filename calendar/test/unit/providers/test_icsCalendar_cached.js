@@ -22,13 +22,6 @@ ICSServer.putICSInternal(
 registerCleanupFunction(() => ICSServer.close());
 
 add_task(async function () {
-  // TODO: item notifications from a cached ICS calendar occur outside of batches.
-  // This isn't fatal but it shouldn't happen. Side-effects include alarms firing
-  // twice - once from onAddItem then again at onLoad.
-  //
-  // Remove the next line when this is fixed.
-  calendarObserver._batchRequired = false;
-
   calendarObserver._onAddItemPromise = Promise.withResolvers();
   calendarObserver._onLoadPromise = Promise.withResolvers();
   const calendar = createCalendar("ics", ICSServer.url, true);

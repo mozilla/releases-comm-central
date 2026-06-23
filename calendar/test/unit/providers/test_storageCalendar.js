@@ -6,7 +6,6 @@ add_task(async function () {
   const calendar = createCalendar("storage", "moz-storage-calendar://");
 
   info("creating the item");
-  calendarObserver._batchRequired = false;
   await runAddItem(calendar);
 
   info("modifying the item");

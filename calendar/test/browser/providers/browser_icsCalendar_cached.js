@@ -20,13 +20,6 @@ add_setup(async function () {
     loginInfo.init(ICSServer.origin, null, "test", "bob", "bob", "", "");
     await Services.logins.addLoginAsync(loginInfo);
   }
-  // TODO: item notifications from a cached ICS calendar occur outside of batches.
-  // This isn't fatal but it shouldn't happen. Side-effects include alarms firing
-  // twice - once from onAddItem then again at onLoad.
-  //
-  // Remove the next line when this is fixed.
-  calendarObserver._batchRequired = false;
-
   calendarObserver._onLoadPromise = Promise.withResolvers();
   calendar = createCalendar("ics", ICSServer.url, true);
   await calendarObserver._onLoadPromise.promise;
@@ -49,13 +42,11 @@ async function promiseIdle() {
 }
 
 add_task(async function testAlarms() {
-  // Remove the next line when fixed.
-  calendarObserver._batchRequired = false;
   await runTestAlarms();
 
   // Be sure the calendar has finished deleting the event.
   await promiseIdle();
-}).skip(); // Broken.
+});
 
 add_task(async function testSyncChanges() {
   await syncChangesTest.setUp();

@@ -157,16 +157,17 @@ export class CalICSCalendar extends cal.provider.BaseClass {
       this._queue.push({
         action: "add",
         item: aItem,
-        listener: adoptedItem => {
-          this.endBatch();
-          resolve(adoptedItem);
-        },
+        listener: resolve,
       });
       this.#processQueue();
     });
 
-    if (adoptCallback) {
-      await adoptCallback(item.calendar, Cr.NS_OK, Ci.calIOperationListener.ADD, item.id, item);
+    try {
+      if (adoptCallback) {
+        await adoptCallback(item.calendar, Cr.NS_OK, Ci.calIOperationListener.ADD, item.id, item);
+      }
+    } finally {
+      this.endBatch();
     }
     return item;
   }
@@ -187,16 +188,23 @@ export class CalICSCalendar extends cal.provider.BaseClass {
         action: "modify",
         newItem,
         oldItem,
-        listener: modifiedItem => {
-          this.endBatch();
-          resolve(modifiedItem);
-        },
+        listener: resolve,
       });
       this.#processQueue();
     });
 
-    if (modifyCallback) {
-      await modifyCallback(item.calendar, Cr.NS_OK, Ci.calIOperationListener.MODIFY, item.id, item);
+    try {
+      if (modifyCallback) {
+        await modifyCallback(
+          item.calendar,
+          Cr.NS_OK,
+          Ci.calIOperationListener.MODIFY,
+          item.id,
+          item
+        );
+      }
+    } finally {
+      this.endBatch();
     }
     return item;
   }

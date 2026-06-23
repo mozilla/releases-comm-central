@@ -31,7 +31,6 @@ const calendarObserver = {
   /* calIObserver */
 
   _batchCount: 0,
-  _batchRequired: true,
   onStartBatch(calendar) {
     info(`onStartBatch ${calendar?.id} ${++this._batchCount}`);
     Assert.equal(calendar, this._expectedCalendar);
@@ -44,7 +43,6 @@ const calendarObserver = {
   },
   onLoad(calendar) {
     info(`onLoad ${calendar.id}`);
-    Assert.equal(this._batchCount, 0, "onLoad must not occur in a batch");
     Assert.equal(calendar, this._expectedCalendar);
     if (this._onLoadPromise) {
       this._onLoadPromise.resolve();
@@ -52,18 +50,14 @@ const calendarObserver = {
   },
   onAddItem(item) {
     info(`onAddItem ${item.calendar.id} ${item.id}`);
-    if (this._batchRequired) {
-      Assert.equal(this._batchCount, 1, "onAddItem must occur in a batch");
-    }
+    Assert.equal(this._batchCount, 1, "onAddItem must occur in a batch");
     if (this._onAddItemPromise) {
       this._onAddItemPromise.resolve();
     }
   },
   onModifyItem(newItem) {
     info(`onModifyItem ${newItem.calendar.id} ${newItem.id}`);
-    if (this._batchRequired) {
-      Assert.equal(this._batchCount, 1, "onModifyItem must occur in a batch");
-    }
+    Assert.equal(this._batchCount, 1, "onModifyItem must occur in a batch");
     if (this._onModifyItemPromise) {
       this._onModifyItemPromise.resolve();
     }

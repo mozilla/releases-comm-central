@@ -232,8 +232,18 @@ CalStorageCalendar.prototype = {
 
     await this.mItemModel.addItem(parentItem);
 
-    // notify observers
+    // notify observers; when used standalone, wrap in batch and fire onLoad (like ICS/CalDAV do
+    // after their network operations). When used as the cache inside CalCachedCalendar, the outer
+    // calendar's batch and onLoad are responsible for this.
+    const standalone = !this.mSuperCalendar;
+    if (standalone) {
+      this.startBatch();
+    }
     this.observers.notify("onAddItem", [aItem]);
+    if (standalone) {
+      this.endBatch();
+      this.observers.notify("onLoad", [this.superCalendar]);
+    }
 
     return aItem;
   },
@@ -334,8 +344,18 @@ CalStorageCalendar.prototype = {
       modifiedItem
     );
 
-    // notify observers
+    // notify observers; when used standalone, wrap in batch and fire onLoad (like ICS/CalDAV do
+    // after their network operations). When used as the cache inside CalCachedCalendar, the outer
+    // calendar's batch and onLoad are responsible for this.
+    const standalone = !this.mSuperCalendar;
+    if (standalone) {
+      this.startBatch();
+    }
     this.observers.notify("onModifyItem", [modifiedItem, aOldItem]);
+    if (standalone) {
+      this.endBatch();
+      this.observers.notify("onLoad", [this.superCalendar]);
+    }
     return modifiedItem;
   },
 

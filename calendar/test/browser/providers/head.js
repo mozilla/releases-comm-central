@@ -26,7 +26,6 @@ const calendarObserver = {
   /* calIObserver */
 
   _batchCount: 0,
-  _batchRequired: true,
   onStartBatch(calendar) {
     info(`onStartBatch ${calendar?.id} ${++this._batchCount}`);
     Assert.equal(
@@ -52,15 +51,11 @@ const calendarObserver = {
   },
   onAddItem(item) {
     info(`onAddItem ${item.calendar.id} ${item.id}`);
-    if (this._batchRequired) {
-      Assert.equal(this._batchCount, 1, "onAddItem must occur in a batch");
-    }
+    Assert.equal(this._batchCount, 1, "onAddItem must occur in a batch");
   },
   onModifyItem(newItem) {
     info(`onModifyItem ${newItem.calendar.id} ${newItem.id}`);
-    if (this._batchRequired) {
-      Assert.equal(this._batchCount, 1, "onModifyItem must occur in a batch");
-    }
+    Assert.equal(this._batchCount, 1, "onModifyItem must occur in a batch");
   },
   onDeleteItem(deletedItem) {
     info(`onDeleteItem ${deletedItem.calendar.id} ${deletedItem.id}`);
@@ -166,11 +161,12 @@ async function runTestAlarms() {
         const alarmDocument = alarmWindow.document;
 
         const list = alarmDocument.getElementById("alarm-richlist");
-        const items = list.querySelectorAll(
-          `richlistitem[is="calendar-alarm-widget-richlistitem"]`
+        const itemsLength = await TestUtils.waitForCondition(
+          () =>
+            list.querySelectorAll(`richlistitem[is="calendar-alarm-widget-richlistitem"]`).length,
+          "waiting for items to appear"
         );
-        await TestUtils.waitForCondition(() => items.length);
-        Assert.equal(items.length, 1, "should only list one alarm item");
+        Assert.equal(itemsLength, 1, "should only list one alarm item");
 
         await new Promise(resolve => alarmWindow.setTimeout(resolve, 500));
 
@@ -204,7 +200,7 @@ async function runTestAlarms() {
   );
 
   Assert.equal(alarmObserver._alarmCount, 1, "onAlarm should get called once");
-  Assert.equal(alarmObserver._soundCount, 1, "only one alarm sound");
+  Assert.equal(alarmObserver._soundCount, 1, "should only get one alarm sound");
   alarmObserver._alarmCount = 0;
   alarmObserver._soundCount = 0;
 

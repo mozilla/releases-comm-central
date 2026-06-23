@@ -339,6 +339,7 @@ calCachedCalendar.prototype = {
     this.setupCachedCalendar();
 
     const modifiedTimes = {};
+    this.mCachedCalendar.startBatch();
     try {
       for await (const items of cal.iterate.streamValues(
         this.mUncachedCalendar.getItems(Ci.calICalendar.ITEM_FILTER_ALL_ITEMS, 0, null, null)
@@ -347,10 +348,12 @@ calCachedCalendar.prototype = {
           // Adding items recd from the Memory Calendar
           // These may be different than what the cache has
           modifiedTimes[item.id] = item.lastModifiedTime;
-          this.mCachedCalendar.addItem(item);
+          await this.mCachedCalendar.addItem(item);
         }
       }
+      this.mCachedCalendar.endBatch();
     } catch (e) {
+      this.mCachedCalendar.endBatch();
       await this.playbackOfflineItems();
       this.mCachedObserver.onLoad(this.mCachedCalendar);
       clearPending();

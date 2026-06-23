@@ -9,7 +9,7 @@ import { calCachedCalendar } from "resource:///modules/CalCachedCalendar.sys.mjs
 import { setTimeout } from "resource://gre/modules/Timer.sys.mjs";
 
 // Initialize the timezone service now!
-// eslint-disable-next-line no-unused-vars
+// eslint-disable-next-line import/no-unassigned-import
 import "resource:///modules/CalTimezoneService.sys.mjs";
 
 var REGISTRY_BRANCH = "calendar.registry.";
