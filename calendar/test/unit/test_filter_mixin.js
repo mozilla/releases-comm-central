@@ -48,7 +48,7 @@ const testItems = {};
 const addedTestItems = {};
 
 add_setup(async function () {
-  await new Promise(resolve => do_calendar_startup(resolve));
+  do_get_profile(true);
 
   for (const [title, startDate, endDate] of [
     ["before", "20210720", "20210721"],

@@ -83,10 +83,6 @@ function doBatchTest(batches, expected) {
   }
 }
 
-add_setup(async function () {
-  await new Promise(resolve => do_load_calmgr(resolve));
-});
-
 /**
  * Tests the CalTransactionManager methods work as expected.
  */

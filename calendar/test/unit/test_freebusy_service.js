@@ -2,13 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var freebusy = Cc["@mozilla.org/calendar/freebusy-service;1"].getService(Ci.calIFreeBusyService);
+var freebusy = cal.freeBusyService;
 
 function run_test() {
-  do_calendar_startup(really_run_test);
-}
+  do_get_profile(true);
 
-function really_run_test() {
   test_found();
   test_noproviders();
   test_failure();
@@ -20,14 +18,18 @@ function test_found() {
 
   equal(_countProviders(), 0);
 
+  /** @implements {calIFreeBusyProvider} */
   const provider1 = {
+    QueryInterface: ChromeUtils.generateQI(["calIFreeBusyProvider"]),
     id: 1,
     getFreeBusyIntervals(aCalId, aStart, aEnd, aTypes, aListener) {
       aListener.onResult(null, []);
     },
   };
 
+  /** @implements {calIFreeBusyProvider} */
   const provider2 = {
+    QueryInterface: ChromeUtils.generateQI(["calIFreeBusyProvider"]),
     id: 2,
     called: false,
     getFreeBusyIntervals(aCalId, aStart, aEnd, aTypes, aListener) {
@@ -102,7 +104,9 @@ function test_noproviders() {
 function test_failure() {
   _clearProviders();
 
+  /** @implements {calIFreeBusyProvider} */
   const provider = {
+    QueryInterface: ChromeUtils.generateQI(["calIFreeBusyProvider"]),
     called: false,
     getFreeBusyIntervals(aCalId, aStart, aEnd, aTypes, aListener) {
       ok(!this.called);
@@ -136,6 +140,7 @@ function test_failure() {
 function test_cancel() {
   _clearProviders();
 
+  /** @implements {calIFreeBusyProvider} */
   const provider = {
     QueryInterface: ChromeUtils.generateQI(["calIFreeBusyProvider", "calIOperation"]),
     getFreeBusyIntervals() {

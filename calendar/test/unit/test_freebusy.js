@@ -3,17 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 function run_test() {
-  do_calendar_startup(really_run_test);
-}
+  do_get_profile(true);
 
-function really_run_test() {
   test_freebusy();
   test_period();
 }
 
 function test_freebusy() {
-  const icsService = Cc["@mozilla.org/calendar/ics-service;1"].getService(Ci.calIICSService);
-
   // Bug 415987 - FREEBUSY decoding does not support comma-separated entries
   // (https://bugzilla.mozilla.org/show_bug.cgi?id=415987)
   const fbVal1 = "20080206T160000Z/PT1H";
@@ -31,7 +27,7 @@ function test_freebusy() {
     "\n" +
     "END:VFREEBUSY\n" +
     "END:VCALENDAR\n";
-  const fbComp = icsService.parseICS(data).getFirstSubcomponent("VFREEBUSY");
+  const fbComp = cal.icsService.parseICS(data).getFirstSubcomponent("VFREEBUSY");
   equal(fbComp.getFirstProperty("FREEBUSY").value, fbVal1);
   equal(fbComp.getNextProperty("FREEBUSY").value, fbVal2);
   equal(fbComp.getNextProperty("FREEBUSY").value, fbVal3);

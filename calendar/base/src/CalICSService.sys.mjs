@@ -19,31 +19,32 @@ ChromeUtils.defineESModuleGetters(lazy, {
   CalTimezone: "resource:///modules/CalTimezone.sys.mjs",
 });
 
-export function CalIcalProperty(innerObject) {
-  this.innerObject = innerObject || new ICAL.Property();
-  this.wrappedJSObject = this;
-}
+/** @implements {calIIcalProperty} */
+export class CalIcalProperty {
+  QueryInterface = ChromeUtils.generateQI(["calIIcalProperty"]);
+  classID = Components.ID("{423ac3f0-f612-48b3-953f-47f7f8fd705b}");
 
-CalIcalProperty.prototype = {
-  QueryInterface: ChromeUtils.generateQI(["calIIcalProperty"]),
-  classID: Components.ID("{423ac3f0-f612-48b3-953f-47f7f8fd705b}"),
+  constructor(innerObject) {
+    this.innerObject = innerObject || new ICAL.Property();
+    this.wrappedJSObject = this;
+  }
 
   get icalString() {
     return this.innerObject.toICALString() + ICAL.newLineChar;
-  },
+  }
   get icalProperty() {
     return this.innerObject;
-  },
+  }
   set icalProperty(val) {
     this.innerObject = val;
-  },
+  }
 
   get parent() {
     return this.innerObject.parent;
-  },
+  }
   toString() {
     return this.innerObject.toICAL();
-  },
+  }
 
   get value() {
     // Unescaped value for properties of TEXT, escaped otherwise.
@@ -51,7 +52,7 @@ CalIcalProperty.prototype = {
       return this.innerObject.getValues().join(",");
     }
     return this.valueAsIcalString;
-  },
+  }
   set value(val) {
     // Unescaped value for properties of TEXT, escaped otherwise.
     if (this.innerObject.type == "text") {
@@ -59,7 +60,7 @@ CalIcalProperty.prototype = {
       return;
     }
     this.valueAsIcalString = val;
-  },
+  }
 
   get valueAsIcalString() {
     const propertyStr = this.innerObject.toICALString();
@@ -86,7 +87,7 @@ CalIcalProperty.prototype = {
         return val.toString();
       })
       .join(",");
-  },
+  }
   set valueAsIcalString(val) {
     const mockLine = this.propertyName + ":" + val;
     const prop = ICAL.Property.fromString(mockLine, ICAL.design.icalendar);
@@ -96,14 +97,14 @@ CalIcalProperty.prototype = {
     } else {
       this.innerObject.setValue(prop.getFirstValue());
     }
-  },
+  }
 
   get valueAsDatetime() {
     const val = this.innerObject.getFirstValue();
     const isIcalTime =
       val && typeof val == "object" && "icalclass" in val && val.icalclass == "icaltime";
     return isIcalTime ? new lazy.CalDateTime(val) : null;
-  },
+  }
   set valueAsDatetime(val) {
     val = val?.wrappedJSObject.innerObject;
     if (
@@ -121,11 +122,11 @@ CalIcalProperty.prototype = {
       this.innerObject.removeParameter("TZID");
     }
     this.innerObject.setValue(val);
-  },
+  }
 
   get propertyName() {
     return this.innerObject.name.toUpperCase();
-  },
+  }
 
   getParameter(name) {
     // Unfortunately getting the "VALUE" parameter won't work, since in
@@ -140,7 +141,7 @@ CalIcalProperty.prototype = {
     }
 
     return this.innerObject.getParameter(name.toLowerCase());
-  },
+  }
   setParameter(name, value) {
     // Similar problems for setting the value parameter. Calendar code
     // expects setting the value parameter to just change the value type
@@ -182,7 +183,7 @@ CalIcalProperty.prototype = {
     } else {
       this.innerObject.setParameter(name.toLowerCase(), value);
     }
-  },
+  }
   removeParameter(name) {
     // Again, VALUE needs special handling. Removing the value parameter is
     // kind of like resetting it to the default type. So find out the
@@ -198,15 +199,15 @@ CalIcalProperty.prototype = {
     } else {
       this.innerObject.removeParameter(name.toLowerCase());
     }
-  },
+  }
 
   clearXParameters() {
     lazy.log.warn(
       "calIICSService::clearXParameters is no longer implemented, please use removeParameter"
     );
-  },
+  }
 
-  paramIterator: null,
+  paramIterator = null;
   getFirstParameterName() {
     const innerObject = this.innerObject;
     this.paramIterator = (function* () {
@@ -221,7 +222,7 @@ CalIcalProperty.prototype = {
       }
     })();
     return this.getNextParameterName();
-  },
+  }
 
   getNextParameterName() {
     if (this.paramIterator) {
@@ -233,38 +234,39 @@ CalIcalProperty.prototype = {
       return next.value;
     }
     return this.getFirstParameterName();
-  },
-};
-
-function calIcalComponent(innerObject) {
-  this.innerObject = innerObject || new ICAL.Component();
-  this.wrappedJSObject = this;
-  this.mReferencedZones = {};
+  }
 }
 
-calIcalComponent.prototype = {
-  QueryInterface: ChromeUtils.generateQI(["calIIcalComponent"]),
-  classID: Components.ID("{51ac96fd-1279-4439-a85b-6947b37f4cea}"),
+/** @implements {calIcalComponent} */
+export class calIcalComponent {
+  QueryInterface = ChromeUtils.generateQI(["calIIcalComponent"]);
+  classID = Components.ID("{51ac96fd-1279-4439-a85b-6947b37f4cea}");
+
+  constructor(innerObject) {
+    this.innerObject = innerObject || new ICAL.Component();
+    this.wrappedJSObject = this;
+    this.mReferencedZones = {};
+  }
 
   clone() {
     return new calIcalComponent(new ICAL.Component(this.innerObject.toJSON()));
-  },
+  }
 
   get parent() {
     return this.innerObject.parent ? new calIcalComponent(this.innerObject.parent) : null;
-  },
+  }
 
   get icalTimezone() {
     return this.innerObject.name == "vtimezone" ? this.innerObject : null;
-  },
+  }
   get icalComponent() {
     return this.innerObject;
-  },
+  }
   set icalComponent(val) {
     this.innerObject = val;
-  },
+  }
 
-  componentIterator: null,
+  componentIterator = null;
   getFirstSubcomponent(kind) {
     if (kind == "ANY") {
       kind = null;
@@ -281,7 +283,7 @@ calIcalComponent.prototype = {
       }
     })();
     return this.getNextSubcomponent(kind);
-  },
+  }
   getNextSubcomponent(kind) {
     if (this.componentIterator) {
       const next = this.componentIterator.next();
@@ -292,81 +294,81 @@ calIcalComponent.prototype = {
       return next.value;
     }
     return this.getFirstSubcomponent(kind);
-  },
+  }
 
   get componentType() {
     return this.innerObject.name.toUpperCase();
-  },
+  }
 
   get uid() {
     return this.innerObject.getFirstPropertyValue("uid");
-  },
+  }
   set uid(val) {
     this.innerObject.updatePropertyWithValue("uid", val);
-  },
+  }
 
   get prodid() {
     return this.innerObject.getFirstPropertyValue("prodid");
-  },
+  }
   set prodid(val) {
     this.innerObject.updatePropertyWithValue("prodid", val);
-  },
+  }
 
   get version() {
     return this.innerObject.getFirstPropertyValue("version");
-  },
+  }
   set version(val) {
     this.innerObject.updatePropertyWithValue("version", val);
-  },
+  }
 
   get method() {
     return this.innerObject.getFirstPropertyValue("method");
-  },
+  }
   set method(val) {
     this.innerObject.updatePropertyWithValue("method", val);
-  },
+  }
 
   get status() {
     return this.innerObject.getFirstPropertyValue("status");
-  },
+  }
   set status(val) {
     this.innerObject.updatePropertyWithValue("status", val);
-  },
+  }
 
   get summary() {
     return this.innerObject.getFirstPropertyValue("summary");
-  },
+  }
   set summary(val) {
     this.innerObject.updatePropertyWithValue("summary", val);
-  },
+  }
 
   get description() {
     return this.innerObject.getFirstPropertyValue("description");
-  },
+  }
   set description(val) {
     this.innerObject.updatePropertyWithValue("description", val);
-  },
+  }
 
   get location() {
     return this.innerObject.getFirstPropertyValue("location");
-  },
+  }
   set location(val) {
     this.innerObject.updatePropertyWithValue("location", val);
-  },
+  }
 
   get categories() {
     return this.innerObject.getFirstPropertyValue("categories");
-  },
+  }
   set categories(val) {
     this.innerObject.updatePropertyWithValue("categories", val);
-  },
+  }
 
   get URL() {
     return this.innerObject.getFirstPropertyValue("url");
-  },
+  }
   set URL(val) {
     this.innerObject.updatePropertyWithValue("url", val);
-  },
+  }
 
   get priority() {
     // If there is no value for this integer property, then we must return
@@ -374,10 +376,10 @@ calIcalComponent.prototype = {
     const prop = this.innerObject.getFirstProperty("priority");
     const val = prop ? prop.getFirstValue() : null;
     return val === null ? Ci.calIIcalComponent.INVALID_VALUE : val;
-  },
+  }
   set priority(val) {
     this.innerObject.updatePropertyWithValue("priority", val);
-  },
+  }
 
   _setTimeAttr(propName, val) {
     const prop = this.innerObject.updatePropertyWithValue(propName, val);
@@ -392,91 +394,91 @@ calIcalComponent.prototype = {
     } else {
       prop.removeParameter("TZID");
     }
-  },
+  }
 
   get startTime() {
     const val = this.innerObject.getFirstPropertyValue("dtstart");
     return val ? new lazy.CalDateTime(val) : null;
-  },
+  }
   set startTime(val) {
     this._setTimeAttr("dtstart", val.wrappedJSObject.innerObject);
-  },
+  }
 
   get endTime() {
     const val = this.innerObject.getFirstPropertyValue("dtend");
     return val ? new lazy.CalDateTime(val) : null;
-  },
+  }
   set endTime(val) {
     this._setTimeAttr("dtend", val.wrappedJSObject.innerObject);
-  },
+  }
 
   get duration() {
     const val = this.innerObject.getFirstPropertyValue("duration");
     return val ? new lazy.CalDuration(val) : null;
-  },
+  }
 
   get dueTime() {
     const val = this.innerObject.getFirstPropertyValue("due");
     return val ? new lazy.CalDateTime(val) : null;
-  },
+  }
   set dueTime(val) {
     this._setTimeAttr("due", val.wrappedJSObject.innerObject);
-  },
+  }
 
   get stampTime() {
     const val = this.innerObject.getFirstPropertyValue("dtstamp");
     return val ? new lazy.CalDateTime(val) : null;
-  },
+  }
   set stampTime(val) {
     this._setTimeAttr("dtstamp", val.wrappedJSObject.innerObject);
-  },
+  }
 
   get createdTime() {
     const val = this.innerObject.getFirstPropertyValue("created");
     return val ? new lazy.CalDateTime(val) : null;
-  },
+  }
   set createdTime(val) {
     this._setTimeAttr("created", val.wrappedJSObject.innerObject);
-  },
+  }
 
   get completedTime() {
     const val = this.innerObject.getFirstPropertyValue("completed");
     return val ? new lazy.CalDateTime(val) : null;
-  },
+  }
   set completedTime(val) {
     this._setTimeAttr("completed", val.wrappedJSObject.innerObject);
-  },
+  }
 
   get lastModified() {
     const val = this.innerObject.getFirstPropertyValue("last-modified");
     return val ? new lazy.CalDateTime(val) : null;
-  },
+  }
   set lastModified(val) {
     this._setTimeAttr("last-modified", val.wrappedJSObject.innerObject);
-  },
+  }
 
   get recurrenceId() {
     const val = this.innerObject.getFirstPropertyValue("recurrence-id");
     return val ? new lazy.CalDateTime(val) : null;
-  },
+  }
   set recurrenceId(val) {
     this._setTimeAttr("recurrence-id", val.wrappedJSObject.innerObject);
-  },
+  }
 
   serializeToICS() {
     return this.innerObject.toString() + ICAL.newLineChar;
-  },
+  }
   toString() {
     return this.innerObject.toString();
-  },
+  }
 
   addSubcomponent(comp) {
     comp.getReferencedTimezones().forEach(this.addTimezoneReference, this);
     const jscomp = comp.wrappedJSObject.innerObject;
     this.innerObject.addSubcomponent(jscomp);
-  },
+  }
 
-  propertyIterator: null,
+  propertyIterator = null;
   getFirstProperty(kind) {
     if (kind == "ANY") {
       kind = null;
@@ -507,7 +509,7 @@ calIcalComponent.prototype = {
     })();
 
     return this.getNextProperty(kind);
-  },
+  }
 
   getNextProperty(kind) {
     if (this.propertyIterator) {
@@ -519,7 +521,7 @@ calIcalComponent.prototype = {
       return next.value;
     }
     return this.getFirstProperty(kind);
-  },
+  }
 
   _getNextParentVCalendar() {
     let vcalendar = this;
@@ -527,7 +529,7 @@ calIcalComponent.prototype = {
       vcalendar = vcalendar.parent;
     }
     return vcalendar || this;
-  },
+  }
 
   addProperty(prop) {
     try {
@@ -542,7 +544,7 @@ calIcalComponent.prototype = {
 
     const jsprop = prop.wrappedJSObject.innerObject;
     this.innerObject.addProperty(jsprop);
-  },
+  }
 
   addTimezoneReference(timezone) {
     if (timezone) {
@@ -555,11 +557,11 @@ calIcalComponent.prototype = {
 
       this.mReferencedZones[timezone.tzid] = timezone;
     }
-  },
+  }
 
   getReferencedTimezones() {
     return Object.keys(this.mReferencedZones).map(timezone => this.mReferencedZones[timezone]);
-  },
+  }
 
   serializeToICSStream() {
     const data = this.innerObject.toString();
@@ -568,21 +570,22 @@ calIcalComponent.prototype = {
     );
     stream.setUTF8Data(data);
     return stream;
-  },
-};
-
-export function CalICSService() {
-  this.wrappedJSObject = this;
+  }
 }
 
-CalICSService.prototype = {
-  QueryInterface: ChromeUtils.generateQI(["calIICSService"]),
-  classID: Components.ID("{c61cb903-4408-41b3-bc22-da0b27efdfe1}"),
+/** @implements {calIICSService} */
+export const CalICSService = new (class {
+  QueryInterface = ChromeUtils.generateQI(["calIICSService"]);
+  classID = Components.ID("{c61cb903-4408-41b3-bc22-da0b27efdfe1}");
+
+  constructor() {
+    this.wrappedJSObject = this;
+  }
 
   parseICS(serialized) {
     const comp = ICAL.parse(serialized);
     return new calIcalComponent(new ICAL.Component(comp));
-  },
+  }
 
   parseICSAsync(serialized, listener) {
     // XXX: should we cache the worker?
@@ -598,17 +601,18 @@ CalICSService.prototype = {
       listener.onParsingComplete(Cr.NS_ERROR_FAILURE, null);
     };
     worker.postMessage(serialized);
-  },
+  }
 
   createIcalComponent(kind) {
     return new calIcalComponent(new ICAL.Component(kind.toLowerCase()));
-  },
+  }
 
   createIcalProperty(kind) {
     return new CalIcalProperty(new ICAL.Property(kind.toLowerCase()));
-  },
+  }
 
   createIcalPropertyFromString(str) {
     return new CalIcalProperty(ICAL.Property.fromString(str.trim(), ICAL.design.icalendar));
-  },
-};
+  }
+})();
+export { CalICSService as icsService };

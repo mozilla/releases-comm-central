@@ -7,9 +7,7 @@ var { formatter } = cal.dtz;
 const { CalTimezone } = ChromeUtils.importESModule("resource:///modules/CalTimezone.sys.mjs");
 const { default: ICAL } = ChromeUtils.importESModule("resource:///modules/calendar/Ical.sys.mjs");
 
-function run_test() {
-  do_calendar_startup(run_next_test);
-}
+add_setup(() => do_get_profile(true));
 
 // This test assumes the timezone of your system is not set to Pacific/Fakaofo or equivalent.
 

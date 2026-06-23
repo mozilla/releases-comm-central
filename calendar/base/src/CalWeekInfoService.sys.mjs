@@ -5,17 +5,21 @@
 const SUNDAY = 0;
 const THURSDAY = 4;
 
-export function CalWeekInfoService() {
-  this.wrappedJSObject = this;
-}
-
-/** @implements {calIWeekInfoService} */
-CalWeekInfoService.prototype = {
-  QueryInterface: ChromeUtils.generateQI(["calIWeekInfoService"]),
-  classID: Components.ID("{6877bbdd-f336-46f5-98ce-fe86d0285cc1}"),
+/**
+ * Calculate a week title from a given datetime, as well as week start time and
+ * end time based on user settings.
+ *
+ * @implements {calIWeekInfoService}
+ */
+export const CalWeekInfoService = new (class {
+  QueryInterface = ChromeUtils.generateQI(["calIWeekInfoService"]);
+  classID = Components.ID("{6877bbdd-f336-46f5-98ce-fe86d0285cc1}");
 
   /**
-   * @param {calIDateTime} aDateTime - A date time object
+   * @param {calIDateTime} aDateTime - The dateTime to get the weektitle for.
+   * @returns {string} a string, representing the week title. Will usually be the
+   *   week number. Every week (7 days) should get a different string,
+   *   but the switch from one week to the next isn't necessarily on Sunday.
    */
   getWeekTitle(aDateTime) {
     /**
@@ -75,13 +79,13 @@ CalWeekInfoService.prototype = {
 
     const weekNumber = Math.ceil(thisWeeksThursday / 7);
     return weekNumber;
-  },
+  }
 
   /**
    * Gets the first day of a week of a passed day under consideration
    * of the preference setting "calendar.week.start"
    *
-   * @param {calIDateTime} aDate - A date time object
+   * @param {calIDateTime} aDate - The dateTime to get get the start of the week for.
    * @returns {calIDateTime} a dateTime-object denoting the first day of the week.
    */
   getStartOfWeek(aDate) {
@@ -94,18 +98,19 @@ CalWeekInfoService.prototype = {
       date.day -= 7;
     }
     return date;
-  },
+  }
 
   /**
    * gets the last day of a week of a passed day under consideration
    * of the preference setting "calendar.week.start"
    *
-   * @param {calIDateTime} aDate - A date time object.
+   * @param {calIDateTime} aDate - The dateTime to get get the last day of the week for.
    * @returns {calIDateTime} a dateTime-object denoting the last day of the week.
    */
   getEndOfWeek(aDate) {
     const date = this.getStartOfWeek(aDate);
     date.day += 6;
     return date;
-  },
-};
+  }
+})();
+export { CalWeekInfoService as weekInfoService };

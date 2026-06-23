@@ -25,9 +25,6 @@ function createStorageCalendar(id) {
   db.append("test_storage.sqlite");
   const uri = Services.io.newFileURI(db);
 
-  // Make sure timezone service is initialized
-  Cc["@mozilla.org/calendar/timezone-service;1"].getService(Ci.calIStartupService).startup(null);
-
   const calendar = Cc["@mozilla.org/calendar/calendar;1?type=storage"].createInstance(
     Ci.calISyncWriteCalendar
   );

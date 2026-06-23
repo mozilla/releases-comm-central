@@ -4,20 +4,22 @@
 
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 
-function CalFreeBusyListener(numOperations, finalListener) {
-  this.mFinalListener = finalListener;
-  this.mNumOperations = numOperations;
+/** @implements {calIGenericOperationListener} */
+class CalFreeBusyListener {
+  QueryInterface = ChromeUtils.generateQI(["calIGenericOperationListener"]);
 
-  this.opGroup = new cal.data.OperationGroup(() => {
-    this.notifyResult(null);
-  });
-}
-CalFreeBusyListener.prototype = {
-  QueryInterface: ChromeUtils.generateQI(["calIGenericOperationListener"]),
+  mFinalListener = null;
+  mNumOperations = 0;
+  opGroup = null;
 
-  mFinalListener: null,
-  mNumOperations: 0,
-  opGroup: null,
+  constructor(numOperations, finalListener) {
+    this.mFinalListener = finalListener;
+    this.mNumOperations = numOperations;
+
+    this.opGroup = new cal.data.OperationGroup(() => {
+      this.notifyResult(null);
+    });
+  }
 
   notifyResult(result) {
     const listener = this.mFinalListener;
@@ -27,9 +29,9 @@ CalFreeBusyListener.prototype = {
       }
       listener.onResult(this.opGroup, result);
     }
-  },
+  }
 
-  // calIGenericOperationListener:
+  /** @see calIGenericOperationListener */
   onResult(aOperation, aResult) {
     if (this.mFinalListener) {
       if (!aOperation || !aOperation.isPending) {
@@ -45,21 +47,25 @@ CalFreeBusyListener.prototype = {
         this.notifyResult([]);
       }
     }
-  },
-};
-
-export function CalFreeBusyService() {
-  this.wrappedJSObject = this;
-  this.mProviders = new Set();
+  }
 }
 
-CalFreeBusyService.prototype = {
-  QueryInterface: ChromeUtils.generateQI(["calIFreeBusyProvider", "calIFreeBusyService"]),
-  classID: Components.ID("{29c56cd5-d36e-453a-acde-0083bd4fe6d3}"),
+/**
+ * @implements {calIFreeBusyProvider}
+ * @implements {calIFreeBusyService}
+ */
+export const CalFreeBusyService = new (class {
+  QueryInterface = ChromeUtils.generateQI(["calIFreeBusyProvider", "calIFreeBusyService"]);
+  classID = Components.ID("{29c56cd5-d36e-453a-acde-0083bd4fe6d3}");
 
-  mProviders: null,
+  mProviders = null;
 
-  // calIFreeBusyProvider:
+  constructor() {
+    this.wrappedJSObject = this;
+    this.mProviders = new Set();
+  }
+
+  /** @see {calIFreeBusyProvider} */
   getFreeBusyIntervals(aCalId, aRangeStart, aRangeEnd, aBusyTypes, aListener) {
     const groupListener = new CalFreeBusyListener(this.mProviders.size, aListener);
     if (this.mProviders.size == 0) {
@@ -76,13 +82,16 @@ CalFreeBusyService.prototype = {
       groupListener.opGroup.add(operation);
     }
     return groupListener.opGroup;
-  },
+  }
 
-  // calIFreeBusyService:
+  /** @see {calIFreeBusyService} */
   addProvider(aProvider) {
     this.mProviders.add(aProvider.QueryInterface(Ci.calIFreeBusyProvider));
-  },
+  }
+
+  /** @see {calIFreeBusyService} */
   removeProvider(aProvider) {
     this.mProviders.delete(aProvider.QueryInterface(Ci.calIFreeBusyProvider));
-  },
-};
+  }
+})();
+export { CalFreeBusyService as freeBusyService };

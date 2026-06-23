@@ -234,6 +234,7 @@ CalStorageCalendar.prototype = {
 
     // notify observers
     this.observers.notify("onAddItem", [aItem]);
+
     return aItem;
   },
 

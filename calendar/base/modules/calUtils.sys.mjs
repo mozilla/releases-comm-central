@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
-
 import ICAL from "resource:///modules/calendar/Ical.sys.mjs";
 
 ICAL.design.strict = false;
@@ -124,38 +122,6 @@ export const cal = {
   },
 };
 
-// Services
-XPCOMUtils.defineLazyServiceGetter(
-  cal,
-  "manager",
-  "@mozilla.org/calendar/manager;1",
-  Ci.calICalendarManager
-);
-XPCOMUtils.defineLazyServiceGetter(
-  cal,
-  "icsService",
-  "@mozilla.org/calendar/ics-service;1",
-  Ci.calIICSService
-);
-XPCOMUtils.defineLazyServiceGetter(
-  cal,
-  "timezoneService",
-  "@mozilla.org/calendar/timezone-service;1",
-  Ci.calITimezoneService
-);
-XPCOMUtils.defineLazyServiceGetter(
-  cal,
-  "freeBusyService",
-  "@mozilla.org/calendar/freebusy-service;1",
-  Ci.calIFreeBusyService
-);
-XPCOMUtils.defineLazyServiceGetter(
-  cal,
-  "weekInfoService",
-  "@mozilla.org/calendar/weekinfo-service;1",
-  Ci.calIWeekInfoService
-);
-
 // Sub-modules for calUtils
 // XXX: https://bugzilla.mozilla.org/show_bug.cgi?id=1745807 should drop the
 // pattern seen here of "namespacing" calendar utils onto the `cal` object.
@@ -170,15 +136,20 @@ ChromeUtils.defineESModuleGetters(cal, {
   data: "resource:///modules/calendar/utils/calDataUtils.sys.mjs",
   dtz: "resource:///modules/calendar/utils/calDateTimeUtils.sys.mjs",
   email: "resource:///modules/calendar/utils/calEmailUtils.sys.mjs",
+  freeBusyService: "resource:///modules/CalFreeBusyService.sys.mjs",
+  icsService: "resource:///modules/CalICSService.sys.mjs",
   invitation: "resource:///modules/calendar/utils/calInvitationUtils.sys.mjs",
   item: "resource:///modules/calendar/utils/calItemUtils.sys.mjs",
   iterate: "resource:///modules/calendar/utils/calIteratorUtils.sys.mjs",
   itip: "resource:///modules/calendar/utils/calItipUtils.sys.mjs",
   l10n: "resource:///modules/calendar/utils/calL10NUtils.sys.mjs",
+  manager: "resource:///modules/CalCalendarManager.sys.mjs",
   print: "resource:///modules/calendar/utils/calPrintUtils.sys.mjs",
   provider: "resource:///modules/calendar/utils/calProviderUtils.sys.mjs",
+  timezoneService: "resource:///modules/CalTimezoneService.sys.mjs",
   unifinder: "resource:///modules/calendar/utils/calUnifinderUtils.sys.mjs",
   view: "resource:///modules/calendar/utils/calViewUtils.sys.mjs",
+  weekInfoService: "resource:///modules/CalWeekInfoService.sys.mjs",
   window: "resource:///modules/calendar/utils/calWindowUtils.sys.mjs",
   xml: "resource:///modules/calendar/utils/calXMLUtils.sys.mjs",
 });

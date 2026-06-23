@@ -18,7 +18,7 @@ async function promiseItems(filter, calendar) {
   return cal.iterate.streamToArray(filter.getItems(calendar));
 }
 
-add_task(() => new Promise(resolve => do_calendar_startup(resolve)));
+add_setup(() => do_get_profile(true));
 
 add_task(async function testDateRangeFilter() {
   const calendar = CalendarTestUtils.createCalendar("test");

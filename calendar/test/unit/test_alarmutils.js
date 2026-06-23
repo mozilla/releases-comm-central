@@ -11,9 +11,7 @@ ChromeUtils.defineESModuleGetters(this, {
   CalTodo: "resource:///modules/CalTodo.sys.mjs",
 });
 
-function run_test() {
-  do_calendar_startup(run_next_test);
-}
+add_setup(() => do_get_profile(true));
 
 add_task(async function test_setDefaultValues_events() {
   let item, alarm;

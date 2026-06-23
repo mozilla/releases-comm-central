@@ -425,7 +425,9 @@ add_task(async function test_account_load_sync_accounts_imap_account() {
     "Calendars count should be 1."
   );
   const calendarPromise = new Promise(resolve => {
+    /** @implements {calICalendarManagerObserver} */
     const observer = {
+      QueryInterface: ChromeUtils.generateQI(["calICalendarManagerObserver"]),
       onCalendarRegistered(calendar) {
         cal.manager.removeObserver(this);
         resolve(calendar);

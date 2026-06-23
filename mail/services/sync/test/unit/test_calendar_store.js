@@ -18,8 +18,6 @@ let calDAVCalendar, icsCalendar, fileICSCalendar, storageCalendar;
 add_setup(async function () {
   await populateCacheFile();
 
-  await new Promise(resolve => cal.manager.startup({ onResult: resolve }));
-
   engine = new CalendarsEngine(Service);
   await engine.initialize();
   store = engine._store;

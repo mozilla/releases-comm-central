@@ -17,7 +17,7 @@ add_setup(function () {
   );
   Services.obs.addObserver(delmgr, "profile-after-change");
 
-  do_calendar_startup(run_next_test);
+  do_get_profile(true);
 });
 
 function check_delmgr_call(aFunc) {

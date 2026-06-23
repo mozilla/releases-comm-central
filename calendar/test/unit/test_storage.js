@@ -3,9 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 add_task(async () => {
-  await new Promise(resolve => {
-    do_calendar_startup(resolve);
-  });
+  do_get_profile(true);
 
   const storage = getStorageCal();
   const str = [

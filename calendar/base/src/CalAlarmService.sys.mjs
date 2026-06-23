@@ -90,19 +90,37 @@ export function CalAlarmService() {
     () => this.initAlarms(cal.manager.getCalendars())
   );
 
+  /** @type {calIObserver} */
   this.calendarObserver = {
     QueryInterface: ChromeUtils.generateQI(["calIObserver"]),
     alarmService: this,
 
-    calendarsInBatch: new Set(),
+    /**
+     * Ids of calendars in batch.
+     *
+     * @type {Set<string>}
+     */
+    calendarIdsInBatch: new Set(),
 
     // calIObserver:
+
+    /**
+     * @param {calICalendar} calendar
+     */
     onStartBatch(calendar) {
-      this.calendarsInBatch.add(calendar);
+      this.calendarIdsInBatch.add(calendar.id);
     },
+
+    /**
+     * @param {calICalendar} calendar
+     */
     onEndBatch(calendar) {
-      this.calendarsInBatch.delete(calendar);
+      this.calendarIdsInBatch.delete(calendar.id);
     },
+
+    /**
+     * @param {calICalendar} calendar
+     */
     onLoad(calendar) {
       // ignore any onLoad events until initial getItems() call of startup has finished:
       if (calendar && this.alarmService.mLoadedCalendars[calendar.id]) {
@@ -112,41 +130,63 @@ export function CalAlarmService() {
       }
     },
 
-    onAddItem(aItem) {
+    /**
+     * @param {calIItemBase} item
+     */
+    onAddItem(item) {
       // If we're in a batch, ignore this notification. We're going to reload anyway.
-      if (!this.calendarsInBatch.has(aItem.calendar)) {
-        this.alarmService.addAlarmsForOccurrences(aItem);
+      if (!this.calendarIdsInBatch.has(item.calendar.id)) {
+        this.alarmService.addAlarmsForOccurrences(item);
       }
     },
-    onModifyItem(aNewItem, aOldItem) {
+
+    /**
+     * @param {calIItemBase} newItem
+     * @param {calIItemBase} oldItem
+     */
+    onModifyItem(newItem, oldItem) {
       // If we're in a batch, ignore this notification. We're going to reload anyway.
-      if (this.calendarsInBatch.has(aNewItem.calendar)) {
+      if (this.calendarIdsInBatch.has(newItem.calendar.id)) {
         return;
       }
 
-      if (!aNewItem.recurrenceId) {
+      if (!newItem.recurrenceId) {
         // deleting an occurrence currently calls modifyItem(newParent, *oldOccurrence*)
-        aOldItem = aOldItem.parentItem;
+        oldItem = oldItem.parentItem;
       }
 
-      this.onDeleteItem(aOldItem);
-      this.onAddItem(aNewItem);
+      this.onDeleteItem(oldItem);
+      this.onAddItem(newItem);
     },
-    onDeleteItem(aDeletedItem) {
-      this.alarmService.removeAlarmsForOccurrences(aDeletedItem);
+
+    /**
+     * @param {calIItemBase} item
+     */
+    onDeleteItem(item) {
+      this.alarmService.removeAlarmsForOccurrences(item);
     },
     onError() {},
-    onPropertyChanged(aCalendar, aName) {
-      switch (aName) {
+
+    /**
+     * @param {calICalendar} calendar
+     * @param {string} name
+     */
+    onPropertyChanged(calendar, name) {
+      switch (name) {
         case "suppressAlarms":
         case "disabled":
         case "notifications.times":
-          this.alarmService.initAlarms([aCalendar]);
+          this.alarmService.initAlarms([calendar]);
           break;
       }
     },
-    onPropertyDeleting(aCalendar, aName) {
-      this.onPropertyChanged(aCalendar, aName);
+
+    /**
+     * @param {calICalendar} calendar
+     * @param {string} name
+     */
+    onPropertyDeleting(calendar, name) {
+      this.onPropertyChanged(calendar, name);
     },
   };
 
@@ -412,10 +452,16 @@ CalAlarmService.prototype = {
     this.mStarted = false;
   },
 
+  /**
+   * @param {calICalendar} calendar
+   */
   observeCalendar(calendar) {
     calendar.addObserver(this.calendarObserver);
   },
 
+  /**
+   * @param {calICalendar} calendar
+   */
   unobserveCalendar(calendar) {
     calendar.removeObserver(this.calendarObserver);
     this.disposeCalendarTimers([calendar]);

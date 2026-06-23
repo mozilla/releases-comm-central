@@ -11,9 +11,7 @@ add_task(async () => {
   db.executeSimpleSQL(sql);
   db.close();
 
-  await new Promise(resolve => {
-    do_calendar_startup(resolve);
-  });
+  do_get_profile(true);
 
   const calendar = Cc["@mozilla.org/calendar/calendar;1?type=storage"].createInstance(
     Ci.calISyncWriteCalendar

@@ -3,10 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 function run_test() {
-  do_calendar_startup(really_run_test);
-}
+  do_get_profile(true);
 
-function really_run_test() {
   // Check if the RFC 3339 date and timezone are properly parsed to the
   // expected result and if the result is properly mapped back into the RFC
   // 3339 date.

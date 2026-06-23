@@ -77,6 +77,11 @@ CalAlarmMonitor.prototype = {
 
   /**
    * calIAlarmServiceObserver
+   * Gets called when an alarm has fired. Depending on type of alarm, an
+   * observer could bring up a dialog or play a sound.
+   *
+   * @param {calIItemBase} aItem
+   * @param {calIAlarm} aAlarm
    */
   onAlarm(aItem, aAlarm) {
     if (aAlarm.action != "DISPLAY") {
@@ -192,7 +197,7 @@ CalAlarmMonitor.prototype = {
     const calAlarmWindow = peekAlarmWindow();
     this.mAlarms = this.mAlarms.filter(([thisItem, alarm]) => {
       const ret = aItem.hashId != thisItem.hashId;
-      if (!ret && calAlarmWindow) {
+      if (!ret && calAlarmWindow && "removeWidgetFor" in calAlarmWindow) {
         // window is open
         calAlarmWindow.removeWidgetFor(thisItem, alarm);
       }
@@ -205,7 +210,7 @@ CalAlarmMonitor.prototype = {
     this.mAlarms = this.mAlarms.filter(([thisItem, alarm]) => {
       const ret = calendar.id != thisItem.calendar.id;
 
-      if (!ret && calAlarmWindow) {
+      if (!ret && calAlarmWindow && "removeWidgetFor" in calAlarmWindow) {
         // window is open
         calAlarmWindow.removeWidgetFor(thisItem, alarm);
       }

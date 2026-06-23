@@ -11,9 +11,6 @@ var { CalendarFileImporter } = ChromeUtils.importESModule(
 
 add_setup(async function () {
   do_get_profile();
-  await new Promise(resolve => {
-    do_calendar_startup(resolve);
-  });
 });
 
 add_task(async function test_importIcsFileUTF8() {

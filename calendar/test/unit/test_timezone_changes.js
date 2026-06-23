@@ -9,9 +9,7 @@ const NOVEMBER = 10;
 const UTC_MINUS_3 = -3 * 3600;
 const UTC_MINUS_2 = -2 * 3600;
 
-function run_test() {
-  do_calendar_startup(run_next_test);
-}
+add_setup(() => do_get_profile(true));
 
 // This test requires timezone data going back to 2016. It's been kept here as an example.
 /* add_test(function testCaracas() {

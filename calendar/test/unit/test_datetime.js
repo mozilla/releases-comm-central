@@ -9,10 +9,8 @@ ChromeUtils.defineESModuleGetters(this, {
 });
 
 function run_test() {
-  do_calendar_startup(really_run_test);
-}
+  do_get_profile(true);
 
-function really_run_test() {
   function getMozTimezone(tzid) {
     return cal.timezoneService.getTimezone(tzid);
   }

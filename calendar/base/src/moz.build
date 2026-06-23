@@ -37,7 +37,6 @@ EXTRA_JS_MODULES += [
     "CalRecurrenceInfo.sys.mjs",
     "CalRecurrenceRule.sys.mjs",
     "CalRelation.sys.mjs",
-    "CalStartupService.sys.mjs",
     "CalTimezone.sys.mjs",
     "CalTimezoneService.sys.mjs",
     "CalTodo.sys.mjs",

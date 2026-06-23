@@ -2504,7 +2504,9 @@ function calDavObserver(aCalendar) {
   this.mCalendar = aCalendar;
 }
 
+/** @type {calIObserver} */
 calDavObserver.prototype = {
+  QueryInterface: ChromeUtils.generateQI(["calIObserver"]),
   mCalendar: null,
   mInBatch: false,
 

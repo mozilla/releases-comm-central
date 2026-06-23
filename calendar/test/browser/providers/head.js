@@ -19,6 +19,7 @@ var { saveAndCloseItemDialog, setData } = ChromeUtils.importESModule(
   "resource://testing-common/calendar/ItemEditingHelpers.sys.mjs"
 );
 
+/** @type {calIObserver} */
 const calendarObserver = {
   QueryInterface: ChromeUtils.generateQI(["calIObserver"]),
 
@@ -105,6 +106,7 @@ function removeCalendar(calendar) {
 
 const alarmService = Cc["@mozilla.org/calendar/alarm-service;1"].getService(Ci.calIAlarmService);
 
+/** @type {calIAlarmServiceObserver} */
 const alarmObserver = {
   QueryInterface: ChromeUtils.generateQI(["calIAlarmServiceObserver"]),
 
@@ -168,7 +170,7 @@ async function runTestAlarms() {
           `richlistitem[is="calendar-alarm-widget-richlistitem"]`
         );
         await TestUtils.waitForCondition(() => items.length);
-        Assert.equal(items.length, 1);
+        Assert.equal(items.length, 1, "should only list one alarm item");
 
         await new Promise(resolve => alarmWindow.setTimeout(resolve, 500));
 
@@ -200,7 +202,8 @@ async function runTestAlarms() {
     0,
     "alarm dialog did not reappear"
   );
-  Assert.equal(alarmObserver._alarmCount, 1, "only one alarm");
+
+  Assert.equal(alarmObserver._alarmCount, 1, "onAlarm should get called once");
   Assert.equal(alarmObserver._soundCount, 1, "only one alarm sound");
   alarmObserver._alarmCount = 0;
   alarmObserver._soundCount = 0;

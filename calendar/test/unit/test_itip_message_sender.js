@@ -63,7 +63,6 @@ let calendar;
 add_setup(async function () {
   do_get_profile();
 
-  await new Promise(resolve => do_load_calmgr(resolve));
   calendar = CalendarTestUtils.createCalendar("Test", "memory");
 
   const identity = MailServices.accounts.createIdentity();

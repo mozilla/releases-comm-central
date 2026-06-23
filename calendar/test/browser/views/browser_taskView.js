@@ -177,6 +177,7 @@ add_task(async function test_tooltipPercentWithoutStatus() {
     () => taskTreeNode.mTaskArray.length == 1,
     "Task did not appear in tree"
   );
+  await new Promise(resolve => setTimeout(resolve));
 
   const toolTipNode = document.getElementById("taskTreeTooltip");
   toolTipNode.documentGlobal.showToolTip(toolTipNode, taskTreeNode.getTaskAtRow(0));

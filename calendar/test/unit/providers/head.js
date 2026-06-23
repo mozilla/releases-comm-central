@@ -21,11 +21,10 @@ updateAppInfo();
 
 do_get_profile();
 add_setup(async () => {
-  await new Promise(resolve => cal.manager.startup({ onResult: resolve }));
-  await new Promise(resolve => cal.timezoneService.startup({ onResult: resolve }));
   cal.manager.addCalendarObserver(calendarObserver);
 });
 
+/** @type {calIObserver} */
 const calendarObserver = {
   QueryInterface: ChromeUtils.generateQI(["calIObserver"]),
 

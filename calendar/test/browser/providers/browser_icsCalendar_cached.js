@@ -43,14 +43,15 @@ async function promiseIdle() {
   await TestUtils.waitForCondition(
     () =>
       calendar.wrappedJSObject.mUncachedCalendar.wrappedJSObject._queue.length == 0 &&
-      calendar.wrappedJSObject.mUncachedCalendar.wrappedJSObject._isLocked === false
+      calendar.wrappedJSObject.mUncachedCalendar.wrappedJSObject._isLocked === false,
+    "waiting for idle"
   );
 }
 
 add_task(async function testAlarms() {
   // Remove the next line when fixed.
   calendarObserver._batchRequired = false;
-  await runTestAlarms(calendar);
+  await runTestAlarms();
 
   // Be sure the calendar has finished deleting the event.
   await promiseIdle();

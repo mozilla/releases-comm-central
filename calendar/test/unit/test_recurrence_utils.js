@@ -6,9 +6,7 @@ var { countOccurrences } = ChromeUtils.importESModule(
   "resource:///modules/calendar/calRecurrenceUtils.sys.mjs"
 );
 
-function run_test() {
-  do_calendar_startup(run_next_test);
-}
+add_setup(() => do_get_profile(true));
 
 // tests for calRecurrenceUtils.sys.mjs
 /* Incomplete - still missing test coverage for:

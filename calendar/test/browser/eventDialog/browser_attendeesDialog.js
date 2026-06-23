@@ -408,7 +408,9 @@ function fromToday({ days = 0, hours = 0 }) {
   return value;
 }
 
+/** @implements {calIFreeBusyProvider} */
 var freeBusyProvider = {
+  QueryInterface: ChromeUtils.generateQI(["calIFreeBusyProvider"]),
   pendingRequests: [],
   sendNextResponse() {
     const next = this.pendingRequests.shift();

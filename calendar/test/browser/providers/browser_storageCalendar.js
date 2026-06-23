@@ -9,5 +9,5 @@ registerCleanupFunction(() => {
 
 add_task(function testAlarms() {
   calendarObserver._batchRequired = false;
-  return runTestAlarms(calendar);
+  return runTestAlarms();
 });

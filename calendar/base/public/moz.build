@@ -35,7 +35,6 @@ XPIDL_SOURCES += [
     "calIRecurrenceRule.idl",
     "calIRelation.idl",
     "calISchedulingSupport.idl",
-    "calIStartupService.idl",
     "calIStatusObserver.idl",
     "calITimezone.idl",
     "calITimezoneDatabase.idl",

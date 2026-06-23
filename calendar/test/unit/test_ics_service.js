@@ -11,10 +11,8 @@ ChromeUtils.defineESModuleGetters(this, {
 });
 
 function run_test() {
-  do_calendar_startup(really_run_test);
-}
+  do_get_profile(true);
 
-function really_run_test() {
   test_iterator();
   test_icalcomponent();
   test_icsservice();

@@ -11,9 +11,7 @@ ChromeUtils.defineESModuleGetters(this, {
   CalAttendee: "resource:///modules/CalAttendee.sys.mjs",
 });
 
-function run_test() {
-  do_calendar_startup(run_next_test);
-}
+add_setup(() => do_get_profile(true));
 
 // tests for calInvitationUtils.sys.mjs
 

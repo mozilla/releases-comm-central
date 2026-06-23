@@ -29,7 +29,7 @@ Services.scriptloader.loadSubScript(
 const testItems = {};
 
 add_setup(async function () {
-  await new Promise(resolve => do_calendar_startup(resolve));
+  do_get_profile(true);
 
   // Create events useful for testing.
   for (const [title, startDate, endDate] of [

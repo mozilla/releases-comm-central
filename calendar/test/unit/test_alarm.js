@@ -30,7 +30,8 @@ function run_tests() {
 }
 
 function run_test() {
-  do_calendar_startup(run_tests);
+  do_get_profile(true);
+  run_tests();
 }
 
 function test_initial_creation() {

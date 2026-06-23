@@ -140,23 +140,18 @@ var alarmObserver = {
 
 add_setup(async function () {
   do_get_profile();
-  await new Promise(resolve =>
-    do_calendar_startup(() => {
-      alarmObserver.service = Cc["@mozilla.org/calendar/alarm-service;1"].getService(
-        Ci.calIAlarmService
-      ).wrappedJSObject;
-      ok(!alarmObserver.service.mStarted);
-      alarmObserver.service.startup(null);
-      ok(alarmObserver.service.mStarted);
+  alarmObserver.service = Cc["@mozilla.org/calendar/alarm-service;1"].getService(
+    Ci.calIAlarmService
+  ).wrappedJSObject;
+  ok(!alarmObserver.service.mStarted);
+  alarmObserver.service.startup(null);
+  ok(alarmObserver.service.mStarted);
 
-      // we need to replace the existing observers with our observer
-      for (const obs of alarmObserver.service.mObservers.values()) {
-        alarmObserver.service.removeObserver(obs);
-      }
-      alarmObserver.service.addObserver(alarmObserver);
-      resolve();
-    })
-  );
+  // we need to replace the existing observers with our observer
+  for (const obs of alarmObserver.service.mObservers.values()) {
+    alarmObserver.service.removeObserver(obs);
+  }
+  alarmObserver.service.addObserver(alarmObserver);
 });
 
 function createAlarmFromDuration(aOffset) {

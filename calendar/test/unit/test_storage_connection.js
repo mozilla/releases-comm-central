@@ -4,7 +4,6 @@
 
 add_setup(async function () {
   do_get_profile();
-  await new Promise(resolve => cal.manager.startup({ onResult: resolve }));
 });
 
 /**

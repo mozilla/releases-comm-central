@@ -67,9 +67,6 @@ function getStorageCal() {
   db.append("test_storage.sqlite");
   const uri = Services.io.newFileURI(db);
 
-  // Make sure timezone service is initialized
-  Cc["@mozilla.org/calendar/timezone-service;1"].getService(Ci.calIStartupService).startup(null);
-
   // create storage calendar
   const stor = Cc["@mozilla.org/calendar/calendar;1?type=storage"].createInstance(
     Ci.calISyncWriteCalendar
@@ -248,52 +245,6 @@ function readJSONFile(aFile) {
     stream.close();
   }
   return false;
-}
-
-function do_load_timezoneservice(callback) {
-  do_test_pending();
-  cal.timezoneService.startup({
-    onResult() {
-      do_test_finished();
-      callback();
-    },
-  });
-}
-
-function do_load_calmgr(callback) {
-  do_test_pending();
-  cal.manager.startup({
-    onResult() {
-      do_test_finished();
-      callback();
-    },
-  });
-}
-
-function do_calendar_startup(callback) {
-  const obs = {
-    observe() {
-      Services.obs.removeObserver(this, "calendar-startup-done");
-      do_test_finished();
-      executeSoon(callback);
-    },
-  };
-
-  const startupService = Cc["@mozilla.org/calendar/startup-service;1"].getService(
-    Ci.nsISupports
-  ).wrappedJSObject;
-
-  if (startupService.started) {
-    callback();
-  } else {
-    do_test_pending();
-    Services.obs.addObserver(obs, "calendar-startup-done");
-    if (this._profileInitialized) {
-      Services.obs.notifyObservers(null, "profile-after-change", "xpcshell-do-get-profile");
-    } else {
-      do_get_profile(true);
-    }
-  }
 }
 
 /**

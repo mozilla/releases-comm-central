@@ -173,8 +173,9 @@ class CalDavServer {
 
   waitForLoad(aCalendar) {
     return new Promise((resolve, reject) => {
-      /** @type {calIObserver} */
+      /** @implements {calIObserver} */
       const observer = {
+        QueryInterface: ChromeUtils.generateQI(["calIObserver"]),
         onLoad() {
           const uncached = aCalendar.wrappedJSObject.mUncachedCalendar.wrappedJSObject;
           aCalendar.removeObserver(observer);
@@ -527,22 +528,13 @@ class CalDavServer {
 function run_test() {
   Services.prefs.setCharPref("calendar.loglevel", "Debug");
 
-  // TODO: make do_calendar_startup to work with this test and replace the startup code here
   do_get_profile();
   do_test_pending();
 
-  cal.manager.startup({
-    onResult() {
-      gServer = new CalDavServer("xpcshell@example.com");
-      gServer.start();
-      cal.timezoneService.startup({
-        onResult() {
-          run_next_test();
-          do_test_finished();
-        },
-      });
-    },
-  });
+  gServer = new CalDavServer("xpcshell@example.com");
+  gServer.start();
+  run_next_test();
+  do_test_finished();
 }
 
 /**

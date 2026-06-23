@@ -13,14 +13,12 @@ ChromeUtils.defineESModuleGetters(this, {
 });
 
 /**
- * Tests the calICalendarManager interface
+ * Tests the calICalendarManager interface.
+ *
+ * @implements {calICalendarManagerObserver}
  */
-function run_test() {
-  do_calendar_startup(run_next_test);
-}
-
 class CalendarManagerObserver {
-  QueryInterface = ChromeUtils.generateQI(["calICalendarManager"]);
+  QueryInterface = ChromeUtils.generateQI(["calICalendarManagerObserver"]);
 
   constructor() {
     this.reset();
@@ -71,8 +69,9 @@ add_test(function test_builtin_registration() {
   const calmgrObserver = new CalendarManagerObserver();
 
   let readOnly = false;
-  /** @type {calIObserver} */
+  /** @implements {calIObserver} */
   const calendarObserver = {
+    QueryInterface: ChromeUtils.generateQI(["calIObserver"]),
     onPropertyChanged(aCalendar, aName, aValue) {
       equal(aCalendar.id, memory.id);
       equal(aName, "readOnly");
@@ -200,9 +199,7 @@ add_task(async function test_dynamic_registration() {
   cal.manager.unregisterCalendarProvider("blm");
   calmgrObserver.check({ unregistering: originalId, registered: originalId });
 
-  await new Promise(resolve => cal.manager.shutdown({ onResult: resolve }));
   cal.manager.wrappedJSObject.mCache = null;
-  await new Promise(resolve => cal.manager.startup({ onResult: resolve }));
   calmgrObserver.check({});
 
   calendar = checkCalendar();
@@ -240,14 +237,16 @@ add_test(function test_calobserver() {
   let calcounter, allcounter;
 
   // These observers will end up counting calls which we will use later on
-  /** @type {calIObserver} */
+  /** @implements {calIObserver} */
   const calobs = {
+    QueryInterface: ChromeUtils.generateQI(["calIObserver"]),
     onAddItem: () => calcounter.addItem++,
     onModifyItem: () => calcounter.modifyItem++,
     onDeleteItem: () => calcounter.deleteItem++,
   };
-  /** @type {calIObserver} */
+  /** @implements {calIObserver} */
   const allobs = {
+    QueryInterface: ChromeUtils.generateQI(["calIObserver"]),
     onAddItem: () => allcounter.addItem++,
     onModifyItem: () => allcounter.modifyItem++,
     onDeleteItem: () => allcounter.deleteItem++,

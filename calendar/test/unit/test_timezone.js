@@ -10,12 +10,8 @@ ChromeUtils.defineESModuleGetters(this, {
 
 function run_test() {
   do_test_pending();
-  cal.timezoneService.QueryInterface(Ci.calIStartupService).startup({
-    onResult() {
-      really_run_test();
-      do_test_finished();
-    },
-  });
+  really_run_test();
+  do_test_finished();
 }
 
 function really_run_test() {

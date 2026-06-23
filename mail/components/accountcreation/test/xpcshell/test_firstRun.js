@@ -33,11 +33,6 @@ const { SmartMailboxUtils } = ChromeUtils.importESModule(
 
 add_setup(async () => {
   do_get_profile();
-  // Make sure timezone service is initialized.
-  Cc["@mozilla.org/calendar/timezone-service;1"]
-    .getService(Ci.calIStartupService)
-    .startup(null);
-  await new Promise(resolve => cal.manager.startup({ onResult: resolve }));
   calendarDeactivator.initializeDeactivator();
 });
 

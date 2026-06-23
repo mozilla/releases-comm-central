@@ -17,10 +17,8 @@ ChromeUtils.defineESModuleGetters(this, {
 });
 
 function run_test() {
-  do_calendar_startup(really_run_test);
-}
+  do_get_profile(true);
 
-function really_run_test() {
   test_aclmanager();
   test_calendar();
   test_immutable();

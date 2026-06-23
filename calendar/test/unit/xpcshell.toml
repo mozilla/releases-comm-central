@@ -139,8 +139,6 @@ tags = ["caldav"]
 
 ["test_rfc3339_parser.js"]
 
-["test_startup_service.js"]
-
 ["test_storage.js"]
 
 ["test_storage_connection.js"]

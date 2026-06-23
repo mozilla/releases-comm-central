@@ -8,17 +8,14 @@ import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 import { calCachedCalendar } from "resource:///modules/CalCachedCalendar.sys.mjs";
 import { setTimeout } from "resource://gre/modules/Timer.sys.mjs";
 
+// Initialize the timezone service now!
+// eslint-disable-next-line no-unused-vars
+import "resource:///modules/CalTimezoneService.sys.mjs";
+
 var REGISTRY_BRANCH = "calendar.registry.";
 var MAX_INT = Math.pow(2, 31) - 1;
 var MIN_INT = -MAX_INT;
 
-export function CalCalendarManager() {
-  this.wrappedJSObject = this;
-  this.mObservers = new cal.data.ListenerSet(Ci.calICalendarManagerObserver);
-  this.mCalendarObservers = new cal.data.ListenerSet(Ci.calIObserver);
-
-  this.providerImplementations = {};
-}
 const lazy = {};
 ChromeUtils.defineLazyGetter(lazy, "log", () => {
   return console.createInstance({
@@ -29,36 +26,95 @@ ChromeUtils.defineLazyGetter(lazy, "log", () => {
 });
 ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
 
-var calCalendarManagerClassID = Components.ID("{f42585e7-e736-4600-985d-9624c1c51992}");
-var calCalendarManagerInterfaces = [Ci.calICalendarManager, Ci.calIStartupService, Ci.nsIObserver];
-CalCalendarManager.prototype = {
-  classID: calCalendarManagerClassID,
-  QueryInterface: cal.generateQI(["calICalendarManager", "calIStartupService", "nsIObserver"]),
-  classInfo: cal.generateCI({
-    classID: calCalendarManagerClassID,
+var gCalendarManagerAddonListener = {
+  onDisabling(aAddon) {
+    if (!this.queryUninstallProvider(aAddon)) {
+      // If the addon should not be disabled, then re-enable it.
+      aAddon.userDisabled = false;
+    }
+  },
+
+  onUninstalling(aAddon) {
+    if (!this.queryUninstallProvider(aAddon)) {
+      // If the addon should not be uninstalled, then cancel the uninstall.
+      aAddon.cancelUninstall();
+    }
+  },
+
+  queryUninstallProvider(aAddon) {
+    const uri = "chrome://calendar/content/calendar-providerUninstall-dialog.xhtml";
+    const features = "chrome,titlebar,resizable,modal";
+    const affectedCalendars = cal.manager
+      .getCalendars()
+      .filter(calendar => calendar.providerID == aAddon.id);
+    if (!affectedCalendars.length) {
+      // If no calendars are affected, then everything is fine.
+      return true;
+    }
+
+    const args = { shouldUninstall: false, extension: aAddon };
+
+    // Now find a window. The best choice would be the most recent
+    // addons window, otherwise the most recent calendar window, or we
+    // create a new toplevel window.
+    const win =
+      Services.wm.getMostRecentWindow("Extension:Manager") || cal.window.getCalendarWindow();
+    if (win) {
+      win.openDialog(uri, "CalendarProviderUninstallDialog", features, args);
+    } else {
+      // Use the window watcher to open a parentless window.
+      Services.ww.openWindow(null, uri, "CalendarProviderUninstallWindow", features, args);
+    }
+
+    // Now that we are done, check if the dialog was accepted or canceled.
+    return args.shouldUninstall;
+  },
+};
+
+const CalDummyCalendar = class extends cal.provider.BaseClass {
+  constructor(type) {
+    super();
+    this.initProviderBase();
+    this.type = type;
+  }
+
+  getProperty(aName) {
+    switch (aName) {
+      case "force-disabled":
+        return true;
+      default:
+        return super.getProperty(...arguments);
+    }
+  }
+};
+
+/**
+ * @implements {calICalendarManager}
+ * @implements {nsIObserver}
+ */
+export const CalCalendarManager = new (class {
+  classID = Components.ID("{f42585e7-e736-4600-985d-9624c1c51992}");
+  QueryInterface = cal.generateQI(["calICalendarManager", "nsIObserver"]);
+  classInfo = cal.generateCI({
+    classID: Components.ID("{f42585e7-e736-4600-985d-9624c1c51992}"),
     contractID: "@mozilla.org/calendar/manager;1",
     classDescription: "Calendar Manager",
-    interfaces: calCalendarManagerInterfaces,
+    interfaces: [Ci.calICalendarManager, Ci.nsIObserver],
     flags: Ci.nsIClassInfo.SINGLETON,
-  }),
+  });
 
-  get networkCalendarCount() {
-    return this.mNetworkCalendarCount;
-  },
-  get readOnlyCalendarCount() {
-    return this.mReadonlyCalendarCount;
-  },
-  get calendarCount() {
-    return this.mCalendarCount;
-  },
+  constructor() {
+    this.wrappedJSObject = this;
+    this.mObservers = new cal.data.ListenerSet(Ci.calICalendarManagerObserver);
+    this.mCalendarObservers = new cal.data.ListenerSet(Ci.calIObserver);
 
-  // calIStartupService:
-  startup(aCompleteListener) {
+    this.providerImplementations = {};
+
     AddonManager.addAddonListener(gCalendarManagerAddonListener);
     this.mCache = null;
     this.mCalObservers = null;
     this.mRefreshTimer = {};
-    this.setupOfflineObservers();
+    Services.obs.addObserver(this, "network:offline-status-changed");
     this.mNetworkCalendarCount = 0;
     this.mReadonlyCalendarCount = 0;
     this.mCalendarCount = 0;
@@ -68,37 +124,17 @@ CalCalendarManager.prototype = {
     if (Services.prefs.getBoolPref("calendar.network.multirealm", false)) {
       Services.obs.addObserver(this, "http-on-examine-response");
     }
+  }
 
-    aCompleteListener.onResult(null, Cr.NS_OK);
-  },
-
-  shutdown(aCompleteListener) {
-    for (const id in this.mCache) {
-      const calendar = this.mCache[id];
-      calendar.removeObserver(this.mCalObservers[calendar.id]);
-    }
-
-    this.cleanupOfflineObservers();
-
-    AddonManager.removeAddonListener(gCalendarManagerAddonListener);
-
-    // Remove the observer if the pref is set. This might fail when the
-    // user flips the pref, but we assume he is going to restart anyway
-    // afterwards.
-    if (Services.prefs.getBoolPref("calendar.network.multirealm", false)) {
-      Services.obs.removeObserver(this, "http-on-examine-response");
-    }
-
-    aCompleteListener.onResult(null, Cr.NS_OK);
-  },
-
-  setupOfflineObservers() {
-    Services.obs.addObserver(this, "network:offline-status-changed");
-  },
-
-  cleanupOfflineObservers() {
-    Services.obs.removeObserver(this, "network:offline-status-changed");
-  },
+  get networkCalendarCount() {
+    return this.mNetworkCalendarCount;
+  }
+  get readOnlyCalendarCount() {
+    return this.mReadonlyCalendarCount;
+  }
+  get calendarCount() {
+    return this.mCalendarCount;
+  }
 
   observe(aSubject, aTopic, aData) {
     switch (aTopic) {
@@ -146,7 +182,7 @@ CalCalendarManager.prototype = {
         break;
       }
     }
-  },
+  }
 
   /**
    * calICalendarManager interface
@@ -201,7 +237,7 @@ CalCalendarManager.prototype = {
       );
       return null;
     }
-  },
+  }
 
   /**
    * Creates a calendar and takes care of initial setup, including enabled/disabled properties and
@@ -225,7 +261,7 @@ CalCalendarManager.prototype = {
       calendar = maybeWrapCachedCalendar(calendar);
     } else {
       // Create dummy calendar that stays disabled for this run.
-      calendar = new calDummyCalendar(ctype);
+      calendar = new CalDummyCalendar(ctype);
       calendar.id = id;
       calendar.uri = uri;
       // Try to enable on next startup if calendar has been enabled.
@@ -236,7 +272,7 @@ CalCalendarManager.prototype = {
     }
 
     return calendar;
-  },
+  }
 
   /**
    * Update calendar registrations for the given type. If the provider is missing then the calendars
@@ -251,11 +287,11 @@ CalCalendarManager.prototype = {
     const calendars = Object.values(this.mCache).filter(calendar => {
       // Calendars backed by providers despite missing provider implementation, or dummy calendars
       // despite having a provider implementation.
-      const isDummyCalendar = calendar instanceof calDummyCalendar;
+      const isDummyCalendar = calendar instanceof CalDummyCalendar;
       return calendar.type == type && hasImplementation == isDummyCalendar;
     });
     this.updateCalendarRegistration(calendars, clearCache);
-  },
+  }
 
   /**
    * Update the calendar registrations for the given set of calendars. This essentially unregisters
@@ -296,7 +332,7 @@ CalCalendarManager.prototype = {
       maybeRefreshCalendar(calendar);
       this.notifyObservers("onCalendarRegistered", [calendar]);
     }
-  },
+  }
 
   /**
    * Register a calendar provider with the given JavaScript implementation.
@@ -313,7 +349,7 @@ CalCalendarManager.prototype = {
 
     this.providerImplementations[type] = impl;
     this.updateDummyCalendarRegistration(type);
-  },
+  }
 
   /**
    * Unregister a calendar provider by type. Already registered calendars will be replaced by a
@@ -328,7 +364,7 @@ CalCalendarManager.prototype = {
     }
     delete this.providerImplementations[type];
     this.updateDummyCalendarRegistration(type, !temporary);
-  },
+  }
 
   /**
    * Checks if a calendar provider has been dynamically registered with the given type. This does
@@ -339,7 +375,7 @@ CalCalendarManager.prototype = {
    */
   hasCalendarProvider(type) {
     return !!this.providerImplementations[type];
-  },
+  }
 
   registerCalendar(calendar) {
     this.assureCache();
@@ -362,7 +398,7 @@ CalCalendarManager.prototype = {
 
     maybeRefreshCalendar(calendar);
     this.notifyObservers("onCalendarRegistered", [calendar]);
-  },
+  }
 
   /**
    * Sets up a calendar, this is the initialization required during calendar registration. See
@@ -389,7 +425,7 @@ CalCalendarManager.prototype = {
 
     // Set up the refresh timer
     this.setupRefreshTimer(calendar);
-  },
+  }
 
   /**
    * Reverts the calendar registration setup steps from {@link #setupCalendar}.
@@ -418,7 +454,7 @@ CalCalendarManager.prototype = {
     this.mCalendarCount--;
 
     this.clearRefreshTimer(calendar);
-  },
+  }
 
   setupRefreshTimer(aCalendar) {
     // Add the refresh timer for this calendar
@@ -439,14 +475,14 @@ CalCalendarManager.prototype = {
         Ci.nsITimer.TYPE_REPEATING_SLACK
       );
     }
-  },
+  }
 
   clearRefreshTimer(aCalendar) {
     if (aCalendar.id in this.mRefreshTimer && this.mRefreshTimer[aCalendar.id]) {
       this.mRefreshTimer[aCalendar.id].cancel();
       delete this.mRefreshTimer[aCalendar.id];
     }
-  },
+  }
 
   unregisterCalendar(calendar) {
     this.notifyObservers("onCalendarUnregistering", [calendar]);
@@ -454,7 +490,7 @@ CalCalendarManager.prototype = {
 
     deletePrefBranch(calendar.id);
     flushPrefs();
-  },
+  }
 
   /**
    * @param {calICalendar} calendar - Calendar to remove.
@@ -488,14 +524,14 @@ CalCalendarManager.prototype = {
       const wrappedCalendar = calendar.QueryInterface(Ci.calICalendarProvider);
       wrappedCalendar.deleteCalendar(calendar, null);
     }
-  },
+  }
 
   getCalendarById(aId) {
     if (aId in this.mCache) {
       return this.mCache[aId];
     }
     return null;
-  },
+  }
 
   getCalendars() {
     this.assureCache();
@@ -505,7 +541,7 @@ CalCalendarManager.prototype = {
       calendars.push(calendar);
     }
     return calendars;
-  },
+  }
 
   /**
    * Load calendars from the pref branch, if they haven't already been loaded. The calendar
@@ -613,7 +649,7 @@ CalCalendarManager.prototype = {
       // Store the date instead of a boolean because we might want to use this again some day.
       Services.prefs.setIntPref("calendar.caldav.googleResync", Date.now() / 1000);
     }
-  },
+  }
 
   getCalendarPref_(calendar, name) {
     if (!calendar) {
@@ -653,7 +689,7 @@ CalCalendarManager.prototype = {
       }
     }
     return value;
-  },
+  }
 
   setCalendarPref_(calendar, name, value) {
     if (!calendar) {
@@ -697,7 +733,7 @@ CalCalendarManager.prototype = {
           if (value > MAX_INT || value < MIN_INT) {
             throw new Error(
               `Cannot set the ${prefName} pref to the number ` +
-                `${value}, as number pref values must be in the signed ` +
+                `${value} as number pref values must be in the signed ` +
                 `32-bit integer range -(2^31-1) to 2^31-1.  To store numbers ` +
                 `outside that range, store them as strings.`
             );
@@ -715,7 +751,7 @@ CalCalendarManager.prototype = {
           );
       }
     }
-  },
+  }
 
   deleteCalendarPref_(calendar, name) {
     if (!calendar) {
@@ -728,30 +764,31 @@ CalCalendarManager.prototype = {
       throw new Error("pref name must be set");
     }
     Services.prefs.clearUserPref(getPrefBranchFor(calendar.id) + name);
-  },
+  }
 
-  mObservers: null,
+  mObservers = null;
   addObserver(aObserver) {
     this.mObservers.add(aObserver);
-  },
+  }
   removeObserver(aObserver) {
     this.mObservers.delete(aObserver);
-  },
+  }
   notifyObservers(functionName, args) {
     this.mObservers.notify(functionName, args);
-  },
+  }
 
-  mCalendarObservers: null,
+  mCalendarObservers = null;
   addCalendarObserver(aObserver) {
     return this.mCalendarObservers.add(aObserver);
-  },
+  }
   removeCalendarObserver(aObserver) {
     return this.mCalendarObservers.delete(aObserver);
-  },
+  }
   notifyCalendarObservers(functionName, args) {
     this.mCalendarObservers.notify(functionName, args);
-  },
-};
+  }
+})();
+export { CalCalendarManager as manager };
 
 function equalMessage(msg1, msg2) {
   if (
@@ -764,44 +801,47 @@ function equalMessage(msg1, msg2) {
   return false;
 }
 
-function calMgrCalendarObserver(calendar, calMgr) {
-  this.calendar = calendar;
-  // We compare this to determine if the state actually changed.
-  this.storedReadOnly = calendar.readOnly;
-  this.announcedMessages = [];
-  this.calMgr = calMgr;
-}
+/**
+ * @implements {nsIWindowMediatorListener}
+ * @implements {calIObserver}
+ */
+class calMgrCalendarObserver {
+  calendar = null;
+  storedReadOnly = null;
+  calMgr = null;
+  QueryInterface = ChromeUtils.generateQI(["nsIWindowMediatorListener", "calIObserver"]);
 
-calMgrCalendarObserver.prototype = {
-  calendar: null,
-  storedReadOnly: null,
-  calMgr: null,
-
-  QueryInterface: ChromeUtils.generateQI(["nsIWindowMediatorListener", "calIObserver"]),
+  constructor(calendar, calMgr) {
+    this.calendar = calendar;
+    // We compare this to determine if the state actually changed.
+    this.storedReadOnly = calendar.readOnly;
+    this.announcedMessages = [];
+    this.calMgr = calMgr;
+  }
 
   // calIObserver:
   onStartBatch() {
     return this.calMgr.notifyCalendarObservers("onStartBatch", arguments);
-  },
+  }
   onEndBatch() {
     return this.calMgr.notifyCalendarObservers("onEndBatch", arguments);
-  },
+  }
   onLoad() {
     return this.calMgr.notifyCalendarObservers("onLoad", arguments);
-  },
+  }
   onAddItem() {
     return this.calMgr.notifyCalendarObservers("onAddItem", arguments);
-  },
+  }
   onModifyItem() {
     return this.calMgr.notifyCalendarObservers("onModifyItem", arguments);
-  },
+  }
   onDeleteItem() {
     return this.calMgr.notifyCalendarObservers("onDeleteItem", arguments);
-  },
+  }
   onError(aCalendar, aErrNo, aMessage) {
     this.calMgr.notifyCalendarObservers("onError", arguments);
     this.announceError(aCalendar, aErrNo, aMessage);
-  },
+  }
 
   onPropertyChanged(aCalendar, aName, aValue) {
     this.calMgr.notifyCalendarObservers("onPropertyChanged", arguments);
@@ -824,7 +864,7 @@ calMgrCalendarObserver.prototype = {
         }
         break;
     }
-  },
+  }
 
   changeCalendarCache(aCalendar, aName, aValue, aOldValue) {
     aOldValue = aOldValue || false;
@@ -877,11 +917,11 @@ calMgrCalendarObserver.prototype = {
       // could be useful for users in case the cache may be corrupted.
       aCalendar.wrappedJSObject.setupCachedCalendar();
     }
-  },
+  }
 
   onPropertyDeleting(aCalendar, aName) {
     this.onPropertyChanged(aCalendar, aName, false, true);
-  },
+  }
 
   // Error announcer specific functions
   announceError(aCalendar, aErrNo, aMessage) {
@@ -951,7 +991,7 @@ calMgrCalendarObserver.prototype = {
     } else {
       lazy.log.warn(summary);
     }
-  },
+  }
 
   announceParamBlock(paramBlock) {
     function awaitLoad() {
@@ -990,25 +1030,8 @@ calMgrCalendarObserver.prototype = {
     const features = "chrome,dialog=yes,alwaysRaised=yes";
     const promptWindow = Services.ww.openWindow(null, promptUrl, "_blank", features, paramBlock);
     promptWindow.addEventListener("load", awaitLoad, { capture: false, once: true });
-  },
-};
-
-function calDummyCalendar(type) {
-  this.initProviderBase();
-  this.type = type;
+  }
 }
-calDummyCalendar.prototype = {
-  __proto__: cal.provider.BaseClass.prototype,
-
-  getProperty(aName) {
-    switch (aName) {
-      case "force-disabled":
-        return true;
-      default:
-        return this.__proto__.__proto__.getProperty.apply(this, arguments);
-    }
-  },
-};
 
 /**
  * Return the name of the branch that should be used for the given id.
@@ -1046,7 +1069,7 @@ function maybeRefreshCalendar(calendar) {
 }
 
 /**
- * Wrap a calendar using {@link calCachedCalendar}, if the cache is supported and enabled.
+ * Wrap a calendar using {@link calCachedCalendar} if the cache is supported and enabled.
  * Otherwise just return the passed in calendar.
  *
  * @param {calICalendar} calendar - The calendar to potentially wrap.
@@ -1084,51 +1107,6 @@ function timerCallback(aCalendar) {
     }
   };
 }
-
-var gCalendarManagerAddonListener = {
-  onDisabling(aAddon) {
-    if (!this.queryUninstallProvider(aAddon)) {
-      // If the addon should not be disabled, then re-enable it.
-      aAddon.userDisabled = false;
-    }
-  },
-
-  onUninstalling(aAddon) {
-    if (!this.queryUninstallProvider(aAddon)) {
-      // If the addon should not be uninstalled, then cancel the uninstall.
-      aAddon.cancelUninstall();
-    }
-  },
-
-  queryUninstallProvider(aAddon) {
-    const uri = "chrome://calendar/content/calendar-providerUninstall-dialog.xhtml";
-    const features = "chrome,titlebar,resizable,modal";
-    const affectedCalendars = cal.manager
-      .getCalendars()
-      .filter(calendar => calendar.providerID == aAddon.id);
-    if (!affectedCalendars.length) {
-      // If no calendars are affected, then everything is fine.
-      return true;
-    }
-
-    const args = { shouldUninstall: false, extension: aAddon };
-
-    // Now find a window. The best choice would be the most recent
-    // addons window, otherwise the most recent calendar window, or we
-    // create a new toplevel window.
-    const win =
-      Services.wm.getMostRecentWindow("Extension:Manager") || cal.window.getCalendarWindow();
-    if (win) {
-      win.openDialog(uri, "CalendarProviderUninstallDialog", features, args);
-    } else {
-      // Use the window watcher to open a parentless window.
-      Services.ww.openWindow(null, uri, "CalendarProviderUninstallWindow", features, args);
-    }
-
-    // Now that we are done, check if the dialog was accepted or canceled.
-    return args.shouldUninstall;
-  },
-};
 
 function appendToRealm(authHeader, appendStr) {
   let isEscaped = false;
