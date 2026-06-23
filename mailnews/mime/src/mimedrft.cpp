@@ -1933,7 +1933,8 @@ int mime_decompose_file_init_fn(MimeClosure stream_closure,
   // Separate the appended text from the body text already in the file.
   if (appendToMessageBody) {
     uint32_t separatorBytes;
-    mdd->tmpFileStream->Write(MSG_LINEBREAK, MSG_LINEBREAK_LEN, &separatorBytes);
+    mdd->tmpFileStream->Write(MSG_LINEBREAK, MSG_LINEBREAK_LEN,
+                              &separatorBytes);
   }
 
   // For now, we are always going to decode all of the attachments

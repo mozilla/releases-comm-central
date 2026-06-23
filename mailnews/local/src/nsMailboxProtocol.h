@@ -53,9 +53,9 @@ class nsMailboxProtocol : public nsMsgProtocol {
 
  private:
   RefPtr<nsMailboxUrl>
-      m_runningUrl;  // the nsMailboxUrl that is currently running
+      m_runningUrl;               // the nsMailboxUrl that is currently running
   MailboxAction m_mailboxAction;  // current mailbox action associated with
-                                    // this connection...
+                                  // this connection...
 
   // Local state for the current operation
   RefPtr<nsMsgLineStreamBuffer>
