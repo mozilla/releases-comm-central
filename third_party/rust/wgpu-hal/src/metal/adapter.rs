@@ -11,6 +11,8 @@ use wgt::{AstcBlock, AstcChannel};
 
 use alloc::{string::ToString as _, sync::Arc, vec::Vec};
 use core::sync::atomic;
+use parking_lot::Mutex;
+use std::sync::OnceLock;
 
 use crate::metal::QueueShared;
 
@@ -124,6 +126,9 @@ impl crate::Adapter for super::Adapter {
                     shared: Arc::new(QueueShared {
                         raw: queue,
                         command_buffer_created_not_submitted: atomic::AtomicUsize::new(0),
+                        pending_waits: Mutex::new(Vec::new()),
+                        pending_signals: Mutex::new(Vec::new()),
+                        relay: OnceLock::new(),
                     }),
                     timestamp_period,
                 },
@@ -740,7 +745,10 @@ impl super::CapabilitiesQuery {
                 1
             },
             format_b5: os_type != super::OsType::Macos,
-            format_bc: os_type == super::OsType::Macos,
+            format_bc: os_type == super::OsType::Macos
+                || (available!(macos = 11.0, ios = 16.4, tvos = 16.4, visionos = 1.0)
+                    && device_class_responds_to(device, sel!(supportsBCTextureCompression))
+                    && device.supportsBCTextureCompression()),
             format_eac_etc: os_type != super::OsType::Macos
                 // M1 in macOS supports EAC/ETC2
                 || (family_check && device.supportsFamily(MTLGPUFamily::Apple7)),
@@ -1166,9 +1174,14 @@ impl super::CapabilitiesQuery {
         features.set(F::FLOAT32_BLENDABLE, true);
         features.set(F::INDIRECT_FIRST_INSTANCE, self.indirect_draw_dispatch);
         features.set(
-            F::TIMESTAMP_QUERY | F::TIMESTAMP_QUERY_INSIDE_ENCODERS,
+            F::TIMESTAMP_QUERY,
             self.timestamp_query_support
                 .contains(TimestampQuerySupport::STAGE_BOUNDARIES),
+        );
+        features.set(
+            F::TIMESTAMP_QUERY_INSIDE_ENCODERS,
+            self.timestamp_query_support
+                .contains(TimestampQuerySupport::ON_BLIT_ENCODER),
         );
         features.set(
             F::TIMESTAMP_QUERY_INSIDE_PASSES,

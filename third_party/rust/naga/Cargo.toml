@@ -45,9 +45,9 @@ all-features = true
 arbitrary = [
     "dep:arbitrary",
     "bitflags/arbitrary",
-    "indexmap/arbitrary",
     "half/arbitrary",
     "half/std",
+    "naga-types/arbitrary",
 ]
 default = []
 deserialize = [
@@ -55,7 +55,7 @@ deserialize = [
     "bitflags/serde",
     "half/serde",
     "hashbrown/serde",
-    "indexmap/serde",
+    "naga-types/deserialize",
 ]
 dot-out = []
 fs = []
@@ -70,7 +70,7 @@ serialize = [
     "bitflags/serde",
     "half/serde",
     "hashbrown/serde",
-    "indexmap/serde",
+    "naga-types/serialize",
 ]
 spv-in = [
     "dep:petgraph",
@@ -116,7 +116,7 @@ features = ["num-traits"]
 default-features = false
 
 [dependencies.hashbrown]
-version = "0.16"
+version = "0.17"
 features = [
     "default-hasher",
     "inline-more",
@@ -133,6 +133,10 @@ default-features = false
 
 [dependencies.log]
 version = "0.4.29"
+
+[dependencies.naga-types]
+version = "29.0.0"
+path = "../naga-types"
 
 [dependencies.num-traits]
 version = "0.2.16"
@@ -180,6 +184,13 @@ default-features = false
 version = "1.0.5"
 optional = true
 
+[dev-dependencies.bytemuck]
+version = "1.22"
+features = [
+    "extern_crate_alloc",
+    "min_const_generics",
+]
+
 [dev-dependencies.diff]
 version = "0.1"
 
@@ -188,7 +199,7 @@ version = "0.11"
 default-features = false
 
 [dev-dependencies.hashbrown]
-version = "0.16"
+version = "0.17"
 features = [
     "default-hasher",
     "inline-more",

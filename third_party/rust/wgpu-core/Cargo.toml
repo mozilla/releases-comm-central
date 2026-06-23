@@ -131,7 +131,7 @@ features = [
 version = "0.2.10"
 
 [dependencies.hashbrown]
-version = "0.16"
+version = "0.17"
 features = [
     "default-hasher",
     "inline-more",
@@ -152,6 +152,10 @@ optional = true
 [dependencies.naga]
 version = "29.0.0"
 path = "../naga"
+
+[dependencies.naga-types]
+version = "29.0.0"
+path = "../naga-types"
 
 [dependencies.once_cell]
 version = "1.21"
