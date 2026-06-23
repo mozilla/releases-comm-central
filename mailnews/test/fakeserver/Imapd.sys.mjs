@@ -381,6 +381,18 @@ export class ImapMailbox {
   }
 }
 
+/**
+ * A single message stored in a fakeserver mailbox.
+ *
+ * Optional per-instance test hooks:
+ *  - `_truncateBodyAt` {integer}: if set, the server never delivers body octets
+ *    at or beyond this offset, while RFC822.SIZE keeps reporting the true
+ *    (larger) size. A chunked BODY[]<start.count> fetch then receives a chunk
+ *    shorter than requested once it reaches the offset, simulating a server
+ *    that stops sending data partway through (e.g. a premature connection
+ *    close) without any protocol error. Useful for exercising truncated /
+ *    incomplete download handling.
+ */
 export class ImapMessage {
   constructor(URI, uid, flags) {
     this._URI = URI;
@@ -1712,6 +1724,17 @@ export class IMAP_RFC3501_handler {
       if (parts[3]) {
         response += "<" + parts[3][0] + ">";
         text = message.getText(parts[3][0], parts[3][1]);
+        // Honour the optional `_truncateBodyAt` truncation hook (see the
+        // ImapMessage class documentation): never deliver octets past that
+        // offset, so a chunked fetch receives a short final chunk.
+        if (message._truncateBodyAt !== undefined) {
+          const start = parts[3][0];
+          if (start >= message._truncateBodyAt) {
+            text = "";
+          } else if (start + text.length > message._truncateBodyAt) {
+            text = text.substring(0, message._truncateBodyAt - start);
+          }
+        }
       } else {
         text = message.getText();
       }

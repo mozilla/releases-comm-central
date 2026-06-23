@@ -89,6 +89,8 @@ tags = ["foldernames"]
 
 ["test_imapStoreMsgOffline.js"]
 
+["test_imapTruncatedOfflineBody.js"]
+
 ["test_imapUndo.js"]
 
 ["test_imapUrls.js"]

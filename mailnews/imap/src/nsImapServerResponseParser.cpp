@@ -1765,7 +1765,35 @@ void nsImapServerResponseParser::msg_fetch_content(bool chunk, int32_t origin,
     // complete the message download
     if (ContinueParse()) {
       if (fReceivedHeaderOrSizeForUID == CurrentResponseUID()) {
-        fServerConnection.NormalMessageEndDownload();
+        // When a message body is fetched in chunks, a chunk that is smaller
+        // than the requested chunk size is taken to be the final chunk (see
+        // lastChunk in msg_fetch_literal()). If that happens before we have
+        // received as many octets as the server announced for the message
+        // (fTotalDownloadSize, derived from RFC822.SIZE), the body is truncated
+        // -- e.g. the server closed the connection or returned a short chunk
+        // mid-stream without us seeing a death signal or parse error. Finishing
+        // the download here would store the partial body as a *complete*
+        // offline copy (nsMsgMessageFlags::Offline) that is never re-fetched,
+        // silently hiding the missing parts (e.g. attachments). Abort instead
+        // so the partial copy is discarded and re-downloaded on next access.
+        //
+        // origin and numberOfCharsInThisChunk are raw server octet counts (same
+        // units as RFC822.SIZE), so this check is unaffected by the CRLF/LF
+        // line-ending normalization later applied to the stored stream. Only
+        // chunked body fetches are guarded here: a truncated single-literal
+        // fetch leaves the parser unable to continue and already aborts above,
+        // and a complete-but-short literal indicates a wrong server
+        // RFC822.SIZE, which is a separate problem.
+        if (chunk && !GetDownloadingHeaders() && fTotalDownloadSize > 0 &&
+            (origin + numberOfCharsInThisChunk) < fTotalDownloadSize) {
+          MOZ_LOG(IMAP, mozilla::LogLevel::Warning,
+                  ("PARSER: truncated message body, received %d of %d octets; "
+                   "discarding incomplete offline copy",
+                   origin + numberOfCharsInThisChunk, fTotalDownloadSize));
+          fServerConnection.AbortMessageDownLoad();
+        } else {
+          fServerConnection.NormalMessageEndDownload();
+        }
         fReceivedHeaderOrSizeForUID = ImapUid_None;
       } else
         fReceivedHeaderOrSizeForUID = CurrentResponseUID();
