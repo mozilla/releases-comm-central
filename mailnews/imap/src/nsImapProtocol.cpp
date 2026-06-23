@@ -1779,28 +1779,13 @@ bool nsImapProtocol::ProcessCurrentURL() {
   bool logonFailed = false;
   bool anotherUrlRun = false;
   bool rerunningUrl = false;
-  bool isExternalUrl;
   bool validUrl = true;
 
   PseudoInterrupt(false);  // clear this if left over from previous url.
 
   m_runningUrl->GetRerunningUrl(&rerunningUrl);
-  m_runningUrl->GetExternalLinkUrl(&isExternalUrl);
   m_runningUrl->GetValidUrl(&validUrl);
   m_runningUrl->GetImapAction(&m_imapAction);
-
-  if (isExternalUrl) {
-    if (m_imapAction == nsIImapUrl::nsImapSelectFolder) {
-      // we need to send a start request so that the doc loader
-      // will call HandleContent on the imap service so we
-      // can abort this url, and run a new url in a new msg window
-      // to run the folder load url and get off this crazy merry-go-round.
-      if (m_channelListener) {
-        m_channelListener->OnStartRequest(m_mockChannel);
-      }
-      return false;
-    }
-  }
 
   if (!m_imapMailFolderSink && m_imapProtocolSink) {
     // This occurs when running another URL in the main thread loop
@@ -8077,14 +8062,6 @@ void nsImapProtocol::ProcessAuthenticatedStateURL() {
     case nsIImapUrl::nsImapSubscribe:
       sourceMailbox = OnCreateServerSourceFolderPathString();
       OnSubscribe(sourceMailbox.get());  // used to be called subscribe
-
-      if (GetServerStateParser().LastCommandSuccessful()) {
-        bool shouldList;
-        // if url is an external click url, then we should list the folder
-        // after subscribing to it, so we can select it.
-        m_runningUrl->GetExternalLinkUrl(&shouldList);
-        if (shouldList) OnListFolder(sourceMailbox.get(), true);
-      }
       break;
     case nsIImapUrl::nsImapUnsubscribe:
       sourceMailbox = OnCreateServerSourceFolderPathString();
@@ -9788,16 +9765,12 @@ NS_IMETHODIMP nsImapMockChannel::AsyncOpen(nsIStreamListener* aListener) {
   imapUrl->GetExternalLinkUrl(&externalLink);
 
   if (externalLink) {
-    // for security purposes, only allow imap urls originating from external
-    // sources perform a limited set of actions. Currently the allowed set
-    // includes: 1) folder selection 2) message fetch 3) message part fetch
-
-    if (!(imapAction == nsIImapUrl::nsImapSelectFolder ||
-          imapAction == nsIImapUrl::nsImapMsgFetch ||
-          imapAction == nsIImapUrl::nsImapOpenMimePart ||
+    // For security purposes, only allow IMAP URLs originating from external
+    // sources to fetch messages.
+    if (!(imapAction == nsIImapUrl::nsImapMsgFetch ||
           imapAction == nsIImapUrl::nsImapMsgFetchPeek))
-      return NS_ERROR_FAILURE;  // abort the running of this url....it failed a
-                                // security check
+      // Abort the running of this url... it failed a security check.
+      return NS_ERROR_FAILURE;
   }
 
   if (ReadFromLocalCache()) {

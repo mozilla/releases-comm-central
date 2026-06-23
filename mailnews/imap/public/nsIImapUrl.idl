@@ -182,7 +182,6 @@ interface nsIImapUrl : nsISupports
   const long nsImapAppendDraftFromFile = 0x10000028;
   const long nsImapUidExpunge = 0x10000029;
   const long nsImapSaveMessageToDisk = 0x10000030;
-  const long nsImapOpenMimePart = 0x10000031;
   const long nsImapMsgDownloadForOffline  = 0x10000032;
   const long nsImapDeleteFolderAndMsgs = 0x10000033;
   const long nsImapUserDefinedMsgCommand = 0x10000034;

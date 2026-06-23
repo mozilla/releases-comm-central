@@ -2138,25 +2138,6 @@ nsresult nsImapService::GetServerFromUrl(nsIImapUrl* aImapUrl,
       mozilla::components::AccountManager::Service();
   rv = accountManager->FindServerByURI(mailnewsUrl, aServer);
 
-  // look for server with any user name, in case we're trying to subscribe
-  // to a folder with some one else's user name like the following
-  // "IMAP://userSharingFolder@server1/SharedFolderName"
-  if (NS_FAILED(rv) || !aServer) {
-    nsAutoCString turl;
-    rv = mailnewsUrl->GetSpec(turl);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    nsCOMPtr<nsIURL> url;
-    rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID)
-             .SetSpec(turl)
-             .SetUserPass(EmptyCString())
-             .Finalize(url);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    rv = accountManager->FindServerByURI(url, aServer);
-    if (*aServer) aImapUrl->SetExternalLinkUrl(true);
-  }
-
   // if we can't extract the imap server from this url then give up!!!
   NS_ENSURE_TRUE(*aServer, NS_ERROR_FAILURE);
   return rv;
@@ -2260,8 +2241,6 @@ NS_IMETHODIMP nsImapService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
   nsresult rv;
   nsCOMPtr<nsIImapUrl> imapUrl = do_QueryInterface(aURI, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(imapUrl, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
 
   // imap can't open and return a channel right away...the url needs to go in
   // the imap url queue until we find a connection which can run the url..in
@@ -2299,158 +2278,6 @@ NS_IMETHODIMP nsImapService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
   // imap protocol when we actually run the url.
   imapUrl->SetMockChannel(channel);
 
-  bool externalLinkUrl;
-  imapUrl->GetExternalLinkUrl(&externalLinkUrl);
-
-  // Only external imap links with no action are supported. Ignore links that
-  // attempt to cause an effect such as fetching a mime part. This avoids
-  // spurious prompts to subscribe to folders due to "imap://...Fetch..." links
-  // residing in legacy emails residing in an imap mailbox.
-  if (externalLinkUrl) {
-    nsImapAction imapAction;
-    imapUrl->GetImapAction(&imapAction);
-    if (imapAction != 0) externalLinkUrl = false;
-  }
-
-  if (externalLinkUrl) {
-    // Everything after here is to handle clicking on an external link. We only
-    // want to do this if we didn't run the url through the various
-    // nsImapService methods, which we can tell by seeing if the sinks have been
-    // setup on the url or not.
-    nsCOMPtr<nsIMsgIncomingServer> server;
-    rv = GetServerFromUrl(imapUrl, getter_AddRefs(server));
-    NS_ENSURE_SUCCESS(rv, rv);
-    nsCString folderName;
-    imapUrl->CreateCanonicalSourceFolderPathString(folderName);
-    if (folderName.IsEmpty()) {
-      nsCString escapedFolderName;
-      rv = mailnewsUrl->GetFileName(escapedFolderName);
-      if (!escapedFolderName.IsEmpty()) {
-        MsgUnescapeString(escapedFolderName, 0, folderName);
-      }
-    }
-    // if the parent is null, then the folder doesn't really exist, so see if
-    // the user wants to subscribe to it./
-    nsCOMPtr<nsIMsgFolder> urlFolder;
-    // now try to get the folder in question...
-    nsCOMPtr<nsIMsgFolder> rootFolder;
-    server->GetRootFolder(getter_AddRefs(rootFolder));
-    nsCOMPtr<nsIMsgImapMailFolder> imapRoot = do_QueryInterface(rootFolder);
-    nsCOMPtr<nsIMsgImapMailFolder> subFolder;
-    if (imapRoot) {
-      imapRoot->FindOnlineSubFolder(folderName, getter_AddRefs(subFolder));
-      urlFolder = do_QueryInterface(subFolder);
-    }
-    nsCOMPtr<nsIMsgFolder> parent;
-    if (urlFolder) urlFolder->GetParent(getter_AddRefs(parent));
-    nsCString serverKey;
-    nsAutoCString userPass;
-    rv = mailnewsUrl->GetUserPass(userPass);
-    server->GetKey(serverKey);
-    nsCString fullFolderName;
-    if (parent) fullFolderName = folderName;
-    if (!parent && !folderName.IsEmpty() && imapRoot) {
-      // Check if this folder is another user's folder.
-      fullFolderName =
-          nsImapNamespaceList::GenerateFullFolderNameWithDefaultNamespace(
-              serverKey.get(), folderName.get(), userPass.get(),
-              kOtherUsersNamespace, nullptr);
-      // if this is another user's folder, let's see if we're already subscribed
-      // to it.
-      rv = imapRoot->FindOnlineSubFolder(fullFolderName,
-                                         getter_AddRefs(subFolder));
-      urlFolder = do_QueryInterface(subFolder);
-      if (urlFolder) urlFolder->GetParent(getter_AddRefs(parent));
-    }
-    // if we couldn't get the fullFolderName, then we probably couldn't find
-    // the other user's namespace, in which case, we shouldn't try to subscribe
-    // to it.
-    if (!parent && !folderName.IsEmpty() && !fullFolderName.IsEmpty()) {
-      // this folder doesn't exist - check if the user wants to subscribe to
-      // this folder.
-      nsCOMPtr<nsIPrompt> dialog;
-      nsCOMPtr<nsIWindowWatcher> wwatch =
-          mozilla::components::WindowWatcher::Service();
-      wwatch->GetNewPrompter(nullptr, getter_AddRefs(dialog));
-
-      nsString statusString, confirmText;
-      nsCOMPtr<nsIStringBundle> bundle;
-      rv = IMAPGetStringBundle(getter_AddRefs(bundle));
-      NS_ENSURE_SUCCESS(rv, rv);
-      // Need to convert folder name, can be MUTF-7 or UTF-8 depending on the
-      // server.
-      nsAutoString unescapedName;
-      if (NS_FAILED(CopyFolderNameToUTF16(fullFolderName, unescapedName)))
-        CopyASCIItoUTF16(fullFolderName, unescapedName);
-      AutoTArray<nsString, 1> formatStrings = {unescapedName};
-
-      rv = bundle->FormatStringFromName("imapSubscribePrompt", formatStrings,
-                                        confirmText);
-      NS_ENSURE_SUCCESS(rv, rv);
-
-      bool confirmResult = false;
-      rv = dialog->Confirm(nullptr, confirmText.get(), &confirmResult);
-      NS_ENSURE_SUCCESS(rv, rv);
-
-      if (confirmResult) {
-        nsCOMPtr<nsIImapIncomingServer> imapServer = do_QueryInterface(server);
-        if (imapServer) {
-          nsCOMPtr<nsIURI> subscribeURI;
-          // Now we have the real folder name to try to subscribe to. Let's try
-          // running a subscribe url and returning that as the uri we've
-          // created. We need to convert this to unicode because that's what
-          // subscribe wants.
-          rv = imapServer->SubscribeToFolder(fullFolderName, true,
-                                             getter_AddRefs(subscribeURI));
-          if (NS_SUCCEEDED(rv) && subscribeURI) {
-            nsCOMPtr<nsIImapUrl> imapSubscribeUrl =
-                do_QueryInterface(subscribeURI);
-            if (imapSubscribeUrl) imapSubscribeUrl->SetExternalLinkUrl(true);
-            nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl =
-                do_QueryInterface(subscribeURI);
-            if (mailnewsUrl) {
-              nsCOMPtr<nsIMsgMailSession> mailSession =
-                  mozilla::components::MailSession::Service();
-              nsCOMPtr<nsIMsgWindow> msgWindow;
-              rv = mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
-              if (NS_SUCCEEDED(rv) && msgWindow) {
-                mailnewsUrl->SetMsgWindow(msgWindow);
-                nsCOMPtr<nsIUrlListener> listener =
-                    do_QueryInterface(rootFolder);
-                if (listener) mailnewsUrl->RegisterListener(listener);
-              }
-            }
-          }
-        }
-      }
-      // error out this channel, so it'll stop trying to run the url.
-      rv = NS_ERROR_FAILURE;
-      *aRetVal = nullptr;
-    }
-    // this folder exists - check if this is a click on a link to the folder
-    // in which case, we'll select it.
-    else if (!fullFolderName.IsEmpty()) {
-      nsCOMPtr<nsIMsgFolder> imapFolder;
-      mailnewsUrl->GetFolder(getter_AddRefs(imapFolder));
-      NS_ASSERTION(
-          imapFolder,
-          nsPrintfCString("No folder for imap url: %s", spec.get()).get());
-
-      nsCOMPtr<nsIMsgMailSession> mailSession =
-          mozilla::components::MailSession::Service();
-      nsCOMPtr<nsIMsgWindow> msgWindow;
-      rv = mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
-      if (NS_SUCCEEDED(rv) && msgWindow) {
-        // Clicked IMAP folder URL in the window.
-        nsCOMPtr<nsIObserverService> obsServ =
-            mozilla::services::GetObserverService();
-        obsServ->NotifyObservers(imapFolder, "folder-attention", nullptr);
-        // null out this channel, so it'll stop trying to run the url.
-        *aRetVal = nullptr;
-        rv = NS_OK;
-      }
-    }
-  }
   if (NS_SUCCEEDED(rv)) channel.forget(aRetVal);
   return rv;
 }
