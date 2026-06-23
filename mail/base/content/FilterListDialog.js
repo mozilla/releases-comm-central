@@ -49,15 +49,16 @@ var msgMoveMotion = {
 var gRunningFilters = false;
 
 window.addEventListener("message", event => {
+  if (!gRunningFilters) {
+    return;
+  }
+
   if (event.data.statusMessage) {
     document
       .getElementById("statusText")
       .setAttribute("value", event.data.statusMessage);
   }
   if (event.data.meteors == "start-meteors") {
-    gRunFiltersButton.disabled = true;
-    gRunningFilters = true;
-
     if (!this.progressMeterVisible) {
       document
         .getElementById("statusbar-progresspanel")
@@ -65,15 +66,14 @@ window.addEventListener("message", event => {
       this.progressMeterVisible = true;
     }
     document.getElementById("statusbar-icon").removeAttribute("value");
-  }
-  if (event.data.meteors == "stop-meteors") {
+  } else if (event.data.meteors == "stop-meteors") {
     try {
-      //gRunFiltersButton.disabled = false;
+      gRunFiltersButton.disabled = false;
       gRunningFilters = false;
 
       if (this.progressMeterVisible) {
         document.getElementById("statusbar-progresspanel").collapsed = true;
-        this.progressMeterVisible = true;
+        this.progressMeterVisible = false;
       }
     } catch (ex) {
       // can get here if closing window when running filters
@@ -736,6 +736,9 @@ function runSelectedFilters() {
   for (const item of gFilterListbox.selectedItems) {
     filterList.insertFilterAt(index++, item._filter);
   }
+
+  gRunFiltersButton.disabled = true;
+  gRunningFilters = true;
 
   MailServices.filters.applyFiltersToFolders(
     filterList,
