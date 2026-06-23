@@ -389,8 +389,14 @@ function processCSSRules(container) {
 function chromeFileExists(aURI) {
   let available = 0;
   try {
+    const uri = NetUtil.newURI(aURI);
+    // moz-icon: is only loadable as an image, so we pretend to do that.
+    const contentPolicyType = uri.schemeIs("moz-icon")
+      ? Ci.nsIContentPolicy.TYPE_IMAGE
+      : Ci.nsIContentPolicy.TYPE_OTHER;
     const channel = NetUtil.newChannel({
-      uri: aURI,
+      uri,
+      contentPolicyType,
       loadUsingSystemPrincipal: true,
     });
     const stream = channel.open();
