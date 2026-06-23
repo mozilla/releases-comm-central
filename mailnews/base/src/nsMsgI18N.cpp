@@ -256,7 +256,7 @@ const char* nsMsgI18NParseMetaCharset(nsIFile* file) {
 nsCString nsMsgI18NTruncateUTF8Str(const nsACString& inString,
                                    size_t maxBytes) {
   nsCString outString(Substring(inString, 0, maxBytes));
-  outString.Truncate(Utf8ValidUpTo(outString));
+  outString.Truncate(mozilla::Utf8ValidUpTo(outString));
   return outString;
 }
 
