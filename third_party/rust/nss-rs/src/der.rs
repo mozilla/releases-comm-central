@@ -114,7 +114,7 @@ pub fn context_specific_explicit_tag(tag: u8, content: &[u8]) -> Result<Vec<u8>,
 
 // Given "tag || len || value || rest" where tag and len are of length one, len is in [0, 127],
 // and value is of length len, returns (value, rest)
-pub fn expect_tag_with_short_len(tag: u8, z: &[u8]) -> Result<(&[u8], &[u8]), Error> {
+pub const fn expect_tag_with_short_len(tag: u8, z: &[u8]) -> Result<(&[u8], &[u8]), Error> {
     if z.is_empty() {
         return Err(Error::InvalidInput);
     }

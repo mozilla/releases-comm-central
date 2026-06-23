@@ -11,12 +11,16 @@
 // symbol references, because on some platforms (e.g. FreeBSD) freebl only
 // exports FREEBL_GetVector.
 
+#[cfg(feature = "gecko")]
+use std::ffi::CStr;
 use std::{
     os::raw::{c_int, c_uchar, c_uint, c_ulong, c_void},
     sync::OnceLock,
 };
 
-use crate::{aead::Mode, err::Res};
+use log::error;
+
+use crate::{Error, aead::Mode, err::Res};
 
 // NSS_AES = 0 (ECB), NSS_AES_GCM = 4, AES_BLOCK_SIZE = 16 (from blapit.h)
 pub const NSS_AES: c_int = 0;
@@ -156,45 +160,114 @@ struct FreeblFns {
     chacha_xor: ChaCha20XorFn,
 }
 
+#[cfg(feature = "gecko")]
+mod nspr_lib {
+    include!(concat!(env!("OUT_DIR"), "/nspr_lib.rs"));
+}
+
+#[cfg(not(feature = "gecko"))]
 unsafe extern "C" {
     fn FREEBL_GetVector() -> *const FREEBLVectorStr;
 }
 
+static FREEBL: OnceLock<Res<FreeblFns>> = OnceLock::new();
+
+fn freebl_result() -> Res<&'static FreeblFns> {
+    FREEBL
+        .get_or_init(load_freebl_fns)
+        .as_ref()
+        .map_err(Clone::clone)
+}
+
+pub fn init() -> Res<()> {
+    freebl_result().map(|_| ())
+}
+
+/// # Panics
+/// If freebl was not successfully initialised via [`init`].
 fn freebl() -> &'static FreeblFns {
-    static FREEBL: OnceLock<FreeblFns> = OnceLock::new();
-    FREEBL.get_or_init(|| {
-        let ptr = unsafe { FREEBL_GetVector() };
-        assert!(!ptr.is_null(), "FREEBL_GetVector() returned null");
-        let v = unsafe { &*ptr };
-        // p_AES_AEAD is at the highest offset among the fields we extract;
-        // check the vector is at least large enough to contain it.
-        let min =
-            core::mem::offset_of!(FREEBLVectorStr, p_AES_AEAD) + size_of::<Option<AesAeadFn>>();
-        assert!(
-            usize::from(v.length) >= min,
-            "freebl vector too short (length {}, need {min})",
-            v.length,
-        );
-        FreeblFns {
-            aes_create: v.p_AES_CreateContext.expect("freebl: AES_CreateContext"),
-            aes_destroy: v.p_AES_DestroyContext.expect("freebl: AES_DestroyContext"),
-            aes_encrypt: v.p_AES_Encrypt.expect("freebl: AES_Encrypt"),
-            aes_aead: v.p_AES_AEAD.expect("freebl: AES_AEAD"),
-            chacha_create: v
-                .p_ChaCha20Poly1305_CreateContext
-                .expect("freebl: ChaCha20Poly1305_CreateContext"),
-            chacha_destroy: v
-                .p_ChaCha20Poly1305_DestroyContext
-                .expect("freebl: ChaCha20Poly1305_DestroyContext"),
-            chacha_encrypt: v
-                .p_ChaCha20Poly1305_Encrypt
-                .expect("freebl: ChaCha20Poly1305_Encrypt"),
-            chacha_decrypt: v
-                .p_ChaCha20Poly1305_Decrypt
-                .expect("freebl: ChaCha20Poly1305_Decrypt"),
-            chacha_xor: v.p_ChaCha20_Xor.expect("freebl: ChaCha20_Xor"),
-        }
+    freebl_result().expect("freebl not initialised")
+}
+
+fn require<F>(f: Option<F>, name: &str) -> Res<F> {
+    f.ok_or_else(|| {
+        error!("freebl: {name} not in vector");
+        Error::Internal
     })
+}
+
+fn load_freebl_fns() -> Res<FreeblFns> {
+    #[cfg(feature = "gecko")]
+    let raw = freebl_vector()?;
+    #[cfg(not(feature = "gecko"))]
+    // SAFETY: FREEBL_GetVector returns a valid aligned pointer, or null on failure.
+    let raw = unsafe { FREEBL_GetVector() };
+    let v = unsafe { raw.as_ref() }.ok_or_else(|| {
+        error!("freebl: FREEBL_GetVector() returned null");
+        Error::Internal
+    })?;
+    let min = core::mem::offset_of!(FREEBLVectorStr, p_AES_AEAD) + size_of::<Option<AesAeadFn>>();
+    if usize::from(v.length) < min {
+        error!("freebl: vector too short ({} < {min})", v.length);
+        return Err(Error::Internal);
+    }
+    Ok(FreeblFns {
+        aes_create: require(v.p_AES_CreateContext, "AES_CreateContext")?,
+        aes_destroy: require(v.p_AES_DestroyContext, "AES_DestroyContext")?,
+        aes_encrypt: require(v.p_AES_Encrypt, "AES_Encrypt")?,
+        aes_aead: require(v.p_AES_AEAD, "AES_AEAD")?,
+        chacha_create: require(
+            v.p_ChaCha20Poly1305_CreateContext,
+            "ChaCha20Poly1305_CreateContext",
+        )?,
+        chacha_destroy: require(
+            v.p_ChaCha20Poly1305_DestroyContext,
+            "ChaCha20Poly1305_DestroyContext",
+        )?,
+        chacha_encrypt: require(v.p_ChaCha20Poly1305_Encrypt, "ChaCha20Poly1305_Encrypt")?,
+        chacha_decrypt: require(v.p_ChaCha20Poly1305_Decrypt, "ChaCha20Poly1305_Decrypt")?,
+        chacha_xor: require(v.p_ChaCha20_Xor, "ChaCha20_Xor")?,
+    })
+}
+
+// Use NSPR (matching NSS's own loader.c) rather than a direct link.
+#[cfg(feature = "gecko")]
+fn freebl_vector() -> Res<*const FREEBLVectorStr> {
+    use nspr_lib::{PR_FindFunctionSymbol, PR_LoadLibrary, PR_UnloadLibrary};
+    type GetVectorFn = unsafe extern "C" fn() -> *const FREEBLVectorStr;
+
+    // Library names in preference order, from NSS's blname.c.
+    let libs: &[&CStr] = if cfg!(target_os = "linux") {
+        &[c"libfreeblpriv3.so", c"libfreebl3.so"]
+    } else if cfg!(target_os = "macos") {
+        &[c"libfreebl3.dylib"]
+    } else if cfg!(windows) {
+        &[c"freebl3.dll"]
+    } else {
+        &[c"libfreebl3.so"]
+    };
+
+    let handle = libs
+        .iter()
+        .find_map(|lib| {
+            let h = unsafe { PR_LoadLibrary(lib.as_ptr().cast()) };
+            (!h.is_null()).then_some(h)
+        })
+        .ok_or_else(|| {
+            error!("freebl: failed to load any of {:?}", libs);
+            Error::Internal
+        })?;
+
+    let sym = unsafe { PR_FindFunctionSymbol(handle, c"FREEBL_GetVector".as_ptr().cast()) };
+    let Some(sym) = sym else {
+        error!("freebl: FREEBL_GetVector not found");
+        let _ = unsafe { PR_UnloadLibrary(handle) };
+        return Err(Error::Internal);
+    };
+
+    // SAFETY: sym is FREEBL_GetVector; transmute needed for data-ptr → fn-ptr.
+    let f: GetVectorFn = unsafe { std::mem::transmute(sym) };
+    Ok(unsafe { f() })
 }
 
 #[expect(non_snake_case, reason = "Matches the freebl C API.")]

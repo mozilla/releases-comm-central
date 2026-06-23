@@ -13,7 +13,7 @@
 edition = "2024"
 rust-version = "1.90.0"
 name = "nss-rs"
-version = "0.13.2"
+version = "0.13.4"
 authors = [
     "Martin Thomson <mt@lowentropy.net>",
     "Andy Leiserson <aleiserson@mozilla.com>",
@@ -22,6 +22,12 @@ authors = [
     "Anna Weine <anna.weine@mozilla.com>",
 ]
 build = "build.rs"
+exclude = [
+    ".deny.toml",
+    ".github",
+    "Cargo.lock",
+    "renovate.json",
+]
 autolib = false
 autobins = false
 autoexamples = false

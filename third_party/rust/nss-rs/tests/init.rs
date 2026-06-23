@@ -48,3 +48,12 @@ fn init_withdb() {
         assert_ne!(nss_init::NSS_IsInitialized(), 0);
     }
 }
+
+// Verify that calling init() a second time is a no-op.
+#[cfg(nss_nodb)]
+#[test]
+fn init_idempotent() {
+    nss_rs::init().unwrap();
+    nss_rs::init().unwrap();
+    assert_initialized();
+}

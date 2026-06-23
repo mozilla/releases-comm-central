@@ -238,28 +238,6 @@ fn maybe_link_freebl3() {
     }
 }
 
-/// Emit the library link and search-path for freebl3 in a Gecko build.
-#[cfg(feature = "gecko")]
-fn maybe_link_freebl3_gecko(topobjdir: &Path, fold_libs: bool) {
-    if env::var("CARGO_FEATURE_BLAPI").is_err() {
-        return;
-    }
-    println!("cargo:rustc-link-lib=dylib=freebl3");
-    let search = if env::var("CARGO_CFG_TARGET_OS").as_deref() == Ok("windows") {
-        topobjdir
-            .join("security")
-            .join("nss")
-            .join("lib")
-            .join("freebl")
-            .join("freebl_freebl3")
-    } else if fold_libs {
-        topobjdir.join("dist").join("bin")
-    } else {
-        return;
-    };
-    println!("cargo:rustc-link-search=native={}", search.display());
-}
-
 fn static_link() {
     let target_os = env::var("CARGO_CFG_TARGET_OS").unwrap();
     let mut static_libs = vec![
@@ -522,8 +500,6 @@ fn setup_for_gecko() -> Vec<String> {
     for lib in &libs {
         println!("cargo:rustc-link-lib=dylib={}", lib);
     }
-
-    maybe_link_freebl3_gecko(TOPOBJDIR, fold_libs);
 
     if fold_libs {
         println!(

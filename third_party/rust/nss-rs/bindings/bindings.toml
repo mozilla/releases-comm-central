@@ -306,3 +306,8 @@ enums = ["PRDescType", "PRStatus", "PRSeekWhence"]
 [nspr_time]
 types = ["PRTime"]
 functions = ["PR_Now"]
+
+[nspr_lib]
+types = ["PRLibrary", "PRFuncPtr"]
+opaque = ["PRLibrary"]
+functions = ["PR_LoadLibrary", "PR_UnloadLibrary", "PR_FindFunctionSymbol"]
