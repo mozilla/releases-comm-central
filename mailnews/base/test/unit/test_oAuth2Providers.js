@@ -230,7 +230,6 @@ add_task(function testRegisterUnregister() {
       redirectionEndpoint: "https://localhost/",
       usePKCE: true,
       useExternalBrowser: true,
-      useSchemeRedirect: false,
     },
     "issuer details should be registered"
   );

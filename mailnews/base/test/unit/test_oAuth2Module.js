@@ -912,6 +912,10 @@ async function subtestExternalRequest(useCustomScheme) {
       mod.initFromHostname(hostname, "romeo@foo.invalid", "imap"),
       `${hostname} should initialize for OAuth`
     );
+    if (useCustomScheme) {
+      // monkey patching this is the simplest way to avoid querying the OS
+      mod._oauth.canUseSchemeRedirect = () => true;
+    }
 
     const externalOAuthURL = OAuth2TestUtils.promiseExternalOAuthURL();
     const deferred = Promise.withResolvers();

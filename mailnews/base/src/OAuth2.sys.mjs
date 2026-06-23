@@ -93,10 +93,11 @@ function generateRandomURLToken(byteLength) {
  *   in RFC 7636 during the oauth registration process
  * @param {boolean} issuerDetails.useExternalBrowser - Whether to use the
  *   external browser OAuth login flow.
- * @param {boolean} issuerDetails.useSchemeRedirect - Whether to use a
- *   net.thunderbird URL for the OAuth login flow.
  * @param {string} issuerDetails.redirectionEndpoint - The redirect_uri as
  *   specified by RFC 6749 section 3.1.2.
+ * @param {?string} issuerDetails.schemeRedirect - A net.thunderbird
+ *   redirect_uri to use if we're configured to handle those. If set, it should
+ *   normally be: net.thunderbird://oauth2/callback
  * @param {string} issuerDetails.tokenEndpoint - The token endpoint as defined
  *   by RFC 6749 Section 3.2.
  */
@@ -108,9 +109,9 @@ export function OAuth2(scope, issuerDetails) {
   this.consumerSecret = issuerDetails.clientSecret || null;
   this.usePKCE = issuerDetails.usePKCE;
   this.useExternalBrowser = issuerDetails.useExternalBrowser;
-  this.useSchemeRedirect = issuerDetails.useSchemeRedirect;
   this.redirectionEndpoint =
     issuerDetails.redirectionEndpoint || "http://localhost";
+  this.schemeRedirect = issuerDetails.schemeRedirect;
   this.tokenEndpoint = issuerDetails.tokenEndpoint;
 
   this.extraAuthParams = [];
@@ -274,8 +275,11 @@ OAuth2.prototype = {
         );
         return;
       }
-    } else if (lazy.useSchemeRedirect && this.useSchemeRedirect) {
-      // TODO: Check that we are the default handler.
+    } else if (
+      this.schemeRedirect &&
+      lazy.useSchemeRedirect &&
+      this.canUseSchemeRedirect()
+    ) {
       this.telemetryData.where = "external-net-thunderbird";
       this.request = new URLCallbackRequest(this);
     } else {
@@ -540,6 +544,21 @@ OAuth2.prototype = {
   },
 
   /**
+   * Check with the OS if we can handle net.thunderbird URLs.
+   *
+   * This is only a method to make it easier to monkey patch in tests.
+   *
+   * @returns {boolean} - Whether this Thunderbird instance can handle
+   *   net.thunderbird URLs.
+   */
+  canUseSchemeRedirect() {
+    const shellSvc = Cc["@mozilla.org/mail/shell-service;1"].getService(
+      Ci.nsIShellService
+    );
+    return shellSvc.isDefaultClient(false, Ci.nsIShellService.NET_THUNDERBIRD);
+  },
+
+  /**
    * Fired on quit-application-granted to tidy up open requests.
    */
   observe() {
@@ -698,13 +717,13 @@ class URLCallbackRequest {
   static instances = new Map();
 
   /**
-   * Constructor for internal requests using Thunderbird's browser.
+   * Constructor for URL callback requests using Thunderbird's custom scheme.
    *
    * @param {OAuth2} oauth
    */
   constructor(oauth) {
     this.oauth = oauth;
-    this.redirectURI = oauth.redirectionEndpoint;
+    this.redirectURI = oauth.schemeRedirect;
     URLCallbackRequest.instances.set(this.oauth._authorizationState, this);
   }
 

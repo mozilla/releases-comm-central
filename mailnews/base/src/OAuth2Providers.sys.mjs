@@ -166,8 +166,9 @@ const kIssuersWithoutExchangeSupport = new Set([
  * @property {boolean} [usePKCE] - The issuer uses PKCE (RFC7636).
  * @property {boolean} [useExternalBrowser] - Whether to use the external
  *   browser OAuth login flow.
- * @property {boolean} [useSchemeRedirect] - Whether to use a net.thunderbird://
- *   URL for the OAuth login flow. Only built-in providers can use this.
+ * @property {string} [schemeRedirect] - Alternative redirection endpoint if
+ *   using the net.thunderbird:// scheme. Only built-in providers can provide
+ *   this, and it will only be used if this instance is configured to.
  */
 
 /**
@@ -227,9 +228,12 @@ var kIssuers = new Map([
         "dj0yJmk9WVZUaWRNUUZSQTBNJmQ9WVdrOVNqbHJUMGhtTkU4bWNHbzlNQT09JnM9Y29uc3VtZXJzZWNyZXQmc3Y9MCZ4PTgz",
       authorizationEndpoint: "https://api.login.yahoo.com/oauth2/request_auth",
       tokenEndpoint: "https://api.login.yahoo.com/oauth2/get_token",
-      redirectionEndpoint: "net.thunderbird://oauth/yahoo",
+      redirectionEndpoint: "https://127.0.0.1",
+      // This isn't the normal net.thunderbird URL because Yahoo set it and we
+      // can't change it (though its uniqueness also helps with their lack of
+      // support for issuer identification).
+      schemeRedirect: "net.thunderbird://oauth/yahoo",
       usePKCE: true,
-      useSchemeRedirect: true,
     },
   ],
   [
@@ -355,9 +359,9 @@ var kIssuers = new Map([
       clientSecret: "test_secret",
       authorizationEndpoint: "https://oauth.test.test/form",
       tokenEndpoint: "https://oauth.test.test/token",
-      redirectionEndpoint: "net.thunderbird://oauth2/callback",
+      redirectionEndpoint: "http://localhost",
+      schemeRedirect: "net.thunderbird://oauth2/callback",
       usePKCE: true,
-      useSchemeRedirect: true,
     },
   ],
 ]);
@@ -511,7 +515,7 @@ export var OAuth2Providers = {
    * extension API.
    *
    * @param {IssuerDetails} details - OAuth provider details. `builtIn` and
-   *   `useSchemeRedirect` are ignored and overwritten.
+   *   `schemeRedirect` are ignored and overwritten.
    * @param {string[]} hostnames - One or more hostnames which use this OAuth provider.
    * @param {string} scopes - The scopes to request when using this OAuth provider.
    */
@@ -528,8 +532,8 @@ export var OAuth2Providers = {
     const issuerDetails = {
       ...details,
       builtIn: false,
-      useSchemeRedirect: false,
     };
+    delete issuerDetails.schemeRedirect;
     Object.freeze(issuerDetails);
     kIssuers.set(issuer, issuerDetails);
     for (const hostname of hostnames) {
