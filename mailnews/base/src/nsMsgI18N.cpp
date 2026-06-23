@@ -255,20 +255,9 @@ const char* nsMsgI18NParseMetaCharset(nsIFile* file) {
 
 nsCString nsMsgI18NTruncateUTF8Str(const nsACString& inString,
                                    size_t maxBytes) {
-  const char* begin = inString.BeginReading();
-  const char* end = inString.EndReading();
-  const char* cur = begin;
-  while (cur < end) {
-    const char* prev = cur;
-    bool err = false;
-    UTF8CharEnumerator::NextChar(&cur, end, &err);
-    size_t len = cur - begin;
-    // If invalid UTF-8 or past our limit, just return what we've got so far.
-    if (err || len > maxBytes) {
-      return nsCString(Substring(begin, prev));
-    }
-  }
-  return nsCString(inString);
+  nsCString outString(Substring(inString, 0, maxBytes));
+  outString.Truncate(Utf8ValidUpTo(outString));
+  return outString;
 }
 
 void nsMsgI18NConvertRawBytesToUTF16(const nsACString& inString,
@@ -288,7 +277,7 @@ void nsMsgI18NConvertRawBytesToUTF16(const nsACString& inString,
   while (cur < end) {
     char c = *cur++;
     if (c & char(0x80))
-      outString.Append(UCS2_REPLACEMENT_CHAR);
+      outString.Append(char16_t(0xFFFD));
     else
       outString.Append(c);
   }

@@ -13,7 +13,7 @@
 #include "nsIFolderLookupService.h"
 #include "nsIImapUrl.h"
 #include "nsMsgI18N.h"
-#include "nsCharTraits.h"
+#include "mozilla/Utf16.h"
 #include "prprf.h"
 #include "prmem.h"
 #include "nsIIOService.h"
@@ -301,7 +301,7 @@ nsString NS_MsgHashIfNecessary(const nsAString& unsafeName) {
   else if (name.Length() > MAX_LEN) {
     keptLength = MAX_LEN - 8;
     // To avoid keeping only the high surrogate of a surrogate pair
-    if (NS_IS_HIGH_SURROGATE(name.CharAt(keptLength - 1))) --keptLength;
+    if (mozilla::IsHighSurrogate(name.CharAt(keptLength - 1))) --keptLength;
   }
 
   if (keptLength >= 0) {
