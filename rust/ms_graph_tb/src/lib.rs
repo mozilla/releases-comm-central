@@ -3,8 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use http::method::Method;
-use serde::{Deserialize, Serialize, de::DeserializeOwned};
-use std::borrow::Cow;
+use serde::{Serialize, de::DeserializeOwned};
 use std::fmt::Display;
 use thiserror::Error;
 
@@ -33,9 +32,23 @@ pub enum Error {
     JSONSerialize(#[from] serde_json::Error),
 }
 
-/// Internal type used for storing properties.
-#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq, Eq)]
-struct PropertyMap<'a>(Cow<'a, serde_json::Map<String, serde_json::Value>>);
+/// A Graph field value that may be `null`.
+///
+/// Generated nullable fields use `Option<Nullable<T>>`: the outer `Option`
+/// tracks whether the member is present, and `Nullable` tracks whether a
+/// present member is `null`.
+pub type Nullable<T> = Option<T>;
+
+/// Construct or match a Graph field value that is present and non-null.
+///
+/// Effectively the same as writing `Some(Some(value))`, including in match
+/// arms, destructuring, etc.
+#[macro_export]
+macro_rules! notnull {
+    ($($value:tt)+) => {
+        Some(Some($($value)+))
+    };
+}
 
 /// The body of a POST/PATCH/PUT/etc. request.
 ///
@@ -68,11 +81,7 @@ pub trait Operation {
 
     /// The type of the response of the request, in the success case. Requests
     /// without a response type will set this to `()`.
-    // This could be generalized for a possible performance win, but
-    // at the cost of making consumers responsible for the lifetime of
-    // the raw, unparsed response:
-    // type Response<'response>: Deserialize<'response>
-    type Response<'response>: DeserializeOwned;
+    type Response: DeserializeOwned;
 
     /// Create an [`http::Request`] from the current state of the operation
     /// object. The request's body contains the serialized body from the
@@ -122,8 +131,7 @@ pub trait Filter: Operation {
 
 #[cfg(test)]
 mod tests {
-    use crate::types::user;
-    use std::borrow::Cow;
+    use crate::types::{directory_object::DirectoryObject, entity::Entity, user};
 
     #[test]
     fn deserialize_user() {
@@ -143,37 +151,21 @@ mod tests {
 }"#;
 
         let parsed: user::User = serde_json::from_str(json).unwrap();
-        let properties = super::PropertyMap(Cow::Owned(serde_json::Map::from_iter([
-            (
-                "@odata.context".to_string(),
-                "https://graph.microsoft.com/v1.0/$metadata#users/$entity".into(),
-            ),
-            ("displayName".to_string(), "Adele Vance".into()),
-            (
-                "businessPhones".to_string(),
-                serde_json::Value::Array(vec![]),
-            ),
-            ("displayName".to_string(), "Adele Vance".into()),
-            ("givenName".to_string(), "Adele".into()),
-            ("jobTitle".to_string(), serde_json::Value::Null),
-            (
-                "mail".to_string(),
-                "AdeleV@M365x63639251.OnMicrosoft.com".into(),
-            ),
-            ("mobilePhone".to_string(), serde_json::Value::Null),
-            ("officeLocation".to_string(), serde_json::Value::Null),
-            ("preferredLanguage".to_string(), serde_json::Value::Null),
-            ("surname".to_string(), "Vance".into()),
-            (
-                "userPrincipalName".to_string(),
-                "AdeleV@M365x63639251.OnMicrosoft.com".into(),
-            ),
-            (
-                "id".to_string(),
-                "3a2bc284-f11c-4676-a9e1-6310eea60f26".into(),
-            ),
-        ])));
-        let expected = user::User { properties };
+        let expected = user::User {
+            business_phones: Some(vec![]),
+            directory_object: DirectoryObject {
+                entity: Entity {
+                    id: Some("3a2bc284-f11c-4676-a9e1-6310eea60f26".to_string()),
+                },
+                ..Default::default()
+            },
+            display_name: notnull!("Adele Vance".to_string()),
+            given_name: notnull!("Adele".to_string()),
+            mail: notnull!("AdeleV@M365x63639251.OnMicrosoft.com".to_string()),
+            surname: notnull!("Vance".to_string()),
+            user_principal_name: notnull!("AdeleV@M365x63639251.OnMicrosoft.com".to_string()),
+            ..Default::default()
+        };
         assert_eq!(parsed, expected);
     }
 }

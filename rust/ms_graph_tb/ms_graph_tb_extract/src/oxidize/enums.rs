@@ -42,10 +42,10 @@ impl ToTokens for GraphEnum {
 
         tokens.append_all(quote! {
             use serde::{Deserialize, Serialize};
-            use strum::{Display, EnumString};
+            use strum::Display;
 
             #description
-            #[derive(Copy, Clone, Debug, Display, EnumString, Serialize, Deserialize, PartialEq, Eq)]
+            #[derive(Copy, Clone, Debug, Display, Serialize, Deserialize, PartialEq, Eq)]
             #[strum(serialize_all = "camelCase")]
             #[serde(rename_all = "camelCase")]
             pub enum #name {

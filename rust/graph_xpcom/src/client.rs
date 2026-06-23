@@ -325,16 +325,16 @@ impl<ServerT: ServerType> XpComGraphClient<ServerT> {
         self.send_raw_request_with_queue(request, options).await
     }
 
-    async fn send_batch_request_json_response<'a, Op>(
+    async fn send_batch_request_json_response<Op>(
         &self,
         operations: Vec<Op>,
         options: OperationRequestOptions,
-    ) -> Result<Vec<Op::Response<'a>>, XpComGraphError>
+    ) -> Result<Vec<Op::Response>, XpComGraphError>
     where
         Op: Operation,
-        Op::Response<'a>: Default,
+        Op::Response: Default,
     {
-        let mut results: Vec<Op::Response<'a>> = Vec::new();
+        let mut results: Vec<Op::Response> = Vec::new();
 
         // Consume the vector into a vector of blocks with the correct blocksize.
         let mut iter = operations.into_iter();
@@ -361,7 +361,7 @@ impl<ServerT: ServerType> XpComGraphClient<ServerT> {
 
             let batch_response = self.send_raw_request_with_queue(request, options).await?;
 
-            let batch_response: BatchResponse<Op::Response<'a>> =
+            let batch_response: BatchResponse<Op::Response> =
                 BatchResponse::new_from_json_slice(batch_response.body())
                     .map_err(XpComGraphError::Json)?;
 
@@ -381,7 +381,7 @@ impl<ServerT: ServerType> XpComGraphClient<ServerT> {
         &self,
         operation: Op,
         options: OperationRequestOptions,
-    ) -> Result<Op::Response<'_>, XpComGraphError>
+    ) -> Result<Op::Response, XpComGraphError>
     where
         Op: Operation,
     {
@@ -396,7 +396,7 @@ impl<ServerT: ServerType> XpComGraphClient<ServerT> {
             response_body = "null".as_bytes();
         }
 
-        let value: Op::Response<'_> =
+        let value: Op::Response =
             serde_json::from_slice(response_body).map_err(XpComGraphError::Json)?;
         Ok(value)
     }
@@ -437,5 +437,35 @@ impl<ServerT: ServerType> ProtocolClient for XpComGraphClient<ServerT> {
         // Send the shutdown signal to the operation sender so it can start
         // cleaning up.
         self.op_sender.shutdown().await;
+    }
+}
+
+/// Provides the `required` method for `Option<T>` and `Option<Nullable<T>>`.
+trait Required<T> {
+    /// Unwrap the value, whether nullable or not, returning an
+    /// [`XpComGraphError::Processing`] error if the value is not present or
+    /// null.
+    ///
+    /// The `err` message should typically be the field expected to be present.
+    ///
+    /// Nullable types will often require an annotation to disambiguate which
+    /// implementation should be used, if the type checker can't figure it out
+    /// from context. E.g., `let id: String = foo.id.required("foo id")?;`.
+    fn required(self, err: &str) -> Result<T, XpComGraphError>;
+}
+
+impl<T> Required<T> for Option<T> {
+    fn required(self, err: &str) -> Result<T, XpComGraphError> {
+        self.ok_or_else(|| XpComGraphError::Processing {
+            message: format!("expected field missing: {err}"),
+        })
+    }
+}
+
+impl<T> Required<T> for Option<Option<T>> {
+    fn required(self, err: &str) -> Result<T, XpComGraphError> {
+        self.flatten().ok_or_else(|| XpComGraphError::Processing {
+            message: format!("expected field missing: {err}"),
+        })
     }
 }

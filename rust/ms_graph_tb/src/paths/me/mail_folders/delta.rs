@@ -49,7 +49,7 @@ impl Get {
 }
 impl Operation for Get {
     const METHOD: Method = Method::GET;
-    type Response<'response> = DeltaResponse<MailFolder<'response>>;
+    type Response = DeltaResponse<MailFolder>;
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
         let mut params = Serializer::new(String::new());
         if let Some((select, selection)) = self.selection.pair() {
@@ -128,7 +128,7 @@ impl TryFrom<&str> for GetDelta {
 }
 impl Operation for GetDelta {
     const METHOD: Method = Method::GET;
-    type Response<'response> = DeltaResponse<MailFolder<'response>>;
+    type Response = DeltaResponse<MailFolder>;
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
         let mut request = http::Request::builder()
             .uri(&self.token)

@@ -38,7 +38,7 @@ impl Post {
 }
 impl Operation for Post {
     const METHOD: Method = Method::POST;
-    type Response<'response> = ();
+    type Response = ();
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
         let uri = format_path(&self.template_expressions)
             .parse::<http::uri::Uri>()

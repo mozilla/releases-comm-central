@@ -60,7 +60,7 @@ pub enum Method {
 }
 
 impl TryFrom<&str> for Method {
-    type Error = ParseError;
+    type Error = String;
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         match value {
             "get" => Ok(Self::Get),
@@ -68,20 +68,8 @@ impl TryFrom<&str> for Method {
             "post" => Ok(Self::Post),
             "put" => Ok(Self::Put),
             "delete" => Ok(Self::Delete),
-            s => Err(ParseError(format!("unkown method: {s}"))),
+            s => Err(format!("unknown method: {s}")),
         }
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct ParseError(String);
-
-impl std::error::Error for ParseError {}
-
-impl std::fmt::Display for ParseError {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        let Self(s) = self;
-        s.fmt(f)
     }
 }
 
@@ -293,7 +281,6 @@ mod tests {
                                     nullable: None,
                                     properties: None,
                                     items: None,
-                                    enum_values: None,
                                     all_of: None,
                                     one_of: None,
                                     any_of: None,

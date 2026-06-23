@@ -7,7 +7,7 @@
 
 use proc_macro2::{Ident, TokenStream};
 use quote::{ToTokens, TokenStreamExt, format_ident, quote};
-use std::{collections::HashSet, fmt};
+use std::collections::BTreeSet;
 
 use crate::{
     extract::schema::object::Property, module_hierarchy::ModuleName, naming,
@@ -25,7 +25,7 @@ fn imports(
     properties: &[crate::extract::schema::object::Property],
     exclude_module: Option<&str>,
 ) -> TokenStream {
-    let mut imports = properties
+    let imports = properties
         .iter()
         .filter_map(|p| {
             if let Some(custom_rust_type) = p.rust_type.schema_name() {
@@ -39,11 +39,7 @@ fn imports(
                 None
             }
         })
-        .collect::<HashSet<_>>()
-        .into_iter()
-        .collect::<Vec<_>>();
-    imports.sort();
-
+        .collect::<BTreeSet<_>>();
     let imports = imports.iter().map(|s| format_ident!("{s}"));
 
     quote!(#( use crate::types::#imports::*; )*)
@@ -195,38 +191,6 @@ fn markup_doc_comment(mut doc_comment: String) -> String {
     doc_comment
 }
 
-/// Whether the type in question is a Rust reference, and if so, which kind.
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
-enum Reference {
-    Own,
-    Ref,
-    Mut,
-}
-
-impl From<&Reference> for &str {
-    fn from(value: &Reference) -> Self {
-        match value {
-            Reference::Own => "",
-            Reference::Ref => "&",
-            Reference::Mut => "&mut ",
-        }
-    }
-}
-
-impl fmt::Display for Reference {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let s: &str = self.into();
-        s.fmt(f)
-    }
-}
-
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
-enum Composed {
-    Copy,
-    Slice,
-    Composite,
-}
-
 /// Our representation of a Rust type.
 #[derive(Clone, Debug)]
 pub enum RustType {
@@ -252,48 +216,7 @@ pub enum RustType {
 }
 
 impl RustType {
-    fn composed(&self) -> Composed {
-        match self {
-            Self::Bool
-            | Self::U8
-            | Self::I8
-            | Self::I16
-            | Self::I32
-            | Self::I64
-            | Self::F32
-            | Self::F64
-            | Self::NamedEnumSchema(_) => Composed::Copy,
-            Self::String | Self::Bytes => Composed::Slice,
-            _ => Composed::Composite,
-        }
-    }
-
-    fn base_str(&self, nullable: bool, refers: Reference) -> &str {
-        let (string, bytes) = if refers == Reference::Own || (refers == Reference::Mut && nullable)
-        {
-            ("String", "Vec<u8>")
-        } else {
-            ("str", "[u8]")
-        };
-
-        match self {
-            Self::Bool => "bool",
-            Self::U8 => "u8",
-            Self::I8 => "i8",
-            Self::I16 => "i16",
-            Self::I32 => "i32",
-            Self::I64 => "i64",
-            Self::F32 => "f32",
-            Self::F64 => "f64",
-            Self::String => string,
-            Self::Bytes => bytes,
-            Self::NamedObjectSchema(s) | Self::NamedEnumSchema(s) => s.as_pascal_case(),
-            Self::UnnamedObjectSchema(s) => s.name(),
-        }
-    }
-
-    fn base_token(&self, nullable: bool, refers: Reference) -> TokenStream {
-        let sliced = !(refers == Reference::Own || (refers == Reference::Mut && nullable));
+    fn base_token(&self) -> TokenStream {
         match self {
             Self::Bool => quote!(bool),
             Self::U8 => quote!(u8),
@@ -303,10 +226,8 @@ impl RustType {
             Self::I64 => quote!(i64),
             Self::F32 => quote!(f32),
             Self::F64 => quote!(f64),
-            Self::String if !sliced => quote!(String),
-            Self::String => quote!(str),
-            Self::Bytes if !sliced => quote!(Vec<u8>),
-            Self::Bytes => quote!([u8]),
+            Self::String => quote!(String),
+            Self::Bytes => quote!(Vec<u8>),
             Self::NamedObjectSchema(name) | Self::NamedEnumSchema(name) => {
                 let ident = format_ident!("{}", name.as_pascal_case());
                 quote!(#ident)
@@ -355,7 +276,7 @@ impl From<&str> for SchemaName {
 
 impl SchemaName {
     /// Returns the Rust type name in PascalCase.
-    pub fn as_pascal_case(&self) -> &String {
+    pub fn as_pascal_case(&self) -> &str {
         &self.pascal_case
     }
 
@@ -365,60 +286,15 @@ impl SchemaName {
     }
 
     /// Returns the schema name as it was written in the OpenAPI spec.
-    pub fn original_name(&self) -> &String {
+    pub fn original_name(&self) -> &str {
         &self.original_name
     }
 }
 
-/// Given the property and whether it should be a reference, produce a
-/// `TokenStream` that can be used as a return type representing it.
-///
-/// `lifetime_name` defaults to `'a`. Note that any name *must* include the
-/// leading `'`.
-fn return_type(prop: &Property, refers: Reference, lifetime_name: Option<&str>) -> TokenStream {
-    let mut ty = instantiated_type(prop, refers, lifetime_name);
-
-    if !prop.is_ref && !matches!(prop.rust_type, RustType::Bytes) {
-        ty = quote!(Result<#ty, Error>);
-    }
-
-    ty
-}
-
-/// Given the propeperty and whether it should be a reference, produce a
-/// `TokenStream` that can be used as an argument type representing it.
-fn arg_type(prop: &Property, refers: Reference) -> TokenStream {
-    instantiated_type(prop, refers, Some("'_"))
-}
-
-/// Helper for [`return_type`] and [`arg_type`]
-fn instantiated_type(
-    prop: &Property,
-    refers: Reference,
-    lifetime_name: Option<&str>,
-) -> TokenStream {
-    let base = &prop.rust_type.base_token(prop.nullable, refers);
-
-    let mut ty: TokenStream = if matches!(prop.rust_type, RustType::NamedObjectSchema(_)) {
-        // The format_ident! macro doesn't like lifetime names, so we do this manually.
-        let lifetime_name: TokenStream = lifetime_name
-            .unwrap_or("'a")
-            .parse()
-            .expect("should be a valid lifetime ident");
-        quote!(#base<#lifetime_name>)
-    } else {
-        quote!(#base)
-    };
-
-    let composed = prop.rust_type.composed();
-    if refers == Reference::Ref
-        && composed != Composed::Copy
-        && (!prop.is_collection || composed == Composed::Slice)
-        && !matches!(prop.rust_type, RustType::NamedObjectSchema(_))
-    {
-        ty = quote!(&#ty);
-    }
-
+/// Produce the owned Rust type for a Graph property.
+fn property_type(prop: &Property) -> TokenStream {
+    let base = prop.rust_type.base_token();
+    let mut ty: TokenStream = quote!(#base);
     if prop.is_collection {
         ty = quote!(Vec<#ty>);
     }

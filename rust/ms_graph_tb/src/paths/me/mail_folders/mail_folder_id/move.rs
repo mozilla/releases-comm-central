@@ -7,7 +7,7 @@
 #![doc = "Provides operations to call the move method.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
 use crate::odata::Selection;
 use crate::types::mail_folder::{MailFolder, MailFolderSelection};
-use crate::{Operation, OperationBody, Select};
+use crate::{Error, Operation, OperationBody, Select};
 use form_urlencoded::Serializer;
 use http::method::Method;
 #[derive(Debug)]
@@ -23,55 +23,27 @@ fn format_path(template_expressions: &TemplateExpressions) -> String {
     let endpoint = endpoint.trim_end_matches('/');
     format!("{endpoint}/me/mailFolders/{mail_folder_id}/move")
 }
-use crate::{Error, PropertyMap};
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
+#[skip_serializing_none]
 #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
-pub struct PostRequestBody<'a> {
-    #[serde(flatten)]
-    pub(crate) properties: PropertyMap<'a>,
-}
-impl<'a> From<PropertyMap<'a>> for PostRequestBody<'a> {
-    fn from(properties: PropertyMap<'a>) -> Self {
-        Self { properties }
-    }
-}
-impl<'a> PostRequestBody<'a> {
-    #[doc = r"Construct a new instance of this type with no properties set."]
-    #[must_use]
-    pub fn new() -> Self {
-        Self::default()
-    }
-    pub fn destination_id(&self) -> Result<&str, Error> {
-        let val = self
-            .properties
-            .0
-            .get("DestinationId")
-            .ok_or(Error::NotFound)?;
-        val.as_str()
-            .ok_or_else(|| Error::UnexpectedResponse(format!("{val:?}")))
-    }
-    #[must_use]
-    pub fn set_destination_id(mut self, val: String) -> Self {
-        self.properties
-            .0
-            .to_mut()
-            .insert("DestinationId".to_string(), val.into());
-        self
-    }
+#[serde(default, rename_all = "PascalCase")]
+pub struct PostRequestBody {
+    pub destination_id: Option<String>,
 }
 #[doc = "Invoke action move\n\nMove a mailfolder and its contents to another mailfolder.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/mailfolder-move?view=graph-rest-1.0)."]
 #[derive(Debug)]
-pub struct Post<'body> {
+pub struct Post {
     template_expressions: TemplateExpressions,
-    body: OperationBody<PostRequestBody<'body>>,
+    body: OperationBody<PostRequestBody>,
     selection: Selection<MailFolderSelection>,
 }
-impl<'body> Post<'body> {
+impl Post {
     #[must_use]
     pub fn new(
         endpoint: String,
         mail_folder_id: String,
-        body: OperationBody<PostRequestBody<'body>>,
+        body: OperationBody<PostRequestBody>,
     ) -> Self {
         Self {
             template_expressions: TemplateExpressions {
@@ -83,9 +55,9 @@ impl<'body> Post<'body> {
         }
     }
 }
-impl Operation for Post<'_> {
+impl Operation for Post {
     const METHOD: Method = Method::POST;
-    type Response<'response> = MailFolder<'response>;
+    type Response = MailFolder;
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
         let mut params = Serializer::new(String::new());
         if let Some((select, selection)) = self.selection.pair() {
@@ -114,7 +86,7 @@ impl Operation for Post<'_> {
         Ok(request)
     }
 }
-impl<'body> Select for Post<'body> {
+impl Select for Post {
     type Properties = MailFolderSelection;
     fn select<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
         self.selection.select(properties);

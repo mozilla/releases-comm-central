@@ -10,6 +10,7 @@ use ms_graph_tb::{
     pagination::{DeltaItem, DeltaResponse},
     paths::me::mail_folders::mail_folder_id::messages,
     types::{
+        followup_flag::FollowupFlag,
         followup_flag_status::FollowupFlagStatus,
         internet_message_header::InternetMessageHeader,
         message::{Message, MessageSelection},
@@ -29,7 +30,10 @@ use time::{
 };
 use xpcom::{RefPtr, interfaces::IHeaderBlock};
 
-use crate::{client::XpComGraphClient, error::XpComGraphError};
+use crate::{
+    client::{Required, XpComGraphClient},
+    error::XpComGraphError,
+};
 
 define_svlep!(PID_TAG_MESSAGE_SIZE, Integer, 0x0E08);
 
@@ -91,27 +95,30 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
         };
 
         loop {
-            let messages = response.response();
+            let messages = response.extract_response();
 
             for message in messages {
                 match message {
                     DeltaItem::Present(message) => {
-                        let message_id = message.outlook_item().entity().id()?.to_string();
                         let header_block =
-                            headers_for_message(message).ok_or(XpComGraphError::Processing {
+                            headers_for_message(&message).ok_or(XpComGraphError::Processing {
                                 message: "Failed to get message headers.".to_string(),
                             })?;
                         let message_size = message
                             .typed_svlep(PID_TAG_MESSAGE_SIZE)?
                             .and_then(|message_size| message_size.try_into().ok())
                             .unwrap_or(0);
-                        let is_read = message.is_read()?.ok_or(XpComGraphError::Processing {
-                            message: "isRead not present in response despite being requested"
-                                .into(),
-                        })?;
-                        let is_flagged =
-                            message.flag()?.flag_status()? == FollowupFlagStatus::Flagged;
-                        let preview_text = message.body_preview().unwrap_or(None).unwrap_or("");
+                        let message_id = message.outlook_item.entity.id.required("message id")?;
+                        let is_read = message.is_read.required("message is_read")?;
+                        let is_flagged = message.flag
+                            == Some(FollowupFlag {
+                                flag_status: Some(FollowupFlagStatus::Flagged),
+                            });
+                        let preview_text = message
+                            .body_preview
+                            .as_ref()
+                            .and_then(Option::as_deref)
+                            .unwrap_or("");
 
                         log::debug!("Found message in response with ID {message_id}");
 
@@ -195,13 +202,17 @@ fn headers_for_message(message: &Message) -> Option<RefPtr<IHeaderBlock>> {
     let mut header_fields = HashMap::new();
 
     // Date
-    if let Ok(Some(date_time)) = message.sent_date_time() {
+    if let Some(date_time) = message.sent_date_time.as_ref().and_then(Option::as_deref) {
         let rfc2822_date_time = iso8601_date_time_to_rfc2822(date_time)?;
         header_fields.insert(rfc5322_header::DATE.to_string(), rfc2822_date_time);
     }
 
     // Message id
-    if let Ok(Some(message_id)) = message.internet_message_id() {
+    if let Some(message_id) = message
+        .internet_message_id
+        .as_ref()
+        .and_then(Option::as_deref)
+    {
         header_fields.insert(
             rfc5322_header::MESSAGE_ID.to_string(),
             message_id.to_string(),
@@ -209,55 +220,55 @@ fn headers_for_message(message: &Message) -> Option<RefPtr<IHeaderBlock>> {
     }
 
     // From
-    if let Ok(from_recipient) = message.from()
-        && let Some(value) = recipient_to_string(&from_recipient)
+    if let Some(from_recipient) = message.from.as_ref()
+        && let Some(value) = recipient_to_string(from_recipient)
     {
         header_fields.insert(rfc5322_header::FROM.to_string(), value);
     }
 
     // Sender
-    if let Ok(sender) = message.sender()
-        && let Some(value) = recipient_to_string(&sender)
+    if let Some(sender) = message.sender.as_ref()
+        && let Some(value) = recipient_to_string(sender)
     {
         header_fields.insert(rfc5322_header::SENDER.to_string(), value);
     }
 
     // Reply to
-    if let Ok(reply_tos) = message.reply_to() {
-        let value = flatten_recipients(&reply_tos);
+    if let Some(reply_tos) = message.reply_to.as_ref() {
+        let value = flatten_recipients(reply_tos);
         header_fields.insert(rfc5322_header::REPLY_TO.to_string(), value);
     }
 
     // To
-    if let Ok(to_recipients) = message.to_recipients() {
-        let value = flatten_recipients(&to_recipients);
+    if let Some(to_recipients) = message.to_recipients.as_ref() {
+        let value = flatten_recipients(to_recipients);
         header_fields.insert(rfc5322_header::TO.to_string(), value);
     }
 
     // CC
-    if let Ok(cc_recipients) = message.cc_recipients() {
-        let value = flatten_recipients(&cc_recipients);
+    if let Some(cc_recipients) = message.cc_recipients.as_ref() {
+        let value = flatten_recipients(cc_recipients);
         header_fields.insert(rfc5322_header::CC.to_string(), value);
     }
 
     // BCC
-    if let Ok(bcc_recipients) = message.bcc_recipients() {
-        let value = flatten_recipients(&bcc_recipients);
+    if let Some(bcc_recipients) = message.bcc_recipients.as_ref() {
+        let value = flatten_recipients(bcc_recipients);
         header_fields.insert(rfc5322_header::BCC.to_string(), value);
     }
 
     // Subject
-    if let Ok(Some(subject)) = message.subject() {
+    if let Some(subject) = message.subject.as_ref().and_then(Option::as_deref) {
         header_fields.insert(rfc5322_header::SUBJECT.to_string(), subject.to_string());
     }
 
     // Priority
-    if let Ok(importance) = message.importance() {
+    if let Some(importance) = message.importance.as_ref() {
         header_fields.insert(rfc5322_header::PRIORITY.to_string(), importance.to_string());
     }
 
-    if let Ok(internet_message_headers) = message.internet_message_headers() {
-        overlay_internet_message_headers(&mut header_fields, &internet_message_headers);
+    if let Some(internet_message_headers) = message.internet_message_headers.as_ref() {
+        overlay_internet_message_headers(&mut header_fields, internet_message_headers);
     }
 
     HeaderBlock::new(header_fields.into_iter().collect()).query_interface::<IHeaderBlock>()
@@ -268,19 +279,19 @@ fn overlay_internet_message_headers(
     internet_message_headers: &Vec<InternetMessageHeader>,
 ) {
     for header in internet_message_headers {
-        if let Ok(Some(key)) = header.name()
-            && let Ok(Some(value)) = header.value()
+        if let Some(key) = header.name.as_ref().and_then(Option::as_ref)
+            && let Some(value) = header.value.as_ref().and_then(Option::as_ref)
             && !headers.contains_key(key)
         {
-            headers.insert(key.to_string(), value.to_string());
+            headers.insert(key.clone(), value.clone());
         }
     }
 }
 
-fn flatten_recipients(recipients: &Vec<Recipient<'_>>) -> String {
+fn flatten_recipients(recipients: &[Recipient]) -> String {
     recipients
         .iter()
-        .filter_map(|recipient| recipient_to_string(recipient))
+        .filter_map(recipient_to_string)
         .collect::<Vec<String>>()
         .join(", ")
 }
@@ -290,14 +301,14 @@ fn iso8601_date_time_to_rfc2822(iso8601_date_time: &str) -> Option<String> {
     parsed.format(&Rfc2822).ok()
 }
 
-fn recipient_to_string<'a>(recipient: &'a Recipient<'a>) -> Option<String> {
-    let email_address_info = recipient.email_address().ok()?;
-    let name = email_address_info.name().ok()?;
-    let email_address = email_address_info.address().ok()?;
+fn recipient_to_string(recipient: &Recipient) -> Option<String> {
+    let email_address_info = recipient.email_address.as_ref()?;
+    let name = email_address_info.name.as_ref()?;
+    let email_address = email_address_info.address.as_ref()?;
 
     let mailbox = Mailbox {
-        name,
-        email_address,
+        name: name.as_deref(),
+        email_address: email_address.as_deref(),
     };
 
     Some(mailbox.to_string())

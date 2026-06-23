@@ -14,7 +14,7 @@ use protocol_shared::{
     safe_xpcom::SafeExchangeFolderListener,
 };
 
-use crate::error::XpComGraphError;
+use crate::{client::Required, error::XpComGraphError};
 
 use super::XpComGraphClient;
 
@@ -58,7 +58,7 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
         };
 
         loop {
-            let folders = response.response();
+            let folders = response.extract_response();
 
             for folder_delta in folders {
                 match folder_delta {
@@ -71,21 +71,11 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
                         self.listener.on_folder_deleted(folder_id)?;
                     }
                     DeltaItem::Present(folder) => {
-                        let folder_id = folder.entity().id()?.to_string();
-                        let display_name = folder
-                            .display_name()?
-                            .ok_or_else(|| XpComGraphError::Processing {
-                                message: format!("Folder without display name: {folder_id}"),
-                            })?
-                            .to_string();
-                        let parent_folder_id = folder
-                            .parent_folder_id()?
-                            .ok_or_else(|| XpComGraphError::Processing {
-                                message: format!(
-                                    "Folder without parent ID: {display_name} {folder_id}"
-                                ),
-                            })?
-                            .to_string();
+                        let folder_id = folder.entity.id.required("folder id")?;
+                        let display_name: String =
+                            folder.display_name.required("folder display name")?;
+                        let parent_folder_id: String =
+                            folder.parent_folder_id.required("parent folder id")?;
 
                         log::debug!(
                             "Found folder in response with ID {folder_id} ({display_name})"
@@ -191,7 +181,7 @@ async fn get_well_known_folder_map<ServerT: ServerType>(
         let folder = client
             .send_request_json_response(request, Default::default())
             .await?;
-        let folder_id = folder.entity().id()?.to_string();
+        let folder_id = folder.entity.id.required("folder id")?;
 
         if *distinguished_id == EXCHANGE_ROOT_FOLDER {
             listener.on_new_root_folder(folder_id.clone())?;

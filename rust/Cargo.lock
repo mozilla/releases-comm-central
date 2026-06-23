@@ -4488,6 +4488,7 @@ dependencies = [
  "http 0.2.12",
  "serde",
  "serde_json",
+ "serde_with",
  "strum",
  "thiserror 2.0.12",
 ]

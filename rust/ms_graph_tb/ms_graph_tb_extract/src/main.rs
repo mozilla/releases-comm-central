@@ -45,12 +45,6 @@ pub(crate) static SUPPORTED_OBJECTS: LazyLock<HashSet<String>> = LazyLock::new(|
 pub(crate) static SUPPORTED_ENUMS: LazyLock<HashSet<String>> = LazyLock::new(|| {
     load_supported_values(SUPPORTED_ENUMS_FILE).expect("supported_enums.txt must load")
 });
-pub(crate) static SUPPORTED_TYPES: LazyLock<HashSet<String>> = LazyLock::new(|| {
-    SUPPORTED_OBJECTS
-        .union(&SUPPORTED_ENUMS)
-        .cloned()
-        .collect::<HashSet<_>>()
-});
 pub(crate) static SUPPORTED_PATHS: LazyLock<HashSet<String>> = LazyLock::new(|| {
     load_supported_values(SUPPORTED_PATHS_FILE).expect("supported_paths.txt must load")
 });
@@ -173,36 +167,38 @@ fn generate_types(
         let simple_name = simple_name(full_name);
         let base_name = base_name(full_name);
         let kind = if SUPPORTED_OBJECTS.contains(base_name) {
-            SchemaKind::Other
+            Some(SchemaKind::Other)
         } else if SUPPORTED_ENUMS.contains(base_name) {
-            SchemaKind::Enum
+            Some(SchemaKind::Enum)
         } else {
-            SchemaKind::Unsupported
+            None
         };
-        if !matches!(kind, SchemaKind::Unsupported) {
-            info!("generating Rust type for {full_name}");
+        let Some(kind) = kind else {
+            continue;
+        };
 
-            let extracted = extract_from_schema(
-                schema,
-                SchemaContext {
-                    kind,
-                    is_delta: false,
-                },
-            );
-            let schema_path = ModuleHierarchyElement::from_schema(full_name);
-            let schema_namespace = schema_path.namespace();
-            let module_name = schema_path
-                .leaf()
-                .expect("schema paths should have a leaf")
-                .clone();
+        info!("generating Rust type for {full_name}");
 
-            process_schema(out_dir, &schema_path, simple_name, extracted)?;
+        let extracted = extract_from_schema(
+            schema,
+            SchemaContext {
+                kind,
+                is_delta: false,
+            },
+        );
+        let schema_path = ModuleHierarchyElement::from_schema(full_name);
+        let schema_namespace = schema_path.namespace();
+        let module_name = schema_path
+            .leaf()
+            .expect("schema paths should have a leaf")
+            .clone();
 
-            direct_type_modules.push((schema_namespace.clone(), module_name));
-            if !schema_namespace.is_root() {
-                type_namespaces.insert(schema_namespace);
-            }
+        process_schema(out_dir, &schema_path, simple_name, extracted)?;
+
+        if !schema_namespace.is_root() {
+            type_namespaces.insert(schema_namespace.clone());
         }
+        direct_type_modules.push((schema_namespace, module_name));
     }
 
     let mut type_module_hierarchy = ModuleHierarchy::new(type_namespaces);

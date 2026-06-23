@@ -206,7 +206,7 @@ mod test {
     impl Operation for TestOp {
         const METHOD: http::Method = http::Method::GET;
 
-        type Response<'response> = TestResponse;
+        type Response = TestResponse;
 
         fn build_request(self) -> Result<http::Request<Vec<u8>>, crate::Error> {
             Ok(Builder::new()

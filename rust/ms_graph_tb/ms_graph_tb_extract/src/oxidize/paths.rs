@@ -15,7 +15,7 @@ use crate::module_hierarchy::ModuleName;
 use crate::naming::snakeify;
 use crate::oxidize::structs::GraphStruct;
 
-use super::{Reference, RustType, markup_doc_comment, return_type};
+use super::{RustType, markup_doc_comment, property_type};
 
 /// Code generation state for one extracted API path.
 ///
@@ -171,7 +171,7 @@ fn delta_response_value(operation: &Operation) -> TokenStream {
     let mut element = body.property.clone();
     element.is_collection = false;
 
-    return_type(&element, Reference::Own, Some("'response"))
+    property_type(&element)
 }
 
 /// Construct a response property for OData queries, such as `$select` and
@@ -270,7 +270,6 @@ fn request_without_body(
     let struct_def = StructDef {
         description,
         method,
-        lifetime: None,
         body_line: None,
         selection_type: selection_type.clone(),
         expand_type: expand_type.clone(),
@@ -279,7 +278,6 @@ fn request_without_body(
     };
     let impl_def = ImplDef {
         method,
-        lifetime: None,
         template_expressions,
         arg: None,
         selectable,
@@ -288,9 +286,8 @@ fn request_without_body(
         is_delta: operation.is_delta,
     };
     let operation_def = OperationDef {
-        method: method.to_string(),
-        lifetime: None,
-        body: None,
+        method,
+        has_body: false,
         response: response.clone(),
         selectable,
         expandable,
@@ -300,7 +297,6 @@ fn request_without_body(
     let select_def = SelectDef {
         selection_type,
         method,
-        lifetime: None,
     };
     let expand_def = ExpandDef {
         expand_type,
@@ -349,16 +345,7 @@ fn request_with_body(
         imports.push(query_target);
     }
 
-    let mut body = op_body.property.rust_type.base_token(false, Reference::Own);
-    let body_lifetime = match op_body.property.rust_type {
-        RustType::NamedObjectSchema(_) | RustType::UnnamedObjectSchema(_) => Some(quote!(<'body>)),
-        _ => None,
-    };
-    if op_body.property.is_ref
-        || matches!(op_body.property.rust_type, RustType::UnnamedObjectSchema(_))
-    {
-        body = quote!(#body #body_lifetime);
-    }
+    let body = op_body.property.rust_type.base_token();
 
     let mut unnamed_body_types = Vec::new();
     if let RustType::UnnamedObjectSchema(graph_struct) = op_body.property.rust_type {
@@ -372,7 +359,6 @@ fn request_with_body(
     let struct_def = StructDef {
         description,
         method,
-        lifetime: body_lifetime.clone(),
         body_line: Some(quote!(body: OperationBody<#body>,)),
         selection_type: selection_type.clone(),
         expand_type: None,
@@ -381,7 +367,6 @@ fn request_with_body(
     };
     let impl_def = ImplDef {
         method,
-        lifetime: body_lifetime.clone(),
         template_expressions,
         arg: Some(quote!(body: OperationBody<#body>)),
         selectable,
@@ -390,9 +375,8 @@ fn request_with_body(
         is_delta: false,
     };
     let operation_def = OperationDef {
-        method: method.to_string(),
-        lifetime: body_lifetime.clone(),
-        body: Some(body),
+        method,
+        has_body: true,
         response,
         selectable,
         expandable: false,
@@ -402,7 +386,6 @@ fn request_with_body(
     let select_def = SelectDef {
         selection_type,
         method,
-        lifetime: body_lifetime,
     };
     let expand_def = ExpandDef {
         expand_type: None,
@@ -511,7 +494,6 @@ impl ToTokens for RequestDef {
 struct StructDef {
     description: Option<TokenStream>,
     method: Method,
-    lifetime: Option<TokenStream>,
     body_line: Option<TokenStream>,
     selection_type: Option<Ident>,
     expand_type: Option<Ident>,
@@ -524,7 +506,6 @@ impl ToTokens for StructDef {
         let Self {
             description,
             method,
-            lifetime,
             body_line: body,
             selection_type,
             expand_type,
@@ -547,7 +528,7 @@ impl ToTokens for StructDef {
         tokens.append_all(quote! {
             #description
             #[derive(Debug)]
-            pub struct #method #lifetime {
+            pub struct #method {
                 template_expressions: TemplateExpressions,
                 #body
                 #selection_line
@@ -561,7 +542,6 @@ impl ToTokens for StructDef {
 
 struct ImplDef {
     method: Method,
-    lifetime: Option<TokenStream>,
     template_expressions: Vec<Ident>,
     arg: Option<TokenStream>,
     selectable: bool,
@@ -574,7 +554,6 @@ impl ToTokens for ImplDef {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let Self {
             method,
-            lifetime,
             template_expressions,
             arg,
             selectable,
@@ -607,7 +586,7 @@ impl ToTokens for ImplDef {
         let page_size_impl = is_delta.then(page_size_impl);
 
         tokens.append_all(quote! {
-            impl #lifetime #method #lifetime {
+            impl #method {
                 #[must_use]
                 pub fn new(#( #template_expressions: String, )* #arg) -> Self {
                     Self {
@@ -629,9 +608,8 @@ impl ToTokens for ImplDef {
 }
 
 struct OperationDef {
-    method: String,
-    lifetime: Option<TokenStream>,
-    body: Option<TokenStream>,
+    method: Method,
+    has_body: bool,
     response: TokenStream,
     selectable: bool,
     expandable: bool,
@@ -643,16 +621,14 @@ impl ToTokens for OperationDef {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let OperationDef {
             method,
-            lifetime,
-            body,
+            has_body,
             response,
             selectable,
             expandable,
             filterable,
             is_delta,
         } = self;
-        let upper_method = format_ident!("{}", method.to_ascii_uppercase());
-        let method = format_ident!("{method}");
+        let upper_method = format_ident!("{}", method.to_string().to_ascii_uppercase());
 
         let append_selection = selectable.then(|| {
             quote! {
@@ -696,17 +672,8 @@ impl ToTokens for OperationDef {
 
         let page_size_hdr = is_delta.then(page_size_header);
 
-        let build_request = match body {
-            None => quote! {
-                let mut request = http::Request::builder()
-                    .uri(uri)
-                    .method(Self::METHOD);
-
-                #page_size_hdr
-
-                let request = request.body(vec![])?;
-            },
-            Some(_) => quote! {
+        let build_request = if *has_body {
+            quote! {
                 let (body, content_type) = match self.body {
                     OperationBody::JSON(body) => (serde_json::to_vec(&body)?, String::from("application/json")),
                     OperationBody::Other { body, content_type } => (body, content_type),
@@ -720,15 +687,23 @@ impl ToTokens for OperationDef {
                 #page_size_hdr
 
                 let request = request.body(body)?;
-            },
+            }
+        } else {
+            quote! {
+                let mut request = http::Request::builder()
+                    .uri(uri)
+                    .method(Self::METHOD);
+
+                #page_size_hdr
+
+                let request = request.body(vec![])?;
+            }
         };
 
-        let lifetime = lifetime.as_ref().map(|_| quote!(<'_>));
-
         tokens.append_all(quote! {
-            impl Operation for #method #lifetime {
+            impl Operation for #method {
                 const METHOD: Method = Method::#upper_method;
-                type Response<'response> = #response;
+                type Response = #response;
 
                 fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
                     #build_uri
@@ -745,7 +720,6 @@ impl ToTokens for OperationDef {
 struct SelectDef {
     selection_type: Option<Ident>,
     method: Method,
-    lifetime: Option<TokenStream>,
 }
 
 impl ToTokens for SelectDef {
@@ -753,11 +727,10 @@ impl ToTokens for SelectDef {
         if let Self {
             selection_type: Some(selection_type),
             method,
-            lifetime,
         } = self
         {
             tokens.append_all(quote! {
-                impl #lifetime Select for #method #lifetime {
+                impl Select for #method {
                     type Properties = #selection_type;
 
                     fn select<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
@@ -826,13 +799,11 @@ impl ToTokens for ExpandDef {
 }
 
 fn queryable(request: &Operation, query: &'static str) -> bool {
-    if let Some(parameters) = &request.parameters {
+    request.parameters.as_ref().is_some_and(|parameters| {
         parameters
             .iter()
             .any(|p| p.name.as_deref() == Some(query) && p.r#in.as_deref() == Some("query"))
-    } else {
-        false
-    }
+    })
 }
 
 fn filterable(request: &Operation) -> bool {
@@ -853,11 +824,7 @@ impl ToTokens for Success {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         match self {
             Self::NoBody => tokens.append_all(quote!(())),
-            Self::WithBody(body) => tokens.append_all(return_type(
-                &body.property,
-                Reference::Own,
-                Some("'response"),
-            )),
+            Self::WithBody(body) => tokens.append_all(property_type(&body.property)),
         }
     }
 }
@@ -900,7 +867,7 @@ impl ToTokens for DeltaDef {
 
             impl Operation for GetDelta {
                 const METHOD: Method = Method::GET;
-                type Response<'response> = #response;
+                type Response = #response;
 
                 fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
                     let mut request = http::Request::builder()

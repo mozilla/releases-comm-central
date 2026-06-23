@@ -35,13 +35,15 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
         &mut self,
         client: &XpComGraphClient<ServerT>,
     ) -> Result<Self::Okay, XpComGraphError> {
-        let flag_status = if self.is_flagged {
+        let flag_status = Some(if self.is_flagged {
             FollowupFlagStatus::Flagged
         } else {
             FollowupFlagStatus::NotFlagged
+        });
+        let message_update = Message {
+            flag: Some(FollowupFlag { flag_status }),
+            ..Default::default()
         };
-        let flag = FollowupFlag::new().set_flag_status(flag_status);
-        let message_update = Message::new().set_flag(flag);
         let base_api_url = client.base_api_url()?;
         let operations = self
             .message_ids
@@ -63,9 +65,9 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
         let message_ids = client
             .send_batch_request_json_response(operations, Default::default())
             .await?
-            .iter()
-            .map(|msg| msg.outlook_item().entity().id().map(nsCString::from))
-            .collect::<Result<ThinVec<_>, ms_graph_tb::Error>>()?;
+            .into_iter()
+            .filter_map(|msg| msg.outlook_item.entity.id.map(nsCString::from))
+            .collect::<ThinVec<_>>();
 
         if message_ids.len() != self.message_ids.len() {
             return Err(XpComGraphError::Processing {

@@ -85,9 +85,7 @@ pub(super) fn parse_schema(node: &Yaml) -> OaSchema {
 /// Recursively parses the schema represented by the given [`tyalias@Hash`].
 fn parse_schema_from_map(map: &Hash) -> OaSchema {
     if let Some(r) = get_str_in(map, "$ref") {
-        return OaSchema::Ref {
-            reference: r.to_string(),
-        };
+        return OaSchema::Ref { reference: r };
     }
 
     let typ = get_str_in(map, "type");

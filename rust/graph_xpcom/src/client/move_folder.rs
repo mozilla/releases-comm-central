@@ -4,13 +4,14 @@
 
 use std::sync::Arc;
 
-use ms_graph_tb::{OperationBody, paths};
+use ms_graph_tb::{OperationBody, paths::me::mail_folders::mail_folder_id};
 use nsstring::nsCString;
 use protocol_shared::{
     ServerType,
     client::DoOperation,
     safe_xpcom::{
-        SafeExchangeSimpleOperationListener, SimpleOperationSuccessArgs, UseLegacyFallback,
+        SafeExchangeSimpleOperationListener, SafeListener, SimpleOperationSuccessArgs,
+        UseLegacyFallback,
     },
 };
 use thin_vec::ThinVec;
@@ -38,9 +39,10 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
             .folder_ids
             .iter()
             .map(|folder_id| {
-                let body = paths::me::mail_folders::mail_folder_id::r#move::PostRequestBody::new()
-                    .set_destination_id(self.destination_folder_id.clone());
-                paths::me::mail_folders::mail_folder_id::r#move::Post::new(
+                let body = mail_folder_id::r#move::PostRequestBody {
+                    destination_id: Some(self.destination_folder_id.clone()),
+                };
+                mail_folder_id::r#move::Post::new(
                     base_api_url.to_string(),
                     folder_id.clone(),
                     OperationBody::JSON(body),
@@ -53,8 +55,8 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
             .await?;
 
         let new_folder_ids = responses
-            .iter()
-            .filter_map(|response| response.entity().id().ok().map(ToString::to_string))
+            .into_iter()
+            .filter_map(|response| response.entity.id)
             .collect();
 
         Ok(new_folder_ids)
@@ -63,7 +65,7 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
     fn into_success_arg(
         self,
         new_folder_ids: Self::Okay,
-    ) -> <Self::Listener as protocol_shared::safe_xpcom::SafeListener>::OnSuccessArg {
+    ) -> <Self::Listener as SafeListener>::OnSuccessArg {
         // If we have a length mismatch, that means something went wrong, but
         // perhaps not the entire request, so we need to tell the client to
         // requery the server to see what happened to the messages.
@@ -80,10 +82,7 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
         }
     }
 
-    fn into_failure_arg(
-        self,
-    ) -> <Self::Listener as protocol_shared::safe_xpcom::SafeListener>::OnFailureArg {
-    }
+    fn into_failure_arg(self) -> <Self::Listener as SafeListener>::OnFailureArg {}
 }
 
 impl<ServerT: ServerType> XpComGraphClient<ServerT> {

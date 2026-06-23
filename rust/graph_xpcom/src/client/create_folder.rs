@@ -5,7 +5,7 @@
 use std::sync::Arc;
 
 use ms_graph_tb::{
-    OperationBody, paths::me::mail_folders::mail_folder_id::child_folders,
+    OperationBody, notnull, paths::me::mail_folders::mail_folder_id::child_folders,
     types::mail_folder::MailFolder,
 };
 use protocol_shared::{
@@ -16,7 +16,7 @@ use protocol_shared::{
 
 use crate::error::XpComGraphError;
 
-use super::XpComGraphClient;
+use super::{Required, XpComGraphClient};
 
 struct DoCreateFolder {
     parent_id: String,
@@ -34,7 +34,10 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
         &mut self,
         client: &XpComGraphClient<ServerT>,
     ) -> Result<Self::Okay, XpComGraphError> {
-        let folder_config = MailFolder::new().set_display_name(Some(self.name.clone()));
+        let folder_config = MailFolder {
+            display_name: notnull!(self.name.clone()),
+            ..Default::default()
+        };
         let base_api_url = client.base_api_url()?;
         let request = child_folders::Post::new(
             base_api_url.to_string(),
@@ -45,7 +48,7 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
         let folder = client
             .send_request_json_response(request, Default::default())
             .await?;
-        let folder_id = folder.entity().id()?.to_string();
+        let folder_id = folder.entity.id.required("folder id")?;
         Ok(folder_id)
     }
 

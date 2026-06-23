@@ -5,10 +5,10 @@
 // EDITS TO THIS FILE WILL BE OVERWRITTEN
 
 #![doc = "Types related to DirectoryObject.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
+use crate::Nullable;
 use crate::types::entity::{Entity, EntitySelection};
-use crate::{Error, PropertyMap};
 use serde::{Deserialize, Serialize};
-use std::borrow::Cow;
+use serde_with::skip_serializing_none;
 use strum::Display;
 #[doc = r"Properties that can be selected from this type."]
 #[derive(Copy, Clone, Debug, Display, PartialEq, Eq)]
@@ -17,56 +17,13 @@ pub enum DirectoryObjectSelection {
     DeletedDateTime,
     Entity(EntitySelection),
 }
+#[skip_serializing_none]
 #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
-pub struct DirectoryObject<'a> {
-    #[serde(flatten)]
-    pub(crate) properties: PropertyMap<'a>,
-}
-impl<'a> From<PropertyMap<'a>> for DirectoryObject<'a> {
-    fn from(properties: PropertyMap<'a>) -> Self {
-        Self { properties }
-    }
-}
-impl<'a> DirectoryObject<'a> {
-    #[doc = r"Construct a new instance of this type with no properties set."]
-    #[must_use]
-    pub fn new() -> Self {
-        Self::default()
-    }
+#[serde(default, rename_all = "camelCase")]
+pub struct DirectoryObject {
     #[doc = "Date and time when this object was deleted.\n\n Always null when the object hasn't been deleted."]
-    pub fn deleted_date_time(&self) -> Result<Option<&str>, Error> {
-        let val = self
-            .properties
-            .0
-            .get("deletedDateTime")
-            .ok_or(Error::NotFound)?;
-        if val.is_null() {
-            return Ok(None);
-        }
-        Ok(Some(val.as_str().ok_or_else(|| {
-            Error::UnexpectedResponse(format!("{val:?}"))
-        })?))
-    }
-    #[doc = "Setter for [`deleted_date_time`](Self::deleted_date_time).\n\nThis library makes no guarantees that Graph exposes this property as writable."]
-    #[must_use]
-    pub fn set_deleted_date_time(mut self, val: Option<String>) -> Self {
-        self.properties
-            .0
-            .to_mut()
-            .insert("deletedDateTime".to_string(), val.into());
-        self
-    }
-    #[doc = "Accessor to inherited properties from `Entity`."]
-    #[must_use]
-    pub fn entity(&'a self) -> Entity<'a> {
-        Entity {
-            properties: PropertyMap(Cow::Borrowed(&*self.properties.0)),
-        }
-    }
-    #[doc = "Setter for [`entity`](Self::entity).\n\nThis library makes no guarantees that Graph exposes this property as writable."]
-    #[must_use]
-    pub fn set_entity(mut self, mut val: Entity<'_>) -> Self {
-        self.properties.0.to_mut().append(val.properties.0.to_mut());
-        self
-    }
+    pub deleted_date_time: Option<Nullable<String>>,
+    #[doc = "Inherited properties from `Entity`."]
+    #[serde(flatten)]
+    pub entity: Entity,
 }

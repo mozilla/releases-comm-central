@@ -97,22 +97,15 @@ impl<ServerT: ServerType> XpComGraphClient<ServerT> {
             .map(|message_id| {
                 self.move_message_request(destination_folder_id.to_string(), message_id.clone())
             })
-            .collect::<Result<Vec<r#move::Post<'_>>, XpComGraphError>>()?;
+            .collect::<Result<Vec<r#move::Post>, XpComGraphError>>()?;
 
         let responses = self
             .send_batch_request_json_response(requests, Default::default())
             .await?;
 
         let new_message_ids = responses
-            .iter()
-            .filter_map(|response| {
-                response
-                    .outlook_item()
-                    .entity()
-                    .id()
-                    .ok()
-                    .map(ToString::to_string)
-            })
+            .into_iter()
+            .filter_map(|response| response.outlook_item.entity.id)
             .collect();
 
         Ok(new_message_ids)
@@ -121,12 +114,14 @@ impl<ServerT: ServerType> XpComGraphClient<ServerT> {
     /// Creates a [message move] request for the given message.
     ///
     /// [message move]: https://learn.microsoft.com/en-us/graph/api/message-move
-    pub(crate) fn move_message_request<'m>(
-        &'m self,
+    pub(crate) fn move_message_request(
+        &self,
         destination_folder_id: String,
         message_id: String,
-    ) -> Result<r#move::Post<'m>, XpComGraphError> {
-        let body = r#move::PostRequestBody::new().set_destination_id(destination_folder_id);
+    ) -> Result<r#move::Post, XpComGraphError> {
+        let body = r#move::PostRequestBody {
+            destination_id: Some(destination_folder_id),
+        };
 
         let base_api_url = self.base_api_url()?;
 

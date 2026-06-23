@@ -40,7 +40,7 @@ impl Get {
 }
 impl Operation for Get {
     const METHOD: Method = Method::GET;
-    type Response<'response> = User<'response>;
+    type Response = User;
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
         let mut params = Serializer::new(String::new());
         if let Some((select, selection)) = self.selection.pair() {
@@ -83,14 +83,14 @@ impl Expand for Get {
 }
 #[doc = "Update user\n\nUpdate the properties of a user object.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/user-update?view=graph-rest-1.0)."]
 #[derive(Debug)]
-pub struct Patch<'body> {
+pub struct Patch {
     template_expressions: TemplateExpressions,
-    body: OperationBody<User<'body>>,
+    body: OperationBody<User>,
     selection: Selection<UserSelection>,
 }
-impl<'body> Patch<'body> {
+impl Patch {
     #[must_use]
-    pub fn new(endpoint: String, body: OperationBody<User<'body>>) -> Self {
+    pub fn new(endpoint: String, body: OperationBody<User>) -> Self {
         Self {
             template_expressions: TemplateExpressions { endpoint },
             body,
@@ -98,9 +98,9 @@ impl<'body> Patch<'body> {
         }
     }
 }
-impl Operation for Patch<'_> {
+impl Operation for Patch {
     const METHOD: Method = Method::PATCH;
-    type Response<'response> = User<'response>;
+    type Response = User;
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
         let mut params = Serializer::new(String::new());
         if let Some((select, selection)) = self.selection.pair() {
@@ -129,7 +129,7 @@ impl Operation for Patch<'_> {
         Ok(request)
     }
 }
-impl<'body> Select for Patch<'body> {
+impl Select for Patch {
     type Properties = UserSelection;
     fn select<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
         self.selection.select(properties);

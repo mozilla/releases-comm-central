@@ -5,7 +5,7 @@
 use proc_macro2::{Ident, TokenStream};
 use quote::{ToTokens, TokenStreamExt, format_ident, quote};
 
-use super::{Reference, RustType, arg_type, return_type};
+use super::RustType;
 use crate::GENERATION_DISCLOSURE;
 use crate::extract::schema::object::Property;
 use crate::naming::{pascalize, snakeify};
@@ -44,7 +44,7 @@ impl GraphStruct {
         kind: StructKind,
         has_expansions: bool,
     ) -> Self {
-        let name = String::from(name);
+        let name = name.to_string();
         let description = description.map(|doc| quote!(#[doc = #doc]));
 
         Self {
@@ -56,7 +56,7 @@ impl GraphStruct {
         }
     }
 
-    pub fn name(&self) -> &String {
+    pub fn name(&self) -> &str {
         &self.name
     }
 }
@@ -76,17 +76,16 @@ impl ToTokens for GraphStruct {
         let imports = super::imports(properties, Some(&snakeify(&name.to_string())));
         let expand_ident = format_ident!("{}Expand", name);
         let select_variants = select_variants(properties);
+        let rename_all = match kind {
+            StructKind::Named => "camelCase",
+            StructKind::Unnamed => "PascalCase",
+        };
+        let field_defs = field_defs(properties);
+        let expand_def = (*has_expansions).then(|| expand_def(expand_ident.clone(), properties));
         let single_value_extended_properties_expand_impl = (*has_expansions)
             .then(|| single_value_extended_properties_expand_impl(&expand_ident, properties));
         let single_value_extended_properties_impl = matches!(kind, StructKind::Named)
             .then(|| single_value_extended_properties_impl(&name, properties));
-
-        // Generating documentation for methods of unnamed types seems to cause
-        // some weird bug with rustc's diagnostics that means we end up with
-        // leftover unused imports even after running Clippy, see
-        // https://github.com/rust-lang/rust/issues/155098
-        let function_defs = function_defs(properties, matches!(kind, StructKind::Named));
-        let expand_def = (*has_expansions).then(|| expand_def(expand_ident, properties));
 
         // Unnamed structs typically represent the body of requests or responses,
         // where selection is not relevant.
@@ -123,38 +122,23 @@ impl ToTokens for GraphStruct {
             #module_doc
 
             use serde::{Deserialize, Serialize};
-            use serde_json::Value;
-            use std::borrow::Cow;
+            use serde_with::skip_serializing_none;
             use std::fmt;
             use strum::Display;
 
             #imports
+            use crate::Nullable;
             use crate::odata::ExpandOptions;
-            use crate::{Error, PropertyMap};
 
             #selection
             #expand_def
 
             #description
+            #[skip_serializing_none]
             #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
-            pub struct #name<'a> {
-                #[serde(flatten)]
-                pub(crate) properties: PropertyMap<'a>,
-            }
-
-            impl<'a> From<PropertyMap<'a>> for #name<'a> {
-                fn from(properties: PropertyMap<'a>) -> Self {
-                    Self { properties }
-                }
-            }
-
-            impl<'a> #name<'a> {
-                ///Construct a new instance of this type with no properties set.
-                #[must_use]
-                pub fn new() -> Self {
-                    Self::default()
-                }
-                #(#function_defs)*
+            #[serde(default, rename_all = #rename_all)]
+            pub struct #name {
+                #(#field_defs)*
             }
             #single_value_extended_properties_expand_impl
             #single_value_extended_properties_impl
@@ -162,60 +146,25 @@ impl ToTokens for GraphStruct {
     }
 }
 
-struct MethodDef {
-    fn_name: Ident,
+struct FieldDef {
     doc_comment: Option<TokenStream>,
-    must_use: Option<TokenStream>,
-    mutable: bool,
-    ret_type: TokenStream,
-    arg: Option<TokenStream>,
-    body: TokenStream,
-    lifetime: Option<TokenStream>,
+    serde_attrs: Option<TokenStream>,
+    field_name: Ident,
+    ty: TokenStream,
 }
 
-impl PartialEq for MethodDef {
-    fn eq(&self, other: &Self) -> bool {
-        self.fn_name == other.fn_name
-    }
-}
-
-impl Eq for MethodDef {}
-
-impl Ord for MethodDef {
-    fn cmp(&self, other: &Self) -> core::cmp::Ordering {
-        self.fn_name.cmp(&other.fn_name)
-    }
-}
-
-impl PartialOrd for MethodDef {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-impl ToTokens for MethodDef {
+impl ToTokens for FieldDef {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let Self {
             doc_comment,
-            must_use,
-            fn_name,
-            mutable,
-            ret_type,
-            arg,
-            body,
-            lifetime,
+            serde_attrs,
+            field_name,
+            ty,
         } = self;
-        let self_mods = if *mutable {
-            quote!(mut)
-        } else {
-            quote!(&#lifetime)
-        };
         tokens.append_all(quote! {
             #doc_comment
-            #must_use
-            pub fn #fn_name(#self_mods self, #arg) -> #ret_type {
-                #body
-            }
+            #serde_attrs
+            pub #field_name: #ty,
         })
     }
 }
@@ -242,6 +191,7 @@ fn select_variants(properties: &[Property]) -> Vec<TokenStream> {
     select_variants.sort_by_key(|a| a.to_string());
     select_variants
 }
+
 fn expand_def(expand_ident: Ident, properties: &[Property]) -> TokenStream {
     let expand_variants = expand_variants(properties);
     if expand_variants.is_empty() {
@@ -323,81 +273,56 @@ fn expand_display_arms(properties: &[Property], expand_ident: &Ident) -> Vec<Tok
     expand_arms
 }
 
-fn function_defs(properties: &[Property], generate_doc: bool) -> Vec<MethodDef> {
-    // Collect the generated function defs into [getter def, setter def] pairs
-    let mut function_defs = properties
+fn field_defs(properties: &[Property]) -> Vec<FieldDef> {
+    let mut field_defs = properties
         .iter()
         .map(|p| {
-            let name = snakeify(&p.name);
-            let fn_name = format_ident!("{name}");
-            let ret_type = return_type(p, Reference::Ref, None);
-
-            let doc_comment = if !generate_doc {
-                None
-            } else if let Some(doc) = &p.description {
+            let doc_comment = if let Some(doc) = &p.description {
                 let doc = markup_doc_comment(doc.clone());
                 Some(quote!(#[doc = #doc]))
             } else if p.is_ref {
-                let ref_type = &p.rust_type.base_token(false, Reference::Own);
-                let doc_str = format!("Accessor to inherited properties from `{ref_type}`.");
-                Some(quote!(#[doc = #doc_str]))
-            } else {
-                None
-            };
-            let must_use = if p.is_ref {
-                Some(quote!(#[must_use]))
-            } else {
-                None
-            };
-
-            let body = getter_body(p);
-            let lifetime =
-                (p.is_ref || matches!(p.rust_type, RustType::NamedObjectSchema(_)))
-                    .then_some(quote!('a));
-            let getter = MethodDef {
-                doc_comment,
-                must_use,
-                fn_name,
-                ret_type,
-                mutable: false,
-                arg: None,
-                body,
-                lifetime,
-            };
-
-            let fn_name = format_ident!("set_{name}");
-            let ret_type = quote!(Self);
-
-            let doc_comment = if generate_doc {
-                let doc_str = format!("Setter for [`{name}`](Self::{name}).\n\nThis library makes no guarantees that Graph exposes this property as writable.");
+                let ref_type = &p.rust_type.base_token();
+                let doc_str = format!("Inherited properties from `{ref_type}`.");
                 Some(quote!(#[doc = #doc_str]))
             } else {
                 None
             };
 
-            let must_use = Some(quote!(#[must_use]));
-            let arg_type = arg_type(p, Reference::Own);
-            let arg = Some(quote!(mut val: #arg_type));
-            let body = setter_body(p);
-            let lifetime = None;
-            let setter = MethodDef {
-                doc_comment,
-                must_use,
-                fn_name,
-                ret_type,
-                mutable: true,
-                arg,
-                body,
-                lifetime,
-            };
+            let field_name_string = snakeify(&p.name);
+            let field_name = format_ident!("{field_name_string}");
+            let ty = field_type(p);
+            let serde_attrs = p.is_ref.then(|| quote!(#[serde(flatten)]));
 
-            [getter, setter]
+            FieldDef {
+                doc_comment,
+                serde_attrs,
+                field_name,
+                ty,
+            }
         })
         .collect::<Vec<_>>();
 
-    // Sort by the name of the getter, then flatten the pairs
-    function_defs.sort();
-    function_defs.into_iter().flatten().collect()
+    field_defs.sort_by_key(|field| field.field_name.to_string());
+    field_defs
+}
+
+fn field_type(prop: &Property) -> TokenStream {
+    let base = prop.rust_type.base_token();
+    let mut ty = if prop.is_collection {
+        quote!(Vec<#base>)
+    } else {
+        quote!(#base)
+    };
+
+    if prop.nullable {
+        ty = quote!(Nullable<#ty>);
+    }
+
+    if !prop.is_ref {
+        ty = quote!(Option<#ty>);
+    }
+
+    ty
 }
 
 fn has_single_value_extended_properties(properties: &[Property]) -> bool {
@@ -437,160 +362,26 @@ fn single_value_extended_properties_impl(
         return None;
     }
 
+    let svleps_nullable = properties
+        .iter()
+        .find(|prop| prop.name == "singleValueExtendedProperties")
+        .is_some_and(|prop| prop.nullable);
+    let all_svleps_body = if svleps_nullable {
+        quote!(
+            self.single_value_extended_properties
+                .as_ref()
+                .and_then(Option::as_ref)
+        )
+    } else {
+        quote!(self.single_value_extended_properties.as_ref())
+    };
+
     Some(quote! {
-        impl<'a> crate::extended_properties::SingleValueExtendedPropertiesType<'a> for #name<'a> {
+        impl crate::extended_properties::SingleValueExtendedPropertiesType for #name {
             ///Wrapper for [`Self::single_value_extended_properties`].
-            fn all_svleps(
-                &'a self,
-            ) -> Result<Vec<SingleValueLegacyExtendedProperty<'a>>, Error> {
-                self.single_value_extended_properties()
+            fn all_svleps(&self) -> Option<&Vec<SingleValueLegacyExtendedProperty>> {
+                #all_svleps_body
             }
         }
     })
-}
-
-fn getter_body(prop: &Property) -> TokenStream {
-    if prop.is_ref {
-        // refs are actually flattened in responses, but we want them abstracted,
-        // so the accessor is actually just a type conversion
-        let Property {
-            rust_type: RustType::NamedObjectSchema(typ),
-            ..
-        } = prop
-        else {
-            panic!("Reference to non-object schema: {prop:?}");
-        };
-        let ident = format_ident!("{}", typ.as_pascal_case());
-
-        return quote! {
-            #ident {
-                properties: PropertyMap(Cow::Borrowed(&*self.properties.0)),
-            }
-        };
-    }
-
-    fn type_to_getter(base_type: &RustType) -> &str {
-        use RustType::*;
-        match base_type {
-            Bool => "bool",
-            U8 => "u64",
-            I8 | I16 | I32 | I64 => "i64",
-            F32 | F64 => "f64",
-            String => "str",
-            Bytes => "array",
-            NamedEnumSchema(_) => "str",
-            NamedObjectSchema(_) | UnnamedObjectSchema(_) => "object",
-        }
-    }
-
-    let name = &prop.name;
-    let base_str = prop.rust_type.base_str(prop.nullable, Reference::Ref);
-
-    // This is inserted near the top for nullable types, so failed casts are always errors.
-    let null_check = prop.nullable.then_some(quote! {
-        if val.is_null() {
-            return Ok(None);
-        }
-    });
-
-    // "val" is our outer type, "v" is our closure argument (if we need one).
-    // The conversion applied in the next step is applied on the innermost type.
-    let val = if !prop.is_collection {
-        format_ident!("val")
-    } else {
-        format_ident!("v")
-    };
-
-    // Our attempt to cast into the closest available type.
-    // Because of our above null check, any failure to cast here indicates an error.
-    // FIXME: This is written assuming arrays can be null, but never contain nulls.
-    // It should be determined if this is correct, or if the type should change accordingly.
-    let getter = type_to_getter(&prop.rust_type);
-    let getter_ident = format_ident!("as_{getter}");
-    let mut ret = quote!(#val.#getter_ident().ok_or_else(|| Error::UnexpectedResponse(format!("{:?}", #val)))?);
-
-    // If the type that produced isn't the base return type, it needs an additional conversion.
-    if getter != base_str {
-        if matches!(prop.rust_type, RustType::NamedObjectSchema(_)) {
-            ret = quote!(PropertyMap(Cow::Borrowed(#ret)).into());
-        } else if let RustType::NamedEnumSchema(schema) = &prop.rust_type {
-            let enum_type = format_ident!("{}", schema.as_pascal_case());
-            ret = quote! {
-                #ret.parse::<#enum_type>()
-                    .or_else(|e| Err(Error::UnexpectedResponse(format!("{e:?}"))))?
-            };
-        } else {
-            ret = quote!(#ret.try_into().or_else(|e| Err(Error::UnexpectedResponse(format!("{e:?}"))))?);
-        }
-    }
-
-    // If this is a collection, we actually want the above transformation mapped over everything.
-    if prop.is_collection {
-        ret = quote! {
-            val
-                .as_array()
-                .ok_or_else(|| Error::UnexpectedResponse(format!("{:?}", val)))?
-                .iter()
-                .map(|v| Ok::<_, Error>(#ret))
-                .collect::<Result<_, _>>()?
-        };
-    }
-
-    // If this is a nullable type, we handled the None case already, so always wrap Some.
-    if prop.nullable {
-        ret = quote!(Some(#ret));
-    }
-
-    quote! {
-        let val = self.properties.0.get(#name).ok_or(Error::NotFound)?;
-        #null_check
-        Ok(#ret)
-    }
-}
-
-fn setter_body(prop: &Property) -> TokenStream {
-    let name = &prop.name;
-    let modification = match (&prop.rust_type, prop.is_ref, prop.is_collection) {
-        (RustType::NamedObjectSchema(_), true, false) => {
-            quote!(append(val.properties.0.to_mut()))
-        }
-        (RustType::NamedObjectSchema(_), false, false) => {
-            quote! {
-                insert(#name.to_string(), Value::Object(val.properties.0.into_owned()))
-            }
-        }
-        (RustType::NamedObjectSchema(_), false, true) => {
-            quote! {
-            insert(
-                #name.to_string(),
-                val.into_iter()
-                    .map(|v| Value::Object(v.properties.0.into_owned()))
-                    .collect(),
-            )
-            }
-        }
-        (RustType::NamedEnumSchema(_), false, false) => {
-            quote! {
-                insert(#name.to_string(), Value::String(val.to_string()))
-            }
-        }
-        (RustType::NamedEnumSchema(_), false, true) => {
-            quote! {
-                insert(
-                    #name.to_string(),
-                    Value::Array(
-                        val.into_iter()
-                            .map(|v| Value::String(v.to_string()))
-                            .collect(),
-                    ),
-                )
-            }
-        }
-        (_, _, _) => quote!(insert(#name.to_string(), val.into())),
-    };
-
-    quote! {
-        self.properties.0.to_mut().#modification;
-        self
-    }
 }

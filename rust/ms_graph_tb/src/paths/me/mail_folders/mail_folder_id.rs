@@ -49,7 +49,7 @@ impl Get {
 }
 impl Operation for Get {
     const METHOD: Method = Method::GET;
-    type Response<'response> = MailFolder<'response>;
+    type Response = MailFolder;
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
         let mut params = Serializer::new(String::new());
         if let Some((select, selection)) = self.selection.pair() {
@@ -92,18 +92,14 @@ impl Expand for Get {
 }
 #[doc = "Update mailfolder\n\nUpdate the properties of mailfolder object.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/mailfolder-update?view=graph-rest-1.0)."]
 #[derive(Debug)]
-pub struct Patch<'body> {
+pub struct Patch {
     template_expressions: TemplateExpressions,
-    body: OperationBody<MailFolder<'body>>,
+    body: OperationBody<MailFolder>,
     selection: Selection<MailFolderSelection>,
 }
-impl<'body> Patch<'body> {
+impl Patch {
     #[must_use]
-    pub fn new(
-        endpoint: String,
-        mail_folder_id: String,
-        body: OperationBody<MailFolder<'body>>,
-    ) -> Self {
+    pub fn new(endpoint: String, mail_folder_id: String, body: OperationBody<MailFolder>) -> Self {
         Self {
             template_expressions: TemplateExpressions {
                 endpoint,
@@ -114,9 +110,9 @@ impl<'body> Patch<'body> {
         }
     }
 }
-impl Operation for Patch<'_> {
+impl Operation for Patch {
     const METHOD: Method = Method::PATCH;
-    type Response<'response> = MailFolder<'response>;
+    type Response = MailFolder;
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
         let mut params = Serializer::new(String::new());
         if let Some((select, selection)) = self.selection.pair() {
@@ -145,7 +141,7 @@ impl Operation for Patch<'_> {
         Ok(request)
     }
 }
-impl<'body> Select for Patch<'body> {
+impl Select for Patch {
     type Properties = MailFolderSelection;
     fn select<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
         self.selection.select(properties);
@@ -172,7 +168,7 @@ impl Delete {
 }
 impl Operation for Delete {
     const METHOD: Method = Method::DELETE;
-    type Response<'response> = ();
+    type Response = ();
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
         let uri = format_path(&self.template_expressions)
             .parse::<http::uri::Uri>()

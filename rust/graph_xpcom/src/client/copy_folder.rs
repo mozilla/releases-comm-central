@@ -4,7 +4,7 @@
 
 use std::sync::Arc;
 
-use ms_graph_tb::{OperationBody, paths};
+use ms_graph_tb::{OperationBody, paths::me::mail_folders::mail_folder_id};
 use nsstring::nsCString;
 use protocol_shared::{
     ServerType,
@@ -38,9 +38,10 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
             .folder_ids
             .iter()
             .map(|folder_id| {
-                let body = paths::me::mail_folders::mail_folder_id::copy::PostRequestBody::new()
-                    .set_destination_id(self.destination_folder_id.clone());
-                paths::me::mail_folders::mail_folder_id::copy::Post::new(
+                let body = mail_folder_id::copy::PostRequestBody {
+                    destination_id: Some(self.destination_folder_id.clone()),
+                };
+                mail_folder_id::copy::Post::new(
                     base_api_url.to_string(),
                     folder_id.clone(),
                     OperationBody::JSON(body),
@@ -53,8 +54,8 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
             .await?;
 
         let new_folder_ids = responses
-            .iter()
-            .filter_map(|response| response.entity().id().ok().map(ToString::to_string))
+            .into_iter()
+            .filter_map(|response| response.entity.id)
             .collect();
 
         Ok(new_folder_ids)

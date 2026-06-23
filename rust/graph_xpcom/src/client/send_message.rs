@@ -5,7 +5,7 @@
 use std::sync::Arc;
 
 use ms_graph_tb::{
-    OperationBody,
+    OperationBody, notnull,
     paths::me::messages,
     types::{email_address::EmailAddress, message::Message, recipient::Recipient},
 };
@@ -17,7 +17,10 @@ use protocol_shared::{
     safe_xpcom::{SafeListener, SafeMsgOutgoingListener, SafeUri},
 };
 
-use crate::{client::XpComGraphClient, error::XpComGraphError};
+use crate::{
+    client::{Required, XpComGraphClient},
+    error::XpComGraphError,
+};
 
 struct DoSendMessage<'a> {
     pub listener: &'a SafeMsgOutgoingListener,
@@ -49,10 +52,10 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
         let message_id = client
             .send_create_message_request(None, &self.mime_content)
             .await?
-            .outlook_item()
-            .entity()
-            .id()?
-            .to_string();
+            .outlook_item
+            .entity
+            .id
+            .required("message id")?;
 
         // Update the draft message with the Bcc recipients and the DSN
         // (Delivery Status Notification) flags.
@@ -60,17 +63,22 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
             .bcc_recipients
             .iter()
             .map(|recipient| {
-                let address = EmailAddress::new()
-                    .set_name(recipient.name.clone())
-                    .set_address(recipient.email_address.clone());
+                let address = EmailAddress {
+                    name: recipient.name.clone().map(Some),
+                    address: recipient.email_address.clone().map(Some),
+                };
 
-                Recipient::new().set_email_address(address)
+                Recipient {
+                    email_address: Some(address),
+                }
             })
             .collect();
 
-        let message_update = Message::new()
-            .set_is_delivery_receipt_requested(Some(self.should_request_dsn))
-            .set_bcc_recipients(bcc_recipients);
+        let message_update = Message {
+            is_delivery_receipt_requested: notnull!(self.should_request_dsn),
+            bcc_recipients: Some(bcc_recipients),
+            ..Default::default()
+        };
 
         // Send the update request. We don't need to check the response, since
         // it should just be the original message with the added properties (and

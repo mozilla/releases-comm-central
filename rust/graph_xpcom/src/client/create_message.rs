@@ -7,12 +7,15 @@ use std::sync::Arc;
 use base64::prelude::*;
 
 use ms_graph_tb::types::message::Message;
-use ms_graph_tb::{OperationBody, paths::me::messages};
+use ms_graph_tb::{OperationBody, notnull, paths::me::messages};
 use protocol_shared::ServerType;
 use protocol_shared::client::DoOperation;
 use protocol_shared::safe_xpcom::SafeExchangeMessageCreateListener;
 
-use crate::{client::XpComGraphClient, error::XpComGraphError};
+use crate::{
+    client::{Required, XpComGraphClient},
+    error::XpComGraphError,
+};
 
 struct DoCreateMessage {
     pub folder_id: String,
@@ -36,19 +39,21 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
         self.new_message_id = client
             .send_create_message_request(Some(self.folder_id.clone()), &self.content)
             .await?
-            .outlook_item()
-            .entity()
-            .id()?
-            .to_string();
+            .outlook_item
+            .entity
+            .id
+            .required("message id")?;
 
         // Now update our message with the draft and read flags. We don't need
         // to check the response, since it should just be the original message
         // with the added properties (and all we need to send is the ID, which
         // we already have).
         let base_url = client.base_api_url()?.to_string();
-        let message_update = Message::new()
-            .set_is_draft(Some(self.is_draft))
-            .set_is_read(Some(self.is_read));
+        let message_update = Message {
+            is_draft: notnull!(self.is_draft),
+            is_read: notnull!(self.is_read),
+            ..Default::default()
+        };
 
         let request = messages::message_id::Patch::new(
             base_url,
@@ -109,7 +114,7 @@ impl<ServerT: ServerType> XpComGraphClient<ServerT> {
         &self,
         folder_id: Option<String>,
         content: ContentT,
-    ) -> Result<Message<'_>, XpComGraphError> {
+    ) -> Result<Message, XpComGraphError> {
         let content = BASE64_STANDARD.encode(content);
 
         let body = OperationBody::Other {
@@ -131,7 +136,7 @@ impl<ServerT: ServerType> XpComGraphClient<ServerT> {
             // messages using raw MIME/RFC822 payloads. So as a workaround, we
             // create the message the same way in both cases and we move it if a
             // folder was specified.
-            let message_id = message.outlook_item().entity().id()?.to_string();
+            let message_id = message.outlook_item.entity.id.required("message id")?;
             let request = self.move_message_request(folder_id, message_id)?;
             self.send_request_json_response(request, Default::default())
                 .await

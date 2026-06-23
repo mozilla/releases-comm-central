@@ -99,7 +99,7 @@ pub(super) fn parse_path(node: &Yaml, parameters: &BTreeMap<String, OaParameter>
         .as_hash()
         .expect("all paths should be compound YAML objects");
 
-    let description = get_str_in(map, "description").map(|s| s.to_string());
+    let description = get_str_in(map, "description");
     let operations = map
         .iter()
         .filter_map(|(key, node)| {
@@ -141,11 +141,7 @@ pub(super) fn parse_path(node: &Yaml, parameters: &BTreeMap<String, OaParameter>
 
 fn get_external_docs(map: &YamlHash) -> Option<String> {
     let map = get_map_in(map, "externalDocs")?;
-    Some(
-        get_str_in(map, "url")
-            .expect("external docs should have url")
-            .to_string(),
-    )
+    Some(get_str_in(map, "url").expect("external docs should have url"))
 }
 
 fn get_request_body(map: &YamlHash) -> Option<OaBody> {

@@ -43,8 +43,9 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
             .message_ids
             .iter()
             .map(|message_id| {
-                let body = messages::message_id::copy::PostRequestBody::new()
-                    .set_destination_id(self.destination_folder_id.clone());
+                let body = messages::message_id::copy::PostRequestBody {
+                    destination_id: Some(self.destination_folder_id.clone()),
+                };
 
                 messages::message_id::copy::Post::new(
                     base_api_url.to_string(),
@@ -59,15 +60,8 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
             .await?;
 
         let new_message_ids = responses
-            .iter()
-            .filter_map(|response| {
-                response
-                    .outlook_item()
-                    .entity()
-                    .id()
-                    .ok()
-                    .map(ToString::to_string)
-            })
+            .into_iter()
+            .filter_map(|response| response.outlook_item.entity.id)
             .collect();
 
         Ok(new_message_ids)

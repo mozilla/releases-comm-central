@@ -5,14 +5,14 @@
 use log::warn;
 use std::collections::HashMap;
 
-use crate::SUPPORTED_TYPES;
 use crate::naming::pascalize;
 use crate::openapi::schema::OaSchema;
 use crate::oxidize::RustType;
 use crate::oxidize::structs::{GraphStruct, StructKind};
 
 use super::{
-    SchemaContext, SchemaKind, map_openapi_schema_to_rust, named_schema_type, ref_simple_name,
+    SchemaContext, SchemaKind, map_openapi_schema_to_rust, ref_simple_name,
+    supported_named_schema_type,
 };
 
 /// Our representation of a Graph API property.
@@ -102,16 +102,8 @@ fn collect_schema_properties(
             for s in list {
                 match s {
                     OaSchema::Ref { reference } => {
-                        if let Some((name, ty)) = custom_from_ref(reference) {
-                            out.push(Property {
-                                name: name.to_string(),
-                                nullable: false,
-                                is_collection: false,
-                                is_ref: true,
-                                rust_type: ty,
-                                description: description.clone(),
-                                navigation_property: false,
-                            });
+                        if let Some(prop) = referenced_property(reference, description) {
+                            out.push(prop);
                         }
                     }
                     OaSchema::Obj { .. } => {
@@ -131,16 +123,8 @@ fn collect_schema_properties(
             for s in list {
                 match s {
                     OaSchema::Ref { reference } => {
-                        if let Some((name, ty)) = custom_from_ref(reference) {
-                            out.push(Property {
-                                name: name.to_string(),
-                                nullable: false,
-                                is_collection: false,
-                                is_ref: true,
-                                rust_type: ty,
-                                description: description.clone(),
-                                navigation_property: false,
-                            });
+                        if let Some(prop) = referenced_property(reference, description) {
+                            out.push(prop);
                         }
                     }
                     _ => warn!("skipping unsupported type in anyOf: {s:?}"),
@@ -186,20 +170,9 @@ fn collect_schema_properties(
                 if navigation_property {
                     *has_navigation_properties = true;
                 }
-                if let Some((is_collection, description, rust_type)) =
-                    map_openapi_schema_to_rust(prop_schema)
+                if let Some(prop) =
+                    property_from_schema(name.clone(), prop_schema, navigation_property)
                 {
-                    let nullable = prop_schema.nullable().unwrap_or(false);
-                    let is_ref = matches!(prop_schema, OaSchema::Ref { .. });
-                    let prop = Property {
-                        name: name.clone(),
-                        nullable,
-                        is_collection,
-                        is_ref,
-                        rust_type,
-                        description,
-                        navigation_property,
-                    };
                     out.push(prop);
                 } else {
                     warn!("skipping property with unsupported type: {name}");
@@ -208,30 +181,20 @@ fn collect_schema_properties(
         }
         OaSchema::Obj { typ: Some(s), .. } | OaSchema::Ref { reference: s } => {
             // a direct single property (typically from inline definitions in paths)
-            if let Some((is_collection, description, rust_type)) =
-                map_openapi_schema_to_rust(schema)
-            {
-                let nullable = schema.nullable().unwrap_or(false);
-                let is_ref = matches!(schema, OaSchema::Ref { .. });
-                let navigation_property = matches!(
-                    schema,
-                    OaSchema::Obj {
-                        navigation_property: true,
-                        ..
-                    }
-                );
-                if navigation_property {
-                    *has_navigation_properties = true;
+            let navigation_property = matches!(
+                schema,
+                OaSchema::Obj {
+                    navigation_property: true,
+                    ..
                 }
-                out.push(Property {
-                    name: ref_simple_name(s).to_string(),
-                    nullable,
-                    is_collection,
-                    is_ref,
-                    rust_type,
-                    description,
-                    navigation_property,
-                });
+            );
+            if navigation_property {
+                *has_navigation_properties = true;
+            }
+            if let Some(prop) =
+                property_from_schema(ref_simple_name(s).to_string(), schema, navigation_property)
+            {
+                out.push(prop);
             } else {
                 warn!("skipping unsupported type: {s}");
             }
@@ -258,20 +221,7 @@ fn unnamed_object_prop(
     let mut obj_props = Vec::new();
 
     for (name, prop_schema) in properties {
-        if let Some((is_collection, description, rust_type)) =
-            map_openapi_schema_to_rust(prop_schema)
-        {
-            let nullable = prop_schema.nullable().unwrap_or(false);
-            let is_ref = matches!(prop_schema, OaSchema::Ref { .. });
-            let prop = Property {
-                name: name.clone(),
-                nullable,
-                is_collection,
-                is_ref,
-                rust_type,
-                description,
-                navigation_property: false,
-            };
+        if let Some(prop) = property_from_schema(name.clone(), prop_schema, false) {
             obj_props.push(prop);
         } else {
             warn!("Skipping property with unsupported type: {name}");
@@ -281,10 +231,8 @@ fn unnamed_object_prop(
     let name = match &context.kind {
         SchemaKind::Request(method) => format!("{method}_request_body"),
         SchemaKind::SuccessResponse => String::from("response_body"),
-        SchemaKind::Enum => {
-            panic!("Attempted to generate a property from an enum")
-        }
-        _ => {
+        SchemaKind::Enum => panic!("Attempted to generate a property from an enum"),
+        SchemaKind::Other => {
             panic!("Generating an unnamed object for SchemaKind::Other is not supported yet")
         }
     };
@@ -309,13 +257,35 @@ fn unnamed_object_prop(
     }
 }
 
-fn custom_from_ref(reference: &str) -> Option<(&str, RustType)> {
+fn referenced_property(reference: &str, description: &Option<String>) -> Option<Property> {
     let simple = ref_simple_name(reference);
-    if SUPPORTED_TYPES.contains(simple) {
-        Some((simple, named_schema_type(simple)))
-    } else {
-        None
-    }
+    let ty = supported_named_schema_type(simple)?;
+    Some(Property {
+        name: simple.to_string(),
+        nullable: false,
+        is_collection: false,
+        rust_type: ty,
+        description: description.clone(),
+        navigation_property: false,
+        is_ref: true,
+    })
+}
+
+fn property_from_schema(
+    name: String,
+    schema: &OaSchema,
+    navigation_property: bool,
+) -> Option<Property> {
+    let (is_collection, description, rust_type) = map_openapi_schema_to_rust(schema)?;
+    Some(Property {
+        name,
+        nullable: schema.nullable().unwrap_or(false),
+        is_collection,
+        rust_type,
+        description,
+        navigation_property,
+        is_ref: matches!(schema, OaSchema::Ref { .. }),
+    })
 }
 
 #[cfg(test)]

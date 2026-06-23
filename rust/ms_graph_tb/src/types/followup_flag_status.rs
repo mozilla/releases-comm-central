@@ -5,8 +5,8 @@
 // EDITS TO THIS FILE WILL BE OVERWRITTEN
 
 use serde::{Deserialize, Serialize};
-use strum::{Display, EnumString};
-#[derive(Copy, Clone, Debug, Display, EnumString, Serialize, Deserialize, PartialEq, Eq)]
+use strum::Display;
+#[derive(Copy, Clone, Debug, Display, Serialize, Deserialize, PartialEq, Eq)]
 #[strum(serialize_all = "camelCase")]
 #[serde(rename_all = "camelCase")]
 pub enum FollowupFlagStatus {

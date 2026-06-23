@@ -23,6 +23,7 @@
 //! # use ms_graph_tb::extended_properties::{
 //! #     SingleValueExtendedPropertiesOp, SingleValueExtendedPropertiesType,
 //! # };
+//! # use ms_graph_tb::notnull;
 //! # use ms_graph_tb::paths::me::mail_folders::mail_folder_id::messages;
 //! # let endpoint = String::new();
 //! # let folder_id = String::new();
@@ -32,12 +33,17 @@
 //! request.expand_typed_svlep([PID_TAG_MESSAGE_SIZE]);
 //!
 //! // let message = [send request and get response];
-//! # let message = ms_graph_tb::types::message::Message::new()
-//! #     .set_single_value_extended_properties(vec![
-//! #         ms_graph_tb::types::single_value_legacy_extended_property::SingleValueLegacyExtendedProperty::new()
-//! #             .set_entity(ms_graph_tb::types::entity::Entity::new().set_id("Integer 0x0E08".to_string()))
-//! #             .set_value(Some("42".to_string())),
-//! #     ]);
+//! # let message = ms_graph_tb::types::message::Message {
+//! #     single_value_extended_properties: Some(vec![
+//! #         ms_graph_tb::types::single_value_legacy_extended_property::SingleValueLegacyExtendedProperty {
+//! #             entity: ms_graph_tb::types::entity::Entity {
+//! #                 id: Some("Integer 0x0E08".to_string()),
+//! #             },
+//! #             value: notnull!("42".to_string()),
+//! #         },
+//! #     ]),
+//! #     ..Default::default()
+//! # };
 //! let message_size = message.typed_svlep(PID_TAG_MESSAGE_SIZE)?;
 //! assert_eq!(message_size, Some(42));
 //! # Ok::<(), ms_graph_tb::Error>(())
@@ -49,7 +55,7 @@ use crate::types::single_value_legacy_extended_property::{
     SingleValueLegacyExtendedProperty, SingleValueLegacyExtendedPropertySelection,
 };
 use crate::{
-    Error, Expand, filter_ident,
+    Error, Expand, filter_ident, notnull,
     odata::{ExpandOptions, FilterExpression},
 };
 use std::fmt::{Display, Formatter};
@@ -358,12 +364,13 @@ where
 {
 }
 
-impl SingleValueLegacyExtendedProperty<'_> {
+impl SingleValueLegacyExtendedProperty {
     /// Returns whether the given ID matches the one in this object.
     ///
     /// Returns an error if this object is malformed.
     pub fn matches_id(&self, id: &ExtendedPropertyId) -> Result<bool, Error> {
-        Ok(ExtendedPropertyId::parse_graph_proptag(self.entity().id()?)
+        let id_string = self.entity.id.as_deref().ok_or(Error::NotFound)?;
+        Ok(ExtendedPropertyId::parse_graph_proptag(id_string)
             .is_some_and(|returned_id| returned_id == *id))
     }
 }
@@ -371,19 +378,21 @@ impl SingleValueLegacyExtendedProperty<'_> {
 /// Trait for types that support single-value legacy extended properties.
 ///
 /// [single-value legacy extended properties]: https://learn.microsoft.com/en-us/graph/api/resources/singlevaluelegacyextendedproperty?view=graph-rest-1.0
-pub trait SingleValueExtendedPropertiesType<'a> {
+pub trait SingleValueExtendedPropertiesType {
     /// Get all single-value legacy extended properties.
     ///
     /// Typically just a wrapper for the type's
-    /// `single_value_extended_properties` method.
-    fn all_svleps(&'a self) -> Result<Vec<SingleValueLegacyExtendedProperty<'a>>, Error>;
+    /// `single_value_extended_properties` field.
+    fn all_svleps(&self) -> Option<&Vec<SingleValueLegacyExtendedProperty>>;
 
     /// Get the single-value legacy extended property with the given ID.
     fn svlep(
-        &'a self,
+        &self,
         id: ExtendedPropertyId,
-    ) -> Result<Option<SingleValueLegacyExtendedProperty<'a>>, Error> {
-        let properties = self.all_svleps()?;
+    ) -> Result<Option<&SingleValueLegacyExtendedProperty>, Error> {
+        let Some(properties) = self.all_svleps() else {
+            return Ok(None);
+        };
 
         for property in properties {
             if property.matches_id(&id)? {
@@ -396,7 +405,7 @@ pub trait SingleValueExtendedPropertiesType<'a> {
 
     /// Get the single-value legacy extended property with the given definition.
     fn typed_svlep<T>(
-        &'a self,
+        &self,
         definition: SingleValueExtendedPropertyDefinition<T>,
     ) -> Result<Option<T>, Error>
     where
@@ -406,7 +415,7 @@ pub trait SingleValueExtendedPropertiesType<'a> {
             return Ok(None);
         };
 
-        let Some(value) = property.value()? else {
+        let notnull!(ref value) = property.value else {
             return Ok(None);
         };
 
@@ -471,8 +480,11 @@ mod tests {
         ExtendedPropertyId, MapiPropertyType, SingleValueExtendedPropertiesOp,
         SingleValueExtendedPropertiesType, svlep_expand,
     };
-    use crate::types::message::Message;
-    use crate::{Error, Operation, paths};
+    use crate::types::{
+        entity::Entity, message::Message,
+        single_value_legacy_extended_property::SingleValueLegacyExtendedProperty,
+    };
+    use crate::{Error, Operation, notnull, paths};
     use http::Uri;
 
     crate::define_svlep!(PID_TAG_MESSAGE_SIZE, Integer, 0x0E08);
@@ -492,11 +504,12 @@ mod tests {
 
     #[test]
     fn proptag_id_match() -> Result<(), Error> {
-        let property =
-            crate::types::single_value_legacy_extended_property::SingleValueLegacyExtendedProperty::new(
-            )
-            .set_entity(crate::types::entity::Entity::new().set_id("Integer 0xe08".to_string()))
-            .set_value(Some("42".to_string()));
+        let property = SingleValueLegacyExtendedProperty {
+            entity: Entity {
+                id: Some("Integer 0xe08".to_string()),
+            },
+            value: notnull!("42".to_string()),
+        };
 
         assert!(property.matches_id(PID_TAG_MESSAGE_SIZE.id())?);
 
@@ -531,11 +544,15 @@ mod tests {
 
     #[test]
     fn get_typed_single_value_extended_property() -> Result<(), Error> {
-        let message = Message::new().set_single_value_extended_properties(vec![
-            crate::types::single_value_legacy_extended_property::SingleValueLegacyExtendedProperty::new()
-                .set_entity(crate::types::entity::Entity::new().set_id("Integer 0x0E08".to_string()))
-                .set_value(Some("42".to_string())),
-        ]);
+        let message = Message {
+            single_value_extended_properties: Some(vec![SingleValueLegacyExtendedProperty {
+                entity: Entity {
+                    id: Some("Integer 0x0E08".to_string()),
+                },
+                value: notnull!("42".to_string()),
+            }]),
+            ..Default::default()
+        };
 
         assert_eq!(message.typed_svlep(PID_TAG_MESSAGE_SIZE)?, Some(42));
 

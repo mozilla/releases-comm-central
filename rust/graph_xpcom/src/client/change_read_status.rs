@@ -4,9 +4,8 @@
 
 use std::sync::Arc;
 
-use ms_graph_tb::OperationBody;
-use ms_graph_tb::paths;
 use ms_graph_tb::types::message::Message;
+use ms_graph_tb::{OperationBody, notnull, paths};
 use nsstring::nsCString;
 use protocol_shared::ServerType;
 use protocol_shared::client::DoOperation;
@@ -33,7 +32,10 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
         &mut self,
         client: &XpComGraphClient<ServerT>,
     ) -> Result<Self::Okay, XpComGraphError> {
-        let message_update = Message::new().set_is_read(Some(self.is_read));
+        let message_update = Message {
+            is_read: notnull!(self.is_read),
+            ..Default::default()
+        };
         let base_api_url = client.base_api_url()?;
         let operations = self
             .message_ids
@@ -55,9 +57,9 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
         let message_ids = client
             .send_batch_request_json_response(operations, Default::default())
             .await?
-            .iter()
-            .map(|msg| msg.outlook_item().entity().id().map(nsCString::from))
-            .collect::<Result<ThinVec<_>, ms_graph_tb::Error>>()?;
+            .into_iter()
+            .filter_map(|msg| msg.outlook_item.entity.id.map(nsCString::from))
+            .collect::<ThinVec<_>>();
 
         if message_ids.len() != self.message_ids.len() {
             return Err(XpComGraphError::Processing {
