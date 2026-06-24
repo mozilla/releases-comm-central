@@ -122,6 +122,7 @@ const JSPROCESSACTORS = {
         "PeerConnection:request",
       ],
     },
+    safeForUntrustedWebProcess: true,
   },
 };
 
@@ -137,6 +138,7 @@ const JSWINDOWACTORS = {
         contextmenu: { mozSystemGroup: true },
       },
     },
+    safeForUntrustedWebProcess: true,
   },
 
   ContextMenu: {
@@ -150,6 +152,7 @@ const JSWINDOWACTORS = {
       },
     },
     allFrames: true,
+    safeForUntrustedWebProcess: true,
   },
 
   // As in ActorManagerParent.sys.mjs, but with single-site and single-page
@@ -166,6 +169,7 @@ const JSWINDOWACTORS = {
     },
 
     allFrames: true,
+    safeForUntrustedWebProcess: true,
     messageManagerGroups: [
       "browsers",
       "single-site",
@@ -187,6 +191,7 @@ const JSWINDOWACTORS = {
     },
     messageManagerGroups: ["single-site", "webext-browsers"],
     allFrames: true,
+    safeForUntrustedWebProcess: true,
   },
 
   LinkHandler: {
@@ -205,8 +210,8 @@ const JSWINDOWACTORS = {
         pagehide: { createActor: false },
       },
     },
-
     messageManagerGroups: ["browsers", "single-site", "single-page"],
+    safeForUntrustedWebProcess: true,
   },
 
   // As in ActorManagerParent.sys.mjs, but with single-site and single-page
@@ -224,8 +229,8 @@ const JSWINDOWACTORS = {
         DOMInputPasswordAdded: {},
       },
     },
-
     allFrames: true,
+    safeForUntrustedWebProcess: true,
     messageManagerGroups: [
       "browsers",
       "single-site",
@@ -246,6 +251,7 @@ const JSWINDOWACTORS = {
       },
     },
     allFrames: true,
+    safeForUntrustedWebProcess: true,
   },
 
   MessageScroll: {
@@ -256,6 +262,7 @@ const JSWINDOWACTORS = {
       esModuleURI: "resource:///actors/MessageScrollChild.sys.mjs",
     },
     allFrames: true,
+    safeForUntrustedWebProcess: true,
     messageManagerGroups: ["single-page"],
   },
 
@@ -270,9 +277,9 @@ const JSWINDOWACTORS = {
         click: {},
       },
     },
-
     matches: ["about:certerror?*", "about:neterror?*"],
     allFrames: true,
+    safeForUntrustedWebProcess: true,
     messageManagerGroups: [
       "browsers",
       "single-site",
@@ -291,6 +298,7 @@ const JSWINDOWACTORS = {
     },
     enablePreference: PREF_PDFJS_ISDEFAULT_CACHE_STATE,
     allFrames: true,
+    safeForUntrustedWebProcess: true,
   },
 
   Prompt: {
@@ -299,6 +307,7 @@ const JSWINDOWACTORS = {
     },
     includeChrome: true,
     allFrames: true,
+    safeForUntrustedWebProcess: true,
   },
 
   RelaxedLinkClickHandler: {
@@ -313,6 +322,7 @@ const JSWINDOWACTORS = {
     },
     messageManagerGroups: ["browsers"],
     allFrames: true,
+    safeForUntrustedWebProcess: true,
   },
 
   StrictLinkClickHandler: {
@@ -327,6 +337,7 @@ const JSWINDOWACTORS = {
     },
     messageManagerGroups: ["single-page"],
     allFrames: true,
+    safeForUntrustedWebProcess: true,
   },
 
   VCard: {
@@ -340,6 +351,7 @@ const JSWINDOWACTORS = {
       },
     },
     allFrames: true,
+    safeForUntrustedWebProcess: true,
   },
 };
 
