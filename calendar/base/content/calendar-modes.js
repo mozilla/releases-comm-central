@@ -95,9 +95,6 @@ function calSwitchToCalendarMode() {
     document.commandDispatcher.updateCommands("calendar_commands");
     window.setCursor("auto");
 
-    // make sure the view is sized correctly
-    window.dispatchEvent(new CustomEvent("viewresize"));
-
     // Activate the unifinder, if it's visible. If it's not visible,
     // `getUnifinderView` will return a falsy value.
     getUnifinderView()?.activate();

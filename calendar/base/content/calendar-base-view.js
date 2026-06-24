@@ -262,11 +262,14 @@
 
       this.setAttribute("type", this.type);
 
-      window.addEventListener("viewresize", () => {
-        if (gCurrentMode == "calendar" && this.isVisible()) {
+      const resizeObserver = new ResizeObserver(entries => {
+        // If this view is visible in the last entry, resize.
+        const size = entries.at(-1).contentBoxSize[0];
+        if (size.blockSize && size.inlineSize) {
           this.onResize();
         }
       });
+      resizeObserver.observe(this);
       window.addEventListener("uifontsizechange", () => {
         this.onFontSizeChange();
       });

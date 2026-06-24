@@ -46,10 +46,6 @@ var TodayPane = {
     TodayPane.previousMode = gCurrentMode;
     TodayPane.showTodayPaneStatusLabel();
 
-    document.getElementById("today-splitter").addEventListener("command", () => {
-      window.dispatchEvent(new CustomEvent("viewresize"));
-    });
-
     Services.obs.addObserver(TodayPane, "defaultTimezoneChanged");
   },
 
@@ -149,8 +145,6 @@ var TodayPane = {
     if (agendaIsVisible) {
       this.agenda.ensureInitialized();
     }
-
-    window.dispatchEvent(new CustomEvent("viewresize"));
   },
 
   /**
