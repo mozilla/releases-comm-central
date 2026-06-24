@@ -210,24 +210,6 @@ NS_IMETHODIMP PerFolderDatabase::ContainsKey(nsMsgKey key, bool* contains) {
   return NS_OK;
 }
 
-NS_IMETHODIMP PerFolderDatabase::GetMsgKeysForUIDs(
-    const nsTArray<uint32_t>& uids, nsTArray<nsMsgKey>& aRetVal) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-NS_IMETHODIMP PerFolderDatabase::GetMsgUIDsForKeys(
-    const nsTArray<nsMsgKey>& keys, nsTArray<uint32_t>& aRetVal) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-NS_IMETHODIMP PerFolderDatabase::ContainsUID(uint32_t uid, bool* aRetVal) {
-  NS_ENSURE_ARG_POINTER(aRetVal);
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-NS_IMETHODIMP PerFolderDatabase::GetMsgHdrForUID(uint32_t uid,
-                                                 nsIMsgDBHdr** aRetVal) {
-  NS_ENSURE_ARG_POINTER(aRetVal);
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
 NS_IMETHODIMP PerFolderDatabase::CreateNewHdr(nsIMsgDBHdr** aRetVal) {
   NS_ENSURE_ARG_POINTER(aRetVal);
   RefPtr<DetachedMsgHdr> hdr = new DetachedMsgHdr(mFolderId);

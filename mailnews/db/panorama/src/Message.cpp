@@ -354,15 +354,6 @@ NS_IMETHODIMP Message::GetFolder(nsIMsgFolder** aFolder) {
   return FolderDB().GetMsgFolderForFolder(FolderId(), aFolder);
 }
 
-NS_IMETHODIMP Message::GetUidOnServer(uint32_t* uidOnServer) {
-  NS_ENSURE_ARG_POINTER(uidOnServer);
-  return MessageDB().GetMessageUidOnServer(mKey, *uidOnServer);
-}
-
-NS_IMETHODIMP Message::SetUidOnServer(uint32_t uidOnServer) {
-  return MessageDB().SetMessageUidOnServer(mKey, uidOnServer);
-}
-
 NS_IMETHODIMP Message::GetIsLive(bool* isLive) {
   // By definition, Message is always live and in the database.
   *isLive = true;

@@ -101,13 +101,6 @@ interface nsIMsgDBHdr : nsISupports
     readonly attribute Array<AUTF8String> properties;
 
     /**
-     * Server-assigned unique ID for message. 0 = unset.
-     * IMAP sequence number or UID, NNTP article number, etc...
-     * NOTE: Added in support of Bug 1806770, but not yet in use.
-     */
-    attribute unsigned long uidOnServer;
-
-    /**
      * Returns true if this message has been added to the messages table in
      * the database (mainly for use during the globaldb transition).
      * If this returns false, it implies this is a "detached" nsIMsgDBHdr
