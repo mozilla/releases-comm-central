@@ -3777,6 +3777,7 @@ var folderPane = {
           transferInfo.setPropertyAsACString("UIDValidity", "-1"); // == kUidUnknown
           break;
         case "ews":
+        case "graph":
           // Reset the sync state token so that the next sync will download the
           // message list again.
           folder.setStringProperty("ewsSyncStateToken", "");
