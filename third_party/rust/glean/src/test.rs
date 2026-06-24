@@ -143,6 +143,7 @@ fn disabling_upload_disables_metrics_recording() {
         lifetime: Lifetime::Application,
         disabled: false,
         dynamic_label: None,
+        ..Default::default()
     });
 
     crate::set_upload_enabled(false);
@@ -438,6 +439,7 @@ fn queued_recorded_metrics_correctly_record_during_init() {
         lifetime: Lifetime::Application,
         disabled: false,
         dynamic_label: None,
+        ..Default::default()
     });
 
     // This will queue 3 tasks that will add to the metric value once Glean is initialized
@@ -1259,6 +1261,7 @@ fn test_a_ping_before_submission() {
         lifetime: Lifetime::Application,
         disabled: false,
         dynamic_label: None,
+        ..Default::default()
     });
 
     metric.add(1);
@@ -1289,6 +1292,7 @@ fn test_boolean_get_num_errors() {
         lifetime: Lifetime::Application,
         disabled: false,
         dynamic_label: Some(DynamicLabelType::Label(str::to_string("asdf"))),
+        ..Default::default()
     });
 
     // Check specifically for an invalid label
@@ -1375,6 +1379,7 @@ fn test_text_can_hold_long_string() {
         lifetime: Lifetime::Application,
         disabled: false,
         dynamic_label: Some(DynamicLabelType::Label(str::to_string("text"))),
+        ..Default::default()
     });
 
     // 216 characters, which would overflow StringMetric
@@ -1615,4 +1620,64 @@ fn test_attribution_and_distribution_updates_before_glean_inits() {
     attribution.term = Some("new term".into());
     assert_eq!(attribution, test_get_attribution());
     assert_eq!(distribution_update, test_get_distribution());
+}
+
+#[test]
+fn test_attribution_and_distribution_clears_before_glean_inits() {
+    let _lock = lock_test();
+    let dir = tempfile::tempdir().unwrap();
+    let tmpname = dir.path().to_path_buf();
+
+    // Create a Glean for our test_get_* later.
+    test_reset_glean(
+        ConfigurationBuilder::new(true, &tmpname, GLOBAL_APPLICATION_ID)
+            .with_server_endpoint("invalid-test-host")
+            .build(),
+        ClientInfoMetrics::unknown(),
+        false,
+    );
+
+    // Let's set some attribution + distribution.
+    let attribution = AttributionMetrics {
+        source: Some("source".into()),
+        medium: Some("medium".into()),
+        campaign: Some("campaign".into()),
+        term: Some("term".into()),
+        content: Some("content".into()),
+    };
+    let distribution = DistributionMetrics {
+        name: Some("name".into()),
+    };
+    update_attribution(attribution.clone());
+    update_distribution(distribution.clone());
+
+    // Ensure the updated attribution + distribution are correctly stored.
+    assert_eq!(attribution, test_get_attribution());
+    assert_eq!(distribution, test_get_distribution());
+
+    // Now destroy Glean to re-enter pre-init time.
+    destroy_glean(true, &tmpname);
+
+    // No Glean, let's clear some attribution + distribution.
+    clear_attribution();
+    clear_distribution();
+
+    // This inits, and will flush the clear actions.
+    test_reset_glean(
+        ConfigurationBuilder::new(true, &tmpname, GLOBAL_APPLICATION_ID)
+            .with_server_endpoint("invalid-test-host")
+            .build(),
+        ClientInfoMetrics::unknown(),
+        false,
+    );
+
+    // Ensure the attribution + distribution are clear.
+    assert_eq!(
+        <AttributionMetrics as Default>::default(),
+        test_get_attribution()
+    );
+    assert_eq!(
+        <DistributionMetrics as Default>::default(),
+        test_get_distribution()
+    );
 }

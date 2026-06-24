@@ -96,6 +96,11 @@ fn test_metrics_must_report_experimentation_id() {
         ping_schedule: Default::default(),
         ping_lifetime_threshold: 0,
         ping_lifetime_max_time: 0,
+        max_pending_pings_count: None,
+        max_pending_pings_directory_size: None,
+        session_mode: glean_core::SessionMode::Auto,
+        session_sample_rate: 1.0,
+        session_inactivity_timeout_ms: 1_800_000,
     })
     .unwrap();
     let ping_maker = PingMaker::new();
@@ -151,6 +156,11 @@ fn experimentation_id_is_removed_if_send_if_empty_is_false() {
         ping_schedule: Default::default(),
         ping_lifetime_threshold: 0,
         ping_lifetime_max_time: 0,
+        max_pending_pings_count: None,
+        max_pending_pings_directory_size: None,
+        session_mode: glean_core::SessionMode::Auto,
+        session_sample_rate: 1.0,
+        session_inactivity_timeout_ms: 1_800_000,
     })
     .unwrap();
     let ping_maker = PingMaker::new();
@@ -372,4 +382,16 @@ fn attribution_and_distribution_appear_in_client_info() {
         }),
         client_info["attribution"]
     );
+
+    // Now let's test clearing.
+    glean.clear_attribution();
+    glean.clear_distribution();
+
+    let ping = ping_maker
+        .collect(&glean, &ping_type, None, "", "")
+        .unwrap();
+    let client_info = ping.content["client_info"].as_object().unwrap();
+
+    assert_eq!(None, client_info.get("distribution"));
+    assert_eq!(None, client_info.get("attribution"));
 }

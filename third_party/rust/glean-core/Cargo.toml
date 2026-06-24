@@ -13,7 +13,7 @@
 edition = "2021"
 rust-version = "1.90"
 name = "glean-core"
-version = "67.3.2"
+version = "68.0.0"
 authors = [
     "Jan-Erik Rediger <jrediger@mozilla.com>",
     "The Glean Team <glean-team@mozilla.com>",
@@ -41,7 +41,7 @@ license = "MPL-2.0"
 repository = "https://github.com/mozilla/glean"
 
 [package.metadata.glean]
-glean-parser = "19.0.0"
+glean-parser = "20.0.0"
 
 [badges.circle-ci]
 branch = "main"
@@ -130,6 +130,10 @@ path = "tests/quantity.rs"
 [[test]]
 name = "rate"
 path = "tests/rate.rs"
+
+[[test]]
+name = "session"
+path = "tests/session.rs"
 
 [[test]]
 name = "storage"
