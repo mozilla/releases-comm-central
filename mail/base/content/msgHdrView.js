@@ -1691,6 +1691,7 @@ function onShowAttachmentItemContextMenu() {
   const contextMenu = document.getElementById("attachmentItemContext");
   const openMenu = document.getElementById("context-openAttachment");
   const saveMenu = document.getElementById("context-saveAttachment");
+  const copyToFolderMenu = document.getElementById("context-copyToFolder");
   const detachMenu = document.getElementById("context-detachAttachment");
   const deleteMenu = document.getElementById("context-deleteAttachment");
   const copyUrlMenuSep = document.getElementById(
@@ -1745,6 +1746,14 @@ function onShowAttachmentItemContextMenu() {
   );
   openFolderMenu.hidden = !allFileAttachment || !allAllowedURL;
   openFolderMenu.disabled = allDeleted;
+
+  const allRfc822 = selectedAttachments.every(
+    attachment =>
+      attachment.contentType == "message/rfc822" ||
+      /[?&]filename=.*\.eml(&|$)/.test(attachment.url)
+  );
+  copyToFolderMenu.hidden = !allRfc822 || !allAllowedURL;
+  copyToFolderMenu.disabled = allDeleted;
 
   Enigmail.hdrView.onShowAttachmentContextMenu();
 }
@@ -2323,6 +2332,34 @@ function TryHandleAllAttachments(action) {
   } catch (e) {
     console.error(e);
   }
+}
+
+/**
+ * Copy message/rfc822 attachments to a selected folder.
+ *
+ * @param {Event} event - The command event from the folder-menupopup.
+ * @param {AttachmentInfo[]} attachments - Selected AttachmentInfo objects.
+ */
+async function HandleCopyAttachmentToFolder(event, attachments) {
+  const folder = event.target._folder;
+  if (!folder || folder.isServer || !folder.canFileMessages) {
+    return;
+  }
+
+  for (const attachment of attachments) {
+    if (
+      attachment.contentType != "message/rfc822" &&
+      !/[?&]filename=.*\.eml(&|$)/.test(attachment.url)
+    ) {
+      continue;
+    }
+    try {
+      await attachment.importToFolder(folder);
+    } catch (ex) {
+      console.error(`Importing message to ${folder.URI} FAILED.`, ex);
+    }
+  }
+  MailUtils.updateFolderAsync(folder).catch(console.warn);
 }
 
 /**
