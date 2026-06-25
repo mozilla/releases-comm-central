@@ -356,8 +356,8 @@ NS_SYNCRUNNABLEMETHOD2(ImapMailFolderSink, UpdateImapMailboxStatus,
                        nsIImapProtocol*, nsIMailboxSpec*)
 NS_SYNCRUNNABLEMETHOD2(ImapMailFolderSink, UpdateImapMailboxInfo,
                        nsIImapProtocol*, nsIMailboxSpec*)
-NS_SYNCRUNNABLEMETHOD3(ImapMailFolderSink, GetMsgHdrsToDownload, bool*,
-                       int32_t*, nsTArray<ImapUid>&)
+NS_SYNCRUNNABLEMETHOD1(ImapMailFolderSink, GetMsgHdrsToDownload,
+                       nsTArray<ImapUid>&);
 NS_SYNCRUNNABLEMETHOD2(ImapMailFolderSink, ParseMsgHdrs, nsIImapProtocol*,
                        nsIImapHeaderXferInfo*)
 NS_SYNCRUNNABLEMETHOD1(ImapMailFolderSink, AbortHeaderParseStream,

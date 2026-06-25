@@ -2697,14 +2697,11 @@ void nsImapProtocol::ProcessSelectedStateURL() {
                  m_imapMailFolderSink)  // we need to fetch older headers
       {
         nsTArray<ImapUid> msgIdList;
-        bool more;
-        m_imapMailFolderSink->GetMsgHdrsToDownload(
-            &more, &m_progressExpectedNumber, msgIdList);
+        m_imapMailFolderSink->GetMsgHdrsToDownload(msgIdList);
+        m_progressExpectedNumber = msgIdList.Length();
         if (msgIdList.Length() > 0) {
           FolderHeaderDump(msgIdList);
-          m_runningUrl->SetMoreHeadersToDownload(more);
-          // We're going to be re-running this url.
-          if (more) m_runningUrl->SetRerunningUrl(true);
+          m_runningUrl->SetMoreHeadersToDownload(false);
         }
         HeaderFetchCompleted();
       } else {
@@ -4418,17 +4415,14 @@ void nsImapProtocol::ProcessMailboxUpdate(bool handlePossibleUndo) {
       new_spec->mBoxFlags |= kJustExpunged;
 
     if (m_imapMailFolderSink) {
-      bool more;
       m_imapMailFolderSink->UpdateImapMailboxInfo(this, new_spec);
-      m_imapMailFolderSink->GetMsgHdrsToDownload(
-          &more, &m_progressExpectedNumber, msgIdList);
+      m_imapMailFolderSink->GetMsgHdrsToDownload(msgIdList);
+      m_progressExpectedNumber = msgIdList.Length();
       // Assert that either it's empty string OR it must be header string.
       MOZ_ASSERT((m_stringIndex == IMAP_EMPTY_STRING_INDEX) ||
                  (m_stringIndex == IMAP_HEADERS_STRING_INDEX));
       m_progressCurrentNumber[m_stringIndex] = 0;
-      m_runningUrl->SetMoreHeadersToDownload(more);
-      // We're going to be re-running this url if there are more headers.
-      if (more) m_runningUrl->SetRerunningUrl(true);
+      m_runningUrl->SetMoreHeadersToDownload(false);
     }
   }
 

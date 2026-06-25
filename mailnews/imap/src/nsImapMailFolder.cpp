@@ -213,8 +213,7 @@ nsImapMailFolder::nsImapMailFolder()
       m_downloadingFolderForOfflineUse(false),
       m_filterListRequiresBody(false),
       m_folderQuotaCommandIssued(false),
-      m_folderQuotaDataIsValid(false),
-      m_totalUidsToFetch(0) {
+      m_folderQuotaDataIsValid(false) {
   m_boxFlags = 0;
   m_uidValidity = ImapUid_None;
   m_numServerRecentMessages = 0;
@@ -2548,7 +2547,6 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
     if (!(boxFlags & kJustExpunged))
       FindUidsToAdd(existingKeys, m_uidsToFetch, numNewUnread, flagState);
   }
-  m_totalUidsToFetch = m_uidsToFetch.Length();
   if (!keysToDelete.IsEmpty() && mDatabase) {
     nsTArray<RefPtr<nsIMsgDBHdr>> hdrsToDelete;
     MsgGetHeadersFromKeys(mDatabase, keysToDelete, hdrsToDelete);
@@ -4009,26 +4007,9 @@ void nsImapMailFolder::FindUidsToAdd(const nsTArray<ImapUid>& existingUids,
 }
 
 // nsIImapMailFolderSink.getMsgHdrsToDownload().
-NS_IMETHODIMP nsImapMailFolder::GetMsgHdrsToDownload(bool* aMoreToDownload,
-                                                     int32_t* aTotalCount,
-                                                     nsTArray<ImapUid>& aUids) {
-  NS_ENSURE_ARG_POINTER(aMoreToDownload);
-  NS_ENSURE_ARG_POINTER(aTotalCount);
-  aUids.Clear();
-
-  *aMoreToDownload = false;
-  *aTotalCount = m_totalUidsToFetch;
-  if (m_uidsToFetch.IsEmpty()) {
-    return NS_OK;
-  }
-
-  const int32_t numKeysToFetch = m_uidsToFetch.Length();
-  const int32_t startIndex = 0;
-  aUids.AppendElements(&m_uidsToFetch[startIndex], numKeysToFetch);
-  // Remove these for the incremental header download case, so that
-  // we know we don't have to download them again.
-  m_uidsToFetch.RemoveElementsAt(startIndex, numKeysToFetch);
-
+NS_IMETHODIMP nsImapMailFolder::GetMsgHdrsToDownload(nsTArray<ImapUid>& uids) {
+  uids = std::move(m_uidsToFetch);
+  m_uidsToFetch = nsTArray<ImapUid>();
   return NS_OK;
 }
 

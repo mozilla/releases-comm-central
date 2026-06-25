@@ -79,13 +79,9 @@ interface nsIImapMailFolderSink : nsISupports {
   void UpdateImapMailboxStatus(in nsIImapProtocol aProtocol,
                                in nsIMailboxSpec aSpec);
   /**
-   * Used when downloading headers in chunks.
-   * @returns true if more to download, false otherwise.
-   * @returns total count of headers to download (across all chunks)
-   * @returns an array of msg keys to download, array size is this chunk's size
+   * @returns an array of msg UIDs to download.
    */
-  void getMsgHdrsToDownload(out boolean aMore, out long aTotalCount,
-                            out Array<ImapUid> aUids);
+  Array<ImapUid> getMsgHdrsToDownload();
   void parseMsgHdrs(in nsIImapProtocol aProtocol, in nsIImapHeaderXferInfo aHdrXferInfo);
   void AbortHeaderParseStream(in nsIImapProtocol aProtocol) ;
 

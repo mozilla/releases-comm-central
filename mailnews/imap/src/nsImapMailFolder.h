@@ -548,7 +548,6 @@ class nsImapMailFolder : public nsMsgDBFolder,
   nsTHashMap<nsCStringHashKey, nsMsgKey> m_pseudoHdrs;
 
   nsTArray<ImapUid> m_uidsToFetch;
-  uint32_t m_totalUidsToFetch;
 
   /**
    * delete if appropriate local storage for messages in this folder
