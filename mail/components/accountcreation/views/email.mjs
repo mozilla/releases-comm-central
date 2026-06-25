@@ -26,7 +26,6 @@ ChromeUtils.defineESModuleGetters(lazy, {
   getAddonsList:
     "resource:///modules/accountcreation/ExchangeAutoDiscover.sys.mjs",
   GuessConfig: "resource:///modules/accountcreation/GuessConfig.sys.mjs",
-  InputSanitizer: "resource:///modules/accountcreation/InputSanitizer.sys.mjs",
   OAuth2Module: "resource:///modules/OAuth2Module.sys.mjs",
   OAuth2Providers: "resource:///modules/OAuth2Providers.sys.mjs",
   RemoteAddressBookUtils:
@@ -1371,10 +1370,9 @@ class AccountHubEmail extends HTMLElement {
 
     if (!config) {
       try {
-        const initialConfig = new lazy.AccountConfig();
-        const emailLocal = lazy.InputSanitizer.nonemptystring(emailSplit[0]);
-        initialConfig.incoming.username = emailLocal;
-        initialConfig.outgoing.username = emailLocal;
+        const initialConfig = lazy.AccountConfig.guessConfigFromEmail(
+          this.#email
+        );
 
         config = await this.#guessConfig(domain, initialConfig);
       } catch (error) {

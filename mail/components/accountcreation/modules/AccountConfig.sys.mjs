@@ -42,6 +42,24 @@ export function AccountConfig() {
   this.domains = [];
 }
 
+/**
+ * Build an AccountConfig for the guess-config flow, preferring the full
+ * e-mail address as the username for both incoming and outgoing servers,
+ * with the local part kept as a fallback in `usernameSaved`.
+ *
+ * @param {string} email - The user's full e-mail address.
+ * @returns {AccountConfig}
+ */
+AccountConfig.guessConfigFromEmail = function (email) {
+  const config = new AccountConfig();
+  const emailLocal = lazy.InputSanitizer.nonemptystring(email.split("@")[0]);
+
+  config.incoming.username = email;
+  config.outgoing.username = email;
+  config.usernameSaved = emailLocal != email ? emailLocal : null;
+  return config;
+};
+
 AccountConfig.prototype = {
   // @see createNewIncoming()
   incoming: null,

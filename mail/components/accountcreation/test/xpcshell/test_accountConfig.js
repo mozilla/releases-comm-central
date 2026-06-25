@@ -139,6 +139,33 @@ add_task(function test_usesPasswordlessAuthentication() {
   );
 });
 
+add_task(function test_guessConfigFromEmail() {
+  const config = AccountConfig.guessConfigFromEmail("user@example.invalid");
+
+  Assert.equal(
+    config.incoming.username,
+    "user@example.invalid",
+    "Should try the full e-mail address first for incoming"
+  );
+  Assert.equal(
+    config.outgoing.username,
+    "user@example.invalid",
+    "Should try the full e-mail address first for outgoing"
+  );
+  Assert.equal(
+    config.usernameSaved,
+    "user",
+    "Should keep the local part as a fallback username"
+  );
+
+  const malformedConfig = AccountConfig.guessConfigFromEmail("user");
+  Assert.equal(
+    malformedConfig.usernameSaved,
+    null,
+    "Should skip the fallback when the local part matches the full input"
+  );
+});
+
 add_task(function test_configureOutgoingFromIncoming() {
   const imapConfig = new AccountConfig();
   imapConfig.incoming.type = "imap";
