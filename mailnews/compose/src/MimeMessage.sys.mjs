@@ -368,6 +368,20 @@ export class MimeMessage {
     const formatFlowed = Services.prefs.getBoolPref(
       "mailnews.send_plaintext_flowed"
     );
+    // An unobtrusive signature canonicalizes the body, so a 7-bit clean body
+    // doesn't need base64/quoted-printable even though forceMsgEncoding is set
+    // to protect signed-only mail. In that case keep encoding only when the
+    // body has non-ASCII or control characters; MimeEncoder still forces an
+    // encoding for long lines or null bytes.
+    const isUnobtrusiveSig =
+      this._compFields.composeSecure &&
+      !this._compFields.composeSecure.requireEncryptMessage &&
+      this._compFields.composeSecure.signMessage &&
+      this._compFields.composeSecure.signFormat == "unobtrusive";
+    const forceEncodingFor = body =>
+      this._compFields.forceMsgEncoding &&
+      // eslint-disable-next-line no-control-regex
+      !(isUnobtrusiveSig && !/[^\t\r\n\x20-\x7e]/.test(body));
     let formatParam = "";
     if (formatFlowed) {
       // Set format=flowed as in RFC 2646 according to the preference.
@@ -380,7 +394,7 @@ export class MimeMessage {
     if (this._bodyType === "text/html") {
       htmlPart = new MimePart(
         this._bodyType,
-        this._compFields.forceMsgEncoding,
+        forceEncodingFor(this._bodyText),
         true
       );
       htmlPart.setHeader(
@@ -391,7 +405,7 @@ export class MimeMessage {
     } else if (this._bodyType === "text/plain") {
       plainPart = new MimePart(
         this._bodyType,
-        this._compFields.forceMsgEncoding,
+        forceEncodingFor(this._bodyText),
         true
       );
       plainPart.setHeader(
@@ -409,21 +423,21 @@ export class MimeMessage {
       plainPart === null &&
       htmlPart !== null
     ) {
-      plainPart = new MimePart(
-        "text/plain",
-        this._compFields.forceMsgEncoding,
-        true
-      );
-      plainPart.setHeader(
-        "content-type",
-        `text/plain; charset=UTF-8${formatParam}${paramsForTop}`
-      );
       // nsIParserUtils.convertToPlainText expects unicode string.
       const plainUnicode = MsgUtils.convertToPlainText(
         new TextDecoder().decode(
           jsmime.mimeutils.stringToTypedArray(this._bodyText)
         ),
         formatFlowed
+      );
+      plainPart = new MimePart(
+        "text/plain",
+        forceEncodingFor(plainUnicode),
+        true
+      );
+      plainPart.setHeader(
+        "content-type",
+        `text/plain; charset=UTF-8${formatParam}${paramsForTop}`
       );
       // MimePart.bodyText should be binary string.
       plainPart.bodyText = jsmime.mimeutils.typedArrayToString(

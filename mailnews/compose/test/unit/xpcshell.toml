@@ -43,6 +43,8 @@ skip-if = [
 
 ["test_messageHeaders.js"]
 
+["test_mimeEncoder.js"]
+
 ["test_nsIMsgCompFields.js"]
 
 ["test_nsMsgCompose1.js"]
