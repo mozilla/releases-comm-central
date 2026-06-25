@@ -343,6 +343,43 @@ export class AttachmentInfo {
   }
 
   /**
+   * Import this message/rfc822 attachment into a mail folder.
+   * Fetches the raw data via fetchAttachment(), normalizes line endings to
+   * CRLF, writes to a temp file, and imports via copyFileMessageAsync.
+   *
+   * @param {nsIMsgFolder} targetFolder - The folder to import into.
+   */
+  async importToFolder(targetFolder) {
+    const buffer = await this.fetchAttachment();
+
+    // Normalize line endings to CRLF. The raw fetch may return data with
+    // native LF line endings. IMAP APPEND requires CRLF per RFC 5322 §2.1.
+    const uint8 = new Uint8Array(buffer);
+    const chunks = [];
+
+    // Process in 8KB chunks to stay under the Function.apply argument limit
+    for (let j = 0; j < uint8.length; j += 8192) {
+      chunks.push(String.fromCharCode.apply(null, uint8.subarray(j, j + 8192)));
+    }
+
+    // Join once to prevent intermediate string garbage collection
+    const rawStr = chunks.join("");
+    const normalized = rawStr.replace(/\r\n?|\n/g, "\r\n");
+
+    // Write to a temp file, then import into the target folder.
+    const tempFile = await this.#setupTempFile("imported-message.eml");
+    await IOUtils.write(
+      tempFile.path,
+      lazy.MailStringUtils.byteStringToUint8Array(normalized)
+    );
+
+    await lazy.MailUtils.copyFileMessageAsync(tempFile, targetFolder, null);
+
+    // Clean up the temp file now that the copy is done.
+    await IOUtils.remove(tempFile.path);
+  }
+
+  /**
    * Open this attachment.
    *
    * @param {BrowsingContext} browsingContext - The browsingContext of the

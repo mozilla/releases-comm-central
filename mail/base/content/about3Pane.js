@@ -52,13 +52,13 @@ ChromeUtils.defineESModuleGetters(
 
 ChromeUtils.defineESModuleGetters(this, {
   AccountColorUtils: "moz-src:///comm/mail/modules/AccountColorUtils.sys.mjs",
+  AttachmentInfo: "resource:///modules/AttachmentInfo.sys.mjs",
   CalMetronome: "resource:///modules/CalMetronome.sys.mjs",
   FolderPaneUtils: "resource:///modules/FolderPaneUtils.sys.mjs",
   FolderTreeProperties: "resource:///modules/FolderTreeProperties.sys.mjs",
   FolderUtils: "resource:///modules/FolderUtils.sys.mjs",
   Gloda: "resource:///modules/gloda/GlodaPublic.sys.mjs",
   MailE10SUtils: "resource:///modules/MailE10SUtils.sys.mjs",
-  MailStringUtils: "resource:///modules/MailStringUtils.sys.mjs",
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
   repairMbox: "resource:///modules/MboxRepair.sys.mjs",
   SmartMailboxUtils: "resource:///modules/SmartMailboxUtils.sys.mjs",
@@ -3297,16 +3297,26 @@ var folderPane = {
       types.includes("text/x-moz-url-data") ||
       types.includes("text/x-moz-url")
     ) {
-      // Allow subscribing to feeds by dragging an url to a feed account.
-      if (
+      // Check if this is a message/rfc822 attachment being dragged.
+      const urlInfo = event.dataTransfer
+        .mozGetDataAt("text/x-moz-url", 0)
+        ?.split("\n");
+      if (urlInfo?.length > 3 && urlInfo[3] == "message/rfc822") {
+        if (targetFolder.isServer || !targetFolder.canFileMessages) {
+          return;
+        }
+        event.dataTransfer.dropEffect = "copy";
+      } else if (
+        // Allow subscribing to feeds by dragging an url to a feed account.
         targetFolder.server.type == "rss" &&
         !targetFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Trash, true) &&
         event.dataTransfer.items.length == 1 &&
         FeedUtils.getFeedUriFromDataTransfer(event.dataTransfer)
       ) {
         return;
+      } else {
+        event.dataTransfer.dropEffect = "link";
       }
-      event.dataTransfer.dropEffect = "link";
     } else {
       return;
     }
@@ -3637,11 +3647,42 @@ var folderPane = {
       types.includes("text/x-moz-url-data") ||
       types.includes("text/x-moz-url")
     ) {
-      // This is a potential rss feed. A link image as well as link text url
-      // should be handled; try to extract a url from non moz apps as well.
-      const feedURI = FeedUtils.getFeedUriFromDataTransfer(event.dataTransfer);
-      if (feedURI) {
-        FeedUtils.subscribeToFeed(feedURI.spec, targetFolder);
+      // Check if this is a message/rfc822 attachment being dragged from
+      // the attachment pane onto a folder.
+      const urlInfo = event.dataTransfer
+        .mozGetDataAt("text/x-moz-url", 0)
+        ?.split("\n");
+      if (urlInfo?.length > 3 && urlInfo[3] == "message/rfc822") {
+        for (let i = 0; i < event.dataTransfer.mozItemCount; i++) {
+          const url = event.dataTransfer.mozGetDataAt("text/x-moz-url-data", i);
+          if (!url) {
+            continue;
+          }
+          try {
+            const attachment = new AttachmentInfo({
+              contentType: urlInfo[3],
+              url,
+              name: urlInfo[1] || "message.eml",
+              uri: urlInfo[4],
+            });
+            await attachment.importToFolder(targetFolder);
+          } catch (ex) {
+            console.error(
+              `Importing message to ${targetFolder.URI} FAILED.`,
+              ex
+            );
+          }
+        }
+        await MailUtils.updateFolderAsync(targetFolder).catch(console.warn);
+      } else {
+        // This is a potential rss feed. A link image as well as link text url
+        // should be handled; try to extract a url from non moz apps as well.
+        const feedURI = FeedUtils.getFeedUriFromDataTransfer(
+          event.dataTransfer
+        );
+        if (feedURI) {
+          FeedUtils.subscribeToFeed(feedURI.spec, targetFolder);
+        }
       }
     }
 

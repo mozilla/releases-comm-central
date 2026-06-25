@@ -45,6 +45,8 @@ skip-if = [
 
 ["browser_folderPaneDragDrop.js"]
 
+["browser_dragDropAttachedMessages.js"]
+
 ["browser_folderPaneHeader.js"]
 
 ["browser_folderPaneModeContextMenu.js"]
