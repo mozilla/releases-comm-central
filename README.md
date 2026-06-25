@@ -9,10 +9,10 @@ We also have documentation from this repository in a rendered version at [Thunde
 ### Mozilla Code Base
 Thunderbird is built on the Mozilla platform, the same base that Firefox is built from. As such, the two projects share a lot of code and much of the documentation for one will apply to the other.
 
-In order to be able to build Thunderbird - you will need the mozilla-central repository as well as the comm-central repository (where this README lives). Check out our [Getting Started documentation](https://developer.thunderbird.net/thunderbird-development/getting-started) for instructions on how and where to get the source code.
+In order to be able to build Thunderbird - you will need the [Firefox repository](https://github.com/mozilla-firefox/firefox) as well as the [Thunderbird repository](https://github.com/thunderbird/thunderbird-desktop) (where this README lives). Check out our [Getting Started documentation](https://developer.thunderbird.net/thunderbird-development/getting-started) for instructions on how and where to get the source code.
 
-### mozilla-central vs. comm-central
-The mozilla-central repository contains the Firefox codebase and all of the platform code. The comm-central repository is added as a subdirectory "comm/" under mozilla-central. This contains the code for Thunderbird.
+### Firefox vs Thunderbird Source Code
+The Firefox repository contains the Firefox codebase and all of the platform code. The Thunderbird repository is added as a subdirectory "comm/" under Firefox. This contains the code for Thunderbird.
 
 ## Building Thunderbird
 Follow the [Building Thunderbird guide](https://developer.thunderbird.net/thunderbird-development/building-thunderbird) to get set up and build Thunderbird.
