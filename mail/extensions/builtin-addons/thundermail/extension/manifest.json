@@ -1,14 +1,13 @@
 {
   "manifest_version": 2,
-  "version": "1.9.0",
+  "version": "1.9.2",
   "author": "Thunderbird Team",
   "name": "__MSG_thunderbirdPro__",
   "description": "__MSG_extensionDescription__",
   "browser_specific_settings": {
     "gecko": {
-     "id": "tbpro-system-add-on@thunderbird.net",
-      "strict_min_version": "140.0",
-      "strict_max_version": "155.*"
+      "id": "tbpro-system-add-on@thunderbird.net",
+      "strict_min_version": "140.0"
     }
   },
   "background": {
