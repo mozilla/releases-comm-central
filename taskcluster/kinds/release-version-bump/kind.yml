@@ -6,7 +6,7 @@ loader: taskgraph.loader.transform:loader
 
 transforms:
     - gecko_taskgraph.transforms.release_deps:transforms
-    - comm_taskgraph.transforms.resolve_landoscript_keyed_by:transforms
+    - gecko_taskgraph.transforms.resolve_landoscript_keyed_by:transforms
     - gecko_taskgraph.transforms.task:transforms
 
 kind-dependencies:
@@ -17,31 +17,41 @@ task-defaults:
     description: Release Promotion version bump/tag
     run-on-projects: []
     shipping-phase: ship
-    worker-type: tree
+    worker-type: lando
     worker:
-        implementation: treescript
-        dontbuild: true
-        tags: ['release']
-        bump:
+        implementation: scriptworker-lando
+        lando-repo:
             by-project:
-                comm-esr.*: false
-                default: true
-        bump-files:
-            by-release-type:
-                default: ["mail/config/version_display.txt"]
-                release|esr.*:
-                    - "mail/config/version.txt"
-                    - "mail/config/version_display.txt"
-        push:
-            by-project:
-                comm-(beta|release|esr.*): true
-                default: false
+                comm-beta: thunderbird-beta
+                comm-release: thunderbird-release
+                comm-esr128: thunderbird-esr128
+                comm-esr140: thunderbird-esr140
+                try-comm-central: thunderbird-try
+                default: ""
+        actions:
+            - tag:
+                  types: ["release"]
+
+                  # Used to map hg revisions to the git revisions needed by scriptworker-lando
+                  hg-repo-url:
+                      by-project:
+                          comm-beta: https://hg.mozilla.org/releases/comm-beta
+                          comm-release: https://hg.mozilla.org/releases/comm-release
+                          comm-esr128: https://hg.mozilla.org/releases/comm-esr128
+                          comm-esr140: https://hg.mozilla.org/releases/comm-esr140
+                          try: https://hg.mozilla.org/try-comm-central
+                          default: ""
+            - version-bump:
+                  bump-files:
+                      by-release-type:
+                          default: ["mail/config/version_display.txt"]
+                          release|esr.*:
+                              - "mail/config/version.txt"
+                              - "mail/config/version_display.txt"
 
 tasks:
-    thunderbird-comm:
-        name: thunderbird-comm-version-bump
-        worker:
-            repo-param-prefix: comm_
+    thunderbird:
+        name: thunderbird-version-bump
         shipping-product: thunderbird
         treeherder:
             platform: thunderbird-release/opt

@@ -226,6 +226,14 @@ workers:
                 by-release-level:
                     production: comm-3-tree
                     staging: comm-1-tree
+        lando:
+            provisioner: scriptworker-k8s
+            implementation: scriptworker-lando
+            os: linux
+            worker-type:
+                by-release-level:
+                    production: '{trust-domain}-3-lando'
+                    staging: '{trust-domain}-1-lando'
         t-linux-docker(-noscratch)?(-amd)?:
             provisioner: comm-t
             implementation: docker-worker
