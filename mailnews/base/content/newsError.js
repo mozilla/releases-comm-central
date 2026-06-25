@@ -6,6 +6,9 @@
 //   about:newserror?r=response&m=messageid&k=messagekey&f=folderuri
 // "r" is required; "m" and "f" are optional, but "k" always comes with "m".
 
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
+);
 var folderUri;
 
 function initPage() {
@@ -34,7 +37,13 @@ function initPage() {
 }
 
 function removeExpired() {
-  document.location.href = folderUri + "?list-ids";
+  const folder = MailServices.folderLookup.getFolderForURL(folderUri);
+  if (folder && folder.server.type == "nntp") {
+    const groupName = decodeURIComponent(
+      Services.io.newURI(folderUri).pathQueryRef.slice(1)
+    );
+    folder.server.wrappedJSObject.removeExpiredArticles(groupName);
+  }
 }
 
 const errorTryAgain = document.getElementById("errorTryAgain");

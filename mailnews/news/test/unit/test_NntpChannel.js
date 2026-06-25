@@ -30,26 +30,6 @@ add_setup(function setup() {
 });
 
 /**
- * Test a ?list-ids news url will trigger LISTGROUP request.
- */
-add_task(async function test_listIds() {
-  // Init the uri and streamListener.
-  const uri = Services.io.newURI(
-    `news://localhost:${NNTP_PORT}/test.filter?list-ids`
-  );
-  const streamListener = new PromiseTestUtils.PromiseStreamListener();
-
-  // Run the uri with NntpChannel.
-  const channel = new NntpChannel(uri);
-  channel.asyncOpen(streamListener);
-  await streamListener.promise;
-
-  // Test LISTGROUP request was sent correctly.
-  const transaction = server.playTransaction();
-  do_check_transaction(transaction, ["MODE READER", "LISTGROUP test.filter"]);
-});
-
-/**
  * Test a ?group=name&key=x news url will trigger ARTICLE request.
  */
 add_task(async function test_fetchArticle() {

@@ -164,11 +164,6 @@ export class NntpChannel extends MailChannel {
     this._logger.debug("asyncOpen", this.URI.spec);
     const url = new URL(this.URI.spec);
     this._listener = listener;
-    if (url.searchParams.has("list-ids")) {
-      // Triggered by newsError.js.
-      this._removeExpired(decodeURIComponent(url.pathname.slice(1)));
-      return;
-    }
 
     if (url.searchParams.has("part")) {
       const converter = Cc["@mozilla.org/streamConverters;1"].getService(
@@ -338,41 +333,6 @@ export class NntpChannel extends MailChannel {
         this._newsFolder?.msgDatabase.commit(
           Ci.nsMsgDBCommitType.kSessionCommit
         );
-        this._listener = null;
-        this._pending = false;
-      };
-    });
-  }
-
-  /**
-   * Fetch all the article keys on the server, then remove expired keys from the
-   * local folder.
-   *
-   * @param {string} groupName - The group to check.
-   */
-  _removeExpired(groupName) {
-    this._logger.debug("_removeExpired", groupName);
-    const newsFolder = this._server.findGroup(groupName);
-    const allKeys = new Set(newsFolder.msgDatabase.listAllKeys());
-    this._server.wrappedJSObject.withClient(client => {
-      let msgWindow;
-      try {
-        msgWindow = this.URI.msgWindow;
-      } catch (e) {}
-      client.startRunningUrl(null, msgWindow, this.URI);
-      this._listener.onStartRequest(this);
-      this._pending = true;
-      client.onOpen = () => {
-        client.listgroup(groupName);
-      };
-
-      client.onData = data => {
-        allKeys.delete(+data);
-      };
-
-      client.onDone = status => {
-        newsFolder.removeMessages([...allKeys]);
-        this._listener.onStopRequest(this, status);
         this._listener = null;
         this._pending = false;
       };

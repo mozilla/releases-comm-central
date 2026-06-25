@@ -582,6 +582,43 @@ export class NntpIncomingServer extends MsgIncomingServer {
     handler(client);
     client.connect();
   }
+
+  /**
+   * Remove expired articles from a newsgroup by fetching the current article
+   * list from the server and removing any local keys that are no longer
+   * present.
+   *
+   * @param {string} groupName - The newsgroup name.
+   * @returns {Promise<void>} Resolves when the operation completes.
+   */
+  removeExpiredArticles(groupName) {
+    return new Promise(resolve => {
+      const newsFolder = this.rootFolder
+        .getChildNamed(groupName)
+        .QueryInterface(Ci.nsIMsgNewsFolder);
+      const allKeys = new Set(newsFolder.msgDatabase.listAllKeys());
+
+      this.withClient(client => {
+        const runningUri = Services.io
+          .newURI(`news://${this.hostname}:${this.port}/${groupName}`)
+          .QueryInterface(Ci.nsIMsgMailNewsUrl);
+        client.startRunningUrl(null, null, runningUri);
+
+        client.onOpen = () => {
+          client.listgroup(groupName);
+        };
+
+        client.onData = data => {
+          allKeys.delete(+data);
+        };
+
+        client.onDone = () => {
+          newsFolder.removeMessages([...allKeys]);
+          resolve();
+        };
+      });
+    });
+  }
 }
 
 NntpIncomingServer.prototype.classID = Components.ID(
