@@ -1,0 +1,22 @@
+Subject: eml attachment with wrong mime type
+From: sender@test.invalid
+To: recipient@test.invalid
+Message-ID: <wrong.mime.555@test.invalid>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="=_outer_boundary"
+
+--=_outer_boundary
+Content-Type: text/plain
+
+Outer body.
+
+--=_outer_boundary
+Content-Type: application/octet-stream;
+ name="forwarded.eml"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="forwarded.eml"
+
+U3ViamVjdDogSGkKRnJvbTogYWxpY2VAbWltZS50ZXN0LmludmFsaWQKVG86IGJvYkBtaW1lLnRlc3QuaW52YWxpZApNZXNzYWdlLUlEOiA8aW5uZXIubXNnLjU1NUB0ZXN0LmludmFsaWQ+CkNvbnRlbnQtVHlwZTogdGV4dC9wbGFpbjsgY2hhcnNldD11dGYtOAoKSGkgdGhlcmUuCg==
+
+--=_outer_boundary--
