@@ -198,6 +198,8 @@
   3 different objects in a row.
  */
 
+#include <new>
+
 #include "modlmime.h"
 #include "nsTArray.h"
 
@@ -210,12 +212,21 @@ typedef struct MimeObjectClass MimeObjectClass;
 
 #define MimeObjectClassInitializer(ITYPE, CSUPER)                \
   cpp_stringify(ITYPE), sizeof(ITYPE), (MimeObjectClass*)CSUPER, \
-      (int (*)(MimeObjectClass*))ITYPE##ClassInitialize, 0
+      (int (*)(MimeObjectClass*))ITYPE##ClassInitialize, 0,      \
+      ITYPE##_cpp_construct, ITYPE##_cpp_destruct
 
 /* Macro used for setting up class definitions.
+ * cpp_construct calls the placement "new" operator, which uses the
+ * existing memory buffer, and runs all nested constructors.
+ * Consequently we must not use "delete", rather cpp_destruct must
+ * call the destructor.
  */
-#define MimeDefClass(ITYPE, CTYPE, CVAR, CSUPER)       \
-  static int ITYPE##ClassInitialize(MimeObjectClass*); \
+#define MimeDefClass(ITYPE, CTYPE, CVAR, CSUPER)                      \
+  static int ITYPE##ClassInitialize(MimeObjectClass*);                \
+  static void ITYPE##_cpp_construct(void* mem) { new (mem) ITYPE(); } \
+  static void ITYPE##_cpp_destruct(void* mem) {                       \
+    static_cast<ITYPE*>(mem)->~ITYPE();                               \
+  }                                                                   \
   ITYPE##Class CVAR = {ITYPE##ClassInitializer(ITYPE, CSUPER)}
 
 /* Creates a new (subclass of) MimeObject of the given class, with the

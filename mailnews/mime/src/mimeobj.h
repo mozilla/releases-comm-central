@@ -95,7 +95,7 @@
 
 /* this one is typdedef'ed in mimei.h, since it is the base-class. */
 struct MimeObjectClass {
-  /* Note: the order of these first five slots is known by MimeDefClass().
+  /* Note: the order of these first seven slots is known by MimeDefClass().
    Technically, these are part of the object system, not the MIME code.
    */
   const char* class_name;
@@ -103,6 +103,11 @@ struct MimeObjectClass {
   struct MimeObjectClass* superclass;
   int (*class_initialize)(MimeObjectClass* clazz);
   bool class_initialized;
+
+  /* Constructs / destructs the C++ members of an instance (placement
+   new and explicit destructor call). */
+  void (*cpp_construct)(void* mem);
+  void (*cpp_destruct)(void* mem);
 
   /* These are the methods shared by all MIME objects.  See comment above.
    */

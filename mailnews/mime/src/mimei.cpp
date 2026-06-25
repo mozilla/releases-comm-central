@@ -235,7 +235,10 @@ MimeObject* mime_new(MimeObjectClass* clazz, MimeHeaders* hdrs,
     return 0;
   }
 
+  // Ensure all plain data is zeroed, regardless of existing constructors.
   memset(object, 0, size);
+  // Ensure constructors are called for all C++ members.
+  clazz->cpp_construct(object);
   object->clazz = clazz;
   object->headers = hdrs;
   object->dontShowAsAttachment = false;
@@ -246,6 +249,7 @@ MimeObject* mime_new(MimeObjectClass* clazz, MimeHeaders* hdrs,
   status = clazz->initialize(object);
   if (status < 0) {
     clazz->finalize(object);
+    clazz->cpp_destruct(object);
     PR_Free(object);
     return 0;
   }
@@ -255,6 +259,7 @@ MimeObject* mime_new(MimeObjectClass* clazz, MimeHeaders* hdrs,
 
 void mime_free(MimeObject* object) {
   object->clazz->finalize(object);
+  object->clazz->cpp_destruct(object);
   PR_Free(object);
 }
 
