@@ -55,21 +55,27 @@ platform_names:
     path_platform:
         by-platform:
             linux64-shippable: 'linux-x86_64'
+            linux64-aarch64-shippable: 'linux-aarch64'
             macosx64-shippable: 'mac'
             win32-shippable: 'win32'
             win64-shippable: 'win64'
+            win64-aarch64-shippable: 'win64-aarch64'
     tools_platform:
         by-platform:
             linux64-shippable: 'linux64'
+            linux64-aarch64-shippable: 'linux64-aarch64'
             macosx64-shippable: 'macosx64'
             win32-shippable: 'win32'
             win64-shippable: 'win64'
+            win64-aarch64-shippable: 'win64-aarch64'
     filename_platform:
         by-platform:
             linux64-shippable: 'linux64'
+            linux64-aarch64-shippable: 'linux64-aarch64'
             macosx64-shippable: 'macosx64'
             win32-shippable: 'win32'
             win64-shippable: 'win64'
+            win64-aarch64-shippable: 'win64-aarch64'
 
 default: &default
     from:
