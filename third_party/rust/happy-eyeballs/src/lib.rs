@@ -48,10 +48,10 @@
 //!
 //! For complete example usage, see the [`tests/`](tests/).
 
-use std::cmp::Ordering;
-use std::collections::HashSet;
+use std::collections::{BTreeMap, HashSet, VecDeque};
 use std::fmt::Debug;
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr};
+use std::num::NonZeroU32;
 use std::time::{Duration, Instant};
 
 use log::trace;
@@ -72,6 +72,11 @@ pub const RESOLUTION_DELAY: Duration = Duration::from_millis(50);
 ///
 /// <https://www.ietf.org/archive/id/draft-ietf-happy-happyeyeballs-v3-02.html#section-9>
 pub const CONNECTION_ATTEMPT_DELAY: Duration = Duration::from_millis(250);
+
+/// The default multiplier applied to the connection attempt delay after each
+/// successive attempt. A value of `1` keeps the delay constant, matching the
+/// RFC behavior.
+pub const CONNECTION_ATTEMPT_DELAY_MULTIPLIER: NonZeroU32 = NonZeroU32::MIN;
 
 /// Input events to the Happy Eyeballs state machine
 #[derive(Debug, Clone, PartialEq)]
@@ -587,6 +592,23 @@ pub struct NetworkConfig {
     /// Defaults to [`CONNECTION_ATTEMPT_DELAY`] (250 ms) per
     /// <https://www.ietf.org/archive/id/draft-ietf-happy-happyeyeballs-v3-02.html#section-9>.
     pub connection_attempt_delay: Duration,
+    /// Multiplier applied to [`connection_attempt_delay`](Self::connection_attempt_delay)
+    /// as concurrent connection attempts pile up, growing the delay
+    /// exponentially.
+    ///
+    /// The delay before starting another attempt while `n` attempts are already
+    /// in progress is `connection_attempt_delay * multiplier^(n - 1)`. With a
+    /// base delay of 250 ms and a multiplier of `2`, racing attempts are
+    /// scheduled at `t=0`, `t=250`, `t=750`, `t=1750`, ... (intervals of 250,
+    /// 500, 1000 ms). This lets callers lower the base delay below the
+    /// RFC-recommended 250 ms while still backing off between attempts.
+    ///
+    /// Only in-progress attempts count, so attempts triggered by a previous
+    /// attempt failing do not grow the delay.
+    ///
+    /// Defaults to [`CONNECTION_ATTEMPT_DELAY_MULTIPLIER`] (`1`), which keeps the
+    /// delay constant per the RFC.
+    pub connection_attempt_delay_multiplier: NonZeroU32,
     /// Whether Encrypted Client Hello (ECH) is enabled.
     ///
     /// When `false`, ECH configs from HTTPS records are ignored: endpoints
@@ -595,6 +617,25 @@ pub struct NetworkConfig {
     ///
     /// Defaults to `true`.
     pub ech: bool,
+    /// Whether to wait for an answer for the preferred address family before
+    /// moving on to the connection phase.
+    ///
+    /// Per the spec, moving on without waiting out the resolution delay
+    /// requires a positive or negative answer for the preferred address family
+    /// (e.g. AAAA when IPv6 is preferred). When that answer is slow to arrive,
+    /// a client that already has the non-preferred family (e.g. A) still waits
+    /// out the [`resolution_delay`](Self::resolution_delay).
+    ///
+    /// When `false`, that requirement is dropped: once positive address answers
+    /// have been received and the SVCB/HTTPS query has completed (whether with a
+    /// positive or a negative response), the state machine moves on without
+    /// waiting for the preferred address family answer (and thus without the
+    /// resolution delay when the non-preferred family arrives first). The delay
+    /// still applies while the SVCB/HTTPS query is outstanding.
+    ///
+    /// Defaults to `true`, matching
+    /// <https://www.ietf.org/archive/id/draft-ietf-happy-happyeyeballs-v3-02.html#section-4.2>.
+    pub wait_for_preferred_address: bool,
 }
 
 impl Default for NetworkConfig {
@@ -605,7 +646,9 @@ impl Default for NetworkConfig {
             alt_svc: Vec::new(),
             resolution_delay: RESOLUTION_DELAY,
             connection_attempt_delay: CONNECTION_ATTEMPT_DELAY,
+            connection_attempt_delay_multiplier: CONNECTION_ATTEMPT_DELAY_MULTIPLIER,
             ech: true,
+            wait_for_preferred_address: true,
         }
     }
 }
@@ -668,23 +711,87 @@ pub struct Endpoint {
     pub ech_config: Option<EchConfig>,
 }
 
-impl Endpoint {
-    fn cmp_with_config(&self, other: &Endpoint, network_config: &NetworkConfig) -> Ordering {
-        if self.http_version != other.http_version {
-            return self.http_version.cmp(&other.http_version);
-        }
+/// Interleave a group's endpoints across protocol variants and address
+/// families so the diversity of options is tried early, instead of draining
+/// every attempt of one variant before moving on to the next.
+///
+/// Endpoints are grouped by `(protocol variant, address family)` and dealt one
+/// from each group per round, groups ordered by protocol preference and then
+/// preferred family. For three IPv6 and one IPv4 address that each offer HTTP/3
+/// and HTTP/2 that yields:
+///
+/// 1. v6a / H3 (most preferred)
+/// 2. v4 / H3 (next address family)
+/// 3. v6a / H2OrH1 (next protocol)
+/// 4. v4 / H2OrH1
+/// 5. v6b / H3 (second round)
+/// 6. v6b / H2OrH1
+/// 7. v6c / H3
+/// 8. v6c / H2OrH1
+///
+/// so IPv4 (the other family) and HTTP/2 (the other protocol) are both reached
+/// within the first few attempts, rather than after every IPv6 HTTP/3 attempt.
+///
+/// All endpoints belong to the same group (same application protocols and
+/// security properties, same service priority). The round-robin honors the
+/// draft's two interleavings.
+///
+/// Address families, per Section 5.3:
+///
+/// > Whichever address family is first in the list should be followed by an
+/// > endpoint of the other address family.
+///
+/// <https://www.ietf.org/archive/id/draft-ietf-happy-happyeyeballs-v3-03.html#section-5.3>
+///
+/// Protocol variants, per Section 5.1.1, since the HTTP version (HTTP/3 over
+/// QUIC vs. HTTP/2 over TCP) is non-critical here:
+///
+/// > Clients SHOULD avoid grouping and sorting separately in cases where their
+/// > use of an application protocol or feature is non-critical.
+///
+/// <https://www.ietf.org/archive/id/draft-ietf-happy-happyeyeballs-v3-03.html#section-5.1.1>
+fn interleave_endpoints(endpoints: Vec<Endpoint>, prefer_v6: bool) -> Vec<Endpoint> {
+    let total = endpoints.len();
 
-        let order = self
-            .address
-            .ip()
-            .is_ipv6()
-            .cmp(&other.address.ip().is_ipv6());
-        if network_config.prefer_v6() {
-            order.reverse()
-        } else {
-            order
-        }
+    // Where an address family sits relative to the preference; `Preferred` sorts
+    // before `Other`, which orders the preferred family first.
+    #[derive(PartialEq, Eq, PartialOrd, Ord)]
+    enum FamilyPreference {
+        Preferred,
+        Other,
     }
+
+    // Group endpoints into a queue per (protocol, address family), keeping DNS
+    // order. The `BTreeMap` orders the queues most preferred first: by protocol
+    // (the enum is ordered `H3 < H2OrH1 < H2 < H1`), then by family preference.
+    let mut groups: BTreeMap<
+        (ConnectionAttemptHttpVersions, FamilyPreference),
+        VecDeque<Endpoint>,
+    > = BTreeMap::new();
+    for endpoint in endpoints {
+        let family = if endpoint.address.is_ipv6() == prefer_v6 {
+            FamilyPreference::Preferred
+        } else {
+            FamilyPreference::Other
+        };
+        groups
+            .entry((endpoint.http_version, family))
+            .or_default()
+            .push_back(endpoint);
+    }
+
+    // Deal the front of every queue, round after round, dropping queues as they
+    // empty, until none are left.
+    let mut ordered = Vec::with_capacity(total);
+    while !groups.is_empty() {
+        for queue in groups.values_mut() {
+            if let Some(endpoint) = queue.pop_front() {
+                ordered.push(endpoint);
+            }
+        }
+        groups.retain(|_, queue| !queue.is_empty());
+    }
+    ordered
 }
 
 #[derive(Debug, Clone)]
@@ -868,6 +975,32 @@ impl HappyEyeballs {
         None
     }
 
+    /// The delay to wait before starting the next connection attempt, growing
+    /// exponentially with the number of attempts currently in progress per the
+    /// configured [`connection_attempt_delay_multiplier`](NetworkConfig::connection_attempt_delay_multiplier).
+    ///
+    /// Only in-progress (racing) attempts count: an attempt that has already
+    /// failed does not inflate the delay, so a sequence of attempts each
+    /// triggered by the previous one failing keeps the base delay.
+    fn connection_attempt_delay(&self) -> Duration {
+        let base = self.network_config.connection_attempt_delay;
+        let in_progress = self
+            .connection_attempts
+            .iter()
+            .filter(|a| a.state == ConnectionState::InProgress)
+            .count();
+        let exponent = u32::try_from(in_progress)
+            .unwrap_or(u32::MAX)
+            .saturating_sub(1);
+        let factor = self
+            .network_config
+            .connection_attempt_delay_multiplier
+            .get()
+            .checked_pow(exponent)
+            .unwrap_or(u32::MAX);
+        base.checked_mul(factor).unwrap_or(Duration::MAX)
+    }
+
     fn delay(&self, now: Instant) -> Option<Output> {
         // If we have a successful connection, no connection attempt delay
         // needed.
@@ -875,7 +1008,8 @@ impl HappyEyeballs {
             return None;
         }
 
-        if let Some(connection_attempt_delay) = self
+        let connection_attempt_delay = self.connection_attempt_delay();
+        if let Some(remaining) = self
             .connection_attempts
             .iter()
             .filter(|a| a.state == ConnectionState::InProgress)
@@ -883,15 +1017,15 @@ impl HappyEyeballs {
             .max()
             .and_then(|started| {
                 let elapsed = now.duration_since(*started);
-                if elapsed < self.network_config.connection_attempt_delay {
-                    Some(self.network_config.connection_attempt_delay - elapsed)
+                if elapsed < connection_attempt_delay {
+                    Some(connection_attempt_delay - elapsed)
                 } else {
                     None
                 }
             })
         {
             return Some(Output::Timer {
-                duration: connection_attempt_delay,
+                duration: remaining,
             });
         }
 
@@ -1125,11 +1259,12 @@ impl HappyEyeballs {
             return None;
         }
 
+        let connection_attempt_delay = self.connection_attempt_delay();
         if self
             .connection_attempts
             .iter()
             .filter(|a| a.state == ConnectionState::InProgress)
-            .any(|a| a.within_delay(now, self.network_config.connection_attempt_delay))
+            .any(|a| a.within_delay(now, connection_attempt_delay))
         {
             return None;
         }
@@ -1195,21 +1330,21 @@ impl HappyEyeballs {
     }
 
     fn endpoints_to_attempt_ip(&self, ip: IpAddr) -> Vec<Endpoint> {
-        let mut endpoints: Vec<Endpoint> = Vec::new();
-        for (http_version, port) in self.origin_version_port_pairs() {
-            let mut bucket = vec![Endpoint {
+        let endpoints = self
+            .origin_version_port_pairs()
+            .into_iter()
+            .map(|(http_version, port)| Endpoint {
                 address: SocketAddr::new(ip, port),
                 http_version,
                 ech_config: None,
-            }];
-            bucket.sort_by(|a, b| a.cmp_with_config(b, &self.network_config));
-            endpoints.extend(bucket);
-        }
-        endpoints
+            })
+            .collect();
+        interleave_endpoints(endpoints, self.network_config.prefer_v6())
     }
 
     fn endpoints_to_attempt_domain(&self, origin_domain: &str) -> Vec<Endpoint> {
         let any_ech = self.any_ech();
+        let prefer_v6 = self.network_config.prefer_v6();
 
         // Collect all ServiceInfos sorted by priority.
         let mut service_infos: Vec<&ServiceInfo> = self
@@ -1243,37 +1378,38 @@ impl HappyEyeballs {
                     }
                     _ => None,
                 });
-            let mut bucket = info.flatten_into_endpoints(
+            let bucket = info.flatten_into_endpoints(
                 self.port,
                 ipv4_addrs,
                 ipv6_addrs,
                 &self.network_config.http_versions,
                 self.network_config.ech,
             );
-            bucket.sort_by(|a, b| a.cmp_with_config(b, &self.network_config));
-            endpoints.extend(bucket);
+            endpoints.extend(interleave_endpoints(bucket, prefer_v6));
         }
 
         // Alt-svc and fallback endpoints use the origin domain without ECH.
-        // Only include them when ECH is not required.
+        // Only include them when ECH is not required. They form a single group
+        // so that their protocol variants (e.g. an alt-svc HTTP/3 and the
+        // default HTTP/2) and address families are interleaved together.
         if !any_ech {
+            let mut fallback: Vec<Endpoint> = Vec::new();
             for (http_version, port) in self.origin_version_port_pairs() {
                 let http_versions = HashSet::from([http_version]);
-                let mut bucket: Vec<Endpoint> = self
-                    .dns_queries
-                    .iter()
-                    .filter_map(|q| match &q.state {
-                        DnsQueryState::Completed {
-                            response: r @ (DnsResult::Aaaa(_) | DnsResult::A(_)),
-                            ..
-                        } if q.target_name.as_str() == origin_domain => Some(r),
-                        _ => None,
-                    })
-                    .flat_map(|r| r.flatten_into_endpoints(port, &http_versions))
-                    .collect();
-                bucket.sort_by(|a, b| a.cmp_with_config(b, &self.network_config));
-                endpoints.extend(bucket);
+                fallback.extend(
+                    self.dns_queries
+                        .iter()
+                        .filter_map(|q| match &q.state {
+                            DnsQueryState::Completed {
+                                response: r @ (DnsResult::Aaaa(_) | DnsResult::A(_)),
+                                ..
+                            } if q.target_name.as_str() == origin_domain => Some(r),
+                            _ => None,
+                        })
+                        .flat_map(|r| r.flatten_into_endpoints(port, &http_versions)),
+                );
             }
+            endpoints.extend(interleave_endpoints(fallback, prefer_v6));
         }
 
         endpoints
@@ -1404,11 +1540,16 @@ impl HappyEyeballs {
         // > for the preferred address family that was queried AND
         //
         // <https://www.ietf.org/archive/id/draft-ietf-happy-happyeyeballs-v3-02.html#section-4.2>
-        if !self
-            .dns_queries
-            .iter()
-            .filter(|q| q.is_completed())
-            .any(|q| q.record_type == self.network_config.preferred_dns_record_type())
+        //
+        // Skipped when `wait_for_preferred_address` is disabled, letting the
+        // state machine move on with the non-preferred family rather than
+        // waiting out the resolution delay for the preferred one.
+        if self.network_config.wait_for_preferred_address
+            && !self
+                .dns_queries
+                .iter()
+                .filter(|q| q.is_completed())
+                .any(|q| q.record_type == self.network_config.preferred_dns_record_type())
         {
             return false;
         }

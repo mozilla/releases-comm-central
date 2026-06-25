@@ -22,6 +22,6 @@ jobs:
       issues: read # read issue context for review
       actions: read # read workflow run context
       discussions: read # read discussion context for review
-    uses: mozilla/actions/.github/workflows/claude-review.yml@2e46408d5c495e59a21e5e125e82008fad0d9408 # v1.1.7
+    uses: mozilla/actions/.github/workflows/claude-review.yml@c7f9db3409fff64a55f16ac0cacbc4cdd05ae435 # v1.1.19
     secrets:
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}

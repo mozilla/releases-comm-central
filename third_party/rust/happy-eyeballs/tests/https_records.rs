@@ -19,35 +19,30 @@ fn ech_config_propagated_to_endpoint() {
     // still in-flight. After the resolution delay the hint is used, and the
     // ECH config must be carried onto the endpoint.
     expect_initial_dns_queries(&mut he, now);
-    he.expect(
-        vec![(
-            Some(Input::DnsResult {
-                id: Id::from(0),
-                result: DnsResult::Https(Ok(vec![
-                    service_info(1, HOSTNAME, &[HttpVersion::H3, HttpVersion::H2])
-                        .ipv6_hints(vec![V6_ADDR])
-                        .ech(),
-                ])),
-            }),
-            Some(out_resolution_delay()),
-        )],
+    he.input(
+        Input::DnsResult {
+            id: Id::from(0),
+            result: DnsResult::Https(Ok(vec![
+                service_info(1, HOSTNAME, &[HttpVersion::H3, HttpVersion::H2])
+                    .ipv6_hints(vec![V6_ADDR])
+                    .ech(),
+            ])),
+        },
         now,
     );
+    he.expect(out_resolution_delay(), now);
 
     now += RESOLUTION_DELAY;
     he.expect(
-        vec![(
-            None,
-            Some(Output::AttemptConnection {
-                id: Id::from(3),
-                endpoint: Endpoint {
-                    address: SocketAddr::new(V6_ADDR.into(), PORT),
-                    http_version: ConnectionAttemptHttpVersions::H3,
-                    ech_config: Some(ech_config()),
-                },
-                is_ech_retry: false,
-            }),
-        )],
+        Output::AttemptConnection {
+            id: Id::from(3),
+            endpoint: Endpoint {
+                address: SocketAddr::new(V6_ADDR.into(), PORT),
+                http_version: ConnectionAttemptHttpVersions::H3,
+                ech_config: Some(ech_config()),
+            },
+            is_ech_retry: false,
+        },
         now,
     );
 }
@@ -106,26 +101,24 @@ fn hints_discarded_on_negative_answer() {
         let (mut now, mut he) = setup_with_config(case.config);
 
         expect_initial_dns_queries(&mut he, now);
-        he.expect(
-            vec![
-                (Some(case.first_arrives), Some(out_resolution_delay())),
-                (Some(case.second_arrives), Some(out_resolution_delay())),
-                (
-                    Some(Input::DnsResult {
-                        id: Id::from(0),
-                        result: DnsResult::Https(Ok(vec![
-                            service_info(1, HOSTNAME, &[HttpVersion::H3, HttpVersion::H2])
-                                .ipv6_hints(case.ipv6_hints)
-                                .ipv4_hints(case.ipv4_hints),
-                        ])),
-                    }),
-                    Some(case.attempt_1),
-                ),
-            ],
+        he.input(case.first_arrives, now);
+        he.expect(out_resolution_delay(), now);
+        he.input(case.second_arrives, now);
+        he.expect(out_resolution_delay(), now);
+        he.input(
+            Input::DnsResult {
+                id: Id::from(0),
+                result: DnsResult::Https(Ok(vec![
+                    service_info(1, HOSTNAME, &[HttpVersion::H3, HttpVersion::H2])
+                        .ipv6_hints(case.ipv6_hints)
+                        .ipv4_hints(case.ipv4_hints),
+                ])),
+            },
             now,
         );
+        he.expect(case.attempt_1, now);
 
-        he.expect_connection_attempts(&mut now, vec![case.attempt_2, case.attempt_3]);
+        he.expect_connection_attempts([case.attempt_2, case.attempt_3], &mut now);
     }
 }
 
@@ -147,45 +140,39 @@ fn ech_disabled() {
     });
 
     expect_initial_dns_queries(&mut he, now);
+    he.input(in_dns_a_negative(Id::from(2)), now);
+    he.expect(out_resolution_delay(), now);
+    he.input(in_dns_aaaa_positive(Id::from(1)), now);
+    he.expect(out_resolution_delay(), now);
+    he.input(
+        Input::DnsResult {
+            id: Id::from(0),
+            // Only H3 in ALPN — fallback bucket uses H2OrH1 by default.
+            result: DnsResult::Https(Ok(vec![
+                service_info(1, HOSTNAME, &[HttpVersion::H3])
+                    .ipv6_hints(vec![V6_ADDR])
+                    .ech(),
+            ])),
+        },
+        now,
+    );
+    // HTTPS bucket: V6:H3, but ECH stripped.
     he.expect(
-        vec![
-            (
-                Some(in_dns_a_negative(Id::from(2))),
-                Some(out_resolution_delay()),
-            ),
-            (
-                Some(in_dns_aaaa_positive(Id::from(1))),
-                Some(out_resolution_delay()),
-            ),
-            (
-                Some(Input::DnsResult {
-                    id: Id::from(0),
-                    // Only H3 in ALPN — fallback bucket uses H2OrH1 by default.
-                    result: DnsResult::Https(Ok(vec![
-                        service_info(1, HOSTNAME, &[HttpVersion::H3])
-                            .ipv6_hints(vec![V6_ADDR])
-                            .ech(),
-                    ])),
-                }),
-                // HTTPS bucket: V6:H3, but ECH stripped.
-                Some(Output::AttemptConnection {
-                    id: Id::from(3),
-                    endpoint: Endpoint {
-                        address: SocketAddr::new(V6_ADDR.into(), PORT),
-                        http_version: ConnectionAttemptHttpVersions::H3,
-                        ech_config: None,
-                    },
-                    is_ech_retry: false,
-                }),
-            ),
-        ],
+        Output::AttemptConnection {
+            id: Id::from(3),
+            endpoint: Endpoint {
+                address: SocketAddr::new(V6_ADDR.into(), PORT),
+                http_version: ConnectionAttemptHttpVersions::H3,
+                ech_config: None,
+            },
+            is_ech_retry: false,
+        },
         now,
     );
 
     // Origin fallback is NOT skipped despite HTTPS record having ECH.
     he.expect_connection_attempts(
-        &mut now,
-        vec![Output::AttemptConnection {
+        [Output::AttemptConnection {
             id: Id::from(4),
             endpoint: Endpoint {
                 address: SocketAddr::new(V6_ADDR.into(), PORT),
@@ -194,6 +181,7 @@ fn ech_disabled() {
             },
             is_ech_retry: false,
         }],
+        &mut now,
     );
 }
 
@@ -202,30 +190,27 @@ fn ech_config_from_https_applies_to_aaaa() {
     let (now, mut he) = setup();
 
     expect_initial_dns_queries(&mut he, now);
+    he.input(
+        Input::DnsResult {
+            id: Id::from(0),
+            result: DnsResult::Https(Ok(vec![
+                service_info(1, HOSTNAME, &[HttpVersion::H3, HttpVersion::H2]).ech(),
+            ])),
+        },
+        now,
+    );
+    he.expect(out_resolution_delay(), now);
+    he.input(in_dns_aaaa_positive(Id::from(1)), now);
     he.expect(
-        vec![
-            (
-                Some(Input::DnsResult {
-                    id: Id::from(0),
-                    result: DnsResult::Https(Ok(vec![
-                        service_info(1, HOSTNAME, &[HttpVersion::H3, HttpVersion::H2]).ech(),
-                    ])),
-                }),
-                Some(out_resolution_delay()),
-            ),
-            (
-                Some(in_dns_aaaa_positive(Id::from(1))),
-                Some(Output::AttemptConnection {
-                    id: Id::from(3),
-                    endpoint: Endpoint {
-                        address: SocketAddr::new(V6_ADDR.into(), PORT),
-                        http_version: ConnectionAttemptHttpVersions::H3,
-                        ech_config: Some(ech_config()),
-                    },
-                    is_ech_retry: false,
-                }),
-            ),
-        ],
+        Output::AttemptConnection {
+            id: Id::from(3),
+            endpoint: Endpoint {
+                address: SocketAddr::new(V6_ADDR.into(), PORT),
+                http_version: ConnectionAttemptHttpVersions::H3,
+                ech_config: Some(ech_config()),
+            },
+            is_ech_retry: false,
+        },
         now,
     );
 }
@@ -235,28 +220,22 @@ fn multiple_target_names() {
     let (now, mut he) = setup();
 
     expect_initial_dns_queries(&mut he, now);
+    // HTTPS response with a different target name
+    he.input(in_dns_https_positive_svc1(Id::from(0)), now);
+    he.expect(out_send_dns_svc1(Id::from(3)), now);
+    // Now we have queries for both "example.com" and "svc1.example.com."
+    // Getting a positive AAAA for the main host
+    he.input(in_dns_aaaa_positive(Id::from(1)), now);
     he.expect(
-        vec![
-            // HTTPS response with a different target name
-            (
-                Some(in_dns_https_positive_svc1(Id::from(0))),
-                Some(out_send_dns_svc1(Id::from(3))),
-            ),
-            // Now we have queries for both "example.com" and "svc1.example.com."
-            // Getting a positive AAAA for the main host
-            (
-                Some(in_dns_aaaa_positive(Id::from(1))),
-                Some(Output::AttemptConnection {
-                    id: Id::from(4),
-                    endpoint: Endpoint {
-                        address: SocketAddr::new(V6_ADDR_2.into(), PORT),
-                        http_version: ConnectionAttemptHttpVersions::H3,
-                        ech_config: None,
-                    },
-                    is_ech_retry: false,
-                }),
-            ),
-        ],
+        Output::AttemptConnection {
+            id: Id::from(4),
+            endpoint: Endpoint {
+                address: SocketAddr::new(V6_ADDR_2.into(), PORT),
+                http_version: ConnectionAttemptHttpVersions::H3,
+                ech_config: None,
+            },
+            is_ech_retry: false,
+        },
         now,
     );
 }
@@ -286,65 +265,54 @@ fn partial_ech_two_service_infos() {
     let (mut now, mut he) = setup();
 
     expect_initial_dns_queries(&mut he, now);
+    he.input(
+        Input::DnsResult {
+            id: Id::from(0),
+            result: DnsResult::Https(Ok(vec![
+                service_info(1, SVC1, &[HttpVersion::H3])
+                    .ech()
+                    .port(SVC1_PORT),
+                service_info(2, SVC2, &[HttpVersion::H2]).port(SVC2_PORT),
+            ])),
+        },
+        now,
+    );
+    // Only SVC1 gets DNS queries — SVC2 is skipped (no ECH)
+    expect_svc1_dns_queries(&mut he, now);
+    // HOSTNAME AAAA positive -> move-on criteria met, but SVC1 has no
+    // addresses yet and ECH filtering skips fallback -> no attempt yet.
+    he.input(in_dns_aaaa_positive(Id::from(1)), now);
+    he.expect(out_resolution_delay(), now);
+    he.input(in_dns_a_positive(Id::from(2)), now);
+    he.expect(out_resolution_delay(), now);
+    // SVC1 AAAA negative
+    he.input(in_dns_aaaa_negative(Id::from(3)), now);
+    he.expect(out_resolution_delay(), now);
+    // SVC1 A positive -> SVC1 bucket now has addresses, first attempt
+    he.input(
+        Input::DnsResult {
+            id: Id::from(4),
+            result: DnsResult::A(Ok(vec![V4_ADDR_2])),
+        },
+        now,
+    );
     he.expect(
-        vec![
-            (
-                Some(Input::DnsResult {
-                    id: Id::from(0),
-                    result: DnsResult::Https(Ok(vec![
-                        service_info(1, SVC1, &[HttpVersion::H3])
-                            .ech()
-                            .port(SVC1_PORT),
-                        service_info(2, SVC2, &[HttpVersion::H2]).port(SVC2_PORT),
-                    ])),
-                }),
-                // Only SVC1 gets DNS queries — SVC2 is skipped (no ECH)
-                Some(out_send_dns(Id::from(3), SVC1, DnsRecordType::Aaaa)),
-            ),
-            (
-                None,
-                Some(out_send_dns(Id::from(4), SVC1, DnsRecordType::A)),
-            ),
-            (None, Some(out_resolution_delay())),
-            // HOSTNAME AAAA positive -> move-on criteria met, but SVC1 has no
-            // addresses yet and ECH filtering skips fallback -> no attempt yet.
-            (
-                Some(in_dns_aaaa_positive(Id::from(1))),
-                Some(out_resolution_delay()),
-            ),
-            (
-                Some(in_dns_a_positive(Id::from(2))),
-                Some(out_resolution_delay()),
-            ),
-            // SVC1 AAAA negative
-            (
-                Some(in_dns_aaaa_negative(Id::from(3))),
-                Some(out_resolution_delay()),
-            ),
-            // SVC1 A positive -> SVC1 bucket now has addresses, first attempt
-            (
-                Some(Input::DnsResult {
-                    id: Id::from(4),
-                    result: DnsResult::A(Ok(vec![V4_ADDR_2])),
-                }),
-                Some(Output::AttemptConnection {
-                    id: Id::from(5),
-                    endpoint: Endpoint {
-                        address: SocketAddr::new(V4_ADDR_2.into(), SVC1_PORT),
-                        http_version: ConnectionAttemptHttpVersions::H3,
-                        ech_config: Some(ech_config()),
-                    },
-                    is_ech_retry: false,
-                }),
-            ),
-        ],
+        Output::AttemptConnection {
+            id: Id::from(5),
+            endpoint: Endpoint {
+                address: SocketAddr::new(V4_ADDR_2.into(), SVC1_PORT),
+                http_version: ConnectionAttemptHttpVersions::H3,
+                ech_config: Some(ech_config()),
+            },
+            is_ech_retry: false,
+        },
         now,
     );
 
     // SVC1 advertises only alpn=h3, so it produces a single H3 attempt; there
     // is no H2 attempt because H2 belongs to SVC2's record.
     now += CONNECTION_ATTEMPT_DELAY;
-    he.expect(vec![(None, None)], now);
+    he.expect_idle(now);
 }
 
 /// Both ServiceInfo records have ECH. The origin fallback is still skipped
@@ -369,90 +337,69 @@ fn both_service_infos_have_ech_no_origin_fallback() {
     let (mut now, mut he) = setup();
 
     expect_initial_dns_queries(&mut he, now);
-    he.expect(
-        vec![
-            (
-                Some(Input::DnsResult {
-                    id: Id::from(0),
-                    result: DnsResult::Https(Ok(vec![
-                        service_info(1, SVC1, &[HttpVersion::H3])
-                            .ech()
-                            .port(SVC1_PORT),
-                        service_info(2, SVC2, &[HttpVersion::H2])
-                            .ech()
-                            .port(SVC2_PORT),
-                    ])),
-                }),
-                // Both SVC1 and SVC2 get DNS queries (both have ECH)
-                Some(out_send_dns(Id::from(3), SVC1, DnsRecordType::Aaaa)),
-            ),
-            (
-                None,
-                Some(out_send_dns(Id::from(4), SVC1, DnsRecordType::A)),
-            ),
-            (
-                None,
-                Some(out_send_dns(Id::from(5), SVC2, DnsRecordType::Aaaa)),
-            ),
-            (
-                None,
-                Some(out_send_dns(Id::from(6), SVC2, DnsRecordType::A)),
-            ),
-            (None, Some(out_resolution_delay())),
-            // HOSTNAME AAAA/A positive — but fallback will be skipped (no ECH)
-            (
-                Some(in_dns_aaaa_positive(Id::from(1))),
-                Some(out_resolution_delay()),
-            ),
-            (
-                Some(in_dns_a_positive(Id::from(2))),
-                Some(out_resolution_delay()),
-            ),
-            // SVC1 AAAA negative
-            (
-                Some(in_dns_aaaa_negative(Id::from(3))),
-                Some(out_resolution_delay()),
-            ),
-            // SVC1 A positive -> first attempt from SVC1 bucket
-            (
-                Some(Input::DnsResult {
-                    id: Id::from(4),
-                    result: DnsResult::A(Ok(vec![V4_ADDR_2])),
-                }),
-                Some(Output::AttemptConnection {
-                    id: Id::from(7),
-                    endpoint: Endpoint {
-                        address: SocketAddr::new(V4_ADDR_2.into(), SVC1_PORT),
-                        http_version: ConnectionAttemptHttpVersions::H3,
-                        ech_config: Some(ech_config()),
-                    },
-                    is_ech_retry: false,
-                }),
-            ),
-            (None, Some(out_connection_attempt_delay())),
-            // SVC2 AAAA negative
-            (
-                Some(in_dns_aaaa_negative(Id::from(5))),
-                Some(out_connection_attempt_delay()),
-            ),
-            // SVC2 A positive
-            (
-                Some(Input::DnsResult {
-                    id: Id::from(6),
-                    result: DnsResult::A(Ok(vec![V4_ADDR])),
-                }),
-                Some(out_connection_attempt_delay()),
-            ),
-        ],
+    he.input(
+        Input::DnsResult {
+            id: Id::from(0),
+            result: DnsResult::Https(Ok(vec![
+                service_info(1, SVC1, &[HttpVersion::H3])
+                    .ech()
+                    .port(SVC1_PORT),
+                service_info(2, SVC2, &[HttpVersion::H2])
+                    .ech()
+                    .port(SVC2_PORT),
+            ])),
+        },
         now,
     );
+    // Both SVC1 and SVC2 get DNS queries (both have ECH)
+    expect_svc1_svc2_dns_queries(&mut he, now);
+    // HOSTNAME AAAA/A positive — but fallback will be skipped (no ECH)
+    he.input(in_dns_aaaa_positive(Id::from(1)), now);
+    he.expect(out_resolution_delay(), now);
+    he.input(in_dns_a_positive(Id::from(2)), now);
+    he.expect(out_resolution_delay(), now);
+    // SVC1 AAAA negative
+    he.input(in_dns_aaaa_negative(Id::from(3)), now);
+    he.expect(out_resolution_delay(), now);
+    // SVC1 A positive -> first attempt from SVC1 bucket
+    he.input(
+        Input::DnsResult {
+            id: Id::from(4),
+            result: DnsResult::A(Ok(vec![V4_ADDR_2])),
+        },
+        now,
+    );
+    he.expect(
+        Output::AttemptConnection {
+            id: Id::from(7),
+            endpoint: Endpoint {
+                address: SocketAddr::new(V4_ADDR_2.into(), SVC1_PORT),
+                http_version: ConnectionAttemptHttpVersions::H3,
+                ech_config: Some(ech_config()),
+            },
+            is_ech_retry: false,
+        },
+        now,
+    );
+    he.expect(out_connection_attempt_delay(), now);
+    // SVC2 AAAA negative
+    he.input(in_dns_aaaa_negative(Id::from(5)), now);
+    he.expect(out_connection_attempt_delay(), now);
+    // SVC2 A positive
+    he.input(
+        Input::DnsResult {
+            id: Id::from(6),
+            result: DnsResult::A(Ok(vec![V4_ADDR])),
+        },
+        now,
+    );
+    he.expect(out_connection_attempt_delay(), now);
 
     // Both SVC1 and SVC2 produce attempts (both have ECH), each using only its
     // own record's ALPN: SVC1 is H3-only, SVC2 is H2-only. Origin fallback is
     // skipped — no ECH on the origin.
     he.expect_connection_attempts(
-        &mut now,
-        vec![
+        [
             // priority=2 (SVC2, port 10443, ech, alpn=h2)
             Output::AttemptConnection {
                 id: Id::from(8),
@@ -464,6 +411,7 @@ fn both_service_infos_have_ech_no_origin_fallback() {
                 is_ech_retry: false,
             },
         ],
+        &mut now,
     );
 }
 
@@ -490,80 +438,65 @@ fn per_record_alpn_not_unioned_across_records() {
     let (mut now, mut he) = setup();
 
     expect_initial_dns_queries(&mut he, now);
-    he.expect(
-        vec![
-            (
-                Some(Input::DnsResult {
-                    id: Id::from(0),
-                    result: DnsResult::Https(Ok(vec![
-                        service_info(1, SVC1, &[HttpVersion::H3]),
-                        service_info(2, SVC2, &[HttpVersion::H2]),
-                    ])),
-                }),
-                Some(out_send_dns(Id::from(3), SVC1, DnsRecordType::Aaaa)),
-            ),
-            (
-                None,
-                Some(out_send_dns(Id::from(4), SVC1, DnsRecordType::A)),
-            ),
-            (
-                None,
-                Some(out_send_dns(Id::from(5), SVC2, DnsRecordType::Aaaa)),
-            ),
-            (
-                None,
-                Some(out_send_dns(Id::from(6), SVC2, DnsRecordType::A)),
-            ),
-            (None, Some(out_resolution_delay())),
-            // svc1 (alpn=h3) AAAA arrives -> first attempt is H3-only.
-            (
-                Some(Input::DnsResult {
-                    id: Id::from(3),
-                    result: DnsResult::Aaaa(Ok(vec![V6_ADDR_2])),
-                }),
-                Some(out_attempt(
-                    Id::from(7),
-                    V6_ADDR_2.into(),
-                    PORT,
-                    ConnectionAttemptHttpVersions::H3,
-                )),
-            ),
-            (
-                Some(Input::DnsResult {
-                    id: Id::from(4),
-                    result: DnsResult::A(Err(())),
-                }),
-                Some(out_connection_attempt_delay()),
-            ),
-            (
-                Some(Input::DnsResult {
-                    id: Id::from(5),
-                    result: DnsResult::Aaaa(Ok(vec![V6_ADDR_3])),
-                }),
-                Some(out_connection_attempt_delay()),
-            ),
-            (
-                Some(Input::DnsResult {
-                    id: Id::from(6),
-                    result: DnsResult::A(Err(())),
-                }),
-                Some(out_connection_attempt_delay()),
-            ),
-            (
-                Some(in_dns_aaaa_positive(Id::from(1))),
-                Some(out_connection_attempt_delay()),
-            ),
-            (
-                Some(in_dns_a_negative(Id::from(2))),
-                Some(out_connection_attempt_delay()),
-            ),
-        ],
+    he.input(
+        Input::DnsResult {
+            id: Id::from(0),
+            result: DnsResult::Https(Ok(vec![
+                service_info(1, SVC1, &[HttpVersion::H3]),
+                service_info(2, SVC2, &[HttpVersion::H2]),
+            ])),
+        },
         now,
     );
+    expect_svc1_svc2_dns_queries(&mut he, now);
+    // svc1 (alpn=h3) AAAA arrives -> first attempt is H3-only.
+    he.input(
+        Input::DnsResult {
+            id: Id::from(3),
+            result: DnsResult::Aaaa(Ok(vec![V6_ADDR_2])),
+        },
+        now,
+    );
+    he.expect(
+        out_attempt(
+            Id::from(7),
+            V6_ADDR_2.into(),
+            PORT,
+            ConnectionAttemptHttpVersions::H3,
+        ),
+        now,
+    );
+    he.input(
+        Input::DnsResult {
+            id: Id::from(4),
+            result: DnsResult::A(Err(())),
+        },
+        now,
+    );
+    he.expect(out_connection_attempt_delay(), now);
+    he.input(
+        Input::DnsResult {
+            id: Id::from(5),
+            result: DnsResult::Aaaa(Ok(vec![V6_ADDR_3])),
+        },
+        now,
+    );
+    he.expect(out_connection_attempt_delay(), now);
+    he.input(
+        Input::DnsResult {
+            id: Id::from(6),
+            result: DnsResult::A(Err(())),
+        },
+        now,
+    );
+    he.expect(out_connection_attempt_delay(), now);
+    he.input(in_dns_aaaa_positive(Id::from(1)), now);
+    he.expect(out_connection_attempt_delay(), now);
+    he.input(in_dns_a_negative(Id::from(2)), now);
+    he.expect(out_connection_attempt_delay(), now);
 
     he.expect_connection_attempts(
-        &mut now,
-        vec![
+        [
             // svc2 (alpn=h2): H2-only, no spurious H3 from svc1's record.
             out_attempt(
                 Id::from(8),
@@ -574,6 +507,7 @@ fn per_record_alpn_not_unioned_across_records() {
             // origin fallback: default H2OrH1.
             out_attempt_v6_h1_h2(Id::from(9)),
         ],
+        &mut now,
     );
 }
 
@@ -601,80 +535,66 @@ fn record_without_alpn_contributes_no_endpoints() {
     let (mut now, mut he) = setup();
 
     expect_initial_dns_queries(&mut he, now);
-    he.expect(
-        vec![
-            (
-                Some(Input::DnsResult {
-                    id: Id::from(0),
-                    result: DnsResult::Https(Ok(vec![
-                        service_info(1, SVC1, &[HttpVersion::H3]),
-                        service_info(2, SVC2, &[]),
-                    ])),
-                }),
-                Some(out_send_dns(Id::from(3), SVC1, DnsRecordType::Aaaa)),
-            ),
-            (
-                None,
-                Some(out_send_dns(Id::from(4), SVC1, DnsRecordType::A)),
-            ),
-            (
-                None,
-                Some(out_send_dns(Id::from(5), SVC2, DnsRecordType::Aaaa)),
-            ),
-            (
-                None,
-                Some(out_send_dns(Id::from(6), SVC2, DnsRecordType::A)),
-            ),
-            (None, Some(out_resolution_delay())),
-            // svc1 (alpn=h3) AAAA -> first attempt is H3.
-            (
-                Some(Input::DnsResult {
-                    id: Id::from(3),
-                    result: DnsResult::Aaaa(Ok(vec![V6_ADDR_2])),
-                }),
-                Some(out_attempt(
-                    Id::from(7),
-                    V6_ADDR_2.into(),
-                    PORT,
-                    ConnectionAttemptHttpVersions::H3,
-                )),
-            ),
-            (
-                Some(Input::DnsResult {
-                    id: Id::from(4),
-                    result: DnsResult::A(Err(())),
-                }),
-                Some(out_connection_attempt_delay()),
-            ),
-            (
-                Some(Input::DnsResult {
-                    id: Id::from(5),
-                    result: DnsResult::Aaaa(Ok(vec![V6_ADDR_3])),
-                }),
-                Some(out_connection_attempt_delay()),
-            ),
-            (
-                Some(Input::DnsResult {
-                    id: Id::from(6),
-                    result: DnsResult::A(Err(())),
-                }),
-                Some(out_connection_attempt_delay()),
-            ),
-            (
-                Some(in_dns_aaaa_positive(Id::from(1))),
-                Some(out_connection_attempt_delay()),
-            ),
-            (
-                Some(in_dns_a_negative(Id::from(2))),
-                Some(out_connection_attempt_delay()),
-            ),
-        ],
+    he.input(
+        Input::DnsResult {
+            id: Id::from(0),
+            result: DnsResult::Https(Ok(vec![
+                service_info(1, SVC1, &[HttpVersion::H3]),
+                service_info(2, SVC2, &[]),
+            ])),
+        },
         now,
     );
+    expect_svc1_svc2_dns_queries(&mut he, now);
+    // svc1 (alpn=h3) AAAA -> first attempt is H3.
+    he.input(
+        Input::DnsResult {
+            id: Id::from(3),
+            result: DnsResult::Aaaa(Ok(vec![V6_ADDR_2])),
+        },
+        now,
+    );
+    he.expect(
+        out_attempt(
+            Id::from(7),
+            V6_ADDR_2.into(),
+            PORT,
+            ConnectionAttemptHttpVersions::H3,
+        ),
+        now,
+    );
+    he.input(
+        Input::DnsResult {
+            id: Id::from(4),
+            result: DnsResult::A(Err(())),
+        },
+        now,
+    );
+    he.expect(out_connection_attempt_delay(), now);
+    he.input(
+        Input::DnsResult {
+            id: Id::from(5),
+            result: DnsResult::Aaaa(Ok(vec![V6_ADDR_3])),
+        },
+        now,
+    );
+    he.expect(out_connection_attempt_delay(), now);
+    he.input(
+        Input::DnsResult {
+            id: Id::from(6),
+            result: DnsResult::A(Err(())),
+        },
+        now,
+    );
+    he.expect(out_connection_attempt_delay(), now);
+    he.input(in_dns_aaaa_positive(Id::from(1)), now);
+    he.expect(out_connection_attempt_delay(), now);
+    he.input(in_dns_a_negative(Id::from(2)), now);
+    he.expect(out_connection_attempt_delay(), now);
 
     // svc2 has no ALPN, so it produces no endpoints (its resolved V6_ADDR_3 is
     // never attempted). Only svc1's H3 attempt and the origin fallback remain.
-    he.expect_connection_attempts(&mut now, vec![out_attempt_v6_h1_h2(Id::from(8))]);
+    he.expect_connection_attempts([out_attempt_v6_h1_h2(Id::from(8))], &mut now);
 }
 
 /// Partial ECH with an alt-svc record on the origin. Both alt-svc and origin
@@ -710,64 +630,53 @@ fn partial_ech_with_alt_svc() {
     let (mut now, mut he) = setup_with_config(config);
 
     expect_initial_dns_queries(&mut he, now);
+    he.input(
+        Input::DnsResult {
+            id: Id::from(0),
+            result: DnsResult::Https(Ok(vec![
+                service_info(1, SVC1, &[HttpVersion::H3])
+                    .ech()
+                    .port(SVC1_PORT),
+                service_info(2, SVC2, &[HttpVersion::H2]).port(SVC2_PORT),
+            ])),
+        },
+        now,
+    );
+    // Only SVC1 gets DNS queries — SVC2 skipped (no ECH)
+    expect_svc1_dns_queries(&mut he, now);
+    // HOSTNAME AAAA/A positive
+    he.input(in_dns_aaaa_positive(Id::from(1)), now);
+    he.expect(out_resolution_delay(), now);
+    he.input(in_dns_a_positive(Id::from(2)), now);
+    he.expect(out_resolution_delay(), now);
+    // SVC1 AAAA negative
+    he.input(in_dns_aaaa_negative(Id::from(3)), now);
+    he.expect(out_resolution_delay(), now);
+    // SVC1 A positive -> first attempt from SVC1 bucket
+    he.input(
+        Input::DnsResult {
+            id: Id::from(4),
+            result: DnsResult::A(Ok(vec![V4_ADDR_2])),
+        },
+        now,
+    );
     he.expect(
-        vec![
-            (
-                Some(Input::DnsResult {
-                    id: Id::from(0),
-                    result: DnsResult::Https(Ok(vec![
-                        service_info(1, SVC1, &[HttpVersion::H3])
-                            .ech()
-                            .port(SVC1_PORT),
-                        service_info(2, SVC2, &[HttpVersion::H2]).port(SVC2_PORT),
-                    ])),
-                }),
-                // Only SVC1 gets DNS queries — SVC2 skipped (no ECH)
-                Some(out_send_dns(Id::from(3), SVC1, DnsRecordType::Aaaa)),
-            ),
-            (
-                None,
-                Some(out_send_dns(Id::from(4), SVC1, DnsRecordType::A)),
-            ),
-            (None, Some(out_resolution_delay())),
-            // HOSTNAME AAAA/A positive
-            (
-                Some(in_dns_aaaa_positive(Id::from(1))),
-                Some(out_resolution_delay()),
-            ),
-            (
-                Some(in_dns_a_positive(Id::from(2))),
-                Some(out_resolution_delay()),
-            ),
-            // SVC1 AAAA negative
-            (
-                Some(in_dns_aaaa_negative(Id::from(3))),
-                Some(out_resolution_delay()),
-            ),
-            // SVC1 A positive -> first attempt from SVC1 bucket
-            (
-                Some(Input::DnsResult {
-                    id: Id::from(4),
-                    result: DnsResult::A(Ok(vec![V4_ADDR_2])),
-                }),
-                Some(Output::AttemptConnection {
-                    id: Id::from(5),
-                    endpoint: Endpoint {
-                        address: SocketAddr::new(V4_ADDR_2.into(), SVC1_PORT),
-                        http_version: ConnectionAttemptHttpVersions::H3,
-                        ech_config: Some(ech_config()),
-                    },
-                    is_ech_retry: false,
-                }),
-            ),
-        ],
+        Output::AttemptConnection {
+            id: Id::from(5),
+            endpoint: Endpoint {
+                address: SocketAddr::new(V4_ADDR_2.into(), SVC1_PORT),
+                http_version: ConnectionAttemptHttpVersions::H3,
+                ech_config: Some(ech_config()),
+            },
+            is_ech_retry: false,
+        },
         now,
     );
 
     // Only SVC1 (with ECH), and it advertises only alpn=h3, so a single H3
     // attempt. Alt-svc, SVC2, and fallback all skipped.
     now += CONNECTION_ATTEMPT_DELAY;
-    he.expect(vec![(None, None)], now);
+    he.expect_idle(now);
 }
 
 mod https_port_svcparam_overrides_port_for {
@@ -780,27 +689,22 @@ mod https_port_svcparam_overrides_port_for {
         // After the resolution delay the hint is used; the connection attempt
         // must use 8443, not the authority port 443. IPv6 is preferred.
         expect_initial_dns_queries(&mut he, now);
-        he.expect(
-            vec![(
-                Some(Input::DnsResult {
-                    id: Id::from(0),
-                    result: DnsResult::Https(Ok(vec![
-                        service_info(1, HOSTNAME, &[HttpVersion::H3, HttpVersion::H2])
-                            .ipv6_hints(vec![V6_ADDR])
-                            .ipv4_hints(ipv4_hints)
-                            .port(CUSTOM_PORT),
-                    ])),
-                }),
-                Some(out_resolution_delay()),
-            )],
+        he.input(
+            Input::DnsResult {
+                id: Id::from(0),
+                result: DnsResult::Https(Ok(vec![
+                    service_info(1, HOSTNAME, &[HttpVersion::H3, HttpVersion::H2])
+                        .ipv6_hints(vec![V6_ADDR])
+                        .ipv4_hints(ipv4_hints)
+                        .port(CUSTOM_PORT),
+                ])),
+            },
             now,
         );
+        he.expect(out_resolution_delay(), now);
 
         now += RESOLUTION_DELAY;
-        he.expect(
-            vec![(None, Some(out_attempt_v6_h3_custom_port(Id::from(3))))],
-            now,
-        );
+        he.expect(out_attempt_v6_h3_custom_port(Id::from(3)), now);
     }
 
     #[test]
@@ -821,36 +725,25 @@ fn https_port_svcparam_applies_to_resolved_a_and_aaaa() {
     let (now, mut he) = setup(); // constructed with PORT (443)
 
     expect_initial_dns_queries(&mut he, now);
-    he.expect(
-        vec![
-            // HTTPS record with port=8443, no hints
-            (
-                Some(Input::DnsResult {
-                    id: Id::from(0),
-                    result: DnsResult::Https(Ok(vec![
-                        service_info(1, HOSTNAME, &[HttpVersion::H3, HttpVersion::H2])
-                            .port(CUSTOM_PORT),
-                    ])),
-                }),
-                Some(out_resolution_delay()),
-            ),
-            // Positive AAAA: connection attempt must use port 8443, not 443
-            (
-                Some(in_dns_aaaa_positive(Id::from(1))),
-                Some(out_attempt_v6_h3_custom_port(Id::from(3))),
-            ),
-            (
-                Some(in_dns_a_positive(Id::from(2))),
-                Some(out_connection_attempt_delay()),
-            ),
-            // Positive A: connection attempt must use port 8443, not 443
-            (
-                Some(in_connection_result_negative(Id::from(3))),
-                Some(out_attempt_v4_h3_custom_port(Id::from(4))),
-            ),
-        ],
+    // HTTPS record with port=8443, no hints
+    he.input(
+        Input::DnsResult {
+            id: Id::from(0),
+            result: DnsResult::Https(Ok(vec![
+                service_info(1, HOSTNAME, &[HttpVersion::H3, HttpVersion::H2]).port(CUSTOM_PORT),
+            ])),
+        },
         now,
     );
+    he.expect(out_resolution_delay(), now);
+    // Positive AAAA: connection attempt must use port 8443, not 443
+    he.input(in_dns_aaaa_positive(Id::from(1)), now);
+    he.expect(out_attempt_v6_h3_custom_port(Id::from(3)), now);
+    he.input(in_dns_a_positive(Id::from(2)), now);
+    he.expect(out_connection_attempt_delay(), now);
+    // Positive A: connection attempt must use port 8443, not 443
+    he.input(in_connection_result_negative(Id::from(3)), now);
+    he.expect(out_attempt_v4_h3_custom_port(Id::from(4)), now);
 }
 
 #[test]
@@ -858,51 +751,45 @@ fn https_port_svcparam_applies_but_fallbacks_follow() {
     let (mut now, mut he) = setup();
 
     expect_initial_dns_queries(&mut he, now);
-    he.expect(
-        vec![
-            // HTTPS record with port=8443, no hints
-            (
-                Some(Input::DnsResult {
-                    id: Id::from(0),
-                    result: DnsResult::Https(Ok(vec![
-                        service_info(1, HOSTNAME, &[HttpVersion::H3, HttpVersion::H2])
-                            .port(CUSTOM_PORT),
-                    ])),
-                }),
-                Some(out_resolution_delay()),
-            ),
-            // Positive AAAA: connection attempt must use port 8443, not 443
-            (
-                Some(in_dns_aaaa_positive(Id::from(1))),
-                Some(Output::AttemptConnection {
-                    id: Id::from(3),
-                    endpoint: Endpoint {
-                        address: SocketAddr::new(V6_ADDR.into(), CUSTOM_PORT),
-                        http_version: ConnectionAttemptHttpVersions::H3,
-                        ech_config: None,
-                    },
-                    is_ech_retry: false,
-                }),
-            ),
-            (
-                Some(in_dns_a_positive(Id::from(2))),
-                Some(out_connection_attempt_delay()),
-            ),
-        ],
+    // HTTPS record with port=8443, no hints
+    he.input(
+        Input::DnsResult {
+            id: Id::from(0),
+            result: DnsResult::Https(Ok(vec![
+                service_info(1, HOSTNAME, &[HttpVersion::H3, HttpVersion::H2]).port(CUSTOM_PORT),
+            ])),
+        },
         now,
     );
+    he.expect(out_resolution_delay(), now);
+    // Positive AAAA: connection attempt must use port 8443, not 443
+    he.input(in_dns_aaaa_positive(Id::from(1)), now);
+    he.expect(
+        Output::AttemptConnection {
+            id: Id::from(3),
+            endpoint: Endpoint {
+                address: SocketAddr::new(V6_ADDR.into(), CUSTOM_PORT),
+                http_version: ConnectionAttemptHttpVersions::H3,
+                ech_config: None,
+            },
+            is_ech_retry: false,
+        },
+        now,
+    );
+    he.input(in_dns_a_positive(Id::from(2)), now);
+    he.expect(out_connection_attempt_delay(), now);
 
     // Connection attempts using custom port: V4:H3, V6:H2, V4:H2, then
     // fallback on port 443 with default HTTP versions (H2OrH1).
     he.expect_connection_attempts(
-        &mut now,
-        vec![
+        [
             out_attempt_v4_h3_custom_port(Id::from(4)),
             out_attempt_v6_h2_custom_port(Id::from(5)),
             out_attempt_v4_h2_custom_port(Id::from(6)),
             out_attempt_v6_h1_h2(Id::from(7)),
             out_attempt_v4_h1_h2(Id::from(8)),
         ],
+        &mut now,
     );
 }
 
@@ -939,41 +826,30 @@ fn https_two_service_infos_with_different_ports() {
         };
 
     expect_initial_dns_queries(&mut he, now);
-    he.expect(
-        vec![
-            // Two ServiceInfo records; the lower priority number wins first.
-            (
-                Some(Input::DnsResult {
-                    id: Id::from(0),
-                    result: DnsResult::Https(Ok(vec![
-                        service_info(1, HOSTNAME, &[HttpVersion::H3, HttpVersion::H2]).port(PORT_1),
-                        service_info(2, HOSTNAME, &[HttpVersion::H3, HttpVersion::H2]).port(PORT_2),
-                    ])),
-                }),
-                Some(out_resolution_delay()),
-            ),
-            // AAAA arrives; move-on criteria met. First bucket is PORT_1.
-            (
-                Some(in_dns_aaaa_positive(Id::from(1))),
-                Some(attempt(
-                    3,
-                    V6_ADDR.into(),
-                    PORT_1,
-                    ConnectionAttemptHttpVersions::H3,
-                )),
-            ),
-            (None, Some(out_connection_attempt_delay())),
-            (
-                Some(in_dns_a_positive(Id::from(2))),
-                Some(out_connection_attempt_delay()),
-            ),
-        ],
+    // Two ServiceInfo records; the lower priority number wins first.
+    he.input(
+        Input::DnsResult {
+            id: Id::from(0),
+            result: DnsResult::Https(Ok(vec![
+                service_info(1, HOSTNAME, &[HttpVersion::H3, HttpVersion::H2]).port(PORT_1),
+                service_info(2, HOSTNAME, &[HttpVersion::H3, HttpVersion::H2]).port(PORT_2),
+            ])),
+        },
         now,
     );
+    he.expect(out_resolution_delay(), now);
+    // AAAA arrives; move-on criteria met. First bucket is PORT_1.
+    he.input(in_dns_aaaa_positive(Id::from(1)), now);
+    he.expect(
+        attempt(3, V6_ADDR.into(), PORT_1, ConnectionAttemptHttpVersions::H3),
+        now,
+    );
+    he.expect(out_connection_attempt_delay(), now);
+    he.input(in_dns_a_positive(Id::from(2)), now);
+    he.expect(out_connection_attempt_delay(), now);
 
     he.expect_connection_attempts(
-        &mut now,
-        vec![
+        [
             // Priority-1 bucket (port 20007): V4:H3, V6:H2, V4:H2.
             attempt(4, V4_ADDR.into(), PORT_1, ConnectionAttemptHttpVersions::H3),
             attempt(5, V6_ADDR.into(), PORT_1, ConnectionAttemptHttpVersions::H2),
@@ -992,6 +868,7 @@ fn https_two_service_infos_with_different_ports() {
             out_attempt_v6_h1_h2(Id::from(11)),
             out_attempt_v4_h1_h2(Id::from(12)),
         ],
+        &mut now,
     );
 }
 
@@ -1003,48 +880,25 @@ fn no_default_alpn() {
     let (now, mut he) = setup();
 
     expect_initial_dns_queries(&mut he, now);
-    he.expect(
-        vec![
-            (
-                Some(in_dns_https_positive(Id::from(0))),
-                Some(out_resolution_delay()),
-            ),
-            (
-                Some(in_dns_aaaa_positive(Id::from(1))),
-                Some(out_attempt_v6_h3(Id::from(3))),
-            ),
-            (
-                Some(in_dns_a_positive(Id::from(2))),
-                Some(out_connection_attempt_delay()),
-            ),
-            (
-                Some(in_connection_result_negative(Id::from(3))),
-                Some(out_attempt_v4_h3(Id::from(4))),
-            ),
-            (
-                Some(in_connection_result_negative(Id::from(4))),
-                Some(out_attempt_v6_h2(Id::from(5))),
-            ),
-            (
-                Some(in_connection_result_negative(Id::from(5))),
-                Some(out_attempt_v4_h2(Id::from(6))),
-            ),
-            // Fallback bucket with default HTTP versions (H2OrH1).
-            (
-                Some(in_connection_result_negative(Id::from(6))),
-                Some(out_attempt_v6_h1_h2(Id::from(7))),
-            ),
-            (
-                Some(in_connection_result_negative(Id::from(7))),
-                Some(out_attempt_v4_h1_h2(Id::from(8))),
-            ),
-            (
-                Some(in_connection_result_negative(Id::from(8))),
-                Some(Output::Failed(FailureReason::Connection)),
-            ),
-        ],
-        now,
-    );
+    he.input(in_dns_https_positive(Id::from(0)), now);
+    he.expect(out_resolution_delay(), now);
+    he.input(in_dns_aaaa_positive(Id::from(1)), now);
+    he.expect(out_attempt_v6_h3(Id::from(3)), now);
+    he.input(in_dns_a_positive(Id::from(2)), now);
+    he.expect(out_connection_attempt_delay(), now);
+    he.input(in_connection_result_negative(Id::from(3)), now);
+    he.expect(out_attempt_v4_h3(Id::from(4)), now);
+    he.input(in_connection_result_negative(Id::from(4)), now);
+    he.expect(out_attempt_v6_h2(Id::from(5)), now);
+    he.input(in_connection_result_negative(Id::from(5)), now);
+    he.expect(out_attempt_v4_h2(Id::from(6)), now);
+    // Fallback bucket with default HTTP versions (H2OrH1).
+    he.input(in_connection_result_negative(Id::from(6)), now);
+    he.expect(out_attempt_v6_h1_h2(Id::from(7)), now);
+    he.input(in_connection_result_negative(Id::from(7)), now);
+    he.expect(out_attempt_v4_h1_h2(Id::from(8)), now);
+    he.input(in_connection_result_negative(Id::from(8)), now);
+    he.expect(Output::Failed(FailureReason::Connection), now);
 }
 
 #[test]
@@ -1052,48 +906,37 @@ fn https_svc1_addresses_trigger_additional_attempts() {
     let (mut now, mut he) = setup();
 
     expect_initial_dns_queries(&mut he, now);
-    he.expect(
-        vec![
-            (
-                Some(Input::DnsResult {
-                    id: Id::from(0),
-                    result: DnsResult::Https(Ok(vec![
-                        service_info(1, HOSTNAME, &[HttpVersion::H2, HttpVersion::H3]),
-                        service_info(2, SVC1, &[HttpVersion::H2, HttpVersion::H3]),
-                    ])),
-                }),
-                Some(out_send_dns(Id::from(3), SVC1, DnsRecordType::Aaaa)),
-            ),
-            (
-                None,
-                Some(out_send_dns(Id::from(4), SVC1, DnsRecordType::A)),
-            ),
-            (None, Some(out_resolution_delay())),
-            (
-                Some(in_dns_aaaa_positive(Id::from(1))),
-                Some(out_attempt_v6_h3(Id::from(5))),
-            ),
-            (
-                Some(in_dns_a_positive(Id::from(2))),
-                Some(out_connection_attempt_delay()),
-            ),
-            (
-                Some(Input::DnsResult {
-                    id: Id::from(3),
-                    result: DnsResult::Aaaa(Ok(vec![V6_ADDR_2])),
-                }),
-                Some(out_connection_attempt_delay()),
-            ),
-            (
-                Some(Input::DnsResult {
-                    id: Id::from(4),
-                    result: DnsResult::A(Ok(vec![V4_ADDR_2])),
-                }),
-                Some(out_connection_attempt_delay()),
-            ),
-        ],
+    he.input(
+        Input::DnsResult {
+            id: Id::from(0),
+            result: DnsResult::Https(Ok(vec![
+                service_info(1, HOSTNAME, &[HttpVersion::H2, HttpVersion::H3]),
+                service_info(2, SVC1, &[HttpVersion::H2, HttpVersion::H3]),
+            ])),
+        },
         now,
     );
+    expect_svc1_dns_queries(&mut he, now);
+    he.input(in_dns_aaaa_positive(Id::from(1)), now);
+    he.expect(out_attempt_v6_h3(Id::from(5)), now);
+    he.input(in_dns_a_positive(Id::from(2)), now);
+    he.expect(out_connection_attempt_delay(), now);
+    he.input(
+        Input::DnsResult {
+            id: Id::from(3),
+            result: DnsResult::Aaaa(Ok(vec![V6_ADDR_2])),
+        },
+        now,
+    );
+    he.expect(out_connection_attempt_delay(), now);
+    he.input(
+        Input::DnsResult {
+            id: Id::from(4),
+            result: DnsResult::A(Ok(vec![V4_ADDR_2])),
+        },
+        now,
+    );
+    he.expect(out_connection_attempt_delay(), now);
 
     let attempt = |id: u64, addr: IpAddr, http_version: ConnectionAttemptHttpVersions| {
         Output::AttemptConnection {
@@ -1111,8 +954,7 @@ fn https_svc1_addresses_trigger_additional_attempts() {
     // come before P2 (SVC1, priority=2) endpoints.  V6_ADDR:H3 was already
     // attempted (id=5); the remaining follow in priority order, then fallback.
     he.expect_connection_attempts(
-        &mut now,
-        vec![
+        [
             attempt(6, V4_ADDR.into(), ConnectionAttemptHttpVersions::H3), // priority=1
             attempt(7, V6_ADDR.into(), ConnectionAttemptHttpVersions::H2), // priority=1
             attempt(8, V4_ADDR.into(), ConnectionAttemptHttpVersions::H2), // priority=1
@@ -1124,6 +966,7 @@ fn https_svc1_addresses_trigger_additional_attempts() {
             attempt(13, V6_ADDR.into(), ConnectionAttemptHttpVersions::H2OrH1),
             attempt(14, V4_ADDR.into(), ConnectionAttemptHttpVersions::H2OrH1),
         ],
+        &mut now,
     );
 }
 
@@ -1150,40 +993,33 @@ fn https_port_takes_precedence_over_alt_svc_port() {
     let (mut now, mut he) = setup_with_config(config);
 
     expect_initial_dns_queries(&mut he, now);
-    he.expect(
-        vec![
-            // HTTPS record with port=8443
-            (
-                Some(Input::DnsResult {
-                    id: Id::from(0),
-                    result: DnsResult::Https(Ok(vec![
-                        service_info(1, HOSTNAME, &[HttpVersion::H3, HttpVersion::H2])
-                            .port(HTTPS_PORT),
-                    ])),
-                }),
-                Some(out_resolution_delay()),
-            ),
-            // AAAA arrives; HTTPS bucket first (port 8443)
-            (
-                Some(in_dns_aaaa_positive(Id::from(1))),
-                Some(out_attempt(
-                    Id::from(3),
-                    V6_ADDR.into(),
-                    HTTPS_PORT,
-                    ConnectionAttemptHttpVersions::H3,
-                )),
-            ),
-            (
-                Some(in_dns_a_positive(Id::from(2))),
-                Some(out_connection_attempt_delay()),
-            ),
-        ],
+    // HTTPS record with port=8443
+    he.input(
+        Input::DnsResult {
+            id: Id::from(0),
+            result: DnsResult::Https(Ok(vec![
+                service_info(1, HOSTNAME, &[HttpVersion::H3, HttpVersion::H2]).port(HTTPS_PORT),
+            ])),
+        },
         now,
     );
+    he.expect(out_resolution_delay(), now);
+    // AAAA arrives; HTTPS bucket first (port 8443)
+    he.input(in_dns_aaaa_positive(Id::from(1)), now);
+    he.expect(
+        out_attempt(
+            Id::from(3),
+            V6_ADDR.into(),
+            HTTPS_PORT,
+            ConnectionAttemptHttpVersions::H3,
+        ),
+        now,
+    );
+    he.input(in_dns_a_positive(Id::from(2)), now);
+    he.expect(out_connection_attempt_delay(), now);
 
     he.expect_connection_attempts(
-        &mut now,
-        vec![
+        [
             // HTTPS bucket (port 8443)
             out_attempt(
                 Id::from(4),
@@ -1230,6 +1066,7 @@ fn https_port_takes_precedence_over_alt_svc_port() {
                 ConnectionAttemptHttpVersions::H2OrH1,
             ),
         ],
+        &mut now,
     );
 }
 
@@ -1255,65 +1092,56 @@ fn target_name_redirect_addresses_used_in_connection_attempts() {
     let (mut now, mut he) = setup();
 
     expect_initial_dns_queries(&mut he, now);
-    he.expect(
-        vec![
-            // HTTPS response redirects to SVC1 (different target name, no hints)
-            (
-                Some(Input::DnsResult {
-                    id: Id::from(0),
-                    result: DnsResult::Https(Ok(vec![service_info(1, SVC1, &[HttpVersion::H3])])),
-                }),
-                // Follow-up DNS for the redirected target name
-                Some(out_send_dns(Id::from(3), SVC1, DnsRecordType::Aaaa)),
-            ),
-            (
-                None,
-                Some(out_send_dns(Id::from(4), SVC1, DnsRecordType::A)),
-            ),
-            (None, Some(out_resolution_delay())),
-            // SVC1 AAAA positive → move-on criteria met, first attempt uses
-            // the redirected target name's resolved address.
-            (
-                Some(Input::DnsResult {
-                    id: Id::from(3),
-                    result: DnsResult::Aaaa(Ok(vec![V6_ADDR_2])),
-                }),
-                Some(Output::AttemptConnection {
-                    id: Id::from(5),
-                    endpoint: Endpoint {
-                        address: SocketAddr::new(V6_ADDR_2.into(), PORT),
-                        http_version: ConnectionAttemptHttpVersions::H3,
-                        ech_config: None,
-                    },
-                    is_ech_retry: false,
-                }),
-            ),
-            (None, Some(out_connection_attempt_delay())),
-            // Remaining DNS arrives while first attempt is in progress
-            (
-                Some(Input::DnsResult {
-                    id: Id::from(4),
-                    result: DnsResult::A(Ok(vec![V4_ADDR_2])),
-                }),
-                Some(out_connection_attempt_delay()),
-            ),
-            (
-                Some(in_dns_aaaa_positive(Id::from(1))),
-                Some(out_connection_attempt_delay()),
-            ),
-            (
-                Some(in_dns_a_positive(Id::from(2))),
-                Some(out_connection_attempt_delay()),
-            ),
-        ],
+    // HTTPS response redirects to SVC1 (different target name, no hints)
+    he.input(
+        Input::DnsResult {
+            id: Id::from(0),
+            result: DnsResult::Https(Ok(vec![service_info(1, SVC1, &[HttpVersion::H3])])),
+        },
         now,
     );
+    // Follow-up DNS for the redirected target name
+    expect_svc1_dns_queries(&mut he, now);
+    // SVC1 AAAA positive → move-on criteria met, first attempt uses
+    // the redirected target name's resolved address.
+    he.input(
+        Input::DnsResult {
+            id: Id::from(3),
+            result: DnsResult::Aaaa(Ok(vec![V6_ADDR_2])),
+        },
+        now,
+    );
+    he.expect(
+        Output::AttemptConnection {
+            id: Id::from(5),
+            endpoint: Endpoint {
+                address: SocketAddr::new(V6_ADDR_2.into(), PORT),
+                http_version: ConnectionAttemptHttpVersions::H3,
+                ech_config: None,
+            },
+            is_ech_retry: false,
+        },
+        now,
+    );
+    he.expect(out_connection_attempt_delay(), now);
+    // Remaining DNS arrives while first attempt is in progress
+    he.input(
+        Input::DnsResult {
+            id: Id::from(4),
+            result: DnsResult::A(Ok(vec![V4_ADDR_2])),
+        },
+        now,
+    );
+    he.expect(out_connection_attempt_delay(), now);
+    he.input(in_dns_aaaa_positive(Id::from(1)), now);
+    he.expect(out_connection_attempt_delay(), now);
+    he.input(in_dns_a_positive(Id::from(2)), now);
+    he.expect(out_connection_attempt_delay(), now);
 
     // Remaining attempts: SVC1's V4 address, then origin fallback.
     // SVC1 (priority 1) addresses come before the origin fallback.
     he.expect_connection_attempts(
-        &mut now,
-        vec![
+        [
             // SVC1 bucket (priority 1)
             Output::AttemptConnection {
                 id: Id::from(6),
@@ -1328,6 +1156,7 @@ fn target_name_redirect_addresses_used_in_connection_attempts() {
             out_attempt_v6_h1_h2(Id::from(7)),
             out_attempt_v4_h1_h2(Id::from(8)),
         ],
+        &mut now,
     );
 }
 
@@ -1349,34 +1178,26 @@ fn https_fallback_uses_default_http_versions() {
     let (mut now, mut he) = setup();
 
     expect_initial_dns_queries(&mut he, now);
-    he.expect(
-        vec![
-            // HTTPS record with port=8443, alpn=h3 only
-            (
-                Some(Input::DnsResult {
-                    id: Id::from(0),
-                    result: DnsResult::Https(Ok(vec![
-                        service_info(1, HOSTNAME, &[HttpVersion::H3]).port(CUSTOM_PORT),
-                    ])),
-                }),
-                Some(out_resolution_delay()),
-            ),
-            (
-                Some(in_dns_aaaa_negative(Id::from(1))),
-                Some(out_resolution_delay()),
-            ),
-            // Positive A: connection attempt uses port 8443 with H3 from HTTPS record
-            (
-                Some(in_dns_a_positive(Id::from(2))),
-                Some(out_attempt_v4_h3_custom_port(Id::from(3))),
-            ),
-            (None, Some(out_connection_attempt_delay())),
-        ],
+    // HTTPS record with port=8443, alpn=h3 only
+    he.input(
+        Input::DnsResult {
+            id: Id::from(0),
+            result: DnsResult::Https(Ok(vec![
+                service_info(1, HOSTNAME, &[HttpVersion::H3]).port(CUSTOM_PORT),
+            ])),
+        },
         now,
     );
+    he.expect(out_resolution_delay(), now);
+    he.input(in_dns_aaaa_negative(Id::from(1)), now);
+    he.expect(out_resolution_delay(), now);
+    // Positive A: connection attempt uses port 8443 with H3 from HTTPS record
+    he.input(in_dns_a_positive(Id::from(2)), now);
+    he.expect(out_attempt_v4_h3_custom_port(Id::from(3)), now);
+    he.expect(out_connection_attempt_delay(), now);
 
     // Fallback on port 443 must use default H2OrH1, NOT H3.
-    he.expect_connection_attempts(&mut now, vec![out_attempt_v4_h1_h2(Id::from(4))]);
+    he.expect_connection_attempts([out_attempt_v4_h1_h2(Id::from(4))], &mut now);
 }
 
 /// When a connection attempt fails with `EchRetry`, the state machine should
@@ -1394,51 +1215,52 @@ fn ech_retry_same_endpoint() {
     let new_ech_config = EchConfig::new(vec![10, 20, 30, 40, 50]);
 
     expect_initial_dns_queries(&mut he, now);
+    he.input(
+        Input::DnsResult {
+            id: Id::from(0),
+            result: DnsResult::Https(Ok(vec![
+                service_info(1, HOSTNAME, &[HttpVersion::H2]).ech(),
+            ])),
+        },
+        now,
+    );
+    he.expect(out_resolution_delay(), now);
+    he.input(in_dns_aaaa_positive(Id::from(1)), now);
+    // First connection attempt with original ECH config.
     he.expect(
-        vec![
-            (
-                Some(Input::DnsResult {
-                    id: Id::from(0),
-                    result: DnsResult::Https(Ok(vec![
-                        service_info(1, HOSTNAME, &[HttpVersion::H2]).ech(),
-                    ])),
-                }),
-                Some(out_resolution_delay()),
-            ),
-            (
-                Some(in_dns_aaaa_positive(Id::from(1))),
-                // First connection attempt with original ECH config.
-                Some(Output::AttemptConnection {
-                    id: Id::from(3),
-                    endpoint: Endpoint {
-                        address: SocketAddr::new(V6_ADDR.into(), PORT),
-                        http_version: ConnectionAttemptHttpVersions::H2,
-                        ech_config: Some(ech_config()),
-                    },
-                    is_ech_retry: false,
-                }),
-            ),
-            (None, Some(out_connection_attempt_delay())),
-            // Server rejects ECH and provides retry_configs.
-            (
-                Some(Input::ConnectionResult {
-                    id: Id::from(3),
-                    result: ConnectionResult::EchRetry(new_ech_config.clone()),
-                }),
-                // State machine emits a new attempt with the new ECH config
-                // immediately (no delay — this is a server-initiated retry,
-                // not a new candidate).
-                Some(Output::AttemptConnection {
-                    id: Id::from(4),
-                    endpoint: Endpoint {
-                        address: SocketAddr::new(V6_ADDR.into(), PORT),
-                        http_version: ConnectionAttemptHttpVersions::H2,
-                        ech_config: Some(new_ech_config.clone()),
-                    },
-                    is_ech_retry: true,
-                }),
-            ),
-        ],
+        Output::AttemptConnection {
+            id: Id::from(3),
+            endpoint: Endpoint {
+                address: SocketAddr::new(V6_ADDR.into(), PORT),
+                http_version: ConnectionAttemptHttpVersions::H2,
+                ech_config: Some(ech_config()),
+            },
+            is_ech_retry: false,
+        },
+        now,
+    );
+    he.expect(out_connection_attempt_delay(), now);
+    // Server rejects ECH and provides retry_configs.
+    he.input(
+        Input::ConnectionResult {
+            id: Id::from(3),
+            result: ConnectionResult::EchRetry(new_ech_config.clone()),
+        },
+        now,
+    );
+    // State machine emits a new attempt with the new ECH config
+    // immediately (no delay — this is a server-initiated retry,
+    // not a new candidate).
+    he.expect(
+        Output::AttemptConnection {
+            id: Id::from(4),
+            endpoint: Endpoint {
+                address: SocketAddr::new(V6_ADDR.into(), PORT),
+                http_version: ConnectionAttemptHttpVersions::H2,
+                ech_config: Some(new_ech_config.clone()),
+            },
+            is_ech_retry: true,
+        },
         now,
     );
 }
@@ -1454,46 +1276,47 @@ fn ech_retry_without_ech_sets_flag() {
     let empty_ech_config = EchConfig::new(vec![]);
 
     expect_initial_dns_queries(&mut he, now);
+    he.input(
+        Input::DnsResult {
+            id: Id::from(0),
+            result: DnsResult::Https(Ok(vec![
+                service_info(1, HOSTNAME, &[HttpVersion::H2]).ech(),
+            ])),
+        },
+        now,
+    );
+    he.expect(out_resolution_delay(), now);
+    he.input(in_dns_aaaa_positive(Id::from(1)), now);
     he.expect(
-        vec![
-            (
-                Some(Input::DnsResult {
-                    id: Id::from(0),
-                    result: DnsResult::Https(Ok(vec![
-                        service_info(1, HOSTNAME, &[HttpVersion::H2]).ech(),
-                    ])),
-                }),
-                Some(out_resolution_delay()),
-            ),
-            (
-                Some(in_dns_aaaa_positive(Id::from(1))),
-                Some(Output::AttemptConnection {
-                    id: Id::from(3),
-                    endpoint: Endpoint {
-                        address: SocketAddr::new(V6_ADDR.into(), PORT),
-                        http_version: ConnectionAttemptHttpVersions::H2,
-                        ech_config: Some(ech_config()),
-                    },
-                    is_ech_retry: false,
-                }),
-            ),
-            (None, Some(out_connection_attempt_delay())),
-            (
-                Some(Input::ConnectionResult {
-                    id: Id::from(3),
-                    result: ConnectionResult::EchRetry(empty_ech_config.clone()),
-                }),
-                Some(Output::AttemptConnection {
-                    id: Id::from(4),
-                    endpoint: Endpoint {
-                        address: SocketAddr::new(V6_ADDR.into(), PORT),
-                        http_version: ConnectionAttemptHttpVersions::H2,
-                        ech_config: Some(empty_ech_config.clone()),
-                    },
-                    is_ech_retry: true,
-                }),
-            ),
-        ],
+        Output::AttemptConnection {
+            id: Id::from(3),
+            endpoint: Endpoint {
+                address: SocketAddr::new(V6_ADDR.into(), PORT),
+                http_version: ConnectionAttemptHttpVersions::H2,
+                ech_config: Some(ech_config()),
+            },
+            is_ech_retry: false,
+        },
+        now,
+    );
+    he.expect(out_connection_attempt_delay(), now);
+    he.input(
+        Input::ConnectionResult {
+            id: Id::from(3),
+            result: ConnectionResult::EchRetry(empty_ech_config.clone()),
+        },
+        now,
+    );
+    he.expect(
+        Output::AttemptConnection {
+            id: Id::from(4),
+            endpoint: Endpoint {
+                address: SocketAddr::new(V6_ADDR.into(), PORT),
+                http_version: ConnectionAttemptHttpVersions::H2,
+                ech_config: Some(empty_ech_config.clone()),
+            },
+            is_ech_retry: true,
+        },
         now,
     );
 }
@@ -1513,71 +1336,74 @@ fn ech_retry_no_infinite_loop() {
     let retry_ech_config_2 = EchConfig::new(vec![60, 70, 80]);
 
     expect_initial_dns_queries(&mut he, now);
+    he.input(
+        Input::DnsResult {
+            id: Id::from(0),
+            result: DnsResult::Https(Ok(vec![
+                service_info(1, HOSTNAME, &[HttpVersion::H2]).ech(),
+            ])),
+        },
+        now,
+    );
+    he.expect(out_resolution_delay(), now);
+    he.input(in_dns_aaaa_positive(Id::from(1)), now);
     he.expect(
-        vec![
-            (
-                Some(Input::DnsResult {
-                    id: Id::from(0),
-                    result: DnsResult::Https(Ok(vec![
-                        service_info(1, HOSTNAME, &[HttpVersion::H2]).ech(),
-                    ])),
-                }),
-                Some(out_resolution_delay()),
-            ),
-            (
-                Some(in_dns_aaaa_positive(Id::from(1))),
-                Some(Output::AttemptConnection {
-                    id: Id::from(3),
-                    endpoint: Endpoint {
-                        address: SocketAddr::new(V6_ADDR.into(), PORT),
-                        http_version: ConnectionAttemptHttpVersions::H2,
-                        ech_config: Some(ech_config()),
-                    },
-                    is_ech_retry: false,
-                }),
-            ),
-            (None, Some(out_connection_attempt_delay())),
-            // First EchRetry: accepted, new attempt emitted.
-            (
-                Some(Input::ConnectionResult {
-                    id: Id::from(3),
-                    result: ConnectionResult::EchRetry(retry_ech_config.clone()),
-                }),
-                Some(Output::AttemptConnection {
-                    id: Id::from(4),
-                    endpoint: Endpoint {
-                        address: SocketAddr::new(V6_ADDR.into(), PORT),
-                        http_version: ConnectionAttemptHttpVersions::H2,
-                        ech_config: Some(retry_ech_config.clone()),
-                    },
-                    is_ech_retry: true,
-                }),
-            ),
-            (None, Some(out_connection_attempt_delay())),
-            // Second EchRetry on the retried attempt: ignored, treated as
-            // failure. A record still pending, so resolution delay.
-            (
-                Some(Input::ConnectionResult {
-                    id: Id::from(4),
-                    result: ConnectionResult::EchRetry(retry_ech_config_2),
-                }),
-                Some(out_resolution_delay()),
-            ),
-            // A record arrives, next endpoint attempted (V4, original ECH
-            // from DNS).
-            (
-                Some(in_dns_a_positive(Id::from(2))),
-                Some(Output::AttemptConnection {
-                    id: Id::from(5),
-                    endpoint: Endpoint {
-                        address: SocketAddr::new(V4_ADDR.into(), PORT),
-                        http_version: ConnectionAttemptHttpVersions::H2,
-                        ech_config: Some(ech_config()),
-                    },
-                    is_ech_retry: false,
-                }),
-            ),
-        ],
+        Output::AttemptConnection {
+            id: Id::from(3),
+            endpoint: Endpoint {
+                address: SocketAddr::new(V6_ADDR.into(), PORT),
+                http_version: ConnectionAttemptHttpVersions::H2,
+                ech_config: Some(ech_config()),
+            },
+            is_ech_retry: false,
+        },
+        now,
+    );
+    he.expect(out_connection_attempt_delay(), now);
+    // First EchRetry: accepted, new attempt emitted.
+    he.input(
+        Input::ConnectionResult {
+            id: Id::from(3),
+            result: ConnectionResult::EchRetry(retry_ech_config.clone()),
+        },
+        now,
+    );
+    he.expect(
+        Output::AttemptConnection {
+            id: Id::from(4),
+            endpoint: Endpoint {
+                address: SocketAddr::new(V6_ADDR.into(), PORT),
+                http_version: ConnectionAttemptHttpVersions::H2,
+                ech_config: Some(retry_ech_config.clone()),
+            },
+            is_ech_retry: true,
+        },
+        now,
+    );
+    he.expect(out_connection_attempt_delay(), now);
+    // Second EchRetry on the retried attempt: ignored, treated as
+    // failure. A record still pending, so resolution delay.
+    he.input(
+        Input::ConnectionResult {
+            id: Id::from(4),
+            result: ConnectionResult::EchRetry(retry_ech_config_2),
+        },
+        now,
+    );
+    he.expect(out_resolution_delay(), now);
+    // A record arrives, next endpoint attempted (V4, original ECH
+    // from DNS).
+    he.input(in_dns_a_positive(Id::from(2)), now);
+    he.expect(
+        Output::AttemptConnection {
+            id: Id::from(5),
+            endpoint: Endpoint {
+                address: SocketAddr::new(V4_ADDR.into(), PORT),
+                http_version: ConnectionAttemptHttpVersions::H2,
+                ech_config: Some(ech_config()),
+            },
+            is_ech_retry: false,
+        },
         now,
     );
 }
@@ -1616,87 +1442,81 @@ fn rfc_multi_cdn_target_names_resolved_and_attempted() {
     let (mut now, mut he) = setup();
 
     expect_initial_dns_queries(&mut he, now);
-    he.expect(
-        vec![
-            // The CDN the customer is CNAME'd to returns two ServiceMode records,
-            // each steering to a different pool with its own target name.
-            (
-                Some(Input::DnsResult {
-                    id: Id::from(0),
-                    result: DnsResult::Https(Ok(vec![
-                        service_info(1, H3POOL, &[HttpVersion::H3]),
-                        service_info(2, CDN1, &[HttpVersion::H2]),
-                    ])),
-                }),
-                // Both target names are resolved on their own.
-                Some(out_send_dns(Id::from(3), H3POOL, DnsRecordType::Aaaa)),
-            ),
-            (
-                None,
-                Some(out_send_dns(Id::from(4), H3POOL, DnsRecordType::A)),
-            ),
-            (
-                None,
-                Some(out_send_dns(Id::from(5), CDN1, DnsRecordType::Aaaa)),
-            ),
-            (
-                None,
-                Some(out_send_dns(Id::from(6), CDN1, DnsRecordType::A)),
-            ),
-            (None, Some(out_resolution_delay())),
-            // h3pool (priority 1) AAAA arrives -> first attempt uses the pool's
-            // own resolved address, never the origin's canonical name.
-            (
-                Some(Input::DnsResult {
-                    id: Id::from(3),
-                    result: DnsResult::Aaaa(Ok(vec![H3POOL_V6])),
-                }),
-                Some(out_attempt(
-                    Id::from(7),
-                    H3POOL_V6.into(),
-                    PORT,
-                    ConnectionAttemptHttpVersions::H3,
-                )),
-            ),
-            (
-                Some(Input::DnsResult {
-                    id: Id::from(4),
-                    result: DnsResult::A(Ok(vec![H3POOL_V4])),
-                }),
-                Some(out_connection_attempt_delay()),
-            ),
-            (
-                Some(Input::DnsResult {
-                    id: Id::from(5),
-                    result: DnsResult::Aaaa(Ok(vec![CDN1_V6])),
-                }),
-                Some(out_connection_attempt_delay()),
-            ),
-            (
-                Some(Input::DnsResult {
-                    id: Id::from(6),
-                    result: DnsResult::A(Ok(vec![CDN1_V4])),
-                }),
-                Some(out_connection_attempt_delay()),
-            ),
-            // Origin A/AAAA: the non-CDN fallback addresses.
-            (
-                Some(in_dns_aaaa_positive(Id::from(1))),
-                Some(out_connection_attempt_delay()),
-            ),
-            (
-                Some(in_dns_a_positive(Id::from(2))),
-                Some(out_connection_attempt_delay()),
-            ),
+    // The CDN the customer is CNAME'd to returns two ServiceMode records,
+    // each steering to a different pool with its own target name.
+    he.input(
+        Input::DnsResult {
+            id: Id::from(0),
+            result: DnsResult::Https(Ok(vec![
+                service_info(1, H3POOL, &[HttpVersion::H3]),
+                service_info(2, CDN1, &[HttpVersion::H2]),
+            ])),
+        },
+        now,
+    );
+    // Both target names are resolved on their own.
+    he.expect_all(
+        [
+            out_send_dns(Id::from(3), H3POOL, DnsRecordType::Aaaa),
+            out_send_dns(Id::from(4), H3POOL, DnsRecordType::A),
+            out_send_dns(Id::from(5), CDN1, DnsRecordType::Aaaa),
+            out_send_dns(Id::from(6), CDN1, DnsRecordType::A),
+            out_resolution_delay(),
         ],
         now,
     );
+    // h3pool (priority 1) AAAA arrives -> first attempt uses the pool's
+    // own resolved address, never the origin's canonical name.
+    he.input(
+        Input::DnsResult {
+            id: Id::from(3),
+            result: DnsResult::Aaaa(Ok(vec![H3POOL_V6])),
+        },
+        now,
+    );
+    he.expect(
+        out_attempt(
+            Id::from(7),
+            H3POOL_V6.into(),
+            PORT,
+            ConnectionAttemptHttpVersions::H3,
+        ),
+        now,
+    );
+    he.input(
+        Input::DnsResult {
+            id: Id::from(4),
+            result: DnsResult::A(Ok(vec![H3POOL_V4])),
+        },
+        now,
+    );
+    he.expect(out_connection_attempt_delay(), now);
+    he.input(
+        Input::DnsResult {
+            id: Id::from(5),
+            result: DnsResult::Aaaa(Ok(vec![CDN1_V6])),
+        },
+        now,
+    );
+    he.expect(out_connection_attempt_delay(), now);
+    he.input(
+        Input::DnsResult {
+            id: Id::from(6),
+            result: DnsResult::A(Ok(vec![CDN1_V4])),
+        },
+        now,
+    );
+    he.expect(out_connection_attempt_delay(), now);
+    // Origin A/AAAA: the non-CDN fallback addresses.
+    he.input(in_dns_aaaa_positive(Id::from(1)), now);
+    he.expect(out_connection_attempt_delay(), now);
+    he.input(in_dns_a_positive(Id::from(2)), now);
+    he.expect(out_connection_attempt_delay(), now);
 
     // Remaining attempts: the rest of the priority-1 pool, then the priority-2
     // pool, then the origin fallback last.
     he.expect_connection_attempts(
-        &mut now,
-        vec![
+        [
             // h3pool pool (priority 1): alpn="h3" -> H3 only.
             out_attempt(
                 Id::from(8),
@@ -1721,5 +1541,6 @@ fn rfc_multi_cdn_target_names_resolved_and_attempted() {
             out_attempt_v6_h1_h2(Id::from(11)),
             out_attempt_v4_h1_h2(Id::from(12)),
         ],
+        &mut now,
     );
 }
