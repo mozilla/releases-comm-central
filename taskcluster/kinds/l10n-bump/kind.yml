@@ -10,72 +10,79 @@ transforms:
 
 task-defaults:
     run-on-repo-type: [hg]
-    worker-type: tree
+    worker-type: lando
     worker:
-        implementation: treescript
-        tags: []
-        bump: false
-        dontbuild: true
-        ignore-closed-tree: false
-        push:
+        implementation: scriptworker-lando
+
+        # Match Firefox behavior of only landing on beta when the tree is closed
+        dontbuild:
             by-project:
-                comm-(central|beta|release|esr140): true
-                default: false
-        source-repo:
-            by-release-type:
-                beta: https://hg.mozilla.org/releases/comm-beta
-                release: https://hg.mozilla.org/releases/comm-release
-                esr140: https://hg.mozilla.org/releases/comm-esr140
-                nightly: https://hg.mozilla.org/comm-central
-                default: https://hg.mozilla.org/comm-central
-        l10n-bump-info:
+                comm-(central|beta|release|esr140): false
+                default: true
+        ignore-closed-tree:
+            by-project:
+                comm-(central|beta|release|esr140): false
+                default: true
+        lando-repo:
+            by-project:
+                comm-central: thunderbird-main
+                comm-beta: thunderbird-beta
+                comm-release: thunderbird-release
+                comm-esr140: thunderbird-esr140
+                try-comm-central: staging-thunderbird-autoland
+                default: ""
+        actions:
             by-release-type:
                 # Whenever the the non-default config changes, make sure to make
                 #     the corresponding change in merge-automation/kind.yml
                 (beta|release|esr140):
-                    - name: Thunderbird l10n changesets
-                      path: mail/locales/l10n-changesets.json
-                      version-path: mail/config/version.txt
-                      l10n-repo-url: "https://github.com/thunderbird/thunderbird-l10n"
-                      l10n-repo-target-branch: main
-                      ignore-config:
-                          ja:
-                              - macosx64
-                          ja-JP-mac:
-                              - linux64
-                              - win32
-                              - win64
-                      platform-configs: [{
-                          "platforms": [
-                              "linux64",
-                              "macosx64",
-                              "win32",
-                              "win64",
-                          ],
-                          "path": "mail/locales/shipped-locales",
-                      }]
+                    - l10n-bump:
+                          - name: Thunderbird l10n changesets
+                            path: mail/locales/l10n-changesets.json
+                            l10n-repo-url: https://github.com/thunderbird/thunderbird-l10n
+                            l10n-repo-target-branch: main
+                            ignore-config:
+                                ja:
+                                    - macosx64
+                                ja-JP-mac:
+                                    - linux64
+                                    - win32
+                                    - win64
+                            platform-configs: [
+                                {
+                                    "platforms": [
+                                        "linux64",
+                                        "macosx64",
+                                        "win32",
+                                        "win64"
+                                    ],
+                                    "path": "mail/locales/shipped-locales"
+                                }
+                            ]
                 default:
-                    - name: Thunderbird l10n changesets
-                      path: mail/locales/l10n-changesets.json
-                      l10n-repo-url: "https://github.com/thunderbird/thunderbird-l10n"
-                      l10n-repo-target-branch: main
-                      version-path: mail/config/version.txt
-                      ignore-config:
-                          ja:
-                              - macosx64
-                          ja-JP-mac:
-                              - linux64
-                              - win32
-                              - win64
-                      platform-configs: [{
-                          "platforms": [
-                              "linux64",
-                              "macosx64",
-                              "win32",
-                              "win64",
-                          ],
-                          "path": "mail/locales/all-locales",
-                      }]
+                    - l10n-bump:
+                          - name: Thunderbird l10n changesets
+                            path: mail/locales/l10n-changesets.json
+                            l10n-repo-url: https://github.com/thunderbird/thunderbird-l10n
+                            l10n-repo-target-branch: main
+                            ignore-config:
+                                ja:
+                                    - macosx64
+                                ja-JP-mac:
+                                    - linux64
+                                    - win32
+                                    - win64
+                            platform-configs: [
+                                {
+                                    "platforms": [
+                                        "linux64",
+                                        "macosx64",
+                                        "win32",
+                                        "win64"
+                                    ],
+                                    "path": "mail/locales/all-locales"
+                                }
+                            ]
 
 tasks:
     l10n-bumper:
