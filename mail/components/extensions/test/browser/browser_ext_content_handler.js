@@ -118,9 +118,30 @@ const getCommonFiles = async () => {
 };
 
 const subtest_clickInBrowser = async (extension, getBrowser) => {
+  const requiresPermission = Services.prefs.getBoolPref(
+    "mail.external_protocol_requires_permission"
+  );
   async function clickLink(linkSelector, browser) {
     await awaitBrowserLoaded(browser, url => url != "about:blank");
-    await synthesizeMouseAtCenterAndRetry(linkSelector, {}, browser);
+    if (requiresPermission) {
+      const dialogPromise = BrowserTestUtils.promiseAlertDialogOpen(
+        null,
+        "chrome://mozapps/content/handling/permissionDialog.xhtml",
+        {
+          isSubDialog: false,
+          callback(dialogWin) {
+            const btn =
+              dialogWin.document.querySelector("dialog").getButton("accept");
+            btn.disabled = false;
+            btn.click();
+          },
+        }
+      );
+      await synthesizeMouseAtCenterAndRetry(linkSelector, {}, browser);
+      await dialogPromise;
+    } else {
+      await synthesizeMouseAtCenterAndRetry(linkSelector, {}, browser);
+    }
   }
 
   await extension.startup();

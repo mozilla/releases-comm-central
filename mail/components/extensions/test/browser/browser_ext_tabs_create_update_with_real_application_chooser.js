@@ -401,19 +401,49 @@ add_task(async function testUpdateTabs_with_application_chooser() {
   about3Pane.displayFolder(gFolder);
 
   let appChooserDialogOpenPromise = null;
+  const requiresPermission = Services.prefs.getBoolPref(
+    "mail.external_protocol_requires_permission"
+  );
   extension.onMessage("createAppChooserDialogPromise", async () => {
-    appChooserDialogOpenPromise = BrowserTestUtils.domWindowOpened(
-      null,
-      async win => {
-        await BrowserTestUtils.waitForEvent(win, "load");
-        Assert.equal(
-          win.document.documentURI,
-          "chrome://mozapps/content/handling/appChooser.xhtml",
-          "application chooser dialog opened"
+    appChooserDialogOpenPromise = (async () => {
+      const appChooserPromise = BrowserTestUtils.domWindowOpened(
+        null,
+        async win => {
+          await BrowserTestUtils.waitForEvent(win, "load");
+          if (
+            win.document.documentURI !=
+            "chrome://mozapps/content/handling/appChooser.xhtml"
+          ) {
+            return false;
+          }
+          Assert.equal(
+            win.document.documentURI,
+            "chrome://mozapps/content/handling/appChooser.xhtml",
+            "appChooser.xhtml opened"
+          );
+          return true;
+        }
+      );
+      if (requiresPermission) {
+        const permDlg = await BrowserTestUtils.domWindowOpened(
+          null,
+          async win => {
+            await BrowserTestUtils.waitForEvent(win, "load");
+            return (
+              win.document.documentURI ==
+              "chrome://mozapps/content/handling/permissionDialog.xhtml"
+            );
+          }
         );
-        return true;
+        const btn = permDlg.document
+          .querySelector("dialog")
+          .getButton("accept");
+        btn.disabled = false;
+        btn.click();
+        await BrowserTestUtils.domWindowClosed(permDlg);
       }
-    );
+      return appChooserPromise;
+    })();
     extension.sendMessage();
   });
   extension.onMessage("awaitAppChooserDialogPromise", async () => {
@@ -423,6 +453,7 @@ add_task(async function testUpdateTabs_with_application_chooser() {
     const dialog = appChooserDialog.document.getElementsByTagName("dialog")[0];
     const cancelButton = dialog.getButton("cancel");
     cancelButton.click();
+
     await appChooserDialogClosePromise;
     appChooserDialogOpenPromise = null;
     extension.sendMessage();
@@ -523,6 +554,7 @@ add_task(async function testCreateTabs_with_application_chooser() {
     );
     extension.sendMessage();
   });
+
   extension.onMessage("awaitAppChooserDialogPromise", async () => {
     const appChooserDialog = await appChooserDialogOpenPromise;
     const appChooserDialogClosePromise =
