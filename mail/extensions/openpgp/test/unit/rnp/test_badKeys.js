@@ -85,6 +85,42 @@ add_task(async function testAvoidBadSubkey() {
 });
 
 /**
+ * Import a key whose primary key is valid and non-expiring, but whose only
+ * encryption subkey has expired. Such a key must not be offered as a
+ * recipient key, because there is no usable (unexpired) encryption subkey.
+ * Without the recipient-key requirement, the key should still be found.
+ */
+add_task(async function testExpiredEncryptionSubkey() {
+  const email = "<expired-enc-subkey@example.org>";
+
+  const ids = await OpenPGPTestUtils.importKey(
+    null,
+    do_get_file(`${KEY_DIR}/expired-enc-subkey.pub.asc`),
+    true
+  );
+  Assert.equal(ids.length, 1, "should have imported the key");
+  // Accept the key as verified, to ensure the key is only rejected below
+  // because of the expired encryption subkey, and not because of acceptance.
+  await OpenPGPTestUtils.updateKeyIdAcceptance(
+    ids,
+    OpenPGPTestUtils.ACCEPTANCE_VERIFIED
+  );
+
+  const asRecipientKey = await RNP.findKeyByEmail(email, true);
+  Assert.equal(
+    asRecipientKey,
+    null,
+    "should not accept a key whose only encryption subkey has expired as a recipient key"
+  );
+
+  const anyKey = await RNP.findKeyByEmail(email, false);
+  Assert.ok(
+    anyKey,
+    "should still find the key when not required to be acceptable as a recipient key"
+  );
+});
+
+/**
  * Test importing key with comment and empty line after the checksum.
  */
 add_task(async function testImportApple() {

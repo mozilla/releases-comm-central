@@ -4288,16 +4288,28 @@ export var RNP = {
         if (this.isBadKey(handle, null, RNPLib.ffi)) {
           continue;
         }
-        const key_revoked = new lazy.ctypes.bool();
-        if (RNPLib.rnp_key_is_revoked(handle, key_revoked.address())) {
-          throw new Error("rnp_key_is_revoked failed");
-        }
 
-        if (key_revoked.value) {
+        const keyObj = {};
+        if (
+          !this.getKeyInfoFromHandle(
+            RNPLib.ffi,
+            handle,
+            keyObj,
+            false,
+            true,
+            false
+          )
+        ) {
+          // unexpected failure, skip
           continue;
         }
 
-        if (this.isKeyExpired(handle)) {
+        if (
+          keyObj.keyTrust == "r" ||
+          keyObj.keyTrust == "e" ||
+          (onlyIfAcceptableAsRecipientKey &&
+            this.isExpiredTime(keyObj.effectiveExpiryTime))
+        ) {
           continue;
         }
 
