@@ -157,7 +157,8 @@ nsresult nsMessengerWinIntegration::HandleIconLeftClick(
     }
 
     HWND hwnd = (HWND)(widget->GetNativeData(NS_NATIVE_WIDGET));
-    ::ShowWindow(hwnd, SW_RESTORE);
+    // Restore the window if it is minimized.
+    if (::IsIconic(hwnd)) ::ShowWindow(hwnd, SW_RESTORE);
     ::SetForegroundWindow(hwnd);
 
     nsCOMPtr<nsIObserverService> obs = mozilla::services::GetObserverService();

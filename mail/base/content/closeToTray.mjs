@@ -14,10 +14,6 @@ window.addEventListener("close", event => {
 
   event.preventDefault();
 
-  // To ensure that a maximized window is restored in the maximized state,
-  // we must minimize it first.
-  window.minimize();
-
   const baseWindow = window.docShell.treeOwner.QueryInterface(Ci.nsIBaseWindow);
   Cc["@mozilla.org/messenger/osintegration;1"]
     .getService(Ci.nsIMessengerWindowsIntegration)
