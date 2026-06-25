@@ -3,13 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use ews::{
-    FlagStatus, ItemShape, Operation, OperationResponse, PathToElement,
+    FlagStatus, ItemShape, Operation, OperationResponse,
     server_version::ExchangeServerVersion,
     sync_folder_items::{self, SyncFolderItems},
 };
 use protocol_shared::safe_xpcom::SafeExchangeMessageSyncListener;
 use protocol_shared::{EXCHANGE_MAX_PAGE_SIZE, client::DoOperation};
-use std::sync::Arc;
+use std::{
+    collections::{HashMap, HashSet},
+    sync::Arc,
+};
 
 use crate::headerblock;
 use xpcom::{RefPtr, interfaces::IHeaderBlock};
@@ -40,6 +43,67 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError>
         // ensure that all changes are returned, as EWS caps the number of
         // results. Loop until we have no more changes.
         loop {
+            let op = SyncFolderItems {
+                item_shape: ItemShape {
+                    // Microsoft's guidance is that the sync call should only
+                    // fetch IDs for server load reasons.
+                    // See <https://learn.microsoft.com/en-us/exchange/client-developer/exchange-web-services/how-to-synchronize-items-by-using-ews-in-exchange>
+                    // NOTE: It also appears that SyncFolderItems will silently fail to return some
+                    // metadata fields with no indication that they are not allowed to be requested,
+                    // so this two-step, multiple request process is required to ensure data
+                    // integrity.
+                    base_shape: BaseShape::IdOnly,
+                    ..Default::default()
+                },
+                sync_folder_id: BaseFolderId::FolderId {
+                    id: self.folder_id.clone(),
+                    change_key: None,
+                },
+                sync_state: self.sync_state_token.clone(),
+                ignore: None,
+                max_changes_returned: EXCHANGE_MAX_PAGE_SIZE,
+                sync_scope: None,
+            };
+
+            let response_messages = client
+                .enqueue_and_send(op, Default::default())
+                .await?
+                .into_response_messages();
+
+            let response_class = single_response_or_error(response_messages)?;
+            let message = process_response_message_class(SyncFolderItems::NAME, response_class)?;
+
+            // We only fetch unique messages, as we ignore the `ChangeKey` and
+            // simply fetch the latest version.
+            let message_ids_to_fetch: HashSet<_> = message
+                .changes
+                .inner
+                .iter()
+                .filter_map(|change| {
+                    let message = match change {
+                        sync_folder_items::Change::Create { item } => item.inner_message(),
+                        sync_folder_items::Change::Update { item } => item.inner_message(),
+
+                        // We don't fetch items for anything other than messages,
+                        // since we don't have support for other items, and we don't
+                        // need to fetch for other types of changes since the ID is
+                        // sufficient to do the necessary work.
+                        _ => return None,
+                    };
+
+                    let result = message
+                        .item_id
+                        .as_ref()
+                        .map(|item_id| item_id.id.clone())
+                        // If there is no item ID in a response from Exchange,
+                        // something has gone badly wrong. We'll end processing
+                        // here.
+                        .ok_or(XpComEwsError::MissingIdInResponse);
+
+                    Some(result)
+                })
+                .collect::<Result<_, _>>()?;
+
             let mut fields_to_fetch = vec![
                 "message:IsRead",
                 "message:InternetMessageId",
@@ -63,45 +127,19 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError>
                 fields_to_fetch.push("item:Flag");
             }
 
-            let additional_properties: Vec<_> = fields_to_fetch
-                .iter()
-                .map(|&field| PathToElement::FieldURI {
-                    field_URI: String::from(field),
-                })
-                .collect();
-
-            let op = SyncFolderItems {
-                item_shape: ItemShape {
-                    // Microsoft's guidance is that the sync call should only
-                    // fetch IDs for server load reasons.  See
-                    // <https://learn.microsoft.com/en-us/exchange/client-developer/exchange-web-services/how-to-synchronize-items-by-using-ews-in-exchange>
-                    // However, Microsoft's suggested approach requires 10x as
-                    // many requests over requesting all fields at once, so
-                    // despite individual requests being faster, overall
-                    // performance is 2-3x worse. Therefore, we request the
-                    // message fields we need to support CRUD operations in a
-                    // single request.
-                    base_shape: BaseShape::IdOnly,
-                    additional_properties: Some(additional_properties),
-                    ..Default::default()
-                },
-                sync_folder_id: BaseFolderId::FolderId {
-                    id: self.folder_id.clone(),
-                    change_key: None,
-                },
-                sync_state: self.sync_state_token.clone(),
-                ignore: None,
-                max_changes_returned: EXCHANGE_MAX_PAGE_SIZE,
-                sync_scope: None,
-            };
-
-            let response_messages = client
-                .enqueue_and_send(op, Default::default())
+            let messages_by_id: HashMap<_, _> = client
+                .get_items(message_ids_to_fetch, &fields_to_fetch, false)
                 .await?
-                .into_response_messages();
-
-            let response_class = single_response_or_error(response_messages)?;
-            let message = process_response_message_class(SyncFolderItems::NAME, response_class)?;
+                .into_iter()
+                .map(|item| {
+                    let message = item.into_inner_message();
+                    message
+                        .item_id
+                        .clone()
+                        .ok_or_else(|| XpComEwsError::MissingIdInResponse)
+                        .map(|item_id| (item_id.id, message))
+                })
+                .collect::<Result<_, _>>()?;
 
             // Iterate over each change we got from the server. We expect that
             // the server has ordered these changes in chronological order. This
@@ -122,7 +160,11 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError>
 
                         log::info!("Processing Create change with ID {item_id}");
 
-                        let msg = item.inner_message();
+                        let msg = messages_by_id.get(item_id).ok_or_else(|| {
+                            XpComEwsError::Processing {
+                                message: format!("Unable to fetch message with ID {item_id}"),
+                            }
+                        })?;
 
                         // Collect the headers into an IHeaderBlock object to pass
                         // out to the C++ side.
@@ -163,7 +205,12 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError>
 
                         log::info!("Processing Update change with ID {item_id}");
 
-                        let msg = item.inner_message();
+                        let msg = messages_by_id.get(item_id).ok_or_else(|| {
+                            log::error!("Unable to fetch message with ID {item_id}");
+                            XpComEwsError::Processing {
+                                message: format!("Unable to fetch message with ID {item_id}"),
+                            }
+                        })?;
 
                         log::debug!("Updating message with item ID {item_id}");
                         // Collect the headers into an IHeaderBlock object to pass
