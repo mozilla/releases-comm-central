@@ -898,10 +898,16 @@ CalAlarmService.prototype = {
 
   get isLoading() {
     for (const calId in this.mLoadedCalendars) {
+      // The calendar may have been unregistered since it was recorded as
+      // loading, in which case it no longer counts as loading.
+      const calendar = cal.manager.getCalendarById(calId);
+      if (!calendar) {
+        continue;
+      }
       // We need to exclude calendars which failed to load explicitly, to
       // prevent the alarm dialog staying open after dismissing all
       // alarms if there is a network calendar that failed to load.
-      const currentStatus = cal.manager.getCalendarById(calId).getProperty("currentStatus");
+      const currentStatus = calendar.getProperty("currentStatus");
       if (!this.mLoadedCalendars[calId] && Components.isSuccessCode(currentStatus)) {
         return true;
       }
