@@ -27,80 +27,93 @@
       return `<vbox class="item-summary-box" flex="1">
         <!-- General -->
         <hbox class="calendar-caption" align="center">
-          <label data-l10n-id="calendar-item-summary-general" class="header"/>
+          <label value="&read.only.general.label;" class="header"/>
           <separator class="groove" flex="1"/>
         </hbox>
         <html:table class="calendar-summary-table">
           <html:tr>
-            <html:th data-l10n-id="calendar-item-summary-title">
+            <html:th>
+              &read.only.title.label;
             </html:th>
             <html:td class="item-title">
             </html:td>
           </html:tr>
           <html:tr class="calendar-row" hidden="hidden">
-            <html:th data-l10n-id="calendar-item-summary-calendar">
+            <html:th>
+              &read.only.calendar.label;
             </html:th>
             <html:td class="item-calendar">
             </html:td>
           </html:tr>
           <html:tr class="item-date-row">
-            <html:th class="item-start-row-label">
+            <html:th class="item-start-row-label"
+                     taskStartLabel="&read.only.task.start.label;"
+                     eventStartLabel="&read.only.event.start.label;">
             </html:th>
             <html:td class="item-date-row-start-date">
             </html:td>
           </html:tr>
           <html:tr class="item-date-row">
-            <html:th class="item-due-row-label">
+            <html:th class="item-due-row-label"
+                     taskDueLabel="&read.only.task.due.label;"
+                     eventEndLabel="&read.only.event.end.label;">
             </html:th>
             <html:td class="item-date-row-end-date">
             </html:td>
           </html:tr>
           <html:tr class="repeat-row" hidden="hidden">
-            <html:th data-l10n-id="calendar-item-summary-repeat">
+            <html:th>
+              &read.only.repeat.label;
             </html:th>
             <html:td class="repeat-details">
             </html:td>
           </html:tr>
           <html:tr class="location-row" hidden="hidden">
-            <html:th data-l10n-id="calendar-item-summary-location">
+            <html:th>
+              &read.only.location.label;
             </html:th>
             <html:td class="item-location">
             </html:td>
           </html:tr>
           <html:tr class="category-row" hidden="hidden">
-            <html:th data-l10n-id="calendar-item-summary-category">
+            <html:th>
+              &read.only.category.label;
             </html:th>
             <html:td class="item-category">
             </html:td>
           </html:tr>
           <html:tr class="item-organizer-row" hidden="hidden">
-            <html:th data-l10n-id="calendar-item-summary-organizer">
+            <html:th>
+              &read.only.organizer.label;
             </html:th>
             <html:td class="item-organizer-cell">
             </html:td>
           </html:tr>
           <html:tr class="status-row" hidden="hidden">
-            <html:th data-l10n-id="calendar-item-summary-status">
+            <html:th>
+              &task.status.label;
             </html:th>
             <html:td class="status-row-td">
-              <html:div hidden="hidden" status="TENTATIVE" data-l10n-id="calendar-item-summary-status-tentative"></html:div>
-              <html:div hidden="hidden" status="CONFIRMED" data-l10n-id="calendar-item-summary-status-confirmed"></html:div>
-              <html:div hidden="hidden" status="CANCELLED" data-l10n-id="calendar-item-summary-event-status-cancelled"></html:div>
-              <html:div hidden="hidden" status="CANCELLED" data-l10n-id="calendar-item-summary-todo-status-cancelled"></html:div>
-              <html:div hidden="hidden" status="NEEDS-ACTION" data-l10n-id="calendar-item-summary-status-needs-action"></html:div>
-              <html:div hidden="hidden" status="IN-PROCESS" data-l10n-id="calendar-item-summary-status-in-process"></html:div>
-              <html:div hidden="hidden" status="COMPLETED" data-l10n-id="calendar-item-summary-status-completed"></html:div>
+              <html:div hidden="hidden" status="TENTATIVE">&newevent.status.tentative.label;</html:div>
+              <html:div hidden="hidden" status="CONFIRMED">&newevent.status.confirmed.label;</html:div>
+              <html:div hidden="hidden" status="CANCELLED">&newevent.eventStatus.cancelled.label;</html:div>
+              <html:div hidden="hidden" status="CANCELLED">&newevent.todoStatus.cancelled.label;</html:div>
+              <html:div hidden="hidden" status="NEEDS-ACTION">&newevent.status.needsaction.label;</html:div>
+              <html:div hidden="hidden" status="IN-PROCESS">&newevent.status.inprogress.label;</html:div>
+              <html:div hidden="hidden" status="COMPLETED">&newevent.status.completed.label;</html:div>
             </html:td>
           </html:tr>
           <separator class="groove" flex="1" hidden="hidden"/>
           <html:tr class="reminder-row" hidden="hidden">
-            <html:th class="reminder-label" data-l10n-id="calendar-item-summary-reminder">
+            <html:th class="reminder-label">
+              &read.only.reminder.label;
             </html:th>
             <html:td class="reminder-details">
             </html:td>
           </html:tr>
           <html:tr class="attachments-row item-attachments-row" hidden="hidden" >
-            <html:th class="attachments-label" data-l10n-id="calendar-item-summary-attachments">
+            <html:th class="attachments-label">
+              &read.only.attachments.label;
             </html:th>
             <html:td>
               <vbox class="item-attachment-cell">
@@ -124,7 +137,7 @@
           <box class="item-attendees" orient="vertical" hidden="hidden">
             <spacer class="default-spacer"/>
             <hbox class="calendar-caption" align="center">
-              <label data-l10n-id="calendar-item-summary-attendees"
+              <label value="&read.only.attendees.label;"
                     class="header"/>
               <separator class="groove" flex="1"/>
             </hbox>
@@ -144,7 +157,7 @@
           <!-- Description -->
           <box class="item-description-box" hidden="hidden" orient="vertical">
             <hbox class="calendar-caption" align="center">
-              <label data-l10n-id="calendar-item-summary-description"
+              <label value="&read.only.description.label;"
                     class="header"/>
               <separator class="groove" flex="1"/>
             </hbox>
@@ -183,7 +196,7 @@
         <box class="event-grid-link-row" hidden="hidden" orient="vertical">
           <spacer class="default-spacer"/>
           <hbox class="calendar-caption" align="center">
-            <label data-l10n-id="calendar-item-summary-link"
+            <label value="&read.only.link.label;"
                    class="header"/>
             <separator class="groove" flex="1"/>
           </hbox>
@@ -193,6 +206,14 @@
       </vbox>`;
     }
 
+    static get entities() {
+      return [
+        "chrome://calendar/locale/global.dtd",
+        "chrome://calendar/locale/calendar-event-dialog.dtd",
+        "chrome://branding/locale/brand.dtd",
+      ];
+    }
+
     static get alarmMenulistFragment() {
       const frag = document.importNode(
         MozXULElement.parseXULToFragment(
@@ -200,65 +221,65 @@
             <menulist class="item-alarm"
                       disable-on-readonly="true">
               <menupopup>
-                <menuitem data-l10n-id="calendar-item-summary-reminder-none"
+                <menuitem label="&event.reminder.none.label;"
                           selected="true"
                           value="none"/>
                 <menuseparator/>
-                <menuitem data-l10n-id="calendar-item-summary-reminder-0-minutes-before"
+                <menuitem label="&event.reminder.0minutes.before.label;"
                           length="0"
                           origin="before"
                           relation="START"
                           unit="minutes"/>
-                <menuitem data-l10n-id="calendar-item-summary-reminder-5-minutes-before"
+                <menuitem label="&event.reminder.5minutes.before.label;"
                           length="5"
                           origin="before"
                           relation="START"
                           unit="minutes"/>
-                <menuitem data-l10n-id="calendar-item-summary-reminder-15-minutes-before"
+                <menuitem label="&event.reminder.15minutes.before.label;"
                           length="15"
                           origin="before"
                           relation="START"
                           unit="minutes"/>
-                <menuitem data-l10n-id="calendar-item-summary-reminder-30-minutes-before"
+                <menuitem label="&event.reminder.30minutes.before.label;"
                           length="30"
                           origin="before"
                           relation="START"
                           unit="minutes"/>
                 <menuseparator/>
-                <menuitem data-l10n-id="calendar-item-summary-reminder-1-hour-before"
+                <menuitem label="&event.reminder.1hour.before.label;"
                           length="1"
                           origin="before"
                           relation="START"
                           unit="hours"/>
-                <menuitem data-l10n-id="calendar-item-summary-reminder-2-hours-before"
+                <menuitem label="&event.reminder.2hours.before.label;"
                           length="2"
                           origin="before"
                           relation="START"
                           unit="hours"/>
-                <menuitem data-l10n-id="calendar-item-summary-reminder-12-hours-before"
+                <menuitem label="&event.reminder.12hours.before.label;"
                           length="12"
                           origin="before"
                           relation="START"
                           unit="hours"/>
                 <menuseparator/>
-                <menuitem data-l10n-id="calendar-item-summary-reminder-1-day-before"
+                <menuitem label="&event.reminder.1day.before.label;"
                           length="1"
                           origin="before"
                           relation="START"
                           unit="days"/>
-                <menuitem data-l10n-id="calendar-item-summary-reminder-2-days-before"
+                <menuitem label="&event.reminder.2days.before.label;"
                           length="2"
                           origin="before"
                           relation="START"
                           unit="days"/>
-                <menuitem data-l10n-id="calendar-item-summary-reminder-1-week-before"
+                <menuitem label="&event.reminder.1week.before.label;"
                           length="7"
                           origin="before"
                           relation="START"
                           unit="days"/>
                 <menuseparator/>
                 <menuitem class="reminder-custom-menuitem"
-                          data-l10n-id="calendar-item-summary-reminder-custom"
+                          label="&event.reminder.custom.label;"
                           value="custom"/>
               </menupopup>
             </menulist>
@@ -267,7 +288,7 @@
               <!-- TODO oncommand? onkeypress? -->
               <label class="reminder-multiple-alarms-label text-link"
                      hidden="hidden"
-                     data-l10n-id="calendar-item-summary-reminder-multiple"
+                     value="&event.reminder.multiple.label;"
                      disable-on-readonly="true"
                      flex="1"
                      hyperlink="true"/>
@@ -277,7 +298,8 @@
                      flex="1"
                      hyperlink="true"/>
             </hbox>
-          </hbox>`
+          </hbox>`,
+          CalendarItemSummary.entities
         ),
         true
       );
@@ -380,9 +402,8 @@
       itemDateRowStartDate.style.visibility = itemStartDate ? "visible" : "collapse";
 
       if (itemStartDate) {
-        document.l10n.setAttributes(
-          itemStartRowLabel,
-          isToDoItem ? "calendar-item-summary-task-start" : "calendar-item-summary-event-start"
+        itemStartRowLabel.textContent = itemStartRowLabel.getAttribute(
+          isToDoItem ? "taskStartLabel" : "eventStartLabel"
         );
         itemDateRowStartDate.textContent = cal.dtz.getStringForDateTime(itemStartDate);
       }
@@ -402,9 +423,8 @@
           itemDueDate = itemDueDate.clone();
           itemDueDate.day--;
         }
-        document.l10n.setAttributes(
-          itemDueRowLabel,
-          isToDoItem ? "calendar-item-summary-task-due" : "calendar-item-summary-event-end"
+        itemDueRowLabel.textContent = itemDueRowLabel.getAttribute(
+          isToDoItem ? "taskDueLabel" : "eventEndLabel"
         );
         itemDateRowEndDate.textContent = cal.dtz.getStringForDateTime(itemDueDate);
       }
