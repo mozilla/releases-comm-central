@@ -237,6 +237,11 @@ add_task(async function test_iconPath() {
       "compose_action_mochi_test-composeAction-toolbarbutton"
     );
 
+    await TestUtils.waitForCondition(
+      () => composeWindow.getComputedStyle(button).listStyleImage !== "none",
+      "waiting for listStyleImage to be applied to the button"
+    );
+
     Assert.equal(
       window.getComputedStyle(button).listStyleImage,
       makeIconSet(`url("moz-extension://${uuid}/${expected}")`),
