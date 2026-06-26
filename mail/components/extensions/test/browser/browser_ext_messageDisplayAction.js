@@ -307,6 +307,11 @@ add_task(async function test_iconPath() {
       "message_display_action_mochi_test-messageDisplayAction-toolbarbutton"
     );
 
+    await TestUtils.waitForCondition(
+      () => aboutMessage.getComputedStyle(button).listStyleImage !== "none",
+      "waiting for listStyleImage to be applied to the button"
+    );
+
     Assert.equal(
       aboutMessage.getComputedStyle(button).listStyleImage,
       makeIconSet(`url("moz-extension://${uuid}/${expected}")`),
