@@ -122,10 +122,23 @@ async function checkABrowser(browser) {
   const list = popup.querySelector("richlistbox");
   Assert.ok(list, "list added to popup");
   Assert.equal(list.itemCount, 4);
-  Assert.equal(list.itemChildren[0].getAttribute("title"), "beta");
-  Assert.equal(list.itemChildren[1].getAttribute("title"), "zeta");
-  Assert.equal(list.itemChildren[2].getAttribute("title"), "eta");
-  Assert.equal(list.itemChildren[3].getAttribute("title"), "theta");
+
+  Assert.equal(
+    list.itemChildren[0].querySelector("autocomplete-row-item").label,
+    "beta"
+  );
+  Assert.equal(
+    list.itemChildren[1].querySelector("autocomplete-row-item").label,
+    "zeta"
+  );
+  Assert.equal(
+    list.itemChildren[2].querySelector("autocomplete-row-item").label,
+    "eta"
+  );
+  Assert.equal(
+    list.itemChildren[3].querySelector("autocomplete-row-item").label,
+    "theta"
+  );
 
   // Click the second option. This sets the value and closes the popup.
   EventUtils.synthesizeMouseAtCenter(list.itemChildren[1], {}, win);
