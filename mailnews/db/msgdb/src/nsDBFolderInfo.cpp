@@ -67,7 +67,7 @@ nsDBFolderInfo::nsDBFolderInfo(nsMsgDatabase* mdb)
   m_numUnreadMessages = 0;
   m_numMessages = 0;
   // IMAP only
-  m_ImapUidValidity = ImapUid_None;
+  m_ImapUidValidity = 0;
   m_totalPendingMessages = 0;
   m_unreadPendingMessages = 0;
 
@@ -214,7 +214,13 @@ nsresult nsDBFolderInfo::LoadMemberVariables() {
   GetInt64PropertyWithToken(m_folderSizeColumnToken, m_folderSize);
   GetUint32PropertyWithToken(m_folderDateColumnToken, m_folderDate);
   GetUint32PropertyWithToken(m_imapUidValidityColumnToken, m_ImapUidValidity,
-                             ImapUid_None);
+                             0);
+
+  // Hack to handle cases where nsMsgKey_None was stored as the UidValidity in
+  // the db. https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
+  if (m_ImapUidValidity == 0xffffffff) {
+    m_ImapUidValidity = 0;
+  }
   GetInt64PropertyWithToken(m_expungedBytesColumnToken, m_expungedBytes);
   GetUint32PropertyWithToken(m_highWaterMessageKeyColumnToken,
                              m_highWaterMessageKey);

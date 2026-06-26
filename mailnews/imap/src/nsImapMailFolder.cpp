@@ -7,6 +7,7 @@
 #include "ImapTypes.h"
 #include "msgCore.h"
 #include "CopyMessageStreamListener.h"
+#include "nsError.h"
 #include "nsIAutoSyncManager.h"
 #include "nsIStringStream.h"
 #include "prmem.h"
@@ -215,11 +216,11 @@ nsImapMailFolder::nsImapMailFolder()
       m_folderQuotaCommandIssued(false),
       m_folderQuotaDataIsValid(false) {
   m_boxFlags = 0;
-  m_uidValidity = ImapUid_None;
+  m_uidValidity = 0;
   m_numServerRecentMessages = 0;
   m_numServerUnseenMessages = 0;
   m_numServerTotalMessages = 0;
-  m_nextUID = ImapUid_None;
+  m_nextUID = 0;
   m_hierarchyDelimiter = kOnlineHierarchySeparatorUnknown;
   m_folderACL = nullptr;
   m_aclFlags = 0;
@@ -1886,8 +1887,9 @@ NS_IMETHODIMP nsImapMailFolder::WriteToFolderCacheElem(
   element->SetCachedInt32("serverTotal", m_numServerTotalMessages);
   element->SetCachedInt32("serverUnseen", m_numServerUnseenMessages);
   element->SetCachedInt32("serverRecent", m_numServerRecentMessages);
-  if (m_nextUID != ImapUid_None)
+  if (m_nextUID != 0) {
     element->SetCachedInt32("nextUID", (int32_t)m_nextUID);
+  }
 
   // store folder's last sync time
   if (m_autoSyncStateObj) {
@@ -2608,7 +2610,7 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
   // existing values in that case.
   ImapUid nextUID;
   aSpec->GetNextUID(&nextUID);
-  if (nextUID != ImapUid_None) {
+  if (nextUID != 0) {
     m_nextUID = nextUID;
   }
 
@@ -3940,12 +3942,9 @@ void nsImapMailFolder::FindUidsToDelete(const nsTArray<ImapUid>& existingUids,
         (existingUids[keyIndex] != uidOfMessage) ||
         ((flags & kImapMsgDeletedFlag) && !showDeletedMessages)) {
       ImapUid doomedUid = existingUids[keyIndex];
-      // TODO: Shouldn't have special case UIDs (other than 0).
-      // See https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
-      if ((int32_t)doomedUid <= 0 && doomedUid != ImapUid_None) {
+      if (doomedUid == 0) {
         continue;
       }
-
       uidsToDelete.AppendElement(existingUids[keyIndex]);
     }
 
@@ -3984,6 +3983,8 @@ void nsImapMailFolder::FindUidsToAdd(const nsTArray<ImapUid>& existingUids,
 
       imapMessageFlagsType flags;
       flagState->GetMessageFlags(flagIndex, &flags);
+      // TODO: Shouldn't have special case UIDs (other than 0).
+      // See https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
       NS_ASSERTION(uidOfMessage != nsMsgKey_None, "got invalid msg key");
       if (uidOfMessage && uidOfMessage != nsMsgKey_None &&
           (showDeletedMessages || !(flags & kImapMsgDeletedFlag))) {
@@ -5527,7 +5528,7 @@ nsImapMailFolder::SetBiffStateAndUpdate(nsMsgBiffState biffState) {
 NS_IMETHODIMP
 nsImapMailFolder::GetUidValidity(ImapUid* uidValidity) {
   NS_ENSURE_ARG(uidValidity);
-  if (m_uidValidity == ImapUid_None) {
+  if (m_uidValidity == 0) {
     nsCOMPtr<nsIMsgDatabase> db;
     nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;
     (void)GetDBFolderInfoAndDB(getter_AddRefs(dbFolderInfo),
@@ -7513,7 +7514,7 @@ nsImapMailCopyState::nsImapMailCopyState()
       m_allowUndo(false),
       m_eatLF(false),
       m_newMsgFlags(0),
-      m_appendUID(ImapUid_None) {}
+      m_appendUID(0) {}
 
 nsImapMailCopyState::~nsImapMailCopyState() {
   PR_Free(m_dataBuffer);
@@ -7706,12 +7707,19 @@ nsresult nsImapMailFolder::OnCopyCompleted(nsISupports* srcSupport,
   if (NS_SUCCEEDED(rv) && m_copyState) {
     nsCOMPtr<nsIFile> srcFile(do_QueryInterface(srcSupport));
     if (srcFile) {
-      GetDatabase();
-      auto key = KeyFromUid(mDatabase, m_copyState->m_appendUID);
-      if (key.isOk()) {
-        (void)CopyFileToOfflineStore(srcFile, key.unwrap());
-      } else {
-        rv = key.unwrapErr();
+      ImapUid uid = m_copyState->m_appendUID;
+      nsMsgKey key = nsMsgKey_None;
+      if (uid != 0) {
+        GetDatabase();
+        auto keyLookup = KeyFromUid(mDatabase, m_copyState->m_appendUID);
+        if (keyLookup.isOk()) {
+          key = keyLookup.unwrap();
+        } else {
+          rv = keyLookup.unwrapErr();
+        }
+      }
+      if (NS_SUCCEEDED(rv)) {
+        (void)CopyFileToOfflineStore(srcFile, key);
       }
     }
   }

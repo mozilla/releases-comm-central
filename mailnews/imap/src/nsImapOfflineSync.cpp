@@ -34,7 +34,7 @@ nsImapOfflineSync::nsImapOfflineSync() {
   m_createdOfflineFolders = false;
   m_pseudoOffline = false;
   m_KeyIndex = 0;
-  mCurrentUIDValidity = ImapUid_None;
+  mCurrentUIDValidity = 0;
   m_listener = nullptr;
 }
 

@@ -12,10 +12,3 @@
  * that with XPCOM.
  */
 typedef unsigned long ImapUid;
-
-
-%{C++
-// This should be 0 (unused by IMAP), but we currently need to be
-// interchangable with nsMsgKey.
-constexpr ImapUid ImapUid_None = 0xffffffff;
-%}

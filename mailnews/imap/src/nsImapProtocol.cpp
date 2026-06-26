@@ -197,7 +197,7 @@ NS_IMPL_ISUPPORTS(nsMsgImapLineDownloadCache, nsIImapHeaderInfo)
 // **** helper class for downloading line ****
 nsMsgImapLineDownloadCache::nsMsgImapLineDownloadCache() {
   fLineInfo = (msg_line_info*)PR_CALLOC(sizeof(msg_line_info));
-  fLineInfo->uidOfMessage = ImapUid_None;
+  fLineInfo->uidOfMessage = 0;
   m_msgSize = 0;
 }
 
@@ -625,7 +625,7 @@ nsImapProtocol::nsImapProtocol()
   mFolderHighestUID = 0;
   m_notifySearchHit = false;
   m_preferPlainText = false;
-  m_uidValidity = ImapUid_None;
+  m_uidValidity = 0;
 }
 
 nsresult nsImapProtocol::Configure(int32_t TooFastTime, int32_t IdealTime,
@@ -807,7 +807,7 @@ nsresult nsImapProtocol::SetupWithUrl(nsIURI* aURL, nsISupports* aConsumer) {
     mFolderLastModSeq = 0;
     mFolderTotalMsgCount = 0;
     mFolderHighestUID = 0;
-    m_uidValidity = ImapUid_None;
+    m_uidValidity = 0;
     if (folder) {
       nsCOMPtr<nsIMsgDatabase> folderDB;
       nsCOMPtr<nsIDBFolderInfo> folderInfo;
@@ -2743,7 +2743,7 @@ void nsImapProtocol::ProcessSelectedStateURL() {
       // browser context.
       if (!DeathSignalReceived())
         uidValidityOk =
-            m_uidValidity == ImapUid_None ||
+            m_uidValidity == 0 ||
             m_uidValidity == GetServerStateParser().FolderUIDValidity();
     }
 
@@ -4310,7 +4310,7 @@ void nsImapProtocol::ProcessMailboxUpdate(bool handlePossibleUndo) {
               }
               ImapUid uid = 0;
               m_flagState->GetUidOfMessage(topIndex, &uid);
-              if (uid && uid != ImapUid_None) {
+              if (uid && uid != 0) {
                 if (uid > mFolderHighestUID) {
                   numNewUIDs++;
                   MOZ_LOG(IMAP_CS, LogLevel::Debug,
@@ -9403,7 +9403,7 @@ nsresult nsImapMockChannel::OpenCacheEntry() {
 
   nsCOMPtr<nsIImapMailFolderSink> folderSink;
   rv = imapUrl->GetImapMailFolderSink(getter_AddRefs(folderSink));
-  ImapUid uidValidity = ImapUid_None;
+  ImapUid uidValidity = 0;
   if (folderSink) folderSink->GetUidValidity(&uidValidity);
 
   // If we're storing the message in the offline store, don't

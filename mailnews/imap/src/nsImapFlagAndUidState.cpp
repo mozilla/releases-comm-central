@@ -2,8 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "ErrorList.h"
 #include "MailNewsTypes.h"
 
+#include "nsDebug.h"
 #include "nsImapCore.h"
 #include "nsImapFlagAndUidState.h"
 #include "prcmon.h"
@@ -24,7 +26,7 @@ NS_IMETHODIMP nsImapFlagAndUidState::GetUidOfMessage(int32_t zeroBasedIndex,
   NS_ENSURE_ARG_POINTER(aResult);
 
   PR_CEnterMonitor(this);
-  *aResult = fUids.SafeElementAt(zeroBasedIndex, ImapUid_None);
+  *aResult = fUids.SafeElementAt(zeroBasedIndex, 0);
   PR_CExitMonitor(this);
   return NS_OK;
 }
@@ -144,9 +146,9 @@ NS_IMETHODIMP nsImapFlagAndUidState::ExpungeByIndex(uint32_t msgIndex) {
 NS_IMETHODIMP nsImapFlagAndUidState::AddUidFlagPair(ImapUid uid,
                                                     imapMessageFlagsType flags,
                                                     uint32_t zeroBasedIndex) {
-  if (uid == ImapUid_None) {
-    return NS_OK;
-  }
+  // Not valid to store flags on non-messages.
+  NS_ENSURE_TRUE(uid != 0, NS_ERROR_UNEXPECTED);
+
   // check for potential overflow in buffer size for uid array
   if (zeroBasedIndex > 0x3FFFFFFF) return NS_ERROR_INVALID_ARG;
   PR_CEnterMonitor(this);

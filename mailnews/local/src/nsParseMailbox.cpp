@@ -122,7 +122,7 @@ NS_IMPL_ISUPPORTS(nsParseMailMessageState, nsIMsgParseMailMsgState,
 nsParseMailMessageState::nsParseMailMessageState() {
   m_EnvDate = 0;
   m_position = 0;
-  m_msgUid = ImapUid_None;
+  m_msgUid = 0;
   m_state = nsIMsgParseMailMsgState::ParseHeadersState;
 
   // setup handling of custom db headers, headers that are added to .msf files
@@ -182,7 +182,7 @@ NS_IMETHODIMP nsParseMailMessageState::Clear() {
   m_body_lines = 0;
   m_newMsgHdr = nullptr;
   m_envelope_pos = 0;
-  m_msgUid = ImapUid_None;
+  m_msgUid = 0;
   m_toList.Clear();
   m_ccList.Clear();
   m_headers.clear();
@@ -721,7 +721,7 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
     // really should not conflate the meaning of nsMsgKey and UID.
     // See https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
     nsMsgKey newKey = nsMsgKey_None;
-    if (m_msgUid != ImapUid_None) {
+    if (m_msgUid != 0) {
       newKey = (nsMsgKey)m_msgUid;
     }
     if (NS_SUCCEEDED(ret) && oldHeader) {
