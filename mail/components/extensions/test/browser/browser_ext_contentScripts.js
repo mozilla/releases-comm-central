@@ -167,6 +167,32 @@ function getBackgoundHelperFunctions() {
       browser.test.fail(`Unknown tab config: ${config.tabConfig}`);
       return null;
     };
+
+    // Bug 2047009: executeScript/insertCSS/removeCSS look up the target window
+    // in the parent process and then run the operation in the content process.
+    // A freshly created about:blank tab can swap its document between those two
+    // steps, in which case nothing is returned and the call rejects with a
+    // spurious "Missing host permission for the tab" error, even though the
+    // extension does have the permission. The failed attempt runs in no window,
+    // so retrying has no duplicate side effects. Only success is expected here,
+    // so a genuine permission error eventually surfaces after the retries.
+    window.injectWithRetry = async inject => {
+      for (let attempt = 0; ; attempt++) {
+        try {
+          return await inject();
+        } catch (e) {
+          if (
+            attempt >= 10 ||
+            !/Missing host permission for the tab/.test(e.message)
+          ) {
+            throw e;
+          }
+          // Yield to the event loop so the document swap can settle before the
+          // next attempt re-runs the parent-side window lookup.
+          await new Promise(resolve => setTimeout(resolve));
+        }
+      }
+    };
   };
 }
 
@@ -310,28 +336,36 @@ add_task(async function testInsertRemoveCSS() {
           const tab = await window.getTestTab(config);
           await window.sendMessage("load tab", tab.id);
 
-          await browser.tabs.insertCSS(tab.id, {
-            code: "body { background-color: lime; }",
-            matchAboutBlank: config.matchAboutBlank,
-          });
+          await window.injectWithRetry(() =>
+            browser.tabs.insertCSS(tab.id, {
+              code: "body { background-color: lime; }",
+              matchAboutBlank: config.matchAboutBlank,
+            })
+          );
           await window.sendMessage("code insertCSS()");
 
-          await browser.tabs.removeCSS(tab.id, {
-            code: "body { background-color: lime; }",
-            matchAboutBlank: config.matchAboutBlank,
-          });
+          await window.injectWithRetry(() =>
+            browser.tabs.removeCSS(tab.id, {
+              code: "body { background-color: lime; }",
+              matchAboutBlank: config.matchAboutBlank,
+            })
+          );
           await window.sendMessage("code removeCSS()");
 
-          await browser.tabs.insertCSS(tab.id, {
-            file: "test.css",
-            matchAboutBlank: config.matchAboutBlank,
-          });
+          await window.injectWithRetry(() =>
+            browser.tabs.insertCSS(tab.id, {
+              file: "test.css",
+              matchAboutBlank: config.matchAboutBlank,
+            })
+          );
           await window.sendMessage("file insertCSS()");
 
-          await browser.tabs.removeCSS(tab.id, {
-            file: "test.css",
-            matchAboutBlank: config.matchAboutBlank,
-          });
+          await window.injectWithRetry(() =>
+            browser.tabs.removeCSS(tab.id, {
+              file: "test.css",
+              matchAboutBlank: config.matchAboutBlank,
+            })
+          );
           await window.sendMessage("file removeCSS()");
 
           if (config.tabConfig != "updateMailTabBrowser") {
@@ -394,28 +428,36 @@ add_task(async function testInsertRemoveCSSViaScriptingAPI() {
           const tab = await window.getTestTab(config);
           await window.sendMessage("load tab", tab.id);
 
-          await browser.scripting.insertCSS({
-            target: { tabId: tab.id },
-            css: "body { background-color: lime; }",
-          });
+          await window.injectWithRetry(() =>
+            browser.scripting.insertCSS({
+              target: { tabId: tab.id },
+              css: "body { background-color: lime; }",
+            })
+          );
           await window.sendMessage("code insertCSS()");
 
-          await browser.scripting.removeCSS({
-            target: { tabId: tab.id },
-            css: "body { background-color: lime; }",
-          });
+          await window.injectWithRetry(() =>
+            browser.scripting.removeCSS({
+              target: { tabId: tab.id },
+              css: "body { background-color: lime; }",
+            })
+          );
           await window.sendMessage("code removeCSS()");
 
-          await browser.scripting.insertCSS({
-            target: { tabId: tab.id },
-            files: ["test.css"],
-          });
+          await window.injectWithRetry(() =>
+            browser.scripting.insertCSS({
+              target: { tabId: tab.id },
+              files: ["test.css"],
+            })
+          );
           await window.sendMessage("file insertCSS()");
 
-          await browser.scripting.removeCSS({
-            target: { tabId: tab.id },
-            files: ["test.css"],
-          });
+          await window.injectWithRetry(() =>
+            browser.scripting.removeCSS({
+              target: { tabId: tab.id },
+              files: ["test.css"],
+            })
+          );
           await window.sendMessage("file removeCSS()");
 
           if (config.tabConfig != "updateMailTabBrowser") {
@@ -589,16 +631,20 @@ add_task(async function testExecuteScript() {
           const tab = await window.getTestTab(config);
           await window.sendMessage("load tab", tab.id);
 
-          await browser.tabs.executeScript(tab.id, {
-            code: `document.body.setAttribute("foo", "bar"); browser.test.sendMessage("expected code injection"); `,
-            matchAboutBlank: config.matchAboutBlank,
-          });
+          await window.injectWithRetry(() =>
+            browser.tabs.executeScript(tab.id, {
+              code: `document.body.setAttribute("foo", "bar"); browser.test.sendMessage("expected code injection"); `,
+              matchAboutBlank: config.matchAboutBlank,
+            })
+          );
           await window.sendMessage("code executeScript()");
 
-          await browser.tabs.executeScript(tab.id, {
-            file: "test.js",
-            matchAboutBlank: config.matchAboutBlank,
-          });
+          await window.injectWithRetry(() =>
+            browser.tabs.executeScript(tab.id, {
+              file: "test.js",
+              matchAboutBlank: config.matchAboutBlank,
+            })
+          );
           await window.sendMessage("file executeScript()");
 
           if (config.tabConfig != "updateMailTabBrowser") {
@@ -662,19 +708,23 @@ add_task(async function testExecuteScriptViaScriptingAPI() {
           const tab = await window.getTestTab(config);
           await window.sendMessage("load tab", tab.id);
 
-          await browser.scripting.executeScript({
-            target: { tabId: tab.id },
-            func: () => {
-              document.body.setAttribute("foo", "bar");
-              browser.test.sendMessage("expected code injection");
-            },
-          });
+          await window.injectWithRetry(() =>
+            browser.scripting.executeScript({
+              target: { tabId: tab.id },
+              func: () => {
+                document.body.setAttribute("foo", "bar");
+                browser.test.sendMessage("expected code injection");
+              },
+            })
+          );
           await window.sendMessage("code executeScript()");
 
-          await browser.scripting.executeScript({
-            target: { tabId: tab.id },
-            files: ["test.js"],
-          });
+          await window.injectWithRetry(() =>
+            browser.scripting.executeScript({
+              target: { tabId: tab.id },
+              files: ["test.js"],
+            })
+          );
           await window.sendMessage("file executeScript()");
 
           if (config.tabConfig != "updateMailTabBrowser") {
@@ -852,10 +902,12 @@ add_task(async function testExecuteScriptAlias() {
           const tab = await window.getTestTab(config);
           await window.sendMessage("load tab", tab.id);
 
-          await browser.tabs.executeScript(tab.id, {
-            code: `document.body.textContent = messenger.runtime.getManifest().browser_specific_settings.gecko.id; browser.test.sendMessage("expected code injection");`,
-            matchAboutBlank: config.matchAboutBlank,
-          });
+          await window.injectWithRetry(() =>
+            browser.tabs.executeScript(tab.id, {
+              code: `document.body.textContent = messenger.runtime.getManifest().browser_specific_settings.gecko.id; browser.test.sendMessage("expected code injection");`,
+              matchAboutBlank: config.matchAboutBlank,
+            })
+          );
           await window.sendMessage("code executeScript()");
 
           if (config.tabConfig != "updateMailTabBrowser") {
@@ -920,17 +972,19 @@ add_task(async function testExecuteScriptAliasViaScriptingAPI() {
           const tab = await window.getTestTab(config);
           await window.sendMessage("load tab", tab.id);
 
-          await browser.scripting.executeScript({
-            target: { tabId: tab.id },
-            func: () => {
-              const id =
-                // eslint-disable-next-line no-undef
-                messenger.runtime.getManifest().browser_specific_settings.gecko
-                  .id;
-              document.body.textContent = id;
-              browser.test.sendMessage("expected code injection");
-            },
-          });
+          await window.injectWithRetry(() =>
+            browser.scripting.executeScript({
+              target: { tabId: tab.id },
+              func: () => {
+                const id =
+                  // eslint-disable-next-line no-undef
+                  messenger.runtime.getManifest().browser_specific_settings
+                    .gecko.id;
+                document.body.textContent = id;
+                browser.test.sendMessage("expected code injection");
+              },
+            })
+          );
           await window.sendMessage("code executeScript()");
 
           if (config.tabConfig != "updateMailTabBrowser") {
