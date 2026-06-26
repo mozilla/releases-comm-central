@@ -371,31 +371,28 @@ NS_IMETHODIMP nsImapMoveCopyMsgTxn::OnStopRunningUrl(nsIURI* aUrl,
     } else if (imapAction == nsIImapUrl::nsImapSelectFolder) {
       // Now we should have the headers from the dest folder.
       // Look them up and move them back to the source folder.
-      uint32_t count = m_srcMessageIds.Length();
-      uint32_t i;
-      nsCString messageId;
-      nsTArray<nsMsgKey> dstKeys;
+      nsTArray<ImapUid> dstUids;
       nsCOMPtr<nsIMsgDatabase> destDB;
-      nsCOMPtr<nsIMsgDBHdr> dstHdr;
-
       rv = dstFolder->GetMsgDatabase(getter_AddRefs(destDB));
       NS_ENSURE_SUCCESS(rv, rv);
-      for (i = 0; i < count; i++) {
-        rv = destDB->GetMsgHdrForMessageID(m_srcMessageIds[i].get(),
+      for (auto const& srcMessageId : m_srcMessageIds) {
+        nsCOMPtr<nsIMsgDBHdr> dstHdr;
+        rv = destDB->GetMsgHdrForMessageID(srcMessageId.get(),
                                            getter_AddRefs(dstHdr));
         if (NS_SUCCEEDED(rv) && dstHdr) {
           nsMsgKey dstKey;
           dstHdr->GetMessageKey(&dstKey);
-          dstKeys.AppendElement(dstKey);
+          ImapUid uid = MOZ_TRY(UidFromKey(destDB, dstKey));
+          if (uid != 0) {
+            dstUids.AppendElement(uid);
+          }
         }
       }
-      if (!dstKeys.IsEmpty()) {
-        // TODO: msgKey->UID mapping.
-        // https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
-        nsAutoCString uids(UidSetFromUids(dstKeys));
-        rv = imapService->OnlineMessageCopy(dstFolder, uids, srcFolder, true,
-                                            true, nullptr, nullptr, nullptr,
-                                            nullptr);
+      if (!dstUids.IsEmpty()) {
+        nsAutoCString uids;
+        rv = imapService->OnlineMessageCopy(dstFolder, UidSetFromUids(dstUids),
+                                            srcFolder, true, true, nullptr,
+                                            nullptr, nullptr, nullptr);
       }
     }
   }

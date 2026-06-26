@@ -3557,10 +3557,12 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
   return finalResult;
 }
 
-NS_IMETHODIMP nsImapMailFolder::SetImapFlags(const char* uids, int32_t flags,
-                                             nsIURI** url) {
+NS_IMETHODIMP nsImapMailFolder::SetImapFlags(nsTArray<nsMsgKey> const& msgKeys,
+                                             int32_t flags, nsIURI** url) {
+  MOZ_TRY(GetDatabase());
+  nsTArray<ImapUid> msgUids = MOZ_TRY(UidsFromKeys(mDatabase, msgKeys));
   nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
-  return imapService->SetMessageFlags(this, this, url, nsAutoCString(uids),
+  return imapService->SetMessageFlags(this, this, url, UidSetFromUids(msgUids),
                                       flags, true);
 }
 
@@ -3636,12 +3638,11 @@ nsImapMailFolder::ReplayOfflineMoveCopy(const nsTArray<nsMsgKey>& aMsgKeys,
 
   nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
   nsCOMPtr<nsIURI> resultUrl;
-  // TODO: Map keys to proper UIDs.
-  // See https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
-  nsAutoCString uids(UidSetFromUids(aMsgKeys));
+  nsTArray<ImapUid> uids = MOZ_TRY(UidsFromKeys(mDatabase, aMsgKeys));
+  nsAutoCString idSet(UidSetFromUids(uids));
   // Tell IMAP to copy (or move) messages with given uids in this folder to
   // aDstFolder.
-  rv = imapService->OnlineMessageCopy(this, uids, aDstFolder, true, isMove,
+  rv = imapService->OnlineMessageCopy(this, idSet, aDstFolder, true, isMove,
                                       aUrlListener, getter_AddRefs(resultUrl),
                                       nullptr, aWindow);
   if (resultUrl) {
@@ -3679,9 +3680,8 @@ NS_IMETHODIMP nsImapMailFolder::StoreImapFlags(int32_t flags, bool addFlags,
   nsresult rv = NS_OK;
   if (!WeAreOffline()) {
     nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
-    // TODO: Map keys to UIDs.
-    // See https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
-    nsAutoCString msgIds(UidSetFromUids(keys));
+    nsTArray<ImapUid> uids = MOZ_TRY(UidsFromKeys(mDatabase, keys));
+    nsAutoCString msgIds(UidSetFromUids(uids));
     if (addFlags)
       imapService->AddMessageFlags(this, aUrlListener ? aUrlListener : this,
                                    msgIds, flags, true);
@@ -3910,7 +3910,7 @@ void nsImapMailFolder::FindUidsToDelete(const nsTArray<ImapUid>& existingUids,
         uint32_t msgFlags;
         header->GetFlags(&msgFlags);
         if (msgFlags & nsMsgMessageFlags::IMAPDeleted) {
-          // TODO: Fetch UID ihere instead of Key.
+          // TODO: Fetch UID here instead of Key.
           // See https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
           nsMsgKey msgKey;
           header->GetMessageKey(&msgKey);
@@ -4021,11 +4021,8 @@ void nsImapMailFolder::PrepareToAddHeadersToMailDB(nsIImapProtocol* aProtocol) {
 void nsImapMailFolder::TweakHeaderFlags(nsIImapProtocol* aProtocol,
                                         nsIMsgDBHdr* tweakMe) {
   if (mDatabase && aProtocol && tweakMe) {
-    // TODO: UID -> nsMsgKey Mapping
-    // https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
-    nsMsgKey msgKey = (nsMsgKey)m_curMsgUid;
+    ImapUid uid = m_curMsgUid;
 
-    tweakMe->SetMessageKey(msgKey);
     tweakMe->SetMessageSize(m_nextMessageByteLength);
 
     bool foundIt = false;
@@ -4033,14 +4030,14 @@ void nsImapMailFolder::TweakHeaderFlags(nsIImapProtocol* aProtocol,
     nsCOMPtr<nsIImapFlagAndUidState> flagState;
     nsresult rv = aProtocol->GetFlagAndUidState(getter_AddRefs(flagState));
     NS_ENSURE_SUCCESS_VOID(rv);
-    rv = flagState->HasMessage(msgKey, &foundIt);
+    rv = flagState->HasMessage(uid, &foundIt);
 
     if (NS_SUCCEEDED(rv) && foundIt) {
       imapMessageFlagsType imap_flags;
       nsCString customFlags;
-      flagState->GetMessageFlagsByUid(m_curMsgUid, &imap_flags);
+      flagState->GetMessageFlagsByUid(uid, &imap_flags);
       if (imap_flags & kImapMsgCustomKeywordFlag) {
-        flagState->GetCustomFlags(m_curMsgUid, getter_Copies(customFlags));
+        flagState->GetCustomFlags(uid, getter_Copies(customFlags));
       }
 
       // make a mask and clear these message flags
@@ -4080,17 +4077,26 @@ void nsImapMailFolder::TweakHeaderFlags(nsIImapProtocol* aProtocol,
         }
       }
 
-      if (imap_flags & kImapMsgAnsweredFlag)
+      if (imap_flags & kImapMsgAnsweredFlag) {
         newFlags |= nsMsgMessageFlags::Replied;
-      if (imap_flags & kImapMsgFlaggedFlag)
+      }
+      if (imap_flags & kImapMsgFlaggedFlag) {
         newFlags |= nsMsgMessageFlags::Marked;
-      if (imap_flags & kImapMsgDeletedFlag)
+      }
+      if (imap_flags & kImapMsgDeletedFlag) {
         newFlags |= nsMsgMessageFlags::IMAPDeleted;
-      if (imap_flags & kImapMsgForwardedFlag)
+      }
+      if (imap_flags & kImapMsgForwardedFlag) {
         newFlags |= nsMsgMessageFlags::Forwarded;
-      if (newFlags) tweakMe->OrFlags(newFlags, &dbHdrFlags);
-      if (!customFlags.IsEmpty())
+      }
+      if (newFlags) {
+        tweakMe->OrFlags(newFlags, &dbHdrFlags);
+      }
+      if (!customFlags.IsEmpty()) {
+        nsMsgKey msgKey;
+        tweakMe->GetMessageKey(&msgKey);
         (void)HandleCustomFlags(msgKey, tweakMe, userFlags, customFlags);
+      }
     }
   }
 }
@@ -4532,20 +4538,19 @@ nsresult nsImapMailFolder::SyncFlags(nsIImapFlagAndUidState* flagState) {
     flagState->GetUidOfMessage(flagIndex, &uidOfMessage);
     imapMessageFlagsType flags;
     flagState->GetMessageFlags(flagIndex, &flags);
-    // TODO: Proper UID->nsMsgKey mapping
-    // https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
-    nsMsgKey msgKey = (nsMsgKey)uidOfMessage;
-    bool containsKey;
-    rv = mDatabase->ContainsKey(msgKey, &containsKey);
+    nsMsgKey msgKey = MOZ_TRY(KeyFromUid(mDatabase, uidOfMessage));
     // if we don't have the header, don't diddle the flags.
     // GetMsgHdrForKey will create the header if it doesn't exist.
-    if (NS_FAILED(rv) || !containsKey) continue;
+    if (msgKey == nsMsgKey_None) {
+      continue;
+    }
 
     nsCOMPtr<nsIMsgDBHdr> dbHdr;
     rv = mDatabase->GetMsgHdrForKey(msgKey, getter_AddRefs(dbHdr));
     if (NS_FAILED(rv)) continue;
-    if (NS_SUCCEEDED(dbHdr->GetMessageSize(&messageSize)))
+    if (NS_SUCCEEDED(dbHdr->GetMessageSize(&messageSize))) {
       newFolderSize += messageSize;
+    }
 
     nsCString keywords;
     if (NS_SUCCEEDED(
@@ -4631,15 +4636,13 @@ nsImapMailFolder::NotifyMessageFlags(uint32_t aFlags,
       }
     }
     nsCOMPtr<nsIMsgDBHdr> dbHdr;
-    bool containsKey;
-    // TODO: UID -> nsMsgKey mapping
-    // https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
-    nsMsgKey msgKey = aMsgUid;
-    nsresult rv = mDatabase->ContainsKey(msgKey, &containsKey);
+    nsMsgKey msgKey = MOZ_TRY(KeyFromUid(mDatabase, aMsgUid));
     // if we don't have the header, don't diddle the flags.
     // GetMsgHdrForKey will create the header if it doesn't exist.
-    if (NS_FAILED(rv) || !containsKey) return rv;
-    rv = mDatabase->GetMsgHdrForKey(msgKey, getter_AddRefs(dbHdr));
+    if (msgKey == nsMsgKey_None) {
+      return NS_OK;
+    }
+    nsresult rv = mDatabase->GetMsgHdrForKey(msgKey, getter_AddRefs(dbHdr));
     if (NS_SUCCEEDED(rv) && dbHdr) {
       uint32_t supportedUserFlags;
       GetSupportedUserFlags(&supportedUserFlags);
@@ -5450,9 +5453,9 @@ nsImapMailFolder::HeaderFetchCompleted(nsIImapProtocol* aProtocol) {
           (m_downloadingFolderForOfflineUse || autoDownloadNewHeaders)) {
         // this is the case when DownloadAllForOffline is called.
         notifiedBodies = true;
-        // TODO: we'll need a key->UID mapping here!
-        // https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
-        aProtocol->NotifyBodysToDownload(keysToDownload);
+        nsTArray<ImapUid> uidsToDownload =
+            MOZ_TRY(UidsFromKeys(mDatabase, keysToDownload));
+        aProtocol->NotifyBodysToDownload(uidsToDownload);
       } else {
         // create auto-sync state object lazily
         InitAutoSyncState();
@@ -6978,9 +6981,12 @@ nsImapMailFolder::CopyMessages(
     if (keyArray.IsEmpty()) {
       goto done;
     }
-    // TODO: map keys->UIDs
-    // See https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
-    nsAutoCString messageIds(UidSetFromUids(keyArray));
+    auto uids = UidsFromKeys(mDatabase, keyArray);
+    if (uids.isErr()) {
+      rv = uids.unwrapErr();
+      goto done;
+    }
+    nsAutoCString messageIds(UidSetFromUids(uids.unwrap()));
 
     nsCOMPtr<nsIUrlListener> urlListener;
     rv =
@@ -7700,11 +7706,13 @@ nsresult nsImapMailFolder::OnCopyCompleted(nsISupports* srcSupport,
   if (NS_SUCCEEDED(rv) && m_copyState) {
     nsCOMPtr<nsIFile> srcFile(do_QueryInterface(srcSupport));
     if (srcFile) {
-      // TODO: UID->msgKey mapping.
-      // Until Bug 1806770 is done, UID and nsMsgKey continue to be
-      // interchangeable. https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
-      nsMsgKey msgKey = (nsMsgKey)m_copyState->m_appendUID;
-      (void)CopyFileToOfflineStore(srcFile, msgKey);
+      GetDatabase();
+      auto key = KeyFromUid(mDatabase, m_copyState->m_appendUID);
+      if (key.isOk()) {
+        (void)CopyFileToOfflineStore(srcFile, key.unwrap());
+      } else {
+        rv = key.unwrapErr();
+      }
     }
   }
   m_copyState = nullptr;
@@ -8220,13 +8228,11 @@ nsImapMailFolder::StoreCustomKeywords(nsIMsgWindow* aMsgWindow,
     return rv;
   }
 
-  nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
-  // TODO: map keys->UIDs
-  // See https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
-  nsAutoCString msgIds(UidSetFromUids(aKeysToStore));
+  nsTArray<ImapUid> uids = MOZ_TRY(UidsFromKeys(mDatabase, aKeysToStore));
   nsCOMPtr<nsIURI> retUri;
+  nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
   rv = imapService->StoreCustomKeywords(this, aMsgWindow, aFlagsToAdd,
-                                        aFlagsToSubtract, msgIds,
+                                        aFlagsToSubtract, UidSetFromUids(uids),
                                         getter_AddRefs(retUri));
   if (_retval) {
     retUri.forget(_retval);

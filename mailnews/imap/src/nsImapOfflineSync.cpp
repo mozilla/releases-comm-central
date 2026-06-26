@@ -229,20 +229,15 @@ void nsImapOfflineSync::ProcessFlagOperation(nsIMsgOfflineImapOperation* op) {
   } while (currentOp);
 
   if (!matchingFlagKeys.IsEmpty()) {
-    // TODO: map msgKey->UIDs
-    // https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
-    nsAutoCString uids(UidSetFromUids(matchingFlagKeys));
-
     uint32_t curFolderFlags;
     m_currentFolder->GetFlags(&curFolderFlags);
-
-    if (!uids.IsEmpty() && (curFolderFlags & nsMsgFolderFlags::ImapBox)) {
+    if (curFolderFlags & nsMsgFolderFlags::ImapBox) {
       nsresult rv = NS_OK;
       nsCOMPtr<nsIMsgImapMailFolder> imapFolder =
           do_QueryInterface(m_currentFolder);
       nsCOMPtr<nsIURI> uriToSetFlags;
       if (imapFolder) {
-        rv = imapFolder->SetImapFlags(uids.get(), matchingFlags,
+        rv = imapFolder->SetImapFlags(matchingFlagKeys, matchingFlags,
                                       getter_AddRefs(uriToSetFlags));
         if (NS_SUCCEEDED(rv) && uriToSetFlags) {
           nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl =

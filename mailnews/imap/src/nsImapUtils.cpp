@@ -6,6 +6,7 @@
 
 #include <fmt/format.h>
 
+#include "ErrorList.h"
 #include "MailNewsTypes.h"
 #include "nsCOMPtr.h"
 #include "nsDebug.h"
@@ -420,4 +421,46 @@ mozilla::Result<nsTArray<ImapUid>, nsresult> UidsFromHdrs(
     uids.AppendElement((ImapUid)key);
   }
   return uids;
+}
+
+mozilla::Result<nsTArray<ImapUid>, nsresult> UidsFromKeys(
+    nsIMsgDatabase* db, nsTArray<nsMsgKey> const& keys) {
+  // TODO: When we take the final step to separate nsMsgKey and UIDs,
+  // this function will have to be changed to use GetUidOnServer() instead
+  // of GetMessageKey().
+  // https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
+
+  // But for now, UIDs are used as keys, so...
+  for (nsMsgKey k : keys) {
+    if (k == nsMsgKey_None) {
+      return Err(NS_ERROR_UNEXPECTED);
+    }
+  }
+  nsTArray<ImapUid> uids(keys.Clone());
+  return uids;
+}
+
+mozilla::Result<ImapUid, nsresult> UidFromKey(nsIMsgDatabase* db,
+                                              nsMsgKey key) {
+  MOZ_ASSERT(key != nsMsgKey_None);
+
+  // TODO: When we take the final step to separate nsMsgKey and UIDs,
+  // this function will have to be changed to use GetUidOnServer() instead
+  // of GetMessageKey().
+  // https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
+
+  // But for now, UIDs are used as keys, so...
+  return (ImapUid)key;
+}
+
+mozilla::Result<nsMsgKey, nsresult> KeyFromUid(nsIMsgDatabase* db,
+                                               ImapUid uid) {
+  MOZ_ASSERT(uid != 0);
+
+  // TODO: When we take the final step to separate nsMsgKey and UIDs,
+  // this function will have to be changed to do a database lookup!
+  // https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
+
+  // But for now, UIDs are used as keys, so...
+  return (nsMsgKey)uid;
 }

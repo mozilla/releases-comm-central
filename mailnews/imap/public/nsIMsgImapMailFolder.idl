@@ -96,7 +96,7 @@ interface nsIMsgImapMailFolder : nsISupports {
   // these are used for offline synchronization
   void storeImapFlags(in long aFlags, in boolean aAddFlags,
       in Array<nsMsgKey> aKeysToFlag, in nsIUrlListener aUrlListener);
-  nsIURI setImapFlags(in string uids, in long flags);
+  nsIURI setImapFlags(in Array<nsMsgKey> msgKeys, in long flags);
   void replayOfflineMoveCopy(in Array<nsMsgKey> keys, in boolean isMove,
       in nsIMsgFolder aDstFolder, in nsIUrlListener aUrlListener,
       in nsIMsgWindow aWindow, in boolean srcFolderOffline);
