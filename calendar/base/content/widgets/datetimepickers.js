@@ -719,8 +719,13 @@
 
       if (this.getAttribute("type") == "forever") {
         this._valueIsForever = false;
+        this._foreverString = cal.l10n.getString(
+          "calendar-event-dialog",
+          "eventRecurrenceForeverLabel"
+        );
+
         this._foreverItem = document.createXULElement("button");
-        document.l10n.setAttributes(this._foreverItem, "event-recurrence-forever");
+        this._foreverItem.setAttribute("label", this._foreverString);
         this._popup.appendChild(document.createXULElement("menuseparator"));
         this._popup.appendChild(this._foreverItem);
 
@@ -857,7 +862,7 @@
 
     set _inputBoxValue(val) {
       if (val == "forever") {
-        this._inputField.value = this._foreverItem.label;
+        this._inputField.value = this._foreverString;
         return;
       }
       this._inputField.value = formatDate(val);

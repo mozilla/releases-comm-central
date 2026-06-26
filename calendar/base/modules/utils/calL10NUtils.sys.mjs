@@ -82,6 +82,16 @@ export var l10n = {
   getAnyString: _getString,
 
   /**
+   * Gets a string from a bundle from chrome://calendar/
+   *
+   * @param {string} aBundleName - The name of the properties file
+   * @param {string} aStringName - The name of the string within the properties file
+   * @param {string[]} aParams - (optional) Parameters to format the string
+   * @returns {string} The formatted string
+   */
+  getString: _getString.bind(undefined, "calendar"),
+
+  /**
    * Gets a string from chrome://lightning/locale/lightning.properties
    *
    * @param {string} aStringName - The name of the string within the properties file

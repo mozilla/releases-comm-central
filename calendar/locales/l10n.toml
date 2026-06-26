@@ -17,6 +17,12 @@ basepath = "../.."
     key = "re:."
     action = "warning"
 
+# Noun class entries do not have to be translated
+[[filters]]
+    path = "{l}calendar/chrome/calendar/calendar-event-dialog.properties"
+    key = "re:.*Nounclass[1-9].*"
+    action = "ignore"
+
 # most extraction related strings are not required
 [[filters]]
     path = "{l}calendar/chrome/calendar/calendar-extract.properties"

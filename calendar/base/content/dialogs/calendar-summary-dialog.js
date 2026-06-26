@@ -9,6 +9,8 @@
 /* import-globals-from calendar-dialog-utils.js */
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
+var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
+
 ChromeUtils.defineESModuleGetters(this, {
   SelectionUtils: "resource://gre/modules/SelectionUtils.sys.mjs",
 });
@@ -113,8 +115,8 @@ function onUnload() {
  * Updates the user's participation status (PARTSTAT from see RFC5545), and
  * send a notification if requested. Then close the dialog.
  *
- * @param {"AUTO"|"USER"|"NONE"} aResponseMode - a literal of one of the
- *   response modes defined in calIItipItem (like 'NONE')
+ * @param {string} aResponseMode - a literal of one of the response modes defined
+ *                                 in calIItipItem (like 'NONE')
  * @param {string} aPartStat - participation status; a PARTSTAT value
  */
 function reply(aResponseMode, aPartStat) {
@@ -142,8 +144,8 @@ function reply(aResponseMode, aPartStat) {
  * Stores the event in the calendar, sends a notification if requested and
  * closes the dialog.
  *
- * @param {"AUTO"|"USER"|"NONE"} aResponseMode - A literal of one of the
- *   response modes defined in calIItipItem (like 'NONE')
+ * @param {string} aResponseMode - a literal of one of the response modes defined
+ *                                 in calIItipItem (like 'NONE')
  */
 function saveAndClose(aResponseMode) {
   window.responseMode = aResponseMode;
@@ -170,15 +172,25 @@ async function updateToolbar() {
     // we display a notification about the users partstat
     const partStat = window.attendee.participationStatus || "NEEDS-ACTION";
     const type = window.calendarItem.isEvent() ? "event" : "task";
+
+    const msgStr = {
+      ACCEPTED: type + "Accepted",
+      COMPLETED: "taskCompleted",
+      DECLINED: type + "Declined",
+      DELEGATED: type + "Delegated",
+      TENTATIVE: type + "Tentative",
+    };
+    // this needs to be noted differently to get accepted the '-' in the key
+    msgStr["NEEDS-ACTION"] = type + "NeedsAction";
+    msgStr["IN-PROGRESS"] = "taskInProgress";
+
+    const msg = cal.l10n.getString("calendar-event-dialog", msgStr[partStat]);
+
     await gStatusNotification
       .appendNotification(
         "statusNotification",
         {
-          // event-accepted, event-tentative, event-declined, event-delegated
-          // event-needs-action
-          // task-accepted, task-tentative, task-declined, task-delegated
-          // task-needs-action, task-in-progress, task-completed
-          label: { "l10n-id": `${type}-${partStat.toLowerCase()}` },
+          label: msg,
           priority: gStatusNotification.PRIORITY_INFO_MEDIUM,
         },
         null

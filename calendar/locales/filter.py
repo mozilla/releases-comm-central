@@ -14,6 +14,10 @@ def test(mod, path, entity=None):
     if path == "chrome/calendar/timezones.properties":
         return "report"
 
+    # Noun class entries do not have to be translated
+    if path == "chrome/calendar/calendar-event-dialog.properties":
+        return not re.match(r".*Nounclass[1-9]", entity)
+
     # most extraction related strings are not required
     if path == "chrome/calendar/calendar-extract.properties":
         if not re.match(r"from.today", entity):
