@@ -1,5 +1,18 @@
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$comment": "Validation uses standard JSON Schema. Before validating, Thunderbird normalizes platform input in PolicySchemaValidator.sys.mjs: a value delivered as a JSON string is parsed where contentMediaType is application/json, and 0/1 integers become booleans. After validation, strings with format uri become URL objects, and a list entry that fails validation is dropped and logged rather than discarding the whole policy.",
+  "definitions": {
+    "url": { "type": "string", "format": "uri" },
+    "urlOrEmpty": {
+      "type": "string",
+      "anyOf": [{ "format": "uri" }, { "maxLength": 0 }]
+    },
+    "origin": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^([Ff][Ii][Ll][Ee]://.*|[Hh][Tt][Tt][Pp][Ss]?://[^/]+/?)$"
+    }
+  },
   "type": "object",
   "properties": {
     "3rdparty": {
@@ -9,7 +22,8 @@
           "type": "object",
           "patternProperties": {
             "^.*$": {
-              "type": "JSON"
+              "type": ["object", "array"],
+              "contentMediaType": "application/json"
             }
           }
         }
@@ -24,9 +38,7 @@
       "type": "string"
     },
 
-    "AppUpdateURL": {
-      "type": "URL"
-    },
+    "AppUpdateURL": { "$ref": "#/definitions/url" },
 
     "Authentication": {
       "type": "object",
@@ -126,18 +138,12 @@
       "properties": {
         "Allow": {
           "type": "array",
-          "strict": false,
-          "items": {
-            "type": "origin"
-          }
+          "items": { "$ref": "#/definitions/origin" }
         },
 
         "Block": {
           "type": "array",
-          "strict": false,
-          "items": {
-            "type": "origin"
-          }
+          "items": { "$ref": "#/definitions/origin" }
         },
 
         "Default": {
@@ -271,9 +277,7 @@
         "Enabled": {
           "type": "boolean"
         },
-        "ProviderURL": {
-          "type": "URLorEmpty"
-        },
+        "ProviderURL": { "$ref": "#/definitions/urlOrEmpty" },
         "ExcludedDomains": {
           "type": "array",
           "items": {
@@ -316,6 +320,7 @@
 
     "ExtensionSettings": {
       "type": "object",
+      "contentMediaType": "application/json",
       "properties": {
         "*": {
           "type": "object",
@@ -350,7 +355,7 @@
         }
       },
       "patternProperties": {
-        "^.*$": {
+        "^(?!\\*$).*$": {
           "type": "object",
           "properties": {
             "installation_mode": {
@@ -371,6 +376,7 @@
             "updates_disabled": {
               "type": "boolean"
             },
+            "update_url": { "$ref": "#/definitions/url" },
             "private_browsing": {
               "type": "boolean"
             }
@@ -385,6 +391,7 @@
 
     "Handlers": {
       "type": "object",
+      "contentMediaType": "application/json",
       "patternProperties": {
         "^(mimeTypes|extensions|schemes)$": {
           "type": "object",
@@ -450,10 +457,7 @@
       "properties": {
         "Allow": {
           "type": "array",
-          "strict": false,
-          "items": {
-            "type": "origin"
-          }
+          "items": { "$ref": "#/definitions/origin" }
         },
         "Default": {
           "type": "boolean"
@@ -495,6 +499,7 @@
 
     "Preferences": {
       "type": "object",
+      "contentMediaType": "application/json",
       "patternProperties": {
         "^.*$": {
           "type": ["number", "boolean", "string", "object"],
@@ -531,9 +536,7 @@
           "type": "boolean"
         },
 
-        "AutoConfigURL": {
-          "type": "URLorEmpty"
-        },
+        "AutoConfigURL": { "$ref": "#/definitions/urlOrEmpty" },
 
         "FTPProxy": {
           "type": "string"
@@ -596,9 +599,7 @@
               "Name": {
                 "type": "string"
               },
-              "IconURL": {
-                "type": "URLorEmpty"
-              },
+              "IconURL": { "$ref": "#/definitions/urlOrEmpty" },
               "Alias": {
                 "type": "string"
               },
@@ -645,7 +646,7 @@
     "SecurityDevices": {
       "type": "object",
       "patternProperties": {
-        "^.*$": { "type": "string" }
+        "^(?!Add$|Delete$).*$": { "type": "string" }
       },
       "properties": {
         "Add": {

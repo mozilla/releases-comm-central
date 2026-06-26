@@ -5,6 +5,7 @@
 with Files("**"):
     BUG_COMPONENT = ("Thunderbird", "OS Integration")
 
-EXTRA_PP_JS_MODULES.policies += [
+EXTRA_JS_MODULES.policies += [
+    "policies-schema.json",
     "schema.sys.mjs",
 ]
