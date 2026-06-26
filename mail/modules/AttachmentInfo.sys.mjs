@@ -368,17 +368,15 @@ export class AttachmentInfo {
 
     // Write to a temp file, then import into the target folder.
     const tempFile = await this.#setupTempFile("imported-message.eml");
-    try {
-      await IOUtils.write(
-        tempFile.path,
-        lazy.MailStringUtils.byteStringToUint8Array(normalized)
-      );
+    await IOUtils.write(
+      tempFile.path,
+      lazy.MailStringUtils.byteStringToUint8Array(normalized)
+    );
 
-      await lazy.MailUtils.copyFileMessageAsync(tempFile, targetFolder, null);
-    } finally {
-      // Clean up the temp file even if the copy fails.
-      await IOUtils.remove(tempFile.path);
-    }
+    await lazy.MailUtils.copyFileMessageAsync(tempFile, targetFolder, null);
+
+    // Clean up the temp file now that the copy is done.
+    await IOUtils.remove(tempFile.path);
   }
 
   /**

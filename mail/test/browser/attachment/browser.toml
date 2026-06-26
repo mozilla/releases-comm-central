@@ -34,8 +34,6 @@ support-files = ["data/**"]
 
 ["browser_attachmentSize.js"]
 
-["browser_copyToFolderContextMenu.js"]
-
 ["browser_openAttachment.js"]
 
 ["browser_rfc822Base64Attachment.js"]
