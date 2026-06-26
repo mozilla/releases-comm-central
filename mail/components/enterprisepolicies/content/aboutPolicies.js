@@ -239,7 +239,7 @@ function generateErrors() {
   const consoleEvents = storage.getEvents();
   const prefixes = [
     "Enterprise Policies",
-    "JsonSchemaValidator",
+    "PolicySchemaValidator",
     "Policies",
     "WindowsGPOParser",
     "Enterprise Policies Child",
@@ -265,6 +265,75 @@ function generateErrors() {
     const errors_tab = document.getElementById("category-errors");
     errors_tab.style.display = "none";
   }
+}
+
+// about:policies shows the policy schema to administrators. The schema is
+// standard JSON Schema, but a few constructs (format/pattern for URLs and
+// origins, contentMediaType for JSON-string fields) are verbose. This rewrites
+// a fragment into the shorter, friendlier presentation used historically
+// (URL, origin, JSON, ...) so the documentation view stays readable.
+//
+// This is a display-only transform. Consumers that need machine-readable
+// metadata (e.g. a policy editor) should use the canonical schema instead.
+function legacyType(node) {
+  if (node.format === "uri") {
+    return node.pattern ? "origin" : "URL";
+  }
+  if (node.contentMediaType === "application/json") {
+    if (Array.isArray(node.type)) {
+      return "JSON";
+    }
+    if (node.type === "array") {
+      return ["array", "JSON"];
+    }
+    if (node.type === "object") {
+      return ["object", "JSON"];
+    }
+  }
+  return node.type;
+}
+
+function legacySchemaForDisplay(node) {
+  if (Array.isArray(node)) {
+    return node.map(legacySchemaForDisplay);
+  }
+  if (!node || typeof node != "object") {
+    return node;
+  }
+
+  if (node.anyOf) {
+    // A string that is a uri or empty -> "URLorEmpty".
+    if (node.anyOf.some(branch => branch.format === "uri")) {
+      return { type: "URLorEmpty" };
+    }
+    // A "boolean or enumerated string" policy -> {type: [...], enum: [...]}.
+    const types = [];
+    const result = {};
+    for (const branch of node.anyOf) {
+      if (Array.isArray(branch.type)) {
+        types.push(...branch.type);
+      } else if (branch.type) {
+        types.push(branch.type);
+      }
+      if (branch.enum) {
+        result.enum = branch.enum;
+      }
+    }
+    return { type: types, ...result };
+  }
+
+  const result = {};
+  for (const [key, value] of Object.entries(node)) {
+    if (key === "format" || key === "pattern" || key === "contentMediaType") {
+      continue;
+    }
+    if (key === "type") {
+      result.type = legacyType(node);
+    } else {
+      result[key] = legacySchemaForDisplay(value);
+    }
+  }
+  return result;
 }
 
 function generateDocumentation() {
@@ -297,35 +366,31 @@ function generateDocumentation() {
     sec_tbody.classList.add("content");
     sec_tbody.classList.add("content-style");
     const schema_row = document.createElement("tr");
-    if (lazy.schema.properties[policyName].properties) {
+    const policySchema = legacySchemaForDisplay(
+      lazy.schema.properties[policyName]
+    );
+    if (policySchema.properties) {
       const column = col(
-        JSON.stringify(lazy.schema.properties[policyName].properties, null, 1),
+        JSON.stringify(policySchema.properties, null, 1),
         "schema"
       );
       column.colSpan = "2";
       schema_row.appendChild(column);
       sec_tbody.appendChild(schema_row);
-    } else if (lazy.schema.properties[policyName].items) {
-      const column = col(
-        JSON.stringify(lazy.schema.properties[policyName], null, 1),
-        "schema"
-      );
+    } else if (policySchema.items) {
+      const column = col(JSON.stringify(policySchema, null, 1), "schema");
       column.colSpan = "2";
       schema_row.appendChild(column);
       sec_tbody.appendChild(schema_row);
     } else {
-      let column = col(
-        "type: " + lazy.schema.properties[policyName].type,
-        "schema"
-      );
+      let column = col("type: " + policySchema.type, "schema");
       column.colSpan = "2";
       schema_row.appendChild(column);
       sec_tbody.appendChild(schema_row);
-      if (lazy.schema.properties[policyName].enum) {
+      if (policySchema.enum) {
         const enum_row = document.createElement("tr");
         column = col(
-          "enum: " +
-            JSON.stringify(lazy.schema.properties[policyName].enum, null, 1),
+          "enum: " + JSON.stringify(policySchema.enum, null, 1),
           "schema"
         );
         column.colSpan = "2";
