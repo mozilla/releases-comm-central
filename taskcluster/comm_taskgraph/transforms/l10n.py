@@ -5,6 +5,7 @@
 Do transforms specific to l10n kind
 """
 
+from mozilla_taskgraph.util.attributes import release_level
 from taskgraph.transforms.base import TransformSequence, ValidateSchema
 from taskgraph.util.schema import resolve_keyed_by
 
@@ -19,7 +20,6 @@ from gecko_taskgraph.transforms.l10n import (
     set_extra_config,
     setup_name,
 )
-from gecko_taskgraph.util.attributes import release_level
 
 
 def setup_signing_dependency(config, jobs):
@@ -61,7 +61,7 @@ def handle_keyed_by_local(config, jobs):
             item_name=job["name"],
             **{
                 "release-type": config.params["release_type"],
-                "release-level": release_level(config.params),
+                "release-level": release_level(config.graph_config["release-branches"], config.params),
             },
         )
         yield job

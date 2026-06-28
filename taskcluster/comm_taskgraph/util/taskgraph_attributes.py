@@ -9,19 +9,25 @@ only the Thunderbird repositories are included.
 
 from importlib import import_module
 
-from gecko_taskgraph.util.attributes import release_level
+from mozilla_taskgraph.util.attributes import release_level
 
 # gecko_taskgraph.util.attributes
 INTEGRATION_PROJECTS = set({})
 
 TRUNK_PROJECTS = INTEGRATION_PROJECTS | {"comm-central"}
 
-RELEASE_PROJECTS = {
-    "comm-central",
-    "comm-beta",
-    "comm-release",
-    "comm-esr128",
+# Mirror of `release-branches` in comm/taskcluster/config.yml. Duplicated here
+# because the `release` alias lambda below runs in the target-task filter chain,
+# which has no graph_config from which to read it.
+PROJECT_RELEASE_BRANCHES = {
+    "comm-central": True,
+    "comm-beta": True,
+    "comm-release": True,
+    "comm-esr140": True,
+    "comm-esr153": True,
 }
+
+RELEASE_PROJECTS = set(PROJECT_RELEASE_BRANCHES)
 
 RELEASE_PROMOTION_PROJECTS = {
     "jamun",
@@ -43,7 +49,8 @@ RUN_ON_PROJECT_ALIASES = {
         params["project"] in INTEGRATION_PROJECTS or params["project"] == "toolchains"
     ),
     "release": lambda params: (
-        release_level(params) == "production" or params["project"] == "toolchains"
+        release_level(PROJECT_RELEASE_BRANCHES, params) == "production"
+        or params["project"] == "toolchains"
     ),
     "trunk": lambda params: (
         params["project"] in TRUNK_PROJECTS or params["project"] == "toolchains"

@@ -113,6 +113,16 @@ release-promotion:
             version-bump: true
             partial-updates: true
 
+# Mapping of project to list of branches that should be considered "release"
+# level. A value of `True` means all branches are considered release
+# (used by hg.mozilla.org based projects).
+release-branches:
+    comm-central: true
+    comm-beta: true
+    comm-release: true
+    comm-esr140: true
+    comm-esr153: true
+
 scriptworker:
     scope-prefix: 'project:comm:thunderbird:releng'
 

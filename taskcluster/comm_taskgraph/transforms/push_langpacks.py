@@ -10,6 +10,7 @@ import os
 from contextlib import contextmanager
 from typing import Literal
 
+from mozilla_taskgraph.util.attributes import release_level
 from mozilla_version.gecko import ThunderbirdVersion
 from taskgraph.transforms.base import TransformSequence
 from taskgraph.util.dependencies import get_primary_dependency
@@ -22,7 +23,7 @@ from taskgraph.util.schema import (
 from taskgraph.util.treeherder import inherit_treeherder_from_dep
 
 from gecko_taskgraph.transforms.task import TaskDescriptionSchema
-from gecko_taskgraph.util.attributes import copy_attributes_from_dependent_job, release_level
+from gecko_taskgraph.util.attributes import copy_attributes_from_dependent_job
 from mozbuild.action.langpack_manifest import get_version_maybe_buildid
 
 transforms = TransformSequence()
@@ -35,7 +36,9 @@ PUSH_LANGPACK_SCOPE = (
 
 class LangpackWorkerSchema(Schema, kw_only=True):
     env: dict[str, taskref_or_string_msgspec]
-    channel: optionally_keyed_by("project", "platform", Literal["listed", "unlisted"], use_msgspec=True)  # type: ignore  # noqa: F821
+    channel: optionally_keyed_by(
+        "project", "platform", Literal["listed", "unlisted"], use_msgspec=True
+    )  # type: ignore  # noqa: F821
     command: list[taskref_or_string_msgspec]
 
 
@@ -70,10 +73,11 @@ def drop_task(config, tasks):
     its type (beta, release, esr) and separate out the subvalues,
     """
     version = ThunderbirdVersion.parse(config.params.get("version"))
+    project_level = release_level(config.graph_config["release-branches"], config.params)
 
     for task in tasks:
         # Do not attempt to run when staging releases on try-comm-central
-        if release_level(config.params) != "production":
+        if project_level != "production":
             continue
 
         if version.is_beta:

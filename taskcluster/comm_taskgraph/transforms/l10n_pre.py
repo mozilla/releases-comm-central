@@ -7,12 +7,12 @@ Create a strings build artifact to be consumed by shippable-l10n.
 
 from typing import Optional
 
+from mozilla_taskgraph.util.attributes import release_level
 from taskgraph.transforms.base import TransformSequence
 from taskgraph.util.schema import Schema, optionally_keyed_by, resolve_keyed_by
 
 from gecko_taskgraph.transforms.job import JobDescriptionSchema
 from gecko_taskgraph.transforms.task import TaskDescriptionSchema
-from gecko_taskgraph.util.attributes import release_level
 
 transforms = TransformSequence()
 
@@ -47,7 +47,7 @@ def handle_keyed_by(config, jobs):
             item_name=job["name"],
             **{
                 "release-type": config.params["release_type"],
-                "release-level": release_level(config.params),
+                "release-level": release_level(config.graph_config["release-branches"], config.params),
             },
         )
         yield job

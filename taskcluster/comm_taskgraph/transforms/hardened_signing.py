@@ -10,11 +10,10 @@ the provisioning profile portion.
 
 import copy
 
+from mozilla_taskgraph.util.attributes import release_level
 from taskgraph.transforms.base import TransformSequence
 from taskgraph.util.dependencies import get_primary_dependency
 from taskgraph.util.keyed_by import evaluate_keyed_by
-
-from gecko_taskgraph.util.attributes import release_level
 
 transforms = TransformSequence()
 
@@ -28,7 +27,7 @@ def add_hardened_sign_config(config, jobs):
 
         dep_job = get_primary_dependency(config, job)
         assert dep_job
-        project_level = release_level(config.params)
+        project_level = release_level(config.graph_config["release-branches"], config.params)
         is_shippable = dep_job.attributes.get("shippable", False)
         hardened_signing_type = "developer"
 
@@ -75,8 +74,7 @@ def add_hardened_sign_config(config, jobs):
         hardened_sign_config = [
             sign_cfg
             for sign_cfg in hardened_sign_config
-            if not sign_cfg.pop("only-if-milestone-is-nightly", False)
-            or milestone_is_nightly
+            if not sign_cfg.pop("only-if-milestone-is-nightly", False) or milestone_is_nightly
         ]
 
         job["worker"]["hardened-sign-config"] = hardened_sign_config
