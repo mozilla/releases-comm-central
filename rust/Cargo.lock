@@ -58,6 +58,27 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "320119579fcad9c21884f5c4861d16174d0e06250625266f50fe6898340abefa"
 
 [[package]]
+name = "ads-client"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "context_id",
+ "error-support",
+ "once_cell",
+ "parking_lot",
+ "rusqlite",
+ "serde",
+ "serde_json",
+ "sql-support",
+ "thiserror 2.0.12",
+ "uniffi",
+ "url",
+ "url-macro",
+ "uuid",
+ "viaduct",
+]
+
+[[package]]
 name = "aho-corasick"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2740,6 +2761,7 @@ dependencies = [
 name = "gkrust-uniffi-components"
 version = "0.1.0"
 dependencies = [
+ "ads-client",
  "breach-alerts",
  "context_id",
  "error-support",
@@ -7209,6 +7231,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "url-macro"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+ "url",
+]
+
+[[package]]
 name = "urlpattern"
 version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7277,8 +7309,10 @@ name = "viaduct"
 version = "0.1.0"
 dependencies = [
  "async-trait",
+ "bhttp",
  "error-support",
  "ffi-support",
+ "ohttp",
  "once_cell",
  "parking_lot",
  "pollster",

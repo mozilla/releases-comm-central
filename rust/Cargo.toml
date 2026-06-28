@@ -303,6 +303,7 @@ harfbuzz-traits = { git = "https://github.com/hsivonen/rust-harfbuzz", rev = "9d
 encoding_rs = { git = "https://github.com/hsivonen/encoding_rs", rev = "1236d1bc423e6ba35a06485f74a6304db2d703b5" }
 objc = { git = "https://github.com/glandium/rust-objc", rev = "4de89f5aa9851ceca4d40e7ac1e2759410c04324" }
 allocator-api2 = { git = "https://github.com/glandium/allocator-api2", rev = "ad5f3d56a5a4519eff52af4ff85293431466ef5c" }
+ads-client = { path = "../../third_party/application-services/components/ads-client" }
 context_id = { path = "../../third_party/application-services/components/context_id" }
 error-support = { path = "../../third_party/application-services/components/support/error" }
 filter_adult = { path = "../../third_party/application-services/components/filter_adult" }
