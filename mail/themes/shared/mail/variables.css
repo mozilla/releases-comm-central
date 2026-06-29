@@ -29,8 +29,10 @@
   --button-border-size: 1px;
   --button-border: var(--button-border-size) solid var(--button-border-color);
   --button-text-color: var(--layout-color-1);
+  --button-min-height: 32px;
   --button-margin: 6px;
   --button-padding: 6px;
+  --button-padding-wide: 6px 14px;
 
   --button-primary-background-color: var(--selected-item-color);
   --button-primary-hover-background-color: color-mix(in srgb, var(--selected-item-color) 80%, black);
@@ -286,8 +288,10 @@
 
 :root[uidensity="compact"] {
   --tab-min-height: 30px;
+  --button-min-height: 30px;
   --button-margin: 3px;
   --button-padding: 3px;
+  --button-padding-wide: 3px 9px;
   --button-pressed-indicator-padding: 9px;
   --sidebar-header-gap: 6px;
   --sidebar-header-spacing: 4px 6px 3px;

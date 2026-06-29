@@ -654,6 +654,7 @@ img.invisible-on-broken:-moz-broken {
 
 #notification-popup {
   --panel-padding: 8px;
+  --button-padding: var(--button-padding-wide);
   margin-block: 0;
 
   &::part(content) {
