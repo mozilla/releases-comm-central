@@ -39,7 +39,6 @@ module.exports = {
       "../calendar/base/content/widgets/datetimepickers.js",
       "../calendar/base/modules/utils/calDateTimeFormatter.sys.mjs",
       "../calendar/base/modules/utils/calIteratorUtils.sys.mjs",
-      "../calendar/extract/CalExtractParser.sys.mjs",
       "../calendar/providers/caldav/modules/CalDavRequest.sys.mjs",
       "../calendar/providers/caldav/modules/CalDavSession.sys.mjs",
       "../calendar/providers/storage/CalStorageCachedItemModel.sys.mjs",

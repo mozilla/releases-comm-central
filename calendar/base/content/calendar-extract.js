@@ -15,13 +15,6 @@ ChromeUtils.defineESModuleGetters(this, {
   CalTodo: "resource:///modules/CalTodo.sys.mjs",
 });
 
-ChromeUtils.defineLazyGetter(this, "extractService", () => {
-  const { CalExtractParserService } = ChromeUtils.importESModule(
-    "resource:///modules/calendar/extract/CalExtractParserService.sys.mjs"
-  );
-  return new CalExtractParserService();
-});
-
 var calendarExtract = {
   async extractFromEmail(message, isEvent, fixedLang, fixedLocale) {
     const folder = message.folder;
@@ -86,40 +79,19 @@ var calendarExtract = {
       }
     }
 
-    let guessed;
-    let endGuess;
-    let extractor;
-    let collected = [];
-    let useService = Services.prefs.getBoolPref("calendar.extract.service.enabled");
-    if (useService) {
-      const result = extractService.extract(content, { now: date });
-      if (!result) {
-        useService = false;
-      } else {
-        guessed = result.startTime;
-        endGuess = result.endTime;
-      }
-    }
-
-    if (!useService) {
-      const locale = Services.locale.requestedLocale;
-      const dayStart = Services.prefs.getIntPref("calendar.view.daystarthour", 6);
-      if (fixedLang) {
-        extractor = new Extractor(fixedLocale, dayStart);
-      } else {
-        extractor = new Extractor(locale, dayStart, false);
-      }
-      collected = extractor.extract(title, content, date, sel);
-    }
+    const locale = Services.locale.requestedLocale;
+    const dayStart = Services.prefs.getIntPref("calendar.view.daystarthour", 6);
+    const extractor = fixedLang
+      ? new Extractor(fixedLocale, dayStart)
+      : new Extractor(locale, dayStart, false);
+    const collected = extractor.extract(title, content, date, sel);
 
     // if we only have email date then use default start and end
-    if (!useService && collected.length <= 1) {
+    if (collected.length <= 1) {
       createEventWithDialog(null, null, null, null, item);
     } else {
-      if (!useService) {
-        guessed = extractor.guessStart(!isEvent);
-        endGuess = extractor.guessEnd(guessed, !isEvent);
-      }
+      const guessed = extractor.guessStart(!isEvent);
+      const endGuess = extractor.guessEnd(guessed, !isEvent);
       const allDay = (guessed.hour == null || guessed.minute == null) && isEvent;
 
       if (isEvent) {

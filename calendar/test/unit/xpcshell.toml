@@ -88,14 +88,6 @@ tags = ["caldav", "oauth"]
 
 ["test_extract.js"]
 
-["test_extract_parser.js"]
-
-["test_extract_parser_parse.js"]
-
-["test_extract_parser_service.js"]
-
-["test_extract_parser_tokenize.js"]
-
 ["test_filter.js"]
 
 ["test_filter_mixin.js"]

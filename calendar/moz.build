@@ -4,7 +4,6 @@
 
 DIRS += [
     "base",
-    "extract",
     "import-export",
     "itip",
     "locales",
