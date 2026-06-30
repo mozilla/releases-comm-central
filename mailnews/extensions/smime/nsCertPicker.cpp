@@ -18,10 +18,10 @@
 #include "nsNSSCertificate.h"
 #include "nsNSSComponent.h"
 #include "nsNSSDialogHelper.h"
-#include "nsNSSHelper.h"
 #include "nsNSSCertHelper.h"
 #include "nsReadableUtils.h"
 #include "nsComponentManagerUtils.h"  // for do_CreateInstance
+#include "nsServiceManagerUtils.h"    // for do_GetService
 #include "nsString.h"
 #include "mozpkix/pkixtypes.h"
 #include "mozilla/Maybe.h"
@@ -285,8 +285,7 @@ NS_IMETHODIMP nsCertPicker::PickByUsage(nsIInterfaceRequestor* ctx,
   {
     // Iterate over all certs. This assures that user is logged in to all
     // hardware tokens.
-    nsCOMPtr<nsIInterfaceRequestor> ctx = new PipUIContext();
-    UniqueCERTCertList allcerts(PK11_ListCerts(PK11CertListUnique, ctx));
+    UniqueCERTCertList allcerts(PK11_ListCerts(PK11CertListUnique, nullptr));
   }
 
   /* find all user certs that are valid for the specified usage */
@@ -379,14 +378,14 @@ NS_IMETHODIMP nsCertPicker::PickByUsage(nsIInterfaceRequestor* ctx,
     return NS_ERROR_NOT_AVAILABLE;
   }
 
-  nsCOMPtr<nsICertPickDialogs> dialogs;
-  rv = getNSSDialogs(getter_AddRefs(dialogs), NS_GET_IID(nsICertPickDialogs),
-                     NS_CERTPICKDIALOGS_CONTRACTID);
-
-  if (NS_SUCCEEDED(rv)) {
+  nsCOMPtr<nsICertPickDialogs> dialogs(
+      do_GetService(NS_CERTPICKDIALOGS_CONTRACTID));
+  if (dialogs) {
     // Show the cert picker dialog and get the index of the selected cert.
     rv = dialogs->PickCertificate(ctx, certNicknameList, certDetailsList,
                                   &selectedIndex, canceled);
+  } else {
+    rv = NS_ERROR_FAILURE;
   }
 
   if (NS_SUCCEEDED(rv) && !*canceled) {

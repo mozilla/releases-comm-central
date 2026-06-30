@@ -630,9 +630,13 @@ add_task(async function test_summaryWithPasswords() {
 
 add_task(async function test_withPrimaryPassword() {
   selectSingleAccountAndSetIncludePasswords(true);
-  setPrimaryPassword("", "qrtest");
+  await setPrimaryPassword("", "qrtest");
 
   const promptPromise = expectPasswordPrompt("qrtest", "accept");
+  prefsDocument.getElementById("qrExportStart").scrollIntoView({
+    behavior: "instant",
+    block: "center",
+  });
   EventUtils.synthesizeMouseAtCenter(
     prefsDocument.getElementById("qrExportStart"),
     {},
@@ -677,14 +681,18 @@ add_task(async function test_withPrimaryPassword() {
     prefsWindow
   );
 
-  setPrimaryPassword("qrtest", "");
+  await setPrimaryPassword("qrtest", "");
 });
 
 add_task(async function test_primaryPasswordRefused() {
   selectSingleAccountAndSetIncludePasswords(true);
-  setPrimaryPassword("", "qrtest");
+  await setPrimaryPassword("", "qrtest");
 
   const promptPromise = expectPasswordPrompt("qrtest", "cancel");
+  prefsDocument.getElementById("qrExportStart").scrollIntoView({
+    behavior: "instant",
+    block: "center",
+  });
   EventUtils.synthesizeMouseAtCenter(
     prefsDocument.getElementById("qrExportStart"),
     {},
@@ -696,7 +704,7 @@ add_task(async function test_primaryPasswordRefused() {
     BrowserTestUtils.isVisible(prefsDocument.getElementById("qrExportStart")),
     "Should remain at start"
   );
-  setPrimaryPassword("qrtest", "");
+  await setPrimaryPassword("qrtest", "");
 });
 
 add_task(async function test_osAuthRefused() {
@@ -773,7 +781,7 @@ async function setPrimaryPassword(oldPassword = "", newPassword = "") {
     token.hasPassword,
     "Should provide old password if there is already a password"
   );
-  token.changePassword(oldPassword, newPassword);
+  await token.changePassword(oldPassword, newPassword);
 
   Assert.equal(
     token.hasPassword,

@@ -26,7 +26,6 @@
 #include "mozpkix/Result.h"
 #include "mozpkix/pkixnss.h"
 #include "nsNSSCertificate.h"
-#include "nsNSSHelper.h"
 #include "nsINSSErrorsService.h"
 #include "CryptoTask.h"
 
@@ -820,9 +819,8 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const nsACString& aRecipients,
 
   // Calling CERT_GetCertNicknames has the desired side effect of
   // traversing all tokens, and bringing up prompts to unlock them.
-  nsCOMPtr<nsIInterfaceRequestor> ctx = new PipUIContext();
   CERTCertNicknames* result_unused = CERT_GetCertNicknames(
-      CERT_GetDefaultCertDB(), SEC_CERT_NICKNAMES_USER, ctx);
+      CERT_GetDefaultCertDB(), SEC_CERT_NICKNAMES_USER, nullptr);
   CERT_FreeNicknames(result_unused);
 
   nsTArray<nsTArray<uint8_t>> builtChain;

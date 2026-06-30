@@ -17,7 +17,6 @@
 #include "nsIX509CertDB.h"
 #include "nsNSSCertificate.h"
 #include "nsNSSComponent.h"
-#include "nsNSSHelper.h"
 #include "nsServiceManagerUtils.h"
 #include "mozpkix/Result.h"
 #include "mozpkix/pkixtypes.h"
@@ -1040,7 +1039,7 @@ nsresult nsCMSDecoderJS::Init() {
 /* void start (in NSSCMSContentCallback cb, in voidPtr arg); */
 NS_IMETHODIMP nsCMSDecoder::Start(NSSCMSContentCallback cb, void* arg) {
   MOZ_LOG(gCMSLog, LogLevel::Debug, ("nsCMSDecoder::Start"));
-  m_ctx = new PipUIContext();
+  m_ctx = nullptr;
 
   m_dcx = NSS_CMSDecoder_Start(0, cb, arg, 0, m_ctx, 0, 0);
   if (!m_dcx) {
@@ -1086,7 +1085,7 @@ NS_IMETHODIMP nsCMSDecoderJS::Decrypt(const nsTArray<uint8_t>& aInput,
     return NS_ERROR_FAILURE;
   }
 
-  m_ctx = new PipUIContext();
+  m_ctx = nullptr;
 
   m_dcx = NSS_CMSDecoder_Start(0, nsCMSDecoderJS::content_callback, this, 0,
                                m_ctx, 0, 0);
@@ -1131,7 +1130,7 @@ NS_IMETHODIMP nsCMSEncoder::Start(nsICMSMessage* aMsg, NSSCMSContentCallback cb,
                                   void* arg) {
   MOZ_LOG(gCMSLog, LogLevel::Debug, ("nsCMSEncoder::Start"));
   nsCMSMessage* cmsMsg = static_cast<nsCMSMessage*>(aMsg);
-  m_ctx = new PipUIContext();
+  m_ctx = nullptr;
 
   m_ecx = NSS_CMSEncoder_Start(cmsMsg->getCMS(), cb, arg, 0, 0, 0, m_ctx, 0, 0,
                                0, 0);

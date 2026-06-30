@@ -76,7 +76,7 @@ add_task(async function test_policy_disable_masterpassword() {
   await checkDeviceManager({ buttonIsDisabled: true });
   await checkAboutPreferences({ checkboxIsDisabled: true });
 
-  mpToken.changePassword("", MASTER_PASSWORD);
+  await mpToken.changePassword("", MASTER_PASSWORD);
   ok(mpToken.hasPassword, "Master password was set");
 
   // If a Primary Password is already set, there's no point in disabling
@@ -85,6 +85,6 @@ add_task(async function test_policy_disable_masterpassword() {
   await checkAboutPreferences({ checkboxIsDisabled: false });
 
   // Clean up
-  mpToken.changePassword(MASTER_PASSWORD, "");
+  await mpToken.changePassword(MASTER_PASSWORD, "");
   ok(!mpToken.hasPassword, "Master password was cleaned up");
 });

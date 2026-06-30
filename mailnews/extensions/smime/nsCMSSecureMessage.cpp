@@ -4,7 +4,6 @@
 
 #include "nsCMSSecureMessage.h"
 
-#include <string.h>
 
 #include "ScopedNSSTypes.h"
 #include "SharedCertVerifier.h"
@@ -19,7 +18,6 @@
 #include "nsIX509Cert.h"
 #include "nsIX509CertDB.h"
 #include "nsNSSComponent.h"
-#include "nsNSSHelper.h"
 #include "plbase64.h"
 
 using namespace mozilla;

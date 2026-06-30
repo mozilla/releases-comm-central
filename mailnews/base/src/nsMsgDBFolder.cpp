@@ -45,7 +45,7 @@
 #include "nsIMsgTransactionService.h"
 #include "nsMsgReadStateTxn.h"
 #include "prmem.h"
-#include "nsIPKCS11Token.h"
+#include "ScopedNSSTypes.h"
 #include "nsMsgUtils.h"
 #include "nsIMsgFilterService.h"
 #include "nsDirectoryServiceUtils.h"
@@ -2456,7 +2456,6 @@ nsresult nsMsgDBFolder::NotifyHdrsNotBeingClassified() {
 // Returns true if: a) there is no need to prompt or b) the user is already
 // logged in or c) the user logged in successfully.
 bool nsMsgDBFolder::PromptForMasterPasswordIfNecessary() {
-  nsresult rv;
   nsCOMPtr<nsIMsgAccountManager> accountManager =
       mozilla::components::AccountManager::Service();
 
@@ -2467,16 +2466,13 @@ bool nsMsgDBFolder::PromptForMasterPasswordIfNecessary() {
   if (!userNeedsToAuthenticate) return true;
 
   // Do we have a master password?
-  nsCOMPtr<nsIPKCS11Token> token(
-      do_CreateInstance("@mozilla.org/security/internalkeytoken;1"));
-  if (!token) {
+  mozilla::UniquePK11SlotInfo slot(PK11_GetInternalKeySlot());
+  if (!slot) {
     return false;
   }
 
-  bool hasPassword;
-  rv = token->GetHasPassword(&hasPassword);
-  NS_ENSURE_SUCCESS(rv, false);
-
+  bool hasPassword =
+      PK11_NeedLogin(slot.get()) && !PK11_NeedUserInit(slot.get());
   if (!hasPassword) {
     // We don't have a master password, so this function isn't supported,
     // therefore just tell account manager we've authenticated and return true.
@@ -2485,17 +2481,13 @@ bool nsMsgDBFolder::PromptForMasterPasswordIfNecessary() {
   }
 
   // We have a master password, so try and login to the slot.
-  rv = token->Login();
-  if (NS_FAILED(rv)) {
+  if (PK11_Authenticate(slot.get(), true, nullptr) != SECSuccess) {
     // Login failed, so we didn't get a password (e.g. prompt cancelled).
     return false;
   }
 
   // Double-check that we are now logged in
-  bool isLoggedIn;
-  rv = token->GetIsLoggedIn(&isLoggedIn);
-  NS_ENSURE_SUCCESS(rv, false);
-
+  bool isLoggedIn = PK11_IsLoggedIn(slot.get(), nullptr);
   accountManager->SetUserNeedsToAuthenticate(!isLoggedIn);
   return isLoggedIn;
 }
