@@ -2977,6 +2977,7 @@ dependencies = [
  "nserror",
  "nsstring",
  "serde",
+ "static_prefs",
  "thin-vec",
  "winapi",
  "xpcom",
