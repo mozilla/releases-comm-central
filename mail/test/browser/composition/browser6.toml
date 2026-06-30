@@ -72,6 +72,8 @@ reason = "See bug 1763407"
 
 ["browser_spelling.js"]
 
+["browser_smtpCancel.js"]
+
 ["browser_subjectWas.js"]
 
 ["browser_text_styling.js"]

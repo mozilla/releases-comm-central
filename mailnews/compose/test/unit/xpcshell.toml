@@ -80,6 +80,8 @@ requesttimeoutfactor = 2
 
 ["test_smtpAuthMethods.js"]
 
+["test_smtpCancel.js"]
+
 ["test_smtpClient.js"]
 
 ["test_smtpPassword.js"]
