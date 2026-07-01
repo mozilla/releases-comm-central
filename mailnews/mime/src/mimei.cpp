@@ -723,7 +723,8 @@ MimeObjectClass* mime_find_class(const char* content_type, MimeHeaders* hdrs,
               if (parentIsEnveloped) {
                 thisPartIsAllowed = true;
               }
-            } else if (!PL_strcasecmp(thisST, "enveloped-data")) {
+            } else if (!PL_strcasecmp(thisST, "enveloped-data") ||
+                       !PL_strcasecmp(thisST, "authEnveloped-data")) {
               // Allowed only if parent is signed
               if (parentIsSigned) {
                 thisPartIsAllowed = true;

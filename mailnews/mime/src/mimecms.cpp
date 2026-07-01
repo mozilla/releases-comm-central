@@ -534,7 +534,8 @@ static MimeClosure MimeCMS_init(MimeObject* obj,
       // We cannot rely on having smime-type, the parameter is optional,
       // but if we have it, do a sanity check.
       if (thisST && PL_strcasecmp(thisST, "enveloped-data") &&
-          PL_strcasecmp(thisST, "signed-data")) {
+          PL_strcasecmp(thisST, "signed-data") &&
+          PL_strcasecmp(thisST, "authEnveloped-data")) {
         NS_WARNING(
             "mimei.cpp shouldn't have routed this smime-type to this CMS "
             "decoder");
