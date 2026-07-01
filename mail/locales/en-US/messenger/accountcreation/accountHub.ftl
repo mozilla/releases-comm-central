@@ -504,3 +504,6 @@ account-hub-thundermail-divider-text = or
 account-hub-manual-config-incoming-legend = Incoming server
 
 account-hub-manual-config-outgoing-legend = Outgoing server
+
+# Label for checkbox that will hide an outgoing username input if it's the same is the incoming
+account-hub-same-username-checkbox = Same username as incoming server

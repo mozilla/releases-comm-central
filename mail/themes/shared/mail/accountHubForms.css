@@ -65,6 +65,7 @@ form {
 
   .checkbox-label {
     color: var(--color-text-base);
+    font-weight: 400;
   }
 
   .toggle-group .toggle-label {

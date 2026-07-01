@@ -522,7 +522,8 @@
   padding: 0;
 }
 
-.toggle-group {
+.toggle-group,
+.checkbox-group {
   display: flex;
   align-items: center;
 }

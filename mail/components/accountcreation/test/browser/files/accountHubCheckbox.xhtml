@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Account Hub Checkbox Test</title>
+    <link rel="stylesheet" href="chrome://messenger/skin/accountHub.css"/>
+    <link rel="stylesheet" href="chrome://messenger/skin/accountHubForms.css"/>
+    <link rel="localization" href="messenger/accountcreation/accountHub.ftl" />
+    <script type="module" src="chrome://messenger/content/accountcreation/content/widgets/account-hub-checkbox.mjs"></script>
+  </head>
+  <body>
+      <template
+        id="accountHubCheckboxTemplate"
+        xmlns="http://www.w3.org/1999/xhtml"
+      >
+        <div>
+          <input type="checkbox" />
+          <label></label>
+        </div>
+      </template>
+      <form>
+        <account-hub-checkbox
+          id="checkCheckbox"
+          l10n-label-id="account-hub-same-username-checkbox"
+          checkbox-type="check"
+        >
+        </account-hub-checkbox>
+        <account-hub-checkbox
+          id="toggleCheckbox"
+          l10n-label-id="account-hub-same-username-checkbox"
+          checkbox-type="toggle"
+        >
+        </account-hub-checkbox>
+      </form>
+  </body>
+</html>
