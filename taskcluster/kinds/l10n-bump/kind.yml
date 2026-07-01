@@ -25,11 +25,16 @@ task-defaults:
                 default: true
         lando-repo:
             by-project:
-                comm-central: thunderbird-main
-                comm-beta: thunderbird-beta
-                comm-release: thunderbird-release
-                comm-esr140: thunderbird-esr140
-                try-comm-central: staging-thunderbird-autoland
+                comm-central: thunderbird-desktop-main
+                comm-beta: thunderbird-desktop-beta
+                comm-release: thunderbird-desktop-release
+                comm-esr140: thunderbird-desktop-esr140
+                try-comm-central:
+                    by-release-type:
+                        beta: staging-thunderbird-beta
+                        release: staging-thunderbird-release
+                        esr140: staging-thunderbird-esr140
+                        default: ""
                 default: ""
         actions:
             by-release-type:
