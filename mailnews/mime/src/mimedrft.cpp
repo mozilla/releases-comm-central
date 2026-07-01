@@ -649,7 +649,7 @@ static void mime_insert_all_headers(char** body, MimeHeaders* headers,
     }
 
     /* Skip over whitespace after colon. */
-    while (contents <= end && IS_SPACE(*contents)) contents++;
+    while (contents < end && IS_SPACE(*contents)) contents++;
 
     /* Take off trailing whitespace... */
     while (end > contents && IS_SPACE(end[-1])) end--;
