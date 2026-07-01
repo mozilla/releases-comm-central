@@ -100,6 +100,7 @@ export function openLinkExternally(url, options) {
       ? getClonedPrincipalWithProtocolPermission(principal, uri)
       : getContentPrincipalWithProtocolPermission(uri);
   }
+  principal ??= Services.scriptSecurityManager.getSystemPrincipal();
 
   Cc["@mozilla.org/uriloader/external-protocol-service;1"]
     .getService(Ci.nsIExternalProtocolService)
