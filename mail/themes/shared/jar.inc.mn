@@ -127,6 +127,7 @@
   skin/classic/messenger/abSearchDialog.css                   (../shared/mail/abSearchDialog.css)
   skin/classic/messenger/accountCentral.css                   (../shared/mail/accountCentral.css)
   skin/classic/messenger/accountHub.css                       (../shared/mail/accountHub.css)
+  skin/classic/messenger/accountHubRadioCardLarge.css         (../shared/mail/accountHubRadioCardLarge.css)
   skin/classic/messenger/accountHubForms.css                  (../shared/mail/accountHubForms.css)
   skin/classic/messenger/accountHubSelect.css                 (../shared/mail/accountHubSelect.css)
   skin/classic/messenger/accountManage.css                    (../shared/mail/accountManage.css)

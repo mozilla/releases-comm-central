@@ -1,0 +1,78 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+:host(:focus-visible) {
+  outline: none;
+}
+
+label {
+  border: 1px solid var(--color-surface-border);
+  border-radius: calc(3 * var(--space-step));
+  box-sizing: border-box;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: calc(2 * var(--space-base));
+  padding: calc(2 * var(--space-base));
+  user-select: none;
+  transition: box-shadow 100ms ease-out;
+  block-size: 100%;
+
+  slot[name="input"] {
+    display: none;
+  }
+
+  .title-line {
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+    align-items: center;
+  }
+
+  .title::slotted(*) {
+    font-size: 1.15rem;
+    font-weight: 500;
+    color: var(--color-text-base);
+    line-height: 1.38rem;
+    flex-grow: 1;
+    flex-shrink: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  slot[name="tag"]::slotted(:not(.badge)) {
+    color: var(--color-text-secondary);
+    font-size: 0.85rem;
+  }
+
+  .description::slotted(*) {
+    font-size: 1rem;
+    color: var(--color-text-secondary);
+    flex-grow: 1;
+  }
+
+  :host([aria-checked="true"]) & {
+    border: 1px solid var(--selected-item-color);
+  }
+
+  :host(:focus-visible) & {
+    outline: 2px solid var(--selected-item-color);
+    outline-offset: 3px;
+  }
+
+  :host(:hover) &,
+  :host(:focus-visible) &,
+  :host([aria-checked="true"]) & {
+    background: var(--color-surface-base);
+  }
+
+  :host(:hover) &,
+  :host([aria-checked="true"]) & {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.14);
+  }
+}
+
+:host(:focus-visible) {
+  outline: none !important;
+}

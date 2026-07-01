@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Account Hub Radio Card Large Test</title>
+    <link rel="stylesheet" href="chrome://messenger/skin/spacings.css"/>
+    <link rel="stylesheet" href="chrome://messenger/skin/colors.css"/>
+    <link rel="stylesheet" href="chrome://messenger/skin/variables.css"/>
+    <link rel="stylesheet" href="chrome://messenger/skin/variables.css"/>
+    <link rel="stylesheet" href="chrome://messenger/skin/widgets.css"/>
+    <script type="module" src="chrome://messenger/content/accountcreation/content/widgets/account-hub-radio-card-large.mjs"></script>
+  </head>
+  <body>
+      <template
+        id="accountHubRadioCardLargeTemplate"
+        xmlns="http://www.w3.org/1999/xhtml"
+      >
+        <label>
+          <div class="title-line">
+            <slot name="title" class="title"></slot>
+            <slot name="tag"></slot>
+          </div>
+          <slot name="description" class="description"></slot>
+        </label>
+      </template>
+      <form>
+        <fieldset role="radiogroup">
+          <account-hub-radio-card-large value="first">Test</account-hub-radio-card-large>
+          <account-hub-radio-card-large value="second">Middle</account-hub-radio-card-large>
+          <account-hub-radio-card-large value="last">End</account-hub-radio-card-large>
+        </fieldset>
+      </form>
+  </body>
+</html>

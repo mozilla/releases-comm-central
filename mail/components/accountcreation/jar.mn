@@ -30,5 +30,6 @@ messenger.jar:
   content/messenger/accountcreation/content/widgets/account-hub-footer.mjs                (content/widgets/account-hub-footer.mjs)
   content/messenger/accountcreation/content/widgets/account-hub-header.mjs                (content/widgets/account-hub-header.mjs)
   content/messenger/accountcreation/content/widgets/account-hub-input.mjs                 (content/widgets/account-hub-input.mjs)
+  content/messenger/accountcreation/content/widgets/account-hub-radio-card-large.mjs      (content/widgets/account-hub-radio-card-large.mjs)
   content/messenger/accountcreation/content/widgets/account-hub-select.mjs                (content/widgets/account-hub-select.mjs)
   content/messenger/accountcreation/content/widgets/account-hub-step.mjs                  (content/widgets/account-hub-step.mjs)
