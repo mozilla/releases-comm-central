@@ -300,10 +300,11 @@ nsresult nsMsgCopyService::DoNextCopy() {
         // returns.
         rv = dstFolder->CopyFolder(srcFolder, isMove, copyRequest->m_msgWindow,
                                    copyRequest->m_listener);
-        // If CopyFolder() fails (e.g. destination folder already exists),
-        // it won't send a completion notification (NotifyCompletion()).
-        // So copyRequest will still exist, and we need to ditch it.
-        if (NS_FAILED(rv)) {
+        // CopyFolder() may fail after it already removed the request (local
+        // folders can call NotifyCompletion() synchronously, e.g. when
+        // moving/copying a folder with no messages directly in it). We need
+        // to check first, then clean up only if it's still there.
+        if (NS_FAILED(rv) && m_copyRequests.Contains(copyRequest)) {
           ClearRequest(copyRequest, rv);
         }
       } else if (copyRequest->m_requestType == nsCopyFileMessageType) {
