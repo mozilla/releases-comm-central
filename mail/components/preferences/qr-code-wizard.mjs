@@ -53,9 +53,10 @@ class QrCodeWizard extends HTMLElement {
    *   for.
    * @param {boolean} includePasswords - If passwords should be included in the
    *   QR codes.
+   * @returns {Promise<void>}
    */
-  initializeQRCodes(accountKeys, includePasswords) {
-    this.#codes = lazy.QRExport.getQRCodes(accountKeys, includePasswords);
+  async initializeQRCodes(accountKeys, includePasswords) {
+    this.#codes = await lazy.QRExport.getQRCodes(accountKeys, includePasswords);
     this.#step = 0;
     this.#showCode(this.#step);
   }

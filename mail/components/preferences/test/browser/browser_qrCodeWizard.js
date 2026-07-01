@@ -55,8 +55,8 @@ add_setup(async () => {
 });
 
 add_task(async function test_initializeQRCodes_withPassword() {
-  wizard.initializeQRCodes(accountKeys, true);
-  const expectedQRCodes = QRExport.getQRCodes(accountKeys, true);
+  await wizard.initializeQRCodes(accountKeys, true);
+  const expectedQRCodes = await QRExport.getQRCodes(accountKeys, true);
 
   Assert.equal(
     wizard.querySelector("img").src,
@@ -80,8 +80,8 @@ add_task(async function test_initializeQRCodes_withPassword() {
 });
 
 add_task(async function test_initializeQRCodes_withoutPassword() {
-  wizard.initializeQRCodes(accountKeys, false);
-  const expectedQRCodes = QRExport.getQRCodes(accountKeys, false);
+  await wizard.initializeQRCodes(accountKeys, false);
+  const expectedQRCodes = await QRExport.getQRCodes(accountKeys, false);
 
   Assert.equal(
     wizard.querySelector("img").src,
@@ -91,8 +91,8 @@ add_task(async function test_initializeQRCodes_withoutPassword() {
 });
 
 add_task(async function test_next() {
-  wizard.initializeQRCodes(accountKeys, false);
-  const expectedQRCodes = QRExport.getQRCodes(accountKeys, false);
+  await wizard.initializeQRCodes(accountKeys, false);
+  const expectedQRCodes = await QRExport.getQRCodes(accountKeys, false);
 
   Assert.ok(wizard.next(), "Should successfully advance");
 
@@ -120,8 +120,8 @@ add_task(async function test_next() {
 });
 
 add_task(async function test_back() {
-  wizard.initializeQRCodes(accountKeys, false);
-  const expectedQRCodes = QRExport.getQRCodes(accountKeys, false);
+  await wizard.initializeQRCodes(accountKeys, false);
+  const expectedQRCodes = await QRExport.getQRCodes(accountKeys, false);
   wizard.next();
 
   Assert.ok(wizard.back(), "Should successfully go back");
@@ -149,22 +149,22 @@ add_task(async function test_back() {
   Assert.ok(!wizard.back(), "Should not be able to go back any further");
 });
 
-add_task(function test_getTotalSteps() {
-  wizard.initializeQRCodes(accountKeys, false);
+add_task(async function test_getTotalSteps() {
+  await wizard.initializeQRCodes(accountKeys, false);
 
   Assert.equal(wizard.getTotalSteps(), 2, "Should require two steps");
 
-  wizard.initializeQRCodes(accountKeys.slice(0, 2), false);
+  await wizard.initializeQRCodes(accountKeys.slice(0, 2), false);
 
   Assert.equal(wizard.getTotalSteps(), 1, "Should only need one step");
 
-  wizard.initializeQRCodes([], false);
+  await wizard.initializeQRCodes([], false);
 
   Assert.equal(wizard.getTotalSteps(), 0, "Should not have any steps");
 });
 
-add_task(function test_isLastStep() {
-  wizard.initializeQRCodes(accountKeys, false);
+add_task(async function test_isLastStep() {
+  await wizard.initializeQRCodes(accountKeys, false);
 
   Assert.ok(!wizard.isLastStep(), "Should not be indicating last step");
 
@@ -172,7 +172,7 @@ add_task(function test_isLastStep() {
 
   Assert.ok(wizard.isLastStep(), "Should indicate last step");
 
-  wizard.initializeQRCodes([], false);
+  await wizard.initializeQRCodes([], false);
 
   Assert.ok(wizard.isLastStep(), "Empty wizard should always be on last step");
 });

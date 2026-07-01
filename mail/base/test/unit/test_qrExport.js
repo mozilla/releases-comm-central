@@ -149,7 +149,10 @@ add_task(async function test_getEligibleAccounts() {
 add_task(async function test_getAccountData() {
   const account = await createMailAccount("encode", "encode", "imap");
 
-  const dataWithoutPasswords = QRExport.getAccountData(account.key, false);
+  const dataWithoutPasswords = await QRExport.getAccountData(
+    account.key,
+    false
+  );
 
   Assert.deepEqual(
     dataWithoutPasswords,
@@ -174,7 +177,7 @@ add_task(async function test_getAccountData() {
     "Should contain expected account data without passwords"
   );
 
-  const dataWithPasswords = QRExport.getAccountData(account.key, true);
+  const dataWithPasswords = await QRExport.getAccountData(account.key, true);
 
   Assert.deepEqual(
     dataWithPasswords,
@@ -202,6 +205,28 @@ add_task(async function test_getAccountData() {
   MailServices.accounts.removeAccount(account, false);
 });
 
+add_task(async function test_getAccountData_readsStoredSmtpPassword() {
+  const account = await createMailAccount(
+    "stored-password",
+    "stored-password",
+    "imap"
+  );
+  const outgoingServer = MailServices.outgoingServer.getServerByKey(
+    account.defaultIdentity.smtpServerKey
+  );
+  outgoingServer.password = "";
+
+  const data = await QRExport.getAccountData(account.key, true);
+
+  Assert.equal(
+    data[1][0][0][6],
+    "smtppass",
+    "Should read the SMTP password from Login Manager"
+  );
+
+  MailServices.accounts.removeAccount(account, false);
+});
+
 add_task(async function test_getAccountData_nonASCII() {
   const account = await createMailAccount("ascii", "ascii", "imap");
   const identity = MailServices.accounts.createIdentity();
@@ -209,7 +234,10 @@ add_task(async function test_getAccountData_nonASCII() {
   identity.fullName = "test with various characters";
   account.addIdentity(identity);
 
-  const dataWithoutPasswords = QRExport.getAccountData(account.key, false);
+  const dataWithoutPasswords = await QRExport.getAccountData(
+    account.key,
+    false
+  );
 
   Assert.deepEqual(
     dataWithoutPasswords,
@@ -263,7 +291,7 @@ add_task(function test_renderQR() {
 add_task(async function test_getQRCode_single() {
   const account = await createMailAccount("getcode", "getcode", "imap");
 
-  const qrCodes = QRExport.getQRCodes([account.key], true);
+  const qrCodes = await QRExport.getQRCodes([account.key], true);
 
   Assert.ok(Array.isArray(qrCodes), "Should get an array");
   Assert.equal(
@@ -291,7 +319,7 @@ add_task(async function test_getQRCode_multipleChunks() {
     await createMailAccount("accountfour", "fourthaccount", "imap"),
   ];
 
-  const qrCodes = QRExport.getQRCodes(
+  const qrCodes = await QRExport.getQRCodes(
     accounts.map(account => account.key),
     true
   );

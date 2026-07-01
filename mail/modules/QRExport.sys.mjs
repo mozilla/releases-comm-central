@@ -130,11 +130,11 @@ export const QRExport = {
    *
    * @param {string[]} accountKeys - Accounts that should be exported.
    * @param {boolean} includePasswords - If passwords should be included in the export data.
-   * @returns {string[]} Returns an array of SVG URLs, each representing a QR code.
+   * @returns {Promise<string[]>} Returns an array of SVG URLs, each representing a QR code.
    */
-  getQRCodes(accountKeys, includePasswords) {
-    const accounts = accountKeys.map(key =>
-      this.getAccountData(key, includePasswords)
+  async getQRCodes(accountKeys, includePasswords) {
+    const accounts = await Promise.all(
+      accountKeys.map(key => this.getAccountData(key, includePasswords))
     );
     // For practical purposes each QR code should hold no more than 1000
     // characters, optimally 800 characters maximum.
@@ -175,10 +175,10 @@ export const QRExport = {
    *
    * @param {string} accountKey - Key of the account to get the data for.
    * @param {boolean} includePasswords - If the result should include passwords.
-   * @returns {Array} Array structure with account data to serialize to JSON.
+   * @returns {Promise<Array>} Array structure with account data to serialize to JSON.
    * @see https://docs.google.com/document/d/1siSwPzNPkwq4BL5G3z2K4zzRJuL9N9zbPodMOggXbdA/edit for format
    */
-  getAccountData(accountKey, includePasswords) {
+  async getAccountData(accountKey, includePasswords) {
     const account = MailServices.accounts.getAccount(accountKey);
     const incomingServer = account.incomingServer;
     const defaultSmtpServerKey = account.defaultIdentity.smtpServerKey;
@@ -195,6 +195,14 @@ export const QRExport = {
           identity.smtpServerKey == defaultSmtpServerKey) &&
         /^[\x00-\x7F]+$/.test(identity.email) // eslint-disable-line no-control-regex
     );
+    let outgoingPassword = "";
+    if (includePasswords) {
+      outgoingPassword =
+        outgoingServer.password ||
+        (await outgoingServer.wrappedJSObject._getPasswordWithoutUI()) ||
+        "";
+    }
+
     return [
       [
         INCOMING_PROTOCOL.get(incomingServer.type),
@@ -218,10 +226,7 @@ export const QRExport = {
             SOCKET_TYPES.get(outgoingServer.socketType),
             AUTH_METHODS.get(outgoingServer.authMethod),
             outgoingServer.username,
-            (includePasswords &&
-              (outgoingServer.password ||
-                outgoingServer.wrappedJSObject._getPasswordWithoutUI())) ||
-              "",
+            outgoingPassword,
           ],
           ...identities.map(identity => [identity.email, identity.fullName]),
         ],

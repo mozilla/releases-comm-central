@@ -294,7 +294,7 @@ export const qrExportPane = {
       }
     }
     const wizard = document.getElementById("qrCodeWizard");
-    wizard.initializeQRCodes(accountKeys, includePasswords);
+    await wizard.initializeQRCodes(accountKeys, includePasswords);
     if (wizard.getTotalSteps() === 0) {
       this.showIntro();
       return;
