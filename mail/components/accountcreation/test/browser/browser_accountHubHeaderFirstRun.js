@@ -24,6 +24,10 @@ add_setup(async function () {
 });
 
 add_task(async function test_showWelcomeOnFirstRun() {
+  // The branding header is hidden until a step requests it, just like in the
+  // real account hub flow.
+  header.showBrandingHeader();
+
   Assert.ok(
     BrowserTestUtils.isHidden(header.shadowRoot.querySelector("#closeButton")),
     "Close button should be hidden on first run"

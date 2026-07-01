@@ -56,8 +56,8 @@ export class LazyFindbar extends HTMLElement {
     return this.firstElementChild?.hidden ?? true;
   }
   set hidden(val) {
-    this.toggleAttribute("hidden", val);
-
+    // Toggle the inner findbar, not the wrapper: a hidden display:contents
+    // wrapper would hide the findbar entirely.
     if (this.firstElementChild) {
       this.firstElementChild.hidden = val;
     }

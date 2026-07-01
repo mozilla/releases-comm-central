@@ -276,7 +276,6 @@ body {
       }
 
       & > .status-icon {
-        display: unset;
         background-image: var(--icon-warning);
         color: var(--folder-color-warning);
       }

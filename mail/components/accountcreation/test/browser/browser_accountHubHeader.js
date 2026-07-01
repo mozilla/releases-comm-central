@@ -243,6 +243,10 @@ add_task(async function test_showNotification_error_without_cause() {
 });
 
 add_task(async function test_showAccountHubBranding() {
+  // The branding header is hidden until a step requests it, just like in the
+  // real account hub flow.
+  header.showBrandingHeader();
+
   Assert.equal(
     header.shadowRoot
       .querySelector(".branding-header-name")

@@ -1812,6 +1812,7 @@ var folderPane = {
         window.MozXULElement.insertFTLIfNeeded("messenger/certError.ftl");
         this._changeRows(event.detail.server.rootFolder, row => {
           row.classList.add("tls-error");
+          row.statusIcon.hidden = false;
           document.l10n.setAttributes(
             row.statusIcon,
             event.detail.errorString,
@@ -1913,9 +1914,10 @@ var folderPane = {
           console.error(ex);
           return;
         }
-        this._changeRows(server.rootFolder, row =>
-          row.classList.remove("tls-error")
-        );
+        this._changeRows(server.rootFolder, row => {
+          row.classList.remove("tls-error");
+          row.statusIcon.hidden = true;
+        });
         break;
       }
     }
