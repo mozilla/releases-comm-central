@@ -24,8 +24,7 @@ add_setup(async function () {
 });
 
 add_task(async function test_showWelcomeOnFirstRun() {
-  // The branding header is hidden until a step requests it, just like in the
-  // real account hub flow.
+  // A bare header isn't driven by a step, so request branding like the steps do.
   header.showBrandingHeader();
 
   Assert.ok(

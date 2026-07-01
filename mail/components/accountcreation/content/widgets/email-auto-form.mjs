@@ -44,6 +44,7 @@ class EmailAutoForm extends AccountHubStep {
     this.hasConnected = true;
 
     super.connectedCallback();
+    this.showBrandingHeader();
 
     const template = document
       .getElementById("accountHubEmailAutoFormTemplate")
