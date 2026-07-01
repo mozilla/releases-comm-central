@@ -18,6 +18,8 @@ dupe-manifest = true
 ["test_duplicateKey.js"]
 tags = ["compact"]
 
+["test_emptyCopyMessages.js"]
+
 ["test_fileName.js"]
 
 ["test_folderLoaded.js"]

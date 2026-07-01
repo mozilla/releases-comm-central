@@ -1408,6 +1408,10 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder,
     if (isMove) srcFolder->NotifyFolderEvent(kDeleteOrMoveMsgFailed);
     return OnCopyCompleted(srcSupport, false);
   }
+  if (srcHdrs.IsEmpty()) {
+    NS_WARNING("Cannot copy an empty message array");
+    return NS_ERROR_INVALID_ARG;
+  }
 
   // If allowUndo is true, this should be a user-initiated action.
   UpdateTimestamps(allowUndo);
