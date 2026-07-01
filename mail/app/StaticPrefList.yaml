@@ -54,7 +54,7 @@
 # Is Microsoft Graph enabled? This is currently experimental.
 - name: mail.graph.enabled
   type: bool
-  value: @IS_NIGHTLY_BUILD@
+  value: true
   mirror: always
 
 # Has the user ever set up a Microsoft365 account, specifically with EWS?
