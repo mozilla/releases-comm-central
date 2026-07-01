@@ -32,6 +32,14 @@ fn main() {
         return;
     }
 
+    if !Path::new("libcubeb/CMakeLists.txt").exists() {
+        panic!(
+            "cubeb-sys/libcubeb/CMakeLists.txt is missing. The libcubeb git submodule \
+             does not appear to be checked out. Run `git submodule update --init --recursive` \
+             in the cubeb-rs checkout and try again."
+        );
+    }
+
     let out_dir = env::var("OUT_DIR").unwrap();
     let _ = fs::remove_dir_all(&out_dir);
 

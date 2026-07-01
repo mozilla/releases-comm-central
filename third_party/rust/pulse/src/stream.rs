@@ -43,6 +43,32 @@ impl Stream {
         }
     }
 
+    pub fn new_with_proplist<'a, CM>(
+        c: &Context,
+        name: &::std::ffi::CStr,
+        ss: &SampleSpec,
+        map: CM,
+        proplist: &OwnedProplist,
+    ) -> Option<Self>
+    where
+        CM: Into<Option<&'a ChannelMap>>,
+    {
+        let ptr = unsafe {
+            ffi::pa_stream_new_with_proplist(
+                c.raw_mut(),
+                name.as_ptr(),
+                ss as *const _,
+                to_ptr(map.into()),
+                proplist.as_ptr(),
+            )
+        };
+        if ptr.is_null() {
+            None
+        } else {
+            Some(Stream(ptr))
+        }
+    }
+
     #[doc(hidden)]
     #[allow(clippy::mut_from_ref)]
     pub fn raw_mut(&self) -> &mut ffi::pa_stream {

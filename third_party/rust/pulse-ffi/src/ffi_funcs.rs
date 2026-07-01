@@ -128,6 +128,13 @@ mod static_fns {
             userdata: *mut c_void,
         );
         pub fn pa_proplist_gets(p: *mut pa_proplist, key: *const c_char) -> *const c_char;
+        pub fn pa_proplist_new() -> *mut pa_proplist;
+        pub fn pa_proplist_sets(
+            p: *mut pa_proplist,
+            key: *const c_char,
+            value: *const c_char,
+        ) -> c_int;
+        pub fn pa_proplist_free(p: *mut pa_proplist);
         pub fn pa_rtclock_now() -> pa_usec_t;
         pub fn pa_stream_begin_write(
             p: *mut pa_stream,
@@ -177,6 +184,13 @@ mod static_fns {
             name: *const c_char,
             ss: *const pa_sample_spec,
             map: *const pa_channel_map,
+        ) -> *mut pa_stream;
+        pub fn pa_stream_new_with_proplist(
+            c: *mut pa_context,
+            name: *const c_char,
+            ss: *const pa_sample_spec,
+            map: *const pa_channel_map,
+            p: *mut pa_proplist,
         ) -> *mut pa_stream;
         pub fn pa_stream_peek(
             p: *mut pa_stream,
@@ -243,7 +257,8 @@ pub use self::static_fns::*;
 #[cfg(feature = "dlopen")]
 mod dynamic_fns {
     use super::*;
-    use libc::{dlclose, dlopen, dlsym, RTLD_LAZY};
+    use libc::{dladdr, dlclose, dlopen, dlsym, Dl_info, RTLD_LAZY};
+    use std::ffi::{CStr, CString};
     use std::os::raw::{c_char, c_double, c_float, c_int, c_uint, c_void};
 
     #[derive(Debug)]
@@ -252,6 +267,10 @@ mod dynamic_fns {
     }
 
     impl LibLoader {
+        pub fn path(&self) -> Option<CString> {
+            unsafe { dso_path(PA_GET_LIBRARY_VERSION) }
+        }
+
         pub unsafe fn open() -> Option<LibLoader> {
             let h = dlopen(cstr!("libpulse.so.0"), RTLD_LAZY);
             if h.is_null() {
@@ -496,6 +515,27 @@ mod dynamic_fns {
                 }
                 fp
             };
+            PA_PROPLIST_NEW = {
+                let fp = dlsym(h, cstr!("pa_proplist_new"));
+                if fp.is_null() {
+                    return None;
+                }
+                fp
+            };
+            PA_PROPLIST_SETS = {
+                let fp = dlsym(h, cstr!("pa_proplist_sets"));
+                if fp.is_null() {
+                    return None;
+                }
+                fp
+            };
+            PA_PROPLIST_FREE = {
+                let fp = dlsym(h, cstr!("pa_proplist_free"));
+                if fp.is_null() {
+                    return None;
+                }
+                fp
+            };
             PA_RTCLOCK_NOW = {
                 let fp = dlsym(h, cstr!("pa_rtclock_now"));
                 if fp.is_null() {
@@ -631,6 +671,13 @@ mod dynamic_fns {
             };
             PA_STREAM_NEW = {
                 let fp = dlsym(h, cstr!("pa_stream_new"));
+                if fp.is_null() {
+                    return None;
+                }
+                fp
+            };
+            PA_STREAM_NEW_WITH_PROPLIST = {
+                let fp = dlsym(h, cstr!("pa_stream_new_with_proplist"));
                 if fp.is_null() {
                     return None;
                 }
@@ -807,6 +854,20 @@ mod dynamic_fns {
 
             Some(LibLoader { _lib: h })
         }
+    }
+
+    unsafe fn dso_path(symbol: *mut c_void) -> Option<CString> {
+        let mut info = ::std::mem::MaybeUninit::<Dl_info>::zeroed();
+        if dladdr(symbol as *const c_void, info.as_mut_ptr()) == 0 {
+            return None;
+        }
+
+        let info = info.assume_init();
+        if info.dli_fname.is_null() {
+            return None;
+        }
+
+        Some(CStr::from_ptr(info.dli_fname).to_owned())
     }
 
     impl ::std::ops::Drop for LibLoader {
@@ -1209,6 +1270,31 @@ mod dynamic_fns {
         ))(p, key)
     }
 
+    static mut PA_PROPLIST_NEW: *mut ::libc::c_void = 0 as *mut _;
+    #[inline]
+    pub unsafe fn pa_proplist_new() -> *mut pa_proplist {
+        (::std::mem::transmute::<_, extern "C" fn() -> *mut pa_proplist>(PA_PROPLIST_NEW))()
+    }
+
+    static mut PA_PROPLIST_SETS: *mut ::libc::c_void = 0 as *mut _;
+    #[inline]
+    pub unsafe fn pa_proplist_sets(
+        p: *mut pa_proplist,
+        key: *const c_char,
+        value: *const c_char,
+    ) -> c_int {
+        (::std::mem::transmute::<
+            _,
+            extern "C" fn(*mut pa_proplist, *const c_char, *const c_char) -> c_int,
+        >(PA_PROPLIST_SETS))(p, key, value)
+    }
+
+    static mut PA_PROPLIST_FREE: *mut ::libc::c_void = 0 as *mut _;
+    #[inline]
+    pub unsafe fn pa_proplist_free(p: *mut pa_proplist) {
+        (::std::mem::transmute::<_, extern "C" fn(*mut pa_proplist)>(PA_PROPLIST_FREE))(p)
+    }
+
     static mut PA_RTCLOCK_NOW: *mut ::libc::c_void = 0 as *mut _;
     #[inline]
     pub unsafe fn pa_rtclock_now() -> pa_usec_t {
@@ -1419,6 +1505,27 @@ mod dynamic_fns {
                 *const pa_channel_map,
             ) -> *mut pa_stream,
         >(PA_STREAM_NEW))(c, name, ss, map)
+    }
+
+    static mut PA_STREAM_NEW_WITH_PROPLIST: *mut ::libc::c_void = 0 as *mut _;
+    #[inline]
+    pub unsafe fn pa_stream_new_with_proplist(
+        c: *mut pa_context,
+        name: *const c_char,
+        ss: *const pa_sample_spec,
+        map: *const pa_channel_map,
+        p: *mut pa_proplist,
+    ) -> *mut pa_stream {
+        (::std::mem::transmute::<
+            _,
+            extern "C" fn(
+                *mut pa_context,
+                *const c_char,
+                *const pa_sample_spec,
+                *const pa_channel_map,
+                *mut pa_proplist,
+            ) -> *mut pa_stream,
+        >(PA_STREAM_NEW_WITH_PROPLIST))(c, name, ss, map, p)
     }
 
     static mut PA_STREAM_PEEK: *mut ::libc::c_void = 0 as *mut _;

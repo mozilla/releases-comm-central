@@ -23,6 +23,9 @@ autobenches = false
 readme = false
 license = "ISC"
 
+[features]
+no-private-apis = []
+
 [lib]
 name = "coreaudio_sys_utils"
 path = "src/lib.rs"
@@ -31,7 +34,7 @@ path = "src/lib.rs"
 version = "0.8"
 
 [dependencies.coreaudio-sys]
-version = "0.2.14"
+version = "0.2.18"
 features = [
     "audio_unit",
     "core_audio",

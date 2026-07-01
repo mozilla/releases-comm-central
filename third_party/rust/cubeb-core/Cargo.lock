@@ -28,7 +28,7 @@ dependencies = [
 
 [[package]]
 name = "cubeb-core"
-version = "0.32.0"
+version = "0.34.1"
 dependencies = [
  "bitflags",
  "cc",
@@ -37,9 +37,9 @@ dependencies = [
 
 [[package]]
 name = "cubeb-sys"
-version = "0.32.0"
+version = "0.34.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fa823446c78d8ea1a9ea682bf2a910890206813b8eb4f6c2769d0a9c66709975"
+checksum = "ab47a6096fa88b4235602514a44441b855d6803bcb9a5987480a4ca18722d078"
 dependencies = [
  "cmake",
  "pkg-config",

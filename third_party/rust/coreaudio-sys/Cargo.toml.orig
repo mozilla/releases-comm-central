@@ -1,6 +1,6 @@
 [package]
 name = "coreaudio-sys"
-version = "0.2.14"
+version = "0.2.18"
 authors = ["Mitchell Nordine <mitchell.nordine@gmail.com>"]
 description = "Bindings for Apple's CoreAudio frameworks generated via rust-bindgen"
 license = "MIT"
@@ -9,17 +9,19 @@ readme = "README.md"
 homepage = "https://github.com/RustAudio/coreaudio-sys"
 repository = "https://github.com/RustAudio/coreaudio-sys.git"
 build = "build.rs"
+edition = "2024"
 
 [build-dependencies.bindgen]
-version = "0.69"
+version = "0.72"
 default-features = false
 features = ["runtime"]
 
 [features]
-default = ["audio_toolbox", "audio_unit", "core_audio", "open_al", "core_midi"]
+default = ["audio_toolbox", "audio_unit", "core_audio", "audio_server_plugin", "open_al", "core_midi"]
 audio_toolbox = []
 audio_unit = []
 core_audio = []
+audio_server_plugin = []
 io_kit_audio = []
 open_al = []
 core_midi = []

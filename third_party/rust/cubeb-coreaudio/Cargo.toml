@@ -28,6 +28,7 @@ license = "ISC"
 [features]
 audio-dump = []
 gecko-in-tree = ["cubeb-backend/gecko-in-tree"]
+no-private-apis = ["coreaudio-sys-utils/no-private-apis"]
 tsan-annotations = []
 vpio-forcelist = []
 
@@ -43,7 +44,7 @@ path = "src/lib.rs"
 atomic = "0.4"
 audio-mixer = "0.2"
 bitflags = "2"
-cubeb-backend = "0.32"
+cubeb-backend = "0.34.1"
 float-cmp = "0.6"
 libc = "0.2"
 mach2 = "0.4"

@@ -8,15 +8,10 @@ jobs:
       matrix:
         toolchain: [stable, nightly]
     steps:
-    - uses: actions/checkout@v4
-    - name: Install llvm and clang
-      run: brew install llvm
-    - name: Install stable
-      uses: actions-rs/toolchain@v1
+    - uses: actions/checkout@v6
+    - uses: dtolnay/rust-toolchain@master
       with:
-        profile: minimal
         toolchain: ${{ matrix.toolchain }}
-        override: true
     - name: cargo test
       run: cargo test --verbose
     - name: cargo test - no features
@@ -25,24 +20,18 @@ jobs:
       run: cargo test --all-features --verbose
 
   ios-check:
-    runs-on: macOS-latest
+    runs-on: macOS-14
     strategy:
       matrix:
         toolchain: [stable, nightly]
         target: [aarch64-apple-ios, x86_64-apple-ios, aarch64-apple-ios-sim]
     steps:
-    - uses: actions/checkout@v4
-    - name: Install stable rust toolchain
-      uses: actions-rs/toolchain@v1
+    - uses: actions/checkout@v6
+    - uses: dtolnay/rust-toolchain@master
       with:
-        profile: minimal
         toolchain: ${{ matrix.toolchain }}
-        override: true
+        targets: ${{ matrix.target }}
 
-    - name: Install LLVM and Clang
-      uses: KyleMayes/install-llvm-action@v1.9.0
-      with:
-        version: "13.0"
 
     - name: add ios targets
       run: rustup target add ${{matrix.target}}
@@ -54,15 +43,10 @@ jobs:
   macos-docs:
     runs-on: macOS-latest
     steps:
-    - uses: actions/checkout@v4
-    - name: Install llvm and clang
-      run: brew install llvm
-    - name: Install stable
-      uses: actions-rs/toolchain@v1
+    - uses: actions/checkout@v6
+    - uses: dtolnay/rust-toolchain@master
       with:
-        profile: minimal
         toolchain: stable
-        override: true
     - name: cargo doc - all features
       run: cargo doc --all-features --verbose
 
@@ -74,15 +58,10 @@ jobs:
       CRATESIO_TOKEN: ${{ secrets.CRATESIO_TOKEN }}
     runs-on: macOS-latest
     steps:
-    - uses: actions/checkout@v4
-    - name: Install llvm and clang
-      run: brew install llvm
-    - name: Install stable
-      uses: actions-rs/toolchain@v1
+    - uses: actions/checkout@v6
+    - uses: dtolnay/rust-toolchain@master
       with:
-        profile: minimal
         toolchain: stable
-        override: true
     - name: cargo publish
       continue-on-error: true
       run: cargo publish --token $CRATESIO_TOKEN

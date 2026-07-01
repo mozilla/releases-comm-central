@@ -1,3 +1,16 @@
+# Maintenance Status
+
+This project is not really accepting new features without a very strong use
+case. The primary consumer of this repo has been
+[`coreaudio-rs`](https://github.com/rustaudio/coreaudio-rs) however
+`coreaudio-rs` has [moved to use `objc2` generated
+bindings](https://github.com/RustAudio/coreaudio-rs/pull/128). In the nearly 6
+years that @simlay has been maintaining this repo, the majority of these PRs
+have been bindgen updates and build issues with Xcode/macOS updating clang.
+
+@simlay *will* accept PRs for fixes of the build should an Xcode/macOS update
+break things.
+
 # coreaudio-sys [![Actions Status](https://github.com/rustaudio/coreaudio-sys/workflows/coreaudio-sys/badge.svg)](https://github.com/rustaudio/coreaudio-sys/actions) [![Crates.io](https://img.shields.io/crates/v/coreaudio-sys.svg)](https://crates.io/crates/coreaudio-sys) [![Crates.io](https://img.shields.io/crates/l/coreaudio-sys.svg)](https://github.com/RustAudio/coreaudio-sys/blob/master/LICENSE) [![docs.rs](https://docs.rs/coreaudio-sys/badge.svg)](https://docs.rs/coreaudio-sys/)
 
 Raw bindings to Apple's Core Audio API for macos and iOS generated using [rust-bindgen](https://github.com/rust-lang-nursery/rust-bindgen). [coreaudio-rs](https://github.com/RustAudio/coreaudio-rs) is an attempt at offering a higher level API around this crate.

@@ -3,7 +3,7 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details.
 
-use std::os::raw::{c_char, c_int, c_void};
+use std::os::raw::{c_char, c_int};
 
 cubeb_enum! {
     pub enum cubeb_log_level {
@@ -24,6 +24,6 @@ extern "C" {
     pub fn cubeb_log_get_callback() -> cubeb_log_callback;
     pub fn cubeb_log_get_level() -> cubeb_log_level;
 
-    pub fn cubeb_async_log_reset_threads(_: c_void);
+    pub fn cubeb_async_log_reset_threads();
     pub fn cubeb_async_log(msg: *const c_char, ...);
 }

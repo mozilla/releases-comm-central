@@ -10,10 +10,16 @@
 # See Cargo.toml.orig for the original contents.
 
 [package]
+edition = "2024"
 name = "coreaudio-sys"
-version = "0.2.14"
+version = "0.2.18"
 authors = ["Mitchell Nordine <mitchell.nordine@gmail.com>"]
 build = "build.rs"
+autolib = false
+autobins = false
+autoexamples = false
+autotests = false
+autobenches = false
 description = "Bindings for Apple's CoreAudio frameworks generated via rust-bindgen"
 homepage = "https://github.com/RustAudio/coreaudio-sys"
 readme = "README.md"
@@ -35,12 +41,8 @@ targets = [
     "x86_64-apple-ios",
 ]
 
-[build-dependencies.bindgen]
-version = "0.69"
-features = ["runtime"]
-default-features = false
-
 [features]
+audio_server_plugin = []
 audio_toolbox = []
 audio_unit = []
 core_audio = []
@@ -49,8 +51,18 @@ default = [
     "audio_toolbox",
     "audio_unit",
     "core_audio",
+    "audio_server_plugin",
     "open_al",
     "core_midi",
 ]
 io_kit_audio = []
 open_al = []
+
+[lib]
+name = "coreaudio_sys"
+path = "src/lib.rs"
+
+[build-dependencies.bindgen]
+version = "0.72"
+features = ["runtime"]
+default-features = false

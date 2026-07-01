@@ -14,7 +14,7 @@ gecko-in-tree = ["cubeb-backend/gecko-in-tree"]
 crate-type = ["staticlib", "rlib"]
 
 [dependencies]
-cubeb-backend = "0.31"
+cubeb-backend = "0.32"
 pulse-ffi = { path = "pulse-ffi" }
 pulse = { path = "pulse-rs" }
 semver = "1.0"

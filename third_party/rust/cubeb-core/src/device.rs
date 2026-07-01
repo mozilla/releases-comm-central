@@ -231,7 +231,8 @@ mod tests {
 
     #[test]
     fn device_device_ref_same_ptr() {
-        let ptr: *mut cubeb_device = 0xDEAD_BEEF as *mut _;
+        let raw = cubeb_device::default();
+        let ptr = &raw as *const cubeb_device as *mut cubeb_device;
         let device = unsafe { Device::from_ptr(ptr) };
         assert_eq!(device.as_ptr(), ptr);
         assert_eq!(device.as_ptr(), device.as_ref().as_ptr());

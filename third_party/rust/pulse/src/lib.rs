@@ -32,7 +32,7 @@ pub use ffi::pa_volume_t as Volume;
 pub use ffi::timeval as TimeVal;
 pub use mainloop_api::MainloopApi;
 pub use operation::Operation;
-pub use proplist::Proplist;
+pub use proplist::{OwnedProplist, Proplist};
 use std::os::raw::{c_char, c_uint};
 pub use stream::Stream;
 pub use threaded_mainloop::ThreadedMainloop;

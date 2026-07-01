@@ -1,9 +1,12 @@
+#[allow(unused_imports)]
 use crate::dispatch::*;
+#[allow(unused_imports)]
 use coreaudio_sys::*;
 
 // See https://opensource.apple.com/source/WebCore/WebCore-7604.5.6/platform/spi/cf/CoreAudioSPI.h.auto.html
 // Per https://github.com/WebKit/WebKit/commit/7c4c851bc80f14b4cf907f76d65baee013a45eea,
 // this first appeared in MacOS 10.13 and iOS 11.0.
+#[cfg(not(feature = "no-private-apis"))]
 extern "C" {
     fn AudioDeviceDuck(
         inDevice: AudioDeviceID,
@@ -14,6 +17,7 @@ extern "C" {
 }
 
 // See https://github.com/mozilla/cubeb-coreaudio-rs/issues/237
+#[cfg(not(feature = "no-private-apis"))]
 #[allow(clippy::not_unsafe_ptr_arg_deref)]
 pub fn audio_device_duck(
     in_device: AudioDeviceID,

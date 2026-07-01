@@ -22,7 +22,7 @@ dependencies = [
 
 [[package]]
 name = "cubeb-sys"
-version = "0.32.0"
+version = "0.34.1"
 dependencies = [
  "cmake",
  "pkg-config",

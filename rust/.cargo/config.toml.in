@@ -61,9 +61,9 @@ git = "https://github.com/martinthomson/ohttp"
 rev = "600931b5a1e947776cbaad931ed78f1e89005352"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/mozilla/audioipc?rev=c9dcbaee1624daad2fa6b1445fd047efde4f1ec0"]
+[source."git+https://github.com/mozilla/audioipc?rev=88fe860"]
 git = "https://github.com/mozilla/audioipc"
-rev = "c9dcbaee1624daad2fa6b1445fd047efde4f1ec0"
+rev = "88fe860"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/mozilla/authenticator-rs?tag=v0.6.0"]
@@ -71,14 +71,14 @@ git = "https://github.com/mozilla/authenticator-rs"
 tag = "v0.6.0"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/mozilla/cubeb-coreaudio-rs?rev=0bb8a45a040e85d313eb18deb36570e87df3a6af"]
+[source."git+https://github.com/mozilla/cubeb-coreaudio-rs?rev=840f69c1b3f95accd582555e10abcef8ee67514b"]
 git = "https://github.com/mozilla/cubeb-coreaudio-rs"
-rev = "0bb8a45a040e85d313eb18deb36570e87df3a6af"
+rev = "840f69c1b3f95accd582555e10abcef8ee67514b"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/mozilla/cubeb-pulse-rs?rev=3cf4a1af09a1748d0e184297a17132bdcc608874"]
+[source."git+https://github.com/mozilla/cubeb-pulse-rs?rev=a3770b75c22ae3fdc12539a0cdccc04d46d791f7"]
 git = "https://github.com/mozilla/cubeb-pulse-rs"
-rev = "3cf4a1af09a1748d0e184297a17132bdcc608874"
+rev = "a3770b75c22ae3fdc12539a0cdccc04d46d791f7"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/mozilla/glean?tag=v68.0.0"]

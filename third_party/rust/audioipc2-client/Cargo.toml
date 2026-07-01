@@ -32,7 +32,7 @@ name = "audioipc2_client"
 path = "src/lib.rs"
 
 [dependencies]
-cubeb-backend = "0.32"
+cubeb-backend = "0.34"
 log = "0.4"
 
 [dependencies.audio_thread_priority]
