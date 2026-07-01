@@ -88,6 +88,15 @@ class AccountHubCheckbox extends HTMLElement {
 
     document.l10n.setAttributes(this.#label, newValue);
   }
+
+  /**
+   * Set the ariaControlsElements property of the checkbox input.
+   *
+   * @param {HTMLElement} element - The HTML element that the checkbox controls.
+   */
+  setAriaControlsElements(element) {
+    this.#input.ariaControlsElements = [element];
+  }
 }
 
 customElements.define("account-hub-checkbox", AccountHubCheckbox);

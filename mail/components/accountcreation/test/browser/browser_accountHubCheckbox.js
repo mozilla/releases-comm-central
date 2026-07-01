@@ -138,3 +138,14 @@ add_task(function test_checkboxClasses() {
     "The checkbox label should not be a label for a toggle button"
   );
 });
+
+add_task(function test_ariaControlsElements() {
+  const divElement = browser.contentWindow.document.querySelector("#testDiv");
+  checkElement.setAriaControlsElements(divElement);
+
+  Assert.deepEqual(
+    checkInput.ariaControlsElements,
+    [divElement],
+    "The check input should have have aria controls over div element"
+  );
+});

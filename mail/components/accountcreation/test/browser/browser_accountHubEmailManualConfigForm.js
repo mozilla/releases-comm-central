@@ -42,3 +42,65 @@ add_task(function test_setState() {
     "The current state should have been updated"
   );
 });
+
+add_task(async function test_showHideOutgoingUsername() {
+  const sameUsernameCheckbox = subview.querySelector("#sameUsername");
+  const outgoingUsername = subview.querySelector("#manualOutgoingUsername");
+  sameUsernameCheckbox.scrollIntoView({ block: "start", behavior: "instant" });
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(outgoingUsername),
+    "The outgoing username should be visible"
+  );
+
+  // The outgoing username should be hidden and not required if the checkbox is
+  // checked.
+  let changeEvent = BrowserTestUtils.waitForEvent(
+    sameUsernameCheckbox,
+    "change"
+  );
+  let hiddenPromise = BrowserTestUtils.waitForAttribute(
+    "hidden",
+    outgoingUsername
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    sameUsernameCheckbox.querySelector("input"),
+    {},
+    browser.contentWindow
+  );
+  await changeEvent;
+  await hiddenPromise;
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(outgoingUsername),
+    "The outgoing username should be hidden"
+  );
+  Assert.ok(
+    !outgoingUsername.required,
+    "The outgoing username should not longer be required"
+  );
+
+  // The outgoing username should be visible and required if the checkbox isn't
+  // checked.
+  changeEvent = BrowserTestUtils.waitForEvent(sameUsernameCheckbox, "change");
+  hiddenPromise = BrowserTestUtils.waitForAttributeRemoval(
+    "hidden",
+    outgoingUsername
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    sameUsernameCheckbox.querySelector("input"),
+    {},
+    browser.contentWindow
+  );
+  await changeEvent;
+  await hiddenPromise;
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(outgoingUsername),
+    "The outgoing username should be visible"
+  );
+  Assert.ok(
+    outgoingUsername.required,
+    "The outgoing username should be required"
+  );
+});

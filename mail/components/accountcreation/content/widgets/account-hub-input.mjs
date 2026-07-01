@@ -21,6 +21,7 @@ const optionalAttributes = ["name", "placeholder", "required", "min", "max"];
  * @attribute {boolean} required - If the input is required. Not observed.
  * @attribute {number} min - Minimum value if the input is of type number. Not observed.
  * @attribute {number} max - Maximum value if the input is of type number. Not observed.
+ * @attribute {string} aria-live - The politeness setting of the input. Not observed.
  */
 class AccountHubInput extends HTMLElement {
   static observedAttributes = ["l10n-label-id", "l10n-error-id"];
