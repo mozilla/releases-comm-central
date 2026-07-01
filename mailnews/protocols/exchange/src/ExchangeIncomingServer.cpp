@@ -544,7 +544,8 @@ NS_IMETHODIMP ExchangeIncomingServer::GetPassword(nsAString& password) {
   // takes care of updating `m_password`.
   nsAutoCString value;
   MOZ_TRY(mPasswordModule->GetCachedPassword(value));
-  if (value.IsEmpty() && authMethod == nsMsgAuthMethod::passwordCleartext) {
+  if (value.IsEmpty() && (authMethod == nsMsgAuthMethod::passwordCleartext ||
+                          authMethod == nsMsgAuthMethod::NTLM)) {
     MOZ_TRY(GetPasswordWithoutUI());
   }
 
