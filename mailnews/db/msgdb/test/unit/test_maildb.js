@@ -95,3 +95,26 @@ add_task(function test_deletion() {
     localAccountUtils.clearAll();
   }
 });
+
+add_task(function test_stale_delete_cache() {
+  localAccountUtils.loadLocalMailAccount();
+  try {
+    const folder = localAccountUtils.inboxFolder;
+    const db = folder.msgDatabase;
+    const staleHdr = db.attachHdr(db.createNewHdr(), false);
+    const key = staleHdr.messageKey;
+
+    db.getMsgHdrForKey(key);
+    db.forceClosed();
+    folder.msgDatabase = null;
+
+    const reopenedDB = folder.msgDatabase;
+    const freshHdr = reopenedDB.getMsgHdrForKey(key);
+    Assert.notEqual(staleHdr, freshHdr);
+    reopenedDB.deleteHeader(staleHdr, null, false, false);
+    Assert.equal(reopenedDB.getMsgHdrForKey(key), freshHdr);
+    reopenedDB.clearCachedHdrs();
+  } finally {
+    localAccountUtils.clearAll();
+  }
+});

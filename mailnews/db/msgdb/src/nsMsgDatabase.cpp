@@ -490,10 +490,14 @@ nsresult nsMsgDatabase::AddHdrToCache(
         return NS_ERROR_OUT_OF_MEMORY;  // XXX out of memory
       }
 
-      MsgHdrHashElement* element = static_cast<MsgHdrHashElement*>(entry);
-      element->mHdr = hdr;
-      element->mKey = key;
-      NS_ADDREF(hdr);  // make the cache hold onto the header
+      auto* element = static_cast<MsgHdrHashElement*>(entry);
+      nsIMsgDBHdr* oldHdr = element->mHdr;
+      if (oldHdr != hdr) {
+        element->mHdr = hdr;
+        element->mKey = key;
+        NS_ADDREF(hdr);  // make the cache hold onto the header
+        NS_IF_RELEASE(oldHdr);
+      }
       return NS_OK;
     }
   }
@@ -626,8 +630,9 @@ nsresult nsMsgDatabase::RemoveHdrFromCache(nsIMsgDBHdr* hdr, nsMsgKey key) {
     PLDHashEntryHdr* entry =
         m_cachedHeaders->Search((const void*)(uintptr_t)key);
     if (entry) {
+      nsIMsgDBHdr* cachedHdr = static_cast<MsgHdrHashElement*>(entry)->mHdr;
       m_cachedHeaders->Remove((void*)(uintptr_t)key);
-      NS_RELEASE(hdr);  // get rid of extra ref the cache was holding.
+      NS_IF_RELEASE(cachedHdr);  // get rid of extra ref the cache was holding.
     }
   }
   return NS_OK;
