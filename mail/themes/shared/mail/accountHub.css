@@ -989,7 +989,6 @@ header {
 }
 
 .account-hub-thundermail-header {
-  margin-block-start: 53px;
   display: none;
   flex-direction: column;
   align-items: center;
@@ -1031,10 +1030,21 @@ header {
       vertical-align: middle;
     }
   }
+
+  & .account-hub-thundermail-title {
+    color: var(--color-text-base);
+    font-size: 1.7rem;
+    font-weight: 400;
+    margin-block: 0;
+  }
 }
 
 /* stylelint-disable-next-line media-query-no-invalid */
 @media -moz-pref("mail.accounthub.thundermail.enabled") {
+  :host([hide-title-on-thundermail]) #accountHubHeaderTitle {
+    display: none;
+  }
+
   .account-hub-thundermail-header {
     display: flex;
   }

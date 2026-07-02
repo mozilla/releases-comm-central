@@ -46,6 +46,10 @@ class EmailAutoForm extends AccountHubStep {
     super.connectedCallback();
     this.showBrandingHeader();
 
+    this.shadowRoot
+      .querySelector("account-hub-header")
+      .setAttribute("hide-title-on-thundermail", "");
+
     const template = document
       .getElementById("accountHubEmailAutoFormTemplate")
       .content.cloneNode(true);
