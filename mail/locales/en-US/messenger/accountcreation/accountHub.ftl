@@ -283,12 +283,12 @@ address-book-sync-existing-icon =
 
 address-book-sync-existing = Sync from an existing account
 
-address-book-add-remote-icon =
-    .alt = Add a new remote address book
+address-book-add-remote-icon2 =
+    .alt = Add a remote address book
 
 address-book-add-remote = Add remote Address Book
 
-address-book-add-remote-description = Connect to a remote CardDav Address Book
+address-book-add-remote-carddav-description = Connect to a CardDAV address book
 
 address-book-add-local-icon =
     .alt = Create a new local address book
@@ -297,10 +297,10 @@ address-book-add-local = New local Address Book
 
 address-book-add-local-description = Create a new local address book on your device
 
-address-book-add-ldap-icon =
-    .alt = Connect to a remote LDAP address book
+address-book-add-ldap-icon2 =
+    .alt = Add an LDAP address book
 
-address-book-add-ldap = New LDAP Address Book
+address-book-add-ldap-button = Add LDAP Address Book
 
 address-book-add-ldap-description = Connect to a remote LDAP address book
 
