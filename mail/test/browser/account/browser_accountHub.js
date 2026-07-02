@@ -266,6 +266,14 @@ add_task(async function test_account_email_config_found() {
   const dialog = await subtest_open_account_hub_dialog();
   await subtest_fill_initial_config_fields(dialog);
   const configFoundTemplate = dialog.querySelector("email-config-found");
+  const thundermailButton = dialog
+    .querySelector("email-auto-form")
+    .querySelector(".account-hub-thundermail-button");
+
+  Assert.ok(
+    thundermailButton.disabled,
+    "The Thundermail button should be disabled after leaving the initial step"
+  );
 
   const footerBack = dialog
     .querySelector("#emailFooter")
@@ -275,6 +283,10 @@ add_task(async function test_account_email_config_found() {
   await TestUtils.waitForCondition(
     () => BrowserTestUtils.isVisible(dialog.querySelector("email-auto-form")),
     "The initial email template should be in view"
+  );
+  Assert.ok(
+    !thundermailButton.disabled,
+    "The Thundermail button should be enabled when returning to the initial step"
   );
 
   // Press the enter button after selecting the email input to show the config
@@ -412,6 +424,9 @@ add_task(async function test_cancel_finding_config() {
   const footer = dialog.querySelector("#emailFooter");
   const footerForward = footer.querySelector("#forward");
   const footerBack = footer.querySelector("#back");
+  const thundermailButton = emailTemplate.querySelector(
+    ".account-hub-thundermail-button"
+  );
 
   // Ensure fields are empty.
   nameInput.value = "";
@@ -439,6 +454,10 @@ add_task(async function test_cancel_finding_config() {
 
   Assert.ok(!footerForward.disabled, "Continue button should be enabled.");
   Assert.ok(
+    !thundermailButton.disabled,
+    "The Thundermail button should be enabled before starting config lookup."
+  );
+  Assert.ok(
     BrowserTestUtils.isHidden(footerBack),
     "The back button should be hidden."
   );
@@ -447,6 +466,10 @@ add_task(async function test_cancel_finding_config() {
   // button.
   EventUtils.synthesizeMouseAtCenter(footerForward, {});
   await BrowserTestUtils.waitForAttributeRemoval("hidden", footerBack);
+  Assert.ok(
+    thundermailButton.disabled,
+    "The Thundermail button should be disabled while finding config."
+  );
   Assert.equal(
     document.l10n.getAttributes(footerBack).id,
     "account-hub-email-cancel-button",
@@ -462,6 +485,10 @@ add_task(async function test_cancel_finding_config() {
   EventUtils.synthesizeMouseAtCenter(footerBack, {});
   await backHiddenPromise;
   Assert.ok(!footer.disabled, "The footer should be re-enabled.");
+  Assert.ok(
+    !thundermailButton.disabled,
+    "The Thundermail button should be re-enabled after cancelling config lookup."
+  );
   await subtest_close_account_hub_dialog(dialog, emailTemplate);
 });
 

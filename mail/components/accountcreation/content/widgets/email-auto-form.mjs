@@ -31,6 +31,13 @@ class EmailAutoForm extends AccountHubStep {
   #manualConfigButton;
 
   /**
+   * The Thundermail sign in button.
+   *
+   * @type {HTMLButtonElement}
+   */
+  #thundermailButton;
+
+  /**
    * The current email auto config form inputs.
    *
    * @type {object}
@@ -58,6 +65,9 @@ class EmailAutoForm extends AccountHubStep {
     this.#realName = this.querySelector("#realName");
     this.#email = this.querySelector("#email");
     this.#manualConfigButton = this.querySelector("#manualConfiguration");
+    this.#thundermailButton = this.querySelector(
+      ".account-hub-thundermail-button"
+    );
     this.#realName.addEventListener("input", this);
     this.#email.addEventListener("input", this);
     this.#manualConfigButton.addEventListener("click", this);
@@ -146,6 +156,8 @@ class EmailAutoForm extends AccountHubStep {
     for (const input of this.querySelectorAll("input")) {
       input.disabled = val;
     }
+    this.#manualConfigButton.disabled = val;
+    this.#thundermailButton.disabled = val;
   }
 }
 

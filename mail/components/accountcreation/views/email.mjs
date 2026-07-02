@@ -486,6 +486,7 @@ class AccountHubEmail extends HTMLElement {
       })
     );
     this.#currentSubview.hidden = false;
+    this.#emailAutoConfigSubview.disabled = subview != "autoConfigSubview";
     this.#setFooterButtons();
   }
 
@@ -639,7 +640,14 @@ class AccountHubEmail extends HTMLElement {
         }
         break;
       case "click": {
-        if (!event.composedTarget.closest(".account-hub-thundermail-button")) {
+        const thundermailButton = event.composedTarget.closest(
+          ".account-hub-thundermail-button"
+        );
+        if (
+          !thundermailButton ||
+          this.#currentState != "autoConfigSubview" ||
+          thundermailButton.disabled
+        ) {
           return;
         }
 

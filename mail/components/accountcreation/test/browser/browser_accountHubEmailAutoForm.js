@@ -9,6 +9,7 @@ let browser;
 let subview;
 let realName;
 let manualConfigButton;
+let thundermailButton;
 let email;
 
 add_setup(async function () {
@@ -23,6 +24,7 @@ add_setup(async function () {
   realName = subview.querySelector("#realName");
   email = subview.querySelector("#email");
   manualConfigButton = subview.querySelector("#manualConfiguration");
+  thundermailButton = subview.querySelector(".account-hub-thundermail-button");
 
   registerCleanupFunction(() => {
     tabmail.closeOtherTabs(tabmail.tabInfo[0]);
@@ -180,6 +182,45 @@ add_task(function test_captureState() {
     "Should get the entered data in the captured state"
   );
   subview.resetState();
+});
+
+add_task(function test_disabled() {
+  Assert.ok(!realName.disabled, "Name input should start enabled");
+  Assert.ok(!email.disabled, "Email input should start enabled");
+  Assert.ok(
+    !manualConfigButton.disabled,
+    "Manual config button should start enabled"
+  );
+  Assert.ok(
+    !thundermailButton.disabled,
+    "Thundermail button should start enabled"
+  );
+
+  subview.disabled = true;
+
+  Assert.ok(realName.disabled, "Name input should be disabled");
+  Assert.ok(email.disabled, "Email input should be disabled");
+  Assert.ok(
+    manualConfigButton.disabled,
+    "Manual config button should be disabled"
+  );
+  Assert.ok(
+    thundermailButton.disabled,
+    "Thundermail button should be disabled"
+  );
+
+  subview.disabled = false;
+
+  Assert.ok(!realName.disabled, "Name input should be enabled again");
+  Assert.ok(!email.disabled, "Email input should be enabled again");
+  Assert.ok(
+    !manualConfigButton.disabled,
+    "Manual config button should be enabled again"
+  );
+  Assert.ok(
+    !thundermailButton.disabled,
+    "Thundermail button should be enabled again"
+  );
 });
 
 add_task(async function test_manualConfigEvent() {
