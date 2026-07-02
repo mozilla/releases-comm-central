@@ -86,3 +86,42 @@ add_task(async function test_rendersSubheaderTextCorrectly() {
     "Step subheader text attribute should match subheader text content"
   );
 });
+
+add_task(async function test_setTitleUpdatesTitleId() {
+  step.setTitle("account-hub-manual-config-imap-title");
+
+  const title = header.querySelector("#title");
+
+  Assert.equal(
+    step.getAttribute("title-id"),
+    "account-hub-manual-config-imap-title",
+    "setTitle should update the title-id attribute"
+  );
+  Assert.equal(
+    header.l10n.getAttributes(title).id,
+    "account-hub-manual-config-imap-title",
+    "Changing title-id should update the header title l10n id"
+  );
+});
+
+add_task(async function test_setTitleClearsTitleId() {
+  step.setTitle("account-hub-manual-config-pop3-title");
+  step.setTitle();
+
+  const title = header.querySelector("#title");
+
+  Assert.ok(
+    !step.hasAttribute("title-id"),
+    "setTitle without an id should remove the title-id attribute"
+  );
+  Assert.equal(
+    header.l10n.getAttributes(title).id,
+    null,
+    "Removing title-id should clear the title l10n id"
+  );
+  Assert.equal(
+    title.textContent,
+    "",
+    "Removing title-id should clear title text"
+  );
+});

@@ -71,6 +71,20 @@ class EmailManualConfigForm extends AccountHubStep {
    */
   setState(configData) {
     this.#currentConfig = configData;
+
+    const incomingType = configData.incoming?.type;
+    let incomingTypeId;
+
+    switch (incomingType) {
+      case "imap":
+        incomingTypeId = "account-hub-manual-config-imap-title";
+        break;
+      case "pop3":
+        incomingTypeId = "account-hub-manual-config-pop3-title";
+        break;
+    }
+
+    this.setTitle(incomingTypeId);
   }
 
   /**

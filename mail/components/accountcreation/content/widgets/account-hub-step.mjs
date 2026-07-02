@@ -17,7 +17,7 @@ import "chrome://messenger/content/accountcreation/content/widgets/account-hub-h
  *  id will take precedence.
  */
 export class AccountHubStep extends HTMLElement {
-  static observedAttributes = ["is-first-run"];
+  static observedAttributes = ["is-first-run", "title-id"];
 
   /** @type {DOMLocalization} */
   l10n;
@@ -55,37 +55,69 @@ export class AccountHubStep extends HTMLElement {
     this.#setHeader();
   }
 
-  attributeChangedCallback() {
-    this.#header?.refresh();
+  attributeChangedCallback(attributeName) {
+    if (!this.shadowRoot) {
+      return;
+    }
+
+    switch (attributeName) {
+      case "is-first-run": {
+        this.#header?.refresh();
+        break;
+      }
+      case "title-id": {
+        this.#setHeader();
+        break;
+      }
+    }
   }
 
   /**
    * Applies the fluent ID's to the step's header text elements.
    */
   #setHeader() {
+    if (!this.shadowRoot) {
+      return;
+    }
+
+    const title = this.shadowRoot.querySelector("#title");
+    const subheader = this.shadowRoot.querySelector("#subheader");
+
+    delete title.dataset.l10nId;
+    delete title.dataset.l10nArgs;
+    title.textContent = "";
+
     if (this.hasAttribute("title-id")) {
-      document.l10n.setAttributes(
-        this.shadowRoot.querySelector("#title"),
-        this.getAttribute("title-id")
-      );
+      document.l10n.setAttributes(title, this.getAttribute("title-id"));
     }
 
     if (this.hasAttribute("subheader-id")) {
-      document.l10n.setAttributes(
-        this.shadowRoot.querySelector("#subheader"),
-        this.getAttribute("subheader-id")
-      );
+      document.l10n.setAttributes(subheader, this.getAttribute("subheader-id"));
 
       this.#header.showSubheader();
       return;
     }
 
     if (this.hasAttribute("subheader-text")) {
-      this.shadowRoot.querySelector("#subheader").textContent =
-        this.getAttribute("subheader-text");
+      subheader.textContent = this.getAttribute("subheader-text");
 
       this.#header.showSubheader();
     }
+  }
+
+  /**
+   * Sets the step title-id attribute, to trigger an update of the text.
+   *
+   * @param {string} [fluentId] - ID of the l10n string. Leave
+   *  blank/empty to remove the title.
+   */
+  setTitle(fluentId) {
+    if (!fluentId) {
+      this.removeAttribute("title-id");
+      return;
+    }
+
+    this.setAttribute("title-id", fluentId);
   }
 
   /**

@@ -43,6 +43,62 @@ add_task(function test_setState() {
   );
 });
 
+add_task(function test_setStateImapTitle() {
+  const state = new AccountConfig();
+  state.incoming.type = "imap";
+  subview.setState(state);
+
+  Assert.equal(
+    subview.getAttribute("title-id"),
+    "account-hub-manual-config-imap-title",
+    "IMAP config should set the correct title"
+  );
+
+  const title = subview.shadowRoot.querySelector("#title");
+  Assert.equal(
+    document.l10n.getAttributes(title).id,
+    "account-hub-manual-config-imap-title",
+    "Header title l10n id should match"
+  );
+});
+
+add_task(function test_setStateSetsPop3Title() {
+  const state = new AccountConfig();
+  state.incoming.type = "pop3";
+  subview.setState(state);
+
+  Assert.equal(
+    subview.getAttribute("title-id"),
+    "account-hub-manual-config-pop3-title",
+    "POP3 config should set the correct title"
+  );
+
+  const title = subview.shadowRoot.querySelector("#title");
+  Assert.equal(
+    document.l10n.getAttributes(title).id,
+    "account-hub-manual-config-pop3-title",
+    "Header title l10n id should match"
+  );
+});
+
+add_task(function test_setStateClearsTitleForUnknownIncomingType() {
+  const state = new AccountConfig();
+  state.incoming.type = "exchange";
+  subview.setState(state);
+
+  Assert.ok(
+    !subview.hasAttribute("title-id"),
+    "Unknown incoming type should clear the title-id attribute"
+  );
+
+  const title = subview.shadowRoot.querySelector("#title");
+  Assert.equal(
+    document.l10n.getAttributes(title).id,
+    null,
+    "Unknown incoming type should clear the header title l10n id"
+  );
+});
+
 add_task(async function test_showHideOutgoingUsername() {
   const sameUsernameCheckbox = subview.querySelector("#sameUsername");
   const outgoingUsername = subview.querySelector("#manualOutgoingUsername");
