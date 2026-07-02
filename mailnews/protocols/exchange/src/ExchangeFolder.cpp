@@ -979,16 +979,15 @@ nsresult ExchangeFolder::HandleDeleteOperation(
 
   // If any ancestor of this folder is the trash folder, then hard delete.
   bool isInTrashFolder = false;
-  nsCOMPtr<nsIMsgFolder> parent;
-  GetParent(getter_AddRefs(parent));
-  while (parent) {
+  nsCOMPtr<nsIMsgFolder> folder = this;
+  while (folder) {
     bool isTrashFolder = false;
-    MOZ_TRY(parent->GetFlag(nsMsgFolderFlags::Trash, &isTrashFolder));
+    MOZ_TRY(folder->GetFlag(nsMsgFolderFlags::Trash, &isTrashFolder));
     if (isTrashFolder) {
       isInTrashFolder = true;
       break;
     }
-    parent->GetParent(getter_AddRefs(parent));
+    folder->GetParent(getter_AddRefs(folder));
   }
 
   // Check the delete model to see if this should be a permanent delete.

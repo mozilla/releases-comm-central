@@ -907,3 +907,60 @@ add_task(async function test_hard_delete_item_ews() {
 add_task(async function test_hard_delete_item_graph() {
   await runHardDeleteTest(graphServer, graphIncomingServer);
 });
+
+/**
+ * Run a test for deleting items from the trash for the given mock/incoming
+ * server combo.
+ *
+ * @param {MockServer} mockServer
+ * @param {nsIMsgIncomingServer} incomingServer
+ */
+async function runDeleteItemFromTrashTest(mockServer, incomingServer) {
+  const rootFolder = incomingServer.rootFolder;
+  await syncFolder(incomingServer, rootFolder);
+
+  const trashFolder = rootFolder.getChildNamed("Deleted Items");
+  Assert.ok(!!trashFolder, "Trash folder should exist.");
+
+  const messages = generator.makeMessages({ count: 1 });
+  const messageId = "delete_from_trash";
+  mockServer.addItemToFolder(messageId, "deleteditems", messages[0]);
+
+  await syncFolder(incomingServer, trashFolder);
+
+  Assert.equal(
+    trashFolder.getTotalMessages(false),
+    1,
+    "Should be one message in trash"
+  );
+
+  const trashFolderMessage = [...trashFolder.messages][0];
+
+  const eventPromise = PromiseTestUtils.promiseFolderEvent(
+    trashFolder,
+    "DeleteOrMoveMsgCompleted"
+  );
+  trashFolder.deleteMessages(
+    [trashFolderMessage],
+    null,
+    false,
+    false,
+    null,
+    false
+  );
+  await eventPromise;
+
+  Assert.equal(
+    trashFolder.getTotalMessages(false),
+    0,
+    "Should be zero messages in trash"
+  );
+}
+
+add_task(async function test_delete_item_from_trash_ews() {
+  await runDeleteItemFromTrashTest(ewsServer, ewsIncomingServer);
+});
+
+add_task(async function test_delete_item_from_trash_graph() {
+  await runDeleteItemFromTrashTest(graphServer, graphIncomingServer);
+});
