@@ -55,6 +55,13 @@ class CheckboxTreeTableRow extends TreeViewTableRow {
     this.classList.add("table-layout");
     this.append(this.constructor.rowFragment.cloneNode(true));
 
+    // Listen for any 'change' event bubbling up from inside this row.
+    this.addEventListener("change", event => {
+      if (event.target.type === "checkbox") {
+        this.#handleCheckboxToggle(event.target.checked);
+      }
+    });
+
     this.addEventListener("keydown", event => {
       if (event.key == "ArrowUp") {
         // Jump to the previous row, if there is one.
@@ -94,6 +101,7 @@ class CheckboxTreeTableRow extends TreeViewTableRow {
     twistyButton.ariaExpanded = isGroup ? isGroupOpen : null;
     this.classList.toggle("collapsed", !isGroupOpen);
 
+    // Now update dataset so CSS catches the properties.
     this.dataset.properties = [...viewRow.properties].join(" ");
 
     twistyButton.ariaLabel = viewRow.texts.name;
@@ -108,11 +116,220 @@ class CheckboxTreeTableRow extends TreeViewTableRow {
     span.textContent = viewRow.texts.name;
 
     checkbox.hidden = viewRow.hasProperty("uncheckable");
-    checkbox.checked = viewRow.hasProperty("checked");
-    checkbox.onchange = () => {
-      viewRow.toggleProperty("checked", checkbox.checked);
-      this.dataset.properties = [...viewRow.properties].join(" ");
-    };
+    const selfChecked = viewRow.hasProperty("checked");
+
+    if (isGroup && !isGroupOpen) {
+      // Collapsed node: display aggregate state of the subtree.
+      const checkedState = this.#initializeDescendants(viewRow);
+
+      const anyChecked = selfChecked || checkedState != "none";
+      const allChecked = selfChecked && checkedState == "all";
+
+      checkbox.checked = allChecked;
+      checkbox.indeterminate = !allChecked && anyChecked;
+    } else {
+      // Expanded or leaf node.
+      checkbox.checked = selfChecked;
+      checkbox.indeterminate = false;
+    }
+  }
+
+  #handleCheckboxToggle(isChecked) {
+    const viewRow = this.view.rowAt(this._index);
+    if (!viewRow) {
+      return;
+    }
+
+    // Always explicitly toggle the row the user actually clicked.
+    viewRow.toggleProperty("checked", isChecked);
+
+    // Only cascade down if the row is collapsed.
+    if (!viewRow.open) {
+      this.#cascadeDown(viewRow, isChecked);
+
+      // Because we just forced all descendants to match `isChecked`,
+      // we must manually update this specific row's summary cache.
+      if (viewRow.children && viewRow.children.length > 0) {
+        viewRow.toggleProperty("descendants-all-checked", isChecked);
+        viewRow.toggleProperty("descendants-some-checked", false);
+        viewRow.toggleProperty("descendants-none-checked", !isChecked);
+      }
+    }
+
+    // Ripple the calculation up so parents know descendants changed.
+    if (viewRow.parent) {
+      this.#evaluateUpward(viewRow.parent);
+    }
+
+    // Force a fast visual repaint of the visible rows.
+    if (this.parentElement) {
+      for (const tr of this.parentElement.children) {
+        if (typeof tr.fillRow === "function") {
+          tr.fillRow();
+        }
+      }
+    }
+  }
+
+  /**
+   * Forces all descendants to match the parent's explicit state.
+   *
+   * @param {TreeDataRow} dataRow
+   * @param {boolean} isChecked
+   */
+  #cascadeDown(dataRow, isChecked) {
+    if (!dataRow.children) {
+      return;
+    }
+    for (const child of dataRow.children) {
+      if (child && !child.hasProperty("uncheckable")) {
+        child.toggleProperty("checked", isChecked);
+
+        // Keep the cache accurate so upward ripples aren't corrupted.
+        if (child.children && child.children.length > 0) {
+          child.toggleProperty("descendants-all-checked", isChecked);
+          child.toggleProperty("descendants-some-checked", false);
+          child.toggleProperty("descendants-none-checked", !isChecked);
+        }
+      }
+      this.#cascadeDown(child, isChecked);
+    }
+  }
+
+  /**
+   * Compute the aggregate checked state of `dataRow`'s immediate children.
+   * Used by both #initializeDescendants (deep, once-per-node) and
+   * #evaluateUpward (shallow, on every toggle).
+   *
+   * @param {TreeDataRow} dataRow
+   * @returns {{ allChecked: boolean, someChecked: boolean, checkableChildren: number }}
+   */
+  #computeChildAggregate(dataRow) {
+    let allChecked = true;
+    let someChecked = false;
+    let checkableChildren = 0;
+
+    for (const child of dataRow.children) {
+      if (child && !child.hasProperty("uncheckable")) {
+        checkableChildren++;
+
+        const explicitlyChecked = child.hasProperty("checked");
+        const childAll = child.hasProperty("descendants-all-checked");
+        const childSome = child.hasProperty("descendants-some-checked");
+
+        if (explicitlyChecked || childAll || childSome) {
+          someChecked = true;
+        }
+        if (!explicitlyChecked || (child.children.length > 0 && !childAll)) {
+          allChecked = false;
+        }
+      }
+    }
+
+    return { allChecked, someChecked, checkableChildren };
+  }
+
+  /**
+   * Ensure descendant checked state is computed for `dataRow` and return
+   * the aggregate state of its subtree.
+   *
+   * @param {TreeDataRow} dataRow
+   * @returns {"all"|"some"|"none"}
+   */
+  #initializeDescendants(dataRow) {
+    // If already evaluated, return the cached state.
+    if (dataRow.hasProperty("descendants-all-checked")) {
+      return "all";
+    }
+    if (dataRow.hasProperty("descendants-some-checked")) {
+      return "some";
+    }
+    if (dataRow.hasProperty("descendants-none-checked")) {
+      return "none";
+    }
+
+    if (!dataRow.children || dataRow.children.length === 0) {
+      return "none";
+    }
+
+    // Recurse into checkable children first so their descendants-* caches
+    // are populated before we compute this row's aggregate.
+    for (const child of dataRow.children) {
+      if (child && !child.hasProperty("uncheckable")) {
+        this.#initializeDescendants(child);
+      }
+    }
+
+    const { allChecked, someChecked, checkableChildren } =
+      this.#computeChildAggregate(dataRow);
+
+    if (checkableChildren === 0) {
+      dataRow.addProperty("descendants-none-checked");
+      return "none";
+    }
+
+    if (allChecked) {
+      dataRow.addProperty("descendants-all-checked");
+      return "all";
+    }
+    if (someChecked) {
+      dataRow.addProperty("descendants-some-checked");
+      return "some";
+    }
+    dataRow.addProperty("descendants-none-checked");
+    return "none";
+  }
+
+  /**
+   * Ripples evaluation up the tree after a checkbox click.
+   * Only checks immediate children (their caches are already accurate) and
+   * bails out early if the parent's aggregate state didn't change.
+   *
+   * @param {TreeDataRow} dataRow
+   */
+  #evaluateUpward(dataRow) {
+    if (!dataRow || !dataRow.children) {
+      return;
+    }
+
+    const { allChecked, someChecked, checkableChildren } =
+      this.#computeChildAggregate(dataRow);
+
+    if (checkableChildren === 0) {
+      return;
+    }
+
+    let newState;
+    if (allChecked) {
+      newState = "all";
+    } else if (someChecked) {
+      newState = "some";
+    } else {
+      newState = "none";
+    }
+
+    let oldState;
+    if (dataRow.hasProperty("descendants-all-checked")) {
+      oldState = "all";
+    } else if (dataRow.hasProperty("descendants-some-checked")) {
+      oldState = "some";
+    } else {
+      oldState = "none";
+    }
+
+    // Short-circuit: if the parent's state didn't change, stop the ripple.
+    // The grandparents do not need to be re-evaluated.
+    if (newState === oldState) {
+      return;
+    }
+
+    dataRow.toggleProperty("descendants-all-checked", newState === "all");
+    dataRow.toggleProperty("descendants-some-checked", newState === "some");
+    dataRow.toggleProperty("descendants-none-checked", newState === "none");
+
+    if (dataRow.parent) {
+      this.#evaluateUpward(dataRow.parent);
+    }
   }
 }
 customElements.define("checkbox-tree-table-row", CheckboxTreeTableRow, {

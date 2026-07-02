@@ -18,6 +18,8 @@ run-if = [
  ] # See bug 1806870.
 tags = ["dataadapter"]
 
+["browser_checkboxTree.js"]
+
 ["browser_contactAvatar.js"]
 
 ["browser_customElementUtils.js"]
