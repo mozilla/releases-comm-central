@@ -507,3 +507,9 @@ account-hub-manual-config-outgoing-legend = Outgoing server
 
 # Label for checkbox that will hide an outgoing username input if it's the same is the incoming
 account-hub-same-username-checkbox = Same username as incoming server
+
+account-hub-protocol-imap = Sync across devices
+
+account-hub-protocol-microsoft = Exchange or Microsoft 365
+
+account-hub-protocol-pop3 = Download to device
