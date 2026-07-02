@@ -30,6 +30,8 @@ skip-if = [
   "true", # TODO
 ]
 
+["browser_dragDropAttachedMessages.js"]
+
 ["browser_folderNamesInRecentMode.js"]
 skip-if = [
   "true", # TODO
@@ -44,8 +46,6 @@ skip-if = [
 # skip-if = ["os == 'mac'"]
 
 ["browser_folderPaneDragDrop.js"]
-
-["browser_dragDropAttachedMessages.js"]
 
 ["browser_folderPaneHeader.js"]
 

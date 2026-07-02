@@ -62,7 +62,7 @@ skip-if = [
 
 ["browser_sendFormat.js"]
 run-if = [
-  "os != 'mac'"
+  "os != 'mac'",
 ]
 reason = "See bug 1763407"
 
@@ -70,15 +70,15 @@ reason = "See bug 1763407"
 
 ["browser_signatureUpdating.js"]
 
-["browser_spelling.js"]
-
 ["browser_smtpCancel.js"]
+
+["browser_spelling.js"]
 
 ["browser_subjectWas.js"]
 
 ["browser_text_styling.js"]
 run-if = [
-  "os != 'mac'"
+  "os != 'mac'",
 ]
 reason = "Cannot open the Format menu"
 
