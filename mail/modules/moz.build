@@ -62,8 +62,3 @@ if CONFIG["MOZ_WIDGET_TOOLKIT"] == "windows":
     EXTRA_JS_MODULES += [
         "WindowsJumpLists.sys.mjs",
     ]
-
-if CONFIG["MOZ_WIDGET_TOOLKIT"] == "cocoa":
-    EXTRA_JS_MODULES += [
-        "QuickLookManager.sys.mjs",
-    ]
