@@ -17,7 +17,7 @@ config = {
         "tools/*",
     ],
     "all_gtest_suites": {
-        "gtest": {"env": {"GTEST_FILTER": "TestMail*:TestMsg*"}},
+        "gtest": {"env": {"GTEST_FILTER": "TestMail*:TestMsg*:*XREAppDir*"}},
     },
     "all_mochitest_suites": {
         "mochitest-browser-chrome-thunderbird": [
