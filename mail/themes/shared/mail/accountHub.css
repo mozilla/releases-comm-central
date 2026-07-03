@@ -290,6 +290,7 @@ dialog {
 /* Header */
 
 header {
+  display: flow-root;
   position: relative;
   font-weight: 300;
   font-size: 1.8rem;

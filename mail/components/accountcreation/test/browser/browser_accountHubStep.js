@@ -27,6 +27,40 @@ add_setup(async function () {
   });
 });
 
+add_task(async function test_headerButtonsStayPutWhenHeaderContentChanges() {
+  const controls = header.shadowRoot.querySelector("#headerButtonsContainer");
+  const getControlsTop = () => Math.round(controls.getBoundingClientRect().top);
+  const initialTop = getControlsTop();
+
+  header.showBrandingHeader();
+  await TestUtils.waitForCondition(
+    () =>
+      BrowserTestUtils.isVisible(
+        header.shadowRoot.querySelector("#brandingHeader")
+      ),
+    "waiting for branding header to show"
+  );
+  Assert.equal(
+    getControlsTop(),
+    initialTop,
+    "Header buttons should not move when the branding header is shown"
+  );
+
+  header.showSubheader();
+  await TestUtils.waitForCondition(
+    () =>
+      BrowserTestUtils.isVisible(
+        header.shadowRoot.querySelector("#accountHubHeaderSubheader")
+      ),
+    "waiting for subheader to show"
+  );
+  Assert.equal(
+    getControlsTop(),
+    initialTop,
+    "Header buttons should not move when the subheader is shown"
+  );
+});
+
 add_task(async function test_titleHasFluentId() {
   const titleFluentId = header.l10n.getAttributes(
     header.querySelector("#title")
