@@ -318,6 +318,7 @@ tracing-support = { path = "../../third_party/application-services/components/su
 viaduct = { path = "../../third_party/application-services/components/viaduct" }
 webext-storage = { path = "../../third_party/application-services/components/webext-storage" }
 logins = { path = "../../third_party/application-services/components/logins" }
+autofill = { path = "../../third_party/application-services/components/autofill" }
 init_rust_components = { path = "../../third_party/application-services/components/init_rust_components" }
 breach-alerts = { path = "../../third_party/application-services/components/breach-alerts" }
 ohttp = { git = "https://github.com/martinthomson/ohttp", rev = "600931b5a1e947776cbaad931ed78f1e89005352" }

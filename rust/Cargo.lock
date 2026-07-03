@@ -463,6 +463,28 @@ name = "autocfg"
 version = "1.1.0"
 
 [[package]]
+name = "autofill"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "error-support",
+ "interrupt-support",
+ "jwcrypto",
+ "lazy_static",
+ "rusqlite",
+ "serde",
+ "serde_derive",
+ "serde_json",
+ "sql-support",
+ "sync-guid",
+ "sync15",
+ "thiserror 2.0.12",
+ "types",
+ "uniffi",
+ "url",
+]
+
+[[package]]
 name = "base64"
 version = "0.21.999"
 dependencies = [
@@ -2762,6 +2784,7 @@ name = "gkrust-uniffi-components"
 version = "0.1.0"
 dependencies = [
  "ads-client",
+ "autofill",
  "breach-alerts",
  "context_id",
  "error-support",
