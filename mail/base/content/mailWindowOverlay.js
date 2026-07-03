@@ -1110,60 +1110,6 @@ function MsgNewMessage(event) {
   }
 }
 
-/** Open subscribe window. */
-function MsgSubscribe(folder) {
-  var preselectedFolder = folder || GetFirstSelectedMsgFolder();
-
-  if (FeedUtils.isFeedFolder(preselectedFolder)) {
-    // Open feed subscription dialog.
-    openSubscriptionsDialog(preselectedFolder);
-  } else {
-    // Open IMAP/NNTP subscription dialog.
-    Subscribe(preselectedFolder);
-  }
-}
-
-/**
- * Show a confirmation dialog - check if the user really want to unsubscribe
- * from the given newsgroup/s.
- *
- * @param {nsIMsgFolder[]} folders - Newsgroup folders to unsubscribe from.
- * @returns {boolean} true if the user said it's ok to unsubscribe
- */
-function ConfirmUnsubscribe(folders) {
-  var bundle = document.getElementById("bundle_messenger");
-  var titleMsg = bundle.getString("confirmUnsubscribeTitle");
-  var dialogMsg =
-    folders.length == 1
-      ? bundle.getFormattedString(
-          "confirmUnsubscribeText",
-          [folders[0].localizedName],
-          1
-        )
-      : bundle.getString("confirmUnsubscribeManyText");
-
-  return Services.prompt.confirm(window, titleMsg, dialogMsg);
-}
-
-/**
- * Unsubscribe from selected or passed in newsgroup/s.
- *
- * @param {nsIMsgFolder[]} folders - The folders to unsubscribe.
- */
-function MsgUnsubscribe(folders) {
-  if (!ConfirmUnsubscribe(folders)) {
-    return;
-  }
-
-  for (let i = 0; i < folders.length; i++) {
-    const subscribableServer = folders[i].server.QueryInterface(
-      Ci.nsISubscribableServer
-    );
-    subscribableServer.unsubscribe(folders[i].name);
-    subscribableServer.commitSubscribeChanges();
-  }
-}
-
 function MsgOpenNewWindowForFolder(folderURI, msgKeyToSelect) {
   window.openDialog(
     "chrome://messenger/content/messenger.xhtml",

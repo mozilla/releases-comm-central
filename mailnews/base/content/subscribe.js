@@ -232,7 +232,7 @@ function subscribeOK() {
   }
 
   if (top.okCallback) {
-    top.okCallback({ [gServerURI]: changes });
+    top.okCallback(gServerURI, changes);
   }
   Stop();
   if (gSubscribableServer) {

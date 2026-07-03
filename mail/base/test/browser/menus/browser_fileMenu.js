@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const { FeedUtils } = ChromeUtils.importESModule(
+  "resource:///modules/FeedUtils.sys.mjs"
+);
 const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
@@ -45,19 +48,19 @@ const fileMenuData = {
   menu_saveAsFile: { disabled: ["mail3PaneTab", "contentTab"] },
   menu_saveAsTemplate: { disabled: ["mail3PaneTab", "contentTab"] },
   menu_getAllNewMsg: {},
-  menu_getnewmsgs_all_accounts: { disabled: true },
-  menu_getnewmsgs_current_account: { disabled: true },
+  menu_getnewmsgs_all_accounts: {},
+  menu_getnewmsgs_current_account: {},
   menu_getnextnmsg: { hidden: true },
   menu_sendunsentmsgs: { disabled: true },
-  menu_subscribe: { disabled: true },
+  menu_subscribe: {
+    disabled: ["mailMessageTab", "mailMessageWindow", "contentTab"],
+  },
   menu_deleteFolder: { disabled: true, hidden: ["mailMessageWindow"] },
   menu_renameFolder: { disabled: true, hidden: ["mailMessageWindow"] },
-  menu_compactFolder: {
-    disabled: ["mailMessageTab", "contentTab"],
-    hidden: ["mailMessageWindow", "mail3PaneTab"],
-  },
+  menu_compactFolder: { hidden: true },
   menu_compactFolderAll: {
-    hidden: ["mailMessageWindow", "mailMessageTab", "contentTab"],
+    disabled: ["mailMessageTab", "contentTab"],
+    hidden: ["mailMessageWindow"],
   },
   menu_emptyTrash: {
     disabled: ["mailMessageTab", "contentTab"],
@@ -95,6 +98,7 @@ const helper = new MenuTestHelper("menu_File", fileMenuData);
 
 const tabmail = document.getElementById("tabmail");
 let inboxFolder, plainFolder, rootFolder, testMessages, trashFolder;
+let imapRootFolder, nntpRootFolder, rssRootFolder;
 
 add_setup(async function () {
   document.getElementById("toolbar-menubar").removeAttribute("autohide");
@@ -123,6 +127,25 @@ add_setup(async function () {
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   trashFolder = rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
 
+  const imapAccount = MailServices.accounts.createAccount();
+  imapAccount.incomingServer = MailServices.accounts.createIncomingServer(
+    `${imapAccount.key}user`,
+    "localhost",
+    "imap"
+  );
+  imapRootFolder = imapAccount.incomingServer.rootFolder;
+
+  const nntpAccount = MailServices.accounts.createAccount();
+  nntpAccount.incomingServer = MailServices.accounts.createIncomingServer(
+    `${nntpAccount.key}user`,
+    "localhost",
+    "nntp"
+  );
+  nntpRootFolder = nntpAccount.incomingServer.rootFolder;
+
+  const rssAccount = FeedUtils.createRssAccount("Test RSS Account");
+  rssRootFolder = rssAccount.incomingServer.rootFolder;
+
   window.OpenMessageInNewTab(testMessages[0], { background: true });
   await BrowserTestUtils.waitForEvent(
     tabmail.tabInfo[1].chromeBrowser,
@@ -137,6 +160,9 @@ add_setup(async function () {
   registerCleanupFunction(() => {
     tabmail.closeOtherTabs(0);
     MailServices.accounts.removeAccount(account, false);
+    MailServices.accounts.removeAccount(imapAccount);
+    MailServices.accounts.removeAccount(nntpAccount);
+    MailServices.accounts.removeAccount(rssAccount);
   });
 });
 
@@ -146,25 +172,61 @@ add_task(async function test3PaneTab() {
 
   tabmail.currentAbout3Pane.displayFolder(inboxFolder);
   await helper.testItems({
+    menu_subscribe: {},
     menu_deleteFolder: { disabled: true },
     menu_renameFolder: { disabled: true },
-    menu_compactFolder: { disabled: false },
+    menu_compactFolder: {},
+    menu_compactFolderAll: { hidden: true },
     menu_emptyTrash: {},
   });
 
   tabmail.currentAbout3Pane.displayFolder(plainFolder);
   await helper.testItems({
-    menu_deleteFolder: { disabled: false },
-    menu_renameFolder: { disabled: false },
-    menu_compactFolder: { disabled: false },
+    menu_subscribe: {},
+    menu_deleteFolder: {},
+    menu_renameFolder: {},
+    menu_compactFolder: {},
+    menu_compactFolderAll: { hidden: true },
     menu_emptyTrash: {},
   });
 
   tabmail.currentAbout3Pane.displayFolder(trashFolder);
   await helper.testItems({
+    menu_subscribe: {},
     menu_deleteFolder: { disabled: true },
     menu_renameFolder: { disabled: true },
-    menu_compactFolder: { disabled: false },
+    menu_compactFolder: {},
+    menu_compactFolderAll: { hidden: true },
+    menu_emptyTrash: {},
+  });
+
+  tabmail.currentAbout3Pane.displayFolder(imapRootFolder);
+  await helper.testItems({
+    menu_subscribe: {},
+    menu_deleteFolder: { disabled: true },
+    menu_renameFolder: { disabled: true },
+    menu_compactFolder: { hidden: true },
+    menu_compactFolderAll: {},
+    menu_emptyTrash: {},
+  });
+
+  tabmail.currentAbout3Pane.displayFolder(nntpRootFolder);
+  await helper.testItems({
+    menu_subscribe: {},
+    menu_deleteFolder: { disabled: true },
+    menu_renameFolder: { disabled: true },
+    menu_compactFolder: { hidden: true },
+    menu_compactFolderAll: { disabled: true },
+    menu_emptyTrash: { disabled: true },
+  });
+
+  tabmail.currentAbout3Pane.displayFolder(rssRootFolder);
+  await helper.testItems({
+    menu_subscribe: {},
+    menu_deleteFolder: { disabled: true },
+    menu_renameFolder: { disabled: true },
+    menu_compactFolder: { hidden: true },
+    menu_compactFolderAll: {},
     menu_emptyTrash: {},
   });
 });
@@ -199,4 +261,69 @@ add_task(async function testMessageWindow() {
   await windowTestHelper.testAllItems("mailMessageWindow");
 
   await BrowserTestUtils.closeWindow(messageWindow);
+});
+
+add_task(async function testSubscribe() {
+  tabmail.switchToTab(0);
+
+  // IMAP
+
+  tabmail.currentAbout3Pane.displayFolder(imapRootFolder);
+  let subscribePromise = BrowserTestUtils.promiseAlertDialogOpen(
+    undefined,
+    "chrome://messenger/content/subscribe.xhtml"
+  );
+
+  helper.activateItem("menu_subscribe");
+  let subscribeWindow = await subscribePromise;
+  await SimpleTest.promiseFocus(subscribeWindow);
+
+  let serverPicker = subscribeWindow.document.getElementById("serverMenu");
+  Assert.equal(
+    serverPicker.value,
+    imapRootFolder.URI,
+    "server should be selected in the server picker"
+  );
+
+  await BrowserTestUtils.closeWindow(subscribeWindow);
+  await SimpleTest.promiseFocus();
+  await promiseServerIdle(imapRootFolder.server);
+
+  // NNTP
+
+  tabmail.currentAbout3Pane.displayFolder(nntpRootFolder);
+  subscribePromise = BrowserTestUtils.promiseAlertDialogOpen(
+    undefined,
+    "chrome://messenger/content/subscribe.xhtml"
+  );
+
+  helper.activateItem("menu_subscribe");
+  subscribeWindow = await subscribePromise;
+  await SimpleTest.promiseFocus(subscribeWindow);
+
+  serverPicker = subscribeWindow.document.getElementById("serverMenu");
+  Assert.equal(
+    serverPicker.value,
+    nntpRootFolder.URI,
+    "server should be selected in the server picker"
+  );
+
+  await BrowserTestUtils.closeWindow(subscribeWindow);
+  await SimpleTest.promiseFocus();
+  await promiseServerIdle(nntpRootFolder.server);
+
+  // RSS
+
+  tabmail.currentAbout3Pane.displayFolder(rssRootFolder);
+  subscribePromise = BrowserTestUtils.promiseAlertDialogOpen(
+    undefined,
+    "chrome://messenger-newsblog/content/feed-subscriptions.xhtml"
+  );
+
+  helper.activateItem("menu_subscribe");
+  subscribeWindow = await subscribePromise;
+  await SimpleTest.promiseFocus(subscribeWindow);
+
+  await BrowserTestUtils.closeWindow(subscribeWindow);
+  await SimpleTest.promiseFocus();
 });

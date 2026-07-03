@@ -32,7 +32,6 @@ const folderPaneContextData = {
   "folderPaneContext-remove": [
     "plain",
     ...virtualFolders,
-    "nntpGroup",
     "rssFeed",
     "multiselect-plain",
   ],

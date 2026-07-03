@@ -12,6 +12,14 @@ var { MailUtils } = ChromeUtils.importESModule(
   "resource:///modules/MailUtils.sys.mjs"
 );
 
+ChromeUtils.defineESModuleGetters(
+  this,
+  {
+    SubscribeCommands: "chrome://messenger/content/SubscribeCommands.mjs",
+  },
+  { global: "current" }
+);
+
 ChromeUtils.defineESModuleGetters(this, {
   UIDensity: "resource:///modules/UIDensity.sys.mjs",
   UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
@@ -221,13 +229,7 @@ function subscribe() {
   if (!gSelectedServer) {
     return;
   }
-  if (gSelectedServer.type == "rss") {
-    window.browsingContext.topChromeWindow.openSubscriptionsDialog(
-      gSelectedServer.rootFolder
-    );
-  } else {
-    window.browsingContext.topChromeWindow.MsgSubscribe(gSelectedFolder);
-  }
+  SubscribeCommands.MsgSubscribe(gSelectedFolder);
 }
 
 /**

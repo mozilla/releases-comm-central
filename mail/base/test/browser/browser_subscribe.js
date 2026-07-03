@@ -440,6 +440,7 @@ add_task(async function testNNTPSubscribe() {
   Assert.ok(!folderPane.getRowForFolder(`${nntpRootFolder.URI}/subscribe.foo`));
 
   // Open the subscribe dialog a third time to test saving while filtered.
+
   dialogPromise = BrowserTestUtils.promiseAlertDialog(
     undefined,
     "chrome://messenger/content/subscribe.xhtml",
@@ -492,6 +493,7 @@ add_task(async function testNNTPSubscribe() {
   await dialogPromise;
 
   // Check our subscriptions changed and subscribe.bar is now visible.
+
   await TestUtils.waitForCondition(
     () => nntpRootRow.querySelectorAll("li").length == 3,
     "waiting for folder tree to update"
@@ -503,6 +505,24 @@ add_task(async function testNNTPSubscribe() {
     folderPane.getRowForFolder(`${nntpRootFolder.URI}/subscribe.baz.subbaz`)
   );
   Assert.ok(!folderPane.getRowForFolder(`${nntpRootFolder.URI}/subscribe.foo`));
+
+  // Unsubscribe using the context menu item.
+
+  const confirmPromise = BrowserTestUtils.promiseAlertDialog("accept");
+  await rightClickAndActivate(
+    nntpRootFolder.getChildNamed("subscribe.bar"),
+    "folderPaneContext-newsUnsubscribe"
+  );
+  await confirmPromise;
+
+  // Check our subscriptions changed and subscribe.bar no longer exists.
+
+  await TestUtils.waitForCondition(
+    () => nntpRootRow.querySelectorAll("li").length == 2,
+    "waiting for folder tree to update"
+  );
+
+  Assert.ok(!folderPane.getRowForFolder(`${nntpRootFolder.URI}/subscribe.bar`));
 });
 
 /**

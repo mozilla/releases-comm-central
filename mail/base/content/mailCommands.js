@@ -452,48 +452,6 @@ async function ComposeMessage(
   }
 }
 
-function Subscribe(preselectedMsgFolder) {
-  window.openDialog(
-    "chrome://messenger/content/subscribe.xhtml",
-    "subscribe",
-    "chrome,modal,titlebar,resizable=yes",
-    {
-      folder: preselectedMsgFolder,
-      okCallback: SubscribeOKCallback,
-    }
-  );
-}
-
-function SubscribeOKCallback(changeTable) {
-  for (var serverURI in changeTable) {
-    var folder = MailUtils.getExistingFolder(serverURI);
-    var server = folder.server;
-    var subscribableServer = server.QueryInterface(Ci.nsISubscribableServer);
-
-    for (var name in changeTable[serverURI]) {
-      if (changeTable[serverURI][name]) {
-        try {
-          subscribableServer.subscribe(name);
-        } catch (ex) {
-          dump("failed to subscribe to " + name + ": " + ex + "\n");
-        }
-      } else if (!changeTable[serverURI][name]) {
-        try {
-          subscribableServer.unsubscribe(name);
-        } catch (ex) {
-          dump("failed to unsubscribe to " + name + ": " + ex + "\n");
-        }
-      }
-    }
-
-    try {
-      subscribableServer.commitSubscribeChanges();
-    } catch (ex) {
-      dump("failed to commit the changes: " + ex + "\n");
-    }
-  }
-}
-
 /**
  * Save as file.
  *

@@ -45,6 +45,7 @@ ChromeUtils.defineESModuleGetters(
   {
     FolderReorderListener:
       "chrome://messenger/content/FolderReorderListener.mjs",
+    SubscribeCommands: "chrome://messenger/content/SubscribeCommands.mjs",
     UserFeedbackListener: "chrome://messenger/content/UserFeedbackListener.mjs",
   },
   { global: "current" }
@@ -245,6 +246,7 @@ var folderPaneContextMenu = {
    * @type {object} - An object {Object.<string, string>}
    */
   _commands: {
+    "folderPaneContext-subscribe": "cmd_subscribe",
     "folderPaneContext-new": "cmd_newFolder",
     "folderPaneContext-remove": "cmd_deleteFolder",
     "folderPaneContext-rename": "cmd_renameFolder",
@@ -645,6 +647,12 @@ var folderPaneContextMenu = {
         );
     }
 
+    if (serverType == "nntp") {
+      // There's already newsUnsubscribe, we don't need this (which does the
+      // same thing) as well.
+      this._showMenuItem("folderPaneContext-remove", false);
+    }
+
     this._showMenuItem(
       "folderPaneContext-markMailFolderAllRead",
       !isServer &&
@@ -930,11 +938,8 @@ var folderPaneContextMenu = {
       case "folderPaneContext-searchMessages":
         topChromeWindow.searchAllMessages(folder);
         break;
-      case "folderPaneContext-subscribe":
-        topChromeWindow.MsgSubscribe(folder);
-        break;
       case "folderPaneContext-newsUnsubscribe":
-        topChromeWindow.MsgUnsubscribe([folder]);
+        SubscribeCommands.MsgUnsubscribe(folder);
         break;
       case "folderPaneContext-markMailFolderAllRead":
       case "folderPaneContext-markNewsgroupAllRead":
@@ -3949,7 +3954,7 @@ var folderPane = {
       folder.server.type == "nntp" &&
       !folder.getFlag(Ci.nsMsgFolderFlags.Virtual)
     ) {
-      top.MsgUnsubscribe([folder]);
+      SubscribeCommands.MsgUnsubscribe(folder);
       return;
     }
 
@@ -6960,6 +6965,11 @@ var folderListener = {
 };
 
 /* Commands Controller */
+commandController.registerCallback(
+  "cmd_subscribe",
+  (folder = gFolder) => SubscribeCommands.MsgSubscribe(folder),
+  () => SubscribeCommands.IsSubscribeEnabled(gFolder)
+);
 commandController.registerCallback(
   "cmd_newFolder",
   (folder = gFolder) => folderPane.newFolder(folder),

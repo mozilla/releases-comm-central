@@ -5,9 +5,6 @@
 /* globals ReloadMessage, getMessagePaneBrowser, openContentTab,
    gMessageNotificationBar */
 
-var { XPCOMUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/XPCOMUtils.sys.mjs"
-);
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
@@ -248,31 +245,6 @@ var FeedMessageHandler = {
     }
   },
 };
-
-function openSubscriptionsDialog(aFolder) {
-  // Check for an existing feed subscriptions window and focus it.
-  const subscriptionsWindow = Services.wm.getMostRecentWindow(
-    "Mail:News-BlogSubscriptions"
-  );
-
-  if (subscriptionsWindow) {
-    if (aFolder) {
-      subscriptionsWindow.FeedSubscriptions.selectFolder(aFolder);
-      subscriptionsWindow.FeedSubscriptions.mView.tree.ensureRowIsVisible(
-        subscriptionsWindow.FeedSubscriptions.mView.selection.currentIndex
-      );
-    }
-
-    subscriptionsWindow.focus();
-  } else {
-    window.browsingContext.topChromeWindow.openDialog(
-      "chrome://messenger-newsblog/content/feed-subscriptions.xhtml",
-      "",
-      "centerscreen,chrome,dialog=no,resizable",
-      { folder: aFolder }
-    );
-  }
-}
 
 // Special case attempts to reply/forward/edit as new RSS articles. For
 // messages stored prior to Tb15, we are here only if the message's folder's
