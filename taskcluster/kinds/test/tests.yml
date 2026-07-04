@@ -31,7 +31,9 @@ xpcshell:
         by-variant:
             msix:
                 by-test-platform:
-                    windows11-64.*: built-projects
+                    # Disabled: the xpcshell selftest hangs under MSIX. Firefox
+                    # no longer runs xpcshell on MSIX either.
+                    windows11-64.*: []
                     default: []
             default: built-projects
     tier:
