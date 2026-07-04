@@ -104,6 +104,6 @@ button {
 
 /* fixing some in-content style leakage by overriding it with the
  * themeableDialog.css version */
-tab[visuallyselected="true"] {
+tab[visuallyselected] {
   border-block-end-color: var(--lwt-tab-line-color, var(--tabline-color)) !important;
 }

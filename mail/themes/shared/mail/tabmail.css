@@ -27,7 +27,7 @@
   position: relative;
 
   & .tabmail-tab:first-child .tab-close-button,
-  &[closebuttons="activetab"] .tabmail-tab:not([selected="true"]) .tab-close-button {
+  &[closebuttons="activetab"] .tabmail-tab:not([selected]) .tab-close-button {
     display: none;
   }
 }
@@ -69,7 +69,7 @@
 
   /* The selected tab should appear above adjacent tabs and the highlight
      of #tabs-toolbar */
-  &[selected="true"] {
+  &[selected] {
     -moz-user-focus: ignore;
     position: relative;
     z-index: 2;
@@ -79,7 +79,7 @@
   :root[lwtheme] & {
     color: inherit;
 
-    &[visuallyselected="true"] {
+    &[visuallyselected] {
       color: var(--lwt-tab-text, var(--toolbar-text-color, inherit));
     }
   }
@@ -225,7 +225,7 @@ button.tab-close-button {
   margin-inline: 3px;
   border-radius: 3px;
 
-  &[selected="true"] {
+  &[selected] {
     background-color: var(--tabline-color);
   }
 }
@@ -233,7 +233,7 @@ button.tab-close-button {
 .tab-background {
   background-clip: padding-box;
 
-  &[selected="true"] {
+  &[selected] {
     background-color: var(--toolbar-background-color);
     background-repeat: repeat-x;
   }
@@ -245,7 +245,7 @@ button.tab-close-button {
  */
 
 /* Lightweight theme on tabs */
-:root[lwtheme] .tabmail-tab .tab-background[selected="true"] {
+:root[lwtheme] .tabmail-tab .tab-background[selected] {
   background-attachment: scroll, scroll, fixed;
   background-color: transparent;
   background-image:
@@ -264,11 +264,11 @@ button.tab-close-button {
 
 /* Tab hover */
 
-.tabmail-tab:hover .tab-background:not([selected="true"]) {
+.tabmail-tab:hover .tab-background:not([selected]) {
   background-color: light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.05));
 }
 
-.tab-line:not([selected="true"]) {
+.tab-line:not([selected]) {
   opacity: 0;
   transform: scaleX(0);
   transition:
@@ -276,7 +276,7 @@ button.tab-close-button {
     opacity 250ms var(--animation-easing-function);
 }
 
-.tabmail-tab:hover .tab-line:not([selected="true"]) {
+.tabmail-tab:hover .tab-line:not([selected]) {
   opacity: 1;
   transform: none;
   background-color: light-dark(rgba(0, 0, 0, 0.2), rgba(255, 255, 255, 0.15));

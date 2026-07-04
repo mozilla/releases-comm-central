@@ -103,7 +103,7 @@
   menulist[open="true"]:not([disabled]),
   select:not([size], [multiple], [disabled]):is(:hover, :active),
   tab:hover,
-  tab[visuallyselected="true"] {
+  tab[visuallyselected] {
     color: var(--button-text-active) !important;
   }
 }
@@ -459,7 +459,7 @@ tab {
     background-color: var(--tab-hover-background);
   }
 
-  &[visuallyselected="true"] {
+  &[visuallyselected] {
     background-color: var(--tab-selected-background);
     border-block-end-color: var(--lwt-tab-line-color, var(--tabline-color));
   }

@@ -24,7 +24,7 @@ tabmail > tabbox > tabpanels {
     transform: scaleX(-1);
   }
 
-  &:not(:hover) .tab-icon-image:not([selected="true"]) {
+  &:not(:hover) .tab-icon-image:not([selected]) {
     opacity: 0.9;
   }
 
@@ -33,7 +33,7 @@ tabmail > tabbox > tabpanels {
   }
 }
 
-.tab-label-container:not([selected="true"]) {
+.tab-label-container:not([selected]) {
   opacity: 0.7;
 }
 

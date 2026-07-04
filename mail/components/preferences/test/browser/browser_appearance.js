@@ -233,7 +233,7 @@ add_task(async function test_edit_accent_color() {
   );
 
   const tabLineStyle = window.getComputedStyle(
-    document.querySelector(`.tab-line[selected="true"]`)
+    document.querySelector(`.tab-line[selected]`)
   );
   const iconStyle = window.getComputedStyle(
     prefsDocument
