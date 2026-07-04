@@ -236,7 +236,7 @@ add_task(async function overrideContext_with_context() {
   });
 
   const { browser } = window.openContentTab("https://example.com/?SomeTab");
-  await awaitBrowserLoaded(browser);
+  await awaitBrowserLoaded(browser, "https://example.com/?SomeTab");
 
   const otherExtension = ExtensionTestUtils.loadExtension({
     manifest: {
