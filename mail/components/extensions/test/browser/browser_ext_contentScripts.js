@@ -133,10 +133,28 @@ function getBackgoundHelperFunctions() {
         case "createWebExtensionTab":
           return browser.tabs.create({ url: config.url });
 
-        case "updateMailTabBrowser":
-          return browser.tabs
-            .query({ active: true })
-            .then(tabs => browser.tabs.update(tabs[0].id, { url: config.url }));
+        case "updateMailTabBrowser": {
+          const [activeTab] = await browser.tabs.query({ active: true });
+          // tabs.update() resolves when the load is initiated, not finished.
+          // Loading content into the mail tab swaps its <browser>, so wait for
+          // the load to complete before returning; otherwise the test's
+          // SpecialPowers.spawn can race the swap and hit a destroyed actor.
+          // Gate on status only: the "no permissions" sub-tests run without host
+          // permission, so onUpdated never reports changeInfo.url for them. The
+          // parent's awaitBrowserLoaded() does the chrome-side url check.
+          const loaded = new Promise(resolve => {
+            const listener = (tabId, changeInfo) => {
+              if (tabId == activeTab.id && changeInfo.status == "complete") {
+                browser.tabs.onUpdated.removeListener(listener);
+                resolve();
+              }
+            };
+            browser.tabs.onUpdated.addListener(listener);
+          });
+          await browser.tabs.update(activeTab.id, { url: config.url });
+          await loaded;
+          return browser.tabs.get(activeTab.id);
+        }
 
         case "createWebExtensionPopup":
           return browser.windows
