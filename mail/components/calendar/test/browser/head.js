@@ -289,21 +289,18 @@ async function showEvent({
     1
   );
 
-  const { promise, resolve } = Promise.withResolvers();
-  eventBox.ownerDocument.addEventListener("scrollend", resolve, true);
-
   eventBox.scrollIntoView({ behavior: "instant", block, inline });
 
-  const timeout = setTimeout(resolve, 50);
-
-  await promise;
-
-  clearTimeout(timeout);
-  eventBox.ownerDocument.removeEventListener("scrollend", resolve, true);
-
-  await new Promise(eventBox.documentGlobal.requestAnimationFrame);
-
-  return eventBox;
+  // scrollIntoView can re-render/recycle the event box, and waitForEventBoxAt
+  // only waits for the box to exist, not to be laid out. Re-fetch the current
+  // box and wait until it is actually rendered before returning it, so callers
+  // measure a real rect instead of an empty {0, 0, 0, 0} one.
+  let scrolledBox;
+  await TestUtils.waitForCondition(() => {
+    scrolledBox = weekView.getEventBoxAt(window, targetDate.getDay() + 1, 1);
+    return scrolledBox && BrowserTestUtils.isVisible(scrolledBox);
+  }, "scrolled event box should exist and be laid out");
+  return scrolledBox;
 }
 
 /**
