@@ -32,10 +32,19 @@ XPCOMUtils.defineLazyServiceGetter(
   Ci.nsIEncryptedSMIMEURIsService
 );
 
+Object.defineProperty(this, "gDBView", {
+  configurable: false,
+  enumerable: true,
+  get() {
+    // eslint-disable-next-line no-restricted-properties
+    return gViewWrapper?.dbView;
+  },
+});
+
 const nsMsgViewIndex_None = 0xffffffff;
 const nsMsgKey_None = 0xffffffff;
 
-var gDBView, gFolder, gViewWrapper;
+var gFolder, gViewWrapper;
 
 var commandController = {
   _composeCommands: {
@@ -146,7 +155,7 @@ var commandController = {
       );
     },
     cmd_markAsFlagged() {
-      gViewWrapper.dbView.doCommand(
+      gDBView.doCommand(
         gDBView.hdrForFirstSelectedMessage.isFlagged
           ? Ci.nsMsgViewCommandType.unflagMessages
           : Ci.nsMsgViewCommandType.flagMessages
@@ -156,9 +165,9 @@ var commandController = {
       if (
         Services.prefs.getBoolPref("mailnews.ui.junk.manualMarkAsJunkMarksRead")
       ) {
-        gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.markMessagesRead);
+        gDBView.doCommand(Ci.nsMsgViewCommandType.markMessagesRead);
       }
-      gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.junk);
+      gDBView.doCommand(Ci.nsMsgViewCommandType.junk);
     },
     /**
      * Moves the selected messages to the destination folder.
@@ -173,7 +182,7 @@ var commandController = {
         return;
       }
       dbViewWrapperListener.threadPaneCommandUpdater.updateNextMessageAfterDelete();
-      gViewWrapper.dbView.doCommandWithFolder(
+      gDBView.doCommandWithFolder(
         Ci.nsMsgViewCommandType.moveMessages,
         destFolder
       );
@@ -230,7 +239,7 @@ var commandController = {
         ).catch(console.warn);
         await MailUtils.updateFolderAsync(destFolder).catch(console.warn);
       } else {
-        gViewWrapper.dbView.doCommandWithFolder(
+        gDBView.doCommandWithFolder(
           Ci.nsMsgViewCommandType.copyMessages,
           destFolder
         );
@@ -254,7 +263,7 @@ var commandController = {
       // this property so the operation can be undone if requested.
       archiver.msgWindow = top.msgWindow;
       // Archive the selected message(s).
-      archiver.archiveMessages(gViewWrapper.dbView.getSelectedMsgHdrs());
+      archiver.archiveMessages(gDBView.getSelectedMsgHdrs());
     },
     cmd_moveToFolderAgain() {
       if (parent.location.href == "about:3pane") {
@@ -284,7 +293,7 @@ var commandController = {
         return;
       }
       dbViewWrapperListener.threadPaneCommandUpdater.updateNextMessageAfterDelete();
-      gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.deleteMsg);
+      gDBView.doCommand(Ci.nsMsgViewCommandType.deleteMsg);
     },
     cmd_shiftDeleteMessage() {
       if (parent.location.href == "about:3pane") {
@@ -297,7 +306,7 @@ var commandController = {
         return;
       }
       dbViewWrapperListener.threadPaneCommandUpdater.updateNextMessageAfterDelete();
-      gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.deleteNoTrash);
+      gDBView.doCommand(Ci.nsMsgViewCommandType.deleteNoTrash);
     },
     cmd_createFilterFromMenu() {
       const msgHdr = gDBView.hdrForFirstSelectedMessage;
@@ -450,7 +459,7 @@ var commandController = {
         return true;
     }
 
-    if (!gViewWrapper?.dbView) {
+    if (!gDBView) {
       return false;
     }
 
@@ -600,28 +609,25 @@ var commandController = {
         return (
           numSelectedMessages >= 1 &&
           !isDummyMessage &&
-          gViewWrapper.dbView.getSelectedMsgHdrs().some(msg => !msg.isRead)
+          gDBView.getSelectedMsgHdrs().some(msg => !msg.isRead)
         );
       case "cmd_markAsUnread":
         return (
           numSelectedMessages >= 1 &&
           !isDummyMessage &&
-          gViewWrapper.dbView.getSelectedMsgHdrs().some(msg => msg.isRead)
+          gDBView.getSelectedMsgHdrs().some(msg => msg.isRead)
         );
       case "cmd_markThreadAsRead": {
         if (numSelectedMessages == 0 || isDummyMessage) {
           return false;
         }
-        const sel = gViewWrapper.dbView.selection;
+        const sel = gDBView.selection;
         for (let i = 0; i < sel.getRangeCount(); i++) {
           const start = {};
           const end = {};
           sel.getRangeAt(i, start, end);
           for (let j = start.value; j <= end.value; j++) {
-            if (
-              gViewWrapper.dbView.getThreadContainingIndex(j)
-                .numUnreadChildren > 0
-            ) {
+            if (gDBView.getThreadContainingIndex(j).numUnreadChildren > 0) {
               return true;
             }
           }
@@ -714,7 +720,7 @@ var commandController = {
           window.messageBrowser.contentWindow.ClearPendingReadTimer();
         }
       }
-      gViewWrapper.dbView.doCommand(this._viewCommands[command]);
+      gDBView.doCommand(this._viewCommands[command]);
       return;
     }
 
@@ -950,23 +956,21 @@ var commandController = {
       navigationType == Ci.nsMsgNavigationType.nextUnreadMessage &&
       currentIndex != -1 &&
       gViewWrapper.isCollapsedThreadAtIndex(currentIndex) &&
-      !(
-        gViewWrapper.dbView.getFlagsAt(currentIndex) & Ci.nsMsgMessageFlags.Read
-      )
+      !(gDBView.getFlagsAt(currentIndex) & Ci.nsMsgMessageFlags.Read)
     ) {
       expandCurrentThread = true;
       resultIndex.value = currentIndex;
-      resultKey.value = gViewWrapper.dbView.getKeyAt(currentIndex);
+      resultKey.value = gDBView.getKeyAt(currentIndex);
     } else {
-      const countBefore = gViewWrapper.dbView.rowCount;
-      gViewWrapper.dbView.viewNavigate(
+      const countBefore = gDBView.rowCount;
+      gDBView.viewNavigate(
         navigationType,
         resultKey,
         resultIndex,
         threadIndex,
         true
       );
-      addedRowsByViewNavigate = gViewWrapper.dbView.rowCount - countBefore;
+      addedRowsByViewNavigate = gDBView.rowCount - countBefore;
       if (resultIndex.value == nsMsgViewIndex_None) {
         CrossFolderNavigation(navigationType, this._navigate);
         return;
@@ -1021,11 +1025,8 @@ var commandController = {
         return;
       }
 
-      gViewWrapper.dbView.selection.select(resultIndex.value);
-      window.displayMessage(
-        gViewWrapper.dbView.URIForFirstSelectedMessage,
-        gViewWrapper
-      );
+      gDBView.selection.select(resultIndex.value);
+      window.displayMessage(gDBView.URIForFirstSelectedMessage, gViewWrapper);
     }
   },
 };
@@ -1121,9 +1122,9 @@ var dbViewWrapperListener = {
     }
 
     for (const col of ThreadPaneColumns.getCustomColumns()) {
-      gViewWrapper.dbView.addColumnHandler(col.id, col.handler);
+      gDBView.addColumnHandler(col.id, col.handler);
     }
-    window.threadPane.setTreeView(gViewWrapper.dbView);
+    window.threadPane.setTreeView(gDBView);
     window.threadPane.restoreSortIndicator();
     window.threadPane.restoreThreadState(gViewWrapper.isSingleFolder);
     window.threadPane.isFirstScroll = true;
@@ -1205,9 +1206,7 @@ var dbViewWrapperListener = {
     // To be consistent with the behavior in saved searches, update the message
     // count in synthetic views when a quick filter term is entered or cleared.
     if (gViewWrapper?.isSynthetic) {
-      window.threadPaneHeader.updateMessageCount(
-        gViewWrapper.dbView.numMsgsInView
-      );
+      window.threadPaneHeader.updateMessageCount(gDBView.numMsgsInView);
     }
     window.quickFilterBar?.onMessagesChanged();
   },

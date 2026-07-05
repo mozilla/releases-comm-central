@@ -465,6 +465,19 @@ export default [
       "no-param-reassign": ["error", { props: false }],
     },
   },
+  {
+    name: "no-gviewwrapper-dbview",
+    rules: {
+      "no-restricted-properties": [
+        "error",
+        {
+          object: "gViewWrapper",
+          property: "dbView",
+          message: "Please use gDBView instead.",
+        },
+      ],
+    },
+  },
   /**
    * The items below should always be the last items in this order:
    *

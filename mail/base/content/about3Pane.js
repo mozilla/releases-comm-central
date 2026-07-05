@@ -2852,7 +2852,7 @@ var folderPane = {
       }
 
       gViewWrapper?.close();
-      gFolder = gDBView = gViewWrapper = threadTree.view = null;
+      gFolder = gViewWrapper = threadTree.view = null;
       threadPaneHeader.onFolderSelected();
       this._updateStatusQuota();
       window.dispatchEvent(
@@ -2878,7 +2878,7 @@ var folderPane = {
 
     if (gFolder.isServer) {
       document.title = gFolder.server.prettyName;
-      gViewWrapper = gDBView = threadTree.view = null;
+      gViewWrapper = threadTree.view = null;
 
       MailE10SUtils.loadURI(
         accountCentralBrowser,
@@ -5689,7 +5689,7 @@ var threadPane = {
    * @param {?nsIMsgDBView} view
    */
   setTreeView(view) {
-    threadTree.view = gDBView = view;
+    threadTree.view = view;
     // Clear the batch flag. Don't call `endUpdateBatch` as that may change in
     // future leading to unintended consequences.
     this._jsTree._inBatch = false;
@@ -5938,7 +5938,7 @@ var threadPane = {
       !gViewWrapper._threadExpandAll
     ) {
       window.threadPane.saveSelection();
-      gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.collapseAll);
+      gDBView.doCommand(Ci.nsMsgViewCommandType.collapseAll);
       window.threadPane.restoreSelection();
     }
   },
@@ -5960,15 +5960,15 @@ var threadPane = {
     if (setState) {
       if (
         gViewWrapper._threadExpandAll &&
-        !(gViewWrapper.dbView.viewFlags & Ci.nsMsgViewFlagsType.kExpandAll)
+        !(gDBView.viewFlags & Ci.nsMsgViewFlagsType.kExpandAll)
       ) {
-        gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.expandAll);
+        gDBView.doCommand(Ci.nsMsgViewCommandType.expandAll);
       }
       if (
         !gViewWrapper._threadExpandAll &&
-        gViewWrapper.dbView.viewFlags & Ci.nsMsgViewFlagsType.kExpandAll
+        gDBView.viewFlags & Ci.nsMsgViewFlagsType.kExpandAll
       ) {
-        gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.collapseAll);
+        gDBView.doCommand(Ci.nsMsgViewCommandType.collapseAll);
       }
     }
 
@@ -5979,7 +5979,7 @@ var threadPane = {
    * Restore the chevron icon indicating the current sort order.
    */
   restoreSortIndicator() {
-    if (!gViewWrapper?.dbView) {
+    if (!gDBView) {
       return;
     }
     this.updateSortIndicator(gViewWrapper.primarySortColumnId);
@@ -6149,7 +6149,7 @@ var threadPane = {
       this.applyPersistedColumnsState(JSON.parse(columnStates));
     }
 
-    gViewWrapper?.dbView.addColumnHandler(column.id, column.handler);
+    gDBView?.addColumnHandler(column.id, column.handler);
     if (update && this.rowTemplate) {
       // If update is false, we're being called by updateColumns.
       // If rowTemplate is falsy, the message list has never loaded and
@@ -6174,7 +6174,7 @@ var threadPane = {
 
     this.columns = this.columns.filter(column => column.id != columnID);
     this.updateColumns();
-    gViewWrapper?.dbView.removeColumnHandler(columnID);
+    gDBView?.removeColumnHandler(columnID);
     threadTree.reset();
   },
 
@@ -6469,9 +6469,7 @@ var threadPane = {
    *   folders of the chosen folder.
    */
   _applyView(destFolder, useChildren) {
-    const viewFlags = gViewWrapper.dbView.viewFlags;
-    const sortType = gViewWrapper.dbView.sortType;
-    const sortOrder = gViewWrapper.dbView.sortOrder;
+    const { viewFlags, sortType, sortOrder } = gDBView;
 
     /**
      * Update the view state flags of the folder database and forget the
@@ -6701,7 +6699,6 @@ function restoreState({
 
     gViewWrapper = new DBViewWrapper(dbViewWrapperListener);
     gViewWrapper.openSynthetic(syntheticView);
-    gDBView = gViewWrapper.dbView;
 
     if ("selectedMessage" in syntheticView) {
       threadTree.selectedIndex = gDBView.findIndexOfMsgHdr(
@@ -7092,37 +7089,31 @@ commandController.registerCallback(
     threadTree.selectAll();
     threadTree.table.body.focus();
   },
-  () => !!gViewWrapper?.dbView
+  () => !!gDBView
 );
 commandController.registerCallback(
   "cmd_selectThread",
-  () => gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.selectThread),
-  () => gViewWrapper?.dbView && !gViewWrapper.showGroupedBySort
+  () => gDBView.doCommand(Ci.nsMsgViewCommandType.selectThread),
+  () => gDBView && !gViewWrapper.showGroupedBySort
 );
 commandController.registerCallback(
   "cmd_selectFlagged",
-  () => gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.selectFlagged),
-  () => !!gViewWrapper?.dbView
+  () => gDBView.doCommand(Ci.nsMsgViewCommandType.selectFlagged),
+  () => !!gDBView
 );
 commandController.registerCallback(
   "cmd_downloadFlagged",
-  () =>
-    gViewWrapper.dbView.doCommand(
-      Ci.nsMsgViewCommandType.downloadFlaggedForOffline
-    ),
+  () => gDBView.doCommand(Ci.nsMsgViewCommandType.downloadFlaggedForOffline),
   () => gFolder && !gFolder.isServer && MailOfflineMgr.isOnline()
 );
 commandController.registerCallback(
   "cmd_downloadSelected",
-  () =>
-    gViewWrapper.dbView.doCommand(
-      Ci.nsMsgViewCommandType.downloadSelectedForOffline
-    ),
+  () => gDBView.doCommand(Ci.nsMsgViewCommandType.downloadSelectedForOffline),
   () =>
     gFolder &&
     !gFolder.isServer &&
     MailOfflineMgr.isOnline() &&
-    gViewWrapper?.dbView?.numSelected > 0
+    gDBView?.numSelected > 0
 );
 
 var sortController = {
@@ -7213,7 +7204,7 @@ var sortController = {
     // due to a virtual folder being either 'real' or synthetic, so make
     // sure it's done here.
     if (gViewWrapper.isVirtual) {
-      gViewWrapper.dbView.viewFlags = gViewWrapper._viewFlags;
+      gDBView.viewFlags = gViewWrapper._viewFlags;
     }
 
     return true;
@@ -7235,7 +7226,7 @@ var sortController = {
           gViewWrapper.showGroupedBySort = false;
         } else {
           // Must ensure rows are collapsed and kExpandAll is unset.
-          gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.collapseAll);
+          gDBView.doCommand(Ci.nsMsgViewCommandType.collapseAll);
         }
       }
     }
@@ -7289,7 +7280,7 @@ var sortController = {
     // due to a virtual folder being either 'real' or synthetic, so make
     // sure it's done here.
     if (gViewWrapper.isVirtual) {
-      gViewWrapper.dbView.viewFlags = gViewWrapper._viewFlags;
+      gDBView.viewFlags = gViewWrapper._viewFlags;
     }
     threadPane.restoreThreadState(!gViewWrapper.isSingleFolder);
   },
@@ -7328,28 +7319,28 @@ var sortController = {
 commandController.registerCallback(
   "cmd_sort",
   event => sortController.handleCommand(event),
-  () => !!gViewWrapper?.dbView
+  () => !!gDBView
 );
 
 commandController.registerCallback(
   "cmd_expandAllThreads",
   () => {
     threadPane.saveSelection();
-    gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.expandAll);
+    gDBView.doCommand(Ci.nsMsgViewCommandType.expandAll);
     gViewWrapper._threadExpandAll = true;
     threadPane.restoreSelection();
   },
-  () => !!gViewWrapper?.dbView
+  () => !!gDBView
 );
 commandController.registerCallback(
   "cmd_collapseAllThreads",
   () => {
     threadPane.saveSelection();
-    gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.collapseAll);
+    gDBView.doCommand(Ci.nsMsgViewCommandType.collapseAll);
     gViewWrapper._threadExpandAll = false;
     threadPane.restoreSelection({ expand: false });
   },
-  () => !!gViewWrapper?.dbView
+  () => !!gDBView
 );
 
 function SwitchView(command) {
@@ -7429,7 +7420,7 @@ commandController.registerCallback(
       PrintUtils.startPrintWindow(webBrowser.browsingContext);
       return;
     }
-    const uris = gViewWrapper.dbView.getURIsForSelection();
+    const uris = gDBView.getURIsForSelection();
     if (uris.length == 1) {
       if (!messagePane.isMessageBrowserVisible()) {
         // Load the only message in a hidden browser, then use the print preview UI.
@@ -7495,12 +7486,12 @@ commandController.registerCallback(
 commandController.registerCallback(
   "cmd_runJunkControls",
   () => filterFolderForJunk(gFolder),
-  () => gViewWrapper?.dbView?.rowCount > 0
+  () => gDBView?.rowCount > 0
 );
 commandController.registerCallback(
   "cmd_deleteJunk",
   () => deleteJunkInFolder(gFolder),
-  () => gViewWrapper?.dbView?.rowCount > 0 && gFolder?.canDeleteMessages
+  () => gDBView?.rowCount > 0 && gFolder?.canDeleteMessages
 );
 
 commandController.registerCallback(

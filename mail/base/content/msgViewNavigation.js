@@ -199,7 +199,6 @@ function CrossFolderNavigation(type, navigateFunction) {
     gViewWrapper = new DBViewWrapper(dbViewWrapperListener);
     gViewWrapper._viewFlags = Ci.nsMsgViewFlagsType.kThreadedDisplay;
     gViewWrapper.open(folder);
-    gDBView = gViewWrapper.dbView;
     const selection = (gDBView.selection = new TreeSelection());
     selection.view = gDBView;
     // We're now in a bit of a weird state until `displayMessage` is called,

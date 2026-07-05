@@ -386,7 +386,7 @@ var mailContextMenu = {
       showItem("navContext-markAsJunk", true);
       showItem("navContext-markAsNotJunk", false);
     }
-    const areIMAPDeleted = gViewWrapper.dbView
+    const areIMAPDeleted = gDBView
       .getSelectedMsgHdrs()
       .every(msg => msg.flags & Ci.nsMsgMessageFlags.IMAPDeleted);
 

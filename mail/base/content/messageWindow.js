@@ -676,9 +676,9 @@ function navigateToUri(target) {
   ).messageURIToMsgHdr(item.messageURI);
   const index = currentWindow.gDBView.findIndexOfMsgHdr(msgHdr, true);
   if (index != nsMsgViewIndex_None) {
-    currentWindow.gViewWrapper.dbView.selection.select(index);
+    currentWindow.gDBView.selection.select(index);
     currentWindow.displayMessage(
-      currentWindow.gViewWrapper.dbView.URIForFirstSelectedMessage,
+      currentWindow.gDBView.URIForFirstSelectedMessage,
       currentWindow.gViewWrapper
     );
   }

@@ -239,7 +239,6 @@ function displayMessage(uri, viewWrapper) {
     gViewWrapper?.close(parent != top);
     gViewWrapper = null;
   }
-  gDBView = null;
 
   gMessageURI = uri;
   ClearCurrentHeaders();
@@ -280,7 +279,6 @@ function displayMessage(uri, viewWrapper) {
       gViewWrapper.openSearchView();
     }
   }
-  gDBView = gViewWrapper.dbView;
   const selection = (gDBView.selection = new TreeSelection());
   selection.view = gDBView;
   const index = gDBView.findIndexOfMsgHdr(gMessage, true);
@@ -298,7 +296,7 @@ function displayMessage(uri, viewWrapper) {
     invalidate() {},
     invalidateRange() {},
     rowCountChanged(idx, count) {
-      if (!gDBView.selection) {
+      if (!gDBView?.selection) {
         return;
       }
       const wasSuppressed = gDBView.selection.selectEventsSuppressed;
