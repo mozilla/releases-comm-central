@@ -4778,37 +4778,7 @@ var threadPaneHeader = {
    * @param {Event} event - The popupshowing DOMEvent.
    */
   updateThreadPaneSortMenu(event) {
-    if (event.target.id != "menu_threadPaneSortPopup") {
-      return;
-    }
-
-    // Update menuitem to reflect sort key.
-    for (const menuitem of event.target.querySelectorAll(`[name="sortby"]`)) {
-      const sortKey = menuitem.getAttribute("value");
-      menuitem.toggleAttribute(
-        "checked",
-        gViewWrapper.primarySortColumnId == sortKey
-      );
-    }
-
-    // Update sort direction menu items.
-    event.target
-      .querySelector(`[value="ascending"]`)
-      .toggleAttribute("checked", gViewWrapper.isSortedAscending);
-    event.target
-      .querySelector(`[value="descending"]`)
-      .toggleAttribute("checked", !gViewWrapper.isSortedAscending);
-
-    // Update the threaded and groupedBy menu items.
-    event.target
-      .querySelector(`[value="threaded"]`)
-      .toggleAttribute("checked", gViewWrapper.showThreaded);
-    event.target
-      .querySelector(`[value="unthreaded"]`)
-      .toggleAttribute("checked", gViewWrapper.showUnthreaded);
-    event.target
-      .querySelector(`[value="group"]`)
-      .toggleAttribute("checked", gViewWrapper.showGroupedBySort);
+    top.goUpdateThreadPaneSortMenu(gViewWrapper, event.target);
   },
 
   /**
@@ -7172,13 +7142,13 @@ var sortController = {
       case "unthreaded":
         this.sortUnthreaded();
         break;
-      case "group":
+      case "groupedBySort":
         this.groupBySort();
         break;
       default:
         {
           const column = threadPane.columns.find(
-            c => c.id == event.target.value
+            c => c.sortKey == event.target.value
           );
           if (column && this.sortThreadPane(column.id)) {
             threadPane.restoreSortIndicator();

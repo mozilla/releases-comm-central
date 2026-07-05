@@ -249,11 +249,7 @@ async function subtestMenu(menuButton, menuPopup, sortMenu, sortMenuPopup) {
       showUnthreaded,
       showGroupedBySort,
     } = about3Pane.gViewWrapper;
-    Assert.equal(
-      primarySortType,
-      Ci.nsMsgViewSortType[`by${type[0].toUpperCase()}${type.substring(1)}`],
-      "sort type"
-    );
+    Assert.equal(primarySortType, Ci.nsMsgViewSortType[type], "sort type");
     Assert.equal(primarySortOrder, Ci.nsMsgViewSortOrder[order], "sort order");
     Assert.equal(showThreaded, grouping == "threaded", "grouping is threaded");
     Assert.equal(
@@ -261,7 +257,11 @@ async function subtestMenu(menuButton, menuPopup, sortMenu, sortMenuPopup) {
       grouping == "unthreaded",
       "grouping is unthreaded"
     );
-    Assert.equal(showGroupedBySort, grouping == "group", "grouping is grouped");
+    Assert.equal(
+      showGroupedBySort,
+      grouping == "groupedBySort",
+      "grouping is groupedBySort"
+    );
 
     EventUtils.synthesizeMouseAtCenter(
       menuButton,
@@ -274,7 +274,7 @@ async function subtestMenu(menuButton, menuPopup, sortMenu, sortMenuPopup) {
 
     const items = sortMenuPopup.querySelectorAll(`menuitem[checked]`);
     Assert.equal(items.length, 3, "only one sort type checked");
-    Assert.equal(items[0].value, `${type}Col`, `sort type ${type} is checked`);
+    Assert.equal(items[0].value, type, `sort type ${type} is checked`);
     Assert.equal(items[1].value, order, `sort order ${order} is checked`);
     Assert.equal(items[2].value, grouping, `${grouping} is checked`);
 
@@ -284,32 +284,32 @@ async function subtestMenu(menuButton, menuPopup, sortMenu, sortMenuPopup) {
     await BrowserTestUtils.waitForPopupEvent(menuPopup, "hidden");
   }
 
-  await doMenu("sortby", "subjectCol");
-  await checkSort("subject", "ascending", "threaded");
+  await doMenu("sortby", "bySubject");
+  await checkSort("bySubject", "ascending", "threaded");
 
   await doMenu("sortdirection", "descending");
-  await checkSort("subject", "descending", "threaded");
+  await checkSort("bySubject", "descending", "threaded");
 
   await doMenu("sortdirection", "ascending");
-  await checkSort("subject", "ascending", "threaded");
+  await checkSort("bySubject", "ascending", "threaded");
 
-  await doMenu("sortby", "flaggedCol");
-  await checkSort("flagged", "ascending", "threaded");
+  await doMenu("sortby", "byFlagged");
+  await checkSort("byFlagged", "ascending", "threaded");
 
-  await doMenu("sortby", "junkStatusCol");
-  await checkSort("junkStatus", "ascending", "threaded");
+  await doMenu("sortby", "byJunkStatus");
+  await checkSort("byJunkStatus", "ascending", "threaded");
 
-  await doMenu("sortby", "dateCol");
-  await checkSort("date", "ascending", "threaded");
+  await doMenu("sortby", "byDate");
+  await checkSort("byDate", "ascending", "threaded");
 
-  await doMenu("threaded", "unthreaded");
-  await checkSort("date", "ascending", "unthreaded");
+  await doMenu("grouping", "unthreaded");
+  await checkSort("byDate", "ascending", "unthreaded");
 
-  await doMenu("group", "group");
-  await checkSort("date", "ascending", "group");
+  await doMenu("grouping", "groupedBySort");
+  await checkSort("byDate", "ascending", "groupedBySort");
 
-  await doMenu("threaded", "threaded");
-  await checkSort("date", "ascending", "threaded");
+  await doMenu("grouping", "threaded");
+  await checkSort("byDate", "ascending", "threaded");
 }
 
 /**

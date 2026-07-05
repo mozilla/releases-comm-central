@@ -475,80 +475,75 @@ function InitViewSortByMenu() {
   if (tab?.mode.name != "mail3PaneTab") {
     return;
   }
+  goUpdateThreadPaneSortMenu(
+    tab.chromeBrowser.contentWindow.gViewWrapper,
+    document.getElementById("menu_viewSortPopup")
+  );
+}
 
-  const { gViewWrapper } = tab.chromeBrowser.contentWindow;
-  if (!gViewWrapper?.dbView) {
+function goUpdateThreadPaneSortMenu(viewWrapper, menuPopup) {
+  if (!viewWrapper) {
     return;
   }
 
-  const { primarySortType, primarySortOrder, showGroupedBySort, showThreaded } =
-    gViewWrapper;
+  const {
+    primarySortType,
+    primarySortOrder,
+    showThreaded,
+    showUnthreaded,
+    showGroupedBySort,
+  } = viewWrapper;
 
-  const isSortTypeValidForGrouping = [
-    Ci.nsMsgViewSortType.byAccount,
-    Ci.nsMsgViewSortType.byAttachments,
-    Ci.nsMsgViewSortType.byAuthor,
-    Ci.nsMsgViewSortType.byCorrespondent,
-    Ci.nsMsgViewSortType.byDate,
-    Ci.nsMsgViewSortType.byFlagged,
-    Ci.nsMsgViewSortType.byLocation,
-    Ci.nsMsgViewSortType.byPriority,
-    Ci.nsMsgViewSortType.byReceived,
-    Ci.nsMsgViewSortType.byRecipient,
-    Ci.nsMsgViewSortType.byStatus,
-    Ci.nsMsgViewSortType.bySubject,
-    Ci.nsMsgViewSortType.byTags,
-    Ci.nsMsgViewSortType.byCustom,
-  ].includes(primarySortType);
-
-  const setSortItemAttrs = function (id, sortKey) {
-    const menuItem = document.getElementById(id);
+  // Update menuitem to reflect sort key.
+  for (const menuItem of menuPopup.querySelectorAll(`[name="sortby"]`)) {
     menuItem.toggleAttribute(
       "checked",
-      primarySortType == Ci.nsMsgViewSortType[sortKey]
+      primarySortType == Ci.nsMsgViewSortType[menuItem.value]
     );
-  };
+  }
 
-  setSortItemAttrs("sortByDateMenuitem", "byDate");
-  setSortItemAttrs("sortByReceivedMenuitem", "byReceived");
-  setSortItemAttrs("sortByFlagMenuitem", "byFlagged");
-  setSortItemAttrs("sortByOrderReceivedMenuitem", "byId");
-  setSortItemAttrs("sortByPriorityMenuitem", "byPriority");
-  setSortItemAttrs("sortBySizeMenuitem", "bySize");
-  setSortItemAttrs("sortByStatusMenuitem", "byStatus");
-  setSortItemAttrs("sortBySubjectMenuitem", "bySubject");
-  setSortItemAttrs("sortByUnreadMenuitem", "byUnread");
-  setSortItemAttrs("sortByTagsMenuitem", "byTags");
-  setSortItemAttrs("sortByJunkStatusMenuitem", "byJunkStatus");
-  setSortItemAttrs("sortByFromMenuitem", "byAuthor");
-  setSortItemAttrs("sortByRecipientMenuitem", "byRecipient");
-  setSortItemAttrs("sortByAttachmentsMenuitem", "byAttachments");
-  setSortItemAttrs("sortByCorrespondentMenuitem", "byCorrespondent");
-
-  document
-    .getElementById("sortAscending")
+  // Update sort direction menu items.
+  menuPopup
+    .querySelector(`[value="ascending"]`)
     .toggleAttribute(
       "checked",
       primarySortOrder == Ci.nsMsgViewSortOrder.ascending
     );
-  document
-    .getElementById("sortDescending")
+  menuPopup
+    .querySelector(`[value="descending"]`)
     .toggleAttribute(
       "checked",
       primarySortOrder == Ci.nsMsgViewSortOrder.descending
     );
 
-  document
-    .getElementById("sortThreaded")
+  // Update the threaded menu items.
+  menuPopup
+    .querySelector(`[value="threaded"]`)
     .toggleAttribute("checked", showThreaded);
-  document
-    .getElementById("sortUnthreaded")
-    .toggleAttribute("checked", !showThreaded && !showGroupedBySort);
-
-  const groupBySortOrderMenuItem = document.getElementById("groupBySort");
+  menuPopup
+    .querySelector(`[value="unthreaded"]`)
+    .toggleAttribute("checked", showUnthreaded);
+  const groupBySortOrderMenuItem = menuPopup.querySelector(
+    `[value="groupedBySort"]`
+  );
   groupBySortOrderMenuItem.toggleAttribute(
     "disabled",
-    !isSortTypeValidForGrouping
+    ![
+      Ci.nsMsgViewSortType.byAccount,
+      Ci.nsMsgViewSortType.byAttachments,
+      Ci.nsMsgViewSortType.byAuthor,
+      Ci.nsMsgViewSortType.byCorrespondent,
+      Ci.nsMsgViewSortType.byDate,
+      Ci.nsMsgViewSortType.byFlagged,
+      Ci.nsMsgViewSortType.byLocation,
+      Ci.nsMsgViewSortType.byPriority,
+      Ci.nsMsgViewSortType.byReceived,
+      Ci.nsMsgViewSortType.byRecipient,
+      Ci.nsMsgViewSortType.byStatus,
+      Ci.nsMsgViewSortType.bySubject,
+      Ci.nsMsgViewSortType.byTags,
+      Ci.nsMsgViewSortType.byCustom,
+    ].includes(primarySortType)
   );
   groupBySortOrderMenuItem.toggleAttribute("checked", showGroupedBySort);
 }
