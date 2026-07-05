@@ -111,6 +111,13 @@ class AccountHubEmail extends HTMLElement {
    */
   #emailCredentialsConfirmationSubview;
 
+  /**
+   * Exchange settings subview.
+   *
+   * @type {HTMLElement}
+   */
+  #exchangeSettingsSubview;
+
   // TODO: Clean up excess global variables and use IDs in state instead.
 
   /**
@@ -251,9 +258,10 @@ class AccountHubEmail extends HTMLElement {
     },
     exchangeSettingsSubview: {
       id: "emailExchangeSettingsSubview",
-      nextStep: "emailExchangeTypeSubview",
+      nextStep: "exchangeTypeSubview",
       previousStep: "emailConfigFoundSubview",
       forwardEnabled: false,
+      customForwardFluentID: "account-hub-email-find-settings-button",
       customActionFluentID: "",
       subview: {},
       templateId: "email-exchange-settings",
@@ -363,9 +371,13 @@ class AccountHubEmail extends HTMLElement {
     );
     this.#states.emailCredentialsConfirmationSubview.subview =
       this.#emailCredentialsConfirmationSubview;
-    this.#states.exchangeSettingsSubview.subview = this.querySelector(
+
+    this.#exchangeSettingsSubview = this.querySelector(
       "#emailExchangeSettingsSubview"
     );
+    this.#states.exchangeSettingsSubview.subview =
+      this.#exchangeSettingsSubview;
+
     this.#states.exchangeTypeSubview.subview = this.querySelector(
       "#emailExchangeTypeSubview"
     );
@@ -383,6 +395,7 @@ class AccountHubEmail extends HTMLElement {
     this.#emailConfigFoundSubview.addEventListener("edit-configuration", this);
     this.#emailConfigFoundSubview.addEventListener("config-updated", this);
     this.#emailConfigFoundSubview.addEventListener("install-addon", this);
+    this.#exchangeSettingsSubview.addEventListener("config-updated", this);
     this.#emailIncomingConfigSubview.addEventListener("advanced-config", this);
     this.#emailOutgoingConfigSubview.addEventListener("advanced-config", this);
     this.#states.emailAutodiscoverAuthenticationSubview.subview.addEventListener(
@@ -518,6 +531,7 @@ class AccountHubEmail extends HTMLElement {
     this.#emailAutoConfigSubview.hidden = true;
     this.#emailIncomingConfigSubview.hidden = true;
     this.#emailOutgoingConfigSubview.hidden = true;
+    this.#exchangeSettingsSubview.hidden = true;
     this.#emailCredentialsConfirmationSubview.hidden = true;
     this.#states.emailAutodiscoverAuthenticationSubview.subview.hidden = true;
   }
@@ -879,6 +893,9 @@ class AccountHubEmail extends HTMLElement {
         break;
       case "outgoingConfigSubview":
         break;
+      case "exchangeSettingsSubview":
+        this.#setCurrentConfigForSubview();
+        break;
       case "emailAutoconfigPasswordSubview":
       case "emailPasswordSubview":
         break;
@@ -1129,6 +1146,11 @@ class AccountHubEmail extends HTMLElement {
           await this.#fetchSyncAccounts();
         }
 
+        break;
+      case "exchangeSettingsSubview":
+        this.#currentConfig = stateData;
+        await this.#initUI(this.#states[this.#currentState].nextStep);
+        this.#setCurrentConfigForSubview();
         break;
       case "emailPasswordSubview":
         // Get password and remember from the state and apply it to the config.

@@ -80,6 +80,11 @@ add_task(function test_inputAttributes() {
     input.placeholder,
     "Input element placeholder should match custom element placeholder attribute"
   );
+  Assert.equal(
+    customElement.getAttribute("pattern"),
+    input.pattern,
+    "Input element pattern should match custom element pattern attribute"
+  );
 });
 
 add_task(function test_setGetValue() {

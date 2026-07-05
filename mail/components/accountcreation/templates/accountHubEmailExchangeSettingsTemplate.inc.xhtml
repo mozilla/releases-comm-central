@@ -3,6 +3,19 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 <html:template id="accountHubEmailExchangeSettingsTemplate" xmlns="http://www.w3.org/1999/xhtml">
-  <form id="exchangeSettingsForm" class="account-hub-form" slot="content">
+  <form id="exchangeSettingsForm" class="account-hub-form account-hub-exchange-settings-form" slot="content">
+    <div class="hub-body">
+      <div class="form-row">
+        <account-hub-input
+          id="serviceURL"
+          l10n-label-id="account-hub-exchange-service-url-label"
+          l10n-error-id="account-hub-server-error-text"
+          type="url"
+          pattern="https?://.*"
+          required="required"
+          classes="input-field"
+        ></account-hub-input>
+      </div>
+    </div>
   </form>
 </html:template>

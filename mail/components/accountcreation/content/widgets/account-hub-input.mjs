@@ -2,7 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const optionalAttributes = ["name", "placeholder", "required", "min", "max"];
+const optionalAttributes = [
+  "name",
+  "placeholder",
+  "required",
+  "min",
+  "max",
+  "pattern",
+];
 
 /**
  * Input, label and error message for account hub. You can listen to the normal
@@ -19,6 +26,7 @@ const optionalAttributes = ["name", "placeholder", "required", "min", "max"];
  * @attribute {string} name - The name of the input in the form. Not observed.
  * @attribute {string} placeholder - The placeholder to show in the input. Not observed.
  * @attribute {boolean} required - If the input is required. Not observed.
+ * @attribute {RegExp} pattern - A regular expression the form control's value should match. Not observed.
  * @attribute {number} min - Minimum value if the input is of type number. Not observed.
  * @attribute {number} max - Maximum value if the input is of type number. Not observed.
  * @attribute {string} aria-live - The politeness setting of the input. Not observed.
@@ -150,6 +158,15 @@ class AccountHubInput extends HTMLElement {
     this.#input.ariaInvalid = "true";
     this.#input.ariaDescribedByElements = [this.#error];
     this.#error.role = "alert";
+  }
+
+  /**
+   * Focuses the internal input element.
+   *
+   * @param {FocusOptions} [options] - Options for focusing the input.
+   */
+  focus(options) {
+    this.#input?.focus(options);
   }
 }
 

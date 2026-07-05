@@ -69,6 +69,8 @@ account-hub-email-continue-button = Continue
 
 account-hub-email-confirm-button = Confirm
 
+account-hub-email-find-settings-button = Find settings
+
 account-hub-result-incoming-legend = Incoming
 
 account-hub-result-outgoing-legend = Outgoing
@@ -167,6 +169,8 @@ account-hub-email-setup-header = Add your email address
 account-hub-email-setup-incoming = Incoming server settings
 
 account-hub-email-setup-outgoing = Outgoing server settings
+
+account-hub-email-exchange-settings = Exchange settings
 
 account-hub-email-connect-settings = Connect your email settings
 
@@ -396,6 +400,8 @@ address-book-ldap-creation-error = Could not create LDAP Directory.
 account-hub-email-setup-ews = Server Settings
 
 account-hub-result-exchange-url-label = Exchange endpoint URL
+
+account-hub-exchange-service-url-label = Enter the service URL
 
 account-hub-email-credentials-confirmation = Account Configuration
 

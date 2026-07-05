@@ -175,7 +175,8 @@ dialog {
   padding-block-end: 2px;
 }
 
-.account-hub-address-book-form {
+.account-hub-address-book-form,
+.account-hub-exchange-settings-form {
   justify-content: start;
 }
 
