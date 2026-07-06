@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = "undefined" != typeof window ? window : "undefined" != typeof global ? global : "undefined" != typeof globalThis ? globalThis : "undefined" != typeof self ? self : {};
-		e.SENTRY_RELEASE = { id: "c3ae0a5348376d33ae776b366d22906da4894a76" };
+		e.SENTRY_RELEASE = { id: "93ceef29b14e12563b8496ba1fbb503180f3deef" };
 		e._sentryModuleMetadata = e._sentryModuleMetadata || {}, e._sentryModuleMetadata[new e.Error().stack] = function(e) {
 			for (var n = 1; n < arguments.length; n++) {
 				var a = arguments[n];
@@ -10,11 +10,11 @@
 			}
 			return e;
 		}({}, e._sentryModuleMetadata[new e.Error().stack], {
-			"version": "2.0.1",
+			"version": "2.0.2",
 			"appHost": "management"
 		});
 		var n = new e.Error().stack;
-		n && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[n] = "b8ca0eb4-77a2-4b07-a932-acc50acc5c8e", e._sentryDebugIdIdentifier = "sentry-dbid-b8ca0eb4-77a2-4b07-a932-acc50acc5c8e");
+		n && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[n] = "fb40e5f1-a45e-4f9d-8d8b-8bc81cb92035", e._sentryDebugIdIdentifier = "sentry-dbid-fb40e5f1-a45e-4f9d-8d8b-8bc81cb92035");
 	} catch (e) {}
 })();
 var __create$2 = Object.create;
@@ -84,7 +84,7 @@ var __require = /* @__PURE__ */ ((x) => typeof require !== "undefined" ? require
 })();
 //#endregion
 //#region ../send/frontend/src/lib/logger.ts
-var version$1 = "2.0.1";
+var version$1 = "2.0.2";
 var LOG_LEVELS = {
 	debug: 0,
 	info: 1,
@@ -29362,7 +29362,7 @@ var useStatusStore = defineStore("status", () => {
 //#region ../send/frontend/src/apps/send/stores/folder-store.ts
 var useFolderStore = defineStore("folderManager", () => {
 	const { api } = useApiStore();
-	const { user } = useUserStore();
+	const { user, populateFromBackend } = useUserStore();
 	const { progress } = useStatusStore();
 	const { metrics } = useMetricsStore();
 	const { keychain } = useKeychainStore();
@@ -29482,6 +29482,14 @@ var useFolderStore = defineStore("folderManager", () => {
 	}
 	async function uploadItem(fileBlob, folderId, api) {
 		progress.error = "";
+		if (!user.id) {
+			console.warn("uploadItem: user.id missing; re-populating from backend");
+			await populateFromBackend();
+		}
+		if (!user.id) {
+			progress.error = "You are not fully signed in. Please sign in again.";
+			throw new Error("Cannot upload: user session is missing a user id (ownerId would be empty).");
+		}
 		const canUpload = await checkBlobSize(fileBlob);
 		if (await canUserUpload(fileBlob.size)) {
 			progress.error = CLIENT_MESSAGES.STORAGE_LIMIT_EXCEEDED;
@@ -32978,19 +32986,79 @@ var settings = {
 	post_logout_redirect_uri: `https://send.tb.pro/logout`,
 	response_type: "code",
 	scope: "openid profile email offline_access",
-	automaticSilentRenew: true,
+	automaticSilentRenew: false,
 	filterProtocolClaims: true,
-	loadUserInfo: true
+	loadUserInfo: false
 };
 var userManager = new UserManager(settings);
+/**
+* OIDC error codes that mean the session is genuinely over — the refresh token
+* was revoked or has expired. Any other failure (network, timeout, userinfo)
+* is transient and must NOT drop the user out of a still-valid session.
+*/
+var GENUINE_AUTH_FAILURE_CODES = [
+	"invalid_grant",
+	"login_required",
+	"session_expired"
+];
+function isGenuineAuthFailure(error) {
+	const code = error?.error;
+	return typeof code === "string" && GENUINE_AUTH_FAILURE_CODES.includes(code);
+}
 var useAuthStore = defineStore("auth", () => {
 	const { api } = useApiStore();
-	const { isExtension } = useConfigStore();
+	const { isExtension, isThunderbirdHost } = useConfigStore();
 	const isLoggedIn = /* @__PURE__ */ ref(false);
 	const currentUser = /* @__PURE__ */ ref(null);
 	watch(isLoggedIn, (newValue) => {
 		console.info("isLoggedIn changed", newValue);
 	});
+	let inFlightRefresh = null;
+	/**
+	* Notify the add-on background that the session is over so its menu reverts
+	* to logged-out. Only meaningful inside Thunderbird, where the token-bridge
+	* content script forwards window messages to background.ts — the same path
+	* UserMenu.vue uses on explicit logout.
+	*/
+	function notifyAddonSignedOut() {
+		if (!isThunderbirdHost) return;
+		try {
+			window.postMessage({ type: SIGN_OUT }, window.location.origin);
+		} catch (error) {
+			console.error("Failed to notify add-on of sign-out:", error);
+		}
+	}
+	/**
+	* Refresh the access token via the refresh_token, deduping concurrent callers.
+	*
+	* Returns the refreshed User on success. On a genuine auth failure (refresh
+	* token revoked/expired) it clears local login state, notifies the add-on,
+	* and returns null. On a transient failure (network/timeout) it leaves the
+	* session intact and returns null so a later call can retry — we do not log
+	* the user out over a blip.
+	*/
+	async function refreshAccessToken() {
+		if (inFlightRefresh) return inFlightRefresh;
+		inFlightRefresh = (async () => {
+			try {
+				const user = await userManager.signinSilent();
+				currentUser.value = user;
+				if (isExtension && user) await browser.storage.local.set({ [STORAGE_KEY_AUTH]: user });
+				return user;
+			} catch (error) {
+				if (isGenuineAuthFailure(error)) {
+					console.warn(`Silent token refresh failed — session ended (${error.error}). Signing out.`);
+					isLoggedIn.value = false;
+					currentUser.value = null;
+					notifyAddonSignedOut();
+				} else console.warn("Silent token refresh hit a transient error; keeping session:", error);
+				return null;
+			} finally {
+				inFlightRefresh = null;
+			}
+		})();
+		return inFlightRefresh;
+	}
 	async function getOIDCUser() {
 		try {
 			return await userManager.getUser();
@@ -33094,14 +33162,9 @@ var useAuthStore = defineStore("auth", () => {
 		try {
 			if (isExtension) await loadUser();
 			let user = await userManager.getUser();
-			if (user?.expired) try {
-				user = await userManager.signinSilent();
-				if (isExtension) await browser.storage.local.set({ [STORAGE_KEY_AUTH]: user });
-			} catch (refreshError) {
-				console.warn("Silent token refresh failed during checkAuthStatus:", refreshError);
-				isLoggedIn.value = false;
-				currentUser.value = null;
-				return null;
+			if (user?.expired) {
+				user = await refreshAccessToken();
+				if (!user) return null;
 			}
 			if (user && !user.expired) {
 				currentUser.value = user;
@@ -33129,11 +33192,7 @@ var useAuthStore = defineStore("auth", () => {
 		try {
 			let user = await userManager.getUser();
 			if (!user) return null;
-			if (user.expired) {
-				user = await userManager.signinSilent();
-				currentUser.value = user;
-				if (isExtension) await browser.storage.local.set({ [STORAGE_KEY_AUTH]: user });
-			}
+			if (user.expired) user = await refreshAccessToken();
 			return user?.access_token || null;
 		} catch (error) {
 			console.error("Failed to get access token:", error);
@@ -33157,19 +33216,12 @@ var useAuthStore = defineStore("auth", () => {
 		}
 	}
 	/**
-	* Silent refresh of the access token
+	* Silent refresh of the access token. Delegates to the deduped
+	* refreshAccessToken(), which owns state/notification on genuine failure and
+	* preserves the session on transient errors.
 	*/
 	async function refreshToken() {
-		try {
-			const user = await userManager.signinSilent();
-			currentUser.value = user;
-			return user.access_token;
-		} catch (error) {
-			console.error("Token refresh failed:", error);
-			isLoggedIn.value = false;
-			currentUser.value = null;
-			return null;
-		}
+		return (await refreshAccessToken())?.access_token ?? null;
 	}
 	async function loadUser() {
 		try {
