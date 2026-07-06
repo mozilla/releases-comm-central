@@ -1322,7 +1322,9 @@
     // SHORT NUMERIC DATE, such as 2002-03-04, 4/3/2002, or CE2002Y03M04D.
     // Made of digits & nonDigits.  (Nondigits may be unicode letters
     // which do not match \w, esp. in CJK locales.)
-    parseShortDateRegex = /^\D*(\d+)\D+(\d+)\D+(\d+)\D?$/;
+    // Allow trailing non-digits (e.g. an era marker such as the narrow "A" that
+    // some locales' short date format now appends: "4/6/2002 A").
+    parseShortDateRegex = /^\D*(\d+)\D+(\d+)\D+(\d+)\D*$/;
     // Make sure to use UTC date and timezone here to avoid the pattern
     // detection to fail if the probe date output would have an timezone
     // offset due to our lack of support of historic timezone definitions.
