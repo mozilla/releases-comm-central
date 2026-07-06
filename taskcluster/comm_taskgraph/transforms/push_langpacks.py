@@ -10,7 +10,7 @@ import os
 from contextlib import contextmanager
 from typing import Literal
 
-from mozilla_taskgraph.util.attributes import release_level
+from mozilla_taskgraph.util.attributes import copy_attributes_from_dependent_job, release_level
 from mozilla_version.gecko import ThunderbirdVersion
 from taskgraph.transforms.base import TransformSequence
 from taskgraph.util.dependencies import get_primary_dependency
@@ -23,7 +23,6 @@ from taskgraph.util.schema import (
 from taskgraph.util.treeherder import inherit_treeherder_from_dep
 
 from gecko_taskgraph.transforms.task import TaskDescriptionSchema
-from gecko_taskgraph.util.attributes import copy_attributes_from_dependent_job
 from mozbuild.action.langpack_manifest import get_version_maybe_buildid
 
 transforms = TransformSequence()
