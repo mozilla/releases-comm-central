@@ -577,26 +577,14 @@ export const MailNotificationManager = new (class {
     });
     args.appendElement(this);
 
-    // Pass the main window's screen geometry so the alert positions itself on
-    // the correct monitor, even on mixed-DPI setups where the OS might place
-    // the popup on a different monitor.
-    const mainWindow = Services.wm.getMostRecentWindow("mail:3pane");
-    if (mainWindow?.screen) {
-      args.appendElement({
-        wrappedJSObject: {
-          availLeft: mainWindow.screen.availLeft,
-          availTop: mainWindow.screen.availTop,
-          availWidth: mainWindow.screen.availWidth,
-          availHeight: mainWindow.screen.availHeight,
-        },
-      });
-    }
-
+    // Hint the OS to create the window at the primary monitor's origin so it
+    // inherits the correct DPI scaling from the start.  The alert queries the
+    // primary screen directly via nsIScreenManager to position itself.
     Services.ww.openWindow(
       null,
       "chrome://messenger/content/newmailalert.xhtml",
       "_blank",
-      "chrome,dialog,titlebar=no,alert=yes",
+      "chrome,dialog,titlebar=no,alert=yes,left=0,top=0",
       args
     );
     this._customizedAlertShown = true;

@@ -70,27 +70,63 @@ async function doOnAlertLoad() {
   const alertImageBox = document.getElementById("alertImageBox");
   alertImageBox.style.minHeight = alertTextBox.scrollHeight + "px";
 
-  // Use the main window's screen metrics if provided (via window.arguments[3]).
-  // This ensures the alert targets the correct monitor even on mixed-DPI setups
-  // where the OS might place the popup on a different monitor.
-  // Falls back to the alert's own screen if no target screen was provided.
-  const targetScreen = window.arguments[3]?.wrappedJSObject || {
-    availLeft: screen.availLeft,
-    availTop: screen.availTop,
-    availWidth: screen.availWidth,
-    availHeight: screen.availHeight,
-  };
+  // Query the primary monitor's available area in device pixels.
+  // Device pixels are DPI-independent, so we can safely convert to the
+  // alert's current CSS pixels in snapToCorner() regardless of which
+  // monitor the OS initially placed this window on.
+  //
+  // Falls back to the alert's own screen if the screen manager is
+  // unavailable (unlikely, but safe).
+  let targetScreen;
+  try {
+    const screenManager = Cc["@mozilla.org/gfx/screenmanager;1"].getService(
+      Ci.nsIScreenManager
+    );
+    const primaryScreen = screenManager.primaryScreen;
+    const availLeft = {};
+    const availTop = {};
+    const availWidth = {};
+    const availHeight = {};
+    primaryScreen.GetAvailRect(availLeft, availTop, availWidth, availHeight);
+    targetScreen = {
+      availLeft: availLeft.value,
+      availTop: availTop.value,
+      availWidth: availWidth.value,
+      availHeight: availHeight.value,
+    };
+  } catch (e) {
+    // Fallback: convert alert's own screen (CSS px) to device px.
+    const dpr = window.devicePixelRatio;
+    targetScreen = {
+      availLeft: screen.availLeft * dpr,
+      availTop: screen.availTop * dpr,
+      availWidth: screen.availWidth * dpr,
+      availHeight: screen.availHeight * dpr,
+    };
+  }
 
   const snapToCorner = () => {
+    // targetScreen holds the primary monitor's available area in physical
+    // device pixels (which don't depend on DPI scaling).  Divide by the
+    // window's devicePixelRatio to get coordinates in this window's CSS
+    // pixel space.
+    const dpr = window.devicePixelRatio;
     const x =
-      targetScreen.availLeft + targetScreen.availWidth - window.outerWidth - 10;
+      (targetScreen.availLeft + targetScreen.availWidth) / dpr -
+      window.outerWidth -
+      10;
     const y =
-      targetScreen.availTop +
-      targetScreen.availHeight -
+      (targetScreen.availTop + targetScreen.availHeight) / dpr -
       window.outerHeight -
       10;
     window.moveTo(x, y);
   };
+
+  // Size the window to fit its content before positioning. Without this,
+  // the window may use a default OS-determined size that doesn't match the
+  // content at the current DPI, causing text to be cut off or the window
+  // to be too large.
+  window.sizeToContent();
 
   // Pre-snap the window immediately to prevent the OS from flashing its
   // native shell in the top-left corner. We capture the initial dimensions
