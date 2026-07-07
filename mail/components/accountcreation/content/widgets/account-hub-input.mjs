@@ -15,21 +15,31 @@ const optionalAttributes = [
  * Input, label and error message for account hub. You can listen to the normal
  * input events.
  *
- * Template ID: #accountHubInputTemplate (from #accountHubInputTemplate.inc.xhtml)
+ * Template ID: #accountHubInputTemplate (from
+ * #accountHubInputTemplate.inc.xhtml)
  *
  * @tagname account-hub-input
- * @attribute {string} id - ID used to create IDs for input and error message. Not observed.
+ * @attribute {string} id - ID used to create IDs for input and error message.
+ *   Not observed.
  * @attribute {string} l10n-label-id - The fluent ID of the input label.
  * @attribute {string} l10n-error-id - The fluent ID of the error message.
- * @attribute {string} type - The type of input (text, number, etc.). Not observed.
- * @attribute {string} classes - The classes to be applied to the input element. Not observed.
+ * @attribute {string} l10n-help-text-id - The fluent ID for the help text. Can
+ *   be omitted to not show any help text. Not observed.
+ * @attribute {string} type - The type of input (text, number, etc.). Not
+ *   observed.
+ * @attribute {string} classes - The classes to be applied to the input element.
+ *   Not observed.
  * @attribute {string} name - The name of the input in the form. Not observed.
- * @attribute {string} placeholder - The placeholder to show in the input. Not observed.
+ * @attribute {string} placeholder - The placeholder to show in the input. Not
+ *   observed.
  * @attribute {boolean} required - If the input is required. Not observed.
  * @attribute {RegExp} pattern - A regular expression the form control's value should match. Not observed.
- * @attribute {number} min - Minimum value if the input is of type number. Not observed.
- * @attribute {number} max - Maximum value if the input is of type number. Not observed.
- * @attribute {string} aria-live - The politeness setting of the input. Not observed.
+ * @attribute {number} min - Minimum value if the input is of type number. Not
+ *   observed.
+ * @attribute {number} max - Maximum value if the input is of type number. Not
+ *   observed.
+ * @attribute {string} aria-live - The politeness setting of the input. Not
+ *   observed.
  */
 class AccountHubInput extends HTMLElement {
   static observedAttributes = ["l10n-label-id", "l10n-error-id"];
@@ -100,6 +110,14 @@ class AccountHubInput extends HTMLElement {
     this.#label.htmlFor = this.#input.id;
     this.#error.id = `${this.#input.id}ErrorMessage`;
 
+    const helpTextId = this.getAttribute("l10n-help-text-id");
+    if (helpTextId) {
+      const helpText = this.querySelector(".account-hub-form-small-comment");
+      helpText.hidden = false;
+      document.l10n.setAttributes(helpText, helpTextId);
+      this.#input.ariaDescribedByElements = [helpText];
+    }
+
     for (const attribute of optionalAttributes) {
       const attributeValue = this.getAttribute(attribute);
 
@@ -149,7 +167,9 @@ class AccountHubInput extends HTMLElement {
     if (!error?.length) {
       this.#input.setCustomValidity("");
       this.#input.ariaInvalid = "false";
-      this.#input.ariaDescribedByElements = [];
+      this.#input.ariaDescribedByElements = [
+        this.querySelector(".account-hub-form-small-comment:not([hidden]"),
+      ].filter(Boolean);
       this.#error.role = null;
       return;
     }

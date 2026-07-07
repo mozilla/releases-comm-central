@@ -44,6 +44,13 @@ add_task(async function test_correctlyAppliesL10nAttributes() {
     "account-hub-hostname-error-text",
     "Should apply correct fluent ID to error message element"
   );
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(
+      customElement.querySelector(".account-hub-form-small-comment")
+    ),
+    "Shouldn't show help text without l10n ID attribute for it"
+  );
 });
 
 add_task(function test_idsCorrectlyAppliedToElements() {
@@ -152,4 +159,98 @@ add_task(function test_setErrorState() {
     !errorMessage.role,
     "The error message should not have role attribute"
   );
+});
+
+add_task(function test_helpText() {
+  const helpTextInput =
+    browser.contentDocument.createElement("account-hub-input");
+  helpTextInput.setAttribute("type", "text");
+  const testL10nId = "account-hub-server-tip";
+  helpTextInput.setAttribute("l10n-help-text-id", testL10nId);
+  helpTextInput.setAttribute(
+    "l10n-label-id",
+    "account-hub-result-hostname-label"
+  );
+  helpTextInput.setAttribute(
+    "l10n-error-id",
+    "account-hub-hostname-error-text"
+  );
+  helpTextInput.setAttribute("classes", "input-field manual-input");
+  browser.contentDocument.body.append(helpTextInput);
+  const helpText = helpTextInput.querySelector(
+    ".account-hub-form-small-comment"
+  );
+
+  Assert.ok(BrowserTestUtils.isVisible(helpText), "Should display help text");
+  Assert.ok(
+    helpTextInput
+      .querySelector("input")
+      .ariaDescribedByElements.includes(helpText),
+    "Should be described by the help text"
+  );
+  Assert.equal(
+    document.l10n.getAttributes(helpText).id,
+    testL10nId,
+    "Should transfer the l10n ID to the help text"
+  );
+
+  helpTextInput.setErrorState("error");
+
+  Assert.equal(
+    browser.contentWindow.getComputedStyle(helpText).visibility,
+    "hidden",
+    "Help text should be hidden in favor of the error"
+  );
+  Assert.ok(
+    !helpTextInput
+      .querySelector("input")
+      .ariaDescribedByElements.includes(helpText),
+    "Should not be described by help text anymore"
+  );
+
+  helpTextInput.setErrorState("");
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(helpText),
+    "Help text should be visible again without error"
+  );
+  Assert.deepEqual(
+    helpTextInput.querySelector("input").ariaDescribedByElements,
+    [helpText],
+    "Help text should be restored as description"
+  );
+
+  helpTextInput.remove();
+});
+
+add_task(function test_helpTextEmpty() {
+  const helpTextInput =
+    browser.contentDocument.createElement("account-hub-input");
+  helpTextInput.setAttribute("type", "text");
+  helpTextInput.setAttribute("l10n-help-text-id", "");
+  helpTextInput.setAttribute(
+    "l10n-label-id",
+    "account-hub-result-hostname-label"
+  );
+  helpTextInput.setAttribute(
+    "l10n-error-id",
+    "account-hub-hostname-error-text"
+  );
+  helpTextInput.setAttribute("classes", "input-field manual-input");
+  browser.contentDocument.body.append(helpTextInput);
+  const helpText = helpTextInput.querySelector(
+    ".account-hub-form-small-comment"
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(helpText),
+    "Help text shouldn't be shown when the attribute doesn't contain a string ID"
+  );
+  Assert.equal(
+    helpTextInput.querySelector("input").ariaDescribedByElements,
+    null,
+    "Help text shouldn't be describing the input"
+  );
+
+  helpTextInput.remove();
 });

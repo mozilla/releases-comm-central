@@ -891,7 +891,7 @@ header {
   }
 }
 
-.account-hub-form-small-comment {
+.account-hub-form-small-comment:not([hidden]) {
   display: inline-block;
   font-size: 0.85rem;
   color: var(--color-text-muted);
