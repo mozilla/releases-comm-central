@@ -17,13 +17,14 @@ var { PromiseTestUtils } = ChromeUtils.importESModule(
 var gFile = do_get_file("../../../data/bug92111b");
 var gIMAPDaemon, gIMAPServer, gIMAPIncomingServer;
 
-// Adds some messages directly to a mailbox (eg new mail)
+// Add a message to a server mailbox, returning its UID.
 function addMessageToServer(file, mailbox) {
   const URI = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
   const msg = new ImapMessage(URI.spec, mailbox.uidnext++, []);
   // underestimate the actual file size, like some IMAP servers do
   msg.setSize(file.fileSize - 55);
   mailbox.addMessage(msg);
+  return msg.uid;
 }
 
 add_task(async function verifyContentLength() {
@@ -53,15 +54,17 @@ add_task(async function verifyContentLength() {
   // We aren't interested in downloading messages automatically
   Services.prefs.setBoolPref("mail.server.server1.download_on_biff", false);
 
-  dump("adding message to server\n");
   // Add a message to the IMAP server
-  addMessageToServer(gFile, gIMAPDaemon.getMailbox("INBOX"));
+  const addedUid = addMessageToServer(gFile, gIMAPDaemon.getMailbox("INBOX"));
 
   const imapS = Cc[
     "@mozilla.org/messenger/messageservice;1?type=imap"
   ].getService(Ci.nsIMsgMessageService);
 
-  const uri = imapS.getUrlForUri("imap-message://user@localhost/INBOX#1");
+  // URL to stream directly from server, bypassing the folder entirely.
+  const uri = imapS.getUrlForUri(
+    `imap-message://user@localhost/INBOX#${addedUid}`
+  );
 
   // Get a channel from this URI, and check its content length
   const channel = Services.io.newChannelFromURI(
