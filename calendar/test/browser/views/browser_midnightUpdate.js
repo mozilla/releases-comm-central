@@ -64,7 +64,7 @@ const dayBeforeYesterday = {
 
 add_setup(async function () {
   Assert.equal(
-    new Date().getDate(), // eslint-disable-line no-restricted-properties
+    new Date().getDate(),
     today.day,
     "This test will fail, because the local date and UTC date are not the same. You should be running this test in UTC."
   );
