@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import url("chrome://messenger/skin/icons.css");
+@import url("chrome://messenger/skin/colors.css");
 @import url("chrome://messenger/skin/shared/threadPane.css");
 
 /* Generic (cross-platform) multimessage view CSS.  Some bits will be overridden
@@ -134,6 +135,7 @@ body {
   padding-block: 6px;
   margin-block: 0;
   font-weight: normal;
+  font-size: 1.1rem;
 
   & .left-block {
     display: flex;
