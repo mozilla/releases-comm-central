@@ -59,8 +59,9 @@ add_setup(async function () {
 });
 
 add_task(async function test_streamHeaders() {
-  const newMsgHdr = IMAPPump.inbox.GetMessageHeader(1);
-  const msgURI = newMsgHdr.folder.getUriForMsg(newMsgHdr);
+  const inbox = IMAPPump.inbox;
+  const allMsgs = [...inbox.messages];
+  const msgURI = inbox.getUriForMsg(allMsgs[0]);
   const msgServ = MailServices.messageServiceFromURI(msgURI);
   // We use this as a display consumer
   const streamListener = new PromiseTestUtils.PromiseStreamListener();
