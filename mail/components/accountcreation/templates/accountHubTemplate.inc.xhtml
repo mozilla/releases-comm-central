@@ -26,6 +26,7 @@
 #include ./accountHubEmailManualConfigFormTemplate.inc.xhtml
 #include ./accountHubEmailOutgoingFormTemplate.inc.xhtml
 #include ./accountHubEmailPasswordFormTemplate.inc.xhtml
+#include ./accountHubEmailProtocolSelectFormTemplate.inc.xhtml
 #include ./accountHubEmailSyncAccountsFormTemplate.inc.xhtml
 #include ./accountHubFooterTemplate.inc.xhtml
 #include ./accountHubHeaderTemplate.inc.xhtml
@@ -110,6 +111,12 @@
     class="account-hub-step"
   >
   </email-auto-form>
+  <email-protocol-select-form
+    id="emailProtocolSelectSubview"
+    class="account-hub-step"
+    hidden="hidden"
+  >
+  </email-protocol-select-form>
   <email-manual-incoming-form
     id="emailIncomingConfigSubview"
     title-id="account-hub-email-setup-incoming"

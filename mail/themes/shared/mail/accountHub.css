@@ -537,7 +537,8 @@ header {
   }
 
   &.account-select-body,
-  &.credentials-confirmation-body {
+  &.credentials-confirmation-body,
+  &.protocol-select-select-body {
     max-inline-size: 500px;
   }
 
@@ -585,7 +586,8 @@ header {
   justify-content: center;
 }
 
-.account-hub-account-type-list {
+/* stylelint-disable stylelint-plugin-mozilla/use-design-tokens */
+.account-hub-protocol-select-list {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -595,7 +597,7 @@ header {
   border: 0;
 }
 
-.account-hub-account-type-card {
+.account-hub-protocol-select-card {
   position: relative;
   display: block;
   inline-size: 148px;
@@ -614,7 +616,7 @@ header {
     pointer-events: none;
   }
 
-  & .account-hub-account-type-card-content {
+  & .account-hub-protocol-select-card-content {
     display: grid;
     grid-template-rows: 56px 69px;
     box-sizing: border-box;
@@ -624,7 +626,7 @@ header {
     border-radius: 8px;
   }
 
-  & .account-hub-account-type-card-header {
+  & .account-hub-protocol-select-card-header {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -647,12 +649,12 @@ header {
     overflow-wrap: anywhere;
   }
 
-  & input[type="radio"]:checked + .account-hub-account-type-card-content .account-hub-account-type-card-header {
+  & input[type="radio"]:checked + .account-hub-protocol-select-card-content .account-hub-protocol-select-card-header {
     background-color: var(--color-primary-default);
     color: var(--color-surface-base);
   }
 
-  & .account-hub-account-type-card-icon {
+  & .account-hub-protocol-select-card-icon {
     content: var(--icon-mail);
     inline-size: 16px;
     block-size: 16px;
@@ -662,11 +664,11 @@ header {
     stroke: currentcolor;
   }
 
-  & input[type="radio"]:checked + .account-hub-account-type-card-content .account-hub-account-type-card-icon {
+  & input[type="radio"]:checked + .account-hub-protocol-select-card-content .account-hub-protocol-select-card-icon {
     fill: rgb(from var(--color-surface-base) r g b / 20%);
   }
 
-  & .account-hub-account-type-card-body {
+  & .account-hub-protocol-select-card-body {
     background: var(--color-surface-base);
     display: grid;
     place-items: center;
@@ -682,7 +684,7 @@ header {
     overflow-wrap: anywhere;
   }
 
-  & .account-hub-account-type-card-badge {
+  & .account-hub-protocol-select-card-badge {
     position: absolute;
     inset-block-start: -10px;
     inset-inline-start: 50%;
@@ -700,10 +702,11 @@ header {
     z-index: 1;
   }
 
-  &.recommended .account-hub-account-type-card-badge {
+  &.recommended .account-hub-protocol-select-card-badge {
     display: block;
   }
 }
+/* stylelint-enable stylelint-plugin-mozilla/use-design-tokens */
 
 .button-account {
   inline-size: 170px;

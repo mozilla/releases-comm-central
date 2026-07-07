@@ -20,6 +20,7 @@ const { NetworkTestUtils } = ChromeUtils.importESModule(
 
 const USER = "testExchange@exchange.test";
 const PASSWORD = "hunter2";
+const MANUAL_CONFIG_PREF = "mail.accounthub.manualconfig.enabled";
 const emailUser = {
   name: "John Doe",
   email: USER,
@@ -65,6 +66,7 @@ let AUTODISCOVER_RESPONSE = `<?xml version="1.0" encoding="utf-8"?>
 </Autodiscover>`;
 let redirectServer, autodiscoveryServer;
 let redirectAccepted = false;
+let manualConfigPrefPushed = false;
 
 add_setup(async () => {
   redirectServer = new HttpServer();
@@ -129,6 +131,7 @@ add_setup(async () => {
   );
 
   registerCleanupFunction(async () => {
+    await cleanupManualConfigPref();
     redirectServer.identity.remove("http", "autodiscover.exchange.test", 80);
     redirectServer.registerFile("/autodiscover/autodiscover.xml", null);
     redirectServer.stop();
@@ -187,6 +190,94 @@ add_task(async function test_credentials_confirmation_manual_configuration() {
   await Services.logins.removeAllLoginsAsync();
   await subtest_close_account_hub_dialog(dialog, incomingConfigStep);
 });
+
+add_task(
+  async function test_credentials_confirmation_manual_configuration_pref_enabled() {
+    await enableManualConfigPref();
+
+    const dialog = await subtest_open_account_hub_dialog();
+
+    const emailTemplate = dialog.querySelector("email-auto-form");
+    const footerForward = dialog.querySelector("#emailFooter #forward");
+
+    await fillUserInformation(emailTemplate);
+    Assert.ok(!footerForward.disabled, "Continue button should be enabled");
+
+    // Click continue and wait for credentials confirmation step to be in view.
+    EventUtils.synthesizeMouseAtCenter(footerForward, {});
+    info("Expecting credentials confirmation prompt");
+    const confirmationStep = dialog.querySelector(
+      "email-credentials-confirmation"
+    );
+
+    await BrowserTestUtils.waitForAttributeRemoval("hidden", confirmationStep);
+    const manualConfigButton = confirmationStep.querySelector(
+      "#manualConfiguration"
+    );
+    EventUtils.synthesizeMouseAtCenter(manualConfigButton, {});
+
+    const protocolSelectStep = dialog.querySelector(
+      "#emailProtocolSelectSubview"
+    );
+    await BrowserTestUtils.waitForAttributeRemoval(
+      "hidden",
+      protocolSelectStep
+    );
+    Assert.equal(
+      document.l10n.getAttributes(footerForward).id,
+      "account-hub-email-set-up-account-button",
+      "The protocol select screen should use the set up account forward button"
+    );
+    const protocolSelectHeader =
+      protocolSelectStep.shadowRoot.querySelector("account-hub-header");
+    const notification = protocolSelectHeader.shadowRoot.querySelector(
+      "#emailFormNotification"
+    );
+    const notificationTitle = protocolSelectHeader.shadowRoot.querySelector(
+      "#emailFormNotificationTitle .localized-title"
+    );
+    Assert.equal(
+      document.l10n.getAttributes(notificationTitle).id,
+      "account-hub-email-protocol-select-notification",
+      "The protocol select screen should show the required information notification"
+    );
+    Assert.ok(
+      BrowserTestUtils.isVisible(notification),
+      "The protocol select screen should show the notification bar"
+    );
+    Assert.ok(
+      BrowserTestUtils.isHidden(
+        dialog.querySelector("#emailIncomingConfigSubview")
+      ),
+      "The incoming config step should stay hidden before protocol selection"
+    );
+    Assert.ok(
+      protocolSelectStep.querySelector(
+        `input[name="protocol-select"][value="imap"]`
+      ).checked,
+      "The credentials confirmation manual config flow should default to IMAP"
+    );
+
+    let protocolInput = protocolSelectStep.querySelector(
+      `input[name="protocol-select"][value="microsoft"]`
+    );
+    EventUtils.synthesizeMouseAtCenter(protocolInput, {});
+    Assert.ok(protocolInput.checked, "Microsoft should be selected");
+
+    protocolInput = protocolSelectStep.querySelector(
+      `input[name="protocol-select"][value="pop3"]`
+    );
+    EventUtils.synthesizeMouseAtCenter(protocolInput, {});
+    Assert.ok(protocolInput.checked, "POP3 should be selected");
+    Assert.ok(!footerForward.disabled, "Continue button should be enabled");
+
+    // TODO: Add assertions for the selected protocol's next subview once
+    // those subviews exist.
+    await Services.logins.removeAllLoginsAsync();
+    await subtest_close_account_hub_dialog(dialog, protocolSelectStep);
+    await cleanupManualConfigPref();
+  }
+);
 
 add_task(async function test_cancel_credentials_confirmation() {
   const dialog = await subtest_open_account_hub_dialog();
@@ -427,6 +518,21 @@ add_task(async function test_credentials_confirmation_to_manual_config() {
   await subtest_close_account_hub_dialog(dialog, incomingConfigStep);
   AUTODISCOVER_RESPONSE = autodiscoverResonse;
 });
+
+async function enableManualConfigPref() {
+  await SpecialPowers.pushPrefEnv({
+    set: [[MANUAL_CONFIG_PREF, true]],
+  });
+  manualConfigPrefPushed = true;
+}
+
+async function cleanupManualConfigPref() {
+  if (!manualConfigPrefPushed) {
+    return;
+  }
+  manualConfigPrefPushed = false;
+  await SpecialPowers.popPrefEnv();
+}
 
 /**
  * Fills the name and email inputs in the first step of account hub

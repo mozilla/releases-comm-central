@@ -36,10 +36,19 @@ ChromeUtils.defineESModuleGetters(lazy, {
 import "chrome://messenger/content/accountcreation/content/widgets/account-hub-step.mjs"; // eslint-disable-line import/no-unassigned-import
 import "chrome://messenger/content/accountcreation/content/widgets/account-hub-footer.mjs"; // eslint-disable-line import/no-unassigned-import
 
+/**
+ * Error thrown when autodiscovery needs credentials before it can continue.
+ */
 class AuthenticationRequiredError extends Error {}
 
+/**
+ * Error thrown when a user intentionally skips or cancels an optional step.
+ */
 class UserSkippedError extends Error {}
 
+/**
+ * Main Account Hub email setup flow controller.
+ */
 class AccountHubEmail extends HTMLElement {
   /**
    * Email config footer.
@@ -61,6 +70,13 @@ class AccountHubEmail extends HTMLElement {
    * @type {HTMLElement}
    */
   #emailIncomingConfigSubview;
+
+  /**
+   * Email account type subview for manual configuration.
+   *
+   * @type {HTMLElement}
+   */
+  #emailProtocolSelectSubview;
 
   /**
    * Email incoming config subview.
@@ -218,6 +234,16 @@ class AccountHubEmail extends HTMLElement {
       subview: {},
       templateId: "email-authentication-form",
     },
+    protocolSelectSubview: {
+      id: "emailProtocolSelectSubview",
+      nextStep: true,
+      previousStep: "autoConfigSubview",
+      forwardEnabled: true,
+      customActionFluentID: "",
+      customForwardFluentID: "account-hub-email-set-up-account-button",
+      subview: {},
+      templateId: "email-protocol-select-form",
+    },
     emailConfigFoundSubview: {
       id: "emailConfigFoundSubview",
       nextStep: "emailPasswordSubview",
@@ -329,6 +355,11 @@ class AccountHubEmail extends HTMLElement {
       "#emailAutoConfigSubview"
     );
     this.#states.autoConfigSubview.subview = this.#emailAutoConfigSubview;
+    this.#emailProtocolSelectSubview = this.querySelector(
+      "#emailProtocolSelectSubview"
+    );
+    this.#states.protocolSelectSubview.subview =
+      this.#emailProtocolSelectSubview;
     this.#emailIncomingConfigSubview = this.querySelector(
       "#emailIncomingConfigSubview"
     );
@@ -389,6 +420,7 @@ class AccountHubEmail extends HTMLElement {
     this.addEventListener("click", this);
     this.#emailAutoConfigSubview.addEventListener("config-updated", this);
     this.#emailAutoConfigSubview.addEventListener("edit-configuration", this);
+    this.#emailProtocolSelectSubview.addEventListener("config-updated", this);
     this.#emailIncomingConfigSubview.addEventListener("config-updated", this);
     this.#emailOutgoingConfigSubview.addEventListener("config-updated", this);
     this.#emailPasswordSubview.addEventListener("config-updated", this);
@@ -529,6 +561,7 @@ class AccountHubEmail extends HTMLElement {
     this.#emailPasswordSubview.hidden = true;
     this.#emailAddedSuccessSubview.hidden = true;
     this.#emailAutoConfigSubview.hidden = true;
+    this.#emailProtocolSelectSubview.hidden = true;
     this.#emailIncomingConfigSubview.hidden = true;
     this.#emailOutgoingConfigSubview.hidden = true;
     this.#exchangeSettingsSubview.hidden = true;
@@ -768,8 +801,18 @@ class AccountHubEmail extends HTMLElement {
             ? "emailConfigFoundSubview"
             : "autoConfigSubview";
 
-        await this.#initUI("incomingConfigSubview");
+        if (
+          this.#currentState != "emailConfigFoundSubview" &&
+          Services.prefs.getBoolPref(
+            "mail.accounthub.manualconfig.enabled",
+            false
+          )
+        ) {
+          await this.#showProtocolSelectSubview(prevStep);
+          break;
+        }
 
+        await this.#initUI("incomingConfigSubview");
         this.#states[this.#currentState].previousStep = prevStep;
         // Apply the current state data to the new state.
         this.#currentSubview.setState(this.#currentConfig);
@@ -881,6 +924,9 @@ class AccountHubEmail extends HTMLElement {
           throw error;
         }
 
+        break;
+      case "protocolSelectSubview":
+        this.#currentSubview.setState(this.#currentConfig);
         break;
       case "incomingConfigSubview":
         // Set the currentConfig outgoing to the updated fields in the
@@ -1106,6 +1152,10 @@ class AccountHubEmail extends HTMLElement {
         this.#showConfigFoundNotification();
         this.#setCurrentConfigForSubview();
         break;
+      case "protocolSelectSubview":
+        this.#currentConfig.incoming.type = stateData.protocolSelect;
+        // TODO: Route to the selected protocol's subview once those subviews exist.
+        break;
       case "incomingConfigSubview":
         if (stateData.config.isExchangeConfig()) {
           if (!(await this.#validateAccountConfig(stateData.config))) {
@@ -1300,6 +1350,13 @@ class AccountHubEmail extends HTMLElement {
         this.#getEmptyAccountConfig()
       );
     }
+    if (
+      Services.prefs.getBoolPref("mail.accounthub.manualconfig.enabled", false)
+    ) {
+      await this.#showProtocolSelectSubview(currentState);
+      return;
+    }
+
     await this.#initUI("incomingConfigSubview");
     this.#states[this.#currentState].previousStep = currentState;
     this.#currentSubview.showNotification({
@@ -1307,6 +1364,22 @@ class AccountHubEmail extends HTMLElement {
       type: "warning",
     });
     this.#setCurrentConfigForSubview();
+  }
+
+  /**
+   * Initialize the protocol select subview from manual configuration entry
+   * points.
+   *
+   * @param {string} previousStep - Step to use for back navigation.
+   */
+  async #showProtocolSelectSubview(previousStep) {
+    await this.#initUI("protocolSelectSubview");
+    this.#states[this.#currentState].previousStep = previousStep;
+    this.#currentSubview.setState(this.#currentConfig);
+    this.#currentSubview.showNotification({
+      fluentTitleId: "account-hub-email-protocol-select-notification",
+      type: "info",
+    });
   }
 
   /**

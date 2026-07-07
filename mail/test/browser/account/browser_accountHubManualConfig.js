@@ -20,6 +20,8 @@ const GSSAPI_TEST_EMAIL = "badtest@example.localhost";
 let gssapiSandbox;
 let gssapiDialog;
 let gssapiCurrentStep;
+let manualConfigPrefPushed = false;
+const MANUAL_CONFIG_PREF = "mail.accounthub.manualconfig.enabled";
 
 // The guessConfig requests make this test take a long time, so we need a
 // longer timeout.
@@ -34,6 +36,7 @@ add_setup(function () {
 });
 
 registerCleanupFunction(async function () {
+  await cleanupManualConfigPref();
   // Restore the original pref.
   Services.prefs.setCharPref(PREF_NAME, PREF_VALUE);
   await cleanupGssapiTest();
@@ -1097,6 +1100,125 @@ add_task(async function test_direct_to_manual_gssapi_skips_password_step() {
   await cleanupGssapiTest();
 });
 
+add_task(async function test_config_found_manual_config_pref_enabled() {
+  await enableManualConfigPref();
+
+  const dialog = await subtest_open_account_hub_dialog();
+
+  const emailUser = {
+    name: "John Doe",
+    email: "john.doe@momo.invalid",
+    password: "abc12345",
+    incomingHost: "mail.momo.invalid",
+    incomingPort: 123,
+    outgoingHost: "mail.momo.invalid",
+    outgoingPort: 465,
+  };
+
+  await subtest_fill_initial_config_fields(dialog, emailUser);
+  const configFoundTemplate = dialog.querySelector("email-config-found");
+
+  await TestUtils.waitForCondition(
+    () =>
+      BrowserTestUtils.isVisible(configFoundTemplate.querySelector("#imap")),
+    "The IMAP config option should be visible"
+  );
+  const selectedConfigType = configFoundTemplate.querySelector(
+    `input[name="config-type"]:checked`
+  ).value;
+
+  EventUtils.synthesizeMouseAtCenter(
+    configFoundTemplate.querySelector("#editConfiguration"),
+    {}
+  );
+
+  const protocolSelectTemplate = dialog.querySelector(
+    "#emailProtocolSelectSubview"
+  );
+  const incomingConfigTemplate = dialog.querySelector(
+    "#emailIncomingConfigSubview"
+  );
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(incomingConfigTemplate),
+    "The incoming config template should be in view"
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(protocolSelectTemplate),
+    "The protocol select template should stay hidden"
+  );
+  Assert.equal(
+    incomingConfigTemplate.querySelector("#incomingProtocol").value,
+    ["pop", "pop3"].includes(selectedConfigType) ? "2" : "1",
+    "The incoming protocol should use the found config"
+  );
+
+  await subtest_close_account_hub_dialog(dialog, incomingConfigTemplate);
+  await cleanupManualConfigPref();
+});
+
+add_task(async function test_direct_to_manual_config_pref_enabled() {
+  await enableManualConfigPref();
+
+  const dialog = await subtest_open_account_hub_dialog();
+
+  const emailTemplate = dialog.querySelector("email-auto-form");
+  const nameInput = emailTemplate.querySelector("#realName");
+  const emailInput = emailTemplate.querySelector("#email");
+
+  // Ensure fields are empty.
+  nameInput.value = "";
+  emailInput.value = "";
+
+  await fillInvalidUserInfo(nameInput, emailInput);
+
+  const manualConfigButton = emailTemplate.querySelector(
+    "#manualConfiguration"
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(manualConfigButton),
+    "Manual config button should be visible"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(manualConfigButton, {});
+
+  const protocolSelectTemplate = dialog.querySelector(
+    "#emailProtocolSelectSubview"
+  );
+  await BrowserTestUtils.waitForAttributeRemoval(
+    "hidden",
+    protocolSelectTemplate
+  );
+  subtest_assert_protocol_select_chrome(dialog, protocolSelectTemplate);
+  Assert.ok(
+    protocolSelectTemplate.querySelector(
+      `input[name="protocol-select"][value="imap"]`
+    ).checked,
+    "The direct manual config flow should default to IMAP"
+  );
+
+  await subtest_select_protocol(dialog, "pop3");
+
+  // TODO: Add assertions for the selected protocol's next subview once
+  // those subviews exist.
+  await subtest_close_account_hub_dialog(dialog, protocolSelectTemplate);
+  await cleanupManualConfigPref();
+});
+
+async function enableManualConfigPref() {
+  await SpecialPowers.pushPrefEnv({
+    set: [[MANUAL_CONFIG_PREF, true]],
+  });
+  manualConfigPrefPushed = true;
+}
+
+async function cleanupManualConfigPref() {
+  if (!manualConfigPrefPushed) {
+    return;
+  }
+  manualConfigPrefPushed = false;
+  await SpecialPowers.popPrefEnv();
+}
+
 async function fillInvalidUserInfo(nameInput, emailInput) {
   EventUtils.synthesizeMouseAtCenter(nameInput, {});
 
@@ -1145,4 +1267,52 @@ async function cleanupGssapiTest() {
   }
   gssapiDialog = null;
   gssapiCurrentStep = null;
+}
+
+async function subtest_select_protocol_and_continue(dialog, protocol) {
+  await subtest_select_protocol(dialog, protocol);
+
+  const footerForward = dialog.querySelector("#emailFooter #forward");
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+}
+
+async function subtest_select_protocol(dialog, protocol) {
+  const protocolSelectTemplate = dialog.querySelector(
+    "#emailProtocolSelectSubview"
+  );
+  const protocolInput = protocolSelectTemplate.querySelector(
+    `input[name="protocol-select"][value="${protocol}"]`
+  );
+
+  EventUtils.synthesizeMouseAtCenter(protocolInput, {});
+  Assert.ok(protocolInput.checked, `${protocol} should be selected`);
+
+  const footerForward = dialog.querySelector("#emailFooter #forward");
+  Assert.ok(!footerForward.disabled, "Continue button should be enabled");
+}
+
+function subtest_assert_protocol_select_chrome(dialog, protocolSelectTemplate) {
+  const footerForward = dialog.querySelector("#emailFooter #forward");
+  Assert.equal(
+    document.l10n.getAttributes(footerForward).id,
+    "account-hub-email-set-up-account-button",
+    "The protocol select screen should use the set up account forward button"
+  );
+  const protocolSelectHeader =
+    protocolSelectTemplate.shadowRoot.querySelector("account-hub-header");
+  const notification = protocolSelectHeader.shadowRoot.querySelector(
+    "#emailFormNotification"
+  );
+  const notificationTitle = protocolSelectHeader.shadowRoot.querySelector(
+    "#emailFormNotificationTitle .localized-title"
+  );
+  Assert.equal(
+    document.l10n.getAttributes(notificationTitle).id,
+    "account-hub-email-protocol-select-notification",
+    "The protocol select screen should show the required information notification"
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(notification),
+    "The protocol select screen should show the notification bar"
+  );
 }

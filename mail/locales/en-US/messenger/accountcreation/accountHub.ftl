@@ -67,6 +67,8 @@ account-hub-email-manually-configure-button = Configure Manually
 
 account-hub-email-continue-button = Continue
 
+account-hub-email-set-up-account-button = Set up account
+
 account-hub-email-confirm-button = Confirm
 
 account-hub-email-find-settings-button = Find settings
@@ -173,6 +175,8 @@ account-hub-email-setup-outgoing = Outgoing server settings
 account-hub-email-exchange-settings = Exchange settings
 
 account-hub-email-connect-settings = Connect your email settings
+
+account-hub-email-protocol-select-notification = Additional information is required to set up this account
 
 account-hub-email-enter-password = Enter your email account password
 
