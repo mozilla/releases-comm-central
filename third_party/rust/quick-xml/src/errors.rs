@@ -5,7 +5,7 @@ use crate::escape::EscapeError;
 use crate::events::attributes::AttrError;
 use crate::name::{NamespaceError, QName};
 use std::fmt;
-use std::io::Error as IoError;
+use std::io::{Error as IoError, ErrorKind as IoErrorKind};
 use std::sync::Arc;
 
 /// An error returned if parsed document does not correspond to the XML grammar,
@@ -17,9 +17,12 @@ pub enum SyntaxError {
     /// The parser started to parse `<!`, but the input ended before it can recognize
     /// anything.
     InvalidBangMarkup,
-    /// The parser started to parse processing instruction or XML declaration (`<?`),
+    /// The parser started to parse processing instruction (`<?`),
     /// but the input ended before the `?>` sequence was found.
-    UnclosedPIOrXmlDecl,
+    UnclosedPI,
+    /// The parser started to parse XML declaration (`<?xml` followed by `\t`, `\r`, `\n`, ` ` or `?`),
+    /// but the input ended before the `?>` sequence was found.
+    UnclosedXmlDecl,
     /// The parser started to parse comment (`<!--`) content, but the input ended
     /// before the `-->` sequence was found.
     UnclosedComment,
@@ -32,14 +35,29 @@ pub enum SyntaxError {
     /// The parser started to parse tag content, but the input ended
     /// before the closing `>` character was found.
     UnclosedTag,
+    /// The parser started to parse tag content and currently inside of a quoted string
+    /// (i.e. in an attribute value), but the input ended before the closing quote was found.
+    ///
+    /// Note, that currently error location will point to a start of a tag (the `<` character)
+    /// instead of a start of an attribute value.
+    UnclosedSingleQuotedAttributeValue,
+    /// The parser started to parse tag content and currently inside of a quoted string
+    /// (i.e. in an attribute value), but the input ended before the closing quote was found.
+    ///
+    /// Note, that currently error location will point to a start of a tag (the `<` character)
+    /// instead of a start of an attribute value.
+    UnclosedDoubleQuotedAttributeValue,
 }
 
 impl fmt::Display for SyntaxError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Self::InvalidBangMarkup => f.write_str("unknown or missed symbol in markup"),
-            Self::UnclosedPIOrXmlDecl => {
-                f.write_str("processing instruction or xml declaration not closed: `?>` not found before end of input")
+            Self::UnclosedPI => {
+                f.write_str("processing instruction not closed: `?>` not found before end of input")
+            }
+            Self::UnclosedXmlDecl => {
+                f.write_str("XML declaration not closed: `?>` not found before end of input")
             }
             Self::UnclosedComment => {
                 f.write_str("comment not closed: `-->` not found before end of input")
@@ -51,6 +69,12 @@ impl fmt::Display for SyntaxError {
                 f.write_str("CDATA not closed: `]]>` not found before end of input")
             }
             Self::UnclosedTag => f.write_str("tag not closed: `>` not found before end of input"),
+            Self::UnclosedSingleQuotedAttributeValue => {
+                f.write_str("attribute value not closed: `'` not found before end of input")
+            }
+            Self::UnclosedDoubleQuotedAttributeValue => {
+                f.write_str("attribute value not closed: `\"` not found before end of input")
+            }
         }
     }
 }
@@ -79,6 +103,8 @@ pub enum IllFormedError {
     ///
     /// [specification]: https://www.w3.org/TR/xml11/#sec-prolog-dtd
     MissingDeclVersion(Option<String>),
+    /// XML version specified in the declaration neither 1.0 or 1.1.
+    UnknownVersion,
     /// A document type definition (DTD) does not contain a name of a root element.
     ///
     /// According to the [specification], document type definition (`<!DOCTYPE foo>`)
@@ -114,6 +140,9 @@ pub enum IllFormedError {
     /// [specification]: https://www.w3.org/TR/xml11/#sec-comments
     /// [configuration]: crate::reader::Config::check_comments
     DoubleHyphenInComment,
+    /// The parser started to parse entity or character reference (`&...;`) in text,
+    /// but the input ended before the closing `;` character was found.
+    UnclosedReference,
 }
 
 impl fmt::Display for IllFormedError {
@@ -124,6 +153,9 @@ impl fmt::Display for IllFormedError {
             }
             Self::MissingDeclVersion(Some(attr)) => {
                 write!(f, "an XML declaration must start with `version` attribute, but in starts with `{}`", attr)
+            }
+            Self::UnknownVersion => {
+                f.write_str("unknown XML version: either 1.0 or 1.1 is expected")
             }
             Self::MissingDoctypeName => {
                 f.write_str("`<!DOCTYPE>` declaration does not contain a name of a document type")
@@ -144,6 +176,9 @@ impl fmt::Display for IllFormedError {
             Self::DoubleHyphenInComment => {
                 f.write_str("forbidden string `--` was found in a comment")
             }
+            Self::UnclosedReference => f.write_str(
+                "entity or character reference not closed: `;` not found before end of input",
+            ),
         }
     }
 }
@@ -186,7 +221,13 @@ impl From<IoError> for Error {
     /// Creates a new `Error::Io` from the given error
     #[inline]
     fn from(error: IoError) -> Error {
-        Self::Io(Arc::new(error))
+        match error.kind() {
+            IoErrorKind::InvalidData => match error.downcast::<EncodingError>() {
+                Ok(err) => Self::Encoding(err),
+                Err(err) => Self::Io(Arc::new(err)),
+            },
+            _ => Self::Io(Arc::new(error)),
+        }
     }
 }
 

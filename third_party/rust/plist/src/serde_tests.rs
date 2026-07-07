@@ -1038,3 +1038,12 @@ fn serialize_to_from_value() {
 
     assert_eq!(dog_roundtrip, dog);
 }
+
+#[test]
+fn deserialize_with_trailing_events_fails() {
+    let events = [Event::String("Foo".into()), Event::String("Bar".into())];
+
+    let value = crate::de::from_stream::<Value>(events.map(Ok));
+
+    assert!(value.is_err());
+}

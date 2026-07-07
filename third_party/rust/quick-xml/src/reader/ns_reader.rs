@@ -4,15 +4,14 @@
 //! [qualified names]: https://www.w3.org/TR/xml-names11/#dt-qualname
 //! [expanded names]: https://www.w3.org/TR/xml-names11/#dt-expname
 
-use std::borrow::Cow;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::ops::Deref;
 use std::path::Path;
 
 use crate::errors::Result;
-use crate::events::Event;
-use crate::name::{LocalName, NamespaceResolver, PrefixIter, QName, ResolveResult};
+use crate::events::{BytesText, Event};
+use crate::name::{NamespaceResolver, QName, ResolveResult};
 use crate::reader::{Config, Reader, Span, XmlSource};
 
 /// A low level encoding-agnostic XML event reader that performs namespace resolution.
@@ -23,7 +22,7 @@ pub struct NsReader<R> {
     /// An XML reader
     pub(super) reader: Reader<R>,
     /// A buffer to manage namespaces
-    ns_resolver: NamespaceResolver,
+    pub(super) ns_resolver: NamespaceResolver,
     /// We cannot pop data from the namespace stack until returned `Empty` or `End`
     /// event will be processed by the user, so we only mark that we should that
     /// in the next [`Self::read_event_impl()`] call.
@@ -48,90 +47,6 @@ impl<R> NsReader<R> {
     #[inline]
     pub fn config_mut(&mut self) -> &mut Config {
         self.reader.config_mut()
-    }
-
-    /// Returns all the prefixes currently declared except the default `xml` and `xmlns` namespaces.
-    ///
-    /// # Examples
-    ///
-    /// This example shows what results the returned iterator would return after
-    /// reading each event of a simple XML.
-    ///
-    /// ```
-    /// # use pretty_assertions::assert_eq;
-    /// use quick_xml::name::{Namespace, PrefixDeclaration};
-    /// use quick_xml::NsReader;
-    ///
-    /// let src = "<root>
-    ///   <a xmlns=\"a1\" xmlns:a=\"a2\">
-    ///     <b xmlns=\"b1\" xmlns:b=\"b2\">
-    ///       <c/>
-    ///     </b>
-    ///     <d/>
-    ///   </a>
-    /// </root>";
-    /// let mut reader = NsReader::from_str(src);
-    /// reader.config_mut().trim_text(true);
-    /// // No prefixes at the beginning
-    /// assert_eq!(reader.prefixes().collect::<Vec<_>>(), vec![]);
-    ///
-    /// reader.read_resolved_event()?; // <root>
-    /// // No prefixes declared on root
-    /// assert_eq!(reader.prefixes().collect::<Vec<_>>(), vec![]);
-    ///
-    /// reader.read_resolved_event()?; // <a>
-    /// // Two prefixes declared on "a"
-    /// assert_eq!(reader.prefixes().collect::<Vec<_>>(), vec![
-    ///     (PrefixDeclaration::Default, Namespace(b"a1")),
-    ///     (PrefixDeclaration::Named(b"a"), Namespace(b"a2"))
-    /// ]);
-    ///
-    /// reader.read_resolved_event()?; // <b>
-    /// // The default prefix got overridden and new "b" prefix
-    /// assert_eq!(reader.prefixes().collect::<Vec<_>>(), vec![
-    ///     (PrefixDeclaration::Named(b"a"), Namespace(b"a2")),
-    ///     (PrefixDeclaration::Default, Namespace(b"b1")),
-    ///     (PrefixDeclaration::Named(b"b"), Namespace(b"b2"))
-    /// ]);
-    ///
-    /// reader.read_resolved_event()?; // <c/>
-    /// // Still the same
-    /// assert_eq!(reader.prefixes().collect::<Vec<_>>(), vec![
-    ///     (PrefixDeclaration::Named(b"a"), Namespace(b"a2")),
-    ///     (PrefixDeclaration::Default, Namespace(b"b1")),
-    ///     (PrefixDeclaration::Named(b"b"), Namespace(b"b2"))
-    /// ]);
-    ///
-    /// reader.read_resolved_event()?; // </b>
-    /// // Still the same
-    /// assert_eq!(reader.prefixes().collect::<Vec<_>>(), vec![
-    ///     (PrefixDeclaration::Named(b"a"), Namespace(b"a2")),
-    ///     (PrefixDeclaration::Default, Namespace(b"b1")),
-    ///     (PrefixDeclaration::Named(b"b"), Namespace(b"b2"))
-    /// ]);
-    ///
-    /// reader.read_resolved_event()?; // <d/>
-    /// // </b> got closed so back to the prefixes declared on <a>
-    /// assert_eq!(reader.prefixes().collect::<Vec<_>>(), vec![
-    ///     (PrefixDeclaration::Default, Namespace(b"a1")),
-    ///     (PrefixDeclaration::Named(b"a"), Namespace(b"a2"))
-    /// ]);
-    ///
-    /// reader.read_resolved_event()?; // </a>
-    /// // Still the same
-    /// assert_eq!(reader.prefixes().collect::<Vec<_>>(), vec![
-    ///     (PrefixDeclaration::Default, Namespace(b"a1")),
-    ///     (PrefixDeclaration::Named(b"a"), Namespace(b"a2"))
-    /// ]);
-    ///
-    /// reader.read_resolved_event()?; // </root>
-    /// // <a> got closed
-    /// assert_eq!(reader.prefixes().collect::<Vec<_>>(), vec![]);
-    /// # quick_xml::Result::Ok(())
-    /// ```
-    #[inline]
-    pub const fn prefixes(&self) -> PrefixIter {
-        self.ns_resolver.iter()
     }
 }
 
@@ -184,19 +99,6 @@ impl<R> NsReader<R> {
             e => e,
         }
     }
-
-    pub(super) fn resolve_event<'i>(
-        &mut self,
-        event: Result<Event<'i>>,
-    ) -> Result<(ResolveResult, Event<'i>)> {
-        match event {
-            Ok(Event::Start(e)) => Ok((self.ns_resolver.find(e.name()), Event::Start(e))),
-            Ok(Event::Empty(e)) => Ok((self.ns_resolver.find(e.name()), Event::Empty(e))),
-            Ok(Event::End(e)) => Ok((self.ns_resolver.find(e.name()), Event::End(e))),
-            Ok(e) => Ok((ResolveResult::Unbound, e)),
-            Err(e) => Err(e),
-        }
-    }
 }
 
 /// Getters
@@ -214,169 +116,20 @@ impl<R> NsReader<R> {
         self.reader.get_mut()
     }
 
-    /// Resolves a potentially qualified **element name** or **attribute name**
-    /// into _(namespace name, local name)_.
-    ///
-    /// _Qualified_ names have the form `prefix:local-name` where the `prefix`
-    /// is defined on any containing XML element via `xmlns:prefix="the:namespace:uri"`.
-    /// The namespace prefix can be defined on the same element as the name in question.
-    ///
-    /// The method returns following results depending on the `name` shape,
-    /// `attribute` flag and the presence of the default namespace:
-    ///
-    /// |attribute|`xmlns="..."`|QName              |ResolveResult          |LocalName
-    /// |---------|-------------|-------------------|-----------------------|------------
-    /// |`true`   |Not defined  |`local-name`       |[`Unbound`]            |`local-name`
-    /// |`true`   |Defined      |`local-name`       |[`Unbound`]            |`local-name`
-    /// |`true`   |_any_        |`prefix:local-name`|[`Bound`] / [`Unknown`]|`local-name`
-    /// |`false`  |Not defined  |`local-name`       |[`Unbound`]            |`local-name`
-    /// |`false`  |Defined      |`local-name`       |[`Bound`] (default)    |`local-name`
-    /// |`false`  |_any_        |`prefix:local-name`|[`Bound`] / [`Unknown`]|`local-name`
-    ///
-    /// If you want to clearly indicate that name that you resolve is an element
-    /// or an attribute name, you could use [`resolve_attribute()`] or [`resolve_element()`]
-    /// methods.
-    ///
-    /// # Lifetimes
-    ///
-    /// - `'n`: lifetime of a name. Returned local name will be bound to the same
-    ///   lifetime as the name in question.
-    /// - returned namespace name will be bound to the reader itself
-    ///
-    /// [`Bound`]: ResolveResult::Bound
-    /// [`Unbound`]: ResolveResult::Unbound
-    /// [`Unknown`]: ResolveResult::Unknown
-    /// [`resolve_attribute()`]: Self::resolve_attribute()
-    /// [`resolve_element()`]: Self::resolve_element()
+    /// Returns a storage of namespace bindings associated with this reader.
     #[inline]
-    pub fn resolve<'n>(&self, name: QName<'n>, attribute: bool) -> (ResolveResult, LocalName<'n>) {
-        self.ns_resolver.resolve(name, !attribute)
+    pub const fn resolver(&self) -> &NamespaceResolver {
+        &self.ns_resolver
     }
 
-    /// Resolves a potentially qualified **element name** into _(namespace name, local name)_.
+    /// Returns a mutable reference to the storage of namespace bindings
+    /// associated with this reader.
     ///
-    /// _Qualified_ element names have the form `prefix:local-name` where the
-    /// `prefix` is defined on any containing XML element via `xmlns:prefix="the:namespace:uri"`.
-    /// The namespace prefix can be defined on the same element as the element
-    /// in question.
-    ///
-    /// _Unqualified_ elements inherits the current _default namespace_.
-    ///
-    /// The method returns following results depending on the `name` shape and
-    /// the presence of the default namespace:
-    ///
-    /// |`xmlns="..."`|QName              |ResolveResult          |LocalName
-    /// |-------------|-------------------|-----------------------|------------
-    /// |Not defined  |`local-name`       |[`Unbound`]            |`local-name`
-    /// |Defined      |`local-name`       |[`Bound`] (default)    |`local-name`
-    /// |_any_        |`prefix:local-name`|[`Bound`] / [`Unknown`]|`local-name`
-    ///
-    /// # Lifetimes
-    ///
-    /// - `'n`: lifetime of an element name. Returned local name will be bound
-    ///   to the same lifetime as the name in question.
-    /// - returned namespace name will be bound to the reader itself
-    ///
-    /// # Examples
-    ///
-    /// This example shows how you can resolve qualified name into a namespace.
-    /// Note, that in the code like this you do not need to do that manually,
-    /// because the namespace resolution result returned by the [`read_resolved_event()`].
-    ///
-    /// ```
-    /// # use pretty_assertions::assert_eq;
-    /// use quick_xml::events::Event;
-    /// use quick_xml::name::{Namespace, QName, ResolveResult::*};
-    /// use quick_xml::reader::NsReader;
-    ///
-    /// let mut reader = NsReader::from_str("<tag xmlns='root namespace'/>");
-    ///
-    /// match reader.read_event().unwrap() {
-    ///     Event::Empty(e) => assert_eq!(
-    ///         reader.resolve_element(e.name()),
-    ///         (Bound(Namespace(b"root namespace")), QName(b"tag").into())
-    ///     ),
-    ///     _ => unreachable!(),
-    /// }
-    /// ```
-    ///
-    /// [`Bound`]: ResolveResult::Bound
-    /// [`Unbound`]: ResolveResult::Unbound
-    /// [`Unknown`]: ResolveResult::Unknown
-    /// [`read_resolved_event()`]: Self::read_resolved_event
+    /// Useful for configuring the resolver, e.g. to change the
+    /// [per-element namespace-declaration limit](NamespaceResolver::set_max_declarations_per_element).
     #[inline]
-    pub fn resolve_element<'n>(&self, name: QName<'n>) -> (ResolveResult, LocalName<'n>) {
-        self.ns_resolver.resolve(name, true)
-    }
-
-    /// Resolves a potentially qualified **attribute name** into _(namespace name, local name)_.
-    ///
-    /// _Qualified_ attribute names have the form `prefix:local-name` where the
-    /// `prefix` is defined on any containing XML element via `xmlns:prefix="the:namespace:uri"`.
-    /// The namespace prefix can be defined on the same element as the attribute
-    /// in question.
-    ///
-    /// _Unqualified_ attribute names do *not* inherit the current _default namespace_.
-    ///
-    /// The method returns following results depending on the `name` shape and
-    /// the presence of the default namespace:
-    ///
-    /// |`xmlns="..."`|QName              |ResolveResult          |LocalName
-    /// |-------------|-------------------|-----------------------|------------
-    /// |Not defined  |`local-name`       |[`Unbound`]            |`local-name`
-    /// |Defined      |`local-name`       |[`Unbound`]            |`local-name`
-    /// |_any_        |`prefix:local-name`|[`Bound`] / [`Unknown`]|`local-name`
-    ///
-    /// # Lifetimes
-    ///
-    /// - `'n`: lifetime of an attribute name. Returned local name will be bound
-    ///   to the same lifetime as the name in question.
-    /// - returned namespace name will be bound to the reader itself
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use pretty_assertions::assert_eq;
-    /// use quick_xml::events::Event;
-    /// use quick_xml::name::{Namespace, QName, ResolveResult::*};
-    /// use quick_xml::reader::NsReader;
-    ///
-    /// let mut reader = NsReader::from_str("
-    ///     <tag one='1'
-    ///          p:two='2'
-    ///          xmlns='root namespace'
-    ///          xmlns:p='other namespace'/>
-    /// ");
-    /// reader.config_mut().trim_text(true);
-    ///
-    /// match reader.read_event().unwrap() {
-    ///     Event::Empty(e) => {
-    ///         let mut iter = e.attributes();
-    ///
-    ///         // Unlike elements, attributes without explicit namespace
-    ///         // not bound to any namespace
-    ///         let one = iter.next().unwrap().unwrap();
-    ///         assert_eq!(
-    ///             reader.resolve_attribute(one.key),
-    ///             (Unbound, QName(b"one").into())
-    ///         );
-    ///
-    ///         let two = iter.next().unwrap().unwrap();
-    ///         assert_eq!(
-    ///             reader.resolve_attribute(two.key),
-    ///             (Bound(Namespace(b"other namespace")), QName(b"two").into())
-    ///         );
-    ///     }
-    ///     _ => unreachable!(),
-    /// }
-    /// ```
-    ///
-    /// [`Bound`]: ResolveResult::Bound
-    /// [`Unbound`]: ResolveResult::Unbound
-    /// [`Unknown`]: ResolveResult::Unknown
-    #[inline]
-    pub fn resolve_attribute<'n>(&self, name: QName<'n>) -> (ResolveResult, LocalName<'n>) {
-        self.ns_resolver.resolve(name, false)
+    pub fn resolver_mut(&mut self) -> &mut NamespaceResolver {
+        &mut self.ns_resolver
     }
 }
 
@@ -384,7 +137,7 @@ impl<R: BufRead> NsReader<R> {
     /// Reads the next event into given buffer.
     ///
     /// This method manages namespaces but doesn't resolve them automatically.
-    /// You should call [`resolve_element()`] if you want to get a namespace.
+    /// You should call [`resolver().resolve_element()`] if you want to get a namespace.
     ///
     /// You also can use [`read_resolved_event_into()`] instead if you want to resolve
     /// namespace as soon as you get an event.
@@ -412,7 +165,7 @@ impl<R: BufRead> NsReader<R> {
     ///     match reader.read_event_into(&mut buf).unwrap() {
     ///         Event::Start(e) => {
     ///             count += 1;
-    ///             let (ns, local) = reader.resolve_element(e.name());
+    ///             let (ns, local) = reader.resolver().resolve_element(e.name());
     ///             match local.as_ref() {
     ///                 b"tag1" => assert_eq!(ns, Bound(Namespace(b"www.xxxx"))),
     ///                 b"tag2" => assert_eq!(ns, Bound(Namespace(b"www.yyyy"))),
@@ -420,7 +173,7 @@ impl<R: BufRead> NsReader<R> {
     ///             }
     ///         }
     ///         Event::Text(e) => {
-    ///             txt.push(e.unescape().unwrap().into_owned())
+    ///             txt.push(e.decode().unwrap().into_owned())
     ///         }
     ///         Event::Eof => break,
     ///         _ => (),
@@ -431,7 +184,7 @@ impl<R: BufRead> NsReader<R> {
     /// assert_eq!(txt, vec!["Test".to_string(), "Test 2".to_string()]);
     /// ```
     ///
-    /// [`resolve_element()`]: Self::resolve_element
+    /// [`resolver().resolve_element()`]: NamespaceResolver::resolve_element
     /// [`read_resolved_event_into()`]: Self::read_resolved_event_into
     #[inline]
     pub fn read_event_into<'b>(&mut self, buf: &'b mut Vec<u8>) -> Result<Event<'b>> {
@@ -479,7 +232,7 @@ impl<R: BufRead> NsReader<R> {
     ///         (_, Event::Start(_)) => unreachable!(),
     ///
     ///         (_, Event::Text(e)) => {
-    ///             txt.push(e.unescape().unwrap().into_owned())
+    ///             txt.push(e.decode().unwrap().into_owned())
     ///         }
     ///         (_, Event::Eof) => break,
     ///         _ => (),
@@ -498,9 +251,9 @@ impl<R: BufRead> NsReader<R> {
     pub fn read_resolved_event_into<'b>(
         &mut self,
         buf: &'b mut Vec<u8>,
-    ) -> Result<(ResolveResult, Event<'b>)> {
-        let event = self.read_event_impl(buf);
-        self.resolve_event(event)
+    ) -> Result<(ResolveResult<'_>, Event<'b>)> {
+        let event = self.read_event_impl(buf)?;
+        Ok(self.ns_resolver.resolve_event(event))
     }
 
     /// Reads until end element is found using provided buffer as intermediate
@@ -604,7 +357,91 @@ impl<R: BufRead> NsReader<R> {
     pub fn read_to_end_into(&mut self, end: QName, buf: &mut Vec<u8>) -> Result<Span> {
         // According to the https://www.w3.org/TR/xml11/#dt-etag, end name should
         // match literally the start name. See `Config::check_end_names` documentation
-        self.reader.read_to_end_into(end, buf)
+        let result = self.reader.read_to_end_into(end, buf)?;
+        // read_to_end_into will consume closing tag. Because nobody can access to its
+        // content anymore, we directly pop namespace of the opening tag
+        self.ns_resolver.pop();
+        Ok(result)
+    }
+
+    /// Reads content between start and end tags, including any markup using
+    /// provided buffer as intermediate storage for events content. This function
+    /// is supposed to be called after you already read a [`Start`] event.
+    ///
+    /// Manages nested cases where parent and child elements have the _literally_
+    /// same name.
+    ///
+    /// This method does not unescape read data, instead it returns content
+    /// "as is" of the XML document. This is because it has no idea what text
+    /// it reads, and if, for example, it contains CDATA section, attempt to
+    /// unescape it content will spoil data.
+    ///
+    /// If your reader created from a string slice or byte array slice, it is
+    /// better to use [`read_text()`] method, because it will not copy bytes
+    /// into intermediate buffer.
+    ///
+    /// # Examples
+    ///
+    /// This example shows, how you can read a HTML content from your XML document.
+    ///
+    /// ```
+    /// # use pretty_assertions::assert_eq;
+    /// # use std::borrow::Cow;
+    /// use quick_xml::events::{BytesStart, Event};
+    /// use quick_xml::reader::NsReader;
+    ///
+    /// let mut reader = NsReader::from_reader("
+    ///     <html>
+    ///         <title>This is a HTML text</title>
+    ///         <p>Usual XML rules does not apply inside it
+    ///         <p>For example, elements not needed to be &quot;closed&quot;
+    ///     </html>
+    /// ".as_bytes());
+    /// reader.config_mut().trim_text(true);
+    ///
+    /// let start = BytesStart::new("html");
+    /// let end   = start.to_end().into_owned();
+    ///
+    /// let mut buf = Vec::new();
+    ///
+    /// // First, we read a start event...
+    /// assert_eq!(reader.read_event_into(&mut buf).unwrap(), Event::Start(start));
+    /// // ...and disable checking of end names because we expect HTML further...
+    /// reader.config_mut().check_end_names = false;
+    ///
+    /// // ...then, we could read text content until close tag.
+    /// // This call will correctly handle nested <html> elements.
+    /// let text = reader.read_text_into(end.name(), &mut buf).unwrap();
+    /// let text = text.decode().unwrap();
+    /// assert_eq!(text, r#"
+    ///         <title>This is a HTML text</title>
+    ///         <p>Usual XML rules does not apply inside it
+    ///         <p>For example, elements not needed to be &quot;closed&quot;
+    ///     "#);
+    /// assert!(matches!(text, Cow::Borrowed(_)));
+    ///
+    /// // Now we can enable checks again
+    /// reader.config_mut().check_end_names = true;
+    ///
+    /// // At the end we should get an Eof event, because we ate the whole XML
+    /// assert_eq!(reader.read_event_into(&mut buf).unwrap(), Event::Eof);
+    /// ```
+    ///
+    /// [`Start`]: Event::Start
+    /// [`read_text()`]: Self::read_text()
+    #[inline]
+    pub fn read_text_into<'b>(
+        &mut self,
+        end: QName,
+        buf: &'b mut Vec<u8>,
+    ) -> Result<BytesText<'b>> {
+        // According to the https://www.w3.org/TR/xml11/#dt-etag, end name should
+        // match literally the start name. See `Self::check_end_names` documentation
+        let result = self.reader.read_text_into(end, buf)?;
+        // read_text_into will consume closing tag. Because nobody can access to its
+        // content anymore, we directly pop namespace of the opening tag
+        self.ns_resolver.pop();
+        Ok(result)
     }
 }
 
@@ -626,7 +463,7 @@ impl<'i> NsReader<&'i [u8]> {
     /// Reads the next event, borrow its content from the input buffer.
     ///
     /// This method manages namespaces but doesn't resolve them automatically.
-    /// You should call [`resolve_element()`] if you want to get a namespace.
+    /// You should call [`resolver().resolve_element()`] if you want to get a namespace.
     ///
     /// You also can use [`read_resolved_event()`] instead if you want to resolve namespace
     /// as soon as you get an event.
@@ -657,7 +494,7 @@ impl<'i> NsReader<&'i [u8]> {
     ///     match reader.read_event().unwrap() {
     ///         Event::Start(e) => {
     ///             count += 1;
-    ///             let (ns, local) = reader.resolve_element(e.name());
+    ///             let (ns, local) = reader.resolver().resolve_element(e.name());
     ///             match local.as_ref() {
     ///                 b"tag1" => assert_eq!(ns, Bound(Namespace(b"www.xxxx"))),
     ///                 b"tag2" => assert_eq!(ns, Bound(Namespace(b"www.yyyy"))),
@@ -665,7 +502,7 @@ impl<'i> NsReader<&'i [u8]> {
     ///             }
     ///         }
     ///         Event::Text(e) => {
-    ///             txt.push(e.unescape().unwrap().into_owned())
+    ///             txt.push(e.decode().unwrap().into_owned())
     ///         }
     ///         Event::Eof => break,
     ///         _ => (),
@@ -675,7 +512,7 @@ impl<'i> NsReader<&'i [u8]> {
     /// assert_eq!(txt, vec!["Test".to_string(), "Test 2".to_string()]);
     /// ```
     ///
-    /// [`resolve_element()`]: Self::resolve_element
+    /// [`resolver().resolve_element()`]: NamespaceResolver::resolve_element
     /// [`read_resolved_event()`]: Self::read_resolved_event
     #[inline]
     pub fn read_event(&mut self) -> Result<Event<'i>> {
@@ -727,7 +564,7 @@ impl<'i> NsReader<&'i [u8]> {
     ///         (_, Event::Start(_)) => unreachable!(),
     ///
     ///         (_, Event::Text(e)) => {
-    ///             txt.push(e.unescape().unwrap().into_owned())
+    ///             txt.push(e.decode().unwrap().into_owned())
     ///         }
     ///         (_, Event::Eof) => break,
     ///         _ => (),
@@ -742,9 +579,9 @@ impl<'i> NsReader<&'i [u8]> {
     /// [`End`]: Event::End
     /// [`read_event()`]: Self::read_event
     #[inline]
-    pub fn read_resolved_event(&mut self) -> Result<(ResolveResult, Event<'i>)> {
-        let event = self.read_event_impl(());
-        self.resolve_event(event)
+    pub fn read_resolved_event(&mut self) -> Result<(ResolveResult<'_>, Event<'i>)> {
+        let event = self.read_event_impl(())?;
+        Ok(self.ns_resolver.resolve_event(event))
     }
 
     /// Reads until end element is found. This function is supposed to be called
@@ -840,7 +677,11 @@ impl<'i> NsReader<&'i [u8]> {
     pub fn read_to_end(&mut self, end: QName) -> Result<Span> {
         // According to the https://www.w3.org/TR/xml11/#dt-etag, end name should
         // match literally the start name. See `Config::check_end_names` documentation
-        self.reader.read_to_end(end)
+        let result = self.reader.read_to_end(end)?;
+        // read_to_end will consume closing tag. Because nobody can access to its
+        // content anymore, we directly pop namespace of the opening tag
+        self.ns_resolver.pop();
+        Ok(result)
     }
 
     /// Reads content between start and end tags, including any markup. This
@@ -893,11 +734,13 @@ impl<'i> NsReader<&'i [u8]> {
     /// // ...then, we could read text content until close tag.
     /// // This call will correctly handle nested <html> elements.
     /// let text = reader.read_text(end.name()).unwrap();
-    /// assert_eq!(text, Cow::Borrowed(r#"
+    /// let text = text.decode().unwrap();
+    /// assert_eq!(text, r#"
     ///         <title>This is a HTML text</title>
     ///         <p>Usual XML rules does not apply inside it
     ///         <p>For example, elements not needed to be &quot;closed&quot;
-    ///     "#));
+    ///     "#);
+    /// assert!(matches!(text, Cow::Borrowed(_)));
     ///
     /// // Now we can enable checks again
     /// reader.config_mut().check_end_names = true;
@@ -909,8 +752,14 @@ impl<'i> NsReader<&'i [u8]> {
     /// [`Start`]: Event::Start
     /// [`decoder()`]: Reader::decoder()
     #[inline]
-    pub fn read_text(&mut self, end: QName) -> Result<Cow<'i, str>> {
-        self.reader.read_text(end)
+    pub fn read_text(&mut self, end: QName) -> Result<BytesText<'i>> {
+        // According to the https://www.w3.org/TR/xml11/#dt-etag, end name should
+        // match literally the start name. See `Self::check_end_names` documentation
+        let result = self.reader.read_text(end)?;
+        // read_text will consume closing tag. Because nobody can access to its
+        // content anymore, we directly pop namespace of the opening tag
+        self.ns_resolver.pop();
+        Ok(result)
     }
 }
 

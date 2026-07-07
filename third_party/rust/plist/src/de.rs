@@ -103,7 +103,7 @@ where
     }
 }
 
-impl<'de, 'a, 'event, I> de::Deserializer<'de> for &'a mut Deserializer<'event, I>
+impl<'de, 'event, I> de::Deserializer<'de> for &mut Deserializer<'event, I>
 where
     I: IntoIterator<Item = Result<Event<'event>, Error>>,
 {
@@ -268,7 +268,7 @@ where
     }
 }
 
-impl<'de, 'a, 'event, I> de::EnumAccess<'de> for &'a mut Deserializer<'event, I>
+impl<'de, 'event, I> de::EnumAccess<'de> for &mut Deserializer<'event, I>
 where
     I: IntoIterator<Item = Result<Event<'event>, Error>>,
 {
@@ -283,7 +283,7 @@ where
     }
 }
 
-impl<'de, 'a, 'event, I> de::VariantAccess<'de> for &'a mut Deserializer<'event, I>
+impl<'de, 'event, I> de::VariantAccess<'de> for &mut Deserializer<'event, I>
 where
     I: IntoIterator<Item = Result<Event<'event>, Error>>,
 {
@@ -424,27 +424,40 @@ pub fn from_file<P: AsRef<Path>, T: de::DeserializeOwned>(path: P) -> Result<T, 
 /// Deserializes an instance of type `T` from a seekable byte stream containing a plist of any encoding.
 pub fn from_reader<R: Read + Seek, T: de::DeserializeOwned>(reader: R) -> Result<T, Error> {
     let reader = stream::Reader::new(reader);
-    let mut de = Deserializer::new(reader);
-    de::Deserialize::deserialize(&mut de)
+    from_stream(reader)
 }
 
 /// Deserializes an instance of type `T` from a byte stream containing an ASCII encoded plist.
 pub fn from_reader_ascii<R: Read, T: de::DeserializeOwned>(reader: R) -> Result<T, Error> {
     let reader = stream::AsciiReader::new(reader);
-    let mut de = Deserializer::new(reader);
-    de::Deserialize::deserialize(&mut de)
+    from_stream(reader)
 }
 
 /// Deserializes an instance of type `T` from a byte stream containing an XML encoded plist.
 pub fn from_reader_xml<R: Read, T: de::DeserializeOwned>(reader: R) -> Result<T, Error> {
     let reader = stream::XmlReader::new(BufReader::new(reader));
-    let mut de = Deserializer::new(reader);
-    de::Deserialize::deserialize(&mut de)
+    from_stream(reader)
 }
 
 /// Interprets a [`Value`] as an instance of type `T`.
 pub fn from_value<T: de::DeserializeOwned>(value: &Value) -> Result<T, Error> {
     let events = value.events().map(Ok);
-    let mut de = Deserializer::new(events);
-    de::Deserialize::deserialize(&mut de)
+    from_stream(events)
+}
+
+pub(crate) fn from_stream<'event, T: de::DeserializeOwned>(
+    stream: impl IntoIterator<Item = Result<Event<'event>, Error>>,
+) -> Result<T, Error> {
+    let mut de = Deserializer::new(stream);
+    let value = de::Deserialize::deserialize(&mut de)?;
+
+    // TODO: Ideally this check would be inside the `Deserializer` implementation.
+    if let Some(event) = de.events.next().transpose()? {
+        return Err(ErrorKind::ExpectedEndOfEventStream {
+            found: EventKind::of_event(&event),
+        }
+        .without_position());
+    }
+
+    Ok(value)
 }

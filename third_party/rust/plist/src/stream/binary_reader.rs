@@ -59,7 +59,7 @@ impl<R: Read> Read for PosReader<R> {
         let count = self.reader.read(buf)?;
         self.pos
             .checked_add(count as u64)
-            .expect("file cannot be larger than `u64::max_value()` bytes");
+            .expect("file cannot be larger than `u64::MAX` bytes");
         Ok(count)
     }
 }
@@ -107,15 +107,17 @@ impl<R: Read + Seek> BinaryReader<R> {
         let mut zeros = [0; 6];
         self.reader.read_all(&mut zeros)?;
 
+        // Encoders may use 24-bit integers in the object offset and reference tables.
+        // We never write 24-bit integers as not all decoders support them.
         let offset_size = self.read_u8()?;
         match offset_size {
-            1 | 2 | 4 | 8 => (),
+            1 | 2 | 3 | 4 | 8 => (),
             _ => return Err(self.with_pos(ErrorKind::InvalidTrailerObjectOffsetSize)),
         }
 
         self.ref_size = self.read_u8()?;
         match self.ref_size {
-            1 | 2 | 4 | 8 => (),
+            1 | 2 | 3 | 4 | 8 => (),
             _ => return Err(self.with_pos(ErrorKind::InvalidTrailerObjectReferenceSize)),
         }
 
@@ -138,6 +140,9 @@ impl<R: Read + Seek> BinaryReader<R> {
             match size {
                 1 => ints.push(self.read_u8()?.into()),
                 2 => ints.push(self.read_be_u16()?.into()),
+                // Encoders may use 24-bit integers in the object offset and reference tables.
+                // We never write 24-bit integers as not all decoders support them.
+                3 => ints.push(self.read_be_u24()?.into()),
                 4 => ints.push(self.read_be_u32()?.into()),
                 8 => ints.push(self.read_be_u64()?),
                 _ => unreachable!("size is either self.ref_size or offset_size both of which are already validated")
@@ -249,10 +254,11 @@ impl<R: Read + Seek> BinaryReader<R> {
             (0x1, 3) => Some(Event::Integer(self.read_be_i64()?.into())),
             (0x1, 4) => {
                 let value = self.read_be_i128()?;
-                if value < 0 || value > i128::from(u64::max_value()) {
+                if let Ok(value) = u64::try_from(value) {
+                    Some(Event::Integer(value.into()))
+                } else {
                     return Err(self.with_pos(ErrorKind::IntegerOutOfRange));
                 }
-                Some(Event::Integer((value as u64).into()))
             }
             (0x1, _) => return Err(self.with_pos(ErrorKind::UnknownObjectType(token))), // variable length int
             (0x2, 2) => Some(Event::Real(f32::from_bits(self.read_be_u32()?).into())),
@@ -360,6 +366,12 @@ impl<R: Read + Seek> BinaryReader<R> {
         let mut buf = [0; 2];
         self.reader.read_all(&mut buf)?;
         Ok(u16::from_be_bytes(buf))
+    }
+
+    fn read_be_u24(&mut self) -> Result<u32, Error> {
+        let mut buf = [0; 4];
+        self.reader.read_all(&mut buf[1..])?;
+        Ok(u32::from_be_bytes(buf))
     }
 
     fn read_be_u32(&mut self) -> Result<u32, Error> {
@@ -487,5 +499,18 @@ mod tests {
         assert_eq!(events[12], Event::Uid(Uid::new(2)));
         assert_eq!(events[18], Event::Uid(Uid::new(3)));
         assert_eq!(events[46], Event::Uid(Uid::new(1)));
+    }
+
+    #[test]
+    fn three_byte_integer_object_offset_plist() {
+        let reader =
+            File::open("./tests/data/binary_three_byte_integer_offset_table.plist").unwrap();
+        let streaming_parser = BinaryReader::new(reader);
+        let events: Vec<Event> = streaming_parser.map(|e| e.unwrap()).collect();
+
+        assert_eq!(events[0], Event::StartDictionary(Some(4)));
+        assert_eq!(events[1], Event::String("data".into()));
+        assert_eq!(events[2], Event::StartDictionary(Some(2199)));
+        assert_eq!(events[3], Event::String("1838".into()));
     }
 }

@@ -1,6 +1,6 @@
 [package]
 name = "quick-xml"
-version = "0.37.5"
+version = "0.41.0"
 description = "High performance xml reader and writer"
 edition = "2021"
 
@@ -10,7 +10,7 @@ repository = "https://github.com/tafia/quick-xml"
 keywords = ["xml", "serde", "parser", "writer", "html"]
 categories = ["asynchronous", "encoding", "parsing", "parser-implementations"]
 license = "MIT"
-rust-version = "1.56"
+rust-version = "1.79"
 # We exclude tests & examples & benches to reduce the size of a package.
 # Unfortunately, this is source of warnings in latest cargo when packaging:
 # > warning: ignoring {context} `{name}` as `{path}` is not included in the published package
@@ -22,12 +22,19 @@ include = ["src/*", "LICENSE-MIT.md", "README.md"]
 arbitrary = { version = "1", features = ["derive"], optional = true }
 document-features = { version = "0.2", optional = true }
 encoding_rs = { version = "0.8", optional = true }
-serde = { version = ">=1.0.139", optional = true }
+# 1.0.180 is the first version that requires compiler with integer128 support (1.26)
+# Because serde_if_integer128 is deprecated since 1.0.221, we do not use it anymore
+serde = { version = ">=1.0.180", optional = true }
 tokio = { version = "1.10", optional = true, default-features = false, features = ["io-util"] }
 memchr = "2.1"
 
 [dev-dependencies]
-criterion = "0.4"
+# msrv workflow uses `cargo check` which tries to resolve all dependencies, even
+# not used (for example, when calling `cargo check --lib` only `dependencies` is
+# required, `dev-dependencies` are not used). `criterion` 0.6 has msrv = 1.80, so
+# we cannot check minimal versions with it. We allow to use `criterion` 0.4 for that
+# See https://github.com/rust-lang/cargo/issues/10958
+criterion = ">=0.4,<0.9"
 pretty_assertions = "1.4"
 regex = "1"
 # https://github.com/serde-rs/serde/issues/1904 is fixed since 1.0.206
@@ -40,6 +47,11 @@ tokio-test = "0.4"
 [lib]
 bench = false
 
+[profile.bench]
+# For better information from cargo flamegraph
+debug = true
+lto = true
+
 [[bench]]
 name = "microbenches"
 harness = false
@@ -49,6 +61,17 @@ path = "benches/microbenches.rs"
 name = "macrobenches"
 harness = false
 path = "benches/macrobenches.rs"
+
+[[bench]]
+name = "encoding"
+harness = false
+path = "benches/encoding.rs"
+required-features = ["encoding"]
+
+[[bench]]
+name = "issue971"
+harness = false
+path = "benches/issue971.rs"
 
 [features]
 default = []
@@ -65,12 +88,17 @@ async-tokio = ["tokio"]
 ## Currently, only ASCII-compatible encodings are supported. For example,
 ## UTF-16 will not work (therefore, `quick-xml` is not [standard compliant]).
 ##
-## Thus, quick-xml supports all encodings of [`encoding_rs`] except these:
+## Thus, quick-xml supports all encodings of [`encoding_rs`]. Note, that for correct
+## handling of:
 ## - [UTF-16BE]
 ## - [UTF-16LE]
 ## - [ISO-2022-JP]
 ##
+## encodings you need to use the [`DecodingReader`] intermediate reader. That is because
+## those encodings are the only supported encodings that are not ASCII compatible.
+##
 ## You should stop processing a document when one of these encodings is detected,
+## if you do not use [`DecodingReader`] (or similar third-party decoder),
 ## because generated events can be wrong and do not reflect a real document structure!
 ##
 ## Because these are the only supported encodings that are not ASCII compatible, you can
@@ -88,7 +116,7 @@ async-tokio = ["tokio"]
 ## #     }
 ## #     bytes
 ## # }
-## let xml = to_utf16le_with_bom(r#"<?xml encoding='UTF-16'><element/>"#);
+## let xml = to_utf16le_with_bom(r#"<?xml encoding='UTF-16'?><element/>"#);
 ## let mut reader = Reader::from_reader(xml.as_ref());
 ## reader.config_mut().trim_text(true);
 ##
@@ -107,13 +135,12 @@ async-tokio = ["tokio"]
 ## }
 ## assert_eq!(unsupported, true);
 ## ```
-## This restriction will be eliminated once issue [#158] is resolved.
 ##
 ## [standard compliant]: https://www.w3.org/TR/xml11/#charencoding
 ## [UTF-16BE]: encoding_rs::UTF_16BE
 ## [UTF-16LE]: encoding_rs::UTF_16LE
 ## [ISO-2022-JP]: encoding_rs::ISO_2022_JP
-## [#158]: https://github.com/tafia/quick-xml/issues/158
+## [`DecodingReader`]: ./encoding/struct.DecodingReader.html
 encoding = ["encoding_rs"]
 
 ## Enables support for recognizing all [HTML 5 entities] in [`unescape`]
@@ -177,15 +204,15 @@ overlapped-lists = []
 ## This feature does NOT provide XML serializer or deserializer. You should use
 ## the `serialize` feature for that instead.
 # Cannot name "serde" to avoid clash with dependency.
-# "dep:" prefix only avalible from Rust 1.60
+# "dep:" prefix only available from Rust 1.60
 serde-types = ["serde/derive"]
 
 ## Enables support for [`serde`] serialization and deserialization. When this
 ## feature is enabled, quick-xml provides serializer and deserializer for XML.
 ##
-## This feature does NOT enables serializaton of the types inside quick-xml.
+## This feature does NOT enables serialization of the types inside quick-xml.
 ## If you need that, use the `serde-types` feature.
-serialize = ["serde"] # "dep:" prefix only avalible from Rust 1.60
+serialize = ["serde"] # "dep:" prefix only available from Rust 1.60
 
 [package.metadata.docs.rs]
 # document all features
@@ -210,11 +237,6 @@ path = "tests/encodings.rs"
 name = "html"
 required-features = ["escape-html"]
 path = "tests/html.rs"
-
-[[test]]
-name = "serde_roundtrip"
-required-features = ["serialize"]
-path = "tests/serde_roundtrip.rs"
 
 [[test]]
 name = "serde-de"
@@ -242,11 +264,6 @@ required-features = ["serialize"]
 path = "tests/serde-se.rs"
 
 [[test]]
-name = "serde-migrated"
-required-features = ["serialize"]
-path = "tests/serde-migrated.rs"
-
-[[test]]
 name = "serde-issues"
 required-features = ["serialize"]
 path = "tests/serde-issues.rs"
@@ -260,3 +277,8 @@ path = "examples/read_nodes_serde.rs"
 name = "flattened_enum"
 required-features = ["serialize"]
 path = "examples/flattened_enum.rs"
+
+[[example]]
+name = "read_utf16"
+required-features = ["encoding"]
+path = "examples/read_utf16.rs"

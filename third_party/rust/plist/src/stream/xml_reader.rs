@@ -1,5 +1,5 @@
 use base64::{engine::general_purpose::STANDARD as base64_standard, Engine};
-use quick_xml::{events::Event as XmlEvent, Error as XmlReaderError, Reader as EventReader};
+use quick_xml::{escape::resolve_xml_entity, events::Event as XmlEvent, Error as XmlReaderError, Reader as EventReader};
 use std::io::{self, BufRead};
 
 use crate::{
@@ -7,21 +7,6 @@ use crate::{
     stream::{Event, OwnedEvent},
     Date, Integer,
 };
-
-#[derive(Clone, PartialEq, Eq)]
-struct ElmName(Box<[u8]>);
-
-impl From<&[u8]> for ElmName {
-    fn from(bytes: &[u8]) -> Self {
-        ElmName(Box::from(bytes))
-    }
-}
-
-impl AsRef<[u8]> for ElmName {
-    fn as_ref(&self) -> &[u8] {
-        &self.0
-    }
-}
 
 pub struct XmlReader<R: BufRead> {
     buffer: Vec<u8>,
@@ -74,9 +59,13 @@ impl From<XmlReaderError> for ErrorKind {
                 Err(err) => ErrorKind::Io(std::io::Error::from(err.kind())),
             },
             XmlReaderError::Syntax(_) => ErrorKind::UnexpectedEof,
-            XmlReaderError::IllFormed(_) => ErrorKind::InvalidXmlSyntax,
+            XmlReaderError::IllFormed(_)
+            | XmlReaderError::InvalidAttr(_)
+            | XmlReaderError::Escape(_)
+            | XmlReaderError::Namespace(_) => {
+                ErrorKind::InvalidXmlSyntax
+            },
             XmlReaderError::Encoding(_) => ErrorKind::InvalidXmlUtf8,
-            _ => ErrorKind::InvalidXmlSyntax,
         }
     }
 }
@@ -115,7 +104,7 @@ impl<R: BufRead> Iterator for XmlReader<R> {
 impl<R: BufRead> ReaderState<R> {
     fn xml_reader_pos(&self) -> FilePosition {
         let pos = self.0.buffer_position();
-        FilePosition(pos as u64)
+        FilePosition(pos)
     }
 
     fn with_pos(&self, kind: ErrorKind) -> Error {
@@ -129,17 +118,32 @@ impl<R: BufRead> ReaderState<R> {
     }
 
     fn read_content(&mut self, buffer: &mut Vec<u8>) -> Result<String, Error> {
+        let mut content = String::new();
         loop {
             match self.read_xml_event(buffer)? {
                 XmlEvent::Text(text) => {
-                    let unescaped = text
-                        .unescape()
+                    let decoded = text
+                        .decode()
                         .map_err(|err| self.with_pos(ErrorKind::from(err)))?;
-                    return String::from_utf8(unescaped.as_ref().into())
-                        .map_err(|_| self.with_pos(ErrorKind::InvalidUtf8String));
+                    content.push_str(&decoded);
+                }
+                XmlEvent::GeneralRef(bytes) => {
+                    if let Some(ch) = bytes
+                        .resolve_char_ref()
+                        .map_err(|err| self.with_pos(ErrorKind::from(err)))?
+                    {
+                        content.push(ch);
+                    } else {
+                        let decoded = bytes
+                            .decode()
+                            .map_err(|err| self.with_pos(ErrorKind::from(err)))?;
+                        if let Some(entity) = resolve_xml_entity(&decoded) {
+                            content.push_str(entity);
+                        }
+                    }
                 }
                 XmlEvent::End(_) => {
-                    return Ok("".to_owned());
+                    break;
                 }
                 XmlEvent::Eof => return Err(self.with_pos(ErrorKind::UnclosedXmlElement)),
                 XmlEvent::Start(_) => return Err(self.with_pos(ErrorKind::UnexpectedXmlOpeningTag)),
@@ -153,6 +157,7 @@ impl<R: BufRead> ReaderState<R> {
                 }
             }
         }
+        Ok(content)
     }
 
     fn read_next(&mut self, buffer: &mut Vec<u8>) -> Result<ReadResult, Error> {
@@ -216,15 +221,37 @@ impl<R: BufRead> ReaderState<R> {
                 },
                 XmlEvent::Eof => return Ok(ReadResult::Eof),
                 XmlEvent::Text(text) => {
-                    let unescaped = text
-                        .unescape()
+                    let decoded = text
+                        .decode()
                         .map_err(|err| self.with_pos(ErrorKind::from(err)))?;
 
-                    if !unescaped.chars().all(char::is_whitespace) {
+                    if !decoded.chars().all(char::is_whitespace) {
                         return Err(
                             self.with_pos(ErrorKind::UnexpectedXmlCharactersExpectedElement)
                         );
                     }
+                }
+                XmlEvent::GeneralRef(bytes) => {
+                    if let Some(ch) = bytes
+                        .resolve_char_ref()
+                        .map_err(|err| self.with_pos(ErrorKind::from(err)))?
+                    {
+                        if ch.is_whitespace() {
+                            continue;
+                        }
+                    } else {
+                        let decoded = bytes
+                            .decode()
+                            .map_err(|err| self.with_pos(ErrorKind::from(err)))?;
+                        if let Some(entity) = resolve_xml_entity(&decoded) {
+                            if entity.chars().all(char::is_whitespace) {
+                                continue;
+                            }
+                        }
+                    }
+                    return Err(
+                        self.with_pos(ErrorKind::UnexpectedXmlCharactersExpectedElement)
+                    );
                 }
                 XmlEvent::PI(_)
                 | XmlEvent::CData(_)
@@ -279,6 +306,8 @@ mod tests {
             Boolean(true),
             String("IsNotFalse".into()),
             Boolean(false),
+            String("Pets".into()),
+            String("A cat & a dog.".into()),
             EndCollection,
         ];
 
@@ -292,5 +321,19 @@ mod tests {
         let events: Vec<_> = streaming_parser.collect();
 
         assert!(events.last().unwrap().is_err());
+    }
+
+    #[test]
+    fn entity_error() {
+        let reader = File::open("./tests/data/xml_entity_error.plist").unwrap();
+        let streaming_parser = XmlReader::new(BufReader::new(reader));
+        let events: Vec<_> = streaming_parser.collect();
+        let event = events.last().unwrap();
+
+        assert!(event.is_err());
+        assert_eq!(
+            event.as_ref().unwrap_err().to_string(),
+            "UnexpectedXmlCharactersExpectedElement (offset 174)".to_string()
+        );
     }
 }

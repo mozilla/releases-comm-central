@@ -1,15 +1,15 @@
 on:
   push:
     branches:
-    - master
+      - master
   pull_request:
     branches:
-    - master
+      - master
 
 name: CI
 
-env:
-  CARGO_REGISTRIES_CRATES_IO_PROTOCOL: sparse
+permissions:
+  contents: read
 
 jobs:
   build_and_test:
@@ -20,7 +20,7 @@ jobs:
         include:
           - os: ubuntu-22.04
             target: x86_64-unknown-linux-gnu
-            channel: 1.68.0
+            channel: msrv
           - os: ubuntu-22.04
             target: x86_64-unknown-linux-gnu
             channel: stable
@@ -32,37 +32,56 @@ jobs:
             channel: nightly
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       - name: Install Rust Toolchain
         run: |
+          set -euo pipefail
+
+          if [ "$CHANNEL" = "msrv" ]
+          then
+            CHANNEL="$(cargo metadata --no-deps --format-version=1 | jq -er '.packages[] | select(.name=="plist") | .rust_version')"
+          fi
+
+          TOOLCHAIN="${CHANNEL}-${TARGET}"
           rustup default "$TOOLCHAIN"
           rustup update "$TOOLCHAIN"
         env:
-          TOOLCHAIN: ${{ matrix.channel }}-${{ matrix.target }}
+          CHANNEL: ${{ matrix.channel }}
+          TARGET: ${{ matrix.target }}
 
       - name: Build and Test (Debug, No Default Features)
-        run: cargo test --no-default-features
+        run: cargo test --locked --no-default-features
 
       - name: Build and Test (Debug, enable_unstable_features_that_may_break_with_minor_version_bumps)
-        run: cargo test --no-default-features --features enable_unstable_features_that_may_break_with_minor_version_bumps
+        run: cargo test --locked --no-default-features --features enable_unstable_features_that_may_break_with_minor_version_bumps
 
       - name: Build and Test (Debug, serde)
-        run: cargo test --no-default-features --features serde
+        run: cargo test --locked --no-default-features --features serde
 
       - name: Build and Test (Release, All Features)
-        run: cargo test --release --all-features
+        run: cargo test --locked --release --all-features
 
       - name: Build and Test (Minimal Versions, All Features)
         if: matrix.channel == 'nightly'
-        run: cargo test --all-features -Z minimal-versions
+        run: cargo test --locked --all-features -Z minimal-versions
+
+      - name: Install cargo-expand
+        if: matrix.channel == 'msrv'
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-expand@1
+
+      - name: Test macro expansion
+        if: matrix.channel == 'msrv'
+        run: cargo test --locked macro_expansion -- --ignored
 
   lint:
     name: Lint
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       - name: Check for broken intra-doc links
         run: cargo doc --all-features --document-private-items --no-deps
@@ -81,7 +100,10 @@ jobs:
         run: exit 1
 
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
+
+      - name: Run cargo-semver-checks
+        uses: obi1kenobi/cargo-semver-checks-action@v2
 
       - name: Check if Release Needed
         id: release_check
@@ -103,21 +125,23 @@ jobs:
     needs: ci_succeeded
     if: github.ref == 'refs/heads/master' && needs.ci_succeeded.outputs.release == 'true'
     runs-on: ubuntu-22.04
+    environment: release
+    permissions:
+      contents: write # Required for creating GitHub release
+      id-token: write # Required for OIDC token exchange
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
-      - name: Install cargo-semver-checks
-        run: cargo install cargo-semver-checks --locked
-
-      - name: Run cargo-semver-checks
-        run: cargo semver-checks check-release
+      - name: Authenticate with crates.io
+        uses: rust-lang/crates-io-auth-action@v1
+        id: auth
 
       - name: Publish Crate
         run: |
-          cargo publish --token "$CRATES_IO_TOKEN"
+          cargo publish
         env:
-          CRATES_IO_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
+          CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
 
       - name: Create GitHub Release
         uses: actions/create-release@latest

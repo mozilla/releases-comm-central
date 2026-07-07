@@ -11,9 +11,9 @@
 
 [package]
 edition = "2021"
-rust-version = "1.56"
+rust-version = "1.79"
 name = "quick-xml"
-version = "0.37.5"
+version = "0.41.0"
 build = false
 include = [
     "src/*",
@@ -78,7 +78,7 @@ optional = true
 version = "2.1"
 
 [dependencies.serde]
-version = ">=1.0.139"
+version = ">=1.0.180"
 optional = true
 
 [dependencies.tokio]
@@ -88,7 +88,7 @@ optional = true
 default-features = false
 
 [dev-dependencies.criterion]
-version = "0.4"
+version = ">=0.4,<0.9"
 
 [dev-dependencies.pretty_assertions]
 version = "1.4"
@@ -112,3 +112,7 @@ default-features = false
 
 [dev-dependencies.tokio-test]
 version = "0.4"
+
+[profile.bench]
+lto = true
+debug = 2

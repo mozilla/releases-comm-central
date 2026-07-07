@@ -4,7 +4,7 @@
 [![Crate](https://img.shields.io/crates/v/quick-xml.svg)](https://crates.io/crates/quick-xml)
 [![docs.rs](https://docs.rs/quick-xml/badge.svg)](https://docs.rs/quick-xml)
 [![codecov](https://img.shields.io/codecov/c/github/tafia/quick-xml)](https://codecov.io/gh/tafia/quick-xml)
-[![MSRV](https://img.shields.io/badge/rustc-1.56.0+-ab6000.svg)](https://blog.rust-lang.org/2021/10/21/Rust-1.56.0.html)
+[![MSRV](https://img.shields.io/badge/rustc-1.79.0+-ab6000.svg)](https://blog.rust-lang.org/2024/06/13/Rust-1.79.0/)
 
 High performance xml pull reader/writer.
 
@@ -53,7 +53,7 @@ loop {
                 _ => (),
             }
         }
-        Ok(Event::Text(e)) => txt.push(e.unescape().unwrap().into_owned()),
+        Ok(Event::Text(e)) => txt.push(e.decode().unwrap().into_owned()),
 
         // There are several other `Event`s we do not consider here
         _ => (),
@@ -79,7 +79,7 @@ loop {
     match reader.read_event() {
         Ok(Event::Start(e)) if e.name().as_ref() == b"this_tag" => {
 
-            // crates a new element ... alternatively we could reuse `e` by calling
+            // creates a new element ... alternatively we could reuse `e` by calling
             // `e.into_owned()`
             let mut elem = BytesStart::new("my_elem");
 

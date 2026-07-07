@@ -117,7 +117,7 @@ pub mod serde_impls {
 
     struct DataVisitor;
 
-    impl<'de> de::Visitor<'de> for DataVisitor {
+    impl de::Visitor<'_> for DataVisitor {
         type Value = Data;
 
         fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {

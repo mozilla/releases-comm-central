@@ -1,4 +1,6 @@
 use std::{error, fmt, io};
+use quick_xml::escape::EscapeError;
+use quick_xml::encoding::EncodingError;
 
 #[cfg(feature = "serde")]
 use crate::stream::Event;
@@ -190,6 +192,18 @@ impl ErrorKind {
 impl From<InvalidXmlDate> for ErrorKind {
     fn from(_: InvalidXmlDate) -> Self {
         ErrorKind::InvalidDateString
+    }
+}
+
+impl From<EscapeError> for ErrorKind {
+    fn from(_: EscapeError) -> Self {
+        ErrorKind::InvalidXmlUtf8
+    }
+}
+
+impl From<EncodingError> for ErrorKind {
+    fn from(_: EncodingError) -> Self {
+        ErrorKind::InvalidXmlUtf8
     }
 }
 

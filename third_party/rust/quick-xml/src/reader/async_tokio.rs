@@ -7,12 +7,15 @@ use std::task::{Context, Poll};
 
 use tokio::io::{self, AsyncBufRead, AsyncBufReadExt, AsyncRead, ReadBuf};
 
-use crate::errors::{Error, Result, SyntaxError};
-use crate::events::Event;
+use crate::encoding;
+use crate::errors::{Error, IllFormedError, Result, SyntaxError};
+use crate::events::{BytesRef, BytesText, Event};
 use crate::name::{QName, ResolveResult};
 use crate::parser::{ElementParser, Parser, PiParser};
 use crate::reader::buffered_reader::impl_buffered_source;
-use crate::reader::{BangType, BinaryStream, NsReader, ParseState, ReadTextResult, Reader, Span};
+use crate::reader::{
+    BangType, BinaryStream, NsReader, ParseState, ReadRefResult, ReadTextResult, Reader, Span,
+};
 use crate::utils::is_whitespace;
 
 /// A struct for read XML asynchronously from an [`AsyncBufRead`].
@@ -101,7 +104,7 @@ impl<R: AsyncBufRead + Unpin> Reader<R> {
     /// loop {
     ///     match reader.read_event_into_async(&mut buf).await {
     ///         Ok(Event::Start(_)) => count += 1,
-    ///         Ok(Event::Text(e)) => txt.push(e.unescape().unwrap().into_owned()),
+    ///         Ok(Event::Text(e)) => txt.push(e.decode().unwrap().into_owned()),
     ///         Err(e) => panic!("Error at position {}: {:?}", reader.error_position(), e),
     ///         Ok(Event::Eof) => break,
     ///         _ => (),
@@ -178,7 +181,7 @@ impl<R: AsyncBufRead + Unpin> Reader<R> {
     /// [`Start`]: Event::Start
     pub async fn read_to_end_into_async<'n>(
         &mut self,
-        // We should name that lifetime due to https://github.com/rust-lang/rust/issues/63033`
+        // We should name that lifetime due to https://github.com/rust-lang/rust/issues/63033
         end: QName<'n>,
         buf: &mut Vec<u8>,
     ) -> Result<Span> {
@@ -192,6 +195,82 @@ impl<R: AsyncBufRead + Unpin> Reader<R> {
             },
             await
         ))
+    }
+
+    /// An asynchronous version of [`read_text_into()`].
+    /// Reads asynchronously until end element is found using provided buffer as
+    /// intermediate storage for events content. This function is supposed to be
+    /// called after you already read a [`Start`] event.
+    ///
+    /// See the documentation of [`read_text_into()`] for more information.
+    ///
+    /// # Examples
+    ///
+    /// This example shows, how you can read a HTML content from your XML document.
+    ///
+    /// ```
+    /// # tokio_test::block_on(async {
+    /// # use pretty_assertions::assert_eq;
+    /// # use std::borrow::Cow;
+    /// use quick_xml::events::{BytesStart, Event};
+    /// use quick_xml::reader::Reader;
+    ///
+    /// let mut reader = Reader::from_reader("
+    ///     <html>
+    ///         <title>This is a HTML text</title>
+    ///         <p>Usual XML rules does not apply inside it
+    ///         <p>For example, elements not needed to be &quot;closed&quot;
+    ///     </html>
+    /// ".as_bytes());
+    /// reader.config_mut().trim_text(true);
+    ///
+    /// let start = BytesStart::new("html");
+    /// let end   = start.to_end().into_owned();
+    ///
+    /// let mut buf = Vec::new();
+    ///
+    /// // First, we read a start event...
+    /// assert_eq!(reader.read_event_into_async(&mut buf).await.unwrap(), Event::Start(start));
+    /// // ...and disable checking of end names because we expect HTML further...
+    /// reader.config_mut().check_end_names = false;
+    ///
+    /// // ...then, we could read text content until close tag.
+    /// // This call will correctly handle nested <html> elements.
+    /// let text = reader.read_text_into_async(end.name(), &mut buf).await.unwrap();
+    /// let text = text.decode().unwrap();
+    /// assert_eq!(text, r#"
+    ///         <title>This is a HTML text</title>
+    ///         <p>Usual XML rules does not apply inside it
+    ///         <p>For example, elements not needed to be &quot;closed&quot;
+    ///     "#);
+    /// assert!(matches!(text, Cow::Borrowed(_)));
+    ///
+    /// // Now we can enable checks again
+    /// reader.config_mut().check_end_names = true;
+    ///
+    /// // At the end we should get an Eof event, because we ate the whole XML
+    /// assert_eq!(reader.read_event_into_async(&mut buf).await.unwrap(), Event::Eof);
+    /// # }) // tokio_test::block_on
+    /// ```
+    ///
+    /// [`read_text_into()`]: Self::read_text_into
+    /// [`Start`]: Event::Start
+    pub async fn read_text_into_async<'n, 'b>(
+        &mut self,
+        // We should name that lifetime due to https://github.com/rust-lang/rust/issues/63033
+        end: QName<'n>,
+        buf: &'b mut Vec<u8>,
+    ) -> Result<BytesText<'b>> {
+        let start = buf.len();
+        let span = read_to_end!(self, end, buf, read_event_into_async, {}, await);
+
+        let len = span.end - span.start;
+        // SAFETY: `buf` may contain not more than isize::MAX bytes and because it is
+        // not cleared when reading event, length of the returned span should fit into
+        // usize (because otherwise we panic at appending to the buffer before that point)
+        let end = start + len as usize;
+
+        Ok(BytesText::wrap(&buf[start..end], self.decoder()))
     }
 
     /// Private function to read until `>` is found. This function expects that
@@ -208,7 +287,7 @@ impl<R: AsyncBufRead + Unpin> NsReader<R> {
     /// given buffer.
     ///
     /// This method manages namespaces but doesn't resolve them automatically.
-    /// You should call [`resolve_element()`] if you want to get a namespace.
+    /// You should call [`resolver().resolve_element()`] if you want to get a namespace.
     ///
     /// You also can use [`read_resolved_event_into_async()`] instead if you want
     /// to resolve namespace as soon as you get an event.
@@ -237,7 +316,7 @@ impl<R: AsyncBufRead + Unpin> NsReader<R> {
     ///     match reader.read_event_into_async(&mut buf).await.unwrap() {
     ///         Event::Start(e) => {
     ///             count += 1;
-    ///             let (ns, local) = reader.resolve_element(e.name());
+    ///             let (ns, local) = reader.resolver().resolve_element(e.name());
     ///             match local.as_ref() {
     ///                 b"tag1" => assert_eq!(ns, Bound(Namespace(b"www.xxxx"))),
     ///                 b"tag2" => assert_eq!(ns, Bound(Namespace(b"www.yyyy"))),
@@ -245,7 +324,7 @@ impl<R: AsyncBufRead + Unpin> NsReader<R> {
     ///             }
     ///         }
     ///         Event::Text(e) => {
-    ///             txt.push(e.unescape().unwrap().into_owned())
+    ///             txt.push(e.decode().unwrap().into_owned())
     ///         }
     ///         Event::Eof => break,
     ///         _ => (),
@@ -258,7 +337,7 @@ impl<R: AsyncBufRead + Unpin> NsReader<R> {
     /// ```
     ///
     /// [`read_event_into()`]: NsReader::read_event_into
-    /// [`resolve_element()`]: Self::resolve_element
+    /// [`resolver().resolve_element()`]: crate::name::NamespaceResolver::resolve_element
     /// [`read_resolved_event_into_async()`]: Self::read_resolved_event_into_async
     pub async fn read_event_into_async<'b>(&mut self, buf: &'b mut Vec<u8>) -> Result<Event<'b>> {
         self.pop();
@@ -335,7 +414,84 @@ impl<R: AsyncBufRead + Unpin> NsReader<R> {
     ) -> Result<Span> {
         // According to the https://www.w3.org/TR/xml11/#dt-etag, end name should
         // match literally the start name. See `Config::check_end_names` documentation
-        self.reader.read_to_end_into_async(end, buf).await
+        let result = self.reader.read_to_end_into_async(end, buf).await?;
+        // read_to_end_into_async will consume closing tag. Because nobody can access to its
+        // content anymore, we directly pop namespace of the opening tag
+        self.ns_resolver.pop();
+        Ok(result)
+    }
+
+    /// An asynchronous version of [`read_text_into()`].
+    /// Reads asynchronously until end element is found using provided buffer as
+    /// intermediate storage for events content. This function is supposed to be
+    /// called after you already read a [`Start`] event.
+    ///
+    /// See the documentation of [`read_text_into()`] for more information.
+    ///
+    /// # Examples
+    ///
+    /// This example shows, how you can read a HTML content from your XML document.
+    ///
+    /// ```
+    /// # tokio_test::block_on(async {
+    /// # use pretty_assertions::assert_eq;
+    /// # use std::borrow::Cow;
+    /// use quick_xml::events::{BytesStart, Event};
+    /// use quick_xml::reader::NsReader;
+    ///
+    /// let mut reader = NsReader::from_reader("
+    ///     <html>
+    ///         <title>This is a HTML text</title>
+    ///         <p>Usual XML rules does not apply inside it
+    ///         <p>For example, elements not needed to be &quot;closed&quot;
+    ///     </html>
+    /// ".as_bytes());
+    /// reader.config_mut().trim_text(true);
+    ///
+    /// let start = BytesStart::new("html");
+    /// let end   = start.to_end().into_owned();
+    ///
+    /// let mut buf = Vec::new();
+    ///
+    /// // First, we read a start event...
+    /// assert_eq!(reader.read_event_into_async(&mut buf).await.unwrap(), Event::Start(start));
+    /// // ...and disable checking of end names because we expect HTML further...
+    /// reader.config_mut().check_end_names = false;
+    ///
+    /// // ...then, we could read text content until close tag.
+    /// // This call will correctly handle nested <html> elements.
+    /// let text = reader.read_text_into_async(end.name(), &mut buf).await.unwrap();
+    /// let text = text.decode().unwrap();
+    /// assert_eq!(text, r#"
+    ///         <title>This is a HTML text</title>
+    ///         <p>Usual XML rules does not apply inside it
+    ///         <p>For example, elements not needed to be &quot;closed&quot;
+    ///     "#);
+    /// assert!(matches!(text, Cow::Borrowed(_)));
+    ///
+    /// // Now we can enable checks again
+    /// reader.config_mut().check_end_names = true;
+    ///
+    /// // At the end we should get an Eof event, because we ate the whole XML
+    /// assert_eq!(reader.read_event_into_async(&mut buf).await.unwrap(), Event::Eof);
+    /// # }) // tokio_test::block_on
+    /// ```
+    ///
+    /// [`read_text_into()`]: Self::read_text_into
+    /// [`Start`]: Event::Start
+    pub async fn read_text_into_async<'n, 'b>(
+        &mut self,
+        // We should name that lifetime due to https://github.com/rust-lang/rust/issues/63033
+        end: QName<'n>,
+        buf: &'b mut Vec<u8>,
+    ) -> Result<BytesText<'b>> {
+        // According to the https://www.w3.org/TR/xml11/#dt-etag, end name should
+        // match literally the start name. See `Config::check_end_names` documentation
+        let result = self.reader.read_text_into_async(end, buf).await?;
+        // read_text_into_async will consume closing tag. Because nobody can access to its
+        // content anymore, we directly pop namespace of the opening tag
+        self.ns_resolver.pop();
+        Ok(result)
     }
 
     /// An asynchronous version of [`read_resolved_event_into()`]. Reads the next
@@ -381,7 +537,7 @@ impl<R: AsyncBufRead + Unpin> NsReader<R> {
     ///         (_, Event::Start(_)) => unreachable!(),
     ///
     ///         (_, Event::Text(e)) => {
-    ///             txt.push(e.unescape().unwrap().into_owned())
+    ///             txt.push(e.decode().unwrap().into_owned())
     ///         }
     ///         (_, Event::Eof) => break,
     ///         _ => (),
@@ -404,8 +560,8 @@ impl<R: AsyncBufRead + Unpin> NsReader<R> {
         &'ns mut self,
         buf: &'b mut Vec<u8>,
     ) -> Result<(ResolveResult<'ns>, Event<'b>)> {
-        let event = self.read_event_into_async(buf).await;
-        self.resolve_event(event)
+        let event = self.read_event_into_async(buf).await?;
+        Ok(self.resolver().resolve_event(event))
     }
 }
 
@@ -417,8 +573,8 @@ mod test {
     check!(
         #[tokio::test]
         read_event_into_async,
-        read_until_close_async,
         TokioAdapter,
+        1,
         &mut Vec::new(),
         async,
         await

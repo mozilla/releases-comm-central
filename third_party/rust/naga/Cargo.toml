@@ -13,7 +13,7 @@
 edition = "2021"
 rust-version = "1.87"
 name = "naga"
-version = "29.0.0"
+version = "30.0.0"
 authors = ["gfx-rs developers"]
 build = "build.rs"
 exclude = [
@@ -135,7 +135,7 @@ default-features = false
 version = "0.4.29"
 
 [dependencies.naga-types]
-version = "29.0.0"
+version = "30.0.0"
 path = "../naga-types"
 
 [dependencies.num-traits]
@@ -248,3 +248,6 @@ version = "0.2.1"
 alloc_instead_of_core = "warn"
 std_instead_of_alloc = "warn"
 std_instead_of_core = "warn"
+
+[lints.rust]
+missing_debug_implementations = "warn"

@@ -157,7 +157,7 @@ pub mod serde_impls {
 
     struct DateStrVisitor;
 
-    impl<'de> Visitor<'de> for DateStrVisitor {
+    impl Visitor<'_> for DateStrVisitor {
         type Value = Date;
 
         fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {

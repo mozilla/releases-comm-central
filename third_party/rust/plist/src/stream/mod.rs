@@ -116,7 +116,7 @@ impl XmlWriteOptions {
         }
 
         assert!(
-            indent_str.chars().all(|chr| chr.is_ascii()),
+            indent_str.is_ascii(),
             "indent str must be ascii"
         );
         let indent_str = indent_str.as_bytes();
@@ -207,7 +207,8 @@ impl<'a> Iterator for Events<'a> {
         }
 
         Some(match self.stack.pop()? {
-            StackItem::Root(value) => handle_value(value, &mut self.stack),
+            StackItem::Root(value)
+            | StackItem::DictValue(value) => handle_value(value, &mut self.stack),
             StackItem::Array(mut array) => {
                 if let Some(value) = array.next() {
                     // There might still be more items in the array so return it to the stack.
@@ -229,7 +230,6 @@ impl<'a> Iterator for Events<'a> {
                     Event::EndCollection
                 }
             }
-            StackItem::DictValue(value) => handle_value(value, &mut self.stack),
         })
     }
 }
@@ -266,14 +266,14 @@ impl<R: Read + Seek> Reader<R> {
                 self.0 = ReaderInner::Uninitialized(Some(reader));
                 return Err(err);
             }
-        };
+        }
 
         // If a plist is not binary, try to parse as XML.
         // Use a `BufReader` for XML and ASCII plists as it is required by `quick-xml` and will
         // definitely speed up ASCII parsing as well.
         let mut xml_reader = XmlReader::new(BufReader::new(reader));
         let mut reader = match xml_reader.next() {
-            res @ Some(Ok(_)) | res @ None => {
+            res @ (Some(Ok(_)) | None) => {
                 self.0 = ReaderInner::Xml(xml_reader);
                 return res.transpose();
             }
@@ -293,7 +293,7 @@ impl<R: Read + Seek> Reader<R> {
         // If no valid XML markup is found, try to parse as ASCII.
         let mut ascii_reader = AsciiReader::new(reader);
         match ascii_reader.next() {
-            res @ Some(Ok(_)) | res @ None => {
+            res @ (Some(Ok(_)) | None) => {
                 self.0 = ReaderInner::Ascii(ascii_reader);
                 res.transpose()
             }

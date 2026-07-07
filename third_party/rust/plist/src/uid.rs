@@ -71,7 +71,7 @@ pub mod serde_impls {
 
     struct UidU64Visitor;
 
-    impl<'de> Visitor<'de> for UidU64Visitor {
+    impl Visitor<'_> for UidU64Visitor {
         type Value = Uid;
 
         fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
