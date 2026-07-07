@@ -55,6 +55,8 @@ skip-if = [
 
 ["test_nsMsgCompose3.js"]
 
+["test_nsMsgComposeSendListener.js"]
+
 ["test_nsMsgOutgoingServerService1.js"]
 
 ["test_saveDraft.js"]

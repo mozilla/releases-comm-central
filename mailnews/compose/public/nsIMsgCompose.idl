@@ -275,12 +275,3 @@ interface nsIMsgCompose : nsIMsgSendListener {
   readonly attribute MSG_DeliverMode deliverMode;
 
 };
-
-/* send listener interface */
-[scriptable, uuid(ad6ee068-b225-47f9-a50e-8e48440282ca)]
-interface nsIMsgComposeSendListener : nsISupports {
-
-  void setMsgCompose(in nsIMsgCompose msgCompose);
-  void setDeliverMode(in MSG_DeliverMode deliverMode);
-
-};

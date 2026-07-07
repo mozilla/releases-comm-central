@@ -1085,12 +1085,6 @@ nsMsgCompose::SendMsgToServer(MSG_DeliverMode deliverMode,
       rv = m_compFields->GetBody(bodyString);
       NS_ENSURE_SUCCESS(rv, rv);
 
-      // Create the listener for the send operation...
-      nsCOMPtr<nsIMsgComposeSendListener> composeSendListener =
-          do_CreateInstance(
-              "@mozilla.org/messengercompose/composesendlistener;1");
-      if (!composeSendListener) return NS_ERROR_OUT_OF_MEMORY;
-
       // right now, AutoSaveAsDraft is identical to SaveAsDraft as
       // far as the msg send code is concerned. This way, we don't have
       // to add an nsMsgDeliverMode for autosaveasdraft, and add cases for
@@ -1105,29 +1099,25 @@ nsMsgCompose::SendMsgToServer(MSG_DeliverMode deliverMode,
           deliverMode == nsIMsgCompDeliverMode::SaveAsTemplate)
         m_compFields->SetMessageId("");
 
-      RefPtr<nsIMsgCompose> msgCompose(this);
-      composeSendListener->SetMsgCompose(msgCompose);
-      composeSendListener->SetDeliverMode(deliverMode);
+      // Create the listener for the send operation...
+      RefPtr<nsMsgComposeSendListener> composeSendListener =
+          new nsMsgComposeSendListener(this, deliverMode);
 
       if (mProgress) {
-        nsCOMPtr<nsIWebProgressListener> progressListener =
-            do_QueryInterface(composeSendListener);
-        mProgress->RegisterListener(progressListener);
+        mProgress->RegisterListener(composeSendListener);
       }
 
       // If we are composing HTML, then this should be sent as
       // multipart/related which means we pass the editor into the
       // backend...if not, just pass nullptr
       //
-      nsCOMPtr<nsIMsgSendListener> sendListener =
-          do_QueryInterface(composeSendListener);
       RefPtr<mozilla::dom::Promise> promise;
       mSendInFlight = true;
       rv = mMsgSend->CreateAndSendMessage(
           m_composeHTML ? m_editor.get() : nullptr, identity, accountKey,
           m_compFields, false, false, (nsMsgDeliverMode)deliverMode, nullptr,
           m_composeHTML ? TEXT_HTML : TEXT_PLAIN, bodyString, nullptr,
-          mProgress, sendListener, mSmtpPassword, mOriginalMsgURI, mType,
+          mProgress, composeSendListener, mSmtpPassword, mOriginalMsgURI, mType,
           getter_AddRefs(promise));
       promise.forget(aPromise);
     } else
@@ -2970,32 +2960,24 @@ NS_IMETHODIMP nsMsgCompose::OnGetDraftFolderURI(const char* aMsgID,
 // and deal with failures in both send and copy operations
 ////////////////////////////////////////////////////////////////////////////////////
 
-NS_IMPL_ISUPPORTS(nsMsgComposeSendListener, nsIMsgComposeSendListener,
-                  nsIMsgSendListener, nsIMsgCopyServiceListener,
-                  nsIWebProgressListener, nsISupportsWeakReference)
+NS_IMPL_ISUPPORTS(nsMsgComposeSendListener, nsIMsgSendListener,
+                  nsIMsgCopyServiceListener, nsIWebProgressListener,
+                  nsISupportsWeakReference)
 
-nsMsgComposeSendListener::nsMsgComposeSendListener(void) { mDeliverMode = 0; }
+nsMsgComposeSendListener::nsMsgComposeSendListener(nsIMsgCompose* compose,
+                                                   MSG_DeliverMode deliverMode)
+    : mWeakComposeObj(do_GetWeakReference(compose)),
+      mComposeKeepAlive(compose),
+      mDeliverMode(deliverMode) {}
 
 nsMsgComposeSendListener::~nsMsgComposeSendListener(void) {}
 
-NS_IMETHODIMP nsMsgComposeSendListener::SetMsgCompose(nsIMsgCompose* obj) {
-  mWeakComposeObj = do_GetWeakReference(obj);
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgComposeSendListener::SetDeliverMode(
-    MSG_DeliverMode deliverMode) {
-  mDeliverMode = deliverMode;
-  return NS_OK;
-}
-
 nsresult nsMsgComposeSendListener::OnStartSending(const char* aMsgID,
                                                   uint32_t aMsgSize) {
-  nsresult rv;
-  nsCOMPtr<nsIMsgSendListener> composeSendListener =
-      do_QueryReferent(mWeakComposeObj, &rv);
-  if (NS_SUCCEEDED(rv) && composeSendListener)
-    composeSendListener->OnStartSending(aMsgID, aMsgSize);
+  nsCOMPtr<nsIMsgCompose> msgCompose = do_QueryReferent(mWeakComposeObj);
+  if (msgCompose) {
+    msgCompose->OnStartSending(aMsgID, aMsgSize);
+  }
 
   return NS_OK;
 }
@@ -3003,21 +2985,19 @@ nsresult nsMsgComposeSendListener::OnStartSending(const char* aMsgID,
 nsresult nsMsgComposeSendListener::OnSendProgress(const char* aMsgID,
                                                   uint32_t aProgress,
                                                   uint32_t aProgressMax) {
-  nsresult rv;
-  nsCOMPtr<nsIMsgSendListener> composeSendListener =
-      do_QueryReferent(mWeakComposeObj, &rv);
-  if (NS_SUCCEEDED(rv) && composeSendListener)
-    composeSendListener->OnSendProgress(aMsgID, aProgress, aProgressMax);
+  nsCOMPtr<nsIMsgCompose> msgCompose = do_QueryReferent(mWeakComposeObj);
+  if (msgCompose) {
+    msgCompose->OnSendProgress(aMsgID, aProgress, aProgressMax);
+  }
   return NS_OK;
 }
 
 nsresult nsMsgComposeSendListener::OnStatus(const char* aMsgID,
                                             const char16_t* aMsg) {
-  nsresult rv;
-  nsCOMPtr<nsIMsgSendListener> composeSendListener =
-      do_QueryReferent(mWeakComposeObj, &rv);
-  if (NS_SUCCEEDED(rv) && composeSendListener)
-    composeSendListener->OnStatus(aMsgID, aMsg);
+  nsCOMPtr<nsIMsgCompose> msgCompose = do_QueryReferent(mWeakComposeObj);
+  if (msgCompose) {
+    msgCompose->OnStatus(aMsgID, aMsg);
+  }
   return NS_OK;
 }
 
@@ -3028,30 +3008,26 @@ nsresult nsMsgComposeSendListener::OnSendNotPerformed(const char* aMsgID,
   // for closing the windows. However we would need to do the other operations
   // as below.
 
-  nsresult rv = NS_OK;
-  nsCOMPtr<nsIMsgCompose> msgCompose = do_QueryReferent(mWeakComposeObj, &rv);
-  if (msgCompose)
+  nsCOMPtr<nsIMsgCompose> msgCompose = do_QueryReferent(mWeakComposeObj);
+  if (msgCompose) {
     msgCompose->NotifyStateListeners(
         nsIMsgComposeNotificationType::ComposeProcessDone, aStatus);
+    msgCompose->OnSendNotPerformed(aMsgID, aStatus);
+  }
 
-  nsCOMPtr<nsIMsgSendListener> composeSendListener =
-      do_QueryReferent(mWeakComposeObj, &rv);
-  if (NS_SUCCEEDED(rv) && composeSendListener)
-    composeSendListener->OnSendNotPerformed(aMsgID, aStatus);
-
-  return rv;
+  // A send that was not performed gets no OnStopCopy() callback.
+  mComposeKeepAlive = nullptr;
+  return NS_OK;
 }
 
 NS_IMETHODIMP
 nsMsgComposeSendListener::OnTransportSecurityError(
     const char* msgID, nsresult status, nsITransportSecurityInfo* secInfo,
     nsACString const& location) {
-  nsresult rv;
-  nsCOMPtr<nsIMsgSendListener> composeSendListener =
-      do_QueryReferent(mWeakComposeObj, &rv);
-  if (NS_SUCCEEDED(rv) && composeSendListener)
-    composeSendListener->OnTransportSecurityError(msgID, status, secInfo,
-                                                  location);
+  nsCOMPtr<nsIMsgCompose> msgCompose = do_QueryReferent(mWeakComposeObj);
+  if (msgCompose) {
+    msgCompose->OnTransportSecurityError(msgID, status, secInfo, location);
+  }
 
   return NS_OK;
 }
@@ -3061,13 +3037,12 @@ nsresult nsMsgComposeSendListener::OnStopSending(const char* aMsgID,
                                                  const char16_t* aMsg,
                                                  nsIFile* returnFile) {
   nsresult rv = NS_OK;
+  bool shouldCloseProgress = NS_FAILED(aStatus);
 
-  nsCOMPtr<nsIMsgCompose> msgCompose = do_QueryReferent(mWeakComposeObj, &rv);
+  nsCOMPtr<nsIMsgCompose> msgCompose = do_QueryReferent(mWeakComposeObj);
   if (msgCompose) {
     nsCOMPtr<nsIMsgProgress> progress;
     msgCompose->GetProgress(getter_AddRefs(progress));
-
-    bool shouldCloseProgress = NS_FAILED(aStatus);
 
     if (NS_SUCCEEDED(aStatus)) {
       // only process the reply flags if we successfully sent the message
@@ -3100,21 +3075,25 @@ nsresult nsMsgComposeSendListener::OnStopSending(const char* aMsgID,
     }
   }
 
-  nsCOMPtr<nsIMsgSendListener> composeSendListener =
-      do_QueryReferent(mWeakComposeObj, &rv);
-  if (NS_SUCCEEDED(rv) && composeSendListener)
-    composeSendListener->OnStopSending(aMsgID, aStatus, aMsg, returnFile);
+  if (msgCompose) {
+    msgCompose->OnStopSending(aMsgID, aStatus, aMsg, returnFile);
+  }
 
+  // A successful send with a copy/save step still needs OnStopCopy() to
+  // finish, so we keep the compose object alive for it. After a failure we
+  // are done.
+  if (shouldCloseProgress) {
+    mComposeKeepAlive = nullptr;
+  }
   return rv;
 }
 
 nsresult nsMsgComposeSendListener::OnGetDraftFolderURI(
     const char* aMsgID, const nsACString& aFolderURI) {
-  nsresult rv;
-  nsCOMPtr<nsIMsgSendListener> composeSendListener =
-      do_QueryReferent(mWeakComposeObj, &rv);
-  if (NS_SUCCEEDED(rv) && composeSendListener)
-    composeSendListener->OnGetDraftFolderURI(aMsgID, aFolderURI);
+  nsCOMPtr<nsIMsgCompose> msgCompose = do_QueryReferent(mWeakComposeObj);
+  if (msgCompose) {
+    msgCompose->OnGetDraftFolderURI(aMsgID, aFolderURI);
+  }
 
   return NS_OK;
 }
@@ -3127,8 +3106,7 @@ nsresult nsMsgComposeSendListener::OnProgress(uint32_t aProgress,
 }
 
 nsresult nsMsgComposeSendListener::OnStopCopy(nsresult aStatus) {
-  nsresult rv = NS_OK;
-  nsCOMPtr<nsIMsgCompose> msgCompose = do_QueryReferent(mWeakComposeObj, &rv);
+  nsCOMPtr<nsIMsgCompose> msgCompose = do_QueryReferent(mWeakComposeObj);
   if (msgCompose) {
     if (mDeliverMode == nsIMsgSend::nsMsgQueueForLater ||
         mDeliverMode == nsIMsgSend::nsMsgDeliverBackground ||
@@ -3174,7 +3152,10 @@ nsresult nsMsgComposeSendListener::OnStopCopy(nsresult aStatus) {
     msgCompose->ClearMessageSend();
   }
 
-  return rv;
+  // OnStopCopy() is the final callback for sends that reached the copy/save
+  // step.
+  mComposeKeepAlive = nullptr;
+  return NS_OK;
 }
 
 nsresult nsMsgComposeSendListener::GetMsgFolder(nsIMsgCompose* compObj,
@@ -3391,6 +3372,11 @@ NS_IMETHODIMP nsMsgComposeSendListener::OnStateChange(
       nsCOMPtr<nsIMsgSend> msgSend;
       msgCompose->GetMessageSend(getter_AddRefs(msgSend));
       if (msgSend) msgSend->Abort();
+
+      // A rejected send promise produces no further send/copy callback, not
+      // even from the Abort() above, so this is our last chance to stop
+      // keeping the compose object alive.
+      mComposeKeepAlive = nullptr;
     }
   }
   return NS_OK;

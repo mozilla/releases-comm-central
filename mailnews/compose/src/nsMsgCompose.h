@@ -192,19 +192,15 @@ class QuotingOutputStreamListener : public nsIMsgQuotingOutputStreamListener,
 // This is the listener class for the send operation. We have to create this
 // class to listen for message send completion and eventually notify the caller
 ////////////////////////////////////////////////////////////////////////////////////
-class nsMsgComposeSendListener : public nsIMsgComposeSendListener,
-                                 public nsIMsgSendListener,
+class nsMsgComposeSendListener : public nsIMsgSendListener,
                                  public nsIMsgCopyServiceListener,
                                  public nsIWebProgressListener,
                                  public nsSupportsWeakReference {
  public:
-  nsMsgComposeSendListener(void);
+  nsMsgComposeSendListener(nsIMsgCompose* compose, MSG_DeliverMode deliverMode);
 
   // nsISupports interface
   NS_DECL_ISUPPORTS
-
-  // nsIMsgComposeSendListener interface
-  NS_DECL_NSIMSGCOMPOSESENDLISTENER
 
   // nsIMsgSendListener interface
   NS_DECL_NSIMSGSENDLISTENER
@@ -223,7 +219,20 @@ class nsMsgComposeSendListener : public nsIMsgComposeSendListener,
 
  private:
   virtual ~nsMsgComposeSendListener();
+
+  // The working handle to the compose object. Weak, because the send and
+  // copy operations keep this listener alive, and the compose object keeps
+  // those operations alive; a strong handle would turn that into a permanent
+  // reference loop.
   nsWeakPtr mWeakComposeObj;
+  // Only here to keep the compose object alive while a send is in flight,
+  // never used as a handle. MessageSend resolves its send promise before the
+  // deferred final OnStopCopy() callback, so JS may otherwise drop the
+  // compose object before we are done with it. The terminal send, copy, and
+  // progress callbacks drop this reference; if a deferred OnStopCopy() still
+  // arrives after that (e.g. after a canceled copy), the weak reference
+  // covers it as long as the compose window is open.
+  nsCOMPtr<nsIMsgCompose> mComposeKeepAlive;
   MSG_DeliverMode mDeliverMode;
 };
 
