@@ -184,7 +184,7 @@ class ExtendedConduit(ConduitAPI):
         self.apply_transactions_to_revision(phab_rev_id, transactions)
 
     def submit(self):
-        return run_cmd([MOZ_PHAB, "submit", "-s"])
+        return run_cmd([MOZ_PHAB, "submit", "-s", "--no-lint"])
 
 
 class DevConduit:
