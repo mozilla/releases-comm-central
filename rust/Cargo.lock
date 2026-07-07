@@ -1375,7 +1375,7 @@ dependencies = [
 [[package]]
 name = "cubeb-pulse"
 version = "0.5.0"
-source = "git+https://github.com/mozilla/cubeb-pulse-rs?rev=a3770b75c22ae3fdc12539a0cdccc04d46d791f7#a3770b75c22ae3fdc12539a0cdccc04d46d791f7"
+source = "git+https://github.com/mozilla/cubeb-pulse-rs?rev=88194f91c8778fa608a19af7b91306094525595d#88194f91c8778fa608a19af7b91306094525595d"
 dependencies = [
  "cubeb-backend",
  "pulse",
@@ -5042,9 +5042,9 @@ checksum = "269bca4c2591a28585d6bf10d9ed0332b7d76900a1b02bec41bdc3a2cdcda107"
 
 [[package]]
 name = "operation-queue"
-version = "1.1.0"
+version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8656df5fea6ff89e0bcfbe2e34e784f49dc48ddc4bd34ae7e6bb17049b9d9f8d"
+checksum = "87d99d0aa97404633e97fb532114638760f4f713c25c4a227c8b813d4b2b7d53"
 dependencies = [
  "async-channel",
  "async-lock",
@@ -5515,7 +5515,7 @@ dependencies = [
 [[package]]
 name = "pulse"
 version = "0.3.0"
-source = "git+https://github.com/mozilla/cubeb-pulse-rs?rev=a3770b75c22ae3fdc12539a0cdccc04d46d791f7#a3770b75c22ae3fdc12539a0cdccc04d46d791f7"
+source = "git+https://github.com/mozilla/cubeb-pulse-rs?rev=88194f91c8778fa608a19af7b91306094525595d#88194f91c8778fa608a19af7b91306094525595d"
 dependencies = [
  "bitflags 2.10.0",
  "pulse-ffi",
@@ -5524,7 +5524,7 @@ dependencies = [
 [[package]]
 name = "pulse-ffi"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/cubeb-pulse-rs?rev=a3770b75c22ae3fdc12539a0cdccc04d46d791f7#a3770b75c22ae3fdc12539a0cdccc04d46d791f7"
+source = "git+https://github.com/mozilla/cubeb-pulse-rs?rev=88194f91c8778fa608a19af7b91306094525595d#88194f91c8778fa608a19af7b91306094525595d"
 dependencies = [
  "libc",
 ]

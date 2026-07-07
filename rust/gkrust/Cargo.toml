@@ -48,7 +48,7 @@ cose-c = { version = "0.1.5" }
 crash_helper_client = { path = "../../../toolkit/crashreporter/crash_helper_client", optional = true }
 crypto_hash = { path = "../../../security/manager/ssl/crypto_hash" }
 cubeb-coreaudio = { git = "https://github.com/mozilla/cubeb-coreaudio-rs", rev = "840f69c1b3f95accd582555e10abcef8ee67514b", optional = true, features = ['vpio-forcelist'] }
-cubeb-pulse = { git = "https://github.com/mozilla/cubeb-pulse-rs", rev = "a3770b75c22ae3fdc12539a0cdccc04d46d791f7", optional = true, features = ['pulse-dlopen'] }
+cubeb-pulse = { git = "https://github.com/mozilla/cubeb-pulse-rs", rev = "88194f91c8778fa608a19af7b91306094525595d", optional = true, features = ['pulse-dlopen'] }
 cubeb-sys = { version = "0.34", optional = true, features = ['gecko-in-tree'] }
 dap_ffi = { path = "../../../toolkit/components/dap/ffi" }
 data-encoding-ffi = { path = "../../../dom/fs/parent/rust/data-encoding-ffi" }

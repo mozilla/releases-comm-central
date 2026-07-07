@@ -76,9 +76,9 @@ git = "https://github.com/mozilla/cubeb-coreaudio-rs"
 rev = "840f69c1b3f95accd582555e10abcef8ee67514b"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/mozilla/cubeb-pulse-rs?rev=a3770b75c22ae3fdc12539a0cdccc04d46d791f7"]
+[source."git+https://github.com/mozilla/cubeb-pulse-rs?rev=88194f91c8778fa608a19af7b91306094525595d"]
 git = "https://github.com/mozilla/cubeb-pulse-rs"
-rev = "a3770b75c22ae3fdc12539a0cdccc04d46d791f7"
+rev = "88194f91c8778fa608a19af7b91306094525595d"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/mozilla/glean?tag=v68.0.0"]
