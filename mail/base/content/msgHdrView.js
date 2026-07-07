@@ -3331,11 +3331,29 @@ const gMessageHeader = {
     const target =
       event.currentTarget.parentNode.triggerNode ||
       event.currentTarget.parentNode.headerField;
-    navigator.clipboard.writeText(
-      window.getSelection().isCollapsed
-        ? target.textContent
-        : window.getSelection().toString()
-    );
+
+    // If the user actively highlighted something, honor their exact selection.
+    if (!window.getSelection().isCollapsed) {
+      navigator.clipboard.writeText(window.getSelection().toString());
+      return;
+    }
+
+    // Otherwise, find the data-header-name to look up the exact value.
+    const headerName =
+      target.dataset.headerName ||
+      target.closest("[data-header-name]")?.dataset.headerName;
+
+    let textToCopy = "";
+
+    if (headerName && currentHeaderData[headerName]) {
+      // Grab the exact value.
+      textToCopy = currentHeaderData[headerName].headerValue;
+    } else {
+      // Fallback for custom/edge-case UI elements not in the data model.
+      textToCopy = target.textContent;
+    }
+
+    navigator.clipboard.writeText(textToCopy.trim());
   },
 
   /**
