@@ -11,12 +11,9 @@
   --page-nav-button-background-color-selected: var(--button-background-color);
   --page-nav-button-padding: 0 var(--space-small);
 
-  border-radius: var(--button-border-radius);
-}
-
-:host(:not([hidden])) {
   display: flex;
   flex-direction: column;
+  border-radius: var(--button-border-radius);
 }
 
 a[href],

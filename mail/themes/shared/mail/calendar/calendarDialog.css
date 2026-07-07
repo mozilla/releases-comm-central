@@ -214,8 +214,8 @@ calendar-dialog-date-row {
   border-block-start: 1px solid var(--color-surface-deep);
 }
 
-.expanding-row:not([hidden]),
-.actionable-item:not([hidden]) {
+.expanding-row,
+.actionable-item {
   display: grid;
   grid-template-columns: 1fr auto;
 

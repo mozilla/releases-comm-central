@@ -58,7 +58,7 @@ html|textarea.no-resize {
   resize: none;
 }
 
-.input-container:not([hidden]) {
+.input-container {
   display: flex;
   align-items: center;
   flex-wrap: nowrap;

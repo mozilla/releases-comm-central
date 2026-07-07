@@ -740,7 +740,7 @@ richlistbox:not(#categories) {
  * Connection dialog
  */
 
-#proxyExtensionContent:not([hidden]) {
+#proxyExtensionContent {
   display: flex;
   align-items: center;
 }
@@ -769,8 +769,8 @@ richlistbox:not(#categories) {
   align-items: center;
 }
 
-.proxy-grid-row:not([hidden]),
-.dnsOverHttps-grid-row:not([hidden]) {
+.proxy-grid-row,
+.dnsOverHttps-grid-row {
   display: contents;
 }
 
@@ -815,7 +815,7 @@ calendar-notifications-setting {
  * Sync Settings Page
  */
 
-#noFxaAccount:not([hidden]) {
+#noFxaAccount {
   display: flex;
   gap: 24px;
 }
@@ -847,15 +847,15 @@ calendar-notifications-setting {
   flex-grow: 2;
 }
 
-.sync-account-section:not([hidden]) {
+.sync-account-section {
   display: grid;
   grid-template-columns: auto 1fr auto;
   gap: 24px;
   margin: 24px 0;
 }
 
-#fxaLoginUnverified:not([hidden]),
-#fxaLoginRejected:not([hidden]) {
+#fxaLoginUnverified,
+#fxaLoginRejected {
   display: flex;
   align-items: center;
 }
@@ -1025,7 +1025,7 @@ calendar-notifications-setting {
   stroke: currentColor;
 }
 
-.synced-item:not([hidden]) {
+.synced-item {
   display: inline-flex;
   align-items: center;
 }
