@@ -54,23 +54,24 @@ add_task(async function testImapAttachmentDetac() {
   });
 
   const imapInbox = IMAPPump.daemon.getMailbox("INBOX");
+  const inbox = IMAPPump.inbox;
 
   // load and update a message in the fake imap server
   const msgURI = Services.io.newURI(
     "data:text/plain;base64," + btoa(smsg.toMessageString())
   );
   const message = new ImapMessage(msgURI.spec, imapInbox.uidnext++, []);
-  IMAPPump.mailbox.addMessage(message);
+  imapInbox.addMessage(message);
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  inbox.updateFolderWithListener(null, listener);
   await listener.promise;
 
   Assert.equal(
     1,
-    IMAPPump.inbox.getTotalMessages(false),
+    inbox.getTotalMessages(false),
     "Inbox should have the one message we added"
   );
-  const msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
+  const msgHdr = mailTestUtils.firstMsgHdr(inbox);
   Assert.ok(msgHdr instanceof Ci.nsIMsgDBHdr);
 
   // process the message through mime
@@ -98,14 +99,15 @@ add_task(async function testImapAttachmentDetac() {
   // The message should now have a detached attachment. Read the message,
   // and search for "AttachmentDetached" which is added on detachment.
 
-  // Get the message header - detached copy has UID 2. The original should be
-  // gone.
+  // Get the message header - detached copy is a new message and the original
+  // should be gone.
+  const msgsAfter = [...inbox.messages];
   Assert.equal(
-    [...IMAPPump.inbox.messages].length,
+    msgsAfter.length,
     1,
     "Inbox should still have exactly one message after detach"
   );
-  const msgHdr2 = IMAPPump.inbox.GetMessageHeader(2);
+  const msgHdr2 = msgsAfter[0];
   Assert.ok(!!msgHdr2, "Should have a message header");
 
   const messageContent = await getContentFromMessage(msgHdr2);
