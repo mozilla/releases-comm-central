@@ -523,9 +523,8 @@ NS_IMETHODIMP nsMsgShutdownService::CancelShutdownTasks() {
 
 NS_IMETHODIMP nsMsgShutdownService::SetStatusText(
     const nsAString& inStatusString) {
-  nsString statusString(inStatusString);
   if (mMsgProgress)
     mMsgProgress->OnStatusChange(nullptr, nullptr, NS_OK,
-                                 nsString(statusString).get());
+                                 PromiseFlatString(inStatusString).get());
   return NS_OK;
 }

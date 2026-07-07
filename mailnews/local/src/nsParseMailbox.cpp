@@ -2021,7 +2021,7 @@ nsresult nsParseNewMailState::MoveIncorporatedMessage(nsIMsgDBHdr* mailHdr,
             HardDeleteDetachedMessage(m_downloadFolder, sourceDB, mailHdr))) {
       MsgLogToConsole4(NS_ConvertUTF8toUTF16(
                            "Failure removing filter-moved message from Inbox"),
-                       nsCString(__FILE__), __LINE__,
+                       nsDependentCString(__FILE__), __LINE__,
                        nsIScriptError::errorFlag);
     }
   }

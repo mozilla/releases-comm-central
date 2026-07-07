@@ -246,8 +246,8 @@ NS_IMETHODIMP nsMsgLocalMailFolder::ParseFolder(nsIMsgWindow* window,
                         prettyPath.get(), static_cast<uint32_t>(rv));
     NS_WARNING(msg.get());
     msg.Append("\nRepairing the folder may fix this issue."_ns);
-    MsgLogToConsole4(NS_ConvertUTF8toUTF16(msg), nsCString(__FILE__), __LINE__,
-                     nsIScriptError::errorFlag);
+    MsgLogToConsole4(NS_ConvertUTF8toUTF16(msg), nsDependentCString(__FILE__),
+                     __LINE__, nsIScriptError::errorFlag);
     if (listener) {
       // Avoid synchronous re-entrancy: notify the listener via the event loop
       // to ensure the initiating caller has returned and cleared the stack.

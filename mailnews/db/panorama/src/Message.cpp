@@ -41,20 +41,20 @@ NS_IMETHODIMP Message::GetStringProperty(const char* propertyName,
   if (nsDependentCString(propertyName).EqualsLiteral("keywords")) {
     return MessageDB().GetMessageTags(mKey, propertyValue);
   }
-  return MessageDB().GetMessageProperty(mKey, nsCString(propertyName),
+  return MessageDB().GetMessageProperty(mKey, nsDependentCString(propertyName),
                                         propertyValue);
 }
 
 NS_IMETHODIMP Message::GetUint32Property(const char* propertyName,
                                          uint32_t* propertyValue) {
   NS_ENSURE_ARG_POINTER(propertyValue);
-  return MessageDB().GetMessageProperty(mKey, nsCString(propertyName),
+  return MessageDB().GetMessageProperty(mKey, nsDependentCString(propertyName),
                                         *propertyValue);
 }
 
 NS_IMETHODIMP Message::SetUint32Property(const char* propertyName,
                                          uint32_t propertyValue) {
-  return MessageDB().SetMessageProperty(mKey, nsCString(propertyName),
+  return MessageDB().SetMessageProperty(mKey, nsDependentCString(propertyName),
                                         propertyValue);
 }
 

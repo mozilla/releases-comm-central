@@ -4988,8 +4988,8 @@ nsresult nsMsgDBFolder::ThrowConfirmationPrompt(nsIMsgWindow* msgWindow,
   nsCOMPtr<nsIPromptService> dlgService(
       do_GetService(NS_PROMPTSERVICE_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
-  dlgService->Confirm(domWindow, nullptr, nsString(confirmString).get(),
-                      confirmed);
+  dlgService->Confirm(domWindow, nullptr,
+                      PromiseFlatString(confirmString).get(), confirmed);
   return NS_OK;
 }
 

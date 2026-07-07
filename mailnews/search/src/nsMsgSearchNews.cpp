@@ -142,7 +142,8 @@ char* nsMsgSearchNews::EncodeTerm(nsIMsgSearchTerm* term) {
   nsAutoCString pattern;
 
   if (leadingStar) pattern.Append('*');
-  pattern.Append(NS_ConvertUTF16toUTF8(nsString(caseInsensitiveValue)));
+  pattern.Append(
+      NS_ConvertUTF16toUTF8(nsDependentString(caseInsensitiveValue)));
   free(caseInsensitiveValue);
   if (trailingStar) pattern.Append('*');
 

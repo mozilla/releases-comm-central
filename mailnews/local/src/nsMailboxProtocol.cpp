@@ -128,7 +128,7 @@ nsresult nsMailboxProtocol::Initialize(nsIURI* aURL) {
             blocked.Append(
                 " To allow, add the hostname to mail.allowed_unc_hosts."_ns);
             MsgLogToConsole4(NS_ConvertUTF8toUTF16(blocked),
-                             nsCString(__FILE__), __LINE__,
+                             nsDependentCString(__FILE__), __LINE__,
                              nsIScriptError::warningFlag);
             return NS_ERROR_FILE_UNRECOGNIZED_PATH;
           }

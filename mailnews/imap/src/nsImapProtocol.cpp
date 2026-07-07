@@ -5310,8 +5310,8 @@ void nsImapProtocol::ProgressEventFunctionUsingName(const char* aMsgName) {
     return;
   }
   if (m_imapMailFolderSink && !m_lastProgressStringName.Equals(aMsgName)) {
-    m_imapMailFolderSink->ProgressStatusString(this, nsCString(aMsgName),
-                                               ""_ns);
+    m_imapMailFolderSink->ProgressStatusString(
+        this, nsDependentCString(aMsgName), ""_ns);
     m_lastProgressStringName.Assign(aMsgName);
   }
 }
@@ -5319,8 +5319,8 @@ void nsImapProtocol::ProgressEventFunctionUsingName(const char* aMsgName) {
 void nsImapProtocol::ProgressEventFunctionUsingNameWithString(
     const char* msgName, const char* mailboxName) {
   if (m_imapMailFolderSink) {
-    m_imapMailFolderSink->ProgressStatusString(this, nsCString(msgName),
-                                               nsCString(mailboxName));
+    m_imapMailFolderSink->ProgressStatusString(
+        this, nsDependentCString(msgName), nsDependentCString(mailboxName));
   }
 }
 
