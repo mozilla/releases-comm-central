@@ -130,11 +130,11 @@ add_task(async function test_dummy_row_selection() {
 
   // Test that several collapsed dummy rows can be selected at the same time.
 
-  await mouseSelect(0);
+  await mouseSelect(0, false, [0]);
   checkSelection([0]);
-  await mouseSelect(1, true);
+  await mouseSelect(1, true, [0, 1]);
   checkSelection([0, 1]);
-  await mouseSelect(2, true);
+  await mouseSelect(2, true, [0, 1, 2]);
   checkSelection([0, 1, 2]);
 
   await testSelectAll([0, 1, 2]);
@@ -143,37 +143,51 @@ add_task(async function test_dummy_row_selection() {
   // is selected.
 
   goDoCommand("cmd_expandAllThreads");
+  await TestUtils.waitForCondition(
+    () => threadTree.getRowAtIndex(8),
+    "The expanded rows should be available"
+  );
 
-  await mouseSelect(0);
+  await mouseSelect(0, false, [0]);
   checkSelection([0]);
-  await mouseSelect(1, true);
+  await mouseSelect(1, true, [1]);
   checkSelection([1]);
-  await mouseSelect(2, true);
+  await mouseSelect(2, true, [1, 2]);
   checkSelection([1, 2]);
-  await mouseSelect(5, true);
+  await mouseSelect(5, true, [1, 2]);
   checkSelection([1, 2]);
-  await mouseSelect(4);
+  await mouseSelect(4, false, [4]);
   checkSelection([4]);
-  await mouseSelect(3, true);
+  await mouseSelect(3, true, [4]);
   checkSelection([4]);
-  await mouseSelect(2, true);
+  await mouseSelect(2, true, [2, 4]);
   checkSelection([2, 4]);
-  await mouseSelect(5, true);
+  await mouseSelect(5, true, [2, 4]);
   checkSelection([2, 4]);
-  await mouseSelect(6, true);
+  await mouseSelect(6, true, [2, 4, 6]);
   checkSelection([2, 4, 6]);
 
   await testSelectAll([1, 2, 4, 6, 7, 8]);
 });
 
-async function mouseSelect(row, ctrlKeyPressed = false) {
-  const selectPromise = BrowserTestUtils.waitForEvent(threadTree, "select");
+async function mouseSelect(row, ctrlKeyPressed = false, expectedIndices) {
+  threadTree.scrollToIndex(row, true);
+  await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
+
+  const rowElement = threadTree.getRowAtIndex(row);
+  Assert.ok(!!rowElement, `Row ${row} should exist`);
   EventUtils.synthesizeMouseAtCenter(
-    threadTree.getRowAtIndex(row),
+    rowElement,
     { accelKey: ctrlKeyPressed },
     about3Pane
   );
-  await selectPromise;
+  await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
+  if (expectedIndices) {
+    await TestUtils.waitForCondition(
+      () => selectionMatches(expectedIndices),
+      `Selection should become ${JSON.stringify(expectedIndices)}`
+    );
+  }
 }
 
 function checkSelection(expectedIndices) {
@@ -184,9 +198,20 @@ function checkSelection(expectedIndices) {
   );
 }
 
+function selectionMatches(expectedIndices) {
+  return (
+    threadTree.selectedIndices.length == expectedIndices.length &&
+    threadTree.selectedIndices.every((index, i) => index == expectedIndices[i])
+  );
+}
+
 async function testSelectAll(expectedIndices) {
-  await mouseSelect(0);
-  checkSelection(0);
+  await mouseSelect(0, false, [0]);
+  checkSelection([0]);
   EventUtils.synthesizeKey("a", { accelKey: true }, about3Pane);
+  await TestUtils.waitForCondition(
+    () => selectionMatches(expectedIndices),
+    `Selection should become ${JSON.stringify(expectedIndices)}`
+  );
   checkSelection(expectedIndices);
 }

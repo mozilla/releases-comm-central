@@ -290,6 +290,393 @@ add_task(async function testVerticalAfter() {
   await subtestCollapseExpand();
 });
 
+add_task(async function testStringSizeRestore() {
+  const outer = doc.getElementById("horizontal-before");
+  const splitter = doc.getElementById("splitter1");
+  const resized = doc.getElementById("splitter1-before");
+
+  splitter.width = "175";
+  await nextFrame();
+
+  Assert.equal(
+    splitter.width,
+    175,
+    "width strings should be stored as numbers"
+  );
+  Assert.equal(
+    outer.style.getPropertyValue("--splitter1-width"),
+    "175px",
+    "string width should be applied as a pixel size"
+  );
+  assertCloseTo(
+    resized.getBoundingClientRect().width,
+    175,
+    "string width should restore the resized pane width"
+  );
+
+  splitter.width = null;
+});
+
+add_task(async function testResizeWithWindowHorizontal() {
+  const outer = doc.getElementById("window-resize-splitter");
+  const beforeSplitter = doc.getElementById("splitter5");
+  const splitter = doc.getElementById("splitter5-2");
+  const before = doc.getElementById("resizeSplitter-before");
+  const fill = doc.getElementById("resizeSplitter-after");
+  const resized = doc.getElementById("resizeSplitter-after2");
+
+  splitter.resizeWithWindow = false;
+  outer.style.width = "900px";
+  await nextFrame();
+
+  assertCloseTo(
+    before.getBoundingClientRect().width,
+    200,
+    "element before the splitter should keep its default width before enabling resize-with-window"
+  );
+  assertCloseTo(
+    fill.getBoundingClientRect().width,
+    500,
+    "flexible element should keep its default width before enabling resize-with-window"
+  );
+  assertCloseTo(
+    resized.getBoundingClientRect().width,
+    200,
+    "resize-with-window element should keep its default width before enabling resize-with-window"
+  );
+
+  splitter.resizeWithWindow = true;
+  await nextFrame();
+
+  const beforeWidth = before.getBoundingClientRect().width;
+  const fillWidth = fill.getBoundingClientRect().width;
+  const resizedWidth = resized.getBoundingClientRect().width;
+
+  Assert.equal(
+    before.style.getPropertyPriority("width"),
+    "",
+    "element before the splitter should not be locked before resize-with-window has an active size"
+  );
+  Assert.equal(
+    fill.style.getPropertyPriority("width"),
+    "",
+    "flexible element should not be locked before resize-with-window has an active size"
+  );
+  assertCloseTo(
+    beforeWidth,
+    200,
+    "element before the splitter should keep its default width when resize-with-window is enabled"
+  );
+  assertCloseTo(
+    fillWidth,
+    500,
+    "flexible element should keep its default width when resize-with-window is enabled"
+  );
+  assertCloseTo(
+    resizedWidth,
+    200,
+    "resize-with-window element should keep its default width when resize-with-window is enabled"
+  );
+
+  outer.style.width = "1000px";
+  await nextFrame();
+
+  assertCloseTo(
+    before.getBoundingClientRect().width,
+    beforeWidth,
+    "locked element before the splitter should keep its width"
+  );
+  assertCloseTo(
+    fill.getBoundingClientRect().width,
+    fillWidth + 100,
+    "flexible element should take up added width before resize-with-window has an active size"
+  );
+  assertCloseTo(
+    resized.getBoundingClientRect().width,
+    resizedWidth,
+    "resize-with-window element should keep its default width before it has an active size"
+  );
+
+  splitter.resizeWithWindow = false;
+  beforeSplitter.width = 420;
+  await nextFrame();
+  splitter.resizeWithWindow = true;
+  await nextFrame();
+
+  outer.style.pointerEvents = "auto";
+  await nextFrame();
+  const largeBeforeWidth = before.getBoundingClientRect().width;
+  const largeFillWidth = fill.getBoundingClientRect().width;
+  const splitterRect = splitter.getBoundingClientRect();
+  const dragStartX = splitterRect.left + splitterRect.width / 2;
+  const dragStartY = splitterRect.top + splitterRect.height / 2;
+  const dragDelta = 100;
+
+  Assert.greater(
+    largeBeforeWidth,
+    beforeWidth,
+    "element before the splitter should be enlarged before the resize-with-window drag"
+  );
+  Assert.equal(
+    before.style.getPropertyPriority("width"),
+    "",
+    "element before the splitter should not be locked before a resize-with-window drag"
+  );
+  Assert.equal(
+    fill.style.getPropertyPriority("width"),
+    "",
+    "flexible element should not be locked before a resize-with-window drag"
+  );
+
+  EventUtils.synthesizeMouseAtPoint(
+    dragStartX,
+    dragStartY,
+    { type: "mousedown", buttons: 1 },
+    win
+  );
+  Assert.ok(!!splitter._dragStartInfo, "resize-with-window drag should start");
+  Assert.equal(
+    before.style.getPropertyPriority("width"),
+    "important",
+    "element before the adjacent flexible pane should stay locked during a resize-with-window drag"
+  );
+  Assert.equal(
+    fill.style.getPropertyPriority("width"),
+    "",
+    "adjacent flexible element should unlock during a resize-with-window drag"
+  );
+
+  EventUtils.synthesizeMouseAtPoint(
+    dragStartX - dragDelta,
+    dragStartY,
+    { type: "mousemove", buttons: 1 },
+    win
+  );
+  await nextFrame();
+  const liveBeforeWidth = before.getBoundingClientRect().width;
+  const liveFillWidth = fill.getBoundingClientRect().width;
+
+  assertCloseTo(
+    liveBeforeWidth,
+    largeBeforeWidth,
+    "element before the adjacent flexible pane should keep its width during the resize-with-window drag"
+  );
+  Assert.less(
+    liveFillWidth,
+    largeFillWidth,
+    "adjacent flexible element should shrink during the resize-with-window drag"
+  );
+
+  EventUtils.synthesizeMouseAtPoint(
+    dragStartX - dragDelta,
+    dragStartY,
+    { type: "mouseup" },
+    win
+  );
+  await nextFrame();
+  Assert.equal(
+    before.style.getPropertyPriority("width"),
+    "important",
+    "element before the splitter should remain locked after a resize-with-window drag"
+  );
+  Assert.equal(
+    fill.style.getPropertyPriority("width"),
+    "important",
+    "flexible element should remain locked after a resize-with-window drag"
+  );
+  assertCloseTo(
+    before.getBoundingClientRect().width,
+    largeBeforeWidth,
+    "element before the adjacent flexible pane should keep its width after release"
+  );
+  assertCloseTo(
+    fill.getBoundingClientRect().width,
+    liveFillWidth,
+    "flexible element should keep the live dragged width after release"
+  );
+
+  outer.style.width = "1100px";
+  await nextFrame();
+  assertCloseTo(
+    before.getBoundingClientRect().width,
+    liveBeforeWidth,
+    "locked element before the splitter should not resize with the window after a resize-with-window drag"
+  );
+  assertCloseTo(
+    fill.getBoundingClientRect().width,
+    liveFillWidth,
+    "locked flexible element should not resize with the window after a resize-with-window drag"
+  );
+
+  splitter.resizeWithWindow = false;
+  splitter.width = null;
+  beforeSplitter.width = null;
+  outer.style.width = null;
+  outer.style.pointerEvents = null;
+});
+
+add_task(async function testResizeWithWindowVertical() {
+  const outer = doc.getElementById("window-resize-splitter-vertical");
+  const splitter = doc.getElementById("splitter6");
+  const before = doc.getElementById("resizeSplitter-vertical-before");
+  const resized = doc.getElementById("resizeSplitter-vertical-after");
+
+  splitter.resizeWithWindow = false;
+  outer.style.height = "500px";
+  await nextFrame();
+
+  assertCloseTo(
+    before.getBoundingClientRect().height,
+    120,
+    "element before the splitter should keep its default height before enabling resize-with-window"
+  );
+  assertCloseTo(
+    resized.getBoundingClientRect().height,
+    380,
+    "resize-with-window element should keep its default height before enabling resize-with-window"
+  );
+
+  splitter.resizeWithWindow = true;
+  await nextFrame();
+
+  const beforeHeight = before.getBoundingClientRect().height;
+  const resizedHeight = resized.getBoundingClientRect().height;
+
+  Assert.equal(
+    before.style.getPropertyPriority("height"),
+    "",
+    "element before the splitter should not be locked before resize-with-window has an active size"
+  );
+  assertCloseTo(
+    beforeHeight,
+    120,
+    "element before the splitter should keep its default height when resize-with-window is enabled"
+  );
+  assertCloseTo(
+    resizedHeight,
+    380,
+    "resize-with-window element should keep its default height when resize-with-window is enabled"
+  );
+
+  outer.style.height = "600px";
+  await nextFrame();
+
+  assertCloseTo(
+    before.getBoundingClientRect().height,
+    beforeHeight + 80,
+    "flexible element before the splitter should take up added height before resize-with-window has an active size"
+  );
+  assertCloseTo(
+    resized.getBoundingClientRect().height,
+    resizedHeight + 20,
+    "resize-with-window element should keep using the default grid track before it has an active size"
+  );
+
+  splitter.height = "180";
+  await nextFrame();
+  let restoredHeight = resized.getBoundingClientRect().height;
+
+  Assert.equal(
+    splitter.height,
+    180,
+    "height strings should be stored as numbers"
+  );
+  assertCloseTo(
+    restoredHeight,
+    180,
+    "resize-with-window element should apply a restored string height"
+  );
+  Assert.equal(
+    outer.style.getPropertyValue("--splitter6-height"),
+    "100%",
+    "restored resize-with-window element should remain flexible"
+  );
+
+  outer.style.pointerEvents = "auto";
+  await nextFrame();
+  const splitterRect = splitter.getBoundingClientRect();
+  const dragStartX = splitterRect.left + splitterRect.width / 2;
+  const dragStartY = splitterRect.top + splitterRect.height / 2;
+  const dragDelta = 40;
+
+  EventUtils.synthesizeMouseAtPoint(
+    dragStartX,
+    dragStartY,
+    { type: "mousedown", buttons: 1 },
+    win
+  );
+  Assert.ok(!!splitter._dragStartInfo, "resize-with-window drag should start");
+  EventUtils.synthesizeMouseAtPoint(
+    dragStartX,
+    dragStartY - dragDelta,
+    { type: "mousemove", buttons: 1 },
+    win
+  );
+  await nextFrame();
+  restoredHeight += dragDelta;
+  assertCloseTo(
+    resized.getBoundingClientRect().height,
+    restoredHeight,
+    "resize-with-window element should keep the live dragged height"
+  );
+  EventUtils.synthesizeMouseAtPoint(
+    dragStartX,
+    dragStartY - dragDelta,
+    { type: "mouseup" },
+    win
+  );
+  await nextFrame();
+  Assert.equal(
+    outer.style.getPropertyValue("--splitter6-height"),
+    "100%",
+    "dragged resize-with-window element should resume flexible sizing"
+  );
+
+  splitter.collapse();
+  await nextFrame();
+  Assert.equal(resized.getBoundingClientRect().height, 0);
+  Assert.equal(
+    before.style.getPropertyPriority("height"),
+    "",
+    "locked element should be unlocked while the resized pane is collapsed"
+  );
+
+  splitter.expand();
+  await nextFrame();
+  Assert.equal(
+    before.style.getPropertyPriority("height"),
+    "important",
+    "locked element should be relocked when the resized pane expands"
+  );
+  Assert.equal(
+    outer.style.getPropertyValue("--splitter6-height"),
+    "100%",
+    "expanded resize-with-window element should resume flexible sizing"
+  );
+  assertCloseTo(
+    resized.getBoundingClientRect().height,
+    restoredHeight,
+    "resize-with-window element should restore its previous height on expand"
+  );
+
+  splitter.height = null;
+  splitter.resizeWithWindow = false;
+  outer.style.height = null;
+  outer.style.pointerEvents = null;
+});
+
+function assertCloseTo(actual, expected, msg) {
+  Assert.lessOrEqual(
+    Math.abs(actual - expected),
+    1,
+    `${msg}: got ${actual}, expected ${expected}`
+  );
+}
+
+async function nextFrame() {
+  await new Promise(resolve => win.requestAnimationFrame(resolve));
+}
+
 async function subtestDrag() {
   info("subtestDrag");
   resizingEvents = 0;

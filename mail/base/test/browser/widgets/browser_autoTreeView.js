@@ -82,8 +82,9 @@ add_task(async function testRowsAndColumns() {
     ".last-column .button-column-picker"
   );
   let pickerPopup = tree.querySelector(".menupopup-column-picker");
+  let popupShown = BrowserTestUtils.waitForPopupEvent(pickerPopup, "shown");
   EventUtils.synthesizeMouseAtCenter(pickerButton, {}, win);
-  await BrowserTestUtils.waitForPopupEvent(pickerPopup, "shown");
+  await popupShown;
 
   let pickerItems;
   function updatePickerItems() {
@@ -123,8 +124,9 @@ add_task(async function testRowsAndColumns() {
     "selected",
   ]);
   checkPickerState([true, true, false, false, false, true]);
+  let popupHidden = BrowserTestUtils.waitForPopupEvent(pickerPopup, "hidden");
   pickerPopup.hidePopup();
-  await BrowserTestUtils.waitForPopupEvent(pickerPopup, "hidden");
+  await popupHidden;
 
   // Check that the table body was filled correctly.
 
@@ -334,8 +336,9 @@ add_task(async function testRowsAndColumns() {
     pickerButton = headerRow.querySelector(
       ".last-column .button-column-picker"
     );
+    popupShown = BrowserTestUtils.waitForPopupEvent(pickerPopup, "shown");
     EventUtils.synthesizeMouseAtCenter(pickerButton, {}, win);
-    await BrowserTestUtils.waitForPopupEvent(pickerPopup, "shown");
+    await popupShown;
     checkPickerLabels(expectedOrder);
     checkPickerState(expectedChecked);
 
@@ -344,8 +347,9 @@ add_task(async function testRowsAndColumns() {
     );
     const visible = pickerItem.hasAttribute("checked");
     pickerPopup.activateItem(pickerItem);
+    popupHidden = BrowserTestUtils.waitForPopupEvent(pickerPopup, "hidden");
     pickerPopup.hidePopup();
-    await BrowserTestUtils.waitForPopupEvent(pickerPopup, "hidden");
+    await popupHidden;
 
     if (visible) {
       await TestUtils.waitForCondition(() =>
@@ -457,7 +461,17 @@ add_task(async function testRowsAndColumns() {
       }
     );
 
-    headerRow.dispatchEvent(new CustomEvent("dragend", { bubbles: true }));
+    EventUtils.sendDragEvent(
+      {
+        type: "dragend",
+        clientX: toX,
+        clientY: toY,
+        dataTransfer,
+        _domDispatchOnly: true,
+      },
+      headerRow,
+      win
+    );
     dragService.getCurrentSession().endDragSession(true);
   }
   dragColumn(0, 1); // Drag colour to between continent and wonder.
@@ -726,8 +740,9 @@ add_task(async function testRowsAndColumns() {
     "restore-columns",
     true
   );
+  popupShown = BrowserTestUtils.waitForPopupEvent(pickerPopup, "shown");
   EventUtils.synthesizeMouseAtCenter(pickerButton, {}, win);
-  await BrowserTestUtils.waitForPopupEvent(pickerPopup, "shown");
+  await popupShown;
   checkPickerLabels([
     "colour",
     "sin",
@@ -737,8 +752,9 @@ add_task(async function testRowsAndColumns() {
     "selected",
   ]);
   checkPickerState([true, false, true, true, false, true]);
+  popupHidden = BrowserTestUtils.waitForPopupEvent(pickerPopup, "hidden");
   pickerPopup.activateItem(pickerPopup.querySelector("#restoreColumnOrder"));
-  await BrowserTestUtils.waitForPopupEvent(pickerPopup, "hidden");
+  await popupHidden;
   await restoreEvent;
 
   checkPersistedValue("columns", "");
@@ -765,8 +781,9 @@ add_task(async function testRowsAndColumns() {
   ]);
 
   pickerButton = headerRow.querySelector(".last-column .button-column-picker");
+  popupShown = BrowserTestUtils.waitForPopupEvent(pickerPopup, "shown");
   EventUtils.synthesizeMouseAtCenter(pickerButton, {}, win);
-  await BrowserTestUtils.waitForPopupEvent(pickerPopup, "shown");
+  await popupShown;
   checkPickerLabels([
     "colour",
     "continent",
@@ -776,8 +793,9 @@ add_task(async function testRowsAndColumns() {
     "selected",
   ]);
   checkPickerState([true, true, false, false, false, true]);
+  popupHidden = BrowserTestUtils.waitForPopupEvent(pickerPopup, "hidden");
   pickerPopup.hidePopup();
-  await BrowserTestUtils.waitForPopupEvent(pickerPopup, "hidden");
+  await popupHidden;
 
   // Alright, we've checked we can save a bunch of things. Let's check we can
   // restore them.

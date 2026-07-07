@@ -32,7 +32,7 @@ const otherKeyName = AppConstants.platform == "macosx" ? "ctrlKey" : "metaKey";
  * @property {boolean} [delete=false] - Column handles delete actions.
  * @property {boolean} [hidden=false] - Column is hidden.
  * @property {boolean} [icon=false] - Cell content is an icon.
- * @property {object} [l10n]
+ * @property {object} [l10n] - Fluent string definitions.
  * @property {string} [l10n.cell] - Fluent string to use in cells.
  * @property {string} [l10n.a11y] - Fluent string to use as the screen-reader
  *   label for the column header.
@@ -753,6 +753,7 @@ export class BaseTreeView extends HTMLElement {
    * WARNING: This function makes calculations based on existing DOM dimensions.
    * Do not use it after you have modified the DOM.
    *
+   * @param {integer} dataRowCount - The total number of rows in the view.
    * @returns {RowBufferRanges}
    */
   #calculateRowBufferRanges(dataRowCount) {
@@ -770,9 +771,12 @@ export class BaseTreeView extends HTMLElement {
     // boundaries. Next, we prune rows added in previous scrolls which now fall
     // outside the boundaries. Finally, we recalculate the height of the spacers
     // which position the visible rows within the rendered area.
-    ranges.visibleRows.first = Math.max(
-      Math.floor(this.scrollTop / this._rowElementClass.ROW_HEIGHT),
-      0
+    ranges.visibleRows.first = Math.min(
+      Math.max(
+        Math.floor(this.scrollTop / this._rowElementClass.ROW_HEIGHT),
+        0
+      ),
+      dataRowCount - 1
     );
 
     const lastPossibleVisibleRow = Math.ceil(
@@ -780,8 +784,10 @@ export class BaseTreeView extends HTMLElement {
         this._rowElementClass.ROW_HEIGHT
     );
 
-    ranges.visibleRows.last =
-      Math.min(lastPossibleVisibleRow, dataRowCount) - 1;
+    ranges.visibleRows.last = Math.max(
+      ranges.visibleRows.first,
+      Math.min(lastPossibleVisibleRow, dataRowCount) - 1
+    );
 
     // Determine the number of rows desired in the tolerance buffer in order to
     // determine whether there are any that we can save.
@@ -917,6 +923,18 @@ export class BaseTreeView extends HTMLElement {
     }
 
     // Prune the buffer of any rows outside of our desired buffer range.
+    if (
+      (ranges.pruneBefore !== null &&
+        !this.getRowAtIndex(ranges.pruneBefore)) ||
+      (ranges.pruneAfter !== null && !this.getRowAtIndex(ranges.pruneAfter))
+    ) {
+      // The row buffer should be contiguous. If it isn't, rebuild it before
+      // pruning so the cached range does not preserve a gap in the DOM.
+      this.#resetRowBuffer();
+      this.#ensureVisibleRowsAreDisplayed(fillImmediately);
+      return;
+    }
+
     if (ranges.pruneBefore !== null) {
       const pruneBeforeRow = this.getRowAtIndex(ranges.pruneBefore);
       let rowToPrune = pruneBeforeRow.previousElementSibling;
@@ -985,6 +1003,7 @@ export class BaseTreeView extends HTMLElement {
    * Ensures that the row at `index` is on the screen.
    *
    * @param {integer} index
+   * @param {boolean} [instant=false] - If true, avoid smooth scrolling.
    */
   scrollToIndex(index, instant = false) {
     const rowCount = this._view.rowCount;
@@ -1324,6 +1343,11 @@ export class BaseTreeView extends HTMLElement {
 }
 customElements.define("base-tree-view", BaseTreeView);
 
+/**
+ * Tree view container with selection and keyboard interaction support.
+ *
+ * @augments {BaseTreeView}
+ */
 export class TreeView extends BaseTreeView {
   /**
    * The function storing the timeout callback for the delayed select feature in
@@ -1338,6 +1362,7 @@ export class TreeView extends BaseTreeView {
     this.addEventListener("keyup", this);
   }
 
+  // eslint-disable-next-line complexity
   handleEvent(event) {
     switch (event.type) {
       case "keyup": {

@@ -30,15 +30,104 @@
    * appropriate. If the splitter has a "collapse-width" or "collapse-height"
    * attribute, collapsing and expanding happens automatically when below the
    * given size.
+   *
+   * If the splitter is in a flexible sized container it can be resized with the
+   * application with the "resize-with-window" option. If the splitter is in a
+   * container with another flexible size element, the "resize-lock-ids" option
+   * can be used to lock the size of other elements while resizing.
    */
   class PaneSplitter extends HTMLHRElement {
-    static observedAttributes = ["resize-direction", "resize-id", "id"];
+    static observedAttributes = [
+      "resize-direction",
+      "resize-id",
+      "resize-with-window",
+      "resize-lock-ids",
+      "id",
+    ];
+
+    /**
+     * Whether this splitter is currently being resized by another splitter.
+     *
+     * @type {boolean}
+     */
+    #externalResizing = false;
+
+    /**
+     * The parent element currently used for resize-with-window listeners.
+     *
+     * @type {?HTMLElement}
+     */
+    #resizeWithWindowParent = null;
+
+    /**
+     * Elements temporarily locked to their current size while this splitter is
+     * resizing with the window.
+     *
+     * @type {Map<HTMLElement, string>}
+     */
+    #lockedElements = new Map();
+
+    /**
+     * Elements to keep locked while this splitter is being dragged.
+     *
+     * @type {Set<HTMLElement>}
+     */
+    #lockedElementsToPreserve = new Set();
+
+    /**
+     * The requestAnimationFrame handle for a pending lock retry.
+     *
+     * @type {number}
+     */
+    #lockRetryRequest = 0;
+
+    /**
+     * The number of consecutive lock retry attempts.
+     *
+     * @type {number}
+     */
+    #lockRetryCount = 0;
+
+    /**
+     * Whether a restored resize-with-window size is waiting for layout to settle.
+     *
+     * @type {boolean}
+     */
+    #pendingResizeWithWindowRestore = false;
+
+    /**
+     * The window currently observed while waiting for a restored size to settle.
+     *
+     * @type {?Window}
+     */
+    #resizeWithWindowRestoreWindow = null;
+
+    /**
+     * Whether the restored size should be forced when expanding.
+     *
+     * @type {boolean}
+     */
+    #forceSizeOnNextExpand = false;
+
+    /**
+     * Whether a resize-with-window restore should be skipped while disabling
+     * resize-with-window behavior.
+     *
+     * @type {boolean}
+     */
+    #skipResizeWithWindowRestore = false;
 
     connectedCallback() {
       this.addEventListener("mousedown", this);
       // Try and find the _resizeElement from the resize-id attribute.
       this._updateResizeElement();
       this._updateStyling();
+      this.#updateResizeWithWindow();
+    }
+
+    disconnectedCallback() {
+      this.#removeResizeWithWindowListeners();
+      this.#updateLockElements({ lock: false });
     }
 
     attributeChangedCallback(name) {
@@ -48,6 +137,14 @@
           break;
         case "resize-id":
           this._updateResizeElement();
+          break;
+        case "resize-with-window":
+          this.#updateResizeWithWindow();
+          break;
+        case "resize-lock-ids":
+          this.#updateLockElements({
+            lock: this.#resizeWithWindowActive && !this.isCollapsed,
+          });
           break;
         case "id":
           this._updateStyling();
@@ -73,11 +170,329 @@
       this.setAttribute("resize-direction", val);
     }
 
+    /**
+     *  The css property corresponding to the resize-direction.
+     *
+     * @type {"height"|"width"}
+     */
+    get #resizeProperty() {
+      return this.resizeDirection === "vertical" ? "height" : "width";
+    }
+
+    /**
+     * If the splitter should resize the element with the window
+     * This corresponds to the "resize-with-window" attribute and defaults to
+     * "false" when none is given.
+     *
+     * @type {boolean}
+     */
+    get resizeWithWindow() {
+      return this.hasAttribute("resize-with-window");
+    }
+
+    set resizeWithWindow(val) {
+      this.toggleAttribute("resize-with-window", val);
+    }
+
+    /**
+     * Whether this splitter currently has a preferred size to preserve while
+     * resizing with the window.
+     *
+     * @type {boolean}
+     */
+    get #resizeWithWindowActive() {
+      return this.resizeWithWindow && this[this.#resizeProperty] != null;
+    }
+
+    /**
+     * Lock or unlock the size of elements specified by the resize-lock-ids
+     * attribute.
+     *
+     * @param {object} options
+     * @param {boolean} options.lock - Whether the elements should be locked.
+     * @param {Set<HTMLElement>} [options.keepLockedElements] - Elements that
+     *   should remain locked when unlocking.
+     * @param {boolean} [options.retry=true] - Whether to retry if an element
+     *   can't be locked yet.
+     * @returns {boolean} Whether all elements were successfully locked.
+     */
+    #updateLockElements({
+      lock,
+      keepLockedElements = new Set(),
+      retry = true,
+    }) {
+      if (!this.#pendingResizeWithWindowRestore || !lock) {
+        this.#cancelLockRetry();
+      }
+      if (!lock) {
+        this.#unlockElements({ keepLockedElements });
+        if (!keepLockedElements.size) {
+          this.#lockedElementsToPreserve.clear();
+        }
+        this.#lockRetryCount = 0;
+        this.#pendingResizeWithWindowRestore = false;
+        this.#removeResizeWithWindowRestoreListener();
+        return true;
+      }
+
+      const ids =
+        this.getAttribute("resize-lock-ids")
+          ?.split(",")
+          .map(id => id.trim())
+          .filter(Boolean) ?? [];
+      let needsRetry = false;
+      const oldLockedElements = new Map(this.#lockedElements);
+      const lockedElements = new Map();
+      const sizes = [];
+      this.#lockedElements.clear();
+      const idSet = new Set(ids);
+
+      for (const [element, property] of oldLockedElements) {
+        if (property == this.#resizeProperty && idSet.has(element.id)) {
+          continue;
+        }
+
+        element.style.removeProperty(property);
+        oldLockedElements.delete(element);
+      }
+
+      for (const id of ids) {
+        const element = this.ownerDocument.getElementById(id);
+        if (!element) {
+          needsRetry = true;
+          continue;
+        }
+
+        const size = this.#getElementSize(element);
+        if (!Number.isFinite(size) || size <= 0) {
+          needsRetry = true;
+          continue;
+        }
+
+        sizes.push([element, size]);
+      }
+
+      for (const [element, size] of sizes) {
+        element.style.setProperty(
+          this.#resizeProperty,
+          `${size}px`,
+          "important"
+        );
+        lockedElements.set(element, this.#resizeProperty);
+        oldLockedElements.delete(element);
+      }
+
+      for (const [element, property] of oldLockedElements) {
+        element.style.removeProperty(property);
+      }
+      this.#lockedElements = lockedElements;
+
+      if (retry && needsRetry) {
+        this.#scheduleLockRetry();
+      }
+      if (!needsRetry) {
+        this.#lockRetryCount = 0;
+      }
+      return !needsRetry;
+    }
+
+    /**
+     * Lock other elements at their current size, then make this splitter's
+     * element take future resize changes.
+     *
+     * @param {object} [options]
+     * @param {boolean} [options.retry=true] - Whether to retry if an element
+     *   can't be locked yet.
+     * @returns {boolean} Whether all elements were successfully locked.
+     */
+    #enableResizeWithWindow({ retry = true } = {}) {
+      const shouldResizeWithWindow =
+        this.#resizeWithWindowActive && !this.isCollapsed;
+      const locked = this.#updateLockElements({
+        lock: shouldResizeWithWindow,
+        retry,
+      });
+      if (locked && shouldResizeWithWindow) {
+        this.#setSize("100%");
+      }
+      return locked;
+    }
+
+    /**
+     * Unlock the size of any elements locked by this splitter.
+     *
+     * @param {object} [options]
+     * @param {Set<HTMLElement>} [options.keepLockedElements] - Elements that
+     *   should remain locked.
+     */
+    #unlockElements({ keepLockedElements = new Set() } = {}) {
+      for (const [element, property] of this.#lockedElements) {
+        if (keepLockedElements.has(element)) {
+          continue;
+        }
+
+        element.style.removeProperty(property);
+        this.#lockedElements.delete(element);
+      }
+    }
+
+    /**
+     * Get lock targets that should stay locked while this splitter is dragged.
+     *
+     * @returns {Set<HTMLElement>} Elements that should stay locked.
+     */
+    #getLockedElementsToPreserve() {
+      const lockedElementsToPreserve = new Set();
+      if (this.resizeDirection != "horizontal") {
+        return lockedElementsToPreserve;
+      }
+
+      const unlockedElement = this._beforeElement
+        ? this.previousElementSibling
+        : this.nextElementSibling;
+      for (const element of this.#lockedElements.keys()) {
+        if (element != unlockedElement) {
+          lockedElementsToPreserve.add(element);
+        }
+      }
+      return lockedElementsToPreserve;
+    }
+
+    /**
+     * Retry locking elements after layout has had a chance to settle.
+     */
+    #scheduleLockRetry() {
+      const win = this.ownerDocument.documentGlobal;
+      if (!win || !this.isConnected) {
+        this.#lockRetryCount = 0;
+        this.#pendingResizeWithWindowRestore = false;
+        this.#removeResizeWithWindowRestoreListener();
+        return;
+      }
+      if (!this.#pendingResizeWithWindowRestore && this.#lockRetryCount >= 60) {
+        this.#lockRetryCount = 0;
+        return;
+      }
+      if (this.#lockRetryRequest) {
+        return;
+      }
+
+      this.#lockRetryRequest = win.requestAnimationFrame(() => {
+        this.#lockRetryRequest = 0;
+        this.#lockRetryCount++;
+        if (this.#pendingResizeWithWindowRestore) {
+          this.#finishResizeWithWindowRestore();
+          return;
+        }
+
+        if (!this.#enableResizeWithWindow({ retry: false })) {
+          this.#scheduleLockRetry();
+        }
+      });
+    }
+
+    /**
+     * Cancel any pending retry of lock element sizing.
+     */
+    #cancelLockRetry() {
+      if (!this.#lockRetryRequest) {
+        return;
+      }
+
+      this.ownerDocument.documentGlobal.cancelAnimationFrame(
+        this.#lockRetryRequest
+      );
+      this.#lockRetryRequest = 0;
+    }
+
+    #addResizeWithWindowRestoreListener() {
+      const win = this.ownerDocument.documentGlobal;
+      if (!win || this.#resizeWithWindowRestoreWindow == win) {
+        return;
+      }
+
+      this.#removeResizeWithWindowRestoreListener();
+      win.addEventListener("resize", this);
+      this.#resizeWithWindowRestoreWindow = win;
+    }
+
+    #removeResizeWithWindowRestoreListener() {
+      if (!this.#resizeWithWindowRestoreWindow) {
+        return;
+      }
+
+      this.#resizeWithWindowRestoreWindow.removeEventListener("resize", this);
+      this.#resizeWithWindowRestoreWindow = null;
+    }
+
+    /**
+     * Handles changes to the resize-with-window attribute.
+     */
+    #updateResizeWithWindow() {
+      const val = this.resizeWithWindow;
+
+      if (!this.parentNode || !val) {
+        this.#removeResizeWithWindowListeners();
+        this.#updateLockElements({ lock: false });
+        if (!val) {
+          this._updateStyling(true);
+        }
+        return;
+      }
+
+      if (this.#resizeWithWindowParent != this.parentNode) {
+        this.#removeResizeWithWindowListeners();
+        this.#resizeWithWindowParent = this.parentNode;
+        this.#resizeWithWindowParent.addEventListener(
+          "splitter-before-resize",
+          this
+        );
+        this.#resizeWithWindowParent.addEventListener(
+          "splitter-resize-end",
+          this
+        );
+        this.ownerDocument.addEventListener("visibilitychange", this);
+      }
+
+      this._updateStyling();
+      if (this.isCollapsed) {
+        this.#updateLockElements({ lock: false });
+      } else if (this.#resizeWithWindowActive) {
+        this.#finishResizeWithWindowRestore();
+      } else {
+        this.#updateLockElements({ lock: false });
+      }
+    }
+
+    #removeResizeWithWindowListeners() {
+      this.#resizeWithWindowParent?.removeEventListener(
+        "splitter-before-resize",
+        this
+      );
+      this.#resizeWithWindowParent?.removeEventListener(
+        "splitter-resize-end",
+        this
+      );
+      this.ownerDocument.removeEventListener("visibilitychange", this);
+      this.#resizeWithWindowParent = null;
+    }
+
     _updateResizeDirection() {
       // The resize direction has changed. To be safe, make sure we're no longer
       // resizing.
       this.endResize();
-      this._updateStyling();
+      const forceSize =
+        this.resizeWithWindow &&
+        !this.isCollapsed &&
+        this[this.#resizeProperty] != null;
+      this._updateStyling(forceSize);
+      if (forceSize) {
+        this.#finishResizeWithWindowRestore();
+      } else {
+        this.#updateLockElements({
+          lock: this.#resizeWithWindowActive && !this.isCollapsed,
+        });
+      }
     }
 
     _resizeElement = null;
@@ -110,6 +525,8 @@
       } else {
         this.removeAttribute("resize-id");
       }
+
+      this.#updateResizeWithWindow();
     }
 
     /**
@@ -158,6 +575,8 @@
         "collapsed-by-splitter"
       );
       this._updateStyling();
+
+      this.#updateResizeWithWindow();
     }
 
     _width = null;
@@ -180,11 +599,7 @@
     }
 
     set width(width) {
-      if (width == this._width) {
-        return;
-      }
-      this._width = width;
-      this._updateStyling();
+      this.#setDimension("width", width);
     }
 
     _height = null;
@@ -207,11 +622,65 @@
     }
 
     set height(height) {
-      if (height == this._height) {
+      this.#setDimension("height", height);
+    }
+
+    /**
+     * Update a preferred size dimension.
+     *
+     * @param {"width"|"height"} property - The property to update.
+     * @param {?number|string} size - The preferred size.
+     */
+    #setDimension(property, size) {
+      size = this.#normalizeSize(size);
+      const field = `_${property}`;
+      if (size == this[field]) {
         return;
       }
-      this._height = height;
-      this._updateStyling();
+      this[field] = size;
+
+      const forceSize = this.resizeWithWindow && size != null;
+      const isResizing = !!this._dragStartInfo;
+      if (forceSize && this.isCollapsed) {
+        this.#forceSizeOnNextExpand = true;
+      }
+
+      this._updateStyling(forceSize);
+      if (
+        forceSize &&
+        !this.#skipResizeWithWindowRestore &&
+        !this.isCollapsed &&
+        !isResizing
+      ) {
+        this.#finishResizeWithWindowRestore();
+      } else if (
+        this.#resizeWithWindowActive &&
+        !this.isCollapsed &&
+        !isResizing
+      ) {
+        this.#enableResizeWithWindow();
+      } else if (
+        this.resizeWithWindow &&
+        property == this.#resizeProperty &&
+        size == null
+      ) {
+        this.#updateLockElements({ lock: false });
+      }
+    }
+
+    /**
+     * Convert persisted or assigned size values to numbers.
+     *
+     * @param {?number|string} size - The size to normalize.
+     * @returns {?number}
+     */
+    #normalizeSize(size) {
+      if (size === null || size === undefined || size === "") {
+        return null;
+      }
+
+      const number = Number(size);
+      return Number.isFinite(number) ? number : null;
     }
 
     /**
@@ -229,70 +698,77 @@
      * @param {?number} [trySize] - The size to try and achieve.
      */
     _updateSize(trySize) {
-      const vertical = this.resizeDirection == "vertical";
       if (trySize != undefined) {
-        trySize = Math.round(trySize);
-        if (vertical) {
-          this.height = trySize;
-        } else {
-          this.width = trySize;
-        }
+        this[this.#resizeProperty] = Math.round(trySize);
       }
-      // Now that the width and height are updated, we fetch the size the
-      // element actually took.
-      const actual = this._getActualResizeSize();
-      if (vertical) {
-        this.height = actual;
-      } else {
-        this.width = actual;
-      }
+
+      // Now that the width or height has been updated, fetch the size the
+      // element actually took after CSS layout constraints were applied.
+      this[this.#resizeProperty] = this.#getElementSize(this.resizeElement);
     }
 
     /**
-     * Get the actual size of the resizeElement, regardless of the current
+     * Get the actual size of an element, regardless of the current
      * width or height property values. This causes a reflow, and it gets
      * called on every mousemove event while dragging, so it's very expensive
      * but practically unavoidable.
      *
+     * @param {HTMLElement} element - the element to get the size of
      * @returns {number} - The border area size of the resizeElement.
      */
-    _getActualResizeSize() {
-      const resizeRect = this.resizeElement.getBoundingClientRect();
-      if (this.resizeDirection == "vertical") {
-        return resizeRect.height;
-      }
-      return resizeRect.width;
+
+    #getElementSize(element) {
+      return element?.getBoundingClientRect()[this.#resizeProperty];
     }
 
     /**
-     * Collapses the controlled pane. A collapsed pane does not affect the
-     * `width` or `height` properties. Fires a "splitter-collapsed" event.
+     * Collapses the controlled pane.
      */
     collapse() {
-      if (this._isCollapsed) {
-        return;
-      }
-      this._isCollapsed = true;
-      this._updateStyling();
-      this._updateDragCursor();
-      this.dispatchEvent(
-        new CustomEvent("splitter-collapsed", { bubbles: true })
-      );
+      this.#toggleCollapse(true);
     }
 
     /**
-     * Expands the controlled pane. It returns to the width or height it had
-     * when collapsed. Fires a "splitter-expanded" event.
+     * Expands the controlled pane.
      */
     expand() {
-      if (!this._isCollapsed) {
+      this.#toggleCollapse(false);
+    }
+
+    /**
+     * toggle the collapsed status of the pane. When expanding it returns to the
+     * width or height it had when collapsed and fires a "splitter-expanded"
+     * event. Collapsing does not affect the `width` or `height` properties and
+     * fires a "splitter-collapsed" event.
+     *
+     * @param {boolean} collapse - If the element should be collapsed.
+     */
+
+    #toggleCollapse(collapse) {
+      if (collapse == this._isCollapsed) {
         return;
       }
-      this._isCollapsed = false;
-      this._updateStyling();
+      if (collapse && this.#resizeWithWindowActive) {
+        this.#forceSizeOnNextExpand = true;
+      }
+
+      const forceSize = !collapse && this.#forceSizeOnNextExpand;
+      this._isCollapsed = collapse;
+      this._updateStyling(forceSize);
+      if (forceSize) {
+        this.#finishResizeWithWindowRestore();
+      } else if (this.#resizeWithWindowActive && !this.isCollapsed) {
+        this.#enableResizeWithWindow();
+      } else {
+        this.#updateLockElements({
+          lock: this.#resizeWithWindowActive && !this.isCollapsed,
+        });
+      }
       this._updateDragCursor();
       this.dispatchEvent(
-        new CustomEvent("splitter-expanded", { bubbles: true })
+        new CustomEvent(`splitter-${collapse ? "collapsed" : "expanded"}`, {
+          bubbles: true,
+        })
       );
     }
 
@@ -335,10 +811,14 @@
       this.toggleAttribute("disabled", !!disabled);
     }
 
+    _cssName = null;
+
     /**
      * Update styling to reflect the current state.
+     *
+     * @param {boolean} forceSize - Whether to force the updated size.
      */
-    _updateStyling() {
+    _updateStyling(forceSize) {
       if (!this.resizeElement || !this.parentNode || !this.id) {
         // Wait until we have a resizeElement, a parent and an id.
         return;
@@ -358,30 +838,50 @@
       }
 
       const vertical = this.resizeDirection == "vertical";
-      const height = this.isCollapsed ? 0 : this.height;
-      if (!vertical || height == null) {
-        // If we are resizing horizontally or the "height" property is set to
-        // null, we remove the CSS height variable. The height of the element
-        // is left to be determined by the CSS stylesheet rules.
-        this.parentNode.style.removeProperty(this._cssName.height);
-      } else {
-        this.parentNode.style.setProperty(this._cssName.height, `${height}px`);
+      const size = this.isCollapsed ? 0 : this[this.#resizeProperty];
+
+      if (size == null) {
+        this.parentNode.style.removeProperty(
+          this._cssName[this.#resizeProperty]
+        );
       }
-      const width = this.isCollapsed ? 0 : this.width;
-      if (vertical || width == null) {
-        // If we are resizing vertically or the "width" property is set to
-        // null, we remove the CSS width variable. The width of the element
-        // is left to be determined by the CSS stylesheet rules.
-        this.parentNode.style.removeProperty(this._cssName.width);
-      } else {
-        this.parentNode.style.setProperty(this._cssName.width, `${width}px`);
+
+      this.parentNode.style.removeProperty(
+        this._cssName[vertical ? "width" : "height"]
+      );
+
+      if (typeof size === "number" || this.isCollapsed) {
+        this.#setSize(
+          this.isCollapsed ||
+            this._started ||
+            !this.resizeWithWindow ||
+            this.#externalResizing ||
+            forceSize
+            ? `${size}px`
+            : "100%"
+        );
       }
+
       this.resizeElement.classList.toggle(
         "collapsed-by-splitter",
         this.isCollapsed
       );
       this.classList.toggle("splitter-collapsed", this.isCollapsed);
       this.classList.toggle("splitter-before", this._beforeElement);
+    }
+
+    /**
+     * Set the size of the `resizeElement`.
+     *
+     * @param {string} size A size to set as the css variable value.
+     */
+    #setSize(size) {
+      if (this.resizeElement) {
+        this.parentNode.style.setProperty(
+          this._cssName[this.#resizeProperty],
+          size
+        );
+      }
     }
 
     handleEvent(event) {
@@ -395,9 +895,138 @@
         case "mouseup":
           this._onMouseUp(event);
           break;
+        case "splitter-before-resize":
+        case "splitter-resize-end":
+          if (
+            event.target !== this &&
+            (this.#resizeWithWindowActive || this.#externalResizing)
+          ) {
+            if (event.type == "splitter-before-resize") {
+              this.#lockedElementsToPreserve.clear();
+            }
+            this.#externalResizing = event.type !== "splitter-resize-end";
+            this.#toggleWindowResizing(event.type === "splitter-resize-end");
+          }
+          break;
+        case "visibilitychange":
+          if (this.#pendingResizeWithWindowRestore) {
+            this.#lockRetryCount = 0;
+            this.#scheduleLockRetry();
+          }
+          break;
+        case "resize":
+          if (this.#pendingResizeWithWindowRestore) {
+            this.#lockRetryCount = 0;
+            this.#scheduleLockRetry();
+          }
+          break;
       }
     }
 
+    /**
+     * Toggle the elements should currently resize with the window.
+     *
+     * @param {boolean} enable - Whether resizing with the window should be
+     *   enabled.
+     */
+    #toggleWindowResizing(enable) {
+      if (!enable) {
+        this.#skipResizeWithWindowRestore = true;
+        try {
+          this[this.#resizeProperty] = this.#getElementSize(
+            this._resizeElement
+          );
+        } finally {
+          this.#skipResizeWithWindowRestore = false;
+        }
+        this._updateStyling(true);
+        this.#updateLockElements({
+          lock: false,
+          keepLockedElements: this.#lockedElementsToPreserve,
+        });
+      } else {
+        if (this[this.#resizeProperty] != null) {
+          this.#finishResizeWithWindowRestore();
+          return;
+        }
+
+        this.#forceSizeOnNextExpand = false;
+        if (this.isCollapsed) {
+          this.#setSize("0px");
+          this.#updateLockElements({ lock: false });
+        } else {
+          this.#enableResizeWithWindow();
+        }
+      }
+    }
+
+    /**
+     * Preserve a restored size while keeping resize-with-window behavior enabled.
+     */
+    #finishResizeWithWindowRestore() {
+      this.#forceSizeOnNextExpand = false;
+      this.#unlockElements({
+        keepLockedElements: this.#lockedElementsToPreserve,
+      });
+      this._updateStyling(true);
+      this.#pendingResizeWithWindowRestore = true;
+      this.#addResizeWithWindowRestoreListener();
+
+      // During startup, persisted pane sizes are applied while the document is
+      // still loading and before the outer window has settled on its final size.
+      if (
+        this.ownerDocument.readyState != "complete" &&
+        this.#lockRetryCount < 60
+      ) {
+        this.#scheduleLockRetry();
+        return;
+      }
+
+      const size = this[this.#resizeProperty];
+      const actualSize = this.#getElementSize(this._resizeElement);
+      if (
+        !this.isCollapsed &&
+        size != null &&
+        (!Number.isFinite(actualSize) || Math.abs(actualSize - size) > 1) &&
+        this.#lockRetryCount < 60
+      ) {
+        this.#scheduleLockRetry();
+        return;
+      }
+      if (
+        !this.isCollapsed &&
+        size != null &&
+        (!Number.isFinite(actualSize) || Math.abs(actualSize - size) > 1)
+      ) {
+        return;
+      }
+
+      const lockSucceeded = this.#updateLockElements({
+        lock: !this.isCollapsed,
+        retry: false,
+      });
+      if (!lockSucceeded && this.#lockRetryCount < 60) {
+        this.#scheduleLockRetry();
+        return;
+      }
+      if (!lockSucceeded) {
+        return;
+      }
+
+      this.#pendingResizeWithWindowRestore = false;
+      this.#cancelLockRetry();
+      this.#removeResizeWithWindowRestoreListener();
+      this.#lockRetryCount = 0;
+      this.#lockedElementsToPreserve.clear();
+      this.#setSize(this.isCollapsed ? "0px" : "100%");
+    }
+
+    /**
+     * Handles mousedown events on the splitter element.
+     *
+     * @param {MouseEvent} event
+     * @returns {void}
+     */
     _onMouseDown(event) {
       if (!this.resizeElement || this.isDisabled) {
         return;
@@ -406,11 +1035,19 @@
         return;
       }
 
+      this.dispatchEvent(
+        new CustomEvent("splitter-before-resize", { bubbles: true })
+      );
+
+      if (this.resizeWithWindow) {
+        this.#updateLockElements({ lock: true, retry: false });
+        this.#lockedElementsToPreserve = this.#getLockedElementsToPreserve();
+        this.#toggleWindowResizing(false);
+      }
+
       const vertical = this.resizeDirection == "vertical";
       const collapseSize =
-        Number(
-          this.getAttribute(vertical ? "collapse-height" : "collapse-width")
-        ) || 0;
+        Number(this.getAttribute(`collapse-${this.#resizeProperty}`)) || 0;
       const ltrDir = this.parentNode.matches(":dir(ltr)");
 
       this._dragStartInfo = {
@@ -422,7 +1059,7 @@
         negative: vertical
           ? this._beforeElement
           : this._beforeElement == ltrDir,
-        size: this._getActualResizeSize(),
+        size: this.#getElementSize(this._resizeElement),
         collapseSize,
       };
 
@@ -464,6 +1101,12 @@
      */
     _mouseMoveBlocked = false;
 
+    /**
+     * Handles mouse move events on the splitter, resizing and or
+     * collapsing the resize-element as needed.
+     *
+     * @param {MouseEvent} event
+     */
     _onMouseMove(event) {
       if (event.buttons != 1) {
         // The button was released and we didn't get a mouseup event (e.g.
@@ -501,6 +1144,13 @@
         );
       }
 
+      // Some splitters live inside the element they resize, e.g. table column
+      // headers. In that layout the parent is not the available container.
+      const maxSize =
+        this.resizeWithWindow || this.parentNode == this.resizeElement
+          ? null
+          : this.#getElementSize(this.parentNode);
+
       size += delta;
       if (collapseSize) {
         let pastCollapseThreshold = size < collapseSize - 20;
@@ -519,9 +1169,16 @@
         this.expand();
         size = Math.max(size, collapseSize);
       }
+
+      size = Math.min(size, maxSize ?? size);
       this._updateSize(Math.max(0, size));
     }
 
+    /**
+     * Handles mouseup on the splitter.
+     *
+     * @param {MouseEvent} event
+     */
     _onMouseUp(event) {
       event.preventDefault();
       this.endResize();
@@ -529,24 +1186,34 @@
 
     /**
      * Stop the resizing operation if it is currently active.
+     *
      */
     endResize() {
       if (!this._dragStartInfo) {
         return;
       }
+
+      this.dispatchEvent(
+        new CustomEvent("splitter-resize-end", { bubbles: true })
+      );
+
+      // Make sure our property corresponds to the actual final size.
+      this._updateSize();
+
       const didStart = this._started;
 
       delete this._dragStartInfo;
       delete this._started;
+
+      if (this.resizeWithWindow) {
+        this.#toggleWindowResizing(true);
+      }
 
       window.removeEventListener("mousemove", this);
       window.removeEventListener("mouseup", this);
       document.documentElement.style.pointerEvents = null;
       document.documentElement.style.cursor = null;
       this.classList.remove("splitter-resizing");
-
-      // Make sure our property corresponds to the actual final size.
-      this._updateSize();
 
       if (didStart) {
         this.dispatchEvent(

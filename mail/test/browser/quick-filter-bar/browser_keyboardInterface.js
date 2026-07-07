@@ -11,7 +11,7 @@
 
 "use strict";
 
-var { be_in_folder, create_folder, get_about_3pane, select_click_row } =
+var { be_in_folder, create_folder, focus_thread_tree, get_about_3pane } =
   ChromeUtils.importESModule(
     "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
   );
@@ -38,7 +38,7 @@ var folder;
 
 add_setup(async function () {
   folder = await create_folder("QuickFilterBarKeyboardInterface");
-  // We need a message so we can select it so we can find in message.
+  // Use a non-empty folder so the thread pane can take focus.
   await make_message_sets_in_folders([folder], [{ count: 1 }]);
   await be_in_folder(folder);
   await ensure_table_view(document);
@@ -138,9 +138,7 @@ add_task(async function test_control_shift_k_shows_quick_filter_bar() {
   const qfbTextbox = about3Pane.document.getElementById("qfb-qs-textbox");
 
   // focus explicitly on the thread pane so we know where the focus is.
-  about3Pane.document.getElementById("threadTree").focus();
-  // select a message so we can find in message
-  await select_click_row(0);
+  focus_thread_tree();
 
   // hit control-shift-k to get in the quick filter box
   EventUtils.synthesizeKey("k", { accelKey: true, shiftKey: true });

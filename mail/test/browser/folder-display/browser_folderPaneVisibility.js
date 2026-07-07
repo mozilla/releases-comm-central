@@ -24,6 +24,12 @@ var {
 var { make_message_sets_in_folders } = ChromeUtils.importESModule(
   "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
+var { promise_new_window } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/WindowHelpers.sys.mjs"
+);
+var { XULStoreUtils } = ChromeUtils.importESModule(
+  "resource:///modules/XULStoreUtils.sys.mjs"
+);
 
 var folder;
 
@@ -38,6 +44,8 @@ add_setup(async function () {
  */
 function assert_folder_pane_visible() {
   const win = get_about_3pane();
+  const folderPane = win.document.getElementById("folderPane");
+  const folderPaneRect = folderPane.getBoundingClientRect();
 
   Assert.equal(
     win.paneLayout.folderPaneVisible,
@@ -52,6 +60,16 @@ function assert_folder_pane_visible() {
     win.folderPaneSplitter.isCollapsed,
     false,
     "The folder tree splitter should not be collapsed!"
+  );
+  Assert.greater(
+    folderPaneRect.width,
+    50,
+    "The folder pane should have a usable width!"
+  );
+  Assert.greater(
+    folderPaneRect.height,
+    50,
+    "The folder pane should have a usable height!"
   );
 
   window.view_init(); // Force the view menu to update.
@@ -98,6 +116,43 @@ function toggle_folder_pane() {
   // Since we don't have a shortcut to toggle the folder pane, we're going to
   // have to collapse it ourselves
   get_about_3pane().commandController.doCommand("cmd_toggleFolderPane");
+}
+
+async function open3PaneWindow(folderToShow) {
+  const newWindowPromise = promise_new_window("mail:3pane");
+  window.openDialog(
+    "chrome://messenger/content/messenger.xhtml",
+    "_blank",
+    "chrome,all,dialog=no",
+    folderToShow.URI,
+    -1
+  );
+
+  const win = await newWindowPromise;
+  await TestUtils.waitForCondition(() => {
+    const about3Pane =
+      win.document.getElementById("tabmail")?.currentAbout3Pane;
+    return (
+      about3Pane?.document.readyState == "complete" &&
+      about3Pane.location.href != "about:blank"
+    );
+  }, "the new 3-pane window should load about:3pane");
+
+  const about3Pane = win.document.getElementById("tabmail").currentAbout3Pane;
+  await TestUtils.waitForCondition(
+    () =>
+      about3Pane.gFolder == folderToShow &&
+      !about3Pane.document.body.classList.contains("account-central"),
+    "the new 3-pane window should display the test folder"
+  );
+
+  await new Promise(resolve =>
+    about3Pane.requestAnimationFrame(() =>
+      about3Pane.requestAnimationFrame(resolve)
+    )
+  );
+
+  return win;
 }
 
 /**
@@ -272,4 +327,112 @@ add_task(async function test_folder_pane_persistence_generally_works() {
   }
   // For one last time, make sure.
   assert_folder_pane_visible();
+});
+
+add_task(async function test_folder_pane_restores_stored_size_on_startup() {
+  await be_in_folder(folder);
+
+  const restoredWidth = 349;
+  XULStoreUtils.setValue("messenger", "folderPaneBox", "width", restoredWidth);
+
+  const win = await open3PaneWindow(folder);
+  try {
+    const about3Pane = win.document.getElementById("tabmail").currentAbout3Pane;
+    const folderPane = about3Pane.document.getElementById("folderPane");
+    await TestUtils.waitForCondition(
+      () =>
+        Math.abs(folderPane.getBoundingClientRect().width - restoredWidth) <= 1,
+      "the folder pane should reach the stored width"
+    );
+
+    const folderPaneRect = folderPane.getBoundingClientRect();
+    Assert.lessOrEqual(
+      Math.abs(folderPaneRect.width - restoredWidth),
+      1,
+      "The folder pane should restore the width stored in xulstore"
+    );
+
+    const splitter = about3Pane.document.getElementById("folderPaneSplitter");
+    const splitterRect = splitter.getBoundingClientRect();
+    EventUtils.synthesizeMouseAtPoint(
+      splitterRect.left + splitterRect.width / 2,
+      splitterRect.top + splitterRect.height / 2,
+      { type: "mousedown", buttons: 1 },
+      about3Pane
+    );
+    Assert.ok(
+      !!splitter._dragStartInfo,
+      "The folder splitter drag should start"
+    );
+    Assert.equal(
+      folderPane.style.getPropertyPriority("width"),
+      "",
+      "The folder pane should be unlocked while dragging its splitter"
+    );
+    EventUtils.synthesizeMouseAtPoint(
+      splitterRect.left + splitterRect.width / 2 - 40,
+      splitterRect.top + splitterRect.height / 2,
+      { type: "mousemove", buttons: 1 },
+      about3Pane
+    );
+    await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
+
+    const draggedWidth = restoredWidth - 40;
+    Assert.lessOrEqual(
+      Math.abs(folderPane.getBoundingClientRect().width - draggedWidth),
+      1,
+      "The restored folder pane should follow splitter drags"
+    );
+
+    EventUtils.synthesizeMouseAtPoint(
+      splitterRect.left + splitterRect.width / 2 - 40,
+      splitterRect.top + splitterRect.height / 2,
+      { type: "mouseup" },
+      about3Pane
+    );
+    await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
+
+    await TestUtils.waitForCondition(
+      () =>
+        Math.abs(
+          Number(
+            XULStoreUtils.getValue("messenger", "folderPaneBox", "width")
+          ) - draggedWidth
+        ) <= 1,
+      "the dragged folder pane width should be persisted"
+    );
+
+    const restoredWin = await open3PaneWindow(folder);
+    try {
+      const restoredAbout3Pane =
+        restoredWin.document.getElementById("tabmail").currentAbout3Pane;
+      const restoredFolderPane =
+        restoredAbout3Pane.document.getElementById("folderPane");
+      await TestUtils.waitForCondition(
+        () =>
+          Math.abs(
+            restoredFolderPane.getBoundingClientRect().width - draggedWidth
+          ) <= 1,
+        "the dragged folder pane width should restore in another window"
+      );
+
+      Assert.lessOrEqual(
+        Math.abs(
+          restoredFolderPane.getBoundingClientRect().width - draggedWidth
+        ),
+        1,
+        "The dragged folder pane width should restore in another window"
+      );
+    } finally {
+      const closeRestoredPromise =
+        BrowserTestUtils.domWindowClosed(restoredWin);
+      restoredWin.close();
+      await closeRestoredPromise;
+    }
+  } finally {
+    XULStoreUtils.removeValue("messenger", "folderPaneBox", "width");
+    const closePromise = BrowserTestUtils.domWindowClosed(win);
+    win.close();
+    await closePromise;
+  }
 });

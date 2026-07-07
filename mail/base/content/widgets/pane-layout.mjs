@@ -139,15 +139,15 @@ class PaneLayout extends HTMLBodyElement {
   #initialize() {
     this.folderPaneSplitter = this.querySelector("#folderPaneSplitter");
     this.folderPaneSplitter.addEventListener("splitter-resized", this);
-    this.#setValues(this.folderPaneSplitter, ["width"]);
 
     this.messagePaneSplitter = this.querySelector("#messagePaneSplitter");
     this.messagePaneSplitter.addEventListener("splitter-collapsed", this);
     this.messagePaneSplitter.addEventListener("splitter-expanded", this);
     this.messagePaneSplitter.addEventListener("splitter-resized", this);
-    this.#setValues(this.messagePaneSplitter, ["height", "width"]);
 
     this.#setLayout(this.layoutPreference);
+    this.#setValues(this.folderPaneSplitter, ["width"]);
+    this.#setValues(this.messagePaneSplitter, ["height", "width"]);
   }
 
   /**

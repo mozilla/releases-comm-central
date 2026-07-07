@@ -26,8 +26,71 @@ var {
 var { make_message_sets_in_folders } = ChromeUtils.importESModule(
   "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
+var { promise_new_window } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/WindowHelpers.sys.mjs"
+);
+var { XULStoreUtils } = ChromeUtils.importESModule(
+  "resource:///modules/XULStoreUtils.sys.mjs"
+);
 
 var folder;
+
+function assert_message_pane_has_usable_size() {
+  const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+  const messagePane = about3Pane.document.getElementById("messagePane");
+  const messagePaneRect = messagePane.getBoundingClientRect();
+
+  Assert.greater(
+    messagePaneRect.width,
+    50,
+    "The message pane should have a usable width!"
+  );
+  Assert.greater(
+    messagePaneRect.height,
+    50,
+    "The message pane should have a usable height!"
+  );
+}
+
+async function open3PaneWindow(
+  folderToShow,
+  features = "chrome,all,dialog=no"
+) {
+  const newWindowPromise = promise_new_window("mail:3pane");
+  window.openDialog(
+    "chrome://messenger/content/messenger.xhtml",
+    "_blank",
+    features,
+    folderToShow.URI,
+    -1
+  );
+
+  const win = await newWindowPromise;
+  await TestUtils.waitForCondition(() => {
+    const about3Pane =
+      win.document.getElementById("tabmail")?.currentAbout3Pane;
+    return (
+      about3Pane?.document.readyState == "complete" &&
+      about3Pane.location.href != "about:blank"
+    );
+  }, "the new 3-pane window should load about:3pane");
+
+  const about3Pane = win.document.getElementById("tabmail").currentAbout3Pane;
+  await TestUtils.waitForCondition(
+    () =>
+      about3Pane.gFolder == folderToShow &&
+      !about3Pane.document.body.classList.contains("account-central"),
+    "the new 3-pane window should display the test folder"
+  );
+
+  await new Promise(resolve =>
+    about3Pane.requestAnimationFrame(() =>
+      about3Pane.requestAnimationFrame(resolve)
+    )
+  );
+
+  return win;
+}
 
 add_setup(async function () {
   folder = await create_folder("MessagePaneVisibility");
@@ -41,6 +104,7 @@ add_setup(async function () {
 add_task(async function test_message_pane_visible_state_is_right() {
   await be_in_folder(folder);
   assert_message_pane_visible();
+  assert_message_pane_has_usable_size();
   Assert.ok(true, "test_message_pane_visible_state_is_right ran to completion");
 });
 
@@ -252,3 +316,243 @@ add_task(async function test_message_pane_persistence_generally_works() {
     "test_message_pane_persistence_generally_works ran to completion"
   );
 });
+
+add_task(async function test_message_pane_restores_stored_size_on_startup() {
+  await be_in_folder(folder);
+
+  const restoredWidth = 420;
+  const oldPaneConfig = Services.prefs.getIntPref("mail.pane_config.dynamic");
+  Services.prefs.setIntPref("mail.pane_config.dynamic", 2);
+  XULStoreUtils.setValue("messenger", "folderPaneBox", "width", 280);
+  XULStoreUtils.setValue(
+    "messenger",
+    "messagepaneboxwrapper",
+    "collapsed",
+    false
+  );
+  XULStoreUtils.setValue(
+    "messenger",
+    "messagepaneboxwrapper",
+    "width",
+    restoredWidth
+  );
+
+  const win = await open3PaneWindow(folder);
+  try {
+    const about3Pane = win.document.getElementById("tabmail").currentAbout3Pane;
+    const messagePane = about3Pane.document.getElementById("messagePane");
+    const folderPane = about3Pane.document.getElementById("folderPane");
+    about3Pane.paneLayout.folderPaneVisible = true;
+    await TestUtils.waitForCondition(
+      () => folderPane.getBoundingClientRect().width > 50,
+      "the folder pane should be visible before dragging the message splitter"
+    );
+    await TestUtils.waitForCondition(
+      () =>
+        Math.abs(messagePane.getBoundingClientRect().width - restoredWidth) <=
+        1,
+      "the message pane should reach the stored width"
+    );
+
+    const messagePaneRect = messagePane.getBoundingClientRect();
+    Assert.lessOrEqual(
+      Math.abs(messagePaneRect.width - restoredWidth),
+      1,
+      "The message pane should restore the width stored in xulstore"
+    );
+
+    const threadPane = about3Pane.document.getElementById("threadPane");
+    const folderPaneWidth = folderPane.getBoundingClientRect().width;
+    const threadPaneWidth = threadPane.getBoundingClientRect().width;
+    const splitter = about3Pane.document.getElementById("messagePaneSplitter");
+    const splitterRect = splitter.getBoundingClientRect();
+    EventUtils.synthesizeMouseAtPoint(
+      splitterRect.left + splitterRect.width / 2,
+      splitterRect.top + splitterRect.height / 2,
+      { type: "mousedown", buttons: 1 },
+      about3Pane
+    );
+    Assert.ok(
+      !!splitter._dragStartInfo,
+      "The message splitter drag should start"
+    );
+    EventUtils.synthesizeMouseAtPoint(
+      splitterRect.left + splitterRect.width / 2 - 40,
+      splitterRect.top + splitterRect.height / 2,
+      { type: "mousemove", buttons: 1 },
+      about3Pane
+    );
+    await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
+
+    const draggedWidth = restoredWidth + 40;
+    Assert.lessOrEqual(
+      Math.abs(messagePane.getBoundingClientRect().width - draggedWidth),
+      1,
+      "The restored message pane should follow splitter drags"
+    );
+    Assert.lessOrEqual(
+      Math.abs(folderPane.getBoundingClientRect().width - folderPaneWidth),
+      1,
+      "The folder pane width should not change while dragging the message splitter"
+    );
+    Assert.lessOrEqual(
+      Math.abs(
+        threadPane.getBoundingClientRect().width - (threadPaneWidth - 40)
+      ),
+      1,
+      "The thread pane should absorb the message splitter drag"
+    );
+
+    EventUtils.synthesizeMouseAtPoint(
+      splitterRect.left + splitterRect.width / 2 - 40,
+      splitterRect.top + splitterRect.height / 2,
+      { type: "mouseup" },
+      about3Pane
+    );
+    await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
+
+    Assert.lessOrEqual(
+      Math.abs(folderPane.getBoundingClientRect().width - folderPaneWidth),
+      1,
+      "The folder pane width should not change after releasing the message splitter"
+    );
+
+    win.resizeTo(win.outerWidth + 80, win.outerHeight);
+    await new Promise(resolve =>
+      about3Pane.requestAnimationFrame(() =>
+        about3Pane.requestAnimationFrame(resolve)
+      )
+    );
+
+    Assert.lessOrEqual(
+      Math.abs(folderPane.getBoundingClientRect().width - folderPaneWidth),
+      1,
+      "The folder pane width should not change after resizing the window"
+    );
+
+    await TestUtils.waitForCondition(
+      () =>
+        Math.abs(
+          Number(
+            XULStoreUtils.getValue(
+              "messenger",
+              "messagepaneboxwrapper",
+              "width"
+            )
+          ) - draggedWidth
+        ) <= 1,
+      "the dragged message pane width should be persisted"
+    );
+
+    const restoredWin = await open3PaneWindow(folder);
+    try {
+      const restoredAbout3Pane =
+        restoredWin.document.getElementById("tabmail").currentAbout3Pane;
+      const restoredMessagePane =
+        restoredAbout3Pane.document.getElementById("messagePane");
+      await TestUtils.waitForCondition(
+        () =>
+          Math.abs(
+            restoredMessagePane.getBoundingClientRect().width - draggedWidth
+          ) <= 1,
+        "the dragged message pane width should restore in another window"
+      );
+
+      Assert.lessOrEqual(
+        Math.abs(
+          restoredMessagePane.getBoundingClientRect().width - draggedWidth
+        ),
+        1,
+        "The dragged message pane width should restore in another window"
+      );
+    } finally {
+      const closeRestoredPromise =
+        BrowserTestUtils.domWindowClosed(restoredWin);
+      restoredWin.close();
+      await closeRestoredPromise;
+    }
+  } finally {
+    Services.prefs.setIntPref("mail.pane_config.dynamic", oldPaneConfig);
+    XULStoreUtils.removeValue("messenger", "folderPaneBox", "width");
+    XULStoreUtils.removeValue("messenger", "messagepaneboxwrapper", "width");
+    XULStoreUtils.removeValue(
+      "messenger",
+      "messagepaneboxwrapper",
+      "collapsed"
+    );
+    const closePromise = BrowserTestUtils.domWindowClosed(win);
+    win.close();
+    await closePromise;
+  }
+});
+
+add_task(
+  async function test_message_pane_restores_after_delayed_window_resize() {
+    await be_in_folder(folder);
+
+    const restoredFolderWidth = 349;
+    const restoredMessageWidth = 640;
+    const oldPaneConfig = Services.prefs.getIntPref("mail.pane_config.dynamic");
+    Services.prefs.setIntPref("mail.pane_config.dynamic", 2);
+    XULStoreUtils.setValue(
+      "messenger",
+      "folderPaneBox",
+      "width",
+      restoredFolderWidth
+    );
+    XULStoreUtils.setValue(
+      "messenger",
+      "messagepaneboxwrapper",
+      "collapsed",
+      false
+    );
+    XULStoreUtils.setValue(
+      "messenger",
+      "messagepaneboxwrapper",
+      "width",
+      restoredMessageWidth
+    );
+
+    const win = await open3PaneWindow(
+      folder,
+      "chrome,all,dialog=no,width=760,height=600"
+    );
+    try {
+      const about3Pane =
+        win.document.getElementById("tabmail").currentAbout3Pane;
+      const messagePane = about3Pane.document.getElementById("messagePane");
+
+      for (let i = 0; i < 80; i++) {
+        await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
+      }
+
+      win.resizeTo(1537, 988);
+      await TestUtils.waitForCondition(
+        () =>
+          Math.abs(
+            messagePane.getBoundingClientRect().width - restoredMessageWidth
+          ) <= 1,
+        "the message pane should reach the stored width after the window grows"
+      );
+
+      const messagePaneRect = messagePane.getBoundingClientRect();
+      Assert.lessOrEqual(
+        Math.abs(messagePaneRect.width - restoredMessageWidth),
+        1,
+        "The message pane should restore the stored width after delayed window resize"
+      );
+    } finally {
+      Services.prefs.setIntPref("mail.pane_config.dynamic", oldPaneConfig);
+      XULStoreUtils.removeValue("messenger", "folderPaneBox", "width");
+      XULStoreUtils.removeValue("messenger", "messagepaneboxwrapper", "width");
+      XULStoreUtils.removeValue(
+        "messenger",
+        "messagepaneboxwrapper",
+        "collapsed"
+      );
+      const closePromise = BrowserTestUtils.domWindowClosed(win);
+      win.close();
+      await closePromise;
+    }
+  }
+);

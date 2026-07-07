@@ -14,10 +14,20 @@ export default {
       options: ["", "vertical", "horizontal"],
       control: { type: "radio" },
     },
+    resizeWithWindow: {
+      options: [true, false],
+      control: "boolean",
+    },
   },
 };
 
-const Template = ({ resizeDirection, collapseWidth, collapseHeight }) => html`
+const Template = ({
+  resizeDirection,
+  collapseWidth,
+  collapseHeight,
+  resizeWithWindow,
+  resizeLockIds,
+}) => html`
   <style>
     hr[is="pane-splitter"] {
       border: none;
@@ -34,7 +44,7 @@ const Template = ({ resizeDirection, collapseWidth, collapseHeight }) => html`
       }: minmax(auto, var(--splitter-${
         resizeDirection === "horizontal" ? "width" : "height"
       })) 0 auto;
-      width: 500px;
+      width: ${resizeWithWindow ? "100%" : "500px"};
       height: 500px;
       margin: 1em;
       --splitter-width: 200px;
@@ -44,10 +54,12 @@ const Template = ({ resizeDirection, collapseWidth, collapseHeight }) => html`
   <div class="wrapper">
     <div id="resizeme" style="background: lightblue"></div>
     <hr is="pane-splitter"
-      resize-direction="${resizeDirection}"
+      resize-direction=${resizeDirection}
       resize-id="resizeme"
-      collapse-width="${collapseWidth}"
-      collapse-height="${collapseHeight}"
+      collapse-width=${collapseWidth}
+      collapse-height=${collapseHeight}
+      ?resize-with-window=${resizeWithWindow}
+      resize-lock-ids=${resizeLockIds}
       id="splitter"
     ></hr>
     <div id="fill" style="background: lightslategrey"></div>
@@ -59,4 +71,6 @@ PaneSplitter.args = {
   resizeDirection: "",
   collapseWidth: 0,
   collapseHeight: 0,
+  resizeWithWindow: false,
+  resizeLockIds: "",
 };

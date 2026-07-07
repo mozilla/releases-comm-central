@@ -720,6 +720,63 @@ async function subtestKeyboardAndMouse(variant) {
 }
 
 /**
+ * Checks that the row buffer recovers if a stale cached range is missing one of
+ * the rows needed for pruning.
+ */
+add_task(async function testMissingPruneBoundary() {
+  for (const variant of TEST_VARIANTS) {
+    info(`Running missing prune boundary test for ${variant}`);
+    await runTestInSandbox(subtestMissingPruneBoundary, variant);
+  }
+});
+
+async function subtestMissingPruneBoundary() {
+  const doc = content.document;
+  const list = doc.getElementById("testTree");
+
+  async function doListActionAndWaitForRowBuffer(actionFn) {
+    const eventName = "_treerowbufferfill";
+    list._rowBufferReadyEvent = new content.CustomEvent(eventName);
+
+    const promise = new Promise(resolve =>
+      list.addEventListener(eventName, resolve, { once: true })
+    );
+
+    await actionFn();
+    await promise;
+
+    list._rowBufferReadyEvent = null;
+  }
+
+  function getRowIndices() {
+    return Array.from(list.table.body.children, row => row.index);
+  }
+
+  await doListActionAndWaitForRowBuffer(() => {
+    list.scrollTo(0, 0);
+  });
+
+  const boundaryRow = list.getRowAtIndex(4);
+  Assert.ok(boundaryRow, "the row that will become the prune boundary exists");
+  boundaryRow.remove();
+  list._rows.delete(4);
+
+  await doListActionAndWaitForRowBuffer(() => {
+    list.scrollTo(0, 1500);
+  });
+
+  const expectedIndices = [];
+  for (let i = 4; i <= 68; i++) {
+    expectedIndices.push(i);
+  }
+  Assert.deepEqual(
+    getRowIndices(),
+    expectedIndices,
+    "the row buffer should be rebuilt without any missing rows"
+  );
+}
+
+/**
  * Checks that changes in the view are propagated to the list.
  */
 add_task(async function testRowCountChange() {
