@@ -42,6 +42,8 @@ NS_IMETHODIMP nsMsgSearchOnlineMail::GetEncoding(char** result) {
 NS_IMETHODIMP nsMsgSearchOnlineMail::AddResultElement(nsIMsgDBHdr* pHeaders) {
   nsresult err = NS_OK;
 
+  NS_ENSURE_TRUE(m_scope, NS_ERROR_NULL_POINTER);
+
   nsCOMPtr<nsIMsgSearchSession> searchSession;
   m_scope->GetSearchSession(getter_AddRefs(searchSession));
   if (searchSession) {
