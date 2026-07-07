@@ -100,14 +100,20 @@ export const OAuth2TestUtils = {
         win.document.documentURI ==
         "chrome://messenger/content/browserRequest.xhtml"
     );
-    const oAuthBrowser = oAuthWindow.getBrowser();
-    if (
-      !oAuthBrowser.webProgress ||
-      oAuthBrowser.webProgress.isLoadingDocument ||
-      oAuthBrowser.currentURI.spec == "about:blank"
-    ) {
-      await BrowserTestUtils.browserLoaded(oAuthBrowser);
-    }
+    // Loading the OAuth login page navigates the window's browser to web
+    // content, which can trigger a remoteness swap. BrowserTestUtils.browserLoaded()
+    // hard-rejects ("window unloaded ...") on the transient unload that swap
+    // produces, so poll for the (current) browser to finish loading a real
+    // document instead.
+    await TestUtils.waitForCondition(() => {
+      const oAuthBrowser = oAuthWindow.getBrowser();
+      return (
+        oAuthBrowser?.currentURI &&
+        oAuthBrowser.currentURI.spec != "about:blank" &&
+        oAuthBrowser.webProgress &&
+        !oAuthBrowser.webProgress.isLoadingDocument
+      );
+    }, "the OAuth login page should finish loading");
     return oAuthWindow;
   },
 
