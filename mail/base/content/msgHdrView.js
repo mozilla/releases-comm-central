@@ -40,6 +40,23 @@ ChromeUtils.defineESModuleGetters(this, {
     "resource:///modules/calendar/calCalendarDeactivator.sys.mjs",
 });
 
+ChromeUtils.defineLazyGetter(this, "gQuickLookManager", () => {
+  // QuickLookManager.sys.mjs and the nsIMacQuickLook interface it depends on
+  // are only built and packaged on macOS. On other platforms the module's
+  // resource URL does not resolve, and merely referencing it in
+  // ChromeUtils.importESModule() trips CheckForBrokenChromeURL (a try/catch
+  // does not prevent that, since the broken-URL check happens before JS
+  // throws). Gate on the Mac-only interface so the import is never reached
+  // off macOS.
+  if (!("nsIMacQuickLook" in Ci)) {
+    return null;
+  }
+  const { QuickLookManager } = ChromeUtils.importESModule(
+    "resource:///modules/QuickLookManager.sys.mjs"
+  );
+  return QuickLookManager;
+});
+
 XPCOMUtils.defineLazyServiceGetter(
   this,
   "gDbService",
@@ -1519,6 +1536,10 @@ function ClearCurrentHeaders() {
   currentAttachments = [];
   currentCharacterSet = "";
 
+  if (gQuickLookManager?.isAvailable) {
+    gQuickLookManager.close();
+  }
+
   // Get rid of earlier event handlers on #attachmentName.
   const attachmentName = document.getElementById("attachmentName");
   attachmentName.replaceWith(attachmentName.cloneNode(true));
@@ -1917,6 +1938,12 @@ async function displayAttachmentsForExpandedView() {
 
     var attachmentList = document.getElementById("attachmentList");
     attachmentList.controllers.appendController(AttachmentListController);
+
+    if (gQuickLookManager?.isAvailable) {
+      attachmentList.addEventListener("quicklook", event => {
+        gQuickLookManager.toggle(currentAttachments, event.detail.index);
+      });
+    }
 
     toggleAttachmentList(false);
 

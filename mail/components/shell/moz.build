@@ -25,8 +25,15 @@ if CONFIG["OS_ARCH"] == "WINNT":
     ]
 
 elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "cocoa":
+    XPIDL_SOURCES += [
+        "nsIMacQuickLook.idl",
+    ]
     SOURCES += [
+        "nsMacQuickLook.mm",
         "nsMacShellService.cpp",
+    ]
+    OS_LIBS += [
+        "-framework Quartz",
     ]
 elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "gtk":
     SOURCES += [

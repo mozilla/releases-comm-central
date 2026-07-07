@@ -324,7 +324,7 @@ export class AttachmentInfo {
    * @param {string} filename - Preferred filename.
    * @returns {nsIFile} the created file.
    */
-  async #setupTempFile(filename) {
+  async setupTempFile(filename) {
     const tmpPath = PathUtils.join(
       PathUtils.tempDir,
       "pid-" + Services.appinfo.processID
@@ -367,7 +367,7 @@ export class AttachmentInfo {
     const normalized = rawStr.replace(/\r\n?|\n/g, "\r\n");
 
     // Write to a temp file, then import into the target folder.
-    const tempFile = await this.#setupTempFile("imported-message.eml");
+    const tempFile = await this.setupTempFile("imported-message.eml");
     try {
       await IOUtils.write(
         tempFile.path,
@@ -457,7 +457,7 @@ export class AttachmentInfo {
         } else if (!/\.eml$/i.test(sanitizedName)) {
           sanitizedName += ".eml";
         }
-        tempFile = await this.#setupTempFile(sanitizedName);
+        tempFile = await this.setupTempFile(sanitizedName);
         await this.saveToFile(tempFile.path, true);
 
         this.#temporaryFiles.set(this.url, tempFile);
@@ -498,7 +498,7 @@ export class AttachmentInfo {
     const name = lazy.DownloadPaths.sanitize(this.name);
 
     const createTemporaryFileAndOpen = async fileMimeInfo => {
-      const tempFile = await this.#setupTempFile(name);
+      const tempFile = await this.setupTempFile(name);
 
       await this.saveToFile(tempFile.path, true);
       // Before opening from the temp dir, make the file read-only so that
