@@ -567,6 +567,15 @@ header {
   &.remote-ab-form-body {
     gap: var(--hub-address-book-remote-form-gap);
   }
+
+  #exchangeTypeForm & {
+    --hub-body-elements-column-gap: calc(5 * var(--space-step));
+    max-inline-size: 644px;
+
+    & .align-self-end {
+      justify-self: end;
+    }
+  }
 }
 
 .hub-body-column {

@@ -4,5 +4,104 @@
 
 <html:template id="accountHubEmailExchangeTypeTemplate" xmlns="http://www.w3.org/1999/xhtml">
   <form id="exchangeTypeForm" class="account-hub-form" slot="content">
+    <div class="hub-body">
+      <fieldset
+        role="radiogroup"
+        class="form-row radio-card-large-group"
+      >
+        <legend
+          class="screen-reader-only"
+          data-l10n-id="account-hub-exchange-type-account-type"
+        ></legend>
+        <account-hub-radio-card-large value="graph">
+          <span slot="title" data-l10n-id="account-hub-card-graph-title"></span>
+          <span slot="description">
+            <span data-l10n-id="account-hub-card-graph-description"></span>
+            <span
+              data-l10n-id="account-hub-card-recommended-description"
+              hidden="hidden"
+            ></span>
+          </span>
+        </account-hub-radio-card-large>
+        <account-hub-radio-card-large value="ews">
+          <span slot="title" data-l10n-id="account-hub-card-ews-title"></span>
+          <span slot="tag" data-l10n-id="account-hub-card-ews-tag"></span>
+          <span slot="description">
+            <span data-l10n-id="account-hub-card-ews-description"></span>
+            <span
+              data-l10n-id="account-hub-card-recommended-description"
+              hidden="hidden"
+            ></span>
+          </span>
+        </account-hub-radio-card-large>
+      </fieldset>
+      <div class="panel">
+        <account-hub-input
+          id="exchangeTypeUsername"
+          type="text"
+          l10n-label-id="account-hub-exchange-type-username"
+          l10n-help-text-id="account-hub-exchange-type-username-hint"
+          name="username"
+          placeholder="name@example.com"
+          required="required"
+          classes="input-field"
+        ></account-hub-input>
+        <account-hub-select
+          id="exchangeTypeAuthentication"
+          l10n-label-id="account-hub-exchange-type-authentication"
+          required="required"
+        >
+          <option
+            id="incomingAuthMethodCleartext"
+            data-l10n-id="account-hub-ssl-cleartext-password-option"
+            value="3"
+          >
+          </option>
+          <option
+            id="incomingAuthMethodNtlm"
+            label="NTLM"
+            value="6"
+          >
+          </option>
+          <option
+            id="incomingAuthMethodOAuth2"
+            value="10"
+            hidden="hidden"
+            label="OAuth2"
+          >
+          </option>
+        </account-hub-select>
+        <div id="exchangeTypeOauthOptions" class="panel-subsection">
+          <account-hub-checkbox
+            id="exchangeTypeDefaultOauth"
+            l10n-label-id="account-hub-exchange-type-default-oauth"
+            checkbox-type="check"
+            checked="checked"
+            aria-controls="exchangeTypeOauthCustom"
+          ></account-hub-checkbox>
+          <div id="exchangeTypeOauthCustom" class="panel-subsection">
+            <account-hub-input
+              id="exchangeTypeOauthTenant"
+              l10n-label-id="account-hub-exchange-type-oauth-tenant"
+              type="text"
+              required="required"
+              classes="input-field"
+            ></account-hub-input>
+            <account-hub-input
+              id="exchangeTypeOauthApp"
+              l10n-label-id="account-hub-exchange-type-oauth-app"
+              type="text"
+              required="required"
+              classes="input-field"
+            ></account-hub-input>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="button link-button align-self-end"
+          data-l10n-id="account-hub-exchange-type-advanced-config"
+        ></button>
+      </div>
+    </div>
   </form>
 </html:template>

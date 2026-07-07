@@ -611,6 +611,31 @@ div:has(legend) {
   }
 }
 
+.radio-card-large-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: calc(2 * var(--space-base));
+  border: none;
+  padding: 5px 0; /* space for the focus ring */
+}
+
+.panel {
+  background: var(--color-surface-base);
+  border: 1px solid var(--color-surface-border);
+  box-sizing: border-box;
+  border-radius: calc(3 * var(--space-step));
+  padding: calc(2 * var(--space-base));
+  display: flex;
+  flex-direction: column;
+  gap: calc(2 * var(--space-base));
+
+  & .panel-subsection {
+    display: flex;
+    flex-direction: column;
+    gap: calc(2 * var(--space-base));
+  }
+}
+
 .form-selection {
   position: sticky;
   inset-block-start: 0;

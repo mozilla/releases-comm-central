@@ -144,6 +144,40 @@ account-hub-auth-no-authentication-option =
 
 account-hub-auth-label = Authentication method
 
+## Exchange Type Manual Config Step
+
+account-hub-exchange-type-account-type = Account type
+
+account-hub-card-graph-title = Microsoft Graph
+
+account-hub-card-graph-description = Microsoft Graph is a modern connection method for Microsoft 365.
+
+account-hub-card-ews-title = Exchange Web Services
+
+account-hub-card-ews-tag = Legacy
+
+account-hub-card-ews-description = Exchange Web Services (EWS) connects to Microsoft Exchange to sync your mail.
+
+# This is shown after the type description, so "it" is referring to the type (either Microsoft Graph or Exchange Web Services).
+account-hub-card-recommended-description = It’s recommended because it matches your Service URL.
+
+account-hub-exchange-type-username = Username
+
+account-hub-exchange-type-username-hint = Typically your email address or Active Directory UPN.
+
+account-hub-exchange-type-authentication = Authentication Method
+
+# Checkbox that can be unchecked to use a custom OAuth config.
+account-hub-exchange-type-default-oauth = Use default Microsoft 365 Copilot authentication settings
+
+account-hub-exchange-type-oauth-tenant = Tenant ID
+
+account-hub-exchange-type-oauth-app = App ID
+
+account-hub-exchange-type-advanced-config = Advanced Configuration
+
+## Other Account Hub strings (sadly not sorted into sections)
+
 account-hub-result-username-label = Username
     .title = Username
 
