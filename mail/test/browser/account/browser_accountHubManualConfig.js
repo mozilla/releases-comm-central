@@ -1196,11 +1196,62 @@ add_task(async function test_direct_to_manual_config_pref_enabled() {
     "The direct manual config flow should default to IMAP"
   );
 
-  await subtest_select_protocol(dialog, "pop3");
+  await subtest_select_protocol_and_continue(dialog, "microsoft");
 
-  // TODO: Add assertions for the selected protocol's next subview once
-  // those subviews exist.
-  await subtest_close_account_hub_dialog(dialog, protocolSelectTemplate);
+  const exchangeSettingsSubview = dialog.querySelector(
+    "#emailExchangeSettingsSubview"
+  );
+  await BrowserTestUtils.waitForAttributeRemoval(
+    "hidden",
+    exchangeSettingsSubview
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(
+      dialog.querySelector("#emailManualConfigSubview")
+    ),
+    "The new manual config form should stay hidden for Microsoft"
+  );
+  const exchangeTypeSubview = dialog.querySelector("#emailExchangeTypeSubview");
+  Assert.ok(
+    BrowserTestUtils.isHidden(exchangeTypeSubview),
+    "The Exchange type subview should stay hidden before Exchange settings are complete"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(
+    dialog.querySelector("#emailFooter #back"),
+    {}
+  );
+  await BrowserTestUtils.waitForAttributeRemoval(
+    "hidden",
+    protocolSelectTemplate
+  );
+  Assert.ok(
+    protocolSelectTemplate.querySelector(
+      `input[name="protocol-select"][value="microsoft"]`
+    ).checked,
+    "Back navigation should return to protocol select with Microsoft selected"
+  );
+
+  await subtest_select_protocol_and_continue(dialog, "pop3");
+
+  const manualConfigTemplate = dialog.querySelector(
+    "#emailManualConfigSubview"
+  );
+  await BrowserTestUtils.waitForAttributeRemoval(
+    "hidden",
+    manualConfigTemplate
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(exchangeTypeSubview),
+    "The Exchange type subview should stay hidden for POP3"
+  );
+  Assert.equal(
+    manualConfigTemplate.captureState().incoming.type,
+    "pop3",
+    "The manual config form should use the selected POP3 protocol"
+  );
+
+  await subtest_close_account_hub_dialog(dialog, manualConfigTemplate);
   await cleanupManualConfigPref();
 });
 

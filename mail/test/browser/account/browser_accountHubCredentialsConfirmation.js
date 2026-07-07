@@ -271,10 +271,24 @@ add_task(
     Assert.ok(protocolInput.checked, "POP3 should be selected");
     Assert.ok(!footerForward.disabled, "Continue button should be enabled");
 
-    // TODO: Add assertions for the selected protocol's next subview once
-    // those subviews exist.
+    EventUtils.synthesizeMouseAtCenter(footerForward, {});
+
+    const manualConfigStep = dialog.querySelector("#emailManualConfigSubview");
+    await BrowserTestUtils.waitForAttributeRemoval("hidden", manualConfigStep);
+    Assert.ok(
+      BrowserTestUtils.isHidden(
+        dialog.querySelector("#emailExchangeTypeSubview")
+      ),
+      "The Exchange type subview should stay hidden for POP3"
+    );
+    Assert.equal(
+      manualConfigStep.captureState().incoming.type,
+      "pop3",
+      "The manual config form should use the selected POP3 protocol"
+    );
+
     await Services.logins.removeAllLoginsAsync();
-    await subtest_close_account_hub_dialog(dialog, protocolSelectStep);
+    await subtest_close_account_hub_dialog(dialog, manualConfigStep);
     await cleanupManualConfigPref();
   }
 );

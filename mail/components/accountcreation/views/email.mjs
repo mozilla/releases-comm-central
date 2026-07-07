@@ -562,11 +562,13 @@ class AccountHubEmail extends HTMLElement {
     this.#emailAddedSuccessSubview.hidden = true;
     this.#emailAutoConfigSubview.hidden = true;
     this.#emailProtocolSelectSubview.hidden = true;
+    this.#emailManualConfigSubview.hidden = true;
     this.#emailIncomingConfigSubview.hidden = true;
     this.#emailOutgoingConfigSubview.hidden = true;
     this.#exchangeSettingsSubview.hidden = true;
     this.#emailCredentialsConfirmationSubview.hidden = true;
     this.#states.emailAutodiscoverAuthenticationSubview.subview.hidden = true;
+    this.#states.exchangeTypeSubview.subview.hidden = true;
   }
 
   /**
@@ -1154,7 +1156,7 @@ class AccountHubEmail extends HTMLElement {
         break;
       case "protocolSelectSubview":
         this.#currentConfig.incoming.type = stateData.protocolSelect;
-        // TODO: Route to the selected protocol's subview once those subviews exist.
+        await this.#initManualConfig(stateData.protocolSelect);
         break;
       case "incomingConfigSubview":
         if (stateData.config.isExchangeConfig()) {
@@ -1380,6 +1382,28 @@ class AccountHubEmail extends HTMLElement {
       fluentTitleId: "account-hub-email-protocol-select-notification",
       type: "info",
     });
+  }
+
+  /**
+   * Initialize the correct manual config step based on the protocol.
+   *
+   * @param {string} protocol - The selected incoming protocol.
+   */
+  async #initManualConfig(protocol) {
+    switch (protocol) {
+      case "imap":
+      case "pop3":
+        await this.#initUI("manualConfigSubview");
+        break;
+      case "microsoft":
+        await this.#initUI("exchangeSettingsSubview");
+        break;
+      default:
+        throw new Error(`Invalid protocol [${protocol}] used.`);
+    }
+
+    this.#states[this.#currentState].previousStep = "protocolSelectSubview";
+    this.#setCurrentConfigForSubview();
   }
 
   /**
