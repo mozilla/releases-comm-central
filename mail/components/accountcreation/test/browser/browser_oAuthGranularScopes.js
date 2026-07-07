@@ -67,7 +67,7 @@ async function subtest(grantedScope, expectFailure) {
     emailAddress: "test@test.test",
   };
 
-  expectOAuthDialog(grantedScope);
+  const oAuthPromise = expectOAuthDialog(grantedScope);
   const abortController = new AbortController();
   const verifier = new ConfigVerifier(window.msgWindow, abortController.signal);
   const verifyPromise = verifier.verifyConfig(config);
@@ -100,6 +100,10 @@ async function subtest(grantedScope, expectFailure) {
       ).verifyConfig(config);
     });
   }
+
+  // Coordinate with the OAuth dialog handling and surface any error from it
+  // instead of leaving it as an uncaught rejection.
+  await oAuthPromise;
 
   // Wait for the OAuth module to record telemetry, which signals that the
   // token exchange has fully completed.
