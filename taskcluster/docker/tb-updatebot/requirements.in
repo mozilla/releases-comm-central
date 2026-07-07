@@ -1,5 +1,5 @@
-MozPhab==1.5.1
-pip-tools==7.3.0
+MozPhab==2.15.3
+pip-tools==7.5.3
 requests==2.31.0
 taskcluster==60.3.4
 taskcluster-urls==13.0.1
