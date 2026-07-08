@@ -1231,9 +1231,12 @@ export var MessageTextFilter = {
       }
       const tabmail =
         aDocument.documentGlobal.top.document.getElementById("tabmail");
-      tabmail.openTab("glodaFacet", {
-        searcher: new lazy.GlodaMsgSearcher(null, aState.text),
-      });
+      tabmail.openTab(
+        Services.prefs.getBoolPref("gloda.show_as_list_by_default", false)
+          ? "glodaTableList"
+          : "glodaFacet",
+        { searcher: new lazy.GlodaMsgSearcher(null, aState.text) }
+      );
       aEvent.preventDefault();
     }
 

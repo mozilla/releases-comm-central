@@ -161,7 +161,12 @@ class GlobalSearchBar extends SearchBar {
         args.IMSearcher = new lazy.GlodaIMSearcher(null, searchString);
       }
     }
-    tabmail.openTab("glodaFacet", args);
+    tabmail.openTab(
+      Services.prefs.getBoolPref("gloda.show_as_list_by_default", false)
+        ? "glodaTableList"
+        : "glodaFacet",
+      args
+    );
     this.popup.closePopup();
     this.controller.matchCount = 0;
     this.controller.searchString = "";

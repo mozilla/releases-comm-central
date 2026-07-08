@@ -697,6 +697,11 @@ pref("gloda.facetview.hidetimeline", true);
 // 3 - default to "date", but remember user preference when it is changed
 pref("gloda.facetview.sortby", 2);
 
+// Whether to open global search results as a table list view instead of the
+// faceted search view. Defaults to false (facet view). When true, results open
+// directly in a table list, equivalent to clicking "Show results as list".
+pref("gloda.show_as_list_by_default", false);
+
 // Enable gloda by default!
 pref("mailnews.database.global.indexer.enabled", true);
 // Limit the number of gloda message results

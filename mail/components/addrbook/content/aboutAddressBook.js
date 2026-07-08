@@ -3855,9 +3855,12 @@ var detailsPane = {
       case "detailsSearchButton":
         if (this.currentCard.primaryEmail) {
           const searchString = this.currentCard.emailAddresses.join(" ");
-          window.browsingContext.topChromeWindow.tabmail.openTab("glodaFacet", {
-            searcher: new GlodaMsgSearcher(null, searchString, false),
-          });
+          window.browsingContext.topChromeWindow.tabmail.openTab(
+            Services.prefs.getBoolPref("gloda.show_as_list_by_default", false)
+              ? "glodaTableList"
+              : "glodaFacet",
+            { searcher: new GlodaMsgSearcher(null, searchString, false) }
+          );
         }
         break;
       case "detailsNewListButton":

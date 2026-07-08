@@ -151,9 +151,17 @@ customElements.whenDefined("autocomplete-input").then(() => {
                 theQuery = theQuery.involves(row.item);
               }
               theQuery.orderBy("-date");
-              document.getElementById("tabmail").openTab("glodaFacet", {
-                query: theQuery,
-              });
+              document
+                .getElementById("tabmail")
+                .openTab(
+                  Services.prefs.getBoolPref(
+                    "gloda.show_as_list_by_default",
+                    false
+                  )
+                    ? "glodaTableList"
+                    : "glodaFacet",
+                  { query: theQuery }
+                );
             }
           }
         },
@@ -210,7 +218,12 @@ customElements.whenDefined("autocomplete-input").then(() => {
         if (Services.prefs.getBoolPref("mail.chat.enabled")) {
           args.IMSearcher = new lazy.GlodaIMSearcher(null, searchString);
         }
-        tabmail.openTab("glodaFacet", args);
+        tabmail.openTab(
+          Services.prefs.getBoolPref("gloda.show_as_list_by_default", false)
+            ? "glodaTableList"
+            : "glodaFacet",
+          args
+        );
       }
     }
 

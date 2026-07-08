@@ -9,6 +9,7 @@
 /* import-globals-from ../../components/customizableui/content/panelUI.js */
 /* import-globals-from ../../components/preferences/preferencesTab.js */
 /* import-globals-from glodaFacetTab.js */
+/* import-globals-from glodaListTab.js */
 /* import-globals-from mailCore.js */
 /* import-globals-from mail-offline.js */
 /* import-globals-from mailTabs.js */
@@ -208,6 +209,8 @@ var gMailInit = {
       tabmail.registerTabType(mailTabType);
       // glodaFacetTab* in glodaFacetTab.js
       tabmail.registerTabType(glodaFacetTabType);
+      // glodaTableListTabType in glodaListTab.js
+      tabmail.registerTabType(glodaTableListTabType);
       tabmail.registerTabMonitor(GlodaSearchBoxTabMonitor);
       tabmail.openFirstTab();
       setupShortcuts();

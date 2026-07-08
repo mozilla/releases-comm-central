@@ -245,6 +245,10 @@ enable-gloda-search-label =
     .label = Enable Global Search and Indexer
     .accesskey = G
 
+gloda-show-results-as-list-label =
+    .label = Show global search results as a list by default
+    .accesskey = L
+
 datetime-formatting-legend = Date and Time Formatting
 language-selector-legend = Language
 
