@@ -48,6 +48,17 @@ add_setup(async function () {
     new FileUtils.File(getTestFilePath("data/Alice.p12")),
     "nss"
   );
+
+  registerCleanupFunction(function () {
+    const certDB = Cc["@mozilla.org/security/x509certdb;1"].getService(
+      Ci.nsIX509CertDB
+    );
+    for (const cert of certDB.getCerts()) {
+      if (["NSS Test CA (RSA)", "Bob", "Alice"].includes(cert.commonName)) {
+        certDB.deleteCertificate(cert);
+      }
+    }
+  });
 });
 
 function getMsgBodyTxt(msgc) {
