@@ -115,6 +115,9 @@ static int MimeInlineTextPlainFlowed_parse_begin(MimeObject* obj) {
   text->mQuotedStyleSetting = mozilla::StaticPrefs::mail_quoted_style();
   text->mCitationColor.Truncate();  // mail.citation_color
   text->mStripSig = mozilla::StaticPrefs::mail_strip_sig_on_reply();
+  text->text.mTrailingBlankLines = 0;
+  text->text.mSanitizeTrailingBlankLines =
+      mozilla::StaticPrefs::mail_body_sanitize_trailing_blank_lines();
 
   Preferences::GetCString("mail.citation_color", text->mCitationColor);
 
@@ -329,6 +332,25 @@ static int MimeInlineTextPlainFlowed_parse_line(const char* aLine,
   nsresult rv;
 
   if (!skipConversion) {
+    // An empty line not closing a quote or starting a signature. linep points
+    // past the quote marks, so a line break there means the line is empty.
+    MimeInlineText* inlineText = (MimeInlineText*)obj;
+    if (inlineText->mSanitizeTrailingBlankLines && linequotelevel == 0 &&
+        exdata->quotelevel == 0 && !exdata->isSig &&
+        (*linep == '\r' || *linep == '\n')) {
+      inlineText->mTrailingBlankLines++;
+      // Returning early skips the state updates below: both quote levels are
+      // already 0, a blank line cannot be a signature separator, and inflow
+      // only feeds the empty quote-depth-wins branch anyway.
+      return 0;
+    }
+    // A flowed empty line is a newline plus a <br>; readers that take the body
+    // as textContent see only the newline, so flush both or interior blank
+    // lines vanish from the text.
+    int blankStatus =
+        MimeInlineText_flushBlankLines(obj, "\n<br>", sizeof("\n<br>") - 1);
+    if (blankStatus < 0) return blankStatus;
+
     // Convert only if the source string is not empty
     if (length - (linep - line) > 0) {
       uint32_t whattodo = obj->options->whattodo;

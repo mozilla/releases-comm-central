@@ -70,7 +70,21 @@ struct MimeInlineText {
   int32_t curDamOffset;
   char* lineDamBuffer;
   char** lineDamPtrs;
+
+  // The plain and flowed renderers set these up in parse_begin; for every
+  // other text renderer they stay zeroed by mime_new, keeping the feature off.
+  bool mSanitizeTrailingBlankLines;  // mail.body_sanitize_trailing_blank_lines
+  uint32_t mTrailingBlankLines;      // empty lines buffered, flushed or dropped
 };
+
+// Collapse the trailing run of empty lines so a padded message renders cleanly.
+// Count them instead of writing them: real content later replays the count and
+// end of input discards it, so the run is never buffered. |blank| is the markup
+// for one empty line in the caller's output: a line break inside the <pre> for
+// fixed text, a newline plus a <br> for flowed (the newline is the part
+// textContent sees). Returns < 0 on a write error.
+int MimeInlineText_flushBlankLines(MimeObject* obj, const char* blank,
+                                   int32_t blankLength);
 
 #define MimeInlineTextClassInitializer(ITYPE, CSUPER) \
   {MimeLeafClassInitializer(ITYPE, CSUPER)}

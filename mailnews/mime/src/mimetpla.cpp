@@ -5,6 +5,7 @@
 #include "mimetpla.h"
 
 #include "mimemoz2.h"
+#include "msgCore.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/StaticPrefs_mail.h"
 #include "mozITXTToHTMLConv.h"
@@ -95,6 +96,9 @@ static int MimeInlineTextPlain_parse_begin(MimeObject* obj) {
   if (obj->options && obj->options->write_html_p && obj->options->output_fn) {
     MimeInlineTextPlain* text = (MimeInlineTextPlain*)obj;
     text->mCiteLevel = 0;
+    text->text.mTrailingBlankLines = 0;
+    text->text.mSanitizeTrailingBlankLines =
+        mozilla::StaticPrefs::mail_body_sanitize_trailing_blank_lines();
 
     // Get the prefs
 
@@ -276,6 +280,19 @@ static int MimeInlineTextPlain_parse_line(const char* line, int32_t length,
   nsresult rv;
 
   if (!skipConversion) {
+    // An empty line not closing a quote or starting a signature. A line reaches
+    // us with its terminator, so a leading line break means the line is empty.
+    if (text->text.mSanitizeTrailingBlankLines && text->mCiteLevel == 0 &&
+        !text->mIsSig && (line[0] == '\r' || line[0] == '\n')) {
+      text->text.mTrailingBlankLines++;
+      // Returning early skips the state updates below: the cite level is
+      // already 0 and a blank line cannot be a signature separator.
+      return 0;
+    }
+    status =
+        MimeInlineText_flushBlankLines(obj, MSG_LINEBREAK, MSG_LINEBREAK_LEN);
+    if (status < 0) return status;
+
     nsDependentCSubstring inputStr(line, length);
     nsAutoString lineSourceStr;
 

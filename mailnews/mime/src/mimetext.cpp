@@ -236,6 +236,17 @@ static int MimeInlineText_parse_decoded_buffer(const char* buf, int32_t size,
                          MimeInlineText_rotate_convert_and_parse_line, obj);
 }
 
+int MimeInlineText_flushBlankLines(MimeObject* obj, const char* blank,
+                                   int32_t blankLength) {
+  MimeInlineText* text = (MimeInlineText*)obj;
+  while (text->mTrailingBlankLines > 0) {
+    int status = MimeObject_write(obj, blank, blankLength, true);
+    if (status < 0) return status;
+    text->mTrailingBlankLines--;
+  }
+  return 0;
+}
+
 #define MimeInlineText_grow_cbuffer(text, desired_size)                       \
   (((desired_size) >= (text)->cbuffer_size)                                   \
        ? mime_GrowBuffer((desired_size), sizeof(char), 100, &(text)->cbuffer, \

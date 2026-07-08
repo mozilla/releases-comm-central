@@ -168,6 +168,11 @@
   value: true
   mirror: always
 
+# Sanitize a plain text message body by removing its trailing run of empty lines.
+- name: mail.body_sanitize_trailing_blank_lines
+  type: bool
+  value: true
+  mirror: always
 
 # Whether the colors from tags should be applied only to the message(s)
 # actually tagged, or also to any collapsed threads which contain tagged
