@@ -70,7 +70,9 @@
 }
 
 .message-header-row {
-  display: flex;
+  &:not([hidden]) {
+    display: flex;
+  }
 
   &.header-row-reverse {
     flex-direction: row-reverse;
@@ -96,8 +98,10 @@
   flex-wrap: wrap;
 
   @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: flex-start;
+    &:not([hidden]) {
+      flex-direction: column;
+      align-items: flex-start;
+    }
   }
 }
 
@@ -121,7 +125,7 @@
   }
 }
 
-.header-row-grow {
+.header-row-grow:not([hidden]) {
   flex: 1 1 auto;
   display: flex;
   align-items: center;
@@ -535,7 +539,7 @@ button.email-action-button {
 
 /* OpenPGP and S/MIME encryption and signature status icons */
 
-#cryptoBox {
+#cryptoBox:not([hidden]) {
   display: contents;
 }
 
@@ -555,6 +559,10 @@ button.email-action-button {
   align-items: center;
   flex-direction: row;
   gap: 3px;
+
+  &[hidden] {
+    display: none;
+  }
 
   & > * {
     vertical-align: middle;

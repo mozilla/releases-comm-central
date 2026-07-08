@@ -87,7 +87,7 @@
   }
 }
 
-#quickFilterBarTagsContainer {
+#quickFilterBarTagsContainer:not([hidden]) {
   display: flex;
   align-items: center;
   margin-inline-start: -3px;
@@ -172,7 +172,7 @@ button.qfb-tag-button {
   column-gap: 12px;
 }
 
-#quick-filter-bar-filter-text-bar {
+#quick-filter-bar-filter-text-bar:not([hidden]) {
   --button-padding: 3px;
   display: flex;
   align-items: center;

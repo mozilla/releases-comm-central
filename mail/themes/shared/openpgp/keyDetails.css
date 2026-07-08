@@ -62,6 +62,11 @@ button {
   margin-inline: 6px;
 }
 
+.additional-key-identity {
+  border-radius: 0;
+  padding-inline: 8px;
+}
+
 #addressesListContainer {
   overflow-y: auto;
 }
@@ -78,7 +83,7 @@ button {
 }
 
 /* from accountManage.css */
-.input-container {
+.input-container:not([hidden]) {
   display: flex;
   align-items: center;
 

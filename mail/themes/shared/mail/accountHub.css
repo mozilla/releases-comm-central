@@ -149,6 +149,13 @@ dialog {
   }
 }
 
+.account-hub-view:not([hidden]) {
+  display: grid;
+  grid-template: "header" min-content "body" 1fr "footer" min-content;
+  text-align: center;
+  z-index: 1;
+}
+
 .account-hub-step {
   grid-area: body;
   display: grid;
@@ -173,11 +180,7 @@ dialog {
   justify-content: start;
 }
 
-.account-hub-view {
-  display: grid;
-  grid-template: "header" min-content "body" 1fr "footer" min-content;
-  text-align: center;
-  z-index: 1;
+.account-hub-view:not([hidden]) {
   max-block-size: 90vh;
   padding-inline: 20px;
   padding-block-start: 40px;
@@ -327,7 +330,7 @@ header {
   }
 }
 
-#headerButtonsContainer {
+#headerButtonsContainer:not([hidden]) {
   display: flex;
   align-items: center;
   gap: 3px;

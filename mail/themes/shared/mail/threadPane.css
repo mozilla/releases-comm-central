@@ -571,7 +571,7 @@ tr[data-properties~="outgoing"].selected .correspondentcol-column {
 
 /* Header bar */
 
-.list-header-bar {
+.list-header-bar:not([hidden]) {
   display: flex;
   align-items: center;
   justify-content: space-between;

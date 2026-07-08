@@ -485,7 +485,7 @@ body {
   }
 }
 
-.mode-container {
+.mode-container:not([hidden]) {
   display: flex;
   align-items: center;
 }
@@ -584,10 +584,13 @@ body {
 }
 
 .total-count {
-  display: unset;
   font-weight: normal;
   color: var(--folderpane-total-count-text);
   background-color: var(--folderpane-total-count-background);
+}
+
+.total > .container > .total-count:not([hidden]) {
+  display: unset;
 }
 
 .unread-count {
@@ -649,7 +652,7 @@ body {
   background-image: var(--icon-folder);
 }
 
-conversation-view {
+conversation-view:not([hidden]) {
   flex: 1;
 }
 

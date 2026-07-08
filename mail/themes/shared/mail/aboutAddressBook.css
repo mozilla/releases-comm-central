@@ -474,13 +474,16 @@ tr[is="ab-card-row"].selected .recipient-avatar.is-mail-list {
 }
 
 #detailsPane {
-  display: grid;
-  grid-template:
-    "scroll-content" 1fr
-    "footer" auto / 1fr;
   grid-area: details;
   min-block-size: var(--ab-card-min-height);
   user-select: text;
+
+  &:not([hidden]) {
+    display: grid;
+    grid-template:
+      "scroll-content" 1fr
+      "footer" auto / 1fr;
+  }
 
   &.collapsed-by-splitter {
     display: none;
@@ -556,7 +559,7 @@ body:not(.is-editing) #editContactForm {
   display: none;
 }
 
-.contact-header {
+.contact-header:not([hidden]) {
   display: grid;
   grid-template: "photo headings" auto / auto 1fr;
   align-items: center;
@@ -620,7 +623,7 @@ body:not(.is-editing) #editContactForm {
   }
 }
 
-.contact-headings {
+.contact-headings:not([hidden]) {
   grid-area: headings;
   display: flex;
   flex-direction: column;
@@ -650,8 +653,8 @@ body:not(.is-editing) #editContactForm {
   color: var(--in-content-deemphasized-text);
 }
 
-.list-header,
-.selection-header {
+.list-header:not([hidden]),
+.selection-header:not([hidden]) {
   display: flex;
   align-items: center;
   margin-block-end: 15px;
@@ -690,10 +693,12 @@ body:not(.is-editing) #editContactForm {
 }
 
 .button-block {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  row-gap: 6px;
+  &:not([hidden]) {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    row-gap: 6px;
+  }
 
   & div {
     display: flex;
@@ -870,6 +875,10 @@ input[type="number"] {
   justify-content: center;
   align-items: center;
 
+  &[hidden] {
+    display: none;
+  }
+
   & .icon {
     display: none;
     margin-inline-end: 8px;
@@ -915,6 +924,10 @@ input[type="number"] {
 #photoDialog {
   & svg {
     margin: -10px;
+
+    &[hidden] {
+      display: none;
+    }
   }
 
   & rect {

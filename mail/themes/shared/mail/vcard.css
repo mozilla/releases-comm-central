@@ -221,7 +221,7 @@ vcard-nickname {
 }
 
 #vcard-email {
-  & input[type="checkbox"] {
+  & input[type="checkbox"]:not([hidden]) {
     border-radius: 50%;
     inline-size: 16px;
     block-size: 16px;
@@ -352,7 +352,7 @@ vcard-adr select {
   grid-column: 1 / 2;
 }
 
-.vcard-adr-inputs {
+.vcard-adr-inputs:not([hidden]) {
   display: flex;
   flex-direction: column;
   grid-column: 2 / 3;

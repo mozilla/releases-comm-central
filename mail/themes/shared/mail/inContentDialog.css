@@ -46,6 +46,10 @@ dialog {
 
   /* Global overrides */
 
+  & *[hidden] {
+    display: none !important;
+  }
+
   & :focus-visible {
     outline: var(--focus-outline);
     outline-offset: 1px;

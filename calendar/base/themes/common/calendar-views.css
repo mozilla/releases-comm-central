@@ -271,7 +271,7 @@
 
 /* Multiday view */
 
-:is(calendar-day-view, calendar-week-view) {
+:is(calendar-day-view, calendar-week-view):not([hidden]) {
   flex: 1 auto;
   display: grid;
   block-size: 0;
@@ -740,6 +740,10 @@ calendar-multiweek-view {
   /* Only have a single child. Grid display will automatically stretch to fill
    * the given space. */
   display: grid;
+
+  &[hidden] {
+    display: none;
+  }
 }
 
 .monthtable {
@@ -767,6 +771,12 @@ calendar-multiweek-view {
     /* Allow the calendar-month-day-box and calendar-day-label elements be the
      * children of the grid. */
     display: contents;
+  }
+
+  & :is(tr, th, td)[hidden] {
+    /* NOTE: Need this CSS rule because the hidden attribute behaviour is
+     * overridden by the "display: contents" rule above. */
+    display: none;
   }
 
   & :is(td, th) > * {
@@ -934,7 +944,8 @@ calendar-month-day-box calendar-month-day-box-item[allday="true"].calendar-color
   overflow: clip;
 }
 
-.event-readonly :is(.gripbar-start, .gripbar-end) {
+.event-readonly :is(.gripbar-start, .gripbar-end),
+:is(.gripbar-start, .gripbar-end)[hidden] {
   display: none;
 }
 

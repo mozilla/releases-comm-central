@@ -88,7 +88,7 @@ fieldset {
   padding-block-end: 0;
 }
 
-.input-container {
+.input-container:not([hidden]) {
   display: flex;
   align-items: center;
 
@@ -97,7 +97,7 @@ fieldset {
   }
 }
 
-.input-container-column {
+.input-container-column:not([hidden]) {
   display: flex;
   flex-direction: column;
 
@@ -732,12 +732,15 @@ select:not([size], [multiple]) {
 }
 
 certificate-check {
-  display: grid;
-  grid-template-columns: fit-content(0);
   flex-direction: column;
   gap: 4px;
   margin-inline: 8px;
   font-size: 1rem;
+
+  &:not([hidden]) {
+    display: grid;
+    grid-template-columns: fit-content(0);
+  }
 
   #useSecureConnectionValue > & {
     margin: 4px 0;
