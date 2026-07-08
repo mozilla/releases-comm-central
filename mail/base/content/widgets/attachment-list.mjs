@@ -24,30 +24,17 @@ class MozAttachmentlist extends MozElements.RichListBox {
     );
 
     this.addEventListener("keypress", event => {
-      switch (event.key) {
-        case " ":
-          // Allow plain spacebar to select the focused item.
-          if (!event.shiftKey && !event.ctrlKey) {
-            this.addItemToSelection(this.currentItem);
-            this.dispatchEvent(
-              new CustomEvent("quicklook", {
-                bubbles: true,
-                detail: { index: this.getIndexOfItem(this.currentItem) },
-              })
-            );
-          }
-          // Prevent inbuilt scrolling.
-          event.preventDefault();
-          break;
-
-        case "Enter":
-          if (this.currentItem && !event.ctrlKey && !event.shiftKey) {
-            this.addItemToSelection(this.currentItem);
-            this.currentItem.dispatchEvent(
-              new CustomEvent("command", { bubbles: true, cancelable: true })
-            );
-          }
-          break;
+      if (event.key == " " && !event.shiftKey && !event.ctrlKey) {
+        // Allow plain spacebar to select the focused item.
+        this.addItemToSelection(this.currentItem);
+        this.dispatchEvent(
+          new CustomEvent("quicklook", {
+            bubbles: true,
+            detail: { index: this.getIndexOfItem(this.currentItem) },
+          })
+        );
+        // Prevent inbuilt scrolling.
+        event.preventDefault();
       }
     });
 
@@ -82,7 +69,13 @@ class MozAttachmentlist extends MozElements.RichListBox {
       );
 
     this.addEventListener("keydown", event => {
-      if (event.key == "Enter") {
+      if (
+        event.key == "Enter" &&
+        !event.ctrlKey &&
+        !event.altKey &&
+        !event.metaKey &&
+        !event.shiftKey
+      ) {
         goDoCommand("cmd_openAttachment");
       }
     });
