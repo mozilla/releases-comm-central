@@ -9,7 +9,7 @@ from marionette_harness import MarionetteTestCase
 
 here = os.path.dirname(__file__)
 
-with open(os.path.join(here, "scripts", "tabs.js")) as script:
+with open(os.path.join(here, "scripts", "get_tabs.js")) as script:
     get_tabs = script.read()
 mail_3pane_tab = {"mode": "mail3PaneTab"}
 close_tabs = """

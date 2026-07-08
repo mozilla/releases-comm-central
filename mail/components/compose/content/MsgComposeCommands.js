@@ -4767,14 +4767,17 @@ async function ComposeStartup() {
           if (uri instanceof Ci.nsIFileURL) {
             if (uri.file.exists()) {
               attachment.size = uri.file.fileSize;
+              // Rebuild a standard-compliant URI from the native file path.
+              attachment.url = PathUtils.toFileURI(uri.file.path);
             } else {
               attachment = null;
             }
+          } else {
+            attachment.url = uri.spec;
           }
 
           // Only want to attach if a file that exists or it is not a file.
           if (attachment) {
-            attachment.url = uri.spec;
             composeFields.addAttachment(attachment);
           } else {
             const title = getComposeBundle().getString("errorFileAttachTitle");

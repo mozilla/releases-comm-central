@@ -8,7 +8,7 @@ from marionette_harness import MarionetteTestCase
 
 here = os.path.dirname(__file__)
 
-with open(os.path.join(here, "scripts", "tabs.js")) as script:
+with open(os.path.join(here, "scripts", "get_tabs.js")) as script:
     get_tabs = script.read()
 mail_3pane_tab = {"mode": "mail3PaneTab"}
 close_tabs = """
@@ -114,96 +114,6 @@ class TestCommandLine(MarionetteTestCase):
         self.assertEqual(expected_tabs, tabs)
 
         self.marionette.execute_script(close_tabs)
-        self.marionette.instance.app_args = []
-
-    get_compose_details = """
-        const [resolve] = arguments;
-
-        function finish() {
-            function getRecipients(field) {
-                return Array.from(
-                    document.querySelectorAll(`#${field} mail-address-pill`),
-                    pill => pill.label
-                );
-            }
-            resolve({
-                to: getRecipients("addressRowTo"),
-                cc: getRecipients("addressRowCc"),
-                bcc: getRecipients("addressRowBcc"),
-                subject: document.getElementById("msgSubject").value,
-            });
-        }
-
-        if (window.composeEditorReady) {
-            finish();
-        } else {
-            window.addEventListener("compose-editor-ready", finish, { once: true });
-        }
-    """
-
-    def test_compose(self):
-        """
-        Opens the main window and a compose window with the compose fields from the command-line.
-        Note that there's a different code path for this if you include the `--compose` flag.
-        That can't currently be tested because it only opens the compose window.
-        """
-
-        # Just enough preferences to allow composing a message.
-        self.marionette.set_context(self.marionette.CONTEXT_CHROME)
-        self.marionette.set_prefs(
-            {
-                "mail.account.account1.identities": "id1",
-                "mail.account.account1.server": "server1",
-                "mail.accountmanager.accounts": "account1",
-                "mail.accountmanager.defaultaccount": "account1",
-                "mail.identity.id1.fullName": "Marionette",
-                "mail.identity.id1.useremail": "marionette@invalid",
-                "mail.identity.id1.valid": True,
-                "mail.server.server1.hostname": "localhost",
-                "mail.server.server1.login_at_startup": False,
-                "mail.server.server1.type": "pop3",
-            }
-        )
-        self.marionette.quit(in_app=True)
-
-        self.marionette.instance.app_args = [
-            "mailto:test@invalid?cc=everybody@invalid&subject=I'm having a party!"
-        ]
-        self.marionette.start_session()
-
-        handles = self.marionette.chrome_window_handles
-        self.assertEqual(2, len(handles))
-
-        self.marionette.set_context(self.marionette.CONTEXT_CHROME)
-        self.assertEqual("mail:3pane", self.marionette.get_window_type())
-        tabs = self.marionette.execute_async_script(get_tabs)
-        self.assertEqual([mail_3pane_tab], tabs)
-
-        self.marionette.switch_to_window(handles[1], True)
-        self.assertEqual("msgcompose", self.marionette.get_window_type())
-
-        compose_details = self.marionette.execute_async_script(self.get_compose_details)
-        self.assertEqual(
-            {
-                "to": ["test@invalid"],
-                "cc": ["everybody@invalid"],
-                "bcc": [],
-                "subject": "I'm having a party!",
-            },
-            compose_details,
-        )
-
-        self.marionette.clear_pref("mail.account.account1.identities")
-        self.marionette.clear_pref("mail.account.account1.server")
-        self.marionette.clear_pref("mail.accountmanager.accounts")
-        self.marionette.clear_pref("mail.accountmanager.defaultaccount")
-        self.marionette.clear_pref("mail.identity.id1.fullName")
-        self.marionette.clear_pref("mail.identity.id1.useremail")
-        self.marionette.clear_pref("mail.identity.id1.valid")
-        self.marionette.clear_pref("mail.server.server1.hostname")
-        self.marionette.clear_pref("mail.server.server1.login_at_startup")
-        self.marionette.clear_pref("mail.server.server1.type")
-        self.marionette.close_chrome_window()
         self.marionette.instance.app_args = []
 
     def test_thunderbird_url(self):

@@ -8,6 +8,8 @@ run-if = [
 
 ["test_commandline.py"]
 
+["test_compose_commandline.py"]
+
 ["test_menubar_migration.py"]
 run-if = [
   "os != 'mac'",
