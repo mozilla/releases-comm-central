@@ -22,6 +22,8 @@ tags = ["openpgp"]
 
 ["browser_collectKeys.js"]
 
+["browser_handlerSwitchSmimeToPgp.js"]
+
 ["browser_inlineOpenPGP.js"]
 
 ["browser_keyWizard.js"]

@@ -256,10 +256,12 @@ Enigmail.msg = {
     if (/multipart\/signed/i.test(topContentType)) {
       return true;
     }
-    return (
-      /multipart\/encrypted/i.test(topContentType) &&
-      /multipart\/signed/i.test(partContentType)
-    );
+    // PGP/MIME encryption uses multipart/encrypted,
+    // S/MIME encryption uses application/pkcs7-mime.
+    const topIsEncryption =
+      /multipart\/encrypted/i.test(topContentType) ||
+      /application\/(x-)?pkcs7-mime/i.test(topContentType);
+    return topIsEncryption && /multipart\/signed/i.test(partContentType);
   },
 
   /**
