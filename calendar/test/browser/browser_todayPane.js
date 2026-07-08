@@ -30,7 +30,7 @@ add_setup(async function () {
   Services.prefs.setIntPref("calendar.agenda.days", 7);
   registerCleanupFunction(() => {
     CalendarTestUtils.removeCalendar(calendar);
-    TodayPane.setDay(cal.dtz.now());
+    TodayPane.setDay(cal.dtz.now()); // eslint-disable-line no-restricted-properties
     Services.prefs.clearUserPref("calendar.agenda.days");
   });
 
