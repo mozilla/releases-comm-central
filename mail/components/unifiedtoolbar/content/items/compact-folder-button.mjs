@@ -4,6 +4,8 @@
 
 import { MailTabButton } from "chrome://messenger/content/unifiedtoolbar/mail-tab-button.mjs";
 
+/* globals getEnabledControllerForCommand, goDoCommand */
+
 /**
  * Unified toolbar button for compacting the current folder.
  */
@@ -12,14 +14,8 @@ class CompactFolderButton extends MailTabButton {
   observedAboutMessageEvents = [];
 
   onCommandContextChange() {
-    const { gFolder } =
-      document.getElementById("tabmail").currentAbout3Pane ?? {};
-    if (!gFolder) {
-      this.disabled = true;
-      return;
-    }
     try {
-      this.disabled = !gFolder.isCommandEnabled("cmd_compactFolder");
+      this.disabled = !getEnabledControllerForCommand("cmd_compactFolder");
     } catch {
       this.disabled = true;
     }
@@ -30,7 +26,7 @@ class CompactFolderButton extends MailTabButton {
     if (!about3Pane) {
       return;
     }
-    about3Pane.folderPane.compactFolder(about3Pane.gFolder);
+    goDoCommand("cmd_compactFolder");
     event.preventDefault();
     event.stopPropagation();
   };

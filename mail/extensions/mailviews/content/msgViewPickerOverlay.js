@@ -47,7 +47,7 @@ function ViewChange(aValue) {
     if (aValue == kViewItemCustomize) {
       LaunchCustomizeDialog();
     } else {
-      about3Pane.folderPane.newVirtualFolder(
+      about3Pane.FolderCommands.newVirtualFolder(
         ViewPickerBinding.currentViewLabel,
         viewWrapper.search.viewTerms,
         about3Pane.gFolder

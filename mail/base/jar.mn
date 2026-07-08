@@ -95,6 +95,7 @@ messenger.jar:
 
     content/messenger/CustomElementUtils.mjs        (content/modules/CustomElementUtils.mjs)
     content/messenger/DarkReader.mjs                (content/modules/DarkReader.mjs)
+    content/messenger/FolderCommands.mjs            (content/modules/FolderCommands.mjs)
     content/messenger/FolderReorderListener.mjs     (content/modules/FolderReorderListener.mjs)
     content/messenger/FolderSelectionDataAdapter.mjs (content/modules/FolderSelectionDataAdapter.mjs)
     content/messenger/SubscribeCommands.mjs         (content/modules/SubscribeCommands.mjs)

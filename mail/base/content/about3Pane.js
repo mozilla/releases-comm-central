@@ -43,6 +43,7 @@ var { FeedUtils } = ChromeUtils.importESModule(
 ChromeUtils.defineESModuleGetters(
   this,
   {
+    FolderCommands: "chrome://messenger/content/FolderCommands.mjs",
     FolderReorderListener:
       "chrome://messenger/content/FolderReorderListener.mjs",
     SubscribeCommands: "chrome://messenger/content/SubscribeCommands.mjs",
@@ -61,7 +62,6 @@ ChromeUtils.defineESModuleGetters(this, {
   Gloda: "resource:///modules/gloda/GlodaPublic.sys.mjs",
   MailE10SUtils: "resource:///modules/MailE10SUtils.sys.mjs",
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
-  repairMbox: "resource:///modules/MboxRepair.sys.mjs",
   SmartMailboxUtils: "resource:///modules/SmartMailboxUtils.sys.mjs",
   TagUtils: "resource:///modules/TagUtils.sys.mjs",
   UIDensity: "resource:///modules/UIDensity.sys.mjs",
@@ -952,10 +952,10 @@ var folderPaneContextMenu = {
         }
         break;
       case "folderPaneContext-emptyTrash":
-        folderPane.emptyTrash(folder);
+        FolderCommands.emptyTrash(folder);
         break;
       case "folderPaneContext-emptyJunk":
-        folderPane.emptyJunk(folder);
+        FolderCommands.emptyJunk(folder);
         break;
       case "folderPaneContext-sendUnsentMessages":
         goDoCommand("cmd_sendUnsentMsgs");
@@ -964,7 +964,7 @@ var folderPaneContextMenu = {
         topChromeWindow.MsgMarkAllFoldersRead([folder]);
         break;
       case "folderPaneContext-settings":
-        folderPane.editFolder(folder);
+        top.MsgAccountManager(null, folder.server);
         break;
       case "folderPaneContext-filters":
         topChromeWindow.MsgFilters(undefined, folder);
@@ -1901,7 +1901,7 @@ var folderPane = {
       case "folder-needs-repair": {
         const folder = subject.QueryInterface(Ci.nsIMsgFolder);
         console.warn("caught folder-needs-repair for " + folder.URI);
-        this.rebuildFolderSummary(folder);
+        FolderCommands.rebuildFolderSummary(folder);
         break;
       }
       case "folder-strings-changed":
@@ -3704,527 +3704,6 @@ var folderPane = {
     }
     folderPane._timedExpand();
     folderPane._collapseAutoExpandedRows();
-  },
-
-  /**
-   * Opens the dialog to create a new sub-folder, and creates it if the user
-   * accepts.
-   *
-   * @param {nsIMsgFolder} folder - The parent for the new subfolder.
-   */
-  newFolder(folder) {
-    // Make sure we actually can create subfolders.
-    if (!folder.canCreateSubfolders) {
-      // Check if we can create them at the root, otherwise use the default
-      // account as root folder.
-      const rootMsgFolder = folder.server.rootMsgFolder;
-      folder = rootMsgFolder.canCreateSubfolders
-        ? rootMsgFolder
-        : top.GetDefaultAccountRootFolder();
-    }
-
-    let dualUseFolders = true;
-    if (folder.server instanceof Ci.nsIImapIncomingServer) {
-      dualUseFolders = folder.server.dualUseFolders;
-    }
-
-    /**
-     * Callback executed when the user selects OK in the create folder dialog.
-     *
-     * @param {string} subfolderName
-     * @param {nsIMsgFolder} parentFolder
-     */
-    const newFolderOkCallback = async (subfolderName, parentFolder) => {
-      // TODO: Rewrite this logic and also move the opening of alert dialogs from
-      // nsMsgLocalMailFolder::CreateSubfolderInternal to here (bug 831190#c16).
-      if (!subfolderName) {
-        return;
-      }
-
-      const promiseNewFolder = new Promise(resolve => {
-        const listener = {
-          folderAdded: addedFolder => {
-            if (addedFolder.localizedName == subfolderName) {
-              MailServices.mfn.removeListener(listener);
-              resolve(addedFolder);
-            }
-          },
-        };
-        MailServices.mfn.addListener(
-          listener,
-          Ci.nsIMsgFolderNotificationService.folderAdded
-        );
-      });
-      parentFolder.createSubfolder(subfolderName, top.msgWindow);
-      const newFolder = await promiseNewFolder;
-      if (!parentFolder.isServer) {
-        // Inherit view/sort/columns from parent folder.
-        const parentInfo = parentFolder.msgDatabase.dBFolderInfo;
-        const newInfo = newFolder.msgDatabase.dBFolderInfo;
-        newInfo.viewFlags = parentInfo.viewFlags;
-        newInfo.sortType = parentInfo.sortType;
-        newInfo.sortOrder = parentInfo.sortOrder;
-        newInfo.setCharProperty(
-          "columnStates",
-          parentInfo.getCharProperty("columnStates")
-        );
-      }
-      newFolder.updateTimestamps(true);
-    };
-
-    window.openDialog(
-      "chrome://messenger/content/newFolderDialog.xhtml",
-      "",
-      "chrome,modal,resizable=no,centerscreen",
-      { folder, dualUseFolders, okCallback: newFolderOkCallback }
-    );
-  },
-
-  async rebuildFolderSummary(folder) {
-    if (folder.locked) {
-      folder.throwAlertMsg("operationFailedFolderBusy", top.msgWindow);
-      return;
-    }
-    if (folder.supportsOffline) {
-      // Remove the offline store, if any.
-      await IOUtils.remove(folder.filePath.path, { recursive: true }).catch(
-        console.error
-      );
-    } else if (
-      Services.prefs.getCharPref(
-        `mail.server.${folder.server.key}.storeContractID`
-      ) == "@mozilla.org/msgstore/berkeleystore;1"
-    ) {
-      // For local mbox, fix classic MacOS line endings.
-      try {
-        folder.acquireSemaphore(folder, "folderPane.rebuildFolderSummary");
-        await repairMbox(folder.filePath.path);
-      } catch (e) {
-        console.warn(`Repair mbox FAILED; ${e.message}`);
-      } finally {
-        folder.releaseSemaphore(folder, "folderPane.rebuildFolderSummary");
-      }
-    }
-
-    // The following notification causes all DBViewWrappers that include
-    // this folder to rebuild their views.
-    MailServices.mfn.notifyFolderReindexTriggered(folder);
-
-    folder.msgDatabase.summaryValid = false;
-    try {
-      let transferInfo = null;
-      switch (folder.server.type) {
-        case "imap":
-          transferInfo = folder.dBTransferInfo.QueryInterface(
-            Ci.nsIWritablePropertyBag2
-          );
-          transferInfo.setPropertyAsACString("numMsgs", "0");
-          transferInfo.setPropertyAsACString("numNewMsgs", "0");
-          // Reset UID validity so that nsImapMailFolder::UpdateImapMailboxInfo
-          // will recognize that a folder repair is in progress.
-          transferInfo.setPropertyAsACString("UIDValidity", "-1"); // == kUidUnknown
-          break;
-        case "ews":
-        case "graph":
-          // Reset the sync state token so that the next sync will download the
-          // message list again.
-          folder.setStringProperty("ewsSyncStateToken", "");
-          break;
-      }
-
-      folder.closeAndBackupFolderDB("");
-      if (folder.server.type == "imap" && transferInfo) {
-        folder.dBTransferInfo = transferInfo;
-      }
-    } catch (e) {
-      // In a failure, proceed anyway since we're dealing with problems
-      folder.ForceDBClosed();
-    }
-    // The local store was deleted above. It won't be recreated until the user
-    // attempts to load a message or the offline sync process creates it.
-    // However, folder discovery relies on the existence of the offline store,
-    // so to avoid an intermediate state that could cause folder discovery to
-    // fail for this folder, we create the local store.
-    folder.msgStore.ensureLocalStore(folder);
-    folder.updateFolder(top.msgWindow);
-  },
-
-  /**
-   * Opens the dialog to edit the properties for a folder
-   *
-   * @param {nsIMsgFolder} [folder] - Folder to edit, if not the selected one.
-   * @param {string} [tabID] - Id of initial tab to select in the folder
-   *   properties dialog.
-   */
-  editFolder(folder = gFolder, tabID) {
-    // If this is actually a server, send it off to that controller
-    if (folder.isServer) {
-      top.MsgAccountManager(null, folder.server);
-      return;
-    }
-
-    if (folder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
-      this.editVirtualFolder(folder);
-      return;
-    }
-    const title = messengerBundle.GetStringFromName("folderProperties");
-
-    // If the main window has been closed by the user, make sure that the
-    // folder properties dialog is removed as well,
-    let folderPropertiesDialog = null;
-    const onMainWindowUnload = () => {
-      folderPropertiesDialog.close();
-    };
-    window.addEventListener("unload", onMainWindowUnload);
-
-    // Save the focus and freeze the about3Pane.
-    const prevFocusedElement = document.activeElement;
-    document.documentElement.setAttribute("inert", "true");
-
-    function editFolderCallback(newName, oldName) {
-      if (newName != oldName) {
-        folder.rename(newName, top.msgWindow);
-      }
-    }
-
-    function unloadDialogCallback() {
-      // Unfreeze about3Pane and restore focus.
-      document.documentElement.removeAttribute("inert");
-      prevFocusedElement?.focus();
-      window.removeEventListener("unload", onMainWindowUnload);
-    }
-
-    folderPropertiesDialog = window.openDialog(
-      "chrome://messenger/content/folderProps.xhtml",
-      "",
-      "chrome,dependent,centerscreen",
-      {
-        folder,
-        serverType: folder.server.type,
-        msgWindow: top.msgWindow,
-        title,
-        okCallback: editFolderCallback,
-        tabID,
-        name: folder.localizedName,
-        rebuildSummaryCallback: this.rebuildFolderSummary,
-        unloadCallback: unloadDialogCallback,
-      }
-    );
-  },
-
-  /**
-   * Opens the dialog to rename a particular folder, and does the renaming if
-   * the user clicks OK in that dialog
-   *
-   * @param {nsIMsgFolder} [aFolder] - The folder to rename, if different than
-   *   the currently selected one.
-   */
-  renameFolder(aFolder) {
-    const folder = aFolder;
-
-    function renameCallback(aName, aUri) {
-      if (aUri != folder.URI) {
-        console.error("got back a different folder to rename!");
-      }
-
-      // Actually do the rename.
-      folder.rename(aName, top.msgWindow);
-    }
-    window.openDialog(
-      "chrome://messenger/content/renameFolderDialog.xhtml",
-      "",
-      "chrome,modal,centerscreen",
-      {
-        preselectedURI: folder.URI,
-        okCallback: renameCallback,
-        name: folder.localizedName,
-      }
-    );
-  },
-
-  /**
-   * Deletes a folder from its parent. Also handles unsubscribe from newsgroups
-   * if the selected folder/s happen to be nntp.
-   *
-   * @param {nsIMsgFolder} folder - The folder to delete.
-   */
-  deleteFolder(folder) {
-    // For newsgroups, "delete" means "unsubscribe".
-    if (
-      folder.server.type == "nntp" &&
-      !folder.getFlag(Ci.nsMsgFolderFlags.Virtual)
-    ) {
-      SubscribeCommands.MsgUnsubscribe(folder);
-      return;
-    }
-
-    if (!folder.deletable) {
-      throw new Error("Can't delete folder: " + folder.localizedName);
-    }
-
-    if (folder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
-      const confirmation = messengerBundle.GetStringFromName(
-        "confirmSavedSearchDeleteMessage"
-      );
-      const title = messengerBundle.GetStringFromName(
-        "confirmSavedSearchTitle"
-      );
-      if (
-        Services.prompt.confirmEx(
-          window,
-          title,
-          confirmation,
-          Services.prompt.STD_YES_NO_BUTTONS +
-            Services.prompt.BUTTON_POS_1_DEFAULT,
-          "",
-          "",
-          "",
-          "",
-          {}
-        ) != 0
-      ) {
-        /* the yes button is in position 0 */
-        return;
-      }
-    }
-
-    try {
-      folder.deleteSelf(top.msgWindow);
-    } catch (ex) {
-      // Ignore known errors from canceled warning dialogs.
-      const NS_MSG_ERROR_COPY_FOLDER_ABORTED = 0x8055001a;
-      if (ex.result != NS_MSG_ERROR_COPY_FOLDER_ABORTED) {
-        if (ex.result == Cr.NS_ERROR_FILE_NO_DEVICE_SPACE) {
-          // folder could not be deleted due to low space
-          // outOfDiskSpace message is too restricted to downloading
-          // operation so we created a new generic message, outOfDiskSpaceGeneric
-          folder.throwAlertMsg("outOfDiskSpaceGeneric", top.msgWindow);
-        } else {
-          throw ex;
-        }
-      }
-    }
-  },
-
-  /**
-   * Prompts the user to confirm and empties the trash for the selected folder.
-   * The folder and its children are only emptied if it has the proper Trash flag.
-   *
-   * @param {nsIMsgFolder} [aFolder] - The trash folder to empty. If unspecified
-   *   or not a trash folder, the currently selected server's trash folder is used.
-   */
-  async emptyTrash(aFolder) {
-    let folder = aFolder;
-    if (!folder.getFlag(Ci.nsMsgFolderFlags.Trash)) {
-      folder = folder.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
-    }
-    if (!folder) {
-      return;
-    }
-
-    const confirmEmptyTrash = await this._checkConfirmationPrompt(
-      "emptyTrash",
-      folder
-    );
-    if (!confirmEmptyTrash) {
-      return;
-    }
-
-    // Check if this is a top-level smart folder. If so, we're going
-    // to empty all the trash folders.
-    if (FolderUtils.isSmartVirtualFolder(folder)) {
-      for (const server of MailServices.accounts.allServers) {
-        for (const trash of server.rootFolder.getFoldersWithFlags(
-          Ci.nsMsgFolderFlags.Trash
-        )) {
-          trash.emptyTrash(null);
-        }
-      }
-    } else {
-      folder.emptyTrash(null);
-    }
-  },
-
-  /**
-   * Deletes everything (folders and messages) in the selected folder.
-   * The folder is only emptied if it has the proper Junk flag.
-   *
-   * @param {nsIMsgFolder} folder - The folder to empty.
-   * @param {boolean} [prompt=true] - If the user should be prompted.
-   */
-  async emptyJunk(folder, prompt = true) {
-    if (!folder || !folder.getFlag(Ci.nsMsgFolderFlags.Junk)) {
-      return;
-    }
-
-    // If prompt is true, ask the user to confirm. Don't want to fire this
-    // within recursive calls.
-    if (prompt) {
-      const confirmEmptyJunk = await this._checkConfirmationPrompt(
-        "emptyJunk",
-        folder
-      );
-      if (!confirmEmptyJunk) {
-        return;
-      }
-    }
-
-    if (FolderUtils.isSmartVirtualFolder(folder)) {
-      // Unified junk folder: recurse through each real junk folder without prompting again.
-      const wrappedFolder = VirtualFolderHelper.wrapVirtualFolder(folder);
-      for (const searchFolder of wrappedFolder.searchFolders) {
-        this.emptyJunk(searchFolder, false);
-      }
-      return;
-    }
-
-    // Delete any subfolders this folder might have
-    for (const subFolder of folder.subFolders) {
-      folder.propagateDelete(subFolder, true);
-    }
-
-    const messages = [...folder.messages];
-    if (!messages.length) {
-      return;
-    }
-
-    // Now delete the messages
-    folder.deleteMessages(messages, top.msgWindow, true, false, null, false);
-  },
-
-  /**
-   * Compacts the given folder.
-   *
-   * @param {nsIMsgFolder} folder
-   */
-  compactFolder(folder) {
-    // Can't compact folders that have just been compacted.
-    if (folder.server.type != "imap" && !folder.expungedBytes) {
-      return;
-    }
-
-    folder.compact(null, top.msgWindow);
-  },
-
-  /**
-   * Compacts all folders for the account that the given folder belongs to.
-   *
-   * @param {nsIMsgFolder} folder
-   */
-  compactAllFoldersForAccount(folder) {
-    folder.rootFolder.compactAll(null, top.msgWindow);
-  },
-
-  /**
-   * Opens the dialog to create a new virtual folder
-   *
-   * @param {string} aName - The default name for the new folder.
-   * @param {nsIMsgSearchTerm[]} aSearchTerms - The search terms associated
-   *   with the folder.
-   * @param {nsIMsgFolder} aParent - The folder to run the search terms on.
-   */
-  newVirtualFolder(aName, aSearchTerms, aParent) {
-    const folder = aParent || top.GetDefaultAccountRootFolder();
-    if (!folder) {
-      return;
-    }
-
-    let name = folder.localizedName;
-    if (aName) {
-      name += "-" + aName;
-    }
-
-    window.openDialog(
-      "chrome://messenger/content/virtualFolderProperties.xhtml",
-      "",
-      "chrome,modal,centerscreen,resizable=yes",
-      {
-        folder,
-        searchTerms: aSearchTerms,
-        newFolderName: name,
-      }
-    );
-  },
-
-  /**
-   * @param {nsIMsgFolder} aFolder
-   */
-  editVirtualFolder(aFolder) {
-    const folder = aFolder;
-
-    function editVirtualCallback() {
-      if (gFolder == folder) {
-        folderTree.dispatchEvent(new CustomEvent("select"));
-      }
-    }
-    window.openDialog(
-      "chrome://messenger/content/virtualFolderProperties.xhtml",
-      "",
-      "chrome,modal,centerscreen,resizable=yes",
-      {
-        folder,
-        editExistingFolder: true,
-        onOKCallback: editVirtualCallback,
-        msgWindow: top.msgWindow,
-      }
-    );
-  },
-
-  /**
-   * Prompts for confirmation, if the user hasn't already chosen the "don't ask
-   * again" option.
-   *
-   * @param {string} aCommand - The command to prompt for.
-   * @param {nsIMsgFolder} aFolder - The folder for which the confirmation is requested.
-   * @returns {boolean}
-   */
-  async _checkConfirmationPrompt(aCommand, aFolder) {
-    // If no folder was specified, reject the operation.
-    if (!aFolder) {
-      return false;
-    }
-
-    const showPrompt = !Services.prefs.getBoolPref(
-      "mailnews." + aCommand + ".dontAskAgain",
-      false
-    );
-
-    if (!showPrompt) {
-      return true;
-    }
-
-    const [title, message, check] = await document.l10n.formatValues([
-      {
-        id: "prompt-empty-folder-title",
-        args: { folder: aFolder.localizedName },
-      },
-      {
-        id: "prompt-empty-folder-message",
-        args: { folder: aFolder.localizedName },
-      },
-      { id: "prompt-dont-ask-again" },
-    ]);
-
-    const checkbox = { value: false };
-    const response =
-      Services.prompt.confirmEx(
-        window,
-        title,
-        message,
-        Services.prompt.STD_YES_NO_BUTTONS,
-        null,
-        null,
-        null,
-        check,
-        checkbox
-      ) == 0;
-    if (checkbox.value) {
-      Services.prefs.setBoolPref(
-        "mailnews." + aCommand + ".dontAskAgain",
-        true
-      );
-    }
-    return response;
   },
 
   /**
@@ -6939,17 +6418,17 @@ commandController.registerCallback(
 );
 commandController.registerCallback(
   "cmd_newFolder",
-  (folder = gFolder) => folderPane.newFolder(folder),
+  (folder = gFolder) => FolderCommands.newFolder(folder),
   () => folderPaneContextMenu.getCommandState("cmd_newFolder")
 );
 commandController.registerCallback("cmd_newVirtualFolder", (folder = gFolder) =>
-  folderPane.newVirtualFolder(undefined, undefined, folder)
+  FolderCommands.newVirtualFolder(undefined, undefined, folder)
 );
 commandController.registerCallback(
   "cmd_deleteFolder",
   (folder = gFolder) => {
     if (folder) {
-      folderPane.deleteFolder(folder);
+      FolderCommands.deleteFolder(folder);
       return;
     }
     // gFolder is not defined and the folder is null, which means a DELETE
@@ -6957,14 +6436,14 @@ commandController.registerCallback(
     // all currently selected folders and delete them.
     for (const row of folderTree.selection.values()) {
       folder = MailServices.folderLookup.getFolderForURL(row.uri);
-      folderPane.deleteFolder(folder);
+      FolderCommands.deleteFolder(folder);
     }
   },
   () => folderPaneContextMenu.getCommandState("cmd_deleteFolder")
 );
 commandController.registerCallback(
   "cmd_renameFolder",
-  (folder = gFolder) => folderPane.renameFolder(folder),
+  (folder = gFolder) => FolderCommands.renameFolder(folder),
   () => folderPaneContextMenu.getCommandState("cmd_renameFolder")
 );
 commandController.registerCallback(
@@ -6972,10 +6451,10 @@ commandController.registerCallback(
   (folder = gFolder) => {
     if (folder) {
       if (folder.isServer) {
-        folderPane.compactAllFoldersForAccount(folder);
+        FolderCommands.compactAllFoldersForAccount(folder);
         return;
       }
-      folderPane.compactFolder(folder);
+      FolderCommands.compactFolder(folder);
     } else {
       // gFolder is not defined and the folder is null, which means a File menu
       // was selected for a multiselection of folders. Loop through all
@@ -6987,9 +6466,9 @@ commandController.registerCallback(
       );
       for (const selectedFolder of folders) {
         if (selectedFolder.isServer) {
-          folderPane.compactAllFoldersForAccount(selectedFolder);
+          FolderCommands.compactAllFoldersForAccount(selectedFolder);
         } else {
-          folderPane.compactFolder(selectedFolder);
+          FolderCommands.compactFolder(selectedFolder);
         }
       }
     }
@@ -6998,13 +6477,18 @@ commandController.registerCallback(
 );
 commandController.registerCallback(
   "cmd_emptyTrash",
-  (folder = gFolder) => folderPane.emptyTrash(folder),
+  (folder = gFolder) => FolderCommands.emptyTrash(folder),
   () => folderPaneContextMenu.getCommandState("cmd_emptyTrash")
 );
 commandController.registerCallback(
   "cmd_properties",
-  (folder = gFolder) => folderPane.editFolder(folder),
+  (folder = gFolder) => FolderCommands.editFolder(folder),
   () => folderPaneContextMenu.getCommandState("cmd_properties")
+);
+commandController.registerCallback(
+  "cmd_folderQuota",
+  (folder = gFolder) => FolderCommands.editFolder(folder, "QuotaTab"),
+  () => gFolder && gFolder instanceof Ci.nsIMsgImapMailFolder
 );
 commandController.registerCallback(
   "cmd_toggleFavoriteFolder",

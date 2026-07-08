@@ -11,10 +11,12 @@
       <hbox id="statusbar-progresspanel" class="statusbarpanel statusbarpanel-progress" collapsed="collapsed">
         <html:progress class="progressmeter-statusbar" id="statusbar-icon" value="0" max="100"/>
       </hbox>
+#ifdef MAIN_WINDOW
       <hbox id="quotaPanel" class="statusbarpanel statusbarpanel-progress" hidden="hidden">
         <stack>
           <html:progress id="quotaMeter" class="progressmeter-statusbar" value="0" max="100"/>
-          <html:a id="quotaLabel" onclick="openFolderQuota();"></html:a>
+          <html:a id="quotaLabel" onclick="goDoCommand('cmd_folderQuota');"></html:a>
         </stack>
       </hbox>
+#endif
     </hbox>
