@@ -8,12 +8,12 @@ Transform the beetmover task into an actual task description.
 from urllib.parse import urlsplit
 
 from mozilla_taskgraph.util.attributes import release_level
+from mozilla_taskgraph.worker_types import get_release_config
 from taskgraph.transforms.base import TransformSequence
 from taskgraph.util.schema import resolve_keyed_by
 
 from gecko_taskgraph.transforms.task import get_branch_repo, get_branch_rev
 from gecko_taskgraph.transforms.update_verify_config import ensure_wrapped_singlequote
-from gecko_taskgraph.util.scriptworker import get_release_config
 
 transforms = TransformSequence()
 

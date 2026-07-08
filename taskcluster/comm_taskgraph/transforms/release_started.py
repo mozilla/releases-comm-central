@@ -8,10 +8,9 @@ Add notifications via taskcluster-notify for release tasks
 import base64
 from shlex import quote as shell_quote
 
+from mozilla_taskgraph.worker_types import get_release_config
 from taskgraph.transforms.base import TransformSequence
 from taskgraph.util.schema import resolve_keyed_by
-
-from gecko_taskgraph.util.scriptworker import get_release_config
 
 transforms = TransformSequence()
 

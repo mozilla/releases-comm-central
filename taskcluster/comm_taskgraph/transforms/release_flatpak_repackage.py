@@ -3,11 +3,10 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 from mozilla_taskgraph.util.attributes import release_level
+from mozilla_taskgraph.worker_types import get_release_config
 from taskgraph.transforms.base import TransformSequence
 from taskgraph.util.schema import resolve_keyed_by
 from taskgraph.util.taskcluster import get_artifact_url
-
-from gecko_taskgraph.util.scriptworker import get_release_config
 
 transforms = TransformSequence()
 
