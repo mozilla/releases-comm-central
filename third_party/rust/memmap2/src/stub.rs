@@ -10,33 +10,36 @@ pub struct MmapInner {
 
 impl MmapInner {
     fn new() -> io::Result<MmapInner> {
-        Err(io::Error::new(
-            io::ErrorKind::Other,
-            "platform not supported",
-        ))
+        Err(io::ErrorKind::Unsupported.into())
     }
 
-    pub fn map(_: usize, _: &File, _: u64, _: bool) -> io::Result<MmapInner> {
+    pub fn map(_: usize, _: &File, _: u64, _: bool, _: bool) -> io::Result<MmapInner> {
         MmapInner::new()
     }
 
-    pub fn map_exec(_: usize, _: &File, _: u64, _: bool) -> io::Result<MmapInner> {
+    pub fn map_exec(_: usize, _: &File, _: u64, _: bool, _: bool) -> io::Result<MmapInner> {
         MmapInner::new()
     }
 
-    pub fn map_mut(_: usize, _: &File, _: u64, _: bool) -> io::Result<MmapInner> {
+    pub fn map_mut(_: usize, _: &File, _: u64, _: bool, _: bool) -> io::Result<MmapInner> {
         MmapInner::new()
     }
 
-    pub fn map_copy(_: usize, _: &File, _: u64, _: bool) -> io::Result<MmapInner> {
+    pub fn map_copy(_: usize, _: &File, _: u64, _: bool, _: bool) -> io::Result<MmapInner> {
         MmapInner::new()
     }
 
-    pub fn map_copy_read_only(_: usize, _: &File, _: u64, _: bool) -> io::Result<MmapInner> {
+    pub fn map_copy_read_only(
+        _: usize,
+        _: &File,
+        _: u64,
+        _: bool,
+        _: bool,
+    ) -> io::Result<MmapInner> {
         MmapInner::new()
     }
 
-    pub fn map_anon(_: usize, _: bool, _: bool, _: Option<u8>) -> io::Result<MmapInner> {
+    pub fn map_anon(_: usize, _: bool, _: bool, _: Option<u8>, _: bool) -> io::Result<MmapInner> {
         MmapInner::new()
     }
 

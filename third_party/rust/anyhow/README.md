@@ -16,8 +16,6 @@ for easy idiomatic error handling in Rust applications.
 anyhow = "1.0"
 ```
 
-*Compiler support: requires rustc 1.39+*
-
 <br>
 
 ## Details
@@ -26,7 +24,7 @@ anyhow = "1.0"
   return type of any fallible function.
 
   Within the function, use `?` to easily propagate any error that implements the
-  `std::error::Error` trait.
+  [`std::error::Error`] trait.
 
   ```rust
   use anyhow::Result;
@@ -37,6 +35,8 @@ anyhow = "1.0"
       Ok(map)
   }
   ```
+
+  [`std::error::Error`]: https://doc.rust-lang.org/std/error/trait.Error.html
 
 - Attach context to help the person troubleshooting the error understand where
   things went wrong. A low-level error like "No such file or directory" can be
@@ -75,10 +75,10 @@ anyhow = "1.0"
   }
   ```
 
-- If using the nightly channel, or stable with `features = ["backtrace"]`, a
-  backtrace is captured and printed with the error if the underlying error type
-  does not already provide its own. In order to see backtraces, they must be
-  enabled through the environment variables described in [`std::backtrace`]:
+- If using Rust &ge; 1.65, a backtrace is captured and printed with the error if
+  the underlying error type does not already provide its own. In order to see
+  backtraces, they must be enabled through the environment variables described
+  in [`std::backtrace`]:
 
   - If you want panics and errors to both have backtraces, set
     `RUST_BACKTRACE=1`;
@@ -86,10 +86,7 @@ anyhow = "1.0"
   - If you want only panics to have backtraces, set `RUST_BACKTRACE=1` and
     `RUST_LIB_BACKTRACE=0`.
 
-  The tracking issue for this feature is [rust-lang/rust#53487].
-
   [`std::backtrace`]: https://doc.rust-lang.org/std/backtrace/index.html#environment-variables
-  [rust-lang/rust#53487]: https://github.com/rust-lang/rust/issues/53487
 
 - Anyhow works with any error type that has an impl of `std::error::Error`,
   including ones defined in your crate. We do not bundle a `derive(Error)` macro
@@ -128,8 +125,8 @@ anyhow = "1.0"
 
 ## No-std support
 
-In no_std mode, the same API is almost all available and works the same way. To
-depend on Anyhow in no_std mode, disable our default enabled "std" feature in
+In no_std mode, almost all of the same API is available and works the same way.
+To depend on Anyhow in no_std mode, disable our default enabled "std" feature in
 Cargo.toml. A global allocator is required.
 
 ```toml
@@ -137,10 +134,10 @@ Cargo.toml. A global allocator is required.
 anyhow = { version = "1.0", default-features = false }
 ```
 
-Since the `?`-based error conversions would normally rely on the
-`std::error::Error` trait which is only available through std, no_std mode will
-require an explicit `.map_err(Error::msg)` when working with a non-Anyhow error
-type inside a function that returns Anyhow's error type.
+With versions of Rust older than 1.81, no_std mode may require an additional
+`.map_err(Error::msg)` when working with a non-Anyhow error type inside a
+function that returns Anyhow's error type, as the trait that `?`-based error
+conversions are defined by is only available in std in those old versions.
 
 <br>
 

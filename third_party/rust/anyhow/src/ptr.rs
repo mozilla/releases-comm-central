@@ -42,7 +42,7 @@ where
     }
 
     pub unsafe fn boxed(self) -> Box<T> {
-        Box::from_raw(self.ptr.as_ptr())
+        unsafe { Box::from_raw(self.ptr.as_ptr()) }
     }
 
     pub fn by_ref(&self) -> Ref<T> {
@@ -91,7 +91,6 @@ where
         }
     }
 
-    #[cfg(not(anyhow_no_ptr_addr_of))]
     pub fn from_raw(ptr: NonNull<T>) -> Self {
         Ref {
             ptr,
@@ -106,7 +105,6 @@ where
         }
     }
 
-    #[cfg(not(anyhow_no_ptr_addr_of))]
     pub fn by_mut(self) -> Mut<'a, T> {
         Mut {
             ptr: self.ptr,
@@ -114,13 +112,12 @@ where
         }
     }
 
-    #[cfg(not(anyhow_no_ptr_addr_of))]
     pub fn as_ptr(self) -> *const T {
-        self.ptr.as_ptr() as *const T
+        self.ptr.as_ptr().cast_const()
     }
 
     pub unsafe fn deref(self) -> &'a T {
-        &*self.ptr.as_ptr()
+        unsafe { &*self.ptr.as_ptr() }
     }
 }
 
@@ -148,14 +145,6 @@ impl<'a, T> Mut<'a, T>
 where
     T: ?Sized,
 {
-    #[cfg(anyhow_no_ptr_addr_of)]
-    pub fn new(ptr: &'a mut T) -> Self {
-        Mut {
-            ptr: NonNull::from(ptr),
-            lifetime: PhantomData,
-        }
-    }
-
     pub fn cast<U: CastTo>(self) -> Mut<'a, U::Target> {
         Mut {
             ptr: self.ptr.cast(),
@@ -163,7 +152,6 @@ where
         }
     }
 
-    #[cfg(not(anyhow_no_ptr_addr_of))]
     pub fn by_ref(self) -> Ref<'a, T> {
         Ref {
             ptr: self.ptr,
@@ -179,13 +167,13 @@ where
     }
 
     pub unsafe fn deref_mut(self) -> &'a mut T {
-        &mut *self.ptr.as_ptr()
+        unsafe { &mut *self.ptr.as_ptr() }
     }
 }
 
 impl<'a, T> Mut<'a, T> {
     pub unsafe fn read(self) -> T {
-        self.ptr.as_ptr().read()
+        unsafe { self.ptr.as_ptr().read() }
     }
 }
 

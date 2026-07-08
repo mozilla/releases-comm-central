@@ -47,11 +47,14 @@
 use crate::Error;
 use core::fmt::{Debug, Display};
 
-#[cfg(feature = "std")]
+#[cfg(any(feature = "std", not(anyhow_no_core_error)))]
 use crate::StdError;
+#[cfg(any(feature = "std", not(anyhow_no_core_error)))]
+use alloc::boxed::Box;
 
 pub struct Adhoc;
 
+#[doc(hidden)]
 pub trait AdhocKind: Sized {
     #[inline]
     fn anyhow_kind(&self) -> Adhoc {
@@ -67,12 +70,13 @@ impl Adhoc {
     where
         M: Display + Debug + Send + Sync + 'static,
     {
-        Error::from_adhoc(message, backtrace!())
+        Error::construct_from_adhoc(message, backtrace!())
     }
 }
 
 pub struct Trait;
 
+#[doc(hidden)]
 pub trait TraitKind: Sized {
     #[inline]
     fn anyhow_kind(&self) -> Trait {
@@ -92,10 +96,11 @@ impl Trait {
     }
 }
 
-#[cfg(feature = "std")]
+#[cfg(any(feature = "std", not(anyhow_no_core_error)))]
 pub struct Boxed;
 
-#[cfg(feature = "std")]
+#[cfg(any(feature = "std", not(anyhow_no_core_error)))]
+#[doc(hidden)]
 pub trait BoxedKind: Sized {
     #[inline]
     fn anyhow_kind(&self) -> Boxed {
@@ -103,14 +108,14 @@ pub trait BoxedKind: Sized {
     }
 }
 
-#[cfg(feature = "std")]
+#[cfg(any(feature = "std", not(anyhow_no_core_error)))]
 impl BoxedKind for Box<dyn StdError + Send + Sync> {}
 
-#[cfg(feature = "std")]
+#[cfg(any(feature = "std", not(anyhow_no_core_error)))]
 impl Boxed {
     #[cold]
     pub fn new(self, error: Box<dyn StdError + Send + Sync>) -> Error {
         let backtrace = backtrace_if_absent!(&*error);
-        Error::from_boxed(error, backtrace)
+        Error::construct_from_boxed(error, backtrace)
     }
 }

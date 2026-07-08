@@ -1,9 +1,10 @@
 /// Return early with an error.
 ///
-/// This macro is equivalent to `return Err(`[`anyhow!($args...)`][anyhow!]`)`.
+/// This macro is equivalent to
+/// <code>return Err([anyhow!($args\...)][anyhow!])</code>.
 ///
 /// The surrounding function's or closure's return value is required to be
-/// `Result<_,`[`anyhow::Error`][crate::Error]`>`.
+/// <code>Result&lt;_, [anyhow::Error][crate::Error]&gt;</code>.
 ///
 /// [anyhow!]: crate::anyhow
 ///
@@ -53,6 +54,7 @@
 /// # }
 /// ```
 #[macro_export]
+#[cfg_attr(not(anyhow_no_clippy_format_args), clippy::format_args)]
 macro_rules! bail {
     ($msg:literal $(,)?) => {
         return $crate::__private::Err($crate::__anyhow!($msg))
@@ -65,98 +67,109 @@ macro_rules! bail {
     };
 }
 
-/// Return early with an error if a condition is not satisfied.
-///
-/// This macro is equivalent to `if !$cond { return
-/// Err(`[`anyhow!($args...)`][anyhow!]`); }`.
-///
-/// The surrounding function's or closure's return value is required to be
-/// `Result<_,`[`anyhow::Error`][crate::Error]`>`.
-///
-/// Analogously to `assert!`, `ensure!` takes a condition and exits the function
-/// if the condition fails. Unlike `assert!`, `ensure!` returns an `Error`
-/// rather than panicking.
-///
-/// [anyhow!]: crate::anyhow
-///
-/// # Example
-///
-/// ```
-/// # use anyhow::{ensure, Result};
-/// #
-/// # fn main() -> Result<()> {
-/// #     let user = 0;
-/// #
-/// ensure!(user == 0, "only user 0 is allowed");
-/// #     Ok(())
-/// # }
-/// ```
-///
-/// ```
-/// # use anyhow::{ensure, Result};
-/// # use thiserror::Error;
-/// #
-/// # const MAX_DEPTH: usize = 1;
-/// #
-/// #[derive(Error, Debug)]
-/// enum ScienceError {
-///     #[error("recursion limit exceeded")]
-///     RecursionLimitExceeded,
-///     # #[error("...")]
-///     # More = (stringify! {
-///     ...
-///     # }, 1).1,
-/// }
-///
-/// # fn main() -> Result<()> {
-/// #     let depth = 0;
-/// #
-/// ensure!(depth <= MAX_DEPTH, ScienceError::RecursionLimitExceeded);
-/// #     Ok(())
-/// # }
-/// ```
-#[cfg(doc)]
-#[macro_export]
-macro_rules! ensure {
-    ($cond:expr $(,)?) => {
-        if !$cond {
-            return $crate::__private::Err($crate::Error::msg(
-                $crate::__private::concat!("Condition failed: `", $crate::__private::stringify!($cond), "`")
-            ));
-        }
-    };
-    ($cond:expr, $msg:literal $(,)?) => {
-        if !$cond {
-            return $crate::__private::Err($crate::__anyhow!($msg));
-        }
-    };
-    ($cond:expr, $err:expr $(,)?) => {
-        if !$cond {
-            return $crate::__private::Err($crate::__anyhow!($err));
-        }
-    };
-    ($cond:expr, $fmt:expr, $($arg:tt)*) => {
-        if !$cond {
-            return $crate::__private::Err($crate::__anyhow!($fmt, $($arg)*));
-        }
+macro_rules! __ensure {
+    ($ensure:item) => {
+        /// Return early with an error if a condition is not satisfied.
+        ///
+        /// This macro is equivalent to
+        /// <code>if !$cond { return Err([anyhow!($args\...)][anyhow!]); }</code>.
+        ///
+        /// The surrounding function's or closure's return value is required to be
+        /// <code>Result&lt;_, [anyhow::Error][crate::Error]&gt;</code>.
+        ///
+        /// Analogously to `assert!`, `ensure!` takes a condition and exits the function
+        /// if the condition fails. Unlike `assert!`, `ensure!` returns an `Error`
+        /// rather than panicking.
+        ///
+        /// [anyhow!]: crate::anyhow
+        ///
+        /// # Example
+        ///
+        /// ```
+        /// # use anyhow::{ensure, Result};
+        /// #
+        /// # fn main() -> Result<()> {
+        /// #     let user = 0;
+        /// #
+        /// ensure!(user == 0, "only user 0 is allowed");
+        /// #     Ok(())
+        /// # }
+        /// ```
+        ///
+        /// ```
+        /// # use anyhow::{ensure, Result};
+        /// # use thiserror::Error;
+        /// #
+        /// # const MAX_DEPTH: usize = 1;
+        /// #
+        /// #[derive(Error, Debug)]
+        /// enum ScienceError {
+        ///     #[error("recursion limit exceeded")]
+        ///     RecursionLimitExceeded,
+        ///     # #[error("...")]
+        ///     # More = (stringify! {
+        ///     ...
+        ///     # }, 1).1,
+        /// }
+        ///
+        /// # fn main() -> Result<()> {
+        /// #     let depth = 0;
+        /// #
+        /// ensure!(depth <= MAX_DEPTH, ScienceError::RecursionLimitExceeded);
+        /// #     Ok(())
+        /// # }
+        /// ```
+        $ensure
     };
 }
 
+#[cfg(doc)]
+__ensure![
+    #[macro_export]
+    macro_rules! ensure {
+        ($cond:expr $(,)?) => {
+            if !$cond {
+                return $crate::__private::Err($crate::Error::msg(
+                    $crate::__private::concat!("Condition failed: `", $crate::__private::stringify!($cond), "`")
+                ));
+            }
+        };
+        ($cond:expr, $msg:literal $(,)?) => {
+            if !$cond {
+                return $crate::__private::Err($crate::__anyhow!($msg));
+            }
+        };
+        ($cond:expr, $err:expr $(,)?) => {
+            if !$cond {
+                return $crate::__private::Err($crate::__anyhow!($err));
+            }
+        };
+        ($cond:expr, $fmt:expr, $($arg:tt)*) => {
+            if !$cond {
+                return $crate::__private::Err($crate::__anyhow!($fmt, $($arg)*));
+            }
+        };
+    }
+];
+
 #[cfg(not(doc))]
-#[macro_export]
-macro_rules! ensure {
-    ($($tt:tt)*) => {
-        $crate::__parse_ensure!(
-            /* state */ 0
-            /* stack */ ()
-            /* bail */ ($($tt)*)
-            /* fuel */ (~~~~~~~~~~ ~~~~~~~~~~ ~~~~~~~~~~ ~~~~~~~~~~ ~~~~~~~~~~ ~~~~~~~~~~ ~~~~~~~~~~ ~~~~~~~~~~ ~~~~~~~~~~ ~~~~~~~~~~ ~~~~~~~~~~ ~~~~~~~~~~)
-            /* parse */ {()}
-            /* dup */ ($($tt)*)
-            /* rest */ $($tt)*
-        )
-    };
-}
+__ensure![
+    #[macro_export]
+    #[cfg_attr(not(anyhow_no_clippy_format_args), clippy::format_args)]
+    macro_rules! ensure {
+        ($($tt:tt)*) => {
+            $crate::__parse_ensure!(
+                /* state */ 0
+                /* stack */ ()
+                /* bail */ ($($tt)*)
+                /* fuel */ (~~~~~~~~~~ ~~~~~~~~~~ ~~~~~~~~~~ ~~~~~~~~~~ ~~~~~~~~~~ ~~~~~~~~~~ ~~~~~~~~~~ ~~~~~~~~~~ ~~~~~~~~~~ ~~~~~~~~~~ ~~~~~~~~~~ ~~~~~~~~~~)
+                /* parse */ {()}
+                /* dup */ ($($tt)*)
+                /* rest */ $($tt)*
+            )
+        };
+    }
+];
 
 /// Construct an ad-hoc error from a string or existing non-`anyhow` error
 /// value.
@@ -187,6 +200,7 @@ macro_rules! ensure {
 /// }
 /// ```
 #[macro_export]
+#[cfg_attr(not(anyhow_no_clippy_format_args), clippy::format_args)]
 macro_rules! anyhow {
     ($msg:literal $(,)?) => {
         $crate::__private::must_use({

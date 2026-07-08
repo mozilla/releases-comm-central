@@ -36,15 +36,13 @@
 //! destroyed as soon as the data structure gets dropped.
 
 use crate::primitive::cell::UnsafeCell;
-use crate::primitive::sync::atomic;
+use crate::primitive::sync::atomic::{self, Ordering};
 use core::cell::Cell;
 use core::mem::{self, ManuallyDrop};
 use core::num::Wrapping;
-use core::sync::atomic::Ordering;
 use core::{fmt, ptr};
 
 use crossbeam_utils::CachePadded;
-use memoffset::offset_of;
 
 use crate::atomic::{Owned, Shared};
 use crate::collector::{Collector, LocalHandle};
@@ -231,6 +229,11 @@ impl Global {
         let global_epoch = self.epoch.load(Ordering::Relaxed);
         atomic::fence(Ordering::SeqCst);
 
+        // For ThreadSanitizer that does not understand fences, we simulate the equivalent effect.
+        // It is unfortunate that allocation is required, but without it, synchronization might
+        // occur in cases where it should not, potentially causing false positives.
+        #[cfg(crossbeam_sanitize_thread)]
+        let mut locals = alloc::vec![];
         // TODO(stjepang): `Local`s are stored in a linked list because linked lists are fairly
         // easy to implement in a lock-free manner. However, traversal can be slow due to cache
         // misses and data dependencies. We should experiment with other data structures as well.
@@ -250,9 +253,17 @@ impl Global {
                     if local_epoch.is_pinned() && local_epoch.unpinned() != global_epoch {
                         return global_epoch;
                     }
+
+                    #[cfg(crossbeam_sanitize_thread)]
+                    locals.push(local);
                 }
             }
         }
+        #[cfg(crossbeam_sanitize_thread)]
+        for local in locals {
+            local.epoch.load(Ordering::Acquire);
+        }
+        #[cfg(not(crossbeam_sanitize_thread))]
         atomic::fence(Ordering::Acquire);
 
         // All pinned participants were pinned in the current global epoch.
@@ -269,12 +280,10 @@ impl Global {
 }
 
 /// Participant for garbage collection.
+#[repr(C)] // Note: `entry` must be the first field
 pub(crate) struct Local {
     /// A node in the intrusive linked list of `Local`s.
     entry: Entry,
-
-    /// The local epoch.
-    epoch: AtomicEpoch,
 
     /// A reference to the global data.
     ///
@@ -294,6 +303,9 @@ pub(crate) struct Local {
     ///
     /// This is just an auxiliary counter that sometimes kicks off collection.
     pin_count: Cell<Wrapping<usize>>,
+
+    /// The local epoch.
+    epoch: CachePadded<AtomicEpoch>,
 }
 
 // Make sure `Local` is less than or equal to 2048 bytes.
@@ -320,12 +332,12 @@ impl Local {
 
             let local = Owned::new(Local {
                 entry: Entry::default(),
-                epoch: AtomicEpoch::new(Epoch::starting()),
                 collector: UnsafeCell::new(ManuallyDrop::new(collector.clone())),
                 bag: UnsafeCell::new(Bag::new()),
                 guard_count: Cell::new(0),
                 handle_count: Cell::new(1),
                 pin_count: Cell::new(Wrapping(0)),
+                epoch: CachePadded::new(AtomicEpoch::new(Epoch::starting())),
             })
             .into_shared(unprotected());
             collector.global.locals.insert(local, unprotected());
@@ -535,16 +547,18 @@ impl Local {
     }
 }
 
-impl IsElement<Local> for Local {
-    fn entry_of(local: &Local) -> &Entry {
-        let entry_ptr = (local as *const Local as usize + offset_of!(Local, entry)) as *const Entry;
-        unsafe { &*entry_ptr }
+impl IsElement<Self> for Local {
+    fn entry_of(local: &Self) -> &Entry {
+        // SAFETY: `Local` is `repr(C)` and `entry` is the first field of it.
+        unsafe {
+            let entry_ptr = (local as *const Self).cast::<Entry>();
+            &*entry_ptr
+        }
     }
 
-    unsafe fn element_of(entry: &Entry) -> &Local {
-        // offset_of! macro uses unsafe, but it's unnecessary in this context.
-        #[allow(unused_unsafe)]
-        let local_ptr = (entry as *const Entry as usize - offset_of!(Local, entry)) as *const Local;
+    unsafe fn element_of(entry: &Entry) -> &Self {
+        // SAFETY: `Local` is `repr(C)` and `entry` is the first field of it.
+        let local_ptr = (entry as *const Entry).cast::<Self>();
         &*local_ptr
     }
 
@@ -555,7 +569,7 @@ impl IsElement<Local> for Local {
 
 #[cfg(all(test, not(crossbeam_loom)))]
 mod tests {
-    use std::sync::atomic::{AtomicUsize, Ordering};
+    use std::sync::atomic::AtomicUsize;
 
     use super::*;
 

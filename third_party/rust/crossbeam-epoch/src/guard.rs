@@ -1,9 +1,7 @@
 use core::fmt;
 use core::mem;
 
-use scopeguard::defer;
-
-use crate::atomic::Shared;
+use crate::atomic::{Pointable, Shared};
 use crate::collector::Collector;
 use crate::deferred::Deferred;
 use crate::internal::Local;
@@ -267,7 +265,7 @@ impl Guard {
     /// }
     /// # unsafe { drop(a.into_owned()); } // avoid leak
     /// ```
-    pub unsafe fn defer_destroy<T>(&self, ptr: Shared<'_, T>) {
+    pub unsafe fn defer_destroy<T: ?Sized + Pointable>(&self, ptr: Shared<'_, T>) {
         self.defer_unchecked(move || ptr.into_owned());
     }
 
@@ -275,7 +273,7 @@ impl Guard {
     /// global cache.
     ///
     /// Call this method after deferring execution of a function if you want to get it executed as
-    /// soon as possible. Flushing will make sure it is residing in in the global cache, so that
+    /// soon as possible. Flushing will make sure it is residing in the global cache, so that
     /// any thread has a chance of taking the function and executing it.
     ///
     /// If this method is called from an [`unprotected`] guard, it is a no-op (nothing happens).
@@ -366,6 +364,17 @@ impl Guard {
     where
         F: FnOnce() -> R,
     {
+        // Ensure the Guard is re-pinned even if the function panics
+        struct ScopeGuard(*const Local);
+        impl Drop for ScopeGuard {
+            fn drop(&mut self) {
+                if let Some(local) = unsafe { self.0.as_ref() } {
+                    mem::forget(local.pin());
+                    local.release_handle();
+                }
+            }
+        }
+
         if let Some(local) = unsafe { self.local.as_ref() } {
             // We need to acquire a handle here to ensure the Local doesn't
             // disappear from under us.
@@ -373,13 +382,7 @@ impl Guard {
             local.unpin();
         }
 
-        // Ensure the Guard is re-pinned even if the function panics
-        defer! {
-            if let Some(local) = unsafe { self.local.as_ref() } {
-                mem::forget(local.pin());
-                local.release_handle();
-            }
-        }
+        let _guard = ScopeGuard(self.local);
 
         f()
     }
@@ -447,8 +450,8 @@ impl fmt::Debug for Guard {
 ///     // Load `a` without pinning the current thread.
 ///     a.load(Relaxed, epoch::unprotected());
 ///
-///     // It's possible to create more dummy guards by calling `clone()`.
-///     let dummy = &epoch::unprotected().clone();
+///     // It's possible to create more dummy guards.
+///     let dummy = epoch::unprotected();
 ///
 ///     dummy.defer(move || {
 ///         println!("This gets executed immediately.");
