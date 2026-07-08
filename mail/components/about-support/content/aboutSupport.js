@@ -1002,7 +1002,7 @@ var snapshotFormatters = {
       if (button) {
         button.addEventListener("click", function () {
           const { KeyValueService } = ChromeUtils.importESModule(
-            "resource://gre/modules/kvstore.sys.mjs"
+            "moz-src:///toolkit/components/kvstore/kvstore.sys.mjs"
           );
           const currProfDir = Services.dirsvc.get("ProfD", Ci.nsIFile);
           currProfDir.append("mediacapabilities");

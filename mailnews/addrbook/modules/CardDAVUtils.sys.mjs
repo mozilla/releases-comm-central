@@ -11,7 +11,7 @@ const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   CardDAVDirectory: "resource:///modules/CardDAVDirectory.sys.mjs",
   ContextualIdentityService:
-    "resource://gre/modules/ContextualIdentityService.sys.mjs",
+    "moz-src:///toolkit/components/contextualidentity/ContextualIdentityService.sys.mjs",
   enforcePrimaryPassword: "resource:///modules/PrimaryPassword.sys.mjs",
   MsgAuthPrompt: "resource:///modules/MsgAsyncPrompter.sys.mjs",
   OAuth2Module: "resource:///modules/OAuth2Module.sys.mjs",

@@ -89,6 +89,8 @@ const startupPhases = {
   "before handling user events": {
     denylist: {
       modules: new Set([
+        "moz-src:///toolkit/components/contextualidentity/ContextualIdentityService.sys.mjs",
+        "moz-src:///toolkit/crashreporter/CrashSubmit.sys.mjs",
         "resource:///modules/gloda/Everybody.sys.mjs",
         "resource:///modules/gloda/Gloda.sys.mjs",
         "resource:///modules/gloda/GlodaContent.sys.mjs",
@@ -112,8 +114,6 @@ const startupPhases = {
         "resource:///modules/mimeParser.sys.mjs",
         "resource://gre/modules/BookmarkHTMLUtils.sys.mjs",
         "resource://gre/modules/Bookmarks.sys.mjs",
-        "resource://gre/modules/ContextualIdentityService.sys.mjs",
-        "resource://gre/modules/CrashSubmit.sys.mjs",
         "resource://gre/modules/FxAccounts.sys.mjs",
         "resource://gre/modules/FxAccountsStorage.sys.mjs",
         "resource://gre/modules/PlacesBackups.sys.mjs",
