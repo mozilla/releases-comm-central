@@ -253,7 +253,7 @@ base64_21 = { package = "base64", path = "../../build/rust/base64" }
 wasi_0_11 = { package = "wasi", path = "../../build/rust/wasi" }
 itertools = { path = "../../build/rust/itertools" }
 backtrace = { path = "../../build/rust/backtrace" }
-bindgen_0_72 = { package = "bindgen", git = "https://github.com/rust-lang/rust-bindgen", rev = "9366e0af8da529c958b4cd4fcbe492d951c86f5c" }
+bindgen_0_72 = { package = "bindgen", git = "https://github.com/glandium/rust-bindgen", rev = "5274da5a06411accb266c10819b989ac25a81b7d" }
 bindgen = { path = "../../build/rust/bindgen" }
 icu_collator = { path = "../../third_party/rust/icu_collator" }
 icu_collator_data = { path = "../../third_party/rust/icu_collator_data" }

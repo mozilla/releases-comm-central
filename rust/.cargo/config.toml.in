@@ -26,6 +26,11 @@ git = "https://github.com/glandium/allocator-api2"
 rev = "ad5f3d56a5a4519eff52af4ff85293431466ef5c"
 replace-with = "vendored-sources"
 
+[source."git+https://github.com/glandium/rust-bindgen?rev=5274da5a06411accb266c10819b989ac25a81b7d"]
+git = "https://github.com/glandium/rust-bindgen"
+rev = "5274da5a06411accb266c10819b989ac25a81b7d"
+replace-with = "vendored-sources"
+
 [source."git+https://github.com/glandium/rust-objc?rev=4de89f5aa9851ceca4d40e7ac1e2759410c04324"]
 git = "https://github.com/glandium/rust-objc"
 rev = "4de89f5aa9851ceca4d40e7ac1e2759410c04324"
@@ -118,11 +123,6 @@ replace-with = "vendored-sources"
 
 [source."git+https://github.com/mozilla/nss-rs"]
 git = "https://github.com/mozilla/nss-rs"
-replace-with = "vendored-sources"
-
-[source."git+https://github.com/rust-lang/rust-bindgen?rev=9366e0af8da529c958b4cd4fcbe492d951c86f5c"]
-git = "https://github.com/rust-lang/rust-bindgen"
-rev = "9366e0af8da529c958b4cd4fcbe492d951c86f5c"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/rust-minidump/minidump-writer.git?rev=107e531a7a06f8e886ffcee13eb07e9ded43473b"]
