@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed version="0.3" xmlns="http://purl.org/atom/ns#">
+  <title>Atom 0.3 date test</title>
+  <link rel="alternate" type="text/html" href="http://example.com/"/>
+  <modified>2026-05-19T22:43:20Z</modified>
+  <entry>
+    <title>Has both dates</title>
+    <link rel="alternate" type="text/html" href="http://example.com/both"/>
+    <id>http://example.com/both</id>
+    <issued>2026-03-17T17:35:43Z</issued>
+    <modified>2026-05-19T22:43:20Z</modified>
+  </entry>
+  <entry>
+    <title>Only modified</title>
+    <link rel="alternate" type="text/html" href="http://example.com/modified-only"/>
+    <id>http://example.com/modified-only</id>
+    <modified>2026-05-04T16:56:28Z</modified>
+  </entry>
+</feed>

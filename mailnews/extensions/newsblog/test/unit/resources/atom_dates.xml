@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Atom date test</title>
+  <link href="http://example.com/"/>
+  <id>http://example.com/</id>
+  <updated>2026-05-19T22:43:20+00:00</updated>
+  <entry>
+    <title>Has both dates</title>
+    <link href="http://example.com/both"/>
+    <id>http://example.com/both</id>
+    <published>2026-03-17T17:35:43+00:00</published>
+    <updated>2026-05-19T22:43:20+00:00</updated>
+  </entry>
+  <entry>
+    <title>Only updated</title>
+    <link href="http://example.com/updated-only"/>
+    <id>http://example.com/updated-only</id>
+    <updated>2026-05-04T16:56:28+00:00</updated>
+  </entry>
+</feed>

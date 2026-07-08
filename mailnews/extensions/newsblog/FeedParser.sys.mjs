@@ -682,13 +682,13 @@ FeedParser.prototype = {
       tags = this.childrenByTagNameNS(
         itemNode,
         lazy.FeedUtils.ATOM_03_NS,
-        "modified"
+        "issued"
       );
       if (!tags || !this.getNodeValue(tags[0])) {
         tags = this.childrenByTagNameNS(
           itemNode,
           lazy.FeedUtils.ATOM_03_NS,
-          "issued"
+          "modified"
         );
       }
       if (!tags || !this.getNodeValue(tags[0])) {
@@ -972,13 +972,13 @@ FeedParser.prototype = {
       tags = this.childrenByTagNameNS(
         itemNode,
         lazy.FeedUtils.ATOM_IETF_NS,
-        "updated"
+        "published"
       );
       if (!tags || !this.getNodeValue(tags[0])) {
         tags = this.childrenByTagNameNS(
           itemNode,
           lazy.FeedUtils.ATOM_IETF_NS,
-          "published"
+          "updated"
         );
       }
       if (!tags || !this.getNodeValue(tags[0])) {

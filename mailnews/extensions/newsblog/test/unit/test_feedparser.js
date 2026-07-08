@@ -74,6 +74,67 @@ add_task(async function test_rss1() {
   }
 });
 
+// Test that the Atom parser prefers <published> over <updated> for the item
+// date, falling back to <updated> when <published> is absent
+// Like YouTube feeds.
+add_task(async function test_atom_dates() {
+  const account = FeedUtils.createRssAccount("test_atom_dates");
+  const rootFolder = account.incomingServer.rootMsgFolder.QueryInterface(
+    Ci.nsIMsgLocalMailFolder
+  );
+  const folder = rootFolder.createLocalSubfolder("atomdates");
+
+  const doc = await do_parse_document("resources/atom_dates.xml", "text/xml");
+  const feed = new Feed("https://example.com/atom_dates.xml", folder);
+  feed.parseItems = true;
+  feed.onParseError = function () {
+    throw new Error("PARSE ERROR");
+  };
+  const parser = new FeedParser();
+  const items = parser.parseAsAtomIETF(feed, doc);
+
+  assertItemsEqual(items, [
+    {
+      title: "Has both dates",
+      date: "2026-03-17T17:35:43+00:00",
+    },
+    {
+      title: "Only updated",
+      date: "2026-05-04T16:56:28+00:00",
+    },
+  ]);
+});
+
+// Same as test_atom_dates, but for the older Atom 0.3 parser, where <issued>
+// is the publication date and <modified> the last-changed date.
+add_task(async function test_atom03_dates() {
+  const account = FeedUtils.createRssAccount("test_atom03_dates");
+  const rootFolder = account.incomingServer.rootMsgFolder.QueryInterface(
+    Ci.nsIMsgLocalMailFolder
+  );
+  const folder = rootFolder.createLocalSubfolder("atom03dates");
+
+  const doc = await do_parse_document("resources/atom03_dates.xml", "text/xml");
+  const feed = new Feed("https://example.com/atom03_dates.xml", folder);
+  feed.parseItems = true;
+  feed.onParseError = function () {
+    throw new Error("PARSE ERROR");
+  };
+  const parser = new FeedParser();
+  const items = parser.parseAsAtom(feed, doc);
+
+  assertItemsEqual(items, [
+    {
+      title: "Has both dates",
+      date: "2026-03-17T17:35:43Z",
+    },
+    {
+      title: "Only modified",
+      date: "2026-05-04T16:56:28Z",
+    },
+  ]);
+});
+
 // Test feed downloading.
 // Mainly checking that it doesn't crash and that the right feed parser is used.
 add_task(async function test_download() {
