@@ -5,6 +5,7 @@
 #include "FuzzingInterfaceStream.h"
 
 #include "mozilla/NullPrincipal.h"
+#include "mozilla/Preferences.h"
 #include "mozilla/fuzzing/FuzzingStreamListener.h"
 
 #include "nsICategoryManager.h"
@@ -27,7 +28,13 @@
 using namespace mozilla;
 using namespace mozilla::net;
 
-static int InitMimeDecoder(int* argc, char*** argv) { return 0; }
+static int InitMimeDecoder(int* argc, char*** argv) {
+  Preferences::SetCString("helpers.global_mime_types_file", ""_ns);
+  Preferences::SetCString("helpers.private_mime_types_file", ""_ns);
+  Preferences::SetCString("helpers.global_mailcap_file", ""_ns);
+  Preferences::SetCString("helpers.private_mailcap_file", ""_ns);
+  return 0;
+}
 
 static int FuzzingMimeDecoder(nsCOMPtr<nsIInputStream> stream) {
   nsresult rv;
