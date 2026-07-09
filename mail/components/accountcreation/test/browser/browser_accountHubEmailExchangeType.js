@@ -151,6 +151,19 @@ function assertAriaControlState(
   );
 }
 
+add_task(function test_titleHasFluentId() {
+  const header = subview.shadowRoot.querySelector("account-hub-header");
+  const titleFluentId = header.l10n.getAttributes(
+    header.querySelector("#title")
+  ).id;
+
+  Assert.equal(
+    titleFluentId,
+    "account-hub-exchange-type-title",
+    "Exchange type title should use the expected fluent ID"
+  );
+});
+
 add_task(function test_graphOnlyShowsOauthAuthentication() {
   changeAccountType(graphCard);
   Assert.ok(graphCard.checked, "Graph should be selected");

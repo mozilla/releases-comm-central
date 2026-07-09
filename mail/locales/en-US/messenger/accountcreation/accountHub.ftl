@@ -146,6 +146,8 @@ account-hub-auth-label = Authentication method
 
 ## Exchange Type Manual Config Step
 
+account-hub-exchange-type-title = Choose an account type
+
 account-hub-exchange-type-account-type = Account type
 
 account-hub-card-graph-title = Microsoft Graph
