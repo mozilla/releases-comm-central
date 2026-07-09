@@ -9,7 +9,7 @@ pub use crate::mac::process_reader::*;
 
 use std::{ffi::CString, mem::MaybeUninit};
 
-impl ProcessReader {
+impl ProcessReader<'_> {
     #[inline]
     pub fn read_to_vec(
         &self,

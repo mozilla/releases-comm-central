@@ -9,11 +9,7 @@ pub enum SectionMemInfoListError {
     #[error("Failed to write to memory")]
     MemoryWriterError(#[from] MemoryWriterError),
     #[error("failed to open /proc/<pid>/maps file")]
-    ReadFileFailed(
-        #[source]
-        #[serde(serialize_with = "serialize_io_error")]
-        std::io::Error,
-    ),
+    ReadFileFailed(#[source] process_inspection::Error),
     #[error("Failed to read from procfs")]
     ProcfsError(
         #[from]

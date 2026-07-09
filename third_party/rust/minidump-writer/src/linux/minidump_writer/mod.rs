@@ -7,7 +7,7 @@ use {
         dso_debug,
         dumper_cpu_info::CpuInfoError,
         maps_reader::{MappingInfo, MappingList, MapsReaderError},
-        process_inspection::{ProcessInspector, process_reader::CopyFromProcessError},
+        process_inspection::{self, ProcessInspector, process_reader::CopyFromProcessError},
         serializers::*,
         thread_info::{ThreadInfo, ThreadInfoError},
     },
@@ -279,9 +279,11 @@ impl MinidumpWriter {
             soft_errors.push(InitError::EnumerateMappingsFailed(Box::new(e)));
         }
 
-        self.page_size = nix::unistd::sysconf(nix::unistd::SysconfVar::PAGE_SIZE)?
-            .expect("page size apparently unlimited: doesn't make sense.")
-            as usize;
+        self.page_size = unsafe { libc::sysconf(libc::_SC_PAGESIZE).try_into().unwrap() };
+        assert!(
+            self.page_size > 0,
+            "somehow we weren't able to get the page size - should never happen"
+        );
 
         let threads_count = self.threads.len();
 
@@ -293,7 +295,7 @@ impl MinidumpWriter {
 
         #[cfg(target_os = "android")]
         {
-            late_process_mappings(&self.process_inspector, self.process_id, &mut self.mappings)?;
+            late_process_mappings(&self.process_inspector, &mut self.mappings)?;
         }
 
         if self.skip_stacks_if_mapping_unreferenced {
@@ -349,7 +351,8 @@ impl MinidumpWriter {
         let dirent = self.write_mappings(buffer)?;
         dir_section.write_to_file(buffer, Some(dirent))?;
 
-        self.write_app_memory(buffer)?;
+        self.write_app_memory(buffer)
+            .map_err(WriterError::SectionAppMemoryError)?;
         dir_section.write_to_file(buffer, None)?;
 
         let dirent = self.write_memory_list_stream(buffer)?;
@@ -423,18 +426,14 @@ impl MinidumpWriter {
         file_entry!("auxv", LinuxAuxv, WriteEnvironmentFailed);
         file_entry!("maps", LinuxMaps, WriteMapsFailed);
 
-        let dirent = match dso_debug::write_dso_debug_stream(
-            &self.process_inspector,
-            buffer,
-            self.process_id,
-            &self.auxv,
-        ) {
-            Ok(dirent) => dirent,
-            Err(e) => {
-                soft_errors.push(WriterError::WriteDSODebugStreamFailed(e));
-                Default::default()
-            }
-        };
+        let dirent =
+            match dso_debug::write_dso_debug_stream(&self.process_inspector, buffer, &self.auxv) {
+                Ok(dirent) => dirent,
+                Err(e) => {
+                    soft_errors.push(WriterError::WriteDSODebugStreamFailed(e));
+                    Default::default()
+                }
+            };
         dir_section.write_to_file(buffer, Some(dirent))?;
 
         file_entry!("limits", MozLinuxLimits, WriteLimitsFailed);
@@ -502,7 +501,6 @@ impl MinidumpWriter {
 
         let stack_copy = match MinidumpWriter::copy_from_process(
             &self.process_inspector,
-            self.blamed_thread,
             valid_stack_pointer,
             stack_len,
         ) {
@@ -581,7 +579,7 @@ impl MinidumpWriter {
 
         self.threads_suspended = true;
 
-        failspot::failspot!(<crate::FailSpotName>::SuspendThreads soft_errors.push(WriterError::PtraceAttachError(1234, nix::Error::EPERM)))
+        failspot::failspot!(<crate::FailSpotName>::SuspendThreads soft_errors.push(WriterError::PtraceAttachError(1234, libc::EPERM)))
     }
 
     fn resume_threads(&mut self, mut soft_errors: impl WriteErrorList<WriterError>) {
@@ -602,9 +600,9 @@ impl MinidumpWriter {
     ///
     /// This will block waiting for the process to stop until `timeout` has passed.
     fn stop_process(&mut self, timeout: Duration) -> Result<(), StopProcessError> {
-        failspot!(StopProcess bail(nix::Error::EPERM));
-
-        self.process_inspector.stop_process()?;
+        self.process_inspector
+            .stop_process()
+            .map_err(StopProcessError::Stop)?;
 
         // Something like waitpid for non-child processes would be better, but we have no such
         // tool, so we poll the status.
@@ -666,20 +664,20 @@ impl MinidumpWriter {
                 }
             };
 
+            if failspot!(ThreadName) {
+                self.process_inspector.fail_one_syscall_with(libc::EPERM);
+            }
+
             // Read the thread-name (if there is any)
-            let name_result = failspot!(if ThreadName {
-                Err(std::io::Error::other(
-                    "testing requested failure reading thread name",
-                ))
-            } else {
-                self.process_inspector
-                    .read_file(format!("/proc/{pid}/task/{tid}/comm"))
-                    .and_then(|mut file| {
-                        let mut s = String::new();
-                        file.read_to_string(&mut s)?;
-                        Ok(s)
-                    })
-            });
+            let name_result = self
+                .process_inspector
+                .read_file(format!("/proc/{pid}/task/{tid}/comm"))
+                .map_err(std::io::Error::other)
+                .and_then(|mut file| {
+                    let mut s = String::new();
+                    file.read_to_string(&mut s)?;
+                    Ok(s)
+                });
 
             let name = match name_result {
                 Ok(name) => Some(name.trim_end().to_string()),
@@ -925,7 +923,7 @@ impl MinidumpWriter {
     ) -> Result<Vec<u8>, WriterError> {
         let reader = self.process_inspector.process_reader();
         module_reader::read_build_id_from_module(module_reader::ProcessModuleMemoryReader::new(
-            reader,
+            &reader,
             self.mappings[idx].start_address,
         ))
         .map_err(WriterError::ModuleReaderError)
@@ -937,7 +935,7 @@ impl MinidumpWriter {
     ) -> Result<String, WriterError> {
         let reader = self.process_inspector.process_reader();
         module_reader::read_soname_from_module(module_reader::ProcessModuleMemoryReader::new(
-            reader,
+            &reader,
             self.mappings[idx].start_address,
         ))
         .map_err(WriterError::ModuleReaderError)
@@ -948,21 +946,11 @@ impl MinidumpWriter {
     #[inline]
     pub fn copy_from_process(
         process_inspector: &ProcessInspector,
-        pid: Pid,
         src: usize,
         length: usize,
     ) -> Result<Vec<u8>, CopyFromProcessError> {
-        let length = std::num::NonZeroUsize::new(length).ok_or(CopyFromProcessError {
-            src,
-            child: pid,
-            offset: 0,
-            length,
-            // TODO: We should make copy_from_process also take a NonZero,
-            // as EINVAL could also come from the syscalls that actually read
-            // memory as well which could be confusing
-            source: nix::errno::Errno::EINVAL,
-        })?;
-
+        let length =
+            std::num::NonZeroUsize::new(length).ok_or(CopyFromProcessError::InvalidArgument)?;
         let mem = process_inspector.process_reader();
         mem.read_to_vec(src, length)
     }
@@ -982,11 +970,14 @@ fn write_file(
     buffer: &mut DumpBuf,
     filename: &str,
 ) -> std::result::Result<MDLocationDescriptor, MemoryWriterError> {
-    let content = process_inspector.read_file(filename).and_then(|mut file| {
-        let mut v = Vec::new();
-        file.read_to_end(&mut v)?;
-        Ok(v)
-    })?;
+    let content = process_inspector
+        .read_file(filename)
+        .map_err(std::io::Error::other)
+        .and_then(|mut file| {
+            let mut v = Vec::new();
+            file.read_to_end(&mut v)?;
+            Ok(v)
+        })?;
 
     let section = MemoryArrayWriter::write_bytes(buffer, &content);
     Ok(section.location())

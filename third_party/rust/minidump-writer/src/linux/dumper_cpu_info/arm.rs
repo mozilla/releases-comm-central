@@ -13,7 +13,8 @@ type Result<T> = std::result::Result<T, CpuInfoError>;
 fn parse_cpus_from_sysfile<R: Read>(mut file: R) -> Result<HashSet<u32>> {
     let mut res = HashSet::new();
     let mut content = String::new();
-    file.read_to_string(&mut content)?;
+    file.read_to_string(&mut content)
+        .map_err(CpuInfoError::FileIOError)?;
     // Expected format: comma-separated list of items, where each
     // item can be a decimal integer, or two decimal integers separated
     // by a dash.
@@ -203,7 +204,7 @@ pub fn write_cpu_information(
     let mut elf_hwcaps = 0;
 
     for line in BufReader::new(cpuinfo_file).lines() {
-        let line = line?;
+        let line = line.map_err(CpuInfoError::FileIOError)?;
         // Expected format: <field-name> <space>+ ':' <space> <value>
         // Note that:
         //   - empty lines happen.

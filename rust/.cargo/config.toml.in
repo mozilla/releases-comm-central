@@ -91,9 +91,9 @@ git = "https://github.com/mozilla/glean"
 tag = "v68.0.0"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/mozilla/happy-eyeballs?tag=v0.9.0"]
+[source."git+https://github.com/mozilla/happy-eyeballs?tag=v0.10.0"]
 git = "https://github.com/mozilla/happy-eyeballs"
-tag = "v0.9.0"
+tag = "v0.10.0"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/mozilla/memtest?rev=ad681ba425beb0aeba95f03e671432b4be932174"]
@@ -125,9 +125,9 @@ replace-with = "vendored-sources"
 git = "https://github.com/mozilla/nss-rs"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/rust-minidump/minidump-writer.git?rev=107e531a7a06f8e886ffcee13eb07e9ded43473b"]
+[source."git+https://github.com/rust-minidump/minidump-writer.git?rev=45f5459790d264098346343f0ad58d008c386fa5"]
 git = "https://github.com/rust-minidump/minidump-writer.git"
-rev = "107e531a7a06f8e886ffcee13eb07e9ded43473b"
+rev = "45f5459790d264098346343f0ad58d008c386fa5"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/servo/unicode-bidi?rev=ca612daf1c08c53abe07327cb3e6ef6e0a760f0c"]

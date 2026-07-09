@@ -1,6 +1,6 @@
 use {
     super::*,
-    crate::mem_writer::MemoryWriter,
+    crate::{linux::process_inspection, mem_writer::MemoryWriter},
     std::{
         ffi::OsStr,
         mem,
@@ -47,6 +47,8 @@ pub enum SectionHandleDataStreamError {
         #[serde(serialize_with = "serialize_io_error")]
         std::io::Error,
     ),
+    #[error("failed to read /proc/<pid>/fd directory")]
+    ReadDirFailed(#[source] process_inspection::Error),
     #[error("Failed to write to memory")]
     MemoryWriterError(#[from] MemoryWriterError),
     #[error("Failed integer conversion")]
@@ -63,7 +65,10 @@ impl MinidumpWriter {
         buffer: &mut DumpBuf,
     ) -> Result<MDRawDirectory, SectionHandleDataStreamError> {
         let proc_fd_path = PathBuf::from(format!("/proc/{}/fd", self.process_id));
-        let proc_fd_iter = self.process_inspector.read_dir(&proc_fd_path)?;
+        let proc_fd_iter = self
+            .process_inspector
+            .read_dir(&proc_fd_path)
+            .map_err(SectionHandleDataStreamError::ReadDirFailed)?;
         let descriptors: Vec<_> = proc_fd_iter
             .filter_map(|filename| filename.ok())
             .filter_map(|filename| {

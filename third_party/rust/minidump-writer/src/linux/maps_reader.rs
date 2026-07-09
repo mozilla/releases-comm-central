@@ -1,6 +1,8 @@
 use {
     super::{
-        auxv::AuxvType, module_reader::ModuleReaderError, process_inspection::ProcessInspector,
+        auxv::AuxvType,
+        module_reader::ModuleReaderError,
+        process_inspection::{self, ProcessInspector},
         serializers::*,
     },
     crate::serializers::*,
@@ -61,6 +63,8 @@ pub type MappingList = Vec<MappingEntry>;
 
 #[derive(thiserror::Error, Debug, serde::Serialize)]
 pub enum MapsReaderError {
+    #[error("failed to read /proc/<pid>/maps")]
+    ReadFileFailed(#[source] process_inspection::Error),
     #[error("Couldn't parse as ELF file")]
     ELFParsingFailed(
         #[from]
@@ -103,8 +107,6 @@ pub enum MapsReaderError {
     MmapSanityCheckFailed,
     #[error("Symlink does not match ({0} vs. {1})")]
     SymlinkError(std::path::PathBuf, std::path::PathBuf),
-    #[error("Mappings file missing for pid {pid} (is the process still alive?)")]
-    MappingFileMissing { pid: i32 },
     #[error("Failed to parse memory maps file")]
     ParsingError(
         #[from]
@@ -139,13 +141,9 @@ impl MappingInfo {
         linux_gate_loc: Option<AuxvType>,
     ) -> Result<Vec<Self>> {
         let maps_path = format!("/proc/{}/maps", pid);
-        let maps_file = process_inspector.read_file(&maps_path).map_err(|e| {
-            if e.kind() == std::io::ErrorKind::NotFound {
-                MapsReaderError::MappingFileMissing { pid }
-            } else {
-                e.into()
-            }
-        })?;
+        let maps_file = process_inspector
+            .read_file(&maps_path)
+            .map_err(MapsReaderError::ReadFileFailed)?;
         let maps = MemoryMaps::from_read(maps_file)?;
         Self::aggregate(maps, linux_gate_loc)
     }

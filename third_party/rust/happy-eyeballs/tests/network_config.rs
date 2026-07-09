@@ -4,8 +4,8 @@ use common::*;
 use std::time::{Duration, Instant};
 
 use happy_eyeballs::{
-    AltSvc, ConnectionAttemptHttpVersions, DnsResult, FailureReason, HappyEyeballs, HttpVersion,
-    HttpVersions, Id, Input, IpPreference, NetworkConfig, Output,
+    AltSvc, ConnectionAttemptHttpVersions, DnsRecordType, DnsResult, FailureReason, HappyEyeballs,
+    HttpVersion, HttpVersions, Id, Input, IpPreference, NetworkConfig, Output,
 };
 
 #[test]
@@ -178,6 +178,302 @@ fn ip_host_alt_svc_with_port() {
         ],
         &mut now,
     );
+}
+
+/// Alt-svc entry that names a custom host: the host gets its own A/AAAA
+/// queries and is attempted (at the alt-svc port, over the alt-svc protocol)
+/// ahead of the plain origin fallback.
+///
+/// Expected endpoint order:
+///   alt-svc host bucket (ALT_HOST, port 8443): V6_ADDR_2:H3, V4_ADDR_2:H3
+///   fallback bucket     (HOSTNAME, port  443): V6_ADDR:H2OrH1, V4_ADDR:H2OrH1
+#[test]
+fn alt_svc_with_host() {
+    const ALT_HOST: &str = "alt.example.com";
+    let config = NetworkConfig {
+        alt_svc: vec![AltSvc {
+            host: Some(ALT_HOST.to_string()),
+            port: Some(CUSTOM_PORT),
+            http_version: HttpVersion::H3,
+        }],
+        ..NetworkConfig::default()
+    };
+    let (mut now, mut he) = setup_with_config(config);
+
+    // Origin queries (ids 0-2), then the alt-svc host's AAAA/A queries (ids 3-4).
+    expect_initial_dns_queries(&mut he, now);
+    he.expect(
+        out_send_dns(Id::from(3), ALT_HOST, DnsRecordType::Aaaa),
+        now,
+    );
+    he.expect(out_send_dns(Id::from(4), ALT_HOST, DnsRecordType::A), now);
+    he.expect_idle(now);
+
+    // Resolve all address records first. Without the HTTPS answer the machine
+    // keeps waiting out the resolution delay.
+    he.input(in_dns_aaaa_positive(Id::from(1)), now);
+    he.expect(out_resolution_delay(), now);
+    he.input(in_dns_a_positive(Id::from(2)), now);
+    he.expect(out_resolution_delay(), now);
+    he.input(
+        Input::DnsResult {
+            id: Id::from(3),
+            result: DnsResult::Aaaa(Ok(vec![V6_ADDR_2])),
+        },
+        now,
+    );
+    he.expect(out_resolution_delay(), now);
+    he.input(
+        Input::DnsResult {
+            id: Id::from(4),
+            result: DnsResult::A(Ok(vec![V4_ADDR_2])),
+        },
+        now,
+    );
+    he.expect(out_resolution_delay(), now);
+
+    // The negative HTTPS answer completes the move-on conditions.
+    he.input(in_dns_https_negative(Id::from(0)), now);
+
+    // Alt-svc host endpoints (port 8443, H3) come first, then origin fallback.
+    he.expect(
+        out_attempt(
+            Id::from(5),
+            V6_ADDR_2.into(),
+            CUSTOM_PORT,
+            ConnectionAttemptHttpVersions::H3,
+        ),
+        now,
+    );
+    he.expect(out_connection_attempt_delay(), now);
+
+    he.expect_connection_attempts(
+        [
+            out_attempt(
+                Id::from(6),
+                V4_ADDR_2.into(),
+                CUSTOM_PORT,
+                ConnectionAttemptHttpVersions::H3,
+            ),
+            out_attempt(
+                Id::from(7),
+                V6_ADDR.into(),
+                PORT,
+                ConnectionAttemptHttpVersions::H2OrH1,
+            ),
+            out_attempt(
+                Id::from(8),
+                V4_ADDR.into(),
+                PORT,
+                ConnectionAttemptHttpVersions::H2OrH1,
+            ),
+        ],
+        &mut now,
+    );
+}
+
+/// An alt-svc host that is already an IP literal needs no DNS resolution: it is
+/// attempted directly, ahead of the plain origin fallback.
+#[test]
+fn alt_svc_host_ip_literal() {
+    let config = NetworkConfig {
+        alt_svc: vec![AltSvc {
+            host: Some(V4_ADDR_2.to_string()),
+            port: Some(CUSTOM_PORT),
+            http_version: HttpVersion::H3,
+        }],
+        ..NetworkConfig::default()
+    };
+    let (mut now, mut he) = setup_with_config(config);
+
+    // No extra DNS query is issued for the IP-literal alt-svc host.
+    expect_initial_dns_queries(&mut he, now);
+    he.expect_idle(now);
+
+    he.input(in_dns_aaaa_positive(Id::from(1)), now);
+    he.expect(out_resolution_delay(), now);
+    he.input(in_dns_a_positive(Id::from(2)), now);
+    he.expect(out_resolution_delay(), now);
+    he.input(in_dns_https_negative(Id::from(0)), now);
+
+    // Alt-svc host (the IP literal) first, then origin fallback.
+    he.expect(
+        out_attempt(
+            Id::from(3),
+            V4_ADDR_2.into(),
+            CUSTOM_PORT,
+            ConnectionAttemptHttpVersions::H3,
+        ),
+        now,
+    );
+    he.expect(out_connection_attempt_delay(), now);
+
+    he.expect_connection_attempts(
+        [
+            out_attempt(
+                Id::from(4),
+                V6_ADDR.into(),
+                PORT,
+                ConnectionAttemptHttpVersions::H2OrH1,
+            ),
+            out_attempt(
+                Id::from(5),
+                V4_ADDR.into(),
+                PORT,
+                ConnectionAttemptHttpVersions::H2OrH1,
+            ),
+        ],
+        &mut now,
+    );
+}
+
+/// An IP-literal origin combined with an alt-svc host that is a domain: the
+/// origin IP is attempted immediately while the alt-svc host is resolved in the
+/// background and attempted once its addresses arrive.
+#[test]
+fn ip_host_alt_svc_with_host() {
+    const ALT_HOST: &str = "alt.example.com";
+    let mut now = Instant::now();
+    let config = NetworkConfig {
+        alt_svc: vec![AltSvc {
+            host: Some(ALT_HOST.to_string()),
+            port: Some(CUSTOM_PORT),
+            http_version: HttpVersion::H3,
+        }],
+        ..NetworkConfig::default()
+    };
+    let mut he =
+        HappyEyeballs::new_with_network_config(&V4_ADDR.to_string(), PORT, config).unwrap();
+
+    // The origin IP is attempted right away (no DNS needed for it)...
+    he.expect(
+        out_attempt(
+            Id::from(0),
+            V4_ADDR.into(),
+            PORT,
+            ConnectionAttemptHttpVersions::H2OrH1,
+        ),
+        now,
+    );
+    // ...while the alt-svc host still needs to be resolved.
+    he.expect(
+        out_send_dns(Id::from(1), ALT_HOST, DnsRecordType::Aaaa),
+        now,
+    );
+    he.expect(out_send_dns(Id::from(2), ALT_HOST, DnsRecordType::A), now);
+    he.expect(out_connection_attempt_delay(), now);
+
+    he.input(
+        Input::DnsResult {
+            id: Id::from(1),
+            result: DnsResult::Aaaa(Ok(vec![V6_ADDR_2])),
+        },
+        now,
+    );
+    he.input(
+        Input::DnsResult {
+            id: Id::from(2),
+            result: DnsResult::A(Ok(vec![V4_ADDR_2])),
+        },
+        now,
+    );
+
+    he.expect_connection_attempts(
+        [
+            out_attempt(
+                Id::from(3),
+                V6_ADDR_2.into(),
+                CUSTOM_PORT,
+                ConnectionAttemptHttpVersions::H3,
+            ),
+            out_attempt(
+                Id::from(4),
+                V4_ADDR_2.into(),
+                CUSTOM_PORT,
+                ConnectionAttemptHttpVersions::H3,
+            ),
+        ],
+        &mut now,
+    );
+}
+
+/// When the alt-svc host fails to resolve (negative AAAA and A), the state
+/// machine must fall back to the origin endpoints rather than stall, and
+/// eventually report failure once those also fail.
+#[test]
+fn alt_svc_host_resolution_fails() {
+    const ALT_HOST: &str = "alt.example.com";
+    let config = NetworkConfig {
+        alt_svc: vec![AltSvc {
+            host: Some(ALT_HOST.to_string()),
+            port: Some(CUSTOM_PORT),
+            http_version: HttpVersion::H3,
+        }],
+        ..NetworkConfig::default()
+    };
+    let (mut now, mut he) = setup_with_config(config);
+
+    // Origin queries (ids 0-2), then the alt-svc host's AAAA/A queries (ids 3-4).
+    expect_initial_dns_queries(&mut he, now);
+    he.expect(
+        out_send_dns(Id::from(3), ALT_HOST, DnsRecordType::Aaaa),
+        now,
+    );
+    he.expect(out_send_dns(Id::from(4), ALT_HOST, DnsRecordType::A), now);
+    he.expect_idle(now);
+
+    // Origin resolves, but the alt-svc host's AAAA and A both come back empty.
+    he.input(in_dns_aaaa_positive(Id::from(1)), now);
+    he.expect(out_resolution_delay(), now);
+    he.input(in_dns_a_positive(Id::from(2)), now);
+    he.expect(out_resolution_delay(), now);
+    he.input(
+        Input::DnsResult {
+            id: Id::from(3),
+            result: DnsResult::Aaaa(Err(())),
+        },
+        now,
+    );
+    he.expect(out_resolution_delay(), now);
+    he.input(
+        Input::DnsResult {
+            id: Id::from(4),
+            result: DnsResult::A(Err(())),
+        },
+        now,
+    );
+    he.expect(out_resolution_delay(), now);
+    he.input(in_dns_https_negative(Id::from(0)), now);
+
+    // The alt-svc host yielded no addresses, so only the origin fallback
+    // endpoints are attempted (no stall, no alt-svc endpoints).
+    he.expect(
+        out_attempt(
+            Id::from(5),
+            V6_ADDR.into(),
+            PORT,
+            ConnectionAttemptHttpVersions::H2OrH1,
+        ),
+        now,
+    );
+    he.expect(out_connection_attempt_delay(), now);
+
+    he.expect_connection_attempts(
+        [out_attempt(
+            Id::from(6),
+            V4_ADDR.into(),
+            PORT,
+            ConnectionAttemptHttpVersions::H2OrH1,
+        )],
+        &mut now,
+    );
+
+    // Both origin attempts fail -> the machine reports failure rather than
+    // waiting on the dead alt-svc host.
+    he.input(in_connection_result_negative(Id::from(5)), now);
+    he.expect_idle(now);
+    he.input(in_connection_result_negative(Id::from(6)), now);
+    he.expect(Output::Failed(FailureReason::Connection), now);
 }
 
 /// Custom resolution and connection attempt delays should be respected by

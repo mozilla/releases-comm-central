@@ -14,12 +14,12 @@ pub use crate::windows::module_reader::*;
 pub use crate::mac::module_reader::*;
 
 pub struct ProcessModuleMemoryReader<'a> {
-    pub(super) reader: &'a ProcessReader,
+    pub(super) reader: &'a ProcessReader<'a>,
     pub(super) start_address: u64,
 }
 
 impl<'a> ProcessModuleMemoryReader<'a> {
-    pub fn new(reader: &'a ProcessReader, start_address: usize) -> Self {
+    pub fn new(reader: &'a ProcessReader<'a>, start_address: usize) -> Self {
         Self {
             reader,
             start_address: start_address as u64,
@@ -72,4 +72,7 @@ pub enum ReadError {
     OutOfBounds,
     #[error(transparent)]
     CopyError(#[from] CopyFromProcessError),
+    #[cfg(any(target_os = "linux", target_os = "android"))]
+    #[error(transparent)]
+    PlatformSpecific(crate::linux::BackendError),
 }

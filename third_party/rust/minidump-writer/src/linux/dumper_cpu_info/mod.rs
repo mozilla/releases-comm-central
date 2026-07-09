@@ -1,7 +1,10 @@
 use {
-    super::process_inspection::ProcessInspector,
+    super::process_inspection::{self, ProcessInspector},
     crate::{minidump_format::PlatformId, serializers::*},
-    nix::sys::utsname::uname,
+    std::{
+        ffi::{CStr, c_char},
+        mem,
+    },
 };
 
 cfg_if::cfg_if! {
@@ -26,9 +29,11 @@ pub use imp::write_cpu_information;
 
 #[derive(Debug, thiserror::Error, serde::Serialize)]
 pub enum CpuInfoError {
-    #[error("IO error for file /proc/cpuinfo")]
-    IOError(
-        #[from]
+    #[error("failed to read /proc/cpuinfo")]
+    ReadFileError(#[source] process_inspection::Error),
+    #[error("I/O error reading /proc/cpuinfo")]
+    FileIOError(
+        #[source]
         #[serde(serialize_with = "serialize_io_error")]
         std::io::Error,
     ),
@@ -55,39 +60,47 @@ pub fn os_information() -> (PlatformId, String) {
     // This is quite unfortunate, but the primary reason that uname could fail
     // would be if it failed to fill out the nodename (hostname) field, even
     // though we don't care about that particular field at all
-    let info = uname().map_or_else(
-        |_e| {
-            let os = if platform_id == PlatformId::Linux {
-                "Linux"
-            } else {
-                "Android"
-            };
+    let info = (|| unsafe {
+        let mut uts_name = mem::zeroed();
+        if libc::uname(&mut uts_name) == -1 {
+            return None;
+        }
 
-            let machine = if cfg!(target_arch = "x86_64") {
-                "x86_64"
-            } else if cfg!(target_arch = "x86") {
-                "x86"
-            } else if cfg!(target_arch = "aarch64") {
-                "aarch64"
-            } else if cfg!(target_arch = "arm") {
-                "arm"
-            } else {
-                "<unknown>"
-            };
+        fn to_str(b: &[c_char]) -> &str {
+            let cstr = unsafe { CStr::from_ptr(b.as_ptr().cast()) };
+            cstr.to_str().unwrap_or("<unknown>")
+        }
 
-            // TODO: Fallback to other sources of information, eg /etc/os-release
-            format!("{os} <unknown> <unknown> {machine}")
-        },
-        |info| {
-            format!(
-                "{} {} {} {}",
-                info.sysname().to_str().unwrap_or("<unknown>"),
-                info.release().to_str().unwrap_or("<unknown>"),
-                info.version().to_str().unwrap_or("<unknown>"),
-                info.machine().to_str().unwrap_or("<unknown>"),
-            )
-        },
-    );
+        Some(format!(
+            "{} {} {} {}",
+            to_str(&uts_name.sysname),
+            to_str(&uts_name.release),
+            to_str(&uts_name.version),
+            to_str(&uts_name.machine),
+        ))
+    })()
+    .unwrap_or_else(|| {
+        let os = if platform_id == PlatformId::Linux {
+            "Linux"
+        } else {
+            "Android"
+        };
+
+        let machine = if cfg!(target_arch = "x86_64") {
+            "x86_64"
+        } else if cfg!(target_arch = "x86") {
+            "x86"
+        } else if cfg!(target_arch = "aarch64") {
+            "aarch64"
+        } else if cfg!(target_arch = "arm") {
+            "arm"
+        } else {
+            "<unknown>"
+        };
+
+        // TODO: Fallback to other sources of information, eg /etc/os-release
+        format!("{os} <unknown> <unknown> {machine}")
+    });
 
     (platform_id, info)
 }

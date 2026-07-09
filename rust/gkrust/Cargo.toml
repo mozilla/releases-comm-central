@@ -117,6 +117,7 @@ rure = { version = "0.2.2" }
 rusqlite = { workspace = true, features = ['modern_sqlite'] }
 rust_minidump_writer_linux = { path = "../../../toolkit/crashreporter/rust_minidump_writer_linux", optional = true }
 signature_cache = { path = "../../../security/certverifier/signature_cache" }
+sitecategories = { path = "../../../toolkit/components/sitecategories" }
 ssl_tokens_cache = { path = "../../../netwerk/base/ssl_tokens_cache" }
 static_prefs = { path = "../../../modules/libpref/init/static_prefs" }
 storage = { path = "../../../storage/rust" }

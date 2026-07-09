@@ -45,16 +45,17 @@ pub fn write_cpu_information(
         MDCPUArchitecture::PROCESSOR_ARCHITECTURE_AMD64
     } as u16;
 
-    failspot!(
-        CpuInfoFileOpen
-        bail(std::io::Error::other("test requested cpuinfo file failure"))
-    );
+    if failspot!(CpuInfoFileOpen) {
+        process_inspector.fail_one_syscall_with(libc::EPERM);
+    }
 
-    let cpuinfo_file = process_inspector.read_file("/proc/cpuinfo")?;
+    let cpuinfo_file = process_inspector
+        .read_file("/proc/cpuinfo")
+        .map_err(CpuInfoError::ReadFileError)?;
 
     let mut vendor_id = String::new();
     for line in BufReader::new(cpuinfo_file).lines() {
-        let line = line?;
+        let line = line.map_err(CpuInfoError::FileIOError)?;
         // Expected format: <field-name> <space>+ ':' <space> <value>
         // Note that:
         //   - empty lines happen.

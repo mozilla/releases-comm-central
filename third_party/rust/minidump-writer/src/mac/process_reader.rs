@@ -10,13 +10,17 @@ use {
         task_info::{TASK_DYLD_ALL_IMAGE_INFO_64, TASK_DYLD_INFO, task_dyld_info},
         vm::mach_vm_read_overwrite,
     },
-    std::mem::{MaybeUninit, size_of},
+    std::{
+        marker::PhantomData,
+        mem::{MaybeUninit, size_of},
+    },
 };
 
 pub type ProcessHandle = mach2::mach_types::task_t;
 
-pub struct ProcessReader {
+pub struct ProcessReader<'a> {
     process: ProcessHandle,
+    phantom: PhantomData<&'a ()>,
 }
 
 #[repr(C)]
@@ -73,9 +77,12 @@ pub enum FindModuleError {
     FailedToReadModule(#[from] CopyFromProcessError),
 }
 
-impl ProcessReader {
-    pub fn new(process: ProcessHandle) -> ProcessReader {
-        ProcessReader { process }
+impl ProcessReader<'_> {
+    pub fn new(process: ProcessHandle) -> ProcessReader<'static> {
+        ProcessReader {
+            process,
+            phantom: PhantomData,
+        }
     }
 
     pub fn read(&self, src: usize, dst: &mut [u8]) -> Result<usize, CopyFromProcessError> {

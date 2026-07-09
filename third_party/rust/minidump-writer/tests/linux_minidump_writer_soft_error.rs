@@ -38,24 +38,35 @@ fn soft_error_stream() {
 fn soft_error_stream_content() {
     let expected_errors = vec![
         json!({"InitErrors": [
-            {"StopProcessFailed": {"Stop": "EPERM"}},
+            {"StopProcessFailed":
+                {"Stop":
+                    {"Local":
+                        {"SigStopFailed": 1}
+                    }
+                }
+            },
             {"FillMissingAuxvInfoErrors": ["InvalidFormat"]},
             {"EnumerateThreadsErrors": [
                 {"ReadThreadNameFailed": "\
                     Custom {\n    \
                         kind: Other,\n    \
-                        error: \"testing requested failure reading thread name\",\n\
+                        error: Local(\n        \
+                            OpenFileFailed(\n            \
+                                1,\n        \
+                            ),\n    \
+                        ),\n\
                     }"
                 }
             ]},
-            {"SuspendThreadsErrors": [{"PtraceAttachError": [1234, "EPERM"]}]}
+            {"SuspendThreadsErrors": [{"PtraceAttachError": [1234, libc::EPERM]}]}
         ]}),
         json!({"WriteSystemInfoErrors": [
-            {"WriteCpuInformationFailed": {"IOError": "\
-                Custom {\n    \
-                    kind: Other,\n    \
-                    error: \"test requested cpuinfo file failure\",\n\
-                }"
+            {"WriteCpuInformationFailed": {
+                "ReadFileError": {
+                    "Local": {
+                        "OpenFileFailed": 1
+                    }
+                }
             }}
         ]}),
     ];
