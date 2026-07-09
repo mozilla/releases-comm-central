@@ -37,8 +37,8 @@ const PRESETS = {
 };
 
 // At least one of these ACL privileges must be present to consider an address
-// book writable.
-const writePrivs = ["write", "write-properties", "write-content", "all"];
+// book writable (RFC 3744).
+const writePrivs = ["write", "write-content", "bind", "all"];
 
 // At least one of these ACL privileges must be present to consider an address
 // book readable.
