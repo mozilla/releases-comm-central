@@ -14,10 +14,6 @@ XPCOMUtils.defineLazyServiceGetters(lazy, {
     "@mozilla.org/uriloader/external-protocol-service;1",
     Ci.nsIExternalProtocolService,
   ],
-  gHandlerService: [
-    "@mozilla.org/uriloader/handler-service;1",
-    Ci.nsIHandlerService,
-  ],
   gMIMEService: ["@mozilla.org/mime;1", Ci.nsIMIMEService],
 });
 
@@ -26,10 +22,19 @@ ChromeUtils.defineESModuleGetters(lazy, {
   FileUtils: "resource://gre/modules/FileUtils.sys.mjs",
   ProxyPolicies: "resource:///modules/policies/ProxyPolicies.sys.mjs",
   SearchService: "moz-src:///toolkit/components/search/SearchService.sys.mjs",
+
+  PoliciesUtils: "resource://gre/modules/PoliciesHelpers.sys.mjs",
+  addAllowDenyPermissions: "resource://gre/modules/PoliciesHelpers.sys.mjs",
+  blockAboutPage: "resource://gre/modules/PoliciesHelpers.sys.mjs",
+  clearBlockedAboutPages: "resource://gre/modules/PoliciesHelpers.sys.mjs",
+  installAddonFromURL: "resource://gre/modules/PoliciesHelpers.sys.mjs",
+  pemToBase64: "resource://gre/modules/PoliciesHelpers.sys.mjs",
+  processMIMEInfo: "resource://gre/modules/PoliciesHelpers.sys.mjs",
+  replacePathVariables: "resource://gre/modules/PoliciesHelpers.sys.mjs",
+  runOncePerModification: "resource://gre/modules/PoliciesHelpers.sys.mjs",
 });
 
 const PREF_LOGLEVEL = "browser.policies.loglevel";
-const ABOUT_CONTRACT = "@mozilla.org/network/protocol/about;1?what=";
 
 const isXpcshell = Services.env.exists("XPCSHELL_TEST_PROFILE_DIR");
 
@@ -76,7 +81,7 @@ export var Policies = {
     onBeforeAddons() {
       if (Cu.isInAutomation || isXpcshell) {
         lazy.log.debug("_cleanup from onBeforeAddons");
-        clearBlockedAboutPages();
+        lazy.clearBlockedAboutPages();
       }
     },
     onProfileAfterChange() {
@@ -221,21 +226,21 @@ export var Policies = {
       }
 
       if ("SPNEGO" in param) {
-        PoliciesUtils.setDefaultPref(
+        lazy.PoliciesUtils.setDefaultPref(
           "network.negotiate-auth.trusted-uris",
           param.SPNEGO.join(", "),
           locked
         );
       }
       if ("Delegated" in param) {
-        PoliciesUtils.setDefaultPref(
+        lazy.PoliciesUtils.setDefaultPref(
           "network.negotiate-auth.delegation-uris",
           param.Delegated.join(", "),
           locked
         );
       }
       if ("NTLM" in param) {
-        PoliciesUtils.setDefaultPref(
+        lazy.PoliciesUtils.setDefaultPref(
           "network.automatic-ntlm-auth.trusted-uris",
           param.NTLM.join(", "),
           locked
@@ -243,14 +248,14 @@ export var Policies = {
       }
       if ("AllowNonFQDN" in param) {
         if ("NTLM" in param.AllowNonFQDN) {
-          PoliciesUtils.setDefaultPref(
+          lazy.PoliciesUtils.setDefaultPref(
             "network.automatic-ntlm-auth.allow-non-fqdn",
             param.AllowNonFQDN.NTLM,
             locked
           );
         }
         if ("SPNEGO" in param.AllowNonFQDN) {
-          PoliciesUtils.setDefaultPref(
+          lazy.PoliciesUtils.setDefaultPref(
             "network.negotiate-auth.allow-non-fqdn",
             param.AllowNonFQDN.SPNEGO,
             locked
@@ -259,14 +264,14 @@ export var Policies = {
       }
       if ("AllowProxies" in param) {
         if ("NTLM" in param.AllowProxies) {
-          PoliciesUtils.setDefaultPref(
+          lazy.PoliciesUtils.setDefaultPref(
             "network.automatic-ntlm-auth.allow-proxies",
             param.AllowProxies.NTLM,
             locked
           );
         }
         if ("SPNEGO" in param.AllowProxies) {
-          PoliciesUtils.setDefaultPref(
+          lazy.PoliciesUtils.setDefaultPref(
             "network.negotiate-auth.allow-proxies",
             param.AllowProxies.SPNEGO,
             locked
@@ -274,7 +279,7 @@ export var Policies = {
         }
       }
       if ("PrivateBrowsing" in param) {
-        PoliciesUtils.setDefaultPref(
+        lazy.PoliciesUtils.setDefaultPref(
           "network.auth.private-browsing-sso",
           param.PrivateBrowsing,
           locked
@@ -296,7 +301,7 @@ export var Policies = {
   BlockAboutAddons: {
     onBeforeUIStartup(manager, param) {
       if (param) {
-        blockAboutPage(manager, "about:addons", true);
+        lazy.blockAboutPage(manager, "about:addons", true);
       }
     },
   },
@@ -304,8 +309,8 @@ export var Policies = {
   BlockAboutConfig: {
     onBeforeUIStartup(manager, param) {
       if (param) {
-        blockAboutPage(manager, "about:config");
-        setAndLockPref("devtools.chrome.enabled", false);
+        lazy.blockAboutPage(manager, "about:config");
+        lazy.PoliciesUtils.setAndLockPref("devtools.chrome.enabled", false);
       }
     },
   },
@@ -313,7 +318,7 @@ export var Policies = {
   BlockAboutProfiles: {
     onBeforeUIStartup(manager, param) {
       if (param) {
-        blockAboutPage(manager, "about:profiles");
+        lazy.blockAboutPage(manager, "about:profiles");
       }
     },
   },
@@ -321,21 +326,24 @@ export var Policies = {
   BlockAboutSupport: {
     onBeforeUIStartup(manager, param) {
       if (param) {
-        blockAboutPage(manager, "about:support");
+        lazy.blockAboutPage(manager, "about:support");
       }
     },
   },
 
   CaptivePortal: {
     onBeforeAddons(manager, param) {
-      setAndLockPref("network.captive-portal-service.enabled", param);
+      lazy.PoliciesUtils.setAndLockPref(
+        "network.captive-portal-service.enabled",
+        param
+      );
     },
   },
 
   Certificates: {
     onBeforeAddons(manager, param) {
       if ("ImportEnterpriseRoots" in param) {
-        setAndLockPref(
+        lazy.PoliciesUtils.setAndLockPref(
           "security.enterprise_roots.enabled",
           param.ImportEnterpriseRoots
         );
@@ -406,7 +414,7 @@ export var Policies = {
                 try {
                   // It might be PEM instead of DER.
                   cert = lazy.gCertDB.constructX509FromBase64(
-                    pemToBase64(certFile)
+                    lazy.pemToBase64(certFile)
                   );
                 } catch (ex) {
                   lazy.log.error(
@@ -431,7 +439,7 @@ export var Policies = {
                 } catch (e) {
                   // It might be PEM instead of DER.
                   lazy.gCertDB.addCertFromBase64(
-                    pemToBase64(certFile),
+                    lazy.pemToBase64(certFile),
                     "CT,CT,"
                   );
                 }
@@ -446,20 +454,24 @@ export var Policies = {
 
   Cookies: {
     onBeforeUIStartup(manager, param) {
-      addAllowDenyPermissions("cookie", param.Allow, param.Block);
+      lazy.addAllowDenyPermissions("cookie", param.Allow, param.Block);
 
       if (param.Block) {
         const hosts = param.Block.map(url => url.hostname)
           .sort()
           .join("\n");
-        runOncePerModification("clearCookiesForBlockedHosts", hosts, () => {
-          for (const blocked of param.Block) {
-            Services.cookies.removeCookiesWithOriginAttributes(
-              "{}",
-              blocked.hostname
-            );
+        lazy.runOncePerModification(
+          "clearCookiesForBlockedHosts",
+          hosts,
+          () => {
+            for (const blocked of param.Block) {
+              Services.cookies.removeCookiesWithOriginAttributes(
+                "{}",
+                blocked.hostname
+              );
+            }
           }
-        });
+        );
       }
 
       if (
@@ -483,12 +495,12 @@ export var Policies = {
           }
         }
 
-        PoliciesUtils.setDefaultPref(
+        lazy.PoliciesUtils.setDefaultPref(
           "network.cookie.cookieBehavior",
           newCookieBehavior,
           param.Locked
         );
-        PoliciesUtils.setDefaultPref(
+        lazy.PoliciesUtils.setDefaultPref(
           "network.cookie.cookieBehavior.pbmode",
           newCookieBehavior,
           param.Locked
@@ -505,12 +517,12 @@ export var Policies = {
 
   DefaultDownloadDirectory: {
     onBeforeAddons(manager, param) {
-      PoliciesUtils.setDefaultPref(
+      lazy.PoliciesUtils.setDefaultPref(
         "browser.download.dir",
-        replacePathVariables(param)
+        lazy.replacePathVariables(param)
       );
       // If a custom download directory is being used, just lock folder list to 2.
-      setAndLockPref("browser.download.folderList", 2);
+      lazy.PoliciesUtils.setAndLockPref("browser.download.folderList", 2);
     },
   },
 
@@ -525,7 +537,7 @@ export var Policies = {
   DisableBuiltinPDFViewer: {
     onBeforeAddons(manager, param) {
       if (param) {
-        setAndLockPref("pdfjs.disabled", true);
+        lazy.PoliciesUtils.setAndLockPref("pdfjs.disabled", true);
       }
     },
   },
@@ -564,7 +576,7 @@ export var Policies = {
       };
 
       for (const cipher in param) {
-        setAndLockPref(cipherPrefs[cipher], !param[cipher]);
+        lazy.PoliciesUtils.setAndLockPref(cipherPrefs[cipher], !param[cipher]);
       }
     },
   },
@@ -572,12 +584,12 @@ export var Policies = {
   DisableDeveloperTools: {
     onBeforeAddons(manager, param) {
       if (param) {
-        setAndLockPref("devtools.policy.disabled", true);
-        setAndLockPref("devtools.chrome.enabled", false);
+        lazy.PoliciesUtils.setAndLockPref("devtools.policy.disabled", true);
+        lazy.PoliciesUtils.setAndLockPref("devtools.chrome.enabled", false);
 
         manager.disallowFeature("devtools");
-        blockAboutPage(manager, "about:debugging");
-        blockAboutPage(manager, "about:devtools-toolbox");
+        lazy.blockAboutPage(manager, "about:debugging");
+        lazy.blockAboutPage(manager, "about:devtools-toolbox");
       }
     },
   },
@@ -609,14 +621,14 @@ export var Policies = {
   DisableSecurityBypass: {
     onBeforeUIStartup(manager, param) {
       if ("InvalidCertificate" in param) {
-        setAndLockPref(
+        lazy.PoliciesUtils.setAndLockPref(
           "security.certerror.hideAddException",
           param.InvalidCertificate
         );
       }
 
       if ("SafeBrowsing" in param) {
-        setAndLockPref(
+        lazy.PoliciesUtils.setAndLockPref(
           "browser.safebrowsing.allowOverride",
           !param.SafeBrowsing
         );
@@ -635,10 +647,19 @@ export var Policies = {
   DisableTelemetry: {
     onBeforeAddons(manager, param) {
       if (param) {
-        setAndLockPref("datareporting.healthreport.uploadEnabled", false);
-        setAndLockPref("datareporting.policy.dataSubmissionEnabled", false);
-        setAndLockPref("toolkit.telemetry.archive.enabled", false);
-        blockAboutPage(manager, "about:telemetry");
+        lazy.PoliciesUtils.setAndLockPref(
+          "datareporting.healthreport.uploadEnabled",
+          false
+        );
+        lazy.PoliciesUtils.setAndLockPref(
+          "datareporting.policy.dataSubmissionEnabled",
+          false
+        );
+        lazy.PoliciesUtils.setAndLockPref(
+          "toolkit.telemetry.archive.enabled",
+          false
+        );
+        lazy.blockAboutPage(manager, "about:telemetry");
       }
     },
   },
@@ -651,17 +672,17 @@ export var Policies = {
       }
       if ("Enabled" in param) {
         const mode = param.Enabled ? 2 : 5;
-        PoliciesUtils.setDefaultPref("network.trr.mode", mode, locked);
+        lazy.PoliciesUtils.setDefaultPref("network.trr.mode", mode, locked);
       }
       if ("ProviderURL" in param) {
-        PoliciesUtils.setDefaultPref(
+        lazy.PoliciesUtils.setDefaultPref(
           "network.trr.uri",
           param.ProviderURL.href,
           locked
         );
       }
       if ("ExcludedDomains" in param) {
-        PoliciesUtils.setDefaultPref(
+        lazy.PoliciesUtils.setDefaultPref(
           "network.trr.excluded-domains",
           param.ExcludedDomains.join(","),
           locked
@@ -672,12 +693,18 @@ export var Policies = {
 
   DownloadDirectory: {
     onBeforeAddons(manager, param) {
-      setAndLockPref("browser.download.dir", replacePathVariables(param));
+      lazy.PoliciesUtils.setAndLockPref(
+        "browser.download.dir",
+        lazy.replacePathVariables(param)
+      );
       // If a custom download directory is being used, just lock folder list to 2.
-      setAndLockPref("browser.download.folderList", 2);
+      lazy.PoliciesUtils.setAndLockPref("browser.download.folderList", 2);
       // Per Chrome spec, user can't choose to download every time
       // if this is set.
-      setAndLockPref("browser.download.useDownloadDir", true);
+      lazy.PoliciesUtils.setAndLockPref(
+        "browser.download.useDownloadDir",
+        true
+      );
     },
   },
 
@@ -685,7 +712,7 @@ export var Policies = {
     onBeforeUIStartup(manager, param) {
       let uninstallingPromise = Promise.resolve();
       if ("Uninstall" in param) {
-        uninstallingPromise = runOncePerModification(
+        uninstallingPromise = lazy.runOncePerModification(
           "extensionsUninstall",
           JSON.stringify(param.Uninstall),
           async () => {
@@ -713,7 +740,7 @@ export var Policies = {
         );
       }
       if ("Install" in param) {
-        runOncePerModification(
+        lazy.runOncePerModification(
           "extensionsInstall",
           JSON.stringify(param.Install),
           async () => {
@@ -729,7 +756,7 @@ export var Policies = {
               } catch (e) {
                 uri = Services.io.newURI(location);
               }
-              installAddonFromURL(uri.spec);
+              lazy.installAddonFromURL(uri.spec);
             }
           }
         );
@@ -761,20 +788,23 @@ export var Policies = {
         ) {
           blockAllExtensions = true;
           // Turn off discovery pane in about:addons
-          setAndLockPref("extensions.getAddons.showPane", false);
+          lazy.PoliciesUtils.setAndLockPref(
+            "extensions.getAddons.showPane",
+            false
+          );
           // Turn off recommendations
-          setAndLockPref(
+          lazy.PoliciesUtils.setAndLockPref(
             "extensions.htmlaboutaddons.recommendations.enable",
             false
           );
           // Block about:debugging
-          blockAboutPage(manager, "about:debugging");
+          lazy.blockAboutPage(manager, "about:debugging");
         }
         if ("restricted_domains" in extensionSettings["*"]) {
           const restrictedDomains = Services.prefs
             .getCharPref("extensions.webextensions.restrictedDomains")
             .split(",");
-          setAndLockPref(
+          lazy.PoliciesUtils.setAndLockPref(
             "extensions.webextensions.restrictedDomains",
             restrictedDomains
               .concat(extensionSettings["*"].restricted_domains)
@@ -799,7 +829,7 @@ export var Policies = {
             if (!extensionSettings[extensionID].install_url) {
               throw new Error(`Missing install_url for ${extensionID}`);
             }
-            installAddonFromURL(
+            lazy.installAddonFromURL(
               extensionSettings[extensionID].install_url,
               extensionID,
               addons.find(addon => addon.id == extensionID)
@@ -865,7 +895,7 @@ export var Policies = {
   ExtensionUpdate: {
     onBeforeAddons(manager, param) {
       if (!param) {
-        setAndLockPref("extensions.update.enabled", param);
+        lazy.PoliciesUtils.setAndLockPref("extensions.update.enabled", param);
       }
     },
   },
@@ -879,7 +909,7 @@ export var Policies = {
             mimeType,
             ""
           );
-          processMIMEInfo(mimeInfo, realMIMEInfo);
+          lazy.processMIMEInfo(mimeInfo, realMIMEInfo);
         }
       }
       if ("extensions" in param) {
@@ -890,7 +920,7 @@ export var Policies = {
               "",
               extension
             );
-            processMIMEInfo(mimeInfo, realMIMEInfo);
+            lazy.processMIMEInfo(mimeInfo, realMIMEInfo);
           } catch (e) {
             lazy.log.error(`Invalid file extension (${extension})`);
           }
@@ -901,7 +931,7 @@ export var Policies = {
           const handlerInfo = param.schemes[scheme];
           const realHandlerInfo =
             lazy.gExternalProtocolService.getProtocolHandlerInfo(scheme);
-          processMIMEInfo(handlerInfo, realHandlerInfo);
+          lazy.processMIMEInfo(handlerInfo, realHandlerInfo);
         }
       }
     },
@@ -910,7 +940,7 @@ export var Policies = {
   HardwareAcceleration: {
     onBeforeAddons(manager, param) {
       if (!param) {
-        setAndLockPref("layers.acceleration.disabled", true);
+        lazy.PoliciesUtils.setAndLockPref("layers.acceleration.disabled", true);
       }
     },
   },
@@ -918,25 +948,28 @@ export var Policies = {
   InAppNotification: {
     onBeforeUIStartup(manager, param) {
       if ("DonationEnabled" in param) {
-        setAndLockPref(
+        lazy.PoliciesUtils.setAndLockPref(
           "mail.inappnotifications.donation_enabled",
           param.DonationEnabled
         );
       }
       if ("SurveyEnabled" in param) {
-        setAndLockPref(
+        lazy.PoliciesUtils.setAndLockPref(
           "mail.inappnotifications.blog_enabled", // This is the type/pref for surveys, currently.
           param.SurveyEnabled
         );
       }
       if ("MessageEnabled" in param) {
-        setAndLockPref(
+        lazy.PoliciesUtils.setAndLockPref(
           "mail.inappnotifications.message_enabled",
           param.MessageEnabled
         );
       }
       if ("Disabled" in param) {
-        setAndLockPref("mail.inappnotifications.enabled", !param.Disabled);
+        lazy.PoliciesUtils.setAndLockPref(
+          "mail.inappnotifications.enabled",
+          !param.Disabled
+        );
       }
     },
   },
@@ -944,12 +977,12 @@ export var Policies = {
   InstallAddonsPermission: {
     onBeforeUIStartup(manager, param) {
       if ("Allow" in param) {
-        addAllowDenyPermissions("install", param.Allow, null);
+        lazy.addAllowDenyPermissions("install", param.Allow, null);
       }
       if ("Default" in param) {
-        setAndLockPref("xpinstall.enabled", param.Default);
+        lazy.PoliciesUtils.setAndLockPref("xpinstall.enabled", param.Default);
         if (!param.Default) {
-          blockAboutPage(manager, "about:debugging");
+          lazy.blockAboutPage(manager, "about:debugging");
           manager.disallowFeature("xpinstall");
         }
       }
@@ -966,15 +999,21 @@ export var Policies = {
 
   NetworkPrediction: {
     onBeforeAddons(manager, param) {
-      setAndLockPref("network.dns.disablePrefetch", !param);
-      setAndLockPref("network.dns.disablePrefetchFromHTTPS", !param);
+      lazy.PoliciesUtils.setAndLockPref("network.dns.disablePrefetch", !param);
+      lazy.PoliciesUtils.setAndLockPref(
+        "network.dns.disablePrefetchFromHTTPS",
+        !param
+      );
     },
   },
 
   OfferToSaveLogins: {
     onBeforeUIStartup(manager, param) {
-      setAndLockPref("signon.rememberSignons", param);
-      setAndLockPref("services.passwordSavingEnabled", param);
+      lazy.PoliciesUtils.setAndLockPref("signon.rememberSignons", param);
+      lazy.PoliciesUtils.setAndLockPref(
+        "services.passwordSavingEnabled",
+        param
+      );
     },
   },
 
@@ -986,7 +1025,7 @@ export var Policies = {
           `OfferToSaveLoginsDefault ignored because OfferToSaveLogins is present.`
         );
       } else {
-        PoliciesUtils.setDefaultPref("signon.rememberSignons", param);
+        lazy.PoliciesUtils.setDefaultPref("signon.rememberSignons", param);
       }
     },
   },
@@ -994,20 +1033,26 @@ export var Policies = {
   PasswordManagerEnabled: {
     onBeforeUIStartup(manager, param) {
       if (!param) {
-        blockAboutPage(manager, "about:logins", true);
-        setAndLockPref("pref.privacy.disable_button.view_passwords", true);
+        lazy.blockAboutPage(manager, "about:logins", true);
+        lazy.PoliciesUtils.setAndLockPref(
+          "pref.privacy.disable_button.view_passwords",
+          true
+        );
       }
-      setAndLockPref("signon.rememberSignons", param);
+      lazy.PoliciesUtils.setAndLockPref("signon.rememberSignons", param);
     },
   },
 
   PDFjs: {
     onBeforeAddons(manager, param) {
       if ("Enabled" in param) {
-        setAndLockPref("pdfjs.disabled", !param.Enabled);
+        lazy.PoliciesUtils.setAndLockPref("pdfjs.disabled", !param.Enabled);
       }
       if ("EnablePermissions" in param) {
-        setAndLockPref("pdfjs.enablePermissions", !param.Enabled);
+        lazy.PoliciesUtils.setAndLockPref(
+          "pdfjs.enablePermissions",
+          !param.Enabled
+        );
       }
     },
   },
@@ -1084,7 +1129,7 @@ export var Policies = {
         }
         if (typeof param[preference] != "object") {
           // Legacy policy preferences
-          setAndLockPref(preference, param[preference]);
+          lazy.PoliciesUtils.setAndLockPref(preference, param[preference]);
         } else {
           if (param[preference].Status == "clear") {
             Services.prefs.clearUserPref(preference);
@@ -1154,7 +1199,10 @@ export var Policies = {
 
   PromptForDownloadLocation: {
     onBeforeAddons(manager, param) {
-      setAndLockPref("browser.download.useDownloadDir", !param);
+      lazy.PoliciesUtils.setAndLockPref(
+        "browser.download.useDownloadDir",
+        !param
+      );
     },
   },
 
@@ -1162,11 +1210,14 @@ export var Policies = {
     onBeforeAddons(manager, param) {
       if (param.Locked) {
         manager.disallowFeature("changeProxySettings");
-        lazy.ProxyPolicies.configureProxySettings(param, setAndLockPref);
+        lazy.ProxyPolicies.configureProxySettings(
+          param,
+          lazy.PoliciesUtils.setAndLockPref
+        );
       } else {
         lazy.ProxyPolicies.configureProxySettings(
           param,
-          PoliciesUtils.setDefaultPref
+          lazy.PoliciesUtils.setDefaultPref
         );
       }
     },
@@ -1182,7 +1233,7 @@ export var Policies = {
       } else {
         requestedLocales = [];
       }
-      runOncePerModification(
+      lazy.runOncePerModification(
         "requestedLocales",
         JSON.stringify(requestedLocales),
         () => {
@@ -1206,7 +1257,7 @@ export var Policies = {
         // removed.
         if (param.Remove) {
           // Only rerun if the list of engine names has changed.
-          await runOncePerModification(
+          await lazy.runOncePerModification(
             "removeSearchEngines",
             JSON.stringify(param.Remove),
             async function () {
@@ -1224,7 +1275,7 @@ export var Policies = {
           );
         }
         if (param.Default) {
-          await runOncePerModification(
+          await lazy.runOncePerModification(
             "setDefaultSearchEngine",
             param.Default,
             async () => {
@@ -1258,7 +1309,7 @@ export var Policies = {
           );
         }
         if (param.DefaultPrivate) {
-          await runOncePerModification(
+          await lazy.runOncePerModification(
             "setDefaultPrivateSearchEngine",
             param.DefaultPrivate,
             async () => {
@@ -1379,7 +1430,7 @@ export var Policies = {
           tlsVersion = 4;
           break;
       }
-      setAndLockPref("security.tls.version.max", tlsVersion);
+      lazy.PoliciesUtils.setAndLockPref("security.tls.version.max", tlsVersion);
     },
   },
 
@@ -1400,446 +1451,7 @@ export var Policies = {
           tlsVersion = 4;
           break;
       }
-      setAndLockPref("security.tls.version.min", tlsVersion);
+      lazy.PoliciesUtils.setAndLockPref("security.tls.version.min", tlsVersion);
     },
   },
 };
-
-/*
- * ====================
- * = HELPER FUNCTIONS =
- * ====================
- *
- * The functions below are helpers to be used by several policies.
- */
-
-/**
- * setAndLockPref
- *
- * Sets the _default_ value of a pref, and locks it (meaning that
- * the default value will always be returned, independent from what
- * is stored as the user value).
- * The value is only changed in memory, and not stored to disk.
- *
- * @param {string} prefName - The pref to be changed.
- * @param {boolean|number|string} prefValue - The value to set and lock.
- */
-export function setAndLockPref(prefName, prefValue) {
-  PoliciesUtils.setDefaultPref(prefName, prefValue, true);
-}
-
-/**
- * setDefaultPref
- *
- * Sets the _default_ value of a pref and optionally locks it.
- * The value is only changed in memory, and not stored to disk.
- *
- * @param {string} prefName - The pref to be changed.
- * @param {boolean|number|string} prefValue - The value to set and lock.
- * @param {boolean} [locked=false] - Optionally lock the pref.
- */
-export var PoliciesUtils = {
-  setDefaultPref(prefName, prefValue, locked = false) {
-    if (Services.prefs.prefIsLocked(prefName)) {
-      Services.prefs.unlockPref(prefName);
-    }
-
-    const defaults = Services.prefs.getDefaultBranch("");
-
-    switch (typeof prefValue) {
-      case "boolean":
-        defaults.setBoolPref(prefName, prefValue);
-        break;
-
-      case "number":
-        if (!Number.isInteger(prefValue)) {
-          throw new Error(`Non-integer value for ${prefName}`);
-        }
-
-        // This is ugly, but necessary. On Windows GPO and macOS
-        // configs, booleans are converted to 0/1. In the previous
-        // Preferences implementation, the schema took care of
-        // automatically converting these values to booleans.
-        // Since we allow arbitrary prefs now, we have to do
-        // something different. See bug 1666836.
-        if (
-          defaults.getPrefType(prefName) == defaults.PREF_INT ||
-          ![0, 1].includes(prefValue)
-        ) {
-          defaults.setIntPref(prefName, prefValue);
-        } else {
-          defaults.setBoolPref(prefName, !!prefValue);
-        }
-        break;
-
-      case "string":
-        defaults.setStringPref(prefName, prefValue);
-        break;
-    }
-
-    if (locked) {
-      Services.prefs.lockPref(prefName);
-    }
-  },
-};
-
-/**
- * addAllowDenyPermissions
- *
- * Helper function to call the permissions manager (Services.perms.addFromPrincipal)
- * for two arrays of URLs.
- *
- * @param {string} permissionName
- *        The name of the permission to change
- * @param {Array} allowList
- *        The list of URLs to be set as ALLOW_ACTION for the chosen permission.
- * @param {Array} blockList
- *        The list of URLs to be set as DENY_ACTION for the chosen permission.
- */
-function addAllowDenyPermissions(permissionName, allowList, blockList) {
-  allowList = allowList || [];
-  blockList = blockList || [];
-
-  for (const origin of allowList) {
-    try {
-      Services.perms.addFromPrincipal(
-        Services.scriptSecurityManager.createContentPrincipalFromOrigin(origin),
-        permissionName,
-        Ci.nsIPermissionManager.ALLOW_ACTION,
-        Ci.nsIPermissionManager.EXPIRE_POLICY
-      );
-    } catch (ex) {
-      lazy.log
-        .error(`Added by default for ${permissionName} permission in the permission
-      manager - ${origin.href}`);
-    }
-  }
-
-  for (const origin of blockList) {
-    Services.perms.addFromPrincipal(
-      Services.scriptSecurityManager.createContentPrincipalFromOrigin(origin),
-      permissionName,
-      Ci.nsIPermissionManager.DENY_ACTION,
-      Ci.nsIPermissionManager.EXPIRE_POLICY
-    );
-  }
-}
-
-/**
- * runOnce
- *
- * Helper function to run a callback only once per policy.
- *
- * @param {string} actionName
- *        A given name which will be used to track if this callback has run.
- * @param {Function} callback
- *        The callback to run only once.
- */
-export function runOnce(actionName, callback) {
-  const prefName = `browser.policies.runonce.${actionName}`;
-  if (Services.prefs.getBoolPref(prefName, false)) {
-    lazy.log.debug(
-      `Not running action ${actionName} again because it has already run.`
-    );
-    return;
-  }
-  Services.prefs.setBoolPref(prefName, true);
-  callback();
-}
-
-/**
- * Helper function similar to runOnce. The difference is that runOnce runs the
- * callback once when the policy is set, then never again.
- * runOncePerModification runs the callback once each time the policy value
- * changes from its previous value.
- * If the callback that was passed is an async function, you can await on this
- * function to await for the callback.
- *
- * @param {string} actionName - A given name which will be used to track if
- *   this callback has run. This string will be part of a pref name.
- * @param {string} policyValue - The current value of the policy. This will be
- *   compared to previous values given to this function to determine if the
- *   policy value has changed. Regardless of the data type of the policy, this
- *   must be a string.
- * @param {Function} callback - The callback to be run when the pref value changes.
- * @returns {Promise} A promise that will resolve once the callback finishes running.
- */
-async function runOncePerModification(actionName, policyValue, callback) {
-  const prefName = `browser.policies.runOncePerModification.${actionName}`;
-  const oldPolicyValue = Services.prefs.getStringPref(prefName, undefined);
-  if (policyValue === oldPolicyValue) {
-    lazy.log.debug(
-      `Not running action ${actionName} again because the policy's value is unchanged`
-    );
-    return Promise.resolve();
-  }
-  Services.prefs.setStringPref(prefName, policyValue);
-  return callback();
-}
-
-/**
- * Helper function that clears a runOnce policy.
- */
-function clearRunOnceModification(actionName) {
-  const prefName = `browser.policies.runOncePerModification.${actionName}`;
-  Services.prefs.clearUserPref(prefName);
-}
-
-function replacePathVariables(path) {
-  if (path.includes("${home}")) {
-    return path.replace(
-      "${home}",
-      Services.dirsvc.get("Home", Ci.nsIFile).path
-    );
-  }
-  return path;
-}
-
-/**
- * Helper function that installs an addon from a URL
- * and verifies that the addon ID matches.
- */
-function installAddonFromURL(url, extensionID, addon) {
-  if (
-    addon &&
-    addon.sourceURI &&
-    addon.sourceURI.spec == url &&
-    !addon.sourceURI.schemeIs("file")
-  ) {
-    // It's the same addon, don't reinstall.
-    return;
-  }
-  lazy.AddonManager.getInstallForURL(url, {
-    telemetryInfo: { source: "enterprise-policy" },
-  }).then(install => {
-    if (install.addon && install.addon.appDisabled) {
-      lazy.log.error(`Incompatible add-on - ${install.addon.id}`);
-      install.cancel();
-      return;
-    }
-    const listener = {
-      /* eslint-disable-next-line no-shadow */
-      onDownloadEnded: install => {
-        // Install failed, error will be reported elsewhere.
-        if (!install.addon) {
-          return;
-        }
-        if (extensionID && install.addon.id != extensionID) {
-          lazy.log.error(
-            `Add-on downloaded from ${url} had unexpected id (got ${install.addon.id} expected ${extensionID})`
-          );
-          install.removeListener(listener);
-          install.cancel();
-        }
-        if (install.addon.appDisabled) {
-          lazy.log.error(`Incompatible add-on - ${url}`);
-          install.removeListener(listener);
-          install.cancel();
-        }
-        if (
-          addon &&
-          Services.vc.compare(addon.version, install.addon.version) == 0
-        ) {
-          lazy.log.debug(
-            "Installation cancelled because versions are the same"
-          );
-          install.removeListener(listener);
-          install.cancel();
-        }
-      },
-      onDownloadFailed: () => {
-        install.removeListener(listener);
-        lazy.log.error(
-          `Download failed - ${lazy.AddonManager.errorToString(
-            install.error
-          )} - ${url}`
-        );
-        clearRunOnceModification("extensionsInstall");
-      },
-      onInstallFailed: () => {
-        install.removeListener(listener);
-        lazy.log.error(
-          `Installation failed - ${lazy.AddonManager.errorToString(
-            install.error
-          )} - {url}`
-        );
-      },
-      /* eslint-disable-next-line no-shadow */
-      onInstallEnded: (install, addon) => {
-        if (addon.type == "theme") {
-          addon.enable();
-        }
-        install.removeListener(listener);
-        lazy.log.debug(`Installation succeeded - ${url}`);
-      },
-    };
-    // If it's a local file install, onDownloadEnded is never called.
-    // So we call it manually, to handle some error cases.
-    if (url.startsWith("file:")) {
-      listener.onDownloadEnded(install);
-      if (install.state == lazy.AddonManager.STATE_CANCELLED) {
-        return;
-      }
-    }
-    install.addListener(listener);
-    install.install();
-  });
-}
-
-let gBlockedAboutPages = [];
-
-function clearBlockedAboutPages() {
-  gBlockedAboutPages = [];
-}
-
-function blockAboutPage(manager, feature) {
-  addChromeURLBlocker();
-  gBlockedAboutPages.push(feature);
-
-  try {
-    const aboutModule = Cc[ABOUT_CONTRACT + feature.split(":")[1]].getService(
-      Ci.nsIAboutModule
-    );
-    const chromeURL = aboutModule.getChromeURI(
-      Services.io.newURI(feature)
-    ).spec;
-    gBlockedAboutPages.push(chromeURL);
-  } catch (e) {
-    // Some about pages don't have chrome URLS (compat)
-  }
-}
-
-const ChromeURLBlockPolicy = {
-  shouldLoad(contentLocation, loadInfo) {
-    const contentType = loadInfo.externalContentPolicyType;
-    if (
-      (contentLocation.scheme != "chrome" &&
-        contentLocation.scheme != "about") ||
-      (contentType != Ci.nsIContentPolicy.TYPE_DOCUMENT &&
-        contentType != Ci.nsIContentPolicy.TYPE_SUBDOCUMENT)
-    ) {
-      return Ci.nsIContentPolicy.ACCEPT;
-    }
-    if (
-      gBlockedAboutPages.some(function (aboutPage) {
-        return contentLocation.spec.startsWith(aboutPage);
-      })
-    ) {
-      return Ci.nsIContentPolicy.REJECT_POLICY;
-    }
-    return Ci.nsIContentPolicy.ACCEPT;
-  },
-  shouldProcess() {
-    return Ci.nsIContentPolicy.ACCEPT;
-  },
-  classDescription: "Policy Engine Content Policy",
-  contractID: "@mozilla-org/policy-engine-content-policy-service;1",
-  classID: Components.ID("{ba7b9118-cabc-4845-8b26-4215d2a59ed7}"),
-  QueryInterface: ChromeUtils.generateQI(["nsIContentPolicy"]),
-  createInstance(iid) {
-    return this.QueryInterface(iid);
-  },
-};
-
-function addChromeURLBlocker() {
-  if (Cc[ChromeURLBlockPolicy.contractID]) {
-    return;
-  }
-
-  const registrar = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
-  registrar.registerFactory(
-    ChromeURLBlockPolicy.classID,
-    ChromeURLBlockPolicy.classDescription,
-    ChromeURLBlockPolicy.contractID,
-    ChromeURLBlockPolicy
-  );
-
-  Services.catMan.addCategoryEntry(
-    "content-policy",
-    ChromeURLBlockPolicy.contractID,
-    ChromeURLBlockPolicy.contractID,
-    false,
-    true
-  );
-}
-
-function pemToBase64(pem) {
-  return pem
-    .replace(/(.*)-----BEGIN CERTIFICATE-----/, "")
-    .replace(/-----END CERTIFICATE-----(.*)/, "")
-    .replace(/[\r\n]/g, "");
-}
-
-function processMIMEInfo(mimeInfo, realMIMEInfo) {
-  if ("handlers" in mimeInfo) {
-    let firstHandler = true;
-    for (const handler of mimeInfo.handlers) {
-      // handler can be null which means they don't
-      // want a preferred handler.
-      if (handler) {
-        let handlerApp;
-        if ("path" in handler) {
-          try {
-            const file = new lazy.FileUtils.File(handler.path);
-            handlerApp = Cc[
-              "@mozilla.org/uriloader/local-handler-app;1"
-            ].createInstance(Ci.nsILocalHandlerApp);
-            handlerApp.executable = file;
-          } catch (ex) {
-            lazy.log.error(
-              `Unable to create handler executable (${handler.path})`
-            );
-            continue;
-          }
-        } else if ("uriTemplate" in handler) {
-          const templateURL = new URL(handler.uriTemplate);
-          if (templateURL.protocol != "https:") {
-            lazy.log.error(
-              `Web handler must be https (${handler.uriTemplate})`
-            );
-            continue;
-          }
-          if (
-            !templateURL.pathname.includes("%s") &&
-            !templateURL.search.includes("%s")
-          ) {
-            lazy.log.error(
-              `Web handler must contain %s (${handler.uriTemplate})`
-            );
-            continue;
-          }
-          handlerApp = Cc[
-            "@mozilla.org/uriloader/web-handler-app;1"
-          ].createInstance(Ci.nsIWebHandlerApp);
-          handlerApp.uriTemplate = handler.uriTemplate;
-        } else {
-          lazy.log.error("Invalid handler");
-          continue;
-        }
-        if ("name" in handler) {
-          handlerApp.name = handler.name;
-        }
-        realMIMEInfo.possibleApplicationHandlers.appendElement(handlerApp);
-        if (firstHandler) {
-          realMIMEInfo.preferredApplicationHandler = handlerApp;
-        }
-      }
-      firstHandler = false;
-    }
-  }
-  if ("action" in mimeInfo) {
-    const action = realMIMEInfo[mimeInfo.action];
-    if (
-      action == realMIMEInfo.useHelperApp &&
-      !realMIMEInfo.possibleApplicationHandlers.length
-    ) {
-      lazy.log.error("useHelperApp requires a handler");
-      return;
-    }
-    realMIMEInfo.preferredAction = action;
-  }
-  if ("ask" in mimeInfo) {
-    realMIMEInfo.alwaysAskBeforeHandling = mimeInfo.ask;
-  }
-  lazy.gHandlerService.store(realMIMEInfo);
-}
