@@ -36,11 +36,12 @@ def hash_paths(*args):
     Helper function while the single repository project is in development.
     The extended version of hash_paths found in comm_taskgraph.util.hash is
     not necessary (and does not work) with single-repo. This is a wrapper
-    function to pick the right function based on the presence of a comm/.hg
-    directory.
+    function to pick the right function based on whether comm/ is a separate
+    repository (its own .hg or .git) from the gecko checkout.
     """
     comm_hg_path = util_path.join(GECKO, "comm", ".hg")
-    if os.path.exists(comm_hg_path):
+    comm_git_path = util_path.join(GECKO, "comm", ".git")
+    if os.path.exists(comm_hg_path) or os.path.exists(comm_git_path):
         return hash_paths_extended(*args)
     else:
         return hash_paths_gecko_root(*args)
