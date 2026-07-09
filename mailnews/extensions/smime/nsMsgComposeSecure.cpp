@@ -791,6 +791,55 @@ nsresult nsMsgComposeSecure::MimeFinishEncryption(
   return rv;
 }
 
+// Turns a failed certificate verification into a human-readable reason,
+// falling back to the raw NSS error name (e.g. SEC_ERROR_UNKNOWN_ISSUER)
+// when no localized message is available.
+static void GetCertVerificationErrorReason(mozilla::pkix::Result aResult,
+                                           nsAString& aReason) {
+  int32_t nssError = mozilla::pkix::MapResultToPRErrorCode(aResult);
+  nsCOMPtr<nsINSSErrorsService> nssErrorsService =
+      do_GetService("@mozilla.org/nss_errors_service;1");
+  if (nssErrorsService) {
+    nsresult xpcomErrorCode;
+    if (NS_SUCCEEDED(nssErrorsService->GetXPCOMFromNSSError(nssError,
+                                                            &xpcomErrorCode))) {
+      (void)nssErrorsService->GetErrorMessage(xpcomErrorCode, aReason);
+    }
+  } else {
+    NS_WARNING("Failed to get nsINSSErrorsService");
+  }
+  if (aReason.IsEmpty()) {
+    const char* errorName = PR_ErrorToName(nssError);
+    if (errorName) {
+      aReason = NS_ConvertASCIItoUTF16(errorName);
+    }
+  }
+}
+
+// Verifies an already-loaded self cert locally for the given usage. On failure
+// it clears aSelfCert and records the reason; only failure to read the cert
+// bytes is reported as an error.
+static nsresult VerifySelfCert(CertVerifier* aCertVerifier,
+                               mozilla::psm::VerifyUsage aUsage,
+                               nsCOMPtr<nsIX509Cert>& aSelfCert,
+                               nsAString& aErrorReason) {
+  nsTArray<uint8_t> certBytes;
+  nsresult rv = aSelfCert->GetRawDER(certBytes);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsTArray<nsTArray<uint8_t>> builtChain;
+  mozilla::pkix::Result result = aCertVerifier->VerifyCert(
+      certBytes, aUsage, mozilla::pkix::Now(), nullptr, nullptr, builtChain,
+      // Only local checks can run on the main thread.
+      // Skipping OCSP for the user's own cert seems acceptable.
+      CertVerifier::FLAG_LOCAL_ONLY);
+  if (result != mozilla::pkix::Success) {
+    GetCertVerificationErrorReason(result, aErrorReason);
+    aSelfCert = nullptr;
+  }
+  return NS_OK;
+}
+
 /* Used to figure out what certs should be used when encrypting this message.
  */
 nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const nsACString& aRecipients,
@@ -823,45 +872,14 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const nsACString& aRecipients,
       CERT_GetDefaultCertDB(), SEC_CERT_NICKNAMES_USER, nullptr);
   CERT_FreeNicknames(result_unused);
 
-  nsTArray<nsTArray<uint8_t>> builtChain;
   if (!mEncryptionCertDBKey.IsEmpty()) {
     res = certdb->FindCertByDBKey(mEncryptionCertDBKey,
                                   getter_AddRefs(mSelfEncryptionCert));
-
     if (NS_SUCCEEDED(res) && mSelfEncryptionCert) {
-      nsTArray<uint8_t> certBytes;
-      res = mSelfEncryptionCert->GetRawDER(certBytes);
+      res = VerifySelfCert(certVerifier,
+                           mozilla::psm::VerifyUsage::EmailRecipient,
+                           mSelfEncryptionCert, selfEncryptionCertErrorReason);
       NS_ENSURE_SUCCESS(res, res);
-
-      mozilla::pkix::Result result = certVerifier->VerifyCert(
-          certBytes, mozilla::psm::VerifyUsage::EmailRecipient,
-          mozilla::pkix::Now(), nullptr, nullptr, builtChain,
-          // Only local checks can run on the main thread.
-          // Skipping OCSP for the user's own cert seems acceptable.
-          CertVerifier::FLAG_LOCAL_ONLY);
-      if (result != mozilla::pkix::Success) {
-        int32_t nssError = mozilla::pkix::MapResultToPRErrorCode(result);
-        nsCOMPtr<nsINSSErrorsService> nssErrorsService =
-            do_GetService("@mozilla.org/nss_errors_service;1");
-        if (nssErrorsService) {
-          nsresult xpcomErrorCode;
-          if (NS_SUCCEEDED(nssErrorsService->GetXPCOMFromNSSError(
-                  nssError, &xpcomErrorCode))) {
-            (void)nssErrorsService->GetErrorMessage(
-                xpcomErrorCode, selfEncryptionCertErrorReason);
-          }
-        } else {
-          NS_WARNING("Failed to get nsINSSErrorsService");
-        }
-        if (selfEncryptionCertErrorReason.IsEmpty()) {
-          const char* errorName = PR_ErrorToName(nssError);
-          if (errorName) {
-            selfEncryptionCertErrorReason = NS_ConvertASCIItoUTF16(errorName);
-          }
-        }
-        // not suitable for encryption, so unset cert
-        mSelfEncryptionCert = nullptr;
-      }
     }
   }
 
@@ -870,39 +888,9 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const nsACString& aRecipients,
     res = certdb->FindCertByDBKey(mSigningCertDBKey,
                                   getter_AddRefs(mSelfSigningCert));
     if (NS_SUCCEEDED(res) && mSelfSigningCert) {
-      nsTArray<uint8_t> certBytes;
-      res = mSelfSigningCert->GetRawDER(certBytes);
+      res = VerifySelfCert(certVerifier, mozilla::psm::VerifyUsage::EmailSigner,
+                           mSelfSigningCert, selfSigningCertErrorReason);
       NS_ENSURE_SUCCESS(res, res);
-
-      mozilla::pkix::Result result = certVerifier->VerifyCert(
-          certBytes, mozilla::psm::VerifyUsage::EmailSigner,
-          mozilla::pkix::Now(), nullptr, nullptr, builtChain,
-          // Only local checks can run on the main thread.
-          // Skipping OCSP for the user's own cert seems acceptable.
-          CertVerifier::FLAG_LOCAL_ONLY);
-      if (result != mozilla::pkix::Success) {
-        int32_t nssError = mozilla::pkix::MapResultToPRErrorCode(result);
-        nsCOMPtr<nsINSSErrorsService> nssErrorsService =
-            do_GetService("@mozilla.org/nss_errors_service;1");
-        if (nssErrorsService) {
-          nsresult xpcomErrorCode;
-          if (NS_SUCCEEDED(nssErrorsService->GetXPCOMFromNSSError(
-                  nssError, &xpcomErrorCode))) {
-            (void)nssErrorsService->GetErrorMessage(xpcomErrorCode,
-                                                    selfSigningCertErrorReason);
-          }
-        } else {
-          NS_WARNING("Failed to get nsINSSErrorsService");
-        }
-        if (selfSigningCertErrorReason.IsEmpty()) {
-          const char* errorName = PR_ErrorToName(nssError);
-          if (errorName) {
-            selfSigningCertErrorReason = NS_ConvertASCIItoUTF16(errorName);
-          }
-        }
-        // not suitable for signing, so unset cert
-        mSelfSigningCert = nullptr;
-      }
     }
   }
 
