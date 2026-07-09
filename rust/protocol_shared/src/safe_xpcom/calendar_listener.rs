@@ -4,7 +4,6 @@
 
 use nserror::nsresult;
 use nsstring::nsCString;
-use thin_vec::ThinVec;
 use xpcom::interfaces::IGraphCalendarDiscoveryListener;
 
 use crate::safe_xpcom::{SafeListener, SafeListenerWrapper};
@@ -14,28 +13,29 @@ pub type SafeCalendarListener = SafeListenerWrapper<IGraphCalendarDiscoveryListe
 
 impl SafeCalendarListener {
     /// Convert types and forward to [`IGraphCalendarDiscoveryListener::OnCalendarsDiscovered`].
-    fn on_calendars_discovered(&self, calendars: ThinVec<nsCString>) -> nsresult {
+    pub fn on_calendar_discovered(&self, id: String, name: String, read_only: bool) -> nsresult {
+        let id = nsCString::from(id);
+        let name = nsCString::from(name);
         // SAFETY: all types here are safe across the Rust/C++ boundary
         unsafe {
-            self.0.OnCalendarsDiscovered(&raw const calendars)
+            self.0
+                .OnCalendarDiscovered(&raw const *id, &raw const *name, read_only)
         }
     }
 
     /// Convert types and forward to [`IGraphCalendarDiscoveryListener::OnFailure`].
-    fn on_failure(&self, error_status: nsresult) -> nsresult {
+    pub fn on_complete(&self, status_code: nsresult) -> nsresult {
         // SAFETY: all types here are safe across the Rust/C++ boundary
-        unsafe {
-            self.0.OnFailure(error_status)
-        }
+        unsafe { self.0.OnComplete(status_code) }
     }
 }
 
 impl SafeListener for SafeCalendarListener {
-    type OnSuccessArg = ThinVec<nsCString>;
+    type OnSuccessArg = ();
     type OnFailureArg = ();
 
-    fn on_success(&self, calendars: ThinVec<nsCString>) -> Result<(), nsresult> {
-        self.on_calendars_discovered(calendars).to_result()
+    fn on_success(&self, _ok: Self::OnSuccessArg) -> Result<(), nsresult> {
+        self.on_complete(nserror::NS_OK).to_result()
     }
 
     fn on_failure<E>(&self, err: &E, _arg: Self::OnFailureArg) -> Result<(), nsresult>
@@ -43,6 +43,6 @@ impl SafeListener for SafeCalendarListener {
         for<'a> &'a E: Into<nsresult> + TryInto<&'a moz_http::Error>,
         E: std::fmt::Debug,
     {
-        self.on_failure(err.into()).to_result()
+        self.on_complete(err.into()).to_result()
     }
 }

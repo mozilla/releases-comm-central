@@ -45,11 +45,11 @@ export class GraphProvider {
    * @param {string} username - User credentials
    * @param {string} password - User credentials
    * @param {string} location - Server location (Graph API endpoint)
-   * @param {boolean} savePassword - Whether to save password
-   * @param {object} extraProperties - Additional properties
+   * @param {boolean} _savePassword - Whether to save password
+   * @param {object} _extraProperties - Additional properties
    * @returns {Promise<Array<calICalendar>>} Array of found calendars
    */
-  static async detectCalendars(username, password, location, savePassword, extraProperties) {
+  static async detectCalendars(username, password, location, _savePassword, _extraProperties) {
     const graphCalendarClient = Cc["@mozilla.org/messenger/graph-client;1"].createInstance(
       Ci.IGraphCalendarClient
     );
@@ -58,14 +58,24 @@ export class GraphProvider {
     // Find an incoming server with the given username and host.
     const incomingServer = MailServices.accounts.findServer(username, location, "graph");
     if (incomingServer) {
-      const uri = `https://${location}/`;
+      // TODO: https://bugzilla.mozilla.org/show_bug.cgi?id=2052326
+      // We're reaching across to an incoming mail server here to instantiate a
+      // new client. Instead, we should be sharing the client between all
+      // connections to the same Microsoft account to handle rate limiting and
+      // throttling. We'll want to change this to obtain a client reference that
+      // is shared with the email system, but still able to work without a
+      // configured Graph email account.
+      const uri = incomingServer.getStringValue("ews_url");
       exchangeClient.initialize(uri, incomingServer, false, "", "", "", "", "");
       const listener = new CalendarDiscoveryCallbackListener();
       graphCalendarClient.detectCalendars(listener);
       await listener.deferred.promise;
 
       const discoveredCalendars = listener.calendars.map(
-        name => new GraphCalendar(uri, name, name, {})
+        value =>
+          new GraphCalendar(uri, value.id, value.name, {
+            readOnly: value.readOnly,
+          })
       );
       return discoveredCalendars;
     }
@@ -85,12 +95,14 @@ class CalendarDiscoveryCallbackListener {
     this.deferred = Promise.withResolvers();
   }
 
-  onCalendarsDiscovered(calendarNames) {
-    this.calendars = calendarNames;
-    this.deferred.resolve();
+  onCalendarDiscovered(id, name, readOnly) {
+    this.calendars.push({ id, name, readOnly });
   }
 
-  onFailure(errorStatus) {
+  onComplete(errorStatus) {
+    if (errorStatus == Cr.NS_OK) {
+      this.deferred.resolve();
+    }
     this.deferred.reject(`Graph calendar detection failed with status ${errorStatus}`);
   }
 }

@@ -4,23 +4,23 @@
 
 use std::sync::Arc;
 
-use ms_graph_tb::{Select, notnull, paths::me::calendars, types::calendar::CalendarSelection};
+use ms_graph_tb::{Select, paths::me::calendars, types::calendar::CalendarSelection};
 use nserror::NS_ERROR_UNEXPECTED;
-use nsstring::nsCString;
 use protocol_shared::{
     ServerType, client::DoOperation, safe_xpcom::calendar_listener::SafeCalendarListener,
 };
-use thin_vec::ThinVec;
 
 use crate::{client::XpComGraphClient, error::XpComGraphError};
 
-struct DoDetectCalendars {}
+struct DoDetectCalendars<'a> {
+    pub listener: &'a SafeCalendarListener,
+}
 
 impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError>
-    for DoDetectCalendars
+    for DoDetectCalendars<'_>
 {
     const NAME: &'static str = "detect calendars";
-    type Okay = ThinVec<nsCString>;
+    type Okay = ();
     type Listener = SafeCalendarListener;
 
     async fn do_operation(
@@ -33,6 +33,7 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
             CalendarSelection::Name,
             CalendarSelection::IsDefaultCalendar,
             CalendarSelection::Owner,
+            CalendarSelection::CanEdit,
         ];
 
         let mut request = calendars::Get::new(base_url.to_string());
@@ -44,31 +45,24 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
 
         let calendars = response.response.value.ok_or(NS_ERROR_UNEXPECTED)?;
 
-        let mut detected_calendars: Vec<String> = Vec::new();
-
         for calendar in calendars {
-            if let notnull!(calendar_name) = calendar.name {
-                detected_calendars.push(calendar_name);
-            } else {
-                return Err(XpComGraphError::Processing {
-                    message: "Calendar name is not present".to_string(),
-                });
-            }
+            let id = calendar.entity.id.ok_or(XpComGraphError::Processing {
+                message: "Missing calendar ID".to_string(),
+            })?;
+            let name = calendar.name.flatten().ok_or(XpComGraphError::Processing {
+                message: "Missing calendar name".to_string(),
+            })?;
+            let read_only = !calendar.can_edit.flatten().unwrap_or(false);
+
+            self.listener
+                .on_calendar_discovered(id, name, read_only)
+                .to_result()?;
         }
 
-        log::info!("Detected {} calendars", detected_calendars.len());
-
-        let detected_calendars = detected_calendars
-            .into_iter()
-            .map(nsCString::from)
-            .collect();
-
-        Ok(detected_calendars)
+        Ok(())
     }
 
-    fn into_success_arg(self, ok: Self::Okay) -> ThinVec<nsCString> {
-        ok
-    }
+    fn into_success_arg(self, _ok: Self::Okay) {}
 
     fn into_failure_arg(self) {}
 }
@@ -91,7 +85,9 @@ impl<ServerT: ServerType> XpComGraphClient<ServerT> {
         self: Arc<XpComGraphClient<ServerT>>,
         listener: SafeCalendarListener,
     ) {
-        let operation = DoDetectCalendars {};
+        let operation = DoDetectCalendars {
+            listener: &listener,
+        };
 
         operation.handle_operation(&self, &listener).await;
     }

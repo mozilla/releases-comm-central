@@ -27,13 +27,13 @@ export default class GraphCalendar {
    * @param {string} aUri - The URI at which the calendar is located.
    * @param {string} aId - Calendar unique identifier
    * @param {string} aName - Calendar display name
-   * @param {Object} options - Calendar options
+   * @param {object} options - Calendar options
    */
   constructor(aUri, aId, aName, options) {
     this.#id = aId;
     this.#name = aName;
     this.#uri = Services.io.newURI(aUri);
-    this.#readOnly = true;
+    this.#readOnly = options.readOnly ?? true;
     this.#transientProperties = false;
 
     this.#observers = [];
@@ -41,6 +41,7 @@ export default class GraphCalendar {
 
   /**
    * Get or set the calendar id.
+   *
    * @returns {string}
    */
   get id() {
@@ -53,6 +54,7 @@ export default class GraphCalendar {
 
   /**
    * Get or set the calendar name.
+   *
    * @returns {string}
    */
   get name() {
@@ -65,6 +67,7 @@ export default class GraphCalendar {
 
   /**
    * Get the calendar type.
+   *
    * @returns {string}
    */
   get type() {
@@ -73,6 +76,7 @@ export default class GraphCalendar {
 
   /**
    * Get the provider ID.
+   *
    * @returns {string}
    */
   get providerID() {
@@ -89,11 +93,12 @@ export default class GraphCalendar {
   }
 
   set superCalendar(value) {
-    throw Exception(Cr.NS_ERROR_ILLEGAL_ARGUMENT);
+    throw new Components.Exception("", Cr.NS_ERROR_ILLEGAL_ARGUMENT);
   }
 
   /**
    * Get or set the calendar URI.
+   *
    * @returns {nsIURI}
    */
   get uri() {
@@ -160,27 +165,27 @@ export default class GraphCalendar {
   /**
    * Get a calendar property.
    *
-   * @param {string} aName - Property name
+   * @param {string} _name - Property name
    * @returns {nsIVariant} Property value
    */
-  getProperty(aName) {
+  getProperty(_name) {
     return null;
   }
 
   /**
    * Set a calendar property.
    *
-   * @param {string} aName - Property name
-   * @param {nsIVariant} aValue - Property value
+   * @param {string} _name - Property name
+   * @param {nsIVariant} _value - Property value
    */
-  setProperty(aName, aValue) {}
+  setProperty(_name, _value) {}
 
   /**
    * Delete a calendar property.
    *
-   * @param {string} aName - Property name
+   * @param {string} _name - Property name
    */
-  deleteProperty(aName) {}
+  deleteProperty(_name) {}
 
   /**
    * Add an observer.
@@ -208,77 +213,77 @@ export default class GraphCalendar {
   /**
    * Add an item to the calendar.
    *
-   * @param {calIItemBase} aItem - Item to add
+   * @param {calIItemBase} _item - Item to add
    * @returns {Promise<calIItemBase>}
    */
-  async addItem(aItem) {
+  async addItem(_item) {
     throw new Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   }
 
   /**
    * Adopt an item (without cloning).
    *
-   * @param {calIItemBase} aItem - Item to adopt
+   * @param {calIItemBase} _item - Item to adopt
    * @returns {Promise<calIItemBase>}
    */
-  async adoptItem(aItem) {
+  async adoptItem(_item) {
     throw new Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   }
 
   /**
    * Modify an existing item.
    *
-   * @param {calIItemBase} aNewItem - New item version
-   * @param {calIItemBase} aOldItem - Old item version
+   * @param {calIItemBase} _newItem - New item version
+   * @param {calIItemBase} _oldItem - Old item version
    * @returns {Promise<calIItemBase>}
    */
-  async modifyItem(aNewItem, aOldItem) {
+  async modifyItem(_newItem, _oldItem) {
     throw new Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   }
 
   /**
    * Delete an item.
    *
-   * @param {calIItemBase} aItem - Item to delete
+   * @param {calIItemBase} _item - Item to delete
    * @returns {Promise<void>}
    */
-  async deleteItem(aItem) {
+  async deleteItem(_item) {
     throw new Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   }
 
   /**
    * Get a single item by ID.
    *
-   * @param {string} aId - Item UID
+   * @param {string} _id - Item UID
    * @returns {Promise<calIItemBase|null>}
    */
-  async getItem(aId) {
+  async getItem(_id) {
     throw new Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   }
 
   /**
    * Get items with filters.
    *
-   * @param {number} aItemFilter - Filter flags
-   * @param {number} aCount - Max items to return
-   * @param {calIDateTime} aRangeStart - Range start time
-   * @param {calIDateTime} aRangeEndEx - Range end time (exclusive)
+   * @param {number} _itemFilter - Filter flags
+   * @param {number} _count - Max items to return
+   * @param {calIDateTime} _rangeStart - Range start time
+   * @param {calIDateTime} _rangeEnd - Range end time (exclusive)
    * @returns {ReadableStream<calIItemBase>}
    */
-  getItems(aItemFilter, aCount, aRangeStart, aRangeEndEx) {
+  getItems(_itemFilter, _count, _rangeStart, _rangeEnd) {
     throw new Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   }
 
   /**
    * Get items as array.
    *
-   * @param {number} aItemFilter - Filter flags
-   * @param {number} aCount - Max items to return
-   * @param {calIDateTime} aRangeStart - Range start time
-   * @param {calIDateTime} aRangeEndEx - Range end time (exclusive)
+   * @param {number} _itemFilter - Filter flags
+   * @param {number} _count - Max items to return
+   * @param {calIDateTime} _rangeStart - Range start time
+   * @param {calIDateTime} _rangeEndEx - Range end time (exclusive)
    * @returns {Promise<Array<calIItemBase>>}
    */
-  async getItemsAsArray(aItemFilter, aCount, aRangeStart, aRangeEndEx) {
+  async getItemsAsArray(_itemFilter, _count, _rangeStart, _rangeEndEx) {
     throw new Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   }
 

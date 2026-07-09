@@ -32,6 +32,7 @@ TESTING_JS_MODULES.calendar += [
 ]
 
 XPCSHELL_TESTS_MANIFESTS += [
+    "unit/providers/graph/xpcshell.toml",
     "unit/providers/xpcshell.toml",
     "unit/xpcshell.toml",
 ]

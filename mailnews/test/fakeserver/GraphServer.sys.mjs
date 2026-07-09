@@ -390,6 +390,8 @@ export class GraphServer extends MockServer {
       case "GET":
         if (resourcePath === "/me") {
           responseJsonObject = this.#me();
+        } else if (resourcePath === "/me/calendars") {
+          responseJsonObject = this.#calendars();
         } else if (
           (pathMatch = /\/me\/mailFolders\/([\w\-]+)\/messages\/delta/.exec(
             resourcePath
@@ -511,6 +513,35 @@ export class GraphServer extends MockServer {
       surname: "Vance",
       userPrincipalName: "AdeleV@contoso.com",
       id: "87d349ed-44d7-43e1-9a83-5f2406dee5bd",
+    };
+  }
+
+  #calendars() {
+    return {
+      "@odata.context":
+        "https://graph.microsoft.com/v1.0/$metadata#me/calendars",
+      value: [
+        {
+          "@odata.id":
+            "https://graph.microsoft.com/v1.0/users('ddfcd489-628b-40d7-b48b-57002df800e5@1717622f-1d94-4d0c-9d74-709fad664b77')/calendars('AAMkAGI2TGuLAAA=')",
+          id: "AAMkAGI2TGuLAAA=",
+          name: "Calendar",
+          color: "auto",
+          changeKey: "nfZyf7VcrEKLNoU37KWlkQAAA0x0+w==",
+          canShare: true,
+          canViewPrivateItems: true,
+          hexColor: "",
+          canEdit: true,
+          allowedOnlineMeetingProviders: ["teamsForBusiness"],
+          defaultOnlineMeetingProvider: "teamsForBusiness",
+          isTallyingResponses: true,
+          isRemovable: false,
+          owner: {
+            name: "Samantha Booth",
+            address: "samanthab@contoso.com",
+          },
+        },
+      ],
     };
   }
 

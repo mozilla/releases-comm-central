@@ -1,0 +1,5 @@
+[DEFAULT]
+head = "head.js"
+prefs = ["calendar.graph.enabled=true"]
+
+["test_graphProvider.js"]

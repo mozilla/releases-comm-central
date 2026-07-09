@@ -9,9 +9,14 @@ use nserror::{
 };
 use nsstring::{nsACString, nsCString};
 use protocol_shared::{
-    client::ProtocolClient, safe_xpcom::{
-        SafeExchangeFolderListener, SafeExchangeMessageCreateListener, SafeExchangeMessageFetchListener, SafeExchangeMessageSyncListener, SafeExchangeSimpleOperationListener, SafeUrlListener, calendar_listener::SafeCalendarListener, uri::SafeUri,
-    }, xpcom_io,
+    client::ProtocolClient,
+    safe_xpcom::{
+        SafeExchangeFolderListener, SafeExchangeMessageCreateListener,
+        SafeExchangeMessageFetchListener, SafeExchangeMessageSyncListener,
+        SafeExchangeSimpleOperationListener, SafeUrlListener,
+        calendar_listener::SafeCalendarListener, uri::SafeUri,
+    },
+    xpcom_io,
 };
 
 use thin_vec::ThinVec;
