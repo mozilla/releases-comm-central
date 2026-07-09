@@ -60,6 +60,7 @@ add_task(function test_idsCorrectlyAppliedToElements() {
 });
 
 add_task(function test_setGetValue() {
+  Assert.ok(checkInput.checked, "Checked attribute should check the input");
   Assert.equal(
     checkElement.checked,
     checkInput.checked,
@@ -147,5 +148,19 @@ add_task(function test_ariaControlsElements() {
     checkInput.ariaControlsElements,
     [divElement],
     "The check input should have have aria controls over div element"
+  );
+
+  checkElement.setAriaExpanded(true);
+  Assert.equal(
+    checkInput.ariaExpanded,
+    "true",
+    "The check input should be expanded"
+  );
+
+  checkElement.setAriaExpanded(false);
+  Assert.equal(
+    checkInput.ariaExpanded,
+    "false",
+    "The check input should be collapsed"
   );
 });
