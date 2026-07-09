@@ -54,16 +54,12 @@ class nsMsgContentPolicy : public nsIContentPolicy,
   bool IsExposedChromeProtocol(nsIURI* aContentLocation);
   bool ShouldBlockUnexposedProtocol(nsIURI* aContentLocation);
 
-  bool ShouldAcceptRemoteContentForSender(nsIMsgDBHdr* aMsgHdr);
+  bool CheckRemoteContentPermissionForSender(nsIMsgDBHdr* aMsgHdr,
+                                             uint32_t aPermission);
   int16_t ShouldAcceptRemoteContentForMsgHdr(nsIMsgDBHdr* aMsgHdr,
                                              nsIURI* aRequestingLocation,
                                              nsIURI* aContentLocation);
-  void NotifyContentWasBlocked(uint64_t aBrowsingContextId,
-                               nsIURI* aContentLocation);
-  void ShouldAcceptContentForPotentialMsg(uint64_t aBrowsingContextId,
-                                          nsIURI* aOriginatorLocation,
-                                          nsIURI* aContentLocation,
-                                          int16_t* aDecision);
+  already_AddRefed<nsIMsgDBHdr> GetPotentialMsgHdr(nsIURI* aRequestingLocation);
   void ComposeShouldLoad(nsIMsgCompose* aMsgCompose,
                          nsISupports* aRequestingContext,
                          nsIURI* aOriginatorLocation, nsIURI* aContentLocation,

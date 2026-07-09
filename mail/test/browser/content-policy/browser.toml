@@ -28,6 +28,8 @@ support-files = ["html/**"]
 
 ["browser_exposedInContentTabs.js"]
 
+["browser_blockException.js"]
+
 ["browser_generalContentPolicy.js"]
 skip-if = [
   "headless", # clipboard doesn't work with headless

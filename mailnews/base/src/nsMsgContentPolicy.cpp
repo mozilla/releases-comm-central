@@ -68,11 +68,13 @@ nsresult nsMsgContentPolicy::Init() {
 }
 
 /**
- * @returns true if the sender referenced by aMsgHdr is explicitly allowed to
- *          load remote images according to the PermissionManager
+ * Extracts the sender's email from aMsgHdr and checks the "image" permission
+ * for the corresponding chrome://messenger/content/email=… URI.
+ *
+ * @returns true if the stored permission matches aPermission.
  */
-bool nsMsgContentPolicy::ShouldAcceptRemoteContentForSender(
-    nsIMsgDBHdr* aMsgHdr) {
+bool nsMsgContentPolicy::CheckRemoteContentPermissionForSender(
+    nsIMsgDBHdr* aMsgHdr, uint32_t aPermission) {
   if (!aMsgHdr) return false;
 
   // extract the e-mail address from the msg hdr
@@ -99,8 +101,7 @@ bool nsMsgContentPolicy::ShouldAcceptRemoteContentForSender(
                                                        &permission);
   NS_ENSURE_SUCCESS(rv, false);
 
-  // Only return true if the permission manager has an explicit allow
-  return (permission == nsIPermissionManager::ALLOW_ACTION);
+  return (permission == aPermission);
 }
 
 /**
@@ -212,6 +213,11 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
   // If the requesting location is safe, accept the content location request.
   if (IsSafeRequestingLocation(aRequestingLocation)) return rv;
 
+  auto acceptContent = [&]() {
+    *aDecision = nsIContentPolicy::ACCEPT;
+    return NS_OK;
+  };
+
   // Now default to reject so early returns via NS_ENSURE_SUCCESS
   // cause content to be rejected.
   *aDecision = nsIContentPolicy::REJECT_REQUEST;
@@ -246,8 +252,7 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
           IsNewsScheme(requestScheme);
       if (!requestIsNews) return NS_OK;  // (4)
     }
-    *aDecision = nsIContentPolicy::ACCEPT;  // (5) and (6)
-    return NS_OK;
+    return acceptContent();  // (5) and (6)
   }
 
   nsCOMPtr<nsIMsgMessageUrl> contentURL(do_QueryInterface(aContentLocation));
@@ -274,8 +279,7 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
   // If exposed protocol not covered by the test above or protocol that has been
   // specifically exposed by an add-on, or is a chrome url, then allow the load.
   if (IsExposedProtocol(aContentLocation)) {
-    *aDecision = nsIContentPolicy::ACCEPT;
-    return NS_OK;
+    return acceptContent();
   }
 
   // Never load unexposed protocols except for web protocols and file.
@@ -287,8 +291,7 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
   // targetContext->Canonical does not work in a child process, so we can't
   // really move on anyway.
   if (!XRE_IsParentProcess()) {
-    *aDecision = nsIContentPolicy::ACCEPT;
-    return NS_OK;
+    return acceptContent();
   }
 
   // Find out the URI that originally initiated the set of requests for this
@@ -298,9 +301,27 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
   NS_ENSURE_SUCCESS(rv, NS_OK);
 
   if (!targetContext) {
-    *aDecision = nsIContentPolicy::ACCEPT;
-    return NS_OK;
+    return acceptContent();
   }
+
+  // Helper to reject remote content and notify the UI.
+  auto rejectContentAndNotify = [&]() {
+    *aDecision = nsIContentPolicy::REJECT_REQUEST;
+    // Post as an event to avoid DOM mutations at a bad time.
+    uint64_t browsingContextId = targetContext->Id();
+    nsCOMPtr<nsIURI> contentURI = aContentLocation;
+    NS_DispatchToCurrentThread(NS_NewRunnableFunction(
+        "RemoteContentNotifierEvent",
+        [browsingContextId, contentURI = std::move(contentURI)]() {
+          nsAutoString data;
+          data.AppendInt(browsingContextId);
+          nsCOMPtr<nsIObserverService> observerService =
+              mozilla::services::GetObserverService();
+          observerService->NotifyObservers(contentURI, "remote-content-blocked",
+                                           data.get());
+        }));
+    return NS_OK;
+  };
 
   nsCOMPtr<nsIURI> originatorLocation;
   dom::CanonicalBrowsingContext* cbc = targetContext->Canonical();
@@ -310,8 +331,7 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
   if (!originatorLocation) {
     // We end up here for the load of an iframe created by a script (at least).
     // TODO: are there cases where this should block?
-    *aDecision = nsIContentPolicy::ACCEPT;
-    return NS_OK;
+    return acceptContent();
   }
 
   // Don't load remote content for encrypted messages.
@@ -323,31 +343,41 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
                                         &isEncrypted);
   NS_ENSURE_SUCCESS(rv, rv);
   if (isEncrypted) {
-    *aDecision = nsIContentPolicy::REJECT_REQUEST;
-    NotifyContentWasBlocked(targetContext->Id(), aContentLocation);
-    return NS_OK;
+    return rejectContentAndNotify();
   }
 
-  // If we are allowing all remote content...
-  if (!mBlockRemoteImages) {
-    *aDecision = nsIContentPolicy::ACCEPT;
-    return NS_OK;
-  }
-
-  uint32_t permission;
+  // Look up any content-location exception (Allow or Block) for this URL.
+  uint32_t permission = nsIPermissionManager::UNKNOWN_ACTION;
   mozilla::OriginAttributes attrs;
   RefPtr<mozilla::BasePrincipal> principal =
       mozilla::BasePrincipal::CreateContentPrincipal(aContentLocation, attrs);
-  mPermissionManager->TestPermissionFromPrincipal(principal, "image"_ns,
-                                                  &permission);
+  rv = mPermissionManager->TestPermissionFromPrincipal(principal, "image"_ns,
+                                                       &permission);
+
+  // If we are allowing all remote content, still check for block exceptions
+  // before accepting.
+  if (!mBlockRemoteImages) {
+    if (NS_SUCCEEDED(rv) && permission == nsIPermissionManager::DENY_ACTION) {
+      return rejectContentAndNotify();
+    }
+
+    // Check if the sender is explicitly blocked.
+    nsCOMPtr<nsIMsgDBHdr> msgHdr = GetPotentialMsgHdr(aRequestingLocation);
+    if (msgHdr && CheckRemoteContentPermissionForSender(
+                      msgHdr, nsIPermissionManager::DENY_ACTION)) {
+      return rejectContentAndNotify();
+    }
+
+    return acceptContent();
+  }
+
   switch (permission) {
     case nsIPermissionManager::UNKNOWN_ACTION: {
       // No exception was found for this location.
       break;
     }
     case nsIPermissionManager::ALLOW_ACTION: {
-      *aDecision = nsIContentPolicy::ACCEPT;
-      return NS_OK;
+      return acceptContent();
     }
     case nsIPermissionManager::DENY_ACTION: {
       *aDecision = nsIContentPolicy::REJECT_REQUEST;
@@ -371,13 +401,20 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
   rv = originatorLocation->SchemeIs("http", &isHttp);
   nsresult rv2 = originatorLocation->SchemeIs("https", &isHttps);
   if (NS_SUCCEEDED(rv) && NS_SUCCEEDED(rv2) && (isHttp || isHttps)) {
-    *aDecision = nsIContentPolicy::ACCEPT;
-    return NS_OK;
+    return acceptContent();
   }
 
-  // The default decision is still to reject.
-  ShouldAcceptContentForPotentialMsg(targetContext->Id(), aRequestingLocation,
-                                     aContentLocation, aDecision);
+  // The default decision is still to reject — check if the message header
+  // allows remote content for this message.
+  nsCOMPtr<nsIMsgDBHdr> msgHdr = GetPotentialMsgHdr(aRequestingLocation);
+  if (!msgHdr) {
+    return acceptContent();
+  }
+  *aDecision = ShouldAcceptRemoteContentForMsgHdr(msgHdr, aRequestingLocation,
+                                                  aContentLocation);
+  if (*aDecision == nsIContentPolicy::REJECT_REQUEST) {
+    return rejectContentAndNotify();
+  }
   return NS_OK;
 }
 
@@ -551,7 +588,8 @@ int16_t nsMsgContentPolicy::ShouldAcceptRemoteContentForMsgHdr(
     return nsIContentPolicy::ACCEPT;
 
   // Case #4, author is in our white list..
-  bool allowForSender = ShouldAcceptRemoteContentForSender(aMsgHdr);
+  bool allowForSender = CheckRemoteContentPermissionForSender(
+      aMsgHdr, nsIPermissionManager::ALLOW_ACTION);
 
   int16_t result = allowForSender
                        ? static_cast<int16_t>(nsIContentPolicy::ACCEPT)
@@ -564,97 +602,27 @@ int16_t nsMsgContentPolicy::ShouldAcceptRemoteContentForMsgHdr(
   return result;
 }
 
-class RemoteContentNotifierEvent : public mozilla::Runnable {
- public:
-  RemoteContentNotifierEvent(uint64_t aBrowsingContextId, nsIURI* aContentURI)
-      : mozilla::Runnable("RemoteContentNotifierEvent"),
-        mBrowsingContextId(aBrowsingContextId),
-        mContentURI(aContentURI) {}
-
-  NS_IMETHOD Run() {
-    nsAutoString data;
-    data.AppendInt(mBrowsingContextId);
-    nsCOMPtr<nsIObserverService> observerService =
-        mozilla::services::GetObserverService();
-    observerService->NotifyObservers(mContentURI, "remote-content-blocked",
-                                     data.get());
-    return NS_OK;
-  }
-
- private:
-  uint64_t mBrowsingContextId;
-  nsCOMPtr<nsIURI> mContentURI;
-};
-
 /**
- * This function is used to show a blocked remote content notification.
+ * Resolves aRequestingLocation to a message header, or nullptr if the URI
+ * does not correspond to a known message.
  */
-void nsMsgContentPolicy::NotifyContentWasBlocked(uint64_t aBrowsingContextId,
-                                                 nsIURI* aContentLocation) {
-  // Post this as an event because it can cause dom mutations, and we
-  // get called at a bad time to be causing dom mutations.
-  NS_DispatchToCurrentThread(
-      new RemoteContentNotifierEvent(aBrowsingContextId, aContentLocation));
-}
-
-/**
- * This function is used to determine if we allow content for a remote message.
- * If we reject loading remote content, then we'll inform the message window
- * that this message has remote content (and hence we are not loading it).
- *
- * See ShouldAcceptRemoteContentForMsgHdr for the actual decisions that
- * determine if we are going to allow remote content.
- */
-void nsMsgContentPolicy::ShouldAcceptContentForPotentialMsg(
-    uint64_t aBrowsingContextId, nsIURI* aRequestingLocation,
-    nsIURI* aContentLocation, int16_t* aDecision) {
-  NS_ASSERTION(
-      *aDecision == nsIContentPolicy::REJECT_REQUEST,
-      "AllowContentForPotentialMessage expects default decision to be reject!");
-
-  // Is it a mailnews url?
+already_AddRefed<nsIMsgDBHdr> nsMsgContentPolicy::GetPotentialMsgHdr(
+    nsIURI* aRequestingLocation) {
   nsresult rv;
   nsCOMPtr<nsIMsgMessageUrl> msgUrl(
       do_QueryInterface(aRequestingLocation, &rv));
-
   nsCString resourceURI;
   if (NS_SUCCEEDED(rv)) {
     rv = msgUrl->GetUri(resourceURI);
-    NS_ENSURE_SUCCESS_VOID(rv);
   } else {
     rv = aRequestingLocation->GetSpec(resourceURI);
-    NS_ENSURE_SUCCESS_VOID(rv);
   }
-
-  nsCString scheme;
-  rv = aRequestingLocation->GetScheme(scheme);
-  NS_ENSURE_SUCCESS_VOID(rv);
+  NS_ENSURE_SUCCESS(rv, nullptr);
 
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
-  rv = GetMsgDBHdrFromURI(resourceURI, getter_AddRefs(msgHdr));
+  GetMsgDBHdrFromURI(resourceURI, getter_AddRefs(msgHdr));
 
-  // Check if we have an entry in the relevant message DB for the URI. If the
-  // URI's scheme is `mailbox`, we carry on regardless, because such URIs can
-  // refer to messages read from a file rather than from a specific folder (in
-  // which case they won't have a message DB entry). Otherwise, if the URI isn't
-  // for a message we know of, we accept the load here, and let other content
-  // policies make the decision if we should be loading it or not.
-  if (!scheme.EqualsLiteral("mailbox") && (NS_FAILED(rv) || !msgHdr)) {
-    *aDecision = nsIContentPolicy::ACCEPT;
-    return;
-  }
-
-  // Get a decision on whether or not to allow remote content for this message
-  // header.
-  *aDecision = ShouldAcceptRemoteContentForMsgHdr(msgHdr, aRequestingLocation,
-                                                  aContentLocation);
-
-  // If we're not allowing the remote content, tell the nsIMsgWindow loading
-  // this url that this is the case, so that the UI knows to show the remote
-  // content header bar, so the user can override if they wish.
-  if (*aDecision == nsIContentPolicy::REJECT_REQUEST) {
-    NotifyContentWasBlocked(aBrowsingContextId, aContentLocation);
-  }
+  return msgHdr.forget();
 }
 
 /**
