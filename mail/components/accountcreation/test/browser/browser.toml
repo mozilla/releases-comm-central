@@ -40,6 +40,8 @@ support-files = ["files/**"]
 
 ["browser_accountHubEmailExchangeSettings.js"]
 
+["browser_accountHubEmailExchangeType.js"]
+
 ["browser_accountHubEmailManualConfigForm.js"]
 
 ["browser_accountHubEmailManualIncomingForm.js"]

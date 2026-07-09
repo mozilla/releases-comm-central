@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Account Hub Email Exchange Type Test</title>
+    <link rel="stylesheet" href="chrome://messenger/skin/icons.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/spacings.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/accountHub.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/accountHubForms.css" />
+    <link rel="localization" href="messenger/accountcreation/accountHub.ftl" />
+    <script type="module" src="chrome://messenger/content/accountcreation/content/widgets/email-exchange-type.mjs"></script>
+  </head>
+  <body>
+    <template id="accountHubHeaderTemplate">
+      <header id="accountHubHeader" class="hub-header">
+        <div id="headerButtonsContainer">
+          <button id="minimizeButton" type="button"></button>
+          <button id="closeButton" type="button"></button>
+        </div>
+        <div id="brandingHeader" class="branding-header" hidden="hidden">
+          <img src="chrome://branding/content/logo-gradient.svg" alt="" />
+          <h1 class="account-hub-title">
+            <span class="branding-header-name" aria-hidden="hidden"></span>
+            <span class="branding-header-title" aria-hidden="hidden"></span>
+            <span
+              class="account-hub-welcome-text screen-reader-only"
+              data-l10n-id="account-hub-welcome-text"
+            ></span>
+          </h1>
+        </div>
+        <slot name="middle-content"></slot>
+        <h1 id="accountHubHeaderTitle" class="sub-view-title">
+          <slot name="title"></slot>
+        </h1>
+        <h2 id="accountHubHeaderSubheader" class="sub-view-sub-header" hidden="hidden">
+          <slot name="subheader"></slot>
+        </h2>
+        <details id="emailFormNotification" class="notification-bar">
+          <summary id="emailFormNotificationSummary" class="notification-title-container" role="alert">
+            <p id="emailFormNotificationTitle" class="notification-title">
+              <span class="localized-title"></span>
+              <span class="raw-title"></span>
+            </p>
+            <div id="emailFormNotificationToggle">
+              <span data-l10n-id="account-hub-notification-show-more"></span>
+              <span data-l10n-id="account-hub-notification-show-less"></span>
+            </div>
+          </summary>
+          <p id="emailFormNotificationText" class="notification-text">
+            <span class="localized-description"></span>
+            <span class="raw-description"></span>
+          </p>
+        </details>
+      </header>
+    </template>
+    <template id="accountHubStepTemplate">
+      <account-hub-header>
+        <span id="title" slot="title"></span>
+        <span id="subheader" slot="subheader"></span>
+      </account-hub-header>
+      <div class="account-hub-grid">
+        <slot name="content"></slot>
+      </div>
+    </template>
+    <template id="accountHubInputTemplate">
+      <label></label>
+      <div class="input-control">
+        <input aria-invalid="false" />
+        <img src="" alt="" class="form-icon icon-danger input-warning" />
+        <img src="" alt="" class="form-icon icon-success input-success" />
+        <span class="input-error-message"></span>
+      </div>
+      <small class="account-hub-form-small-comment" hidden="hidden"></small>
+    </template>
+    <template id="accountHubCheckboxTemplate">
+      <div>
+        <input type="checkbox" />
+        <label></label>
+      </div>
+    </template>
+    <template id="accountHubSelectTemplate">
+      <label></label>
+      <div class="input-control">
+        <select class="menulist" flex="1"></select>
+        <p id="securityWarning" class="input-error-message">
+          <span data-l10n-name="error-text"></span>
+          <a class="more-info-link" data-l10n-name="error-link"></a>
+        </p>
+        <slot hidden="hidden"></slot>
+      </div>
+    </template>
+    <template id="accountHubRadioCardLargeTemplate">
+      <label>
+        <div class="title-line">
+          <slot name="title" class="title"></slot>
+          <slot name="tag"></slot>
+        </div>
+        <slot name="description" class="description"></slot>
+      </label>
+    </template>
+    <template id="accountHubEmailExchangeTypeTemplate">
+      <form id="exchangeTypeForm" class="account-hub-form" slot="content">
+        <div class="hub-body">
+          <fieldset
+            role="radiogroup"
+            class="form-row radio-card-large-group"
+            aria-labelledby="title"
+          >
+            <legend
+              class="screen-reader-only"
+              data-l10n-id="account-hub-exchange-type-account-type"
+            ></legend>
+            <account-hub-radio-card-large value="graph">
+              <span slot="title" data-l10n-id="account-hub-card-graph-title"></span>
+              <span slot="description">
+                <span data-l10n-id="account-hub-card-graph-description"></span>
+                <span
+                  data-l10n-id="account-hub-card-recommended-description"
+                  hidden="hidden"
+                ></span>
+              </span>
+            </account-hub-radio-card-large>
+            <account-hub-radio-card-large value="ews">
+              <span slot="title" data-l10n-id="account-hub-card-ews-title"></span>
+              <span slot="tag" data-l10n-id="account-hub-card-ews-tag"></span>
+              <span slot="description">
+                <span data-l10n-id="account-hub-card-ews-description"></span>
+                <span
+                  data-l10n-id="account-hub-card-recommended-description"
+                  hidden="hidden"
+                ></span>
+              </span>
+            </account-hub-radio-card-large>
+          </fieldset>
+          <div class="panel">
+            <account-hub-input
+              id="exchangeTypeUsername"
+              type="text"
+              l10n-label-id="account-hub-exchange-type-username"
+              l10n-help-text-id="account-hub-exchange-type-username-hint"
+              name="username"
+              placeholder="name@example.com"
+              required="required"
+              classes="input-field"
+            ></account-hub-input>
+            <account-hub-select
+              id="exchangeTypeAuthentication"
+              l10n-label-id="account-hub-exchange-type-authentication"
+              required="required"
+            >
+              <option
+                id="incomingAuthMethodCleartext"
+                data-l10n-id="account-hub-ssl-cleartext-password-option"
+                value="3"
+              ></option>
+              <option id="incomingAuthMethodNtlm" label="NTLM" value="6"></option>
+              <option
+                id="incomingAuthMethodOAuth2"
+                value="10"
+                selected="selected"
+                label="OAuth2"
+              ></option>
+            </account-hub-select>
+            <div id="exchangeTypeOauthOptions" class="panel-subsection">
+              <account-hub-checkbox
+                id="exchangeTypeDefaultOauth"
+                l10n-label-id="account-hub-exchange-type-default-oauth"
+                checkbox-type="check"
+                checked="checked"
+                aria-controls="exchangeTypeOauthCustom"
+              ></account-hub-checkbox>
+              <div id="exchangeTypeOauthCustom" class="panel-subsection">
+                <account-hub-input
+                  id="exchangeTypeOauthTenant"
+                  l10n-label-id="account-hub-exchange-type-oauth-tenant"
+                  type="text"
+                  required="required"
+                  classes="input-field"
+                ></account-hub-input>
+                <account-hub-input
+                  id="exchangeTypeOauthApp"
+                  l10n-label-id="account-hub-exchange-type-oauth-app"
+                  type="text"
+                  required="required"
+                  classes="input-field"
+                ></account-hub-input>
+              </div>
+            </div>
+            <button
+              type="button"
+              class="button link-button align-self-end"
+              data-l10n-id="account-hub-exchange-type-advanced-config"
+            ></button>
+          </div>
+        </div>
+      </form>
+    </template>
+    <email-exchange-type></email-exchange-type>
+  </body>
+</html>

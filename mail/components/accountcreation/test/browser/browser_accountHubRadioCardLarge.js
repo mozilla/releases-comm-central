@@ -149,3 +149,28 @@ add_task(function test_keyboardSelect() {
 
   Assert.ok(card.checked);
 });
+
+add_task(async function test_changeEventOnMouseSelect() {
+  const changeEvent = BrowserTestUtils.waitForEvent(cards[1], "change");
+
+  EventUtils.synthesizeMouseAtCenter(cards[1], {}, browser.contentWindow);
+
+  const event = await changeEvent;
+  Assert.equal(event.target, cards[1], "Selected card should emit change");
+  checkSelectionState("second");
+});
+
+add_task(async function test_changeEventOnKeyboardSelect() {
+  const changeEvent = BrowserTestUtils.waitForEvent(cards[2], "change");
+  cards[1].focus();
+
+  EventUtils.synthesizeKey("KEY_ArrowRight", {}, browser.contentWindow);
+
+  const event = await changeEvent;
+  Assert.equal(
+    event.target,
+    cards[2],
+    "Keyboard-selected card should emit change"
+  );
+  checkSelectionState("last");
+});

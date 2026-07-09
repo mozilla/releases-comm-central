@@ -74,6 +74,7 @@ class AccountHubRadioCardLarge extends HTMLElement {
   handleEvent(event) {
     if (!this.checked && (event.type == "click" || event.key == " ")) {
       this.checked = true;
+      this.#dispatchChange();
       return;
     }
     if (event.type != "keydown") {
@@ -90,12 +91,25 @@ class AccountHubRadioCardLarge extends HTMLElement {
     if (event.key == forwardKey || event.key == "ArrowDown") {
       const next = allRadios.at((thisIndex + 1) % allRadios.length);
       next.focus();
-      next.checked = true;
+      if (!next.checked) {
+        next.checked = true;
+        next.#dispatchChange();
+      }
     } else if (event.key == backwardKey || event.key == "ArrowUp") {
       const previous = allRadios.at(thisIndex - 1);
       previous.focus();
-      previous.checked = true;
+      if (!previous.checked) {
+        previous.checked = true;
+        previous.#dispatchChange();
+      }
     }
+  }
+
+  /**
+   * Dispatches a change event when user interaction changes the selected card.
+   */
+  #dispatchChange() {
+    this.dispatchEvent(new Event("change", { bubbles: true }));
   }
 
   /**
