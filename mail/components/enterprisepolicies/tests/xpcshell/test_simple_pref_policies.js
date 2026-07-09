@@ -29,16 +29,6 @@ const POLICIES_TESTS = [
    * },
    */
 
-  // POLICY: RememberPasswords
-  {
-    policies: { OfferToSaveLogins: false },
-    lockedPrefs: { "signon.rememberSignons": false },
-  },
-  {
-    policies: { OfferToSaveLogins: true },
-    lockedPrefs: { "signon.rememberSignons": true },
-  },
-
   // POLICY: DisableSecurityBypass
   {
     policies: {
@@ -240,6 +230,19 @@ const POLICIES_TESTS = [
     unlockedPrefs: {
       "signon.rememberSignons": false,
     },
+  },
+
+  // XXX: This policy will lock signon.rememberSignons thus breaking the
+  //      test of the above policy
+  //
+  // POLICY: RememberPasswords
+  {
+    policies: { OfferToSaveLogins: false },
+    lockedPrefs: { "signon.rememberSignons": false },
+  },
+  {
+    policies: { OfferToSaveLogins: true },
+    lockedPrefs: { "signon.rememberSignons": true },
   },
 
   // POLICY: PDFjs

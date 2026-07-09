@@ -14,8 +14,6 @@ support-files = [
   "extensionsettings.html",
 ]
 
-["browser_policies_setAndLockPref_API.js"]
-
 ["browser_policy_app_auto_update.js"]
 skip-if = [
   "os == 'win' && msix", # Updater is disabled in MSIX builds
