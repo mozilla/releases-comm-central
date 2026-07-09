@@ -604,9 +604,7 @@
 /* :::: Format toolbar :::: */
 
 #FormatToolbar {
-  &:not([hidden]) {
-    display: flex;
-  }
+  display: flex;
 
   & > menulist {
     margin-block: 1px;
@@ -1440,7 +1438,7 @@ button:is(#extraAddressRowsMenuButton, .remove-field-button, .recipient-button):
   margin-inline: 0.2em -0.2em;
 }
 
-.statusbar:not([hidden]) {
+.statusbar {
   display: flex;
   align-items: center;
   min-inline-size: 0;

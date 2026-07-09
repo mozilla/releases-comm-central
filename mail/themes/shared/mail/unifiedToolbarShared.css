@@ -404,7 +404,7 @@
   }
 }
 
-global-search-bar:not([hidden]) {
+global-search-bar {
   display: block;
   color: var(--layout-color-0);
 
