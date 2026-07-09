@@ -31,6 +31,8 @@ run-if = [
   "!headless",
 ] # See bug 1806870.
 
+["browser_calendarListReRegisterOrder.js"]
+
 ["browser_calendarTelemetry.js"]
 
 ["browser_calendarUnifinder.js"]

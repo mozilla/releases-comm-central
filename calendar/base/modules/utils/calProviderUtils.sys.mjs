@@ -462,6 +462,7 @@ export var provider = {
     static get mTransientProperties() {
       return {
         "cache.uncachedCalendar": true,
+        initialSortOrderPos: true,
         currentStatus: true,
         "itip.transport": true,
         "imip.identity": true,

@@ -135,8 +135,10 @@ async function loadCalendarManager() {
 
   /**
    * @param {calICalendar} calendar - Calendar to add to the calendar-list.
+   * @param {boolean} [reregistered=false] - When true, restore the calendar's
+   *   remembered list position instead of appending.
    */
-  function addCalendarItem(calendar) {
+  function addCalendarItem(calendar, reregistered = false) {
     const item = document
       .getElementById("calendar-list-item")
       .content.firstElementChild.cloneNode(true);
@@ -191,7 +193,13 @@ async function loadCalendarManager() {
       }
     );
 
-    calendarList.appendChild(item);
+    // On re-registration, restore the row to its remembered slot.
+    const sortPos = reregistered ? calendar.getProperty("initialSortOrderPos") : null;
+    if (sortPos == null) {
+      calendarList.appendChild(item);
+    } else {
+      calendarList.insertBefore(item, calendarList.children[Number(sortPos)] ?? null);
+    }
     if (calendar.getProperty("calendar-main-default")) {
       // The list needs to handle the addition of the row before we can select it.
       setTimeout(() => {
@@ -375,7 +383,7 @@ async function loadCalendarManager() {
     QueryInterface: ChromeUtils.generateQI(["calICalendarManagerObserver"]),
 
     onCalendarRegistered(calendar) {
-      addCalendarItem(calendar);
+      addCalendarItem(calendar, true);
       saveSortOrder();
     },
     onCalendarUnregistering(calendar) {

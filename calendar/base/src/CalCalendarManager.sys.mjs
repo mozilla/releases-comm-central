@@ -308,8 +308,14 @@ export const CalCalendarManager = new (class {
       sortOrder[sortOrderPref[i]] = i;
     }
 
+    // Re-register in list order so each calendar returns to its own position
+    // instead of pushing the others down.
+    const ordered = [...calendars].sort(
+      (a, b) => (sortOrder[a.id] ?? Infinity) - (sortOrder[b.id] ?? Infinity)
+    );
+
     const needsRefresh = [];
-    for (const calendar of calendars) {
+    for (const calendar of ordered) {
       try {
         this.notifyObservers("onCalendarUnregistering", [calendar]);
         this.unsetupCalendar(calendar, clearCache);
