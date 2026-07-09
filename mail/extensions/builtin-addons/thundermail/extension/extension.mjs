@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = "undefined" != typeof window ? window : "undefined" != typeof global ? global : "undefined" != typeof globalThis ? globalThis : "undefined" != typeof self ? self : {};
-		e.SENTRY_RELEASE = { id: "93ceef29b14e12563b8496ba1fbb503180f3deef" };
+		e.SENTRY_RELEASE = { id: "741e481585a8ba97d78d9ba0bb5fea4b3e6ce0c9" };
 		e._sentryModuleMetadata = e._sentryModuleMetadata || {}, e._sentryModuleMetadata[new e.Error().stack] = function(e) {
 			for (var n = 1; n < arguments.length; n++) {
 				var a = arguments[n];
@@ -10,11 +10,11 @@
 			}
 			return e;
 		}({}, e._sentryModuleMetadata[new e.Error().stack], {
-			"version": "2.0.2",
+			"version": "2.0.3",
 			"appHost": "management"
 		});
 		var n = new e.Error().stack;
-		n && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[n] = "1e3eae8e-cbfc-4b21-94db-199737e00802", e._sentryDebugIdIdentifier = "sentry-dbid-1e3eae8e-cbfc-4b21-94db-199737e00802");
+		n && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[n] = "2fd8b744-1fd0-4d1d-a340-bf564b8b28be", e._sentryDebugIdIdentifier = "sentry-dbid-2fd8b744-1fd0-4d1d-a340-bf564b8b28be");
 	} catch (e) {}
 })();
 var __create$2 = Object.create;
@@ -16023,6 +16023,7 @@ async function dbUserSetup(userStore, keychain, folderStore) {
 	const initResult = await init$2(userStore, keychain, folderStore);
 	if (initResult !== INIT_ERRORS.NONE) console.error(`User setup incomplete — init() returned error: ${Object.keys(INIT_ERRORS)[initResult]}`);
 }
+var UPLOAD_ABORTED = "UPLOAD_ABORTED";
 var UPLOAD_HTTP_RETRY_BASE_DELAY_MS = 1e3;
 /**
 * Exponential backoff with jitter for the upload PUT retry schedule:
@@ -16039,16 +16040,20 @@ function getUploadRetryDelayMs(attempt, baseDelayMs = UPLOAD_HTTP_RETRY_BASE_DEL
 	const jitter = .5 + Math.random() / 2;
 	return Math.floor(exponential * jitter);
 }
-var uploadWithTracker = ({ url, readableStream, progressTracker }) => {
+var uploadWithTracker = ({ url, readableStream, progressTracker, signal }) => {
 	const { setProgress } = progressTracker;
-	const XHR_TIMEOUT_MS = 6e4;
+	const XHR_TIMEOUT_MS = 18e4;
 	const attemptPut = (blob, attempt) => {
+		if (signal?.aborted) return Promise.reject(/* @__PURE__ */ new Error(UPLOAD_ABORTED));
 		if (attempt > 0) setProgress(0);
 		return new Promise((resolve, reject) => {
 			const xhr = new XMLHttpRequest();
 			xhr.open("PUT", url, true);
 			xhr.setRequestHeader("Content-Type", "application/octet-stream");
 			xhr.timeout = XHR_TIMEOUT_MS;
+			const onAbort = () => xhr.abort();
+			signal?.addEventListener("abort", onAbort, { once: true });
+			const cleanup = () => signal?.removeEventListener("abort", onAbort);
 			xhr.upload.onprogress = (event) => {
 				if (event.lengthComputable) {
 					const uploadProgress = event.loaded;
@@ -16056,17 +16061,28 @@ var uploadWithTracker = ({ url, readableStream, progressTracker }) => {
 				}
 			};
 			xhr.onload = () => {
+				cleanup();
 				if (xhr.status >= 200 && xhr.status < 300) resolve(xhr.response);
 				else {
 					console.error("Upload failed:");
 					reject(/* @__PURE__ */ new Error("UPLOAD_FAILED"));
 				}
 			};
-			xhr.onerror = () => reject(/* @__PURE__ */ new Error("XHR: UPLOAD_FAILED"));
-			xhr.ontimeout = () => reject(/* @__PURE__ */ new Error(`Upload timed out after ${XHR_TIMEOUT_MS / 1e3}s`));
+			xhr.onabort = () => {
+				cleanup();
+				reject(/* @__PURE__ */ new Error(UPLOAD_ABORTED));
+			};
+			xhr.onerror = () => {
+				cleanup();
+				reject(/* @__PURE__ */ new Error("XHR: UPLOAD_FAILED"));
+			};
+			xhr.ontimeout = () => {
+				cleanup();
+				reject(/* @__PURE__ */ new Error(`Upload timed out after ${XHR_TIMEOUT_MS / 1e3}s`));
+			};
 			xhr.send(blob);
 		}).catch((error) => {
-			if (attempt < 3) {
+			if (!(signal?.aborted || error?.message === "UPLOAD_ABORTED") && attempt < 3) {
 				const delayMs = getUploadRetryDelayMs(attempt);
 				console.warn(`HTTP PUT attempt ${attempt + 1} failed, retrying in ${delayMs}ms...`, error.message);
 				return new Promise((resolve) => setTimeout(resolve, delayMs)).then(() => attemptPut(blob, attempt + 1));
@@ -16149,15 +16165,18 @@ async function getBlob(id, size, key, isBucketStorage = true, filename = "dummy.
 		throw error;
 	}
 }
-async function sendBlob(blob, aesKey, api, progressTracker, isBucketStorage = true) {
+async function sendBlob(blob, aesKey, api, progressTracker, isBucketStorage = true, options = {}) {
+	const { signal, onUploadId } = options;
 	const stream = blobStream(blob);
 	if (!isBucketStorage) {
 		const result = await _upload(stream, aesKey, calculateEncryptedSize(blob.size), { progressTracker });
-		if (Array.isArray(result)) return result[0].id;
-		else return result.id;
+		const id = Array.isArray(result) ? result[0].id : result.id;
+		onUploadId?.(id);
+		return id;
 	}
 	try {
 		const { id, url } = await api.call("uploads/signed", { type: "application/octet-stream" }, "POST");
+		onUploadId?.(id);
 		progressTracker.setProcessStage("encrypting");
 		progressTracker.setText("Encrypting file");
 		const encrypted = await encrypt(stream, aesKey);
@@ -16169,7 +16188,8 @@ async function sendBlob(blob, aesKey, api, progressTracker, isBucketStorage = tr
 				controller.enqueue(encrypted);
 				controller.close();
 			} }),
-			progressTracker
+			progressTracker,
+			signal
 		});
 		return id;
 	} catch (error) {
@@ -32617,6 +32637,35 @@ var Uploader = class {
 		this.api = api;
 	}
 	/**
+	* Asks the backend to delete every part this upload attempt wrote to storage.
+	* Called when a multipart upload fails partway so that already-uploaded (and
+	* partially-uploaded) parts don't linger as orphaned bytes in the bucket.
+	*/
+	async deleteWrittenUploads(api, ids) {
+		if (ids.length === 0) return;
+		await api.call("uploads/cleanup", { ids }, "POST");
+	}
+	/**
+	* Fire-and-forget cleanup for use during page teardown (pagehide), when an
+	* upload is still in flight and the normal `if (fatalError)` cleanup will
+	* never run. Uses a `keepalive` fetch so the request survives the page being
+	* torn down, and cookie auth (`credentials: 'include'`) since requireJWT reads
+	* the auth cookie — a Bearer header can't be attached reliably at unload time.
+	* Best-effort only: hard kills/crashes still rely on the server-side reaper.
+	*/
+	teardownCleanup(api, ids) {
+		if (ids.length === 0) return;
+		try {
+			fetch(`${api.serverUrl}/api/uploads/cleanup`, {
+				method: "POST",
+				keepalive: true,
+				credentials: "include",
+				headers: { "content-type": "application/json" },
+				body: JSON.stringify({ ids })
+			});
+		} catch {}
+	}
+	/**
 	* Creates a multipart progress tracker that manages overall progress across all parts
 	*/
 	createMultipartProgressTracker(mainTracker, blobs, isMultipart, originalFileSize) {
@@ -32682,78 +32731,85 @@ var Uploader = class {
 		progressTracker.setProcessStage("preparing");
 		progressTracker.setText("Preparing file for upload");
 		const multipartTracker = this.createMultipartProgressTracker(progressTracker, blobs, shouldSplit, fileBlob.size);
+		const abortController = new AbortController();
+		const writtenUploadIds = /* @__PURE__ */ new Set();
 		const uploadPart = async (blob, index) => {
 			const filename = blob.name;
 			const isBucketStorage = api.isBucketStorage;
 			const partTracker = multipartTracker.getPartTracker(index);
+			const part = shouldSplit ? index + 1 : void 0;
+			const id = await sendBlob(blob, key, api, partTracker, isBucketStorage, {
+				signal: abortController.signal,
+				onUploadId: (uploadId) => writtenUploadIds.add(uploadId)
+			});
+			if (!id) throw new Error("Failed to send blob");
+			await retryUntilSuccessOrTimeout(async () => {
+				const { size } = await this.api.call(`uploads/${id}/stat`);
+				return !!size;
+			}, 2e3, 18e4);
 			let uploadResult = null;
+			let upload = null;
 			let retryCount = 0;
 			const maxRetries = 5;
-			const part = shouldSplit ? index + 1 : void 0;
-			while (retryCount < maxRetries && !uploadResult) try {
-				const id = await sendBlob(blob, key, api, partTracker, isBucketStorage);
-				if (!id) throw new Error("Failed to send blob");
-				if (!isBucketStorage) await retryUntilSuccessOrTimeout(async () => {
-					const { size } = await this.api.call(`uploads/${id}/stat`);
-					return !!size;
-				});
-				let createEntryFailure;
-				const result = await this.api.call("uploads", {
-					id,
-					size: blob.size,
-					ownerId: this.user.id,
-					type: blob.type,
-					containerId,
-					part,
-					fileHash: hashes[index]
-				}, "POST", {}, { onFailure: (failure) => {
-					createEntryFailure = failure;
-				} });
-				if (!result) {
-					const cause = createEntryFailureToCause(createEntryFailure);
-					captureException(cause, {
-						tags: {
-							upload_stage: "create_entry",
-							create_entry_failure_kind: createEntryFailure?.kind ?? "unknown",
-							...createEntryFailure?.kind === "http" ? { create_entry_http_status: String(createEntryFailure.status) } : {}
-						},
-						contexts: { create_entry: {
-							kind: createEntryFailure?.kind ?? "unknown",
-							status: createEntryFailure?.kind === "http" ? createEntryFailure.status : null,
-							statusText: createEntryFailure?.kind === "http" ? createEntryFailure.statusText : void 0,
-							body: createEntryFailure?.kind === "http" ? createEntryFailure.body : void 0
-						} }
-					});
-					throw new Error("Failed to create upload entry", { cause });
+			while (retryCount < maxRetries && !uploadResult) {
+				if (abortController.signal.aborted) throw new Error("Upload aborted");
+				try {
+					if (!upload) {
+						let createEntryFailure;
+						const result = await this.api.call("uploads", {
+							id,
+							size: blob.size,
+							ownerId: this.user.id,
+							type: blob.type,
+							containerId,
+							part,
+							fileHash: hashes[index]
+						}, "POST", {}, { onFailure: (failure) => {
+							createEntryFailure = failure;
+						} });
+						if (!result) {
+							const cause = createEntryFailureToCause(createEntryFailure);
+							captureException(cause, {
+								tags: {
+									upload_stage: "create_entry",
+									create_entry_failure_kind: createEntryFailure?.kind ?? "unknown",
+									...createEntryFailure?.kind === "http" ? { create_entry_http_status: String(createEntryFailure.status) } : {}
+								},
+								contexts: { create_entry: {
+									kind: createEntryFailure?.kind ?? "unknown",
+									status: createEntryFailure?.kind === "http" ? createEntryFailure.status : null,
+									statusText: createEntryFailure?.kind === "http" ? createEntryFailure.statusText : void 0,
+									body: createEntryFailure?.kind === "http" ? createEntryFailure.body : void 0
+								} }
+							});
+							throw new Error("Failed to create upload entry", { cause });
+						}
+						upload = result.upload;
+					}
+					const itemObj = await this.api.call(`containers/${containerId}/item`, {
+						uploadId: upload.id,
+						name: filename,
+						type: "MESSAGE",
+						wrappedKey: wrappedKeyStr,
+						multipart: shouldSplit ? true : false,
+						totalSize: fileBlob.size
+					}, "POST");
+					if (!itemObj) throw new Error("Failed to create item object");
+					uploadResult = {
+						upload,
+						itemObj
+					};
+				} catch (error) {
+					retryCount++;
+					console.error(`Create-entry attempt ${retryCount} failed:`, error);
+					if (retryCount >= maxRetries) {
+						const failureMessage = `Upload failed for ${fileBlob.name} after ${maxRetries} attempts` + (part ? ` (part ${part})` : "");
+						console.error(failureMessage, error);
+						throw new Error(failureMessage);
+					}
+					await new Promise((resolve) => setTimeout(resolve, Math.pow(2, retryCount) * 1e3));
 				}
-				const upload = result.upload;
-				const itemObj = await this.api.call(`containers/${containerId}/item`, {
-					uploadId: upload.id,
-					name: filename,
-					type: "MESSAGE",
-					wrappedKey: wrappedKeyStr,
-					multipart: shouldSplit ? true : false,
-					totalSize: fileBlob.size
-				}, "POST");
-				if (!itemObj) throw new Error("Failed to create item object");
-				uploadResult = {
-					upload,
-					itemObj
-				};
-			} catch (error) {
-				retryCount++;
-				console.error(`Upload attempt ${retryCount} failed:`, error);
-				if (retryCount >= maxRetries) {
-					const failureMessage = `Upload failed for ${fileBlob.name} after ${maxRetries} attempts` + (part ? ` (part ${part})` : "");
-					console.error(failureMessage, error);
-					progressTracker.setProcessStage("error");
-					progressTracker.setText(failureMessage);
-					progressTracker.error = failureMessage;
-					throw new Error(failureMessage);
-				}
-				await new Promise((resolve) => setTimeout(resolve, Math.pow(2, retryCount) * 1e3));
 			}
-			if (!uploadResult) return null;
 			const { itemObj } = uploadResult;
 			const item = {
 				...itemObj,
@@ -32766,24 +32822,42 @@ var Uploader = class {
 			multipartTracker.markPartComplete(index);
 			return item;
 		};
-		const uploadResponses = [];
-		const BATCH_SIZE = 5;
-		for (let i = 0; i < blobs.length; i += BATCH_SIZE) {
-			const batchPromises = blobs.slice(i, i + BATCH_SIZE).map((blob, batchIndex) => {
-				return uploadPart(blob, i + batchIndex);
-			});
-			const batchResults = await Promise.all(batchPromises);
-			if (batchResults.some((response) => response === null)) return null;
-			uploadResponses.push(...batchResults);
+		const uploadResponses = new Array(blobs.length);
+		let nextIndex = 0;
+		let fatalError = null;
+		const runWorker = async () => {
+			while (true) {
+				if (fatalError) return;
+				const index = nextIndex++;
+				if (index >= blobs.length) return;
+				try {
+					const item = await uploadPart(blobs[index], index);
+					if (!item) throw new Error(`Upload part ${index} returned no item`);
+					uploadResponses[index] = item;
+				} catch (error) {
+					if (!fatalError) fatalError = error;
+					abortController.abort();
+					return;
+				}
+			}
+		};
+		const onPageHide = () => this.teardownCleanup(api, [...writtenUploadIds]);
+		window.addEventListener("pagehide", onPageHide);
+		try {
+			const workerCount = Math.min(4, blobs.length);
+			await Promise.all(Array.from({ length: workerCount }, () => runWorker()));
+			if (fatalError) {
+				await this.deleteWrittenUploads(api, [...writtenUploadIds]).catch(() => {});
+				const failureMessage = fatalError instanceof Error ? fatalError.message : `Upload failed for ${fileBlob.name}`;
+				progressTracker.setProcessStage("error");
+				progressTracker.setText(failureMessage);
+				progressTracker.error = failureMessage;
+				throw fatalError instanceof Error ? fatalError : new Error(failureMessage);
+			}
+			return uploadResponses;
+		} finally {
+			window.removeEventListener("pagehide", onPageHide);
 		}
-		if (uploadResponses.length !== blobs.length) {
-			const failureMessage = `Upload failed for ${fileBlob.name}`;
-			progressTracker.setProcessStage("error");
-			progressTracker.setText(failureMessage);
-			progressTracker.error = failureMessage;
-			throw new Error(failureMessage);
-		}
-		return uploadResponses;
 	}
 };
 //#endregion
@@ -54352,7 +54426,7 @@ setTag("environmentName", getEnvironmentName({
 }));
 //#endregion
 //#region ../send/frontend/src/lib/logger.ts
-var version = "2.0.2";
+var version = "2.0.3";
 var LOG_LEVELS = {
 	debug: 0,
 	info: 1,
