@@ -9,13 +9,9 @@ use nserror::{
 };
 use nsstring::{nsACString, nsCString};
 use protocol_shared::{
-    client::ProtocolClient,
-    safe_xpcom::{
-        SafeExchangeFolderListener, SafeExchangeMessageCreateListener,
-        SafeExchangeMessageFetchListener, SafeExchangeMessageSyncListener,
-        SafeExchangeSimpleOperationListener, SafeUrlListener, uri::SafeUri,
-    },
-    xpcom_io,
+    client::ProtocolClient, safe_xpcom::{
+        SafeExchangeFolderListener, SafeExchangeMessageCreateListener, SafeExchangeMessageFetchListener, SafeExchangeMessageSyncListener, SafeExchangeSimpleOperationListener, SafeUrlListener, calendar_listener::SafeCalendarListener, uri::SafeUri,
+    }, xpcom_io,
 };
 
 use thin_vec::ThinVec;
@@ -24,8 +20,9 @@ use xpcom::{
     RefPtr,
     interfaces::{
         IExchangeFolderListener, IExchangeMessageCreateListener, IExchangeMessageFetchListener,
-        IExchangeMessageSyncListener, IExchangeSimpleOperationListener, nsIInputStream,
-        nsIMsgIncomingServer, nsIURI, nsIUrlListener,
+        IExchangeMessageSyncListener, IExchangeSimpleOperationListener,
+        IGraphCalendarDiscoveryListener, nsIInputStream, nsIMsgIncomingServer, nsIURI,
+        nsIUrlListener,
     },
     nsIID, xpcom_method,
 };
@@ -54,7 +51,7 @@ pub unsafe extern "C" fn NS_CreateGraphClient(iid: &nsIID, result: *mut *mut c_v
 
 /// `XpcomEwsBridge` provides an XPCOM interface implementation for mediating
 /// between C++ consumers and an async Rust Graph API client.
-#[xpcom::xpcom(implement(IExchangeClient), atomic)]
+#[xpcom::xpcom(implement(IExchangeClient, IGraphCalendarClient), atomic)]
 pub struct XpcomGraphBridge {
     client: OnceCell<Arc<XpComGraphClient<nsIMsgIncomingServer>>>,
 }
@@ -584,6 +581,19 @@ impl XpcomGraphBridge {
             ),
         )
         .detach();
+
+        Ok(())
+    }
+
+    xpcom_method!(detect_calendars => DetectCalendars(
+        listener: *const IGraphCalendarDiscoveryListener
+    ));
+    fn detect_calendars(&self, listener: &IGraphCalendarDiscoveryListener) -> Result<(), nsresult> {
+        let client = self.client()?;
+
+        let listener = SafeCalendarListener::new(listener);
+
+        moz_task::spawn_local("detect_calendars", client.detect_calendars(listener)).detach();
 
         Ok(())
     }

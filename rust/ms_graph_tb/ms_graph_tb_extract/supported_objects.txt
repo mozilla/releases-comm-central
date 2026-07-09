@@ -1,5 +1,7 @@
 # One Graph object schema base name per line.
 
+calendar
+calendarCollectionResponse
 directoryObject
 emailAddress
 entity

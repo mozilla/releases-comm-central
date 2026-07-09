@@ -1082,3 +1082,6 @@ pref("experimental.mail.ews.overrideOAuth.enabled", true);
 
 // Use the Microsoft365 sandbox application and tenant information.
 pref("mail.microsoft.useM365Sandbox", false);
+
+// Enable Graph API calendar support.
+pref("calendar.graph.enabled", false);

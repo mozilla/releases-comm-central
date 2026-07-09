@@ -1,0 +1,20 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsISupports.idl"
+
+interface IGraphCalendarDiscoveryListener;
+
+[scriptable, uuid(2df1d00a-8419-4292-826a-15b143b78544)]
+interface IGraphCalendarClient : nsISupports
+{
+    void detectCalendars(in IGraphCalendarDiscoveryListener listener);
+};
+
+[scriptable, uuid(54e4b644-a8a3-4d46-8920-81880f9208ec)]
+interface IGraphCalendarDiscoveryListener : nsISupports
+{
+    void onCalendarsDiscovered(in Array<AUTF8String> discoveredCalendars);
+    void onFailure(in nsresult errorStatus);
+};

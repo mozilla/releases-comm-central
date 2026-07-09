@@ -7,6 +7,7 @@
 #![doc = "Types related to User.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
 use crate::Nullable;
 use crate::odata::ExpandOptions;
+use crate::types::calendar::{Calendar, CalendarSelection};
 use crate::types::directory_object::{DirectoryObject, DirectoryObjectSelection};
 use crate::types::mail_folder::{MailFolder, MailFolderSelection};
 use crate::types::mailbox_settings::MailboxSettings;
@@ -96,6 +97,8 @@ pub enum UserSelection {
 #[strum_discriminants(derive(Display))]
 #[strum_discriminants(strum(serialize_all = "camelCase"))]
 pub enum UserExpand {
+    Calendar(ExpandOptions<CalendarSelection>),
+    Calendars(ExpandOptions<CalendarSelection>),
     CreatedObjects(ExpandOptions<DirectoryObjectSelection>),
     DirectReports(ExpandOptions<DirectoryObjectSelection>),
     MailFolders(ExpandOptions<MailFolderSelection>),
@@ -111,6 +114,8 @@ pub enum UserExpand {
 impl fmt::Display for UserExpand {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
+            UserExpand::Calendar(opt) => opt.full_format(f, ExpandNames::from(self)),
+            UserExpand::Calendars(opt) => opt.full_format(f, ExpandNames::from(self)),
             UserExpand::CreatedObjects(opt) => opt.full_format(f, ExpandNames::from(self)),
             UserExpand::DirectReports(opt) => opt.full_format(f, ExpandNames::from(self)),
             UserExpand::MailFolders(opt) => opt.full_format(f, ExpandNames::from(self)),
@@ -140,6 +145,10 @@ pub struct User {
     pub birthday: Option<String>,
     #[doc = "The telephone numbers for the user.\n\n NOTE: Although it's a string collection, only one number can be set for this property. Read-only for users synced from the on-premises directory. Returned by default. Supports `$filter` (`eq`, `not`, `ge`, `le`, `startsWith`)."]
     pub business_phones: Option<Vec<String>>,
+    #[doc = "The user's primary calendar.\n\n Read-only."]
+    pub calendar: Option<Calendar>,
+    #[doc = "The user's calendars.\n\n Read-only. Nullable."]
+    pub calendars: Option<Vec<Calendar>>,
     #[doc = "The city where the user is located.\n\n Maximum length is 128 characters. Returned only on `$select`. Supports `$filter` (`eq`, `ne`, `not`, `ge`, `le`, `in`, `startsWith`, and `eq` on null values)."]
     pub city: Option<Nullable<String>>,
     #[doc = "The name of the company that the user is associated with.\n\n This property can be useful for describing the company that a guest comes from. The maximum length is 64 characters.Returned only on `$select`. Supports `$filter` (`eq`, `ne`, `not`, `ge`, `le`, `in`, `startsWith`, and `eq` on null values)."]

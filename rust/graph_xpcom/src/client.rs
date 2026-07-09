@@ -33,6 +33,7 @@ mod create_folder;
 mod create_message;
 mod delete_folder;
 mod delete_message;
+mod detect_calendars;
 mod empty_folder;
 mod get_message;
 mod mark_as_junk;

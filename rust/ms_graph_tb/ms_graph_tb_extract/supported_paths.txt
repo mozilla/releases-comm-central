@@ -1,6 +1,7 @@
 # One OpenAPI path per line.
 
 /me
+/me/calendars
 /me/mailFolders
 /me/mailFolders/{mailFolder-id}
 /me/mailFolders/{mailFolder-id}/copy
