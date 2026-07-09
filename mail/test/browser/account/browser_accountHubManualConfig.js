@@ -1123,9 +1123,6 @@ add_task(async function test_config_found_manual_config_pref_enabled() {
       BrowserTestUtils.isVisible(configFoundTemplate.querySelector("#imap")),
     "The IMAP config option should be visible"
   );
-  const selectedConfigType = configFoundTemplate.querySelector(
-    `input[name="config-type"]:checked`
-  ).value;
 
   EventUtils.synthesizeMouseAtCenter(
     configFoundTemplate.querySelector("#editConfiguration"),
@@ -1135,24 +1132,20 @@ add_task(async function test_config_found_manual_config_pref_enabled() {
   const protocolSelectTemplate = dialog.querySelector(
     "#emailProtocolSelectSubview"
   );
-  const incomingConfigTemplate = dialog.querySelector(
-    "#emailIncomingConfigSubview"
+
+  const manualConfigTemplate = dialog.querySelector(
+    "#emailManualConfigSubview"
   );
   await TestUtils.waitForCondition(
-    () => BrowserTestUtils.isVisible(incomingConfigTemplate),
-    "The incoming config template should be in view"
+    () => BrowserTestUtils.isVisible(manualConfigTemplate),
+    "The manual config template should be in view"
   );
   Assert.ok(
     BrowserTestUtils.isHidden(protocolSelectTemplate),
     "The protocol select template should stay hidden"
   );
-  Assert.equal(
-    incomingConfigTemplate.querySelector("#incomingProtocol").value,
-    ["pop", "pop3"].includes(selectedConfigType) ? "2" : "1",
-    "The incoming protocol should use the found config"
-  );
 
-  await subtest_close_account_hub_dialog(dialog, incomingConfigTemplate);
+  await subtest_close_account_hub_dialog(dialog, manualConfigTemplate);
   await cleanupManualConfigPref();
 });
 

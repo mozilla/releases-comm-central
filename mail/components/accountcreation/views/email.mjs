@@ -565,6 +565,7 @@ class AccountHubEmail extends HTMLElement {
     this.#emailManualConfigSubview.hidden = true;
     this.#emailIncomingConfigSubview.hidden = true;
     this.#emailOutgoingConfigSubview.hidden = true;
+    this.#emailManualConfigSubview.hidden = true;
     this.#exchangeSettingsSubview.hidden = true;
     this.#emailCredentialsConfirmationSubview.hidden = true;
     this.#states.emailAutodiscoverAuthenticationSubview.subview.hidden = true;
@@ -803,18 +804,26 @@ class AccountHubEmail extends HTMLElement {
             ? "emailConfigFoundSubview"
             : "autoConfigSubview";
 
+        const newManualConfigPref = Services.prefs.getBoolPref(
+          "mail.accounthub.manualconfig.enabled",
+          false
+        );
+
         if (
-          this.#currentState != "emailConfigFoundSubview" &&
-          Services.prefs.getBoolPref(
-            "mail.accounthub.manualconfig.enabled",
-            false
-          )
+          newManualConfigPref &&
+          this.#currentState == "emailConfigFoundSubview"
         ) {
-          await this.#showProtocolSelectSubview(prevStep);
+          this.#initManualConfig(this.#currentConfig.incoming.type);
+          break;
+        }
+
+        if (newManualConfigPref) {
+          this.#showProtocolSelectSubview(prevStep);
           break;
         }
 
         await this.#initUI("incomingConfigSubview");
+
         this.#states[this.#currentState].previousStep = prevStep;
         // Apply the current state data to the new state.
         this.#currentSubview.setState(this.#currentConfig);
