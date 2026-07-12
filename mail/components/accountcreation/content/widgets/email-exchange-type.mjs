@@ -20,6 +20,18 @@ const EXCHANGE_DEFAULT_URLS = {
   graph: "https://graph.microsoft.com/",
 };
 
+const EXCHANGE_TYPE_FROM_CONFIG = {
+  exchange: "ews",
+  ews: "ews",
+  graph: "graph",
+};
+
+const EXCHANGE_AUTH_METHODS = [
+  Ci.nsMsgAuthMethod.passwordCleartext,
+  Ci.nsMsgAuthMethod.NTLM,
+  Ci.nsMsgAuthMethod.OAuth2,
+];
+
 /**
  * Account Hub Email Exchange type choice and config form.
  * Template ID: #accountHubEmailExchangeTypeTemplate (from accountHubEmailExchangeType.inc.xhtml)
@@ -237,7 +249,8 @@ class EmailExchangeType extends AccountHubStep {
   setState(configData) {
     this.#currentConfig = configData;
 
-    const incomingType = configData.incoming.type == "ews" ? "ews" : "graph";
+    const incomingType =
+      EXCHANGE_TYPE_FROM_CONFIG[configData?.incoming?.type] || "graph";
     const selectedCard = Array.from(this.#accountTypeCards).find(
       card => card.value == incomingType
     );
@@ -251,7 +264,11 @@ class EmailExchangeType extends AccountHubStep {
     this.#oauthApplicationInput.value =
       configData.incoming.oauthSettings?.clientId || "";
     this.#authenticationSelect.value = String(
-      configData.incoming.auth || Ci.nsMsgAuthMethod.OAuth2
+      InputSanitizer.enum(
+        configData?.incoming?.auth,
+        EXCHANGE_AUTH_METHODS,
+        Ci.nsMsgAuthMethod.OAuth2
+      )
     );
     this.#updateAuthenticationOptions();
   }

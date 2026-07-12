@@ -170,6 +170,14 @@ function setCustomOauthDetails(tenant, clientId) {
   subview.querySelector("#exchangeTypeOauthApp").value = clientId;
 }
 
+function createIncomingConfig(type, auth, username) {
+  const config = new AccountConfig();
+  config.incoming.type = type;
+  config.incoming.auth = auth;
+  config.incoming.username = username;
+  return config;
+}
+
 add_task(function test_titleHasFluentId() {
   const header = subview.shadowRoot.querySelector("account-hub-header");
   const titleFluentId = header.l10n.getAttributes(
@@ -380,6 +388,61 @@ add_task(async function test_ewsPasswordStillHidesDefaultOauth() {
     [oauthTenantInput, oauthApplicationInput],
     false,
     "Default OAuth checkbox"
+  );
+});
+
+add_task(function test_setStatePrefillsAutodiscoveredExchangeConfig() {
+  const config = createIncomingConfig(
+    "exchange",
+    Ci.nsMsgAuthMethod.passwordCleartext,
+    "autodiscovered@example.com"
+  );
+
+  subview.setState(config);
+
+  Assert.ok(
+    ewsCard.checked,
+    "An autodiscovered Exchange config should preselect EWS"
+  );
+  Assert.equal(
+    subview.querySelector("#exchangeTypeUsername").value,
+    "autodiscovered@example.com",
+    "The username should be prefilled from the discovered config"
+  );
+  Assert.equal(
+    authenticationSelect.value,
+    String(Ci.nsMsgAuthMethod.passwordCleartext),
+    "The authentication method should be prefilled from the discovered config"
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(oauthOptionsWrapperElement),
+    "OAuth defaults should stay hidden for a discovered password auth config"
+  );
+});
+
+add_task(function test_setStatePrefillsDiscoveredGraphConfig() {
+  const config = createIncomingConfig(
+    "graph",
+    Ci.nsMsgAuthMethod.OAuth2,
+    "graph-user@example.com"
+  );
+
+  subview.setState(config);
+
+  Assert.ok(graphCard.checked, "A Graph config should preselect Graph");
+  Assert.equal(
+    subview.querySelector("#exchangeTypeUsername").value,
+    "graph-user@example.com",
+    "The username should be prefilled from the Graph config"
+  );
+  Assert.equal(
+    authenticationSelect.value,
+    String(Ci.nsMsgAuthMethod.OAuth2),
+    "Graph should prefill OAuth2 authentication"
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(oauthOptionsWrapperElement),
+    "OAuth defaults should be visible for a discovered OAuth2 config"
   );
 });
 
