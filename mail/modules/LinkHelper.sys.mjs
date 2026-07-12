@@ -90,9 +90,11 @@ export function openLinkExternally(url, options) {
       .catch(console.error);
   }
   const isHttp = ["http", "https"].includes(uri.scheme);
+  // Never prompt for http. For file, always prompt.
   const promptForPermission =
-    !isHttp &&
-    Services.prefs.getBoolPref("mail.external_protocol_requires_permission");
+    uri.scheme == "file" ||
+    (!isHttp &&
+      Services.prefs.getBoolPref("mail.external_protocol_requires_permission"));
 
   let principal = options?.principal;
   if (!promptForPermission) {

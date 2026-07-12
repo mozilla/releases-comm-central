@@ -269,3 +269,43 @@ add_task(async function testDeclineWithoutResponse() {
   await calendar.deleteItem(event);
   await BrowserTestUtils.closeWindow(win);
 });
+
+/**
+ * Tests that clicking a file: URI attachment in an invitation shows the
+ * external protocol permission.
+ */
+add_task(async function testFileUriAttachmentPromptsForPermission() {
+  transport.reset();
+  const win = await openImipMessage(
+    new FileUtils.File(getTestFilePath("data/event-with-file-attachment.eml"))
+  );
+  const panel = win.document
+    .getElementById("messageBrowser")
+    .contentDocument.querySelector("calendar-invitation-panel");
+
+  if (panel.ownerDocument.hasPendingL10nMutations) {
+    await BrowserTestUtils.waitForEvent(panel.ownerDocument, "L10nMutationsFinished");
+  }
+
+  const attachmentLink = await TestUtils.waitForCondition(
+    () => panel.shadowRoot.querySelector("#attachments a"),
+    "waiting for file: attachment link"
+  );
+  Assert.ok(attachmentLink.href.startsWith("file:///"), "attachment link has a file: URI");
+
+  const dialogPromise = BrowserTestUtils.promiseAlertDialogOpen(
+    null,
+    "chrome://mozapps/content/handling/permissionDialog.xhtml",
+    {
+      isSubDialog: false,
+      callback(dialogWin) {
+        Assert.ok(true, "permission dialog shown for file: URI attachment");
+        dialogWin.document.querySelector("dialog").cancelDialog();
+      },
+    }
+  );
+  EventUtils.synthesizeMouseAtCenter(attachmentLink, {}, panel.documentGlobal);
+  await dialogPromise;
+
+  await BrowserTestUtils.closeWindow(win);
+});

@@ -592,9 +592,8 @@ pref("spellchecker.dictionaries.download.url", "https://addons.thunderbird.net/%
 pref("alerts.totalOpenTime", 10000);
 #endif
 
-// Don't show a prompt for external applications (http(s):// will never prompt).
+// Whether to prompt for external applications (http(s):// will never prompt).
 pref("mail.external_protocol_requires_permission", false);
-
 
 // analyze urls in mail messages for scams
 pref("mail.phishing.detection.enabled", true);
