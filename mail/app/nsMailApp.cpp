@@ -38,7 +38,7 @@
 #  define strcasecmp _stricmp
 #  ifdef MOZ_SANDBOX
 #    include "mozilla/sandboxing/SandboxInitialization.h"
-#    include "mozilla/sandboxing/sandboxLogging.h"
+#    include "mozilla/sandboxing/TargetGeckoServices.h"
 #  endif
 #endif
 #include "BinaryPath.h"
@@ -385,7 +385,8 @@ int main(int argc, char* argv[], char* envp[]) {
         return 1;
       }
 
-      childData.ProvideLogFunction = mozilla::sandboxing::ProvideLogFunction;
+      childData.setTargetGeckoServices =
+          mozilla::sandboxing::SetTargetGeckoServices;
     }
 #  endif
 
