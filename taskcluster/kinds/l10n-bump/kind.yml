@@ -17,7 +17,6 @@ task-defaults:
         # Match Firefox behavior of only landing on beta when the tree is closed
         dontbuild:
             by-project:
-                comm-(central|beta|release|esr140): false
                 default: true
         ignore-closed-tree:
             by-project:
