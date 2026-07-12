@@ -421,6 +421,10 @@ class AccountHubEmail extends HTMLElement {
     this.#emailAutoConfigSubview.addEventListener("config-updated", this);
     this.#emailAutoConfigSubview.addEventListener("edit-configuration", this);
     this.#emailProtocolSelectSubview.addEventListener("config-updated", this);
+    this.#states.exchangeTypeSubview.subview.addEventListener(
+      "config-updated",
+      this
+    );
     this.#emailIncomingConfigSubview.addEventListener("config-updated", this);
     this.#emailOutgoingConfigSubview.addEventListener("config-updated", this);
     this.#emailPasswordSubview.addEventListener("config-updated", this);
@@ -1166,6 +1170,18 @@ class AccountHubEmail extends HTMLElement {
       case "protocolSelectSubview":
         this.#currentConfig.incoming.type = stateData.protocolSelect;
         await this.#initManualConfig(stateData.protocolSelect);
+        break;
+      case "exchangeTypeSubview":
+        if (!(await this.#validateAccountConfig(stateData))) {
+          break;
+        }
+
+        // If we are not in the password subview, that means the account
+        // has been created and we can fetch the sync accounts.
+        if (this.#currentState != "emailPasswordSubview") {
+          await this.#fetchSyncAccounts();
+        }
+
         break;
       case "incomingConfigSubview":
         if (stateData.config.isExchangeConfig()) {

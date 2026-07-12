@@ -4,6 +4,10 @@
 
 "use strict";
 
+const { AccountConfig } = ChromeUtils.importESModule(
+  "resource:///modules/accountcreation/AccountConfig.sys.mjs"
+);
+
 const tabmail = document.getElementById("tabmail");
 let browser;
 let subview;
@@ -149,6 +153,21 @@ function assertAriaControlState(
     String(expanded),
     `${message} should report the expected expanded state`
   );
+}
+
+function setUsername(value) {
+  subview.querySelector("#exchangeTypeUsername").value = value;
+}
+
+function setDefaultOauth(checked) {
+  defaultOauthInput.checked = checked;
+  defaultOauthInput.dispatchEvent(new Event("change", { bubbles: true }));
+}
+
+function setCustomOauthDetails(tenant, clientId) {
+  setDefaultOauth(false);
+  subview.querySelector("#exchangeTypeOauthTenant").value = tenant;
+  subview.querySelector("#exchangeTypeOauthApp").value = clientId;
 }
 
 add_task(function test_titleHasFluentId() {
@@ -361,5 +380,102 @@ add_task(async function test_ewsPasswordStillHidesDefaultOauth() {
     [oauthTenantInput, oauthApplicationInput],
     false,
     "Default OAuth checkbox"
+  );
+});
+
+add_task(function test_captureGraphState() {
+  changeAccountType(graphCard);
+  setUsername("test@example.com");
+  setDefaultOauth(true);
+
+  const config = subview.captureState();
+
+  Assert.ok(
+    config instanceof AccountConfig,
+    "Capture state should return an AccountConfig"
+  );
+  Assert.equal(
+    config.source,
+    AccountConfig.kSourceUser,
+    "Exchange type state should be user-entered"
+  );
+  Assert.equal(config.incoming.type, "graph", "Graph should be captured");
+  Assert.equal(
+    config.incoming.exchangeURL,
+    "https://graph.microsoft.com/",
+    "Graph should use the default Graph endpoint"
+  );
+  Assert.equal(
+    config.incoming.hostname,
+    "graph.microsoft.com",
+    "Graph hostname should be captured from the endpoint"
+  );
+  Assert.equal(
+    config.incoming.auth,
+    Ci.nsMsgAuthMethod.OAuth2,
+    "Graph should capture OAuth2 authentication"
+  );
+  Assert.equal(
+    config.incoming.username,
+    "test@example.com",
+    "Username should be captured"
+  );
+  Assert.equal(
+    config.incoming.oauthSettings,
+    null,
+    "Default OAuth should not capture custom OAuth settings"
+  );
+});
+
+add_task(function test_captureCustomOauthState() {
+  changeAccountType(graphCard);
+  setUsername("test@example.com");
+  setCustomOauthDetails("test-tenant", "test-client-id");
+
+  const config = subview.captureState();
+
+  Assert.deepEqual(
+    config.incoming.oauthSettings,
+    {
+      useCustomDetails: true,
+      tenant: "test-tenant",
+      clientId: "test-client-id",
+      authorizationEndpoint:
+        "https://login.microsoftonline.com/test-tenant/oauth2/v2.0/authorize",
+      tokenEndpoint:
+        "https://login.microsoftonline.com/test-tenant/oauth2/v2.0/token",
+    },
+    "Custom OAuth details should be captured"
+  );
+});
+
+add_task(function test_captureEwsState() {
+  changeAccountType(ewsCard);
+  setUsername("test@example.com");
+  setDefaultOauth(true);
+  changeAuthenticationMethod(String(Ci.nsMsgAuthMethod.passwordCleartext));
+
+  const config = subview.captureState();
+
+  Assert.equal(config.incoming.type, "ews", "EWS should be captured");
+  Assert.equal(
+    config.incoming.exchangeURL,
+    "https://outlook.office365.com/EWS/Exchange.asmx",
+    "EWS should use the default Exchange endpoint"
+  );
+  Assert.equal(
+    config.incoming.hostname,
+    "outlook.office365.com",
+    "EWS hostname should be captured from the endpoint"
+  );
+  Assert.equal(
+    config.incoming.auth,
+    Ci.nsMsgAuthMethod.passwordCleartext,
+    "EWS should capture the selected authentication method"
+  );
+  Assert.equal(
+    config.incoming.username,
+    "test@example.com",
+    "Username should be captured"
   );
 });

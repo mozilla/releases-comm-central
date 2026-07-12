@@ -16,6 +16,8 @@ tags = ["oauth"]
 
 ["test_configVerifier.js"]
 
+["test_createInBackend.js"]
+
 ["test_exchangeAutoDiscover.js"]
 
 ["test_fetchConfig.js"]

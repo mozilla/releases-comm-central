@@ -8,6 +8,18 @@ import "./account-hub-input.mjs"; // eslint-disable-line import/no-unassigned-im
 import "./account-hub-select.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./account-hub-checkbox.mjs"; // eslint-disable-line import/no-unassigned-import
 
+const { AccountConfig } = ChromeUtils.importESModule(
+  "resource:///modules/accountcreation/AccountConfig.sys.mjs"
+);
+const { InputSanitizer } = ChromeUtils.importESModule(
+  "resource:///modules/accountcreation/InputSanitizer.sys.mjs"
+);
+
+const EXCHANGE_DEFAULT_URLS = {
+  ews: "https://outlook.office365.com/EWS/Exchange.asmx",
+  graph: "https://graph.microsoft.com/",
+};
+
 /**
  * Account Hub Email Exchange type choice and config form.
  * Template ID: #accountHubEmailExchangeTypeTemplate (from accountHubEmailExchangeType.inc.xhtml)
@@ -15,6 +27,27 @@ import "./account-hub-checkbox.mjs"; // eslint-disable-line import/no-unassigned
  * @tagname email-exchange-type
  */
 class EmailExchangeType extends AccountHubStep {
+  /**
+   * The current account configuration.
+   *
+   * @type {AccountConfig}
+   */
+  #currentConfig = new AccountConfig();
+
+  /**
+   * The form for the Exchange type step.
+   *
+   * @type {HTMLFormElement}
+   */
+  #form;
+
+  /**
+   * The username input.
+   *
+   * @type {AccountHubInput}
+   */
+  #usernameInput;
+
   /**
    * The account type radio cards.
    *
@@ -84,6 +117,8 @@ class EmailExchangeType extends AccountHubStep {
       .content.cloneNode(true);
     this.appendChild(template);
 
+    this.#form = this.querySelector("#exchangeTypeForm");
+    this.#usernameInput = this.querySelector("#exchangeTypeUsername");
     this.#authenticationSelect = this.querySelector(
       "#exchangeTypeAuthentication"
     );
@@ -110,15 +145,20 @@ class EmailExchangeType extends AccountHubStep {
       this.#oauthApplicationInput
     );
 
-    this.querySelector("#exchangeTypeForm").addEventListener("change", this);
+    this.#form.addEventListener("change", this);
+    this.#form.addEventListener("input", this);
 
     this.#updateAuthenticationOptions();
+    this.#checkFormValidity();
   }
 
   handleEvent(event) {
     switch (event.type) {
       case "change":
         this.#updateAuthenticationOptions();
+        break;
+      case "input":
+        this.#checkFormValidity();
         break;
     }
   }
@@ -140,6 +180,7 @@ class EmailExchangeType extends AccountHubStep {
     }
 
     this.#updateOauthOptions();
+    this.#checkFormValidity();
   }
 
   /**
@@ -165,16 +206,102 @@ class EmailExchangeType extends AccountHubStep {
   }
 
   /**
-   * Sets the state of the Exchange settings subview.
-   *
-   * @param {AccountConfig} _configData - An account configuration object.
+   * Dispatches an event whenever the form validity changes.
    */
-  setState(_configData) {}
+  #checkFormValidity() {
+    this.dispatchEvent(
+      new CustomEvent("config-updated", {
+        bubbles: true,
+        detail: { completed: this.#form.checkValidity() },
+      })
+    );
+  }
+
+  /**
+   * The selected Exchange account type.
+   *
+   * @returns {string} The selected account type.
+   */
+  #getSelectedAccountType() {
+    return (
+      Array.from(this.#accountTypeCards).find(card => card.checked)?.value ||
+      this.#accountTypeCards[0]?.value
+    );
+  }
+
+  /**
+   * Sets the state of the Exchange type subview.
+   *
+   * @param {AccountConfig} configData - An account configuration object.
+   */
+  setState(configData) {
+    this.#currentConfig = configData;
+
+    const incomingType = configData.incoming.type == "ews" ? "ews" : "graph";
+    const selectedCard = Array.from(this.#accountTypeCards).find(
+      card => card.value == incomingType
+    );
+    selectedCard.checked = true;
+
+    this.#usernameInput.value = configData.incoming.username || "";
+    this.#defaultOauthCheckbox.checked =
+      !configData.incoming.oauthSettings?.useCustomDetails;
+    this.#oauthTenantInput.value =
+      configData.incoming.oauthSettings?.tenant || "";
+    this.#oauthApplicationInput.value =
+      configData.incoming.oauthSettings?.clientId || "";
+    this.#authenticationSelect.value = String(
+      configData.incoming.auth || Ci.nsMsgAuthMethod.OAuth2
+    );
+    this.#updateAuthenticationOptions();
+  }
 
   /**
    * Get the resulting Exchange account settings.
+   *
+   * @returns {AccountConfig} The updated account configuration.
    */
-  captureState() {}
+  captureState() {
+    const config = this.#currentConfig.copy();
+    const accountType = this.#getSelectedAccountType();
+    const exchangeURL =
+      accountType == "ews"
+        ? config.incoming.exchangeURL || EXCHANGE_DEFAULT_URLS.ews
+        : EXCHANGE_DEFAULT_URLS.graph;
+    const hostname = URL.parse(exchangeURL).hostname;
+
+    config.source = AccountConfig.kSourceUser;
+    config.incoming.type = accountType;
+    config.incoming.hostname = hostname;
+    config.incoming.port = 443;
+    config.incoming.socketType = Ci.nsMsgSocketType.SSL;
+    config.incoming.auth = InputSanitizer.integer(
+      this.#authenticationSelect.value
+    );
+    config.incoming.username = this.#usernameInput.value;
+    config.incoming.exchangeURL = exchangeURL;
+    config.incoming.oauthSettings = null;
+
+    if (
+      config.incoming.auth == Ci.nsMsgAuthMethod.OAuth2 &&
+      !this.#defaultOauthCheckbox.checked
+    ) {
+      const tenant = InputSanitizer.nonemptystring(
+        this.#oauthTenantInput.value
+      );
+      config.incoming.oauthSettings = {
+        useCustomDetails: true,
+        tenant,
+        clientId: InputSanitizer.nonemptystring(
+          this.#oauthApplicationInput.value
+        ),
+        authorizationEndpoint: `https://login.microsoftonline.com/${tenant}/oauth2/v2.0/authorize`,
+        tokenEndpoint: `https://login.microsoftonline.com/${tenant}/oauth2/v2.0/token`,
+      };
+    }
+
+    return config;
+  }
 }
 
 customElements.define("email-exchange-type", EmailExchangeType);

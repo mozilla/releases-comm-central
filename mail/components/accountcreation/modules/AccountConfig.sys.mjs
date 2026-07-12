@@ -148,6 +148,8 @@ AccountConfig.prototype = {
       owaURL: null,
       exchangeURL: null,
       easURL: null,
+      // Optional custom OAuth details for Exchange servers.
+      oauthSettings: null,
 
       // for when an addon overrides the account type. Optional.
       addonAccountType: null,

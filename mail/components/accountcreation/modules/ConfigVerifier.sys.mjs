@@ -8,6 +8,8 @@ import { OAuth2Providers } from "resource:///modules/OAuth2Providers.sys.mjs";
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
+  CreateInBackend:
+    "resource:///modules/accountcreation/CreateInBackend.sys.mjs",
   OAuth2Module: "resource:///modules/OAuth2Module.sys.mjs",
 });
 ChromeUtils.defineLazyGetter(
@@ -440,6 +442,10 @@ export class ConfigVerifier {
         if (config.incoming.easURL) {
           this.server.setStringValue("eas_url", config.incoming.easURL);
         }
+        lazy.CreateInBackend.applyExchangeOAuthSettings(
+          this.server,
+          config.incoming
+        );
 
         this.verifyLogon();
       } catch (e) {

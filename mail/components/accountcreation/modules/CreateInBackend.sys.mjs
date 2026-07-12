@@ -115,6 +115,7 @@ async function createAccountInBackend(config) {
   if (config.incoming.easURL) {
     inServer.setStringValue("eas_url", config.incoming.easURL);
   }
+  applyExchangeOAuthSettings(inServer, config.incoming);
   inServer.valid = true;
 
   if (config.configureOutgoingFromIncoming()) {
@@ -287,6 +288,28 @@ async function createAccountInBackend(config) {
     );
   }
   return account;
+}
+
+/**
+ * Apply Exchange custom OAuth settings to an incoming server.
+ *
+ * @param {nsIMsgIncomingServer} incomingServer - The server to update.
+ * @param {object} incomingConfig - The incoming account configuration.
+ */
+function applyExchangeOAuthSettings(incomingServer, incomingConfig) {
+  if (
+    !incomingConfig.oauthSettings?.useCustomDetails ||
+    !["ews", "graph"].includes(incomingConfig.type)
+  ) {
+    return;
+  }
+
+  const exchangeServer = incomingServer.QueryInterface(
+    Ci.IExchangeIncomingServer
+  );
+  exchangeServer.exchangeOverrideOAuthDetails = true;
+  exchangeServer.exchangeApplicationId = incomingConfig.oauthSettings.clientId;
+  exchangeServer.exchangeTenantId = incomingConfig.oauthSettings.tenant;
 }
 
 function setFolders(identity, server) {
@@ -467,6 +490,7 @@ function verifyLocalFoldersAccount() {
 }
 
 export const CreateInBackend = {
+  applyExchangeOAuthSettings,
   checkIncomingServerAlreadyExists,
   checkOutgoingServerAlreadyExists,
   createAccountInBackend,
