@@ -53,8 +53,6 @@ class AddressBookRemoteAccountForm extends AccountHubStep {
     this.#username.addEventListener("input", this);
     this.#davServer.addEventListener("input", this);
     this.resetState();
-
-    this.showBrandingHeader();
   }
 
   handleEvent(event) {

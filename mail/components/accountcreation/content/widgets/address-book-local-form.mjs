@@ -30,7 +30,6 @@ class AddressBookLocalForm extends AccountHubStep {
       .content.cloneNode(true);
     this.appendChild(template);
 
-    this.showBrandingHeader();
     this.querySelector("#addressBookName").addEventListener("input", this);
   }
 

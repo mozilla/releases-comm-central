@@ -30,8 +30,6 @@ class EmailCredentialsConfirmation extends AccountHubStep {
     this.appendChild(template);
 
     this.querySelector("#manualConfiguration").addEventListener("click", this);
-
-    super.showBrandingHeader();
   }
 
   handleEvent(event) {

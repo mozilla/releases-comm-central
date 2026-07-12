@@ -22,8 +22,6 @@ class AddressBookAccountSelect extends AccountHubStep {
       .getElementById("accountHubAddressBookAccountSelectTemplate")
       .content.cloneNode(true);
     this.appendChild(template);
-
-    this.showBrandingHeader();
   }
 
   /**

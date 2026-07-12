@@ -114,7 +114,6 @@ class AddressBookLdapAccountForm extends AccountHubStep {
     this.#maxResults = this.querySelector("#maxResults");
 
     this.resetState();
-    this.showBrandingHeader();
     this.#setupEventListeners();
   }
 

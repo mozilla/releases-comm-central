@@ -32,6 +32,17 @@ add_setup(async function () {
   });
 });
 
+add_task(function test_brandingHeaderHidden() {
+  const brandingHeader = subview.shadowRoot
+    .querySelector("account-hub-header")
+    .shadowRoot.querySelector("#brandingHeader");
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(brandingHeader),
+    "The LDAP address book subview should not show branding"
+  );
+});
+
 add_task(function test_setState() {
   directoryName.value = "content";
   subview.setState();

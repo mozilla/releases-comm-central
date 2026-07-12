@@ -63,6 +63,10 @@ add_task(async function test_initialization() {
     BrowserTestUtils.isVisible(optionSelectSubview),
     "The option select subview should be visible"
   );
+  assertBrandingHeaderVisible(
+    optionSelectSubview,
+    "The address book start subview should show branding"
+  );
 
   Assert.ok(
     BrowserTestUtils.isHidden(
@@ -149,6 +153,10 @@ add_task(async function test_optionAndAccountSelectFormSubmission() {
   // it by viewing it, and then go back to option select to see if setState is
   // called when the form is submitted again.
   const accountSelectSubview = await subtest_viewAccountOptions();
+  assertBrandingHeaderHidden(
+    accountSelectSubview,
+    "The account select subview should not show branding"
+  );
   let setStateSpy = sinon.spy(accountSelectSubview, "setState");
   const backButton = abView.querySelector("account-hub-footer #back");
   Assert.equal(backButton.disabled, false, "#back button should be enabled");
@@ -224,6 +232,10 @@ add_task(async function test_optionAndAccountSelectFormSubmission() {
   // it by viewing it, and then go back to account select to see if setState is
   // called when the form is submitted again.
   const syncSubview = await subtest_viewSyncAddressBooks(accountSelectSubview);
+  assertBrandingHeaderHidden(
+    syncSubview,
+    "The address book sync subview should not show branding"
+  );
   setStateSpy = sinon.spy(syncSubview, "setState");
 
   Assert.report(
@@ -334,6 +346,15 @@ add_task(async function test_configUpdatedEvent() {
     abView.documentGlobal
   );
   await viewSubmit;
+  let remoteSubview;
+  await TestUtils.waitForCondition(() => {
+    remoteSubview = abView.querySelector("address-book-remote-account-form");
+    return remoteSubview?.shadowRoot;
+  }, "waiting for the remote address book subview to be connected");
+  assertBrandingHeaderHidden(
+    remoteSubview,
+    "The remote address book subview should not show branding"
+  );
 
   const forwardButton = abView.querySelector("#forward");
 
@@ -523,6 +544,10 @@ add_task(async function test_localAddressBookForwardEventAndCreation() {
     localForm = abView.querySelector("address-book-local-form form");
     return localForm?.getBoundingClientRect().width;
   }, `waiting for new local address book subview to be visible`);
+  assertBrandingHeaderHidden(
+    localForm.closest("address-book-local-form"),
+    "The local address book subview should not show branding"
+  );
 
   const input = localForm.querySelector("input");
 
@@ -646,4 +671,36 @@ async function subtest_clickContinue() {
   );
   EventUtils.synthesizeMouseAtCenter(forwardButton, {}, abView.documentGlobal);
   await formSubmissionPromise;
+}
+
+/**
+ * Get the branding header for a subview using the account-hub-step template.
+ *
+ * @param {HTMLElement} subview - The subview custom element.
+ * @returns {HTMLElement} The branding header.
+ */
+function getBrandingHeader(subview) {
+  return subview.shadowRoot
+    .querySelector("account-hub-header")
+    .shadowRoot.querySelector("#brandingHeader");
+}
+
+/**
+ * Assert that a subview shows the branding header.
+ *
+ * @param {HTMLElement} subview - The subview custom element.
+ * @param {string} message - The assertion message.
+ */
+function assertBrandingHeaderVisible(subview, message) {
+  Assert.ok(BrowserTestUtils.isVisible(getBrandingHeader(subview)), message);
+}
+
+/**
+ * Assert that a subview hides the branding header.
+ *
+ * @param {HTMLElement} subview - The subview custom element.
+ * @param {string} message - The assertion message.
+ */
+function assertBrandingHeaderHidden(subview, message) {
+  Assert.ok(BrowserTestUtils.isHidden(getBrandingHeader(subview)), message);
 }

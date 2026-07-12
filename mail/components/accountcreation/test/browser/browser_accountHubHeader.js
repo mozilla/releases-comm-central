@@ -17,6 +17,10 @@ add_setup(async function () {
   tab.browser.focus();
   header =
     tab.browser.contentWindow.document.querySelector("account-hub-header");
+  const style = header.shadowRoot.querySelector("link[rel='stylesheet']");
+  if (!style.sheet) {
+    await BrowserTestUtils.waitForEvent(style, "load");
+  }
 
   registerCleanupFunction(() => {
     tabmail.closeOtherTabs(tabmail.tabInfo[0]);
@@ -245,6 +249,42 @@ add_task(async function test_showNotification_error_without_cause() {
 add_task(async function test_showAccountHubBranding() {
   // The branding header is hidden until a step requests it, just like in the
   // real account hub flow.
+  const brandingHeader = header.shadowRoot.querySelector("#brandingHeader");
+  const getBrandingHeaderDisplay = () =>
+    brandingHeader.ownerDocument.documentGlobal.getComputedStyle(brandingHeader)
+      .display;
+  Assert.ok(
+    BrowserTestUtils.isHidden(brandingHeader),
+    "Branding header should be hidden by default"
+  );
+  Assert.equal(
+    getBrandingHeaderDisplay(),
+    "none",
+    "Hidden branding header should not be displayed"
+  );
+
+  header.showBrandingHeader();
+  Assert.ok(
+    BrowserTestUtils.isVisible(brandingHeader),
+    "Branding header should be visible when requested"
+  );
+  Assert.equal(
+    getBrandingHeaderDisplay(),
+    "flex",
+    "Visible branding header should use the branding layout"
+  );
+
+  brandingHeader.hidden = true;
+  Assert.ok(
+    BrowserTestUtils.isHidden(brandingHeader),
+    "Branding header should be hidden when the hidden attribute is set"
+  );
+  Assert.equal(
+    getBrandingHeaderDisplay(),
+    "none",
+    "Branding header with the hidden attribute should not be displayed"
+  );
+
   header.showBrandingHeader();
 
   Assert.equal(

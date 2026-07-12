@@ -73,7 +73,6 @@ class AddressBookSync extends AccountHubStep {
       .content.cloneNode(true);
     this.appendChild(template);
 
-    this.showBrandingHeader();
     this.#accountsContainer = this.querySelector(
       "#addressBookAccountsContainer"
     );
