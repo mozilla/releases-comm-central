@@ -145,7 +145,9 @@ function updateOnlineSearchState() {
 
   const checkbox = document.getElementById("searchOnline");
   checkbox.toggleAttribute("disabled", !includesOnlineServers);
-  checkbox.checked = !includesOnlineServers;
+  if (!includesOnlineServers) {
+    checkbox.checked = false;
+  }
 }
 
 function InitDialogWithVirtualFolder(aVirtualFolder) {
