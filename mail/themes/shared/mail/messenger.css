@@ -1175,6 +1175,27 @@ toolbarpaletteitem toolbarspring {
   font: menu;
 }
 
+.autocomplete-richlistbox {
+  padding: var(--autocomplete-box-padding);
+  /* Override styles for .row-item. */
+  --space-small: 2px;
+  --border-radius-large: 0;
+}
+
+.autocomplete-row-item {
+  padding: var(--autocomplete-item-padding);
+  border-radius: var(--autocomplete-item-radius);
+
+  &[selected] {
+    background-color: var(--autocomplete-popup-highlight-background);
+    color: var(--autocomplete-popup-highlight-color);
+    --button-text-color-hover: var(--autocomplete-popup-highlight-color) !important;
+    --button-background-color-hover: transparent !important;
+    --button-text-color-active: var(--autocomplete-popup-highlight-color) !important;
+    --button-background-color-active: transparent !important;
+  }
+}
+
 /* Autocomplete labels
  * These styles match those in chrome://calendar/content/calendar-event-dialog-attendees.css. */
 

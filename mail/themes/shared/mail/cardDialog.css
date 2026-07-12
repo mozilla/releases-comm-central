@@ -95,23 +95,6 @@ menulist::part(icon) {
   border-block-end: 1px solid hsla(0, 0%, 50%, 0.3);
 }
 
-panel[type="autocomplete-richlistbox"] {
-  border: 1px solid var(--border-color, ThreeDShadow);
-
-  &::part(content) {
-    border-width: 0;
-  }
-}
-
-.autocomplete-richlistbox {
-  border-width: 0;
-  border-radius: 0;
-}
-
-.autocomplete-richlistitem {
-  padding-inline-start: 3px;
-}
-
 .person-icon {
   margin: 0 3px;
   content: var(--icon-contact);

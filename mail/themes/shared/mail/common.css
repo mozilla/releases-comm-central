@@ -146,6 +146,11 @@ menupopup {
   }
 }
 
+panel[type="autocomplete-richlistbox"] {
+  background-color: transparent;
+  border: none;
+}
+
 tab[selected] {
   color: inherit;
   background-color: var(--panel-background-color-dimmed);

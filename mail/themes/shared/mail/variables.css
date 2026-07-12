@@ -18,6 +18,9 @@
   --panelui-subview-transition-duration: 150ms;
   --autocomplete-popup-highlight-background: var(--selected-item-color);
   --autocomplete-popup-highlight-color: var(--selected-item-text-color);
+  --autocomplete-box-padding: 3px;
+  --autocomplete-item-padding: 3px;
+  --autocomplete-item-radius: var(--button-border-radius);
   --button-background-color: var(--layout-background-3);
   --button-background-color-hover: var(--button-hover-background-color);
   --button-background-color-active: var(--button-active-background-color);
@@ -289,6 +292,9 @@
 
 :root[uidensity="compact"] {
   --tab-min-height: 30px;
+  --autocomplete-box-padding: 0;
+  --autocomplete-item-padding: 0;
+  --autocomplete-item-radius: 0;
   --button-min-height: 30px;
   --button-margin: 3px;
   --button-padding: 3px;
@@ -326,6 +332,7 @@
 
 :root[uidensity="touch"] {
   --tab-min-height: 39px;
+  --autocomplete-item-padding: 8px 3px;
   --button-pressed-indicator-padding: 3px;
   --sidebar-header-gap: 12px;
   --hub-body-elements-column-gap: 42px;

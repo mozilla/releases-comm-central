@@ -8,19 +8,6 @@
   --lwt-additional-images: none;
   --lwt-background-alignment: right top;
   --lwt-background-tiling: no-repeat;
-  --autocomplete-box-padding: 3px;
-  --autocomplete-item-padding: 3px;
-  --autocomplete-item-radius: var(--button-border-radius);
-
-  &[uidensity="compact"] {
-    --autocomplete-box-padding: 0;
-    --autocomplete-item-padding: 0;
-    --autocomplete-item-radius: 0;
-  }
-
-  &[uidensity="touch"] {
-    --autocomplete-item-padding: 8px 3px;
-  }
 }
 
 /* Styles for the default system dark theme */
@@ -35,52 +22,37 @@
     color: inherit;
     background-color: inherit;
   }
-
-  & .autocomplete-richlistitem[selected] {
-    background-color: var(--autocomplete-popup-highlight-background);
-    color: var(--autocomplete-popup-highlight-color);
-  }
 }
 
-.autocomplete-richlistbox {
-  padding: var(--autocomplete-box-padding);
-}
-
-.autocomplete-richlistitem {
-  padding: var(--autocomplete-item-padding);
-  border-radius: var(--autocomplete-item-radius);
-
-  &:hover {
-    background-color: var(--panel-background-color-dimmed);
-  }
-
-  &[selected] {
-    background-color: var(--selected-item-color);
-    color: var(--selected-item-text-color);
-  }
-
+.autocomplete-row-item {
   /* :::: autocomplete icons :::: */
-
-  & > .ac-site-icon {
+  & > autocomplete-row-item {
+    padding-inline-start: 20px;
+    background-position: 3px center;
+    background-repeat: no-repeat;
     -moz-context-properties: fill, stroke;
     fill: color-mix(in srgb, currentColor 20%, transparent);
     stroke: currentColor;
+
+    &:-moz-locale-dir(rtl) {
+      background-position-x: calc(100% - 3px);
+    }
   }
 
-  &[type="local-abook"] > .ac-site-icon {
-    list-style-image: var(--icon-address-book);
+  &[originaltype="local-abook"] > autocomplete-row-item {
+    background-image: var(--icon-address-book);
   }
 
-  &[type="remote-abook"] > .ac-site-icon {
-    list-style-image: var(--icon-globe);
+  &[originaltype="remote-abook"] > autocomplete-row-item {
+    background-image: var(--icon-globe);
   }
 
-  &[type="remote-err"] > .ac-site-icon {
-    list-style-image: var(--icon-error-circle);
+  &[originaltype="remote-err"] > autocomplete-row-item {
+    background-image: var(--icon-error-circle);
   }
 
-  &[type="subscribed-news-abook"] > .ac-site-icon {
-    list-style-image: var(--icon-newsletter);
+  &[originaltype="subscribed-news-abook"] > autocomplete-row-item {
+    background-image: var(--icon-newsletter);
   }
 }
 
