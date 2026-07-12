@@ -425,6 +425,10 @@ class AccountHubEmail extends HTMLElement {
       "config-updated",
       this
     );
+    this.#states.exchangeTypeSubview.subview.addEventListener(
+      "advanced-config",
+      this
+    );
     this.#emailIncomingConfigSubview.addEventListener("config-updated", this);
     this.#emailOutgoingConfigSubview.addEventListener("config-updated", this);
     this.#emailPasswordSubview.addEventListener("config-updated", this);

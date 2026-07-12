@@ -159,6 +159,10 @@ class EmailExchangeType extends AccountHubStep {
 
     this.#form.addEventListener("change", this);
     this.#form.addEventListener("input", this);
+    this.querySelector("#advancedConfigurationExchange").addEventListener(
+      "click",
+      this
+    );
 
     this.#updateAuthenticationOptions();
     this.#checkFormValidity();
@@ -171,6 +175,15 @@ class EmailExchangeType extends AccountHubStep {
         break;
       case "input":
         this.#checkFormValidity();
+        break;
+      case "click":
+        if (event.currentTarget.id === "advancedConfigurationExchange") {
+          this.dispatchEvent(
+            new CustomEvent("advanced-config", {
+              bubbles: true,
+            })
+          );
+        }
         break;
     }
   }

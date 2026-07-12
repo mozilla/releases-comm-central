@@ -1531,6 +1531,157 @@ add_task(
   }
 );
 
+add_task(
+  async function test_exchange_type_advanced_configuration_pref_enabled() {
+    await enableManualConfigPref();
+
+    const existingOutgoingServerKeys = new Set(
+      MailServices.outgoingServer.servers.map(server => server.key)
+    );
+    const tabmail = document.getElementById("tabmail");
+    let account;
+    let accountTab;
+
+    try {
+      const dialog = await subtest_open_account_hub_dialog();
+      const emailTemplate = dialog.querySelector("email-auto-form");
+      const nameInput = emailTemplate.querySelector("#realName");
+      const emailInput = emailTemplate.querySelector("#email");
+
+      // Ensure fields are empty.
+      nameInput.value = "";
+      emailInput.value = "";
+
+      await fillInvalidUserInfo(nameInput, emailInput);
+
+      const manualConfigButton = emailTemplate.querySelector(
+        "#manualConfiguration"
+      );
+      await TestUtils.waitForCondition(
+        () => BrowserTestUtils.isVisible(manualConfigButton),
+        "Manual config button should be visible"
+      );
+      manualConfigButton.click();
+
+      const protocolSelectTemplate = dialog.querySelector(
+        "#emailProtocolSelectSubview"
+      );
+      await BrowserTestUtils.waitForAttributeRemoval(
+        "hidden",
+        protocolSelectTemplate
+      );
+
+      await subtest_select_protocol_and_continue(dialog, "microsoft");
+
+      const exchangeSettingsSubview = dialog.querySelector(
+        "#emailExchangeSettingsSubview"
+      );
+      await BrowserTestUtils.waitForAttributeRemoval(
+        "hidden",
+        exchangeSettingsSubview
+      );
+
+      const serviceURL = exchangeSettingsSubview.querySelector("#serviceURL");
+      const serviceURLInput = serviceURL.querySelector("input");
+      const exchangeSettingsCompleted = BrowserTestUtils.waitForEvent(
+        exchangeSettingsSubview,
+        "config-updated",
+        false,
+        event => event.detail.completed
+      );
+      EventUtils.synthesizeMouseAtCenter(serviceURLInput, {});
+      EventUtils.sendString(
+        "https://outlook.office365.com/EWS/Exchange.asmx",
+        window
+      );
+      await exchangeSettingsCompleted;
+
+      const footerForward = dialog.querySelector("#emailFooter #forward");
+      Assert.ok(!footerForward.disabled, "Continue button should be enabled");
+      EventUtils.synthesizeMouseAtCenter(footerForward, {});
+
+      const exchangeTypeSubview = dialog.querySelector(
+        "#emailExchangeTypeSubview"
+      );
+      await BrowserTestUtils.waitForAttributeRemoval(
+        "hidden",
+        exchangeTypeSubview
+      );
+
+      const ewsCard = exchangeTypeSubview.querySelector(
+        'account-hub-radio-card-large[value="ews"]'
+      );
+      EventUtils.synthesizeMouseAtCenter(ewsCard, {});
+
+      const authenticationSelect = exchangeTypeSubview.querySelector(
+        "#exchangeTypeAuthentication"
+      );
+      authenticationSelect.value = String(Ci.nsMsgAuthMethod.passwordCleartext);
+      authenticationSelect.select.dispatchEvent(
+        new Event("change", { bubbles: true })
+      );
+
+      const oldTab = tabmail.selectedTab;
+      const promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
+      const dialogClosedPromise = BrowserTestUtils.waitForEvent(
+        dialog,
+        "close"
+      );
+      exchangeTypeSubview
+        .querySelector("#advancedConfigurationExchange")
+        .click();
+
+      await promptPromise;
+      await dialogClosedPromise;
+      accountTab = tabmail.selectedTab;
+
+      await TestUtils.waitForCondition(
+        () => accountTab != oldTab,
+        "The tab should change to the account settings tab"
+      );
+      await TestUtils.waitForCondition(
+        () => !!accountTab.browser.contentWindow.currentAccount,
+        "The new account should have been created"
+      );
+
+      account = accountTab.browser.contentWindow.currentAccount;
+      const incoming = account.incomingServer;
+      Assert.equal(incoming.type, "ews", "Should create an EWS account");
+      Assert.equal(
+        incoming.username,
+        "badtest@example.localhost",
+        "Should save the Exchange username"
+      );
+      Assert.equal(
+        incoming.authMethod,
+        Ci.nsMsgAuthMethod.passwordCleartext,
+        "Should save the selected Exchange authentication method"
+      );
+      Assert.equal(
+        incoming.getStringValue("ews_url"),
+        "https://outlook.office365.com/EWS/Exchange.asmx",
+        "Should save the Exchange URL"
+      );
+    } finally {
+      if (accountTab && tabmail.tabInfo.includes(accountTab)) {
+        tabmail.closeTab(accountTab);
+      }
+      if (account) {
+        MailServices.accounts.removeAccount(account);
+      }
+      for (const outgoingServer of Array.from(
+        MailServices.outgoingServer.servers
+      )) {
+        if (!existingOutgoingServerKeys.has(outgoingServer.key)) {
+          MailServices.outgoingServer.deleteServer(outgoingServer);
+        }
+      }
+      await subtest_clear_status_bar();
+      await cleanupManualConfigPref();
+    }
+  }
+);
+
 async function enableManualConfigPref() {
   await SpecialPowers.pushPrefEnv({
     set: [[MANUAL_CONFIG_PREF, true]],

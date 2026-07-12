@@ -19,6 +19,7 @@ let oauthOptionsWrapperElement;
 let customOauthWrapperElement;
 let oauthTenantInput;
 let oauthApplicationInput;
+let advancedConfigButton;
 
 add_setup(async function () {
   const tab = tabmail.openTab("contentTab", {
@@ -43,6 +44,9 @@ add_setup(async function () {
   customOauthWrapperElement = subview.querySelector("#exchangeTypeOauthCustom");
   oauthTenantInput = subview.querySelector("#exchangeTypeOauthTenant");
   oauthApplicationInput = subview.querySelector("#exchangeTypeOauthApp");
+  advancedConfigButton = subview.querySelector(
+    "#advancedConfigurationExchange"
+  );
 
   registerCleanupFunction(() => {
     tabmail.closeOtherTabs(tabmail.tabInfo[0]);
@@ -188,6 +192,22 @@ add_task(function test_titleHasFluentId() {
     titleFluentId,
     "account-hub-exchange-type-title",
     "Exchange type title should use the expected fluent ID"
+  );
+});
+
+add_task(async function test_advancedConfigurationDispatchesEvent() {
+  const advancedConfigEvent = BrowserTestUtils.waitForEvent(
+    subview,
+    "advanced-config"
+  );
+
+  advancedConfigButton.click();
+
+  const event = await advancedConfigEvent;
+  Assert.equal(
+    event.target,
+    subview,
+    "Advanced configuration should be requested from the Exchange type subview"
   );
 });
 
