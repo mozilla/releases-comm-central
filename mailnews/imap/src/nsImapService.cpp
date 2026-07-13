@@ -515,7 +515,6 @@ NS_IMETHODIMP nsImapService::CopyMessage(const nsACString& aSrcMailboxURI,
       }
       // now try to download the message
       nsImapAction imapAction = nsIImapUrl::nsImapOnlineToOfflineCopy;
-      if (moveMessage) imapAction = nsIImapUrl::nsImapOnlineToOfflineMove;
       nsCOMPtr<nsIURI> dummyURI;
       nsAutoCString msgKey;
       msgKey.AppendInt(key);
@@ -555,17 +554,11 @@ NS_IMETHODIMP nsImapService::CopyMessages(
     char hierarchyDelimiter = GetHierarchyDelimiter(folder);
     rv = CreateStartOfImapUrl(uri, getter_AddRefs(imapUrl), folder,
                               aUrlListener, urlSpec, hierarchyDelimiter);
-    nsImapAction action;
-    if (moveMessage)  // don't use ?: syntax here, it seems to break the Mac.
-      action = nsIImapUrl::nsImapOnlineToOfflineMove;
-    else
-      action = nsIImapUrl::nsImapOnlineToOfflineCopy;
+    nsImapAction action = nsIImapUrl::nsImapOnlineToOfflineCopy;
     imapUrl->SetCopyState(aMailboxCopy);
     // now try to display the message
     rv = FetchMessage(imapUrl, action, folder, imapMessageSink, aMsgWindow,
                       aMailboxCopy, messageIds, false, aURL);
-    // ### end of copy operation should know how to do the delete.if this is a
-    // move
 
   }  // if we got an imap message sink
   return rv;

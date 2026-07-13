@@ -3306,9 +3306,7 @@ void nsImapProtocol::ProcessSelectedStateURL() {
             }
           }
         } break;
-        case nsIImapUrl::nsImapOnlineToOfflineCopy:
-        case nsIImapUrl::nsImapOnlineToOfflineMove: {
-          // Only happens for copy between servers, not for move.
+        case nsIImapUrl::nsImapOnlineToOfflineCopy: {
           nsCString messageIdString;
           nsresult rv = m_runningUrl->GetListOfMessageIds(messageIdString);
           if (NS_SUCCEEDED(rv)) {
@@ -3325,33 +3323,7 @@ void nsImapProtocol::ProcessSelectedStateURL() {
               copyStatus = GetServerStateParser().LastCommandSuccessful()
                                ? ImapOnlineCopyStateType::kSuccessfulCopy
                                : ImapOnlineCopyStateType::kFailedCopy;
-
               m_imapMailFolderSink->OnlineCopyCompleted(this, copyStatus);
-              if (GetServerStateParser().LastCommandSuccessful() &&
-                  (m_imapAction == nsIImapUrl::nsImapOnlineToOfflineMove)) {
-                // Note: action nsImapOnlineToOfflineMove never occurs.
-                Store(messageIdString, "+FLAGS (\\Deleted \\Seen)",
-                      bMessageIdsAreUids);
-                if (GetServerStateParser().LastCommandSuccessful()) {
-                  copyStatus = ImapOnlineCopyStateType::kSuccessfulDelete;
-                  // Only when pref "expunge_after_delete" is set: if server is
-                  // UIDPLUS capable, expunge the UIDs just marked deleted;
-                  // otherwise, go ahead and expunge the full mailbox of ALL
-                  // emails marked as deleted in mailbox, not just the ones
-                  // marked as deleted here.
-                  if (gExpungeAfterDelete) {
-                    if (GetServerStateParser().GetCapabilityFlag() &
-                        kUidplusCapability) {
-                      UidExpunge(messageIdString);
-                    } else {
-                      Expunge();
-                    }
-                  }
-                } else {
-                  copyStatus = ImapOnlineCopyStateType::kFailedDelete;
-                }
-                m_imapMailFolderSink->OnlineCopyCompleted(this, copyStatus);
-              }
             }
           } else
             HandleMemoryFailure();

@@ -2707,8 +2707,13 @@ nsresult nsMsgLocalMailFolder::CopyMessagesTo(nsTArray<nsMsgKey>& keyArray,
         new CopyMessageStreamListener(this, isMove);
 
     nsCOMPtr<nsIURI> dummyNull;
+    // Pass moveMessage=false to the source message service to prevent it
+    // from independently deleting source messages (e.g. IMAP's
+    // nsImapOnlineToOfflineMove action). The destination (this local folder)
+    // handles source deletion in EndMove() after confirming the copy
+    // succeeded, which correctly gates on errors like "out of space".
     rv = mCopyState->m_messageService->CopyMessages(
-        keyArray, srcFolder, streamListener, isMove, nullptr, aMsgWindow,
+        keyArray, srcFolder, streamListener, false, nullptr, aMsgWindow,
         getter_AddRefs(dummyNull));
   }
 
@@ -2743,7 +2748,12 @@ nsresult nsMsgLocalMailFolder::CopyMessageTo(nsISupports* message,
     RefPtr<CopyMessageStreamListener> streamListener =
         new CopyMessageStreamListener(this, isMove);
 
-    rv = mCopyState->m_messageService->CopyMessage(uri, streamListener, isMove,
+    // Pass moveMessage=false to the source message service to prevent it
+    // from independently deleting source messages (e.g. IMAP's
+    // nsImapOnlineToOfflineMove action). The destination (this local folder)
+    // handles source deletion in EndMove() after confirming the copy
+    // succeeded, which correctly gates on errors like "out of space".
+    rv = mCopyState->m_messageService->CopyMessage(uri, streamListener, false,
                                                    nullptr, aMsgWindow);
   }
 

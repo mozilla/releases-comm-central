@@ -4376,22 +4376,6 @@ nsImapMailFolder::OnlineCopyCompleted(nsIImapProtocol* aProtocol,
   NS_ENSURE_ARG_POINTER(aProtocol);
 
   nsresult rv;
-  if (aCopyState == ImapOnlineCopyStateType::kSuccessfulCopy) {
-    nsCOMPtr<nsIImapUrl> imapUrl;
-    rv = aProtocol->GetRunningImapURL(getter_AddRefs(imapUrl));
-    if (NS_FAILED(rv) || !imapUrl) return NS_ERROR_FAILURE;
-    nsImapAction action;
-    rv = imapUrl->GetImapAction(&action);
-    if (NS_FAILED(rv)) return rv;
-    if (action != nsIImapUrl::nsImapOnlineToOfflineMove)
-      return NS_ERROR_FAILURE;  // don't assert here...
-    nsCString messageIds;
-    rv = imapUrl->GetListOfMessageIds(messageIds);
-    if (NS_FAILED(rv)) return rv;
-    nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
-    return imapService->AddMessageFlags(this, nullptr, messageIds,
-                                        kImapMsgDeletedFlag, true);
-  }
   /* unhandled copystate */
   if (m_copyState)  // whoops, this is the wrong folder - should use the source
                     // folder

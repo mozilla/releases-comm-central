@@ -188,10 +188,28 @@ async function subtestMove(folder, newParent) {
   // the target folder is moved, but subfolder operations may still be going.
   await new Promise(resolve => do_timeout(250, resolve));
 
+  const srcFolder = srcParent.getChildNamed(folderName);
   Assert.ok(
-    srcParent.getChildNamed(folderName),
+    srcFolder,
     "the moved folder should still exist in the source parent folder"
-  ); // IS it okay, really? Bug 1957032.
+  );
+
+  // After a cross-server move, the source folder is preserved but its
+  // messages should have been moved to the destination (deleted from source).
+  await TestUtils.waitForCondition(
+    () => srcFolder.getTotalMessages(false) == 0,
+    "the source folder should have no messages after a move"
+  );
+
+  const srcSubfolder = srcFolder.getChildNamed("subfolder");
+  Assert.ok(
+    srcSubfolder,
+    "the moved subfolder should still exist in the source parent folder"
+  );
+  await TestUtils.waitForCondition(
+    () => srcSubfolder.getTotalMessages(false) == 0,
+    "the source subfolder should have no messages after a move"
+  );
 
   const destFolder = newParent.getChildNamed(folderName);
   Assert.ok(
