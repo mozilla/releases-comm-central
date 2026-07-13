@@ -5,6 +5,7 @@
 #include "mimei.h"
 #include "prmem.h"
 #include "mimeobj.h"
+#include "mozilla/CheckedInt.h"
 #include "mozilla/RangedPtr.h"
 #include "mozilla/mailnews/MimeEncoder.h"
 #include "modmimee.h"  // for MimeConverterOutputCallback
@@ -48,19 +49,33 @@ static int mime_decode_qp_buffer(MimeDecoderData* data, const char* buffer,
   const char* in = buffer;
   char* out = (char*)buffer;
   char token[3];
-  int i;
 
   NS_ASSERTION(data->encoding == mime_QuotedPrintable,
                "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
   if (data->encoding != mime_QuotedPrintable) return -1;
 
-  /* For the first pass, initialize the token from the unread-buffer. */
-  i = 0;
-  while (i < 3 && data->token_size > 0) {
-    token[i] = data->token[i];
-    data->token_size--;
-    i++;
+  if (data->token_size > 0) {
+    // Buffered input can make the decoded output larger than the current
+    // caller buffer. Combine both inputs so in-place decoding has room for
+    // every byte and never writes past the current caller buffer.
+    int32_t bufferedSize = data->token_size;
+    mozilla::CheckedInt<int32_t> combinedLength(length);
+    combinedLength += bufferedSize;
+    if (!combinedLength.isValid()) return -1;
+
+    char* combinedBuffer = (char*)PR_Malloc(combinedLength.value());
+    if (!combinedBuffer) return MIME_OUT_OF_MEMORY;
+    memcpy(combinedBuffer, data->token, bufferedSize);
+    memcpy(combinedBuffer + bufferedSize, buffer, length);
+    data->token_size = 0;
+
+    int status = mime_decode_qp_buffer(data, combinedBuffer,
+                                       combinedLength.value(), outSize);
+    PR_Free(combinedBuffer);
+    return status;
   }
+
+  int i = 0;
 
   /* #### BUG: when decoding quoted-printable, we are required to
    strip trailing whitespace from lines -- since when encoding in

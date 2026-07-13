@@ -48,6 +48,8 @@ support-files = [
 
 ["test_parser.js"]
 
+["test_qp_chunking.js"]
+
 ["test_rfc822_body.js"]
 
 ["test_smime_decrypt.js"]
