@@ -111,6 +111,9 @@ async function renderMessage(chunks) {
 }
 
 function getRenderedBody(rendered) {
+  // The emitter terminates lines with MSG_LINEBREAK, which is CRLF on
+  // Windows. Normalize so we can assert using LF cross-platform.
+  rendered = rendered.replaceAll("\r\n", "\n");
   const match = /^<pre[^>]*>\n([\s\S]*)\n<\/pre>$/.exec(rendered);
   Assert.ok(match, "quoting should render the decoded message body");
   return match[1];
