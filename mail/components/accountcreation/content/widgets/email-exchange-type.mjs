@@ -15,10 +15,7 @@ const { InputSanitizer } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/InputSanitizer.sys.mjs"
 );
 
-const EXCHANGE_DEFAULT_URLS = {
-  ews: "https://outlook.office365.com/EWS/Exchange.asmx",
-  graph: "https://graph.microsoft.com/",
-};
+const GRAPH_URL_ORIGIN = "https://graph.microsoft.com";
 
 const EXCHANGE_TYPE_FROM_CONFIG = {
   exchange: "ews",
@@ -255,6 +252,21 @@ class EmailExchangeType extends AccountHubStep {
   }
 
   /**
+   * Recommend an account type based on the format of a URL
+   *
+   * @param {string} serviceURL The URL to analyze for recommendation
+   * @returns {string} Protocol type recommendation
+   */
+  #getRecommendedAccountType(serviceURL) {
+    const url = new URL(serviceURL);
+
+    if (url.origin === GRAPH_URL_ORIGIN) {
+      return EXCHANGE_TYPE_FROM_CONFIG.graph;
+    }
+    return EXCHANGE_TYPE_FROM_CONFIG.ews;
+  }
+
+  /**
    * Sets the state of the Exchange type subview.
    *
    * @param {AccountConfig} configData - An account configuration object.
@@ -262,8 +274,18 @@ class EmailExchangeType extends AccountHubStep {
   setState(configData) {
     this.#currentConfig = configData;
 
+    const serviceURL = configData.incoming.exchangeURL;
+
+    const recommendedType = this.#getRecommendedAccountType(serviceURL);
+
+    for (const card of this.#accountTypeCards) {
+      const isRecommended = card.value === recommendedType;
+      card.classList.toggle("recommended", isRecommended);
+      card.querySelector(".recommended-description").hidden = !isRecommended;
+    }
+
     const incomingType =
-      EXCHANGE_TYPE_FROM_CONFIG[configData?.incoming?.type] || "graph";
+      EXCHANGE_TYPE_FROM_CONFIG[configData.incoming.type] || recommendedType;
     const selectedCard = Array.from(this.#accountTypeCards).find(
       card => card.value == incomingType
     );
@@ -294,11 +316,7 @@ class EmailExchangeType extends AccountHubStep {
   captureState() {
     const config = this.#currentConfig.copy();
     const accountType = this.#getSelectedAccountType();
-    const exchangeURL =
-      accountType == "ews"
-        ? config.incoming.exchangeURL || EXCHANGE_DEFAULT_URLS.ews
-        : EXCHANGE_DEFAULT_URLS.graph;
-    const hostname = URL.parse(exchangeURL).hostname;
+    const hostname = URL.parse(config.incoming.exchangeURL).hostname;
 
     config.source = AccountConfig.kSourceUser;
     config.incoming.type = accountType;
@@ -309,7 +327,6 @@ class EmailExchangeType extends AccountHubStep {
       this.#authenticationSelect.value
     );
     config.incoming.username = this.#usernameInput.value;
-    config.incoming.exchangeURL = exchangeURL;
     config.incoming.oauthSettings = null;
 
     if (

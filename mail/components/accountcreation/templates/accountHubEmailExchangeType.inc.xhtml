@@ -7,7 +7,7 @@
     <div class="hub-body">
       <fieldset
         role="radiogroup"
-        class="form-row radio-card-large-group"
+        class="form-row radio-card-large-group exchange-types"
       >
         <legend
           class="screen-reader-only"
@@ -15,9 +15,14 @@
         ></legend>
         <account-hub-radio-card-large value="graph">
           <span slot="title" data-l10n-id="account-hub-card-graph-title"></span>
+          <span
+            slot="tag"
+            class="badge"
+            data-l10n-id="account-hub-result-recommended-label"></span>
           <span slot="description">
             <span data-l10n-id="account-hub-card-graph-description"></span>
             <span
+              class="recommended-description"
               data-l10n-id="account-hub-card-recommended-description"
               hidden="hidden"
             ></span>
@@ -25,10 +30,18 @@
         </account-hub-radio-card-large>
         <account-hub-radio-card-large value="ews">
           <span slot="title" data-l10n-id="account-hub-card-ews-title"></span>
-          <span slot="tag" data-l10n-id="account-hub-card-ews-tag"></span>
+          <span
+            slot="tag"
+            class="legacy-text"
+            data-l10n-id="account-hub-card-ews-tag"></span>
+          <span
+            slot="tag"
+            class="badge"
+            data-l10n-id="account-hub-result-recommended-label"></span>
           <span slot="description">
             <span data-l10n-id="account-hub-card-ews-description"></span>
             <span
+              class="recommended-description"
               data-l10n-id="account-hub-card-recommended-description"
               hidden="hidden"
             ></span>

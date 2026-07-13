@@ -174,12 +174,52 @@ function setCustomOauthDetails(tenant, clientId) {
   subview.querySelector("#exchangeTypeOauthApp").value = clientId;
 }
 
-function createIncomingConfig(type, auth, username) {
+function createIncomingConfig(type, auth, username, exchangeURL) {
   const config = new AccountConfig();
   config.incoming.type = type;
   config.incoming.auth = auth;
   config.incoming.username = username;
+  config.incoming.exchangeURL = exchangeURL;
   return config;
+}
+
+function subtest_assertRecommendedCard(recommendedCard, otherCard, message) {
+  const recommendedBadge = recommendedCard.querySelector(".badge");
+  const recommendedDescription = recommendedCard.querySelector(
+    ".recommended-description"
+  );
+  const recommendedOtherTags = recommendedCard.querySelectorAll(
+    '[slot="tag"]:not(.badge)'
+  );
+  const otherBadge = otherCard.querySelector(".badge");
+  const otherDescription = otherCard.querySelector(".recommended-description");
+  const otherTags = otherCard.querySelectorAll('[slot="tag"]:not(.badge)');
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(recommendedBadge),
+    `${message} should show the recommended badge`
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(recommendedDescription),
+    `${message} should show the recommended description`
+  );
+  Assert.ok(
+    Array.from(recommendedOtherTags).every(BrowserTestUtils.isHidden),
+    `${message} should hide other tag slot content on the recommended card`
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(otherBadge),
+    `${message} should hide the other card's recommended badge`
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(otherDescription),
+    `${message} should hide the other card's recommended description`
+  );
+  Assert.ok(
+    Array.from(otherTags).every(BrowserTestUtils.isVisible),
+    `${message} should show other tag slot content on the non-recommended card`
+  );
 }
 
 add_task(function test_titleHasFluentId() {
@@ -415,7 +455,8 @@ add_task(function test_setStatePrefillsAutodiscoveredExchangeConfig() {
   const config = createIncomingConfig(
     "exchange",
     Ci.nsMsgAuthMethod.passwordCleartext,
-    "autodiscovered@example.com"
+    "autodiscovered@example.com",
+    "https://outlook.office365.com/EWS/Exchange.asmx"
   );
 
   subview.setState(config);
@@ -444,7 +485,8 @@ add_task(function test_setStatePrefillsDiscoveredGraphConfig() {
   const config = createIncomingConfig(
     "graph",
     Ci.nsMsgAuthMethod.OAuth2,
-    "graph-user@example.com"
+    "graph-user@example.com",
+    "https://graph.microsoft.com/v1.0"
   );
 
   subview.setState(config);
@@ -466,7 +508,53 @@ add_task(function test_setStatePrefillsDiscoveredGraphConfig() {
   );
 });
 
+add_task(function test_setStateRecommendsGraphForGraphURL() {
+  const config = new AccountConfig();
+  config.incoming.exchangeURL = "https://graph.microsoft.com/v1.0";
+
+  subview.setState(config);
+
+  Assert.ok(graphCard.checked, "Graph should be selected for a Graph URL");
+  subtest_assertRecommendedCard(graphCard, ewsCard, "A Graph URL");
+});
+
+add_task(function test_setStateRecommendsEwsForNonGraphURL() {
+  const config = new AccountConfig();
+  config.incoming.exchangeURL =
+    "https://outlook.office365.com/EWS/Exchange.asmx";
+
+  subview.setState(config);
+
+  Assert.ok(ewsCard.checked, "EWS should be selected for a non-Graph URL");
+  subtest_assertRecommendedCard(ewsCard, graphCard, "A non-Graph URL");
+});
+
+add_task(function test_setStateKeepsStoredTypeOverRecommendation() {
+  const config = createIncomingConfig(
+    "ews",
+    Ci.nsMsgAuthMethod.OAuth2,
+    "ews-user@example.com",
+    "https://graph.microsoft.com/"
+  );
+
+  subview.setState(config);
+
+  Assert.ok(
+    ewsCard.checked,
+    "The stored account type should remain selected over the recommendation"
+  );
+  subtest_assertRecommendedCard(
+    graphCard,
+    ewsCard,
+    "A Graph URL with stored EWS"
+  );
+});
+
 add_task(function test_captureGraphState() {
+  const settingsConfig = new AccountConfig();
+  settingsConfig.incoming.exchangeURL = "https://graph.microsoft.com/v1.0";
+  subview.setState(settingsConfig);
+
   changeAccountType(graphCard);
   setUsername("test@example.com");
   setDefaultOauth(true);
@@ -485,8 +573,8 @@ add_task(function test_captureGraphState() {
   Assert.equal(config.incoming.type, "graph", "Graph should be captured");
   Assert.equal(
     config.incoming.exchangeURL,
-    "https://graph.microsoft.com/",
-    "Graph should use the default Graph endpoint"
+    settingsConfig.incoming.exchangeURL,
+    "Graph endpoint should match what config passed in"
   );
   Assert.equal(
     config.incoming.hostname,
@@ -533,6 +621,11 @@ add_task(function test_captureCustomOauthState() {
 });
 
 add_task(function test_captureEwsState() {
+  const settingsConfig = new AccountConfig();
+  settingsConfig.incoming.exchangeURL =
+    "https://outlook.office365.com/EWS/Exchange.asmx";
+  subview.setState(settingsConfig);
+
   changeAccountType(ewsCard);
   setUsername("test@example.com");
   setDefaultOauth(true);
@@ -543,8 +636,8 @@ add_task(function test_captureEwsState() {
   Assert.equal(config.incoming.type, "ews", "EWS should be captured");
   Assert.equal(
     config.incoming.exchangeURL,
-    "https://outlook.office365.com/EWS/Exchange.asmx",
-    "EWS should use the default Exchange endpoint"
+    settingsConfig.incoming.exchangeURL,
+    "EWS endpoint should match what config passed in"
   );
   Assert.equal(
     config.incoming.hostname,

@@ -572,6 +572,22 @@ header {
     & .align-self-end {
       justify-self: end;
     }
+
+    & .exchange-types {
+      & .recommended-description,
+      & .badge {
+        display: none;
+      }
+      & .recommended {
+        & .recommended-description,
+        & .badge {
+          display: initial;
+        }
+        .legacy-text {
+          display: none;
+        }
+      }
+    }
   }
 }
 
