@@ -516,6 +516,11 @@ export class GraphServer extends MockServer {
     };
   }
 
+  /**
+   * Handle the GET /me/calendars resource.
+   *
+   * @returns {object}
+   */
   #calendars() {
     return {
       "@odata.context":
@@ -525,7 +530,7 @@ export class GraphServer extends MockServer {
           "@odata.id":
             "https://graph.microsoft.com/v1.0/users('ddfcd489-628b-40d7-b48b-57002df800e5@1717622f-1d94-4d0c-9d74-709fad664b77')/calendars('AAMkAGI2TGuLAAA=')",
           id: "AAMkAGI2TGuLAAA=",
-          name: "Calendar",
+          name: "New Calendar",
           color: "auto",
           changeKey: "nfZyf7VcrEKLNoU37KWlkQAAA0x0+w==",
           canShare: true,

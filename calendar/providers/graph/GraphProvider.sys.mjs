@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import GraphCalendar from "./GraphCalendar.sys.mjs";
+import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
 /**
@@ -71,12 +71,12 @@ export class GraphProvider {
       graphCalendarClient.detectCalendars(listener);
       await listener.deferred.promise;
 
-      const discoveredCalendars = listener.calendars.map(
-        value =>
-          new GraphCalendar(uri, value.id, value.name, {
-            readOnly: value.readOnly,
-          })
-      );
+      const discoveredCalendars = listener.calendars.map(value => {
+        const calendar = cal.manager.initializeCalendar(value.id, "graph", Services.io.newURI(uri));
+        calendar.name = value.name;
+        calendar.readOnly = value.readOnly;
+        return calendar;
+      });
       return discoveredCalendars;
     }
     return [];

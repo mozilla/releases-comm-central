@@ -2,67 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
+
 /**
  * GraphCalendar class implementing calICalendar
  */
-export default class GraphCalendar {
+export class GraphCalendar extends cal.provider.BaseClass {
   QueryInterface = ChromeUtils.generateQI(["calICalendar"]);
-
-  /** @type {string} */
-  #id;
-  /** @type {string} */
-  #name;
-  /** @type {nsIURI} */
-  #uri;
-  /** @type {boolean} */
-  #readOnly;
-  /** @type {boolean} */
-  #transientProperties;
-  /** @type {[calIObserver]} */
-  #observers;
 
   /**
    * Constructor for GraphCalendar.
-   *
-   * @param {string} aUri - The URI at which the calendar is located.
-   * @param {string} aId - Calendar unique identifier
-   * @param {string} aName - Calendar display name
-   * @param {object} options - Calendar options
    */
-  constructor(aUri, aId, aName, options) {
-    this.#id = aId;
-    this.#name = aName;
-    this.#uri = Services.io.newURI(aUri);
-    this.#readOnly = options.readOnly ?? true;
-    this.#transientProperties = false;
-
-    this.#observers = [];
-  }
-
-  /**
-   * Get or set the calendar id.
-   *
-   * @returns {string}
-   */
-  get id() {
-    return this.#id;
-  }
-
-  set id(value) {
-    this.#id = value;
-  }
-
-  /**
-   * Get or set the calendar name.
-   *
-   * @returns {string}
-   */
-  get name() {
-    return this.#name;
-  }
-
-  set name(value) {
-    this.#name = value;
+  constructor() {
+    super();
+    this.initProviderBase();
   }
 
   /**
@@ -92,48 +45,7 @@ export default class GraphCalendar {
     return this;
   }
 
-  set superCalendar(value) {
-    throw new Components.Exception("", Cr.NS_ERROR_ILLEGAL_ARGUMENT);
-  }
-
-  /**
-   * Get or set the calendar URI.
-   *
-   * @returns {nsIURI}
-   */
-  get uri() {
-    return this.#uri;
-  }
-
-  set uri(value) {
-    this.#uri = value;
-  }
-
-  /**
-   * Get or set read-only flag.
-   *
-   * @returns {boolean}
-   */
-  get readOnly() {
-    return this.#readOnly;
-  }
-
-  set readOnly(value) {
-    this.#readOnly = value;
-  }
-
-  /**
-   * Get transient properties flag.
-   *
-   * @returns {boolean}
-   */
-  get transientProperties() {
-    return this.#transientProperties;
-  }
-
-  set transientProperties(value) {
-    this.#transientProperties = value;
-  }
+  set superCalendar(value) {}
 
   /**
    * Get whether refresh is supported.
@@ -159,55 +71,7 @@ export default class GraphCalendar {
    * @returns {calISchedulingSupport}
    */
   getSchedulingSupport() {
-    throw new Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
-  }
-
-  /**
-   * Get a calendar property.
-   *
-   * @param {string} _name - Property name
-   * @returns {nsIVariant} Property value
-   */
-  getProperty(_name) {
-    return null;
-  }
-
-  /**
-   * Set a calendar property.
-   *
-   * @param {string} _name - Property name
-   * @param {nsIVariant} _value - Property value
-   */
-  setProperty(_name, _value) {}
-
-  /**
-   * Delete a calendar property.
-   *
-   * @param {string} _name - Property name
-   */
-  deleteProperty(_name) {}
-
-  /**
-   * Add an observer.
-   *
-   * @param {calIObserver} observer - Observer object
-   */
-  addObserver(observer) {
-    if (!this.#observers.includes(observer)) {
-      this.#observers.push(observer);
-    }
-  }
-
-  /**
-   * Remove an observer.
-   *
-   * @param {calIObserver} observer - Observer object
-   */
-  removeObserver(observer) {
-    const index = this.#observers.indexOf(observer);
-    if (index > -1) {
-      this.#observers.splice(index, 1);
-    }
+    throw new Components.Exception("getSchedulingSupport", Cr.NS_ERROR_NOT_IMPLEMENTED);
   }
 
   /**
@@ -217,7 +81,7 @@ export default class GraphCalendar {
    * @returns {Promise<calIItemBase>}
    */
   async addItem(_item) {
-    throw new Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
+    throw new Components.Exception("addItem", Cr.NS_ERROR_NOT_IMPLEMENTED);
   }
 
   /**
@@ -227,7 +91,7 @@ export default class GraphCalendar {
    * @returns {Promise<calIItemBase>}
    */
   async adoptItem(_item) {
-    throw new Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
+    throw new Components.Exception("adoptItem", Cr.NS_ERROR_NOT_IMPLEMENTED);
   }
 
   /**
@@ -238,7 +102,7 @@ export default class GraphCalendar {
    * @returns {Promise<calIItemBase>}
    */
   async modifyItem(_newItem, _oldItem) {
-    throw new Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
+    throw new Components.Exception("modifyItem", Cr.NS_ERROR_NOT_IMPLEMENTED);
   }
 
   /**
@@ -248,7 +112,7 @@ export default class GraphCalendar {
    * @returns {Promise<void>}
    */
   async deleteItem(_item) {
-    throw new Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
+    throw new Components.Exception("deleteItem", Cr.NS_ERROR_NOT_IMPLEMENTED);
   }
 
   /**
@@ -258,7 +122,7 @@ export default class GraphCalendar {
    * @returns {Promise<calIItemBase|null>}
    */
   async getItem(_id) {
-    throw new Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
+    throw new Components.Exception("getItem", Cr.NS_ERROR_NOT_IMPLEMENTED);
   }
 
   /**
@@ -271,7 +135,7 @@ export default class GraphCalendar {
    * @returns {ReadableStream<calIItemBase>}
    */
   getItems(_itemFilter, _count, _rangeStart, _rangeEnd) {
-    throw new Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
+    throw new Components.Exception("getItems", Cr.NS_ERROR_NOT_IMPLEMENTED);
   }
 
   /**
@@ -284,7 +148,7 @@ export default class GraphCalendar {
    * @returns {Promise<Array<calIItemBase>>}
    */
   async getItemsAsArray(_itemFilter, _count, _rangeStart, _rangeEndEx) {
-    throw new Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
+    throw new Components.Exception("getItemsAsArray", Cr.NS_ERROR_NOT_IMPLEMENTED);
   }
 
   /**
@@ -292,21 +156,19 @@ export default class GraphCalendar {
    *
    * @returns {calIOperation}
    */
-  async refresh() {
-    throw new Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
-  }
+  async refresh() {}
 
   /**
    * Start batch mode.
    */
   startBatch() {
-    throw new Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
+    throw new Components.Exception("startBatch", Cr.NS_ERROR_NOT_IMPLEMENTED);
   }
 
   /**
    * End batch mode.
    */
   endBatch() {
-    throw new Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
+    throw new Components.Exception("endBatch", Cr.NS_ERROR_NOT_IMPLEMENTED);
   }
 }
