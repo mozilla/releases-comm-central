@@ -557,16 +557,24 @@ NS_IMETHODIMP nsMsgDBFolder::SetGettingNewMessages(bool gettingNewMessages) {
 }
 
 NS_IMETHODIMP nsMsgDBFolder::GetFirstNewMessage(nsIMsgDBHdr** firstNewMessage) {
-  // If there's not a db then there can't be new messages.  Return failure since
-  // you should use HasNewMessages first.
-  if (!mDatabase) return NS_ERROR_FAILURE;
+  NS_ENSURE_ARG_POINTER(firstNewMessage);
+  *firstNewMessage = nullptr;
 
-  nsresult rv;
+  if (!mDatabase) {
+    return NS_OK;
+  }
+
   nsMsgKey key;
-  rv = mDatabase->GetFirstNew(&key);
-  if (NS_FAILED(rv)) return rv;
+  nsresult rv = mDatabase->GetFirstNew(&key);
+  if (NS_FAILED(rv) || key == nsMsgKey_None) {
+    return NS_OK;
+  }
 
-  return mDatabase->GetMsgHdrForKey(key, firstNewMessage);
+  rv = mDatabase->GetMsgHdrForKey(key, firstNewMessage);
+  if (NS_FAILED(rv)) {
+    *firstNewMessage = nullptr;
+  }
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgDBFolder::ClearNewMessages() {

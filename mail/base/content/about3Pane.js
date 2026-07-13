@@ -6289,6 +6289,9 @@ function selectMessage(msgHdr) {
     } else {
       threadPane.forgetSavedSelection(msgHdr.folder.URI);
       displayFolder(msgHdr.folder.URI);
+      // If the folder update is asynchronous, onMessagesLoaded will fire later
+      // and should not scroll away from the message we just selected here.
+      threadPane.scrollToNewMessage = false;
       if (!foundIndexOfMsgHdrInView()) {
         // Quick Filter might be in sticky mode and still active.
         goDoCommand("cmd_resetQuickFilterBar");

@@ -1181,17 +1181,13 @@ var dbViewWrapperListener = {
     if (all || gViewWrapper.search.hasSearchTerms) {
       let newMessageFound = false;
       if (window.threadPane.scrollToNewMessage) {
-        try {
-          const index = gDBView.findIndexOfMsgHdr(
-            gFolder.firstNewMessage,
-            true
-          );
+        const firstNewMsg = gFolder.firstNewMessage;
+        if (firstNewMsg) {
+          const index = gDBView.findIndexOfMsgHdr(firstNewMsg, true);
           if (index != nsMsgViewIndex_None) {
             window.threadTree.scrollToIndex(index, true);
             newMessageFound = true;
           }
-        } catch (ex) {
-          console.error(ex);
         }
         window.threadPane.scrollToNewMessage = false;
       }
