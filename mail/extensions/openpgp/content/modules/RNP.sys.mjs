@@ -3895,7 +3895,7 @@ export var RNP = {
         // caller needs the detached signature, either for MIME
         // mime encoding with separate signature part, or for the nested
         // approach with separate signing and encryption layers.
-        const signResult = lazy.GPGME.signDetached(
+        const signResult = await lazy.GPGME.signDetached(
           plaintext,
           args,
           resultStatus
