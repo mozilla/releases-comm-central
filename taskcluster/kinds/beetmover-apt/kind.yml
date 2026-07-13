@@ -6,6 +6,7 @@ loader: taskgraph.loader.transform:loader
 
 transforms:
     - taskgraph.transforms.from_deps
+    - gecko_taskgraph.transforms.release:run_on_releases
     - gecko_taskgraph.transforms.beetmover_apt
     - gecko_taskgraph.transforms.task
 
@@ -17,6 +18,7 @@ only-for-build-platforms:
 
 task-defaults:
     run-on-repo-type: [hg]
+    run-on-releases: [nightly, beta, release]
     from-deps:
         group-by: product
         unique-kinds: false

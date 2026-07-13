@@ -20,7 +20,7 @@ def main() -> int:
         print("BRANCH and VERSION environment variables must be set", file=sys.stderr)
         return 1
 
-    # Strip trailing digits from branch (i.e. "esr140" becomes "esr")
+    # Strip trailing digits from branch (i.e. "esr153" becomes "esr")
     channel = re.sub(r"\d+$", "", branch)
 
     # Extract semantic version number (version without suffix) from version string

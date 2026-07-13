@@ -15,7 +15,7 @@ transforms:
 tasks:
     pin-verify:
         description: Checks if gecko_rev.yml is pinned to the latest tag
-        run-on-projects: [comm-beta, comm-release, comm-esr128, comm-esr140]
+        run-on-projects: [comm-beta, comm-release, comm-esr153]
         index:
             product: thunderbird
             job-name: pin-verify

@@ -18,7 +18,7 @@ task-defaults:
     run-on-repo-type: [hg]
     description: Pushes Flatpaks onto Flathub
     run-on-projects: []  # to make sure this never runs as part of CI
-    run-on-releases: [beta, release, esr140]
+    run-on-releases: [beta, release]
     shipping-phase: ship
     task-context:
         from-parameters:
@@ -42,7 +42,7 @@ task-defaults:
             by-release-type:
                 beta: beta
                 release: stable
-                esr140: stable
+                esr.*: stable
                 default: mock
 
 tasks:

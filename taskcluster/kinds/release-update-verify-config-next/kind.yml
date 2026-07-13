@@ -14,7 +14,7 @@ task-defaults:
     run-on-repo-type: [hg]
     name: update-verify-config-next
     run-on-projects: []  # to make sure this never runs as part of CI
-    run-on-releases: [esr128]
+    run-on-releases: [esr153]
     shipping-phase: promote
     worker-type: b-linux
     worker:
@@ -55,8 +55,8 @@ task-defaults:
         updater-platform: linux-x86_64
         product: thunderbird
         channel: "esr-localtest-next"
-        include-version: esr128-next
-        last-watershed: "115.10.2"
+        include-version: esr153-next
+        last-watershed: "140.12.0"
 
 tasks:
     thunderbird-next-linux64:

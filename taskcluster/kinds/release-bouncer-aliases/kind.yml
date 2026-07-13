@@ -65,6 +65,7 @@ tasks:
                     thunderbird-esr-latest: installer
                     thunderbird-esr-msi-latest-ssl: msi
                     thunderbird-esr-msix-latest-ssl: msix
+                esr153:
                     # ... these point to the newer branch
                     thunderbird-esr-next-latest-ssl: installer-ssl
                     thunderbird-esr-next-latest: installer

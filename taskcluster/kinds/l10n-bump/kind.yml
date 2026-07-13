@@ -18,26 +18,26 @@ task-defaults:
         dontbuild: true
         ignore-closed-tree:
             by-project:
-                comm-(central|beta|release|esr140): false
+                comm-(central|beta|release|esr153): false
                 default: true
         lando-repo:
             by-project:
                 comm-central: thunderbird-desktop-main
                 comm-beta: thunderbird-desktop-beta
                 comm-release: thunderbird-desktop-release
-                comm-esr140: thunderbird-desktop-esr140
+                comm-esr153: thunderbird-desktop-esr153
                 try-comm-central:
                     by-release-type:
                         beta: staging-thunderbird-beta
                         release: staging-thunderbird-release
-                        esr140: staging-thunderbird-esr140
+                        esr153: staging-thunderbird-esr153
                         default: ""
                 default: ""
         actions:
             by-release-type:
                 # Whenever the the non-default config changes, make sure to make
                 #     the corresponding change in merge-automation/kind.yml
-                (beta|release|esr140):
+                (beta|release|esr153):
                     - l10n-bump:
                           - name: Thunderbird l10n changesets
                             path: mail/locales/l10n-changesets.json

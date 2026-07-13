@@ -46,7 +46,7 @@ tasks:
                 by-release-type:
                     beta: ["thunderbird-beta-cdntest", "thunderbird-beta-localtest"]
                     release(-rc)?: ["thunderbird-release-cdntest", "thunderbird-release-localtest"]
-                    esr128: ["thunderbird-esr128-cdntest", "thunderbird-esr128-localtest"]
+                    esr153: ["thunderbird-esr153-cdntest", "thunderbird-esr153-localtest"]
                     default: []
             platforms: ["linux", "linux64", "macosx64", "win32", "win64"]
         treeherder:

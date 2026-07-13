@@ -75,7 +75,7 @@ tasks:
                               end-tag: 'NIGHTLY_{major_version}_END'
                               to-repo: 'https://hg.mozilla.org/comm-central'
                               to-branch: 'comm'
-                    bump-esr140:
+                    bump-esr153:
                         - esr-bump:
                               fetch-version-from: "mail/config/version.txt"
                               version-files:
@@ -85,8 +85,8 @@ tasks:
                                     version-bump: "minor"
                               replacements: []
                               merge-old-head: false
-                              to-repo: 'https://hg.mozilla.org/releases/comm-esr140'
-                              to-branch: 'comm-esr140'
+                              to-repo: 'https://hg.mozilla.org/releases/comm-esr153'
+                              to-branch: 'comm-esr153'
                     main-to-beta:
                         - uplift:
                               fetch-version-from: "mail/config/version.txt"
@@ -146,8 +146,8 @@ tasks:
                               replacements: []
                               merge-old-head: false
                               end-tag: "ESR_{major_version}_BASE"
-                              to-repo: 'https://hg.mozilla.org/releases/comm-esr140'
-                              to-branch: 'comm-esr140'
+                              to-repo: 'https://hg.mozilla.org/releases/comm-esr153'
+                              to-branch: 'comm-esr153'
             gecko-rev:
                 by-behavior:
                     comm-central-to-beta:
@@ -162,12 +162,12 @@ tasks:
                         base: 'FIREFOX_RELEASE_{major_version}_BASE'
                     comm-release-to-esr:
                         source: to-repo
-                        upstream: mozilla-esr140
+                        upstream: mozilla-esr153
                         tag: 'FIREFOX_{major_version}_0esr_BUILD\d'
                         base: 'FIREFOX_ESR_{major_version}_BASE'
-                    comm-bump-esr140:
+                    comm-bump-esr153:
                         source: to-repo
-                        upstream: mozilla-esr140
+                        upstream: mozilla-esr153
                         tag: 'FIREFOX_{major_version}_{minor_version_plus1}(_\d+)?esr_BUILD\d'
                         base: '(FIREFOX_ESR_{major_version}_BASE|FIREFOX_{major_version}_{minor_version}(_\d+)?)esr_BUILD\d'
                     default: null
