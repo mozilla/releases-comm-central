@@ -142,9 +142,20 @@ add_task(async function doMoves() {
   );
   await urlListenerFolder1AfterDummy.promise;
 
+  const calcHighwater = function (folder) {
+    // NOTE: This is assuming that UIDs are being used as message keys,
+    // which will not always be the case.
+    // See https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
+    const keys = [...folder.messages].map(msg => msg.messageKey);
+    return Math.max(...keys);
+  };
+
   // Check that playing back offline events gets rid of dummy
   // headers, and thus highWater is recalculated.
-  Assert.equal(gFolder1.msgDatabase.dBFolderInfo.highWater, 6);
+  Assert.equal(
+    gFolder1.msgDatabase.dBFolderInfo.highWater,
+    calcHighwater(gFolder1)
+  );
   headers1 = [];
   count = 0;
   for (const header of gIMAPInbox.msgDatabase.enumerateMessages()) {
@@ -186,7 +197,10 @@ add_task(async function doMoves() {
     urlListenerFolder1AfterDelete
   );
   await urlListenerFolder1AfterDelete.promise;
-  Assert.equal(gFolder1.msgDatabase.dBFolderInfo.highWater, 11);
+  Assert.equal(
+    gFolder1.msgDatabase.dBFolderInfo.highWater,
+    calcHighwater(gFolder1)
+  );
 });
 
 add_task(function endTest() {
