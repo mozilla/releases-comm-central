@@ -11,6 +11,7 @@
 #include "plstr.h"
 #include "prprf.h"
 #include "nsCOMPtr.h"
+#include "nsProxyRelease.h"
 #include "nsImapUtils.h"
 #include "nsIImapMockChannel.h"
 #include "nsIImapMailFolderSink.h"
@@ -67,6 +68,20 @@ nsImapUrl::~nsImapUrl() {
   PR_FREEIF(m_destinationCanonicalFolderPathSubString);
   PR_FREEIF(m_sourceCanonicalFolderPathSubString);
   PR_FREEIF(m_searchCriteriaString);
+
+  // This URL can be created and destroyed on the imap thread (or, via
+  // principal/URI deserialization, on other threads). The weak references
+  // hold a non-threadsafe nsWeakReference proxy that belongs to the main
+  // thread, so it must be released there too.
+  NS_ReleaseOnMainThread("nsImapUrl::m_imapFolder", m_imapFolder.forget());
+  NS_ReleaseOnMainThread("nsImapUrl::m_imapMailFolderSink",
+                         m_imapMailFolderSink.forget());
+  NS_ReleaseOnMainThread("nsImapUrl::m_imapMessageSink",
+                         m_imapMessageSink.forget());
+  NS_ReleaseOnMainThread("nsImapUrl::m_imapServerSink",
+                         m_imapServerSink.forget());
+  NS_ReleaseOnMainThread("nsImapUrl::m_channelWeakPtr",
+                         m_channelWeakPtr.forget());
 }
 
 NS_IMPL_ADDREF_INHERITED(nsImapUrl, nsMsgMailNewsUrl)

@@ -59,6 +59,13 @@ nsMsgMailNewsUrl::~nsMsgMailNewsUrl() {
   NS_ReleaseOnMainThread("nsMsgMailNewsUrl::m_searchSession",
                          m_searchSession.forget());
 
+  // Weak references hold a non-threadsafe nsWeakReference proxy that is created
+  // on and belongs to the main thread, so it must be released there too.
+  NS_ReleaseOnMainThread("nsMsgMailNewsUrl::m_msgWindowWeak",
+                         m_msgWindowWeak.forget());
+  NS_ReleaseOnMainThread("nsMsgMailNewsUrl::m_loadGroupWeak",
+                         m_loadGroupWeak.forget());
+
   nsTObserverArray<nsCOMPtr<nsIUrlListener>>::ForwardIterator iter(
       mUrlListeners);
   while (iter.HasMore()) {
