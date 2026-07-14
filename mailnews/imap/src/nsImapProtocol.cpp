@@ -130,6 +130,32 @@ nsIMsgWindow** getter_AddRefs(AutoProxyReleaseMsgWindow& aSmartPtr) {
   return aSmartPtr.StartAssignment();
 }
 
+class ImapInputStreamCallback final : public nsIInputStreamCallback {
+ public:
+  NS_DECL_THREADSAFE_ISUPPORTS
+  NS_DECL_NSIINPUTSTREAMCALLBACK
+
+  explicit ImapInputStreamCallback(nsIInputStreamCallback* aCallback)
+      : mCallback(aCallback) {}
+
+ private:
+  ~ImapInputStreamCallback() {
+    // AsyncWait may release its callback on any thread, but nsImapProtocol
+    // owns main-thread-only objects.
+    NS_ReleaseOnMainThread("ImapInputStreamCallback::mCallback",
+                           mCallback.forget());
+  }
+
+  nsCOMPtr<nsIInputStreamCallback> mCallback;
+};
+
+NS_IMPL_ISUPPORTS(ImapInputStreamCallback, nsIInputStreamCallback)
+
+NS_IMETHODIMP ImapInputStreamCallback::OnInputStreamReady(
+    nsIAsyncInputStream* aStream) {
+  return mCallback->OnInputStreamReady(aStream);
+}
+
 NS_IMPL_ISUPPORTS(nsMsgImapHdrXferInfo, nsIImapHeaderXferInfo)
 
 nsMsgImapHdrXferInfo::nsMsgImapHdrXferInfo() : m_hdrInfos(kNumHdrsToXfer) {
@@ -1605,7 +1631,8 @@ bool nsImapProtocol::HandleIdleResponses() {
       nsCOMPtr<nsIAsyncInputStream> asyncInputStream =
           do_QueryInterface(m_inputStream);
       if (asyncInputStream) {
-        asyncInputStream->AsyncWait(this, 0, 0, nullptr);
+        RefPtr callback = MakeRefPtr<ImapInputStreamCallback>(this);
+        asyncInputStream->AsyncWait(callback, 0, 0, nullptr);
         Log("HandleIdleResponses", nullptr, "idle mode async waiting");
       }
     }
