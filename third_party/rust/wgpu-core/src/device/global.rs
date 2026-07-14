@@ -1,16 +1,15 @@
 use alloc::{borrow::Cow, boxed::Box, sync::Arc, vec::Vec};
-use core::{ptr::NonNull, sync::atomic::Ordering};
+use core::ptr::NonNull;
 
 #[cfg(feature = "trace")]
-use crate::device::trace::{self, IntoTrace};
+use crate::device::trace;
 use crate::{
     api_log,
     binding_model::{
         self, BindGroupEntry, BindingResource, BufferBinding, ResolvedBindGroupDescriptor,
         ResolvedBindGroupEntry, ResolvedBindingResource, ResolvedBufferBinding,
     },
-    command::{self, CommandEncoder},
-    conv,
+    command,
     device::{life::WaitIdleError, DeviceError, DeviceLostClosure},
     global::Global,
     id::{self, AdapterId, DeviceId, QueueId, SurfaceId},
@@ -30,8 +29,6 @@ use crate::{
 
 use wgt::{BufferAddress, TextureFormat};
 
-use super::{surface_config, UserClosures};
-
 impl Global {
     pub fn adapter_is_surface_supported(
         &self,
@@ -48,34 +45,8 @@ impl Global {
         surface_id: SurfaceId,
         adapter_id: AdapterId,
     ) -> Result<wgt::SurfaceCapabilities, instance::GetSurfaceSupportError> {
-        profiling::scope!("Surface::get_capabilities");
         self.fetch_adapter_and_surface::<_, _>(surface_id, adapter_id, |adapter, surface| {
-            let mut hal_caps = surface.get_capabilities(adapter)?;
-
-            hal_caps.formats.sort_by_key(|fc| !fc.format.is_srgb());
-
-            let usages = conv::map_texture_usage_from_hal(hal_caps.usage);
-
-            // `SurfaceCapabilities::formats` lists only the formats a
-            // color-space-unaware application can configure via
-            // `SurfaceColorSpace::Auto`, i.e. those for which `Auto` resolves to a
-            // concrete color space. (The full `format_capabilities` still reports
-            // every color space, including HDR ones, for explicit opt-in.)
-            Ok(wgt::SurfaceCapabilities {
-                formats: hal_caps
-                    .formats
-                    .iter()
-                    .filter(|fc| {
-                        surface_config::resolve_auto_color_space(fc.format, fc.color_spaces)
-                            .is_some()
-                    })
-                    .map(|fc| fc.format)
-                    .collect(),
-                format_capabilities: hal_caps.formats,
-                present_modes: hal_caps.present_modes,
-                alpha_modes: hal_caps.composite_alpha_modes,
-                usages,
-            })
+            surface.get_capabilities(adapter)
         })
     }
 
@@ -93,7 +64,6 @@ impl Global {
         surface_id: SurfaceId,
         adapter_id: AdapterId,
     ) -> wgt::DisplayHdrInfo {
-        profiling::scope!("Surface::display_hdr_info");
         self.fetch_adapter_and_surface(surface_id, adapter_id, |adapter, surface| {
             surface.display_hdr_info(adapter)
         })
@@ -112,12 +82,12 @@ impl Global {
 
     pub fn device_features(&self, device_id: DeviceId) -> wgt::Features {
         let device = self.hub.devices.get(device_id);
-        device.features
+        *device.features()
     }
 
     pub fn device_limits(&self, device_id: DeviceId) -> wgt::Limits {
         let device = self.hub.devices.get(device_id);
-        device.limits.clone()
+        device.limits().clone()
     }
 
     pub fn device_adapter_info(&self, device_id: DeviceId) -> wgt::AdapterInfo {
@@ -127,7 +97,7 @@ impl Global {
 
     pub fn device_downlevel_properties(&self, device_id: DeviceId) -> wgt::DownlevelCapabilities {
         let device = self.hub.devices.get(device_id);
-        device.downlevel.clone()
+        device.downlevel().clone()
     }
 
     pub fn device_create_buffer(
@@ -136,8 +106,6 @@ impl Global {
         desc: &resource::BufferDescriptor,
         id_in: Option<id::BufferId>,
     ) -> (id::BufferId, Option<CreateBufferError>) {
-        profiling::scope!("Device::create_buffer");
-
         let hub = &self.hub;
         let fid = hub.buffers.prepare(id_in);
 
@@ -255,9 +223,6 @@ impl Global {
     }
 
     pub fn buffer_destroy(&self, buffer_id: id::BufferId) {
-        profiling::scope!("Buffer::destroy");
-        api_log!("Buffer::destroy {buffer_id:?}");
-
         let hub = &self.hub;
 
         let buffer = hub.buffers.get(buffer_id);
@@ -266,9 +231,6 @@ impl Global {
     }
 
     pub fn buffer_drop(&self, buffer_id: id::BufferId) {
-        profiling::scope!("Buffer::drop");
-        api_log!("Buffer::drop {buffer_id:?}");
-
         let hub = &self.hub;
 
         let _buffer = hub.buffers.remove(buffer_id);
@@ -280,8 +242,6 @@ impl Global {
         desc: &resource::TextureDescriptor,
         id_in: Option<id::TextureId>,
     ) -> (id::TextureId, Option<resource::CreateTextureError>) {
-        profiling::scope!("Device::create_texture");
-
         let hub = &self.hub;
 
         let fid = hub.textures.prepare(id_in);
@@ -318,30 +278,11 @@ impl Global {
 
         let device = self.hub.devices.get(device_id);
 
-        let error = 'error: {
-            let texture = match device.create_texture_from_hal(hal_texture, desc, initial_state) {
-                Ok(texture) => texture,
-                Err(error) => break 'error error,
-            };
+        let (texture, error) =
+            unsafe { device.create_texture_from_hal(hal_texture, desc, initial_state) };
 
-            // NB: Any change done through the raw texture handle will not be
-            // recorded in the replay
-            #[cfg(feature = "trace")]
-            if let Some(ref mut trace) = *device.trace.lock() {
-                trace.add(trace::Action::CreateTexture(
-                    texture.to_trace(),
-                    desc.clone(),
-                ));
-            }
-
-            let id = fid.assign(texture);
-            api_log!("Device::create_texture({desc:?}) -> {id:?}");
-
-            return (id, None);
-        };
-
-        let id = fid.assign(Arc::new(resource::Texture::invalid(&device, desc)));
-        (id, Some(error))
+        let id = fid.assign(texture);
+        (id, error)
     }
 
     /// # Safety
@@ -372,25 +313,14 @@ impl Global {
     }
 
     pub fn texture_destroy(&self, texture_id: id::TextureId) {
-        profiling::scope!("Texture::destroy");
-        api_log!("Texture::destroy {texture_id:?}");
-
         let hub = &self.hub;
 
         let texture = hub.textures.get(texture_id);
-
-        #[cfg(feature = "trace")]
-        if let Some(trace) = texture.device.trace.lock().as_mut() {
-            trace.add(trace::Action::DestroyTexture(texture.to_trace()));
-        }
 
         texture.destroy();
     }
 
     pub fn texture_drop(&self, texture_id: id::TextureId) {
-        profiling::scope!("Texture::drop");
-        api_log!("Texture::drop {texture_id:?}");
-
         let hub = &self.hub;
 
         hub.textures.remove(texture_id);
@@ -402,8 +332,6 @@ impl Global {
         desc: &resource::TextureViewDescriptor,
         id_in: Option<id::TextureViewId>,
     ) -> (id::TextureViewId, Option<resource::CreateTextureViewError>) {
-        profiling::scope!("Texture::create_view");
-
         let hub = &self.hub;
 
         let fid = hub.texture_views.prepare(id_in);
@@ -434,8 +362,6 @@ impl Global {
         id::ExternalTextureId,
         Option<resource::CreateExternalTextureError>,
     ) {
-        profiling::scope!("Device::create_external_texture");
-
         let hub = &self.hub;
 
         let fid = hub.external_textures.prepare(id_in);
@@ -455,9 +381,6 @@ impl Global {
     }
 
     pub fn external_texture_destroy(&self, external_texture_id: id::ExternalTextureId) {
-        profiling::scope!("ExternalTexture::destroy");
-        api_log!("ExternalTexture::destroy {external_texture_id:?}");
-
         let hub = &self.hub;
 
         let external_texture = hub.external_textures.get(external_texture_id);
@@ -466,9 +389,6 @@ impl Global {
     }
 
     pub fn external_texture_drop(&self, external_texture_id: id::ExternalTextureId) {
-        profiling::scope!("ExternalTexture::drop");
-        api_log!("ExternalTexture::drop {external_texture_id:?}");
-
         let hub = &self.hub;
 
         let _external_texture = hub.external_textures.remove(external_texture_id);
@@ -507,8 +427,6 @@ impl Global {
         id::BindGroupLayoutId,
         Option<binding_model::CreateBindGroupLayoutError>,
     ) {
-        profiling::scope!("Device::create_bind_group_layout");
-
         let hub = &self.hub;
         let fid = hub.bind_group_layouts.prepare(id_in);
 
@@ -518,15 +436,10 @@ impl Global {
 
         let id = fid.assign(bgl);
 
-        api_log!("Device::create_bind_group_layout -> {id:?}");
-
         (id, error)
     }
 
     pub fn bind_group_layout_drop(&self, bind_group_layout_id: id::BindGroupLayoutId) {
-        profiling::scope!("BindGroupLayout::drop");
-        api_log!("BindGroupLayout::drop {bind_group_layout_id:?}");
-
         let hub = &self.hub;
 
         let _layout = hub.bind_group_layouts.remove(bind_group_layout_id);
@@ -541,8 +454,6 @@ impl Global {
         id::PipelineLayoutId,
         Option<binding_model::CreatePipelineLayoutError>,
     ) {
-        profiling::scope!("Device::create_pipeline_layout");
-
         let hub = &self.hub;
         let fid = hub.pipeline_layouts.prepare(id_in);
 
@@ -568,9 +479,6 @@ impl Global {
     }
 
     pub fn pipeline_layout_drop(&self, pipeline_layout_id: id::PipelineLayoutId) {
-        profiling::scope!("PipelineLayout::drop");
-        api_log!("PipelineLayout::drop {pipeline_layout_id:?}");
-
         let hub = &self.hub;
 
         let _layout = hub.pipeline_layouts.remove(pipeline_layout_id);
@@ -582,8 +490,6 @@ impl Global {
         desc: &binding_model::BindGroupDescriptor,
         id_in: Option<id::BindGroupId>,
     ) -> (id::BindGroupId, Option<binding_model::CreateBindGroupError>) {
-        profiling::scope!("Device::create_bind_group");
-
         let hub = &self.hub;
         let fid = hub.bind_groups.prepare(id_in);
 
@@ -715,8 +621,6 @@ impl Global {
         id::ShaderModuleId,
         Option<pipeline::CreateShaderModuleError>,
     ) {
-        profiling::scope!("Device::create_shader_module");
-
         let hub = &self.hub;
         let fid = hub.shader_modules.prepare(id_in);
 
@@ -755,9 +659,6 @@ impl Global {
     }
 
     pub fn shader_module_drop(&self, shader_module_id: id::ShaderModuleId) {
-        profiling::scope!("ShaderModule::drop");
-        api_log!("ShaderModule::drop {shader_module_id:?}");
-
         let hub = &self.hub;
 
         let _shader_module = hub.shader_modules.remove(shader_module_id);
@@ -776,34 +677,17 @@ impl Global {
 
         let device = self.hub.devices.get(device_id);
 
-        let error = 'error: {
-            let cmd_enc = match device.create_command_encoder(&desc.label) {
-                Ok(cmd_enc) => cmd_enc,
-                Err(e) => break 'error e,
-            };
+        let (cmd_enc, error) = device.create_command_encoder(desc);
 
-            let id = fid.assign(cmd_enc);
-            api_log!("Device::create_command_encoder -> {id:?}");
-            return (id, None);
-        };
-
-        let id = fid.assign(Arc::new(CommandEncoder::new_invalid(
-            &device,
-            &desc.label,
-            error.clone().into(),
-        )));
-        (id, Some(error))
+        let id = fid.assign(cmd_enc);
+        (id, error)
     }
 
     pub fn command_encoder_drop(&self, command_encoder_id: id::CommandEncoderId) {
-        profiling::scope!("CommandEncoder::drop");
-        api_log!("CommandEncoder::drop {command_encoder_id:?}");
         let _cmd_enc = self.hub.command_encoders.remove(command_encoder_id);
     }
 
     pub fn command_buffer_drop(&self, command_buffer_id: id::CommandBufferId) {
-        profiling::scope!("CommandBuffer::drop");
-        api_log!("CommandBuffer::drop {command_buffer_id:?}");
         let _cmd_buf = self.hub.command_buffers.remove(command_buffer_id);
     }
 
@@ -907,8 +791,6 @@ impl Global {
         desc: &resource::QuerySetDescriptor,
         id_in: Option<id::QuerySetId>,
     ) -> (id::QuerySetId, Option<resource::CreateQuerySetError>) {
-        profiling::scope!("Device::create_query_set");
-
         let hub = &self.hub;
         let fid = hub.query_sets.prepare(id_in);
 
@@ -930,9 +812,6 @@ impl Global {
     }
 
     pub fn query_set_drop(&self, query_set_id: id::QuerySetId) {
-        profiling::scope!("QuerySet::drop");
-        api_log!("QuerySet::drop {query_set_id:?}");
-
         let hub = &self.hub;
 
         let _query_set = hub.query_sets.remove(query_set_id);
@@ -947,8 +826,6 @@ impl Global {
         id::RenderPipelineId,
         Option<pipeline::CreateRenderPipelineError>,
     ) {
-        profiling::scope!("Device::create_render_pipeline");
-
         let hub = &self.hub;
 
         let fid = hub.render_pipelines.prepare(id_in);
@@ -984,112 +861,90 @@ impl Global {
         id::RenderPipelineId,
         Option<pipeline::CreateRenderPipelineError>,
     ) {
-        profiling::scope!("Device::create_general_render_pipeline");
-
         let hub = &self.hub;
 
-        // eventually there will be no error handling here only id to object mapping
-        let error = 'error: {
-            // until then we also need this
-            if let Err(e) = device.check_is_valid() {
-                break 'error e.into();
-            }
+        let layout = desc.layout.map(|layout| hub.pipeline_layouts.get(layout));
 
-            let layout = desc.layout.map(|layout| hub.pipeline_layouts.get(layout));
+        let cache = desc.cache.map(|cache| hub.pipeline_caches.get(cache));
 
-            let cache = desc.cache.map(|cache| hub.pipeline_caches.get(cache));
-
-            let vertex = match desc.vertex {
-                RenderPipelineVertexProcessor::Vertex(ref vertex) => {
-                    let module = hub.shader_modules.get(vertex.stage.module);
-                    let stage = ResolvedProgrammableStageDescriptor {
-                        module,
-                        entry_point: vertex.stage.entry_point.clone(),
-                        constants: vertex.stage.constants.clone(),
-                        zero_initialize_workgroup_memory: vertex
-                            .stage
-                            .zero_initialize_workgroup_memory,
-                    };
-                    RenderPipelineVertexProcessor::Vertex(ResolvedVertexState {
-                        stage,
-                        buffers: vertex.buffers.clone(),
-                    })
-                }
-                RenderPipelineVertexProcessor::Mesh(ref task, ref mesh) => {
-                    let task_module = if let Some(task) = task {
-                        let module = hub.shader_modules.get(task.stage.module);
-
-                        let state = ResolvedProgrammableStageDescriptor {
-                            module,
-                            entry_point: task.stage.entry_point.clone(),
-                            constants: task.stage.constants.clone(),
-                            zero_initialize_workgroup_memory: task
-                                .stage
-                                .zero_initialize_workgroup_memory,
-                        };
-                        Some(ResolvedTaskState { stage: state })
-                    } else {
-                        None
-                    };
-                    let mesh_module = hub.shader_modules.get(mesh.stage.module);
-                    let mesh_stage = ResolvedProgrammableStageDescriptor {
-                        module: mesh_module,
-                        entry_point: mesh.stage.entry_point.clone(),
-                        constants: mesh.stage.constants.clone(),
-                        zero_initialize_workgroup_memory: mesh
-                            .stage
-                            .zero_initialize_workgroup_memory,
-                    };
-                    RenderPipelineVertexProcessor::Mesh(
-                        task_module,
-                        ResolvedMeshState { stage: mesh_stage },
-                    )
-                }
-            };
-
-            let fragment = if let Some(ref state) = desc.fragment {
-                let module = hub.shader_modules.get(state.stage.module);
-
+        let vertex = match desc.vertex {
+            RenderPipelineVertexProcessor::Vertex(ref vertex) => {
+                let module = hub.shader_modules.get(vertex.stage.module);
                 let stage = ResolvedProgrammableStageDescriptor {
                     module,
-                    entry_point: state.stage.entry_point.clone(),
-                    constants: state.stage.constants.clone(),
-                    zero_initialize_workgroup_memory: state.stage.zero_initialize_workgroup_memory,
+                    entry_point: vertex.stage.entry_point.clone(),
+                    constants: vertex.stage.constants.clone(),
+                    zero_initialize_workgroup_memory: vertex.stage.zero_initialize_workgroup_memory,
                 };
-                Some(ResolvedFragmentState {
+                RenderPipelineVertexProcessor::Vertex(ResolvedVertexState {
                     stage,
-                    targets: state.targets.clone(),
+                    buffers: vertex.buffers.clone(),
                 })
-            } else {
-                None
-            };
+            }
+            RenderPipelineVertexProcessor::Mesh(ref task, ref mesh) => {
+                let task_module = if let Some(task) = task {
+                    let module = hub.shader_modules.get(task.stage.module);
 
-            let desc = ResolvedGeneralRenderPipelineDescriptor {
-                label: desc.label.clone(),
-                layout,
-                vertex,
-                primitive: desc.primitive,
-                depth_stencil: desc.depth_stencil.clone(),
-                multisample: desc.multisample,
-                fragment,
-                multiview_mask: desc.multiview_mask,
-                cache,
-            };
-
-            let (pipeline, error) = device.create_render_pipeline(desc);
-
-            let id = fid.assign(pipeline);
-            api_log!("Device::create_render_pipeline -> {id:?}");
-
-            return (id, error);
+                    let state = ResolvedProgrammableStageDescriptor {
+                        module,
+                        entry_point: task.stage.entry_point.clone(),
+                        constants: task.stage.constants.clone(),
+                        zero_initialize_workgroup_memory: task
+                            .stage
+                            .zero_initialize_workgroup_memory,
+                    };
+                    Some(ResolvedTaskState { stage: state })
+                } else {
+                    None
+                };
+                let mesh_module = hub.shader_modules.get(mesh.stage.module);
+                let mesh_stage = ResolvedProgrammableStageDescriptor {
+                    module: mesh_module,
+                    entry_point: mesh.stage.entry_point.clone(),
+                    constants: mesh.stage.constants.clone(),
+                    zero_initialize_workgroup_memory: mesh.stage.zero_initialize_workgroup_memory,
+                };
+                RenderPipelineVertexProcessor::Mesh(
+                    task_module,
+                    ResolvedMeshState { stage: mesh_stage },
+                )
+            }
         };
 
-        let id = fid.assign(pipeline::RenderPipeline::invalid(
-            device.clone(),
-            desc.label.to_string(),
-        ));
+        let fragment = if let Some(ref state) = desc.fragment {
+            let module = hub.shader_modules.get(state.stage.module);
 
-        (id, Some(error))
+            let stage = ResolvedProgrammableStageDescriptor {
+                module,
+                entry_point: state.stage.entry_point.clone(),
+                constants: state.stage.constants.clone(),
+                zero_initialize_workgroup_memory: state.stage.zero_initialize_workgroup_memory,
+            };
+            Some(ResolvedFragmentState {
+                stage,
+                targets: state.targets.clone(),
+            })
+        } else {
+            None
+        };
+
+        let desc = ResolvedGeneralRenderPipelineDescriptor {
+            label: desc.label.clone(),
+            layout,
+            vertex,
+            primitive: desc.primitive,
+            depth_stencil: desc.depth_stencil.clone(),
+            multisample: desc.multisample,
+            fragment,
+            multiview_mask: desc.multiview_mask,
+            cache,
+        };
+
+        let (pipeline, error) = device.create_render_pipeline(desc);
+
+        let id = fid.assign(pipeline);
+
+        (id, error)
     }
 
     /// Get an ID of one of the bind group layouts. The ID adds a refcount,
@@ -1117,9 +972,6 @@ impl Global {
     }
 
     pub fn render_pipeline_drop(&self, render_pipeline_id: id::RenderPipelineId) {
-        profiling::scope!("RenderPipeline::drop");
-        api_log!("RenderPipeline::drop {render_pipeline_id:?}");
-
         let hub = &self.hub;
 
         let _pipeline = hub.render_pipelines.remove(render_pipeline_id);
@@ -1134,55 +986,37 @@ impl Global {
         id::ComputePipelineId,
         Option<pipeline::CreateComputePipelineError>,
     ) {
-        profiling::scope!("Device::create_compute_pipeline");
-
         let hub = &self.hub;
 
         let fid = hub.compute_pipelines.prepare(id_in);
 
         let device = self.hub.devices.get(device_id);
 
-        // eventually there will be no error handling here only id to object mapping
-        let error = 'error: {
-            // until then we also need this
-            if let Err(e) = device.check_is_valid() {
-                break 'error e.into();
-            }
+        let layout = desc.layout.map(|layout| hub.pipeline_layouts.get(layout));
 
-            let layout = desc.layout.map(|layout| hub.pipeline_layouts.get(layout));
+        let cache = desc.cache.map(|cache| hub.pipeline_caches.get(cache));
 
-            let cache = desc.cache.map(|cache| hub.pipeline_caches.get(cache));
+        let module = hub.shader_modules.get(desc.stage.module);
 
-            let module = hub.shader_modules.get(desc.stage.module);
-
-            let stage = ResolvedProgrammableStageDescriptor {
-                module,
-                entry_point: desc.stage.entry_point.clone(),
-                constants: desc.stage.constants.clone(),
-                zero_initialize_workgroup_memory: desc.stage.zero_initialize_workgroup_memory,
-            };
-
-            let desc = ResolvedComputePipelineDescriptor {
-                label: desc.label.clone(),
-                layout,
-                stage,
-                cache,
-            };
-
-            let (pipeline, error) = device.create_compute_pipeline(desc);
-
-            let id = fid.assign(pipeline);
-            api_log!("Device::create_compute_pipeline -> {id:?}");
-
-            return (id, error);
+        let stage = ResolvedProgrammableStageDescriptor {
+            module,
+            entry_point: desc.stage.entry_point.clone(),
+            constants: desc.stage.constants.clone(),
+            zero_initialize_workgroup_memory: desc.stage.zero_initialize_workgroup_memory,
         };
 
-        let id = fid.assign(pipeline::ComputePipeline::invalid(
-            device,
-            desc.label.to_string(),
-        ));
+        let desc = ResolvedComputePipelineDescriptor {
+            label: desc.label.clone(),
+            layout,
+            stage,
+            cache,
+        };
 
-        (id, Some(error))
+        let (pipeline, error) = device.create_compute_pipeline(desc);
+
+        let id = fid.assign(pipeline);
+
+        (id, error)
     }
 
     /// Get an ID of one of the bind group layouts. The ID adds a refcount,
@@ -1210,9 +1044,6 @@ impl Global {
     }
 
     pub fn compute_pipeline_drop(&self, compute_pipeline_id: id::ComputePipelineId) {
-        profiling::scope!("ComputePipeline::drop");
-        api_log!("ComputePipeline::drop {compute_pipeline_id:?}");
-
         let hub = &self.hub;
 
         let _pipeline = hub.compute_pipelines.remove(compute_pipeline_id);
@@ -1230,8 +1061,6 @@ impl Global {
         id::PipelineCacheId,
         Option<pipeline::CreatePipelineCacheError>,
     ) {
-        profiling::scope!("Device::create_pipeline_cache");
-
         let hub = &self.hub;
 
         let fid = hub.pipeline_caches.prepare(id_in);
@@ -1259,14 +1088,6 @@ impl Global {
         let device = self.hub.devices.get(device_id);
         let surface = self.surfaces.get(surface_id);
 
-        #[cfg(feature = "trace")]
-        if let Some(ref mut trace) = *device.trace.lock() {
-            trace.add(trace::Action::ConfigureSurface(
-                surface.to_trace(),
-                config.clone(),
-            ));
-        }
-
         device.configure_surface(&surface, config)
     }
 
@@ -1278,54 +1099,9 @@ impl Global {
         device_id: DeviceId,
         poll_type: wgt::PollType<crate::SubmissionIndex>,
     ) -> Result<wgt::PollStatus, WaitIdleError> {
-        api_log!("Device::poll {poll_type:?}");
-
         let device = self.hub.devices.get(device_id);
 
-        let (closures, result) = device.poll_and_return_closures(poll_type);
-
-        closures.fire();
-
-        result
-    }
-
-    /// Poll all devices belonging to the specified backend.
-    ///
-    /// If `force_wait` is true, block until all buffer mappings are done.
-    ///
-    /// Return `all_queue_empty` indicating whether there are more queue
-    /// submissions still in flight.
-    fn poll_all_devices_of_api(
-        &self,
-        force_wait: bool,
-        closure_list: &mut UserClosures,
-    ) -> Result<bool, WaitIdleError> {
-        profiling::scope!("poll_device");
-
-        let hub = &self.hub;
-        let mut all_queue_empty = true;
-        {
-            let device_guard = hub.devices.read();
-
-            for (_id, device) in device_guard.iter() {
-                let poll_type = if force_wait {
-                    // TODO(#8286): Should expose timeout to poll_all.
-                    wgt::PollType::wait_indefinitely()
-                } else {
-                    wgt::PollType::Poll
-                };
-
-                let (closures, result) = device.poll_and_return_closures(poll_type);
-
-                let is_queue_empty = matches!(result, Ok(wgt::PollStatus::QueueEmpty));
-
-                all_queue_empty &= is_queue_empty;
-
-                closure_list.extend(closures);
-            }
-        }
-
-        Ok(all_queue_empty)
+        device.poll(poll_type)
     }
 
     /// Poll all devices on all backends.
@@ -1335,13 +1111,7 @@ impl Global {
     /// Return `all_queue_empty` indicating whether there are more queue
     /// submissions still in flight.
     pub fn poll_all_devices(&self, force_wait: bool) -> Result<bool, WaitIdleError> {
-        api_log!("poll_all_devices");
-        let mut closures = UserClosures::default();
-        let all_queue_empty = self.poll_all_devices_of_api(force_wait, &mut closures)?;
-
-        closures.fire();
-
-        Ok(all_queue_empty)
+        self.instance.poll_all_devices(force_wait)
     }
 
     /// # Safety
@@ -1379,9 +1149,6 @@ impl Global {
     }
 
     pub fn device_drop(&self, device_id: DeviceId) {
-        profiling::scope!("Device::drop");
-        api_log!("Device::drop {device_id:?}");
-
         self.hub.devices.remove(device_id);
     }
 
@@ -1393,42 +1160,17 @@ impl Global {
     ) {
         let device = self.hub.devices.get(device_id);
 
-        device
-            .device_lost_closure
-            .lock()
-            .replace(device_lost_closure);
+        device.set_device_lost_closure(device_lost_closure);
     }
 
     pub fn device_destroy(&self, device_id: DeviceId) {
-        api_log!("Device::destroy {device_id:?}");
-
         let device = self.hub.devices.get(device_id);
-
-        // Follow the steps at
-        // https://gpuweb.github.io/gpuweb/#dom-gpudevice-destroy.
-        // It's legal to call destroy multiple times, but if the device
-        // is already invalid, there's nothing more to do. There's also
-        // no need to return an error.
-        if !device.is_valid() {
-            return;
-        }
-
-        // The last part of destroy is to lose the device. The spec says
-        // delay that until all "currently-enqueued operations on any
-        // queue on this device are completed." This is accomplished by
-        // setting valid to false, and then relying upon maintain to
-        // check for empty queues and a DeviceLostClosure. At that time,
-        // the DeviceLostClosure will be called with "destroyed" as the
-        // reason.
-        device.valid.store(false, Ordering::Release);
+        device.destroy();
     }
 
     pub fn device_get_internal_counters(&self, device_id: DeviceId) -> wgt::InternalCounters {
         let device = self.hub.devices.get(device_id);
-        wgt::InternalCounters {
-            hal: device.get_hal_counters(),
-            core: wgt::CoreCounters {},
-        }
+        device.get_internal_counters()
     }
 
     pub fn device_generate_allocator_report(
@@ -1449,9 +1191,6 @@ impl Global {
     }
 
     pub fn queue_drop(&self, queue_id: QueueId) {
-        profiling::scope!("Queue::drop");
-        api_log!("Queue::drop {queue_id:?}");
-
         self.hub.queues.remove(queue_id);
     }
 
@@ -1463,9 +1202,6 @@ impl Global {
         size: Option<BufferAddress>,
         op: BufferMapOperation,
     ) -> Result<crate::SubmissionIndex, BufferAccessError> {
-        profiling::scope!("Buffer::map_async");
-        api_log!("Buffer::map_async {buffer_id:?} offset {offset:?} size {size:?} op: {op:?}");
-
         let hub = &self.hub;
 
         let buffer = hub.buffers.get(buffer_id);
@@ -1487,9 +1223,6 @@ impl Global {
     }
 
     pub fn buffer_unmap(&self, buffer_id: id::BufferId) -> BufferAccessResult {
-        profiling::scope!("unmap", "Buffer");
-        api_log!("Buffer::unmap {buffer_id:?}");
-
         let hub = &self.hub;
 
         let buffer = hub.buffers.get(buffer_id);

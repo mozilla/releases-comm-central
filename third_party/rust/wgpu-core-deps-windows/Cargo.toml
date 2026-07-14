@@ -12,7 +12,7 @@
 [package]
 edition = "2021"
 rust-version = "1.76"
-name = "wgpu-core-deps-windows-linux-android"
+name = "wgpu-core-deps-windows"
 version = "30.0.0"
 authors = ["gfx-rs developers"]
 build = false
@@ -36,10 +36,10 @@ renderdoc = ["wgpu-hal/renderdoc"]
 vulkan = ["wgpu-hal/vulkan"]
 
 [lib]
-name = "wgpu_core_deps_windows_linux_android"
+name = "wgpu_core_deps_windows"
 path = "src/lib.rs"
 
-[target.'cfg(any(windows, target_os = "linux", target_os = "android", target_os = "freebsd", target_os = "netbsd"))'.dependencies.wgpu-hal]
+[target."cfg(windows)".dependencies.wgpu-hal]
 version = "30.0.0"
 path = "../../../wgpu-hal"
 

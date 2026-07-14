@@ -820,7 +820,10 @@ pub struct BindGroupLayout {
 }
 
 impl Drop for BindGroupLayout {
+    #[allow(trivial_casts)]
     fn drop(&mut self) {
+        profiling::scope!("BindGroupLayout::drop");
+        api_log!("BindGroupLayout::drop {:?}", self as *const _);
         #[cfg(feature = "trace")]
         {
             let mut t = self.device.trace.lock();
@@ -897,7 +900,7 @@ impl BindGroupLayout {
         })
     }
 
-    pub(crate) fn invalid(device: &Arc<Device>, label: String) -> Arc<Self> {
+    pub fn invalid(device: &Arc<Device>, label: String) -> Arc<Self> {
         Arc::new(Self {
             state: ResourceState::Invalid,
             device: device.clone(),
@@ -1039,7 +1042,10 @@ pub struct PipelineLayout {
 }
 
 impl Drop for PipelineLayout {
+    #[allow(trivial_casts)]
     fn drop(&mut self) {
+        profiling::scope!("PipelineLayout::drop");
+        api_log!("PipelineLayout::drop {:?}", self as *const _);
         resource_log!("Destroy raw {}", self.error_ident());
         if let ResourceState::Valid(raw) = core::mem::replace(&mut self.raw, ResourceState::Invalid)
         {

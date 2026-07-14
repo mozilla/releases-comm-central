@@ -82,7 +82,10 @@ pub struct ShaderModule {
 }
 
 impl Drop for ShaderModule {
+    #[allow(trivial_casts)]
     fn drop(&mut self) {
+        profiling::scope!("ShaderModule::drop");
+        api_log!("ShaderModule::drop {:?}", self as *const _);
         resource_log!("Destroy raw {}", self.error_ident());
         #[cfg(feature = "trace")]
         if let Some(t) = self.device.trace.lock().as_mut() {
@@ -347,7 +350,10 @@ pub struct ComputePipeline {
 }
 
 impl Drop for ComputePipeline {
+    #[allow(trivial_casts)]
     fn drop(&mut self) {
+        profiling::scope!("ComputePipeline::drop");
+        api_log!("ComputePipeline::drop {:?}", self as *const _);
         resource_log!("Destroy raw {}", self.error_ident());
         #[cfg(feature = "trace")]
         {
@@ -1015,7 +1021,10 @@ pub struct RenderPipeline {
 }
 
 impl Drop for RenderPipeline {
+    #[allow(trivial_casts)]
     fn drop(&mut self) {
+        profiling::scope!("RenderPipeline::drop");
+        api_log!("RenderPipeline::drop {:?}", self as *const _);
         resource_log!("Destroy raw {}", self.error_ident());
         #[cfg(feature = "trace")]
         {

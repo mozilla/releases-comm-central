@@ -464,7 +464,10 @@ pub struct Buffer {
 }
 
 impl Drop for Buffer {
+    #[allow(trivial_casts)]
     fn drop(&mut self) {
+        profiling::scope!("Buffer::drop");
+        api_log!("Buffer::drop {:?}", self as *const _);
         #[cfg(feature = "trace")]
         if let Some(t) = self.device.trace.lock().as_mut() {
             t.add(trace::Action::DropBuffer(unsafe { trace::to_trace(self) }));
@@ -568,7 +571,7 @@ impl Buffer {
         self.state().map(|_| ())
     }
 
-    pub(crate) fn invalid(device: Arc<Device>, desc: &BufferDescriptor) -> Arc<Self> {
+    pub fn invalid(device: Arc<Device>, desc: &BufferDescriptor) -> Arc<Self> {
         Arc::new(Buffer {
             state: ResourceState::Invalid,
             usage: desc.usage,
@@ -672,6 +675,12 @@ impl Buffer {
         size: Option<wgt::BufferAddress>,
         op: BufferMapOperation,
     ) -> Result<SubmissionIndex, BufferAccessError> {
+        profiling::scope!("Buffer::map_async");
+        api_log!(
+            "Buffer::map_async {:?} offset {offset:?} size {size:?} op: {op:?}",
+            Arc::as_ptr(self)
+        );
+
         self.try_map_async(offset, size, op)
             .map_err(|(mut operation, err)| {
                 if let Some(callback) = operation.callback.take() {
@@ -986,6 +995,8 @@ impl Buffer {
 
     // Note: This must not be called while holding a lock.
     pub fn unmap(self: &Arc<Self>) -> Result<(), BufferAccessError> {
+        profiling::scope!("unmap", "Buffer");
+        api_log!("Buffer::unmap {:?}", Arc::as_ptr(self));
         if let Some((mut operation, status)) = self.unmap_inner()? {
             if let Some(callback) = operation.callback.take() {
                 callback(status);
@@ -1023,10 +1034,12 @@ impl Buffer {
                 let staging_buffer = staging_buffer.flush();
 
                 if let Some(queue) = device.get_queue() {
-                    let region = wgt::BufferSize::new(self.size).map(|size| hal::BufferCopy {
+                    // Copy the entire staging buffer, including any
+                    // zero-initialized padding.
+                    let region = Some(hal::BufferCopy {
                         src_offset: 0,
                         dst_offset: 0,
-                        size,
+                        size: staging_buffer.size,
                     });
                     let transition_src = hal::BufferBarrier {
                         buffer: staging_buffer.raw(),
@@ -1046,13 +1059,13 @@ impl Buffer {
                     let encoder = pending_writes.activate();
                     unsafe {
                         encoder.transition_buffers(&[transition_src, transition_dst]);
-                        if self.size > 0 {
-                            encoder.copy_buffer_to_buffer(
-                                staging_buffer.raw(),
-                                raw_buf,
-                                region.as_slice(),
-                            );
-                        }
+                        // Buffers allocate at least `COPY_BUFFER_ALIGNMENT` bytes, so
+                        // there's always something to copy here.
+                        encoder.copy_buffer_to_buffer(
+                            staging_buffer.raw(),
+                            raw_buf,
+                            region.as_slice(),
+                        );
                     }
                     pending_writes.consume(staging_buffer);
                     pending_writes.insert_buffer(self);
@@ -1097,6 +1110,9 @@ impl Buffer {
     }
 
     pub fn destroy(self: &Arc<Self>) {
+        profiling::scope!("Buffer::destroy");
+        api_log!("Buffer::destroy {:?}", Arc::as_ptr(self));
+
         let device = &self.device;
 
         #[cfg(feature = "trace")]
@@ -1188,6 +1204,8 @@ pub enum CreateBufferError {
     MissingFeatures(#[from] MissingFeatures),
     #[error("Failed to create bind group for indirect buffer validation: {0}")]
     IndirectValidationBindGroup(DeviceError),
+    #[error("Error initializing buffer: {0}")]
+    QueueWrite(#[from] queue::QueueWriteError),
 }
 
 crate::impl_resource_type!(Buffer);
@@ -1204,6 +1222,7 @@ impl WebGpuError for CreateBufferError {
             Self::MissingDownlevelFlags(e) => e.webgpu_error_type(),
             Self::IndirectValidationBindGroup(e) => e.webgpu_error_type(),
             Self::MissingFeatures(e) => e.webgpu_error_type(),
+            Self::QueueWrite(e) => e.webgpu_error_type(),
 
             Self::UnalignedSize
             | Self::InvalidUsage(_)
@@ -1514,8 +1533,8 @@ impl Texture {
         }
     }
 
-    pub(crate) fn invalid(device: &Arc<Device>, desc: &TextureDescriptor) -> Self {
-        Texture {
+    pub fn invalid(device: &Arc<Device>, desc: &TextureDescriptor) -> Arc<Self> {
+        Arc::new(Texture {
             state: ResourceState::Invalid,
             device: device.clone(),
             desc: desc.map_label(|label| label.to_string()),
@@ -1536,7 +1555,7 @@ impl Texture {
             clear_mode: RwLock::new(rank::TEXTURE_CLEAR_MODE, TextureClearMode::None),
             views: Mutex::new(rank::TEXTURE_VIEWS, WeakVec::new()),
             bind_groups: Mutex::new(rank::TEXTURE_BIND_GROUPS, WeakVec::new()),
-        }
+        })
     }
 
     /// Checks that the given texture usage contains the required texture usage,
@@ -1558,7 +1577,11 @@ impl Texture {
 }
 
 impl Drop for Texture {
+    #[allow(trivial_casts)]
     fn drop(&mut self) {
+        profiling::scope!("Texture::drop");
+        api_log!("Texture::drop {:?}", self as *const _);
+
         #[cfg(feature = "trace")]
         {
             let mut t = self.device.trace.lock();
@@ -1683,6 +1706,16 @@ impl Texture {
     }
 
     pub fn destroy(self: &Arc<Self>) {
+        profiling::scope!("Texture::destroy");
+        api_log!("Texture::destroy {:?}", Arc::as_ptr(self));
+
+        #[cfg(feature = "trace")]
+        if let Some(trace) = self.device.trace.lock().as_mut() {
+            use crate::device::trace::IntoTrace as _;
+
+            trace.add(trace::Action::DestroyTexture(self.to_trace()));
+        }
+
         let device = &self.device;
 
         let ResourceState::Valid(state) = &self.state else {
@@ -2278,7 +2311,11 @@ pub struct ExternalTexture {
 }
 
 impl Drop for ExternalTexture {
+    #[allow(trivial_casts)]
     fn drop(&mut self) {
+        profiling::scope!("ExternalTexture::drop");
+        api_log!("ExternalTexture::drop {:?}", self as *const _);
+
         resource_log!("Destroy raw {}", self.error_ident());
         #[cfg(feature = "trace")]
         if let Some(t) = self.device.trace.lock().as_mut() {
@@ -2298,6 +2335,9 @@ impl ExternalTexture {
     }
 
     pub fn destroy(self: &Arc<Self>) {
+        profiling::scope!("ExternalTexture::destroy");
+        api_log!("ExternalTexture::destroy {:?}", Arc::as_ptr(self));
+
         #[cfg(feature = "trace")]
         if let Some(trace) = self.device.trace.lock().as_mut() {
             use crate::device::trace::IntoTrace as _;
@@ -2661,7 +2701,10 @@ impl QuerySet {
 }
 
 impl Drop for QuerySet {
+    #[allow(trivial_casts)]
     fn drop(&mut self) {
+        profiling::scope!("QuerySet::drop");
+        api_log!("QuerySet::drop {:?}", self as *const _);
         resource_log!("Destroy raw {}", self.error_ident());
         #[cfg(feature = "trace")]
         if let Some(trace) = self.device.trace.lock().as_mut() {

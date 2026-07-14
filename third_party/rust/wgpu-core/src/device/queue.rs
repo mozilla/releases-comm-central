@@ -275,7 +275,10 @@ crate::impl_parent_device!(Queue);
 crate::impl_storage_item!(Queue);
 
 impl Drop for Queue {
+    #[allow(trivial_casts)]
     fn drop(&mut self) {
+        profiling::scope!("Queue::drop");
+        api_log!("Queue::drop {:?}", self as *const _);
         resource_log!("Drop {}", self.error_ident());
 
         // On Vulkan, pending presents are not tracked by fences.
@@ -446,6 +449,38 @@ impl PendingWrites {
     pub fn consume(&mut self, buffer: FlushedStagingBuffer) {
         self.temp_resources
             .push(TempResource::StagingBuffer(buffer));
+    }
+
+    pub fn clear_buffer(
+        &mut self,
+        device: &Arc<Device>,
+        buffer: &Arc<Buffer>,
+        range: core::ops::Range<wgt::BufferAddress>,
+        snatch_guard: &SnatchGuard,
+    ) -> Result<(), QueueWriteError> {
+        let barriers = {
+            let mut trackers = device.trackers.lock();
+            trackers
+                .buffers
+                .set_single(buffer, wgt::BufferUses::COPY_DST)
+                .map(|pending| pending.into_hal(buffer, snatch_guard))
+        };
+
+        let dst_raw = buffer.try_raw(snatch_guard)?;
+
+        let encoder = self.activate();
+        unsafe {
+            encoder.transition_buffers(barriers.as_slice());
+            encoder.clear_buffer(dst_raw, range.clone());
+        }
+
+        self.insert_buffer(buffer);
+
+        // Ensure the overwritten bytes are marked as initialized so
+        // they don't need to be nulled prior to mapping or binding.
+        buffer.initialization_status.write().drain(range);
+
+        Ok(())
     }
 
     fn pre_submit(

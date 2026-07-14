@@ -149,6 +149,7 @@ vulkan = [
     "dep:raw-window-metal",
     "dep:smallvec",
     "dep:windows",
+    "dep:windows-core",
     "gpu-allocator/vulkan",
     "windows/Win32",
     "windows/Win32_Devices_Display",
@@ -544,4 +545,5 @@ priority = 0
 check-cfg = [
     'cfg(feature, values("cargo-clippy"))',
     "cfg(web_sys_unstable_apis)",
+    "cfg(windows_angle)",
 ]
