@@ -369,6 +369,7 @@ class nsImapMailFolder : public nsMsgDBFolder,
   void FindUidsToDelete(const nsTArray<ImapUid>& existingUids,
                         nsTArray<ImapUid>& uidsToFetch,
                         nsIImapFlagAndUidState* flagState, uint32_t boxFlags);
+  nsresult HandleUidInvalidation(ImapUid newUidValidity);
   void PrepareToAddHeadersToMailDB(nsIImapProtocol* aProtocol);
   void TweakHeaderFlags(nsIImapProtocol* aProtocol, nsIMsgDBHdr* tweakMe);
 

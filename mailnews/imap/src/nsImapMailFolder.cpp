@@ -2461,85 +2461,17 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
   m_uidValidity = folderValidity;
 
   if (imapUIDValidity != folderValidity) {
-    NS_WARNING("uid validity seems to have changed, blowing away db");
-    nsCOMPtr<nsIFile> pathFile;
-    rv = GetFilePath(getter_AddRefs(pathFile));
-    if (NS_FAILED(rv)) return rv;
-
-    nsCOMPtr<nsIMsgDBService> msgDBService =
-        do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    nsCOMPtr<nsIPropertyBag2> transferInfo;
-    if (dbFolderInfo)
-      dbFolderInfo->GetTransferInfo(getter_AddRefs(transferInfo));
-
-    // A backup message database might have been created earlier, for example
-    // if the user requested a reindex. We'll use the earlier one if we can,
-    // otherwise we'll try to backup at this point.
-    nsresult rvbackup = OpenBackupMsgDatabase();
-    if (mDatabase) {
-      dbFolderInfo = nullptr;
-      if (NS_FAILED(rvbackup)) {
-        CloseAndBackupFolderDB(EmptyCString());
-        if (NS_FAILED(OpenBackupMsgDatabase()) && mBackupDatabase) {
-          mBackupDatabase->RemoveListener(this);
-          mBackupDatabase = nullptr;
-        }
-      } else
-        mDatabase->ForceClosed();
-    }
-    mDatabase = nullptr;
-
-    nsCOMPtr<nsIFile> summaryFile;
-    rv = GetSummaryFileLocation(pathFile, getter_AddRefs(summaryFile));
-    // Remove summary file.
-    if (NS_SUCCEEDED(rv) && summaryFile) summaryFile->Remove(false);
-
-    // Create a new summary file, update the folder message counts, and
-    // Close the summary file db.
-    rv = msgDBService->CreateNewDB(this, getter_AddRefs(mDatabase));
-
-    if (NS_FAILED(rv) && mDatabase) {
-      mDatabase->ForceClosed();
-      mDatabase = nullptr;
-    } else if (NS_SUCCEEDED(rv) && mDatabase) {
-      if (transferInfo) SetDBTransferInfo(transferInfo);
-
-      SummaryChanged();
-      if (mDatabase) {
-        if (mAddListener) mDatabase->AddListener(this);
-        rv = mDatabase->GetDBFolderInfo(getter_AddRefs(dbFolderInfo));
-      }
-    }
-    // store the new UIDVALIDITY value
-
-    if (NS_SUCCEEDED(rv) && dbFolderInfo) {
-      dbFolderInfo->SetImapUidValidity(folderValidity);
-      // need to forget highest mod seq when uid validity rolls.
-      MOZ_LOG(IMAP_CS, mozilla::LogLevel::Debug,
-              ("UpdateImapMailboxInfo(): UIDVALIDITY changed, reset highest "
-               "MODSEQ and UID for folder=%s",
-               m_onlineFolderName.get()));
-      dbFolderInfo->SetCharProperty(kModSeqPropertyName, EmptyCString());
-      dbFolderInfo->SetUint32Property(kHighestRecordedUIDPropertyName, 0);
-    }
-    // delete all my msgs, the keys are bogus now
-    // add every message in this folder
-    existingKeys.Clear();
-    //      keysToDelete.CopyArray(&existingKeys);
-
+    // Uh-oh. The server has invalidated all the old UIDs. Nothing to do
+    // except ditch all the current messages and start from scratch.
+    rv = HandleUidInvalidation(folderValidity);
     if (flagState) {
-      nsTArray<nsMsgKey> no_existingKeys;
-      FindUidsToAdd(no_existingKeys, m_uidsToFetch, numNewUnread, flagState);
+      // We'll want to download them all again.
+      FindUidsToAdd({}, m_uidsToFetch, numNewUnread, flagState);
     }
-    if (NS_FAILED(rv)) pathFile->Remove(false);
-
-  } else if (!flagState /*&& !NET_IsOffline() */)  // if there are no messages
-                                                   // on the server
+  } else if (!flagState) {
+    // If there are no messages on the server.
     keysToDelete = existingKeys.Clone();
-  else /* if ( !NET_IsOffline()) */
-  {
+  } else {
     uint32_t boxFlags;
     aSpec->GetBox_flags(&boxFlags);
     // FindUidsToDelete and FindUidsToAdd require sorted lists
@@ -2549,6 +2481,7 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
     if (!(boxFlags & kJustExpunged))
       FindUidsToAdd(existingKeys, m_uidsToFetch, numNewUnread, flagState);
   }
+
   if (!keysToDelete.IsEmpty() && mDatabase) {
     nsTArray<RefPtr<nsIMsgDBHdr>> hdrsToDelete;
     MsgGetHeadersFromKeys(mDatabase, keysToDelete, hdrsToDelete);
@@ -2614,6 +2547,83 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
     m_nextUID = nextUID;
   }
 
+  return rv;
+}
+
+// Helper to handle UIDVALIDITY change on the server.
+// All the UIDs we had are no longer any good. This means we've lost the
+// linkage between local messages in the DB and the messages on the server.
+// We deal with it by throwing away the old database and any downloaded
+// messages and starting from scratch.
+nsresult nsImapMailFolder::HandleUidInvalidation(ImapUid newUidValidity) {
+  NS_WARNING("uid validity seems to have changed, blowing away db");
+  nsCOMPtr<nsIFile> pathFile;
+  nsresult rv = GetFilePath(getter_AddRefs(pathFile));
+  if (NS_FAILED(rv)) return rv;
+
+  nsCOMPtr<nsIMsgDBService> msgDBService =
+      do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;
+  nsCOMPtr<nsIPropertyBag2> transferInfo;
+  if (mDatabase) {
+    rv = mDatabase->GetDBFolderInfo(getter_AddRefs(dbFolderInfo));
+    NS_ENSURE_SUCCESS(rv, rv);
+    dbFolderInfo->GetTransferInfo(getter_AddRefs(transferInfo));
+  }
+
+  // A backup message database might have been created earlier, for example
+  // if the user requested a reindex. We'll use the earlier one if we can,
+  // otherwise we'll try to backup at this point.
+  nsresult rvbackup = OpenBackupMsgDatabase();
+  if (mDatabase) {
+    dbFolderInfo = nullptr;
+    if (NS_FAILED(rvbackup)) {
+      CloseAndBackupFolderDB(EmptyCString());
+      if (NS_FAILED(OpenBackupMsgDatabase()) && mBackupDatabase) {
+        mBackupDatabase->RemoveListener(this);
+        mBackupDatabase = nullptr;
+      }
+    } else
+      mDatabase->ForceClosed();
+  }
+  mDatabase = nullptr;
+
+  nsCOMPtr<nsIFile> summaryFile;
+  rv = GetSummaryFileLocation(pathFile, getter_AddRefs(summaryFile));
+  // Remove summary file.
+  if (NS_SUCCEEDED(rv) && summaryFile) summaryFile->Remove(false);
+
+  // Create a new summary file, update the folder message counts, and
+  // Close the summary file db.
+  rv = msgDBService->CreateNewDB(this, getter_AddRefs(mDatabase));
+
+  if (NS_FAILED(rv) && mDatabase) {
+    mDatabase->ForceClosed();
+    mDatabase = nullptr;
+  } else if (NS_SUCCEEDED(rv) && mDatabase) {
+    if (transferInfo) SetDBTransferInfo(transferInfo);
+
+    SummaryChanged();
+    if (mDatabase) {
+      if (mAddListener) mDatabase->AddListener(this);
+      rv = mDatabase->GetDBFolderInfo(getter_AddRefs(dbFolderInfo));
+    }
+  }
+
+  // store the new UIDVALIDITY value
+  if (NS_SUCCEEDED(rv) && dbFolderInfo) {
+    dbFolderInfo->SetImapUidValidity(newUidValidity);
+    // need to forget highest mod seq when uid validity rolls.
+    MOZ_LOG(IMAP_CS, mozilla::LogLevel::Debug,
+            ("UpdateImapMailboxInfo(): UIDVALIDITY changed, reset highest "
+             "MODSEQ and UID for folder=%s",
+             m_onlineFolderName.get()));
+    dbFolderInfo->SetCharProperty(kModSeqPropertyName, EmptyCString());
+    dbFolderInfo->SetUint32Property(kHighestRecordedUIDPropertyName, 0);
+  }
+  if (NS_FAILED(rv)) pathFile->Remove(false);
   return rv;
 }
 
