@@ -10,19 +10,96 @@
 
 NS_IMPL_ISUPPORTS(ExchangeOAuth2CustomDetails, IOAuth2CustomDetails);
 
-nsresult ExchangeOAuth2CustomDetails::ForTypeAndHostname(
-    const nsACString& type, const nsACString& hostname,
-    ExchangeOAuth2CustomDetails** details) {
-  NS_ENSURE_ARG_POINTER(details);
+namespace {
 
-  nsCOMPtr<nsIPrefService> prefs = mozilla::Preferences::GetService();
+constexpr auto kUseCustomDetails = "useCustomDetails";
+constexpr auto kApplicationId = "applicationId";
+constexpr auto kTenant = "tenant";
+constexpr auto kRedirectUri = "redirectUri";
+constexpr auto kEndpointHost = "endpointHost";
+constexpr auto kOAuthScopes = "oauthScopes";
 
+}  // namespace
+
+static nsAutoCString DetailsPrefsKey(const nsACString& type,
+                                     const nsACString& hostname,
+                                     const nsACString& username) {
   nsAutoCString branchName;
   branchName.AssignLiteral("mail.");
   branchName.Append(type);
   branchName.Append(".server.details.");
   branchName.Append(hostname);
   branchName.Append(".");
+  branchName.Append(username);
+  branchName.Append(".");
+  return branchName;
+}
+
+// Custom OAuth values were originally stored keyed only by hostname. If
+// we encounter a profile with that arrangement, we need to migrate to
+// differentiation based on hostname and username.
+// See https://bugzilla.mozilla.org/show_bug.cgi?id=2054186
+static nsresult MigrateOAuthDetailsIfNecessary(const nsACString& type,
+                                               const nsACString& hostname,
+                                               const nsACString& username) {
+  nsCOMPtr<nsIPrefService> prefs = mozilla::Preferences::GetService();
+
+  nsAutoCString oldPrefBranchBase;
+  oldPrefBranchBase.AssignLiteral("mail.");
+  oldPrefBranchBase.Append(type);
+  oldPrefBranchBase.Append(".server.details.");
+  oldPrefBranchBase.Append(hostname);
+  oldPrefBranchBase.Append(".");
+
+  nsCOMPtr<nsIPrefBranch> oldPrefBranch;
+  nsresult rv =
+      prefs->GetBranch(oldPrefBranchBase.get(), getter_AddRefs(oldPrefBranch));
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (oldPrefBranch) {
+    bool oldCustomDetails = false;
+    rv = oldPrefBranch->GetBoolPref(kUseCustomDetails, &oldCustomDetails);
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (oldCustomDetails) {
+      const auto newBranchName = DetailsPrefsKey(type, hostname, username);
+
+      nsCOMPtr<nsIPrefBranch> newPrefBranch;
+      rv = prefs->GetBranch(newBranchName.get(), getter_AddRefs(newPrefBranch));
+      NS_ENSURE_SUCCESS(rv, rv);
+
+      rv = newPrefBranch->SetBoolPref(kUseCustomDetails, oldCustomDetails);
+      NS_ENSURE_SUCCESS(rv, rv);
+
+      rv = oldPrefBranch->DeleteBranch(kUseCustomDetails);
+      NS_ENSURE_SUCCESS(rv, rv);
+
+      for (auto&& key : {kApplicationId, kTenant, kRedirectUri, kEndpointHost,
+                         kOAuthScopes}) {
+        nsAutoCString value;
+        rv = oldPrefBranch->GetStringPref(key, EmptyCString(), 0, value);
+        NS_ENSURE_SUCCESS(rv, rv);
+
+        rv = newPrefBranch->SetStringPref(key, value);
+        NS_ENSURE_SUCCESS(rv, rv);
+
+        rv = oldPrefBranch->DeleteBranch(key);
+        NS_ENSURE_SUCCESS(rv, rv);
+      }
+    }
+  }
+
+  return NS_OK;
+}
+
+nsresult ExchangeOAuth2CustomDetails::ForAccount(
+    const nsACString& type, const nsACString& hostname,
+    const nsACString& username, ExchangeOAuth2CustomDetails** details) {
+  NS_ENSURE_ARG_POINTER(details);
+
+  MigrateOAuthDetailsIfNecessary(type, hostname, username);
+
+  nsCOMPtr<nsIPrefService> prefs = mozilla::Preferences::GetService();
+
+  const nsAutoCString branchName = DetailsPrefsKey(type, hostname, username);
 
   nsCOMPtr<nsIPrefBranch> prefBranch;
   nsresult rv = prefs->GetBranch(branchName.get(), getter_AddRefs(prefBranch));
@@ -129,17 +206,6 @@ NS_IMETHODIMP ExchangeOAuth2CustomDetails::GetRedirectionEndpoint(
   }
   return NS_OK;
 }
-
-namespace {
-
-constexpr auto kUseCustomDetails = "useCustomDetails";
-constexpr auto kApplicationId = "applicationId";
-constexpr auto kTenant = "tenant";
-constexpr auto kRedirectUri = "redirectUri";
-constexpr auto kEndpointHost = "endpointHost";
-constexpr auto kOAuthScopes = "oauthScopes";
-
-}  // namespace
 
 nsresult ExchangeOAuth2CustomDetails::SetConfiguredUseCustomDetails(
     bool useCustomDetails) {

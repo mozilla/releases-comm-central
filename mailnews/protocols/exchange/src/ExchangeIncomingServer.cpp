@@ -904,8 +904,12 @@ nsresult GetDetailsForHostname(ExchangeIncomingServer* server,
   rv = server->GetHostname(hostname);
   NS_ENSURE_SUCCESS(rv, rv);
 
+  nsAutoCString username;
+  rv = server->GetUsername(username);
+  NS_ENSURE_SUCCESS(rv, rv);
+
   RefPtr<ExchangeOAuth2CustomDetails> result;
-  rv = ExchangeOAuth2CustomDetails::ForTypeAndHostname(type, hostname,
+  rv = ExchangeOAuth2CustomDetails::ForAccount(type, hostname, username,
                                                        getter_AddRefs(result));
   NS_ENSURE_SUCCESS(rv, rv);
 

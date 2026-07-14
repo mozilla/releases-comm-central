@@ -10,13 +10,13 @@ NS_IMPL_ISUPPORTS(ExchangeLanguageInteropFactory,
                   IExchangeLanguageInteropFactory);
 
 NS_IMETHODIMP ExchangeLanguageInteropFactory::CreateOAuth2Details(
-    const nsACString& type, const nsACString& identifier,
-    IOAuth2CustomDetails** result) {
+    const nsACString& type, const nsACString& hostname,
+    const nsACString& username, IOAuth2CustomDetails** result) {
   NS_ENSURE_ARG_POINTER(result);
 
   RefPtr<ExchangeOAuth2CustomDetails> details;
-  nsresult rv = ExchangeOAuth2CustomDetails::ForTypeAndHostname(
-      type, identifier, getter_AddRefs(details));
+  nsresult rv = ExchangeOAuth2CustomDetails::ForAccount(
+      type, hostname, username, getter_AddRefs(details));
   NS_ENSURE_SUCCESS(rv, rv);
 
   details.forget(result);

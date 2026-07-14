@@ -153,6 +153,9 @@ pub trait AuthenticationProvider {
     /// Retrieves the password to use if using Basic auth.
     fn password(&self) -> Result<nsString, nsresult>;
 
+    /// Retrieves the hostname for the provider.
+    fn hostname(&self) -> Result<nsCString, nsresult>;
+
     /// Retrieves the server's type string.
     fn server_type(&self) -> Result<nsCString, nsresult>;
 
@@ -164,9 +167,6 @@ pub trait AuthenticationProvider {
         override_details: &IOAuth2CustomDetails,
     ) -> Result<Option<RefPtr<msgIOAuth2Module>>, nsresult>;
 
-    /// Retrieves the identifer to use for collecting custom OAuth details for the provider.
-    fn oauth_details_identifier(&self) -> Result<nsCString, nsresult>;
-
     /// Creates an instance of [`Credentials`] from this provider.
     fn get_credentials(&self) -> Result<Credentials, nsresult> {
         match self.auth_method()? {
@@ -177,7 +177,8 @@ pub trait AuthenticationProvider {
             nsMsgAuthMethod::OAuth2 => {
                 // Get the OAuth details.
                 let server_type = self.server_type()?;
-                let oauth_details_identifier = self.oauth_details_identifier()?;
+                let hostname = self.hostname()?;
+                let username = self.username()?;
                 let interop_factory = create_instance::<IExchangeLanguageInteropFactory>(
                     c"@mozilla.org/messenger/exchange-interop;1",
                 )
@@ -187,7 +188,8 @@ pub trait AuthenticationProvider {
                 let override_details = getter_addrefs(|p| unsafe {
                     interop_factory.CreateOAuth2Details(
                         &raw const *server_type,
-                        &raw const *oauth_details_identifier,
+                        &raw const *hostname,
+                        &raw const *username,
                         p,
                     )
                 })?;
@@ -250,7 +252,7 @@ impl AuthenticationProvider for nsIMsgIncomingServer {
         Ok(server_type)
     }
 
-    fn oauth_details_identifier(&self) -> Result<nsCString, nsresult> {
+    fn hostname(&self) -> Result<nsCString, nsresult> {
         let mut hostname = nsCString::from("");
         unsafe { self.GetHostname(&raw mut *hostname) }.to_result()?;
         Ok(hostname)
@@ -312,7 +314,7 @@ impl AuthenticationProvider for nsIMsgOutgoingServer {
         Ok(server_type)
     }
 
-    fn oauth_details_identifier(&self) -> Result<nsCString, nsresult> {
+    fn hostname(&self) -> Result<nsCString, nsresult> {
         let uri = getter_addrefs(|p| unsafe { self.GetServerURI(p) })?;
         let mut hostname = nsCString::from("");
         unsafe { uri.GetHost(&raw mut *hostname) }.to_result()?;
