@@ -602,40 +602,41 @@ NS_IMETHODIMP nsImapUrl::AddOnlineDirectoryIfNecessary(
   nsAutoCString onlineDir;
   LossyCopyUTF16toASCII(onlineDirString, onlineDir);
 
-  nsImapNamespace* ns = nullptr;
-  rv = hostSessionList->GetNamespaceForMailboxForHost(m_serverKey.get(),
-                                                      onlineMailboxName, ns);
-  if (!ns)
-    hostSessionList->GetDefaultNamespaceOfTypeForHost(m_serverKey.get(),
-                                                      kPersonalNamespace, ns);
+  nsAutoCString namespacePrefix;
+  char namespaceDelimiter;
+  bool namespaceFound;
+  rv = hostSessionList->GetNamespaceDetailsForMailboxForHost(
+      m_serverKey.get(), onlineMailboxName, kPersonalNamespace, namespacePrefix,
+      namespaceDelimiter, namespaceFound);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  if (onlineDir.IsEmpty() && ns) onlineDir = ns->GetPrefix();
+  if (onlineDir.IsEmpty() && namespaceFound) onlineDir = namespacePrefix;
 
   // If this host has an online server directory configured
   if (onlineMailboxName && !onlineDir.IsEmpty()) {
     if (PL_strcasecmp(onlineMailboxName, "INBOX")) {
-      NS_ASSERTION(ns, "couldn't find namespace for host");
+      NS_ASSERTION(namespaceFound, "couldn't find namespace for host");
       nsAutoCString onlineDirWithDelimiter(onlineDir);
       // make sure the onlineDir ends with the hierarchy delimiter
-      if (ns) {
-        char delimiter = ns->GetDelimiter();
-        if (delimiter && delimiter != kOnlineHierarchySeparatorUnknown) {
+      if (namespaceFound) {
+        if (namespaceDelimiter &&
+            namespaceDelimiter != kOnlineHierarchySeparatorUnknown) {
           // try to change the canonical online dir name to real dir name first
-          onlineDirWithDelimiter.ReplaceChar('/', delimiter);
+          onlineDirWithDelimiter.ReplaceChar('/', namespaceDelimiter);
           // make sure the last character is the delimiter
-          if (onlineDirWithDelimiter.Last() != delimiter)
-            onlineDirWithDelimiter += delimiter;
+          if (onlineDirWithDelimiter.Last() != namespaceDelimiter)
+            onlineDirWithDelimiter += namespaceDelimiter;
           if (!*onlineMailboxName)
             onlineDirWithDelimiter.SetLength(onlineDirWithDelimiter.Length() -
                                              1);
         }
       }
-      if (ns && (PL_strlen(ns->GetPrefix()) != 0) &&
-          !onlineDirWithDelimiter.Equals(ns->GetPrefix())) {
+      if (namespaceFound && !namespacePrefix.IsEmpty() &&
+          !onlineDirWithDelimiter.Equals(namespacePrefix)) {
         // check that onlineMailboxName doesn't start with the namespace. If
         // that's the case, we don't want to prepend the online dir.
-        if (PL_strncmp(onlineMailboxName, ns->GetPrefix(),
-                       PL_strlen(ns->GetPrefix()))) {
+        if (PL_strncmp(onlineMailboxName, namespacePrefix.get(),
+                       namespacePrefix.Length())) {
           // The namespace for this mailbox is the root ("").
           // Prepend the online server directory
           int finalLen =

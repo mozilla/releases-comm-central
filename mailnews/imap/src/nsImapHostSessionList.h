@@ -128,6 +128,10 @@ class nsImapHostSessionList : public nsIImapHostSessionList,
   NS_IMETHOD GetNamespaceForMailboxForHost(const char* serverKey,
                                            const char* mailbox_name,
                                            nsImapNamespace*& result) override;
+  NS_IMETHOD GetNamespaceDetailsForMailboxForHost(
+      const char* serverKey, const char* mailboxName,
+      EIMAPNamespaceType fallbackType, nsACString& prefix, char& delimiter,
+      bool& found) override;
   NS_IMETHOD SetNamespaceFromPrefForHost(const char* serverKey,
                                          const char* namespacePref,
                                          EIMAPNamespaceType type) override;

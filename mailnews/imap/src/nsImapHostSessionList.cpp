@@ -375,6 +375,32 @@ NS_IMETHODIMP nsImapHostSessionList::GetNamespaceForMailboxForHost(
   return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
 }
 
+NS_IMETHODIMP nsImapHostSessionList::GetNamespaceDetailsForMailboxForHost(
+    const char* serverKey, const char* mailboxName,
+    EIMAPNamespaceType fallbackType, nsACString& prefix, char& delimiter,
+    bool& found) {
+  prefix.Truncate();
+  delimiter = kOnlineHierarchySeparatorUnknown;
+  found = false;
+
+  PR_EnterMonitor(gCachedHostInfoMonitor);
+  nsIMAPHostInfo* host = FindHost(serverKey);
+  if (host) {
+    nsImapNamespace* ns =
+        host->fNamespaceList->GetNamespaceForMailbox(mailboxName);
+    if (!ns) {
+      ns = host->fNamespaceList->GetDefaultNamespaceOfType(fallbackType);
+    }
+    if (ns) {
+      prefix.Assign(ns->GetPrefix());
+      delimiter = ns->GetDelimiter();
+      found = true;
+    }
+  }
+  PR_ExitMonitor(gCachedHostInfoMonitor);
+  return host ? NS_OK : NS_ERROR_ILLEGAL_VALUE;
+}
+
 NS_IMETHODIMP nsImapHostSessionList::ClearPrefsNamespacesForHost(
     const char* serverKey) {
   PR_EnterMonitor(gCachedHostInfoMonitor);
