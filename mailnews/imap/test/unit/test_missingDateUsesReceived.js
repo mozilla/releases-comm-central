@@ -47,7 +47,7 @@ add_setup(async function () {
 });
 
 add_task(function test_missingDateFallsBackToReceived() {
-  const msgHdr = IMAPPump.inbox.GetMessageHeader(1);
+  const msgHdr = [...IMAPPump.inbox.messages][0];
   const expectedDate = Date.parse("2000-01-01T00:00:00Z") / 1000;
   const commands =
     gTransaction instanceof Array
