@@ -102,6 +102,8 @@ tags = ["compact"]
 
 ["browser_openingMessagesWithoutABackingView.js"]
 
+["browser_paneSplitterGaps.js"]
+
 ["browser_readMsgs.js"]
 tags = ["vcard"]
 

@@ -347,11 +347,12 @@
       <!-- notificationbox will be added here lazily. -->
     </div>
   </div>
+  <!-- The resize-lock-ids attribute is managed by PaneLayout#setLayout,
+       because the correct lock targets depend on the selected layout. -->
   <hr is="pane-splitter" id="messagePaneSplitter"
       resize-id="messagePane"
       collapse-width="300"
       collapse-height="100"
-      resize-lock-ids="threadPane,folderPane"
       resize-with-window="true" />
 #include templates/messagePaneTemplate.inc.xhtml
   <message-pane id="messagePane" class="collapsed-by-splitter"></message-pane>
