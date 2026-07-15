@@ -1392,7 +1392,7 @@ nsMsgSearchDBView::OnDeleteCompleted(bool aSucceeded) {
       // XUL tree and invalidate it.
       mTree->EndUpdateBatch();
     }
-    if (mJSTree) mJSTree->Invalidate();
+    if (mJSTree) mJSTree->InvalidateRange(0, GetSize() - 1);
   }
   return NS_OK;
 }

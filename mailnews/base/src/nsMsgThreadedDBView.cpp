@@ -593,7 +593,7 @@ nsresult nsMsgThreadedDBView::OnNewHeader(nsIMsgDBHdr* newHdr,
         mTree->Invalidate();
       }
       if (mJSTree) {
-        mJSTree->Invalidate();
+        mJSTree->InvalidateRange(0, GetSize() - 1);
       }
     }
   });
@@ -720,7 +720,7 @@ nsresult nsMsgThreadedDBView::RemoveByIndex(nsMsgViewIndex index) {
           mTree->Invalidate();
         }
         if (mJSTree) {
-          mJSTree->Invalidate();
+          mJSTree->InvalidateRange(0, GetSize() - 1);
         }
       }
     });
