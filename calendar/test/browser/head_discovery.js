@@ -68,7 +68,7 @@ async function handleWizard(
     );
   }
 
-  EventUtils.synthesizeKey("VK_TAB", {}, wizardWindow);
+  EventUtils.synthesizeKey("KEY_Tab", {}, wizardWindow);
   Assert.equal(wizardDocument.activeElement.id, "network-location-input");
   if (url) {
     EventUtils.sendString(url, wizardWindow);
@@ -78,7 +78,7 @@ async function handleWizard(
 
   const certPromise = certError ? handleCertError(certError) : Promise.resolve();
   const promptPromise = certError != "cancel" ? handlePasswordPrompt(password) : Promise.resolve();
-  EventUtils.synthesizeKey("VK_RETURN", {}, wizardWindow);
+  EventUtils.synthesizeKey("KEY_Enter", {}, wizardWindow);
   await certPromise;
   if (certError == "cancel") {
     const status = wizardDocument.querySelector(".network-status-row");
@@ -89,7 +89,7 @@ async function handleWizard(
   }
   if (certError == "extra1") {
     // If we added a certificate exception, retry calendar discovery.
-    EventUtils.synthesizeKey("VK_RETURN", {}, wizardWindow);
+    EventUtils.synthesizeKey("KEY_Enter", {}, wizardWindow);
   }
   await promptPromise;
 
