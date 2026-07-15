@@ -9,6 +9,8 @@ transforms:
     - comm_taskgraph.transforms.merge_automation:transforms
     - gecko_taskgraph.transforms.task:transforms
 
+task-defaults:
+    run-on-repo-type: [hg]
 
 tasks:
     merge-automation:
@@ -20,61 +22,49 @@ tasks:
             kind: build
             platform: thunderbird-release/opt
         description: Merge repositories for release management.
-        worker-type: tree
+        worker-type: lando
         worker:
-            implementation: treescript
-            tags: []
-            bump: false
+            implementation: scriptworker-lando
+            lando-repo:
+                by-project:
+                    try:
+                        by-behavior:
+                            main-to-beta: staging-thunderbird-beta
+                            beta-to-release: staging-thunderbird-release
+                            release-to-esr: staging-thunderbird-esr153
+                            bump-main: staging-thunderbird-main
+                            bump-esr153: staging-thunderbird-esr153
+                    default:
+                        by-behavior:
+                            main-to-beta: thunderbird-desktop-beta
+                            beta-to-release: thunderbird-desktop-release
+                            release-to-esr: thunderbird-desktop-esr153
+                            bump-main: thunderbird-desktop-main
+                            bump-esr153: thunderbird-desktop-esr153
             dontbuild: false
-            ignore-closed-tree: true
-            push: false
-            l10n-bump-info:
-                - name: Thunderbird l10n changesets
-                  path: mail/locales/l10n-changesets.json
-                  version-path: mail/config/version.txt
-                  l10n-repo-url: "https://github.com/thunderbird/thunderbird-l10n"
-                  l10n-repo-target-branch: main
-                  ignore-config:
-                      ja:
-                          - macosx64
-                      ja-JP-mac:
-                          - linux
-                          - linux64
-                          - win32
-                          - win64
-                  platform-configs: [{
-                      "platforms": [
-                          "linux",
-                          "linux64",
-                          "macosx64",
-                          "win32",
-                          "win64",
-                      ],
-                      "path": "mail/locales/shipped-locales",
-                  }]
             actions:
                 by-behavior:
+                    # This list of behaviours should be kept in sync with
+                    # the enum in the merge_automation action
                     bump-main:
                         - main-bump:
                               fetch-version-from: "mail/config/version.txt"
                               version-files:
                                   - filename: "mail/config/version.txt"
                                     version-bump: "major"
-                                    new-suffix: 'a1'
+                                    new-suffix: "a1"
                                   - filename: "mail/config/version_display.txt"
                                     version-bump: "major"
-                                    new-suffix: 'a1'
+                                    new-suffix: "a1"
                               replacements:
-                                  - - suite/config/version.txt
-                                    - '{old_suite_version}'
-                                    - '{new_suite_version}'
-                                  - - suite/config/version_display.txt
-                                    - '{old_suite_version}'
-                                    - '{new_suite_version}'
-                              merge-old-head: false
-                              end-tag: 'NIGHTLY_{major_version}_END'
-                              to-repo: 'https://hg.mozilla.org/comm-central'
-                              to-branch: 'comm'
+                                  - - "suite/config/version.txt"
+                                    - "{old_suite_version}"
+                                    - "{new_suite_version}"
+                                  - - "suite/config/version_display.txt"
+                                    - "{old_suite_version}"
+                                    - "{new_suite_version}"
+                              end-tag: "NIGHTLY_{major_version}_END"
+                              to-branch: "main"
                     bump-esr153:
                         - esr-bump:
                               fetch-version-from: "mail/config/version.txt"
@@ -84,92 +74,100 @@ tasks:
                                   - filename: "mail/config/version_display.txt"
                                     version-bump: "minor"
                               replacements: []
-                              merge-old-head: false
-                              to-repo: 'https://hg.mozilla.org/releases/comm-esr153'
-                              to-branch: 'comm-esr153'
+                              to-branch: "esr153"
+                    early-to-late-beta: []
                     main-to-beta:
                         - uplift:
                               fetch-version-from: "mail/config/version.txt"
                               version-files:
                                   - filename: "mail/config/version.txt"
-                                    new-suffix: ''
+                                    new-suffix: ""
                                   - filename: "mail/config/version_display.txt"
-                                    new-suffix: 'b1'
+                                    new-suffix: "b1"
                               replacements:
-                                  - - mail/config/mozconfigs/l10n-common
-                                    - ac_add_options --with-branding=comm/mail/branding/nightly
-                                    - ac_add_options --enable-official-branding
-                                  - - suite/config/version.txt
-                                    - a1
-                                    - ''
-                                  - - suite/config/version_display.txt
-                                    - a1
-                                    - b1
-                              regex-replacements:
-                                  - - mail/confvars.sh
-                                    - 'MOZ_OFFICIAL_BRANDING_DIRECTORY=.*$'
-                                    - 'MOZ_OFFICIAL_BRANDING_DIRECTORY=comm/mail/branding/tb_beta'
-                              merge-old-head: true
-                              base-tag: 'BETA_{major_version}_BASE'
-                              end-tag: 'BETA_{major_version}_END'
-                              from-repo: 'https://hg.mozilla.org/comm-central'
-                              from-branch: 'comm'
-                              to-repo: 'https://hg.mozilla.org/releases/comm-beta'
-                              to-branch: 'comm-beta'
+                                  - - "mail/config/mozconfigs/l10n-common"
+                                    - "ac_add_options --with-branding=comm/mail/branding/nightly"
+                                    - "ac_add_options --enable-official-branding"
+                                  - - "suite/config/version.txt"
+                                    - "a1"
+                                    - ""
+                                  - - "suite/config/version_display.txt"
+                                    - "a1"
+                                    - "b1"
+                                  - - "mail/confvars.sh"
+                                    - "MOZ_OFFICIAL_BRANDING_DIRECTORY="
+                                    - "MOZ_OFFICIAL_BRANDING_DIRECTORY=comm/mail/branding/tb_beta"
+                              base-tag: "BETA_{major_version}_BASE"
+                              end-tag: "BETA_{major_version}_END"
+                              from-branch: "main"
+                              to-branch: "beta"
+                              l10n-bump-info:
+                                  - name: "Thunderbird l10n changesets"
+                                    path: mail/locales/l10n-changesets.json
+                                    l10n-repo-url: "https://github.com/thunderbird/thunderbird-l10n"
+                                    l10n-repo-target-branch: main
+                                    ignore-config:
+                                        ja:
+                                            - macosx64
+                                        ja-JP-mac:
+                                            - linux
+                                            - linux64
+                                            - win32
+                                            - win64
+                                    platform-configs: [{
+                                        "platforms": ["linux", "linux64", "macosx64", "win32", "win64"],
+                                        "path": "mail/locales/shipped-locales",
+                                    }]
                     beta-to-release:
                         - uplift:
                               fetch-version-from: "mail/config/version.txt"
                               version-files:
                                   - filename: "mail/config/version_display.txt"
-                                    new-suffix: ''
-                              replacements:  # .gecko_rev.yml handled via transform function
-                                  - - suite/config/version_display.txt
-                                    - b1
-                                    - ''
-                              regex-replacements:
-                                  - - mail/confvars.sh
-                                    - 'MOZ_OFFICIAL_BRANDING_DIRECTORY=.*$'
-                                    - 'MOZ_OFFICIAL_BRANDING_DIRECTORY=comm/mail/branding/thunderbird'
-                              merge-old-head: true
-                              base-tag: 'RELEASE_{major_version}_BASE'
-                              end-tag: 'RELEASE_{major_version}_END'
-                              from-repo: 'https://hg.mozilla.org/releases/comm-beta'
-                              from-branch: 'comm-beta'
-                              to-repo: 'https://hg.mozilla.org/releases/comm-release'
-                              to-branch: 'comm-release'
+                                    new-suffix: ""
+                              replacements:
+                                  - - "suite/config/version_display.txt"
+                                    - "b1"
+                                    - ""
+                                  - - "mail/confvars.sh"
+                                    - "MOZ_OFFICIAL_BRANDING_DIRECTORY=comm/mail/branding/tb_beta"
+                                    - "MOZ_OFFICIAL_BRANDING_DIRECTORY=comm/mail/branding/thunderbird"
+                              base-tag: "RELEASE_{major_version}_BASE"
+                              end-tag: "RELEASE_{major_version}_END"
+                              from-branch: "beta"
+                              to-branch: "release"
                     release-to-esr:
                         - uplift:
                               fetch-version-from: "mail/config/version.txt"
                               version-files:
                                   - filename: "mail/config/version_display.txt"
-                                    new-suffix: 'esr'
+                                    new-suffix: "esr"
                               replacements: []
-                              merge-old-head: false
                               end-tag: "ESR_{major_version}_BASE"
-                              to-repo: 'https://hg.mozilla.org/releases/comm-esr153'
-                              to-branch: 'comm-esr153'
+                              to-branch: "esr153"
+
+            # Thunderbird-specific gecko revision pinning
             gecko-rev:
                 by-behavior:
-                    comm-central-to-beta:
-                        source: from-repo
-                        upstream: mozilla-beta
-                        tag: 'FIREFOX_{major_version}_0b1_BUILD\d'
-                        base: 'FIREFOX_BETA_{major_version}_BASE'
-                    comm-beta-to-release:
-                        source: from-repo
-                        upstream: mozilla-release
-                        tag: 'FIREFOX_{major_version}_0_BUILD\d'
-                        base: 'FIREFOX_RELEASE_{major_version}_BASE'
-                    comm-release-to-esr:
-                        source: to-repo
-                        upstream: mozilla-esr153
-                        tag: 'FIREFOX_{major_version}_0esr_BUILD\d'
-                        base: 'FIREFOX_ESR_{major_version}_BASE'
-                    comm-bump-esr153:
-                        source: to-repo
+                    bump-esr153:
+                        source: to-branch
                         upstream: mozilla-esr153
                         tag: 'FIREFOX_{major_version}_{minor_version_plus1}(_\d+)?esr_BUILD\d'
                         base: '(FIREFOX_ESR_{major_version}_BASE|FIREFOX_{major_version}_{minor_version}(_\d+)?)esr_BUILD\d'
+                    main-to-beta:
+                        source: from-branch
+                        upstream: mozilla-beta
+                        tag: 'FIREFOX_{major_version}_0b1_BUILD\d'
+                        base: 'FIREFOX_BETA_{major_version}_BASE'
+                    beta-to-release:
+                        source: from-branch
+                        upstream: mozilla-release
+                        tag: 'FIREFOX_{major_version}_0_BUILD\d'
+                        base: 'FIREFOX_RELEASE_{major_version}_BASE'
+                    release-to-esr:
+                        source: to-branch
+                        upstream: mozilla-esr153
+                        tag: 'FIREFOX_{major_version}_0esr_BUILD\d'
+                        base: 'FIREFOX_ESR_{major_version}_BASE'
                     default: null
         run-on-projects: []
         expiration-policy: long
