@@ -3720,6 +3720,8 @@ dependencies = [
  "moz_task",
  "nserror",
  "nsstring",
+ "serde",
+ "serde_json",
  "thin-vec",
  "unic-langid",
  "xpcom",
