@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = "undefined" != typeof window ? window : "undefined" != typeof global ? global : "undefined" != typeof globalThis ? globalThis : "undefined" != typeof self ? self : {};
-		e.SENTRY_RELEASE = { id: "741e481585a8ba97d78d9ba0bb5fea4b3e6ce0c9" };
+		e.SENTRY_RELEASE = { id: "dc25092aee8a66b8f0868046d641f9fd9dcc8ff0" };
 		e._sentryModuleMetadata = e._sentryModuleMetadata || {}, e._sentryModuleMetadata[new e.Error().stack] = function(e) {
 			for (var n = 1; n < arguments.length; n++) {
 				var a = arguments[n];
@@ -10,11 +10,11 @@
 			}
 			return e;
 		}({}, e._sentryModuleMetadata[new e.Error().stack], {
-			"version": "2.0.3",
+			"version": "2.0.5",
 			"appHost": "management"
 		});
 		var n = new e.Error().stack;
-		n && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[n] = "1047a167-5965-48a1-846c-fd01b12cd2a7", e._sentryDebugIdIdentifier = "sentry-dbid-1047a167-5965-48a1-846c-fd01b12cd2a7");
+		n && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[n] = "3b9064b2-6d41-43f1-b15a-febe9fc7d6de", e._sentryDebugIdIdentifier = "sentry-dbid-3b9064b2-6d41-43f1-b15a-febe9fc7d6de");
 	} catch (e) {}
 })();
 var __create$2 = Object.create;
@@ -84,7 +84,7 @@ var __require = /* @__PURE__ */ ((x) => typeof require !== "undefined" ? require
 })();
 //#endregion
 //#region ../send/frontend/src/lib/logger.ts
-var version$1 = "2.0.3";
+var version$1 = "2.0.5";
 var LOG_LEVELS = {
 	debug: 0,
 	info: 1,
@@ -6519,13 +6519,39 @@ var Ra$1, Pa$1 = (Ra$1 = In$1[Un] = new qn$1(), function() {
 }(), Ra$1);
 //#endregion
 //#region ../send/frontend/src/plugins/posthog.js
+var initialized = false;
+function initPosthog() {
+	if (initialized) return;
+	Pa$1.init("phc_61NZH7teRtwmtZQHpKRltXUEEO7acpEAjpjdSiE5tdu", {
+		api_host: "https://us.i.posthog.com",
+		persistence: "memory"
+	});
+	Pa$1.register({ service: "send" });
+	initialized = true;
+}
+/**
+* Enables or disables PostHog capture at runtime in response to the Thunderbird
+* telemetry opt-out preference (see issue #892).
+*
+* When enabled, PostHog is initialized lazily on first opt-in — so while opted
+* out it is never initialized and makes zero network requests. When disabled,
+* capture is opted out and the stored distinct id is reset.
+*
+* `capture()` / `identify()` calls on the shared instance before init are
+* no-ops, so callers throughout the app remain safe regardless of consent.
+*/
+function setPosthogConsent(enabled) {
+	if (enabled) {
+		initPosthog();
+		Pa$1.opt_in_capturing();
+	} else if (initialized) {
+		Pa$1.opt_out_capturing();
+		Pa$1.reset();
+	}
+}
 var posthog_default = {
 	install(app) {
-		app.config.globalProperties.$posthog = Pa$1.init("phc_61NZH7teRtwmtZQHpKRltXUEEO7acpEAjpjdSiE5tdu", {
-			api_host: "https://us.i.posthog.com",
-			persistence: "memory"
-		});
-		Pa$1.register({ service: "send" });
+		app.config.globalProperties.$posthog = Pa$1;
 	},
 	rest: Pa$1
 };
@@ -19344,12 +19370,13 @@ var I18nTStub = {
 		}));
 	}
 };
-function setupApp(app) {
+function setupApp(app, telemetryAllowed = false) {
 	const pinia = getSharedPinia();
 	app.use(VueQueryPlugin);
 	app.use(pinia);
 	app.use(Gt);
 	app.use(posthog_default);
+	setPosthogConsent(telemetryAllowed);
 	app.config.globalProperties.$t = (key) => i18nStubMessages[key] || key;
 	app.component("i18n-t", I18nTStub);
 }
@@ -19367,7 +19394,7 @@ var _plugin_vue_export_helper_default = (sfc, props) => {
 //#endregion
 //#region src/assets/TbproLogo.vue
 var _sfc_main$3 = {};
-var _hoisted_1$7 = {
+var _hoisted_1$8 = {
 	width: "228",
 	height: "40",
 	viewBox: "0 0 228 40",
@@ -19375,7 +19402,7 @@ var _hoisted_1$7 = {
 	xmlns: "http://www.w3.org/2000/svg"
 };
 function _sfc_render$3(_ctx, _cache) {
-	return openBlock(), createElementBlock("svg", _hoisted_1$7, [..._cache[0] || (_cache[0] = [
+	return openBlock(), createElementBlock("svg", _hoisted_1$8, [..._cache[0] || (_cache[0] = [
 		createBaseVNode("path", {
 			d: "M183.373 28.797V14.688c0-.286.232-.518.519-.518h5.732a3.933 3.933 0 0 1 0 7.866h-3.759",
 			stroke: "#1373D9",
@@ -19401,12 +19428,12 @@ var TbproLogo_default = /*#__PURE__*/ _plugin_vue_export_helper_default(_sfc_mai
 //#endregion
 //#region ../send/frontend/src/apps/send/components/SpinnerAnimated.vue
 var _sfc_main$2 = {};
-var _hoisted_1$6 = {
+var _hoisted_1$7 = {
 	class: "flex flex-col items-center justify-center p-4 rounded-lg transition duration-500 ease-in-out text-white",
 	role: "status"
 };
 function _sfc_render$2(_ctx, _cache) {
-	return openBlock(), createElementBlock("div", _hoisted_1$6, [..._cache[0] || (_cache[0] = [createBaseVNode("div", null, [createBaseVNode("svg", {
+	return openBlock(), createElementBlock("div", _hoisted_1$7, [..._cache[0] || (_cache[0] = [createBaseVNode("div", null, [createBaseVNode("svg", {
 		class: "animate-spin h-5 w-5 text-white",
 		xmlns: "http://www.w3.org/2000/svg",
 		fill: "none",
@@ -19425,7 +19452,7 @@ function _sfc_render$2(_ctx, _cache) {
 var SpinnerAnimated_default = /*#__PURE__*/ _plugin_vue_export_helper_default(_sfc_main$2, [["render", _sfc_render$2], ["__scopeId", "data-v-611f9e03"]]);
 //#endregion
 //#region ../send/frontend/src/apps/common/LoadingComponent.vue?vue&type=script&setup=true&lang.ts
-var _hoisted_1$5 = {
+var _hoisted_1$6 = {
 	class: "loading",
 	"data-tesid": "loading"
 };
@@ -19435,7 +19462,7 @@ var LoadingComponent_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/
 	__name: "LoadingComponent",
 	setup(__props) {
 		return (_ctx, _cache) => {
-			return openBlock(), createElementBlock("div", _hoisted_1$5, [createVNode(SpinnerAnimated_default)]);
+			return openBlock(), createElementBlock("div", _hoisted_1$6, [createVNode(SpinnerAnimated_default)]);
 		};
 	}
 }), [["__scopeId", "data-v-4be0547e"]]);
@@ -19669,11 +19696,11 @@ var useExtensionStore = defineStore("extension", () => {
 		if (!isRunningInsideThunderbird.value) return;
 		try {
 			const result = await browser.CloudFileAccounts.createAccount(getAddonId(), true);
-			if (!result.success) console.error(`[extension-store] Failed to create cloud file account: ${result.error}`);
+			if (!result.success) console.warn(`[extension-store] Failed to create cloud file account: ${result.error}`);
 			else if (result.alreadyExists) console.log(`[extension-store] Cloud file account already exists: ${result.accountId}`);
 			else console.log(`[extension-store] Cloud file account created: ${result.accountId}`);
 		} catch (error) {
-			console.error(`[extension-store] Error creating cloud file account:`, error);
+			console.warn(`[extension-store] Error creating cloud file account:`, error);
 		}
 		if (!id) {
 			console.log(`[extension-store] No id provided to configureExtension()`);
@@ -21524,6 +21551,39 @@ var Storage$1 = class {
 	}
 };
 //#endregion
+//#region ../send/frontend/src/lib/bridgePassphrase.ts
+/**
+* Pull a passphrase shared from the web app via the token bridge into the
+* keychain.
+*
+* The web app (running in a browser tab) posts SEND_MESSAGE_TO_BRIDGE; the
+* add-on background stores its value in browser.storage.local under that key
+* (see background.ts). This moves that staged value into the keychain — i.e.
+* localStorage['lb/passphrase'], which every moz-extension page (background,
+* popup, management) shares — and clears the staged copy so it is consumed once.
+*
+* Runs only in an extension context where browser.storage.local exists; it is a
+* no-op in a plain web page (where `browser` is undefined). Safe to call from
+* any context that is about to restore keys, so the popup and background don't
+* depend on the management page having run the transfer first.
+*
+* @returns true if a bridged passphrase was found and stored, false otherwise.
+*/
+async function pullBridgedPassphrase(keychain) {
+	if (typeof browser === "undefined" || !browser?.storage?.local) return false;
+	try {
+		const passphrase = (await browser.storage.local.get(SEND_MESSAGE_TO_BRIDGE))?.[SEND_MESSAGE_TO_BRIDGE];
+		if (!passphrase) return false;
+		await keychain.storePassPhrase(passphrase);
+		await browser.storage.local.remove(SEND_MESSAGE_TO_BRIDGE);
+		console.log("✅ Pulled bridged passphrase into the keychain");
+		return true;
+	} catch (error) {
+		console.error("Error pulling bridged passphrase:", error);
+		return false;
+	}
+}
+//#endregion
 //#region ../send/frontend/src/lib/keychain.ts
 var import___vite_browser_external = /* @__PURE__ */ __toESM$2(require___vite_browser_external(), 1);
 var SALT_LENGTH = 128;
@@ -21853,6 +21913,7 @@ async function decryptAll(keychainFromParams, { protectedContainerKeysStr, prote
 var MSG_INCORRECT_PASSPHRASE = "Passphrase is incorrect";
 var MSG_COULD_NOT_RETRIEVE = "Could not retrieve backup from the server.";
 async function restoreKeysUsingLocalStorage(keychain, api) {
+	await pullBridgedPassphrase(keychain);
 	console.log("🔑 auto restoring keys");
 	if (!keychain.getPassphraseValue()) {
 		console.log("Keychain passphrase is not initialized");
@@ -23895,99 +23956,6 @@ __toESM$1(require_objectSpread2$1(), 1);
 //#region ../send/frontend/src/lib/config.ts
 var TRPC_WS_PATH = `/trpc/ws`;
 //#endregion
-//#region ../send/frontend/src/lib/trpc.ts
-/**
-* This is the client-side code that uses the inferred types from the server
-*/
-var serverUrl = "https://send-backend.tb.pro".trim();
-var refreshUrl = `${serverUrl}/api/auth/refresh`;
-var trpcUrl = `${serverUrl}/trpc`;
-/**
-* Detect whether we're running in a test/automation context, where the
-* WebSocket must stay closed.
-*
-* Unit tests inject `import.meta.env.VITE_TESTING`. When that build-time flag is
-* unavailable — as in the shipped background bundle — fall back to the presence
-* of the WebExtension `browser.test` API, which the Thunderbird/Firefox test
-* harness only exposes when the add-on is loaded under automation. This keeps a
-* logged-out automation profile from ever opening the socket at startup.
-*/
-function detectTesting() {
-	return typeof browser !== "undefined" && Boolean(browser.test);
-}
-var isTesting = detectTesting();
-/**
-* Decide how (and whether) to build the WebSocket client.
-*
-* Returns `null` — meaning "do not connect" — when running under unit tests or
-* when no backend host is configured (empty `serverUrl`). Otherwise returns the
-* client config with **lazy mode** enabled.
-*
-* Lazy mode is critical: the background page of the built-in/system add-on
-* imports this module on every Thunderbird launch, including fresh,
-* never-signed-in profiles. A non-lazy client opens the socket as a side effect
-* of construction (at module load), which under automation triggers a fatal
-* "non-local network connections are disabled" abort and crashes the process
-* before any feature is used. With lazy mode the connection is deferred until
-* the first subscription actually runs (i.e. an authenticated user is using a
-* feature) and is closed again after inactivity, so a logged-out profile makes
-* zero outbound connections at startup.
-*/
-function getWsClientConfig(url, testing) {
-	const normalizedUrl = url.trim();
-	if (testing || normalizedUrl.length === 0) return null;
-	return {
-		url: `${normalizedUrl}${TRPC_WS_PATH}`,
-		lazy: {
-			enabled: true,
-			closeMs: 1e3
-		}
-	};
-}
-var wsClientConfig = getWsClientConfig(serverUrl, isTesting);
-var wsClient = wsClientConfig ? createWSClient(wsClientConfig) : null;
-/**
-* We only import the `AppRouter` type from the server - this is not available at runtime
-*/
-var trpc = createTRPCClient({ links: [splitLink({
-	condition: (op) => op.type === "subscription",
-	false: [retryLink({ 
-	/**
-	* Retry strategy for failed requests:
-	* - For 401 unauthorized errors: Attempts to refresh the token and retries up to 3 times
-	* - For queries (not mutations): Retries up to 3 times
-	* - For all other cases: No retry
-	*/
-retry(opts) {
-		if (opts.error.data?.code === "UNAUTHORIZED") {
-			if (opts.op.type !== "query") return false;
-			fetch(refreshUrl, { credentials: "include" }).then(() => {
-				console.info("revalidated token");
-			}).catch((err) => {
-				console.info("could not revalidate token", err);
-			});
-			return opts.attempts <= 3;
-		}
-	} }), httpBatchLink({
-		url: trpcUrl,
-		fetch(url, options) {
-			return fetch(url, {
-				...options,
-				credentials: "include"
-			});
-		}
-	})],
-	true: wsClient ? [wsLink({ client: wsClient })] : [httpBatchLink({
-		url: trpcUrl,
-		fetch(url, options) {
-			return fetch(url, {
-				...options,
-				credentials: "include"
-			});
-		}
-	})]
-})] });
-//#endregion
 //#region \0vite/preload-helper.js
 var scriptRel = "modulepreload";
 var assetsURL = function(dep) {
@@ -24048,6 +24016,123 @@ var __vitePreload = function preload(baseModule, deps, importerUrl) {
 	});
 };
 //#endregion
+//#region ../send/frontend/src/lib/trpc.ts
+/**
+* This is the client-side code that uses the inferred types from the server
+*/
+var serverUrl = "https://send-backend.tb.pro".trim();
+var refreshUrl = `${serverUrl}/api/auth/refresh`;
+var trpcUrl = `${serverUrl}/trpc`;
+/**
+* Detect whether we're running in a test/automation context, where the
+* WebSocket must stay closed.
+*
+* Unit tests inject `import.meta.env.VITE_TESTING`. When that build-time flag is
+* unavailable — as in the shipped background bundle — fall back to the presence
+* of the WebExtension `browser.test` API, which the Thunderbird/Firefox test
+* harness only exposes when the add-on is loaded under automation. This keeps a
+* logged-out automation profile from ever opening the socket at startup.
+*/
+function detectTesting() {
+	return typeof browser !== "undefined" && Boolean(browser.test);
+}
+var isTesting = detectTesting();
+/**
+* Decide how (and whether) to build the WebSocket client.
+*
+* Returns `null` — meaning "do not connect" — when running under unit tests or
+* when no backend host is configured (empty `serverUrl`). Otherwise returns the
+* client config with **lazy mode** enabled.
+*
+* Lazy mode is critical: the background page of the built-in/system add-on
+* imports this module on every Thunderbird launch, including fresh,
+* never-signed-in profiles. A non-lazy client opens the socket as a side effect
+* of construction (at module load), which under automation triggers a fatal
+* "non-local network connections are disabled" abort and crashes the process
+* before any feature is used. With lazy mode the connection is deferred until
+* the first subscription actually runs (i.e. an authenticated user is using a
+* feature) and is closed again after inactivity, so a logged-out profile makes
+* zero outbound connections at startup.
+*/
+function getWsClientConfig(url, testing) {
+	const normalizedUrl = url.trim();
+	if (testing || normalizedUrl.length === 0) return null;
+	return {
+		url: `${normalizedUrl}${TRPC_WS_PATH}`,
+		lazy: {
+			enabled: true,
+			closeMs: 1e3
+		}
+	};
+}
+var wsClientConfig = getWsClientConfig(serverUrl, isTesting);
+var wsClient = wsClientConfig ? createWSClient(wsClientConfig) : null;
+/**
+* We only import the `AppRouter` type from the server - this is not available at runtime
+*/
+async function fetchWithLogoutCheck(url, options) {
+	async function getAuthStore() {
+		const { useAuthStore } = await __vitePreload(async () => {
+			const { useAuthStore } = await Promise.resolve().then(() => auth_store_exports);
+			return { useAuthStore };
+		}, void 0);
+		return useAuthStore();
+	}
+	async function buildHeaders() {
+		const headers = new Headers(options.headers);
+		try {
+			if (!headers.has("Authorization")) {
+				const token = await (await getAuthStore()).getAccessToken();
+				if (token) headers.set("Authorization", `Bearer ${token}`);
+			}
+		} catch {}
+		return headers;
+	}
+	const res = await fetch(url, {
+		...options,
+		headers: await buildHeaders(),
+		credentials: "include"
+	});
+	if (res.headers?.get?.("x-logout")) try {
+		if (await (await getAuthStore()).recoverOrForceLogout()) return await fetch(url, {
+			...options,
+			headers: await buildHeaders(),
+			credentials: "include"
+		});
+	} catch (error) {
+		console.error("Forced-logout handling failed:", error);
+	}
+	return res;
+}
+var trpc = createTRPCClient({ links: [splitLink({
+	condition: (op) => op.type === "subscription",
+	false: [retryLink({ 
+	/**
+	* Retry strategy for failed requests:
+	* - For 401 unauthorized errors: Attempts to refresh the token and retries up to 3 times
+	* - For queries (not mutations): Retries up to 3 times
+	* - For all other cases: No retry
+	*/
+retry(opts) {
+		if (opts.error.data?.code === "UNAUTHORIZED") {
+			if (opts.op.type !== "query") return false;
+			fetch(refreshUrl, { credentials: "include" }).then(() => {
+				console.info("revalidated token");
+			}).catch((err) => {
+				console.info("could not revalidate token", err);
+			});
+			return opts.attempts <= 3;
+		}
+	} }), httpBatchLink({
+		url: trpcUrl,
+		fetch: fetchWithLogoutCheck
+	})],
+	true: wsClient ? [wsLink({ client: wsClient })] : [httpBatchLink({
+		url: trpcUrl,
+		fetch: fetchWithLogoutCheck
+	})]
+})] });
+//#endregion
 //#region ../send/frontend/src/lib/api.ts
 var ApiConnection = class {
 	constructor(serverUrl) {
@@ -24103,7 +24188,23 @@ var ApiConnection = class {
 			});
 			return null;
 		}
-		if (resp.status === 401) if (requestHeaders["Authorization"]) try {
+		if (resp.headers?.get?.("x-logout")) try {
+			const { useAuthStore } = await __vitePreload(async () => {
+				const { useAuthStore } = await Promise.resolve().then(() => auth_store_exports);
+				return { useAuthStore };
+			}, void 0);
+			const authStore = useAuthStore();
+			if (!await authStore.recoverOrForceLogout()) return null;
+			const newToken = await authStore.getAccessToken();
+			if (newToken) {
+				opts.headers["Authorization"] = `Bearer ${newToken}`;
+				resp = await fetch(url, opts);
+			}
+		} catch (error) {
+			console.error("Forced-logout handling failed:", error);
+			return null;
+		}
+		else if (resp.status === 401) if (requestHeaders["Authorization"]) try {
 			const { useAuthStore } = await __vitePreload(async () => {
 				const { useAuthStore } = await Promise.resolve().then(() => auth_store_exports);
 				return { useAuthStore };
@@ -27316,8 +27417,13 @@ while (n === a[++i] && n === a[++i] && n === a[++i] && n === a[++i] && n === a[+
 * @returns {Promise<string>} - Returns a Promise that resolves to the hexadecimal hash string
 */
 async function generateFileHash(fileBlob) {
-	const fileArrayBuffer = await fileBlob.arrayBuffer();
-	const hashBuffer = await crypto.subtle.digest("SHA-256", fileArrayBuffer);
+	return sha256Hex(await fileBlob.arrayBuffer());
+}
+/**
+* Hex-encodes the SHA-256 digest of an already-in-memory buffer.
+*/
+async function sha256Hex(buffer) {
+	const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
 	return Array.from(new Uint8Array(hashBuffer)).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 async function canUserUpload(currentUploadSize) {
@@ -27415,10 +27521,39 @@ async function listenForResponse(ws, canceler) {
 		ws.addEventListener("close", handleClose, { once: true });
 	});
 }
+/**
+* Zips `blob` under `filename` and returns the archive as a Blob.
+*
+* Why this is not just `zip.generateAsync({ type: 'blob' })`:
+* JSZip's one-shot blob output builds the entire archive as a single
+* `Uint8Array` and then calls `new Blob([thatArray])`. Firefox rejects any
+* single ArrayBuffer/ArrayBufferView Blob member larger than 2 GB with
+* "can't construct the Blob ... larger than 2 GB" — so zipping a file bigger
+* than ~2 GB (e.g. a typeless file wrapped by {@link formatBlob}) throws before
+* a single byte is uploaded (#981). Note this is a hard per-member limit, not an
+* out-of-memory condition: the same Firefox happily allocates a 6 GiB
+* ArrayBuffer, but refuses a >2 GB Blob member.
+*
+* Instead we consume JSZip's streaming output and hand the (individually
+* sub-2 GB) chunks to the Blob constructor as separate members. A Blob's *total*
+* size may exceed 2 GB as long as no single member does, so the archive can be
+* arbitrarily large.
+*
+* Backwards compatibility: `generateAsync` is itself implemented on top of this
+* same internal stream with the same default settings (STORE, no compression),
+* so the archive bytes are identical to the previous implementation. Files
+* zipped before and after this change are byte-for-byte interchangeable and the
+* download/unzip path is unaffected — this only changes how the output Blob is
+* assembled in memory, not its contents.
+*/
 async function zipBlob(blob, filename) {
 	const zip = new import_jszip_min.default();
 	zip.file(filename, blob);
-	return zip.generateAsync({ type: "blob" });
+	const chunks = [];
+	await new Promise((resolve, reject) => {
+		zip.generateInternalStream({ type: "uint8array" }).on("data", (chunk) => chunks.push(chunk)).on("error", reject).on("end", () => resolve()).resume();
+	});
+	return new Blob(chunks, { type: "application/zip" });
 }
 async function unzipMultipartPiece(arrayBuffer) {
 	try {
@@ -27456,42 +27591,30 @@ var formatBlob = async (blob) => {
 	}
 	return blob;
 };
-var splitIntoMultipleZips = async (blob, maxSize) => {
-	const chunks = [];
-	if (blob.size <= maxSize) {
-		const singleZip = await zipBlob(blob, blob.name);
-		const zippedBlob = new Blob([singleZip], { type: "application/zip" });
-		zippedBlob.name = `${blob.name}`;
-		return [zippedBlob];
-	}
-	const totalSize = blob.size;
-	const numChunks = Math.ceil(totalSize / maxSize);
-	for (let i = 0; i < numChunks; i++) {
-		const start = i * maxSize;
-		const end = Math.min(start + maxSize, totalSize);
-		const chunk = blob.slice(start, end);
-		const chunkBlob = new Blob([chunk], { type: blob.type });
-		chunkBlob.name = `${blob.name}`;
-		const zippedChunk = await zipBlob(chunkBlob, chunkBlob.name);
-		const zippedBlob = new Blob([zippedChunk], { type: "application/zip" });
-		zippedBlob.name = `${chunkBlob.name}`;
-		chunks.push(zippedBlob);
-	}
-	return chunks;
-};
-var hashAndCheck = async (api, fileBlob) => {
-	const fileHash = await generateFileHash(fileBlob);
-	console.log("File hash (SHA-256):", fileHash);
+/**
+* Checks a precomputed file hash against the suspicious-files list and blocks
+* the upload (alert + throw) if it matches.
+*/
+var assertNotSuspicious = async (api, fileHash) => {
 	const { isSuspicious } = await api.call(`uploads/check-upload-hash/${fileHash}`);
 	if (isSuspicious) {
 		alert("Warning: This file has been reported as suspicious. You cannot upload it. If you believe this is an error, please contact support.");
 		throw new Error("Suspicious file detected");
 	}
+};
+var hashAndCheck = async (api, fileBlob) => {
+	const fileHash = await generateFileHash(fileBlob);
+	console.log("File hash (SHA-256):", fileHash);
+	await assertNotSuspicious(api, fileHash);
 	return fileHash;
 };
-var hashFiles = async (api, fileBlob, maxSize) => {
+var hashFiles = async (api, fileBlob, maxSize, onProgress) => {
 	const hashFromChunk = [];
-	if (fileBlob.size <= maxSize) return [await hashAndCheck(api, fileBlob)];
+	if (fileBlob.size <= maxSize) {
+		const hashedBlob = await hashAndCheck(api, fileBlob);
+		onProgress?.(1, 1);
+		return [hashedBlob];
+	}
 	const totalSize = fileBlob.size;
 	const numChunks = Math.ceil(totalSize / maxSize);
 	for (let i = 0; i < numChunks; i++) {
@@ -27502,9 +27625,83 @@ var hashFiles = async (api, fileBlob, maxSize) => {
 		chunkBlob.name = `${fileBlob.name}`;
 		const zippedChunk = await hashAndCheck(api, chunkBlob);
 		hashFromChunk.push(zippedChunk);
+		onProgress?.(i + 1, numChunks);
 	}
 	return hashFromChunk;
 };
+/**
+* Streams a large file into upload-ready parts, one `maxSize` window at a time.
+*
+* Crucially, it reads the file **sequentially from offset 0 via
+* `fileBlob.stream()`** and never calls `.slice()`/`.arrayBuffer()` at a high
+* byte offset. The previous approach (hashFiles + splitIntoMultipleZips) sliced
+* the file at offsets past ~2 GiB, which Firefox rejects with a NotReadableError
+* / "can't construct the Blob" on files larger than ~2 GB (#981). Reading via a
+* ReadableStream keeps each in-memory buffer bounded to one window and avoids
+* the 2^31 offset boundary entirely.
+*
+* Parts are yielded **in order as they become ready**, so a caller can begin
+* uploading window 0 while later windows are still being read/hashed/zipped
+* (#980).
+*
+* For each window it hashes the raw bytes, runs the suspicious-file check, then
+* zips the window — producing the exact same wire format as
+* splitIntoMultipleZips (a zip of the raw chunk, named after the original file).
+*/
+async function* streamZippedParts(api, fileBlob, maxSize, onBytesHashed) {
+	const reader = fileBlob.stream().getReader();
+	let windowChunks = [];
+	let windowSize = 0;
+	let totalHashed = 0;
+	const flushWindow = async () => {
+		const windowBytes = new Uint8Array(windowSize);
+		let offset = 0;
+		for (const piece of windowChunks) {
+			windowBytes.set(piece, offset);
+			offset += piece.byteLength;
+		}
+		windowChunks = [];
+		windowSize = 0;
+		const hash = await sha256Hex(windowBytes.buffer);
+		await assertNotSuspicious(api, hash);
+		const rawBlob = new Blob([windowBytes], { type: fileBlob.type });
+		rawBlob.name = fileBlob.name;
+		const zipped = await zipBlob(rawBlob, fileBlob.name);
+		const zippedBlob = new Blob([zipped], { type: "application/zip" });
+		zippedBlob.name = fileBlob.name;
+		return {
+			blob: zippedBlob,
+			hash
+		};
+	};
+	try {
+		while (true) {
+			const { done, value } = await reader.read();
+			if (done) break;
+			let chunk = value;
+			while (windowSize + chunk.byteLength >= maxSize) {
+				const take = maxSize - windowSize;
+				windowChunks.push(chunk.subarray(0, take));
+				windowSize += take;
+				totalHashed += take;
+				onBytesHashed?.(totalHashed);
+				yield await flushWindow();
+				chunk = chunk.subarray(take);
+			}
+			if (chunk.byteLength > 0) {
+				windowChunks.push(chunk);
+				windowSize += chunk.byteLength;
+			}
+		}
+		if (windowSize > 0) {
+			totalHashed += windowSize;
+			onBytesHashed?.(totalHashed);
+			yield await flushWindow();
+		}
+	} finally {
+		reader.releaseLock();
+	}
+}
 var checkBlobSize = async (blob) => {
 	console.log(blob);
 	if (blob.size > 2e10) {
@@ -28873,12 +29070,11 @@ var Uploader = class {
 	/**
 	* Creates a multipart progress tracker that manages overall progress across all parts
 	*/
-	createMultipartProgressTracker(mainTracker, blobs, isMultipart, originalFileSize) {
-		const blobSizes = blobs.map((blob) => blob.size);
+	createMultipartProgressTracker(mainTracker, blobSizes, isMultipart, originalFileSize) {
 		const totalBlobSize = blobSizes.reduce((sum, size) => sum + size, 0);
-		const partProgress = new Array(blobs.length).fill(0);
+		const partProgress = new Array(blobSizes.length).fill(0);
 		const updateOverallProgress = () => {
-			if (!isMultipart || blobs.length === 1) mainTracker.setProgress(Math.min(partProgress[0], originalFileSize));
+			if (!isMultipart || blobSizes.length === 1) mainTracker.setProgress(Math.min(partProgress[0], originalFileSize));
 			else {
 				const overallProgress = partProgress.reduce((sum, progress) => sum + progress, 0) / totalBlobSize * originalFileSize;
 				mainTracker.setProgress(Math.min(overallProgress, originalFileSize));
@@ -28904,8 +29100,7 @@ var Uploader = class {
 						mainTracker.setProcessStage(stage);
 					},
 					setText: (message) => {
-						if (isMultipart && blobs.length > 1) mainTracker.setText(message);
-						else mainTracker.setText(message);
+						mainTracker.setText(message);
 					},
 					setProgress: (progress) => {
 						partProgress[partIndex] = Math.min(progress, partSize);
@@ -28926,16 +29121,56 @@ var Uploader = class {
 		if (!wrappingKey) return null;
 		const key = await this.keychain.content.generateKey();
 		const wrappedKeyStr = await this.keychain.container.wrapContentKey(key, wrappingKey);
-		let blobs;
-		const hashes = await hashFiles(api, fileBlob, SPLIT_SIZE);
 		const shouldSplit = fileBlob.size > SPLIT_SIZE;
-		if (shouldSplit) blobs = await splitIntoMultipleZips(fileBlob, 1e8) || [];
-		else blobs = [fileBlob];
-		if (!blobs || blobs.length === 0) return null;
+		const numChunks = shouldSplit ? Math.ceil(fileBlob.size / SPLIT_SIZE) : 1;
+		const partSizes = Array.from({ length: numChunks }, (_, i) => Math.min(SPLIT_SIZE, fileBlob.size - i * SPLIT_SIZE));
 		progressTracker.setUploadSize(fileBlob.size);
-		progressTracker.setProcessStage("preparing");
-		progressTracker.setText("Preparing file for upload");
-		const multipartTracker = this.createMultipartProgressTracker(progressTracker, blobs, shouldSplit, fileBlob.size);
+		progressTracker.setProcessStage("hashing");
+		progressTracker.setText("Hashing file");
+		const parts = new Array(numChunks);
+		const hashes = new Array(numChunks);
+		const partReady = Array.from({ length: numChunks }, () => {
+			let resolve;
+			let reject;
+			const promise = new Promise((res, rej) => {
+				resolve = res;
+				reject = rej;
+			});
+			promise.catch(() => {});
+			return {
+				promise,
+				resolve,
+				reject
+			};
+		});
+		if (shouldSplit) (async () => {
+			let produced = 0;
+			try {
+				for await (const part of streamZippedParts(api, fileBlob, SPLIT_SIZE, (bytesHashed) => {
+					if (parts[0] !== void 0) return;
+					const pct = Math.round(bytesHashed / fileBlob.size * 100);
+					progressTracker.setText(`Hashing file (${pct}%)`);
+				})) {
+					parts[produced] = part.blob;
+					hashes[produced] = part.hash;
+					partReady[produced].resolve();
+					produced++;
+				}
+				if (produced < numChunks) {
+					const err = /* @__PURE__ */ new Error(`Streaming produced ${produced} of ${numChunks} expected parts`);
+					for (let i = produced; i < numChunks; i++) partReady[i].reject(err);
+				}
+			} catch (err) {
+				for (let i = produced; i < numChunks; i++) partReady[i].reject(err);
+			}
+		})();
+		else {
+			const [singleHash] = await hashFiles(api, fileBlob, SPLIT_SIZE);
+			parts[0] = fileBlob;
+			hashes[0] = singleHash;
+			partReady[0].resolve();
+		}
+		const multipartTracker = this.createMultipartProgressTracker(progressTracker, partSizes, shouldSplit, fileBlob.size);
 		const abortController = new AbortController();
 		const writtenUploadIds = /* @__PURE__ */ new Set();
 		const uploadPart = async (blob, index) => {
@@ -29027,18 +29262,20 @@ var Uploader = class {
 			multipartTracker.markPartComplete(index);
 			return item;
 		};
-		const uploadResponses = new Array(blobs.length);
+		const uploadResponses = new Array(numChunks);
 		let nextIndex = 0;
 		let fatalError = null;
 		const runWorker = async () => {
 			while (true) {
 				if (fatalError) return;
 				const index = nextIndex++;
-				if (index >= blobs.length) return;
+				if (index >= numChunks) return;
 				try {
-					const item = await uploadPart(blobs[index], index);
+					await partReady[index].promise;
+					const item = await uploadPart(parts[index], index);
 					if (!item) throw new Error(`Upload part ${index} returned no item`);
 					uploadResponses[index] = item;
+					parts[index] = void 0;
 				} catch (error) {
 					if (!fatalError) fatalError = error;
 					abortController.abort();
@@ -29049,7 +29286,7 @@ var Uploader = class {
 		const onPageHide = () => this.teardownCleanup(api, [...writtenUploadIds]);
 		window.addEventListener("pagehide", onPageHide);
 		try {
-			const workerCount = Math.min(4, blobs.length);
+			const workerCount = Math.min(4, numChunks);
 			await Promise.all(Array.from({ length: workerCount }, () => runWorker()));
 			if (fatalError) {
 				await this.deleteWrittenUploads(api, [...writtenUploadIds]).catch(() => {});
@@ -33079,6 +33316,7 @@ function isGenuineAuthFailure(error) {
 	const code = error?.error;
 	return typeof code === "string" && GENUINE_AUTH_FAILURE_CODES.includes(code);
 }
+var forcedLogoutInProgress = false;
 var useAuthStore = defineStore("auth", () => {
 	const { api } = useApiStore();
 	const { isExtension, isThunderbirdHost } = useConfigStore();
@@ -33088,6 +33326,7 @@ var useAuthStore = defineStore("auth", () => {
 		console.info("isLoggedIn changed", newValue);
 	});
 	let inFlightRefresh = null;
+	let lastRefreshFailedGenuinely = false;
 	/**
 	* Notify the add-on background that the session is over so its menu reverts
 	* to logged-out. Only meaningful inside Thunderbird, where the token-bridge
@@ -33114,6 +33353,7 @@ var useAuthStore = defineStore("auth", () => {
 	async function refreshAccessToken() {
 		if (inFlightRefresh) return inFlightRefresh;
 		inFlightRefresh = (async () => {
+			lastRefreshFailedGenuinely = false;
 			try {
 				const user = await userManager.signinSilent();
 				currentUser.value = user;
@@ -33121,6 +33361,7 @@ var useAuthStore = defineStore("auth", () => {
 				return user;
 			} catch (error) {
 				if (isGenuineAuthFailure(error)) {
+					lastRefreshFailedGenuinely = true;
 					console.warn(`Silent token refresh failed — session ended (${error.error}). Signing out.`);
 					isLoggedIn.value = false;
 					currentUser.value = null;
@@ -33274,6 +33515,33 @@ var useAuthStore = defineStore("auth", () => {
 		}
 	}
 	/**
+	* Forced logout in response to the backend's x-logout header (#960): the
+	* session was ended server-side (logout elsewhere, password change, admin
+	* revoke). Clear local auth and return to a clean state. Deliberately does
+	* NOT call the API (that path is what surfaced x-logout, so calling it again
+	* would loop); it only clears client state and redirects.
+	*/
+	async function handleForcedLogout() {
+		if (forcedLogoutInProgress) return;
+		forcedLogoutInProgress = true;
+		try {
+			isLoggedIn.value = false;
+			currentUser.value = null;
+			try {
+				await userManager.removeUser();
+			} catch {}
+			try {
+				if (typeof browser !== "undefined") {
+					await browser.storage.local.remove(STORAGE_KEY_AUTH);
+					browser.runtime.sendMessage({ type: SIGN_OUT });
+				}
+			} catch {}
+			if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("tbpro:force-logout"));
+		} finally {
+			forcedLogoutInProgress = false;
+		}
+	}
+	/**
 	* Logout from OIDC and clear local state
 	*/
 	async function logoutFromOIDC() {
@@ -33296,6 +33564,29 @@ var useAuthStore = defineStore("auth", () => {
 	*/
 	async function refreshToken() {
 		return (await refreshAccessToken())?.access_token ?? null;
+	}
+	/**
+	* The backend reported the current access token revoked (x-logout, #960).
+	* Before tearing the session down, try a silent refresh: a revoked/expired
+	* *access* token can often be replaced using a still-valid *refresh* token,
+	* so the session keeps rolling instead of bouncing the user to login (PR #974
+	* review). Only force logout when the refresh token is also gone; on a
+	* transient refresh error keep the session (fail open).
+	*
+	* Goes through refreshAccessToken() — an unconditional signinSilent — rather
+	* than getAccessToken(), because the token behind x-logout is still within
+	* its lifetime (the backend exp-gates the signal), so getAccessToken() would
+	* hand back the same stale, revoked token without refreshing.
+	*
+	* @returns `true` if the session was recovered — the caller should retry the
+	* request with the fresh token — and `false` otherwise (forced logout on a
+	* genuine failure, or session kept on a transient error).
+	*/
+	async function recoverOrForceLogout() {
+		const user = await refreshAccessToken();
+		if (user && !user.expired) return true;
+		if (lastRefreshFailedGenuinely) await handleForcedLogout();
+		return false;
 	}
 	async function loadUser() {
 		try {
@@ -33415,6 +33706,8 @@ var useAuthStore = defineStore("auth", () => {
 		checkAuthStatus,
 		getAccessToken,
 		logoutFromOIDC,
+		handleForcedLogout,
+		recoverOrForceLogout,
 		refreshToken,
 		loginToKeyCloak: loginToOIDC,
 		loadUser,
@@ -33477,18 +33770,18 @@ function useAuth() {
 //#endregion
 //#region ../send/frontend/src/apps/common/FeedbackBox.vue
 var _sfc_main$1 = {};
-var _hoisted_1$4 = {
+var _hoisted_1$5 = {
 	class: "mx-4 mb-4",
 	"data-testid": "feedback-box"
 };
 function _sfc_render$1(_ctx, _cache) {
-	return openBlock(), createElementBlock("section", _hoisted_1$4, [..._cache[0] || (_cache[0] = [createBaseVNode("a", { href: "https://support.tb.pro" }, [createBaseVNode("p", { class: "text" }, "Need help? Visit Support")], -1)])]);
+	return openBlock(), createElementBlock("section", _hoisted_1$5, [..._cache[0] || (_cache[0] = [createBaseVNode("a", { href: "https://support.tb.pro" }, [createBaseVNode("p", { class: "text" }, "Need help? Visit Support")], -1)])]);
 }
 var FeedbackBox_default = /*#__PURE__*/ _plugin_vue_export_helper_default(_sfc_main$1, [["render", _sfc_render$1], ["__scopeId", "data-v-c0a54125"]]);
 //#endregion
 //#region ../send/frontend/src/apps/common/RightArrowIcon.vue
 var _sfc_main = {};
-var _hoisted_1$3 = {
+var _hoisted_1$4 = {
 	width: "20",
 	height: "20",
 	viewBox: "0 0 20 20",
@@ -33496,7 +33789,7 @@ var _hoisted_1$3 = {
 	xmlns: "http://www.w3.org/2000/svg"
 };
 function _sfc_render(_ctx, _cache) {
-	return openBlock(), createElementBlock("svg", _hoisted_1$3, [..._cache[0] || (_cache[0] = [createBaseVNode("path", {
+	return openBlock(), createElementBlock("svg", _hoisted_1$4, [..._cache[0] || (_cache[0] = [createBaseVNode("path", {
 		"fill-rule": "evenodd",
 		"clip-rule": "evenodd",
 		d: "M12.663 14.75a.833.833 0 0 0 1.178.011l4.243-4.166a.833.833 0 0 0 0-1.19L13.84 5.24a.833.833 0 1 0-1.167 1.189l2.788 2.739H2.5a.833.833 0 1 0 0 1.666h12.962l-2.788 2.74a.833.833 0 0 0-.011 1.178z",
@@ -36160,7 +36453,7 @@ et.Info;
 H("copyToClipboard.default");
 //#endregion
 //#region ../send/frontend/src/lib/auth/AuthButtons.vue?vue&type=script&setup=true&lang.ts
-var _hoisted_1$2 = { class: "auth-buttons" };
+var _hoisted_1$3 = { class: "auth-buttons" };
 var _hoisted_2$2 = { class: "buttons-container" };
 var _hoisted_3 = { class: "button-text" };
 var _hoisted_4 = { class: "buttons-container" };
@@ -36177,7 +36470,7 @@ var AuthButtons_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @__
 	setup(__props) {
 		const loginText = /* @__PURE__ */ ref("Sign In");
 		return (_ctx, _cache) => {
-			return openBlock(), createElementBlock(Fragment, null, [createBaseVNode("div", _hoisted_1$2, [!__props.isExtension ? (openBlock(), createBlock(unref(si), {
+			return openBlock(), createElementBlock(Fragment, null, [createBaseVNode("div", _hoisted_1$3, [!__props.isExtension ? (openBlock(), createBlock(unref(si), {
 				key: 0,
 				"data-testid": "login-button-tbpro",
 				onClickCapture: __props.loginToOidc
@@ -36196,6 +36489,23 @@ var AuthButtons_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @__
 	}
 }), [["__scopeId", "data-v-38d68ad7"]]);
 //#endregion
+//#region ../send/frontend/src/apps/common/VersionTag.vue?vue&type=script&setup=true&lang.ts
+var _hoisted_1$2 = {
+	class: "addon-version-tag",
+	"data-testid": "addon-version"
+};
+//#endregion
+//#region ../send/frontend/src/apps/common/VersionTag.vue
+var VersionTag_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @__PURE__ */ defineComponent({
+	__name: "VersionTag",
+	setup(__props) {
+		const version = "2.0.5";
+		return (_ctx, _cache) => {
+			return openBlock(), createElementBlock("span", _hoisted_1$2, " v" + toDisplayString(unref(version)), 1);
+		};
+	}
+}), [["__scopeId", "data-v-46c038cc"]]);
+//#endregion
 //#region ../send/frontend/src/composables/useSendConfig.ts
 function useSendConfig() {
 	const userStore = useUserStore();
@@ -36207,26 +36517,12 @@ function useSendConfig() {
 	const { initializeClientMetrics } = useMetricsStore();
 	const { isLoggedIn } = storeToRefs(useAuthStore());
 	/**
-	* Checks browser extension storage for SEND_MESSAGE_TO_BRIDGE value
-	* and transfers it to localStorage under 'lb/passphrase' key.
-	* The value is stored as an object with passPhrase property.
+	* Pulls a passphrase shared from the web app via the token bridge into the
+	* keychain (delegates to pullBridgedPassphrase). Called before the login
+	* checks in loadLogin so the passphrase is present when keys are restored.
 	*/
 	const checkAndTransferBridgeMessage = async () => {
-		try {
-			const result = await browser.storage.local.get(SEND_MESSAGE_TO_BRIDGE);
-			if (result["SEND_MESSAGE_TO_BRIDGE"]) {
-				const passphraseObject = { passPhrase: result[SEND_MESSAGE_TO_BRIDGE] };
-				localStorage.setItem("lb/passphrase", JSON.stringify(passphraseObject));
-				console.log("✅ Transferred bridge message to localStorage");
-				await browser.storage.local.remove(SEND_MESSAGE_TO_BRIDGE);
-				console.log("✅ Removed bridge message from extension storage");
-				return true;
-			}
-			return false;
-		} catch (error) {
-			console.error("Error checking bridge message:", error);
-			return false;
-		}
+		return pullBridgedPassphrase(keychain);
 	};
 	try {
 		browser.runtime.onMessage.addListener(async (message) => {
@@ -36337,8 +36633,8 @@ function useSendConfig() {
 		*/
 		useLoginQuery,
 		/**
-		* Checks browser extension storage for SEND_MESSAGE_TO_BRIDGE value
-		* and transfers it to localStorage under 'lb/passphrase' key.
+		* Pulls a passphrase shared from the web app via the token bridge into the
+		* keychain (delegates to pullBridgedPassphrase).
 		*/
 		checkAndTransferBridgeMessage,
 		/**
@@ -36447,19 +36743,22 @@ var app = createApp(/* @__PURE__ */ _plugin_vue_export_helper_default(/* @__PURE
 			await browser.tabs.create({ url: `${BASE_URL}/login?isExtension=true` });
 		}
 		return (_ctx, _cache) => {
-			return openBlock(), createElementBlock("div", _hoisted_1, [createVNode(TbproLogo_default), createVNode(WithLoader_default, { "is-loading": unref(isLoadingAuth) }, {
-				default: withCtx(() => [!unref(isLoggedIn) ? (openBlock(), createElementBlock("div", _hoisted_2, [_cache[0] || (_cache[0] = createBaseVNode("p", { class: "description" }, " Sign in with Thundermail to use Send or restore access to your encrypted files. ", -1)), createVNode(AuthButtons_default, {
-					"is-extension": true,
-					"login-to-oidc": _loginToOIDC,
-					"login-to-oidc-for-extension": openLoginPage
-				})])) : (openBlock(), createBlock(AdminPage_default, { key: 1 }))]),
-				_: 1
-			}, 8, ["is-loading"])]);
+			return openBlock(), createElementBlock("div", _hoisted_1, [
+				createVNode(TbproLogo_default),
+				createVNode(WithLoader_default, { "is-loading": unref(isLoadingAuth) }, {
+					default: withCtx(() => [!unref(isLoggedIn) ? (openBlock(), createElementBlock("div", _hoisted_2, [_cache[0] || (_cache[0] = createBaseVNode("p", { class: "description" }, " Sign in with Thundermail to use Send or restore access to your encrypted files. ", -1)), createVNode(AuthButtons_default, {
+						"is-extension": true,
+						"login-to-oidc": _loginToOIDC,
+						"login-to-oidc-for-extension": openLoginPage
+					})])) : (openBlock(), createBlock(AdminPage_default, { key: 1 }))]),
+					_: 1
+				}, 8, ["is-loading"]),
+				createVNode(VersionTag_default)
+			]);
 		};
 	}
-}), [["__scopeId", "data-v-a50e1589"]]));
+}), [["__scopeId", "data-v-45c3ae9c"]]));
 setupApp(app);
 mountApp(app, "#management-page");
 //#endregion
 
-//# sourceMappingURL=management.mjs.map

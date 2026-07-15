@@ -1,0 +1,32 @@
+[
+  {
+    "namespace": "thundermailTelemetry",
+    "functions": [
+      {
+        "name": "isTelemetryEnabled",
+        "type": "function",
+        "description": "Returns whether Thunderbird telemetry is currently enabled in the client. Telemetry is enabled only when both datareporting.policy.dataSubmissionEnabled and datareporting.healthreport.uploadEnabled are true. Defaults to false (opted out) if the state cannot be read.",
+        "async": true,
+        "parameters": [],
+        "returns": {
+          "type": "boolean",
+          "description": "True if telemetry is enabled; false if the user has opted out or the state cannot be read."
+        }
+      }
+    ],
+    "events": [
+      {
+        "name": "onChanged",
+        "type": "function",
+        "description": "Fires when the effective Thunderbird telemetry state changes (i.e. either data-reporting pref changes), with the new value.",
+        "parameters": [
+          {
+            "name": "enabled",
+            "type": "boolean",
+            "description": "The new effective telemetry state (true if enabled)."
+          }
+        ]
+      }
+    ]
+  }
+]

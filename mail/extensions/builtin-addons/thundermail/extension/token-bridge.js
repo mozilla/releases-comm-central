@@ -18,24 +18,17 @@ const OPEN_MANAGEMENT_PAGE = 'OPEN_MANAGEMENT_PAGE';
 //   PENDING_ADDON_TOKEN_RESPONSE : background → bridge → web page ("here it is")
 const GET_PENDING_ADDON_TOKEN = 'TB/GET_PENDING_ADDON_TOKEN';
 const PENDING_ADDON_TOKEN_RESPONSE = 'TB/PENDING_ADDON_TOKEN_RESPONSE';
+// Telemetry pref bridge (issue #952). The hosted Send dashboard cannot call the
+// browser.thundermailTelemetry experiment API, so it asks the background for the pref:
+//   GET_TELEMETRY_STATE      : web page → bridge → background
+//   TELEMETRY_STATE_RESPONSE : background → bridge → web page
+//   TELEMETRY_STATE_CHANGED  : background → bridge → web page (runtime change)
+const GET_TELEMETRY_STATE = 'TB/GET_TELEMETRY_STATE';
+const TELEMETRY_STATE_RESPONSE = 'TB/TELEMETRY_STATE_RESPONSE';
+const TELEMETRY_STATE_CHANGED = 'TB/TELEMETRY_STATE_CHANGED';
 
 window.postMessage({ type: BRIDGE_READY }, window.location.origin);
 console.log(`[🌉 token-bridge] the token bridge has loaded.`);
-
-// Visual cue, make sure to remove.
-const tag = document.createElement('div');
-tag.textContent = '✅ Content script injected';
-Object.assign(tag.style, {
-  position: 'fixed',
-  zIndex: 999999,
-  inset: '8px auto auto 8px',
-  padding: '6px 10px',
-  background: 'lime',
-  color: 'black',
-  fontFamily: 'monospace',
-  boxShadow: '0 2px 8px rgba(0,0,0,.25)',
-});
-// document.documentElement.appendChild(tag);
 
 // Initial message to the background
 browser.runtime.sendMessage({
@@ -44,9 +37,17 @@ browser.runtime.sendMessage({
 });
 
 window.addEventListener('message', (e) => {
-  // if (e.origin !== APP_ORIGIN) return;   // security: only trust your app
-  // if (e.source !== window) return;       // same-page messages only
-  // if (!e.data || e.data.type !== "TB_PING") return;
+  // Security: this bridge forwards messages straight to the privileged add-on
+  // background (OIDC tokens, the encryption passphrase, sign-in/out). Only trust
+  // messages the app page posted to itself:
+  //   • e.source !== window  → came from an embedded/cross-origin frame or
+  //     another window, not the top app page. Reject.
+  //   • e.origin !== window.location.origin → not same-origin. Reject.
+  // Combined with the scoped content_scripts `matches` in the manifest (the
+  // bridge is only injected on the Send app's own origins), this keeps a
+  // third-party page or frame from driving the add-on.
+  if (e.source !== window) return;
+  if (e.origin !== window.location.origin) return;
 
   // ----- Web to add-on: Step 6b — refresh token → background (Thundermail) -----
   // handleOIDCCallback() posts OIDC_TOKEN with the refresh_token so that
@@ -136,6 +137,26 @@ window.addEventListener('message', (e) => {
       type: GET_PENDING_ADDON_TOKEN,
     });
   }
+
+  // ----- Web to add-on: hosted dashboard asks for the telemetry pref -----
+  // The background returns the state as the sendMessage response (scoped to
+  // this tab), which we relay back to the page. It answers only for our own
+  // Send tabs, so a non-Send page gets no response and the page fails closed.
+  if (e?.data?.type === GET_TELEMETRY_STATE) {
+    browser.runtime
+      .sendMessage({ type: GET_TELEMETRY_STATE })
+      .then((response) => {
+        if (response?.type === TELEMETRY_STATE_RESPONSE) {
+          window.postMessage(
+            { type: TELEMETRY_STATE_RESPONSE, enabled: response.enabled },
+            window.location.origin
+          );
+        }
+      })
+      .catch(() => {
+        // No handler / not our tab — the page-side timeout fails closed.
+      });
+  }
 });
 
 // Listen for responses from background script and forward to web app
@@ -175,6 +196,20 @@ browser.runtime.onMessage.addListener((message) => {
       {
         type: PENDING_ADDON_TOKEN_RESPONSE,
         tokenSet: message.tokenSet,
+      },
+      window.location.origin
+    );
+  }
+
+  // ----- Add-on to Web: telemetry runtime change (issue #952) -----
+  // The GET_TELEMETRY_STATE reply is handled inline as the sendMessage
+  // response above; here we only forward unsolicited runtime changes the
+  // background broadcasts to our Send tabs.
+  if (message.type === TELEMETRY_STATE_CHANGED) {
+    window.postMessage(
+      {
+        type: TELEMETRY_STATE_CHANGED,
+        enabled: message.enabled,
       },
       window.location.origin
     );

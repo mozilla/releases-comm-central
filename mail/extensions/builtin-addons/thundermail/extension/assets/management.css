@@ -2109,6 +2109,18 @@ section[data-v-c0a54125] {
   font-size: 13px;
   font-weight: 600;
 }
+
+.addon-version-tag[data-v-46c038cc] {
+  display: inline-block;
+  font-family: Inter, sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  /* Inherit the surrounding text color (dark footer vs. light pages) and dim
+     it so the tag is present but unobtrusive. */
+  color: currentColor;
+  opacity: 0.6;
+}
 /* Common Dashboard & Component Styles */
 
 /* Title styles */
@@ -2401,7 +2413,7 @@ section[data-v-c0a54125] {
   margin: 0;
 }
 
-.content[data-v-a50e1589] {
+.content[data-v-45c3ae9c] {
   display: flex;
   flex-direction: column;
   align-items: start;
@@ -2412,15 +2424,15 @@ section[data-v-c0a54125] {
   padding: 1rem;
   max-width: 52rem;
 }
-.login-section[data-v-a50e1589] {
+.login-section[data-v-45c3ae9c] {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
-.header-section[data-v-a50e1589] {
+.header-section[data-v-45c3ae9c] {
   margin-bottom: 0.5rem;
 }
-.description[data-v-a50e1589] {
+.description[data-v-45c3ae9c] {
   color: #333;
   font-size: 16px;
   line-height: 1.6;
