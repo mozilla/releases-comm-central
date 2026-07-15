@@ -1224,14 +1224,12 @@ calendar-todaypane-button =
 calendar-search-options-searchfor =
     .value = contain
 
-calendar-server-dialog-title-edit =
-    .title = Edit Calendar
+calendar-properties-dialog-title = Edit Calendar
 
 calendar-server-dialog-name-label =
     .value = Calendar Name:
 
-calendar-publish-dialog-title =
-    .title = Publish Calendar
+calendar-publish-dialog-window-title = Publish Calendar
 
 calendar-publish-url-label = Publishing URL
 
@@ -1251,8 +1249,7 @@ calendar-error-code =
 calendar-error-description =
     .value = Description:
 
-calendar-error-title =
-    .title = An error has occurred
+calendar-error-prompt-title = An error has occurred
 
 calendar-extract-event-button =
     .label = Add as event
