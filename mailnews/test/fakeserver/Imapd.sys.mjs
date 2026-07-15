@@ -1612,6 +1612,12 @@ export class IMAP_RFC3501_handler {
     FAST: ["FLAGS", "INTERNALDATE", "RFC822.SIZE"],
     FULL: ["FLAGS", "INTERNALDATE", "RFC822.SIZE" /* , "ENVELOPE", "BODY" */],
   };
+
+  // Parses `set`, returning the matching messages in the selected mailbox.
+  // If `uid` is falsy, `set` is treated as a sequence set.
+  // If `uid` is true, `set` is treated as a UID set.
+  // If `ids` is passed in (as an array), it will be filled out with the ids
+  // (sequence numbers) of the matching messages within the mailbox.
   _parseSequenceSet(set, uid, ids /* optional */) {
     if (typeof set == "number") {
       if (uid) {
@@ -2313,7 +2319,7 @@ export var IMAP_RFC4315_extension = {
     if (mailbox) {
       var first = mailbox.uidnext;
     }
-    let response = this._preRFC4315COPY(args);
+    let response = this._preRFC4315COPY(args, true);
     if (response.indexOf("OK") == 0) {
       const last = mailbox.uidnext - 1;
       response =
@@ -2335,7 +2341,7 @@ export var IMAP_RFC4315_extension = {
     if (mailbox) {
       var first = mailbox.uidnext;
     }
-    let response = this._preRFC4315MOVE(args);
+    let response = this._preRFC4315MOVE(args, true);
     if (response.includes("OK MOVE")) {
       const last = mailbox.uidnext - 1;
       response = response.replace(
