@@ -121,11 +121,10 @@ add_task(async function testProfileImport() {
     BrowserTestUtils.isHidden(importDocument.getElementById("startBackButton")),
     "Back button is hidden in first step"
   );
-  await BrowserTestUtils.synthesizeMouseAtCenter(
-    "#tabPane-start .continue",
-    {},
-    tab.browser
-  );
+  importDocument
+    .querySelector("#tabPane-start .continue")
+    .scrollIntoView({ block: "end", behavior: "instant" });
+  importDocument.querySelector("#tabPane-start .continue").click();
   const appPane = importDocument.getElementById("tabPane-app");
   await BrowserTestUtils.waitForMutationCondition(
     appPane,
@@ -137,13 +136,6 @@ add_task(async function testProfileImport() {
 
   checkSteps(importDocument, 2, 4);
   checkVisiblePane(importDocument, "tabPane-app", "app-profiles");
-  await importDocument.l10n.translateElements([
-    importDocument.getElementById("profilesPaneTitle"),
-    importDocument.getElementById("profilesPaneSubtitle"),
-  ]);
-  importDocument
-    .getElementById("profileNextButton")
-    .scrollIntoView({ block: "end", behavior: "instant" });
   ok(
     BrowserTestUtils.isVisible(
       importDocument.getElementById("profileBackButton")
@@ -154,16 +146,16 @@ add_task(async function testProfileImport() {
   // Try to import from a source that doesn't contain a profile.
 
   MockFilePicker.setFiles([await IOUtils.getFile(badProfileDir)]);
-  await BrowserTestUtils.synthesizeMouseAtCenter(
-    '#filePickerList [value="file-picker-dir"]',
-    {},
-    tab.browser
-  );
-  await BrowserTestUtils.synthesizeMouseAtCenter(
-    "#profileNextButton",
-    {},
-    tab.browser
-  );
+  importDocument
+    .querySelector('#filePickerList [value="file-picker-dir"]')
+    .scrollIntoView({ block: "end", behavior: "instant" });
+  importDocument
+    .querySelector('#filePickerList [value="file-picker-dir"]')
+    .click();
+  importDocument
+    .getElementById("profileNextButton")
+    .scrollIntoView({ block: "end", behavior: "instant" });
+  importDocument.getElementById("profileNextButton").click();
   const itemsStep = importDocument.getElementById("app-items");
   await BrowserTestUtils.waitForMutationCondition(
     itemsStep,
@@ -193,11 +185,10 @@ add_task(async function testProfileImport() {
 
   // Go back, and try to import from a source that does contain a profile.
 
-  await BrowserTestUtils.synthesizeMouseAtCenter(
-    "#profileBackButton",
-    {},
-    tab.browser
-  );
+  importDocument
+    .getElementById("profileBackButton")
+    .scrollIntoView({ block: "end", behavior: "instant" });
+  importDocument.getElementById("profileBackButton").click();
 
   const profilesStep = importDocument.getElementById("app-profiles");
   await BrowserTestUtils.waitForMutationCondition(
@@ -205,21 +196,18 @@ add_task(async function testProfileImport() {
     { attributes: true },
     () => BrowserTestUtils.isVisible(profilesStep)
   );
+
+  MockFilePicker.setFiles([await IOUtils.getFile(profileDir)]);
+  importDocument
+    .querySelector('#filePickerList [value="file-picker-dir"]')
+    .scrollIntoView({ block: "end", behavior: "instant" });
+  importDocument
+    .querySelector('#filePickerList [value="file-picker-dir"]')
+    .click();
   importDocument
     .getElementById("profileNextButton")
     .scrollIntoView({ block: "end", behavior: "instant" });
-
-  MockFilePicker.setFiles([await IOUtils.getFile(profileDir)]);
-  await BrowserTestUtils.synthesizeMouseAtCenter(
-    '#filePickerList [value="file-picker-dir"]',
-    {},
-    tab.browser
-  );
-  await BrowserTestUtils.synthesizeMouseAtCenter(
-    "#profileNextButton",
-    {},
-    tab.browser
-  );
+  importDocument.getElementById("profileNextButton").click();
   await BrowserTestUtils.waitForMutationCondition(
     itemsStep,
     {
@@ -246,11 +234,10 @@ add_task(async function testProfileImport() {
     "forward button should not be disabled"
   );
 
-  await BrowserTestUtils.synthesizeMouseAtCenter(
-    "#profileNextButton",
-    {},
-    tab.browser
-  );
+  importDocument
+    .getElementById("profileNextButton")
+    .scrollIntoView({ block: "end", behavior: "instant" });
+  importDocument.getElementById("profileNextButton").click();
   const summaryStep = importDocument.getElementById("app-summary");
   await BrowserTestUtils.waitForMutationCondition(
     summaryStep,
@@ -269,11 +256,10 @@ add_task(async function testProfileImport() {
     "Can't advance from summary step"
   );
 
-  await BrowserTestUtils.synthesizeMouseAtCenter(
-    "#appStartImport",
-    {},
-    tab.browser
-  );
+  importDocument
+    .getElementById("appStartImport")
+    .scrollIntoView({ block: "end", behavior: "instant" });
+  importDocument.getElementById("appStartImport").click();
 
   const progressPane = importDocument.querySelector(
     "#app-summary .progressPane"
@@ -377,11 +363,10 @@ add_task(async function testImportLargeZIP() {
     BrowserTestUtils.isHidden(importDocument.getElementById("startBackButton")),
     "Back button is hidden in first step"
   );
-  await BrowserTestUtils.synthesizeMouseAtCenter(
-    "#tabPane-start .continue",
-    {},
-    tab.browser
-  );
+  importDocument
+    .querySelector("#tabPane-start .continue")
+    .scrollIntoView({ block: "end", behavior: "instant" });
+  importDocument.querySelector("#tabPane-start .continue").click();
   const appPane = importDocument.getElementById("tabPane-app");
   await BrowserTestUtils.waitForMutationCondition(
     appPane,
@@ -393,29 +378,20 @@ add_task(async function testImportLargeZIP() {
 
   checkSteps(importDocument, 2, 4);
   checkVisiblePane(importDocument, "tabPane-app", "app-profiles");
-  await importDocument.l10n.translateElements([
-    importDocument.getElementById("profilesPaneTitle"),
-    importDocument.getElementById("profilesPaneSubtitle"),
-  ]);
-  importDocument
-    .getElementById("profileNextButton")
-    .scrollIntoView({ block: "end", behavior: "instant" });
   ok(
     BrowserTestUtils.isVisible(
       importDocument.getElementById("profileBackButton")
     ),
     "Back button is visible"
   );
-  await BrowserTestUtils.synthesizeMouseAtCenter(
-    "#appFilePickerZip",
-    {},
-    tab.browser
-  );
-  await BrowserTestUtils.synthesizeMouseAtCenter(
-    "#profileNextButton",
-    {},
-    tab.browser
-  );
+  importDocument
+    .getElementById("appFilePickerZip")
+    .scrollIntoView({ block: "end", behavior: "instant" });
+  importDocument.getElementById("appFilePickerZip").click();
+  importDocument
+    .getElementById("profileNextButton")
+    .scrollIntoView({ block: "end", behavior: "instant" });
+  importDocument.getElementById("profileNextButton").click();
 
   const notificationBox = importDocument.getElementById("errorNotifications");
   await BrowserTestUtils.waitForMutationCondition(
@@ -457,16 +433,15 @@ add_task(async function testImportModules() {
     }
 
     info(`Opening ${source.value} pane.`);
-    await BrowserTestUtils.synthesizeMouseAtCenter(
-      `#start-sources input[value="${source.value}"]`,
-      {},
-      tab.browser
-    );
-    await BrowserTestUtils.synthesizeMouseAtCenter(
-      "#tabPane-start .continue",
-      {},
-      tab.browser
-    );
+    const sourceSelector = `#start-sources input[value="${source.value}"]`;
+    importDocument
+      .querySelector(sourceSelector)
+      .scrollIntoView({ block: "end", behavior: "instant" });
+    importDocument.querySelector(sourceSelector).click();
+    importDocument
+      .querySelector("#tabPane-start .continue")
+      .scrollIntoView({ block: "end", behavior: "instant" });
+    importDocument.querySelector("#tabPane-start .continue").click();
 
     if (source.value != "file") {
       const appPane = importDocument.getElementById("tabPane-app");
@@ -476,25 +451,16 @@ add_task(async function testImportModules() {
         () => BrowserTestUtils.isVisible(appPane)
       );
       checkVisiblePane(importDocument, "tabPane-app", "app-profiles");
-      await importDocument.l10n.translateElements([
-        importDocument.getElementById("profilesPaneTitle"),
-        importDocument.getElementById("profilesPaneSubtitle"),
-      ]);
-      importDocument
-        .getElementById("profileNextButton")
-        .scrollIntoView({ block: "end", behavior: "instant" });
       Assert.ok(
         BrowserTestUtils.isVisible(
           importDocument.getElementById("profileBackButton")
         ),
         "Back button is visible"
       );
-      // XXX: may need to use profileBackButton.click()
-      await BrowserTestUtils.synthesizeMouseAtCenter(
-        "#profileBackButton",
-        {},
-        tab.browser
-      );
+      importDocument
+        .getElementById("profileBackButton")
+        .scrollIntoView({ block: "end", behavior: "instant" });
+      importDocument.getElementById("profileBackButton").click();
       const startPane = importDocument.getElementById("tabPane-start");
       await BrowserTestUtils.waitForMutationCondition(
         startPane,
@@ -515,11 +481,10 @@ add_task(async function testImportModules() {
         ),
         "Back button is visible"
       );
-      await BrowserTestUtils.synthesizeMouseAtCenter(
-        "#startBackButton",
-        {},
-        tab.browser
-      );
+      importDocument
+        .getElementById("startBackButton")
+        .scrollIntoView({ block: "end", behavior: "instant" });
+      importDocument.getElementById("startBackButton").click();
       const sourcesStep = importDocument.getElementById("start-sources");
       await BrowserTestUtils.waitForMutationCondition(
         sourcesStep,
