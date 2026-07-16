@@ -675,7 +675,7 @@ add_task(async function test_dismissKeepsFutureOccurrencesArmed() {
   item.title = "bug 2051453 future occurrences";
   await memory.addItem(item);
 
-  let probe = item.startDate.clone();
+  const probe = item.startDate.clone();
   probe.second -= 1;
   const firstOcc = item.recurrenceInfo.getNextOccurrence(probe);
   firstOcc.QueryInterface(Ci.calIEvent);
