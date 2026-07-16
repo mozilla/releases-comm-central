@@ -7,6 +7,7 @@
 
 #include "nsICMSSecureMessage.h"
 #include "cert.h"
+#include "CertVerifier.h"
 
 // ===============================================
 // nsCMSManager - implementation of nsICMSManager
@@ -19,6 +20,12 @@ class nsCMSSecureMessage : public nsICMSSecureMessage {
 
   nsCMSSecureMessage();
   nsresult Init();
+
+  // Local-only (OCSP-skipped) e-mail cert verification, safe on the main
+  // thread; only valid for the user's own configured cert.
+  static mozilla::pkix::Result VerifyEmailUsageLocalOnly(
+      mozilla::psm::CertVerifier* aCertVerifier,
+      const nsTArray<uint8_t>& aCertDER, mozilla::psm::VerifyUsage aUsage);
 
  private:
   virtual ~nsCMSSecureMessage();

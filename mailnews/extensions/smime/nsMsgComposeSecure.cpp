@@ -12,6 +12,7 @@
 #include "mozilla/mailnews/MimeEncoder.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "msgCore.h"
+#include "nsCMSSecureMessage.h"
 #include "nsComponentManagerUtils.h"
 #include "nsICryptoHash.h"
 #include "nsIMimeConverter.h"
@@ -827,12 +828,8 @@ static nsresult VerifySelfCert(CertVerifier* aCertVerifier,
   nsresult rv = aSelfCert->GetRawDER(certBytes);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsTArray<nsTArray<uint8_t>> builtChain;
-  mozilla::pkix::Result result = aCertVerifier->VerifyCert(
-      certBytes, aUsage, mozilla::pkix::Now(), nullptr, nullptr, builtChain,
-      // Only local checks can run on the main thread.
-      // Skipping OCSP for the user's own cert seems acceptable.
-      CertVerifier::FLAG_LOCAL_ONLY);
+  mozilla::pkix::Result result = nsCMSSecureMessage::VerifyEmailUsageLocalOnly(
+      aCertVerifier, certBytes, aUsage);
   if (result != mozilla::pkix::Success) {
     GetCertVerificationErrorReason(result, aErrorReason);
     aSelfCert = nullptr;

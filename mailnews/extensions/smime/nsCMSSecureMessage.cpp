@@ -45,6 +45,18 @@ nsresult nsCMSSecureMessage::Init() {
   return EnsureNSSInitializedChromeOrContent() ? NS_OK : NS_ERROR_NOT_AVAILABLE;
 }
 
+// static
+mozilla::pkix::Result nsCMSSecureMessage::VerifyEmailUsageLocalOnly(
+    CertVerifier* aCertVerifier, const nsTArray<uint8_t>& aCertDER,
+    mozilla::psm::VerifyUsage aUsage) {
+  // FLAG_LOCAL_ONLY skips OCSP so this stays on the main thread; only valid
+  // because callers pass the user's own configured cert.
+  nsTArray<nsTArray<uint8_t>> unusedChain;
+  return aCertVerifier->VerifyCert(aCertDER, aUsage, mozilla::pkix::Now(),
+                                   nullptr, nullptr, unusedChain,
+                                   CertVerifier::FLAG_LOCAL_ONLY);
+}
+
 nsresult nsCMSSecureMessage::CheckUsageOk(nsIX509Cert* aCert,
                                           SECCertificateUsage aUsage,
                                           bool* aCanBeUsed) {
@@ -70,15 +82,9 @@ nsresult nsCMSSecureMessage::CheckUsageOk(nsIX509Cert* aCert,
       return NS_ERROR_UNEXPECTED;
   }
 
-  nsTArray<nsTArray<uint8_t>> unusedBuiltChain;
-  // It's fine to skip OCSP, because this is called only from code
-  // for selecting the user's own configured cert.
-  if (certVerifier->VerifyCert(certBytes, usageForPkix, mozilla::pkix::Now(),
-                               nullptr, nullptr, unusedBuiltChain,
-                               CertVerifier::FLAG_LOCAL_ONLY) ==
-      mozilla::pkix::Success) {
-    *aCanBeUsed = true;
-  }
+  *aCanBeUsed =
+      VerifyEmailUsageLocalOnly(certVerifier, certBytes, usageForPkix) ==
+      mozilla::pkix::Success;
   return NS_OK;
 }
 
