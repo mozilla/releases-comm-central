@@ -844,6 +844,13 @@ NS_IMETHODIMP ExchangeFolder::CopyFolder(
     nsIMsgCopyServiceListener* aCopyListener) {
   NS_ENSURE_ARG_POINTER(aSrcFolder);
 
+  // If this is a virtual folder, then it's a pure local copy.
+  uint32_t srcFolderFlags;
+  aSrcFolder->GetFlags(&srcFolderFlags);
+  if (srcFolderFlags & nsMsgFolderFlags::Virtual) {
+    return LocalCopyVirtualFolder(aSrcFolder, this, aIsMoveFolder);
+  }
+
   nsresult rv = NS_OK;
 
   auto notifyFailureOnExit = GuardCopyServiceExit(aSrcFolder, this, rv);

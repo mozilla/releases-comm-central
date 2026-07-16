@@ -10,6 +10,7 @@
 #include "nsIChannel.h"
 #include "nsIInputStream.h"
 #include "nsIInputStreamPump.h"
+#include "nsIMsgCopyService.h"
 #include "nsIMsgDatabase.h"
 #include "nsIMsgFolder.h"
 #include "nsIMsgFolderNotificationService.h"
@@ -18,11 +19,20 @@
 #include "nsIStreamConverterService.h"
 #include "nsIStreamListener.h"
 #include "nsMimeTypes.h"
+#include "nsMsgFolderFlags.h"
 #include "nsMsgMessageFlags.h"
 #include "nsMsgUtils.h"
 #include "nsNetUtil.h"
 
 using mozilla::Preferences;
+
+// Add a directory separator to a path.
+static nsresult AddDirectorySeparator(nsIFile* path) {
+  nsAutoString leafName;
+  path->GetLeafName(leafName);
+  leafName.AppendLiteral(FOLDER_SUFFIX);
+  return path->SetLeafName(leafName);
+}
 
 NS_IMPL_ISUPPORTS(OfflineMessageReadListener, nsIStreamListener)
 
@@ -239,6 +249,100 @@ nsresult LocalRenameOrReparentFolder(nsIMsgFolder* sourceFolder,
   }
 
   return NS_OK;
+}
+
+nsresult LocalCopyVirtualFolder(nsIMsgFolder* virtualSourceFolder,
+                                nsIMsgFolder* destinationFolder,
+                                bool isMoveFolder) {
+  uint32_t sourceFlags;
+  virtualSourceFolder->GetFlags(&sourceFlags);
+  if (!(sourceFlags & nsMsgFolderFlags::Virtual)) {
+    return NS_ERROR_INVALID_ARG;
+  }
+
+  nsCOMPtr<nsIMsgFolder> newMsgFolder;
+  nsAutoCString folderName;
+  virtualSourceFolder->GetName(folderName);
+
+  nsString safeFolderName16 = NS_MsgHashIfNecessary(folderName);
+  nsAutoCString safeFolderName = NS_ConvertUTF16toUTF8(safeFolderName16);
+
+  virtualSourceFolder->ForceDBClosed();
+
+  nsCOMPtr<nsIFile> oldPathFile;
+  nsresult rv = virtualSourceFolder->GetFilePath(getter_AddRefs(oldPathFile));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIFile> summaryFile;
+  GetSummaryFileLocation(oldPathFile, getter_AddRefs(summaryFile));
+
+  nsCOMPtr<nsIFile> newPathFile;
+  rv = destinationFolder->GetFilePath(getter_AddRefs(newPathFile));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  bool isDirectory = false;
+  newPathFile->IsDirectory(&isDirectory);
+  if (!isDirectory) {
+    AddDirectorySeparator(newPathFile);
+    bool exists = false;
+    rv = newPathFile->Exists(&exists);
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (!exists) {
+      rv = newPathFile->Create(nsIFile::DIRECTORY_TYPE, 0700);
+      NS_ENSURE_SUCCESS(rv, rv);
+    }
+  }
+
+  nsCOMPtr<nsIMsgFolder> existingChild;
+  rv = destinationFolder->GetChildNamed(folderName,
+                                        getter_AddRefs(existingChild));
+  if (NS_SUCCEEDED(rv) && existingChild) {
+    return NS_MSG_FOLDER_EXISTS;
+  }
+
+  rv = summaryFile->CopyTo(newPathFile, EmptyString());
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = destinationFolder->AddSubfolder(safeFolderName,
+                                       getter_AddRefs(newMsgFolder));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  newMsgFolder->SetName(folderName);
+
+  uint32_t flags;
+  virtualSourceFolder->GetFlags(&flags);
+  newMsgFolder->SetFlags(flags);
+
+  destinationFolder->NotifyFolderAdded(newMsgFolder);
+
+  // now remove the old folder if this is a move.
+  if (isMoveFolder) {
+    nsCOMPtr<nsIMsgFolder> msgParent;
+    virtualSourceFolder->GetParent(getter_AddRefs(msgParent));
+    virtualSourceFolder->SetParent(nullptr);
+    if (msgParent) {
+      // The files have already been moved, so delete storage false.
+      msgParent->PropagateDelete(virtualSourceFolder, false);
+      oldPathFile->Remove(false);  // berkeley mailbox
+      virtualSourceFolder->DeleteStorage();
+
+      nsCOMPtr<nsIFile> parentPathFile;
+      rv = msgParent->GetFilePath(getter_AddRefs(parentPathFile));
+      NS_ENSURE_SUCCESS(rv, rv);
+
+      AddDirectorySeparator(parentPathFile);
+      nsCOMPtr<nsIDirectoryEnumerator> children;
+      parentPathFile->GetDirectoryEntries(getter_AddRefs(children));
+      bool more;
+      // checks if the directory is empty or not
+      if (children && NS_SUCCEEDED(children->HasMoreElements(&more)) && !more) {
+        parentPathFile->Remove(true);
+      }
+    }
+  }
+  nsCOMPtr<nsIMsgCopyService> copyService =
+      mozilla::components::Copy::Service();
+  return copyService->NotifyCompletion(virtualSourceFolder, destinationFolder, rv);
 }
 
 nsresult LocalDeleteMessages(

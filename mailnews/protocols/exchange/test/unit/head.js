@@ -26,6 +26,10 @@ var { GraphServer } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/GraphServer.sys.mjs"
 );
 
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
+);
+
 /**
  * Sync the messages for the specified folder.
  *
@@ -116,4 +120,29 @@ function setupBasicGraphTestServer() {
   });
 
   return [graphServer, incomingServer];
+}
+
+/**
+ * Copy or move a folder.
+ *
+ * This function initiates a copy of move of the given `sourceFolder` to the
+ * given `destinationFolder`.  The `isMove` parameters specifies whether this is
+ * a copy or a move operation. Returns a promise that can be awaited to
+ * guarantee the async copy operation has finished.
+ *
+ * @param {nsIMsgFolder} sourceFolder
+ * @param {nsIMsgFolder} destinationFolder
+ * @param {nsIMsgFolder} isMove
+ * @returns {Promise}
+ */
+async function copyFolder(sourceFolder, destinationFolder, isMove) {
+  const copyListener = new PromiseTestUtils.PromiseCopyListener();
+  MailServices.copy.copyFolder(
+    sourceFolder,
+    destinationFolder,
+    isMove,
+    copyListener,
+    null
+  );
+  return copyListener.promise;
 }

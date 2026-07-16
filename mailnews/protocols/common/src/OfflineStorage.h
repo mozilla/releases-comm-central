@@ -135,6 +135,16 @@ nsresult LocalRenameOrReparentFolder(nsIMsgFolder* sourceFolder,
                                      nsIMsgWindow* msgWindow);
 
 /**
+ * Perform the local operations required to copy/move a virtual folder.
+ *
+ * The provided source folder must be virtual, otherwise this operation will
+ * fail.
+ */
+nsresult LocalCopyVirtualFolder(nsIMsgFolder* virtualSourceFolder,
+                                nsIMsgFolder* destinationFolder,
+                                bool isMoveFolder);
+
+/**
  * A protocol-agnostic helper for locally deleting messages within a folder.
  *
  * This function will delete the messages identified by their headers in the

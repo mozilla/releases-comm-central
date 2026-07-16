@@ -7,10 +7,6 @@
  * folder's name, when those folders come from an EWS server.
  */
 
-const { MailServices } = ChromeUtils.importESModule(
-  "resource:///modules/MailServices.sys.mjs"
-);
-
 add_task(async function () {
   // Get the localized strings. This test should work in any locale, or if you
   // change the string values in messenger.properties/messenger.ftl.

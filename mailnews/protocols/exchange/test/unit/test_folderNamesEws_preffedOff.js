@@ -9,10 +9,6 @@
  * This version of the test runs with mail.useLocalizedFolderNames set to false.
  */
 
-const { MailServices } = ChromeUtils.importESModule(
-  "resource:///modules/MailServices.sys.mjs"
-);
-
 add_task(async function () {
   // Get the localized strings. This test should work in any locale, or if you
   // change the string values in messenger.properties/messenger.ftl.

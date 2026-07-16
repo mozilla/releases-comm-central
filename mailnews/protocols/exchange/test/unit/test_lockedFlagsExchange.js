@@ -7,10 +7,6 @@
  * flags come from an Exchange server.
  */
 
-const { MailServices } = ChromeUtils.importESModule(
-  "resource:///modules/MailServices.sys.mjs"
-);
-
 const { IMAPServer } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/IMAPServer.sys.mjs"
 );

@@ -64,6 +64,7 @@
 #include "nsIMsgComposeService.h"
 #include "nsIMsgIdentity.h"
 #include "nsIMsgFolderNotificationService.h"
+#include "OfflineStorage.h"
 #include "prprf.h"
 #include "nsIMsgFilterCustomAction.h"
 #include "nsIMsgThread.h"
@@ -7265,85 +7266,10 @@ nsImapMailFolder::CopyFolder(nsIMsgFolder* srcFolder, bool isMoveFolder,
     uint32_t folderFlags = 0;
     if (srcFolder) srcFolder->GetFlags(&folderFlags);
 
-    // if our source folder is a virtual folder
+    // if our source folder is a virtual folder, then it's a pure
+    // local copy.
     if (folderFlags & nsMsgFolderFlags::Virtual) {
-      nsCOMPtr<nsIMsgFolder> newMsgFolder;
-      nsAutoCString folderName;
-      srcFolder->GetName(folderName);
-
-      nsString safeFolderName16 = NS_MsgHashIfNecessary(folderName);
-      nsAutoCString safeFolderName = NS_ConvertUTF16toUTF8(safeFolderName16);
-
-      srcFolder->ForceDBClosed();
-
-      nsCOMPtr<nsIFile> oldPathFile;
-      rv = srcFolder->GetFilePath(getter_AddRefs(oldPathFile));
-      NS_ENSURE_SUCCESS(rv, rv);
-
-      nsCOMPtr<nsIFile> summaryFile;
-      GetSummaryFileLocation(oldPathFile, getter_AddRefs(summaryFile));
-
-      nsCOMPtr<nsIFile> newPathFile;
-      rv = GetFilePath(getter_AddRefs(newPathFile));
-      NS_ENSURE_SUCCESS(rv, rv);
-
-      bool isDirectory = false;
-      newPathFile->IsDirectory(&isDirectory);
-      if (!isDirectory) {
-        AddDirectorySeparator(newPathFile);
-        bool exists = false;
-        rv = newPathFile->Exists(&exists);
-        NS_ENSURE_SUCCESS(rv, rv);
-        if (!exists) {
-          rv = newPathFile->Create(nsIFile::DIRECTORY_TYPE, 0700);
-          NS_ENSURE_SUCCESS(rv, rv);
-        }
-      }
-
-      rv = CheckIfFolderExists(folderName, this, msgWindow);
-      if (NS_FAILED(rv)) return rv;
-
-      rv = summaryFile->CopyTo(newPathFile, EmptyString());
-      NS_ENSURE_SUCCESS(rv, rv);
-
-      rv = AddSubfolder(safeFolderName, getter_AddRefs(newMsgFolder));
-      NS_ENSURE_SUCCESS(rv, rv);
-
-      newMsgFolder->SetName(folderName);
-
-      uint32_t flags;
-      srcFolder->GetFlags(&flags);
-      newMsgFolder->SetFlags(flags);
-
-      NotifyFolderAdded(newMsgFolder);
-
-      // now remove the old folder
-      nsCOMPtr<nsIMsgFolder> msgParent;
-      srcFolder->GetParent(getter_AddRefs(msgParent));
-      srcFolder->SetParent(nullptr);
-      if (msgParent) {
-        // The files have already been moved, so delete storage false.
-        msgParent->PropagateDelete(srcFolder, false);
-        oldPathFile->Remove(false);  // berkeley mailbox
-        srcFolder->DeleteStorage();
-
-        nsCOMPtr<nsIFile> parentPathFile;
-        rv = msgParent->GetFilePath(getter_AddRefs(parentPathFile));
-        NS_ENSURE_SUCCESS(rv, rv);
-
-        AddDirectorySeparator(parentPathFile);
-        nsCOMPtr<nsIDirectoryEnumerator> children;
-        parentPathFile->GetDirectoryEntries(getter_AddRefs(children));
-        bool more;
-        // checks if the directory is empty or not
-        if (children && NS_SUCCEEDED(children->HasMoreElements(&more)) &&
-            !more) {
-          parentPathFile->Remove(true);
-        }
-      }
-      nsCOMPtr<nsIMsgCopyService> copyService =
-          mozilla::components::Copy::Service();
-      return copyService->NotifyCompletion(srcFolder, this, rv);
+      return LocalCopyVirtualFolder(srcFolder, this, isMoveFolder);
     }
 
     // non-virtual folder

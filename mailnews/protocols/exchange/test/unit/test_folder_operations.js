@@ -438,3 +438,56 @@ add_task(async function test_hard_delete_virtual_folder_ews() {
 add_task(async function test_hard_delete_virtual_folder_graph() {
   await runHardDeleteVirtualFolderTest(graphServer, incomingGraphServer);
 });
+
+async function runCopyVirtualFolderTest(mockServer, incomingServer) {
+  // Set the delete model for the server to permanently delete.
+  incomingServer.QueryInterface(Ci.IExchangeIncomingServer).deleteModel =
+    Ci.IExchangeIncomingServer.PERMANENTLY_DELETE;
+
+  const parentNames = ["parent_1", "parent_2"];
+  for (const parentName of parentNames) {
+    mockServer.appendRemoteFolder(
+      new RemoteFolder(parentName, "root", parentName, parentName)
+    );
+  }
+
+  // Sync the folder list, updated with the new folder.
+  const rootFolder = incomingServer.rootFolder;
+  await syncFolder(incomingServer, rootFolder);
+
+  const parentFolders = parentNames.map(name => {
+    const folder = rootFolder.getChildNamed(name);
+    Assert.ok(!!folder, `${name} should exist.`);
+    return folder;
+  });
+
+  VirtualFolderHelper.createNewVirtualFolder(
+    "virtual_folder",
+    parentFolders[0],
+    [],
+    "ALL",
+    false
+  );
+
+  const virtualFolder = parentFolders[0].getChildNamed("virtual_folder");
+  Assert.ok(!!virtualFolder, "Virtual folder should exist.");
+
+  await copyFolder(virtualFolder, parentFolders[1], true);
+
+  Assert.ok(
+    !parentFolders[0].getChildNamed("virtual_folder"),
+    "The virtual folder should be gone from the first parent."
+  );
+
+  Assert.ok(
+    !!parentFolders[1].getChildNamed("virtual_folder"),
+    "The virtual folder should exist in the second parent."
+  );
+}
+
+add_task(async function test_copy_virtual_folder_ews() {
+  await runCopyVirtualFolderTest(ewsServer, incomingEwsServer);
+});
+add_task(async function test_copy_virtual_folder_graph() {
+  await runCopyVirtualFolderTest(graphServer, incomingGraphServer);
+});
