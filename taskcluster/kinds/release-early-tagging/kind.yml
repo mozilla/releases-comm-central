@@ -22,12 +22,12 @@ task-defaults:
             by-project:
                 comm-beta: thunderbird-desktop-beta
                 comm-release: thunderbird-desktop-release
-                comm-esr140: thunderbird-desktop-esr140
+                comm-esr153: thunderbird-desktop-esr153
                 try-comm-central:
                     by-release-type:
                         beta: staging-thunderbird-beta
                         release: staging-thunderbird-release
-                        esr140: staging-thunderbird-esr140
+                        esr153: staging-thunderbird-esr153
                         default: ""
                 default: ""
         actions:
@@ -39,8 +39,8 @@ task-defaults:
                       by-project:
                           comm-beta: https://hg.mozilla.org/releases/comm-beta
                           comm-release: https://hg.mozilla.org/releases/comm-release
-                          comm-esr128: https://hg.mozilla.org/releases/comm-esr128
                           comm-esr140: https://hg.mozilla.org/releases/comm-esr140
+                          comm-esr153: https://hg.mozilla.org/releases/comm-esr153
                           try-comm-central: https://hg.mozilla.org/try-comm-central
                           default: ""
 
