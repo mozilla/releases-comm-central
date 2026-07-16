@@ -7,7 +7,6 @@
 
 #include "DatabaseCore.h"
 #include "nsIMsgHdr.h"
-#include "nsTString.h"
 
 namespace mozilla::mailnews {
 

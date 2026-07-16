@@ -7,7 +7,6 @@
 #include "DatabaseCore.h"
 #include "DatabaseUtils.h"
 #include "Message.h"
-#include "mozilla/ErrorResult.h"
 #include "mozilla/Logging.h"
 #include "mozilla/ResultExtensions.h"
 #include "mozilla/Try.h"
@@ -63,7 +62,7 @@ NS_IMETHODIMP MessageDatabase::AddMessage(
     const nsACString& aSender, const nsACString& aRecipients,
     const nsACString& aCcList, const nsACString& aBccList,
     const nsACString& aSubject, uint64_t aFlags, const nsACString& aTags,
-    nsMsgKey* aKey) {
+    nsMsgPriorityValue aPriority, nsMsgKey* aKey) {
   NS_ENSURE_ARG_POINTER(aKey);
 
   CachedMsg cached;
@@ -85,9 +84,9 @@ NS_IMETHODIMP MessageDatabase::AddMessage(
     // Duplicate statement! Also in FolderMigrator::SetupAndRun.
     nsresult rv = DatabaseCore::GetStatement("AddMessage"_ns,
                                              "INSERT INTO messages ( \
-                                  folderId, threadId, threadParent, messageId, date, sender, recipients, ccList, bccList, subject, flags, tags \
+                                  folderId, threadId, threadParent, messageId, date, sender, recipients, ccList, bccList, subject, flags, tags, priority \
                                 ) VALUES ( \
-                                  :folderId, :threadId, :threadParent, :messageId, :date, :sender, :recipients, :ccList, :bccList, :subject, :flags, :tags \
+                                  :folderId, :threadId, :threadParent, :messageId, :date, :sender, :recipients, :ccList, :bccList, :subject, :flags, :tags, :priority \
                                 ) RETURNING "_ns MESSAGE_SQL_FIELDS,
                                              getter_AddRefs(stmt));
     NS_ENSURE_SUCCESS(rv, rv);
@@ -112,6 +111,7 @@ NS_IMETHODIMP MessageDatabase::AddMessage(
     stmt->BindInt64ByName("flags"_ns, aFlags);
     stmt->BindUTF8StringByName("tags"_ns,
                                MOZ_TRY(DatabaseUtils::Normalize(aTags)));
+    stmt->BindInt32ByName("priority"_ns, aPriority);
 
     bool hasResult;
     rv = stmt->ExecuteStep(&hasResult);
@@ -398,6 +398,8 @@ nsresult MessageDatabase::FetchMsg(nsMsgKey key, CachedMsg& cached) {
   cached.subject = stmt->AsSharedUTF8String(10, &len);
   cached.flags = (uint32_t)stmt->AsInt64(11);
   cached.tags = stmt->AsSharedUTF8String(12, &len);
+  // `nsMsgPriorityValue` is a signed int32.
+  cached.priority = (nsMsgPriorityValue)stmt->AsInt32(13);
 
   return NS_OK;
 }
@@ -709,6 +711,13 @@ nsresult MessageDatabase::GetMessageFlag(nsMsgKey key, uint32_t flag,
   return NS_OK;
 }
 
+nsresult MessageDatabase::GetMessagePriority(nsMsgKey key,
+                                             nsMsgPriorityValue& priority) {
+  CachedMsg* cached = MOZ_TRY(EnsureCached(key));
+  priority = cached->priority;
+  return NS_OK;
+}
+
 nsresult MessageDatabase::GetMessageOfflineMessageSize(nsMsgKey key,
                                                        uint64_t& size) {
   uint32_t tmp;
@@ -854,6 +863,34 @@ nsresult MessageDatabase::SetMessageFlag(nsMsgKey key, uint32_t flag,
     flags &= ~flag;
   }
   return SetMessageFlags(key, flags);
+}
+
+nsresult MessageDatabase::SetMessagePriority(nsMsgKey key,
+                                             nsMsgPriorityValue priority) {
+  // Update DB.
+  {
+    nsCOMPtr<mozIStorageStatement> stmt;
+    nsresult rv = DatabaseCore::GetStatement(
+        "SetMessagePriority"_ns,
+        "UPDATE messages SET priority = :priority WHERE id = :id"_ns,
+        getter_AddRefs(stmt));
+    NS_ENSURE_SUCCESS(rv, rv);
+    mozStorageStatementScoper scoper(stmt);
+
+    stmt->BindInt64ByName("id"_ns, key);
+    stmt->BindInt32ByName("priority"_ns, priority);
+    rv = stmt->Execute();
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
+  // Update cache.
+  auto p = mMsgCache.lookup(key);
+  if (p) {
+    p->value().priority = priority;
+  }
+
+  // TODO: notifications.
+  return NS_OK;
 }
 
 nsresult MessageDatabase::SetMessageOfflineMessageSize(nsMsgKey key,
