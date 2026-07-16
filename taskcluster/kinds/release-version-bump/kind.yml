@@ -20,6 +20,7 @@ task-defaults:
     worker-type: lando
     worker:
         implementation: scriptworker-lando
+        repo-param-prefix: comm_
         lando-repo:
             by-project:
                 comm-beta: thunderbird-desktop-beta
@@ -42,7 +43,7 @@ task-defaults:
                           comm-beta: https://hg.mozilla.org/releases/comm-beta
                           comm-release: https://hg.mozilla.org/releases/comm-release
                           comm-esr140: https://hg.mozilla.org/releases/comm-esr140
-                          try: https://hg.mozilla.org/try-comm-central
+                          try-comm-central: https://hg.mozilla.org/try-comm-central
                           default: ""
             - version-bump:
                   bump-files:

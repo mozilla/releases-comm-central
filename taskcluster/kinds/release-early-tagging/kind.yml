@@ -17,6 +17,7 @@ task-defaults:
     worker-type: lando
     worker:
         implementation: scriptworker-lando
+        repo-param-prefix: comm_
         lando-repo:
             by-project:
                 comm-beta: thunderbird-desktop-beta
