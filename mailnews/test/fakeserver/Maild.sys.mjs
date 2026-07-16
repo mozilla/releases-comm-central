@@ -336,6 +336,7 @@ function readTo(input, count, arr) {
  *
  * This object has the following supplemental functions for use by handlers:
  * closeSocket  Performs a server-side socket closing
+ * send         Sends an unsolicited response to the client
  * setMultiline Sets the multiline mode based on the argument
  */
 class nsMailReader {
@@ -486,30 +487,8 @@ class nsMailReader {
         }
       }
 
-      if (!this._preventLFMunge) {
-        response = response.replaceAll("\r\n", "\n").replaceAll("\n", "\r\n");
-      }
-
-      if (!response.endsWith("\n")) {
-        response = response + "\r\n";
-      }
-
-      if (this._debug == nsMailServer.debugRecvSend) {
-        dump("SEND: " + response.split(" ", 1)[0] + "\n");
-      } else if (this._debug == nsMailServer.debugAll) {
-        var responses = response.split("\n");
-        responses.forEach(function (responseLine) {
-          dump("SEND: " + responseLine + "\n");
-        });
-      }
-
-      if (this.transaction) {
-        this.transaction.us.push(response);
-      }
-
       try {
-        this._output.write(response, response.length);
-        this._output.flush();
+        this.send(response, this._preventLFMunge);
       } catch (ex) {
         if (ex.result == Cr.NS_BASE_STREAM_CLOSED) {
           dump("Stream closed whilst sending, this may be expected\n");
@@ -539,6 +518,44 @@ class nsMailReader {
   closeSocket() {
     this._signalStop = true;
   }
+
+  /**
+   * Send a response that was not produced by an incoming command, such as an
+   * IMAP IDLE update.
+   *
+   * @param {string} response - The response to send.
+   * @param {boolean} [preventLFMunge=false] - Whether the response already has
+   *   the exact line endings required by the protocol.
+   */
+  send(response, preventLFMunge = false) {
+    if (!preventLFMunge) {
+      response = response.replaceAll("\r\n", "\n").replaceAll("\n", "\r\n");
+    }
+
+    if (!response.endsWith("\n")) {
+      response += "\r\n";
+    }
+
+    if (this._debug == nsMailServer.debugRecvSend) {
+      dump("SEND: " + response.split(" ", 1)[0] + "\n");
+    } else if (this._debug == nsMailServer.debugAll) {
+      for (const responseLine of response.split("\n")) {
+        dump("SEND: " + responseLine + "\n");
+      }
+    }
+
+    if (this.transaction) {
+      this.transaction.us.push(response);
+    }
+
+    this._output.write(response, response.length);
+    this._output.flush();
+  }
+
+  get isRunning() {
+    return this._isRunning;
+  }
+
   async _realCloseSocket() {
     this._isRunning = false;
     this._server.stopTest();

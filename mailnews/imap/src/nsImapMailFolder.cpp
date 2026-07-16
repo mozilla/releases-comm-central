@@ -2522,6 +2522,11 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
   // numUnreadFromServer greater than -1.
   if (partialUIDFetch) numNewUnread = numUnreadFromServer;
 
+  SyncFlags(flagState);
+  // Syncing the flags may mark a formerly new message read, which resets the
+  // new-message count through SetBiffState(nsMsgBiffState_NoMail). Set the
+  // count only after the flags, so it survives until HeaderFetchCompleted()
+  // announces the new mail.
   // If we are performing biff for this folder, tell the
   // stand-alone biff about the new high water mark
   if (m_performingBiff && numNewUnread &&
@@ -2533,7 +2538,6 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
       server->SetPerformingBiff(true);
     SetNumNewMessages(numNewUnread);
   }
-  SyncFlags(flagState);
   if (mDatabase && numUnreadFromServer > -1 &&
       (int32_t)(mNumUnreadMessages + m_uidsToFetch.Length()) >
           numUnreadFromServer)
@@ -2659,6 +2663,10 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxStatus(
   // If a noop occurred, we don't know the server's UNSEEN number because NOOP
   // does not return it. The next STATUS call response will provide numUnread.
   bool haveServerUnseenCount = numUnread != -1;
+  bool folderSelected;
+  nsresult rv = aSpec->GetFolderSelected(&folderSelected);
+  NS_ENSURE_SUCCESS(rv, rv);
+  bool deferredNewMailBiff = false;
 
   // If m_numServerUnseenMessages is 0, it means
   // this is the first time we've done a Status.
@@ -2690,12 +2698,27 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxStatus(
           !(mFlags & (nsMsgFolderFlags::Trash | nsMsgFolderFlags::Junk))) {
         SetHasNewMessages(true);
         SetNumNewMessages(unreadDelta);
-        SetBiffState(nsMsgBiffState_NewMail);
+        if (folderSelected) {
+          // The flags of a selected folder are already synchronized, so the
+          // new mail can be announced right away.
+          SetBiffState(nsMsgBiffState_NewMail);
+        } else {
+          // The server counts unseen messages, but only the local flags tell
+          // us which of them are actually new. A message read elsewhere while
+          // this session was offline may still be new/unread locally, so
+          // announcing new mail from the STATUS numbers alone repeats
+          // notifications the user has already received. Instead we keep the
+          // biff pending, like OnNewIdleMessages() does, and let the
+          // UpdateFolder() below announce the new mail once, after the local
+          // flags match the server again.
+          SetPerformingBiff(true);
+          deferredNewMailBiff = true;
+        }
       }
     }
     summaryChanged = true;
   }
-  SetPerformingBiff(false);
+  if (!deferredNewMailBiff) SetPerformingBiff(false);
   if (m_numServerUnseenMessages != numUnread ||
       m_numServerTotalMessages != numTotal) {
     if (numUnread > m_numServerUnseenMessages ||
@@ -2708,9 +2731,6 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxStatus(
   if (summaryChanged) {
     SummaryChanged();
     // Do UpdateFolder() below if folder not selected.
-    bool folderSelected;
-    nsresult rv = aSpec->GetFolderSelected(&folderSelected);
-    NS_ENSURE_SUCCESS(rv, rv);
     // folderSelected false means folderstatus URL caused imap STATUS to be
     // sent by an imap connection not imap SELECTed on the URL target folder.
     // folderSected true means NOOP was sent to the target folder for URL

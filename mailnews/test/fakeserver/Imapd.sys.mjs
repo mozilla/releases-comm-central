@@ -72,6 +72,7 @@ export class ImapDaemon {
     this.commandToFail = "";
     // This can be used to simulate timeouts on large copies
     this.copySleep = 0;
+    this._handlers = new Set();
   }
   synchronize(mailbox, update) {
     if (this.syncFunc) {
@@ -216,6 +217,55 @@ export class ImapDaemon {
       mailbox._messages = [];
       mailbox.flags.push("\\Noselect");
     }
+  }
+
+  /**
+   * Return live protocol handlers, optionally restricted to a mailbox.
+   * Each handler represents one client connection.
+   *
+   * @param {ImapMailbox|string} [mailbox]
+   * @returns {IMAP_RFC3501_handler[]}
+   */
+  getConnections(mailbox) {
+    if (typeof mailbox == "string") {
+      mailbox = this.getMailbox(mailbox);
+      if (!mailbox) {
+        return [];
+      }
+    }
+    const handlers = [];
+    for (const handler of this._handlers) {
+      if (!handler._reader?.isRunning) {
+        this._handlers.delete(handler);
+      } else if (!mailbox || handler._selectedMailbox == mailbox) {
+        handlers.push(handler);
+      }
+    }
+    return handlers;
+  }
+
+  /**
+   * Send an unsolicited server response to connections with a mailbox
+   * selected. By default only connections waiting in IDLE receive it.
+   *
+   * @param {ImapMailbox|string} mailbox
+   * @param {string|string[]} responses
+   * @param {object} [options]
+   * @param {boolean} [options.idleOnly=true]
+   * @returns {number} The number of connections notified.
+   */
+  sendUnsolicited(mailbox, responses, { idleOnly = true } = {}) {
+    if (!Array.isArray(responses)) {
+      responses = [responses];
+    }
+    let notified = 0;
+    for (const handler of this.getConnections(mailbox)) {
+      if (!idleOnly || handler.idling) {
+        handler.sendUnsolicited(responses.join("\r\n"));
+        notified++;
+      }
+    }
+    return notified;
   }
 }
 
@@ -735,6 +785,8 @@ export class IMAP_RFC3501_handler {
     this.kUidCommands = ["FETCH", "STORE", "SEARCH", "COPY"];
 
     this._daemon = daemon;
+    this._daemon._handlers.add(this);
+    this._reader = null;
     this.closing = false;
     this.dropOnStartTLS = false;
     // map: property = auth scheme {String}, value = start function on this obj
@@ -839,6 +891,8 @@ export class IMAP_RFC3501_handler {
   resetTest() {
     this._state = IMAP_STATE_NOT_AUTHED;
     this._multiline = false;
+    this._idling = false;
+    this._selectedMailbox = null;
     this._nextAuthFunction = undefined; // should be in RFC2195_ext, but too lazy
   }
   onStartup() {
@@ -1587,6 +1641,7 @@ export class IMAP_RFC3501_handler {
   }
 
   postCommand(reader) {
+    this._reader = reader;
     if (this.closing) {
       this.closing = false;
       reader.closeSocket();
@@ -1598,6 +1653,17 @@ export class IMAP_RFC3501_handler {
     if (this._lastCommand == reader.watchWord) {
       reader.stopTest();
     }
+  }
+
+  get idling() {
+    return this._idling;
+  }
+
+  sendUnsolicited(response) {
+    if (!this._reader?.isRunning) {
+      throw new Error("IMAP connection is not running");
+    }
+    this._reader.send(response);
   }
   onServerFault(e) {
     return (
@@ -1958,6 +2024,36 @@ export function mixinExtension(handler, extension) {
     }
   }
 }
+
+// Support for IDLE (RFC 2177).
+export var IMAP_RFC2177_extension = {
+  preload(toBeThis) {
+    toBeThis._preRFC2177_onMultiline = toBeThis.onMultiline;
+  },
+  kCapabilities: ["IDLE"],
+  _enabledCommands: {
+    2: ["IDLE"],
+  },
+  _argFormat: {
+    IDLE: [],
+  },
+  IDLE() {
+    this._idling = true;
+    this._multiline = true;
+    return "+ idling";
+  },
+  onMultiline(line) {
+    if (!this._idling) {
+      return this._preRFC2177_onMultiline(line);
+    }
+    if (line.toUpperCase() != "DONE") {
+      return undefined;
+    }
+    this._idling = false;
+    this._multiline = false;
+    return `${this._tag} OK IDLE terminated`;
+  },
+};
 
 // Support for Gmail extensions: XLIST and X-GM-EXT-1
 export var IMAP_GMAIL_extension = {

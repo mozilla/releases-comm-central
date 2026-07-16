@@ -51,6 +51,8 @@ tags = ["foldernames"]
 
 ["test_imapAutoSync.js"]
 
+["test_imapBiff.js"]
+
 ["test_imapChunks.js"]
 
 ["test_imapClientid.js"]
