@@ -8,8 +8,10 @@ See the gecko_taskgraph parameters documentation.
 
 These parameters correspond to the repository and revision of the comm-central
 repository to checkout. All parameters are required except for comm_base_ref,
-which may sometimes be set to `None`; when this happens, it will be defaulted
-to the repository's default branch.
+which may sometimes be set to `None` (when this happens, it will be defaulted
+to the repository's default branch), and comm_head_git_repository /
+comm_head_git_rev, which are only set when the git commit is recorded in the
+Mercurial changeset.
 
 `comm_base_repository`
 
@@ -32,6 +34,16 @@ to the repository's default branch.
 `comm_head_rev`
 
 : The revision to check out; this can be a short revision string.
+
+`comm_head_git_repository`
+
+: Optionally, the git repository backing `comm_head_repository` when it's a
+  Mercurial repository.
+
+`comm_head_git_rev`
+
+: Optionally, the git commit corresponding to `comm_head_rev` when it's in a
+  Mercurial repository.
 
 `comm_head_ref`
 
