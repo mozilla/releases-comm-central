@@ -11,7 +11,6 @@
 #include "mozilla/Result.h"
 #include "nsIMessageDatabase.h"
 #include "nsTObserverArray.h"
-#include "nsTString.h"
 
 namespace mozilla::mailnews {
 
@@ -28,7 +27,7 @@ class MessageListener : public nsISupports {
 };
 
 #define MESSAGE_SQL_FIELDS \
-  "id, folderId, threadId, threadParent, messageId, date, sender, recipients, ccList, bccList, subject, flags, tags"_ns
+  "id, folderId, threadId, threadParent, messageId, date, sender, recipients, ccList, bccList, subject, flags, tags, priority"_ns
 
 class MessageDatabase : public nsIMessageDatabase {
  public:
@@ -44,6 +43,7 @@ class MessageDatabase : public nsIMessageDatabase {
 
   nsresult GetMessageFlags(nsMsgKey key, uint32_t& flags);
   nsresult GetMessageFlag(nsMsgKey key, uint32_t flag, bool& value);
+  nsresult GetMessagePriority(nsMsgKey key, nsMsgPriorityValue& priority);
   nsresult GetMessageDate(nsMsgKey key, PRTime& date);
   nsresult GetMessageSize(nsMsgKey key, uint64_t& size);
   nsresult GetMessageLineCount(nsMsgKey key, uint32_t& size);
@@ -67,6 +67,7 @@ class MessageDatabase : public nsIMessageDatabase {
 
   nsresult SetMessageFlags(nsMsgKey key, uint32_t flags);
   nsresult SetMessageFlag(nsMsgKey key, uint32_t flag, bool value);
+  nsresult SetMessagePriority(nsMsgKey key, nsMsgPriorityValue priority);
   nsresult SetMessageDate(nsMsgKey key, PRTime date);
   nsresult SetMessageSize(nsMsgKey key, uint64_t size);
   nsresult SetMessageLineCount(nsMsgKey key, uint32_t size);
@@ -143,6 +144,7 @@ class MessageDatabase : public nsIMessageDatabase {
     nsAutoCString subject;
     uint64_t flags{0};
     nsAutoCString tags;
+    nsMsgPriorityValue priority{0};
   };
   // The cache, indexed by msgKey.
   mozilla::HashMap<nsMsgKey, CachedMsg> mMsgCache;

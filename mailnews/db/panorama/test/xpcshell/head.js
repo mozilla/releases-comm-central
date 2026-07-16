@@ -58,7 +58,8 @@ function installDB(sql) {
       bccList TEXT,
       subject TEXT,
       flags INTEGER,
-      tags TEXT
+      tags TEXT,
+      priority INTEGER
     );
     CREATE INDEX messages_folderId ON messages(folderId);
     CREATE INDEX messages_date ON messages(date);
@@ -172,6 +173,7 @@ function checkOrdinals(expected) {
  * @param {string} [message.subject="subject"]
  * @param {integer} [message.flags=0]
  * @param {string} [message.tags=""]
+ * @param {integer} [message.priority=Ci.nsMsgPriority.notSet]
  * @returns {integer} - The database ID of the new message.
  */
 function addMessage({
@@ -186,6 +188,7 @@ function addMessage({
   subject = "subject",
   flags = 0,
   tags = "",
+  priority = Ci.nsMsgPriority.notSet,
 }) {
   return messageDB.addMessage(
     folderId,
@@ -198,7 +201,8 @@ function addMessage({
     bccList,
     subject,
     flags,
-    tags
+    tags,
+    priority
   );
 }
 
