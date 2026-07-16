@@ -9,7 +9,7 @@
 "use strict";
 
 const { CalendarDialog } = ChromeUtils.importESModule(
-  "chrome://messenger/content/calendar-dialog.mjs",
+  "moz-src:///comm/mail/components/calendar/content/calendar-dialog.mjs",
   { global: "current" }
 );
 

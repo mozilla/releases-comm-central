@@ -579,7 +579,7 @@ function openEventDialog(
       dialog.show(event);
     };
     if (!document.getElementById("calendarDialog")) {
-      import("chrome://messenger/content/calendar-dialog.mjs").then(() => {
+      import("moz-src:///comm/mail/components/calendar/content/calendar-dialog.mjs").then(() => {
         const dialog = document.createElement("dialog", {
           is: "calendar-dialog",
         });

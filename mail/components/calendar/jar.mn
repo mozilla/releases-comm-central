@@ -3,20 +3,4 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 messenger.jar:
-  content/messenger/calendar-dialog.mjs                                            (content/calendar-dialog.mjs)
-  content/messenger/dialog-position.mjs                                            (content/dialog-position.mjs)
   content/messenger/eventDescription.html                                          (content/eventDescription.html)
-
-# Custom elements
-  content/messenger/calendar-dialog-acceptance.mjs                                 (content/calendar-dialog-acceptance.mjs)
-  content/messenger/calendar-dialog-attachment.mjs                                 (content/calendar-dialog-attachment.mjs)
-  content/messenger/calendar-dialog-attachments-list.mjs                           (content/calendar-dialog-attachments-list.mjs)
-  content/messenger/calendar-dialog-attendees-row.mjs                              (content/calendar-dialog-attendees-row.mjs)
-  content/messenger/calendar-dialog-attendee.mjs                                   (content/calendar-dialog-attendee.mjs)
-  content/messenger/calendar-dialog-categories.mjs                                 (content/calendar-dialog-categories.mjs)
-  content/messenger/calendar-dialog-date-row.mjs                                   (content/calendar-dialog-date-row.mjs)
-  content/messenger/calendar-dialog-description-row.mjs                            (content/calendar-dialog-description-row.mjs)
-  content/messenger/calendar-dialog-reminders-row.mjs                              (content/calendar-dialog-reminders-row.mjs)
-  content/messenger/calendar-dialog-row.mjs                                        (content/calendar-dialog-row.mjs)
-  content/messenger/calendar-dialog-subview-manager.mjs                            (content/calendar-dialog-subview-manager.mjs)
-  content/messenger/positioned-dialog.mjs                                          (content/positioned-dialog.mjs)

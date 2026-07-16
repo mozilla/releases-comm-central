@@ -14,6 +14,20 @@ EXTRA_JS_MODULES.calendar += [
 ]
 
 MOZ_SRC_FILES += [
+    "content/calendar-dialog-acceptance.mjs",
+    "content/calendar-dialog-attachment.mjs",
+    "content/calendar-dialog-attachments-list.mjs",
+    "content/calendar-dialog-attendee.mjs",
+    "content/calendar-dialog-attendees-row.mjs",
+    "content/calendar-dialog-categories.mjs",
+    "content/calendar-dialog-date-row.mjs",
+    "content/calendar-dialog-description-row.mjs",
+    "content/calendar-dialog-reminders-row.mjs",
+    "content/calendar-dialog-row.mjs",
+    "content/calendar-dialog-subview-manager.mjs",
+    "content/calendar-dialog.mjs",
+    "content/dialog-position.mjs",
+    "content/positioned-dialog.mjs",
     "modules/CalendarAttachmentUtils.sys.mjs",
 ]
 

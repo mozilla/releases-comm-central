@@ -5,7 +5,7 @@
 "use strict";
 
 const { getIdealDialogPosition } = ChromeUtils.importESModule(
-  "chrome://messenger/content/dialog-position.mjs"
+  "moz-src:///comm/mail/components/calendar/content/dialog-position.mjs"
 );
 
 const tests = [
