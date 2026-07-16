@@ -431,6 +431,7 @@ class AccountHubEmail extends HTMLElement {
     );
     this.#emailIncomingConfigSubview.addEventListener("config-updated", this);
     this.#emailOutgoingConfigSubview.addEventListener("config-updated", this);
+    this.#emailManualConfigSubview.addEventListener("config-updated", this);
     this.#emailPasswordSubview.addEventListener("config-updated", this);
     this.#emailConfigFoundSubview.addEventListener("edit-configuration", this);
     this.#emailConfigFoundSubview.addEventListener("config-updated", this);
@@ -1174,6 +1175,27 @@ class AccountHubEmail extends HTMLElement {
       case "protocolSelectSubview":
         this.#currentConfig.incoming.type = stateData.protocolSelect;
         await this.#initManualConfig(stateData.protocolSelect);
+        break;
+      case "manualConfigSubview":
+        if (!(await this.#currentSubview.validate())) {
+          this.#emailFooter.toggleForwardDisabled(true);
+          break;
+        }
+
+        stateData = this.#currentSubview.captureState();
+        // #validateAccountConfig can move the flow to emailPasswordSubview
+        // when credentials are still needed. If it doesn't, account creation
+        // already completed and we can continue to sync account discovery.
+        if (!(await this.#validateAccountConfig(stateData))) {
+          break;
+        }
+
+        // If we are not in the password subview, that means the account
+        // has been created and we can fetch the sync accounts.
+        if (this.#currentState != "emailPasswordSubview") {
+          await this.#fetchSyncAccounts();
+        }
+
         break;
       case "exchangeTypeSubview":
         if (!(await this.#validateAccountConfig(stateData))) {

@@ -312,6 +312,8 @@ account-hub-port-error-text = Port must be between 1 and 65535
 account-hub-username-error-text = Username is required
     .title = Username is required
 
+account-hub-manual-config-error-summary = Please resolve the following errors:
+
 account-hub-oauth-pending = Waiting for authorization in login popup…
 
 account-hub-addon-install-button = Install

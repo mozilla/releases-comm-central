@@ -108,3 +108,108 @@ add_task(async function test_account_email_manual_config_form_pop3() {
 
   await subtest_close_account_hub_dialog(dialog, manualConfigTemplate);
 });
+
+add_task(async function test_manual_config_error_summary_for_invalid_fields() {
+  const dialog = await subtest_open_account_hub_dialog();
+
+  const emailUser = {
+    name: "John Doe",
+    email: "john.doe@momo.invalid",
+    password: "abc12345",
+    incomingHost: "mail.momo.invalid",
+    incomingPort: 123,
+    outgoingHost: "mail.momo.invalid",
+    outgoingPort: 465,
+  };
+
+  await subtest_fill_initial_config_fields(dialog, emailUser);
+  const configFoundTemplate = dialog.querySelector("email-config-found");
+  await TestUtils.waitForCondition(
+    () =>
+      BrowserTestUtils.isVisible(configFoundTemplate.querySelector("#imap")),
+    "The IMAP config option should be visible"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(
+    configFoundTemplate.querySelector("#editConfiguration"),
+    {}
+  );
+
+  const manualConfigTemplate = dialog.querySelector(
+    "#emailManualConfigSubview"
+  );
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(manualConfigTemplate),
+    "The manual config template should be in view"
+  );
+
+  const incomingHostname = manualConfigTemplate.querySelector(
+    "#manualIncomingHostname"
+  );
+  const incomingUsername = manualConfigTemplate.querySelector(
+    "#manualIncomingUsername"
+  );
+  const incomingPort = manualConfigTemplate.querySelector(
+    "#manualIncomingPort"
+  );
+  incomingHostname.value = "";
+  incomingUsername.value = "";
+  incomingPort.value = "0";
+
+  const footerForward = dialog.querySelector("#emailFooter #forward");
+  Assert.ok(!footerForward.disabled, "Connect should start enabled");
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+
+  const header =
+    manualConfigTemplate.shadowRoot.querySelector(
+      "account-hub-header"
+    ).shadowRoot;
+  const notification = header.querySelector("#emailFormNotification");
+  await TestUtils.waitForCondition(
+    () => !notification.hidden && notification.open,
+    "The expanded error notification should be visible"
+  );
+
+  Assert.ok(footerForward.disabled, "Connect should be disabled after errors");
+  Assert.deepEqual(
+    Array.from(header.querySelectorAll(".manual-config-error-list a")).map(
+      link => link.textContent
+    ),
+    ["Hostname", "Username", "Port"],
+    "The notification should list the invalid fields"
+  );
+
+  const hostnameInput = incomingHostname.querySelector("input");
+  Assert.equal(
+    hostnameInput.getAttribute("aria-describedby"),
+    "manualIncomingHostnameInputErrorMessage",
+    "The invalid hostname should be described by its error text"
+  );
+
+  header.querySelector(".manual-config-error-list a").click();
+  await TestUtils.waitForCondition(
+    () =>
+      document.querySelector("account-hub-container").shadowRoot
+        .activeElement == hostnameInput,
+    "The invalid field should be focused"
+  );
+  Assert.equal(
+    document.querySelector("account-hub-container").shadowRoot.activeElement,
+    hostnameInput,
+    "Clicking an error summary link should focus the field"
+  );
+
+  incomingHostname.value = "imap.mail.momo.invalid";
+  incomingHostname.dispatchEvent(new Event("input", { bubbles: true }));
+  incomingUsername.value = "john.doe";
+  incomingUsername.dispatchEvent(new Event("input", { bubbles: true }));
+  incomingPort.value = "993";
+  incomingPort.dispatchEvent(new Event("input", { bubbles: true }));
+
+  await TestUtils.waitForCondition(
+    () => !footerForward.disabled,
+    "Connect should be re-enabled after errors are fixed"
+  );
+
+  await subtest_close_account_hub_dialog(dialog, manualConfigTemplate);
+});

@@ -431,6 +431,16 @@ div:has(legend) {
     display: inline-block;
   }
 
+  .manual-config-error-list {
+    margin-block: 4px 0;
+    padding-inline-start: 24px;
+
+    & a {
+      cursor: pointer;
+      text-decoration: underline;
+    }
+  }
+
   .form-icon {
     margin-inline: 0 10px;
     cursor: pointer;

@@ -87,6 +87,22 @@ class AccountHubInput extends HTMLElement {
     return this.#input.valueAsNumber;
   }
 
+  /**
+   * Whether the internal input is required.
+   *
+   * @type {boolean}
+   */
+  get required() {
+    return this.#input?.required ?? this.hasAttribute("required");
+  }
+
+  set required(isRequired) {
+    this.toggleAttribute("required", isRequired);
+    if (this.#input) {
+      this.#input.required = isRequired;
+    }
+  }
+
   connectedCallback() {
     if (this.hasConnected) {
       return;
@@ -113,6 +129,7 @@ class AccountHubInput extends HTMLElement {
     const helpTextId = this.getAttribute("l10n-help-text-id");
     if (helpTextId) {
       const helpText = this.querySelector(".account-hub-form-small-comment");
+      helpText.id = `${this.#input.id}HelpText`;
       helpText.hidden = false;
       document.l10n.setAttributes(helpText, helpTextId);
       this.#input.ariaDescribedByElements = [helpText];
@@ -167,16 +184,21 @@ class AccountHubInput extends HTMLElement {
     if (!error?.length) {
       this.#input.setCustomValidity("");
       this.#input.ariaInvalid = "false";
-      this.#input.ariaDescribedByElements = [
-        this.querySelector(".account-hub-form-small-comment:not([hidden]"),
-      ].filter(Boolean);
-      this.#error.role = null;
+      const helpText = this.querySelector(
+        ".account-hub-form-small-comment:not([hidden])"
+      );
+      if (helpText) {
+        this.#input.setAttribute("aria-describedby", helpText.id);
+      } else {
+        this.#input.removeAttribute("aria-describedby");
+      }
+      this.#error.removeAttribute("role");
       return;
     }
 
     this.#input.setCustomValidity(this.#label.textContent || error);
     this.#input.ariaInvalid = "true";
-    this.#input.ariaDescribedByElements = [this.#error];
+    this.#input.setAttribute("aria-describedby", this.#error.id);
     this.#error.role = "alert";
   }
 

@@ -256,6 +256,160 @@ add_task(function test_setStateClearsTitleForUnknownIncomingType() {
   subview.resetState();
 });
 
+add_task(async function test_captureStateUsesCurrentValues() {
+  const state = createFilledAccountConfig();
+  state.outgoing.username = "smtp-user";
+  subview.setState(state);
+
+  subview.querySelector("#manualIncomingHostname").value = "IMAP.EXAMPLE.COM";
+  subview.querySelector("#manualIncomingUsername").value = "incoming-user";
+  subview.querySelector("#manualIncomingPort").value = "993";
+  subview.querySelector("#manualOutgoingHostname").value = "SMTP.EXAMPLE.COM";
+  subview.querySelector("#manualOutgoingUsername").value = "outgoing-user";
+  subview.querySelector("#manualOutgoingPort").value = "465";
+
+  Assert.ok(await subview.validate(), "The edited config should be valid");
+
+  const config = subview.captureState();
+  Assert.equal(
+    config.incoming.hostname,
+    "imap.example.com",
+    "Incoming hostname should be captured and sanitized"
+  );
+  Assert.equal(
+    config.incoming.username,
+    "incoming-user",
+    "Incoming username should be captured"
+  );
+  Assert.equal(config.incoming.port, 993, "Incoming port should be captured");
+  Assert.equal(
+    config.outgoing.hostname,
+    "smtp.example.com",
+    "Outgoing hostname should be captured and sanitized"
+  );
+  Assert.equal(
+    config.outgoing.username,
+    "outgoing-user",
+    "Outgoing username should be captured"
+  );
+  Assert.equal(config.outgoing.port, 465, "Outgoing port should be captured");
+
+  subview.resetState();
+});
+
+add_task(async function test_validateShowsClickableErrorSummary() {
+  const state = createFilledAccountConfig();
+  subview.setState(state);
+
+  const incomingHostname = subview.querySelector("#manualIncomingHostname");
+  const incomingUsername = subview.querySelector("#manualIncomingUsername");
+  const incomingPort = subview.querySelector("#manualIncomingPort");
+  incomingHostname.value = "";
+  incomingUsername.value = "";
+  incomingPort.value = "0";
+
+  Assert.ok(
+    !(await subview.validate()),
+    "The form should be invalid with missing incoming details"
+  );
+
+  const header =
+    subview.shadowRoot.querySelector("account-hub-header").shadowRoot;
+  const notification = header.querySelector("#emailFormNotification");
+  Assert.ok(!notification.hidden, "The error notification should be visible");
+  Assert.ok(notification.open, "The error notification should be expanded");
+  Assert.equal(
+    document.l10n.getAttributes(
+      header.querySelector("#emailFormNotificationTitle .localized-title")
+    ).id,
+    "account-hub-manual-config-error-summary",
+    "The error notification should use the manual config error title"
+  );
+  Assert.equal(
+    header
+      .querySelector("#emailFormNotificationSummary")
+      .getAttribute("aria-describedby"),
+    "emailFormNotificationText",
+    "The alert summary should describe the error list"
+  );
+
+  const errorLinks = Array.from(
+    header.querySelectorAll(".manual-config-error-list a")
+  );
+  Assert.deepEqual(
+    errorLinks.map(link => link.textContent),
+    ["Hostname", "Username", "Port"],
+    "The error summary should list the invalid fields"
+  );
+
+  const hostnameInput = incomingHostname.querySelector("input");
+  Assert.equal(
+    hostnameInput.getAttribute("aria-invalid"),
+    "true",
+    "The invalid input should be marked invalid"
+  );
+  Assert.equal(
+    hostnameInput.getAttribute("aria-describedby"),
+    "manualIncomingHostnameInputErrorMessage",
+    "The invalid input should be described by its error message"
+  );
+
+  errorLinks[0].click();
+  await TestUtils.waitForCondition(
+    () => browser.contentWindow.document.activeElement == hostnameInput,
+    "The invalid field should be focused"
+  );
+  Assert.equal(
+    browser.contentWindow.document.activeElement,
+    hostnameInput,
+    "Clicking the error summary link should focus the invalid field"
+  );
+
+  let configUpdatedCount = 0;
+  const countConfigUpdated = () => {
+    configUpdatedCount++;
+  };
+  subview.addEventListener("config-updated", countConfigUpdated);
+
+  try {
+    const errorSummary = header.querySelector(".manual-config-error-list");
+    const configUpdated = BrowserTestUtils.waitForEvent(
+      subview,
+      "config-updated"
+    );
+    for (const value of ["bad_h", "bad_ho", "bad_host"]) {
+      incomingHostname.value = value;
+      incomingHostname.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+    Assert.equal(
+      configUpdatedCount,
+      0,
+      "Input should wait for the debounce before updating the config"
+    );
+    await configUpdated;
+    Assert.equal(
+      configUpdatedCount,
+      1,
+      "Multiple input events should be coalesced into one config update"
+    );
+    // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+    await new Promise(resolve => setTimeout(resolve, 150));
+    Assert.equal(
+      configUpdatedCount,
+      1,
+      "No additional config updates should fire after the debounce settles"
+    );
+    Assert.equal(
+      header.querySelector(".manual-config-error-list"),
+      errorSummary,
+      "The error summary should not be re-rendered when the invalid field list is unchanged"
+    );
+  } finally {
+    subview.removeEventListener("config-updated", countConfigUpdated);
+    subview.resetState();
+  }
+});
+
 /**
  * Returns a filled imap AccountConfig object.
  *

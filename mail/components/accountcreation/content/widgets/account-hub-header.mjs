@@ -105,6 +105,8 @@ class AccountHubHeader extends HTMLElement {
    *   to localize for the title.
    * @param {object} [options.fluentTitleArguments] - Arguments for the title
    *   fluent string.
+   * @param {boolean} [options.expanded] - Whether to show the description
+   *   without requiring the user to expand the notification.
    * @param {string} [options.fluentDescriptionId] - A string representing a
    *   fluent id to localize for the description.
    * @param {string} [options.title] - A raw string to display in the title.
@@ -113,17 +115,21 @@ class AccountHubHeader extends HTMLElement {
   showNotification({
     description,
     error,
+    expanded = false,
     fluentTitleId,
     fluentTitleArguments,
     fluentDescriptionId,
     title,
     type,
   }) {
-    if (type == "error") {
+    if (type == "error" && error) {
       gAccountSetupLogger.error(
-        `Account setup error: ${error?.cause?.title || error?.message}. ${error?.cause?.text}`,
+        `Account setup error: ${error.cause?.title || error.message}. ${error.cause?.text}`,
         error
       );
+    }
+
+    if (type == "error") {
       if (fluentTitleId) {
         Glean.mail.accountHubError[fluentTitleId].add(1);
       }
@@ -133,6 +139,7 @@ class AccountHubHeader extends HTMLElement {
     this.clearNotifications();
 
     this.#notificationForm.hidden = false;
+    this.#notificationForm.open = expanded;
     this.#notificationForm.classList.add(type);
 
     // We don't ever want to have a description but not a title. This can
@@ -164,12 +171,20 @@ class AccountHubHeader extends HTMLElement {
     const descriptionElement = this.shadowRoot.querySelector(
       "#emailFormNotificationText"
     );
+    const notificationSummary = this.shadowRoot.querySelector(
+      "#emailFormNotificationSummary"
+    );
 
     if (description || fluentDescriptionId || error?.message) {
       this.shadowRoot.querySelector("#emailFormNotificationToggle").hidden =
         false;
+      notificationSummary.setAttribute(
+        "aria-describedby",
+        "emailFormNotificationText"
+      );
     } else {
       this.#notificationForm.setAttribute("aria-disabled", true);
+      notificationSummary.removeAttribute("aria-describedby");
     }
 
     if (fluentDescriptionId || error?.cause?.fluentDescriptionId) {
@@ -279,9 +294,13 @@ class AccountHubHeader extends HTMLElement {
       .l10nId;
     notificationText.querySelector(".localized-description").textContent = "";
     notificationTitle.querySelector(".raw-title").textContent = "";
-    notificationText.querySelector(".raw-description").textContent = "";
+    notificationText.querySelector(".raw-description").replaceChildren();
 
     this.#notificationForm.removeAttribute("aria-disabled");
+    this.#notificationForm.open = false;
+    this.shadowRoot
+      .querySelector("#emailFormNotificationSummary")
+      .removeAttribute("aria-describedby");
 
     this.#notificationForm.classList.remove(
       "error",
