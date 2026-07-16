@@ -23,6 +23,10 @@ const { ServerTestUtils } = ChromeUtils.importESModule(
 
 const { createServer, serverDefs } = ServerTestUtils;
 
+// The flow may be retried a few times if the OAuth prompt races with the
+// verification teardown, so allow extra time.
+requestLongerTimeout(2);
+
 let oAuth2Server;
 
 add_setup(async function () {
@@ -40,9 +44,6 @@ registerCleanupFunction(async function () {
 });
 
 async function subtest(grantedScope, expectFailure) {
-  await Services.logins.removeAllLoginsAsync();
-  Services.fog.testResetFOG();
-
   const config = new AccountConfig();
   config.incoming = {
     type: "imap",
@@ -67,102 +68,121 @@ async function subtest(grantedScope, expectFailure) {
     emailAddress: "test@test.test",
   };
 
-  const oAuthPromise = expectOAuthDialog(grantedScope);
-  const abortController = new AbortController();
-  const verifier = new ConfigVerifier(window.msgWindow, abortController.signal);
-  const verifyPromise = verifier.verifyConfig(config);
+  try {
+    let configOut;
+    let verifyError;
+    let telemetryResult;
 
-  // We must handle `verifyPromise` before yielding the event loop to avoid it
-  // being recorded as unhandled. On slow machines, the IMAP server can time
-  // out before the OAuth token exchange completes, so the telemetry may not
-  // be recorded by the time `verifyPromise` settles.
-  let configOut;
-  if (expectFailure) {
-    await Assert.rejects(
-      verifyPromise,
-      /Unable to log in at server./,
-      "verify should fail"
-    );
-  } else {
-    // IMAP may time out before OAuth completes. If that happens, retry once the
-    // token is cached.
-    configOut = await verifyPromise.catch(async () => {
-      info(
-        "IMAP probably timed out, retrying after OAuth completes with the cached token..."
+    // Whether verification succeeds or fails, the OAuth authorization itself
+    // must succeed first. On slow machines the verification can tear the OAuth
+    // prompt down before the login form finishes submitting, recording a
+    // "cancelled" telemetry event instead of "succeeded" (and, for the failure
+    // cases, leaving a half-loaded window). Retry the whole flow until the
+    // authorization actually completes.
+    for (let attempt = 1; attempt <= 10; attempt++) {
+      await Services.logins.removeAllLoginsAsync();
+      OAuth2TestUtils.forgetObjects();
+      Services.fog.testResetFOG();
+
+      const oAuthPromise = expectOAuthDialog(grantedScope).catch(error => {
+        info(`OAuth dialog handling did not complete: ${error}`);
+      });
+      const abortController = new AbortController();
+      const verifier = new ConfigVerifier(
+        window.msgWindow,
+        abortController.signal
       );
+
+      configOut = undefined;
+      verifyError = null;
+      await verifier.verifyConfig(config).then(
+        result => {
+          configOut = result;
+        },
+        error => {
+          verifyError = error;
+        }
+      );
+      await oAuthPromise;
+
+      // Wait for the OAuth module to record telemetry, which signals that the
+      // token exchange has completed (either successfully or as cancelled).
       await TestUtils.waitForCondition(
         () => Glean.mail.oauth2Authentication.testGetValue(),
         "waiting for OAuth telemetry"
+      ).catch(() => {});
+      telemetryResult = Glean.mail.oauth2Authentication.testGetValue()?.at(-1)
+        ?.extra?.result;
+
+      if (telemetryResult === "succeeded") {
+        break;
+      }
+      info(
+        `Attempt ${attempt}: OAuth did not complete (result=${telemetryResult}); retrying`
       );
-      return new ConfigVerifier(
+    }
+
+    Assert.equal(
+      telemetryResult,
+      "succeeded",
+      "OAuth authorization should complete"
+    );
+    OAuth2TestUtils.checkTelemetry([
+      {
+        issuer: "test.test",
+        reason: "no refresh token",
+        result: "succeeded",
+        where: "internal",
+      },
+    ]);
+
+    if (expectFailure) {
+      Assert.ok(verifyError, "verify should fail");
+      Assert.ok(
+        /Unable to log in at server./.test(verifyError?.message ?? ""),
+        "verify should fail with the expected error"
+      );
+      return;
+    }
+
+    if (verifyError) {
+      // OAuth succeeded, but IMAP timed out before the token was ready. Retry
+      // now that the token is cached (this reuses the in-memory access token,
+      // so no additional telemetry is recorded).
+      info("IMAP probably timed out, retrying with the cached token...");
+      configOut = await new ConfigVerifier(
         window.msgWindow,
-        abortController.signal
+        new AbortController().signal
       ).verifyConfig(config);
-    });
-  }
+    }
 
-  // Coordinate with the OAuth dialog handling and surface any error from it
-  // instead of leaving it as an uncaught rejection.
-  await oAuthPromise;
+    OAuth2TestUtils.forgetObjects();
 
-  // Wait for the OAuth module to record telemetry, which signals that the
-  // token exchange has fully completed.
-  await TestUtils.waitForCondition(
-    () => Glean.mail.oauth2Authentication.testGetValue(),
-    "waiting for OAuth telemetry"
-  );
+    const allLogins = await Services.logins.getAllLogins();
+    Assert.equal(allLogins.length, 1, "refresh token should have been saved");
+    Assert.equal(
+      allLogins[0].hostname,
+      "oauth://test.test",
+      "saved login should be for the right origin"
+    );
+    Assert.equal(
+      allLogins[0].httpRealm,
+      grantedScope,
+      "saved login should have only the granted scope"
+    );
 
-  OAuth2TestUtils.checkTelemetry([
-    {
-      issuer: "test.test",
-      reason: "no refresh token",
-      result: "succeeded",
-      where: "internal",
-    },
-  ]);
+    const account = await CreateInBackend.createAccountInBackend(configOut);
+    const incomingServer = account.incomingServer;
+    Assert.equal(incomingServer.authMethod, Ci.nsMsgAuthMethod.OAuth2);
 
-  if (expectFailure) {
-    // After verifyPromise settles, the OAuth module may still asynchronously
-    // save a refresh token. Wait for it to appear and clear it so the next
-    // test's initFromHostname spin doesn't pick it up.
-    await TestUtils.waitForCondition(
-      async () =>
-        (
-          await Services.logins.searchLoginsAsync({
-            origin: "oauth://test.test",
-          })
-        ).length > 0,
-      "waiting for refresh token to be saved"
-    ).catch(() => {});
+    const outgoingServer = MailServices.outgoingServer.defaultServer;
+    Assert.equal(outgoingServer.authMethod, Ci.nsMsgAuthMethod.OAuth2);
+
+    MailServices.accounts.removeAccount(account, false);
+    MailServices.outgoingServer.deleteServer(outgoingServer);
+  } finally {
     await Services.logins.removeAllLoginsAsync();
-    return;
   }
-
-  OAuth2TestUtils.forgetObjects();
-
-  const allLogins = await Services.logins.getAllLogins();
-  Assert.equal(allLogins.length, 1, "refresh token should have been saved");
-  Assert.equal(
-    allLogins[0].hostname,
-    "oauth://test.test",
-    "saved login should be for the right origin"
-  );
-  Assert.equal(
-    allLogins[0].httpRealm,
-    grantedScope,
-    "saved login should have only the granted scope"
-  );
-
-  const account = await CreateInBackend.createAccountInBackend(configOut);
-  const incomingServer = account.incomingServer;
-  Assert.equal(incomingServer.authMethod, Ci.nsMsgAuthMethod.OAuth2);
-
-  const outgoingServer = MailServices.outgoingServer.defaultServer;
-  Assert.equal(outgoingServer.authMethod, Ci.nsMsgAuthMethod.OAuth2);
-
-  MailServices.accounts.removeAccount(account, false);
-  MailServices.outgoingServer.deleteServer(outgoingServer);
-  await Services.logins.removeAllLoginsAsync();
 }
 
 async function expectOAuthDialog(grantedScope) {

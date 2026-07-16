@@ -141,6 +141,10 @@ OAuth2.prototype = {
   _isRetrying: false,
   _authorizationState: null,
   _requestRedirectURI: null,
+  // True once a valid authorization code has been received and the token
+  // exchange has started. A late cancel (e.g. from a verification teardown)
+  // must not clobber the in-flight result once this is set.
+  _authorizationReceived: false,
 
   /**
    * Obtain an access token for this endpoint. If an access token has already
@@ -199,6 +203,7 @@ OAuth2.prototype = {
    *  prompt before opening the external browser when true.
    */
   requestAuthorization(isReauthentication = false) {
+    this._authorizationReceived = false;
     const authEndpointURL = new URL(this.authorizationEndpoint);
 
     authEndpointURL.searchParams.append("response_type", "code");
@@ -373,6 +378,7 @@ OAuth2.prototype = {
     }
     if (this.checkResultURL(url)) {
       // @see RFC 6749 section 4.1.2: Authorization Response
+      this._authorizationReceived = true;
       this.requestAccessToken(url.searchParams.get("code"), false);
     } else {
       // @see RFC 6749 section 4.1.2.1: Error Response
@@ -394,6 +400,12 @@ OAuth2.prototype = {
   },
 
   onAuthorizationFailed(aError, aData, aTelemetryReason) {
+    if (aTelemetryReason == "cancelled" && this._authorizationReceived) {
+      // The authorization code was already received and the token exchange is
+      // in progress. A teardown-triggered cancel must not clobber the pending
+      // result or reject the in-flight token request.
+      return;
+    }
     this.recordTelemetry(aTelemetryReason);
     this._reject(aData);
   },
