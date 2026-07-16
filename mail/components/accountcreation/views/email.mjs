@@ -1183,7 +1183,22 @@ class AccountHubEmail extends HTMLElement {
         }
 
         stateData = this.#currentSubview.captureState();
-        await this.#testManualConfig(stateData);
+        if (!(await this.#testManualConfig(stateData))) {
+          break;
+        }
+
+        // #validateAccountConfig can move the flow to emailPasswordSubview
+        // when credentials are still needed. If it doesn't, account creation
+        // already completed and we can continue to sync account discovery.
+        if (!(await this.#validateAccountConfig(this.#currentConfig))) {
+          break;
+        }
+
+        // If we are not in the password subview, that means the account
+        // has been created and we can fetch the sync accounts.
+        if (this.#currentState != "emailPasswordSubview") {
+          await this.#fetchSyncAccounts();
+        }
         break;
       case "exchangeTypeSubview":
         if (!(await this.#validateAccountConfig(stateData))) {
@@ -1624,15 +1639,17 @@ class AccountHubEmail extends HTMLElement {
    * updated settings in the form.
    *
    * @param {AccountConfig} stateData - The manual configuration to test.
-   * @returns {Promise<boolean>} Whether the tested config is complete.
+   * @returns {Promise<boolean>} Whether the flow can continue.
    */
   async #testManualConfig(stateData) {
     this.#startLoading("account-hub-adding-account-subheader");
 
     try {
+      const previousConfig = this.#currentConfig?.copy();
+      const submittedConfig = this.#fillAccountConfig(stateData);
       const config = await this.#guessConfig(
         this.#email.split("@")[1],
-        this.#fillAccountConfig(stateData)
+        submittedConfig.copy()
       );
       config.validateSocketType();
 
@@ -1646,14 +1663,22 @@ class AccountHubEmail extends HTMLElement {
       this.#currentSubview.setState(this.#currentConfig);
 
       if (this.#currentConfig.isComplete()) {
-        this.#currentSubview.setTitle(
-          "account-hub-manual-config-review-settings-title"
-        );
-        this.#currentSubview.showNotification({
-          fluentTitleId: "account-hub-config-test-success",
-          type: "success",
-        });
-        this.#emailFooter.toggleForwardDisabled(false);
+        if (
+          (previousConfig &&
+            this.#manualConfigFieldsChanged(previousConfig, submittedConfig)) ||
+          this.#manualConfigFieldsChanged(submittedConfig, this.#currentConfig)
+        ) {
+          this.#currentSubview.setTitle(
+            "account-hub-manual-config-review-settings-title"
+          );
+          this.#currentSubview.showNotification({
+            fluentTitleId: "account-hub-config-test-success",
+            type: "success",
+          });
+          this.#emailFooter.toggleForwardDisabled(false);
+          return false;
+        }
+
         return true;
       }
 
@@ -1685,6 +1710,27 @@ class AccountHubEmail extends HTMLElement {
     }
 
     return false;
+  }
+
+  /**
+   * Check whether any user-editable server fields differ between two configs.
+   *
+   * @param {AccountConfig} firstConfig - The first config to compare.
+   * @param {AccountConfig} secondConfig - The second config to compare.
+   * @returns {boolean} Whether any manual config fields changed.
+   */
+  #manualConfigFieldsChanged(firstConfig, secondConfig) {
+    const serverFields = {
+      incoming: ["type", "hostname", "port", "socketType", "auth", "username"],
+      outgoing: ["hostname", "port", "socketType", "auth", "username"],
+    };
+
+    return Object.entries(serverFields).some(([serverType, fields]) =>
+      fields.some(
+        field =>
+          firstConfig[serverType][field] !== secondConfig[serverType][field]
+      )
+    );
   }
 
   /**

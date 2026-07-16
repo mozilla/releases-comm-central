@@ -116,7 +116,7 @@ add_task(async function test_account_email_manual_config_form_pop3() {
   await subtest_close_account_hub_dialog(dialog, manualConfigTemplate);
 });
 
-add_task(async function test_manual_config_connect_tests_updated_settings() {
+add_task(async function test_manual_config_connect_reviews_updated_settings() {
   const sandbox = sinon.createSandbox();
   const { dialog, manualConfigTemplate } = await openManualConfigSubview();
 
@@ -195,6 +195,11 @@ add_task(async function test_manual_config_connect_tests_updated_settings() {
     {}
   );
 
+  const passwordSubview = dialog.querySelector("#emailPasswordSubview");
+  Assert.ok(
+    BrowserTestUtils.isHidden(passwordSubview),
+    "A config test that updates settings should not continue to the password step"
+  );
   const header =
     manualConfigTemplate.shadowRoot.querySelector(
       "account-hub-header"
@@ -206,7 +211,10 @@ add_task(async function test_manual_config_connect_tests_updated_settings() {
       notification.classList.contains("success"),
     "The successful config test notification should be visible"
   );
-
+  Assert.ok(
+    BrowserTestUtils.isVisible(manualConfigTemplate),
+    "A config test that updates settings should keep the manual config form visible"
+  );
   const successNotificationTitle = header.querySelector(
     "#emailFormNotificationTitle .localized-title"
   );
@@ -228,12 +236,8 @@ add_task(async function test_manual_config_connect_tests_updated_settings() {
     "The header title should use the review updated settings text"
   );
   Assert.ok(
-    BrowserTestUtils.isVisible(manualConfigTemplate),
-    "Testing the config should keep the manual config form visible"
-  );
-  Assert.ok(
-    BrowserTestUtils.isHidden(dialog.querySelector("#emailPasswordSubview")),
-    "Testing the config should not continue account creation"
+    !dialog.querySelector("#emailFooter #forward").disabled,
+    "Continue should be available after the user reviews the updated settings"
   );
   Assert.equal(
     incomingHostname.value,
@@ -261,12 +265,168 @@ add_task(async function test_manual_config_connect_tests_updated_settings() {
     "The outgoing port should update from the tested config"
   );
   Assert.ok(
-    !dialog.querySelector("#emailFooter #forward").disabled,
-    "Connect should be available after a successful config test"
+    GuessConfig.guessConfig.calledOnce,
+    "The config should be tested before continuing"
   );
 
   sandbox.restore();
   await subtest_close_account_hub_dialog(dialog, manualConfigTemplate);
+});
+
+add_task(
+  async function test_manual_config_connect_reviews_user_edits_confirmed_by_test() {
+    const sandbox = sinon.createSandbox();
+    const { dialog, manualConfigTemplate } = await openManualConfigSubview();
+
+    const incomingHostname = manualConfigTemplate.querySelector(
+      "#manualIncomingHostname"
+    );
+    const incomingPort = manualConfigTemplate.querySelector(
+      "#manualIncomingPort"
+    );
+    const outgoingHostname = manualConfigTemplate.querySelector(
+      "#manualOutgoingHostname"
+    );
+    const outgoingPort = manualConfigTemplate.querySelector(
+      "#manualOutgoingPort"
+    );
+
+    incomingHostname.value = "imap.confirmed.momo.invalid";
+    incomingPort.value = "993";
+    outgoingHostname.value = "smtp.confirmed.momo.invalid";
+    outgoingPort.value = "587";
+
+    sandbox
+      .stub(GuessConfig, "guessConfig")
+      .callsFake(async (domain, _progress, initialConfig, configType) => {
+        Assert.equal(
+          domain,
+          "momo.invalid",
+          "The manual config test should use the email domain"
+        );
+        Assert.equal(
+          configType,
+          "both",
+          "The combined manual form should test incoming and outgoing settings"
+        );
+        Assert.equal(
+          initialConfig.incoming.hostname,
+          "imap.confirmed.momo.invalid",
+          "The edited incoming hostname should be sent for testing"
+        );
+        Assert.equal(
+          initialConfig.incoming.port,
+          993,
+          "The edited incoming port should be sent for testing"
+        );
+        Assert.equal(
+          initialConfig.outgoing.hostname,
+          "smtp.confirmed.momo.invalid",
+          "The edited outgoing hostname should be sent for testing"
+        );
+        Assert.equal(
+          initialConfig.outgoing.port,
+          587,
+          "The edited outgoing port should be sent for testing"
+        );
+        return initialConfig.copy();
+      });
+
+    const footerForward = dialog.querySelector("#emailFooter #forward");
+    EventUtils.synthesizeMouseAtCenter(footerForward, {});
+
+    const passwordSubview = dialog.querySelector("#emailPasswordSubview");
+    Assert.ok(
+      BrowserTestUtils.isHidden(passwordSubview),
+      "A config test that confirms user edits should not continue to the password step"
+    );
+    const header =
+      manualConfigTemplate.shadowRoot.querySelector(
+        "account-hub-header"
+      ).shadowRoot;
+    const notification = header.querySelector("#emailFormNotification");
+    await TestUtils.waitForCondition(
+      () =>
+        BrowserTestUtils.isVisible(notification) &&
+        notification.classList.contains("success"),
+      "The successful config test notification should be visible"
+    );
+    Assert.ok(
+      BrowserTestUtils.isVisible(manualConfigTemplate),
+      "A config test that confirms user edits should keep the manual config form visible"
+    );
+    Assert.equal(
+      manualConfigTemplate.getAttribute("title-id"),
+      "account-hub-manual-config-review-settings-title",
+      "The manual config header should ask the user to review the updated settings"
+    );
+    Assert.ok(
+      !footerForward.disabled,
+      "Continue should be available after the user reviews the confirmed settings"
+    );
+
+    EventUtils.synthesizeMouseAtCenter(footerForward, {});
+    await TestUtils.waitForCondition(
+      () => BrowserTestUtils.isVisible(passwordSubview),
+      "Continuing without more updates should leave the manual config form"
+    );
+    Assert.ok(
+      BrowserTestUtils.isHidden(manualConfigTemplate),
+      "The manual config form should be hidden after the reviewed settings are confirmed"
+    );
+    Assert.equal(
+      GuessConfig.guessConfig.callCount,
+      2,
+      "The config should be tested before each continue attempt"
+    );
+
+    sandbox.restore();
+    await subtest_close_account_hub_dialog(dialog, passwordSubview);
+  }
+);
+
+add_task(async function test_manual_config_connect_continues_without_changes() {
+  const sandbox = sinon.createSandbox();
+  const { dialog, manualConfigTemplate } = await openManualConfigSubview();
+
+  sandbox
+    .stub(GuessConfig, "guessConfig")
+    .callsFake(async (domain, _progress, initialConfig, configType) => {
+      Assert.equal(
+        domain,
+        "momo.invalid",
+        "The manual config test should use the email domain"
+      );
+      Assert.equal(
+        configType,
+        "both",
+        "The combined manual form should test incoming and outgoing settings"
+      );
+      return initialConfig.copy();
+    });
+
+  EventUtils.synthesizeMouseAtCenter(
+    dialog.querySelector("#emailFooter #forward"),
+    {}
+  );
+
+  const passwordSubview = dialog.querySelector("#emailPasswordSubview");
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(passwordSubview),
+    "A successful config test with no updates should continue to the password step"
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(manualConfigTemplate),
+    "A successful config test with no updates should leave the manual config form"
+  );
+  Assert.ok(
+    GuessConfig.guessConfig.calledOnce,
+    "The config should be tested before continuing"
+  );
+
+  sandbox.restore();
+  await subtest_close_account_hub_dialog(dialog, passwordSubview);
 });
 
 add_task(async function test_manual_config_connect_shows_test_error() {
