@@ -592,6 +592,227 @@ add_task(async function test_calendarLevelNotificationTimers() {
   Services.prefs.clearUserPref("calendar.notifications.times");
 });
 
+/**
+ * Bug 2051453: when a CalDAV server silently drops X-MOZ-LASTACK on the
+ * round-trip (Google Calendar does this), dismissing a single alarm must not
+ * cause the alarm service to permanently ignore every future alarm for the
+ * whole event. This reproduces the over-suppression: the event ends up in the
+ * calendar's "alarms.ignored" list after one dismiss.
+ */
+add_task(async function test_dismissDoesNotOverSuppressWhenServerStripsAck() {
+  alarmObserver.clear();
+
+  const memory = cal.manager.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
+  memory.id = cal.getUUID();
+
+  // Mimic a server that does not persist the acknowledgement. The alarm
+  // service calls modifyItem through the XPCOM interface, which dispatches to
+  // the provider's wrappedJSObject, so the override has to live there.
+  const impl = memory.wrappedJSObject;
+  let modifyRoutedThroughStrip = false;
+  const innerModifyItem = impl.modifyItem.bind(impl);
+  impl.modifyItem = function (newItem, oldItem) {
+    modifyRoutedThroughStrip = true;
+    const stripped = newItem.clone();
+    stripped.alarmLastAck = null;
+    stripped.deleteProperty("X-MOZ-LASTACK");
+    return innerModifyItem(stripped, oldItem);
+  };
+
+  cal.manager.registerCalendar(memory);
+  await alarmObserver.doOnAlarmsLoaded(memory);
+
+  const date = cal.dtz.now();
+  const [item, alarm] = createEventWithAlarm(memory, date, date, "-PT5M");
+  item.title = "bug 2051453 over-suppression";
+  await memory.addItem(item);
+  alarmObserver.expectResult(memory, item, alarm, EXPECT_FIRED);
+  alarmObserver.checkExpected();
+
+  await alarmObserver.service.dismissAlarm(item, alarm);
+
+  // Guard: if the override is not actually exercised the assertion below would
+  // pass for the wrong reason (the ack would have been persisted normally).
+  Assert.ok(modifyRoutedThroughStrip, "dismiss routed through the ack-stripping modifyItem");
+
+  const ignored = (memory.getProperty("alarms.ignored") || "").split(",");
+  Assert.ok(
+    !ignored.includes(item.parentItem.hashId),
+    "event must not be permanently ignore-listed after a single server-stripped dismiss"
+  );
+
+  cal.manager.unregisterCalendar(memory);
+});
+
+/**
+ * Bug 2051453 (fix): after a server-stripped dismiss records a local ack time,
+ * future occurrences of a recurring event must still arm while past occurrences
+ * stay dismissed. Re-arming here mimics the resync/restart that triggers the
+ * over-suppression in the wild.
+ */
+add_task(async function test_dismissKeepsFutureOccurrencesArmed() {
+  alarmObserver.clear();
+
+  const memory = cal.manager.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
+  memory.id = cal.getUUID();
+
+  const impl = memory.wrappedJSObject;
+  const innerModifyItem = impl.modifyItem.bind(impl);
+  impl.modifyItem = function (newItem, oldItem) {
+    const stripped = newItem.clone();
+    stripped.alarmLastAck = null;
+    stripped.deleteProperty("X-MOZ-LASTACK");
+    return innerModifyItem(stripped, oldItem);
+  };
+
+  cal.manager.registerCalendar(memory);
+  await alarmObserver.doOnAlarmsLoaded(memory);
+
+  const date = cal.dtz.now();
+  date.hour -= 47;
+  date.hour; // Force normalization, as in addTestItems Test 7.
+  const [item, alarm] = createEventWithAlarm(memory, date, date, "-PT15M", "RRULE:FREQ=DAILY");
+  item.title = "bug 2051453 future occurrences";
+  await memory.addItem(item);
+
+  let probe = item.startDate.clone();
+  probe.second -= 1;
+  const firstOcc = item.recurrenceInfo.getNextOccurrence(probe);
+  firstOcc.QueryInterface(Ci.calIEvent);
+  await alarmObserver.service.dismissAlarm(firstOcc, alarm);
+
+  // Clear armed timers and re-arm from scratch, as a resync/restart would. This
+  // is the moment the over-suppression bites: the blanket ignore-list entry
+  // stops every occurrence from being re-armed.
+  alarmObserver.service.removeAlarmsForOccurrences(item);
+  alarmObserver.clear();
+  alarmObserver.service.addAlarmsForOccurrences(item);
+
+  alarmObserver.expectOccurrences(memory, item, alarm, [
+    EXPECT_NONE,
+    EXPECT_NONE,
+    EXPECT_TIMER,
+    EXPECT_NONE,
+    EXPECT_NONE,
+  ]);
+  alarmObserver.checkExpected("future occurrences still arm after a stripped dismiss");
+
+  cal.manager.unregisterCalendar(memory);
+});
+
+/**
+ * Bug 2051453 (fix): when both a server-persisted alarmLastAck and a locally
+ * recorded ack (ignoredAck) exist, the more recent one wins. A dismiss made
+ * offline is stored locally and can be newer than the server's ack, so it must
+ * still suppress its occurrence even though the older server ack predates the
+ * alarm. Reproduces first-truthy `alarmLastAck || ignoredAck`, which would let
+ * the alarm fire again.
+ */
+add_task(async function test_newerLocalAckWinsOverServerAck() {
+  alarmObserver.clear();
+  Services.prefs.setBoolPref("calendar.alarms.showmissed", true);
+
+  const memory = cal.manager.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
+  memory.id = cal.getUUID();
+  cal.manager.registerCalendar(memory);
+  await alarmObserver.doOnAlarmsLoaded(memory);
+
+  const date = cal.dtz.now();
+  const [item, alarm] = createEventWithAlarm(memory, date, date, "-PT15M");
+  item.title = "bug 2051453 newer local ack wins";
+
+  // The alarm fired 15 minutes ago.
+  const alarmDate = item.startDate.clone();
+  alarmDate.minute -= 15;
+
+  // Server persisted an ack from before the alarm (would let it fire again).
+  const staleServerAck = alarmDate.clone();
+  staleServerAck.minute -= 1;
+  item.alarmLastAck = staleServerAck;
+
+  // A later offline dismiss recorded locally, at/after the alarm.
+  const localAck = alarmDate.clone();
+  localAck.second += 1;
+  memory.setProperty("alarms.ignored", `${item.parentItem.hashId}|${localAck.icalString}`);
+
+  alarmObserver.expectResult(memory, item, alarm, EXPECT_NONE);
+  await memory.addItem(item);
+  alarmObserver.checkExpected(
+    "newer local ack must suppress the missed alarm (most recent of alarmLastAck and ignoredAck)"
+  );
+
+  cal.manager.unregisterCalendar(memory);
+  Services.prefs.clearUserPref("calendar.alarms.showmissed");
+});
+
+/**
+ * Bug 2051453 (fix): the one-time migration clears only legacy ignore-list
+ * entries (stored without an ack time, the ones over-suppressing) and leaves
+ * ack-bearing entries alone, and only runs when missed alarms are not shown.
+ */
+add_task(async function test_migrateClearsOnlyLegacyIgnoredEntries() {
+  const memory = cal.manager.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
+  memory.id = cal.getUUID();
+  cal.manager.registerCalendar(memory);
+  await alarmObserver.doOnAlarmsLoaded(memory);
+
+  const legacyId = "legacy-hash";
+  const ackId = "ack-hash";
+  const ackTime = cal.dtz.now().icalString;
+  memory.setProperty("alarms.ignored", `${legacyId},${ackId}|${ackTime}`);
+
+  Services.prefs.setBoolPref("calendar.alarms.showmissed", false);
+  Services.prefs.clearUserPref("calendar.alarms.ignored.legacyCleared");
+
+  alarmObserver.service.migrateClearIgnoredAlarms();
+
+  const remaining = (memory.getProperty("alarms.ignored") || "").split(",");
+  Assert.ok(!remaining.includes(legacyId), "legacy no-ack entry cleared");
+  Assert.ok(remaining.includes(`${ackId}|${ackTime}`), "ack-bearing entry kept");
+  Assert.ok(
+    Services.prefs.getBoolPref("calendar.alarms.ignored.legacyCleared", false),
+    "migration marked done"
+  );
+
+  cal.manager.unregisterCalendar(memory);
+  Services.prefs.clearUserPref("calendar.alarms.showmissed");
+  Services.prefs.clearUserPref("calendar.alarms.ignored.legacyCleared");
+});
+
+/**
+ * Bug 2051453 (fix): with missed alarms shown, the migration must not clear the
+ * ignore list (that would resurface a burst of past alarms), and must leave
+ * itself un-run so it can still clear later if the user turns the pref off.
+ */
+add_task(async function test_migrateSkipsClearWhenShowMissedTrue() {
+  const memory = cal.manager.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
+  memory.id = cal.getUUID();
+  cal.manager.registerCalendar(memory);
+  await alarmObserver.doOnAlarmsLoaded(memory);
+
+  const legacyId = "legacy-hash-kept";
+  memory.setProperty("alarms.ignored", legacyId);
+
+  Services.prefs.setBoolPref("calendar.alarms.showmissed", true);
+  Services.prefs.clearUserPref("calendar.alarms.ignored.legacyCleared");
+
+  alarmObserver.service.migrateClearIgnoredAlarms();
+
+  Assert.equal(
+    memory.getProperty("alarms.ignored"),
+    legacyId,
+    "legacy entry left intact when missed alarms are shown"
+  );
+  Assert.ok(
+    !Services.prefs.getBoolPref("calendar.alarms.ignored.legacyCleared", false),
+    "migration left un-run so it can still clear if showmissed is turned off later"
+  );
+
+  cal.manager.unregisterCalendar(memory);
+  Services.prefs.clearUserPref("calendar.alarms.showmissed");
+  Services.prefs.clearUserPref("calendar.alarms.ignored.legacyCleared");
+});
+
 registerCleanupFunction(() => {
   Services.prefs.clearUserPref("calendar.notifications.times");
 });
