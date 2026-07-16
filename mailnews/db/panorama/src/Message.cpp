@@ -4,6 +4,7 @@
 
 #include "Message.h"
 
+#include "DatabaseCore.h"
 #include "mozilla/Components.h"
 #include "mozilla/Try.h"
 #include "nsIMsgAccountManager.h"
@@ -100,11 +101,11 @@ NS_IMETHODIMP Message::MarkHasAttachments(bool hasAttachments) {
 
 NS_IMETHODIMP Message::GetPriority(nsMsgPriorityValue* priority) {
   NS_ENSURE_ARG_POINTER(priority);
-  return MessageDB().GetMessagePriority(mKey, *priority);
+  return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP Message::SetPriority(nsMsgPriorityValue priority) {
-  return MessageDB().SetMessagePriority(mKey, priority);
+  return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP Message::GetFlags(uint32_t* flags) {

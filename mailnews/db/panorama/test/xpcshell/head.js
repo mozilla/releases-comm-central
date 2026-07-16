@@ -58,8 +58,7 @@ function installDB(sql) {
       bccList TEXT,
       subject TEXT,
       flags INTEGER,
-      tags TEXT,
-      priority INTEGER
+      tags TEXT
     );
     CREATE INDEX messages_folderId ON messages(folderId);
     CREATE INDEX messages_date ON messages(date);

@@ -224,8 +224,7 @@ nsresult DatabaseCore::CreateNewDatabase() {
         bccList TEXT, \
         subject TEXT, \
         flags INTEGER, \
-        tags TEXT, \
-        priority INTEGER \
+        tags TEXT \
       );"_ns);
   NS_ENSURE_SUCCESS(rv, rv);
   rv = sConnection->ExecuteSimpleSQL(
