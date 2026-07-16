@@ -263,7 +263,7 @@ export class CardDAVDirectory extends SQLiteDirectory {
     if (callbacks.shouldSaveAuth) {
       // The user was prompted for a username and password. Save the response.
       this.setStringValue("carddav.username", callbacks.authInfo?.username);
-      callbacks.saveAuth();
+      await callbacks.saveAuth();
     }
     return response;
   }
