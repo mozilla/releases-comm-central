@@ -538,6 +538,11 @@ NS_IMETHODIMP ExchangeFolder::UpdateFolder(nsIMsgWindow* aWindow) {
 
 NS_IMETHODIMP ExchangeFolder::Rename(const nsACString& aNewName,
                                      nsIMsgWindow* msgWindow) {
+  // Virtual folders are just a local operation.
+  if (mFlags & nsMsgFolderFlags::Virtual) {
+    return nsMsgDBFolder::Rename(aNewName, msgWindow);
+  }
+
   nsAutoCString currentName;
   nsresult rv = GetName(currentName);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -1133,6 +1138,13 @@ NS_IMETHODIMP ExchangeFolder::DeleteMessages(
 }
 
 NS_IMETHODIMP ExchangeFolder::DeleteSelf(nsIMsgWindow* aWindow) {
+  // If it's a virtual folder, we just need to delete it locally.
+  uint32_t folderFlags;
+  GetFlags(&folderFlags);
+  if (folderFlags & nsMsgFolderFlags::Virtual) {
+    return nsMsgDBFolder::DeleteSelf(aWindow);
+  }
+
   bool deletable = false;
   nsresult rv = GetDeletable(&deletable);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -1288,6 +1300,13 @@ NS_IMETHODIMP ExchangeFolder::CompactAll(nsIUrlListener* aListener,
     NS_ENSURE_SUCCESS(rv, rv);
     int64_t expungedBytes = 0;
     for (auto folder : allDescendants) {
+      // Can't compact virtual folders.
+      uint32_t flags;
+      folder->GetFlags(&flags);
+      if (flags & nsMsgFolderFlags::Virtual) {
+        continue;
+      }
+
       // If folder doesn't currently have a DB, expungedBytes might be out of
       // whack. Also the compact might do a folder reparse first, which could
       // change the expungedBytes count (via Expunge flag in

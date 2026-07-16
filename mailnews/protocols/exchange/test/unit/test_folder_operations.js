@@ -2,14 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { TestUtils } = ChromeUtils.importESModule(
-  "resource://testing-common/TestUtils.sys.mjs"
-);
 var { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
 var { RemoteFolder } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MockServer.sys.mjs"
+);
+var { VirtualFolderHelper } = ChromeUtils.importESModule(
+  "resource:///modules/VirtualFolderWrapper.sys.mjs"
+);
+var { TestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/TestUtils.sys.mjs"
 );
 
 var incomingEwsServer;
@@ -380,4 +383,58 @@ add_task(async function test_renameFolderEws() {
 
 add_task(async function test_renameFolderGraph() {
   await runRenameFolderTest(graphServer, incomingGraphServer);
+});
+
+async function runHardDeleteVirtualFolderTest(mockServer, incomingServer) {
+  // Set the delete model for the server to permanently delete.
+  incomingServer.QueryInterface(Ci.IExchangeIncomingServer).deleteModel =
+    Ci.IExchangeIncomingServer.PERMANENTLY_DELETE;
+
+  const realFolderName = "real_folder";
+  // Reset the list of deleted folders on the server to avoid any side-effect
+  // from another test
+  mockServer.deletedFolders = [];
+
+  // Create a new remote folder for this test.
+  mockServer.appendRemoteFolder(
+    new RemoteFolder(realFolderName, "root", realFolderName, realFolderName)
+  );
+
+  // Sync the folder list, updated with the new folder.
+  const rootFolder = incomingServer.rootFolder;
+  await syncFolder(incomingServer, rootFolder);
+  const realFolder = rootFolder.getChildNamed(realFolderName);
+  Assert.ok(!!realFolder, `${realFolderName} should exist.`);
+
+  // Create a virtual folder with one search folder.
+  VirtualFolderHelper.createNewVirtualFolder(
+    "virtual_folder",
+    rootFolder,
+    [realFolder],
+    "ALL",
+    false
+  );
+
+  const virtualFolder = rootFolder.getChildNamed("virtual_folder");
+  Assert.ok(!!virtualFolder, "Virtual folder should exist.");
+
+  virtualFolder.deleteSelf(null);
+
+  // No mock server deletions should be recorded.
+  Assert.equal(
+    mockServer.deletedFolders.length,
+    0,
+    "No folder deletions should be recorded on the server."
+  );
+  Assert.ok(
+    !rootFolder.getChildNamed("virtual_folder"),
+    "The virtual folder should be gone."
+  );
+}
+
+add_task(async function test_hard_delete_virtual_folder_ews() {
+  await runHardDeleteVirtualFolderTest(ewsServer, incomingEwsServer);
+});
+add_task(async function test_hard_delete_virtual_folder_graph() {
+  await runHardDeleteVirtualFolderTest(graphServer, incomingGraphServer);
 });
