@@ -149,9 +149,9 @@ add_task(function test_setErrorState() {
     "The input should have aria-invalid set as false"
   );
 
-  Assert.equal(
+  Assert.deepEqual(
     input.ariaDescribedByElements,
-    null,
+    [],
     "The input should not have any elements set for aria-describedby"
   );
 

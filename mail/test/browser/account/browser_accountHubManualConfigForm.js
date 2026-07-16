@@ -1,3 +1,10 @@
+const { sinon } = ChromeUtils.importESModule(
+  "resource://testing-common/Sinon.sys.mjs"
+);
+const { GuessConfig } = ChromeUtils.importESModule(
+  "resource:///modules/accountcreation/GuessConfig.sys.mjs"
+);
+
 const PREF_NAME = "mailnews.auto_config_url";
 const PREF_VALUE = Services.prefs.getCharPref(PREF_NAME);
 const MANUAL_CONFIG_PREF = "mail.accounthub.manualconfig.enabled";
@@ -109,6 +116,204 @@ add_task(async function test_account_email_manual_config_form_pop3() {
   await subtest_close_account_hub_dialog(dialog, manualConfigTemplate);
 });
 
+add_task(async function test_manual_config_connect_tests_updated_settings() {
+  const sandbox = sinon.createSandbox();
+  const { dialog, manualConfigTemplate } = await openManualConfigSubview();
+
+  const incomingHostname = manualConfigTemplate.querySelector(
+    "#manualIncomingHostname"
+  );
+  const incomingUsername = manualConfigTemplate.querySelector(
+    "#manualIncomingUsername"
+  );
+  const incomingPort = manualConfigTemplate.querySelector(
+    "#manualIncomingPort"
+  );
+  const outgoingHostname = manualConfigTemplate.querySelector(
+    "#manualOutgoingHostname"
+  );
+  const outgoingPort = manualConfigTemplate.querySelector(
+    "#manualOutgoingPort"
+  );
+
+  incomingHostname.value = "IMAP.MOMO.INVALID";
+  incomingUsername.value = "john.doe";
+  incomingPort.value = "143";
+  outgoingHostname.value = "SMTP.MOMO.INVALID";
+  outgoingPort.value = "587";
+
+  const updatedConfig = manualConfigTemplate.captureState().copy();
+  updatedConfig.incoming.hostname = "imap.tested.momo.invalid";
+  updatedConfig.incoming.port = 993;
+  updatedConfig.incoming.socketType = Ci.nsMsgSocketType.SSL;
+  updatedConfig.incoming.auth = Ci.nsMsgAuthMethod.passwordCleartext;
+  updatedConfig.incoming.username = "john.doe@momo.invalid";
+  updatedConfig.outgoing.hostname = "smtp.tested.momo.invalid";
+  updatedConfig.outgoing.port = 465;
+  updatedConfig.outgoing.socketType = Ci.nsMsgSocketType.SSL;
+  updatedConfig.outgoing.auth = Ci.nsMsgAuthMethod.passwordCleartext;
+  updatedConfig.outgoing.username = "john.doe@momo.invalid";
+
+  sandbox
+    .stub(GuessConfig, "guessConfig")
+    .callsFake(async (domain, _progress, initialConfig, configType) => {
+      Assert.equal(
+        domain,
+        "momo.invalid",
+        "The manual config test should use the email domain"
+      );
+      Assert.equal(
+        configType,
+        "both",
+        "The combined manual form should test incoming and outgoing settings"
+      );
+      Assert.equal(
+        initialConfig.incoming.hostname,
+        "imap.momo.invalid",
+        "The current incoming hostname should be sent for testing"
+      );
+      Assert.equal(
+        initialConfig.incoming.port,
+        143,
+        "The current incoming port should be sent for testing"
+      );
+      Assert.equal(
+        initialConfig.outgoing.hostname,
+        "smtp.momo.invalid",
+        "The current outgoing hostname should be sent for testing"
+      );
+      Assert.equal(
+        initialConfig.outgoing.port,
+        587,
+        "The current outgoing port should be sent for testing"
+      );
+      return updatedConfig;
+    });
+
+  EventUtils.synthesizeMouseAtCenter(
+    dialog.querySelector("#emailFooter #forward"),
+    {}
+  );
+
+  const header =
+    manualConfigTemplate.shadowRoot.querySelector(
+      "account-hub-header"
+    ).shadowRoot;
+  const notification = header.querySelector("#emailFormNotification");
+  await TestUtils.waitForCondition(
+    () =>
+      BrowserTestUtils.isVisible(notification) &&
+      notification.classList.contains("success"),
+    "The successful config test notification should be visible"
+  );
+
+  const successNotificationTitle = header.querySelector(
+    "#emailFormNotificationTitle .localized-title"
+  );
+  Assert.equal(
+    document.l10n.getAttributes(successNotificationTitle).id,
+    "account-hub-config-test-success",
+    "The success notification should report a valid configuration"
+  );
+  const manualConfigTitle =
+    manualConfigTemplate.shadowRoot.querySelector("#title");
+  Assert.equal(
+    manualConfigTemplate.getAttribute("title-id"),
+    "account-hub-manual-config-review-settings-title",
+    "The manual config header should ask the user to review the updated settings"
+  );
+  Assert.equal(
+    document.l10n.getAttributes(manualConfigTitle).id,
+    "account-hub-manual-config-review-settings-title",
+    "The header title should use the review updated settings text"
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(manualConfigTemplate),
+    "Testing the config should keep the manual config form visible"
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(dialog.querySelector("#emailPasswordSubview")),
+    "Testing the config should not continue account creation"
+  );
+  Assert.equal(
+    incomingHostname.value,
+    "imap.tested.momo.invalid",
+    "The incoming hostname should update from the tested config"
+  );
+  Assert.equal(
+    incomingUsername.value,
+    "john.doe@momo.invalid",
+    "The incoming username should update from the tested config"
+  );
+  Assert.equal(
+    incomingPort.value,
+    "993",
+    "The incoming port should update from the tested config"
+  );
+  Assert.equal(
+    outgoingHostname.value,
+    "smtp.tested.momo.invalid",
+    "The outgoing hostname should update from the tested config"
+  );
+  Assert.equal(
+    outgoingPort.value,
+    "465",
+    "The outgoing port should update from the tested config"
+  );
+  Assert.ok(
+    !dialog.querySelector("#emailFooter #forward").disabled,
+    "Connect should be available after a successful config test"
+  );
+
+  sandbox.restore();
+  await subtest_close_account_hub_dialog(dialog, manualConfigTemplate);
+});
+
+add_task(async function test_manual_config_connect_shows_test_error() {
+  const sandbox = sinon.createSandbox();
+  const { dialog, manualConfigTemplate } = await openManualConfigSubview();
+
+  sandbox
+    .stub(GuessConfig, "guessConfig")
+    .rejects(new Error("Configuration test failed"));
+
+  EventUtils.synthesizeMouseAtCenter(
+    dialog.querySelector("#emailFooter #forward"),
+    {}
+  );
+
+  const header =
+    manualConfigTemplate.shadowRoot.querySelector(
+      "account-hub-header"
+    ).shadowRoot;
+  const notification = header.querySelector("#emailFormNotification");
+  await TestUtils.waitForCondition(
+    () =>
+      BrowserTestUtils.isVisible(notification) &&
+      notification.classList.contains("error"),
+    "The failed config test notification should be visible"
+  );
+
+  Assert.equal(
+    document.l10n.getAttributes(
+      header.querySelector("#emailFormNotificationTitle .localized-title")
+    ).id,
+    "account-hub-find-settings-failed",
+    "The error notification should report that settings could not be found"
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(manualConfigTemplate),
+    "A failed config test should keep the manual config form visible"
+  );
+  Assert.ok(
+    !dialog.querySelector("#emailFooter #forward").disabled,
+    "Connect should be available to retry after a config test error"
+  );
+
+  sandbox.restore();
+  await subtest_close_account_hub_dialog(dialog, manualConfigTemplate);
+});
+
 add_task(async function test_manual_config_error_summary_for_invalid_fields() {
   const dialog = await subtest_open_account_hub_dialog();
 
@@ -213,3 +418,39 @@ add_task(async function test_manual_config_error_summary_for_invalid_fields() {
 
   await subtest_close_account_hub_dialog(dialog, manualConfigTemplate);
 });
+
+async function openManualConfigSubview() {
+  const dialog = await subtest_open_account_hub_dialog();
+
+  await subtest_fill_initial_config_fields(dialog, {
+    name: "John Doe",
+    email: "john.doe@momo.invalid",
+    password: "abc12345",
+    incomingHost: "mail.momo.invalid",
+    incomingPort: 123,
+    outgoingHost: "mail.momo.invalid",
+    outgoingPort: 465,
+  });
+
+  const configFoundTemplate = dialog.querySelector("email-config-found");
+  await TestUtils.waitForCondition(
+    () =>
+      BrowserTestUtils.isVisible(configFoundTemplate.querySelector("#imap")),
+    "The IMAP config option should be visible"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(
+    configFoundTemplate.querySelector("#editConfiguration"),
+    {}
+  );
+
+  const manualConfigTemplate = dialog.querySelector(
+    "#emailManualConfigSubview"
+  );
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(manualConfigTemplate),
+    "The manual config template should be in view"
+  );
+
+  return { dialog, manualConfigTemplate };
+}

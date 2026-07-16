@@ -278,7 +278,7 @@ account-hub-sync-accounts-failure = { -brand-short-name } was unable to connect 
 
 account-hub-email-added-success = Email account connected successfully
 
-account-hub-config-test-success = Configuration settings valid
+account-hub-config-test-success = { -brand-short-name } found the correct settings and updated them.
 
 account-hub-select-all = Select all
 
@@ -554,6 +554,8 @@ account-hub-thundermail-divider-text = or
 account-hub-manual-config-imap-title = IMAP Settings
 
 account-hub-manual-config-pop3-title = POP3 Settings
+
+account-hub-manual-config-review-settings-title = Review updated settings
 
 account-hub-manual-config-incoming-legend = Incoming server
 

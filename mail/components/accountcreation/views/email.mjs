@@ -1183,19 +1183,7 @@ class AccountHubEmail extends HTMLElement {
         }
 
         stateData = this.#currentSubview.captureState();
-        // #validateAccountConfig can move the flow to emailPasswordSubview
-        // when credentials are still needed. If it doesn't, account creation
-        // already completed and we can continue to sync account discovery.
-        if (!(await this.#validateAccountConfig(stateData))) {
-          break;
-        }
-
-        // If we are not in the password subview, that means the account
-        // has been created and we can fetch the sync accounts.
-        if (this.#currentState != "emailPasswordSubview") {
-          await this.#fetchSyncAccounts();
-        }
-
+        await this.#testManualConfig(stateData);
         break;
       case "exchangeTypeSubview":
         if (!(await this.#validateAccountConfig(stateData))) {
@@ -1629,6 +1617,74 @@ class AccountHubEmail extends HTMLElement {
     } finally {
       this.abortable = null;
     }
+  }
+
+  /**
+   * Test the combined incoming/outgoing manual configuration and reflect any
+   * updated settings in the form.
+   *
+   * @param {AccountConfig} stateData - The manual configuration to test.
+   * @returns {Promise<boolean>} Whether the tested config is complete.
+   */
+  async #testManualConfig(stateData) {
+    this.#startLoading("account-hub-adding-account-subheader");
+
+    try {
+      const config = await this.#guessConfig(
+        this.#email.split("@")[1],
+        this.#fillAccountConfig(stateData)
+      );
+      config.validateSocketType();
+
+      if (this.#currentConfig?.hasPassword()) {
+        config.incoming.password = this.#currentConfig.incoming.password;
+        config.outgoing.password = this.#currentConfig.outgoing.password;
+      }
+
+      this.#currentConfig = this.#fillAccountConfig(config);
+      this.#stopLoading();
+      this.#currentSubview.setState(this.#currentConfig);
+
+      if (this.#currentConfig.isComplete()) {
+        this.#currentSubview.setTitle(
+          "account-hub-manual-config-review-settings-title"
+        );
+        this.#currentSubview.showNotification({
+          fluentTitleId: "account-hub-config-test-success",
+          type: "success",
+        });
+        this.#emailFooter.toggleForwardDisabled(false);
+        return true;
+      }
+
+      if (!(await this.#currentSubview.validate())) {
+        this.#emailFooter.toggleForwardDisabled(true);
+        return false;
+      }
+
+      this.#currentSubview.showNotification({
+        fluentTitleId: "account-hub-find-account-settings-failed",
+        type: "warning",
+      });
+      this.#emailFooter.toggleForwardDisabled(true);
+    } catch (error) {
+      this.#stopLoading();
+
+      if (
+        error instanceof UserCancelledException ||
+        error instanceof UserSkippedError
+      ) {
+        return false;
+      }
+
+      this.#currentSubview.showNotification({
+        fluentTitleId: "account-hub-find-settings-failed",
+        error,
+        type: "error",
+      });
+    }
+
+    return false;
   }
 
   /**

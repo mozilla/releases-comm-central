@@ -190,7 +190,7 @@ class AccountHubInput extends HTMLElement {
       if (helpText) {
         this.#input.setAttribute("aria-describedby", helpText.id);
       } else {
-        this.#input.removeAttribute("aria-describedby");
+        this.#input.ariaDescribedByElements = [];
       }
       this.#error.removeAttribute("role");
       return;
