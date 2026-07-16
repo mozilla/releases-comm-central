@@ -83,6 +83,58 @@ add_task(function test_applyRetentionSettings() {
   }
 });
 
+// Regression test for bug 2054592. markPendingRemoval() gets called repeatedly
+// for the same headers (e.g. ApplyRetentionSettings re-marks every expired
+// offline message on each run). expungedBytes must reflect the state change,
+// not accumulate on every call.
+add_task(function test_markPendingRemovalAccounting() {
+  const folder = IMAPPump.inbox;
+  const header = [...folder.msgDatabase.enumerateMessages()][0];
+  Assert.ok(
+    header.flags & Ci.nsMsgMessageFlags.Offline,
+    "test message should be stored offline"
+  );
+  const size = header.offlineMessageSize;
+  Assert.greater(size, 0, "offline message should have a non-zero size");
+
+  const initial = folder.expungedBytes;
+
+  // First mark: expungedBytes grows by the message's offline size.
+  folder.markPendingRemoval(header, true);
+  Assert.equal(header.getStringProperty("pendingRemoval"), "1");
+  Assert.equal(
+    folder.expungedBytes,
+    initial + size,
+    "marking should add the message size once"
+  );
+
+  // Re-marking an already-marked message must be a no-op for expungedBytes.
+  folder.markPendingRemoval(header, true);
+  folder.markPendingRemoval(header, true);
+  Assert.equal(
+    folder.expungedBytes,
+    initial + size,
+    "re-marking must not inflate expungedBytes"
+  );
+
+  // Unmarking removes the message size again.
+  folder.markPendingRemoval(header, false);
+  Assert.equal(header.getStringProperty("pendingRemoval"), "");
+  Assert.equal(
+    folder.expungedBytes,
+    initial,
+    "unmarking should subtract the message size"
+  );
+
+  // Redundant unmark is likewise a no-op.
+  folder.markPendingRemoval(header, false);
+  Assert.equal(
+    folder.expungedBytes,
+    initial,
+    "redundant unmark should not change expungedBytes"
+  );
+});
+
 add_task(function endTest() {
   teardownIMAPPump();
 });

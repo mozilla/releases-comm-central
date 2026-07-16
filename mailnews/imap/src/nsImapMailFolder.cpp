@@ -1304,16 +1304,28 @@ NS_IMETHODIMP nsImapMailFolder::Compact(nsIUrlListener* aListener,
 NS_IMETHODIMP nsImapMailFolder::MarkPendingRemoval(nsIMsgDBHdr* aHdr,
                                                    bool aMark) {
   NS_ENSURE_ARG_POINTER(aHdr);
+  // Only touch expungedBytes when the flag actually changes state. This method
+  // gets called repeatedly for the same headers (e.g. from
+  // ApplyRetentionSettings every time it runs), so unconditionally adjusting
+  // the count would let it drift far above the real reclaimable size.
+  nsAutoCString pendingRemoval;
+  aHdr->GetStringProperty("pendingRemoval", pendingRemoval);
+  bool wasMarked = !pendingRemoval.IsEmpty();
+  if (aMark == wasMarked) {
+    return NS_OK;
+  }
+
+  aHdr->SetStringProperty("pendingRemoval", aMark ? "1"_ns : ""_ns);
+
   uint32_t offlineMessageSize;
   aHdr->GetOfflineMessageSize(&offlineMessageSize);
-  aHdr->SetStringProperty("pendingRemoval", aMark ? "1"_ns : ""_ns);
-  if (!aMark) return NS_OK;
   nsresult rv = GetDatabase();
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;
   rv = mDatabase->GetDBFolderInfo(getter_AddRefs(dbFolderInfo));
   NS_ENSURE_SUCCESS(rv, rv);
-  return dbFolderInfo->ChangeExpungedBytes(offlineMessageSize);
+  return dbFolderInfo->ChangeExpungedBytes(
+      aMark ? (int32_t)offlineMessageSize : -(int32_t)offlineMessageSize);
 }
 
 NS_IMETHODIMP nsImapMailFolder::Expunge(nsIUrlListener* aListener,
