@@ -29,6 +29,12 @@ XPCOMUtils.defineLazyPreferenceGetter(lazy, "dateFormat", "calendar.date.format"
 /** Cache of calls to new Services.intl.DateTimeFormat. */
 var formatCache = new Map();
 
+// Formatters depend on the application locale, so drop the cache whenever it
+// changes. This notification also fires once the locale finishes initializing
+// at startup, which discards any formatter that was created against a fallback
+// locale before then.
+Services.obs.addObserver(() => formatCache.clear(), "intl:app-locales-changed");
+
 export var formatter = {
   /**
    * Format a date in either short or long format, depending on the users preference.
