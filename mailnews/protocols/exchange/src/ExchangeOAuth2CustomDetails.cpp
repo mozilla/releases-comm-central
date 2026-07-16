@@ -54,12 +54,10 @@ static nsresult MigrateOAuthDetailsIfNecessary(const nsACString& type,
   nsCOMPtr<nsIPrefBranch> oldPrefBranch;
   nsresult rv =
       prefs->GetBranch(oldPrefBranchBase.get(), getter_AddRefs(oldPrefBranch));
-  NS_ENSURE_SUCCESS(rv, rv);
-  if (oldPrefBranch) {
+  if (NS_SUCCEEDED(rv) && oldPrefBranch) {
     bool oldCustomDetails = false;
     rv = oldPrefBranch->GetBoolPref(kUseCustomDetails, &oldCustomDetails);
-    NS_ENSURE_SUCCESS(rv, rv);
-    if (oldCustomDetails) {
+    if (NS_SUCCEEDED(rv) && oldCustomDetails) {
       const auto newBranchName = DetailsPrefsKey(type, hostname, username);
 
       nsCOMPtr<nsIPrefBranch> newPrefBranch;
