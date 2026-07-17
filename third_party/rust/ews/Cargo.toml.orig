@@ -1,6 +1,6 @@
 [package]
 name = "ews"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "Data structures and operations relating to the Exchange Web Services API."
 categories = ["data-structures"]

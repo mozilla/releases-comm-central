@@ -80,8 +80,7 @@ pub struct UpdateFolderResponseMessage {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::test_utils::assert_deserialized_content;
-    use crate::test_utils::assert_serialized_content;
+    use crate::test_utils::{assert_deserialized_content, assert_serialized_content, minify_xml};
     use crate::{BaseFolderId, FolderId, ResponseClass, ResponseMessages};
 
     #[test]
@@ -112,26 +111,45 @@ mod tests {
             },
         };
 
-        let expected = r#"<UpdateFolder xmlns="http://schemas.microsoft.com/exchange/services/2006/messages"><FolderChanges><t:FolderChange><t:FolderId Id="AScA" ChangeKey="GO3u/"/><t:Updates><t:SetFolderField><t:FieldURI FieldURI="folder:DisplayName"/><t:Folder><t:DisplayName>NewFolderName</t:DisplayName></t:Folder></t:SetFolderField></t:Updates></t:FolderChange></FolderChanges></UpdateFolder>"#;
+        let expected = minify_xml(
+            r#"
+            <UpdateFolder xmlns="http://schemas.microsoft.com/exchange/services/2006/messages">
+              <FolderChanges>
+                <t:FolderChange>
+                  <t:FolderId Id="AScA" ChangeKey="GO3u/"/>
+                  <t:Updates>
+                    <t:SetFolderField>
+                      <t:FieldURI FieldURI="folder:DisplayName"/>
+                      <t:Folder>
+                        <t:DisplayName>NewFolderName</t:DisplayName>
+                      </t:Folder>
+                    </t:SetFolderField>
+                  </t:Updates>
+                </t:FolderChange>
+              </FolderChanges>
+            </UpdateFolder>"#,
+        );
 
-        assert_serialized_content(&update_folder, "UpdateFolder", expected);
+        assert_serialized_content(&update_folder, "UpdateFolder", &expected);
     }
 
     #[test]
     fn deserialize_update_response() {
-        let content = r#"<UpdateFolderResponse xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
-                          xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types"
-                          xmlns="http://schemas.microsoft.com/exchange/services/2006/messages">
-                <m:ResponseMessages>
-                    <m:UpdateFolderResponseMessage ResponseClass="Success">
-                    <m:ResponseCode>NoError</m:ResponseCode>
-                    <m:Folders>
-                        <t:Folder>
-                        <t:FolderId Id="AAAlAFVz" ChangeKey="AQAAAB" />
-                        </t:Folder>
-                    </m:Folders>
-                    </m:UpdateFolderResponseMessage>
-                </m:ResponseMessages>
+        let content = r#"
+            <UpdateFolderResponse
+                xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
+                xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types"
+                xmlns="http://schemas.microsoft.com/exchange/services/2006/messages">
+              <m:ResponseMessages>
+                <m:UpdateFolderResponseMessage ResponseClass="Success">
+                  <m:ResponseCode>NoError</m:ResponseCode>
+                  <m:Folders>
+                    <t:Folder>
+                      <t:FolderId Id="AAAlAFVz" ChangeKey="AQAAAB" />
+                    </t:Folder>
+                  </m:Folders>
+                </m:UpdateFolderResponseMessage>
+              </m:ResponseMessages>
             </UpdateFolderResponse>"#;
 
         let expected = UpdateFolderResponse {

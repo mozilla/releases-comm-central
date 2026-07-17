@@ -48,16 +48,18 @@ mod test {
 
     #[test]
     fn test_deserialize_create_item_response() {
-        let content = r#"<CreateItemResponse xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
-                        xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types"
-                        xmlns="http://schemas.microsoft.com/exchange/services/2006/messages">
-                    <m:ResponseMessages>
-                        <m:CreateItemResponseMessage ResponseClass="Success">
-                        <m:ResponseCode>NoError</m:ResponseCode>
-                        <m:Items />
-                        </m:CreateItemResponseMessage>
-                    </m:ResponseMessages>
-                    </CreateItemResponse>"#;
+        let content = r#"
+            <CreateItemResponse
+                xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
+                xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types"
+                xmlns="http://schemas.microsoft.com/exchange/services/2006/messages">
+              <m:ResponseMessages>
+                <m:CreateItemResponseMessage ResponseClass="Success">
+                  <m:ResponseCode>NoError</m:ResponseCode>
+                  <m:Items />
+                </m:CreateItemResponseMessage>
+              </m:ResponseMessages>
+            </CreateItemResponse>"#;
 
         let expected = CreateItemResponse {
             response_messages: ResponseMessages {

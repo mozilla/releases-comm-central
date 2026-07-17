@@ -22,7 +22,7 @@ pub struct MoveFolder {
 mod test {
     use crate::{
         move_folder::{MoveFolder, MoveFolderResponse},
-        test_utils::{assert_deserialized_content, assert_serialized_content},
+        test_utils::{assert_deserialized_content, assert_serialized_content, minify_xml},
         BaseFolderId, CopyMoveFolderData, Folder, FolderId, FolderResponseMessage, Folders,
         ResponseClass, ResponseMessages,
     };
@@ -42,27 +42,39 @@ mod test {
             },
         };
 
-        let expected = r#"<MoveFolder xmlns="http://schemas.microsoft.com/exchange/services/2006/messages"><ToFolderId><t:DistinguishedFolderId Id="junkemail"/></ToFolderId><FolderIds><t:FolderId Id="AScAc"/></FolderIds></MoveFolder>"#;
+        let expected = minify_xml(
+            r#"
+            <MoveFolder xmlns="http://schemas.microsoft.com/exchange/services/2006/messages">
+              <ToFolderId>
+                <t:DistinguishedFolderId Id="junkemail"/>
+              </ToFolderId>
+              <FolderIds>
+                <t:FolderId Id="AScAc"/>
+              </FolderIds>
+            </MoveFolder>"#,
+        );
 
-        assert_serialized_content(&move_folder, "MoveFolder", expected);
+        assert_serialized_content(&move_folder, "MoveFolder", &expected);
     }
 
     #[test]
     fn test_deserialize_move_folder_response() {
-        let content = r#"<MoveFolderResponse xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
-                    xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types"
-                    xmlns="http://schemas.microsoft.com/exchange/services/2006/messages">
-                    <m:ResponseMessages>
-                        <m:MoveFolderResponseMessage ResponseClass="Success">
-                        <m:ResponseCode>NoError</m:ResponseCode>
-                        <m:Folders>
-                            <t:Folder>
-                            <t:FolderId Id="AAAlAFV" ChangeKey="AQAAAB" />
-                            </t:Folder>
-                        </m:Folders>
-                        </m:MoveFolderResponseMessage>
-                    </m:ResponseMessages>
-                    </MoveFolderResponse>"#;
+        let content = r#"
+            <MoveFolderResponse
+                xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
+                xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types"
+                xmlns="http://schemas.microsoft.com/exchange/services/2006/messages">
+              <m:ResponseMessages>
+                <m:MoveFolderResponseMessage ResponseClass="Success">
+                  <m:ResponseCode>NoError</m:ResponseCode>
+                  <m:Folders>
+                    <t:Folder>
+                      <t:FolderId Id="AAAlAFV" ChangeKey="AQAAAB" />
+                    </t:Folder>
+                  </m:Folders>
+                </m:MoveFolderResponseMessage>
+              </m:ResponseMessages>
+            </MoveFolderResponse>"#;
 
         let response = MoveFolderResponse {
             response_messages: ResponseMessages {

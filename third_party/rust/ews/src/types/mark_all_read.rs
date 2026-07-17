@@ -33,7 +33,7 @@ mod test {
         mark_all_read::{
             MarkAllItemsAsRead, MarkAllItemsAsReadResponse, MarkAllItemsAsReadResponseMessage,
         },
-        test_utils::{assert_deserialized_content, assert_serialized_content},
+        test_utils::{assert_deserialized_content, assert_serialized_content, minify_xml},
         BaseFolderId, ResponseClass, ResponseMessages,
     };
 
@@ -48,20 +48,31 @@ mod test {
             }],
         };
 
-        let expected = r#"<MarkAllItemsAsRead xmlns="http://schemas.microsoft.com/exchange/services/2006/messages"><ReadFlag>true</ReadFlag><SuppressReadReceipts>true</SuppressReadReceipts><FolderIds><t:FolderId Id="AAMkADEzOTExYZRAAA=" ChangeKey="AQAAAAA3vA=="/></FolderIds></MarkAllItemsAsRead>"#;
+        let expected = minify_xml(
+            r#"
+            <MarkAllItemsAsRead xmlns="http://schemas.microsoft.com/exchange/services/2006/messages">
+              <ReadFlag>true</ReadFlag>
+              <SuppressReadReceipts>true</SuppressReadReceipts>
+              <FolderIds>
+                <t:FolderId Id="AAMkADEzOTExYZRAAA=" ChangeKey="AQAAAAA3vA=="/>
+              </FolderIds>
+            </MarkAllItemsAsRead>"#,
+        );
 
-        assert_serialized_content(&mark_all_items_as_read, "MarkAllItemsAsRead", expected);
+        assert_serialized_content(&mark_all_items_as_read, "MarkAllItemsAsRead", &expected);
     }
 
     #[test]
     fn test_deserialize_mark_all_items_as_read_response() {
-        let content = r#"<m:MarkAllItemsAsReadResponse xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
-            xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types">
-                <m:ResponseMessages>
-                    <m:MarkAllItemsAsReadResponseMessage ResponseClass="Success">
-                        <m:ResponseCode>NoError</m:ResponseCode>
-                    </m:MarkAllItemsAsReadResponseMessage>
-                </m:ResponseMessages>
+        let content = r#"
+            <m:MarkAllItemsAsReadResponse
+                xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
+                xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types">
+              <m:ResponseMessages>
+                <m:MarkAllItemsAsReadResponseMessage ResponseClass="Success">
+                  <m:ResponseCode>NoError</m:ResponseCode>
+                </m:MarkAllItemsAsReadResponseMessage>
+              </m:ResponseMessages>
             </m:MarkAllItemsAsReadResponse>"#;
 
         let response = MarkAllItemsAsReadResponse {

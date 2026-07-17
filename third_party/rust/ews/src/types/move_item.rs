@@ -23,7 +23,7 @@ pub struct MoveItem {
 #[cfg(test)]
 mod test {
     use crate::{
-        test_utils::{assert_deserialized_content, assert_serialized_content},
+        test_utils::{assert_deserialized_content, assert_serialized_content, minify_xml},
         types::common::ItemResponseMessage,
         BaseFolderId, BaseItemId, CopyMoveItemData, ItemId, Items, Message, RealItem,
         ResponseClass, ResponseMessages,
@@ -47,26 +47,38 @@ mod test {
             },
         };
 
-        let expected = r#"<MoveItem xmlns="http://schemas.microsoft.com/exchange/services/2006/messages"><ToFolderId><t:DistinguishedFolderId Id="drafts"/></ToFolderId><ItemIds><t:ItemId Id="AAAtAEF/swbAAA=" ChangeKey="EwAAABYA/s4b"/></ItemIds></MoveItem>"#;
+        let expected = minify_xml(
+            r#"
+            <MoveItem xmlns="http://schemas.microsoft.com/exchange/services/2006/messages">
+              <ToFolderId>
+                <t:DistinguishedFolderId Id="drafts"/>
+              </ToFolderId>
+              <ItemIds>
+                <t:ItemId Id="AAAtAEF/swbAAA=" ChangeKey="EwAAABYA/s4b"/>
+              </ItemIds>
+            </MoveItem>"#,
+        );
 
-        assert_serialized_content(&move_item, "MoveItem", expected);
+        assert_serialized_content(&move_item, "MoveItem", &expected);
     }
 
     #[test]
     fn test_deserialize_move_item_response() {
-        let content = r#"<MoveItemResponse xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
-                    xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types"
-                    xmlns="http://schemas.microsoft.com/exchange/services/2006/messages">
-                    <m:ResponseMessages>
-                    <m:MoveItemResponseMessage ResponseClass="Success">
-                    <m:ResponseCode>NoError</m:ResponseCode>
-                    <m:Items>
-                        <t:Message>
-                        <t:ItemId Id="AAMkAd" ChangeKey="FwAAABY" />
-                        </t:Message>
-                    </m:Items>
-                    </m:MoveItemResponseMessage>
-                </m:ResponseMessages>
+        let content = r#"
+            <MoveItemResponse
+                xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
+                xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types"
+                xmlns="http://schemas.microsoft.com/exchange/services/2006/messages">
+              <m:ResponseMessages>
+                <m:MoveItemResponseMessage ResponseClass="Success">
+                  <m:ResponseCode>NoError</m:ResponseCode>
+                  <m:Items>
+                    <t:Message>
+                      <t:ItemId Id="AAMkAd" ChangeKey="FwAAABY" />
+                    </t:Message>
+                  </m:Items>
+                </m:MoveItemResponseMessage>
+              </m:ResponseMessages>
             </MoveItemResponse>"#;
 
         let response = MoveItemResponse {

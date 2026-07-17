@@ -40,3 +40,10 @@ where
     let deserialized_data: T = serde_path_to_error::deserialize(&mut deserializer).unwrap();
     assert_eq!(deserialized_data, expected);
 }
+
+/// Turn the given XML into a single line, stripping leading whitespace.
+///
+/// Useful for turning readable XML into expected serialized output.
+pub fn minify_xml(xml: &str) -> String {
+    xml.lines().map(str::trim_ascii_start).collect()
+}

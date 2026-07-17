@@ -22,7 +22,7 @@ pub struct CopyItem {
 mod test {
     use crate::{
         copy_item::{CopyItem, CopyItemResponse},
-        test_utils::{assert_deserialized_content, assert_serialized_content},
+        test_utils::{assert_deserialized_content, assert_serialized_content, minify_xml},
         BaseFolderId, BaseItemId, CopyMoveItemData, ItemId, ItemResponseMessage, Items, Message,
         RealItem, ResponseClass, ResponseMessages,
     };
@@ -43,27 +43,39 @@ mod test {
             },
         };
 
-        let expected = r#"<CopyItem xmlns="http://schemas.microsoft.com/exchange/services/2006/messages"><ToFolderId><t:DistinguishedFolderId Id="inbox"/></ToFolderId><ItemIds><t:ItemId Id="AS4AUnV="/></ItemIds></CopyItem>"#;
+        let expected = minify_xml(
+            r#"
+            <CopyItem xmlns="http://schemas.microsoft.com/exchange/services/2006/messages">
+              <ToFolderId>
+                <t:DistinguishedFolderId Id="inbox"/>
+              </ToFolderId>
+              <ItemIds>
+                <t:ItemId Id="AS4AUnV="/>
+              </ItemIds>
+            </CopyItem>"#,
+        );
 
-        assert_serialized_content(&request, "CopyItem", expected);
+        assert_serialized_content(&request, "CopyItem", &expected);
     }
 
     #[test]
     fn test_deserialize_copy_item_response() {
-        let content = r#"<CopyItemResponse xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
-                      xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types"
-                      xmlns="http://schemas.microsoft.com/exchange/services/2006/messages">
-                        <m:ResponseMessages>
-                        <m:CopyItemResponseMessage ResponseClass="Success">
-                            <m:ResponseCode>NoError</m:ResponseCode>
-                            <m:Items>
-                                <t:Message>
-                                    <t:ItemId Id="AAMkAd" ChangeKey="FwAAABY" />
-                                </t:Message>
-                            </m:Items>
-                        </m:CopyItemResponseMessage>
-                        </m:ResponseMessages>
-                    </CopyItemResponse>"#;
+        let content = r#"
+            <CopyItemResponse
+                xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
+                xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types"
+                xmlns="http://schemas.microsoft.com/exchange/services/2006/messages">
+              <m:ResponseMessages>
+                <m:CopyItemResponseMessage ResponseClass="Success">
+                  <m:ResponseCode>NoError</m:ResponseCode>
+                  <m:Items>
+                    <t:Message>
+                      <t:ItemId Id="AAMkAd" ChangeKey="FwAAABY" />
+                    </t:Message>
+                  </m:Items>
+                </m:CopyItemResponseMessage>
+              </m:ResponseMessages>
+            </CopyItemResponse>"#;
 
         let expected = CopyItemResponse {
             response_messages: ResponseMessages {

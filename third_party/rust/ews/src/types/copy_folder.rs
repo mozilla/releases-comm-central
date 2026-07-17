@@ -22,7 +22,7 @@ pub struct CopyFolder {
 mod test {
     use crate::{
         copy_folder::{CopyFolder, CopyFolderResponse},
-        test_utils::{assert_deserialized_content, assert_serialized_content},
+        test_utils::{assert_deserialized_content, assert_serialized_content, minify_xml},
         BaseFolderId, CopyMoveFolderData, Folder, FolderId, FolderResponseMessage, Folders,
         ResponseClass,
     };
@@ -48,27 +48,40 @@ mod test {
             },
         };
 
-        let expected = r#"<CopyFolder xmlns="http://schemas.microsoft.com/exchange/services/2006/messages"><ToFolderId><t:DistinguishedFolderId Id="inbox"/></ToFolderId><FolderIds><t:FolderId Id="AS4A=" ChangeKey="fsVU4=="/><t:FolderId Id="AS4AU=" ChangeKey="fsVU4o=="/></FolderIds></CopyFolder>"#;
+        let expected = minify_xml(
+            r#"
+            <CopyFolder xmlns="http://schemas.microsoft.com/exchange/services/2006/messages">
+              <ToFolderId>
+                <t:DistinguishedFolderId Id="inbox"/>
+              </ToFolderId>
+              <FolderIds>
+                <t:FolderId Id="AS4A=" ChangeKey="fsVU4=="/>
+                <t:FolderId Id="AS4AU=" ChangeKey="fsVU4o=="/>
+              </FolderIds>
+            </CopyFolder>"#,
+        );
 
-        assert_serialized_content(&copy_folder, "CopyFolder", expected);
+        assert_serialized_content(&copy_folder, "CopyFolder", &expected);
     }
 
     #[test]
     fn test_deserialize_copy_folder_response() {
-        let content = r#"<CopyFolderResponse xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
-                        xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types" 
-                        xmlns="http://schemas.microsoft.com/exchange/services/2006/messages">
-                        <m:ResponseMessages>
-                            <m:CopyFolderResponseMessage ResponseClass="Success">
-                            <m:ResponseCode>NoError</m:ResponseCode>
-                            <m:Folders>
-                                <t:Folder>
-                                <t:FolderId Id="AS4AUn=" ChangeKey="fsVU4o==" />
-                                </t:Folder>
-                            </m:Folders>
-                            </m:CopyFolderResponseMessage>
-                        </m:ResponseMessages>
-                        </CopyFolderResponse>"#;
+        let content = r#"
+            <CopyFolderResponse
+                xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
+                xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types"
+                xmlns="http://schemas.microsoft.com/exchange/services/2006/messages">
+              <m:ResponseMessages>
+                <m:CopyFolderResponseMessage ResponseClass="Success">
+                  <m:ResponseCode>NoError</m:ResponseCode>
+                  <m:Folders>
+                    <t:Folder>
+                      <t:FolderId Id="AS4AUn=" ChangeKey="fsVU4o==" />
+                    </t:Folder>
+                  </m:Folders>
+                </m:CopyFolderResponseMessage>
+              </m:ResponseMessages>
+            </CopyFolderResponse>"#;
 
         let response = CopyFolderResponse {
             response_messages: crate::ResponseMessages {

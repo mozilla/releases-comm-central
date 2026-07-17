@@ -83,7 +83,7 @@ pub struct RootFolder {
 #[cfg(test)]
 mod tests {
     use crate::{
-        test_utils::{assert_deserialized_content, assert_serialized_content},
+        test_utils::{assert_deserialized_content, assert_serialized_content, minify_xml},
         BasePoint, BaseShape, Groups, ItemId, Items, Message, RealItem, ResponseClass,
         ResponseMessages,
     };
@@ -96,8 +96,7 @@ mod tests {
             traversal: Traversal::Shallow,
             item_shape: ItemShape {
                 base_shape: BaseShape::IdOnly,
-                include_mime_content: None,
-                additional_properties: None,
+                ..Default::default()
             },
             parent_folder_ids: vec![BaseFolderId::DistinguishedFolderId {
                 id: "deleteditems".to_string(),
@@ -110,19 +109,29 @@ mod tests {
             }),
         };
 
-        let expected = r#"<FindItem xmlns="http://schemas.microsoft.com/exchange/services/2006/messages" Traversal="Shallow"><ItemShape><t:BaseShape>IdOnly</t:BaseShape></ItemShape><IndexedPageItemView MaxEntriesReturned="6" BasePoint="Beginning" Offset="0"/><ParentFolderIds><t:DistinguishedFolderId Id="deleteditems"/></ParentFolderIds></FindItem>"#;
+        let expected = minify_xml(
+            r#"
+            <FindItem xmlns="http://schemas.microsoft.com/exchange/services/2006/messages" Traversal="Shallow">
+              <ItemShape>
+                <t:BaseShape>IdOnly</t:BaseShape>
+              </ItemShape>
+              <IndexedPageItemView MaxEntriesReturned="6" BasePoint="Beginning" Offset="0"/>
+              <ParentFolderIds>
+                <t:DistinguishedFolderId Id="deleteditems"/>
+              </ParentFolderIds>
+            </FindItem>"#,
+        );
 
-        assert_serialized_content(&find_item, "FindItem", expected);
+        assert_serialized_content(&find_item, "FindItem", &expected);
     }
 
     #[test]
     fn test_serialize_find_item_fractional_page_item_view() {
-        let finditem = FindItem {
+        let find_item = FindItem {
             traversal: Traversal::Shallow,
             item_shape: ItemShape {
                 base_shape: BaseShape::IdOnly,
-                include_mime_content: None,
-                additional_properties: None,
+                ..Default::default()
             },
             parent_folder_ids: vec![BaseFolderId::DistinguishedFolderId {
                 id: "inbox".to_string(),
@@ -135,18 +144,28 @@ mod tests {
             }),
         };
 
-        let expected = r#"<FindItem xmlns="http://schemas.microsoft.com/exchange/services/2006/messages" Traversal="Shallow"><ItemShape><t:BaseShape>IdOnly</t:BaseShape></ItemShape><FractionalPageItemView MaxEntriesReturned="12" Numerator="2" Denominator="3"/><ParentFolderIds><t:DistinguishedFolderId Id="inbox"/></ParentFolderIds></FindItem>"#;
-        assert_serialized_content(&finditem, "FindItem", expected);
+        let expected = minify_xml(
+            r#"
+            <FindItem xmlns="http://schemas.microsoft.com/exchange/services/2006/messages" Traversal="Shallow">
+              <ItemShape>
+                <t:BaseShape>IdOnly</t:BaseShape>
+              </ItemShape>
+              <FractionalPageItemView MaxEntriesReturned="12" Numerator="2" Denominator="3"/>
+              <ParentFolderIds>
+                <t:DistinguishedFolderId Id="inbox"/>
+              </ParentFolderIds>
+            </FindItem>"#,
+        );
+        assert_serialized_content(&find_item, "FindItem", &expected);
     }
 
     #[test]
     fn test_serialize_find_item_calendar_view() {
-        let finditem = FindItem {
+        let find_item = FindItem {
             traversal: Traversal::Shallow,
             item_shape: ItemShape {
                 base_shape: BaseShape::IdOnly,
-                include_mime_content: None,
-                additional_properties: None,
+                ..Default::default()
             },
             parent_folder_ids: vec![BaseFolderId::DistinguishedFolderId {
                 id: "calendar".to_string(),
@@ -159,19 +178,29 @@ mod tests {
             }),
         };
 
-        let expected = r#"<FindItem xmlns="http://schemas.microsoft.com/exchange/services/2006/messages" Traversal="Shallow"><ItemShape><t:BaseShape>IdOnly</t:BaseShape></ItemShape><CalendarView MaxEntriesReturned="2" StartDate="2006-05-18T00:00:00-08:00" EndDate="2006-05-19T00:00:00-08:00"/><ParentFolderIds><t:DistinguishedFolderId Id="calendar"/></ParentFolderIds></FindItem>"#;
+        let expected = minify_xml(
+            r#"
+            <FindItem xmlns="http://schemas.microsoft.com/exchange/services/2006/messages" Traversal="Shallow">
+              <ItemShape>
+                <t:BaseShape>IdOnly</t:BaseShape>
+              </ItemShape>
+              <CalendarView MaxEntriesReturned="2" StartDate="2006-05-18T00:00:00-08:00" EndDate="2006-05-19T00:00:00-08:00"/>
+              <ParentFolderIds>
+                <t:DistinguishedFolderId Id="calendar"/>
+              </ParentFolderIds>
+            </FindItem>"#,
+        );
 
-        assert_serialized_content(&finditem, "FindItem", expected);
+        assert_serialized_content(&find_item, "FindItem", &expected);
     }
 
     #[test]
     fn test_serialize_find_item_contacts_view() {
-        let finditem = FindItem {
+        let find_item = FindItem {
             traversal: Traversal::Shallow,
             item_shape: ItemShape {
                 base_shape: BaseShape::IdOnly,
-                include_mime_content: None,
-                additional_properties: None,
+                ..Default::default()
             },
             parent_folder_ids: vec![BaseFolderId::DistinguishedFolderId {
                 id: "contacts".to_string(),
@@ -184,17 +213,32 @@ mod tests {
             }),
         };
 
-        let expected = r#"<FindItem xmlns="http://schemas.microsoft.com/exchange/services/2006/messages" Traversal="Shallow"><ItemShape><t:BaseShape>IdOnly</t:BaseShape></ItemShape><ContactsView MaxEntriesReturned="3" InitialName="Kelly Rollin"/><ParentFolderIds><t:DistinguishedFolderId Id="contacts"/></ParentFolderIds></FindItem>"#;
+        let expected = minify_xml(
+            r#"
+            <FindItem xmlns="http://schemas.microsoft.com/exchange/services/2006/messages" Traversal="Shallow">
+              <ItemShape>
+                <t:BaseShape>IdOnly</t:BaseShape>
+              </ItemShape>
+              <ContactsView MaxEntriesReturned="3" InitialName="Kelly Rollin"/>
+              <ParentFolderIds>
+                <t:DistinguishedFolderId Id="contacts"/>
+              </ParentFolderIds>
+            </FindItem>"#,
+        );
 
-        assert_serialized_content(&finditem, "FindItem", expected);
+        assert_serialized_content(&find_item, "FindItem", &expected);
     }
 
     #[test]
     fn test_deserialize_root_folder() {
         let xml = r#"
-                    <m:RootFolder IndexedPagingOffset="1" NumeratorOffset="1" AbsoluteDenominator="1" IncludesLastItemInRange="true" TotalItemsInView="10">
-                        <Items/>
-                    </m:RootFolder>"#;
+            <m:RootFolder
+                IndexedPagingOffset="1"
+                NumeratorOffset="1"
+                AbsoluteDenominator="1"
+                IncludesLastItemInRange="true" TotalItemsInView="10">
+              <Items/>
+            </m:RootFolder>"#;
         let expected = RootFolder {
             indexed_paging_offset: Some(1),
             numerator_offset: Some(1),
@@ -211,23 +255,24 @@ mod tests {
     #[test]
     fn test_deserialize_find_item_response_message() {
         let content = r#"
-                    <FindItemResponse xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
-                        xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types"
-                        xmlns="http://schemas.microsoft.com/exchange/services/2006/messages">
-                        <m:ResponseMessages>
-                            <m:FindItemResponseMessage ResponseClass="Success">
-                            <m:ResponseCode>NoError</m:ResponseCode>
-                            <m:RootFolder IncludesLastItemInRange="true" TotalItemsInView="10">
-                                <Items>
-                                    <t:Message>
-                                        <t:ItemId Id="AS4AUn=" ChangeKey="fsVU4==" />
-                                    </t:Message>
-                               </Items>
-                               <Groups/>
-                            </m:RootFolder>
-                            </m:FindItemResponseMessage>
-                        </m:ResponseMessages>
-                    </FindItemResponse>"#;
+            <FindItemResponse
+                xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
+                xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types"
+                xmlns="http://schemas.microsoft.com/exchange/services/2006/messages">
+              <m:ResponseMessages>
+                <m:FindItemResponseMessage ResponseClass="Success">
+                  <m:ResponseCode>NoError</m:ResponseCode>
+                  <m:RootFolder IncludesLastItemInRange="true" TotalItemsInView="10">
+                    <Items>
+                      <t:Message>
+                        <t:ItemId Id="AS4AUn=" ChangeKey="fsVU4==" />
+                      </t:Message>
+                    </Items>
+                    <Groups/>
+                  </m:RootFolder>
+                </m:FindItemResponseMessage>
+              </m:ResponseMessages>
+            </FindItemResponse>"#;
 
         let response = FindItemResponse {
             response_messages: ResponseMessages {

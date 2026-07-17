@@ -12,7 +12,7 @@
 [package]
 edition = "2021"
 name = "ews"
-version = "0.1.0"
+version = "0.1.1"
 build = false
 exclude = [
     ".github",

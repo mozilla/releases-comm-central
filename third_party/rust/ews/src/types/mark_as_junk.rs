@@ -32,11 +32,9 @@ pub struct MarkAsJunkResponseMessage {
 
 #[cfg(test)]
 mod test {
-    use std::vec;
-
     use crate::{
         mark_as_junk::{MarkAsJunk, MarkAsJunkResponse, MarkAsJunkResponseMessage},
-        test_utils::{assert_deserialized_content, assert_serialized_content},
+        test_utils::{assert_deserialized_content, assert_serialized_content, minify_xml},
         BaseItemId, ItemId, ResponseClass, ResponseMessages,
     };
 
@@ -51,21 +49,30 @@ mod test {
             }],
         };
 
-        let expected = r#"<MarkAsJunk xmlns="http://schemas.microsoft.com/exchange/services/2006/messages" IsJunk="true" MoveItem="true"><ItemIds><t:ItemId Id="AAMkAD=" ChangeKey="CQAAABYA"/></ItemIds></MarkAsJunk>"#;
+        let expected = minify_xml(
+            r#"
+            <MarkAsJunk xmlns="http://schemas.microsoft.com/exchange/services/2006/messages" IsJunk="true" MoveItem="true">
+              <ItemIds>
+                <t:ItemId Id="AAMkAD=" ChangeKey="CQAAABYA"/>
+              </ItemIds>
+            </MarkAsJunk>"#,
+        );
 
-        assert_serialized_content(&mark_as_junk, "MarkAsJunk", expected);
+        assert_serialized_content(&mark_as_junk, "MarkAsJunk", &expected);
     }
 
     #[test]
     fn test_deserialize_mark_as_junk_response() {
-        let content = r#"<m:MarkAsJunkResponse xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
-            xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types">
-            <m:ResponseMessages>
+        let content = r#"
+            <m:MarkAsJunkResponse
+                xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
+                xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types">
+              <m:ResponseMessages>
                 <m:MarkAsJunkResponseMessage ResponseClass="Success">
-                    <m:ResponseCode>NoError</m:ResponseCode>
-                    <m:MovedItemId Id="AAMkAD=" ChangeKey="CQAAABYu" />
+                  <m:ResponseCode>NoError</m:ResponseCode>
+                  <m:MovedItemId Id="AAMkAD=" ChangeKey="CQAAABYu" />
                 </m:MarkAsJunkResponseMessage>
-            </m:ResponseMessages>
+              </m:ResponseMessages>
             </m:MarkAsJunkResponse>"#;
 
         let response = MarkAsJunkResponse {

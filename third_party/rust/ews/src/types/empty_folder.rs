@@ -39,7 +39,7 @@ pub struct EmptyFolderResponseMessage {}
 mod test {
     use crate::{
         empty_folder::{EmptyFolder, EmptyFolderResponse, EmptyFolderResponseMessage},
-        test_utils::{assert_deserialized_content, assert_serialized_content},
+        test_utils::{assert_deserialized_content, assert_serialized_content, minify_xml},
         BaseFolderId, DeleteType, ResponseClass, ResponseMessages,
     };
 
@@ -54,21 +54,30 @@ mod test {
             }],
         };
 
-        let expected = r#"<EmptyFolder xmlns="http://schemas.microsoft.com/exchange/services/2006/messages" DeleteType="HardDelete" DeleteSubFolders="true"><FolderIds><t:FolderId Id="AAMkADEzOTExYZRAAA=" ChangeKey="AQAAAAA3vA=="/></FolderIds></EmptyFolder>"#;
+        let expected = minify_xml(
+            r#"
+            <EmptyFolder xmlns="http://schemas.microsoft.com/exchange/services/2006/messages" DeleteType="HardDelete" DeleteSubFolders="true">
+              <FolderIds>
+                <t:FolderId Id="AAMkADEzOTExYZRAAA=" ChangeKey="AQAAAAA3vA=="/>
+              </FolderIds>
+            </EmptyFolder>"#,
+        );
 
-        assert_serialized_content(&empty_folder, "EmptyFolder", expected);
+        assert_serialized_content(&empty_folder, "EmptyFolder", &expected);
     }
 
     #[test]
     fn test_deserialize_empty_folder_response() {
-        let content = r#"<m:EmptyFolderResponse xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
-            xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types">
-                <m:ResponseMessages>
-                  <m:EmptyFolderResponseMessage ResponseClass="Success">
-                    <m:ResponseCode>NoError</m:ResponseCode>
-                  </m:EmptyFolderResponseMessage>
-                </m:ResponseMessages>
-              </m:EmptyFolderResponse>"#;
+        let content = r#"
+            <m:EmptyFolderResponse
+                xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
+                xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types">
+              <m:ResponseMessages>
+                <m:EmptyFolderResponseMessage ResponseClass="Success">
+                  <m:ResponseCode>NoError</m:ResponseCode>
+                </m:EmptyFolderResponseMessage>
+              </m:ResponseMessages>
+            </m:EmptyFolderResponse>"#;
 
         let response = EmptyFolderResponse {
             response_messages: ResponseMessages {

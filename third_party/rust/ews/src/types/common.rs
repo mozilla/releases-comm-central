@@ -4,8 +4,9 @@
 
 use std::ops::{Deref, DerefMut};
 
-use serde::{Deserialize, Deserializer};
+use serde::{de, Deserialize, Deserializer};
 use time::format_description::well_known::Iso8601;
+use time::{OffsetDateTime, PrimitiveDateTime};
 use xml_struct::XmlSerialize;
 
 pub mod response;
@@ -603,8 +604,29 @@ impl RealItem {
 /// A date and time with second precision.
 // `time` provides an `Option<OffsetDateTime>` deserializer, but it does not
 // work with map fields which may be omitted, as in our case.
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
-pub struct DateTime(#[serde(with = "time::serde::iso8601")] pub time::OffsetDateTime);
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct DateTime(pub OffsetDateTime);
+
+// While the docs say "Exchange will always include a time zone (either UTC or a
+// specific time zone) in the value", there appears to be a bug where
+// attachments will sometimes return a `LastModifiedTime` without a timezone.
+// This custom deserializer adds a fallback to parse such strings as UTC.
+impl<'de> Deserialize<'de> for DateTime {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let value = String::deserialize(deserializer)?;
+
+        if let Ok(date_time) = OffsetDateTime::parse(&value, &Iso8601::DEFAULT) {
+            Ok(Self(date_time))
+        } else {
+            PrimitiveDateTime::parse(&value, &Iso8601::DEFAULT)
+                .map(|date_time| Self(date_time.assume_utc()))
+                .map_err(de::Error::custom)
+        }
+    }
+}
 
 impl XmlSerialize for DateTime {
     /// Serializes a `DateTime` as an XML text content node by formatting the
@@ -1314,112 +1336,58 @@ mod tests {
 
     use super::*;
     use crate::{
-        test_utils::{assert_deserialized_content, assert_serialized_content},
+        test_utils::{assert_deserialized_content, assert_serialized_content, minify_xml},
         Error,
     };
 
-    /// Tests that an [`ArrayOfRecipients`] correctly serializes into XML. It
-    /// should serialize as multiple `<t:Mailbox>` elements, one per [`Recipient`].
+    /// Tests that an [`ArrayOfRecipients`] correctly serializes into XML and
+    /// back again. There should be a 1-to-1 correspondence between
+    /// `<t:Mailbox>` elements and [`Recipient`]s.
     #[test]
-    fn serialize_array_of_recipients() -> Result<(), Error> {
-        // Define the recipients to serialize.
-        let alice = Recipient {
-            mailbox: Mailbox {
-                name: Some("Alice Test".into()),
-                email_address: Some("alice@test.com".into()),
-                routing_type: None,
-                mailbox_type: None,
-                item_id: None,
-            },
-        };
+    fn test_array_of_recipients() -> Result<(), Error> {
+        let xml = minify_xml(
+            r#"
+            <Recipients>
+              <t:Mailbox>
+                <t:Name>Alice Test</t:Name>
+                <t:EmailAddress>alice@test.com</t:EmailAddress>
+              </t:Mailbox>
+              <t:Mailbox>
+                <t:Name>Bob Test</t:Name>
+                <t:EmailAddress>bob@test.com</t:EmailAddress>
+              </t:Mailbox>
+              <t:Mailbox>
+                <t:Name>Charlie Test</t:Name>
+              </t:Mailbox>
+            </Recipients>"#,
+        );
 
-        let bob = Recipient {
-            mailbox: Mailbox {
-                name: Some("Bob Test".into()),
-                email_address: Some("bob@test.com".into()),
-                routing_type: None,
-                mailbox_type: None,
-                item_id: None,
-            },
-        };
-
-        let charlie = Recipient {
-            mailbox: Mailbox {
-                name: Some("Charlie Test".into()),
-                email_address: None,
-                routing_type: None,
-                mailbox_type: None,
-                item_id: None,
-            },
-        };
-
-        let recipients = ArrayOfRecipients(vec![alice, bob, charlie]);
-
-        // Ensure the structure of the XML document is correct.
-        let expected = "<Recipients><t:Mailbox><t:Name>Alice Test</t:Name><t:EmailAddress>alice@test.com</t:EmailAddress></t:Mailbox><t:Mailbox><t:Name>Bob Test</t:Name><t:EmailAddress>bob@test.com</t:EmailAddress></t:Mailbox><t:Mailbox><t:Name>Charlie Test</t:Name></t:Mailbox></Recipients>";
-
-        assert_serialized_content(&recipients, "Recipients", expected);
-
-        Ok(())
-    }
-
-    /// Tests that deserializing a sequence of `<t:Mailbox>` XML elements
-    /// results in an [`ArrayOfRecipients`] with one [`Recipient`] per
-    /// `<t:Mailbox>` element.
-    #[test]
-    fn deserialize_array_of_recipients() -> Result<(), Error> {
-        // The raw XML to deserialize.
-        let xml = "<Recipients><t:Mailbox><t:Name>Alice Test</t:Name><t:EmailAddress>alice@test.com</t:EmailAddress></t:Mailbox><t:Mailbox><t:Name>Bob Test</t:Name><t:EmailAddress>bob@test.com</t:EmailAddress></t:Mailbox><t:Mailbox><t:Name>Charlie Test</t:Name></t:Mailbox></Recipients>";
-
-        // Deserialize the raw XML, with `serde_path_to_error` to help
-        // troubleshoot any issue.
-        let mut de = quick_xml::de::Deserializer::from_reader(xml.as_bytes());
-        let recipients: ArrayOfRecipients = serde_path_to_error::deserialize(&mut de)?;
-
-        // Ensure we have the right number of recipients in the resulting
-        // `ArrayOfRecipients`.
-        assert_eq!(recipients.0.len(), 3);
-
-        // Ensure the first recipient correctly has a name and address.
-        assert_eq!(
-            recipients.first().expect("no recipient at index 0"),
-            &Recipient {
+        let data = ArrayOfRecipients(vec![
+            Recipient {
                 mailbox: Mailbox {
                     name: Some("Alice Test".into()),
                     email_address: Some("alice@test.com".into()),
-                    routing_type: None,
-                    mailbox_type: None,
-                    item_id: None,
+                    ..Default::default()
                 },
-            }
-        );
-
-        // Ensure the second recipient correctly has a name and address.
-        assert_eq!(
-            recipients.get(1).expect("no recipient at index 1"),
-            &Recipient {
+            },
+            Recipient {
                 mailbox: Mailbox {
                     name: Some("Bob Test".into()),
                     email_address: Some("bob@test.com".into()),
-                    routing_type: None,
-                    mailbox_type: None,
-                    item_id: None,
+                    ..Default::default()
                 },
-            }
-        );
-
-        assert_eq!(
-            recipients.get(2).expect("no recipient at index 2"),
-            &Recipient {
+            },
+            Recipient {
                 mailbox: Mailbox {
                     name: Some("Charlie Test".into()),
-                    email_address: None,
-                    routing_type: None,
-                    mailbox_type: None,
-                    item_id: None
+                    ..Default::default()
                 },
-            }
-        );
+            },
+        ]);
+
+        assert_serialized_content(&data, "Recipients", &xml);
+
+        assert_deserialized_content(&xml, data);
 
         Ok(())
     }
@@ -1439,15 +1407,19 @@ mod tests {
             value: "data goes here".into(),
         };
 
-        let xml = r#"<ExtendedProperty><t:ExtendedFieldURI PropertyTag="0x007D" PropertyType="String"/><t:Value>data goes here</t:Value></ExtendedProperty>"#;
+        let xml = minify_xml(
+            r#"
+            <ExtendedProperty>
+              <t:ExtendedFieldURI PropertyTag="0x007D" PropertyType="String"/>
+              <t:Value>data goes here</t:Value>
+            </ExtendedProperty>"#,
+        );
 
         // Make sure data serializes into expected XML.
-        assert_serialized_content(&data, "ExtendedProperty", xml);
+        assert_serialized_content(&data, "ExtendedProperty", &xml);
 
         // Make sure XML deserializes into expected data.
-        let mut de = quick_xml::de::Deserializer::from_reader(xml.as_bytes());
-        let deserialized: ExtendedProperty = serde_path_to_error::deserialize(&mut de)?;
-        assert_eq!(deserialized, data);
+        assert_deserialized_content(&xml, data);
         Ok(())
     }
 
@@ -1455,17 +1427,16 @@ mod tests {
     #[test]
     fn test_attachment_parsing() {
         let item_attachment_xml = r#"
-<m:Attachments>
-  <t:ItemAttachment>
-    <t:AttachmentId Id="Ktum21o=" />
-    <t:Name>Attached Message Item</t:Name>
-    <t:ContentType>message/rfc822</t:ContentType>
-    <t:Message>
-      <t:ItemId Id="AAMkAd" ChangeKey="FwAAABY" />
-    </t:Message>
-  </t:ItemAttachment>
-</m:Attachments>
-"#;
+            <m:Attachments>
+              <t:ItemAttachment>
+                <t:AttachmentId Id="Ktum21o=" />
+                <t:Name>Attached Message Item</t:Name>
+                <t:ContentType>message/rfc822</t:ContentType>
+                <t:Message>
+                  <t:ItemId Id="AAMkAd" ChangeKey="FwAAABY" />
+                </t:Message>
+              </t:ItemAttachment>
+            </m:Attachments>"#;
 
         let data = Attachments {
             inner: vec![Attachment::ItemAttachment {
@@ -1491,20 +1462,18 @@ mod tests {
             }],
         };
 
-        let mut de = quick_xml::de::Deserializer::from_reader(item_attachment_xml.as_bytes());
-        let item_attachments: Attachments = serde_path_to_error::deserialize(&mut de).unwrap();
-        assert_eq!(item_attachments, data);
+        assert_deserialized_content(item_attachment_xml, data);
 
         let file_attachment_xml = r#"
-<m:Attachments>
-  <t:FileAttachment>
-    <t:AttachmentId Id="AAAtAEFkbWluaX..."/>
-    <t:Name>SomeFile</t:Name>
-    <t:ContentType>message/rfc822</t:ContentType>
-    <t:Content>AQIDBAU=</t:Content>
-  </t:FileAttachment>
-</m:Attachments>
-"#;
+            <m:Attachments>
+              <t:FileAttachment>
+                <t:AttachmentId Id="AAAtAEFkbWluaX..."/>
+                <t:Name>SomeFile</t:Name>
+                <t:ContentType>message/rfc822</t:ContentType>
+                <t:Content>AQIDBAU=</t:Content>
+                <t:LastModifiedTime>2026-06-26T17:54:39Z</t:LastModifiedTime>
+              </t:FileAttachment>
+            </m:Attachments>"#;
         let data = Attachments {
             inner: vec![Attachment::FileAttachment {
                 attachment_id: AttachmentId {
@@ -1517,16 +1486,34 @@ mod tests {
                 content_id: None,
                 content_location: None,
                 size: None,
-                last_modified_time: None,
+                last_modified_time: Some(DateTime(
+                    OffsetDateTime::parse("2026-06-26T17:54:39Z", &Iso8601::DEFAULT).unwrap(),
+                )),
                 is_inline: None,
                 is_contact_photo: None,
                 content: Some("AQIDBAU=".to_string()),
             }],
         };
 
-        let mut de = quick_xml::de::Deserializer::from_reader(file_attachment_xml.as_bytes());
-        let file_attachments: Attachments = serde_path_to_error::deserialize(&mut de).unwrap();
-        assert_eq!(file_attachments, data);
+        assert_deserialized_content(file_attachment_xml, data);
+    }
+
+    #[test]
+    /// Attachments sometimes have a `last_modified_time` without a timezone.
+    fn test_deserialize_date_time_without_time_zone() {
+        let content = r#"
+            <t:Message>
+              <t:DateTimeReceived>2026-06-26T17:54:39</t:DateTimeReceived>
+            </t:Message>"#;
+
+        let expected = Message {
+            date_time_received: Some(DateTime(
+                OffsetDateTime::parse("2026-06-26T17:54:39Z", &Iso8601::DEFAULT).unwrap(),
+            )),
+            ..Default::default()
+        };
+
+        assert_deserialized_content(content, expected);
     }
 
     #[test]
@@ -1548,12 +1535,13 @@ mod tests {
 
     #[test]
     fn test_deserialize_flag_status() {
-        let content = r#"<t:Message>
-                <t:Flag>
-                    <t:FlagStatus>Flagged</t:FlagStatus>
-                    <t:StartDate>2026-01-26T23:00:00Z</t:StartDate>
-                    <t:DueDate>2026-01-26T23:00:00Z</t:DueDate>
-                </t:Flag>
+        let content = r#"
+            <t:Message>
+              <t:Flag>
+                <t:FlagStatus>Flagged</t:FlagStatus>
+                <t:StartDate>2026-01-26T23:00:00Z</t:StartDate>
+                <t:DueDate>2026-01-26T23:00:00Z</t:DueDate>
+              </t:Flag>
             </t:Message>"#;
 
         let expected = Message {
@@ -1571,7 +1559,8 @@ mod tests {
 
     #[test]
     fn test_deserialize_empty_header() {
-        let content = r#"<InternetMessageHeader HeaderName="X-Is-Empty"/>"#;
+        let content = r#"
+            <InternetMessageHeader HeaderName="X-Is-Empty"/>"#;
         let expected = InternetMessageHeader {
             header_name: "X-Is-Empty".to_string(),
             value: None,

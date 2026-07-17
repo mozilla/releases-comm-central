@@ -1906,9 +1906,9 @@ dependencies = [
 
 [[package]]
 name = "ews"
-version = "0.1.0"
+version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f1584e2a4861ebc2a22b685ca79dba0cff6b327d31e6e73be36451d208e398ef"
+checksum = "0704203211f5a0284e53173e6f6df1f24ebc522c3048aa27a07c7d0eb008fe94"
 dependencies = [
  "ews_proc_macros",
  "quick-xml",
