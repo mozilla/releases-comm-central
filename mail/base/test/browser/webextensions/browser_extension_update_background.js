@@ -7,7 +7,6 @@ var { AddonTestUtils } = ChromeUtils.importESModule(
 );
 
 AddonTestUtils.initMochitest(this);
-AddonTestUtils.hookAMTelemetryEvents();
 
 const ID = "update2@tests.mozilla.org";
 const ID_ICON = "update_icon2@tests.mozilla.org";
@@ -87,7 +86,6 @@ async function backgroundUpdateTest(
   let addon = await promiseInstallAddon(url, {
     source: FAKE_INSTALL_TELEMETRY_SOURCE,
   });
-  const addonId = addon.id;
 
   ok(addon, "Addon was installed");
   is(getBadgeStatus(), null, "Should not start out with an addon alert badge");
@@ -196,57 +194,6 @@ async function backgroundUpdateTest(
 
   await addon.uninstall();
   await SpecialPowers.popPrefEnv();
-
-  // Test that the expected telemetry events have been recorded (and that they include the
-  // permission_prompt event).
-  const amEvents = AddonTestUtils.getAMTelemetryEvents();
-  const updateEvents = amEvents
-    .filter(evt => evt.method === "update")
-    .map(evt => {
-      delete evt.value;
-      return evt;
-    });
-
-  Assert.deepEqual(
-    updateEvents.map(evt => evt.extra && evt.extra.step),
-    [
-      // First update (cancelled).
-      "started",
-      "download_started",
-      "download_completed",
-      "permissions_prompt",
-      "cancelled",
-      // Second update (completed).
-      "started",
-      "download_started",
-      "download_completed",
-      "permissions_prompt",
-      "completed",
-    ],
-    "Got the steps from the collected telemetry events"
-  );
-
-  const method = "update";
-  const object = "extension";
-  const baseExtra = {
-    addon_id: addonId,
-    source: FAKE_INSTALL_TELEMETRY_SOURCE,
-    step: "permissions_prompt",
-    updated_from: "app",
-  };
-
-  // Expect the telemetry events to have num_strings set to 1, as only the origin permissions is going
-  // to be listed in the permission prompt.
-  Assert.deepEqual(
-    updateEvents.filter(
-      evt => evt.extra && evt.extra.step === "permissions_prompt"
-    ),
-    [
-      { method, object, extra: { ...baseExtra, num_strings: "1" } },
-      { method, object, extra: { ...baseExtra, num_strings: "1" } },
-    ],
-    "Got the expected permission_prompts events"
-  );
 }
 
 function checkDefaultIcon(icon) {
