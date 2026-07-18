@@ -14,7 +14,6 @@ edition = "2021"
 rust-version = "1.87"
 name = "naga"
 version = "30.0.0"
-authors = ["gfx-rs developers"]
 build = "build.rs"
 exclude = [
     "bin/**/*",
@@ -97,7 +96,7 @@ version = "0.7.1"
 default-features = false
 
 [dependencies.bit-set]
-version = "0.10"
+version = "0.11"
 default-features = false
 
 [dependencies.bitflags]

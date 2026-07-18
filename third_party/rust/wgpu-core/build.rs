@@ -1,15 +1,20 @@
+#![allow(
+    semicolon_in_expressions_from_macros,
+    reason = "work around <https://github.com/katharostech/cfg_aliases/issues/16>"
+)]
+
 fn main() {
     cfg_aliases::cfg_aliases! {
         windows_linux_android: { any(windows, target_os = "linux", target_os = "android", target_os = "freebsd") },
         send_sync: { all(
             feature = "std",
             any(
-                not(target_arch = "wasm32"),
+                not(target_family = "wasm"),
                 all(feature = "fragile-send-sync-non-atomic-wasm", not(target_feature = "atomics"))
             )
         ) },
         dx12: { all(target_os = "windows", feature = "dx12") },
-        webgl: { all(target_arch = "wasm32", not(target_os = "emscripten"), feature = "webgl") },
+        webgl: { all(target_family = "wasm", not(target_os = "emscripten"), feature = "webgl") },
         gles: { any(
             all(windows_linux_android, feature = "gles"), // Regular GLES
             all(webgl), // WebGL

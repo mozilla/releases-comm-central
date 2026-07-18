@@ -14,7 +14,6 @@ edition = "2021"
 rust-version = "1.87"
 name = "wgpu-core"
 version = "30.0.0"
-authors = ["gfx-rs developers"]
 build = "build.rs"
 autolib = false
 autobins = false
@@ -120,11 +119,11 @@ version = "0.7.1"
 default-features = false
 
 [dependencies.bit-set]
-version = "0.10"
+version = "0.11"
 default-features = false
 
 [dependencies.bit-vec]
-version = "0.9.1"
+version = "0.10"
 default-features = false
 
 [dependencies.bitflags]
@@ -223,7 +222,7 @@ default-features = false
 [build-dependencies.cfg_aliases]
 version = "0.2.1"
 
-[target.'cfg(all(target_arch = "wasm32", not(target_os = "emscripten")))'.dependencies.wgpu-core-deps-wasm]
+[target.'cfg(all(target_family = "wasm", not(target_os = "emscripten")))'.dependencies.wgpu-core-deps-wasm]
 version = "30.0.0"
 path = "platform-deps/wasm"
 optional = true

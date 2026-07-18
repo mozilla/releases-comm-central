@@ -14,7 +14,6 @@ edition = "2021"
 rust-version = "1.76"
 name = "wgpu-core-deps-apple"
 version = "30.0.0"
-authors = ["gfx-rs developers"]
 build = false
 autolib = false
 autobins = false

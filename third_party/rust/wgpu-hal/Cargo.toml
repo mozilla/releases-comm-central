@@ -14,7 +14,6 @@ edition = "2021"
 rust-version = "1.87"
 name = "wgpu-hal"
 version = "30.0.0"
-authors = ["gfx-rs developers"]
 build = "build.rs"
 autolib = false
 autobins = false
@@ -197,7 +196,7 @@ optional = true
 version = "1"
 
 [dependencies.glow]
-version = "0.17"
+version = "0.18"
 optional = true
 
 [dependencies.hashbrown]
@@ -275,18 +274,18 @@ features = ["android-native-activity"]
 [build-dependencies.cfg_aliases]
 version = "0.2.1"
 
-[target.'cfg(all(target_arch = "wasm32", not(target_os = "emscripten")))'.dependencies.js-sys]
-version = "0.3.85"
+[target.'cfg(all(target_family = "wasm", not(target_os = "emscripten")))'.dependencies.js-sys]
+version = "0.3.100"
 optional = true
 default-features = true
 
-[target.'cfg(all(target_arch = "wasm32", not(target_os = "emscripten")))'.dependencies.wasm-bindgen]
-version = "0.2.108"
+[target.'cfg(all(target_family = "wasm", not(target_os = "emscripten")))'.dependencies.wasm-bindgen]
+version = "0.2.123"
 optional = true
 default-features = false
 
-[target.'cfg(all(target_arch = "wasm32", not(target_os = "emscripten")))'.dependencies.web-sys]
-version = "0.3.85"
+[target.'cfg(all(target_family = "wasm", not(target_os = "emscripten")))'.dependencies.web-sys]
+version = "0.3.100"
 features = [
     "default",
     "Window",
@@ -311,7 +310,7 @@ default-features = false
 version = "1.10"
 optional = true
 
-[target.'cfg(not(any(target_arch = "wasm32", target_os = "ios", target_os = "visionos", target_env = "ohos")))'.dev-dependencies.glutin]
+[target.'cfg(not(any(target_family = "wasm", target_os = "ios", target_os = "visionos", target_env = "ohos")))'.dev-dependencies.glutin]
 version = "0.32"
 features = [
     "egl",
@@ -321,7 +320,7 @@ features = [
 ]
 default-features = false
 
-[target.'cfg(not(any(target_arch = "wasm32", target_os = "ios", target_os = "visionos", target_env = "ohos")))'.dev-dependencies.glutin-winit]
+[target.'cfg(not(any(target_family = "wasm", target_os = "ios", target_os = "visionos", target_env = "ohos")))'.dev-dependencies.glutin-winit]
 version = "0.5"
 features = [
     "egl",
@@ -331,30 +330,30 @@ features = [
 ]
 default-features = false
 
-[target.'cfg(not(target_arch = "wasm32"))'.dependencies.ash]
+[target.'cfg(not(target_family = "wasm"))'.dependencies.ash]
 version = "0.38"
 optional = true
 
-[target.'cfg(not(target_arch = "wasm32"))'.dependencies.gpu-allocator]
+[target.'cfg(not(target_family = "wasm"))'.dependencies.gpu-allocator]
 version = "0.28"
 features = ["hashbrown"]
 optional = true
 default-features = false
 
-[target.'cfg(not(target_arch = "wasm32"))'.dependencies.khronos-egl]
+[target.'cfg(not(target_family = "wasm"))'.dependencies.khronos-egl]
 version = "6"
 features = ["dynamic"]
 optional = true
 
-[target.'cfg(not(target_arch = "wasm32"))'.dependencies.libloading]
+[target.'cfg(not(target_family = "wasm"))'.dependencies.libloading]
 version = "0.8"
 optional = true
 
-[target.'cfg(not(target_arch = "wasm32"))'.dependencies.renderdoc-sys]
+[target.'cfg(not(target_family = "wasm"))'.dependencies.renderdoc-sys]
 version = "1"
 optional = true
 
-[target.'cfg(not(target_arch = "wasm32"))'.dependencies.smallvec]
+[target.'cfg(not(target_family = "wasm"))'.dependencies.smallvec]
 version = "1.14"
 features = ["union"]
 optional = true
@@ -504,7 +503,7 @@ features = [
 optional = true
 
 [target."cfg(windows)".dependencies.bit-set]
-version = "0.10"
+version = "0.11"
 optional = true
 default-features = false
 

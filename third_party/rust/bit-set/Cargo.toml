@@ -11,9 +11,9 @@
 
 [package]
 edition = "2021"
-rust-version = "1.82"
+rust-version = "1.85.0"
 name = "bit-set"
-version = "0.10.0"
+version = "0.11.1"
 authors = ["Alexis Beingessner <a.beingessner@gmail.com>"]
 build = false
 autolib = false
@@ -22,22 +22,21 @@ autoexamples = false
 autotests = false
 autobenches = false
 description = "A set of bits"
-homepage = "https://github.com/contain-rs/bit-set"
-documentation = "https://docs.rs/bit-set/"
+homepage = "https://github.com/contain-rs/bit-vec"
+documentation = "https://docs.rs/bit-set/latest/bit-set/"
 readme = "README.md"
 keywords = [
     "data-structures",
     "bitset",
 ]
 license = "Apache-2.0 OR MIT"
-repository = "https://github.com/contain-rs/bit-set"
+repository = "https://github.com/contain-rs/bit-vec"
 
 [package.metadata.docs.rs]
 features = [
     "borsh",
     "serde",
     "miniserde",
-    "nanoserde",
 ]
 
 [features]
@@ -45,24 +44,14 @@ borsh = [
     "dep:borsh",
     "bit-vec/borsh",
 ]
-borsh_std = ["borsh/std"]
 default = ["std"]
 miniserde = [
     "dep:miniserde",
     "bit-vec/miniserde",
 ]
-nanoserde = [
-    "dep:nanoserde",
-    "bit-vec/nanoserde",
-]
 serde = [
     "dep:serde",
     "bit-vec/serde",
-]
-serde_no_std = []
-serde_std = [
-    "std",
-    "serde/std",
 ]
 std = ["bit-vec/std"]
 
@@ -70,26 +59,30 @@ std = ["bit-vec/std"]
 name = "bit_set"
 path = "src/lib.rs"
 
+[[test]]
+name = "serialization"
+path = "tests/serialization.rs"
+
+[[test]]
+name = "set"
+path = "tests/set.rs"
+
 [[bench]]
 name = "bench"
 path = "benches/bench.rs"
 
 [dependencies.bit-vec]
-version = "0.9.1"
+version = "0.10.1"
 default-features = false
 
 [dependencies.borsh]
-version = "1.6.0"
+version = "1.7.0"
 features = ["derive"]
 optional = true
 default-features = false
 
 [dependencies.miniserde]
 version = "0.1"
-optional = true
-
-[dependencies.nanoserde]
-version = "0.2"
 optional = true
 
 [dependencies.serde]
@@ -102,7 +95,7 @@ optional = true
 default-features = false
 
 [dev-dependencies.rand]
-version = "0.9"
+version = "0.10"
 
 [dev-dependencies.serde_json]
 version = "1.0"

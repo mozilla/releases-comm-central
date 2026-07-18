@@ -15,7 +15,7 @@ extern crate test;
 use bit_set::BitSet;
 use bit_vec::BitVec;
 
-use rand::RngCore;
+use rand::Rng;
 use test::{black_box, Bencher};
 
 const BENCH_BITS: usize = 1 << 14;

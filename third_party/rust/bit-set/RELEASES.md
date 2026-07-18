@@ -1,21 +1,36 @@
-Version 0.11.0 (not yet released)
+Version 0.12.0 (TO BE RELEASED)
+========================================================
+
+<a id="v0.12.0"></a>
+
+Version 0.11.1
+========================================================
+
+<a id="v0.11.1"></a>
+
+- fixed repo links in Cargo.toml
+- methods such as `fn contains` may have better codegen (https://github.com/contain-rs/bit-vec/pull/153)
+
+Version 0.11.0 (VULNERABILITY FIX)
 ========================================================
 
 <a id="v0.11.0"></a>
+
+- removed nanoserde support
+- moved the crate into a workspace
+- fixed an unsoundness with deserialize (see `bit-vec` v0.10.0)
+
+Version 0.10.1 (YANKED)
+========================================================
+
+<a id="v0.10.1"></a>
 
 Version 0.10.0
 ========================================================
 
 <a id="v0.10.0"></a>
 
-- Publicly expose vec's `BitBlock`
-
-Version 0.9.1
-========================================================
-
-<a id="v0.9.1"></a>
-
-- Fixed serde feature
+- exposed `BitBlock`
 
 Version 0.9.0
 ========================================================
