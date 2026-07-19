@@ -232,6 +232,10 @@ pref("extensions.startupScanScopes", 4);
 pref("extensions.update.requireBuiltInCerts", false);
 pref("extensions.install.requireBuiltInCerts", false);
 
+// Disable the Rust password storage backend until Thunderbird compatibility
+// issues are resolved. See bug 2053724.
+pref("signon.storage.rust.enabled", false);
+
 // Allow experiments and suppress unsigned warnings.
 pref("extensions.experiments.enabled", true);
 pref("extensions.ui.disableUnsignedWarnings", true);
