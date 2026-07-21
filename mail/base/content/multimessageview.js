@@ -103,6 +103,26 @@ class MultiMessageSummary {
   kMaxMessages = 10000;
 
   /**
+   * The URL of the document used to store XUL properties.
+   *
+   * @type {string}
+   */
+  #docURL = "chrome://messenger/content/messenger.xhtml";
+
+  /**
+   * The object storing the button style saved customization options.
+   *
+   * @property {string} buttonStyle - The style in which the buttons should be
+   *   rendered:
+   *   - "default" = icons+text
+   *   - "only-icons" = only icons
+   *   - "only-text" = only text
+   */
+  #customizeData = {
+    buttonStyle: "default",
+  };
+
+  /**
    * Register a summarizer for a particular type of message summary.
    *
    * @param {ThreadSummarizer|MultipleSelectionSummarizer} aSummarizer - The summarizer object.
@@ -157,6 +177,12 @@ class MultiMessageSummary {
     }
   };
 
+  _flagBtnClickHandler = event => {
+    if (event.button == 0) {
+      window.browsingContext.topChromeWindow.goDoCommand("cmd_markAsFlagged");
+    }
+  };
+
   /**
    * Fill in the summary pane describing the selected messages.
    *
@@ -177,6 +203,38 @@ class MultiMessageSummary {
       this._listener.onLoadStarted();
     }
 
+    if (Services.xulStore.hasValue(this.#docURL, "messageHeader", "layout")) {
+      this.#customizeData = JSON.parse(
+        Services.xulStore.getValue(this.#docURL, "messageHeader", "layout")
+      );
+    }
+
+    const headerBar = document.getElementById("headingWrapper");
+    // Always clear existing styles to avoid visual issues.
+    headerBar.classList.remove(
+      "message-header-large-subject",
+      "message-header-buttons-only-icons",
+      "message-header-buttons-only-text",
+      "message-header-hide-label-column"
+    );
+
+    switch (this.#customizeData.buttonStyle) {
+      case "only-icons":
+      case "only-text":
+        headerBar.classList.add(
+          `message-header-buttons-${this.#customizeData.buttonStyle}`
+        );
+        break;
+
+      case "default":
+      default:
+        headerBar.classList.remove(
+          "message-header-buttons-only-icons",
+          "message-header-buttons-only-text"
+        );
+        break;
+    }
+
     const archiveBtn = document.getElementById("hdrArchiveButton");
     archiveBtn.hidden = !MessageArchiver.canArchive(aMessages);
     archiveBtn.addEventListener("click", this._archiveBtnClickHandler);
@@ -193,6 +251,10 @@ class MultiMessageSummary {
         : "multi-message-delete-button"
     );
     trashBtn.dataset.imapDeleted = !!areIMAPDeleted;
+
+    // Set the flag/star button on click listener.
+    const flagButton = document.getElementById("starMessageButton");
+    flagButton.addEventListener("click", this._flagBtnClickHandler);
 
     headerToolbarNavigation.init();
     headerToolbarNavigation.updateRovingTab();
@@ -415,6 +477,18 @@ class MultiMessageSummary {
     );
   }
 
+  /**
+   * Toggle the flagged state of the star button in the multimessage view header
+   * only if all messages are currently flagged.
+   *
+   * @param {boolean} allFlagged
+   */
+  toggleFlaggedButton(allFlagged) {
+    const flagButton = document.getElementById("starMessageButton");
+    flagButton.classList.toggle("flagged", allFlagged);
+    flagButton.setAttribute("aria-checked", allFlagged);
+  }
+
   // These are listeners for the gloda collections.
   onItemsAdded() {}
   onItemsModified(aItems) {
@@ -474,6 +548,10 @@ class MultiMessageSummary {
 
       this._addTagNodes(flags.tags, tagsNode);
     }
+
+    this.toggleFlaggedButton(
+      Array.from(knownMessageNodes.values()).every(value => value.starred)
+    );
   }
 
   onQueryCompleted() {
@@ -556,6 +634,10 @@ class ThreadSummarizer {
 
       this.context.mapMsgToNode(msgHdr, msgNode);
     }
+
+    gMessageSummary.toggleFlaggedButton(
+      summarizedMessages.every(message => message.isFlagged)
+    );
 
     // Set the heading based on the subject and number of messages.
     let countInfo = l10n.formatValueSync("num-messages", {
@@ -672,6 +754,10 @@ class MultipleSelectionSummarizer {
         return accum;
       }, []);
     }
+
+    gMessageSummary.toggleFlaggedButton(
+      [...aMessages].every(message => message.isFlagged)
+    );
 
     // Return everything, since we're showing all the threads. Don't forget to
     // turn it into an array, though!
