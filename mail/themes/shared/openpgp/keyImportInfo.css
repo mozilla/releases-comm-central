@@ -10,8 +10,8 @@
 @import url("chrome://messenger/skin/themeableDialog.css");
 
 :root {
-  min-width: 600px;
-  min-height: 400px;
+  min-inline-size: 600px;
+  min-block-size: 400px;
 }
 
 body {

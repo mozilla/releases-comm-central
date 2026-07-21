@@ -549,7 +549,6 @@ filter-decrypt-move-label = Decrypt permanently (OpenPGP)
 filter-decrypt-copy-label = Create decrypted Copy (OpenPGP)
 filter-encrypt-label = Encrypt to key (OpenPGP)
 
-
 ## Strings in enigmailKeyManager.js
 
 import-from-clip = Do you want to import some key(s) from clipboard?
