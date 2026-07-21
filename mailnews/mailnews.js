@@ -227,6 +227,9 @@ pref("mail.addr_book.loglevel", "Warn");
 pref("mail.addr_book.view.startupURI", "moz-abdirectory://?");
 pref("mail.addr_book.view.startupURIisDefault", true);
 
+// Address book where manually added contacts are created.
+pref("mail.addr_book.add_item_default_uri", "jsaddrbook://abook.sqlite");
+
 pref("carddav.setup.loglevel", "Warn");
 pref("carddav.sync.loglevel", "Warn");
 

@@ -787,6 +787,12 @@ add_task(
  * Test that clicking the adding an address node adds it to the address book.
  */
 add_task(async function test_add_contact_from_context_menu() {
+  const defaultAddBook = create_address_book("Default Add Address Book");
+  Services.prefs.setStringPref(
+    "mail.addr_book.add_item_default_uri",
+    defaultAddBook.URI
+  );
+
   const popup = aboutMessage.document.getElementById("emailAddressPopup");
   // Click the contact to show the emailAddressPopup popup menu.
   const recipient = aboutMessage.document.querySelector(
@@ -815,6 +821,17 @@ add_task(async function test_add_contact_from_context_menu() {
   await BrowserTestUtils.waitForPopupEvent(popup, "hidden");
   await recipientAdded;
 
+  let addedCard = defaultAddBook.cardForEmailAddress(recipient.emailAddress);
+  Assert.ok(
+    addedCard,
+    "The context menu should add the contact to the configured address book"
+  );
+  Assert.equal(
+    addedCard.directoryUID,
+    defaultAddBook.UID,
+    "The contact should belong to the configured address book"
+  );
+
   // Now click the contact again, the context menu should now show the Edit
   // Contact menu instead.
   EventUtils.synthesizeMouseAtCenter(recipient, {}, aboutMessage);
@@ -825,7 +842,7 @@ add_task(async function test_add_contact_from_context_menu() {
     addToAddressBookItem.hidden,
     "#addToAddressBookItem should be hidden"
   );
-  Assert.ok(!editContactItem.hidden, "#editContactItem should be show");
+  Assert.ok(!editContactItem.hidden, "#editContactItem should be shown");
 
   await close_popup(window, popup);
 
@@ -853,8 +870,13 @@ add_task(async function test_add_contact_from_context_menu() {
 
   await TestUtils.waitForTick();
 
-  const addedCard = MailServices.ab.cardForEmailAddress(recipient.emailAddress);
+  addedCard = MailServices.ab.cardForEmailAddress(recipient.emailAddress);
   Assert.ok(addedCard, "card should have been added");
+  Assert.equal(
+    addedCard.directoryUID,
+    defaultAddBook.UID,
+    "Clicking the address book button should add the contact to the configured address book"
+  );
 
   // ... but only once. Delete this and make sure there wasn't another one added.
   MailServices.ab
@@ -866,6 +888,9 @@ add_task(async function test_add_contact_from_context_menu() {
     null,
     "should not find a (second) card as we deleted it already"
   );
+
+  Services.prefs.clearUserPref("mail.addr_book.add_item_default_uri");
+  MailServices.ab.deleteAddressBook(defaultAddBook.URI);
 });
 
 /**

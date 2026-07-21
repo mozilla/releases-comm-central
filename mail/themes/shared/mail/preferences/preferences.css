@@ -661,6 +661,7 @@ richlistbox:not(#categories) {
 #defaultFontSize,
 #directoriesList,
 #localDirectoriesList,
+#defaultAddDirectoryList,
 #defaultStartupDirList {
   margin-inline-end: 4px;
 }

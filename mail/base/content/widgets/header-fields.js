@@ -11,6 +11,7 @@
 
   const lazy = {};
   ChromeUtils.defineESModuleGetters(lazy, {
+    AddrBookUtils: "resource:///modules/AddrBookUtils.sys.mjs",
     DisplayNameUtils: "resource:///modules/DisplayNameUtils.sys.mjs",
     MailUtils: "resource:///modules/MailUtils.sys.mjs",
     TagUtils: "resource:///modules/TagUtils.sys.mjs",
@@ -580,9 +581,7 @@
       card.displayName = this.#recipient.displayName;
       card.primaryEmail = this.#recipient.emailAddress;
 
-      const addressBook = MailServices.ab.getDirectory(
-        "jsaddrbook://abook.sqlite"
-      );
+      const addressBook = lazy.AddrBookUtils.getDefaultAddDirectory();
       addressBook.addCard(card);
     }
   }

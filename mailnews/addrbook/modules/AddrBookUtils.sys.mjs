@@ -21,6 +21,13 @@ export function newUID() {
   return Services.uuid.generateUUID().toString().substring(1, 37);
 }
 
+export function getDefaultAddDirectory() {
+  const uri = Services.prefs.getStringPref(
+    "mail.addr_book.add_item_default_uri"
+  );
+  return MailServices.ab.getDirectory(uri);
+}
+
 const abSortOrder = {
   [Ci.nsIAbManager.JS_DIRECTORY_TYPE]: 1,
   [Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE]: 2,
@@ -133,6 +140,7 @@ const LINEBREAK = AppConstants.platform == "win" ? "\r\n" : "\n";
 
 export var AddrBookUtils = {
   compareAddressBooks,
+  getDefaultAddDirectory,
   newUID,
 
   /**

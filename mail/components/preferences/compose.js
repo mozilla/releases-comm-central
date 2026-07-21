@@ -35,6 +35,7 @@ Preferences.addAll([
   { id: "pref.ldap.disable_button.edit_directories", type: "bool" },
   { id: "mail.collect_email_address_outgoing", type: "bool" },
   { id: "mail.collect_addressbook", type: "string" },
+  { id: "mail.addr_book.add_item_default_uri", type: "string" },
   { id: "spellchecker.dictionary", type: "unichar" },
   { id: "msgcompose.default_colors", type: "bool" },
   { id: "msgcompose.font_face", type: "string" },

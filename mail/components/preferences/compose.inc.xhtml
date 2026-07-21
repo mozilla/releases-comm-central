@@ -242,20 +242,42 @@
                 preference="pref.ldap.disable_button.edit_directories"/>
       </hbox>
 
-      <separator class="thin"/>
+      <separator/>
 
-      <hbox align="center" pack="start">
-        <checkbox id="emailCollectionOutgoing" data-l10n-id="email-picker-label"
-                  preference="mail.collect_email_address_outgoing"/>
-        <hbox flex="1">
-          <menulist is="menulist-addrbooks" id="localDirectoriesList"
-                    aria-labelledby="emailCollectionOutgoing"
-                    preference="mail.collect_addressbook"
-                    localonly="true"
-                    writable="true"
-                    flex="1"/>
+      <vbox>
+        <hbox align="center" pack="start">
+          <checkbox id="emailCollectionOutgoing" data-l10n-id="email-picker-label"
+                    preference="mail.collect_email_address_outgoing"/>
+          <hbox flex="1">
+            <menulist is="menulist-addrbooks" id="localDirectoriesList"
+                      aria-labelledby="emailCollectionOutgoing"
+                      preference="mail.collect_addressbook"
+                      localonly="true"
+                      writable="true"
+                      flex="1"/>
+          </hbox>
         </hbox>
-      </hbox>
+        <description class="tip-caption indent"
+                     data-l10n-id="email-picker-description"/>
+      </vbox>
+
+      <vbox>
+        <hbox align="center" pack="start">
+          <label data-l10n-id="default-add-address-book-label"
+                 control="defaultAddDirectoryList"/>
+          <hbox flex="1">
+            <menulist is="menulist-addrbooks"
+                      id="defaultAddDirectoryList"
+                      preference="mail.addr_book.add_item_default_uri"
+                      writable="true"
+                      flex="1"/>
+          </hbox>
+        </hbox>
+        <description class="tip-caption"
+                     data-l10n-id="default-add-address-book-description"/>
+      </vbox>
+
+      <separator/>
 
       <hbox align="center" pack="start">
         <label data-l10n-id="default-directory-label"

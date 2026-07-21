@@ -736,6 +736,14 @@ email-picker-label =
     .label = Automatically add outgoing email addresses to my:
     .accesskey = A
 
+email-picker-description = The location of new contacts saved from sent messages.
+
+default-add-address-book-label =
+    .value = Default address book for manually added contacts:
+    .accesskey = D
+
+default-add-address-book-description = The location of new contacts saved from received messages.
+
 default-directory-label =
     .value = Default startup directory in the address book window:
     .accesskey = S
