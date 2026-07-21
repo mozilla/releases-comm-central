@@ -11,7 +11,7 @@ use mailnews_ui_glue::{
     maybe_handle_connection_error, report_connection_success,
 };
 use moz_http::{Response, StatusCode};
-use operation_queue::line_token::{AcquireOutcome, Line};
+use operation_queue::line_token::{AcquireOutcome, Line, LineStatus};
 use url::Url;
 use uuid::Uuid;
 use xpcom::{RefCounted, RefPtr};
@@ -227,6 +227,15 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
             operation_name: name,
             request,
         };
+
+        // If the line is currently busy (i.e. another runner is currently
+        // handling an error), wait for it to become free again. Sending our
+        // request now could disrupt the handling of the error by e.g.
+        // increasing the throttling delay or messing up a re-authentication
+        // attempt.
+        while let LineStatus::Busy(shared) = self.error_handling_line.status().await {
+            shared.await.map_err(ProtocolError::from)?;
+        }
 
         loop {
             let response = match self.send_http_request(&op_request).await {
