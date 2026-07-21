@@ -64,11 +64,6 @@
     display: none;
   }
 
-  &:dir(rtl),
-  &:-moz-locale-dir(rtl) {
-    background-position-x: right var(--button-padding);
-  }
-
   &.icon-button {
     background-image: none;
     background-size: var(--icon-size);
@@ -77,6 +72,11 @@
     padding-inline-start: calc(var(--button-padding) * 2 + var(--icon-size));
     padding-inline-end: calc(var(--button-padding) * 2);
     min-inline-size: 0;
+
+    &:dir(rtl),
+    &:-moz-locale-dir(rtl) {
+      background-position-x: right var(--button-padding);
+    }
   }
 
   &.icon-only {
