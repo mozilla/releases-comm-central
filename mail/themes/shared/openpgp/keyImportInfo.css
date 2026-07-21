@@ -1,0 +1,85 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+@import url("chrome://messenger/skin/icons.css");
+@import url("chrome://messenger/skin/colors.css");
+@import url("chrome://messenger/skin/variables.css");
+@import url("chrome://messenger/skin/themeableDialog.css");
+
+:root {
+  min-width: 600px;
+  min-height: 400px;
+}
+
+body {
+  margin: 0;
+}
+
+dialog {
+  block-size: 100vh;
+  padding: 18px;
+  box-sizing: border-box;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  align-items: stretch;
+  gap: 12px;
+  overflow: auto;
+}
+
+article {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px;
+  border-radius: 6px;
+  border: 1px solid var(--color-surface-border);
+  background: var(--color-surface-base);
+  color: var(--color-text-base);
+  font-size: 0.9rem;
+}
+
+h1 {
+  overflow: hidden;
+  text-wrap: nowrap;
+  text-overflow: ellipsis;
+  font-size: 1rem;
+  margin: 0;
+  padding: 3px 6px;
+  border-radius: var(--button-border-radius);
+  background: var(--color-surface-lower);
+}
+
+.info {
+  display: grid;
+  grid-template-columns: max-content auto;
+  gap: 6px 9px;
+  align-items: center;
+  padding-inline: 3px;
+}
+
+.label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+a {
+  text-decoration: none;
+  letter-spacing: 0.2px;
+  font-weight: 300;
+  color: var(--link-color);
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

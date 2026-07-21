@@ -471,6 +471,7 @@
   skin/classic/messenger/openpgp/enigSignNotOk.png            (../shared/openpgp/enigSignNotOk.png)
   skin/classic/messenger/openpgp/enigSignUnkown.png           (../shared/openpgp/enigSignUnkown.png)
   skin/classic/messenger/openpgp/keyDetails.css               (../shared/openpgp/keyDetails.css)
+  skin/classic/messenger/openpgp/keyImportInfo.css            (../shared/openpgp/keyImportInfo.css)
   skin/classic/messenger/openpgp/keyWizard.css                (../shared/openpgp/keyWizard.css)
   skin/classic/messenger/openpgp/inlineNotification.css       (../shared/openpgp/inlineNotification.css)
 

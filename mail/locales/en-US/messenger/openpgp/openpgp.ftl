@@ -549,14 +549,6 @@ filter-decrypt-move-label = Decrypt permanently (OpenPGP)
 filter-decrypt-copy-label = Create decrypted Copy (OpenPGP)
 filter-encrypt-label = Encrypt to key (OpenPGP)
 
-## Strings in enigmailKeyImportInfo.js
-
-import-info-dialog-title = Success! Keys imported
-import-info-bits = Bits
-import-info-created = Created
-import-info-fpr = Fingerprint
-import-info-details = View Details and manage key acceptance
-import-info-no-keys = No keys imported.
 
 ## Strings in enigmailKeyManager.js
 

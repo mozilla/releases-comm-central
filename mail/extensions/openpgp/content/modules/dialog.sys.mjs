@@ -27,7 +27,7 @@ export var EnigmailDialog = {
     }
 
     win.openDialog(
-      "chrome://openpgp/content/ui/enigmailKeyImportInfo.xhtml",
+      "chrome://openpgp/content/ui/keyImportInfoDialog.xhtml",
       "",
       "chrome,dialog,modal,centerscreen,resizable",
       {
