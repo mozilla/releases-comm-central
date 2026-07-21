@@ -273,6 +273,31 @@ function showCryptoDetails() {
 }
 
 /**
+ * Empty and hide the cryptographic details section. Called when switching to
+ * a new message so no stale algorithm information remains on screen.
+ */
+function clearCryptoDetails() {
+  const details = document.getElementById("cryptoDetails");
+  if (!details) {
+    return;
+  }
+
+  document.getElementById("signatureCryptoDetails").collapsed = true;
+  document.getElementById("sigAlgorithm").textContent = "";
+  document.getElementById("sigDigestAlgorithm").textContent = "";
+
+  document.getElementById("encryptionCryptoDetails").collapsed = true;
+  const encAlgEl = document.getElementById("encAlgorithm");
+  encAlgEl.removeAttribute("data-l10n-id");
+  encAlgEl.removeAttribute("data-l10n-args");
+  encAlgEl.textContent = "";
+  document.getElementById("keyEncAlgorithm").textContent = "";
+
+  details.hidden = true;
+  details.open = false;
+}
+
+/**
  * Open UI that displays the given certificate.
  * or subdirectory of the given special system/app directory (aDirToCheck).
  *

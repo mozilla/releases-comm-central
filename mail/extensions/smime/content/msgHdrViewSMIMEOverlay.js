@@ -505,6 +505,7 @@ function onSMIMEStartHeaders() {
   gKeyEncAlgorithm = "";
 
   setMessageCryptoBox(null, null, null, false);
+  clearCryptoDetails();
 
   forgetEncryptedURI();
   onMessageSecurityPopupHidden();
