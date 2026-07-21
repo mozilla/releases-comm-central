@@ -5,15 +5,6 @@
 add_setup(() => do_get_profile(true));
 
 // tests for calL10NUtils.sys.mjs
-/* Incomplete - still missing test coverage for:
- * getAnyString
- * getString
- * getCalString
- * getLtnString
- * getDateFmtString
- * formatMonth
- */
-
 add_task(async function calendarInfo_test() {
   const data = [
     {

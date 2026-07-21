@@ -13,6 +13,11 @@ ChromeUtils.defineLazyGetter(lazy, "log", () => {
     maxLogLevelPref: "calendar.loglevel",
   });
 });
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["calendar/calendar-itip.ftl"], true)
+);
 
 /**
  * CalItipEmailTransport is used to send iTIP messages via email. Outside
@@ -96,31 +101,32 @@ export class CalItipEmailTransport {
         );
         if (usePrefixes) {
           const seq = item.getProperty("SEQUENCE");
-          const subjectKey = seq && seq > 0 ? "itipRequestUpdatedSubject2" : "itipRequestSubject2";
-          subject = cal.l10n.getLtnString(subjectKey, [summary]);
+          const subjectId =
+            seq && seq > 0 ? "itip-request-updated-subject" : "itip-request-subject";
+          subject = lazy.l10n.formatValueSync(subjectId, { summary });
         } else {
           subject = summary;
         }
-        body = cal.l10n.getLtnString("itipRequestBody", [
-          item.organizer ? item.organizer.toString() : "",
+        body = lazy.l10n.formatValueSync("itip-request-body", {
+          organizer: item.organizer ? item.organizer.toString() : "",
           summary,
-        ]);
+        });
         break;
       }
       case "CANCEL": {
-        subject = cal.l10n.getLtnString("itipCancelSubject2", [summary]);
-        body = cal.l10n.getLtnString("itipCancelBody", [
-          item.organizer ? item.organizer.toString() : "",
+        subject = lazy.l10n.formatValueSync("itip-cancel-subject", { summary });
+        body = lazy.l10n.formatValueSync("itip-cancel-body", {
+          organizer: item.organizer ? item.organizer.toString() : "",
           summary,
-        ]);
+        });
         break;
       }
       case "DECLINECOUNTER": {
-        subject = cal.l10n.getLtnString("itipDeclineCounterSubject", [summary]);
-        body = cal.l10n.getLtnString("itipDeclineCounterBody", [
-          item.organizer ? item.organizer.toString() : "",
+        subject = lazy.l10n.formatValueSync("itip-decline-counter-subject", { summary });
+        body = lazy.l10n.formatValueSync("itip-decline-counter-body", {
+          organizer: item.organizer ? item.organizer.toString() : "",
           summary,
-        ]);
+        });
         break;
       }
       case "REPLY": {
@@ -139,27 +145,27 @@ export class CalItipEmailTransport {
         const name = aFromAttendee.toString();
 
         // Generate proper body from my participation status
-        let subjectKey, bodyKey;
+        let subjectId, bodyId;
         switch (myPartStat) {
           case "ACCEPTED":
-            subjectKey = "itipReplySubjectAccept2";
-            bodyKey = "itipReplyBodyAccept";
+            subjectId = "itip-reply-subject-accept";
+            bodyId = "itip-reply-body-accept";
             break;
           case "TENTATIVE":
-            subjectKey = "itipReplySubjectTentative2";
-            bodyKey = "itipReplyBodyAccept";
+            subjectId = "itip-reply-subject-tentative";
+            bodyId = "itip-reply-body-accept";
             break;
           case "DECLINED":
-            subjectKey = "itipReplySubjectDecline2";
-            bodyKey = "itipReplyBodyDecline";
+            subjectId = "itip-reply-subject-decline";
+            bodyId = "itip-reply-body-decline";
             break;
           default:
-            subjectKey = "itipReplySubject2";
-            bodyKey = "itipReplyBodyAccept";
+            subjectId = "itip-reply-subject";
+            bodyId = "itip-reply-body-accept";
             break;
         }
-        subject = cal.l10n.getLtnString(subjectKey, [summary]);
-        body = cal.l10n.getLtnString(bodyKey, [name]);
+        subject = lazy.l10n.formatValueSync(subjectId, { summary });
+        body = lazy.l10n.formatValueSync(bodyId, { attendee: name });
         break;
       }
     }
@@ -169,7 +175,7 @@ export class CalItipEmailTransport {
 
     // Append COMMENT field to the body
     if (comment) {
-      body += "\n\n" + cal.l10n.getLtnString("imipHtml.comment") + "\n" + comment;
+      body += "\n\n" + lazy.l10n.formatValueSync("imip-html-comment") + "\n" + comment;
     }
 
     return {
@@ -192,8 +198,8 @@ export class CalItipEmailTransport {
         }
         const cancelled = Services.prompt.confirmEx(
           parent,
-          cal.l10n.getLtnString("imipSendMail.title"),
-          cal.l10n.getLtnString("imipSendMail.text"),
+          lazy.l10n.formatValueSync("imip-send-mail-title"),
+          lazy.l10n.formatValueSync("imip-send-mail-text"),
           Services.prompt.STD_YES_NO_BUTTONS,
           null,
           null,

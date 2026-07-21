@@ -8,7 +8,6 @@
 /* global MozElements, addMenuItem */
 
 var { MailServices } = ChromeUtils.importESModule("resource:///modules/MailServices.sys.mjs");
-var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 
 ChromeUtils.defineLazyGetter(this, "gIdentityNotification", () => {
@@ -16,6 +15,12 @@ ChromeUtils.defineLazyGetter(this, "gIdentityNotification", () => {
     document.getElementById("no-identity-notification").append(element);
   });
 });
+
+ChromeUtils.defineLazyGetter(
+  this,
+  "l10n",
+  () => new Localization(["calendar/calendar-itip.ftl"], true)
+);
 
 /**
  * Initialize the email identity row. Shared between the calendar creation
@@ -51,7 +56,7 @@ function initMailIdentitiesRow(aCalendar) {
     menuPopup.lastChild.remove();
   }
 
-  addMenuItem(menuPopup, cal.l10n.getLtnString("imipNoIdentity"), "none");
+  addMenuItem(menuPopup, this.l10n.formatValueSync("imip-no-identity"), "none");
   let identities;
   if (aCalendar && aCalendar.aclEntry && aCalendar.aclEntry.hasAccessControl) {
     identities = aCalendar.aclEntry.getOwnerIdentities();
@@ -112,7 +117,7 @@ function saveMailIdentitySelection(aCalendar) {
 async function notifyOnIdentitySelection(aCalendar) {
   gIdentityNotification.removeAllNotifications();
 
-  const msg = cal.l10n.getLtnString("noIdentitySelectedNotification");
+  const msg = this.l10n.formatValueSync("no-identity-selected-notification");
   const sel = getMailIdentitySelection(aCalendar);
 
   if (sel == "none") {

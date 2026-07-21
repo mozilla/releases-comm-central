@@ -71,15 +71,6 @@ _calendarInfo._startup = {};
 
 export var l10n = {
   /**
-   * Gets a string from chrome://lightning/locale/lightning.properties
-   *
-   * @param {string} aStringName - The name of the string within the properties file
-   * @param {string[]} aParams - (optional) Parameters to format the string
-   * @returns {string} The formatted string
-   */
-  getLtnString: _getString.bind(undefined, "lightning", "lightning"),
-
-  /**
    * Gets a date format string from chrome://calendar/locale/dateFormat.properties bundle
    *
    * @param {string} aStringName - The name of the string within the properties file

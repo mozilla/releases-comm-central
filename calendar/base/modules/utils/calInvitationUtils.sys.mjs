@@ -19,6 +19,36 @@ ChromeUtils.defineLazyGetter(lazy, "log", () => {
     maxLogLevelPref: "calendar.loglevel",
   });
 });
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["calendar/calendar-itip.ftl"], true)
+);
+
+/** attendee user type -> Fluent id */
+const ATTENDEE_USER_TYPE_L10N_IDS = {
+  INDIVIDUAL: "imip-html-attendee-user-type-individual",
+  GROUP: "imip-html-attendee-user-type-group",
+  RESOURCE: "imip-html-attendee-user-type-resource",
+  ROOM: "imip-html-attendee-user-type-room",
+  UNKNOWN: "imip-html-attendee-user-type-unknown",
+};
+
+/** attendee role type -> Fluent id */
+const ATTENDEE_ROLE_L10N_IDS = {
+  "REQ-PARTICIPANT": "imip-html-attendee-role-req-participant",
+  CHAIR: "imip-html-attendee-role-chair",
+  "NON-PARTICIPANT": "imip-html-attendee-role-non-participant",
+  "OPT-PARTICIPANT": "imip-html-attendee-role-opt-participant",
+};
+/** attendee part stat -> Fluent id */
+const ATTENDEE_PART_STAT_L10N_IDS = {
+  "NEEDS-ACTION": "imip-html-attendee-part-stat-needs-action",
+  ACCEPTED: "imip-html-attendee-part-stat-accepted",
+  DECLINED: "imip-html-attendee-part-stat-declined",
+  DELEGATED: "imip-html-attendee-part-stat-delegated",
+  TENTATIVE: "imip-html-attendee-part-stat-tentative",
+};
 
 export var invitation = {
   /**
@@ -38,10 +68,16 @@ export var invitation = {
 
       switch (aItipItem.responseMethod) {
         case "REQUEST":
-          header = cal.l10n.getLtnString("itipRequestBody", [organizerString, summary]);
+          header = lazy.l10n.formatValueSync("itip-request-body", {
+            organizer: organizerString,
+            summary,
+          });
           break;
         case "CANCEL":
-          header = cal.l10n.getLtnString("itipCancelBody", [organizerString, summary]);
+          header = lazy.l10n.formatValueSync("itip-cancel-body", {
+            organizer: organizerString,
+            summary,
+          });
           break;
         case "COUNTER":
         // falls through
@@ -50,13 +86,16 @@ export var invitation = {
           const sender = cal.itip.getAttendeesBySender(attendees, aItipItem.sender);
           if (sender.length == 1) {
             if (aItipItem.responseMethod == "COUNTER") {
-              header = cal.l10n.getLtnString("itipCounterBody", [sender[0].toString(), summary]);
+              header = lazy.l10n.formatValueSync("itip-counter-body", {
+                attendee: sender[0].toString(),
+                summary,
+              });
             } else {
-              const statusString =
+              const statusId =
                 sender[0].participationStatus == "DECLINED"
-                  ? "itipReplyBodyDecline"
-                  : "itipReplyBodyAccept";
-              header = cal.l10n.getLtnString(statusString, [sender[0].toString()]);
+                  ? "itip-reply-body-decline"
+                  : "itip-reply-body-accept";
+              header = lazy.l10n.formatValueSync(statusId, { attendee: sender[0].toString() });
             }
           } else {
             header = "";
@@ -64,13 +103,16 @@ export var invitation = {
           break;
         }
         case "DECLINECOUNTER":
-          header = cal.l10n.getLtnString("itipDeclineCounterBody", [organizerString, summary]);
+          header = lazy.l10n.formatValueSync("itip-decline-counter-body", {
+            organizer: organizerString,
+            summary,
+          });
           break;
       }
     }
 
     if (!header) {
-      header = cal.l10n.getLtnString("imipHtml.header");
+      header = lazy.l10n.formatValueSync("imip-html-header");
     }
 
     return header;
@@ -120,22 +162,30 @@ export var invitation = {
       modified = oldDel.delegatees !== del.delegatees || oldDel.delegator !== del.delegator;
     }
 
-    const userTypeString = cal.l10n.getLtnString("imipHtml.attendeeUserType2." + userType, [
-      attendee.toString(),
-    ]);
-    const roleString = cal.l10n.getLtnString("imipHtml.attendeeRole2." + role, [userTypeString]);
-    const partstatString = cal.l10n.getLtnString("imipHtml.attendeePartStat2." + partstat, [
-      attendee.commonName || attendee.toString(),
-      del.delegatees,
-    ]);
-    const tooltip = cal.l10n.getLtnString("imipHtml.attendee.combined", [
-      roleString,
-      partstatString,
-    ]);
+    const userTypeString = lazy.l10n.formatValueSync(
+      ATTENDEE_USER_TYPE_L10N_IDS[userType] || ATTENDEE_USER_TYPE_L10N_IDS.UNKNOWN,
+      { attendee: attendee.toString() }
+    );
+    const roleString = lazy.l10n.formatValueSync(
+      ATTENDEE_ROLE_L10N_IDS[role] || ATTENDEE_ROLE_L10N_IDS["REQ-PARTICIPANT"],
+      { userType: userTypeString }
+    );
+    const partstatString = lazy.l10n.formatValueSync(
+      ATTENDEE_PART_STAT_L10N_IDS[partstat] || ATTENDEE_PART_STAT_L10N_IDS["NEEDS-ACTION"],
+      { attendee: attendee.commonName || attendee.toString(), delegatees: del.delegatees }
+    );
+    const tooltip = lazy.l10n.formatValueSync("imip-html-attendee-combined", {
+      role: roleString,
+      partStat: partstatString,
+    });
 
     let name = attendee.toString();
     if (del.delegators) {
-      name += " " + cal.l10n.getLtnString("imipHtml.attendeeDelegatedFrom", [del.delegators]);
+      name +=
+        " " +
+        lazy.l10n.formatValueSync("imip-html-attendee-delegated-from", {
+          delegators: del.delegators,
+        });
     }
 
     const attendeeLabel = doc.createElement("div");
@@ -337,10 +387,12 @@ export var invitation = {
     const showField = (fieldName, show) => {
       const row = doc.getElementById("imipHtml-" + fieldName + "-row");
       if (row.hidden && show) {
-        // Make sure the field name is set.
-        doc.getElementById("imipHtml-" + fieldName + "-descr").textContent = cal.l10n.getLtnString(
-          "imipHtml." + fieldName
-        );
+        // Make sure the field name is set. Field names are camelCase, while the
+        // Fluent ids are kebab-case, e.g. "canceledOccurrences" maps to
+        // "imip-html-canceled-occurrences".
+        const l10nId = "imip-html-" + fieldName.replace(/([A-Z])/g, "-$1").toLowerCase();
+        doc.getElementById("imipHtml-" + fieldName + "-descr").textContent =
+          lazy.l10n.formatValueSync(l10nId);
       }
       row.hidden = !show;
     };
@@ -505,7 +557,9 @@ export var invitation = {
             const occLocation = occ.getProperty("LOCATION");
             if (occLocation != evLocation) {
               formattedExc +=
-                " (" + cal.l10n.getLtnString("imipHtml.newLocation", [occLocation]) + ")";
+                " (" +
+                lazy.l10n.formatValueSync("imip-html-new-location", { location: occLocation }) +
+                ")";
             }
             return formattedExc;
           })

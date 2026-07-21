@@ -286,10 +286,10 @@ var calImipBar = {
     // anymore, we also clear the buttons if any to avoid e.g. accept/decline buttons
     if (isOutgoing(gMessage)) {
       if (calImipBar.foundItems && calImipBar.foundItems[0]) {
-        data.label = cal.l10n.getLtnString("imipBarSentText");
+        data.label = calImipBar.l10n.formatValueSync("imip-bar-sent-text");
       } else {
         data = {
-          label: cal.l10n.getLtnString("imipBarSentButRemovedText"),
+          label: calImipBar.l10n.formatValueSync("imip-bar-sent-but-removed-text"),
           buttons: [],
           hideMenuItems: [],
           hideItems: [],
@@ -417,6 +417,12 @@ var calImipBar = {
     }
   },
 };
+
+ChromeUtils.defineLazyGetter(
+  calImipBar,
+  "l10n",
+  () => new Localization(["calendar/calendar-itip.ftl"], true)
+);
 
 {
   const msgHeaderView = document.getElementById("msgHeaderView");

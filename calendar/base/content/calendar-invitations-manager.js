@@ -137,7 +137,7 @@ InvitationsManager.prototype = {
     const invitationsBox = document.getElementById("calendar-invitations-panel");
     if (items) {
       const count = items.length;
-      const value = cal.l10n.getLtnString("invitationsLink.label", [count]);
+      const value = this.l10n.formatValueSync("invitations-link-label", { count });
       document.getElementById("calendar-invitations-label").value = value;
       if (count) {
         invitationsBox.removeAttribute("hidden");
@@ -380,3 +380,9 @@ InvitationsManager.prototype = {
     return cal.itip.isOpenInvitation(item) && start.compare(this.mStartDate) >= 0;
   },
 };
+
+ChromeUtils.defineLazyGetter(
+  InvitationsManager.prototype,
+  "l10n",
+  () => new Localization(["calendar/calendar-itip.ftl"], true)
+);

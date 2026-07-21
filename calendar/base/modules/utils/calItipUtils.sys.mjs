@@ -31,7 +31,11 @@ ChromeUtils.defineLazyGetter(lazy, "log", () => {
 ChromeUtils.defineLazyGetter(
   lazy,
   "l10n",
-  () => new Localization(["calendar/calendar.ftl", "branding/brand.ftl"], true)
+  () =>
+    new Localization(
+      ["calendar/calendar.ftl", "calendar/calendar-itip.ftl", "branding/brand.ftl"],
+      true
+    )
 );
 
 export var itip = {
@@ -257,17 +261,19 @@ export var itip = {
     if (Components.isSuccessCode(aStatus)) {
       switch (aOperationType) {
         case Ci.calIOperationListener.ADD:
-          text = lazy.cal.l10n.getLtnString("imipAddedItemToCal2");
+          text = lazy.l10n.formatValueSync("imip-added-item-to-cal");
           break;
         case Ci.calIOperationListener.MODIFY:
-          text = lazy.cal.l10n.getLtnString("imipUpdatedItem2");
+          text = lazy.l10n.formatValueSync("imip-updated-item");
           break;
         case Ci.calIOperationListener.DELETE:
-          text = lazy.cal.l10n.getLtnString("imipCanceledItem2");
+          text = lazy.l10n.formatValueSync("imip-canceled-item");
           break;
       }
     } else {
-      text = lazy.cal.l10n.getLtnString("imipBarProcessingFailed", [aStatus.toString(16)]);
+      text = lazy.l10n.formatValueSync("imip-bar-processing-failed", {
+        status: aStatus.toString(16),
+      });
     }
     return text;
   },
@@ -284,19 +290,19 @@ export var itip = {
   getMethodText(method) {
     switch (method) {
       case "REFRESH":
-        return lazy.cal.l10n.getLtnString("imipBarRefreshText");
+        return lazy.l10n.formatValueSync("imip-bar-refresh-text");
       case "REQUEST":
-        return lazy.cal.l10n.getLtnString("imipBarRequestText");
+        return lazy.l10n.formatValueSync("imip-bar-request-text");
       case "PUBLISH":
-        return lazy.cal.l10n.getLtnString("imipBarPublishText");
+        return lazy.l10n.formatValueSync("imip-bar-publish-text");
       case "CANCEL":
-        return lazy.cal.l10n.getLtnString("imipBarCancelText");
+        return lazy.l10n.formatValueSync("imip-bar-cancel-text");
       case "REPLY":
-        return lazy.cal.l10n.getLtnString("imipBarReplyText");
+        return lazy.l10n.formatValueSync("imip-bar-reply-text");
       case "COUNTER":
-        return lazy.cal.l10n.getLtnString("imipBarCounterText");
+        return lazy.l10n.formatValueSync("imip-bar-counter-text");
       case "DECLINECOUNTER":
-        return lazy.cal.l10n.getLtnString("imipBarDeclineCounterText");
+        return lazy.l10n.formatValueSync("imip-bar-decline-counter-text");
       default: {
         lazy.log.error("Unknown iTIP method: " + method);
         return lazy.l10n.formatValueSync("imip-bar-unsupported-text");
@@ -342,23 +348,23 @@ export var itip = {
     }
     if (!calendarDeactivator.isCalendarActivated) {
       // Calendar is deactivated (no calendars are enabled).
-      data.label = lazy.cal.l10n.getLtnString("imipBarCalendarDeactivated");
+      data.label = lazy.l10n.formatValueSync("imip-bar-calendar-deactivated");
       data.showItems.push("imipGoToCalendarButton", "imipMoreButton");
       data.hideItems.push("imipMoreButton_SaveCopy");
     } else if (rc == Ci.calIErrors.CAL_IS_READONLY) {
       // No writable calendars, tell the user about it
-      data.label = lazy.cal.l10n.getLtnString("imipBarNotWritable");
+      data.label = lazy.l10n.formatValueSync("imip-bar-not-writable");
       data.showItems.push("imipGoToCalendarButton", "imipMoreButton");
       data.hideItems.push("imipMoreButton_SaveCopy");
     } else if (Components.isSuccessCode(rc) && !actionFunc) {
       // This case, they clicked on an old message that has already been
       // added/updated, we want to tell them that.
-      data.label = lazy.cal.l10n.getLtnString("imipBarAlreadyProcessedText");
+      data.label = lazy.l10n.formatValueSync("imip-bar-already-processed-text");
       if (foundItems && foundItems.length) {
         data.showItems.push("imipDetailsButton");
         if (itipItem.receivedMethod == "COUNTER" && itipItem.sender) {
           if (disallowedCounter) {
-            data.label = lazy.cal.l10n.getLtnString("imipBarDisallowedCounterText");
+            data.label = lazy.l10n.formatValueSync("imip-bar-disallowed-counter-text");
           } else {
             let comparison;
             for (const item of itipItem.getItemList()) {
@@ -369,10 +375,10 @@ export var itip = {
               if (attendees.length == 1) {
                 comparison = itip.compareSequence(item, foundItems[0]);
                 if (comparison == 1) {
-                  data.label = lazy.cal.l10n.getLtnString("imipBarCounterErrorText");
+                  data.label = lazy.l10n.formatValueSync("imip-bar-counter-error-text");
                   break;
                 } else if (comparison == -1) {
-                  data.label = lazy.cal.l10n.getLtnString("imipBarCounterPreviousVersionText");
+                  data.label = lazy.l10n.formatValueSync("imip-bar-counter-previous-version-text");
                 }
               }
             }
@@ -390,21 +396,21 @@ export var itip = {
           delTime = delmgr.getDeletedDate(items[0].id);
         }
         if (delTime) {
-          data.label = lazy.cal.l10n.getLtnString("imipBarReplyToRecentlyRemovedItem", [
-            lazy.cal.dtz.formatter.formatTime(delTime),
-          ]);
+          data.label = lazy.l10n.formatValueSync("imip-bar-reply-to-recently-removed-item", {
+            deletionTime: lazy.cal.dtz.formatter.formatTime(delTime),
+          });
         } else {
-          data.label = lazy.cal.l10n.getLtnString("imipBarReplyToNotExistingItem");
+          data.label = lazy.l10n.formatValueSync("imip-bar-reply-to-not-existing-item");
         }
       } else if (itipItem.receivedMethod == "DECLINECOUNTER") {
-        data.label = lazy.cal.l10n.getLtnString("imipBarDeclineCounterText");
+        data.label = lazy.l10n.formatValueSync("imip-bar-decline-counter-text");
       }
     } else if (Components.isSuccessCode(rc)) {
       lazy.log.debug("iTIP options on: " + actionFunc.method);
       switch (actionFunc.method) {
         case "PUBLISH:UPDATE":
         case "REQUEST:UPDATE-MINOR":
-          data.label = lazy.cal.l10n.getLtnString("imipBarUpdateText");
+          data.label = lazy.l10n.formatValueSync("imip-bar-update-text");
         // falls through
         case "REPLY":
           data.showItems.push("imipUpdateButton");
@@ -424,19 +430,19 @@ export var itip = {
 
           if (actionFunc.method == "REQUEST:UPDATE") {
             if (isRecurringMaster) {
-              data.label = lazy.cal.l10n.getLtnString("imipBarUpdateSeriesText");
+              data.label = lazy.l10n.formatValueSync("imip-bar-update-series-text");
             } else if (itipItem.getItemList().length > 1) {
-              data.label = lazy.cal.l10n.getLtnString("imipBarUpdateMultipleText");
+              data.label = lazy.l10n.formatValueSync("imip-bar-update-multiple-text");
             } else {
-              data.label = lazy.cal.l10n.getLtnString("imipBarUpdateText");
+              data.label = lazy.l10n.formatValueSync("imip-bar-update-text");
             }
           } else if (actionFunc.method == "REQUEST:NEEDS-ACTION") {
             if (isRecurringMaster) {
-              data.label = lazy.cal.l10n.getLtnString("imipBarProcessedSeriesNeedsAction");
+              data.label = lazy.l10n.formatValueSync("imip-bar-processed-series-needs-action");
             } else if (itipItem.getItemList().length > 1) {
-              data.label = lazy.cal.l10n.getLtnString("imipBarProcessedMultipleNeedsAction");
+              data.label = lazy.l10n.formatValueSync("imip-bar-processed-multiple-needs-action");
             } else {
-              data.label = lazy.cal.l10n.getLtnString("imipBarProcessedNeedsAction");
+              data.label = lazy.l10n.formatValueSync("imip-bar-processed-needs-action");
             }
           }
 
@@ -491,7 +497,7 @@ export var itip = {
         }
         case "COUNTER": {
           if (disallowedCounter) {
-            data.label = lazy.cal.l10n.getLtnString("imipBarDisallowedCounterText");
+            data.label = lazy.l10n.formatValueSync("imip-bar-disallowed-counter-text");
           }
           data.showItems.push("imipDeclineCounterButton");
           data.showItems.push("imipRescheduleButton");
@@ -770,14 +776,14 @@ export var itip = {
                 parsedProposal.result == "OLDVERSION" || parsedProposal.result == "NOTLATESTUPDATE",
               onReschedule: () => {
                 aUpdateFunction({
-                  label: lazy.cal.l10n.getLtnString("imipBarCounterPreviousVersionText"),
+                  label: lazy.l10n.formatValueSync("imip-bar-counter-previous-version-text"),
                 });
                 // TODO: should we hide the buttons in this case, too?
               },
             };
           } else {
             aUpdateFunction({
-              label: lazy.cal.l10n.getLtnString("imipBarCounterErrorText"),
+              label: lazy.l10n.formatValueSync("imip-bar-counter-error-text"),
               resetButtons: true,
             });
             if (proposingAttendee) {
@@ -815,8 +821,8 @@ export var itip = {
       const items = aItipItem.getItemList();
       if (items && items.length) {
         const delTime = delmgr.getDeletedDate(items[0].id);
-        const dialogText = lazy.cal.l10n.getLtnString("confirmProcessInvitation");
-        const dialogTitle = lazy.cal.l10n.getLtnString("confirmProcessInvitationTitle");
+        const dialogText = lazy.l10n.formatValueSync("confirm-process-invitation");
+        const dialogTitle = lazy.l10n.formatValueSync("confirm-process-invitation-title");
         if (delTime && !Services.prompt.confirm(aWindow, dialogTitle, dialogText)) {
           return false;
         }
@@ -894,7 +900,7 @@ export var itip = {
       }
 
       if (calendars.length == 0) {
-        const msg = lazy.cal.l10n.getLtnString("imipNoCalendarAvailable");
+        const msg = lazy.l10n.formatValueSync("imip-no-calendar-available");
         aWindow.alert(msg);
       } else if (calendars.length == 1) {
         // There's only one calendar, so it's silly to ask what calendar

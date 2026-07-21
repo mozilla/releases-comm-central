@@ -648,7 +648,7 @@ CalAlarm.prototype = {
     } else if (this.related != Ci.calIAlarm.ALARM_RELATED_ABSOLUTE && this.mOffset) {
       // Relative alarm length
       let alarmlen = Math.abs(this.mOffset.inSeconds / 60);
-      if (alarmlen == 0) {
+      if (alarmlen == 0 || isNaN(this.mOffset.inSeconds)) {
         // No need to get the other information if the alarm is at the start
         // of the event/task.
         if (this.related == Ci.calIAlarm.ALARM_RELATED_START) {

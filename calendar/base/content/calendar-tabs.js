@@ -72,7 +72,7 @@ var calendarTabMonitor = {
 ChromeUtils.defineLazyGetter(
   calendarTabMonitor,
   "l10n",
-  () => new Localization(["calendar/calendar.ftl"], true)
+  () => new Localization(["calendar/calendar.ftl", "calendar/calendar-itip.ftl"], true)
 );
 var calendarTabType = {
   name: "calendar",
@@ -84,7 +84,7 @@ var calendarTabType = {
       openTab(tab) {
         tab.tabNode.setIcon("chrome://messenger/skin/icons/new/compact/calendar.svg");
         gLastShownCalendarView.get();
-        tab.title = cal.l10n.getLtnString("tabTitleCalendar");
+        tab.title = calendarTabMonitor.l10n.formatValueSync("calendar-tab-title-calendar");
       },
       showTab() {},
       closeTab() {},
@@ -103,7 +103,7 @@ var calendarTabType = {
       },
 
       onTitleChanged(tab) {
-        tab.title = cal.l10n.getLtnString("tabTitleCalendar");
+        tab.title = calendarTabMonitor.l10n.formatValueSync("calendar-tab-title-calendar");
       },
 
       supportsCommand: aCommand => calendarController2.supportsCommand(aCommand),
@@ -117,7 +117,7 @@ var calendarTabType = {
       maxTabs: 1,
       openTab(tab) {
         tab.tabNode.setIcon("chrome://messenger/skin/icons/new/compact/tasks.svg");
-        tab.title = cal.l10n.getLtnString("tabTitleTasks");
+        tab.title = calendarTabMonitor.l10n.formatValueSync("calendar-tab-title-tasks");
       },
       showTab() {},
       closeTab() {},
@@ -136,7 +136,7 @@ var calendarTabType = {
       },
 
       onTitleChanged(tab) {
-        tab.title = cal.l10n.getLtnString("tabTitleTasks");
+        tab.title = calendarTabMonitor.l10n.formatValueSync("calendar-tab-title-tasks");
       },
 
       supportsCommand: aCommand => calendarController2.supportsCommand(aCommand),
