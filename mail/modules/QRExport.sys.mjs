@@ -133,6 +133,13 @@ export const QRExport = {
    * @returns {Promise<string[]>} Returns an array of SVG URLs, each representing a QR code.
    */
   async getQRCodes(accountKeys, includePasswords) {
+    if (!Services.prefs.getBoolPref("mail.qrexport.enabled")) {
+      throw Components.Exception(
+        "QR export is disabled by enterprise policy",
+        Cr.NS_ERROR_NOT_AVAILABLE
+      );
+    }
+
     const accounts = await Promise.all(
       accountKeys.map(key => this.getAccountData(key, includePasswords))
     );

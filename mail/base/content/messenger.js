@@ -239,6 +239,19 @@ var gMailInit = {
       widget.hidden = !this.gGlodaEnabled;
     }
 
+    XPCOMUtils.defineLazyPreferenceGetter(
+      this,
+      "gQrExportEnabled",
+      "mail.qrexport.enabled",
+      true,
+      (pref, oldVal, newVal) => {
+        document.getElementById("menu_exportmobile").hidden = !newVal;
+      }
+    );
+
+    document.getElementById("menu_exportmobile").hidden =
+      !this.gQrExportEnabled;
+
     window.addEventListener("AppCommand", HandleAppCommandEvent, true);
 
     // Listen for the messages sent to the main 3 pane window.

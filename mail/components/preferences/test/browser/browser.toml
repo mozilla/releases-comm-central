@@ -34,6 +34,8 @@ support-files = ["files/complete.oga"]
 ["browser_qrCodeWizard.js"]
 support-files = ["files/qrCodeWizard.xhtml"]
 
+["browser_qrExportDisabled.js"]
+
 ["browser_qrExport.js"]
 
 ["browser_sync.js"]

@@ -156,7 +156,12 @@ async function init() {
     document.getElementById("category-calendar").remove(); // Remove tab.
   }
 
-  register_module("paneQrExport", qrExportPane);
+  if (Services.prefs.getBoolPref("mail.qrexport.enabled", true)) {
+    register_module("paneQrExport", qrExportPane);
+  } else {
+    document.getElementById("paneQrExport").remove(); // Exclude from search.
+    document.getElementById("category-qrexport").remove(); // Remove tab.
+  }
 
   gSearchResultsPane.init();
 

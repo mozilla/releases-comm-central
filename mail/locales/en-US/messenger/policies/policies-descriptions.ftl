@@ -59,6 +59,8 @@ policy-DisablePasswordReveal = Do not allow passwords to be revealed in saved lo
 
 policy-DisableProfileImport = Disable the menu command to Import data from another application.
 
+policy-DisableQRExport = Disable the generation of the QR code to export account settings and credentials.
+
 policy-DisableSafeMode = Disable the feature to restart in Safe Mode. Note: the Shift key to enter Safe Mode can only be disabled on Windows using Group Policy.
 
 policy-DisableSecurityBypass = Prevent the user from bypassing certain security warnings.

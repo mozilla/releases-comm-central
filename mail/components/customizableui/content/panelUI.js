@@ -564,6 +564,9 @@ const PanelUI = {
     const noAccounts = MailServices.accounts.accounts.length == 0;
     event.target.querySelector("#appmenu_searchCmd").disabled = noAccounts;
     event.target.querySelector("#appmenu_filtersCmd").disabled = noAccounts;
+
+    event.target.querySelector("#appmenu_exportmobile").hidden =
+      !Services.prefs.getBoolPref("mail.qrexport.enabled", true);
   },
 
   _updateNotifications(notificationsChanged) {

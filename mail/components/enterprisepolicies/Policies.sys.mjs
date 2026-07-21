@@ -610,6 +610,14 @@ export var Policies = {
     },
   },
 
+  DisableQRExport: {
+    onBeforeUIStartup(manager, param) {
+      if (param) {
+        lazy.PoliciesUtils.setAndLockPref("mail.qrexport.enabled", false);
+      }
+    },
+  },
+
   DisableSafeMode: {
     onBeforeUIStartup(manager, param) {
       if (param) {

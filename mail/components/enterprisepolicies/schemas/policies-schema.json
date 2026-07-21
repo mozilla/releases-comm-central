@@ -246,6 +246,10 @@
       "type": "boolean"
     },
 
+    "DisableQRExport": {
+      "type": "boolean"
+    },
+
     "DisableSafeMode": {
       "type": "boolean"
     },

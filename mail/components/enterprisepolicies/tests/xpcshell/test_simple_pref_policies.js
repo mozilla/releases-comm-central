@@ -49,6 +49,16 @@ const POLICIES_TESTS = [
     lockedPrefs: { "pdfjs.disabled": true },
   },
 
+  // POLICY: DisableQRExport
+  {
+    policies: { DisableQRExport: false },
+    unlockedPrefs: { "mail.qrexport.enabled": true },
+  },
+  {
+    policies: { DisableQRExport: true },
+    lockedPrefs: { "mail.qrexport.enabled": false },
+  },
+
   // POLICY: Authentication
   {
     policies: {

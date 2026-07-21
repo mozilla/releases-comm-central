@@ -1558,6 +1558,9 @@ pref("mail.accounthub.thundermail.enabled", true);
 // Enable new manual config ui in account hub.
 pref("mail.accounthub.manualconfig.enabled", false);
 
+// Export to mobile enabled.
+pref("mail.qrexport.enabled", true);
+
 // Export to mobile logging level.
 pref("mail.qrexport.loglevel", "Warn");
 
