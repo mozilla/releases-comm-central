@@ -410,7 +410,6 @@ add_task(async function test_validateShowsClickableErrorSummary() {
   }
 });
 
-
 add_task(async function test_adjustSSLToPort() {
   const incomingPort = subview.querySelector("#manualIncomingPort");
   const incomingConnectionSecurity = subview.querySelector(
