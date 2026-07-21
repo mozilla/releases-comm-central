@@ -220,8 +220,6 @@ function loadSmimeMessageSecurityInfo() {
   document.getElementById("sigCertIssuedBy").textContent =
     gSignerCert?.issuerCommonName || gSignerCert?.issuerName || "";
 
-  showSignatureCryptoDetails();
-
   // Encryption certificate details.
   document.getElementById("encryptionCert").collapsed = !gEncryptionCert;
   document.getElementById("encryptedFor").textContent =
@@ -231,64 +229,33 @@ function loadSmimeMessageSecurityInfo() {
   document.getElementById("encCertIssuedBy").textContent =
     gEncryptionCert?.issuerCommonName || gEncryptionCert?.issuerName || "";
 
-  showEncryptionCryptoDetails();
+  showCryptoDetails();
 }
 
 /**
- * Show or hide the signature algorithm details in the security panel.
- * Uses globals: gSignatureAlgorithm, gDigestAlgorithm.
+ * Populate the cryptographic details section at the bottom of the security
+ * panel, hiding the whole section (and each sub-part) when there is nothing
+ * to show. Uses globals: gSignatureAlgorithm, gDigestAlgorithm,
+ * gContentEncAlgorithm, gContentEncKeyBits, gKeyEncAlgorithm.
  */
-function showSignatureCryptoDetails() {
-  const sigCryptoSection = document.getElementById("signatureCryptoSection");
-  const sigCryptoBox = document.getElementById("signatureCryptoDetails");
-  const sigCryptoToggle = document.getElementById(
-    "signatureCryptoDetailsToggle"
-  );
-  if (!sigCryptoSection || !sigCryptoBox) {
+function showCryptoDetails() {
+  const details = document.getElementById("cryptoDetails");
+  if (!details) {
     return;
   }
-  sigCryptoBox.collapsed = true;
-  if (sigCryptoToggle) {
-    sigCryptoToggle.setAttribute("aria-expanded", "false");
-  }
-  if (!gSignatureAlgorithm && !gDigestAlgorithm) {
-    sigCryptoSection.collapsed = true;
-    document.getElementById("sigAlgorithm").textContent = "";
-    document.getElementById("sigDigestAlgorithm").textContent = "";
-    return;
-  }
-  sigCryptoSection.collapsed = false;
+
+  // Signature algorithm details.
+  const haveSig = !!(gSignatureAlgorithm || gDigestAlgorithm);
+  document.getElementById("signatureCryptoDetails").collapsed = !haveSig;
   document.getElementById("sigAlgorithm").textContent = gSignatureAlgorithm;
   document.getElementById("sigDigestAlgorithm").textContent = gDigestAlgorithm;
-}
 
-/**
- * Show or hide the encryption algorithm details in the security panel.
- * Uses globals: gContentEncAlgorithm, gContentEncKeyBits, gKeyEncAlgorithm.
- */
-function showEncryptionCryptoDetails() {
-  const encCryptoSection = document.getElementById("encryptionCryptoSection");
-  const encCryptoBox = document.getElementById("encryptionCryptoDetails");
-  const encCryptoToggle = document.getElementById(
-    "encryptionCryptoDetailsToggle"
-  );
-  if (!encCryptoSection || !encCryptoBox) {
-    return;
-  }
-  encCryptoBox.collapsed = true;
-  if (encCryptoToggle) {
-    encCryptoToggle.setAttribute("aria-expanded", "false");
-  }
+  // Encryption algorithm details.
+  const haveEnc = !!(gContentEncAlgorithm || gKeyEncAlgorithm);
+  document.getElementById("encryptionCryptoDetails").collapsed = !haveEnc;
   const encAlgEl = document.getElementById("encAlgorithm");
   encAlgEl.removeAttribute("data-l10n-id");
   encAlgEl.removeAttribute("data-l10n-args");
-  if (!gContentEncAlgorithm && !gKeyEncAlgorithm) {
-    encCryptoSection.collapsed = true;
-    encAlgEl.textContent = "";
-    document.getElementById("keyEncAlgorithm").textContent = "";
-    return;
-  }
-  encCryptoSection.collapsed = false;
   if (gContentEncKeyBits > 0 && gContentEncAlgorithm) {
     encAlgEl.textContent = "";
     document.l10n.setAttributes(encAlgEl, "smime-crypto-cipher-with-key-size", {
@@ -299,23 +266,10 @@ function showEncryptionCryptoDetails() {
     encAlgEl.textContent = gContentEncAlgorithm;
   }
   document.getElementById("keyEncAlgorithm").textContent = gKeyEncAlgorithm;
-}
 
-/**
- * Toggle the visibility of a crypto details section and swap the
- * disclosure chevron on the trigger button.
- *
- * @param {Element} button - The trigger button.
- * @param {string} sectionId - The id of the section to expand/collapse.
- */
-function toggleCryptoDetails(button, sectionId) {
-  const section = document.getElementById(sectionId);
-  if (!section) {
-    return;
-  }
-  const willOpen = section.collapsed;
-  section.collapsed = !willOpen;
-  button.setAttribute("aria-expanded", willOpen ? "true" : "false");
+  // Hide the whole section when empty, and always start collapsed.
+  details.hidden = !haveSig && !haveEnc;
+  details.open = false;
 }
 
 /**

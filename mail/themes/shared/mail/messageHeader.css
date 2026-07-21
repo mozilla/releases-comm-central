@@ -662,20 +662,6 @@ html|header.message-security-header {
   margin-block-end: 21px;
 }
 
-.crypto-details-toggle {
-  -moz-context-properties: fill;
-  fill: currentColor;
-  background-image: url("chrome://global/skin/icons/arrow-down-12.svg");
-  background-position: right 6px center;
-  background-repeat: no-repeat;
-  background-size: 12px;
-  padding-inline-end: 22px;
-}
-
-.crypto-details-toggle[aria-expanded="true"] {
-  background-image: url("chrome://global/skin/icons/arrow-up-12.svg");
-}
-
 #signatureKeyId,
 #encryptionKeyId,
 .cert-label {

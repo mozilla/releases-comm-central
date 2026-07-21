@@ -18,14 +18,13 @@ configured-cert-failure = The certificate verification failed with error code { 
 
 # Cryptographic details displayed in the message security popup
 smime-crypto-signature-algorithm = Signature algorithm:
-smime-crypto-digest-algorithm = Digest algorithm:
-smime-crypto-cipher = Cipher:
-smime-crypto-key-encryption = Key encryption:
+smime-crypto-digest-algorithm = Signature Digest algorithm:
+smime-crypto-cipher = Encryption algorithm:
+smime-crypto-key-encryption = Key Encryption algorithm:
 # $algorithm - The encryption algorithm name (e.g. "AES-GCM")
 # $keySize - The key size in bits (e.g. "256")
 smime-crypto-cipher-with-key-size = { $algorithm } ({ $keySize }-bit)
-smime-crypto-details-toggle =
-    .label = Details
+smime-crypto-details-summary = Algorithms
 
 # $errorMsg A sentence that explains the error.
 # $errorCodeStr A human readable error code, e.g. SEC_ERROR_UNKNOWN_ISSUER
