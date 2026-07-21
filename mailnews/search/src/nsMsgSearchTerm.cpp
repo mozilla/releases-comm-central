@@ -797,6 +797,9 @@ nsresult nsMsgSearchTerm::MatchBody(nsIMsgSearchScopeTerm* scope,
   nsCString compare;
   nsMsgBodyHandler bodyHandler(scope, msg);
   uint32_t seen = 0;
+  // Kept outside the loop because GetNextLine() does not set it at EOF, and
+  // text accumulated in `compare` must be matched with its part's charset.
+  nsAutoCString charset;
   while (result == boolContinueLoop) {
     // Small hack so we don't look all through a message when someone has
     // specified "BODY IS foo".
@@ -807,31 +810,30 @@ nsresult nsMsgSearchTerm::MatchBody(nsIMsgSearchScopeTerm* scope,
     }
 
     nsAutoCString buf;
-    nsAutoCString charset;
     bool needsQPReset = false;
     int32_t n = bodyHandler.GetNextLine(buf, charset, needsQPReset);
-    if (n < 0) {
-      break;  // EOF
+    bool eof = n < 0;
+    if (!eof) {
+      seen += n;
+      bool softLineBreak = false;
+      // Do in-place decoding of quoted printable
+      if (bodyHandler.IsQP()) {
+        softLineBreak = StringEndsWith(buf, "="_ns);
+        MsgStripQuotedPrintable(buf);
+        // If soft line break, chop off the last char as well.
+        size_t bufLength = buf.Length();
+        if ((bufLength > 0) && softLineBreak) buf.SetLength(bufLength - 1);
+      }
+      if (needsQPReset) {
+        bodyHandler.resetQP();
+      }
+      compare.Append(buf);
+      // If this line ends with a soft line break, loop around and get the
+      // next line before looking for the search string. A malformed message
+      // may end on a soft line break; we then match the leftover text at EOF
+      // below.
+      if (softLineBreak) continue;
     }
-    seen += n;
-    bool softLineBreak = false;
-    // Do in-place decoding of quoted printable
-    if (bodyHandler.IsQP()) {
-      softLineBreak = StringEndsWith(buf, "="_ns);
-      MsgStripQuotedPrintable(buf);
-      // If soft line break, chop off the last char as well.
-      size_t bufLength = buf.Length();
-      if ((bufLength > 0) && softLineBreak) buf.SetLength(bufLength - 1);
-    }
-    if (needsQPReset) {
-      bodyHandler.resetQP();
-    }
-    compare.Append(buf);
-    // If this line ends with a soft line break, loop around
-    // and get the next line before looking for the search string.
-    // This assumes the message can't end on a QP soft line break.
-    // That seems like a pretty safe assumption.
-    if (softLineBreak) continue;
     if (!compare.IsEmpty()) {
       char startChar = (char)compare.CharAt(0);
       if (startChar != '\r' && startChar != '\n') {
@@ -839,6 +841,9 @@ nsresult nsMsgSearchTerm::MatchBody(nsIMsgSearchScopeTerm* scope,
             compare, charset.IsEmpty() ? msgCharset : charset.get(), &result);
       }
       compare.Truncate();
+    }
+    if (eof) {
+      break;
     }
   }
 

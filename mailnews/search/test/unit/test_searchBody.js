@@ -107,6 +107,11 @@ var Files = [
   "../../../data/bare-text-type.eml",
   "../../../data/no-content-type.eml",
 
+  // Quoted-printable bodies ending on a soft line break, i.e. with a
+  // trailing "=" at the end of the message.
+  "../../../data/qp-trailing-equals-plain.eml",
+  "../../../data/qp-trailing-equals-html.eml",
+
   // TODO: apparently search opaque does not work
   //"../../../../mail/test/browser/smime/data/alice.sig.SHA256.opaque.env.eml",
 ];
@@ -226,6 +231,11 @@ var Tests = [
   // but searching for the merged word should fail.
   { value: "Sale Today", op: Contains, count: 1 },
   { value: "SaleToday", op: Contains, count: 0 },
+
+  // Body text accumulated across quoted-printable soft line breaks must
+  // still be searched when the message ends on one.
+  { value: "qptrailingplain", op: Contains, count: 1 },
+  { value: "qptrailinghtml", op: Contains, count: 1 },
 ];
 
 function fixFile(file) {
