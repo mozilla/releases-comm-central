@@ -33,6 +33,12 @@ interface nsICMSMessage : nsISupports
   readonly attribute nsIX509Cert encryptionCert;
   readonly attribute PRTime signingTime;
 
+  readonly attribute AUTF8String signatureAlgorithmName;
+  readonly attribute AUTF8String digestAlgorithmName;
+  readonly attribute AUTF8String contentEncAlgorithmName;
+  readonly attribute long contentEncKeySizeBits;
+  readonly attribute AUTF8String keyEncAlgorithmName;
+
   /**
    * @param verifyFlags - Optional flags from nsICMSVerifyFlags.
    */

@@ -74,6 +74,29 @@
           </hbox>
         </vbox>
 
+        <vbox id="signatureCryptoSection" class="message-security-container"
+              collapsed="collapsed">
+          <hbox pack="end">
+            <button id="signatureCryptoDetailsToggle"
+                    class="button-focusable crypto-details-toggle"
+                    aria-expanded="false"
+                    data-l10n-id="smime-crypto-details-toggle"
+                    oncommand="toggleCryptoDetails(event.target, 'signatureCryptoDetails')" />
+          </hbox>
+          <vbox id="signatureCryptoDetails" collapsed="collapsed">
+            <hbox>
+              <label class="cert-label"
+                     data-l10n-id="smime-crypto-signature-algorithm" />
+              <description id="sigAlgorithm" />
+            </hbox>
+            <hbox>
+              <label class="cert-label"
+                     data-l10n-id="smime-crypto-digest-algorithm" />
+              <description id="sigDigestAlgorithm" />
+            </hbox>
+          </vbox>
+        </vbox>
+
         <hbox id="signatureKey" class="message-security-container"
               collapsed="collapsed" align="center">
           <label id="signatureKeyId" flex="1" context="simpleCopyPopup"/>
@@ -116,6 +139,29 @@
                     class="button-focusable"
                     oncommand="viewEncryptionCert(event.target.closest('panel'))" />
           </hbox>
+        </vbox>
+
+        <vbox id="encryptionCryptoSection" class="message-security-container"
+              collapsed="collapsed">
+          <hbox pack="end">
+            <button id="encryptionCryptoDetailsToggle"
+                    class="button-focusable crypto-details-toggle"
+                    aria-expanded="false"
+                    data-l10n-id="smime-crypto-details-toggle"
+                    oncommand="toggleCryptoDetails(event.target, 'encryptionCryptoDetails')" />
+          </hbox>
+          <vbox id="encryptionCryptoDetails" collapsed="collapsed">
+            <hbox>
+              <label class="cert-label"
+                     data-l10n-id="smime-crypto-cipher" />
+              <description id="encAlgorithm" />
+            </hbox>
+            <hbox>
+              <label class="cert-label"
+                     data-l10n-id="smime-crypto-key-encryption" />
+              <description id="keyEncAlgorithm" />
+            </hbox>
+          </vbox>
         </vbox>
 
         <vbox id="encryptionKey" class="message-security-container"

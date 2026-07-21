@@ -279,13 +279,17 @@ var smimeSink = {
    * @param {string} aMsgNeckoURL - URL processed.
    * @param {string} aOriginMimePartNumber - The MIME part that triggered this
    *   status report.
+   * @param {string} aSignatureAlgorithm - Signature algorithm name.
+   * @param {string} aDigestAlgorithm - Digest algorithm name.
    */
   signedStatus(
     aNestingLevel,
     aSignatureStatus,
     aSignerCert,
     aMsgNeckoURL,
-    aOriginMimePartNumber
+    aOriginMimePartNumber,
+    aSignatureAlgorithm,
+    aDigestAlgorithm
   ) {
     if (aNestingLevel > 1) {
       // We are not interested.
@@ -317,6 +321,8 @@ var smimeSink = {
 
       gSignatureStatus = aSignatureStatus;
       gSignerCert = aSignerCert;
+      gSignatureAlgorithm = aSignatureAlgorithm || "";
+      gDigestAlgorithm = aDigestAlgorithm || "";
 
       refreshSmimeMessageEncryptionStatus(aOriginMimePartNumber);
 
@@ -367,13 +373,19 @@ var smimeSink = {
    * @param {string} aMsgNeckoURL - URL processed.
    * @param {string} aOriginMimePartNumber - The MIME part that triggered this
    *   status report.
+   * @param {string} aContentEncAlgorithm - Content encryption algorithm name.
+   * @param {integer} aContentEncKeyBits - Content encryption key size in bits.
+   * @param {string} aKeyEncAlgorithm - Key encryption algorithm name.
    */
   encryptionStatus(
     aNestingLevel,
     aEncryptionStatus,
     aRecipientCert,
     aMsgNeckoURL,
-    aOriginMimePartNumber
+    aOriginMimePartNumber,
+    aContentEncAlgorithm,
+    aContentEncKeyBits,
+    aKeyEncAlgorithm
   ) {
     if (
       !!gIgnoreStatusFromMimePart &&
@@ -404,6 +416,9 @@ var smimeSink = {
 
     gEncryptionStatus = aEncryptionStatus;
     gEncryptionCert = aRecipientCert;
+    gContentEncAlgorithm = aContentEncAlgorithm || "";
+    gContentEncKeyBits = aContentEncKeyBits || 0;
+    gKeyEncAlgorithm = aKeyEncAlgorithm || "";
 
     refreshSmimeMessageEncryptionStatus(aOriginMimePartNumber);
 
@@ -483,6 +498,11 @@ function onSMIMEStartHeaders() {
 
   gSignerCert = null;
   gEncryptionCert = null;
+  gSignatureAlgorithm = "";
+  gDigestAlgorithm = "";
+  gContentEncAlgorithm = "";
+  gContentEncKeyBits = 0;
+  gKeyEncAlgorithm = "";
 
   setMessageCryptoBox(null, null, null, false);
 

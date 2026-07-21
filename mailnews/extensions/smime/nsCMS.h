@@ -32,6 +32,7 @@ class nsCMSMessage : public nsICMSMessage {
   nsCOMPtr<nsIInterfaceRequestor> m_ctx;
   NSSCMSMessage* m_cmsMsg;
   NSSCMSSignerInfo* GetTopLevelSignerInfo();
+  NSSCMSContentInfo* GetEncryptionContentInfo();
   nsresult CommonVerifySignature(int32_t verifyFlags,
                                  const nsTArray<uint8_t>& aDigestData,
                                  int16_t aDigestType);

@@ -27,7 +27,9 @@ interface nsIMsgSMIMESink : nsISupports {
                     in long signatureStatus,
                     in nsIX509Cert signerCert,
                     in AUTF8String msgNeckoURL,
-                    in AUTF8String originMimePartNumber);
+                    in AUTF8String originMimePartNumber,
+                    in AUTF8String signatureAlgorithm,
+                    in AUTF8String digestAlgorithm);
 
   void resetSignedStatus(in AUTF8String msgNeckoURL);
 
@@ -35,6 +37,9 @@ interface nsIMsgSMIMESink : nsISupports {
                         in long encryptionStatus,
                         in nsIX509Cert receipientCert,
                         in AUTF8String msgNeckoURL,
-                        in AUTF8String originMimePartNumber);
+                        in AUTF8String originMimePartNumber,
+                        in AUTF8String contentEncAlgorithm,
+                        in long encryptionKeyBits,
+                        in AUTF8String keyEncAlgorithm);
 
 };

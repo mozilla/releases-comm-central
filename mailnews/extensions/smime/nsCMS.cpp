@@ -20,6 +20,7 @@
 #include "nsServiceManagerUtils.h"
 #include "mozpkix/Result.h"
 #include "mozpkix/pkixtypes.h"
+#include "secasn1.h"
 #include "sechash.h"
 #include "secerr.h"
 #include "smime.h"
@@ -141,6 +142,291 @@ NS_IMETHODIMP nsCMSMessage::GetSignerCert(nsIX509Cert** scert) {
 
 NS_IMETHODIMP nsCMSMessage::GetEncryptionCert(nsIX509Cert**) {
   return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+static void AppendMGFFromParams(PLArenaPool* arena, const SECItem& params,
+                                nsACString& aResult) {
+  SECKEYRSAPSSParams pssParams;
+  PORT_Memset(&pssParams, 0, sizeof(pssParams));
+  if (SEC_QuickDERDecodeItem(arena, &pssParams,
+                             SEC_ASN1_GET(SECKEY_RSAPSSParamsTemplate),
+                             &params) != SECSuccess) {
+    return;
+  }
+  if (!pssParams.maskAlg) {
+    return;
+  }
+  if (SECOID_GetAlgorithmTag(pssParams.maskAlg) != SEC_OID_PKCS1_MGF1) {
+    return;
+  }
+  if (!pssParams.maskAlg->parameters.data) {
+    return;
+  }
+  SECAlgorithmID maskHashAlg;
+  PORT_Memset(&maskHashAlg, 0, sizeof(maskHashAlg));
+  if (SEC_QuickDERDecodeItem(arena, &maskHashAlg,
+                             SEC_ASN1_GET(SECOID_AlgorithmIDTemplate),
+                             &pssParams.maskAlg->parameters) != SECSuccess) {
+    return;
+  }
+  SECOidTag maskHashTag = SECOID_GetAlgorithmTag(&maskHashAlg);
+  SECOidData* hashOid = SECOID_FindOIDByTag(maskHashTag);
+  if (hashOid && hashOid->desc) {
+    aResult.AppendLiteral(" (MGF1-");
+    aResult.Append(hashOid->desc);
+    aResult.Append(')');
+  }
+}
+
+NS_IMETHODIMP nsCMSMessage::GetSignatureAlgorithmName(nsACString& aResult) {
+  NSSCMSSignerInfo* si = GetTopLevelSignerInfo();
+  if (!si) {
+    aResult.Truncate();
+    return NS_OK;
+  }
+
+  SECOidTag sigAlgTag = SECOID_GetAlgorithmTag(&si->digestEncAlg);
+  switch (sigAlgTag) {
+    case SEC_OID_PKCS1_RSA_PSS_SIGNATURE: {
+      aResult.AssignLiteral("RSASSA-PSS");
+      if (si->digestEncAlg.parameters.data) {
+        PORTCheapArenaPool tmpArena;
+        PORT_InitCheapArena(&tmpArena, DER_DEFAULT_CHUNKSIZE);
+        AppendMGFFromParams(&tmpArena.arena, si->digestEncAlg.parameters,
+                            aResult);
+        PORT_DestroyCheapArena(&tmpArena);
+      }
+      break;
+    }
+    case SEC_OID_PKCS1_RSA_ENCRYPTION:
+    case SEC_OID_PKCS1_MD2_WITH_RSA_ENCRYPTION:
+    case SEC_OID_PKCS1_MD5_WITH_RSA_ENCRYPTION:
+    case SEC_OID_PKCS1_SHA1_WITH_RSA_ENCRYPTION:
+    case SEC_OID_PKCS1_SHA224_WITH_RSA_ENCRYPTION:
+    case SEC_OID_PKCS1_SHA256_WITH_RSA_ENCRYPTION:
+    case SEC_OID_PKCS1_SHA384_WITH_RSA_ENCRYPTION:
+    case SEC_OID_PKCS1_SHA512_WITH_RSA_ENCRYPTION:
+      aResult.AssignLiteral("RSA");
+      break;
+    case SEC_OID_ANSIX962_ECDSA_SHA1_SIGNATURE:
+    case SEC_OID_ANSIX962_ECDSA_SHA224_SIGNATURE:
+    case SEC_OID_ANSIX962_ECDSA_SHA256_SIGNATURE:
+    case SEC_OID_ANSIX962_ECDSA_SHA384_SIGNATURE:
+    case SEC_OID_ANSIX962_ECDSA_SHA512_SIGNATURE:
+    case SEC_OID_ANSIX962_ECDSA_SIGNATURE_RECOMMENDED_DIGEST:
+    case SEC_OID_ANSIX962_ECDSA_SIGNATURE_SPECIFIED_DIGEST:
+      aResult.AssignLiteral("ECDSA");
+      break;
+    case SEC_OID_ANSIX9_DSA_SIGNATURE_WITH_SHA1_DIGEST:
+    case SEC_OID_NIST_DSA_SIGNATURE_WITH_SHA224_DIGEST:
+    case SEC_OID_NIST_DSA_SIGNATURE_WITH_SHA256_DIGEST:
+      aResult.AssignLiteral("DSA");
+      break;
+    case SEC_OID_ED25519_PUBLIC_KEY:
+      aResult.AssignLiteral("Ed25519");
+      break;
+    default: {
+      SECOidData* oidData = SECOID_FindOIDByTag(sigAlgTag);
+      if (oidData && oidData->desc) {
+        aResult.Assign(oidData->desc);
+      } else {
+        aResult.Truncate();
+      }
+      break;
+    }
+  }
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsCMSMessage::GetDigestAlgorithmName(nsACString& aResult) {
+  NSSCMSSignerInfo* si = GetTopLevelSignerInfo();
+  if (!si) {
+    aResult.Truncate();
+    return NS_OK;
+  }
+
+  SECOidTag digestAlgTag = NSS_CMSSignerInfo_GetDigestAlgTag(si);
+  SECOidData* oidData = SECOID_FindOIDByTag(digestAlgTag);
+  if (oidData && oidData->desc) {
+    aResult.Assign(oidData->desc);
+  } else {
+    aResult.Truncate();
+  }
+  return NS_OK;
+}
+
+NSSCMSContentInfo* nsCMSMessage::GetEncryptionContentInfo() {
+  if (!m_cmsMsg) {
+    return nullptr;
+  }
+  int levels = NSS_CMSMessage_ContentLevelCount(m_cmsMsg);
+  for (int i = 0; i < levels; i++) {
+    NSSCMSContentInfo* cinfo = NSS_CMSMessage_ContentLevel(m_cmsMsg, i);
+    if (!cinfo) {
+      break;
+    }
+    SECOidTag typeTag = NSS_CMSContentInfo_GetContentTypeTag(cinfo);
+    // SEC_OID_PKCS7_ENCRYPTED_DATA is included for content-encryption
+    // lookups; it has no RecipientInfo for key-encryption queries.
+    if (typeTag == SEC_OID_PKCS7_ENVELOPED_DATA ||
+        typeTag == SEC_OID_PKCS7_ENCRYPTED_DATA) {
+      // The inner ContentInfo holds the bulk encryption algorithm and key size.
+      if (i + 1 < levels) {
+        return NSS_CMSMessage_ContentLevel(m_cmsMsg, i + 1);
+      }
+      return nullptr;
+    }
+  }
+  return nullptr;
+}
+
+NS_IMETHODIMP nsCMSMessage::GetContentEncAlgorithmName(nsACString& aResult) {
+  NSSCMSContentInfo* cinfo = GetEncryptionContentInfo();
+  if (!cinfo) {
+    aResult.Truncate();
+    return NS_OK;
+  }
+
+  SECOidTag encAlgTag = NSS_CMSContentInfo_GetContentEncAlgTag(cinfo);
+  switch (encAlgTag) {
+    case SEC_OID_AES_128_CBC:
+    case SEC_OID_AES_192_CBC:
+    case SEC_OID_AES_256_CBC:
+      aResult.AssignLiteral("AES-CBC");
+      break;
+    case SEC_OID_AES_128_GCM:
+    case SEC_OID_AES_192_GCM:
+    case SEC_OID_AES_256_GCM:
+      aResult.AssignLiteral("AES-GCM");
+      break;
+    case SEC_OID_DES_EDE3_CBC:
+      aResult.AssignLiteral("3DES-CBC");
+      break;
+    case SEC_OID_DES_CBC:
+      aResult.AssignLiteral("DES-CBC");
+      break;
+    case SEC_OID_RC2_CBC:
+    case SEC_OID_RC2_40_CBC:
+    case SEC_OID_RC2_64_CBC:
+    case SEC_OID_RC2_128_CBC:
+      aResult.AssignLiteral("RC2-CBC");
+      break;
+    default: {
+      SECOidData* oidData = SECOID_FindOIDByTag(encAlgTag);
+      if (oidData && oidData->desc) {
+        aResult.Assign(oidData->desc);
+      } else {
+        aResult.Truncate();
+      }
+      break;
+    }
+  }
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsCMSMessage::GetContentEncKeySizeBits(int32_t* aKeySize) {
+  NS_ENSURE_ARG(aKeySize);
+  *aKeySize = 0;
+
+  NSSCMSContentInfo* cinfo = GetEncryptionContentInfo();
+  if (!cinfo) {
+    return NS_OK;
+  }
+
+  int bulkKeySize = NSS_CMSContentInfo_GetBulkKeySize(cinfo);
+  MOZ_ASSERT(bulkKeySize >= 0);
+  *aKeySize = static_cast<int32_t>(bulkKeySize);
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsCMSMessage::GetKeyEncAlgorithmName(nsACString& aResult) {
+  if (!m_cmsMsg) {
+    aResult.Truncate();
+    return NS_OK;
+  }
+
+  NSSCMSRecipientInfo** recipientInfos = nullptr;
+  int levels = NSS_CMSMessage_ContentLevelCount(m_cmsMsg);
+  for (int i = 0; i < levels; i++) {
+    NSSCMSContentInfo* cinfo = NSS_CMSMessage_ContentLevel(m_cmsMsg, i);
+    if (!cinfo) {
+      break;
+    }
+    SECOidTag typeTag = NSS_CMSContentInfo_GetContentTypeTag(cinfo);
+    void* content = NSS_CMSContentInfo_GetContent(cinfo);
+    if (!content) {
+      continue;
+    }
+    // SEC_OID_PKCS7_ENCRYPTED_DATA is not checked here because
+    // EncryptedData has no RecipientInfo (uses pre-shared keys).
+    if (typeTag == SEC_OID_PKCS7_ENVELOPED_DATA) {
+      recipientInfos =
+          static_cast<NSSCMSEnvelopedData*>(content)->recipientInfos;
+      break;
+    }
+  }
+
+  if (!recipientInfos || !recipientInfos[0]) {
+    aResult.Truncate();
+    return NS_OK;
+  }
+
+  // Only the first recipient's key encryption algorithm is reported.
+  NSSCMSRecipientInfo* ri = recipientInfos[0];
+  SECOidTag keyEncAlgTag = SEC_OID_UNKNOWN;
+  switch (ri->recipientInfoType) {
+    case NSSCMSRecipientInfoID_KeyTrans:
+      keyEncAlgTag =
+          SECOID_GetAlgorithmTag(&ri->ri.keyTransRecipientInfo.keyEncAlg);
+      break;
+    case NSSCMSRecipientInfoID_KeyAgree:
+      keyEncAlgTag =
+          SECOID_GetAlgorithmTag(&ri->ri.keyAgreeRecipientInfo.keyEncAlg);
+      break;
+    case NSSCMSRecipientInfoID_KEK:
+      keyEncAlgTag = SECOID_GetAlgorithmTag(&ri->ri.kekRecipientInfo.keyEncAlg);
+      break;
+    default:
+      break;
+  }
+  switch (keyEncAlgTag) {
+    case SEC_OID_PKCS1_RSA_ENCRYPTION:
+      aResult.AssignLiteral("RSAES-PKCS#1-v1.5");
+      break;
+    case SEC_OID_PKCS1_RSA_OAEP_ENCRYPTION:
+      aResult.AssignLiteral("RSAES-OAEP");
+      break;
+    case SEC_OID_DHSINGLEPASS_STDDH_SHA1KDF_SCHEME:
+    case SEC_OID_DHSINGLEPASS_COFACTORDH_SHA1KDF_SCHEME:
+      aResult.AssignLiteral("ECDH (SHA-1 KDF)");
+      break;
+    case SEC_OID_DHSINGLEPASS_STDDH_SHA224KDF_SCHEME:
+    case SEC_OID_DHSINGLEPASS_COFACTORDH_SHA224KDF_SCHEME:
+      aResult.AssignLiteral("ECDH (SHA-224 KDF)");
+      break;
+    case SEC_OID_DHSINGLEPASS_STDDH_SHA256KDF_SCHEME:
+    case SEC_OID_DHSINGLEPASS_COFACTORDH_SHA256KDF_SCHEME:
+      aResult.AssignLiteral("ECDH (SHA-256 KDF)");
+      break;
+    case SEC_OID_DHSINGLEPASS_STDDH_SHA384KDF_SCHEME:
+    case SEC_OID_DHSINGLEPASS_COFACTORDH_SHA384KDF_SCHEME:
+      aResult.AssignLiteral("ECDH (SHA-384 KDF)");
+      break;
+    case SEC_OID_DHSINGLEPASS_STDDH_SHA512KDF_SCHEME:
+    case SEC_OID_DHSINGLEPASS_COFACTORDH_SHA512KDF_SCHEME:
+      aResult.AssignLiteral("ECDH (SHA-512 KDF)");
+      break;
+    default: {
+      SECOidData* oidData = SECOID_FindOIDByTag(keyEncAlgTag);
+      if (oidData && oidData->desc) {
+        aResult.Assign(oidData->desc);
+      } else {
+        aResult.Truncate();
+      }
+      break;
+    }
+  }
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsCMSMessage::GetSigningTime(PRTime* aTime) {

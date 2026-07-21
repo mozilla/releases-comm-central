@@ -294,7 +294,9 @@ class SignedStatusRunnable : public mozilla::Runnable {
   SignedStatusRunnable(const nsMainThreadPtrHandle<nsIMsgSMIMESink>& aSink,
                        int32_t aNestingLevel, int32_t aSignatureStatus,
                        nsIX509Cert* aSignerCert, const nsCString& aMsgNeckoURL,
-                       const nsCString& aOriginMimePartNumber);
+                       const nsCString& aOriginMimePartNumber,
+                       const nsCString& aSignatureAlgorithm,
+                       const nsCString& aDigestAlgorithm);
   NS_DECL_NSIRUNNABLE
   nsresult mResult;
 
@@ -305,12 +307,15 @@ class SignedStatusRunnable : public mozilla::Runnable {
   nsCOMPtr<nsIX509Cert> m_signerCert;
   nsCString m_msgNeckoURL;
   nsCString m_originMimePartNumber;
+  nsCString m_signatureAlgorithm;
+  nsCString m_digestAlgorithm;
 };
 
 SignedStatusRunnable::SignedStatusRunnable(
     const nsMainThreadPtrHandle<nsIMsgSMIMESink>& aSink, int32_t aNestingLevel,
     int32_t aSignatureStatus, nsIX509Cert* aSignerCert,
-    const nsCString& aMsgNeckoURL, const nsCString& aOriginMimePartNumber)
+    const nsCString& aMsgNeckoURL, const nsCString& aOriginMimePartNumber,
+    const nsCString& aSignatureAlgorithm, const nsCString& aDigestAlgorithm)
     : mozilla::Runnable("SignedStatusRunnable"),
       mResult(NS_ERROR_UNEXPECTED),
       m_sink(aSink),
@@ -318,12 +323,14 @@ SignedStatusRunnable::SignedStatusRunnable(
       m_signatureStatus(aSignatureStatus),
       m_signerCert(aSignerCert),
       m_msgNeckoURL(aMsgNeckoURL),
-      m_originMimePartNumber(aOriginMimePartNumber) {}
+      m_originMimePartNumber(aOriginMimePartNumber),
+      m_signatureAlgorithm(aSignatureAlgorithm),
+      m_digestAlgorithm(aDigestAlgorithm) {}
 
 NS_IMETHODIMP SignedStatusRunnable::Run() {
-  mResult =
-      m_sink->SignedStatus(m_nestingLevel, m_signatureStatus, m_signerCert,
-                           m_msgNeckoURL, m_originMimePartNumber);
+  mResult = m_sink->SignedStatus(
+      m_nestingLevel, m_signatureStatus, m_signerCert, m_msgNeckoURL,
+      m_originMimePartNumber, m_signatureAlgorithm, m_digestAlgorithm);
   return NS_OK;
 }
 
@@ -331,10 +338,12 @@ nsresult ProxySignedStatus(const nsMainThreadPtrHandle<nsIMsgSMIMESink>& aSink,
                            int32_t aNestingLevel, int32_t aSignatureStatus,
                            nsIX509Cert* aSignerCert,
                            const nsCString& aMsgNeckoURL,
-                           const nsCString& aOriginMimePartNumber) {
+                           const nsCString& aOriginMimePartNumber,
+                           const nsCString& aSignatureAlgorithm,
+                           const nsCString& aDigestAlgorithm) {
   RefPtr<SignedStatusRunnable> signedStatus = new SignedStatusRunnable(
       aSink, aNestingLevel, aSignatureStatus, aSignerCert, aMsgNeckoURL,
-      aOriginMimePartNumber);
+      aOriginMimePartNumber, aSignatureAlgorithm, aDigestAlgorithm);
   nsresult rv = NS_DispatchAndSpinEventLoopUntilComplete(
       "ProxySignedStatus"_ns, mozilla::GetMainThreadSerialEventTarget(),
       do_AddRef(signedStatus));
@@ -421,12 +430,19 @@ NS_IMETHODIMP nsSMimeVerificationListener::Notify(
     }
   }
 
+  nsCString signatureAlgorithm;
+  nsCString digestAlgorithm;
+  aVerifiedMessage->GetSignatureAlgorithmName(signatureAlgorithm);
+  aVerifiedMessage->GetDigestAlgorithmName(digestAlgorithm);
+
   if (NS_IsMainThread()) {
     mHeaderSink->SignedStatus(mMimeNestingLevel, signature_status, signerCert,
-                              mMsgNeckoURL, mOriginMimePartNumber);
+                              mMsgNeckoURL, mOriginMimePartNumber,
+                              signatureAlgorithm, digestAlgorithm);
   } else {
     ProxySignedStatus(mHeaderSink, mMimeNestingLevel, signature_status,
-                      signerCert, mMsgNeckoURL, mOriginMimePartNumber);
+                      signerCert, mMsgNeckoURL, mOriginMimePartNumber,
+                      signatureAlgorithm, digestAlgorithm);
   }
 
   return NS_OK;
@@ -953,8 +969,17 @@ static int MimeCMS_eof(MimeClosure crypto_closure, bool abort_p) {
   }
 
   if (data->ci_is_encrypted) {
+    nsCString encAlg;
+    nsCString keyEncAlg;
+    int32_t encKeySize = 0;
+    if (data->content_info && status == nsICMSMessageErrors::SUCCESS) {
+      data->content_info->GetContentEncAlgorithmName(encAlg);
+      data->content_info->GetContentEncKeySizeBits(&encKeySize);
+      data->content_info->GetKeyEncAlgorithmName(keyEncAlg);
+    }
     data->smimeSink->EncryptionStatus(aRelativeNestLevel, status,
-                                      certOfInterest, data->url, partnum);
+                                      certOfInterest, data->url, partnum,
+                                      encAlg, encKeySize, keyEncAlg);
   }
 
   return 0;
