@@ -33,6 +33,7 @@ ChromeUtils.defineESModuleGetters(this, {
 
 Enigmail.hdrView = {
   lastEncryptedUri: null,
+  lastEncryptedNeckoUri: null,
 
   msgSignedStateString: null,
   msgEncryptedStateString: null,
@@ -233,10 +234,11 @@ Enigmail.hdrView = {
 
       this.msgSignatureState = EnigmailConstants.MSG_SIG_NONE;
     } else if (statusFlags & EnigmailConstants.DECRYPTION_OKAY) {
-      gEncryptedURIService.rememberEncrypted(this.lastEncryptedUri);
-      gEncryptedURIService.rememberEncrypted(
-        MailServices.neckoURLForMessageURI(this.lastEncryptedUri)
+      this.lastEncryptedNeckoUri = MailServices.neckoURLForMessageURI(
+        this.lastEncryptedUri
       );
+      gEncryptedURIService.rememberEncrypted(this.lastEncryptedUri);
+      gEncryptedURIService.rememberEncrypted(this.lastEncryptedNeckoUri);
       encrypted = "ok";
       this.msgEncryptionState = EnigmailConstants.MSG_ENC_OK;
     }
@@ -372,10 +374,13 @@ Enigmail.hdrView = {
   forgetEncryptedMsgKey() {
     if (Enigmail.hdrView.lastEncryptedUri) {
       gEncryptedURIService.forgetEncrypted(Enigmail.hdrView.lastEncryptedUri);
-      gEncryptedURIService.forgetEncrypted(
-        MailServices.neckoURLForMessageURI(Enigmail.hdrView.lastEncryptedUri)
-      );
       Enigmail.hdrView.lastEncryptedUri = null;
+    }
+    if (Enigmail.hdrView.lastEncryptedNeckoUri) {
+      gEncryptedURIService.forgetEncrypted(
+        Enigmail.hdrView.lastEncryptedNeckoUri
+      );
+      Enigmail.hdrView.lastEncryptedNeckoUri = null;
     }
   },
 

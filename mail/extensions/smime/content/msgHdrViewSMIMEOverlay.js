@@ -11,6 +11,7 @@
 /* globals gEncryptedURIService */
 
 var gMyLastEncryptedURI = null;
+var gMyLastEncryptedNeckoURI = null;
 
 var gSMIMEBundle = null;
 
@@ -409,10 +410,10 @@ var smimeSink = {
     if (gEncryptedURIService) {
       // Remember the message URI and the corresponding necko URI.
       gMyLastEncryptedURI = gMessageURI;
+      gMyLastEncryptedNeckoURI =
+        MailServices.neckoURLForMessageURI(gMyLastEncryptedURI);
       gEncryptedURIService.rememberEncrypted(gMyLastEncryptedURI);
-      gEncryptedURIService.rememberEncrypted(
-        MailServices.neckoURLForMessageURI(gMyLastEncryptedURI)
-      );
+      gEncryptedURIService.rememberEncrypted(gMyLastEncryptedNeckoURI);
     }
 
     switch (aEncryptionStatus) {
@@ -459,10 +460,11 @@ var smimeSink = {
 function forgetEncryptedURI() {
   if (gMyLastEncryptedURI && gEncryptedURIService) {
     gEncryptedURIService.forgetEncrypted(gMyLastEncryptedURI);
-    gEncryptedURIService.forgetEncrypted(
-      MailServices.neckoURLForMessageURI(gMyLastEncryptedURI)
-    );
     gMyLastEncryptedURI = null;
+  }
+  if (gMyLastEncryptedNeckoURI && gEncryptedURIService) {
+    gEncryptedURIService.forgetEncrypted(gMyLastEncryptedNeckoURI);
+    gMyLastEncryptedNeckoURI = null;
   }
 }
 
