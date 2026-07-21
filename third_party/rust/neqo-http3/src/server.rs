@@ -23,14 +23,13 @@ use rustc_hash::FxHashMap as HashMap;
 
 use crate::{
     Http3Parameters, Http3StreamInfo, Res,
+    connect_udp::{self, ServerEvents as _},
     connection::Http3State,
     connection_server::Http3ServerHandler,
     server_connection_events::{ConnectUdpEvent, Http3ServerConnEvent, WebTransportEvent},
-    server_events::{
-        ConnectUdpRequest, Http3OrWebTransportStream, Http3ServerEvent, Http3ServerEvents,
-        WebTransportRequest,
-    },
+    server_events::{Http3OrWebTransportStream, Http3ServerEvent, Http3ServerEvents},
     settings::HttpZeroRttChecker,
+    webtransport::{ServerEvents as _, ServerSession},
 };
 
 type HandlerRef = Rc<RefCell<Http3ServerHandler>>;
@@ -257,7 +256,7 @@ impl Http3Server {
                         headers,
                     }) => {
                         self.events.webtransport_new_session(
-                            WebTransportRequest::new(conn.clone(), Rc::clone(handler), stream_id),
+                            ServerSession::new(conn.clone(), Rc::clone(handler), stream_id),
                             headers,
                         );
                     }
@@ -266,7 +265,11 @@ impl Http3Server {
                         headers,
                     }) => {
                         self.events.connect_udp_new_session(
-                            ConnectUdpRequest::new(conn.clone(), Rc::clone(handler), stream_id),
+                            connect_udp::ServerSession::new(
+                                conn.clone(),
+                                Rc::clone(handler),
+                                stream_id,
+                            ),
                             headers,
                         );
                     }
@@ -276,7 +279,7 @@ impl Http3Server {
                         headers,
                         ..
                     }) => self.events.webtransport_session_closed(
-                        WebTransportRequest::new(conn.clone(), Rc::clone(handler), stream_id),
+                        ServerSession::new(conn.clone(), Rc::clone(handler), stream_id),
                         reason,
                         headers,
                     ),
@@ -286,7 +289,11 @@ impl Http3Server {
                         headers,
                         ..
                     }) => self.events.connect_udp_session_closed(
-                        ConnectUdpRequest::new(conn.clone(), Rc::clone(handler), stream_id),
+                        connect_udp::ServerSession::new(
+                            conn.clone(),
+                            Rc::clone(handler),
+                            stream_id,
+                        ),
                         reason,
                         headers,
                     ),
@@ -304,7 +311,7 @@ impl Http3Server {
                         datagram,
                     }) => {
                         self.events.webtransport_datagram(
-                            WebTransportRequest::new(conn.clone(), Rc::clone(handler), session_id),
+                            ServerSession::new(conn.clone(), Rc::clone(handler), session_id),
                             datagram,
                         );
                     }
@@ -313,7 +320,11 @@ impl Http3Server {
                         datagram,
                     }) => {
                         self.events.connect_udp_datagram(
-                            ConnectUdpRequest::new(conn.clone(), Rc::clone(handler), session_id),
+                            connect_udp::ServerSession::new(
+                                conn.clone(),
+                                Rc::clone(handler),
+                                session_id,
+                            ),
                             datagram,
                         );
                     }
@@ -343,6 +354,27 @@ impl Http3Server {
     #[must_use]
     pub fn next_event(&self) -> Option<Http3ServerEvent> {
         self.events.next_event()
+    }
+
+    /// Queue a GOAWAY frame to be sent to all connected clients.
+    ///
+    /// `stream_id` is the first stream ID that was **not** processed.
+    ///
+    /// **Note:** The same `stream_id` is sent to every connection. Callers
+    /// must ensure that `stream_id` is valid across all connections and that
+    /// subsequent calls use non-increasing values (per RFC 9114 §5.2).
+    pub fn send_goaway(&self, stream_id: neqo_transport::StreamId) {
+        debug_assert!(
+            !stream_id.is_uni() && !stream_id.is_server_initiated(),
+            "GOAWAY stream ID must be client-initiated bidirectional (RFC 9114 S5.2)"
+        );
+        #[expect(
+            clippy::iter_over_hash_type,
+            reason = "OK to iterate over handlers in undefined order for goaway"
+        )]
+        for handler in self.http3_handlers.values() {
+            handler.borrow_mut().queue_goaway(stream_id);
+        }
     }
 }
 fn prepare_data(
@@ -402,17 +434,15 @@ mod tests {
     use super::{Http3Server, Http3ServerEvent, Http3State, Rc, RefCell};
     use crate::{Error, HFrame, Header, Http3Parameters, Priority};
 
-    const DEFAULT_SETTINGS: qpack::Settings = qpack::Settings {
-        max_table_size_encoder: 100,
-        max_table_size_decoder: 100,
-        max_blocked_streams: 100,
-    };
+    fn qpack_defaults() -> qpack::Settings {
+        qpack::Settings::default()
+            .max_table_size_encoder(100)
+            .max_table_size_decoder(100)
+            .max_blocked_streams(100)
+    }
 
     fn http3params(qpack_settings: qpack::Settings) -> Http3Parameters {
-        Http3Parameters::default()
-            .max_table_size_encoder(qpack_settings.max_table_size_encoder)
-            .max_table_size_decoder(qpack_settings.max_table_size_decoder)
-            .max_blocked_streams(qpack_settings.max_blocked_streams)
+        Http3Parameters::default().qpack(qpack_settings)
     }
 
     pub fn create_server(conn_params: Http3Parameters) -> Http3Server {
@@ -431,7 +461,7 @@ mod tests {
 
     /// Create a http3 server with default configuration.
     pub fn default_server() -> Http3Server {
-        create_server(http3params(DEFAULT_SETTINGS))
+        create_server(http3params(qpack_defaults()))
     }
 
     fn assert_closed(hconn: &Http3Server, expected: &Error) {
@@ -626,11 +656,11 @@ mod tests {
         );
         assert_eq!(sent, Ok(9));
         let mut encoder = qpack::Encoder::new(
-            &qpack::Settings {
-                max_table_size_encoder: 100,
-                max_table_size_decoder: 0,
-                max_blocked_streams: 0,
-            },
+            &qpack::Settings::default()
+                .max_table_size_encoder(100)
+                .max_table_size_decoder(0)
+                .max_blocked_streams(0)
+                .max_tracked_streams(4096),
             true,
         );
         encoder.add_send_stream(neqo_trans_conn.stream_create(StreamType::UniDi).unwrap());
@@ -1260,17 +1290,17 @@ mod tests {
 
     #[test]
     fn zero_rtt() {
-        zero_rtt_with_settings(http3params(DEFAULT_SETTINGS), ZeroRttState::AcceptedClient);
+        zero_rtt_with_settings(http3params(qpack_defaults()), ZeroRttState::AcceptedClient);
     }
 
     /// A larger QPACK decoder table size isn't an impediment to 0-RTT.
     #[test]
     fn zero_rtt_larger_decoder_table() {
+        let qpack_dflt = qpack_defaults();
         zero_rtt_with_settings(
-            http3params(qpack::Settings {
-                max_table_size_decoder: DEFAULT_SETTINGS.max_table_size_decoder + 1,
-                ..DEFAULT_SETTINGS
-            }),
+            http3params(
+                qpack_dflt.max_table_size_decoder(qpack_dflt.get_max_table_size_decoder() + 1),
+            ),
             ZeroRttState::AcceptedClient,
         );
     }
@@ -1278,11 +1308,11 @@ mod tests {
     /// A smaller QPACK decoder table size prevents 0-RTT.
     #[test]
     fn zero_rtt_smaller_decoder_table() {
+        let qpack_dflt = qpack_defaults();
         zero_rtt_with_settings(
-            http3params(qpack::Settings {
-                max_table_size_decoder: DEFAULT_SETTINGS.max_table_size_decoder - 1,
-                ..DEFAULT_SETTINGS
-            }),
+            http3params(
+                qpack_dflt.max_table_size_decoder(qpack_dflt.get_max_table_size_decoder() - 1),
+            ),
             ZeroRttState::Rejected,
         );
     }
@@ -1290,11 +1320,9 @@ mod tests {
     /// More blocked streams does not prevent 0-RTT.
     #[test]
     fn zero_rtt_more_blocked_streams() {
+        let qpack_dflt = qpack_defaults();
         zero_rtt_with_settings(
-            http3params(qpack::Settings {
-                max_blocked_streams: DEFAULT_SETTINGS.max_blocked_streams + 1,
-                ..DEFAULT_SETTINGS
-            }),
+            http3params(qpack_dflt.max_blocked_streams(qpack_dflt.get_max_blocked_streams() + 1)),
             ZeroRttState::AcceptedClient,
         );
     }
@@ -1302,11 +1330,9 @@ mod tests {
     /// A lower number of blocked streams also prevents 0-RTT.
     #[test]
     fn zero_rtt_fewer_blocked_streams() {
+        let qpack_dflt = qpack_defaults();
         zero_rtt_with_settings(
-            http3params(qpack::Settings {
-                max_blocked_streams: DEFAULT_SETTINGS.max_blocked_streams - 1,
-                ..DEFAULT_SETTINGS
-            }),
+            http3params(qpack_dflt.max_blocked_streams(qpack_dflt.get_max_blocked_streams() - 1)),
             ZeroRttState::Rejected,
         );
     }
@@ -1314,11 +1340,11 @@ mod tests {
     /// The size of the encoder table is local and therefore doesn't prevent 0-RTT.
     #[test]
     fn zero_rtt_smaller_encoder_table() {
+        let qpack_dflt = qpack_defaults();
         zero_rtt_with_settings(
-            http3params(qpack::Settings {
-                max_table_size_encoder: DEFAULT_SETTINGS.max_table_size_encoder - 1,
-                ..DEFAULT_SETTINGS
-            }),
+            http3params(
+                qpack_dflt.max_table_size_encoder(qpack_dflt.get_max_table_size_encoder() - 1),
+            ),
             ZeroRttState::AcceptedClient,
         );
     }
@@ -1381,7 +1407,7 @@ mod tests {
             DEFAULT_ALPN,
             anti_replay(),
             Rc::new(RefCell::new(CountingConnectionIdGenerator::default())),
-            http3params(DEFAULT_SETTINGS),
+            http3params(qpack_defaults()),
             Some(Box::<RejectZeroRtt>::default()),
         )
         .expect("create a server");

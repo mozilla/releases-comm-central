@@ -862,9 +862,9 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "cfg_aliases"
-version = "0.2.1"
+version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "613afe47fcd5fac7ccf1db93babcb082c5994d996f20b8b159f2ad1658eb5724"
+checksum = "f079e83a288787bcd14a6aea84cee5c87a67c5a3e660c30f557a3d24761b3527"
 
 [[package]]
 name = "chardetng"
@@ -2265,6 +2265,22 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "77ce24cb58228fbb8aa041425bb1050850ac19177686ea6e0f41a70416f56fdb"
 
 [[package]]
+name = "font-types"
+version = "0.12.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ad67eced03f5504d9cbd3a879b5958b5c54d4e5fd794361c6eb21b05fb703411"
+dependencies = [
+ "bytemuck",
+]
+
+[[package]]
+name = "fontations_glue"
+version = "0.1.0"
+dependencies = [
+ "skrifa",
+]
+
+[[package]]
 name = "foreign-types"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2570,6 +2586,7 @@ dependencies = [
  "fluent-langneg",
  "fluent-langneg-ffi",
  "fog_control",
+ "fontations_glue",
  "gecko-profiler",
  "gecko-trace",
  "gecko_logger",
@@ -4542,7 +4559,7 @@ dependencies = [
 [[package]]
 name = "mtu"
 version = "0.4.1"
-source = "git+https://github.com/mozilla/neqo?tag=v0.29.0#18832752db4700df4bdbb26f655b675931b234ac"
+source = "git+https://github.com/mozilla/neqo?tag=v0.30.1#e2a2a7459b8b51778b50209251a61fc5ca020893"
 dependencies = [
  "cfg_aliases",
  "libc",
@@ -4596,13 +4613,14 @@ dependencies = [
 
 [[package]]
 name = "neqo-common"
-version = "0.29.0"
-source = "git+https://github.com/mozilla/neqo?tag=v0.29.0#18832752db4700df4bdbb26f655b675931b234ac"
+version = "0.30.1"
+source = "git+https://github.com/mozilla/neqo?tag=v0.30.1#e2a2a7459b8b51778b50209251a61fc5ca020893"
 dependencies = [
  "enum-map",
  "env_logger",
  "log",
  "qlog",
+ "static_assertions",
  "strum",
  "thiserror 2.0.12",
  "windows",
@@ -4610,8 +4628,8 @@ dependencies = [
 
 [[package]]
 name = "neqo-http3"
-version = "0.29.0"
-source = "git+https://github.com/mozilla/neqo?tag=v0.29.0#18832752db4700df4bdbb26f655b675931b234ac"
+version = "0.30.1"
+source = "git+https://github.com/mozilla/neqo?tag=v0.30.1#e2a2a7459b8b51778b50209251a61fc5ca020893"
 dependencies = [
  "enumset",
  "http 1.4.0",
@@ -4623,14 +4641,15 @@ dependencies = [
  "qlog",
  "rustc-hash 2.1.1",
  "sfv",
+ "static_assertions",
  "strum",
  "thiserror 2.0.12",
 ]
 
 [[package]]
 name = "neqo-qpack"
-version = "0.29.0"
-source = "git+https://github.com/mozilla/neqo?tag=v0.29.0#18832752db4700df4bdbb26f655b675931b234ac"
+version = "0.30.1"
+source = "git+https://github.com/mozilla/neqo?tag=v0.30.1#e2a2a7459b8b51778b50209251a61fc5ca020893"
 dependencies = [
  "log",
  "neqo-common",
@@ -4643,8 +4662,8 @@ dependencies = [
 
 [[package]]
 name = "neqo-transport"
-version = "0.29.0"
-source = "git+https://github.com/mozilla/neqo?tag=v0.29.0#18832752db4700df4bdbb26f655b675931b234ac"
+version = "0.30.1"
+source = "git+https://github.com/mozilla/neqo?tag=v0.30.1#e2a2a7459b8b51778b50209251a61fc5ca020893"
 dependencies = [
  "enum-map",
  "enumset",
@@ -4663,8 +4682,8 @@ dependencies = [
 
 [[package]]
 name = "neqo-udp"
-version = "0.29.0"
-source = "git+https://github.com/mozilla/neqo?tag=v0.29.0#18832752db4700df4bdbb26f655b675931b234ac"
+version = "0.30.1"
+source = "git+https://github.com/mozilla/neqo?tag=v0.30.1#e2a2a7459b8b51778b50209251a61fc5ca020893"
 dependencies = [
  "cfg_aliases",
  "libc",
@@ -5043,9 +5062,9 @@ dependencies = [
 
 [[package]]
 name = "once_cell"
-version = "1.21.3"
+version = "1.21.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "42f5e15c9953c5e4ccceeb2e7382a716482c34515315f7b03532b8b4e8393d2d"
+checksum = "9f7c3e4beb33f85d45ae3e3a1792185706c8e16d043238c593331cc7cd313b50"
 
 [[package]]
 name = "oneshot"
@@ -5738,6 +5757,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "read-fonts"
+version = "0.41.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "046a7d674daf459825b32f5062056d6882db0d2f5a479fbd76ccfc870ac18709"
+dependencies = [
+ "bytemuck",
+ "font-types",
+ "once_cell",
+]
+
+[[package]]
 name = "redox_syscall"
 version = "0.5.999"
 
@@ -6327,6 +6357,16 @@ dependencies = [
  "serde_json",
  "static_prefs",
  "xpcom",
+]
+
+[[package]]
+name = "skrifa"
+version = "0.44.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "819ab7d62b1d3e72d9d9dea5650bac30424f9111364bb94928dbf5ecad1baa68"
+dependencies = [
+ "bytemuck",
+ "read-fonts",
 ]
 
 [[package]]

@@ -22,9 +22,9 @@ mod crypto;
 pub mod ecn;
 mod events;
 mod fc;
-#[cfg(fuzzing)]
+#[cfg(any(fuzzing, feature = "bench"))]
 pub mod frame;
-#[cfg(not(fuzzing))]
+#[cfg(not(any(fuzzing, feature = "bench")))]
 mod frame;
 mod pace;
 #[cfg(any(fuzzing, feature = "bench"))]
@@ -65,7 +65,7 @@ pub use self::{
         Connection, Output, OutputBatch, State, ZeroRttState,
         params::{
             ConnectionParameters, INITIAL_LOCAL_MAX_DATA, INITIAL_LOCAL_MAX_STREAM_DATA,
-            MAX_LOCAL_MAX_STREAM_DATA,
+            MAX_DATAGRAM_FRAME_SIZE, MAX_LOCAL_MAX_STREAM_DATA,
         },
     },
     events::{ConnectionEvent, ConnectionEvents},
@@ -79,6 +79,13 @@ pub use self::{
     stats::{SlowStartExitReason, Stats},
     stream_id::{StreamId, StreamType},
     version::Version,
+};
+#[cfg(feature = "bench")]
+pub use self::{
+    crypto::{CryptoDxState, CryptoStates},
+    fc::SenderFlowControl,
+    pace::Pacer,
+    stats::FrameStats,
 };
 
 pub type TransportError = u64;

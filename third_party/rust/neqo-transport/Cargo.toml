@@ -13,7 +13,7 @@
 edition = "2024"
 rust-version = "1.90.0"
 name = "neqo-transport"
-version = "0.29.0"
+version = "0.30.1"
 authors = ["The Neqo Authors <necko@mozilla.com>"]
 build = false
 autolib = false
@@ -54,18 +54,64 @@ name = "transfer_simulated"
 
 [package.metadata.bench.codspeed]
 mode = "simulation"
+
+[[package.metadata.bench]]
+name = "rx_stream_orderer"
+
+[package.metadata.bench.codspeed]
+mode = "simulation"
+
+[[package.metadata.bench]]
+name = "range_tracker"
+
+[package.metadata.bench.codspeed]
+mode = "simulation"
+
+[[package.metadata.bench]]
+name = "sent_packets"
+
+[package.metadata.bench.codspeed]
+mode = "simulation"
 memory = false
 
 [[package.metadata.bench]]
 name = "min_bandwidth"
 
 [package.metadata.bench.codspeed]
+mode = "simulation"
 memory = false
+
+[[package.metadata.bench]]
+name = "pacer"
+
+[package.metadata.bench.codspeed]
+mode = "simulation"
+memory = false
+
+[[package.metadata.bench]]
+name = "frame_decode"
+
+[package.metadata.bench.codspeed]
+mode = "simulation"
+memory = false
+
+[[package.metadata.bench]]
+name = "packet_codec"
+
+[package.metadata.bench.codspeed]
+mode = "simulation"
+
+[[package.metadata.bench]]
+name = "send_streams"
+
+[package.metadata.bench.codspeed]
+mode = "simulation"
 
 [features]
 bench = [
     "neqo-common/bench",
     "nss/bench",
+    "blapi",
     "test-fixture/bench",
     "log/release_max_level_info",
 ]
@@ -115,8 +161,26 @@ name = "stats"
 path = "tests/stats.rs"
 
 [[bench]]
+name = "frame_decode"
+path = "benches/frame_decode.rs"
+harness = false
+required-features = ["bench"]
+
+[[bench]]
 name = "min_bandwidth"
 path = "benches/min_bandwidth.rs"
+harness = false
+required-features = ["bench"]
+
+[[bench]]
+name = "pacer"
+path = "benches/pacer.rs"
+harness = false
+required-features = ["bench"]
+
+[[bench]]
+name = "packet_codec"
+path = "benches/packet_codec.rs"
 harness = false
 required-features = ["bench"]
 
@@ -129,6 +193,12 @@ required-features = ["bench"]
 [[bench]]
 name = "rx_stream_orderer"
 path = "benches/rx_stream_orderer.rs"
+harness = false
+required-features = ["bench"]
+
+[[bench]]
+name = "send_streams"
+path = "benches/send_streams.rs"
 harness = false
 required-features = ["bench"]
 
@@ -173,7 +243,7 @@ path = "../mtu"
 path = "../neqo-common"
 
 [dependencies.nss]
-version = "0.13.0"
+version = "0.13"
 git = "https://github.com/mozilla/nss-rs"
 package = "nss-rs"
 
@@ -208,7 +278,7 @@ version = "2.0.12"
 default-features = false
 
 [dev-dependencies.criterion]
-version = "4"
+version = "5"
 default-features = false
 package = "codspeed-criterion-compat"
 

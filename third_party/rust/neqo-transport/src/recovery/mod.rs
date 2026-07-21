@@ -261,7 +261,6 @@ impl LossRecoverySpace {
     fn remove_acked<R>(&mut self, acked_ranges: R, stats: &mut Stats) -> (Vec<sent::Packet>, bool)
     where
         R: IntoIterator<Item = RangeInclusive<packet::Number>>,
-        R::IntoIter: ExactSizeIterator,
     {
         let acked = self.sent_packets.take_ranges(acked_ranges);
         let mut eliciting = false;
@@ -326,7 +325,6 @@ impl LossRecoverySpace {
         for packet in self
             .sent_packets
             .iter_mut()
-            // BTreeMap iterates in order of ascending PN
             .take_while(|p| largest_acked.is_some_and(|largest_ack| p.pn() < largest_ack))
         {
             // Packets sent before now - loss_delay are deemed lost.
@@ -627,7 +625,6 @@ impl Loss {
     ) -> (Vec<sent::Packet>, Vec<sent::Packet>)
     where
         R: IntoIterator<Item = RangeInclusive<packet::Number>>,
-        R::IntoIter: ExactSizeIterator,
     {
         let Some(space) = self.spaces.get_mut(pn_space) else {
             qinfo!("ACK on discarded space");
@@ -1042,6 +1039,11 @@ impl Display for Loss {
 
 #[cfg(test)]
 #[cfg_attr(coverage_nightly, coverage(off))]
+#[allow(
+    clippy::allow_attributes,
+    clippy::single_range_in_vec_init,
+    reason = "TODO: false positive in clippy 1.98-nightly; re-check when bumping MSRV"
+)]
 mod tests {
     use std::{
         cell::RefCell,
@@ -1050,7 +1052,7 @@ mod tests {
         time::{Duration, Instant},
     };
 
-    use neqo_common::qlog::Qlog;
+    use neqo_common::{qlog::Qlog, to_u64};
     use test_fixture::{DEFAULT_ADDR, now};
 
     use super::{
@@ -1739,7 +1741,7 @@ mod tests {
         lr.on_packet_sent(
             sent::Packet::new(
                 packet::Type::Handshake,
-                0,
+                1,
                 now,
                 true,
                 recovery::Tokens::new(),
@@ -2051,7 +2053,7 @@ mod tests {
         let pto = ms(100);
 
         // Add exactly MIN_OUTSTANDING_UNACK packets → n_pto = 2.
-        add_sent(&mut lrs, (MIN_OUTSTANDING_UNACK - 1) as u64);
+        add_sent(&mut lrs, to_u64(MIN_OUTSTANDING_UNACK - 1));
         assert_eq!(lrs.sent_packets.len(), MIN_OUTSTANDING_UNACK);
 
         lrs.last_ack_eliciting = Some(t);

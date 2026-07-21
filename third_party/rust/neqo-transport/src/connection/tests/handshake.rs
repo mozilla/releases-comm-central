@@ -17,7 +17,9 @@ use std::{
     time::Duration,
 };
 
-use neqo_common::{Datagram, event::Provider as _, qdebug};
+#[cfg(not(feature = "disable-encryption"))]
+use neqo_common::Decoder;
+use neqo_common::{Datagram, event::Provider as _, qdebug, to_u64};
 use nss::{AuthenticationStatus, constants::TLS_CHACHA20_POLY1305_SHA256, generate_ech_keys};
 #[cfg(not(feature = "disable-encryption"))]
 use test_fixture::datagram;
@@ -1528,7 +1530,7 @@ fn server_initial_retransmits_identical() {
                 // base count for CRYPTO is two per flight, plus any extra
                 crypto: i * 2 + extra,
                 ack: i,
-                largest_acknowledged: (i - i.saturating_sub(1)) as u64,
+                largest_acknowledged: to_u64(i - i.saturating_sub(1)),
                 ..Default::default()
             }
         );
@@ -1902,4 +1904,178 @@ fn initial_crypto_retransmit_during_handshake_pto() {
              packets sent: {packets_sent}"
         );
     }
+}
+
+#[test]
+fn export_keying_material_basic() {
+    let mut client = default_client();
+    let mut server = default_server();
+    connect(&mut client, &mut server);
+
+    let mut material = vec![0u8; 32];
+    client
+        .export_keying_material("EXPORTER-WebTransport", &[], &mut material)
+        .expect("export should succeed after handshake");
+    assert_ne!(material, vec![0u8; 32]);
+}
+
+#[test]
+fn export_keying_material_same_both_sides() {
+    let mut client = default_client();
+    let mut server = default_server();
+    connect(&mut client, &mut server);
+
+    let label = "EXPORTER-WebTransport";
+    let context = b"session-context";
+
+    let mut client_material = vec![0u8; 32];
+    client
+        .export_keying_material(label, context, &mut client_material)
+        .expect("client export should succeed");
+    let mut server_material = vec![0u8; 32];
+    server
+        .export_keying_material(label, context, &mut server_material)
+        .expect("server export should succeed");
+
+    assert_eq!(
+        client_material, server_material,
+        "client and server must export identical keying material"
+    );
+}
+
+#[test]
+fn export_keying_material_before_handshake() {
+    let client = default_client();
+    let result = client.export_keying_material("EXPORTER-WebTransport", &[], &mut [0u8; 32]);
+    assert!(matches!(result, Err(Error::NotConnected)));
+}
+
+#[test]
+fn export_keying_material_zero_length() {
+    let mut client = default_client();
+    let mut server = default_server();
+    connect(&mut client, &mut server);
+
+    assert!(matches!(
+        client.export_keying_material("EXPORTER-WebTransport", &[], &mut []),
+        Err(Error::InvalidInput)
+    ));
+}
+
+#[test]
+fn export_keying_material_empty_label() {
+    let mut client = default_client();
+    let mut server = default_server();
+    connect(&mut client, &mut server);
+    assert!(matches!(
+        client.export_keying_material("", &[], &mut [0u8; 32]),
+        Err(Error::InvalidInput)
+    ));
+}
+
+// Export should succeed while the connection is closing or draining.
+#[test]
+fn export_keying_material_while_closing() {
+    let mut client = default_client();
+    let mut server = default_server();
+    connect(&mut client, &mut server);
+
+    client.close(now(), 0, "");
+    assert!(client.state().closing());
+
+    let mut material = vec![0u8; 32];
+    client
+        .export_keying_material("EXPORTER-WebTransport", &[], &mut material)
+        .expect("export should succeed while closing");
+
+    let close_pkt = client.process_output(now()).dgram().unwrap();
+    server.process_input(close_pkt, now());
+    assert!(server.state().closing());
+
+    let mut material = vec![0u8; 32];
+    server
+        .export_keying_material("EXPORTER-WebTransport", &[], &mut material)
+        .expect("export should succeed while draining");
+}
+
+// Export should fail once the connection is fully closed.
+#[test]
+fn export_keying_material_after_closed() {
+    let mut client = default_client();
+    let mut server = default_server();
+    connect(&mut client, &mut server);
+
+    client.close(now(), 0, "");
+    let close_pkt = client.process_output(now()).dgram();
+    let close_timer = client.process_output(now()).callback();
+    drop(client.process_output(now() + close_timer));
+    assert!(matches!(*client.state(), State::Closed(..)));
+
+    assert!(matches!(
+        client.export_keying_material("EXPORTER-WebTransport", &[], &mut [0u8; 32]),
+        Err(Error::NotConnected)
+    ));
+    let _server_close = server.process(close_pkt, now()).dgram();
+    let drain_timer = server.process_output(now()).callback();
+    drop(server.process_output(now() + drain_timer));
+    assert!(matches!(*server.state(), State::Closed(..)));
+    assert!(matches!(
+        server.export_keying_material("EXPORTER-WebTransport", &[], &mut [0u8; 32]),
+        Err(Error::NotConnected)
+    ));
+}
+
+/// RFC 9000, Section 17.2.5.2: a client MUST discard a Retry packet whose Source
+/// Connection ID is identical to the Destination Connection ID of its Initial. A
+/// Retry with a distinct Source Connection ID is still processed.
+#[cfg(not(feature = "disable-encryption"))]
+#[test]
+fn retry_scid_matching_initial_dcid() {
+    // Read the connection IDs carried in the client's Initial: skip the first byte
+    // and the 4-byte version, then two length-prefixed connection IDs (DCID, SCID).
+    fn initial_cids(initial: &[u8]) -> (Vec<u8>, Vec<u8>) {
+        let mut dec = Decoder::from(&initial[5..]);
+        let dcid = dec.decode_vec(1).expect("client DCID").to_vec();
+        let scid = dec.decode_vec(1).expect("client SCID").to_vec();
+        assert!(!dcid.is_empty(), "client DCID is non-empty");
+        assert!(!scid.is_empty(), "client SCID is non-empty");
+        (dcid, scid)
+    }
+
+    // A Retry whose Source Connection ID equals our Initial's Destination
+    // Connection ID is dropped, leaving the client in its initial state.
+    let mut client = default_client();
+    let initial = client
+        .process_output(now())
+        .dgram()
+        .expect("a datagram")
+        .to_vec();
+    let (dcid, scid) = initial_cids(&initial);
+    let retry = crate::packet::Builder::retry(
+        Version::default(),
+        &scid,   // Destination CID: copied from the client as required
+        &dcid,   // Source CID: copied from client (bad!)
+        &[0x01], // non-empty token
+        &dcid,   // as required: a seed for authenticating the Retry
+    )
+    .expect("build retry");
+    drop(client.process(Some(datagram(retry)), now()));
+    assert_eq!(client.stats().dropped_rx, 1);
+    assert_eq!(*client.state(), State::WaitInitial);
+
+    // The same Retry with a distinct Source Connection ID is accepted.
+    let mut client = default_client();
+    let initial = client
+        .process_output(now())
+        .dgram()
+        .expect("a datagram")
+        .to_vec();
+    let (dcid, scid) = initial_cids(&initial);
+    let mut server_scid = dcid.clone();
+    server_scid[0] ^= 0xff;
+    let retry =
+        crate::packet::Builder::retry(Version::default(), &scid, &server_scid, &[0x01], &dcid)
+            .expect("build retry");
+    drop(client.process(Some(datagram(retry)), now()));
+    assert_eq!(client.stats().dropped_rx, 0);
 }

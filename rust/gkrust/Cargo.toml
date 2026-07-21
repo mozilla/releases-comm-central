@@ -64,6 +64,7 @@ fluent-ffi = { path = "../../../intl/l10n/rust/fluent-ffi" }
 fluent-langneg = { version = "0.13", features = ['cldr'] }
 fluent-langneg-ffi = { path = "../../../intl/locale/rust/fluent-langneg-ffi" }
 fog_control = { path = "../../../toolkit/components/glean" }
+fontations_glue = { path = "../../../gfx/fontations_glue", optional = true }
 gecko-profiler = { path = "../../../tools/profiler/rust-api" }
 gecko-trace = { path = "../../../toolkit/components/gecko-trace" }
 gecko_logger = { path = "../../../xpcom/rust/gecko_logger" }
