@@ -532,26 +532,33 @@ void OAuth2ThreadHelper::GetXOAuth2String(nsACString& base64Str) {
   // Umm... what are you trying to do?
   if (!mOAuth2Support) return;
 
-  nsCOMPtr<nsIRunnable> runInit =
-      NewRunnableMethod("OAuth2ThreadHelper::GetXOAuth2String", this,
-                        &OAuth2ThreadHelper::Connect);
+  nsCOMPtr<nsIRunnable> runInit = NS_NewRunnableFunction(
+      "OAuth2ThreadHelper::GetXOAuth2String", [self = RefPtr(this)]() {
+        if (mozilla::PastShutdownPhase(
+                mozilla::ShutdownPhase::AppShutdownConfirmed)) {
+          MonitorAutoLock lockGuard(self->mMonitor);
+          self->mOAuth2String.Truncate();
+          lockGuard.Notify();
+          return;
+        }
+
+        // Connect is asynchronous and might never call its listener. Register
+        // the shutdown wake-up before starting it, while the main thread can
+        // still do so safely.
+        mozilla::RunOnShutdown(
+            [self]() {
+              MonitorAutoLock lockGuard(self->mMonitor);
+              self->mOAuth2String.Truncate();
+              lockGuard.Notify();
+            },
+            mozilla::ShutdownPhase::AppShutdownConfirmed);
+        self->Connect();
+      });
   nsresult rv = NS_DispatchToMainThread(runInit);
   if (NS_WARN_IF(NS_FAILED(rv))) {
     return;
   }
   mMonitor.Wait();
-
-  nsCOMPtr<nsIRunnable> shutdownNotify = NS_NewRunnableFunction(
-      "GetXOAuth2StringShutdownNotifier", [self = RefPtr(this)]() {
-        mozilla::RunOnShutdown([self]() {
-          // Notify anyone waiting that we're done.
-          self->mMonitor.Notify();
-        });
-      });
-  rv = NS_DispatchToMainThread(shutdownNotify.forget());
-  if (NS_WARN_IF(NS_FAILED(rv))) {
-    return;
-  }
 
   // Now we either have the string, or we failed (in which case the string is
   // empty).

@@ -10,3 +10,5 @@ run-sequentially = true
 ["include:xpcshell-shared.toml"]
 
 ["test_fetchWhileLocked.js"]
+
+["test_imapOAuth2Shutdown.js"]
