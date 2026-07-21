@@ -67,4 +67,21 @@ export const SmimeUtils = {
       throw new Error("importPKCS12File failed, error code: " + importResult);
     }
   },
+
+  /**
+   * Delete certificates from the database, e.g. to clean up after a test.
+   *
+   * @param {string[]} commonNames - Every certificate whose commonName is in
+   *   this list is deleted.
+   */
+  removeCertificates(commonNames) {
+    const certDB = Cc["@mozilla.org/security/x509certdb;1"].getService(
+      Ci.nsIX509CertDB
+    );
+    for (const cert of certDB.getCerts()) {
+      if (commonNames.includes(cert.commonName)) {
+        certDB.deleteCertificate(cert);
+      }
+    }
+  },
 };

@@ -46,14 +46,7 @@ add_setup(async function () {
   );
 
   registerCleanupFunction(async function () {
-    const certDB = Cc["@mozilla.org/security/x509certdb;1"].getService(
-      Ci.nsIX509CertDB
-    );
-    for (const cert of certDB.getCerts()) {
-      if (cert.commonName == "NSS Test CA (RSA)" || cert.commonName == "Bob") {
-        certDB.deleteCertificate(cert);
-      }
-    }
+    SmimeUtils.removeCertificates(["NSS Test CA (RSA)", "Bob"]);
     await OpenPGPTestUtils.removeKeyById("0xf231550c4f47e38e", true);
   });
 });

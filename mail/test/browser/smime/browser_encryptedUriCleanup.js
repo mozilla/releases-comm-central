@@ -80,14 +80,7 @@ add_setup(async function () {
     if (MailServices.accounts.accounts.includes(account)) {
       MailServices.accounts.removeAccount(account, true);
     }
-    const certDB = Cc["@mozilla.org/security/x509certdb;1"].getService(
-      Ci.nsIX509CertDB
-    );
-    for (const cert of certDB.getCerts()) {
-      if (["NSS Test CA (RSA)", "Bob", "Alice"].includes(cert.commonName)) {
-        certDB.deleteCertificate(cert);
-      }
-    }
+    SmimeUtils.removeCertificates(["NSS Test CA (RSA)", "Bob", "Alice"]);
   });
 });
 
