@@ -24,6 +24,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   enforcePrimaryPassword: "resource:///modules/PrimaryPassword.sys.mjs",
   setTimeout: "resource://gre/modules/Timer.sys.mjs",
 });
+ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
 
 /**
  * The userContextId of nsIHttpChannel is currently implemented as a uint32, so
@@ -388,10 +389,10 @@ export var auth = {
 
     let aText;
     if (aFixedUsername) {
-      aText = lazy.cal.l10n.getAnyString("global", "commonDialogs", "EnterPasswordFor", [
-        aUsername.value,
-        aCalendarName,
-      ]);
+      aText = lazy.l10n.formatValueSync("calendar-auth-enter-password-for", {
+        username: aUsername.value,
+        location: aCalendarName,
+      });
       return new lazy.MsgAuthPrompt().promptPassword(
         aTitle,
         aText,
@@ -400,9 +401,9 @@ export var auth = {
         aSavePassword
       );
     }
-    aText = lazy.cal.l10n.getAnyString("global", "commonDialogs", "EnterUserPasswordFor2", [
-      aCalendarName,
-    ]);
+    aText = lazy.l10n.formatValueSync("calendar-auth-enter-user-password-for", {
+      location: aCalendarName,
+    });
     return new lazy.MsgAuthPrompt().promptUsernameAndPassword(
       aTitle,
       aText,

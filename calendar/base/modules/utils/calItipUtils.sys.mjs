@@ -28,7 +28,11 @@ ChromeUtils.defineLazyGetter(lazy, "log", () => {
     maxLogLevelPref: "calendar.loglevel",
   });
 });
-ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["calendar/calendar.ftl", "branding/brand.ftl"], true)
+);
 
 export var itip = {
   /**
@@ -295,8 +299,7 @@ export var itip = {
         return lazy.cal.l10n.getLtnString("imipBarDeclineCounterText");
       default: {
         lazy.log.error("Unknown iTIP method: " + method);
-        const appName = lazy.cal.l10n.getAnyString("branding", "brand", "brandShortName");
-        return lazy.cal.l10n.getLtnString("imipBarUnsupportedText2", [appName]);
+        return lazy.l10n.formatValueSync("imip-bar-unsupported-text");
       }
     }
   },
@@ -495,14 +498,12 @@ export var itip = {
           break;
         }
         default: {
-          const appName = lazy.cal.l10n.getAnyString("branding", "brand", "brandShortName");
-          data.label = lazy.cal.l10n.getLtnString("imipBarUnsupportedText2", [appName]);
+          data.label = lazy.l10n.formatValueSync("imip-bar-unsupported-text");
           break;
         }
       }
     } else {
-      const appName = lazy.cal.l10n.getAnyString("branding", "brand", "brandShortName");
-      data.label = lazy.cal.l10n.getLtnString("imipBarUnsupportedText2", [appName]);
+      data.label = lazy.l10n.formatValueSync("imip-bar-unsupported-text");
     }
 
     return data;

@@ -184,13 +184,11 @@ week-title-label =
 calendar-none =
     .label = None
 
-# Error strings
-# @name UID_NOT_FOUND
-# @loc none
-# LOCALIZATION NOTE (too-new-schema-error-text):
-#    $hostApplication will be replaced with the name of the host application, e.g. 'Thunderbird'
-#    $fileName will be replaced with the name of the new copy of the file, e.g. 'local-2020-05-11T21-30-17.sqlite'
-too-new-schema-error-text = Your calendar data is not compatible with this version of { $hostApplication }. The calendar data in your profile was updated by a newer version of { $hostApplication }. A backup of the data file has been created, named “{ $fileName }”. Continuing with a newly created data file.
+# Variables:
+#   $fileName (String) - The backup file name, e.g. 'local-2020-05-11T21-30-17.sqlite'.
+too-new-dbschema-error-text = Your calendar data is not compatible with this version of { -brand-short-name }. The calendar data in your profile was updated by a newer version of { -brand-short-name }. A backup of the data file has been created, named “{ $fileName }”. Continuing with a newly created data file.
+
+imip-bar-unsupported-text = This message contains an event that this version of { -brand-short-name } cannot process.
 
 # List of events or todos (unifinder)
 event-untitled = Untitled
@@ -1329,3 +1327,16 @@ attendees-tab-label = Attendees ({ $count }):
 
 # $count - the number of attachments
 attachments-tab-label = Attachments ({ $count }):
+
+# Variables:
+#   $docTitle (String) - The date or view label for the current calendar view.
+calendar-window-title = { $docTitle } - { -brand-full-name }
+calendar-window-title-base = { -brand-full-name }
+
+# Variables:
+#   $username (String) - The account username.
+#   $location (String) - The calendar server location.
+calendar-auth-enter-password-for = Enter password for { $username } on { $location }
+# Variables:
+#   $location (String) - The calendar server location.
+calendar-auth-enter-user-password-for = { $location } is requesting your username and password.

@@ -760,13 +760,13 @@ function onDetectionError(password, location, error) {
  *
  * @param {string} location - The location input from the dialog.
  */
-function findCalendarsWithPassword(location) {
+async function findCalendarsWithPassword(location) {
   const password = { value: "" };
   const savePassword = { value: 1 };
 
   const okWasClicked = new MsgAuthPrompt().promptPassword2(
     null,
-    cal.l10n.getAnyString("messenger-mapi", "mapi", "loginText", [location]),
+    await document.l10n.formatValue("calendar-creation-mapi-login-text", { location }),
     password,
     MsgAuthPrompt.l10n.formatValueSync("remember-password-checkbox-label"),
     savePassword

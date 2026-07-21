@@ -469,9 +469,13 @@ var calendarNavigationBar = {
     }
 
     if (gCurrentMode == "calendar") {
-      document.title =
-        (docTitle ? docTitle + " - " : "") +
-        cal.l10n.getAnyString("branding", "brand", "brandFullName");
+      if (docTitle) {
+        document.l10n.setAttributes(document.querySelector("title"), "calendar-window-title", {
+          docTitle,
+        });
+      } else {
+        document.l10n.setAttributes(document.querySelector("title"), "calendar-window-title-base");
+      }
     }
   },
 };

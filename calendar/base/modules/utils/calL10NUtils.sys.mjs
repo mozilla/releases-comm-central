@@ -71,17 +71,6 @@ _calendarInfo._startup = {};
 
 export var l10n = {
   /**
-   * Gets the value of a string in a .properties file.
-   *
-   * @param {string} aComponent - Stringbundle component name
-   * @param {string} aBundleName - The name of the properties file
-   * @param {string} aStringName - The name of the string within the properties file
-   * @param {string[]} aParams - (optional) Parameters to format the string
-   * @returns {string} The formatted string
-   */
-  getAnyString: _getString,
-
-  /**
    * Gets a string from chrome://lightning/locale/lightning.properties
    *
    * @param {string} aStringName - The name of the string within the properties file
