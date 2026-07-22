@@ -296,7 +296,7 @@ export class ImapMailbox {
     this.setDefault("delimiter", "/");
     this.setDefault("flags", []);
     this.setDefault("specialUseFlag", "");
-    this.setDefault("uidnext", 1);
+    this.setDefault("uidnext", 5000);
     this.setDefault("msgflags", [
       "\\Seen",
       "\\Answered",
