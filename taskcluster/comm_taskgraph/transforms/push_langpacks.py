@@ -84,7 +84,7 @@ def drop_task(config, tasks):
         elif version.is_release and version.is_major:
             yield task
         elif version.is_esr:
-            if version.major_number == 0 and version.patch_number in (None, 0):
+            if version.minor_number == 0 and version.patch_number in (None, 0):
                 yield task
             elif version.minor_number > 0 and version.patch_number == 0:
                 yield task
