@@ -131,11 +131,14 @@
 @BINPATH@/@DLL_PREFIX@Microsoft.UI.Windowing@DLL_SUFFIX@
 #endif
 #ifdef MOZ_GTK
-@BINPATH@/glxtest
+; This is a standalone binary launched by Firefox on Linux to verify
+; the system's graphics capabilities and behavior.
+; It is separate because it may crash, and handling this within Firefox
+; itself would be more challenging.
+@BINPATH@/gfxtest
 @BINPATH@/@DLL_PREFIX@mozgtk@DLL_SUFFIX@
 #ifdef MOZ_WAYLAND
 @BINPATH@/@DLL_PREFIX@mozwayland@DLL_SUFFIX@
-@BINPATH@/vaapitest
 #endif
 #endif
 
