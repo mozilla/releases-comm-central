@@ -47,6 +47,7 @@ prefs = [
 subsuite = "thunderbird"
 support-files = [
   "data/**",
+  "../attachment/data/apple_mail_related_attachments.eml",
   "../openpgp/data/**",
   "html/linkpreview.html",
 ]

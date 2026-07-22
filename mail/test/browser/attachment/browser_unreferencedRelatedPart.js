@@ -91,3 +91,36 @@ add_task(async function test_unreferenced_related_inline_image_visible() {
 
   await BrowserTestUtils.closeWindow(msgc);
 });
+
+add_task(async function test_referenced_related_attachments_visible() {
+  const file = new FileUtils.File(
+    getTestFilePath("data/apple_mail_related_attachments.eml")
+  );
+  const msgc = await open_message_from_file(file);
+  const aboutMessage = get_about_message(msgc);
+
+  EventUtils.synthesizeMouseAtCenter(
+    aboutMessage.document.getElementById("attachmentToggle"),
+    {},
+    aboutMessage
+  );
+
+  const attachmentList = aboutMessage.document.getElementById("attachmentList");
+  Assert.equal(
+    attachmentList.itemCount,
+    3,
+    "all referenced Content-Disposition: attachment parts should be visible"
+  );
+
+  const expectedNames = ["example.md", "example.sh", "example.py"];
+
+  for (const [i, expectedName] of expectedNames.entries()) {
+    Assert.equal(
+      attachmentList.getItemAtIndex(i).attachment.name,
+      expectedName,
+      `attachment ${i + 1} should be ${expectedName}`
+    );
+  }
+
+  await BrowserTestUtils.closeWindow(msgc);
+});

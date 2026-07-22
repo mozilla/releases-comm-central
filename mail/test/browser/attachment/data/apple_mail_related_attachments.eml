@@ -1,0 +1,56 @@
+Subject: Apple Mail referenced related attachments
+From: sender@example.invalid
+To: recipient@example.invalid
+Date: Mon, 01 Jun 2026 00:00:00 +0000
+Message-ID: <apple-mail-related-attachments@example.invalid>
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+ boundary="Apple-Mail=_alternative_boundary"
+
+--Apple-Mail=_alternative_boundary
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+
+--Apple-Mail=_alternative_boundary
+Content-Type: multipart/related;
+ boundary="Apple-Mail=_related_boundary"
+
+--Apple-Mail=_related_boundary
+Content-Type: text/html; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+<html><body>
+<object type="application/x-apple-msg-attachment" data="cid:example-md"></object>
+<object type="application/x-apple-msg-attachment" data="cid:example-sh"></object>
+<object type="application/x-apple-msg-attachment" data="cid:example-py"></object>
+</body></html>
+
+--Apple-Mail=_related_boundary
+Content-Type: text/markdown
+Content-Disposition: attachment; filename="example.md"
+Content-ID: <example-md>
+Content-Transfer-Encoding: 7bit
+
+- Hello World
+
+--Apple-Mail=_related_boundary
+Content-Type: application/octet-stream
+Content-Disposition: attachment; filename="example.sh"
+Content-ID: <example-sh>
+Content-Transfer-Encoding: 7bit
+
+#!/bin/sh
+echo "Hello World"
+
+--Apple-Mail=_related_boundary
+Content-Type: text/x-python-script
+Content-Disposition: attachment; filename="example.py"
+Content-ID: <example-py>
+Content-Transfer-Encoding: 7bit
+
+print("Hello World")
+
+--Apple-Mail=_related_boundary--
+
+--Apple-Mail=_alternative_boundary--

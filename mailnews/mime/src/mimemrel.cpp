@@ -113,7 +113,6 @@
 #include "nsMimeTypes.h"
 #include "nsMsgUtils.h"
 #include "nsMsgCompUtils.h"
-#include <ctype.h>
 
 #define MIME_SUPERCLASS mimeMultipartClass
 MimeDefClass(MimeMultipartRelated, MimeMultipartRelatedClass,
@@ -832,6 +831,22 @@ static bool accept_related_part(MimeMultipartRelated* relobj,
           IS_SPACE(relobj->curtag[2]));
 }
 
+static bool hide_related_part_p(MimeMultipartRelated* relobj,
+                                MimeObject* part_obj) {
+  if (!relobj || !part_obj || relobj->is_part_in_hidden_alternative) {
+    return false;
+  }
+
+  // Surface named text/* parts as attachments even when CID-referenced;
+  // they are files the user needs, not inline body content.
+  char* name = MimeHeaders_get_name(part_obj->headers, part_obj->options);
+  bool hasName = name != nullptr;
+  PR_FREEIF(name);
+
+  return !(hasName && part_obj->content_type &&
+           !PL_strncasecmp(part_obj->content_type, "text/", 5));
+}
+
 static int flush_tag(MimeMultipartRelated* relobj) {
   int length = relobj->curtag_length;
   char* buf;
@@ -921,7 +936,7 @@ static int flush_tag(MimeMultipartRelated* relobj) {
           if (status < 0) return status;
           buf = ptr2; /* skip over the cid: URL we substituted */
 
-          if (!relobj->is_part_in_hidden_alternative && value->m_obj)
+          if (hide_related_part_p(relobj, value->m_obj))
             value->m_obj->dontShowAsAttachment = true;
         }
 
@@ -955,7 +970,7 @@ static int flush_tag(MimeMultipartRelated* relobj) {
           if (status < 0) return status;
           buf = ptr2; /* skip over the cid: URL we substituted */
 
-          if (!relobj->is_part_in_hidden_alternative && value->m_obj)
+          if (hide_related_part_p(relobj, value->m_obj))
             value->m_obj->dontShowAsAttachment = true;
         }
       }
