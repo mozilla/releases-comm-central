@@ -154,6 +154,10 @@ dialog {
   display: grid;
   grid-template-rows: auto 1fr;
   gap: var(--hub-header-body-gap);
+
+  &:is(email-exchange-settings) {
+    gap: var(--space-xlarge);
+  }
 }
 
 .account-hub-form,
