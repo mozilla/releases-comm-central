@@ -6,7 +6,14 @@
 
 /**
  * Type for IMAP UIDs.
+ * IMAP defines UIDs as non-zero unsigned 32bit integers.
  * Also used for sequence numbers, on particularly backward servers.
+ *
+ * General guidelines:
+ * - ImapUid can hold zero to indicate an invalid/missing UID.
+ * - You should _never_ encounter a `ImapUid` of `nsMsgKey_None`.
+ * - Sets/arrays of ImapUIds should _never_ include zeros (although you can have an empty set)
+ *
  * Ideally this typedef would prevent accidental casting to/from uint32_t and
  * (especially) nsMsgKey, but there doesn't seem to be a simple way to enforce
  * that with XPCOM.

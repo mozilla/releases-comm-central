@@ -382,7 +382,7 @@ NS_IMETHODIMP nsImapMoveCopyMsgTxn::OnStopRunningUrl(nsIURI* aUrl,
         if (NS_SUCCEEDED(rv) && dstHdr) {
           nsMsgKey dstKey;
           dstHdr->GetMessageKey(&dstKey);
-          ImapUid uid = MOZ_TRY(UidFromKey(destDB, dstKey));
+          ImapUid uid = MOZ_TRY(UidFromMsgKey(destDB, dstKey));
           if (uid != 0) {
             dstUids.AppendElement(uid);
           }

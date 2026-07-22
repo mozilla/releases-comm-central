@@ -78,28 +78,47 @@ mozilla::Result<nsTArray<ImapUid>, nsresult> UidsFromHdrs(
     nsTArray<RefPtr<nsIMsgDBHdr>> const& hdrs);
 
 /**
+ * Returns a UID for the given message.
+ * If a message doesn't have a UID, zero will be returned.
+ */
+mozilla::Result<ImapUid, nsresult> UidFromHdr(nsIMsgDBHdr* hdr);
+
+/**
  * Returns a list of UIDs for the given message keys.
  * If any of the keys are nsMsgKey_None, this function will fail.
  * If a message doesn't have a UID, it will _not_ appear in the returned list.
  * So the size of the returned list may differ to the number of messages passed
  * in.
  */
-mozilla::Result<nsTArray<ImapUid>, nsresult> UidsFromKeys(
+mozilla::Result<nsTArray<ImapUid>, nsresult> UidsFromMsgKeys(
     nsIMsgDatabase* db, nsTArray<nsMsgKey> const& keys);
+
+/**
+ * Returns a list of message keys for the given UIDs.
+ * If any of the UIDs are zero, this function will fail.
+ * If a message with the given UID can't be found, it will _not_ appear in the
+ * returned list.
+ * So the size of the returned list may differ to the number of UIDs passed
+ * in.
+ */
+mozilla::Result<nsTArray<ImapUid>, nsresult> MsgKeysFromUids(
+    nsIMsgDatabase* db, nsTArray<ImapUid> const& uids);
 
 /**
  * Get UID for a single message.
  * The key MUST be a valid message, and not nsMsgKey_None.
  * Returns 0 if message has no UID.
  */
-mozilla::Result<ImapUid, nsresult> UidFromKey(nsIMsgDatabase* db, nsMsgKey key);
+mozilla::Result<ImapUid, nsresult> UidFromMsgKey(nsIMsgDatabase* db,
+                                                 nsMsgKey key);
 
 /**
  * Get Key of message with the given UID.
  * The UID passed in MUST be non-zero.
  * Fails if message not found in database.
  */
-mozilla::Result<nsMsgKey, nsresult> KeyFromUid(nsIMsgDatabase* db, ImapUid uid);
+mozilla::Result<nsMsgKey, nsresult> MsgKeyFromUid(nsIMsgDatabase* db,
+                                                  ImapUid uid);
 
 class nsImapMailboxSpec : public nsIMailboxSpec {
  public:

@@ -423,7 +423,33 @@ mozilla::Result<nsTArray<ImapUid>, nsresult> UidsFromHdrs(
   return uids;
 }
 
-mozilla::Result<nsTArray<ImapUid>, nsresult> UidsFromKeys(
+mozilla::Result<ImapUid, nsresult> UidFromHdr(nsIMsgDBHdr* hdr) {
+  // TODO: When we take the final step to separate nsMsgKey and UIDs,
+  // this function will have to be changed to use GetUidOnServer() instead
+  // of GetMessageKey().
+  // https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
+
+  //    ImapUid uid;
+  //    nsresult rv = hdr->GetUidOnServer(&uid);
+  //    if (NS_FAILED(rv)) {
+  //      return mozilla::Err(rv);
+  //    }
+  //    // Ignore messages with no UID.
+  //    if (uid != 0) {
+  //      uids.AppendElement(uid);
+  //    }
+
+  // But for now the UID is the nsMsgKey...
+  nsMsgKey key;
+  nsresult rv = hdr->GetMessageKey(&key);
+  if (NS_FAILED(rv)) {
+    return mozilla::Err(rv);
+  }
+  MOZ_ASSERT(key != nsMsgKey_None);
+  return (ImapUid)key;
+}
+
+mozilla::Result<nsTArray<ImapUid>, nsresult> UidsFromMsgKeys(
     nsIMsgDatabase* db, nsTArray<nsMsgKey> const& keys) {
   // TODO: When we take the final step to separate nsMsgKey and UIDs,
   // this function will have to be changed to use GetUidOnServer() instead
@@ -440,8 +466,8 @@ mozilla::Result<nsTArray<ImapUid>, nsresult> UidsFromKeys(
   return uids;
 }
 
-mozilla::Result<ImapUid, nsresult> UidFromKey(nsIMsgDatabase* db,
-                                              nsMsgKey key) {
+mozilla::Result<ImapUid, nsresult> UidFromMsgKey(nsIMsgDatabase* db,
+                                                 nsMsgKey key) {
   MOZ_ASSERT(key != nsMsgKey_None);
 
   // TODO: When we take the final step to separate nsMsgKey and UIDs,
@@ -453,8 +479,8 @@ mozilla::Result<ImapUid, nsresult> UidFromKey(nsIMsgDatabase* db,
   return (ImapUid)key;
 }
 
-mozilla::Result<nsMsgKey, nsresult> KeyFromUid(nsIMsgDatabase* db,
-                                               ImapUid uid) {
+mozilla::Result<nsMsgKey, nsresult> MsgKeyFromUid(nsIMsgDatabase* db,
+                                                  ImapUid uid) {
   MOZ_ASSERT(uid != 0);
 
   // TODO: When we take the final step to separate nsMsgKey and UIDs,
@@ -463,4 +489,20 @@ mozilla::Result<nsMsgKey, nsresult> KeyFromUid(nsIMsgDatabase* db,
 
   // But for now, UIDs are used as keys, so...
   return (nsMsgKey)uid;
+}
+
+mozilla::Result<nsTArray<ImapUid>, nsresult> MsgKeysFromUids(
+    nsIMsgDatabase* db, nsTArray<ImapUid> const& uids) {
+  // TODO: When we take the final step to separate nsMsgKey and UIDs,
+  // this function will have to be changed.
+  // https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
+
+  // But for now, UIDs are used as keys, so...
+  for (ImapUid uid : uids) {
+    if (uid == 0) {
+      return Err(NS_ERROR_UNEXPECTED);
+    }
+  }
+  nsTArray<nsMsgKey> keys(uids.Clone());
+  return keys;
 }
