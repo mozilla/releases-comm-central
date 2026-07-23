@@ -172,9 +172,18 @@ mork_num morkRowSpace::CutAllRows(morkEnv* ev, morkPool* ioPool) {
   if (this->IsRowSpaceClean()) this->MaybeDirtyStoreAndSpace();
 
 #ifdef MORK_ENABLE_ZONE_ARENAS
+  // With zone arenas (unconditionally on in morkConfig.h), rows are never
+  // freed one by one: the store's whole zone is dropped wholesale when
+  // the store dies, so "cut all rows" has nothing to deallocate. This
+  // also means stale row pointers usually keep pointing at mapped,
+  // readable memory, which lets use-after-free bugs in this code hide
+  // for years and then surface as corruption-flavored crashes somewhere
+  // else entirely.
   MORK_USED_2(ev, ioPool);
   return 0;
 #else /*MORK_ENABLE_ZONE_ARENAS*/
+  // Currently unused as morkConfig.h defines MORK_ENABLE_ZONE_ARENAS
+  // unconditionally.
   mork_num outSlots = mRowSpace_Rows.MapFill();
   morkZone* zone = &mSpace_Store->mStore_Zone;
   morkRow* r = 0;  // old key row in the map
@@ -190,6 +199,15 @@ mork_num morkRowSpace::CutAllRows(morkEnv* ev, morkPool* ioPool) {
     if (r) {
       if (r->IsRow()) {
         if (r->mRow_Object) {
+          // The row object is a refcounted wrapper that external callers
+          // may still hold long after this row returns to the pool below.
+          // The weak-slot cut alone only detaches the row's back pointer;
+          // the wrapper would keep pointing at pooled memory and crash on
+          // its next use, or in its own destructor. Sever both of its
+          // links now so a late call fails cleanly instead (GetOid() and
+          // GetRowCellCursor() check mRowObject_Row for exactly this).
+          r->mRow_Object->mRowObject_Row = 0;
+          r->mRow_Object->mRowObject_Store = 0;
           morkRowObject::SlotWeakRowObject((morkRowObject*)0, ev,
                                            &r->mRow_Object);
         }

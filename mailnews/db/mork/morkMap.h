@@ -47,6 +47,33 @@
 
 // 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
+// Some historical context, because little below makes sense without it.
+//
+// Mork is the 1998/1999 Netscape mail-news database backend by David
+// McCusker; in mail folders, the .msf Mork database holds cached summary
+// and index state, not the messages themselves. It is the third take on
+// that cache: Netscape 2.x/3.x used compact hand-tuned summary files,
+// Netscape 4.x swapped those for an object-oriented C++ database that
+// was slower and notoriously corruption-prone, and McCusker was hired to
+// address the mess. He described Mork as a temporary open source
+// stub implementation of the abstract MDB interface. Much of the code is
+// descended from his public-domain IronDoc and Mithril engines, which
+// several comments below still reference. Old Mozilla docs say the name
+// came from the late-1970s TV show "Mork & Mindy".
+//
+// The code comes from an era when Mozilla could not rely even on a
+// portable STL, and Gecko still builds without C++ exceptions and RTTI
+// today, so Mork hand-rolls the usual machinery: mork_bool and friends,
+// hash maps like this one, morkNode refcounting, and morkZone arena
+// allocation. Errors accumulate in the morkEnv passed through most
+// calls; nothing throws, and callers test ev->Good().
+//
+// The nsIMdb layer above was meant to make the backend swappable, but
+// mail summary storage never moved off Mork (as of 2026, a SQLite-based
+// replacement is being developed in mailnews/db/panorama), so decades of
+// corrupt .msf files in the wild exercise states the original code
+// treated as impossible.
+
 /* (These hash methods closely resemble those in public domain IronDoc.) */
 
 /*| Equal: equal for hash table. Note equal(a,b) implies hash(a)==hash(b).
@@ -198,7 +225,10 @@ class morkMap : public morkNode {
 
   morkAssoc* mMap_Assocs;  // mMap_Slots * sizeof(morkAssoc) buffer
 
-  // The changes array is only needed when the
+  // The changes array is only needed when the map was built with
+  // inHoldChanges. Maps without it hand out the shared
+  // mMapForm_DummyChange instead, so callers can always dereference the
+  // returned mork_change pointer; it just carries no information.
 
   mork_change* mMap_Changes;  // mMap_Slots * sizeof(mork_change) buffer
 
@@ -249,11 +279,25 @@ class morkMap : public morkNode {
 
  public:  // open utility methods
   mork_bool GoodMapTag() const { return mMap_Tag == morkMap_kTag; }
-  mork_bool GoodMap() const { return (IsNode() && GoodMapTag()); }
+  // GoodMap() is the gate in front of every map operation, and those
+  // operations immediately do pointer arithmetic on the arrays checked
+  // here, so a null array means a wild dereference a few lines later.
+  // Crash reports showed lookups and iterations running against maps that
+  // were already shut or never finished allocating, which the old tag-only
+  // check waved through. A map that is merely closing must still pass:
+  // close-time cleanup cuts members out of it. mMap_Slots is the array
+  // capacity, not the member count, so it is nonzero for every live map;
+  // InitMap() allocates at least three slots even for an empty map.
+  // mMap_Vals and mMap_Changes may legitimately be null for maps that
+  // don't use them, so we cannot check those two.
+  mork_bool GoodMap() const {
+    return IsNode() && IsOpenOrClosingNode() && GoodMapTag() && mMap_Slots &&
+           mMap_Keys && mMap_Assocs && mMap_Buckets;
+  }
 
-  void NewIterOutOfSyncError(morkEnv* ev);
-  void NewBadMapError(morkEnv* ev);
-  void NewSlotsUnderflowWarning(morkEnv* ev);
+  void NewIterOutOfSyncError(morkEnv* ev) const;
+  void NewBadMapError(morkEnv* ev) const;
+  void NewSlotsUnderflowWarning(morkEnv* ev) const;
   void InitMap(morkEnv* ev, mork_size inSlots);
 
  protected:  // internal utility methods
@@ -263,6 +307,8 @@ class morkMap : public morkNode {
   void* alloc(morkEnv* ev, mork_size inSize);
   void* clear_alloc(morkEnv* ev, mork_size inSize);
 
+  // Cutting a member only pushes its slot back onto the free list; no
+  // memory is released until the whole map goes away.
   void push_free_assoc(morkAssoc* ioAssoc) {
     ioAssoc->mAssoc_Next = mMap_FreeList;
     mMap_FreeList = ioAssoc;
@@ -340,6 +386,13 @@ class morkMap : public morkNode {
 **| and expected usage is as a member of some other node subclass, such as in
 **| a cursor subclass or a thumb subclass.  Also, iters might be as temp stack
 **| objects when scanning the content of a map.
+**|
+**|| An iter is never registered with its map; the map does not even know
+**| it exists. The only invalidation signal is the seed snapshot taken at
+**| init and compared against the map's seed on every call, and the only
+**| state is a handful of raw pointers into the map's arrays. CutHere()
+**| bumps both seeds in lockstep, which is the trick that lets an
+**| iteration delete members while it walks.
 |*/
 class morkMapIter {  // iterator for hash table map
 

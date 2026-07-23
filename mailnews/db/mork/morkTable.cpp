@@ -566,6 +566,15 @@ morkTable::AddRow(     // make sure the row with inOid is a table member
   morkEnv* ev = morkEnv::FromMdbEnv(mev);
   if (ev) {
     morkRowObject* rowObj = (morkRowObject*)ioRow;
+    // ioRow is a caller-held wrapper, and its store may have severed it
+    // from the actual row long ago (see morkRowSpace::CutAllRows). The
+    // unchecked cast above cannot notice that, so check before pulling
+    // out the row; inserting a dead row would plant a dangling pointer
+    // in this table's row map.
+    if (!rowObj || !rowObj->mRowObject_Row) {
+      ev->NilPointerError();
+      return ev->AsErr();
+    }
     morkRow* row = rowObj->mRowObject_Row;
     AddRow(ev, row);
     outErr = ev->AsErr();

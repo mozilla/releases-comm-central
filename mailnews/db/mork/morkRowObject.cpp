@@ -139,9 +139,20 @@ morkRowObject::GetCursor(  // make a cursor starting iter at inMemberPos
 // { ----- begin ID methods -----
 NS_IMETHODIMP
 morkRowObject::GetOid(nsIMdbEnv* mev, mdbOid* outOid) {
-  *outOid = mRowObject_Row->mRow_Oid;
+  // A morkRowObject is the refcounted wrapper handed out to callers, but
+  // the morkRow it wraps belongs to the store and is pool-allocated. When
+  // the store tears down, it severs the wrapper instead of waiting for it
+  // (see morkRowSpace::CutAllRows), so mRowObject_Row may be null here
+  // while callers still hold a perfectly alive-looking row object. Check
+  // before touching the row; the memory behind it is gone.
   morkEnv* ev = morkEnv::FromMdbEnv(mev);
-  return (ev) ? ev->AsErr() : NS_ERROR_FAILURE;
+  if (!ev) return NS_ERROR_FAILURE;
+  if (!mRowObject_Row) {
+    NilRowError(ev);
+    return ev->AsErr();
+  }
+  *outOid = mRowObject_Row->mRow_Oid;
+  return ev->AsErr();
 }
 
 NS_IMETHODIMP
@@ -176,6 +187,13 @@ morkRowObject::GetRowCellCursor(  // make a cursor starting iteration at
   morkEnv* ev = morkEnv::FromMdbEnv(mev);
   nsIMdbRowCellCursor* outCursor = 0;
   if (ev) {
+    // The store may have severed this wrapper from its row; see GetOid()
+    // above.
+    if (!mRowObject_Row) {
+      NilRowError(ev);
+      if (acqCursor) *acqCursor = outCursor;
+      return ev->AsErr();
+    }
     morkRowCellCursor* cursor = mRowObject_Row->NewRowCellCursor(ev, inPos);
     if (cursor) {
       if (ev->Good()) {

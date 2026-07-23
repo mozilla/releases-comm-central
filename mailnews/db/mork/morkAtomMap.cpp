@@ -141,8 +141,16 @@ morkAtomAidMap::Equal(morkEnv* ev, const void* inKeyA,
 
 /*virtual*/ mork_u4  //
 morkAtomAidMap::Hash(morkEnv* ev, const void* inKey) const {
-  MORK_USED_1(ev);
-  return (*(const morkBookAtom**)inKey)->HashAid();
+  // Keys are atom pointers stored inside the map's own key array, and a
+  // corrupted map may serve a null from there (crash reports show this
+  // hitting HashAid()). Null is the only corruption detectable at this
+  // level, so report it and return a dummy hash.
+  const morkBookAtom* key = *(const morkBookAtom**)inKey;
+  if (!key) {
+    ev->NilPointerError();
+    return 0;
+  }
+  return key->HashAid();
 }
 // } ===== end morkMap poly interface =====
 #endif /*MORK_ENABLE_PROBE_MAPS*/
@@ -293,13 +301,26 @@ morkAtomBodyMap::MapHash(morkEnv* ev, const void* inAppKey) const {
 /*virtual*/ mork_bool  //
 morkAtomBodyMap::Equal(morkEnv* ev, const void* inKeyA,
                        const void* inKeyB) const {
-  return (*(const morkBookAtom**)inKeyA)
-      ->EqualFormAndBody(ev, *(const morkBookAtom**)inKeyB);
+  // Same defense as morkAtomAidMap::Hash(): a corrupt map may serve null
+  // keys, and EqualFormAndBody() dereferences both sides immediately.
+  const morkBookAtom* keyA = *(const morkBookAtom**)inKeyA;
+  const morkBookAtom* keyB = *(const morkBookAtom**)inKeyB;
+  if (!keyA || !keyB) {
+    ev->NilPointerError();
+    return morkBool_kFalse;
+  }
+  return keyA->EqualFormAndBody(ev, keyB);
 }
 
 /*virtual*/ mork_u4  //
 morkAtomBodyMap::Hash(morkEnv* ev, const void* inKey) const {
-  return (*(const morkBookAtom**)inKey)->HashFormAndBody(ev);
+  // A null key means map corruption; see Equal() above.
+  const morkBookAtom* key = *(const morkBookAtom**)inKey;
+  if (!key) {
+    ev->NilPointerError();
+    return 0;
+  }
+  return key->HashFormAndBody(ev);
 }
 // } ===== end morkMap poly interface =====
 #endif /*MORK_ENABLE_PROBE_MAPS*/

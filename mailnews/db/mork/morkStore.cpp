@@ -851,6 +851,19 @@ mork_token morkStore::CopyToken(morkEnv* ev, mdb_token inToken,
 mork_token morkStore::BufToToken(morkEnv* ev, const morkBuf* inBuf) {
   mork_token outToken = 0;
   if (ev->Good()) {
+    // A damaged database file may leave a caller holding a token buffer
+    // with no body or no bytes, and the first thing we do below is read
+    // *s to sniff for non-ASCII. Reject both shapes before the
+    // dereference; corrupt input must not be able to pick our read
+    // address.
+    if (!inBuf || !inBuf->mBuf_Body) {
+      ev->NilPointerError();
+      return outToken;
+    }
+    if (!inBuf->mBuf_Fill) {
+      ev->NewError("empty token buffer");
+      return outToken;
+    }
     const mork_u1* s = (const mork_u1*)inBuf->mBuf_Body;
     mork_bool nonAscii = (*s > 0x7F);
     mork_size length = inBuf->mBuf_Fill;
@@ -862,6 +875,11 @@ mork_token morkStore::BufToToken(morkEnv* ev, const morkBuf* inBuf) {
         morkFarBookAtom* keyAtom = 0;
         if (length <= morkBookAtom_kMaxBodySize) {
           mork_aid aid = 1;  // dummy
+          // Clever and fragile: rather than allocate an atom just to
+          // probe the map, the store keeps one reusable member atom and
+          // re-initializes it in place as the lookup key. Only a found
+          // atom or a made copy ever escapes this scope; the scratch key
+          // must not.
           // mStore_BookAtom.InitMaxBookAtom(ev, *inBuf, form, space, aid);
           mStore_FarBookAtom.InitFarBookAtom(ev, *inBuf, form, space, aid);
           keyAtom = &mStore_FarBookAtom;

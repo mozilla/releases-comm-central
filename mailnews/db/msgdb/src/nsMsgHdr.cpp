@@ -810,13 +810,23 @@ NS_IMETHODIMP nsMsgHdr::GetIsKilled(bool* isKilled) {
 
 NS_IMETHODIMP nsMsgHdr::GetProperties(nsTArray<nsCString>& headers) {
   headers.Clear();
-  if (!m_mdb || !m_mdbRow) {
+  // A header may outlive its database: when the database shuts down, its
+  // mork env and store go away while callers still hold the header. Such
+  // a detached header simply has no properties, like the missing-row case
+  // this check always covered.
+  if (!m_mdb || !m_mdbRow || !m_mdb->m_mdbEnv || !m_mdb->m_mdbStore) {
     return NS_OK;
   }
 
   nsCOMPtr<nsIMdbRowCellCursor> rowCellCursor;
-  m_mdbRow->GetRowCellCursor(m_mdb->m_mdbEnv, -1,
-                             getter_AddRefs(rowCellCursor));
+  // GetRowCellCursor may fail, or succeed without producing a cursor,
+  // when the row was severed from a dead store underneath this header.
+  nsresult rv = m_mdbRow->GetRowCellCursor(m_mdb->m_mdbEnv, -1,
+                                           getter_AddRefs(rowCellCursor));
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (!rowCellCursor) {
+    return NS_OK;
+  }
 
   nsCOMPtr<nsIMdbCell> cell;
   mdb_column nextColumn;
@@ -826,7 +836,7 @@ NS_IMETHODIMP nsMsgHdr::GetProperties(nsTArray<nsCString>& headers) {
     char columnName[100];
     struct mdbYarn colYarn = {columnName, 0, sizeof(columnName), 0, 0, nullptr};
     // Get the column of the cell
-    nsresult rv =
+    rv =
         m_mdb->m_mdbStore->TokenToString(m_mdb->m_mdbEnv, nextColumn, &colYarn);
     NS_ENSURE_SUCCESS(rv, rv);
 

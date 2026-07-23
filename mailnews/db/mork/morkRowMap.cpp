@@ -83,8 +83,15 @@ morkRowMap::Equal(morkEnv* ev, const void* inKeyA, const void* inKeyB) const {
 
 /*virtual*/ mork_u4  //
 morkRowMap::Hash(morkEnv* ev, const void* inKey) const {
-  MORK_USED_1(ev);
-  return (*(const morkRow**)inKey)->HashRow();
+  // A corrupt map may serve a null row pointer from its key array, and
+  // HashRow() reads the row's oid right through it. Null is the only
+  // corruption detectable here, so report it and return a dummy hash.
+  const morkRow* key = *(const morkRow**)inKey;
+  if (!key) {
+    ev->NilPointerError();
+    return 0;
+  }
+  return key->HashRow();
 }
 // } ===== end morkMap poly interface =====
 

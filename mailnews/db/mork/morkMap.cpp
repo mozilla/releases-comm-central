@@ -146,6 +146,23 @@ morkMap::~morkMap()  // assert CloseMap() executed earlier
 // } ===== end morkNode methods =====
 // ````` ````` ````` ````` `````
 
+/*| SizeForSlots: compute inSlots * inSlotSize, or fail on overflow so a
+**| corrupt slot count cannot cause a short allocation.
+|*/
+static mork_bool morkMap_SizeForSlots(morkEnv* ev, mork_num inSlots,
+                                      mork_num inSlotSize, mork_num* outSize) {
+  *outSize = 0;
+  if (!inSlots || !inSlotSize) {
+    return morkBool_kTrue;
+  }
+  if (inSlots > ((mork_num)-1 / inSlotSize)) {
+    ev->OutOfMemoryError();
+    return morkBool_kFalse;
+  }
+  *outSize = inSlots * inSlotSize;
+  return morkBool_kTrue;
+}
+
 void morkMap::clear_map(morkEnv* ev, nsIMdbHeap* ioSlotHeap) {
   mMap_Tag = 0;
   mMap_Seed = 0;
@@ -186,13 +203,15 @@ morkMap::morkMap(morkEnv* ev, const morkUsage& inUsage, nsIMdbHeap* ioHeap,
   }
 }
 
-void morkMap::NewIterOutOfSyncError(morkEnv* ev) {
+void morkMap::NewIterOutOfSyncError(morkEnv* ev) const {
   ev->NewError("map iter out of sync");
 }
 
-void morkMap::NewBadMapError(morkEnv* ev) { ev->NewError("bad morkMap tag"); }
+void morkMap::NewBadMapError(morkEnv* ev) const {
+  ev->NewError("bad morkMap tag");
+}
 
-void morkMap::NewSlotsUnderflowWarning(morkEnv* ev) {
+void morkMap::NewSlotsUnderflowWarning(morkEnv* ev) const {
   ev->NewWarning("member count underflow");
 }
 
@@ -207,6 +226,10 @@ void morkMap::InitMap(morkEnv* ev, mork_size inSlots) {
 
     if (this->new_arrays(ev, &old, inSlots)) mMap_Tag = morkMap_kTag;
 
+    // Unlike grow(), there is nothing to free here: "old" received copies
+    // of the map's initial null arrays (or was zeroed on failure), and
+    // morkHashArrays is a bag of raw pointer copies with no constructor,
+    // so wipe the struct instead of finalizing it.
     MORK_MEMSET(&old, 0, sizeof(morkHashArrays));  // do NOT finalize
   }
 }
@@ -307,8 +330,11 @@ void* morkMap::alloc(morkEnv* ev, mork_size inSize) {
 /*| new_keys: allocate an array of inSlots new keys filled with zero.
 |*/
 mork_u1* morkMap::new_keys(morkEnv* ev, mork_num inSlots) {
-  mork_num size = inSlots * this->FormKeySize();
-  return (mork_u1*)this->clear_alloc(ev, size);
+  mork_num size = 0;
+  if (morkMap_SizeForSlots(ev, inSlots, this->FormKeySize(), &size)) {
+    return (mork_u1*)this->clear_alloc(ev, size);
+  }
+  return (mork_u1*)0;
 }
 
 /*| new_values: allocate an array of inSlots new values filled with zero.
@@ -316,24 +342,31 @@ mork_u1* morkMap::new_keys(morkEnv* ev, mork_num inSlots) {
 |*/
 mork_u1* morkMap::new_values(morkEnv* ev, mork_num inSlots) {
   mork_u1* values = 0;
-  mork_num size = inSlots * this->FormValSize();
-  if (size) values = (mork_u1*)this->clear_alloc(ev, size);
+  mork_num size = 0;
+  if (morkMap_SizeForSlots(ev, inSlots, this->FormValSize(), &size) && size) {
+    values = (mork_u1*)this->clear_alloc(ev, size);
+  }
   return values;
 }
 
 mork_change* morkMap::new_changes(morkEnv* ev, mork_num inSlots) {
   mork_change* changes = 0;
-  mork_num size = inSlots * sizeof(mork_change);
-  if (size && mMap_Form.mMapForm_HoldChanges)
+  mork_num size = 0;
+  if (mMap_Form.mMapForm_HoldChanges &&
+      morkMap_SizeForSlots(ev, inSlots, sizeof(mork_change), &size) && size) {
     changes = (mork_change*)this->clear_alloc(ev, size);
+  }
   return changes;
 }
 
 /*| new_buckets: allocate an array of inSlots new buckets filled with zero.
 |*/
 morkAssoc** morkMap::new_buckets(morkEnv* ev, mork_num inSlots) {
-  mork_num size = inSlots * sizeof(morkAssoc*);
-  return (morkAssoc**)this->clear_alloc(ev, size);
+  mork_num size = 0;
+  if (morkMap_SizeForSlots(ev, inSlots, sizeof(morkAssoc*), &size)) {
+    return (morkAssoc**)this->clear_alloc(ev, size);
+  }
+  return (morkAssoc**)0;
 }
 
 /*| new_assocs: allocate an array of inSlots new assocs, with each assoc
@@ -341,7 +374,13 @@ morkAssoc** morkMap::new_buckets(morkEnv* ev, mork_num inSlots) {
 **| and the last element at the list tail. (morkMap::grow() needs this.)
 |*/
 morkAssoc* morkMap::new_assocs(morkEnv* ev, mork_num inSlots) {
-  mork_num size = inSlots * sizeof(morkAssoc);
+  mork_num size = 0;
+  // Unlike the other new_* helpers, a zero size must bail out here too:
+  // the linking code below starts at element inSlots - 1, which for zero
+  // slots means writing one element before the array.
+  if (!morkMap_SizeForSlots(ev, inSlots, sizeof(morkAssoc), &size) || !size) {
+    return (morkAssoc*)0;
+  }
   morkAssoc* assocs = (morkAssoc*)this->alloc(ev, size);
   if (assocs) /* able to allocate the array? */
   {
@@ -394,6 +433,12 @@ mork_bool morkMap::new_arrays(morkEnv* ev, morkHashArrays* old,
     mMap_Slots = inSlots;
   } else /* free the partial set of arrays that were actually allocated */
   {
+    // The new_* helpers may return null without setting an error (a zero
+    // size is not an allocation failure to them), but our callers only
+    // watch ev, so make sure the failure is visible there.
+    if (ev->Good()) {
+      ev->OutOfMemoryError();
+    }
     nsIMdbEnv* menv = ev->AsMdbEnv();
     nsIMdbHeap* heap = mMap_Heap;
     if (newBuckets) heap->Free(menv, newBuckets);
@@ -408,7 +453,7 @@ mork_bool morkMap::new_arrays(morkEnv* ev, morkHashArrays* old,
   return outNew;
 }
 
-/*| grow: make the map arrays bigger by 33%.  The old map is completely
+/*| grow: make the map arrays bigger by 100%.  The old map is completely
 **| full, or else we would not have called grow() to get more space.  This
 **| means the free list is empty, and also means every old key and value is in
 **| use in the old arrays.  So every key and value must be copied to the new
@@ -440,6 +485,14 @@ mork_bool morkMap::new_arrays(morkEnv* ev, morkHashArrays* old,
 mork_bool morkMap::grow(morkEnv* ev) {
   if (mMap_Heap) /* can we grow the map? */
   {
+    // A corrupt slot count may make the doubling below wrap around to a
+    // small number. new_arrays() would then hand back tiny arrays while
+    // the bulk MORK_MEMCPY further down still moves the old, huge key
+    // volume into them. Refuse up front and call it out of memory.
+    if (mMap_Slots > ((mork_num)-1 / 2)) {
+      ev->OutOfMemoryError();
+      return morkBool_kFalse;
+    }
     mork_num newSlots = (mMap_Slots * 2); /* +100% */
     morkHashArrays old; /* a place to temporarily hold all the old arrays */
     if (this->new_arrays(ev, &old, newSlots)) /* have more? */
@@ -541,6 +594,10 @@ mork_num morkMap::CutAll(morkEnv* ev) {
     morkAssoc* before = mMap_Assocs - 1; /* before first member */
     morkAssoc* assoc = before + slots;   /* the very last member */
 
+    // Cutting everything just re-threads the whole assoc array into the
+    // free list. The keys and values stay behind as ghost bytes; map
+    // membership never depended on their content, only on the bucket
+    // links, and the buckets are wiped below.
     ++mMap_Seed; /* note the map is changed */
 
     /* make the assoc array a linked list headed by first & tailed by last: */
@@ -711,8 +768,11 @@ mork_change* morkMapIter::First(morkEnv* ev, void* outKey, void* outVal) {
         break; /* end while loop */
       }
     }
-  } else
+  } else if (map) {
     map->NewBadMapError(ev);
+  } else {
+    ev->NilPointerError();
+  }
 
   return outFirst;
 }
@@ -777,8 +837,11 @@ mork_change* morkMapIter::Next(morkEnv* ev, void* outKey, void* outVal) {
       }
     } else
       map->NewIterOutOfSyncError(ev);
-  } else
+  } else if (map) {
     map->NewBadMapError(ev);
+  } else {
+    ev->NilPointerError();
+  }
 
   return outNext;
 }
@@ -803,8 +866,11 @@ mork_change* morkMapIter::Here(morkEnv* ev, void* outKey, void* outVal) {
       }
     } else
       map->NewIterOutOfSyncError(ev);
-  } else
+  } else if (map) {
     map->NewBadMapError(ev);
+  } else {
+    ev->NilPointerError();
+  }
 
   return outHere;
 }
@@ -842,8 +908,11 @@ mork_change* morkMapIter::CutHere(morkEnv* ev, void* outKey, void* outVal) {
       }
     } else
       map->NewIterOutOfSyncError(ev);
-  } else
+  } else if (map) {
     map->NewBadMapError(ev);
+  } else {
+    ev->NilPointerError();
+  }
 
   return outCutHere;
 }
