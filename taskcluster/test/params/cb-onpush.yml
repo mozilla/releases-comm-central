@@ -1,44 +1,44 @@
-app_version: '129.0'
+android_perftest_backstop: true
+app_version: '153.0'
 backstop: true
-base_ref: default
+base_ref: ''
 base_repository: https://hg.mozilla.org/mozilla-unified
-base_rev: 07b2916fb63bae8b0ad339dc50b0abeafb9207ae
-build_date: 1722275002
+base_rev: ''
+build_date: 1784538333
 build_number: 1
 comm_base_ref: default
 comm_base_repository: https://hg.mozilla.org/comm-unified
-comm_base_rev: b26ce873d09d53e6cfd546201a92e74d9f8ab90e
-comm_head_ref: 180bb5e1db5440906de55ba8962e48d0b2467a05
+comm_base_rev: d3abd0f53eb7653be2550458e2f2e1e77ecaedbb
+comm_head_ref: 40cad4f27e5a16645febb4a7cd47ba0c4937f46a
 comm_head_repository: https://hg.mozilla.org/releases/comm-beta
-comm_head_rev: 180bb5e1db5440906de55ba8962e48d0b2467a05
+comm_head_rev: 40cad4f27e5a16645febb4a7cd47ba0c4937f46a
 comm_src_path: comm/
 do_not_optimize: []
+dontbuild: false
 enable_always_target:
   - docker-image
 existing_tasks: {}
 files_changed:
-  - browser/locales/l10n-changesets.json
-  - mobile/locales/l10n-changesets.json
-  - comm/mail/base/test/browser/browser_getMessages_certError.js
-  - comm/mail/components/activity/modules/alertHook.sys.mjs
+  - comm/mail/locales/l10n-changesets.json
 filters:
   - target_tasks_method
-head_ref: FIREFOX_129_0b9_RELEASE
+head_git_rev: bd1abb789d3a25b39e8792be5d974cc8e7aaec73
+head_ref: FIREFOX_153_0b13_BUILD1
 head_repository: https://hg.mozilla.org/releases/mozilla-beta
-head_rev: 9496866ff16d0a4d437095f155fd10b3d12f3228
+head_rev: 92bc7000362605f1ec85578fa940ef1072f5963a
 head_tag: ''
 hg_branch: default
 level: '3'
 message: ''
-moz_build_date: '20240729174322'
+moz_build_date: '20260720090533'
 next_version: null
 optimize_strategies: null
 optimize_target_tasks: true
 owner: user@example.com
 phabricator_diff: null
 project: comm-beta
-pushdate: 1722275002
-pushlog_id: '4844'
+pushdate: 1784538333
+pushlog_id: '6000'
 release_enable_emefree: false
 release_enable_partner_attribution: false
 release_enable_partner_repack: false
@@ -56,4 +56,4 @@ test_manifest_loader: default
 try_mode: null
 try_options: null
 try_task_config: {}
-version: 129.0b6
+version: 153.0b10

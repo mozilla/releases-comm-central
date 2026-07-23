@@ -1,51 +1,47 @@
 android_perftest_backstop: true
-app_version: 130.0a1
-backstop: false
-base_ref: default
+app_version: 154.0a1
+backstop: true
+base_ref: ''
 base_repository: https://hg.mozilla.org/mozilla-unified
-base_rev: c756f74154bfee318b22bbd0f8d5e27dee83fcee
-build_date: 1722379520
+base_rev: ''
+build_date: 1784542790
 build_number: 1
 comm_base_ref: default
 comm_base_repository: https://hg.mozilla.org/comm-unified
-comm_base_rev: 6285185e781452924f2b43f85ffbc64e61ee4310
-comm_head_ref: c11e788c342418d508bad8725bdc159d3a4ab73e
+comm_base_rev: 24c49c0d4fa261aca92ee877a55bae5f27c56250
+comm_head_git_repository: https://github.com/thunderbird/thunderbird-desktop
+comm_head_git_rev: 0b26f97613ca8027154bab453d0d6c6c803aa604
+comm_head_ref: f5cf23b1cbe634119c73008f01d09194df7ead77
 comm_head_repository: https://hg.mozilla.org/comm-central
-comm_head_rev: c11e788c342418d508bad8725bdc159d3a4ab73e
+comm_head_rev: f5cf23b1cbe634119c73008f01d09194df7ead77
 comm_src_path: comm/
 do_not_optimize: []
+dontbuild: false
 enable_always_target:
   - docker-image
 existing_tasks: {}
 files_changed:
-  - modules/libpref/init/StaticPrefList.yaml
-  - comm/rust/.cargo/config.toml.in
-  - comm/rust/Cargo.lock
-  - comm/rust/Cargo.toml
-  - comm/rust/checksums.json
-  - comm/rust/gkrust/Cargo.toml
-  - comm/third_party/rust/audioipc2-server/.cargo-checksum.json
-  - comm/third_party/rust/audioipc2-server/src/server.rs
-  - comm/third_party/rust/audioipc2/.cargo-checksum.json
-  - comm/third_party/rust/audioipc2/Cargo.toml
+  - comm/build/dummy
 filters:
   - target_tasks_method
+head_git_repository: https://github.com/mozilla-releng/git-backing
+head_git_rev: 7fa9b602777418732e08b26d1ef6c9945c4bbd72
 head_ref: default
 head_repository: https://hg.mozilla.org/mozilla-central
-head_rev: c756f74154bfee318b22bbd0f8d5e27dee83fcee
+head_rev: 4c1ce8f04007e1ebcc15ee64c68b6461c41413f9
 head_tag: ''
 hg_branch: default
 level: '3'
 message: ''
-moz_build_date: '20240730224520'
+moz_build_date: '20260720101950'
 next_version: null
 optimize_strategies: null
 optimize_target_tasks: true
 owner: user@example.com
 phabricator_diff: null
 project: comm-central
-pushdate: 1722379520
-pushlog_id: '22370'
+pushdate: 1784542790
+pushlog_id: '25623'
 release_enable_emefree: false
 release_enable_partner_attribution: false
 release_enable_partner_repack: false
@@ -63,4 +59,4 @@ test_manifest_loader: default
 try_mode: null
 try_options: null
 try_task_config: {}
-version: 130.0a1
+version: 154.0a1
