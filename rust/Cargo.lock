@@ -2277,6 +2277,7 @@ dependencies = [
 name = "fontations_glue"
 version = "0.1.0"
 dependencies = [
+ "nsstring",
  "skrifa",
 ]
 
