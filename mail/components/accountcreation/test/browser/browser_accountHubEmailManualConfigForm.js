@@ -609,6 +609,160 @@ add_task(async function test_showPlainSecurityError() {
   subview.resetState();
 });
 
+add_task(async function test_adjustIncomingOAuthToHostname() {
+  const hostname = subview.querySelector("#manualIncomingHostname");
+  const authMethod = subview.querySelector("#manualIncomingAuthMethod");
+
+  const config = new AccountConfig();
+
+  const incomingTypes = ["imap", "pop3"];
+
+  for (const type of incomingTypes) {
+    // Protocol type testing.
+    config.incoming.type = type;
+    subview.setState(config);
+
+    Assert.ok(
+      subview.querySelector("#manualIncomingAuthMethodOAuth2").hidden,
+      "The incoming OAuth authentication method option should be hidden"
+    );
+
+    // Add a hostname that lets OAuth be available.
+    await fireInputEvent(hostname, "input", `${type}.gmail.com`);
+    Assert.ok(
+      !subview.querySelector("#manualIncomingAuthMethodOAuth2").hidden,
+      "The incoming OAuth authentication method option should be available"
+    );
+    Assert.ok(
+      subview.querySelector("#manualOutgoingAuthMethodOAuth2").hidden,
+      "The outgoing OAuth authentication method option should be hidden"
+    );
+
+    info("Select OAuth");
+    await SimpleTest.promiseFocus(browser.contentWindow);
+
+    let configUpdatedEventPromise = BrowserTestUtils.waitForEvent(
+      subview,
+      "config-updated"
+    );
+    const authSelectorMethodPromise =
+      BrowserTestUtils.waitForSelectPopupShown(window);
+    EventUtils.synthesizeMouseAtCenter(authMethod, {}, browser.contentWindow);
+
+    const authMethodSelectorPopup = await authSelectorMethodPromise;
+    const authMethodSelectorItems =
+      authMethodSelectorPopup.querySelectorAll("menuitem");
+
+    // #incomingAuthMethodOAuth2.
+    authMethodSelectorPopup.activateItem(authMethodSelectorItems[5]);
+    await BrowserTestUtils.waitForPopupEvent(authMethodSelectorPopup, "hidden");
+    await configUpdatedEventPromise;
+    Assert.equal(
+      authMethod.value,
+      Ci.nsMsgAuthMethod.OAuth2,
+      "The auth method should be set as OAuth2"
+    );
+
+    // Change the hostname so OAuth shouldn't be available, and check that the
+    // authentication method is changed to "Normal Password".
+    configUpdatedEventPromise = BrowserTestUtils.waitForEvent(
+      subview,
+      "config-updated"
+    );
+    await fireInputEvent(hostname, "input", "example.com");
+    await configUpdatedEventPromise;
+    Assert.equal(
+      authMethod.value,
+      Ci.nsMsgAuthMethod.passwordCleartext,
+      "The auth method should be set as Normal Password"
+    );
+    Assert.ok(
+      subview.querySelector("#manualIncomingAuthMethodOAuth2").hidden,
+      "The incoming OAuth authentication method option should be hidden"
+    );
+
+    subview.resetState();
+  }
+});
+
+add_task(async function test_adjustOutgoingOAuthToHostname() {
+  const hostname = subview.querySelector("#manualOutgoingHostname");
+  const authMethod = subview.querySelector("#manualOutgoingAuthMethod");
+
+  const config = new AccountConfig();
+
+  // SMTP Testing.
+  config.outgoing.type = "smtp";
+  subview.setState(config);
+
+  Assert.ok(
+    subview.querySelector("#manualOutgoingAuthMethodOAuth2").hidden,
+    "The outgoing OAuth authentication method option should be hidden"
+  );
+
+  // Add a hostname that lets OAuth be available.
+  await fireInputEvent(hostname, "input", "smtp.gmail.com");
+  Assert.ok(
+    !subview.querySelector("#manualOutgoingAuthMethodOAuth2").hidden,
+    "The outgoing OAuth authentication method option should be available"
+  );
+  Assert.ok(
+    subview.querySelector("#manualIncomingAuthMethodOAuth2").hidden,
+    "The incoming OAuth authentication method option should be hidden"
+  );
+
+  info("Select OAuth");
+  authMethod.scrollIntoView({
+    block: "start",
+    behavior: "instant",
+  });
+
+  let configUpdatedEventPromise = BrowserTestUtils.waitForEvent(
+    subview,
+    "config-updated"
+  );
+  await SimpleTest.promiseFocus(browser.contentWindow);
+
+  const authSelectorMethodPromise =
+    BrowserTestUtils.waitForSelectPopupShown(window);
+  EventUtils.synthesizeMouseAtCenter(authMethod, {}, browser.contentWindow);
+
+  const authMethodSelectorPopup = await authSelectorMethodPromise;
+  const authMethodSelectorItems =
+    authMethodSelectorPopup.querySelectorAll("menuitem");
+
+  // #outgoingAuthMethodOAuth2.
+  authMethodSelectorPopup.activateItem(authMethodSelectorItems[6]);
+  await BrowserTestUtils.waitForPopupEvent(authMethodSelectorPopup, "hidden");
+  await configUpdatedEventPromise;
+
+  Assert.equal(
+    authMethod.value,
+    Ci.nsMsgAuthMethod.OAuth2,
+    "The auth method should be set as OAuth2"
+  );
+
+  // Change the hostname so OAuth shouldn't be available, and check that the
+  // authentication method is changed to "Normal Password".
+  configUpdatedEventPromise = BrowserTestUtils.waitForEvent(
+    subview,
+    "config-updated"
+  );
+  await fireInputEvent(hostname, "input", "example.com");
+  await configUpdatedEventPromise;
+  Assert.equal(
+    authMethod.value,
+    Ci.nsMsgAuthMethod.passwordCleartext,
+    "The auth method should be set as Normal Password"
+  );
+  Assert.ok(
+    subview.querySelector("#manualOutgoingAuthMethodOAuth2").hidden,
+    "The outgoing OAuth authentication method option should be hidden"
+  );
+
+  subview.resetState();
+});
+
 /**
  * Sets value of input and fires event supplied in parameter.
  *

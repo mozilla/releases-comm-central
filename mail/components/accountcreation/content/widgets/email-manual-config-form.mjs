@@ -14,9 +14,13 @@ const { InputSanitizer } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/InputSanitizer.sys.mjs"
 );
 
+const { OAuth2Providers } = ChromeUtils.importESModule(
+  "resource:///modules/OAuth2Providers.sys.mjs"
+);
+
 const CONFIG_CHANGE_INPUT_DEBOUNCE_MS = 100;
 
-const { assert, standardPorts } = AccountCreationUtils;
+const { assert, gAccountSetupLogger, standardPorts } = AccountCreationUtils;
 
 import { AccountHubStep } from "./account-hub-step.mjs";
 import "./account-hub-select.mjs"; // eslint-disable-line import/no-unassigned-import
@@ -262,6 +266,8 @@ class EmailManualConfigForm extends AccountHubStep {
    * @returns {Promise<boolean>} Whether the form is valid.
    */
   async validate() {
+    this.#adjustOAuthToHostname(this.#currentConfig, true);
+    this.#adjustOAuthToHostname(this.#currentConfig, false);
     this.#clearQueuedConfigChange();
     const errors = this.#captureConfig({ showErrors: true });
     this.#isShowingErrors = !!errors.length;
@@ -319,6 +325,8 @@ class EmailManualConfigForm extends AccountHubStep {
       [0, 3, 4, 5, 6, 10],
       0
     );
+    this.#adjustOAuthToHostname(config, true);
+
     this.#incomingUsername.value = config.incoming.username;
 
     this.#outgoingHostname.value = config.outgoing.hostname;
@@ -340,6 +348,7 @@ class EmailManualConfigForm extends AccountHubStep {
       [0, 1, 3, 4, 5, 6, 10],
       0
     );
+    this.#adjustOAuthToHostname(config, false);
 
     // If a port number was specified other than "Auto".
     if (config.outgoing.port) {
@@ -496,6 +505,59 @@ class EmailManualConfigForm extends AccountHubStep {
   }
 
   /**
+   * Automatically adjust visibility of OAuth auth option and selected
+   * authentication for incoming and outgoing configurations based on
+   * hostname input.
+   *
+   * @param {AccountConfig} [accountConfig] - Complete AccountConfig.
+   * @param {boolean} isIncoming - If hostname is incoming.
+   */
+  #adjustOAuthToHostname(accountConfig, isIncoming) {
+    const config = accountConfig || this.#currentConfig;
+    let oauthDetails = undefined;
+    const protocol = isIncoming
+      ? config.incoming.type
+      : config.outgoing.type || "smtp";
+    const hostname = isIncoming
+      ? this.#incomingHostname.value
+      : this.#outgoingHostname.value;
+    const authenticationMethodSelect = isIncoming
+      ? this.#incomingAuthenticationMethod
+      : this.#outgoingAuthenticationMethod;
+    const oauthOption = isIncoming
+      ? this.querySelector("#manualIncomingAuthMethodOAuth2")
+      : this.querySelector("#manualOutgoingAuthMethodOAuth2");
+
+    try {
+      const host = InputSanitizer.hostname(hostname);
+      oauthDetails = OAuth2Providers.getHostnameDetails(host, protocol);
+      oauthOption.hidden = !oauthDetails;
+      gAccountSetupLogger.debug(
+        `OAuth2 details for server ${hostname} is,,
+        ${oauthDetails}`
+      );
+    } catch (error) {
+      oauthDetails = undefined;
+      oauthOption.hidden = true;
+    }
+
+    if (
+      !oauthDetails &&
+      authenticationMethodSelect.value == Ci.nsMsgAuthMethod.OAuth2
+    ) {
+      // If the hostname determined OAuth is not an option and its selected,
+      // reset the authentication option to "Normal Password".
+      authenticationMethodSelect.value = Ci.nsMsgAuthMethod.passwordCleartext;
+      const configDirection = isIncoming ? "incoming" : "outgoing";
+      config[configDirection].auth = InputSanitizer.integer(
+        authenticationMethodSelect.value
+      );
+    }
+
+    this.#currentConfig = config;
+  }
+
+  /**
    * Update the stored configuration from the current fields.
    *
    * @param {object} options
@@ -643,12 +705,26 @@ class EmailManualConfigForm extends AccountHubStep {
     this.#configChangeTimer = this.ownerDocument.documentGlobal.setTimeout(
       () => {
         this.#configChangeTimer = null;
-        this.#runConfigChanged();
-        if (currentTarget === this.#incomingPort) {
-          this.#adjustIncomingSSLToPort();
-        }
-        if (currentTarget === this.#outgoingPort) {
-          this.#adjustOutgoingSSLToPort();
+        switch (currentTarget) {
+          case this.#incomingPort:
+            this.#runConfigChanged();
+            this.#adjustIncomingSSLToPort();
+            break;
+          case this.#outgoingPort:
+            this.#runConfigChanged();
+            this.#adjustOutgoingSSLToPort();
+            break;
+          case this.#incomingHostname:
+            this.#adjustOAuthToHostname(this.#currentConfig, true);
+            this.#runConfigChanged();
+            break;
+          case this.#outgoingHostname:
+            this.#adjustOAuthToHostname(this.#currentConfig, false);
+            this.#runConfigChanged();
+            break;
+          default:
+            this.#runConfigChanged();
+            break;
         }
       },
       CONFIG_CHANGE_INPUT_DEBOUNCE_MS
