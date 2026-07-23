@@ -811,8 +811,7 @@ nsresult nsMsgMdnGenerator::InitAndProcess(bool* needToAskUser) {
           nsCString identEmail;
           ident->GetEmail(identEmail);
           if (!mailTo.IsEmpty() && !identEmail.IsEmpty() &&
-              FindInReadable(identEmail, mailTo,
-                             nsCaseInsensitiveCStringComparator)) {
+              CaseInsensitiveFindInReadable(identEmail, mailTo)) {
             m_identity = ident;
             break;
           }
@@ -823,8 +822,7 @@ nsresult nsMsgMdnGenerator::InitAndProcess(bool* needToAskUser) {
             nsCString identEmail;
             ident->GetEmail(identEmail);
             if (!mailCC.IsEmpty() && !identEmail.IsEmpty() &&
-                FindInReadable(identEmail, mailCC,
-                               nsCaseInsensitiveCStringComparator)) {
+                CaseInsensitiveFindInReadable(identEmail, mailCC)) {
               m_identity = ident;
               break;
             }

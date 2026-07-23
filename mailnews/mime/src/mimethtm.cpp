@@ -200,8 +200,7 @@ void MimeInlineTextHTML_insert_lang_div(MimeObject* obj, nsCString& message) {
   message.BeginReading(begin);
   message.EndReading(end);
   nsACString::const_iterator messageBegin = begin;
-  if (RFindInReadable("</body>"_ns, begin, end,
-                      nsCaseInsensitiveCStringComparator)) {
+  if (CaseInsensitiveRFindInReadable("</body>"_ns, begin, end)) {
     message.InsertLiteral("</div>", begin - messageBegin);
   }
 }

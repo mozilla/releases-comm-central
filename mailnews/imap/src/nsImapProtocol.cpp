@@ -3676,15 +3676,13 @@ void nsImapProtocol::FetchMessage(const nsCString& messageIds,
           nsCString arbitraryHeaders;
           GetArbitraryHeadersToDownload(arbitraryHeaders);
           for (uint32_t i = 0; i < mCustomDBHeaders.Length(); i++) {
-            if (!FindInReadable(mCustomDBHeaders[i], arbitraryHeaders,
-                                nsCaseInsensitiveCStringComparator)) {
+            if (!CaseInsensitiveFindInReadable(mCustomDBHeaders[i], arbitraryHeaders)) {
               if (!arbitraryHeaders.IsEmpty()) arbitraryHeaders.Append(' ');
               arbitraryHeaders.Append(mCustomDBHeaders[i]);
             }
           }
           for (uint32_t i = 0; i < mCustomHeaders.Length(); i++) {
-            if (!FindInReadable(mCustomHeaders[i], arbitraryHeaders,
-                                nsCaseInsensitiveCStringComparator)) {
+            if (!CaseInsensitiveFindInReadable(mCustomHeaders[i], arbitraryHeaders)) {
               if (!arbitraryHeaders.IsEmpty()) arbitraryHeaders.Append(' ');
               arbitraryHeaders.Append(mCustomHeaders[i]);
             }
@@ -5114,9 +5112,8 @@ void nsImapProtocol::DiscoverMailboxSpec(nsImapMailboxSpec* adoptedBoxSpec) {
 
         // Don't set the Trash flag if not using the Trash model
         if (GetDeleteIsMoveToTrash() && !onlineTrashFolderExists &&
-            FindInReadable(m_trashFolderPath,
-                           adoptedBoxSpec->mAllocatedPathName,
-                           nsCaseInsensitiveCStringComparator)) {
+            CaseInsensitiveFindInReadable(m_trashFolderPath,
+                           adoptedBoxSpec->mAllocatedPathName)) {
           bool trashExists = false;
           if (StringBeginsWith(m_trashFolderPath, "INBOX/"_ns,
                                nsCaseInsensitiveCStringComparator)) {
@@ -7725,9 +7722,8 @@ void nsImapProtocol::RenameMailbox(const char* existingName,
 bool nsImapProtocol::GetListSubscribedIsBrokenOnServer() {
   // This is a workaround for an issue with LIST(SUBSCRIBED) crashing older
   // versions of Zimbra
-  if (FindInReadable("\"NAME\" \"Zimbra\""_ns,
-                     GetServerStateParser().GetServerID(),
-                     nsCaseInsensitiveCStringComparator)) {
+  if (CaseInsensitiveFindInReadable("\"NAME\" \"Zimbra\""_ns,
+                     GetServerStateParser().GetServerID())) {
     nsCString serverID(GetServerStateParser().GetServerID());
     int start = serverID.LowerCaseFindASCII("\"version\" \"") + 11;
     int length = serverID.LowerCaseFindASCII("\" ", start);

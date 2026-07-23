@@ -395,8 +395,7 @@ NS_IMETHODIMP nsLDAPURL::AddAttribute(const nsACString& aAttribute) {
     // Check to see if the attribute is already stored. If it is, then also
     // check to see if it is the last attribute in the string, or if the next
     // character is a comma, this means we won't match substrings.
-    if (FindInReadable(findAttribute, mAttributes,
-                       nsCaseInsensitiveCStringComparator)) {
+    if (CaseInsensitiveFindInReadable(findAttribute, mAttributes)) {
       return NS_OK;
     }
 
@@ -421,8 +420,7 @@ NS_IMETHODIMP nsLDAPURL::RemoveAttribute(const nsACString& aAttribute) {
   findAttribute.Append(aAttribute);
   findAttribute.Append(',');
 
-  if (!FindInReadable(findAttribute, mAttributes,
-                      nsCaseInsensitiveCStringComparator)) {
+  if (!CaseInsensitiveFindInReadable(findAttribute, mAttributes)) {
     return NS_OK;
   }
   if (mAttributes.Equals(findAttribute, nsCaseInsensitiveCStringComparator)) {
@@ -448,8 +446,7 @@ NS_IMETHODIMP nsLDAPURL::HasAttribute(const nsACString& aAttribute,
   findAttribute.Append(aAttribute);
   findAttribute.Append(',');
 
-  *_retval = FindInReadable(findAttribute, mAttributes,
-                            nsCaseInsensitiveCStringComparator);
+  *_retval = CaseInsensitiveFindInReadable(findAttribute, mAttributes);
   return NS_OK;
 }
 

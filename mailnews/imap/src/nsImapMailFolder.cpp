@@ -4482,15 +4482,12 @@ nsresult nsImapMailFolder::HandleCustomFlags(nsMsgKey msgKey,
   // ### TODO: we really should parse the keywords into space delimited keywords
   // before checking
   // Mac Mail, Yahoo uses "NotJunk"
-  if (FindInReadable("NonJunk"_ns, keywords,
-                     nsCaseInsensitiveCStringComparator) ||
-      FindInReadable("NotJunk"_ns, keywords,
-                     nsCaseInsensitiveCStringComparator)) {
+  if (CaseInsensitiveFindInReadable("NonJunk"_ns, keywords) ||
+      CaseInsensitiveFindInReadable("NotJunk"_ns, keywords)) {
     nsAutoCString msgJunkScore;
     msgJunkScore.AppendInt(nsIJunkMailPlugin::IS_HAM_SCORE);
     mDatabase->SetStringProperty(msgKey, "junkscore", msgJunkScore);
-  } else if (FindInReadable("Junk"_ns, keywords,
-                            nsCaseInsensitiveCStringComparator)) {
+  } else if (CaseInsensitiveFindInReadable("Junk"_ns, keywords)) {
     uint32_t newFlags;
     dbHdr->AndFlags(~nsMsgMessageFlags::New, &newFlags);
     nsAutoCString msgJunkScore;
@@ -8797,8 +8794,7 @@ nsresult nsImapMailFolder::GetOfflineMsgFolder(nsMsgKey msgKey,
           if (labelNames[i].EqualsLiteral("\"\\\\Sent\""))
             rv = rootFolder->GetFolderWithFlags(nsMsgFolderFlags::SentMail,
                                                 getter_AddRefs(subMsgFolder));
-          if (FindInReadable("[Imap]/"_ns, labelNames[i],
-                             nsCaseInsensitiveCStringComparator)) {
+          if (CaseInsensitiveFindInReadable("[Imap]/"_ns, labelNames[i])) {
             labelNames[i].ReplaceSubstring("[Imap]/", "");
             imapRootFolder->FindOnlineSubFolder(labelNames[i],
                                                 getter_AddRefs(subFolder));

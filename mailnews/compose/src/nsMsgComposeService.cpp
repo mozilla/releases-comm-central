@@ -931,10 +931,8 @@ NS_IMETHODIMP nsMsgComposeService::ReplyWithTemplate(
     nsAutoCString identityEmail;
     anIdentity->GetEmail(identityEmail);
 
-    if (FindInReadable(identityEmail, recipients,
-                       nsCaseInsensitiveCStringComparator) ||
-        FindInReadable(identityEmail, ccList,
-                       nsCaseInsensitiveCStringComparator)) {
+    if (CaseInsensitiveFindInReadable(identityEmail, recipients) ||
+        CaseInsensitiveFindInReadable(identityEmail, ccList)) {
       identity = anIdentity;
       break;
     }
