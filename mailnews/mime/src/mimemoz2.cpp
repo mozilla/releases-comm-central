@@ -745,8 +745,11 @@ static char* mime_file_type(const char* filename, MimeClosure stream_closure) {
         do_GetService(NS_MIMESERVICE_CONTRACTID, &rv));
     if (mimeFinder) {
       nsAutoCString type;
-      mimeFinder->GetTypeFromExtension(nsDependentCString(ext), type);
-      retType = ToNewCString(type);
+      rv = mimeFinder->GetTypeFromExtension(nsDependentCString(ext), type);
+      // Never return an empty MIME type.
+      if (NS_SUCCEEDED(rv) && !type.IsEmpty()) {
+        retType = ToNewCString(type);
+      }
     }
   }
 

@@ -885,10 +885,11 @@ MimeObject* mime_create(const char* content_type, MimeHeaders* hdrs,
     goto CREATE;
   }
 
-  /* There are some clients send out all attachments with a content-type
-   of application/octet-stream.  So, if we have an octet-stream attachment,
-   try to guess what type it really is based on the file extension.  I HATE
-   that we have to do this...
+  /* Let's reconstruct the real content type from the filename extension
+   via native handlers, because some clients unfortunately declare
+   every attachment as application/octet-stream.
+   Keep in mind that these may return different results based on platform
+   and installed software.
   */
   if (hdrs && opts && opts->file_type_fn &&
 
@@ -904,29 +905,38 @@ MimeObject* mime_create(const char* content_type, MimeHeaders* hdrs,
     char* name = MimeHeaders_get_name(hdrs, opts);
     if (name) {
       override_content_type = opts->file_type_fn(name, opts->stream_closure);
+      // We ignore unknown or invalid lookup results here to ensure that
+      // the pre-existing type survives.
+      if (!override_content_type || !*override_content_type ||
+          !PL_strcasecmp(override_content_type, UNKNOWN_CONTENT_TYPE)) {
+        PR_FREEIF(override_content_type);
+      }
+
       // appledouble isn't a valid override content type, and makes
       // attachments invisible.
-      if (!PL_strcasecmp(override_content_type, MULTIPART_APPLEDOUBLE))
-        override_content_type = nullptr;
+      if (override_content_type &&
+          !PL_strcasecmp(override_content_type, MULTIPART_APPLEDOUBLE)) {
+        PR_FREEIF(override_content_type);
+      }
       PR_FREEIF(name);
 
       // Workaround for saving '.eml" file encoded with base64.
       // Do not override with message/rfc822 whenever Transfer-Encoding is
       // base64 since base64 encoding of message/rfc822 is invalid.
       // Our MimeMessageClass has no capability to decode it.
-      if (!PL_strcasecmp(override_content_type, MESSAGE_RFC822)) {
+      if (override_content_type &&
+          !PL_strcasecmp(override_content_type, MESSAGE_RFC822)) {
         nsCString encoding;
         encoding.Adopt(MimeHeaders_get(hdrs, HEADER_CONTENT_TRANSFER_ENCODING,
                                        true, false));
-        if (encoding.LowerCaseEqualsLiteral(ENCODING_BASE64))
-          override_content_type = nullptr;
+        if (encoding.LowerCaseEqualsLiteral(ENCODING_BASE64)) {
+          PR_FREEIF(override_content_type);
+        }
       }
 
-      // If we get here and it is not the unknown content type from the
-      // file name, let's do some better checking not to inline something bad
-      if (override_content_type && *override_content_type &&
-          (PL_strcasecmp(override_content_type, UNKNOWN_CONTENT_TYPE)))
-        content_type = override_content_type;
+      // Override the pre-existing content type of a body part
+      // only if we have a valid replacement.
+      if (override_content_type) content_type = override_content_type;
     }
   }
 
