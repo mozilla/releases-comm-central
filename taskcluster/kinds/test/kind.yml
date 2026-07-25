@@ -29,7 +29,8 @@ task-defaults:
     run-on-repo-type: [hg]
     attributes:
         retrigger: true
-    use-python: default
+    use-python: system
+    use-uv: false
     optimization:
         by-test-platform:
             .*-tsan.*/opt:
