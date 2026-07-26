@@ -91,6 +91,14 @@ add_setup(async function () {
   headertoFieldMe = bundle.GetStringFromName("headertoFieldMe");
 });
 
+registerCleanupFunction(function () {
+  folder.deleteSelf(null);
+  decoyFolder.deleteSelf(null);
+  localAccount.incomingServer.rootFolder.emptyTrash(null);
+  ensure_no_card_exists(myEmail);
+  ensure_no_card_exists(friendEmail);
+});
+
 function ensure_single_identity() {
   if (localAccount.identities.length > 1) {
     localAccount.removeIdentity(secondIdentity);

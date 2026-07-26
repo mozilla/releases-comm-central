@@ -921,56 +921,55 @@ add_task(async function testRunAt() {
   extension.startup();
   await extension.awaitMessage("Ready");
 
-  function verifyResult(result, expected_individual) {
-    const expected_standard = [
+  function verifyResult(result, expectedText) {
+    // Scripts can run at a later phase than requested, but not an earlier one.
+    const runAtPhases = [
       {
         runAt: "document_start",
-        readyState: "loading",
-        document: true,
-        body: false,
+        readyState: ["loading", "interactive", "complete"],
       },
       {
         runAt: "document_end",
-        readyState: "interactive",
-        document: true,
-        body: true,
+        readyState: ["interactive", "complete"],
       },
       {
         runAt: "document_idle",
-        readyState: "complete",
-        document: true,
-        body: true,
+        readyState: ["complete"],
       },
     ];
+    // What we expect to have, given the phase value returned.
+    const documentStates = {
+      loading: { document: true, body: false, textContent: "" },
+      interactive: { document: true, body: true, textContent: expectedText },
+      complete: { document: true, body: true, textContent: expectedText },
+    };
+
     for (let i = 0; i < result.length; i++) {
       Assert.equal(
-        expected_standard[i].runAt,
         result[i].runAt,
-        `The 'runAt' value for state #${i} should be correct`
+        runAtPhases[i].runAt,
+        `The 'runAt' value at ${runAtPhases[i].runAt} should be correct`
       );
-      Assert.equal(
-        expected_standard[i].readyState,
-        result[i].readyState,
-        `The 'readyState' value at state #${i} should be correct`
+      Assert.ok(
+        runAtPhases[i].readyState.includes(result[i].readyState),
+        `The 'readyState' value at ${runAtPhases[i].runAt} should be one of [${runAtPhases[i].readyState}]`
       );
+
+      const expectedState = documentStates[result[i].readyState];
       Assert.equal(
-        expected_standard[i].document,
         result[i].document,
-        `The document element at state #${i} ${
-          expected_standard[i].document ? "should" : "should not"
-        } exist`
+        expectedState.document,
+        `The document element at ${runAtPhases[i].runAt} ${runAtPhases[i].document ? "should" : "should not"} exist`
       );
       Assert.equal(
-        expected_standard[i].body,
         result[i].body,
-        `The body element at state #${i} ${
-          expected_standard[i].body ? "should" : "should not"
-        } exist`
+        expectedState.body,
+        `The body element at ${runAtPhases[i].runAt} ${runAtPhases[i].body ? "should" : "should not"} exist`
       );
       Assert.equal(
-        expected_individual[i].textContent.trim(),
         result[i].textContent.trim(),
-        `The content at state #${i} should be correct`
+        expectedState.textContent,
+        `The content at ${runAtPhases[i].runAt} should be correct`
       );
     }
   }
@@ -982,11 +981,7 @@ add_task(async function testRunAt() {
     extension.awaitMessage("ScriptLoaded:document_idle"),
   ]);
   gDefaultAbout3Pane.threadTree.selectedIndex = 3;
-  verifyResult(await firstLoadPromise, [
-    { textContent: "" },
-    { textContent: "Hello Pete Price!" },
-    { textContent: "Hello Pete Price!" },
-  ]);
+  verifyResult(await firstLoadPromise, "Hello Pete Price!");
 
   // Select a different message.
   const secondLoadPromise = Promise.all([
@@ -995,11 +990,7 @@ add_task(async function testRunAt() {
     extension.awaitMessage("ScriptLoaded:document_idle"),
   ]);
   gDefaultAbout3Pane.threadTree.selectedIndex = 4;
-  verifyResult(await secondLoadPromise, [
-    { textContent: "" },
-    { textContent: "Hello Neil Nagel!" },
-    { textContent: "Hello Neil Nagel!" },
-  ]);
+  verifyResult(await secondLoadPromise, "Hello Neil Nagel!");
 
   // Open the message in a new tab.
   const thirdLoadPromise = Promise.all([
@@ -1008,11 +999,7 @@ add_task(async function testRunAt() {
     extension.awaitMessage("ScriptLoaded:document_idle"),
   ]);
   const messageTab = await openMessageInTab(gMessages.at(-6));
-  verifyResult(await thirdLoadPromise, [
-    { textContent: "" },
-    { textContent: "Hello Lilia Lowe!" },
-    { textContent: "Hello Lilia Lowe!" },
-  ]);
+  verifyResult(await thirdLoadPromise, "Hello Lilia Lowe!");
   Assert.equal(gDefaultTabmail.tabInfo.length, 2);
 
   // Open a content tab. The message display scripts should not be injected.
@@ -1036,11 +1023,7 @@ add_task(async function testRunAt() {
     extension.awaitMessage("ScriptLoaded:document_idle"),
   ]);
   const newWindow = await openMessageInWindow(gMessages.at(-7));
-  verifyResult(await fourthLoadPromise, [
-    { textContent: "" },
-    { textContent: "Hello Johnny Jones!" },
-    { textContent: "Hello Johnny Jones!" },
-  ]);
+  verifyResult(await fourthLoadPromise, "Hello Johnny Jones!");
 
   // Unregister.
   extension.sendMessage("Unregister");

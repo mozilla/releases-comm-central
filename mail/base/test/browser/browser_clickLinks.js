@@ -54,13 +54,9 @@ add_task(async function click_elements() {
   const browser = aboutMessage.getMessagePaneBrowser();
   browser.focus();
 
-  const messageBody = browser.contentDocument.body;
-  const a_elements = messageBody.getElementsByTagName("a");
-  const button_elements = messageBody.getElementsByTagName("button");
-
-  const click_element = async element => {
+  const click_element = async selector => {
     const openedLinkPromise = MockExternalProtocolService.promiseLoad();
-    EventUtils.synthesizeMouseAtCenter(element, {}, element.documentGlobal);
+    BrowserTestUtils.synthesizeMouseAtCenter(selector, {}, browser);
     Assert.equal(
       await openedLinkPromise,
       "https://www.example.com/",
@@ -69,8 +65,8 @@ add_task(async function click_elements() {
     MockExternalProtocolService.reset();
   };
 
-  await click_element(a_elements[0]);
-  await click_element(button_elements[0]);
-  await click_element(button_elements[1]);
-  await click_element(button_elements[2]);
+  await click_element("a#a1");
+  await click_element("button#button1");
+  await click_element("button#button2");
+  await click_element("button#button3");
 });

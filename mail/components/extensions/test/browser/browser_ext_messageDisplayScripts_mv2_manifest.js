@@ -158,22 +158,20 @@ add_task(async function test_manifest_message_display_scripts_runAt() {
   const startResult = await extension.awaitMessage(
     "ScriptLoaded:document_start"
   );
-  Assert.equal(
-    startResult.readyState,
-    "loading",
-    "document_start should run during loading"
+  Assert.ok(
+    ["loading", "interactive", "complete"].includes(startResult.readyState),
+    "The 'readyState' value at document_start should be one of [loading, interactive, complete]"
   );
   Assert.equal(
     startResult.body,
-    false,
-    "document_start should not have a body"
+    startResult.readyState != "loading",
+    "document_start should not have a body if it is in the loading state"
   );
 
   const endResult = await extension.awaitMessage("ScriptLoaded:document_end");
-  Assert.equal(
-    endResult.readyState,
-    "interactive",
-    "document_end should run during interactive"
+  Assert.ok(
+    ["interactive", "complete"].includes(endResult.readyState),
+    "The 'readyState' value at document_end should be one of [interactive, complete]"
   );
   Assert.equal(endResult.body, true, "document_end should have a body");
 
@@ -181,7 +179,7 @@ add_task(async function test_manifest_message_display_scripts_runAt() {
   Assert.equal(
     idleResult.readyState,
     "complete",
-    "document_idle should run during complete"
+    "The 'readyState' value at document_idle should be complete"
   );
   Assert.equal(idleResult.body, true, "document_idle should have a body");
 

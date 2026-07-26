@@ -193,6 +193,12 @@ async function assertClose(fromTab, closeMethod, switchToTab, closingTabs) {
   }
   fromTab.node.scrollIntoView({ block: "start", behavior: "instant" });
   await closeMethod(fromTab.node);
+  await BrowserTestUtils.waitForMutationCondition(
+    document.getElementById("tabmail-tabs"),
+    { childList: true, subtree: true },
+    () => !closingTabs[0].node.parentNode
+  );
+
   for (const tab of closingTabs) {
     Assert.ok(
       !tab.node.parentNode,

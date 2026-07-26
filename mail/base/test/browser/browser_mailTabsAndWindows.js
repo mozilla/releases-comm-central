@@ -92,11 +92,11 @@ add_task(async function testTabs() {
 
   Assert.ok(
     !firstWebBrowser.docShellIsActive,
-    "first web browser should NOT be visible"
+    "first web browser should NOT be active"
   );
   Assert.ok(
     !firstMessagePane.docShellIsActive,
-    "first message browser should NOT be visible"
+    "first message pane browser should NOT be active"
   );
 
   const { folderTree, threadTree, messagePane, paneLayout } =
@@ -123,11 +123,17 @@ add_task(async function testTabs() {
   Assert.equal(firstTab.linkedBrowser, firstMessagePane);
   Assert.ok(
     !firstWebBrowser.docShellIsActive,
-    "first web browser should NOT be visible"
+    "first web browser should NOT be active"
   );
   Assert.ok(
     firstMessagePane.docShellIsActive,
-    "first message browser should be visible"
+    "first message pane browser should be active"
+  );
+  await ensureBrowserLoaded(firstMessagePane);
+  Assert.equal(
+    firstMessagePane.remoteType,
+    null,
+    "first message pane browser should not be a remote browser"
   );
 
   Assert.ok(BrowserTestUtils.isVisible(folderTree));
@@ -181,11 +187,11 @@ add_task(async function testTabs() {
   Assert.equal(firstTab.linkedBrowser, null);
   Assert.ok(
     !firstWebBrowser.docShellIsActive,
-    "first web browser should NOT be visible"
+    "first web browser should NOT be active"
   );
   Assert.ok(
     !firstMessagePane.docShellIsActive,
-    "first message browser should NOT be visible"
+    "first message pane browser should NOT be active"
   );
 
   info("Load a web page.");
@@ -210,11 +216,11 @@ add_task(async function testTabs() {
   Assert.equal(firstTab.linkedBrowser, firstWebBrowser);
   Assert.ok(
     firstWebBrowser.docShellIsActive,
-    "first web browser should be visible"
+    "first web browser should be active"
   );
   Assert.ok(
     !firstMessagePane.docShellIsActive,
-    "first message browser should NOT be visible"
+    "first message pane browser should NOT be active"
   );
 
   info("Go back to a single selection.");
@@ -232,11 +238,16 @@ add_task(async function testTabs() {
   Assert.equal(firstTab.linkedBrowser, firstMessagePane);
   Assert.ok(
     !firstWebBrowser.docShellIsActive,
-    "first web browser should NOT be visible"
+    "first web browser should NOT be active"
   );
   Assert.ok(
     firstMessagePane.docShellIsActive,
-    "first message browser should be visible"
+    "first message pane browser should be active"
+  );
+  Assert.equal(
+    firstMessagePane.remoteType,
+    null,
+    "first message pane browser should not be a remote browser"
   );
 
   Services.prefs.setBoolPref("mail.tabs.loadInBackground", true);
@@ -286,11 +297,11 @@ add_task(async function testTabs() {
 
   Assert.ok(
     !secondWebBrowser.docShellIsActive,
-    "second web browser should NOT be visible"
+    "second web browser should NOT be active"
   );
   Assert.ok(
     !secondMessagePane.docShellIsActive,
-    "second message browser should NOT be visible"
+    "second message pane browser should NOT be active"
   );
 
   tabmail.switchToTab(1);
@@ -308,19 +319,19 @@ add_task(async function testTabs() {
 
   Assert.ok(
     !secondWebBrowser.docShellIsActive,
-    "second web browser should NOT be visible"
+    "second web browser should NOT be active"
   );
   Assert.ok(
     !secondMessagePane.docShellIsActive,
-    "second message browser should NOT be visible"
+    "second message pane browser should NOT be active"
   );
   Assert.ok(
     !firstWebBrowser.docShellIsActive,
-    "first web browser should NOT be visible"
+    "first web browser should NOT be active"
   );
   Assert.ok(
     !firstMessagePane.docShellIsActive,
-    "first message browser should NOT be visible"
+    "first message pane browser should NOT be active"
   );
 
   secondChromeBrowser.contentWindow.threadTree.selectedIndex = 0;
@@ -331,11 +342,17 @@ add_task(async function testTabs() {
   );
   Assert.ok(
     !secondWebBrowser.docShellIsActive,
-    "second web browser should NOT be visible"
+    "second web browser should NOT be active"
   );
   Assert.ok(
     secondMessagePane.docShellIsActive,
-    "second message browser should be visible"
+    "second message pane browser should be active"
+  );
+  await ensureBrowserLoaded(secondMessagePane);
+  Assert.equal(
+    secondMessagePane.remoteType,
+    null,
+    "second message pane browser should not be a remote browser"
   );
 
   Assert.equal(secondChromeBrowser.contentWindow.tabOrWindow, secondTab);
@@ -359,7 +376,7 @@ add_task(async function testTabs() {
 
   Assert.ok(
     !thirdMessagePane.docShellIsActive,
-    "third message browser should NOT be visible"
+    "third message pane browser should NOT be active"
   );
 
   tabmail.switchToTab(2);
@@ -373,15 +390,20 @@ add_task(async function testTabs() {
 
   Assert.ok(
     thirdMessagePane.docShellIsActive,
-    "third message browser should be visible"
+    "third message pane browser should be active"
+  );
+  Assert.equal(
+    thirdMessagePane.remoteType,
+    null,
+    "third message pane browser should not be a remote browser"
   );
   Assert.ok(
     !secondWebBrowser.docShellIsActive,
-    "second web browser should NOT be visible"
+    "second web browser should NOT be active"
   );
   Assert.ok(
     !secondMessagePane.docShellIsActive,
-    "second message browser should NOT be visible"
+    "second message pane browser should NOT be active"
   );
 
   Assert.equal(thirdTab.folder, folderB);
@@ -409,7 +431,7 @@ add_task(async function testTabs() {
 
   Assert.ok(
     !fourthMessagePane.docShellIsActive,
-    "fourth message browser should NOT be visible"
+    "fourth message pane browser should NOT be active"
   );
 
   tabmail.switchToTab(3);
@@ -423,11 +445,16 @@ add_task(async function testTabs() {
 
   Assert.ok(
     fourthMessagePane.docShellIsActive,
-    "fourth message browser should be visible"
+    "fourth message pane browser should be active"
+  );
+  Assert.equal(
+    fourthMessagePane.remoteType,
+    null,
+    "fourth message pane browser should not be a remote browser"
   );
   Assert.ok(
     !thirdMessagePane.docShellIsActive,
-    "third message browser should NOT be visible"
+    "third message pane browser should NOT be active"
   );
 
   Assert.equal(fourthChromeBrowser.contentWindow.tabOrWindow, fourthTab);
@@ -464,11 +491,16 @@ add_task(async function testTabs() {
   Assert.equal(firstTab.linkedBrowser, firstMessagePane);
   Assert.ok(
     !firstWebBrowser.docShellIsActive,
-    "first web browser should NOT be visible"
+    "first web browser should NOT be active"
   );
   Assert.ok(
     firstMessagePane.docShellIsActive,
-    "first message browser should be visible"
+    "first message pane browser should be active"
+  );
+  Assert.equal(
+    firstMessagePane.remoteType,
+    null,
+    "first message pane browser should not be a remote browser"
   );
 
   Services.prefs.setBoolPref("mail.tabs.loadInBackground", false);
@@ -493,6 +525,15 @@ add_task(async function testTabs() {
   const secondOpenedMessagePane =
     secondOpenedChromeBrowser.contentDocument.getElementById("messagepane");
   await ensureBrowserLoaded(secondOpenedMessagePane);
+  Assert.ok(
+    secondOpenedMessagePane.docShellIsActive,
+    "second opened message pane browser should be active"
+  );
+  Assert.equal(
+    secondOpenedMessagePane.remoteType,
+    null,
+    "second opened message pane browser not should be a remote browser"
+  );
   Assert.equal(
     secondOpenedMessagePane.currentURI.spec,
     messageToURL(messagesB[0])
@@ -519,21 +560,21 @@ add_task(async function testTabs() {
   const contentTabBrowser = contentTab.browser;
   Assert.ok(
     !contentTabBrowser.docShellIsActive,
-    "content tab browser should NOT be visible"
+    "content tab browser should NOT be active"
   );
 
   tabmail.switchToTab(contentTab);
   Assert.ok(
     contentTabBrowser.docShellIsActive,
-    "content tab browser should be visible"
+    "content tab browser should be active"
   );
   Assert.ok(
     !firstWebBrowser.docShellIsActive,
-    "first web browser should NOT be visible"
+    "first web browser should NOT be active"
   );
   Assert.ok(
     !firstMessagePane.docShellIsActive,
-    "first message browser should NOT be visible"
+    "first message pane browser should NOT be active"
   );
 
   info("While in the background, load a web page.");
@@ -541,39 +582,39 @@ add_task(async function testTabs() {
   messagePane.displayWebPage("https://example.org/");
   Assert.ok(
     !firstWebBrowser.docShellIsActive,
-    "first web browser should NOT be visible"
+    "first web browser should NOT be active"
   );
   Assert.ok(
     !firstMessagePane.docShellIsActive,
-    "first message browser should NOT be visible"
+    "first message pane browser should NOT be active"
   );
 
   tabmail.switchToTab(firstTab);
   Assert.ok(
     !contentTabBrowser.docShellIsActive,
-    "content tab browser should NOT be visible"
+    "content tab browser should NOT be active"
   );
   Assert.ok(
     firstWebBrowser.docShellIsActive,
-    "first web browser should be visible"
+    "first web browser should be active"
   );
   Assert.ok(
     !firstMessagePane.docShellIsActive,
-    "first message browser should NOT be visible"
+    "first message pane browser should NOT be active"
   );
 
   tabmail.switchToTab(contentTab);
   Assert.ok(
     contentTabBrowser.docShellIsActive,
-    "content tab browser should be visible"
+    "content tab browser should be active"
   );
   Assert.ok(
     !firstWebBrowser.docShellIsActive,
-    "first web browser should NOT be visible"
+    "first web browser should NOT be active"
   );
   Assert.ok(
     !firstMessagePane.docShellIsActive,
-    "first message browser should NOT be visible"
+    "first message pane browser should NOT be active"
   );
 
   info("While in the background, load a message.");
@@ -581,27 +622,32 @@ add_task(async function testTabs() {
   threadTree.selectedIndex = 1;
   Assert.ok(
     !firstWebBrowser.docShellIsActive,
-    "first web browser should NOT be visible"
+    "first web browser should NOT be active"
   );
   Assert.ok(
     !firstMessagePane.docShellIsActive,
-    "first message browser should NOT be visible"
+    "first message pane browser should NOT be active"
   );
 
   tabmail.closeTab(contentTab);
   Assert.ok(
     !firstWebBrowser.docShellIsActive,
-    "first web browser should NOT be visible"
+    "first web browser should NOT be active"
   );
   Assert.ok(
     firstMessagePane.docShellIsActive,
-    "first message browser should be visible"
+    "first message pane browser should be active"
+  );
+  Assert.equal(
+    firstMessagePane.remoteType,
+    null,
+    "first message pane browser should not be a remote browser"
   );
 
   threadTree.selectedIndex = -1;
   Assert.ok(
     !firstMessagePane.docShellIsActive,
-    "first message browser should NOT be visible"
+    "first message pane browser should NOT be active"
   );
 });
 
@@ -623,12 +669,15 @@ add_task(async function testMessageWindow() {
 });
 
 async function ensureBrowserLoaded(browser) {
-  await TestUtils.waitForCondition(
-    () =>
-      browser.currentURI.spec != "about:blank" &&
-      browser.contentDocument.readyState == "complete",
-    "waiting for browser to finish loading"
-  );
+  await TestUtils.waitForCondition(() => {
+    if (browser.currentURI.spec == "about:blank") {
+      return false;
+    }
+    if (browser.remoteType) {
+      return !browser.webProgress.isLoadingDocument;
+    }
+    return browser.contentDocument?.readyState == "complete";
+  }, "waiting for browser to finish loading");
 }
 
 function messageToURL(message) {

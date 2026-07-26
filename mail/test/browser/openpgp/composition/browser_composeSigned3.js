@@ -188,17 +188,15 @@ async function assertSentMessage(composeWindow, expectMessage, msg) {
   const { isBold, plain, html } = expectMessage;
 
   await send_later(composeWindow);
+  // The next sent message needs to be in a different second, as nsMsgDBView
+  // only looks at seconds when sorting by date.
+  const lastSend = new Date();
+  const nextSend = lastSend.valueOf() + 1000 - lastSend.getMilliseconds();
 
   // Open the "sent" message.
   await be_in_folder(outboxFolder);
   // Should be the last message in the tree.
   const clickedMessage = await select_click_row(0);
-
-  // The following delay was taken from origin browser_sendFormat.js
-  // Without it, the code below selects the wrong message.
-
-  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-  await new Promise(resolve => setTimeout(resolve, 500));
 
   await assert_selected_and_displayed(0);
 
@@ -293,6 +291,10 @@ async function assertSentMessage(composeWindow, expectMessage, msg) {
       `HTML text content should match: ${msg}`
     );
   }
+
+  // Wait before sending the next message.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, nextSend - Date.now()));
 }
 
 add_task(async function test_preference_send_format() {
