@@ -3,7 +3,7 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE html SYSTEM "chrome://calendar/locale/calendar-occurrence-prompt.dtd">
+<!DOCTYPE html>
 <html
   id="calendar-occurrence-prompt"
   xmlns="http://www.w3.org/1999/xhtml"
@@ -40,7 +40,6 @@
           default="true"
           dlgtype="accept"
           class="occurrence-accept-buttons"
-          accesskey="&buttons.occurrence.accesskey;"
           oncommand="exitOccurrenceDialog(1)"
           pack="start"
         />
@@ -48,7 +47,6 @@
         <button
           id="accept-allfollowing-button"
           class="occurrence-accept-buttons"
-          accesskey="&buttons.allfollowing.accesskey;"
           oncommand="exitOccurrenceDialog(2)"
           hidden="hidden"
           pack="start"
@@ -56,7 +54,6 @@
         <button
           id="accept-parent-button"
           class="occurrence-accept-buttons"
-          accesskey="&buttons.parent.accesskey;"
           oncommand="exitOccurrenceDialog(3)"
           pack="start"
         />

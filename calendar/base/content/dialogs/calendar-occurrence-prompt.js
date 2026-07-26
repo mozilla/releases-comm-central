@@ -52,14 +52,14 @@ function onLoad() {
 
   document.l10n.setAttributes(
     document.getElementById("accept-occurrence-button"),
-    `buttons-${multiple}-occurrence-${action}`
+    `button-${multiple}-occurrence-${action}`
   );
   document.l10n.setAttributes(
     document.getElementById("accept-allfollowing-button"),
-    `buttons-${multiple}-allfollowing-${action}`
+    `button-${multiple}-allfollowing-${action}`
   );
   document.l10n.setAttributes(
     document.getElementById("accept-parent-button"),
-    `buttons-${multiple}-parent-${action}`
+    `button-${multiple}-parent-${action}`
   );
 }
