@@ -299,10 +299,10 @@
 #todo-tab-panel {
   block-size: 40%;
   min-block-size: 160px;
-}
 
-#today-pane-splitter[hidden] + #todo-tab-panel {
-  block-size: 100%;
+  #today-pane-splitter[hidden] + & {
+    block-size: 100% !important;
+  }
 }
 
 #show-completed-checkbox-box {
