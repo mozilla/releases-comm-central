@@ -525,19 +525,20 @@ export const MailNotificationManager = new (class {
         action.isValidFor(msgHdr)
       );
     }
-    alertsService.showAlert(alert, (subject, topic) => {
-      if (topic != "alertclickcallback") {
-        return;
-      }
-      if (subject?.QueryInterface(Ci.nsIAlertAction)) {
-        Glean.mail.notificationUsedActions[subject.action].add(1);
-        availableActions
-          .find(a => a.action == subject.action)
-          .runAction(msgHdr);
-        return;
-      }
-      // Display the associated message when an alert is clicked.
-      lazy.MailUtils.displayMessageInFolderTab(msgHdr, true);
+    alertsService.showAlertWithCallbacks(alert, {
+      QueryInterface: ChromeUtils.generateQI(["nsIAlertCallbacks"]),
+      onAlertClick(action) {
+        if (action) {
+          Glean.mail.notificationUsedActions[action.action].add(1);
+          availableActions
+            .find(a => a.action == action.action)
+            .runAction(msgHdr);
+          return;
+        }
+        // Display the associated message when an alert is clicked.
+        lazy.MailUtils.displayMessageInFolderTab(msgHdr, true);
+      },
+      onAlertFinished() {},
     });
   }
 

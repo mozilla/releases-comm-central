@@ -109,12 +109,10 @@ export var alertHook = {
         textClickable: false,
         cookie,
       });
-      this.alertService.showAlert(alert, {
-        QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
-        observe(subject, topic) {
-          if (topic == "alertfinished") {
-            deferred.resolve();
-          }
+      this.alertService.showAlertWithCallbacks(alert, {
+        QueryInterface: ChromeUtils.generateQI(["nsIAlertCallbacks"]),
+        onAlertFinished() {
+          deferred.resolve();
         },
       });
     } catch (ex) {
@@ -242,14 +240,13 @@ export var alertHook = {
         cookie,
         requireInteraction: true,
       });
-      this.alertService.showAlert(alert, {
-        QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
-        observe(subject, topic) {
-          if (topic == "alertclickcallback") {
-            showExceptionDialog();
-          } else if (topic == "alertfinished") {
-            deferred.resolve();
-          }
+      this.alertService.showAlertWithCallbacks(alert, {
+        QueryInterface: ChromeUtils.generateQI(["nsIAlertCallbacks"]),
+        onAlertClick(_action) {
+          showExceptionDialog();
+        },
+        onAlertFinished() {
+          deferred.resolve();
         },
       });
     } catch (ex) {

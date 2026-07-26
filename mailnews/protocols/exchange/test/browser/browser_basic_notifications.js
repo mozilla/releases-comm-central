@@ -143,6 +143,6 @@ async function promiseAlert(expectedSender, expectedName, expectedPreview) {
     "notification should contain a body preview"
   );
 
-  MockAlertsService.listener.observe(null, "alertfinished", "");
+  MockAlertsService.callbacks.onAlertFinished();
   MockAlertsService.reset();
 }

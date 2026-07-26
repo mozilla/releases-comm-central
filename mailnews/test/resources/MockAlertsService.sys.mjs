@@ -113,7 +113,8 @@ export const MockAlertsService = {
       Assert.ok(action, "expected action should be defined");
     }
 
-    this.listener.observe(action, "alertclickcallback", this.alert.cookie);
+    this.listener?.observe(action, "alertclickcallback", this.alert.cookie);
+    this.callbacks?.onAlertClick(action);
   },
 };
 
@@ -129,6 +130,17 @@ class MockAlertsServiceInstance {
     );
     MockAlertsService.alert = alert;
     MockAlertsService.listener = listener;
+    MockAlertsService._shownDeferred?.resolve();
+  }
+
+  showAlertWithCallbacks(alert, alertCallbacks) {
+    dump(`showAlertWithCallbacks: ${alert.text ?? alert.title}\n`);
+    Assert.ok(
+      !MockAlertsService.alert,
+      "showAlert should not be called while an alert is showing"
+    );
+    MockAlertsService.alert = alert;
+    MockAlertsService.callbacks = alertCallbacks;
     MockAlertsService._shownDeferred?.resolve();
   }
 

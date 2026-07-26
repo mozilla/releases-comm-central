@@ -385,7 +385,7 @@ async function promiseAlert(expectedSender, expectedName) {
     `notification should be about ${expectedName}`
   );
 
-  MockAlertsService.listener.observe(null, "alertfinished", "");
+  MockAlertsService.callbacks.onAlertFinished();
   MockAlertsService.reset();
 }
 

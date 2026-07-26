@@ -44,8 +44,8 @@ add_task(async function () {
   const dialogPromise = CalendarTestUtils.waitForEventDialog();
 
   // Click on the notification. An item summary dialog should show.
-  MockAlertsService.listener.observe(null, "alertclickcallback", "");
-  MockAlertsService.listener.observe(null, "alertfinished", "");
+  MockAlertsService.callbacks.onAlertClick();
+  MockAlertsService.callbacks.onAlertFinished();
 
   const dialog = await dialogPromise;
   Assert.equal(

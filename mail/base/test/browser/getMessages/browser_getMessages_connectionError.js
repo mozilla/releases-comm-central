@@ -186,7 +186,7 @@ add_task(async function testConnectionRefused() {
     // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    MockAlertsService.listener.observe(null, "alertfinished", alert.cookie);
+    MockAlertsService.callbacks.onAlertFinished();
     MockAlertsService.reset();
   }
 

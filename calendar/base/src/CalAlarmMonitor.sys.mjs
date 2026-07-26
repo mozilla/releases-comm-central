@@ -169,13 +169,12 @@ CalAlarmMonitor.prototype = {
       textClickable: true,
     });
     const alertsService = Cc["@mozilla.org/alerts-service;1"].getService(Ci.nsIAlertsService);
-    alertsService.showAlert(alert, {
-      QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
-      observe: (subject, topic) => {
-        if (topic == "alertclickcallback") {
-          cal.window.getCalendarWindow()?.openEventDialogForViewing(item, true);
-        }
+    alertsService.showAlertWithCallbacks(alert, {
+      QueryInterface: ChromeUtils.generateQI(["nsIAlertCallbacks"]),
+      onAlertClick(_action) {
+        cal.window.getCalendarWindow()?.openEventDialogForViewing(item, true);
       },
+      onAlertFinished() {},
     });
   },
 

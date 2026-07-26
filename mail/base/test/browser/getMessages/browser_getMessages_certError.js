@@ -418,8 +418,8 @@ async function subsubtest(
 
   // Click on the notification to bring up the exception dialog.
 
-  MockAlertsService.listener.observe(null, "alertclickcallback", alert.cookie);
-  MockAlertsService.listener.observe(null, "alertfinished", alert.cookie);
+  MockAlertsService.callbacks.onAlertClick();
+  MockAlertsService.callbacks.onAlertFinished();
   MockAlertsService.reset();
 
   await dialogPromise;

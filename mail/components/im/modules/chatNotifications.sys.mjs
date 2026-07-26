@@ -136,48 +136,47 @@ export var Notifications = {
     // Show the notification!
     Cc["@mozilla.org/alerts-service;1"]
       .getService(Ci.nsIAlertsService)
-      .showAlert(alert, (subject, topic) => {
-        if (topic != "alertclickcallback") {
-          return;
-        }
-
-        // If there is a timeout set, clear it.
-        clearTimeout(this._timeoutId);
-        this._heldMessage = null;
-        this._msgCounter = 0;
-        this._lastMessageTime = 0;
-        this._lastMessageSender = null;
-        // Focus the conversation if the notification is clicked.
-        const uiConv = IMServices.conversations.getUIConversation(
-          aMessage.conversation
-        );
-        const mainWindow = Services.wm.getMostRecentWindow("mail:3pane");
-        if (mainWindow) {
-          mainWindow.focus();
-          mainWindow.showChatTab();
-          mainWindow.chatHandler.focusConversation(uiConv);
-        } else {
-          const args = Cc["@mozilla.org/array;1"].createInstance(
-            Ci.nsIMutableArray
+      .showAlertWithCallbacks(alert, {
+        onAlertClick(_action) {
+          // If there is a timeout set, clear it.
+          clearTimeout(this._timeoutId);
+          this._heldMessage = null;
+          this._msgCounter = 0;
+          this._lastMessageTime = 0;
+          this._lastMessageSender = null;
+          // Focus the conversation if the notification is clicked.
+          const uiConv = IMServices.conversations.getUIConversation(
+            aMessage.conversation
           );
-          args.appendElement(null);
-          args.appendElement({
-            tabType: "chat",
-            tabParams: { convType: "focus", conv: uiConv },
-          });
-          Services.ww.openWindow(
-            null,
-            "chrome://messenger/content/messenger.xhtml",
-            "_blank",
-            "chrome,dialog=no,all",
-            args
-          );
-        }
-        if (AppConstants.platform == "macosx") {
-          Cc["@mozilla.org/widget/macdocksupport;1"]
-            .getService(Ci.nsIMacDockSupport)
-            .activateApplication(true);
-        }
+          const mainWindow = Services.wm.getMostRecentWindow("mail:3pane");
+          if (mainWindow) {
+            mainWindow.focus();
+            mainWindow.showChatTab();
+            mainWindow.chatHandler.focusConversation(uiConv);
+          } else {
+            const args = Cc["@mozilla.org/array;1"].createInstance(
+              Ci.nsIMutableArray
+            );
+            args.appendElement(null);
+            args.appendElement({
+              tabType: "chat",
+              tabParams: { convType: "focus", conv: uiConv },
+            });
+            Services.ww.openWindow(
+              null,
+              "chrome://messenger/content/messenger.xhtml",
+              "_blank",
+              "chrome,dialog=no,all",
+              args
+            );
+          }
+          if (AppConstants.platform == "macosx") {
+            Cc["@mozilla.org/widget/macdocksupport;1"]
+              .getService(Ci.nsIMacDockSupport)
+              .activateApplication(true);
+          }
+        },
+        onAlertFinished() {},
       });
 
     this._heldMessage = null;
