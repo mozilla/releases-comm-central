@@ -1315,14 +1315,15 @@ nsresult nsMsgDatabase::OpenMDB(nsIFile* dbFile, bool create, bool sync) {
         NS_RELEASE(oldFile);  // always release our file ref, store has own
       }
     }
-    if (NS_SUCCEEDED(ret) && m_thumb && sync) {
+    nsCOMPtr<nsIMdbThumb> thumb = m_thumb;
+    if (NS_SUCCEEDED(ret) && thumb && sync) {
       mdb_count outTotal;        // total somethings to do in operation
       mdb_count outCurrent;      // subportion of total completed so far
       mdb_bool outDone = false;  // is operation finished?
       mdb_bool outBroken;        // is operation irreparably dead and broken?
       do {
-        ret = m_thumb->DoMore(m_mdbEnv, &outTotal, &outCurrent, &outDone,
-                              &outBroken);
+        ret = thumb->DoMore(m_mdbEnv, &outTotal, &outCurrent, &outDone,
+                            &outBroken);
         if (NS_FAILED(ret)) {  // mork isn't really doing NS errors yet.
           outDone = true;
           break;
@@ -1331,7 +1332,7 @@ nsresult nsMsgDatabase::OpenMDB(nsIFile* dbFile, bool create, bool sync) {
       //        m_mdbEnv->ClearErrors(); // ### temporary...
       // only 0 is a non-error return.
       if (NS_SUCCEEDED(ret) && outDone) {
-        ret = mdbFactory->ThumbToOpenStore(m_mdbEnv, m_thumb, &m_mdbStore);
+        ret = mdbFactory->ThumbToOpenStore(m_mdbEnv, thumb, &m_mdbStore);
         if (NS_SUCCEEDED(ret)) {
           ret = (m_mdbStore) ? InitExistingDB() : NS_ERROR_FAILURE;
         }
