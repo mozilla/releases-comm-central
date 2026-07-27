@@ -484,111 +484,183 @@ add_task(async function test_ews_host_url_settings() {
 /** Tests that changing the OAuth override settings correctly updates the incoming server. */
 add_task(async function test_override_oauth_settings() {
   const incomingServer = ewsAccount.incomingServer;
-  await open_advanced_settings(async accountSettingsTab => {
-    const checkPref = Services.prefs.getBoolPref(
-      "experimental.mail.ews.overrideOAuth.enabled",
-      false
-    );
-    Assert.ok(checkPref, "pref should be enabled.");
-    const iframe = await selectAccountInSettings(
-      accountSettingsTab,
-      ewsAccount.key
-    );
+  const originalSettings = {
+    exchangeOverrideOAuthDetails: incomingServer.exchangeOverrideOAuthDetails,
+    exchangeApplicationId: incomingServer.exchangeApplicationId,
+    exchangeTenantId: incomingServer.exchangeTenantId,
+    exchangeRedirectUri: incomingServer.exchangeRedirectUri,
+    exchangeEndpointHost: incomingServer.exchangeEndpointHost,
+    exchangeOAuthScopes: incomingServer.exchangeOAuthScopes,
+  };
 
-    const dataElements = [
-      "ews.exchangeOverrideOAuthDetails",
-      "ews.exchangeApplicationId",
-      "ews.exchangeTenantId",
-      "ews.exchangeRedirectUri",
-      "ews.exchangeEndpointHost",
-      "ews.exchangeOAuthScopes",
-    ];
-    for (const dataElement of dataElements) {
-      const element = iframe.getElementById(dataElement);
-      Assert.ok(!!element, `Data element ${dataElement} should exist.`);
-      Assert.ok(
-        !element.visible,
-        `Data element ${dataElement} should not be visible.`
+  try {
+    await open_advanced_settings(async accountSettingsTab => {
+      const checkPref = Services.prefs.getBoolPref(
+        "experimental.mail.ews.overrideOAuth.enabled",
+        false
       );
-    }
-
-    const advancedDialog = await openAdvancedDialog(iframe, accountSettingsTab);
-
-    const oauthOverrideControl = advancedDialog.document.getElementById(
-      "exchangeOverrideOAuthDetails"
-    );
-    Assert.ok(!!oauthOverrideControl, "OAuth override checkbox should exist.");
-    Assert.ok(
-      !oauthOverrideControl.checked,
-      "OAuth override checkbox should be unchecked."
-    );
-
-    const inputElementIds = [
-      "exchangeApplicationId",
-      "exchangeTenantId",
-      "exchangeRedirectUri",
-      "exchangeEndpointHost",
-      "exchangeOAuthScopes",
-    ];
-    const inputElements = inputElementIds.map(id =>
-      advancedDialog.document.getElementById(id)
-    );
-    for (const inputElement of inputElements) {
-      Assert.ok(
-        inputElement.disabled,
-        `Input element ${inputElement.id} should be disabled.`
+      Assert.ok(checkPref, "pref should be enabled.");
+      const iframe = await selectAccountInSettings(
+        accountSettingsTab,
+        ewsAccount.key
       );
-    }
 
-    EventUtils.synthesizeMouseAtCenter(
-      oauthOverrideControl,
-      {},
-      oauthOverrideControl.documentGlobal
-    );
+      // Confirm everything is in its default starting state.
 
-    for (const inputElement of inputElements) {
-      Assert.ok(
-        !inputElement.disabled,
-        `Input element ${inputElement.id} should be enabled.`
+      const dataElements = [
+        "ews.exchangeOverrideOAuthDetails",
+        "ews.exchangeApplicationId",
+        "ews.exchangeTenantId",
+        "ews.exchangeRedirectUri",
+        "ews.exchangeEndpointHost",
+        "ews.exchangeOAuthScopes",
+      ];
+      for (const dataElement of dataElements) {
+        const element = iframe.getElementById(dataElement);
+        Assert.ok(!!element, `Data element ${dataElement} should exist.`);
+        Assert.ok(
+          !element.visible,
+          `Data element ${dataElement} should not be visible.`
+        );
+      }
+
+      const advancedDialog = await openAdvancedDialog(
+        iframe,
+        accountSettingsTab
       );
+
+      const oauthOverrideControl = advancedDialog.document.getElementById(
+        "exchangeOverrideOAuthDetails"
+      );
+      Assert.ok(
+        !!oauthOverrideControl,
+        "OAuth override checkbox should exist."
+      );
+      Assert.ok(
+        !oauthOverrideControl.checked,
+        "OAuth override checkbox should be unchecked."
+      );
+
+      const inputElementIds = [
+        "exchangeApplicationId",
+        "exchangeTenantId",
+        "exchangeRedirectUri",
+        "exchangeEndpointHost",
+        "exchangeOAuthScopes",
+      ];
+      const inputElements = inputElementIds.map(id =>
+        advancedDialog.document.getElementById(id)
+      );
+      for (const inputElement of inputElements) {
+        Assert.ok(
+          inputElement.disabled,
+          `Input element ${inputElement.id} should be disabled.`
+        );
+      }
+
+      // Confirm modifications when the override control is on.
+
+      EventUtils.synthesizeMouseAtCenter(
+        oauthOverrideControl,
+        {},
+        oauthOverrideControl.documentGlobal
+      );
+
+      for (const inputElement of inputElements) {
+        Assert.ok(
+          !inputElement.disabled,
+          `Input element ${inputElement.id} should be enabled.`
+        );
+      }
+
+      for (const inputElement of inputElements) {
+        inputElement.focus();
+        EventUtils.synthesizeKey("KEY_Delete", {}, inputElement.documentGlobal);
+        EventUtils.sendString("changed_value", inputElement.documentGlobal);
+      }
+
+      await acceptDialogAndWaitForClose(advancedDialog);
+
+      Assert.ok(
+        incomingServer.exchangeOverrideOAuthDetails,
+        "Incoming server should have override OAuth details selected."
+      );
+      Assert.equal(
+        incomingServer.exchangeApplicationId,
+        "changed_value",
+        "EWS Application ID should have changed."
+      );
+      Assert.equal(
+        incomingServer.exchangeTenantId,
+        "changed_value",
+        "EWS Tenant ID should have changed."
+      );
+      Assert.equal(
+        incomingServer.exchangeRedirectUri,
+        "changed_value",
+        "EWS Redirect URI should have changed."
+      );
+      Assert.equal(
+        incomingServer.exchangeEndpointHost,
+        "changed_value",
+        "EWS Endpoint Host should have changed."
+      );
+      Assert.equal(
+        incomingServer.exchangeOAuthScopes,
+        "changed_value",
+        "EWS OAuth Scopes should have changed."
+      );
+
+      // Confirm return to default when the override control switches back off.
+
+      const advancedDialogReopened = await openAdvancedDialog(
+        iframe,
+        accountSettingsTab
+      );
+
+      const overrideControlReopened =
+        advancedDialogReopened.document.getElementById(
+          "exchangeOverrideOAuthDetails"
+        );
+      Assert.ok(
+        !!overrideControlReopened,
+        "OAuth override checkbox should exist."
+      );
+      Assert.ok(
+        overrideControlReopened.checked,
+        "OAuth override checkbox should be checked."
+      );
+
+      EventUtils.synthesizeMouseAtCenter(
+        overrideControlReopened,
+        {},
+        overrideControlReopened.documentGlobal
+      );
+      Assert.ok(
+        !overrideControlReopened.checked,
+        "OAuth override checkbox should be unchecked."
+      );
+
+      const inputElementsReopened = inputElementIds.map(id =>
+        advancedDialogReopened.document.getElementById(id)
+      );
+      for (const inputElement of inputElementsReopened) {
+        Assert.ok(
+          inputElement.disabled,
+          `Input element ${inputElement.id} should be disabled.`
+        );
+      }
+
+      await acceptDialogAndWaitForClose(advancedDialogReopened);
+
+      Assert.ok(
+        !incomingServer.exchangeOverrideOAuthDetails,
+        "Incoming server should have override OAuth details disabled."
+      );
+    });
+  } finally {
+    for (const [name, value] of Object.entries(originalSettings)) {
+      incomingServer[name] = value;
     }
-
-    for (const inputElement of inputElements) {
-      inputElement.focus();
-      EventUtils.synthesizeKey("KEY_Delete", {}, inputElement.documentGlobal);
-      EventUtils.sendString("changed_value", inputElement.documentGlobal);
-    }
-
-    await acceptDialogAndWaitForClose(advancedDialog);
-
-    Assert.ok(
-      incomingServer.exchangeOverrideOAuthDetails,
-      "Incoming server should have override OAuth details selected."
-    );
-    Assert.equal(
-      incomingServer.exchangeApplicationId,
-      "changed_value",
-      "EWS Application ID should have changed."
-    );
-    Assert.equal(
-      incomingServer.exchangeTenantId,
-      "changed_value",
-      "EWS Tenant ID should have changed."
-    );
-    Assert.equal(
-      incomingServer.exchangeRedirectUri,
-      "changed_value",
-      "EWS Redirect URI should have changed."
-    );
-    Assert.equal(
-      incomingServer.exchangeEndpointHost,
-      "changed_value",
-      "EWS Endpoint Host should have changed."
-    );
-    Assert.equal(
-      incomingServer.exchangeOAuthScopes,
-      "changed_value",
-      "EWS OAuth Scopes should have changed."
-    );
-  });
+  }
 });

@@ -910,7 +910,7 @@ nsresult GetDetailsForHostname(ExchangeIncomingServer* server,
 
   RefPtr<ExchangeOAuth2CustomDetails> result;
   rv = ExchangeOAuth2CustomDetails::ForAccount(type, hostname, username,
-                                                       getter_AddRefs(result));
+                                               getter_AddRefs(result));
   NS_ENSURE_SUCCESS(rv, rv);
 
   result.forget(details);
@@ -962,8 +962,6 @@ NS_IMETHODIMP ExchangeIncomingServer::GetExchangeOverrideOAuthDetails(
 
 NS_IMETHODIMP ExchangeIncomingServer::SetExchangeOverrideOAuthDetails(
     bool value) {
-  NS_ENSURE_ARG(value);
-
   RefPtr<ExchangeOAuth2CustomDetails> details;
   nsresult rv = GetDetailsForHostname(this, getter_AddRefs(details));
   NS_ENSURE_SUCCESS(rv, rv);
