@@ -1901,7 +1901,7 @@ class AccountHubEmail extends HTMLElement {
       syncAccounts.calendars = await this.#getCalendars(
         hostnames,
         this.#currentConfig.incoming.password ?? "",
-        false
+        this.#currentConfig.rememberPassword ?? false
       );
 
       // If the user hit cancel while loading, a UserSkippedError will be
