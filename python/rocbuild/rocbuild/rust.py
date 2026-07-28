@@ -551,7 +551,7 @@ def cleanup_vendor(command_context):
 
         unlinked = []
         # Remove files from checksum that are in SRC_TAR_EXCLUDE_PATHS
-        for pattern in (".gitattributes", ".gitkeep", ".gitmodules"):
+        for pattern in (".gitattributes", ".gitkeep", ".gitmodules", ".gitignore", ".cargo-ok"):
             for path in package_dir.rglob(pattern):
                 unlinked.append(mozpath.normsep(str(path.relative_to(package_dir))))
 
