@@ -97,6 +97,9 @@ tasks:
                                   - - "mail/confvars.sh"
                                     - "MOZ_OFFICIAL_BRANDING_DIRECTORY="
                                     - "MOZ_OFFICIAL_BRANDING_DIRECTORY=comm/mail/branding/tb_beta"
+                                  - - ".arcconfig"
+                                    - THUNDERBIRDDESKTOPMAIN
+                                    - THUNDERBIRDDESKTOPBETA
                               base-tag: "BETA_{major_version}_BASE"
                               end-tag: "BETA_{major_version}_END"
                               from-branch: "main"
@@ -131,6 +134,9 @@ tasks:
                                   - - "mail/confvars.sh"
                                     - "MOZ_OFFICIAL_BRANDING_DIRECTORY=comm/mail/branding/tb_beta"
                                     - "MOZ_OFFICIAL_BRANDING_DIRECTORY=comm/mail/branding/thunderbird"
+                                  - - ".arcconfig"
+                                    - THUNDERBIRDDESKTOPBETA
+                                    - THUNDERBIRDDESKTOPRELEASE
                               base-tag: "RELEASE_{major_version}_BASE"
                               end-tag: "RELEASE_{major_version}_END"
                               from-branch: "beta"
