@@ -258,13 +258,9 @@ add_task(
       "The credentials confirmation manual config flow should default to IMAP"
     );
 
-    let protocolInput = protocolSelectStep.querySelector(
-      `input[name="protocol-select"][value="microsoft"]`
-    );
-    EventUtils.synthesizeMouseAtCenter(protocolInput, {});
-    Assert.ok(protocolInput.checked, "Microsoft should be selected");
+    await subtest_drag_select_protocol(protocolSelectStep, "microsoft");
 
-    protocolInput = protocolSelectStep.querySelector(
+    const protocolInput = protocolSelectStep.querySelector(
       `input[name="protocol-select"][value="pop3"]`
     );
     EventUtils.synthesizeMouseAtCenter(protocolInput, {});
@@ -546,6 +542,28 @@ async function cleanupManualConfigPref() {
   }
   manualConfigPrefPushed = false;
   await SpecialPowers.popPrefEnv();
+}
+
+async function subtest_drag_select_protocol(protocolSelectTemplate, protocol) {
+  const protocolInput = protocolSelectTemplate.querySelector(
+    `input[name="protocol-select"][value="${protocol}"]`
+  );
+  const protocolCard = protocolInput.closest(
+    ".account-hub-protocol-select-card"
+  );
+  const clickEvent = BrowserTestUtils.waitForEvent(protocolInput, "click");
+  const changeEvent = BrowserTestUtils.waitForEvent(protocolInput, "change");
+
+  EventUtils.synthesizeMouse(protocolCard, 40, 40, { type: "mousedown" });
+  EventUtils.synthesizeMouse(protocolCard, 48, 40, { type: "mousemove" });
+  EventUtils.synthesizeMouse(protocolCard, 48, 40, { type: "mouseup" });
+
+  await clickEvent;
+  await changeEvent;
+  Assert.ok(
+    protocolInput.checked,
+    `${protocol} should be selected after a moved click on its card`
+  );
 }
 
 /**

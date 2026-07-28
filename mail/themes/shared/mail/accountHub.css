@@ -631,6 +631,7 @@ header {
   cursor: pointer;
   box-shadow: 0 1px 2px rgba(0, 1, 2, 0.1);
   border-radius: 8px;
+  user-select: none;
 
   &:has(input:checked) {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.14);
@@ -638,8 +639,13 @@ header {
 
   & input[type="radio"] {
     position: absolute;
+    inset: 0;
+    z-index: 1;
+    inline-size: 100%;
+    block-size: 100%;
+    margin: 0;
     opacity: 0;
-    pointer-events: none;
+    cursor: pointer;
   }
 
   & .account-hub-protocol-select-card-content {
@@ -650,6 +656,7 @@ header {
     overflow: hidden;
     border: 1px solid var(--color-primary-default);
     border-radius: 8px;
+    pointer-events: none;
   }
 
   & .account-hub-protocol-select-card-header {
