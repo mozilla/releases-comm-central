@@ -1829,7 +1829,7 @@ function subtest_assert_protocol_select_chrome(dialog, protocolSelectTemplate) {
   );
   Assert.equal(
     document.l10n.getAttributes(notificationTitle).id,
-    "account-hub-email-protocol-select-notification",
+    "account-hub-email-protocol-select-additional-info",
     "The protocol select screen should show the required information notification"
   );
   Assert.ok(

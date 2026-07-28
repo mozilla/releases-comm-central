@@ -238,7 +238,7 @@ add_task(
     );
     Assert.equal(
       document.l10n.getAttributes(notificationTitle).id,
-      "account-hub-email-protocol-select-notification",
+      "account-hub-email-protocol-select-additional-info",
       "The protocol select screen should show the required information notification"
     );
     Assert.ok(

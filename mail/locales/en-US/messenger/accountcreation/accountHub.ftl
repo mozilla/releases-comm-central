@@ -212,7 +212,7 @@ account-hub-email-connect-settings = Connect your email settings
 
 account-hub-email-protocol-select-header = Choose an email account type
 
-account-hub-email-protocol-select-notification = Additional information is required to set up this account
+account-hub-email-protocol-select-additional-info = Additional information is required to set up this account.
 
 account-hub-email-enter-password = Enter your email account password
 

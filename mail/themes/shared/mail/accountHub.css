@@ -628,7 +628,7 @@ header {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 20px;
+  gap: calc(4 * var(--space-step));
   margin: 0;
   padding: 0;
   border: 0;
@@ -674,8 +674,9 @@ header {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: 6px;
+    justify-content: flex-end;
+    padding-block: calc(2 * var(--space-step));
+    gap: var(--space-step);
     box-sizing: border-box;
     block-size: 57px;
     border-radius: 8px 8px 0 0;

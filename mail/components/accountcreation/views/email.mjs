@@ -1433,7 +1433,7 @@ class AccountHubEmail extends HTMLElement {
     this.#states[this.#currentState].previousStep = previousStep;
     this.#currentSubview.setState(this.#currentConfig);
     this.#currentSubview.showNotification({
-      fluentTitleId: "account-hub-email-protocol-select-notification",
+      fluentTitleId: "account-hub-email-protocol-select-additional-info",
       type: "info",
     });
   }
