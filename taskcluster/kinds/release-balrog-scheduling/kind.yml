@@ -34,7 +34,7 @@ tasks:
                         by-release-type:
                             beta: [43]
                             release: [17892]
-                            esr153: [7573]
+                            esr153: [18095]
                             default: []
                     staging:
                         by-release-type:
