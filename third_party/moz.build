@@ -35,3 +35,7 @@ MOZ_SRC_FILES += [
     "redux/redux/redux.mjs",
     "redux/reselect/reselect.mjs",
 ]
+
+TESTING_JS_MODULES.mail += [
+    "axe-core/axe.min.js",
+]

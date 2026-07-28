@@ -15,6 +15,10 @@ const { NotificationUpdater } = ChromeUtils.importESModule(
   "moz-src:///comm/mail/components/inappnotifications/modules/NotificationUpdater.sys.mjs"
 );
 
+const { startAxeMutationObserverInWindow } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/AxeHelpers.sys.mjs"
+);
+
 /**
  * This test injects a notification like we do "in the real world", by providing
  * it on the server. We then check the user-facing contents of the notification.
@@ -126,7 +130,13 @@ add_setup(async () => {
   const initResult = await NotificationUpdater.init();
   info(`NotificationUpdater re-init: ${JSON.stringify(initResult, null, 2)}`);
 
+  const axeWatcher = await startAxeMutationObserverInWindow(window, {
+    container: document.querySelector(".in-app-notification-root"),
+    message: "Account Hub dialog stayed axe-clean while the test mutated it",
+  });
+
   registerCleanupFunction(async () => {
+    await axeWatcher.finish();
     Services.prefs.clearUserPref(
       "datareporting.policy.dataSubmissionPolicyAcceptedVersion"
     );

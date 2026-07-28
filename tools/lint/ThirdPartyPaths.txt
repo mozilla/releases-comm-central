@@ -6,6 +6,7 @@ comm/mail/components/storybook/storybook-static/
 comm/mail/extensions/builtin-addons/
 comm/mailnews/mapi/include/
 comm/third_party/asn1js/
+comm/third_party/axe-core/
 comm/third_party/botan/
 comm/third_party/bzip2/
 comm/third_party/json-c/

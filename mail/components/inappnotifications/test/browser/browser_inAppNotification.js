@@ -5,7 +5,7 @@
 "use strict";
 
 const tabmail = document.getElementById("tabmail");
-let browser, notification;
+let browser, notification, tab;
 const observedProperties = {
   CTA: "cta",
   id: "data-id",
@@ -14,9 +14,12 @@ const observedProperties = {
   type: "type",
   URL: "url",
 };
+const { startAxeMutationObserver } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/AxeHelpers.sys.mjs"
+);
 
 add_setup(async function () {
-  const tab = tabmail.openTab("contentTab", {
+  tab = tabmail.openTab("contentTab", {
     url: "chrome://mochitests/content/browser/comm/mail/components/inappnotifications/test/browser/files/inAppNotification.xhtml",
   });
 
@@ -28,6 +31,11 @@ add_setup(async function () {
   notification = browser.contentWindow.document.querySelector(
     "in-app-notification"
   );
+
+  await startAxeMutationObserver(tab.browser, {
+    message: "Page stayed axe-clean while the test mutated the DOM",
+    specialPowers: SpecialPowers,
+  });
 
   registerCleanupFunction(() => {
     tabmail.closeOtherTabs(tabmail.tabInfo[0]);
@@ -56,7 +64,7 @@ function getData(value, type = "donation") {
   };
 }
 
-add_task(function test_notificationAttributeTranslation() {
+add_task(async function test_notificationAttributeTranslation() {
   const container = notification.shadowRoot.querySelector(
     "in-app-notification-container"
   );

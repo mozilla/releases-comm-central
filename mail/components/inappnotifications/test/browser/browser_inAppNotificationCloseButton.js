@@ -4,6 +4,10 @@
 
 "use strict";
 
+const { startAxeMutationObserver } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/AxeHelpers.sys.mjs"
+);
+
 const tabmail = document.getElementById("tabmail");
 let browser, button;
 
@@ -21,6 +25,11 @@ add_setup(async function () {
   await new Promise(resolve => setTimeout(resolve, 1000));
   browser = tab.browser;
   button = browser.contentWindow.document.querySelector(`button`);
+
+  await startAxeMutationObserver(tab.browser, {
+    message: "Page stayed axe-clean while the test mutated the DOM",
+    specialPowers: SpecialPowers,
+  });
 
   registerCleanupFunction(() => {
     tabmail.closeOtherTabs(tabmail.tabInfo[0]);

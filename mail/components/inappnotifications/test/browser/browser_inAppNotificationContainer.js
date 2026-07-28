@@ -3,6 +3,9 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 "use strict";
+const { startAxeMutationObserver } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/AxeHelpers.sys.mjs"
+);
 
 const tabmail = document.getElementById("tabmail");
 let browser, container;
@@ -20,6 +23,11 @@ add_setup(async function () {
   container = browser.contentWindow.document.querySelector(
     `in-app-notification-container`
   );
+
+  await startAxeMutationObserver(tab.browser, {
+    message: "Should pass AXE a11y checks on each mutation",
+    specialPowers: SpecialPowers,
+  });
 
   registerCleanupFunction(() => {
     tabmail.closeOtherTabs(tabmail.tabInfo[0]);

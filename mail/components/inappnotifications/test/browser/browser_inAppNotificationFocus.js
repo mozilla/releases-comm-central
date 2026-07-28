@@ -12,6 +12,10 @@ const { MockExternalProtocolService } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MockExternalProtocolService.sys.mjs"
 );
 
+const { startAxeMutationObserverInWindow } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/AxeHelpers.sys.mjs"
+);
+
 add_setup(async () => {
   MockExternalProtocolService.init();
 
@@ -20,7 +24,13 @@ add_setup(async () => {
   await NotificationScheduler._startupDelayPromise;
   await TestUtils.waitForTick();
 
+  const axeWatcher = await startAxeMutationObserverInWindow(window, {
+    container: document.querySelector(".in-app-notification-root"),
+    message: "Account Hub dialog stayed axe-clean while the test mutated it",
+  });
+
   registerCleanupFunction(async () => {
+    await axeWatcher.finish();
     await InAppNotifications.updateNotifications([]);
     MockExternalProtocolService.cleanup();
   });

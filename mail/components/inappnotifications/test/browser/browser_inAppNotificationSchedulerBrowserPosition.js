@@ -12,6 +12,10 @@ const { MockExternalProtocolService } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MockExternalProtocolService.sys.mjs"
 );
 
+const { startAxeMutationObserverInWindow } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/AxeHelpers.sys.mjs"
+);
+
 const expectedURI = "https://example.com/notificationTarget";
 
 add_setup(async function () {
@@ -24,7 +28,14 @@ add_setup(async function () {
   // PlacesUtils when executing the CTA needs the profile.
 
   MockExternalProtocolService.init();
+
+  const axeWatcher = await startAxeMutationObserverInWindow(window, {
+    container: document.querySelector(".in-app-notification-root"),
+    message: "Account Hub dialog stayed axe-clean while the test mutated it",
+  });
+
   registerCleanupFunction(async () => {
+    await axeWatcher.finish();
     await resetWindow();
     NotificationScheduler._idleService.disabled = false;
     MockExternalProtocolService.cleanup();

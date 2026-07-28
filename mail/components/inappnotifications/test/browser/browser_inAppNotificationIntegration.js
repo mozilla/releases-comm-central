@@ -12,7 +12,16 @@ add_setup(function () {
   NotificationScheduler.observe(null, "active");
 });
 
+const { startAxeMutationObserverInWindow } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/AxeHelpers.sys.mjs"
+);
+
 add_task(async function testInAppNotificationDonationTab() {
+  const axeWatcher = await startAxeMutationObserverInWindow(window, {
+    container: document.querySelector(".in-app-notification-root"),
+    message: "Account Hub dialog stayed axe-clean while the test mutated it",
+  });
+
   const tabmail = document.getElementById("tabmail");
   Assert.strictEqual(
     Services.wm.getMostRecentWindow("mail:3pane"),
@@ -58,4 +67,6 @@ add_task(async function testInAppNotificationDonationTab() {
 
   await InAppNotifications.updateNotifications([]);
   tabmail.closeOtherTabs(0);
+
+  await axeWatcher.finish();
 });

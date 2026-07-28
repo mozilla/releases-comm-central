@@ -5,6 +5,9 @@
 const { MockExternalProtocolService } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MockExternalProtocolService.sys.mjs"
 );
+const { startAxeMutationObserver } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/AxeHelpers.sys.mjs"
+);
 
 const tabmail = document.getElementById("tabmail");
 let browser,
@@ -29,6 +32,11 @@ add_setup(async function () {
   );
 
   MockExternalProtocolService.init();
+
+  await startAxeMutationObserver(tab.browser, {
+    message: "Page stayed axe-clean while the test mutated the DOM",
+    specialPowers: SpecialPowers,
+  });
 
   registerCleanupFunction(() => {
     tabmail.closeOtherTabs(tabmail.tabInfo[0]);

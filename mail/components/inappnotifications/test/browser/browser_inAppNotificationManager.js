@@ -11,6 +11,10 @@ const { sinon } = ChromeUtils.importESModule(
   "resource://testing-common/Sinon.sys.mjs"
 );
 
+const { startAxeMutationObserverInWindow } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/AxeHelpers.sys.mjs"
+);
+
 let manager;
 
 add_setup(async function () {
@@ -22,7 +26,13 @@ add_setup(async function () {
   NotificationScheduler._idleService.disabled = true;
   manager = document.querySelector("in-app-notification-manager");
 
-  registerCleanupFunction(() => {
+  const axeWatcher = await startAxeMutationObserverInWindow(window, {
+    container: document.querySelector(".in-app-notification-root"),
+    message: "Account Hub dialog stayed axe-clean while the test mutated it",
+  });
+
+  registerCleanupFunction(async () => {
+    await axeWatcher.finish();
     hideNotification();
   });
 });

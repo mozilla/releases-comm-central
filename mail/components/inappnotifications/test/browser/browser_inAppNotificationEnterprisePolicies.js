@@ -18,6 +18,10 @@ const { NotificationFilter } = ChromeUtils.importESModule(
   "moz-src:///comm/mail/components/inappnotifications/modules/NotificationFilter.sys.mjs"
 );
 
+const { startAxeMutationObserverInWindow } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/AxeHelpers.sys.mjs"
+);
+
 const tabmail = document.getElementById("tabmail");
 
 add_setup(async function () {
@@ -31,7 +35,13 @@ add_setup(async function () {
 
   MockExternalProtocolService.init();
 
+  const axeWatcher = await startAxeMutationObserverInWindow(window, {
+    container: document.querySelector(".in-app-notification-root"),
+    message: "Account Hub dialog stayed axe-clean while the test mutated it",
+  });
+
   registerCleanupFunction(async () => {
+    await axeWatcher.finish();
     await InAppNotifications.updateNotifications([]);
     await EnterprisePolicyTesting.setupPolicyEngineWithJson({ policies: {} });
     EnterprisePolicyTesting.resetRunOnceState();

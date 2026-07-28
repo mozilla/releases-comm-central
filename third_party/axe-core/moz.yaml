@@ -1,0 +1,43 @@
+# All fields are mandatory unless otherwise noted.
+
+schema: 1
+# Version of this schema.
+
+bugzilla:
+  # Bugzilla product and component for this directory and subdirectories.
+  product: Thunderbird
+  component: Testing Infrastructure
+
+origin:
+  name: axe-core
+  description: Accessibility engine for automated Web UI testing
+  url: https://www.deque.com/axe/
+
+  release: 4.12.1 (2026-06-10T10:27:03.257Z).
+  revision: 4.12.1
+
+  license: MPL-2.0
+  license-file: LICENSE
+
+vendoring:
+  url: https://www.npmjs.com/package/axe-core
+  source-hosting: yaml-dir
+  source-host-path: axe_core_vendor.AxeCoreNpmHost
+
+  # The published npm package contains the browser bundle we need.
+  skip-vendoring-steps:
+    - fetch
+    - hg-add
+    - spurious-check
+    - update-moz-build
+
+  keep:
+    - axe_core_vendor.py
+
+  update-actions:
+    - action: run-command
+      command: python
+      args:
+        - axe_core_vendor.py
+        - "{revision}"
+      cwd: "{yaml_dir}"

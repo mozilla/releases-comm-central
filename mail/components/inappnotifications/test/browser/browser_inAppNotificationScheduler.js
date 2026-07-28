@@ -9,6 +9,10 @@
 
 "use strict";
 
+const { startAxeMutationObserverInWindow } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/AxeHelpers.sys.mjs"
+);
+
 add_setup(async function () {
   NotificationManager._PER_TIME_UNIT = 1;
   NotificationScheduler.observe(null, "active");
@@ -17,7 +21,13 @@ add_setup(async function () {
   await TestUtils.waitForTick();
   NotificationScheduler._idleService.disabled = true;
 
+  const axeWatcher = await startAxeMutationObserverInWindow(window, {
+    container: document.querySelector(".in-app-notification-root"),
+    message: "Account Hub dialog stayed axe-clean while the test mutated it",
+  });
+
   registerCleanupFunction(async () => {
+    await axeWatcher.finish();
     NotificationScheduler._idleService.disabled = false;
     await reset();
   });
