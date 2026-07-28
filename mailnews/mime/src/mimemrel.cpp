@@ -484,6 +484,16 @@ static bool MimeMultipartRelated_output_child_p(MimeObject* obj,
             part = mime_set_url_part(obj->options->url, partnum.get(), false);
         }
         if (part) {
+          // Raw MIME part channels get their content type from the URL. Include
+          // it so related resources which cannot be sniffed, such as SVG, load.
+          if (child->content_type) {
+            char* typedPart =
+                PR_smprintf("%s&type=%s", part, child->content_type);
+            if (typedPart) {
+              PR_Free(part);
+              part = typedPart;
+            }
+          }
           char* name = MimeHeaders_get_name(child->headers, child->options);
           // let's stick the filename in the part so save as will work.
           if (!name) {

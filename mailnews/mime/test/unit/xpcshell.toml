@@ -32,6 +32,8 @@ support-files = [
 
 ["test_mime_recursion.js"]
 
+["test_multipart_related_svg.js"]
+
 ["test_multipart_related_start.js"]
 
 ["test_nsIMsgHeaderParser1.js"]
