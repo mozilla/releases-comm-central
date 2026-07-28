@@ -73,6 +73,8 @@ account-hub-email-confirm-button = Confirm
 
 account-hub-email-find-settings-button = Find settings
 
+account-hub-email-connect-button = Connect
+
 account-hub-result-incoming-legend = Incoming
 
 account-hub-result-outgoing-legend = Outgoing

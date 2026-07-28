@@ -621,9 +621,13 @@ div:has(legend) {
 .radio-card-large-group {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  grid-auto-rows: minmax(125px, auto);
   gap: calc(2 * var(--space-base));
   border: none;
-  padding: 5px 0; /* space for the focus ring */
+  /* Top space for the focus ring; inline 0 resets the default fieldset padding
+   * so the cards stay aligned with the form panel. */
+  padding-block: 5px 0;
+  padding-inline: 0;
 }
 
 .panel {
