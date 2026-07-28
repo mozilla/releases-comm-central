@@ -24,9 +24,6 @@ form {
   --hub-form-label-padding: var(--space-step);
   --hub-form-label-height: calc(var(--hub-form-label-line-height) + 2 * var(--hub-form-label-padding));
   --hub-form-input-block-padding: 12px;
-  --hub-config-confirm-space-small: calc(var(--space-step) * 2);
-  --hub-config-confirm-space-medium: calc(var(--space-step) * 3);
-  --hub-config-confirm-space-large: calc(var(--space-step) * 4);
 
   grid-row: header / footer;
 
@@ -651,9 +648,9 @@ div:has(legend) {
   inset-block-start: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--hub-config-confirm-space-large);
+  gap: var(--hub-space-large);
   background-color: var(--color-surface-base);
-  padding: var(--hub-config-confirm-space-medium);
+  padding: var(--hub-space-medium);
   border: 1px solid var(--color-primary-default);
   border-radius: 10px;
 
@@ -666,7 +663,7 @@ div:has(legend) {
   &.config-selection {
     gap: 0;
     &.single {
-      gap: var(--hub-config-confirm-space-medium);
+      gap: var(--hub-space-medium);
     }
 
     &.is-showing-shared-config .shared-config-item,
@@ -679,15 +676,15 @@ div:has(legend) {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     grid-template-rows: auto;
-    gap: var(--hub-config-confirm-space-medium);
+    gap: var(--hub-space-medium);
 
     & .config-column {
       display: flex;
       flex-direction: column;
-      gap: var(--hub-config-confirm-space-medium);
+      gap: var(--hub-space-medium);
 
       .credentials-confirmation & {
-        gap: var(--hub-config-confirm-space-large);
+        gap: var(--hub-space-large);
         padding-block: 15px;
       }
     }
@@ -704,7 +701,7 @@ div:has(legend) {
   & .config-common {
     display: flex;
     flex-direction: column;
-    gap: var(--hub-config-confirm-space-medium);
+    gap: var(--hub-space-medium);
     & .config-header {
       margin-block-start: calc(var(--space-step) * 7);
     }
@@ -713,7 +710,7 @@ div:has(legend) {
   & .config-row {
     display: flex;
     flex-direction: row;
-    gap: var(--hub-config-confirm-space-large);
+    gap: var(--hub-space-large);
   }
 
   & .config-item-icon {
@@ -741,8 +738,8 @@ div:has(legend) {
 
   & .config-header {
     background-color: var(--color-primary-soft);
-    padding: var(--space-step) var(--hub-config-confirm-space-small);
-    gap: var(--hub-config-confirm-space-small);
+    padding: var(--space-step) var(--hub-space-small);
+    gap: var(--hub-space-small);
     border-radius: var(--button-border-radius);
 
     & .header-title {
@@ -762,7 +759,7 @@ div:has(legend) {
   }
 
   & .config-detail {
-    gap: var(--hub-config-confirm-space-medium);
+    gap: var(--hub-space-medium);
 
     .config-protocols & {
       padding-block: 0;
@@ -805,13 +802,13 @@ div:has(legend) {
     }
 
     .config-selection & {
-      gap: var(--hub-config-confirm-space-small);
-      padding-inline-start: var(--hub-config-confirm-space-large);
+      gap: var(--hub-space-small);
+      padding-inline-start: var(--hub-space-large);
 
       & .config-item-data {
         flex-wrap: nowrap;
         flex-direction: row;
-        gap: var(--hub-config-confirm-space-small);
+        gap: var(--hub-space-small);
         inline-size: 100%;
         justify-content: flex-start;
 
@@ -957,10 +954,10 @@ div:has(legend) {
   grid-column: 1 / -1;
   text-align: end;
   margin-block-start: calc(var(--space-step) * 6);
-  padding-block-end: var(--hub-config-confirm-space-medium);
+  padding-block-end: var(--hub-space-medium);
 
   .credentials-confirmation & {
-    padding-block-end: var(--hub-config-confirm-space-small);
+    padding-block-end: var(--hub-space-small);
   }
 
   & .button.link-button {

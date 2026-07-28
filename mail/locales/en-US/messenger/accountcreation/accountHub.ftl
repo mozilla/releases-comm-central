@@ -176,8 +176,6 @@ account-hub-exchange-type-oauth-tenant = Tenant ID
 
 account-hub-exchange-type-oauth-app = App ID
 
-account-hub-exchange-type-advanced-config = Advanced Configuration
-
 ## Other Account Hub strings (sadly not sorted into sections)
 
 account-hub-result-username-label = Username
@@ -405,7 +403,7 @@ account-hub-address-book-bind-dn = Bind DN
 
 account-hub-ldap-form = Connect to an LDAP directory
 
-account-hub-advanced-configuration-button = Advanced Configuration
+account-hub-advanced-configuration-button = Advanced configuration
 
 account-hub-ldap-ssl-toggle-label = Use secure connection (SSL)
 
@@ -572,6 +570,6 @@ account-hub-protocol-pop3 = Download to device
 
 account-hub-oauth-unsupported-title = Additional configuration is required
 
-# Note: 'Advanced Configuration' is the text of the link/button at the bottom of the form (e.g., account-hub-exchange-type-advanced-config)
+# Note: 'Advanced configuration' is the text of the link/button at the bottom of the form (e.g., account-hub-exchange-type-advanced-config)
 # 'Account Settings' is the text of the menu option/tab name accessible outside Account Hub
-account-hub-oauth-unsupported-description = { -brand-short-name } can’t automatically configure OAuth2 for this hostname. Select Advanced Configuration to create the account, then complete setup from Account Settings. <a data-l10n-name="oauth-support-link">Get help with OAuth2 setup.</a>
+account-hub-oauth-unsupported-description = { -brand-short-name } can’t automatically configure OAuth2 for this hostname. Select Advanced configuration to create the account, then complete setup from Account Settings. <a data-l10n-name="oauth-support-link">Get help with OAuth2 setup.</a>

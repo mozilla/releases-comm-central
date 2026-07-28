@@ -198,6 +198,15 @@ class EmailManualConfigForm extends AccountHubStep {
           this.#adjustPortToSSLAndProtocol(this.#currentConfig, false);
         }
         break;
+      case "click":
+        if (event.currentTarget.id === "advancedConfigurationManual") {
+          this.dispatchEvent(
+            new CustomEvent("advanced-config", {
+              bubbles: true,
+            })
+          );
+        }
+        break;
       default:
         break;
     }
@@ -220,6 +229,11 @@ class EmailManualConfigForm extends AccountHubStep {
     ]) {
       field.addEventListener("change", this);
     }
+
+    this.querySelector("#advancedConfigurationManual").addEventListener(
+      "click",
+      this
+    );
   }
 
   /**

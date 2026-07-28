@@ -53,6 +53,10 @@ dialog {
   --hub-close-button-focus-background: var(--color-surface-subtle);
   --hub-close-button-focus-outline-color: var(--color-surface-border-intense);
 
+  --hub-space-small: calc(var(--space-step) * 2);
+  --hub-space-medium: calc(var(--space-step) * 3);
+  --hub-space-large: calc(var(--space-step) * 4);
+
   --success-illustration: var(--hub-success-illustration);
   /* TODO: apply dark mode styling */
 }
@@ -407,6 +411,13 @@ header {
 }
 
 /* Body */
+
+.manual-config-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  block-size: 100%;
+}
 
 .hub-body {
   display: flex;
@@ -921,6 +932,22 @@ header {
       outline: var(--focus-outline);
       outline-offset: var(--focus-outline-offset);
     }
+  }
+
+  &.button-advanced-configuration {
+    display: flex;
+    /* There should be 12px between the bottom of this button, and the top of
+     * the footer buttons. We need to factor in the footer button's top margin,
+     * and the 2px top padding of the 'dialog-menu-container' class */
+    margin-block-end: calc(12px - var(--button-margin) - 2px);
+    margin-inline-start: auto;
+    /* This is needed to align the link with the footer buttons correctly. The
+     * 10px comes from menu.dialog-menu-container in inContentDialog.css  */
+    margin-inline-end: calc(var(--button-border-size) + var(--button-margin) + 10px);
+    padding: var(--hub-space-medium) var(--space-step);
+    text-decoration: underline;
+    font-weight: 500;
+    border: 0;
   }
 }
 

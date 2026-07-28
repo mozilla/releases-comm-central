@@ -432,6 +432,7 @@ class AccountHubEmail extends HTMLElement {
     this.#emailIncomingConfigSubview.addEventListener("config-updated", this);
     this.#emailOutgoingConfigSubview.addEventListener("config-updated", this);
     this.#emailManualConfigSubview.addEventListener("config-updated", this);
+    this.#emailManualConfigSubview.addEventListener("advanced-config", this);
     this.#emailPasswordSubview.addEventListener("config-updated", this);
     this.#emailConfigFoundSubview.addEventListener("edit-configuration", this);
     this.#emailConfigFoundSubview.addEventListener("config-updated", this);
@@ -574,7 +575,6 @@ class AccountHubEmail extends HTMLElement {
     this.#emailManualConfigSubview.hidden = true;
     this.#emailIncomingConfigSubview.hidden = true;
     this.#emailOutgoingConfigSubview.hidden = true;
-    this.#emailManualConfigSubview.hidden = true;
     this.#exchangeSettingsSubview.hidden = true;
     this.#emailCredentialsConfirmationSubview.hidden = true;
     this.#states.emailAutodiscoverAuthenticationSubview.subview.hidden = true;

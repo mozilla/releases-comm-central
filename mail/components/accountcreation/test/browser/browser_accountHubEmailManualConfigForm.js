@@ -11,6 +11,7 @@ const { AccountConfig } = ChromeUtils.importESModule(
 const tabmail = document.getElementById("tabmail");
 let browser;
 let subview;
+let advancedConfigButton;
 
 add_setup(async function () {
   const tab = tabmail.openTab("contentTab", {
@@ -24,6 +25,8 @@ add_setup(async function () {
     "email-manual-config-form"
   );
   EventUtils.synthesizeMouseAtCenter(subview, {}, browser.contentWindow);
+
+  advancedConfigButton = subview.querySelector("#advancedConfigurationManual");
 
   registerCleanupFunction(() => {
     tabmail.closeOtherTabs(tabmail.tabInfo[0]);
@@ -781,6 +784,31 @@ async function fireInputEvent(input, eventName, value) {
     await new Promise(r => setTimeout(r, 100));
   }
 }
+
+add_task(async function test_advancedConfigurationDispatchesEvent() {
+  const state = createFilledAccountConfig();
+  subview.setState(state);
+
+  const advancedConfigEvent = BrowserTestUtils.waitForEvent(
+    subview,
+    "advanced-config"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(
+    advancedConfigButton,
+    {},
+    browser.contentWindow
+  );
+
+  const event = await advancedConfigEvent;
+  Assert.equal(
+    event.target,
+    subview,
+    "Advanced configuration should be requested from the Manual Config subview"
+  );
+
+  subview.resetState();
+});
 
 /**
  * Returns a filled imap AccountConfig object.
