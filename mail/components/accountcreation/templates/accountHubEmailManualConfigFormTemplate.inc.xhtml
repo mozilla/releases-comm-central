@@ -27,6 +27,8 @@
             placeholder="mail.example.com"
             required="required"
             classes="input-field manual-input"
+            config-change-l10n-id="account-hub-manual-config-value-changed"
+            help-text-class="config-change-comment"
           ></account-hub-input>
 
           <!-- Incoming Username -->
@@ -37,6 +39,8 @@
             type="text"
             required="required"
             classes="username input-field manual-input"
+            config-change-l10n-id="account-hub-manual-config-value-changed"
+            help-text-class="config-change-comment"
           ></account-hub-input>
 
           <!-- Incoming Authentication -->
@@ -46,6 +50,8 @@
             required="required"
             value="0"
             flex="1"
+            config-change-l10n-id="account-hub-manual-config-value-changed"
+            help-text-class="config-change-comment"
           >
             <option
               id="manualIncomingAuthMethodAutodetect"
@@ -86,6 +92,8 @@
             l10n-label-id="account-hub-ssl-label"
             l10n-error-id="account-hub-select-security-warning"
             flex="1"
+            config-change-l10n-id="account-hub-manual-config-security-changed"
+            help-text-class="config-change-comment"
           >
             <option
               id="manualIncomingConnectionSecurityAutodetect"
@@ -120,6 +128,8 @@
             max="65535"
             required="required"
             classes="input-field number-input"
+            config-change-l10n-id="account-hub-manual-config-port-changed"
+            help-text-class="config-change-comment"
           ></account-hub-input>
         </fieldset>
         <fieldset
@@ -141,6 +151,8 @@
             placeholder="mail.example.com"
             required="required"
             classes="input-field manual-input"
+            config-change-l10n-id="account-hub-manual-config-value-changed"
+            help-text-class="config-change-comment"
           ></account-hub-input>
 
           <!-- Same Username Checkbox -->
@@ -159,6 +171,8 @@
             required="required"
             classes="username input-field manual-input"
             aria-live="polite"
+            config-change-l10n-id="account-hub-manual-config-value-changed"
+            help-text-class="config-change-comment"
           ></account-hub-input>
 
           <!-- Outgoing Authentication -->
@@ -167,6 +181,8 @@
             l10n-label-id="account-hub-auth-label"
             required="required"
             flex="1"
+            config-change-l10n-id="account-hub-manual-config-value-changed"
+            help-text-class="config-change-comment"
           >
             <option
               id="manualOutgoingAuthMethodAutodetect"
@@ -213,6 +229,8 @@
             l10n-label-id="account-hub-ssl-label"
             l10n-error-id="account-hub-select-security-warning"
             flex="1"
+            config-change-l10n-id="account-hub-manual-config-security-changed"
+            help-text-class="config-change-comment"
           >
             <option
               id="manualOutgoingConnectionSecurityAutodetect"
@@ -247,6 +265,8 @@
             max="65535"
             required="required"
             classes="input-field number-input"
+            config-change-l10n-id="account-hub-manual-config-port-changed"
+            help-text-class="config-change-comment"
           ></account-hub-input>
         </fieldset>
       </div>

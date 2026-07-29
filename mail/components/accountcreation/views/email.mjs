@@ -1646,8 +1646,9 @@ class AccountHubEmail extends HTMLElement {
     this.#startLoading("account-hub-adding-account-subheader");
 
     try {
-      const previousConfig = this.#currentConfig?.copy();
+      const originalConfig = this.#currentConfig?.copy();
       const submittedConfig = this.#fillAccountConfig(stateData);
+      const previousConfig = submittedConfig.copy();
       const config = await this.#guessConfig(
         this.#email.split("@")[1],
         submittedConfig.copy()
@@ -1661,12 +1662,12 @@ class AccountHubEmail extends HTMLElement {
 
       this.#currentConfig = this.#fillAccountConfig(config);
       this.#stopLoading();
-      this.#currentSubview.setState(this.#currentConfig);
+      this.#currentSubview.setState(this.#currentConfig, { previousConfig });
 
       if (this.#currentConfig.isComplete()) {
         if (
-          (previousConfig &&
-            this.#manualConfigFieldsChanged(previousConfig, submittedConfig)) ||
+          (originalConfig &&
+            this.#manualConfigFieldsChanged(originalConfig, submittedConfig)) ||
           this.#manualConfigFieldsChanged(submittedConfig, this.#currentConfig)
         ) {
           this.#currentSubview.setTitle(

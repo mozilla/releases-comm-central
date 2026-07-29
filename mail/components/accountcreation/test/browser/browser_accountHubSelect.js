@@ -99,6 +99,56 @@ add_task(async function test_correctlyHandlesWarning() {
     BrowserTestUtils.isVisible(warning),
     "Warning element should be hidden"
   );
+
+  select.toggleAttribute("warning", false);
+});
+
+add_task(async function test_helpText() {
+  const helpText = select.shadowRoot.querySelector(
+    ".account-hub-form-small-comment"
+  );
+
+  select.setAttribute("help-text-class", "config-change-comment");
+  select.setHelpText("account-hub-manual-config-security-changed", {
+    oldValue: "SSL/TLS",
+    newValue: "STARTTLS",
+  });
+
+  Assert.ok(BrowserTestUtils.isVisible(helpText), "Help text should be shown");
+  Assert.ok(
+    helpText.classList.contains("config-change-comment"),
+    "Should apply the custom help text class"
+  );
+  Assert.deepEqual(
+    document.l10n.getAttributes(helpText),
+    {
+      id: "account-hub-manual-config-security-changed",
+      args: {
+        oldValue: "SSL/TLS",
+        newValue: "STARTTLS",
+      },
+    },
+    "Should apply the help text l10n ID and args"
+  );
+  Assert.equal(
+    select.select.getAttribute("aria-describedby"),
+    helpText.id,
+    "The select should be described by the help text"
+  );
+  Assert.equal(
+    select.getOptionLabel("2"),
+    "Two",
+    "Should return an option label for a value"
+  );
+
+  select.clearHelpText();
+  select.removeAttribute("help-text-class");
+
+  Assert.ok(BrowserTestUtils.isHidden(helpText), "Help text should be hidden");
+  Assert.ok(
+    !select.select.hasAttribute("aria-describedby"),
+    "The select should not be described by hidden help text"
+  );
 });
 
 add_task(async function test_reflectsDisabled() {

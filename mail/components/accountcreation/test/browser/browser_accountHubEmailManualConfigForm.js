@@ -240,6 +240,108 @@ add_task(function test_setStateSetsPop3Title() {
   subview.resetState();
 });
 
+add_task(function test_setStateShowsAutomaticChangeIndicators() {
+  const previousConfig = createFilledAccountConfig();
+  previousConfig.incoming.socketType = Ci.nsMsgSocketType.SSL;
+  previousConfig.incoming.port = 993;
+  previousConfig.outgoing.username = "smtp-user";
+  previousConfig.outgoing.socketType = Ci.nsMsgSocketType.SSL;
+  previousConfig.outgoing.port = 465;
+
+  const updatedConfig = previousConfig.copy();
+  updatedConfig.incoming.socketType = Ci.nsMsgSocketType.alwaysSTARTTLS;
+  updatedConfig.incoming.port = 143;
+  updatedConfig.outgoing.port = 587;
+
+  subview.setState(updatedConfig, { previousConfig });
+
+  const incomingSecurity = subview.querySelector(
+    "#manualIncomingConnectionSecurity"
+  );
+  const incomingSecurityHelp = incomingSecurity.shadowRoot.querySelector(
+    ".account-hub-form-small-comment"
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(incomingSecurityHelp),
+    "Incoming security should show an automatic change indicator"
+  );
+  Assert.deepEqual(
+    document.l10n.getAttributes(incomingSecurityHelp),
+    {
+      id: "account-hub-manual-config-security-changed",
+      args: {
+        oldValue: "SSL/TLS",
+        newValue: "STARTTLS",
+      },
+    },
+    "Incoming security should describe the detected change"
+  );
+
+  const incomingPort = subview.querySelector("#manualIncomingPort");
+  const incomingPortHelp = incomingPort.querySelector(
+    ".account-hub-form-small-comment"
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(incomingPortHelp),
+    "Incoming port should show an automatic change indicator"
+  );
+  Assert.deepEqual(
+    document.l10n.getAttributes(incomingPortHelp),
+    {
+      id: "account-hub-manual-config-port-changed",
+      args: {
+        oldValue: 993,
+        newValue: 143,
+      },
+    },
+    "Incoming port should describe the detected change"
+  );
+  Assert.equal(
+    incomingPort.querySelector("input").getAttribute("aria-describedby"),
+    incomingPortHelp.id,
+    "Incoming port should be described by the automatic change indicator"
+  );
+
+  const outgoingPortHelp = subview
+    .querySelector("#manualOutgoingPort")
+    .querySelector(".account-hub-form-small-comment");
+  Assert.deepEqual(
+    document.l10n.getAttributes(outgoingPortHelp),
+    {
+      id: "account-hub-manual-config-port-changed",
+      args: {
+        oldValue: 465,
+        newValue: 587,
+      },
+    },
+    "Outgoing port should describe the detected change"
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(
+      subview
+        .querySelector("#manualIncomingHostname")
+        .querySelector(".account-hub-form-small-comment")
+    ),
+    "Unchanged fields should not show automatic change indicators"
+  );
+
+  incomingPort.dispatchEvent(
+    new browser.contentWindow.Event("input", { bubbles: true })
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(incomingSecurityHelp),
+    "Editing the form should clear automatic change indicators"
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(incomingPortHelp),
+    "Editing the form should clear input automatic change indicators"
+  );
+
+  subview.resetState();
+});
+
 add_task(function test_setStateClearsTitleForUnknownIncomingType() {
   const state = new AccountConfig();
   state.incoming.type = "exchange";

@@ -564,6 +564,21 @@ account-hub-manual-config-outgoing-legend = Outgoing server
 # Label for checkbox that will hide an outgoing username input if it's the same is the incoming
 account-hub-same-username-checkbox = Same username as incoming server
 
+# Variables:
+# $oldValue (String): The value requested before the configuration was tested.
+# $newValue (String): The value found after the configuration was tested.
+account-hub-manual-config-security-changed = Couldn’t find { $oldValue }, but { $newValue } is available.
+
+# Variables:
+# $oldValue (String): The port requested before the configuration was tested.
+# $newValue (String): The port found after the configuration was tested.
+account-hub-manual-config-port-changed = Couldn’t reach Port { $oldValue }, but Port { $newValue } is available.
+
+# Variables:
+# $oldValue (String): The value requested before the configuration was tested.
+# $newValue (String): The value found after the configuration was tested.
+account-hub-manual-config-value-changed = Couldn’t use { $oldValue }, but { $newValue } is available.
+
 account-hub-protocol-imap = Sync across devices
 
 account-hub-protocol-microsoft = Exchange or Microsoft 365

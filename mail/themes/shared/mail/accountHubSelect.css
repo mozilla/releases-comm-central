@@ -119,4 +119,19 @@ select {
   display: flex;
   flex-wrap: wrap;
   margin-block-start: var(--account-hub-select-margin);
+
+  &:has(select.warning ~ .input-error-message) + .account-hub-form-small-comment {
+    visibility: hidden;
+  }
+}
+
+.account-hub-form-small-comment:not([hidden]) {
+  display: inline-block;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin-block-end: 1rem;
+}
+
+.account-hub-form-small-comment.config-change-comment:not([hidden]) {
+  color: var(--color-primary-pressed);
 }

@@ -25,6 +25,8 @@ const optionalAttributes = [
  * @attribute {string} l10n-error-id - The fluent ID of the error message.
  * @attribute {string} l10n-help-text-id - The fluent ID for the help text. Can
  *   be omitted to not show any help text. Not observed.
+ * @attribute {string} help-text-class - Extra class to apply to visible help
+ *   text. Not observed.
  * @attribute {string} type - The type of input (text, number, etc.). Not
  *   observed.
  * @attribute {string} classes - The classes to be applied to the input element.
@@ -63,6 +65,20 @@ class AccountHubInput extends HTMLElement {
    * @type {HTMLElement}
    */
   #error;
+
+  /**
+   * Help text element for additional input context.
+   *
+   * @type {HTMLElement}
+   */
+  #helpText;
+
+  /**
+   * The default fluent ID for the help text.
+   *
+   * @type {string}
+   */
+  #staticHelpTextId = "";
 
   /**
    * The value of the input element.
@@ -117,6 +133,7 @@ class AccountHubInput extends HTMLElement {
     this.#input = this.querySelector("input");
     this.#label = this.querySelector("label");
     this.#error = this.querySelector("span");
+    this.#helpText = this.querySelector(".account-hub-form-small-comment");
 
     this.#input.id = `${this.id}Input`;
     this.#input.type = this.getAttribute("type");
@@ -125,14 +142,12 @@ class AccountHubInput extends HTMLElement {
 
     this.#label.htmlFor = this.#input.id;
     this.#error.id = `${this.#input.id}ErrorMessage`;
+    this.#helpText.id = `${this.#input.id}HelpText`;
 
     const helpTextId = this.getAttribute("l10n-help-text-id");
     if (helpTextId) {
-      const helpText = this.querySelector(".account-hub-form-small-comment");
-      helpText.id = `${this.#input.id}HelpText`;
-      helpText.hidden = false;
-      document.l10n.setAttributes(helpText, helpTextId);
-      this.#input.ariaDescribedByElements = [helpText];
+      this.#staticHelpTextId = helpTextId;
+      this.#showHelpText(helpTextId);
     }
 
     for (const attribute of optionalAttributes) {
@@ -184,14 +199,7 @@ class AccountHubInput extends HTMLElement {
     if (!error?.length) {
       this.#input.setCustomValidity("");
       this.#input.ariaInvalid = "false";
-      const helpText = this.querySelector(
-        ".account-hub-form-small-comment:not([hidden])"
-      );
-      if (helpText) {
-        this.#input.setAttribute("aria-describedby", helpText.id);
-      } else {
-        this.#input.ariaDescribedByElements = [];
-      }
+      this.#syncDescription();
       this.#error.removeAttribute("role");
       return;
     }
@@ -200,6 +208,67 @@ class AccountHubInput extends HTMLElement {
     this.#input.ariaInvalid = "true";
     this.#input.setAttribute("aria-describedby", this.#error.id);
     this.#error.role = "alert";
+  }
+
+  /**
+   * Set or replace the visible help text for the input.
+   *
+   * @param {string} l10nId - Fluent ID for the help text.
+   * @param {object} [l10nArgs] - Fluent args for the help text.
+   */
+  setHelpText(l10nId, l10nArgs) {
+    this.#showHelpText(l10nId, l10nArgs);
+  }
+
+  /**
+   * Clear custom help text and restore the default help text if one exists.
+   */
+  clearHelpText() {
+    if (this.#staticHelpTextId) {
+      this.#showHelpText(this.#staticHelpTextId);
+      return;
+    }
+
+    this.#helpText.hidden = true;
+    this.#helpText.className = "account-hub-form-small-comment";
+    this.#helpText.textContent = "";
+    this.#helpText.removeAttribute("data-l10n-id");
+    this.#helpText.removeAttribute("data-l10n-args");
+    this.#syncDescription();
+  }
+
+  /**
+   * Show the help text.
+   *
+   * @param {string} l10nId - Fluent ID for the help text.
+   * @param {object} [l10nArgs] - Fluent args for the help text.
+   */
+  #showHelpText(l10nId, l10nArgs) {
+    this.#helpText.hidden = false;
+    this.#helpText.className = "account-hub-form-small-comment";
+    const className = this.getAttribute("help-text-class");
+    if (className) {
+      this.#helpText.classList.add(className);
+    }
+    document.l10n.setAttributes(this.#helpText, l10nId, l10nArgs);
+    this.#syncDescription();
+  }
+
+  /**
+   * Keep the input's accessible description aligned with its visual state.
+   */
+  #syncDescription() {
+    if (this.#input.getAttribute("aria-invalid") == "true") {
+      this.#input.setAttribute("aria-describedby", this.#error.id);
+      return;
+    }
+
+    if (!this.#helpText.hidden) {
+      this.#input.setAttribute("aria-describedby", this.#helpText.id);
+      return;
+    }
+
+    this.#input.ariaDescribedByElements = [];
   }
 
   /**

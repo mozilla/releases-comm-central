@@ -19,6 +19,8 @@ const { OAuth2Providers } = ChromeUtils.importESModule(
 );
 
 const CONFIG_CHANGE_INPUT_DEBOUNCE_MS = 100;
+const DEFAULT_CONFIG_CHANGE_HELP_TEXT_ID =
+  "account-hub-manual-config-value-changed";
 
 const { assert, gAccountSetupLogger, standardPorts } = AccountCreationUtils;
 
@@ -185,10 +187,12 @@ class EmailManualConfigForm extends AccountHubStep {
   handleEvent(event) {
     switch (event.type) {
       case "input":
+        this.#clearAutomaticChangeIndicators();
         this.#queueConfigChange(event.currentTarget);
         break;
       case "change":
         this.#runConfigChanged();
+        this.#clearAutomaticChangeIndicators();
         if (event.currentTarget == this.#sameUsernameCheckbox) {
           this.#hideOutgoingUsername(this.#sameUsernameCheckbox.checked);
         }
@@ -240,13 +244,17 @@ class EmailManualConfigForm extends AccountHubStep {
    * Sets the state of the manual config form.
    *
    * @param {AccountConfig} configData - An account configuration object.
+   * @param {object} [options]
+   * @param {AccountConfig} [options.previousConfig] - The configuration before
+   *   it was tested and updated.
    */
-  setState(configData) {
+  setState(configData, { previousConfig } = {}) {
     this.#currentConfig = configData;
     this.#updateFields(this.#currentConfig);
     this.#clearQueuedConfigChange();
     this.#isShowingErrors = false;
     this.#clearFieldErrors();
+    this.#clearAutomaticChangeIndicators();
     this.clearNotifications();
     const incomingType = configData.incoming?.type;
 
@@ -262,6 +270,10 @@ class EmailManualConfigForm extends AccountHubStep {
     }
 
     this.setTitle(incomingTypeId);
+
+    if (previousConfig) {
+      this.#showAutomaticChangeIndicators(previousConfig, this.#currentConfig);
+    }
   }
 
   /**
@@ -572,6 +584,26 @@ class EmailManualConfigForm extends AccountHubStep {
   }
 
   /**
+   * The fields that should show help text when testing changes their config.
+   *
+   * @returns {Record<string, AccountHubInput|AccountHubSelect>}
+   */
+  get #configChangeFields() {
+    return {
+      "incoming.hostname": this.#incomingHostname,
+      "incoming.username": this.#incomingUsername,
+      "incoming.auth": this.#incomingAuthenticationMethod,
+      "incoming.socketType": this.#incomingConnectionSecurity,
+      "incoming.port": this.#incomingPort,
+      "outgoing.hostname": this.#outgoingHostname,
+      "outgoing.username": this.#outgoingUsername,
+      "outgoing.auth": this.#outgoingAuthenticationMethod,
+      "outgoing.socketType": this.#outgoingConnectionSecurity,
+      "outgoing.port": this.#outgoingPort,
+    };
+  }
+
+  /**
    * Update the stored configuration from the current fields.
    *
    * @param {object} options
@@ -799,6 +831,68 @@ class EmailManualConfigForm extends AccountHubStep {
   }
 
   /**
+   * Show help text next to fields updated by the configuration test.
+   *
+   * @param {AccountConfig} previousConfig - The user-submitted configuration.
+   * @param {AccountConfig} currentConfig - The tested configuration to show.
+   */
+  #showAutomaticChangeIndicators(previousConfig, currentConfig) {
+    assert(previousConfig instanceof AccountConfig);
+    assert(currentConfig instanceof AccountConfig);
+
+    for (const [path, element] of Object.entries(this.#configChangeFields)) {
+      let oldValue = this.#getConfigValue(previousConfig, path);
+      let newValue = this.#getConfigValue(currentConfig, path);
+
+      if (oldValue === newValue) {
+        continue;
+      }
+
+      if (element.localName == "account-hub-select") {
+        oldValue = element.getOptionLabel(oldValue);
+        newValue = element.getOptionLabel(newValue);
+      }
+
+      element.setHelpText(
+        element.getAttribute("config-change-l10n-id") ||
+          DEFAULT_CONFIG_CHANGE_HELP_TEXT_ID,
+        { oldValue, newValue }
+      );
+    }
+  }
+
+  /**
+   * Get a nested value from a configuration object.
+   *
+   * @param {AccountConfig} config - The configuration to read.
+   * @param {string} path - A dot-separated path.
+   * @returns {*} The value at the requested path.
+   */
+  #getConfigValue(config, path) {
+    return path.split(".").reduce((value, key) => value?.[key], config);
+  }
+
+  /**
+   * Clear help text added for automatically updated settings.
+   */
+  #clearAutomaticChangeIndicators() {
+    for (const field of [
+      this.#incomingHostname,
+      this.#incomingUsername,
+      this.#incomingAuthenticationMethod,
+      this.#incomingConnectionSecurity,
+      this.#incomingPort,
+      this.#outgoingHostname,
+      this.#outgoingUsername,
+      this.#outgoingAuthenticationMethod,
+      this.#outgoingConnectionSecurity,
+      this.#outgoingPort,
+    ]) {
+      field.clearHelpText();
+    }
+  }
+
+  /**
    * Show a notification listing every invalid field.
    *
    * @param {Array<{input: AccountHubInput, labelId: string}>} errors - Invalid
@@ -891,6 +985,7 @@ class EmailManualConfigForm extends AccountHubStep {
     this.#outgoingUsername.required = true;
     this.#isShowingErrors = false;
     this.#clearFieldErrors();
+    this.#clearAutomaticChangeIndicators();
     this.clearNotifications();
   }
 }

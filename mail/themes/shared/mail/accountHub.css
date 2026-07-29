@@ -959,6 +959,10 @@ header {
   margin-block-end: 1rem;
 }
 
+.account-hub-form-small-comment.config-change-comment:not([hidden]) {
+  color: var(--color-primary-pressed);
+}
+
 /* Footer */
 
 .hub-footer {
