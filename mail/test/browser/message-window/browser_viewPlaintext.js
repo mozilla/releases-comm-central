@@ -8,7 +8,7 @@
 
 "use strict";
 
-var { open_message_from_file } = ChromeUtils.importESModule(
+var { get_about_message, open_message_from_file } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
 
@@ -19,8 +19,14 @@ var { open_message_from_file } = ChromeUtils.importESModule(
  * @param {string} aExpected - Expected content.
  * @param {string} aDontWantToSee - Content of other MIME parts we don't want to see.
  */
-function check_content(aWindow, aExpected, aDontWantToSee) {
-  const messageContent = aWindow.content.document.documentElement.textContent;
+async function check_content(aWindow, aExpected, aDontWantToSee) {
+  const messageContent = await SpecialPowers.spawn(
+    get_about_message(aWindow).getMessagePaneBrowser(),
+    [],
+    function () {
+      return content.document.documentElement.textContent;
+    }
+  );
 
   if (aExpected != aDontWantToSee) {
     Assert.ok(
@@ -62,14 +68,14 @@ async function checkSingleMessage(
   Services.prefs.setBoolPref("mailnews.display.prefer_plaintext", true);
   Services.prefs.setIntPref("mailnews.display.html_as", 1);
   let msgc = await open_message_from_file(file);
-  check_content(msgc, aExpectedPlainText, aExpectedHTML);
+  await check_content(msgc, aExpectedPlainText, aExpectedHTML);
   await BrowserTestUtils.closeWindow(msgc);
 
   // Load and display as HTML.
   Services.prefs.setBoolPref("mailnews.display.prefer_plaintext", false);
   Services.prefs.setIntPref("mailnews.display.html_as", 0);
   msgc = await open_message_from_file(file);
-  check_content(msgc, aExpectedHTML, aExpectedPlainText);
+  await check_content(msgc, aExpectedHTML, aExpectedPlainText);
   await BrowserTestUtils.closeWindow(msgc);
 }
 

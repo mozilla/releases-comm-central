@@ -104,12 +104,6 @@ function addToFolder(aSubject, aBody, aFolder) {
   return aFolder.msgDatabase.getMsgHdrForMessageID(msgId);
 }
 
-/** Check if the test image is loaded (remote content allowed). */
-function isImageLoaded(document) {
-  const img = document.getElementById("testelement");
-  return img && img.naturalWidth > 0 && img.naturalHeight > 0;
-}
-
 /**
  * Test that a Block exception for a sender prevents remote content from
  * loading, even when the global "Allow remote content" pref is enabled.
@@ -151,12 +145,14 @@ add_task(async function test_blockSenderWhenGlobalAllow() {
   await assert_selected_and_displayed(gMsgNo);
 
   // The remote image should be BLOCKED because of the sender Block exception.
-  const messageDocument =
-    get_about_message().getMessagePaneBrowser().contentDocument;
-  Assert.ok(
-    !isImageLoaded(messageDocument),
-    "remote image should be blocked due to sender Block exception"
-  );
+  const messagePaneBrowser = get_about_message().getMessagePaneBrowser();
+  await SpecialPowers.spawn(messagePaneBrowser, [], function () {
+    const img = content.document.getElementById("testelement");
+    Assert.ok(
+      !img || img.naturalWidth == 0 || img.naturalHeight == 0,
+      "remote image should be blocked due to sender Block exception"
+    );
+  });
 
   // Clean up.
   removePermission(senderURI);
@@ -198,12 +194,14 @@ add_task(async function test_allowWhenGlobalAllowNoExceptions() {
 
   // The remote image should be ALLOWED because global allow is on and there
   // are no block exceptions.
-  const messageDocument =
-    get_about_message().getMessagePaneBrowser().contentDocument;
-  Assert.ok(
-    isImageLoaded(messageDocument),
-    "remote image should be allowed when global allow is on and no block exceptions exist"
-  );
+  const messagePaneBrowser = get_about_message().getMessagePaneBrowser();
+  await SpecialPowers.spawn(messagePaneBrowser, [], function () {
+    const img = content.document.getElementById("testelement");
+    Assert.ok(
+      img && img.naturalWidth > 0 && img.naturalHeight > 0,
+      "remote image should be allowed when global allow is on and no block exceptions exist"
+    );
+  });
 });
 
 /**
@@ -245,12 +243,14 @@ add_task(async function test_blockContentURLWhenGlobalAllow() {
   await assert_selected_and_displayed(gMsgNo);
 
   // The remote image should be BLOCKED because of the content URL Block exception.
-  const messageDocument =
-    get_about_message().getMessagePaneBrowser().contentDocument;
-  Assert.ok(
-    !isImageLoaded(messageDocument),
-    "remote image should be blocked due to content URL Block exception"
-  );
+  const messagePaneBrowser = get_about_message().getMessagePaneBrowser();
+  await SpecialPowers.spawn(messagePaneBrowser, [], function () {
+    const img = content.document.getElementById("testelement");
+    Assert.ok(
+      !img || img.naturalWidth == 0 || img.naturalHeight == 0,
+      "remote image should be blocked due to content URL Block exception"
+    );
+  });
 
   // Clean up.
   removePermission(imageURI);

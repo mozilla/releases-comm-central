@@ -37,11 +37,10 @@ add_task(async function test_quoteMessage() {
   const file = new FileUtils.File(getTestFilePath("data/iso-2022-jp.eml"));
   const msgc = await open_message_from_file(file);
   // Copy the message to a folder, so that Quote Message menu item is enabled.
-  const documentChild = msgc.content.document.documentElement;
   EventUtils.synthesizeMouseAtCenter(
-    documentChild,
-    { type: "contextmenu", button: 2 },
-    documentChild.documentGlobal
+    msgc.document.documentElement,
+    { type: "contextmenu" },
+    msgc
   );
   const aboutMessage = get_about_message(msgc);
   await click_menus_in_sequence(

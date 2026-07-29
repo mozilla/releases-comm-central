@@ -18,9 +18,13 @@ add_task(async function test_base64_display() {
   );
   const msgc = await open_message_from_file(file);
   const aboutMessage = get_about_message(msgc);
-  const bodyText = aboutMessage.document
-    .getElementById("messagepane")
-    .contentDocument.querySelector("body").textContent;
+  const bodyText = await SpecialPowers.spawn(
+    aboutMessage.getMessagePaneBrowser(),
+    [],
+    function () {
+      return content.document.body.textContent;
+    }
+  );
   await BrowserTestUtils.closeWindow(msgc);
 
   Assert.ok(
@@ -35,9 +39,13 @@ add_task(async function test_base64_display2() {
   );
   const msgc = await open_message_from_file(file);
   const aboutMessage = get_about_message(msgc);
-  const bodyText = aboutMessage.document
-    .getElementById("messagepane")
-    .contentDocument.querySelector("body").textContent;
+  const bodyText = await SpecialPowers.spawn(
+    aboutMessage.getMessagePaneBrowser(),
+    [],
+    function () {
+      return content.document.body.textContent;
+    }
+  );
   await BrowserTestUtils.closeWindow(msgc);
 
   Assert.ok(

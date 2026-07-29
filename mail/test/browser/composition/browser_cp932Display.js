@@ -19,9 +19,13 @@ add_task(async function test_cp932_display() {
   const aboutMessage = get_about_message(msgc);
   const subjectText =
     aboutMessage.document.getElementById("expandedsubjectBox").textContent;
-  const bodyText = aboutMessage.document
-    .getElementById("messagepane")
-    .contentDocument.querySelector("body").textContent;
+  const bodyText = await SpecialPowers.spawn(
+    aboutMessage.getMessagePaneBrowser(),
+    [],
+    function () {
+      return content.document.body.textContent;
+    }
+  );
   Assert.ok(
     subjectText.includes("ここに本文がきます。"),
     "Decoded cp932 text not found in message subject. subjectText=" +

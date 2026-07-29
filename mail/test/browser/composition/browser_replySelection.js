@@ -22,71 +22,105 @@ var { click_menus_in_sequence, close_window } = ChromeUtils.importESModule(
 async function subtest(path) {
   const file = new FileUtils.File(getTestFilePath(path));
   const msgc = await open_message_from_file(file);
-
   const aboutMessage = get_about_message(msgc);
-  const win = aboutMessage.document.getElementById("messagepane").contentWindow;
-  const doc =
-    aboutMessage.document.getElementById("messagepane").contentDocument;
-  const selection = win.getSelection();
 
-  const text = doc.querySelector(
-    "body > div.moz-text-plain > pre.moz-quote-pre"
+  // Select lines 2-3 of the text.
+  await SpecialPowers.spawn(
+    aboutMessage.getMessagePaneBrowser(),
+    [],
+    function () {
+      const selection = content.getSelection();
+
+      const text = content.document.querySelector(
+        "body > div.moz-text-plain > pre.moz-quote-pre"
+      );
+
+      const range1 = content.document.createRange();
+      range1.setStart(text.firstChild, 6);
+      range1.setEnd(text.firstChild, 20);
+
+      selection.removeAllRanges();
+      selection.addRange(range1);
+    }
   );
 
-  // Lines 2-3 of the text.
-  const range1 = doc.createRange();
-  range1.setStart(text.firstChild, 6);
-  range1.setEnd(text.firstChild, 20);
+  let cwc = await open_compose_with_reply(msgc);
+  let blockquote = cwc.document
+    .getElementById("messageEditor")
+    .contentDocument.body.querySelector("blockquote");
 
-  // The <pre> node itself.
-  const range2 = doc.createRange();
-  range2.setStart(text, 0);
-  range2.setEnd(text, 1);
+  let pre = blockquote.querySelector(":scope > pre");
+  Assert.ok(pre, "the non-flowed content should be in a <pre>");
+  Assert.ok(
+    pre.classList.contains("moz-quote-pre"),
+    "<pre> should have the 'moz-quote-pre' class"
+  );
+  Assert.equal(
+    getComputedStyle(pre).whiteSpace,
+    "pre-wrap",
+    "quoted text should visually wrap"
+  );
+  Assert.ok(
+    !pre.innerHTML.includes("<"),
+    "should be all text, no tags in the message text"
+  );
+  Assert.equal(
+    pre.textContent,
+    "line 2\nline 3",
+    "selected text should be quoted correctly"
+  );
+  await close_compose_window(cwc);
 
-  for (const range of [range1, range2]) {
-    selection.removeAllRanges();
-    selection.addRange(range);
+  // Select the <pre> node itself.
+  await SpecialPowers.spawn(
+    aboutMessage.getMessagePaneBrowser(),
+    [],
+    function () {
+      const selection = content.getSelection();
 
-    const cwc = await open_compose_with_reply(msgc);
-    const blockquote = cwc.document
-      .getElementById("messageEditor")
-      .contentDocument.body.querySelector("blockquote");
-
-    const pre = blockquote.querySelector(":scope > pre");
-    Assert.ok(pre, "the non-flowed content should be in a <pre>");
-    Assert.ok(
-      pre.classList.contains("moz-quote-pre"),
-      "<pre> should have the 'moz-quote-pre' class"
-    );
-    Assert.equal(
-      getComputedStyle(pre).whiteSpace,
-      "pre-wrap",
-      "quoted text should visually wrap"
-    );
-    Assert.ok(
-      !pre.innerHTML.includes("<"),
-      "should be all text, no tags in the message text"
-    );
-    if (range == range1) {
-      Assert.equal(
-        pre.textContent,
-        "line 2\nline 3",
-        "selected text should be quoted correctly"
+      const text = content.document.querySelector(
+        "body > div.moz-text-plain > pre.moz-quote-pre"
       );
+
+      const range2 = content.document.createRange();
+      range2.setStart(text, 0);
+      range2.setEnd(text, 1);
+
+      selection.removeAllRanges();
+      selection.addRange(range2);
     }
-    if (range == range2) {
-      const textContent = pre.textContent;
-      const line = textContent.slice(
-        textContent.indexOf("line 7"),
-        textContent.lastIndexOf("line 7") + 6
-      );
-      Assert.ok(
-        !line.includes("\n"),
-        "long lines of quoted text should not contain \\n"
-      );
-    }
-    await close_compose_window(cwc);
-  }
+  );
+
+  cwc = await open_compose_with_reply(msgc);
+  blockquote = cwc.document
+    .getElementById("messageEditor")
+    .contentDocument.body.querySelector("blockquote");
+
+  pre = blockquote.querySelector(":scope > pre");
+  Assert.ok(pre, "the non-flowed content should be in a <pre>");
+  Assert.ok(
+    pre.classList.contains("moz-quote-pre"),
+    "<pre> should have the 'moz-quote-pre' class"
+  );
+  Assert.equal(
+    getComputedStyle(pre).whiteSpace,
+    "pre-wrap",
+    "quoted text should visually wrap"
+  );
+  Assert.ok(
+    !pre.innerHTML.includes("<"),
+    "should be all text, no tags in the message text"
+  );
+  const textContent = pre.textContent;
+  const line = textContent.slice(
+    textContent.indexOf("line 7"),
+    textContent.lastIndexOf("line 7") + 6
+  );
+  Assert.ok(
+    !line.includes("\n"),
+    "long lines of quoted text should not contain \\n"
+  );
+  await close_compose_window(cwc);
 
   await BrowserTestUtils.closeWindow(msgc);
 }
@@ -97,26 +131,29 @@ async function html_pre_subtest(path) {
   const msgc = await open_message_from_file(file);
 
   const aboutMessage = get_about_message(msgc);
-  const win = aboutMessage.document.getElementById("messagepane").contentWindow;
-  const doc =
-    aboutMessage.document.getElementById("messagepane").contentDocument;
-  const selection = win.getSelection();
+  await SpecialPowers.spawn(
+    aboutMessage.getMessagePaneBrowser(),
+    [],
+    function () {
+      const selection = content.getSelection();
 
-  // Use a looser selector because Thunderbird wraps HTML bodies in container
-  // divs.
-  const text = doc.querySelector("pre");
+      // Use a looser selector because Thunderbird wraps HTML bodies in container
+      // divs.
+      const text = content.document.querySelector("pre");
 
-  // Lines 2-3 of the text.
-  // Note: HTML parsers strip the newline immediately following a <pre> tag.
-  // The firstChild text node actually contains: "line 1\nline 2\nline 3\n..."
-  // Index 7 starts exactly at "l" in "line 2"
-  // Index 20 ends exactly after "3" in "line 3"
-  const range = doc.createRange();
-  range.setStart(text.firstChild, 7);
-  range.setEnd(text.firstChild, 20);
+      // Lines 2-3 of the text.
+      // Note: HTML parsers strip the newline immediately following a <pre> tag.
+      // The firstChild text node actually contains: "line 1\nline 2\nline 3\n..."
+      // Index 7 starts exactly at "l" in "line 2"
+      // Index 20 ends exactly after "3" in "line 3"
+      const range = content.document.createRange();
+      range.setStart(text.firstChild, 7);
+      range.setEnd(text.firstChild, 20);
 
-  selection.removeAllRanges();
-  selection.addRange(range);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+  );
 
   const cwc = await open_compose_with_reply(msgc);
   const blockquote = cwc.document

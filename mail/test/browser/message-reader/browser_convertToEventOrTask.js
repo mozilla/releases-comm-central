@@ -67,15 +67,11 @@ add_task(async function test_convertToEvent() {
   await be_in_folder(folder);
 
   // Copy the message to a folder.
-  const aboutMessage =
-    msgc.document.getElementById("messageBrowser").contentWindow;
-  const documentChild = aboutMessage.document
-    .getElementById("messagepane")
-    .contentDocument.querySelector("div.moz-text-flowed");
-  EventUtils.synthesizeMouseAtCenter(
-    documentChild,
+  const aboutMessage = get_about_message(msgc);
+  await BrowserTestUtils.synthesizeMouseAtCenter(
+    "div.moz-text-flowed",
     { type: "contextmenu", button: 2 },
-    documentChild.documentGlobal
+    aboutMessage.getMessagePaneBrowser()
   );
   await click_menus_in_sequence(
     aboutMessage.document.getElementById("mailContext"),

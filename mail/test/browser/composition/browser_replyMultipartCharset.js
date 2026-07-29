@@ -69,11 +69,10 @@ async function subtest_replyEditAsNewForward_charset(
   // since replying/editing as new/forwarding directly to the message
   // opened from a file gives different results on different platforms.
   // All platforms behave the same when using a folder-stored message.
-  const documentChild = msgc.content.document.documentElement;
   EventUtils.synthesizeMouseAtCenter(
-    documentChild,
-    { type: "contextmenu", button: 2 },
-    documentChild.documentGlobal
+    msgc.document.documentElement,
+    { type: "contextmenu" },
+    msgc
   );
   const aboutMessage = get_about_message(msgc);
   await click_menus_in_sequence(

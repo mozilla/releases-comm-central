@@ -11,7 +11,7 @@
 
 "use strict";
 
-var { open_message_from_file } = ChromeUtils.importESModule(
+var { get_about_message, open_message_from_file } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
 
@@ -22,7 +22,13 @@ async function extract_eml_body_textcontent(eml) {
 
   // Be sure to view message body as Original HTML
   msgc.MsgBodyAllowHTML();
-  const textContent = msgc.content.document.documentElement.textContent;
+  const textContent = await SpecialPowers.spawn(
+    get_about_message(msgc).getMessagePaneBrowser(),
+    [],
+    function () {
+      return content.document.documentElement.textContent;
+    }
+  );
 
   await BrowserTestUtils.closeWindow(msgc);
   return textContent;

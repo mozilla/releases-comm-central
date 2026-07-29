@@ -22,47 +22,53 @@ add_task(async function testMMS() {
     getTestFilePath("data/bug1774805_android_mms.eml")
   );
   const msgc = await open_message_from_file(file);
-
-  const imgs = msgc.content.document.querySelectorAll("img");
-  // There are dottedline600.gif, tbmobilespace.gif x 3, footer.gif.
-  Assert.equal(imgs.length, 5, "body should show all images");
-
-  const lines = msgc.content.document.querySelectorAll(
-    `img[src$="dottedline600.gif"]`
-  );
-  Assert.equal(lines.length, 1, "should have one dottedline600.gif");
-
-  const spacers = msgc.content.document.querySelectorAll(
-    `img[src$="tmobilespace.gif"]`
-  );
-  Assert.equal(spacers.length, 3, "should have three tmobilespace.gif");
-
-  const footer = msgc.content.document.querySelectorAll(
-    `img[src$="footer.gif"]`
-  );
-  Assert.equal(footer.length, 1, "should have one footer.gif");
-
-  for (var img of imgs) {
-    Assert.greater(
-      img.naturalHeight,
-      0,
-      `img should have naturalHeight: ${img.src}`
-    );
-    Assert.greater(
-      img.naturalWidth,
-      0,
-      `img should have naturalWidth: ${img.src}`
-    );
-  }
-
-  Assert.ok(
-    msgc.content.document.body.textContent.includes(
-      "This is a sample SMS text to email"
-    ),
-    "Body should have the right text"
-  );
-
   const aboutMessage = get_about_message(msgc);
+
+  await SpecialPowers.spawn(
+    aboutMessage.getMessagePaneBrowser(),
+    [],
+    function () {
+      const imgs = content.document.querySelectorAll("img");
+      // There are dottedline600.gif, tbmobilespace.gif x 3, footer.gif.
+      Assert.equal(imgs.length, 5, "body should show all images");
+
+      const lines = content.document.querySelectorAll(
+        `img[src$="dottedline600.gif"]`
+      );
+      Assert.equal(lines.length, 1, "should have one dottedline600.gif");
+
+      const spacers = content.document.querySelectorAll(
+        `img[src$="tmobilespace.gif"]`
+      );
+      Assert.equal(spacers.length, 3, "should have three tmobilespace.gif");
+
+      const footer = content.document.querySelectorAll(
+        `img[src$="footer.gif"]`
+      );
+      Assert.equal(footer.length, 1, "should have one footer.gif");
+
+      for (var img of imgs) {
+        Assert.greater(
+          img.naturalHeight,
+          0,
+          `img should have naturalHeight: ${img.src}`
+        );
+        Assert.greater(
+          img.naturalWidth,
+          0,
+          `img should have naturalWidth: ${img.src}`
+        );
+      }
+
+      Assert.ok(
+        content.document.body.textContent.includes(
+          "This is a sample SMS text to email"
+        ),
+        "Body should have the right text"
+      );
+    }
+  );
+
   const attachmentList = aboutMessage.document.getElementById("attachmentList");
   Assert.equal(
     attachmentList.childNodes.length,

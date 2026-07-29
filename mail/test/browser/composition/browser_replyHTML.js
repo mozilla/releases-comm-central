@@ -45,19 +45,24 @@ add_task(async function testReplySelection() {
   const msgc = await open_message_from_file(file);
 
   const aboutMessage = get_about_message(msgc);
-  const win = aboutMessage.document.getElementById("messagepane").contentWindow;
-  const doc =
-    aboutMessage.document.getElementById("messagepane").contentDocument;
-  const selection = win.getSelection();
+  await SpecialPowers.spawn(
+    aboutMessage.getMessagePaneBrowser(),
+    [],
+    function () {
+      const selection = content.getSelection();
 
-  const text = doc.querySelector("body > div.moz-text-html > p");
+      const text = content.document.querySelector(
+        "body > div.moz-text-html > p"
+      );
 
-  const range = doc.createRange();
-  range.setStart(text.firstChild, 18);
-  range.setEnd(text.firstChild, 32);
+      const range = content.document.createRange();
+      range.setStart(text.firstChild, 18);
+      range.setEnd(text.firstChild, 32);
 
-  selection.removeAllRanges();
-  selection.addRange(range);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+  );
 
   const cwc = await open_compose_with_reply(msgc);
   const blockquote = cwc.document

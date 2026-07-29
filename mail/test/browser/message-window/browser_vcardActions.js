@@ -11,29 +11,9 @@
 var { get_cards_in_all_address_books_for_email } = ChromeUtils.importESModule(
   "resource://testing-common/mail/AddressBookHelpers.sys.mjs"
 );
-
-async function openMessageFromFile(file) {
-  const fileURL = Services.io
-    .newFileURI(file)
-    .mutate()
-    .setQuery("type=application/x-message-display")
-    .finalize();
-
-  const winPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
-  window.openDialog(
-    "chrome://messenger/content/messageWindow.xhtml",
-    "_blank",
-    "all,chrome,dialog=no,status,toolbar",
-    fileURL
-  );
-  const win = await winPromise;
-  await BrowserTestUtils.waitForEvent(win, "MsgLoaded");
-  if (win.content.document.readyState != "complete") {
-    await BrowserTestUtils.waitForEvent(win.content, "load", true);
-  }
-  await TestUtils.waitForCondition(() => Services.focus.activeWindow == win);
-  return win;
-}
+var { get_about_message, open_message_from_file } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+);
 
 /**
  * Bug 1374779
@@ -51,12 +31,14 @@ add_task(async function test_check_vcard_icon() {
   const tabPromise = BrowserTestUtils.waitForEvent(window, "TabOpen");
 
   const file = new FileUtils.File(getTestFilePath("data/test-vcard-icon.eml"));
-  const messageWindow = await openMessageFromFile(file);
+  const messageWindow = await open_message_from_file(file);
 
   // Click icon on the vcard block.
-  const vcard =
-    messageWindow.content.document.querySelector(".moz-vcard-badge");
-  EventUtils.synthesizeMouseAtCenter(vcard, {}, vcard.documentGlobal);
+  await BrowserTestUtils.synthesizeMouseAtCenter(
+    ".moz-vcard-badge",
+    {},
+    get_about_message(messageWindow).getMessagePaneBrowser()
+  );
   await tabPromise;
   await TestUtils.waitForCondition(
     () => Services.focus.activeWindow == window,

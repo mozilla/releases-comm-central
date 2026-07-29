@@ -70,11 +70,10 @@ add_task(async function test_copy_eml_message() {
     "11111111-bdfd-ca83-6479-3427940164a8@invalid"
   );
 
-  const documentChild = msgc.content.document.documentElement;
   EventUtils.synthesizeMouseAtCenter(
-    documentChild,
-    { type: "contextmenu", button: 2 },
-    documentChild.documentGlobal
+    msgc.document.documentElement,
+    { type: "contextmenu" },
+    msgc
   );
   await click_menus_in_sequence(
     aboutMessage.document.getElementById("mailContext"),
