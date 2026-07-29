@@ -160,11 +160,18 @@ class SendTracker {
       "extension-send-activity-event",
       { extensionName: this.extensionName, count }
     );
+
     const seconds = Math.max(1, Math.round((batchEndMs - batchStartMs) / 1000));
+
+    const time = new Intl.DurationFormat(undefined, {
+      style: "long",
+    }).format({ seconds });
+
     const statusText = lazy.l10n.formatValueSync(
-      "extension-send-activity-event-status",
-      { count, seconds }
+      "extension-sent-activity-event-status",
+      { count, time }
     );
+
     const event = new ActivityEvent(
       displayText,
       null,

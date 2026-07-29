@@ -419,8 +419,13 @@ add_task(async function test_send_activity_logged_single() {
   );
   Assert.stringContains(
     events[0].statusText,
-    "1 message in 1 second",
-    "Activity event status line should report 1 message in 1 second"
+    "1 message",
+    "Activity event status line should report one sent message"
+  );
+  Assert.stringContains(
+    events[0].statusText,
+    "1 second",
+    "Activity event status line should report the elapsed time"
   );
 
   await extension.unload();

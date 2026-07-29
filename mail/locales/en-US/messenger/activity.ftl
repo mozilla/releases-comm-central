@@ -103,19 +103,13 @@ extension-send-activity-event = { $count ->
    *[other] Extension “{ $extensionName }” sent multiple unattended messages
 }
 
-# Status line shown under extension-send-activity-event. Reports how many
-# messages were sent and the wall-clock time between the first and last send in
-# the batch (rounded to whole seconds, at least one).
+# Status line shown under extension-send-activity-event.
+# Reports how many messages were sent by the extension and how long the
+# completed send batch took.
 # Variables:
-#   $count (Number) - number of messages sent in this batch
-#   $seconds (Number) - elapsed seconds between the first and last send
-extension-send-activity-event-status = { $count ->
-    [one] { $seconds ->
-        [one] { $count } message in { $seconds } second
-       *[other] { $count } message in { $seconds } seconds
-    }
-   *[other] { $seconds ->
-        [one] { $count } messages in { $seconds } second
-       *[other] { $count } messages in { $seconds } seconds
-    }
+#   $count (Number) - number of messages sent
+#   $time (String) - localized elapsed time
+extension-sent-activity-event-status = { $count ->
+    [one] { $count } message (time elapsed: { $time })
+   *[other] { $count } messages (time elapsed: { $time })
 }
