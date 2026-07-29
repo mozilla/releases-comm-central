@@ -285,6 +285,7 @@ linux64-aarch64-shippable/opt:
             mozconfig_platform: linux64-aarch64
         tooltool-downloads: public
     run-on-projects: ['comm-central']
+    run-on-releases: [nightly]
     optimization:
         never: null
     fetches:

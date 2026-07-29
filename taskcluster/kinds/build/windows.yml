@@ -671,6 +671,7 @@ win64-aarch64-shippable/opt:
             stage_platform: win64-aarch64
             mozconfig_platform: win64-aarch64
     run-on-projects: ['comm-central']
+    run-on-releases: [nightly]
     optimization:
         never: null
     fetches:
