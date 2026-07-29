@@ -471,6 +471,7 @@ dependencies = [
  "interrupt-support",
  "jwcrypto",
  "lazy_static",
+ "parking_lot",
  "rusqlite",
  "serde",
  "serde_derive",
