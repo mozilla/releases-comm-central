@@ -5,6 +5,7 @@
 loader: taskgraph.loader.transform:loader
 
 transforms:
+    - taskgraph.transforms.task_context
     - gecko_taskgraph.transforms.release_deps:transforms
     - gecko_taskgraph.transforms.resolve_landoscript_keyed_by:transforms
     - gecko_taskgraph.transforms.task:transforms
@@ -14,6 +15,11 @@ task-defaults:
     description: Release Promotion version tag for buildN
     run-on-projects: []
     shipping-phase: promote
+    task-context:
+        from-parameters:
+            head_rev: head_rev
+        substitution-fields:
+            - worker.actions
     worker-type: lando
     worker:
         implementation: scriptworker-lando
@@ -33,6 +39,7 @@ task-defaults:
         actions:
             - tag:
                   types: ["buildN"]
+                  revision: "{head_rev}"
 
                   # Used to map hg revisions to the git revisions that scriptworker-lando needs
                   hg-repo-url:
