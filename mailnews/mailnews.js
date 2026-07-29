@@ -1067,8 +1067,10 @@ pref("mailnews.oauth.loglevel", "Warn");
 pref("mailnews.oauth.usePrivateBrowser", false);
 // Use the system browser for OAuth instead of a Thunderbird window.
 pref("mailnews.oauth.useExternalBrowser", true);
+#ifndef MOZ_ESR
 // Use a net.thunderbird: URL instead of localhost for redirection.
 pref("mailnews.oauth.useSchemeRedirect", true);
+#endif
 
 pref("test.loghelper.loglevel", "Warn");
 
