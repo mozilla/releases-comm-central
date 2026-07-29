@@ -29,6 +29,11 @@ type FutureResult = Result<(RefPtr<nsIChannel>, ThinVec<u8>), nsresult>;
 /// tuple that contains the channel itself (in case the consumer wishes to get
 /// more information out of it) and the response bytes passed to
 /// [`nsIStreamListener`].
+///
+/// Returning the channel is important, because Necko might have replaced it if
+/// e.g. the request gets redirected. Replacement channels are shared via the
+/// stream listener, and this future captures them and returns the channel that
+/// was last provided.
 pub struct AsyncChannelOpener {
     inner: RefPtr<nsIChannel>,
     listener: RefPtr<BufferingStreamListener>,
@@ -93,15 +98,17 @@ impl Future for AsyncChannelOpener {
                 data.extend_from_slice(&buf[..read]);
             }
 
-            // We can't directly move self.async_interface, since it's not clear
-            // to the compiler that we have reached the end of the struct's
-            // lifetime at this point (which, to be fair, we might not have).
-            // Cloning the RefPtr isn't expensive at all, since all it does is
-            // to create a new `RefPtr` that points to the same data and
-            // increments the refcount. When the `RefPtr` in
-            // self.async_interface drops out of scope, that refcount is
-            // decremented, so we end up neutral.
-            return Poll::Ready(Ok((self.inner.clone(), data)));
+            let channel = self
+                .listener
+                .channel()
+                // We can't directly move self.inner, since it's not clear to
+                // the compiler that we have reached the end of the struct's
+                // lifetime at this point (which, to be fair, we might not
+                // have), so we need to clone it (which is inexpensive since
+                // it's wrapped in a `RefPtr`).
+                .unwrap_or_else(|| self.inner.clone());
+
+            return Poll::Ready(Ok((channel, data)));
         }
 
         Poll::Pending

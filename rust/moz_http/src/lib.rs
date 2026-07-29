@@ -44,11 +44,13 @@
 //! # }
 //! ```
 
+mod auth_identity;
 mod client;
 mod error;
 mod request;
 mod response;
 
+pub use auth_identity::{AuthIdentity, AuthType};
 pub use client::Client;
 pub use error::{Error, Result};
 pub use request::RequestBuilder;

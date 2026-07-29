@@ -17,6 +17,7 @@ xpcom_async_glue = { path = "../xpcom_async_glue" }
 url = "2.5"
 thiserror = "1.0.56"
 http = "0.2.9"
+log = "0.4.21"
 
 [lints]
 workspace = true

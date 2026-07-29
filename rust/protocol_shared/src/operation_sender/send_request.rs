@@ -5,11 +5,11 @@
 use std::env;
 
 use http::Request;
-use moz_http::Response;
+use moz_http::{AuthIdentity, Response};
 use url::Url;
 use uuid::Uuid;
 
-use crate::error::ProtocolError;
+use crate::{authentication::credentials::Credentials, error::ProtocolError};
 
 /// An internal wrapper to carry the metadata we use for logging sending a
 /// request (and receiving its response) alongside the request itself.
@@ -35,7 +35,7 @@ pub(crate) const LOG_NETWORK_PAYLOADS_ENV_VAR: &str = "THUNDERBIRD_LOG_NETWORK_P
 pub(crate) async fn send_request<'or>(
     client: &moz_http::Client,
     op_request: &OperationRequest<'or>,
-    auth_header_value: Option<String>,
+    credentials: &Credentials,
 ) -> Result<Response, ProtocolError> {
     let OperationRequest {
         operation_id,
@@ -59,8 +59,20 @@ pub(crate) async fn send_request<'or>(
         request_builder = request_builder.header(name.as_str(), value);
     }
 
-    if let Some(ref hdr_value) = auth_header_value {
-        // Only set an `Authorization` header if necessary.
+    // The value to use to manually set the `Authorization` header. We need to
+    // get it here (at the cost of an extra `await`), because if we get it
+    // through an `if let Some(...) = ...` statement then it doesn't live long
+    // enough (its lifetime needs to at least match that of `request_builder`).
+    // In other words, we need to declare it in the same scope as
+    // `request_builder`.
+    let fallback_hdr_value = credentials.to_auth_header_value().await?;
+
+    let auth_identity: Option<AuthIdentity> = credentials.into();
+    if let Some(ref auth_identity) = auth_identity {
+        // If we can get an `AuthIdentity`, use it with the request.
+        request_builder = request_builder.auth_identity(auth_identity);
+    } else if let Some(ref hdr_value) = fallback_hdr_value {
+        // Fall back to setting the `Authorization` header ourselves.
         request_builder = request_builder.header("Authorization", hdr_value);
     }
 

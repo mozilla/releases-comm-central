@@ -18,7 +18,6 @@ use xpcom::{RefCounted, RefPtr};
 
 use crate::{
     ServerType,
-    authentication::{credentials::Credentials, ntlm},
     error::ProtocolError,
     observers::UrlPrefObserver,
     operation_sender::send_request::{OperationRequest, send_request},
@@ -249,8 +248,12 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
                     {
                         AcquireOutcome::Success(new_token) => {
                             token = Some(new_token);
-                            let resp = self.handle_early_failure(err, options, &op_request).await?;
-                            Some(resp)
+                            self.handle_early_failure(err, options).await?;
+
+                            // The early failure has been handled. An `Ok`
+                            // return value means the request should be ready to
+                            // get retried, so let's do just that.
+                            continue;
                         }
                         AcquireOutcome::Failure(shared) => {
                             log::debug!("early failure: waiting for another runner to handle");
@@ -377,9 +380,8 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
         // add one to `OperationSender` with some carefully crafted and
         // configured observers.
         let credentials = self.server().await?.get_credentials()?;
-        let auth_header_value = credentials.to_auth_header_value().await?;
 
-        let resp = send_request(&self.client, op_request, auth_header_value).await?;
+        let resp = send_request(&self.client, op_request, &credentials).await?;
 
         // Catch authentication errors quickly so we can react to them
         // appropriately.
@@ -395,19 +397,18 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
     ///
     /// When the error is recoverable (e.g. an authentication failure), an
     /// attempt to address it is performed (e.g. asking the user for new
-    /// credentials) and the request is retried. If the retry is successful, the
-    /// resulting [`Response`] is returned.
+    /// credentials). If this is successful, [`Ok`] is returned, meaning the
+    /// request can be retried.
     ///
     /// If the error isn't recoverable (e.g. the user cancelled from a prompt,
     /// or we cannot recover even with user input), an error result is returned.
     /// If the cancellation originates from the user, the error returned is the
     /// one that was passed as input.
-    async fn handle_early_failure<'or>(
+    async fn handle_early_failure(
         &self,
         err: ProtocolError,
         options: &OperationRequestOptions,
-        op_request: &OperationRequest<'or>,
-    ) -> Result<Response, ProtocolError> {
+    ) -> Result<(), ProtocolError> {
         log::warn!("handling early failure: {err}");
 
         match err {
@@ -415,7 +416,7 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
             // again (as far as the operation's configuration allows us to).
             ProtocolError::Authentication => {
                 return self
-                    .handle_authentication_failure(&options.auth_failure_behavior, op_request)
+                    .handle_authentication_failure(&options.auth_failure_behavior)
                     .await;
             }
 
@@ -451,38 +452,15 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
 
     /// Handles an authentication failure from the server.
     ///
-    /// This works by attempting to send the request again with the right
-    /// credentials. If the request succeeds (meaning we were able to
-    /// successfully re-authenticate), this returns the resulting [`Response`].
-    /// Otherwise, this errors with [`ProtocolError::Authentication`].
-    async fn handle_authentication_failure<'or>(
+    /// This means asking the user to enter a new password if relevant to the
+    /// authentication method. This function returns [`Ok`] if the request can
+    /// be retried, and errors with [`ProtocolError::Authentication`] if we
+    /// should bail and propagate the error.
+    async fn handle_authentication_failure(
         &self,
         behavior: &AuthFailureBehavior,
-        op_request: &OperationRequest<'or>,
-    ) -> Result<Response, ProtocolError> {
+    ) -> Result<(), ProtocolError> {
         log::debug!("handling authentication failure");
-
-        let credentials = self.server().await?.get_credentials()?;
-
-        if let Credentials::Ntlm { username, password } = &credentials {
-            // NTLM is a bit special since it authenticates through additional
-            // requests to complete a challenge, and the result of this flow is
-            // persisted through a cookie. This means we might be getting a 401
-            // response because the cookie expired, or hasn't been set yet (e.g.
-            // if we're running the connectivity check), so we should try
-            // refreshing it before prompting for a new password. This step
-            // should be completely silent, so we run it even if the configured
-            // behaviour isn't to re-auth.
-            match ntlm::authenticate(username, password, op_request).await {
-                Ok(resp) => return Ok(resp),
-
-                // We haven't managed to authenticate with the current
-                // credentials, so fall back to asking the user for credentials
-                // (if the request's options allow it).
-                Err(ProtocolError::Authentication) => (),
-                Err(err) => return Err(err),
-            }
-        }
 
         // If this is an operation for which we should always silently fail on
         // authentication failure, this is as far as we can go so bail out now.
@@ -492,40 +470,22 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
             return Err(ProtocolError::Authentication);
         }
 
-        loop {
-            let outcome = handle_auth_failure(self.server().await?)?;
+        let outcome = handle_auth_failure(self.server().await?)?;
 
-            // Refresh the credentials before potentially retrying, because they
-            // might have changed (e.g. if the user entered a new password after
-            // being prompted for one), and should we emit more requests using
-            // this client, we should be using up to date credentials.
-            let credentials = self.server().await?.get_credentials()?;
+        match outcome {
+            // The user has asked us to retry the request, let's do this by
+            // retrying the main request loop.
+            AuthErrorOutcome::RETRY => {
+                log::debug!("retrying auth with new credentials");
+                Ok(())
+            }
 
-            match outcome {
-                AuthErrorOutcome::RETRY => {
-                    log::debug!("retrying auth with new credentials");
-
-                    match credentials.validate(op_request).await {
-                        // The credentials work, let's move on.
-                        Ok(resp) => return Ok(resp),
-
-                        // The credentials are still invalid, let's prompt the
-                        // user for more info.
-                        Err(ProtocolError::Authentication) => continue,
-
-                        // `credentials.validate()` has encountered an error
-                        // that isn't auth-related, let's stop here.
-                        Err(err) => return Err(err),
-                    }
-                }
-
-                // The user has cancelled from the password prompt, or the
-                // selected authentication method does not support retrying at
-                // this stage, let's stop here.
-                AuthErrorOutcome::ABORT => {
-                    log::debug!("aborting attempt to re-authenticate");
-                    return Err(ProtocolError::Authentication);
-                }
+            // The user has cancelled from the password prompt, or the
+            // selected authentication method does not support retrying at
+            // this stage, let's stop here.
+            AuthErrorOutcome::ABORT => {
+                log::debug!("aborting attempt to re-authenticate");
+                Err(ProtocolError::Authentication)
             }
         }
     }

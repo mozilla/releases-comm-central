@@ -10,8 +10,8 @@ use std::slice;
 use std::task::Waker;
 
 use nserror::{NS_OK, nsresult};
-use xpcom::interfaces::{nsIInputStream, nsIRequest};
-use xpcom::{RefPtr, xpcom_method};
+use xpcom::interfaces::{nsIChannel, nsIInputStream, nsIRequest};
+use xpcom::{RefPtr, XpCom, xpcom_method};
 
 /// An nsIStreamListener implementation which buffers any bit of data it
 /// receives, and implements a few methods to allow its status and buffer to be
@@ -22,6 +22,7 @@ pub struct BufferingStreamListener {
     waker: Cell<Option<Waker>>,
     status: Cell<Option<nsresult>>,
     must_wake: Cell<bool>,
+    channel: Cell<Option<RefPtr<nsIChannel>>>,
 }
 
 impl BufferingStreamListener {
@@ -31,24 +32,28 @@ impl BufferingStreamListener {
             waker: Default::default(),
             status: Default::default(),
             must_wake: Default::default(),
+            channel: Default::default(),
         })
     }
 
-    // We don't actually have any logic to implement in here, so we might as
-    // well skip the xpcom_method! call entirely.
-    #[allow(non_snake_case)]
-    unsafe fn OnStartRequest(&self, _aRequest: *const nsIRequest) -> nsresult {
-        NS_OK
+    xpcom_method!(on_start_request => OnStartRequest(aRequest: *const nsIRequest));
+    fn on_start_request(&self, request: &nsIRequest) -> Result<(), nsresult> {
+        log::debug!("[{self:p}] Request {request:p} started");
+        self.maybe_replace_channel(RefPtr::new(request));
+        Ok(())
     }
 
     xpcom_method!(on_data_available => OnDataAvailable(aRequest: *const nsIRequest, aInputStream: *const nsIInputStream, aOffset: u64, aCount: u32));
     fn on_data_available(
         &self,
-        _request: &nsIRequest,
+        request: &nsIRequest,
         stream: &nsIInputStream,
         _offset: u64,
         count: u32,
     ) -> Result<(), nsresult> {
+        log::debug!("[{self:p}] Request {request:p}: reading {count} bytes from stream");
+        self.maybe_replace_channel(RefPtr::new(request));
+
         // The interim buffer in which to read data from the stream. We're
         // instantiating the vector like this rather than with
         // Vec::with_capacity(count) so that it has the correct length value
@@ -94,7 +99,10 @@ impl BufferingStreamListener {
     }
 
     xpcom_method!(on_stop_request => OnStopRequest(aRequest: *const nsIRequest, aStatusCode: nsresult));
-    fn on_stop_request(&self, _request: &nsIRequest, status: nsresult) -> Result<(), nsresult> {
+    fn on_stop_request(&self, request: &nsIRequest, status: nsresult) -> Result<(), nsresult> {
+        log::debug!("[{self:p}] Request {request:p} stopped with status {status}");
+        self.maybe_replace_channel(RefPtr::new(request));
+
         // Reset the buffer's position so that we can read bytes.
         let mut buf = self.buf.borrow_mut();
         buf.set_position(0);
@@ -109,6 +117,11 @@ impl BufferingStreamListener {
     /// Returns the final status of the request, if it has completed.
     pub(super) fn status(&self) -> Option<nsresult> {
         self.status.take()
+    }
+
+    /// Returns the [`nsIChannel`] currently stored by the listener.
+    pub(super) fn channel(&self) -> Option<RefPtr<nsIChannel>> {
+        self.channel.take()
     }
 
     /// Sets the `Waker` to be woken when the request is completed, or wakes it
@@ -134,6 +147,14 @@ impl BufferingStreamListener {
         let read = buf.read(dest).or(Err(nserror::NS_ERROR_FAILURE))?;
 
         Ok(read)
+    }
+
+    /// If the [`nsIRequest`] can be QI'd to an [`nsIChannel`], replaces the
+    /// channel stored by the listener. Otherwise this is a no-op.
+    fn maybe_replace_channel(&self, request: RefPtr<nsIRequest>) {
+        if let Some(channel) = request.query_interface() {
+            self.channel.replace(Some(channel));
+        }
     }
 
     /// Wakes the future using the previously set `Waker`.

@@ -9,16 +9,18 @@ use http::Method;
 use nserror::nsresult;
 use url::Url;
 
-use nsstring::nsCString;
+use nsstring::{nsCString, nsString};
 use xpcom::XpCom;
 use xpcom::interfaces::{
-    nsContentPolicyType, nsIChannel, nsIContentPolicy, nsIHttpChannel, nsIIOService, nsILoadInfo,
-    nsINSSErrorsService, nsINode, nsIPrincipal, nsIScriptSecurityManager, nsIStringInputStream,
-    nsITransportSecurityInfo, nsIURI, nsIUploadChannel, nsSecurityFlags,
+    nsContentPolicyType, nsIChannel, nsIContentPolicy, nsIHttpAuthManager, nsIHttpChannel,
+    nsIIOService, nsILoadInfo, nsINSSErrorsService, nsINode, nsIPrincipal,
+    nsIScriptSecurityManager, nsIStringInputStream, nsITransportSecurityInfo, nsIURI,
+    nsIUploadChannel, nsSecurityFlags,
 };
 use xpcom::{RefPtr, getter_addrefs};
 use xpcom_async_glue::AsyncChannelOpener;
 
+use crate::AuthIdentity;
 use crate::error::{Error, TransportSecurityInfo};
 use crate::response::Response;
 
@@ -66,6 +68,7 @@ struct RequestBody<'b> {
 pub struct RequestBuilder<'rb> {
     url: &'rb Url,
     method: &'rb Method,
+    auth_identity: Option<&'rb AuthIdentity<'rb>>,
     // Ideally we'd store header keys as nsCString directly, but nsCString does
     // not implement the traits Hash and Eq, which are required to be used as
     // HashMap keys.
@@ -86,9 +89,14 @@ impl<'rb> RequestBuilder<'rb> {
             return Err(Error::UnsupportedScheme(url.scheme().into()));
         }
 
+        if url.host().is_none() {
+            return Err(Error::MissingHost);
+        }
+
         let builder = RequestBuilder {
             url,
             method,
+            auth_identity: None,
             headers: HashMap::new(),
             body: None,
         };
@@ -121,6 +129,13 @@ impl<'rb> RequestBuilder<'rb> {
             content_type,
         });
 
+        self
+    }
+
+    /// Sets the authentication identity to store in Necko's authentication
+    /// cache before sending the request.
+    pub fn auth_identity(mut self, auth_identity: &'rb AuthIdentity) -> RequestBuilder<'rb> {
+        self.auth_identity = Some(auth_identity);
         self
     }
 
@@ -209,9 +224,18 @@ impl<'rb> RequestBuilder<'rb> {
                 .to_result()?;
         }
 
-        // Send the request through the nsIChannel.
-        let bytes = match AsyncChannelOpener::from(channel.clone()).await {
-            Ok((_channel, bytes)) => bytes,
+        // Set the auth identity if there is one.
+        self.set_auth_identity()?;
+
+        // Send the request through the `nsIChannel`. When the request finishes,
+        // we replace the channel with the one provided by the
+        // `AsyncChannelOpener`. This is important because Necko might have
+        // replaced the original channel if e.g. it encountered a redirection or
+        // had to retry a request; keeping the old channel around means we'd end
+        // up with the `Response` reading things like status codes for the wrong
+        // request.
+        let (channel, bytes) = match AsyncChannelOpener::from(channel.clone()).await {
+            Ok((channel, bytes)) => (channel, bytes),
             Err(err) => {
                 // If we got an error back from Necko, ask the NSS errors
                 // service if it's a security error.
@@ -265,12 +289,22 @@ impl<'rb> RequestBuilder<'rb> {
             }
         };
 
+        // `Response` needs an `nsIHttpChannel`, let's give it one.
+        let http_channel =
+            channel
+                .query_interface::<nsIHttpChannel>()
+                .ok_or(Error::XpComOperationFailure(
+                    "failed to query response channel as nsIHttpChannel",
+                ))?;
+
         // Store the nsIHttpChannel in the `Response` for convenience (since
         // `Response` only uses methods from `nsIHttpChannel`).
         let res = Response {
             channel: http_channel,
             body: bytes.to_vec(),
         };
+
+        log::debug!("Response from request: {}", res.status()?);
 
         Ok(res)
     }
@@ -341,5 +375,87 @@ impl<'rb> RequestBuilder<'rb> {
         }
 
         Ok(())
+    }
+
+    /// Set the auth identity for this request using the inner [`AuthIdentity`]
+    /// if set (otherwise this is a no-op).
+    ///
+    /// TODO: We currently set this on a per-request basis, meaning we reset the
+    /// auth cache for our server on every request, but we should move to a more
+    /// conservative approach - see
+    /// https://bugzilla.mozilla.org/show_bug.cgi?id=2058544
+    fn set_auth_identity(&self) -> crate::Result<()> {
+        let Some(auth_identity) = self.auth_identity else {
+            return Ok(());
+        };
+
+        let auth_manager: RefPtr<nsIHttpAuthManager> =
+            xpcom::get_service(c"@mozilla.org/network/http-auth-manager;1").ok_or(
+                Error::XpComOperationFailure("failed to create instance of nsIHttpAuthManager"),
+            )?;
+
+        let scheme = self.url.scheme();
+
+        // We should be able to unwrap here, because a missing host would have
+        // caused `RequestBuilder::new` to fail. It doesn't hurt to be extra
+        // safe though, so let's check it here too.
+        let host = self.url.host().ok_or(Error::MissingHost)?.to_string();
+
+        // Necko uses -1 when the port isn't clearly specified in the URI. We
+        // use the same URI to infer the port as we use to instantiate the
+        // channel, so we shouldn't be able to get in a situation where one has
+        // a port and the other doesn't.
+        let port: i32 = self.url.port().map_or(-1, Into::into);
+
+        let realm: nsCString = moz_string_from_option(&auth_identity.realm);
+        let path: nsCString = moz_string_from_option(&auth_identity.path);
+        let domain: nsString = moz_string_from_option(&auth_identity.domain);
+        let auth_type = nsCString::from(auth_identity.auth_type.to_string());
+
+        // SAFETY: We've ensured the pointers we use here point to valid data.
+        // This data is copied (via `ns[C]String::Assign`) before
+        // `SetAuthIdentity` returns.
+        unsafe {
+            // Set the auth identity in Necko's auth cache. We need to make sure
+            // we supply the same scheme, host and port (also path and realm, if
+            // non-empty), otherwise we'll get a cache miss.
+            auth_manager.SetAuthIdentity(
+                &raw const *nsCString::from(scheme),
+                &raw const *nsCString::from(host),
+                port,
+                // Note: we supply the auth type because the XPIDL has it (and
+                // we know it), but the actual implementation ignores it.
+                &raw const *auth_type,
+                &raw const *realm,
+                &raw const *path,
+                &raw const *domain,
+                &raw const *nsString::from(auth_identity.username),
+                &raw const *nsString::from(auth_identity.password),
+                // Optional parameters.
+                false,
+                ptr::null(),
+            )
+        }
+        .to_result()?;
+
+        Ok(())
+    }
+}
+
+/// Takes an [`Option<String>`] and turns it into the relevant [`nsstring`]
+/// type. If the `Option` is [`None`], returns an empty string.
+fn moz_string_from_option<'s, OutT>(opt: &'s Option<&'s str>) -> OutT
+where
+    OutT: From<&'s str>,
+{
+    // Technically we could do this with `Option::map_or_else`, but that method
+    // takes ownership over the option and we want to limit the amount of
+    // cloning.
+    if let Some(str) = opt {
+        OutT::from(str)
+    } else {
+        // Ideally we'd use `ns[C]String::new` here but that cannot be
+        // represented as a trait bound.
+        OutT::from("")
     }
 }

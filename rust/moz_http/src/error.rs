@@ -38,6 +38,9 @@ pub enum Error {
     #[error("url scheme is not supported: {0}")]
     UnsupportedScheme(String),
 
+    #[error("url is missing a valid host")]
+    MissingHost,
+
     /// An XPCOM operation failed, e.g. creating an instance of an XPCOM object,
     /// retrieving an instance of a service, or querying a specific interface on
     /// an XPCOM object.
