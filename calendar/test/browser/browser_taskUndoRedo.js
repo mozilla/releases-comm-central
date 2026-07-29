@@ -127,7 +127,7 @@ async function testModifyUndoRedoTask(undoId, redoId) {
   await refreshPromise;
 
   const windowPromise = CalendarTestUtils.waitForEventDialog("edit");
-  mailTestUtils.treeClick(EventUtils, window, tree, 0, 1, { clickCount: 2 });
+  mailTestUtils.treeClick(EventUtils, window, tree, 0, 1, { clickCount: 2 }, AccessibilityUtils);
 
   const win = await windowPromise;
   const iframeWin = win.document.getElementById("calendar-item-panel-iframe").contentWindow;
@@ -184,7 +184,7 @@ async function testDeleteUndoRedoTask(undoId, redoId) {
   await refreshPromise;
   Assert.equal(tree.view.rowCount, 1);
 
-  mailTestUtils.treeClick(EventUtils, window, tree, 0, 1, { clickCount: 1 });
+  mailTestUtils.treeClick(EventUtils, window, tree, 0, 1, { clickCount: 1 }, AccessibilityUtils);
   EventUtils.synthesizeKey("KEY_Delete");
   await TestUtils.waitForCondition(() => tree.view.rowCount == 0, "task was not removed in time");
 

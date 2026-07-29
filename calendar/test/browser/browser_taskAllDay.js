@@ -60,7 +60,15 @@ add_task(async function testTaskAllDayRoundTrip() {
   Assert.ok(task.dueDate.isDate, "due date is saved as a date");
 
   const dialogPromise = CalendarTestUtils.waitForEventDialog("edit");
-  mailTestUtils.treeClick(EventUtils, window, tree, taskRow, 1, { clickCount: 2 });
+  mailTestUtils.treeClick(
+    EventUtils,
+    window,
+    tree,
+    taskRow,
+    1,
+    { clickCount: 2 },
+    AccessibilityUtils
+  );
   const reopenedDialog = await dialogPromise;
   const reopenedIframe = reopenedDialog.document.getElementById(
     "calendar-item-panel-iframe"

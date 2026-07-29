@@ -558,17 +558,19 @@ export var mailTestUtils = {
    * @param {number} row - The tree row to click on.
    * @param {number} column - The tree column to click on.
    * @param {object} event - The mouse event to synthesize, e.g. `{ clickCount: 2 }`.
+   * @param {object} [accessibilityUtils] - The test's AccessibilityUtils object.
    */
-  treeClick(EventUtils, win, tree, row, column, event) {
+  treeClick(EventUtils, win, tree, row, column, event, accessibilityUtils) {
     const coords = tree.getCoordsForCellItem(row, tree.columns[column], "cell");
     const treeChildren = tree.lastElementChild;
-    EventUtils.synthesizeMouse(
-      treeChildren,
-      coords.x + coords.width / 2,
-      coords.y + coords.height / 2,
-      event,
-      win
-    );
+    const clickX = coords.x + coords.width / 2;
+    const clickY = coords.y + coords.height / 2;
+    // XUL tree rows and cells are virtual accessibles painted through a single
+    // <treechildren> DOM node. The click is a real row click, but the generic
+    // a11y click checker only sees the implementation node as the event target.
+    accessibilityUtils?.setEnv({ mustHaveAccessibleRule: false });
+    EventUtils.synthesizeMouse(treeChildren, clickX, clickY, event, win);
+    accessibilityUtils?.resetEnv();
   },
 
   /**

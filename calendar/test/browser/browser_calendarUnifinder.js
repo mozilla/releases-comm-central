@@ -50,20 +50,18 @@ add_task(async function testOpenEvent() {
 
   await CalendarTestUtils.openCalendarTab(window);
 
-  function isUnifinderHidden() {
-    const tabmail = window.document.getElementById("tabmail");
+  const tabmail = window.document.getElementById("tabmail");
+  await TestUtils.waitForCondition(
+    () => tabmail.currentTabInfo?.mode.type == "calendar",
+    "calendar tab should be current"
+  );
 
-    return (
-      tabmail.currentTabInfo?.mode.type != "calendar" ||
-      window.document.getElementById("bottom-events-box").hidden
-    );
-  }
-
-  if (isUnifinderHidden()) {
+  const unifinderBox = document.getElementById("bottom-events-box");
+  if (unifinderBox.hidden) {
     window.toggleUnifinder();
 
     await TestUtils.waitForCondition(
-      () => isUnifinderHidden(),
+      () => !unifinderBox.hidden,
       "calendar unifinder should have opened"
     );
   }
@@ -73,7 +71,7 @@ add_task(async function testOpenEvent() {
 
     const dialogWindowPromise = CalendarTestUtils.waitForEventDialog();
     const tree = document.querySelector("#unifinder-search-results-tree");
-    mailTestUtils.treeClick(EventUtils, window, tree, 0, 1, { clickCount: 2 });
+    mailTestUtils.treeClick(EventUtils, window, tree, 0, 1, { clickCount: 2 }, AccessibilityUtils);
 
     const dialogWindow = await dialogWindowPromise;
     const docUri = dialogWindow.document.documentURI;

@@ -31,30 +31,37 @@ PROTO_TREE_VIEW.prototype = {
     return this._rowMap.length;
   },
 
+  _getRow(aIndex) {
+    if (aIndex < 0 || aIndex >= this._rowMap.length) {
+      return null;
+    }
+    return this._rowMap[aIndex];
+  },
+
   /**
    * CSS files will cue off of these.  Note that we reach into the rowMap's
    * items so that custom data-displays can define their own properties
    */
   getCellProperties(aRow, aCol) {
-    return this._rowMap[aRow].getProperties(aCol);
+    return this._getRow(aRow)?.getProperties(aCol) ?? "";
   },
 
   /**
    * The actual text to display in the tree
    */
   getCellText(aRow, aCol) {
-    return this._rowMap[aRow].getText(aCol.id);
+    return this._getRow(aRow)?.getText(aCol.id) ?? "";
   },
 
   getCellValue(aRow, aCol) {
-    return this._rowMap[aRow].getValue(aCol.id);
+    return this._getRow(aRow)?.getValue(aCol.id) ?? "";
   },
 
   /**
    * The jstv items take care of assigning this when building children lists
    */
   getLevel(aIndex) {
-    return this._rowMap[aIndex].level;
+    return this._getRow(aIndex)?.level ?? 0;
   },
 
   /**
@@ -62,7 +69,8 @@ PROTO_TREE_VIEW.prototype = {
    * the child lists
    */
   getParentIndex(aIndex) {
-    return this._rowMap.indexOf(this._rowMap[aIndex]._parent);
+    const row = this._getRow(aIndex);
+    return row ? this._rowMap.indexOf(row._parent) : -1;
   },
 
   /**
@@ -70,14 +78,17 @@ PROTO_TREE_VIEW.prototype = {
    * want to do something special here
    */
   getRowProperties(aRow) {
-    return this._rowMap[aRow].getProperties();
+    return this._getRow(aRow)?.getProperties() ?? "";
   },
 
   /**
    * If an item in our list has the same level and parent as us, it's a sibling
    */
   hasNextSibling(aIndex, aNextIndex) {
-    const targetLevel = this._rowMap[aIndex].level;
+    const targetLevel = this._getRow(aIndex)?.level;
+    if (targetLevel === undefined) {
+      return false;
+    }
     for (let i = aNextIndex + 1; i < this._rowMap.length; i++) {
       if (this._rowMap[i].level == targetLevel) {
         return true;
@@ -93,19 +104,19 @@ PROTO_TREE_VIEW.prototype = {
    * If we have a child-list with at least one element, we are a container.
    */
   isContainer(aIndex) {
-    return this._rowMap[aIndex].children.length > 0;
+    return (this._getRow(aIndex)?.children.length ?? 0) > 0;
   },
 
   isContainerEmpty(aIndex) {
     // If the container has no children, the container is empty.
-    return !this._rowMap[aIndex].children.length;
+    return !(this._getRow(aIndex)?.children.length ?? 0);
   },
 
   /**
    * Just look at the jstv item here
    */
   isContainerOpen(aIndex) {
-    return this._rowMap[aIndex].open;
+    return this._getRow(aIndex)?.open ?? false;
   },
 
   isEditable() {

@@ -123,10 +123,26 @@ async function openContextMenu(row, column) {
   const tree = window.document.getElementById("threadTree");
 
   const shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
-  mailTestUtils.treeClick(EventUtils, window, tree, row, column, {});
-  mailTestUtils.treeClick(EventUtils, window, tree, row, column, {
-    type: "contextmenu",
-  });
+  mailTestUtils.treeClick(
+    EventUtils,
+    window,
+    tree,
+    row,
+    column,
+    {},
+    AccessibilityUtils
+  );
+  mailTestUtils.treeClick(
+    EventUtils,
+    window,
+    tree,
+    row,
+    column,
+    {
+      type: "contextmenu",
+    },
+    AccessibilityUtils
+  );
   await shownPromise;
 }
 
