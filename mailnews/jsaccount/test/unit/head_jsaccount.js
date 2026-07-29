@@ -38,9 +38,9 @@ const contracts = [
 const registrar = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
 for (const { contractID, classID, source } of contracts) {
   const scope = {};
-  Services.scriptloader.loadSubScript(
+  Services.scriptloader.loadSubScriptWithOptions(
     Services.io.newFileURI(do_get_file(source)).spec,
-    scope
+    { target: scope, allowUnsafeURL: true }
   );
   registrar.registerFactory(
     Components.ID(classID),
