@@ -61,19 +61,18 @@ def run_migration_tests(command_context, test_paths=None, **kwargs):
     import tb_l10n.tb_migration_test as fmt
 
     rv = 0
+    report = []
     with_context = []
     for to_test in test_paths:
         try:
             context = fmt.inspect_migration(to_test)
             for issue in context["issues"]:
-                command_context.log(
-                    logging.ERROR,
-                    "tb-fluent-migration-test",
-                    {
-                        "error": issue["msg"],
-                        "file": to_test,
-                    },
-                    "ERROR in {file}: {error}",
+                report.append(
+                    (
+                        logging.ERROR,
+                        {"error": issue["msg"], "file": to_test},
+                        "ERROR in {file}: {error}",
+                    )
                 )
             if context["issues"]:
                 continue
@@ -84,14 +83,16 @@ def run_migration_tests(command_context, test_paths=None, **kwargs):
                 }
             )
         except Exception as e:
-            command_context.log(
-                logging.ERROR,
-                "tb-fluent-migration-test",
-                {"error": str(e), "file": to_test},
-                "ERROR in {file}: {error}",
+            report.append(
+                (
+                    logging.ERROR,
+                    {"error": str(e), "file": to_test},
+                    "ERROR in {file}: {error}",
+                )
             )
             rv |= 1
     obj_dir, repo_dir = fmt.prepare_directories(command_context)
     for context in with_context:
-        rv |= fmt.test_migration(command_context, obj_dir, repo_dir, **context)
+        rv |= fmt.test_migration(command_context, obj_dir, repo_dir, report, **context)
+    fmt.render_report(report)
     return rv

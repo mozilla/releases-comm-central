@@ -17,8 +17,20 @@ from compare_locales.merge import merge_channels
 from compare_locales.paths.configparser import TOMLParser
 from compare_locales.paths.files import ProjectFiles
 from fluent.migrate.repo_client import RepoClient, git
-from test_fluent_migrations.fmt import diff_resources
-from test_fluent_migrations.fmt import inspect_migration as _inspect_migration
+from test_fluent_migrations.fmt import (
+    ERR_COMMIT_MESSAGE,
+    ERR_REFERENCE_PATH,
+    ERR_SELF_MIGRATION,
+    declared_targets,
+    diff_resources,
+    summarize_diff,
+)
+from test_fluent_migrations.fmt import (
+    inspect_migration as _inspect_migration,
+)
+from test_fluent_migrations.fmt import (
+    render_report as _render_report,
+)
 
 import mozpack.path as mozpath
 from mach.util import get_state_dir
@@ -33,6 +45,10 @@ BUILD_APP = "comm/mail"
 
 def inspect_migration(arg):
     return _inspect_migration(arg)
+
+
+def render_report(report):
+    return _render_report(report)
 
 
 def prepare_directories(cmd):
@@ -71,6 +87,7 @@ def test_migration(
     cmd,
     obj_dir: str,
     repo_dir: str,
+    report: list,
     to_test: list[str],
     references: Iterable[str],
 ):
@@ -80,10 +97,9 @@ def test_migration(
     source, to mimic thunderbird-l10n-source after the patch to test landed.
     It then runs the recipe with a thunderbird-l10n-source clone as localization,
     both dry and wet.
-    It inspects the generated commits, and shows a diff between the merged
-    reference and the generated content.
-    The diff is intended to be visually inspected. Some changes might be
-    expected, in particular when formatting of the en-US strings is different.
+    It inspects the generated commits and migrated strings, shows a diff between
+    the merged reference and generated content, and records a summary of any
+    problems found.
     """
     rv = 0
     paths = mozpath.split(to_test)
@@ -103,13 +119,14 @@ def test_migration(
     ref_root = mozpath.join(work_dir, "reference")
     for ref in references:
         if ref != mozpath.normpath(ref):
-            cmd.log(
-                logging.ERROR,
-                "tb-fluent-migration-test",
-                {"file": to_test, "ref": ref},
-                'Reference path "{ref}" needs to be normalized for {file}',
+            report.append(
+                (
+                    logging.ERROR,
+                    {"file": to_test, "ref": ref},
+                    'Reference path "{ref}" needs to be normalized for {file}',
+                )
             )
-            rv = 1
+            rv |= ERR_REFERENCE_PATH
             continue
         full_ref = mozpath.join(ref_root, ref)
         m = files.match(full_ref)
@@ -146,33 +163,59 @@ def test_migration(
     run_migration.pop(-2)
     cmd.run_process(run_migration, cwd=work_dir, line_handler=print)
     tip = client.head()
+    try:
+        targets, self_migrations = declared_targets(to_test)
+    except Exception as e:
+        report.append(
+            (
+                logging.ERROR,
+                {"file": to_test, "error": str(e)},
+                "Could not inspect declared targets for {file}: {error}",
+            )
+        )
+        targets, self_migrations = {}, []
+    for target_path, id in self_migrations:
+        rv |= ERR_SELF_MIGRATION
+        report.append(
+            (
+                logging.ERROR,
+                {"file": target_path, "id": id},
+                "{file}: message {id} is migrated from itself (same ID in the same file)",
+            )
+        )
     if old_tip == tip:
-        cmd.log(
-            logging.WARN,
-            "tb-fluent-migration-test",
-            {"file": to_test},
-            "No migration applied for {file}",
+        report.append(
+            (
+                logging.WARN,
+                {"file": to_test},
+                "No migration applied for {file}",
+            )
         )
         return rv
     for ref in references:
-        diff_resources(mozpath.join(ref_root, ref), mozpath.join(l10n_root, ref))
+        ref_path = mozpath.join(ref_root, ref)
+        out_path = mozpath.join(l10n_root, ref)
+        diff_resources(ref_path, out_path)
+        rv |= summarize_diff(report, ref, ref_path, out_path, targets.get(ref, set()))
     messages = client.log(old_tip, tip)
     bug = re.search("[0-9]{5,}", migration_name)
     # Just check first message for bug number, they're all following the same pattern
     if bug is None or bug.group() not in messages[0]:
-        rv = 1
-        cmd.log(
-            logging.ERROR,
-            "tb-fluent-migration-test",
-            {"file": to_test},
-            "Missing or wrong bug number for {file}",
+        rv |= ERR_COMMIT_MESSAGE
+        report.append(
+            (
+                logging.ERROR,
+                {"file": to_test},
+                "Missing or wrong bug number for {file}",
+            )
         )
-    if any("part {}".format(n + 1) not in msg for n, msg in enumerate(messages)):
-        rv = 1
-        cmd.log(
-            logging.ERROR,
-            "tb-fluent-migration-test",
-            {"file": to_test},
-            'Commit messages should have "part {{index}}" for {file}',
+    if any(f"part {n + 1}" not in msg for n, msg in enumerate(messages)):
+        rv |= ERR_COMMIT_MESSAGE
+        report.append(
+            (
+                logging.ERROR,
+                {"file": to_test},
+                'Commit messages should have "part {{index}}" for {file}',
+            )
         )
     return rv
