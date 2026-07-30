@@ -103,6 +103,11 @@ async function Startup() {
   document.l10n.setAttributes(signonsIntro, "logins-description-all");
   document.l10n.setAttributes(removeAllButton, "remove-all");
 
+  // Don't offer to show passwords if enterprise policies forbid it.
+  if (!Services.policies.isAllowed("passwordReveal")) {
+    togglePasswordsButton.toggleAttribute("hidden", true);
+  }
+
   document
     .getElementsByTagName("treecols")[0]
     .addEventListener("click", event => {
@@ -466,6 +471,12 @@ async function DeleteAllSignons() {
 }
 
 async function TogglePasswordVisible() {
+  // Don't make any change to password visibility if enterprise policies forbid
+  // it.
+  if (!Services.policies.isAllowed("passwordReveal")) {
+    return;
+  }
+
   if (showingPasswords || (await masterPasswordLogin(AskUserShowPasswords))) {
     showingPasswords = !showingPasswords;
     document.l10n.setAttributes(
