@@ -28,11 +28,16 @@ async function onLoad() {
   gServer = gAccount.incomingServer;
   gDialog = document.querySelector("dialog");
 
-  const bundle = document.getElementById("bundle_removeAccount");
-  const removeQuestion = bundle.getFormattedString("removeQuestion", [
-    gServer.prettyName,
-  ]);
-  document.getElementById("accountName").textContent = removeQuestion;
+  document.l10n.setAttributes(
+    gDialog.getButton("accept"),
+    "remove-account-dialog-accept"
+  );
+
+  document.l10n.setAttributes(
+    document.getElementById("accountName"),
+    "remove-account-question",
+    { accountName: gServer.prettyName }
+  );
 
   // Allow to remove account data if it has a local storage.
   const localDirectory = gServer.localPath;
@@ -57,11 +62,10 @@ async function onLoad() {
     document.getElementById("removeDataPossibility").collapsed = true;
   }
 
-  if (gServer.type == "im") {
-    const dataCheckbox = document.getElementById("removeData");
-    dataCheckbox.label = dataCheckbox.getAttribute("labelChat");
-    dataCheckbox.accessKey = dataCheckbox.getAttribute("accesskeyChat");
-  }
+  document.l10n.setAttributes(
+    document.getElementById("removeData"),
+    gServer.type == "im" ? "remove-chat-data-checkbox" : "remove-data-checkbox"
+  );
 
   const formatter = new Intl.ListFormat(undefined, {
     style: "long",
@@ -197,7 +201,6 @@ function showInfo() {
     desc.collapsed = false;
   }
 
-  // TODO: bug 1238271, this should use showFor attributes if possible.
   if (gServer.type == "imap" || gServer.type == "nntp") {
     document.getElementById("serverAccount").collapsed = false;
   } else if (gServer.type == "im") {
@@ -264,15 +267,15 @@ function onAccept(event) {
     return;
   }
 
-  gDialog.getButton("accept").disabled = true;
+  const acceptButton = gDialog.getButton("accept");
+  acceptButton.disabled = true;
   gDialog.getButton("cancel").disabled = true;
   gDialog.getButton("disclosure").disabled = true;
 
   // Change the "Remove" to an "OK" button by clearing the custom label.
-  gDialog.removeAttribute("buttonlabelaccept");
-  gDialog.removeAttribute("buttonaccesskeyaccept");
-  gDialog.getButton("accept").removeAttribute("label");
-  gDialog.getButton("accept").removeAttribute("accesskey");
+  delete acceptButton.dataset.l10nId;
+  acceptButton.removeAttribute("label");
+  acceptButton.removeAttribute("accesskey");
   gDialog.buttons = "accept";
 
   document.getElementById("removeAccountSection").hidden = true;
@@ -281,6 +284,6 @@ function onAccept(event) {
 
   event.preventDefault();
   removeAccount().then(() => {
-    gDialog.getButton("accept").disabled = false;
+    acceptButton.disabled = false;
   });
 }

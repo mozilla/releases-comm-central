@@ -3,19 +3,14 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE html [
-<!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
-%brandDTD;
-<!ENTITY % removalDTD SYSTEM "chrome://messenger/locale/removeAccount.dtd">
-%removalDTD;
-]>
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
       xmlns:html="http://www.w3.org/1999/xhtml"
       width="600"
       scrolling="false">
 <head>
-  <title>&dialogTitle;</title>
+  <title data-l10n-id="remove-account-dialog-title"></title>
   <meta
     http-equiv="Content-Security-Policy"
     content="default-src chrome:"
@@ -33,47 +28,35 @@
 <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 <dialog id="removeAccountDialog"
         buttons="accept,disclosure,cancel"
-        buttonlabelaccept="&removeButton.label;"
-        buttonaccesskeyaccept="&removeButton.accesskey;"
         defaultButton="cancel">
-  <stringbundle id="bundle_removeAccount"
-                src="chrome://messenger/locale/removeAccount.properties"/>
   <vbox id="removeAccountSection">
     <label id="accountName"></label>
     <separator class="thin"/>
     <vbox>
       <checkbox id="removeAccount"
-                label="&removeAccount.label;"
+                data-l10n-id="remove-account-checkbox"
                 checked=""
-                disabled=""
-                accesskey="&removeAccount.accesskey;" />
+                disabled="" />
       <vbox class="indent" collapsed="collapsed">
-        <description>
-          &removeAccount.desc;
-        </description>
+        <description data-l10n-id="remove-account-description"></description>
       </vbox>
     </vbox>
     <vbox id="removeDataPossibility">
       <checkbox id="removeData"
-                label="&removeData.label;"
-                labelChat="&removeDataChat.label;"
-                accesskey="&removeData.accesskey;"
-                accesskeyChat="&removeDataChat.accesskey;"
                 checked=""/>
       <vbox class="indent" collapsed="collapsed">
-        <description id="localAccount" collapsed="collapsed">
-          &removeDataLocalAccount.desc;
-        </description>
-        <description id="serverAccount" collapsed="collapsed">
-          &removeDataServerAccount.desc;
-        </description>
-        <description id="chatAccount" collapsed="collapsed">
-          &removeDataChatAccount.desc;
-        </description>
+        <description id="localAccount"
+                     data-l10n-id="remove-data-local-account-description"
+                     collapsed="collapsed"></description>
+        <description id="serverAccount"
+                     data-l10n-id="remove-data-server-account-description"
+                     collapsed="collapsed"></description>
+        <description id="chatAccount"
+                     data-l10n-id="remove-data-chat-account-description"
+                     collapsed="collapsed"></description>
         <hbox align="center">
           <button id="showLocalDirectory"
-                  label="&showData.label;"
-                  accesskey="&showData.accesskey;"/>
+                  data-l10n-id="show-data-button" />
           <label id="localDirectory" collapsed="collapsed"/>
         </hbox>
       </vbox>
@@ -95,8 +78,8 @@
     </vbox>
   </vbox>
   <vbox id="confirmationSection" align="center" pack="center" flex="1" hidden="hidden">
-    <label id="success" hidden="hidden">&progressSuccess;</label>
-    <label id="failure" hidden="hidden">&progressFailure;</label>
+    <label id="success" hidden="hidden" data-l10n-id="remove-account-progress-success"></label>
+    <label id="failure" hidden="hidden" data-l10n-id="remove-account-progress-failure"></label>
   </vbox>
 </dialog>
 </html:body>

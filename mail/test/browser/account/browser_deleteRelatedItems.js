@@ -256,10 +256,10 @@ add_task(async function testRemoveMarcia() {
   const loginsCheckbox = doc.getElementById("removeLogins");
   const acceptButton = doc.querySelector("dialog").getButton("accept");
 
-  Assert.equal(
-    question.textContent,
-    `Are you sure you want to remove the account "Marcia's Incoming Mail"?`
-  );
+  Assert.deepEqual(document.l10n.getAttributes(question), {
+    id: "remove-account-question",
+    args: { accountName: "Marcia's Incoming Mail" },
+  });
 
   Assert.ok(BrowserTestUtils.isVisible(outgoingsCheckbox));
   Assert.equal(outgoingsList.textContent, "Marcia's Outgoing Mail");
