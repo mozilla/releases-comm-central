@@ -4,11 +4,13 @@
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
-  openLinkExternally: "resource:///modules/LinkHelper.sys.mjs",
+  cal: "resource:///modules/calendar/calUtils.sys.mjs",
   MailConsts: "resource:///modules/MailConsts.sys.mjs",
   MailServices: "resource:///modules/MailServices.sys.mjs",
   MimeParser: "resource:///modules/mimeParser.sys.mjs",
   NetUtil: "resource://gre/modules/NetUtil.sys.mjs",
+  OAuth2Providers: "resource:///modules/OAuth2Providers.sys.mjs",
+  openLinkExternally: "resource:///modules/LinkHelper.sys.mjs",
   PlacesUtils: "resource://gre/modules/PlacesUtils.sys.mjs",
 });
 ChromeUtils.defineLazyGetter(lazy, "l10n", () => {
@@ -1259,5 +1261,155 @@ export var MailUtils = {
     };
     folder.updateFolderWithListener(null, urlListener);
     await promise;
+  },
+
+  /**
+   * @typedef {object} RelatedItems
+   * @property {Map<string, Set<any>>} logins - Login GUIDs and the items
+   *   they are associated with. The login should not be removed unless all
+   *   items in the set are also to be removed.
+   * @property {Iterable<nsIMsgOutgoingServer>} outgoingServers
+   * @property {Iterable<nsIAbDirectory>} addressBooks
+   * @property {Iterable<calICalendar>} calendars
+   */
+
+  /**
+   * Finds account-ish objects that are related to the given mail account.
+   * This is used for offering to clean up the objects when the account is
+   * removed.
+   *
+   * Outgoing servers, address books, and calendars are returned, along with
+   * saved logins for those items.
+   *
+   * @param {nsIMsgAccount} account - The account to check.
+   * @returns {RelatedItems} An object containing arrays of related objects.
+   */
+  async findRelatedItems(account) {
+    const server = account.incomingServer;
+    const { username, hostname, type, authMethod } = server;
+
+    const site = Services.eTLD.getSchemelessSiteFromHost(hostname);
+    const oauthIssuer =
+      authMethod == Ci.nsMsgAuthMethod.OAuth2
+        ? lazy.OAuth2Providers.getHostnameDetails(hostname, type)?.issuer
+        : null;
+    const isSameSite = h => Services.eTLD.getSchemelessSiteFromHost(h) == site;
+    const isSameOAuth = (h, t) =>
+      oauthIssuer &&
+      h &&
+      lazy.OAuth2Providers.getHostnameDetails(h, t)?.issuer == oauthIssuer;
+
+    // Gather logins and the items tied to them.
+
+    const logins = new Map();
+    const allLogins = await Services.logins.getAllLogins();
+    function addLogins(loginOrigin, tiedTo) {
+      for (const login of allLogins) {
+        if (login.origin != loginOrigin || login.username != username) {
+          continue;
+        }
+        if (!logins.has(login.guid)) {
+          logins.set(login.guid, new Set());
+        }
+        logins.get(login.guid).add(tiedTo);
+      }
+    }
+
+    // Find all outgoing servers used by this account, and all those used by
+    // other accounts. Only those used exclusively by this account are returned.
+
+    const thisAccountServerKeys = new Set();
+    const otherAccountServerKeys = new Set();
+    for (const identity of lazy.MailServices.accounts.allIdentities) {
+      if (account.identities.includes(identity)) {
+        thisAccountServerKeys.add(identity.smtpServerKey);
+      } else {
+        otherAccountServerKeys.add(identity.smtpServerKey);
+      }
+    }
+
+    const outgoingServers = new Set();
+    for (const outgoing of lazy.MailServices.outgoingServer.servers) {
+      if (
+        !thisAccountServerKeys.has(outgoing.key) ||
+        otherAccountServerKeys.has(outgoing.key)
+      ) {
+        continue;
+      }
+      outgoingServers.add(outgoing);
+      if (outgoing.type == "smtp") {
+        outgoing.QueryInterface(Ci.nsISmtpServer);
+        if (outgoing.authMethod == Ci.nsMsgAuthMethod.OAuth2) {
+          if (isSameOAuth(outgoing.hostname, "smtp")) {
+            addLogins(`oauth://${oauthIssuer}`, outgoing);
+          }
+        } else {
+          addLogins(`smtp://${outgoing.hostname}`, outgoing);
+        }
+      } else if (["ews", "graph"].includes(outgoing.type)) {
+        addLogins(`https://${server.hostname}`, outgoing);
+      }
+    }
+
+    // Find related address books. An address book is considered related if it
+    // has the same username and is on the same site or same OAuth provider as
+    // the incoming server.
+
+    const addressBooks = new Set();
+    for (const book of lazy.MailServices.ab.directories) {
+      if (
+        book.dirType != Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE ||
+        book.getStringValue("carddav.username", "") != username
+      ) {
+        continue;
+      }
+      const url = URL.parse(book.getStringValue("carddav.url", ""));
+      if (oauthIssuer) {
+        if (isSameOAuth(url.host, "carddav")) {
+          addressBooks.add(book);
+          addLogins(`oauth://${oauthIssuer}`, book);
+        }
+      } else if (isSameSite(url?.host)) {
+        addressBooks.add(book);
+        addLogins(url.origin, book);
+      }
+    }
+
+    // Find related calendars. A calendar is considered related if it has the
+    // same username and is on the same site or same OAuth provider as the
+    // incoming server.
+
+    const calendars = new Set();
+    for (const calendar of lazy.cal.manager.getCalendars()) {
+      if (
+        calendar.type != "caldav" ||
+        calendar.getProperty("username") != username
+      ) {
+        continue;
+      }
+      if (oauthIssuer) {
+        if (isSameOAuth(calendar.uri.host, "caldav")) {
+          calendars.add(calendar);
+          addLogins(`oauth://${oauthIssuer}`, calendar);
+        }
+      } else if (isSameSite(calendar.uri.host)) {
+        calendars.add(calendar);
+        addLogins(calendar.uri.prePath, calendar);
+      }
+    }
+
+    // Find logins for the incoming server.
+
+    if (oauthIssuer) {
+      addLogins(`oauth://${oauthIssuer}`, account);
+    } else if (server.type == "imap") {
+      addLogins(`imap://${server.hostname}`, account);
+    } else if (server.type == "pop3") {
+      addLogins(`mailbox://${server.hostname}`, account);
+    } else if (["ews", "graph"].includes(server.type)) {
+      addLogins(`https://${server.hostname}`, account);
+    }
+
+    return { logins, outgoingServers, addressBooks, calendars };
   },
 };

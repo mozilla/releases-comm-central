@@ -262,51 +262,51 @@ nsMsgAccount::AddIdentity(nsIMsgIdentity* identity) {
   // when this is actually implemented, don't refcount the default identity
   nsCString key;
   nsresult rv = identity->GetKey(key);
+  NS_ENSURE_SUCCESS(rv, rv);
+  NS_ENSURE_TRUE(!key.IsEmpty(), NS_ERROR_UNEXPECTED);
 
-  if (NS_SUCCEEDED(rv)) {
-    nsCString identityList;
-    m_prefs->GetCharPref("identities", identityList);
+  nsCString identityList;
+  m_prefs->GetCharPref("identities", identityList);
 
-    nsAutoCString newIdentityList(identityList);
+  nsAutoCString newIdentityList(identityList);
 
-    nsAutoCString testKey;       // temporary to strip whitespace
-    bool foundIdentity = false;  // if the input identity is found
+  nsAutoCString testKey;       // temporary to strip whitespace
+  bool foundIdentity = false;  // if the input identity is found
 
-    if (!identityList.IsEmpty()) {
-      char* newStr = identityList.BeginWriting();
-      char* token = NS_strtok(",", &newStr);
+  if (!identityList.IsEmpty()) {
+    char* newStr = identityList.BeginWriting();
+    char* token = NS_strtok(",", &newStr);
 
-      // look for the identity key that we're adding
-      while (token) {
-        testKey = token;
-        testKey.StripWhitespace();
+    // look for the identity key that we're adding
+    while (token) {
+      testKey = token;
+      testKey.StripWhitespace();
 
-        if (testKey.Equals(key)) foundIdentity = true;
+      if (testKey.Equals(key)) foundIdentity = true;
 
-        token = NS_strtok(",", &newStr);
-      }
+      token = NS_strtok(",", &newStr);
     }
+  }
 
-    // if it didn't already exist, append it
-    if (!foundIdentity) {
-      if (newIdentityList.IsEmpty())
-        newIdentityList = key;
-      else {
-        newIdentityList.Append(',');
-        newIdentityList.Append(key);
-      }
+  // if it didn't already exist, append it
+  if (!foundIdentity) {
+    if (newIdentityList.IsEmpty())
+      newIdentityList = key;
+    else {
+      newIdentityList.Append(',');
+      newIdentityList.Append(key);
     }
+  }
 
-    m_prefs->SetCharPref("identities", newIdentityList);
+  m_prefs->SetCharPref("identities", newIdentityList);
 
-    // now add it to the in-memory list
-    m_identities.AppendElement(identity);
+  // now add it to the in-memory list
+  m_identities.AppendElement(identity);
 
-    nsCOMPtr<nsIObserverService> obs = mozilla::services::GetObserverService();
-    if (obs) {
-      obs->NotifyObservers(identity, "account-identity-added",
-                           NS_ConvertUTF8toUTF16(key).get());
-    }
+  nsCOMPtr<nsIObserverService> obs = mozilla::services::GetObserverService();
+  if (obs) {
+    obs->NotifyObservers(identity, "account-identity-added",
+                         NS_ConvertUTF8toUTF16(key).get());
   }
 
   return NS_OK;

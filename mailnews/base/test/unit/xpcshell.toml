@@ -151,6 +151,8 @@ tags = ["oauth"]
 
 ["test_postPluginFilters.js"]
 
+["test_relatedItems.js"]
+
 ["test_retention.js"]
 
 ["test_saveAs.js"]
