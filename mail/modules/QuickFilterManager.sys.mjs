@@ -1102,6 +1102,51 @@ export var MessageTextFilter = {
   },
 
   /**
+   * Finds email addresses for locally available contacts whose display name
+   * matches the given search phrase.
+   *
+   * @param {string} phrase - The search phrase entered by the user.
+   * @returns {Set<string>} Matching email addresses.
+   */
+  _getMatchingContactEmails(phrase) {
+    const emails = new Set();
+    const searchPhrase = phrase.trim().toLocaleLowerCase();
+
+    if (!searchPhrase) {
+      return emails;
+    }
+
+    for (const directory of MailServices.ab.directories) {
+      try {
+        for (const card of directory.childCards) {
+          const displayName = card.displayName?.toLocaleLowerCase();
+
+          if (
+            card.isMailList ||
+            !displayName ||
+            !displayName.includes(searchPhrase)
+          ) {
+            continue;
+          }
+
+          for (const emailAddress of card.emailAddresses) {
+            emails.add(emailAddress);
+          }
+        }
+      } catch (ex) {
+        console.error(
+          new Components.Exception(
+            `Exception thrown by ${directory.URI}: ${ex.message}`,
+            ex
+          )
+        );
+      }
+    }
+
+    return emails;
+  },
+
+  /**
    * For each search phrase, build a group that contains all our active text
    * filters OR'ed together. So if the user queries for 'foo bar' with
    * sender and recipient enabled, we build:
@@ -1135,6 +1180,26 @@ export var MessageTextFilter = {
             term.beginsGrouping = firstClause;
             aTerms.push(term);
             firstClause = false;
+
+            if (tfName == "sender") {
+              const emails = this._getMatchingContactEmails(phrase);
+
+              for (const email of emails) {
+                term = aTermCreator.createTerm();
+                term.attrib = tfDef.attrib;
+
+                value = term.value;
+                value.attrib = tfDef.attrib;
+                value.str = email;
+                term.value = value;
+
+                term.op = Ci.nsMsgSearchOp.Contains;
+                term.booleanAnd = false;
+                term.beginsGrouping = false;
+
+                aTerms.push(term);
+              }
+            }
           }
         }
         if (term) {

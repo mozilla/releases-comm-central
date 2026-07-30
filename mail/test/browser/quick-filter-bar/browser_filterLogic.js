@@ -179,11 +179,12 @@ add_task(async function test_filter_attachments() {
  * Create a card for the given e-mail address, adding it to the first address
  * book we can find.
  */
-function add_email_to_address_book(aEmailAddr) {
+function add_email_to_address_book(aEmailAddr, aDisplayName = "") {
   const card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
     Ci.nsIAbCard
   );
   card.primaryEmail = aEmailAddr;
+  card.displayName = aDisplayName;
 
   for (const addrbook of MailServices.ab.directories) {
     addrbook.addCard(card);
@@ -330,6 +331,36 @@ add_task(async function test_filter_text_single_word_and_predicates() {
 
   // (we are leaving with the defaults once again active)
   assert_text_constraints_checked("sender", "recipients", "subject");
+  teardownTest();
+});
+
+/**
+ * Verify that sender text filtering also matches the display name from an
+ * address book contact. This means that given a message from
+ * "Joe Schmoe <reservations@example.com>" and an address book entry with the
+ * display name "Hotel Paradise", searching for "Hotel" should match the
+ * message even though the text does not appear in the message headers.
+ */
+add_task(async function test_filter_sender_display_name() {
+  const whoHotel = ["Joe Schmoe", "reservations@example.com"];
+
+  add_email_to_address_book(whoHotel[1], "Hotel Paradise");
+
+  const folder = await create_folder("QuickFilterBarSenderDisplayName");
+
+  const [, setSender] = await make_message_sets_in_folders(
+    [folder],
+    [{ count: 1 }, { count: 1, from: whoHotel }]
+  );
+
+  await be_in_folder(folder);
+
+  await toggle_text_constraints("recipients", "subject");
+
+  await set_filter_text("Hotel");
+
+  assert_messages_in_view(setSender);
+
   teardownTest();
 });
 
