@@ -18,12 +18,13 @@ use xpcom::{RefCounted, RefPtr};
 
 use crate::{
     ServerType,
+    authentication::credentials::REALM_SERVER_PROPERTY_NAME,
     error::ProtocolError,
     observers::UrlPrefObserver,
     operation_sender::send_request::{OperationRequest, send_request},
 };
 
-pub mod observable_server;
+pub mod pref_based_server;
 pub(crate) mod send_request;
 
 /// A [`ResponseProcessor`] processes protocol-specific parts of the response.
@@ -386,7 +387,8 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
         // Catch authentication errors quickly so we can react to them
         // appropriately.
         if resp.status()?.0 == 401 {
-            Err(ProtocolError::Authentication)
+            let authenticate_values = resp.header("WWW-Authenticate")?;
+            Err(ProtocolError::Authentication(Some(authenticate_values)))
         } else {
             Ok(resp)
         }
@@ -402,8 +404,7 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
     ///
     /// If the error isn't recoverable (e.g. the user cancelled from a prompt,
     /// or we cannot recover even with user input), an error result is returned.
-    /// If the cancellation originates from the user, the error returned is the
-    /// one that was passed as input.
+    /// This can be the error that was passed as input.
     async fn handle_early_failure(
         &self,
         err: ProtocolError,
@@ -414,9 +415,9 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
         match err {
             // If the error is an authentication failure, try to authenticate
             // again (as far as the operation's configuration allows us to).
-            ProtocolError::Authentication => {
+            ProtocolError::Authentication(..) => {
                 return self
-                    .handle_authentication_failure(&options.auth_failure_behavior)
+                    .handle_authentication_failure(&options.auth_failure_behavior, err)
                     .await;
             }
 
@@ -454,20 +455,103 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
     ///
     /// This means asking the user to enter a new password if relevant to the
     /// authentication method. This function returns [`Ok`] if the request can
-    /// be retried, and errors with [`ProtocolError::Authentication`] if we
-    /// should bail and propagate the error.
+    /// be retried, and errors with `err` if we should bail and propagate the
+    /// error.
     async fn handle_authentication_failure(
         &self,
         behavior: &AuthFailureBehavior,
+        err: ProtocolError,
     ) -> Result<(), ProtocolError> {
+        let ProtocolError::Authentication(authenticate_headers) = &err else {
+            return Err(ProtocolError::Processing {
+                message: format!(
+                    "handle_authentication_failure called with non-authentication error: {err:?}"
+                ),
+            });
+        };
+
         log::debug!("handling authentication failure");
+
+        // If the error contains `WWW-Authenticate` header values, check if we
+        // can extract a `realm` value from one of them. If we can, and it's
+        // different from the one we're already using, we store it and retry the
+        // request so we try to authenticate against the correct realm. If we
+        // can't, because e.g. no realm value could be extracted, or there are
+        // multiple ones in response headers, fall back to prompting the user
+        // for credentials (if relevant).
+        if let Some(authenticate_headers) = authenticate_headers
+            && !authenticate_headers.is_empty()
+        {
+            let realms: Vec<_> = authenticate_headers
+                .iter()
+                .filter_map(|header_value| {
+                    // Try to find the start of a `realm="foo"` section.
+                    let realm_prefix = " realm=\"";
+                    let pos = header_value.find(realm_prefix)? + realm_prefix.len();
+
+                    // Split at the position we got and try to find the end of
+                    // the section.
+                    let (_, realm) = header_value.split_at(pos);
+                    let Some(pos) = realm.find('"') else {
+                        log::warn!(
+                            "skipping invalid WWW-Authenticate response header value: {header_value}"
+                        );
+                        return None;
+                    };
+
+                    // Split again at the end of the section, after which
+                    // `realm` should contain the realm's name without quotes.
+                    let (realm, _) = realm.split_at(pos);
+                    Some(realm)
+                })
+                .collect();
+
+            // Check if we've authenticated with the same realm configuration
+            // the response says we should. This means:
+            //  * if the response includes a realm, have we been using a
+            //    different one?
+            //  * if the response doesn't include a realm, have we been using
+            //    one?
+            //
+            // If the response to either question is "yes", then we want to
+            // store what we got from the response (i.e. a different realm name,
+            // or an empty string) and try again.
+            //
+            // If a single response contains multiple realms, we consider it
+            // undefined behaviour and ignore it entirely.
+            if realms.len() < 2 {
+                // Check if we already have a realm stored for this server.
+                let server = self.server().await?;
+                let existing_realm = server.get_string_property(REALM_SERVER_PROPERTY_NAME)?;
+
+                // See if what we got from the response matches what we have
+                // stored locally. Let's do this by comparing strings, using an
+                // empty string if we didn't get a realm in the response,
+                // because it's easier.
+                let realm = realms.first().map_or_else(String::new, ToString::to_string);
+                if existing_realm != realm {
+                    log::debug!(
+                        "got response with different realm than what was stored, retrying with new realm"
+                    );
+                    server.set_string_property(REALM_SERVER_PROPERTY_NAME, realm)?;
+                    return Ok(());
+                } else {
+                    log::debug!("ignoring WWW-Authenticate response headers with known realm");
+                }
+            } else {
+                log::warn!(
+                    "ignoring WWW-Authenticate response headers with {} realms",
+                    realms.len(),
+                );
+            }
+        }
 
         // If this is an operation for which we should always silently fail on
         // authentication failure, this is as far as we can go so bail out now.
         // `mailnews_ui_glue::handle_auth_failure` might not always prompt the
         // user to re-auth, but it will in a number of cases.
         if let AuthFailureBehavior::Silent = behavior {
-            return Err(ProtocolError::Authentication);
+            return Err(err);
         }
 
         let outcome = handle_auth_failure(self.server().await?)?;
@@ -485,7 +569,7 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
             // this stage, let's stop here.
             AuthErrorOutcome::ABORT => {
                 log::debug!("aborting attempt to re-authenticate");
-                Err(ProtocolError::Authentication)
+                Err(err)
             }
         }
     }

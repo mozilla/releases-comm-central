@@ -74,8 +74,9 @@ impl Response {
         Ok(self)
     }
 
-    /// Retrieves the values of the response headers with the given name.
-    pub fn header(&self, key: String) -> crate::Result<Vec<String>> {
+    /// Retrieves the values of the response headers with the given
+    /// (case-insensitive) name.
+    pub fn header(&self, key: &str) -> crate::Result<Vec<String>> {
         let key = nsCString::from(key);
         let mut value = nsCString::new();
 

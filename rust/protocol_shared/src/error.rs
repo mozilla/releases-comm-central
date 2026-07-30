@@ -22,8 +22,12 @@ pub enum ProtocolError {
     #[error("an error occurred during HTTP transport: {0}")]
     Http(#[from] moz_http::Error),
 
+    /// If this error originates from sending a protocol request (as opposed to
+    /// e.g. trying to authenticate against an OAuth2 server), it contains the
+    /// values of the response's `WWW-Authenticate` headers. If the response
+    /// does not include such headers, the inner value is `Some([])`.
     #[error("failed to authenticate")]
-    Authentication,
+    Authentication(Option<Vec<String>>),
 
     #[error("an item was too large to process: {0}")]
     Size(usize),

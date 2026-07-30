@@ -575,11 +575,7 @@ export class EwsServer extends MockServer {
         ).split(":");
         if (username != this.#username || password != this.#password) {
           response.setStatusLine("1.1", 401, "Unauthorized");
-          // TODO: We don't currently support storing realm information from
-          // `WWW-Authenticate` headers in the EWS client.
-          // https://bugzilla.mozilla.org/show_bug.cgi?id=2058538
-          //response.setHeader("WWW-Authenticate", `Basic realm="test"`);
-          response.setHeader("WWW-Authenticate", `Basic`);
+          response.setHeader("WWW-Authenticate", `Basic realm="test"`);
           return;
         }
       } else if (this.#lastAuthorizationValue.startsWith("Bearer ")) {
@@ -589,21 +585,13 @@ export class EwsServer extends MockServer {
         );
         if (!OAuth2TestUtils.validateToken(token, "test_mail")) {
           response.setStatusLine("1.1", 401, "Unauthorized");
-          // TODO: We don't currently support storing realm information from
-          // `WWW-Authenticate` headers in the EWS client.
-          // https://bugzilla.mozilla.org/show_bug.cgi?id=2058538
-          //response.setHeader("WWW-Authenticate", `Basic realm="test"`);
-          response.setHeader("WWW-Authenticate", `Basic`);
+          response.setHeader("WWW-Authenticate", `Basic realm="test"`);
           return;
         }
       }
     } else {
       response.setStatusLine("1.1", 401, "Unauthorized");
-      // TODO: We don't currently support storing realm information from
-      // `WWW-Authenticate` headers in the EWS client.
-      // https://bugzilla.mozilla.org/show_bug.cgi?id=2058538
-      //response.setHeader("WWW-Authenticate", `Basic realm="test"`);
-      response.setHeader("WWW-Authenticate", `Basic`);
+      response.setHeader("WWW-Authenticate", `Basic realm="test"`);
       return;
     }
 

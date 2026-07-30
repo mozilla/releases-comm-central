@@ -7,7 +7,7 @@ use xpcom::RefCounted;
 
 use crate::{
     authentication::credentials::AuthenticationProvider,
-    operation_sender::observable_server::ObservableServer,
+    operation_sender::pref_based_server::PrefBasedServer,
 };
 
 pub mod authentication;
@@ -25,11 +25,11 @@ mod observers;
 
 /// Shorthand for the most common server type constraints.
 pub trait ServerType:
-    AuthenticationProvider + UserInteractiveServer + ObservableServer + RefCounted
+    AuthenticationProvider + UserInteractiveServer + PrefBasedServer + RefCounted
 {
 }
 impl<T> ServerType for T where
-    T: AuthenticationProvider + UserInteractiveServer + ObservableServer + RefCounted
+    T: AuthenticationProvider + UserInteractiveServer + PrefBasedServer + RefCounted
 {
 }
 

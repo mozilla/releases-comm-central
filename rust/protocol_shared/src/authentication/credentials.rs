@@ -15,13 +15,23 @@ use xpcom::{
     },
 };
 
-use crate::{authentication::oauth_listener::OAuthListener, error::ProtocolError};
+use crate::{
+    authentication::oauth_listener::OAuthListener, error::ProtocolError,
+    operation_sender::pref_based_server::PrefBasedServer,
+};
+
+/// The name of the server property in which the authentication realm is stored.
+pub(crate) const REALM_SERVER_PROPERTY_NAME: &str = "realm";
 
 /// The credentials to use when authenticating against a server.
 #[derive(Clone)]
 pub enum Credentials {
-    /// The username and password to use for Basic authentication.
-    Basic { username: String, password: String },
+    /// The realm, username and password to use for Basic authentication.
+    Basic {
+        realm: String,
+        username: String,
+        password: String,
+    },
 
     /// The XPCOM OAuth2 module to use for negotiating OAuth2 and retrieving an
     /// authentication token.
@@ -40,13 +50,20 @@ pub enum Credentials {
 impl<'ai> From<&'ai Credentials> for Option<AuthIdentity<'ai>> {
     fn from(value: &'ai Credentials) -> Self {
         match value {
-            Credentials::Basic { username, password } => Some(AuthIdentity {
+            Credentials::Basic {
+                realm,
+                username,
+                password,
+            } => Some(AuthIdentity {
                 auth_type: AuthType::Basic,
-                username: username,
-                password: password,
-                // TODO: We don't currently support capturing the realm, see
-                // https://bugzilla.mozilla.org/show_bug.cgi?id=2058538
-                realm: None,
+                username,
+                password,
+                // `realm` might be an empty string (which currently doesn't
+                // matter since `moz_http` turns `None`s into empty strings
+                // anyway). Converting from an empty string to an option earlier
+                // on wouldn't buy us much and adds more complexity and
+                // confusion in other areas of the code.
+                realm: Some(realm),
                 path: None,
                 domain: None,
             }),
@@ -56,17 +73,17 @@ impl<'ai> From<&'ai Credentials> for Option<AuthIdentity<'ai>> {
                 password,
             } => Some(AuthIdentity {
                 auth_type: AuthType::Ntlm,
-                // Note: `domain` might be an empty string (which currently
-                // doesn't matter since `moz_http` turns `None`s into empty
-                // strings anyway).
+                username,
+                password,
+                // `domain` might be an empty string (which currently doesn't
+                // matter since `moz_http` turns `None`s into empty strings
+                // anyway).
                 domain: Some(domain),
-                username: username,
-                password: password,
                 // NTLM doesn't seem to ever use realms.
                 realm: None,
                 path: None,
             }),
-            // Unlike Basic and NTLM, "OAuth2" isn't a "real" HTTP
+            // Unlike Basic and NTLM, OAuth2 isn't a "real" HTTP
             // authentication scheme. In this case, we fall back to generating
             // the `Authorization` header outside of Necko.
             Credentials::OAuth2 { .. } => None,
@@ -89,7 +106,9 @@ impl Credentials {
                     // The OAuth2 module will return `NS_ERROR_ABORT` if it's
                     // failed to get credentials even after prompting the user
                     // again, which qualifies as an authentication error.
-                    Err(nserror::NS_ERROR_ABORT) => return Err(ProtocolError::Authentication),
+                    Err(nserror::NS_ERROR_ABORT) => {
+                        return Err(ProtocolError::Authentication(None));
+                    }
 
                     Err(err) => return Err(err.into()),
                 };
@@ -109,10 +128,11 @@ pub trait AuthenticationProvider {
     /// Indicates the authentication method to use.
     fn auth_method(&self) -> Result<nsMsgAuthMethodValue, nsresult>;
 
-    /// Retrieves the username to use if using Basic auth.
+    /// Retrieves the username to authenticate with.
     fn username(&self) -> Result<nsCString, nsresult>;
 
-    /// Retrieves the password to use if using Basic auth.
+    /// Retrieves the password to authenticate with. May be empty, e.g. if using
+    /// OAuth2.
     fn password(&self) -> Result<nsString, nsresult>;
 
     /// Retrieves the hostname for the provider.
@@ -120,6 +140,10 @@ pub trait AuthenticationProvider {
 
     /// Retrieves the server's type string.
     fn server_type(&self) -> Result<nsCString, nsresult>;
+
+    /// Retrieves the realm to authenticate against. May be empty, e.g. if using
+    /// OAuth2 or NTLM, or if no realm is currently known for this server.
+    fn realm(&self) -> Result<nsCString, nsresult>;
 
     /// Creates and initializes an OAuth2 module.
     ///
@@ -133,6 +157,7 @@ pub trait AuthenticationProvider {
     fn get_credentials(&self) -> Result<Credentials, nsresult> {
         match self.auth_method()? {
             nsMsgAuthMethod::passwordCleartext => Ok(Credentials::Basic {
+                realm: self.realm()?.to_string(),
                 username: self.username()?.to_string(),
                 password: self.password()?.to_string(),
             }),
@@ -233,6 +258,11 @@ impl AuthenticationProvider for nsIMsgIncomingServer {
         Ok(hostname)
     }
 
+    fn realm(&self) -> Result<nsCString, nsresult> {
+        let realm = self.get_string_property(REALM_SERVER_PROPERTY_NAME)?;
+        Ok(nsCString::from(realm))
+    }
+
     fn oauth2_module(
         &self,
         override_details: &IOAuth2CustomDetails,
@@ -294,6 +324,11 @@ impl AuthenticationProvider for nsIMsgOutgoingServer {
         let mut hostname = nsCString::from("");
         unsafe { uri.GetHost(&raw mut *hostname) }.to_result()?;
         Ok(hostname)
+    }
+
+    fn realm(&self) -> Result<nsCString, nsresult> {
+        let realm = self.get_string_property(REALM_SERVER_PROPERTY_NAME)?;
+        Ok(nsCString::from(realm))
     }
 
     fn oauth2_module(
