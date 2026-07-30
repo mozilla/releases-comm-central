@@ -809,11 +809,6 @@ class AccountHubEmail extends HTMLElement {
             : this.#getEmptyAccountConfig();
         this.#currentConfig = this.#fillAccountConfig(configData);
 
-        const prevStep =
-          this.#currentState == "emailConfigFoundSubview"
-            ? "emailConfigFoundSubview"
-            : "autoConfigSubview";
-
         const newManualConfigPref = Services.prefs.getBoolPref(
           "mail.accounthub.manualconfig.enabled",
           false
@@ -823,14 +818,22 @@ class AccountHubEmail extends HTMLElement {
           newManualConfigPref &&
           this.#currentState == "emailConfigFoundSubview"
         ) {
-          this.#initManualConfig(this.#currentConfig.incoming.type);
+          this.#initManualConfig(
+            this.#currentConfig.incoming.type,
+            "emailConfigFoundSubview"
+          );
           break;
         }
 
         if (newManualConfigPref) {
-          this.#showProtocolSelectSubview(prevStep);
+          this.#showProtocolSelectSubview();
           break;
         }
+
+        const prevStep =
+          this.#currentState == "emailConfigFoundSubview"
+            ? "emailConfigFoundSubview"
+            : "autoConfigSubview";
 
         await this.#initUI("incomingConfigSubview");
 
@@ -1410,7 +1413,7 @@ class AccountHubEmail extends HTMLElement {
     if (
       Services.prefs.getBoolPref("mail.accounthub.manualconfig.enabled", false)
     ) {
-      await this.#showProtocolSelectSubview(currentState);
+      await this.#showProtocolSelectSubview();
       return;
     }
 
@@ -1426,12 +1429,9 @@ class AccountHubEmail extends HTMLElement {
   /**
    * Initialize the protocol select subview from manual configuration entry
    * points.
-   *
-   * @param {string} previousStep - Step to use for back navigation.
    */
-  async #showProtocolSelectSubview(previousStep) {
+  async #showProtocolSelectSubview() {
     await this.#initUI("protocolSelectSubview");
-    this.#states[this.#currentState].previousStep = previousStep;
     this.#currentSubview.setState(this.#currentConfig);
     this.#currentSubview.showNotification({
       fluentTitleId: "account-hub-email-protocol-select-additional-info",
@@ -1443,8 +1443,9 @@ class AccountHubEmail extends HTMLElement {
    * Initialize the correct manual config step based on the protocol.
    *
    * @param {string} protocol - The selected incoming protocol.
+   * @param {string} previousStep - The step the protocol form goes back to.
    */
-  async #initManualConfig(protocol) {
+  async #initManualConfig(protocol, previousStep = "protocolSelectSubview") {
     switch (protocol) {
       case "imap":
       case "pop3":
@@ -1457,7 +1458,7 @@ class AccountHubEmail extends HTMLElement {
         throw new Error(`Invalid protocol [${protocol}] used.`);
     }
 
-    this.#states[this.#currentState].previousStep = "protocolSelectSubview";
+    this.#states[this.#currentState].previousStep = previousStep;
     this.#setCurrentConfigForSubview();
   }
 

@@ -1151,7 +1151,55 @@ add_task(async function test_config_found_manual_config_pref_enabled() {
     "The protocol select template should stay hidden"
   );
 
-  await subtest_close_account_hub_dialog(dialog, manualConfigTemplate);
+  // Going back should go back to the config found step.
+  const footerBack = dialog.querySelector("#emailFooter #back");
+  EventUtils.synthesizeMouseAtCenter(footerBack, {});
+
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(configFoundTemplate),
+    "The config found template should be in view"
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(manualConfigTemplate),
+    "The manual config template should be hidden"
+  );
+
+  // Going back to the email step and clicking manual config and selecting a
+  // protocol and going back should go back to the protocol step.
+  EventUtils.synthesizeMouseAtCenter(footerBack, {});
+
+  const emailTemplate = dialog.querySelector("#emailAutoConfigSubview");
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(emailTemplate),
+    "The email template should be in view"
+  );
+
+  emailTemplate.querySelector("#manualConfiguration").click();
+
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(protocolSelectTemplate),
+    "The protocol select template should be in view"
+  );
+
+  await subtest_select_protocol_and_continue(dialog, "imap");
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(manualConfigTemplate),
+    "The manual config template should be in view"
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(protocolSelectTemplate),
+    "The protocol select template should be hidden"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(footerBack, {});
+
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(protocolSelectTemplate),
+    "The protocol select template should be in view"
+  );
+
+  await subtest_close_account_hub_dialog(dialog, protocolSelectTemplate);
   await cleanupManualConfigPref();
 });
 
