@@ -120,15 +120,9 @@ export function get_account_tree_listitem(accountKey, tab) {
  *
  * @param {object} account - The account to remove.
  * @param {object} tab - The account manager tab that opened.
- * @param {boolean} removeAccount - Remove the account itself.
  * @param {boolean} removeData - Remove the message data of the account.
  */
-export async function remove_account(
-  account,
-  tab,
-  removeAccount = true,
-  removeData = false
-) {
+export async function remove_account(account, tab, removeData = false) {
   const accountRow = get_account_tree_row(account.key, null, tab);
   await click_account_tree_row(tab, accountRow);
 
@@ -148,19 +142,12 @@ export async function remove_account(
     "chrome://messenger/content/removeAccount.xhtml"
   );
 
-  // Account removal confirmation dialog. Select what to remove.
-  if (removeAccount) {
-    EventUtils.synthesizeMouseAtCenter(
-      cdc.document.getElementById("removeAccount"),
-      {},
-      cdc.document.getElementById("removeAccount").documentGlobal
-    );
-  }
-  if (removeData) {
+  // Account removal confirmation dialog. Uncheck the box to keep the data.
+  if (!removeData) {
     EventUtils.synthesizeMouseAtCenter(
       cdc.document.getElementById("removeData"),
       {},
-      cdc.document.getElementById("removeData").documentGlobal
+      cdc
     );
   }
 

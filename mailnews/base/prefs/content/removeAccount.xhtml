@@ -18,11 +18,16 @@
   <title>&dialogTitle;</title>
   <meta
     http-equiv="Content-Security-Policy"
-    content="default-src chrome:; script-src chrome: 'unsafe-inline' moz-src:; style-src chrome: 'unsafe-inline'"
+    content="default-src chrome:"
   />
   <link rel="stylesheet" href="chrome://global/skin/checkbox.css" />
+  <link
+    rel="stylesheet"
+    href="chrome://messenger/skin/shared/preferences/removeAccount.css"
+  />
 
   <link rel="localization" href="branding/brand.ftl" />
+  <link rel="localization" href="messenger/removeAccount.ftl" />
   <script defer="defer" src="chrome://messenger/content/removeAccount.js"></script>
 </head>
 <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
@@ -36,16 +41,17 @@
   <vbox id="removeAccountSection">
     <label id="accountName"></label>
     <separator class="thin"/>
-    <checkbox id="removeAccount"
-              label="&removeAccount.label;"
-              checked=""
-              disabled=""
-              accesskey="&removeAccount.accesskey;"
-              oncommand="enableRemove();"/>
-    <vbox class="indent" collapsed="collapsed">
-      <description>
-        &removeAccount.desc;
-      </description>
+    <vbox>
+      <checkbox id="removeAccount"
+                label="&removeAccount.label;"
+                checked=""
+                disabled=""
+                accesskey="&removeAccount.accesskey;" />
+      <vbox class="indent" collapsed="collapsed">
+        <description>
+          &removeAccount.desc;
+        </description>
+      </vbox>
     </vbox>
     <vbox id="removeDataPossibility">
       <checkbox id="removeData"
@@ -53,8 +59,8 @@
                 labelChat="&removeDataChat.label;"
                 accesskey="&removeData.accesskey;"
                 accesskeyChat="&removeDataChat.accesskey;"
-                oncommand="enableRemove();"/>
-      <vbox id="removeAccountBox" class="indent" collapsed="collapsed">
+                checked=""/>
+      <vbox class="indent" collapsed="collapsed">
         <description id="localAccount" collapsed="collapsed">
           &removeDataLocalAccount.desc;
         </description>
@@ -67,18 +73,28 @@
         <hbox align="center">
           <button id="showLocalDirectory"
                   label="&showData.label;"
-                  accesskey="&showData.accesskey;"
-                  oncommand="openLocalDirectory();"/>
+                  accesskey="&showData.accesskey;"/>
           <label id="localDirectory" collapsed="collapsed"/>
         </hbox>
       </vbox>
     </vbox>
+    <vbox id="removeOutgoingsPossibility" class="remove-list-container" collapsed="collapsed">
+      <checkbox id="removeOutgoings" checked=""/>
+      <description class="indent tip-caption"></description>
+    </vbox>
+    <vbox id="removeAddressBooksPossibility" class="remove-list-container" collapsed="collapsed">
+      <checkbox id="removeAddressBooks" checked=""/>
+      <description class="indent tip-caption"></description>
+    </vbox>
+    <vbox id="removeCalendarsPossibility" class="remove-list-container" collapsed="collapsed">
+      <checkbox id="removeCalendars" checked=""/>
+      <description class="indent tip-caption"></description>
+    </vbox>
+    <vbox id="removeLoginsPossibility" collapsed="collapsed">
+      <checkbox id="removeLogins" checked=""/>
+    </vbox>
   </vbox>
   <vbox id="confirmationSection" align="center" pack="center" flex="1" hidden="hidden">
-    <vbox id="progress" align="center">
-      <label>&progressPending;</label>
-      <html:progress max="100"/>
-    </vbox>
     <label id="success" hidden="hidden">&progressSuccess;</label>
     <label id="failure" hidden="hidden">&progressFailure;</label>
   </vbox>

@@ -5,12 +5,17 @@
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
+var { MailUtils } = ChromeUtils.importESModule(
+  "resource:///modules/MailUtils.sys.mjs"
+);
 
-var gServer;
-var gDialog;
+ChromeUtils.defineESModuleGetters(this, {
+  cal: "resource:///modules/calendar/calUtils.sys.mjs",
+});
+
+var gAccount, gServer, gDialog, gRelatedItems;
 
 window.addEventListener("DOMContentLoaded", onLoad);
-
 document.addEventListener("dialogdisclosure", showInfo);
 document.addEventListener("dialogaccept", onAccept);
 document.subDialogSetDefaultFocus = () => {
@@ -18,8 +23,9 @@ document.subDialogSetDefaultFocus = () => {
   delete document.subDialogSetDefaultFocus;
 };
 
-function onLoad() {
-  gServer = window.arguments[0].account.incomingServer;
+async function onLoad() {
+  gAccount = window.arguments[0].account;
+  gServer = gAccount.incomingServer;
   gDialog = document.querySelector("dialog");
 
   const bundle = document.getElementById("bundle_removeAccount");
@@ -57,13 +63,113 @@ function onLoad() {
     dataCheckbox.accessKey = dataCheckbox.getAttribute("accesskeyChat");
   }
 
-  enableRemove();
+  const formatter = new Intl.ListFormat(undefined, {
+    style: "long",
+    type: "conjunction",
+  });
+
+  gRelatedItems = await MailUtils.findRelatedItems(gAccount);
+  const { outgoingServers, addressBooks, calendars, logins } = gRelatedItems;
+  if (outgoingServers.size) {
+    const section = document.getElementById("removeOutgoingsPossibility");
+    document.l10n.setAttributes(
+      section.querySelector("checkbox"),
+      "remove-outgoing-servers-checkbox",
+      { count: outgoingServers.size }
+    );
+    section.querySelector("description").textContent = formatter.format(
+      Array.from(outgoingServers, o => o.description || o.username)
+    );
+    section.collapsed = false;
+  }
+  if (addressBooks.size) {
+    const section = document.getElementById("removeAddressBooksPossibility");
+    document.l10n.setAttributes(
+      section.querySelector("checkbox"),
+      "remove-address-books-checkbox",
+      { count: addressBooks.size }
+    );
+    section.querySelector("description").textContent = formatter.format(
+      Array.from(addressBooks, b => b.dirName)
+    );
+    section.collapsed = false;
+  }
+  if (calendars.size) {
+    const section = document.getElementById("removeCalendarsPossibility");
+    document.l10n.setAttributes(
+      section.querySelector("checkbox"),
+      "remove-calendars-checkbox",
+      { count: calendars.size }
+    );
+    section.querySelector("description").textContent = formatter.format(
+      Array.from(calendars, c => c.name)
+    );
+    section.collapsed = false;
+  }
+  if (logins.size) {
+    const section = document.getElementById("removeLoginsPossibility");
+    section.collapsed = false;
+  }
+
+  updateItems();
+
+  if (document.readyState == "complete") {
+    await document.l10n.translateRoots();
+    window.sizeToContent();
+    parent.gSubDialog._topDialog.resizeDialog();
+  }
+
+  document
+    .getElementById("removeAccountSection")
+    .addEventListener("command", onCommand);
+  window.dispatchEvent(new CustomEvent("relatedItemsLoaded"));
 }
 
-function enableRemove() {
-  gDialog.getButton("accept").disabled =
-    !document.getElementById("removeAccount").checked &&
-    !document.getElementById("removeData").checked;
+function onCommand(event) {
+  if (event.target.id == "showLocalDirectory") {
+    openLocalDirectory();
+  } else {
+    updateItems();
+  }
+}
+
+function updateItems() {
+  if (gRelatedItems.logins.length == 0) {
+    return;
+  }
+
+  const itemsToRemove = new Set([gAccount]);
+  if (document.getElementById("removeOutgoings").checked) {
+    for (const o of gRelatedItems.outgoingServers) {
+      itemsToRemove.add(o);
+    }
+  }
+  if (document.getElementById("removeAddressBooks").checked) {
+    for (const b of gRelatedItems.addressBooks) {
+      itemsToRemove.add(b);
+    }
+  }
+  if (document.getElementById("removeCalendars").checked) {
+    for (const c of gRelatedItems.calendars) {
+      itemsToRemove.add(c);
+    }
+  }
+  const loginsToRemove = new Set();
+  for (const [l, items] of gRelatedItems.logins) {
+    if (items.difference(itemsToRemove).size == 0) {
+      loginsToRemove.add(l);
+    }
+  }
+
+  const checkbox = document.getElementById("removeLogins");
+  document.l10n.setAttributes(
+    checkbox,
+    gServer.authMethod == Ci.nsMsgAuthMethod.OAuth2
+      ? "remove-oauth-tokens-checkbox"
+      : "remove-passwords-checkbox",
+    { count: loginsToRemove.size || 1 }
+  );
+  checkbox.disabled = loginsToRemove.size == 0;
 }
 
 /**
@@ -101,34 +207,46 @@ function showInfo() {
   }
 
   parent.gSubDialog._topDialog.resizeDialog();
-  gDialog.getButton("disclosure").disabled = true;
   gDialog.getButton("disclosure").blur();
+  gDialog.getButton("disclosure").hidden = true;
 }
 
-function removeAccount() {
-  const removeAccountCheckbox =
-    document.getElementById("removeAccount").checked;
-  const removeData = document.getElementById("removeData").checked;
-  let account = window.arguments[0].account;
+async function removeAccount() {
   try {
-    // Remove the requested account data.
-    if (removeAccountCheckbox) {
-      try {
-        // Remove password information first.
-        account.incomingServer.forgetPassword();
-      } catch (e) {
-        /* It is OK if this fails. */
+    // Remove account
+    const removeData = document.getElementById("removeData").checked;
+    MailServices.accounts.removeAccount(gAccount, removeData);
+    window.arguments[0].result = true;
+
+    const itemsRemoved = new Set([gAccount]);
+    if (document.getElementById("removeOutgoings").checked) {
+      for (const o of gRelatedItems.outgoingServers) {
+        MailServices.outgoingServer.deleteServer(o);
+        itemsRemoved.add(o);
       }
-      // Remove account
-      MailServices.accounts.removeAccount(account, removeData);
-      account = null;
-      delete window.arguments[0].account;
-      gServer = null;
-      window.arguments[0].result = true;
-    } else if (removeData) {
-      // Remove files only.
-      // TODO: bug 1302193
-      window.arguments[0].result = false;
+    }
+    if (document.getElementById("removeAddressBooks").checked) {
+      for (const b of gRelatedItems.addressBooks) {
+        MailServices.ab.deleteAddressBook(b.URI);
+        itemsRemoved.add(b);
+      }
+    }
+    if (document.getElementById("removeCalendars").checked) {
+      for (const c of gRelatedItems.calendars) {
+        cal.manager.removeCalendar(c);
+        itemsRemoved.add(c);
+      }
+    }
+    const removeLogins = document.getElementById("removeLogins");
+    if (!removeLogins.disabled && removeLogins.checked) {
+      for (const [guid, items] of gRelatedItems.logins) {
+        if (items.difference(itemsRemoved).size == 0) {
+          const [login] = await Services.logins.searchLoginsAsync({ guid });
+          if (login) {
+            Services.logins.removeLoginAsync(login);
+          }
+        }
+      }
     }
 
     document.getElementById("success").hidden = false;
@@ -137,7 +255,6 @@ function removeAccount() {
     console.error("Failure to remove account: ", ex);
     window.arguments[0].result = false;
   }
-  document.getElementById("progress").hidden = true;
 }
 
 function onAccept(event) {
@@ -162,8 +279,8 @@ function onAccept(event) {
   document.getElementById("confirmationSection").hidden = false;
   window.sizeToContent();
 
-  removeAccount();
-
-  gDialog.getButton("accept").disabled = false;
   event.preventDefault();
+  removeAccount().then(() => {
+    gDialog.getButton("accept").disabled = false;
+  });
 }

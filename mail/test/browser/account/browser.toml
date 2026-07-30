@@ -125,6 +125,8 @@ tags = ["archive"]
 
 ["browser_copiesAndFolders.js"]
 
+["browser_deleteRelatedItems.js"]
+
 ["browser_deletion.js"]
 
 ["browser_imAccountSettings.js"]

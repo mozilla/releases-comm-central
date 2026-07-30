@@ -73,7 +73,7 @@ async function subtest_account_data_deletion1(tab) {
   inboxFile.append("Inbox.msf");
   Assert.ok(inboxFile.isFile());
 
-  await remove_account(gPopAccount, tab, true, false);
+  await remove_account(gPopAccount, tab, false);
   gPopAccount = null;
   Assert.ok(accountDir.exists());
 }
@@ -93,7 +93,7 @@ async function subtest_account_data_deletion2(tab) {
   inboxFile.append("INBOX.msf");
   Assert.ok(inboxFile.isFile());
 
-  await remove_account(gImapAccount, tab, true, true);
+  await remove_account(gImapAccount, tab, true);
   gImapAccount = null;
   Assert.ok(!accountDir.exists());
 }
