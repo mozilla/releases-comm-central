@@ -486,18 +486,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "backgroundtaskregistrar"
-version = "0.1.0"
-dependencies = [
- "log",
- "nserror",
- "nsstring",
- "windows",
- "windows-collections",
- "xpcom",
-]
-
-[[package]]
 name = "base64"
 version = "0.21.999"
 dependencies = [
@@ -2714,7 +2702,6 @@ dependencies = [
  "app_collator_glue",
  "audio_thread_priority",
  "authrs_bridge",
- "backgroundtaskregistrar",
  "binary_http",
  "buildid_reader_ffi",
  "cascade_bloom_filter",
