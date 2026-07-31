@@ -146,6 +146,13 @@ class EmailManualConfigForm extends AccountHubStep {
    */
   #configChangeTimer = null;
 
+  /**
+   * Fields the user has interacted with.
+   *
+   * @type {WeakSet<AccountHubInput>}
+   */
+  #touchedInputs = new WeakSet();
+
   connectedCallback() {
     if (this.hasConnected) {
       return;
@@ -187,6 +194,7 @@ class EmailManualConfigForm extends AccountHubStep {
   handleEvent(event) {
     switch (event.type) {
       case "input":
+        this.#touchedInputs.add(event.currentTarget);
         this.#clearAutomaticChangeIndicators();
         this.#queueConfigChange(event.currentTarget);
         break;
@@ -253,7 +261,9 @@ class EmailManualConfigForm extends AccountHubStep {
     this.#updateFields(this.#currentConfig);
     this.#clearQueuedConfigChange();
     this.#isShowingErrors = false;
+    this.#touchedInputs = new WeakSet();
     this.#clearFieldErrors();
+    this.#captureConfig({ showErrors: false, updateCurrentConfig: false });
     this.#clearAutomaticChangeIndicators();
     this.clearNotifications();
     const incomingType = configData.incoming?.type;
@@ -609,9 +619,12 @@ class EmailManualConfigForm extends AccountHubStep {
    * @param {object} options
    * @param {boolean} [options.showErrors=false] - Whether invalid fields should
    *   show their error state.
-   * @returns {Array<{input: AccountHubInput, labelId: string}>} Invalid fields.
+   * @param {boolean} [options.updateCurrentConfig=true] - Whether to save the
+   *   parsed config as the current state.
+   * @returns {Array<{input: AccountHubInput, labelId: string, visible: boolean}>}
+   *   Invalid fields.
    */
-  #captureConfig({ showErrors = false } = {}) {
+  #captureConfig({ showErrors = false, updateCurrentConfig = true } = {}) {
     const config = this.#currentConfig.copy();
     const errors = [];
 
@@ -631,6 +644,7 @@ class EmailManualConfigForm extends AccountHubStep {
         this.#incomingHostname.value = value;
       },
       showErrors,
+      updateValue: updateCurrentConfig,
     });
     this.#validateField({
       config,
@@ -642,6 +656,7 @@ class EmailManualConfigForm extends AccountHubStep {
         config.incoming.username = value;
       },
       showErrors,
+      updateValue: updateCurrentConfig,
     });
     this.#validateField({
       config,
@@ -654,6 +669,7 @@ class EmailManualConfigForm extends AccountHubStep {
         config.incoming.port = value;
       },
       showErrors,
+      updateValue: updateCurrentConfig,
     });
 
     config.incoming.socketType = InputSanitizer.integer(
@@ -674,6 +690,7 @@ class EmailManualConfigForm extends AccountHubStep {
         this.#outgoingHostname.value = value;
       },
       showErrors,
+      updateValue: updateCurrentConfig,
     });
 
     if (this.#sameUsernameCheckbox.checked) {
@@ -690,6 +707,7 @@ class EmailManualConfigForm extends AccountHubStep {
           config.outgoing.username = value;
         },
         showErrors,
+        updateValue: updateCurrentConfig,
       });
     }
 
@@ -704,6 +722,7 @@ class EmailManualConfigForm extends AccountHubStep {
         config.outgoing.port = value;
       },
       showErrors,
+      updateValue: updateCurrentConfig,
     });
 
     config.outgoing.socketType = InputSanitizer.integer(
@@ -713,7 +732,9 @@ class EmailManualConfigForm extends AccountHubStep {
       this.#outgoingAuthenticationMethod.value
     );
 
-    this.#currentConfig = config;
+    if (updateCurrentConfig) {
+      this.#currentConfig = config;
+    }
     return errors;
   }
 
@@ -727,16 +748,27 @@ class EmailManualConfigForm extends AccountHubStep {
    * @param {Function} options.parse - Parse and validate the input value.
    * @param {Function} options.update - Update the config with the parsed value.
    * @param {boolean} options.showErrors - Whether to show the input error state.
+   * @param {boolean} options.updateValue - Whether to store the parsed value.
    */
-  #validateField({ errors, input, labelId, parse, update, showErrors }) {
+  #validateField({
+    errors,
+    input,
+    labelId,
+    parse,
+    update,
+    showErrors,
+    updateValue,
+  }) {
     try {
-      update(parse(input));
+      const value = parse(input);
+      if (updateValue) {
+        update(value);
+      }
       input.setErrorState("");
     } catch (error) {
-      if (showErrors) {
-        input.setErrorState(error?._message || "invalid");
-      }
-      errors.push({ input, labelId });
+      const showError = showErrors || this.#touchedInputs.has(input);
+      input.setErrorState(error?._message || "invalid", { showError });
+      errors.push({ input, labelId, visible: showError });
     }
   }
 
@@ -802,7 +834,7 @@ class EmailManualConfigForm extends AccountHubStep {
    */
   async #configChanged() {
     const errors = this.#captureConfig({ showErrors: this.#isShowingErrors });
-    const completed = !this.#isShowingErrors || !errors.length;
+    const completed = !errors.some(error => error.visible);
 
     if (this.#isShowingErrors) {
       if (errors.length) {

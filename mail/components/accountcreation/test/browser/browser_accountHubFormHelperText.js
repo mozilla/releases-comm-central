@@ -83,7 +83,7 @@ add_task(async function test_manualInvalidErrorMessagesSupersedeHelperText() {
     "Error text should be hidden on load"
   );
 
-  input.value = "";
+  input.setAttribute("aria-invalid", "true");
 
   Assert.ok(
     BrowserTestUtils.isHidden(helper),
@@ -94,7 +94,7 @@ add_task(async function test_manualInvalidErrorMessagesSupersedeHelperText() {
     "Error text should be visible on form input error"
   );
 
-  input.value = "mail.example.com";
+  input.setAttribute("aria-invalid", "false");
 
   Assert.ok(
     BrowserTestUtils.isVisible(helper),

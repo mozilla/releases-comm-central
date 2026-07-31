@@ -51,6 +51,15 @@ add_task(async function test_setState() {
 
   Assert.equal(realName.value, userName, "Name input value should be correct");
   Assert.equal(email.value, "", "Email input value should be empty");
+  Assert.equal(
+    email.ariaInvalid,
+    "false",
+    "Empty email input should not show an error on initial render"
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(subview.querySelector("#emailWarning")),
+    "Empty email input should not show a warning icon on initial render"
+  );
 });
 
 add_task(async function test_resetState() {
@@ -75,6 +84,15 @@ add_task(async function test_resetState() {
 
   Assert.equal(realName.value, userName, "Name input value should be correct");
   Assert.equal(email.value, "", "Email input value should be empty");
+  Assert.equal(
+    email.ariaInvalid,
+    "false",
+    "Empty email input should not show an error after reset"
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(subview.querySelector("#emailWarning")),
+    "Empty email input should not show a warning icon after reset"
+  );
 
   Assert.ok(
     !inValid.detail.completed,
@@ -139,8 +157,8 @@ add_task(async function test_checkValidEmailForm() {
   );
   Assert.equal(
     realName.ariaInvalid,
-    "true",
-    "Name should have aria-invalid set to true"
+    "false",
+    "Untouched name should not have aria-invalid set to true"
   );
 
   realName.value = "Test Name";

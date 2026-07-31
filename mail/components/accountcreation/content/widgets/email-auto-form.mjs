@@ -44,6 +44,13 @@ class EmailAutoForm extends AccountHubStep {
    */
   #currentConfig;
 
+  /**
+   * Fields the user has interacted with.
+   *
+   * @type {WeakSet<HTMLInputElement>}
+   */
+  #touchedInputs = new WeakSet();
+
   connectedCallback() {
     if (this.hasConnected) {
       return;
@@ -78,7 +85,8 @@ class EmailAutoForm extends AccountHubStep {
     switch (event.type) {
       case "input":
       case "change":
-        this.checkValidEmailForm();
+        this.#touchedInputs.add(event.currentTarget);
+        this.checkValidEmailForm({ showErrors: false });
         break;
       case "click":
         if (event.target.id == "manualConfiguration") {
@@ -100,12 +108,13 @@ class EmailAutoForm extends AccountHubStep {
   resetState() {
     this.querySelector("#autoConfigEmailForm").reset();
     this.#currentConfig = {};
+    this.#touchedInputs = new WeakSet();
 
     if ("@mozilla.org/userinfo;1" in Cc) {
       const userInfo = Cc["@mozilla.org/userinfo;1"].getService(Ci.nsIUserInfo);
       this.#realName.value = userInfo.fullname;
     }
-    this.checkValidEmailForm();
+    this.checkValidEmailForm({ showErrors: false });
   }
 
   /**
@@ -120,13 +129,23 @@ class EmailAutoForm extends AccountHubStep {
   /**
    * Check whether the user entered the minimum amount of information needed to
    * update the hostname and domain for the complete form.
+   *
+   * @param {object} [options]
+   * @param {boolean} [options.showErrors=true] - Whether invalid fields should
+   *   be exposed visually.
    */
-  checkValidEmailForm() {
+  checkValidEmailForm({ showErrors = true } = {}) {
     const nameValidity = this.#realName.checkValidity();
     const emailValidity = this.#email.checkValidity();
 
-    this.#realName.setAttribute("aria-invalid", !nameValidity);
-    this.#email.setAttribute("aria-invalid", !emailValidity);
+    this.#realName.setAttribute(
+      "aria-invalid",
+      !nameValidity && (showErrors || this.#touchedInputs.has(this.#realName))
+    );
+    this.#email.setAttribute(
+      "aria-invalid",
+      !emailValidity && (showErrors || this.#touchedInputs.has(this.#email))
+    );
     const completed = nameValidity && emailValidity;
 
     // TODO: Check for domain extension when validating email address.

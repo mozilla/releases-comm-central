@@ -161,6 +161,28 @@ add_task(function test_setErrorState() {
   );
 });
 
+add_task(function test_setErrorStateCanHideError() {
+  customElement.setErrorState("error", { showError: false });
+
+  Assert.equal(
+    input.ariaInvalid,
+    "false",
+    "The input should not expose a hidden error as aria-invalid"
+  );
+  Assert.ok(!input.validity.valid, "The input should still be invalid");
+  Assert.deepEqual(
+    input.ariaDescribedByElements,
+    [],
+    "The hidden error should not describe the input"
+  );
+  Assert.ok(
+    !customElement.querySelector(`#${input.id}ErrorMessage`).role,
+    "The hidden error message should not have role attribute"
+  );
+
+  customElement.setErrorState("");
+});
+
 add_task(function test_helpText() {
   const helpTextInput =
     browser.contentDocument.createElement("account-hub-input");

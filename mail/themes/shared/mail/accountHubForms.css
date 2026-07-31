@@ -265,7 +265,7 @@ form {
     }
 
     &:user-invalid,
-    &.manual-input:invalid,
+    &[aria-invalid="true"],
     &.warning {
       border-color: light-dark(var(--color-critical-default), var(--color-critical-pressed));
       outline: 1px solid light-dark(var(--color-critical-default), var(--color-critical-pressed));
@@ -326,7 +326,7 @@ div:has(legend) {
   /* Hide the helper text if there is a visible error message, as it will
    * errantly visually overlap otherwise. Use 'visibility' to avoid
    * element collapse and incorrect spacing. */
-  &:has(:is(:user-invalid, .manual-input:invalid, .warning) ~ .input-error-message) + .account-hub-form-small-comment {
+  &:has(:is(:user-invalid, [aria-invalid="true"], .warning) ~ .input-error-message) + .account-hub-form-small-comment {
     visibility: hidden;
   }
 
@@ -488,7 +488,7 @@ div:has(legend) {
   display: none;
 
   input:user-invalid ~ &,
-  .manual-input:invalid ~ & {
+  input[aria-invalid="true"] ~ & {
     display: inline-block;
   }
 }

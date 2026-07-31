@@ -42,6 +42,15 @@ add_task(function test_setState() {
     "Service URL input should be focused"
   );
   Assert.equal(serviceURL.value, "", "Service URL input value should be empty");
+  Assert.equal(
+    serviceURLInput.ariaInvalid,
+    "false",
+    "Empty service URL input should not show an error on initial render"
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(serviceURL.querySelector(".input-warning")),
+    "Empty service URL input should not show a warning icon on initial render"
+  );
 });
 
 add_task(async function test_captureState() {
@@ -101,6 +110,11 @@ add_task(async function test_serviceURLValidation() {
       updatedEvent.detail.completed,
       isValid,
       `${url} should ${isValid ? "complete" : "not complete"} the form`
+    );
+    Assert.equal(
+      serviceURLInput.ariaInvalid,
+      String(!isValid),
+      `${url} should ${isValid ? "not " : ""}show an error after input`
     );
   }
 });

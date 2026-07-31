@@ -194,8 +194,11 @@ class AccountHubInput extends HTMLElement {
    *
    * @param {string} error - Error message that determines error state. If
    *  empty, remove error state from input.
+   * @param {object} [options]
+   * @param {boolean} [options.showError=true] - Whether to show the error
+   *   visually and expose it as the accessible description.
    */
-  setErrorState(error) {
+  setErrorState(error, { showError = true } = {}) {
     if (!error?.length) {
       this.#input.setCustomValidity("");
       this.#input.ariaInvalid = "false";
@@ -205,6 +208,13 @@ class AccountHubInput extends HTMLElement {
     }
 
     this.#input.setCustomValidity(this.#label.textContent || error);
+    if (!showError) {
+      this.#input.ariaInvalid = "false";
+      this.#syncDescription();
+      this.#error.removeAttribute("role");
+      return;
+    }
+
     this.#input.ariaInvalid = "true";
     this.#input.setAttribute("aria-describedby", this.#error.id);
     this.#error.role = "alert";
