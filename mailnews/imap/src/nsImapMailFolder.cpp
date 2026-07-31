@@ -4556,11 +4556,12 @@ nsresult nsImapMailFolder::HandleCustomFlags(nsMsgKey msgKey,
     MOZ_LOG(IMAP_KW, mozilla::LogLevel::Debug,
             ("combinedKeywords stored = |%s|", combinedKeywords.get()));
     // combinedKeywords are tags being stored in database for the message.
-    return dbHdr->SetStringProperty("keywords", combinedKeywords);
+    return mDatabase->SetStringPropertyByHdr(dbHdr, "keywords",
+                                         combinedKeywords);
   }
   return (userFlags & kImapMsgSupportUserFlag)
-             ? dbHdr->SetStringProperty("keywords", keywords)
-             : NS_OK;
+           ? mDatabase->SetStringPropertyByHdr(dbHdr, "keywords", keywords)
+           : NS_OK;
 }
 
 // synchronize the message flags in the database with the server flags
