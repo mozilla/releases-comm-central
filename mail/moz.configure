@@ -126,6 +126,7 @@ set_config(
         "security/manager/ssl/metrics.yaml",
         "toolkit/content/metrics.yaml",
         "toolkit/components/crashes/metrics.yaml",
+        "toolkit/components/passwordmgr/metrics.yaml",
         "toolkit/components/pdfjs/metrics.yaml",
         # Could be useful, but fails "Sorry, Glean found some glinter nits".
         # "toolkit/components/startup/metrics.yaml",
