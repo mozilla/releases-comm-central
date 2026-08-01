@@ -115,6 +115,10 @@
 % override chrome://global/skin/icons/check.svg chrome://messenger/skin/icons/new/compact/check.svg
 # End Supernova icon overrides
 
+# Nova icon overrides
+% override chrome://mozapps/content/extensions/default-theme/preview-nova.svg chrome://mozapps/content/extensions/default-theme/preview.svg
+# End Nova icon overrides
+
   skin/classic/messenger/abContactsPanel.css                  (../shared/mail/abContactsPanel.css)
   skin/classic/messenger/abFormFields.css                     (../shared/mail/abFormFields.css)
   skin/classic/messenger/about3Pane.css                       (../shared/mail/about3Pane.css)

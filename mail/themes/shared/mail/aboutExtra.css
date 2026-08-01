@@ -48,6 +48,11 @@ button[name="plugin"] {
   --main-margin-start: 28px;
 }
 
+/* Hide the Nova theme color selection */
+aboutaddons-themes-mode {
+  display: none !important;
+}
+
 /* Hide in extension details the private browsing section */
 section > .addon-detail-row-private-browsing,
 .addon-detail-row-private-browsing + .addon-detail-row.addon-detail-help-row {
