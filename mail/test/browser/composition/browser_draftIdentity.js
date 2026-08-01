@@ -282,6 +282,61 @@ add_task(async function test_draft_identity_selection() {
 */
 });
 
+add_task(async function test_secondary_identity_smime_failure_keeps_draft() {
+  const identity = MailServices.accounts.getIdentity(gIdentities[1].key);
+  identity.setUnicharAttribute(
+    "encryption_cert_name",
+    "missing S/MIME certificate"
+  );
+  identity.setCharAttribute("encryption_cert_dbkey", "AAAA");
+  identity.encryptionPolicy = 2;
+
+  const originalDraftCount = gDrafts.getTotalMessages(false);
+  const draftIndex = create_draft(identity.email, identity.key);
+  await be_in_folder(gDrafts);
+  await select_click_row(draftIndex);
+  await assert_selected_and_displayed(draftIndex);
+  await wait_for_notification_to_show(
+    aboutMessage,
+    "mail-notification-top",
+    "draftMsgContent"
+  );
+
+  const composeWindow = await open_compose_from_draft();
+  await TestUtils.waitForCondition(
+    () => !composeWindow.gCheckEncryptionStateCompletionIsPending,
+    "waiting for the encryption state check"
+  );
+  Assert.ok(composeWindow.gSendEncrypted, "encryption should be required");
+  Assert.ok(
+    !composeWindow.gSelectedTechnologyIsPGP,
+    "S/MIME should be selected"
+  );
+
+  const alertPromise = BrowserTestUtils.promiseAlertDialog("accept");
+  composeWindow.goDoCommand("cmd_sendNow");
+  await alertPromise;
+
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  Assert.ok(
+    !composeWindow.closed,
+    "a pre-delivery S/MIME failure should keep the compose window open"
+  );
+  Assert.equal(
+    gDrafts.getTotalMessages(false),
+    originalDraftCount + 1,
+    "the failed send should preserve the stored draft"
+  );
+
+  if (!composeWindow.closed) {
+    await close_compose_window(composeWindow, false);
+  }
+  identity.setUnicharAttribute("encryption_cert_name", "");
+  identity.setCharAttribute("encryption_cert_dbkey", "");
+  identity.encryptionPolicy = 0;
+});
+
 registerCleanupFunction(async function () {
   for (let id = 1; id < gIdentities.length; id++) {
     gAccount.removeIdentity(

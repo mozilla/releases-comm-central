@@ -159,7 +159,7 @@ export class MessageSend {
       }
       this.fail(e.result || Cr.NS_ERROR_FAILURE, errorMsg);
       this.notifyListenerOnStopSending(null, e.result, null, null);
-      return null;
+      throw e;
     }
     this._setStatusMessage(
       this._composeBundle.GetStringFromName("assemblingMessageDone")
