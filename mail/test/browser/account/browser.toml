@@ -125,10 +125,6 @@ tags = ["archive"]
 
 ["browser_copiesAndFolders.js"]
 
-["browser_deleteRelatedItems.js"]
-
-["browser_deletion.js"]
-
 ["browser_imAccountSettings.js"]
 
 ["browser_manageIdentities.js"]
@@ -140,6 +136,10 @@ tags = ["dataadapter"]
 skip-if = [
   "os == 'win'",
 ]
+
+["browser_removeAccountRelatedItems.js"]
+
+["browser_removeAccountData.js"]
 
 ["browser_settingsInfrastructure.js"]
 

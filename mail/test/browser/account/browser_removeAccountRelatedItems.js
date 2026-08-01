@@ -238,7 +238,7 @@ add_setup(async function () {
 });
 
 add_task(async function testRemoveMarcia() {
-  const win = await promiseRemoveDialog(accountM1);
+  const win = await openRemoveDialog(accountM1);
   const doc = win.document;
   const question = doc.getElementById("accountName");
   const outgoingsCheckbox = doc.getElementById("removeOutgoings");
@@ -254,7 +254,6 @@ add_task(async function testRemoveMarcia() {
     "#removeCalendarsPossibility description"
   );
   const loginsCheckbox = doc.getElementById("removeLogins");
-  const acceptButton = doc.querySelector("dialog").getButton("accept");
 
   Assert.deepEqual(document.l10n.getAttributes(question), {
     id: "remove-account-question",
@@ -273,10 +272,7 @@ add_task(async function testRemoveMarcia() {
   Assert.ok(BrowserTestUtils.isVisible(loginsCheckbox));
   checkLoginsCheckbox(loginsCheckbox, "passwords", 3);
 
-  EventUtils.synthesizeMouseAtCenter(acceptButton, {}, win);
-  Assert.ok(acceptButton.disabled);
-  await TestUtils.waitForCondition(() => !acceptButton.disabled);
-  EventUtils.synthesizeMouseAtCenter(acceptButton, {}, win);
+  await closeRemoveDialog(win);
 
   Assert.ok(!MailServices.accounts.getAccount(accountM1.key));
   Assert.ok(!MailServices.outgoingServer.getServerByKey(smtpM1.key));
@@ -293,13 +289,12 @@ add_task(async function testRemoveMarcia() {
 });
 
 add_task(async function testRemoveJan() {
-  const win = await promiseRemoveDialog(accountJ1);
+  const win = await openRemoveDialog(accountJ1);
   const doc = win.document;
   const outgoingsCheckbox = doc.getElementById("removeOutgoings");
   const addressBooksCheckbox = doc.getElementById("removeAddressBooks");
   const calendarsCheckbox = doc.getElementById("removeCalendars");
   const loginsCheckbox = doc.getElementById("removeLogins");
-  const acceptButton = doc.querySelector("dialog").getButton("accept");
 
   Assert.ok(BrowserTestUtils.isVisible(outgoingsCheckbox));
   Assert.ok(BrowserTestUtils.isVisible(addressBooksCheckbox));
@@ -320,10 +315,7 @@ add_task(async function testRemoveJan() {
   EventUtils.synthesizeMouseAtCenter(calendarsCheckbox, {}, win);
   checkLoginsCheckbox(loginsCheckbox, "passwords", 1);
 
-  EventUtils.synthesizeMouseAtCenter(acceptButton, {}, win);
-  Assert.ok(acceptButton.disabled);
-  await TestUtils.waitForCondition(() => !acceptButton.disabled);
-  EventUtils.synthesizeMouseAtCenter(acceptButton, {}, win);
+  await closeRemoveDialog(win);
 
   Assert.ok(!MailServices.accounts.getAccount(accountJ1.key));
   Assert.ok(MailServices.outgoingServer.getServerByKey(smtpJ1.key));
@@ -339,13 +331,12 @@ add_task(async function testRemoveJan() {
 });
 
 add_task(async function testRemoveCindy() {
-  const win = await promiseRemoveDialog(accountC1);
+  const win = await openRemoveDialog(accountC1);
   const doc = win.document;
   const outgoingsCheckbox = doc.getElementById("removeOutgoings");
   const addressBooksCheckbox = doc.getElementById("removeAddressBooks");
   const calendarsCheckbox = doc.getElementById("removeCalendars");
   const loginsCheckbox = doc.getElementById("removeLogins");
-  const acceptButton = doc.querySelector("dialog").getButton("accept");
 
   Assert.ok(BrowserTestUtils.isVisible(outgoingsCheckbox));
   Assert.ok(BrowserTestUtils.isHidden(addressBooksCheckbox));
@@ -356,10 +347,7 @@ add_task(async function testRemoveCindy() {
   EventUtils.synthesizeMouseAtCenter(outgoingsCheckbox, {}, win);
   checkLoginsCheckbox(loginsCheckbox, "passwords", 0);
 
-  EventUtils.synthesizeMouseAtCenter(acceptButton, {}, win);
-  Assert.ok(acceptButton.disabled);
-  await TestUtils.waitForCondition(() => !acceptButton.disabled);
-  EventUtils.synthesizeMouseAtCenter(acceptButton, {}, win);
+  await closeRemoveDialog(win);
 
   Assert.ok(!MailServices.accounts.getAccount(accountC1.key));
   Assert.ok(MailServices.outgoingServer.getServerByKey(outgoingC1.key));
@@ -371,13 +359,12 @@ add_task(async function testRemoveCindy() {
 });
 
 add_task(async function testRemoveGreg() {
-  const win = await promiseRemoveDialog(accountG1);
+  const win = await openRemoveDialog(accountG1);
   const doc = win.document;
   const outgoingsCheckbox = doc.getElementById("removeOutgoings");
   const addressBooksCheckbox = doc.getElementById("removeAddressBooks");
   const calendarsCheckbox = doc.getElementById("removeCalendars");
   const loginsCheckbox = doc.getElementById("removeLogins");
-  const acceptButton = doc.querySelector("dialog").getButton("accept");
 
   Assert.ok(BrowserTestUtils.isVisible(outgoingsCheckbox));
   Assert.ok(BrowserTestUtils.isVisible(addressBooksCheckbox));
@@ -393,10 +380,7 @@ add_task(async function testRemoveGreg() {
   EventUtils.synthesizeMouseAtCenter(calendarsCheckbox, {}, win);
   checkLoginsCheckbox(loginsCheckbox, "oauth-tokens", 0);
 
-  EventUtils.synthesizeMouseAtCenter(acceptButton, {}, win);
-  Assert.ok(acceptButton.disabled);
-  await TestUtils.waitForCondition(() => !acceptButton.disabled);
-  EventUtils.synthesizeMouseAtCenter(acceptButton, {}, win);
+  await closeRemoveDialog(win);
 
   Assert.ok(!MailServices.accounts.getAccount(accountG1.key));
   Assert.ok(!MailServices.outgoingServer.getServerByKey(smtpG1.key));
@@ -410,13 +394,12 @@ add_task(async function testRemoveGreg() {
 });
 
 add_task(async function testRemoveBobby() {
-  const win = await promiseRemoveDialog(accountB1);
+  const win = await openRemoveDialog(accountB1);
   const doc = win.document;
   const outgoingsCheckbox = doc.getElementById("removeOutgoings");
   const addressBooksCheckbox = doc.getElementById("removeAddressBooks");
   const calendarsCheckbox = doc.getElementById("removeCalendars");
   const loginsCheckbox = doc.getElementById("removeLogins");
-  const acceptButton = doc.querySelector("dialog").getButton("accept");
 
   Assert.ok(BrowserTestUtils.isVisible(outgoingsCheckbox));
   Assert.ok(!BrowserTestUtils.isVisible(addressBooksCheckbox));
@@ -424,10 +407,7 @@ add_task(async function testRemoveBobby() {
   Assert.ok(BrowserTestUtils.isVisible(loginsCheckbox));
   checkLoginsCheckbox(loginsCheckbox, "oauth-tokens", 1);
 
-  EventUtils.synthesizeMouseAtCenter(acceptButton, {}, win);
-  Assert.ok(acceptButton.disabled);
-  await TestUtils.waitForCondition(() => !acceptButton.disabled);
-  EventUtils.synthesizeMouseAtCenter(acceptButton, {}, win);
+  await closeRemoveDialog(win);
 
   Assert.ok(!MailServices.accounts.getAccount(accountB1.key));
   Assert.ok(!MailServices.outgoingServer.getServerByKey(outgoingB1.key));
@@ -438,7 +418,7 @@ add_task(async function testRemoveBobby() {
   Assert.ok(!loginGUIDs.includes(loginB1.guid));
 });
 
-async function promiseRemoveDialog(account) {
+async function openRemoveDialog(account) {
   const accountRow = get_account_tree_row(account.key, null, tab);
   await click_account_tree_row(tab, accountRow);
 
@@ -482,4 +462,26 @@ function checkLoginsCheckbox(loginsCheckbox, expectedType, expectedCount) {
       "logins checkbox string should match the expected count"
     );
   }
+}
+
+async function closeRemoveDialog(win) {
+  const acceptButton = win.document.querySelector("dialog").getButton("accept");
+  const disabledPromise = BrowserTestUtils.waitForMutationCondition(
+    acceptButton,
+    { attributes: true },
+    () => acceptButton.disabled
+  );
+  EventUtils.synthesizeMouseAtCenter(acceptButton, {}, win);
+  await disabledPromise;
+  await BrowserTestUtils.waitForMutationCondition(
+    acceptButton,
+    { attributes: true },
+    () => !acceptButton.disabled
+  );
+  const closedPromise = BrowserTestUtils.waitForEvent(
+    win.parent,
+    "dialogclose"
+  );
+  EventUtils.synthesizeMouseAtCenter(acceptButton, {}, win);
+  await closedPromise;
 }
