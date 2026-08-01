@@ -2602,16 +2602,15 @@ static void SanitizeKeywords(const nsACString& aKeywords,
 
     bool isValid = true;
 
-    // Check for specific invalid symbols as defined in RFC 3501 atom-specials,
-    // and also for symbols that break Thunderbird's internal URL parser.
-    // We also exclude the ampersand since it is used in MUTF-7 encoding and
-    // seems to confuse some IMAP servers when used in keywords.
+    // Check for RFC 3501 atom-specials and symbols that break Thunderbird's
+    // internal URL parser. Ampersands are valid atom characters and occur in
+    // legacy tag keys encoded as modified UTF-7.
     for (uint32_t i = 0; i < token.Length(); i++) {
       unsigned char c = token.CharAt(i);
       if (mozilla::IsAsciiAlphanumeric(c)) {
         continue;
       }
-      if (c <= 0x20 || c >= 0x7F || strchr("()[]{}%*\"\\<>;&", c)) {
+      if (c <= 0x20 || c >= 0x7F || strchr("()[]{}%*\"\\<>;", c)) {
         isValid = false;
         break;
       }

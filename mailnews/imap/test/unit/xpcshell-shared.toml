@@ -147,6 +147,8 @@ tags = ["compact"]
 
 ["test_stopMovingToLocalFolder.js"]
 
+["test_storeCustomKeywords.js"]
+
 ["test_subfolderLocation.js"]
 
 ["test_syncChanges.js"]

@@ -243,8 +243,9 @@ interface nsIImapService : nsISupports
    * '<' and '>' are Unsafe URI characters (RFC 3986), and '>' specifically
    * breaks Thunderbird's hardcoded IMAP URL parser. The ';' is restricted as it
    * is the reserved delimiter for internal URL parameters (e.g., ;SECTION=TEXT).
-   * 5. The '&' character: Restricted because its role as the MUTF-7 shift
-   * character causes parsing crashes on certain strict IMAP servers.
+   *
+   * Ampersands are allowed because they are valid IMAP atom characters and
+   * occur in legacy tag keys encoded as modified UTF-7.
    *
    * @param aMailFolder            The IMAP folder containing the messages.
    * @param aMsgWindow             The message window for status/error reporting.
