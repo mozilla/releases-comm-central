@@ -44,6 +44,9 @@ add_task(async function testSelectOnRemoval3() {
 add_task(async function testUnselectable() {
   await withTab(subtestUnselectable);
 });
+add_task(async function testDeferredSelectOnRepeat() {
+  await withTab(subtestDeferredSelectOnRepeat);
+});
 
 /**
  * Tests keyboard navigation up and down the list for single and multiselection.
@@ -1574,4 +1577,95 @@ async function subtestUnselectable() {
   checkSelected(2, "uRow-3-1");
   EventUtils.synthesizeKey("KEY_ArrowLeft", {}, content); // Try to move to 3.
   checkSelected(2, "uRow-3-1");
+}
+
+/**
+ * Tests that "select" events are deferred during typematic key repeat for
+ * navigation keys (ArrowUp/Down, Home, End, PageUp/Down), and only fire
+ * once on keyup with the final position.
+ */
+async function subtestDeferredSelectOnRepeat() {
+  const doc = content.document;
+  const list = doc.querySelector(`ul[is="tree-listbox"]`);
+  Assert.ok(!!list, "the list exists");
+
+  // Reset to a known position.
+  list.focus();
+  EventUtils.synthesizeKey("KEY_Home", {}, content);
+  Assert.equal(list.selectedIndex, 0, "starting at row 0");
+
+  let selectCount = 0;
+  let lastSelectedIndex = null;
+  function onSelect() {
+    selectCount++;
+    lastSelectedIndex = list.selectedIndex;
+  }
+  list.addEventListener("select", onSelect);
+
+  // A single ArrowDown (no repeat) fires one select event immediately.
+  selectCount = 0;
+  EventUtils.synthesizeKey("KEY_ArrowDown", {}, content);
+  Assert.equal(selectCount, 1, "single ArrowDown should fire one select event");
+  Assert.equal(list.selectedIndex, 1);
+
+  // With repeat, select fires on the first keydown and on keyup only,
+  // not for each repeated keydown in between.
+  selectCount = 0;
+  EventUtils.synthesizeKey("KEY_ArrowDown", { repeat: 3 }, content);
+  Assert.equal(
+    selectCount,
+    2,
+    "repeated ArrowDown should fire select only on first press and keyup"
+  );
+  Assert.equal(
+    list.selectedIndex,
+    4,
+    "final position should be after all repeated movements"
+  );
+  Assert.equal(
+    lastSelectedIndex,
+    4,
+    "last select event should have the final index"
+  );
+
+  // Same for ArrowUp with repeat.
+  selectCount = 0;
+  EventUtils.synthesizeKey("KEY_ArrowUp", { repeat: 2 }, content);
+  Assert.equal(
+    selectCount,
+    2,
+    "repeated ArrowUp should fire select only on first press and keyup"
+  );
+  Assert.equal(
+    list.selectedIndex,
+    2,
+    "final position should be after all repeated movements"
+  );
+
+  // Navigate to the end and test Home with repeat.
+  EventUtils.synthesizeKey("KEY_End", {}, content);
+  Assert.notEqual(list.selectedIndex, 0, "moved away from row 0");
+
+  selectCount = 0;
+  EventUtils.synthesizeKey("KEY_Home", { repeat: 2 }, content);
+  // Home only changes selection once, so the first keydown fires select
+  // (it changed position) and keyup also fires select.
+  Assert.equal(list.selectedIndex, 0, "Home lands on first row");
+  Assert.greaterOrEqual(
+    selectCount,
+    1,
+    "select event should fire at least once for repeated Home"
+  );
+
+  // Navigate away and test End with repeat.
+  selectCount = 0;
+  EventUtils.synthesizeKey("KEY_End", { repeat: 2 }, content);
+  Assert.equal(list.selectedIndex, list.rowCount - 1, "End lands on last row");
+  Assert.greaterOrEqual(
+    selectCount,
+    1,
+    "select event should fire at least once for repeated End"
+  );
+
+  list.removeEventListener("select", onSelect);
 }

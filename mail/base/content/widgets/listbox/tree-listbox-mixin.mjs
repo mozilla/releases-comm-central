@@ -7,6 +7,19 @@ const ANIMATION_EASING = "ease";
 export const ANIMATION_DURATION_MS = 200;
 export const reducedMotionMedia = matchMedia("(prefers-reduced-motion)");
 
+/**
+ * Navigation keys whose "select" event is deferred during typematic repeat
+ * to avoid overwhelming downstream handlers with rapid-fire events.
+ */
+const NAVIGATION_KEYS = new Set([
+  "ArrowUp",
+  "ArrowDown",
+  "Home",
+  "End",
+  "PageUp",
+  "PageDown",
+]);
+
 const { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
@@ -143,12 +156,22 @@ export const TreeListboxMixin = Base =>
 
       this.addEventListener("click", this);
       this.addEventListener("keydown", this);
+      this.addEventListener("keyup", this);
+      this.addEventListener("blur", this);
       this.addEventListener("contextmenu", this);
       this._mutationObserver.observe(this, {
         subtree: true,
         childList: true,
       });
     }
+
+    /**
+     * If true, the "select" event dispatch is being deferred until keyup
+     * because the user is holding a navigation key (typematic repeat).
+     *
+     * @type {boolean}
+     */
+    #selectEventDeferred = false;
 
     handleEvent(event) {
       switch (event.type) {
@@ -157,6 +180,10 @@ export const TreeListboxMixin = Base =>
           break;
         case "keydown":
           this._onKeyDown(event);
+          break;
+        case "keyup":
+        case "blur":
+          this._onKeyUpOrBlur();
           break;
         case "contextmenu":
           this._onContextMenu(event);
@@ -197,6 +224,16 @@ export const TreeListboxMixin = Base =>
     _onKeyDown(event) {
       if (event.altKey) {
         return;
+      }
+
+      // For navigation keys that move the selection, defer the "select" event
+      // dispatch during typematic key repeats. This prevents expensive
+      // downstream handlers (e.g. folder loading in about:3pane) from being
+      // called on every repeated keydown, which causes the UI to freeze and
+      // then jump to an unpredictable position when the key is released.
+      // Visual updates (highlighting, scrolling) still happen on every repeat.
+      if (NAVIGATION_KEYS.has(event.key) && event.repeat) {
+        this.#selectEventDeferred = true;
       }
 
       switch (event.key) {
@@ -315,6 +352,18 @@ export const TreeListboxMixin = Base =>
       }
 
       event.preventDefault();
+    }
+
+    /**
+     * Handle keyup and blur events. If we deferred a "select" event due to
+     * typematic key repeat, dispatch it now so that downstream handlers
+     * (e.g. folder loading) execute once, on the final position.
+     */
+    _onKeyUpOrBlur() {
+      if (this.#selectEventDeferred) {
+        this.#selectEventDeferred = false;
+        this.dispatchEvent(new CustomEvent("select"));
+      }
     }
 
     /**
@@ -669,7 +718,7 @@ export const TreeListboxMixin = Base =>
     /**
      * Update the classes of the listbox to visually reflect the current state
      * of selected items. This method also is responsible of emitting the
-     * "select" custom event.
+     * "select" custom event, unless deferred by #selectEventDeferred.
      */
     updateRowClasses() {
       this.classList.toggle("multi-selected", this.#selection.size > 1);
@@ -681,7 +730,9 @@ export const TreeListboxMixin = Base =>
 
       if (!this.#selection.size) {
         this.removeAttribute("aria-activedescendant");
-        this.dispatchEvent(new CustomEvent("select"));
+        if (!this.#selectEventDeferred) {
+          this.dispatchEvent(new CustomEvent("select"));
+        }
         return;
       }
 
@@ -711,7 +762,9 @@ export const TreeListboxMixin = Base =>
         }
       });
 
-      this.dispatchEvent(new CustomEvent("select"));
+      if (!this.#selectEventDeferred) {
+        this.dispatchEvent(new CustomEvent("select"));
+      }
     }
 
     /**
