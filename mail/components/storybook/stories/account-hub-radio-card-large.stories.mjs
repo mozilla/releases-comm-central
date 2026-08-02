@@ -15,7 +15,7 @@ export default {
   tags: ["autodocs"],
 };
 
-const AccountHubCardMediumTemplate = ({ title, description, tag }) => html`
+const AccountHubRadioCardLargeTemplate = ({ title, description, tag }) => html`
   <style>
     fieldset {
       display: grid;
@@ -48,8 +48,10 @@ const AccountHubCardMediumTemplate = ({ title, description, tag }) => html`
   </form>
 `;
 
-export const AccountHubCardMedium = AccountHubCardMediumTemplate.bind({});
-AccountHubCardMedium.args = {
+export const AccountHubRadioCardLarge = AccountHubRadioCardLargeTemplate.bind(
+  {}
+);
+AccountHubRadioCardLarge.args = {
   title: "Title",
   description: "Description",
   tag: "Recommended",
