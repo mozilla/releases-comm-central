@@ -1317,7 +1317,10 @@ let CalendarFilteredViewMixin = Base =>
         // Don't add stale items to the (now cleared) view of a newer refresh.
         return;
       }
-      this.addItems(items.flat());
+      // Skip if the calendar was hidden or removed while the read was in flight.
+      if (this.#isCalendarVisible(calendar)) {
+        this.addItems(items.flat());
+      }
       this.#iterators.delete(iterator);
     }
 

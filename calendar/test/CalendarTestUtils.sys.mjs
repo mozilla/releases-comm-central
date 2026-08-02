@@ -522,6 +522,21 @@ class CalendarMonthViewTestUtils {
   }
 
   /**
+   * Get all calendar-month-day-box-item elements in the specified day box.
+   *
+   * @param {Window} win - The window the calendar is displayed in.
+   * @param {number} week - Must be between 1-6.
+   * @param {number} day - Must be between 1-7.
+   *
+   * @throws If the day or week parameters are out of range.
+   * @returns {MozCalendarMonthDayBoxItem[]}
+   */
+  getItemsAt(win, week, day) {
+    const dayBox = this.getDayBox(win, week, day);
+    return [...dayBox.querySelectorAll("calendar-month-day-box-item")];
+  }
+
+  /**
    * Waits for the calendar-month-day-box-item at "index", located in the
    * specified week,day combination to appear.
    *

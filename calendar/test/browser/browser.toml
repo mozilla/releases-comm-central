@@ -51,6 +51,8 @@ run-if = [
 
 ["browser_eventUndoRedo.js"]
 
+["browser_icsCacheToggleGhost.js"]
+
 ["browser_ics_discovery.js"]
 
 ["browser_import.js"]
