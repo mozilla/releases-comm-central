@@ -307,16 +307,6 @@ nsresult nsMsgOfflineImapOperation::SetCopiesToDB() {
   return m_mdb->SetProperty(m_mdbRow, PROP_COPY_DESTS, copyDests.get());
 }
 
-/* attribute long numberOfCopies; */
-NS_IMETHODIMP nsMsgOfflineImapOperation::GetNumberOfCopies(
-    int32_t* aNumberOfCopies) {
-  NS_ENSURE_ARG(aNumberOfCopies);
-  nsresult rv = GetCopiesFromDB();
-  NS_ENSURE_SUCCESS(rv, rv);
-  *aNumberOfCopies = m_copyDestinations.Length();
-  return NS_OK;
-}
-
 /* string getCopyDestination (in long copyIndex); */
 NS_IMETHODIMP nsMsgOfflineImapOperation::GetCopyDestination(int32_t copyIndex,
                                                             char** retval) {

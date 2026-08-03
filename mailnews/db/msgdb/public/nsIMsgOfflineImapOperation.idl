@@ -57,7 +57,6 @@ interface nsIMsgOfflineImapOperation : nsISupports
   void addKeywordToRemove(in string aKeyword);
   readonly attribute string keywordsToAdd;
   readonly attribute string keywordsToRemove;
-  readonly attribute long numberOfCopies;
   // Calling this sets the kMsgCopy bitflag in .operation.
   // Can be called multiple times to copy to multiple destinations.
   // NOTE: No code ever seems to use this. There's only ever one destination.
