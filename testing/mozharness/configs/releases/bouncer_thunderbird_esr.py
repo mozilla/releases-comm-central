@@ -113,33 +113,6 @@ config = {
             "product-name": "Thunderbird-esr-next-pkg-latest-SSL",
             "platforms": ["osx"],
         },
-        "langpack": {
-            "product-name": "Thunderbird-%(version)s-langpack-SSL",
-            "platforms": [
-                "linux64",
-                "osx",
-                "win",
-                "win64",
-            ],
-        },
-        "langpack-latest": {
-            "product-name": "Thunderbird-esr-langpack-latest-SSL",
-            "platforms": [
-                "linux64",
-                "osx",
-                "win",
-                "win64",
-            ],
-        },
-        "langpack-latest-next": {
-            "product-name": "Thunderbird-esr-next-langpack-latest-SSL",
-            "platforms": [
-                "linux64",
-                "osx",
-                "win",
-                "win64",
-            ],
-        },
         "complete-mar": {
             "product-name": "Thunderbird-%(version)s-Complete",
             "platforms": [
