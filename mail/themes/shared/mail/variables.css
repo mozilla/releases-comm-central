@@ -88,6 +88,7 @@
   --toolbar-button-hover-checked-color: color-mix(in srgb, currentColor 20%, transparent);
   --toolbar-button-active-background-color: color-mix(in srgb, currentColor 20%, transparent);
   --toolbar-button-active-border-color: color-mix(in srgb, currentColor 40%, transparent);
+  --toolbarbutton-icon-fill: currentColor;
   --toolbarbutton-icon-fill-opacity: 0.85;
   --toolbarbutton-background-color-hover: light-dark(
     var(--lwt-toolbarbutton-hover-background, rgba(0, 0, 0, 0.05)),
