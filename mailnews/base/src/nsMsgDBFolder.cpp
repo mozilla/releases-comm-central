@@ -4521,8 +4521,8 @@ nsMsgDBFolder::PerformActionsOnJunkMsgs(
 
   if (moveMessages) {
     CopyServiceListener* copyListener = new CopyServiceListener;
-    copyListener->mStopFn = [listener = nsCOMPtr<nsIUrlListener>(listener)](
-                                nsresult status) -> nsresult {
+    copyListener->mStopCopyFn =
+        [listener = nsCOMPtr(listener)](nsresult status) -> nsresult {
       if (listener) {
         listener->OnStopRunningUrl(nullptr, status);
       }

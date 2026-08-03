@@ -69,6 +69,16 @@ class UrlListener : public nsIUrlListener {
   virtual ~UrlListener() {}
 };
 
+/**
+ * CopyServiceListener is a small nsIMsgCopyServiceListener implementation
+ * which allows callable objects (including lambdas) to be plugged in instead
+ * of deriving your own nsIMsgCopyServiceListener.
+ *
+ * NOTE: only the OnStartCopy()/OnStopCopy() handlers are exposed here.
+ * Use of the other nsIMsgCopyServiceListener handlers is discouraged.
+ * The built-in OnProgress() and SetMessageKey() stubs return NS_OK.
+ * The built-in GetMessageId() returns NS_ERROR_NOT_IMPLEMENTED.
+ */
 class CopyServiceListener : public nsIMsgCopyServiceListener {
  public:
   NS_DECL_ISUPPORTS
@@ -76,11 +86,12 @@ class CopyServiceListener : public nsIMsgCopyServiceListener {
 
   CopyServiceListener() {}
   /**
-   * mStartFn and mStopFn are the OnStartRunning() and OnStopRunningUrl()
-   * handlers. It's fine for them to be null (often you'll only need mStopFn).
+   * mStartCopyFn and mStopCopyFn are the OnStartCopy() and OnStopCopy()
+   * handlers. It's fine to leave them unset - the default behaviour is to do
+   * nothing and return NS_OK.
    */
-  std::function<nsresult()> mStartFn;
-  std::function<nsresult(nsresult)> mStopFn;
+  std::function<nsresult()> mStartCopyFn;
+  std::function<nsresult(nsresult)> mStopCopyFn;
 
  protected:
   virtual ~CopyServiceListener() {}
