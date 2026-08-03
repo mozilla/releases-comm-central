@@ -856,7 +856,7 @@ toolbarbutton.formatting-button {
   block-size: 14px;
 }
 
-#msgIdentityPopup > menuitem[selected="true"] {
+#msgIdentityPopup > menuitem[selected] {
   background-color: var(--autocomplete-popup-highlight-background);
   color: var(--autocomplete-popup-highlight-color);
 }
@@ -889,7 +889,7 @@ toolbarbutton.formatting-button {
       background-color: var(--icon-color);
     }
 
-    &[selected="true"]::before {
+    &[selected]::before {
       border-radius: 4px;
       border: 1px solid var(--autocomplete-popup-highlight-color);
     }

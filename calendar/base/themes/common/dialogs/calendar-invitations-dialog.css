@@ -69,7 +69,7 @@ richlistitem[is="calendar-invitations-richlistitem"] {
   visibility: hidden;
 }
 
-richlistitem[is="calendar-invitations-richlistitem"][selected="true"]
+richlistitem[is="calendar-invitations-richlistitem"][selected]
   .calendar-invitations-richlistitem-button {
   visibility: visible;
 }

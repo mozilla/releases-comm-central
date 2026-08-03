@@ -22,7 +22,7 @@ menulist[is="menulist-editable"][editable="true"] {
   }
 
   & > menupopup > menuitem[checked]::before,
-  & > menupopup > menuitem[selected="true"]::before {
+  & > menupopup > menuitem[selected]::before {
     display: none;
     margin-inline-start: 0;
   }

@@ -44,7 +44,7 @@
     border-color: transparent;
   }
 
-  &[selected="true"] {
+  &[selected] {
     border-color: color-mix(in srgb, currentColor 20%, transparent);
     background-color: color-mix(in srgb, currentColor 20%, transparent);
     color: inherit;
@@ -86,7 +86,7 @@
     text-decoration: underline;
   }
 
-  .attachmentList:focus &[selected="true"] {
+  .attachmentList:focus &[selected] {
     background-color: var(--selected-item-color);
     color: var(--selected-item-text-color);
 
@@ -102,7 +102,7 @@
   .attachmentList[seltype="multiple"]:focus &[current="true"] {
     outline: 1px solid;
 
-    &[selected="true"] {
+    &[selected] {
       border-color: var(--sidebar-highlight-border-color, var(--item-focus-selected-border-color));
     }
   }
@@ -132,12 +132,12 @@
     color: var(--sidebar-color) !important;
   }
 
-  :root[lwt-tree] .attachmentList:focus &[selected="true"] {
+  :root[lwt-tree] .attachmentList:focus &[selected] {
     background: var(--sidebar-highlight-background-color, hsla(0, 0%, 80%, 0.3));
     color: var(--sidebar-highlight-text-color, var(--sidebar-color)) !important;
   }
 
-  :root[lwt-tree-brighttext] .attachmentList:focus &[selected="true"] {
+  :root[lwt-tree-brighttext] .attachmentList:focus &[selected] {
     background: var(--sidebar-highlight-background-color, rgba(249, 249, 250, 0.1));
   }
 }

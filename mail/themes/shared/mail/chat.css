@@ -125,7 +125,7 @@ richlistitem[is="chat-group-richlistitem"] {
     margin-inline-start: 4px;
   }
 
-  &[selected="true"] {
+  &[selected] {
     background-color: var(--imgroup-selected-background-color);
     color: var(--imbox-selected-text-color);
 
@@ -178,7 +178,7 @@ richlistitem:is([is="chat-imconv-richlistitem"], [is="chat-contact-richlistitem"
   pointer-events: auto;
 }
 
-richlistitem:is([is="chat-imconv-richlistitem"], [is="chat-contact-richlistitem"], [is="chat-group-richlistitem"]):not([selected="true"]):hover {
+richlistitem:is([is="chat-imconv-richlistitem"], [is="chat-contact-richlistitem"], [is="chat-group-richlistitem"]):not([selected]):hover {
   background-color: rgba(0, 0, 0, 0.1);
 }
 
@@ -188,23 +188,22 @@ richlistitem:is([is="chat-imconv-richlistitem"], [is="chat-contact-richlistitem"
   color: var(--sidebar-color);
 }
 
-richlistitem[is="chat-imconv-richlistitem"][selected="true"],
-richlistitem[is="chat-contact-richlistitem"][selected="true"] {
+richlistitem[is="chat-imconv-richlistitem"][selected],
+richlistitem[is="chat-contact-richlistitem"][selected] {
   background-color: var(--imbox-selected-background-color) !important;
   border-color: var(--sidebar-border) !important;
   color: var(--imbox-selected-text-color) !important;
 }
 
 :root[lwt-tree] richlistitem[is="chat-group-richlistitem"][selected],
-:root[lwt-tree]
-  richlistitem:is([is="chat-imconv-richlistitem"], [is="chat-contact-richlistitem"], [is="chat-group-richlistitem"]):not([selected="true"]):hover {
+:root[lwt-tree] richlistitem:is([is="chat-imconv-richlistitem"], [is="chat-contact-richlistitem"], [is="chat-group-richlistitem"]):not([selected]):hover {
   background-color: var(--sidebar-highlight-background-color, hsla(0, 0%, 80%, 0.3));
   color: var(--sidebar-highlight-text-color, var(--sidebar-color));
 }
 
 :root[lwt-tree-brighttext] richlistitem[is="chat-group-richlistitem"][selected],
 :root[lwt-tree-brighttext]
-  richlistitem:is([is="chat-imconv-richlistitem"], [is="chat-contact-richlistitem"], [is="chat-group-richlistitem"]):not([selected="true"]):hover {
+  richlistitem:is([is="chat-imconv-richlistitem"], [is="chat-contact-richlistitem"], [is="chat-group-richlistitem"]):not([selected]):hover {
   background-color: var(--sidebar-highlight-background-color, rgba(249, 249, 250, 0.1));
 }
 
@@ -836,18 +835,18 @@ richlistitem:not([selected]) .protoIconDimmed {
   box-shadow: none;
 }
 
-:root[lwt-tree] .conv-nicklist > richlistitem[selected="true"],
+:root[lwt-tree] .conv-nicklist > richlistitem[selected],
 :root[lwt-tree] .conv-nicklist:focus > richlistitem[current="true"],
-:root[lwt-tree] .conv-nicklist:focus > richlistitem[selected="true"] {
+:root[lwt-tree] .conv-nicklist:focus > richlistitem[selected] {
   background-color: var(--sidebar-highlight-background-color, hsla(0, 0%, 80%, 0.3));
   background-image: none;
   border-color: var(--sidebar-border);
   color: var(--sidebar-highlight-text-color, var(--sidebar-color));
 }
 
-:root[lwt-tree-brighttext] .conv-nicklist > richlistitem[selected="true"],
+:root[lwt-tree-brighttext] .conv-nicklist > richlistitem[selected],
 :root[lwt-tree-brighttext] .conv-nicklist:focus > richlistitem[current="true"],
-:root[lwt-tree-brighttext] .conv-nicklist:focus > richlistitem[selected="true"] {
+:root[lwt-tree-brighttext] .conv-nicklist:focus > richlistitem[selected] {
   background-color: var(--sidebar-highlight-background-color, rgba(249, 249, 250, 0.1));
   border-color: var(--sidebar-highlight-background-color, rgba(249, 249, 250, 0.1));
 }

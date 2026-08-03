@@ -359,12 +359,12 @@ checkbox {
     border: 1px solid var(--field-border-color);
   }
 
-  & richlistitem[selected="true"] {
+  & richlistitem[selected] {
     background-color: hsla(0, 0%, 50%, 0.15);
     color: inherit;
   }
 
-  & richlistbox:focus > richlistitem[selected="true"] {
+  & richlistbox:focus > richlistitem[selected] {
     background-color: var(--sidebar-highlight-background-color, hsla(0, 0%, 50%, 0.35));
     color: var(--sidebar-highlight-text-color, inherit);
     outline: 1px solid var(--selected-item-color) !important;
@@ -388,7 +388,7 @@ checkbox {
   }
 }
 
-richlistitem[selected="true"] {
+richlistitem[selected] {
   background-color: var(--tab-selected-background);
   color: inherit;
 

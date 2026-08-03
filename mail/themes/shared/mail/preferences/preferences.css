@@ -640,14 +640,14 @@ richlistbox:not(#categories) {
       background-color: var(--background-color-list-item-hover);
     }
 
-    &[selected="true"] {
+    &[selected] {
       background-color: var(--color-accent-primary-selected-unfocused);
       color: inherit;
     }
   }
 
   &:focus {
-    & > richlistitem[selected="true"] {
+    & > richlistitem[selected] {
       background-color: var(--selected-item-color);
       color: var(--selected-item-text-color) !important;
     }
@@ -1488,7 +1488,7 @@ qr-code-wizard {
     stroke: currentColor;
   }
 
-  & [selected="true"] .radio-icon {
+  & [selected] .radio-icon {
     stroke: AccentColor;
   }
 }
@@ -1548,7 +1548,7 @@ qr-code-wizard {
       background-color: var(--color-surface-border);
     }
 
-    &[selected="true"] {
+    &[selected] {
       border-color: var(--selected-item-color);
       outline: 1px solid var(--selected-item-color);
 

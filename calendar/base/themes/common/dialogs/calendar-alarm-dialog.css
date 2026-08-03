@@ -24,31 +24,31 @@ richlistitem[is="calendar-alarm-widget-richlistitem"] {
   padding: 6px 7px;
 }
 
-richlistitem[is="calendar-alarm-widget-richlistitem"][selected="true"] {
+richlistitem[is="calendar-alarm-widget-richlistitem"][selected] {
   padding: 0 5px;
 }
 
-richlistitem[is="calendar-alarm-widget-richlistitem"][selected="true"] .alarm-title-label {
+richlistitem[is="calendar-alarm-widget-richlistitem"][selected] .alarm-title-label {
   font-weight: bold;
 }
 
-richlistitem[is="calendar-alarm-widget-richlistitem"][selected="true"] .alarm-action-buttons {
+richlistitem[is="calendar-alarm-widget-richlistitem"][selected] .alarm-action-buttons {
   display: flex;
   color: var(--field-text-color);
 }
 
-richlistitem[is="calendar-alarm-widget-richlistitem"][selected="true"] > hbox {
+richlistitem[is="calendar-alarm-widget-richlistitem"][selected] > hbox {
   margin: 5px;
 }
 
-richlistitem[is="calendar-alarm-widget-richlistitem"][selected="true"] .alarm-relative-date-label,
+richlistitem[is="calendar-alarm-widget-richlistitem"][selected] .alarm-relative-date-label,
 .additional-information-box,
 .alarm-action-buttons {
   display: none;
 }
 
-richlistitem[is="calendar-alarm-widget-richlistitem"][selected="true"] .additional-information-box,
-richlistitem[is="calendar-alarm-widget-richlistitem"][selected="true"] .action-buttons-box {
+richlistitem[is="calendar-alarm-widget-richlistitem"][selected] .additional-information-box,
+richlistitem[is="calendar-alarm-widget-richlistitem"][selected] .action-buttons-box {
   display: flex;
 }
 
@@ -71,7 +71,7 @@ richlistitem[is="calendar-alarm-widget-richlistitem"][selected="true"] .action-b
   margin-block-start: 2px;
 }
 
-richlistitem[is="calendar-alarm-widget-richlistitem"]:not([selected="true"]) .alarm-calendar-image {
+richlistitem[is="calendar-alarm-widget-richlistitem"]:not([selected]) .alarm-calendar-image {
   display: none;
 }
 

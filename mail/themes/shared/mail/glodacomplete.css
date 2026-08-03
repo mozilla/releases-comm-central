@@ -24,7 +24,7 @@
     color: LinkText;
     font-size: 0.95em;
 
-    &[selected="true"] {
+    &[selected] {
       color: inherit;
     }
   }

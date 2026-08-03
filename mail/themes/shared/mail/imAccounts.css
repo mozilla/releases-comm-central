@@ -89,7 +89,7 @@
 
 /* List Items */
 richlistitem {
-  &[state="disconnected"]:not([selected="true"]) {
+  &[state="disconnected"]:not([selected]) {
     color: #999;
   }
 
@@ -110,7 +110,7 @@ richlistitem {
     }
   }
 
-  &:not([selected="true"]) .account-buttons {
+  &:not([selected]) .account-buttons {
     display: none;
   }
 
@@ -121,11 +121,11 @@ richlistitem {
   &:not([error="true"]) .error,
   &:not([state="disconnected"]) .error,
   &[error="true"] .disconnected,
-  &[selected="true"]:not([state="disconnected"]) .connectButton,
-  &[selected="true"][state="disconnected"] .disconnectButton,
-  &[selected="true"][state="disconnecting"] .disconnectButton,
-  &:not([selected="true"]) .addException,
-  &:not([selected="true"]) .autoSignOn,
+  &[selected]:not([state="disconnected"]) .connectButton,
+  &[selected][state="disconnected"] .disconnectButton,
+  &[selected][state="disconnecting"] .disconnectButton,
+  &:not([selected]) .addException,
+  &:not([selected]) .autoSignOn,
   &:not([reconnectPending="true"]) description[anonid="reconnect"] {
     display: none;
   }
@@ -135,7 +135,7 @@ richlistitem {
   }
 
   &[state="connecting"] .accountIcon,
-  &[state="disconnected"][selected="true"] .accountIcon {
+  &[state="disconnected"][selected] .accountIcon {
     opacity: 0.7;
   }
 
