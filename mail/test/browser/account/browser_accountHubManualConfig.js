@@ -1664,9 +1664,23 @@ add_task(
       const authenticationSelect = exchangeTypeSubview.querySelector(
         "#exchangeTypeAuthentication"
       );
-      authenticationSelect.value = String(Ci.nsMsgAuthMethod.passwordCleartext);
+      authenticationSelect.value = String(Ci.nsMsgAuthMethod.OAuth2);
       authenticationSelect.select.dispatchEvent(
         new Event("change", { bubbles: true })
+      );
+
+      const defaultOauthInput = exchangeTypeSubview.querySelector(
+        "#exchangeTypeDefaultOauth"
+      );
+      Assert.ok(
+        defaultOauthInput.checked,
+        "Should currently be using default OAuth config"
+      );
+
+      EventUtils.synthesizeMouseAtCenter(defaultOauthInput, {});
+      await BrowserTestUtils.waitForAttributeRemoval(
+        "hidden",
+        exchangeTypeSubview.querySelector("#exchangeTypeOauthCustom")
       );
 
       const oldTab = tabmail.selectedTab;
@@ -1702,13 +1716,25 @@ add_task(
       );
       Assert.equal(
         incoming.authMethod,
-        Ci.nsMsgAuthMethod.passwordCleartext,
+        Ci.nsMsgAuthMethod.OAuth2,
         "Should save the selected Exchange authentication method"
       );
       Assert.equal(
         incoming.getStringValue("ews_url"),
         "https://outlook.office365.com/EWS/Exchange.asmx",
         "Should save the Exchange URL"
+      );
+      Assert.ok(
+        !incoming.exchangeOverrideOAuthDetails,
+        "Should not have any OAuth configuration overrides"
+      );
+      Assert.ok(
+        !incoming.exchangeApplicationId,
+        "Should not have an application ID for OAuth set"
+      );
+      Assert.ok(
+        !incoming.exchangeTenantId,
+        "Should not have a tenant ID for OAuth set"
       );
     } finally {
       if (accountTab && tabmail.tabInfo.includes(accountTab)) {

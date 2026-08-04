@@ -331,17 +331,15 @@ class EmailExchangeType extends AccountHubStep {
 
     if (
       config.incoming.auth == Ci.nsMsgAuthMethod.OAuth2 &&
-      !this.#defaultOauthCheckbox.checked
+      !this.#defaultOauthCheckbox.checked &&
+      this.#oauthTenantInput.value &&
+      this.#oauthApplicationInput.value
     ) {
-      const tenant = InputSanitizer.nonemptystring(
-        this.#oauthTenantInput.value
-      );
+      const tenant = this.#oauthTenantInput.value;
       config.incoming.oauthSettings = {
         useCustomDetails: true,
         tenant,
-        clientId: InputSanitizer.nonemptystring(
-          this.#oauthApplicationInput.value
-        ),
+        clientId: this.#oauthApplicationInput.value,
         authorizationEndpoint: `https://login.microsoftonline.com/${tenant}/oauth2/v2.0/authorize`,
         tokenEndpoint: `https://login.microsoftonline.com/${tenant}/oauth2/v2.0/token`,
       };
