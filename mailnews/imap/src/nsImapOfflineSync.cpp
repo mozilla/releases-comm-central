@@ -19,7 +19,6 @@
 #include "nsIMsgCopyService.h"
 #include "nsImapProtocol.h"
 #include "nsMsgUtils.h"
-#include "nsIAutoSyncManager.h"
 #include "mozilla/Components.h"
 
 NS_IMPL_ISUPPORTS(nsImapOfflineSync, nsIUrlListener, nsIMsgCopyServiceListener,
@@ -952,93 +951,6 @@ void nsImapOfflineSync::DeleteAllOfflineOpsForCurrentDB() {
   // turn off nsMsgFolderFlags::OfflineEvents
   if (m_currentFolder)
     m_currentFolder->ClearFlag(nsMsgFolderFlags::OfflineEvents);
-}
-
-nsImapOfflineDownloader::nsImapOfflineDownloader(nsIMsgWindow* aMsgWindow,
-                                                 nsIUrlListener* aListener)
-    : nsImapOfflineSync() {
-  Init(aMsgWindow, aListener, nullptr, false);
-  // pause auto-sync service
-  nsresult rv;
-  nsCOMPtr<nsIAutoSyncManager> autoSyncMgr =
-      do_GetService(NS_AUTOSYNCMANAGER_CONTRACTID, &rv);
-  if (NS_SUCCEEDED(rv)) autoSyncMgr->Pause();
-}
-
-nsImapOfflineDownloader::~nsImapOfflineDownloader() {}
-
-nsresult nsImapOfflineDownloader::ProcessNextOperation() {
-  nsresult rv = NS_OK;
-  m_mailboxupdatesStarted = true;
-
-  if (!m_mailboxupdatesFinished) {
-    if (AdvanceToNextServer()) {
-      nsCOMPtr<nsIMsgFolder> rootMsgFolder;
-      m_currentServer->GetRootFolder(getter_AddRefs(rootMsgFolder));
-      nsCOMPtr<nsIMsgFolder> inbox;
-      if (rootMsgFolder) {
-        // Update the INBOX first so the updates on the remaining
-        // folders pickup the results of any filter moves.
-        rootMsgFolder->GetFolderWithFlags(nsMsgFolderFlags::Inbox,
-                                          getter_AddRefs(inbox));
-        if (inbox) {
-          nsCOMPtr<nsIMsgFolder> offlineImapFolder;
-          nsCOMPtr<nsIMsgImapMailFolder> imapInbox = do_QueryInterface(inbox);
-          if (imapInbox) {
-            rootMsgFolder->GetFolderWithFlags(
-                nsMsgFolderFlags::Offline, getter_AddRefs(offlineImapFolder));
-            if (!offlineImapFolder) {
-              // no imap folders configured for offline use - check if the
-              // account is set up so that we always download inbox msg bodies
-              // for offline use
-              nsCOMPtr<nsIImapIncomingServer> imapServer =
-                  do_QueryInterface(m_currentServer);
-              if (imapServer) {
-                bool downloadBodiesOnGetNewMail = false;
-                imapServer->GetDownloadBodiesOnGetNewMail(
-                    &downloadBodiesOnGetNewMail);
-                if (downloadBodiesOnGetNewMail) offlineImapFolder = inbox;
-              }
-            }
-          }
-          // if this isn't an imap inbox, or we have an offline imap sub-folder,
-          // then update the inbox. otherwise, it's an imap inbox for an account
-          // with no folders configured for offline use, so just advance to the
-          // next server.
-          if (!imapInbox || offlineImapFolder) {
-            // here we should check if this a pop3 server/inbox, and the user
-            // doesn't want to download pop3 mail for offline use.
-            if (!imapInbox) {
-            }
-            rv = inbox->GetNewMessages(m_window, this);
-            if (NS_SUCCEEDED(rv)) return rv;  // otherwise, fall through.
-          }
-        }
-      }
-      return ProcessNextOperation();  // recurse and do next server.
-    }
-    m_allServers.Clear();
-    m_mailboxupdatesFinished = true;
-  }
-
-  while (AdvanceToNextFolder()) {
-    uint32_t folderFlags;
-
-    ClearDB();
-    nsCOMPtr<nsIMsgImapMailFolder> imapFolder;
-    if (m_currentFolder) imapFolder = do_QueryInterface(m_currentFolder);
-    m_currentFolder->GetFlags(&folderFlags);
-    // need to check if folder has offline events, or is configured for offline
-    if (imapFolder && folderFlags & nsMsgFolderFlags::Offline &&
-        !(folderFlags & nsMsgFolderFlags::Virtual)) {
-      rv = m_currentFolder->DownloadAllForOffline(this, m_window);
-      if (NS_SUCCEEDED(rv) || rv == NS_BINDING_ABORTED) return rv;
-      // if this fails and the user didn't cancel/stop, fall through to code
-      // that advances to next folder
-    }
-  }
-  if (m_listener) m_listener->OnStopRunningUrl(nullptr, NS_OK);
-  return rv;
 }
 
 NS_IMETHODIMP nsImapOfflineSync::OnStartCopy() {

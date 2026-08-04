@@ -27,6 +27,7 @@
 #include "nsIWebNavigation.h"
 #include "nsImapStringBundle.h"
 #include "plbase64.h"
+#include "nsImapOfflineDownloader.h"
 #include "nsImapOfflineSync.h"
 #include "nsIMsgHdr.h"
 #include "nsMsgUtils.h"

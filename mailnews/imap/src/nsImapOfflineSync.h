@@ -91,11 +91,4 @@ class nsImapOfflineSync : public nsIUrlListener,
   bool m_createdOfflineFolders;
 };
 
-class nsImapOfflineDownloader : public nsImapOfflineSync {
- public:
-  nsImapOfflineDownloader(nsIMsgWindow* window, nsIUrlListener* listener);
-  virtual ~nsImapOfflineDownloader();
-  virtual nsresult ProcessNextOperation() override;  // this kicks off download
-};
-
 #endif  // COMM_MAILNEWS_IMAP_SRC_NSIMAPOFFLINESYNC_H_

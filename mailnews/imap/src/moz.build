@@ -16,6 +16,7 @@ UNIFIED_SOURCES += [
     "nsImapHostSessionList.cpp",
     "nsImapIncomingServer.cpp",
     "nsImapNamespace.cpp",
+    "nsImapOfflineDownloader.cpp",
     "nsImapOfflineSync.cpp",
     "nsImapProtocol.cpp",
     "nsImapSearchResults.cpp",

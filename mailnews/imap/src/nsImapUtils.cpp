@@ -11,12 +11,14 @@
 #include "nsCOMPtr.h"
 #include "nsDebug.h"
 #include "nsError.h"
+#include "nsFmtString.h"
 #include "prsystem.h"
 #include "prprf.h"
-
 #include "nsIImapFlagAndUidState.h"
 #include "nsImapFlagAndUidState.h"
 #include "nsImapNamespace.h"
+#include "nsIMsgHdr.h"
+#include "nsMsgUtils.h"
 #include "nsString.h"
 
 nsresult nsImapURI2FullName(const char* rootURI, const char* hostname,
@@ -459,7 +461,7 @@ mozilla::Result<nsTArray<ImapUid>, nsresult> UidsFromMsgKeys(
   // But for now, UIDs are used as keys, so...
   for (nsMsgKey k : keys) {
     if (k == nsMsgKey_None) {
-      return Err(NS_ERROR_UNEXPECTED);
+      return mozilla::Err(NS_ERROR_UNEXPECTED);
     }
   }
   nsTArray<ImapUid> uids(keys.Clone());
@@ -500,7 +502,7 @@ mozilla::Result<nsTArray<ImapUid>, nsresult> MsgKeysFromUids(
   // But for now, UIDs are used as keys, so...
   for (ImapUid uid : uids) {
     if (uid == 0) {
-      return Err(NS_ERROR_UNEXPECTED);
+      return mozilla::Err(NS_ERROR_UNEXPECTED);
     }
   }
   nsTArray<nsMsgKey> keys(uids.Clone());
