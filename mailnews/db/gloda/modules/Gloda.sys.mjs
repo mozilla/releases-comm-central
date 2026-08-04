@@ -971,7 +971,7 @@ export var Gloda = {
            * TODO: The long-term solution is to move towards using arithmetic
            *     encoding on folder-id's like we use for MIME types and friends.
            */
-          Account(aAttrDef, aArguments) {
+          Account(aAttrDef, ...aArguments) {
             const folderValues = [];
             const seenRootFolders = {};
             for (let iArg = 0; iArg < aArguments.length; iArg++) {

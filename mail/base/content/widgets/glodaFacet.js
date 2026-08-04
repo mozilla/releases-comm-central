@@ -441,9 +441,7 @@
         return;
       }
 
-      while (this.filterNode.hasChildNodes()) {
-        this.filterNode.lastChild.remove();
-      }
+      this.filterNode.replaceChildren();
 
       const allNode = document.createElement("option");
       allNode.textContent = glodaFacetStrings.GetStringFromName(
@@ -501,7 +499,10 @@
     checkStateChanged() {
       // if they un-check us, revert our value to all.
       if (!this.checked) {
+        this.filterNode.selectedIndex = 0;
+        this.filterNode.value = "all";
         this.selectedValue = "all";
+        this.#triggerFacet(this.trueGroups);
       }
     }
 
@@ -511,24 +512,28 @@
       }
       if (this.filterNode.value == "all") {
         this.selectedValue = "all";
-        FacetContext.addFacetConstraint(
-          this.faceter,
-          true,
-          this.trueGroups,
-          false,
-          true
-        );
-      } else {
-        const groupValue = this.realTrueGroups[parseInt(this.filterNode.value)];
-        this.selectedValue = groupValue.category;
-        FacetContext.addFacetConstraint(
-          this.faceter,
-          true,
-          [groupValue],
-          false,
-          true
-        );
+        this.#triggerFacet(this.trueGroups);
+        return;
       }
+
+      const groupValue = this.realTrueGroups[parseInt(this.filterNode.value)];
+      this.selectedValue = groupValue.category;
+      this.#triggerFacet([groupValue]);
+    }
+
+    /**
+     * Trigger the refresh of the Gloda facet view with updated filters.
+     *
+     * @param {Array} groupValue - Array of boolean explicit filtering.
+     */
+    #triggerFacet(groupValue) {
+      FacetContext.addFacetConstraint(
+        this.faceter,
+        true,
+        groupValue,
+        false,
+        true
+      );
     }
   }
 
