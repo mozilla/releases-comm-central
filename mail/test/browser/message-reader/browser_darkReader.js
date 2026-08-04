@@ -343,6 +343,44 @@ add_task(async function test_background_image_and_gradient_removed() {
   }
 });
 
+add_task(async function test_blend_mode_removed() {
+  const file = new FileUtils.File(
+    getTestFilePath("data/dark_mode_blend_mode.eml")
+  );
+  const blendMsgc = await open_message_from_file(file);
+  const previousAboutMessage = aboutMessage;
+  aboutMessage = get_about_message(blendMsgc);
+
+  try {
+    if (!darkTheme.isActive) {
+      await toggle_theme(darkTheme, true);
+    }
+    if (Services.prefs.getBoolPref("mail.dark-reader.enabled", false)) {
+      await toggle_dark_reader(false);
+    }
+    await toggle_dark_reader(true);
+
+    const msgDoc =
+      aboutMessage.document.getElementById("messagepane").contentDocument;
+
+    Assert.equal(
+      msgDoc.defaultView.getComputedStyle(msgDoc.querySelector("#blended"))
+        .mixBlendMode,
+      "normal",
+      "The blend mode coming from an embedded rule should be removed"
+    );
+    Assert.ok(
+      !msgDoc
+        .querySelector("#inlineBlended")
+        .style.getPropertyValue("mix-blend-mode"),
+      "The blend mode coming from an inline style should be removed"
+    );
+  } finally {
+    aboutMessage = previousAboutMessage;
+    await BrowserTestUtils.closeWindow(blendMsgc);
+  }
+});
+
 async function assert_light_style() {
   await new Promise(resolve => aboutMessage.requestAnimationFrame(resolve));
   if (AppConstants.DEBUG || AppConstants.ASAN || AppConstants.TSAN) {

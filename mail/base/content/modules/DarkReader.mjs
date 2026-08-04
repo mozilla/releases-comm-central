@@ -75,6 +75,13 @@ export const isTransparent = color => {
  * @param {CSSStyleDeclaration} style - The style to sanitize.
  */
 function sanitizeStyle(style) {
+  // A blend mode is written for the backdrop the sender had in mind. Against a
+  // dark one it may blend the content away, and we cannot inspect what it will
+  // end up blending with, so drop it.
+  if (style.mixBlendMode && style.mixBlendMode !== "normal") {
+    style.removeProperty("mix-blend-mode");
+  }
+
   if (
     !style.color &&
     !style.background &&
@@ -201,7 +208,7 @@ export function adaptMessageForDarkMode(browser) {
   // Loop through all child elements that have inline style that might break in
   // dark mode and check if the contrast is not enough for readability.
   for (const node of browserDocument.querySelectorAll(
-    `:not(button):is([style*="color"],[style*="background"],[bgcolor],[color])`
+    `:not(button):is([style*="color"],[style*="background"],[style*="blend"],[bgcolor],[color])`
   )) {
     // Clear inline attributes, usually in tables.
     node.removeAttribute("bgcolor");

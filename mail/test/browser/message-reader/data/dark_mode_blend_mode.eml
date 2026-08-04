@@ -1,0 +1,22 @@
+Message-ID: <dark-mode-blend-mode@example.invalid>
+Date: Wed, 4 Mar 2020 09:15:00 -0700
+To: recipient@example.invalid
+From: Dark Mode <sender@example.invalid>
+Subject: Message blending content against a light backdrop
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>Message blending content against a light backdrop</title>
+  </head>
+  <body>
+    <style>#blended{mix-blend-mode:multiply;background-color:#ffffff;}</style>
+    <div id="blended">Blended by an embedded rule.</div>
+    <div id="inlineBlended" style="mix-blend-mode: multiply;">
+      Blended by an inline style.
+    </div>
+  </body>
+</html>
