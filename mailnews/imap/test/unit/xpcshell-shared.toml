@@ -124,6 +124,8 @@ run-if = [
 
 ["test_nsIMsgFolderListenerIMAP.js"]
 
+["test_nsImapOfflineDownloader.js"]
+
 ["test_offlineCopy.js"]
 
 ["test_offlineDraftDataloss.js"]

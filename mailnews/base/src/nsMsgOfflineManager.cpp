@@ -102,11 +102,6 @@ nsresult nsMsgOfflineManager::AdvanceToNextState(nsresult exitStatus) {
         else
           AdvanceToNextState(NS_OK);
         break;
-      case eSendingUnsent:
-        if (m_goOfflineWhenDone) {
-          SetOnlineState(false);
-        }
-        break;
       case eDownloadingNews:
         m_curState = eDownloadingMail;
         if (m_downloadMail)
@@ -121,6 +116,12 @@ nsresult nsMsgOfflineManager::AdvanceToNextState(nsresult exitStatus) {
         else
           AdvanceToNextState(NS_OK);
         break;
+      case eSendingUnsent:
+        if (m_goOfflineWhenDone) {
+          SetOnlineState(false);
+        }
+        m_curState = eDone;
+        return StopRunning(exitStatus);
       default:
         NS_ASSERTION(false,
                      "unhandled current state when downloading for offline");
