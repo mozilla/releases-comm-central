@@ -156,6 +156,28 @@ function getSpecialPowers(specialPowers, owner) {
 }
 
 /**
+ * Wait for Fluent localization to finish translating the content document.
+ *
+ * @param {Window} win - The window to check within.
+ *
+ * @returns {Promise<void>}
+ */
+async function waitForContentFluent(win) {
+  const l10n = win.document?.l10n;
+  if (!l10n) {
+    return;
+  }
+
+  if (l10n.ready?.then) {
+    await l10n.ready;
+  }
+  if (typeof l10n.translateRoots == "function") {
+    await l10n.translateRoots();
+  }
+  await new Promise(win.requestAnimationFrame);
+}
+
+/**
  * Read the vendored axe-core bundle source.
  *
  * @returns {Promise<string>} The axe-core script source.
@@ -394,33 +416,7 @@ export async function runAxe(
         throw new Error("axe-core did not load.");
       }
 
-      /**
-       * Wait for Fluent localization to finish translating the content document.
-       *
-       * @returns {Promise<void>}
-       */
-      async function waitForContentFluent() {
-        const l10n = win.document?.l10n;
-        if (!l10n) {
-          return;
-        }
-
-        if (l10n.ready?.then) {
-          await l10n.ready;
-        }
-        if (typeof l10n.translateRoots == "function") {
-          await l10n.translateRoots();
-        }
-        await new Promise(resolve => {
-          if (typeof win.requestAnimationFrame == "function") {
-            win.requestAnimationFrame(() => resolve());
-          } else {
-            win.setTimeout(resolve);
-          }
-        });
-      }
-
-      await waitForContentFluent();
+      await waitForContentFluent(win);
       const results = await win.axe.run(
         data.context ?? win.document,
         data.axeOptions
@@ -791,32 +787,6 @@ export async function startAxeMutationObserver(targetBrowser, options = {}) {
       return node;
     }
 
-    /**
-     * Wait for Fluent localization to finish translating the content document.
-     *
-     * @returns {Promise<void>}
-     */
-    async function waitForContentFluent() {
-      const l10n = win.document?.l10n;
-      if (!l10n) {
-        return;
-      }
-
-      if (l10n.ready?.then) {
-        await l10n.ready;
-      }
-      if (typeof l10n.translateRoots == "function") {
-        await l10n.translateRoots();
-      }
-      await new Promise(resolve => {
-        if (typeof win.requestAnimationFrame == "function") {
-          win.requestAnimationFrame(() => resolve());
-        } else {
-          win.setTimeout(resolve);
-        }
-      });
-    }
-
     let runContext = null;
     if (watcherData.hasContext) {
       runContext = watcherData.context;
@@ -870,7 +840,7 @@ export async function startAxeMutationObserver(targetBrowser, options = {}) {
         state.lastRunAt = win.Date.now();
         state.runCount++;
         try {
-          await waitForContentFluent();
+          await waitForContentFluent(win);
           const results = await win.axe.run(
             runContext ?? win.document.body ?? win.document.documentElement,
             watcherData.axeOptions
