@@ -5527,6 +5527,7 @@ name = "protocol_shared"
 version = "0.1.0"
 dependencies = [
  "async-lock",
+ "base64 0.21.999",
  "fxhash",
  "http 0.2.12",
  "log",

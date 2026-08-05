@@ -69,10 +69,13 @@ pub(crate) async fn send_request<'or>(
 
     let auth_identity: Option<AuthIdentity> = credentials.into();
     if let Some(ref auth_identity) = auth_identity {
-        // If we can get an `AuthIdentity`, use it with the request.
+        // If we can get an `AuthIdentity`, keep Necko's auth cache current.
         request_builder = request_builder.auth_identity(auth_identity);
-    } else if let Some(ref hdr_value) = fallback_hdr_value {
-        // Fall back to setting the `Authorization` header ourselves.
+    }
+
+    if let Some(ref hdr_value) = fallback_hdr_value {
+        // Some auth mechanisms, such as OAuth2 and Basic, can provide the
+        // `Authorization` header without Necko challenge handling.
         request_builder = request_builder.header("Authorization", hdr_value);
     }
 

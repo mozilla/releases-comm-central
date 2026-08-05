@@ -4,6 +4,7 @@
 
 use std::ops::Deref;
 
+use base64::prelude::*;
 use moz_http::{AuthIdentity, AuthType};
 use nserror::nsresult;
 use nsstring::{nsCString, nsString};
@@ -115,8 +116,19 @@ impl Credentials {
 
                 Ok(Some(format!("Bearer {bearer_token}")))
             }
-            Self::Basic { .. } | Self::Ntlm { .. } => {
-                // We defer Basic and NTLM authentication to Necko.
+            Self::Basic {
+                username, password, ..
+            } => {
+                // Basic credentials are cheap to generate and do not require a
+                // server-provided challenge. Supplying the header directly
+                // avoids relying on a cached HTTP auth realm, which may be
+                // missing or stale when Thunderbird has explicitly forgotten a
+                // password.
+                let token = BASE64_STANDARD.encode(format!("{username}:{password}"));
+                Ok(Some(format!("Basic {token}")))
+            }
+            Self::Ntlm { .. } => {
+                // NTLM requires Necko to process the server's challenge.
                 Ok(None)
             }
         }
