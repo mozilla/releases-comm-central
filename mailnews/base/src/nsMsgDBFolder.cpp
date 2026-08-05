@@ -239,6 +239,7 @@ nsMsgDBFolder::nsMsgDBFolder(void)
       mNotifyCountChanges(true),
       mExpungedBytes(0),
       mInitializedFromCache(false),
+      mDiscoveredSubFolders(false),
       mSemaphoreHolder(nullptr),
       mNumPendingUnreadMessages(0),
       mNumPendingTotalMessages(0),
@@ -4962,6 +4963,40 @@ NS_IMETHODIMP nsMsgDBFolder::GetMessageHeader(nsMsgKey msgKey,
 NS_IMETHODIMP nsMsgDBFolder::GetDescendants(
     nsTArray<RefPtr<nsIMsgFolder>>& aDescendants) {
   aDescendants.Clear();
+
+  // `mSubFolders` only holds folders that have already been discovered into
+  // memory. At startup the subfolders of accounts other than the one shown in
+  // the folder pane have not been discovered yet, so callers that walk the
+  // descendants (for example the unread-count badge) would miss them. Ask the
+  // message store which children exist on disk and add any that are missing,
+  // so descendant enumeration is complete regardless of what has been loaded
+  // so far. The recursion below walks into each child, which discovers deeper
+  // levels in turn. Panorama keeps the hierarchy in its folder database rather
+  // than the store, so it does not need this.
+  if (!mDiscoveredSubFolders &&
+      !StaticPrefs::mail_panorama_enabled_AtStartup()) {
+    // Set the flag before discovering to guard against re-entrancy while the
+    // store adds the subfolders.
+    mDiscoveredSubFolders = true;
+    nsCOMPtr<nsIMsgPluggableStore> store;
+    if (NS_SUCCEEDED(GetMsgStore(getter_AddRefs(store))) && store) {
+      // Use DiscoverChildFolders (a read-only listing) rather than
+      // DiscoverSubFolders, which as a side effect creates a directory at the
+      // folder path when it does not exist yet and would corrupt folders whose
+      // store file has not been written.
+      nsTArray<nsCString> childNames;
+      if (NS_SUCCEEDED(store->DiscoverChildFolders(this, childNames))) {
+        for (const auto& childName : childNames) {
+          nsCOMPtr<nsIMsgFolder> child;
+          GetChildNamed(childName, getter_AddRefs(child));
+          if (!child) {
+            AddSubfolder(childName, getter_AddRefs(child));
+          }
+        }
+      }
+    }
+  }
+
   for (nsIMsgFolder* child : mSubFolders) {
     aDescendants.AppendElement(child);
     nsTArray<RefPtr<nsIMsgFolder>> grandchildren;

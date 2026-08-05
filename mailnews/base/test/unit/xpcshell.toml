@@ -185,3 +185,5 @@ tags = ["virtualfolders"]
 
 ["test_virtualFolders4.js"]
 tags = ["virtualfolders"]
+
+["test_notificationCountMultiAccount.js"]

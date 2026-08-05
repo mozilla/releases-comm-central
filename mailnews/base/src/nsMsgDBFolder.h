@@ -253,6 +253,9 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
   nsTObserverArray<nsCOMPtr<nsIFolderListener>> mListeners;
 
   bool mInitializedFromCache;
+  // Whether GetDescendants has already forced this folder's children to be
+  // discovered from the message store, so we only do it once.
+  bool mDiscoveredSubFolders;
   nsISupports* mSemaphoreHolder;  // set when the folder is being written to
                                   // Due to ownership issues, this won't be
                                   // AddRef'd.
