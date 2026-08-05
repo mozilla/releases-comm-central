@@ -1,0 +1,35 @@
+[
+  {
+    "label": "Clobber",
+    "command": "../mach clobber"
+  },
+  {
+    "label": "Clobber Python",
+    "command": "../mach clobber python"
+  },
+  {
+    "label": "Configure",
+    "command": "../mach configure"
+  },
+  {
+    "label": "Build",
+    "command": "../mach build"
+  },
+  {
+    "label": "Build binaries",
+    "command": "../mach build binaries"
+  },
+  {
+    "label": "Build faster",
+    "command": "../mach build faster"
+  },
+  {
+    "label": "Run",
+    "command": "../mach run"
+  },
+  {
+    "label": "Run Test",
+    "command": "../mach",
+    "args": ["test", "$ZED_FILE"]
+  }
+]
