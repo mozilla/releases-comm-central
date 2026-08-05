@@ -42,6 +42,8 @@ ChromeUtils.defineESModuleGetters(lazy, {
   LightweightThemeConsumer:
     "resource://gre/modules/LightweightThemeConsumer.sys.mjs",
   MailMigrator: "resource:///modules/MailMigrator.sys.mjs",
+  MailNotificationManager:
+    "resource:///modules/MailNotificationManager.sys.mjs",
   MailServices: "resource:///modules/MailServices.sys.mjs",
   MailUsageTelemetry: "resource:///modules/MailUsageTelemetry.sys.mjs",
   OAuth2Providers: "resource:///modules/OAuth2Providers.sys.mjs",
@@ -655,6 +657,23 @@ MailGlue.prototype = {
 
     // handle any migration work that has to happen at profile startup
     lazy.MailMigrator.migrateAtProfileStartup();
+
+    if (
+      AppConstants.platform == "macosx" &&
+      Services.startup.wasSilentlyStarted
+    ) {
+      // A silent start (e.g. relaunching to apply an update) does not open a
+      // mail window, so nothing initializes MailNotificationManager and the
+      // dock unread badge stays blank until the user opens a window. Drive
+      // init() here for that case; it only runs once, so the later
+      // window-driven call from messenger.js is a no-op.
+      //
+      // This is guarded on wasSilentlyStarted (the same flag that keeps the
+      // command line handler from opening a window) rather than run on every
+      // startup, so on a normal windowed startup MailNotificationManager and
+      // the MailNotificationService it pulls in are not loaded here at all.
+      lazy.MailNotificationManager.init();
+    }
 
     if (!Services.prefs.prefHasUserValue(PREF_PDFJS_ISDEFAULT_CACHE_STATE)) {
       lazy.PdfJs.checkIsDefault(this._isNewProfile);

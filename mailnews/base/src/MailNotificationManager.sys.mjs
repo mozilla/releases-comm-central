@@ -130,6 +130,14 @@ export const MailNotificationManager = new (class {
   }
 
   init() {
+    if (this._initialized) {
+      // init() is called both from the 3pane window (messenger.js) and, on
+      // macOS, from application startup (MailGlue), so that the dock badge is
+      // populated even when no mail window is open. Only run once.
+      return;
+    }
+    this._initialized = true;
+
     this._unreadChatCount = 0;
     this._unreadMailCount = 0;
     // @type {Map<string, number>} - A map of folder URIs and the date of the
