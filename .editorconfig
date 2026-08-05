@@ -1,0 +1,69 @@
+# https://editorconfig.org
+root = true
+
+[*]
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[*.{c,cpp,cc,cxx,h,hh,hpp,hxx,mm,m}]
+indent_style = space
+indent_size = 2
+# Matches ColumnLimit in .clang-format
+max_line_length = 80
+
+[*.idl]
+indent_style = space
+indent_size = 2
+
+[*.{js,jsx,ts,tsx,mjs,jsm,sjs,es}]
+indent_style = space
+indent_size = 2
+# Matches printWidth in .prettierrc.js
+max_line_length = 80
+
+[*.{py,py3,configure,build,mozbuild}]
+indent_style = space
+indent_size = 4
+# Matches line-length in pyproject.toml (ruff)
+max_line_length = 88
+
+[*.rs]
+indent_style = space
+indent_size = 4
+# rustfmt default max_width
+max_line_length = 100
+
+[*.java]
+indent_style = space
+indent_size = 2
+max_line_length = 100
+
+[*.{kt,kts}]
+indent_style = space
+indent_size = 4
+max_line_length = 120
+
+[*.{html,xhtml,htm,xml,xul,svg}]
+indent_style = space
+indent_size = 2
+max_line_length = 80
+
+[*.{css,scss,less}]
+indent_style = space
+indent_size = 2
+max_line_length = 80
+
+[*.json]
+indent_style = space
+indent_size = 2
+
+[{Makefile,Makefile.in,GNUmakefile}]
+indent_style = tab
+
+[*.{mk,mak,make}]
+indent_style = tab
+
+[*.{diff,patch}]
+trim_trailing_whitespace = false
