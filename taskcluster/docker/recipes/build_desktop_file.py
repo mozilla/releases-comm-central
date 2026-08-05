@@ -23,9 +23,6 @@ from typing import List, Union
 import jinja2
 from fluent.runtime.fallback import FluentLocalization, FluentResourceLoader
 
-COMM_L10N_ZIP = "https://hg.mozilla.org/projects/comm-l10n/archive/{rev}.zip"
-COMM_L10N_ZIP_PREFIX = "comm-l10n-{rev}"
-
 
 class FluentTranslator:
     """
