@@ -55,6 +55,7 @@
 #include "nsIURIMutator.h"
 #include "nsIXULAppInfo.h"
 #include "mozilla/Components.h"
+#include "mozilla/dom/Promise.h"
 #include "mozilla/intl/Localization.h"
 #include "mozilla/Logging.h"
 #include "mozilla/Preferences.h"
@@ -75,6 +76,7 @@
 #endif  // MOZ_PANORAMA
 
 using namespace mozilla;
+using mozilla::dom::Promise;
 
 #define oneHour 3600000000U
 
@@ -3212,6 +3214,7 @@ NS_IMETHODIMP nsMsgDBFolder::GetAbbreviatedName(nsAString& aAbbreviatedName) {
 
 NS_IMETHODIMP
 nsMsgDBFolder::GetChildNamed(const nsACString& aName, nsIMsgFolder** aChild) {
+  NS_ENSURE_STATE(!aName.IsEmpty());
   NS_ENSURE_ARG_POINTER(aChild);
   nsTArray<RefPtr<nsIMsgFolder>> dummy;
   GetSubFolders(dummy);  // initialize mSubFolders
@@ -3391,6 +3394,49 @@ NS_IMETHODIMP nsMsgDBFolder::RecursiveDelete(bool deleteStorage) {
 NS_IMETHODIMP nsMsgDBFolder::CreateSubfolder(const nsACString& folderName,
                                              nsIMsgWindow* msgWindow) {
   return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+NS_IMETHODIMP nsMsgDBFolder::CreateSubfolderWithListener(const nsACString&,
+                                                         nsIUrlListener*) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+NS_IMETHODIMP nsMsgDBFolder::CreateSubfolderAsync(
+    const nsACString& folderName, JSContext* cx,
+    mozilla::dom::Promise** aPromise) {
+  ErrorResult result;
+  RefPtr<Promise> promise =
+      Promise::Create(xpc::CurrentNativeGlobal(cx), result);
+
+  nsMainThreadPtrHandle<Promise> promiseHolder(
+      new nsMainThreadPtrHolder<Promise>("CreateSubfolderAsync promise",
+                                         promise));
+
+  RefPtr<UrlListener> listener = new UrlListener();
+  listener->mStopFn = [&, folderName = nsCString(folderName),
+                       promiseHolder = std::move(promiseHolder)](
+                          nsIURI* url, nsresult rv) -> nsresult {
+    if (NS_FAILED(rv)) {
+      promiseHolder.get()->MaybeReject(rv);
+      return NS_OK;
+    }
+    nsCOMPtr<nsIMsgFolder> newFolder;
+    rv = GetChildNamed(folderName, getter_AddRefs(newFolder));
+    if (NS_FAILED(rv)) {
+      promiseHolder.get()->MaybeReject(rv);
+      return NS_OK;
+    }
+    if (!newFolder) {
+      promiseHolder.get()->MaybeReject(NS_MSG_ERROR_FOLDER_MISSING);
+      return NS_OK;
+    }
+    promiseHolder.get()->MaybeResolve(newFolder);
+    return NS_OK;
+  };
+
+  CreateSubfolderWithListener(folderName, listener);
+  promise.forget(aPromise);
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgDBFolder::AddSubfolder(const nsACString& name,

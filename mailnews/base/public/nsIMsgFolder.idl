@@ -283,9 +283,44 @@ interface nsIMsgFolder : nsISupports {
    * @param folderName name of the folder to create.
    * @param msgWindow msgWindow to display status feedback in.
    *
+   * @exception NS_MSG_ERROR_INVALID_FOLDER_NAME
    * @exception NS_MSG_FOLDER_EXISTS
+   *
+   * @deprecated Use createSubfolderAsync/createSubfolderWithListener instead.
    */
   void createSubfolder(in AUTF8String folderName, in nsIMsgWindow msgWindow);
+
+  /**
+   * Create a subfolder of the current folder with the passed in name. Returns
+   * a promise that resolves to the created nsIMsgFolder on success, or an
+   * error code on failure.
+   *
+   * Expected failure values:
+   * NS_MSG_ERROR_INVALID_FOLDER_NAME
+   * NS_MSG_ERROR_OFFLINE
+   * NS_ERROR_FAILURE (probably canCreateSubfolders returned false)
+   * NS_MSG_FOLDER_EXISTS
+   * NS_MSG_ERROR_IMAP_COMMAND_FAILED (IMAP, probably means the folder exists)
+   * NS_ERROR_UNEXPECTED (EWS, probably means the folder exists)
+   * NS_ERROR_NET_ERROR_RESPONSE (Graph, probably means the folder exists)
+   * NS_ERROR_CONNECTION_REFUSED (or other network errors)
+   * NS_MSG_ERROR_FOLDER_MISSING (the folder should have been created but
+   *   for some reason cannot be found)
+   *
+   * @param folderName name of the folder to create.
+   */
+  [implicit_jscontext]
+  Promise createSubfolderAsync(in AUTF8String folderName);
+
+  /**
+   * Create a subfolder of the current folder with the passed in name.
+   * See createSubfolderAsync for expected statuses.
+   *
+   * @param folderName name of the folder to create.
+   */
+  [noscript]
+  void createSubfolderWithListener(in AUTF8String folderName,
+                                   in nsIUrlListener listener);
 
   /**
    * Adds the subfolder with the passed name to the folder hierarchy.

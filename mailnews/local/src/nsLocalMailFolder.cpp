@@ -598,6 +598,14 @@ nsMsgLocalMailFolder::CreateSubfolder(const nsACString& folderName,
   return NS_OK;
 }
 
+NS_IMETHODIMP
+nsMsgLocalMailFolder::CreateSubfolderWithListener(const nsACString& folderName,
+                                                  nsIUrlListener* listener) {
+  nsresult rv = CreateSubfolder(folderName, nullptr);
+  listener->OnStopRunningUrl(nullptr, rv);
+  return NS_OK;
+}
+
 nsresult nsMsgLocalMailFolder::CreateSubfolderInternal(
     const nsACString& folderName, nsIMsgWindow* msgWindow,
     nsIMsgFolder** aNewFolder) {
@@ -606,6 +614,13 @@ nsresult nsMsgLocalMailFolder::CreateSubfolderInternal(
     // CheckIfFolderExists() already shows alert if a folder exists.
     return rv;
   }
+
+  bool canCreate = false;
+  GetCanCreateSubfolders(&canCreate);
+  if (!canCreate) {
+    return NS_ERROR_FAILURE;
+  }
+
   nsCOMPtr<nsIMsgPluggableStore> msgStore;
   rv = GetMsgStore(getter_AddRefs(msgStore));
   NS_ENSURE_SUCCESS(rv, rv);

@@ -105,6 +105,8 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
 
   NS_IMETHOD CreateSubfolder(const nsACString& folderName,
                              nsIMsgWindow* msgWindow) override;
+  NS_IMETHOD CreateSubfolderWithListener(const nsACString&,
+                                         nsIUrlListener*) override;
 
   NS_IMETHOD Compact(nsIUrlListener* aListener,
                      nsIMsgWindow* aMsgWindow) override;

@@ -791,6 +791,50 @@ NS_IMETHODIMP nsImapMailFolder::CreateSubfolder(const nsACString& folderName,
   return imapService->CreateFolder(this, folderName, this, getter_AddRefs(url));
 }
 
+NS_IMETHODIMP nsImapMailFolder::CreateSubfolderWithListener(
+    const nsACString& folderName, nsIUrlListener* listener) {
+  if (folderName.IsEmpty()) {
+    if (listener) {
+      listener->OnStopRunningUrl(nullptr, NS_MSG_ERROR_INVALID_FOLDER_NAME);
+    }
+    return NS_OK;
+  }
+
+  bool canCreate = false;
+  GetCanCreateSubfolders(&canCreate);
+  if (!canCreate) {
+    if (listener) {
+      listener->OnStopRunningUrl(nullptr, NS_ERROR_FAILURE);
+    }
+    return NS_OK;
+  }
+
+  nsAutoCString trashName;
+  GetTrashFolderName(trashName);
+  if (folderName.Equals(trashName)) {  // Trash, a special folder.
+    if (listener) {
+      listener->OnStopRunningUrl(nullptr, NS_MSG_FOLDER_EXISTS);
+    }
+    return NS_OK;
+  }
+  if (mIsServer &&
+      folderName.LowerCaseEqualsLiteral("inbox")) {  // Inbox, a special folder.
+    if (listener) {
+      listener->OnStopRunningUrl(nullptr, NS_MSG_FOLDER_EXISTS);
+    }
+    return NS_OK;
+  }
+
+  nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
+  nsCOMPtr<nsIURI> url;
+  nsresult rv = imapService->CreateFolder(this, folderName, listener,
+                                          getter_AddRefs(url));
+  if (NS_FAILED(rv) && listener) {
+    listener->OnStopRunningUrl(nullptr, rv);
+  }
+  return rv;
+}
+
 // Path coming in is the root path without the leaf name,
 // on the way out, it's the whole path.
 // e.g.
@@ -4557,11 +4601,11 @@ nsresult nsImapMailFolder::HandleCustomFlags(nsMsgKey msgKey,
             ("combinedKeywords stored = |%s|", combinedKeywords.get()));
     // combinedKeywords are tags being stored in database for the message.
     return mDatabase->SetStringPropertyByHdr(dbHdr, "keywords",
-                                         combinedKeywords);
+                                             combinedKeywords);
   }
   return (userFlags & kImapMsgSupportUserFlag)
-           ? mDatabase->SetStringPropertyByHdr(dbHdr, "keywords", keywords)
-           : NS_OK;
+             ? mDatabase->SetStringPropertyByHdr(dbHdr, "keywords", keywords)
+             : NS_OK;
 }
 
 // synchronize the message flags in the database with the server flags

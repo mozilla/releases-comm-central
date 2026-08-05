@@ -122,6 +122,19 @@ const CREATE_FOLDER_RESPONSE_BASE = `${EWS_SOAP_HEAD}
     </m:CreateFolderResponse>
 ${EWS_SOAP_FOOT}`;
 
+const CREATE_FOLDER_CONFLICT_ERROR_RESPONSE = `${EWS_SOAP_HEAD}
+    <m:CreateFolderResponse xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages">
+      <m:ResponseMessages>
+        <m:CreateFolderResponseMessage ResponseClass="Error">
+          <m:MessageText>A folder with the specified name already exists.</m:MessageText>
+          <m:ResponseCode>ErrorFolderExists</m:ResponseCode>
+          <m:DescriptiveLinkKey>0</m:DescriptiveLinkKey>
+          <m:Folders />
+        </m:CreateFolderResponseMessage>
+      </m:ResponseMessages>
+    </m:CreateFolderResponse>
+${EWS_SOAP_FOOT}`;
+
 // The base for a response to a CreateFolder operation request. Before sending,
 // the server will populate `m:Folders` with the server-side IDs of the newly
 // created folders.
@@ -599,7 +612,10 @@ export class EwsServer extends MockServer {
     const reqBytes = CommonUtils.readBytesFromInputStream(
       request.bodyInputStream
     );
-    const reqDoc = this.#parser.parseFromString(reqBytes, "text/xml");
+    const reqDoc = this.#parser.parseFromString(
+      CommonUtils.decodeUTF8(reqBytes),
+      "text/xml"
+    );
 
     // Try to extract the `RequestServerVersion` SOAP header.
     const requestVersionHeaders = reqDoc.getElementsByTagName(
@@ -655,13 +671,14 @@ export class EwsServer extends MockServer {
       throw new Error("Unexpected EWS operation");
     }
     // Send the response.
+    resBytes = CommonUtils.encodeUTF8(resBytes);
     response.bodyOutputStream.write(resBytes, resBytes.length);
   }
 
   /**
    * Generate a response to a CreateFolder operation.
    *
-   * @see {@link https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/createfolder-operation#createfolder-error-response}
+   * @see {@link https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/createfolder-operation}
    * @param {XMLDocument} reqDoc - The parsed document for the request to respond to.
    * @returns {string} A serialized XML document.
    */
@@ -687,6 +704,13 @@ export class EwsServer extends MockServer {
     // Retrieve the desired display name for this folder.
     const folderName =
       folderEl.getElementsByTagName("t:DisplayName")[0].textContent;
+    if (
+      this.folders.find(
+        f => f.parentId == parentFolderId && f.displayName == folderName
+      )
+    ) {
+      return CREATE_FOLDER_CONFLICT_ERROR_RESPONSE;
+    }
 
     // Generate a random ID for the folder.
     const folderId = (Math.random() + 1).toString(36).substring(2);

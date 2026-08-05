@@ -51,6 +51,8 @@ class ExchangeFolder : public nsMsgDBFolder, public IExchangeFolder {
   NS_IMETHOD CreateStorageIfMissing(nsIUrlListener* urlListener) override;
   NS_IMETHOD CreateSubfolder(const nsACString& folderName,
                              nsIMsgWindow* msgWindow) override;
+  NS_IMETHOD CreateSubfolderWithListener(const nsACString&,
+                                         nsIUrlListener*) override;
   NS_IMETHOD CopyFileMessage(nsIFile* aFile, nsIMsgDBHdr* msgToReplace,
                              bool isDraftOrTemplate, uint32_t newMsgFlags,
                              const nsACString& aNewMsgKeywords,

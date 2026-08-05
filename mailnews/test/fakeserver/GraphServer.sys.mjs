@@ -286,8 +286,8 @@ export class GraphServer extends MockServer {
   #handleResourcePath(request, response, resourcePath) {
     const method = request.method;
     const resourceQuery = request.queryString;
-    const requestBody = CommonUtils.readBytesFromInputStream(
-      request.bodyInputStream
+    const requestBody = CommonUtils.decodeUTF8(
+      CommonUtils.readBytesFromInputStream(request.bodyInputStream)
     );
 
     const requestHeaders = new Map(
@@ -308,16 +308,15 @@ export class GraphServer extends MockServer {
       httpResponseData.statusCode,
       httpResponseData.statusMessage
     );
-    response.bodyOutputStream.write(
-      httpResponseData.bodyContent,
-      httpResponseData.bodyContent.length
-    );
+    const responseBody = CommonUtils.encodeUTF8(httpResponseData.bodyContent);
+    response.bodyOutputStream.write(responseBody, responseBody.length);
   }
 
   #handleBatchRequest(request, response) {
-    const batchRequest = JSON.parse(
+    const requestBody = CommonUtils.decodeUTF8(
       CommonUtils.readBytesFromInputStream(request.bodyInputStream)
     );
+    const batchRequest = JSON.parse(requestBody);
 
     const responseJsonObject = {
       responses: [],
@@ -362,7 +361,9 @@ export class GraphServer extends MockServer {
     }
 
     response.setStatusLine("1.1", 200, "OK");
-    const responseBody = JSON.stringify(responseJsonObject);
+    const responseBody = CommonUtils.encodeUTF8(
+      JSON.stringify(responseJsonObject)
+    );
     response.bodyOutputStream.write(responseBody, responseBody.length);
   }
 
@@ -615,6 +616,24 @@ export class GraphServer extends MockServer {
 
     const requestJson = JSON.parse(requestBody);
     const folderName = requestJson.displayName;
+
+    if (
+      this.folders.find(
+        f => f.parentId == decodedParentId && f.displayName == folderName
+      )
+    ) {
+      return new HttpResponseData(
+        409,
+        "Conflict",
+        JSON.stringify({
+          error: {
+            code: "ErrorFolderExists",
+            message: `A folder with the specified name already exists., Could not create folder ${folderName}.`,
+          },
+        })
+      );
+    }
+
     const folderId = `created-folder-${this.folders.length}`;
 
     this.appendRemoteFolder(

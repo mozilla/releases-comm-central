@@ -264,24 +264,73 @@ NS_IMETHODIMP ExchangeFolder::CreateStorageIfMissing(
 
 NS_IMETHODIMP ExchangeFolder::CreateSubfolder(const nsACString& aFolderName,
                                               nsIMsgWindow* msgWindow) {
+  return CreateSubfolderWithListener(aFolderName, nullptr);
+}
+
+NS_IMETHODIMP ExchangeFolder::CreateSubfolderWithListener(
+    const nsACString& aFolderName, nsIUrlListener* aListener) {
+  if (aFolderName.IsEmpty()) {
+    if (aListener) {
+      aListener->OnStopRunningUrl(nullptr, NS_MSG_ERROR_INVALID_FOLDER_NAME);
+      return NS_OK;
+    }
+    return NS_MSG_ERROR_INVALID_FOLDER_NAME;
+  }
+
+  bool canCreate = false;
+  GetCanCreateSubfolders(&canCreate);
+  if (!canCreate) {
+    if (aListener) {
+      aListener->OnStopRunningUrl(nullptr, NS_ERROR_FAILURE);
+    }
+    return NS_OK;
+  }
+
   nsCString exchangeId;
   nsresult rv = GetExchangeId(exchangeId);
-  NS_ENSURE_SUCCESS(rv, rv);
+  if (NS_FAILED(rv)) {
+    if (aListener) {
+      aListener->OnStopRunningUrl(nullptr, rv);
+    }
+    return NS_OK;
+  }
+
+  if (WeAreOffline()) {
+    if (aListener) {
+      aListener->OnStopRunningUrl(nullptr, NS_MSG_ERROR_OFFLINE);
+    }
+    return NS_OK;
+  }
 
   nsCOMPtr<IExchangeClient> client;
   rv = GetProtocolClient(getter_AddRefs(client));
-  NS_ENSURE_SUCCESS(rv, rv);
+  if (NS_FAILED(rv)) {
+    if (aListener) {
+      aListener->OnStopRunningUrl(nullptr, rv);
+    }
+    return NS_OK;
+  }
 
   const auto folderName = nsCString(aFolderName);
 
-  RefPtr<ExchangeSimpleListener> listener = new ExchangeSimpleListener(
-      [self = RefPtr(this), folderName](const nsTArray<nsCString>& ids,
-                                        bool useLegacyFallback) {
+  RefPtr<ExchangeSimpleListener> listener = new ExchangeSimpleFallibleListener(
+      [self = RefPtr(this), folderName, aListener = RefPtr(aListener)](
+          const nsTArray<nsCString>& ids, bool useLegacyFallback) {
         NS_ENSURE_TRUE(ids.Length() == 1, NS_ERROR_UNEXPECTED);
 
         nsCOMPtr<nsIMsgFolder> newFolder;
-        return CreateNewLocalExchangeFolder(self, ids[0], folderName,
-                                            getter_AddRefs(newFolder));
+        nsresult rv = CreateNewLocalExchangeFolder(self, ids[0], folderName,
+                                                   getter_AddRefs(newFolder));
+        if (aListener) {
+          aListener->OnStopRunningUrl(nullptr, rv);
+        }
+        return NS_OK;
+      },
+      [aListener = RefPtr(aListener)](nsresult rv) {
+        if (aListener) {
+          aListener->OnStopRunningUrl(nullptr, rv);
+        }
+        return NS_OK;
       });
 
   return client->CreateFolder(listener, exchangeId, folderName);
