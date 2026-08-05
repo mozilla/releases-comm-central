@@ -45,7 +45,7 @@ interface nsIMsgComposeService : nsISupports {
                          in nsIMsgIdentity identity,
                          in AUTF8String from,
                          in nsIMsgWindow aMsgWindow,
-                         [optional] in Selection aSelection,
+                         [optional] in AUTF8String selectionHTML,
                          [optional] in boolean autodetectCharset);
 
   /**

@@ -168,9 +168,8 @@ add_task(async function testDraftReplyToEncryptedMessageKeepsRePrefix() {
 
     const replyWindowPromise = waitForComposeWindow();
     get_about_message(msgc).document.querySelector("#hdrReplyButton").click();
-    await BrowserTestUtils.closeWindow(msgc);
-
     const replyWindow = await replyWindowPromise;
+    await BrowserTestUtils.closeWindow(msgc);
 
     // Without the delay, the saving attempt that follows sometimes
     // fails. The code to save the encrypted draft fails, because

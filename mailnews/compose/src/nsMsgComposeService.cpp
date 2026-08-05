@@ -153,83 +153,6 @@ nsMsgComposeService::DetermineComposeHTML(nsIMsgIdentity* aIdentity,
   return NS_OK;
 }
 
-MOZ_CAN_RUN_SCRIPT_FOR_DEFINITION nsresult
-nsMsgComposeService::GetHTMLForSelection(mozilla::dom::Selection* selection,
-                                         nsACString& aSelHTML) {
-  // Good hygiene
-  aSelHTML.Truncate();
-
-  // Get the pref to see if we even should do reply quoting selection
-  bool replyQuotingSelection =
-      Preferences::GetBool("mailnews.reply_quoting_selection");
-  if (!replyQuotingSelection) return NS_ERROR_ABORT;
-
-  bool requireMultipleWords =
-      Preferences::GetBool("mailnews.reply_quoting_selection.multi_word", true);
-  nsAutoCString charsOnlyIf;
-  Preferences::GetCString("mailnews.reply_quoting_selection.only_if_chars",
-                          charsOnlyIf);
-  if (requireMultipleWords || !charsOnlyIf.IsEmpty()) {
-    nsAutoString selPlain;
-    selection->Stringify(selPlain);
-
-    // If "mailnews.reply_quoting_selection.multi_word" is on, then there must
-    // be at least two words selected in order to quote just the selected text
-    if (requireMultipleWords) {
-      if (selPlain.IsEmpty()) return NS_ERROR_ABORT;
-
-      mozilla::intl::LineBreakIteratorUtf16 lineBreakIter(selPlain);
-      Maybe<uint32_t> breakPt = lineBreakIter.Next();
-      if (breakPt.isNothing()) {
-        // Not even one word, let alone multiple.
-        return NS_ERROR_ABORT;
-      }
-
-      // If after the first word is only space, then there's not multiple
-      // words
-      const char16_t* begin = selPlain.BeginReading() + breakPt.value();
-      const char16_t* end = selPlain.EndReading();
-      if (std::all_of(begin, end, mozilla::intl::NS_IsSpace)) {
-        return NS_ERROR_ABORT;
-      }
-    }
-
-    if (!charsOnlyIf.IsEmpty()) {
-      if (selPlain.FindCharInSet(NS_ConvertUTF8toUTF16(charsOnlyIf)) ==
-          kNotFound) {
-        return NS_ERROR_ABORT;
-      }
-    }
-  }
-
-  nsAutoString selHTML;
-  IgnoredErrorResult rv2;
-  selection->ToStringWithFormat(
-      u"text/html"_ns,
-      nsIDocumentEncoder::OutputRaw | nsIDocumentEncoder::SkipInvisibleContent,
-      0, selHTML, rv2);
-  if (rv2.Failed()) {
-    return NS_ERROR_FAILURE;
-  }
-
-  // Now remove <span class="moz-txt-citetags">&gt; </span>.
-  nsAutoCString html(NS_ConvertUTF16toUTF8(selHTML).get());
-  int32_t spanInd = html.Find("<span class=\"moz-txt-citetags\">");
-  while (spanInd != kNotFound) {
-    nsAutoCString right0(Substring(html, spanInd));
-    int32_t endInd = right0.Find("</span>");
-    if (endInd == kNotFound) break;  // oops, where is the closing tag gone?
-    nsAutoCString right1(Substring(html, spanInd + endInd + 7));
-    html.SetLength(spanInd);
-    html.Append(right1);
-    spanInd = html.Find("<span class=\"moz-txt-citetags\">");
-  }
-
-  aSelHTML.Assign(html);
-
-  return NS_OK;
-}
-
 nsresult nsMsgComposeService::GetTo3PaneWindow() {
   nsresult rv;
   nsCOMPtr<nsIWindowMediator> windowMediator =
@@ -252,7 +175,7 @@ nsMsgComposeService::OpenComposeWindow(
     const nsACString& msgComposeWindowURL, nsIMsgDBHdr* origMsgHdr,
     const nsACString& originalMsgURI, MSG_ComposeType type,
     MSG_ComposeFormat format, nsIMsgIdentity* aIdentity, const nsACString& from,
-    nsIMsgWindow* aMsgWindow, mozilla::dom::Selection* selection,
+    nsIMsgWindow* aMsgWindow, const nsACString& selectionHTML,
     bool autodetectCharset) {
   nsresult rv;
 
@@ -314,43 +237,13 @@ nsMsgComposeService::OpenComposeWindow(
 
       // When doing a reply (except with a template) see if there's a selection
       // that we should quote
-      if (selection &&
+      if (!selectionHTML.IsEmpty() &&
           (type == nsIMsgCompType::Reply || type == nsIMsgCompType::ReplyAll ||
            type == nsIMsgCompType::ReplyToSender ||
            type == nsIMsgCompType::ReplyToGroup ||
            type == nsIMsgCompType::ReplyToSenderAndGroup ||
            type == nsIMsgCompType::ReplyToList)) {
-        nsCOMPtr<nsINode> node = selection->GetFocusNode();
-        nsAutoCString selHTML;
-        if (node && NS_SUCCEEDED(GetHTMLForSelection(selection, selHTML))) {
-          // Traverse the DOM tree upwards to check if the selection is
-          // inside a <pre> tag.
-          bool isInsidePre = false;
-          for (nsCOMPtr<nsINode> parentNode = node; parentNode;
-               parentNode = parentNode->GetParentNode()) {
-            if (parentNode->LocalName().EqualsLiteral("pre")) {
-              isInsidePre = true;
-              break;
-            }
-          }
-          // Wrap in <pre> if it's an actual HTML <pre> block or a plain-text
-          // email.
-          IgnoredErrorResult er;
-          if (isInsidePre ||
-              ((node->LocalName().IsEmpty() ||
-                node->LocalName().EqualsLiteral("pre")) &&
-               node->OwnerDoc()->QuerySelector(
-                   "body > div:first-of-type.moz-text-plain"_ns, er))) {
-            // Treat the quote as <pre> for selections in actual <pre> tags or
-            // moz-text-plain bodies. If focusNode.localName isn't empty, we
-            // had e.g. body selected and should not add <pre>.
-            pMsgComposeParams->SetHtmlToQuote(
-                R"(<pre class="moz-quote-pre" wrap="">)"_ns + selHTML +
-                "</pre>"_ns);
-          } else {
-            pMsgComposeParams->SetHtmlToQuote(selHTML);
-          }
-        }
+        pMsgComposeParams->SetHtmlToQuote(selectionHTML);
       }
 
       if (!originalMsgURI.IsEmpty()) {

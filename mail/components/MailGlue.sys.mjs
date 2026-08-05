@@ -254,6 +254,10 @@ const JSWINDOWACTORS = {
     safeForUntrustedWebProcess: true,
   },
 
+  MailMessage: {
+    child: { esModuleURI: "resource:///actors/MailMessageChild.sys.mjs" },
+  },
+
   MessageScroll: {
     parent: {
       esModuleURI: "resource:///actors/MessageScrollParent.sys.mjs",

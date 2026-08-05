@@ -19,6 +19,14 @@ var { click_menus_in_sequence, close_window } = ChromeUtils.importESModule(
   "resource://testing-common/mail/WindowHelpers.sys.mjs"
 );
 
+registerCleanupFunction(function () {
+  Services.prefs.clearUserPref("mailnews.reply_quoting_selection");
+  Services.prefs.clearUserPref(
+    "mailnews.reply_quoting_selection.only_if_chars"
+  );
+  Services.prefs.clearUserPref("mailnews.reply_quoting_selection.multi_word");
+});
+
 async function subtest(path) {
   const file = new FileUtils.File(getTestFilePath(path));
   const msgc = await open_message_from_file(file);
@@ -125,9 +133,21 @@ async function subtest(path) {
   await BrowserTestUtils.closeWindow(msgc);
 }
 
-// Specific subtest for HTML emails containing <pre> tags (Bug 2029007)
-async function html_pre_subtest(path) {
-  const file = new FileUtils.File(getTestFilePath(path));
+add_task(async function test_non_flowed() {
+  await subtest("data/non-flowed-plain.eml");
+});
+
+add_task(async function test_base64() {
+  await subtest("data/base64-quoting.eml");
+});
+
+add_task(async function test_quoted_printable() {
+  await subtest("data/quoted-printable.eml");
+});
+
+/* Specific test for HTML emails containing <pre> tags (Bug 2029007). */
+add_task(async function test_html_pre() {
+  const file = new FileUtils.File(getTestFilePath("data/html-pre.eml"));
   const msgc = await open_message_from_file(file);
 
   const aboutMessage = get_about_message(msgc);
@@ -177,20 +197,91 @@ async function html_pre_subtest(path) {
 
   await close_compose_window(cwc);
   await BrowserTestUtils.closeWindow(msgc);
-}
-
-add_task(async function test_non_flowed() {
-  await subtest("data/non-flowed-plain.eml");
 });
 
-add_task(async function test_base64() {
-  await subtest("data/base64-quoting.eml");
-});
+add_task(async function test_quoting_prefs() {
+  const file = new FileUtils.File(getTestFilePath("data/html-quoting.eml"));
+  const messageWindow = await open_message_from_file(file);
+  const aboutMessage = get_about_message(messageWindow);
+  const browser = aboutMessage.getMessagePaneBrowser();
 
-add_task(async function test_quoted_printable() {
-  await subtest("data/quoted-printable.eml");
-});
+  function selectCharacters(line, start, end) {
+    const selection = content.getSelection();
 
-add_task(async function test_html_pre() {
-  await html_pre_subtest("data/html-pre.eml");
+    const text = content.document.querySelector(
+      `body > div.moz-text-html > p:nth-child(${line})`
+    );
+
+    const range = content.document.createRange();
+    range.setStart(text.firstChild, start);
+    range.setEnd(text.firstChild, end);
+
+    selection.removeAllRanges();
+    selection.addRange(range);
+  }
+
+  async function getQuotedText() {
+    const replyWindow = await open_compose_with_reply(messageWindow);
+    const blockquote = replyWindow.document
+      .getElementById("messageEditor")
+      .contentDocument.body.querySelector("blockquote");
+    const textContent = blockquote.textContent;
+    await close_compose_window(replyWindow);
+    return textContent.trim();
+  }
+
+  async function assertWholeMessageQuoted() {
+    const textContent = await getQuotedText();
+    Assert.stringMatches(
+      textContent,
+      /^line 1\n.*\nline 8$/s,
+      "the whole message should be quoted"
+    );
+  }
+
+  async function assertSelectionQuoted(expectedQuote) {
+    const textContent = await getQuotedText();
+    Assert.equal(textContent, expectedQuote, "the selection should be quoted");
+  }
+
+  // Select just the word "line". With multiple words required, the whole
+  // message should be quoted.
+  await SpecialPowers.spawn(browser, [7, 7, 11], selectCharacters);
+  await assertWholeMessageQuoted();
+
+  // Check selection quoting when multiple words not required.
+  Services.prefs.setBoolPref(
+    "mailnews.reply_quoting_selection.multi_word",
+    false
+  );
+  await assertSelectionQuoted("line");
+  Services.prefs.setBoolPref(
+    "mailnews.reply_quoting_selection.multi_word",
+    true
+  );
+
+  // Select more than one word. The selection should be quoted.
+  await SpecialPowers.spawn(browser, [7, 7, 13], selectCharacters);
+  await assertSelectionQuoted("line 7");
+
+  // Check selection quoting can be disabled.
+  Services.prefs.setBoolPref("mailnews.reply_quoting_selection", false);
+  await assertWholeMessageQuoted();
+  Services.prefs.setBoolPref("mailnews.reply_quoting_selection", true);
+
+  // Check selection quoting when particular characters are required.
+  Services.prefs.setStringPref(
+    "mailnews.reply_quoting_selection.only_if_chars",
+    "456"
+  );
+  await SpecialPowers.spawn(browser, [3, 0, 6], selectCharacters);
+  await assertWholeMessageQuoted();
+  await SpecialPowers.spawn(browser, [4, 0, 6], selectCharacters);
+  await assertSelectionQuoted("line 4");
+  Services.prefs.setStringPref(
+    "mailnews.reply_quoting_selection.only_if_chars",
+    ""
+  );
+
+  await BrowserTestUtils.closeWindow(messageWindow);
 });

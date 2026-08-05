@@ -46,12 +46,6 @@ class nsMsgComposeService : public nsIMsgComposeService,
   nsInterfaceHashtable<nsISupportsHashKey, nsIWeakReference>
       mOpenComposeWindows;
 
-  // When doing a reply and the settings are enabled, get the HTML of the
-  // selected text in the original message window so that it can be quoted
-  // instead of the entire message.
-  nsresult GetHTMLForSelection(mozilla::dom::Selection* selection,
-                               nsACString& aSelHTML);
-
   nsresult GetDefaultIdentity(nsIMsgIdentity** _retval);
 };
 

@@ -861,7 +861,7 @@ var commandController = {
    * @param {nsIMsgCompType} composeType - The nsIMsgCompType type to pass.
    * @param {Event} [event] - The event that triggered the call.
    */
-  _composeMsgByType(composeType, event) {
+  async _composeMsgByType(composeType, event) {
     const msgFolder = gFolder;
     const msgUris =
       gFolder || gViewWrapper?.isSynthetic
@@ -883,28 +883,28 @@ var commandController = {
         messagePaneBrowser = window.getMessagePaneBrowser();
         autodetectCharset = window.autodetectCharset;
       }
-      selection = messagePaneBrowser?.contentWindow?.getSelection();
+      if (
+        messagePaneBrowser &&
+        Services.prefs.getBoolPref("mailnews.reply_quoting_selection")
+      ) {
+        const actor =
+          messagePaneBrowser.browsingContext.currentWindowGlobal.getActor(
+            "MailMessage"
+          );
+        selection = await actor.sendQuery("MailMessage:GetSelectionForQuoting");
+      }
     }
 
-    if (event && event.shiftKey) {
-      window.browsingContext.topChromeWindow.ComposeMessage(
-        composeType,
-        Ci.nsIMsgCompFormat.OppositeOfDefault,
-        msgFolder,
-        msgUris,
-        selection,
-        autodetectCharset
-      );
-    } else {
-      window.browsingContext.topChromeWindow.ComposeMessage(
-        composeType,
-        Ci.nsIMsgCompFormat.Default,
-        msgFolder,
-        msgUris,
-        selection,
-        autodetectCharset
-      );
-    }
+    top.ComposeMessage(
+      composeType,
+      event?.shiftKey
+        ? Ci.nsIMsgCompFormat.OppositeOfDefault
+        : Ci.nsIMsgCompFormat.Default,
+      msgFolder,
+      msgUris,
+      selection,
+      autodetectCharset
+    );
   },
 
   _navigate(navigationType) {
