@@ -589,7 +589,7 @@ function InitMessageMenu() {
   let isDummy;
   if (["mail3PaneTab", "mailMessageTab"].includes(tab?.mode.name)) {
     ({ message, folder } = tab);
-    isDummy = message && !folder;
+    isDummy = !message?.folder && !folder;
   } else {
     message = document.getElementById("messageBrowser")?.contentWindow.gMessage;
     isDummy = !message?.folder;
@@ -665,8 +665,14 @@ function InitMessageMenu() {
     openRssMenu.hidden = true;
   }
 
-  // Disable mark menu when we're not in a folder.
-  document.getElementById("markMenu").disabled = !folder || folder.isServer;
+  // Disable the mark menu when there's no folder context, or when the
+  // folder is a server root (which has no messages to mark). Use the
+  // message's real folder when one is selected (so the menu works in
+  // synthetic views, which have no gFolder), falling back to gFolder if
+  // no message is selected.
+  const effectiveFolder = message?.folder || folder;
+  document.getElementById("markMenu").disabled =
+    !effectiveFolder || effectiveFolder.isServer;
 
   document.commandDispatcher.updateCommands("create-menu-message");
 }

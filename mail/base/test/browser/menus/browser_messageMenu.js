@@ -9,8 +9,14 @@ const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
 
+const { Gloda } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/Gloda.sys.mjs"
+);
 const { GlodaIndexer } = ChromeUtils.importESModule(
   "resource:///modules/gloda/GlodaIndexer.sys.mjs"
+);
+const { GlodaSyntheticView } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/GlodaSyntheticView.sys.mjs"
 );
 
 const nothingSelected = ["rootFolder", "noSelection", "contentTab"];
@@ -54,13 +60,13 @@ const messageMenuData = {
   markReadMenuItem: { disabled: nothingSelected },
   markUnreadMenuItem: { disabled: true },
   menu_markThreadAsRead: { disabled: nothingSelected },
-  menu_markReadByDate: { disabled: ["rootFolder"] },
-  menu_markAllRead: { disabled: ["rootFolder"] },
+  menu_markReadByDate: { disabled: ["rootFolder", "syntheticView"] },
+  menu_markAllRead: { disabled: ["rootFolder", "syntheticView"] },
   markFlaggedMenuItem: { disabled: nothingSelected },
   menu_markAsJunk: { disabled: nothingSelected },
   menu_markAsNotJunk: { disabled: nothingSelected },
   menu_recalculateJunkScore: {
-    disabled: [...nothingSelected, "message"],
+    disabled: [...nothingSelected, "message", "syntheticView"],
   },
   archiveMainMenu: { disabled: [...nothingSelected, "externalMessage"] },
   menu_cancel: { hidden: true },
@@ -68,13 +74,64 @@ const messageMenuData = {
   copyMenu: { disabled: nothingSelected },
   moveToFolderAgain: { disabled: true },
   createFilter: { disabled: [...nothingOrMultiSelected, "externalMessage"] },
-  killThread: { disabled: [...nothingSelected, "message", "externalMessage"] },
-  killSubthread: {
-    disabled: [...nothingSelected, "message", "externalMessage"],
+  killThread: {
+    disabled: [
+      ...nothingSelected,
+      "message",
+      "externalMessage",
+      "syntheticView",
+    ],
   },
-  watchThread: { disabled: [...nothingSelected, "externalMessage"] },
+  killSubthread: {
+    disabled: [
+      ...nothingSelected,
+      "message",
+      "externalMessage",
+      "syntheticView",
+    ],
+  },
+  watchThread: {
+    disabled: [...nothingSelected, "externalMessage", "syntheticView"],
+  },
 };
 const helper = new MenuTestHelper("messageMenu", messageMenuData);
+
+/** @type {MenuData} */
+const messageWindowMenuData = {
+  ...messageMenuData,
+  // The message window has no "Open in Conversation" item, and the "Open
+  // Message in New Window" item is hidden there. The thread items and
+  // "Recalculate Junk Score" are only handled by the 3-pane command
+  // controller, so they're disabled there too.
+  openMessageWindowMenuitem: { hidden: true },
+  menu_recalculateJunkScore: {
+    disabled: [
+      ...nothingSelected,
+      "message",
+      "syntheticView",
+      "mailMessageWindow",
+    ],
+  },
+  killThread: {
+    disabled: [
+      ...nothingSelected,
+      "message",
+      "externalMessage",
+      "syntheticView",
+      "mailMessageWindow",
+    ],
+  },
+  killSubthread: {
+    disabled: [
+      ...nothingSelected,
+      "message",
+      "externalMessage",
+      "syntheticView",
+      "mailMessageWindow",
+    ],
+  },
+};
+delete messageWindowMenuData.openConversationMenuitem;
 
 const tabmail = document.getElementById("tabmail");
 let rootFolder, testFolder, testMessages;
@@ -362,4 +419,82 @@ add_task(async function testExternalMessageTab() {
 add_task(async function testContentTab() {
   tabmail.switchToTab(3);
   await helper.testAllItems("contentTab");
+});
+
+/**
+ * Tests the message menu bar items for a Gloda synthetic view
+ * (e.g. search results or a conversation tab). In a synthetic view
+ * gFolder is not set, but the displayed messages still have real
+ * underlying folders, so mark, tag, move, and copy should be enabled.
+ */
+add_task(async function testSyntheticView() {
+  const tabPromise = BrowserTestUtils.waitForEvent(
+    window,
+    "aboutMessageLoaded"
+  );
+  const tab = tabmail.openTab("mail3PaneTab", {
+    syntheticView: new GlodaSyntheticView({
+      collection: Gloda.getMessageCollectionForHeaders(
+        testMessages.slice(0, 6)
+      ),
+    }),
+    title: "Test gloda results",
+  });
+  await tabPromise;
+  await SimpleTest.promiseFocus(tab.chromeBrowser);
+
+  const about3Pane = tab.chromeBrowser.contentWindow;
+  const { threadTree, messageBrowser } = about3Pane;
+  const messagePaneBrowser =
+    messageBrowser.contentWindow.getMessagePaneBrowser();
+
+  const gDBView = await TestUtils.waitForCondition(
+    () => about3Pane.gDBView,
+    "waiting for view to load in new tab"
+  );
+
+  // Select a message that hasn't been modified by earlier tests
+  // (testMessages[2] is unread and unflagged) and wait for it to load.
+  await TestUtils.waitForCondition(
+    () => threadTree.getRowAtIndex(2),
+    "waiting for rows to be added"
+  );
+  const loadedPromise = BrowserTestUtils.browserLoaded(
+    messagePaneBrowser,
+    undefined,
+    url => url.endsWith(gDBView.getKeyAt(2))
+  );
+  threadTree.selectedIndex = 2;
+  await loadedPromise;
+
+  await helper.testAllItems("syntheticView");
+
+  tabmail.closeTab(tab);
+});
+
+/**
+ * Tests the message menu bar items in the standalone message window. The
+ * mark, tag, and move menus are enabled because the displayed message has a
+ * real folder (bug 2056286).
+ */
+add_task(async function testMessageWindow() {
+  const winPromise = BrowserTestUtils.domWindowOpenedAndLoaded(
+    undefined,
+    win =>
+      win.document.documentURI ==
+      "chrome://messenger/content/messageWindow.xhtml"
+  );
+  window.MsgOpenNewWindowForMessage(testMessages[0]);
+  const win = await winPromise;
+  await messageLoadedIn(win.messageBrowser);
+  await SimpleTest.promiseFocus(win);
+
+  const windowHelper = new MenuTestHelper(
+    "messageMenu",
+    messageWindowMenuData,
+    win.document
+  );
+  await windowHelper.testAllItems("mailMessageWindow");
+
+  await BrowserTestUtils.closeWindow(win);
 });
