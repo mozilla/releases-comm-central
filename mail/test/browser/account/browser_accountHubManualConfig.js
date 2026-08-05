@@ -1243,6 +1243,31 @@ add_task(async function test_direct_to_manual_config_pref_enabled() {
     "The direct manual config flow should default to IMAP"
   );
 
+  await subtest_select_protocol_and_continue(dialog, "imap");
+
+  const manualConfigTemplate = dialog.querySelector(
+    "#emailManualConfigSubview"
+  );
+  await BrowserTestUtils.waitForAttributeRemoval(
+    "hidden",
+    manualConfigTemplate
+  );
+  Assert.equal(
+    manualConfigTemplate.captureState().incoming.type,
+    "imap",
+    "The manual config form should use the selected IMAP protocol"
+  );
+  subtest_assert_manual_config_hostnames_empty(manualConfigTemplate, "IMAP");
+
+  EventUtils.synthesizeMouseAtCenter(
+    dialog.querySelector("#emailFooter #back"),
+    {}
+  );
+  await BrowserTestUtils.waitForAttributeRemoval(
+    "hidden",
+    protocolSelectTemplate
+  );
+
   await subtest_select_protocol_and_continue(dialog, "microsoft");
 
   const exchangeSettingsSubview = dialog.querySelector(
@@ -1281,9 +1306,6 @@ add_task(async function test_direct_to_manual_config_pref_enabled() {
 
   await subtest_select_protocol_and_continue(dialog, "pop3");
 
-  const manualConfigTemplate = dialog.querySelector(
-    "#emailManualConfigSubview"
-  );
   await BrowserTestUtils.waitForAttributeRemoval(
     "hidden",
     manualConfigTemplate
@@ -1297,6 +1319,7 @@ add_task(async function test_direct_to_manual_config_pref_enabled() {
     "pop3",
     "The manual config form should use the selected POP3 protocol"
   );
+  subtest_assert_manual_config_hostnames_empty(manualConfigTemplate, "POP3");
 
   await subtest_close_account_hub_dialog(dialog, manualConfigTemplate);
   await cleanupManualConfigPref();
@@ -1909,5 +1932,21 @@ function subtest_assert_protocol_select_chrome(dialog, protocolSelectTemplate) {
   Assert.ok(
     BrowserTestUtils.isVisible(notification),
     "The protocol select screen should show the notification bar"
+  );
+}
+
+function subtest_assert_manual_config_hostnames_empty(
+  manualConfigTemplate,
+  protocol
+) {
+  Assert.equal(
+    manualConfigTemplate.querySelector("#manualIncomingHostname").value,
+    "",
+    `${protocol} manual config should not populate the incoming hostname`
+  );
+  Assert.equal(
+    manualConfigTemplate.querySelector("#manualOutgoingHostname").value,
+    "",
+    `${protocol} manual config should not populate the outgoing hostname`
   );
 }

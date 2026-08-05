@@ -818,10 +818,9 @@ class AccountHubEmail extends HTMLElement {
           newManualConfigPref &&
           this.#currentState == "emailConfigFoundSubview"
         ) {
-          this.#initManualConfig(
-            this.#currentConfig.incoming.type,
-            "emailConfigFoundSubview"
-          );
+          this.#initManualConfig(this.#currentConfig.incoming.type, {
+            previousStep: "emailConfigFoundSubview",
+          });
           break;
         }
 
@@ -1178,7 +1177,9 @@ class AccountHubEmail extends HTMLElement {
         break;
       case "protocolSelectSubview":
         this.#currentConfig.incoming.type = stateData.protocolSelect;
-        await this.#initManualConfig(stateData.protocolSelect);
+        await this.#initManualConfig(stateData.protocolSelect, {
+          clearHostnames: true,
+        });
         break;
       case "manualConfigSubview":
         if (!(await this.#currentSubview.validate())) {
@@ -1443,9 +1444,16 @@ class AccountHubEmail extends HTMLElement {
    * Initialize the correct manual config step based on the protocol.
    *
    * @param {string} protocol - The selected incoming protocol.
-   * @param {string} previousStep - The step the protocol form goes back to.
+   * @param {object} [options]
+   * @param {string} [options.previousStep="protocolSelectSubview"] - The step
+   *   the protocol form goes back to.
+   * @param {boolean} [options.clearHostnames=false] - Whether hostname fields
+   *   should be empty when showing the manual config form.
    */
-  async #initManualConfig(protocol, previousStep = "protocolSelectSubview") {
+  async #initManualConfig(
+    protocol,
+    { previousStep = "protocolSelectSubview", clearHostnames = false } = {}
+  ) {
     switch (protocol) {
       case "imap":
       case "pop3":
@@ -1459,7 +1467,12 @@ class AccountHubEmail extends HTMLElement {
     }
 
     this.#states[this.#currentState].previousStep = previousStep;
-    this.#setCurrentConfigForSubview();
+    const config = this.#currentConfig.copy();
+    if (clearHostnames && ["imap", "pop3"].includes(protocol)) {
+      config.incoming.hostname = "";
+      config.outgoing.hostname = "";
+    }
+    this.#currentSubview.setState(config);
   }
 
   /**
