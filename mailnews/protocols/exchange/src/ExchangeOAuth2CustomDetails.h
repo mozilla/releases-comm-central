@@ -45,10 +45,14 @@ class ExchangeOAuth2CustomDetails : public IOAuth2CustomDetails {
   nsresult SetConfiguredRedirectUri(const nsACString& redirectUri);
   nsresult SetConfiguredEndpointHost(const nsACString& endpointHost);
   nsresult SetConfiguredOAuthScopes(const nsACString& oauthScopes);
+  nsresult SetConfiguredUsePKCE(bool usePKCE);
+  nsresult SetConfiguredUseExternalBrowser(bool useExternalBrowser);
   ///@}
 
   /**  Return whether or not to use the custom details for this provider. */
   bool GetConfiguredUseCustomDetails() const;
+  bool GetConfiguredUsePKCE() const;
+  bool GetConfiguredUseExternalBrowser() const;
 
   ///@{
   /**

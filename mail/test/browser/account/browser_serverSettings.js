@@ -491,6 +491,8 @@ add_task(async function test_override_oauth_settings() {
     exchangeRedirectUri: incomingServer.exchangeRedirectUri,
     exchangeEndpointHost: incomingServer.exchangeEndpointHost,
     exchangeOAuthScopes: incomingServer.exchangeOAuthScopes,
+    exchangeUseExternalBrowser: incomingServer.exchangeUseExternalBrowser,
+    exchangeUsePKCE: incomingServer.exchangeUsePKCE,
   };
 
   try {
@@ -514,6 +516,8 @@ add_task(async function test_override_oauth_settings() {
         "ews.exchangeRedirectUri",
         "ews.exchangeEndpointHost",
         "ews.exchangeOAuthScopes",
+        "ews.exchangeUseExternalBrowser",
+        "ews.exchangeUsePKCE",
       ];
       for (const dataElement of dataElements) {
         const element = iframe.getElementById(dataElement);
@@ -547,6 +551,8 @@ add_task(async function test_override_oauth_settings() {
         "exchangeRedirectUri",
         "exchangeEndpointHost",
         "exchangeOAuthScopes",
+        "exchangeUseExternalBrowser",
+        "exchangeUsePKCE",
       ];
       const inputElements = inputElementIds.map(id =>
         advancedDialog.document.getElementById(id)
@@ -575,8 +581,20 @@ add_task(async function test_override_oauth_settings() {
 
       for (const inputElement of inputElements) {
         inputElement.focus();
-        EventUtils.synthesizeKey("KEY_Delete", {}, inputElement.documentGlobal);
-        EventUtils.sendString("changed_value", inputElement.documentGlobal);
+        if (inputElement.tagName == "checkbox") {
+          EventUtils.synthesizeMouseAtCenter(
+            inputElement,
+            {},
+            inputElement.documentGlobal
+          );
+        } else {
+          EventUtils.synthesizeKey(
+            "KEY_Delete",
+            {},
+            inputElement.documentGlobal
+          );
+          EventUtils.sendString("changed_value", inputElement.documentGlobal);
+        }
       }
 
       await acceptDialogAndWaitForClose(advancedDialog);

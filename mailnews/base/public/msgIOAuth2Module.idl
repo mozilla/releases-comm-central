@@ -133,6 +133,12 @@ interface IOAuth2CustomDetails : nsISupports {
   /** The endpoint to use for obtaining tokens. */
   readonly attribute AUTF8String tokenEndpoint;
 
+  /** Whether to use PKCE. */
+  readonly attribute boolean usePKCE;
+
+  /** Whether to use the external browser OAuth login flow. */
+  readonly attribute boolean useExternalBrowser;
+
   /** The redirection endpoint. */
   readonly attribute AUTF8String redirectionEndpoint;
 };

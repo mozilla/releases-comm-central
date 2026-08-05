@@ -21,6 +21,13 @@ outgoing-server-edit =
     .label = Edit outgoing server…
     .accesskey = o
 
+oauth2-use-pkce =
+    .label = Use PKCE
+    .accesskey = k
+oauth2-use-system-browser =
+    .label = Use system web browser
+    .accesskey = b
+
 ews-url-label =
     .value = Host URL:
     .accesskey = h
@@ -39,7 +46,7 @@ ews-redirecturi-label =
   .accesskey = r
 ews-endpointhost-label =
   .value = Endpoint Host:
-  .accesskey = h
+  .accesskey = e
 ews-oauthscopes-label =
   .value = OAuth Scopes:
   .accesskey = s

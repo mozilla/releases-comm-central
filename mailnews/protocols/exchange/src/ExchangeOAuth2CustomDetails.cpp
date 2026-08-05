@@ -18,6 +18,8 @@ constexpr auto kTenant = "tenant";
 constexpr auto kRedirectUri = "redirectUri";
 constexpr auto kEndpointHost = "endpointHost";
 constexpr auto kOAuthScopes = "oauthScopes";
+constexpr auto kUsePKCE = "usePKCE";
+constexpr auto kUseExternalBrowser = "useExternalBrowser";
 
 }  // namespace
 
@@ -194,6 +196,18 @@ NS_IMETHODIMP ExchangeOAuth2CustomDetails::GetTokenEndpoint(nsACString& value) {
   return NS_OK;
 }
 
+NS_IMETHODIMP ExchangeOAuth2CustomDetails::GetUsePKCE(bool* value) {
+  NS_ENSURE_ARG(value);
+  *value = GetConfiguredUsePKCE();
+  return NS_OK;
+}
+
+NS_IMETHODIMP ExchangeOAuth2CustomDetails::GetUseExternalBrowser(bool* value) {
+  NS_ENSURE_ARG(value);
+  *value = GetConfiguredUseExternalBrowser();
+  return NS_OK;
+}
+
 NS_IMETHODIMP ExchangeOAuth2CustomDetails::GetRedirectionEndpoint(
     nsACString& value) {
   const auto redirectionEndpoint = GetConfiguredRedirectUri();
@@ -235,6 +249,15 @@ nsresult ExchangeOAuth2CustomDetails::SetConfiguredOAuthScopes(
   return mPrefBranch->SetStringPref(kOAuthScopes, oauthScopes);
 }
 
+nsresult ExchangeOAuth2CustomDetails::SetConfiguredUsePKCE(bool usePKCE) {
+  return mPrefBranch->SetBoolPref(kUsePKCE, usePKCE);
+}
+
+nsresult ExchangeOAuth2CustomDetails::SetConfiguredUseExternalBrowser(
+    bool useExternalBrowser) {
+  return mPrefBranch->SetBoolPref(kUseExternalBrowser, useExternalBrowser);
+}
+
 bool ExchangeOAuth2CustomDetails::GetConfiguredUseCustomDetails() const {
   bool result;
   nsresult rv = mPrefBranch->GetBoolPref(kUseCustomDetails, &result);
@@ -269,6 +292,18 @@ ExchangeOAuth2CustomDetails::GetConfiguredEndpointHost() const {
 std::optional<nsAutoCString>
 ExchangeOAuth2CustomDetails::GetConfiguredOAuthScopes() const {
   return GetStringPrefValueOrNone(kOAuthScopes);
+}
+
+bool ExchangeOAuth2CustomDetails::GetConfiguredUsePKCE() const {
+  bool result = false;
+  mPrefBranch->GetBoolPref(kUsePKCE, &result);
+  return result;
+}
+
+bool ExchangeOAuth2CustomDetails::GetConfiguredUseExternalBrowser() const {
+  bool result = true;
+  mPrefBranch->GetBoolPref(kUseExternalBrowser, &result);
+  return result;
 }
 
 std::optional<nsAutoCString>

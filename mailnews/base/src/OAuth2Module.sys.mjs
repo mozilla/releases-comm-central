@@ -355,18 +355,24 @@ OAuth2Module.prototype = {
       // can roll back to it if overrides are disabled later.
       issuerDetails = structuredClone(issuerDetails) ?? {};
 
+      // string attributes, which can fall back to a default if left empty
       const attributes = [
         "clientId",
         "clientSecret",
         "authorizationEndpoint",
         "tokenEndpoint",
         "redirectionEndpoint",
-        "usePKCE",
       ];
+
       for (const key of attributes) {
         if (customDetails.hasOwnProperty(key) && customDetails[key]) {
           issuerDetails[key] = customDetails[key];
         }
+      }
+
+      // bool attributes, which always override any existing configuration
+      for (const key of ["usePKCE", "useExternalBrowser"]) {
+        issuerDetails[key] = customDetails[key];
       }
     }
 

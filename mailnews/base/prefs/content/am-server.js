@@ -280,6 +280,12 @@ function onAdvanced() {
     serverSettings.exchangeOAuthScopes = document
       .getElementById("ews.exchangeOAuthScopes")
       .getAttribute("value");
+    serverSettings.exchangeUsePKCE = document.getElementById(
+      "ews.exchangeUsePKCE"
+    ).checked;
+    serverSettings.exchangeUseExternalBrowser = document.getElementById(
+      "ews.exchangeUseExternalBrowser"
+    ).checked;
   }
 
   const onCloseAdvanced = function () {
@@ -431,6 +437,10 @@ function onAdvanced() {
       document
         .getElementById("ews.exchangeOAuthScopes")
         .setAttribute("value", serverSettings.exchangeOAuthScopes);
+      document.getElementById("ews.exchangeUsePKCE").checked =
+        serverSettings.exchangeUsePKCE;
+      document.getElementById("ews.exchangeUseExternalBrowser").checked =
+        serverSettings.exchangeUseExternalBrowser;
     }
     document.dispatchEvent(new CustomEvent("prefchange"));
   };

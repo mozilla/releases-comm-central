@@ -952,30 +952,23 @@ nsresult SetOAuthProperty(ExchangeIncomingServer* server,
 
 }  // namespace
 
-NS_IMETHODIMP ExchangeIncomingServer::GetExchangeOverrideOAuthDetails(
-    bool* value) {
-  NS_ENSURE_ARG(value);
-
-  RefPtr<ExchangeOAuth2CustomDetails> details;
-  nsresult rv = GetDetailsForHostname(this, getter_AddRefs(details));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  *value = details->GetConfiguredUseCustomDetails();
-
-  return NS_OK;
-}
-
-NS_IMETHODIMP ExchangeIncomingServer::SetExchangeOverrideOAuthDetails(
-    bool value) {
-  RefPtr<ExchangeOAuth2CustomDetails> details;
-  nsresult rv = GetDetailsForHostname(this, getter_AddRefs(details));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = details->SetConfiguredUseCustomDetails(value);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  return NS_OK;
-}
+#define DEFINE_OAUTH_BOOL_ACCESSORS(PropertyName, OAuthValueName)        \
+  NS_IMETHODIMP ExchangeIncomingServer::Get##PropertyName(bool* value) { \
+    NS_ENSURE_ARG(value);                                                \
+    RefPtr<ExchangeOAuth2CustomDetails> details;                         \
+    nsresult rv = GetDetailsForHostname(this, getter_AddRefs(details));  \
+    NS_ENSURE_SUCCESS(rv, rv);                                           \
+    *value = details->Get##OAuthValueName();                             \
+    return NS_OK;                                                        \
+  }                                                                      \
+  NS_IMETHODIMP ExchangeIncomingServer::Set##PropertyName(bool value) {  \
+    RefPtr<ExchangeOAuth2CustomDetails> details;                         \
+    nsresult rv = GetDetailsForHostname(this, getter_AddRefs(details));  \
+    NS_ENSURE_SUCCESS(rv, rv);                                           \
+    rv = details->Set##OAuthValueName(value);                            \
+    NS_ENSURE_SUCCESS(rv, rv);                                           \
+    return NS_OK;                                                        \
+  }
 
 #define DEFINE_OAUTH_PROPERTY_ACCESSORS(PropertyName, OAuthValueName)          \
   NS_IMETHODIMP ExchangeIncomingServer::Get##PropertyName(nsACString& value) { \
@@ -993,10 +986,16 @@ NS_IMETHODIMP ExchangeIncomingServer::SetExchangeOverrideOAuthDetails(
         });                                                                    \
   }
 
+DEFINE_OAUTH_BOOL_ACCESSORS(ExchangeOverrideOAuthDetails,
+                            ConfiguredUseCustomDetails);
 DEFINE_OAUTH_PROPERTY_ACCESSORS(ExchangeApplicationId, ConfiguredApplicationId);
 DEFINE_OAUTH_PROPERTY_ACCESSORS(ExchangeTenantId, ConfiguredTenant);
 DEFINE_OAUTH_PROPERTY_ACCESSORS(ExchangeRedirectUri, ConfiguredRedirectUri);
 DEFINE_OAUTH_PROPERTY_ACCESSORS(ExchangeEndpointHost, ConfiguredEndpointHost);
 DEFINE_OAUTH_PROPERTY_ACCESSORS(ExchangeOAuthScopes, ConfiguredOAuthScopes);
+DEFINE_OAUTH_BOOL_ACCESSORS(ExchangeUsePKCE, ConfiguredUsePKCE);
+DEFINE_OAUTH_BOOL_ACCESSORS(ExchangeUseExternalBrowser,
+                            ConfiguredUseExternalBrowser);
 
 #undef DEFINE_OAUTH_PROPERTY_ACCESSORS
+#undef DEFINE_OAUTH_BOOL_ACCESSORS

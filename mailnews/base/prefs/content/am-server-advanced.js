@@ -86,7 +86,7 @@ function onLoad() {
     ) {
       document.getElementById("exchangeOverrideOAuthDetailsContainer").hidden =
         false;
-      setOAuthOverrideState(
+      setExchangeOAuthOverrideState(
         gServerSettings.account.incomingServer.exchangeOverrideOAuthDetails
       );
     } else {
@@ -168,19 +168,21 @@ function updateInboxAccount(enablePicker) {
   document.getElementById("deferGetNewMail").disabled = !enablePicker;
 }
 
-function setOAuthOverrideState(isEnabled) {
+function setExchangeOAuthOverrideState(isEnabled) {
   const oauthElementIds = [
     "exchangeApplicationId",
     "exchangeTenantId",
     "exchangeRedirectUri",
     "exchangeEndpointHost",
     "exchangeOAuthScopes",
+    "exchangeUsePKCE",
+    "exchangeUseExternalBrowser",
   ];
   for (const elementId of oauthElementIds) {
     document.getElementById(elementId).disabled = !isEnabled;
   }
 }
 
-function onChangeOverrideOAuthSelection(overrideSelector) {
-  setOAuthOverrideState(overrideSelector.checked);
+function onChangeExchangeOAuthOverride(overrideSelector) {
+  setExchangeOAuthOverrideState(overrideSelector.checked);
 }

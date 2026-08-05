@@ -231,7 +231,7 @@
             data-l10n-id="ews-url-label"
             control="exchangeUrl"
           />
-          <hbox class="input-container">
+          <hbox flex="1" class="input-container">
             <html:input
               id="exchangeUrl"
               type="text"
@@ -247,7 +247,7 @@
             id="exchangeOverrideOAuthDetails"
             amsa_persist="true"
             data-l10n-id="ews-override-oauth-details"
-            oncommand="onChangeOverrideOAuthSelection(this)"
+            oncommand="onChangeExchangeOAuthOverride(this)"
           />
           <hbox class="indent">
             <!-- Labels -->
@@ -289,7 +289,7 @@
               </hbox>
             </vbox>
             <!-- Input Fields -->
-            <vbox>
+            <vbox flex="1">
               <html:input
                 id="exchangeApplicationId"
                 type="text"
@@ -310,6 +310,7 @@
                 class="input-inline"
                 aria-labelledby="exchangeRedirectUriLabel"
                 amsa_persist="true"
+                placeholder="http://localhost"
               />
               <html:input
                 id="exchangeEndpointHost"
@@ -327,6 +328,18 @@
               />
             </vbox>
           </hbox>
+          <vbox class="indent">
+            <checkbox
+              id="exchangeUsePKCE"
+              amsa_persist="true"
+              data-l10n-id="oauth2-use-pkce"
+            />
+            <checkbox
+              id="exchangeUseExternalBrowser"
+              amsa_persist="true"
+              data-l10n-id="oauth2-use-system-browser"
+            />
+          </vbox>
         </vbox>
       </vbox>
     </dialog>
