@@ -690,6 +690,8 @@ NS_IMETHODIMP ExchangeIncomingServer::GetProtocolClient(
   // one we have.
   if (!mClient) {
     nsresult rv = NS_OK;
+    // Don't save this client as mClient until it is ready to use.
+    nsCOMPtr<IExchangeClient> tempClient;
 
     if (StaticPrefs::mail_graph_enabled()) {
       nsAutoCString type;
@@ -700,10 +702,11 @@ NS_IMETHODIMP ExchangeIncomingServer::GetProtocolClient(
       contractId.Append(type);
       contractId.Append("-client;1");
 
-      mClient = do_CreateInstance(contractId.Data(), &rv);
+      tempClient = do_CreateInstance(contractId.Data(), &rv);
       NS_ENSURE_SUCCESS(rv, rv);
     } else {
-      mClient = do_CreateInstance("@mozilla.org/messenger/ews-client;1", &rv);
+      tempClient =
+          do_CreateInstance("@mozilla.org/messenger/ews-client;1", &rv);
       NS_ENSURE_SUCCESS(rv, rv);
     }
 
@@ -716,8 +719,10 @@ NS_IMETHODIMP ExchangeIncomingServer::GetProtocolClient(
     NS_ENSURE_SUCCESS(rv, rv);
 
     // Set up the client object with access details.
-    rv = mClient->Initialize(endpoint, this);
+    rv = tempClient->Initialize(endpoint, this);
     NS_ENSURE_SUCCESS(rv, rv);
+
+    mClient = tempClient;
   }
 
   NS_IF_ADDREF(*ewsClient = mClient);
