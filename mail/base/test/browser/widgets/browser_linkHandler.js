@@ -6,7 +6,7 @@ const { MockExternalProtocolService } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MockExternalProtocolService.sys.mjs"
 );
 
-/* eslint-disable @microsoft/sdl/no-insecure-url */
+/* eslint-disable sdl/no-insecure-url */
 
 const TEST_DOMAIN = "http://example.org";
 const TEST_IP = "http://127.0.0.1:8888";

@@ -5,6 +5,7 @@
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
+import sdl from "eslint-plugin-sdl";
 import eslintConfigPrettier from "eslint-config-prettier";
 import mozilla from "eslint-plugin-mozilla";
 import json from "@eslint/json";
@@ -207,10 +208,43 @@ export default [
   {
     ...mozilla.configs["flat/general-test"],
     files: wrapPathsWithAllExts(["**/test/**", "**/tests/**"]),
+    plugins: { sdl },
+    rules: {
+      // No using of insecure url, so no http urls.
+      // Note: This is turned off for xpcshell-tests as it is not considered
+      // necessary for xpcshell level tests.
+      "sdl/no-insecure-url": [
+        "error",
+        {
+          exceptions: [
+            "^http:\\/\\/mochi\\.test?.*",
+            "^http:\\/\\/mochi\\.xorigin-test?.*",
+            "^http:\\/\\/localhost?.*",
+            "^http:\\/\\/127\\.0\\.0\\.1?.*",
+            // Exempt xmlns urls
+            "^http:\\/\\/www\\.w3\\.org?.*",
+            "^http:\\/\\/www\\.mozilla\\.org\\/keymaster\\/gatekeeper?.*",
+            // Exempt urls that start with ftp or ws.
+            "^ws:?.*",
+            "^ftp:?.*",
+          ],
+          varExceptions: ["insecure?.*"],
+        },
+      ],
+      ...mozilla.configs["flat/general-test"].rules,
+    },
   },
   {
     ...mozilla.configs["flat/xpcshell-test"],
     files: wrapPathsWithAllExts(xpcshellTestPaths, ["mjs", "sjs"]),
+    plugins: { sdl },
+    rules: {
+      // No using of insecure url, so no http urls.
+      // Note: This is turned off for xpcshell-tests as it is not considered
+      // necessary for xpcshell level tests.
+      "sdl/no-insecure-url": "off",
+      ...mozilla.configs["flat/xpcshell-test"].rules,
+    },
   },
   {
     name: "no-unused-vars-for-xpcshell",

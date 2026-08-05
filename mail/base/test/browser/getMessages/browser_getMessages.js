@@ -11,7 +11,7 @@
  * being tested is performed, then the test waits for the messages to appear.
  */
 
-/* eslint-disable @microsoft/sdl/no-insecure-url */
+/* eslint-disable sdl/no-insecure-url */
 
 requestLongerTimeout(2);
 

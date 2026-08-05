@@ -7,7 +7,7 @@
  * windows that uses.
  */
 
-/* eslint-disable @microsoft/sdl/no-insecure-url */
+/* eslint-disable sdl/no-insecure-url */
 
 const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"

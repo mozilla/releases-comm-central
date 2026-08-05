@@ -6,7 +6,7 @@
  * Test that phishing notifications behave properly.
  */
 
-/* eslint-disable @microsoft/sdl/no-insecure-url */
+/* eslint-disable sdl/no-insecure-url */
 
 "use strict";
 

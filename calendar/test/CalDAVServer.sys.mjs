@@ -4,10 +4,10 @@
 
 const PREFIX_BINDINGS = {
   c: "urn:ietf:params:xml:ns:caldav",
-  // eslint-disable-next-line @microsoft/sdl/no-insecure-url
+  // eslint-disable-next-line sdl/no-insecure-url
   cs: "http://calendarserver.org/ns/",
   d: "DAV:",
-  // eslint-disable-next-line @microsoft/sdl/no-insecure-url
+  // eslint-disable-next-line sdl/no-insecure-url
   i: "http://apple.com/ns/ical/",
 };
 const NAMESPACE_STRING = Object.entries(PREFIX_BINDINGS)

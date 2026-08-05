@@ -176,7 +176,7 @@ add_task(async function testRemoteContentDialog() {
     "btnApplyChanges"
   );
 
-  // eslint-disable-next-line @microsoft/sdl/no-insecure-url
+  // eslint-disable-next-line sdl/no-insecure-url
   const acceptURI = Services.io.newURI("http://accept.invalid/");
   const acceptPrincipal = Services.scriptSecurityManager.createContentPrincipal(
     acceptURI,
@@ -188,7 +188,7 @@ add_task(async function testRemoteContentDialog() {
     "accept permission should exist for accept.invalid"
   );
 
-  // eslint-disable-next-line @microsoft/sdl/no-insecure-url
+  // eslint-disable-next-line sdl/no-insecure-url
   const blockURI = Services.io.newURI("http://block.invalid/");
   const blockPrincipal = Services.scriptSecurityManager.createContentPrincipal(
     blockURI,
@@ -316,7 +316,7 @@ add_task(async function testCookiesDialog() {
     "btnApplyChanges"
   );
 
-  // eslint-disable-next-line @microsoft/sdl/no-insecure-url
+  // eslint-disable-next-line sdl/no-insecure-url
   const acceptURI = Services.io.newURI("http://accept.invalid/");
   const acceptPrincipal = Services.scriptSecurityManager.createContentPrincipal(
     acceptURI,
@@ -328,7 +328,7 @@ add_task(async function testCookiesDialog() {
     "accept permission should exist for accept.invalid"
   );
 
-  // eslint-disable-next-line @microsoft/sdl/no-insecure-url
+  // eslint-disable-next-line sdl/no-insecure-url
   const sessionURI = Services.io.newURI("http://session.invalid/");
   const sessionPrincipal =
     Services.scriptSecurityManager.createContentPrincipal(sessionURI, {});
@@ -338,7 +338,7 @@ add_task(async function testCookiesDialog() {
     "session permission should exist for session.invalid"
   );
 
-  // eslint-disable-next-line @microsoft/sdl/no-insecure-url
+  // eslint-disable-next-line sdl/no-insecure-url
   const blockURI = Services.io.newURI("http://block.invalid/");
   const blockPrincipal = Services.scriptSecurityManager.createContentPrincipal(
     blockURI,

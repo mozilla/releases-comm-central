@@ -21,7 +21,7 @@ const PREF_VALUE = Services.prefs.getCharPref(PREF_NAME);
 const GSSAPI_TEST_EMAIL = "badtest@example.localhost";
 const EXCHANGE_TEST_EMAIL = "testExchange@exchange.test";
 const EXCHANGE_TEST_PASSWORD = "hunter2";
-const EXCHANGE_TEST_URL = "http://exchange.test/EWS/Exchange.asmx"; // eslint-disable-line @microsoft/sdl/no-insecure-url
+const EXCHANGE_TEST_URL = "http://exchange.test/EWS/Exchange.asmx"; // eslint-disable-line sdl/no-insecure-url
 
 let gssapiSandbox;
 let gssapiDialog;
