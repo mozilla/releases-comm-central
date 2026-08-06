@@ -172,6 +172,7 @@
       this.style.pointerEvents = "auto";
       this.setAttribute("tooltip", "itemTooltip");
       this.setAttribute("tabindex", "-1");
+      this.initializeItemAccessibility();
       this.addEventNameTextboxListener();
       this.initializeAttributeInheritance();
     }
@@ -188,10 +189,12 @@
       if (val && !this.mSelected) {
         this.mSelected = true;
         this.setAttribute("selected", "true");
+        this.setAttribute("aria-selected", "true");
         this.focus();
       } else if (!val && this.mSelected) {
         this.mSelected = false;
         this.removeAttribute("selected");
+        this.setAttribute("aria-selected", "false");
         this.blur();
       }
     }
@@ -231,6 +234,12 @@
       return this.querySelector(".event-name-input");
     }
 
+    initializeItemAccessibility() {
+      this.setAttribute("role", "option");
+      this.setAttribute("aria-selected", String(this.selected));
+      this.tabIndex = 0;
+    }
+
     addEventNameTextboxListener() {
       const stopPropagationIfEditing = event => {
         if (this.mEditing) {
@@ -263,10 +272,17 @@
       const item = this.mOccurrence;
       if (item.title) {
         delete label.dataset.l10nId;
-        label.textContent = item.title.replace(/\n/g, " ");
+        label.textContent = this.accessibleLabel;
       } else {
         document.l10n.setAttributes(label, "event-untitled");
       }
+      this.setAttribute("aria-label", this.accessibleLabel);
+    }
+
+    get accessibleLabel() {
+      return (
+        this.mOccurrence.title?.replace(/\n/g, " ") || lazy.l10n.formatValueSync("event-untitled")
+      );
     }
 
     setLocationLabel() {

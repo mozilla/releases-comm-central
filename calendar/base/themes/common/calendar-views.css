@@ -223,6 +223,7 @@
 }
 
 .event-name-label {
+  pointer-events: none;
   white-space: nowrap;
 }
 

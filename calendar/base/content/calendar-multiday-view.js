@@ -150,6 +150,8 @@
       }
 
       this.eventsListElement = this.querySelector(".multiday-events-list");
+      this.eventsListElement.setAttribute("role", "listbox");
+      this.eventsListElement.setAttribute("aria-label", lazy.l10n.formatValueSync("events-only"));
 
       this.addEventListener("dblclick", event => {
         if (event.button != 0) {
@@ -490,6 +492,7 @@
         // Create a new wrapper.
         const eventElement = document.createElement("li");
         eventElement.classList.add("multiday-event-listitem");
+        eventElement.setAttribute("role", "presentation");
         // Set up the event box.
         const eventBox = document.createXULElement("calendar-event-box");
         eventElement.appendChild(eventBox);
@@ -1518,6 +1521,8 @@
 
       this.eventsListElement = document.createElement("ol");
       this.eventsListElement.classList.add("allday-events-list");
+      this.eventsListElement.setAttribute("role", "listbox");
+      this.eventsListElement.setAttribute("aria-label", lazy.l10n.formatValueSync("events-only"));
       this.appendChild(this.eventsListElement);
     }
 
@@ -1559,6 +1564,7 @@
       const itemBox = document.createXULElement("calendar-editable-item");
       const listItemWrapper = document.createElement("li");
       listItemWrapper.classList.add("allday-event-listitem");
+      listItemWrapper.setAttribute("role", "presentation");
       listItemWrapper.appendChild(itemBox);
       cal.data.binaryInsertNode(
         this.eventsListElement,
@@ -1627,6 +1633,7 @@
           // Insert an empty list item.
           const dropshadow = document.createElement("li");
           dropshadow.classList.add("dropshadow", "allday-event-listitem");
+          dropshadow.setAttribute("role", "presentation");
           this.eventsListElement.insertBefore(dropshadow, this.eventsListElement.firstElementChild);
         }
       } else if (existing) {
@@ -1853,6 +1860,7 @@
 
       this.style.pointerEvents = "auto";
       this.setAttribute("tooltip", "itemTooltip");
+      this.initializeItemAccessibility();
 
       this.addEventNameTextboxListener();
       this.initializeAttributeInheritance();

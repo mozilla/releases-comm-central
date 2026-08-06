@@ -11,6 +11,12 @@
 // Wrap in a block to prevent leaking to window scope.
 {
   const { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
+  const lazy = {};
+  ChromeUtils.defineLazyGetter(
+    lazy,
+    "l10n",
+    () => new Localization(["calendar/calendar.ftl"], true)
+  );
   /**
    * Implements the Drag and Drop class for the Month Day Box view.
    *
@@ -64,6 +70,8 @@
 
       this.dayList = document.createElement("ol");
       this.dayList.classList.add("calendar-month-day-box-list");
+      this.dayList.setAttribute("role", "listbox");
+      this.dayList.setAttribute("aria-label", lazy.l10n.formatValueSync("events-only"));
 
       this.appendChild(monthDayLabels);
       this.appendChild(this.dayList);
@@ -173,6 +181,7 @@
 
       const listItemWrapper = document.createElement("li");
       listItemWrapper.classList.add("calendar-month-day-box-list-item");
+      listItemWrapper.setAttribute("role", "presentation");
       listItemWrapper.appendChild(box);
       cal.data.binaryInsertNode(
         this.dayList,
@@ -226,6 +235,7 @@
           // Insert an empty list item.
           const dropshadow = document.createElement("li");
           dropshadow.classList.add("dropshadow", "calendar-month-day-box-list-item");
+          dropshadow.setAttribute("role", "presentation");
           this.dayList.insertBefore(dropshadow, this.dayList.firstElementChild);
         }
       } else if (existing) {
@@ -337,6 +347,7 @@
       this.classList.add("calendar-color-box", "calendar-item-flex");
       this.style.pointerEvents = "auto";
       this.setAttribute("tooltip", "itemTooltip");
+      this.initializeItemAccessibility();
       this.addEventNameTextboxListener();
       this.initializeAttributeInheritance();
     }
