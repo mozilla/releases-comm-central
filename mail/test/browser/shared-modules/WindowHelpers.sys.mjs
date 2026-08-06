@@ -291,11 +291,13 @@ async function _click_appmenu_in_sequence(navTargets, nonNavTarget, win) {
 
       const foundNode = kids.find(findFunction);
 
-      EventUtils.synthesizeMouseAtCenter(
-        foundNode,
-        {},
-        foundNode.documentGlobal
-      );
+      if (!foundNode.disabled) {
+        EventUtils.synthesizeMouseAtCenter(
+          foundNode,
+          {},
+          foundNode.documentGlobal
+        );
+      }
     }
 
     // We are all done when there are no more navigation targets.

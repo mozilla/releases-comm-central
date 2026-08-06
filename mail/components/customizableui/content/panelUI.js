@@ -33,6 +33,8 @@ ChromeUtils.defineESModuleGetters(this, {
     "moz-src:///comm/mail/components/customizableui/CustomizableUI.sys.mjs",
   PanelMultiView:
     "moz-src:///comm/mail/components/customizableui/PanelMultiView.sys.mjs",
+  PanelView:
+    "moz-src:///comm/mail/components/customizableui/PanelMultiView.sys.mjs",
   ExtensionsUI: "resource:///modules/ExtensionsUI.sys.mjs",
   UIDensity: "resource:///modules/UIDensity.sys.mjs",
   XULStoreUtils: "resource:///modules/XULStoreUtils.sys.mjs",
