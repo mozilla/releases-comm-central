@@ -146,6 +146,9 @@ account-hub-auth-no-authentication-option =
 
 account-hub-auth-label = Authentication method
 
+account-hub-select-option =
+    .label = Select an option
+
 ## Exchange Type Manual Config Step
 
 account-hub-exchange-type-title = Choose an account type

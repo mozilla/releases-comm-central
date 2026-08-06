@@ -165,6 +165,13 @@
                 required="required"
               >
                 <option
+                  id="incomingAuthMethodSelectOption"
+                  value=""
+                  disabled="disabled"
+                  selected="selected"
+                  data-l10n-id="account-hub-select-option"
+                ></option>
+                <option
                   id="incomingAuthMethodCleartext"
                   data-l10n-id="account-hub-ssl-cleartext-password-option"
                   value="3"
@@ -173,7 +180,6 @@
                 <option
                   id="incomingAuthMethodOAuth2"
                   value="10"
-                  selected="selected"
                   label="OAuth2"
                 ></option>
               </account-hub-select>

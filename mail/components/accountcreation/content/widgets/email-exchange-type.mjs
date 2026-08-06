@@ -23,6 +23,8 @@ const EXCHANGE_TYPE_FROM_CONFIG = {
   graph: "graph",
 };
 
+const UNSELECTED_AUTH_METHOD = "";
+
 const EXCHANGE_AUTH_METHODS = [
   Ci.nsMsgAuthMethod.passwordCleartext,
   Ci.nsMsgAuthMethod.NTLM,
@@ -113,6 +115,20 @@ class EmailExchangeType extends AccountHubStep {
    */
   #authenticationOptions;
 
+  /**
+   * The selected Exchange account type.
+   *
+   * @type {string}
+   */
+  #selectedAccountType = "";
+
+  /**
+   * The last authentication method selected for EWS.
+   *
+   * @type {string}
+   */
+  #ewsAuthenticationMethod = UNSELECTED_AUTH_METHOD;
+
   connectedCallback() {
     if (this.hasConnected) {
       return;
@@ -135,6 +151,7 @@ class EmailExchangeType extends AccountHubStep {
       "account-hub-radio-card-large"
     );
     this.#authenticationOptions = {
+      selectOption: this.querySelector("#incomingAuthMethodSelectOption"),
       normalPassword: this.querySelector("#incomingAuthMethodCleartext"),
       ntlm: this.querySelector("#incomingAuthMethodNtlm"),
       oauth2: this.querySelector("#incomingAuthMethodOAuth2"),
@@ -189,20 +206,40 @@ class EmailExchangeType extends AccountHubStep {
    * Update the available authentication options based on the account type.
    */
   #updateAuthenticationOptions() {
-    const selectedAccountType =
-      Array.from(this.#accountTypeCards).find(card => card.checked)?.value ||
-      this.#accountTypeCards[0]?.value;
+    const selectedAccountType = this.#getSelectedAccountType();
     const isGraphSelected = selectedAccountType == "graph";
 
+    if (this.#selectedAccountType == "ews") {
+      this.#rememberEwsAuthenticationMethod();
+    }
+
+    this.#authenticationOptions.selectOption.hidden = isGraphSelected;
     this.#authenticationOptions.normalPassword.hidden = isGraphSelected;
     this.#authenticationOptions.ntlm.hidden = isGraphSelected;
 
     if (isGraphSelected) {
       this.#authenticationSelect.value = Ci.nsMsgAuthMethod.OAuth2;
+    } else if (this.#selectedAccountType != "ews") {
+      this.#authenticationSelect.value = this.#ewsAuthenticationMethod;
     }
 
+    this.#selectedAccountType = selectedAccountType;
     this.#updateOauthOptions();
     this.#checkFormValidity();
+  }
+
+  /**
+   * Remember the selected EWS authentication method while switching away from
+   * EWS or changing the authentication method.
+   */
+  #rememberEwsAuthenticationMethod() {
+    this.#ewsAuthenticationMethod = String(
+      InputSanitizer.enum(
+        this.#authenticationSelect.value,
+        EXCHANGE_AUTH_METHODS,
+        UNSELECTED_AUTH_METHOD
+      )
+    );
   }
 
   /**
@@ -231,10 +268,12 @@ class EmailExchangeType extends AccountHubStep {
    * Dispatches an event whenever the form validity changes.
    */
   #checkFormValidity() {
+    const completed =
+      Boolean(this.#authenticationSelect.value) && this.#form.checkValidity();
     this.dispatchEvent(
       new CustomEvent("config-updated", {
         bubbles: true,
-        detail: { completed: this.#form.checkValidity() },
+        detail: { completed },
       })
     );
   }
@@ -258,12 +297,27 @@ class EmailExchangeType extends AccountHubStep {
    * @returns {string} Protocol type recommendation
    */
   #getRecommendedAccountType(serviceURL) {
-    const url = new URL(serviceURL);
+    const url = URL.parse(serviceURL);
 
-    if (url.origin === GRAPH_URL_ORIGIN) {
+    if (url?.origin === GRAPH_URL_ORIGIN) {
       return EXCHANGE_TYPE_FROM_CONFIG.graph;
     }
     return EXCHANGE_TYPE_FROM_CONFIG.ews;
+  }
+
+  /**
+   * The Exchange account type recommended by an account configuration.
+   *
+   * @param {AccountConfig} configData - An account configuration object.
+   * @param {string} recommendedType - The recommended account type.
+   * @returns {string} The selected account type.
+   */
+  #getAccountTypeFromConfig(configData, recommendedType) {
+    const incomingType = EXCHANGE_TYPE_FROM_CONFIG[configData.incoming.type];
+    if (incomingType) {
+      return incomingType;
+    }
+    return recommendedType;
   }
 
   /**
@@ -284,13 +338,25 @@ class EmailExchangeType extends AccountHubStep {
       card.querySelector(".recommended-description").hidden = !isRecommended;
     }
 
-    const incomingType =
-      EXCHANGE_TYPE_FROM_CONFIG[configData.incoming.type] || recommendedType;
+    const incomingType = this.#getAccountTypeFromConfig(
+      configData,
+      recommendedType
+    );
     const selectedCard = Array.from(this.#accountTypeCards).find(
       card => card.value == incomingType
     );
     selectedCard.checked = true;
 
+    const authenticationMethod = String(
+      InputSanitizer.enum(
+        configData.incoming.auth,
+        EXCHANGE_AUTH_METHODS,
+        UNSELECTED_AUTH_METHOD
+      )
+    );
+    this.#selectedAccountType = "";
+    this.#ewsAuthenticationMethod =
+      incomingType == "ews" ? authenticationMethod : UNSELECTED_AUTH_METHOD;
     this.#usernameInput.value = configData.incoming.username || "";
     this.#defaultOauthCheckbox.checked =
       !configData.incoming.oauthSettings?.useCustomDetails;
@@ -298,13 +364,10 @@ class EmailExchangeType extends AccountHubStep {
       configData.incoming.oauthSettings?.tenant || "";
     this.#oauthApplicationInput.value =
       configData.incoming.oauthSettings?.clientId || "";
-    this.#authenticationSelect.value = String(
-      InputSanitizer.enum(
-        configData?.incoming?.auth,
-        EXCHANGE_AUTH_METHODS,
-        Ci.nsMsgAuthMethod.OAuth2
-      )
-    );
+    this.#authenticationSelect.value =
+      incomingType == "graph"
+        ? String(Ci.nsMsgAuthMethod.OAuth2)
+        : this.#ewsAuthenticationMethod;
     this.#updateAuthenticationOptions();
   }
 
@@ -323,9 +386,9 @@ class EmailExchangeType extends AccountHubStep {
     config.incoming.hostname = hostname;
     config.incoming.port = 443;
     config.incoming.socketType = Ci.nsMsgSocketType.SSL;
-    config.incoming.auth = InputSanitizer.integer(
-      this.#authenticationSelect.value
-    );
+    config.incoming.auth = this.#authenticationSelect.value
+      ? InputSanitizer.integer(this.#authenticationSelect.value)
+      : 0;
     config.incoming.username = this.#usernameInput.value;
     config.incoming.oauthSettings = null;
 
