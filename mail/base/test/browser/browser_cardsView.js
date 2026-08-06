@@ -220,17 +220,34 @@ add_task(async function testSwitchToCardsView() {
 });
 
 add_task(async function testTagsInVerticalView() {
+  await ensure_cards_view(document);
+  about3Pane.folderTree.focus();
+
+  const getCardTags = row => row.querySelector("thread-card-tags");
+  const getTagIcon = tags => tags.shadowRoot.querySelector(".tag-icon");
+
   const row = threadTree.getRowAtIndex(1);
+  Assert.ok(
+    getCardTags(row),
+    "the selected row should contain thread-card-tags"
+  );
+
   EventUtils.synthesizeMouseAtCenter(row, {}, about3Pane);
   Assert.ok(row.classList.contains("selected"), "the row should be selected");
 
-  const tag = row.querySelector(".tag-icon");
-  Assert.ok(BrowserTestUtils.isHidden(tag), "tag icon should be hidden");
+  const tags = getCardTags(row);
+  const tagIcon = getTagIcon(tags);
+  Assert.ok(BrowserTestUtils.isHidden(tagIcon), "tag icon should be hidden");
 
-  // Set the important tag.
-  EventUtils.synthesizeKey("1", {});
-  Assert.ok(BrowserTestUtils.isVisible(tag), "tag icon should be visible");
-  Assert.deepEqual(tag.title, "Important", "The important tag should be set");
+  const importantTag = MailServices.tags.getTagForKey("$label1");
+
+  EventUtils.synthesizeKey("1", {}, about3Pane);
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(tagIcon),
+    "Waiting for the Important tag icon to become visible"
+  );
+  Assert.ok(BrowserTestUtils.isVisible(tagIcon), "tag icon should be visible");
+  Assert.equal(tags.title, importantTag, "the important tag should be set");
 
   const row2 = threadTree.getRowAtIndex(2);
   EventUtils.synthesizeMouseAtCenter(row2, {}, about3Pane);
@@ -239,15 +256,20 @@ add_task(async function testTagsInVerticalView() {
     "the third row should be selected"
   );
 
-  const tag2 = row2.querySelector(".tag-icon");
-  Assert.ok(BrowserTestUtils.isHidden(tag2), "tag icon should be hidden");
+  const tags2 = getCardTags(row2);
+  const tagIcon2 = getTagIcon(tags2);
+  Assert.ok(BrowserTestUtils.isHidden(tagIcon2), "tag icon should be hidden");
 
-  // Set the work tag.
-  EventUtils.synthesizeKey("2", {});
-  Assert.ok(BrowserTestUtils.isVisible(tag2), "tag icon should be visible");
-  Assert.deepEqual(tag2.title, "Work", "The work tag should be set");
+  const workTag = MailServices.tags.getTagForKey("$label2");
 
-  // Switch back to a table layout and horizontal view.
+  EventUtils.synthesizeKey("2", {}, about3Pane);
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(tagIcon2),
+    "Waiting for the Work tag icon to become visible"
+  );
+  Assert.ok(BrowserTestUtils.isVisible(tagIcon2), "tag icon should be visible");
+  Assert.equal(tags2.title, workTag, "the work tag should be set");
+
   const shownPromise = BrowserTestUtils.waitForEvent(
     displayContext,
     "popupshown"
@@ -271,6 +293,8 @@ add_task(async function testTagsInVerticalView() {
     threadTree,
     "thread-row"
   );
+
+  // Switch back to a table layout and horizontal view.
   displayContext.activateItem(
     displayContext.querySelector("#threadPaneTableView")
   );
@@ -286,7 +310,20 @@ add_task(async function testTagsInVerticalView() {
 
   await ensure_cards_view(document);
   about3Pane.folderTree.focus();
-}).skip(); // TODO: update the test for tags on Bug 1860900.
+
+  const rowAfterSwitch = threadTree.getRowAtIndex(1);
+  const row2AfterSwitch = threadTree.getRowAtIndex(2);
+  Assert.equal(
+    getCardTags(rowAfterSwitch).title,
+    importantTag,
+    "Important tag should still be shown after switching views"
+  );
+  Assert.equal(
+    getCardTags(row2AfterSwitch).title,
+    workTag,
+    "Work tag should still be shown after switching views"
+  );
+});
 
 /**
  * This test Checks that:
