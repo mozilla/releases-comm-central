@@ -51,7 +51,7 @@ macosx64-x64-libotr:
     fetches:
         toolchain:
             - linux64-cctools-port
-            - linux64-clang-21
+            - linux64-clang
             # Uses the SDK for builds, not the -toolchain SDK
             - macosx64-sdk
 
@@ -67,7 +67,7 @@ macosx64-aarch64-libotr:
     fetches:
         toolchain:
             - linux64-cctools-port
-            - linux64-clang-21
+            - linux64-clang
             - macosx64-sdk
 
 win32-libotr:
