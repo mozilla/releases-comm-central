@@ -6330,7 +6330,7 @@ nsresult nsMsgDBView::AdjustRowCount(int32_t rowCountBeforeSort,
     GetNumSelected(&numSelected);
     NS_ASSERTION(
         numSelected == 0,
-        "it is not save to call AdjustRowCount() when you have a selection");
+        "it is not safe to call AdjustRowCount() when you have a selection");
 
     if (mTree) mTree->RowCountChanged(0, rowChange);
     if (mJSTree) mJSTree->RowCountChanged(0, rowChange);
