@@ -144,7 +144,7 @@ function checkReply(replyWin, expectedFromEmail) {
 add_task(async function test_reply_no_matching_identity() {
   await be_in_folder(testFolder);
 
-  const msg = await select_click_row(-1);
+  const msg = await select_click_row(-1, AccessibilityUtils);
   await assert_selected_and_displayed(window, msg);
 
   const replyWin = await open_compose_with_reply();
@@ -156,7 +156,7 @@ add_task(async function test_reply_no_matching_identity() {
 add_task(async function test_reply_matching_only_deliveredto() {
   await be_in_folder(testFolder);
 
-  const msg = await select_click_row(-2);
+  const msg = await select_click_row(-2, AccessibilityUtils);
   await assert_selected_and_displayed(window, msg);
 
   const replyWin = await open_compose_with_reply();
@@ -168,7 +168,7 @@ add_task(async function test_reply_matching_only_deliveredto() {
 add_task(async function test_reply_matching_subaddress() {
   await be_in_folder(testFolder);
 
-  const msg = await select_click_row(-3);
+  const msg = await select_click_row(-3, AccessibilityUtils);
   await assert_selected_and_displayed(window, msg);
 
   const replyWin = await open_compose_with_reply();
@@ -181,7 +181,7 @@ add_task(async function test_reply_matching_subaddress() {
 add_task(async function test_reply_to_matching_second_id() {
   await be_in_folder(testFolder);
 
-  const msg = await select_click_row(-4);
+  const msg = await select_click_row(-4, AccessibilityUtils);
   await assert_selected_and_displayed(window, msg);
 
   const replyWin = await open_compose_with_reply();
@@ -193,7 +193,7 @@ add_task(async function test_reply_to_matching_second_id() {
 add_task(async function test_deliveredto_to_matching_only_parlty() {
   await be_in_folder(testFolder);
 
-  const msg = await select_click_row(-5);
+  const msg = await select_click_row(-5, AccessibilityUtils);
   await assert_selected_and_displayed(window, msg);
 
   const replyWin = await open_compose_with_reply();
@@ -209,7 +209,7 @@ add_task(async function test_deliveredto_to_matching_only_parlty() {
 add_task(async function test_reply_to_self_second_id() {
   await be_in_folder(testFolder);
 
-  const msg = await select_click_row(0);
+  const msg = await select_click_row(0, AccessibilityUtils);
   await assert_selected_and_displayed(window, msg);
 
   const replyWin = await open_compose_with_reply();

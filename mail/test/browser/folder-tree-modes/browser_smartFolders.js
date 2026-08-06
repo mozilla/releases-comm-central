@@ -69,7 +69,7 @@ add_task(async function test_folder_flag_changes() {
   about3Pane.displayFolder(inboxSubfolder);
   // Need to archive two messages in two different accounts in order to
   // create a smart Archives folder.
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   await archive_selected_messages();
   const pop3Account = MailServices.accounts.getAccount("account2");
   const pop3Server = MailServices.accounts.findServer(
@@ -90,7 +90,7 @@ add_task(async function test_folder_flag_changes() {
   );
   await make_message_sets_in_folders([pop3Inbox], [{ count: 1 }]);
   about3Pane.displayFolder(pop3Inbox);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   await archive_selected_messages();
 
   const smartArchiveFolder = get_smart_folder_named("Archives");

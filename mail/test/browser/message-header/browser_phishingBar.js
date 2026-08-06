@@ -167,10 +167,10 @@ add_task(async function test_ignore_phishing_warning_from_message() {
   const aboutMessage = get_about_message();
 
   await be_in_folder(folder);
-  await select_click_row(-1);
+  await select_click_row(-1, AccessibilityUtils);
   await assert_ignore_works(window);
 
-  await select_click_row(-2);
+  await select_click_row(-2, AccessibilityUtils);
   // msg 1 is normal -> no phishing warning
   assert_notification_displayed(
     aboutMessage,
@@ -178,7 +178,7 @@ add_task(async function test_ignore_phishing_warning_from_message() {
     kNotificationValue,
     false
   );
-  await select_click_row(-1);
+  await select_click_row(-1, AccessibilityUtils);
   // msg 0 is a potential phishing attempt, but we ignored it so that should
   // be remembered
   assert_notification_displayed(
@@ -241,7 +241,7 @@ add_task(async function test_ignore_phishing_warning_from_eml_attachment() {
  */
 add_task(async function test_no_phishing_warning_for_ip_sameish_text() {
   await be_in_folder(folder);
-  await select_click_row(-3); // Mail with Public IP address.
+  await select_click_row(-3, AccessibilityUtils); // Mail with Public IP address.
   click_link_if_available();
   assert_notification_displayed(
     get_about_message(),
@@ -260,7 +260,7 @@ add_task(async function test_no_phishing_warning_for_ip_sameish_text() {
 add_task(async function test_no_phishing_warning_for_subdomain() {
   const aboutMessage = get_about_message();
   await be_in_folder(folder);
-  await select_click_row(-4);
+  await select_click_row(-4, AccessibilityUtils);
   click_link_if_available();
   assert_notification_displayed(
     aboutMessage,
@@ -272,7 +272,7 @@ add_task(async function test_no_phishing_warning_for_subdomain() {
     "http://subdomain.google.com/"
   );
 
-  await select_click_row(-5);
+  await select_click_row(-5, AccessibilityUtils);
   click_link_if_available();
   assert_notification_displayed(
     aboutMessage,
@@ -291,7 +291,7 @@ add_task(async function test_no_phishing_warning_for_subdomain() {
  */
 add_task(async function test_phishing_warning_for_local_domain() {
   await be_in_folder(folder);
-  await select_click_row(-6);
+  await select_click_row(-6, AccessibilityUtils);
 
   const dialogPromise = BrowserTestUtils.promiseAlertDialog("cancel");
   click_link_if_available();
@@ -304,7 +304,7 @@ add_task(async function test_phishing_warning_for_local_domain() {
  */
 add_task(async function test_phishing_warning_for_non_local_IP() {
   await be_in_folder(folder);
-  await select_click_row(-8);
+  await select_click_row(-8, AccessibilityUtils);
 
   click_link_if_available();
   await new Promise(resolve => setTimeout(resolve));
@@ -317,7 +317,7 @@ add_task(async function test_phishing_warning_for_non_local_IP() {
  */
 add_task(async function test_phishing_warning_for_action_form() {
   await be_in_folder(folder);
-  await select_click_row(-7);
+  await select_click_row(-7, AccessibilityUtils);
   assert_notification_displayed(
     get_about_message(),
     kBoxId,

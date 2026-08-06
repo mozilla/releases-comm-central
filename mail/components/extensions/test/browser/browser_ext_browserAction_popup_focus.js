@@ -4,6 +4,10 @@
 
 "use strict";
 
+const { prepare_thread_row_descendant_click } = ChromeUtils.importESModule(
+  "resource://testing-common/MailViewHelpers.sys.mjs"
+);
+
 let gAccount, gMessages, gFolder, gDefaultAbout3Pane;
 
 add_setup(async () => {
@@ -167,12 +171,14 @@ add_task(async function test_popup_open_with_openPopup_in_normal_window() {
     EventUtils.synthesizeMouseAtCenter(element, {}, window);
   });
 
-  extension.onMessage("click on message", rowNr => {
+  extension.onMessage("click on message", async rowNr => {
     const row = gDefaultAbout3Pane.document.getElementById(
       `threadTree-row${rowNr}`
     );
     Assert.ok(!!row, `Should find row${rowNr}`);
+    await prepare_thread_row_descendant_click(row, AccessibilityUtils);
     EventUtils.synthesizeMouseAtCenter(row, {}, gDefaultAbout3Pane);
+    AccessibilityUtils.resetEnv();
   });
 
   extension.onMessage("press arrow down", () => {

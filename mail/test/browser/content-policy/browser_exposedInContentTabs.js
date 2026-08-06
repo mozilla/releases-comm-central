@@ -90,7 +90,7 @@ async function addMsgToFolder(targetFolder) {
   );
 
   // select the newly created message
-  const msgHdr = await select_click_row(gMsgNo);
+  const msgHdr = await select_click_row(gMsgNo, AccessibilityUtils);
 
   if (msgDbHdr != msgHdr) {
     throw new Error(

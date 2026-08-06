@@ -140,7 +140,7 @@ add_task(async function test_blockSenderWhenGlobalAllow() {
   );
 
   // Select and display the message.
-  const msgHdr = await select_click_row(gMsgNo);
+  const msgHdr = await select_click_row(gMsgNo, AccessibilityUtils);
   Assert.equal(msgDbHdr, msgHdr, "selected msg should match created msg");
   await assert_selected_and_displayed(gMsgNo);
 
@@ -188,7 +188,7 @@ add_task(async function test_allowWhenGlobalAllowNoExceptions() {
   );
 
   // Select and display the message.
-  const msgHdr = await select_click_row(gMsgNo);
+  const msgHdr = await select_click_row(gMsgNo, AccessibilityUtils);
   Assert.equal(msgDbHdr, msgHdr, "selected msg should match created msg");
   await assert_selected_and_displayed(gMsgNo);
 
@@ -238,7 +238,7 @@ add_task(async function test_blockContentURLWhenGlobalAllow() {
   );
 
   // Select and display the message.
-  const msgHdr = await select_click_row(gMsgNo);
+  const msgHdr = await select_click_row(gMsgNo, AccessibilityUtils);
   Assert.equal(msgDbHdr, msgHdr, "selected msg should match created msg");
   await assert_selected_and_displayed(gMsgNo);
 

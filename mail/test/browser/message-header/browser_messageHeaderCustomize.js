@@ -39,7 +39,7 @@ add_setup(async function () {
 
 add_task(async function test_customize_toolbar_buttons() {
   be_in_folder(gFolder);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
 
   const moreBtn = aboutMessage.document.getElementById("otherActionsButton");
   // Make sure we loaded the expected message.

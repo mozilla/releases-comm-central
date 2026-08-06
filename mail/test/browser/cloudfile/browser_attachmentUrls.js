@@ -360,7 +360,7 @@ async function prepare_some_attachments_and_reply(aText, aFiles) {
   });
 
   await be_in_folder(gInbox);
-  const msg = await select_click_row(0);
+  const msg = await select_click_row(0, AccessibilityUtils);
   await assert_selected_and_displayed(window, msg);
 
   const cw = await open_compose_with_reply();
@@ -421,7 +421,7 @@ async function prepare_some_attachments_and_forward(aText, aFiles) {
   });
 
   await be_in_folder(gInbox);
-  const msg = await select_click_row(0);
+  const msg = await select_click_row(0, AccessibilityUtils);
   await assert_selected_and_displayed(window, msg);
 
   const cw = await open_compose_with_forward();

@@ -12,6 +12,9 @@ var { mailTestUtils } = ChromeUtils.importESModule(
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
+var { prepare_thread_row_descendant_click } = ChromeUtils.importESModule(
+  "resource://testing-common/MailViewHelpers.sys.mjs"
+);
 
 const tabmail = document.getElementById("tabmail");
 const about3Pane = tabmail.currentAbout3Pane;
@@ -31,12 +34,11 @@ function folderTreeClick(row, event = {}) {
     about3Pane
   );
 }
-function threadTreeClick(row, event = {}) {
-  EventUtils.synthesizeMouseAtCenter(
-    threadTree.getRowAtIndex(row),
-    event,
-    about3Pane
-  );
+async function threadTreeClick(row, event = {}) {
+  const rowElement = threadTree.getRowAtIndex(row);
+  await prepare_thread_row_descendant_click(rowElement, AccessibilityUtils);
+  EventUtils.synthesizeMouseAtCenter(rowElement, event, about3Pane);
+  AccessibilityUtils.resetEnv();
 }
 
 /**
@@ -175,7 +177,7 @@ add_task(async function testRSS() {
   // Description mode.
 
   let loadedPromise = BrowserTestUtils.browserLoaded(messagePane);
-  threadTreeClick(0);
+  await threadTreeClick(0);
   await loadedPromise;
 
   Assert.notEqual(messagePane.currentURI.spec, "about:blank");

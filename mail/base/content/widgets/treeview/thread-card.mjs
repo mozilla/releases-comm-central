@@ -30,6 +30,7 @@ class ThreadCard extends TreeViewTableRow {
       document.getElementById("threadPaneCardTemplate").content.cloneNode(true)
     );
 
+    this.cardCell = this.querySelector("td");
     this.accountIndicator = this.querySelector(".account-indicator");
     this.senderLine = this.querySelector(".sender");
     this.subjectLine = this.querySelector(".subject");
@@ -43,6 +44,10 @@ class ThreadCard extends TreeViewTableRow {
 
   fillRow() {
     super.fillRow();
+
+    if (this.getAttribute("role") == "row") {
+      this.cardCell.setAttribute("role", "gridcell");
+    }
 
     // XPCOM calls here must be keep to a minimum. Collect all of the
     // required data in one go.

@@ -5,9 +5,10 @@
 const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
-const { ensure_cards_view } = ChromeUtils.importESModule(
-  "resource://testing-common/MailViewHelpers.sys.mjs"
-);
+const { ensure_cards_view, prepare_thread_row_descendant_click } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/MailViewHelpers.sys.mjs"
+  );
 
 const tabmail = document.getElementById("tabmail");
 const about3Pane = tabmail.currentAbout3Pane;
@@ -68,11 +69,13 @@ add_task(async function testMultiMessageZoom() {
   );
   // Simulate a click on the row's subject line to select the row.
   const selectPromise = BrowserTestUtils.waitForEvent(threadTree, "select");
+  await prepare_thread_row_descendant_click(row, AccessibilityUtils);
   EventUtils.synthesizeMouseAtCenter(
     subjectLine,
     { clickCount: 1 },
     about3Pane
   );
+  AccessibilityUtils.resetEnv();
   await selectPromise;
   // Make sure the correct thread is selected and that the multi-message view is
   // visible.

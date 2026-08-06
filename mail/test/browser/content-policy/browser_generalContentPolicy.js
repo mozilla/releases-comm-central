@@ -283,7 +283,7 @@ async function addMsgToFolderAndCheckContent(targetFolder, test) {
   );
 
   // select the newly created message
-  const msgHdr = await select_click_row(gMsgNo);
+  const msgHdr = await select_click_row(gMsgNo, AccessibilityUtils);
 
   if (msgDbHdr != msgHdr) {
     throw new Error(
@@ -448,7 +448,7 @@ async function checkEMLMessageWindow(test, emlFile) {
  * @returns {nsIFile} the file the message was safed to.
  */
 async function saveAsEMLFile(msgNo) {
-  const msgHdr = await select_click_row(msgNo);
+  const msgHdr = await select_click_row(msgNo, AccessibilityUtils);
   const messenger = Cc["@mozilla.org/messenger;1"].createInstance(
     Ci.nsIMessenger
   );
@@ -576,7 +576,7 @@ async function checkAllowFeedMsg(test) {
   msgDbHdr.orFlags(Ci.nsMsgMessageFlags.FeedMsg);
 
   // select the newly created message
-  const msgHdr = await select_click_row(gMsgNo);
+  const msgHdr = await select_click_row(gMsgNo, AccessibilityUtils);
 
   Assert.equal(msgDbHdr, msgHdr);
   await assert_selected_and_displayed(gMsgNo);
@@ -618,7 +618,7 @@ async function checkAllowForSenderWithPerms(test) {
   Assert.equal(checkPermission(uri), Services.perms.ALLOW_ACTION);
 
   // select the newly created message
-  const msgHdr = await select_click_row(gMsgNo);
+  const msgHdr = await select_click_row(gMsgNo, AccessibilityUtils);
 
   Assert.equal(msgDbHdr, msgHdr);
   await assert_selected_and_displayed(gMsgNo);
@@ -653,7 +653,7 @@ async function checkAllowForHostsWithPerms(test) {
   );
 
   // Select the newly created message.
-  let msgHdr = await select_click_row(gMsgNo);
+  let msgHdr = await select_click_row(gMsgNo, AccessibilityUtils);
   Assert.equal(msgDbHdr, msgHdr);
   await assert_selected_and_displayed(gMsgNo);
 
@@ -671,9 +671,9 @@ async function checkAllowForHostsWithPerms(test) {
   Assert.equal(checkPermission(uri), Services.perms.ALLOW_ACTION);
 
   // Click back one msg, then the original again, which should now allow loading.
-  await select_click_row(gMsgNo - 1);
+  await select_click_row(gMsgNo - 1, AccessibilityUtils);
   // Select the newly created message.
-  msgHdr = await select_click_row(gMsgNo);
+  msgHdr = await select_click_row(gMsgNo, AccessibilityUtils);
   Assert.equal(msgDbHdr, msgHdr);
   await assert_selected_and_displayed(gMsgNo);
 
@@ -805,7 +805,7 @@ add_task(async function test_imgAuth() {
 
   // Select the newly created message.
   await be_in_folder(folder);
-  await select_click_row(gMsgNo);
+  await select_click_row(gMsgNo, AccessibilityUtils);
 
   // Open reply/fwd. If we get a prompt the test will timeout.
   const rwc = await open_compose_with_reply();
@@ -828,7 +828,7 @@ add_task(async function test_sigPic() {
   };
 
   be_in_folder(folder);
-  await select_click_row(gMsgNo);
+  await select_click_row(gMsgNo, AccessibilityUtils);
 
   const nwc = await open_compose_new_mail();
   await TestUtils.waitForCondition(async () => {
@@ -885,7 +885,7 @@ async function subtest_insertImageIntoReplyForward(aReplyType) {
 
   // Select the newly created message.
   await be_in_folder(folder);
-  const msgHdr = await select_click_row(gMsgNo);
+  const msgHdr = await select_click_row(gMsgNo, AccessibilityUtils);
 
   if (msgDbHdr != msgHdr) {
     throw new Error(

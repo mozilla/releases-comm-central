@@ -130,7 +130,7 @@ function addMessageToFolder(aFolder) {
 add_task(async function test_Reply_To_List_From_Address() {
   await be_in_folder(testFolder);
 
-  const curMessage = await select_click_row(0);
+  const curMessage = await select_click_row(0, AccessibilityUtils);
   await assert_selected_and_displayed(window, curMessage);
 
   const replyToListWindow = await open_compose_with_reply_to_list();

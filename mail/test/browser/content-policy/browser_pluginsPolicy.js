@@ -112,7 +112,7 @@ async function addMsgToFolderAndCheckContent(loadAllowed) {
   );
 
   // select the newly created message
-  const msgHdr = await select_click_row(gMsgNo);
+  const msgHdr = await select_click_row(gMsgNo, AccessibilityUtils);
 
   if (msgDbHdr != msgHdr) {
     throw new Error(
@@ -201,7 +201,7 @@ add_task(async function test_checkPluginsInNonMessageContent() {
 });
 
 add_task(async function test_3paneWindowDeniedAgain() {
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
 
   await assert_selected_and_displayed(0);
 

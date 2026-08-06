@@ -90,7 +90,7 @@ add_setup(async function () {
 
 /** Utility to select a message. */
 async function gotoMsg(row) {
-  const curMessage = await select_click_row(row);
+  const curMessage = await select_click_row(row, AccessibilityUtils);
   await assert_selected_and_displayed(window, curMessage);
 }
 

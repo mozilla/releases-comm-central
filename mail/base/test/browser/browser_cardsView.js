@@ -8,14 +8,21 @@ const { MessageGenerator } = ChromeUtils.importESModule(
 const { click_through_appmenu } = ChromeUtils.importESModule(
   "resource://testing-common/mail/WindowHelpers.sys.mjs"
 );
-const { ensure_cards_view } = ChromeUtils.importESModule(
-  "resource://testing-common/MailViewHelpers.sys.mjs"
-);
+const { ensure_cards_view, prepare_thread_row_descendant_click } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/MailViewHelpers.sys.mjs"
+  );
 
 const tabmail = document.getElementById("tabmail");
 const about3Pane = tabmail.currentAbout3Pane;
 const { threadPane, threadTree } = about3Pane;
 let rootFolder, testFolder, testMessages, displayContext, displayButton;
+
+async function clickThreadRow(row, event = {}) {
+  await prepare_thread_row_descendant_click(row, AccessibilityUtils);
+  EventUtils.synthesizeMouseAtCenter(row, event, about3Pane);
+  AccessibilityUtils.resetEnv();
+}
 
 add_setup(async function () {
   const account = MailServices.accounts.createLocalMailAccount();
@@ -164,6 +171,11 @@ add_task(async function testSwitchToCardsView() {
     "row",
     "The message row should remain as Row Item"
   );
+  Assert.equal(
+    threadTree.getRowAtIndex(0).querySelector("td").getAttribute("role"),
+    "gridcell",
+    "The message card should be presented as Grid Cell"
+  );
 
   const tableRow = threadTree.getRowAtIndex(1);
   const tableData = tableRow.querySelector(".card-container");
@@ -287,8 +299,8 @@ add_task(async function testMessageMenuButton() {
   const row2 = threadTree.getRowAtIndex(2);
   const menuContext = about3Pane.document.getElementById("mailContext");
   const menuButton = row1.querySelector(".tree-button-more");
-  EventUtils.synthesizeMouseAtCenter(row1, {}, about3Pane);
-  EventUtils.synthesizeMouseAtCenter(row2, { shiftKey: true }, about3Pane);
+  await clickThreadRow(row1);
+  await clickThreadRow(row2, { shiftKey: true });
   Assert.ok(row1.classList.contains("selected"), "Row 1 should be selected");
   Assert.ok(row2.classList.contains("selected"), "Row 2 should be selected");
   EventUtils.synthesizeMouseAtCenter(menuButton, {}, about3Pane);

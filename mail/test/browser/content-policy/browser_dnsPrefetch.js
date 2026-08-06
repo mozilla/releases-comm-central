@@ -99,7 +99,7 @@ async function addMsgToFolder(targetFolder) {
   );
 
   // select the newly created message
-  gMsgHdr = await select_click_row(gMsgNo);
+  gMsgHdr = await select_click_row(gMsgNo, AccessibilityUtils);
 
   Assert.equal(
     msgDbHdr,
@@ -175,7 +175,7 @@ add_task(async function test_dnsPrefetch_message() {
   );
 
   const secondMsg = await addMsgToFolder(folder);
-  await select_shift_click_row(firstMsg);
+  await select_shift_click_row(firstMsg, AccessibilityUtils);
   await assert_selected_and_displayed(firstMsg, secondMsg);
 
   Assert.ok(
@@ -184,7 +184,7 @@ add_task(async function test_dnsPrefetch_message() {
     "Should keep DNS Prefetch disabled on multimessage after selecting message"
   );
 
-  await select_shift_click_row(secondMsg);
+  await select_shift_click_row(secondMsg, AccessibilityUtils);
 });
 
 add_task(async function test_dnsPrefetch_standaloneMessage() {

@@ -170,7 +170,7 @@ add_task(async function testJsInMail() {
   const msgDbHdr = addToFolder("JS test message " + gMsgNo, jsMsgBody, folder);
 
   // select the newly created message
-  const msgHdr = await select_click_row(gMsgNo);
+  const msgHdr = await select_click_row(gMsgNo, AccessibilityUtils);
 
   Assert.equal(
     msgDbHdr,
@@ -223,7 +223,7 @@ add_task(async function testJsInMailAgain() {
   const msgDbHdr = addToFolder("JS test message " + gMsgNo, jsMsgBody, folder);
 
   // select the newly created message
-  const msgHdr = await select_click_row(gMsgNo);
+  const msgHdr = await select_click_row(gMsgNo, AccessibilityUtils);
 
   Assert.equal(
     msgDbHdr,
@@ -268,7 +268,7 @@ add_task(async function testJsInMailReply() {
   const msgDbHdr = addToFolder("js msg reply " + gMsgNo, body, folder);
 
   // select the newly created message
-  const msgHdr = await select_click_row(gMsgNo);
+  const msgHdr = await select_click_row(gMsgNo, AccessibilityUtils);
 
   Assert.equal(
     msgDbHdr,

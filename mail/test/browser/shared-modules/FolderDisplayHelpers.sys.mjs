@@ -24,6 +24,7 @@ import { VirtualFolderHelper } from "resource:///modules/VirtualFolderWrapper.sy
 
 import { Assert } from "resource://testing-common/Assert.sys.mjs";
 import { BrowserTestUtils } from "resource://testing-common/BrowserTestUtils.sys.mjs";
+import { prepare_thread_row_descendant_click } from "resource://testing-common/MailViewHelpers.sys.mjs";
 import { TestUtils } from "resource://testing-common/TestUtils.sys.mjs";
 
 import * as EventUtils from "resource://testing-common/mail/EventUtils.sys.mjs";
@@ -629,14 +630,20 @@ async function _get_row_at_index(aViewIndex) {
  * @param {integer} aViewIndex - If >= 0, the view index provided, if < 0, a
  *   reference to a view index counting from the last row in the tree.
  *   -1 indicates the last message in the tree, -2 the second to last, etc.
+ * @param {object} [aAccessibilityUtils] - The test's AccessibilityUtils object.
  * @returns {msgDBHdr} The message header selected.
  */
-export async function select_click_row(aViewIndex) {
+export async function select_click_row(aViewIndex, aAccessibilityUtils) {
   Assert.report(false, undefined, undefined, `will select row ${aViewIndex}`);
   aViewIndex = _normalize_view_index(aViewIndex);
 
   const row = await _get_row_at_index(aViewIndex);
+  const accessibilityUtils = aAccessibilityUtils?.setEnv
+    ? aAccessibilityUtils
+    : null;
+  await prepare_thread_row_descendant_click(row, accessibilityUtils);
   EventUtils.synthesizeMouseAtCenter(row, {}, row.documentGlobal);
+  accessibilityUtils?.resetEnv();
   await TestUtils.waitForTick();
 
   await wait_for_message_display_completion(undefined, true);
@@ -734,18 +741,35 @@ export async function select_control_click_row(aViewIndex) {
  * @param {integer} aViewIndex - If >= 0, the view index provided, if < 0, a
  *   reference to a view index counting from the last row in the tree.
  *   -1 indicates the last message in the tree, -2 the second to last, etc.
- * @param {Window} aWin - The window in whose context to do this, defaults to
- *   the first window.
+ * @param {Window|object} [aWinOrAccessibilityUtils] - The window in whose
+ *   context to do this, defaults to the first window, or the test's
+ *   AccessibilityUtils object.
+ * @param {object} [aAccessibilityUtils] - The test's AccessibilityUtils object.
  * @returns {msgDBHdr} The message headers for all messages that are now selected.
  */
-export async function select_shift_click_row(aViewIndex, aWin) {
-  aViewIndex = _normalize_view_index(aViewIndex, aWin);
+export async function select_shift_click_row(
+  aViewIndex,
+  aWinOrAccessibilityUtils,
+  aAccessibilityUtils
+) {
+  let accessibilityUtils = null;
+  if (aAccessibilityUtils?.setEnv) {
+    accessibilityUtils = aAccessibilityUtils;
+  } else if (aWinOrAccessibilityUtils?.setEnv) {
+    accessibilityUtils = aWinOrAccessibilityUtils;
+  }
+  let win = aWinOrAccessibilityUtils || get_about_3pane();
+  if (aWinOrAccessibilityUtils?.setEnv) {
+    win = get_about_3pane();
+  }
+  aViewIndex = _normalize_view_index(aViewIndex, win);
 
-  const win = get_about_3pane();
   const row = win.document
     .getElementById("threadTree")
     .getRowAtIndex(aViewIndex);
+  await prepare_thread_row_descendant_click(row, accessibilityUtils);
   EventUtils.synthesizeMouseAtCenter(row, { shiftKey: true }, win);
+  accessibilityUtils?.resetEnv();
 
   await wait_for_message_display_completion();
 
