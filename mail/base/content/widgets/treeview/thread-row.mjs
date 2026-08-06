@@ -102,6 +102,24 @@ class ThreadRow extends TreeViewTableRow {
 
         const span = div.querySelector("span");
         span.textContent = subjectText;
+        const twistyButton = cell.querySelector("button.twisty");
+        if (twistyButton) {
+          if (this.classList.contains("children")) {
+            document.l10n.setAttributes(
+              twistyButton,
+              this.classList.contains("collapsed")
+                ? "tree-list-view-row-expand-thread-button"
+                : "tree-list-view-row-collapse-thread-button"
+            );
+            twistyButton.ariaExpanded = String(
+              !this.classList.contains("collapsed")
+            );
+          } else {
+            twistyButton.removeAttribute("data-l10n-id");
+            twistyButton.removeAttribute("aria-expanded");
+            twistyButton.removeAttribute("aria-label");
+          }
+        }
         document.l10n.setAttributes(cell, column.l10n.cell, {
           title: subjectText,
         });

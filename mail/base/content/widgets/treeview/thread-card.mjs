@@ -37,6 +37,7 @@ class ThreadCard extends TreeViewTableRow {
     this.starButton = this.querySelector(".button-star");
     this.threadCardTags = this.querySelector("thread-card-tags");
     this.replies = this.querySelector(".thread-replies");
+    this.twistyButton = this.querySelector("button.twisty");
     this.sortHeaderDetails = this.querySelector(".sort-header-details");
   }
 
@@ -83,6 +84,7 @@ class ThreadCard extends TreeViewTableRow {
     }
     const propertiesSet = new Set(properties.value.split(" "));
     this.dataset.properties = properties.value.trim();
+    this.#updateTwistyButton();
 
     this.subjectLine.textContent = data.subject;
     this.subjectLine.title = data.subject;
@@ -179,6 +181,24 @@ class ThreadCard extends TreeViewTableRow {
           .join(", ")
       );
     });
+  }
+
+  #updateTwistyButton() {
+    if (!this.classList.contains("children")) {
+      this.twistyButton.removeAttribute("data-l10n-id");
+      this.twistyButton.removeAttribute("aria-expanded");
+      this.twistyButton.removeAttribute("aria-label");
+      return;
+    }
+
+    const isCollapsed = this.classList.contains("collapsed");
+    document.l10n.setAttributes(
+      this.twistyButton,
+      isCollapsed
+        ? "tree-list-view-row-expand-thread-button"
+        : "tree-list-view-row-collapse-thread-button"
+    );
+    this.twistyButton.ariaExpanded = String(!isCollapsed);
   }
 }
 customElements.define("thread-card", ThreadCard, {

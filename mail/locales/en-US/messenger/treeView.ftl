@@ -27,6 +27,12 @@ tree-list-view-column-picker-restore-default-columns =
 tree-list-view-row-thread-button =
   .title = This is a threaded message
 
+tree-list-view-row-expand-thread-button =
+  .aria-label = Expand thread
+
+tree-list-view-row-collapse-thread-button =
+  .aria-label = Collapse thread
+
 tree-list-view-row-ignored-thread = Thread ignored
 
 tree-list-view-row-ignored-thread-button =
