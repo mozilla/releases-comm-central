@@ -2,81 +2,25 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 """
-Transform the signing task into an actual task description.
+Adjust the hardened signing configuration for Thunderbird.
 
-This file is modified from the gecko_taskgraph transform by removing
-the provisioning profile portion.
+Runs after gecko_taskgraph.transforms.hardened_signing, which does all of the
+actual work.
 """
 
-import copy
-
-from mozilla_taskgraph.util.attributes import release_level
 from taskgraph.transforms.base import TransformSequence
-from taskgraph.util.dependencies import get_primary_dependency
-from taskgraph.util.keyed_by import evaluate_keyed_by
 
 transforms = TransformSequence()
 
 
 @transforms.add
-def add_hardened_sign_config(config, jobs):
+def remove_provisioning_profile_config(config, jobs):
+    """
+    Drop the provisioning profile configuration.
+
+    Thunderbird has no provisioning profile of its own, but gecko_taskgraph
+    assigns Firefox's to every production shippable macOS signing task.
+    """
     for job in jobs:
-        if "signing" not in config.kind or "macosx" not in job["attributes"]["build_platform"]:
-            yield job
-            continue
-
-        dep_job = get_primary_dependency(config, job)
-        assert dep_job
-        project_level = release_level(config.graph_config["release-branches"], config.params)
-        is_shippable = dep_job.attributes.get("shippable", False)
-        hardened_signing_type = "developer"
-
-        # If project is production AND shippable build, then use production entitlements
-        #  Note: debug builds require developer entitlements
-        if project_level == "production" and is_shippable:
-            hardened_signing_type = "production"
-
-        # Evaluating can mutate the original config, so we must deepcopy
-        hardened_sign_config = evaluate_keyed_by(
-            copy.deepcopy(config.graph_config["mac-signing"]["hardened-sign-config"]),
-            "hardened-sign-config",
-            {"hardened-signing-type": hardened_signing_type},
-        )
-        if not isinstance(hardened_sign_config, list):
-            raise Exception("hardened-sign-config must be a list")
-
-        for sign_cfg in hardened_sign_config:
-            if isinstance(sign_cfg.get("entitlements"), dict):
-                sign_cfg["entitlements"] = evaluate_keyed_by(
-                    sign_cfg["entitlements"],
-                    "entitlements",
-                    {
-                        "build-platform": dep_job.attributes.get("build_platform"),
-                        "project": config.params["project"],
-                    },
-                )
-
-            if "entitlements" in sign_cfg and not sign_cfg.get("entitlements", "").startswith(
-                "http"
-            ):
-                sign_cfg["entitlements"] = config.params.file_url(sign_cfg["entitlements"])
-            if "only-if-milestone-is-nightly" in sign_cfg and not isinstance(
-                sign_cfg.get("only-if-milestone-is-nightly"), bool
-            ):
-                raise Exception("only-if-milestone-is-nightly must be a bool")
-
-        # Simulate the computation of milestone.is_nightly by init.configure.
-        # We do not account for --as-milestone, which is fine because this
-        # option is only used by nightly-as-release macOS builds, and those
-        # builds do not have enable-build-signing set.
-        milestone_is_nightly = config.params["version"].endswith("a1")
-
-        hardened_sign_config = [
-            sign_cfg
-            for sign_cfg in hardened_sign_config
-            if not sign_cfg.pop("only-if-milestone-is-nightly", False) or milestone_is_nightly
-        ]
-
-        job["worker"]["hardened-sign-config"] = hardened_sign_config
-        job["worker"]["mac-behavior"] = "mac_sign_and_pkg_hardened"
+        job["worker"].pop("provisioning-profile-config", None)
         yield job

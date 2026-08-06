@@ -81,7 +81,16 @@ def check_for_no_formats(config, jobs):
             payload = task["payload"]
 
             if "upstreamArtifacts" in payload:
-                for artifact in payload["upstreamArtifacts"]:
+                for artifact in list(payload["upstreamArtifacts"]):
+                    # Entitlement files are signing inputs rather than things to
+                    # sign, so they legitimately have no formats and are not
+                    # release artifacts. Keep them.
+                    if all(
+                        path.startswith("public/build/security/")
+                        for path in artifact["paths"]
+                    ):
+                        continue
+
                     if "formats" in artifact and not artifact["formats"]:
                         for remove_path in artifact["paths"]:
                             job["release-artifacts"].remove(remove_path)

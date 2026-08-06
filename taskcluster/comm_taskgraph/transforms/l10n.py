@@ -11,6 +11,7 @@ from taskgraph.util.schema import resolve_keyed_by
 
 from gecko_taskgraph.transforms.l10n import (
     L10nDescriptionSchema,
+    add_macos_signing_artifacts,
     all_locales_attribute,
     chunk_locales,
     copy_in_useful_magic,
@@ -101,5 +102,6 @@ for transform_func in (
     ValidateSchema(L10nDescriptionSchema),
     set_extra_config,
     make_job_description,
+    add_macos_signing_artifacts,
 ):
     transforms.add(transform_func)

@@ -10,16 +10,16 @@ task-defaults:
     worker:
         artifacts:
             - name: public/build/security/browser.xml
-              path: checkouts/comm/build/macosx/hardenedruntime/{entitlement_directory}/{browser_entitlement}.xml
+              path: checkouts/gecko/comm/build/macosx/hardenedruntime/v2/{entitlement_directory}/browser.xml
               type: file
             - name: public/build/security/media-plugin-helper.xml
-              path: checkouts/comm/build/macosx/hardenedruntime/{entitlement_directory}/media-plugin-helper.xml
+              path: checkouts/gecko/comm/build/macosx/hardenedruntime/v2/{entitlement_directory}/media-plugin-helper.xml
               type: file
             - name: public/build/security/plugin-container.xml
-              path: checkouts/comm/build/macosx/hardenedruntime/{entitlement_directory}/plugin-container.xml
+              path: checkouts/gecko/comm/build/macosx/hardenedruntime/v2/{entitlement_directory}/plugin-container.xml
               type: file
             - name: public/build/security/security-module-helper.xml
-              path: checkouts/gecko/security/mac/hardenedruntime/{entitlement_directory}/security-module-helper.xml
+              path: checkouts/gecko/comm/build/macosx/hardenedruntime/v2/{entitlement_directory}/security-module-helper.xml
               type: file
     run:
         using: mozharness
