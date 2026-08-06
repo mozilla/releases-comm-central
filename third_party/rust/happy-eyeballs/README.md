@@ -2,8 +2,6 @@
 
 # Happy Eyeballs v3 Implementation
 
-WORK IN PROGRESS
-
 This crate provides an implementation of Happy Eyeballs v3 as specified in
 [draft-ietf-happy-happyeyeballs-v3-02](https://www.ietf.org/archive/id/draft-ietf-happy-happyeyeballs-v3-02.html).
 

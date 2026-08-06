@@ -69,6 +69,7 @@ fn connection_attempt_delay_multiplier() {
         Input::DnsResult {
             id: Id::from(1),
             result: DnsResult::Aaaa(Ok(vec![V6_ADDR, V6_ADDR_2, V6_ADDR_3])),
+            stale: false,
         },
         now,
     );
@@ -110,6 +111,7 @@ fn failed_attempts_do_not_increase_delay() {
         Input::DnsResult {
             id: Id::from(1),
             result: DnsResult::Aaaa(Ok(vec![V6_ADDR, V6_ADDR_2])),
+            stale: false,
         },
         now,
     );
@@ -153,6 +155,7 @@ fn successful_connection_cancels_others() {
         Input::DnsResult {
             id: Id::from(1),
             result: DnsResult::Aaaa(Ok(vec![V6_ADDR, V6_ADDR_2])),
+            stale: false,
         },
         now,
     );

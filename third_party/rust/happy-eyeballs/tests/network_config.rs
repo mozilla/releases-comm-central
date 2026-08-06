@@ -219,6 +219,7 @@ fn alt_svc_with_host() {
         Input::DnsResult {
             id: Id::from(3),
             result: DnsResult::Aaaa(Ok(vec![V6_ADDR_2])),
+            stale: false,
         },
         now,
     );
@@ -227,6 +228,7 @@ fn alt_svc_with_host() {
         Input::DnsResult {
             id: Id::from(4),
             result: DnsResult::A(Ok(vec![V4_ADDR_2])),
+            stale: false,
         },
         now,
     );
@@ -367,6 +369,7 @@ fn ip_host_alt_svc_with_host() {
         Input::DnsResult {
             id: Id::from(1),
             result: DnsResult::Aaaa(Ok(vec![V6_ADDR_2])),
+            stale: false,
         },
         now,
     );
@@ -374,6 +377,7 @@ fn ip_host_alt_svc_with_host() {
         Input::DnsResult {
             id: Id::from(2),
             result: DnsResult::A(Ok(vec![V4_ADDR_2])),
+            stale: false,
         },
         now,
     );
@@ -431,6 +435,7 @@ fn alt_svc_host_resolution_fails() {
         Input::DnsResult {
             id: Id::from(3),
             result: DnsResult::Aaaa(Err(())),
+            stale: false,
         },
         now,
     );
@@ -439,6 +444,7 @@ fn alt_svc_host_resolution_fails() {
         Input::DnsResult {
             id: Id::from(4),
             result: DnsResult::A(Err(())),
+            stale: false,
         },
         now,
     );
@@ -650,6 +656,7 @@ fn interleaves_protocol_variants_and_address_families() {
         Input::DnsResult {
             id: Id::from(1),
             result: DnsResult::Aaaa(Ok(vec![V6_ADDR, V6_ADDR_2, V6_ADDR_3])),
+            stale: false,
         },
         now,
     );
@@ -657,6 +664,7 @@ fn interleaves_protocol_variants_and_address_families() {
         Input::DnsResult {
             id: Id::from(2),
             result: DnsResult::A(Ok(vec![V4_ADDR])),
+            stale: false,
         },
         now,
     );
@@ -725,6 +733,7 @@ fn interleaves_with_ipv4_preferred() {
         Input::DnsResult {
             id: Id::from(1),
             result: DnsResult::Aaaa(Ok(vec![V6_ADDR])),
+            stale: false,
         },
         now,
     );
@@ -732,6 +741,7 @@ fn interleaves_with_ipv4_preferred() {
         Input::DnsResult {
             id: Id::from(2),
             result: DnsResult::A(Ok(vec![V4_ADDR, V4_ADDR_2])),
+            stale: false,
         },
         now,
     );

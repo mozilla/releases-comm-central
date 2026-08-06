@@ -1,7 +1,5 @@
 //! # Happy Eyeballs v3 Implementation
 //!
-//! WORK IN PROGRESS
-//!
 //! This crate provides an implementation of Happy Eyeballs v3 as specified in
 //! [draft-ietf-happy-happyeyeballs-v3-02](https://www.ietf.org/archive/id/draft-ietf-happy-happyeyeballs-v3-02.html).
 //!
@@ -29,8 +27,9 @@
 //! # let mut dns_id: Option<Id> = None;
 //! while let Some(output) = he.process_output(now) {
 //!     match output {
-//!         Output::SendDnsQuery { id, hostname, record_type } => {
-//!             // Send DNS query.
+//!         Output::SendDnsQuery { id, hostname, record_type, allow_stale } => {
+//!             // Send DNS query. `allow_stale` says whether the resolver may
+//!             // answer from an expired cache entry (Optimistic DNS).
 //! #           dns_id = Some(id);
 //!         }
 //!         Output::AttemptConnection { id, endpoint, is_ech_retry } => {
@@ -43,7 +42,7 @@
 //! // Later pass results as input back to the state machine, e.g. a DNS
 //! // response arrives:
 //! # let dns_result = DnsResult::Aaaa(Ok(vec![Ipv6Addr::new(0x2001, 0xdb8, 0, 0, 0, 0, 0, 1)]));
-//! he.process_input(Input::DnsResult { id: dns_id.unwrap(), result: dns_result }, Instant::now());
+//! he.process_input(Input::DnsResult { id: dns_id.unwrap(), result: dns_result, stale: false }, Instant::now());
 //! ```
 //!
 //! For complete example usage, see the [`tests/`](tests/).
@@ -81,8 +80,20 @@ pub const CONNECTION_ATTEMPT_DELAY_MULTIPLIER: NonZeroU32 = NonZeroU32::MIN;
 /// Input events to the Happy Eyeballs state machine
 #[derive(Debug, Clone, PartialEq)]
 pub enum Input {
-    /// DNS query result received
-    DnsResult { id: Id, result: DnsResult },
+    /// DNS query result received.
+    ///
+    /// `stale` is `true` when the resolver answered from an expired (stale)
+    /// cache entry, which it may do only for a query that allowed it
+    /// (`allow_stale` on [`Output::SendDnsQuery`]). The state machine uses a
+    /// stale answer at once and emits a background query to revalidate it, per
+    /// [Optimistic DNS].
+    ///
+    /// [Optimistic DNS]: https://datatracker.ietf.org/doc/draft-gakiwate-dnsop-optimistic-dns/
+    DnsResult {
+        id: Id,
+        result: DnsResult,
+        stale: bool,
+    },
 
     /// Connection attempt result
     ConnectionResult { id: Id, result: ConnectionResult },
@@ -198,11 +209,21 @@ impl Debug for TargetName {
 #[derive(Debug, Clone, PartialEq)]
 #[must_use]
 pub enum Output {
-    /// Send a DNS query
+    /// Send a DNS query.
+    ///
+    /// `allow_stale` tells the resolver whether it may answer from an expired
+    /// (stale) cache entry. It is `true` for a record's first query, so the
+    /// resolver can return an optimistic answer without waiting for the
+    /// network, and `false` for the follow-up query that revalidates a stale
+    /// answer, which must come from a fresh network lookup. See [Optimistic
+    /// DNS].
+    ///
+    /// [Optimistic DNS]: https://datatracker.ietf.org/doc/draft-gakiwate-dnsop-optimistic-dns/
     SendDnsQuery {
         id: Id,
         hostname: TargetName,
         record_type: DnsRecordType,
+        allow_stale: bool,
     },
 
     /// Start a timer
@@ -299,12 +320,12 @@ impl ServiceInfo {
     fn flatten_into_endpoints(
         &self,
         port: u16,
-        // `None` if no A response has been received yet; `Some(addrs)` once
-        // an answer (positive or negative) has arrived.
-        ipv4_addrs: Option<&[Ipv4Addr]>,
-        // `None` if no AAAA response has been received yet; `Some(addrs)`
-        // once an answer (positive or negative) has arrived.
-        ipv6_addrs: Option<&[Ipv6Addr]>,
+        // `None` if no A response has arrived yet. `Some(Ok(addrs))` for a
+        // positive answer (`addrs` empty for a NODATA answer). `Some(Err(()))`
+        // for a negative answer.
+        ipv4_addrs: Option<Result<&[Ipv4Addr], ()>>,
+        // As `ipv4_addrs`, but for the AAAA query.
+        ipv6_addrs: Option<Result<&[Ipv6Addr], ()>>,
         // The HTTP versions the client allows; used to filter this record's own
         // ALPNs.
         enabled_http_versions: &HttpVersions,
@@ -320,17 +341,26 @@ impl ServiceInfo {
         //
         // <https://www.ietf.org/archive/id/draft-ietf-happy-happyeyeballs-v3-02.html#section-4.2.1>
         //
-        // Once an answer arrives — positive or negative — the records are no
-        // longer "not available yet". A positive answer replaces hints with
-        // actual addresses; a negative answer discards them entirely.
-        let hint_v6 = match ipv6_addrs {
-            None => self.ipv6_hints.as_slice(),
-            Some(_) => &[],
-        };
-        let hint_v4 = match ipv4_addrs {
-            None => self.ipv4_hints.as_slice(),
-            Some(_) => &[],
-        };
+        // The hint is a last-resort fallback the operator put in the SVCB/HTTPS
+        // record. The resolved A/AAAA addresses, when present, are tried first
+        // (see the ordering below), but the hint is always kept and tried after
+        // them; an empty (NODATA) or a negative A/AAAA answer removes no address,
+        // so it does not remove the hint either.
+        //
+        // This is a deliberate deviation from RFC 9460 Section 7.3:
+        //
+        // > If A and AAAA records for TargetName are locally available, the
+        // > client SHOULD ignore these hints.
+        //
+        // That is a SHOULD, not a MUST, and its stated reason is that relying on
+        // the hints can interfere with load balancing and geo-aware selection.
+        // We keep that concern satisfied by trying the resolved addresses first
+        // and only falling back to the hint when they fail: the hint is an extra
+        // chance to connect, never a substitute for the authoritative records.
+        //
+        // <https://www.rfc-editor.org/rfc/rfc9460#section-7.3>
+        let hint_v6: &[Ipv6Addr] = self.ipv6_hints.as_slice();
+        let hint_v4: &[Ipv4Addr] = self.ipv4_hints.as_slice();
 
         // Each ServiceMode record's ALPN SvcParam lists the protocols available
         // at its own TargetName, so use only this record's ALPNs, never another
@@ -362,11 +392,19 @@ impl ServiceInfo {
             });
 
         let addrs = ipv6_addrs
+            .and_then(Result::ok)
             .unwrap_or(&[])
             .iter()
             .cloned()
             .map(IpAddr::V6)
-            .chain(ipv4_addrs.unwrap_or(&[]).iter().cloned().map(IpAddr::V4))
+            .chain(
+                ipv4_addrs
+                    .and_then(Result::ok)
+                    .unwrap_or(&[])
+                    .iter()
+                    .cloned()
+                    .map(IpAddr::V4),
+            )
             .flat_map(|ip| {
                 // TODO: way around allocation?
                 let ech_config = ech_enabled.then(|| self.ech_config.clone()).flatten();
@@ -377,7 +415,8 @@ impl ServiceInfo {
                 })
             });
 
-        hints.chain(addrs).collect()
+        // Real addresses first, hints after them as a fallback.
+        addrs.chain(hints).collect()
     }
 }
 
@@ -437,6 +476,8 @@ struct DnsQuery {
     target_name: TargetName,
     record_type: DnsRecordType,
     state: DnsQueryState,
+    /// Optimistic-DNS revalidation of a stale answer for this record.
+    refresh: Refresh,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -445,7 +486,22 @@ enum DnsQueryState {
     Completed {
         completed: Instant,
         response: DnsResult,
+        /// Whether the resolver served this answer from a stale cache entry.
+        stale: bool,
     },
+}
+
+/// Tracks the background query that revalidates a stale answer, per Optimistic
+/// DNS. A stale answer is revalidated at most once.
+#[derive(Debug, Clone, PartialEq)]
+enum Refresh {
+    /// No revalidation is in flight: the answer is fresh, or a stale answer has
+    /// not been revalidated yet.
+    Idle,
+    /// A revalidation query is in flight, carrying this id.
+    InFlight(Id),
+    /// A stale answer has been revalidated.
+    Done,
 }
 
 impl DnsQuery {
@@ -902,8 +958,8 @@ impl HappyEyeballs {
         trace!("target={} input={:?}", self.host, input);
 
         match input {
-            Input::DnsResult { id, result } => {
-                self.on_dns_response(id, result, now);
+            Input::DnsResult { id, result, stale } => {
+                self.on_dns_response(id, result, stale, now);
             }
             Input::ConnectionResult { id, result } => {
                 self.on_connection_result(id, result);
@@ -946,6 +1002,10 @@ impl HappyEyeballs {
         }
 
         if let Some(o) = self.send_dns_request_for_alt_svc() {
+            return Some(o);
+        }
+
+        if let Some(o) = self.send_dns_refresh() {
             return Some(o);
         }
 
@@ -1022,9 +1082,12 @@ impl HappyEyeballs {
             return None;
         }
 
+        // Considers every query type, SVCB/HTTPS included, not just A and AAAA:
+        // the delay exists to receive the preferred addresses and the service
+        // information together. See draft-ietf-happy-happyeyeballs-v3-04:
+        // <https://www.ietf.org/archive/id/draft-ietf-happy-happyeyeballs-v3-04.html#section-4.2>
         self.dns_queries
             .iter()
-            // TODO: Currently considers all queries. Should we only consider A and AAAA?
             .filter_map(|q| match &q.state {
                 DnsQueryState::Completed { completed, .. } => Some(completed),
                 _ => None,
@@ -1065,11 +1128,13 @@ impl HappyEyeballs {
                     target_name: target_name.clone(),
                     record_type,
                     state: DnsQueryState::InProgress,
+                    refresh: Refresh::Idle,
                 });
                 return Some(Output::SendDnsQuery {
                     id,
                     hostname: target_name,
                     record_type,
+                    allow_stale: true,
                 });
             }
         }
@@ -1113,11 +1178,13 @@ impl HappyEyeballs {
             target_name: target_name.clone(),
             record_type,
             state: DnsQueryState::InProgress,
+            refresh: Refresh::Idle,
         });
         Some(Output::SendDnsQuery {
             id,
             hostname: target_name,
             record_type,
+            allow_stale: true,
         })
     }
 
@@ -1153,15 +1220,64 @@ impl HappyEyeballs {
             target_name: target_name.clone(),
             record_type,
             state: DnsQueryState::InProgress,
+            refresh: Refresh::Idle,
         });
         Some(Output::SendDnsQuery {
             id,
             hostname: target_name,
             record_type,
+            allow_stale: true,
         })
     }
 
-    fn on_dns_response(&mut self, id: Id, response: DnsResult, now: Instant) {
+    /// Emit a background query to revalidate an answer the resolver served from
+    /// a stale cache entry, per [Optimistic DNS].
+    ///
+    /// The state machine has already used the stale answer to race connections;
+    /// this query forbids a stale answer (`allow_stale: false`) so the resolver
+    /// performs a fresh network lookup. When the fresh answer arrives it
+    /// replaces the stale one. Each stale answer is revalidated at most once.
+    ///
+    /// [Optimistic DNS]: https://datatracker.ietf.org/doc/draft-gakiwate-dnsop-optimistic-dns/
+    fn send_dns_refresh(&mut self) -> Option<Output> {
+        let idx = self.dns_queries.iter().position(|q| {
+            q.refresh == Refresh::Idle
+                && matches!(q.state, DnsQueryState::Completed { stale: true, .. })
+        })?;
+        let id = self.id_generator.next_id();
+        let query = &mut self.dns_queries[idx];
+        query.refresh = Refresh::InFlight(id);
+        Some(Output::SendDnsQuery {
+            id,
+            hostname: query.target_name.clone(),
+            record_type: query.record_type,
+            allow_stale: false,
+        })
+    }
+
+    fn on_dns_response(&mut self, id: Id, response: DnsResult, stale: bool, now: Instant) {
+        // A revalidation response replaces the stale answer of the query it
+        // belongs to, rather than opening a new record.
+        if let Some(query) = self
+            .dns_queries
+            .iter_mut()
+            .find(|q| q.refresh == Refresh::InFlight(id))
+        {
+            // A refresh query is sent with `allow_stale: false`, so the resolver
+            // must not answer it from a stale cache entry.
+            debug_assert!(
+                !stale,
+                "got a stale response for refresh query {id:?}, which forbade stale answers"
+            );
+            query.refresh = Refresh::Done;
+            query.state = DnsQueryState::Completed {
+                completed: now,
+                response,
+                stale,
+            };
+            return;
+        }
+
         let Some(query) = self.dns_queries.iter_mut().find(|q| q.id == id) else {
             debug_assert!(false, "got {response:?} for unknown id {id:?}");
             return;
@@ -1175,6 +1291,7 @@ impl HappyEyeballs {
         query.state = DnsQueryState::Completed {
             completed: now,
             response,
+            stale,
         };
     }
 
@@ -1386,23 +1503,23 @@ impl HappyEyeballs {
 
         let mut endpoints: Vec<Endpoint> = Vec::new();
         for info in &service_infos {
-            let ipv4_addrs: Option<&[Ipv4Addr]> =
+            let ipv4_addrs: Option<Result<&[Ipv4Addr], ()>> =
                 self.dns_queries.iter().find_map(|q| match &q.state {
                     DnsQueryState::Completed {
                         response: DnsResult::A(result),
                         ..
                     } if q.target_name == info.target_name => {
-                        Some(result.as_deref().unwrap_or_default())
+                        Some(result.as_deref().map_err(|_| ()))
                     }
                     _ => None,
                 });
-            let ipv6_addrs: Option<&[Ipv6Addr]> =
+            let ipv6_addrs: Option<Result<&[Ipv6Addr], ()>> =
                 self.dns_queries.iter().find_map(|q| match &q.state {
                     DnsQueryState::Completed {
                         response: DnsResult::Aaaa(result),
                         ..
                     } if q.target_name == info.target_name => {
-                        Some(result.as_deref().unwrap_or_default())
+                        Some(result.as_deref().map_err(|_| ()))
                     }
                     _ => None,
                 });
@@ -1428,6 +1545,12 @@ impl HappyEyeballs {
     fn failed(&self) -> Option<FailureReason> {
         if self.has_successful_connection()
             || self.dns_queries.iter().any(|q| !q.is_completed())
+            // A revalidation of a stale answer is still outstanding: its fresh
+            // answer may yet yield a usable address, so do not fail yet.
+            || self
+                .dns_queries
+                .iter()
+                .any(|q| matches!(q.refresh, Refresh::InFlight(_)))
             || self
                 .connection_attempts
                 .iter()
