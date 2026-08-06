@@ -223,27 +223,34 @@ nsresult ExchangeMessageCopyHandler::OnCopyCompleted(nsresult status) {
 // For moves, here's where we kick off deletion of the source message.
 nsresult ExchangeMessageCopyHandler::OnCreateFinished(nsresult status,
                                                       nsIMsgDBHdr* newHdr) {
+  // If we got an error, then there's no guarantee that we have a header.
+  if (NS_FAILED(status)) {
+    return OnCopyCompleted(status);
+  }
+
+  // If we got a successful response then the new header should be present.
+  NS_ENSURE_TRUE(newHdr, NS_ERROR_UNEXPECTED);
+
   // NOTE: SetMessageKey() needs to die.
   // It's required for old-style IMAP where the UID from the server is used
   // as the messageKey, but that really needs to change (see Bug 1806770).
   // It shouldn't be needed at all for Exchange, but some of the unit tests rely
   // upon it (e.g. test_item_operations.js).
-  if (NS_SUCCEEDED(status) && mCopyServiceListener) {
+  if (mCopyServiceListener) {
     nsMsgKey key;
     newHdr->GetMessageKey(&key);
     mCopyServiceListener->SetMessageKey(key);
   }
 
-  // If the message is a file message that is not a draft, then it's a sent
+  // If the message is a file message and it is not a draft, then it's a sent
   // message and needs to be marked read.
   if (mSrcFile && !mIsDraft) {
     MOZ_TRY(newHdr->MarkRead(true));
   }
 
-  // If we encountered a failure, bail now. Additionally, if we're copying from
-  // a file, we also want to end the process now, since we're always copying a
-  // single message in this case.
-  if (NS_FAILED(status) || mSrcFile) {
+  // If we're copying from a file, then we're done since this is a single
+  // message copy.
+  if (mSrcFile) {
     return OnCopyCompleted(status);
   }
 
