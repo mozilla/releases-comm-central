@@ -181,7 +181,8 @@ export class RelaxedLinkClickHandlerChild extends JSWindowActorChild {
  * different page from the current page, cancels the click event, redirecting
  * the URI to an external browser, effectively creating a single-page browser.
  *
- * This actor applies to browsers in the "single-page" message manager group.
+ * This actor applies to browsers in the "mail-message" and "single-page"
+ * message manager groups.
  */
 export class StrictLinkClickHandlerChild extends JSWindowActorChild {
   handleEvent(event) {

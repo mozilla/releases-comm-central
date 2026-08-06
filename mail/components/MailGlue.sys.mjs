@@ -174,6 +174,7 @@ const JSWINDOWACTORS = {
     safeForUntrustedWebProcess: true,
     messageManagerGroups: [
       "browsers",
+      "mail-message",
       "single-site",
       "single-page",
       "test",
@@ -212,7 +213,12 @@ const JSWINDOWACTORS = {
         pagehide: { createActor: false },
       },
     },
-    messageManagerGroups: ["browsers", "single-site", "single-page"],
+    messageManagerGroups: [
+      "browsers",
+      "mail-message",
+      "single-site",
+      "single-page",
+    ],
     safeForUntrustedWebProcess: true,
   },
 
@@ -235,6 +241,7 @@ const JSWINDOWACTORS = {
     safeForUntrustedWebProcess: true,
     messageManagerGroups: [
       "browsers",
+      "mail-message",
       "single-site",
       "single-page",
       "webext-browsers",
@@ -258,6 +265,7 @@ const JSWINDOWACTORS = {
 
   MailMessage: {
     child: { esModuleURI: "resource:///actors/MailMessageChild.sys.mjs" },
+    messageManagerGroups: ["mail-message"],
   },
 
   MessageScroll: {
@@ -269,7 +277,7 @@ const JSWINDOWACTORS = {
     },
     allFrames: true,
     safeForUntrustedWebProcess: true,
-    messageManagerGroups: ["single-page"],
+    messageManagerGroups: ["mail-message"],
   },
 
   NetError: {
@@ -288,6 +296,7 @@ const JSWINDOWACTORS = {
     safeForUntrustedWebProcess: true,
     messageManagerGroups: [
       "browsers",
+      "mail-message",
       "single-site",
       "single-page",
       "test",
@@ -341,7 +350,7 @@ const JSWINDOWACTORS = {
         click: {},
       },
     },
-    messageManagerGroups: ["single-page"],
+    messageManagerGroups: ["mail-message", "single-page"],
     allFrames: true,
     safeForUntrustedWebProcess: true,
   },
