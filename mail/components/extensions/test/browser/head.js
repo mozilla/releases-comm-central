@@ -1377,8 +1377,20 @@ async function run_popup_test(configData) {
         if (!configData.disable_button) {
           clickedPromise = extension.awaitMessage("actionButtonClicked");
         }
+        if (configData.disable_button) {
+          // This intentionally clicks a disabled action button to confirm the
+          // click event will not come through. Unified toolbar buttons use
+          // pointer-events: none when disabled, so hit testing reports their
+          // non-interactive wrapper instead of the disabled button.
+          const accessibilityEnv = { mustBeEnabled: false };
+          if (toolbarId === "unified-toolbar") {
+            accessibilityEnv.mustHaveAccessibleRule = false;
+          }
+          AccessibilityUtils.setEnv(accessibilityEnv);
+        }
         EventUtils.synthesizeMouseAtCenter(button, { clickCount: 1 }, win);
         if (configData.disable_button) {
+          AccessibilityUtils.resetEnv();
           // We're testing that nothing happens. Give it time to potentially happen.
 
           await new Promise(resolve => win.setTimeout(resolve, 500));
