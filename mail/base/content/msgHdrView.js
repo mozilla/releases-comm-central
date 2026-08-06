@@ -1184,7 +1184,7 @@ function updateStarButton() {
 
   const isFlagged = gMessage.isFlagged;
   flagButton.classList.toggle("flagged", isFlagged);
-  flagButton.setAttribute("aria-checked", isFlagged);
+  flagButton.setAttribute("aria-pressed", isFlagged);
 }
 
 function EnsureSubjectValue() {

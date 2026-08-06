@@ -366,6 +366,8 @@
 
       this.setAttribute("is", "header-recipient");
       this.classList.add("header-recipient");
+      this.setAttribute("role", "button");
+      this.setAttribute("aria-haspopup", "menu");
       this.tabIndex = 0;
 
       this.avatar = document.createElement("div");
@@ -398,6 +400,7 @@
       // We make the button non-focusable since its functionality is equivalent
       // to the first item in the popup menu, so we can save a tab-stop.
       this.abIndicator.tabIndex = -1;
+      this.abIndicator.setAttribute("keyNav", "false");
       this.abIndicator.addEventListener("click", event => {
         event.stopPropagation();
         if (event.detail == 2) {
@@ -435,7 +438,8 @@
         gMessageHeader.openEmailAddressPopup(event, this);
       });
       this.addEventListener("keypress", event => {
-        if (event.key == "Enter") {
+        if (event.key == "Enter" || event.key == " ") {
+          event.preventDefault();
           gMessageHeader.openEmailAddressPopup(event, this);
         }
       });
@@ -721,6 +725,7 @@
       super.connectedCallback();
 
       this.setAttribute("is", "url-header-row");
+      this.setAttribute("role", "link");
       document.l10n.setAttributes(this.heading, "message-header-website-field");
 
       this.value.classList.add("text-link");

@@ -486,7 +486,7 @@ class MultiMessageSummary {
   toggleFlaggedButton(allFlagged) {
     const flagButton = document.getElementById("starMessageButton");
     flagButton.classList.toggle("flagged", allFlagged);
-    flagButton.setAttribute("aria-checked", allFlagged);
+    flagButton.setAttribute("aria-pressed", allFlagged);
   }
 
   // These are listeners for the gloda collections.

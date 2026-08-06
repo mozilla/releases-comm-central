@@ -157,6 +157,15 @@ add_task(async function testStarredButtonReactivity() {
   await new Promise(about3Pane.requestAnimationFrame);
   const starButton =
     multiMessageBrowser.contentDocument.getElementById("starMessageButton");
+  Assert.equal(
+    starButton.getAttribute("aria-pressed"),
+    "true",
+    "The multi message header Star button should expose pressed state when flagged."
+  );
+  Assert.ok(
+    !starButton.hasAttribute("aria-checked"),
+    "The multi message header Star button should not expose checkbox state."
+  );
   Assert.ok(
     starButton.classList.contains("flagged"),
     "The thread is flagged so the multi message header Star button should be flagged."
@@ -172,6 +181,11 @@ add_task(async function testStarredButtonReactivity() {
   );
   about3Pane.threadTree.selectedIndex = 1;
   await new Promise(about3Pane.requestAnimationFrame);
+  Assert.equal(
+    starButton.getAttribute("aria-pressed"),
+    "false",
+    "The multi message header Star button should expose unpressed state when unflagged."
+  );
   Assert.ok(
     !starButton.classList.contains("flagged"),
     "The thread is unflagged so the multi message header Star button should not be flagged."

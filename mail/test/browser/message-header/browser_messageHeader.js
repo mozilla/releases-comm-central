@@ -143,7 +143,7 @@ add_task(async function test_add_tag_with_really_long_label() {
   await ensure_table_view(document);
 
   // Select the first message, which will display it.
-  const curMessage = await select_click_row(-1);
+  const curMessage = await select_click_row(-1, AccessibilityUtils);
 
   await assert_selected_and_displayed(window, curMessage);
 
@@ -287,7 +287,8 @@ add_task(async function test_a11y_attrs() {
   );
   // Select and open the interesting message.
   const curMessage = await select_click_row(
-    about3Pane.gDBView.findIndexOfMsgHdr(hdr, false)
+    about3Pane.gDBView.findIndexOfMsgHdr(hdr, false),
+    AccessibilityUtils
   );
   // Make sure it loads.
   await assert_selected_and_displayed(window, curMessage);
@@ -307,7 +308,8 @@ add_task(async function enter_msg_hdr_toolbar() {
   );
   // Select and open the interesting message.
   const curMessage = await select_click_row(
-    about3Pane.gDBView.findIndexOfMsgHdr(hdr, false)
+    about3Pane.gDBView.findIndexOfMsgHdr(hdr, false),
+    AccessibilityUtils
   );
   // Make sure it loads.
   await assert_selected_and_displayed(window, curMessage);
@@ -441,7 +443,7 @@ add_task(async function enter_msg_hdr_toolbar() {
  */
 add_task(async function test_focus_after_button_click() {
   // Start on the additional message that will be deleted.
-  const message = await select_click_row(-3);
+  const message = await select_click_row(-3, AccessibilityUtils);
 
   // Make sure it loads.
   await wait_for_message_display_completion(window);
@@ -501,7 +503,7 @@ add_task(async function test_more_button_with_many_recipients() {
   );
 
   // Start on the interesting message.
-  let curMessage = await select_click_row(-1);
+  let curMessage = await select_click_row(-1, AccessibilityUtils);
 
   // Make sure it loads.
   await wait_for_message_display_completion(window);
@@ -522,7 +524,7 @@ add_task(async function test_more_button_with_many_recipients() {
   );
 
   // Switch to the boring message, to force the more button to collapse.
-  curMessage = await select_click_row(-2);
+  curMessage = await select_click_row(-2, AccessibilityUtils);
 
   // Make sure it loads.
   await wait_for_message_display_completion(window);
@@ -567,7 +569,7 @@ add_task(async function test_clicking_ab_button_opens_inline_contact_editor() {
   const msg = create_message();
   await add_message_to_folder([folder], msg);
   // Open the latest message.
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   await wait_for_message_display_completion(window);
 
   // Ensure that the inline contact editing panel is not open
@@ -633,7 +635,7 @@ add_task(async function test_msg_id_context_menu() {
   await be_in_folder(folder);
 
   // Open the latest message.
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
 
   // Right click to show the context menu.
   EventUtils.synthesizeMouseAtCenter(
@@ -690,7 +692,7 @@ add_task(
     await be_in_folder(folder);
 
     // Open the latest message.
-    await select_click_row(0);
+    await select_click_row(0, AccessibilityUtils);
 
     // Ensure that the inline contact editing panel is not open
     const contactPanel =
@@ -916,7 +918,7 @@ add_task(async function test_context_menu_list_id() {
   await be_in_folder(folder);
 
   // Open the latest message.
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
 
   // Right click to show the context menu.
   EventUtils.synthesizeMouseAtCenter(
@@ -1026,7 +1028,7 @@ add_task(async function test_that_msg_without_date_clears_previous_headers() {
 
   // Not the first anymore. The timestamp is that of "NOW".
   // Select and open the LAST message.
-  const curMessage = await select_click_row(0);
+  const curMessage = await select_click_row(0, AccessibilityUtils);
 
   // Make sure it loads.
   await wait_for_message_display_completion(window);
@@ -1142,16 +1144,16 @@ add_task(async function test_view_more_button() {
 
   // Select and open the injected message.
   // It is at the second last message in the display list.
-  let curMessage = await select_click_row(1);
+  let curMessage = await select_click_row(1, AccessibilityUtils);
   // FIXME: Switch between a couple of messages to allow the UI to properly
   // refresh and fetch the proper recipients row width in order to avoid an
   // unexpected recipients wrapping. This happens because the width calculation
   // happens before the message header layout is fully generated.
-  const prevMessage = await select_click_row(2);
+  const prevMessage = await select_click_row(2, AccessibilityUtils);
   await wait_for_message_display_completion(window);
   await assert_selected_and_displayed(window, prevMessage);
 
-  curMessage = await select_click_row(1);
+  curMessage = await select_click_row(1, AccessibilityUtils);
 
   // Make sure it loads.
   await wait_for_message_display_completion(window);
@@ -1184,11 +1186,11 @@ add_task(async function test_view_more_button_focus() {
     { focusMore: false, useKeyboard: false },
   ]) {
     // Reload the message.
-    const prevMessage = await select_click_row(0);
+    const prevMessage = await select_click_row(0, AccessibilityUtils);
     await wait_for_message_display_completion(window);
     await assert_selected_and_displayed(window, prevMessage);
 
-    const curMessage = await select_click_row(1);
+    const curMessage = await select_click_row(1, AccessibilityUtils);
     await wait_for_message_display_completion(window);
     await assert_selected_and_displayed(window, curMessage);
 
@@ -1312,7 +1314,7 @@ add_task(async function test_show_all_header_mode() {
 
   // Select and open the added message.
   // It is at the second last position in the display list.
-  const curMessage = await select_click_row(1);
+  const curMessage = await select_click_row(1, AccessibilityUtils);
 
   // Make sure it loads.
   await wait_for_message_display_completion(window);
@@ -1337,7 +1339,7 @@ async function help_test_starred_messages() {
   await be_in_folder(folder);
 
   // Select the last message, which will display it.
-  let curMessage = await select_click_row(0);
+  let curMessage = await select_click_row(0, AccessibilityUtils);
   await wait_for_message_display_completion(window);
   await assert_selected_and_displayed(window, curMessage);
 
@@ -1367,7 +1369,7 @@ async function help_test_starred_messages() {
   Assert.ok(starButton.classList.contains("flagged"), "The message is starred");
 
   // Select the first message.
-  curMessage = await select_click_row(-1);
+  curMessage = await select_click_row(-1, AccessibilityUtils);
   await wait_for_message_display_completion(window);
   await assert_selected_and_displayed(window, curMessage);
 
@@ -1378,7 +1380,7 @@ async function help_test_starred_messages() {
   );
 
   // Select again the last message.
-  curMessage = await select_click_row(0);
+  curMessage = await select_click_row(0, AccessibilityUtils);
   await wait_for_message_display_completion(window);
   await assert_selected_and_displayed(window, curMessage);
 
@@ -1430,7 +1432,7 @@ add_task(async function test_starred_message_unified_mode() {
 add_task(async function test_folder_db_listener() {
   await be_in_folder(folderMore);
   // Select the last message, which will display it.
-  let curMessage = await select_click_row(0);
+  let curMessage = await select_click_row(0, AccessibilityUtils);
   await wait_for_message_display_completion(window);
   await assert_selected_and_displayed(window, curMessage);
 
@@ -1461,7 +1463,7 @@ add_task(async function test_folder_db_listener() {
   await be_in_folder(folder);
 
   // Select the last message, which will display it.
-  curMessage = await select_click_row(0);
+  curMessage = await select_click_row(0, AccessibilityUtils);
   await wait_for_message_display_completion(window);
   await assert_selected_and_displayed(window, curMessage);
 
@@ -1487,7 +1489,8 @@ add_task(async function test_copy_string_clean_value() {
     gInterestingMessage.messageId
   );
   const curMessage = await select_click_row(
-    about3Pane.gDBView.findIndexOfMsgHdr(hdr, false)
+    about3Pane.gDBView.findIndexOfMsgHdr(hdr, false),
+    AccessibilityUtils
   );
 
   await wait_for_message_display_completion(window);
