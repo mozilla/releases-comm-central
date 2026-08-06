@@ -46,7 +46,11 @@ export class OutgoingServerService {
   }
 
   set defaultServer(server) {
-    Services.prefs.setCharPref("mail.smtp.defaultserver", server.key);
+    if (server) {
+      Services.prefs.setCharPref("mail.smtp.defaultserver", server.key);
+    } else {
+      Services.prefs.clearUserPref("mail.smtp.defaultserver");
+    }
   }
 
   get servers() {

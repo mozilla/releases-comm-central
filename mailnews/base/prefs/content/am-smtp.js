@@ -77,6 +77,21 @@ var gSmtpServerListWindow = {
       } catch (e) {
         /* It is OK if this fails. */
       }
+
+      // If this was the default server, reset it to the first
+      // available server.
+      if (MailServices.outgoingServer.defaultServer.key === server.key) {
+        // If there are other servers available, choose the first one as default.
+        if (MailServices.outgoingServer.servers.length >= 2) {
+          const newDefault = MailServices.outgoingServer.servers.find(
+            x => x.key != server.key
+          );
+          MailServices.outgoingServer.defaultServer = newDefault;
+        } else {
+          MailServices.outgoingServer.defaultServer = null;
+        }
+      }
+
       // Remove the server.
       MailServices.outgoingServer.deleteServer(server);
       parent.replaceWithDefaultSmtpServer(server.key);
@@ -110,13 +125,10 @@ var gSmtpServerListWindow = {
   updateButtons() {
     const server = this.getSelectedServer();
 
-    // can't delete default server
     if (server && MailServices.outgoingServer.defaultServer == server) {
       this.mSetDefaultServerButton.toggleAttribute("disabled", true);
-      this.mDeleteButton.toggleAttribute("disabled", true);
     } else {
       this.mSetDefaultServerButton.removeAttribute("disabled");
-      this.mDeleteButton.removeAttribute("disabled");
     }
 
     if (!server) {
@@ -216,10 +228,9 @@ var gSmtpServerListWindow = {
       this.mServerList.lastChild.remove();
     }
     for (const server of MailServices.outgoingServer.servers) {
-      const listitem = this.createSmtpListItem(
-        server,
-        MailServices.outgoingServer.defaultServer.key == server.key
-      );
+      const isDefault =
+        MailServices.outgoingServer.defaultServer?.key === server.key;
+      const listitem = this.createSmtpListItem(server, isDefault);
       this.mServerList.appendChild(listitem);
     }
 
