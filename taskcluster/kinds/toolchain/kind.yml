@@ -11,13 +11,13 @@ kind-dependencies:
 
 reference-tasks:
     - linux64-7zz
-    - linux64-aarch64-compiler-rt-22
+    - linux64-aarch64-compiler-rt-21
     - linux64-cargo-vet
     - linux64-cbindgen
     - linux64-cctools-port
+    - linux64-clang-21-profile
+    - linux64-clang-21-raw
     - linux64-clang-21-stage1
-    - linux64-clang-22-profile
-    - linux64-clang-22-raw
     - linux64-clang-mingw-x64
     - linux64-clang-mingw-x86
     - linux64-clang-tidy
@@ -41,8 +41,8 @@ reference-tasks:
     - linux64-pkgconf
     - linux64-python
     - linux64-rust
-    - linux64-rust-cross
     - linux64-rust-dev
+    - linux64-rust-cross
     - linux64-rust-macos
     - linux64-rust-macos-toolchain
     - linux64-rust-size
@@ -56,16 +56,19 @@ reference-tasks:
     - linux64-upx
     - linux64-winchecksec
     - linux64-wine
-    - linux64-x64-compiler-rt-22
+    - linux64-x64-compiler-rt-21
     - linux64-xar
-    - macosx64-aarch64-compiler-rt-22
+    - macosx64-aarch64-compiler-rt-21
+    - macosx64-clang-21-profile
+    - macosx64-clang-21-raw
+    - macosx64-clang-21-stage2
     - macosx64-fix-stacks
     - macosx64-grcov
     - macosx64-minidump-stackwalk
     - macosx64-node
     - macosx64-sdk
     - macosx64-sdk-toolchain
-    - macosx64-x64-compiler-rt-22
+    - macosx64-x64-compiler-rt-21
     - mingw32-rust
     - node-modules
     - nsis
@@ -76,19 +79,18 @@ reference-tasks:
     - terser
     - vs
     - wasm32-wasi-compiler-rt-21
-    - wasm32-wasi-compiler-rt-22
-    - win32-compiler-rt-22
+    - win32-compiler-rt-21
     - win32-fix-stacks
     - win32-minidump-stackwalk
     - win32-node
     - win64-7zz
-    - win64-aarch64-compiler-rt-22
+    - win64-aarch64-compiler-rt-21
     - win64-cbindgen
-    - win64-clang-22-profile
-    - win64-clang-22-raw
-    - win64-clang-22-stage2
+    - win64-clang-21-profile
+    - win64-clang-21-raw
+    - win64-clang-21-stage2
     - win64-cmake
-    - win64-compiler-rt-22
+    - win64-compiler-rt-21
     - win64-dump_syms
     - win64-grcov
     - win64-libxml2
@@ -102,9 +104,9 @@ reference-tasks:
     - win64-rust-size
     - win64-sccache
     - win64-winchecksec
-    - winappsdk-aarch64-pc-windows-msvc
     - winappsdk-x86-pc-windows-msvc
     - winappsdk-x86_64-pc-windows-msvc
+    - winappsdk-aarch64-pc-windows-msvc
 
 transforms:
     - gecko_taskgraph.transforms.try_job:transforms
