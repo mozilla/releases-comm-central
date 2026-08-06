@@ -633,6 +633,12 @@ day-header = { $dayName } { $dayIndex }
 day-header-elem =
     .label = { day-header }
 
+# LOCALIZATION NOTE (calendar-multiday-hour-slot):
+# Label for a time slot in the day/week calendar views.
+#    $date will be replaced with the day label, e.g. "Monday 6 Oct.";
+#    $time will be replaced with the time of the slot, e.g. "9:00 AM".
+calendar-multiday-hour-slot = { $date }, { $time }
+
 # LOCALIZATION NOTE (datetime-interval-task-without-date):
 # used for task without start and due date
 # (showed only in exported calendar in Html format)
@@ -1057,7 +1063,8 @@ calendar-task-change-priority =
     .accesskey = r
     .tooltiptext = Change the priority
 
-calendar-task-text-filter-field =
+calendar-task-input-filter-field =
+    .aria-label = Filter tasks
     .emptytextbase = Filter tasks #1
     .keylabelnonmac = <Ctrl+Shift+K>
     .keylabelmac = <⇧⌘K>

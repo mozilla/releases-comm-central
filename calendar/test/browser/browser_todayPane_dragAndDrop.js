@@ -123,7 +123,7 @@ add_task(async function testMozAddressDrop() {
 
   const eventWindow = await promise;
   const iframe = eventWindow.document.querySelector("#calendar-item-panel-iframe");
-  const iframeWin = iframe.cotnentWindow;
+  const iframeWin = iframe.contentWindow;
   const iframeDoc = iframe.contentDocument;
 
   // Verify the address was added as an attendee.

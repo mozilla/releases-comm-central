@@ -445,6 +445,10 @@ calendar-event-column .multiday-events-list {
   flex-direction: column;
 }
 
+.multiday-hour-row {
+  display: contents;
+}
+
 .multiday-grid-rotated .multiday-hour-box-container {
   flex-direction: row;
 }
