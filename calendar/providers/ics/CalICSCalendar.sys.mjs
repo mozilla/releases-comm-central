@@ -150,7 +150,9 @@ export class CalICSCalendar extends cal.provider.BaseClass {
       throw new Components.Exception("Calendar is not writable", Ci.calIErrors.CAL_IS_READONLY);
     }
 
+    // Take and clear the callback so it cannot carry over to the next operation.
     const adoptCallback = this._cachedAdoptItemCallback;
+    this._cachedAdoptItemCallback = null;
 
     const item = await new Promise(resolve => {
       this.startBatch();
@@ -181,7 +183,9 @@ export class CalICSCalendar extends cal.provider.BaseClass {
       throw new Components.Exception("Calendar is not writable", Ci.calIErrors.CAL_IS_READONLY);
     }
 
+    // Take and clear the callback so it cannot carry over to the next operation.
     const modifyCallback = this._cachedModifyItemCallback;
+    this._cachedModifyItemCallback = null;
     const item = await new Promise(resolve => {
       this.startBatch();
       this._queue.push({

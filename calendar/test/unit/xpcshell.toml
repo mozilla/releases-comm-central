@@ -100,6 +100,8 @@ tags = ["caldav", "oauth"]
 
 ["test_ics.js"]
 
+["test_ics_offline_playback.js"]
+
 ["test_ics_parser.js"]
 
 ["test_ics_service.js"]

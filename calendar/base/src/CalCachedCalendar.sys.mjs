@@ -339,6 +339,7 @@ calCachedCalendar.prototype = {
     this.setupCachedCalendar();
 
     const modifiedTimes = {};
+    const pendingAdditions = [];
     this.mCachedCalendar.startBatch();
     try {
       for await (const items of cal.iterate.streamValues(
@@ -348,7 +349,16 @@ calCachedCalendar.prototype = {
           // Adding items recd from the Memory Calendar
           // These may be different than what the cache has
           modifiedTimes[item.id] = item.lastModifiedTime;
-          await this.mCachedCalendar.addItem(item);
+          pendingAdditions.push(this.mCachedCalendar.addItem(item));
+        }
+      }
+      // One item the cache refuses must not cost us the whole refill. Awaited
+      // before endBatch, so nothing is added outside the batch.
+      for (const result of await Promise.allSettled(pendingAdditions)) {
+        if (result.status == "rejected") {
+          lazy.log.warn(
+            "[calCachedCalendar] Could not add a server item to the cache: " + result.reason
+          );
         }
       }
       this.mCachedCalendar.endBatch();
@@ -360,71 +370,72 @@ calCachedCalendar.prototype = {
       throw e; // Do not swallow this error.
     }
 
-    await new Promise(resolve => {
-      cal.iterate.forEach(
-        this.offlineCachedItems,
-        item => {
-          switch (this.offlineCachedItemFlags[item.hashId]) {
-            case Ci.calIChangeLog.OFFLINE_FLAG_CREATED_RECORD:
-              // Created items are not present on the server, so its safe to adopt them
-              this.adoptOfflineItem(item.clone());
-              break;
-            case Ci.calIChangeLog.OFFLINE_FLAG_MODIFIED_RECORD:
-              // Two Cases Here:
-              if (item.id in modifiedTimes) {
-                // The item is still on the server, we just retrieved it in the listener above.
-                if (item.lastModifiedTime.compare(modifiedTimes[item.id]) < 0) {
-                  // The item on the server has been modified, ask to overwrite
-                  lazy.log.warn(
-                    "[calCachedCalendar] Item '" +
-                      item.title +
-                      "' at the server seems to be modified recently."
-                  );
-                  this.promptOverwrite("modify", item, null);
-                } else {
-                  // Our item is newer, just modify the item
-                  this.modifyOfflineItem(item, null);
-                }
-              } else {
-                // The item has been deleted from the server, ask if it should be added again
+    // Restore the offline changes into the recreated cache before the playback
+    // sends them to the server. One failing item must not stop the others.
+    for (const item of Object.values(this.offlineCachedItems)) {
+      try {
+        switch (this.offlineCachedItemFlags[item.hashId]) {
+          case Ci.calIChangeLog.OFFLINE_FLAG_CREATED_RECORD:
+            // Created items are not present on the server, so its safe to adopt them
+            await this.adoptOfflineItem(item.clone());
+            break;
+          case Ci.calIChangeLog.OFFLINE_FLAG_MODIFIED_RECORD:
+            // Two Cases Here:
+            if (item.id in modifiedTimes) {
+              // The item is still on the server, we just retrieved it in the listener above.
+              if (item.lastModifiedTime.compare(modifiedTimes[item.id]) < 0) {
+                // The item on the server has been modified, ask to overwrite
                 lazy.log.warn(
-                  "[calCachedCalendar] Item '" + item.title + "' has been deleted from the server"
+                  "[calCachedCalendar] Item '" +
+                    item.title +
+                    "' at the server seems to be modified recently."
                 );
-                if (cal.provider.promptOverwrite("modify", item, null)) {
-                  this.adoptOfflineItem(item.clone());
-                }
-              }
-              break;
-            case Ci.calIChangeLog.OFFLINE_FLAG_DELETED_RECORD:
-              if (item.id in modifiedTimes) {
-                // The item seems to exist on the server...
-                if (item.lastModifiedTime.compare(modifiedTimes[item.id]) < 0) {
-                  // ...and has been modified on the server. Ask to overwrite
-                  lazy.log.warn(
-                    "[calCachedCalendar] Item '" +
-                      item.title +
-                      "' at the server seems to be modified recently."
-                  );
-                  this.promptOverwrite("delete", item, null);
-                } else {
-                  // ...and has not been modified. Delete it now.
-                  this.deleteOfflineItem(item);
-                }
+                await this.promptOverwrite("modify", item, null);
               } else {
-                // Item has already been deleted from the server, no need to change anything.
+                // Our item is newer, just modify the item
+                await this.modifyOfflineItem(item, null);
               }
-              break;
-          }
-        },
-        async () => {
-          this.offlineCachedItems = {};
-          this.offlineCachedItemFlags = {};
-          await this.playbackOfflineItems();
-          clearPending();
-          resolve();
+            } else {
+              // The item has been deleted from the server, ask if it should be added again
+              lazy.log.warn(
+                "[calCachedCalendar] Item '" + item.title + "' has been deleted from the server"
+              );
+              if (cal.provider.promptOverwrite("modify", item, null)) {
+                await this.adoptOfflineItem(item.clone());
+              }
+            }
+            break;
+          case Ci.calIChangeLog.OFFLINE_FLAG_DELETED_RECORD:
+            if (item.id in modifiedTimes) {
+              // The item seems to exist on the server...
+              if (item.lastModifiedTime.compare(modifiedTimes[item.id]) < 0) {
+                // ...and has been modified on the server. Ask to overwrite
+                lazy.log.warn(
+                  "[calCachedCalendar] Item '" +
+                    item.title +
+                    "' at the server seems to be modified recently."
+                );
+                await this.promptOverwrite("delete", item, null);
+              } else {
+                // ...and has not been modified. Delete it now.
+                await this.deleteOfflineItem(item);
+              }
+            } else {
+              // Item has already been deleted from the server, no need to change anything.
+            }
+            break;
         }
-      );
-    });
+      } catch (e) {
+        lazy.log.error(
+          "[calCachedCalendar] Applying the offline change of " + item.id + " failed: " + e
+        );
+      }
+    }
+
+    this.offlineCachedItems = {};
+    this.offlineCachedItemFlags = {};
+    await this.playbackOfflineItems();
+    clearPending();
   },
 
   onOfflineStatusChanged(aNewState) {
@@ -485,7 +496,10 @@ calCachedCalendar.prototype = {
           this,
           Ci.calIChangeLog.OFFLINE_FLAG_DELETED_RECORD
         );
-        uncachedOp = item => this.mUncachedCalendar.modifyItem(item, item);
+        // Pass null as the base version, documented as "overwrite whatever is
+        // stored" - the item as its own base version gets rejected by providers
+        // that compare it against their stored copy.
+        uncachedOp = item => this.mUncachedCalendar.modifyItem(item, null);
         filter = Ci.calICalendar.ITEM_FILTER_OFFLINE_MODIFIED;
         break;
       case Ci.calIChangeLog.OFFLINE_FLAG_DELETED_RECORD:
