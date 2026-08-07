@@ -1,6 +1,6 @@
 servo-gl
 ========
 
-[Documentation](https://doc.servo.org/gleam/)
+[Documentation](https://docs.rs/gleam)
 
-OpenGL bindings for Servo
+OpenGL bindings for Servo.

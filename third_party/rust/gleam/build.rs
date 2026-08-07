@@ -33,6 +33,7 @@ fn main() {
         "GL_KHR_blend_equation_advanced_coherent",
         "GL_KHR_blend_equation_advanced_coherent",
         "GL_ARB_shader_storage_buffer_object",
+        "GL_ARB_base_instance",
     ];
     let gl_reg = Registry::new(
         Api::Gl,
@@ -67,6 +68,7 @@ fn main() {
         "GL_KHR_blend_equation_advanced_coherent",
         "GL_ANGLE_copy_texture_3d",
         "GL_QCOM_tiled_rendering",
+        "GL_EXT_base_instance",
     ];
     let gles_reg = Registry::new(
         Api::Gles2,

@@ -764,6 +764,33 @@ declare_gl_apis! {
 
     fn start_tiling_qcom(&self, x: GLuint, y: GLuint, width: GLuint, height: GLuint, preserve_mask: GLbitfield);
     fn end_tiling_qcom(&self, preserve_mask: GLbitfield);
+
+    fn draw_arrays_instanced_base_instance(&self,
+        mode: GLenum,
+        first: GLint,
+        count: GLsizei,
+        instance_count: GLsizei,
+        base_instance: GLuint
+    );
+
+    fn draw_elements_instanced_base_instance(&self,
+        mode: GLenum,
+        count: GLsizei,
+        element_type: GLenum,
+        indices_offset: GLuint,
+        instance_count: GLsizei,
+        base_instance: GLuint
+    );
+
+    fn draw_elements_instanced_base_vertex_base_instance(&self,
+        mode: GLenum,
+        count: GLsizei,
+        element_type: GLenum,
+        indices_offset: GLuint,
+        instance_count: GLsizei,
+        base_vertex: GLint,
+        base_instance: GLuint
+    );
 }
 
 //#[deprecated(since = "0.6.11", note = "use ErrorReactingGl instead")]

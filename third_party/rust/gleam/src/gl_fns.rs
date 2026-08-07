@@ -2294,4 +2294,66 @@ impl Gl for GlFns {
 
     fn end_tiling_qcom(&self, _preserve_mask: GLbitfield) {
     }
+
+    fn draw_arrays_instanced_base_instance(
+        &self,
+        mode: GLenum,
+        first: GLint,
+        count: GLsizei,
+        instance_count: GLsizei,
+        base_instance: GLuint
+    ) {
+        unsafe {
+            self.ffi_gl_.DrawArraysInstancedBaseInstance(
+                mode,
+                first,
+                count,
+                instance_count,
+                base_instance
+            );
+        }
+    }
+
+    fn draw_elements_instanced_base_instance(
+        &self,
+        mode: GLenum,
+        count: GLsizei,
+        element_type: GLenum,
+        indices_offset: GLuint,
+        instance_count: GLsizei,
+        base_instance: GLuint
+    ) {
+        unsafe {
+            self.ffi_gl_.DrawElementsInstancedBaseInstance(
+                mode,
+                count,
+                element_type,
+                indices_offset as *const GLvoid,
+                instance_count,
+                base_instance
+            );
+        }
+    }
+
+    fn draw_elements_instanced_base_vertex_base_instance(
+        &self, mode: GLenum,
+        count: GLsizei,
+        element_type: GLenum,
+        indices_offset: GLuint,
+        instance_count: GLsizei,
+        base_vertex: GLint,
+        base_instance: GLuint
+    ) {
+        unsafe {
+            self.ffi_gl_.DrawElementsInstancedBaseVertexBaseInstance(
+                mode,
+                count,
+                element_type,
+                indices_offset as *const GLvoid,
+                instance_count,
+                base_vertex,
+                base_instance
+            );
+        }
+    }
 }

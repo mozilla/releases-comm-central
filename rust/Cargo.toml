@@ -325,3 +325,5 @@ ohttp = { git = "https://github.com/martinthomson/ohttp", rev = "600931b5a1e9477
 zip = { path = "../../third_party/rust/zip" }
 libcrux-traits = { path = "../../build/rust/libcrux-traits" }
 jxl_simd = { path = "../../third_party/rust/jxl_simd" }
+gleam = { git = "https://github.com/jamienicol/gleam", rev = "68ca4e5cc31135b843af07ff213a94b9ddce64cf" }
+gl_generator = { git = "https://github.com/jamienicol/gl-rs", rev = "71c792dbfe0ec5caeb242fc90937e19098386342" }
