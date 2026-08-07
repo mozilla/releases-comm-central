@@ -191,12 +191,15 @@ class ThreadRow extends TreeViewTableRow {
       if (column.id == "unreadButtonColHeader") {
         const button = cell.querySelector("button");
         if (propertiesSet.has("read")) {
-          document.l10n.setAttributes(button, "tree-list-view-row-read");
+          document.l10n.setAttributes(button, "tree-list-view-row-read-status");
           ariaLabelPromises.push(
             document.l10n.formatValue("threadpane-read-cell-label")
           );
         } else {
-          document.l10n.setAttributes(button, "tree-list-view-row-not-read");
+          document.l10n.setAttributes(
+            button,
+            "tree-list-view-row-not-read-status"
+          );
           ariaLabelPromises.push(
             document.l10n.formatValue("threadpane-unread-cell-label")
           );

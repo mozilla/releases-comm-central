@@ -68,10 +68,14 @@ tree-list-view-row-not-spam =
   .alt = Spam status indicator
   .title = Message not marked as spam
 
-tree-list-view-row-read =
+tree-list-view-row-read-status =
   .alt = Read status indicator
-  .title = Message read status
+  .title = Message read
 
-tree-list-view-row-not-read =
+tree-list-view-row-not-read-status =
   .alt = Unread status indicator
-  .title = Message unread status
+  .title = Message unread
+
+tree-list-view-row-new-status =
+  .alt = New message indicator
+  .title = New message

@@ -16,7 +16,12 @@ const { ensure_cards_view, prepare_thread_row_descendant_click } =
 const tabmail = document.getElementById("tabmail");
 const about3Pane = tabmail.currentAbout3Pane;
 const { threadPane, threadTree } = about3Pane;
-let rootFolder, testFolder, testMessages, displayContext, displayButton;
+let rootFolder,
+  testFolder,
+  emptyFolder,
+  testMessages,
+  displayContext,
+  displayButton;
 
 async function clickThreadRow(row, event = {}) {
   await prepare_thread_row_descendant_click(row, AccessibilityUtils);
@@ -32,6 +37,9 @@ add_setup(async function () {
   );
   testFolder = rootFolder
     .createLocalSubfolder("cardsView")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
+  emptyFolder = rootFolder
+    .createLocalSubfolder("emptyFolder")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
 
   const generator = new MessageGenerator();
@@ -357,4 +365,57 @@ add_task(async function testMessageMenuButton() {
   menuContext.hidePopup();
   await BrowserTestUtils.waitForPopupEvent(menuContext, "hidden");
   about3Pane.folderTree.focus();
+});
+
+add_task(async function test_status_indicator_fluent() {
+  await ensure_cards_view(document);
+  about3Pane.folderTree.focus();
+
+  let tableRow = threadTree.getRowAtIndex(1);
+  let readStatus = tableRow.querySelector(".read-status");
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(readStatus),
+    "The status indicator should be visible"
+  );
+  Assert.equal(
+    document.l10n.getAttributes(readStatus).id,
+    "tree-list-view-row-new-status",
+    "A new message should have the correct fluent ID for the status indicator"
+  );
+
+  about3Pane.paneLayout.messagePaneVisible = true;
+  EventUtils.synthesizeMouseAtCenter(tableRow, {}, about3Pane);
+  await BrowserTestUtils.waitForEvent(window, "MsgLoaded");
+  await TestUtils.waitForCondition(
+    () => testMessages.at(1).isRead,
+    "waiting for message 0 to be marked as read"
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(readStatus),
+    "The status indicator should be hidden after selecting the row"
+  );
+
+  about3Pane.displayFolder(emptyFolder.URI);
+  await TestUtils.waitForTick();
+
+  const allMessagesLoadedPromise = BrowserTestUtils.waitForEvent(
+    about3Pane,
+    "allMessagesLoaded"
+  );
+  about3Pane.displayFolder(testFolder.URI);
+  await allMessagesLoadedPromise;
+  await TestUtils.waitForTick();
+
+  tableRow = about3Pane.threadTree.getRowAtIndex(2);
+  readStatus = tableRow.querySelector(".read-status");
+  Assert.ok(
+    BrowserTestUtils.isVisible(readStatus),
+    "The status indicator should be visible"
+  );
+  Assert.equal(
+    document.l10n.getAttributes(readStatus).id,
+    "tree-list-view-row-not-read-status",
+    "An unread message should have the correct fluent ID for the status indicator"
+  );
 });

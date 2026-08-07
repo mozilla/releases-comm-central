@@ -78,6 +78,7 @@
 
     /* Unread Message */
     &[data-properties~="unread"] {
+      --read-status-display: inline-block;
       --read-status-fill: var(--color-green-40);
       --read-status-stroke: var(--color-green-60);
 
@@ -87,6 +88,7 @@
 
       /* New Message */
       &[data-properties~="new"] {
+        --read-status-display: inline-block;
         --read-status-icon: var(--read-status-new);
         --read-status-fill: var(--color-yellow-30);
         --read-status-stroke: var(--color-amber-50);
@@ -338,7 +340,13 @@
           display: none;
         }
 
+        & .read-status-column {
+          block-size: var(--read-status-size);
+          inline-size: var(--read-status-size);
+        }
+
         & .read-status {
+          display: var(--read-status-display, none);
           content: var(--read-status-icon);
           block-size: var(--read-status-size);
           inline-size: var(--read-status-size);

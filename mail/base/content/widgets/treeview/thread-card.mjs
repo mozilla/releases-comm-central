@@ -40,6 +40,7 @@ class ThreadCard extends TreeViewTableRow {
     this.replies = this.querySelector(".thread-replies");
     this.twistyButton = this.querySelector("button.twisty");
     this.sortHeaderDetails = this.querySelector(".sort-header-details");
+    this.statusIndicator = this.querySelector(".read-status");
   }
 
   fillRow() {
@@ -151,13 +152,23 @@ class ThreadCard extends TreeViewTableRow {
       );
     }
 
-    if (propertiesSet.has("read")) {
+    if (propertiesSet.has("new")) {
+      document.l10n.setAttributes(
+        this.statusIndicator,
+        "tree-list-view-row-new-status"
+      );
+      ariaLabelPromises.push(
+        document.l10n.formatValue("threadpane-new-cell-label")
+      );
+    } else if (propertiesSet.has("read")) {
       ariaLabelPromises.push(
         document.l10n.formatValue("threadpane-read-cell-label")
       );
-    }
-
-    if (propertiesSet.has("unread")) {
+    } else if (propertiesSet.has("unread")) {
+      document.l10n.setAttributes(
+        this.statusIndicator,
+        "tree-list-view-row-not-read-status"
+      );
       ariaLabelPromises.push(
         document.l10n.formatValue("threadpane-unread-cell-label")
       );
