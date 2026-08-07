@@ -52,12 +52,21 @@
                 "optional": true
               },
               "hostnames": {
-                "description": "One or more hostnames which use this OAuth provider.",
+                "description": "One or more server hostnames that use this OAuth provider. Include any service or autodiscovery hostnames that may initiate OAuth authentication. For example, to override many Microsoft configurations, both of these would be needed - [\"office365.com\", \"outlook.com\"]",
                 "type": "array",
                 "items": {
                   "type": "string"
                 },
                 "minItems": 1
+              },
+              "emailDomains": {
+                "description": "Email domains for which this OAuth provider should be used. If omitted, the provider applies to all domains in use with a given hostname",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1,
+                "optional": true
               },
               "scopes": {
                 "description": "The scopes to request when using this OAuth provider.",

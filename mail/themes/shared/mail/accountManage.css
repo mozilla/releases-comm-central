@@ -67,6 +67,10 @@ fieldset {
   }
 }
 
+#oauthProviderInfo {
+  margin-inline-start: 12px;
+}
+
 #archiveHierarchyButton,
 #globalJunkPrefsLink {
   margin-inline-end: 8px;

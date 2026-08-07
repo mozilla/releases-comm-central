@@ -5,6 +5,10 @@
 /* import-globals-from am-prefs.js */
 /* import-globals-from amUtils.js */
 
+ChromeUtils.defineESModuleGetters(this, {
+  AddonManager: "resource://gre/modules/AddonManager.sys.mjs",
+});
+
 var { MailUtils } = ChromeUtils.importESModule(
   "resource:///modules/MailUtils.sys.mjs"
 );
@@ -103,9 +107,17 @@ function onInit(aPageId, aServerId) {
   // OAuth2 is only supported on certain servers.
   const details = OAuth2Providers.getHostnameDetails(
     document.getElementById("server.hostname").value,
-    serverType
+    serverType,
+    gServer.username
   );
   document.getElementById("authMethod-oauth2").hidden = !details;
+
+  const extensionId = details
+    ? OAuth2Providers.getIssuerDetails(details.issuer)?.extensionId
+    : null;
+
+  updateOAuthProviderInfo(extensionId);
+
   // TLS Cert (External) only supported on IMAP.
   document.getElementById("authMethod-external").hidden = serverType != "imap";
 
@@ -130,6 +142,54 @@ function onInit(aPageId, aServerId) {
   );
   // Initialise 'gOriginalStoreType' to the item that was originally selected.
   gOriginalStoreType = storeTypeElement.value;
+}
+
+/**
+ * Set the OAuth provider information shown in Account Settings.
+ *
+ * @param {?string} extensionId - The ID of the extension providing the OAuth2
+ *   settings, or null if the provider is built in.
+ * @returns {Promise<void>}
+ */
+async function updateOAuthProviderInfo(extensionId) {
+  const providerInfo = document.getElementById("oauthProviderInfo");
+  const providerLink = document.getElementById("oauthProviderExtensionLink");
+
+  if (!extensionId) {
+    delete providerLink.dataset.extensionId;
+    providerInfo.hidden = true;
+    return;
+  }
+
+  const addon = await AddonManager.getAddonByID(extensionId);
+
+  providerLink.dataset.extensionId = extensionId;
+
+  document.l10n.setAttributes(providerInfo, "oauth-provider-extension-info", {
+    extensionName: addon?.name ?? extensionId,
+  });
+
+  providerInfo.hidden = false;
+}
+
+/**
+ * Open the OAuth provider extension in the Add-ons Manager.
+ *
+ * @param {MouseEvent} event - The link click event.
+ */
+function openOAuthProviderExtension(event) {
+  event.preventDefault();
+  event.stopPropagation();
+
+  const extensionId = event.target.dataset.extensionId;
+
+  if (!extensionId) {
+    return;
+  }
+
+  window.browsingContext.topChromeWindow.openAddonsMgr(
+    `addons://detail/${encodeURIComponent(extensionId)}`
+  );
 }
 
 function onPreInit(account, accountValues) {

@@ -24,6 +24,7 @@
     <link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/folderMenus.css" />
 
+    <link rel="localization" href="messenger/accountSettings.ftl" />
     <link rel="localization" href="messenger/certError.ftl" />
 
     <script
@@ -198,7 +199,7 @@
               </html:td>
             </html:tr>
             <html:tr>
-              <html:td>
+              <html:td style="vertical-align: baseline">
                 <label
                   value="&authMethod.label;"
                   accesskey="&authMethod.accesskey;"
@@ -206,7 +207,7 @@
                   hidefor="nntp"
                 />
               </html:td>
-              <html:td>
+              <html:td style="vertical-align: baseline">
                 <html:select
                   id="server.authMethod"
                   wsm_persist="true"
@@ -225,6 +226,18 @@
                   <html:option id="authMethod-anysecure" value="8" />
                   <html:option id="authMethod-any" value="9" />
                 </html:select>
+                <html:div
+                  id="oauthProviderInfo"
+                  class="tip-caption"
+                  hidden="hidden"
+                >
+                  <html:a
+                    id="oauthProviderExtensionLink"
+                    class="text-link"
+                    data-l10n-name="extension"
+                    onclick="openOAuthProviderExtension(event)"
+                  ></html:a>
+                </html:div>
               </html:td>
             </html:tr>
           </html:table>

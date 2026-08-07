@@ -63,8 +63,8 @@ OAuth2Module.prototype = {
       overridePrefEnabled && customDetails && customDetails.useCustomDetails;
 
     const details = doOverrides
-      ? this._getHostnameDetailsWithOverrides(hostname, type, customDetails)
-      : OAuth2Providers.getHostnameDetails(hostname, type);
+      ? this._getDetailsWithOverrides(hostname, username, type, customDetails)
+      : OAuth2Providers.getHostnameDetails(hostname, type, username);
 
     if (!details) {
       return false;
@@ -295,8 +295,13 @@ OAuth2Module.prototype = {
   /**
    * Return the hostname details with the given issuer and scopes override values applied.
    *
+   * The username is passed to the provider lookup so that an
+   * extension-provided OAuth configuration can be limited to operate on
+   * specific username domains. If the username is not email-like, or no
+   * matching extension registration exists, the normal built-in provider lookup is used.
+   *
    * If there is no known provider for the given hostname, `customDetails` must
-   * be non-null, and `customDetails.issuer` and `customDetails.scope` must also
+   * be non-null, and `customDetails.issuer` and `customDetails.scopes` must also
    * contain valid values.
    *
    * If there is no known provider and any of `customDetails`,
@@ -304,12 +309,13 @@ OAuth2Module.prototype = {
    * will return `null`.
    *
    * @param {string} hostname
+   * @param {string} username
    * @param {string} type
    * @param {IOAuth2CustomDetails} customDetails
    * @returns {OAuth2Providers.hostnameDetails}
    */
-  _getHostnameDetailsWithOverrides(hostname, type, customDetails) {
-    let details = OAuth2Providers.getHostnameDetails(hostname, type);
+  _getDetailsWithOverrides(hostname, username, type, customDetails) {
+    let details = OAuth2Providers.getHostnameDetails(hostname, type, username);
 
     if (!customDetails) {
       return details;

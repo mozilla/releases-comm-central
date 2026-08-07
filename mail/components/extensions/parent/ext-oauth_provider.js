@@ -20,9 +20,11 @@ this.oauth_provider = class extends ExtensionAPIPersistent {
         redirectionEndpoint: details.redirectionEndpoint,
         usePKCE: details.usePKCE,
         useExternalBrowser: details.useExternalBrowser,
+        extensionId: this.extension.id,
       },
       details.hostnames,
-      details.scopes
+      details.scopes,
+      details.emailDomains ?? []
     );
   }
 

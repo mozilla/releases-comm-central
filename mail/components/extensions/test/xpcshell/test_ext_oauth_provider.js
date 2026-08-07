@@ -58,6 +58,7 @@ add_task(async function () {
       redirectionEndpoint: "http://localhost",
       usePKCE: false,
       useExternalBrowser: true,
+      extensionId: extension.id,
     },
     "issuer details should be registered while the extension is running"
   );

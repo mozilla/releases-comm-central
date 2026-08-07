@@ -186,13 +186,8 @@ add_task(function testRegisterUnregister() {
     /Issuer test\.test already registered/,
     "registering an existing provider should fail"
   );
-  Assert.throws(
-    () =>
-      OAuth2Providers.registerProvider({ name: "oauth.test" }, ["mochi.test"]),
-    /Hostname mochi\.test already registered/,
-    "registering an existing hostname should fail"
-  );
 
+  // Register and verify an unrestricted extension provider.
   OAuth2Providers.registerProvider(
     {
       name: "oauth.test",
@@ -208,6 +203,7 @@ add_task(function testRegisterUnregister() {
     ["mail.test"],
     "my_scope"
   );
+
   Assert.deepEqual(
     OAuth2Providers.getHostnameDetails("mail.test", "imap"),
     {
@@ -238,6 +234,148 @@ add_task(function testRegisterUnregister() {
     "issuer details object should be frozen"
   );
 
+  // Register and verify a domain-specific override.
+  OAuth2Providers.registerProvider(
+    {
+      name: "override.test",
+      builtIn: true,
+      clientId: "override_client",
+      authorizationEndpoint: "https://override.test/auth",
+      tokenEndpoint: "https://override.test/token",
+      redirectionEndpoint: "https://localhost/",
+      usePKCE: true,
+      extensionId: "override@test.invalid",
+    },
+    ["mochi.test"],
+    "override_scope",
+    ["example.com"]
+  );
+
+  Assert.equal(
+    OAuth2Providers.getHostnameDetails("mochi.test", "imap", "user@example.com")
+      .issuer,
+    "override.test",
+    "matching domain from username (email address) should use the corresponding extension provider"
+  );
+
+  Assert.equal(
+    OAuth2Providers.getHostnameDetails("mochi.test", "imap", "user@other.com")
+      .issuer,
+    "test.test",
+    "username (email address) that doesn't match any extension provider domains should use built-in provider"
+  );
+
+  Assert.equal(
+    OAuth2Providers.getHostnameDetails("mochi.test", "imap").issuer,
+    "test.test",
+    "built-in provider should be used when no authentication username is available"
+  );
+
+  Assert.equal(
+    OAuth2Providers.getHostnameDetails(
+      "mochi.test",
+      "imap",
+      "username-not-an-email"
+    ).issuer,
+    "test.test",
+    "built-in provider should be used when the authentication username is not email-like"
+  );
+
+  Assert.equal(
+    OAuth2Providers.getIssuerDetails("override.test").extensionId,
+    "override@test.invalid",
+    "issuer details should identify the extension that registered the provider"
+  );
+
+  // Register and verify a second domain-specific override.
+  OAuth2Providers.registerProvider(
+    {
+      name: "second-override.test",
+      builtIn: true,
+      clientId: "second_override_client",
+      authorizationEndpoint: "https://second-override.test/auth",
+      tokenEndpoint: "https://second-override.test/token",
+      redirectionEndpoint: "https://localhost/",
+      usePKCE: true,
+      extensionId: "second-override@test.invalid",
+    },
+    ["mochi.test"],
+    "second_override_scope",
+    ["other.com"]
+  );
+
+  Assert.equal(
+    OAuth2Providers.getHostnameDetails("mochi.test", "imap", "user@example.com")
+      .issuer,
+    "override.test",
+    "example.com users should continue to use the first extension provider"
+  );
+
+  Assert.equal(
+    OAuth2Providers.getHostnameDetails("mochi.test", "imap", "user@other.com")
+      .issuer,
+    "second-override.test",
+    "other.com users should use the second extension provider"
+  );
+
+  Assert.equal(
+    OAuth2Providers.getHostnameDetails("mochi.test", "imap", "user@nomatch.com")
+      .issuer,
+    "test.test",
+    "built-in provider should be used when no extension provider matches"
+  );
+
+  Assert.throws(
+    () =>
+      OAuth2Providers.registerProvider(
+        {
+          name: "duplicate-override.test",
+          clientId: "duplicate_client",
+          authorizationEndpoint: "https://duplicate-override.test/auth",
+          tokenEndpoint: "https://duplicate-override.test/token",
+        },
+        ["mochi.test"],
+        "duplicate_scope",
+        ["example.com"]
+      ),
+    /mochi\.test\|example\.com/,
+    "registering an existing hostname and email domain combination should fail"
+  );
+
+  Assert.throws(
+    () =>
+      OAuth2Providers.registerProvider(
+        { name: "duplicate-hostname.test" },
+        ["mail.example.test", "MAIL.EXAMPLE.TEST"],
+        "scope"
+      ),
+    /Duplicate hostname/,
+    "duplicate hostnames should fail after normalization"
+  );
+
+  Assert.throws(
+    () =>
+      OAuth2Providers.registerProvider(
+        { name: "duplicate-domain.test" },
+        ["another.test"],
+        "scope",
+        ["example.com", " Example.COM "]
+      ),
+    /Duplicate email domain/,
+    "duplicate email domains should fail after normalization"
+  );
+
+  Assert.throws(
+    () =>
+      OAuth2Providers.registerProvider(
+        { name: "public-suffix.test" },
+        ["co.uk"],
+        "scope"
+      ),
+    /must not be a public suffix/,
+    "public suffix hostnames should not be registered"
+  );
+
   Assert.throws(
     () => OAuth2Providers.unregisterProvider("unknown.test"),
     /Issuer unknown\.test was not registered/,
@@ -250,6 +388,31 @@ add_task(function testRegisterUnregister() {
   );
 
   OAuth2Providers.unregisterProvider("oauth.test");
+  OAuth2Providers.unregisterProvider("override.test");
+
+  Assert.equal(
+    OAuth2Providers.getHostnameDetails("mochi.test", "imap", "user@example.com")
+      .issuer,
+    "test.test",
+    "removing the first extension should restore the built-in provider for its domain"
+  );
+
+  Assert.equal(
+    OAuth2Providers.getHostnameDetails("mochi.test", "imap", "user@other.com")
+      .issuer,
+    "second-override.test",
+    "removing the first extension should not affect the second extension"
+  );
+
+  OAuth2Providers.unregisterProvider("second-override.test");
+
+  Assert.equal(
+    OAuth2Providers.getHostnameDetails("mochi.test", "imap", "user@other.com")
+      .issuer,
+    "test.test",
+    "removing the second extension should restore the built-in provider for its domain"
+  );
+
   Assert.ok(
     !OAuth2Providers.getHostnameDetails("mail.test", "imap"),
     "hostname details should no longer be registered"

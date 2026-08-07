@@ -128,6 +128,37 @@ var kHostnames = new Map([
 ]);
 
 /**
+ * Extension OAuth provider registrations.
+ *
+ * Keys are either:
+ *
+ *   hostname
+ *
+ * or
+ *
+ *   hostname|emailDomain
+ *
+ * allowing multiple extensions to register providers for the same service
+ * hostname while restricting registrations to particular authentication
+ * username domains.
+ *
+ * Values are the same format as kHostnames:
+ *
+ *   [issuer, scopes]
+ */
+const kExtensionHostnames = new Map();
+
+/**
+ * Map of OAuth provider details registered by extensions.
+ *
+ * Extension issuers remain separate from built-in issuers so that
+ * unregistering an extension cannot alter the built-in provider data.
+ *
+ * @type {Map<string, IssuerDetails>}
+ */
+const kExtensionIssuers = new Map();
+
+/**
  * This list serves as a helper to filter out issuers that don't use an object
  * to provide type specific scopes but don't support exchange don't offer OAuth
  * for exchange. If an issuer is registered with an object of scopes it doesn't
@@ -166,6 +197,8 @@ const kIssuersWithoutExchangeSupport = new Set([
  * @property {boolean} [usePKCE] - The issuer uses PKCE (RFC7636).
  * @property {boolean} [useExternalBrowser] - Whether to use the external
  *   browser OAuth login flow.
+ * @property {string} [extensionId] - ID of the extension that registered this
+ * provider, if applicable.
  * @property {string} [schemeRedirect] - Alternative redirection endpoint if
  *   using the net.thunderbird:// scheme. Only built-in providers can provide
  *   this, and it will only be used if this instance is configured to.
@@ -370,6 +403,39 @@ for (const issuerDetails of kIssuers.values()) {
 }
 
 /**
+ * Build the lookup key for an extension OAuth provider registration.
+ *
+ * @param {string} hostname
+ * @param {?string} emailDomain
+ * @returns {string}
+ */
+function getExtensionHostnameKey(hostname, emailDomain = null) {
+  return emailDomain ? `${hostname}|${emailDomain}` : hostname;
+}
+
+/**
+ * Extract the domain from an email-style authentication username.
+ *
+ * Usernames may not be email addresses so if it doesn't
+ * contain both a local part and a domain, no domain is returned.
+ *
+ * @param {string} username
+ * @returns {?string}
+ */
+function getUsernameDomain(username) {
+  if (typeof username != "string") {
+    return null;
+  }
+
+  const parts = username.split("@");
+  if (parts.length != 2 || !parts[0] || !parts[1]) {
+    return null;
+  }
+
+  return parts[1].toLowerCase();
+}
+
+/**
  * OAuth2Providers: Methods to lookup OAuth2 parameters for supported OAuth2
  * providers.
  */
@@ -390,10 +456,13 @@ export var OAuth2Providers = {
    *  "imap.googlemail.com".
    * @param {string} type - The type of activity we need a token for,
    *   e.g. "imap" or "caldav".
+   * @param {string} [username] - The configured authentication username. This is
+   *   used to select extension providers restricted to particular username
+   *   domains.
    * @returns {hostnameDetails} An object containing issuer and scope information
    *   for the hostname and type, or undefined if not found.
    */
-  getHostnameDetails(hostname, type) {
+  getHostnameDetails(hostname, type, username) {
     if (!type) {
       throw new Error("passing a `type` argument is required");
     }
@@ -401,7 +470,12 @@ export var OAuth2Providers = {
       type = "exchange";
     }
 
-    const details = this._getHostnameDetails(hostname);
+    // Allow extension-registered providers with matching hostname to override
+    // built-in provider configurations.
+    const details =
+      this._getExtensionDetails(hostname, username) ??
+      this._getBuiltInDetails(hostname);
+
     if (!details) {
       // No data, return.
       return undefined;
@@ -447,7 +521,47 @@ export var OAuth2Providers = {
     return { issuer, allScopes, requiredScopes };
   },
 
-  _getHostnameDetails(hostname) {
+  /**
+   * Find an extension provider for the given hostname and username.
+   *
+   * Hostnames are checked from most specific to least specific, matching the
+   * existing built-in hostname lookup behaviour. For each hostname, a provider
+   * matching the username's email domain is preferred over an unrestricted
+   * provider.
+   *
+   * @param {string} hostname
+   * @param {string} [username]
+   * @returns {?Array} An [issuer, scopes] tuple, or undefined if no extension
+   *   provider applies.
+   */
+  _getExtensionDetails(hostname, username) {
+    hostname = hostname.toLowerCase();
+    const emailDomain = getUsernameDomain(username);
+
+    while (hostname.includes(".")) {
+      if (emailDomain) {
+        const domainSpecificDetails = kExtensionHostnames.get(
+          getExtensionHostnameKey(hostname, emailDomain)
+        );
+        if (domainSpecificDetails) {
+          return domainSpecificDetails;
+        }
+      }
+
+      const unrestrictedDetails = kExtensionHostnames.get(
+        getExtensionHostnameKey(hostname)
+      );
+      if (unrestrictedDetails) {
+        return unrestrictedDetails;
+      }
+
+      hostname = hostname.replace(/^[^.]*[.]/, "");
+    }
+
+    return undefined;
+  },
+
+  _getBuiltInDetails(hostname) {
     // During CardDAV SRV autodiscovery, rfc6764#section-6 says:
     //
     // *  The client will need to make authenticated HTTP requests to
@@ -468,6 +582,7 @@ export var OAuth2Providers = {
     // So for this hostname -> issuer/scope lookup to work, we need to
     // look not just at the hostname, but also any sub-domains of this
     // hostname.
+    hostname = hostname.toLowerCase();
     while (hostname.includes(".")) {
       const foundHost = kHostnames.get(hostname);
       if (foundHost) {
@@ -490,23 +605,27 @@ export var OAuth2Providers = {
    * @returns {?IssuerDetails}
    */
   getIssuerDetails(issuer) {
-    let details = kIssuers.get(issuer);
-    // We have a separate sandbox for prototyping OAuth scopes on Microsoft 365.
-    const useMicrosoft365Sandbox = Services.prefs.getBoolPref(
-      "mail.microsoft.useM365Sandbox",
-      false
-    );
-    if (useMicrosoft365Sandbox) {
-      if (issuer == "login.microsoftonline.com") {
-        details = structuredClone(details);
-        details.clientId = "b00dc6cb-0459-4bd4-ac0d-2e23516f906a";
-        const microsoft365SandboxTenantId =
-          "aead8f37-924c-4d3f-9f20-494295c72956";
-        details.authorizationEndpoint = `https://login.microsoftonline.com/${microsoft365SandboxTenantId}/oauth2/v2.0/authorize`;
-        details.tokenEndpoint = `https://login.microsoftonline.com/${microsoft365SandboxTenantId}/oauth2/v2.0/token`;
-        Object.freeze(details);
-      }
+    let details = kExtensionIssuers.get(issuer);
+    if (details) {
+      return details;
     }
+
+    details = kIssuers.get(issuer);
+
+    // We have a separate sandbox for prototyping OAuth scopes on Microsoft 365.
+    if (
+      issuer == "login.microsoftonline.com" &&
+      Services.prefs.getBoolPref("mail.microsoft.useM365Sandbox", false)
+    ) {
+      details = structuredClone(details);
+      details.clientId = "b00dc6cb-0459-4bd4-ac0d-2e23516f906a";
+      const microsoft365SandboxTenantId =
+        "aead8f37-924c-4d3f-9f20-494295c72956";
+      details.authorizationEndpoint = `https://login.microsoftonline.com/${microsoft365SandboxTenantId}/oauth2/v2.0/authorize`;
+      details.tokenEndpoint = `https://login.microsoftonline.com/${microsoft365SandboxTenantId}/oauth2/v2.0/token`;
+      Object.freeze(details);
+    }
+
     return details;
   },
 
@@ -518,26 +637,83 @@ export var OAuth2Providers = {
    *   `schemeRedirect` are ignored and overwritten.
    * @param {string[]} hostnames - One or more hostnames which use this OAuth provider.
    * @param {string} scopes - The scopes to request when using this OAuth provider.
+   * @param {string[]} [emailDomains=[]] - Domains of email-like authentication
+   *   usernames for which this provider applies. If empty, the provider applies
+   *   to all accounts using a matching hostname.
    */
-  registerProvider(details, hostnames, scopes) {
+  registerProvider(details, hostnames, scopes, emailDomains = []) {
     const issuer = details.name;
-    if (kIssuers.has(issuer)) {
+
+    if (kIssuers.has(issuer) || kExtensionIssuers.has(issuer)) {
       throw new Error(`Issuer ${issuer} already registered.`);
     }
-    for (const hostname of hostnames) {
-      if (kHostnames.has(hostname)) {
-        throw new Error(`Hostname ${hostname} already registered.`);
+
+    const normalizedHostnames = hostnames.map(hostname =>
+      hostname.trim().toLowerCase()
+    );
+    const normalizedEmailDomains = emailDomains.map(emailDomain =>
+      emailDomain.trim().toLowerCase()
+    );
+
+    for (const hostname of normalizedHostnames) {
+      try {
+        Services.eTLD.getBaseDomainFromHost(hostname);
+      } catch (error) {
+        if (error.result == Cr.NS_ERROR_INSUFFICIENT_DOMAIN_LEVELS) {
+          throw new Error(
+            `OAuth provider hostname ${hostname} must not be a public suffix.`
+          );
+        }
+        throw error;
       }
     }
+
+    if (new Set(normalizedHostnames).size != normalizedHostnames.length) {
+      throw new Error("Duplicate hostname in OAuth provider registration.");
+    }
+
+    if (new Set(normalizedEmailDomains).size != normalizedEmailDomains.length) {
+      throw new Error("Duplicate email domain in OAuth provider registration.");
+    }
+
+    const registrationKeys = new Set();
+
+    if (normalizedEmailDomains.length) {
+      for (const hostname of normalizedHostnames) {
+        for (const emailDomain of normalizedEmailDomains) {
+          registrationKeys.add(getExtensionHostnameKey(hostname, emailDomain));
+        }
+      }
+    } else {
+      for (const hostname of normalizedHostnames) {
+        registrationKeys.add(getExtensionHostnameKey(hostname));
+      }
+    }
+
+    // Extension startup will fail if any registration key is already in use.
+    // The add-on may still appear installed, but none of its OAuth provider
+    // registrations will be added.
+    if (!registrationKeys.isDisjointFrom(kExtensionHostnames)) {
+      throw new Error(
+        `OAuth provider registration(s) ${registrationKeys
+          .intersection(kExtensionHostnames)
+          .keys()
+          .join(", ")} are already registered by an extension provider.`
+      );
+    }
+
     const issuerDetails = {
       ...details,
       builtIn: false,
     };
     delete issuerDetails.schemeRedirect;
     Object.freeze(issuerDetails);
-    kIssuers.set(issuer, issuerDetails);
-    for (const hostname of hostnames) {
-      kHostnames.set(hostname, [issuer, scopes]);
+
+    kExtensionIssuers.set(issuer, issuerDetails);
+
+    const extensionDetails = [issuer, scopes];
+    for (const key of registrationKeys) {
+      kExtensionHostnames.set(key, extensionDetails);
     }
   },
 
@@ -547,16 +723,18 @@ export var OAuth2Providers = {
    * @param {string} issuer - The same string used for `registerProvider`.
    */
   unregisterProvider(issuer) {
-    if (!kIssuers.has(issuer)) {
+    if (!kExtensionIssuers.has(issuer)) {
+      if (kIssuers.has(issuer)) {
+        throw new Error(`Refusing to unregister built-in provider ${issuer}.`);
+      }
       throw new Error(`Issuer ${issuer} was not registered.`);
     }
-    if (kIssuers.get(issuer).builtIn) {
-      throw new Error(`Refusing to unregister built-in provider ${issuer}.`);
-    }
-    kIssuers.delete(issuer);
-    for (const [hostname, details] of kHostnames) {
-      if (details[0] == issuer) {
-        kHostnames.delete(hostname);
+
+    kExtensionIssuers.delete(issuer);
+
+    for (const [key, [registeredIssuer]] of kExtensionHostnames) {
+      if (registeredIssuer == issuer) {
+        kExtensionHostnames.delete(key);
       }
     }
   },
