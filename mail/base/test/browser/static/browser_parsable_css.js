@@ -33,6 +33,13 @@ const ignoreList = [
     errorMessage: /Error in parsing value for ‘content’/i,
     isFromDevTools: false,
   },
+  // megalist-agent.css is loaded as an agent sheet, so its UA-only
+  // ::-moz-reveal selector doesn't parse as an author sheet here.
+  {
+    sourceName: /\bmegalist-agent\.css$/i,
+    errorMessage: /Unknown pseudo-class or pseudo-element ‘-moz-reveal’/i,
+    isFromDevTools: false,
+  },
   // These variables are declared somewhere else, and error when we load the
   // files directly. They're all marked intermittent because their appearance
   // in the error console seems to not be consistent.
