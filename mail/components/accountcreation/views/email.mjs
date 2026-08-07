@@ -308,6 +308,7 @@ class AccountHubEmail extends HTMLElement {
       previousStep: "emailConfigFoundSubview",
       forwardEnabled: true,
       customActionFluentID: "",
+      customForwardFluentID: "account-hub-email-connect-button",
       subview: {},
       templateId: "email-manual-config-form",
     },

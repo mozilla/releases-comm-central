@@ -143,7 +143,7 @@ form {
 
     &::placeholder {
       font-weight: 300;
-      color: var(--color-text-secondary);
+      color: var(--color-text-muted);
     }
 
     &.animated {
