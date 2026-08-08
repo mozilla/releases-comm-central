@@ -102,6 +102,8 @@ requesttimeoutfactor = 2
 
 ["test_smtpProxy.js"]
 
+["test_smtpQuitClose.js"]
+
 ["test_smtpServer.js"]
 
 ["test_smtpURL.js"]

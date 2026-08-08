@@ -31,6 +31,13 @@ import { MsgUtils } from "resource:///modules/MimeMessageUtils.sys.mjs";
 import { setTimeout, clearTimeout } from "resource://gre/modules/Timer.sys.mjs";
 import { SmtpAuthenticator } from "resource:///modules/MailAuthenticator.sys.mjs";
 
+// How long to wait for the server to close the connection after we send QUIT.
+// Per RFC 5321 the server does the closing, but a server we can no longer reach
+// never will, so we force close it here to avoid keeping a dead socket around for reuse.
+// 5s is above the highest conceivable latency for this on earth, and if this is
+// still exceeded, no harm is done.
+const QUIT_CLOSE_TIMEOUT_MS = 5000;
+
 export class SmtpClient {
   /**
    * Set true only when doing a retry. (Also used in SmtpServer)
@@ -130,6 +137,9 @@ export class SmtpClient {
       clearTimeout(this._quitTimer);
       this._quitTimer = null;
     }
+    // A close still pending from an earlier QUIT must not close the socket we
+    // are about to use.
+    this._clearQuitCloseTimer();
 
     const isSocketOpen = this.socket?.readyState == "open";
     if (isSocketOpen && this._reuseConnection) {
@@ -173,11 +183,23 @@ export class SmtpClient {
    * Ignore the response to QUIT (i.e., "221 <text>") since connection is done.
    * Also, don't do close() which confuses the server since, per RFC, the
    * connection close is be initiated by the server after receiving QUIT.
+   * A server we can no longer reach never closes it, so fall back to closing
+   * it here instead of leaving a dead socket for the next message to reuse.
    */
   quit() {
     this._authenticating = false;
     this._currentAction = null; // Do no action after response to QUIT.
     this._sendCommand("QUIT");
+    this._clearQuitCloseTimer();
+    this._quitCloseTimer = setTimeout(() => {
+      this._quitCloseTimer = null;
+      this.logger.debug(
+        `Server did not close after QUIT within ${
+          QUIT_CLOSE_TIMEOUT_MS / 1000
+        }s, tearing it down ourselves.`
+      );
+      this.close(true);
+    }, QUIT_CLOSE_TIMEOUT_MS);
   }
 
   /**
@@ -200,6 +222,17 @@ export class SmtpClient {
     } else {
       this.logger.debug(`Connection to ${this._server.hostname} closed`);
       this._free();
+    }
+  }
+
+  /**
+   * Stop the timer that closes the connection when the server does not close
+   * it after QUIT.
+   */
+  _clearQuitCloseTimer() {
+    if (this._quitCloseTimer) {
+      clearTimeout(this._quitCloseTimer);
+      this._quitCloseTimer = null;
     }
   }
 
@@ -561,6 +594,7 @@ export class SmtpClient {
    */
   _onClose = (doFree = true) => {
     this.logger.debug("Socket closed.");
+    this._clearQuitCloseTimer();
     if (doFree) {
       this._free();
     }
