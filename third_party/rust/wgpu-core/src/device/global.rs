@@ -126,14 +126,14 @@ impl Global {
     /// which requires [`GPUBufferDescriptor`] validation to be generated on the
     /// Device timeline and leave the newly created [`GPUBuffer`] invalid.
     ///
-    /// Ideally, we would simply let [`device_create_buffer`] take care of all
+    /// Ideally, we would simply let [`Device::create_buffer`] take care of all
     /// of this, but some errors must be detected before we can even construct a
     /// [`wgpu_types::BufferDescriptor`] to give it. For example, the WebGPU API
     /// allows a `GPUBufferDescriptor`'s [`usage`] property to be any WebIDL
     /// `unsigned long` value, but we can't construct a
     /// [`wgpu_types::BufferUsages`] value from values with unassigned bits
     /// set. This means we must validate `usage` before we can call
-    /// `device_create_buffer`.
+    /// `Device::create_buffer`.
     ///
     /// When that validation fails, we must arrange for the buffer id to be
     /// considered invalid. This method provides the means to do so.
@@ -142,7 +142,7 @@ impl Global {
     /// [`GPUBufferDescriptor`]: https://www.w3.org/TR/webgpu/#dictdef-gpubufferdescriptor
     /// [`GPUBuffer`]: https://www.w3.org/TR/webgpu/#gpubuffer
     /// [`wgpu_types::BufferDescriptor`]: wgt::BufferDescriptor
-    /// [`device_create_buffer`]: Global::device_create_buffer
+    /// [`Device::create_buffer`]: crate::device::Device::create_buffer
     /// [`usage`]: https://www.w3.org/TR/webgpu/#dom-gputexturedescriptor-usage
     /// [`wgpu_types::BufferUsages`]: wgt::BufferUsages
     pub fn create_buffer_error(
@@ -254,6 +254,18 @@ impl Global {
         (id, error)
     }
 
+    pub fn device_validate_texture_descriptor(
+        &self,
+        device_id: DeviceId,
+        desc: &resource::TextureDescriptor,
+    ) -> Option<resource::CreateTextureError> {
+        self.hub
+            .devices
+            .get(device_id)
+            .validate_texture_descriptor(desc)
+            .err()
+    }
+
     /// # Safety
     ///
     /// - `hal_texture` must be created from `device_id` corresponding raw handle.
@@ -269,8 +281,6 @@ impl Global {
         initial_state: wgt::TextureUses,
         id_in: Option<id::TextureId>,
     ) -> (id::TextureId, Option<resource::CreateTextureError>) {
-        profiling::scope!("Device::create_texture_from_hal");
-
         let hub = &self.hub;
 
         let fid = hub.textures.prepare(id_in);
@@ -297,8 +307,6 @@ impl Global {
         desc: &resource::BufferDescriptor,
         id_in: Option<id::BufferId>,
     ) -> (id::BufferId, Option<CreateBufferError>) {
-        profiling::scope!("Device::create_buffer");
-
         let hub = &self.hub;
         let fid = hub.buffers.prepare(id_in);
 
@@ -336,9 +344,8 @@ impl Global {
         let fid = hub.texture_views.prepare(id_in);
 
         let texture = hub.textures.get(texture_id);
-        let device = &texture.device;
 
-        let (view, error) = device.create_texture_view(&texture, desc);
+        let (view, error) = texture.create_view(desc);
 
         let id = fid.assign(view);
 
@@ -447,7 +454,7 @@ impl Global {
     pub fn device_create_pipeline_layout(
         &self,
         device_id: DeviceId,
-        desc: &binding_model::PipelineLayoutDescriptor,
+        desc: &binding_model::PipelineLayoutDescriptor<id::BindGroupLayoutId>,
         id_in: Option<id::PipelineLayoutId>,
     ) -> (
         id::PipelineLayoutId,
@@ -466,7 +473,7 @@ impl Global {
                 .collect::<Vec<_>>()
         };
 
-        let desc = binding_model::ResolvedPipelineLayoutDescriptor {
+        let desc = binding_model::PipelineLayoutDescriptor {
             label: desc.label.clone(),
             bind_group_layouts: Cow::Owned(bind_group_layouts),
             immediate_size: desc.immediate_size,
@@ -669,8 +676,6 @@ impl Global {
         desc: &wgt::CommandEncoderDescriptor<Label>,
         id_in: Option<id::CommandEncoderId>,
     ) -> (id::CommandEncoderId, Option<DeviceError>) {
-        profiling::scope!("Device::create_command_encoder");
-
         let hub = &self.hub;
         let fid = hub.command_encoders.prepare(id_in);
 
@@ -1076,7 +1081,7 @@ impl Global {
         let device = self.hub.devices.get(device_id);
         let surface = self.surfaces.get(surface_id);
 
-        device.configure_surface(&surface, config)
+        surface.configure(&device, config)
     }
 
     /// Check `device_id` for freeable resources and completed buffer mappings.

@@ -241,7 +241,7 @@ default-features = false
 version = "2.3"
 
 [build-dependencies.cfg_aliases]
-version = "0.2.1"
+version = "0.2.2"
 
 [lints.clippy]
 alloc_instead_of_core = "warn"

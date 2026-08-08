@@ -88,6 +88,9 @@ optional = true
 [dependencies.log]
 version = "0.4.29"
 
+[dependencies.macro_rules_attribute]
+version = "0.2"
+
 [dependencies.naga-types]
 version = "30.0.0"
 path = "../naga-types"

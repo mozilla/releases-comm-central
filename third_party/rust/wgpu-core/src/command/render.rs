@@ -739,19 +739,11 @@ impl<'scope, 'snatch_guard, 'cmd_enc> State<'scope, 'snatch_guard, 'cmd_enc> {
     }
 
     fn flush_immediates(&mut self) {
-        // SAFETY: The range of immediates written was validated in `is_ready`.
-        unsafe {
-            self.pass.immediate_state.flush_immediates(
-                self.pipeline
-                    .as_ref()
-                    .unwrap()
-                    .layout()
-                    .unwrap()
-                    .raw()
-                    .unwrap(),
-                self.pass.base.raw_encoder,
-            );
-        }
+        let pipeline = self.pipeline.as_ref().unwrap();
+        let layout = pipeline.layout().unwrap();
+        self.pass
+            .immediate_state
+            .flush_immediates(layout, self.pass.base.raw_encoder);
     }
 
     /// Flush binding state in preparation for a draw call.
@@ -1834,8 +1826,8 @@ fn check_transient_attachment_ops<V>(load_op: LoadOp<V>, store_op: StoreOp) -> b
 }
 
 impl CommandEncoder {
-    fn begin_render_pass(
-        self: Arc<Self>,
+    pub fn begin_render_pass(
+        self: &Arc<Self>,
         desc: ResolvedRenderPassDescriptor<'_>,
     ) -> (RenderPass, Option<CommandEncoderError>) {
         use EncoderStateError as SErr;
@@ -2103,9 +2095,9 @@ impl CommandEncoder {
                     multiview_mask: None,
                 };
                 match fill_arc_desc(desc, &mut arc_desc, &self.device) {
-                    Ok(()) => (RenderPass::new(self, arc_desc), None),
+                    Ok(()) => (RenderPass::new(self.clone(), arc_desc), None),
                     Err(err) => (
-                        RenderPass::new_invalid(self, &label, err.map_pass_err(scope)),
+                        RenderPass::new_invalid(self.clone(), &label, err.map_pass_err(scope)),
                         None,
                     ),
                 }
@@ -2117,7 +2109,7 @@ impl CommandEncoder {
                 cmd_buf_data.invalidate(err.clone());
                 drop(cmd_buf_data);
                 (
-                    RenderPass::new_invalid(self, &desc.label, err.map_pass_err(scope)),
+                    RenderPass::new_invalid(self.clone(), &desc.label, err.map_pass_err(scope)),
                     None,
                 )
             }
@@ -2126,7 +2118,11 @@ impl CommandEncoder {
                 // generates an immediate validation error.
                 drop(cmd_buf_data);
                 (
-                    RenderPass::new_invalid(self, &desc.label, err.clone().map_pass_err(scope)),
+                    RenderPass::new_invalid(
+                        self.clone(),
+                        &desc.label,
+                        err.clone().map_pass_err(scope),
+                    ),
                     Some(err.into()),
                 )
             }
@@ -2138,7 +2134,7 @@ impl CommandEncoder {
                 // invalid pass to save that work.
                 drop(cmd_buf_data);
                 (
-                    RenderPass::new_invalid(self, &desc.label, err.map_pass_err(scope)),
+                    RenderPass::new_invalid(self.clone(), &desc.label, err.map_pass_err(scope)),
                     None,
                 )
             }
