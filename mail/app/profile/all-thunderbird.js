@@ -1560,7 +1560,7 @@ pref("mail.accounthub.addressbook.enabled", true);
 pref("mail.accounthub.thundermail.enabled", true);
 
 // Enable new manual config ui in account hub.
-pref("mail.accounthub.manualconfig.enabled", false);
+pref("mail.accounthub.manualconfig.enabled", true);
 
 // Export to mobile enabled.
 pref("mail.qrexport.enabled", true);
