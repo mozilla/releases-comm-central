@@ -562,7 +562,10 @@ CalDavCalendar.prototype = {
    * @param {calIItemBase} aItem - Item to check.
    */
   async adoptItem(aItem) {
+    // Take and clear the injected callback so it does not carry over to the
+    // next operation.
     const adoptCallback = this._cachedAdoptItemCallback;
+    this._cachedAdoptItemCallback = null;
     return new Promise((resolve, reject) => {
       this.doAdoptItem(aItem.clone(), {
         get wrappedJSObject() {
@@ -685,7 +688,10 @@ CalDavCalendar.prototype = {
    * @param {calIItemBase} aOldItem - Old item.
    */
   async modifyItem(aNewItem, aOldItem) {
+    // Take and clear the injected callback so it does not carry over to the
+    // next operation.
     const modifyCallback = this._cachedModifyItemCallback;
+    this._cachedModifyItemCallback = null;
     return new Promise((resolve, reject) => {
       this.doModifyItem(
         aNewItem,
