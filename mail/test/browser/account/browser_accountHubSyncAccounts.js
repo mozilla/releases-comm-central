@@ -12,6 +12,8 @@ const { cal } = ChromeUtils.importESModule(
 
 const PREF_NAME = "mailnews.auto_config_url";
 const PREF_VALUE = Services.prefs.getCharPref(PREF_NAME);
+const MANUAL_CONFIG_PREF = "mail.accounthub.manualconfig.enabled";
+
 const _srv = DNS.srv;
 const _txt = DNS.txt;
 
@@ -61,6 +63,7 @@ add_setup(function () {
   const url =
     "http://mochi.test:8888/browser/comm/mail/test/browser/account/xml/";
   Services.prefs.setCharPref(PREF_NAME, url);
+  Services.prefs.setBoolPref(MANUAL_CONFIG_PREF, false);
 });
 
 registerCleanupFunction(function () {
@@ -68,6 +71,7 @@ registerCleanupFunction(function () {
   DNS.txt = _txt;
   // Restore the original pref.
   Services.prefs.setCharPref(PREF_NAME, PREF_VALUE);
+  Services.prefs.setBoolPref(MANUAL_CONFIG_PREF, true);
 });
 
 add_task(async function test_skip_sync_accounts_load() {

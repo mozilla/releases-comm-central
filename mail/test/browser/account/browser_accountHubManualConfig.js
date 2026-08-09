@@ -26,7 +26,7 @@ const EXCHANGE_TEST_URL = "http://exchange.test/EWS/Exchange.asmx"; // eslint-di
 let gssapiSandbox;
 let gssapiDialog;
 let gssapiCurrentStep;
-let manualConfigPrefPushed = false;
+const manualConfigPrefPushed = false;
 const MANUAL_CONFIG_PREF = "mail.accounthub.manualconfig.enabled";
 
 // The guessConfig requests make this test take a long time, so we need a
@@ -42,13 +42,13 @@ add_setup(function () {
 });
 
 registerCleanupFunction(async function () {
-  await cleanupManualConfigPref();
   // Restore the original pref.
   Services.prefs.setCharPref(PREF_NAME, PREF_VALUE);
   await cleanupGssapiTest();
 });
 
 add_task(async function test_account_email_advanced_setup_incoming() {
+  Services.prefs.setBoolPref(MANUAL_CONFIG_PREF, false);
   // Fill in email auto form and click continue, waiting for config found
   // view to be shown.
   const dialog = await subtest_open_account_hub_dialog();
@@ -132,9 +132,11 @@ add_task(async function test_account_email_advanced_setup_incoming() {
 
   // Confirm that the folder pane is visible.
   Assert.ok(BrowserTestUtils.isVisible(tabmail.currentAbout3Pane.folderTree));
+  Services.prefs.setBoolPref(MANUAL_CONFIG_PREF, true);
 });
 
 add_task(async function test_account_email_advanced_setup_outgoing() {
+  Services.prefs.setBoolPref(MANUAL_CONFIG_PREF, false);
   // Fill in email auto form and click continue, waiting for config found
   // view to be shown.
   const dialog = await subtest_open_account_hub_dialog();
@@ -238,9 +240,11 @@ add_task(async function test_account_email_advanced_setup_outgoing() {
 
   // Confirm that the folder pane is visible.
   Assert.ok(BrowserTestUtils.isVisible(tabmail.currentAbout3Pane.folderTree));
+  Services.prefs.setBoolPref(MANUAL_CONFIG_PREF, true);
 });
 
 add_task(async function test_account_email_manual_form() {
+  Services.prefs.setBoolPref(MANUAL_CONFIG_PREF, false);
   // Fill in email auto form and click continue, waiting for config found
   // view to be shown.
   const dialog = await subtest_open_account_hub_dialog();
@@ -373,9 +377,11 @@ add_task(async function test_account_email_manual_form() {
   Assert.ok(!footerCustom.disabled, "Test button should be enabled");
 
   await subtest_close_account_hub_dialog(dialog, outgoingConfigTemplate);
+  Services.prefs.setBoolPref(MANUAL_CONFIG_PREF, true);
 });
 
 add_task(async function test_pop3_manual_config_flow() {
+  Services.prefs.setBoolPref(MANUAL_CONFIG_PREF, false);
   // Fill in email auto form and click continue, waiting for config found
   // view to be shown.
   const dialog = await subtest_open_account_hub_dialog();
@@ -431,9 +437,11 @@ add_task(async function test_pop3_manual_config_flow() {
   );
 
   await subtest_close_account_hub_dialog(dialog, incomingConfigTemplate);
+  Services.prefs.setBoolPref(MANUAL_CONFIG_PREF, true);
 });
 
 add_task(async function test_invalid_manual_config_flow() {
+  Services.prefs.setBoolPref(MANUAL_CONFIG_PREF, false);
   const dialog = await subtest_open_account_hub_dialog();
 
   const emailTemplate = dialog.querySelector("email-auto-form");
@@ -657,9 +665,11 @@ add_task(async function test_invalid_manual_config_flow() {
   );
   Assert.ok(footerForward.disabled, "Continue button should be disabled");
   await subtest_close_account_hub_dialog(dialog, outgoingConfigTemplate);
+  Services.prefs.setBoolPref(MANUAL_CONFIG_PREF, true);
 });
 
 add_task(async function test_account_email_manual_to_ews() {
+  Services.prefs.setBoolPref(MANUAL_CONFIG_PREF, false);
   const dialog = await subtest_open_account_hub_dialog();
 
   const emailTemplate = dialog.querySelector("email-auto-form");
@@ -741,9 +751,11 @@ add_task(async function test_account_email_manual_to_ews() {
   );
 
   await subtest_close_account_hub_dialog(dialog, passwordSubview);
+  Services.prefs.setBoolPref(MANUAL_CONFIG_PREF, true);
 });
 
 add_task(async function test_direct_to_manual_config() {
+  Services.prefs.setBoolPref(MANUAL_CONFIG_PREF, false);
   const dialog = await subtest_open_account_hub_dialog();
 
   const emailTemplate = dialog.querySelector("email-auto-form");
@@ -788,9 +800,11 @@ add_task(async function test_direct_to_manual_config() {
     "badtest@example.localhost"
   );
   await subtest_close_account_hub_dialog(dialog, incomingConfigTemplate);
+  Services.prefs.setBoolPref(MANUAL_CONFIG_PREF, true);
 });
 
 add_task(async function test_account_invalid_email_advanced_setup_incoming() {
+  Services.prefs.setBoolPref(MANUAL_CONFIG_PREF, false);
   Services.fog.testResetFOG();
   // Fill in email auto form and click continue, incoming config step to show
   // a base invalid configuration.
@@ -910,9 +924,11 @@ add_task(async function test_account_invalid_email_advanced_setup_incoming() {
 
   // Confirm that the folder pane is visible.
   Assert.ok(BrowserTestUtils.isVisible(tabmail.currentAbout3Pane.folderTree));
+  Services.prefs.setBoolPref(MANUAL_CONFIG_PREF, true);
 });
 
 add_task(async function test_direct_to_manual_gssapi_skips_password_step() {
+  Services.prefs.setBoolPref(MANUAL_CONFIG_PREF, false);
   gssapiSandbox = sinon.createSandbox();
   const guessConfigStub = gssapiSandbox
     .stub(GuessConfig, "guessConfig")
@@ -1104,11 +1120,10 @@ add_task(async function test_direct_to_manual_gssapi_skips_password_step() {
   );
 
   await cleanupGssapiTest();
+  Services.prefs.setBoolPref(MANUAL_CONFIG_PREF, true);
 });
 
 add_task(async function test_config_found_manual_config_pref_enabled() {
-  await enableManualConfigPref();
-
   const dialog = await subtest_open_account_hub_dialog();
 
   const emailUser = {
@@ -1200,12 +1215,9 @@ add_task(async function test_config_found_manual_config_pref_enabled() {
   );
 
   await subtest_close_account_hub_dialog(dialog, protocolSelectTemplate);
-  await cleanupManualConfigPref();
 });
 
 add_task(async function test_direct_to_manual_config_pref_enabled() {
-  await enableManualConfigPref();
-
   const dialog = await subtest_open_account_hub_dialog();
 
   const emailTemplate = dialog.querySelector("email-auto-form");
@@ -1322,12 +1334,9 @@ add_task(async function test_direct_to_manual_config_pref_enabled() {
   subtest_assert_manual_config_hostnames_empty(manualConfigTemplate, "POP3");
 
   await subtest_close_account_hub_dialog(dialog, manualConfigTemplate);
-  await cleanupManualConfigPref();
 });
 
 add_task(async function test_exchange_type_submission_pref_enabled() {
-  await enableManualConfigPref();
-
   const dialog = await subtest_open_account_hub_dialog();
 
   const emailTemplate = dialog.querySelector("email-auto-form");
@@ -1420,12 +1429,10 @@ add_task(async function test_exchange_type_submission_pref_enabled() {
   );
 
   await subtest_close_account_hub_dialog(dialog, passwordSubview);
-  await cleanupManualConfigPref();
 });
 
 add_task(
   async function test_exchange_type_full_account_creation_pref_enabled() {
-    await enableManualConfigPref();
     const existingOutgoingServerKeys = new Set(
       MailServices.outgoingServer.servers.map(server => server.key)
     );
@@ -1597,15 +1604,12 @@ add_task(
         await subtest_close_account_hub_dialog(dialog, currentStep);
       }
       await subtest_clear_status_bar();
-      await cleanupManualConfigPref();
     }
   }
 );
 
 add_task(
   async function test_exchange_type_advanced_configuration_pref_enabled() {
-    await enableManualConfigPref();
-
     const existingOutgoingServerKeys = new Set(
       MailServices.outgoingServer.servers.map(server => server.key)
     );
@@ -1774,25 +1778,9 @@ add_task(
         }
       }
       await subtest_clear_status_bar();
-      await cleanupManualConfigPref();
     }
   }
 );
-
-async function enableManualConfigPref() {
-  await SpecialPowers.pushPrefEnv({
-    set: [[MANUAL_CONFIG_PREF, true]],
-  });
-  manualConfigPrefPushed = true;
-}
-
-async function cleanupManualConfigPref() {
-  if (!manualConfigPrefPushed) {
-    return;
-  }
-  manualConfigPrefPushed = false;
-  await SpecialPowers.popPrefEnv();
-}
 
 async function fillInvalidUserInfo(nameInput, emailInput) {
   await fillUserInfo(nameInput, emailInput, "Test User", GSSAPI_TEST_EMAIL);

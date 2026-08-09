@@ -385,7 +385,10 @@ add_task(
 add_task(async function test_exchange_manual_configuration() {
   needsAuthentication = false;
   await SpecialPowers.pushPrefEnv({
-    set: [["mail.graph.enabled", true]],
+    set: [
+      ["mail.graph.enabled", true],
+      ["mail.accounthub.manualconfig.enabled", false],
+    ],
   });
   const dialog = await subtest_open_account_hub_dialog();
   const emailTemplate = dialog.querySelector("email-auto-form");
@@ -475,7 +478,10 @@ add_task(async function test_exchange_manual_configuration() {
 add_task(async function test_exchange_ews_advanced_configuration() {
   needsAuthentication = false;
   await SpecialPowers.pushPrefEnv({
-    set: [["mail.graph.enabled", true]],
+    set: [
+      ["mail.graph.enabled", true],
+      ["mail.accounthub.manualconfig.enabled", false],
+    ],
   });
   const dialog = await subtest_open_account_hub_dialog();
   const emailTemplate = dialog.querySelector("email-auto-form");
@@ -514,7 +520,12 @@ add_task(async function test_exchange_ews_advanced_configuration() {
 });
 
 add_task(async function test_exchange_graph_advanced_configuration() {
-  await SpecialPowers.pushPrefEnv({ set: [["mail.graph.enabled", true]] });
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["mail.graph.enabled", true],
+      ["mail.accounthub.manualconfig.enabled", false],
+    ],
+  });
 
   const dialog = await subtest_open_account_hub_dialog();
   const emailTemplate = dialog.querySelector("email-auto-form");
@@ -842,7 +853,10 @@ add_task(async function test_full_exchange_account_creation() {
 add_task(async function test_exchange_back_to_manual_configuration() {
   needsAuthentication = false;
   await SpecialPowers.pushPrefEnv({
-    set: [["mail.graph.enabled", true]],
+    set: [
+      ["mail.graph.enabled", true],
+      ["mail.accounthub.manualconfig.enabled", false],
+    ],
   });
   const dialog = await subtest_open_account_hub_dialog();
   const emailTemplate = dialog.querySelector("email-auto-form");
@@ -1116,6 +1130,7 @@ async function checkAvailableConfigs(
     () => BrowserTestUtils.isVisible(firstOption),
     `The first config option for ${expectedProtocols[0]} should be visible`
   );
+
   const availableOptions = configFoundTemplate.querySelectorAll(
     ".form-options .config-option"
   );

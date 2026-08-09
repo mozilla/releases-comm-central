@@ -137,9 +137,9 @@ skip-if = [
   "os == 'win'",
 ]
 
-["browser_removeAccountRelatedItems.js"]
-
 ["browser_removeAccountData.js"]
+
+["browser_removeAccountRelatedItems.js"]
 
 ["browser_settingsInfrastructure.js"]
 

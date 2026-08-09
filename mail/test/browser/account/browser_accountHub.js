@@ -262,6 +262,9 @@ add_task(async function test_account_email_step() {
 });
 
 add_task(async function test_account_email_config_found() {
+  SpecialPowers.pushPrefEnv({
+    set: [["mail.accounthub.manualconfig.enabled", false]],
+  });
   Services.fog.testResetFOG();
   const dialog = await subtest_open_account_hub_dialog();
   await subtest_fill_initial_config_fields(dialog);
@@ -414,6 +417,7 @@ add_task(async function test_account_email_config_found() {
   );
 
   await subtest_close_account_hub_dialog(dialog, incomingConfigTemplate);
+  await SpecialPowers.popPrefEnv();
 });
 
 add_task(async function test_cancel_finding_config() {

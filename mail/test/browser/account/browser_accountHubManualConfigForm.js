@@ -7,20 +7,17 @@ const { GuessConfig } = ChromeUtils.importESModule(
 
 const PREF_NAME = "mailnews.auto_config_url";
 const PREF_VALUE = Services.prefs.getCharPref(PREF_NAME);
-const MANUAL_CONFIG_PREF = "mail.accounthub.manualconfig.enabled";
 
 add_setup(function () {
   // Set the pref to load a local autoconfig file.
   const url =
     "http://mochi.test:8888/browser/comm/mail/test/browser/account/xml/";
   Services.prefs.setCharPref(PREF_NAME, url);
-  Services.prefs.setBoolPref(MANUAL_CONFIG_PREF, true);
 });
 
 registerCleanupFunction(function () {
   // Restore the original pref.
   Services.prefs.setCharPref(PREF_NAME, PREF_VALUE);
-  Services.prefs.setBoolPref(MANUAL_CONFIG_PREF, false);
 });
 
 add_task(async function test_account_email_manual_config_form() {

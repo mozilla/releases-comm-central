@@ -20,7 +20,6 @@ const { NetworkTestUtils } = ChromeUtils.importESModule(
 
 const USER = "testExchange@exchange.test";
 const PASSWORD = "hunter2";
-const MANUAL_CONFIG_PREF = "mail.accounthub.manualconfig.enabled";
 const emailUser = {
   name: "John Doe",
   email: USER,
@@ -66,7 +65,6 @@ let AUTODISCOVER_RESPONSE = `<?xml version="1.0" encoding="utf-8"?>
 </Autodiscover>`;
 let redirectServer, autodiscoveryServer;
 let redirectAccepted = false;
-let manualConfigPrefPushed = false;
 
 add_setup(async () => {
   redirectServer = new HttpServer();
@@ -131,7 +129,6 @@ add_setup(async () => {
   );
 
   registerCleanupFunction(async () => {
-    await cleanupManualConfigPref();
     redirectServer.identity.remove("http", "autodiscover.exchange.test", 80);
     redirectServer.registerFile("/autodiscover/autodiscover.xml", null);
     redirectServer.stop();
@@ -148,6 +145,9 @@ add_setup(async () => {
 // accepted, and skips the step, meaning we can't view the step and do manual
 // config.
 add_task(async function test_credentials_confirmation_manual_configuration() {
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.accounthub.manualconfig.enabled", false]],
+  });
   const dialog = await subtest_open_account_hub_dialog();
   const emailTemplate = dialog.querySelector("email-auto-form");
   const footerForward = dialog.querySelector("#emailFooter #forward");
@@ -189,12 +189,14 @@ add_task(async function test_credentials_confirmation_manual_configuration() {
 
   await Services.logins.removeAllLoginsAsync();
   await subtest_close_account_hub_dialog(dialog, incomingConfigStep);
+  await SpecialPowers.popPrefEnv();
 });
 
 add_task(
   async function test_credentials_confirmation_manual_configuration_pref_enabled() {
-    await enableManualConfigPref();
-
+    await SpecialPowers.pushPrefEnv({
+      set: [["mail.accounthub.manualconfig.enabled", true]],
+    });
     const dialog = await subtest_open_account_hub_dialog();
 
     const emailTemplate = dialog.querySelector("email-auto-form");
@@ -285,11 +287,14 @@ add_task(
 
     await Services.logins.removeAllLoginsAsync();
     await subtest_close_account_hub_dialog(dialog, manualConfigStep);
-    await cleanupManualConfigPref();
+    await SpecialPowers.popPrefEnv();
   }
 );
 
 add_task(async function test_cancel_credentials_confirmation() {
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.accounthub.manualconfig.enabled", false]],
+  });
   const dialog = await subtest_open_account_hub_dialog();
   const emailTemplate = dialog.querySelector("email-auto-form");
   const footerForward = dialog.querySelector("#emailFooter #forward");
@@ -332,6 +337,7 @@ add_task(async function test_cancel_credentials_confirmation() {
 
   await Services.logins.removeAllLoginsAsync();
   await subtest_close_account_hub_dialog(dialog, manualIncomingForm);
+  await SpecialPowers.popPrefEnv();
 });
 
 add_task(async function test_credentials_confirmation() {
@@ -455,6 +461,9 @@ add_task(async function test_credentials_confirmation() {
 });
 
 add_task(async function test_credentials_confirmation_to_manual_config() {
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.accounthub.manualconfig.enabled", false]],
+  });
   const dialog = await subtest_open_account_hub_dialog();
   const emailTemplate = dialog.querySelector("email-auto-form");
   const footerForward = dialog.querySelector("#emailFooter #forward");
@@ -527,22 +536,8 @@ add_task(async function test_credentials_confirmation_to_manual_config() {
   redirectAccepted = false;
   await subtest_close_account_hub_dialog(dialog, incomingConfigStep);
   AUTODISCOVER_RESPONSE = autodiscoverResonse;
-});
-
-async function enableManualConfigPref() {
-  await SpecialPowers.pushPrefEnv({
-    set: [[MANUAL_CONFIG_PREF, true]],
-  });
-  manualConfigPrefPushed = true;
-}
-
-async function cleanupManualConfigPref() {
-  if (!manualConfigPrefPushed) {
-    return;
-  }
-  manualConfigPrefPushed = false;
   await SpecialPowers.popPrefEnv();
-}
+});
 
 async function subtest_drag_select_protocol(protocolSelectTemplate, protocol) {
   const protocolInput = protocolSelectTemplate.querySelector(
