@@ -523,8 +523,6 @@ export class SmtpClient {
       return;
     }
 
-    this._free(true); // true => call quit() before freeing.
-
     let nsError = Cr.NS_ERROR_FAILURE;
     let secInfo = null;
     if (TCPSocketErrorEvent.isInstance(event)) {
@@ -545,7 +543,8 @@ export class SmtpClient {
 
     // Use nsresult to integrate with other parts of sending process, e.g.
     // MessageSend.sys.mjs will show an error message depending on the nsresult.
-    this.onerror(nsError, "", secInfo);
+    await this.onerror(nsError, "", secInfo);
+    this._free(true); // true => call quit() before freeing.
   };
 
   /**
@@ -576,6 +575,9 @@ export class SmtpClient {
         }
       }
     }
+
+    // A failed retry run must not suppress retries for later unrelated messages.
+    this.isRetry = false;
 
     const bundle = Services.strings.createBundle(
       "chrome://messenger/locale/messengercompose/composeMsgs.properties"
