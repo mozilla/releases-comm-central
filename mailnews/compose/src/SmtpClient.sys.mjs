@@ -959,6 +959,8 @@ export class SmtpClient {
       this.logger.warn(
         "EHLO not successful, trying HELO " + this._getHelloArgument()
       );
+      this._supportedAuthMethods = [];
+      this._capabilities = [];
       this._currentAction = this._actionHELO;
       this._sendCommand("HELO " + this._getHelloArgument());
       return;
@@ -968,7 +970,11 @@ export class SmtpClient {
       return;
     }
 
+    // Capabilities (and AUTH mechs) are most likely the same across the same
+    // configured endpoint, but there is no reason to cache them when we
+    // automatically receive a fresh copy with EHLO anyway.
     this._supportedAuthMethods = [];
+    this._capabilities = [];
 
     const lines = command.data.toUpperCase().split("\n");
     // Skip the first greeting line.
