@@ -31,11 +31,11 @@ name = "cssparser_macros"
 path = "lib.rs"
 proc-macro = true
 
-[dependencies.quote]
-version = "1.0.29"
+[dependencies]
+quote = "1.0.29"
 
 [dependencies.syn]
-version = "2"
+version = ">=2,<4"
 features = [
     "full",
     "extra-traits",
