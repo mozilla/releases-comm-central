@@ -2,18 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#clientBox {
-  background-color: var(--client-box-background);
-}
-
 #leftBox {
   background-image: url("chrome://branding/content/about-logo.svg");
-  background-repeat: no-repeat;
-  /* min-width and min-height create room for the logo */
-  min-inline-size: 210px;
-  min-block-size: 210px;
-  margin-block-start: 20px;
-  margin-inline-start: 30px;
 }
 
 #rightBox {
