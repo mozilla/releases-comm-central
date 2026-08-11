@@ -16,7 +16,16 @@ ChromeUtils.defineESModuleGetters(lazy, {
 const AXE_SOURCE_URL = "resource://testing-common/mail/axe.min.js";
 const AXE_WATCHERS_PROPERTY = "__tbAxeMutationWatchers";
 const DEFAULT_THROTTLE_MS = 10;
+const DEFAULT_AXE_OPTIONS = {
+  preload: {
+    // Axe preloads all supported assets when any preload-dependent rule runs.
+    // The default enabled preload rule only needs media metadata; avoiding
+    // CSSOM preloading keeps chrome/file stylesheets out of axe's XHR parser.
+    assets: ["media"],
+  },
+};
 const CONTENT_BROWSER_DEFAULT_AXE_OPTIONS = {
+  ...DEFAULT_AXE_OPTIONS,
   rules: {
     // Content tabs in browser tests often host partial documents or focused
     // fixtures, so they should not be required to define page-level landmarks.
@@ -281,6 +290,29 @@ async function waitForFluent(win) {
 }
 
 /**
+ * Merge caller axe options with defaults.
+ *
+ * @param {object} [axeOptions={}] axe.run options from the caller.
+ * @param {object} [defaultOptions=DEFAULT_AXE_OPTIONS] Default axe options.
+ *
+ * @returns {object} axe.run options with defaults applied.
+ */
+function getAxeOptions(axeOptions = {}, defaultOptions = DEFAULT_AXE_OPTIONS) {
+  const rules = {
+    ...(defaultOptions.rules ?? {}),
+    ...(axeOptions.rules ?? {}),
+  };
+  const mergedOptions = {
+    ...defaultOptions,
+    ...axeOptions,
+  };
+  if (Object.keys(rules).length) {
+    mergedOptions.rules = rules;
+  }
+  return mergedOptions;
+}
+
+/**
  * Merge caller axe options with content-browser defaults.
  *
  * @param {object} [axeOptions={}] axe.run options from the caller.
@@ -288,14 +320,7 @@ async function waitForFluent(win) {
  * @returns {object} axe.run options with content-browser default rules applied.
  */
 function getContentBrowserAxeOptions(axeOptions = {}) {
-  return {
-    ...CONTENT_BROWSER_DEFAULT_AXE_OPTIONS,
-    ...axeOptions,
-    rules: {
-      ...CONTENT_BROWSER_DEFAULT_AXE_OPTIONS.rules,
-      ...axeOptions.rules,
-    },
-  };
+  return getAxeOptions(axeOptions, CONTENT_BROWSER_DEFAULT_AXE_OPTIONS);
 }
 
 /**
@@ -481,10 +506,14 @@ export async function runAxeInWindow(
   }
 
   await injectAxeIntoWindow(win, { force });
+  const mergedAxeOptions = getAxeOptions(axeOptions);
   const shouldRestoreAxe = acquireAxeWindowProperty(win);
   try {
     await waitForFluent(win);
-    const results = await win.axe.run(context ?? win.document, axeOptions);
+    const results = await win.axe.run(
+      context ?? win.document,
+      mergedAxeOptions
+    );
     return normalizeResults(results);
   } finally {
     if (shouldRestoreAxe) {
@@ -1100,6 +1129,7 @@ export async function startAxeMutationObserverInWindow(win, options = {}) {
 
   const id = options.id ?? nextWatcherId();
   await injectAxeIntoWindow(win);
+  const axeOptions = getAxeOptions(options.axeOptions);
   const shouldRestoreAxe = acquireAxeWindowProperty(win);
 
   let runContext = null;
@@ -1145,7 +1175,7 @@ export async function startAxeMutationObserverInWindow(win, options = {}) {
         await waitForFluent(win);
         const results = await win.axe.run(
           runContext ?? win.document,
-          options.axeOptions ?? {}
+          axeOptions
         );
         const normalizedResults = normalizeResults(results);
         if (normalizedResults.violations?.length) {
