@@ -33,6 +33,7 @@ tasks:
             using: mach
             mach: {artifact-reference: "python toolkit/crashreporter/tools/upload_symbols.py <build/public/cidata/target.crashreporter-symbols-full.tar.zst>"}
             sparse-profile: upload-symbols
+            clone-with: hg
         scopes:
             - secrets:get:project/comm/thunderbird/releng/build/level-{level}/gecko-symbol-upload
         fetches:
