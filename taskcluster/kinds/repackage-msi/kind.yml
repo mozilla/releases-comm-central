@@ -29,6 +29,7 @@ tasks:
             use-magic-mh-args: false
             use-caches: false
             comm-checkout: true
+            clone-with: hg
             config-paths:
                 - comm/testing/mozharness/configs
             config:

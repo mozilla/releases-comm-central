@@ -27,6 +27,7 @@ task-defaults:
     run:
         sparse-profile: mozharness
         comm-checkout: true
+        clone-with: hg
     extra:
         app-name: mail
         branch-prefix: comm

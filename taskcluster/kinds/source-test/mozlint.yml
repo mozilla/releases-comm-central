@@ -24,6 +24,7 @@ task-defaults:
     run:
         using: mach
         comm-checkout: true
+        clone-with: hg
 
 clang-format:
     description: clang-format on the C/C++ code

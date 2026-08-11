@@ -39,6 +39,7 @@ tasks:
         run:
             using: run-task
             comm-checkout: true
+            clone-with: hg
             cwd: "{checkout}"
             command: >
                 ./comm/taskcluster/scripts/verify-notes.py

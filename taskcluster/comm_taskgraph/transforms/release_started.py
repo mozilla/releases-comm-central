@@ -63,6 +63,7 @@ def add_notifications(config, jobs):
         job["run"] = {
             "using": "mach",
             "comm-checkout": True,
+            "clone-with": "hg",
             "sparse-profile": "mach",
             "mach": {"task-reference": " ".join(map(shell_quote, command))},
         }

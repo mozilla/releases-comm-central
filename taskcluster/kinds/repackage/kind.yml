@@ -50,6 +50,7 @@ tasks:
                     default: 900
         mozharness:
             comm-checkout: true
+            clone-with: hg
             config-paths:
                 - comm/testing/mozharness/configs
             config:

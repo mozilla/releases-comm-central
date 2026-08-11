@@ -37,6 +37,7 @@ tasks:
             max-run-time: 2700
         mozharness:
             comm-checkout: true
+            clone-with: hg
             config-paths:
                 - comm/testing/mozharness/configs
             config:

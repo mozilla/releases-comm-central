@@ -34,6 +34,7 @@ tasks:
         run-on-projects: []
         mozharness:
             comm-checkout: true
+            clone-with: hg
             config-paths:
                 - comm/testing/mozharness/configs
             config:

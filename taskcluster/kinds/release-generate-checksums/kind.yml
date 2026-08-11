@@ -47,6 +47,7 @@ task-defaults:
     run:
         using: mozharness
         comm-checkout: true
+        clone-with: hg
         config: []
         config-paths:
             - comm/testing/mozharness/configs

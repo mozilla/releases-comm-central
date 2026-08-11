@@ -7,6 +7,7 @@ task-defaults:
     run:
         using: mozharness
         comm-checkout: true
+        clone-with: hg
         config-paths:
             - comm/testing/mozharness/configs
     fetches:
@@ -499,6 +500,7 @@ win64-ccov/opt:
     run:
         using: mozharness
         comm-checkout: true
+        clone-with: hg
         actions: [build]
         config-paths:
             - comm/testing/mozharness/configs

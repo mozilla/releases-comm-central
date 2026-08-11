@@ -19,6 +19,7 @@ task-defaults:
         tier: 1
     run:
         comm-checkout: true
+        clone-with: hg
 
 comm_taskgraph-tests:
     description: taskcluster/taskgraph unit tests

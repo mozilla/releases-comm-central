@@ -32,6 +32,7 @@ tasks:
             run-as-root: true
             use-caches: false
             comm-checkout: true
+            clone-with: hg
             config-paths:
                 - comm/testing/mozharness/configs
             config:

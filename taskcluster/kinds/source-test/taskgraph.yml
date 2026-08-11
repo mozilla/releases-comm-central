@@ -27,6 +27,7 @@ diff:
     run:
         using: run-task
         comm-checkout: true
+        clone-with: hg
         cwd: '{checkout}'
         command: >-
             mkdir -p /builds/worker/artifacts/diffs &&

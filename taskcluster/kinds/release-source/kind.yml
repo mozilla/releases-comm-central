@@ -29,6 +29,7 @@ task-defaults:
     run:
         using: mozharness
         comm-checkout: true
+        clone-with: hg
         actions: [package-source]
         script: "mozharness/scripts/fx_desktop_build.py"
         config-paths:

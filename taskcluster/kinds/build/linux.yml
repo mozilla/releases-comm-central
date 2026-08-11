@@ -8,6 +8,7 @@ task-defaults:
     run:
         using: mozharness
         comm-checkout: true
+        clone-with: hg
         actions: [build]
         config-paths:
             - comm/testing/mozharness/configs
@@ -319,6 +320,7 @@ linux64-ccov/opt:
     run:
         using: mozharness
         comm-checkout: true
+        clone-with: hg
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_64_builds.py

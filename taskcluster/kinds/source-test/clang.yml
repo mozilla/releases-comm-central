@@ -19,6 +19,7 @@ task-defaults:
         using: run-task
         tooltool-downloads: public
         comm-checkout: true
+        clone-with: hg
     fetches:
         toolchain:
             - linux64-cbindgen

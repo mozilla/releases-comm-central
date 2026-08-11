@@ -71,6 +71,7 @@ tasks:
         run:
             using: run-task
             comm-checkout: true
+            clone-with: hg
             cwd: '/builds/worker'
             command: runme.sh
         fetches:

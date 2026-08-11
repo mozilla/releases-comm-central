@@ -28,6 +28,7 @@ task-defaults:
     run:
         sparse-profile: mozharness
         comm-checkout: true
+        clone-with: hg
     treeherder:
         symbol: UVCnext
         kind: test

@@ -43,6 +43,7 @@ tasks:
         run:
             using: mozharness
             comm-checkout: true
+            clone-with: hg
             actions: [build]
             config-paths:
                 - comm/testing/mozharness/configs
@@ -80,6 +81,7 @@ tasks:
         run:
             using: mozharness
             comm-checkout: true
+            clone-with: hg
             actions: [build]
             config-paths:
                 - comm/testing/mozharness/configs
@@ -120,6 +122,7 @@ tasks:
         run:
             using: mozharness
             comm-checkout: true
+            clone-with: hg
             options: [append-env-variables-from-configs]
             actions: [build]
             config-paths:

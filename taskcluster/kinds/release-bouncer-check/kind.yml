@@ -35,6 +35,7 @@ task-defaults:
     run:
         sparse-profile: mozharness
         comm-checkout: true
+        clone-with: hg
         config:
             - comm/testing/mozharness/configs/releases/bouncer_thunderbird.py
         extra-config:

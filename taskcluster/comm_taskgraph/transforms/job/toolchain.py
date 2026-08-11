@@ -99,6 +99,7 @@ def get_digest_data(config, run, taskdesc):
 def docker_worker_toolchain(config, job, taskdesc):
     run = job["run"]
     run["comm-checkout"] = True
+    run["clone-with"] = "hg"
 
     worker = taskdesc["worker"] = job["worker"]
     worker["chain-of-trust"] = True
