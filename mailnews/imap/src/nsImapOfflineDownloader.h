@@ -51,7 +51,7 @@ class nsImapOfflineDownloader : public nsIUrlListener {
   // Folders left to consider on m_currentServer.
   nsTArray<RefPtr<nsIMsgFolder>> m_folderQueue;
   nsCOMPtr<nsIMsgFolder> m_currentFolder;
-  bool m_mailboxupdatesFinished;
+  bool m_mailboxupdatesFinished{false};
 
   bool AdvanceToNextServer();
   bool AdvanceToNextFolder();
