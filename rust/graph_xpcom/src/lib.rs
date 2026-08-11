@@ -14,7 +14,8 @@ use protocol_shared::{
         SafeExchangeFolderListener, SafeExchangeMessageCreateListener,
         SafeExchangeMessageFetchListener, SafeExchangeMessageSyncListener,
         SafeExchangeSimpleOperationListener, SafeUrlListener,
-        calendar_listener::SafeCalendarListener, uri::SafeUri,
+        calendar_listener::SafeCalendarListener, event_listener::SafeGraphCalendarEventListener,
+        uri::SafeUri,
     },
     xpcom_io,
 };
@@ -26,8 +27,8 @@ use xpcom::{
     interfaces::{
         IExchangeFolderListener, IExchangeMessageCreateListener, IExchangeMessageFetchListener,
         IExchangeMessageSyncListener, IExchangeSimpleOperationListener,
-        IGraphCalendarDiscoveryListener, nsIInputStream, nsIMsgIncomingServer, nsIURI,
-        nsIUrlListener,
+        IGraphCalendarDiscoveryListener, IGraphCalendarEventListener, nsIInputStream,
+        nsIMsgIncomingServer, nsIURI, nsIUrlListener,
     },
     nsIID, xpcom_method,
 };
@@ -599,6 +600,28 @@ impl XpcomGraphBridge {
         let listener = SafeCalendarListener::new(listener);
 
         moz_task::spawn_local("detect_calendars", client.detect_calendars(listener)).detach();
+
+        Ok(())
+    }
+
+    xpcom_method!(sync_calendar_events => SyncCalendarEvents(
+        calendar_id: *const nsACString,
+        listener: *const IGraphCalendarEventListener
+    ));
+    fn sync_calendar_events(
+        &self,
+        calendar_id: &nsACString,
+        listener: &IGraphCalendarEventListener,
+    ) -> Result<(), nsresult> {
+        let client = self.client()?;
+
+        let listener = SafeGraphCalendarEventListener::new(listener);
+
+        moz_task::spawn_local(
+            "sync_calendar_items",
+            client.sync_calendar_items(listener, calendar_id.to_string()),
+        )
+        .detach();
 
         Ok(())
     }

@@ -110,10 +110,13 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
                             .unwrap_or(0);
                         let message_id = message.outlook_item.entity.id.required("message id")?;
                         let is_read = message.is_read.required("message is_read")?;
-                        let is_flagged = message.flag
-                            == Some(FollowupFlag {
+                        let is_flagged = matches!(
+                            message.flag,
+                            Some(FollowupFlag {
                                 flag_status: Some(FollowupFlagStatus::Flagged),
-                            });
+                                ..
+                            })
+                        );
                         let preview_text = message
                             .body_preview
                             .as_ref()

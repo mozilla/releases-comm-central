@@ -50,6 +50,27 @@ export class GraphProvider {
    * @returns {Promise<Array<calICalendar>>} Array of found calendars
    */
   static async detectCalendars(username, password, location, _savePassword, _extraProperties) {
+    const { graphCalendarClient, uri } = GraphProvider.getAndInitializeClient(username, location);
+    if (graphCalendarClient) {
+      const listener = new CalendarDiscoveryCallbackListener();
+      graphCalendarClient.detectCalendars(listener);
+      await listener.deferred.promise;
+
+      const discoveredCalendars = listener.calendars.map(value => {
+        const calendar = cal.manager.initializeCalendar(value.id, "graph", Services.io.newURI(uri));
+        calendar.name = value.name;
+        calendar.readOnly = value.readOnly;
+        const graphCalendar = calendar.QueryInterface(Ci.IGraphCalendar);
+        graphCalendar.username = username;
+        graphCalendar.location = location;
+        return calendar;
+      });
+      return discoveredCalendars;
+    }
+    return [];
+  }
+
+  static getAndInitializeClient(username, location) {
     const graphCalendarClient = Cc["@mozilla.org/messenger/graph-client;1"].createInstance(
       Ci.IGraphCalendarClient
     );
@@ -67,19 +88,9 @@ export class GraphProvider {
       // configured Graph email account.
       const uri = incomingServer.getStringValue("ews_url");
       exchangeClient.initialize(uri, incomingServer, false, "", "", "", "", "");
-      const listener = new CalendarDiscoveryCallbackListener();
-      graphCalendarClient.detectCalendars(listener);
-      await listener.deferred.promise;
-
-      const discoveredCalendars = listener.calendars.map(value => {
-        const calendar = cal.manager.initializeCalendar(value.id, "graph", Services.io.newURI(uri));
-        calendar.name = value.name;
-        calendar.readOnly = value.readOnly;
-        return calendar;
-      });
-      return discoveredCalendars;
+      return { graphCalendarClient, uri };
     }
-    return [];
+    return { graphCalendarClient: null, uri: null };
   }
 }
 

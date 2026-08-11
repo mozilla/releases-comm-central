@@ -394,6 +394,13 @@ export class GraphServer extends MockServer {
         } else if (resourcePath === "/me/calendars") {
           responseJsonObject = this.#calendars();
         } else if (
+          (pathMatch = /\/me\/calendars\/([0-9a-zA-Z=]+)\/events/.exec(
+            resourcePath
+          ))
+        ) {
+          const calendarId = pathMatch[1];
+          responseJsonObject = this.#calendarEvents(calendarId);
+        } else if (
           (pathMatch = /\/me\/mailFolders\/([\w\-]+)\/messages\/delta/.exec(
             resourcePath
           ))
@@ -490,7 +497,9 @@ export class GraphServer extends MockServer {
     // If we don't have a body to respond with, it likely means we've failed to
     // find a handler for our request.
     if (Object.keys(responseJsonObject).length === 0) {
-      throw new Error(`Unexpected Graph resource: ${resourcePath}`);
+      throw new Error(
+        `Unexpected Graph resource: ${requestMethod} ${resourcePath}`
+      );
     }
 
     return new HttpResponseData(200, "OK", JSON.stringify(responseJsonObject));
@@ -524,12 +533,9 @@ export class GraphServer extends MockServer {
    */
   #calendars() {
     return {
-      "@odata.context":
-        "https://graph.microsoft.com/v1.0/$metadata#me/calendars",
+      "@odata.context": `${this.endpoint}/v1.0/$metadata#me/calendars`,
       value: [
         {
-          "@odata.id":
-            "https://graph.microsoft.com/v1.0/users('ddfcd489-628b-40d7-b48b-57002df800e5@1717622f-1d94-4d0c-9d74-709fad664b77')/calendars('AAMkAGI2TGuLAAA=')",
           id: "AAMkAGI2TGuLAAA=",
           name: "New Calendar",
           color: "auto",
@@ -548,6 +554,18 @@ export class GraphServer extends MockServer {
           },
         },
       ],
+    };
+  }
+
+  /**
+   * Get calendar events.
+   *
+   * @param {string} _calendarId
+   * @returns {object}
+   */
+  #calendarEvents(_calendarId) {
+    return {
+      value: [],
     };
   }
 

@@ -1,0 +1,16 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsISupports.idl"
+
+#include "IGraphCalendarClient.idl"
+
+[scriptable, uuid(139ee7da-ca6f-4712-8fe6-e33615c5a332)]
+interface IGraphCalendar : nsISupports {
+
+  attribute IGraphCalendarClient client;
+  attribute AUTF8String username;
+  attribute AUTF8String location;
+
+};

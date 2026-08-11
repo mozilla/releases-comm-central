@@ -1,10 +1,14 @@
 # One Graph object schema base name per line.
 
+attendee
 calendar
 calendarCollectionResponse
+dateTimeTimeZone
 directoryObject
 emailAddress
 entity
+event
+eventCollectionResponse
 followupFlag
 internetMessageHeader
 itemBody

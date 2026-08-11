@@ -9,6 +9,7 @@ use crate::Nullable;
 use crate::odata::ExpandOptions;
 use crate::types::calendar::{Calendar, CalendarSelection};
 use crate::types::directory_object::{DirectoryObject, DirectoryObjectSelection};
+use crate::types::event::{Event, EventSelection};
 use crate::types::mail_folder::{MailFolder, MailFolderSelection};
 use crate::types::mailbox_settings::MailboxSettings;
 use crate::types::message::{Message, MessageSelection};
@@ -98,9 +99,11 @@ pub enum UserSelection {
 #[strum_discriminants(strum(serialize_all = "camelCase"))]
 pub enum UserExpand {
     Calendar(ExpandOptions<CalendarSelection>),
+    CalendarView(ExpandOptions<EventSelection>),
     Calendars(ExpandOptions<CalendarSelection>),
     CreatedObjects(ExpandOptions<DirectoryObjectSelection>),
     DirectReports(ExpandOptions<DirectoryObjectSelection>),
+    Events(ExpandOptions<EventSelection>),
     MailFolders(ExpandOptions<MailFolderSelection>),
     Manager(ExpandOptions<DirectoryObjectSelection>),
     MemberOf(ExpandOptions<DirectoryObjectSelection>),
@@ -115,9 +118,11 @@ impl fmt::Display for UserExpand {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             UserExpand::Calendar(opt) => opt.full_format(f, ExpandNames::from(self)),
+            UserExpand::CalendarView(opt) => opt.full_format(f, ExpandNames::from(self)),
             UserExpand::Calendars(opt) => opt.full_format(f, ExpandNames::from(self)),
             UserExpand::CreatedObjects(opt) => opt.full_format(f, ExpandNames::from(self)),
             UserExpand::DirectReports(opt) => opt.full_format(f, ExpandNames::from(self)),
+            UserExpand::Events(opt) => opt.full_format(f, ExpandNames::from(self)),
             UserExpand::MailFolders(opt) => opt.full_format(f, ExpandNames::from(self)),
             UserExpand::Manager(opt) => opt.full_format(f, ExpandNames::from(self)),
             UserExpand::MemberOf(opt) => opt.full_format(f, ExpandNames::from(self)),
@@ -147,6 +152,8 @@ pub struct User {
     pub business_phones: Option<Vec<String>>,
     #[doc = "The user's primary calendar.\n\n Read-only."]
     pub calendar: Option<Calendar>,
+    #[doc = "The calendar view for the calendar.\n\n Read-only. Nullable."]
+    pub calendar_view: Option<Vec<Event>>,
     #[doc = "The user's calendars.\n\n Read-only. Nullable."]
     pub calendars: Option<Vec<Calendar>>,
     #[doc = "The city where the user is located.\n\n Maximum length is 128 characters. Returned only on `$select`. Supports `$filter` (`eq`, `ne`, `not`, `ge`, `le`, `in`, `startsWith`, and `eq` on null values)."]
@@ -182,6 +189,8 @@ pub struct User {
     pub employee_leave_date_time: Option<Nullable<String>>,
     #[doc = "Captures enterprise worker type.\n\n For example, Employee, Contractor, Consultant, or Vendor. Returned only on `$select`. Supports `$filter` (`eq`, `ne`, `not`, `ge`, `le`, `in`, `startsWith`)."]
     pub employee_type: Option<Nullable<String>>,
+    #[doc = "The user's events.\n\n Default is to show Events under the Default Calendar. Read-only. Nullable."]
+    pub events: Option<Vec<Event>>,
     #[doc = "For a guest invited to the tenant using the invitation API, this property represents the invited user's invitation status.\n\n For invited users, the state can be PendingAcceptance or Accepted, or null for all other users. Returned only on `$select`. Supports `$filter` (`eq`, `ne`, `not`, `in`)."]
     pub external_user_state: Option<Nullable<String>>,
     #[doc = "Shows the timestamp for the latest change to the externalUserState property.\n\n Returned only on `$select`. Supports `$filter` (`eq`, `ne`, `not`, `in`)."]

@@ -5,45 +5,48 @@
 // EDITS TO THIS FILE WILL BE OVERWRITTEN
 
 #![doc = "Provides operations to manage the calendars property of the microsoft.graph.user entity.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
-pub mod calendar_id;
-use crate::odata::{ExpansionList, FilterExpression, FilterQuery, Selection};
-use crate::pagination::Paginated;
+pub mod events;
+use crate::odata::{ExpansionList, Selection};
 use crate::types::calendar::{Calendar, CalendarExpand, CalendarSelection};
-use crate::types::calendar_collection_response::CalendarCollectionResponse;
-use crate::{Error, Expand, Filter, Operation, OperationBody, Select};
+use crate::{Error, Expand, Operation, OperationBody, Select};
 use form_urlencoded::Serializer;
 use http::method::Method;
 #[derive(Debug)]
 struct TemplateExpressions {
     endpoint: String,
+    calendar_id: String,
 }
 fn format_path(template_expressions: &TemplateExpressions) -> String {
-    let TemplateExpressions { endpoint } = template_expressions;
+    let TemplateExpressions {
+        endpoint,
+        calendar_id,
+    } = template_expressions;
     let endpoint = endpoint.trim_end_matches('/');
-    format!("{endpoint}/me/calendars")
+    format!("{endpoint}/me/calendars/{calendar_id}")
 }
-#[doc = "List calendars\n\nGet all the user's calendars (/calendars navigation property), get the calendars from the default calendar group or from a specific calendar group.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/user-list-calendars?view=graph-rest-1.0)."]
+#[doc = "Get calendars from me\n\nThe user's calendars. Read-only. Nullable."]
 #[derive(Debug)]
 pub struct Get {
     template_expressions: TemplateExpressions,
     selection: Selection<CalendarSelection>,
     expansion: ExpansionList<CalendarExpand>,
-    filter: FilterQuery,
 }
 impl Get {
     #[must_use]
-    pub fn new(endpoint: String) -> Self {
+    pub fn new(endpoint: String, calendar_id: String) -> Self {
         Self {
-            template_expressions: TemplateExpressions { endpoint },
+            template_expressions: TemplateExpressions {
+                endpoint,
+                calendar_id,
+            },
             selection: Selection::default(),
             expansion: ExpansionList::default(),
-            filter: FilterQuery::default(),
         }
     }
 }
 impl Operation for Get {
     const METHOD: Method = Method::GET;
-    type Response = Paginated<CalendarCollectionResponse>;
+    type Response = Calendar;
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
         let mut params = Serializer::new(String::new());
         if let Some((select, selection)) = self.selection.pair() {
@@ -51,9 +54,6 @@ impl Operation for Get {
         }
         if let Some((expand, expansion)) = self.expansion.pair() {
             params.append_pair(expand, &expansion);
-        }
-        if let Some((filter, expression)) = self.filter.pair() {
-            params.append_pair(filter, &expression);
         }
         let params = params.finish();
         let path = format_path(&self.template_expressions);
@@ -87,30 +87,28 @@ impl Expand for Get {
         self.expansion.extend(properties);
     }
 }
-impl Filter for Get {
-    fn filter(&mut self, expression: FilterExpression) {
-        self.filter.set(expression);
-    }
-}
-#[doc = "Create calendar\n\nCreate a new calendar for a user.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/user-post-calendars?view=graph-rest-1.0)."]
+#[doc = "Update the navigation property calendars in me"]
 #[derive(Debug)]
-pub struct Post {
+pub struct Patch {
     template_expressions: TemplateExpressions,
     body: OperationBody<Calendar>,
     selection: Selection<CalendarSelection>,
 }
-impl Post {
+impl Patch {
     #[must_use]
-    pub fn new(endpoint: String, body: OperationBody<Calendar>) -> Self {
+    pub fn new(endpoint: String, calendar_id: String, body: OperationBody<Calendar>) -> Self {
         Self {
-            template_expressions: TemplateExpressions { endpoint },
+            template_expressions: TemplateExpressions {
+                endpoint,
+                calendar_id,
+            },
             body,
             selection: Selection::default(),
         }
     }
 }
-impl Operation for Post {
-    const METHOD: Method = Method::POST;
+impl Operation for Patch {
+    const METHOD: Method = Method::PATCH;
     type Response = Calendar;
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
         let mut params = Serializer::new(String::new());
@@ -140,12 +138,40 @@ impl Operation for Post {
         Ok(request)
     }
 }
-impl Select for Post {
+impl Select for Patch {
     type Properties = CalendarSelection;
     fn select<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
         self.selection.select(properties);
     }
     fn extend_selection<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
         self.selection.extend(properties);
+    }
+}
+#[doc = "Delete calendar\n\nDelete a calendar other than the default calendar.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/calendar-delete?view=graph-rest-1.0)."]
+#[derive(Debug)]
+pub struct Delete {
+    template_expressions: TemplateExpressions,
+}
+impl Delete {
+    #[must_use]
+    pub fn new(endpoint: String, calendar_id: String) -> Self {
+        Self {
+            template_expressions: TemplateExpressions {
+                endpoint,
+                calendar_id,
+            },
+        }
+    }
+}
+impl Operation for Delete {
+    const METHOD: Method = Method::DELETE;
+    type Response = ();
+    fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
+        let uri = format_path(&self.template_expressions)
+            .parse::<http::uri::Uri>()
+            .unwrap();
+        let request = http::Request::builder().uri(uri).method(Self::METHOD);
+        let request = request.body(vec![])?;
+        Ok(request)
     }
 }

@@ -13,6 +13,7 @@ pub use uri::*;
 pub use url_listener::*;
 
 pub mod calendar_listener;
+pub mod event_listener;
 mod folder_listener;
 mod message_create_listener;
 mod message_fetch_listener;

@@ -41,7 +41,10 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
             FollowupFlagStatus::NotFlagged
         });
         let message_update = Message {
-            flag: Some(FollowupFlag { flag_status }),
+            flag: Some(FollowupFlag {
+                flag_status,
+                ..Default::default()
+            }),
             ..Default::default()
         };
         let base_api_url = client.base_api_url()?;

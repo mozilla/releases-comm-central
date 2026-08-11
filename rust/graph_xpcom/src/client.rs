@@ -40,6 +40,7 @@ mod mark_as_junk;
 mod move_folder;
 mod move_message;
 mod send_message;
+mod sync_calendar_items;
 mod sync_folder_hierarchy;
 mod sync_messages_for_folder;
 mod update_folder;

@@ -2,6 +2,8 @@
 
 /me
 /me/calendars
+/me/calendars/{calendar-id}
+/me/calendars/{calendar-id}/events
 /me/mailFolders
 /me/mailFolders/{mailFolder-id}
 /me/mailFolders/{mailFolder-id}/copy

@@ -4,11 +4,15 @@
 
 // EDITS TO THIS FILE WILL BE OVERWRITTEN
 
+pub mod attendee;
 pub mod calendar;
 pub mod calendar_collection_response;
+pub mod date_time_time_zone;
 pub mod directory_object;
 pub mod email_address;
 pub mod entity;
+pub mod event;
+pub mod event_collection_response;
 pub mod followup_flag;
 pub mod followup_flag_status;
 pub mod importance;

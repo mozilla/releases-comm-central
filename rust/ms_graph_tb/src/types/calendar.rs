@@ -9,6 +9,7 @@ use crate::Nullable;
 use crate::odata::ExpandOptions;
 use crate::types::email_address::EmailAddress;
 use crate::types::entity::{Entity, EntitySelection};
+use crate::types::event::{Event, EventSelection};
 use crate::types::single_value_legacy_extended_property::{
     SingleValueLegacyExtendedProperty, SingleValueLegacyExtendedPropertySelection,
 };
@@ -42,11 +43,15 @@ pub enum CalendarSelection {
 #[strum_discriminants(derive(Display))]
 #[strum_discriminants(strum(serialize_all = "camelCase"))]
 pub enum CalendarExpand {
+    CalendarView(ExpandOptions<EventSelection>),
+    Events(ExpandOptions<EventSelection>),
     SingleValueExtendedProperties(ExpandOptions<SingleValueLegacyExtendedPropertySelection>),
 }
 impl fmt::Display for CalendarExpand {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
+            CalendarExpand::CalendarView(opt) => opt.full_format(f, ExpandNames::from(self)),
+            CalendarExpand::Events(opt) => opt.full_format(f, ExpandNames::from(self)),
             CalendarExpand::SingleValueExtendedProperties(opt) => {
                 opt.full_format(f, ExpandNames::from(self))
             }
@@ -57,6 +62,8 @@ impl fmt::Display for CalendarExpand {
 #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Calendar {
+    #[doc = "The calendar view for the calendar.\n\n Navigation property. Read-only."]
+    pub calendar_view: Option<Vec<Event>>,
     #[doc = "true if the user can write to the calendar, false otherwise.\n\n This property is true for the user who created the calendar. This property is also true for a user who shared a calendar and granted write access."]
     pub can_edit: Option<Nullable<bool>>,
     #[doc = "true if the user has permission to share the calendar, false otherwise.\n\n Only the user who created the calendar can share it."]
@@ -68,6 +75,8 @@ pub struct Calendar {
     #[doc = "Inherited properties from `Entity`."]
     #[serde(flatten)]
     pub entity: Entity,
+    #[doc = "The events in the calendar.\n\n Navigation property. Read-only."]
+    pub events: Option<Vec<Event>>,
     #[doc = "The calendar color, expressed in a hex color code of three hexadecimal values, each ranging from 00 to FF and representing the red, green, or blue components of the color in the RGB color space.\n\n If the user has never explicitly set a color for the calendar, this property is empty. Read-only."]
     pub hex_color: Option<Nullable<String>>,
     #[doc = "true if this is the default calendar where new events are created by default, false otherwise."]
