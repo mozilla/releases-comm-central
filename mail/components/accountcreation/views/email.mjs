@@ -600,6 +600,7 @@ class AccountHubEmail extends HTMLElement {
     this.#emailFooter.canBack(stateDetails.previousStep);
     this.#emailFooter.canForward(stateDetails.nextStep);
     this.#emailFooter.canCustom(stateDetails.customActionFluentID);
+    this.#emailFooter.setCurrentSubview(this.#currentState);
     this.#emailFooter.setDirectionalButtonText(
       "forward",
       stateDetails.customForwardFluentID

@@ -321,6 +321,7 @@ class AccountHubAddressBook extends HTMLElement {
     // an option.
     this.#footer.canBack(stateDetails.previousStep);
     this.#footer.canForward(stateDetails.nextStep);
+    this.#footer.setCurrentSubview(this.#currentState);
 
     // The footer forward button is disabled by default.
     this.#footer.toggleForwardDisabled(!stateDetails.forwardEnabled);

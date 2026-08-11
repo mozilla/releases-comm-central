@@ -61,6 +61,26 @@ class AccountHubFooter extends HTMLElement {
     this.querySelector("#back").hidden = !value;
   }
 
+  /**
+   * Appends the current subview to the Support link so analytics can capture
+   * where in Account Hub the user asked for help
+   *
+   * @param {string} subview - current subview identifier
+   */
+  setCurrentSubview(subview) {
+    const supportLink = this.querySelector("#hubSupport");
+    if (!supportLink) {
+      return;
+    }
+    const url = new URL(
+      Services.urlFormatter.formatURLPref("app.support.baseURL")
+    );
+    url.searchParams.set("utm_source", "thunderbird_account_hub");
+    url.searchParams.set("utm_medium", "referral");
+    url.searchParams.set("utm_content", subview);
+    supportLink.href = url.href;
+  }
+
   canForward(value) {
     this.querySelector("#forward").hidden = !value;
   }
