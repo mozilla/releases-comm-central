@@ -81,6 +81,7 @@ Thunderbird Source Tree Documentation
    :caption: Testing
    :maxdepth: 1
 
+   /testing/axe
    /testing/helpers
    /testing/memory_leaks
 

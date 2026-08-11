@@ -25,6 +25,7 @@ the implementation itself.
 - NetworkTestUtils - `resource://testing-common/mailnews/NetworkTestUtils.sys.mjs`; add a redirect at any domain to a local test server.
 - HttpsServer - `resource://testing-common/mailnews/HttpsProxy.sys.mjs`; add an HTTPS proxy in front of a local test server.
 - PromiseTestUtils - `resource://testing-common/mailnews/PromiseTestUtils.sys.mjs`; converts some common transactions to a promise.
+- AxeHelpers - `resource://testing-common/mail/AxeHelpers.sys.mjs`; see [axe accessibility checks](axe.md).
 - MailTestUtils - `resource://testing-common/mailnews/MailTestUtils.sys.mjs`
 - OAuth2TestUtils - `resource://testing-common/mailnews/OAuth2TestUtils.sys.mjs`
 - MockExternalProtocolService - `resource://testing-common/mailnews/MockExternalProtocolService.sys.mjs`; intercept opening protocols that aren't handled internally.
