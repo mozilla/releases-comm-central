@@ -243,6 +243,7 @@ add_task(async function testGetRefreshToken() {
 /**
  * Tests that `OAuth2` objects are correctly cached and reused. An object can
  * be reused if:
+ * - it's for the same issuer, and
  * - it's for the same endpoint, and
  * - it's for the same username, and
  * - the scopes it was granted, or the scopes it's requesting if it hasn't

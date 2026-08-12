@@ -144,6 +144,7 @@ EXTRA_JS_MODULES += [
     "MsgPasswordAuthModule.sys.mjs",
     "MsgProtocolInfo.sys.mjs",
     "OAuth2.sys.mjs",
+    "OAuth2CustomDetails.sys.mjs",
     "OAuth2Module.sys.mjs",
     "OAuth2Providers.sys.mjs",
     "TemplateUtils.sys.mjs",

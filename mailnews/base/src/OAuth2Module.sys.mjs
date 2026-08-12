@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { OAuth2 } from "resource:///modules/OAuth2.sys.mjs";
+import { OAuth2CustomDetails } from "resource:///modules/OAuth2CustomDetails.sys.mjs";
 import { OAuth2Providers } from "resource:///modules/OAuth2Providers.sys.mjs";
 import { enforcePrimaryPassword } from "resource:///modules/PrimaryPassword.sys.mjs";
 
@@ -32,6 +33,8 @@ OAuth2Module.prototype = {
   QueryInterface: ChromeUtils.generateQI(["msgIOAuth2Module"]),
 
   initFromOutgoing(server, customDetails) {
+    customDetails ??= OAuth2CustomDetails.fromOutgoingServer(server);
+
     return this.initFromHostname(
       server.serverURI.host,
       server.username,
@@ -41,6 +44,8 @@ OAuth2Module.prototype = {
   },
 
   initFromMail(server, customDetails) {
+    customDetails ??= OAuth2CustomDetails.fromIncomingServer(server);
+
     return this.initFromHostname(
       server.hostname,
       server.username,
@@ -91,8 +96,8 @@ OAuth2Module.prototype = {
     this._scope = allScopes;
     this._requiredScopes = scopeSet(requiredScopes);
 
-    // Look for an existing `OAuth2` object with the same endpoint, username
-    // and scope.
+    // Look for an existing `OAuth2` object with the same issuer, endpoint,
+    // username, and scope.
     for (const weakRef of oAuth2Objects) {
       const oauth = weakRef.deref();
       if (!oauth) {
@@ -100,6 +105,7 @@ OAuth2Module.prototype = {
         continue;
       }
       if (
+        oauth.loginOrigin == this._loginOrigin &&
         oauth.authorizationEndpoint == issuerDetails.authorizationEndpoint &&
         oauth.username == username &&
         scopeSet(oauth.scope).isSupersetOf(this._requiredScopes)
@@ -300,13 +306,9 @@ OAuth2Module.prototype = {
    * specific username domains. If the username is not email-like, or no
    * matching extension registration exists, the normal built-in provider lookup is used.
    *
-   * If there is no known provider for the given hostname, `customDetails` must
-   * be non-null, and `customDetails.issuer` and `customDetails.scopes` must also
-   * contain valid values.
-   *
-   * If there is no known provider and any of `customDetails`,
-   * `customDetails.issuer` or `customDetails.scopes` is empty, this function
-   * will return `null`.
+   * Generic custom details replace the registered hostname details completely.
+   * Protocol-specific details (i.e., Exchange) are instead applied on top of
+   * registered hostname details, allowing empty values to inherit defaults.
    *
    * @param {string} hostname
    * @param {string} username
@@ -315,6 +317,14 @@ OAuth2Module.prototype = {
    * @returns {OAuth2Providers.hostnameDetails}
    */
   _getDetailsWithOverrides(hostname, username, type, customDetails) {
+    if (customDetails instanceof OAuth2CustomDetails) {
+      return {
+        issuer: customDetails.issuer,
+        allScopes: customDetails.scopes,
+        requiredScopes: customDetails.scopes,
+      };
+    }
+
     let details = OAuth2Providers.getHostnameDetails(hostname, type, username);
 
     if (!customDetails) {

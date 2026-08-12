@@ -21,6 +21,24 @@ outgoing-server-edit =
     .label = Edit outgoing server…
     .accesskey = o
 
+oauth2-use-custom-details =
+    .label = Use custom OAuth2 settings
+    .accesskey = c
+oauth2-client-id-label =
+    .value = Client ID:
+    .accesskey = l
+oauth2-authorization-endpoint-label =
+    .value = Authorization endpoint:
+    .accesskey = h
+oauth2-token-endpoint-label =
+    .value = Token endpoint:
+    .accesskey = t
+oauth2-scopes-label =
+    .value = Scopes:
+    .accesskey = s
+oauth2-redirection-endpoint-label =
+    .value = Redirect URI:
+    .accesskey = r
 oauth2-use-pkce =
     .label = Use PKCE
     .accesskey = k
@@ -41,15 +59,15 @@ ews-applicationid-label =
 ews-tenantid-label =
   .value = Tenant ID:
   .accesskey = t
-ews-redirecturi-label =
-  .value = Redirect URI:
-  .accesskey = r
 ews-endpointhost-label =
   .value = Endpoint Host:
   .accesskey = e
 ews-oauthscopes-label =
   .value = OAuth Scopes:
   .accesskey = s
+ews-redirecturi-label =
+  .value = Redirect URI:
+  .accesskey = r
 
 # Variables:
 #   $extensionName (String) - The display name of the extension providing

@@ -504,6 +504,7 @@ pref("mail.default_sendlater_uri", "mailbox://nobody@Local%20Folders/Unsent%20Me
 
 pref("mail.server.default.clientid", "");
 pref("mail.smtpserver.default.clientid", "");
+pref("mail.server.default.oauth2.useExternalBrowser", true);
 
 // This is not to be enabled by default until the prerequisite
 // changes are completed. See here for details:

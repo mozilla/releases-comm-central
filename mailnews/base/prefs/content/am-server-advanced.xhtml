@@ -57,7 +57,7 @@
             accesskey="&serverDirectory.accesskey;"
             control="serverDirectory"
           />
-          <hbox class="input-container">
+          <hbox flex="1" class="input-container">
             <html:input
               id="serverDirectory"
               type="text"
@@ -162,6 +162,107 @@
             accesskey="&overrideNamespaces.accesskey;"
           />
         </hbox>
+
+        <vbox id="oauth2CustomDetailsContainer">
+          <separator class="groove" />
+          <checkbox
+            id="oauth2UseCustomDetails"
+            amsa_persist="true"
+            data-l10n-id="oauth2-use-custom-details"
+            oncommand="onChangeOAuth2CustomDetails(this)"
+          />
+          <hbox class="indent">
+            <!-- Labels -->
+            <vbox>
+              <hbox flex="1" align="center">
+                <label
+                  id="oauth2ClientIdLabel"
+                  data-l10n-id="oauth2-client-id-label"
+                  control="oauth2ClientId"
+                />
+              </hbox>
+              <hbox flex="1" align="center">
+                <label
+                  id="oauth2AuthorizationEndpointLabel"
+                  data-l10n-id="oauth2-authorization-endpoint-label"
+                  control="oauth2AuthorizationEndpoint"
+                />
+              </hbox>
+              <hbox flex="1" align="center">
+                <label
+                  id="oauth2TokenEndpointLabel"
+                  data-l10n-id="oauth2-token-endpoint-label"
+                  control="oauth2TokenEndpoint"
+                />
+              </hbox>
+              <hbox flex="1" align="center">
+                <label
+                  id="oauth2ScopesLabel"
+                  data-l10n-id="oauth2-scopes-label"
+                  control="oauth2Scopes"
+                />
+              </hbox>
+              <hbox flex="1" align="center">
+                <label
+                  id="oauth2RedirectionEndpointLabel"
+                  data-l10n-id="oauth2-redirection-endpoint-label"
+                  control="oauth2RedirectionEndpoint"
+                />
+              </hbox>
+            </vbox>
+            <!-- Input Fields -->
+            <vbox flex="1">
+              <html:input
+                id="oauth2ClientId"
+                type="text"
+                class="input-inline"
+                aria-labelledby="oauth2ClientIdLabel"
+                amsa_persist="true"
+              />
+              <html:input
+                id="oauth2AuthorizationEndpoint"
+                type="url"
+                class="input-inline"
+                aria-labelledby="oauth2AuthorizationEndpointLabel"
+                amsa_persist="true"
+              />
+              <html:input
+                id="oauth2TokenEndpoint"
+                type="url"
+                class="input-inline"
+                aria-labelledby="oauth2TokenEndpointLabel"
+                amsa_persist="true"
+              />
+              <html:input
+                id="oauth2Scopes"
+                type="text"
+                class="input-inline"
+                aria-labelledby="oauth2ScopesLabel"
+                amsa_persist="true"
+              />
+              <html:input
+                id="oauth2RedirectionEndpoint"
+                type="url"
+                class="input-inline"
+                aria-labelledby="oauth2RedirectionEndpointLabel"
+                amsa_persist="true"
+                placeholder="http://localhost"
+              />
+            </vbox>
+          </hbox>
+          <vbox class="indent">
+            <checkbox
+              id="oauth2UsePKCE"
+              amsa_persist="true"
+              data-l10n-id="oauth2-use-pkce"
+            />
+            <checkbox
+              id="oauth2UseExternalBrowser"
+              amsa_persist="true"
+              data-l10n-id="oauth2-use-system-browser"
+            />
+          </vbox>
+        </vbox>
       </vbox>
 
       <!-- POP3 Panel -->
@@ -268,13 +369,6 @@
               </hbox>
               <hbox flex="1" align="center">
                 <label
-                  id="exchangeRedirectUriLabel"
-                  data-l10n-id="ews-redirecturi-label"
-                  control="exchangeRedirectUri"
-                />
-              </hbox>
-              <hbox flex="1" align="center">
-                <label
                   id="exchangeEndpointHostLabel"
                   data-l10n-id="ews-endpointhost-label"
                   control="exchangeEndpointHost"
@@ -285,6 +379,13 @@
                   id="exchangeOAuthScopesLabel"
                   data-l10n-id="ews-oauthscopes-label"
                   control="exchangeOAuthScopes"
+                />
+              </hbox>
+              <hbox flex="1" align="center">
+                <label
+                  id="exchangeRedirectUriLabel"
+                  data-l10n-id="ews-redirecturi-label"
+                  control="exchangeRedirectUri"
                 />
               </hbox>
             </vbox>
@@ -305,16 +406,8 @@
                 amsa_persist="true"
               />
               <html:input
-                id="exchangeRedirectUri"
-                type="text"
-                class="input-inline"
-                aria-labelledby="exchangeRedirectUriLabel"
-                amsa_persist="true"
-                placeholder="http://localhost"
-              />
-              <html:input
                 id="exchangeEndpointHost"
-                type="text"
+                type="url"
                 class="input-inline"
                 aria-labelledby="exchangeEndpointHostLabel"
                 amsa_persist="true"
@@ -325,6 +418,14 @@
                 class="input-inline"
                 aria-labelledby="exchangeOAuthScopesLabel"
                 amsa_persist="true"
+              />
+              <html:input
+                id="exchangeRedirectUri"
+                type="url"
+                class="input-inline"
+                aria-labelledby="exchangeRedirectUriLabel"
+                amsa_persist="true"
+                placeholder="http://localhost"
               />
             </vbox>
           </hbox>

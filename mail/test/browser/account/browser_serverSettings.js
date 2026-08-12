@@ -14,6 +14,7 @@ const { wait_for_frame_load } = ChromeUtils.importESModule(
 // The accounts to use in tests.
 var ewsAccount;
 var imapAccount;
+var smtpServer;
 
 add_setup(() => {
   document
@@ -33,7 +34,7 @@ add_setup(() => {
   );
 
   imapAccount = MailServices.accounts.createAccount();
-  imapAccount.addIdentity(MailServices.accounts.createIdentity());
+  const imapIdentity = MailServices.accounts.createIdentity();
 
   // Create an IMAP server and attach it to the account.
   imapAccount.incomingServer = MailServices.accounts.createIncomingServer(
@@ -41,6 +42,11 @@ add_setup(() => {
     "localhost",
     "imap"
   );
+  smtpServer = MailServices.outgoingServer.createServer("smtp");
+  smtpServer.QueryInterface(Ci.nsISmtpServer).hostname = "localhost";
+  smtpServer.username = "user";
+  imapIdentity.smtpServerKey = smtpServer.key;
+  imapAccount.addIdentity(imapIdentity);
 
   registerCleanupFunction(() => {
     // Make sure the account doesn't persist beyond the test.
@@ -48,6 +54,7 @@ add_setup(() => {
     imapAccount.incomingServer.closeCachedConnections();
     MailServices.accounts.removeAccount(ewsAccount, false);
     MailServices.accounts.removeAccount(imapAccount, false);
+    MailServices.outgoingServer.deleteServer(smtpServer);
   });
 });
 
@@ -350,6 +357,10 @@ add_task(async function test_ews_advanced_settings_hidden_boxes() {
  * @returns {HTMLElement}
  */
 async function waitForAdvancedDialog(tab) {
+  await TestUtils.waitForCondition(
+    () => tab.browser.contentWindow.gSubDialog._topDialog?._frame,
+    "Waiting for the advanced server settings subdialog to open."
+  );
   return await wait_for_frame_load(
     tab.browser.contentWindow.gSubDialog._topDialog._frame,
     "chrome://messenger/content/am-server-advanced.xhtml"
@@ -372,17 +383,14 @@ async function acceptDialogAndWaitForClose(dialog) {
  *
  * @param {HTMLIFrameElement} iframe
  * @param {HTMLElement} accountSettingsTab
+ * @param {string} buttonId
  * @returns {HTMLElement}
  */
-async function openAdvancedDialog(iframe, accountSettingsTab) {
-  const advancedSettingsButton = iframe.getElementById(
-    "server.ewsAdvancedButton"
-  );
-  Assert.ok(
-    !!advancedSettingsButton,
-    "Should have advanced settings button for EWS."
-  );
+async function openAdvancedDialog(iframe, accountSettingsTab, buttonId) {
+  const advancedSettingsButton = iframe.getElementById(buttonId);
+  Assert.ok(!!advancedSettingsButton, "Should have advanced settings button.");
 
+  advancedSettingsButton.scrollIntoView({ block: "center" });
   EventUtils.synthesizeMouseAtCenter(
     advancedSettingsButton,
     {},
@@ -391,6 +399,208 @@ async function openAdvancedDialog(iframe, accountSettingsTab) {
 
   return await waitForAdvancedDialog(accountSettingsTab);
 }
+
+/** Tests that changing the IMAP custom OAuth settings updates both servers. */
+add_task(async function test_imap_oauth_settings() {
+  const incomingPrefRoot = `mail.server.${imapAccount.incomingServer.key}.oauth2.`;
+  const outgoingPrefRoot = `mail.smtpserver.${smtpServer.key}.oauth2.`;
+
+  try {
+    Assert.equal(
+      MailServices.outgoingServer.getServerByIdentity(
+        imapAccount.defaultIdentity
+      ).key,
+      smtpServer.key,
+      "The IMAP account should use the test SMTP server."
+    );
+
+    await open_advanced_settings(async accountSettingsTab => {
+      const iframe = await selectAccountInSettings(
+        accountSettingsTab,
+        imapAccount.key
+      );
+
+      // Confirm everything is in its default starting state.
+
+      const dataElements = iframe.querySelectorAll('[id^="server.oauth2."]');
+      for (const element of dataElements) {
+        const dataElement = element.id;
+        Assert.ok(element, `Data element ${dataElement} should exist.`);
+        Assert.ok(
+          BrowserTestUtils.isHidden(element),
+          `Data element ${dataElement} should not be visible.`
+        );
+      }
+
+      const advancedDialog = await openAdvancedDialog(
+        iframe,
+        accountSettingsTab,
+        "server.imapAdvancedButton"
+      );
+
+      const useCustomDetails = advancedDialog.document.getElementById(
+        "oauth2UseCustomDetails"
+      );
+      Assert.ok(
+        useCustomDetails,
+        "Custom OAuth details checkbox should exist."
+      );
+      Assert.ok(
+        !useCustomDetails.checked,
+        "Custom OAuth details checkbox should be unchecked."
+      );
+
+      const inputElementSelector =
+        '[id^="oauth2"]:is(input,checkbox):not(#oauth2UseCustomDetails)';
+      const inputElements =
+        advancedDialog.document.querySelectorAll(inputElementSelector);
+      for (const inputElement of inputElements) {
+        Assert.ok(
+          inputElement.disabled,
+          `Input element ${inputElement.id} should be disabled.`
+        );
+      }
+
+      Assert.ok(
+        advancedDialog.document.getElementById("oauth2UseExternalBrowser")
+          .checked,
+        "External browser flow should be enabled by default."
+      );
+
+      // Confirm modifications when custom details are enabled.
+
+      EventUtils.synthesizeMouseAtCenter(
+        useCustomDetails,
+        {},
+        useCustomDetails.documentGlobal
+      );
+
+      for (const inputElement of inputElements) {
+        Assert.ok(
+          !inputElement.disabled,
+          `Input element ${inputElement.id} should be enabled.`
+        );
+      }
+
+      for (const inputElement of inputElements) {
+        inputElement.focus();
+        if (inputElement.tagName == "checkbox") {
+          EventUtils.synthesizeMouseAtCenter(
+            inputElement,
+            {},
+            inputElement.documentGlobal
+          );
+        } else {
+          EventUtils.sendString("changed_value", inputElement.documentGlobal);
+        }
+      }
+
+      await acceptDialogAndWaitForClose(advancedDialog);
+
+      const incomingPrefs = Services.prefs.getBranch(incomingPrefRoot);
+      const outgoingPrefs = Services.prefs.getBranch(outgoingPrefRoot);
+      const stringPrefs = [
+        "clientId",
+        "authorizationEndpoint",
+        "tokenEndpoint",
+        "scopes",
+        "redirectionEndpoint",
+      ];
+      for (const [prefs, protocol] of [
+        [incomingPrefs, "IMAP"],
+        [outgoingPrefs, "SMTP"],
+      ]) {
+        Assert.ok(
+          prefs.getBoolPref("useCustomDetails"),
+          `${protocol}: custom OAuth settings should have been enabled.`
+        );
+        Assert.ok(
+          prefs.getBoolPref("usePKCE"),
+          `${protocol}: PKCE should have been enabled.`
+        );
+        Assert.ok(
+          !prefs.getBoolPref("useExternalBrowser"),
+          `${protocol}: external browser flow should have been disabled.`
+        );
+
+        for (const prefName of stringPrefs) {
+          Assert.equal(
+            prefs.getStringPref(prefName),
+            "changed_value",
+            `${protocol}: ${prefName} should match the edited value.`
+          );
+        }
+      }
+
+      const incomingIssuer = incomingPrefs.getStringPref("issuer");
+      Assert.stringMatches(
+        incomingIssuer,
+        /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/,
+        "issuer id is a UUID"
+      );
+      Assert.equal(
+        outgoingPrefs.getStringPref("issuer"),
+        incomingIssuer,
+        "SMTP should use the same internal issuer as IMAP."
+      );
+
+      // Confirm return to default when the custom details switch back off.
+
+      const advancedDialogReopened = await openAdvancedDialog(
+        iframe,
+        accountSettingsTab,
+        "server.imapAdvancedButton"
+      );
+      const useCustomDetailsReopened =
+        advancedDialogReopened.document.getElementById(
+          "oauth2UseCustomDetails"
+        );
+      Assert.ok(
+        useCustomDetailsReopened,
+        "Custom OAuth details checkbox should exist."
+      );
+      Assert.ok(
+        useCustomDetailsReopened.checked,
+        "Custom OAuth details checkbox should be checked."
+      );
+
+      useCustomDetailsReopened.scrollIntoView({ block: "center" });
+      EventUtils.synthesizeMouseAtCenter(
+        useCustomDetailsReopened,
+        {},
+        useCustomDetailsReopened.documentGlobal
+      );
+      Assert.ok(
+        !useCustomDetailsReopened.checked,
+        "Custom OAuth details checkbox should be unchecked."
+      );
+
+      const inputElementsReopened =
+        advancedDialogReopened.document.querySelectorAll(inputElementSelector);
+      for (const inputElement of inputElementsReopened) {
+        Assert.ok(
+          inputElement.disabled,
+          `Input element ${inputElement.id} should be disabled.`
+        );
+      }
+
+      await acceptDialogAndWaitForClose(advancedDialogReopened);
+
+      for (const [prefs, protocol] of [
+        [incomingPrefs, "IMAP"],
+        [outgoingPrefs, "SMTP"],
+      ]) {
+        Assert.ok(
+          !prefs.getBoolPref("useCustomDetails"),
+          `Disabling custom OAuth for IMAP should disable it for ${protocol}.`
+        );
+      }
+    });
+  } finally {
+    Services.prefs.deleteBranch(incomingPrefRoot);
+    Services.prefs.deleteBranch(outgoingPrefRoot);
+  }
+});
 
 /** Tests that setting the EWS Host URL changes the incoming server settings. */
 add_task(async function test_ews_host_url_settings() {
@@ -412,7 +622,11 @@ add_task(async function test_ews_host_url_settings() {
       "EWS URL data element should be hidden."
     );
 
-    const advancedDialog = await openAdvancedDialog(iframe, accountSettingsTab);
+    const advancedDialog = await openAdvancedDialog(
+      iframe,
+      accountSettingsTab,
+      "server.ewsAdvancedButton"
+    );
 
     const ewsUrlElement = advancedDialog.document.getElementById("exchangeUrl");
     Assert.ok(!!ewsUrlElement, "Should have the Host URL element.");
@@ -448,7 +662,8 @@ add_task(async function test_ews_host_url_settings() {
     // Reopen the dialog and reset the value.
     const advancedDialogReopened = await openAdvancedDialog(
       iframe,
-      accountSettingsTab
+      accountSettingsTab,
+      "server.ewsAdvancedButton"
     );
 
     const ewsUrlElementReopened =
@@ -481,16 +696,19 @@ add_task(async function test_ews_host_url_settings() {
   });
 });
 
-/** Tests that changing the OAuth override settings correctly updates the incoming server. */
+/**
+ * Tests that changing the Exchange OAuth override settings correctly updates
+ * the incoming server.
+ */
 add_task(async function test_override_oauth_settings() {
   const incomingServer = ewsAccount.incomingServer;
   const originalSettings = {
     exchangeOverrideOAuthDetails: incomingServer.exchangeOverrideOAuthDetails,
     exchangeApplicationId: incomingServer.exchangeApplicationId,
     exchangeTenantId: incomingServer.exchangeTenantId,
-    exchangeRedirectUri: incomingServer.exchangeRedirectUri,
     exchangeEndpointHost: incomingServer.exchangeEndpointHost,
     exchangeOAuthScopes: incomingServer.exchangeOAuthScopes,
+    exchangeRedirectUri: incomingServer.exchangeRedirectUri,
     exchangeUseExternalBrowser: incomingServer.exchangeUseExternalBrowser,
     exchangeUsePKCE: incomingServer.exchangeUsePKCE,
   };
@@ -513,33 +731,31 @@ add_task(async function test_override_oauth_settings() {
         "ews.exchangeOverrideOAuthDetails",
         "ews.exchangeApplicationId",
         "ews.exchangeTenantId",
-        "ews.exchangeRedirectUri",
         "ews.exchangeEndpointHost",
         "ews.exchangeOAuthScopes",
+        "ews.exchangeRedirectUri",
         "ews.exchangeUseExternalBrowser",
         "ews.exchangeUsePKCE",
       ];
       for (const dataElement of dataElements) {
         const element = iframe.getElementById(dataElement);
-        Assert.ok(!!element, `Data element ${dataElement} should exist.`);
+        Assert.ok(element, `Data element ${dataElement} should exist.`);
         Assert.ok(
-          !element.visible,
+          BrowserTestUtils.isHidden(element),
           `Data element ${dataElement} should not be visible.`
         );
       }
 
       const advancedDialog = await openAdvancedDialog(
         iframe,
-        accountSettingsTab
+        accountSettingsTab,
+        "server.ewsAdvancedButton"
       );
 
       const oauthOverrideControl = advancedDialog.document.getElementById(
         "exchangeOverrideOAuthDetails"
       );
-      Assert.ok(
-        !!oauthOverrideControl,
-        "OAuth override checkbox should exist."
-      );
+      Assert.ok(oauthOverrideControl, "OAuth override checkbox should exist.");
       Assert.ok(
         !oauthOverrideControl.checked,
         "OAuth override checkbox should be unchecked."
@@ -548,9 +764,9 @@ add_task(async function test_override_oauth_settings() {
       const inputElementIds = [
         "exchangeApplicationId",
         "exchangeTenantId",
-        "exchangeRedirectUri",
         "exchangeEndpointHost",
         "exchangeOAuthScopes",
+        "exchangeRedirectUri",
         "exchangeUseExternalBrowser",
         "exchangeUsePKCE",
       ];
@@ -588,11 +804,6 @@ add_task(async function test_override_oauth_settings() {
             inputElement.documentGlobal
           );
         } else {
-          EventUtils.synthesizeKey(
-            "KEY_Delete",
-            {},
-            inputElement.documentGlobal
-          );
           EventUtils.sendString("changed_value", inputElement.documentGlobal);
         }
       }
@@ -614,11 +825,6 @@ add_task(async function test_override_oauth_settings() {
         "EWS Tenant ID should have changed."
       );
       Assert.equal(
-        incomingServer.exchangeRedirectUri,
-        "changed_value",
-        "EWS Redirect URI should have changed."
-      );
-      Assert.equal(
         incomingServer.exchangeEndpointHost,
         "changed_value",
         "EWS Endpoint Host should have changed."
@@ -628,12 +834,18 @@ add_task(async function test_override_oauth_settings() {
         "changed_value",
         "EWS OAuth Scopes should have changed."
       );
+      Assert.equal(
+        incomingServer.exchangeRedirectUri,
+        "changed_value",
+        "EWS Redirect URI should have changed."
+      );
 
       // Confirm return to default when the override control switches back off.
 
       const advancedDialogReopened = await openAdvancedDialog(
         iframe,
-        accountSettingsTab
+        accountSettingsTab,
+        "server.ewsAdvancedButton"
       );
 
       const overrideControlReopened =
@@ -641,7 +853,7 @@ add_task(async function test_override_oauth_settings() {
           "exchangeOverrideOAuthDetails"
         );
       Assert.ok(
-        !!overrideControlReopened,
+        overrideControlReopened,
         "OAuth override checkbox should exist."
       );
       Assert.ok(

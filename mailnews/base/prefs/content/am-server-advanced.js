@@ -35,6 +35,7 @@ function onLoad() {
   if (gServerSettings.serverType == "imap") {
     document.getElementById("pop3Panel").hidden = true;
     document.getElementById("ewsPanel").hidden = true;
+    setOAuth2CustomDetailsState(gServerSettings.oauth2UseCustomDetails);
   } else if (gServerSettings.serverType == "pop3") {
     document.getElementById("imapPanel").hidden = true;
     document.getElementById("ewsPanel").hidden = true;
@@ -172,9 +173,9 @@ function setExchangeOAuthOverrideState(isEnabled) {
   const oauthElementIds = [
     "exchangeApplicationId",
     "exchangeTenantId",
-    "exchangeRedirectUri",
     "exchangeEndpointHost",
     "exchangeOAuthScopes",
+    "exchangeRedirectUri",
     "exchangeUsePKCE",
     "exchangeUseExternalBrowser",
   ];
@@ -185,4 +186,23 @@ function setExchangeOAuthOverrideState(isEnabled) {
 
 function onChangeExchangeOAuthOverride(overrideSelector) {
   setExchangeOAuthOverrideState(overrideSelector.checked);
+}
+
+function setOAuth2CustomDetailsState(isEnabled) {
+  const oauthElementIds = [
+    "oauth2ClientId",
+    "oauth2AuthorizationEndpoint",
+    "oauth2TokenEndpoint",
+    "oauth2Scopes",
+    "oauth2RedirectionEndpoint",
+    "oauth2UsePKCE",
+    "oauth2UseExternalBrowser",
+  ];
+  for (const elementId of oauthElementIds) {
+    document.getElementById(elementId).disabled = !isEnabled;
+  }
+}
+
+function onChangeOAuth2CustomDetails(checkbox) {
+  setOAuth2CustomDetailsState(checkbox.checked);
 }
