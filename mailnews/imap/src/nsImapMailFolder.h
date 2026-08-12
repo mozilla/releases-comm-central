@@ -6,6 +6,7 @@
 #define COMM_MAILNEWS_IMAP_SRC_NSIMAPMAILFOLDER_H_
 
 #include "mozilla/Attributes.h"
+#include "mozilla/UniquePtr.h"
 #include "nsIMsgDBView.h"
 #include "nsMsgDBFolder.h"
 #include "nsIImapMailFolderSink.h"
@@ -206,6 +207,8 @@ class nsImapMailFolder : public nsMsgDBFolder,
                          public nsIImapMessageSink,
                          public nsICopyMessageListener,
                          public nsIMsgFilterHitNotify {
+  struct FilterCopyState;
+
   static const uint32_t PLAYBACK_TIMER_INTERVAL_IN_MS = 500;
 
  public:
@@ -445,6 +448,11 @@ class nsImapMailFolder : public nsMsgDBFolder,
                          nsIMsgWindow* msgWindow, bool allowUndo);
   nsresult GetMoveCoalescer();
   nsresult PlaybackCoalescedOperations();
+  nsresult AddNewImapHeaderToDB(nsIMsgDBHdr* aHeader);
+  void FilterCopyStarted(nsIMsgDBHdr* aHeader);
+  void FilterCopyCompleted(nsMsgKey aKey, nsresult aStatus);
+  bool HasFilterCopy(nsMsgKey aKey) const;
+  nsresult ProcessDeferredFilterActions();
   virtual nsresult CreateBaseMessageURI(const nsACString& aURI) override;
   // offline-ish methods
   nsresult GetClearedOriginalOp(nsIMsgOfflineImapOperation* op,
@@ -480,6 +488,9 @@ class nsImapMailFolder : public nsMsgDBFolder,
   bool m_msgMovedByFilter;
   RefPtr<nsImapMoveCoalescer>
       m_moveCoalescer;  // strictly owned by the nsImapMailFolder
+  // Filter copies may stream source bodies asynchronously. We keep destructive
+  // actions pending until every copy has either succeeded or failed.
+  mozilla::UniquePtr<FilterCopyState> m_filterCopyState;
   nsTArray<RefPtr<nsIMsgDBHdr>> m_junkMessagesToMarkAsRead;
   /// list of keys to be moved to the junk folder
   nsTArray<nsMsgKey> mSpamKeysToMove;

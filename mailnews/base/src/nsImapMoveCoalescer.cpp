@@ -45,6 +45,14 @@ nsresult nsImapMoveCoalescer::AddMove(nsIMsgFolder* folder, nsMsgKey key) {
   return NS_OK;
 }
 
+void nsImapMoveCoalescer::RemoveMove(nsMsgKey key) {
+  m_hasPendingMoves = false;
+  for (auto& keys : m_sourceKeyArrays) {
+    keys.RemoveElement(key);
+    m_hasPendingMoves |= !keys.IsEmpty();
+  }
+}
+
 nsresult nsImapMoveCoalescer::PlaybackMoves(
     bool doNewMailNotification /* = false */) {
   int32_t numFolders = m_destFolders.Count();

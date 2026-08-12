@@ -29,6 +29,7 @@ class nsImapMoveCoalescer : public nsIUrlListener {
   nsImapMoveCoalescer(nsIMsgFolder* sourceFolder, nsIMsgWindow* msgWindow);
 
   nsresult AddMove(nsIMsgFolder* folder, nsMsgKey key);
+  void RemoveMove(nsMsgKey key);
   nsresult PlaybackMoves(bool doNewMailNotification = false);
   // this lets the caller store keys in an arbitrary number of buckets. If the
   // bucket for the passed in index doesn't exist, it will get created.

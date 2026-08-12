@@ -4,6 +4,8 @@
 
 #include "nsImapMailFolder.h"
 
+#include <algorithm>
+
 #include "ImapTypes.h"
 #include "msgCore.h"
 #include "CopyMessageStreamListener.h"
@@ -190,6 +192,19 @@ NS_IMETHODIMP nsMsgQuota::SetLimit(uint64_t aLimit) {
   mLimit = aLimit;
   return NS_OK;
 }
+
+struct nsImapMailFolder::FilterCopyState {
+  struct DeferredDelete {
+    RefPtr<nsIMsgDBHdr> mHeader;
+    bool mMessageWasNew;
+  };
+
+  nsTArray<RefPtr<nsIMsgDBHdr>> mHeaders;
+  nsTArray<nsMsgKey> mFailedKeys;
+  nsTArray<DeferredDelete> mDeferredDeletes;
+  uint32_t mPendingCopies = 0;
+  bool mPlaybackRequested = false;
+};
 
 //
 //  nsImapMailFolder
@@ -2908,6 +2923,41 @@ nsresult nsImapMailFolder::ParseAdoptedHeaderLine(const char* aMessageLine,
   return NS_OK;
 }
 
+// Adds an IMAP header to the database and notifies listeners. We call this
+// both for newly parsed headers and when restoring a header whose destructive
+// filter action was dropped. It does nothing if the header is already present.
+nsresult nsImapMailFolder::AddNewImapHeaderToDB(nsIMsgDBHdr* aHeader) {
+  nsresult rv = GetDatabase();
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsMsgKey key;
+  rv = aHeader->GetMessageKey(&key);
+  NS_ENSURE_SUCCESS(rv, rv);
+  bool containsKey = false;
+  if (NS_SUCCEEDED(mDatabase->ContainsKey(key, &containsKey)) && containsKey) {
+    return NS_OK;
+  }
+
+  nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+      mozilla::components::FolderNotification::Service();
+  // Check if this header corresponds to a pseudo header from a
+  // pseudo-offline move. If so, notify listeners that its key changed.
+  nsCString messageId;
+  aHeader->GetMessageId(messageId);
+  nsMsgKey pseudoKey = m_pseudoHdrs.MaybeGet(messageId).valueOr(nsMsgKey_None);
+  if (pseudoKey != nsMsgKey_None) {
+    notifier->NotifyMsgKeyChanged(pseudoKey, aHeader);
+    m_pseudoHdrs.Remove(messageId);
+  }
+
+  rv = mDatabase->AddNewHdrToDB(aHeader, true);
+  NS_ENSURE_SUCCESS(rv, rv);
+  notifier->NotifyMsgAdded(aHeader);
+  // Mark the header as not yet reported classified.
+  OrProcessingFlags(key, nsMsgProcessingFlags::NotReportedClassified);
+  return NS_OK;
+}
+
 // Helper for ParseMsgHdrs().
 nsresult nsImapMailFolder::NormalEndHeaderParseStream(
     nsIImapProtocol* aProtocol, nsIImapUrl* imapUrl) {
@@ -3074,25 +3124,7 @@ nsresult nsImapMailFolder::NormalEndHeaderParseStream(
   }
   // here we need to tweak flags from uid state..
   if (mDatabase && (!m_msgMovedByFilter || ShowDeletedMessages())) {
-    nsCOMPtr<nsIMsgFolderNotificationService> notifier =
-        mozilla::components::FolderNotification::Service();
-    // Check if this header corresponds to a pseudo header
-    // we have from doing a pseudo-offline move and then downloading
-    // the real header from the server. In that case, we notify
-    // db/folder listeners that the pseudo-header has become the new
-    // header, i.e., the key has changed.
-    nsCString newMessageId;
-    newMsgHdr->GetMessageId(newMessageId);
-    nsMsgKey pseudoKey =
-        m_pseudoHdrs.MaybeGet(newMessageId).valueOr(nsMsgKey_None);
-    if (pseudoKey != nsMsgKey_None) {
-      notifier->NotifyMsgKeyChanged(pseudoKey, newMsgHdr);
-      m_pseudoHdrs.Remove(newMessageId);
-    }
-    mDatabase->AddNewHdrToDB(newMsgHdr, true);
-    notifier->NotifyMsgAdded(newMsgHdr);
-    // mark the header as not yet reported classified
-    OrProcessingFlags(m_curMsgUid, nsMsgProcessingFlags::NotReportedClassified);
+    (void)AddNewImapHeaderToDB(newMsgHdr);
   }
 
   if (m_isGmailServer) {
@@ -3393,6 +3425,16 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
             // msgHdr->OrFlags(nsMsgMessageFlags::Read, &newFlags);  // mark
             // read in trash.
           } else {
+            if (HasFilterCopy(msgKey)) {
+              // The copy process for this message is still in flight. Defer the
+              // actual deletion until every copy has completed, but suppress
+              // the header and stop filtering now, as a delete would.
+              m_filterCopyState->mDeferredDeletes.AppendElement(
+                  FilterCopyState::DeferredDelete{msgHdr.get(), msgIsNew});
+              m_msgMovedByFilter = true;
+              *applyMore = false;
+              break;
+            }
             mDatabase->MarkRead(msgKey, true, nullptr);
             mDatabase->MarkImapDeleted(msgKey, true, nullptr);
             rv = StoreImapFlags(kImapMsgSeenFlag | kImapMsgDeletedFlag, true,
@@ -3447,20 +3489,43 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
               mDatabase->MarkMDNSent(msgKey, true, nullptr);
             }
 
+            // We register the copy before resolving the target folder so a
+            // failure is recorded and still holds back a later move or delete.
+            FilterCopyStarted(msgHdr);
+            RefPtr<CopyServiceListener> copyListener =
+                new CopyServiceListener();
+            copyListener->mStopCopyFn = [self = RefPtr(this), header = msgHdr,
+                                         filter = nsCOMPtr(filter),
+                                         filterAction, msgKey, loggingEnabled,
+                                         completed =
+                                             false](nsresult status) mutable {
+              // CopyMessages() can report a synchronous failure after the
+              // copy service has already called OnStopCopy().
+              if (completed) {
+                return NS_OK;
+              }
+              completed = true;
+              if (NS_FAILED(status) && loggingEnabled) {
+                (void)filter->LogRuleHitFail(filterAction, header, status,
+                                             "filter-failure-copy-failed"_ns);
+              }
+              self->FilterCopyCompleted(msgKey, status);
+              return NS_OK;
+            };
             nsCOMPtr<nsIMsgFolder> dstFolder;
             rv = GetExistingFolder(actionTargetFolderUri,
                                    getter_AddRefs(dstFolder));
-            if (NS_FAILED(rv)) break;
+            if (NS_FAILED(rv)) {
+              (void)copyListener->OnStopCopy(rv);
+              break;
+            }
 
             nsCOMPtr<nsIMsgCopyService> copyService =
                 mozilla::components::Copy::Service();
             rv = copyService->CopyMessages(this, {&*msgHdr}, dstFolder, false,
-                                           nullptr, msgWindow, false);
+                                           copyListener, msgWindow, false);
             if (NS_FAILED(rv)) {
-              if (loggingEnabled) {
-                (void)filter->LogRuleHitFail(filterAction, msgHdr, rv,
-                                             "filter-failure-copy-failed"_ns);
-              }
+              (void)copyListener->OnStopCopy(rv);
             }
           }
         } break;
@@ -8275,7 +8340,133 @@ bool nsImapMailFolder::ShowPreviewText() {
   return Preferences::GetBool("mail.biff.alert.show_preview");
 }
 
+void nsImapMailFolder::FilterCopyStarted(nsIMsgDBHdr* aHeader) {
+  if (!m_filterCopyState) {
+    m_filterCopyState = mozilla::MakeUnique<FilterCopyState>();
+  }
+  nsMsgKey key;
+  aHeader->GetMessageKey(&key);
+  if (!HasFilterCopy(key)) {
+    m_filterCopyState->mHeaders.AppendElement(aHeader);
+  }
+  ++m_filterCopyState->mPendingCopies;
+}
+
+void nsImapMailFolder::FilterCopyCompleted(nsMsgKey aKey, nsresult aStatus) {
+  MOZ_ASSERT(m_filterCopyState);
+  if (!m_filterCopyState) {
+    return;
+  }
+  MOZ_ASSERT(m_filterCopyState->mPendingCopies > 0);
+  if (NS_FAILED(aStatus) && !m_filterCopyState->mFailedKeys.Contains(aKey)) {
+    m_filterCopyState->mFailedKeys.AppendElement(aKey);
+  }
+  --m_filterCopyState->mPendingCopies;
+  if (m_filterCopyState->mPendingCopies == 0 &&
+      m_filterCopyState->mPlaybackRequested) {
+    if (NS_FAILED(PlaybackCoalescedOperations())) {
+      NS_WARNING("Deferred filter action playback failed");
+    }
+  }
+}
+
+bool nsImapMailFolder::HasFilterCopy(nsMsgKey aKey) const {
+  if (!m_filterCopyState) {
+    return false;
+  }
+  for (const auto& header : m_filterCopyState->mHeaders) {
+    nsMsgKey key;
+    header->GetMessageKey(&key);
+    if (key == aKey) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// Runs destructive filter actions after all copies finish. We drop moves and
+// deletes for failed copies, batch the remaining deletes, and restore headers
+// for messages that remain.
+nsresult nsImapMailFolder::ProcessDeferredFilterActions() {
+  auto state = std::move(m_filterCopyState);
+  if (!state) {
+    return NS_OK;
+  }
+  nsresult finalResult = NS_OK;
+  nsTArray<nsMsgKey> keysToDelete;
+  uint32_t newMessagesToDelete = 0;
+
+  if (m_moveCoalescer) {
+    for (nsMsgKey key : state->mFailedKeys) {
+      m_moveCoalescer->RemoveMove(key);
+    }
+  }
+
+  for (const auto& deferredDelete : state->mDeferredDeletes) {
+    nsMsgKey key;
+    deferredDelete.mHeader->GetMessageKey(&key);
+    if (state->mFailedKeys.Contains(key)) {
+      continue;
+    }
+
+    keysToDelete.AppendElement(key);
+    if (deferredDelete.mMessageWasNew) {
+      ++newMessagesToDelete;
+    }
+  }
+
+  if (!keysToDelete.IsEmpty()) {
+    nsresult rv = StoreImapFlags(kImapMsgSeenFlag | kImapMsgDeletedFlag, true,
+                                 keysToDelete, nullptr);
+    if (NS_FAILED(rv)) {
+      // Treat the messages like failed copies so their headers reappear.
+      finalResult = rv;
+      for (nsMsgKey key : keysToDelete) {
+        if (!state->mFailedKeys.Contains(key)) {
+          state->mFailedKeys.AppendElement(key);
+        }
+      }
+    } else {
+      for (nsMsgKey key : keysToDelete) {
+        mDatabase->MarkRead(key, true, nullptr);
+        mDatabase->MarkImapDeleted(key, true, nullptr);
+        mDatabase->MarkNotNew(key, nullptr);
+      }
+      if (!m_filterListRequiresBody && newMessagesToDelete > 0) {
+        int32_t numNewMessages;
+        GetNumNewMessages(false, &numNewMessages);
+        SetNumNewMessages(std::max(
+            0, numNewMessages - static_cast<int32_t>(newMessagesToDelete)));
+      }
+    }
+  }
+
+  for (const auto& header : state->mHeaders) {
+    nsMsgKey key;
+    header->GetMessageKey(&key);
+    if (state->mFailedKeys.Contains(key)) {
+      nsresult rv = AddNewImapHeaderToDB(header);
+      if (NS_FAILED(rv)) {
+        finalResult = rv;
+      }
+    }
+  }
+
+  return finalResult;
+}
+
 nsresult nsImapMailFolder::PlaybackCoalescedOperations() {
+  if (m_filterCopyState && m_filterCopyState->mPendingCopies > 0) {
+    // We must not move or delete source messages while filter copies are
+    // still reading them. The last copy completion resumes playback.
+    m_filterCopyState->mPlaybackRequested = true;
+    return NS_OK;
+  }
+  if (m_filterCopyState) {
+    m_filterCopyState->mPlaybackRequested = false;
+  }
+  nsresult deferredResult = ProcessDeferredFilterActions();
+
   if (m_moveCoalescer) {
     nsTArray<nsMsgKey>* junkKeysToClassify = m_moveCoalescer->GetKeyBucket(0);
     if (junkKeysToClassify && !junkKeysToClassify->IsEmpty()) {
@@ -8290,9 +8481,10 @@ nsresult nsImapMailFolder::PlaybackCoalescedOperations() {
                           EmptyCString(), *nonJunkKeysToClassify, nullptr);
       nonJunkKeysToClassify->Clear();
     }
-    return m_moveCoalescer->PlaybackMoves(ShowPreviewText());
+    nsresult playbackResult = m_moveCoalescer->PlaybackMoves(ShowPreviewText());
+    return NS_FAILED(playbackResult) ? playbackResult : deferredResult;
   }
-  return NS_OK;  // must not be any coalesced operations
+  return deferredResult;  // must not be any coalesced operations
 }
 
 NS_IMETHODIMP
