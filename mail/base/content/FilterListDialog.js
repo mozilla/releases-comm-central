@@ -47,6 +47,7 @@ var msgMoveMotion = {
 };
 
 var gRunningFilters = false;
+var gCanFilterAfterTheFact = false;
 
 window.addEventListener("message", event => {
   if (!gRunningFilters) {
@@ -67,16 +68,12 @@ window.addEventListener("message", event => {
     }
     document.getElementById("statusbar-icon").removeAttribute("value");
   } else if (event.data.meteors == "stop-meteors") {
-    try {
-      gRunFiltersButton.disabled = false;
-      gRunningFilters = false;
-
-      if (this.progressMeterVisible) {
-        document.getElementById("statusbar-progresspanel").collapsed = true;
-        this.progressMeterVisible = false;
+    if (this.progressMeterVisible) {
+      const progressPanel = document.getElementById("statusbar-progresspanel");
+      if (progressPanel) {
+        progressPanel.collapsed = true;
       }
-    } catch (ex) {
-      // can get here if closing window when running filters
+      this.progressMeterVisible = false;
     }
   }
 });
@@ -238,9 +235,7 @@ function setFilterFolder(msgFolder) {
     gCurrentFilterList.saveToDefaultFile();
   }
 
-  // Setting this attribute should go away in bug 473009.
   gServerMenu._folder = msgFolder;
-  // Calling this should go away in bug 802609.
   gServerMenu.menupopup.selectFolder(msgFolder);
 
   // Calling getEditableFilterList will detect any errors in msgFilterRules.dat,
@@ -269,7 +264,11 @@ function setFilterFolder(msgFolder) {
 
   const canFilterAfterTheFact = CanRunFiltersAfterTheFact(msgFolder.server);
   gRunFiltersFolder.disabled = !canFilterAfterTheFact;
-  gRunFiltersButton.disabled = !canFilterAfterTheFact;
+  gCanFilterAfterTheFact = canFilterAfterTheFact;
+  // Always disable the run button here. It will be re-enabled by
+  // updateButtons() in setRunFolder() only after a folder is selected,
+  // so the button is never enabled while the picker shows "Choose folder…".
+  gRunFiltersButton.disabled = true;
   document.getElementById("folderPickerPrefix").disabled =
     !canFilterAfterTheFact;
 
@@ -323,10 +322,16 @@ function setFilterFolder(msgFolder) {
  * @param {nsIMsgFolder} aFolder - nsIMsgFolder folder to select.
  */
 function setRunFolder(aFolder) {
-  // Setting this attribute should go away in bug 473009.
   gRunFiltersFolder._folder = aFolder;
-  // Calling this should go away in bug 802609.
-  gRunFiltersFolder.menupopup.selectFolder(gRunFiltersFolder._folder);
+  const found = gRunFiltersFolder.menupopup.selectFolder(
+    gRunFiltersFolder._folder
+  );
+  // selectFolder returns false if the folder wasn't found in the menu,
+  // e.g. because it hasn't been populated yet. Clear _folder so the
+  // button stays disabled and the picker shows "Choose folder…".
+  if (!found) {
+    gRunFiltersFolder._folder = null;
+  }
   updateButtons();
 }
 
@@ -553,6 +558,9 @@ function onDeleteFilter() {
   if (newSelectionIndex > -1) {
     gFilterListbox.selectedIndex = newSelectionIndex;
     updateViewPosition(-1);
+  } else {
+    gFilterListbox.clearSelection();
+    updateButtons();
   }
 }
 
@@ -743,7 +751,29 @@ function runSelectedFilters() {
   MailServices.filters.applyFiltersToFolders(
     filterList,
     [folder],
-    gFilterListMsgWindow
+    gFilterListMsgWindow,
+    {
+      onStopOperation(_status) {
+        gRunningFilters = false;
+
+        // If the user closed the dialog while filters were running,
+        // the DOM is destroyed. Bail out instantly to avoid Dead Object
+        // exceptions and TypeErrors on null elements.
+        if (window.closed) {
+          return;
+        }
+
+        updateButtons();
+
+        // Failsafe against stray status/meteor messages.
+        // Once Bug 2002774 has landed, this can probably be removed.
+        if (window.progressMeterVisible) {
+          document.getElementById("statusbar-progresspanel").collapsed = true;
+          window.progressMeterVisible = false;
+        }
+        document.getElementById("statusText").setAttribute("value", "");
+      },
+    }
   );
 }
 
@@ -923,11 +953,15 @@ function updateButtons() {
   gDeleteButton.disabled = !numFiltersSelected;
 
   // we can run multiple filters on a folder
-  // so only disable this UI if no filters are selected
-  document.getElementById("folderPickerPrefix").disabled = !numFiltersSelected;
-  gRunFiltersFolder.disabled = !numFiltersSelected;
+  // so only disable this UI if no filters are selected, or if the server
+  // can't run filters after the fact.
+  document.getElementById("folderPickerPrefix").disabled =
+    !numFiltersSelected || !gCanFilterAfterTheFact;
+  gRunFiltersFolder.disabled = !numFiltersSelected || !gCanFilterAfterTheFact;
   gRunFiltersButton.disabled =
-    !numFiltersSelected || !gRunFiltersFolder._folder;
+    !numFiltersSelected ||
+    !gRunFiltersFolder._folder ||
+    !gCanFilterAfterTheFact;
   // "up" and "top" enabled only if one filter is selected, and it's not the first
   // don't use gFilterListbox.currentIndex here, it's buggy when we've just changed the
   // children in the list (via rebuildFilterList)

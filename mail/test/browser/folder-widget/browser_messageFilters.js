@@ -31,6 +31,7 @@ var { MailServices } = ChromeUtils.importESModule(
 );
 
 var folderA, NNTPAccount;
+var localServer;
 
 add_setup(async function () {
   setupNNTPDaemon();
@@ -39,8 +40,8 @@ add_setup(async function () {
   // we need one message to select and open
   await make_message_sets_in_folders([folderA], [{ count: 1 }]);
 
-  const server = setupLocalServer(NNTP_PORT);
-  NNTPAccount = MailServices.accounts.findAccountForServer(server);
+  localServer = setupLocalServer(NNTP_PORT);
+  NNTPAccount = MailServices.accounts.findAccountForServer(localServer);
 
   registerCleanupFunction(() => {
     folderA.deleteSelf(null);
@@ -517,6 +518,171 @@ add_task(async function test_can_quit_on_filter_changes() {
     filterWin.document.getElementById("filterList").itemCount,
     0,
     "Previously created filter should have been deleted."
+  );
+
+  await BrowserTestUtils.closeWindow(filterWin);
+});
+
+async function create_simple_subject_filter(filterc) {
+  async function fill_in_filter_fields(fec) {
+    const filterName = fec.document.getElementById("filterName");
+    filterName.value = "A Simple Newsgroup Filter";
+    fec.document.getElementById("searchAttr0").value =
+      Ci.nsMsgSearchAttrib.Subject;
+    fec.document.getElementById("searchOp0").value = Ci.nsMsgSearchOp.Contains;
+    const searchVal = fec.document.getElementById("searchVal0").input;
+    searchVal.setAttribute("value", "doesnotexist");
+
+    const filterActions = fec.document.getElementById("filterActionList");
+    const firstAction = filterActions.getItemAtIndex(0);
+    firstAction.setAttribute("value", "markasflagged");
+
+    fec.document.querySelector("dialog").acceptDialog();
+  }
+
+  // Let's open the filter editor.
+  const dialogPromise = BrowserTestUtils.promiseAlertDialog(
+    null,
+    "chrome://messenger/content/FilterEditor.xhtml",
+    {
+      callback: fill_in_filter_fields,
+    }
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    filterc.document.getElementById("newButton"),
+    {},
+    filterc
+  );
+  await dialogPromise;
+}
+
+/**
+ * Test that after running a filter with a local-only action on an
+ * already-parsed folder, gRunningFilters is cleared correctly.
+ * This covers the bug where gRunningFilters stayed true permanently for
+ * filter runs that involve no URLs (offline search, local DB actions).
+ */
+add_task(async function test_filter_clears_running_state() {
+  const folder = await create_folder("FilterRunningState");
+  await make_message_sets_in_folders([folder], [{ count: 1 }]);
+  // Visit the folder to ensure its database is parsed, so filter execution
+  // uses only SearchWOUrls() and local DB actions — no URLs, no meteors.
+  await be_in_folder(folder);
+
+  info("Open the message filters dialog and create a simple filter");
+  const filterWin = await openFiltersDialogs();
+  await create_simple_subject_filter(filterWin);
+
+  info("Click the 'Run Now' button to run the filter");
+  const runFiltersButton =
+    filterWin.document.getElementById("runFiltersButton");
+  Assert.ok(!runFiltersButton.disabled, "'Run Now' button should be enabled");
+  EventUtils.synthesizeMouseAtCenter(runFiltersButton, {}, filterWin);
+
+  Assert.ok(
+    filterWin.gRunningFilters,
+    "gRunningFilters should be true while filters run"
+  );
+  info(
+    "Wait for filter execution to complete and gRunningFilters to be cleared"
+  );
+  await TestUtils.waitForCondition(
+    () => !filterWin.gRunningFilters,
+    "gRunningFilters should be cleared after filter execution completes"
+  );
+  Assert.ok(
+    !runFiltersButton.disabled,
+    "'Run Now' button should still be enabled"
+  );
+
+  await BrowserTestUtils.closeWindow(filterWin);
+});
+
+/**
+ * Test that the "Run Filters" button becomes enabled when a folder is
+ * selected and filters exist.
+ */
+add_task(async function test_run_button_disabled_state() {
+  await be_in_folder(localServer.rootFolder);
+
+  info("Open the message filters dialog on the news server.");
+  const filterWin = await openFiltersDialogs();
+
+  const runFiltersButton =
+    filterWin.document.getElementById("runFiltersButton");
+  const editFiltersButton = filterWin.document.getElementById("editButton");
+  Assert.ok(runFiltersButton.disabled, "'Run Now' button should be disabled");
+  Assert.ok(editFiltersButton.disabled, "'Edit' button should be disabled");
+
+  info("Select a newsgroup folder in the server menu.");
+  const serverMenu = filterWin.document.getElementById("serverMenu");
+  let popupshown = BrowserTestUtils.waitForEvent(serverMenu, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(serverMenu, {}, serverMenu.documentGlobal);
+  await popupshown;
+
+  const nntp = serverMenu.firstElementChild.children.item(1);
+  Assert.equal(
+    nntp.label,
+    "localhost",
+    "should show 'localhost' nntp server item in menu"
+  );
+  popupshown = BrowserTestUtils.waitForEvent(nntp, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(nntp, {}, nntp.documentGlobal);
+  await popupshown;
+
+  EventUtils.synthesizeKey("KEY_ArrowDown", {}, filterWin);
+  EventUtils.synthesizeKey("KEY_ArrowDown", {}, filterWin);
+  const popuphidden = BrowserTestUtils.waitForEvent(serverMenu, "popuphidden");
+  EventUtils.synthesizeKey("KEY_Enter", {}, filterWin);
+  await popuphidden;
+
+  Assert.equal(
+    serverMenu.label,
+    "test.filter",
+    "should show 'test.filter' newsgroup item in menu"
+  );
+  Assert.ok(
+    runFiltersButton.disabled,
+    "'Run Now' button should still be disabled"
+  );
+  Assert.ok(
+    editFiltersButton.disabled,
+    "'Edit' button should still be disabled"
+  );
+
+  info("Create a simple filter");
+  await create_simple_subject_filter(filterWin);
+
+  Assert.ok(
+    filterWin.gCanFilterAfterTheFact,
+    "news server should support after-the-fact filtering"
+  );
+
+  Assert.ok(
+    !runFiltersButton.disabled,
+    "'Run Now' button should now be enabled"
+  );
+  Assert.ok(!editFiltersButton.disabled, "'Edit' button should now be enabled");
+
+  info("Delete the filter");
+  const deleteAlertPromise = BrowserTestUtils.promiseAlertDialogOpen(
+    "",
+    "chrome://global/content/commonDialog.xhtml",
+    {
+      async callback(win) {
+        EventUtils.synthesizeKey("KEY_Enter", {}, win);
+      },
+    }
+  );
+  EventUtils.synthesizeKey("KEY_Delete", {}, filterWin);
+  await deleteAlertPromise;
+  Assert.ok(
+    runFiltersButton.disabled,
+    "'Run Now' button should be disabled again"
+  );
+  Assert.ok(
+    editFiltersButton.disabled,
+    "'Edit' button should be disabled again"
   );
 
   await BrowserTestUtils.closeWindow(filterWin);
