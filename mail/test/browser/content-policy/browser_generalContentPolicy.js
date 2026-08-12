@@ -165,18 +165,14 @@ var TESTS = [
   {
     type: "Iframe-srcdoc-Image",
     description: "iframe srcdoc img served over http should be blocked",
-    shouldBeBlocked: true,
+    shouldBeBlocked: false, // Blocked, but we don't get a notification currently. Re-enable after bug 2044090.
 
     body: `<html><iframe id='testelement' srcdoc='<html><img src="${url}pass.png" alt="pichere"/>'></html>`,
     checkForAllowed: async element => {
-      if (
-        element.contentDocument.readyState != "complete" ||
-        element.contentWindow.location.href == "about:blank"
-      ) {
-        await new Promise(resolve => element.addEventListener("load", resolve));
-      }
-      const img = element.contentDocument.querySelector("img");
-      return img && img.naturalHeight > 0 && img.naturalWidth > 0;
+      // Blocked for parent process, there won't be a load. See bug 2062748.
+      // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      return element.contentWindow.location.href == "about:blank";
     },
   },
 ];
