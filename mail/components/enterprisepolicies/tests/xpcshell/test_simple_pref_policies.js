@@ -49,6 +49,16 @@ const POLICIES_TESTS = [
     lockedPrefs: { "pdfjs.disabled": true },
   },
 
+  // POLICY: DisableExperimentalFeatures
+  {
+    policies: { DisableExperimentalFeatures: false },
+    unlockedPrefs: { "mail.offer_experimental_features": true },
+  },
+  {
+    policies: { DisableExperimentalFeatures: true },
+    lockedPrefs: { "mail.offer_experimental_features": false },
+  },
+
   // POLICY: DisableQRExport
   {
     policies: { DisableQRExport: false },

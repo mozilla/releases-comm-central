@@ -182,23 +182,25 @@
                 preference="calendar.item.promptDelete"/>
     </hbox>
 #ifndef MOZ_ESR
-    <separator/>
-    <vbox>
-      <hbox class="align-baseline">
-        <html:legend data-l10n-id="new-calendar-legend"></html:legend>
-        <html:span
-          class="badge experimental"
-          role="presentation"
-          data-l10n-id="label-experiment"></html:span>
-      </hbox>
+    <html:div id="newCalendarDialogExperimental">
+      <separator/>
       <vbox>
-        <checkbox id="calendarDialog"
-                  data-l10n-id="new-calendar-checkbox-label"
-                  preference="calendar.dialogs.new.enabled"/>
-        <description data-l10n-id="new-calendar-checkbox-description"
-                      class="tip-caption indent"/>
+        <hbox class="align-baseline">
+          <html:legend data-l10n-id="new-calendar-legend"></html:legend>
+          <html:span
+            class="badge experimental"
+            role="presentation"
+            data-l10n-id="label-experiment"></html:span>
+        </hbox>
+        <vbox>
+          <checkbox id="calendarDialog"
+                    data-l10n-id="new-calendar-checkbox-label"
+                    preference="calendar.dialogs.new.enabled"/>
+          <description data-l10n-id="new-calendar-checkbox-description"
+                        class="tip-caption indent"/>
+        </vbox>
       </vbox>
-    </vbox>
+    </html:div>
 #endif
   </html:fieldset>
   </html:div>

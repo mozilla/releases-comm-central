@@ -1544,6 +1544,9 @@ pref("mail.inappnotifications.bypass-filtering", false);
 pref("mail.inappnotifications.isFlatpak", false);
 pref("mail.inappnotifications.isSnap", false);
 
+// Offer experimental features in settings.
+pref("mail.offer_experimental_features", true);
+
 #ifdef NIGHTLY_BUILD
 // Enable the new experimental conversation view based on Gloda.
 pref("mail.thread.conversation.enabled", false);

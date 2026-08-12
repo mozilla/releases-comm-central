@@ -221,6 +221,18 @@ var gGeneralPane = {
       );
     }
 
+    const offerExperimentalFeatures = Services.prefs.getBoolPref(
+      "mail.offer_experimental_features",
+      true
+    );
+
+    const conversationViewExperimental = document.getElementById(
+      "conversationViewExperimental"
+    );
+    if (conversationViewExperimental) {
+      conversationViewExperimental.hidden = !offerExperimentalFeatures;
+    }
+
     if (AppConstants.platform == "win") {
       this.updateCloseToTray();
     }

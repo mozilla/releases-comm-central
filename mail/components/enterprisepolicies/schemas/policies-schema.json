@@ -238,6 +238,10 @@
       "type": "boolean"
     },
 
+    "DisableExperimentalFeatures": {
+      "type": "boolean"
+    },
+
     "DisableMasterPasswordCreation": {
       "type": "boolean"
     },

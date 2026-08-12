@@ -594,6 +594,17 @@ export var Policies = {
     },
   },
 
+  DisableExperimentalFeatures: {
+    onBeforeUIStartup(manager, param) {
+      if (param) {
+        lazy.PoliciesUtils.setAndLockPref(
+          "mail.offer_experimental_features",
+          false
+        );
+      }
+    },
+  },
+
   DisableMasterPasswordCreation: {
     onBeforeUIStartup(manager, param) {
       if (param) {
